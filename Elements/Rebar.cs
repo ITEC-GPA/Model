@@ -8,7 +8,7 @@ using System.Diagnostics;
 using System.Runtime.Serialization;
 using GPC.Geometry;
 
-namespace GPC.Model
+namespace GPC.Model.Elements
 {
     [Serializable]
     public class Rebar : Element

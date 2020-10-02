@@ -7,7 +7,7 @@
     <ProjectGuid>{175A9B69-232C-41B7-ABA8-2D0BFE9C2062}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>GPCModel</RootNamespace>
+    <RootNamespace>GPC.Model</RootNamespace>
     <AssemblyName>GPCModel</AssemblyName>
     <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
@@ -47,14 +47,22 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Element\Element.cs" />
-    <Compile Include="Element\Edge.cs" />
-    <Compile Include="Element\Edges.cs" />
-    <Compile Include="Element\Mesh.cs" />
-    <Compile Include="Element\Node.cs" />
-    <Compile Include="Element\Shell.cs" />
-    <Compile Include="Element\Rebar.cs" />
-    <Compile Include="Material\Material.cs" />
+    <Compile Include="Elements\Glasses\Glass.cs" />
+    <Compile Include="Elements\Element.cs" />
+    <Compile Include="Elements\Edge.cs" />
+    <Compile Include="Elements\Edges.cs" />
+    <Compile Include="Elements\Glasses\GlassPanel.cs" />
+    <Compile Include="Elements\Glasses\MonolithicGlass.cs" />
+    <Compile Include="Elements\Glasses\LaminatedGlass.cs" />
+    <Compile Include="Elements\Glasses\InsulatingGlass.cs" />
+    <Compile Include="Elements\DoubleInsulatingGlass.cs" />
+    <Compile Include="Elements\Interlayer.cs" />
+    <Compile Include="Elements\Mesh.cs" />
+    <Compile Include="Elements\Node.cs" />
+    <Compile Include="Elements\Shell.cs" />
+    <Compile Include="Elements\Rebar.cs" />
+    <Compile Include="Elements\Glasses\TripleInsulatingGlass.cs" />
+    <Compile Include="Materials\Material.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
