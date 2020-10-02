@@ -55,7 +55,7 @@
     <Compile Include="Elements\Glasses\MonolithicGlass.cs" />
     <Compile Include="Elements\Glasses\LaminatedGlass.cs" />
     <Compile Include="Elements\Glasses\InsulatingGlass.cs" />
-    <Compile Include="Elements\DoubleInsulatingGlass.cs" />
+    <Compile Include="Elements\Glasses\DoubleInsulatingGlass.cs" />
     <Compile Include="Elements\Interlayer.cs" />
     <Compile Include="Elements\Mesh.cs" />
     <Compile Include="Elements\Node.cs" />
