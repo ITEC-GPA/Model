@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using GPC.Geometry;
 
-
+#if _never
 namespace GPC.Model.Elements
 {
     [DebuggerDisplay("Id={Id}, Point=({Point.X},{Point.Y},{Point.Z})")]
@@ -111,3 +111,4 @@ namespace GPC.Model.Elements
         }
     }
 }
+#endif

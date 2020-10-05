@@ -14,8 +14,14 @@ namespace GPC.Model.Elements
     [Serializable]
     public class Rebar : Element
     {
-        #region FIELD_CONSTRUCTORS
-        internal Rebar(double diameter, double effectiveArea, Point2d startPoint, Point2d endPoint, Point2d position, RebarMaterial material, Guid guid) : 
+        #region Variables
+        #endregion
+
+        #region Properties
+        #endregion
+
+        #region Public Constructors
+        internal Rebar(double diameter, double effectiveArea, Point2d startPoint, Point2d endPoint, Point2d position, RebarMaterial material, Guid guid) :
             base(guid)
         {
             _diameter = diameter;
@@ -26,10 +32,11 @@ namespace GPC.Model.Elements
             _material = material;
         }
 
-        internal Rebar(double diameter, double effectiveArea, Point2d position, RebarMaterial material) : 
-            this(diameter, effectiveArea, new Point2d(0,0) , new Point2d(0,0), position, material, Guid.Empty)
+        internal Rebar(double diameter, double effectiveArea, Point2d position, RebarMaterial material) :
+            this(diameter, effectiveArea, new Point2d(0, 0), new Point2d(0, 0), position, material, Guid.Empty)
         {
         }
+
         protected Rebar(SerializationInfo info, StreamingContext context) :
             base(info, context)
         {
@@ -46,7 +53,18 @@ namespace GPC.Model.Elements
 
             }
         }
+
         #endregion
+
+        #region Public Methods Override
+        #endregion
+
+        #region Public Methods Specific
+        #endregion
+
+        #region Private Methods Specific
+        #endregion
+
 
         #region FIELD_DECONSTRUCTORS
         #endregion

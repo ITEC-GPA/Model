@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Collections;
 using GPC.Geometry;
-
+#if _never
 namespace GPC.Model
 {
     [DebuggerDisplay("FirstNode={FirstNode.Id}, LastNode={LastNode.Id}")]
@@ -87,3 +87,4 @@ namespace GPC.Model
     }
 
 }
+#endif

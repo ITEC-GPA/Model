@@ -12,14 +12,15 @@ namespace GPC.Model
     {
 
         #region Variables
-        /// <summary>
-        /// </summary>
-        /// <param name="guid">The guid id of the object</param>
+
         protected Guid _guid;
+
         #endregion
 
         #region Properties
-        public abstract int SerializationVersion { get; }
+
+        public Guid Guid => _guid;
+
         #endregion
 
         #region Public Constructors
@@ -33,6 +34,7 @@ namespace GPC.Model
         {
             _guid = (Guid)info.GetValue("Guid", typeof(Guid));
         }
+
         #endregion
 
         #region Public Methods Override
@@ -42,7 +44,6 @@ namespace GPC.Model
         #region Public Methods Specific
         public virtual void GetObjectData(SerializationInfo info, StreamingContext context)
         {
-            info.AddValue("SerializationVersion", SerializationVersion);
             info.AddValue("Guid", _guid);
         }
         #endregion
@@ -52,26 +53,22 @@ namespace GPC.Model
     }
 }
 
+/*
+#region Variables
+#endregion
 
+#region Properties
+#endregion
 
-//#region Variables
-//#endregion
+#region Public Constructors
+#endregion
 
-//#region Properties
-//#endregion
+#region Public Methods Override
+#endregion
 
-//#region Public Constructors
-//#endregion
+#region Public Methods Specific
+#endregion
 
-//#region Public Methods Override
-//#endregion
-
-//#region Public Methods Specific
-//#endregion
-
-//#region Private Methods Specific
-//#endregion
-
-
-
-
+#region Private Methods Specific
+#endregion
+*/

@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using GPC.Geometry;
-
+#if _never
 namespace GPC.Model.Elements
 {
     [DebuggerDisplay("Id={Id}")]
@@ -114,3 +114,4 @@ namespace GPC.Model.Elements
         }
     }
 }
+#endif
