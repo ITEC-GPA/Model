@@ -10,7 +10,6 @@ namespace GPC.Model.Elements
     {
         public MonolithicGlass() : this(Guid.Empty)
         {
-
         }
 
         /// <summary>
@@ -19,7 +18,6 @@ namespace GPC.Model.Elements
         /// <param name="guid">The guid of the glass</param>
         public MonolithicGlass(Guid guid) : base(guid)
         {
-
         }
     }
 }

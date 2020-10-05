@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using GPC.Geometry;
 
-namespace GPC.Model
+namespace GPC.Model.Elements
 {
     [DebuggerDisplay("Id={Id}")]
     public class Shell : Element

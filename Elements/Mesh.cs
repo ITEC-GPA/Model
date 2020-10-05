@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using GPC.Geometry;
 
-namespace GPC.Model
+namespace GPC.Model.Elements
 {
     public class Mesh : Element
     {

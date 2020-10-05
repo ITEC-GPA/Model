@@ -1,5 +1,5 @@
 ﻿using System;
-
+using System.Runtime.Serialization;
 
 namespace GPC.Model.Elements
 {
@@ -8,18 +8,37 @@ namespace GPC.Model.Elements
     /// </summary>
 
     [Serializable]
-    public abstract class Element : Object
+    public abstract class Element : ModelObject
     {
-        private Guid _guid;
+        #region Variables
+        #endregion
 
-        /// <summary>
-        /// </summary>
-        /// <param name="guid">The guid id of the object</param>
+        #region Properties
+        #endregion
+
+        #region Public Constructors
         protected Element(Guid guid)
+            : base(guid)
         {
-            Guid = guid;
         }
 
-        public Guid Guid { get => _guid; private set => _guid = value; }
+        protected Element(SerializationInfo info, StreamingContext context)
+            : base(info, context)
+        {
+        }
+        #endregion
+
+        #region Public Methods Override
+        public override void GetObjectData(SerializationInfo info, StreamingContext context)
+        {
+            base.GetObjectData(info, context);
+        }
+        #endregion
+
+        #region Public Methods Specific
+        #endregion
+
+        #region Private Methods Specific
+        #endregion
     }
 }

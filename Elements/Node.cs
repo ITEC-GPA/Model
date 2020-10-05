@@ -5,7 +5,7 @@ using System.Diagnostics;
 using GPC.Geometry;
 
 
-namespace GPC.Model
+namespace GPC.Model.Elements
 {
     [DebuggerDisplay("Id={Id}, Point=({Point.X},{Point.Y},{Point.Z})")]
     public class Node
