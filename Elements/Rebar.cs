@@ -8,6 +8,7 @@ using System.Diagnostics;
 using System.Runtime.Serialization;
 using GPC.Geometry;
 using GPC.Model.Materials;
+using GPC.Geometry.Geometry;
 
 namespace GPC.Model.Elements
 {
