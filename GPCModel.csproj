@@ -31,8 +31,8 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="GPC.Geometry">
-      <HintPath>..\GPCGeometry\bin\Debug\GPCGeometry.dll</HintPath>
+    <Reference Include="GPCGeometry">
+      <HintPath>..\GPCGeometry\GPCGeometry\bin\Release\GPCGeometry.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -42,9 +42,6 @@
     <Reference Include="System.Data" />
     <Reference Include="System.Net.Http" />
     <Reference Include="System.Xml" />
-    <Reference Include="Triangle, Version=0.0.6.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>packages\Triangle.0.0.6-Beta3\lib\net45\Triangle.dll</HintPath>
-    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Elements\Glasses\Glass.cs" />
@@ -56,7 +53,7 @@
     <Compile Include="Elements\Glasses\LaminatedGlass.cs" />
     <Compile Include="Elements\Glasses\InsulatingGlass.cs" />
     <Compile Include="Elements\Glasses\DoubleInsulatingGlass.cs" />
-    <Compile Include="Elements\Interlayer.cs" />
+    <Compile Include="Elements\Glasses\Interlayer.cs" />
     <Compile Include="Elements\Mesh.cs" />
     <Compile Include="Elements\Node.cs" />
     <Compile Include="Elements\Shell.cs" />
