@@ -7,13 +7,23 @@ namespace GPC.Model.Elements
     /// </summary>
     public class TripleInsulatingGlass : InsulatingGlass
     {
+        #region Variables
         private readonly GlassPanel _glassPanelOuter;
         private readonly double _airThicknessOuter;
         private readonly GlassPanel _glassPanelCentral;
         private readonly double _airThicknessInner;
         private readonly GlassPanel _glassPanelInner;
+        #endregion
 
+        #region Properties 
+        public GlassPanel GlassPanelOuter => _glassPanelOuter;
+        public double AirThicknessOuter => _airThicknessOuter;
+        public GlassPanel GlassPanelCentral => _glassPanelCentral;
+        public double AirThicknessInner => _airThicknessInner;
+        public GlassPanel GlassPanelInner => _glassPanelInner;
+        #endregion
 
+        #region Public constructor
         /// <summary>
         /// 
         /// </summary>
@@ -29,12 +39,17 @@ namespace GPC.Model.Elements
         }
         public TripleInsulatingGlass(GlassPanel glassPanelOuter, GlassPanel glassPanelCentral, GlassPanel glassPanelInner, double airThicknessOuter, double airThicknessInner, Guid guid) : base(guid)
         {
-            this._glassPanelOuter = glassPanelOuter;
-            this._glassPanelCentral = glassPanelCentral;
-            this._glassPanelInner = glassPanelInner;
+            if (airThicknessOuter < 0 || airThicknessInner < 0)
+                throw new ArgumentOutOfRangeException("Air thickness can't be negative");
+            
+            this._glassPanelOuter = glassPanelOuter ?? throw new ArgumentException("Outer Glass panel can't be null");
+            this._glassPanelCentral = glassPanelCentral ?? throw new ArgumentException("Central Glass panel can't be null");
+            this._glassPanelInner = glassPanelInner ?? throw new ArgumentException("Inner Glass panel can't be null"); 
 
             this._airThicknessOuter = airThicknessOuter;
             this._airThicknessInner = airThicknessInner;
         }
+
+        #endregion
     }
 }
