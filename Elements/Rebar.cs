@@ -8,7 +8,6 @@ using System.Diagnostics;
 using System.Runtime.Serialization;
 using GPC.Geometry;
 using GPC.Model.Materials;
-using GPC.Geometry;
 
 namespace GPC.Model.Elements
 {
@@ -92,8 +91,10 @@ namespace GPC.Model.Elements
         #endregion 
 
         #region FIELD_VARIABLES
-        private double _x;
-        private double _y;
+
+        //private double _x;
+        //private double _y;
+
         #endregion
 
         #region FIELD_VARIABLES
