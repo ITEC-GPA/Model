@@ -20,8 +20,6 @@ namespace GPC.Model.Sections
         protected double _sl2;
         protected double _sa1;
         protected double _sa2;
-        protected double _w11;
-        protected double _w22;
         protected Point2d _centroid;
         protected double _angleX1;
 
@@ -75,19 +73,7 @@ namespace GPC.Model.Sections
         {
             get => _sa2;
             set => _sa2 = value;
-        }
-
-        public double W11
-        {
-            get => _w11;
-            set => _w11 = value;
-        }
-
-        public double W22
-        {
-            get => _w22;
-            set => _w22 = value;
-        }
+        }        
 
         public Point2d Centroid
         {
@@ -120,8 +106,6 @@ namespace GPC.Model.Sections
             _sl2 = info.GetDouble("SL2");
             _sa1 = info.GetDouble("SA1");
             _sa2 = info.GetDouble("SA2");
-            _w11 = info.GetDouble("W11");
-            _w22 = info.GetDouble("W22");
             _centroid = (Point2d)info.GetValue("Centroid", typeof(Point2d));
             _angleX1 = info.GetDouble("AngleX1");
         }
@@ -146,8 +130,6 @@ namespace GPC.Model.Sections
             info.AddValue("SL2", _sl2);
             info.AddValue("SA1", _sa1);
             info.AddValue("SA2", _sa2);
-            info.AddValue("W11", _w11);
-            info.AddValue("W22", _w22);
             info.AddValue("Centroid", _centroid, typeof(Point2d));
             info.AddValue("AngleX1", _angleX1);
         }
