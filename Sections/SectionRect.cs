@@ -19,17 +19,9 @@ namespace GPC.Model.Sections
 
         #region Properties
 
-        public double D
-        {
-            get => _d;
-            set => _d = value;
-        }
+        public double D => _d;
 
-        public double B
-        {
-            get => _b;
-            set => _b = value;
-        }
+        public double B => _b;
 
         #endregion
 
