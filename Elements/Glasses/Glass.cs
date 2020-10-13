@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace GPC.Model.Elements
+namespace GPC.Model.Elements.Glasses
 {
     /// <summary>
     /// Glass base abstract class that is the base for all the glasses inside GPC environment.

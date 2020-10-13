@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace GPC.Model.Elements
+namespace GPC.Model.Elements.Glasses
 {
     /// <summary>
     /// This represent a triple glazing panel composed by three glass panels separated by air.

@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace GPC.Model.Elements
+namespace GPC.Model.Elements.Glasses
 {
     /// <summary>
     /// GlassPanel abstract class. This represent a single glass panel that can be a part of a insulating glass.

@@ -1,7 +1,7 @@
 ﻿
 using System;
 
-namespace GPC.Model.Elements
+namespace GPC.Model.Elements.Glasses
 {
     /// <summary>
     /// Monolithic glass. This represent the simpler glass panel. It is composed by a single layer of glass
