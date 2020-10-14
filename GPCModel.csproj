@@ -32,10 +32,15 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="GPCGeometry">
-      <HintPath>..\GPCGeometry\GPCGeometry\bin\Release\GPCGeometry.dll</HintPath>
+      <HintPath>..\GPCGeometry\GPCGeometry\bin\Debug\GPCGeometry.dll</HintPath>
+    </Reference>
+    <Reference Include="MathNet.Numerics, Version=4.12.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>packages\MathNet.Numerics.4.12.0\lib\net461\MathNet.Numerics.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Numerics" />
+    <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -54,16 +59,22 @@
     <Compile Include="Elements\Glasses\InsulatingGlass.cs" />
     <Compile Include="Elements\Glasses\DoubleInsulatingGlass.cs" />
     <Compile Include="Elements\Glasses\Interlayer.cs" />
-    <Compile Include="Elements\Mesh.cs" />
-    <Compile Include="Elements\Node.cs" />
-    <Compile Include="Elements\Shell.cs" />
     <Compile Include="Elements\Rebar.cs" />
     <Compile Include="Elements\Glasses\TripleInsulatingGlass.cs" />
+    <Compile Include="FEMElements\Beams\Beam.cs" />
+    <Compile Include="FEMElements\Beams\FEMBeamIntegrator.cs" />
+    <Compile Include="FEMElements\FEMDoF.cs" />
+    <Compile Include="FEMElements\FEMElement.cs" />
+    <Compile Include="FEMElements\FEMIntegrator.cs" />
+    <Compile Include="FEMElements\FEMObject.cs" />
+    <Compile Include="FEMElements\Nodes\Node.cs" />
+    <Compile Include="FEMElements\Nodes\FEMNodeDoF.cs" />
     <Compile Include="Materials\Material.cs" />
     <Compile Include="ModelObject\ModelObject.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <Folder Include="FEMElements\Plates\" />
     <Folder Include="Section\" />
   </ItemGroup>
   <ItemGroup>
