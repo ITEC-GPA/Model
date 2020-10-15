@@ -54,7 +54,12 @@
     <Compile Include="Elements\Glasses\Interlayer.cs" />
     <Compile Include="Elements\Rebar.cs" />
     <Compile Include="Elements\Glasses\TripleInsulatingGlass.cs" />
+    <Compile Include="Materials\ConcreteMaterial.cs" />
+    <Compile Include="Materials\GlassMaterial.cs" />
+    <Compile Include="Materials\Interlayer.cs" />
     <Compile Include="Materials\Material.cs" />
+    <Compile Include="Materials\RebarMaterial.cs" />
+    <Compile Include="Materials\SteelMaterial.cs" />
     <Compile Include="ModelObject\ModelObject.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Sections\Section.cs" />

@@ -47,11 +47,6 @@ namespace GPC.Model.Elements
             _endPoint = (Point2d)info.GetValue("EndPoint", typeof(Point2d));
             _position = (Point2d)info.GetValue("Position", typeof(Point2d));
             _material = (RebarMaterial)info.GetValue("Material", typeof(RebarMaterial));
-
-            if (SerializationVersion == 1)
-            {
-
-            }
         }
 
         #endregion

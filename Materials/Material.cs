@@ -1,148 +1,53 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Runtime.Serialization;
 
 namespace GPC.Model.Materials
 {
-    public class Material
+    public abstract class Material
     {
-        #region FIELD_CONSTRUCTORS
-        public Material(double elasticModulus, double poisson, double ftk, double fck, double alfa = 0.0) 
-        {
-            _elasticModulus = elasticModulus;
-            _poisson = poisson;
-            _ftk = ftk;
-            _fck = fck;
-            _alfa = alfa;
-        }
-        #endregion
+        #region VARIABLES
 
-        #region FIELD_DECONSTRUCTORS
-        #endregion
-
-        #region FIELD_COMMANDS
-        #endregion
-
-        #region FIELD_METHODS
-
-        #endregion
-
-        #region FIELD_VARIABLES
-        /// <summary>
-        /// </summary>
-        /// <param name="_elasticModulus"> Elastic Modulus </param>
-        /// <param name="_shearModulus"> Elastic Shear Modulus </param>
-        /// <param name="_poisson"> Poissoins's Ratio </param>
-        /// <param name="_ftk"> Tensile strength design value</param>
-        /// <param name="_fck"> Compression strength design value </param>
-        /// <param name="_alfa"> Thermal expansion coefficient </param>
-        /// <param name="_guid"> Guid of the object </param>
-        protected double _elasticModulus;
-        protected double _shearModulus;
-        protected double _poisson;
-        protected double _ftk;
-        protected double _fck;
-        protected double _alfa;
         protected Guid _guid;
-        #endregion
+        protected double _alfaThermalExpansion;
+        protected double _density;
 
-        #region FIELD_PROPERTIES
-        public Guid Guid => _guid; 
-        public double ElasticModulus  => _elasticModulus;
-        public double ShearModulus => _shearModulus; 
-        public double Poisson => _poisson;
-        public double Ftk  => _ftk;
-        public double Fck => _fck;
-        #endregion
-    }
+        #endregion VARIABLES
 
+        #region PROPERTIES
 
-    public class ConcreteMaterial : Material
-    {
-        #region FIELD_CONSTRUCTORS
-        public ConcreteMaterial(double elasticModulus, double poisson, double ftk, double fck, double alfa = 0.00001) : base(elasticModulus, poisson, ftk, fck, alfa)
+        public Guid Guid => _guid;
+        protected double AlfaThermalExpansion => _alfaThermalExpansion;
+        protected double Density => _density;
+
+        #endregion PROPERTIES
+
+        #region PUBLIC CONSTRUCTOR
+
+        public Material(double density, double alfaThermalExpansion, Guid guid)
         {
+            this._guid = guid;
+            this._alfaThermalExpansion = alfaThermalExpansion;
+            this._density = density;
         }
-        #endregion
 
-        #region FIELD_DECONSTRUCTORS
-        #endregion
-
-        #region FIELD_COMMANDS
-        #endregion
-
-        #region FIELD_METHODS
-
-        #endregion
-
-        #region FIELD_VARIABLES
-        /// <summary>
-        /// </summary>
-        #endregion
-
-        #region FIELD_PROPERTIES
-        #endregion
-    }
-
-    public class SteelMaterial : Material
-    {
-        #region FIELD_CONSTRUCTORS
-        public SteelMaterial(double elasticModulus, double poisson, double ftk, double fck, double ftu, double epsilon0, double alfa = 0.0000115) : base(elasticModulus, poisson, ftk, fck, alfa)
+        public Material(SerializationInfo info, StreamingContext context)
         {
-           _ftu = ftu;
-            _epsilon0 = epsilon0;
+            _guid = (Guid)info.GetValue("Guid", typeof(Guid));
+            _alfaThermalExpansion = info.GetDouble("AlfaThermalExpansion");
+            _density = info.GetDouble("Density");
         }
-        #endregion
 
-        #region FIELD_DECONSTRUCTORS
-        #endregion
+        #endregion PUBLIC CONSTRUCTOR
 
-        #region FIELD_COMMANDS
-        #endregion
+        #region PUBLIC METHODS
 
-        #region FIELD_METHODS
-
-        #endregion
-
-        #region FIELD_VARIABLES
-        /// <summary>
-        /// </summary>
-        /// <param name="Ftu"> Tensile resistance </param>
-        /// <param name="Epsilon0"> Maximum Strain </param>
-        protected double _ftu;
-        protected double _epsilon0;
-        #endregion
-
-        #region FIELD_PROPERTIES
-        public double Ftu => _ftu;
-        public double Epsilon0 => _epsilon0;
-        #endregion
-    }
-
-    public class RebarMaterial : SteelMaterial
-    {
-        #region FIELD_CONSTRUCTORS
-        public RebarMaterial(double elasticModulus, double poisson, double ftk, double fck, double ftu, double epsilon0, double alfa = 0.0000115) : base(elasticModulus, poisson, ftk, fck, ftu, epsilon0, alfa)
+        public virtual void GetObjectData(SerializationInfo info, StreamingContext context)
         {
+            info.AddValue("Guid", _guid);
+            info.AddValue("AlfaThermalExpansion", _alfaThermalExpansion);
+            info.AddValue("Density", _density);
         }
-        #endregion
 
-        #region FIELD_DECONSTRUCTORS
-        #endregion
-
-        #region FIELD_COMMANDS
-        #endregion
-
-        #region FIELD_METHODS
-
-        #endregion
-
-        #region FIELD_VARIABLES
-        #endregion
-
-        #region FIELD_PROPERTIES
-        #endregion
+        #endregion PUBLIC METHODS
     }
 }

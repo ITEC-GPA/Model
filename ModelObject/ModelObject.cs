@@ -52,23 +52,3 @@ namespace GPC.Model
         #endregion
     }
 }
-
-/*
-#region Variables
-#endregion
-
-#region Properties
-#endregion
-
-#region Public Constructors
-#endregion
-
-#region Public Methods Override
-#endregion
-
-#region Public Methods Specific
-#endregion
-
-#region Private Methods Specific
-#endregion
-*/
