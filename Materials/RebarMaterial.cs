@@ -75,7 +75,7 @@ namespace GPC.Model.Materials
             }
         }
 
-        public SteelMaterial(SerializationInfo info, StreamingContext context) :
+        public RebarMaterial(SerializationInfo info, StreamingContext context) :
             base(info, context)
         {
         }

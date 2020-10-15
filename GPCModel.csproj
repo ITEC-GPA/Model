@@ -56,7 +56,7 @@
     <Compile Include="Elements\Glasses\TripleInsulatingGlass.cs" />
     <Compile Include="Materials\ConcreteMaterial.cs" />
     <Compile Include="Materials\GlassMaterial.cs" />
-    <Compile Include="Materials\Interlayer.cs" />
+    <Compile Include="Materials\InterlayerMaterial.cs" />
     <Compile Include="Materials\Material.cs" />
     <Compile Include="Materials\RebarMaterial.cs" />
     <Compile Include="Materials\SteelMaterial.cs" />
