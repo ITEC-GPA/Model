@@ -1,10 +1,12 @@
 ﻿using System;
+using System.Runtime.Serialization;
 
 namespace GPC.Model.Elements.Glasses
 {
     /// <summary>
     /// This represent a triple glazing panel composed by three glass panels separated by air.
     /// </summary>
+    [Serializable]
     public class TripleInsulatingGlass : InsulatingGlass
     {
         #region Variables
@@ -37,6 +39,7 @@ namespace GPC.Model.Elements.Glasses
         {
 
         }
+
         public TripleInsulatingGlass(GlassPanel glassPanelOuter, GlassPanel glassPanelCentral, GlassPanel glassPanelInner, double airThicknessOuter, double airThicknessInner, Guid guid) : base(guid)
         {
             if (airThicknessOuter < 0 || airThicknessInner < 0)
@@ -50,6 +53,28 @@ namespace GPC.Model.Elements.Glasses
             this._airThicknessInner = airThicknessInner;
         }
 
+        public TripleInsulatingGlass(SerializationInfo info, StreamingContext context)
+           : base(info, context)
+        {
+            _glassPanelOuter = (GlassPanel)info.GetValue("GlassPanelOuter", typeof(GlassPanel));
+            _glassPanelCentral = (GlassPanel)info.GetValue("GlassPanelCentral", typeof(GlassPanel));
+            _glassPanelInner = (GlassPanel)info.GetValue("GlassPanelInner", typeof(GlassPanel));
+            _airThicknessOuter = info.GetDouble("AirThicknessOuter");
+            _airThicknessInner = info.GetDouble("AirThicknessInner");
+        }
+
+        #endregion 
+
+        #region PUBLIC METHODS
+        public override void GetObjectData(SerializationInfo info, StreamingContext context)
+        {
+            base.GetObjectData(info, context);
+            info.AddValue("GlassPanelOuter", _glassPanelOuter);
+            info.AddValue("GlassPanelCentral", _glassPanelCentral);
+            info.AddValue("GlassPanelInner", _glassPanelInner);
+            info.AddValue("AirThicknessOuter", _airThicknessOuter);
+            info.AddValue("AirThicknessInner", _airThicknessInner);
+        }
         #endregion
     }
 }

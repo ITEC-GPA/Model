@@ -3,6 +3,7 @@ using System.Runtime.Serialization;
 
 namespace GPC.Model.Materials
 {
+    [Serializable]
     public class ConcreteMaterial : Material
     {
         #region VARIABLES

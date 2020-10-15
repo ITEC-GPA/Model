@@ -1,10 +1,12 @@
 ﻿using System;
+using System.Runtime.Serialization;
 
 namespace GPC.Model.Elements.Glasses
 {
     /// <summary>
     /// This represent a double glazing panel composed by two glass panels separated by air.
     /// </summary>
+    [Serializable]
     public class DoubleInsulatingGlass : InsulatingGlass
     {
         #region Variables
@@ -49,7 +51,23 @@ namespace GPC.Model.Elements.Glasses
             this._airThickness = airThickness;
         }
 
+        public DoubleInsulatingGlass(SerializationInfo info, StreamingContext context)
+           : base(info, context)
+        {
+            _glassPanelOuter = (GlassPanel)info.GetValue("GlassPanelOuter", typeof(GlassPanel));
+            _glassPanelInner = (GlassPanel)info.GetValue("GlassPanelInner", typeof(GlassPanel));
+            _airThickness = info.GetDouble("AirThickness");
+        }
 
-        #endregion
+        #endregion 
+
+        #region PUBLIC METHODS
+        public override void GetObjectData(SerializationInfo info, StreamingContext context)
+        {
+            base.GetObjectData(info, context);
+            info.AddValue("GlassPanelOuter", _glassPanelOuter);
+            info.AddValue("GlassPanelInner", _glassPanelInner);
+            info.AddValue("AirThickness", _airThickness);
+        }
     }
 }

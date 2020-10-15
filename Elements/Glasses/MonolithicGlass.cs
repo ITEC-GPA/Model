@@ -1,14 +1,18 @@
 ﻿
 using System;
+using System.Runtime.Serialization;
 
 namespace GPC.Model.Elements.Glasses
 {
     /// <summary>
     /// Monolithic glass. This represent the simpler glass panel. It is composed by a single layer of glass
     /// </summary>
+    [Serializable]
     public class MonolithicGlass : GlassPanel
     {
-        public MonolithicGlass() : this(Guid.Empty)
+        #region CONSTRUCTORS
+        public MonolithicGlass() 
+            : this(Guid.Empty)
         {
         }
 
@@ -16,8 +20,22 @@ namespace GPC.Model.Elements.Glasses
         /// 
         /// </summary>
         /// <param name="guid">The guid of the glass</param>
-        public MonolithicGlass(Guid guid) : base(guid)
+        public MonolithicGlass(Guid guid) 
+            : base(guid)
         {
         }
+
+        public MonolithicGlass(SerializationInfo info, StreamingContext context)
+            : base(info, context)
+        {
+        }
+        #endregion
+
+        #region PUBLIC METHODS
+        public override void GetObjectData(SerializationInfo info, StreamingContext context)
+        {
+            base.GetObjectData(info, context);
+        }
+        #endregion
     }
 }

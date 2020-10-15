@@ -1,10 +1,12 @@
 ﻿using System;
+using System.Runtime.Serialization;
 
 namespace GPC.Model.Elements.Glasses
 {
     /// <summary>
     /// Laminated glass. This represent a multilayer glass panel. Between each layer there is an interlayer
     /// </summary>
+    [Serializable]
     public class LaminatedGlass : GlassPanel
     {
         #region Variables
@@ -55,6 +57,25 @@ namespace GPC.Model.Elements.Glasses
             _monolithicGlasses = monolithicGlasses;
             _interlayers = interlayers;
         }
-        #endregion
+
+        public LaminatedGlass(SerializationInfo info, StreamingContext context) :
+            base(info, context)
+        {
+            _monolithicGlasses = (MonolithicGlass[])info.GetValue("MonolithicGlasses", typeof(MonolithicGlass[]));
+            _interlayers = (Interlayer[])info.GetValue("Interlayers", typeof(Interlayer[]));
+        }
+
+        #endregion 
+
+        #region PUBLIC METHODS
+        public override void GetObjectData(SerializationInfo info, StreamingContext context)
+        {
+            base.GetObjectData(info, context);
+            info.AddValue("MonolithicGlasses", _monolithicGlasses);
+            info.AddValue("Interlayers", _interlayers);
+        }
+
+        #endregion PUBLIC METHODS
+
     }
 }
