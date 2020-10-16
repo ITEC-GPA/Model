@@ -69,5 +69,7 @@ namespace GPC.Model.Elements.Glasses
             info.AddValue("GlassPanelInner", _glassPanelInner);
             info.AddValue("AirThickness", _airThickness);
         }
+
+        #endregion 
     }
 }

@@ -34,6 +34,9 @@
     <Reference Include="GPCGeometry">
       <HintPath>..\GPCGeometry\GPCGeometry\bin\Debug\GPCGeometry.dll</HintPath>
     </Reference>
+    <Reference Include="GPCUtilities">
+      <HintPath>..\GPCUtilities\GPCUtilities\bin\Release\GPCUtilities.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />

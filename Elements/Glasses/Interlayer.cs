@@ -10,12 +10,11 @@ namespace GPC.Model.Elements.Glasses
     public abstract class Interlayer : Element
     {
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="guid">The guid of the element</param>
         protected Interlayer(Guid guid) : base(guid)
         {
-
         }
 
         public Interlayer(SerializationInfo info, StreamingContext context)
