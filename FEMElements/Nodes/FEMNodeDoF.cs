@@ -14,11 +14,14 @@ namespace GPC.Model.FEM
         protected int _numDoF;
         protected int _maxNumDoF;
         protected List<FEMDoF> _femDoFs;
+        protected const int _maxDoFNum = 6;
         #endregion
 
         #region Properties
-        protected int MaxNumDoF => _maxNumDoF;
-        protected List<FEMDoF> FEMDoFs => _femDoFs;
+        public int MaxNumDoF => _maxNumDoF;
+        public List<FEMDoF> FEMDoFs => _femDoFs;
+        public int MaxDoFNum => _maxDoFNum;
+        public int[] GlobalIncidence => _globalIncidence;
         #endregion
 
         #region Public Constructors

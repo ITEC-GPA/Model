@@ -91,8 +91,10 @@ namespace GPC.Model.Elements
         #endregion 
 
         #region FIELD_VARIABLES
-        private double _x;
-        private double _y;
+
+        //private double _x;
+        //private double _y;
+
         #endregion
 
         #region FIELD_VARIABLES

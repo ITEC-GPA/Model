@@ -6,6 +6,7 @@ using System.Linq;
 using System.Runtime.Serialization;
 using System.Text;
 using System.Threading.Tasks;
+using MathNet.Numerics.LinearAlgebra;
 
 namespace GPC.Model.FEM
 {
@@ -13,10 +14,13 @@ namespace GPC.Model.FEM
     {
         #region Variables
         protected FEMIntegrator _integrator;
+        protected Node[] _nodes;
+        protected int[,] _elIncidence;
         #endregion
 
         #region Properties
         public FEMIntegrator Integrator => _integrator;
+        public int[,] ElIncidence => _elIncidence;
         #endregion
 
         #region Public Constructors
@@ -40,24 +44,23 @@ namespace GPC.Model.FEM
         #endregion
 
         #region Public Methods Specific
-        public virtual void ElementIncidence()
+        public abstract void ElementIncidence();
+        public virtual void KInGlobal(ref Matrix<double> Kg)
         {
         }
-        public virtual void StiffnessMatrixInGlobal()
+        public virtual void TInGlobal()
         {
         }
-        public virtual void TangentMatrixInGlobal()
+        public virtual void MInGlobal()
         {
         }
-        public virtual void MassMatrixInGlobal()
-        {
-        }
-        public virtual void KnownValueVectorInGlobal()
+        public virtual void FInGlobal()
         {
         }
         public virtual void ChooseIntegrator()
         {
         }
+
         #endregion
 
         #region Private Methods Specific
