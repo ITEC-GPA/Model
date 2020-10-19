@@ -18,6 +18,11 @@ namespace GPC.Model.Materials
         public InterlayerMaterial(double density, double alfaThermalExpansion, Guid guid)
             : base(density, alfaThermalExpansion, guid)
         {
+            _shearModulus = new List<LoadDurationShearModules>();
+        }
+        public InterlayerMaterial(double density, double alfaThermalExpansion)
+            : this(density, alfaThermalExpansion, Guid.Empty)
+        {
 
         }
 
@@ -35,13 +40,14 @@ namespace GPC.Model.Materials
             return this[loadDuration, temperature];
         }
 
-        public void AddShearModule(double loadDuration, List<double> temperature, List<double> shearModules)
+        public void AddShearModule(double loadDuration, double[] temperature, double[] shearModules)
         {
-            if (temperature.Count != shearModules.Count)
+            if (temperature.Length != shearModules.Length)
                 throw new ArgumentException("Temperature and shearModules lenghts are different");
 
             var ld = new LoadDurationShearModules(loadDuration);
             ld.AddTemperatures(temperature, shearModules);
+            ld.Sort();
 
             _shearModulus.Add(ld);
         }
@@ -87,7 +93,7 @@ namespace GPC.Model.Materials
                         }
                     }
 
-                    if (_shearModulus[i].LoadDuration <= loadDuration && _shearModulus[i + 1].LoadDuration >= loadDuration)
+                    if (_shearModulus[i].LoadDuration < loadDuration && _shearModulus[i + 1].LoadDuration > loadDuration)
                     {
                         return Interpolation.GetLinearInterpolation(_shearModulus[i].LoadDuration, _shearModulus[i + 1].LoadDuration,
                                                                     _shearModulus[i][temperature], _shearModulus[i + 1][temperature],
@@ -122,7 +128,7 @@ namespace GPC.Model.Materials
             public LoadDurationShearModules(double loadDuration)
                 : this(loadDuration, null)
             {
-
+                _temperatureShearModules = new List<TemperatureShearModule>();
             }
             #endregion
 
@@ -131,12 +137,12 @@ namespace GPC.Model.Materials
             {
                 _temperatureShearModules.Add(temperatureShearModule);
             }
-            public void AddTemperatures(List<double> temperature, List<double> shearModules)
+            public void AddTemperatures(double[] temperature, double[] shearModules)
             {
-                if (temperature.Count != shearModules.Count)
+                if (temperature.Length != shearModules.Length)
                     throw new ArgumentException("Temperature and shearModules lenghts are different");
 
-                for (int i = 0; i < temperature.Count; i++)
+                for (int i = 0; i < temperature.Length; i++)
                 {
                     _temperatureShearModules.Add(new TemperatureShearModule(temperature[i], shearModules[i]));
                 }
