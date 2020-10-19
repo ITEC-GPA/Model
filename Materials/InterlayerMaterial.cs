@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Runtime.Serialization;
 using GPC.Utilities.Maths;
 
@@ -44,6 +45,15 @@ namespace GPC.Model.Materials
 
             _shearModulus.Add(ld);
         }
+
+        /// <summary>
+        /// Sort the load duration shear modulus list in place.
+        /// </summary>
+        public void Sort()
+        {
+            _shearModulus.Sort();
+        }
+
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             base.GetObjectData(info, context);
@@ -60,9 +70,30 @@ namespace GPC.Model.Materials
                 for (int i = 0; i < _shearModulus.Count; i++)
                 {
                     if (_shearModulus[i].LoadDuration == loadDuration)
-                        return _shearModulus[i][temperature]; 
-                }
+                        return _shearModulus[i][temperature];
 
+                    if (i == 0)
+                    {
+                        if (loadDuration < _shearModulus[i].LoadDuration)
+                        {
+                            throw new IndexOutOfRangeException("Requested load duration is lower than minimum load duration available");
+                        }
+                    }
+                    else if (i == _shearModulus.Count) // Caso di temperature == all'ultimo valore già coperto all'inizio.
+                    {
+                        if (loadDuration > _shearModulus[i].LoadDuration)
+                        {
+                            throw new IndexOutOfRangeException("Requested load duration is greater than maximum load duration available");
+                        }
+                    }
+
+                    if (_shearModulus[i].LoadDuration <= loadDuration && _shearModulus[i + 1].LoadDuration >= loadDuration)
+                    {
+                        return Interpolation.GetLinearInterpolation(_shearModulus[i].LoadDuration, _shearModulus[i + 1].LoadDuration,
+                                                                    _shearModulus[i][temperature], _shearModulus[i + 1][temperature],
+                                                                      temperature);
+                    }
+                }
                 throw new KeyNotFoundException();
             }
         } 
@@ -132,11 +163,31 @@ namespace GPC.Model.Materials
                 {
                     for (int i = 0; i < _temperatureShearModules.Count; i++)
                     {
-
                         if (_temperatureShearModules[i].Temperature == temperature)
                             return _temperatureShearModules[i].ShearModule;
-                    }
 
+                        if (i == 0)
+                        {
+                            if(temperature < _temperatureShearModules[i].Temperature)
+                            {
+                                throw new IndexOutOfRangeException("Requested temperature lower than minimum temperature available");
+                            }
+                        }
+                        else if (i == _temperatureShearModules.Count) // Caso di temperature == all'ultimo valore già coperto all'inizio.
+                        {
+                            if (temperature > _temperatureShearModules[i].Temperature)
+                            {
+                                throw new IndexOutOfRangeException("Requested temperature greater than maximum temperature available");
+                            }                           
+                        }
+
+                        if (_temperatureShearModules[i].Temperature <= temperature && _temperatureShearModules[i + 1].Temperature >= temperature)
+                        {
+                            return Interpolation.GetLinearInterpolation(_temperatureShearModules[i].Temperature, _temperatureShearModules[i + 1].Temperature,
+                                                                         _temperatureShearModules[i].ShearModule, _temperatureShearModules[i + 1].ShearModule,
+                                                                          temperature);
+                        }
+                    }
                     throw new KeyNotFoundException();
                 }
             }
