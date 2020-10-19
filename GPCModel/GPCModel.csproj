@@ -34,11 +34,16 @@
     <Reference Include="GPCGeometry">
       <HintPath>..\GPCGeometry\GPCGeometry\bin\Debug\GPCGeometry.dll</HintPath>
     </Reference>
-    <Reference Include="GPCUtilities">
-      <HintPath>..\..\GPCUtilities\GPCUtilities\bin\Release\GPCUtilities.dll</HintPath>
+    <Reference Include="MathNet.Numerics, Version=4.12.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>packages\MathNet.Numerics.4.12.0\lib\net461\MathNet.Numerics.dll</HintPath>
+    </Reference>
+    <Reference Include="MathNet.Spatial, Version=0.6.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>packages\MathNet.Spatial.0.6.0\lib\net461\MathNet.Spatial.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Numerics" />
+    <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -57,19 +62,24 @@
     <Compile Include="Elements\Glasses\Interlayer.cs" />
     <Compile Include="Elements\Rebar.cs" />
     <Compile Include="Elements\Glasses\TripleInsulatingGlass.cs" />
-    <Compile Include="Materials\ConcreteMaterial.cs" />
-    <Compile Include="Materials\GlassMaterial.cs" />
-    <Compile Include="Materials\InterlayerMaterial.cs" />
+    <Compile Include="FEMElements\Beams\Beam.cs" />
+    <Compile Include="FEMElements\Beams\FEMBeamIntegrator.cs" />
+    <Compile Include="FEMElements\FEMDoF.cs" />
+    <Compile Include="FEMElements\FEMElement.cs" />
+    <Compile Include="FEMElements\FEMIntegrator.cs" />
+    <Compile Include="FEMElements\FEMObject.cs" />
+    <Compile Include="FEMElements\Nodes\Node.cs" />
+    <Compile Include="FEMElements\Nodes\FEMNodeDoF.cs" />
     <Compile Include="Materials\Material.cs" />
-    <Compile Include="Materials\RebarMaterial.cs" />
-    <Compile Include="Materials\SteelMaterial.cs" />
     <Compile Include="ModelObject\ModelObject.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Sections\Section.cs" />
     <Compile Include="Sections\SectionRect.cs" />
     <Compile Include="Sections\SectionShape.cs" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Folder Include="FEMElements\Plates\" />
+  </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>

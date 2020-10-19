@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Runtime.Serialization;
 
-namespace GPC.Model.Elements.Glasses
+namespace GPC.Model.Elements
 {
     /// <summary>
     /// Abstract class that represent the interlayer between two monolithic glasses to compose a laminated glass

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Runtime.Serialization;
 
-namespace GPC.Model.Elements.Glasses
+namespace GPC.Model.Elements
 {
     /// <summary>
     /// Laminated glass. This represent a multilayer glass panel. Between each layer there is an interlayer

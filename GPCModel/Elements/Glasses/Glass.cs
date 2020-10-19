@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Runtime.Serialization;
 
-namespace GPC.Model.Elements.Glasses
+namespace GPC.Model.Elements
 {
     /// <summary>
     /// Glass base abstract class that is the base for all the glasses inside GPC environment.

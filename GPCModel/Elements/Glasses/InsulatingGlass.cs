@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Runtime.Serialization;
 
-namespace GPC.Model.Elements.Glasses
+namespace GPC.Model.Elements
 {
     /// <summary>
     /// InsulatingGlass abstract class. This represent an insulating glass that is an assembly of glassPanel separated by air.
