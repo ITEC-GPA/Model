@@ -17,21 +17,21 @@ namespace GPC.Model.Materials
         #region PROPERTIES
 
         public Guid Guid => _guid;
-        protected double AlfaThermalExpansion => _alfaThermalExpansion;
-        protected double Density => _density;
+        public double AlfaThermalExpansion => _alfaThermalExpansion;
+        public double Density => _density;
 
         #endregion PROPERTIES
 
         #region PUBLIC CONSTRUCTOR
 
-        public Material(double density, double alfaThermalExpansion, Guid guid)
+        protected Material(double density, double alfaThermalExpansion, Guid guid)
         {
             this._guid = guid;
             this._alfaThermalExpansion = alfaThermalExpansion;
             this._density = density;
         }
 
-        public Material(SerializationInfo info, StreamingContext context)
+        protected Material(SerializationInfo info, StreamingContext context)
         {
             _guid = (Guid)info.GetValue("Guid", typeof(Guid));
             _alfaThermalExpansion = info.GetDouble("AlfaThermalExpansion");

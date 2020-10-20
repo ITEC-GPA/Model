@@ -1,4 +1,5 @@
-﻿using System;
+﻿using GPC.Model.Materials;
+using System;
 using System.Runtime.Serialization;
 
 namespace GPC.Model.Elements.Glasses
@@ -33,8 +34,8 @@ namespace GPC.Model.Elements.Glasses
         /// <param name="glassPanelOuter">Outer glass panel</param>
         /// <param name="glassPanelInner">Inner glass panel</param>
         /// <param name="airThickness">air gap</param>
-        public DoubleInsulatingGlass(GlassPanel glassPanelOuter, GlassPanel glassPanelInner, double airThickness)
-            : this(glassPanelOuter, glassPanelInner, airThickness, Guid.Empty)
+        public DoubleInsulatingGlass(GlassPanel glassPanelOuter, GlassPanel glassPanelInner, double airThickness, GlassMaterial glassMaterial)
+            : this(glassPanelOuter, glassPanelInner, airThickness, glassMaterial, Guid.Empty)
         {
         }
 
@@ -45,8 +46,8 @@ namespace GPC.Model.Elements.Glasses
         /// <param name="glassPanelInner">Outer glass panel</param>
         /// <param name="airThickness">air gap</param>
         /// <param name="guid">The guid of the objec</param>
-        public DoubleInsulatingGlass(GlassPanel glassPanelOuter, GlassPanel glassPanelInner, double airThickness, Guid guid)
-            : base(guid)
+        public DoubleInsulatingGlass(GlassPanel glassPanelOuter, GlassPanel glassPanelInner, double airThickness, GlassMaterial glassMaterial, Guid guid)
+            : base(glassMaterial, guid)
         {
             if (airThickness < 0)
                 throw new ArgumentOutOfRangeException("Air thickness can't be negative");

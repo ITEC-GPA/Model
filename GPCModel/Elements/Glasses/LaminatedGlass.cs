@@ -1,4 +1,5 @@
-﻿using System;
+﻿using GPC.Model.Materials;
+using System;
 using System.Runtime.Serialization;
 
 namespace GPC.Model.Elements.Glasses
@@ -30,9 +31,10 @@ namespace GPC.Model.Elements.Glasses
         /// </summary>
         /// <param name="monolithicGlasses">Monolithic glasses composing the laminated panel</param>
         /// <param name="interlayers">Interlayers between monolithic glasses</param>
-        public LaminatedGlass(MonolithicGlass[] monolithicGlasses, Interlayer[] interlayers)
-            : this(monolithicGlasses, interlayers, Guid.Empty)
+        public LaminatedGlass(MonolithicGlass[] monolithicGlasses, Interlayer[] interlayers, GlassMaterial glassMaterial)
+            : this(monolithicGlasses, interlayers, glassMaterial, Guid.Empty)
         {
+
         }
 
         /// <summary>
@@ -41,8 +43,8 @@ namespace GPC.Model.Elements.Glasses
         /// <param name="monolithicGlasses">Monolithic glasses composing the laminated panel</param>
         /// <param name="interlayers">Interlayers between monolithic glasses</param>
         /// <param name="guid">The guid of of the glass</param>
-        public LaminatedGlass(MonolithicGlass[] monolithicGlasses, Interlayer[] interlayers, Guid guid)
-            : base(guid)
+        public LaminatedGlass(MonolithicGlass[] monolithicGlasses, Interlayer[] interlayers, GlassMaterial glassMaterial, Guid guid)
+            : base(glassMaterial, guid)
         {
             if (monolithicGlasses == null)
                 throw new ArgumentException("Monolithic glasses cannot be null");
@@ -71,7 +73,6 @@ namespace GPC.Model.Elements.Glasses
         }
 
         #endregion Public Constructors
-
 
 
         #region PUBLIC METHODS

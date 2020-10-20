@@ -1,4 +1,5 @@
-﻿using System;
+﻿using GPC.Model.Materials;
+using System;
 using System.Runtime.Serialization;
 
 namespace GPC.Model.Elements.Glasses
@@ -9,16 +10,20 @@ namespace GPC.Model.Elements.Glasses
     [Serializable]
     public abstract class Glass : Element
     {
+        private GlassMaterial _glassMaterial;
+
+        public GlassMaterial GlassMaterial => _glassMaterial;
         /// <summary>
         ///
         /// </summary>
         /// <param name="guid">The guid of the object</param>
-        protected Glass(Guid guid)
+        protected Glass(GlassMaterial glassMaterial, Guid guid)
             : base(guid)
         {
+            this._glassMaterial = glassMaterial;
         }
 
-        public Glass(SerializationInfo info, StreamingContext context)
+        protected Glass(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
         }

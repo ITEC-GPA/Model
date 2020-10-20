@@ -1,4 +1,5 @@
-﻿using System;
+﻿using GPC.Model.Materials;
+using System;
 using System.Runtime.Serialization;
 
 namespace GPC.Model.Elements.Glasses
@@ -13,12 +14,13 @@ namespace GPC.Model.Elements.Glasses
         ///
         /// </summary>
         /// <param name="guid">The guid of the objeect</param>
-        protected GlassPanel(Guid guid)
-            : base(guid)
+        /// <param name="glassMaterial"></param>      
+        protected GlassPanel(GlassMaterial glassMaterial, Guid guid)
+            : base(glassMaterial, guid)
         {
         }
 
-        public GlassPanel(SerializationInfo info, StreamingContext context)
+        protected GlassPanel(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
         }
