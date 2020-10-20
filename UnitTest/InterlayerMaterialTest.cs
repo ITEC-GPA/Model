@@ -43,14 +43,14 @@ namespace UnitTest
         [TestMethod]
         public void ShearModulus1()
         {
-            InterlayerMaterial interlayerMaterial = new InterlayerMaterial(1, 0, Guid.NewGuid());
+            InterlayerMaterial interlayerMaterial = new InterlayerMaterial(1, 0, InterlayerMaterial.InterlayerType.NormalPVB, Guid.NewGuid());
 
             for (int i = 0; i < 6; i++)
             {
                 interlayerMaterial.AddShearModule(_loadDuration[i], _temperatures, _shearModules[i]);
             }
             interlayerMaterial.Sort();
-
+            
             double result = interlayerMaterial.GetShearModule(10, 100);
             double expected = _shearModules[0][0];  // 10, 100
             string message = $"Result: {result}, Expected: {expected}";
@@ -62,7 +62,7 @@ namespace UnitTest
         public void ShearModulus2()
         {
             // Arrange
-            InterlayerMaterial interlayerMaterial = new InterlayerMaterial(1, 0, Guid.NewGuid());
+            InterlayerMaterial interlayerMaterial = new InterlayerMaterial(1, 0, InterlayerMaterial.InterlayerType.NormalPVB, Guid.NewGuid());
 
             for (int i = 0; i < 6; i++)
             {
@@ -82,7 +82,7 @@ namespace UnitTest
         public void ShearModulus3()
         {
             // Arrange
-            InterlayerMaterial interlayerMaterial = new InterlayerMaterial(1, 0, Guid.NewGuid());
+            InterlayerMaterial interlayerMaterial = new InterlayerMaterial(1, 0, InterlayerMaterial.InterlayerType.NormalPVB, Guid.NewGuid());
 
             for (int i = 0; i < 6; i++)
             {
@@ -108,7 +108,7 @@ namespace UnitTest
         public void ShearModulus4()
         {
             // Arrange
-            InterlayerMaterial interlayerMaterial = new InterlayerMaterial(1, 0, Guid.NewGuid());
+            InterlayerMaterial interlayerMaterial = new InterlayerMaterial(1, 0, InterlayerMaterial.InterlayerType.NormalPVB, Guid.NewGuid());
 
             for (int i = 0; i < 6; i++)
             {
@@ -139,7 +139,7 @@ namespace UnitTest
         public void ShearModulus5()
         {
             // Arrange
-            InterlayerMaterial interlayerMaterial = new InterlayerMaterial(1, 0, Guid.NewGuid());
+            InterlayerMaterial interlayerMaterial = new InterlayerMaterial(1, 0, InterlayerMaterial.InterlayerType.NormalPVB, Guid.NewGuid());
 
             for (int i = 0; i < 6; i++)
             {

@@ -1,6 +1,7 @@
 ﻿using GPC.Utilities.Maths;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Runtime.Serialization;
 
 namespace GPC.Model.Materials
@@ -8,22 +9,35 @@ namespace GPC.Model.Materials
     [Serializable]
     public class InterlayerMaterial : Material
     {
+        [Serializable]
+        public enum InterlayerType
+        {
+            [Description("AcusticPVB / Family0 prEN")] AcusticPVB = 0,
+            [Description("NormalPVB / Family1 prEN")] NormalPVB = 1,
+            [Description("SentryGlass / Family2 prEN")] SentryGlass = 2
+        }
+
         #region VARIABLES
 
         private List<LoadDurationShearModules> _shearModulus;
+        private InterlayerType _type;
 
         #endregion VARIABLES
 
+        public InterlayerType Type => _type;
+
+
         #region CONSTRUCTOR
 
-        public InterlayerMaterial(double density, double alfaThermalExpansion, Guid guid)
+        public InterlayerMaterial(double density, double alfaThermalExpansion, InterlayerType type, Guid guid)
             : base(density, alfaThermalExpansion, guid)
         {
             _shearModulus = new List<LoadDurationShearModules>();
+            this._type = type;
         }
 
-        public InterlayerMaterial(double density, double alfaThermalExpansion)
-            : this(density, alfaThermalExpansion, Guid.Empty)
+        public InterlayerMaterial(double density, double alfaThermalExpansion, InterlayerType type)
+            : this(density, alfaThermalExpansion, type, Guid.Empty)
         {
         }
 
@@ -31,6 +45,7 @@ namespace GPC.Model.Materials
             : base(info, context)
         {
             _shearModulus = (List<LoadDurationShearModules>)info.GetValue("ShearModulus", typeof(List<LoadDurationShearModules>));
+            _type = (InterlayerType)info.GetValue("InterlayerType", typeof(InterlayerType));
         }
 
         #endregion CONSTRUCTOR
@@ -66,6 +81,7 @@ namespace GPC.Model.Materials
         {
             base.GetObjectData(info, context);
             info.AddValue("ShearModulus", _shearModulus);
+            info.AddValue("InterlayerType", _type);
         }
 
         #endregion PUBLIC METHODS
