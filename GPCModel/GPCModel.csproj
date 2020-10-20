@@ -74,6 +74,8 @@
     <Compile Include="FEMElements\FEMObject.cs" />
     <Compile Include="FEMElements\Nodes\Node.cs" />
     <Compile Include="FEMElements\Nodes\FEMNodeDoF.cs" />
+    <Compile Include="LoadCases\LoadCase.cs" />
+    <Compile Include="Loads\Load.cs" />
     <Compile Include="Materials\ConcreteMaterial.cs" />
     <Compile Include="Materials\GlassMaterial.cs" />
     <Compile Include="Materials\GlassMaterialAstm.cs" />
