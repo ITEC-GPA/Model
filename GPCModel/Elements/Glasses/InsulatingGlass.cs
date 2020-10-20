@@ -10,18 +10,18 @@ namespace GPC.Model.Elements.Glasses
     public abstract class InsulatingGlass : Glass
     {
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="guid">The guid of the object</param>
-        public InsulatingGlass(Guid guid) : base(guid)
+        public InsulatingGlass(Guid guid)
+            : base(guid)
         {
-
         }
+
         public InsulatingGlass(SerializationInfo info, StreamingContext context)
            : base(info, context)
         {
         }
-
 
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {

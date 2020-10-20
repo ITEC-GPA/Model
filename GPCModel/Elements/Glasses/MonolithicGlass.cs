@@ -1,5 +1,4 @@
-﻿
-using System;
+﻿using System;
 using System.Runtime.Serialization;
 
 namespace GPC.Model.Elements.Glasses
@@ -11,16 +10,17 @@ namespace GPC.Model.Elements.Glasses
     public class MonolithicGlass : GlassPanel
     {
         #region CONSTRUCTORS
-        public MonolithicGlass() 
+
+        public MonolithicGlass()
             : this(Guid.Empty)
         {
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="guid">The guid of the glass</param>
-        public MonolithicGlass(Guid guid) 
+        public MonolithicGlass(Guid guid)
             : base(guid)
         {
         }
@@ -29,13 +29,16 @@ namespace GPC.Model.Elements.Glasses
             : base(info, context)
         {
         }
-        #endregion
+
+        #endregion CONSTRUCTORS
 
         #region PUBLIC METHODS
+
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             base.GetObjectData(info, context);
         }
-        #endregion
+
+        #endregion PUBLIC METHODS
     }
 }

@@ -10,24 +10,26 @@ namespace GPC.Model.Elements.Glasses
     public abstract class Glass : Element
     {
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="guid">The guid of the object</param>
-        protected Glass(Guid guid) : base(guid)
+        protected Glass(Guid guid)
+            : base(guid)
         {
-
         }
-        public Glass(SerializationInfo info, StreamingContext context) 
+
+        public Glass(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
         }
 
-
         #region PUBLIC METHODS
+
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             base.GetObjectData(info, context);
         }
+
         #endregion PUBLIC METHODS
     }
 }

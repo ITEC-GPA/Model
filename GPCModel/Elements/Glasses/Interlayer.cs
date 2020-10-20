@@ -13,7 +13,8 @@ namespace GPC.Model.Elements.Glasses
         ///
         /// </summary>
         /// <param name="guid">The guid of the element</param>
-        protected Interlayer(Guid guid) : base(guid)
+        protected Interlayer(Guid guid)
+            : base(guid)
         {
         }
 
