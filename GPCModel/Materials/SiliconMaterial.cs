@@ -23,6 +23,7 @@ namespace GPC.Model.Materials
         public SiliconMaterial(double adhesiveStress, double density, double alfaThermalExpansion)
             : this(adhesiveStress, density, alfaThermalExpansion, Guid.Empty)
         {
+
         }
 
         public SiliconMaterial(SerializationInfo info, StreamingContext context)

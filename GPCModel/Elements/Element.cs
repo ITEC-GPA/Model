@@ -10,13 +10,8 @@ namespace GPC.Model.Elements
     [Serializable]
     public abstract class Element : ModelObject
     {
-        #region Variables
-        #endregion
-
-        #region Properties
-        #endregion
-
         #region Public Constructors
+
         protected Element(Guid guid)
             : base(guid)
         {
@@ -27,19 +22,11 @@ namespace GPC.Model.Elements
         {
         }
 
-        #endregion
+        #endregion Public Constructors
 
-        #region Public Methods Override
-        /*public override void GetObjectData(SerializationInfo info, StreamingContext context)
+        public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             base.GetObjectData(info, context);
-        }*/
-        #endregion
-
-        #region Public Methods Specific
-        #endregion
-
-        #region Private Methods Specific
-        #endregion
+        }
     }
 }

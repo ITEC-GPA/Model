@@ -63,6 +63,7 @@
     <Compile Include="Elements\Glasses\InsulatingGlass.cs" />
     <Compile Include="Elements\Glasses\DoubleInsulatingGlass.cs" />
     <Compile Include="Elements\Glasses\Interlayer.cs" />
+    <Compile Include="Elements\Glasses\GlassSurface.cs" />
     <Compile Include="Elements\Rebar.cs" />
     <Compile Include="Elements\Glasses\TripleInsulatingGlass.cs" />
     <Compile Include="FEMElements\Beams\Beam.cs" />

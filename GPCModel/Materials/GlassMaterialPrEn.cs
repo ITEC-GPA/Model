@@ -64,7 +64,7 @@ namespace GPC.Model.Materials
         #region PUBLIC CONSTRUCTORS
 
         /// <summary>
-        ///
+        /// 
         /// </summary>
         /// <param name="elasticModulus">Elastic modulus of the glass</param>
         /// <param name="poisson">poisson ratio's of the glass</param>
@@ -75,7 +75,7 @@ namespace GPC.Model.Materials
                                 double density, double alfaThermalExpansion)
             : this(elasticModulus, poisson, fgk, glassType, surfaceTreatment, prestressType, manufactoringProcess, density, alfaThermalExpansion, Guid.Empty)
         {
-
+            // TODO: ke factors
         }
 
         /// <summary>
