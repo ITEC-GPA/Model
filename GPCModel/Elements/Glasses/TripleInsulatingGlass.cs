@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Runtime.Serialization;
 
-namespace GPC.Model.Elements
+namespace GPC.Model.Elements.Glasses
 {
     /// <summary>
     /// This represent a triple glazing panel composed by three glass panels separated by air.
@@ -35,12 +35,13 @@ namespace GPC.Model.Elements
         /// <param name="airThicknessOuter">Outer air thickness</param>
         /// <param name="airThicknessInner">Inner air thickness</param>
         public TripleInsulatingGlass(GlassPanel glassPanelOuter, GlassPanel glassPanelCentral, GlassPanel glassPanelInner, double airThicknessOuter, double airThicknessInner) 
-                                    : this(glassPanelOuter, glassPanelCentral, glassPanelInner, airThicknessOuter, airThicknessInner, Guid.Empty)
+            : this(glassPanelOuter, glassPanelCentral, glassPanelInner, airThicknessOuter, airThicknessInner, Guid.Empty)
         {
 
         }
 
-        public TripleInsulatingGlass(GlassPanel glassPanelOuter, GlassPanel glassPanelCentral, GlassPanel glassPanelInner, double airThicknessOuter, double airThicknessInner, Guid guid) : base(guid)
+        public TripleInsulatingGlass(GlassPanel glassPanelOuter, GlassPanel glassPanelCentral, GlassPanel glassPanelInner, double airThicknessOuter, double airThicknessInner, Guid guid) 
+            : base(guid)
         {
             if (airThicknessOuter < 0 || airThicknessInner < 0)
                 throw new ArgumentOutOfRangeException("Air thickness can't be negative");
