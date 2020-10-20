@@ -80,6 +80,7 @@
     <Compile Include="Materials\InterlayerMaterial.cs" />
     <Compile Include="Materials\Material.cs" />
     <Compile Include="Materials\RebarMaterial.cs" />
+    <Compile Include="Materials\SiliconMaterial.cs" />
     <Compile Include="Materials\SteelMaterial.cs" />
     <Compile Include="ModelObject\ModelObject.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
