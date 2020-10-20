@@ -9,13 +9,15 @@ namespace GPC.Model.Materials
     [Serializable]
     public class InterlayerMaterial : Material
     {
+        #region PUBLIC ENUMS
         [Serializable]
         public enum InterlayerType
         {
             [Description("AcusticPVB / Family0 prEN")] AcusticPVB = 0,
             [Description("NormalPVB / Family1 prEN")] NormalPVB = 1,
             [Description("SentryGlass / Family2 prEN")] SentryGlass = 2
-        }
+        } 
+        #endregion
 
         #region VARIABLES
 
@@ -25,7 +27,6 @@ namespace GPC.Model.Materials
         #endregion VARIABLES
 
         public InterlayerType Type => _type;
-
 
         #region CONSTRUCTOR
 

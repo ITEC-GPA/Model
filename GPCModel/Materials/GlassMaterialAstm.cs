@@ -14,7 +14,7 @@ namespace GPC.Model.Materials
         private double _surfaceBaseEdgeStress;
         private double _probabiltyOfBreakage;
 
-        #endregion VARIABLES
+        #endregion 
 
         #region PROPERTIES
 
@@ -23,7 +23,7 @@ namespace GPC.Model.Materials
         public double SurfaceBaseStress => _surfaceBaseStress;
         public double SurfaceBaseEdgeStress => _surfaceBaseEdgeStress;
         public double ProbabiltyOfBreakage => _probabiltyOfBreakage;
-        #endregion PROPERTIES
+        #endregion 
 
         #region PUBLIC CONSTRUCTORS
 
@@ -102,7 +102,7 @@ namespace GPC.Model.Materials
             _surfaceBaseEdgeStress = info.GetDouble("SigmaBaseEdge");
         }
 
-        #endregion PUBLIC CONSTRUCTORS
+        #endregion
 
         #region PUBLIC METHODS
 
@@ -115,6 +115,6 @@ namespace GPC.Model.Materials
             info.AddValue("SigmaBaseEdge", _surfaceBaseEdgeStress);
         }
 
-        #endregion PUBLIC METHODS
+        #endregion 
     }
 }

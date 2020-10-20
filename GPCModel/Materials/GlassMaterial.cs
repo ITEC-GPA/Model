@@ -11,14 +11,14 @@ namespace GPC.Model.Materials
         protected double _elasticModulus;
         protected double _poisson;
 
-        #endregion VARIABLES
-
+        #endregion
+        
         #region PROPERTIES
 
         protected double ElasticModulus => _elasticModulus;
         protected double Poisson => _poisson;
 
-        #endregion PROPERTIES
+        #endregion
 
         #region CONSTRUCTOR
 
@@ -71,7 +71,7 @@ namespace GPC.Model.Materials
             _poisson = info.GetDouble("Poisson");
         }
 
-        #endregion CONSTRUCTOR
+        #endregion
 
         #region PUBLIC METHODS
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
@@ -81,6 +81,6 @@ namespace GPC.Model.Materials
             info.AddValue("Poisson", _poisson);
         }
 
-        #endregion PUBLIC METHODS
+        #endregion
     }
 }

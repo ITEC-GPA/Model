@@ -49,7 +49,7 @@ namespace GPC.Model.Elements.Glasses
         public MonolithicGlass(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
-
+            _thickness = info.GetDouble("Thickness");
         }
 
         #endregion CONSTRUCTORS
@@ -59,6 +59,7 @@ namespace GPC.Model.Elements.Glasses
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             base.GetObjectData(info, context);
+            info.AddValue("Thickness", _thickness);
         }
 
         #endregion PUBLIC METHODS
