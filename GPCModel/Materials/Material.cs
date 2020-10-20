@@ -4,11 +4,10 @@ using System.Runtime.Serialization;
 namespace GPC.Model.Materials
 {
     [Serializable]
-    public abstract class Material
+    public abstract class Material : ModelObject
     {
         #region VARIABLES
 
-        protected Guid _guid;
         protected double _alfaThermalExpansion;
         protected double _density;
 
@@ -16,7 +15,6 @@ namespace GPC.Model.Materials
 
         #region PROPERTIES
 
-        public Guid Guid => _guid;
         public double AlfaThermalExpansion => _alfaThermalExpansion;
         public double Density => _density;
 
@@ -24,16 +22,14 @@ namespace GPC.Model.Materials
 
         #region PUBLIC CONSTRUCTOR
 
-        protected Material(double density, double alfaThermalExpansion, Guid guid)
+        protected Material(double density, double alfaThermalExpansion, Guid guid) : base(guid)
         {
-            this._guid = guid;
             this._alfaThermalExpansion = alfaThermalExpansion;
             this._density = density;
         }
 
-        protected Material(SerializationInfo info, StreamingContext context)
+        protected Material(SerializationInfo info, StreamingContext context) : base(info, context)
         {
-            _guid = (Guid)info.GetValue("Guid", typeof(Guid));
             _alfaThermalExpansion = info.GetDouble("AlfaThermalExpansion");
             _density = info.GetDouble("Density");
         }
@@ -44,7 +40,7 @@ namespace GPC.Model.Materials
 
         public virtual void GetObjectData(SerializationInfo info, StreamingContext context)
         {
-            info.AddValue("Guid", _guid);
+            base.GetObjectData(info, context);
             info.AddValue("AlfaThermalExpansion", _alfaThermalExpansion);
             info.AddValue("Density", _density);
         }
