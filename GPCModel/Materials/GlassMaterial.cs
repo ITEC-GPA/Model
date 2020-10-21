@@ -55,7 +55,6 @@ namespace GPC.Model.Materials
         /// </summary>
         /// <param name="elasticModulus">Elastic modulus of the glass</param>
         /// <param name="poisson">poisson ratio's of the glass</param>
-        /// <param name="fgk">Characeristic value of bending strength of annealed glass</param>
         /// <param name="density">Density of the material</param>
         /// <param name="alfaThermalExpansion">Alfa linear thermal expansion coefficient</param>
         protected GlassMaterial(double elasticModulus, double poisson, double density, double alfaThermalExpansion)

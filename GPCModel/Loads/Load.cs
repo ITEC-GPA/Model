@@ -1,30 +1,32 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using GPC.Model.LoadCases;
+using System;
 using System.Runtime.Serialization;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace GPC.Model.Loads
 {
     [Serializable]
     public abstract class Load : ModelObject
     {
-        protected Load(Guid guid) 
+        private LoadCase _loadCase;
+
+        public LoadCase LoadCase => _loadCase;
+
+        protected Load(LoadCase loadCase, Guid guid)
             : base(guid)
         {
-
+            _loadCase = loadCase;
         }
 
-        protected Load(SerializationInfo info, StreamingContext context) 
+        protected Load(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
-
+            _loadCase = (LoadCase)info.GetValue("LoadCase", typeof(LoadCase));
         }
 
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             base.GetObjectData(info, context);
+            info.AddValue("LoadCase", _loadCase);
         }
     }
 }
