@@ -38,7 +38,7 @@ namespace GPC.Model.Materials
 
         #region PUBLIC METHODS
 
-        public virtual void GetObjectData(SerializationInfo info, StreamingContext context)
+        public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             base.GetObjectData(info, context);
             info.AddValue("AlfaThermalExpansion", _alfaThermalExpansion);

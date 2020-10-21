@@ -74,6 +74,10 @@
     <Compile Include="FEMElements\FEMObject.cs" />
     <Compile Include="FEMElements\Nodes\Node.cs" />
     <Compile Include="FEMElements\Nodes\FEMNodeDoF.cs" />
+    <Compile Include="LoadCases\ClimateHLoadCase.cs" />
+    <Compile Include="LoadCases\IClimate.cs" />
+    <Compile Include="LoadCases\ClimatePLoadCase.cs" />
+    <Compile Include="LoadCases\ClimateTLoadCase.cs" />
     <Compile Include="LoadCases\LoadCase.cs" />
     <Compile Include="LoadCases\LoadCasePrEn.cs" />
     <Compile Include="Loads\Load.cs" />

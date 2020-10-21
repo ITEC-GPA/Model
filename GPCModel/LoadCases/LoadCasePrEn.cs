@@ -18,9 +18,9 @@ namespace GPC.Model.LoadCases
             [Description("Maintenance")] Maintenance,
             [Description("Snow canopies")] SnowCanopies,
             [Description("Snow roofs")] SnowRoofs,
-            [Description("Climatic summer")] ClimaticSummer,
-            [Description("Climatic winter")] ClimaticWinter,
             [Description("Permanent")] Permanent
+            //[Description("Climatic summer")] ClimaticSummer,
+            //[Description("Climatic winter")] ClimaticWinter,
         }
         #endregion
 
@@ -29,7 +29,7 @@ namespace GPC.Model.LoadCases
 
         #region PUBLIC CONSTRUCTOR
 
-        public LoadCasePrEn(LoadCasePrEnType loadCasePrEnType, string name, LoadCaseType loadCaseType, Guid guid)
+        public LoadCasePrEn(string name, LoadCaseType loadCaseType, LoadCasePrEnType loadCasePrEnType, Guid guid)
             : base(name, loadCaseType, guid)
         {
             this._loadCasePrEnType = loadCasePrEnType;
