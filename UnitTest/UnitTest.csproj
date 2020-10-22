@@ -63,6 +63,7 @@
     <Compile Include="InterlayerMaterialTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="BeamTest.cs" />
+    <Compile Include="CombinationTest.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

@@ -1,24 +1,44 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using GPC.Model.LoadCases;
+using System;
 using System.Runtime.Serialization;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace GPC.Model.Combinations
 {
-    public abstract class CombinationAsce : ModelObject, ICombination
+    public class CombinationAsce : Combination
     {
-        protected CombinationAsce(Guid guid) : base(guid)
+        public enum CombinationType
         {
+            LFRD,
+            ASD
         }
 
-        protected CombinationAsce(SerializationInfo info, StreamingContext context) : base(info, context)
+        private CombinationType _combinationType;
+
+        public CombinationType GetCombinationType => _combinationType;
+
+        public CombinationAsce(string name, CombinationType combinationType, Guid guid)
+            : base(name, guid)
         {
+            this._combinationType = combinationType;
         }
 
-        public string Name => throw new NotImplementedException();
+        public CombinationAsce(SerializationInfo info, StreamingContext context)
+            : base(info, context)
+        {
+            _combinationType = (CombinationType)info.GetValue("CombinationType", typeof(CombinationType));
+        }
 
-        public bool isUltimate => throw new NotImplementedException();
+        public override void GetObjectData(SerializationInfo info, StreamingContext context)
+        {
+            base.GetObjectData(info, context);
+            info.AddValue("CombinationType", _combinationType);
+        }
+
+        public override bool IsUltimate() => _combinationType == CombinationType.LFRD ? true : false;
+
+        public override string ToString()
+        {
+            return base.ToString();
+        }
     }
 }

@@ -35,7 +35,6 @@ namespace GPC.Model.LoadCases
 
         #region PROPERTIES
         public string Name => _name;
-        public LoadCaseType? GetLoadCaseType => _loadCaseType; 
         #endregion
 
         #region PUBLIC CONSTRUCTOR
@@ -69,6 +68,7 @@ namespace GPC.Model.LoadCases
 
         #endregion PUBLIC CONSTRUCTOR
 
+        public LoadCaseType? GetLoadCaseType() => _loadCaseType;
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             base.GetObjectData(info, context);

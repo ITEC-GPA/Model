@@ -3,14 +3,8 @@ using System.Runtime.Serialization;
 
 namespace GPC.Model.Combinations
 {
-    public class CombinationEn : ModelObject, ICombination
+    public class CombinationEn : Combination
     {
-        private CombinationType _combinationType;
-        private string _name;
-
-        public CombinationType GetCombinationType => _combinationType;
-        public string Name => _name;
-
         public enum CombinationType
         {
             UltimateEquilibrium,
@@ -22,13 +16,17 @@ namespace GPC.Model.Combinations
             ServiceabilityQuasiPermanent
         }
 
-        protected CombinationEn(CombinationType combinationType, Guid guid) 
-            : base(guid)
+        private CombinationType _combinationType;
+
+        public CombinationType GetCombinationType => _combinationType;
+
+        public CombinationEn(string name, CombinationType combinationType, Guid guid)
+            : base(name, guid)
         {
             this._combinationType = combinationType;
         }
 
-        protected CombinationEn(SerializationInfo info, StreamingContext context) 
+        public CombinationEn(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
             _combinationType = (CombinationType)info.GetValue("CombinationType", typeof(CombinationType));
@@ -40,10 +38,15 @@ namespace GPC.Model.Combinations
             info.AddValue("CombinationType", _combinationType);
         }
 
-        public bool isUltimate =>   (_combinationType == CombinationType.UltimateEquilibrium || 
-                                    _combinationType == CombinationType.UltimateFatigue || 
-                                    _combinationType == CombinationType.UltimateGeotechnical || 
-                                    _combinationType == CombinationType.UltimateStructural) ? 
-                                    true : false;
+        public override bool IsUltimate() => (_combinationType == CombinationType.UltimateEquilibrium ||
+                                             _combinationType == CombinationType.UltimateFatigue ||
+                                             _combinationType == CombinationType.UltimateGeotechnical ||
+                                             _combinationType == CombinationType.UltimateStructural) ?
+                                             true : false;
+
+        public override string ToString()
+        {
+            return base.ToString();
+        }
     }
 }

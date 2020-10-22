@@ -25,7 +25,6 @@ namespace GPC.Model.LoadCases
         #endregion
 
         private LoadCasePrEnType _loadCasePrEnType;
-        public LoadCasePrEnType GetLoadCasePrEnType => _loadCasePrEnType;
 
         #region PUBLIC CONSTRUCTOR
 
@@ -42,6 +41,8 @@ namespace GPC.Model.LoadCases
         }
 
         #endregion
+
+        public LoadCasePrEnType GetLoadCasePrEnType() => _loadCasePrEnType;
 
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
