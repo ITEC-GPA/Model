@@ -38,7 +38,7 @@ namespace GPC.Model.Elements.Glasses
         public MonolithicGlass(double thickness, GlassMaterial glassMaterial, Guid guid)
             : base(glassMaterial, guid)
         {
-            if (thickness <= 0)
+            if (thickness <= 0.001)
             {
                 throw new ArgumentException($"{nameof(thickness)} cannot be zero or lower");
             }

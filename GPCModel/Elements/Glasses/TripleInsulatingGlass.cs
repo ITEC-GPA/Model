@@ -48,8 +48,8 @@ namespace GPC.Model.Elements.Glasses
         public TripleInsulatingGlass(GlassPanel glassPanelOuter, GlassPanel glassPanelCentral, GlassPanel glassPanelInner, double airThicknessOuter, double airThicknessInner, GlassMaterial glassMaterial, Guid guid)
             : base(glassMaterial, guid)
         {
-            if (airThicknessOuter < 0 || airThicknessInner < 0)
-                throw new ArgumentOutOfRangeException("Air thickness can't be negative");
+            if (airThicknessOuter < 0.001 || airThicknessInner < 0.001)
+                throw new ArgumentOutOfRangeException("Air thickness can't be negative or zero");
 
             this._glassPanelOuter = glassPanelOuter ?? throw new ArgumentException("Outer Glass panel can't be null");
             this._glassPanelCentral = glassPanelCentral ?? throw new ArgumentException("Central Glass panel can't be null");

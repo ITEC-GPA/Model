@@ -49,8 +49,8 @@ namespace GPC.Model.Elements.Glasses
         public DoubleInsulatingGlass(GlassPanel glassPanelOuter, GlassPanel glassPanelInner, double airThickness, GlassMaterial glassMaterial, Guid guid)
             : base(glassMaterial, guid)
         {
-            if (airThickness < 0)
-                throw new ArgumentOutOfRangeException("Air thickness can't be negative");
+            if (airThickness <= 0.001)
+                throw new ArgumentOutOfRangeException("Air thickness can't be negative or zero");
 
             this._glassPanelOuter = glassPanelOuter ?? throw new ArgumentException("Outer Glass panel can't be null");
             this._glassPanelInner = glassPanelInner ?? throw new ArgumentException("Inner Glass panel can't be null");
