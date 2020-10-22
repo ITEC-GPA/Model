@@ -24,12 +24,17 @@ namespace GPC.Model.FEM
         #endregion
 
         #region Properties
+
         public Node Node1 => _node1;
+
         public Node Node2 => _node2;
+
         public double Length => Node1.Position.DistanceTo(Node2.Position);
+
         public Section Section => _section;
+
         public Material Material => _material;
-        public FEMIntegrator Integrator => _Integrator;
+        
         #endregion
 
         #region Public Constructors
