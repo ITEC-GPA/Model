@@ -62,10 +62,14 @@ namespace GPC.Model.FEM
         public virtual void ChooseIntegrator()
         {
         }
+        protected abstract void SetLocalCoordinateSystem(double rotationAngle);
+
+        protected abstract void SetElement(Node[] arrayNode);
 
         #endregion
 
         #region Private Methods Specific
         #endregion
     }
+}
 }

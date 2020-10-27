@@ -43,12 +43,12 @@ namespace GPC.Model.FEM
         #endregion
 
         #region Public Methods Specific
-        public abstract void BuildK(Beam beam);
+        public abstract void BuildK(FEMElement element);
         public abstract void BuildT();
         public abstract void BuildJ();
         public abstract void BuildB();
         public abstract void BuildF();
-        public abstract void BuildTrfMatrix(Beam beam);
+        public abstract void BuildTrfMatrix(FEMElement element);
         public abstract void RegisterDoF(Node node);
 
         #endregion

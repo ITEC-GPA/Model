@@ -35,8 +35,9 @@ namespace GPC.Model.FEM
         #endregion
 
         #region Public Methods Specific
-        public override void BuildK(Beam beam)
+        public override void BuildK(FEMElement element)
         {
+            Beam beam = element as Beam;
             Matrix<double> k = Matrix<double>.Build.Dense(12, 12, 0.0);
 
             //TBeamElasticProperty* pProp = (TBeamElasticProperty*)m_pElement->GetProperty();
@@ -155,9 +156,9 @@ namespace GPC.Model.FEM
         public override void RegisterDoF(Node node)
         {
         }
-        public override void BuildTrfMatrix(Beam beam)
+        public override void BuildTrfMatrix(FEMElement element)
         {
-
+            Beam beam = element as Beam;
         }
         #endregion
 

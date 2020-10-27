@@ -26,12 +26,17 @@ namespace GPC.Model.FEM
         #endregion
 
         #region Properties
+
         public Node Node1 => _node1;
+
         public Node Node2 => _node2;
+
         public double Length => Node1.Position.DistanceTo(Node2.Position);
+
         public Section Section => _section;
+
         public Material Material => _material;
-        public FEMIntegrator Integrator => _Integrator;
+        
         #endregion
 
         #region Public Constructors
@@ -39,14 +44,12 @@ namespace GPC.Model.FEM
             : base(guid, integrator)
         {
             _guid = guid;
-            _node1 = nodes[0];
-            _node2 = nodes[1];
-            _nodes = new Node[nodes.Length];
-            _nodes = nodes;
+            SetElement(nodes);
             _section = section;
             _material = material;
             _Integrator = integrator;
             SetLocalCoordinateSystem(0.0);
+
         }
 
         protected Beam(SerializationInfo info, StreamingContext context)
@@ -147,7 +150,14 @@ namespace GPC.Model.FEM
         #endregion
 
         #region Private Methods Specific
-        protected void SetLocalCoordinateSystem(double rotationAngle)
+        protected override void SetElement(Node[] arrayNode)
+        {
+            _node1 = arrayNode[0];
+            _node2 = arrayNode[1];
+            _nodes = new Node[arrayNode.Length];
+            _nodes = arrayNode;
+        }
+        protected override void SetLocalCoordinateSystem(double rotationAngle)
         {
             Vector3d ZAxis = new Vector3d(0, 0, 1);
             Vector3d v11 = new Vector3d(1, 0, 0);
