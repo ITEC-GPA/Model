@@ -88,34 +88,28 @@ namespace UnitTest
                 Beams[el].KInGlobal(ref _stiffnessMatrix);
             }
 
-            string path = "C:\\Users\\r.vochescu\\Desktop\\" + "GLOBAl_K" + ".txt";
-            // This text is added only once to the file.
-            if (File.Exists(path) == true)
-            {
-                File.Delete(path);
-            }
-            if (!File.Exists(path))
-            {
-                //File.WriteAllText(path, _stiffnessMatrix.ToString());
+            //string path = "C:\\Users\\r.vochescu\\Desktop\\" + "GLOBAl_K" + ".txt";
+            //// This text is added only once to the file.
+            //if (File.Exists(path) == true)
+            //{
+            //    File.Delete(path);
+            //}
+            //if (!File.Exists(path))
+            //{
+            //    //File.WriteAllText(path, _stiffnessMatrix.ToString());
 
-                string matrix = "";
-                for (int r = 0; r < _stiffnessMatrix.RowCount; r++)
-                {
-                    for (int c = 0; c < _stiffnessMatrix.ColumnCount; c++)
-                    {
-                        matrix = matrix + "\t" + _stiffnessMatrix[r, c].ToString();
-                    }
-                    matrix = matrix + Environment.NewLine;
-                }
-                File.WriteAllText(path, matrix);
-            }
+            //    string matrix = "";
+            //    for (int r = 0; r < _stiffnessMatrix.RowCount; r++)
+            //    {
+            //        for (int c = 0; c < _stiffnessMatrix.ColumnCount; c++)
+            //        {
+            //            matrix = matrix + "\t" + _stiffnessMatrix[r, c].ToString();
+            //        }
+            //        matrix = matrix + Environment.NewLine;
+            //    }
+            //    File.WriteAllText(path, matrix);
+            //}
 
-            double k11 = _stiffnessMatrix[0, 0];
-            double k55 = _stiffnessMatrix[4, 4];
-            double k41 = _stiffnessMatrix[3, 0];
-
-            double ciao = 0;
-            double ciao1 = ciao;
 
 
             /// Costruzione vettore delle forze esterne
@@ -124,7 +118,11 @@ namespace UnitTest
 
             /// Solve Linear System
             Vector<double> ResultsMAFFEM = _stiffnessMatrix.Solve(Fmaffem);
-            double DXhand = ResultsMAFFEM[0];
+            double DXfem = ResultsMAFFEM[0];
+
+            double DXexpected = 900.4661;
+            double toll = Math.Pow(10, -4);
+            Assert.IsTrue((DXfem - DXexpected) < toll);
         }
 
         [TestMethod]
@@ -202,27 +200,27 @@ namespace UnitTest
                 Beams[el].KInGlobal(ref _stiffnessMatrix);
             }
 
-            string path = "C:\\Users\\r.vochescu\\Desktop\\" + "GLOBAl_K" + ".txt";
-            // This text is added only once to the file.
-            if (File.Exists(path) == true)
-            {
-                File.Delete(path);
-            }
-            if (!File.Exists(path))
-            {
-                //File.WriteAllText(path, _stiffnessMatrix.ToString());
+            //string path = "C:\\Users\\r.vochescu\\Desktop\\" + "GLOBAl_K" + ".txt";
+            //// This text is added only once to the file.
+            //if (File.Exists(path) == true)
+            //{
+            //    File.Delete(path);
+            //}
+            //if (!File.Exists(path))
+            //{
+            //    //File.WriteAllText(path, _stiffnessMatrix.ToString());
 
-                string matrix = "";
-                for (int r = 0; r < _stiffnessMatrix.RowCount; r++)
-                {
-                    for (int c = 0; c < _stiffnessMatrix.ColumnCount; c++)
-                    {
-                        matrix = matrix + "\t" + _stiffnessMatrix[r, c].ToString();
-                    }
-                    matrix = matrix + Environment.NewLine;
-                }
-                File.WriteAllText(path, matrix);
-            }
+            //    string matrix = "";
+            //    for (int r = 0; r < _stiffnessMatrix.RowCount; r++)
+            //    {
+            //        for (int c = 0; c < _stiffnessMatrix.ColumnCount; c++)
+            //        {
+            //            matrix = matrix + "\t" + _stiffnessMatrix[r, c].ToString();
+            //        }
+            //        matrix = matrix + Environment.NewLine;
+            //    }
+            //    File.WriteAllText(path, matrix);
+            //}
 
             double k11 = _stiffnessMatrix[0, 0];
             double k55 = _stiffnessMatrix[4, 4];
@@ -241,11 +239,11 @@ namespace UnitTest
             double DX = ResultsMAFFEM[0];
             double DY = ResultsMAFFEM[1];
 
-            double DXcheck = 593.2735;
-            double DYcheck = -471.9221;
+            double DXexpected = 593.2735;
+            double DYexpected = -471.9221;
 
-
-           //Assert.IsTrue(result == expected, message);
+            double toll = Math.Pow(10,-4);
+           Assert.IsTrue((DX - DXexpected) < toll && (DY - DYexpected) < toll);
         }
     }
 }
