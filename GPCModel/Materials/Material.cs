@@ -4,11 +4,10 @@ using System.Runtime.Serialization;
 namespace GPC.Model.Materials
 {
     [Serializable]
-    public abstract class Material
+    public abstract class Material : ModelObject
     {
         #region VARIABLES
 
-        protected Guid _guid;
         protected double _alfaThermalExpansion;
         protected double _density;
 
@@ -16,24 +15,21 @@ namespace GPC.Model.Materials
 
         #region PROPERTIES
 
-        public Guid Guid => _guid;
-        protected double AlfaThermalExpansion => _alfaThermalExpansion;
-        protected double Density => _density;
+        public double AlfaThermalExpansion => _alfaThermalExpansion;
+        public double Density => _density;
 
         #endregion PROPERTIES
 
         #region PUBLIC CONSTRUCTOR
 
-        public Material(double density, double alfaThermalExpansion, Guid guid)
+        protected Material(double density, double alfaThermalExpansion, Guid guid) : base(guid)
         {
-            this._guid = guid;
             this._alfaThermalExpansion = alfaThermalExpansion;
             this._density = density;
         }
 
-        public Material(SerializationInfo info, StreamingContext context)
+        protected Material(SerializationInfo info, StreamingContext context) : base(info, context)
         {
-            _guid = (Guid)info.GetValue("Guid", typeof(Guid));
             _alfaThermalExpansion = info.GetDouble("AlfaThermalExpansion");
             _density = info.GetDouble("Density");
         }
@@ -42,9 +38,9 @@ namespace GPC.Model.Materials
 
         #region PUBLIC METHODS
 
-        public virtual void GetObjectData(SerializationInfo info, StreamingContext context)
+        public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
-            info.AddValue("Guid", _guid);
+            base.GetObjectData(info, context);
             info.AddValue("AlfaThermalExpansion", _alfaThermalExpansion);
             info.AddValue("Density", _density);
         }

@@ -1,21 +1,16 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Runtime.Serialization;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace GPC.Model
 {
     [Serializable]
     public abstract class ModelObject
     {
-
         #region Variables
 
         protected Guid _guid;
 
-        #endregion
+        #endregion 
 
         #region Properties
 
@@ -37,18 +32,13 @@ namespace GPC.Model
 
         #endregion
 
-        #region Public Methods Override
-
-        #endregion
-
         #region Public Methods Specific
+
         public virtual void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             info.AddValue("Guid", _guid);
         }
-        #endregion
 
-        #region Private Methods Specific
         #endregion
     }
 }

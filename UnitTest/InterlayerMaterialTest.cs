@@ -41,7 +41,7 @@ namespace UnitTest
         [TestMethod]
         public void ShearModulus1()
         {
-            InterlayerMaterial interlayerMaterial = new InterlayerMaterial(1, 0, Guid.NewGuid());
+            InterlayerMaterial interlayerMaterial = new InterlayerMaterial(1, 0, InterlayerMaterial.InterlayerType.AcusticPVB, Guid.NewGuid());
 
             for (int i = 0; i < 6; i++)
             {
@@ -59,7 +59,7 @@ namespace UnitTest
         [TestMethod]
         public void ShearModulus2()
         {
-            InterlayerMaterial interlayerMaterial = new InterlayerMaterial(1, 0, Guid.NewGuid());
+            InterlayerMaterial interlayerMaterial = new InterlayerMaterial(1, 0, InterlayerMaterial.InterlayerType.AcusticPVB, Guid.NewGuid());
 
             for (int i = 0; i < 6; i++)
             {
