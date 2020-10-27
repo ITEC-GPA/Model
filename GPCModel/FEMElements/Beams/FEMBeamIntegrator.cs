@@ -120,26 +120,25 @@ namespace GPC.Model.FEM
             _stiffnessMatrix = _transformationMatrix.Transpose() * k;
             _stiffnessMatrix = _stiffnessMatrix * _transformationMatrix;
             //_stiffnessMatrix = k;
-
-            string path = "C:\\Users\\r.vochescu\\Desktop\\" + "STIFF-MATRIX" + beam.Guid.ToString() + ".txt";
-            // This text is added only once to the file.
-            if (File.Exists(path) == true)
-            {
-                File.Delete(path);
-            }
-            if (!File.Exists(path))
-            {
-                string matrix = "";
-                for (int r = 0; r < 12; r++)
-                {
-                    for (int c = 0; c < 12; c++)
-                    {
-                        matrix = matrix + "\t" + _stiffnessMatrix[r, c].ToString();
-                    }
-                    matrix  = matrix + Environment.NewLine;
-                }
-                File.WriteAllText(path, matrix);
-            }
+            //string path = "C:\\Users\\r.vochescu\\Desktop\\" + "STIFF-MATRIX" + beam.Guid.ToString() + ".txt";
+            //// This text is added only once to the file.
+            //if (File.Exists(path) == true)
+            //{
+            //    File.Delete(path);
+            //}
+            //if (!File.Exists(path))
+            //{
+            //    string matrix = "";
+            //    for (int r = 0; r < 12; r++)
+            //    {
+            //        for (int c = 0; c < 12; c++)
+            //        {
+            //            matrix = matrix + "\t" + _stiffnessMatrix[r, c].ToString();
+            //        }
+            //        matrix  = matrix + Environment.NewLine;
+            //    }
+            //    File.WriteAllText(path, matrix);
+            //}
         }
         public override void BuildT()
         {

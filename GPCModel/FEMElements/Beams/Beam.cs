@@ -292,21 +292,19 @@ namespace GPC.Model.FEM
             }
 
 
-            string path = "C:\\Users\\r.vochescu\\Desktop\\" + "TRANF-MATRIX" + this.Guid.ToString() + ".txt";
-            // This text is added only once to the file.
-            if (File.Exists(path) == true)
-            {
-                File.Delete(path);
-            }
-             if (!File.Exists(path))
-            {
-                // Create a file to write to.
-                //string createText = "Hello and Welcome" + Environment.NewLine;
-                File.WriteAllText(path, _integrator.TransformationMatrix.ToString());
-            }
-
-
-            Matrix<double> TEST = _integrator.TransformationMatrix;
+            //string path = "C:\\Users\\r.vochescu\\Desktop\\" + "TRANF-MATRIX" + this.Guid.ToString() + ".txt";
+            //// This text is added only once to the file.
+            //if (File.Exists(path) == true)
+            //{
+            //    File.Delete(path);
+            //}
+            // if (!File.Exists(path))
+            //{
+            //    // Create a file to write to.
+            //    //string createText = "Hello and Welcome" + Environment.NewLine;
+            //    File.WriteAllText(path, _integrator.TransformationMatrix.ToString());
+            //}
+            //Matrix<double> TEST = _integrator.TransformationMatrix;
         }
         #endregion
     }
