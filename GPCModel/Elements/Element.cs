@@ -11,15 +11,19 @@ namespace GPC.Model.Elements
     public abstract class Element : ModelObject
     {
         #region Variables
+        protected Guid _guid;
+        protected string _id;
         #endregion
 
         #region Properties
+        public Guid Guid => _guid;
         #endregion
 
         #region Public Constructors
         protected Element(Guid guid)
             : base(guid)
         {
+            _guid = guid;
         }
 
         protected Element(SerializationInfo info, StreamingContext context)

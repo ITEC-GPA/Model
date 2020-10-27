@@ -16,6 +16,8 @@ namespace GPC.Model.FEM
         protected FEMIntegrator _integrator;
         protected Node[] _nodes;
         protected int[,] _elIncidence;
+        protected int[] _elIncidenceLocal;
+        protected int[] _elIncidenceGlobal;
         #endregion
 
         #region Properties

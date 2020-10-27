@@ -39,6 +39,9 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="GPCGeometry">
+      <HintPath>..\..\GPCGeometry\GPCGeometry\bin\Debug\GPCGeometry.dll</HintPath>
+    </Reference>
     <Reference Include="GPCUtilities">
       <HintPath>..\..\GPCUtilities\GPCUtilities\bin\Debug\GPCUtilities.dll</HintPath>
     </Reference>
@@ -62,7 +65,7 @@
   <ItemGroup>
     <Compile Include="InterlayerMaterialTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="BeamTest.cs" />
+    <Compile Include="FEMTest.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
