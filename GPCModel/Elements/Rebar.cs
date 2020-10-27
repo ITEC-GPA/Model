@@ -7,14 +7,22 @@ using System.Threading.Tasks;
 using System.Diagnostics;
 using System.Runtime.Serialization;
 using GPC.Geometry;
+using GPC.Model.Materials;
 
-namespace GPC.Model
+namespace GPC.Model.Elements
 {
     [Serializable]
     public class Rebar : Element
     {
-        #region FIELD_CONSTRUCTORS
-        internal Rebar(double diameter, double effectiveArea, Point2d startPoint, Point2d endPoint, Point2d position, RebarMaterial material)
+        #region Variables
+        #endregion
+
+        #region Properties
+        #endregion
+
+        #region Public Constructors
+        internal Rebar(double diameter, double effectiveArea, Point2d startPoint, Point2d endPoint, Point2d position, RebarMaterial material, Guid guid) :
+            base(guid)
         {
             _diameter = diameter;
             _effectiveArea = effectiveArea;
@@ -23,17 +31,16 @@ namespace GPC.Model
             _position = new Point2d(position);
             _material = material;
         }
-        internal Rebar(double diameter, double effectiveArea, Point2d position, RebarMaterial material)
+
+        internal Rebar(double diameter, double effectiveArea, Point2d position, RebarMaterial material) :
+            this(diameter, effectiveArea, new Point2d(0, 0), new Point2d(0, 0), position, material, Guid.Empty)
         {
-            _diameter = diameter;
-            _effectiveArea = effectiveArea;
-            _startPoint = new Point2d(0,0);
-            _endPoint = new Point2d(0,0);
-            _position = new Point2d(position);
-            _material = material;
         }
-        protected Rebar(SerializationInfo info, StreamingContext context)
+
+        protected Rebar(SerializationInfo info, StreamingContext context) :
+            base(info, context)
         {
+            SerializationVersion = info.GetInt32("SerializationVersion");
             _diameter = info.GetDouble("Diameter");
             _effectiveArea = info.GetDouble("EffectiveArea");
             _startPoint = (Point2d)info.GetValue("StartPoint", typeof(Point2d));
@@ -41,7 +48,18 @@ namespace GPC.Model
             _position = (Point2d)info.GetValue("Position", typeof(Point2d));
             _material = (RebarMaterial)info.GetValue("Material", typeof(RebarMaterial));
         }
+
         #endregion
+
+        #region Public Methods Override
+        #endregion
+
+        #region Public Methods Specific
+        #endregion
+
+        #region Private Methods Specific
+        #endregion
+
 
         #region FIELD_DECONSTRUCTORS
         #endregion
@@ -54,10 +72,10 @@ namespace GPC.Model
 
 
         #region FIELD_SERIALIZATION
-        private static readonly int SERIALIZATION_RELEASE = 1;
-        public void GetObjectData(SerializationInfo info, StreamingContext context)
+        public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
-            info.AddValue("Version", SERIALIZATION_RELEASE);
+            base.GetObjectData(info, context);
+            info.AddValue("SerializationVersion", SerializationVersion);
             info.AddValue("Diameter", _diameter);
             info.AddValue("EffectiveArea", _effectiveArea);
             info.AddValue("StartPoint", _startPoint);
@@ -68,8 +86,10 @@ namespace GPC.Model
         #endregion 
 
         #region FIELD_VARIABLES
-        private double _x;
-        private double _y;
+
+        //private double _x;
+        //private double _y;
+
         #endregion
 
         #region FIELD_VARIABLES
@@ -86,6 +106,7 @@ namespace GPC.Model
         protected Point2d _endPoint;
         protected RebarMaterial _material;
         protected Point2d _position;
+        private static int SerializationVersion = 1;
         #endregion
 
         #region FIELD_PROPERTIES
@@ -125,9 +146,9 @@ namespace GPC.Model
 
         public Rebar this[int index] => _bars[index];
 
-        public void AddRebar(double diameter, double effectiveArea, Point2d startPoint, Point2d endPoint, Point2d position, RebarMaterial material)
+        public void AddRebar(double diameter, double effectiveArea, Point2d startPoint, Point2d endPoint, Point2d position, RebarMaterial material, Guid guid)
         {
-            _bars.Add(new Rebar(diameter, effectiveArea, startPoint, endPoint, position, material));
+            _bars.Add(new Rebar(diameter, effectiveArea, startPoint, endPoint, position, material, guid));
         }
         public void AddRebar(Rebar rebar)
         {
