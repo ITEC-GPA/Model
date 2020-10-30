@@ -17,10 +17,10 @@ namespace GPC.Model.Materials
         #region PROPERTIES
 
         // TODO aggiungere le altre proprietà del calcestruzzo derivate fa fck
-        protected double ElasticModulus => _elasticModulus;
+        public double ElasticModulus => _elasticModulus;
 
-        protected double Poisson => _poisson;
-        protected double Fck => _fck;
+        public double Poisson => _poisson;
+        public double Fck => _fck;
 
         #endregion PROPERTIES
 
