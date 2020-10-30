@@ -45,7 +45,7 @@ namespace GPC.Model.Elements
         #endregion
 
         #region Public Constructors
-        public Rebar(double diameter, double effectiveArea, Point2d startPoint, Point2d endPoint, Point2d position, RebarMaterial material, Guid guid, double _epsilonP, double _tensionP) :
+        public Rebar(double diameter, double effectiveArea, Point2d startPoint, Point2d endPoint, Point2d position, RebarMaterial material, Guid guid, double epsilonP, double tensionP) :
             base(guid)
         {
             _diameter = diameter;
@@ -54,6 +54,8 @@ namespace GPC.Model.Elements
             _endPoint = new Point2d(endPoint);
             _position = new Point2d(position);
             _material = material;
+            _epsilonP = epsilonP;
+            _tensionP = tensionP;
         }
 
         public Rebar(double diameter, double effectiveArea, Point2d startPoint, Point2d endPoint, Point2d position, RebarMaterial material, Guid guid) :
