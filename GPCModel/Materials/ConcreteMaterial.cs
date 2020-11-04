@@ -17,10 +17,9 @@ namespace GPC.Model.Materials
         #region PROPERTIES
 
         // TODO aggiungere le altre proprietà del calcestruzzo derivate fa fck
-        public double ElasticModulus => _elasticModulus;
-
-        public double Poisson => _poisson;
-        public double Fck => _fck;
+        public double ElasticModulus { get => _elasticModulus; set { _elasticModulus = value; } }
+        public double Poisson { get => _poisson; set { _poisson = value; } }
+        public double Fck { get => _fck; set { _fck = value; } }
 
         #endregion PROPERTIES
 
@@ -34,12 +33,17 @@ namespace GPC.Model.Materials
         /// <param name="fck">Concrete compression resistance reference value (28 days)</param>
         /// <param name="guid">Guid of the material</param>
         /// <param name="alfaThermalExpansion">Linear thermal expasion coefficient</param>
-        public ConcreteMaterial(double elasticModulus, double poisson, double fck, double density, double alfaThermalExpansion, Guid guid)
-            : base(density, alfaThermalExpansion, guid)
+        public ConcreteMaterial(string name, double elasticModulus, double poisson, double fck, double density, double alfaThermalExpansion, Guid guid)
+            : base(name, density, alfaThermalExpansion, guid)
         {
             _elasticModulus = elasticModulus;
             _poisson = poisson;
             _fck = fck;
+        }
+
+        public ConcreteMaterial(double elasticModulus, double poisson, double fck, double density, double alfaThermalExpansion, Guid guid)
+            : this("", elasticModulus, poisson, fck, density, alfaThermalExpansion, guid)
+        {
         }
 
         /// <summary>

@@ -1,4 +1,5 @@
 ﻿using GPC.Geometry;
+using GPC.Model.Materials;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,14 +10,45 @@ namespace GPC.Model.Sections
 {
     public class SectionShape : Section
     {
-        protected Shape2d _shape;
+        private class MultiMaterial : Material
+        {
+            protected List<Material> _materials;
 
-        public Shape2d Shape => _shape;
+            public List<Material> Materials => _materials;
 
-        public SectionShape(Shape2d shape)
+            public MultiMaterial(Material[] materials, Guid guid)
+                : base(guid)
+            {
+                _materials = new List<Material>(materials);
+            }
+        }
+
+        #region Variables
+        protected List<Shape2d> _shapes;
+        #endregion
+
+        #region Properties
+        public List<Shape2d> Shapes => _shapes;
+        #endregion
+
+        #region Public Constructors
+        #endregion
+
+        #region Public Methods Specific
+        #endregion
+
+        #region Private Methods Specific
+        #endregion
+
+        #region Public Methods Override
+        #endregion
+
+
+        public SectionShape(Shape2d[] shapes, Material[] materials)
             : base()
         {
-            _shape = shape;            
+            _shapes = new List<Shape2d>(shapes);
+            _material = new MultiMaterial(materials, new Guid());
         }
 
         public override void Calculate()
@@ -25,9 +57,15 @@ namespace GPC.Model.Sections
             // Calcolo Area, ecc a partire dalla shape
         }
 
-        public override Shape2d GetShape()
+        public override ShapeMaterial[] GetShapes()
         {
-            return _shape;
+            MultiMaterial mm = (MultiMaterial)_material;
+            List<ShapeMaterial> sm = new List<ShapeMaterial>();
+            for (int i = 0; i < _shapes.Count; i++)
+            {
+                sm.Add(new ShapeMaterial() { Material = mm.Materials[i], Shape = _shapes[i] });
+            }
+            return sm.ToArray();
         }
     }
 }

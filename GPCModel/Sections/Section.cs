@@ -5,13 +5,19 @@ using System.Runtime.Serialization;
 using System.Text;
 using System.Threading.Tasks;
 using GPC.Geometry;
+using GPC.Model.Materials;
 
 namespace GPC.Model.Sections
 {
     public class Section
     {
+        public struct ShapeMaterial
+        {
+            public Shape2d Shape { get; set; }
+            public Material Material { get; set; }
+        }
         #region Variables
-
+        protected Material _material;
         protected double _area;
         protected double _j;
         protected double _i11;
@@ -22,10 +28,15 @@ namespace GPC.Model.Sections
         protected double _sa2;
         protected Point2d _centroid;
         protected double _angleX1;
-
         #endregion
 
         #region Properties
+
+        public Material Material
+        {
+            get => _material;
+            set => _material = value;
+        }
 
         public double Area
         {
@@ -111,13 +122,10 @@ namespace GPC.Model.Sections
         }
 
         #endregion
-
         #region Public Methods Specific
 
         
-
         #endregion
-
         #region Virtual Methods
 
         public virtual void GetObjectData(SerializationInfo info, StreamingContext context)
@@ -138,11 +146,10 @@ namespace GPC.Model.Sections
         { 
         }
 
-        public virtual Shape2d GetShape()
+        public virtual ShapeMaterial[] GetShapes()
         {
             return null;
         }
-
         #endregion
     }
 }

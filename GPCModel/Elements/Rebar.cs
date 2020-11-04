@@ -14,6 +14,8 @@ namespace GPC.Model.Elements
     [Serializable]
     public class Rebar : Element
     {
+        public const double PRESTRESSED_LIMIT = 0.0000001;
+
         #region Variables
         /// <summary>
         /// </summary>
@@ -31,6 +33,7 @@ namespace GPC.Model.Elements
         private static int SerializationVersion = 1;
         protected double _epsilonP;
         protected double _tensionP;
+        protected bool _isPrestressed;
         #endregion
 
         #region Properties
@@ -42,6 +45,7 @@ namespace GPC.Model.Elements
         public RebarMaterial Material => _material;
         public double EpsilonP => _epsilonP;
         public double TensionP => _tensionP;
+        public bool IsPrestressed => _isPrestressed;
         #endregion
 
         #region Public Constructors
@@ -56,6 +60,12 @@ namespace GPC.Model.Elements
             _material = material;
             _epsilonP = epsilonP;
             _tensionP = tensionP;
+
+            _isPrestressed = false;
+            if (_tensionP > 0)
+            {
+                _isPrestressed = true;
+            }
         }
 
         public Rebar(double diameter, double effectiveArea, Point2d startPoint, Point2d endPoint, Point2d position, RebarMaterial material, Guid guid) :
@@ -88,19 +98,21 @@ namespace GPC.Model.Elements
         #endregion
 
         #region Public Methods Specific
+        public void ChangeDiameter(double newDiamter)
+        {
+            _diameter = newDiamter;
+        }
+        public void ChangeMaterial(RebarMaterial newMaterial)
+        {
+            _material = newMaterial;
+        }
+        public void AddPrestress(double tensionP)
+        {
+            _tensionP = tensionP;
+        }
         #endregion
 
         #region Private Methods Specific
-        #endregion
-
-
-        #region FIELD_DECONSTRUCTORS
-        #endregion
-
-        #region FIELD_COMMANDS
-        #endregion
-
-        #region FIELD_METHODS
         #endregion
 
 

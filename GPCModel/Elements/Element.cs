@@ -11,7 +11,6 @@ namespace GPC.Model.Elements
     public abstract class Element : ModelObject
     {
         #region Public Constructors
-
         protected Element(Guid guid)
             : base(guid)
         {

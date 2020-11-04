@@ -9,13 +9,13 @@ namespace GPC.Model
         #region Variables
 
         protected Guid _guid;
-
+        protected string _name;
         #endregion 
 
         #region Properties
 
         public Guid Guid => _guid;
-
+        public string Name { get => _name; set { _name = value;  } }
         #endregion
 
         #region Public Constructors
