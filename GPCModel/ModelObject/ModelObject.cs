@@ -7,7 +7,10 @@ namespace GPC.Model
     public abstract class ModelObject
     {
         #region Variables
-
+        /// <summary>
+        /// <param name="_guid"> Object GUID</param>
+        /// <param name="_name"> Object name</param>
+        /// </summary>
         protected Guid _guid;
         protected string _name;
         #endregion 

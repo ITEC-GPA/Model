@@ -13,11 +13,9 @@ namespace GPC.Model.FEM
     public class FEMShape : FEMObject
     {
         #region Variables 
-        protected Vector<double> _NMat;
-        protected Matrix<double> _dNMat;
-
+        protected Vector<double> _NMatrix;
+        protected Matrix<double> _dNMatrix;
         protected List<Point2d> _localNodes;
-
         protected int _numNodes;       // Numero di punti di appoggio
         protected int _maxNumDof;      // Numero massimo di gdl nel nodo
         protected int _numDim;         // Dimensioni della funzione di forma
@@ -25,8 +23,8 @@ namespace GPC.Model.FEM
         #endregion
 
         #region Properties
-        public Vector<double> NMat => _NMat;
-        public Matrix<double> DNMat => _dNMat;
+        public Vector<double> NMat => _NMatrix;
+        public Matrix<double> DNMat => _dNMatrix;
         public int NumNodes => _numNodes;
         public int MaxNumDof => _maxNumDof;
         public int NumDim => _numDim;

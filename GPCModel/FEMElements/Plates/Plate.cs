@@ -11,24 +11,25 @@ using GPC.Geometry;
 using MathNet.Spatial.Euclidean;
 using MathNet.Spatial.Units;
 using System.IO;
+using GPC.Model.Elements;
 
 namespace GPC.Model.FEM
 {
     public class Plate : FEMElement
     {
-
         #region Variables
         protected Node[] _nodes;
         protected Section _section;
         protected Material _material;
         protected GPC.Geometry.CoordinateSystem _CoordSys;
-
-        #endregion
+        protected PlateProperty _property;
+        #endregion 
 
         #region Properties
         public Node[] Nodes => _nodes;
         public Section Section => _section;
         public Material Material => _material;
+        public PlateProperty Property => _property;
         #endregion
 
         #region Public Constructors

@@ -7,14 +7,21 @@ namespace GPC.Model.Materials
     public abstract class Material : ModelObject
     {
         #region VARIABLES
-
+        /// <summary>
+        /// </summary>
+        /// <param name="_elasticModulus"> Elastic Modulus [MPa]</param>
+        /// <param name="_poisson"> Poisson modulus </param>
+        /// <param name="_alfaThermalExpansion"> Thermal expansion constant</param>
+        /// <param name="_density"> Effective area [mm2]</param>
+        protected double _elasticModulus;
+        protected double _poisson;
         protected double _alfaThermalExpansion;
         protected double _density;
-
         #endregion VARIABLES
 
         #region PROPERTIES
-
+        public double ElasticModulus => _elasticModulus;
+        public double Poisson => _poisson;
         public double AlfaThermalExpansion => _alfaThermalExpansion;
         public double Density => _density;
 

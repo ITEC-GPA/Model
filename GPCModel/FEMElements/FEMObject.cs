@@ -6,12 +6,20 @@ using System.Threading.Tasks;
 
 namespace GPC.Model.FEM
 {
-    public class FEMObject
+    public class FEMObject : ModelObject
     {
         #region Variables
         public FEMObject()
+            : base(Guid.Empty, "")
         {
-
+        }
+        public FEMObject(string name)
+             : base(Guid.Empty, name)
+        {
+        }
+        public FEMObject(Guid guid, string name)
+              : base(guid, name)
+        {
         }
         #endregion
 
