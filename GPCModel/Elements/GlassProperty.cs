@@ -7,8 +7,8 @@ namespace GPC.Model.Elements
     [Serializable]
     public class GlassProperty : ElementProperty
     {
-        public GlassProperty(GlassMaterial material) 
-            : base(material)
+        public GlassProperty(GlassMaterial material, Guid guid) 
+            : base(material, guid)
         {
 
         }
@@ -18,6 +18,7 @@ namespace GPC.Model.Elements
         {
 
         }
+
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             base.GetObjectData(info, context);

@@ -8,7 +8,7 @@ namespace GPC.Model.Elements.Glasses
     /// Glass base abstract class that is the base for all the glasses inside GPC environment.
     /// </summary>
     [Serializable]
-    public abstract class Glass : ElementProperty
+    public abstract class Glass : GlassProperty
     {
 
         /// <summary>
