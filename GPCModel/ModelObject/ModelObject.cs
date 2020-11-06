@@ -22,7 +22,14 @@ namespace GPC.Model
 
         public ModelObject(Guid guid)
         {
-            _guid = guid;
+            if(guid == Guid.Empty)
+            {
+                _guid = new Guid();
+            }
+            else
+            {
+                _guid = guid;
+            }
         }
 
         public ModelObject(SerializationInfo info, StreamingContext context)

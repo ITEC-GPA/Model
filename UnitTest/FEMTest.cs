@@ -10,13 +10,35 @@ using System.IO;
 
 namespace UnitTest
 {
+
     [TestClass]
-    public class FEMTest
+    public class FEMTestPlates
     {
         [TestMethod]
-        public void Benchmark1()
+        public void Benchmark10001()
         {
+            /// Nodes DoF
+            /// Bathe Convention
+            /// 0 - active degree of freedom
+            /// 1 - non-active degree of freedom
+            int[] NodeDoFID = new int[] { 1, 2, 3, 4, 5, 6 };
 
+            /// Nodes in 3D  XYZ
+            int[] Node1DoF = new int[] { 1, 1, 1, 1, 1, 1 };
+            int[] Node2DoF = new int[] { 0, 1, 0, 1, 0, 1 };
+            int[] Node3DoF = new int[] { 0, 1, 1, 1, 0, 1 };
+            Node Node1 = new Node(Guid.NewGuid(), new Point3d(0.0, 0.0, 0.0), 1, NodeDoFID, Node1DoF);
+            Node Node2 = new Node(Guid.NewGuid(), new Point3d(0.0, 0.0, 5000.0), 2, NodeDoFID, Node2DoF);
+            Node Node3 = new Node(Guid.NewGuid(), new Point3d(5000.0, 0.0, 5000.0), 2, NodeDoFID, Node3DoF);
+        }
+    }
+
+    [TestClass]
+    public class FEMTestBeams
+    {
+        [TestMethod]
+        public void Benchmark00001()
+        {
             /// Nodes DoF
             /// Bathe Convention
             /// 0 - active degree of freedom
@@ -126,7 +148,7 @@ namespace UnitTest
         }
 
         [TestMethod]
-        public void Benchmark2()
+        public void Benchmark00002()
         {
 
             /// Nodes DoF

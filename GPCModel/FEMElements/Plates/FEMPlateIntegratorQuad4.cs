@@ -10,31 +10,28 @@ using GPC.Model.Sections;
 
 namespace GPC.Model.FEM
 {
-    public class FEMPlateIntegrator : FEMIntegrator
+    public class FEMPlateIntegratorQuad4 : FEMPlateIntegrator
     {
         #region Variables 
-        protected FEMShape _shape;
-        protected Matrix<double> _DPlane;
-        protected Matrix<double> _DBending;
         #endregion
 
         #region Properties
-        public FEMShape Shape => _shape;
-        public Matrix<double> DPlane => _DPlane;
-        public Matrix<double> DBending => _DBending;
         #endregion
 
         #region Public Constructors
-        public FEMPlateIntegrator(Guid guid)
+        public FEMPlateIntegratorQuad4(Guid guid)
             : base(guid)
         {
         }
-        public FEMPlateIntegrator(SerializationInfo info, StreamingContext context)
+        public FEMPlateIntegratorQuad4(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
         }
         #endregion
         #region Public Methods Override
+        #endregion
+
+        #region Public Methods Specific
         public override void BuildK(FEMElement element)
         {
             Plate plate = element as Plate;
@@ -58,11 +55,25 @@ namespace GPC.Model.FEM
         {
             Plate plate = element as Plate;
         }
-        #endregion
-
-        #region Public Methods Specific
-        public virtual void BuildD(Plate plate)
+        public override void BuildD(Plate plate)
         {
+            _DPlane = Matrix<double>.Build.Dense(3, 3, 0);
+            _DBending = Matrix<double>.Build.Dense(3, 3, 0);
+
+            double c, cc;
+            //c = pProp->m_E / (1. - pProp->m_Poisson * pProp->m_Poisson);
+            //_DPlane[0, 0] = c;
+            //_DPlane[1, 1] = c;
+            //_DPlane[2, 2] = 0.5 * c * (1. - pProp->m_Poisson);
+            //_DPlane[0, 1] = pProp->m_Poisson * c;
+            //_DPlane[1, 0] = m_Dplane(0, 1);
+
+            //cc = c * (pProp->m_Thickness * pProp->m_Thickness * pProp->m_Thickness) / 12.;
+            //_DBending[0, 0] = cc;
+            //_DBending[1, 1] = cc;
+            //_DBending[2, 2] = 0.5 * cc * (1. - pProp->m_Poisson);
+            //_DBending[0, 1] = pProp->m_Poisson * cc;
+            //_DBending[1, 0] = _DBending(0, 1);
         }
         #endregion
 
