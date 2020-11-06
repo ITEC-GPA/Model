@@ -58,6 +58,7 @@
     <Compile Include="Combinations\Combination.cs" />
     <Compile Include="Combinations\CombinationAsce.cs" />
     <Compile Include="Combinations\CombinationEn.cs" />
+    <Compile Include="Elements\ElementProperty.cs" />
     <Compile Include="Elements\Glasses\Glass.cs" />
     <Compile Include="Elements\Element.cs" />
     <Compile Include="Elements\Glasses\GlassPanel.cs" />
@@ -67,16 +68,26 @@
     <Compile Include="Elements\Glasses\DoubleInsulatingGlass.cs" />
     <Compile Include="Elements\Glasses\Interlayer.cs" />
     <Compile Include="Elements\Glasses\GlassSurface.cs" />
+    <Compile Include="Elements\PlateProperty.cs" />
     <Compile Include="Elements\Rebar.cs" />
     <Compile Include="Elements\Glasses\TripleInsulatingGlass.cs" />
     <Compile Include="FEMElements\Beams\Beam.cs" />
     <Compile Include="FEMElements\Beams\FEMBeamIntegrator.cs" />
     <Compile Include="FEMElements\FEMDoF.cs" />
     <Compile Include="FEMElements\FEMElement.cs" />
+    <Compile Include="FEMElements\FEMGaussPoint.cs" />
+    <Compile Include="FEMElements\FEMIntegrationPoint.cs" />
     <Compile Include="FEMElements\FEMIntegrator.cs" />
     <Compile Include="FEMElements\FEMObject.cs" />
+    <Compile Include="FEMElements\FEMShape.cs" />
     <Compile Include="FEMElements\Nodes\Node.cs" />
     <Compile Include="FEMElements\Nodes\FEMNodeDoF.cs" />
+    <Compile Include="FEMElements\Plates\FEMPlateIntegrator.cs" />
+    <Compile Include="FEMElements\Plates\FEMPlateIntegratorQuad4.cs" />
+    <Compile Include="FEMElements\Plates\FEMShapeQuad4.cs" />
+    <Compile Include="FEMElements\Plates\FEMShapeTri3.cs" />
+    <Compile Include="FEMElements\Plates\FEMShapeTri6.cs" />
+    <Compile Include="FEMElements\Plates\Plate.cs" />
     <Compile Include="LoadCases\ClimateHLoadCase.cs" />
     <Compile Include="LoadCases\IClimate.cs" />
     <Compile Include="LoadCases\ClimatePLoadCase.cs" />
@@ -102,9 +113,7 @@
     <Compile Include="Sections\SectionRectangular.cs" />
     <Compile Include="Sections\SectionShape.cs" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="FEMElements\Plates\" />
-  </ItemGroup>
+  <ItemGroup />
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>

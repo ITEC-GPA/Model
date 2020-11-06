@@ -21,30 +21,25 @@ namespace GPC.Model.FEM
         protected Node[] _nodes;
         protected Section _section;
         protected Material _material;
-        protected FEMIntegrator _Integrator;
         protected GPC.Geometry.CoordinateSystem _CoordSys;
 
         #endregion
 
         #region Properties
-
         public Node[] Nodes => _nodes;
-
         public Section Section => _section;
-
         public Material Material => _material;
-
         #endregion
 
         #region Public Constructors
-        public Plate(Guid guid, Section section, Material material, FEMIntegrator integrator, Node[] nodes)
+        public Plate(Guid guid, Section section, Material material, FEMPlateIntegrator integrator, Node[] nodes)
             : base(guid, integrator)
         {
             _guid = guid;
             SetElement(nodes);
             _section = section;
             _material = material;
-            _Integrator = integrator;
+            _integrator = integrator;
             SetLocalCoordinateSystem(0.0);
         }
 
