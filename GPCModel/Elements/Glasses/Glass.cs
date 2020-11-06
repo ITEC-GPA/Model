@@ -8,25 +8,24 @@ namespace GPC.Model.Elements.Glasses
     /// Glass base abstract class that is the base for all the glasses inside GPC environment.
     /// </summary>
     [Serializable]
-    public abstract class Glass : Element
+    public abstract class Glass : ElementProperty
     {
-        protected GlassMaterial _glassMaterial;
-
-        public GlassMaterial GlassMaterial => _glassMaterial;
 
         /// <summary>
         ///
         /// </summary>
         /// <param name="guid">The guid of the object</param>
+        /// <param name="glassMaterial"></param>
         protected Glass(GlassMaterial glassMaterial, Guid guid)
-            : base(guid)
+            : base(glassMaterial, guid)
         {
-            this._glassMaterial = glassMaterial;
+
         }
 
         protected Glass(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
+
         }
 
         #region PUBLIC METHODS
