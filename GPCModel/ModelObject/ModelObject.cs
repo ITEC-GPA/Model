@@ -31,8 +31,12 @@ namespace GPC.Model
                 _guid = guid;
             }
         }
-
-        public ModelObject(SerializationInfo info, StreamingContext context)
+        public ModelObject(Guid guid, string name)
+            : this (guid)
+        {
+            _name = name;
+        }
+            public ModelObject(SerializationInfo info, StreamingContext context)
         {
             _guid = (Guid)info.GetValue("Guid", typeof(Guid));
         }
