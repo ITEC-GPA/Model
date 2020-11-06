@@ -10,9 +10,10 @@ namespace GPC.Model.Elements.Glasses
     [Serializable]
     public abstract class Glass : Element
     {
-        private GlassMaterial _glassMaterial;
+        protected GlassMaterial _glassMaterial;
 
         public GlassMaterial GlassMaterial => _glassMaterial;
+
         /// <summary>
         ///
         /// </summary>

@@ -11,8 +11,8 @@ namespace GPC.Model.Elements.Glasses
     public abstract class Interlayer : Element
     {
         #region VARIABLES
-        private double _thickness;
-        private InterlayerMaterial _interlayerMaterial;
+        protected double _thickness;
+        protected InterlayerMaterial _interlayerMaterial;
         #endregion
 
         #region PROPERTIES

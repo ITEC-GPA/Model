@@ -11,7 +11,7 @@ namespace GPC.Model.Elements.Glasses
     public class MonolithicGlass : GlassPanel
     {
         #region VARIABLES
-        private double _thickness;
+        protected double _thickness;
         #endregion
 
         public double Thickness => _thickness;

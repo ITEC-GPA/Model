@@ -8,8 +8,8 @@ namespace GPC.Model.Elements.Glasses
     {
         #region VARIABLES
 
-        private Glass _glass;
-        private Shape2d _shape;
+        protected Glass _glass;
+        protected Shape2d _shape;
 
         #endregion VARIABLES
 

@@ -12,9 +12,9 @@ namespace GPC.Model.Elements.Glasses
     {
         #region Variables
 
-        private readonly GlassPanel _glassPanelOuter;
-        private readonly double _airThickness;
-        private readonly GlassPanel _glassPanelInner;
+        protected readonly GlassPanel _glassPanelOuter;
+        protected readonly double _airThickness;
+        protected readonly GlassPanel _glassPanelInner;
 
         #endregion Variables
 
@@ -67,8 +67,6 @@ namespace GPC.Model.Elements.Glasses
         }
 
         #endregion Public constructor
-
-
 
         #region PUBLIC METHODS
 
