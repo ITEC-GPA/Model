@@ -1,28 +1,14 @@
 ﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Diagnostics;
 using System.Runtime.Serialization;
-using GPC.Geometry;
 using GPC.Model.Materials;
 
 namespace GPC.Model.Elements
 {
-    /// <summary>
-    /// Element base abstract class that is the base for all the objects inside GPC environment.
-    /// </summary>
-
     [Serializable]
     public abstract class ElementProperty : ModelObject
     {
         #region Variables
-        /// <summary>
-        /// <param name="_material"> Material of the element</param>
-        /// <param name="_name"> Material of the element</param>
-        /// </summary>
+
         protected Material _material;
         #endregion
 
@@ -31,9 +17,16 @@ namespace GPC.Model.Elements
         #endregion
 
         #region Public Constructors
-        protected ElementProperty(Material material)
-            : base(new Guid())
+        protected ElementProperty(Material material, Guid guid)
+            : base(guid)
         {
+            this._material = material;
+        }
+
+        protected ElementProperty(Material material)
+            : this(material, Guid.Empty)
+        {
+
         }
 
         protected ElementProperty(SerializationInfo info, StreamingContext context)
