@@ -4,6 +4,7 @@ using System.Runtime.Serialization;
 
 namespace GPC.Model.Loads
 {
+    [Serializable]
     public class NormalPressureLoad : Load
     {
         private double _pressure;
