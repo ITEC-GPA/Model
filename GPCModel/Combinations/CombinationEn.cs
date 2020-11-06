@@ -26,6 +26,12 @@ namespace GPC.Model.Combinations
             this._combinationType = combinationType;
         }
 
+        public CombinationEn(string name, CombinationType combinationType)
+            : this(name, combinationType, Guid.Empty)
+        {
+
+        }
+
         public CombinationEn(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {

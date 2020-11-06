@@ -28,35 +28,25 @@ namespace GPC.Model.LoadCases
 
         #region VARIABLES
 
-        private string _name;
         private LoadCaseType? _loadCaseType;
 
         #endregion VARIABLES
 
-        #region PROPERTIES
-        public string Name => _name;
-        #endregion
-
         #region PUBLIC CONSTRUCTOR
 
-        public LoadCase(string name, LoadCaseType loadCaseType, Guid guid)
-            : base(guid)
+        public LoadCase(string name, LoadCaseType? loadCaseType, Guid guid)
+            : base(guid, name)
         {
             if (String.IsNullOrEmpty(name) || string.IsNullOrWhiteSpace(name))
                 throw new ArgumentException("Loadcase name cannot be empty");
 
-            this._name = name;
             this._loadCaseType = loadCaseType;
         }
 
         public LoadCase(string name, Guid guid)
-            : base(guid)
+            : this(name, null, guid)
         {
-            if (String.IsNullOrEmpty(name) || string.IsNullOrWhiteSpace(name))
-                throw new ArgumentException("Loadcase name cannot be empty");
 
-            this._name = name;
-            this._loadCaseType = null;
         }
 
         public LoadCase(SerializationInfo info, StreamingContext context)
@@ -69,6 +59,7 @@ namespace GPC.Model.LoadCases
         #endregion PUBLIC CONSTRUCTOR
 
         public LoadCaseType? GetLoadCaseType() => _loadCaseType;
+
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             base.GetObjectData(info, context);
