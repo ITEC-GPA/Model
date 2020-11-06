@@ -13,15 +13,18 @@ namespace GPC.Model.FEM
     public class FEMPlateIntegratorQuad4 : FEMPlateIntegrator
     {
         #region Variables 
+        protected FEMShape _shape;
         #endregion
 
         #region Properties
+        public FEMShape Shape => _shape;
         #endregion
 
         #region Public Constructors
-        public FEMPlateIntegratorQuad4(Guid guid)
+        public FEMPlateIntegratorQuad4(Guid guid, FEMShape shape)
             : base(guid)
         {
+            _shape = shape;
         }
         public FEMPlateIntegratorQuad4(SerializationInfo info, StreamingContext context)
             : base(info, context)
@@ -32,8 +35,20 @@ namespace GPC.Model.FEM
         #endregion
 
         #region Public Methods Specific
-        public override void BuildD(Plate plate)
+        public override void StartIntegration(FEMElement element)
         {
+            Plate plate = element as Plate;   
+            BuildD(plate);
+
+            for(int nd = 0; nd < plate.Nodes.Length; nd++)
+            {
+
+            }
+        }
+        public override void BuildD(FEMElement element)
+        {
+            Plate plate = element as Plate;
+
             _DPlane = Matrix<double>.Build.Dense(3, 3, 0);
             _DBending = Matrix<double>.Build.Dense(3, 3, 0);
 
@@ -60,7 +75,6 @@ namespace GPC.Model.FEM
 
         public override void BuildJ()
         {
-
         }
         public override void BuildK(FEMElement element)
         {

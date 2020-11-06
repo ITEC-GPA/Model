@@ -13,13 +13,17 @@ namespace GPC.Model.FEM
     public class FEMShape : FEMObject
     {
         #region Variables 
+        /// <param name="_numNodes"> Number of supporting nodes for the interpolation </param>
+        /// <param name="_maxNumDof"> Maximum number of DoF in the single node </param>
+        /// <param name="_numDim"> Shape function dimension (one dimension domain, two-dimension domain, three-dimensions domanain </param>
+        /// <param name="_order"> Order of shape functions </param>
         protected Vector<double> _NMatrix;
         protected Matrix<double> _dNMatrix;
         protected List<Point2d> _localNodes;
-        protected int _numNodes;       // Numero di punti di appoggio
-        protected int _maxNumDof;      // Numero massimo di gdl nel nodo
-        protected int _numDim;         // Dimensioni della funzione di forma
-        protected int _order;          // Ordine di continuità
+        protected int _numNodes;     
+        protected int _maxNumDof;   
+        protected int _numDim;       
+        protected int _order;     
         #endregion
 
         #region Properties

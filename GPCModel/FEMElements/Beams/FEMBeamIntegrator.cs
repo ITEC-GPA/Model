@@ -32,9 +32,9 @@ namespace GPC.Model.FEM
         #endregion
 
         #region Public Methods Override
-        #endregion
-
-        #region Public Methods Specific
+        public override void StartIntegration(FEMElement element)
+        {
+        }
         public override void BuildK(FEMElement element)
         {
             Beam beam = element as Beam;
@@ -51,15 +51,15 @@ namespace GPC.Model.FEM
             double I1 = beam.Section.I11;
             double I2 = beam.Section.I22;
             double Jt = beam.Section.J;
-            
+
             double E = 30000;
             double ni = 0.3;
             double G = E / (2 * (1 + 0.3));
-            double L2 = L * L; 
+            double L2 = L * L;
             double L3 = L2 * L;
 
             // Column 1
-            k[0, 0] =  E * A / L;
+            k[0, 0] = E * A / L;
             k[6, 0] = -k[0, 0];
 
             // Column 2
@@ -86,7 +86,7 @@ namespace GPC.Model.FEM
             // Column 6
             k[5, 5] = 4.0 * I1 * E / L;
             k[7, 5] = -k[5, 1];
-            k[11, 5] = 2.0 * I1 * E/ L;
+            k[11, 5] = 2.0 * I1 * E / L;
 
             // Column 7
             k[6, 6] = k[0, 0];
@@ -108,7 +108,7 @@ namespace GPC.Model.FEM
             // Column 12
             k[11, 11] = k[5, 5];
 
-    
+
             // Specchia la matrice per simmetria
             for (int r = 0; r < 12; r++)
             {
@@ -140,6 +140,12 @@ namespace GPC.Model.FEM
             //    File.WriteAllText(path, matrix);
             //}
         }
+        public override void BuildD(FEMElement element)
+        {
+        }
+        public override void BuildN()
+        {
+        }
         public override void BuildT()
         {
         }
@@ -159,6 +165,9 @@ namespace GPC.Model.FEM
         {
             Beam beam = element as Beam;
         }
+        #endregion
+
+        #region Public Methods Specific
         #endregion
 
         #region Private Methods Specific

@@ -18,12 +18,12 @@ namespace GPC.Model.Elements
 
         #region Variables
         /// <summary>
-        /// </summary>
         /// <param name="_diameter">rebar diameter [mm]</param>
         /// <param name="_effectiveArea">Area to be used for calculations [mm2]</param>
         /// <param name="_p1"> Start Point of the rebar</param>
         /// <param name="_p2"> End Point of the rebar</param>
         /// <param name="_material"> Material of the rebar</param>
+        /// </summary>
         protected double _diameter;
         protected double _effectiveArea;
         protected Point2d _startPoint;

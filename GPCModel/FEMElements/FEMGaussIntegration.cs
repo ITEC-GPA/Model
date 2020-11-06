@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace GPC.Model.FEM
 {
-    public class FEMIntegrationPoint : FEMObject
+    public class FEMGaussIntegration : FEMObject
     {
         #region Variables 
         /// <summary>
@@ -19,21 +19,21 @@ namespace GPC.Model.FEM
         /// <param name="_coords"> Array of integration points coordinates </param>
         protected int _numPoint;         
         protected double[] _weights;        
-        protected Point2d[] _coords;         
+        protected Point3d[] _coords;         
         #endregion
 
         #region Properties
         public int NumPoint => _numPoint;         
         public double[] Weights => _weights;       
-        public Point2d[] Coords => _coords;    
+        public Point3d[] Coords => _coords;    
         #endregion
 
         #region Public Constructors
-        public FEMIntegrationPoint()
+        public FEMGaussIntegration()
         {
         }
 
-        protected FEMIntegrationPoint(SerializationInfo info, StreamingContext context)
+        protected FEMGaussIntegration(SerializationInfo info, StreamingContext context)
         {
         }
         #endregion
@@ -42,7 +42,7 @@ namespace GPC.Model.FEM
         #endregion
 
         #region Protected Methods virtual
-        public virtual void SetValue()
+        public virtual void SetValue(int order, int dim)
         {
         }
         #endregion

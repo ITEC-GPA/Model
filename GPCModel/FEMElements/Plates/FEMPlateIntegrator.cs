@@ -16,9 +16,9 @@ namespace GPC.Model.FEM
         protected FEMShape _shape;
         protected Matrix<double> _DPlane;
         protected Matrix<double> _DBending;
-        #endregion
+       #endregion
 
-        #region Properties
+         #region Properties
         public FEMShape Shape => _shape;
         public Matrix<double> DPlane => _DPlane;
         public Matrix<double> DBending => _DBending;
@@ -35,6 +35,9 @@ namespace GPC.Model.FEM
         }
         #endregion
         #region Public Methods Override
+        public override void BuildN()
+        {
+        }
         public override void BuildK(FEMElement element)
         {
             Plate plate = element as Plate;
@@ -61,8 +64,26 @@ namespace GPC.Model.FEM
         #endregion
 
         #region Public Methods Specific
-        public virtual void BuildD(Plate plate)
+        public override void BuildD(FEMElement element)
         {
+        }
+        public override void StartIntegration(FEMElement element)
+        {
+        }
+        protected void InitTri3(FEMElement element)
+        {
+        }
+        protected void InitQuad4(FEMElement element)
+        {
+            SetIntegrationPoint(new FEMGaussIntegrationQuad(2, 2), new FEMGaussIntegrationQuad(2, 2));
+        }
+        protected void InitQuad8(FEMElement element)
+        {
+            SetIntegrationPoint(new FEMGaussIntegrationQuad(3, 3), new FEMGaussIntegrationQuad(2, 2));
+        }
+        protected void InitQuad9(FEMElement element)
+        {
+            SetIntegrationPoint(new FEMGaussIntegrationQuad(3, 3), new FEMGaussIntegrationQuad(2, 2));
         }
         #endregion
 

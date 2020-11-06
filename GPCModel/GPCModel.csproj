@@ -76,8 +76,9 @@
     <Compile Include="FEMElements\Beams\FEMBeamIntegrator.cs" />
     <Compile Include="FEMElements\FEMDoF.cs" />
     <Compile Include="FEMElements\FEMElement.cs" />
-    <Compile Include="FEMElements\FEMGaussPoint.cs" />
-    <Compile Include="FEMElements\FEMIntegrationPoint.cs" />
+    <Compile Include="FEMElements\FEMGaussIntegrationTri.cs" />
+    <Compile Include="FEMElements\FEMGaussIntegrationQuad.cs" />
+    <Compile Include="FEMElements\FEMGaussIntegration.cs" />
     <Compile Include="FEMElements\FEMIntegrator.cs" />
     <Compile Include="FEMElements\FEMObject.cs" />
     <Compile Include="FEMElements\FEMShape.cs" />

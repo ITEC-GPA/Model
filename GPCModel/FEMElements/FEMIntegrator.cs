@@ -5,6 +5,7 @@ using System.Runtime.Serialization;
 using System.Text;
 using System.Threading.Tasks;
 using MathNet.Numerics.LinearAlgebra;
+using GPC.Geometry;
 
 namespace GPC.Model.FEM
 {
@@ -17,6 +18,8 @@ namespace GPC.Model.FEM
         protected Matrix<double> _transformationMatrix;
         protected int _numTotDoF;
         protected int _numTotActiveDoF;
+        protected FEMGaussIntegration _gaussIntegrationPoints;
+        protected FEMGaussIntegration _gaussStrainPoints;
         #endregion
 
         #region Properties
@@ -24,8 +27,10 @@ namespace GPC.Model.FEM
         public Matrix<double> TangentMatrix => _tangentMatrix;
         public Matrix<double> MassMatrix => _massMatrix;
         public Matrix<double> TransformationMatrix { get => _transformationMatrix; set { _transformationMatrix = value; } }
-        public int NumTotDoF { get =>  _numTotDoF; set { _numTotDoF = value; }  }
+        public int NumTotDoF { get => _numTotDoF; set { _numTotDoF = value; } }
         public int NumTotActiveDoF { get => _numTotActiveDoF; set { _numTotActiveDoF = value; } }
+        public FEMGaussIntegration GaussIntegrationPoints => _gaussIntegrationPoints;
+        public FEMGaussIntegration GaussStrainPoints => _gaussStrainPoints;
         #endregion
 
         #region Public Constructors
@@ -43,14 +48,21 @@ namespace GPC.Model.FEM
         #endregion
 
         #region Public Methods Specific
-        public abstract void BuildK(FEMElement element);
-        public abstract void BuildT();
+        public abstract void BuildN();
         public abstract void BuildJ();
         public abstract void BuildB();
+        public abstract void BuildD(FEMElement element);
+        public abstract void BuildK(FEMElement element);
+        public abstract void BuildT();
         public abstract void BuildF();
         public abstract void BuildTrfMatrix(FEMElement element);
         public abstract void RegisterDoF(Node node);
-
+        public abstract void StartIntegration(FEMElement element);
+        public virtual void SetIntegrationPoint(FEMGaussIntegration gaussIntegrationPoints, FEMGaussIntegration gaussStrainPoints)
+        {
+            _gaussIntegrationPoints = gaussIntegrationPoints;
+            _gaussStrainPoints = gaussStrainPoints;
+        }
         #endregion
 
         #region Private Methods Specific
