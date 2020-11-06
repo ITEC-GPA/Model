@@ -7,14 +7,19 @@ using System.Runtime.Serialization;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace GPC.Model.FEMElements
+namespace GPC.Model.FEM
 {
     public class FEMIntegrationPoint : FEMObject
     {
         #region Variables 
-        protected int _numPoint;             // Numero dei punti di integrazione
-        protected double[] _weights;         // Array dei pesi
-        protected Point2d[] _coords;         // Array delle coordinate dei punti di integrazione
+        /// <summary>
+        /// </summary>
+        /// <param name="_numPoint"> Number of integration points </param>
+        /// <param name="_weights"> Array of weighs </param>
+        /// <param name="_coords"> Array of integration points coordinates </param>
+        protected int _numPoint;         
+        protected double[] _weights;        
+        protected Point2d[] _coords;         
         #endregion
 
         #region Properties
@@ -39,7 +44,6 @@ namespace GPC.Model.FEMElements
         #region Protected Methods virtual
         public virtual void SetValue()
         {
-
         }
         #endregion
     }

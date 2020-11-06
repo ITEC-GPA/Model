@@ -7,7 +7,7 @@ using System.Runtime.Serialization;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace GPC.Model.FEMElements
+namespace GPC.Model.FEM
 {
     public class FEMGaussPoint : FEMIntegrationPoint
     {

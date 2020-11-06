@@ -8,14 +8,14 @@ using GPC.Geometry;
 
 namespace GPC.Model.FEM
 {
-    public class Node
+    public class Node : FEMObject
     {
         #region Variables
+
         protected Point3d _position;
         protected int _nodeIndex;
         protected string _nodeLabel;
         protected FEMNodeDoF _doF;
-        protected Guid _guid;
         #endregion
 
         #region Properties
@@ -23,13 +23,28 @@ namespace GPC.Model.FEM
         protected int NodeIndex => _nodeIndex;
         public string NodeLabel => _nodeLabel;
         public FEMNodeDoF DoF => _doF;
-        protected Guid Guid => _guid;
         #endregion
 
         #region Public Constructors
         public Node(Guid guid, Point3d position, int nodeIndex, int[] doFid, int[] activeDoF) 
+            : base (guid, "")
         {
             _guid = guid;
+            _doF = new FEMNodeDoF(doFid, activeDoF);
+            _position = position;
+            _nodeIndex = nodeIndex;
+        }
+        public Node(Guid guid, string name, Point3d position, int nodeIndex, int[] doFid, int[] activeDoF)
+             : base(guid, name)
+        {
+            _guid = guid;
+            _doF = new FEMNodeDoF(doFid, activeDoF);
+            _position = position;
+            _nodeIndex = nodeIndex;
+        }
+        public Node(Point3d position, int nodeIndex, int[] doFid, int[] activeDoF)
+            : base(Guid.Empty, "")
+        {
             _doF = new FEMNodeDoF(doFid, activeDoF);
             _position = position;
             _nodeIndex = nodeIndex;

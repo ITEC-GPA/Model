@@ -32,6 +32,36 @@ namespace GPC.Model.FEM
         #endregion
 
         #region Public Methods Specific
+        public override void BuildD(Plate plate)
+        {
+            _DPlane = Matrix<double>.Build.Dense(3, 3, 0);
+            _DBending = Matrix<double>.Build.Dense(3, 3, 0);
+
+            double E = plate.Property.Material.ElasticModulus;
+            double ni = plate.Property.Material.Poisson;
+            double tb = plate.Property.Tb;
+            double tm = plate.Property.Tm;
+
+            double c, cc;
+            c = E / (1 - Math.Pow(ni, 2.0));
+            _DPlane[0, 0] = c;
+            _DPlane[1, 1] = c;
+            _DPlane[2, 2] = 0.5 * c * (1.0 - ni);
+            _DPlane[0, 1] = ni * c;
+            _DPlane[1, 0] = _DPlane[0, 1];
+
+            cc = c * Math.Pow(tb, 3.0) / 12.0;
+            _DBending[0, 0] = cc;
+            _DBending[1, 1] = cc;
+            _DBending[2, 2] = 0.5 * cc * (1.0 - ni);
+            _DBending[0, 1] = ni * cc;
+            _DBending[1, 0] = _DBending[0, 1];
+        }
+
+        public override void BuildJ()
+        {
+
+        }
         public override void BuildK(FEMElement element)
         {
             Plate plate = element as Plate;
@@ -40,9 +70,6 @@ namespace GPC.Model.FEM
         {
         }
         public override void BuildF()
-        {
-        }
-        public override void BuildJ()
         {
         }
         public override void BuildB()
@@ -54,27 +81,7 @@ namespace GPC.Model.FEM
         public override void BuildTrfMatrix(FEMElement element)
         {
             Plate plate = element as Plate;
-        }
-        public override void BuildD(Plate plate)
-        {
-            _DPlane = Matrix<double>.Build.Dense(3, 3, 0);
-            _DBending = Matrix<double>.Build.Dense(3, 3, 0);
-
-            double c, cc;
-            //c = pProp->m_E / (1. - pProp->m_Poisson * pProp->m_Poisson);
-            //_DPlane[0, 0] = c;
-            //_DPlane[1, 1] = c;
-            //_DPlane[2, 2] = 0.5 * c * (1. - pProp->m_Poisson);
-            //_DPlane[0, 1] = pProp->m_Poisson * c;
-            //_DPlane[1, 0] = m_Dplane(0, 1);
-
-            //cc = c * (pProp->m_Thickness * pProp->m_Thickness * pProp->m_Thickness) / 12.;
-            //_DBending[0, 0] = cc;
-            //_DBending[1, 1] = cc;
-            //_DBending[2, 2] = 0.5 * cc * (1. - pProp->m_Poisson);
-            //_DBending[0, 1] = pProp->m_Poisson * cc;
-            //_DBending[1, 0] = _DBending(0, 1);
-        }
+        }      
         #endregion
 
         #region Private Methods Specific

@@ -45,19 +45,19 @@ namespace GPC.Model.FEM
             double em = 1 - eta;
             double ep = 1 + eta;
 
-            _NMat[0] = cm * em / 4.0;
-            _NMat[1] = cp * em / 4.0;
-            _NMat[2] = cp * ep / 4.0;
-            _NMat[3] = cm * ep / 4.0;
+            _NMatrix[0] = cm * em / 4.0;
+            _NMatrix[1] = cp * em / 4.0;
+            _NMatrix[2] = cp * ep / 4.0;
+            _NMatrix[3] = cm * ep / 4.0;
 
-            _dNMat[0, 0] = -em / 4.0;
-            _dNMat[0, 1] = +em / 4.0;
-            _dNMat[0, 2] = +ep / 4.0;
-            _dNMat[0, 3] = -ep / 4.0;
-            _dNMat[1, 0] = -cm / 4.0;
-            _dNMat[1, 1] = -cp / 4.0;
-            _dNMat[1, 2] = +cp / 4.0;
-            _dNMat[1, 3] = +cm / 4.0;
+            _dNMatrix[0, 0] = -em / 4.0;
+            _dNMatrix[0, 1] = +em / 4.0;
+            _dNMatrix[0, 2] = +ep / 4.0;
+            _dNMatrix[0, 3] = -ep / 4.0;
+            _dNMatrix[1, 0] = -cm / 4.0;
+            _dNMatrix[1, 1] = -cp / 4.0;
+            _dNMatrix[1, 2] = +cp / 4.0;
+            _dNMatrix[1, 3] = +cm / 4.0;
         }
         #endregion
     }

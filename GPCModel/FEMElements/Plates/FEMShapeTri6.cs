@@ -43,16 +43,16 @@ namespace GPC.Model.FEM
             double csi = coord.X;
             double eta = coord.Y;
 
-            _NMat[0] = 1 - csi - eta;
-            _NMat[1] = csi;
-            _NMat[2] = eta;
+            _NMatrix[0] = 1 - csi - eta;
+            _NMatrix[1] = csi;
+            _NMatrix[2] = eta;
 
-            _dNMat[0, 0] = -1.0;
-            _dNMat[0, 1] = 1.0;
-            _dNMat[0, 2] = 0.0;
-            _dNMat[1, 0] = -1.0;
-            _dNMat[1, 1] = 0.0;
-            _dNMat[1, 2] = 1.0;
+            _dNMatrix[0, 0] = -1.0;
+            _dNMatrix[0, 1] = 1.0;
+            _dNMatrix[0, 2] = 0.0;
+            _dNMatrix[1, 0] = -1.0;
+            _dNMatrix[1, 1] = 0.0;
+            _dNMatrix[1, 2] = 1.0;
         }
         #endregion
     }
