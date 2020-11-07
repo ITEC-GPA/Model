@@ -55,9 +55,9 @@ namespace GPC.Model.FEM
             if (dim == 2)
             {
                 if (order == 2)
-                { a = -.5; b = .5; }
+                { a = -0.5; b = 0.5; }
                 else
-                { a = .4; b = .2; }
+                { a = 0.4; b = 0.2; }
             }
             else
             {
@@ -67,36 +67,36 @@ namespace GPC.Model.FEM
                 { a = 1.0/ 3.0; b = 1.0/ 6.0; }
             }
 
-            double eq = 1.0/ (dim + 1.0);
-            double factorW = (dim == 2 ? 1.0/ 2.0 : 1.0/ 6.0);
+            double eq = 1.0 / (dim + 1.0);
+            double factorW = (dim == 2 ? 1.0 / 2.0 : 1.0 / 6.0);
 
             for (int i = 0; i < _numPoints; i++)
             {
                 switch (order)
                 {
-                    //case 1:
-                    //    m_Coord[0].SetValue(eq, eq, eq);
-                    //    m_Weight[0] = factorW;
-                    //    break;
+                    case 1:
+                        _coords[0] = new Point3d(eq, eq, eq);
+                        _weights[0] = factorW;
+                        break;
 
-                    //default:
-                    //case 2:
-                    //    m_Coord[i].SetValue(b + (i == 1) * a, b + (i == 2) * a, b + (i == 3) * a);
-                    //    m_Weight[i] = eq * factorW;
-                    //    break;
+                    default:
+                    case 2:
+                        _coords[i] = new Point3d(b + i == 1 ? a : 0, b + i == 2 ? a : 0, b + i == 3 ? a : 0);
+                        _weights[i] = eq * factorW;
+                        break;
 
-                    //case 3:
-                    //    if (!i)
-                    //    {
-                    //        m_Coord[0].SetValue(eq, eq, eq);
-                    //        m_Weight[0] = (dim == 2 ? -(27./ 48.) : -(4./ 5.)) * factorW;
-                    //    }
-                    //    else
-                    //    {
-                    //        _coords[i].SetValue(b + (i == 1) * a, b + (i == 2) * a, b + (i == 3) * a);
-                    //        _weights[i] = (dim == 2 ? (25./ 48.) : (9./ 20.)) * factorW;
-                    //    }
-                    //    break;
+                    case 3:
+                        if (order != i )
+                        {
+                            _coords[0] = new Point3d(eq, eq, eq);
+                            _weights[0] = (dim == 2 ? -(27.0/ 48.0) : -(4.0/ 5.0)) * factorW;
+                        }
+                        else
+                        {
+                            _coords[i] = new Point3d(b + i == 1 ? a : 0, b + i == 2 ? a : 0, b + i == 3 ? a : 0);
+                            _weights[i] = (dim == 2 ? (25.0/ 48.0) : (9.0/ 20.0)) * factorW;
+                        }
+                        break;
                 }
             }
         }
