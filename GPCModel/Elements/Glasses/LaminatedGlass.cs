@@ -8,7 +8,7 @@ namespace GPC.Model.Elements.Glasses
     /// Laminated glass. This represent a multilayer glass panel. Between each layer there is an interlayer
     /// </summary>
     [Serializable]
-    public class LaminatedGlass : GlassPanel
+    public class LaminatedGlass : GlassProperty, IGlassPanel
     {
         #region Variables
 

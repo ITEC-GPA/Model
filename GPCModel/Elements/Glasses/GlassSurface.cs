@@ -8,21 +8,22 @@ namespace GPC.Model.Elements.Glasses
     {
         #region VARIABLES
 
-        protected Glass _glass;
+        protected GlassProperty _glass;
         protected Shape2d _shape;
+        protected int _index;
 
         #endregion VARIABLES
 
         #region PROPERTIES
 
-        public Glass Glass => _glass;
+        public GlassProperty Glass => _glass;
         public Shape2d Shape => _shape;
 
         #endregion PROPERTIES
 
         #region PUBLIC CONSTRUCTORS
 
-        public GlassSurface(Glass glass, Shape2d shape, Guid guid)
+        public GlassSurface(GlassProperty glass, Shape2d shape, int index, Guid guid)
             : base(guid)
         {
             if (shape.HasHoles())
@@ -30,13 +31,15 @@ namespace GPC.Model.Elements.Glasses
 
             this._glass = glass;
             this._shape = shape;
+            this._index = index;
         }
 
         public GlassSurface(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
-            _glass = (Glass)info.GetValue("Glass", typeof(Glass));
+            _glass = (GlassProperty)info.GetValue("Glass", typeof(GlassProperty));
             _shape = (Shape2d)info.GetValue("Shape2d", typeof(Shape2d));
+            _index = info.GetInt32("Index");
         }
 
         #endregion PUBLIC CONSTRUCTORS
@@ -46,6 +49,7 @@ namespace GPC.Model.Elements.Glasses
             base.GetObjectData(info, context);
             info.AddValue("Glass", _glass);
             info.AddValue("Shape2d", _shape);
+            info.AddValue("Index", _index);
         }
     }
 }

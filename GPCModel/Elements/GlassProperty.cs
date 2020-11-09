@@ -5,7 +5,7 @@ using System.Runtime.Serialization;
 namespace GPC.Model.Elements
 {
     [Serializable]
-    public class GlassProperty : ElementProperty
+    public abstract class GlassProperty : ElementProperty
     {
         public GlassProperty(GlassMaterial material, Guid guid) 
             : base(material, guid)

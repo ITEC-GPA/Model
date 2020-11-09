@@ -59,12 +59,11 @@
     <Compile Include="Combinations\CombinationAsce.cs" />
     <Compile Include="Combinations\CombinationEn.cs" />
     <Compile Include="Elements\ElementProperty.cs" />
-    <Compile Include="Elements\Glasses\Glass.cs" />
     <Compile Include="Elements\Element.cs" />
-    <Compile Include="Elements\Glasses\GlassPanel.cs" />
+    <Compile Include="Elements\Glasses\IGlassPanel.cs" />
     <Compile Include="Elements\Glasses\MonolithicGlass.cs" />
     <Compile Include="Elements\Glasses\LaminatedGlass.cs" />
-    <Compile Include="Elements\Glasses\InsulatingGlass.cs" />
+    <Compile Include="Elements\Glasses\IInsulatingGlass.cs" />
     <Compile Include="Elements\Glasses\DoubleInsulatingGlass.cs" />
     <Compile Include="Elements\Glasses\Interlayer.cs" />
     <Compile Include="Elements\Glasses\GlassSurface.cs" />

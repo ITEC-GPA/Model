@@ -8,7 +8,7 @@ namespace GPC.Model.Elements.Glasses
     /// Monolithic glass. This represent the simpler glass panel. It is composed by a single layer of glass
     /// </summary>
     [Serializable]
-    public class MonolithicGlass : GlassPanel
+    public class MonolithicGlass : GlassProperty, IGlassPanel
     {
         #region VARIABLES
         protected double _thickness;
