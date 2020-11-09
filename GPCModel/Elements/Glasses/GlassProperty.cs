@@ -2,7 +2,7 @@
 using System;
 using System.Runtime.Serialization;
 
-namespace GPC.Model.Elements
+namespace GPC.Model.Elements.Glasses
 {
     [Serializable]
     public abstract class GlassProperty : ElementProperty
