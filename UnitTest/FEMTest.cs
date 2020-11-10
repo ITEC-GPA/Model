@@ -7,6 +7,7 @@ using GPC.Model;
 using GPC.Geometry;
 using MathNet.Numerics.LinearAlgebra;
 using System.IO;
+using GPC.Model.Elements;
 
 namespace UnitTest
 {
@@ -17,8 +18,7 @@ namespace UnitTest
         [TestMethod]
         public void Benchmark10001()
         {
-            /// Nodes DoF
-            /// Bathe Convention
+            /// Benchmark10001 - Bathe, Numerical Methods in Finite Elements Analysis - Esercizio Nr 5.11 pg 358
             /// 0 - active degree of freedom
             /// 1 - non-active degree of freedom
             int[] NodeDoFID = new int[] { 1, 2, 3, 4, 5, 6 };
@@ -27,12 +27,41 @@ namespace UnitTest
             int[] Node1DoF = new int[] { 1, 1, 1, 1, 1, 1 };
             int[] Node2DoF = new int[] { 0, 1, 0, 1, 0, 1 };
             int[] Node3DoF = new int[] { 0, 1, 1, 1, 0, 1 };
-            Node Node1 = new Node(Guid.NewGuid(), new Point3d(0.0, 0.0, 0.0), 1, NodeDoFID, Node1DoF);
-            Node Node2 = new Node(Guid.NewGuid(), new Point3d(0.0, 0.0, 5000.0), 2, NodeDoFID, Node2DoF);
-            Node Node3 = new Node(Guid.NewGuid(), new Point3d(5000.0, 0.0, 5000.0), 2, NodeDoFID, Node3DoF);
+            Node Node1 = new Node(Guid.NewGuid(), new Point3d(+2.0, 1.5, 0.0), 1, NodeDoFID, Node1DoF);
+            Node Node2 = new Node(Guid.NewGuid(), new Point3d(-2.0, 1.5, 0.0), 2, NodeDoFID, Node2DoF);
+            Node Node3 = new Node(Guid.NewGuid(), new Point3d(-2.0, -1.5, 0.0), 2, NodeDoFID, Node3DoF);
+            Node Node4 = new Node(Guid.NewGuid(), new Point3d(+2.0, -1.5, 0.0), 2, NodeDoFID, Node3DoF);
+
+            Node[] nodes = new Node[4];
+            nodes[0] = Node1;
+            nodes[1] = Node2;
+            nodes[2] = Node3;
+            nodes[3] = Node4;
+
+            Point3d p1 = new Point3d(1, 1, 0);
+            Point3d p2 = new Point3d(3, 4, 0);
+            Point3d p3 = new Point3d(3, 4, 4);
+            Point3d p4 = new Point3d(1, 1, 4);
+
+            GPC.Model.CoordinateSystem.CoordinateSystem Csys = new GPC.Model.CoordinateSystem.CoordinateSystem(Guid.Empty, p1, p2, p3);
+
+            Point3d p1local = Csys.PointToLocal(p1);
+            Point3d p2local = Csys.PointToLocal(p2);
+            Point3d p3local = Csys.PointToLocal(p3);
+            Point3d p4local = Csys.PointToLocal(p4);
+
+
+            ///  Section
+            double E = 210000; // MPa
+            double ni = 0.3;
+
+            /// Material
+            Material mat = new Material("Steel", E, ni, 0.0, 0.0, new Guid());
+            PlateProperty property = new PlateProperty(mat, 1.00, 1.00);
+            //CoordinateSystemPlateQuad4 quad4 = new PlateQuad4(new Guid(), property, nodes);
+
         }
     }
-
     [TestClass]
     public class FEMTestBeams
     {

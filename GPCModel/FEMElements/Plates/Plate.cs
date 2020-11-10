@@ -8,38 +8,38 @@ using GPC.Model.Materials;
 using GPC.Model.Sections;
 using MathNet.Numerics.LinearAlgebra;
 using GPC.Geometry;
-using MathNet.Spatial.Euclidean;
-using MathNet.Spatial.Units;
-using System.IO;
 using GPC.Model.Elements;
+using GPC.Model.CoordinateSystem;
 
 namespace GPC.Model.FEM
 {
     public class Plate : FEMElement
     {
         #region Variables
-        protected Node[] _nodes;
-        protected Section _section;
-        protected Material _material;
-        protected GPC.Geometry.CoordinateSystem _CoordSys;
+        protected CoordinateSystemPlate _CoordSys;
         protected PlateProperty _property;
         #endregion 
 
         #region Properties
-        public Node[] Nodes => _nodes;
-        public Section Section => _section;
-        public Material Material => _material;
         public PlateProperty Property => _property;
         #endregion
 
         #region Public Constructors
-        public Plate(Guid guid, Section section, Material material, FEMPlateIntegrator integrator, Node[] nodes)
+        public Plate(Guid guid, PlateProperty property, Node[] nodes)
+            : base(guid)
+        {
+            _guid = guid;
+            SetElement(nodes);
+            _property = property;
+            _integrator = null;
+            SetLocalCoordinateSystem(0.0);
+        }
+        public Plate(Guid guid, PlateProperty property, FEMPlateIntegrator integrator, Node[] nodes)
             : base(guid, integrator)
         {
             _guid = guid;
             SetElement(nodes);
-            _section = section;
-            _material = material;
+            _property = property;
             _integrator = integrator;
             SetLocalCoordinateSystem(0.0);
         }
@@ -56,11 +56,15 @@ namespace GPC.Model.FEM
         }
         protected override void SetElement(Node[] arrayNode)
         {
-            _nodes = new Node[arrayNode.Length];
-            _nodes = arrayNode;
+            _nodesGlobal = new Node[arrayNode.Length];
+            _nodesGlobal = arrayNode;
         }
         protected override void SetLocalCoordinateSystem(double rotationAngle)
         {
+
+            Vector3d ZAxis = new Vector3d(0, 0, 1);
+            Vector3d v11 = new Vector3d(1, 0, 0);
+            Vector3d v22 = new Vector3d(0, 1, 0);
         }
         #endregion
     }

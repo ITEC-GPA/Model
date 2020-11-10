@@ -4,7 +4,7 @@ using System.Runtime.Serialization;
 namespace GPC.Model.Materials
 {
     [Serializable]
-    public abstract class Material : ModelObject
+    public class Material : ModelObject
     {
         #region VARIABLES
         /// <summary>
@@ -13,26 +13,32 @@ namespace GPC.Model.Materials
         /// <param name="_poisson"> Poisson modulus </param>
         /// <param name="_alfaThermalExpansion"> Thermal expansion constant</param>
         /// <param name="_density"> Effective area [mm2]</param>
-        protected double _elasticModulus;
-        protected double _poisson;
+        protected double _e;
+        protected double _ni;
         protected double _alfaThermalExpansion;
         protected double _density;
         #endregion VARIABLES
 
         #region PROPERTIES
-        public double ElasticModulus => _elasticModulus;
-        public double Poisson => _poisson;
+        public double E => _e;
+        public double Ni => _ni;
         public double AlfaThermalExpansion => _alfaThermalExpansion;
         public double Density => _density;
 
         #endregion PROPERTIES
 
         #region PUBLIC CONSTRUCTOR
-
-        protected Material(string name, double density, double alfaThermalExpansion, Guid guid) : base(guid, name)
+        public Material(string name, double e, double ni, double density, double alfaThermalExpansion, Guid guid) : base(guid, name)
         {
-            this._alfaThermalExpansion = alfaThermalExpansion;
-            this._density = density;
+            _e = e;
+            _ni = ni;
+            _alfaThermalExpansion = alfaThermalExpansion;
+            _density = density;
+        }
+        public Material(string name, double density, double alfaThermalExpansion, Guid guid) : base(guid, name)
+        {
+            _alfaThermalExpansion = alfaThermalExpansion;
+            _density = density;
         }
 
         protected Material(double density, double alfaThermalExpansion, Guid guid) 

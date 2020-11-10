@@ -13,8 +13,10 @@ namespace GPC.Model.FEM
     public abstract class FEMElement : Element
     {
         #region Variables
+
         protected FEMIntegrator _integrator;
-        protected Node[] _nodes;
+        protected Node[] _nodesGlobal;
+        protected Node[] _nodesLocal;
         protected int[,] _elIncidence;
         protected int[] _elIncidenceLocal;
         protected int[] _elIncidenceGlobal;
@@ -23,13 +25,21 @@ namespace GPC.Model.FEM
         #region Properties
         public FEMIntegrator Integrator => _integrator;
         public int[,] ElIncidence => _elIncidence;
+        public Node[] NodesGlobal => _nodesGlobal;
+        public Node[] NodesLocal => _nodesLocal;
         #endregion
 
         #region Public Constructors
         protected FEMElement(Guid guid, FEMIntegrator integrator)
-            : base(guid)
+            : this(guid)
         {
             _integrator = integrator;
+        }
+
+        protected FEMElement(Guid guid)
+                 : base(guid)
+        {
+            _integrator = null;
         }
 
         protected FEMElement(SerializationInfo info, StreamingContext context)

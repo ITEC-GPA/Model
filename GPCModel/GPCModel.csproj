@@ -58,6 +58,8 @@
     <Compile Include="Combinations\Combination.cs" />
     <Compile Include="Combinations\CombinationAsce.cs" />
     <Compile Include="Combinations\CombinationEn.cs" />
+    <Compile Include="CoordinateSystem\CoordinateSystemPlate.cs" />
+    <Compile Include="CoordinateSystem\CoordinateSystem.cs" />
     <Compile Include="Elements\ElementProperty.cs" />
     <Compile Include="Elements\Glasses\Glass.cs" />
     <Compile Include="Elements\Element.cs" />
@@ -86,9 +88,13 @@
     <Compile Include="FEMElements\Nodes\FEMNodeDoF.cs" />
     <Compile Include="FEMElements\Plates\FEMPlateIntegrator.cs" />
     <Compile Include="FEMElements\Plates\FEMPlateIntegratorQuad4.cs" />
+    <Compile Include="FEMElements\Plates\FEMShapeInplane4.cs" />
+    <Compile Include="FEMElements\Plates\FEMShapeQuad9.cs" />
+    <Compile Include="FEMElements\Plates\FEMShapeQuad8.cs" />
     <Compile Include="FEMElements\Plates\FEMShapeQuad4.cs" />
     <Compile Include="FEMElements\Plates\FEMShapeTri3.cs" />
     <Compile Include="FEMElements\Plates\FEMShapeTri6.cs" />
+    <Compile Include="FEMElements\Plates\PlateQuad4.cs" />
     <Compile Include="FEMElements\Plates\Plate.cs" />
     <Compile Include="LoadCases\ClimateHLoadCase.cs" />
     <Compile Include="LoadCases\IClimate.cs" />

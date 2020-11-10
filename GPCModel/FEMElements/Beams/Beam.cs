@@ -66,12 +66,12 @@ namespace GPC.Model.FEM
             int totalActiveDoF = 0;
 
             /// Get Total Active Nodes
-            for (int nd = 0; nd < _nodes.Length; nd++)
+            for (int nd = 0; nd < _nodesGlobal.Length; nd++)
             {
                 /// Loop on DoF
-                for (int i = 0; i < _nodes[nd].DoF.FEMDoFs.Count; i++)
+                for (int i = 0; i < _nodesGlobal[nd].DoF.FEMDoFs.Count; i++)
                 {
-                    if(_nodes[nd].DoF.FEMDoFs[i].Active == 0) { totalActiveDoF++; }
+                    if(_nodesGlobal[nd].DoF.FEMDoFs[i].Active == 0) { totalActiveDoF++; }
                     totalDoF++;
                 }
             }
@@ -87,14 +87,14 @@ namespace GPC.Model.FEM
             int k0 = 0;
             int k1 = 0;
             int dofPos = 0;
-            for (int nd = 0; nd < _nodes.Length; nd++)
+            for (int nd = 0; nd < _nodesGlobal.Length; nd++)
             {
                 /// Loop on DoFs
-                for (int i = 0; i < _nodes[nd].DoF.FEMDoFs.Count; i++)
+                for (int i = 0; i < _nodesGlobal[nd].DoF.FEMDoFs.Count; i++)
                 {
                     //k0++;
                     //k1++;
-                    int degree = _nodes[nd].DoF.GlobalIncidence[i];
+                    int degree = _nodesGlobal[nd].DoF.GlobalIncidence[i];
                     //if (_nodes[nd].DoF.FEMDoFs[i].Active == 0)
                     if (degree >= 0)
                     {
@@ -126,8 +126,8 @@ namespace GPC.Model.FEM
 
                     if(_elIncidence[1, ec] >= 0.0 && _elIncidence[1, er] >= 0.0)
                     {
-                        double val = _integrator.StiffnessMatrix[er, ec];
-                        Kg[r, c] += _integrator.StiffnessMatrix[er, ec];
+                        double val = _integrator.KMatrix[er, ec];
+                        Kg[r, c] += _integrator.KMatrix[er, ec];
                     }
                 }
             }
@@ -154,8 +154,8 @@ namespace GPC.Model.FEM
         {
             _node1 = arrayNode[0];
             _node2 = arrayNode[1];
-            _nodes = new Node[arrayNode.Length];
-            _nodes = arrayNode;
+            _nodesGlobal = new Node[arrayNode.Length];
+            _nodesGlobal = arrayNode;
         }
         protected override void SetLocalCoordinateSystem(double rotationAngle)
         {
@@ -267,7 +267,7 @@ namespace GPC.Model.FEM
             //_CoordSys.RotationAngle = rotationAngle;
 
             /// Set Transformation Matrix for beam Element
-            _integrator.TransformationMatrix = Matrix<double>.Build.Dense(12, 12, 0);
+            _integrator.TrfMatrix = Matrix<double>.Build.Dense(12, 12, 0);
             //Matrix<double> BeamTrfMatrix = Matrix<double>.Build.Dense(3, 3, 0);
 
             //BeamTrfMatrix[0, 0] = v11.X;
@@ -286,7 +286,7 @@ namespace GPC.Model.FEM
                 {
                     for (int c = 0; c < 3; c++)
                     {
-                        _integrator.TransformationMatrix[i * 3 + r, i * 3 + c] = tfrMatrix1[r,c];
+                        _integrator.TrfMatrix[i * 3 + r, i * 3 + c] = tfrMatrix1[r,c];
                     }
                 }                      
             }

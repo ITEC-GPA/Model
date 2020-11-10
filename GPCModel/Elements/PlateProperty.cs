@@ -29,14 +29,14 @@ namespace GPC.Model.Elements
 
 
         #region Public Constructors
-        protected PlateProperty(Material material, double tb, double tm)
+        public PlateProperty(Material material, double tb, double tm)
             : base(material)
         {
             _tb = tb;
             _tm = tm;
         }
 
-        protected PlateProperty(SerializationInfo info, StreamingContext context)
+        public PlateProperty(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
             _tb = info.GetDouble("BendingThickness");

@@ -117,8 +117,8 @@ namespace GPC.Model.FEM
                     k[c, r] = k[r, c];
             }
 
-            _stiffnessMatrix = _transformationMatrix.Transpose() * k;
-            _stiffnessMatrix = _stiffnessMatrix * _transformationMatrix;
+            _kMatrix = _trfMatrix.Transpose() * k;
+            _kMatrix = _kMatrix * _trfMatrix;
             //_stiffnessMatrix = k;
             //string path = "C:\\Users\\r.vochescu\\Desktop\\" + "STIFF-MATRIX" + beam.Guid.ToString() + ".txt";
             //// This text is added only once to the file.
@@ -143,7 +143,7 @@ namespace GPC.Model.FEM
         public override void BuildD(FEMElement element)
         {
         }
-        public override void BuildN()
+        public override void BuildN(FEMElement element, ref Matrix<double> NMatrix)
         {
         }
         public override void BuildT()
@@ -152,8 +152,10 @@ namespace GPC.Model.FEM
         public override void BuildF()
         {
         }
-        public override void BuildJ()
+        public override double BuildJ(FEMElement element, ref Matrix<double> J, ref Matrix<double> Jinv, ref Matrix<double> dNGlob)
         {
+            double detJ = 0.0;
+            return detJ;
         }
         public override void BuildB()
         {
