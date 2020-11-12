@@ -6,6 +6,16 @@ using System.Threading.Tasks;
 
 namespace GPC.Model.FEM
 {
+    public enum ElementType
+    {
+        UnknownElement = -1,
+        BeamEulero = 0,
+        BeamKirchhoff = 1,
+        ShellDKQ = 11,
+        ShellMITC4 = 12,
+        ShellDKMQ = 13
+    };
+
     public enum PlateAnalysisType
     {
         UnknownAnalysis = -1,

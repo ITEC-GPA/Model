@@ -25,7 +25,6 @@ namespace GPC.Model.FEM
         public PlateQuad4(Guid guid, PlateProperty property, Node[] nodes)
             : base(guid, property, nodes)
         {
-            _nodesLocal = nodes;
             _integrator = new FEMPlateIntegratorDKQ(new Guid(), 2, 1, 2, this);
         }
 
