@@ -57,8 +57,7 @@ namespace GPC.Model.FEM
         #region Public Constructors
         public FEMPlateIntegrator(Guid guid, int dim, int order, int numDefComp, FEMElement element)
             : base(guid, dim, order, numDefComp)
-        {
-            StartIntegration(element);
+        {         
         }
         public FEMPlateIntegrator(SerializationInfo info, StreamingContext context)
             : base(info, context)
@@ -113,7 +112,7 @@ namespace GPC.Model.FEM
             Jinv = J.Inverse();
 
             //dNGlob = JInv * dNloc
-            dNMatrix = Jinv * dNloc;
+            dNMatrix = Jinv * _shape.dNShape;
    
             return detJ;
         }
@@ -178,24 +177,21 @@ namespace GPC.Model.FEM
         {
             Plate plate = element as Plate;
 
-            _trfMatrix = Matrix<double>.Build.Dense(24, 24, 0);
+            if ((element.NodesGlobal.Length >= 3) == false ) { throw new ArgumentException($"{nameof(element.NodesGlobal.Length)} Number of Nodes not compatible with Element Definition"); }
 
+            if ((element.NodesGlobal.Length >= 3) == true)
+            {
+                int totalDof = element.NodesGlobal.Length * 6;
+                _trfMatrix = Matrix<double>.Build.Dense(totalDof, totalDof, 0);
 
-            //T4DMatrixAff matrix(m_pElement->GetNode(0)->GetCoord(), 
-            //            m_pElement->GetNode(1)->GetCoord(), 
-            //            m_pElement->GetNode(3)->GetCoord());
-
-            //for (int i = 0; i < 4; i++)
-            //{
-            //    m_Coord[i] = matrix % m_pElement->GetNode(i)->GetCoord();
-            //}
-
-            //for (int i = 0; i < 8; i++)
-            //{
-            //    for (int r = 0; r < 3; r++)
-            //        for (int c = 0; c < 3; c++)
-            //            m_TrfMatrix(i * 3 + r, i * 3 + c) = matrix(c, r);
-            //}
+                int tot = element.NodesGlobal.Length * 2;
+                for (int i = 0; i < tot; i++)
+                {
+                    for (int r = 0; r < 3; r++)
+                        for (int c = 0; c < 3; c++)
+                            _trfMatrix[i * 3 + r, i * 3 + c] = element.CoordSys.TrfMatrix[c, r];
+                }
+            }
         }
         #endregion
 
@@ -264,6 +260,7 @@ namespace GPC.Model.FEM
         protected void InitQuad4(FEMElement element)
         {
             SetIntegrationPoint(new FEMGaussIntegrationQuad(2, 2), new FEMGaussIntegrationQuad(2, 2));
+
         }
         protected void InitQuad8(FEMElement element)
         {

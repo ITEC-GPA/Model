@@ -12,7 +12,7 @@ using GPC.Geometry;
 
 namespace GPC.Model.FEM
 {
-    public class FEMPlateIntegratorQuad4 : FEMPlateIntegrator
+    public class FEMPlateIntegratorDKQ : FEMPlateIntegrator
     {
         #region Variables 
         // Coefficients
@@ -29,16 +29,16 @@ namespace GPC.Model.FEM
         #endregion
 
         #region Public Constructors
-        public FEMPlateIntegratorQuad4(Guid guid, int dim, int order, int numDefComp, FEMElement element)
+        public FEMPlateIntegratorDKQ(Guid guid, int dim, int order, int numDefComp, FEMElement element)
             : base(guid, dim, order, numDefComp, element)
         {
             InitQuad4(element);
-            _shape = new FEMShapeQuad4(_gaussIntegrationPoints.NumPoint);
-            _shapeBending = new FEMShapeQuad8(_gaussIntegrationPoints.NumPoint);
-            _shapeRotation = new FEMShapeInplane4(_gaussIntegrationPoints.NumPoint);
+            _shape = new FEMShapeQuad4(_gaussIntegrationPoints.NumPoints);
+            _shapeBending = new FEMShapeQuad8(_gaussIntegrationPoints.NumPoints);
+            _shapeRotation = new FEMShapeInplane4(_gaussIntegrationPoints.NumPoints);
             StartIntegration(element);
         }
-        public FEMPlateIntegratorQuad4(SerializationInfo info, StreamingContext context)
+        public FEMPlateIntegratorDKQ(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
         }
@@ -99,6 +99,11 @@ namespace GPC.Model.FEM
         }
         public override void BuildBending(ref Matrix<double> BpMatrix, ref Matrix<double> dHMatrix, Matrix<double> JInvMatrix)
         {
+            // [ dHx1/dcsi, dHx2/dcsi, ..., dHx12/dcsi ]
+            // [ dHx1/deta, dHx2/deta, ..., dHx12/deta ]
+            // [ dHy1/dcsi, dHy2/dcsi, ..., dHy12/dcsi ]
+            // [ dHy1/deta, dHy2/deta, ..., dHy12/deta ]
+
             dHMatrix = Matrix<double>.Build.Dense(4, 12);
             int[,] index = new int[4, 3] {
                                 { 0, 7, 4},
@@ -163,11 +168,11 @@ namespace GPC.Model.FEM
 
 
             /// Bending Components
-            for (int i = 0; i < _gaussIntegrationPoints.NumPoint; i++)
+            for (int i = 0; i < _gaussIntegrationPoints.NumPoints; i++)
             {
                 double ar = _gaussIntegrationPoints.Weights[i] * _detJacobian[i];
                 scalD = ar * _Db;
-                gaussK = _BbMatrix[i].Transpose() * scalD * _BbMatrix[i].Transpose();
+                gaussK = _BbMatrix[i].Transpose() * scalD * _BbMatrix[i];
                 _KbMatrix = _KbMatrix + gaussK;
 
                 //Product_At_B_A(_Db[i], scalD, &gaussK);
@@ -175,11 +180,11 @@ namespace GPC.Model.FEM
             }
 
             /// Membranal Components
-            for (int i = 0; i < _gaussIntegrationPoints.NumPoint ; i++)
+            for (int i = 0; i < _gaussIntegrationPoints.NumPoints ; i++)
             {
                 double ar = elProp.Tm * _gaussIntegrationPoints.Weights[i] * _detJacobian[i];
                 scalD = ar * _Dm;
-                gaussK = _BmMatrix[i].Transpose() * scalD * _BmMatrix[i].Transpose();
+                gaussK = _BmMatrix[i].Transpose() * scalD * _BmMatrix[i];
                 _KmMatrix = _KmMatrix + gaussK;
 
                 //Product(ar, m_Dplane, &scalD);
@@ -199,6 +204,26 @@ namespace GPC.Model.FEM
                 }
             }            
             _kMatrix = _trfMatrix.Transpose() * K * _trfMatrix;
+
+            string path = "C:\\Users\\r.vochescu\\Desktop\\" + "DKQ_SHELL_STIFF-MATRIX.txt";
+            // This text is added only once to the file.
+            if (File.Exists(path) == true)
+            {
+                File.Delete(path);
+            }
+            if (!File.Exists(path))
+            {
+                string matrix = "";
+                for (int r = 0; r < _kMatrix.RowCount; r++)
+                {
+                    for (int c = 0; c < _kMatrix.ColumnCount; c++)
+                    {
+                        matrix = matrix + "\t" + _kMatrix[r, c].ToString();
+                    }
+                    matrix = matrix + Environment.NewLine;
+                }
+                File.WriteAllText(path, matrix);
+            }
         }
         public override void BuildT()
         {
@@ -214,10 +239,6 @@ namespace GPC.Model.FEM
         }
         public override void RegisterDoF(Node node)
         {
-        }
-        public override void BuildTrfMatrix(FEMElement element)
-        {
-            Plate plate = element as Plate;
         }
         public override void StartIntegration(FEMElement element)
         {
@@ -250,6 +271,8 @@ namespace GPC.Model.FEM
             // Build Integration Matrices
             if (_shape.NumIntgrPts == _gaussIntegrationPoints.Coords.Count())
             {
+                BuildCoefficient(element);
+
                 for (int i = 0; i < _shape.NumIntgrPts; i++)
                 {
                     /// Calculation of local N and dN matrices ad the Gauss Points 
@@ -267,12 +290,15 @@ namespace GPC.Model.FEM
                     BuildMembranal(ref _BmMatrix[i], _dNMatrix[i], _JInvMatrix[i]);
 
                     /// Compute Membranal Components of B matrix
-                    BuildBending(ref _BmMatrix[i], ref _dHMatrix[i], _JInvMatrix[i]);
+                    BuildBending(ref _BbMatrix[i], ref _dHMatrix[i], _JInvMatrix[i]);
                 }
             }
 
             /// Calculate costitutive Matrices
             BuildD(element);
+
+            /// Build Transformation Matrix
+            BuildTrfMatrix(element);
 
             // Build Stiffness Matrix
             BuildK(element);

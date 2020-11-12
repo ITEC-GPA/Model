@@ -9,19 +9,21 @@ using GPC.Model.Sections;
 using MathNet.Numerics.LinearAlgebra;
 using GPC.Geometry;
 using GPC.Model.Elements;
-using GPC.Model.CoordinateSystem;
+using GPC.Model.CoordinateSystems;
 
 namespace GPC.Model.FEM
 {
     public class Plate : FEMElement
     {
         #region Variables
-        protected CoordinateSystemPlate _CoordSys;
+
         protected PlateProperty _property;
-        #endregion 
+        protected PlateAnalysisType _analysisType;
+        #endregion
 
         #region Properties
         public PlateProperty Property => _property;
+        public PlateAnalysisType AnalysisType => _analysisType;
         #endregion
 
         #region Public Constructors
@@ -30,18 +32,18 @@ namespace GPC.Model.FEM
         {
             _guid = guid;
             SetElement(nodes);
+            SetLocalCoordinateSystem(0.0);
             _property = property;
             _integrator = null;
-            SetLocalCoordinateSystem(0.0);
         }
         public Plate(Guid guid, PlateProperty property, FEMPlateIntegrator integrator, Node[] nodes)
             : base(guid, integrator)
         {
             _guid = guid;
             SetElement(nodes);
+            SetLocalCoordinateSystem(0.0);
             _property = property;
             _integrator = integrator;
-            SetLocalCoordinateSystem(0.0);
         }
 
         protected Plate(SerializationInfo info, StreamingContext context)
@@ -57,14 +59,17 @@ namespace GPC.Model.FEM
         protected override void SetElement(Node[] arrayNode)
         {
             _nodesGlobal = new Node[arrayNode.Length];
+            _nodesLocal = new Node[arrayNode.Length];
             _nodesGlobal = arrayNode;
         }
         protected override void SetLocalCoordinateSystem(double rotationAngle)
         {
-
-            Vector3d ZAxis = new Vector3d(0, 0, 1);
-            Vector3d v11 = new Vector3d(1, 0, 0);
-            Vector3d v22 = new Vector3d(0, 1, 0);
+            _coordSys = new GPC.Model.CoordinateSystems.CoordinateSystem(Guid.Empty, _nodesGlobal[0].Position, _nodesGlobal[1].Position, _nodesGlobal[2].Position, rotationAngle);
+            for (int nd = 0; nd < _nodesGlobal.Length; nd++)
+            {
+                Point3d localPoint = _coordSys.PointToLocal(_nodesGlobal[nd].Position);
+                _nodesLocal[nd] = new Node(new Guid(), localPoint, _nodesGlobal[nd].NodeIndex, _nodesGlobal[nd].DoF);
+            }
         }
         #endregion
     }

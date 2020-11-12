@@ -30,6 +30,7 @@ namespace GPC.Model.FEM
             _localNodes.Add(new Point2d(0, 1));
             _localNodes.Add(new Point2d(0, 0.5));
 
+            _numIntgrPts = intgrPts;
             _NShape = Vector<double>.Build.Dense(numNodes);
             _dNShape = Matrix<double>.Build.Dense(dim, numNodes);
         }

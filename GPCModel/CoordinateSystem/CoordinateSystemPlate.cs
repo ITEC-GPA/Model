@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using GPC.Geometry;
 using GPC.Model;
 
-namespace GPC.Model.CoordinateSystem
+namespace GPC.Model.CoordinateSystems
 {
     public class CoordinateSystemPlate : CoordinateSystem
     {

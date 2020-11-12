@@ -9,7 +9,7 @@ using GPC.Model.Sections;
 using MathNet.Numerics.LinearAlgebra;
 using GPC.Geometry;
 using GPC.Model.Elements;
-using GPC.Model.CoordinateSystem;
+using GPC.Model.CoordinateSystems;
 
 namespace GPC.Model.FEM
 {
@@ -26,7 +26,7 @@ namespace GPC.Model.FEM
             : base(guid, property, nodes)
         {
             _nodesLocal = nodes;
-            _integrator = new FEMPlateIntegratorQuad4(new Guid(), 2, 1, 2, this);
+            _integrator = new FEMPlateIntegratorDKQ(new Guid(), 2, 1, 2, this);
         }
 
         protected PlateQuad4(SerializationInfo info, StreamingContext context)

@@ -20,7 +20,7 @@ namespace GPC.Model.FEM
 
         #region Properties
         public Point3d Position => _position;
-        protected int NodeIndex => _nodeIndex;
+        public int NodeIndex => _nodeIndex;
         public string NodeLabel => _nodeLabel;
         public FEMNodeDoF DoF => _doF;
         #endregion
@@ -31,6 +31,14 @@ namespace GPC.Model.FEM
         {
             _guid = guid;
             _doF = new FEMNodeDoF(doFid, activeDoF);
+            _position = position;
+            _nodeIndex = nodeIndex;
+        }
+        public Node(Guid guid, Point3d position, int nodeIndex, FEMNodeDoF doF)
+            : base(guid, "")
+        {
+            _guid = guid;
+            _doF = doF;
             _position = position;
             _nodeIndex = nodeIndex;
         }
@@ -57,9 +65,11 @@ namespace GPC.Model.FEM
             //_guid = node.Guid;
         }
         #endregion
-
         #region Public Methods Specific
-
+        public void SetPosition(Point3d newPos)
+        {
+            _position = new Point3d(newPos.X, newPos.Y, newPos.Z);
+        }
         #endregion
     }
 }

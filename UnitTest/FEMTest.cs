@@ -27,10 +27,10 @@ namespace UnitTest
             int[] Node1DoF = new int[] { 1, 1, 1, 1, 1, 1 };
             int[] Node2DoF = new int[] { 0, 1, 0, 1, 0, 1 };
             int[] Node3DoF = new int[] { 0, 1, 1, 1, 0, 1 };
-            Node Node1 = new Node(Guid.NewGuid(), new Point3d(+2.0, 1.5, 0.0), 1, NodeDoFID, Node1DoF);
-            Node Node2 = new Node(Guid.NewGuid(), new Point3d(-2.0, 1.5, 0.0), 2, NodeDoFID, Node2DoF);
-            Node Node3 = new Node(Guid.NewGuid(), new Point3d(-2.0, -1.5, 0.0), 2, NodeDoFID, Node3DoF);
-            Node Node4 = new Node(Guid.NewGuid(), new Point3d(+2.0, -1.5, 0.0), 2, NodeDoFID, Node3DoF);
+            Node Node1 = new Node(Guid.NewGuid(), new Point3d(+0.0, 0.0, 0.0), 1, NodeDoFID, Node1DoF);
+            Node Node2 = new Node(Guid.NewGuid(), new Point3d(+20, 10, 0.0), 2, NodeDoFID, Node2DoF);
+            Node Node3 = new Node(Guid.NewGuid(), new Point3d(+15, 20, 0.0), 3, NodeDoFID, Node3DoF);
+            Node Node4 = new Node(Guid.NewGuid(), new Point3d(-20, +20, 0.0), 4, NodeDoFID, Node3DoF);
 
             Node[] nodes = new Node[4];
             nodes[0] = Node1;
@@ -38,18 +38,17 @@ namespace UnitTest
             nodes[2] = Node3;
             nodes[3] = Node4;
 
-            Point3d p1 = new Point3d(1, 1, 0);
-            Point3d p2 = new Point3d(3, 4, 0);
-            Point3d p3 = new Point3d(3, 4, 4);
-            Point3d p4 = new Point3d(1, 1, 4);
+            GPC.Model.CoordinateSystems.CoordinateSystem Csys = new GPC.Model.CoordinateSystems.CoordinateSystem(Guid.Empty, Node1.Position, Node2.Position, Node3.Position);
 
-            GPC.Model.CoordinateSystem.CoordinateSystem Csys = new GPC.Model.CoordinateSystem.CoordinateSystem(Guid.Empty, p1, p2, p3);
-
-            Point3d p1local = Csys.PointToLocal(p1);
-            Point3d p2local = Csys.PointToLocal(p2);
-            Point3d p3local = Csys.PointToLocal(p3);
-            Point3d p4local = Csys.PointToLocal(p4);
-
+            //Point3d p1 = new Point3d(1, 1, 0);
+            //Point3d p2 = new Point3d(3, 4, 0);
+            //Point3d p3 = new Point3d(3, 4, 4);
+            //Point3d p4 = new Point3d(1, 1, 4);
+            //GPC.Model.CoordinateSystems.CoordinateSystem Csys = new GPC.Model.CoordinateSystems.CoordinateSystem(Guid.Empty, p1, p2, p3);
+            //Point3d p1local = Csys.PointToLocal(p1);
+            //Point3d p2local = Csys.PointToLocal(p2);
+            //Point3d p3local = Csys.PointToLocal(p3);
+            //Point3d p4local = Csys.PointToLocal(p4);
 
             ///  Section
             double E = 210000; // MPa
@@ -60,6 +59,10 @@ namespace UnitTest
             PlateProperty property = new PlateProperty(mat, 1.00, 1.00);
             //CoordinateSystemPlateQuad4 quad4 = new PlateQuad4(new Guid(), property, nodes);
 
+            new PlateQuad4(new Guid(), property, nodes);
+
+            double test = 0.0;
+            double test1 = test;
         }
     }
     [TestClass]

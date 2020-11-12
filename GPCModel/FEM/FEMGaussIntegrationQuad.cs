@@ -21,7 +21,6 @@ namespace GPC.Model.FEM
         protected int _numX;
         protected int _numY;
         protected int _numZ;
-        protected int _numPoints;
         #endregion
 
         #region Properties
@@ -33,11 +32,14 @@ namespace GPC.Model.FEM
             _numX = numX;
             _numY = numY;
             _numZ = numZ;
+
+
             if (_numX < 0 && _numX > 3) { throw new ArgumentException($"{nameof(_numX)} Gauss Point Numbers - Cannot be zero, less than 1 or higher than 3"); }
             if (_numY < 0 && _numY > 3) { throw new ArgumentException($"{nameof(_numY)} Gauss Point Numbers - Cannot be zero, less than 1 or higher than 3"); }
             if (_numZ < 0 && _numZ > 3) { throw new ArgumentException($"{nameof(_numZ)} Gauss Point Numbers - Cannot be zero, less than 1 or higher than 3"); }
 
-            _numPoints = numX * numY * numZ;
+            _numPoints = numX * (numY == 0 ? 1 : numY) * (numZ == 0 ? 1 : numZ);
+
             _coords = new Point3d[_numPoints];
             _weights = new double[_numPoints];
             SetValue(0, _numPoints);
@@ -75,6 +77,9 @@ namespace GPC.Model.FEM
                         int i = ix + iy * _numX + iz * _numX * (_numY == 0 ? 1 : _numY);
 
                         double wpx = WP[rowX][ix];
+                        //double wpy = _numY == 0 ? 1 : WP[rowY][iy];
+                        //double wpz = _numZ == 0 ? 1 : WP[rowZ][iz];
+
                         double wpy = _numY == 0 ? 1 : WP[rowY][iy];
                         double wpz = _numZ == 0 ? 1 : WP[rowZ][iz];
 

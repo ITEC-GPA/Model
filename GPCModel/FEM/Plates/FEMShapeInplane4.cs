@@ -46,6 +46,7 @@ namespace GPC.Model.FEM
             double e2 = em * ep;
 
             _NShape[0] = e2 * cm;
+
             _NShape[1] = c2 * em;
             _NShape[2] = e2 * cp;
             _NShape[3] = c2 * cp;

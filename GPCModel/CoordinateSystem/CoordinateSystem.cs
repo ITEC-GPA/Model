@@ -8,7 +8,7 @@ using GPC.Geometry;
 using MathNet.Numerics.LinearAlgebra;
 
 
-namespace GPC.Model.CoordinateSystem
+namespace GPC.Model.CoordinateSystems
 {
     public class CoordinateSystem : ModelObject
     {
@@ -18,7 +18,7 @@ namespace GPC.Model.CoordinateSystem
         protected Vector3d _v22;
         protected Vector3d _v33;
         protected Vector3d _InvOrigin;
-        protected double rotationAngle;
+        protected double _rotAngle;
         protected Matrix<double> _trfMatrix;
         #endregion
 
@@ -28,14 +28,15 @@ namespace GPC.Model.CoordinateSystem
         public Vector3d V11 => _v11;
         public Vector3d V22 => _v22;
         public Vector3d V33 => _v33;
-        public double RotationAngle => rotationAngle;
+        public double RotAngle => _rotAngle;
         public Matrix<double> TrfMatrix => _trfMatrix;
         #endregion
 
         #region Public Constructors
-        public CoordinateSystem(Guid guid, Point3d p1, Point3d p2, Point3d p3) 
+        public CoordinateSystem(Guid guid, Point3d p1, Point3d p2, Point3d p3, double rotAngle = 0) 
             : base(guid)
         {
+            _rotAngle = rotAngle;
             _trfMatrix = Matrix<double>.Build.Dense(3, 4, 0.0);
             SetTransformationMatrix(p1, p2, p3);
         }
@@ -45,6 +46,9 @@ namespace GPC.Model.CoordinateSystem
             _v11 = (Vector3d)info.GetValue("V11Direction", typeof(Vector3d));
             _v22 = (Vector3d)info.GetValue("V22Direction", typeof(Vector3d));
             _v33 = (Vector3d)info.GetValue("V33Direction", typeof(Vector3d));
+            _rotAngle = (double)info.GetValue("RotationAngle", typeof(double));
+            _InvOrigin = (Vector3d)info.GetValue("InvariantOrigin", typeof(Vector3d));
+            _trfMatrix = (Matrix<double>)info.GetValue("TransformationMatrix", typeof(Matrix<double>));
         }
         #endregion
 
@@ -54,13 +58,15 @@ namespace GPC.Model.CoordinateSystem
             info.AddValue("V11Direction", _v11);
             info.AddValue("V22Direction", _v22);
             info.AddValue("V33Direction", _v33);
+            info.AddValue("RotationAngle", _rotAngle);
+            info.AddValue("InvariantOrigin", _InvOrigin);
+            info.AddValue("TransformationMatrix", _trfMatrix);
         }
         public virtual void SetOrigin(Point3d origin)
         {
             _trfMatrix[0, 3] = origin.X;
             _trfMatrix[1, 3] = origin.Y;
             _trfMatrix[2, 3] = origin.Z;
-
             _origin = new Point3d(origin.X, origin.Y, origin.Z);
         }
 
