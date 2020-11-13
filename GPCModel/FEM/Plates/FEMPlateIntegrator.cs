@@ -35,7 +35,7 @@ namespace GPC.Model.FEM
         protected Matrix<double> _KmMatrix;
         protected Matrix<double> _KbMatrix;
         protected FEMShape _shapeBending;
-        protected FEMShape _shapeRotation;
+        protected FEMShape _shapeDrilling;
         #endregion
 
         #region Properties
@@ -51,7 +51,7 @@ namespace GPC.Model.FEM
         public Matrix<double> KmMatrix => _KmMatrix;
         public Matrix<double> KbMatrix => _KbMatrix;
         public FEMShape ShapeBending => _shapeBending;
-        public FEMShape ShapeRotation => _shapeRotation;
+        public FEMShape ShapeDrilling => _shapeDrilling;
         #endregion
 
         #region Public Constructors

@@ -89,7 +89,7 @@
     <Compile Include="FEM\Nodes\FEMNodeDoF.cs" />
     <Compile Include="FEM\Plates\FEMPlateIntegrator.cs" />
     <Compile Include="FEM\Plates\FEMPlateIntegratorDKQ.cs" />
-    <Compile Include="FEM\Plates\FEMShapeInplane4.cs" />
+    <Compile Include="FEM\Plates\FEMShapeDrilling4.cs" />
     <Compile Include="FEM\Plates\FEMShapeQuad9.cs" />
     <Compile Include="FEM\Plates\FEMShapeQuad8.cs" />
     <Compile Include="FEM\Plates\FEMShapeQuad4.cs" />

@@ -53,9 +53,6 @@ namespace GPC.Model.FEM
         #endregion
 
         #region Public Methods Override
-        public override void ElementIncidence()
-        {
-        }
         protected override void SetElement(Node[] arrayNode)
         {
             _nodesGlobal = new Node[arrayNode.Length];

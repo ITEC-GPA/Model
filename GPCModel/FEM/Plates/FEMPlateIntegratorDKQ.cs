@@ -35,7 +35,7 @@ namespace GPC.Model.FEM
             InitQuad4(element);
             _shape = new FEMShapeQuad4(_gaussIntegrationPoints.NumPoints);
             _shapeBending = new FEMShapeQuad8(_gaussIntegrationPoints.NumPoints);
-            _shapeRotation = new FEMShapeInplane4(_gaussIntegrationPoints.NumPoints);
+            _shapeDrilling = new FEMShapeDilling4(_gaussIntegrationPoints.NumPoints);
             StartIntegration(element);
         }
         public FEMPlateIntegratorDKQ(SerializationInfo info, StreamingContext context)
@@ -54,7 +54,8 @@ namespace GPC.Model.FEM
                 Node p0 = element.NodesLocal[i];
                 Node p1 = element.NodesLocal[(i + 1) % 4];
 
-                Vector2d v = new Vector2d(p0.Position.X - p1.Position.X, p0.Position.Y - p1.Position.Y);
+                //Vector2d v = new Vector2d(p0.Position.X - p1.Position.X, p0.Position.Y - p1.Position.Y);
+                Vector2d v = new Vector2d(p1.Position.X - p0.Position.X, p1.Position.Y - p0.Position.Y);
                 double length2 = Math.Pow(v.Length, 2.0);
                 double length = v.Length;
 
@@ -67,6 +68,8 @@ namespace GPC.Model.FEM
                 double angle = Math.Atan2(v.X, -v.Y);
                 _Cu[i] = 0.0625 * length * Math.Cos(angle);
                 _Cv[i] = 0.0625 * length * Math.Sin(angle);
+                //_Cu[i] = 0.0625 * length * (v.Y/length);
+                //_Cv[i] = 0.0625 * length * (-v.X / length);
             }
         }
         public override void BuildMembranal(ref Matrix<double> BmMatrix, Matrix<double> dNMatrix, Matrix<double> JInvMatrix)
@@ -76,6 +79,28 @@ namespace GPC.Model.FEM
             int j, k, m;
             double dNx, dNy;
 
+            /// Drilling rotation DoF RZ (around normal to the plate)
+            Matrix<double> dNRot =  Matrix<double>.Build.Dense(2, 4, 0.0);
+            Matrix<double> dNGlobRot = Matrix<double>.Build.Dense(2, 4, 0.0);
+
+            dNGlobRot = JInvMatrix * _shapeDrilling.dNShape;
+
+            Matrix<double> dNWu = Matrix<double>.Build.Dense(2, 4, 0.0);
+            Matrix<double> dNWv = Matrix<double>.Build.Dense(2, 4, 0.0);
+
+            for (int i = 0; i < 4; i++)
+            {
+                //dNWu[0, i] = - _Cu[(i + 3) % 4] * dNGlobRot[0, i] + _Cu[i] * dNGlobRot[0, (i + 1) % 4];
+                //dNWu[1, i] = - _Cu[(i + 3) % 4] * dNGlobRot[1, i] + _Cu[i] * dNGlobRot[1, (i + 1) % 4];
+
+                dNWu[0, i] = - _Cu[(i + 3) % 4] * dNGlobRot[0, i] + _Cu[i] * dNGlobRot[0, (i + 1) % 4];
+                dNWu[1, i] = - _Cu[(i + 3) % 4] * dNGlobRot[1, i] + _Cu[i] * dNGlobRot[1, (i + 1) % 4];
+
+                dNWv[0, i] = _Cv[(i + 3) % 4] * dNGlobRot[0, i] - _Cv[i] * dNGlobRot[0, (i + 1) % 4];
+                dNWv[1, i] = _Cv[(i + 3) % 4] * dNGlobRot[1, i] - _Cv[i] * dNGlobRot[1, (i + 1) % 4];
+            }
+
+            /// Memebranal Components DoF local x,y
             for (int i = 0; i < 4; i++)
             {
                 j = 3 * i;
@@ -92,9 +117,9 @@ namespace GPC.Model.FEM
                 BmMatrix[2, j] = dNy;
 
                 // Componenti w
-                BmMatrix[0, m] = 0.0;
-                BmMatrix[1, m] = 0.0;
-                BmMatrix[2, m] = 0.0;
+                BmMatrix[0, m] = dNWu[0, i];
+                BmMatrix[1, m] = dNWv[1, i];
+                BmMatrix[2, m] = dNWu[1, i] + dNWv[0, i];
             }
         }
         public override void BuildBending(ref Matrix<double> BpMatrix, ref Matrix<double> dHMatrix, Matrix<double> JInvMatrix)
@@ -278,7 +303,7 @@ namespace GPC.Model.FEM
                     /// Calculation of local N and dN matrices ad the Gauss Points 
                     _shape.SetValue(_gaussIntegrationPoints.Coords[i]);
                     _shapeBending.SetValue(_gaussIntegrationPoints.Coords[i]);
-                    _shapeRotation.SetValue(_gaussIntegrationPoints.Coords[i]);
+                    _shapeDrilling.SetValue(_gaussIntegrationPoints.Coords[i]);
 
                     /// Compute the columns of the N matrix
                     BuildN(element, ref _NMatrix[i]);
