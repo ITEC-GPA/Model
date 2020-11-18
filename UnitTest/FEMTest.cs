@@ -7,6 +7,7 @@ using GPC.Model;
 using GPC.Geometry;
 using MathNet.Numerics.LinearAlgebra;
 using System.IO;
+using GPC.Model.Elements;
 
 namespace UnitTest
 {
@@ -14,25 +15,220 @@ namespace UnitTest
     [TestClass]
     public class FEMTestPlates
     {
+        public TestContext TestContext { get; set; }
+        private static string _outputFolder;
+        private string _testName;
+
+        [TestInitialize]
+        public void TestInitialize()
+        {
+            _outputFolder = System.IO.Path.Combine(Directory.GetParent(TestContext.TestDir).ToString(), "OutputTests");
+            Directory.CreateDirectory(_outputFolder);
+            _testName = TestContext.TestName;
+        }
+
+        [TestCleanup]
+        public void CleanUp()
+        {
+            if (Directory.Exists(TestContext.TestDir))
+                Directory.Delete(TestContext.TestDir, true);
+        }
+
         [TestMethod]
         public void Benchmark10001()
         {
-            /// Nodes DoF
-            /// Bathe Convention
+            /// Benchmark10001 - Bathe, Numerical Methods in Finite Elements Analysis - Esercizio Nr 5.11 pg 358
             /// 0 - active degree of freedom
             /// 1 - non-active degree of freedom
             int[] NodeDoFID = new int[] { 1, 2, 3, 4, 5, 6 };
 
             /// Nodes in 3D  XYZ
-            int[] Node1DoF = new int[] { 1, 1, 1, 1, 1, 1 };
-            int[] Node2DoF = new int[] { 0, 1, 0, 1, 0, 1 };
-            int[] Node3DoF = new int[] { 0, 1, 1, 1, 0, 1 };
-            Node Node1 = new Node(Guid.NewGuid(), new Point3d(0.0, 0.0, 0.0), 1, NodeDoFID, Node1DoF);
-            Node Node2 = new Node(Guid.NewGuid(), new Point3d(0.0, 0.0, 5000.0), 2, NodeDoFID, Node2DoF);
-            Node Node3 = new Node(Guid.NewGuid(), new Point3d(5000.0, 0.0, 5000.0), 2, NodeDoFID, Node3DoF);
+            int[] Node1DoF = new int[] { 1, 1, 1, 0, 0, 1 };
+            int[] Node2DoF = new int[] { 1, 1, 1, 0, 0, 1 };
+            int[] Node3DoF = new int[] { 0, 0, 1, 0, 0, 1 };
+            int[] Node4DoF = new int[] { 0, 0, 1, 0, 0, 1 };
+
+            Node Node1 = new Node(Guid.NewGuid(), new Point3d(+0.0, 0.0, 0.0), 1, NodeDoFID, Node1DoF);
+            Node Node2 = new Node(Guid.NewGuid(), new Point3d(+20, 10, 0.0), 2, NodeDoFID, Node2DoF);
+            Node Node3 = new Node(Guid.NewGuid(), new Point3d(+15, 20, 0.0), 3, NodeDoFID, Node3DoF);
+            Node Node4 = new Node(Guid.NewGuid(), new Point3d(-20, +20, 0.0), 4, NodeDoFID, Node4DoF);
+
+            Node[] nodes = new Node[4];
+            nodes[0] = Node1;
+            nodes[1] = Node2;
+            nodes[2] = Node3;
+            nodes[3] = Node4;
+
+            int _globalDoF = 0;
+            int _reactionDoF = 0;
+
+            // Arrange Nodes
+            for (int nd = 0; nd < nodes.Length; nd++)
+            {
+                nodes[nd].DoF.FormIncidence(ref _globalDoF, ref _reactionDoF);
+            }
+
+            GPC.Model.CoordinateSystems.CoordinateSystem Csys = new GPC.Model.CoordinateSystems.CoordinateSystem(Guid.Empty, Node1.Position, Node2.Position, Node3.Position);
+
+            //Point3d p1 = new Point3d(1, 1, 0);
+            //Point3d p2 = new Point3d(3, 4, 0);
+            //Point3d p3 = new Point3d(3, 4, 4);
+            //Point3d p4 = new Point3d(1, 1, 4);
+            //GPC.Model.CoordinateSystems.CoordinateSystem Csys = new GPC.Model.CoordinateSystems.CoordinateSystem(Guid.Empty, p1, p2, p3);
+            //Point3d p1local = Csys.PointToLocal(p1);
+            //Point3d p2local = Csys.PointToLocal(p2);
+            //Point3d p3local = Csys.PointToLocal(p3);
+            //Point3d p4local = Csys.PointToLocal(p4);
+
+            ///  Section
+            double E = 210000; // MPa
+            double ni = 0.3;
+
+            /// Material
+            Material mat = new Material("Steel", E, ni, 0.0, 0.0, new Guid());
+            PlateProperty property = new PlateProperty(mat, 1.00, 1.00);
+            //CoordinateSystemPlateQuad4 quad4 = new PlateQuad4(new Guid(), property, nodes);
+            PlateQuad4 shell = new PlateQuad4(new Guid(), property, nodes);
+
+            Matrix<double> _stiffnessMatrix = Matrix<double>.Build.Dense(_globalDoF, _globalDoF, 0.0);
+            shell.ElementIncidence();
+            shell.KInGlobal(ref _stiffnessMatrix);
+
+
+
+            string TestName = "DKQ_SHELL_STIFF-MATRIX_REDUCED.txt";
+            string path = Path.Combine(_outputFolder, TestName);
+
+            // This text is added only once to the file.
+            if (File.Exists(path) == true)
+            {
+                File.Delete(path);
+            }
+            if (!File.Exists(path))
+            {
+                string matrix = "";
+                for (int r = 0; r < _stiffnessMatrix.RowCount; r++)
+                {
+                    for (int c = 0; c < _stiffnessMatrix.ColumnCount; c++)
+                    {
+                        matrix = matrix + "\t" + _stiffnessMatrix[r, c].ToString();
+                    }
+                    matrix = matrix + Environment.NewLine;
+                }
+                File.WriteAllText(path, matrix);
+            }
+
+         
+            /// Costruzione vettore delle forze esterne
+            Vector<double> Fmaffem = Vector<double>.Build.Dense(12, 0);
+            Fmaffem[4] = 10e3;
+
+            /// Solve Linear System
+            Vector<double> ResultsMAFFEM = _stiffnessMatrix.Solve(Fmaffem);
+            double DX = ResultsMAFFEM[4];
+            double DY = ResultsMAFFEM[5];
+
+            double test = 0.0;
+            double test1 = test;
+        }
+
+        [TestMethod]
+        public void Benchmark10002()
+        {
+            /// Benchmark10001 - Bathe, Numerical Methods in Finite Elements Analysis - Esercizio Nr 5.11 pg 358
+            /// 0 - active degree of freedom
+            /// 1 - non-active degree of freedom
+            int[] NodeDoFID = new int[] { 1, 2, 3, 4, 5, 6 };
+
+            /// Nodes in 3D  XYZ
+            int[] Node1DoF = new int[] { 1, 1, 1, 0, 0, 1 };
+            int[] Node2DoF = new int[] { 1, 1, 1, 0, 0, 1 };
+            int[] Node3DoF = new int[] { 0, 0, 0, 0, 0, 1 };
+            int[] Node4DoF = new int[] { 0, 0, 1, 0, 0, 1 };
+
+            Node Node1 = new Node(Guid.NewGuid(), new Point3d(+0.0, 0.0, 0.0), 1, NodeDoFID, Node1DoF);
+            Node Node2 = new Node(Guid.NewGuid(), new Point3d(+20, 10, 0.0), 2, NodeDoFID, Node2DoF);
+            Node Node3 = new Node(Guid.NewGuid(), new Point3d(+15, 20, 0.0), 3, NodeDoFID, Node3DoF);
+            Node Node4 = new Node(Guid.NewGuid(), new Point3d(-20, +20, 0.0), 4, NodeDoFID, Node4DoF);
+
+            Node[] nodes = new Node[4];
+            nodes[0] = Node1;
+            nodes[1] = Node2;
+            nodes[2] = Node3;
+            nodes[3] = Node4;
+
+            int _globalDoF = 0;
+            int _reactionDoF = 0;
+
+            // Arrange Nodes
+            for (int nd = 0; nd < nodes.Length; nd++)
+            {
+                nodes[nd].DoF.FormIncidence(ref _globalDoF, ref _reactionDoF);
+            }
+
+            GPC.Model.CoordinateSystems.CoordinateSystem Csys = new GPC.Model.CoordinateSystems.CoordinateSystem(Guid.Empty, Node1.Position, Node2.Position, Node3.Position);
+
+            //Point3d p1 = new Point3d(1, 1, 0);
+            //Point3d p2 = new Point3d(3, 4, 0);
+            //Point3d p3 = new Point3d(3, 4, 4);
+            //Point3d p4 = new Point3d(1, 1, 4);
+            //GPC.Model.CoordinateSystems.CoordinateSystem Csys = new GPC.Model.CoordinateSystems.CoordinateSystem(Guid.Empty, p1, p2, p3);
+            //Point3d p1local = Csys.PointToLocal(p1);
+            //Point3d p2local = Csys.PointToLocal(p2);
+            //Point3d p3local = Csys.PointToLocal(p3);
+            //Point3d p4local = Csys.PointToLocal(p4);
+
+            ///  Section
+            double E = 210000; // MPa
+            double ni = 0.3;
+
+            /// Material
+            Material mat = new Material("Steel", E, ni, 0.0, 0.0, new Guid());
+            PlateProperty property = new PlateProperty(mat, 1.00, 1.00);
+            //CoordinateSystemPlateQuad4 quad4 = new PlateQuad4(new Guid(), property, nodes);
+            PlateQuad4 shell = new PlateQuad4(new Guid(), property, nodes);
+
+            Matrix<double> _stiffnessMatrix = Matrix<double>.Build.Dense(_globalDoF, _globalDoF, 0.0);
+            shell.ElementIncidence();
+            shell.KInGlobal(ref _stiffnessMatrix);
+
+
+            string TestName = "DKQ_SHELL_STIFF-MATRIX_REDUCED.txt";
+            string path = Path.Combine(_outputFolder, TestName);
+            // This text is added only once to the file.
+            if (File.Exists(path) == true)
+            {
+                File.Delete(path);
+            }
+            if (!File.Exists(path))
+            {
+                string matrix = "";
+                for (int r = 0; r < _stiffnessMatrix.RowCount; r++)
+                {
+                    for (int c = 0; c < _stiffnessMatrix.ColumnCount; c++)
+                    {
+                        matrix = matrix + "\t" + _stiffnessMatrix[r, c].ToString();
+                    }
+                    matrix = matrix + Environment.NewLine;
+                }
+                File.WriteAllText(path, matrix);
+            }
+
+
+            /// Costruzione vettore delle forze esterne
+            Vector<double> Fmaffem = Vector<double>.Build.Dense(_stiffnessMatrix.RowCount, 0);
+            Fmaffem[6] = 10e3;
+
+            /// Solve Linear System
+            Vector<double> ResultsMAFFEM = _stiffnessMatrix.Solve(Fmaffem);
+            double DZ3 = ResultsMAFFEM[6];
+            double RX3 = ResultsMAFFEM[7];
+            double RY3 = ResultsMAFFEM[8];
+
+            double test = 0.0;
+            double test1 = test;
         }
     }
-
     [TestClass]
     public class FEMTestBeams
     {

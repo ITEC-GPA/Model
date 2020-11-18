@@ -18,13 +18,17 @@ namespace GPC.Model.FEM
         #endregion
 
         #region Public Constructors
-        public FEMShapeTri3() :
-            base(3, 2, 2)
+        public FEMShapeTri3(int intgrPts, int numNodes = 3, int maxNumDoF = 2, int dim = 2, int order = 1) :
+            base(intgrPts, maxNumDoF, dim, order)
         {
-            _localNodes = new List<Geometry.Point2d>(_numNodes);
+            _localNodes = new List<Geometry.Point2d>(numNodes);
             _localNodes.Add(new Point2d(0, 0));
             _localNodes.Add(new Point2d(1, 0));
             _localNodes.Add(new Point2d(0, 1));
+
+            _numIntgrPts = intgrPts;
+            _NShape = Vector<double>.Build.Dense(numNodes);
+            _dNShape = Matrix<double>.Build.Dense(dim, numNodes);
         }
 
         protected FEMShapeTri3(SerializationInfo info, StreamingContext context) :
@@ -34,21 +38,21 @@ namespace GPC.Model.FEM
         #endregion
 
         #region Public Methods Override
-        public override void SetValue(Point2d coord)
+        public override void SetValue(Point3d coord)
         {
             double csi = coord.X;
             double eta = coord.Y;
 
-            _NMatrix[0] = 1 - csi - eta;
-            _NMatrix[1] = csi;
-            _NMatrix[2] = eta;
+            _NShape[0] = 1 - csi - eta;
+            _NShape[1] = csi;
+            _NShape[2] = eta;
 
-            _dNMatrix[0, 0] = -1.0;
-            _dNMatrix[0, 1] = 1.0;
-            _dNMatrix[0, 2] = 0.0;
-            _dNMatrix[1, 0] = -1.0;
-            _dNMatrix[1, 1] = 0.0;
-            _dNMatrix[1, 2] = 1.0;
+            _dNShape[0, 0] = -1.0;
+            _dNShape[0, 1] = 1.0;
+            _dNShape[0, 2] = 0.0;
+            _dNShape[1, 0] = -1.0;
+            _dNShape[1, 1] = 0.0;
+            _dNShape[1, 2] = 1.0;
         }
         #endregion
     }

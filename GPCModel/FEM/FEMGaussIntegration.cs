@@ -17,13 +17,13 @@ namespace GPC.Model.FEM
         /// <param name="_numPoint"> Number of integration points </param>
         /// <param name="_weights"> Array of weighs </param>
         /// <param name="_coords"> Array of integration points coordinates </param>
-        protected int _numPoint;         
+        protected int _numPoints;         
         protected double[] _weights;        
         protected Point3d[] _coords;         
         #endregion
 
         #region Properties
-        public int NumPoint => _numPoint;         
+        public int NumPoints => _numPoints;         
         public double[] Weights => _weights;       
         public Point3d[] Coords => _coords;    
         #endregion

@@ -13,37 +13,45 @@ namespace GPC.Model.FEM
     public class FEMShape : FEMObject
     {
         #region Variables 
-        /// <param name="_numNodes"> Number of supporting nodes for the interpolation </param>
+        /// <summary>
+        /// <param name="_numIntgrPts"> Number of supporting nodes for the interpolation </param>
+        /// <param name="_numNodes"> Number of Nodes in the FE element </param>
         /// <param name="_maxNumDof"> Maximum number of DoF in the single node </param>
-        /// <param name="_numDim"> Shape function dimension (one dimension domain, two-dimension domain, three-dimensions domanain </param>
+        /// <param name="_dim"> Problem dimension (one dimension domain, two-dimension domain, three-dimensions domain </param>
         /// <param name="_order"> Order of shape functions </param>
-        protected Vector<double> _NMatrix;
-        protected Matrix<double> _dNMatrix;
+        /// </summary>
+        protected Vector<double> _NShape;
+        protected Matrix<double> _dNShape;
         protected List<Point2d> _localNodes;
-        protected int _numNodes;     
+        protected int _numIntgrPts;
+        protected int _numNodes;
         protected int _maxNumDof;   
-        protected int _numDim;       
+        protected int _dim;       
         protected int _order;     
         #endregion
 
         #region Properties
-        public Vector<double> NMat => _NMatrix;
-        public Matrix<double> DNMat => _dNMatrix;
+        public Vector<double> NShape => _NShape;
+        public Matrix<double> dNShape => _dNShape;
+        public int NumIntgrPts => _numIntgrPts;
         public int NumNodes => _numNodes;
         public int MaxNumDof => _maxNumDof;
-        public int NumDim => _numDim;
+        public int Dim => _dim;
         public int Order => _order;            
         public List<Point2d> LocalNodes => _localNodes;
         #endregion
 
         #region Public Constructors
-        public FEMShape(int numNodes, int maxNumDof, int numDim, int order = 0)
+        public FEMShape(int numIntgrPts, int numNodes, int maxNumDof, int dim, int order = 1)
         {
             _localNodes = new List<Point2d>();
+            _numIntgrPts = numIntgrPts;
             _numNodes = numNodes;
             _maxNumDof = maxNumDof;
-            _numDim = numDim;
+            _dim = dim;
             _order = order;
+
+
         }
 
         protected FEMShape(SerializationInfo info, StreamingContext context)
@@ -55,9 +63,8 @@ namespace GPC.Model.FEM
         #endregion
 
         #region Protected Methods virtual
-        public virtual void SetValue(Point2d coord)
+        public virtual void SetValue(Point3d coord)
         {
-
         }
         #endregion
     }

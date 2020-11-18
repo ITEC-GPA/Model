@@ -18,14 +18,18 @@ namespace GPC.Model.FEM
         #endregion
 
         #region Public Constructors
-        public FEMShapeQuad4() :
-            base (4, 2, 2)
+        public FEMShapeQuad4(int intgrPts, int numNodes = 4, int maxNumDoF = 2, int dim = 2, int order = 1) :
+            base (intgrPts, maxNumDoF, dim, order)
         {
-            _localNodes = new List<Geometry.Point2d>(_numNodes);
+            _localNodes = new List<Geometry.Point2d>(numNodes);
             _localNodes.Add(new Point2d(-1, -1));
             _localNodes.Add(new Point2d(+1, -1));
             _localNodes.Add(new Point2d(+1, +1));
             _localNodes.Add(new Point2d(-1, +1));
+
+            _numIntgrPts = intgrPts;
+            _NShape = Vector<double>.Build.Dense(numNodes);
+            _dNShape = Matrix<double>.Build.Dense(dim, numNodes);
         }
 
         protected FEMShapeQuad4(SerializationInfo info, StreamingContext context) :
@@ -35,7 +39,7 @@ namespace GPC.Model.FEM
         #endregion
 
         #region Public Methods Override
-        public override void SetValue(Point2d coord)
+        public override void SetValue(Point3d coord)
         {
             double csi = coord.X;
             double eta = coord.Y;
@@ -45,19 +49,19 @@ namespace GPC.Model.FEM
             double em = 1 - eta;
             double ep = 1 + eta;
 
-            _NMatrix[0] = cm * em / 4.0;
-            _NMatrix[1] = cp * em / 4.0;
-            _NMatrix[2] = cp * ep / 4.0;
-            _NMatrix[3] = cm * ep / 4.0;
+            _NShape[0] = cm * em / 4.0;
+            _NShape[1] = cp * em / 4.0;
+            _NShape[2] = cp * ep / 4.0;
+            _NShape[3] = cm * ep / 4.0;
 
-            _dNMatrix[0, 0] = -em / 4.0;
-            _dNMatrix[0, 1] = +em / 4.0;
-            _dNMatrix[0, 2] = +ep / 4.0;
-            _dNMatrix[0, 3] = -ep / 4.0;
-            _dNMatrix[1, 0] = -cm / 4.0;
-            _dNMatrix[1, 1] = -cp / 4.0;
-            _dNMatrix[1, 2] = +cp / 4.0;
-            _dNMatrix[1, 3] = +cm / 4.0;
+            _dNShape[0, 0] = -em / 4.0;
+            _dNShape[0, 1] = +em / 4.0;
+            _dNShape[0, 2] = +ep / 4.0;
+            _dNShape[0, 3] = -ep / 4.0;
+            _dNShape[1, 0] = -cm / 4.0;
+            _dNShape[1, 1] = -cp / 4.0;
+            _dNShape[1, 2] = +cp / 4.0;
+            _dNShape[1, 3] = +cm / 4.0;
         }
         #endregion
     }
