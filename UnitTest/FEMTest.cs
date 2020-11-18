@@ -15,6 +15,25 @@ namespace UnitTest
     [TestClass]
     public class FEMTestPlates
     {
+        public TestContext TestContext { get; set; }
+        private static string _outputFolder;
+        private string _testName;
+
+        [TestInitialize]
+        public void TestInitialize()
+        {
+            _outputFolder = System.IO.Path.Combine(Directory.GetParent(TestContext.TestDir).ToString(), "OutputTests");
+            Directory.CreateDirectory(_outputFolder);
+            _testName = TestContext.TestName;
+        }
+
+        [TestCleanup]
+        public void CleanUp()
+        {
+            if (Directory.Exists(TestContext.TestDir))
+                Directory.Delete(TestContext.TestDir, true);
+        }
+
         [TestMethod]
         public void Benchmark10001()
         {
@@ -76,7 +95,10 @@ namespace UnitTest
             shell.KInGlobal(ref _stiffnessMatrix);
 
 
-            string path = "C:\\Users\\r.vochescu\\Desktop\\" + "DKQ_SHELL_STIFF-MATRIX_REDUCED.txt";
+
+            string TestName = "DKQ_SHELL_STIFF-MATRIX_REDUCED.txt";
+            string path = Path.Combine(_outputFolder, TestName);
+
             // This text is added only once to the file.
             if (File.Exists(path) == true)
             {
@@ -171,7 +193,8 @@ namespace UnitTest
             shell.KInGlobal(ref _stiffnessMatrix);
 
 
-            string path = "C:\\Users\\r.vochescu\\Desktop\\" + "DKQ_SHELL_STIFF-MATRIX_REDUCED.txt";
+            string TestName = "DKQ_SHELL_STIFF-MATRIX_REDUCED.txt";
+            string path = Path.Combine(_outputFolder, TestName);
             // This text is added only once to the file.
             if (File.Exists(path) == true)
             {
