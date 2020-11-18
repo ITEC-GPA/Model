@@ -67,7 +67,7 @@
     <Compile Include="Elements\Glasses\DoubleInsulatingGlass.cs" />
     <Compile Include="Elements\Glasses\Interlayer.cs" />
     <Compile Include="Elements\Glasses\GlassSurface.cs" />
-    <Compile Include="Elements\GlassProperty.cs" />
+    <Compile Include="Elements\Glasses\GlassProperty.cs" />
     <Compile Include="Elements\PlateProperty.cs" />
     <Compile Include="Elements\Rebar.cs" />
     <Compile Include="Elements\Glasses\TripleInsulatingGlass.cs" />
