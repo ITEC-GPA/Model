@@ -13,6 +13,7 @@ namespace GPC.Model.Elements.Glasses
         #region Variables
 
         protected readonly MonolithicGlass[] _monolithicGlasses;
+
         protected readonly Interlayer[] _interlayers;
 
         #endregion Variables
@@ -30,7 +31,7 @@ namespace GPC.Model.Elements.Glasses
         ///
         /// </summary>
         /// <param name="monolithicGlasses">Monolithic glasses composing the laminated panel</param>
-        /// <param name="interlayers">Interlayers between monolithic glasses</param>
+        /// <param name="interlayers">Interlayers between monolithic glasses, number of interlayer must be equal to glass number - 1</param>
         public LaminatedGlass(MonolithicGlass[] monolithicGlasses, Interlayer[] interlayers)
             : this(monolithicGlasses, interlayers, Guid.Empty)
         {
@@ -41,7 +42,7 @@ namespace GPC.Model.Elements.Glasses
         ///
         /// </summary>
         /// <param name="monolithicGlasses">Monolithic glasses composing the laminated panel</param>
-        /// <param name="interlayers">Interlayers between monolithic glasses</param>
+        /// <param name="interlayers">Interlayers between monolithic glasses, number of interlayer must be equal to glass number - 1</param>
         /// <param name="guid">The guid of of the glass</param>
         public LaminatedGlass(MonolithicGlass[] monolithicGlasses, Interlayer[] interlayers, Guid guid)
             : base(guid)
@@ -51,7 +52,7 @@ namespace GPC.Model.Elements.Glasses
 
             if (monolithicGlasses.Length < 2)
                 throw new ArgumentException("Number of monolithic glasses should be greater than one");
-
+            
             if (interlayers == null || interlayers.Length == 0)
                 throw new ArgumentException("No interlayer provided");
 

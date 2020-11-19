@@ -14,12 +14,15 @@ namespace GPC.Model.Elements.Glasses
         protected GlassMaterial _material;
 
         protected double _thickness;
+
         #endregion
 
         #region Properties
+
         public double Thickness => _thickness;
 
         public GlassMaterial Material => _material; 
+
         #endregion
 
         #region Constructors
