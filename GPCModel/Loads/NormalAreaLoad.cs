@@ -1,28 +1,38 @@
-﻿using GPC.Model.LoadCases;
+﻿using GPC.Geometry;
+using GPC.Model.LoadCases;
 using System;
 using System.Runtime.Serialization;
 
 namespace GPC.Model.Loads
 {
     [Serializable]
-    public class NormalPressureLoad : Load
+    public class NormalAreaLoad : Load, IAreaLoad
     {
         private double _pressure;
 
+        private Shape _shape;
+
+        #region Properties
         public double Pressure => _pressure;
 
-        #region PUBLIC CONSTRUCTOR
+        public Shape Shape => _shape; 
 
-        public NormalPressureLoad(double pressure, LoadCase loadCase, Guid guid)
+        #endregion
+
+        #region Public constructors 
+
+        public NormalAreaLoad(double pressure, Shape shape, LoadCase loadCase, Guid guid)
             : base(loadCase, guid)
         {
             this._pressure = pressure;
+            this._shape = shape ?? throw new ArgumentException("Shape cannot be null");
         }
 
-        public NormalPressureLoad(SerializationInfo info, StreamingContext context)
+        public NormalAreaLoad(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
             _pressure = info.GetDouble("Pressure");
+            _shape = (Shape)info.GetValue("Shape", typeof(Shape));
         }
 
         #endregion
@@ -31,6 +41,7 @@ namespace GPC.Model.Loads
         {
             base.GetObjectData(info, context);
             info.AddValue("Pressure", _pressure);
+            info.AddValue("Shape", _shape);
         }
     }
 }
