@@ -7,8 +7,8 @@ namespace GPC.Model.Elements.Glasses
     [Serializable]
     public abstract class GlassProperty : ElementProperty
     {
-        public GlassProperty(GlassMaterial material, Guid guid) 
-            : base(material, guid)
+        public GlassProperty(Guid guid) 
+            : base(guid)
         {
 
         }

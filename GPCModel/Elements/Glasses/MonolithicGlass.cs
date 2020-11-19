@@ -10,13 +10,19 @@ namespace GPC.Model.Elements.Glasses
     [Serializable]
     public class MonolithicGlass : GlassProperty, IGlassPanel
     {
-        #region VARIABLES
+        #region Variables
+        protected GlassMaterial _material;
+
         protected double _thickness;
         #endregion
 
+        #region Properties
         public double Thickness => _thickness;
 
-        #region CONSTRUCTORS
+        public GlassMaterial Material => _material; 
+        #endregion
+
+        #region Constructors
 
         /// <summary>
         ///
@@ -36,7 +42,7 @@ namespace GPC.Model.Elements.Glasses
         /// <param name="thickness">The minimum thickness of the panel (the one used for calculation)</param>
         /// <param name="glassMaterial"></param>
         public MonolithicGlass(double thickness, GlassMaterial glassMaterial, Guid guid)
-            : base(glassMaterial, guid)
+            : base(guid)
         {
             if (thickness <= 0.001)
             {
@@ -44,15 +50,18 @@ namespace GPC.Model.Elements.Glasses
             }
 
             this._thickness = thickness;
+            this._material = glassMaterial;
         }
 
         public MonolithicGlass(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
             _thickness = info.GetDouble("Thickness");
+            _material = (GlassMaterial)info.GetValue("Material", typeof(GlassMaterial));
         }
 
-        #endregion CONSTRUCTORS
+        #endregion 
+
 
         #region PUBLIC METHODS
 
@@ -60,8 +69,9 @@ namespace GPC.Model.Elements.Glasses
         {
             base.GetObjectData(info, context);
             info.AddValue("Thickness", _thickness);
+            info.AddValue("Material", _material);
         }
 
-        #endregion PUBLIC METHODS
+        #endregion 
     }
 }

@@ -1,12 +1,5 @@
 ﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Diagnostics;
 using System.Runtime.Serialization;
-using GPC.Geometry;
 using GPC.Model.Materials;
 
 namespace GPC.Model.Elements
@@ -14,26 +7,34 @@ namespace GPC.Model.Elements
     public class PlateProperty : ElementProperty
     {
         #region Variables
-        /// <summary>
-        /// <param name="_tb"> Bending thickness</param>
-        /// <param name="_tm"> Membranal thickness</param>
-        /// </summary>
         protected double _tb;
+
         protected double _tm;
+
+        protected Material _material;
         #endregion
 
         #region Properties
         public double Tb => _tb;
+
         public double Tm => _tm;
+
+        public Material Material => _material;
+
         #endregion
 
-
         #region Public Constructors
+
+        /// <summary>
+        /// <param name="_tb"> Bending thickness</param>
+        /// <param name="_tm"> Membranal thickness</param>
+        /// </summary>
         public PlateProperty(Material material, double tb, double tm)
-            : base(material)
+            : base()
         {
             _tb = tb;
             _tm = tm;
+            _material = material;
         }
 
         public PlateProperty(SerializationInfo info, StreamingContext context)
@@ -41,6 +42,7 @@ namespace GPC.Model.Elements
         {
             _tb = info.GetDouble("BendingThickness");
             _tm = info.GetDouble("MembranalThickness");
+            _material = (Material)info.GetValue("Material", typeof(Material));
         }
 
         #endregion Public Constructors
@@ -50,6 +52,7 @@ namespace GPC.Model.Elements
             base.GetObjectData(info, context);
             info.AddValue("BendingThickness", _tb);
             info.AddValue("MembranalThickness", _tm);
+            info.AddValue("Material", _material);
         }
     }
 }
