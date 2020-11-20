@@ -25,7 +25,7 @@ namespace GPC.Model.Loads
             : base(loadCase, guid)
         {
             this._pressure = pressure;
-            this._shape = shape ?? throw new ArgumentException("Shape cannot be null");
+            this._shape = shape ?? throw new ArgumentNullException("Shape cannot be null");
         }
 
         public NormalAreaLoad(SerializationInfo info, StreamingContext context)

@@ -34,7 +34,7 @@ namespace GPC.Model.Loads
             _mX = mx;
             _mY = my;
             _mZ = mz;
-            _point = point ?? throw new ArgumentException("Point cannot be null") ;
+            _point = point ?? throw new ArgumentNullException("Point cannot be null") ;
         }
 
         public GlobalPointLoad(Vector3d force, Vector3d moment, Point3d point, LoadCase loadCase, Guid guid)
