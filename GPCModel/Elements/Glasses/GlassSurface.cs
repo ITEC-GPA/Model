@@ -26,6 +26,8 @@ namespace GPC.Model.Elements.Glasses
 
         public Shape Shape => _shape;
 
+        public List<Load> Loads => _loads;
+
         #endregion
 
         #region PUBLIC CONSTRUCTORS
