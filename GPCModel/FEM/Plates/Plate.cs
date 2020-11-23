@@ -9,7 +9,6 @@ using GPC.Model.Sections;
 using MathNet.Numerics.LinearAlgebra;
 using GPC.Geometry;
 using GPC.Model.Elements;
-using GPC.Model.CoordinateSystems;
 
 namespace GPC.Model.FEM
 {
@@ -61,7 +60,7 @@ namespace GPC.Model.FEM
         }
         protected override void SetLocalCoordinateSystem(double rotationAngle)
         {
-            _coordSys = new GPC.Model.CoordinateSystems.CoordinateSystem(Guid.Empty, _nodesGlobal[0].Position, _nodesGlobal[1].Position, _nodesGlobal[2].Position, rotationAngle);
+            _coordSys = new CoordinateSystem(Guid.Empty, _nodesGlobal[0].Position, _nodesGlobal[1].Position, _nodesGlobal[2].Position, rotationAngle);
             for (int nd = 0; nd < _nodesGlobal.Length; nd++)
             {
                 Point3d localPoint = _coordSys.PointToLocal(_nodesGlobal[nd].Position);

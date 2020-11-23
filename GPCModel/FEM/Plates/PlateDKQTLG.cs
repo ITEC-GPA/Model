@@ -9,11 +9,13 @@ using GPC.Model.Sections;
 using MathNet.Numerics.LinearAlgebra;
 using GPC.Geometry;
 using GPC.Model.Elements;
-using GPC.Model.CoordinateSystems;
 
 namespace GPC.Model.FEM
 {
-    public class PlateQuad4 : Plate
+    /// <summary>
+    /// Discrete Kirchhoff Quad Triplex Laminated Glass (Ivanov, 2015)
+    /// </summary>
+    public class PlateDKQTLG : Plate
     {
         #region Variables
         #endregion 
@@ -22,13 +24,13 @@ namespace GPC.Model.FEM
         #endregion
 
         #region Public Constructors
-        public PlateQuad4(Guid guid, PlateProperty property, Node[] nodes)
+        public PlateDKQTLG(Guid guid, PlateProperty property, Node[] nodes)
             : base(guid, property, nodes)
         {
-            _integrator = new FEMPlateIntegratorDKQ(new Guid(), 2, 1, 2, this);
+            _integrator = new FEMPlateIntegratorDKQTLG(new Guid(), 2, 1, 2, this);
         }
 
-        protected PlateQuad4(SerializationInfo info, StreamingContext context)
+        protected PlateDKQTLG(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
         }

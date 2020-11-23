@@ -12,7 +12,7 @@ using GPC.Geometry;
 
 namespace GPC.Model.FEM
 {
-    public class FEMPlateIntegratorDKQ : FEMPlateIntegrator
+    public class FEMPlateIntegratorDKQTLG : FEMPlateIntegrator
     {
         #region Variables 
         // Coefficients
@@ -29,7 +29,7 @@ namespace GPC.Model.FEM
         #endregion
 
         #region Public Constructors
-        public FEMPlateIntegratorDKQ(Guid guid, int dim, int order, int numDefComp, FEMElement element)
+        public FEMPlateIntegratorDKQTLG(Guid guid, int dim, int order, int numDefComp, FEMElement element)
             : base(guid, dim, order, numDefComp, element)
         {
             InitQuad4(element);
@@ -38,7 +38,7 @@ namespace GPC.Model.FEM
             _shapeDrilling = new FEMShapeDilling4(_gaussIntegrationPoints.NumPoints);
             StartIntegration(element);
         }
-        public FEMPlateIntegratorDKQ(SerializationInfo info, StreamingContext context)
+        public FEMPlateIntegratorDKQTLG(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
         }
@@ -279,6 +279,7 @@ namespace GPC.Model.FEM
             _dHMatrix = new Matrix<double>[_shape.NumIntgrPts];
             _BmMatrix = new Matrix<double>[_shape.NumIntgrPts];
             _BbMatrix = new Matrix<double>[_shape.NumIntgrPts];
+
 
             if (_shape.NumIntgrPts == _gaussIntegrationPoints.Coords.Count())
             {

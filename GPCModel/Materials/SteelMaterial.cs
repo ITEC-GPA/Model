@@ -38,8 +38,8 @@ namespace GPC.Model.Materials
         /// <param name="epsilon0">Yielding strain</param>
         /// <param name="alfaThermalExpansion">Linear thermal expasion coefficient</param>
         /// <param name="guid">Guid of the material</param>
-        public SteelMaterial(double elasticModulus, double poisson, double fyk, double fu, double epsilon0, double density, double alfaThermalExpansion, Guid guid)
-            : base(density, alfaThermalExpansion, guid)
+        public SteelMaterial(string name, double elasticModulus, double poisson, double fyk, double fu, double epsilon0, double density, double alfaThermalExpansion, Guid guid)
+            : base(name, elasticModulus, poisson, density, alfaThermalExpansion, guid)
         {
             if (fu == 0)
             {
@@ -77,8 +77,8 @@ namespace GPC.Model.Materials
         /// <param name="fy">Yielding stress</param>
         /// <param name="fu">Ultimate stress</param>
         /// <param name="epsilon0">Yielding strain</param>
-        public SteelMaterial(double elasticModulus, double poisson, double fy, double fu, double epsilon0, double density)
-            : this(elasticModulus, poisson, fy, fu, epsilon0, density, 0, Guid.Empty)
+        public SteelMaterial(string name, double elasticModulus, double poisson, double fy, double fu, double epsilon0, double density)
+            : this(name, elasticModulus, poisson, fy, fu, epsilon0, density, 0, Guid.Empty)
         {
         }
 
@@ -89,8 +89,8 @@ namespace GPC.Model.Materials
         /// <param name="poisson">Poissoins's Ratio</param>
         /// <param name="fy">Yielding stress</param>
         /// <param name="fu">Ultimate stress</param>
-        public SteelMaterial(double elasticModulus, double poisson, double fy, double fu, double density)
-            : this(elasticModulus, poisson, fy, fu, fy / elasticModulus, density, 0, Guid.Empty)
+        public SteelMaterial(string name, double elasticModulus, double poisson, double fy, double fu, double density)
+            : this(name, elasticModulus, poisson, fy, fu, fy / elasticModulus, density, 0, Guid.Empty)
         {
             if (fy == 0)
             {

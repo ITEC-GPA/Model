@@ -88,7 +88,7 @@ namespace UnitTest
             Material mat = new Material("Steel", E, ni, 0.0, 0.0, new Guid());
             PlateProperty property = new PlateProperty(mat, 1.00, 1.00);
             //CoordinateSystemPlateQuad4 quad4 = new PlateQuad4(new Guid(), property, nodes);
-            PlateQuad4 shell = new PlateQuad4(new Guid(), property, nodes);
+            PlateDKQ4 shell = new PlateDKQ4(new Guid(), property, nodes);
 
             Matrix<double> _stiffnessMatrix = Matrix<double>.Build.Dense(_globalDoF, _globalDoF, 0.0);
             shell.ElementIncidence();
@@ -186,7 +186,7 @@ namespace UnitTest
             Material mat = new Material("Steel", E, ni, 0.0, 0.0, new Guid());
             PlateProperty property = new PlateProperty(mat, 1.00, 1.00);
             //CoordinateSystemPlateQuad4 quad4 = new PlateQuad4(new Guid(), property, nodes);
-            PlateQuad4 shell = new PlateQuad4(new Guid(), property, nodes);
+            PlateDKQ4 shell = new PlateDKQ4(new Guid(), property, nodes);
 
             Matrix<double> _stiffnessMatrix = Matrix<double>.Build.Dense(_globalDoF, _globalDoF, 0.0);
             shell.ElementIncidence();

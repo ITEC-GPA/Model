@@ -19,7 +19,7 @@ namespace GPC.Model.Materials
         /// <param name="alfaThermalExpansion">Linear thermal expasion coefficient</param>
         /// <param name="guid">Guid of the material</param>
         public RebarMaterial(double elasticModulus, double poisson, double fy, double fu, double epsilon0, double density, double alfaThermalExpansion, Guid guid)
-            : base(elasticModulus, poisson, fy, fu, epsilon0, density, alfaThermalExpansion, guid)
+            : base("", elasticModulus, poisson, fy, fu, epsilon0, density, alfaThermalExpansion, guid)
         {
             if (fu == 0)
             {

@@ -7,7 +7,6 @@ using System.Runtime.Serialization;
 using System.Text;
 using System.Threading.Tasks;
 using MathNet.Numerics.LinearAlgebra;
-using GPC.Model.CoordinateSystems;
 
 namespace GPC.Model.FEM
 {
@@ -21,7 +20,7 @@ namespace GPC.Model.FEM
         protected int[,] _elIncidence;
         protected int[] _elIncidenceLocal;
         protected int[] _elIncidenceGlobal;
-        protected GPC.Model.CoordinateSystems.CoordinateSystem _coordSys;
+        protected GPC.Geometry.CoordinateSystem _coordSys;
         //protected CoordinateSystem _cSys;
         #endregion
 
@@ -30,7 +29,7 @@ namespace GPC.Model.FEM
         public int[,] ElIncidence => _elIncidence;
         public Node[] NodesGlobal => _nodesGlobal;
         public Node[] NodesLocal => _nodesLocal;
-        public GPC.Model.CoordinateSystems.CoordinateSystem CoordSys => _coordSys;
+        public GPC.Geometry.CoordinateSystem CoordSys => _coordSys;
         //public CoordinateSystem CSys => _cSys;
         #endregion
 
