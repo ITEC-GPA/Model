@@ -7,24 +7,16 @@ namespace GPC.Model.Elements
     [Serializable]
     public abstract class ElementProperty : ModelObject
     {
-        #region Variables
-
-        protected Material _material;
-        #endregion
-
-        #region Properties
-        public Material Material => _material;
-        #endregion
 
         #region Public Constructors
-        protected ElementProperty(Material material, Guid guid)
+        protected ElementProperty(Guid guid)
             : base(guid)
         {
-            this._material = material;
+
         }
 
-        protected ElementProperty(Material material)
-            : this(material, Guid.Empty)
+        protected ElementProperty()
+            : this(Guid.Empty)
         {
 
         }
@@ -32,7 +24,7 @@ namespace GPC.Model.Elements
         protected ElementProperty(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
-            _material = (Material)info.GetValue("Material", typeof(Material));
+
         }
 
         #endregion Public Constructors
@@ -40,7 +32,6 @@ namespace GPC.Model.Elements
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             base.GetObjectData(info, context);
-            info.AddValue("Material", _material);
         }
     }
 }

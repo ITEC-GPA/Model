@@ -34,8 +34,8 @@ namespace GPC.Model.Elements.Glasses
         /// <param name="glassPanelOuter">Outer glass panel</param>
         /// <param name="glassPanelInner">Inner glass panel</param>
         /// <param name="airThickness">air gap</param>
-        public DoubleInsulatingGlass(IGlassPanel glassPanelOuter, IGlassPanel glassPanelInner, double airThickness, GlassMaterial glassMaterial)
-            : this(glassPanelOuter, glassPanelInner, airThickness, glassMaterial, Guid.Empty)
+        public DoubleInsulatingGlass(IGlassPanel glassPanelOuter, IGlassPanel glassPanelInner, double airThickness)
+            : this(glassPanelOuter, glassPanelInner, airThickness, Guid.Empty)
         {
         }
 
@@ -46,8 +46,8 @@ namespace GPC.Model.Elements.Glasses
         /// <param name="glassPanelInner">Outer glass panel</param>
         /// <param name="airThickness">air gap</param>
         /// <param name="guid">The guid of the objec</param>
-        public DoubleInsulatingGlass(IGlassPanel glassPanelOuter, IGlassPanel glassPanelInner, double airThickness, GlassMaterial glassMaterial, Guid guid)
-            : base(glassMaterial, guid)
+        public DoubleInsulatingGlass(IGlassPanel glassPanelOuter, IGlassPanel glassPanelInner, double airThickness, Guid guid)
+            : base(guid)
         {
             if (airThickness <= 0.001)
                 throw new ArgumentOutOfRangeException("Air thickness can't be negative or zero");
@@ -66,7 +66,7 @@ namespace GPC.Model.Elements.Glasses
             _airThickness = info.GetDouble("AirThickness");
         }
 
-        #endregion Public constructor
+        #endregion 
 
         #region PUBLIC METHODS
 
@@ -78,7 +78,7 @@ namespace GPC.Model.Elements.Glasses
             info.AddValue("AirThickness", _airThickness);
         }
 
-        #endregion PUBLIC METHODS
+        #endregion
 
     }
 }

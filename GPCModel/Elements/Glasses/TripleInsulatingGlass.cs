@@ -40,13 +40,14 @@ namespace GPC.Model.Elements.Glasses
         /// <param name="glassPanelCentral">Central glass panel</param>
         /// <param name="airThicknessOuter">Outer air thickness</param>
         /// <param name="airThicknessInner">Inner air thickness</param>
-        public TripleInsulatingGlass(IGlassPanel glassPanelOuter, IGlassPanel glassPanelCentral, IGlassPanel glassPanelInner, double airThicknessOuter, double airThicknessInner, GlassMaterial glassMaterial)
-            : this(glassPanelOuter, glassPanelCentral, glassPanelInner, airThicknessOuter, airThicknessInner, glassMaterial, Guid.Empty)
+        public TripleInsulatingGlass(IGlassPanel glassPanelOuter, IGlassPanel glassPanelCentral, IGlassPanel glassPanelInner, double airThicknessOuter, double airThicknessInner)
+            : this(glassPanelOuter, glassPanelCentral, glassPanelInner, airThicknessOuter, airThicknessInner, Guid.Empty)
         {
+
         }
 
-        public TripleInsulatingGlass(IGlassPanel glassPanelOuter, IGlassPanel glassPanelCentral, IGlassPanel glassPanelInner, double airThicknessOuter, double airThicknessInner, GlassMaterial glassMaterial, Guid guid)
-            : base(glassMaterial, guid)
+        public TripleInsulatingGlass(IGlassPanel glassPanelOuter, IGlassPanel glassPanelCentral, IGlassPanel glassPanelInner, double airThicknessOuter, double airThicknessInner, Guid guid)
+            : base(guid)
         {
             if (airThicknessOuter < 0.001 || airThicknessInner < 0.001)
                 throw new ArgumentOutOfRangeException("Air thickness can't be negative or zero");

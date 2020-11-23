@@ -21,6 +21,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <PlatformTarget>x64</PlatformTarget>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -105,8 +106,12 @@
     <Compile Include="LoadCases\ClimateTLoadCase.cs" />
     <Compile Include="LoadCases\LoadCase.cs" />
     <Compile Include="LoadCases\LoadCasePrEn.cs" />
+    <Compile Include="Loads\GlobalPointLoad.cs" />
+    <Compile Include="Loads\IAreaLoad.cs" />
+    <Compile Include="Loads\ILineLoad.cs" />
+    <Compile Include="Loads\IPointLoad.cs" />
     <Compile Include="Loads\Load.cs" />
-    <Compile Include="Loads\NormalPressureLoad.cs" />
+    <Compile Include="Loads\NormalAreaLoad.cs" />
     <Compile Include="Materials\ConcreteMaterial.cs" />
     <Compile Include="Materials\GlassMaterial.cs" />
     <Compile Include="Materials\GlassMaterialAstm.cs" />
