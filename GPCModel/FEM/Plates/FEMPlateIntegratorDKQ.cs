@@ -230,25 +230,25 @@ namespace GPC.Model.FEM
             }            
             _kMatrix = _trfMatrix.Transpose() * K * _trfMatrix;
 
-            string path = "C:\\Users\\r.vochescu\\Desktop\\" + "DKQ_SHELL_STIFF-MATRIX.txt";
-            // This text is added only once to the file.
-            if (File.Exists(path) == true)
-            {
-                File.Delete(path);
-            }
-            if (!File.Exists(path))
-            {
-                string matrix = "";
-                for (int r = 0; r < _kMatrix.RowCount; r++)
-                {
-                    for (int c = 0; c < _kMatrix.ColumnCount; c++)
-                    {
-                        matrix = matrix + "\t" + _kMatrix[r, c].ToString();
-                    }
-                    matrix = matrix + Environment.NewLine;
-                }
-                File.WriteAllText(path, matrix);
-            }
+            //string path = "C:\\Users\\r.vochescu\\Desktop\\" + "DKQ_SHELL_STIFF-MATRIX.txt";
+            //// This text is added only once to the file.
+            //if (File.Exists(path) == true)
+            //{
+            //    File.Delete(path);
+            //}
+            //if (!File.Exists(path))
+            //{
+            //    string matrix = "";
+            //    for (int r = 0; r < _kMatrix.RowCount; r++)
+            //    {
+            //        for (int c = 0; c < _kMatrix.ColumnCount; c++)
+            //        {
+            //            matrix = matrix + "\t" + _kMatrix[r, c].ToString();
+            //        }
+            //        matrix = matrix + Environment.NewLine;
+            //    }
+            //    File.WriteAllText(path, matrix);
+            //}
         }
         public override void BuildT()
         {
