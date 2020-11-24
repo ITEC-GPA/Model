@@ -234,7 +234,7 @@ namespace GPC.Model.FEM
             //    v33 = v11 ^ v22;
             //}
 
-            _CoordSys = new GPC.Geometry.CoordinateSystem(new Guid(), v11, v22, v33);
+            _CoordSys = new GPC.Geometry.CoordinateSystem(v11, v22, v33, 0, string.Empty, new Guid());
             //_CoordSys.RotationAngle = rotationAngle;
 
             /// Set Transformation Matrix for beam Element

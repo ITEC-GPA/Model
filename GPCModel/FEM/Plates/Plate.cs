@@ -60,10 +60,12 @@ namespace GPC.Model.FEM
         }
         protected override void SetLocalCoordinateSystem(double rotationAngle)
         {
-            _coordSys = new CoordinateSystem(Guid.Empty, _nodesGlobal[0].Position, _nodesGlobal[1].Position, _nodesGlobal[2].Position, rotationAngle);
+            _coordSys = new CoordinateSystem( _nodesGlobal[0].Position, _nodesGlobal[1].Position, _nodesGlobal[2].Position, rotationAngle, string.Empty, Guid.Empty);
             for (int nd = 0; nd < _nodesGlobal.Length; nd++)
             {
-                Point3d localPoint = _coordSys.PointToLocal(_nodesGlobal[nd].Position);
+                var p = _nodesGlobal[nd].Position;
+                _coordSys.ToLocal(ref p);
+                Point3d localPoint = p;
                 _nodesLocal[nd] = new Node(new Guid(), localPoint, _nodesGlobal[nd].NodeIndex, _nodesGlobal[nd].DoF);
             }
         }

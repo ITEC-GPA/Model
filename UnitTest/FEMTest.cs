@@ -68,7 +68,7 @@ namespace UnitTest
                 nodes[nd].DoF.FormIncidence(ref _globalDoF, ref _reactionDoF);
             }
 
-            CoordinateSystem Csys = new CoordinateSystem(Guid.Empty, Node1.Position, Node2.Position, Node3.Position);
+            CoordinateSystem Csys = new CoordinateSystem(Node1.Position, Node2.Position, Node3.Position, 0, string.Empty, new Guid());
 
             //Point3d p1 = new Point3d(1, 1, 0);
             //Point3d p2 = new Point3d(3, 4, 0);
@@ -166,7 +166,7 @@ namespace UnitTest
                 nodes[nd].DoF.FormIncidence(ref _globalDoF, ref _reactionDoF);
             }
 
-            CoordinateSystem Csys = new CoordinateSystem(Guid.Empty, Node1.Position, Node2.Position, Node3.Position);
+            CoordinateSystem Csys = new CoordinateSystem(Node1.Position, Node2.Position, Node3.Position, 0, string.Empty, new Guid());
 
             //Point3d p1 = new Point3d(1, 1, 0);
             //Point3d p2 = new Point3d(3, 4, 0);
