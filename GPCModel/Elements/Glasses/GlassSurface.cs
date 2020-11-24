@@ -18,6 +18,10 @@ namespace GPC.Model.Elements.Glasses
 
         protected List<Load> _loads;
 
+        protected List<LineRestrain> _lineRestrains;
+
+        protected List<PointRestrain> _pointRestrains;
+
         #endregion
 
         #region PROPERTIES
@@ -28,11 +32,15 @@ namespace GPC.Model.Elements.Glasses
 
         public List<Load> Loads => _loads;
 
+        public List<LineRestrain> LineRestrain => _lineRestrains;
+
+        public List<PointRestrain> PointRestrain => _pointRestrains;
+
         #endregion
 
         #region PUBLIC CONSTRUCTORS
 
-        public GlassSurface(GlassProperty glassProperty, Shape shape, List<Load> loads, int index, Guid guid)
+        public GlassSurface(GlassProperty glassProperty, Shape shape, List<Load> loads, List<LineRestrain> lineRestrain, List<PointRestrain> pointRestrain, int index, Guid guid)
             : base(guid)
         {
             this._glassProperty = glassProperty;
@@ -41,10 +49,18 @@ namespace GPC.Model.Elements.Glasses
             this._loads = new List<Load>();
             if (loads != null)
                 _loads.AddRange(loads);
+
+            this._lineRestrains = new List<LineRestrain>();
+            if (lineRestrain != null)
+                _lineRestrains.AddRange(lineRestrain);
+
+            this._pointRestrains = new List<PointRestrain>();
+            if (pointRestrain != null)
+                _pointRestrains.AddRange(pointRestrain);
         }
 
         public GlassSurface(GlassProperty glassProperty, Shape shape, int index, Guid guid)
-            : this(glassProperty, shape, null, index, guid)
+            : this(glassProperty, shape, null, null, null, index, guid)
         {
 
         }
@@ -64,6 +80,16 @@ namespace GPC.Model.Elements.Glasses
         public void AddLoad(Load load)
         {
             this._loads.Add(load);
+        }
+        
+        public void AddLineRestrain(LineRestrain restrain)
+        {
+            this._lineRestrains.Add(restrain);
+        }
+
+        public void AddPointRestrain(PointRestrain restrain)
+        {
+            this._pointRestrains.Add(restrain);
         }
 
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
