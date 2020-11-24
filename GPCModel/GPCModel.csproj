@@ -72,6 +72,8 @@
     <Compile Include="Elements\Glasses\Interlayer.cs" />
     <Compile Include="Elements\Glasses\GlassSurface.cs" />
     <Compile Include="Elements\Glasses\GlassProperty.cs" />
+    <Compile Include="Elements\Glasses\PointRestrain.cs" />
+    <Compile Include="Elements\Glasses\LineRestrain.cs" />
     <Compile Include="Elements\PlateProperty.cs" />
     <Compile Include="Elements\Rebar.cs" />
     <Compile Include="Elements\Glasses\TripleInsulatingGlass.cs" />
@@ -131,7 +133,6 @@
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>
-    <None Include="ClassDiagram.cd" />
     <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
