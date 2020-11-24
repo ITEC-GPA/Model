@@ -81,12 +81,10 @@ namespace GPC.Model.FEM
             /// Initialize Incidence Vector
             _elIncidence = new int[2, totalDoF];
 
-            int k = 0;
             // Loop on Nodes
             /// Creazione incidenza locale elementi
             int k0 = 0;
             int k1 = 0;
-            int dofPos = 0;
             for (int nd = 0; nd < _nodesGlobal.Length; nd++)
             {
                 /// Loop on DoFs

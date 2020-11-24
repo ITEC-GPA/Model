@@ -54,7 +54,7 @@ namespace GPC.Model.FEM
 
             double E = 30000;
             double ni = 0.3;
-            double G = E / (2 * (1 + 0.3));
+            double G = E / (2 * (1 + ni));
             double L2 = L * L;
             double L3 = L2 * L;
 

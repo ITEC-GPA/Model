@@ -20,7 +20,7 @@ namespace GPC.Model.FEM
         /// </summary>
         protected int _order;
         protected int _dimension;
-        protected int _numPoints;
+        //protected int _numPoints;
         #endregion
 
         #region Properties
