@@ -3,7 +3,7 @@ using GPC.Geometry;
 
 namespace GPC.Model.Elements
 {
-    public interface IRestrain
+    public interface IGeometryRestrain
     {
         Vector3d GetV1();
 

@@ -72,12 +72,13 @@
     <Compile Include="Elements\Glasses\Interlayer.cs" />
     <Compile Include="Elements\Glasses\GlassSurface.cs" />
     <Compile Include="Elements\Glasses\GlassProperty.cs" />
-    <Compile Include="Elements\Restrain\IRestrain.cs" />
+    <Compile Include="Elements\Restrain\IGeometryRestrain.cs" />
     <Compile Include="Elements\Restrain\PointRestrain.cs" />
     <Compile Include="Elements\Restrain\LineRestrain.cs" />
     <Compile Include="Elements\PlateProperty.cs" />
     <Compile Include="Elements\Rebar.cs" />
     <Compile Include="Elements\Glasses\TripleInsulatingGlass.cs" />
+    <Compile Include="Elements\Restrain\Restrain.cs" />
     <Compile Include="FEM\Beams\Beam.cs" />
     <Compile Include="FEM\Beams\FEMBeamIntegrator.cs" />
     <Compile Include="FEM\FEMDefinitions.cs" />
