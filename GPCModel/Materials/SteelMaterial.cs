@@ -7,23 +7,15 @@ namespace GPC.Model.Materials
     public class SteelMaterial : Material
     {
         #region VARIABLES
-
-        protected double _elasticModulus;
-        protected double _poisson;
         protected double _fyk;
         protected double _fu;
         protected double _epsilon0;
-
         #endregion VARIABLES
 
         #region PROPERTIES
-
-        public double ElasticModulus { get => _elasticModulus; set { _elasticModulus = value; } }
-        public double Poisson { get => _poisson; set { _poisson = value; } }
         public double Fyk { get => _fyk; set { _fyk = value; } } 
         public double Fu { get => _fu; set { _fu = value; } }
         public double Epsilon0 { get => _epsilon0; set { _epsilon0 = value; } }
-
         #endregion PROPERTIES
 
         #region CONSTRUCTORS
@@ -65,8 +57,8 @@ namespace GPC.Model.Materials
             this._fu = fu;
             this._fyk = fyk;
             this._epsilon0 = epsilon0;
-            this._elasticModulus = elasticModulus;
-            this._poisson = poisson;
+            /*this._elasticModulus = elasticModulus;
+            base._ni = poisson;*/
         }
 
         /// <summary>
@@ -108,8 +100,6 @@ namespace GPC.Model.Materials
             _fu = info.GetDouble("Fu");
             _fyk = info.GetDouble("Fyk");
             _epsilon0 = info.GetDouble("Epsilon0");
-            _elasticModulus = info.GetDouble("ElasticModulus");
-            _poisson = info.GetDouble("Poisson");
         }
 
         #endregion CONSTRUCTORS
@@ -119,8 +109,6 @@ namespace GPC.Model.Materials
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             base.GetObjectData(info, context);
-            info.AddValue("ElasticModulus", _elasticModulus);
-            info.AddValue("Poisson", _poisson);
             info.AddValue("Epsilon0", _epsilon0);
             info.AddValue("Fyk", _fyk);
             info.AddValue("Fu", _fu);

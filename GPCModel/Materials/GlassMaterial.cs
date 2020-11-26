@@ -6,22 +6,6 @@ namespace GPC.Model.Materials
     [Serializable]
     public abstract class GlassMaterial : Material
     {
-        #region VARIABLES
-
-        protected double _elasticModulus;
-        protected double _poisson;
-
-        #endregion
-        
-        #region PROPERTIES
-
-        protected double ElasticModulus => _elasticModulus;
-        protected double Poisson => _poisson;
-
-        #endregion
-
-        #region CONSTRUCTOR
-
         /// <summary>
         /// 
         /// </summary>
@@ -31,7 +15,7 @@ namespace GPC.Model.Materials
         /// <param name="alfaThermalExpansion">Alfa linear thermal expansion coefficient</param>
         /// <param name="guid">Guid of the material</param>
         protected GlassMaterial(double elasticModulus, double poisson, double density, double alfaThermalExpansion, Guid guid)
-            : base(density, alfaThermalExpansion, guid)
+            : base(density, elasticModulus, alfaThermalExpansion, guid)
         {
             if (elasticModulus <= 0)
             {
@@ -45,9 +29,6 @@ namespace GPC.Model.Materials
             {
                 throw new ArgumentException($"{nameof(poisson)} cannot be greater than 1");
             }
-
-            this._elasticModulus = elasticModulus;
-            this._poisson = poisson;
         }
 
         /// <summary>
@@ -66,20 +47,13 @@ namespace GPC.Model.Materials
         protected GlassMaterial(SerializationInfo info, StreamingContext context) 
             : base(info, context)
         {
-            _elasticModulus = info.GetDouble("ElasticModulus");
-            _poisson = info.GetDouble("Poisson");
         }
-
-        #endregion
 
         #region PUBLIC METHODS
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             base.GetObjectData(info, context);
-            info.AddValue("ElasticModulus", _elasticModulus);
-            info.AddValue("Poisson", _poisson);
         }
-
         #endregion
     }
 }

@@ -39,11 +39,10 @@ namespace GPC.Model
         {
             _name = name;
         }
-            public ModelObject(SerializationInfo info, StreamingContext context)
+        public ModelObject(SerializationInfo info, StreamingContext context)
         {
             _guid = (Guid)info.GetValue("Guid", typeof(Guid));
         }
-
         #endregion
 
         #region Public Methods Specific

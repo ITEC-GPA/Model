@@ -85,7 +85,7 @@ namespace UnitTest
             double ni = 0.3;
 
             /// Material
-            Material mat = new Material("Steel", E, ni, 0.0, 0.0, new Guid());
+            Material mat = new SteelMaterial("Steel", E, ni, 355, 510, 355/E, 0, 0, new Guid());// new Material("Steel", E, ni, 0.0, 0.0, new Guid());
             PlateProperty property = new PlateProperty(mat, 1.00, 1.00);
             //CoordinateSystemPlateQuad4 quad4 = new PlateQuad4(new Guid(), property, nodes);
             PlateDKQ4 shell = new PlateDKQ4(new Guid(), property, nodes);
@@ -183,7 +183,7 @@ namespace UnitTest
             double ni = 0.3;
 
             /// Material
-            Material mat = new Material("Steel", E, ni, 0.0, 0.0, new Guid());
+            Material mat = new SteelMaterial("Steel",E,ni,355,510,355/E,0.0,0.0,new Guid());//new Material("Steel", E, ni, 0.0, 0.0, new Guid());
             PlateProperty property = new PlateProperty(mat, 1.00, 1.00);
             //CoordinateSystemPlateQuad4 quad4 = new PlateQuad4(new Guid(), property, nodes);
             PlateDKQ4 shell = new PlateDKQ4(new Guid(), property, nodes);
