@@ -16,16 +16,17 @@ namespace GPC.Model.Sections
             public Shape2d Shape { get; set; }
             public Material Material { get; set; }
         }
+
         #region Variables
         protected Material _material;
         protected double _area;
-        protected double _j;
-        protected double _i11;
-        protected double _i22;
-        protected double _sl1;
-        protected double _sl2;
-        protected double _sa1;
-        protected double _sa2;
+        protected double _jy;
+        protected double _jz;
+        protected double _wply;
+        protected double _wplz;
+        protected double _jt;
+        protected double _jw;
+        protected Point2d _shearCenter;
         protected Point2d _centroid;
         protected double _angleX1;
         #endregion
@@ -44,47 +45,40 @@ namespace GPC.Model.Sections
             set => _area = value;
         }
 
-        public double J
+        public double Jt
         {
-            get => _j;
-            set => _j = value;
+            get => _jt;
+            set => _jt = value;
+        }
+        public double Jw
+        {
+            get => _jw;
+            set => _jw = value;
         }
 
-        public double I11
+        public double Jy
         {
-            get => _i11;
-            set => _i11 = value;
+            get => _jy;
+            set => _jy= value;
         }
 
-        public double I22
+        public double Wply
         {
-            get => _i22;
-            set => _i22 = value;
+            get => _wply;
+            set => _wply = value;
         }
 
-        public double SL1
+        public double Wplz
         {
-            get => _sl1;
-            set => _sl1 = value;
+            get => _wplz;
+            set => _wplz = value;
         }
 
-        public double SL2
+        public double Jz
         {
-            get => _sl2;
-            set => _sl2 = value;
-        }
-
-        public double SA1
-        {
-            get => _sa1;
-            set => _sa1 = value;
-        }
-
-        public double SA2
-        {
-            get => _sa2;
-            set => _sa2 = value;
-        }        
+            get => _jz;
+            set => _jz = value;
+        }   
 
         public Point2d Centroid
         {
@@ -92,12 +86,17 @@ namespace GPC.Model.Sections
             set => _centroid = value;
         }
 
+        public Point2d ShearCenter
+        {
+            get => _shearCenter;
+            set => _shearCenter = value;
+        }
+
         public double AngleX1
         {
             get => _angleX1;
             set => _angleX1 = value;
         }
-
         #endregion
 
         #region Public Constructors
@@ -110,35 +109,37 @@ namespace GPC.Model.Sections
         public Section(SerializationInfo info, StreamingContext context)
         {
             _area = info.GetDouble("Area");
-            _j = info.GetDouble("J");
-            _i11 = info.GetDouble("I11");
-            _i22 = info.GetDouble("I22");
-            _sl1 = info.GetDouble("SL1");
-            _sl2 = info.GetDouble("SL2");
-            _sa1 = info.GetDouble("SA1");
-            _sa2 = info.GetDouble("SA2");
+            _jt = info.GetDouble("J");
+            _jw = info.GetDouble("I11");
+            _jz = info.GetDouble("I22");
+            _jy = info.GetDouble("SL1");
             _centroid = (Point2d)info.GetValue("Centroid", typeof(Point2d));
+            _shearCenter = (Point2d)info.GetValue("ShearCenter", typeof(Point2d));
             _angleX1 = info.GetDouble("AngleX1");
         }
 
         #endregion
+        public double Wely(double z) {
+            return z / Jy;
+        }
+        public double Welz(double y)
+        {
+            return y / Jz;
+        }
         #region Public Methods Specific
 
-        
+
         #endregion
         #region Virtual Methods
-
         public virtual void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             info.AddValue("Area", _area);
-            info.AddValue("J", _j);
-            info.AddValue("I11", _i11);
-            info.AddValue("I22", _i22);
-            info.AddValue("SL1", _sl1);
-            info.AddValue("SL2", _sl2);
-            info.AddValue("SA1", _sa1);
-            info.AddValue("SA2", _sa2);
+            info.AddValue("Jt", _jt);
+            info.AddValue("Jw", _jw);
+            info.AddValue("Jy", _jy);
+            info.AddValue("Jz", _jz);
             info.AddValue("Centroid", _centroid, typeof(Point2d));
+            info.AddValue("ShearCenter", _shearCenter, typeof(Point2d));
             info.AddValue("AngleX1", _angleX1);
         }
 
