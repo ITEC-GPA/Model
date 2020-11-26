@@ -66,6 +66,7 @@
   <ItemGroup>
     <Compile Include="FEMTest.cs" />
     <Compile Include="InterlayerMaterialTest.cs" />
+    <Compile Include="MaterialTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="CombinationTest.cs" />
     <Compile Include="SerializationTest.cs" />

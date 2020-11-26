@@ -7,9 +7,6 @@ namespace GPC.Model.Materials
     public class ConcreteMaterial : Material
     {
         #region VARIABLES
-
-        protected double _elasticModulus;
-        protected double _poisson;
         protected double _fck;
 
         #endregion VARIABLES
@@ -17,8 +14,6 @@ namespace GPC.Model.Materials
         #region PROPERTIES
 
         // TODO aggiungere le altre proprietà del calcestruzzo derivate fa fck
-        public double ElasticModulus { get => _elasticModulus; set { _elasticModulus = value; } }
-        public double Poisson { get => _poisson; set { _poisson = value; } }
         public double Fck { get => _fck; set { _fck = value; } }
 
         #endregion PROPERTIES
@@ -34,10 +29,8 @@ namespace GPC.Model.Materials
         /// <param name="guid">Guid of the material</param>
         /// <param name="alfaThermalExpansion">Linear thermal expasion coefficient</param>
         public ConcreteMaterial(string name, double elasticModulus, double poisson, double fck, double density, double alfaThermalExpansion, Guid guid)
-            : base(name, density, alfaThermalExpansion, guid)
+            : base(name, elasticModulus, density, alfaThermalExpansion, guid)
         {
-            _elasticModulus = elasticModulus;
-            _poisson = poisson;
             _fck = fck;
         }
 
@@ -72,8 +65,6 @@ namespace GPC.Model.Materials
         public ConcreteMaterial(SerializationInfo info, StreamingContext context) :
             base(info, context)
         {
-            _elasticModulus = info.GetDouble("ElasticModulus");
-            _poisson = info.GetDouble("Poisson");
             _fck = info.GetDouble("Fck");
         }
 
@@ -84,8 +75,6 @@ namespace GPC.Model.Materials
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             base.GetObjectData(info, context);
-            info.AddValue("ElasticModulus", _elasticModulus);
-            info.AddValue("Poisson", _poisson);
             info.AddValue("Fck", _fck);
         }
 
