@@ -54,8 +54,17 @@ namespace GPC.Model.Materials
             _density = density;
         }
 
-        public Material(string name, double elasticModulus, double ni, Guid guid) : this(name, elasticModulus, ni, 0, 0, guid) { }
-        public Material(Guid guid) : this("", 0, 0, 0, 0, guid) { }
+        public Material(string name, double elasticModulus, double ni, Guid guid) 
+            : this(name, elasticModulus, ni, 0, 0, guid)
+        { 
+
+        }
+
+        public Material(Guid guid) 
+            : this("", 0, 0, 0, 0, guid) 
+        { 
+
+        }
 
         protected Material(SerializationInfo info, StreamingContext context) : base(info, context)
         {

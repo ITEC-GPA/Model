@@ -1,4 +1,5 @@
-﻿using GPC.Model.LoadCases;
+﻿using GPC.Geometry;
+using GPC.Model.LoadCases;
 using System;
 using System.Runtime.Serialization;
 
@@ -22,6 +23,9 @@ namespace GPC.Model.Loads
         {
             _loadCase = (LoadCase)info.GetValue("LoadCase", typeof(LoadCase));
         }
+
+        public abstract GeometryBase GetGeometry();
+
 
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
