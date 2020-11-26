@@ -25,11 +25,10 @@ namespace GPC.Model.Sections
         #region Public Constructors
 
         public SectionRectangular(double b, double d, Material material)
-            : base()
+            : base(material)
         {
             _b = b;
             _d = d;
-            _material = material;
         }
 
         public SectionRectangular(SerializationInfo info, StreamingContext context)
@@ -50,12 +49,6 @@ namespace GPC.Model.Sections
             base.GetObjectData(info, context);
             info.AddValue("B", _d);
             info.AddValue("D", _d);
-        }
-
-        public override void Calculate()
-        {
-            base.Calculate();
-            _area = _b * _d;
         }
 
         public override ShapeMaterial[] GetShapes()

@@ -16,48 +16,49 @@ namespace GPC.Model.Sections
     {
         #region Variables
         protected double _dext; /// Diameter external
-        protected double _dint; /// Diameter internal
+        protected double _t; /// Thickness
+        protected double _dint;
         #endregion
 
         #region Properties
         public double Dext => _dext;
-        public double Dint => _dint;
+        public double T => _t;
         #endregion
 
         #region Public Constructors
-
-        public SectionCircular(double dext, double dint, Material material)
-            : base()
+        public SectionCircular(double dext, double t, Material material) : base(material)
         {
             _dext = dext;
-            _dint = dint;
-            _material = material;
+            _t = t;
+            _dint = _dext - 2.0 * t;
+
+            _area = (Math.Pow(_dext, 2.0) * Math.PI) / 4.0 - (Math.Pow(_dint, 2.0) * Math.PI) / 4.0;
+            _wpl11 = wpl();
+            _wpl22 = _wpl11;
         }
 
         public SectionCircular(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
             _dext = info.GetDouble("Dext");
-            _dint = info.GetDouble("Dint");
+            _t = info.GetDouble("T");
             _material = (Material)info.GetValue("Material", typeof(Material));
         }
 
         #endregion
 
         #region Public Methods Specific
+        public double wpl()
+        {
+            return (Math.Pow(_dext, 3.0) - Math.Pow(_dint, 3.0)) / (6.0);
+        }
 
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             base.GetObjectData(info, context);
             info.AddValue("Dext", _dext);
-            info.AddValue("Dint", _dint);
+            info.AddValue("T", _t);
             info.AddValue("Material", _material);
-        }
-
-        public override void Calculate()
-        {
-            base.Calculate();
-            _area = (Math.Pow(_dext, 2.0) * Math.PI) / 4.0 - (Math.Pow(_dint,2.0) *Math.PI)/4.0;
         }
 
         public override ShapeMaterial[] GetShapes()

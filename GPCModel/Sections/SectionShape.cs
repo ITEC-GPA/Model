@@ -45,16 +45,10 @@ namespace GPC.Model.Sections
 
 
         public SectionShape(Shape2d[] shapes, Material[] materials)
-            : base()
+            : base(materials)
         {
             _shapes = new List<Shape2d>(shapes);
             _material = new MultiMaterial(materials, new Guid());
-        }
-
-        public override void Calculate()
-        {
-            base.Calculate();
-            // Calcolo Area, ecc a partire dalla shape
         }
 
         public override ShapeMaterial[] GetShapes()

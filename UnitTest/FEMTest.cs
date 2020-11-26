@@ -259,18 +259,18 @@ namespace UnitTest
             //Node Node2 = new Node(new Guid(), new Point3d(0.0, 5000.0, 0.0), 2, NodeDoFID, Node2DoF);
             //Node Node3 = new Node(new Guid(), new Point3d(5000.0, 5000.0, 0.0), 2, NodeDoFID, Node3DoF);
 
-            ///  Section
+            /// Material
             double E = 30000; // MPa
+            ConcreteMaterial mat = new ConcreteMaterial(E, 0.3, 0, 30);
+
+            ///  Section
             double J = 6.75e8; //mm4
             double A = 300 * 300; //mm2
-            Section sec = new Section();
+            Section sec = new Section(mat);
             sec.Area = A;
-            sec.Jy = J;
-            sec.Jz = J;
+            sec.J22 = J;
+            sec.J11 = J;
             sec.Jt = 0.0;
-
-            /// Material
-            ConcreteMaterial mat = new ConcreteMaterial(E, 0.3, 0, 30);
 
             /// Beams
             Node[] NodesB1 = new Node[] { Node1, Node2 };
@@ -371,18 +371,18 @@ namespace UnitTest
             //Node Node2 = new Node(new Guid(), new Point3d(0.0, 5000.0, 0.0), 2, NodeDoFID, Node2DoF);
             //Node Node3 = new Node(new Guid(), new Point3d(5000.0, 5000.0, 0.0), 2, NodeDoFID, Node3DoF);
 
-            ///  Section
+            /// Material
             double E = 30000; // MPa
+            ConcreteMaterial mat = new ConcreteMaterial(E, 0.3, 0, 30);
+
+            ///  Section
             double J = 6.75e8; //mm4
             double A = 300 * 300; //mm2
-            Section sec = new Section();
+            Section sec = new Section(mat);
             sec.Area = A;
-            sec.Jy = J;
-            sec.Jz = J;
-            sec.Jt = 0.0;
-
-            /// Material
-            ConcreteMaterial mat = new ConcreteMaterial(E, 0.3, 0, 30);
+            sec.J22 = J;
+            sec.J11 = J;
+            sec.Jt = 0.0;         
 
             /// Beams
             Node[] NodesB1 = new Node[] { Node1, Node2 };

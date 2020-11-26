@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace GPC.Model.Sections
 {
-    class SectionL
+    public class SectionL
     {
     }
 }

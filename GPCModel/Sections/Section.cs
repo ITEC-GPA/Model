@@ -20,10 +20,10 @@ namespace GPC.Model.Sections
         #region Variables
         protected Material _material;
         protected double _area;
-        protected double _jy;
-        protected double _jz;
-        protected double _wply;
-        protected double _wplz;
+        protected double _j11;
+        protected double _j22;
+        protected double _wpl11;
+        protected double _wpl22;
         protected double _jt;
         protected double _jw;
         protected Point2d _shearCenter;
@@ -56,29 +56,29 @@ namespace GPC.Model.Sections
             set => _jw = value;
         }
 
-        public double Jy
+        public double J11
         {
-            get => _jy;
-            set => _jy= value;
+            get => _j11;
+            set => _j11= value;
         }
 
-        public double Wply
+        public double J22
         {
-            get => _wply;
-            set => _wply = value;
+            get => _j22;
+            set => _j22 = value;
         }
 
-        public double Wplz
+        public double Wpl11
         {
-            get => _wplz;
-            set => _wplz = value;
+            get => _wpl11;
+            set => _wpl11 = value;
         }
 
-        public double Jz
+        public double Wpl22
         {
-            get => _jz;
-            set => _jz = value;
-        }   
+            get => _wpl22;
+            set => _wpl22 = value;
+        }       
 
         public Point2d Centroid
         {
@@ -100,51 +100,49 @@ namespace GPC.Model.Sections
         #endregion
 
         #region Public Constructors
+        public Section(Material material) {
+            _material = material;
+        }
 
-        public Section()
+        public Section(Material[] materials)
         {
-            Calculate();
         }
 
         public Section(SerializationInfo info, StreamingContext context)
         {
             _area = info.GetDouble("Area");
-            _jt = info.GetDouble("J");
-            _jw = info.GetDouble("I11");
-            _jz = info.GetDouble("I22");
-            _jy = info.GetDouble("SL1");
+            _jt = info.GetDouble("Jt");
+            _jw = info.GetDouble("Jw");
+            _j11 = info.GetDouble("J11");
+            _j22 = info.GetDouble("J22");
             _centroid = (Point2d)info.GetValue("Centroid", typeof(Point2d));
             _shearCenter = (Point2d)info.GetValue("ShearCenter", typeof(Point2d));
             _angleX1 = info.GetDouble("AngleX1");
         }
-
         #endregion
-        public double Wely(double z) {
-            return z / Jy;
-        }
-        public double Welz(double y)
-        {
-            return y / Jz;
-        }
+
         #region Public Methods Specific
-
-
+        public double Wel11(double d)
+        {
+            return J11/d;
+        }
+        public double Wel22(double d)
+        {
+            return J22/d;
+        }
         #endregion
+
         #region Virtual Methods
         public virtual void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             info.AddValue("Area", _area);
             info.AddValue("Jt", _jt);
             info.AddValue("Jw", _jw);
-            info.AddValue("Jy", _jy);
-            info.AddValue("Jz", _jz);
+            info.AddValue("J11", _j11);
+            info.AddValue("J22", _j22);
             info.AddValue("Centroid", _centroid, typeof(Point2d));
             info.AddValue("ShearCenter", _shearCenter, typeof(Point2d));
             info.AddValue("AngleX1", _angleX1);
-        }
-
-        public virtual void Calculate()
-        { 
         }
 
         public virtual ShapeMaterial[] GetShapes()
