@@ -265,9 +265,9 @@ namespace UnitTest
             double A = 300 * 300; //mm2
             Section sec = new Section();
             sec.Area = A;
-            sec.I11 = J;
-            sec.I22 = J;
-            sec.J = 0.0;
+            sec.Jy = J;
+            sec.Jz = J;
+            sec.Jt = 0.0;
 
             /// Material
             ConcreteMaterial mat = new ConcreteMaterial(E, 0.3, 0, 30);
@@ -377,9 +377,9 @@ namespace UnitTest
             double A = 300 * 300; //mm2
             Section sec = new Section();
             sec.Area = A;
-            sec.I11 = J;
-            sec.I22 = J;
-            sec.J = 0.0;
+            sec.Jy = J;
+            sec.Jz = J;
+            sec.Jt = 0.0;
 
             /// Material
             ConcreteMaterial mat = new ConcreteMaterial(E, 0.3, 0, 30);

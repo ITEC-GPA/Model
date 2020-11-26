@@ -129,9 +129,14 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Sections\Concrete\ConcreteSectionShape.cs" />
     <Compile Include="Sections\Section.cs" />
+    <Compile Include="Sections\SectionC.cs" />
     <Compile Include="Sections\SectionCircular.cs" />
+    <Compile Include="Sections\SectionH.cs" />
+    <Compile Include="Sections\SectionL.cs" />
     <Compile Include="Sections\SectionRectangular.cs" />
+    <Compile Include="Sections\SectionRHS.cs" />
     <Compile Include="Sections\SectionShape.cs" />
+    <Compile Include="Sections\SectionT.cs" />
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>

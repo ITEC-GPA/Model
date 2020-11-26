@@ -48,9 +48,9 @@ namespace GPC.Model.FEM
 
             double L = beam.Length;
             double A = beam.Section.Area;
-            double I1 = beam.Section.I11;
-            double I2 = beam.Section.I22;
-            double Jt = beam.Section.J;
+            double I1 = beam.Section.Jz;
+            double I2 = beam.Section.Jy;
+            double Jt = beam.Section.Jt;
 
             double E = 30000;
             double ni = 0.3;
