@@ -36,6 +36,8 @@ namespace GPC.Model.Elements.Glasses
 
         public List<PointRestrain> PointRestrain => _pointRestrains;
 
+        public int Index => _index;
+
         #endregion
 
         #region PUBLIC CONSTRUCTORS
