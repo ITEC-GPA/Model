@@ -29,7 +29,7 @@ namespace GPC.Model.Materials
         /// <param name="guid">Guid of the material</param>
         /// <param name="alfaThermalExpansion">Linear thermal expasion coefficient</param>
         public ConcreteMaterial(string name, double elasticModulus, double poisson, double fck, double density, double alfaThermalExpansion, Guid guid)
-            : base(name, elasticModulus, density, alfaThermalExpansion, guid)
+            : base(name, elasticModulus, 0.0, density, alfaThermalExpansion, guid)
         {
             _fck = fck;
         }

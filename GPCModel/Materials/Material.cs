@@ -14,35 +14,8 @@ namespace GPC.Model.Materials
         #endregion VARIABLES
 
         #region PROPERTIES
-        public double E
-        {
-            get => _elasticModulus;
-            set
-            {
-                if (value < 0) {
-                    throw new ArgumentException($"{nameof(E)} cannot be zero or lower");
-                }
-                else
-                {
-                    _elasticModulus = value;
-                }
-            }
-        }
-        public double Ni
-        {
-            get => _ni;
-            set
-            {
-                if (value < 0)
-                {
-                    throw new ArgumentException($"{nameof(Ni)} cannot be zero or lower");
-                }
-                else
-                {
-                    _ni = value;
-                }
-            }
-        }
+        public double E => _elasticModulus;
+        public double Ni => _ni;
         public double AlfaThermalExpansion => _alfaThermalExpansion;
         public double Density => _density;
 
@@ -57,26 +30,32 @@ namespace GPC.Model.Materials
         /// <param name="_density"> Effective area [mm2]</param>
         public Material(string name, double elasticModulus, double ni, double density, double alfaThermalExpansion, Guid guid) : base(guid, name)
         {
-            E = elasticModulus;
-            Ni = ni;
-            _alfaThermalExpansion = alfaThermalExpansion;
-            _density = density;
-        }
-        public Material(string name, double elasticModulus, double density, double alfaThermalExpansion, Guid guid) : base(guid, name)
-        {
-            E = elasticModulus;
+            if (elasticModulus < 0)
+            {
+                throw new ArgumentException($"{nameof(E)} cannot be zero or lower");
+            }
+            else
+            {
+                _elasticModulus = elasticModulus;
+            }
+
+            if (ni < 0)
+            {
+                throw new ArgumentException($"{nameof(Ni)} cannot be zero or lower");
+            }
+            else
+            {
+                _ni = ni;
+            }
+
+            _elasticModulus = elasticModulus;
+            _ni = ni;
             _alfaThermalExpansion = alfaThermalExpansion;
             _density = density;
         }
 
-        protected Material(double density, double elasticModulus, double alfaThermalExpansion, Guid guid) 
-            : this("", elasticModulus, density, alfaThermalExpansion, guid)
-        {
-        }
-
-        protected Material(Guid guid) : this("", 0.0, 0.0, 0.0, guid)
-        {
-        }
+        public Material(string name, double elasticModulus, double ni, Guid guid) : this(name, elasticModulus, ni, 0, 0, guid) { }
+        public Material(Guid guid) : this("", 0, 0, 0, 0, guid) { }
 
         protected Material(SerializationInfo info, StreamingContext context) : base(info, context)
         {

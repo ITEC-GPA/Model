@@ -11,7 +11,7 @@ namespace GPC.Model.Materials
         public double AdhesiveStress => _adhesiveStress;
 
         public SiliconMaterial(double adhesiveStress, double density, double alfaThermalExpansion, Guid guid)
-            : base(density, 0.0, alfaThermalExpansion, guid)
+            : base("", 0, 0, density, alfaThermalExpansion, guid)
         {
             if (adhesiveStress <= 0.001)
             {

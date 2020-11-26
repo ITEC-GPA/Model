@@ -15,7 +15,7 @@ namespace GPC.Model.Materials
         /// <param name="alfaThermalExpansion">Alfa linear thermal expansion coefficient</param>
         /// <param name="guid">Guid of the material</param>
         protected GlassMaterial(double elasticModulus, double poisson, double density, double alfaThermalExpansion, Guid guid)
-            : base(density, elasticModulus, alfaThermalExpansion, guid)
+            : base("", elasticModulus, 0, density, alfaThermalExpansion, guid)
         {
             if (elasticModulus <= 0)
             {
