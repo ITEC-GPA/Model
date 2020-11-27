@@ -13,7 +13,7 @@ namespace GPC.Model.Sections
     {
         public struct ShapeMaterial
         {
-            public Shape2d Shape { get; set; }
+            public Shape Shape { get; set; }
             public Material Material { get; set; }
         }
 
@@ -24,6 +24,10 @@ namespace GPC.Model.Sections
         protected double _j22;
         protected double _wpl11;
         protected double _wpl22;
+        protected double _wel11Min;
+        protected double _wel22Min;
+        protected double _wel11Max;
+        protected double _wel22Max;
         protected double _jt;
         protected double _jw;
         protected Point2d _shearCenter;
@@ -78,7 +82,30 @@ namespace GPC.Model.Sections
         {
             get => _wpl22;
             set => _wpl22 = value;
-        }       
+        }
+
+        public double Wel11Min
+        {
+            get => _wel11Min;
+            set => _wel11Min = value;
+        }
+
+        public double Wel22Min
+        {
+            get => _wel22Min;
+            set => _wel22Min = value;
+        }
+        public double Wel11Max
+        {
+            get => _wel11Max;
+            set => _wel11Max = value;
+        }
+
+        public double Wel22Max
+        {
+            get => _wel22Max;
+            set => _wel22Max = value;
+        }
 
         public Point2d Centroid
         {
@@ -122,11 +149,17 @@ namespace GPC.Model.Sections
         #endregion
 
         #region Public Methods Specific
-        public double Wel11(double d)
+        public double GetWel11(double d)
         {
-            return J11/d;
+            /*ShapeMaterial[] shapes = GetShapes();
+            for (int i = 0; i < shapes.Count(); i++)
+            {
+                var s = shapes[i].Shape.Fill;
+            }
+            return 0;*/
+            return J11 / d;
         }
-        public double Wel22(double d)
+        public double GetWel22(double d)
         {
             return J22/d;
         }

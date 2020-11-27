@@ -9,7 +9,8 @@ namespace GPC.Model.Sections
     public class SectionH : Section
     {
         #region Variables
-        double _h_tot;
+        double _hTot;
+        double _hw;
         double _tw;
         double _ttop;
         double _tbottom;
@@ -17,16 +18,16 @@ namespace GPC.Model.Sections
         double _bbottom;
         #endregion
 
-        public SectionH(double h_tot, double tw, double btop, double ttop, double bbottom, double tbottom, Materials.Material material) : base(material)
+        public SectionH(double hTot, double tw, double btop, double ttop, double bbottom, double tbottom, Materials.Material material) : base(material)
         {
-            _h_tot = h_tot;
-
+            _hTot = hTot;
             _tw = tw;
             _btop = btop;
             _bbottom = bbottom;
-
             _ttop = ttop;
             _tbottom = tbottom;
+
+            _hw = _hTot - _tbottom - _ttop;
         }        
 
         #region Properties
@@ -34,6 +35,8 @@ namespace GPC.Model.Sections
         public double LenghtTopFlange => _btop;
         public double ThicknessTopFlange => _ttop;
         public double ThicknessBottomFlange => _tbottom;
+        public double ThicknessWeb => _tw;
+        public double HeightWeb => _hw;
         #endregion
     }
 }

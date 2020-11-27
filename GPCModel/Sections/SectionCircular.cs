@@ -82,7 +82,7 @@ namespace GPC.Model.Sections
                 }
             }
 
-            Shape2d shape = new Shape2d(fill, hole != null ? new[] { hole } : null);
+            Shape shape = new Shape(fill, hole != null ? new[] { hole } : null);
 
             return new[] { new ShapeMaterial { Material = _material, Shape = shape } };
         }

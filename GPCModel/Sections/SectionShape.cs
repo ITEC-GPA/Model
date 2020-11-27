@@ -24,11 +24,11 @@ namespace GPC.Model.Sections
         }
 
         #region Variables
-        protected List<Shape2d> _shapes;
+        protected List<Shape> _shapes;
         #endregion
 
         #region Properties
-        public List<Shape2d> Shapes => _shapes;
+        public List<Shape> Shapes => _shapes;
         #endregion
 
         #region Public Constructors
@@ -44,10 +44,10 @@ namespace GPC.Model.Sections
         #endregion
 
 
-        public SectionShape(Shape2d[] shapes, Material[] materials)
+        public SectionShape(Shape[] shapes, Material[] materials)
             : base(materials)
         {
-            _shapes = new List<Shape2d>(shapes);
+            _shapes = new List<Shape>(shapes);
             _material = new MultiMaterial(materials, new Guid());
         }
 
