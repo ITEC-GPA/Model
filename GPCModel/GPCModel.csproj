@@ -110,6 +110,7 @@
     <Compile Include="LoadCases\ClimateTLoadCase.cs" />
     <Compile Include="LoadCases\LoadCase.cs" />
     <Compile Include="LoadCases\LoadCasePrEn.cs" />
+    <Compile Include="Loads\GlobalAreaLoad.cs" />
     <Compile Include="Loads\GlobalPointLoad.cs" />
     <Compile Include="Loads\IAreaLoad.cs" />
     <Compile Include="Loads\ILineLoad.cs" />

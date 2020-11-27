@@ -25,6 +25,7 @@ namespace GPC.Model.Loads
 
         public Point3d Point => _point;
 
+
         public GlobalPointLoad(double fx, double fy, double fz, double mx, double my, double mz, Point3d point, LoadCase loadCase, Guid guid) 
             : base(loadCase, guid)
         {
@@ -37,6 +38,7 @@ namespace GPC.Model.Loads
             _point = point ?? throw new ArgumentNullException("Point cannot be null") ;
         }
 
+
         public GlobalPointLoad(Vector3d force, Vector3d moment, Point3d point, LoadCase loadCase, Guid guid)
             : this(force.X, force.Y, force.Z, moment.X, moment.Y, moment.Z, point, loadCase, guid)
         {
@@ -44,6 +46,7 @@ namespace GPC.Model.Loads
         }
 
         public override GeometryBase GetGeometry() => _point;
+
 
         public GlobalPointLoad(SerializationInfo info, StreamingContext context)
             : base(info, context)
