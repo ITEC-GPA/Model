@@ -79,6 +79,13 @@
     <Compile Include="Elements\Rebar.cs" />
     <Compile Include="Elements\Glasses\TripleInsulatingGlass.cs" />
     <Compile Include="Elements\Restrain\Restrain.cs" />
+    <Compile Include="FEM\Attributes\Attribute.cs" />
+    <Compile Include="FEM\Attributes\IBeamFemAttribute.cs" />
+    <Compile Include="FEM\Attributes\IPlateFemAttribute.cs" />
+    <Compile Include="FEM\Attributes\INodeFemAttribute.cs" />
+    <Compile Include="FEM\Attributes\PlateGlobalPressureAttribute.cs" />
+    <Compile Include="FEM\Attributes\PlateLocalPressureAttribute.cs" />
+    <Compile Include="FEM\Attributes\NodeGlobalForceAttribute.cs" />
     <Compile Include="FEM\Beams\Beam.cs" />
     <Compile Include="FEM\Beams\FEMBeamIntegrator.cs" />
     <Compile Include="FEM\FEMDefinitions.cs" />
