@@ -410,11 +410,16 @@ namespace UnitTest
             double A = 300 * 300; //mm2
             Section sec = new Section(mat);
             sec.Area = A;
-
+<<<<<<< HEAD
+            sec.J22 = J;
+            sec.J11 = J;
+            sec.Jt = 0.0;         
+=======
             sec.I11 = J;
             sec.I22 = J;
             sec.J = 0.0;
             sec.Material = mat;
+>>>>>>> feature/FEM
 
             /// Beams
             Node[] NodesB1 = new Node[] { Node1, Node2 };

@@ -50,8 +50,6 @@ namespace GPC.Model.FEM
             _maxNumDof = maxNumDof;
             _dim = dim;
             _order = order;
-
-
         }
 
         protected FEMShape(SerializationInfo info, StreamingContext context)

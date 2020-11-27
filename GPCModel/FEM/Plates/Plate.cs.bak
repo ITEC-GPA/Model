@@ -20,9 +20,11 @@ namespace GPC.Model.FEM
         public PlateProperty Property => _property;
 
         public PlateAnalysisType AnalysisType => _analysisType;
+<<<<<<< HEAD
+=======
         public double A => _A;
         #endregion
-
+>>>>>>> feature/FEM
 
         #endregion Properties
 

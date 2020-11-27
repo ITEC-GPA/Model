@@ -18,8 +18,6 @@ namespace GPC.Model.FEM
         /// <param name="_numZ"> Total number of Gauss points in Z dimension </param>
         /// <param name="_numPoints"> Total number of Gauss Point</param>
         /// </summary>
-        protected int _order;
-        protected int _dimension;
         //protected int _numPoints;
         #endregion
 

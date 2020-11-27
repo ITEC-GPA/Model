@@ -15,7 +15,7 @@ namespace GPC.Model.FEM
     /// <summary>
     /// Discrete Kirchhoff Quad  (Batoz, 1982)
     /// </summary>
-    public class PlateDKQ4 : Plate
+    public class PlateDKQ : Plate
     {
         #region Variables
         #endregion 
@@ -24,13 +24,15 @@ namespace GPC.Model.FEM
         #endregion
 
         #region Public Constructors
-        public PlateDKQ4(Guid guid, PlateProperty property, Node[] nodes)
+        public PlateDKQ(Guid guid, PlateProperty property, Node[] nodes)
             : base(guid, property, nodes)
         {
             _integrator = new FEMPlateIntegratorDKQ(new Guid(), 2, 1, 2, this);
+            BuildElementDoF();
+            _integrator.StartIntegration(this);
         }
 
-        protected PlateDKQ4(SerializationInfo info, StreamingContext context)
+        protected PlateDKQ(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
         }

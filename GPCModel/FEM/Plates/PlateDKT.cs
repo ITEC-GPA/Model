@@ -13,36 +13,26 @@ using GPC.Model.Elements;
 namespace GPC.Model.FEM
 {
     /// <summary>
-    /// Discrete Kirchhoff Quad Triplex Laminated Glass (Ivanov, 2015)
+    /// Discrete Kirchhoff Triangle  (Batoz, 1982)
     /// </summary>
-    public class PlateDKQTLG : Plate
+    public class PlateDKT : Plate
     {
         #region Variables
-        protected double _t1;
-        protected double _t2;
-        protected double _t0;
-
-        protected GlassMaterial _glassMaterial;
-        #endregion
+        #endregion 
 
         #region Properties
-        public double T1 => _t1;
-        public double T2 => _t2;
-        public double T0 => _t0;
-
-        public GlassMaterial GlassMaterial => _glassMaterial;
         #endregion
 
         #region Public Constructors
-        public PlateDKQTLG(Guid guid, PlateProperty property, Node[] nodes)
+        public PlateDKT(Guid guid, PlateProperty property, Node[] nodes)
             : base(guid, property, nodes)
         {
-            _integrator = new FEMPlateIntegratorDKQTLG(new Guid(), 2, 1, 2, this);
+            _integrator = new FEMPlateIntegratorDKQ(new Guid(), 2, 1, 2, this);
             BuildElementDoF();
             _integrator.StartIntegration(this);
         }
 
-        protected PlateDKQTLG(SerializationInfo info, StreamingContext context)
+        protected PlateDKT(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
         }
