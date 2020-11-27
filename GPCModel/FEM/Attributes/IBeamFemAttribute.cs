@@ -2,7 +2,7 @@
 
 namespace GPC.Model.FEM.Attributes
 {
-    interface IBeamFemAttribute
+    public interface IBeamFemAttribute
     {
 
     }

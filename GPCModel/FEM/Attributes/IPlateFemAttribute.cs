@@ -1,7 +1,7 @@
 ﻿
 namespace GPC.Model.FEM.Attributes
 {
-    interface IPlateFemAttribute
+    public interface IPlateFemAttribute
     {
 
     }
