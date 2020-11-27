@@ -24,10 +24,11 @@ namespace GPC.Model.FEM
         #endregion
 
 
-        #endregion Properties
+        #region Properties
 
-        #region 
+        #endregion
 
+        #region Public Contructors
         public Plate(Guid guid, PlateProperty property, Node[] nodes)
             : base(guid)
         {
