@@ -15,11 +15,14 @@ namespace GPC.Model.Sections
         double _tf_bottom;
         double _tw1;
         double _tw2;
+
+        double _hw;
         #endregion
 
         #region Properties
         public double B => _b;
         public double H => _h;
+        public double Hw => _hw;
         public double ThicknessFlange {
             get {
                 if(_tf_bottom == _tf_top) {
@@ -54,6 +57,8 @@ namespace GPC.Model.Sections
             _tf_bottom = tf_bottom;
             _tw1 = tw1;
             _tw2 = tw2;
+
+            _hw = h - tf_bottom - tf_top;
         }
     }
 }
