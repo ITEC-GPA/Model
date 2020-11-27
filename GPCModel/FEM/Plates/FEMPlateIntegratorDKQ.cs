@@ -36,7 +36,6 @@ namespace GPC.Model.FEM
             _shape = new FEMShapeQuad4(_gaussIntegrationPoints.NumPoints);
             _shapeBending = new FEMShapeQuad8(_gaussIntegrationPoints.NumPoints);
             _shapeDrilling = new FEMShapeDilling4(_gaussIntegrationPoints.NumPoints);
-            StartIntegration(element);
         }
         public FEMPlateIntegratorDKQ(SerializationInfo info, StreamingContext context)
             : base(info, context)
@@ -177,6 +176,26 @@ namespace GPC.Model.FEM
                                  JInvMatrix[1, 0] * dHMatrix[0, i] + JInvMatrix[1, 1] * dHMatrix[1, i];
             }
         }
+
+        public override void BuildMass(ref Matrix<double> NmassMatrix)
+        {
+            int j, k, m;
+
+            Vector<double> NLoc = _shape.NShape;
+
+            /// Mass DoF local
+            for (int i = 0; i < 4; i++)
+            {
+                j = 3 * i;
+                k = j + 1;
+                m = k + 1;
+
+                NmassMatrix[0, j] = NLoc[i];
+                NmassMatrix[1, k] = NLoc[i];
+                NmassMatrix[2, m] = NLoc[i];
+            }
+        }
+
         public override void BuildK(FEMElement element)
         {
             Plate plate = element as Plate;
@@ -267,7 +286,8 @@ namespace GPC.Model.FEM
         }
         public override void StartIntegration(FEMElement element)
         {
-            int numNode = element.NodesGlobal.Length;
+            int numNodes = element.NodesGlobal.Length;
+
             if (_shape.NumIntgrPts != _gaussIntegrationPoints.Coords.Count()) { throw new ArgumentException($"{nameof(_shape.NumIntgrPts)} Gauss Point Number in the Shape Function are different from the one defined in the Integrator"); }
 
             // Matrices Initialization
@@ -279,18 +299,30 @@ namespace GPC.Model.FEM
             _dHMatrix = new Matrix<double>[_shape.NumIntgrPts];
             _BmMatrix = new Matrix<double>[_shape.NumIntgrPts];
             _BbMatrix = new Matrix<double>[_shape.NumIntgrPts];
+            _NmassMatrix = new Matrix<double>[_shape.NumIntgrPts];
 
             if (_shape.NumIntgrPts == _gaussIntegrationPoints.Coords.Count())
             {
                 for (int i = 0; i < _shape.NumIntgrPts; i++)
                 {
-                    _NMatrix[i] = Matrix<double>.Build.Dense(2, 8, 0.0);
-                    _dNMatrix[i] = Matrix<double>.Build.Dense(2, 4, 0.0);
-                    _JMatrix[i] = Matrix<double>.Build.Dense(2, 2, 0.0);
-                    _JInvMatrix[i] = Matrix<double>.Build.Dense(2, 2, 0.0);
+                    //_NMatrix[i] = Matrix<double>.Build.Dense(2, 8, 0.0);
+                    //_dNMatrix[i] = Matrix<double>.Build.Dense(2, 4, 0.0);
+                    //_JMatrix[i] = Matrix<double>.Build.Dense(2, 2, 0.0);
+                    //_JInvMatrix[i] = Matrix<double>.Build.Dense(2, 2, 0.0);
+                    //_dHMatrix[i] = Matrix<double>.Build.Dense(4, 12, 0.0);
+                    //_BmMatrix[i] = Matrix<double>.Build.Dense(3, 12, 0.0);
+                    //_BbMatrix[i] = Matrix<double>.Build.Dense(3, 12, 0.0);
+
+                    _NMatrix[i] = Matrix<double>.Build.Dense(_dim, _dim * numNodes, 0.0);
+                    _dNMatrix[i] = Matrix<double>.Build.Dense(_dim, numNodes, 0.0);
+                    _JMatrix[i] = Matrix<double>.Build.Dense(_dim, _dim, 0.0);
+                    _JInvMatrix[i] = Matrix<double>.Build.Dense(_dim, _dim, 0.0);
+
                     _dHMatrix[i] = Matrix<double>.Build.Dense(4, 12, 0.0);
                     _BmMatrix[i] = Matrix<double>.Build.Dense(3, 12, 0.0);
                     _BbMatrix[i] = Matrix<double>.Build.Dense(3, 12, 0.0);
+
+                    _NmassMatrix[i] = Matrix<double>.Build.Dense(3, 12, 0.0);
                 }
             }
 
@@ -317,8 +349,13 @@ namespace GPC.Model.FEM
 
                     /// Compute Membranal Components of B matrix
                     BuildBending(ref _BbMatrix[i], ref _dHMatrix[i], _JInvMatrix[i]);
+
+                    /// Compute Mass Components
+                    BuildMass(ref _NmassMatrix[i]);
                 }
             }
+            /// Calculate Area
+            CalcArea(element);
 
             /// Calculate costitutive Matrices
             BuildD(element);
@@ -326,8 +363,11 @@ namespace GPC.Model.FEM
             /// Build Transformation Matrix
             BuildTrfMatrix(element);
 
-            // Build Stiffness Matrix
+            /// Build  Stiffness Matrix
             BuildK(element);
+
+            /// Built Mass Matrix
+            BuildM(element);
         }
         #endregion
 

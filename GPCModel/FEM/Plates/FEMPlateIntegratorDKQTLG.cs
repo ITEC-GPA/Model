@@ -36,7 +36,6 @@ namespace GPC.Model.FEM
             _shape = new FEMShapeQuad4(_gaussIntegrationPoints.NumPoints);
             _shapeBending = new FEMShapeQuad8(_gaussIntegrationPoints.NumPoints);
             _shapeDrilling = new FEMShapeDilling4(_gaussIntegrationPoints.NumPoints);
-            StartIntegration(element);
         }
         public FEMPlateIntegratorDKQTLG(SerializationInfo info, StreamingContext context)
             : base(info, context)
@@ -175,6 +174,24 @@ namespace GPC.Model.FEM
                 BpMatrix[1, i] = JInvMatrix[1, 0] * dHMatrix[2, i] + JInvMatrix[1, 1] * dHMatrix[3, i];
                 BpMatrix[2, i] = JInvMatrix[0, 0] * dHMatrix[2, i] + JInvMatrix[0, 1] * dHMatrix[3, i] +
                                  JInvMatrix[1, 0] * dHMatrix[0, i] + JInvMatrix[1, 1] * dHMatrix[1, i];
+            }
+        }
+        public override void BuildMass(ref Matrix<double> NmassMatrix)
+        {
+            int j, k, m;
+
+            Vector<double> NLoc = _shape.NShape;
+
+            /// Mass DoF local
+            for (int i = 0; i < 4; i++)
+            {
+                j = 3 * i;
+                k = j + 1;
+                m = k + 1;
+
+                NmassMatrix[0, j] = NLoc[i];
+                NmassMatrix[1, k] = NLoc[i];
+                NmassMatrix[2, m] = NLoc[i];
             }
         }
         public override void BuildK(FEMElement element)
@@ -320,6 +337,8 @@ namespace GPC.Model.FEM
                     BuildBending(ref _BbMatrix[i], ref _dHMatrix[i], _JInvMatrix[i]);
                 }
             }
+            /// Calculate Area
+            CalcArea(element);
 
             /// Calculate costitutive Matrices
             BuildD(element);
@@ -327,8 +346,11 @@ namespace GPC.Model.FEM
             /// Build Transformation Matrix
             BuildTrfMatrix(element);
 
-            // Build Stiffness Matrix
+            /// Build Stiffness Matrix
             BuildK(element);
+
+            /// Built Mass Matrix
+            BuildM(element);
         }
         #endregion
 

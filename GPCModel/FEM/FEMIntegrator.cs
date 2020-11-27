@@ -28,6 +28,13 @@ namespace GPC.Model.FEM
         protected int _dim;
         protected int _numDefComp;
         protected int _order;
+
+        protected double[] _detJacobian;
+        protected Matrix<double>[] _NMatrix;
+        protected Matrix<double>[] _dNMatrix;
+        protected Matrix<double>[] _JMatrix;
+        protected Matrix<double>[] _JInvMatrix;
+        protected Matrix<double>[] _NmassMatrix;
         #endregion
 
         #region Properties
@@ -43,6 +50,12 @@ namespace GPC.Model.FEM
         public int Dim => _dim;
         public int Order => _order;
         public int NumDefComp => _numDefComp;
+        public double[] DetJacobian => _detJacobian;
+        public Matrix<double>[] NMatrix => _NMatrix;
+        public Matrix<double>[] dNMatrix => _dNMatrix;
+        public Matrix<double>[] JMatrix => _JMatrix;
+        public Matrix<double>[] JInvMatrix => _JInvMatrix;
+        public Matrix<double>[] NmassMatrix => _NmassMatrix;
         #endregion
 
         #region Public Constructors
@@ -70,21 +83,29 @@ namespace GPC.Model.FEM
         #endregion
 
         #region Public Methods Specific
+        public abstract void BuildMass(ref Matrix<double> NmassMatrix);
         public abstract void BuildN(FEMElement element, ref Matrix<double> NMatrix);
         public abstract double BuildJ(FEMElement element, ref Matrix<double> J, ref Matrix<double> Jinv, ref Matrix<double> dNGlob);
         public abstract void BuildB();
         public abstract void BuildD(FEMElement element);
         public abstract void BuildK(FEMElement element);
+        public abstract void BuildM(FEMElement element);
         public abstract void BuildT();
         public abstract void BuildF();
         public abstract void BuildTrfMatrix(FEMElement element);
         public abstract void RegisterDoF(Node node);
         public abstract void StartIntegration(FEMElement element);
-
         public virtual void SetIntegrationPoint(FEMGaussIntegration gaussIntegrationPoints, FEMGaussIntegration gaussStrainPoints)
         {
             _gaussIntegrationPoints = gaussIntegrationPoints;
             _gaussStrainPoints = gaussStrainPoints;
+        }
+
+        public virtual void ComputeStrain(FEMElement element)
+        {
+        }
+        public virtual void ComputeStress(Node node)
+        {
         }
         #endregion
 

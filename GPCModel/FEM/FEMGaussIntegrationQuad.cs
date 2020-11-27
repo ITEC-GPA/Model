@@ -33,7 +33,6 @@ namespace GPC.Model.FEM
             _numY = numY;
             _numZ = numZ;
 
-
             if (_numX < 0 && _numX > 3) { throw new ArgumentException($"{nameof(_numX)} Gauss Point Numbers - Cannot be zero, less than 1 or higher than 3"); }
             if (_numY < 0 && _numY > 3) { throw new ArgumentException($"{nameof(_numY)} Gauss Point Numbers - Cannot be zero, less than 1 or higher than 3"); }
             if (_numZ < 0 && _numZ > 3) { throw new ArgumentException($"{nameof(_numZ)} Gauss Point Numbers - Cannot be zero, less than 1 or higher than 3"); }

@@ -19,13 +19,17 @@ namespace GPC.Model.FEM
         /// <param name="_coords"> Array of integration points coordinates </param>
         protected int _numPoints;         
         protected double[] _weights;        
-        protected Point3d[] _coords;         
+        protected Point3d[] _coords;
+        protected int _order;
+        protected int _dimension;
         #endregion
 
         #region Properties
         public int NumPoints => _numPoints;         
         public double[] Weights => _weights;       
-        public Point3d[] Coords => _coords;    
+        public Point3d[] Coords => _coords;
+        public int Order => _order;
+        public int Dimension => _dimension;
         #endregion
 
         #region Public Constructors

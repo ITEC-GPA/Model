@@ -18,7 +18,7 @@ namespace GPC.Model.FEM
         #endregion
 
         #region Public Constructors
-        public FEMShapeQuad4(int intgrPts, int numNodes = 4, int maxNumDoF = 2, int dim = 2, int order = 1) :
+        public FEMShapeQuad4(int intgrPts, int numNodes = 4, int maxNumDoF = 2, int dim = 2, int order = 0) :
             base (intgrPts, maxNumDoF, dim, order)
         {
             _localNodes = new List<Geometry.Point2d>(numNodes);

@@ -21,12 +21,6 @@ namespace GPC.Model.FEM
         /// <param name="_KmMatrix"> Stiffness matrix - Membranal Components </param>
         /// <param name="_KbMatrix"> Stiffness matrix - Bending Components  </param>
         /// </summary>
-
-        protected double[] _detJacobian;
-        protected Matrix<double>[] _NMatrix;
-        protected Matrix<double>[] _dNMatrix;
-        protected Matrix<double>[] _JMatrix;
-        protected Matrix<double>[] _JInvMatrix;
         protected Matrix<double> _Dm;
         protected Matrix<double> _Db;
         protected Matrix<double>[] _BmMatrix;
@@ -39,10 +33,6 @@ namespace GPC.Model.FEM
         #endregion
 
         #region Properties
-        public Matrix<double>[] NMatrix => _NMatrix;
-        public Matrix<double>[] dNMatrix => _dNMatrix;
-        public Matrix<double>[] JMatrix => _JMatrix;
-        public Matrix<double>[] JInvMatrix => _JInvMatrix;
         public Matrix<double> Dm => _Dm;
         public Matrix<double> Db => _Db;
         public Matrix<double>[] BmMatrix => _BmMatrix;
@@ -57,7 +47,8 @@ namespace GPC.Model.FEM
         #region Public Constructors
         public FEMPlateIntegrator(Guid guid, int dim, int order, int numDefComp, FEMElement element)
             : base(guid, dim, order, numDefComp)
-        {         
+        {
+            //element.ElementIncidence();
         }
         public FEMPlateIntegrator(SerializationInfo info, StreamingContext context)
             : base(info, context)
@@ -198,7 +189,6 @@ namespace GPC.Model.FEM
         #region Public Methods Specific
         public abstract void BuildMembranal(ref Matrix<double> BmMatrix, Matrix<double> dNMatrix, Matrix<double> JInvMatrix);
         public abstract void BuildBending(ref Matrix<double> BpMatrix, ref Matrix<double> dHMatrix, Matrix<double> JInvMatrix);
-
         public override void BuildD(FEMElement element)
         {
             Plate plate = element as Plate;
@@ -228,26 +218,54 @@ namespace GPC.Model.FEM
         }
         public override void StartIntegration(FEMElement element)
         {
-            //_detJacobian = new double[_shape.NumIntgrPts];
-            //_NMatrix = Matrix<double>.Build.Dense(_dim, _dim * element.Nodes.Length, 0);
-            //_dNMatrix = Matrix<double>.Build.Dense(3, 3, 0);
-            //_BmMatrix = Matrix<double>.Build.Dense(3, 3 * element.Nodes.Length, 0);
+        }
+        public virtual void CalcArea(FEMElement element)
+        {
+            Plate plate = element as Plate;
 
-            //BuildN(element);
+            double A = 0;
 
-            //if (_shape.NumIntgrPts !=  _gaussIntegrationPoints.Coords.Count()) { throw new ArgumentException($"{nameof(_shape.NumIntgrPts)} Gauss Point Number in the Shape Function are different from the one defined in the Integrator"); }
-            //if (_shape.NumIntgrPts == _gaussIntegrationPoints.Coords.Count())
-            //{
-            //    for (int i = 0; i < _shape.NumIntgrPts; i++)
-            //    {
-            //        /// Calculation of local N and dN in the shape fuction in the coordinates X,Y
-            //        _shape.SetValue(_gaussIntegrationPoints.Coords[i]);
+            if (_numTotDoF > 0 && _gaussIntegrationPoints.Coords.Length > 0)
+            {
+                for (int i = 0; i < _gaussIntegrationPoints.Coords.Length; i++)
+                {
+                    A = A + _gaussIntegrationPoints.Weights[i] * _detJacobian[i];
+                }
+            }
+            plate.CalcArea(A);
+        }
+        public override void BuildM(FEMElement element)
+        {
+            Plate plate = element as Plate;
 
-            //        _detJacobian[i] = BuildJ(element);
-            //    }
-            //}
+            _massMatrix = Matrix<double>.Build.Dense(24, 24, 0.0);
+            Matrix<double> M  = Matrix<double>.Build.Dense(24, 24, 0.0);
+            Matrix<double> mMatrix = Matrix<double>.Build.Dense(12, 12, 0.0);
 
-            //BuildD(element);
+            if (_numTotDoF > 0 && _gaussIntegrationPoints.Coords.Length > 0)
+            {
+                Matrix<double> scalM;
+                Matrix<double> gaussM;
+
+                for (int i = 0; i < _gaussIntegrationPoints.Coords.Length; i++)
+                {
+                    double c = plate.Property.Material.Density * _gaussIntegrationPoints.Weights[i] * _detJacobian[i] * plate.Property.Tm;
+
+                    gaussM = _NmassMatrix[i].Transpose() * c * _NmassMatrix[i];
+                    mMatrix = mMatrix + gaussM;
+                }
+            }
+
+            /// Assembling Stiffness Matrix
+            int[] nmass = new int[] { 0, 1, 2, 6, 7, 9, 12, 13, 14, 18, 19, 20 };
+            for (int i = 0; i < 12; i++)
+            {
+                for (int j = 0; j < 12; j++)
+                {
+                    M[nmass[i], nmass[j]] = mMatrix[i, j];
+                }
+            }
+            _massMatrix = _trfMatrix.Transpose() * _massMatrix * _trfMatrix;
         }
         protected void InitTri3(FEMElement element)
         {
@@ -260,7 +278,6 @@ namespace GPC.Model.FEM
         protected void InitQuad4(FEMElement element)
         {
             SetIntegrationPoint(new FEMGaussIntegrationQuad(2, 2), new FEMGaussIntegrationQuad(2, 2));
-
         }
         protected void InitQuad8(FEMElement element)
         {

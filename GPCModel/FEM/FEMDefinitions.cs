@@ -16,6 +16,12 @@ namespace GPC.Model.FEM
         ShellDKMQ = 13
     };
 
+    public enum MassMatrixType
+    {
+        Lumped = 0,
+        Consistent = 1
+    };
+
     public enum PlateAnalysisType
     {
         UnknownAnalysis = -1,

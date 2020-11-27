@@ -18,11 +18,13 @@ namespace GPC.Model.FEM
 
         protected PlateProperty _property;
         protected PlateAnalysisType _analysisType;
+        protected double _A;
         #endregion
 
         #region Properties
         public PlateProperty Property => _property;
         public PlateAnalysisType AnalysisType => _analysisType;
+        public double A => _A;
         #endregion
 
         #region Public Constructors
@@ -43,6 +45,8 @@ namespace GPC.Model.FEM
             SetLocalCoordinateSystem(0.0);
             _property = property;
             _integrator = integrator;
+            BuildElementDoF();
+            _integrator.StartIntegration(this);
         }
 
         protected Plate(SerializationInfo info, StreamingContext context)
@@ -63,11 +67,13 @@ namespace GPC.Model.FEM
             _coordSys = new CoordinateSystem( _nodesGlobal[0].Position, _nodesGlobal[1].Position, _nodesGlobal[2].Position, rotationAngle, string.Empty, Guid.Empty);
             for (int nd = 0; nd < _nodesGlobal.Length; nd++)
             {
-                var p = _nodesGlobal[nd].Position;
-                _coordSys.ToLocal(ref p);
-                Point3d localPoint = p;
+                Point3d localPoint = _coordSys.PointToLocal(_nodesGlobal[nd].Position);
                 _nodesLocal[nd] = new Node(new Guid(), localPoint, _nodesGlobal[nd].NodeIndex, _nodesGlobal[nd].DoF);
             }
+        }
+        public virtual void CalcArea(double A)
+        {
+            _A = A;
         }
         #endregion
     }
