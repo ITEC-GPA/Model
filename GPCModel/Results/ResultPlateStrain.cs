@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace GPC.Model.Results
 {
-    public class ResultsStrain
+    public class ResultPlateStrain
     {
     }
 }

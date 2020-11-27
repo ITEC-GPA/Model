@@ -3,10 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using GPC.Model.LoadCases;
+using GPC.Geometry;
 
 namespace GPC.Model.Results
 {
-    public class ResultsStress : Results
+    public class ResultsPlateStress : Result
     {
         #region Variables
         /// <summary>
@@ -43,33 +45,8 @@ namespace GPC.Model.Results
         #endregion
 
         #region Public Constructors
-        public ResultsStress(double sxx, double syy, double szz, double sxy, double sxz, double syz,
-            double sXX, double sYY, double sZZ, double sXY, double sXZ, double sYZ)
-        {
-            _sxx = sxx;
-            _syy = syy;
-            _szz = szz;
-            _sxy = sxy;
-            _sxz = sxz;
-            _syz = syz;
-
-            _sXX = sXX;
-            _sYY = sYY;
-            _sZZ = sZZ;
-            _sXY = sXY;
-            _sXZ = sXZ;
-            _sYZ = sYZ;
-        }
-        public ResultsStress(double sxx, double syy, double szz, double sxy, double sxz, double syz)
-        {
-            _sxx = sxx;
-            _syy = syy;
-            _szz = szz;
-            _sxy = sxy;
-            _sxz = sxz;
-            _syz = syz;
-        }
-        public ResultsStress(double sxx, double syy, double sxy)
+        public ResultsPlateStress(int elementID, string elementLabel, LoadCase loadCase, CoordinateSystem cSys, double sxx, double syy, double sxy) :
+            base(elementID, elementLabel, loadCase, cSys)
         {
             _sxx = sxx;
             _sxx = syy;
