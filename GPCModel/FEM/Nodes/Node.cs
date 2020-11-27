@@ -1,10 +1,7 @@
-﻿using GPC.Model.FEM;
+﻿using GPC.Geometry;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using GPC.Geometry;
 
 namespace GPC.Model.FEM
 {
@@ -16,24 +13,29 @@ namespace GPC.Model.FEM
         protected int _nodeIndex;
         protected string _nodeLabel;
         protected FEMNodeDoF _doF;
-        #endregion
+
+        #endregion 
 
         #region Properties
+
         public Point3d Position => _position;
         public int NodeIndex => _nodeIndex;
         public string NodeLabel => _nodeLabel;
         public FEMNodeDoF DoF => _doF;
-        #endregion
+
+        #endregion 
 
         #region Public Constructors
-        public Node(Guid guid, Point3d position, int nodeIndex, int[] doFid, int[] activeDoF) 
-            : base (guid, "")
+
+        public Node(Guid guid, Point3d position, int nodeIndex, int[] doFid, int[] activeDoF)
+            : base(guid, "")
         {
             _guid = guid;
             _doF = new FEMNodeDoF(doFid, activeDoF);
             _position = position;
             _nodeIndex = nodeIndex;
         }
+
         public Node(Guid guid, Point3d position, int nodeIndex, FEMNodeDoF doF)
             : base(guid, "")
         {
@@ -42,6 +44,7 @@ namespace GPC.Model.FEM
             _position = position;
             _nodeIndex = nodeIndex;
         }
+
         public Node(Guid guid, string name, Point3d position, int nodeIndex, int[] doFid, int[] activeDoF)
              : base(guid, name)
         {
@@ -50,13 +53,13 @@ namespace GPC.Model.FEM
             _position = position;
             _nodeIndex = nodeIndex;
         }
+
         public Node(Point3d position, int nodeIndex, int[] doFid, int[] activeDoF)
-            : base(Guid.Empty, "")
+            : this(Guid.Empty, "", position, nodeIndex, doFid, activeDoF)
         {
-            _doF = new FEMNodeDoF(doFid, activeDoF);
-            _position = position;
-            _nodeIndex = nodeIndex;
+
         }
+
         public Node(Node node)
         {
             //_nodeLabel = node.NodeLabel;
@@ -64,12 +67,16 @@ namespace GPC.Model.FEM
             //_doF = node.DoF;
             //_guid = node.Guid;
         }
-        #endregion
+
+        #endregion 
+
         #region Public Methods Specific
+
         public void SetPosition(Point3d newPos)
         {
             _position = new Point3d(newPos.X, newPos.Y, newPos.Z);
         }
-        #endregion
+
+        #endregion 
     }
 }

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using GPC.Geometry;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
@@ -26,6 +27,8 @@ namespace GPC.Model.Elements
         private double _kr2;
         private double _kr3;
 
+        private CoordinateSystem _coordinateSystem;
+
         #endregion
 
 
@@ -46,10 +49,6 @@ namespace GPC.Model.Elements
 
         #endregion
 
-        public static Restrain AllFixed => new Restrain(true, true, true, true, true, true, 0, 0, 0, 0, 0, 0, Guid.NewGuid());
-
-        public static Restrain RotationReleased => new Restrain(true, true, true, false, false, false, 0, 0, 0, 0, 0, 0, Guid.NewGuid());
-
 
         /// <summary>
         /// 
@@ -66,8 +65,8 @@ namespace GPC.Model.Elements
         /// <param name="kr1">Stiffness associated to rotation around axis 1</param>
         /// <param name="kr2">Stiffness associated to rotation around axis 2</param>
         /// <param name="kr3">Stiffness associated to rotation around axis 3</param>
-        public Restrain(bool d1, bool d2, bool d3, bool r1, bool r2, bool r3, double kd1, double kd2, double kd3, double kr1, double kr2, double kr3) 
-            : this(d1, d2, d3, r1, r2, r3, kd1, kd2, kd3, kr1, kr2, kr3, Guid.NewGuid())
+        public Restrain(CoordinateSystem coordinateSystem, bool d1, bool d2, bool d3, bool r1, bool r2, bool r3, double kd1, double kd2, double kd3, double kr1, double kr2, double kr3) 
+            : this(coordinateSystem, d1, d2, d3, r1, r2, r3, kd1, kd2, kd3, kr1, kr2, kr3, Guid.NewGuid())
         {
 
         }
@@ -88,8 +87,10 @@ namespace GPC.Model.Elements
         /// <param name="kr2">Stiffness associated to rotation around axis 2</param>
         /// <param name="kr3">Stiffness associated to rotation around axis 3</param>
         /// <param name="guid"></param>
-        public Restrain(bool d1, bool d2, bool d3, bool r1, bool r2, bool r3, double kd1, double kd2, double kd3, double kr1, double kr2, double kr3, Guid guid)
+        public Restrain(CoordinateSystem coordinateSystem, bool d1, bool d2, bool d3, bool r1, bool r2, bool r3, double kd1, double kd2, double kd3, double kr1, double kr2, double kr3, Guid guid)
         {
+            this._coordinateSystem = coordinateSystem ?? throw new ArgumentNullException("Coordinate system cannot be null");
+
             this._d1 = d1;
             this._d2 = d2;
             this._d3 = d3;
@@ -120,6 +121,7 @@ namespace GPC.Model.Elements
 
         public Restrain(SerializationInfo info, StreamingContext context)
         {
+            _coordinateSystem = (CoordinateSystem)info.GetValue("CoordinateSystem", typeof(CoordinateSystem));
             _d1 = info.GetBoolean("D1");
             _d2 = info.GetBoolean("D2");
             _d3 = info.GetBoolean("D3");
@@ -134,12 +136,25 @@ namespace GPC.Model.Elements
             _kr3 = info.GetDouble("KR3");
         }
 
+        public static Restrain GetAllFixed(CoordinateSystem coordinateSystem) => new Restrain(coordinateSystem, true, true, true, true, true, true, 0, 0, 0, 0, 0, 0, Guid.NewGuid());
+
+        public static Restrain GetRotationReleased(CoordinateSystem coordinateSystem) => new Restrain(coordinateSystem, true, true, true, false, false, false, 0, 0, 0, 0, 0, 0, Guid.NewGuid());
+
+        public Vector3d GetV1() => _coordinateSystem.V11;
+
+        public Vector3d GetV2() => _coordinateSystem.V22;
+
+        public Vector3d GetV3() => _coordinateSystem.V33;
+
+        public Point3d GetCoordinateSystemOrigin() => _coordinateSystem.Origin;
+
         public bool[] GetRestrains() => new bool[6] { D1, D2, D3, R1, R2, R3 };
 
         public double[] GetStiffnesses() => new double[6] { Kd1, Kd2, Kd3, Kr1, Kr2, Kr3 };
 
         public virtual void GetObjectData(SerializationInfo info, StreamingContext context)
         {
+            info.AddValue("CoordinateSystem", _coordinateSystem);
             info.AddValue("D1", _d1);
             info.AddValue("D2", _d2);
             info.AddValue("D3", _d3);

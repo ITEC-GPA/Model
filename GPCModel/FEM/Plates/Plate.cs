@@ -1,14 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.Serialization;
-using System.Text;
-using System.Threading.Tasks;
-using GPC.Model.Materials;
-using GPC.Model.Sections;
-using MathNet.Numerics.LinearAlgebra;
-using GPC.Geometry;
+﻿using GPC.Geometry;
 using GPC.Model.Elements;
+using System;
+using System.Runtime.Serialization;
 
 namespace GPC.Model.FEM
 {
@@ -17,15 +10,21 @@ namespace GPC.Model.FEM
         #region Variables
 
         protected PlateProperty _property;
+
         protected PlateAnalysisType _analysisType;
-        #endregion
+
+        #endregion 
 
         #region Properties
-        public PlateProperty Property => _property;
-        public PlateAnalysisType AnalysisType => _analysisType;
-        #endregion
 
-        #region Public Constructors
+        public PlateProperty Property => _property;
+
+        public PlateAnalysisType AnalysisType => _analysisType;
+
+        #endregion Properties
+
+        #region 
+
         public Plate(Guid guid, PlateProperty property, Node[] nodes)
             : base(guid)
         {
@@ -35,6 +34,7 @@ namespace GPC.Model.FEM
             _property = property;
             _integrator = null;
         }
+
         public Plate(Guid guid, PlateProperty property, FEMPlateIntegrator integrator, Node[] nodes)
             : base(guid, integrator)
         {
@@ -49,18 +49,21 @@ namespace GPC.Model.FEM
             : base(info, context)
         {
         }
-        #endregion
+
+        #endregion 
 
         #region Public Methods Override
+
         protected override void SetElement(Node[] arrayNode)
         {
             _nodesGlobal = new Node[arrayNode.Length];
             _nodesLocal = new Node[arrayNode.Length];
             _nodesGlobal = arrayNode;
         }
+
         protected override void SetLocalCoordinateSystem(double rotationAngle)
         {
-            _coordSys = new CoordinateSystem( _nodesGlobal[0].Position, _nodesGlobal[1].Position, _nodesGlobal[2].Position, rotationAngle, string.Empty, Guid.Empty);
+            _coordSys = new CoordinateSystem(_nodesGlobal[0].Position, _nodesGlobal[1].Position, _nodesGlobal[2].Position, rotationAngle, string.Empty, Guid.Empty);
             for (int nd = 0; nd < _nodesGlobal.Length; nd++)
             {
                 var p = _nodesGlobal[nd].Position;
@@ -69,6 +72,7 @@ namespace GPC.Model.FEM
                 _nodesLocal[nd] = new Node(new Guid(), localPoint, _nodesGlobal[nd].NodeIndex, _nodesGlobal[nd].DoF);
             }
         }
-        #endregion
+
+        #endregion 
     }
 }

@@ -10,8 +10,6 @@ namespace GPC.Model.Elements
 
         private Line3d _line;
 
-        private CoordinateSystem _coordinateSystem;
-
         private Restrain _restrain;
 
         #endregion
@@ -26,30 +24,21 @@ namespace GPC.Model.Elements
 
         #region Public Constructors
 
-        public LineRestrain(CoordinateSystem coordinateSystem, Line3d line, Restrain restrain) 
-            : this(coordinateSystem, line, restrain, Guid.NewGuid())
+        public LineRestrain(Line3d line, Restrain restrain) 
+            : this(line, restrain, Guid.NewGuid())
         {
 
         }
 
-        public LineRestrain(CoordinateSystem coordinateSystem, Line3d line, Restrain restrain, Guid guid) 
+        public LineRestrain(Line3d line, Restrain restrain, Guid guid) 
             : base(guid)
         {
             this._line = line ?? throw new ArgumentNullException("Base line is null");
-            this._coordinateSystem = coordinateSystem ?? throw new ArgumentNullException("Coordinate system cannot be null");
             this._restrain = restrain ?? throw new ArgumentNullException("Restrain cannot be null");
         }
 
-        /// <summary>
-        /// All fixed constructor
-        /// </summary>
-        /// <param name="coordinateSystem"></param>
-        /// <param name="line"></param>
-        public LineRestrain(CoordinateSystem coordinateSystem, Line3d line)
-            : this(coordinateSystem, line, Restrain.AllFixed)
-        {
 
-        }
+        public static LineRestrain GetAllFixed(Line3d line, CoordinateSystem coordinateSystem) => new LineRestrain(coordinateSystem, line, true, true, true, true, true, true, 0, 0, 0, 0, 0, 0, Guid.NewGuid());
 
         /// <summary>
         /// 
@@ -90,9 +79,8 @@ namespace GPC.Model.Elements
             : base(guid)
         {
             this._line = line ?? throw new ArgumentNullException("Base line is null");
-            this._coordinateSystem = coordinateSystem ?? throw new ArgumentNullException("Coordinate system cannot be null");
 
-            this._restrain = new Restrain(d1, d2, d3, r1, r2, r3, kd1, kd2, kd3, kr1, kr2, kr3, guid);
+            this._restrain = new Restrain(coordinateSystem, d1, d2, d3, r1, r2, r3, kd1, kd2, kd3, kr1, kr2, kr3, guid);
         }
 
         public LineRestrain(SerializationInfo info, StreamingContext context)
@@ -112,13 +100,13 @@ namespace GPC.Model.Elements
 
         public double[] GetStiffnesses() => _restrain.GetStiffnesses();
 
-        public Vector3d GetV1() => _coordinateSystem.V11;
+        public Vector3d GetV1() => _restrain.GetV1();
 
-        public Vector3d GetV2() => _coordinateSystem.V22;
+        public Vector3d GetV2() => _restrain.GetV2();
 
-        public Vector3d GetV3() => _coordinateSystem.V33;
+        public Vector3d GetV3() => _restrain.GetV3();
 
-        public Point3d GetCoordinateSystemOrigin() => _coordinateSystem.Origin;
+        public Point3d GetCoordinateSystemOrigin() => _restrain.GetCoordinateSystemOrigin();
 
         #endregion
 

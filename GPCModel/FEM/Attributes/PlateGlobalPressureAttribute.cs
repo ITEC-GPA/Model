@@ -3,7 +3,7 @@ using System;
 
 namespace GPC.Model.FEM.Attributes
 {
-    internal class PlateGlobalPressureAttribute : Attribute, IPlateFemAttribute
+    public class PlateGlobalPressureAttribute : Attribute, IPlateFemAttribute
     {
         private double _pX;
 
