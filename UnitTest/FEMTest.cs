@@ -296,9 +296,9 @@ namespace UnitTest
             Section sec = new Section(mat);
             sec.Area = A;
 
-            sec.I11 = J;
-            sec.I22 = J;
-            sec.J = 0.0;
+            sec.J11 = J;
+            sec.J22 = J;
+            sec.Jt = 0.0;
             sec.Material = mat;
 
 
@@ -411,9 +411,9 @@ namespace UnitTest
             Section sec = new Section(mat);
             sec.Area = A;
 
-            sec.I11 = J;
-            sec.I22 = J;
-            sec.J = 0.0;
+            sec.J11 = J;
+            sec.J22 = J;
+            sec.Jt = 0.0;
             sec.Material = mat;
 
             /// Beams
@@ -522,12 +522,11 @@ namespace UnitTest
             ///  Proprietà
             double J = 6.75e8; //mm4
             double A = 300 * 300; //mm2
-            Section sec = new Section();
+            Section sec = new Section(mat);
             sec.Area = A;
-            sec.I11 = J;
-            sec.I22 = J;
-            sec.J = 0.0;
-            sec.Material = mat;
+            sec.J11 = J;
+            sec.J22 = J;
+            sec.Jt = 0.0;
 
             //int _globalDoF = 0;
             //int _reactionDoF = 0;
