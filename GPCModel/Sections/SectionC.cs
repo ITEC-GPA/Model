@@ -10,13 +10,13 @@ namespace GPC.Model.Sections
     public class SectionC : Section
     {
         #region Variables
-        double _h;
-        double _hw;
-        double _tw;
-        double _lengthBottom;
-        double _tBottom;
-        double _lengthTop;
-        double _ttop;
+        protected double _h;
+        protected double _hw;
+        protected double _tw;
+        protected double _lengthBottom;
+        protected double _tBottom;
+        protected double _lengthTop;
+        protected double _ttop;
         #endregion
 
         #region Properties
