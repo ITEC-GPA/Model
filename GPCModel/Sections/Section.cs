@@ -24,10 +24,10 @@ namespace GPC.Model.Sections
         protected double _j22;
         protected double _wpl11;
         protected double _wpl22;
-        protected double _wel11Min;
-        protected double _wel22Min;
-        protected double _wel11Max;
-        protected double _wel22Max;
+        protected double _wel11Left; //Wel calcolato per punto più a snistra
+        protected double _wel22Top; //Wel calcolato per punto superiore (+ alto)
+        protected double _wel11Right; //Wel calcolato per punto più a destra
+        protected double _wel22Bottom; //Wel calcolato per punto inferiore (+ basso)
         protected double _jt;
         protected double _jw;
         protected Point2d _shearCenter;
@@ -48,7 +48,6 @@ namespace GPC.Model.Sections
             get => _area;
             set => _area = value;
         }
-
         public double Jt
         {
             get => _jt;
@@ -63,7 +62,7 @@ namespace GPC.Model.Sections
         public double J11
         {
             get => _j11;
-            set => _j11= value;
+            set => _j11 = value;
         }
 
         public double J22
@@ -84,27 +83,27 @@ namespace GPC.Model.Sections
             set => _wpl22 = value;
         }
 
-        public double Wel11Min
+        public double Wel11Left
         {
-            get => _wel11Min;
-            set => _wel11Min = value;
+            get => _wel11Left;
+            set => _wel11Left = value;
         }
 
-        public double Wel22Min
+        public double Wel22Bottom
         {
-            get => _wel22Min;
-            set => _wel22Min = value;
+            get => _wel22Bottom;
+            set => _wel22Bottom = value;
         }
-        public double Wel11Max
+        public double Wel11Right
         {
-            get => _wel11Max;
-            set => _wel11Max = value;
+            get => _wel11Right;
+            set => _wel11Right = value;
         }
 
-        public double Wel22Max
+        public double Wel22Top
         {
-            get => _wel22Max;
-            set => _wel22Max = value;
+            get => _wel22Top;
+            set => _wel22Top = value;
         }
 
         public Point2d Centroid
@@ -123,6 +122,22 @@ namespace GPC.Model.Sections
         {
             get => _angleX1;
             set => _angleX1 = value;
+        }
+
+        public double InertiaRadius1 => Math.Sqrt(J11 / Area);
+        public double InertiaRadius2 => Math.Sqrt(J22 / Area);
+
+        public bool IsSymmetricAlongYLocalAxis { get; set; }
+        public bool IsSymmetricAlongZLocalAxis { get; set; }
+        public bool IsDoubleSymmetric {
+            get
+            {
+                if (IsSymmetricAlongZLocalAxis && IsSymmetricAlongYLocalAxis) {
+                    return true;
+                } else {
+                    return false;
+                }
+            }
         }
         #endregion
 
@@ -181,6 +196,30 @@ namespace GPC.Model.Sections
         public virtual ShapeMaterial[] GetShapes()
         {
             return null;
+        }
+
+        public virtual double MinSigma(double N, double My, double Mz)
+        {
+            double sigmaN = N / _area;
+            double sigmaMy;
+            if (My > 0) { 
+                sigmaMy = - My / Wel22Top;
+            } else
+            {
+                sigmaMy = My / Wel22Bottom;
+            }
+
+            double sigmaMz;
+            if (Mz > 0)
+            {
+                sigmaMz = -Mz / Wel11Left;
+            }
+            else
+            {
+                sigmaMz = Mz / Wel11Right;
+            }
+
+            return sigmaN + sigmaMy + sigmaMz;
         }
         #endregion
     }

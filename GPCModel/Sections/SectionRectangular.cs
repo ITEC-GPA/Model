@@ -42,10 +42,10 @@ namespace GPC.Model.Sections
             _wpl22 = _area / 2.0 * _h / 2.0;
             _wpl11 = _area / 2.0 * _b / 2.0;
 
-            _wel22Max = _j22 / (_h / 2.0);
-            _wel22Min = _j22 / (-_h / 2.0);
-            _wel11Max = _j11 / (_b / 2.0);
-            _wel11Min = _j11 / (-_b / 2.0);
+            _wel22Top = _j22 / (_h / 2.0);
+            _wel22Bottom = _j22 / (_h / 2.0);
+            _wel11Left = _j11 / (_b / 2.0);
+            _wel11Right = _j11 / (_b / 2.0);
         }
 
         public SectionRectangular(SerializationInfo info, StreamingContext context)
