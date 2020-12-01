@@ -1,11 +1,8 @@
 ﻿using GPC.Model.Elements;
-using GPC.Model.FEM;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
-using System.Text;
-using System.Threading.Tasks;
 using MathNet.Numerics.LinearAlgebra;
 using GPC.Geometry;
 
@@ -23,7 +20,8 @@ namespace GPC.Model.FEM
         protected int[] _elIncidenceGlobal;
         protected CoordinateSystem _coordSys;
         protected ElementProperty _property;
-        //protected CoordinateSystem _cSys;
+
+        protected int _index;
         #endregion
 
         #region Properties
@@ -31,40 +29,48 @@ namespace GPC.Model.FEM
         public int[,] ElIncidence => _elIncidence;
         public Node[] NodesGlobal => _nodesGlobal;
         public Node[] NodesLocal => _nodesLocal;
-        public GPC.Geometry.CoordinateSystem CoordSys => _coordSys;
+        public CoordinateSystem CoordSys => _coordSys;
         public ElementProperty Property => _property;
-        //public CoordinateSystem CSys => _cSys;
+
+        public int Index => _index;
         #endregion
 
         #region Public Constructors
-        protected FEMElement(Guid guid, FEMIntegrator integrator, ElementProperty property)
-            : this(guid, property)
+
+        protected FEMElement(Guid guid, FEMIntegrator integrator, ElementProperty property, int index)
+            : base(guid)
         {
             _integrator = integrator;
             _property = property;
+            _index = index;
         }
 
-        protected FEMElement(Guid guid, ElementProperty property)
-                 : base(guid)
+        protected FEMElement(Guid guid, ElementProperty property, int index)
+            : this(guid, null, property, index)
         {
-            _integrator = null;
-            _property = property;
+
         }
 
         protected FEMElement(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
+
         }
+
         #endregion
 
         #region Public Methods Override
-        /*public override void GetObjectData(SerializationInfo info, StreamingContext context)
+
+        public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             base.GetObjectData(info, context);
-        }*/
+
+        }
+
         #endregion
 
         #region Public Methods Specific
+
         public virtual void BuildElementDoF()
         {
             int totalDoF = 0;
@@ -127,32 +133,42 @@ namespace GPC.Model.FEM
                 }
             }
         }
+        
         public virtual void KInGlobal(ref Matrix<double> Kg)
         {
             PutInGlobal(_integrator.KMatrix, ref Kg);
         }
+
         public virtual void TInGlobal()
         {
+
         }
+
         public virtual void MInGlobal(ref Matrix<double> Mg)
         {
             PutInGlobal(_integrator.MassMatrix, ref Mg);
-    }
+        }
+
         public virtual void FInGlobal()
         {
+
         }
+
         public virtual void ChooseIntegrator()
         {
+
         }
+
         protected abstract void SetLocalCoordinateSystem(double rotationAngle);
+
         protected abstract void SetElement(Node[] arrayNode);
 
         public virtual void PutInGlobal(Matrix<double> localMatrix, ref Matrix<double> Kg)
         {
-            int er = 0;
-            int ec = 0;
-            int r = 0;
-            int c = 0;
+            int er;
+            int ec;
+            int r;
+            int c;
 
             /// Lettura della Matrice Locale
             for (int i = 0; i < _integrator.NumTotActiveDoF; i++)
@@ -166,7 +182,6 @@ namespace GPC.Model.FEM
 
                     if (_elIncidence[1, ec] >= 0.0 && _elIncidence[1, er] >= 0.0)
                     {
-                        double val = localMatrix[er, ec];
                         Kg[r, c] += localMatrix[er, ec];
                     }
                 }
@@ -174,8 +189,6 @@ namespace GPC.Model.FEM
         }
         #endregion
 
-        #region Private Methods Specific
-        #endregion
     }
 }
 
