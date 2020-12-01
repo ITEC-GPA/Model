@@ -47,6 +47,8 @@ namespace GPC.Model.Sections
                 }
             }
         }
+
+        public bool IsColdFormed { get; set; }
         #endregion
 
         public SectionRHS(double h, double b, double tf_top, double tf_bottom, double tw1, double tw2, Materials.Material material) : base(material)

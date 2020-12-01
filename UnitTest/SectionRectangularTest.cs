@@ -26,10 +26,10 @@ namespace UnitTest
             Assert.AreEqual(A, sec.Area);
             Assert.AreEqual(J2, sec.J22);
             Assert.AreEqual(J1, sec.J11);
-            Assert.AreEqual(Wel2, sec.Wel22Max);
-            Assert.AreEqual(-Wel2, sec.Wel22Min);
-            Assert.AreEqual(Wel1, sec.Wel11Max);
-            Assert.AreEqual(-Wel1, sec.Wel11Min);
+            Assert.AreEqual(Wel2, sec.Wel22Top);
+            Assert.AreEqual(Wel2, sec.Wel22Bottom);
+            Assert.AreEqual(Wel1, sec.Wel11Left);
+            Assert.AreEqual(Wel1, sec.Wel11Right);
             Assert.AreEqual(Wpl2, sec.Wpl22);
             Assert.AreEqual(Wpl1, sec.Wpl11);
         }

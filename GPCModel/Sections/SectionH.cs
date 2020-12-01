@@ -28,7 +28,16 @@ namespace GPC.Model.Sections
             _tbottom = tbottom;
 
             _hw = _hTot - _tbottom - _ttop;
-        }        
+            IsSymmetricAlongYLocalAxis = true;
+            if (_btop == _bbottom && _tbottom == _ttop)
+            {
+                IsSymmetricAlongZLocalAxis = true;
+            }
+            else
+            {
+                IsSymmetricAlongZLocalAxis = false;
+            }
+        }
 
         #region Properties
         public double LenghtBottomFlange => _bbottom;
@@ -37,6 +46,22 @@ namespace GPC.Model.Sections
         public double ThicknessBottomFlange => _tbottom;
         public double ThicknessWeb => _tw;
         public double HeightWeb => _hw;
+        public double H => _hTot;
+        public double B
+        {
+            get
+            {
+                if (_bbottom == _btop)
+                {
+                    return _btop;
+                } else
+                {
+                    throw new Exception("different B");
+                }
+            }
+        }
+
+        public bool IsRolled { get; set; }
         #endregion
     }
 }
