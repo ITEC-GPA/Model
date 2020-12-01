@@ -1,6 +1,8 @@
 ﻿using GPC.Geometry;
 using GPC.Model.Elements;
+using GPC.Model.FEM.Attributes;
 using System;
+using System.Collections.Generic;
 using System.Runtime.Serialization;
 
 namespace GPC.Model.FEM
@@ -12,6 +14,9 @@ namespace GPC.Model.FEM
         protected PlateAnalysisType _analysisType;
 
         protected double _A;
+
+        protected List<IPlateFemAttribute> _attributes;
+
         #endregion
 
         #region Properties
@@ -23,6 +28,8 @@ namespace GPC.Model.FEM
         public bool IsTriangle => _nodesGlobal.Length == 3 ? true : false;
 
         public bool IsQuad => _nodesGlobal.Length == 4 ? true : false;
+
+        public List<IPlateFemAttribute> Attributes => _attributes;
 
         #endregion
 
@@ -72,6 +79,11 @@ namespace GPC.Model.FEM
                 var pointLocal = _coordSys.ToLocal(_nodesGlobal[nd].Position);
                 _nodesLocal[nd] = new Node(new Guid(), pointLocal, _nodesGlobal[nd].NodeIndex, _nodesGlobal[nd].DoF);
             }
+        }
+
+        public void AddAttribute(IPlateFemAttribute attribute)
+        {
+            _attributes.Add(attribute);
         }
 
         public int[] GetConnection()

@@ -33,7 +33,7 @@ namespace GPC.Model.FEM
 
         public FEMNodeDoF DoF => _doF;
 
-        public List<INodeFemAttribute> Attributes { get { return _attributes; } set { _attributes = value; } }
+        public List<INodeFemAttribute> Attributes => _attributes;
 
         #endregion
 
@@ -110,6 +110,11 @@ namespace GPC.Model.FEM
         public void SetPosition(Point3d newPos)
         {
             _position = new Point3d(newPos.X, newPos.Y, newPos.Z);
+        }
+
+        public void AddAttribute(INodeFemAttribute attribute)
+        {
+            _attributes.Add(attribute);
         }
 
         #endregion 
