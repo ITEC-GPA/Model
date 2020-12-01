@@ -32,8 +32,8 @@ namespace GPC.Model.FEM
         #endregion
 
         #region Public Constructors
-        public Beam(Guid guid, Section section, Node[] nodes)
-            : base(guid, section)
+        public Beam(Guid guid, Section section, Node[] nodes, int index)
+            : base(guid, section, index)
         {
             _guid = guid;
             SetElement(nodes);
@@ -99,7 +99,7 @@ namespace GPC.Model.FEM
 
             for (int nd = 0; nd < _nodesGlobal.Length; nd++)
             {
-                var p = _coordSys.PointToLocal(_nodesGlobal[nd].Position);
+                var p = _coordSys.ToLocal(_nodesGlobal[nd].Position);
                 _nodesLocal[nd] = new Node(new Guid(), p, _nodesGlobal[nd].NodeIndex, _nodesGlobal[nd].DoF);
             }        
         }
