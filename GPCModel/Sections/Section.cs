@@ -83,7 +83,19 @@ namespace GPC.Model.Sections
             set => _wpl22 = value;
         }
 
-        public double Wel11Left
+        public double Wel11Min
+        {
+            get => Math.Min(_wel11Left, _wel11Right);
+            
+        }
+
+        public double Wel22Min
+        {
+            get => Math.Min(_wel22Top, _wel22Bottom);
+            
+        }
+
+        /*public double Wel11Left
         {
             get => _wel11Left;
             set => _wel11Left = value;
@@ -104,7 +116,7 @@ namespace GPC.Model.Sections
         {
             get => _wel22Top;
             set => _wel22Top = value;
-        }
+        }*/
 
         public Point2d Centroid
         {
@@ -203,20 +215,20 @@ namespace GPC.Model.Sections
             double sigmaN = N / _area;
             double sigmaMy;
             if (My > 0) { 
-                sigmaMy = - My / Wel22Top;
+                sigmaMy = - My / _wel22Top;
             } else
             {
-                sigmaMy = My / Wel22Bottom;
+                sigmaMy = My / _wel22Bottom;
             }
 
             double sigmaMz;
             if (Mz > 0)
             {
-                sigmaMz = -Mz / Wel11Left;
+                sigmaMz = -Mz / _wel11Left;
             }
             else
             {
-                sigmaMz = Mz / Wel11Right;
+                sigmaMz = Mz / _wel11Right;
             }
 
             return sigmaN + sigmaMy + sigmaMz;
