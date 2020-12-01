@@ -45,13 +45,17 @@ namespace GPC.Model.FEM
         public Plate(Guid guid, ElementProperty property, FEMPlateIntegrator integrator, int plateIndex, Node[] nodes)
             : base(guid, integrator, property, plateIndex)
         {
+            _attributes = new List<IPlateFemAttribute>();
             _guid = guid;
             SetElement(nodes);
             SetLocalCoordinateSystem(0.0);
             _property = property;
-            _integrator = integrator;
-            BuildElementDoF();
-            _integrator.StartIntegration(this);
+            if (integrator != null )
+            {
+                _integrator = integrator;
+                BuildElementDoF();
+                _integrator.StartIntegration(this);
+            }
         }
 
         protected Plate(SerializationInfo info, StreamingContext context)

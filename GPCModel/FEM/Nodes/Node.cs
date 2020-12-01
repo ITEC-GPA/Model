@@ -19,7 +19,7 @@ namespace GPC.Model.FEM
 
         protected FEMNodeDoF _doF;
 
-        private List<INodeFemAttribute> _attributes;
+        protected List<INodeFemAttribute> _attributes;
 
         #endregion 
 
@@ -42,6 +42,7 @@ namespace GPC.Model.FEM
         public Node(Guid guid, Point3d position, int nodeIndex, Restrain restrain)
             : base(guid, "")
         {
+            _attributes = new List<INodeFemAttribute>();
             int[] doFid = new int[6];
             int[] activeDoF = new int[6];
 
