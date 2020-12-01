@@ -101,10 +101,9 @@ namespace GPC.Model.FEM
 
             for (int nd = 0; nd < _nodesGlobal.Length; nd++)
             {
-                var p = _nodesGlobal[nd].Position;
-                _coordSys.ToLocal(ref p);
+                var nodeLocal = _coordSys.ToLocal(_nodesGlobal[nd].Position);
 
-                _nodesLocal[nd] = new Node(new Guid(), p, _nodesGlobal[nd].NodeIndex, _nodesGlobal[nd].DoF);
+                _nodesLocal[nd] = new Node(new Guid(), nodeLocal, _nodesGlobal[nd].NodeIndex, _nodesGlobal[nd].DoF);
             }        
         }
         #endregion

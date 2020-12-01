@@ -72,9 +72,8 @@ namespace GPC.Model.FEM
             _coordSys = new CoordinateSystem(_nodesGlobal[0].Position, _nodesGlobal[1].Position, _nodesGlobal[2].Position, rotationAngle, string.Empty, Guid.Empty);
             for (int nd = 0; nd < _nodesGlobal.Length; nd++)
             {
-                var p = _nodesGlobal[nd].Position;
-                _coordSys.ToLocal(ref p);
-                _nodesLocal[nd] = new Node(new Guid(), p, _nodesGlobal[nd].NodeIndex, _nodesGlobal[nd].DoF);
+                var nodeLocal =_coordSys.ToLocal(_nodesGlobal[nd].Position);
+                _nodesLocal[nd] = new Node(new Guid(), nodeLocal, _nodesGlobal[nd].NodeIndex, _nodesGlobal[nd].DoF);
             }
         }
 
