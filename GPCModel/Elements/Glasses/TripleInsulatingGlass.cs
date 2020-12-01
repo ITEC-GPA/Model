@@ -8,25 +8,25 @@ namespace GPC.Model.Elements.Glasses
     /// This represent a triple glazing panel composed by three glass panels separated by air.
     /// </summary>
     [Serializable]
-    public class TripleInsulatingGlass : GlassProperty, IInsulatingGlass
+    public class TripleInsulatingGlass : GlassProperty, IInsulatingGlassProperty
     {
         #region Variables
 
-        protected readonly IGlassPanel _glassPanelOuter;
+        protected readonly IGlassPanelProperty _glassPanelOuter;
         protected readonly double _airThicknessOuter;
-        protected readonly IGlassPanel _glassPanelCentral;
+        protected readonly IGlassPanelProperty _glassPanelCentral;
         protected readonly double _airThicknessInner;
-        protected readonly IGlassPanel _glassPanelInner;
+        protected readonly IGlassPanelProperty _glassPanelInner;
 
         #endregion Variables
 
         #region Properties
 
-        public IGlassPanel GlassPanelOuter => _glassPanelOuter;
+        public IGlassPanelProperty GlassPanelOuter => _glassPanelOuter;
         public double AirThicknessOuter => _airThicknessOuter;
-        public IGlassPanel GlassPanelCentral => _glassPanelCentral;
+        public IGlassPanelProperty GlassPanelCentral => _glassPanelCentral;
         public double AirThicknessInner => _airThicknessInner;
-        public IGlassPanel GlassPanelInner => _glassPanelInner;
+        public IGlassPanelProperty GlassPanelInner => _glassPanelInner;
 
         #endregion Properties
 
@@ -40,13 +40,13 @@ namespace GPC.Model.Elements.Glasses
         /// <param name="glassPanelCentral">Central glass panel</param>
         /// <param name="airThicknessOuter">Outer air thickness</param>
         /// <param name="airThicknessInner">Inner air thickness</param>
-        public TripleInsulatingGlass(IGlassPanel glassPanelOuter, IGlassPanel glassPanelCentral, IGlassPanel glassPanelInner, double airThicknessOuter, double airThicknessInner)
+        public TripleInsulatingGlass(IGlassPanelProperty glassPanelOuter, IGlassPanelProperty glassPanelCentral, IGlassPanelProperty glassPanelInner, double airThicknessOuter, double airThicknessInner)
             : this(glassPanelOuter, glassPanelCentral, glassPanelInner, airThicknessOuter, airThicknessInner, Guid.Empty)
         {
 
         }
 
-        public TripleInsulatingGlass(IGlassPanel glassPanelOuter, IGlassPanel glassPanelCentral, IGlassPanel glassPanelInner, double airThicknessOuter, double airThicknessInner, Guid guid)
+        public TripleInsulatingGlass(IGlassPanelProperty glassPanelOuter, IGlassPanelProperty glassPanelCentral, IGlassPanelProperty glassPanelInner, double airThicknessOuter, double airThicknessInner, Guid guid)
             : base(guid)
         {
             if (airThicknessOuter < 0.001 || airThicknessInner < 0.001)
@@ -63,9 +63,9 @@ namespace GPC.Model.Elements.Glasses
         public TripleInsulatingGlass(SerializationInfo info, StreamingContext context)
            : base(info, context)
         {
-            _glassPanelOuter = (IGlassPanel)info.GetValue("GlassPanelOuter", typeof(IGlassPanel));
-            _glassPanelCentral = (IGlassPanel)info.GetValue("GlassPanelCentral", typeof(IGlassPanel));
-            _glassPanelInner = (IGlassPanel)info.GetValue("GlassPanelInner", typeof(IGlassPanel));
+            _glassPanelOuter = (IGlassPanelProperty)info.GetValue("GlassPanelOuter", typeof(IGlassPanelProperty));
+            _glassPanelCentral = (IGlassPanelProperty)info.GetValue("GlassPanelCentral", typeof(IGlassPanelProperty));
+            _glassPanelInner = (IGlassPanelProperty)info.GetValue("GlassPanelInner", typeof(IGlassPanelProperty));
             _airThicknessOuter = info.GetDouble("AirThicknessOuter");
             _airThicknessInner = info.GetDouble("AirThicknessInner");
         }
