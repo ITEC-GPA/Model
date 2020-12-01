@@ -22,6 +22,7 @@ namespace GPC.Model.FEM
         protected int[] _elIncidenceLocal;
         protected int[] _elIncidenceGlobal;
         protected CoordinateSystem _coordSys;
+        protected ElementProperty _property;
         //protected CoordinateSystem _cSys;
         #endregion
 
@@ -31,20 +32,23 @@ namespace GPC.Model.FEM
         public Node[] NodesGlobal => _nodesGlobal;
         public Node[] NodesLocal => _nodesLocal;
         public GPC.Geometry.CoordinateSystem CoordSys => _coordSys;
+        public ElementProperty Property => _property;
         //public CoordinateSystem CSys => _cSys;
         #endregion
 
         #region Public Constructors
-        protected FEMElement(Guid guid, FEMIntegrator integrator)
-            : this(guid)
+        protected FEMElement(Guid guid, FEMIntegrator integrator, ElementProperty property)
+            : this(guid, property)
         {
             _integrator = integrator;
+            _property = property;
         }
 
-        protected FEMElement(Guid guid)
+        protected FEMElement(Guid guid, ElementProperty property)
                  : base(guid)
         {
             _integrator = null;
+            _property = property;
         }
 
         protected FEMElement(SerializationInfo info, StreamingContext context)

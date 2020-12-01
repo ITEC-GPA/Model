@@ -28,14 +28,12 @@ namespace GPC.Model.FEM
         public Node Node2 => _node2;
 
         public double Length => Node1.Position.DistanceTo(Node2.Position);
-
-        public Section Section => _section;
         
         #endregion
 
         #region Public Constructors
         public Beam(Guid guid, Section section, Node[] nodes)
-            : base(guid)
+            : base(guid, section)
         {
             _guid = guid;
             SetElement(nodes);
@@ -101,9 +99,7 @@ namespace GPC.Model.FEM
 
             for (int nd = 0; nd < _nodesGlobal.Length; nd++)
             {
-                var p = _nodesGlobal[nd].Position;
-                _coordSys.ToLocal(ref p);
-
+                var p = _coordSys.PointToLocal(_nodesGlobal[nd].Position);
                 _nodesLocal[nd] = new Node(new Guid(), p, _nodesGlobal[nd].NodeIndex, _nodesGlobal[nd].DoF);
             }        
         }

@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using MathNet.Numerics.LinearAlgebra;
 using System.IO;
 using GPC.Model.Sections;
+using GPC.Model.Elements;
 
 namespace GPC.Model.FEM
 {
@@ -192,14 +193,15 @@ namespace GPC.Model.FEM
         public override void BuildD(FEMElement element)
         {
             Plate plate = element as Plate;
+             
 
             _Dm = Matrix<double>.Build.Dense(3, 3, 0);
             _Db = Matrix<double>.Build.Dense(3, 3, 0);
 
-            double E = plate.Property.Material.E;
-            double ni = plate.Property.Material.Ni;
-            double tb = plate.Property.Tb;
-            double tm = plate.Property.Tm;
+            double E = (plate.Property as PlateProperty).Material.E;
+            double ni = (plate.Property as PlateProperty).Material.Ni;
+            double tb = (plate.Property as PlateProperty).Tb;
+            double tm = (plate.Property as PlateProperty).Tm;
 
             double c, cc;
             c = E / (1 - Math.Pow(ni, 2.0));
@@ -249,7 +251,7 @@ namespace GPC.Model.FEM
 
                 for (int i = 0; i < _gaussIntegrationPoints.Coords.Length; i++)
                 {
-                    double c = plate.Property.Material.Density * _gaussIntegrationPoints.Weights[i] * _detJacobian[i] * plate.Property.Tm;
+                    double c = (plate.Property as PlateProperty).Material.Density * _gaussIntegrationPoints.Weights[i] * _detJacobian[i] * (plate.Property as PlateProperty).Tm;
 
                     gaussM = _NmassMatrix[i].Transpose() * c * _NmassMatrix[i];
                     mMatrix = mMatrix + gaussM;

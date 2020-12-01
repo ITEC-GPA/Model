@@ -345,7 +345,10 @@ namespace GPC.Model.FEM
 
             if (_numTotDoF > 0 && _gaussIntegrationPoints.Coords.Length > 0)
             {
+<<<<<<< HEAD
                 //Matrix<double> scalM; // Giorgio: commentata per evitare warning CS0168
+=======
+>>>>>>> feature/FEM
                 Matrix<double> gaussM;
 
                 for (int i = 0; i < _gaussIntegrationPoints.Coords.Length; i++)

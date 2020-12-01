@@ -8,7 +8,6 @@ using MathNet.Numerics.LinearAlgebra;
 using System.IO;
 using GPC.Model.Sections;
 using GPC.Geometry;
-using GPC.Model.Elements;
 
 namespace GPC.Model.FEM
 {
@@ -113,16 +112,14 @@ namespace GPC.Model.FEM
             Beam beam = element as Beam;
             Matrix<double> k = Matrix<double>.Build.Dense(12, 12, 0.0);
 
-            Section BeamSection = element.Property as Section;
-
             double L = beam.Length;
-            double A = BeamSection.Area;
-            double I1 = BeamSection.J11;
-            double I2 = BeamSection.J22;
-            double Jt = BeamSection.Jt;
+            double A = beam.Section.Area;
+            double I1 = beam.Section.J11;
+            double I2 = beam.Section.J22;
+            double Jt = beam.Section.Jt;
 
-            double E = BeamSection.Material.E;
-            double ni = BeamSection.Material.Ni;
+            double E = beam.Section.Material.E;
+            double ni = beam.Section.Material.Ni;
             double G = E / (2 * (1 + ni));
             double L2 = L * L;
             double L3 = L2 * L;
@@ -337,20 +334,18 @@ namespace GPC.Model.FEM
         {
             Beam beam = element as Beam;
 
-            Section BeamSection = element.Property as Section;
-
             _massMatrix = Matrix<double>.Build.Dense(12, 12, 0.0);
             Matrix<double> M = Matrix<double>.Build.Dense(12, 12, 0.0);
             Matrix<double> mMatrix = Matrix<double>.Build.Dense(6, 6, 0.0);
 
             if (_numTotDoF > 0 && _gaussIntegrationPoints.Coords.Length > 0)
             {
-                //Matrix<double> scalM; // Giorgio: commentata per evitare warning CS0168
+                Matrix<double> scalM;
                 Matrix<double> gaussM;
 
                 for (int i = 0; i < _gaussIntegrationPoints.Coords.Length; i++)
                 {
-                    double c = BeamSection.Material.Density * _gaussIntegrationPoints.Weights[i] * _detJacobian[i] * BeamSection.Area;
+                    double c = beam.Section.Material.Density * _gaussIntegrationPoints.Weights[i] * _detJacobian[i] * beam.Section.Area;
                     gaussM = _NmassMatrix[i].Transpose() * c * _NmassMatrix[i];
                     mMatrix = mMatrix + gaussM;
                 }

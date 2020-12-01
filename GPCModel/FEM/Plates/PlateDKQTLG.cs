@@ -9,6 +9,7 @@ using GPC.Model.Sections;
 using MathNet.Numerics.LinearAlgebra;
 using GPC.Geometry;
 using GPC.Model.Elements;
+using GPC.Model.Elements.Glasses;
 
 namespace GPC.Model.FEM
 {
@@ -21,8 +22,6 @@ namespace GPC.Model.FEM
         protected double _t1;
         protected double _t2;
         protected double _t0;
-
-        protected GlassMaterial _glassMaterial;
         #endregion
 
         #region Properties
@@ -30,14 +29,13 @@ namespace GPC.Model.FEM
         public double T2 => _t2;
         public double T0 => _t0;
 
-        public GlassMaterial GlassMaterial => _glassMaterial;
         #endregion
 
         #region Public Constructors
-        public PlateDKQTLG(Guid guid, PlateProperty property, Node[] nodes)
+        public PlateDKQTLG(Guid guid, LaminatedGlass property, Node[] nodes, double loadDuration, double temperature)
             : base(guid, property, nodes)
         {
-            _integrator = new FEMPlateIntegratorDKQTLG(new Guid(), 2, 1, 2, this);
+            _integrator = new FEMPlateIntegratorDKQTLG(new Guid(), 2, 1, 2, this, loadDuration, temperature);
             BuildElementDoF();
             _integrator.StartIntegration(this);
         }
