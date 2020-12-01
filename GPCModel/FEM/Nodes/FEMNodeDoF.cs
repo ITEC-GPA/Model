@@ -1,39 +1,65 @@
-﻿using System;
+﻿using GPC.Model.Elements;
+using GPC.Geometry;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+
 
 namespace GPC.Model.FEM
 {
     public class FEMNodeDoF : FEMObject
     {
         #region Variables
+
         protected int[] _globalIncidence;
+
         protected int _doF;
         protected int _numDoF;
         protected int _maxNumDoF;
         protected List<FEMDoF> _femDoFs;
+
         protected const int _maxDoFNum = 6;
+
         #endregion
 
         #region Properties
+
         public int MaxNumDoF => _maxNumDoF;
+
         public List<FEMDoF> FEMDoFs => _femDoFs;
+
         public int MaxDoFNum => _maxDoFNum;
+
         public int[] GlobalIncidence => _globalIncidence;
+
         #endregion
 
         #region Public Constructors
+
         public FEMNodeDoF(int[] activeDoF, int[] freeDoF)
         {
             _maxNumDoF = activeDoF.Length;
             _femDoFs = new List<FEMDoF>(_maxNumDoF);
             RegisterDoF(activeDoF, freeDoF);
         }
+
         #endregion
 
         #region Public Methods Specific
+
+        public Restrain GetRestrain()
+        {
+            var cs = new CoordinateSystem(Vector3d.XAxis, Vector3d.YAxis, Vector3d.ZAxis);
+            return new Restrain(cs, 
+                _femDoFs.Where(i => i.Id == 1).First().Active == 1 ? true : false, 
+                _femDoFs.Where(i => i.Id == 2).First().Active == 1 ? true : false,
+                _femDoFs.Where(i => i.Id == 3).First().Active == 1 ? true : false,
+                _femDoFs.Where(i => i.Id == 4).First().Active == 1 ? true : false, 
+                _femDoFs.Where(i => i.Id == 5).First().Active == 1 ? true : false, 
+                _femDoFs.Where(i => i.Id == 6).First().Active == 1 ? true : false, 
+                0, 0, 0, 0, 0, 0, Guid.NewGuid());
+        }
+
         public virtual void RegisterDoF(int[] idDoF, int[] activeDoF)
         {
             for(int i = 0; i < idDoF.Length; i++)
@@ -57,6 +83,7 @@ namespace GPC.Model.FEM
                 _globalIncidence[i] = _femDoFs[i].Active == 1 ? --reactionNum : globalNum++;                
             }
         }
+
         public void UpdateReactionNode(ref int globalNum)
         {
             int tmpglobalNum = globalNum;
