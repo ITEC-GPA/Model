@@ -32,6 +32,7 @@ namespace GPC.Model.FEM
         public FEMPlateIntegratorDKQ(Guid guid, int dim, int order, int numDefComp, FEMElement element)
             : base(guid, dim, order, numDefComp, element)
         {
+            /// Define Integration Points
             InitQuad4(element);
             _shape = new FEMShapeQuad4(_gaussIntegrationPoints.NumPoints);
             _shapeBending = new FEMShapeQuad8(_gaussIntegrationPoints.NumPoints);
@@ -199,7 +200,8 @@ namespace GPC.Model.FEM
         public override void BuildK(FEMElement element)
         {
             Plate plate = element as Plate;
-            PlateProperty elProp = plate.Property;
+            PlateProperty elProp = element.Property as PlateProperty;
+
             Matrix<double> scalD;
             Matrix<double> gaussK;
             Matrix<double> K;

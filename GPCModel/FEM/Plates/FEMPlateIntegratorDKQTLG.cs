@@ -8,7 +8,9 @@ using MathNet.Numerics.LinearAlgebra;
 using System.IO;
 using GPC.Model.Sections;
 using GPC.Model.Elements;
+using GPC.Model.Elements.Glasses;
 using GPC.Geometry;
+using GPC.Model.Materials;
 
 namespace GPC.Model.FEM
 {
@@ -23,19 +25,30 @@ namespace GPC.Model.FEM
         double[] _e = new double[4];
         double[] _Cu = new double[4];
         double[] _Cv = new double[4];
+
+        protected Matrix<double> _Dg;
+        protected Matrix<double> _Ds;
+
+        protected double _g0;
         #endregion
 
         #region Properties
+
+        public Matrix<double> Dg => _Dg;
+        public Matrix<double> Ds => _Ds;
+        public double G0 => _g0;
         #endregion
 
         #region Public Constructors
-        public FEMPlateIntegratorDKQTLG(Guid guid, int dim, int order, int numDefComp, FEMElement element)
+        public FEMPlateIntegratorDKQTLG(Guid guid, int dim, int order, int numDefComp, FEMElement element, double loadDuration, double temperature)
             : base(guid, dim, order, numDefComp, element)
         {
+            /// Define Integration Points
             InitQuad4(element);
             _shape = new FEMShapeQuad4(_gaussIntegrationPoints.NumPoints);
             _shapeBending = new FEMShapeQuad8(_gaussIntegrationPoints.NumPoints);
             _shapeDrilling = new FEMShapeDilling4(_gaussIntegrationPoints.NumPoints);
+            _g0 = SetShearModulus(element, loadDuration, temperature);
         }
         public FEMPlateIntegratorDKQTLG(SerializationInfo info, StreamingContext context)
             : base(info, context)
@@ -137,6 +150,8 @@ namespace GPC.Model.FEM
 
             Matrix<double> dNLoc = _shapeBending.dNShape;
 
+
+            // H build - Matrix of Batoz Shape functions for nodal interpolation
             for (int i = 0; i < 4; i++)
             {
                 int p = index[i, 0];
@@ -197,7 +212,7 @@ namespace GPC.Model.FEM
         public override void BuildK(FEMElement element)
         {
             Plate plate = element as Plate;
-            PlateProperty elProp = plate.Property;
+            PlateProperty elProp = plate.Property as PlateProperty;
             Matrix<double> scalD;
             Matrix<double> gaussK;
             Matrix<double> K;
@@ -278,6 +293,105 @@ namespace GPC.Model.FEM
             /// Build Membranal Components
 
             /// Build Bending Components
+        }
+        public override void BuildD(FEMElement element)
+        {
+            Plate plate = element as Plate;
+            LaminatedGlass glassProp = element.Property as LaminatedGlass;
+
+            _Dm = Matrix<double>.Build.Dense(3, 3, 0);
+            _Db = Matrix<double>.Build.Dense(3, 3, 0);
+            _Ds = Matrix<double>.Build.Dense(4, 4, 0);
+            _Dg = Matrix<double>.Build.Dense(6, 6, 0);
+
+            double E = (plate.Property as PlateProperty).Material.E;
+            double ni = (plate.Property as PlateProperty).Material.Ni;
+            double tb = (plate.Property as PlateProperty).Tb;
+            double tm = (plate.Property as PlateProperty).Tm;
+
+            double c, cc;
+            c = E / (1 - Math.Pow(ni, 2.0));
+            _Dm[0, 0] = c;
+            _Dm[1, 1] = c;
+            _Dm[2, 2] = 0.5 * c * (1.0 - ni);
+            _Dm[0, 1] = ni * c;
+            _Dm[1, 0] = _Dm[0, 1];
+
+            cc = c * Math.Pow(tb, 3.0) / 12.0;
+            _Db[0, 0] = cc;
+            _Db[1, 1] = cc;
+            _Db[2, 2] = 0.5 * cc * (1.0 - ni);
+            _Db[0, 1] = ni * cc;
+            _Db[1, 0] = _Db[0, 1];
+
+            /// Glass Properties
+            //InterlayerMaterial mat = new InterlayerMaterial(0.0, 0.0, InterlayerMaterial.InterlayerType.NormalPVB);
+            //mat.AddShearModule(1, new double[] {10, 20 }, new double[] { })
+
+            double h0 = glassProp.Interlayers[0].Thickness;
+            double h1 = glassProp.MonolithicGlasses[0].Thickness;
+            double h2 = glassProp.MonolithicGlasses[0].Thickness;
+            double hc = (2.0 * h0 + h1 + h2) / 2.0;
+
+            /// Shear Constitutive Matrix
+            double cshear = G0 / h0;
+
+            _Ds[0, 0] = 1.0;
+            _Ds[0, 1] = 0.0;
+            _Ds[0, 2] = hc;
+            _Ds[0, 3] = 0.0;
+
+            _Ds[1, 0] = 0.0;
+            _Ds[1, 1] = 1.0;
+            _Ds[1, 2] = 0.0;
+            _Ds[1, 3] = hc;
+
+            _Ds[2, 0] = hc;
+            _Ds[2, 1] = 0.0;
+            _Ds[2, 2] = hc * hc;
+            _Ds[2, 3] = 0.0;
+
+            _Ds[3, 0] = 0.0;
+            _Ds[3, 1] = hc;
+            _Ds[3, 2] = 0.0;
+            _Ds[3, 3] = hc * hc;
+
+            /// Flexural Constitutive Matrix
+            double cbending1 = (h1 * h2) / (h1 + h2);
+            double cbending2 = (Math.Pow(h1, 3.0) + Math.Pow(h2, 3.0)) / 12;
+
+            _Dg[0, 0] = cbending1 * _Db[0, 0];
+            _Dg[0, 1] = cbending1 * _Db[0, 1];
+            _Dg[0, 2] = cbending1 * _Db[0, 2];
+
+            _Dg[1, 0] = cbending1 * _Db[1, 0];
+            _Dg[1, 1] = cbending1 * _Db[1, 1];
+            _Dg[1, 2] = cbending1 * _Db[1, 2];
+
+            _Dg[2, 0] = cbending1 * _Db[2, 0];
+            _Dg[2, 1] = cbending1 * _Db[2, 1];
+            _Dg[2, 2] = cbending1 * _Db[2, 2];
+
+            _Dg[3, 3] = cbending2 * _Db[0, 0];
+            _Dg[3, 4] = cbending2 * _Db[0, 1];
+            _Dg[3, 5] = cbending2 * _Db[0, 2];
+
+            _Dg[4, 3] = cbending2 * _Db[1, 0];
+            _Dg[4, 4] = cbending2 * _Db[1, 1];
+            _Dg[4, 5] = cbending2 * _Db[1, 2];
+
+            _Dg[5, 3] = cbending2 * _Db[2, 0];
+            _Dg[5, 4] = cbending2 * _Db[2, 1];
+            _Dg[5, 5] = cbending2 * _Db[2, 2];
+        }
+        public double SetShearModulus(FEMElement element, double loadDuration, double temperature)
+        {
+            double result = 0.0;
+
+            LaminatedGlass glassProp = element.Property as LaminatedGlass;
+            result = glassProp.Interlayers[0].Material.GetShearModule(loadDuration, temperature);
+
+            return result;
         }
         public override void RegisterDoF(Node node)
         {

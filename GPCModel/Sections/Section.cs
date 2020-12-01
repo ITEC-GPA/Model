@@ -6,10 +6,11 @@ using System.Text;
 using System.Threading.Tasks;
 using GPC.Geometry;
 using GPC.Model.Materials;
+using GPC.Model.Elements;
 
 namespace GPC.Model.Sections
 {
-    public class Section
+    public class Section : ElementProperty
     {
         public struct ShapeMaterial
         {
