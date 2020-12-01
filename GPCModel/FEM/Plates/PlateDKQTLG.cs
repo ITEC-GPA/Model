@@ -32,8 +32,8 @@ namespace GPC.Model.FEM
         #endregion
 
         #region Public Constructors
-        public PlateDKQTLG(Guid guid, LaminatedGlass property, Node[] nodes, double loadDuration, double temperature)
-            : base(guid, property, nodes)
+        public PlateDKQTLG(Guid guid, LaminatedGlass property, int plateIndex, Node[] nodes, double loadDuration, double temperature)
+            : base(guid, property, plateIndex, nodes)
         {
             _integrator = new FEMPlateIntegratorDKQTLG(new Guid(), 2, 1, 2, this, loadDuration, temperature);
             BuildElementDoF();
@@ -46,7 +46,11 @@ namespace GPC.Model.FEM
         }
         #endregion
 
-        #region Public Methods Override     
+        #region Public Methods Override 
+        public override object Clone()
+        {
+            throw new NotImplementedException();
+        }
         #endregion
     }
 }

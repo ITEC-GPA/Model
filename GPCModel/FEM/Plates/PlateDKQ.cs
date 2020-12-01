@@ -24,8 +24,8 @@ namespace GPC.Model.FEM
         #endregion
 
         #region Public Constructors
-        public PlateDKQ(Guid guid, PlateProperty property, Node[] nodes)
-            : base(guid, property, nodes)
+        public PlateDKQ(Guid guid, PlateProperty property, int plateIndex, Node[] nodes)
+            : base(guid, property, plateIndex, nodes)
         {
             _integrator = new FEMPlateIntegratorDKQ(new Guid(), 2, 1, 2, this);
             BuildElementDoF();
@@ -38,7 +38,11 @@ namespace GPC.Model.FEM
         }
         #endregion
 
-        #region Public Methods Override     
+        #region Public Methods Override   
+        public override object Clone()
+        {
+            throw new NotImplementedException();
+        }
         #endregion
     }
 }

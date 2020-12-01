@@ -88,7 +88,7 @@ namespace UnitTest
             Material mat = new SteelMaterial("Steel", E, ni, 355, 510, 355/E, 0, 0, new Guid());// new Material("Steel", E, ni, 0.0, 0.0, new Guid());
             PlateProperty property = new PlateProperty(mat, 1.00, 1.00);
             //CoordinateSystemPlateQuad4 quad4 = new PlateQuad4(new Guid(), property, nodes);
-            PlateDKQ shell = new PlateDKQ(new Guid(), property, nodes);
+            PlateDKQ shell = new PlateDKQ(new Guid(), property, 1, nodes);
 
             Matrix<double> _stiffnessMatrix = Matrix<double>.Build.Dense(_globalDoF, _globalDoF, 0.0);
             shell.BuildElementDoFIncidence();
@@ -186,7 +186,7 @@ namespace UnitTest
             Material mat = new SteelMaterial("Steel",E,ni,355,510,355/E,0.0,0.0,new Guid());//new Material("Steel", E, ni, 0.0, 0.0, new Guid());
             PlateProperty property = new PlateProperty(mat, 1.00, 1.00);
             //CoordinateSystemPlateQuad4 quad4 = new PlateQuad4(new Guid(), property, nodes);
-            PlateDKQ shell = new PlateDKQ(new Guid(), property, nodes);
+            PlateDKQ shell = new PlateDKQ(new Guid(), property, 1, nodes);
 
             Matrix<double> _stiffnessMatrix = Matrix<double>.Build.Dense(_globalDoF, _globalDoF, 0.0);
             shell.BuildElementDoFIncidence();
@@ -305,8 +305,8 @@ namespace UnitTest
             /// Beams
             Node[] NodesB1 = new Node[] { Node1, Node2 };
             Node[] NodesB2 = new Node[] { Node2, Node3 };
-            Beam Beam1 = new Beam(Guid.NewGuid(), sec, NodesB1);
-            Beam Beam2 = new Beam(Guid.NewGuid(), sec, NodesB2);
+            Beam Beam1 = new Beam(Guid.NewGuid(), sec, NodesB1, 1);
+            Beam Beam2 = new Beam(Guid.NewGuid(), sec, NodesB2, 2);
 
             Node[] Nodes = new Node[] { Node1, Node2, Node3 };
             Beam[] Beams = new Beam[] { Beam1, Beam2 };
@@ -419,8 +419,8 @@ namespace UnitTest
             /// Beams
             Node[] NodesB1 = new Node[] { Node1, Node2 };
             Node[] NodesB2 = new Node[] { Node2, Node3 };
-            Beam Beam1 = new Beam(Guid.NewGuid(), sec, NodesB1);
-            Beam Beam2 = new Beam(Guid.NewGuid(), sec, NodesB2);
+            Beam Beam1 = new Beam(Guid.NewGuid(), sec, NodesB1, 1);
+            Beam Beam2 = new Beam(Guid.NewGuid(), sec, NodesB2, 2);
 
             Node[] Nodes = new Node[] { Node1, Node2, Node3 };
             Beam[] Beams = new Beam[] { Beam1, Beam2 };
@@ -541,7 +541,7 @@ namespace UnitTest
             //}
 
             /// Creazione dei beam
-            Beam Beam1 = new Beam(Guid.NewGuid(), sec, NodesB1);
+            Beam Beam1 = new Beam(Guid.NewGuid(), sec, NodesB1, 1);
           
        
 
