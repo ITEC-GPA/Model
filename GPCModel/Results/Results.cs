@@ -5,10 +5,11 @@ using System.Text;
 using System.Threading.Tasks;
 using GPC.Model.LoadCases;
 using GPC.Geometry;
+using System.Runtime.Serialization;
 
 namespace GPC.Model.Results
 {
-    public abstract class Result
+    public abstract class Result : ISerializable, IEquatable<ResultPlateForces>
     {
         #region Variables
         protected CoordinateSystem _cSys;
@@ -25,12 +26,23 @@ namespace GPC.Model.Results
             _loadCase = loadCase;
             _cSys = cSys;
         }
+
+        public virtual bool Equals(ResultPlateForces other)
+        {
+            return !(other is null) &&
+                    _cSys == other._cSys &&
+                    _elementID == other._elementID &&
+                    _elementLabel == other._elementLabel &&
+                    _loadCase == other._loadCase;
+        }
+
+        public virtual void GetObjectData(SerializationInfo info, StreamingContext context)
+        {
+            throw new NotImplementedException();
+        }
+
+
         #endregion
 
-        #region Public Constructors
-        #endregion
-
-        #region Public Methods
-        #endregion
     }
 }

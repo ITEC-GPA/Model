@@ -15,7 +15,7 @@ namespace UnitTest
         [TestInitialize]
         public void TestInitialize()
         {
-            _outputFolder = System.IO.Path.Combine(Directory.GetParent(TestContext.TestDir).ToString(), "OutputTests");
+            _outputFolder = Path.Combine(Directory.GetParent(TestContext.TestDir).ToString(), "OutputTests");
             Directory.CreateDirectory(_outputFolder);
             _testName = TestContext.TestName;
         }

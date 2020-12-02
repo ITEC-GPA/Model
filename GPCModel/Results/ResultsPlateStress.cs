@@ -42,6 +42,14 @@ namespace GPC.Model.Results
         #endregion
 
         #region Properties
+
+        protected double Sxx => _sxx;
+        protected double Syy => _syy;
+        protected double Szz => _szz;
+        protected double Sxy => _sxy;
+        protected double Sxz => _sxz;
+        protected double Syz => _syz;
+
         #endregion
 
         #region Public Constructors
@@ -58,21 +66,25 @@ namespace GPC.Model.Results
         #endregion
 
         #region Public Methods Specific
+
         public double GetPrincipalStress()
         {
             double result = 0;
             return result;
         }
+
         public double GetVMStress()
         {
             double result = 0;
             return result;
         }
+
         public double[] GetGlobalStress()
         {
             double[] result = new double[6];
             return result;
         }
+
         #endregion
     }
 }
