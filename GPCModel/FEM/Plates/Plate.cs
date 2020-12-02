@@ -1,6 +1,8 @@
 ﻿using GPC.Geometry;
 using GPC.Model.Elements;
 using GPC.Model.FEM.Attributes;
+using GPC.Model.LoadCases;
+using GPC.Model.Results;
 using System;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
@@ -17,6 +19,8 @@ namespace GPC.Model.FEM
 
         protected List<IPlateFemAttribute> _attributes;
 
+        protected ResultPlateForces _resultPlateForces;
+
         #endregion
 
         #region Properties
@@ -30,6 +34,8 @@ namespace GPC.Model.FEM
         public bool IsQuad => _nodesGlobal.Length == 4 ? true : false;
 
         public List<IPlateFemAttribute> Attributes => _attributes;
+
+        public ResultPlateForces ResultPlateForces => _resultPlateForces;
 
         #endregion
 
@@ -61,13 +67,13 @@ namespace GPC.Model.FEM
         protected Plate(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
-
+            
         }
 
-        #endregion 
+        #endregion
 
-        #region Public Methods Override
 
+        #region Private methods
         protected override void SetElement(Node[] arrayNode)
         {
             _nodesGlobal = new Node[arrayNode.Length];
@@ -83,6 +89,27 @@ namespace GPC.Model.FEM
                 var pointLocal = _coordSys.ToLocal(_nodesGlobal[nd].Position);
                 _nodesLocal[nd] = new Node(new Guid(), pointLocal, _nodesGlobal[nd].NodeIndex, _nodesGlobal[nd].DoF);
             }
+        } 
+
+        #endregion
+
+        #region Public Methods Override
+
+        /// <summary>
+        /// Add Results on the plate local coordinate system
+        /// </summary>
+        /// <param name="loadCase"></param>
+        /// <param name="fxx"></param>
+        /// <param name="fyy"></param>
+        /// <param name="fxy"></param>
+        /// <param name="fxz"></param>
+        /// <param name="fyz"></param>
+        /// <param name="mxx"></param>
+        /// <param name="myy"></param>
+        /// <param name="mxy"></param>
+        public virtual void AddResults(LoadCase loadCase, double fxx, double fyy, double fxy, double fxz, double fyz, double mxx, double myy, double mxy)
+        {
+            _resultPlateForces = new ResultPlateForces(this.Index, this.Name, loadCase, this.CoordSys, fxx, fyy, fxy, fxz, fyz, mxx, myy, mxy);
         }
 
         public void AddAttribute(IPlateFemAttribute attribute)
