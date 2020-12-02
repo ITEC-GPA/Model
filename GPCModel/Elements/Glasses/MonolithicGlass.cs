@@ -45,7 +45,7 @@ namespace GPC.Model.Elements.Glasses
         /// <param name="thickness">The minimum thickness of the panel (the one used for calculation)</param>
         /// <param name="glassMaterial"></param>
         public MonolithicGlass(string name, double thickness, GlassMaterial glassMaterial, Guid guid)
-            : base(guid)
+            : base(guid, name)
         {
             if (thickness <= 0.001)
             {

@@ -5,7 +5,7 @@ using System.Runtime.Serialization;
 namespace GPC.Model.LoadCases
 {
     [Serializable]
-    public class LoadCase : ModelObject
+    public class LoadCase : ModelObject, ISerializable, IEquatable<LoadCase>
     {
         #region PUBLIC ENUMS
 
@@ -65,6 +65,14 @@ namespace GPC.Model.LoadCases
             base.GetObjectData(info, context);
             info.AddValue("Name", _name);
             info.AddValue("LoadCaseType", _loadCaseType);
+        }
+
+        public bool Equals(LoadCase other)
+        {
+            return !(other is null) && 
+                    _name == other._name && 
+                    _loadCaseType == other._loadCaseType &&
+                    _guid == other._guid;
         }
     }
 }

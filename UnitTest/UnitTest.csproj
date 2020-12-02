@@ -72,6 +72,7 @@
     <Compile Include="CombinationTest.cs" />
     <Compile Include="SectionsTest.cs" />
     <Compile Include="SerializationTest.cs" />
+    <Compile Include="LoadCaseTest.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
