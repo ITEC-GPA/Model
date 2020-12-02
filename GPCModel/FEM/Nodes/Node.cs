@@ -48,12 +48,23 @@ namespace GPC.Model.FEM
 
             if (restrain != null)
             {
-                doFid[0] = restrain.D1 == true ? 1 : 0;
-                doFid[1] = restrain.D2 == true ? 1 : 0;
-                doFid[2] = restrain.D3 == true ? 1 : 0;
-                doFid[3] = restrain.R1 == true ? 1 : 0;
-                doFid[4] = restrain.R2 == true ? 1 : 0;
-                doFid[5] = restrain.R3 == true ? 1 : 0;
+                doFid[0] = 1;
+                activeDoF[0] = restrain.D1 == true ? 1 : 0;
+
+                doFid[1] = 2;
+                activeDoF[1] = restrain.D2 == true ? 1 : 0;
+
+                doFid[2] = 3;
+                activeDoF[2] = restrain.D3 == true ? 1 : 0;
+
+                doFid[3] = 4;
+                activeDoF[3] = restrain.R1 == true ? 1 : 0;
+
+                doFid[4] = 5;
+                activeDoF[4] = restrain.R2 == true ? 1 : 0;
+
+                doFid[5] = 5;
+                activeDoF[5] = restrain.R3 == true ? 1 : 0;
             }
             else
             {
@@ -63,6 +74,12 @@ namespace GPC.Model.FEM
                 doFid[3] = 0;
                 doFid[4] = 0;
                 doFid[5] = 0;
+                activeDoF[0] = 0;
+                activeDoF[1] = 0;
+                activeDoF[2] = 0;
+                activeDoF[3] = 0;
+                activeDoF[4] = 0;
+                activeDoF[5] = 0;
             }
 
             _doF = new FEMNodeDoF(doFid, activeDoF);

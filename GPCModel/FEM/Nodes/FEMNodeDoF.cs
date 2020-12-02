@@ -50,13 +50,14 @@ namespace GPC.Model.FEM
         public Restrain GetRestrain()
         {
             var cs = new CoordinateSystem(Vector3d.XAxis, Vector3d.YAxis, Vector3d.ZAxis);
-            return new Restrain(cs, 
-                _femDoFs.Where(i => i.Id == 1).First().Active == 1 ? true : false, 
-                _femDoFs.Where(i => i.Id == 2).First().Active == 1 ? true : false,
-                _femDoFs.Where(i => i.Id == 3).First().Active == 1 ? true : false,
-                _femDoFs.Where(i => i.Id == 4).First().Active == 1 ? true : false, 
-                _femDoFs.Where(i => i.Id == 5).First().Active == 1 ? true : false, 
-                _femDoFs.Where(i => i.Id == 6).First().Active == 1 ? true : false, 
+
+            return new Restrain(cs,
+                _femDoFs.Where(i => i.Id == 1).Select(i => i.Active).FirstOrDefault() == 1 ? true  : false, 
+                _femDoFs.Where(i => i.Id == 2).Select(i => i.Active).FirstOrDefault() == 1 ? true  : false,
+                _femDoFs.Where(i => i.Id == 3).Select(i => i.Active).FirstOrDefault() == 1 ? true  : false,
+                _femDoFs.Where(i => i.Id == 4).Select(i => i.Active).FirstOrDefault() == 1 ? true  : false, 
+                _femDoFs.Where(i => i.Id == 5).Select(i => i.Active).FirstOrDefault() == 1 ? true  : false, 
+                _femDoFs.Where(i => i.Id == 6).Select(i => i.Active).FirstOrDefault() == 1 ? true  : false, 
                 0, 0, 0, 0, 0, 0, Guid.NewGuid());
         }
 

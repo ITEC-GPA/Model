@@ -24,12 +24,16 @@ namespace GPC.Model.FEM
         /// 5 - DOF RY rotation around Y direction
         /// 6 - DOF RZ rotation around Z direction
         protected int _id;
+
         protected int _active;
+
         #endregion
 
         #region Properties
+
         public int Id => _id;
         public int Active => _active;
+
         #endregion
 
         #region Public Constructors
