@@ -22,36 +22,23 @@ namespace GPC.Model.Materials
         #endregion PROPERTIES
 
         #region PUBLIC CONSTRUCTOR
+
         /// <summary>
         /// </summary>
         /// <param name="_elasticModulus"> Elastic Modulus [MPa]</param>
         /// <param name="_poisson"> Poisson modulus </param>
         /// <param name="_alfaThermalExpansion"> Thermal expansion constant</param>
-        /// <param name="_density"> Effective area [mm2]</param>
-        public Material(string name, double elasticModulus, double ni, double density, double alfaThermalExpansion, Guid guid) : base(guid, name)
+        /// <param name="_density"> Density [T/mm^3]</param>
+        public Material(string name, double elasticModulus, double ni, double density, double alfaThermalExpansion, Guid guid) 
+            : base(guid, name)
         {
-            if (elasticModulus < 0)
-            {
-                throw new ArgumentException($"{nameof(E)} cannot be zero or lower");
-            }
-            else
-            {
-                _elasticModulus = elasticModulus;
-            }
+            _elasticModulus = elasticModulus < 0 ? throw new ArgumentException($"{nameof(elasticModulus)} cannot be zero or lower") : elasticModulus;
+            
+            _ni = ni < 0 ? throw new ArgumentException($"Poisson cannot be zero or lower") : ni;
 
-            if (ni < 0)
-            {
-                throw new ArgumentException($"{nameof(Ni)} cannot be zero or lower");
-            }
-            else
-            {
-                _ni = ni;
-            }
-
-            _elasticModulus = elasticModulus;
-            _ni = ni;
-            _alfaThermalExpansion = alfaThermalExpansion;
-            _density = density;
+            _alfaThermalExpansion = alfaThermalExpansion < 0 ? throw new ArgumentException($"{nameof(alfaThermalExpansion)} cannot be zero or lower") : alfaThermalExpansion;
+            
+            _density = density < 0 ? throw new ArgumentException($"{nameof(density)} cannot be zero or lower") : density;
         }
 
         public Material(string name, double elasticModulus, double ni, Guid guid) 

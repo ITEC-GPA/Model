@@ -30,17 +30,17 @@ namespace GPC.Model.Materials
         /// <summary>
         ///
         /// </summary>
-        /// <param name="elasticModulus">Elastic modulus of the glass</param>
+        /// <param name="elasticModulus">Elastic modulus of the glass [MPa]</param>
         /// <param name="poisson">poisson ratio's of the glass</param>
         /// <param name="psiSurface">psi coefficient of surface according to NCSEA</param>
         /// <param name="nGlassCoefficient">psi coefficient of the glass according to NCSEA</param>
-        /// <param name="surfaceBaseStress">Surface base stress according to NCSEA</param>
-        /// <param name="surfaceBaseEdgeStress">Surface base edge stress according to NCSEA</param>
+        /// <param name="surfaceBaseStress">Surface base stress according to NCSEA [MPa]</param>
+        /// <param name="surfaceBaseEdgeStress">Surface base edge stress according to NCSEA [MPa]</param>
         /// <param name="probabiltyOfBreakage">Probability of breakage according to NCSEA</param>
-        /// <param name="density">Density of the material</param>
+        /// <param name="density">Density of the material [T/mm^3]</param>
         /// <param name="alfaThermalExpansion">Alfa linear thermal expansion coefficient</param>
-        public GlassMaterialAstm(double elasticModulus, double poisson, double psiSurface, double nGlassCoefficient, double surfaceBaseStress, double surfaceBaseEdgeStress, double probabiltyOfBreakage, double density, double alfaThermalExpansion)
-            : this(elasticModulus, poisson, density, psiSurface, nGlassCoefficient, surfaceBaseStress, surfaceBaseEdgeStress, probabiltyOfBreakage, alfaThermalExpansion, Guid.Empty)
+        public GlassMaterialAstm(string name, double elasticModulus, double poisson, double psiSurface, double nGlassCoefficient, double surfaceBaseStress, double surfaceBaseEdgeStress, double probabiltyOfBreakage, double density, double alfaThermalExpansion)
+            : this(name, elasticModulus, poisson, density, psiSurface, nGlassCoefficient, surfaceBaseStress, surfaceBaseEdgeStress, probabiltyOfBreakage, alfaThermalExpansion, Guid.Empty)
         {
 
         }
@@ -48,17 +48,17 @@ namespace GPC.Model.Materials
         /// <summary>
         ///
         /// </summary>
-        /// <param name="elasticModulus">Elastic modulus of the glass</param>
+        /// <param name="elasticModulus">Elastic modulus of the glass [MPa]</param>
         /// <param name="poisson">poisson ratio's of the glass</param>
         /// <param name="psiSurface">psi coefficient of surface according to NCSEA</param>
         /// <param name="nGlassCoefficient">psi coefficient of the glass according to NCSEA</param>
-        /// <param name="surfaceBaseStress">Surface base stress according to NCSEA</param>
-        /// <param name="surfaceBaseEdgeStress">Surface base edge stress according to NCSEA</param>
+        /// <param name="surfaceBaseStress">Surface base stress according to NCSEA [MPa]</param>
+        /// <param name="surfaceBaseEdgeStress">Surface base edge stress according to NCSEA [MPa]</param>
         /// <param name="probabiltyOfBreakage">Probability of breakage according to NCSEA</param>
-        /// <param name="density">Density of the material</param>
+        /// <param name="density">Density of the material [T/mm^3]</param>
         /// <param name="alfaThermalExpansion">Alfa linear thermal expansion coefficient</param>
-        public GlassMaterialAstm(double elasticModulus, double poisson, double psiSurface, double nGlassCoefficient, double surfaceBaseStress, double surfaceBaseEdgeStress, double probabiltyOfBreakage, double density, double alfaThermalExpansion, Guid guid)
-            : base(elasticModulus, poisson, density, alfaThermalExpansion, guid)
+        public GlassMaterialAstm(string name, double elasticModulus, double poisson, double psiSurface, double nGlassCoefficient, double surfaceBaseStress, double surfaceBaseEdgeStress, double probabiltyOfBreakage, double density, double alfaThermalExpansion, Guid guid)
+            : base(name, elasticModulus, poisson, density, alfaThermalExpansion, guid)
         {
             if (psiSurface <= 0.001)
             {

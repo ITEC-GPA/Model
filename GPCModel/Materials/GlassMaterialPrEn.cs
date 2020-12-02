@@ -59,6 +59,7 @@ namespace GPC.Model.Materials
         public SurfaceTreatment GetSurfaceTreatment => _surfaceTreatment;
         public PrestressType GetPrestressType => _prestressType;
         public ManufactoringProcess GetManufactoringProcess => _manufactoringProcess;
+
         #endregion
 
         #region PUBLIC CONSTRUCTORS
@@ -66,14 +67,14 @@ namespace GPC.Model.Materials
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="elasticModulus">Elastic modulus of the glass</param>
+        /// <param name="elasticModulus">Elastic modulus of the glass [MPa]</param>
         /// <param name="poisson">poisson ratio's of the glass</param>
-        /// <param name="fgk">Characeristic value of bending strength of annealed glass</param>
-        /// <param name="density">Density of the material</param>
+        /// <param name="fgk">Characeristic value of bending strength of annealed glass [MPa]</param>
+        /// <param name="density">Density of the material [T/mm^3]</param>
         /// <param name="alfaThermalExpansion">Alfa linear thermal expansion coefficient</param>
-        public GlassMaterialPrEn(double elasticModulus, double poisson, double fgk, GlassType glassType, SurfaceTreatment surfaceTreatment, PrestressType prestressType, ManufactoringProcess manufactoringProcess, 
-                                double density, double alfaThermalExpansion)
-            : this(elasticModulus, poisson, fgk, glassType, surfaceTreatment, prestressType, manufactoringProcess, density, alfaThermalExpansion, Guid.Empty)
+        public GlassMaterialPrEn(string name, double elasticModulus, double poisson, double fgk, GlassType glassType, SurfaceTreatment surfaceTreatment, PrestressType prestressType, 
+                                    ManufactoringProcess manufactoringProcess, double density, double alfaThermalExpansion)
+            : this(name, elasticModulus, poisson, fgk, glassType, surfaceTreatment, prestressType, manufactoringProcess, density, alfaThermalExpansion, Guid.Empty)
         {
             // TODO: ke factors
         }
@@ -81,21 +82,17 @@ namespace GPC.Model.Materials
         /// <summary>
         ///
         /// </summary>
-        /// <param name="elasticModulus">Elastic modulus of the glass</param>
+        /// <param name="elasticModulus">Elastic modulus of the glass [MPa]</param>
         /// <param name="poisson">poisson ratio's of the glass</param>
-        /// <param name="fgk">Characeristic value of bending strength of annealed glass</param>
-        /// <param name="density">Density of the material</param>
+        /// <param name="fgk">Characeristic value of bending strength of annealed glass [MPa]</param>
+        /// <param name="density">Density of the material [T/mm^3]</param>
         /// <param name="alfaThermalExpansion">Alfa linear thermal expansion coefficient</param>
         /// <param name="guid">Guid of the material</param>
-        public GlassMaterialPrEn(double elasticModulus, double poisson, double fgk, GlassType glassType, SurfaceTreatment surfaceTreatment, PrestressType prestressType, ManufactoringProcess manufactoringProcess,
-                                 double density, double alfaThermalExpansion, Guid guid)
-            : base(elasticModulus, poisson, density, alfaThermalExpansion, guid)
+        public GlassMaterialPrEn(string name, double elasticModulus, double poisson, double fgk, GlassType glassType, SurfaceTreatment surfaceTreatment, PrestressType prestressType, 
+                                    ManufactoringProcess manufactoringProcess, double density, double alfaThermalExpansion, Guid guid)
+            : base(name, elasticModulus, poisson, density, alfaThermalExpansion, guid)
         {
-            if (fgk <= 0.001)
-            {
-                throw new ArgumentException($"{nameof(fgk)} cannot be zero or lower");
-            }
-            this._fgk = fgk;
+            _fgk = fgk < 0.001 ? throw new ArgumentException($"{nameof(fgk)} cannot be zero or lower") : fgk;
 
             this._glassType = glassType;
             this._surfaceTreatment = surfaceTreatment;
