@@ -34,8 +34,24 @@ namespace GPC.Model.Sections
             _dint = _dext - 2.0 * t;
 
             _area = (Math.Pow(_dext, 2.0) * Math.PI) / 4.0 - (Math.Pow(_dint, 2.0) * Math.PI) / 4.0;
-            _wpl11 = wpl();
+
+            _j22 = Math.PI * (Math.Pow(_dext, 4.0) - Math.Pow(_dint, 4.0)) / (64.0);
+            _j11 = _j22;
+
+            _jt = Math.PI * (Math.Pow(_dext, 4.0) - Math.Pow(_dint, 4.0)) / (32.0);
+            _jw = 0;
+
+            _wel22Top = Math.PI * (Math.Pow(_dext, 4.0) - Math.Pow(_dint, 4.0)) / (32.0 * _dext);
+            _wel22Bottom = _wel22Top;
+            _wel11Left = _wel22Top;
+            _wel11Right = _wel22Top;
+
+            _wpl11 = (Math.Pow(_dext, 3.0) - Math.Pow(_dint, 3.0)) / (6.0);
             _wpl22 = _wpl11;
+
+            _centroid = new Point2d(Dext / 2.0, Dext / 2.0);
+            _shearCenter = _centroid;
+
             IsSymmetricAlongYLocalAxis = true;
             IsSymmetricAlongZLocalAxis = true;
         }
@@ -51,9 +67,13 @@ namespace GPC.Model.Sections
         #endregion
 
         #region Public Methods Specific
-        public double wpl()
+        public override double MinSigma(double NEd, double M1Ed, double M2Ed)
         {
-            return (Math.Pow(_dext, 3.0) - Math.Pow(_dint, 3.0)) / (6.0);
+            double sigmaN = NEd / _area;
+            double M = Math.Sqrt(M1Ed * M1Ed + M2Ed * M2Ed);
+            double sigmaM = -M / Wel22Min;
+
+            return sigmaN + sigmaM;
         }
 
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
