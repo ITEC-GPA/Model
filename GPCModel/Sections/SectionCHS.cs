@@ -15,51 +15,69 @@ namespace GPC.Model.Sections
     public class SectionCHS : Section
     {
         #region Variables
-        protected double _dext; /// Diameter external
+        protected double _d; /// Diameter external
         protected double _t; /// Thickness
         protected double _dint;
+        protected bool _isHotFinished;
         #endregion
 
         #region Properties
-        public double Dext => _dext;
+        public double D => _d;
         public double T => _t;
-        public bool IsColdFormed;
+        public bool IsColdFormed { get => !_isHotFinished; set { _isHotFinished = !value; } }
+        public bool IsHotFinished { get => _isHotFinished; set { _isHotFinished = value; } }
         #endregion
 
         #region Public Constructors
-        public SectionCHS(double dext, double t, Material material) : base(material)
+        public SectionCHS(double dext, double t, Material material, bool isColdFormed = true) : base(material)
         {
-            _dext = dext;
+            #region check_inputs
+            if (t > dext/2.0)
+            {
+                return;
+                dext = 0;
+                t = 0;
+            }
+            if (t < 0 || dext < 0)
+            {
+                return;
+                dext = 0;
+                t = 0;
+            }
+            #endregion
+
+            _d = dext;
             _t = t;
-            _dint = _dext - 2.0 * t;
+            _dint = _d - 2.0 * t;
 
-            _area = (Math.Pow(_dext, 2.0) * Math.PI) / 4.0 - (Math.Pow(_dint, 2.0) * Math.PI) / 4.0;
+            _area = (Math.Pow(_d, 2.0) * Math.PI) / 4.0 - (Math.Pow(_dint, 2.0) * Math.PI) / 4.0;
 
-            _j22 = Math.PI * (Math.Pow(_dext, 4.0) - Math.Pow(_dint, 4.0)) / (64.0);
+            _j22 = Math.PI * (Math.Pow(_d, 4.0) - Math.Pow(_dint, 4.0)) / (64.0);
             _j11 = _j22;
 
-            _jt = Math.PI * (Math.Pow(_dext, 4.0) - Math.Pow(_dint, 4.0)) / (32.0);
+            _jt = Math.PI * (Math.Pow(_d, 4.0) - Math.Pow(_dint, 4.0)) / (32.0);
             _jw = 0;
 
-            _wel22Top = Math.PI * (Math.Pow(_dext, 4.0) - Math.Pow(_dint, 4.0)) / (32.0 * _dext);
+            _wel22Top = Math.PI * (Math.Pow(_d, 4.0) - Math.Pow(_dint, 4.0)) / (32.0 * _d);
             _wel22Bottom = _wel22Top;
             _wel11Left = _wel22Top;
             _wel11Right = _wel22Top;
 
-            _wpl11 = (Math.Pow(_dext, 3.0) - Math.Pow(_dint, 3.0)) / (6.0);
+            _wpl11 = (Math.Pow(_d, 3.0) - Math.Pow(_dint, 3.0)) / (6.0);
             _wpl22 = _wpl11;
 
-            _centroid = new Point2d(Dext / 2.0, Dext / 2.0);
+            _centroid = new Point2d(_d / 2.0, _d / 2.0);
             _shearCenter = _centroid;
 
             IsSymmetricAlongYLocalAxis = true;
             IsSymmetricAlongZLocalAxis = true;
+            IsColdFormed = isColdFormed;
         }
 
         public SectionCHS(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
-            _dext = info.GetDouble("Dext");
+            _d = info.GetDouble("D");
             _t = info.GetDouble("T");
             _material = (Material)info.GetValue("Material", typeof(Material));
         }
@@ -79,7 +97,7 @@ namespace GPC.Model.Sections
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             base.GetObjectData(info, context);
-            info.AddValue("Dext", _dext);
+            info.AddValue("D", _d);
             info.AddValue("T", _t);
             info.AddValue("Material", _material);
         }
@@ -97,7 +115,7 @@ namespace GPC.Model.Sections
             for (int i = 0; i < divisions; i++)
             {
                 double teta = i * 2 * Math.PI / divisions;
-                fill.Add(new Point2d(0.5 * _dext * Math.Cos(teta), 0.5 * _dext * Math.Sin(teta)));
+                fill.Add(new Point2d(0.5 * _d * Math.Cos(teta), 0.5 * _d * Math.Sin(teta)));
 
                 if (hole != null)
                 {
