@@ -39,7 +39,8 @@ namespace UnitTest
             double d = 100;
             double t = 10;
             double di = d - 2.0 * t;
-            Section sec = new SectionCHS(d, t, new SteelMaterial("S355", 200000, 0.3, 355, 510, 7850));
+            bool isColdFormed = true;
+            Section sec = new SectionCHS(d, t, new SteelMaterial("S355", 200000, 0.3, 355, 510, 7850), isColdFormed);
 
             Point2d centroid = new Point2d(d / 2, d / 2);
             Point2d shearCenter = centroid;

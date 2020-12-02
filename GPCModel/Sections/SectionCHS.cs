@@ -18,17 +18,34 @@ namespace GPC.Model.Sections
         protected double _d; /// Diameter external
         protected double _t; /// Thickness
         protected double _dint;
+        protected bool _isHotFinished;
         #endregion
 
         #region Properties
         public double D => _d;
         public double T => _t;
-        public bool IsColdFormed;
+        public bool IsColdFormed { get => !_isHotFinished; set { _isHotFinished = !value; } }
+        public bool IsHotFinished { get => _isHotFinished; set { _isHotFinished = value; } }
         #endregion
 
         #region Public Constructors
-        public SectionCHS(double dext, double t, Material material) : base(material)
+        public SectionCHS(double dext, double t, Material material, bool isColdFormed = true) : base(material)
         {
+            #region check_inputs
+            if (t > dext/2.0)
+            {
+                return;
+                dext = 0;
+                t = 0;
+            }
+            if (t < 0 || dext < 0)
+            {
+                return;
+                dext = 0;
+                t = 0;
+            }
+            #endregion
+
             _d = dext;
             _t = t;
             _dint = _d - 2.0 * t;
@@ -54,6 +71,7 @@ namespace GPC.Model.Sections
 
             IsSymmetricAlongYLocalAxis = true;
             IsSymmetricAlongZLocalAxis = true;
+            IsColdFormed = isColdFormed;
         }
 
         public SectionCHS(SerializationInfo info, StreamingContext context)
