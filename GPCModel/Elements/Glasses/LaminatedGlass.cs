@@ -32,8 +32,8 @@ namespace GPC.Model.Elements.Glasses
         /// </summary>
         /// <param name="monolithicGlasses">Monolithic glasses composing the laminated panel</param>
         /// <param name="interlayers">Interlayers between monolithic glasses, number of interlayer must be equal to glass number - 1</param>
-        public LaminatedGlass(MonolithicGlass[] monolithicGlasses, Interlayer[] interlayers)
-            : this(monolithicGlasses, interlayers, Guid.Empty)
+        public LaminatedGlass(string name, MonolithicGlass[] monolithicGlasses, Interlayer[] interlayers)
+            : this(name, monolithicGlasses, interlayers, Guid.NewGuid())
         {
 
         }
@@ -44,12 +44,9 @@ namespace GPC.Model.Elements.Glasses
         /// <param name="monolithicGlasses">Monolithic glasses composing the laminated panel</param>
         /// <param name="interlayers">Interlayers between monolithic glasses, number of interlayer must be equal to glass number - 1</param>
         /// <param name="guid">The guid of of the glass</param>
-        public LaminatedGlass(MonolithicGlass[] monolithicGlasses, Interlayer[] interlayers, Guid guid)
-            : base(guid)
-        {
-            if (monolithicGlasses == null)
-                throw new ArgumentException("Monolithic glasses cannot be null");
-
+        public LaminatedGlass(string name, MonolithicGlass[] monolithicGlasses, Interlayer[] interlayers, Guid guid)
+            : base(guid, name)
+        {                
             if (monolithicGlasses.Length < 2)
                 throw new ArgumentException("Number of monolithic glasses should be greater than one");
             
@@ -62,7 +59,7 @@ namespace GPC.Model.Elements.Glasses
                 throw new ArgumentException("MonolithicGlasses.Length - 1 != interlayers.Length");
             }
 
-            _monolithicGlasses = monolithicGlasses;
+            _monolithicGlasses = monolithicGlasses ?? throw new ArgumentException("Monolithic glasses cannot be null");
             _interlayers = interlayers;
         }
 

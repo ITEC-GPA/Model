@@ -9,14 +9,20 @@ namespace GPC.Model.Elements
     {
 
         #region Public Constructors
+        protected ElementProperty(string name, Guid guid)
+            : base(guid, name)
+        {
+
+        }
+
         protected ElementProperty(Guid guid)
-            : base(guid)
+            : this(string.Empty, guid)
         {
 
         }
 
         protected ElementProperty()
-            : this(Guid.Empty)
+            : this(string.Empty, Guid.NewGuid())
         {
 
         }
@@ -24,7 +30,7 @@ namespace GPC.Model.Elements
         protected ElementProperty(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
-
+            
         }
 
         #endregion Public Constructors

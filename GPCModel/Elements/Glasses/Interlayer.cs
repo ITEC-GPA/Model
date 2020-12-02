@@ -27,8 +27,8 @@ namespace GPC.Model.Elements.Glasses
         #endregion
 
 
-        public Interlayer(double thickness, InterlayerMaterial interlayerMaterial, Guid guid)
-            : base(guid)
+        public Interlayer(string name, double thickness, InterlayerMaterial interlayerMaterial, Guid guid)
+            : base(name, guid)
         {
             this._thickness = thickness;
             this._interlayerMaterial = interlayerMaterial;
