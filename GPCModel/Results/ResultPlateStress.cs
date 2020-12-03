@@ -8,9 +8,10 @@ using GPC.Geometry;
 
 namespace GPC.Model.Results
 {
-    public class ResultsPlateStress : Result
+    public class ResultPlateStress : Result
     {
         #region Variables
+
         /// <summary>
         /// Local Stresses
         /// </summary>
@@ -39,6 +40,7 @@ namespace GPC.Model.Results
         /// </summary>
         protected double _sVM;
         protected double _sTR;
+
         #endregion
 
         #region Properties
@@ -53,8 +55,9 @@ namespace GPC.Model.Results
         #endregion
 
         #region Public Constructors
-        public ResultsPlateStress(int elementID, string elementLabel, LoadCase loadCase, CoordinateSystem cSys, double sxx, double syy, double sxy) :
-            base(elementID, elementLabel, loadCase, cSys)
+
+        public ResultPlateStress(int elementID, string elementLabel, LoadCase loadCase, CoordinateSystem cSys, double sxx, double syy, double sxy) 
+            : base(elementID, elementLabel, loadCase, cSys)
         {
             _sxx = sxx;
             _sxx = syy;
@@ -63,26 +66,24 @@ namespace GPC.Model.Results
             _sxz = 0;
             _syz = 0;
         }
+
         #endregion
 
         #region Public Methods Specific
 
         public double GetPrincipalStress()
         {
-            double result = 0;
-            return result;
+            throw new NotImplementedException();
         }
 
         public double GetVMStress()
         {
-            double result = 0;
-            return result;
+            throw new NotImplementedException();
         }
 
         public double[] GetGlobalStress()
         {
-            double[] result = new double[6];
-            return result;
+            throw new NotImplementedException();
         }
 
         #endregion
