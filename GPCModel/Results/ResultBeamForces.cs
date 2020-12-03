@@ -32,17 +32,17 @@ namespace GPC.Model.Results
         /// <summary>
         ///
         /// </summary>
-        /// <param name="elementID"></param>
-        /// <param name="elementLabel"></param>
-        /// <param name="loadCase"></param>
+        /// <param name="elementID">Id of the element where these result are referred to</param>
+        /// <param name="elementLabel">Label of the element where these result are referred t</param>
+        /// <param name="caseId">Represenet the id of the loadcase / loadCombination where these result are referred to</param>
         /// <param name="N"> axial force </param>
         /// <param name="V1"> shear along principal axis 1 </param>
         /// <param name="V2"> shear along principal axis 2</param>
         /// <param name="T"> torque moment </param>
         /// <param name="M1"> Bending moment around axis 1 (in plane 2, right hand rule) </param>
         /// <param name="M2"> Bending moment around axis 2 (in plane 1, right hand rule) </param>
-        public ResultBeamForces(int elementID, string elementLabel, LoadCase loadCase, double N, double V1, double V2, double T, double M1, double M2)
-            : base(elementID, elementLabel, loadCase, null)
+        public ResultBeamForces(int elementID, string elementLabel, int caseId, double N, double V1, double V2, double T, double M1, double M2)
+            : base(elementID, elementLabel, caseId, null)
         {
             _N = N;
             _V1 = V1;

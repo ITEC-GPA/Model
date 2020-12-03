@@ -9,6 +9,7 @@ using GPC.Model.Sections;
 using MathNet.Numerics.LinearAlgebra;
 using GPC.Geometry;
 using GPC.Model.Elements;
+using GPC.Model.Results;
 
 namespace GPC.Model.FEM
 {
@@ -27,9 +28,10 @@ namespace GPC.Model.FEM
         public PlateDKT(Guid guid, PlateProperty property, int plateIndex, Node[] nodes)
             : base(guid, property, plateIndex, nodes)
         {
-            _integrator = new FEMPlateIntegratorDKQ(new Guid(), 2, 1, 2, this);
-            BuildElementDoF();
-            _integrator.StartIntegration(this);
+            throw new NotImplementedException();
+            //_integrator = new FEMPlateIntegratorDKQ(new Guid(), 2, 1, 2, this);
+            //BuildElementDoF();
+            //_integrator.StartIntegration(this);
         }
 
         protected PlateDKT(SerializationInfo info, StreamingContext context)

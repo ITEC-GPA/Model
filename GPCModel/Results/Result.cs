@@ -1,31 +1,39 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using GPC.Model.LoadCases;
 using GPC.Geometry;
 using System.Runtime.Serialization;
 
 namespace GPC.Model.Results
 {
+    [Serializable]
     public abstract class Result : ISerializable, IEquatable<ResultPlateForces>
     {
         #region Variables
+
         protected CoordinateSystem _cSys;
         protected int _elementID;
         protected string _elementLabel;
-        protected LoadCase _loadCase;
+        protected int _caseId;
+
         #endregion
 
-        #region Properties
-        protected Result(int elementID, string elementLabel, LoadCase loadCase, CoordinateSystem cSys)
+        #region Constructors
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="elementID">Id of the element where these result are referred to</param>
+        /// <param name="elementLabel">Label of the element where these result are referred t</param>
+        /// <param name="caseId">Represenet the id of the loadcase / loadCombination where these result are referred to</param>
+        /// <param name="cSys">Coordinate system where these result are provided</param>
+        protected Result(int elementID, string elementLabel, int caseId, CoordinateSystem cSys)
         {
             _elementID = elementID;
             _elementLabel = elementLabel;
-            _loadCase = loadCase;
+            _caseId = caseId;
             _cSys = cSys;
         }
+
+        #endregion
 
         public virtual bool Equals(ResultPlateForces other)
         {
@@ -33,7 +41,7 @@ namespace GPC.Model.Results
                     _cSys == other._cSys &&
                     _elementID == other._elementID &&
                     _elementLabel == other._elementLabel &&
-                    _loadCase == other._loadCase;
+                    _caseId == other._caseId;
         }
 
         public virtual void GetObjectData(SerializationInfo info, StreamingContext context)
@@ -42,7 +50,6 @@ namespace GPC.Model.Results
         }
 
 
-        #endregion
 
     }
 }

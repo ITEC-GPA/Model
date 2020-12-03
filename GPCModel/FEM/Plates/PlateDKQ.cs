@@ -17,13 +17,9 @@ namespace GPC.Model.FEM
     /// </summary>
     public class PlateDKQ : Plate
     {
-        #region Variables
-        #endregion 
-
-        #region Properties
-        #endregion
 
         #region Public Constructors
+
         public PlateDKQ(Guid guid, PlateProperty property, int plateIndex, Node[] nodes)
             : base(guid, property, plateIndex, nodes)
         {
@@ -36,13 +32,16 @@ namespace GPC.Model.FEM
             : base(info, context)
         {
         }
+
         #endregion
 
-        #region Public Methods Override   
+        #region Public Methods Override  
+        
         public override object Clone()
         {
             throw new NotImplementedException();
         }
+
         #endregion
     }
 }

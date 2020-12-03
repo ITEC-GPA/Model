@@ -76,7 +76,7 @@ namespace GPC.Model.Results
         protected double Mzz => _mzz;
         protected double Mxy => _mxy;
         protected double Mxz => _mxz;
-        protected double Myz => _myz; 
+        protected double Myz => _myz;
 
         #endregion
 
@@ -84,10 +84,10 @@ namespace GPC.Model.Results
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="elementID"></param>
-        /// <param name="elementLabel"></param>
-        /// <param name="loadCase"></param>
-        /// <param name="coordinateSystem">Coordinate system where the forces are provided</param>
+        /// <param name="elementID">Id of the element where these result are referred to</param>
+        /// <param name="elementLabel">Label of the element where these result are referred t</param>
+        /// <param name="caseId">Represenet the id of the loadcase / loadCombination where these result are referred to</param>
+        /// <param name="cSys">Coordinate system where these result are provided</param>
         /// <param name="fxx"></param>
         /// <param name="fyy"></param>
         /// <param name="fxy"></param>
@@ -96,9 +96,9 @@ namespace GPC.Model.Results
         /// <param name="mxx"></param>
         /// <param name="myy"></param>
         /// <param name="mxy"></param>
-        public ResultPlateForces(int elementID, string elementLabel, LoadCase loadCase, CoordinateSystem coordinateSystem, 
+        public ResultPlateForces(int elementID, string elementLabel, int caseID, CoordinateSystem coordinateSystem, 
                                  double fxx, double fyy, double fxy, double fxz, double fyz, double mxx, double myy, double mxy)
-                                 : base(elementID, elementLabel, loadCase, coordinateSystem)
+                                 : base(elementID, elementLabel, caseID, coordinateSystem)
         {
                 _fxx = fxx;
                 _fyy = fyy;

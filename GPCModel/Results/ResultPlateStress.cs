@@ -61,14 +61,14 @@ namespace GPC.Model.Results
         /// </summary>
         /// <param name="elementID">Id of the element where these result are referred to</param>
         /// <param name="elementLabel">Label of the element where these result are referred t</param>
-        /// <param name="resultPointId">Rapresent the id of point where these results are referred to. For example the gauss point id or node id etc.</param>
-        /// <param name="loadCase"></param>
+        /// <param name="caseId">Represenet the id of the loadcase / loadCombination where these result are referred to</param>
+        /// <param name="cSys">Coordinate system where these result are provided</param>
         /// <param name="cSys"></param>
         /// <param name="sxx"></param>
         /// <param name="syy"></param>
         /// <param name="sxy"></param>
-        public ResultPlateStress(int elementID, string elementLabel, int resultPointId, LoadCase loadCase, CoordinateSystem cSys, double sxx, double syy, double sxy) 
-            : base(elementID, elementLabel, loadCase, cSys)
+        public ResultPlateStress(int elementID, string elementLabel, int resultPointId, int caseId, CoordinateSystem cSys, double sxx, double syy, double sxy) 
+            : base(elementID, elementLabel, caseId, cSys)
         {
             _sxx = sxx;
             _sxx = syy;
