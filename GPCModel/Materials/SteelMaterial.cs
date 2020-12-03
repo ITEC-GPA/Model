@@ -39,6 +39,12 @@ namespace GPC.Model.Materials
         public SteelMaterial(string name, double elasticModulus, double poisson, double fyk, double fu, double epsilon0, double density, double alfaThermalExpansion, Guid guid)
             : base(name, elasticModulus, poisson, density, alfaThermalExpansion, guid)
         {
+            if (elasticModulus == 0)
+                throw new ArgumentException($"{nameof(elasticModulus)} cannot be equal to zero");
+
+            if (poisson == 0)
+                throw new ArgumentException($"{nameof(poisson)} cannot be equal to zero");
+
             this._fu = fu <= 0 ? throw new ArgumentException($"{nameof(fu)} cannot be zero or lower") : fu ;
             this._fyk = fyk <= 0 ? throw new ArgumentException($"{nameof(fyk)} cannot be zero or lower") : fyk;
             this._epsilon0 = epsilon0 <= 0 ? throw new ArgumentException($"{nameof(epsilon0)} cannot be zero or lower") : epsilon0;

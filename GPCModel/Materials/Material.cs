@@ -25,20 +25,23 @@ namespace GPC.Model.Materials
 
         /// <summary>
         /// </summary>
-        /// <param name="_elasticModulus"> Elastic Modulus [MPa]</param>
-        /// <param name="_poisson"> Poisson modulus </param>
-        /// <param name="_alfaThermalExpansion"> Thermal expansion constant</param>
-        /// <param name="_density"> Density [T/mm^3]</param>
-        public Material(string name, double elasticModulus, double ni, double density, double alfaThermalExpansion, Guid guid) 
+        /// <param name="elasticModulus"> Elastic Modulus [MPa]</param>
+        /// <param name="poisson"> Poisson modulus </param>
+        /// <param name="alfaThermalExpansion"> Thermal expansion constant</param>
+        /// <param name="density"> Density [T/mm^3]</param>
+        public Material(string name, double elasticModulus, double poisson, double density, double alfaThermalExpansion, Guid guid) 
             : base(guid, name)
         {
-            _elasticModulus = elasticModulus <= 0 ? throw new ArgumentException($"{nameof(elasticModulus)} cannot be zero or lower") : elasticModulus;
-            
-            _ni = ni <= 0 ? throw new ArgumentException($"Poisson cannot be zero or lower") : ni;
+            _elasticModulus = elasticModulus < 0 ? throw new ArgumentException($"{nameof(elasticModulus)} cannot be lower than zero") : elasticModulus;
 
-            _alfaThermalExpansion = alfaThermalExpansion < 0 ? throw new ArgumentException($"{nameof(alfaThermalExpansion)} cannot be zero or lower") : alfaThermalExpansion;
+            if (poisson > 1)
+                throw new ArgumentException($"{nameof(poisson)} cannot be greater than 1");
+
+            _ni = poisson < 0 ? throw new ArgumentException($"Poisson cannot be lower than zero") : poisson;
+
+            _alfaThermalExpansion = alfaThermalExpansion < 0 ? throw new ArgumentException($"{nameof(alfaThermalExpansion)} cannot be lower than zero") : alfaThermalExpansion;
             
-            _density = density < 0 ? throw new ArgumentException($"{nameof(density)} cannot be zero or lower") : density;
+            _density = density < 0 ? throw new ArgumentException($"{nameof(density)} cannot be lower than zero") : density;
         }
 
         public Material(string name, double elasticModulus, double ni, Guid guid) 

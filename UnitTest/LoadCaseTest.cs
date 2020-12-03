@@ -9,15 +9,11 @@ namespace UnitTest
     public class LoadCaseTest
     {
         public TestContext TestContext { get; set; }
-        private static string _outputFolder;
-        private string _testName;
 
         [TestInitialize]
         public void TestInitialize()
         {
-            _outputFolder = Path.Combine(Directory.GetParent(TestContext.TestDir).ToString(), "OutputTests");
-            Directory.CreateDirectory(_outputFolder);
-            _testName = TestContext.TestName;
+
         }
 
         [TestCleanup]
@@ -41,6 +37,7 @@ namespace UnitTest
             Assert.IsTrue(lc.Equals(lc1));
             Assert.IsFalse(lc.Equals(lc2));
         }
+
 
         [TestMethod]
         public void LoadCaseTest2()

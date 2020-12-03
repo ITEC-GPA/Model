@@ -17,10 +17,12 @@ namespace GPC.Model.Materials
         protected GlassMaterial(string name, double elasticModulus, double poisson, double density, double alfaThermalExpansion, Guid guid)
             : base(name, elasticModulus, poisson, density, alfaThermalExpansion, guid)
         {
-            if (poisson > 1)
-            {
-                throw new ArgumentException($"{nameof(poisson)} cannot be greater than 1");
-            }
+            if (elasticModulus == 0)
+                throw new ArgumentException($"{nameof(elasticModulus)} cannot be equal to zero");
+
+            if (poisson == 0)
+                throw new ArgumentException($"{nameof(poisson)} cannot be equal to zero");
+
         }
 
         /// <summary>
