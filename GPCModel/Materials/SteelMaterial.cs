@@ -7,16 +7,22 @@ namespace GPC.Model.Materials
     public class SteelMaterial : Material
     {
         #region VARIABLES
+
         protected double _fyk;
         protected double _fu;
         protected double _epsilon0;
-        #endregion VARIABLES
+
+        #endregion 
 
         #region PROPERTIES
-        public double Fyk { get => _fyk; set { _fyk = value; } } 
+
+        public double Fyk { get => _fyk; set { _fyk = value; } }
+
         public double Fu { get => _fu; set { _fu = value; } }
+
         public double Epsilon0 { get => _epsilon0; set { _epsilon0 = value; } }
-        #endregion PROPERTIES
+
+        #endregion 
 
         #region CONSTRUCTORS
 
@@ -33,32 +39,9 @@ namespace GPC.Model.Materials
         public SteelMaterial(string name, double elasticModulus, double poisson, double fyk, double fu, double epsilon0, double density, double alfaThermalExpansion, Guid guid)
             : base(name, elasticModulus, poisson, density, alfaThermalExpansion, guid)
         {
-            if (fu == 0)
-            {
-                throw new ArgumentException($"{nameof(fu)} cannot be zero");
-            }
-            if (fyk == 0)
-            {
-                throw new ArgumentException($"{nameof(fyk)} cannot be zero");
-            }
-            if (elasticModulus == 0)
-            {
-                throw new ArgumentException($"{nameof(elasticModulus)} cannot be zero");
-            }
-            if (poisson == 0)
-            {
-                throw new ArgumentException($"{nameof(poisson)} cannot be zero");
-            }
-            if (epsilon0 == 0)
-            {
-                throw new ArgumentException($"{nameof(epsilon0)} cannot be zero");
-            }
-
-            this._fu = fu;
-            this._fyk = fyk;
-            this._epsilon0 = epsilon0;
-            /*this._elasticModulus = elasticModulus;
-            base._ni = poisson;*/
+            this._fu = fu <= 0 ? throw new ArgumentException($"{nameof(fu)} cannot be zero or lower") : fu ;
+            this._fyk = fyk <= 0 ? throw new ArgumentException($"{nameof(fyk)} cannot be zero or lower") : fyk;
+            this._epsilon0 = epsilon0 <= 0 ? throw new ArgumentException($"{nameof(epsilon0)} cannot be zero or lower") : epsilon0;
         }
 
         /// <summary>
@@ -72,6 +55,7 @@ namespace GPC.Model.Materials
         public SteelMaterial(string name, double elasticModulus, double poisson, double fy, double fu, double epsilon0, double density)
             : this(name, elasticModulus, poisson, fy, fu, epsilon0, density, 0, Guid.Empty)
         {
+
         }
 
         /// <summary>
@@ -84,14 +68,7 @@ namespace GPC.Model.Materials
         public SteelMaterial(string name, double elasticModulus, double poisson, double fy, double fu, double density)
             : this(name, elasticModulus, poisson, fy, fu, fy / elasticModulus, density, 0, Guid.Empty)
         {
-            if (fy == 0)
-            {
-                throw new ArgumentException($"{nameof(fy)} cannot be zero");
-            }
-            if (elasticModulus == 0)
-            {
-                throw new ArgumentException($"{nameof(elasticModulus)} cannot be zero");
-            }
+
         }
 
         public SteelMaterial(SerializationInfo info, StreamingContext context) :
@@ -102,7 +79,7 @@ namespace GPC.Model.Materials
             _epsilon0 = info.GetDouble("Epsilon0");
         }
 
-        #endregion CONSTRUCTORS
+        #endregion 
 
         #region PUBLIC METHODS
 
@@ -114,6 +91,6 @@ namespace GPC.Model.Materials
             info.AddValue("Fu", _fu);
         }
 
-        #endregion PUBLIC METHODS
+        #endregion 
     }
 }

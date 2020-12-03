@@ -32,9 +32,9 @@ namespace GPC.Model.Materials
         public Material(string name, double elasticModulus, double ni, double density, double alfaThermalExpansion, Guid guid) 
             : base(guid, name)
         {
-            _elasticModulus = elasticModulus < 0 ? throw new ArgumentException($"{nameof(elasticModulus)} cannot be zero or lower") : elasticModulus;
+            _elasticModulus = elasticModulus <= 0 ? throw new ArgumentException($"{nameof(elasticModulus)} cannot be zero or lower") : elasticModulus;
             
-            _ni = ni < 0 ? throw new ArgumentException($"Poisson cannot be zero or lower") : ni;
+            _ni = ni <= 0 ? throw new ArgumentException($"Poisson cannot be zero or lower") : ni;
 
             _alfaThermalExpansion = alfaThermalExpansion < 0 ? throw new ArgumentException($"{nameof(alfaThermalExpansion)} cannot be zero or lower") : alfaThermalExpansion;
             
