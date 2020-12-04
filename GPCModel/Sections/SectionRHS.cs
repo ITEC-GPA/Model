@@ -19,6 +19,8 @@ namespace GPC.Model.Sections
 
         double _hw;
 
+        bool _isHotFinished;
+
         protected SectionRectangular[] _plates;
         protected Point2d[] _positionCentroidsPlates;
         #endregion
@@ -66,7 +68,16 @@ namespace GPC.Model.Sections
             }
         }
 
-        public bool IsColdFormed { get; set; }
+        public bool IsColdFormed {
+            get => !_isHotFinished;
+            set { _isHotFinished = !value; 
+            }
+        }
+        public bool IsHotFinished {
+            get => _isHotFinished;
+            set { _isHotFinished = value;
+            }
+        }
         #endregion
 
         public SectionRHS(double h, double b, double tf_top, double tf_bottom, double tw1, double tw2, Materials.Material material) : base(material)
@@ -81,6 +92,21 @@ namespace GPC.Model.Sections
             _tw2 = tw2;
 
             _hw = h - tf_bottom - tf_top;
+
+            if (_tw1 == _tw2)
+            {
+                IsSymmetricAlongYLocalAxis = true;
+            } else
+            {
+                IsSymmetricAlongYLocalAxis = false;
+            }
+            if (_tf_bottom == _tf_top)
+            {
+                IsSymmetricAlongZLocalAxis = true;
+            } else
+            {
+                IsSymmetricAlongZLocalAxis = false;
+            }
 
             _plates = new SectionRectangular[4];
             _positionCentroidsPlates = new Point2d[4];

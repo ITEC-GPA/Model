@@ -147,6 +147,7 @@
     <Compile Include="Results\ResultPlateStrain.cs" />
     <Compile Include="Results\ResultPlateStress.cs" />
     <Compile Include="Sections\Concrete\ConcreteSectionShape.cs" />
+    <Compile Include="Sections\Plate.cs" />
     <Compile Include="Sections\Section.cs" />
     <Compile Include="Sections\SectionC.cs" />
     <Compile Include="Sections\SectionCHS.cs" />

@@ -28,6 +28,7 @@ namespace GPC.Model.Sections
             _tbottom = tbottom;
 
             _hw = _hTot - _tbottom - _ttop;
+
             IsSymmetricAlongYLocalAxis = true;
             if (_btop == _bbottom && _tbottom == _ttop)
             {

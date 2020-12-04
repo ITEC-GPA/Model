@@ -34,6 +34,9 @@ namespace GPC.Model.Sections
             _tw = tw;
             _tf = tf;
 
+            IsSymmetricAlongZLocalAxis = false;
+            IsSymmetricAlongYLocalAxis = true;
+
             _plates = new SectionRectangular[2];
             _positionCentroidPlates = new Point2d[2];
 
