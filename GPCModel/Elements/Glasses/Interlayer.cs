@@ -8,7 +8,7 @@ namespace GPC.Model.Elements.Glasses
     /// Abstract class that represent the interlayer between two monolithic glasses to compose a laminated glass
     /// </summary>
     [Serializable]
-    public class Interlayer : ElementProperty
+    public class Interlayer : ElementProperty, IFemGlassProperty
     {
         #region VARIABLES
 

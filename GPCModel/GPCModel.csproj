@@ -65,6 +65,7 @@
     <Compile Include="CoordinateSystem\CoordinateSystem.cs" />
     <Compile Include="Elements\ElementProperty.cs" />
     <Compile Include="Elements\Element.cs" />
+    <Compile Include="Elements\Glasses\IFemGlassProperty.cs" />
     <Compile Include="Elements\Glasses\IGlassPanelProperty.cs" />
     <Compile Include="Elements\Glasses\MonolithicGlass.cs" />
     <Compile Include="Elements\Glasses\LaminatedGlass.cs" />
