@@ -27,6 +27,7 @@ namespace GPC.Model.Sections
 
         #region Properties
         public double B => _b;
+        public double Bint => _b - _tw1 - _tw2;
         public double H => _h;
         public double Hw => _hw;
         public double ThicknessFlange {
@@ -39,6 +40,8 @@ namespace GPC.Model.Sections
                 }
             }
         }
+        public double TTop => _tf_top;
+        public double TBottom => _tf_bottom;
         public double ThicknessWeb
         {
             get
@@ -53,6 +56,8 @@ namespace GPC.Model.Sections
                 }
             }
         }
+        public double TWebLeft => _tw1;
+        public double TWebRight => _tw2;
 
         public double Thickness
         {
