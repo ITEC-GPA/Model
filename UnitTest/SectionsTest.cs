@@ -126,5 +126,28 @@ namespace UnitTest
             Assert.AreEqual(Wpl1, sec.Wpl11);
             Assert.AreEqual(Math.Abs(Jt/sec.Jt)-1.0, 0, 0.01);
         }
+
+        [TestMethod]
+        public void SinglePlateClass4Test1()
+        {
+            double h = 514;
+            Point2d p0 = new Point2d(0, 0);
+            Point2d p1 = new Point2d(0, h);
+            double t = 4;
+            Plate inner = new Plate(t, p0, p1, Plate.TypePlate.inner);
+
+            double A = inner.Area;
+            double J = inner.J2Centroid;
+
+            double sigma0 = 0;
+            double sigma1 = -1;
+
+            inner.SetSigma(sigma0, sigma1);
+
+            double Aeff = inner.Area;
+            double Jeff = inner.J2Centroid;
+
+            double x = 1;
+        }
     }
 }
