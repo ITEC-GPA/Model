@@ -115,6 +115,7 @@ namespace UnitTest
             double Wel1 = 28750;
             double Wpl2 = 48750;
             double Wpl1 = 33750;
+            double Jt = 1820041;
 
             Assert.AreEqual(A, sec.Area);
             Assert.AreEqual(J2, sec.J22);
@@ -123,6 +124,7 @@ namespace UnitTest
             Assert.AreEqual(Wel1, sec.Wel11Min);
             Assert.AreEqual(Wpl2, sec.Wpl22);
             Assert.AreEqual(Wpl1, sec.Wpl11);
+            Assert.AreEqual(Math.Abs(Jt/sec.Jt)-1.0, 0, 0.01);
         }
     }
 }
