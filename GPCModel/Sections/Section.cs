@@ -96,29 +96,6 @@ namespace GPC.Model.Sections
             
         }
 
-        /*public double Wel11Left
-        {
-            get => _wel11Left;
-            set => _wel11Left = value;
-        }
-
-        public double Wel22Bottom
-        {
-            get => _wel22Bottom;
-            set => _wel22Bottom = value;
-        }
-        public double Wel11Right
-        {
-            get => _wel11Right;
-            set => _wel11Right = value;
-        }
-
-        public double Wel22Top
-        {
-            get => _wel22Top;
-            set => _wel22Top = value;
-        }*/
-
         public Point2d Centroid
         {
             get => _centroid;
