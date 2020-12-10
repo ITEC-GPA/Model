@@ -143,6 +143,7 @@ namespace GPC.Model.Sections
                 }
             }
         }
+        public Plate[] Plates => _plates;
 
         public bool IsRolled { get; set; }
         #endregion

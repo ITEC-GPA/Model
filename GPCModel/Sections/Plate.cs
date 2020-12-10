@@ -55,6 +55,8 @@ namespace GPC.Model.Sections
             }
         }
 
+        public double Thickness => _t;
+
         public double Area {
             get {
                 return _t * _B;
@@ -128,6 +130,13 @@ namespace GPC.Model.Sections
                 }
             }
         }
+
+        public Point2d InitialPoint => _initialPoint;
+        public Point2d EndPoint => _endPoint;
+        public double Fyk => _fy;
+        public TypePlate GetType => _type;
+        public double RemoveLengthSide1 => _removeLengthSide1;
+        public double RemoveLengthSide2 => _removeLengthSide2;
 
     }
 }
