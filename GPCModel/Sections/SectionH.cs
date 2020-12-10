@@ -45,9 +45,9 @@ namespace GPC.Model.Sections
             double Sx = 0;
             for (int i = 0; i < _plates.Count(); i++)
             {
-                double areaPlate = _plates[i].Aeff;
-                double yGPlate = _plates[i].CentroidEff.Y;
-                double xGPlate = _plates[i].CentroidEff.X;
+                double areaPlate = _plates[i].Area;
+                double yGPlate = _plates[i].Centroid.Y;
+                double xGPlate = _plates[i].Centroid.X;
 
                 _area = _area + areaPlate;
                 Sy = Sy + areaPlate * yGPlate;
@@ -61,11 +61,11 @@ namespace GPC.Model.Sections
             _j22 = 0;
             for (int i = 0; i < _plates.Count(); i++)
             {
-                double areaPlate = _plates[i].Aeff;
-                double yGPlate = _plates[i].CentroidEff.Y;
-                double xGPlate = _plates[i].CentroidEff.X;
-                double j11Plate = _plates[i].JzEffCentroid;
-                double j22Plate = _plates[i].JyEffCentroid;
+                double areaPlate = _plates[i].Area;
+                double yGPlate = _plates[i].Centroid.Y;
+                double xGPlate = _plates[i].Centroid.X;
+                double j11Plate = _plates[i].JzCentroid;
+                double j22Plate = _plates[i].JyCentroid;
 
                 _j11 = _j11 + j11Plate + areaPlate * Math.Pow(xGPlate - _centroid.X,2.0);
                 _j22 = _j22 + j22Plate + areaPlate * Math.Pow(yGPlate - _centroid.Y, 2.0);
