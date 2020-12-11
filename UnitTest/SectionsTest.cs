@@ -115,6 +115,7 @@ namespace UnitTest
             double Wel1 = 28750;
             double Wpl2 = 48750;
             double Wpl1 = 33750;
+            double Jt = 1820041;
 
             Assert.AreEqual(A, sec.Area);
             Assert.AreEqual(J2, sec.J22);
@@ -123,6 +124,25 @@ namespace UnitTest
             Assert.AreEqual(Wel1, sec.Wel11Min);
             Assert.AreEqual(Wpl2, sec.Wpl22);
             Assert.AreEqual(Wpl1, sec.Wpl11);
+            Assert.AreEqual(Math.Abs(Jt/sec.Jt)-1.0, 0, 0.01);
+        }
+
+        [TestMethod]
+        public void SectionHTest1()
+        {
+            double h = 500;
+            double tw = 10;
+            double b = 400;
+            double tf = 10;
+            SectionH sec = new SectionH(h, tw, b, tf, b, tf, new SteelMaterial("steel", 200000, 0.3, 355, 510, 7850));
+            double A = sec.Area;
+            Point2d centroid = sec.Centroid;
+            double J11 = sec.J11;
+            double J22 = sec.J22;
+            double wply = sec.Wpl22;
+            double wplz = sec.Wpl11;
+
+            var x = "";
         }
     }
 }

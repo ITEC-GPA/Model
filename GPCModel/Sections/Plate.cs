@@ -8,115 +8,135 @@ using GPC.Geometry;
 
 namespace GPC.Model.Sections
 {
-    class Plate
+    public class Plate
     {
-        enum TypePlate
+        public enum TypePlate
         {
             inner,
             outer
         }
 
+        double _t;
+        double _B;
+        TypePlate _type;
+
+        double _removeLengthSide1;
+        double _removeLengthSide2;
+
+        double _fy;
+
         Point2d _initialPoint;
         Point2d _endPoint;
-        double _t;
-
-        Point2d _pInitialEff1;
-        double _sigmaIinitialEff1;
-        Point2d _pEndEff1;
-        double _sigmaEndEff1;
-
-        Point2d _pInitialEff2;
-        double _sigmaIinitialEff2;
-        Point2d _pEndEff2;
-        double _sigmaEndEff2;
-
-        TypePlate _typePlate;
-
-        public Plate(double t, Point2d initialPoint, Point2d endPoint)
+        
+        public Plate(double t, double x0, double y0, double x1, double y1, double fy, TypePlate typePlate, double removeLengthSide1, double removeLengthSide2) : this(t, new Point2d(x0, y0), new Point2d(x1, y1), fy, typePlate, removeLengthSide1, removeLengthSide2)
+        {
+        }
+        public Plate(double t, Point2d initialPoint, Point2d endPoint, double fy, TypePlate typePlate, double removeLengthSide1, double removeLengthSide2)
         {
             _initialPoint = initialPoint;
             _endPoint = endPoint;
             _t = t;
+            _type = typePlate;
+            _B = Math.Sqrt(Math.Pow(_endPoint.X - _initialPoint.X, 2.0) + Math.Pow(_endPoint.Y - _initialPoint.Y, 2.0));
+            _fy = fy;
+
+            _removeLengthSide1 = removeLengthSide1;
+            _removeLengthSide2 = removeLengthSide2;
         }
 
-        public Point2d[] CentroidEffPosition {
-            get {
-                Point2d[] centroids = new Point2d[2];
-                centroids[0] = new Point2d((_pInitialEff1.X + _pEndEff1.X)/2.0, (_pInitialEff1.Y + _pEndEff1.Y) / 2.0);
-                centroids[0] = new Point2d((_pInitialEff2.X + _pEndEff2.X) / 2.0, (_pInitialEff2.Y + _pEndEff2.Y) / 2.0);
-                return centroids;
-            }
-        }
-
-        public double GetKSigma()
+        public Point2d Centroid
         {
-            double psi = _sigmaIinitialEff1 / _sigmaIinitialEff2;
-            if (psi > 1)
+            get
             {
-                psi = 1.0 / psi;
-            }
+                double xg = (_endPoint.X + _initialPoint.X) / 2.0;
+                double yg = (_endPoint.Y + _initialPoint.Y) / 2.0;
 
-            if (_typePlate == TypePlate.inner)
-            {  
-                if (psi == 1)
-                {
-                    return 4;
-                } else if (psi > 0 && psi < 1)
-                {
-                    return 8.2 / (1.05 + psi);
-                } else if (psi == 0)
-                {
-                    return 7.81;
-                } else if (psi < 0 && psi > -1)
-                {
-                    return 7.81 - 6.29 * psi + 9.78 * psi * psi;
-                } else if (psi == -1)
-                {
-                    return 23.9;
-                } else if (psi > -3 && psi < -1)
-                {
-                    return 5.98 * (1 - psi) * (1 - psi);
-                } else
-                {
-                    throw new Exception("out of range");
-                }
-            } else //Outer
+                return new Point2d(xg, yg);
+            }
+        }
+
+        public double Thickness => _t;
+
+        public double Area {
+            get {
+                return _t * _B;
+            }
+        }
+
+        public double B
+        {
+            get
             {
-                if (psi == 1)
+                return _B;
+            }
+        }
+
+        public double J1Centroid
+        {
+            get
+            {
+                return 1.0 / 12.0 * _B * Math.Pow(_t, 3.0);
+            }
+        }
+
+        public double J2Centroid
+        {
+            get
+            {
+                return 1.0 / 12.0 * _t * Math.Pow(_B, 3.0);
+            }
+        }
+
+        public double JyCentroid
+        {
+            get
+            {
+                double dy = _endPoint.Y - _initialPoint.Y;
+                double dx = _endPoint.X - _initialPoint.X;
+
+                if (dy != 0 && dx == 0) //vertical plate
                 {
-                    return 0.43;
+                    return J2Centroid;
                 }
-                else if (psi > 0 && psi < 1)
+                else if (dx != 0 && dy == 0) //horizontal plate
                 {
-                    return 0.578/(0.34+psi);
-                }
-                else if (psi == 0)
-                {
-                    return 1.70;
-                }
-                else if (psi < 0 && psi > -1)
-                {
-                    return 1.7-5*psi+17.1*psi*psi;
-                }
-                else if (psi == -1)
-                {
-                    return 23.8;
-                }
-                else if (psi > -3 && psi < -1)
-                {
-                    return 0.57 -0.21 * psi + 0.07 * psi * psi;
+                    return J1Centroid;
                 }
                 else
                 {
-                    throw new Exception("out of range");
+                    throw new Exception("Oblique plate not yet supported");
                 }
             }
         }
 
-        public double GetLambdaP(double b, double t, double ksigma, double fy)
+        public double JzCentroid
         {
-            double epsilon = Math.Sqrt(235/fy);
-            return b/t / (28.4 * epsilon * Math.Sqrt(ksigma));
+            get
+            {
+                double dy = _endPoint.Y - _initialPoint.Y;
+                double dx = _endPoint.X - _initialPoint.X;
+
+                if (dy != 0 && dx == 0) //vertical plate
+                {
+                    return J1Centroid;
+                }
+                else if (dx != 0 && dy == 0) //horizontal plate
+                {
+                    return J2Centroid;
+                }
+                else
+                {
+                    throw new Exception("Oblique plate not yet supported");
+                }
+            }
         }
+
+        public Point2d InitialPoint => _initialPoint;
+        public Point2d EndPoint => _endPoint;
+        public double Fyk => _fy;
+        public TypePlate GetType => _type;
+        public double RemoveLengthSide1 => _removeLengthSide1;
+        public double RemoveLengthSide2 => _removeLengthSide2;
+
     }
 }

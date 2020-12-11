@@ -1,4 +1,6 @@
-﻿using System;
+﻿using GPC.Geometry;
+using GPC.Model.Materials;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -16,6 +18,8 @@ namespace GPC.Model.Sections
         double _tbottom;
         double _btop;
         double _bbottom;
+
+        Plate[] _plates = new Plate[5];
         #endregion
 
         public SectionH(double hTot, double tw, double btop, double ttop, double bbottom, double tbottom, Materials.Material material) : base(material)
@@ -29,6 +33,84 @@ namespace GPC.Model.Sections
 
             _hw = _hTot - _tbottom - _ttop;
 
+            
+            _plates[0] = new Plate(_tbottom, 0, _tbottom / 2.0, - _bbottom / 2.0, _tbottom / 2.0, ((SteelMaterial)material).Fyk, Plate.TypePlate.outer, _tw/2.0, 0);
+            _plates[1] = new Plate(_tbottom, 0, _tbottom / 2.0, _bbottom / 2.0, _tbottom / 2.0, ((SteelMaterial)material).Fyk, Plate.TypePlate.outer, _tw / 2.0, 0);
+            _plates[2] = new Plate(_tw, 0, _tbottom, 0, _hw + _tbottom, ((SteelMaterial)material).Fyk, Plate.TypePlate.inner, 0, 0);
+            _plates[3] = new Plate(_ttop, 0, _hTot - _ttop/2.0, -_btop / 2.0, _hTot - _ttop / 2.0, ((SteelMaterial)material).Fyk, Plate.TypePlate.outer, _tw / 2.0, 0);
+            _plates[4] = new Plate(_ttop, 0, _hTot - _ttop / 2.0, _btop / 2.0, _hTot - _ttop / 2.0, ((SteelMaterial)material).Fyk, Plate.TypePlate.outer, _tw / 2.0, 0);
+
+            _area =0;
+            double Sy = 0;
+            double Sx = 0;
+            for (int i = 0; i < _plates.Count(); i++)
+            {
+                double areaPlate = _plates[i].Area;
+                double yGPlate = _plates[i].Centroid.Y;
+                double xGPlate = _plates[i].Centroid.X;
+
+                _area = _area + areaPlate;
+                Sy = Sy + areaPlate * yGPlate;
+                Sx = Sx + areaPlate * xGPlate;
+            }
+
+            _angleX1 = 0;
+            _centroid = new Point2d(Sx / _area, Sy / _area);
+
+            _j11 = 0;
+            _j22 = 0;
+            for (int i = 0; i < _plates.Count(); i++)
+            {
+                double areaPlate = _plates[i].Area;
+                double yGPlate = _plates[i].Centroid.Y;
+                double xGPlate = _plates[i].Centroid.X;
+                double j11Plate = _plates[i].JzCentroid;
+                double j22Plate = _plates[i].JyCentroid;
+
+                _j11 = _j11 + j11Plate + areaPlate * Math.Pow(xGPlate - _centroid.X,2.0);
+                _j22 = _j22 + j22Plate + areaPlate * Math.Pow(yGPlate - _centroid.Y, 2.0);
+            }
+
+            double dmed = _hTot - _tbottom / 2.0 - _ttop / 2.0;
+            _jt = (_btop * Math.Pow(_ttop,3.0)) + (_bbottom * Math.Pow(_tbottom, 3.0) + dmed * Math.Pow(_tw, 3.0)) / 3.0;
+
+            double JFlTop = 1.0 / 12.0 * _ttop * Math.Pow(_btop, 3.0);
+            double JFlBottom = 1.0 / 12.0 * _tbottom * Math.Pow(_bbottom, 3.0);
+            double jz = JFlTop + JFlBottom + 1 / 12 * _hw * Math.Pow(_tw, 3.0);
+
+            // CNR DT208_2011-- > to be checked
+            _jw = dmed * dmed * JFlBottom * JFlTop / jz;
+
+            //CNR DT208_2011 --> to be checked
+            double zBottom = _centroid.Y - _tbottom / 2.0;
+            double zTop = _hTot - _ttop / 2.0 - _centroid.Y;
+            _shearCenter = new Point2d(0, _centroid.Y - (zBottom * JFlBottom - zTop * JFlTop)/jz);
+
+            _wel11Left = _j11 / Math.Max(_bbottom / 2.0, _btop / 2.0);
+            _wel11Right = _wel11Left;
+            _wel22Bottom = _j22 / _centroid.Y;
+            _wel22Top = _j22 / (_hTot - _centroid.Y);
+
+            _wpl11 = 0;
+            {
+                SectionT halfSectionTop = new SectionT(_btop / 2.0, _hTot / 2.0, _ttop, _tw / 2.0, material);
+                SectionT halfSectionBottom = new SectionT(_bbottom / 2.0, _hTot / 2.0, _tbottom, _tw / 2.0, material);
+                double dTop = _btop / 2.0 - halfSectionTop.Centroid.Y;
+                double dBottom = _bbottom / 2.0 - halfSectionBottom.Centroid.Y;
+                double d = (halfSectionTop.Area * dTop + halfSectionBottom.Area * dBottom) / (halfSectionBottom.Area + halfSectionTop.Area);
+                _wpl11 = 2.0 * d * _area / 2.0; 
+            }
+
+            _wpl22 = 0;
+            {
+                if (_area/2.0 > _btop * _ttop)
+                {
+                    double hw = (_area / 2.0 - _btop * _ttop) / _tw;
+                    SectionT halfSectionT = new SectionT(hw + _ttop, _btop, _tw, _ttop, material);
+                    _wpl22 = _area/2.0 * halfSectionT.Centroid.Y * 2.0;
+                }
+            }
+ 
             IsSymmetricAlongYLocalAxis = true;
             if (_btop == _bbottom && _tbottom == _ttop)
             {
@@ -61,6 +143,7 @@ namespace GPC.Model.Sections
                 }
             }
         }
+        public Plate[] Plates => _plates;
 
         public bool IsRolled { get; set; }
         #endregion

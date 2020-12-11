@@ -27,6 +27,7 @@ namespace GPC.Model.Sections
 
         #region Properties
         public double B => _b;
+        public double Bint => _b - _tw1 - _tw2;
         public double H => _h;
         public double Hw => _hw;
         public double ThicknessFlange {
@@ -39,6 +40,8 @@ namespace GPC.Model.Sections
                 }
             }
         }
+        public double TTop => _tf_top;
+        public double TBottom => _tf_bottom;
         public double ThicknessWeb
         {
             get
@@ -53,6 +56,8 @@ namespace GPC.Model.Sections
                 }
             }
         }
+        public double TWebLeft => _tw1;
+        public double TWebRight => _tw2;
 
         public double Thickness
         {
@@ -83,6 +88,7 @@ namespace GPC.Model.Sections
         public SectionRHS(double h, double b, double tf_top, double tf_bottom, double tw1, double tw2, Materials.Material material) : base(material)
         {
             _material = material;
+            _angleX1 = 0;
 
             _h = h;
             _b = b;
@@ -135,6 +141,7 @@ namespace GPC.Model.Sections
                 Sx = Sx + plate.Area * centerPlate.X;
             }
             _centroid = new Point2d(Sx / _area, Sy / _area);
+            _shearCenter = _centroid;
 
             _j22 = 0;
             _j11 = 0;
@@ -188,6 +195,22 @@ namespace GPC.Model.Sections
             {
                 throw new Exception("not yet supported");
             }
+
+            //Jt
+            if (_tf_bottom == _tf_top && _tw1 == _tw2 && _tw1 == _tf_top)
+            {
+                double t = _tf_top;
+                double rc = 0; // rc = 1.5 * t for RHS with corner
+                double Ap = (_h - t) * (_b-t) - rc *rc * (4.0 - Math.PI);
+                double p = 2.0 * ((_h - t) + (_b - t)) - 2.0 * rc * (4.0 - Math.PI);
+                _jt = 4.0 * Ap * Ap * t / p; //Salmon & Johnson 1980
+            } else
+            {
+                throw new Exception("Calculation RHS Jt with different thickness not yet supported");
+            }
+
+            //Jw
+            _jw = 0;
         }
     }
 }
