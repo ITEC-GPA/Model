@@ -34,11 +34,11 @@ namespace GPC.Model.Sections
             _hw = _hTot - _tbottom - _ttop;
 
             
-            _plates[0] = new Plate(_tbottom, 0, _tbottom / 2.0, - _bbottom / 2.0, _tbottom / 2.0, ((SteelMaterial)material).Fyk, Plate.TypePlate.outer, 0, 0);
-            _plates[1] = new Plate(_tbottom, 0, _tbottom / 2.0, _bbottom / 2.0, _tbottom / 2.0, ((SteelMaterial)material).Fyk, Plate.TypePlate.outer, 0, 0);
+            _plates[0] = new Plate(_tbottom, 0, _tbottom / 2.0, - _bbottom / 2.0, _tbottom / 2.0, ((SteelMaterial)material).Fyk, Plate.TypePlate.outer, _tw/2.0, 0);
+            _plates[1] = new Plate(_tbottom, 0, _tbottom / 2.0, _bbottom / 2.0, _tbottom / 2.0, ((SteelMaterial)material).Fyk, Plate.TypePlate.outer, _tw / 2.0, 0);
             _plates[2] = new Plate(_tw, 0, _tbottom, 0, _hw + _tbottom, ((SteelMaterial)material).Fyk, Plate.TypePlate.inner, 0, 0);
-            _plates[3] = new Plate(_ttop, 0, _hTot - _ttop/2.0, -_btop / 2.0, _hTot - _ttop / 2.0, ((SteelMaterial)material).Fyk, Plate.TypePlate.outer, 0, 0);
-            _plates[4] = new Plate(_ttop, 0, _hTot - _ttop / 2.0, _btop / 2.0, _hTot - _ttop / 2.0, ((SteelMaterial)material).Fyk, Plate.TypePlate.outer, 0, 0);
+            _plates[3] = new Plate(_ttop, 0, _hTot - _ttop/2.0, -_btop / 2.0, _hTot - _ttop / 2.0, ((SteelMaterial)material).Fyk, Plate.TypePlate.outer, _tw / 2.0, 0);
+            _plates[4] = new Plate(_ttop, 0, _hTot - _ttop / 2.0, _btop / 2.0, _hTot - _ttop / 2.0, ((SteelMaterial)material).Fyk, Plate.TypePlate.outer, _tw / 2.0, 0);
 
             _area =0;
             double Sy = 0;
