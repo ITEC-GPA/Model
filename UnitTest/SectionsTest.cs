@@ -134,7 +134,7 @@ namespace UnitTest
             double tw = 10;
             double b = 400;
             double tf = 10;
-            SectionH sec = new SectionH(h, tw, b, tf, b, tf, new SteelMaterial("steel", 200000, 0.3, 355, 510, 7850));
+            SectionH sec = new SectionH(h, tw, b, tf, b, tf, true, new SteelMaterial("steel", 200000, 0.3, 355, 510, 7850));
             double A = sec.Area;
             Point2d centroid = sec.Centroid;
             double J11 = sec.J11;

@@ -85,7 +85,7 @@ namespace GPC.Model.Sections
         }
         #endregion
 
-        public SectionRHS(double h, double b, double tf_top, double tf_bottom, double tw1, double tw2, Materials.Material material) : base(material)
+        public SectionRHS(double h, double b, double tf_top, double tf_bottom, double tw1, double tw2, bool isHotFinished, Materials.Material material) : base(material)
         {
             _material = material;
             _angleX1 = 0;
@@ -98,6 +98,8 @@ namespace GPC.Model.Sections
             _tw2 = tw2;
 
             _hw = h - tf_bottom - tf_top;
+
+            _isHotFinished = isHotFinished;
 
             if (_tw1 == _tw2)
             {

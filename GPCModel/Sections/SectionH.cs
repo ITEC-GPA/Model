@@ -19,10 +19,12 @@ namespace GPC.Model.Sections
         double _btop;
         double _bbottom;
 
+        bool _isWelded;
+
         Plate[] _plates = new Plate[5];
         #endregion
 
-        public SectionH(double hTot, double tw, double btop, double ttop, double bbottom, double tbottom, Materials.Material material) : base(material)
+        public SectionH(double hTot, double tw, double btop, double ttop, double bbottom, double tbottom, bool isWelded, Materials.Material material) : base(material)
         {
             _hTot = hTot;
             _tw = tw;
@@ -30,6 +32,8 @@ namespace GPC.Model.Sections
             _bbottom = bbottom;
             _ttop = ttop;
             _tbottom = tbottom;
+
+            _isWelded = isWelded;
 
             _hw = _hTot - _tbottom - _ttop;
 
@@ -145,7 +149,25 @@ namespace GPC.Model.Sections
         }
         public Plate[] Plates => _plates;
 
-        public bool IsRolled { get; set; }
+        public bool IsRolled {
+            get {
+                return !_isWelded;
+            }
+            set
+            {
+                _isWelded = !value;
+            }
+        }
+        public bool IsWelded {
+            get
+            {
+                return _isWelded;
+            }
+            set
+            {
+                _isWelded = value;
+            }
+        }
         #endregion
     }
 }
