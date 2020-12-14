@@ -106,7 +106,7 @@ namespace UnitTest
             double h = 100;
             double b = 60;
             double t = 5;
-            SectionRHS sec = new SectionRHS(h, b, t, t, t, t, new SteelMaterial("steel", 200000, 0.3, 355, 510, 7850));
+            SectionRHS sec = new SectionRHS(h, b, t, t, t, t, false, new SteelMaterial("steel", 200000, 0.3, 355, 510, 7850));
 
             double A = 1500;
             double J2 = 1962500;
