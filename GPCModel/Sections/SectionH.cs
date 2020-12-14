@@ -19,10 +19,12 @@ namespace GPC.Model.Sections
         double _btop;
         double _bbottom;
 
+        bool _isWelded;
+
         Plate[] _plates = new Plate[5];
         #endregion
 
-        public SectionH(double hTot, double tw, double btop, double ttop, double bbottom, double tbottom, Materials.Material material) : base(material)
+        public SectionH(double hTot, double tw, double btop, double ttop, double bbottom, double tbottom, bool isWelded, Materials.Material material) : base(material)
         {
             _hTot = hTot;
             _tw = tw;
@@ -31,14 +33,16 @@ namespace GPC.Model.Sections
             _ttop = ttop;
             _tbottom = tbottom;
 
+            _isWelded = isWelded;
+
             _hw = _hTot - _tbottom - _ttop;
 
             
-            _plates[0] = new Plate(_tbottom, 0, _tbottom / 2.0, - _bbottom / 2.0, _tbottom / 2.0, ((SteelMaterial)material).Fyk, Plate.TypePlate.outer, _tw/2.0, 0);
-            _plates[1] = new Plate(_tbottom, 0, _tbottom / 2.0, _bbottom / 2.0, _tbottom / 2.0, ((SteelMaterial)material).Fyk, Plate.TypePlate.outer, _tw / 2.0, 0);
-            _plates[2] = new Plate(_tw, 0, _tbottom, 0, _hw + _tbottom, ((SteelMaterial)material).Fyk, Plate.TypePlate.inner, 0, 0);
-            _plates[3] = new Plate(_ttop, 0, _hTot - _ttop/2.0, -_btop / 2.0, _hTot - _ttop / 2.0, ((SteelMaterial)material).Fyk, Plate.TypePlate.outer, _tw / 2.0, 0);
-            _plates[4] = new Plate(_ttop, 0, _hTot - _ttop / 2.0, _btop / 2.0, _hTot - _ttop / 2.0, ((SteelMaterial)material).Fyk, Plate.TypePlate.outer, _tw / 2.0, 0);
+            _plates[0] = new Plate(_tbottom, 0, _tbottom / 2.0, - _bbottom / 2.0, _tbottom / 2.0, ((SteelMaterial)material).Fyk, Plate.TypePlate.outer);
+            _plates[1] = new Plate(_tbottom, 0, _tbottom / 2.0, _bbottom / 2.0, _tbottom / 2.0, ((SteelMaterial)material).Fyk, Plate.TypePlate.outer);
+            _plates[2] = new Plate(_tw, 0, _tbottom, 0, _hw + _tbottom, ((SteelMaterial)material).Fyk, Plate.TypePlate.inner);
+            _plates[3] = new Plate(_ttop, 0, _hTot - _ttop/2.0, -_btop / 2.0, _hTot - _ttop / 2.0, ((SteelMaterial)material).Fyk, Plate.TypePlate.outer);
+            _plates[4] = new Plate(_ttop, 0, _hTot - _ttop / 2.0, _btop / 2.0, _hTot - _ttop / 2.0, ((SteelMaterial)material).Fyk, Plate.TypePlate.outer);
 
             _area =0;
             double Sy = 0;
@@ -145,7 +149,25 @@ namespace GPC.Model.Sections
         }
         public Plate[] Plates => _plates;
 
-        public bool IsRolled { get; set; }
+        public bool IsRolled {
+            get {
+                return !_isWelded;
+            }
+            set
+            {
+                _isWelded = !value;
+            }
+        }
+        public bool IsWelded {
+            get
+            {
+                return _isWelded;
+            }
+            set
+            {
+                _isWelded = value;
+            }
+        }
         #endregion
     }
 }

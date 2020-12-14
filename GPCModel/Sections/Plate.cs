@@ -20,18 +20,15 @@ namespace GPC.Model.Sections
         double _B;
         TypePlate _type;
 
-        double _removeLengthSide1;
-        double _removeLengthSide2;
-
         double _fy;
 
         Point2d _initialPoint;
         Point2d _endPoint;
         
-        public Plate(double t, double x0, double y0, double x1, double y1, double fy, TypePlate typePlate, double removeLengthSide1, double removeLengthSide2) : this(t, new Point2d(x0, y0), new Point2d(x1, y1), fy, typePlate, removeLengthSide1, removeLengthSide2)
+        public Plate(double t, double x0, double y0, double x1, double y1, double fy, TypePlate typePlate) : this(t, new Point2d(x0, y0), new Point2d(x1, y1), fy, typePlate)
         {
         }
-        public Plate(double t, Point2d initialPoint, Point2d endPoint, double fy, TypePlate typePlate, double removeLengthSide1, double removeLengthSide2)
+        public Plate(double t, Point2d initialPoint, Point2d endPoint, double fy, TypePlate typePlate)
         {
             _initialPoint = initialPoint;
             _endPoint = endPoint;
@@ -39,9 +36,6 @@ namespace GPC.Model.Sections
             _type = typePlate;
             _B = Math.Sqrt(Math.Pow(_endPoint.X - _initialPoint.X, 2.0) + Math.Pow(_endPoint.Y - _initialPoint.Y, 2.0));
             _fy = fy;
-
-            _removeLengthSide1 = removeLengthSide1;
-            _removeLengthSide2 = removeLengthSide2;
         }
 
         public Point2d Centroid
@@ -134,9 +128,6 @@ namespace GPC.Model.Sections
         public Point2d InitialPoint => _initialPoint;
         public Point2d EndPoint => _endPoint;
         public double Fyk => _fy;
-        public TypePlate GetType => _type;
-        public double RemoveLengthSide1 => _removeLengthSide1;
-        public double RemoveLengthSide2 => _removeLengthSide2;
-
+        public TypePlate GetTypePlate => _type;
     }
 }
