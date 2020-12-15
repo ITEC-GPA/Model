@@ -59,20 +59,6 @@ namespace GPC.Model.Sections
         public double TWebLeft => _tw1;
         public double TWebRight => _tw2;
 
-        public double Thickness
-        {
-            get
-            {
-                if (_tf_bottom == _tf_top && _tw1 == _tw2 && _tw1 == _tf_bottom)
-                {
-                    return _tf_bottom;
-                } else
-                {
-                    throw new Exception("Different thicknesses");
-                }
-            }
-        }
-
         public bool IsColdFormed {
             get => !_isHotFinished;
             set { _isHotFinished = !value; 
@@ -204,7 +190,12 @@ namespace GPC.Model.Sections
                 _jt = 4.0 * Ap * Ap * t / p; //Salmon & Johnson 1980
             } else
             {
-                throw new Exception("Calculation RHS Jt with different thickness not yet supported");
+                double Amed = (_h - (_tf_top / 2.0) - (_tf_bottom / 2.0)) * (_b - (_tw1 / 2.0) - (tw2 / 2.0));
+                double LmedTop = _b - _tw1 / 2.0 - _tw2 / 2.0; 
+                double LmedBottom = LmedTop;
+                double LmedWeb1 = _h - _tf_top / 2.0 - _tf_bottom / 2.0;
+                double LmedWeb2 = LmedWeb1;
+                _jt = 4.0 * Amed / (_tf_top / LmedTop + _tf_bottom / LmedBottom + _tw1 / LmedWeb1 + _tw2 / LmedWeb2); /*to be checked*/
             }
 
             //Jw
