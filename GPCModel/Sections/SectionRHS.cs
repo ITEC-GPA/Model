@@ -1,4 +1,5 @@
 ﻿using GPC.Geometry;
+using GPC.Model.Materials;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -21,8 +22,7 @@ namespace GPC.Model.Sections
 
         bool _isHotFinished;
 
-        protected SectionRectangular[] _plates;
-        protected Point2d[] _positionCentroidsPlates;
+        protected Plate[] _plates;
         #endregion
 
         #region Properties
@@ -59,20 +59,6 @@ namespace GPC.Model.Sections
         public double TWebLeft => _tw1;
         public double TWebRight => _tw2;
 
-        public double Thickness
-        {
-            get
-            {
-                if (_tf_bottom == _tf_top && _tw1 == _tw2 && _tw1 == _tf_bottom)
-                {
-                    return _tf_bottom;
-                } else
-                {
-                    throw new Exception("Different thicknesses");
-                }
-            }
-        }
-
         public bool IsColdFormed {
             get => !_isHotFinished;
             set { _isHotFinished = !value; 
@@ -83,6 +69,8 @@ namespace GPC.Model.Sections
             set { _isHotFinished = value;
             }
         }
+
+        public Plate[] Plates { get => _plates; }
         #endregion
 
         public SectionRHS(double h, double b, double tf_top, double tf_bottom, double tw1, double tw2, bool isHotFinished, Materials.Material material) : base(material)
@@ -116,28 +104,21 @@ namespace GPC.Model.Sections
                 IsSymmetricAlongZLocalAxis = false;
             }
 
-            _plates = new SectionRectangular[4];
-            _positionCentroidsPlates = new Point2d[4];
+            _plates = new Plate[4];
 
-            _plates[0] = new SectionRectangular(_b, _tf_top, _material);
-            _positionCentroidsPlates[0] = new Point2d(_b / 2.0, _h - _tf_top / 2.0);
-
-            _plates[1] = new SectionRectangular(_b, _tf_bottom, _material);
-            _positionCentroidsPlates[1] = new Point2d(_b / 2.0, _tf_bottom / 2.0);
-
-            _plates[2] = new SectionRectangular(_tw1, _hw, _material);
-            _positionCentroidsPlates[2] = new Point2d(_tw1 / 2.0, _tf_bottom + _hw / 2.0);
-
-            _plates[3] = new SectionRectangular(_tw2, _hw, _material);
-            _positionCentroidsPlates[3] = new Point2d(_b - _tw2 / 2.0, _tf_bottom + _hw / 2.0);
+            double fy = ((SteelMaterial)_material).Fyk;
+            _plates[0] = new Plate(_tf_top, -_b / 2.0, _h / 2.0 - _tf_top / 2.0, _b / 2.0, _h / 2.0 - _tf_top / 2.0, fy, Plate.TypePlate.inner);
+            _plates[1] = new Plate(_tf_bottom, -_b / 2.0, -_h / 2.0 + _tf_bottom / 2.0, _b / 2.0, -_h / 2.0 + _tf_bottom / 2.0, fy, Plate.TypePlate.inner);      
+            _plates[2] = new Plate(_tw1, -_b / 2.0 + _tw1 / 2.0, -_h / 2.0 + _tf_bottom, -_b / 2.0 + _tw1 / 2.0, _h / 2.0 - _tf_top, fy, Plate.TypePlate.inner);
+            _plates[3] = new Plate(_tw2, _b / 2.0 - _tw2 / 2.0, -_h / 2.0 + _tf_bottom, _b / 2.0 - _tw2 / 2.0, _h / 2.0 - _tf_top, fy, Plate.TypePlate.inner);
 
             _area = 0;
             double Sy = 0;
             double Sx = 0;
             for (int i = 0; i < _plates.Count(); i++)
             {
-                SectionRectangular plate = _plates[i];
-                Point2d centerPlate = _positionCentroidsPlates[i];
+                Plate plate = _plates[i];
+                Point2d centerPlate = _plates[i].Centroid;
                 _area = _area + plate.Area;
                 Sy = Sy + plate.Area * centerPlate.Y;
                 Sx = Sx + plate.Area * centerPlate.X;
@@ -149,11 +130,12 @@ namespace GPC.Model.Sections
             _j11 = 0;
             for (int i = 0; i < _plates.Count(); i++)
             {
-                SectionRectangular plate = _plates[i];
-                Point2d centerPlate = _positionCentroidsPlates[i];
+                Plate plate = _plates[i];
+                Point2d centerPlate = _plates[i].Centroid;
 
-                _j11 = _j11 + plate.J11 + plate.Area * Math.Pow(centerPlate.X - _centroid.X, 2.0);
-                _j22 = _j22 + plate.J22 + plate.Area * Math.Pow(centerPlate.Y - _centroid.Y, 2.0);
+                _j11 = _j11 + plate.JzCentroid + plate.Area * Math.Pow(centerPlate.X - _centroid.X, 2.0);
+                _j22 = _j22 + plate.JyCentroid + plate.Area * Math.Pow(centerPlate.Y - _centroid.Y, 2.0);
+
             }
 
             _wel22Top = _j22 / (_h - _centroid.Y);
@@ -162,7 +144,7 @@ namespace GPC.Model.Sections
             _wel11Right = _j11 / (_b - _centroid.X);
 
             _wpl22 = 0;
-            if (_area/2.0 > _plates[0].Area)
+            if (_area/2.0 > _plates[0].Area) //plateTop
             {
                 if (_tw1 == _tw2) {
                     double hTSection = (_area / 2.0 - _plates[0].Area) / (_tw1 + _tw2);
@@ -208,7 +190,12 @@ namespace GPC.Model.Sections
                 _jt = 4.0 * Ap * Ap * t / p; //Salmon & Johnson 1980
             } else
             {
-                throw new Exception("Calculation RHS Jt with different thickness not yet supported");
+                double Amed = (_h - (_tf_top / 2.0) - (_tf_bottom / 2.0)) * (_b - (_tw1 / 2.0) - (tw2 / 2.0));
+                double LmedTop = _b - _tw1 / 2.0 - _tw2 / 2.0; 
+                double LmedBottom = LmedTop;
+                double LmedWeb1 = _h - _tf_top / 2.0 - _tf_bottom / 2.0;
+                double LmedWeb2 = LmedWeb1;
+                _jt = 4.0 * Amed / (_tf_top / LmedTop + _tf_bottom / LmedBottom + _tw1 / LmedWeb1 + _tw2 / LmedWeb2); /*to be checked*/
             }
 
             //Jw
