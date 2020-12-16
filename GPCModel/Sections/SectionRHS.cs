@@ -138,10 +138,10 @@ namespace GPC.Model.Sections
 
             }
 
-            _wel22Top = _j22 / (_h - _centroid.Y);
-            _wel22Bottom = _j22 / (_centroid.Y);
-            _wel11Left = _j11 / (_centroid.X);
-            _wel11Right = _j11 / (_b - _centroid.X);
+            _wel22Top = _j22 / (_h / 2.0 - _centroid.Y);
+            _wel22Bottom = _j22 / (_centroid.Y - -_h / 2.0);
+            _wel11Left = _j11 / (_b / 2.0 - _centroid.X);
+            _wel11Right = _j11 / (_centroid.X - _b/2.0);
 
             _wpl22 = 0;
             if (_area/2.0 > _plates[0].Area) //plateTop
