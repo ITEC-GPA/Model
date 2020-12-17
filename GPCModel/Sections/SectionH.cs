@@ -107,11 +107,15 @@ namespace GPC.Model.Sections
 
             _wpl22 = 0;
             {
-                if (_area/2.0 > _btop * _ttop)
+                if (_area/2.0 > _btop * _ttop && _area/2.0 > _bbottom * _tbottom)
                 {
                     double hw = (_area / 2.0 - _btop * _ttop) / _tw;
-                    SectionT halfSectionT = new SectionT(hw + _ttop, _btop, _tw, _ttop, material);
-                    _wpl22 = _area/2.0 * halfSectionT.Centroid.Y * 2.0;
+                    SectionT halfSectionTop = new SectionT(hw + _ttop, _btop, _tw, _ttop, material);
+                    SectionT halfSectionBottom = new SectionT(_hTot - _ttop - hw, _bbottom, _tw, _tbottom, material);
+                    _wpl22 = _area/2.0 * (halfSectionTop.Centroid.Y + halfSectionBottom.Centroid.Y);
+                } else
+                {
+                    throw new Exception("Cannot calulate Wpl : Plastic neutral axis in flanges...to be implemented");
                 }
             }
  
@@ -169,5 +173,19 @@ namespace GPC.Model.Sections
             }
         }
         #endregion
+
+        public override double MinSigma(double N, double My, double Mz)
+        {
+            double sigmap1 = N/_area - My / _wel22Top + Mz / _j11 * _btop / 2.0;
+            double sigmap2 = N / _area - My / _wel22Top - Mz / _j11 * _btop / 2.0;
+            double sigmap3 = N / _area + My / _wel22Bottom + Mz / _j11 * _bbottom / 2.0;
+            double sigmap4 = N / _area + My / _wel22Bottom - Mz / _j11 * _bbottom / 2.0;
+
+            double sigmaMin = Math.Min(sigmap1, sigmap2);
+            sigmaMin = Math.Min(sigmaMin, sigmap3);
+            sigmaMin = Math.Min(sigmaMin, sigmap4);
+
+            return sigmaMin;
+        }
     }
 }
