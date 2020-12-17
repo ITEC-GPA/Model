@@ -173,5 +173,19 @@ namespace GPC.Model.Sections
             }
         }
         #endregion
+
+        public override double MinSigma(double N, double My, double Mz)
+        {
+            double sigmap1 = N/_area - My / _wel22Top + Mz / _j11 * _btop / 2.0;
+            double sigmap2 = N / _area - My / _wel22Top - Mz / _j11 * _btop / 2.0;
+            double sigmap3 = N / _area + My / _wel22Bottom + Mz / _j11 * _bbottom / 2.0;
+            double sigmap4 = N / _area + My / _wel22Bottom - Mz / _j11 * _bbottom / 2.0;
+
+            double sigmaMin = Math.Min(sigmap1, sigmap2);
+            sigmaMin = Math.Min(sigmaMin, sigmap3);
+            sigmaMin = Math.Min(sigmaMin, sigmap4);
+
+            return sigmaMin;
+        }
     }
 }
