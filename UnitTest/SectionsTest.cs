@@ -134,33 +134,29 @@ namespace UnitTest
         [TestMethod]
         public void SectionTTest()
         {
-            double h = 50;
-            double b = 60;
-            double tf = 5;
-            double tw = 10;
+            double h = 400;
+            double b = 200;
+            double tf = 10;
+            double tw = 50;
             SectionT sec = new SectionT(h, b, tw, tf, new SteelMaterial("steel", 200000, 0.3, 355, 510, 7850));
 
-            double A = 750;
-            /*double J2 = ;
-            double J1 = ;
-            double Wel2 = ;
-            double Wel1 = ;
-            double Wpl2 = ;
-            double Wpl1 = ;*/
-
-            Point2d centroid = new Point2d(30, 32.5);
+            double A = 21500;
+            double J2 = 3.197*1e8;
+            double J1 = 10729167;
+            double Wel2 = 1496864.9;
+            double Wel1 = 107291.67;
+            double Wpl2 = 2281250;
+            double Wpl1 = 343750;
+            double Jt = 16316666.66667; //Straus : 16316666.66667 | Sap: 15845817
 
             Assert.AreEqual(A, sec.Area);
-            Assert.AreEqual(sec.Centroid, centroid);
-            /*Assert.AreEqual(J2, sec.J22);
-            Assert.AreEqual(J1, sec.J11);
-            Assert.AreEqual(Wel2, sec.Wel22Min);
-            Assert.AreEqual(Wel1, sec.Wel11Min);
-            Assert.AreEqual(Wpl2, sec.Wpl22);
-            Assert.AreEqual(Wpl1, sec.Wpl11);*/
-        }
-
-
-        
+            Assert.AreEqual(Math.Abs(J2 / sec.J22) - 1, 0, 0.001);
+            Assert.AreEqual(Math.Abs(J1 / sec.J11) - 1, 0, 0.001);
+            Assert.AreEqual(Math.Abs(Wel2 / sec.Wel22Min) - 1, 0, 0.001);
+            Assert.AreEqual(Math.Abs(Wel1 / sec.Wel11Min) - 1, 0, 0.001);
+            Assert.AreEqual(Math.Abs(Wpl2 / sec.Wpl22) - 1, 0, 0.001);
+            Assert.AreEqual(Math.Abs(Wpl1 / sec.Wpl11) - 1, 0, 0.001);
+            Assert.AreEqual(Math.Abs(Jt / sec.Jt) - 1.0, 0, 0.03);
+        } 
     }
 }
