@@ -107,10 +107,12 @@ namespace GPC.Model.Sections
             _plates = new Plate[4];
 
             double fy = ((SteelMaterial)_material).Fyk;
-            _plates[0] = new Plate(_tf_top, -_b / 2.0, _h / 2.0 - _tf_top / 2.0, _b / 2.0, _h / 2.0 - _tf_top / 2.0, fy, Plate.TypePlate.inner);
-            _plates[1] = new Plate(_tf_bottom, -_b / 2.0, -_h / 2.0 + _tf_bottom / 2.0, _b / 2.0, -_h / 2.0 + _tf_bottom / 2.0, fy, Plate.TypePlate.inner);      
-            _plates[2] = new Plate(_tw1, -_b / 2.0 + _tw1 / 2.0, -_h / 2.0 + _tf_bottom, -_b / 2.0 + _tw1 / 2.0, _h / 2.0 - _tf_top, fy, Plate.TypePlate.inner);
-            _plates[3] = new Plate(_tw2, _b / 2.0 - _tw2 / 2.0, -_h / 2.0 + _tf_bottom, _b / 2.0 - _tw2 / 2.0, _h / 2.0 - _tf_top, fy, Plate.TypePlate.inner);
+            
+            _plates[0] = new Plate(_tf_top, 0, _h / 2.0 - _tf_top / 2.0, _b, _h / 2.0 - _tf_top / 2.0, fy, Plate.TypePlate.inner);
+            _plates[1] = new Plate(_tf_bottom, 0, -_h / 2.0 + _tf_bottom / 2.0, _b, -_h / 2.0 + _tf_bottom / 2.0, fy, Plate.TypePlate.inner);      
+
+            _plates[2] = new Plate(_tw1, _tw1 / 2.0, -_h / 2.0 + _tf_bottom, _tw1 / 2.0, _h / 2.0 - _tf_top, fy, Plate.TypePlate.inner);
+            _plates[3] = new Plate(_tw2, _b - _tw2 / 2.0, -_h / 2.0 + _tf_bottom, _b - _tw2 / 2.0, _h / 2.0 - _tf_top, fy, Plate.TypePlate.inner);
 
             _area = 0;
             double Sy = 0;
@@ -124,7 +126,14 @@ namespace GPC.Model.Sections
                 Sx = Sx + plate.Area * centerPlate.X;
             }
             _centroid = new Point2d(Sx / _area, Sy / _area);
-            _shearCenter = _centroid;
+
+            if (_tf_bottom == _tf_top && _tw1 == _tw2)
+            {
+                _shearCenter = _centroid;
+            } else
+            {
+                throw new Exception("Centroid with different thickness not implemented");
+            }
 
             _j22 = 0;
             _j11 = 0;
@@ -139,17 +148,18 @@ namespace GPC.Model.Sections
             }
 
             _wel22Top = _j22 / (_h / 2.0 - _centroid.Y);
-            _wel22Bottom = _j22 / (_centroid.Y - -_h / 2.0);
-            _wel11Left = _j11 / (_b / 2.0 - _centroid.X);
-            _wel11Right = _j11 / (_centroid.X - _b/2.0);
+            _wel22Bottom = _j22 / Math.Abs(_centroid.Y - -_h / 2.0);
+            _wel11Left = _j11 / ( _centroid.X);
+            _wel11Right = _j11 / Math.Abs(_centroid.X - _b);
 
             _wpl22 = 0;
             if (_area/2.0 > _plates[0].Area) //plateTop
             {
                 if (_tw1 == _tw2) {
                     double hTSection = (_area / 2.0 - _plates[0].Area) / (_tw1 + _tw2);
-                    SectionT sec = new SectionT(hTSection + _tf_top, _b, _tw1 + _tw2, _tf_top, _material);
-                    _wpl22 = _area / 2.0 * 2.0 * sec.Centroid.Y;
+                    SectionT halfSectionTop = new SectionT(hTSection + _tf_top, _b, _tw1 + _tw2, _tf_top, _material);
+                    SectionT halfSectionBottom = new SectionT(_h - hTSection - _tf_top, _b, _tw1 + _tw2, _tf_bottom, _material);
+                    _wpl22 = (_area / 2.0) * (halfSectionTop.Centroid.Y + halfSectionBottom.Centroid.Y);
                 } else
                 {
                     throw new Exception("different thickness not yet supported");
@@ -167,8 +177,9 @@ namespace GPC.Model.Sections
                 if (_tf_bottom == _tf_top)
                 {
                     double hTSection = (_area / 2.0 - ALeftface) / (_tf_top + _tf_bottom);
-                    SectionT sec = new SectionT(hTSection + _tw1, _h, _tf_top + _tf_bottom, _tf_top, _material);
-                    _wpl11 = _area / 2.0 * 2.0 * sec.Centroid.Y;
+                    SectionT halfSectionLeft = new SectionT(hTSection + _tw1, _h, _tf_top + _tf_bottom, _tw1, _material);
+                    SectionT halfSectionRigth = new SectionT(_b - hTSection - _tw1, _h, _tf_top + _tf_bottom, _tw2, _material);
+                    _wpl11 = (_area / 2.0) * (halfSectionLeft.Centroid.Y + halfSectionRigth.Centroid.Y);
                 }
                 else
                 {
@@ -181,25 +192,30 @@ namespace GPC.Model.Sections
             }
 
             //Jt
-            if (_tf_bottom == _tf_top && _tw1 == _tw2 && _tw1 == _tf_top)
-            {
-                double t = _tf_top;
-                double rc = 0; // rc = 1.5 * t for RHS with corner
-                double Ap = (_h - t) * (_b-t) - rc *rc * (4.0 - Math.PI);
-                double p = 2.0 * ((_h - t) + (_b - t)) - 2.0 * rc * (4.0 - Math.PI);
-                _jt = 4.0 * Ap * Ap * t / p; //Salmon & Johnson 1980
-            } else
             {
                 double Amed = (_h - (_tf_top / 2.0) - (_tf_bottom / 2.0)) * (_b - (_tw1 / 2.0) - (tw2 / 2.0));
                 double LmedTop = _b - _tw1 / 2.0 - _tw2 / 2.0; 
                 double LmedBottom = LmedTop;
                 double LmedWeb1 = _h - _tf_top / 2.0 - _tf_bottom / 2.0;
                 double LmedWeb2 = LmedWeb1;
-                _jt = 4.0 * Amed / (_tf_top / LmedTop + _tf_bottom / LmedBottom + _tw1 / LmedWeb1 + _tw2 / LmedWeb2); /*to be checked*/
+                _jt = 4.0 * Amed * Amed / (LmedBottom / _tf_bottom + LmedTop / _tf_top + LmedWeb1 / _tw1 + LmedWeb2 / _tw2);
             }
 
             //Jw
             _jw = 0;
+        }
+
+        public override double MinSigma(double N, double My, double Mz)
+        {
+            double sigma1 = N/_area - My / J22 * (_h / 2.0 - _centroid.Y) + Mz / J11 * (_centroid.X);
+            double sigma2 = N / _area - My / J22 * (_h / 2.0 - _centroid.Y) - Mz / J11 * (_b - _centroid.X);
+            double sigma3 = N / _area + My / J22 * (_centroid.Y) + Mz / J11 * (_centroid.X);
+            double sigma4 = N / _area + My / J22 * (_centroid.Y) - Mz / J11 * (_b - _centroid.X);
+
+            double sigmaMin = Math.Min(sigma1, sigma2);
+            sigmaMin = Math.Min(sigmaMin, sigma3);
+            sigmaMin = Math.Min(sigma4, sigma4);
+            return sigmaMin;
         }
     }
 }

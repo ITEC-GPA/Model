@@ -37,12 +37,24 @@ namespace GPC.Model.Sections
 
             _hw = _hTot - _tbottom - _ttop;
 
+            double maxB = Math.Max(bbottom, btop);
+            double xStartBottom;
+            double xStartTop;
+            double xWeb = maxB / 2.0;
+            if (maxB == btop) {
+                xStartTop = 0;
+                xStartBottom = btop/2.0 - bbottom / 2.0;
+            } else
+            {
+                xStartTop = bbottom / 2.0 - btop / 2.0;
+                xStartBottom = 0;
+            }
             
-            _plates[0] = new Plate(_tbottom, 0, _tbottom / 2.0, - _bbottom / 2.0, _tbottom / 2.0, ((SteelMaterial)material).Fyk, Plate.TypePlate.outer);
-            _plates[1] = new Plate(_tbottom, 0, _tbottom / 2.0, _bbottom / 2.0, _tbottom / 2.0, ((SteelMaterial)material).Fyk, Plate.TypePlate.outer);
-            _plates[2] = new Plate(_tw, 0, _tbottom, 0, _hw + _tbottom, ((SteelMaterial)material).Fyk, Plate.TypePlate.inner);
-            _plates[3] = new Plate(_ttop, 0, _hTot - _ttop/2.0, -_btop / 2.0, _hTot - _ttop / 2.0, ((SteelMaterial)material).Fyk, Plate.TypePlate.outer);
-            _plates[4] = new Plate(_ttop, 0, _hTot - _ttop / 2.0, _btop / 2.0, _hTot - _ttop / 2.0, ((SteelMaterial)material).Fyk, Plate.TypePlate.outer);
+            _plates[0] = new Plate(_tbottom, xWeb, _tbottom / 2.0, xStartBottom, _tbottom / 2.0, ((SteelMaterial)material).Fyk, Plate.TypePlate.outer);
+            _plates[1] = new Plate(_tbottom, xWeb, _tbottom / 2.0, xWeb + bbottom/2.0, _tbottom / 2.0, ((SteelMaterial)material).Fyk, Plate.TypePlate.outer);
+            _plates[2] = new Plate(_tw, xWeb, _tbottom, xWeb, _hw + _tbottom, ((SteelMaterial)material).Fyk, Plate.TypePlate.inner);
+            _plates[3] = new Plate(_ttop, xWeb, _hTot - _ttop/2.0, xWeb -_btop / 2.0, _hTot - _ttop / 2.0, ((SteelMaterial)material).Fyk, Plate.TypePlate.outer);
+            _plates[4] = new Plate(_ttop, xWeb, _hTot - _ttop / 2.0, xWeb + _btop / 2.0, _hTot - _ttop / 2.0, ((SteelMaterial)material).Fyk, Plate.TypePlate.outer);
 
             _area =0;
             double Sy = 0;
@@ -76,7 +88,7 @@ namespace GPC.Model.Sections
             }
 
             double dmed = _hTot - _tbottom / 2.0 - _ttop / 2.0;
-            _jt = (_btop * Math.Pow(_ttop,3.0)) + (_bbottom * Math.Pow(_tbottom, 3.0) + dmed * Math.Pow(_tw, 3.0)) / 3.0;
+            _jt = (_btop * Math.Pow(_ttop,3.0) + _bbottom * Math.Pow(_tbottom, 3.0) + dmed * Math.Pow(_tw, 3.0)) / 3.0; //SSRC 1998 -> Straus use this formula with _hw instead of dmed
 
             double JFlTop = 1.0 / 12.0 * _ttop * Math.Pow(_btop, 3.0);
             double JFlBottom = 1.0 / 12.0 * _tbottom * Math.Pow(_bbottom, 3.0);
@@ -88,7 +100,7 @@ namespace GPC.Model.Sections
             //CNR DT208_2011 --> to be checked
             double zBottom = _centroid.Y - _tbottom / 2.0;
             double zTop = _hTot - _ttop / 2.0 - _centroid.Y;
-            _shearCenter = new Point2d(0, _centroid.Y - (zBottom * JFlBottom - zTop * JFlTop)/jz);
+            _shearCenter = new Point2d(_centroid.X, _centroid.Y - (zBottom * JFlBottom - zTop * JFlTop)/jz);
 
             _wel11Left = _j11 / Math.Max(_bbottom / 2.0, _btop / 2.0);
             _wel11Right = _wel11Left;
