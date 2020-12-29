@@ -207,8 +207,8 @@ namespace GPC.Model.Sections
 
         public override double MinSigma(double N, double My, double Mz)
         {
-            double sigma1 = N/_area - My / J22 * (_h / 2.0 - _centroid.Y) + Mz / J11 * (_centroid.X);
-            double sigma2 = N / _area - My / J22 * (_h / 2.0 - _centroid.Y) - Mz / J11 * (_b - _centroid.X);
+            double sigma1 = N / _area - My / J22 * (_h - _centroid.Y) + Mz / J11 * (_centroid.X);
+            double sigma2 = N / _area - My / J22 * (_h - _centroid.Y) - Mz / J11 * (_b - _centroid.X);
             double sigma3 = N / _area + My / J22 * (_centroid.Y) + Mz / J11 * (_centroid.X);
             double sigma4 = N / _area + My / J22 * (_centroid.Y) - Mz / J11 * (_b - _centroid.X);
 

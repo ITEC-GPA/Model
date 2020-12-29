@@ -188,7 +188,7 @@ namespace GPC.Model.Sections
 
         public override double MinSigma(double N, double My, double Mz)
         {
-            double sigmap1 = N/_area - My / _wel22Top + Mz / _j11 * _btop / 2.0;
+            double sigmap1 = N /_area - My / _wel22Top + Mz / _j11 * _btop / 2.0;
             double sigmap2 = N / _area - My / _wel22Top - Mz / _j11 * _btop / 2.0;
             double sigmap3 = N / _area + My / _wel22Bottom + Mz / _j11 * _bbottom / 2.0;
             double sigmap4 = N / _area + My / _wel22Bottom - Mz / _j11 * _bbottom / 2.0;
