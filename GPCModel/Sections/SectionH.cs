@@ -125,9 +125,19 @@ namespace GPC.Model.Sections
                     SectionT halfSectionTop = new SectionT(hw + _ttop, _btop, _tw, _ttop, material);
                     SectionT halfSectionBottom = new SectionT(_hTot - _ttop - hw, _bbottom, _tw, _tbottom, material);
                     _wpl22 = _area/2.0 * (halfSectionTop.Centroid.Y + halfSectionBottom.Centroid.Y);
+                } else if (_area / 2.0 <= _btop * _ttop)
+                {
+                    double hHalf = _area / 2.0 / _btop;
+                    SectionH halfSectionBottom = new SectionH(_hTot - hHalf, _tw, _btop, _ttop - hHalf, _bbottom, _tbottom, _isWelded, material);
+                    _wpl22 = _area / 2.0 * (hHalf/2.0 + _hTot - hHalf - halfSectionBottom.Centroid.Y);
+                } else if (_area /2.0 <= _bbottom * _tbottom)
+                {
+                    double hHalf = _area / 2.0 / _bbottom;
+                    SectionH halfSectionBottom = new SectionH(_hTot - hHalf, _tw, _btop, _ttop, _bbottom, _tbottom - hHalf, _isWelded, material);
+                    _wpl22 = _area / 2.0 * (hHalf / 2.0 + _hTot + halfSectionBottom.Centroid.Y);
                 } else
                 {
-                    throw new Exception("Cannot calulate Wpl : Plastic neutral axis in flanges...to be implemented");
+                    throw new Exception("Cannot calculate Wpl : Plastic neutral axis in flanges...to be implemented");
                 }
             }
  
