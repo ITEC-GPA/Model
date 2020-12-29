@@ -214,7 +214,7 @@ namespace GPC.Model.Sections
 
             double sigmaMin = Math.Min(sigma1, sigma2);
             sigmaMin = Math.Min(sigmaMin, sigma3);
-            sigmaMin = Math.Min(sigma4, sigma4);
+            sigmaMin = Math.Min(sigmaMin, sigma4);
             return sigmaMin;
         }
     }
