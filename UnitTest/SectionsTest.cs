@@ -90,6 +90,8 @@ namespace UnitTest
             double Jt = 23328000;
             
             Assert.AreEqual(A, sec.Area);
+            Assert.AreEqual(sec.Centroid.X, b / 2.0); //only with tftop = tfbottom && tw1 == tw2
+            Assert.AreEqual(sec.Centroid.Y, h / 2.0); //only with tftop = tfbottom && tw1 == tw2
             Assert.AreEqual(b - 2 * tw, sec.Bint);
             Assert.AreEqual(h - 2 * tf, sec.Hw);
             Assert.AreEqual(J2, sec.J22);

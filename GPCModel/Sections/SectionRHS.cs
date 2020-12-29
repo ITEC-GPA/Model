@@ -108,11 +108,11 @@ namespace GPC.Model.Sections
 
             double fy = ((SteelMaterial)_material).Fyk;
             
-            _plates[0] = new Plate(_tf_top, 0, _h / 2.0 - _tf_top / 2.0, _b, _h / 2.0 - _tf_top / 2.0, fy, Plate.TypePlate.inner);
-            _plates[1] = new Plate(_tf_bottom, 0, -_h / 2.0 + _tf_bottom / 2.0, _b, -_h / 2.0 + _tf_bottom / 2.0, fy, Plate.TypePlate.inner);      
+            _plates[0] = new Plate(_tf_top, 0, _h - _tf_top / 2.0, _b, _h - _tf_top / 2.0, fy, Plate.TypePlate.inner);
+            _plates[1] = new Plate(_tf_bottom, 0, _tf_bottom / 2.0, _b, _tf_bottom / 2.0, fy, Plate.TypePlate.inner);      
 
-            _plates[2] = new Plate(_tw1, _tw1 / 2.0, -_h / 2.0 + _tf_bottom, _tw1 / 2.0, _h / 2.0 - _tf_top, fy, Plate.TypePlate.inner);
-            _plates[3] = new Plate(_tw2, _b - _tw2 / 2.0, -_h / 2.0 + _tf_bottom, _b - _tw2 / 2.0, _h / 2.0 - _tf_top, fy, Plate.TypePlate.inner);
+            _plates[2] = new Plate(_tw1, _tw1 / 2.0, _tf_bottom, _tw1 / 2.0, _h - _tf_top, fy, Plate.TypePlate.inner);
+            _plates[3] = new Plate(_tw2, _b - _tw2 / 2.0, _tf_bottom, _b - _tw2 / 2.0, _h - _tf_top, fy, Plate.TypePlate.inner);
 
             _area = 0;
             double Sy = 0;
@@ -147,8 +147,8 @@ namespace GPC.Model.Sections
 
             }
 
-            _wel22Top = _j22 / (_h / 2.0 - _centroid.Y);
-            _wel22Bottom = _j22 / Math.Abs(_centroid.Y - -_h / 2.0);
+            _wel22Top = _j22 / (_h  - _centroid.Y);
+            _wel22Bottom = _j22 / Math.Abs(_centroid.Y);
             _wel11Left = _j11 / ( _centroid.X);
             _wel11Right = _j11 / Math.Abs(_centroid.X - _b);
 
