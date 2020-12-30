@@ -129,12 +129,12 @@ namespace GPC.Model.Sections
                 {
                     double hHalf = _area / 2.0 / _btop;
                     SectionH halfSectionBottom = new SectionH(_hTot - hHalf, _tw, _btop, _ttop - hHalf, _bbottom, _tbottom, _isWelded, material);
-                    _wpl22 = _area / 2.0 * (hHalf/2.0 + _hTot - hHalf - halfSectionBottom.Centroid.Y);
+                    _wpl22 = _area / 2.0 * (hHalf/2.0 + (_hTot - hHalf - halfSectionBottom.Centroid.Y));
                 } else if (_area /2.0 <= _bbottom * _tbottom)
                 {
                     double hHalf = _area / 2.0 / _bbottom;
                     SectionH halfSectionBottom = new SectionH(_hTot - hHalf, _tw, _btop, _ttop, _bbottom, _tbottom - hHalf, _isWelded, material);
-                    _wpl22 = _area / 2.0 * (hHalf / 2.0 + _hTot + halfSectionBottom.Centroid.Y);
+                    _wpl22 = _area / 2.0 * (hHalf / 2.0 + halfSectionBottom.Centroid.Y);
                 } else
                 {
                     throw new Exception("Cannot calculate Wpl : Plastic neutral axis in flanges...to be implemented");

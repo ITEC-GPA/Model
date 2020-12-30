@@ -134,6 +134,38 @@ namespace UnitTest
         }
 
         [TestMethod]
+        public void SectionHTest2()
+        {
+            double h = 400;
+            double tw = 12;
+            double bt = 200;
+            double bb = 300;
+            double tt = 10;
+            double tb = 25;
+            SectionH sec = new SectionH(h, tw, bt, tt, bb, tb, true, new SteelMaterial("steel", 200000, 0.3, 355, 510, 7850));
+
+            double A = 13880;
+            double J2 = 3.193 * 1e8;
+            double J1 = 62969227;
+            double Wel2 = 1178986;
+            double Wel1 = 419794;
+            double Wpl2 = 1632054;
+            double Wpl1 = 675640;
+            double JtSAP = 1750920;
+            double JtStraus = 1839406.666667;
+            double Jt = (JtSAP + JtStraus) / 2.0;
+
+            Assert.AreEqual(A, sec.Area);
+            Assert.AreEqual(Math.Abs(J2 / sec.J22) - 1, 0, 0.001);
+            Assert.AreEqual(Math.Abs(J1 / sec.J11) - 1, 0, 0.001);
+            Assert.AreEqual(Math.Abs(Wel2 / sec.Wel22Min) - 1, 0, 0.001);
+            Assert.AreEqual(Math.Abs(Wel1 / sec.Wel11Min) - 1, 0, 0.001);
+            Assert.AreEqual(Math.Abs(Wpl2 / sec.Wpl22) - 1, 0, 0.001);
+            Assert.AreEqual(Math.Abs(Wpl1 / sec.Wpl11) - 1, 0, 0.001);
+            Assert.AreEqual(Jt / sec.Jt - 1.0, 0, 0.03);
+        }
+
+        [TestMethod]
         public void SectionTTest()
         {
             double h = 400;
