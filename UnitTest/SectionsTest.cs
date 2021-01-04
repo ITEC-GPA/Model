@@ -134,7 +134,7 @@ namespace UnitTest
         }
 
         [TestMethod]
-        public void SectionHTest2()
+        public void SectionAsymmetricHTest1()
         {
             double h = 400;
             double tw = 12;
@@ -154,6 +154,7 @@ namespace UnitTest
             double JtSAP = 1750920;
             double JtStraus = 1839406.666667;
             double Jt = (JtSAP + JtStraus) / 2.0;
+            //double JwSAP = 1.317 * 1e-6 * Math.Pow(1000.0,6); //conversion
 
             Assert.AreEqual(A, sec.Area);
             Assert.AreEqual(Math.Abs(J2 / sec.J22) - 1, 0, 0.001);
@@ -163,6 +164,7 @@ namespace UnitTest
             Assert.AreEqual(Math.Abs(Wpl2 / sec.Wpl22) - 1, 0, 0.001);
             Assert.AreEqual(Math.Abs(Wpl1 / sec.Wpl11) - 1, 0, 0.001);
             Assert.AreEqual(Jt / sec.Jt - 1.0, 0, 0.03);
+            //Assert.AreEqual(JwSAP / sec.Jw - 1, 0, 0.05);
         }
 
         [TestMethod]
