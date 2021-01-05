@@ -74,6 +74,7 @@ namespace GPC.Model.Sections
 
             _jt = 1.0 / 3.0 * (_lengthTop - _tw / 2.0) * Math.Pow(_tTop, 3.0) + 1.0 / 3.0 * (_h - _tTop/2.0 - _tBottom/2.0) * Math.Pow(_tw, 3.0) + 1.0 / 3.0 * (_lengthBottom - _tw / 2.0) * Math.Pow(_tBottom, 3.0);
 
+            IsSymmetricAlongZLocalAxis = false;
             if (_lengthBottom == _lengthTop && _tTop == _tBottom)
             {
                 //CNR DT 208/2001
@@ -88,6 +89,8 @@ namespace GPC.Model.Sections
                 _wel22Bottom = _j22 / _centroid.Y;
                 _wel22Top = _j22 / (_h - _centroid.Y);
 
+               
+                IsSymmetricAlongZLocalAxis = true;
                 _wpl11 = 0;
                 {
                     if (_area/2.0 > _h * _tw)
@@ -115,12 +118,11 @@ namespace GPC.Model.Sections
                         throw new Exception("neutral axis in flange not yet supported");
                     }
                 }
-                IsSymmetricAlongYLocalAxis = true;
             } else
             {
                 throw new Exception("Different lenght or thickness not yet supported");
             }
-            IsSymmetricAlongZLocalAxis = false;
+            
         }
     }
 }
