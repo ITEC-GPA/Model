@@ -65,6 +65,9 @@ namespace GPC.Model.Sections
             }
             _j11 = (_jxx + _jyy) / 2.0 - 0.5 * Math.Sqrt(Math.Pow(_jxx - _jyy,2.0) + 4.0 * _jxy * _jxy);
             _j22 = (_jxx + _jyy) / 2.0 + 0.5 * Math.Sqrt(Math.Pow(_jxx - _jyy,2.0) + 4.0 * _jxy * _jxy);
+
+            _jt = 1.0 / 3.0 * (_l1 - _t2 / 2.0) * Math.Pow(_t1, 3.0) + 1.0 / 3.0 * (_l2 - _t1 / 2.0) * Math.Pow(_t2, 3.0);
+            _jw = (Math.Pow(_l1 - _t2 / 2.0, 3.0) * Math.Pow(_t1, 3.0) + Math.Pow(_l2 - _t1 / 2.0, 3.0) * Math.Pow(_t2, 3.0)) / 36.0; //CNR DT 208/2011
         }
     }
 }
