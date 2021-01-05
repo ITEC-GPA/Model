@@ -193,6 +193,71 @@ namespace UnitTest
             Assert.AreEqual(Math.Abs(Wpl2 / sec.Wpl22) - 1, 0, 0.001);
             Assert.AreEqual(Math.Abs(Wpl1 / sec.Wpl11) - 1, 0, 0.001);
             Assert.AreEqual(Math.Abs(Jt / sec.Jt) - 1.0, 0, 0.03);
-        } 
+        }
+
+        [TestMethod]
+        public void SectionCTest1()
+        {
+            double h = 400;
+            double tw = 10;
+            double b = 200;
+            double tf = 25;
+            SectionC sec = new SectionC(h, tw, b, tf, b, tf, new SteelMaterial("steel", 200000, 0.3, 355, 510, 7850));
+
+            double A = 13500;
+            double J1 = 56760648.14815;
+            double J2 = 387812500.0;
+            double Wel1 = 455434;
+            double Wel2 = 1939062;
+            double Wpl1 = 771250;
+            double Wpl2 = 2181250;
+            double JtSAP = 2033837;
+            double JtStraus = 2200000.0;
+            double Jt = (JtSAP + JtStraus) / 2.0;
+            double JwSAP = 1.465E+12;
+
+            Assert.AreEqual(A, sec.Area);
+            Assert.AreEqual(Math.Abs(J2 / sec.J22) - 1, 0, 0.001);
+            Assert.AreEqual(Math.Abs(J1 / sec.J11) - 1, 0, 0.001);
+            Assert.AreEqual(Math.Abs(Wel2 / sec.Wel22Min) - 1, 0, 0.001);
+            Assert.AreEqual(Math.Abs(Wel1 / sec.Wel11Min) - 1, 0, 0.001);
+            Assert.AreEqual(Math.Abs(Wpl2 / sec.Wpl22) - 1, 0, 0.001);
+            Assert.AreEqual(Math.Abs(Wpl1 / sec.Wpl11) - 1, 0, 0.001);
+            Assert.AreEqual(Jt / sec.Jt - 1.0, 0, 0.03);
+            Assert.AreEqual(JwSAP / sec.Jw - 1, 0, 0.07);
+        }
+
+        [TestMethod]
+        public void SectionLTest1()
+        {
+            double h = 500;
+            double tw = 40;
+            double b = 500;
+            double tb = 80;
+            SectionL sec = new SectionL(h, tw, b, tb, new SteelMaterial("steel", 200000, 0.3, 355, 510, 7850));
+
+            double A = 56800;
+            /*double J1 = 56760648.14815;
+            double J2 = 387812500.0;
+            double Wel1 = 455434;
+            double Wel2 = 1939062;
+            double Wpl1 = 771250;
+            double Wpl2 = 2181250;*/
+            double JtSAP = 86856533.3;
+            double JtStraus = 89173333.33333;
+            double Jt = (JtSAP + JtStraus) / 2.0;
+            double JwSAP = 3.696E+11;
+            double JwStraus = 1.64361e12;
+
+            Assert.AreEqual(A, sec.Area);
+            /*Assert.AreEqual(Math.Abs(J2 / sec.J22) - 1, 0, 0.001);
+            Assert.AreEqual(Math.Abs(J1 / sec.J11) - 1, 0, 0.001);
+            Assert.AreEqual(Math.Abs(Wel2 / sec.Wel22Min) - 1, 0, 0.001);
+            Assert.AreEqual(Math.Abs(Wel1 / sec.Wel11Min) - 1, 0, 0.001);
+            Assert.AreEqual(Math.Abs(Wpl2 / sec.Wpl22) - 1, 0, 0.001);
+            Assert.AreEqual(Math.Abs(Wpl1 / sec.Wpl11) - 1, 0, 0.001);*/
+            Assert.AreEqual(Jt / sec.Jt - 1.0, 0, 0.05);
+            Assert.AreEqual(JwStraus / sec.Jw - 1, 0, 0.06);
+        }
     }
 }
