@@ -123,7 +123,25 @@ namespace GPC.Model.Sections
             {
                 throw new Exception("Different lenght or thickness not yet supported");
             }
-            
+        }
+
+        public override double MinSigma(double N, double My, double Mz)
+        {
+            if (_lengthBottom == _lengthTop && _tBottom == _tTop) {
+                double sigmaP1 = N / _area - My / _j22 * (_h - _centroid.Y) + Mz / _j11 * (_centroid.X);
+                double sigmaP2 = N / _area - My / _j22 * (_h - _centroid.Y) - Mz / _j11 * (_lengthTop - _centroid.X);
+                double sigmaP3 = N / _area + My / _j22 * (_centroid.Y) + Mz / _j11 * (_centroid.X);
+                double sigmaP4 = N / _area + My / _j22 * (_centroid.Y) - Mz / _j11 * (_lengthBottom - _centroid.X);
+
+                double sigmaMin = Math.Min(sigmaP1, sigmaP2);
+                sigmaMin = Math.Min(sigmaMin, sigmaP3);
+                sigmaMin = Math.Min(sigmaMin, sigmaP4);
+
+                return sigmaMin;
+            } else
+            {
+                throw new Exception("calculation of unequal C not yet supported");
+            }
         }
     }
 }
