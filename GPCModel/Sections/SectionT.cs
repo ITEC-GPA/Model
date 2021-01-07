@@ -24,6 +24,7 @@ namespace GPC.Model.Sections
         public double Tw => _tw;
         public double Tf => _tf;
         public double B => _b;
+        public Plate[] Plates => _plates;
         #endregion
 
         public SectionT(double h, double b, double tw, double tf, Material material) : base(material)
