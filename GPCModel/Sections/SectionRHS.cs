@@ -132,7 +132,7 @@ namespace GPC.Model.Sections
                 _shearCenter = _centroid;
             } else
             {
-                throw new Exception("Centroid with different thickness not implemented");
+                throw new Exception("Section RHS with different thickness not yet implemented");
             }
 
             _j22 = 0;

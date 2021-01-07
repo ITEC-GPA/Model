@@ -141,14 +141,14 @@ namespace GPC.Model.Sections
                 }
             }
  
-            IsSymmetricAlongYLocalAxis = true;
+            IsSymmetricAlongZLocalAxis = true;
             if (_btop == _bbottom && _tbottom == _ttop)
             {
-                IsSymmetricAlongZLocalAxis = true;
+                IsSymmetricAlongYLocalAxis = true;
             }
             else
             {
-                IsSymmetricAlongZLocalAxis = false;
+                IsSymmetricAlongYLocalAxis = false;
             }
         }
 

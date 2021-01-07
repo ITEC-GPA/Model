@@ -21,9 +21,11 @@ namespace GPC.Model.Sections
 
         #region Properties
         public double H => _h;
+        public double Hw => _h - _tf;
         public double Tw => _tw;
         public double Tf => _tf;
         public double B => _b;
+        public Plate[] Plates => _plates;
         #endregion
 
         public SectionT(double h, double b, double tw, double tf, Material material) : base(material)
@@ -35,8 +37,8 @@ namespace GPC.Model.Sections
 
             double fy = ((SteelMaterial)material).Fyk;
 
-            IsSymmetricAlongZLocalAxis = false;
-            IsSymmetricAlongYLocalAxis = true;
+            IsSymmetricAlongZLocalAxis = true;
+            IsSymmetricAlongYLocalAxis = false;
 
             _plates = new Plate[3];
 
@@ -84,6 +86,20 @@ namespace GPC.Model.Sections
             _jt = (_b * Math.Pow(_tf, 3.0) + (_h - _tf / 2.0) * Math.Pow(_tw, 3.0)) / 3.0;
 
             _jw = Math.Pow(_b, 3.0) * Math.Pow(_tf, 3.0) / 144.0 + Math.Pow(_h - _tf / 2.0, 3.0) * Math.Pow(_tw, 3.0) / 36.0; //Bleich 1952, Picard and Beaulieu 1991
+
+            _shearCenter = new Point2d(_b / 2.0, _h - _tf /2.0);
+        }
+
+        public override double MinSigma(double N, double My, double Mz)
+        {
+            double sigmaP1 = N / _area - My / _wel22Top + Mz / _wel11Left;
+            double sigmaP2 = N / _area - My / _wel22Top - Mz /_wel11Right;
+            double sigmaP3 = N / _area + My / _wel22Bottom;
+           
+            double sigmaMin = Math.Min(sigmaP1, sigmaP2);
+            sigmaMin = Math.Min(sigmaMin, sigmaP3);
+
+            return sigmaMin;
         }
     }
 }

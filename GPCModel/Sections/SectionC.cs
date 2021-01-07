@@ -29,6 +29,7 @@ namespace GPC.Model.Sections
         public double ThicknessBottom => _tBottom;
         public double LTop => _lengthTop;
         public double ThicknessTop => _tTop;
+        public Plate[] Plates => _plates;
         #endregion
 
         public SectionC(double h, double tw, double LTop, double tTop, double LBottom, double tBottom, Material material) : base(material)
@@ -77,6 +78,8 @@ namespace GPC.Model.Sections
             IsSymmetricAlongZLocalAxis = false;
             if (_lengthBottom == _lengthTop && _tTop == _tBottom)
             {
+                IsSymmetricAlongYLocalAxis = true;
+
                 //CNR DT 208/2001
                 double hf = _h - _tTop / 2.0 - _tBottom / 2.0;
                 double length = _lengthBottom;
@@ -88,9 +91,7 @@ namespace GPC.Model.Sections
                 _wel11Right = _j11 / Math.Max(_lengthBottom - _centroid.X, _lengthTop - _centroid.X);
                 _wel22Bottom = _j22 / _centroid.Y;
                 _wel22Top = _j22 / (_h - _centroid.Y);
-
-               
-                IsSymmetricAlongZLocalAxis = true;
+ 
                 _wpl11 = 0;
                 {
                     if (_area/2.0 > _h * _tw)
@@ -122,7 +123,25 @@ namespace GPC.Model.Sections
             {
                 throw new Exception("Different lenght or thickness not yet supported");
             }
-            
+        }
+
+        public override double MinSigma(double N, double My, double Mz)
+        {
+            if (_lengthBottom == _lengthTop && _tBottom == _tTop) {
+                double sigmaP1 = N / _area - My / _j22 * (_h - _centroid.Y) + Mz / _j11 * (_centroid.X);
+                double sigmaP2 = N / _area - My / _j22 * (_h - _centroid.Y) - Mz / _j11 * (_lengthTop - _centroid.X);
+                double sigmaP3 = N / _area + My / _j22 * (_centroid.Y) + Mz / _j11 * (_centroid.X);
+                double sigmaP4 = N / _area + My / _j22 * (_centroid.Y) - Mz / _j11 * (_lengthBottom - _centroid.X);
+
+                double sigmaMin = Math.Min(sigmaP1, sigmaP2);
+                sigmaMin = Math.Min(sigmaMin, sigmaP3);
+                sigmaMin = Math.Min(sigmaMin, sigmaP4);
+
+                return sigmaMin;
+            } else
+            {
+                throw new Exception("calculation of unequal C not yet supported");
+            }
         }
     }
 }

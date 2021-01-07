@@ -31,6 +31,7 @@ namespace GPC.Model.Sections
         public double Jxx => _jxx;
         public double Jxy => _jxy;
         public double Jyy => _jyy;
+        public Plate[] Plates => _plates;
         #endregion
 
         public SectionL(double l1, double t1, double l2, double t2, Material material) : base(material)
@@ -68,6 +69,8 @@ namespace GPC.Model.Sections
 
             _jt = 1.0 / 3.0 * (_l1 - _t2 / 2.0) * Math.Pow(_t1, 3.0) + 1.0 / 3.0 * (_l2 - _t1 / 2.0) * Math.Pow(_t2, 3.0);
             _jw = (Math.Pow(_l1 - _t2 / 2.0, 3.0) * Math.Pow(_t1, 3.0) + Math.Pow(_l2 - _t1 / 2.0, 3.0) * Math.Pow(_t2, 3.0)) / 36.0; //CNR DT 208/2011
+
+            _shearCenter = new Point2d(_t1 / 2.0, _t2 / 2.0);
         }
     }
 }
