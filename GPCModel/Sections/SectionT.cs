@@ -84,6 +84,9 @@ namespace GPC.Model.Sections
             _jt = (_b * Math.Pow(_tf, 3.0) + (_h - _tf / 2.0) * Math.Pow(_tw, 3.0)) / 3.0;
 
             _jw = Math.Pow(_b, 3.0) * Math.Pow(_tf, 3.0) / 144.0 + Math.Pow(_h - _tf / 2.0, 3.0) * Math.Pow(_tw, 3.0) / 36.0; //Bleich 1952, Picard and Beaulieu 1991
+
+            _shearCenter = new Point2d(_b / 2.0, _h - _tf /2.0);
+
         }
     }
 }
