@@ -29,6 +29,7 @@ namespace GPC.Model.Sections
         public double ThicknessBottom => _tBottom;
         public double LTop => _lengthTop;
         public double ThicknessTop => _tTop;
+        public Plate[] Plates => _plates;
         #endregion
 
         public SectionC(double h, double tw, double LTop, double tTop, double LBottom, double tBottom, Material material) : base(material)
