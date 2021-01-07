@@ -77,6 +77,8 @@ namespace GPC.Model.Sections
             IsSymmetricAlongZLocalAxis = false;
             if (_lengthBottom == _lengthTop && _tTop == _tBottom)
             {
+                IsSymmetricAlongYLocalAxis = true;
+
                 //CNR DT 208/2001
                 double hf = _h - _tTop / 2.0 - _tBottom / 2.0;
                 double length = _lengthBottom;
@@ -88,9 +90,7 @@ namespace GPC.Model.Sections
                 _wel11Right = _j11 / Math.Max(_lengthBottom - _centroid.X, _lengthTop - _centroid.X);
                 _wel22Bottom = _j22 / _centroid.Y;
                 _wel22Top = _j22 / (_h - _centroid.Y);
-
-               
-                IsSymmetricAlongZLocalAxis = true;
+ 
                 _wpl11 = 0;
                 {
                     if (_area/2.0 > _h * _tw)
