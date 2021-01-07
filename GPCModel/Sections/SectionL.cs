@@ -31,6 +31,7 @@ namespace GPC.Model.Sections
         public double Jxx => _jxx;
         public double Jxy => _jxy;
         public double Jyy => _jyy;
+        public Plate[] Plates => _plates;
         #endregion
 
         public SectionL(double l1, double t1, double l2, double t2, Material material) : base(material)
