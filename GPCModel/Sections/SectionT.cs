@@ -21,6 +21,7 @@ namespace GPC.Model.Sections
 
         #region Properties
         public double H => _h;
+        public double Hw => _h - _tf;
         public double Tw => _tw;
         public double Tf => _tf;
         public double B => _b;
@@ -36,8 +37,8 @@ namespace GPC.Model.Sections
 
             double fy = ((SteelMaterial)material).Fyk;
 
-            IsSymmetricAlongZLocalAxis = false;
-            IsSymmetricAlongYLocalAxis = true;
+            IsSymmetricAlongZLocalAxis = true;
+            IsSymmetricAlongYLocalAxis = false;
 
             _plates = new Plate[3];
 
