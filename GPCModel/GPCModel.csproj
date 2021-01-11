@@ -46,6 +46,7 @@
     <Reference Include="MathNet.Spatial, Version=0.6.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\MathNet.Spatial.0.6.0\lib\net461\MathNet.Spatial.dll</HintPath>
     </Reference>
+    <Reference Include="PresentationFramework" />
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Numerics" />
@@ -155,7 +156,6 @@
     <Compile Include="Sections\SectionCircular.cs" />
     <Compile Include="Sections\SectionH.cs" />
     <Compile Include="Sections\SectionL.cs" />
-    <Compile Include="Sections\SectionRectangular.cs" />
     <Compile Include="Sections\SectionRHS.cs" />
     <Compile Include="Sections\SectionShape.cs" />
     <Compile Include="Sections\SectionT.cs" />
