@@ -74,8 +74,7 @@ namespace GPC.Model.Sections
             {
                 double hHalftArea = _area / 2.0 / _tw;
                 SectionT halfSectionTop = new SectionT(_h - hHalftArea, _b, _tw, _tf, material);
-                SectionRectangular halfSectionBottom = new SectionRectangular(_tw, hHalftArea, material);
-                _wpl22 = _area / 2.0 * (halfSectionTop.Centroid.Y + halfSectionBottom.Centroid.Y);
+                _wpl22 = _area / 2.0 * (halfSectionTop.Centroid.Y +hHalftArea/2.0);
             } else
             {
                 //throw new Exception("Neutral Axis in flange not yet implemented");

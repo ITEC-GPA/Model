@@ -47,7 +47,7 @@ namespace UnitTest
             Assert.AreEqual(Wpl2, sec.Wpl22);
         }
 
-        [TestMethod]
+        /*[TestMethod]
         public void SectionRectangularTest()
         {
             double h = 100;
@@ -69,7 +69,7 @@ namespace UnitTest
             Assert.AreEqual(Wel1, sec.Wel11Min);
             Assert.AreEqual(Wpl2, sec.Wpl22);
             Assert.AreEqual(Wpl1, sec.Wpl11);
-        }
+        }*/
 
         [TestMethod]
         public void SectionRHSTest()
