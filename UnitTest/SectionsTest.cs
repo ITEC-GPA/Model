@@ -196,18 +196,6 @@ namespace UnitTest
         }
 
         [TestMethod]
-        public void SectionTTest2()
-        {
-            double h = 300;
-            double b = 300;
-            double tf = 30;
-            double tw = 30;
-            SectionT sec = new SectionT(h, b, tw, tf, new SteelMaterial("steel", 200000, 0.3, 355, 510, 7850));
-
-            Assert.AreEqual(sec.Zj / 95.5, 1, 0.05);
-        }
-
-        [TestMethod]
         public void SectionCTest1()
         {
             double h = 400;
