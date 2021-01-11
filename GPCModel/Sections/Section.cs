@@ -34,6 +34,7 @@ namespace GPC.Model.Sections
         protected Point2d _shearCenter;
         protected Point2d _centroid;
         protected double _angleX1;
+        protected double _zj; //Wagner coefficient = zs - 0.5 integral((y^2+z^2)*z dA) / Jy
         #endregion
 
         #region Properties
@@ -112,6 +113,12 @@ namespace GPC.Model.Sections
         {
             get => _angleX1;
             set => _angleX1 = value;
+        }
+
+        public double Zj
+        {
+            get => _zj;
+            set => _zj = value;
         }
 
         public double InertiaRadius1 => Math.Sqrt(J11 / Area);

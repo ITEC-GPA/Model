@@ -26,6 +26,7 @@ namespace GPC.Model.Sections
         public double Tf => _tf;
         public double B => _b;
         public Plate[] Plates => _plates;
+        public double Zj => _zj; // Wagner coefficient
         #endregion
 
         public SectionT(double h, double b, double tw, double tf, Material material) : base(material)
@@ -88,6 +89,39 @@ namespace GPC.Model.Sections
             _jw = Math.Pow(_b, 3.0) * Math.Pow(_tf, 3.0) / 144.0 + Math.Pow(_h - _tf / 2.0, 3.0) * Math.Pow(_tw, 3.0) / 36.0; //Bleich 1952, Picard and Beaulieu 1991
 
             _shearCenter = new Point2d(_b / 2.0, _h - _tf /2.0);
+
+            //calculation of Wagner coefficiente: zj = zs - 0.5 integral((y^2 + z^2) * z dA) / Jy
+            //needed for for Mcr calculation
+            int nxFlange = 20;
+            int nyFlange = 4;
+            int nxWeb = 4;
+            int nyWeb = 30;
+            double integral = 0;
+            for (int i = 0; i < nxFlange; i++)
+            {
+                for (int j = 0; j < nyFlange; j++)
+                {
+                    double Ai = (_b / nxFlange) * (_tf / nyFlange);
+                    double zi = _h - (2.0 * j + 1.0) / (2.0 * nyFlange) * _tf - _centroid.Y;
+                    double yi = -_b / 2.0 + (2.0 * i + 1.0) / (2.0 * nxFlange) * _b;
+
+                    integral = integral + (yi * yi + zi * zi) * zi * Ai;
+                }
+            }
+
+            for (int i = 0; i < nxWeb; i++)
+            {
+                for (int j = 0; j < nyWeb; j++)
+                {
+                    double Ai = ((_h - _tf) / nyWeb) * (_tw / nxWeb);
+                    double zi = (2.0 * j + 1.0) / (2.0 * nyWeb) * (_h - _tf) - _centroid.Y;
+                    double yi = -_tw/2.0 + (2.0 * i + 1.0) * _tw / (2.0 * nxWeb);
+
+                    integral = integral + (yi * yi + zi * zi) * zi * Ai;
+                }
+            }
+            _zj = (_shearCenter.Y - _centroid.Y) - 0.5 * integral / _j22;
+
         }
 
         public override double MinSigma(double N, double My, double Mz)
