@@ -11,10 +11,10 @@ namespace GPC.Model.Sections
     public class SectionL : Section
     {
         #region Variables
-        double _l1;
-        double _t1;
-        double _l2;
-        double _t2;
+        double _lHor;
+        double _tHor;
+        double _lVert;
+        double _tVert;
         Plate[] _plates;
 
         double _jyy = 0;
@@ -23,10 +23,10 @@ namespace GPC.Model.Sections
         #endregion
 
         #region Properties
-        public double L1 => _l1;
-        public double T1 => _t1;
-        public double L2 => _l2;
-        public double T2 => _t2;
+        public double LHor => _lHor;
+        public double THor => _tHor;
+        public double LVert => _lVert;
+        public double TVert => _tVert;
 
         public double Jxx => _jxx;
         public double Jxy => _jxy;
@@ -34,17 +34,17 @@ namespace GPC.Model.Sections
         public Plate[] Plates => _plates;
         #endregion
 
-        public SectionL(double l1, double t1, double l2, double t2, Material material) : base(material)
+        public SectionL(double lHor, double tHor, double lVert, double tVert, Material material) : base(material)
         {
-            _l1 = l1;
-            _t1 = t1;
-            _l2 = l2;
-            _t2 = t2;
+            _lHor = lHor;
+            _tHor = tHor;
+            _lVert = lVert;
+            _tVert = tVert;
             double fy = ((SteelMaterial)material).Fyk;
 
             _plates = new Plate[2];
-            _plates[0] = new Plate(t1, t1/2.0, 0, t1/2.0, l1, fy, Plate.TypePlate.outer);
-            _plates[1] = new Plate(t2, t1, t2/2.0, l2, t2/2.0, fy, Plate.TypePlate.outer);
+            _plates[0] = new Plate(tHor, tHor/2.0, 0, tHor/2.0, lHor, fy, Plate.TypePlate.outer);
+            _plates[1] = new Plate(tVert, tHor, tVert/2.0, lVert, tVert/2.0, fy, Plate.TypePlate.outer);
 
             _area = _plates[0].Area + _plates[1].Area;
 
@@ -66,12 +66,49 @@ namespace GPC.Model.Sections
             }
             _j11 = (_jxx + _jyy) / 2.0 - 0.5 * Math.Sqrt(Math.Pow(_jxx - _jyy,2.0) + 4.0 * _jxy * _jxy);
             _j22 = (_jxx + _jyy) / 2.0 + 0.5 * Math.Sqrt(Math.Pow(_jxx - _jyy,2.0) + 4.0 * _jxy * _jxy);
-            _angleX1 = 1.0 / 2.0 * Math.Atan(2.0 * _jxy / (_jyy - _jxx));
+            _angleX1 = - 1.0 / 2.0 * Math.Atan(2.0 * _jxy / (_jyy - _jxx));
 
-            _jt = 1.0 / 3.0 * (_l1 - _t2 / 2.0) * Math.Pow(_t1, 3.0) + 1.0 / 3.0 * (_l2 - _t1 / 2.0) * Math.Pow(_t2, 3.0);
-            _jw = (Math.Pow(_l1 - _t2 / 2.0, 3.0) * Math.Pow(_t1, 3.0) + Math.Pow(_l2 - _t1 / 2.0, 3.0) * Math.Pow(_t2, 3.0)) / 36.0; //CNR DT 208/2011
+            _jt = 1.0 / 3.0 * (_lHor - _tVert / 2.0) * Math.Pow(_tHor, 3.0) + 1.0 / 3.0 * (_lVert - _tHor / 2.0) * Math.Pow(_tVert, 3.0);
+            _jw = (Math.Pow(_lHor - _tVert / 2.0, 3.0) * Math.Pow(_tHor, 3.0) + Math.Pow(_lVert - _tHor / 2.0, 3.0) * Math.Pow(_tVert, 3.0)) / 36.0; //CNR DT 208/2011
 
-            _shearCenter = new Point2d(_t1 / 2.0, _t2 / 2.0);
+            _shearCenter = new Point2d(_tHor / 2.0, _tVert / 2.0);
+
+            //check 5 points
+            //traslation
+            Point2d[] pts = new Point2d[5];
+            pts[0] = new Point2d(- _centroid.X, - _centroid.Y);
+            pts[1] = new Point2d(LHor - _centroid.X, - _centroid.Y);
+            pts[2] = new Point2d(LHor - _centroid.X, _tVert -_centroid.Y);
+            pts[3] = new Point2d(_tVert - _centroid.X, _lVert - _centroid.Y);
+            pts[4] = new Point2d(- _centroid.X, _lVert - _centroid.Y);
+
+            //rotation
+            double minX = 0;
+            double maxX = 0;
+            double minY = 0;
+            double maxY = 0;
+            for (int i = 0; i < 5; i++)
+            {
+                double x = pts[i].X;
+                double y = pts[i].Y;
+                double newX = x * Math.Cos(_angleX1) + y * Math.Sin(_angleX1);
+                double newY = - x * Math.Sin(_angleX1) + y * Math.Cos(_angleX1);
+                pts[i] = new Point2d(newX, newY);
+
+                minX = Math.Min(minX, pts[i].X);
+                maxX = Math.Max(maxX, pts[i].X);
+                minY = Math.Min(minY, pts[i].Y);
+                maxY = Math.Max(maxY, pts[i].Y);
+            }
+
+            _wel11Left = _j11 / Math.Abs(minX);
+            _wel11Right = _j11 / Math.Abs(maxX);
+            _wel22Top = _j22 / Math.Abs(maxY);
+            _wel22Bottom = _j22 / Math.Abs(minY);
+
+            //Assumed as elastic
+            _wpl11 = Math.Min(_wel11Left, _wel11Right);
+            _wpl22 = Math.Min(_wel22Bottom, _wel22Top);
         }
     }
 }

@@ -57,29 +57,11 @@ namespace GPC.Model.Sections
             }
         }
 
-        public double B
-        {
-            get
-            {
-                return _B;
-            }
-        }
+        public double B => _B;
 
-        public double J1Centroid
-        {
-            get
-            {
-                return 1.0 / 12.0 * _B * Math.Pow(_t, 3.0);
-            }
-        }
+        public double J1Centroid => 1.0 / 12.0 * _B * Math.Pow(_t, 3.0);
 
-        public double J2Centroid
-        {
-            get
-            {
-                return 1.0 / 12.0 * _t * Math.Pow(_B, 3.0);
-            }
-        }
+        public double J2Centroid => 1.0 / 12.0 * _t* Math.Pow(_B, 3.0);
 
         public double JyCentroid
         {
