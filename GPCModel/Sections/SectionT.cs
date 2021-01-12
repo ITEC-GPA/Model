@@ -89,11 +89,11 @@ namespace GPC.Model.Sections
             _shearCenter = new Point2d(_b / 2.0, _h - _tf /2.0);
         }
 
-        public override double MinSigma(double N, double My, double Mz)
+        public override double MinSigma(double N, double M2, double M1)
         {
-            double sigmaP1 = N / _area - My / _wel22Top + Mz / _wel11Left;
-            double sigmaP2 = N / _area - My / _wel22Top - Mz /_wel11Right;
-            double sigmaP3 = N / _area + My / _wel22Bottom;
+            double sigmaP1 = N / _area - M2 / _wel22Top + M1 / _wel11Left;
+            double sigmaP2 = N / _area - M2 / _wel22Top - M1 /_wel11Right;
+            double sigmaP3 = N / _area + M2 / _wel22Bottom;
            
             double sigmaMin = Math.Min(sigmaP1, sigmaP2);
             sigmaMin = Math.Min(sigmaMin, sigmaP3);

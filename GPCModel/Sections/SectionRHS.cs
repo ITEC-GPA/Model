@@ -205,12 +205,12 @@ namespace GPC.Model.Sections
             _jw = 0;
         }
 
-        public override double MinSigma(double N, double My, double Mz)
+        public override double MinSigma(double N, double M2, double M1)
         {
-            double sigma1 = N / _area - My / J22 * (_h - _centroid.Y) + Mz / J11 * (_centroid.X);
-            double sigma2 = N / _area - My / J22 * (_h - _centroid.Y) - Mz / J11 * (_b - _centroid.X);
-            double sigma3 = N / _area + My / J22 * (_centroid.Y) + Mz / J11 * (_centroid.X);
-            double sigma4 = N / _area + My / J22 * (_centroid.Y) - Mz / J11 * (_b - _centroid.X);
+            double sigma1 = N / _area - M2 / J22 * (_h - _centroid.Y) + M1 / J11 * (_centroid.X);
+            double sigma2 = N / _area - M2 / J22 * (_h - _centroid.Y) - M1 / J11 * (_b - _centroid.X);
+            double sigma3 = N / _area + M2 / J22 * (_centroid.Y) + M1 / J11 * (_centroid.X);
+            double sigma4 = N / _area + M2 / J22 * (_centroid.Y) - M1 / J11 * (_b - _centroid.X);
 
             double sigmaMin = Math.Min(sigma1, sigma2);
             sigmaMin = Math.Min(sigmaMin, sigma3);

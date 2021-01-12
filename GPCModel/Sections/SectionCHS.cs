@@ -85,10 +85,10 @@ namespace GPC.Model.Sections
         #endregion
 
         #region Public Methods Specific
-        public override double MinSigma(double NEd, double M1Ed, double M2Ed)
+        public override double MinSigma(double NEd, double M2, double M1)
         {
             double sigmaN = NEd / _area;
-            double M = Math.Sqrt(M1Ed * M1Ed + M2Ed * M2Ed);
+            double M = Math.Sqrt(M1 * M1 + M2 * M2);
             double sigmaM = -M / Wel22Min;
 
             return sigmaN + sigmaM;

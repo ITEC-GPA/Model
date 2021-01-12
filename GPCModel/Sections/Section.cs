@@ -188,25 +188,25 @@ namespace GPC.Model.Sections
             return null;
         }
 
-        public virtual double MinSigma(double N, double My, double Mz)
+        public virtual double MinSigma(double N, double M2, double M1)
         {
             double sigmaN = N / _area;
             double sigmaMy;
-            if (My > 0) { 
-                sigmaMy = - My / _wel22Top;
+            if (M2 > 0) { 
+                sigmaMy = - M2 / _wel22Top;
             } else
             {
-                sigmaMy = My / _wel22Bottom;
+                sigmaMy = M2 / _wel22Bottom;
             }
 
             double sigmaMz;
-            if (Mz > 0)
+            if (M1 > 0)
             {
-                sigmaMz = -Mz / _wel11Left;
+                sigmaMz = -M1 / _wel11Left;
             }
             else
             {
-                sigmaMz = Mz / _wel11Right;
+                sigmaMz = M1 / _wel11Right;
             }
 
             return sigmaN + sigmaMy + sigmaMz;
