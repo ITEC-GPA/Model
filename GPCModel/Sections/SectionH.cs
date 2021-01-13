@@ -83,7 +83,7 @@ namespace GPC.Model.Sections
                 double j11Plate = _plates[i].JzCentroid;
                 double j22Plate = _plates[i].JyCentroid;
 
-                _j11 = _j11 + j11Plate + areaPlate * Math.Pow(xGPlate - _centroid.X,2.0);
+                _j11 = _j11 + j11Plate + areaPlate * Math.Pow(xGPlate - _centroid.X, 2.0);
                 _j22 = _j22 + j22Plate + areaPlate * Math.Pow(yGPlate - _centroid.Y, 2.0);
             }
 
@@ -92,10 +92,27 @@ namespace GPC.Model.Sections
 
             double JFlTop = 1.0 / 12.0 * _ttop * Math.Pow(_btop, 3.0);
             double JFlBottom = 1.0 / 12.0 * _tbottom * Math.Pow(_bbottom, 3.0);
-            double jz = JFlTop + JFlBottom + 1 / 12 * _hw * Math.Pow(_tw, 3.0);
+            double jz = JFlTop + JFlBottom + 1.0 / 12.0 * _hw * Math.Pow(_tw, 3.0);
 
-            // CNR DT208_2011-- > to be checked
+            // CNR DT208_2011
             _jw = dmed * dmed * JFlBottom * JFlTop / jz;
+            /*double b1 = Math.Min(_btop, _bbottom);
+            double b2;
+            double t1;
+            double t2;
+            if (b1 == _btop)
+            {
+                t1 = _ttop;
+                t2 = _tbottom;
+                b2 = _bbottom;
+            } else
+            {
+                b2 = _btop;
+                t2 = _ttop;
+                t1 = _tbottom;
+            }
+            double alpha = 1.0 / (1.0 + Math.Pow(b1 / b2, 3.0) * t1 / t2);
+            _jw = dmed * dmed * Math.Pow(b1, 3.0) * t1 * alpha / 12.0; //(SSRC 1998, Picard and Beaulieu 1991)*/
 
             //CNR DT208_2011 --> to be checked
             double zBottom = _centroid.Y - _tbottom / 2.0;
