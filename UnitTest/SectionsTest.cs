@@ -104,36 +104,6 @@ namespace UnitTest
         }
 
         [TestMethod]
-        public void SectionHTest()
-        {
-            double h = 300;
-            double tw = 15;
-            double bt = 100;
-            double bb = 200;
-            double tt = 20;
-            double tb = 10;
-            SectionH sec = new SectionH(h, tw, bt, tt, bb, tb, true, new SteelMaterial("steel", 200000, 0.3, 355, 510, 7850));
-
-            double A = 8050;
-            double J2 = 1.059*1e8;
-            double J1 = 8409271;
-            double Wel2 = 688906.1;
-            double Wel1 = 84092.71;
-            double Wpl2 = 843375;
-            double Wpl1 = 165187.5;
-            double Jt = 637083.3; //Straus = 637083.3 vs SAP = 590752 So different!
-
-            Assert.AreEqual(A, sec.Area);
-            Assert.AreEqual(Math.Abs(J2 / sec.J22) -1, 0, 0.001);
-            Assert.AreEqual(Math.Abs(J1 / sec.J11) -1, 0, 0.001);
-            Assert.AreEqual(Math.Abs(Wel2 / sec.Wel22Min) -1, 0, 0.001);
-            Assert.AreEqual(Math.Abs(Wel1 / sec.Wel11Min) -1, 0, 0.001);
-            Assert.AreEqual(Math.Abs(Wpl2 / sec.Wpl22) -1, 0, 0.001);
-            Assert.AreEqual(Math.Abs(Wpl1 / sec.Wpl11) -1, 0, 0.001);
-            Assert.AreEqual(Math.Abs(Jt / sec.Jt) - 1.0, 0, 0.03);
-        }
-
-        [TestMethod]
         public void SectionAsymmetricHTest1()
         {
             double h = 400;
@@ -154,7 +124,8 @@ namespace UnitTest
             double JtSAP = 1750920;
             double JtStraus = 1839406.666667;
             double Jt = (JtSAP + JtStraus) / 2.0;
-            //double JwSAP = 1.317 * 1e-6 * Math.Pow(1000.0,6); //conversion
+            //double JwSAP = 1.317 * 1e12; //ERRATO
+            double JwLTBEAM = 872110 * 1e6;
 
             Assert.AreEqual(A, sec.Area);
             Assert.AreEqual(Math.Abs(J2 / sec.J22) - 1, 0, 0.001);
@@ -164,7 +135,7 @@ namespace UnitTest
             Assert.AreEqual(Math.Abs(Wpl2 / sec.Wpl22) - 1, 0, 0.001);
             Assert.AreEqual(Math.Abs(Wpl1 / sec.Wpl11) - 1, 0, 0.001);
             Assert.AreEqual(Jt / sec.Jt - 1.0, 0, 0.03);
-            //Assert.AreEqual(JwSAP / sec.Jw - 1, 0, 0.05);
+            Assert.AreEqual(JwLTBEAM / sec.Jw - 1, 0, 0.05);
         }
 
         [TestMethod]
@@ -193,6 +164,21 @@ namespace UnitTest
             Assert.AreEqual(Math.Abs(Wpl2 / sec.Wpl22) - 1, 0, 0.001);
             Assert.AreEqual(Math.Abs(Wpl1 / sec.Wpl11) - 1, 0, 0.001);
             Assert.AreEqual(Math.Abs(Jt / sec.Jt) - 1.0, 0, 0.03);
+        }
+
+        [TestMethod]
+        public void SectionTTest2()
+        {
+            double h = 400;
+            double b = 200;
+            double tf = 10;
+            double tw = 20;
+            SectionT sec = new SectionT(h, b, tw, tf, new SteelMaterial("steel", 200000, 0.3, 355, 510, 7850));
+
+            //double JwLTBEAM = 39044 * 1e6; // --> WRONG
+            double JwStraus = 1.32284 * 1e10;
+            double JwSAP = 13751083333;
+            Assert.AreEqual(JwStraus / sec.Jw - 1.0, 0, 0.05);
         }
 
         [TestMethod]
@@ -232,30 +218,59 @@ namespace UnitTest
         {
             double h = 500;
             double tw = 40;
+            double b = 40.01;
+            double tb = 40;
+            SectionL sec = new SectionL(b, tb, h, tw, new SteelMaterial("steel", 200000, 0.3, 355, 510, 7850));
+
+            double Wel1 = 1.0 / 6.0 * h * tw*tw;
+            double Wel2 = 1.0 / 6.0 * tw * h * h;
+
+            Assert.AreEqual(Math.Abs(Wel2 / sec.Wel22Min) - 1, 0, 0.001);
+            Assert.AreEqual(Math.Abs(Wel1 / sec.Wel11Min) - 1, 0, 0.001);
+        }
+
+        [TestMethod]
+        public void SectionLTest2()
+        {
+            double h = 40;
+            double tw = 40;
+            double b = 500;
+            double tb = 40;
+            SectionL sec = new SectionL(b, tb, h, tw, new SteelMaterial("steel", 200000, 0.3, 355, 510, 7850));
+
+            double Wel1 = 1.0 / 6.0 * b * tb * tb;
+            double Wel2 = 1.0 / 6.0 * tb * b * b;
+
+            Assert.AreEqual(Math.Abs(Wel2 / sec.Wel22Min) - 1, 0, 0.001);
+            Assert.AreEqual(Math.Abs(Wel1 / sec.Wel11Min) - 1, 0, 0.001);
+        }
+
+        [TestMethod]
+        public void SectionLTest3()
+        {
+            double h = 500;
+            double tw = 40;
             double b = 500;
             double tb = 80;
-            SectionL sec = new SectionL(h, tw, b, tb, new SteelMaterial("steel", 200000, 0.3, 355, 510, 7850));
+            SectionL sec = new SectionL(b, tb, h, tw, new SteelMaterial("steel", 200000, 0.3, 355, 510, 7850));
 
             double A = 56800;
-            /*double J1 = 56760648.14815;
-            double J2 = 387812500.0;
-            double Wel1 = 455434;
-            double Wel2 = 1939062;
-            double Wpl1 = 771250;
-            double Wpl2 = 2181250;*/
+            double J1 = 517472668.5153;
+            double J2 = 1951689772.799;
+            double Wel1 = 2368295.77;
+            double Wel2 = 5465136.457;
+
             double JtSAP = 86856533.3;
             double JtStraus = 89173333.33333;
             double Jt = (JtSAP + JtStraus) / 2.0;
-            double JwSAP = 3.696E+11;
+            //double JwSAP = 3.696E+11; --> Wrong
             double JwStraus = 1.64361e12;
 
             Assert.AreEqual(A, sec.Area);
-            /*Assert.AreEqual(Math.Abs(J2 / sec.J22) - 1, 0, 0.001);
+            Assert.AreEqual(Math.Abs(J2 / sec.J22) - 1, 0, 0.001);
             Assert.AreEqual(Math.Abs(J1 / sec.J11) - 1, 0, 0.001);
-            Assert.AreEqual(Math.Abs(Wel2 / sec.Wel22Min) - 1, 0, 0.001);
-            Assert.AreEqual(Math.Abs(Wel1 / sec.Wel11Min) - 1, 0, 0.001);
-            Assert.AreEqual(Math.Abs(Wpl2 / sec.Wpl22) - 1, 0, 0.001);
-            Assert.AreEqual(Math.Abs(Wpl1 / sec.Wpl11) - 1, 0, 0.001);*/
+            /*Assert.AreEqual(Math.Abs(Wel2 / sec.Wel22Min) - 1, 0, 0.001); --> SAP ERRATO
+            Assert.AreEqual(Math.Abs(Wel1 / sec.Wel11Min) - 1, 0, 0.001); --> SAP ERRATO*/
             Assert.AreEqual(Jt / sec.Jt - 1.0, 0, 0.05);
             Assert.AreEqual(JwStraus / sec.Jw - 1, 0, 0.06);
         }

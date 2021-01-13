@@ -43,8 +43,8 @@ namespace GPC.Model.Sections
             double fy = ((SteelMaterial)material).Fyk;
 
             _plates = new Plate[2];
-            _plates[0] = new Plate(tHor, tHor/2.0, 0, tHor/2.0, lHor, fy, Plate.TypePlate.outer);
-            _plates[1] = new Plate(tVert, tHor, tVert/2.0, lVert, tVert/2.0, fy, Plate.TypePlate.outer);
+            _plates[0] = new Plate(tHor, _tVert, _tHor/2.0, _lHor, _tHor/2.0, fy, Plate.TypePlate.outer);
+            _plates[1] = new Plate(tVert, _tVert / 2.0, 0, _tVert / 2.0, _lVert, fy, Plate.TypePlate.outer);
 
             _area = _plates[0].Area + _plates[1].Area;
 
@@ -67,6 +67,11 @@ namespace GPC.Model.Sections
             _j11 = (_jxx + _jyy) / 2.0 - 0.5 * Math.Sqrt(Math.Pow(_jxx - _jyy,2.0) + 4.0 * _jxy * _jxy);
             _j22 = (_jxx + _jyy) / 2.0 + 0.5 * Math.Sqrt(Math.Pow(_jxx - _jyy,2.0) + 4.0 * _jxy * _jxy);
             _angleX1 = - 1.0 / 2.0 * Math.Atan(2.0 * _jxy / (_jyy - _jxx));
+            
+            if (_jyy < _jxx) { 
+ 
+                _angleX1 = _angleX1 + Math.PI / 2.0;
+            }            
 
             _jt = 1.0 / 3.0 * (_lHor - _tVert / 2.0) * Math.Pow(_tHor, 3.0) + 1.0 / 3.0 * (_lVert - _tHor / 2.0) * Math.Pow(_tVert, 3.0);
             _jw = (Math.Pow(_lHor - _tVert / 2.0, 3.0) * Math.Pow(_tHor, 3.0) + Math.Pow(_lVert - _tHor / 2.0, 3.0) * Math.Pow(_tVert, 3.0)) / 36.0; //CNR DT 208/2011
@@ -78,7 +83,7 @@ namespace GPC.Model.Sections
             Point2d[] pts = new Point2d[5];
             pts[0] = new Point2d(- _centroid.X, - _centroid.Y);
             pts[1] = new Point2d(LHor - _centroid.X, - _centroid.Y);
-            pts[2] = new Point2d(LHor - _centroid.X, _tVert -_centroid.Y);
+            pts[2] = new Point2d(LHor - _centroid.X, _tHor -_centroid.Y);
             pts[3] = new Point2d(_tVert - _centroid.X, _lVert - _centroid.Y);
             pts[4] = new Point2d(- _centroid.X, _lVert - _centroid.Y);
 
