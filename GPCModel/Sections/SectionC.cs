@@ -82,10 +82,10 @@ namespace GPC.Model.Sections
 
                 //CNR DT 208/2001
                 double hf = _h - _tTop / 2.0 - _tBottom / 2.0;
-                double length = _lengthBottom;
+                double length = _lengthBottom - _tw / 2.0;
                 double tf = _tBottom;
-                _jw = hf * hf * Math.Pow(length, 3.0) * tf / 12.0 * (2.0 * hf * _tw + 3.0 * length * tf) / (hf*tw+6*length*tf);
-                _shearCenter = new Geometry.Point2d(_tw/2.0-3.0*length*length*tf/(hf*_tw+6*length*tf),_centroid.Y);
+                _jw = hf * hf * Math.Pow(length, 3.0) * tf / 12.0 * (2.0 * hf * _tw + 3.0 * length * tf) / (hf*tw+6.0*length*tf);
+                _shearCenter = new Geometry.Point2d(_tw/2.0-3.0*length*length*tf/(hf*_tw+6.0*length*tf),_centroid.Y);
 
                 _wel11Left = _j11 / _centroid.X;
                 _wel11Right = _j11 / Math.Max(_lengthBottom - _centroid.X, _lengthTop - _centroid.X);

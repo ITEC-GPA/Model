@@ -17,6 +17,7 @@ namespace GPC.Model.Sections
         protected double _b;
 
         protected Plate[] _plates;
+        protected double _yPlastic;
         #endregion
 
         #region Properties
@@ -26,6 +27,7 @@ namespace GPC.Model.Sections
         public double Tf => _tf;
         public double B => _b;
         public Plate[] Plates => _plates;
+        public double yPlastic => _yPlastic;
         #endregion
 
         public SectionT(double h, double b, double tw, double tf, Material material) : base(material)
@@ -72,9 +74,9 @@ namespace GPC.Model.Sections
             _wpl22 = 0;
             if (_area / 2.0 > _b * _tf)
             {
-                double hHalftArea = _area / 2.0 / _tw;
-                SectionT halfSectionTop = new SectionT(_h - hHalftArea, _b, _tw, _tf, material);
-                _wpl22 = _area / 2.0 * (halfSectionTop.Centroid.Y +hHalftArea/2.0);
+                _yPlastic= _area / 2.0 / _tw;
+                SectionT halfSectionTop = new SectionT(_h - _yPlastic, _b, _tw, _tf, material);
+                _wpl22 = _area / 2.0 * (halfSectionTop.Centroid.Y + _yPlastic/2.0);
             } else
             {
                 //throw new Exception("Neutral Axis in flange not yet implemented");
