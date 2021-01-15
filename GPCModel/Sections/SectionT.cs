@@ -79,7 +79,13 @@ namespace GPC.Model.Sections
                 _wpl22 = _area / 2.0 * (halfSectionTop.Centroid.Y + _yPlastic/2.0);
             } else
             {
-                //throw new Exception("Neutral Axis in flange not yet implemented");
+                double hTopPlastic = (_area / 2.0) / _b;
+                //can't use SectionT because infinite loop
+                double Aweb = _tw * (_h - _tf);
+                double Aflange = _b * (_tf - hTopPlastic);
+                double S = Aweb * ((_h - _tf) / 2.0 + hTopPlastic) + Aflange * hTopPlastic / 2.0;
+                _wpl22 = (_area / 2.0) * (hTopPlastic / 2.0 + S / (Aweb + Aflange));
+                _yPlastic = _h - hTopPlastic;
             }
 
             _wpl11 = 1.0 / 4.0 * _tf * Math.Pow(_b, 2.0) + 1.0 / 4.0 * (_h - _tf) * Math.Pow(_tw, 2.0);
