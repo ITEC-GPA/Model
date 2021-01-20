@@ -71,7 +71,7 @@ namespace GPC.Model.Elements.Glasses
             : base(info, context)
         {
             _glassProperty = (GlassProperty)info.GetValue("GlassProperty", typeof(GlassProperty));
-            _shape = (Shape)info.GetValue("Shape2d", typeof(Shape));
+            _shape = (Shape)info.GetValue("Shape", typeof(Shape));
             _index = info.GetInt32("Index");
         }
 
@@ -98,7 +98,7 @@ namespace GPC.Model.Elements.Glasses
         {
             base.GetObjectData(info, context);
             info.AddValue("GlassProperty", _glassProperty);
-            info.AddValue("Shape2d", _shape);
+            info.AddValue("Shape", _shape);
             info.AddValue("Index", _index);
         } 
 
