@@ -1,5 +1,6 @@
 ﻿using GPC.Utilities.Maths;
 using System;
+using System.Linq;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Runtime.Serialization;
@@ -78,6 +79,22 @@ namespace GPC.Model.Materials
         public void Sort()
         {
             _shearModulus.Sort();
+        }
+
+        /// <summary>
+        /// return the load durations list
+        /// </summary>
+        public List<double> GetLoadDurations()
+        {
+            return _shearModulus.Select(i => i.LoadDuration).ToList();
+        }
+
+        /// <summary>
+        /// return the temperature list
+        /// </summary>
+        public List<double> GetTemperatures()
+        {
+            return _shearModulus.SelectMany(i => i.TemperatureShearModules.Select(j => j.Temperature)).Distinct().ToList();
         }
 
         public override void GetObjectData(SerializationInfo info, StreamingContext context)

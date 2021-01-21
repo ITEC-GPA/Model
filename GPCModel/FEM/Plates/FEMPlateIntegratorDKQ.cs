@@ -228,7 +228,7 @@ namespace GPC.Model.FEM
             /// Membranal Components
             for (int i = 0; i < _gaussIntegrationPoints.NumPoints ; i++)
             {
-                double ar = elProp.Tm * _gaussIntegrationPoints.Weights[i] * _detJacobian[i];
+                double ar = elProp.MembraneThickness * _gaussIntegrationPoints.Weights[i] * _detJacobian[i];
                 scalD = ar * _Dm;
                 gaussK = _BmMatrix[i].Transpose() * scalD * _BmMatrix[i];
                 _KmMatrix = _KmMatrix + gaussK;

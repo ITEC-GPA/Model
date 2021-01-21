@@ -1,6 +1,7 @@
 ﻿using GPC.Model.Materials;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
+using System.Collections.Generic;
 
 namespace UnitTest
 {
@@ -72,6 +73,54 @@ namespace UnitTest
             string message = $"Result: {result}, Expected: {expected}";
             Console.WriteLine(message);
             Assert.IsTrue(result == expected, message);
+        }
+
+        [TestMethod]
+        public void GetTemperatures()
+        {
+            InterlayerMaterial interlayerMaterial = new InterlayerMaterial(1, 0, InterlayerMaterial.InterlayerType.AcusticPVB, Guid.NewGuid());
+
+            for (int i = 0; i < 6; i++)
+            {
+                interlayerMaterial.AddShearModule(_loadDuration[i], _temperatures, _shearModules[i]);
+            }
+            interlayerMaterial.Sort();
+
+            List<double> temperatures = interlayerMaterial.GetTemperatures();
+
+            List<double> temperatureExpected = new List<double>(_temperatures);
+            temperatureExpected.Sort();
+
+
+            for (int i = 0; i < temperatureExpected.Count; i++)
+            {
+                if (temperatureExpected[i] != temperatures[i])
+                    Assert.Fail();
+            }
+        }
+
+        [TestMethod]
+        public void GetLoadDurations()
+        {
+            InterlayerMaterial interlayerMaterial = new InterlayerMaterial(1, 0, InterlayerMaterial.InterlayerType.AcusticPVB, Guid.NewGuid());
+
+            for (int i = 0; i < 6; i++)
+            {
+                interlayerMaterial.AddShearModule(_loadDuration[i], _temperatures, _shearModules[i]);
+            }
+            interlayerMaterial.Sort();
+
+            List<double> loadDurations = interlayerMaterial.GetLoadDurations();
+
+            List<double> loadDurationseExpected = new List<double>(_loadDuration);
+            loadDurationseExpected.Sort();
+
+
+            for (int i = 0; i < loadDurationseExpected.Count; i++)
+            {
+                if (loadDurationseExpected[i] != loadDurations[i])
+                    Assert.Fail();
+            }
         }
     }
 }

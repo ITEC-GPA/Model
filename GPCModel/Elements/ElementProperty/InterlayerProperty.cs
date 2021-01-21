@@ -6,7 +6,7 @@ using GPC.Model.Elements.Glasses;
 
 namespace GPC.Model.Elements
 {
-    public class InterlayerProperty : PlateProperty, IGlassProperty
+    public class InterlayerProperty : PlateProperty, IGlassProperty, IEquatable<InterlayerProperty>
     {
         private double _temperature;
 
@@ -33,7 +33,7 @@ namespace GPC.Model.Elements
         public InterlayerProperty(SerializationInfo info, StreamingContext context) 
             : base(info, context)
         {
-
+            throw new NotImplementedException();
         }
 
         /// <summary>
@@ -57,6 +57,18 @@ namespace GPC.Model.Elements
         public override double GetG()
         {
             return ((InterlayerMaterial)_material)[_temperature, _loadDuration];
+        }
+
+        public override void GetObjectData(SerializationInfo info, StreamingContext context)
+        {
+            throw new NotImplementedException();
+        }
+
+        public bool Equals(InterlayerProperty other)
+        {
+            return !(other is null) && base.Equals(other) &&
+                        _temperature == other._temperature &&
+                        _loadDuration == other._loadDuration;
         }
     }
 }

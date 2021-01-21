@@ -239,7 +239,7 @@ namespace GPC.Model.FEM
             /// Membranal Components
             for (int i = 0; i < _gaussIntegrationPoints.NumPoints ; i++)
             {
-                double ar = elProp.Tm * _gaussIntegrationPoints.Weights[i] * _detJacobian[i];
+                double ar = elProp.MembraneThickness * _gaussIntegrationPoints.Weights[i] * _detJacobian[i];
                 scalD = ar * _Dm;
                 gaussK = _BmMatrix[i].Transpose() * scalD * _BmMatrix[i];
                 _KmMatrix = _KmMatrix + gaussK;
@@ -306,8 +306,8 @@ namespace GPC.Model.FEM
 
             double E = (plate.Property as PlateProperty).GetE();
             double ni = (plate.Property as PlateProperty).GetNi();
-            double tb = (plate.Property as PlateProperty).Tb;
-            double tm = (plate.Property as PlateProperty).Tm;
+            double tb = (plate.Property as PlateProperty).BendingThickness;
+            double tm = (plate.Property as PlateProperty).MembraneThickness;
 
             double c, cc;
             c = E / (1 - Math.Pow(ni, 2.0));

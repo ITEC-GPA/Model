@@ -200,8 +200,8 @@ namespace GPC.Model.FEM
 
             double E = (plate.Property as PlateProperty).GetE();
             double ni = (plate.Property as PlateProperty).GetNi();
-            double tb = (plate.Property as PlateProperty).Tb;
-            double tm = (plate.Property as PlateProperty).Tm;
+            double tb = (plate.Property as PlateProperty).BendingThickness;
+            double tm = (plate.Property as PlateProperty).MembraneThickness;
 
             double c, cc;
             c = E / (1 - Math.Pow(ni, 2.0));
@@ -251,7 +251,7 @@ namespace GPC.Model.FEM
 
                 for (int i = 0; i < _gaussIntegrationPoints.Coords.Length; i++)
                 {
-                    double c = (plate.Property as PlateProperty).GetDensity() * _gaussIntegrationPoints.Weights[i] * _detJacobian[i] * (plate.Property as PlateProperty).Tm;
+                    double c = (plate.Property as PlateProperty).GetDensity() * _gaussIntegrationPoints.Weights[i] * _detJacobian[i] * (plate.Property as PlateProperty).MembraneThickness;
 
                     gaussM = _NmassMatrix[i].Transpose() * c * _NmassMatrix[i];
                     mMatrix = mMatrix + gaussM;

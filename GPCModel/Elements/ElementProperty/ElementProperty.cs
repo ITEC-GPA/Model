@@ -5,7 +5,7 @@ using GPC.Model.Materials;
 namespace GPC.Model.Elements
 {
     [Serializable]
-    public abstract class ElementProperty : ModelObject
+    public abstract class ElementProperty : ModelObject, IEquatable<ElementProperty>
     {
 
         #region Public Constructors
@@ -38,6 +38,11 @@ namespace GPC.Model.Elements
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             base.GetObjectData(info, context);
+        }
+
+        public bool Equals(ElementProperty other)
+        {
+            return !(other is null) && _name == other._name && _guid == other._guid; 
         }
     }
 }

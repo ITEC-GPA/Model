@@ -7,7 +7,7 @@ using System.Collections.Generic;
 
 namespace GPC.Model.Elements
 {
-    public class LaminatedGlassProperty : ElementProperty, IPlateProperty, IGlassProperty
+    public class LaminatedGlassProperty : ElementProperty, IPlateProperty, IGlassProperty, IEquatable<LaminatedGlassProperty>
     {
 
         private List<double> _glassBendingThickness;
@@ -72,6 +72,16 @@ namespace GPC.Model.Elements
         public virtual List<double> GetInterlayerG(double loadDuration, double temperature)
         {
             return _interlayerMaterials.Select(i => i.GetShearModule(loadDuration, temperature)).ToList();
+        }
+
+        public bool Equals(LaminatedGlassProperty other)
+        {
+            return !(other is null) && base.Equals(other) &&
+                                       other._glassBendingThickness == _glassBendingThickness &&
+                                       other._glassMembraneThickness == _glassMembraneThickness &&
+                                       other._interlayerThickness == _interlayerThickness &&
+                                       other._glassMaterials == _glassMaterials &&
+                                       other._interlayerMaterials == _interlayerMaterials;
         }
     }
 }

@@ -1,14 +1,12 @@
-﻿using GPC.Model.Materials;
+﻿using System;
 using System.Runtime.Serialization;
+using GPC.Model.Materials;
 using GPC.Model.Elements.Glasses;
-
 
 namespace GPC.Model.Elements
 {
-    public class MonolithicGlassProperty : PlateProperty, IGlassProperty
+    public class MonolithicGlassProperty : PlateProperty, IGlassProperty, IEquatable<MonolithicGlassProperty>
     {
-
-
 
         public MonolithicGlassProperty(MonolithicGlass monolithicGlass)
             : this(monolithicGlass.Thickness, monolithicGlass.Thickness, monolithicGlass.Material)
@@ -39,5 +37,9 @@ namespace GPC.Model.Elements
             base.GetObjectData(info, context);
         }
 
+        public bool Equals(MonolithicGlassProperty other)
+        {
+            return !(other is null) && base.Equals(other);
+        }
     }
 }
