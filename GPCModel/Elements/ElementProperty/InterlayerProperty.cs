@@ -36,14 +36,22 @@ namespace GPC.Model.Elements
 
         }
 
+        /// <summary>
+        /// ni fissato pari a 0.49. E diventa 2.98*G
+        /// </summary>
+        /// <returns></returns>
         public override double GetE()
         {
-            return _material.E;
+            return 2.98* GetG();
         }
 
+        /// <summary>
+        /// ni fissato pari a 0.49. E diventa 2.98*G
+        /// </summary>
+        /// <returns></returns>
         public override double GetNi()
         {
-            return _material.Ni;
+            return 0.49;
         }
 
         public override double GetG()
