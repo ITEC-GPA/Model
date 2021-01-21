@@ -198,8 +198,8 @@ namespace GPC.Model.FEM
             _Dm = Matrix<double>.Build.Dense(3, 3, 0);
             _Db = Matrix<double>.Build.Dense(3, 3, 0);
 
-            double E = (plate.Property as PlateProperty).Material.E;
-            double ni = (plate.Property as PlateProperty).Material.Ni;
+            double E = (plate.Property as PlateProperty).GetE();
+            double ni = (plate.Property as PlateProperty).GetNi();
             double tb = (plate.Property as PlateProperty).Tb;
             double tm = (plate.Property as PlateProperty).Tm;
 
@@ -251,7 +251,7 @@ namespace GPC.Model.FEM
 
                 for (int i = 0; i < _gaussIntegrationPoints.Coords.Length; i++)
                 {
-                    double c = (plate.Property as PlateProperty).Material.Density * _gaussIntegrationPoints.Weights[i] * _detJacobian[i] * (plate.Property as PlateProperty).Tm;
+                    double c = (plate.Property as PlateProperty).GetDensity() * _gaussIntegrationPoints.Weights[i] * _detJacobian[i] * (plate.Property as PlateProperty).Tm;
 
                     gaussM = _NmassMatrix[i].Transpose() * c * _NmassMatrix[i];
                     mMatrix = mMatrix + gaussM;

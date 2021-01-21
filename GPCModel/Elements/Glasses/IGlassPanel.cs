@@ -1,7 +1,7 @@
 ﻿
 namespace GPC.Model.Elements.Glasses
 {
-    public interface IGlassPanelProperty
+    public interface IGlassPanel
     {
 
     }

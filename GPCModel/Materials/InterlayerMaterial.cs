@@ -10,6 +10,7 @@ namespace GPC.Model.Materials
     public class InterlayerMaterial : Material
     {
         #region PUBLIC ENUMS
+
         [Serializable]
         public enum InterlayerType
         {
@@ -17,6 +18,7 @@ namespace GPC.Model.Materials
             [Description("NormalPVB / Family1 prEN")] NormalPVB = 1,
             [Description("SentryGlass / Family2 prEN")] SentryGlass = 2
         } 
+
         #endregion
 
         #region VARIABLES

@@ -297,15 +297,15 @@ namespace GPC.Model.FEM
         public override void BuildD(FEMElement element)
         {
             Plate plate = element as Plate;
-            LaminatedGlass glassProp = element.Property as LaminatedGlass;
+            LaminatedGlassProperty glassProp = element.Property as LaminatedGlassProperty;
 
             _Dm = Matrix<double>.Build.Dense(3, 3, 0);
             _Db = Matrix<double>.Build.Dense(3, 3, 0);
             _Ds = Matrix<double>.Build.Dense(4, 4, 0);
             _Dg = Matrix<double>.Build.Dense(6, 6, 0);
 
-            double E = (plate.Property as PlateProperty).Material.E;
-            double ni = (plate.Property as PlateProperty).Material.Ni;
+            double E = (plate.Property as PlateProperty).GetE();
+            double ni = (plate.Property as PlateProperty).GetNi();
             double tb = (plate.Property as PlateProperty).Tb;
             double tm = (plate.Property as PlateProperty).Tm;
 
@@ -328,9 +328,9 @@ namespace GPC.Model.FEM
             //InterlayerMaterial mat = new InterlayerMaterial(0.0, 0.0, InterlayerMaterial.InterlayerType.NormalPVB);
             //mat.AddShearModule(1, new double[] {10, 20 }, new double[] { })
 
-            double h0 = glassProp.Interlayers[0].Thickness;
-            double h1 = glassProp.MonolithicGlasses[0].Thickness;
-            double h2 = glassProp.MonolithicGlasses[0].Thickness;
+            double h0 = glassProp.InterlayerThickness[0];
+            double h1 = glassProp.GlassMembraneThickness[0]; 
+            double h2 = glassProp.GlassMembraneThickness[1];
             double hc = (2.0 * h0 + h1 + h2) / 2.0;
 
             /// Shear Constitutive Matrix
@@ -384,18 +384,22 @@ namespace GPC.Model.FEM
             _Dg[5, 4] = cbending2 * _Db[2, 1];
             _Dg[5, 5] = cbending2 * _Db[2, 2];
         }
+
+
         public double SetShearModulus(FEMElement element, double loadDuration, double temperature)
         {
-            double result = 0.0;
+            LaminatedGlassProperty glassProperty = element.Property as LaminatedGlassProperty;
 
-            LaminatedGlass glassProp = element.Property as LaminatedGlass;
-            result = glassProp.Interlayers[0].Material.GetShearModule(loadDuration, temperature);
-
-            return result;
+            return glassProperty.GetInterlayerG(loadDuration, temperature).First(); ;
         }
+
+
         public override void RegisterDoF(Node node)
         {
+
         }
+
+
         public override void StartIntegration(FEMElement element)
         {
             int numNode = element.NodesGlobal.Length;

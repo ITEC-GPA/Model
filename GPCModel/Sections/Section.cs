@@ -164,10 +164,12 @@ namespace GPC.Model.Sections
             return 0;*/
             return J11 / d;
         }
+
         public double GetWel22(double d)
         {
             return J22/d;
         }
+
         #endregion
 
         #region Virtual Methods

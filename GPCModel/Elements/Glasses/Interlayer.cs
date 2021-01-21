@@ -8,7 +8,7 @@ namespace GPC.Model.Elements.Glasses
     /// Abstract class that represent the interlayer between two monolithic glasses to compose a laminated glass
     /// </summary>
     [Serializable]
-    public class Interlayer : ElementProperty
+    public class Interlayer : ModelObject
     {
         #region VARIABLES
 
@@ -26,9 +26,15 @@ namespace GPC.Model.Elements.Glasses
 
         #endregion
 
+        public Interlayer(string name, double thickness, InterlayerMaterial interlayerMaterial)
+            : base(Guid.NewGuid(), name)
+        {
+            this._thickness = thickness;
+            this._interlayerMaterial = interlayerMaterial;
+        }
 
         public Interlayer(string name, double thickness, InterlayerMaterial interlayerMaterial, Guid guid)
-            : base(name, guid)
+            : base(guid, name)
         {
             this._thickness = thickness;
             this._interlayerMaterial = interlayerMaterial;
@@ -40,6 +46,7 @@ namespace GPC.Model.Elements.Glasses
             _interlayerMaterial = (InterlayerMaterial)info.GetValue("InterlayerMaterial", typeof(InterlayerMaterial));
             _thickness = info.GetDouble("Thickness");
         }
+
 
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {

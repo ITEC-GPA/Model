@@ -32,12 +32,12 @@ namespace GPC.Model.FEM
         #endregion
 
         #region Public Constructors
-        public PlateDKQTLG(Guid guid, LaminatedGlass property, int plateIndex, Node[] nodes, double loadDuration, double temperature)
-            : base(guid, property, plateIndex, nodes)
+        public PlateDKQTLG(Guid guid, LaminatedGlassProperty property, int plateIndex, Node[] nodes, double loadDuration, double temperature)
+           : base(guid, property, plateIndex, nodes)
         {
             _integrator = new FEMPlateIntegratorDKQTLG(new Guid(), 2, 1, 2, this, loadDuration, temperature);
             BuildElementDoF();
-            _integrator.StartIntegration(this);
+            _integrator.StartIntegration(this); 
         }
 
         protected PlateDKQTLG(SerializationInfo info, StreamingContext context)

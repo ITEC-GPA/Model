@@ -36,19 +36,39 @@ namespace GPC.Model.FEM
 
         #region Public Contructors
 
-        public Plate(Guid guid, ElementProperty property, int plateIndex, Node[] nodes)
+        //public Plate(Guid guid, IGlassProperty property, int plateIndex, Node[] nodes)
+        //    : base(guid, integrator, property, plateIndex)
+        //{
+        //    PlateSetUp(nodes, integrator);
+        //}
+
+        public Plate(Guid guid, IPlateProperty property, int plateIndex, Node[] nodes)
             : this(guid, property, null, plateIndex, nodes)
         {
+
         }
 
-        public Plate(Guid guid, ElementProperty property, FEMPlateIntegrator integrator, int plateIndex, Node[] nodes)
-            : base(guid, integrator, property, plateIndex)
+        //public Plate(Guid guid, LaminatedGlassProperty property, int plateIndex, Node[] nodes)
+        //    : this(guid, property, null, plateIndex, nodes)
+        //{
+
+        //}
+
+
+        //public Plate(Guid guid, LaminatedGlassProperty property, FEMPlateIntegrator integrator, int plateIndex, Node[] nodes)
+        //    : base(guid, integrator, property, plateIndex)
+        //{
+        //    PlateSetUp(nodes, integrator);
+        //}
+
+        public Plate(Guid guid, IPlateProperty property, FEMPlateIntegrator integrator, int plateIndex, Node[] nodes)
+            : base(guid, integrator, (ElementProperty)property, plateIndex)
         {
             _attributes = new List<IPlateFemAttribute>();
-            _guid = guid;
+
             SetElement(nodes);
             SetLocalCoordinateSystem(0.0);
-            _property = property;
+
             if (integrator != null)
             {
                 _integrator = integrator;
@@ -56,6 +76,28 @@ namespace GPC.Model.FEM
                 _integrator.StartIntegration(this);
             }
         }
+
+        //public Plate(Guid guid, PlateProperty property, FEMPlateIntegrator integrator, int plateIndex, Node[] nodes)
+        //    : base(guid, integrator, property, plateIndex)
+        //{
+        //    PlateSetUp(nodes, integrator);
+        //}
+
+        private void PlateSetUp(Node[] nodes, FEMPlateIntegrator integrator)
+        {
+            _attributes = new List<IPlateFemAttribute>();
+
+            SetElement(nodes);
+            SetLocalCoordinateSystem(0.0);
+
+            if (integrator != null)
+            {
+                _integrator = integrator;
+                BuildElementDoF();
+                _integrator.StartIntegration(this);
+            }
+        }
+
 
         protected Plate(SerializationInfo info, StreamingContext context)
             : base(info, context)

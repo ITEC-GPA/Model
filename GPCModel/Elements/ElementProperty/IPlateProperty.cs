@@ -4,10 +4,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace GPC.Model.Elements.Glasses
+namespace GPC.Model.Elements
 {
-    public interface IFemGlassProperty
+    public interface IPlateProperty
     {
+
 
     }
 }

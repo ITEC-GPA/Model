@@ -14,11 +14,13 @@ namespace GPC.Model.Elements
         protected Element(Guid guid)
             : base(guid)
         {
+
         }
 
         protected Element(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
+
         }
 
         #endregion Public Constructors

@@ -4,22 +4,23 @@ using GPC.Model.Materials;
 
 namespace GPC.Model.Elements
 {
-    public class PlateProperty : ElementProperty
+    public class PlateProperty : ElementProperty, IPlateProperty
     {
         #region Variables
+
         protected double _tb;
 
         protected double _tm;
 
         protected Material _material;
+
         #endregion
 
         #region Properties
+
         public double Tb => _tb;
 
         public double Tm => _tm;
-
-        public Material Material => _material;
 
         #endregion
 
@@ -30,11 +31,18 @@ namespace GPC.Model.Elements
         /// <param name="_tm"> Membranal thickness</param>
         /// </summary>
         public PlateProperty(Material material, double tb, double tm)
-            : base()
+            : base(Guid.NewGuid())
         {
             _tb = tb;
             _tm = tm;
-            _material = material;
+            _material = material ?? throw new ArgumentNullException("Plate property material cannot be null");
+        }
+
+        protected PlateProperty(double tb, double tm)
+            : base(Guid.NewGuid())
+        {
+            _tb = tb;
+            _tm = tm;
         }
 
         public PlateProperty(SerializationInfo info, StreamingContext context)
@@ -45,7 +53,28 @@ namespace GPC.Model.Elements
             _material = (Material)info.GetValue("Material", typeof(Material));
         }
 
-        #endregion Public Constructors
+        #endregion 
+
+        public virtual double GetE()
+        {
+            return _material.E;
+        }
+
+        public virtual double GetNi()
+        {
+            return _material.Ni;
+        }
+
+        public virtual double GetG()
+        {
+            return GetE() / (2.0 * (1.0 + GetNi()));
+        }
+
+        public virtual double GetDensity()
+        {
+            return _material.Density;
+        }
+
 
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {

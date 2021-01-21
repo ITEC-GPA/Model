@@ -10,11 +10,11 @@ namespace GPC.Model.Elements.Glasses
     {
         #region VARIABLES
 
-        protected GlassProperty _glassProperty;
+        protected int _index;
+
+        protected Glass _glass;
 
         protected Shape _shape;
-
-        protected int _index;
 
         protected List<Load> _loads;
 
@@ -26,7 +26,9 @@ namespace GPC.Model.Elements.Glasses
 
         #region PROPERTIES
 
-        public GlassProperty GlassProperty => _glassProperty;
+        public int Index => _index;
+        
+        public Glass Glass => _glass;
 
         public Shape Shape => _shape;
 
@@ -36,16 +38,14 @@ namespace GPC.Model.Elements.Glasses
 
         public List<PointRestrain> PointRestrain => _pointRestrains;
 
-        public int Index => _index;
-
         #endregion
 
         #region PUBLIC CONSTRUCTORS
 
-        public GlassSurface(GlassProperty glassProperty, Shape shape, List<Load> loads, List<LineRestrain> lineRestrain, List<PointRestrain> pointRestrain, int index, Guid guid)
+        public GlassSurface(Glass glass, Shape shape, List<Load> loads, List<LineRestrain> lineRestrain, List<PointRestrain> pointRestrain, int index, Guid guid)
             : base(guid)
         {
-            this._glassProperty = glassProperty;
+            this._glass = glass;
             this._shape = shape;
             this._index = index;
             this._loads = new List<Load>();
@@ -61,8 +61,8 @@ namespace GPC.Model.Elements.Glasses
                 _pointRestrains.AddRange(pointRestrain);
         }
 
-        public GlassSurface(GlassProperty glassProperty, Shape shape, int index, Guid guid)
-            : this(glassProperty, shape, null, null, null, index, guid)
+        public GlassSurface(Glass glass, Shape shape, int index, Guid guid)
+            : this(glass, shape, null, null, null, index, guid)
         {
 
         }
@@ -70,7 +70,7 @@ namespace GPC.Model.Elements.Glasses
         public GlassSurface(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
-            _glassProperty = (GlassProperty)info.GetValue("GlassProperty", typeof(GlassProperty));
+            _glass = (Glass)info.GetValue("GlassProperty", typeof(Glass));
             _shape = (Shape)info.GetValue("Shape", typeof(Shape));
             _index = info.GetInt32("Index");
         }
@@ -97,7 +97,7 @@ namespace GPC.Model.Elements.Glasses
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             base.GetObjectData(info, context);
-            info.AddValue("GlassProperty", _glassProperty);
+            info.AddValue("Glass", _glass);
             info.AddValue("Shape", _shape);
             info.AddValue("Index", _index);
         } 
