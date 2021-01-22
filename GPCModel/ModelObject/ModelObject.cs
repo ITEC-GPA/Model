@@ -97,10 +97,13 @@ namespace GPC.Model
 
             return obj1.Equals(obj2);
         }
+
         public static bool operator !=(ModelObject obj1, ModelObject obj2)
         {
             return !(obj1 == obj2);
         } 
+
+
         #endregion
 
     }

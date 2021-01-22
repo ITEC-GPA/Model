@@ -67,10 +67,10 @@ namespace GPC.Model.Combinations
             {
                 using (var lc = loadCases.GetEnumerator())
                 using (var cf = coefficients.GetEnumerator())
-                    while (lc.MoveNext() && cf.MoveNext())
-                    {
-                        this[lc.Current] = cf.Current;
-                    }
+                while (lc.MoveNext() && cf.MoveNext())
+                {
+                    this[lc.Current] = cf.Current;
+                }
             }
         }
 

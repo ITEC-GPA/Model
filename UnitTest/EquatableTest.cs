@@ -1,7 +1,9 @@
 ﻿using GPC.Model.Elements;
 using GPC.Model.Elements.Glasses;
+using GPC.Model.LoadCases;
 using GPC.Model.Materials;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System;
 using System.IO;
 
 namespace UnitTest
@@ -72,6 +74,15 @@ namespace UnitTest
             Assert.IsTrue(gm1.Equals(gm2), "Glass materials are not equals");
             Assert.IsTrue(mg1.Equals(mg2), "Glass are not equals");
             Assert.IsTrue(mgp1.Equals(mgp2), "Properties are not equals");
+        }
+
+        [TestMethod]
+        public void Test4()
+        {
+            LoadCase sdl1 = new LoadCase("SDL", LoadCase.LoadCaseType.SuperImposedDeadLoad, Guid.NewGuid());
+            LoadCase sdl2 = new LoadCase("SDL", LoadCase.LoadCaseType.SuperImposedDeadLoad, Guid.NewGuid());
+
+            Assert.IsTrue(sdl1.Equals(sdl2));
         }
     }
 }
