@@ -74,6 +74,7 @@
     <Compile Include="SerializationTest.cs" />
     <Compile Include="LoadCaseTest.cs" />
     <Compile Include="EquatableTest.cs" />
+    <Compile Include="HashCodeTest.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

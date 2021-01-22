@@ -115,8 +115,6 @@ namespace GPC.Model.Materials
         {
             int hashCode = 23;
             hashCode = hashCode * -17 + base.GetHashCode();
-            hashCode = hashCode * -17 + _guid.GetHashCode();
-            hashCode = hashCode * -17 + EqualityComparer<string>.Default.GetHashCode(_name);
             hashCode = hashCode * -17 + _elasticModulus.GetHashCode();
             hashCode = hashCode * -17 + _ni.GetHashCode();
             hashCode = hashCode * -17 + _alfaThermalExpansion.GetHashCode();

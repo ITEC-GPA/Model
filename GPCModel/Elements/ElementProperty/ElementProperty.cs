@@ -58,8 +58,6 @@ namespace GPC.Model.Elements
         {
             int hashCode = 23;
             hashCode = hashCode * -17 + base.GetHashCode();
-            hashCode = hashCode * -17 + _guid.GetHashCode();
-            hashCode = hashCode * -17 + EqualityComparer<string>.Default.GetHashCode(_name);
             return hashCode;
         }
 
