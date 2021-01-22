@@ -8,9 +8,15 @@ namespace GPC.Model.Elements
     /// </summary>
 
     [Serializable]
-    public abstract class Element : ModelObject
+    public abstract class Element : ModelObject, IEquatable<Element>
     {
         #region Public Constructors
+
+        protected Element() : base(Guid.NewGuid())
+        {
+
+        }
+
         protected Element(Guid guid)
             : base(guid)
         {
@@ -28,6 +34,11 @@ namespace GPC.Model.Elements
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             base.GetObjectData(info, context);
+        }
+
+        public bool Equals(Element other)
+        {
+            return !(other is null) && base.Equals(other);
         }
     }
 }

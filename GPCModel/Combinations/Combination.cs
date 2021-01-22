@@ -23,7 +23,7 @@ namespace GPC.Model.Combinations
         }
 
         protected Combination(string name)
-            : this(name, Guid.Empty)
+            : this(name, Guid.NewGuid())
         {
 
         }

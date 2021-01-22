@@ -95,7 +95,7 @@ namespace GPC.Model.FEM
                 v33.Unitize();
             }
 
-            _coordSys = new CoordinateSystem(_nodesGlobal[0].Position, v33, v22, v11, rotationAngle, string.Empty, Guid.Empty);
+            _coordSys = new CoordinateSystem(_nodesGlobal[0].Position, v33, v22, v11, rotationAngle, string.Empty, Guid.NewGuid());
 
             for (int nd = 0; nd < _nodesGlobal.Length; nd++)
             {

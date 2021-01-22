@@ -33,7 +33,7 @@ namespace GPC.Model.Materials
         /// <param name="density">Density of the material [T/mm^3]</param>
         /// <param name="alfaThermalExpansion">Alfa linear thermal expansion coefficient</param>
         protected GlassMaterial(string name, double elasticModulus, double poisson, double density, double alfaThermalExpansion)
-            : this(name, elasticModulus, poisson, density, alfaThermalExpansion, Guid.Empty)
+            : this(name, elasticModulus, poisson, density, alfaThermalExpansion, Guid.NewGuid())
         {
 
         }

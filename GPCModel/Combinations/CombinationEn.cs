@@ -27,7 +27,7 @@ namespace GPC.Model.Combinations
         }
 
         public CombinationEn(string name, CombinationType combinationType)
-            : this(name, combinationType, Guid.Empty)
+            : this(name, combinationType, Guid.NewGuid())
         {
 
         }

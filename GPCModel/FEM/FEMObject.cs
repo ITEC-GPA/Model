@@ -5,12 +5,12 @@ namespace GPC.Model.FEM
     public class FEMObject : ModelObject
     {
         public FEMObject()
-            : base(Guid.Empty, "")
+            : base(Guid.NewGuid(), "")
         {
         }
 
         public FEMObject(string name)
-             : base(Guid.Empty, name)
+             : base(Guid.NewGuid(), name)
         {
         }
 

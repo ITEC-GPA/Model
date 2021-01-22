@@ -111,7 +111,7 @@ namespace GPC.Model.FEM
         }
 
         public Node(Point3d position, int nodeIndex, int[] doFid, int[] activeDoF)
-            : this(Guid.Empty, "", position, nodeIndex, doFid, activeDoF)
+            : this(Guid.NewGuid(), "", position, nodeIndex, doFid, activeDoF)
         {
 
         }

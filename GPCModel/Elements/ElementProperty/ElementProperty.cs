@@ -42,7 +42,7 @@ namespace GPC.Model.Elements
 
         public bool Equals(ElementProperty other)
         {
-            return !(other is null) && _name == other._name && _guid == other._guid; 
+            return !(other is null) && _name == other._name; 
         }
     }
 }

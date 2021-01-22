@@ -23,7 +23,7 @@ namespace GPC.Model.Combinations
         }
 
         public CombinationAsce(string name, CombinationType combinationType)
-            : this(name, combinationType, Guid.Empty)
+            : this(name, combinationType, Guid.NewGuid())
         {
             this._combinationType = combinationType;
         }

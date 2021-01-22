@@ -41,7 +41,7 @@ namespace GPC.Model.Materials
         }
 
         public InterlayerMaterial(double density, double alfaThermalExpansion, InterlayerType type)
-            : this(density, alfaThermalExpansion, type, Guid.Empty)
+            : this(density, alfaThermalExpansion, type, Guid.NewGuid())
         {
         }
 

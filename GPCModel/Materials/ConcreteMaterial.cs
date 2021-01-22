@@ -46,7 +46,7 @@ namespace GPC.Model.Materials
         /// <param name="poisson">Poissoins's Ratio</param>
         /// <param name="fck">Concrete compression resistance reference value (28 days)</param>
         public ConcreteMaterial(double elasticModulus, double poisson, double fck, double density)
-            : this(elasticModulus, poisson, fck, density, 0, Guid.Empty)
+            : this(elasticModulus, poisson, fck, density, 0, Guid.NewGuid())
         {
         }
 
@@ -58,7 +58,7 @@ namespace GPC.Model.Materials
         /// <param name="fck">Concrete compression resistance reference value (28 days)</param>
         /// <param name="alfaThermalExpansion"></param>
         public ConcreteMaterial(double elasticModulus, double poisson, double fck, double density, double alfaThermalExpansion)
-            : this(elasticModulus, poisson, fck, density, alfaThermalExpansion, Guid.Empty)
+            : this(elasticModulus, poisson, fck, density, alfaThermalExpansion, Guid.NewGuid())
         {
         }
 

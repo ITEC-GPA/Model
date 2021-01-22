@@ -71,8 +71,7 @@ namespace GPC.Model.LoadCases
         {
             return !(other is null) && 
                     _name == other._name && 
-                    _loadCaseType == other._loadCaseType &&
-                    _guid == other._guid;
+                    _loadCaseType == other._loadCaseType;
         }
     }
 }

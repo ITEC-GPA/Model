@@ -74,7 +74,7 @@ namespace GPC.Model.Elements
         }
 
         public Rebar(double diameter, double effectiveArea, Point2d position, RebarMaterial material) :
-            this(diameter, effectiveArea, new Point2d(0, 0), new Point2d(0, 0), position, material, Guid.Empty)
+            this(diameter, effectiveArea, new Point2d(0, 0), new Point2d(0, 0), position, material, Guid.NewGuid())
         {
         }
 

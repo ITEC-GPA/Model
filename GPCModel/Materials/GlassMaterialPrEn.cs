@@ -74,7 +74,7 @@ namespace GPC.Model.Materials
         /// <param name="alfaThermalExpansion">Alfa linear thermal expansion coefficient</param>
         public GlassMaterialPrEn(string name, double elasticModulus, double poisson, double fgk, GlassType glassType, SurfaceTreatment surfaceTreatment, PrestressType prestressType, 
                                     ManufactoringProcess manufactoringProcess, double density, double alfaThermalExpansion)
-            : this(name, elasticModulus, poisson, fgk, glassType, surfaceTreatment, prestressType, manufactoringProcess, density, alfaThermalExpansion, Guid.Empty)
+            : this(name, elasticModulus, poisson, fgk, glassType, surfaceTreatment, prestressType, manufactoringProcess, density, alfaThermalExpansion, Guid.NewGuid())
         {
             // TODO: ke factors
         }

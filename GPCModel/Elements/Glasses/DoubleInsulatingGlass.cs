@@ -35,7 +35,7 @@ namespace GPC.Model.Elements.Glasses
         /// <param name="glassPanelInner">Inner glass panel</param>
         /// <param name="airThickness">air gap</param>
         public DoubleInsulatingGlass(string name, IGlassPanel glassPanelOuter, IGlassPanel glassPanelInner, double airThickness)
-            : this(name, glassPanelOuter, glassPanelInner, airThickness, Guid.Empty)
+            : this(name, glassPanelOuter, glassPanelInner, airThickness, Guid.NewGuid())
         {
         }
 

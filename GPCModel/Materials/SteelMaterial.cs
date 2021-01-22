@@ -59,7 +59,7 @@ namespace GPC.Model.Materials
         /// <param name="fu">Ultimate stress</param>
         /// <param name="epsilon0">Yielding strain</param>
         public SteelMaterial(string name, double elasticModulus, double poisson, double fy, double fu, double epsilon0, double density)
-            : this(name, elasticModulus, poisson, fy, fu, epsilon0, density, 0, Guid.Empty)
+            : this(name, elasticModulus, poisson, fy, fu, epsilon0, density, 0, Guid.NewGuid())
         {
 
         }
@@ -72,7 +72,7 @@ namespace GPC.Model.Materials
         /// <param name="fy">Yielding stress</param>
         /// <param name="fu">Ultimate stress</param>
         public SteelMaterial(string name, double elasticModulus, double poisson, double fy, double fu, double density)
-            : this(name, elasticModulus, poisson, fy, fu, fy / elasticModulus, density, 0, Guid.Empty)
+            : this(name, elasticModulus, poisson, fy, fu, fy / elasticModulus, density, 0, Guid.NewGuid())
         {
 
         }

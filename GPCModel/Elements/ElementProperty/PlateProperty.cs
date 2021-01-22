@@ -87,9 +87,9 @@ namespace GPC.Model.Elements
         public bool Equals(PlateProperty other)
         {
             return !(other is null) && base.Equals(other) &&
-                        _bendingThickness == other._bendingThickness &&
-                        _membraneThickness == other._membraneThickness &&
-                        _material == other._material;
+                                    _bendingThickness == other._bendingThickness &&
+                                    _membraneThickness == other._membraneThickness &&
+                                    _material == other._material;
         }
     }
 }
