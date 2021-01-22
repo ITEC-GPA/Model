@@ -66,9 +66,42 @@ namespace GPC.Model.Elements
 
         public bool Equals(InterlayerProperty other)
         {
+            if (ReferenceEquals(this, other))
+                return true;
+
             return !(other is null) && base.Equals(other) &&
-                        _temperature == other._temperature &&
-                        _loadDuration == other._loadDuration;
+                        _temperature.Equals(other._temperature) &&
+                        _loadDuration.Equals(other._loadDuration);
+        }
+
+        public override bool Equals(object obj)
+        {
+            return base.Equals(obj as InterlayerProperty);
+        }
+
+        public override int GetHashCode()
+        {
+            int hashCode = -23;
+            hashCode = hashCode * -17 + base.GetHashCode();
+            hashCode = hashCode * -17 + _temperature.GetHashCode();
+            hashCode = hashCode * -17 + _loadDuration.GetHashCode();
+            return hashCode;
+        }
+
+        public static bool operator ==(InterlayerProperty obj1, InterlayerProperty obj2)
+        {
+            if (ReferenceEquals(obj1, obj2))
+                return true;
+
+            if (obj1 is null || obj2 is null)
+                return false;
+
+            return obj1.Equals(obj2);
+        }
+
+        public static bool operator !=(InterlayerProperty obj1, InterlayerProperty obj2)
+        {
+            return !(obj1 == obj2);
         }
     }
 }

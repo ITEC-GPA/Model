@@ -73,6 +73,7 @@
     <Compile Include="SectionsTest.cs" />
     <Compile Include="SerializationTest.cs" />
     <Compile Include="LoadCaseTest.cs" />
+    <Compile Include="EquatableTest.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

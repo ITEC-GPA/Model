@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Runtime.Serialization;
 
 namespace GPC.Model
@@ -68,9 +69,40 @@ namespace GPC.Model
 
         public bool Equals(ModelObject other)
         {
-            return !(other is null) && other._name == _name;
+            if (ReferenceEquals(this, other))
+                return true;
+
+            return !(other is null) && other._name.Equals(_name);
         }
 
-        #endregion 
+        public override bool Equals(object obj)
+        {
+            return base.Equals(obj as ModelObject);
+        }
+
+        public override int GetHashCode()
+        {
+            int hashCode = -23;
+            hashCode = hashCode * -17 + _guid.GetHashCode();
+            hashCode = hashCode * -17 + EqualityComparer<string>.Default.GetHashCode(_name);
+            return hashCode;
+        }
+
+        public static bool operator ==(ModelObject obj1, ModelObject obj2)
+        {
+            if (ReferenceEquals(obj1, obj2))
+                return true;
+
+            if (obj1 is null || obj2 is null)
+                return false;
+
+            return obj1.Equals(obj2);
+        }
+        public static bool operator !=(ModelObject obj1, ModelObject obj2)
+        {
+            return !(obj1 == obj2);
+        } 
+        #endregion
+
     }
 }

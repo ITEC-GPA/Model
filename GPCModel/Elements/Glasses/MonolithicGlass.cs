@@ -1,5 +1,6 @@
 ﻿using GPC.Model.Materials;
 using System;
+using System.Collections.Generic;
 using System.Runtime.Serialization;
 
 namespace GPC.Model.Elements.Glasses
@@ -8,7 +9,7 @@ namespace GPC.Model.Elements.Glasses
     /// Monolithic glass. This represent the simpler glass panel. It is composed by a single layer of glass
     /// </summary>
     [Serializable]
-    public class MonolithicGlass : Glass, IGlassPanel
+    public class MonolithicGlass : Glass, IGlassPanel, IEquatable<MonolithicGlass>
     {
         #region Variables
         protected GlassMaterial _material;
@@ -75,6 +76,46 @@ namespace GPC.Model.Elements.Glasses
             info.AddValue("Material", _material);
         }
 
-        #endregion 
+        public bool Equals(MonolithicGlass other)
+        {
+            if (ReferenceEquals(this, other))
+                return true;
+
+            return !(other is null) && other._thickness.Equals(_thickness) 
+                                    && other._material.Equals(_material) 
+                                    && base.Equals(other);
+        }
+
+        public override bool Equals(object obj)
+        {
+            return base.Equals(obj as MonolithicGlass);
+        }
+
+        public override int GetHashCode()
+        {
+            int hashCode = -23;
+            hashCode = hashCode * -17 + base.GetHashCode();
+            hashCode = hashCode * -17 + EqualityComparer<GlassMaterial>.Default.GetHashCode(_material);
+            hashCode = hashCode * -17 + _thickness.GetHashCode();
+            return hashCode;
+        }
+
+        public static bool operator ==(MonolithicGlass obj1, MonolithicGlass obj2)
+        {
+            if (ReferenceEquals(obj1, obj2))
+                return true;
+
+            if (obj1 is null || obj2 is null)
+                return false;
+
+            return obj1.Equals(obj2);
+        }
+
+        public static bool operator !=(MonolithicGlass obj1, MonolithicGlass obj2)
+        {
+            return !(obj1 == obj2);
+        }
+
+        #endregion
     }
 }

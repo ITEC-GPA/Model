@@ -6,7 +6,7 @@ using GPC.Model.Loads;
 
 namespace GPC.Model.Elements.Glasses
 {
-    public class GlassSurface : Element
+    public class GlassSurface : Element, IEquatable<GlassSurface>
     {
         #region VARIABLES
 
@@ -100,7 +100,55 @@ namespace GPC.Model.Elements.Glasses
             info.AddValue("Glass", _glass);
             info.AddValue("Shape", _shape);
             info.AddValue("Index", _index);
-        } 
+        }
+
+        public bool Equals(GlassSurface other)
+        {
+            if (ReferenceEquals(this, other))
+                return true;
+
+            return !(other is null) && other._glass.Equals(_glass) 
+                                    && other._index.Equals(_index)
+                                    && other._lineRestrains.Equals(_lineRestrains)
+                                    && other._loads.Equals(_loads)
+                                    && other._shape.Equals(_shape)
+                                    && other._pointRestrains.Equals(_pointRestrains)
+                                    && base.Equals(other);
+        }
+
+        public override bool Equals(object obj)
+        {
+            return base.Equals(obj as GlassSurface);
+        }
+
+        public override int GetHashCode()
+        {
+            int hashCode = -23;
+            hashCode = hashCode * -17 + base.GetHashCode();
+            hashCode = hashCode * -17 + _index.GetHashCode();
+            hashCode = hashCode * -17 + EqualityComparer<Glass>.Default.GetHashCode(_glass);
+            hashCode = hashCode * -17 + EqualityComparer<Shape>.Default.GetHashCode(_shape);
+            hashCode = hashCode * -17 + EqualityComparer<List<Load>>.Default.GetHashCode(_loads);
+            hashCode = hashCode * -17 + EqualityComparer<List<LineRestrain>>.Default.GetHashCode(_lineRestrains);
+            hashCode = hashCode * -17 + EqualityComparer<List<PointRestrain>>.Default.GetHashCode(_pointRestrains);
+            return hashCode;
+        }
+
+        public static bool operator ==(GlassSurface obj1, GlassSurface obj2)
+        {
+            if (ReferenceEquals(obj1, obj2))
+                return true;
+
+            if (obj1 is null || obj2 is null)
+                return false;
+
+            return obj1.Equals(obj2);
+        }
+
+        public static bool operator !=(GlassSurface obj1, GlassSurface obj2)
+        {
+            return !(obj1 == obj2);
+        }
 
         #endregion
     }

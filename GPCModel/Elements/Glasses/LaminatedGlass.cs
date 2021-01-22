@@ -1,5 +1,6 @@
 ﻿using GPC.Model.Materials;
 using System;
+using System.Collections.Generic;
 using System.Runtime.Serialization;
 
 namespace GPC.Model.Elements.Glasses
@@ -8,7 +9,7 @@ namespace GPC.Model.Elements.Glasses
     /// Laminated glass. This represent a multilayer glass panel. Between each layer there is an interlayer
     /// </summary>
     [Serializable]
-    public class LaminatedGlass : Glass, IGlassPanel
+    public class LaminatedGlass : Glass, IGlassPanel, IEquatable<LaminatedGlass>
     {
         #region Variables
 
@@ -79,6 +80,45 @@ namespace GPC.Model.Elements.Glasses
             base.GetObjectData(info, context);
             info.AddValue("MonolithicGlasses", _monolithicGlasses);
             info.AddValue("Interlayers", _interlayers);
+        }
+
+        public bool Equals(LaminatedGlass other)
+        {
+            if (ReferenceEquals(this, other))
+                return true;
+
+            return !(other is null) && other._interlayers.Equals(_interlayers)
+                                    && other._monolithicGlasses.Equals(_monolithicGlasses) 
+                                    && base.Equals(other);
+        }
+
+        public override bool Equals(object obj)
+        {
+            return base.Equals(obj as LaminatedGlass);
+        }
+
+        public override int GetHashCode()
+        {
+            int hashCode = -23;
+            hashCode = hashCode * -17 + base.GetHashCode();
+            hashCode = hashCode * -17 + EqualityComparer<MonolithicGlass[]>.Default.GetHashCode(_monolithicGlasses);
+            hashCode = hashCode * -17 + EqualityComparer<Interlayer[]>.Default.GetHashCode(_interlayers);
+            return hashCode;
+        }
+
+        public static bool operator ==(LaminatedGlass obj1, LaminatedGlass obj2)
+        {
+            if (ReferenceEquals(obj1, obj2))
+                return true;
+
+            if (obj1 is null || obj2 is null)
+                return false;
+
+            return obj1.Equals(obj2);
+        }
+        public static bool operator !=(LaminatedGlass obj1, LaminatedGlass obj2)
+        {
+            return !(obj1 == obj2);
         }
 
         #endregion PUBLIC METHODS

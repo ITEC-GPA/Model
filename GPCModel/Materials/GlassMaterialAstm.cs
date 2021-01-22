@@ -4,7 +4,7 @@ using System.Runtime.Serialization;
 namespace GPC.Model.Materials
 {
     [Serializable]
-    public class GlassMaterialAstm : GlassMaterial
+    public class GlassMaterialAstm : GlassMaterial, IEquatable<GlassMaterialAstm>
     {
         #region VARIABLES
 
@@ -115,6 +115,50 @@ namespace GPC.Model.Materials
             info.AddValue("SigmaBaseEdge", _surfaceBaseEdgeStress);
         }
 
-        #endregion 
+        public bool Equals(GlassMaterialAstm other)
+        {
+            if (ReferenceEquals(this, other))
+                return true;
+            return !(other is null) && other._psiSurface.Equals(_psiSurface) &&
+                                        other._nGlassCoefficient.Equals(_nGlassCoefficient) &&
+                                        other._surfaceBaseStress.Equals(_surfaceBaseStress) &&
+                                        other._surfaceBaseEdgeStress.Equals(_surfaceBaseEdgeStress) &&
+                                        other._probabiltyOfBreakage.Equals(_probabiltyOfBreakage) &&
+                                        base.Equals(other);
+        }
+
+        public override bool Equals(object obj)
+        {
+            return base.Equals(obj as GlassMaterialAstm);
+        }
+
+        public override int GetHashCode()
+        {
+            int hashCode = 23;
+            hashCode = hashCode * -17 + base.GetHashCode();
+            hashCode = hashCode * -17 + _psiSurface.GetHashCode();
+            hashCode = hashCode * -17 + _nGlassCoefficient.GetHashCode();
+            hashCode = hashCode * -17 + _surfaceBaseStress.GetHashCode();
+            hashCode = hashCode * -17 + _surfaceBaseEdgeStress.GetHashCode();
+            hashCode = hashCode * -17 + _probabiltyOfBreakage.GetHashCode();
+            return hashCode;
+        }
+
+        public static bool operator ==(GlassMaterialAstm obj1, GlassMaterialAstm obj2)
+        {
+            if (ReferenceEquals(obj1, obj2))
+                return true;
+
+            if (obj1 is null || obj2 is null)
+                return false;
+
+            return obj1.Equals(obj2);
+        }
+
+        public static bool operator !=(GlassMaterialAstm obj1, GlassMaterialAstm obj2)
+        {
+            return !(obj1 == obj2);
+        }
+        #endregion
     }
 }

@@ -76,12 +76,48 @@ namespace GPC.Model.Elements
 
         public bool Equals(LaminatedGlassProperty other)
         {
-            return !(other is null) && base.Equals(other) &&
-                                       other._glassBendingThickness == _glassBendingThickness &&
-                                       other._glassMembraneThickness == _glassMembraneThickness &&
-                                       other._interlayerThickness == _interlayerThickness &&
-                                       other._glassMaterials == _glassMaterials &&
-                                       other._interlayerMaterials == _interlayerMaterials;
+            if (ReferenceEquals(this, other))
+                return true;
+
+            return !(other is null) && other._glassBendingThickness.Equals(_glassBendingThickness) &&
+                                       other._glassMembraneThickness.Equals(_glassMembraneThickness) &&
+                                       other._interlayerThickness.Equals(_interlayerThickness) &&
+                                       other._glassMaterials.Equals(_glassMaterials) &&
+                                       other._interlayerMaterials.Equals(_interlayerMaterials) &&
+                                       base.Equals(other);
+        }
+
+        public override bool Equals(object obj)
+        {
+            return base.Equals(obj as LaminatedGlassProperty);
+        }
+
+        public override int GetHashCode()
+        {
+            int hashCode = 23;
+            hashCode = hashCode * -17 + base.GetHashCode();
+            hashCode = hashCode * -17 + EqualityComparer<List<double>>.Default.GetHashCode(_glassBendingThickness);
+            hashCode = hashCode * -17 + EqualityComparer<List<double>>.Default.GetHashCode(_glassMembraneThickness);
+            hashCode = hashCode * -17 + EqualityComparer<List<double>>.Default.GetHashCode(_interlayerThickness);
+            hashCode = hashCode * -17 + EqualityComparer<List<GlassMaterial>>.Default.GetHashCode(_glassMaterials);
+            hashCode = hashCode * -17 + EqualityComparer<List<InterlayerMaterial>>.Default.GetHashCode(_interlayerMaterials);
+            return hashCode;
+        }
+
+        public static bool operator ==(LaminatedGlassProperty obj1, LaminatedGlassProperty obj2)
+        {
+            if (ReferenceEquals(obj1, obj2))
+                return true;
+
+            if (obj1 is null || obj2 is null)
+                return false;
+
+            return obj1.Equals(obj2);
+        }
+
+        public static bool operator !=(LaminatedGlassProperty obj1, LaminatedGlassProperty obj2)
+        {
+            return !(obj1 == obj2);
         }
     }
 }

@@ -1,10 +1,11 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Runtime.Serialization;
 
 namespace GPC.Model.Materials
 {
     [Serializable]
-    public abstract class Material : ModelObject
+    public abstract class Material : ModelObject, IEquatable<Material>
     {
         #region VARIABLES
 
@@ -22,9 +23,23 @@ namespace GPC.Model.Materials
         public double AlfaThermalExpansion => _alfaThermalExpansion;
         public double Density => _density;
 
-        #endregion 
+        #endregion
 
         #region PUBLIC CONSTRUCTOR
+
+        /// <summary>
+        /// </summary>
+        /// <param name="elasticModulus"> Elastic Modulus [MPa]</param>
+        /// <param name="poisson"> Poisson modulus </param>
+        /// <param name="alfaThermalExpansion"> Thermal expansion constant</param>
+        /// <param name="density"> Density [T/mm^3]</param>
+        public Material(string name, double elasticModulus, double poisson, double density, double alfaThermalExpansion)
+            : this(name, elasticModulus, poisson, density, alfaThermalExpansion, Guid.NewGuid())
+        {
+
+        }
+
+
 
         /// <summary>
         /// </summary>
@@ -67,7 +82,7 @@ namespace GPC.Model.Materials
             _ni = info.GetDouble("Ni");
         }
 
-        #endregion PUBLIC CONSTRUCTOR
+        #endregion 
 
         #region PUBLIC METHODS
 
@@ -80,6 +95,52 @@ namespace GPC.Model.Materials
             info.AddValue("Ni", _ni);
         }
 
-        #endregion PUBLIC METHODS
+        public bool Equals(Material other)
+        {
+            if (ReferenceEquals(this, other))
+                return true;
+
+            return !(other is null) && other._elasticModulus.Equals(_elasticModulus) &&
+                                       other._ni.Equals(_ni) &&
+                                       other._alfaThermalExpansion.Equals(_alfaThermalExpansion) &&
+                                       other._density.Equals(_density) &&
+                                       base.Equals(other);
+        }
+        public override bool Equals(object obj)
+        {
+            return base.Equals(obj as Material);
+        }
+
+        public override int GetHashCode()
+        {
+            int hashCode = 23;
+            hashCode = hashCode * -17 + base.GetHashCode();
+            hashCode = hashCode * -17 + _guid.GetHashCode();
+            hashCode = hashCode * -17 + EqualityComparer<string>.Default.GetHashCode(_name);
+            hashCode = hashCode * -17 + _elasticModulus.GetHashCode();
+            hashCode = hashCode * -17 + _ni.GetHashCode();
+            hashCode = hashCode * -17 + _alfaThermalExpansion.GetHashCode();
+            hashCode = hashCode * -17 + _density.GetHashCode();
+            return hashCode;
+        }
+
+        public static bool operator ==(Material obj1, Material obj2)
+        {
+            if (ReferenceEquals(obj1, obj2))
+                return true;
+
+            if (obj1 is null || obj2 is null)
+                return false;
+
+            return obj1.Equals(obj2);
+        }
+        public static bool operator !=(Material obj1, Material obj2)
+        {
+            return !(obj1 == obj2);
+        }
+
+
+
+        #endregion
     }
 }

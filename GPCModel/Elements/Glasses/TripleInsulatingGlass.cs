@@ -1,5 +1,5 @@
-﻿using GPC.Model.Materials;
-using System;
+﻿using System;
+using System.Collections.Generic;
 using System.Runtime.Serialization;
 
 namespace GPC.Model.Elements.Glasses
@@ -8,7 +8,7 @@ namespace GPC.Model.Elements.Glasses
     /// This represent a triple glazing panel composed by three glass panels separated by air.
     /// </summary>
     [Serializable]
-    public class TripleInsulatingGlass : Glass, IInsulatingGlass
+    public class TripleInsulatingGlass : Glass, IInsulatingGlass, IEquatable<TripleInsulatingGlass>
     {
         #region Variables
 
@@ -18,7 +18,7 @@ namespace GPC.Model.Elements.Glasses
         protected readonly double _airThicknessInner;
         protected readonly IGlassPanel _glassPanelInner;
 
-        #endregion Variables
+        #endregion
 
         #region Properties
 
@@ -28,7 +28,7 @@ namespace GPC.Model.Elements.Glasses
         public double AirThicknessInner => _airThicknessInner;
         public IGlassPanel GlassPanelInner => _glassPanelInner;
 
-        #endregion Properties
+        #endregion
 
         #region Public constructor
 
@@ -70,7 +70,7 @@ namespace GPC.Model.Elements.Glasses
             _airThicknessInner = info.GetDouble("AirThicknessInner");
         }
 
-        #endregion Public constructor
+        #endregion
 
         #region PUBLIC METHODS
 
@@ -84,6 +84,53 @@ namespace GPC.Model.Elements.Glasses
             info.AddValue("AirThicknessInner", _airThicknessInner);
         }
 
-        #endregion PUBLIC METHODS
+        public bool Equals(TripleInsulatingGlass other)
+        {
+            if (ReferenceEquals(this, other))
+                return true;
+
+            return !(other is null) && other._glassPanelOuter.Equals(_glassPanelOuter)
+                                    && other._airThicknessOuter.Equals(_airThicknessOuter)
+                                    && other._glassPanelCentral.Equals(_glassPanelCentral)
+                                    && other._airThicknessInner.Equals(_airThicknessInner)
+                                    && other._glassPanelInner.Equals(_glassPanelInner)
+                                    && base.Equals(other);
+        }
+
+        public override bool Equals(object obj)
+        {
+            return base.Equals(obj as TripleInsulatingGlass);
+        }
+
+        public override int GetHashCode()
+        {
+            int hashCode = -23;
+            hashCode = hashCode * -17 + base.GetHashCode();
+            hashCode = hashCode * -17 + EqualityComparer<IGlassPanel>.Default.GetHashCode(_glassPanelOuter);
+            hashCode = hashCode * -17 + _airThicknessOuter.GetHashCode();
+            hashCode = hashCode * -17 + EqualityComparer<IGlassPanel>.Default.GetHashCode(_glassPanelCentral);
+            hashCode = hashCode * -17 + _airThicknessInner.GetHashCode();
+            hashCode = hashCode * -17 + EqualityComparer<IGlassPanel>.Default.GetHashCode(_glassPanelInner);
+            return hashCode;
+        }
+
+        public static bool operator ==(TripleInsulatingGlass obj1, TripleInsulatingGlass obj2)
+        {
+            if (ReferenceEquals(obj1, obj2))
+                return true;
+
+            if (obj1 is null || obj2 is null)
+                return false;
+
+            return obj1.Equals(obj2);
+        }
+
+        public static bool operator !=(TripleInsulatingGlass obj1, TripleInsulatingGlass obj2)
+        {
+            return !(obj1 == obj2);
+        }
+
+
+        #endregion
     }
 }

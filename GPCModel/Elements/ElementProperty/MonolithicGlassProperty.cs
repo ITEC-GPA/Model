@@ -2,6 +2,7 @@
 using System.Runtime.Serialization;
 using GPC.Model.Materials;
 using GPC.Model.Elements.Glasses;
+using System.Collections.Generic;
 
 namespace GPC.Model.Elements
 {
@@ -39,7 +40,40 @@ namespace GPC.Model.Elements
 
         public bool Equals(MonolithicGlassProperty other)
         {
+            if (ReferenceEquals(this, other))
+                return true;
+
             return !(other is null) && base.Equals(other);
+        }
+        public override bool Equals(object obj)
+        {
+            return base.Equals(obj as MonolithicGlassProperty);
+        }
+
+        public override int GetHashCode()
+        {
+            int hashCode = 23;
+            hashCode = hashCode * -17 + base.GetHashCode();
+            hashCode = hashCode * -17 + _bendingThickness.GetHashCode();
+            hashCode = hashCode * -17 + _membraneThickness.GetHashCode();
+            hashCode = hashCode * -17 + EqualityComparer<Material>.Default.GetHashCode(_material);
+            return hashCode;
+        }
+
+        public static bool operator ==(MonolithicGlassProperty obj1, MonolithicGlassProperty obj2)
+        {
+            if (ReferenceEquals(obj1, obj2))
+                return true;
+
+            if (obj1 is null || obj2 is null)
+                return false;
+
+            return obj1.Equals(obj2);
+        }
+
+        public static bool operator !=(MonolithicGlassProperty obj1, MonolithicGlassProperty obj2)
+        {
+            return !(obj1 == obj2);
         }
     }
 }

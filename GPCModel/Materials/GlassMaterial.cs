@@ -1,10 +1,11 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Runtime.Serialization;
 
 namespace GPC.Model.Materials
 {
     [Serializable]
-    public abstract class GlassMaterial : Material
+    public abstract class GlassMaterial : Material, IEquatable<GlassMaterial>
     {
         /// <summary>
         /// 
@@ -49,6 +50,41 @@ namespace GPC.Model.Materials
         {
             base.GetObjectData(info, context);
             throw new NotImplementedException();
+        }
+
+        public bool Equals(GlassMaterial other)
+        {
+            if (ReferenceEquals(this, other))
+                return true;
+
+            return !(other is null) && base.Equals(other);
+        }
+        public override bool Equals(object obj)
+        {
+            return base.Equals(obj as GlassMaterial);
+        }
+
+        public override int GetHashCode()
+        {
+            int hashCode = -23;
+            hashCode = hashCode * -17 + base.GetHashCode();
+            return hashCode;
+        }
+
+        public static bool operator ==(GlassMaterial obj1, GlassMaterial obj2)
+        {
+            if (ReferenceEquals(obj1, obj2))
+                return true;
+
+            if (obj1 is null || obj2 is null)
+                return false;
+
+            return obj1.Equals(obj2);
+        }
+
+        public static bool operator !=(GlassMaterial obj1, GlassMaterial obj2)
+        {
+            return !(obj1 == obj2);
         }
         #endregion
     }

@@ -1,5 +1,6 @@
 ﻿using GPC.Model.Materials;
 using System;
+using System.Collections.Generic;
 using System.Runtime.Serialization;
 
 namespace GPC.Model.Elements.Glasses
@@ -8,7 +9,7 @@ namespace GPC.Model.Elements.Glasses
     /// This represent a double glazing panel composed by two glass panels separated by air.
     /// </summary>
     [Serializable]
-    public class DoubleInsulatingGlass : Glass, IInsulatingGlass
+    public class DoubleInsulatingGlass : Glass, IInsulatingGlass, IEquatable<DoubleInsulatingGlass>
     {
         #region Variables
 
@@ -76,6 +77,46 @@ namespace GPC.Model.Elements.Glasses
             info.AddValue("GlassPanelOuter", _glassPanelOuter);
             info.AddValue("GlassPanelInner", _glassPanelInner);
             info.AddValue("AirThickness", _airThickness);
+        }
+
+        public bool Equals(DoubleInsulatingGlass other)
+        {
+            if (ReferenceEquals(this, other))
+                return true;
+
+            return !(other is null) && other._glassPanelOuter.Equals(_glassPanelOuter) 
+                                    && other._airThickness.Equals(_airThickness)
+                                    && other._glassPanelInner.Equals(_glassPanelInner);
+        }
+
+        public override bool Equals(object obj)
+        {
+            return base.Equals(obj as DoubleInsulatingGlass);
+        }
+
+        public override int GetHashCode()
+        {
+            int hashCode = 23;
+            hashCode = hashCode * -17 + base.GetHashCode();
+            hashCode = hashCode * -17 + EqualityComparer<IGlassPanel>.Default.GetHashCode(_glassPanelOuter);
+            hashCode = hashCode * -17 + _airThickness.GetHashCode();
+            hashCode = hashCode * -17 + EqualityComparer<IGlassPanel>.Default.GetHashCode(_glassPanelInner);
+            return hashCode;
+        }
+
+        public static bool operator ==(DoubleInsulatingGlass obj1, DoubleInsulatingGlass obj2)
+        {
+            if (ReferenceEquals(obj1, obj2))
+                return true;
+
+            if (obj1 is null || obj2 is null)
+                return false;
+
+            return obj1.Equals(obj2);
+        }
+        public static bool operator !=(DoubleInsulatingGlass obj1, DoubleInsulatingGlass obj2)
+        {
+            return !(obj1 == obj2);
         }
 
         #endregion
