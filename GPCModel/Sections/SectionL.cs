@@ -115,5 +115,16 @@ namespace GPC.Model.Sections
             _wpl11 = Math.Min(_wel11Left, _wel11Right);
             _wpl22 = Math.Min(_wel22Bottom, _wel22Top);
         }
+
+        public override string ToString()
+        {
+            string s = "L section: \n";
+            s = s + "height vertical = " + _lVert + " mm \n";
+            s = s + "thickeness vertical = " + _tVert + " mm \n";
+            s = s + "Length Bottom = " + _lHor + " mm \n";
+            s = s + "Thickness Bottom = " + _tHor + " mm \n";
+            
+            return s;
+        }
     }
 }

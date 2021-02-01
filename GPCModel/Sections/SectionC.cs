@@ -143,5 +143,17 @@ namespace GPC.Model.Sections
                 throw new Exception("calculation of unequal C not yet supported");
             }
         }
+
+        public override string ToString()
+        {
+            string s = "C section: \n";
+            s = s + "h = " + _h + " mm \n";
+            s = s + "tw = " + _tw + " mm \n";
+            s = s + "Length Bottom = " + _lengthBottom + " mm \n";
+            s = s + "Thickness Bottom = " + _tBottom + " mm \n";
+            s = s + "Length Top = " + _lengthTop + " mm \n";
+            s = s + "Thickness Top = " + _tTop + " mm \n";
+            return s;
+        }
     }
 }

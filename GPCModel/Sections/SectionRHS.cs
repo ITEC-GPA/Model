@@ -217,5 +217,18 @@ namespace GPC.Model.Sections
             sigmaMin = Math.Min(sigmaMin, sigma4);
             return sigmaMin;
         }
+
+        public override string ToString()
+        {
+            string s = "RHS section: \n";
+            s = s + "Height = " + _h + " mm \n";
+            s = s + "Thickness Web Left = " + _tw1 + " mm \n";
+            s = s + "Thickness Web Rigth = " + _tw2 + " mm \n";
+            s = s + "Length Bottom = " + _b + " mm \n";
+            s = s + "Thickness Bottom = " + _tf_bottom + " mm \n";
+            s = s + "Length Top = " + _b + " mm \n";
+            s = s + "Thickness Top = " + _tf_top + " mm \n";
+            return s;
+        }
     }
 }

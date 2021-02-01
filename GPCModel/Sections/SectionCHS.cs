@@ -128,5 +128,13 @@ namespace GPC.Model.Sections
             return new[] { new ShapeMaterial { Material = _material, Shape = shape } };
         }
         #endregion
+
+        public override string ToString()
+        {
+            string s = "CHS section: \n";
+            s = s + "D = " + _d + " mm \n";
+            s = s + "t = " + _t + " mm \n";
+            return s;
+        }
     }
 }

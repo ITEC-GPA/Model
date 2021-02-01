@@ -108,5 +108,15 @@ namespace GPC.Model.Sections
 
             return sigmaMin;
         }
+
+        public override string ToString()
+        {
+            string s = "T section: \n";
+            s = s + "Height = " + _h + " mm \n";
+            s = s + "Thickness Web = " + _tw + " mm \n";
+            s = s + "Length Top = " + _b + " mm \n";
+            s = s + "Thickness Top = " + _tf + " mm \n";
+            return s;
+        }
     }
 }
