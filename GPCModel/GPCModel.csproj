@@ -131,7 +131,8 @@
     <Compile Include="LoadCases\LoadCase.cs" />
     <Compile Include="LoadCases\LoadCasePrEn.cs" />
     <Compile Include="Loads\GlobalAreaLoad.cs" />
-    <Compile Include="Loads\GlobalPointLoad.cs" />
+    <Compile Include="Loads\LineLoad.cs" />
+    <Compile Include="Loads\PointLoad.cs" />
     <Compile Include="Loads\IAreaLoad.cs" />
     <Compile Include="Loads\ILineLoad.cs" />
     <Compile Include="Loads\IPointLoad.cs" />

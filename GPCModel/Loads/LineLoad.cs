@@ -5,18 +5,18 @@ using System.Runtime.Serialization;
 
 namespace GPC.Model.Loads
 {
-    public class PointLoad : Load, IPointLoad
+    public class LineLoad : Load, ILineLoad
     {
-        private double _fX;
+        private double _fX;                 // sono forze per unità di lunghezza ( F / L )
         private double _fY;
         private double _fZ;
-        private double _mX;
+        private double _mX;                 // sono momenti per unità di lunghezza ( F / L )
         private double _mY;
         private double _mZ;
 
         private CoordinateSystem _coordinateSystem;
 
-        private Point3d _point;
+        private Line3d _line;
 
         public double Fx => _fX;
         public double Fy => _fY;
@@ -25,12 +25,11 @@ namespace GPC.Model.Loads
         public double My => _mY;
         public double Mz => _mZ;
 
-        public Point3d Point => _point;
+        public Line3d Line => _line;
 
         public CoordinateSystem CoordinateSystem => _coordinateSystem;
 
-
-        public PointLoad(double fx, double fy, double fz, double mx, double my, double mz, Point3d point, LoadCase loadCase, CoordinateSystem coordinateSystem, Guid guid) 
+        public LineLoad(double fx, double fy, double fz, double mx, double my, double mz, Line3d line, LoadCase loadCase, CoordinateSystem coordinateSystem, Guid guid) 
             : base(loadCase, guid)
         {
             _fX = fx;                                       
@@ -40,26 +39,25 @@ namespace GPC.Model.Loads
             _mY = my;
             _mZ = mz;
             _coordinateSystem = coordinateSystem ?? throw new ArgumentNullException("Coordinate system cannot be null");
-            _point = point ?? throw new ArgumentNullException("Point cannot be null") ;
+            _line = line ?? throw new ArgumentNullException("Line cannot be null") ;
         }
 
-        public PointLoad(double fx, double fy, double fz, double mx, double my, double mz, Point3d point, LoadCase loadCase, Guid guid)
-            : this(fx, fy, fz, mx, my, mz, point, loadCase, CoordinateSystem.Global, guid)
+        public LineLoad(double fx, double fy, double fz, double mx, double my, double mz, Line3d line, LoadCase loadCase, Guid guid)
+            : this(fx, fy, fz, mx, my, mz, line, loadCase, CoordinateSystem.Global, guid)
         {
 
         }
 
-
-        public PointLoad(Vector3d force, Vector3d moment, Point3d point, LoadCase loadCase, CoordinateSystem cSys, Guid guid)
-            : this(force.X, force.Y, force.Z, moment.X, moment.Y, moment.Z, point, loadCase, cSys, guid)
+        public LineLoad(Vector3d force, Vector3d moment, Line3d line, LoadCase loadCase, CoordinateSystem cSys, Guid guid)
+            : this(force.X, force.Y, force.Z, moment.X, moment.Y, moment.Z, line, loadCase, cSys, guid)
         {
             
         }
 
-        public override GeometryBase GetGeometry() => _point;
+        public override GeometryBase GetGeometry() => _line;
 
 
-        public PointLoad(SerializationInfo info, StreamingContext context)
+        public LineLoad(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
             _fX = info.GetDouble("Fx");
@@ -121,7 +119,7 @@ namespace GPC.Model.Loads
             Vector3d forceLocal = new Vector3d(_fX, _fY, _fZ);                              // 
             Vector3d momentLocal = new Vector3d(_mX, _mY, _mZ);                             // Cambia le proprietà del PointLoad passando da un sistema di riferimento globale
                                                                                             // ad un sistema di rifarimento locale.
-            _point = _coordinateSystem.ToGlobal(_point);                                    // 
+            _line = _coordinateSystem.ToGlobal(_line);                                      // 
             _fX = _coordinateSystem.ToGlobal(forceLocal).X - _coordinateSystem.Origin.X;
             _fY = _coordinateSystem.ToGlobal(forceLocal).Y - _coordinateSystem.Origin.Y;
             _fZ = _coordinateSystem.ToGlobal(forceLocal).Z - _coordinateSystem.Origin.Z;
