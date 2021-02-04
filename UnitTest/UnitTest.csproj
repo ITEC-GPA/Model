@@ -75,6 +75,7 @@
     <Compile Include="LoadCaseTest.cs" />
     <Compile Include="EquatableTest.cs" />
     <Compile Include="HashCodeTest.cs" />
+    <Compile Include="LoadTest.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
