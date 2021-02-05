@@ -41,7 +41,6 @@ namespace GPC.Model.Results
         #endregion
 
 
-
         #region Public Constructors
 
         public ResultNodeForce(int elementID, string elementLabel, int caseID, double fx, double fy, double fz, 
@@ -57,7 +56,6 @@ namespace GPC.Model.Results
         }
 
         #endregion
-
 
 
         #region Public Methods Specific
@@ -83,7 +81,7 @@ namespace GPC.Model.Results
             Point3d forceGlobal = new Point3d(_fx, _fy, _fz);                               // 
             Point3d momentglobal = new Point3d(_mx, _my, _mz);                              // Crea un array di double in le 3 componenti di forza e di momento
                                                                                             // nelle 3 direzioni del sistema di coordinate locali.
-            Point3d ForceLocal = cSys.ToLocal(forceGlobal);                            // 
+            Point3d ForceLocal = cSys.ToLocal(forceGlobal);                                 // 
             Point3d MomentLocal = cSys.ToLocal(momentglobal);
 
             Point3d OriginGlobal = cSys.ToLocal(CoordinateSystem.Global.Origin);
@@ -103,6 +101,7 @@ namespace GPC.Model.Results
         }
 
         #endregion
+
 
         #region Interface implementation
 

@@ -152,7 +152,6 @@
     <Compile Include="Results\ResultBeamForces.cs" />
     <Compile Include="Results\Result.cs" />
     <Compile Include="Results\ResultPlateForces.cs" />
-    <Compile Include="Results\ResultPlateStrain.cs" />
     <Compile Include="Results\ResultNodeDisplacement.cs" />
     <Compile Include="Results\ResultNodeForce.cs" />
     <Compile Include="Results\ResultPlateStress.cs" />

@@ -16,6 +16,7 @@ namespace GPC.Model.Results
 
         #endregion 
 
+
         #region Properties
 
         public double N => _N;
@@ -26,6 +27,7 @@ namespace GPC.Model.Results
         public double M2 => _M2;
 
         #endregion 
+
 
         #region Public Constructors
 
@@ -54,13 +56,22 @@ namespace GPC.Model.Results
 
         #endregion 
 
+
         #region Public Methods
 
+        /// <summary>
+        /// Return the combined bending moment between M1 and M2
+        /// </summary>
+        /// <returns>The combined bending moment</returns>
         public double GetCombinedBendingMoment()
         {
             return Math.Sqrt(Math.Pow(M1, 2) + Math.Pow(M2, 2));
         }
 
+        /// <summary>
+        /// Return the combined bending moment between V1 and V2
+        /// </summary>
+        /// <returns>he combined shear force</returns>
         public double GetCombinedShearForce()
         {
             return Math.Sqrt(Math.Pow(V1, 2) + Math.Pow(V2, 2));

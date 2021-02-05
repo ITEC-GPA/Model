@@ -43,6 +43,7 @@ namespace GPC.Model.Results
 
         #endregion
 
+
         #region Properties
 
         protected double Sxx => _sxx;
@@ -53,6 +54,7 @@ namespace GPC.Model.Results
         protected double Syz => _syz;
 
         #endregion
+
 
         #region Public Constructors
 
@@ -80,6 +82,7 @@ namespace GPC.Model.Results
 
 
         #endregion
+
 
         #region Public Methods Specific
 

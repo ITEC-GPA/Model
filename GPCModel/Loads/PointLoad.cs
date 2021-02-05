@@ -7,6 +7,8 @@ namespace GPC.Model.Loads
 {
     public class PointLoad : Load, IPointLoad
     {
+        #region Variables
+
         private double _fX;
         private double _fY;
         private double _fZ;
@@ -17,6 +19,11 @@ namespace GPC.Model.Loads
         private CoordinateSystem _coordinateSystem;
 
         private Point3d _point;
+
+        #endregion
+
+
+        #region Properties
 
         public double Fx => _fX;
         public double Fy => _fY;
@@ -29,6 +36,10 @@ namespace GPC.Model.Loads
 
         public CoordinateSystem CoordinateSystem => _coordinateSystem;
 
+        #endregion
+
+
+        #region Public Constructors
 
         public PointLoad(double fx, double fy, double fz, double mx, double my, double mz, Point3d point, LoadCase loadCase, CoordinateSystem coordinateSystem, Guid guid) 
             : base(loadCase, guid)
@@ -71,6 +82,10 @@ namespace GPC.Model.Loads
             _coordinateSystem = (CoordinateSystem)info.GetValue("CoordinateSystem", typeof(CoordinateSystem));
         }
 
+        #endregion
+
+
+        #region Public Methods Specific
 
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
@@ -158,5 +173,7 @@ namespace GPC.Model.Loads
 
             return PointLoad;
         }
+
+        #endregion
     }
 }

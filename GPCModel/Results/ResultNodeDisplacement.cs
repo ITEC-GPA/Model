@@ -152,6 +152,7 @@ namespace GPC.Model.Results
 
         #endregion
 
+
         #region Interface implementation
 
         public bool Equals(ResultNodeDisplacement other)

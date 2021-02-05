@@ -60,6 +60,7 @@ namespace GPC.Model.Results
 
         #endregion
 
+
         #region Properties
 
         /// Local Forces
@@ -80,6 +81,8 @@ namespace GPC.Model.Results
 
         #endregion
 
+
+        #region Public Constructors
 
         /// <summary>
         /// 
@@ -113,6 +116,9 @@ namespace GPC.Model.Results
                 _mxz = 0;
                 _myz = 0;
         }
+
+        #endregion
+
 
         #region Public methods
         public double[] GetPrincipalForces()
