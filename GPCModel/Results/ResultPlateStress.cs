@@ -78,23 +78,55 @@ namespace GPC.Model.Results
             _syz = 0;
         }
 
+
         #endregion
 
         #region Public Methods Specific
 
-        public double GetPrincipalStress()
+        /// <summary>
+        /// Return the Principal stresses of the point
+        /// </summary>
+        /// <param name="S11">Principal Stress S11</param>
+        /// <param name="S22">Principal Stress S22</param>
+        public void GetPrincipalStress(out double S11, out double S22)
         {
-            throw new NotImplementedException();
+            // double phi = 0.5 * Math.Atan( Math.Abs( (2*_sxy) / (_sxx + _syy )));         // The angle, Φ, is the angle in radians between the maximum normal stress and the local x-axis.
+            S11 = ((_sxx + _syy) / 2) + Math.Sqrt((Math.Pow((_sxx - _syy), 2) / 4) + Math.Pow(_sxy, 2));
+            S22 = ((_sxx + _syy) / 2) - Math.Sqrt((Math.Pow((_sxx - _syy), 2) / 4) + Math.Pow(_sxy, 2));
         }
 
-        public double GetVMStress()
+        /// <summary>
+        /// Return the VonMises Stress of the point
+        /// </summary>
+        /// <param name="Svm"></param>
+        public void GetVMStress(out double Svm)
         {
-            throw new NotImplementedException();
+            GetPrincipalStress(out _s11, out _s22);
+            Svm = Math.Sqrt(Math.Pow((_s11), 2) + (Math.Pow((_s22), 2) - (_s22 * _s11)));
         }
 
+        /// <summary>
+        /// Return the stress of the point in global coordinate
+        /// </summary>
+        /// <returns>Array of stress</returns>
         public double[] GetGlobalStress()
         {
-            throw new NotImplementedException();
+            Vector3d SigmaResult = new Vector3d(_sxx, _syy, 0 );
+            Vector3d GlobalSigmaResult = _cSys.ToGlobal(SigmaResult);
+
+            Vector3d TauResult = new Vector3d(0, 0, _sxy);
+            Vector3d GlobalTauResult = _cSys.ToGlobal(TauResult);
+
+            double[] globalstress = new double[6];
+
+            globalstress[0] = GlobalSigmaResult.X;
+            globalstress[1] = GlobalSigmaResult.Y;
+            globalstress[2] = GlobalSigmaResult.Z;
+            globalstress[3] = GlobalTauResult.X;
+            globalstress[4] = GlobalTauResult.Y;
+            globalstress[5] = GlobalTauResult.Z;
+
+            return globalstress;
         }
 
         #endregion

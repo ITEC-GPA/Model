@@ -201,7 +201,6 @@ namespace UnitTest
             Vector3d force = new Vector3d(1, 0, 0);             // sono forze e momenti per unità di lunghezza
             Vector3d moment = new Vector3d(0, 1, 0);
             Point3d point1 = new Point3d(0, 0, 1);
-            Point3d point2 = new Point3d(2, 2, 1);
             Line3d line = new Line3d(point1, point1);
 
             LoadCase LoadCase = new LoadCase("SelfWeight", loadCaseType: GPC.Model.LoadCases.LoadCase.LoadCaseType.SelfWeight);
