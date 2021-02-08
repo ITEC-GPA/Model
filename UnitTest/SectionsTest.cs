@@ -177,7 +177,7 @@ namespace UnitTest
 
             //double JwLTBEAM = 39044 * 1e6; // --> WRONG
             double JwStraus = 1.32284 * 1e10;
-            double JwSAP = 13751083333;
+            //double JwSAP = 13751083333;
             Assert.AreEqual(JwStraus / sec.Jw - 1.0, 0, 0.05);
         }
 
@@ -257,8 +257,8 @@ namespace UnitTest
             double A = 56800;
             double J1 = 517472668.5153;
             double J2 = 1951689772.799;
-            double Wel1 = 2368295.77;
-            double Wel2 = 5465136.457;
+            //double Wel1 = 2368295.77;
+            //double Wel2 = 5465136.457;
 
             double JtSAP = 86856533.3;
             double JtStraus = 89173333.33333;
