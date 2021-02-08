@@ -34,15 +34,15 @@ namespace GPC.Model.Sections
             #region check_inputs
             if (t > dext/2.0)
             {
-                return;
                 dext = 0;
                 t = 0;
+                return;
             }
             if (t < 0 || dext < 0)
             {
-                return;
                 dext = 0;
                 t = 0;
+                return;
             }
             #endregion
 

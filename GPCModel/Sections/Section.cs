@@ -173,7 +173,7 @@ namespace GPC.Model.Sections
         #endregion
 
         #region Virtual Methods
-        public virtual void GetObjectData(SerializationInfo info, StreamingContext context)
+        public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             info.AddValue("Area", _area);
             info.AddValue("Jt", _jt);
