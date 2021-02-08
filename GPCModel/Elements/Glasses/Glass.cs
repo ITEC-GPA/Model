@@ -1,40 +1,69 @@
-﻿using GPC.Model.Materials;
-using System;
+﻿using System;
+using System.Collections.Generic;
 using System.Runtime.Serialization;
 
 namespace GPC.Model.Elements.Glasses
 {
-    /// <summary>
-    /// Glass base abstract class that is the base for all the glasses inside GPC environment.
-    /// </summary>
-    [Serializable]
-    public abstract class Glass : Element
+    public abstract class Glass : ModelObject, IEquatable<Glass>
     {
-        private GlassMaterial _glassMaterial;
 
-        public GlassMaterial GlassMaterial => _glassMaterial;
-        /// <summary>
-        ///
-        /// </summary>
-        /// <param name="guid">The guid of the object</param>
-        protected Glass(GlassMaterial glassMaterial, Guid guid)
+        protected Glass(Guid guid) 
             : base(guid)
         {
-            this._glassMaterial = glassMaterial;
+
         }
 
-        protected Glass(SerializationInfo info, StreamingContext context)
+        protected Glass(Guid guid, string name) 
+            : base(guid, name)
+        {
+
+        }
+
+        protected Glass(SerializationInfo info, StreamingContext context) 
             : base(info, context)
         {
-        }
 
-        #region PUBLIC METHODS
+        }
 
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             base.GetObjectData(info, context);
         }
 
-        #endregion PUBLIC METHODS
+        public bool Equals(Glass other)
+        {
+            if (ReferenceEquals(this, other))
+                return true;
+
+            return !(other is null) && base.Equals(other);
+        }
+
+        public override bool Equals(object obj)
+        {
+            return base.Equals(obj as Glass);
+        }
+
+        public override int GetHashCode()
+        {
+            int hashCode = 23;
+            hashCode = hashCode * -17 + base.GetHashCode();
+            return hashCode;
+        }
+
+        public static bool operator ==(Glass obj1, Glass obj2)
+        {
+            if (ReferenceEquals(obj1, obj2))
+                return true;
+
+            if (obj1 is null || obj2 is null)
+                return false;
+
+            return obj1.Equals(obj2);
+        }
+
+        public static bool operator !=(Glass obj1, Glass obj2)
+        {
+            return !(obj1 == obj2);
+        }
     }
 }

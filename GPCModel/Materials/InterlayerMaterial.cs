@@ -1,5 +1,6 @@
 ﻿using GPC.Utilities.Maths;
 using System;
+using System.Linq;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Runtime.Serialization;
@@ -7,9 +8,10 @@ using System.Runtime.Serialization;
 namespace GPC.Model.Materials
 {
     [Serializable]
-    public class InterlayerMaterial : Material
+    public class InterlayerMaterial : Material, IEquatable<InterlayerMaterial>
     {
         #region PUBLIC ENUMS
+
         [Serializable]
         public enum InterlayerType
         {
@@ -17,6 +19,7 @@ namespace GPC.Model.Materials
             [Description("NormalPVB / Family1 prEN")] NormalPVB = 1,
             [Description("SentryGlass / Family2 prEN")] SentryGlass = 2
         } 
+
         #endregion
 
         #region VARIABLES
@@ -24,21 +27,21 @@ namespace GPC.Model.Materials
         private List<LoadDurationShearModules> _shearModulus;
         private InterlayerType _type;
 
-        #endregion VARIABLES
+        #endregion
 
         public InterlayerType Type => _type;
 
         #region CONSTRUCTOR
 
         public InterlayerMaterial(double density, double alfaThermalExpansion, InterlayerType type, Guid guid)
-            : base(density, alfaThermalExpansion, guid)
+            : base("", 0, 0, density, alfaThermalExpansion, guid)
         {
             _shearModulus = new List<LoadDurationShearModules>();
             this._type = type;
         }
 
         public InterlayerMaterial(double density, double alfaThermalExpansion, InterlayerType type)
-            : this(density, alfaThermalExpansion, type, Guid.Empty)
+            : this(density, alfaThermalExpansion, type, Guid.NewGuid())
         {
         }
 
@@ -49,7 +52,7 @@ namespace GPC.Model.Materials
             _type = (InterlayerType)info.GetValue("InterlayerType", typeof(InterlayerType));
         }
 
-        #endregion CONSTRUCTOR
+        #endregion
 
         #region PUBLIC METHODS
 
@@ -78,6 +81,22 @@ namespace GPC.Model.Materials
             _shearModulus.Sort();
         }
 
+        /// <summary>
+        /// return the load durations list
+        /// </summary>
+        public List<double> GetLoadDurations()
+        {
+            return _shearModulus.Select(i => i.LoadDuration).ToList();
+        }
+
+        /// <summary>
+        /// return the temperature list
+        /// </summary>
+        public List<double> GetTemperatures()
+        {
+            return _shearModulus.SelectMany(i => i.TemperatureShearModules.Select(j => j.Temperature)).Distinct().ToList();
+        }
+
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             base.GetObjectData(info, context);
@@ -85,7 +104,47 @@ namespace GPC.Model.Materials
             info.AddValue("InterlayerType", _type);
         }
 
-        #endregion PUBLIC METHODS
+        public bool Equals(InterlayerMaterial other)
+        {
+            if (ReferenceEquals(this, other))
+                return true;
+
+            return !(other is null) && other._shearModulus.Equals(_shearModulus)
+                                    && other._type.Equals(_type)
+                                    && base.Equals(other);
+        }
+
+        public override bool Equals(object obj)
+        {
+            return base.Equals(obj as InterlayerMaterial);
+        }
+
+        public override int GetHashCode()
+        {
+            int hashCode = -23;
+            hashCode = hashCode * -17 + base.GetHashCode();
+            hashCode = hashCode * -17 + EqualityComparer<List<LoadDurationShearModules>>.Default.GetHashCode(_shearModulus);
+            hashCode = hashCode * -17 + _type.GetHashCode();
+            return hashCode;
+        }
+
+        public static bool operator ==(InterlayerMaterial obj1, InterlayerMaterial obj2)
+        {
+            if (ReferenceEquals(obj1, obj2))
+                return true;
+
+            if (obj1 is null || obj2 is null)
+                return false;
+
+            return obj1.Equals(obj2);
+        }
+
+        public static bool operator !=(InterlayerMaterial obj1, InterlayerMaterial obj2)
+        {
+            return !(obj1 == obj2);
+        }
+
+        #endregion 
 
         #region INDEXER
 
@@ -133,25 +192,25 @@ namespace GPC.Model.Materials
             }
         }
 
-        #endregion INDEXER
+        #endregion
 
         #region NESTED CLASS
 
-        private sealed class LoadDurationShearModules : IComparable<LoadDurationShearModules>
+        private sealed class LoadDurationShearModules : IComparable<LoadDurationShearModules>, IEquatable<LoadDurationShearModules>
         {
             #region VARIABLES
 
             private double _loadDuration;
             private List<TemperatureShearModule> _temperatureShearModules;
 
-            #endregion VARIABLES
+            #endregion
 
             #region PROPERTIES
 
             public double LoadDuration => _loadDuration;
             public List<TemperatureShearModule> TemperatureShearModules => _temperatureShearModules;
 
-            #endregion PROPERTIES
+            #endregion
 
             #region CONSTRUCTOR
 
@@ -167,7 +226,7 @@ namespace GPC.Model.Materials
                 _temperatureShearModules = new List<TemperatureShearModule>();
             }
 
-            #endregion CONSTRUCTOR
+            #endregion
 
             #region PUBLIC METHODS
 
@@ -200,7 +259,7 @@ namespace GPC.Model.Materials
                 _temperatureShearModules.Sort();
             }
 
-            #endregion PUBLIC METHODS
+            #endregion
 
             #region INDEXER
 
@@ -248,7 +307,7 @@ namespace GPC.Model.Materials
                 }
             }
 
-            #endregion INDEXER
+            #endregion
 
             #region INTERFACE IMPLEMENTATION
 
@@ -261,25 +320,63 @@ namespace GPC.Model.Materials
                 else
                     return 0;
             }
+            public bool Equals(LoadDurationShearModules other)
+            {
+                if (ReferenceEquals(this, other))
+                    return true;
 
-            #endregion INTERFACE IMPLEMENTATION
+                return !(other is null) && other._loadDuration.Equals(_loadDuration)
+                                        && other._temperatureShearModules.Equals(_temperatureShearModules)
+                                        && base.Equals(other);
+            }
+
+            public override bool Equals(object obj)
+            {
+                return base.Equals(obj as LoadDurationShearModules);
+            }
+
+            public override int GetHashCode()
+            {
+                int hashCode = 23;
+                hashCode = hashCode * -17 + _loadDuration.GetHashCode();
+                hashCode = hashCode * -17 + EqualityComparer<List<TemperatureShearModule>>.Default.GetHashCode(_temperatureShearModules);
+                return hashCode;
+            }
+
+            public static bool operator ==(LoadDurationShearModules obj1, LoadDurationShearModules obj2)
+            {
+                if (ReferenceEquals(obj1, obj2))
+                    return true;
+
+                if (obj1 is null || obj2 is null)
+                    return false;
+
+                return obj1.Equals(obj2);
+            }
+
+            public static bool operator !=(LoadDurationShearModules obj1, LoadDurationShearModules obj2)
+            {
+                return !(obj1 == obj2);
+            }
+
+            #endregion
         }
 
-        private sealed class TemperatureShearModule : IComparable<TemperatureShearModule>
+        private sealed class TemperatureShearModule : IComparable<TemperatureShearModule>, IEquatable<TemperatureShearModule>
         {
             #region VARIABLES
 
             private double _temperature;
             private double _shearModule;
 
-            #endregion VARIABLES
+            #endregion
 
             #region PROPERTIES
 
             public double Temperature => _temperature;
             public double ShearModule => _shearModule;
 
-            #endregion PROPERTIES
+            #endregion
 
             #region CONSTRUCTOR
 
@@ -289,7 +386,7 @@ namespace GPC.Model.Materials
                 _shearModule = shearModule;
             }
 
-            #endregion CONSTRUCTOR
+            #endregion
 
             #region INTERFACE IMPLEMENTATION
 
@@ -303,9 +400,47 @@ namespace GPC.Model.Materials
                     return 0;
             }
 
-            #endregion INTERFACE IMPLEMENTATION
+            public bool Equals(TemperatureShearModule other)
+            {
+                if (ReferenceEquals(this, other))
+                    return true;
+
+                return !(other is null) && other._temperature.Equals(_temperature)
+                                        && other._shearModule.Equals(_shearModule)
+                                        && base.Equals(other);
+            }
+
+            public override bool Equals(object obj)
+            {
+                return base.Equals(obj as TemperatureShearModule);
+            }
+
+            public override int GetHashCode()
+            {
+                int hashCode = 23;
+                hashCode = hashCode * -17 + _temperature.GetHashCode();
+                hashCode = hashCode * -17 + _shearModule.GetHashCode();
+                return hashCode;
+            }
+
+            public static bool operator ==(TemperatureShearModule obj1, TemperatureShearModule obj2)
+            {
+                if (ReferenceEquals(obj1, obj2))
+                    return true;
+
+                if (obj1 is null || obj2 is null)
+                    return false;
+
+                return obj1.Equals(obj2);
+            }
+            public static bool operator !=(TemperatureShearModule obj1, TemperatureShearModule obj2)
+            {
+                return !(obj1 == obj2);
+            }
+
+            #endregion
         }
 
-        #endregion NESTED CLASS
+        #endregion 
     }
 }

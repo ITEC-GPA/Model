@@ -5,7 +5,7 @@ using System.Runtime.Serialization;
 namespace GPC.Model.Materials
 {
     [Serializable]
-    public class GlassMaterialPrEn : GlassMaterial
+    public class GlassMaterialPrEn : GlassMaterial, IEquatable<GlassMaterialPrEn>
     {
         #region PUBLIC ENUMS
         [Serializable]
@@ -51,6 +51,7 @@ namespace GPC.Model.Materials
         private SurfaceTreatment _surfaceTreatment;
         private PrestressType _prestressType;
         private ManufactoringProcess _manufactoringProcess;
+
         #endregion
 
         #region PROPERTIES
@@ -59,6 +60,7 @@ namespace GPC.Model.Materials
         public SurfaceTreatment GetSurfaceTreatment => _surfaceTreatment;
         public PrestressType GetPrestressType => _prestressType;
         public ManufactoringProcess GetManufactoringProcess => _manufactoringProcess;
+
         #endregion
 
         #region PUBLIC CONSTRUCTORS
@@ -66,14 +68,14 @@ namespace GPC.Model.Materials
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="elasticModulus">Elastic modulus of the glass</param>
+        /// <param name="elasticModulus">Elastic modulus of the glass [MPa]</param>
         /// <param name="poisson">poisson ratio's of the glass</param>
-        /// <param name="fgk">Characeristic value of bending strength of annealed glass</param>
-        /// <param name="density">Density of the material</param>
+        /// <param name="fgk">Characeristic value of bending strength of annealed glass [MPa]</param>
+        /// <param name="density">Density of the material [T/mm^3]</param>
         /// <param name="alfaThermalExpansion">Alfa linear thermal expansion coefficient</param>
-        public GlassMaterialPrEn(double elasticModulus, double poisson, double fgk, GlassType glassType, SurfaceTreatment surfaceTreatment, PrestressType prestressType, ManufactoringProcess manufactoringProcess, 
-                                double density, double alfaThermalExpansion)
-            : this(elasticModulus, poisson, fgk, glassType, surfaceTreatment, prestressType, manufactoringProcess, density, alfaThermalExpansion, Guid.Empty)
+        public GlassMaterialPrEn(string name, double elasticModulus, double poisson, double fgk, GlassType glassType, SurfaceTreatment surfaceTreatment, PrestressType prestressType, 
+                                    ManufactoringProcess manufactoringProcess, double density, double alfaThermalExpansion)
+            : this(name, elasticModulus, poisson, fgk, glassType, surfaceTreatment, prestressType, manufactoringProcess, density, alfaThermalExpansion, Guid.NewGuid())
         {
             // TODO: ke factors
         }
@@ -81,21 +83,17 @@ namespace GPC.Model.Materials
         /// <summary>
         ///
         /// </summary>
-        /// <param name="elasticModulus">Elastic modulus of the glass</param>
+        /// <param name="elasticModulus">Elastic modulus of the glass [MPa]</param>
         /// <param name="poisson">poisson ratio's of the glass</param>
-        /// <param name="fgk">Characeristic value of bending strength of annealed glass</param>
-        /// <param name="density">Density of the material</param>
+        /// <param name="fgk">Characeristic value of bending strength of annealed glass [MPa]</param>
+        /// <param name="density">Density of the material [T/mm^3]</param>
         /// <param name="alfaThermalExpansion">Alfa linear thermal expansion coefficient</param>
         /// <param name="guid">Guid of the material</param>
-        public GlassMaterialPrEn(double elasticModulus, double poisson, double fgk, GlassType glassType, SurfaceTreatment surfaceTreatment, PrestressType prestressType, ManufactoringProcess manufactoringProcess,
-                                 double density, double alfaThermalExpansion, Guid guid)
-            : base(elasticModulus, poisson, density, alfaThermalExpansion, guid)
+        public GlassMaterialPrEn(string name, double elasticModulus, double poisson, double fgk, GlassType glassType, SurfaceTreatment surfaceTreatment, PrestressType prestressType, 
+                                    ManufactoringProcess manufactoringProcess, double density, double alfaThermalExpansion, Guid guid)
+            : base(name, elasticModulus, poisson, density, alfaThermalExpansion, guid)
         {
-            if (fgk <= 0.001)
-            {
-                throw new ArgumentException($"{nameof(fgk)} cannot be zero or lower");
-            }
-            this._fgk = fgk;
+            _fgk = fgk < 0.001 ? throw new ArgumentException($"{nameof(fgk)} cannot be zero or lower") : fgk;
 
             this._glassType = glassType;
             this._surfaceTreatment = surfaceTreatment;
@@ -123,6 +121,52 @@ namespace GPC.Model.Materials
             info.AddValue("SurfaceTreatment", _surfaceTreatment);
             info.AddValue("PrestressType", _prestressType);
             info.AddValue("ManufactoringProcess", _manufactoringProcess);
+        }
+
+        public bool Equals(GlassMaterialPrEn other)
+        {
+            if (ReferenceEquals(this, other))
+                return true;
+
+            return !(other is null) && other._fgk.Equals(_fgk) &&
+                                        other._glassType.Equals(_glassType) &&
+                                        other._surfaceTreatment.Equals(_surfaceTreatment) &&
+                                        other._prestressType.Equals(_prestressType) &&
+                                        other._manufactoringProcess.Equals(_manufactoringProcess) &&
+                                        base.Equals(other);
+        }
+
+        public override bool Equals(object obj)
+        {
+            return base.Equals(obj as GlassMaterialPrEn);
+        }
+
+        public override int GetHashCode()
+        {
+            int hashCode = 23;
+            hashCode = hashCode * -17 + base.GetHashCode();
+            hashCode = hashCode * -17 + _fgk.GetHashCode();
+            hashCode = hashCode * -17 + _glassType.GetHashCode();
+            hashCode = hashCode * -17 + _surfaceTreatment.GetHashCode();
+            hashCode = hashCode * -17 + _prestressType.GetHashCode();
+            hashCode = hashCode * -17 + _manufactoringProcess.GetHashCode();
+            return hashCode;
+        }
+
+        public static bool operator ==(GlassMaterialPrEn obj1, GlassMaterialPrEn obj2)
+        {
+            if (ReferenceEquals(obj1, obj2))
+                return true;
+
+            if (obj1 is null || obj2 is null)
+                return false;
+
+            return obj1.Equals(obj2);
+        }
+
+        public static bool operator !=(GlassMaterialPrEn obj1, GlassMaterialPrEn obj2)
+        {
+            return !(obj1 == obj2);
         }
     }
 }

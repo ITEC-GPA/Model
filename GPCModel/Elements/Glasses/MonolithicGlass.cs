@@ -1,5 +1,6 @@
 ﻿using GPC.Model.Materials;
 using System;
+using System.Collections.Generic;
 using System.Runtime.Serialization;
 
 namespace GPC.Model.Elements.Glasses
@@ -8,23 +9,32 @@ namespace GPC.Model.Elements.Glasses
     /// Monolithic glass. This represent the simpler glass panel. It is composed by a single layer of glass
     /// </summary>
     [Serializable]
-    public class MonolithicGlass : GlassPanel
+    public class MonolithicGlass : Glass, IGlassPanel, IEquatable<MonolithicGlass>
     {
-        #region VARIABLES
-        private double _thickness;
+        #region Variables
+        protected GlassMaterial _material;
+
+        protected double _thickness;
+
         #endregion
+
+        #region Properties
 
         public double Thickness => _thickness;
 
-        #region CONSTRUCTORS
+        public GlassMaterial Material => _material; 
+
+        #endregion
+
+        #region Constructors
 
         /// <summary>
         ///
         /// </summary>
         /// <param name="thickness">The minimum thickness of the panel (the one used for calculation)</param>
         /// <param name="glassMaterial"></param>
-        public MonolithicGlass(double thickness, GlassMaterial glassMaterial)
-            : this(thickness, glassMaterial, Guid.Empty)
+        public MonolithicGlass(string name, double thickness, GlassMaterial glassMaterial)
+            : this(name, thickness, glassMaterial, Guid.NewGuid())
         {
 
         }
@@ -35,8 +45,8 @@ namespace GPC.Model.Elements.Glasses
         /// <param name="guid">The guid of the glass</param>
         /// <param name="thickness">The minimum thickness of the panel (the one used for calculation)</param>
         /// <param name="glassMaterial"></param>
-        public MonolithicGlass(double thickness, GlassMaterial glassMaterial, Guid guid)
-            : base(glassMaterial, guid)
+        public MonolithicGlass(string name, double thickness, GlassMaterial glassMaterial, Guid guid)
+            : base(guid, name)
         {
             if (thickness <= 0.001)
             {
@@ -44,15 +54,18 @@ namespace GPC.Model.Elements.Glasses
             }
 
             this._thickness = thickness;
+            this._material = glassMaterial;
         }
 
         public MonolithicGlass(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
             _thickness = info.GetDouble("Thickness");
+            _material = (GlassMaterial)info.GetValue("Material", typeof(GlassMaterial));
         }
 
-        #endregion CONSTRUCTORS
+        #endregion 
+
 
         #region PUBLIC METHODS
 
@@ -60,8 +73,49 @@ namespace GPC.Model.Elements.Glasses
         {
             base.GetObjectData(info, context);
             info.AddValue("Thickness", _thickness);
+            info.AddValue("Material", _material);
         }
 
-        #endregion PUBLIC METHODS
+        public bool Equals(MonolithicGlass other)
+        {
+            if (ReferenceEquals(this, other))
+                return true;
+
+            return !(other is null) && other._thickness.Equals(_thickness) 
+                                    && other._material.Equals(_material) 
+                                    && base.Equals(other);
+        }
+
+        public override bool Equals(object obj)
+        {
+            return base.Equals(obj as MonolithicGlass);
+        }
+
+        public override int GetHashCode()
+        {
+            int hashCode = -23;
+            hashCode = hashCode * -17 + base.GetHashCode();
+            hashCode = hashCode * -17 + EqualityComparer<GlassMaterial>.Default.GetHashCode(_material);
+            hashCode = hashCode * -17 + _thickness.GetHashCode();
+            return hashCode;
+        }
+
+        public static bool operator ==(MonolithicGlass obj1, MonolithicGlass obj2)
+        {
+            if (ReferenceEquals(obj1, obj2))
+                return true;
+
+            if (obj1 is null || obj2 is null)
+                return false;
+
+            return obj1.Equals(obj2);
+        }
+
+        public static bool operator !=(MonolithicGlass obj1, MonolithicGlass obj2)
+        {
+            return !(obj1 == obj2);
+        }
+
+        #endregion
     }
 }

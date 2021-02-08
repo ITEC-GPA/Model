@@ -22,6 +22,12 @@ namespace GPC.Model.Combinations
             this._combinationType = combinationType;
         }
 
+        public CombinationAsce(string name, CombinationType combinationType)
+            : this(name, combinationType, Guid.NewGuid())
+        {
+            this._combinationType = combinationType;
+        }
+
         public CombinationAsce(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {

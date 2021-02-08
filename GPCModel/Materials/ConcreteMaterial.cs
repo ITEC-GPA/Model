@@ -7,9 +7,6 @@ namespace GPC.Model.Materials
     public class ConcreteMaterial : Material
     {
         #region VARIABLES
-
-        protected double _elasticModulus;
-        protected double _poisson;
         protected double _fck;
 
         #endregion VARIABLES
@@ -17,10 +14,7 @@ namespace GPC.Model.Materials
         #region PROPERTIES
 
         // TODO aggiungere le altre proprietà del calcestruzzo derivate fa fck
-        protected double ElasticModulus => _elasticModulus;
-
-        protected double Poisson => _poisson;
-        protected double Fck => _fck;
+        public double Fck { get => _fck; set { _fck = value; } }
 
         #endregion PROPERTIES
 
@@ -34,12 +28,15 @@ namespace GPC.Model.Materials
         /// <param name="fck">Concrete compression resistance reference value (28 days)</param>
         /// <param name="guid">Guid of the material</param>
         /// <param name="alfaThermalExpansion">Linear thermal expasion coefficient</param>
-        public ConcreteMaterial(double elasticModulus, double poisson, double fck, double density, double alfaThermalExpansion, Guid guid)
-            : base(density, alfaThermalExpansion, guid)
+        public ConcreteMaterial(string name, double elasticModulus, double poisson, double fck, double density, double alfaThermalExpansion, Guid guid)
+            : base(name, elasticModulus, 0.0, density, alfaThermalExpansion, guid)
         {
-            _elasticModulus = elasticModulus;
-            _poisson = poisson;
             _fck = fck;
+        }
+
+        public ConcreteMaterial(double elasticModulus, double poisson, double fck, double density, double alfaThermalExpansion, Guid guid)
+            : this("", elasticModulus, poisson, fck, density, alfaThermalExpansion, guid)
+        {
         }
 
         /// <summary>
@@ -49,7 +46,7 @@ namespace GPC.Model.Materials
         /// <param name="poisson">Poissoins's Ratio</param>
         /// <param name="fck">Concrete compression resistance reference value (28 days)</param>
         public ConcreteMaterial(double elasticModulus, double poisson, double fck, double density)
-            : this(elasticModulus, poisson, fck, density, 0, Guid.Empty)
+            : this(elasticModulus, poisson, fck, density, 0, Guid.NewGuid())
         {
         }
 
@@ -61,15 +58,13 @@ namespace GPC.Model.Materials
         /// <param name="fck">Concrete compression resistance reference value (28 days)</param>
         /// <param name="alfaThermalExpansion"></param>
         public ConcreteMaterial(double elasticModulus, double poisson, double fck, double density, double alfaThermalExpansion)
-            : this(elasticModulus, poisson, fck, density, alfaThermalExpansion, Guid.Empty)
+            : this(elasticModulus, poisson, fck, density, alfaThermalExpansion, Guid.NewGuid())
         {
         }
 
         public ConcreteMaterial(SerializationInfo info, StreamingContext context) :
             base(info, context)
         {
-            _elasticModulus = info.GetDouble("ElasticModulus");
-            _poisson = info.GetDouble("Poisson");
             _fck = info.GetDouble("Fck");
         }
 
@@ -80,8 +75,6 @@ namespace GPC.Model.Materials
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             base.GetObjectData(info, context);
-            info.AddValue("ElasticModulus", _elasticModulus);
-            info.AddValue("Poisson", _poisson);
             info.AddValue("Fck", _fck);
         }
 

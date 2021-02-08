@@ -3,6 +3,7 @@ using System.Runtime.Serialization;
 
 namespace GPC.Model.Materials
 {
+    [Serializable]
     public class SiliconMaterial : Material
     {
         private double _adhesiveStress;
@@ -10,7 +11,7 @@ namespace GPC.Model.Materials
         public double AdhesiveStress => _adhesiveStress;
 
         public SiliconMaterial(double adhesiveStress, double density, double alfaThermalExpansion, Guid guid)
-            : base(density, alfaThermalExpansion, guid)
+            : base("", 0, 0, density, alfaThermalExpansion, guid)
         {
             if (adhesiveStress <= 0.001)
             {
@@ -21,7 +22,7 @@ namespace GPC.Model.Materials
         }
 
         public SiliconMaterial(double adhesiveStress, double density, double alfaThermalExpansion)
-            : this(adhesiveStress, density, alfaThermalExpansion, Guid.Empty)
+            : this(adhesiveStress, density, alfaThermalExpansion, Guid.NewGuid())
         {
 
         }

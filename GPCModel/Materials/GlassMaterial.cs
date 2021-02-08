@@ -1,64 +1,40 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Runtime.Serialization;
 
 namespace GPC.Model.Materials
 {
     [Serializable]
-    public abstract class GlassMaterial : Material
+    public abstract class GlassMaterial : Material, IEquatable<GlassMaterial>
     {
-        #region VARIABLES
-
-        protected double _elasticModulus;
-        protected double _poisson;
-
-        #endregion
-        
-        #region PROPERTIES
-
-        protected double ElasticModulus => _elasticModulus;
-        protected double Poisson => _poisson;
-
-        #endregion
-
-        #region CONSTRUCTOR
-
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="elasticModulus">Elastic modulus of the glass</param>
+        /// <param name="elasticModulus">Elastic modulus of the glass [MPa]</param>
         /// <param name="poisson">poisson ratio's of the glass</param>
-        /// <param name="density">Density of the material</param>
+        /// <param name="density">Density of the material [T/mm^3]</param>
         /// <param name="alfaThermalExpansion">Alfa linear thermal expansion coefficient</param>
         /// <param name="guid">Guid of the material</param>
-        protected GlassMaterial(double elasticModulus, double poisson, double density, double alfaThermalExpansion, Guid guid)
-            : base(density, alfaThermalExpansion, guid)
+        protected GlassMaterial(string name, double elasticModulus, double poisson, double density, double alfaThermalExpansion, Guid guid)
+            : base(name, elasticModulus, poisson, density, alfaThermalExpansion, guid)
         {
-            if (elasticModulus <= 0)
-            {
-                throw new ArgumentException($"{nameof(elasticModulus)} cannot be zero or lower");
-            }
-            if (poisson <= 0)
-            {
-                throw new ArgumentException($"{nameof(poisson)} cannot be zero or lower");
-            }
-            else if (poisson >= 1)
-            {
-                throw new ArgumentException($"{nameof(poisson)} cannot be greater than 1");
-            }
+            if (elasticModulus == 0)
+                throw new ArgumentException($"{nameof(elasticModulus)} cannot be equal to zero");
 
-            this._elasticModulus = elasticModulus;
-            this._poisson = poisson;
+            if (poisson == 0)
+                throw new ArgumentException($"{nameof(poisson)} cannot be equal to zero");
+
         }
 
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="elasticModulus">Elastic modulus of the glass</param>
+        /// <param name="elasticModulus">Elastic modulus of the glass [MPa]</param>
         /// <param name="poisson">poisson ratio's of the glass</param>
-        /// <param name="density">Density of the material</param>
+        /// <param name="density">Density of the material [T/mm^3]</param>
         /// <param name="alfaThermalExpansion">Alfa linear thermal expansion coefficient</param>
-        protected GlassMaterial(double elasticModulus, double poisson, double density, double alfaThermalExpansion)
-            : this(elasticModulus, poisson, density, alfaThermalExpansion, Guid.Empty)
+        protected GlassMaterial(string name, double elasticModulus, double poisson, double density, double alfaThermalExpansion)
+            : this(name, elasticModulus, poisson, density, alfaThermalExpansion, Guid.NewGuid())
         {
 
         }
@@ -66,20 +42,50 @@ namespace GPC.Model.Materials
         protected GlassMaterial(SerializationInfo info, StreamingContext context) 
             : base(info, context)
         {
-            _elasticModulus = info.GetDouble("ElasticModulus");
-            _poisson = info.GetDouble("Poisson");
+            throw new NotImplementedException();
         }
-
-        #endregion
 
         #region PUBLIC METHODS
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             base.GetObjectData(info, context);
-            info.AddValue("ElasticModulus", _elasticModulus);
-            info.AddValue("Poisson", _poisson);
+            throw new NotImplementedException();
         }
 
+        public bool Equals(GlassMaterial other)
+        {
+            if (ReferenceEquals(this, other))
+                return true;
+
+            return !(other is null) && base.Equals(other);
+        }
+        public override bool Equals(object obj)
+        {
+            return base.Equals(obj as GlassMaterial);
+        }
+
+        public override int GetHashCode()
+        {
+            int hashCode = -23;
+            hashCode = hashCode * -17 + base.GetHashCode();
+            return hashCode;
+        }
+
+        public static bool operator ==(GlassMaterial obj1, GlassMaterial obj2)
+        {
+            if (ReferenceEquals(obj1, obj2))
+                return true;
+
+            if (obj1 is null || obj2 is null)
+                return false;
+
+            return obj1.Equals(obj2);
+        }
+
+        public static bool operator !=(GlassMaterial obj1, GlassMaterial obj2)
+        {
+            return !(obj1 == obj2);
+        }
         #endregion
     }
 }

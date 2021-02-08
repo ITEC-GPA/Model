@@ -7,17 +7,13 @@ using System.Text;
 
 namespace GPC.Model.Combinations
 {
+    [Serializable]
     public abstract class Combination : ModelObject
     {
-        private string _name;
         private List<LoadCaseCoefficient> _coefficients;
 
-        public string Name => _name;
-        
-        #region COMBINATIONS
-
         protected Combination(string name, Guid guid)
-            : base(guid)
+            : base(guid, name)
         {
             if (String.IsNullOrEmpty(name) || string.IsNullOrWhiteSpace(name))
                 throw new ArgumentException("Combination name cannot be empty");
@@ -26,20 +22,24 @@ namespace GPC.Model.Combinations
             _coefficients = new List<LoadCaseCoefficient>();
         }
 
+        protected Combination(string name)
+            : this(name, Guid.NewGuid())
+        {
+
+        }
+
         protected Combination(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
-            _name = info.GetString("Name");
+            _coefficients = (List<LoadCaseCoefficient>)info.GetValue("Coefficients", typeof(List<LoadCaseCoefficient>));
         }
-
-        #endregion COMBINATIONS
 
         #region PUBLIC METHODS
 
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             base.GetObjectData(info, context);
-            info.AddValue("Name", _name);
+            info.AddValue("Coefficients", _coefficients);
         }
 
         public abstract bool IsUltimate();
@@ -77,6 +77,7 @@ namespace GPC.Model.Combinations
         #endregion PUBLIC METHODS
 
         #region INDEXER
+
         public double this[LoadCase loadcase]
         {
             set
@@ -135,7 +136,6 @@ namespace GPC.Model.Combinations
 
             public override string ToString() => $"{String.Format("{0:0.0##}", Coefficient)}*{LoadCase.Name}";
 
-
             #region INTERFACE IMPLEMENTATION
 
             int IComparable<LoadCaseCoefficient>.CompareTo(LoadCaseCoefficient other)
@@ -148,19 +148,16 @@ namespace GPC.Model.Combinations
                         return -1;
                     else if (_loadcase.GetLoadCaseType() != LoadCase.LoadCaseType.SelfWeight && other.LoadCase.GetLoadCaseType() == LoadCase.LoadCaseType.SelfWeight)
                         return 1;
-
-
                     else if (_loadcase.GetLoadCaseType() == LoadCase.LoadCaseType.SuperImposedDeadLoad && other.LoadCase.GetLoadCaseType() == LoadCase.LoadCaseType.SuperImposedDeadLoad)
                         return 0;
-                    else if (_loadcase.GetLoadCaseType() == LoadCase.LoadCaseType.SuperImposedDeadLoad 
+                    else if (_loadcase.GetLoadCaseType() == LoadCase.LoadCaseType.SuperImposedDeadLoad
                             && (other.LoadCase.GetLoadCaseType() != LoadCase.LoadCaseType.SuperImposedDeadLoad || other.LoadCase.GetLoadCaseType() != LoadCase.LoadCaseType.SelfWeight))
                         return -1;
-                    else if ((_loadcase.GetLoadCaseType() != LoadCase.LoadCaseType.SuperImposedDeadLoad || _loadcase.GetLoadCaseType() != LoadCase.LoadCaseType.SelfWeight) 
+                    else if ((_loadcase.GetLoadCaseType() != LoadCase.LoadCaseType.SuperImposedDeadLoad || _loadcase.GetLoadCaseType() != LoadCase.LoadCaseType.SelfWeight)
                             && other.LoadCase.GetLoadCaseType() == LoadCase.LoadCaseType.SuperImposedDeadLoad)
                         return 1;
-
                     else
-                    { 
+                    {
                         if (_coefficient == other._coefficient)
                             return 0;
                         else

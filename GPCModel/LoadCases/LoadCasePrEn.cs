@@ -1,10 +1,11 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Runtime.Serialization;
 
 namespace GPC.Model.LoadCases
 {
-    public class LoadCasePrEn : LoadCase
+    public class LoadCasePrEn : LoadCase, ISerializable, IEquatable<LoadCasePrEn>
     {
         #region PUBLIC ENUMS
         public enum LoadCasePrEnType
@@ -50,5 +51,39 @@ namespace GPC.Model.LoadCases
             info.AddValue("LoadCasePrEnType", _loadCasePrEnType);
         }
 
+        public bool Equals(LoadCasePrEn other)
+        {
+            return !(other is null) && _loadCasePrEnType.Equals(_loadCasePrEnType)
+                                    && base.Equals(other); 
+        }
+
+        public override bool Equals(object obj)
+        {
+            return base.Equals(obj as LoadCasePrEn);
+        }
+
+        public override int GetHashCode()
+        {
+            int hashCode = 23;
+            hashCode = hashCode * -17 + base.GetHashCode();
+            hashCode = hashCode * -17 + _loadCasePrEnType.GetHashCode();
+            return hashCode;
+        }
+
+        public static bool operator ==(LoadCasePrEn obj1, LoadCasePrEn obj2)
+        {
+            if (ReferenceEquals(obj1, obj2))
+                return true;
+
+            if (obj1 is null || obj2 is null)
+                return false;
+
+            return obj1.Equals(obj2);
+        }
+
+        public static bool operator !=(LoadCasePrEn obj1, LoadCasePrEn obj2)
+        {
+            return !(obj1 == obj2);
+        }
     }
 }

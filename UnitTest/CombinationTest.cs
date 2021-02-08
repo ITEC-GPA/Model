@@ -165,7 +165,7 @@ namespace UnitTest
             var splitted = combinationName.Split(new string[] { "+" }, StringSplitOptions.None);
 
             Console.WriteLine(combinationName);
-            Assert.IsTrue(combination[sdl] == 4, combinationName);
+            Assert.IsTrue(combination[sdl] == 8, combinationName);
             Assert.IsTrue(splitted[0].Contains("SW"), combinationName);
         }
 
@@ -202,7 +202,7 @@ namespace UnitTest
             var splitted = combinationName.Split(new string[] { "+" }, StringSplitOptions.None);
 
             Console.WriteLine(combinationName);
-            Assert.IsTrue(combination[sdl] == 4, combinationName);
+            Assert.IsTrue(combination[sdl] == 8, combinationName);
             Assert.IsTrue(splitted[0].Contains("SW"), combinationName);
         }
     }

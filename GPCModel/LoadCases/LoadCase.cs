@@ -1,11 +1,12 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Runtime.Serialization;
 
 namespace GPC.Model.LoadCases
 {
     [Serializable]
-    public class LoadCase : ModelObject
+    public class LoadCase : ModelObject, ISerializable, IEquatable<LoadCase>
     {
         #region PUBLIC ENUMS
 
@@ -24,56 +25,86 @@ namespace GPC.Model.LoadCases
             [Description("Climate Winter")] ClimateWinter = 9,
         }
 
-        #endregion PUBLIC ENUMS
+        #endregion
 
         #region VARIABLES
 
-        private string _name;
         private LoadCaseType? _loadCaseType;
 
-        #endregion VARIABLES
-
-        #region PROPERTIES
-        public string Name => _name;
-        #endregion
+        #endregion 
 
         #region PUBLIC CONSTRUCTOR
 
-        public LoadCase(string name, LoadCaseType loadCaseType, Guid guid)
-            : base(guid)
+        public LoadCase(string name, LoadCaseType? loadCaseType)
+            : this(name, loadCaseType, Guid.NewGuid())
+        {
+
+        }
+
+        public LoadCase(string name, LoadCaseType? loadCaseType, Guid guid)
+            : base(guid, name)
         {
             if (String.IsNullOrEmpty(name) || string.IsNullOrWhiteSpace(name))
                 throw new ArgumentException("Loadcase name cannot be empty");
 
-            this._name = name;
             this._loadCaseType = loadCaseType;
         }
 
         public LoadCase(string name, Guid guid)
-            : base(guid)
+            : this(name, null, guid)
         {
-            if (String.IsNullOrEmpty(name) || string.IsNullOrWhiteSpace(name))
-                throw new ArgumentException("Loadcase name cannot be empty");
 
-            this._name = name;
-            this._loadCaseType = null;
         }
 
         public LoadCase(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
-            _name = info.GetString("Name");
             _loadCaseType = (LoadCaseType?)info.GetValue("LoadCaseType", typeof(LoadCaseType?));
         }
 
-        #endregion PUBLIC CONSTRUCTOR
+        #endregion 
 
         public LoadCaseType? GetLoadCaseType() => _loadCaseType;
+
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             base.GetObjectData(info, context);
-            info.AddValue("Name", _name);
             info.AddValue("LoadCaseType", _loadCaseType);
+        }
+
+        public bool Equals(LoadCase other)
+        {
+            return !(other is null) && _loadCaseType.Equals(other._loadCaseType)
+                                    && base.Equals(other);
+        }
+
+        public override bool Equals(object obj)
+        {
+            return base.Equals(obj as LoadCase);
+        }
+
+        public override int GetHashCode()
+        {
+            int hashCode = 23;
+            hashCode = hashCode * -17 + base.GetHashCode();
+            hashCode = hashCode * -17 + _loadCaseType.GetHashCode();
+            return hashCode;
+        }
+
+        public static bool operator ==(LoadCase obj1, LoadCase obj2)
+        {
+            if (ReferenceEquals(obj1, obj2))
+                return true;
+
+            if (obj1 is null || obj2 is null)
+                return false;
+
+            return obj1.Equals(obj2);
+        }
+
+        public static bool operator !=(LoadCase obj1, LoadCase obj2)
+        {
+            return !(obj1 == obj2);
         }
     }
 }
