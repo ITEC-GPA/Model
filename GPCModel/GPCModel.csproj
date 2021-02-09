@@ -66,8 +66,6 @@
     <Compile Include="Combinations\Combination.cs" />
     <Compile Include="Combinations\CombinationAsce.cs" />
     <Compile Include="Combinations\CombinationEn.cs" />
-    <Compile Include="CoordinateSystem\CoordinateSystemPlate.cs" />
-    <Compile Include="CoordinateSystem\CoordinateSystem.cs" />
     <Compile Include="Elements\ElementProperty\ElementProperty.cs" />
     <Compile Include="Elements\Element.cs" />
     <Compile Include="Elements\ElementProperty\InterlayerProperty.cs" />
@@ -83,7 +81,6 @@
     <Compile Include="Elements\Glasses\DoubleInsulatingGlass.cs" />
     <Compile Include="Elements\Glasses\Interlayer.cs" />
     <Compile Include="Elements\Glasses\GlassSurface.cs" />
-    <Compile Include="Elements\Glasses\GlassProperty.cs" />
     <Compile Include="Elements\Restrain\IGeometryRestrain.cs" />
     <Compile Include="Elements\Restrain\PointRestrain.cs" />
     <Compile Include="Elements\Restrain\LineRestrain.cs" />
