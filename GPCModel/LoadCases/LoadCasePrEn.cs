@@ -5,7 +5,7 @@ using System.Runtime.Serialization;
 
 namespace GPC.Model.LoadCases
 {
-    public sealed class LoadCasePrEn : LoadCase, ISerializable, IEquatable<LoadCasePrEn>
+    public class LoadCasePrEn : LoadCase, ISerializable
     {
         #region PUBLIC ENUMS
         public enum LoadCasePrEnType
@@ -49,17 +49,6 @@ namespace GPC.Model.LoadCases
         {
             base.GetObjectData(info, context);
             info.AddValue("LoadCasePrEnType", _loadCasePrEnType);
-        }
-
-        public bool Equals(LoadCasePrEn other)
-        {
-            if (other is null)
-                return false;
-
-            if (ReferenceEquals(this, other))
-                return true;
-
-            return !(other is null) && _loadCasePrEnType.Equals(other._loadCasePrEnType) && base.Equals(other);
         }
 
         public override bool Equals(object obj)

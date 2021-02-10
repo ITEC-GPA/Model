@@ -3,7 +3,7 @@ using System.Runtime.Serialization;
 
 namespace GPC.Model.LoadCases
 {
-    public sealed class ClimateHLoadCase : LoadCase, IClimate, ISerializable, IEquatable<ClimateHLoadCase>
+    public class ClimateHLoadCase : LoadCase, IClimate, ISerializable
     {
         private double _manufactoringHeight;
         private double _installationHeight;
@@ -34,16 +34,6 @@ namespace GPC.Model.LoadCases
             base.GetObjectData(info, context);
             info.AddValue("ManufactoringHeight", _manufactoringHeight);
             info.AddValue("InstallationHeight", _installationHeight);
-        }
-
-        public bool Equals(ClimateHLoadCase other)
-        {
-            if (ReferenceEquals(this, other))
-                return true;
-            return !(other is null) &&
-                    _installationHeight == other._installationHeight &&
-                    _manufactoringHeight == other._manufactoringHeight &&
-                    base.Equals(other);
         }
 
         public override bool Equals(object obj)
