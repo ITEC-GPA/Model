@@ -4,7 +4,7 @@ using System.Runtime.Serialization;
 
 namespace GPC.Model.Elements.Glasses
 {
-    public abstract class Glass : ModelObject, IEquatable<Glass>
+    public abstract class Glass : ModelObject
     {
 
         protected Glass(Guid guid) 
@@ -30,18 +30,15 @@ namespace GPC.Model.Elements.Glasses
             base.GetObjectData(info, context);
         }
 
-        public bool Equals(Glass other)
-        {
-            if (ReferenceEquals(this, other))
-                return true;
-
-            return !(other is null) && base.Equals(other);
-        }
-
         public override bool Equals(object obj)
         {
-            return base.Equals(obj as Glass);
+            if (ReferenceEquals(this, obj))
+                return true;
+
+            Glass objCasted = obj as Glass;
+            return !(objCasted is null) && base.Equals(objCasted);
         }
+
 
         public override int GetHashCode()
         {

@@ -5,7 +5,7 @@ using System.Runtime.Serialization;
 namespace GPC.Model
 {
     [Serializable]
-    public abstract class ModelObject : IEquatable<ModelObject>
+    public abstract class ModelObject
     {
         #region Variables
 
@@ -67,17 +67,12 @@ namespace GPC.Model
             info.AddValue("Name", _name);
         }
 
-        public bool Equals(ModelObject other)
-        {
-            if (ReferenceEquals(this, other))
-                return true;
-
-            return !(other is null) && other._name.Equals(_name);
-        }
-
         public override bool Equals(object obj)
         {
-            return base.Equals(obj as ModelObject);
+            if (obj is null || !(obj is ModelObject))
+                return false;
+
+            return  _name == (obj as ModelObject)._name;
         }
 
         public override int GetHashCode()

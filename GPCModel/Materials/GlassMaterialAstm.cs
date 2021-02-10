@@ -129,6 +129,8 @@ namespace GPC.Model.Materials
 
         public override bool Equals(object obj)
         {
+            if (ReferenceEquals(this, obj))
+                return true;
             return base.Equals(obj as GlassMaterialAstm);
         }
 

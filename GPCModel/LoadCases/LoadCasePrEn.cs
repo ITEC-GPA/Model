@@ -5,7 +5,7 @@ using System.Runtime.Serialization;
 
 namespace GPC.Model.LoadCases
 {
-    public class LoadCasePrEn : LoadCase, ISerializable, IEquatable<LoadCasePrEn>
+    public sealed class LoadCasePrEn : LoadCase, ISerializable, IEquatable<LoadCasePrEn>
     {
         #region PUBLIC ENUMS
         public enum LoadCasePrEnType
@@ -53,13 +53,25 @@ namespace GPC.Model.LoadCases
 
         public bool Equals(LoadCasePrEn other)
         {
-            return !(other is null) && _loadCasePrEnType.Equals(_loadCasePrEnType)
-                                    && base.Equals(other); 
+            if (other is null)
+                return false;
+
+            if (ReferenceEquals(this, other))
+                return true;
+
+            return !(other is null) && _loadCasePrEnType.Equals(other._loadCasePrEnType) && base.Equals(other);
         }
 
         public override bool Equals(object obj)
         {
-            return base.Equals(obj as LoadCasePrEn);
+            if (obj is null)
+                return false;
+
+            if (ReferenceEquals(this, obj))
+                return true;
+
+            LoadCasePrEn objCasted = obj as LoadCasePrEn;
+            return !(objCasted is null) && _loadCasePrEnType.Equals(objCasted._loadCasePrEnType) && base.Equals(objCasted);
         }
 
         public override int GetHashCode()
@@ -69,6 +81,7 @@ namespace GPC.Model.LoadCases
             hashCode = hashCode * -17 + _loadCasePrEnType.GetHashCode();
             return hashCode;
         }
+
 
         public static bool operator ==(LoadCasePrEn obj1, LoadCasePrEn obj2)
         {

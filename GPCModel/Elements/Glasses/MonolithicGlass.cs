@@ -9,12 +9,12 @@ namespace GPC.Model.Elements.Glasses
     /// Monolithic glass. This represent the simpler glass panel. It is composed by a single layer of glass
     /// </summary>
     [Serializable]
-    public class MonolithicGlass : Glass, IGlassPanel, IEquatable<MonolithicGlass>
+    public sealed class MonolithicGlass : Glass, IGlassPanel, IEquatable<MonolithicGlass>
     {
         #region Variables
-        protected GlassMaterial _material;
+        private GlassMaterial _material;
 
-        protected double _thickness;
+        private double _thickness;
 
         #endregion
 
@@ -88,6 +88,9 @@ namespace GPC.Model.Elements.Glasses
 
         public override bool Equals(object obj)
         {
+            if (ReferenceEquals(this, obj))
+                return true;
+
             return base.Equals(obj as MonolithicGlass);
         }
 

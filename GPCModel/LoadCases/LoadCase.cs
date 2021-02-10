@@ -6,7 +6,7 @@ using System.Runtime.Serialization;
 namespace GPC.Model.LoadCases
 {
     [Serializable]
-    public class LoadCase : ModelObject, ISerializable, IEquatable<LoadCase>
+    public class LoadCase : ModelObject, ISerializable
     {
         #region PUBLIC ENUMS
 
@@ -72,15 +72,16 @@ namespace GPC.Model.LoadCases
             info.AddValue("LoadCaseType", _loadCaseType);
         }
 
-        public bool Equals(LoadCase other)
-        {
-            return !(other is null) && _loadCaseType.Equals(other._loadCaseType)
-                                    && base.Equals(other);
-        }
-
         public override bool Equals(object obj)
         {
-            return base.Equals(obj as LoadCase);
+            if (obj is null)
+                return false;
+
+            if (ReferenceEquals(this, obj))
+                return true;
+
+            LoadCase objCasted = obj as LoadCase;
+            return !(objCasted is null) && _loadCaseType.Equals(objCasted._loadCaseType) && base.Equals(objCasted);
         }
 
         public override int GetHashCode()

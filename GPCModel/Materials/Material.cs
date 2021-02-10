@@ -5,7 +5,7 @@ using System.Runtime.Serialization;
 namespace GPC.Model.Materials
 {
     [Serializable]
-    public abstract class Material : ModelObject, IEquatable<Material>
+    public abstract class Material : ModelObject
     {
         #region VARIABLES
 
@@ -95,20 +95,17 @@ namespace GPC.Model.Materials
             info.AddValue("Ni", _ni);
         }
 
-        public bool Equals(Material other)
-        {
-            if (ReferenceEquals(this, other))
-                return true;
-
-            return !(other is null) && other._elasticModulus.Equals(_elasticModulus) &&
-                                       other._ni.Equals(_ni) &&
-                                       other._alfaThermalExpansion.Equals(_alfaThermalExpansion) &&
-                                       other._density.Equals(_density) &&
-                                       base.Equals(other);
-        }
         public override bool Equals(object obj)
         {
-            return base.Equals(obj as Material);
+            if (ReferenceEquals(this, obj))
+                return true;
+
+            Material objCasted = obj as Material;
+            return !(objCasted is null) && objCasted._elasticModulus.Equals(_elasticModulus) &&
+                                           objCasted._ni.Equals(_ni) &&
+                                           objCasted._alfaThermalExpansion.Equals(_alfaThermalExpansion) &&
+                                           objCasted._density.Equals(_density) &&
+                                           base.Equals(objCasted);
         }
 
         public override int GetHashCode()

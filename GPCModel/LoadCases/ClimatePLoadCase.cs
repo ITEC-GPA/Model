@@ -3,7 +3,7 @@ using System.Runtime.Serialization;
 
 namespace GPC.Model.LoadCases
 {
-    public class ClimatePLoadCase : LoadCase, IClimate, ISerializable, IEquatable<ClimatePLoadCase>
+    public sealed class ClimatePLoadCase : LoadCase, IClimate, ISerializable, IEquatable<ClimatePLoadCase>
     {
         private double _manufactoringPressure;
         private double _installationPressure;
@@ -39,10 +39,35 @@ namespace GPC.Model.LoadCases
 
         public bool Equals(ClimatePLoadCase other)
         {
+            if (ReferenceEquals(this, other))
+                return true;
             return !(other is null) &&
                     base.Equals(other) &&
                     _manufactoringPressure == other._manufactoringPressure &&
                     _installationPressure == other._installationPressure;
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (obj is null)
+                return false;
+
+            if (ReferenceEquals(this, obj))
+                return true;
+
+            ClimatePLoadCase objCasted = obj as ClimatePLoadCase;
+            return !(objCasted is null) && _manufactoringPressure == objCasted._manufactoringPressure &&
+                                            _installationPressure == objCasted._installationPressure &&
+                                            base.Equals(objCasted);
+        }
+
+        public override int GetHashCode()
+        {
+            int hashCode = 23;
+            hashCode = hashCode * -17 + base.GetHashCode();
+            hashCode = hashCode * -17 + _manufactoringPressure.GetHashCode();
+            hashCode = hashCode * -17 + _installationPressure.GetHashCode();
+            return hashCode;
         }
     }
 }

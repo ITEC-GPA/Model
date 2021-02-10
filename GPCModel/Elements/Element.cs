@@ -9,7 +9,7 @@ namespace GPC.Model.Elements
     /// </summary>
 
     [Serializable]
-    public abstract class Element : ModelObject, IEquatable<Element>
+    public abstract class Element : ModelObject
     {
         #region Public Constructors
 
@@ -37,17 +37,12 @@ namespace GPC.Model.Elements
             base.GetObjectData(info, context);
         }
 
-        public bool Equals(Element other)
-        {
-            if (ReferenceEquals(this, other))
-                return true;
-
-            return !(other is null) && base.Equals(other);
-        }
-
         public override bool Equals(object obj)
         {
-            return base.Equals(obj as Element);
+            if (ReferenceEquals(this, obj))
+                return true;
+            Element objCasted = obj as Element;
+            return !(objCasted is null) && base.Equals(objCasted);
         }
 
         public override int GetHashCode()

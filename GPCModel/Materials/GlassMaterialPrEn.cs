@@ -5,7 +5,7 @@ using System.Runtime.Serialization;
 namespace GPC.Model.Materials
 {
     [Serializable]
-    public class GlassMaterialPrEn : GlassMaterial, IEquatable<GlassMaterialPrEn>
+    public sealed class GlassMaterialPrEn : GlassMaterial, IEquatable<GlassMaterialPrEn>
     {
         #region PUBLIC ENUMS
         [Serializable]
@@ -138,6 +138,8 @@ namespace GPC.Model.Materials
 
         public override bool Equals(object obj)
         {
+            if (ReferenceEquals(this, obj))
+                return true;
             return base.Equals(obj as GlassMaterialPrEn);
         }
 

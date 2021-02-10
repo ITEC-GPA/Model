@@ -5,7 +5,7 @@ using System.Runtime.Serialization;
 namespace GPC.Model.Materials
 {
     [Serializable]
-    public abstract class GlassMaterial : Material, IEquatable<GlassMaterial>
+    public abstract class GlassMaterial : Material
     {
         /// <summary>
         /// 
@@ -52,16 +52,13 @@ namespace GPC.Model.Materials
             throw new NotImplementedException();
         }
 
-        public bool Equals(GlassMaterial other)
-        {
-            if (ReferenceEquals(this, other))
-                return true;
-
-            return !(other is null) && base.Equals(other);
-        }
         public override bool Equals(object obj)
         {
-            return base.Equals(obj as GlassMaterial);
+            if (ReferenceEquals(this, obj))
+                return true;
+
+            GlassMaterial objCasted = obj as GlassMaterial;
+            return !(objCasted is null) && base.Equals(objCasted);
         }
 
         public override int GetHashCode()

@@ -8,7 +8,7 @@ using System.Runtime.Serialization;
 namespace GPC.Model.Materials
 {
     [Serializable]
-    public class InterlayerMaterial : Material, IEquatable<InterlayerMaterial>
+    public sealed class InterlayerMaterial : Material, IEquatable<InterlayerMaterial>
     {
         #region PUBLIC ENUMS
 
@@ -116,6 +116,8 @@ namespace GPC.Model.Materials
 
         public override bool Equals(object obj)
         {
+            if (ReferenceEquals(this, obj))
+                return true;
             return base.Equals(obj as InterlayerMaterial);
         }
 
