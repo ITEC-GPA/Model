@@ -89,6 +89,9 @@ namespace GPC.Model.Elements
 
         public override bool Equals(object obj)
         {
+            if (ReferenceEquals(this, obj))
+                return true;
+
             return base.Equals(obj as LaminatedGlassProperty);
         }
 

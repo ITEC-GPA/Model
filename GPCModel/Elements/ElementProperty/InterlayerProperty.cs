@@ -6,7 +6,7 @@ using GPC.Model.Elements.Glasses;
 
 namespace GPC.Model.Elements
 {
-    public class InterlayerProperty : PlateProperty, IGlassProperty, IEquatable<InterlayerProperty>
+    public sealed class InterlayerProperty : PlateProperty, IGlassProperty, IEquatable<InterlayerProperty>
     {
         private double _temperature;
 
@@ -76,6 +76,8 @@ namespace GPC.Model.Elements
 
         public override bool Equals(object obj)
         {
+            if (ReferenceEquals(this, obj))
+                return true;
             return base.Equals(obj as InterlayerProperty);
         }
 

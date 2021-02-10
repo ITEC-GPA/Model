@@ -1,10 +1,11 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Runtime.Serialization;
 using GPC.Model.Materials;
 
 namespace GPC.Model.Elements
 {
-    public class PlateProperty : ElementProperty, IPlateProperty, IEquatable<PlateProperty>
+    public class PlateProperty : ElementProperty, IPlateProperty
     {
         #region Variables
 
@@ -84,12 +85,26 @@ namespace GPC.Model.Elements
             info.AddValue("Material", _material);
         }
 
-        public bool Equals(PlateProperty other)
+        public override bool Equals(object obj)
         {
-            return !(other is null) &&  _bendingThickness == other._bendingThickness &&
-                                        _membraneThickness == other._membraneThickness &&
-                                        _material.Equals(other._material) &&
-                                        base.Equals(other);
+            if (ReferenceEquals(this, obj))
+                return true;
+
+            PlateProperty objCasted = obj as PlateProperty;
+            return !(objCasted is null) && _bendingThickness == objCasted._bendingThickness &&
+                                           _membraneThickness == objCasted._membraneThickness &&
+                                           _material.Equals(objCasted._material) &&
+                                           base.Equals(objCasted);
+        }
+
+        public override int GetHashCode()
+        {
+            int hashCode = 23;
+            hashCode = hashCode * -17 + base.GetHashCode();
+            hashCode = hashCode * -17 + _bendingThickness.GetHashCode();
+            hashCode = hashCode * -17 + _membraneThickness.GetHashCode();
+            hashCode = hashCode * -17 + EqualityComparer<Material>.Default.GetHashCode(_material);
+            return hashCode;
         }
     }
 }

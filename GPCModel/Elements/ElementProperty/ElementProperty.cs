@@ -6,7 +6,7 @@ using GPC.Model.Materials;
 namespace GPC.Model.Elements
 {
     [Serializable]
-    public abstract class ElementProperty : ModelObject, IEquatable<ElementProperty>
+    public abstract class ElementProperty : ModelObject
     {
 
         #region Public Constructors
@@ -41,17 +41,12 @@ namespace GPC.Model.Elements
             base.GetObjectData(info, context);
         }
 
-        public bool Equals(ElementProperty other)
-        {
-            if (ReferenceEquals(this, other))
-                return true;
-
-            return !(other is null) && other.Name.Equals(_name);
-        }
-
         public override bool Equals(object obj)
         {
-            return base.Equals(obj as ElementProperty);
+            if (ReferenceEquals(this, obj))
+                return true;
+            ElementProperty objCasted = obj as ElementProperty;
+            return !(objCasted is null) && base.Equals(objCasted);
         }
 
         public override int GetHashCode()

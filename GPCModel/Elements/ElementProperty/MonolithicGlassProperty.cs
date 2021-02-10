@@ -6,7 +6,7 @@ using System.Collections.Generic;
 
 namespace GPC.Model.Elements
 {
-    public class MonolithicGlassProperty : PlateProperty, IGlassProperty, IEquatable<MonolithicGlassProperty>
+    public sealed class MonolithicGlassProperty : PlateProperty, IGlassProperty, IEquatable<MonolithicGlassProperty>
     {
 
         public MonolithicGlassProperty(MonolithicGlass monolithicGlass)
@@ -47,6 +47,9 @@ namespace GPC.Model.Elements
         }
         public override bool Equals(object obj)
         {
+            if (ReferenceEquals(this, obj))
+                return true;
+
             return base.Equals(obj as MonolithicGlassProperty);
         }
 
