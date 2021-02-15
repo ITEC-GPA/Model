@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace FEM
+namespace GPC.FEM
 {
     public class Polynome {
         IEnumerable<Polynome1D> _polynomes;

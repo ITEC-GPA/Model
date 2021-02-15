@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace FEM
+namespace GPC.FEM
 {
     /// <summary>
     /// Nodo with unique ID, and X,Y,Z global coordinates
@@ -16,6 +16,24 @@ namespace FEM
         public double Z { get; set; }
         public int ID { get; set; }
         public string Label { get; set; }
+        public Dictionary<FEMModel.DOF, bool> DOF { get; set; } //used for GlobalSystemMatrix
+
+        public int NrActiveDof
+        {
+            get
+            {
+                int ris = 0;
+                for (int i = 0; i < FEMModel.MAXGDLPERNODE; i++)
+                {
+                    if (DOF[(FEMModel.DOF)i] == true)
+                    {
+                        ris++;
+                    }
+                   
+                }
+                return ris;
+            }
+        }
 
         /// <summary>
         /// 
@@ -29,6 +47,14 @@ namespace FEM
             Y = globalY;
             Z = globalZ;
             Label = label;
+
+            DOF = new Dictionary<FEMModel.DOF, bool>(6);
+            DOF.Add(FEM.FEMModel.DOF.DX, false);
+            DOF.Add(FEM.FEMModel.DOF.DY, false);
+            DOF.Add(FEM.FEMModel.DOF.DZ, false);
+            DOF.Add(FEM.FEMModel.DOF.RX, false);
+            DOF.Add(FEM.FEMModel.DOF.RY, false);
+            DOF.Add(FEM.FEMModel.DOF.RZ, false);
         }
 
         public override string ToString()
@@ -40,6 +66,5 @@ namespace FEM
         {
             if (other.X == X && other.Y == Y && other.Z == Z) { return true; } else { return false; }
         }
-
     }
 }

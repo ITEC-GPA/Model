@@ -4,17 +4,17 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using FEM.Elements;
+using GPC.FEM.Elements;
 
-namespace FEM
+namespace GPC.FEM
 {
     public class FEMModel
     {
         public enum DOF
         {
-            UX,   //0
-            UY,   //1
-            UZ,   //2
+            DX,   //0
+            DY,   //1
+            DZ,   //2
             RX,   //3
             RY,   //4
             RZ    //5
@@ -31,7 +31,7 @@ namespace FEM
         /// <summary>
         /// Unique nodes in model
         /// </summary>
-        public HashSet<Node> Nodes { get; set; }
+        public static HashSet<Node> Nodes { get; set; }
 
         /// <summary>
         /// Unique elements in Models contains all the informations: node connectivity, material, property, LOAD as attribute, end releases...etc
@@ -40,18 +40,16 @@ namespace FEM
 
         public FEMModel(FiniteElement[] inputElements)
         {
-            int maxGdlPerNode = Enum.GetNames(typeof(DOF)).Length;
-
             #region NodeOfModel
             Nodes = new HashSet<Node>();
             int iter = 0;
             for (int i = 0; i < inputElements.Count(); i++)
             {
-                FiniteElement element = inputElements.ElementAt(i);
+                FiniteElement element = inputElements[i];
 
                 for (int j = 0; j < element.GlobalNodesElement.Count(); j++)
                 {
-                    Node node = element.GlobalNodesElement.ElementAt(j);
+                    Node node = element.GlobalNodesElement[j];
 
                     var nodes = Nodes.Where(n => n.X == node.X && n.Y == node.Y && n.Z == node.Z);
 
@@ -66,6 +64,21 @@ namespace FEM
                         {
                             node.Label = node.Label + "+" + nodes.Single().Label;
                         }
+
+                        for (int k = 0; k < MAXGDLPERNODE; k++)
+                        {
+                            if (element.DOF[(FEM.FEMModel.DOF)k] == true)
+                            {
+                                node.DOF[(FEM.FEMModel.DOF)k] = true;
+                            }
+
+                            //save old DOF due to other element
+                            if (nodes.Single().DOF[(FEM.FEMModel.DOF)k] == true)
+                            {
+                                node.DOF[(FEM.FEMModel.DOF)k] = true;
+                            }
+                        }
+
                         //Add Attribute of Duplicate node in original node
 
                         //update the HashSet
@@ -74,6 +87,13 @@ namespace FEM
                     }
                     else
                     {
+                        for (int k = 0; k < MAXGDLPERNODE; k++)
+                        {
+                            if (element.DOF[(FEM.FEMModel.DOF)k] == true)
+                            {
+                                node.DOF[(FEM.FEMModel.DOF)k] = true;
+                            }
+                        }
                         node.ID = iter;
                         Nodes.Add(node);
                         iter++;
@@ -108,35 +128,34 @@ namespace FEM
 
             #region AssemblyOfStiffnessMatrix
             //Assembling the Stiffness Matrix
-            _KGlobal = Matrix<double>.Build.Dense(nrNodes * maxGdlPerNode, nrNodes * maxGdlPerNode);
+            int dimensionKSystemMatrix = 0;
+            for (int i = 0; i < Nodes.Count; i++)
+            {
+                dimensionKSystemMatrix = dimensionKSystemMatrix + Nodes.ElementAt(i).NrActiveDof;
+            }
+            _KGlobal = Matrix<double>.Build.Dense(dimensionKSystemMatrix, dimensionKSystemMatrix);
             for (int el = 0; el < Elements.Count(); el++)
             {
                 //element el
                 FiniteElement element = Elements.ElementAt(el);
 
-                //check if dimension of KeGlobal is ok and Assemble stiffness matrix KGlobal
-                int MaxGdlElement = element.GlobalNodesElement.Count() * Enum.GetNames(typeof(FEMModel.DOF)).Length;
                 element.BuildMatrix();
                 Matrix<double> Kelement = element.KElementGlobalCoord;
-                if (MaxGdlElement == Kelement.ColumnCount && MaxGdlElement == Kelement.RowCount)
+                
+                for (int i = 0; i < element.PositionToGlobalSystemK.Count; i++)
                 {
-                    for (int i = 0; i < element.PositionToGlobalSystemK.Count; i++)
-                    {
-                        FiniteElement.Position local = element.PositionToGlobalSystemK.ElementAt(i).Key;
-                        FiniteElement.Position global = element.PositionToGlobalSystemK.ElementAt(i).Value;
-                        //Console.WriteLine(global.row + " " + global.col + " <- " + local.row + " " + local.col);
+                    FiniteElement.Position local = element.PositionToGlobalSystemK.ElementAt(i).Key;
+                    FiniteElement.Position global = element.PositionToGlobalSystemK.ElementAt(i).Value;
+                    //Console.WriteLine(global.row + " " + global.col + " <- " + local.row + " " + local.col);
 
-                        //double old = KGlobal[global.row, global.col];
-                        _KGlobal[global.row, global.col] = _KGlobal[global.row, global.col] + Kelement[local.row, local.col];
-                        /*if (global.row == 0 && global.col == 0)
-                        {
-                            Console.WriteLine("kGlob[" + global.row + "," + global.col + "] = " + old + " + " + Kelement[local.row, local.col]);
-                        }*/
-                    }
-                } else
-                {
-                    throw new Exception("Dimension of element "+el+" not ok");
+                    //double old = KGlobal[global.row, global.col];
+                    _KGlobal[global.row, global.col] = _KGlobal[global.row, global.col] + Kelement[local.row, local.col];
+                    /*if (global.row == 0 && global.col == 0)
+                    {
+                        Console.WriteLine("kGlob[" + global.row + "," + global.col + "] = " + old + " + " + Kelement[local.row, local.col]);
+                    }*/
                 }
+                
             }
             Console.WriteLine("kGlobal System : " + _KGlobal.ToString());
             #endregion
@@ -144,7 +163,7 @@ namespace FEM
             #region CalculationOfAppliedForcesF
             //Calculation of Forces vector
             _F = Vector<double>.Build.Dense(_KGlobal.RowCount);
-            _F[GetPositionInKGlobal("4",DOF.UX).First()] = 1000;
+            _F[GetPositionInKGlobal("4",DOF.DX).First()] = 1000;
             #endregion
 
             #region ApplyingRestrains
@@ -155,31 +174,31 @@ namespace FEM
 
             //PrescribeDisplacement("1", GDL.UX, 0);
             //PrescribeDisplacement("1", GDL.UY, 0);
-            PrescribeDisplacement("1", DOF.UZ, 0);
-            PrescribeDisplacement("1", DOF.RX, 0);
+            PrescribeDisplacement("1", DOF.DZ, 0);
+            /*PrescribeDisplacement("1", DOF.RX, 0);
             PrescribeDisplacement("1", DOF.RY, 0);
-            PrescribeDisplacement("1", DOF.RZ, 0);
+            PrescribeDisplacement("1", DOF.RZ, 0);*/
 
             /*PrescribeDisplacement("2", GDL.UX, 0);
             PrescribeDisplacement("2", GDL.UY, 0);*/
-            PrescribeDisplacement("2", DOF.UZ, 0);
-            PrescribeDisplacement("2", DOF.RX, 0);
+            PrescribeDisplacement("2", DOF.DZ, 0);
+            /*PrescribeDisplacement("2", DOF.RX, 0);
             PrescribeDisplacement("2", DOF.RY, 0);
-            PrescribeDisplacement("2", DOF.RZ, 0);
+            PrescribeDisplacement("2", DOF.RZ, 0);*/
 
-            PrescribeDisplacement("3", DOF.UX, 0);
-            PrescribeDisplacement("3", DOF.UY, 0);
-            PrescribeDisplacement("3", DOF.UZ, 0);
-            PrescribeDisplacement("3", DOF.RX, 0);
+            PrescribeDisplacement("3", DOF.DX, 0);
+            PrescribeDisplacement("3", DOF.DY, 0);
+            PrescribeDisplacement("3", DOF.DZ, 0);
+            /*PrescribeDisplacement("3", DOF.RX, 0);
             PrescribeDisplacement("3", DOF.RY, 0);
-            PrescribeDisplacement("3", DOF.RZ, 0);
+            PrescribeDisplacement("3", DOF.RZ, 0);*/
 
             /*PrescribeDisplacement("4", GDL.UX, 0);
             PrescribeDisplacement("4", GDL.UY, 0);*/
-            PrescribeDisplacement("4", DOF.UZ, 0);
-            PrescribeDisplacement("4", DOF.RX, 0);
+            PrescribeDisplacement("4", DOF.DZ, 0);
+            /*PrescribeDisplacement("4", DOF.RX, 0);
             PrescribeDisplacement("4", DOF.RY, 0);
-            PrescribeDisplacement("4", DOF.RZ, 0);
+            PrescribeDisplacement("4", DOF.RZ, 0);*/
 
             Console.WriteLine("kGlobal System + Restrains: " + _KGlobalRestrains.ToString());
             Console.WriteLine("Fmodified(Restrains): " + _FRestrains.ToString());
@@ -189,8 +208,8 @@ namespace FEM
             _costrains = new HashSet<MultiPointCostrain>();
             //applying as example in node 1 : DX = DY (simply support with 45 degrees direction
             MultiPointCostrain.Link[] equations = new MultiPointCostrain.Link[2];
-            equations[0] = new MultiPointCostrain.Link("1", DOF.UX, 1.0);
-            equations[1] = new MultiPointCostrain.Link("1", DOF.UY, 1.0);
+            equations[0] = new MultiPointCostrain.Link("1", DOF.DX, 1.0);
+            equations[1] = new MultiPointCostrain.Link("1", DOF.DY, 1.0);
             MultiPointCostrain Costrain1 = new MultiPointCostrain(equations);
             _costrains.Add(Costrain1);
 
@@ -248,27 +267,22 @@ namespace FEM
             #endregion
         }
 
-        public void PrescribeDisplacement(string labelNode, DOF gdl, double val)
-        {
-            //search id node
-            Node[] nodes = Nodes.Where(x => x.Label == labelNode).ToArray();
-            if (nodes.Count() == 0)
-            {
-                throw new Exception("node " + labelNode + " not found!");
-            }
-            for (int i = 0; i < nodes.Length; i++)
-            {
-                int pos = nodes[i].ID * MAXGDLPERNODE + (int) gdl;
+        public void PrescribeDisplacement(string labelNode, DOF dof, double val)
+    {
+            int[] positions = GetPositionInKGlobal(labelNode, dof);
 
+            for (int i = 0; i < positions.Length; i++)
+            {
                 for (int j = 0; j < _F.Count; j++)
                 {
-                    _FRestrains[j] = _FRestrains[j] - _KGlobalRestrains[j, pos] * val;
-                    _KGlobalRestrains[j, pos] = 0;
-                    _KGlobalRestrains[pos, j] = 0;
+                    _FRestrains[j] = _FRestrains[j] - _KGlobalRestrains[j, positions[i]] * val;
+                    _KGlobalRestrains[j, positions[i]] = 0;
+                    _KGlobalRestrains[positions[i], j] = 0;
                 }
-                _KGlobalRestrains[pos, pos] = 1.0;
-                _FRestrains[pos] = val;
+                _KGlobalRestrains[positions[i], positions[i]] = 1.0;
+                _FRestrains[positions[i]] = val;
             }
+            
         }
         /// <summary>
         /// Give the position of selected GDL from 0 to N where N is dimension of matrix KGloabl or the dimension of the vector of Forces or Displacments
@@ -276,21 +290,39 @@ namespace FEM
         /// <param name="labelNode">Label of the node or nodes searched</param>
         /// <param name="gdl">GDL searched</param>
         /// <returns></returns>
-        public int[] GetPositionInKGlobal(string labelNode, DOF gdl)
+        public int[] GetPositionInKGlobal(string labelNode, DOF dof)
         {
-            HashSet<int> result = new HashSet<int>();
-            Node[] nodes = Nodes.Where(x => x.Label == labelNode).ToArray();
-            if (nodes.Count() == 0)
+            HashSet<int> results = new HashSet<int>();
+            int counter = 0;
+            for (int i = 0; i < Nodes.Count; i++)
             {
-                throw new Exception("node " + labelNode + " not found!");
-            } else
-            {
-                for (int i = 0; i < nodes.Count(); i++)
+                if (Nodes.ElementAt(i).Label == labelNode)
                 {
-                    result.Add(nodes[i].ID * MAXGDLPERNODE + (int)gdl);
+                    results.Add(counter + (int)dof);
+                }
+                else
+                {
+                    counter = counter + Nodes.ElementAt(i).NrActiveDof;
                 }
             }
-            return result.ToArray();
+            return results.ToArray();
+        }
+
+        public static int GetPositionInKGlobal(int ID, DOF dof)
+        {
+            int counter = 0;
+            for (int i = 0; i < Nodes.Count; i++)
+            {
+                if (Nodes.ElementAt(i).ID == ID)
+                {
+                    i = Nodes.Count;
+                }
+                else
+                {
+                    counter = counter + Nodes.ElementAt(i).NrActiveDof;
+                }
+            }
+            return counter + (int) dof;
         }
 
         /// <summary>

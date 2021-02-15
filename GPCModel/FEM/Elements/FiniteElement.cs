@@ -5,18 +5,35 @@ using System.Text;
 using System.Threading.Tasks;
 using MathNet.Numerics.LinearAlgebra;
 
-namespace FEM.Elements
+namespace GPC.FEM.Elements
 {
     /// <summary>
     /// Each finite element should derive from this
     /// </summary>
     public abstract class FiniteElement
     {
-        protected int _DofActivePerNode; //example: for plane stress: UX, UY, UZ -> 3
+        protected Dictionary<FEMModel.DOF, bool> _DOF = new Dictionary<FEMModel.DOF, bool>(Enum.GetNames(typeof(FEMModel.DOF)).Length);
 
         protected int[] _positionGlobalDisplElementInGlobalDisplSystemVectorResult; //position of interesting displacements of gdl of element in global displacement vector in all system
         protected double[] _nodeDisplacementGlobalCoordinates;
         protected double[] _nodeDisplacementLocalCoordinates;
+
+        public Dictionary<FEMModel.DOF, bool> DOF => _DOF;
+
+        public int NrDOFActive
+        {
+            get
+            {
+                int counter = 0;
+                for (int i = 0; i < DOF.Count; i++)
+                {
+                    if (DOF[(FEMModel.DOF)i] == true) {
+                        counter++;
+                    }
+                }
+                return counter;
+            }
+        }
 
         /// <summary>
         /// Node with in gloabal coordinate system
@@ -93,6 +110,12 @@ namespace FEM.Elements
         public FiniteElement(IEnumerable<Node> nodes)
         {
             GlobalNodesElement = nodes.ToArray();
+            _DOF[FEMModel.DOF.DX] = false;
+            _DOF[FEMModel.DOF.DY] = false;
+            _DOF[FEMModel.DOF.DZ] = false;
+            _DOF[FEMModel.DOF.RX] = false;
+            _DOF[FEMModel.DOF.RY] = false;
+            _DOF[FEMModel.DOF.RZ] = false;
         }
 
         /// <summary>
@@ -109,7 +132,7 @@ namespace FEM.Elements
         {
             #region SelectDisplacementsInGlobalCoordinates
             Console.WriteLine("Displacement in Global coordinates:");
-            _nodeDisplacementGlobalCoordinates = new double[FEMModel.MAXGDLPERNODE * GlobalNodesElement.Length];
+            _nodeDisplacementGlobalCoordinates = new double[NrDOFActive * GlobalNodesElement.Length];
             for (int i = 0; i < _positionGlobalDisplElementInGlobalDisplSystemVectorResult.Length; i++)
             {
                 Console.WriteLine(Displacements[_positionGlobalDisplElementInGlobalDisplSystemVectorResult[i]]);

@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using MathNet.Numerics.LinearAlgebra;
 using MathNet.Spatial.Euclidean;
 
-namespace FEM.Elements
+namespace GPC.FEM.Elements
 {
     public class TriangularMembranal : FiniteElement
     {
@@ -17,7 +17,10 @@ namespace FEM.Elements
         public TriangularMembranal(IEnumerable<Node> nodes) : base(nodes)
         {
             //recalled base(nodes)
-            _DofActivePerNode = 3;
+            _DOF[FEMModel.DOF.DX] = true;
+            _DOF[FEMModel.DOF.DY] = true;
+            _DOF[FEMModel.DOF.DZ] = true;
+            //a displacement in Local coordinate plane (Dx, Dy) can be a DX, DY, DZ in Global space!
         }
 
         public override void BuildMatrix()
@@ -185,8 +188,9 @@ namespace FEM.Elements
 
             #region StiffnessMatrixInGlobalCoordinates
             KElementGlobalCoord = DofGlobalToLocal.Transpose() * KElementLocalCoord * DofGlobalToLocal;
-            Console.WriteLine("KElementGlobalCoord = " + KElementLocalCoord.ToString());
+            Console.WriteLine("KElementGlobalCoord = " + KElementGlobalCoord.ToString());
 
+            /*
             int maxGdlPerNode = Enum.GetNames(typeof(FEMModel.DOF)).Length;
             if (GlobalNodesElement.Count() * maxGdlPerNode > KElementGlobalCoord.ColumnCount)
             {
@@ -206,31 +210,34 @@ namespace FEM.Elements
                 }
             }
             Console.WriteLine("KeGlobal with all gld = " + KElementGlobalCoord.ToString());
+            */
             #endregion
 
-            #region LocalStiffnessMatrixInGlobalCoordinatesToStiffnessMatrixOfSystem                
+            #region ElementStiffnessMatrixInGlobalCoordinatesToStiffnessMatrixOfSystem                
             PositionToGlobalSystemK = new Dictionary<Position, Position>();
 
             int[] posGlobal = new int[GlobalNodesElement.Count()]; //First gdl of GlobalNodes(i) are in KGlobal[posGlobal[i],posGlobal[i]]
             int[] posLocal = new int[LocalNodesElement.Count()]; //First gdl of LocalNodes(i)==GlobalNodes(i) are in KeGlobal[posLocal[i],posLocal[i]]
+            
             for (int i = 0; i < GlobalNodesElement.Count(); i++)
             {
-                posGlobal[i] = (GlobalNodesElement.ElementAt(i).ID) * maxGdlPerNode;
-                posLocal[i] = i * maxGdlPerNode;
+                //posGlobal[i] = (GlobalNodesElement.ElementAt(i).ID) * maxGdlPerNode;
+                posGlobal[i] = FEM.FEMModel.GetPositionInKGlobal(GlobalNodesElement.ElementAt(i).ID, FEMModel.DOF.DX);
+                posLocal[i] = i * base.NrDOFActive;
                 //Console.WriteLine("K[" + posGlobal[i] + "," + posGlobal[i] + "] = k[" + posLocal[i] + "," + posLocal[i] + "]");
             }
 
             //create PositionToGlobalK, bind uniquely KeGlobal (stiffness matrix of element in Global coords) to KGlobal (stiffness matrix of entire system)
             //create also bind with global system result to global element result
-            _positionGlobalDisplElementInGlobalDisplSystemVectorResult = new int[FEMModel.MAXGDLPERNODE * GlobalNodesElement.Length];
+            _positionGlobalDisplElementInGlobalDisplSystemVectorResult = new int[base.NrDOFActive * GlobalNodesElement.Length]; //3 = DX, DY, DZ GLOBAL
             for (int i = 0; i < GlobalNodesElement.Count(); i++) //calculation for each node i
             {
-                for (int j = 0; j < maxGdlPerNode; j++) //each node i have maxGdlPerNode degree of freedom
+                for (int j = 0; j < base.NrDOFActive; j++) //each node i have degree of freedom
                 {
-                    _positionGlobalDisplElementInGlobalDisplSystemVectorResult[i * FEMModel.MAXGDLPERNODE + j] = posGlobal[i] + j;
+                    _positionGlobalDisplElementInGlobalDisplSystemVectorResult[i * NrDOFActive + j] = posGlobal[i] + j;
                     for (int k = 0; k < GlobalNodesElement.Count(); k++) //each node i with its degree of freedom should be take in account with other node k. What hap in node k if force is applied in node i?
                     {
-                        for (int l = 0; l < maxGdlPerNode; l++) //what hap to the degree of freedom of node k?
+                        for (int l = 0; l < base.NrDOFActive; l++) //what hap to the degree of freedom of node k?
                         {
                             int rowLocal = posLocal[i] + j;
                             int colLocal = posLocal[k] + l;
@@ -243,12 +250,6 @@ namespace FEM.Elements
                             Position pGlob = new Position(rowGlobal, colGlobal);
                             PositionToGlobalSystemK.Add(pLoc, pGlob);
                             //Console.WriteLine("kGlobal[" + rowLocal + "," + colLocal + "] -> KGlobal[" + rowGlobal + "," + colGlobal + "]");
-
-                            //Checks
-                            if (rowLocal >= maxGdlPerNode * GlobalNodesElement.Count() || colLocal >= maxGdlPerNode * GlobalNodesElement.Count())
-                            {
-                                throw new IndexOutOfRangeException("index in for-cycle out of range of local matrix");
-                            }
                         }
                     }
                 }
