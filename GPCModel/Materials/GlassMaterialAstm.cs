@@ -3,6 +3,10 @@ using System.Runtime.Serialization;
 
 namespace GPC.Model.Materials
 {
+    /// <summary>
+    /// Glass Material for ASTM standard.
+    /// according ot NCSEA - Engineering structural glass design guide
+    /// </summary>
     [Serializable]
     public class GlassMaterialAstm : GlassMaterial, IEquatable<GlassMaterialAstm>
     {

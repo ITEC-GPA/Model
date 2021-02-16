@@ -113,7 +113,7 @@
     <Compile Include="Materials\ConcreteMaterial.cs" />
     <Compile Include="Materials\GlassMaterial.cs" />
     <Compile Include="Materials\GlassMaterialAstm.cs" />
-    <Compile Include="Materials\GlassMaterialPrEn.cs" />
+    <Compile Include="Materials\GlassMaterialEn16612.cs" />
     <Compile Include="Materials\InterlayerMaterial.cs" />
     <Compile Include="Materials\Material.cs" />
     <Compile Include="Materials\RebarMaterial.cs" />

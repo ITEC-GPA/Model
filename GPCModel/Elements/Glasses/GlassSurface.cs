@@ -10,8 +10,6 @@ namespace GPC.Model.Elements.Glasses
     {
         #region VARIABLES
 
-        protected int _index;
-
         protected Glass _glass;
 
         protected Shape _shape;
@@ -25,9 +23,7 @@ namespace GPC.Model.Elements.Glasses
         #endregion
 
         #region PROPERTIES
-
-        public int Index => _index;
-        
+                
         public Glass Glass => _glass;
 
         public Shape Shape => _shape;
@@ -42,12 +38,11 @@ namespace GPC.Model.Elements.Glasses
 
         #region PUBLIC CONSTRUCTORS
 
-        public GlassSurface(Glass glass, Shape shape, List<Load> loads, List<LineRestrain> lineRestrain, List<PointRestrain> pointRestrain, int index, Guid guid)
+        public GlassSurface(Glass glass, Shape shape, List<Load> loads, List<LineRestrain> lineRestrain, List<PointRestrain> pointRestrain, Guid guid)
             : base(guid)
         {
             this._glass = glass;
             this._shape = shape;
-            this._index = index;
             this._loads = new List<Load>();
             if (loads != null)
                 _loads.AddRange(loads);
@@ -61,8 +56,8 @@ namespace GPC.Model.Elements.Glasses
                 _pointRestrains.AddRange(pointRestrain);
         }
 
-        public GlassSurface(Glass glass, Shape shape, int index, Guid guid)
-            : this(glass, shape, null, null, null, index, guid)
+        public GlassSurface(Glass glass, Shape shape, Guid guid)
+            : this(glass, shape, null, null, null, guid)
         {
 
         }
@@ -72,7 +67,7 @@ namespace GPC.Model.Elements.Glasses
         {
             _glass = (Glass)info.GetValue("GlassProperty", typeof(Glass));
             _shape = (Shape)info.GetValue("Shape", typeof(Shape));
-            _index = info.GetInt32("Index");
+            throw new NotSupportedException();
         }
 
         #endregion
@@ -99,7 +94,7 @@ namespace GPC.Model.Elements.Glasses
             base.GetObjectData(info, context);
             info.AddValue("Glass", _glass);
             info.AddValue("Shape", _shape);
-            info.AddValue("Index", _index);
+            throw new NotSupportedException();
         }
 
         public bool Equals(GlassSurface other)
@@ -107,8 +102,7 @@ namespace GPC.Model.Elements.Glasses
             if (ReferenceEquals(this, other))
                 return true;
 
-            return !(other is null) && other._glass.Equals(_glass) 
-                                    && other._index.Equals(_index)
+            return !(other is null) && other._glass.Equals(_glass)
                                     && other._lineRestrains.Equals(_lineRestrains)
                                     && other._loads.Equals(_loads)
                                     && other._shape.Equals(_shape)
@@ -125,7 +119,6 @@ namespace GPC.Model.Elements.Glasses
         {
             int hashCode = -23;
             hashCode = hashCode * -17 + base.GetHashCode();
-            hashCode = hashCode * -17 + _index.GetHashCode();
             hashCode = hashCode * -17 + EqualityComparer<Glass>.Default.GetHashCode(_glass);
             hashCode = hashCode * -17 + EqualityComparer<Shape>.Default.GetHashCode(_shape);
             hashCode = hashCode * -17 + EqualityComparer<List<Load>>.Default.GetHashCode(_loads);
