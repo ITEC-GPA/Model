@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace GPC.Model.FEM
+namespace GPC.Model.FEMOld
 {
     public class FEMDoF : FEMObject
     {

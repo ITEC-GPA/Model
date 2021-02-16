@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 using MathNet.Numerics.LinearAlgebra;
 using GPC.Geometry;
 
-namespace GPC.Model.FEM
+namespace GPC.Model.FEMOld
 {
     public class FEMShapeBeamCubic2 : FEMShape
     {

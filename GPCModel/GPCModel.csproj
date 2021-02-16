@@ -90,6 +90,8 @@
     <Compile Include="Elements\Restrain\Restrain.cs" />
     <Compile Include="FEM\Elements\FiniteElement.cs" />
     <Compile Include="FEM\Elements\Node.cs" />
+    <Compile Include="FEM\Elements\Brick.cs" />
+    <Compile Include="FEM\Elements\Plate.cs" />
     <Compile Include="FEM\Elements\VoidElement.cs" />
     <Compile Include="FEM\Elements\TriangularMembranal.cs" />
     <Compile Include="FEM\FEMModel.cs" />

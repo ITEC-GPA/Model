@@ -2,10 +2,10 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using GPC.Model.FEM.Attributes;
+using GPC.Model.FEMOld.Attributes;
 using GPC.Model.Elements;
 
-namespace GPC.Model.FEM
+namespace GPC.Model.FEMOld
 {
     public class Node : FEMObject
     {

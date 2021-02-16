@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 
 
-namespace GPC.Model.FEM
+namespace GPC.Model.FEMOld
 {
     public class FEMNodeDoF : FEMObject
     {

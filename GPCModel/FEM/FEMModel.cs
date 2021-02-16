@@ -4,9 +4,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using GPC.FEM.Elements;
+using GPC.Model.FEM.Elements;
 
-namespace GPC.FEM
+namespace GPC.Model.FEM
 {
     public class FEMModel
     {
@@ -31,17 +31,17 @@ namespace GPC.FEM
         /// <summary>
         /// Unique nodes in model
         /// </summary>
-        public static HashSet<Node> Nodes { get; set; }
+        public Node[] Nodes { get; set; }
 
         /// <summary>
         /// Unique elements in Models contains all the informations: node connectivity, material, property, LOAD as attribute, end releases...etc
         /// </summary>
-        public HashSet<Elements.FiniteElement> Elements { get; set; }
+        public FiniteElement[] Elements { get; set; }
 
         public FEMModel(FiniteElement[] inputElements)
         {
             #region NodeOfModel
-            Nodes = new HashSet<Node>();
+            HashSet<Node> nodesModel = new HashSet<Node>();
             int iter = 0;
             for (int i = 0; i < inputElements.Count(); i++)
             {
@@ -51,15 +51,14 @@ namespace GPC.FEM
                 {
                     Node node = element.GlobalNodesElement[j];
 
-                    var nodes = Nodes.Where(n => n.X == node.X && n.Y == node.Y && n.Z == node.Z);
+                    var nodes = nodesModel.Where(n => n.X == node.X && n.Y == node.Y && n.Z == node.Z);
 
                     if (nodes.Count() > 1)
                     {
                         throw new Exception("Duplicate node!?");
-                        
                     } else if (nodes.Count() == 1) //Node already used in another element.
                     {
-                        node.ID = nodes.Single().ID;
+                        int ID = nodes.Single().ID;
                         if (node.Label != nodes.Single().Label)
                         {
                             node.Label = node.Label + "+" + nodes.Single().Label;
@@ -82,8 +81,8 @@ namespace GPC.FEM
                         //Add Attribute of Duplicate node in original node
 
                         //update the HashSet
-                        Nodes.Remove(nodes.Single());
-                        Nodes.Add(node);
+                        nodesModel.Remove(nodes.Single());
+                        nodesModel.Add(new Node(ID,node));
                     }
                     else
                     {
@@ -94,25 +93,26 @@ namespace GPC.FEM
                                 node.DOF[(FEM.FEMModel.DOF)k] = true;
                             }
                         }
-                        node.ID = iter;
-                        Nodes.Add(node);
+                        nodesModel.Add(new Node(iter,node));
                         iter++;
                     }
                 }
             }
-            int nrNodes = Nodes.Count;
+            Nodes = nodesModel.ToArray();
+            int nrNodes = Nodes.Length;
 
             #endregion
 
             #region ElementsOfModel
             //Assumed that geometry has been meshed and forces and property applied inside elements
-            Elements = new HashSet<FiniteElement>();
+            
+            HashSet<FiniteElement> elementsModel = new HashSet<FiniteElement>();
             for (int i = 0; i < inputElements.Count(); i++)
             {
                 //check if some node need to be changed
-                for (int j = 0; j < inputElements.ElementAt(i).GlobalNodesElement.Count(); j++)
+                for (int j = 0; j < inputElements[i].GlobalNodesElement.Count(); j++)
                 {
-                    var nodes = Nodes.Where(x => x == inputElements.ElementAt(i).GlobalNodesElement.ElementAt(j));
+                    /*var nodes = Nodes.Where(x => x == inputElements[i].GlobalNodesElement[j]).ToList();
                     if (nodes.Count() == 0)
                     {
                         //the node in this element shiuld be updated:
@@ -120,28 +120,68 @@ namespace GPC.FEM
                         Node n = inputElements.ElementAt(i).GlobalNodesElement.ElementAt(j);
                         Node rightNode = Nodes.Where(x => x.X == n.X && x.Y == n.Y && x.Z == n.Z).Single();
                         inputElements.ElementAt(i).GlobalNodesElement[j] = rightNode;
+                    }*/
+                    var nodes = Nodes.Where(x => x == inputElements[i].GlobalNodesElement[j]).ToList();
+                    if (nodes.Count == 0 || nodes.Count > 1)
+                    {
+                        throw new Exception("Something wrong with nodes");
+                    } else
+                    {
+                        inputElements.ElementAt(i).GlobalNodesElement[j] = nodes[0];
                     }
                 }
-                Elements.Add(inputElements.ElementAt(i));
+                elementsModel.Add(inputElements[i]);
             }
+            Elements = elementsModel.ToArray();
             #endregion
 
             #region AssemblyOfStiffnessMatrix
             //Assembling the Stiffness Matrix
             int dimensionKSystemMatrix = 0;
-            for (int i = 0; i < Nodes.Count; i++)
+            for (int i = 0; i < Nodes.Length; i++)
             {
                 dimensionKSystemMatrix = dimensionKSystemMatrix + Nodes.ElementAt(i).NrActiveDof;
             }
             _KGlobal = Matrix<double>.Build.Dense(dimensionKSystemMatrix, dimensionKSystemMatrix);
+            int counter = 0;
             for (int el = 0; el < Elements.Count(); el++)
             {
                 //element el
                 FiniteElement element = Elements.ElementAt(el);
+                int dofActive = element.NrDOFActive;
 
                 element.BuildMatrix();
-                Matrix<double> Kelement = element.KElementGlobalCoord;
-                
+                //Stiffness Matrix of element in global coordinates, KElementGlobal = GlobalToLocal ^ T * [KeLocal] * [GlobalToLocal]
+                Matrix<double> KElementGlobalCoord = element.DofGlobalToLocal.Transpose() * element.KElementLocalCoord * element.DofGlobalToLocal;
+                Console.WriteLine("KElementGlobalCoord = " + KElementGlobalCoord.ToString());
+
+                for (int i = 0; i < element.GlobalNodesElement.Count(); i++)
+                {
+                    //Node i
+                    int idNodeI = element.GlobalNodesElement[i].ID;
+
+                    for (int j = 0; j < dofActive; j++) //each node i have degree of freedom j
+                    {
+                        for (int k = 0; k < element.GlobalNodesElement.Count(); k++) //each node i with its degree of freedom j should be take in account with other node k.What hap in node k if force is applied in node i?
+                        {
+                            int idNodeK = element.GlobalNodesElement[k].ID;
+
+                            for (int l = 0; l < dofActive; l++) //what hap to the degree of freedom of node k?
+                            {
+                                counter++;
+                                Console.WriteLine(counter + " El=" + el + " Node " + idNodeI + " DOF: "+ j + " vs  Node " + idNodeK + " DOF: " + l + "");
+                                Console.WriteLine( (i * dofActive + j) +"," + (k * dofActive + l) + " --> " + "[" + GetPositionInKGlobal(idNodeI, (DOF)j) + "," + GetPositionInKGlobal(idNodeK, (DOF)l) + "]");
+                                int rowGlobal = GetPositionInKGlobal(idNodeI, (DOF)j);
+                                int colGlobal = GetPositionInKGlobal(idNodeK, (DOF)l);
+                                int rowLocal = i * dofActive + j;
+                                int colLocal = k * dofActive + l;
+                                _KGlobal[rowGlobal, colGlobal] = _KGlobal[rowGlobal, colGlobal] + KElementGlobalCoord[rowLocal, colLocal];
+                            }
+                        }
+                    }
+                }
+
+#if FALSE
                 for (int i = 0; i < element.PositionToGlobalSystemK.Count; i++)
                 {
                     FiniteElement.Position local = element.PositionToGlobalSystemK.ElementAt(i).Key;
@@ -155,7 +195,8 @@ namespace GPC.FEM
                         Console.WriteLine("kGlob[" + global.row + "," + global.col + "] = " + old + " + " + Kelement[local.row, local.col]);
                     }*/
                 }
-                
+#endif
+
             }
             Console.WriteLine("kGlobal System : " + _KGlobal.ToString());
             #endregion
@@ -260,9 +301,13 @@ namespace GPC.FEM
             #endregion
 
             #region CalcResults
-            for (int i = 0; i < Elements.Count; i++)
+            for (int i = 0; i < Elements.Length; i++)
             {
-                Elements.ElementAt(i).CalcResults(nodeDisplacements.ToArray());
+                //select only interested displacements
+                FiniteElement element = Elements[i];
+                int[] pos = new int[element.NrDOFActive * element.GlobalNodesElement.Length];
+                
+                element.CalcResults(nodeDisplacements.ToArray());
             }
             #endregion
         }
@@ -294,7 +339,7 @@ namespace GPC.FEM
         {
             HashSet<int> results = new HashSet<int>();
             int counter = 0;
-            for (int i = 0; i < Nodes.Count; i++)
+            for (int i = 0; i < Nodes.Length; i++)
             {
                 if (Nodes.ElementAt(i).Label == labelNode)
                 {
@@ -308,14 +353,14 @@ namespace GPC.FEM
             return results.ToArray();
         }
 
-        public static int GetPositionInKGlobal(int ID, DOF dof)
+        public int GetPositionInKGlobal(int ID, DOF dof)
         {
             int counter = 0;
-            for (int i = 0; i < Nodes.Count; i++)
+            for (int i = 0; i < Nodes.Length; i++)
             {
                 if (Nodes.ElementAt(i).ID == ID)
                 {
-                    i = Nodes.Count;
+                    i = Nodes.Length;
                 }
                 else
                 {
