@@ -1,4 +1,6 @@
-﻿using System;
+﻿#if FALSE
+
+using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using GPC.Model.FEM;
 using GPC.Model.Sections;
@@ -572,3 +574,5 @@ namespace UnitTest
         }
     }
 }
+
+#endif
