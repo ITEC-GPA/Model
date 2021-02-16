@@ -10,7 +10,7 @@ using MathNet.Numerics.LinearAlgebra;
 using GPC.Geometry;
 using GPC.Model.Elements;
 
-namespace GPC.Model.FEM
+namespace GPC.Model.FEMOld
 {
     /// <summary>
     /// Discrete Kirchhoff Quad  (Batoz, 1982)

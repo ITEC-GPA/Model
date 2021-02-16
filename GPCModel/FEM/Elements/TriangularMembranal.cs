@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using MathNet.Numerics.LinearAlgebra;
 using MathNet.Spatial.Euclidean;
 
-namespace FEM.Elements
+namespace GPC.Model.FEM.Elements
 {
     public class TriangularMembranal : FiniteElement
     {
@@ -14,10 +14,13 @@ namespace FEM.Elements
         double[] _vecYLocal = new double[3]; //versor Y local in Global Coordinate Sys
         double[] _vecZLocal = new double[3]; //versor Z local in Global Coordinate Sys
 
-        public TriangularMembranal(IEnumerable<Node> nodes) : base(nodes)
+        public TriangularMembranal(IEnumerable<Node> nodes, int id) : base(nodes, id)
         {
             //recalled base(nodes)
-            _DofActivePerNode = 3;
+            _DOF[FEMModel.DOF.DX] = true;
+            _DOF[FEMModel.DOF.DY] = true;
+            _DOF[FEMModel.DOF.DZ] = true;
+            //a displacement in Local coordinate plane (Dx, Dy) can be a DX, DY, DZ in Global space!
         }
 
         public override void BuildMatrix()
@@ -41,7 +44,7 @@ namespace FEM.Elements
             double nij = (nodeJ.Z - nodeI.Z) / dij;
 
             double dip = lij * (nodeK.X - nodeI.X) + mij * (nodeK.Y - nodeI.Y) + nij * (nodeK.Z - nodeI.Z);
-            Node nodeP = new Node(nodeI.X + lij * dip, nodeI.Y + mij * dip, nodeI.Z + nij * dip);
+            Node nodeP = new Node(nodeI.X + lij * dip, nodeI.Y + mij * dip, nodeI.Z + nij * dip, -1);
             double dpk = Math.Sqrt(Math.Pow(nodeK.X - nodeI.X, 2.0) + Math.Pow(nodeK.Y - nodeI.Y, 2.0) + Math.Pow(nodeK.Z - nodeI.Z, 2.0) - Math.Pow(dip, 2.0));
 
             double lpk = (nodeK.X - nodeP.X) / dpk;
@@ -100,9 +103,9 @@ namespace FEM.Elements
             Vector3D v12 = new Vector3D(nodeJ.X - nodeI.X, nodeJ.Y - nodeI.Y, nodeJ.Z - nodeI.Z);
             Vector3D v13 = new Vector3D(nodeK.X - nodeI.X, nodeK.Y - nodeI.Y, nodeK.Z - nodeI.Z);
 
-            Node node1 = new Node(0, 0, 0, nodeI.Label); //Origin GlobalNodes.ElementAt(1 - 1);
-            Node node2 = new Node(v12.DotProduct(vecx), v12.DotProduct(vecy), v12.DotProduct(vecz), nodeJ.Label); //Axis y GlobalNodes.ElementAt(2 - 1);
-            Node node3 = new Node(v13.DotProduct(vecx), v13.DotProduct(vecy), v13.DotProduct(vecz), nodeK.Label); //GlobalNodes.ElementAt(3 - 1);
+            Node node1 = new Node(0, 0, 0, nodeI.ID, nodeI.Label); //Origin GlobalNodes.ElementAt(1 - 1);
+            Node node2 = new Node(v12.DotProduct(vecx), v12.DotProduct(vecy), v12.DotProduct(vecz), nodeJ.ID, nodeJ.Label); //Axis y GlobalNodes.ElementAt(2 - 1);
+            Node node3 = new Node(v13.DotProduct(vecx), v13.DotProduct(vecy), v13.DotProduct(vecz), nodeK.ID, nodeK.Label); //GlobalNodes.ElementAt(3 - 1);
 
             LocalNodesElement = new Node[] { node1, node2, node3 };
             #endregion
@@ -183,78 +186,6 @@ namespace FEM.Elements
             Console.WriteLine("KElementLocalCoord = " + KElementLocalCoord.ToString());
             #endregion
 
-            #region StiffnessMatrixInGlobalCoordinates
-            KElementGlobalCoord = DofGlobalToLocal.Transpose() * KElementLocalCoord * DofGlobalToLocal;
-            Console.WriteLine("KElementGlobalCoord = " + KElementLocalCoord.ToString());
-
-            int maxGdlPerNode = Enum.GetNames(typeof(FEMModel.DOF)).Length;
-            if (GlobalNodesElement.Count() * maxGdlPerNode > KElementGlobalCoord.ColumnCount)
-            {
-                //set right dimension of KeGlobal according to max degree of freedom that can be used
-                //KeGlobal actual: UX, UY, UZ foreach node (3 nodes beacause of triangular)
-                for (int i = GlobalNodesElement.Count(); i > 0; i--)
-                {
-                    //Add RX field
-                    KElementGlobalCoord = KElementGlobalCoord.InsertColumn(i * 3 - 1, Vector<double>.Build.Dense(KElementGlobalCoord.RowCount));
-                    KElementGlobalCoord = KElementGlobalCoord.InsertRow(i * 3 - 1, Vector<double>.Build.Dense(KElementGlobalCoord.ColumnCount));
-                    //Add RY field
-                    KElementGlobalCoord = KElementGlobalCoord.InsertColumn(i * 3 - 1, Vector<double>.Build.Dense(KElementGlobalCoord.ColumnCount));
-                    KElementGlobalCoord = KElementGlobalCoord.InsertRow(i * 3 - 1, Vector<double>.Build.Dense(KElementGlobalCoord.ColumnCount));
-                    //Add RZ field
-                    KElementGlobalCoord = KElementGlobalCoord.InsertColumn(i * 3 - 1, Vector<double>.Build.Dense(KElementGlobalCoord.RowCount));
-                    KElementGlobalCoord = KElementGlobalCoord.InsertRow(i * 3 - 1, Vector<double>.Build.Dense(KElementGlobalCoord.ColumnCount));
-                }
-            }
-            Console.WriteLine("KeGlobal with all gld = " + KElementGlobalCoord.ToString());
-            #endregion
-
-            #region LocalStiffnessMatrixInGlobalCoordinatesToStiffnessMatrixOfSystem                
-            PositionToGlobalSystemK = new Dictionary<Position, Position>();
-
-            int[] posGlobal = new int[GlobalNodesElement.Count()]; //First gdl of GlobalNodes(i) are in KGlobal[posGlobal[i],posGlobal[i]]
-            int[] posLocal = new int[LocalNodesElement.Count()]; //First gdl of LocalNodes(i)==GlobalNodes(i) are in KeGlobal[posLocal[i],posLocal[i]]
-            for (int i = 0; i < GlobalNodesElement.Count(); i++)
-            {
-                posGlobal[i] = (GlobalNodesElement.ElementAt(i).ID) * maxGdlPerNode;
-                posLocal[i] = i * maxGdlPerNode;
-                //Console.WriteLine("K[" + posGlobal[i] + "," + posGlobal[i] + "] = k[" + posLocal[i] + "," + posLocal[i] + "]");
-            }
-
-            //create PositionToGlobalK, bind uniquely KeGlobal (stiffness matrix of element in Global coords) to KGlobal (stiffness matrix of entire system)
-            //create also bind with global system result to global element result
-            _positionGlobalDisplElementInGlobalDisplSystemVectorResult = new int[FEMModel.MAXGDLPERNODE * GlobalNodesElement.Length];
-            for (int i = 0; i < GlobalNodesElement.Count(); i++) //calculation for each node i
-            {
-                for (int j = 0; j < maxGdlPerNode; j++) //each node i have maxGdlPerNode degree of freedom
-                {
-                    _positionGlobalDisplElementInGlobalDisplSystemVectorResult[i * FEMModel.MAXGDLPERNODE + j] = posGlobal[i] + j;
-                    for (int k = 0; k < GlobalNodesElement.Count(); k++) //each node i with its degree of freedom should be take in account with other node k. What hap in node k if force is applied in node i?
-                    {
-                        for (int l = 0; l < maxGdlPerNode; l++) //what hap to the degree of freedom of node k?
-                        {
-                            int rowLocal = posLocal[i] + j;
-                            int colLocal = posLocal[k] + l;
-
-                            int rowGlobal = posGlobal[i] + j;
-                            int colGlobal = posGlobal[k] + l;
-                            //Console.WriteLine(iter + " Node " + GlobalNodes.ElementAt(i).ID + " gld " + (FEMModel.GDL)j + " respect Node " + GlobalNodes.ElementAt(k).ID + " gdl " + (FEMModel.GDL)l + "=" + KeGlobal[rowLocal,colLocal]);
-
-                            Position pLoc = new Position(rowLocal, colLocal);
-                            Position pGlob = new Position(rowGlobal, colGlobal);
-                            PositionToGlobalSystemK.Add(pLoc, pGlob);
-                            //Console.WriteLine("kGlobal[" + rowLocal + "," + colLocal + "] -> KGlobal[" + rowGlobal + "," + colGlobal + "]");
-
-                            //Checks
-                            if (rowLocal >= maxGdlPerNode * GlobalNodesElement.Count() || colLocal >= maxGdlPerNode * GlobalNodesElement.Count())
-                            {
-                                throw new IndexOutOfRangeException("index in for-cycle out of range of local matrix");
-                            }
-                        }
-                    }
-                }
-            }
-            Console.WriteLine("PositionToGlobalK dimension : " + PositionToGlobalSystemK.Count);
-            #endregion
         }
 
         public override void BuildF()

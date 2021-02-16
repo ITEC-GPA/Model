@@ -3,19 +3,42 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using GPC.Geometry;
 
-namespace FEM
+namespace GPC.Model.FEM
 {
     /// <summary>
     /// Nodo with unique ID, and X,Y,Z global coordinates
     /// </summary>
-    public class Node
+    public class Node : Point3d
     {
-        public double X { get; set; }
-        public double Y { get; set; }
-        public double Z { get; set; }
-        public int ID { get; set; }
+        #region Variables
+        private int _ID;
+        #endregion
+
+        #region Properties
+        public int ID => _ID;
+
         public string Label { get; set; }
+        public Dictionary<FEMModel.DOF, bool> DOF { get; set; } //used for GlobalSystemMatrix
+
+        public int NrActiveDof
+        {
+            get
+            {
+                int ris = 0;
+                for (int i = 0; i < FEMModel.MAXGDLPERNODE; i++)
+                {
+                    if (DOF[(FEMModel.DOF)i] == true)
+                    {
+                        ris++;
+                    }
+                   
+                }
+                return ris;
+            }
+        }
+        #endregion
 
         /// <summary>
         /// 
@@ -23,23 +46,29 @@ namespace FEM
         /// <param name="X">Global coordinate X</param>
         /// <param name="Y">Global coordinate Y</param>
         /// <param name="Z">Global coordinate Z</param>
-        public Node(double globalX, double globalY, double globalZ, string label = "")
+        public Node(double globalX, double globalY, double globalZ, int ID, string label = "") : base(globalX, globalY, globalZ)
         {
-            X = globalX;
-            Y = globalY;
-            Z = globalZ;
+            _ID = ID;
             Label = label;
+
+            DOF = new Dictionary<FEMModel.DOF, bool>(FEMModel.MAXGDLPERNODE);
+            for (int i = 0; i < FEMModel.MAXGDLPERNODE; i++)
+            {
+                DOF.Add((FEMModel.DOF)i, false);
+            }
+        }
+
+        public Node(int ID, Node node) : this(node.X, node.Y, node.Z, ID, node.Label)
+        {
+            for (int i = 0; i < FEMModel.MAXGDLPERNODE; i++)
+            {
+                DOF[(FEMModel.DOF) i] = node.DOF[(FEMModel.DOF) i];
+            }
         }
 
         public override string ToString()
         {
             return "ID = " + ID + " Label = " + Label + "  X=" + X + " Y=" + Y + " Z=" + Z;
         }
-
-        public bool GeometryEquals(Node other)
-        {
-            if (other.X == X && other.Y == Y && other.Z == Z) { return true; } else { return false; }
-        }
-
     }
 }

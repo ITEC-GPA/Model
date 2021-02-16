@@ -11,7 +11,7 @@ using GPC.Geometry;
 using MathNet.Spatial.Units;
 using System.IO;
 
-namespace GPC.Model.FEM
+namespace GPC.Model.FEMOld
 {
     public class Beam : FEMElement
     {

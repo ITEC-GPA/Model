@@ -9,7 +9,7 @@ using GPC.Geometry;
 
 
 
-namespace GPC.Model.FEM
+namespace GPC.Model.FEMOld
 {
     //8 node Serendipity Element
     public class FEMShapeQuad8 : FEMShape

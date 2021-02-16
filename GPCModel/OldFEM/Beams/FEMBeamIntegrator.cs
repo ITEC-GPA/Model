@@ -10,7 +10,7 @@ using GPC.Model.Sections;
 using GPC.Geometry;
 using GPC.Model.Elements;
 
-namespace GPC.Model.FEM
+namespace GPC.Model.FEMOld
 {
     public class FEMBeamIntegrator : FEMIntegrator
     {

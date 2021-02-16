@@ -1,7 +1,7 @@
 ﻿using GPC.Model.LoadCases;
 using System;
 
-namespace GPC.Model.FEM.Attributes
+namespace GPC.Model.FEMOld.Attributes
 {
     public abstract class Attribute
     {

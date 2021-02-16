@@ -5,18 +5,43 @@ using System.Text;
 using System.Threading.Tasks;
 using MathNet.Numerics.LinearAlgebra;
 
-namespace FEM.Elements
+namespace GPC.Model.FEM.Elements
 {
     /// <summary>
     /// Each finite element should derive from this
     /// </summary>
-    public abstract class FiniteElement
+    public abstract class FiniteElement //: ModelObject //COMMENTATO PERCHE' EQUALS NON FUNZIONA +
     {
-        protected int _DofActivePerNode; //example: for plane stress: UX, UY, UZ -> 3
+        int _ID;
+        protected Dictionary<FEMModel.DOF, bool> _DOF = new Dictionary<FEMModel.DOF, bool>(Enum.GetNames(typeof(FEMModel.DOF)).Length);
 
         protected int[] _positionGlobalDisplElementInGlobalDisplSystemVectorResult; //position of interesting displacements of gdl of element in global displacement vector in all system
         protected double[] _nodeDisplacementGlobalCoordinates;
         protected double[] _nodeDisplacementLocalCoordinates;
+
+
+        /// <summary>
+        /// DOF[degree of freedom] = true if active, false if unactive
+        /// </summary>
+        public Dictionary<FEMModel.DOF, bool> DOF => _DOF;
+
+        /// <summary>
+        /// Nr of degree of freedom active
+        /// </summary>
+        public int NrDOFActive
+        {
+            get
+            {
+                int counter = 0;
+                for (int i = 0; i < DOF.Count; i++)
+                {
+                    if (DOF[(FEMModel.DOF)i] == true) {
+                        counter++;
+                    }
+                }
+                return counter;
+            }
+        }
 
         /// <summary>
         /// Node with in gloabal coordinate system
@@ -47,52 +72,22 @@ namespace FEM.Elements
         /// <summary>
         /// ke = int [B]^T [D] [B] dV (stiffness matrix in local coordinates)
         /// </summary>
-        public Matrix<double> KElementLocalCoord { get; set; }
-
-        /// <summary>
-        /// Stiffness Matrix of element in global coordinates, KeGlobal = LocalToGlobal^T [KeLocal] [LocalToGlobal])
-        /// </summary>
-        public Matrix<double> KElementGlobalCoord { get; set; }
-
-        /// <summary>
-        /// Bind uniquely KeGlobal (stiffness matrix of element in Global coords) to KGlobal (stiffness matrix of entire system). example: PositionToGlobal<0,0> goes to 5,5 of global system matrix. Or KeGlobal[0,0] -> goes to KGlobalsystemMatix[5,5] 
-        /// </summary>
-        public Dictionary<Position,Position> PositionToGlobalSystemK { get; set; }
-
-        /// <summary>
-        /// position of interesting displacements of gdl of element in global displacement vector in all system
-        /// </summary>
-        //public int[] PositionGlobalDisplElementInGlobalDisplSystemVectorResult => _positionGlobalDisplElementInGlobalDisplSystemVectorResult;        
-
-        /// <summary>
-        /// Used as pointer in matrices
-        /// </summary>
-        public struct Position
-        {
-            public int row;
-            public int col;
-
-            public Position(int r, int c)
-            {
-                row = r;
-                col = c;
-            }
-
-            public override string ToString()
-            {
-                return "row = " + row + " column = " + col;
-            }
-        }
-
-        
+        public Matrix<double> KElementLocalCoord { get; set; }        
 
         /// <summary>
         /// Constructor 
         /// </summary>
         /// <param name="nodes">Set the nodes of element</param>
-        public FiniteElement(IEnumerable<Node> nodes)
+        public FiniteElement(IEnumerable<Node> nodes, int id)
         {
+            _ID = id;
             GlobalNodesElement = nodes.ToArray();
+            _DOF[FEMModel.DOF.DX] = false;
+            _DOF[FEMModel.DOF.DY] = false;
+            _DOF[FEMModel.DOF.DZ] = false;
+            _DOF[FEMModel.DOF.RX] = false;
+            _DOF[FEMModel.DOF.RY] = false;
+            _DOF[FEMModel.DOF.RZ] = false;
         }
 
         /// <summary>
@@ -109,7 +104,7 @@ namespace FEM.Elements
         {
             #region SelectDisplacementsInGlobalCoordinates
             Console.WriteLine("Displacement in Global coordinates:");
-            _nodeDisplacementGlobalCoordinates = new double[FEMModel.MAXGDLPERNODE * GlobalNodesElement.Length];
+            _nodeDisplacementGlobalCoordinates = new double[NrDOFActive * GlobalNodesElement.Length];
             for (int i = 0; i < _positionGlobalDisplElementInGlobalDisplSystemVectorResult.Length; i++)
             {
                 Console.WriteLine(Displacements[_positionGlobalDisplElementInGlobalDisplSystemVectorResult[i]]);

@@ -9,7 +9,7 @@ using System.IO;
 using GPC.Model.Sections;
 using GPC.Model.Elements;
 
-namespace GPC.Model.FEM
+namespace GPC.Model.FEMOld
 {
     public abstract class FEMPlateIntegrator : FEMIntegrator
     {

@@ -12,7 +12,7 @@ using GPC.Model.Elements.Glasses;
 using GPC.Geometry;
 using GPC.Model.Materials;
 
-namespace GPC.Model.FEM
+namespace GPC.Model.FEMOld
 {
     public class FEMPlateIntegratorDKQTLG : FEMPlateIntegrator
     {

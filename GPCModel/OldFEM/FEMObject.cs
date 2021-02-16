@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace GPC.Model.FEM
+namespace GPC.Model.FEMOld
 {
     public class FEMObject : ModelObject
     {

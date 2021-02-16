@@ -10,7 +10,7 @@ using GPC.Model.Sections;
 using GPC.Model.Elements;
 using GPC.Geometry;
 
-namespace GPC.Model.FEM
+namespace GPC.Model.FEMOld
 {
     public class FEMPlateIntegratorDKQ : FEMPlateIntegrator
     {

@@ -11,7 +11,7 @@ using GPC.Geometry;
 using GPC.Model.Elements;
 using GPC.Model.Elements.Glasses;
 
-namespace GPC.Model.FEM
+namespace GPC.Model.FEMOld
 {
     /// <summary>
     /// Discrete Kirchhoff Quad Triplex Laminated Glass (Ivanov, 2015)

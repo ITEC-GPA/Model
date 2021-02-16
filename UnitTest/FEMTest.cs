@@ -1,19 +1,12 @@
-﻿#if FALSE
-
-using System;
+﻿using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System.Collections.Generic;
+using GPC.Model.FEM.Elements;
 using GPC.Model.FEM;
-using GPC.Model.Sections;
-using GPC.Model.Materials;
-using GPC.Model;
-using GPC.Geometry;
-using MathNet.Numerics.LinearAlgebra;
-using System.IO;
-using GPC.Model.Elements;
 
 namespace UnitTest
 {
-
+#if FALSE
     [TestClass]
     public class FEMTestPlates
     {
@@ -573,6 +566,36 @@ namespace UnitTest
             //Assert.IsTrue((DX - DXexpected) < toll && (DY - DYexpected) < toll);
         }
     }
-}
+    #endif
 
-#endif
+    [TestClass]
+    public class FEMTest
+    {
+        [TestMethod]
+        public void FEMTest1() { 
+                
+            List<Node> nodesPlate1 = new List<Node>();
+            nodesPlate1.Add(new Node(0, 0, 0, -1, "1"));
+            nodesPlate1.Add(new Node(100, 0, 0, -1, "2"));
+            nodesPlate1.Add(new Node(0, 100, 0, -1, "3"));
+
+            List<Node> nodesPlate2 = new List<Node>();
+            nodesPlate2.Add(new Node(100, 0, 0, -1, "2"));
+            nodesPlate2.Add(new Node(0, 100, 0, -1, "3"));
+            nodesPlate2.Add(new Node(100, 100, 0, -1, "4"));
+
+            List<Node> nodesVoidElement = new List<Node>();
+            nodesVoidElement.Add(new Node(0, 100, 0, -1, "3"));
+
+            List<FiniteElement> elements = new List<FiniteElement>();
+
+            elements.Add(new TriangularMembranal(nodesPlate1, 1));
+            elements.Add(new TriangularMembranal(nodesPlate2, 2));
+            //elements.Add(new VoidElement(nodesVoidElement));
+
+            FEMModel fem = new FEMModel(elements.ToArray());
+
+            //get results
+        }
+    }
+}

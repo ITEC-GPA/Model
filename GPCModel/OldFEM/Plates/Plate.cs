@@ -1,12 +1,12 @@
 ﻿using GPC.Geometry;
 using GPC.Model.Elements;
-using GPC.Model.FEM.Attributes;
+using GPC.Model.FEMOld.Attributes;
 using GPC.Model.Results;
 using System;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
 
-namespace GPC.Model.FEM
+namespace GPC.Model.FEMOld
 {
     public abstract class Plate : FEMElement, ISerializable, IEquatable<Plate>, ICloneable
     {

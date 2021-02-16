@@ -6,7 +6,7 @@ using System.Runtime.Serialization;
 using MathNet.Numerics.LinearAlgebra;
 using GPC.Geometry;
 
-namespace GPC.Model.FEM
+namespace GPC.Model.FEMOld
 {
     public abstract class FEMElement : Element
     {

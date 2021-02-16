@@ -6,7 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using GPC.Geometry;
 
-namespace GPC.Model.FEM
+namespace GPC.Model.FEMOld
 {
     public class FEMNode : FEMObject
     {

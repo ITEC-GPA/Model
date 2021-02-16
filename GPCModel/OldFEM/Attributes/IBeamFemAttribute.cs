@@ -1,6 +1,6 @@
 ﻿
 
-namespace GPC.Model.FEM.Attributes
+namespace GPC.Model.FEMOld.Attributes
 {
     public interface IBeamFemAttribute
     {

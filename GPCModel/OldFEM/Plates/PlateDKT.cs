@@ -11,7 +11,7 @@ using GPC.Geometry;
 using GPC.Model.Elements;
 using GPC.Model.Results;
 
-namespace GPC.Model.FEM
+namespace GPC.Model.FEMOld
 {
     /// <summary>
     /// Discrete Kirchhoff Triangle  (Batoz, 1982)
