@@ -66,8 +66,10 @@
     <Compile Include="Combinations\Combination.cs" />
     <Compile Include="Combinations\CombinationAsce.cs" />
     <Compile Include="Combinations\CombinationEn.cs" />
+    <Compile Include="Elements\ElementProperty\BrickProperty.cs" />
     <Compile Include="Elements\ElementProperty\ElementProperty.cs" />
     <Compile Include="Elements\Element.cs" />
+    <Compile Include="Elements\ElementProperty\IBrickProperty.cs" />
     <Compile Include="Elements\ElementProperty\InterlayerProperty.cs" />
     <Compile Include="Elements\ElementProperty\IPlateProperty.cs" />
     <Compile Include="Elements\ElementProperty\LaminatedGlassProperty.cs" />
