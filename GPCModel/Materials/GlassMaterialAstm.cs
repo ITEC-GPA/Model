@@ -44,7 +44,7 @@ namespace GPC.Model.Materials
         /// <param name="density">Density of the material [T/mm^3]</param>
         /// <param name="alfaThermalExpansion">Alfa linear thermal expansion coefficient</param>
         public GlassMaterialAstm(string name, double elasticModulus, double poisson, double psiSurface, double nGlassCoefficient, double surfaceBaseStress, double surfaceBaseEdgeStress, double probabiltyOfBreakage, double density, double alfaThermalExpansion)
-            : this(name, elasticModulus, poisson, density, psiSurface, nGlassCoefficient, surfaceBaseStress, surfaceBaseEdgeStress, probabiltyOfBreakage, alfaThermalExpansion, Guid.NewGuid())
+            : this(name, elasticModulus, poisson, psiSurface, nGlassCoefficient, surfaceBaseStress, surfaceBaseEdgeStress, probabiltyOfBreakage, density, alfaThermalExpansion, Guid.NewGuid())
         {
 
         }
