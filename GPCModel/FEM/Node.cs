@@ -11,18 +11,18 @@ namespace GPC.Model.FEM
     /// <summary>
     /// Nodo with unique ID, and X,Y,Z global coordinates
     /// </summary>
-    public class Node : Point3d, IEquatable<Node>
+    public class Node : IEquatable<Node>
     {
         #region Variables
         private int _ID;
-
-        private List<LoadCaseAttribute> _attributesLoadCase;
-        private List<FreedomCaseAttribute> _attributesFreedomCase;
+        private Point3d _position;
+        private List<INodeFemAttribute> _attributesLoadCase;
+        private List<IFreedomCaseAttribute> _attributesFreedomCase;
         #endregion
 
         #region Properties
         public int ID => _ID;
-
+        private Point3d Position => _position;
         public string Label { get; set; }
         public Dictionary<DOF, bool> DOF { get; set; } //used for GlobalSystemMatrix
 
@@ -45,10 +45,10 @@ namespace GPC.Model.FEM
         #endregion
 
         public Node(Point3d point, int ID, string label = "") 
-            : base(point)
         {
             _ID = ID;
             Label = label;
+            _position = point;
             
             DOF = new Dictionary<DOF, bool>(FEMModel.MAXGDLPERNODE);
             for (int i = 0; i < FEMModel.MAXGDLPERNODE; i++)
