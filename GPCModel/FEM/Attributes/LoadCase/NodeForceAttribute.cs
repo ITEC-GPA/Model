@@ -1,39 +1,128 @@
-﻿using GPC.Geometry;
-using GPC.Model.LoadCases;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Runtime.Serialization;
+using GPC.Geometry;
+using GPC.Model.LoadCases;
 
 namespace GPC.Model.FEM.Attributes
 {
-    public sealed class NodeForceAttribute : LoadCaseAttribute, INodeFemAttribute, IEquatable<NodeForceAttribute>
+    [Serializable]
+    public sealed class NodeForceAttribute : LoadCaseAttribute, INodeLoadCaseAttribute, IEquatable<NodeForceAttribute>, ISerializable
     {
-        private double _fX;
-        private double _fY;
-        private double _fZ;
-        private double _mX;
-        private double _mY;
-        private double _mZ;
-        private CoordinateSystem _cSys;
+        private double _f1;
+        private double _f2;
+        private double _f3;
+        private double _m1;
+        private double _m2;
+        private double _m3;
+        private CoordinateSystem _coordinateSystem;
 
-        public double Fx => _fX;
-        public double Fy => _fY;
-        public double Fz => _fZ;
-        public double Mx => _mX;
-        public double My => _mY;
-        public double Mz => _mZ;
+        public double F1 => _f1;
+        public double F2 => _f2;
+        public double F3 => _f3;
+        public double M1 => _m1;
+        public double M2 => _m2;
+        public double M3 => _m3;
+        public CoordinateSystem CoordinateSystem => _coordinateSystem;
 
-        public NodeForceAttribute(LoadCase loadCase, CoordinateSystem cSys, double fx, double fy, double fz, double mx, double my, double mz) : base(loadCase)
+        public NodeForceAttribute(LoadCase loadCase, CoordinateSystem cSys, double f1, double f2, double f3, double m1, double m2, double m3)
+            : this (loadCase, cSys, f1, f2, f3, m1, m2, m3, string.Empty)
         {
-            _fX = fx;
-            _fY = fy;
-            _fZ = fz;
-            _mX = mx;
-            _mY = my;
-            _mZ = mz;
-            _cSys = cSys;
+
         }
+
+        public NodeForceAttribute(LoadCase loadCase, CoordinateSystem cSys, double f1, double f2, double f3, double m1, double m2, double m3, string name) 
+            : base(loadCase, name)
+        {
+            _f1 = f1;
+            _f2 = f2;
+            _f3 = f3;
+            _m1 = m1;
+            _m2 = m2;
+            _m3 = m3;
+            _coordinateSystem = cSys;
+        }
+
+        public NodeForceAttribute(SerializationInfo info, StreamingContext context) : base(info, context)
+        {
+            _f1 = info.GetDouble("F1");
+            _f2 = info.GetDouble("F2");
+            _f3 = info.GetDouble("F3");
+            _m1 = info.GetDouble("M1");
+            _m2 = info.GetDouble("M2");
+            _m3 = info.GetDouble("M3");
+            _coordinateSystem = (CoordinateSystem)info.GetValue("CoordinateSystem", typeof(CoordinateSystem));
+        }
+
+        public override void GetObjectData(SerializationInfo info, StreamingContext context)
+        {
+            base.GetObjectData(info, context);
+            info.AddValue("F1", _f1);
+            info.AddValue("F2", _f2);
+            info.AddValue("F3", _f3);
+            info.AddValue("M1", _m1);
+            info.AddValue("M2", _m2);
+            info.AddValue("M3", _m3);
+            info.AddValue("CoordinateSystem", _coordinateSystem);
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (ReferenceEquals(this, obj))
+                return true;
+
+            return Equals(obj as NodeForceAttribute);
+        }
+
+
+        public bool Equals(NodeForceAttribute other)
+        {
+            if (ReferenceEquals(this, other))
+                return true;
+
+            return !(other is null) && other.Equals(other._coordinateSystem)
+                                    && other.Equals(other._f1)
+                                    && other.Equals(other._f2)
+                                    && other.Equals(other._f3)
+                                    && other.Equals(other._m1)
+                                    && other.Equals(other._m2)
+                                    && other.Equals(other._m3)
+                                    && base.Equals(other);
+        }
+
+        public override int GetHashCode()
+        {
+            int hashCode = 23;
+            hashCode = hashCode * -17 + base.GetHashCode();
+            hashCode = hashCode * -17 + _f1.GetHashCode();
+            hashCode = hashCode * -17 + _f2.GetHashCode();
+            hashCode = hashCode * -17 + _f3.GetHashCode();
+            hashCode = hashCode * -17 + _m1.GetHashCode();
+            hashCode = hashCode * -17 + _m2.GetHashCode();
+            hashCode = hashCode * -17 + _m3.GetHashCode();
+            hashCode = hashCode * -17 + EqualityComparer<CoordinateSystem>.Default.GetHashCode(_coordinateSystem);
+            return hashCode;
+        }
+
+
+
+
+        #region Override Operator
+        public static bool operator ==(NodeForceAttribute obj1, NodeForceAttribute obj2)
+        {
+            if (ReferenceEquals(obj1, obj2))
+                return true;
+
+            if (obj1 is null || obj2 is null)
+                return false;
+
+            return obj1.Equals(obj2);
+        }
+
+        public static bool operator !=(NodeForceAttribute obj1, NodeForceAttribute obj2)
+        {
+            return !(obj1 == obj2);
+        }
+        #endregion
     }
 }

@@ -8,18 +8,21 @@ using GPC.Model.FEM.FiniteElements;
 
 namespace GPC.Model.FEM
 {
-    public enum DOF
-    {
-        DX,   //0
-        DY,   //1
-        DZ,   //2
-        RX,   //3
-        RY,   //4
-        RZ    //5
-    }
 
     public class FEMModel
     {
+
+        public enum DOF
+        {
+            DX,   //0
+            DY,   //1
+            DZ,   //2
+            RX,   //3
+            RY,   //4
+            RZ,   //5
+        }
+
+
         public static int MAXGDLPERNODE = Enum.GetNames(typeof(DOF)).Length;
 
         Matrix<double> _KGlobal;

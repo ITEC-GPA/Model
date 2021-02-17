@@ -6,6 +6,8 @@ using System.Threading.Tasks;
 
 namespace GPC.Model.FEM
 {
+
+#if false
     public class Polynome {
         IEnumerable<Polynome1D> _polynomes;
 
@@ -195,4 +197,6 @@ namespace GPC.Model.FEM
             return s;
         }
     }
+
+#endif
 }

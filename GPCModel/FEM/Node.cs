@@ -16,15 +16,20 @@ namespace GPC.Model.FEM
         #region Variables
         private int _ID;
         private Point3d _position;
-        private List<INodeFemAttribute> _attributesLoadCase;
-        private List<IFreedomCaseAttribute> _attributesFreedomCase;
+
+
+        private List<INodeLoadCaseAttribute> _attributesLoadCase;
+
+        private List<INodeFreedomCaseAttribute> _attributesFreedomCase;
+
+
         #endregion
 
         #region Properties
         public int ID => _ID;
         private Point3d Position => _position;
         public string Label { get; set; }
-        public Dictionary<DOF, bool> DOF { get; set; } //used for GlobalSystemMatrix
+        public Dictionary<FEMModel.DOF, bool> DOF { get; set; } //used for GlobalSystemMatrix
 
         public int NrActiveDof
         {
@@ -33,7 +38,7 @@ namespace GPC.Model.FEM
                 int ris = 0;
                 for (int i = 0; i < FEMModel.MAXGDLPERNODE; i++)
                 {
-                    if (DOF[(DOF)i] == true)
+                    if (DOF[(FEMModel.DOF)i] == true)
                     {
                         ris++;
                     }
@@ -50,11 +55,14 @@ namespace GPC.Model.FEM
             Label = label;
             _position = point;
             
-            DOF = new Dictionary<DOF, bool>(FEMModel.MAXGDLPERNODE);
+            DOF = new Dictionary<FEMModel.DOF, bool>(FEMModel.MAXGDLPERNODE);
             for (int i = 0; i < FEMModel.MAXGDLPERNODE; i++)
             {
-                DOF.Add((DOF)i, false);
+                DOF.Add((FEMModel.DOF)i, false);
             }
+
+            _attributesLoadCase = new List<INodeLoadCaseAttribute>();
+            _attributesFreedomCase = new List<INodeFreedomCaseAttribute>();
         }
 
         public Node(double X, double Y, double Z, int id, string label="") : this(new Point3d(X, Y, Z), id, label)
@@ -72,9 +80,14 @@ namespace GPC.Model.FEM
             return "ID = " + ID + " Label = " + Label + "  X=" + X + " Y=" + Y + " Z=" + Z;
         }
 
-        public void AddAttribute(Attributes.INodeFemAttribute attribute)
+        public void AddAttribute(INodeFreedomCaseAttribute attribute)
         {
-            _attributes.Add(attribute);
+            _attributesFreedomCase.Add(attribute);
+        }
+
+        public void AddAttribute(INodeLoadCaseAttribute attribute)
+        {
+            _attributesLoadCase.Add(attribute);
         }
 
         public override bool Equals(object obj)
@@ -86,7 +99,7 @@ namespace GPC.Model.FEM
                    _z == node._z &&
                    _ID == node._ID &&
                    Label == node.Label &&
-                   EqualityComparer<Dictionary<DOF, bool>>.Default.Equals(DOF, node.DOF);
+                   EqualityComparer<Dictionary<FEM.FEMModel.DOF, bool>>.Default.Equals(DOF, node.DOF);
         }
 
         public override int GetHashCode()

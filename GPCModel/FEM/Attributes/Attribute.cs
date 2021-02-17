@@ -1,28 +1,21 @@
-﻿using GPC.Model.LoadCases;
-using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System;
 using System.Runtime.Serialization;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace GPC.Model.FEM.Attributes
 {
-    public abstract class Attribute : ModelObject
+    [Serializable]
+    public abstract class Attribute : ModelObject, ISerializable
     {
-        protected Attribute()
+
+
+        protected Attribute(Guid guid, string name) 
+            : base(guid, name)
         {
+
         }
 
-        protected Attribute(Guid guid) : base(guid)
-        {
-        }
-
-        protected Attribute(Guid guid, string name) : base(guid, name)
-        {
-        }
-
-        protected Attribute(SerializationInfo info, StreamingContext context) : base(info, context)
+        protected Attribute(SerializationInfo info, StreamingContext context) 
+            : base(info, context)
         {
         }
 
@@ -40,7 +33,25 @@ namespace GPC.Model.FEM.Attributes
         {
             base.GetObjectData(info, context);
         }
+
+
+
+        #region Override Operator
+        public static bool operator ==(Attribute obj1, Attribute obj2)
+        {
+            if (ReferenceEquals(obj1, obj2))
+                return true;
+
+            if (obj1 is null || obj2 is null)
+                return false;
+
+            return obj1.Equals(obj2);
+        }
+
+        public static bool operator !=(Attribute obj1, Attribute obj2)
+        {
+            return !(obj1 == obj2);
+        } 
+        #endregion
     }
 }
-
-
