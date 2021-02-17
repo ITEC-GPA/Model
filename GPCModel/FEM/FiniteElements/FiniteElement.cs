@@ -3,28 +3,27 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using MathNet.Numerics.LinearAlgebra;
+using mnl = MathNet.Numerics.LinearAlgebra;
 
 namespace GPC.Model.FEM.FiniteElements
 {
     /// <summary>
     /// Each finite element should derive from this
     /// </summary>
-    public abstract class FiniteElement //: ModelObject //COMMENTATO PERCHE' EQUALS NON FUNZIONA CORRETTAMENTE SE DERIVATO DA ModelObject
+    public abstract class FiniteElement : ModelObject
     {
         #region Variables
         protected int _ID;
-
         protected double[] _vecXLocal = new double[3]; //versor X local in Global Coordinate Sys
         protected double[] _vecYLocal = new double[3]; //versor Y local in Global Coordinate Sys
         protected double[] _vecZLocal = new double[3]; //versor Z local in Global Coordinate Sys
 
         protected Dictionary<DOF, bool> _DOF = new Dictionary<DOF, bool>(Enum.GetNames(typeof(DOF)).Length);
-
-        protected Matrix<double> _dofGlobalToLocal;
-        protected Matrix<double> _kElementLocalCoord;
-        protected Matrix<double> _b;
-        protected Matrix<double> _d;
+        
+        protected mnl.Matrix<double> _dofGlobalToLocal;
+        protected mnl.Matrix<double> _kElementLocalCoord;
+        protected mnl.Matrix<double> _b;
+        protected mnl.Matrix<double> _d;
         #endregion
 
 
@@ -85,22 +84,22 @@ namespace GPC.Model.FEM.FiniteElements
         /// <summary>
         /// used for KeGlobal = DofGlobalToLocal^T [KeLocal] [DofGlobaltoLocal] or for UlocalCoord = DofGlobalToLocal UglobalCoord; NOTE: DofLocalToGlobal = DofGlobalToLocal^TRASPOSTE
         /// </summary>
-        public Matrix<double> DofGlobalToLocal => _dofGlobalToLocal;
+        public mnl.Matrix<double> DofGlobalToLocal => _dofGlobalToLocal;
 
         /// <summary>
         /// B : derivative of ShapeFunctions, need for epsilon = [B] * q with q = node displacements vector
         /// </summary>
-        public Matrix<double> B => _b;
+        public mnl.Matrix<double> B => _b;
 
         /// <summary>
         /// sigma = [D] * epsilon
         /// </summary>
-        public Matrix<double> D => _d;
+        public mnl.Matrix<double> D => _d;
 
         /// <summary>
         /// ke = int [B]^T [D] [B] dV (stiffness matrix in local coordinates)
         /// </summary>
-        public Matrix<double> KElementLocalCoord => _kElementLocalCoord;
+        public mnl.Matrix<double> KElementLocalCoord => _kElementLocalCoord;
         #endregion
 
         #region Constructor
@@ -109,10 +108,10 @@ namespace GPC.Model.FEM.FiniteElements
         /// </summary>
         /// <param name="nodes">Set the nodes of element</param>
         /// <param name="id">id of element</param>
-        public FiniteElement(IEnumerable<Node> nodes, int id)
+        public FiniteElement(Node[] nodes, int id)
         {
             _ID = id;
-            GlobalNodesElement = nodes.ToArray();
+            GlobalNodesElement = nodes;
             _DOF[FEM.DOF.DX] = false;
             _DOF[FEM.DOF.DY] = false;
             _DOF[FEM.DOF.DZ] = false;

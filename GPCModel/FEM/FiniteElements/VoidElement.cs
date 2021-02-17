@@ -11,7 +11,7 @@ namespace GPC.Model.FEM.FiniteElements
     public class VoidElement : FiniteElement
     {
 
-        public VoidElement(IEnumerable<Node> nodes, int id) : base(nodes, id)
+        public VoidElement(Node[] nodes, int id) : base(nodes, id)
         {
             //recalled base(nodes)
             _DOF[FEM.DOF.DX] = true;

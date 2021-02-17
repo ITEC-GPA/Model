@@ -8,9 +8,9 @@ using MathNet.Spatial.Euclidean;
 
 namespace GPC.Model.FEM.FiniteElements
 {
-    public class TriangularMembranal : FiniteElement
+    public class TriangularMembranal : FiniteElement, IEquatable<TriangularMembranal>
     {
-        public TriangularMembranal(IEnumerable<Node> nodes, int id) : base(nodes, id)
+        public TriangularMembranal(Node[] nodes, int id) : base(nodes, id)
         {
             //recalled base(nodes)
             _DOF[FEM.DOF.DX] = true;
@@ -188,6 +188,27 @@ namespace GPC.Model.FEM.FiniteElements
         {
             // implement force equivalent to node due to prestress, or temperature etc
             throw new NotImplementedException();
+        }
+
+        public override bool Equals(object obj)
+        {
+            return obj is TriangularMembranal membranal &&
+                   base.Equals(obj) &&
+                   _ID == membranal._ID &&
+                   EqualityComparer<Node[]>.Default.Equals(GlobalNodesElement, membranal.GlobalNodesElement);
+        }
+
+        public bool Equals(TriangularMembranal other)
+        {
+            return Equals((object)other);
+        }
+        public override int GetHashCode()
+        {
+            int hashCode = -125827218;
+            hashCode = hashCode * -1521134295 + base.GetHashCode();
+            hashCode = hashCode * -1521134295 + _ID.GetHashCode();
+            hashCode = hashCode * -1521134295 + EqualityComparer<Node[]>.Default.GetHashCode(GlobalNodesElement);
+            return hashCode;
         }
     }
 }

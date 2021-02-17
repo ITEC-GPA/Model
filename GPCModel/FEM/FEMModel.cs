@@ -71,18 +71,19 @@ namespace GPC.Model.FEM
                                 node.DOF[(DOF)k] = true;
                             }
 
-                            //save old DOF due to other element
+                            //Merge old DOF due to other element
                             if (nodes.Single().DOF[(DOF)k] == true)
                             {
                                 node.DOF[(DOF)k] = true;
                             }
                         }
 
-                        //Add Attribute of Duplicate node in original node
+                        //Merge Attribute of node in other element in the node
 
                         //update the HashSet
                         nodesModel.Remove(nodes.Single());
-                        nodesModel.Add(new Node(ID,node));
+                        node.SetID(ID);
+                        nodesModel.Add(node);
                     }
                     else
                     {
@@ -93,7 +94,8 @@ namespace GPC.Model.FEM
                                 node.DOF[(DOF)k] = true;
                             }
                         }
-                        nodesModel.Add(new Node(iter,node));
+                        node.SetID(iter);
+                        nodesModel.Add(node);
                         iter++;
                     }
                 }
@@ -112,22 +114,13 @@ namespace GPC.Model.FEM
                 //check if some node need to be changed
                 for (int j = 0; j < inputElements[i].GlobalNodesElement.Count(); j++)
                 {
-                    /*var nodes = Nodes.Where(x => x == inputElements[i].GlobalNodesElement[j]).ToList();
-                    if (nodes.Count() == 0)
-                    {
-                        //the node in this element shiuld be updated:
-                        //select the right note updated
-                        Node n = inputElements.ElementAt(i).GlobalNodesElement.ElementAt(j);
-                        Node rightNode = Nodes.Where(x => x.X == n.X && x.Y == n.Y && x.Z == n.Z).Single();
-                        inputElements.ElementAt(i).GlobalNodesElement[j] = rightNode;
-                    }*/
                     var nodes = Nodes.Where(x => x == inputElements[i].GlobalNodesElement[j]).ToList();
                     if (nodes.Count == 0 || nodes.Count > 1)
                     {
                         throw new Exception("Something wrong with nodes");
                     } else
                     {
-                        inputElements.ElementAt(i).GlobalNodesElement[j] = nodes[0];
+                        inputElements[i].GlobalNodesElement[j] = nodes[0];
                     }
                 }
                 elementsModel.Add(inputElements[i]);
