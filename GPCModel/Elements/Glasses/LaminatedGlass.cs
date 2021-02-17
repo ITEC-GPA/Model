@@ -13,9 +13,9 @@ namespace GPC.Model.Elements.Glasses
     {
         #region Variables
 
-        private readonly MonolithicGlass[] _monolithicGlasses;
+        private MonolithicGlass[] _monolithicGlasses;
 
-        private readonly Interlayer[] _interlayers;
+        private Interlayer[] _interlayers;
 
         #endregion Variables
 

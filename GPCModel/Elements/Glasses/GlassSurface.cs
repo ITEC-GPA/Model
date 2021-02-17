@@ -6,7 +6,7 @@ using GPC.Model.Loads;
 
 namespace GPC.Model.Elements.Glasses
 {
-    public sealed class GlassSurface : Element, IEquatable<GlassSurface>
+    public class GlassSurface : Element
     {
         #region VARIABLES
 
@@ -23,7 +23,13 @@ namespace GPC.Model.Elements.Glasses
 
         #region PUBLIC CONSTRUCTORS
 
-        public GlassSurface(Glass glass, Shape shape, Guid guid)
+        public GlassSurface(Shape shape)
+            : base(Guid.NewGuid())
+        {
+            this._shape = shape;
+        }
+
+        public GlassSurface(Shape shape, Guid guid)
             : base(guid)
         {
             this._shape = shape;
@@ -34,7 +40,6 @@ namespace GPC.Model.Elements.Glasses
             : base(info, context)
         {
             _shape = (Shape)info.GetValue("Shape", typeof(Shape));
-            throw new NotSupportedException();
         }
 
         #endregion
@@ -45,21 +50,16 @@ namespace GPC.Model.Elements.Glasses
         {
             base.GetObjectData(info, context);
             info.AddValue("Shape", _shape);
-            throw new NotSupportedException();
-        }
-
-        public bool Equals(GlassSurface other)
-        {
-            if (ReferenceEquals(this, other))
-                return true;
-
-            return !(other is null) && other._shape.Equals(_shape)
-                                    && base.Equals(other);
         }
 
         public override bool Equals(object obj)
         {
-            return Equals(obj as GlassSurface);
+            if (ReferenceEquals(this, obj))
+                return true;
+
+            GlassSurface gs = obj as GlassSurface;
+
+            return !(gs is null) && gs._shape.Equals(_shape) && base.Equals(gs);
         }
 
         public override int GetHashCode()
