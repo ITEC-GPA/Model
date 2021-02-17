@@ -91,7 +91,7 @@ namespace GPC.Model.Elements.Glasses
             if (ReferenceEquals(this, obj))
                 return true;
 
-            return base.Equals(obj as MonolithicGlass);
+            return Equals(obj as MonolithicGlass);
         }
 
         public override int GetHashCode()

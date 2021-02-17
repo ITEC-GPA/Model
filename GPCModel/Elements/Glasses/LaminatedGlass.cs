@@ -9,13 +9,13 @@ namespace GPC.Model.Elements.Glasses
     /// Laminated glass. This represent a multilayer glass panel. Between each layer there is an interlayer
     /// </summary>
     [Serializable]
-    public class LaminatedGlass : Glass, IGlassPanel, IEquatable<LaminatedGlass>
+    public sealed class LaminatedGlass : Glass, IGlassPanel, IEquatable<LaminatedGlass>
     {
         #region Variables
 
-        protected readonly MonolithicGlass[] _monolithicGlasses;
+        private readonly MonolithicGlass[] _monolithicGlasses;
 
-        protected readonly Interlayer[] _interlayers;
+        private readonly Interlayer[] _interlayers;
 
         #endregion Variables
 
@@ -94,7 +94,7 @@ namespace GPC.Model.Elements.Glasses
 
         public override bool Equals(object obj)
         {
-            return base.Equals(obj as LaminatedGlass);
+            return Equals(obj as LaminatedGlass);
         }
 
         public override int GetHashCode()

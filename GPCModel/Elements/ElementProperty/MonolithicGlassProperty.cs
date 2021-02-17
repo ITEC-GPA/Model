@@ -50,7 +50,7 @@ namespace GPC.Model.Elements
             if (ReferenceEquals(this, obj))
                 return true;
 
-            return base.Equals(obj as MonolithicGlassProperty);
+            return Equals(obj as MonolithicGlassProperty);
         }
 
         public override int GetHashCode()

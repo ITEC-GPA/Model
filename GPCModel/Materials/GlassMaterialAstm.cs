@@ -135,7 +135,7 @@ namespace GPC.Model.Materials
         {
             if (ReferenceEquals(this, obj))
                 return true;
-            return base.Equals(obj as GlassMaterialAstm);
+            return Equals(obj as GlassMaterialAstm);
         }
 
         public override int GetHashCode()
