@@ -90,6 +90,7 @@
     <Compile Include="Elements\Rebar.cs" />
     <Compile Include="Elements\Glasses\TripleInsulatingGlass.cs" />
     <Compile Include="Elements\Restrain\Restrain.cs" />
+    <Compile Include="FEM\Attributes\Attributes.cs" />
     <Compile Include="FEM\Costrain\Costrain.cs" />
     <Compile Include="FEM\FiniteElements\FiniteElement.cs" />
     <Compile Include="FEM\Node.cs" />

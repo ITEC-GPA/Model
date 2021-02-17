@@ -4,16 +4,20 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using GPC.Geometry;
+using GPC.Model.FEM.Attributes;
 
 namespace GPC.Model.FEM
 {
     /// <summary>
     /// Nodo with unique ID, and X,Y,Z global coordinates
     /// </summary>
-    public class Node : Point3d
+    public class Node : Point3d, IEquatable<Node>
     {
         #region Variables
         private int _ID;
+
+        private List<LoadCaseAttribute> _attributesLoadCase;
+        private List<FreedomCaseAttribute> _attributesFreedomCase;
         #endregion
 
         #region Properties
@@ -40,17 +44,12 @@ namespace GPC.Model.FEM
         }
         #endregion
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="X">Global coordinate X</param>
-        /// <param name="Y">Global coordinate Y</param>
-        /// <param name="Z">Global coordinate Z</param>
-        public Node(double globalX, double globalY, double globalZ, int ID, string label = "") : base(globalX, globalY, globalZ)
+        public Node(Point3d point, int ID, string label = "") 
+            : base(point)
         {
             _ID = ID;
             Label = label;
-
+            
             DOF = new Dictionary<DOF, bool>(FEMModel.MAXGDLPERNODE);
             for (int i = 0; i < FEMModel.MAXGDLPERNODE; i++)
             {
@@ -58,17 +57,54 @@ namespace GPC.Model.FEM
             }
         }
 
-        public Node(int ID, Node node) : this(node.X, node.Y, node.Z, ID, node.Label)
+        public Node(double X, double Y, double Z, int id, string label="") : this(new Point3d(X, Y, Z), id, label)
         {
-            for (int i = 0; i < FEMModel.MAXGDLPERNODE; i++)
-            {
-                DOF[(DOF) i] = node.DOF[(DOF) i];
-            }
+
+        }
+
+        public void SetID(int id)
+        {
+            _ID = id;
         }
 
         public override string ToString()
         {
             return "ID = " + ID + " Label = " + Label + "  X=" + X + " Y=" + Y + " Z=" + Z;
+        }
+
+        public void AddAttribute(Attributes.INodeFemAttribute attribute)
+        {
+            _attributes.Add(attribute);
+        }
+
+        public override bool Equals(object obj)
+        {
+            return obj is Node node &&
+                   base.Equals(obj) &&
+                   _x == node._x &&
+                   _y == node._y &&
+                   _z == node._z &&
+                   _ID == node._ID &&
+                   Label == node.Label &&
+                   EqualityComparer<Dictionary<DOF, bool>>.Default.Equals(DOF, node.DOF);
+        }
+
+        public override int GetHashCode()
+        {
+            int hashCode = 1581907463;
+            hashCode = hashCode * -1521134295 + base.GetHashCode();
+            hashCode = hashCode * -1521134295 + _x.GetHashCode();
+            hashCode = hashCode * -1521134295 + _y.GetHashCode();
+            hashCode = hashCode * -1521134295 + _z.GetHashCode();
+            hashCode = hashCode * -1521134295 + _ID.GetHashCode();
+            hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(Label);
+            hashCode = hashCode * -1521134295 + EqualityComparer<Dictionary<DOF, bool>>.Default.GetHashCode(DOF);
+            return hashCode;
+        }
+
+        public bool Equals(Node other)
+        {
+            return Equals((object)other);
         }
     }
 }
