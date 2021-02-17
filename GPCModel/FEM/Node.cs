@@ -11,12 +11,10 @@ namespace GPC.Model.FEM
     /// <summary>
     /// Nodo with unique ID, and X,Y,Z global coordinates
     /// </summary>
-    public class Node : IEquatable<Node>
+    public class Node : FEMObject, IEquatable<Node>
     {
         #region Variables
-        private int _ID;
         private Point3d _position;
-
 
         private List<INodeLoadCaseAttribute> _attributesLoadCase;
 
@@ -26,8 +24,7 @@ namespace GPC.Model.FEM
         #endregion
 
         #region Properties
-        public int ID => _ID;
-        private Point3d Position => _position;
+        public Point3d Position => _position;
         public string Label { get; set; }
         public Dictionary<FEMModel.DOF, bool> DOF { get; set; } //used for GlobalSystemMatrix
 
@@ -49,9 +46,8 @@ namespace GPC.Model.FEM
         }
         #endregion
 
-        public Node(Point3d point, int ID, string label = "") 
+        public Node(Point3d point, int ID, string label = "") : base(ID)
         {
-            _ID = ID;
             Label = label;
             _position = point;
             
@@ -72,12 +68,12 @@ namespace GPC.Model.FEM
 
         public void SetID(int id)
         {
-            _ID = id;
+            base._index = id;
         }
 
         public override string ToString()
         {
-            return "ID = " + ID + " Label = " + Label + "  X=" + X + " Y=" + Y + " Z=" + Z;
+            return "ID = " + Index + " Label = " + Label + "  X=" + Position.X + " Y=" + Position.Y + " Z=" + Position.Z;
         }
 
         public void AddAttribute(INodeFreedomCaseAttribute attribute)
