@@ -4,29 +4,29 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using GPC.Model.FEM.Elements;
+using GPC.Model.FEM.FiniteElements;
 
 namespace GPC.Model.FEM
 {
+    public enum DOF
+    {
+        DX,   //0
+        DY,   //1
+        DZ,   //2
+        RX,   //3
+        RY,   //4
+        RZ    //5
+    }
+
     public class FEMModel
     {
-        public enum DOF
-        {
-            DX,   //0
-            DY,   //1
-            DZ,   //2
-            RX,   //3
-            RY,   //4
-            RZ    //5
-        }
-
-        public static int MAXGDLPERNODE = Enum.GetNames(typeof(FEMModel.DOF)).Length;
+        public static int MAXGDLPERNODE = Enum.GetNames(typeof(DOF)).Length;
 
         Matrix<double> _KGlobal;
         Matrix<double> _KGlobalRestrains;
         Vector<double> _F;
         Vector<double> _FRestrains;
-        HashSet<MultiPointCostrain> _costrains;
+        HashSet<Costrain.MultiPointCostrain> _costrains;
 
         /// <summary>
         /// Unique nodes in model
@@ -66,15 +66,15 @@ namespace GPC.Model.FEM
 
                         for (int k = 0; k < MAXGDLPERNODE; k++)
                         {
-                            if (element.DOF[(FEM.FEMModel.DOF)k] == true)
+                            if (element.DOF[(DOF)k] == true)
                             {
-                                node.DOF[(FEM.FEMModel.DOF)k] = true;
+                                node.DOF[(DOF)k] = true;
                             }
 
                             //save old DOF due to other element
-                            if (nodes.Single().DOF[(FEM.FEMModel.DOF)k] == true)
+                            if (nodes.Single().DOF[(DOF)k] == true)
                             {
-                                node.DOF[(FEM.FEMModel.DOF)k] = true;
+                                node.DOF[(DOF)k] = true;
                             }
                         }
 
@@ -88,9 +88,9 @@ namespace GPC.Model.FEM
                     {
                         for (int k = 0; k < MAXGDLPERNODE; k++)
                         {
-                            if (element.DOF[(FEM.FEMModel.DOF)k] == true)
+                            if (element.DOF[(DOF)k] == true)
                             {
-                                node.DOF[(FEM.FEMModel.DOF)k] = true;
+                                node.DOF[(DOF)k] = true;
                             }
                         }
                         nodesModel.Add(new Node(iter,node));
@@ -162,6 +162,7 @@ namespace GPC.Model.FEM
 
                     for (int j = 0; j < dofActive; j++) //each node i have degree of freedom j
                     {
+                        //WARNING fare check ed eventualemte fixare per gradi di libertà attivi non contigui ad esempio UX, UY, UZ, RY
                         for (int k = 0; k < element.GlobalNodesElement.Count(); k++) //each node i with its degree of freedom j should be take in account with other node k.What hap in node k if force is applied in node i?
                         {
                             int idNodeK = element.GlobalNodesElement[k].ID;
@@ -180,23 +181,6 @@ namespace GPC.Model.FEM
                         }
                     }
                 }
-
-#if FALSE
-                for (int i = 0; i < element.PositionToGlobalSystemK.Count; i++)
-                {
-                    FiniteElement.Position local = element.PositionToGlobalSystemK.ElementAt(i).Key;
-                    FiniteElement.Position global = element.PositionToGlobalSystemK.ElementAt(i).Value;
-                    //Console.WriteLine(global.row + " " + global.col + " <- " + local.row + " " + local.col);
-
-                    //double old = KGlobal[global.row, global.col];
-                    _KGlobal[global.row, global.col] = _KGlobal[global.row, global.col] + Kelement[local.row, local.col];
-                    /*if (global.row == 0 && global.col == 0)
-                    {
-                        Console.WriteLine("kGlob[" + global.row + "," + global.col + "] = " + old + " + " + Kelement[local.row, local.col]);
-                    }*/
-                }
-#endif
-
             }
             Console.WriteLine("kGlobal System : " + _KGlobal.ToString());
             #endregion
@@ -246,12 +230,12 @@ namespace GPC.Model.FEM
             #endregion
 
             #region ApplyingMultiPointCostrains
-            _costrains = new HashSet<MultiPointCostrain>();
+            _costrains = new HashSet<Costrain.MultiPointCostrain>();
             //applying as example in node 1 : DX = DY (simply support with 45 degrees direction
-            MultiPointCostrain.Link[] equations = new MultiPointCostrain.Link[2];
-            equations[0] = new MultiPointCostrain.Link("1", DOF.DX, 1.0);
-            equations[1] = new MultiPointCostrain.Link("1", DOF.DY, 1.0);
-            MultiPointCostrain Costrain1 = new MultiPointCostrain(equations);
+            Costrain.MultiPointCostrain.Link[] equations = new Costrain.MultiPointCostrain.Link[2];
+            equations[0] = new Costrain.MultiPointCostrain.Link("1", DOF.DX, 1.0);
+            equations[1] = new Costrain.MultiPointCostrain.Link("1", DOF.DY, 1.0);
+            Costrain.MultiPointCostrain Costrain1 = new Costrain.MultiPointCostrain(equations);
             _costrains.Add(Costrain1);
 
             /* Use: Lagrange multiplier method 
@@ -262,7 +246,7 @@ namespace GPC.Model.FEM
             int nLagrangianMultiplier = _costrains.Count;
             for (int i = 0; i < _costrains.Count; i++)
             {
-                MultiPointCostrain c = _costrains.ElementAt(i);
+                Costrain.MultiPointCostrain c = _costrains.ElementAt(i);
                 Console.WriteLine(c.ToString());
 
                 Vector<double> voidVector = Vector<double>.Build.Dense(_KGlobalRestrains.RowCount);
@@ -303,17 +287,95 @@ namespace GPC.Model.FEM
             #region CalcResults
             for (int i = 0; i < Elements.Length; i++)
             {
-                //select only interested displacements
+                #region SelectGlobalDisplacementForElement
                 FiniteElement element = Elements[i];
                 int[] pos = new int[element.NrDOFActive * element.GlobalNodesElement.Length];
-                
-                element.CalcResults(nodeDisplacements.ToArray());
+
+                counter = 0;
+                for (int j = 0; j < element.GlobalNodesElement.Count(); j++) {
+                    Node node = element.GlobalNodesElement[j];
+                    for (int k = 0; k < element.NrDOFActive; k++) {
+                        pos[counter] = GetPositionInKGlobal(node.ID, (DOF)k);
+                        counter++;
+                    }
+                }
+
+                double[] globalDisplacementsNodesElement = new double[element.NrDOFActive * element.GlobalNodesElement.Length];
+                for (int j = 0; j < element.NrDOFActive * element.GlobalNodesElement.Length; j++) {
+                    globalDisplacementsNodesElement[j] = nodeDisplacements[pos[j]];
+                    Console.WriteLine("Element " + i + " Displacemente global coordintates DOF nr. " + j + " = " + globalDisplacementsNodesElement[j]);
+                }
+                #endregion
+
+                #region ConvertGlobalDisplacementToLocalDisplacement
+                Vector<double> vecLocalDispl = element.DofGlobalToLocal * Vector<double>.Build.Dense(globalDisplacementsNodesElement);
+                Console.WriteLine("Displacement in Local coordinates:" + vecLocalDispl.ToString());
+                #endregion
+
+                if (element is TriangularMembranal) {
+                    #region CalculationOfStressAndDeformationsInLocalCoordinates
+                    Vector<double> epsilon = Vector<double>.Build.Dense(3); //epsilon_xx; epsilon_yy; epsilon_xy
+                    Vector<double> stress = Vector<double>.Build.Dense(epsilon.Count); //sigma_xx; sigma_yy; tau_xy
+
+                    epsilon = element.B * vecLocalDispl;
+                    stress = element.D * epsilon;
+                    Console.WriteLine("Strains in Local coordinates:" + epsilon.ToString());
+                    Console.WriteLine("Stress in Local coordinates:" + stress.ToString());
+                    #endregion
+
+                    #region ConvertInGlobalCoordinates
+                    //Define Couchy Tensor
+                    Matrix<double> epsilonCouchy = Matrix<double>.Build.Dense(3, 3);
+                    epsilonCouchy[0, 0] = epsilon[0]; //epsilon_xx
+                    epsilonCouchy[1, 1] = epsilon[1]; //epsilon_yy
+                    epsilonCouchy[0, 1] = epsilon[2]; //epsilon_xy
+                    epsilonCouchy[1, 0] = epsilon[2]; //epsilon_yx
+                    Console.WriteLine("Epsilon local coordinate:" + epsilonCouchy.ToString());
+
+                    Matrix<double> stressCouchy = Matrix<double>.Build.Dense(3, 3);
+                    stressCouchy[0, 0] = stress[0]; //sigma_xx
+                    stressCouchy[1, 1] = stress[1]; //sigma_yy
+                    stressCouchy[0, 1] = stress[2]; //sigma_xy
+                    stressCouchy[1, 0] = stress[2]; //sigma_yx
+                    Console.WriteLine("Stress local coordinate:" + stressCouchy.ToString());
+
+                    //Rotation matrix
+                    Matrix<double> rotation = Matrix<double>.Build.Dense(3, 3);
+                    double[][] versorsLocalAxis = element.LocalAxisVersors;
+                    double[] xVersor = versorsLocalAxis[0];
+                    double[] yVersor = versorsLocalAxis[1];
+                    double[] zVersor = versorsLocalAxis[2];
+
+                    rotation[0, 0] = xVersor[0]; 
+                    rotation[0, 1] = yVersor[0];
+                    rotation[0, 2] = zVersor[0];
+
+                    rotation[1, 0] = xVersor[1];
+                    rotation[1, 1] = yVersor[1];
+                    rotation[1, 2] = zVersor[1];
+
+                    rotation[2, 0] = xVersor[2];
+                    rotation[2, 1] = yVersor[2];
+                    rotation[2, 2] = zVersor[2];
+                    Console.WriteLine("Rotation matrix tensor:" + rotation.ToString());
+
+                    //Second order tensor -> Trotated = Q * T * Q^T
+                    Matrix<double> epsilonGlobalCoord = rotation * epsilonCouchy * rotation.Transpose();
+                    Console.WriteLine("Epsilon in global coordinates = " + epsilonGlobalCoord);
+                    Matrix<double> sigmaGlobalCoord = rotation * stressCouchy * rotation.Transpose();
+                    Console.WriteLine("Stress in global coordinates = " + sigmaGlobalCoord);
+                    #endregion
+                } else
+                {
+                    throw new NotImplementedException("retrieve result not implemented");
+                }
             }
             #endregion
         }
 
+        #region PublicFuction
         public void PrescribeDisplacement(string labelNode, DOF dof, double val)
-    {
+        {
             int[] positions = GetPositionInKGlobal(labelNode, dof);
 
             for (int i = 0; i < positions.Length; i++)
@@ -329,13 +391,22 @@ namespace GPC.Model.FEM
             }
             
         }
+
+        public double GetDisplacementGlobalCoordinates(FiniteElement element, Node node, DOF dof)
+        {
+            //read in saved result
+            throw new NotImplementedException();
+        }
+        #endregion
+
+        #region PrivateFunction
         /// <summary>
         /// Give the position of selected GDL from 0 to N where N is dimension of matrix KGloabl or the dimension of the vector of Forces or Displacments
         /// </summary>
         /// <param name="labelNode">Label of the node or nodes searched</param>
         /// <param name="gdl">GDL searched</param>
         /// <returns></returns>
-        public int[] GetPositionInKGlobal(string labelNode, DOF dof)
+        private int[] GetPositionInKGlobal(string labelNode, DOF dof = 0)
         {
             HashSet<int> results = new HashSet<int>();
             int counter = 0;
@@ -353,12 +424,18 @@ namespace GPC.Model.FEM
             return results.ToArray();
         }
 
-        public int GetPositionInKGlobal(int ID, DOF dof)
+        /// <summary>
+        /// return the position in Gloab System Matrix of in F vector or Displacement vector
+        /// </summary>
+        /// <param name="IdNode">ID node</param>
+        /// <param name="dof">Searched dof</param>
+        /// <returns></returns>
+        private int GetPositionInKGlobal(int IdNode, DOF dof = 0)
         {
             int counter = 0;
             for (int i = 0; i < Nodes.Length; i++)
             {
-                if (Nodes.ElementAt(i).ID == ID)
+                if (Nodes.ElementAt(i).ID == IdNode)
                 {
                     i = Nodes.Length;
                 }
@@ -367,70 +444,8 @@ namespace GPC.Model.FEM
                     counter = counter + Nodes.ElementAt(i).NrActiveDof;
                 }
             }
-            return counter + (int) dof;
+            return counter + (int)dof;
         }
-
-        /// <summary>
-        /// Multipoints costrains is when as example: gdl_i = f(gdl_1, ... , gld_K, ... gdl_N) + const with K and N != i and const can be = 0
-        //  these are userful for rotated (not in Global Coordinates) restrains
-        /// </summary>
-        protected class MultiPointCostrain
-        {
-            /*string _labelNodeMaster; //Not used in lagrange formulation
-            GDL _nodeMasterGDL;*/      //Not used in lagrange formulation 
-            Link[] _links;
-            double _constValue;
-
-            /*public string LabelNodeMaster => _labelNodeMaster; //Not used in lagrangian formulation
-            public GDL NodeMasterGDL => _nodeMasterGDL;*/        //Not used in lagrangian formulation
-            public Link[] Links => _links;
-            public double ConstValue => _constValue;
-
-            public MultiPointCostrain(Link[] links, double constValue = 0)
-            {
-                _links = links;
-                _constValue = constValue;
-            }
-
-            /*public MultiPointCostrain(string labelNodeMaster, GDL gdlNodeMaster, Link[] links, double constValue = 0) //not used in lagrangian formulation
-            {
-                _labelNodeMaster = labelNodeMaster;
-                _nodeMasterGDL = gdlNodeMaster;
-                _links = links;
-                _constValue = constValue;
-            }*/
-
-            public override string ToString()
-            {
-                string s = ""; // "Node " + _labelNodeMaster + " " + NodeMasterGDL + " = "; Not used in lagrangian formulation
-                for (int i = 0; i < _links.Length; i++) {
-                    s = s + _links[i].ToString();
-                }
-                s = s + " = " + _constValue;
-                return s;
-            }
-
-            /// <summary>
-            /// Costrain = Value * GDLNode
-            /// </summary>
-            public struct Link
-            {
-                public string LabelNode;
-                public DOF GdlNode;
-                public double Value; 
-
-                public Link(string labelNodeSlave, DOF gdlNodeSlave, double val)
-                {
-                    LabelNode = labelNodeSlave;
-                    GdlNode = gdlNodeSlave;
-                    Value = val;
-                }
-
-                public override string ToString()
-                {
-                    return Value + " * (Node" + LabelNode + " " + GdlNode + ") "; 
-                }
-            }
-        }
+        #endregion       
     }
 }

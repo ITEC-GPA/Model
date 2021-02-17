@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using GPC.Model.Materials;
 
-namespace GPC.Model.FEM.Elements
+namespace GPC.Model.FEM.FiniteElements
 {
     class Brick : FiniteElement
     {

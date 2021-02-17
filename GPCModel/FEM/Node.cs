@@ -20,7 +20,7 @@ namespace GPC.Model.FEM
         public int ID => _ID;
 
         public string Label { get; set; }
-        public Dictionary<FEMModel.DOF, bool> DOF { get; set; } //used for GlobalSystemMatrix
+        public Dictionary<DOF, bool> DOF { get; set; } //used for GlobalSystemMatrix
 
         public int NrActiveDof
         {
@@ -29,7 +29,7 @@ namespace GPC.Model.FEM
                 int ris = 0;
                 for (int i = 0; i < FEMModel.MAXGDLPERNODE; i++)
                 {
-                    if (DOF[(FEMModel.DOF)i] == true)
+                    if (DOF[(DOF)i] == true)
                     {
                         ris++;
                     }
@@ -51,10 +51,10 @@ namespace GPC.Model.FEM
             _ID = ID;
             Label = label;
 
-            DOF = new Dictionary<FEMModel.DOF, bool>(FEMModel.MAXGDLPERNODE);
+            DOF = new Dictionary<DOF, bool>(FEMModel.MAXGDLPERNODE);
             for (int i = 0; i < FEMModel.MAXGDLPERNODE; i++)
             {
-                DOF.Add((FEMModel.DOF)i, false);
+                DOF.Add((DOF)i, false);
             }
         }
 
@@ -62,7 +62,7 @@ namespace GPC.Model.FEM
         {
             for (int i = 0; i < FEMModel.MAXGDLPERNODE; i++)
             {
-                DOF[(FEMModel.DOF) i] = node.DOF[(FEMModel.DOF) i];
+                DOF[(DOF) i] = node.DOF[(DOF) i];
             }
         }
 

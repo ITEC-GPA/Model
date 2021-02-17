@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using MathNet.Numerics.LinearAlgebra;
 using MathNet.Spatial.Euclidean;
 
-namespace GPC.Model.FEM.Elements
+namespace GPC.Model.FEM.FiniteElements
 {
     public class VoidElement : FiniteElement
     {
@@ -14,10 +14,10 @@ namespace GPC.Model.FEM.Elements
         public VoidElement(IEnumerable<Node> nodes, int id) : base(nodes, id)
         {
             //recalled base(nodes)
-            _DOF[FEMModel.DOF.DX] = true;
-            _DOF[FEMModel.DOF.DY] = true;
-            _DOF[FEMModel.DOF.DZ] = true;
-            _DOF[FEMModel.DOF.RX] = true;
+            _DOF[FEM.DOF.DX] = true;
+            _DOF[FEM.DOF.DY] = true;
+            _DOF[FEM.DOF.DZ] = true;
+            _DOF[FEM.DOF.RX] = true;
         }
 
         public override void BuildMatrix()
@@ -29,11 +29,6 @@ namespace GPC.Model.FEM.Elements
         {
             // implement force equivalent to node due to prestress, or temperature etc
             throw new NotImplementedException();
-        }
-
-        public override void CalcResults(double[] Displacements)
-        {
-           
         }
     }
 }

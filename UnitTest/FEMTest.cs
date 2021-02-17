@@ -1,7 +1,7 @@
 ﻿using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Collections.Generic;
-using GPC.Model.FEM.Elements;
+using GPC.Model.FEM.FiniteElements;
 using GPC.Model.FEM;
 
 namespace UnitTest
