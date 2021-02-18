@@ -1,4 +1,5 @@
-﻿using System;
+﻿using GPC.Geometry;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -10,15 +11,15 @@ namespace GPC.Model.FEM.FiniteElements
     /// <summary>
     /// Each finite element should derive from this
     /// </summary>
-    public abstract class FiniteElement : ModelObject
+    public abstract class FiniteElement : FEMObject
     {
         #region Variables
-        protected int _ID;
-        protected double[] _vecXLocal = new double[3]; //versor X local in Global Coordinate Sys
+        protected CoordinateSystem _localCoordinateSystem;
+        /*protected double[] _vecXLocal = new double[3]; //versor X local in Global Coordinate Sys
         protected double[] _vecYLocal = new double[3]; //versor Y local in Global Coordinate Sys
-        protected double[] _vecZLocal = new double[3]; //versor Z local in Global Coordinate Sys
+        protected double[] _vecZLocal = new double[3]; //versor Z local in Global Coordinate Sys*/
 
-        protected Dictionary<DOF, bool> _DOF = new Dictionary<DOF, bool>(Enum.GetNames(typeof(DOF)).Length);
+        protected Dictionary<FEMModel.DOF, bool> _DOF = new Dictionary<FEMModel.DOF, bool>(Enum.GetNames(typeof(FEMModel.DOF)).Length);
         
         protected mnl.Matrix<double> _dofGlobalToLocal;
         protected mnl.Matrix<double> _kElementLocalCoord;
@@ -28,8 +29,7 @@ namespace GPC.Model.FEM.FiniteElements
 
 
         #region Properties
-
-        public double[][] LocalAxisVersors
+        /*public double[][] LocalAxisVersors
         {
             get
             {
@@ -51,12 +51,13 @@ namespace GPC.Model.FEM.FiniteElements
                 }
                 return axis;
             }
-        }
+        }*/
+        public CoordinateSystem LocalCoordinateSystem => _localCoordinateSystem;
 
         /// <summary>
         /// DOF[degree of freedom] = true if active, false if unactive
         /// </summary>
-        public Dictionary<DOF, bool> DOF => _DOF;
+        public Dictionary<FEMModel.DOF, bool> DOF => _DOF;
 
         /// <summary>
         /// Nr of degree of freedom active
@@ -68,7 +69,7 @@ namespace GPC.Model.FEM.FiniteElements
                 int counter = 0;
                 for (int i = 0; i < DOF.Count; i++)
                 {
-                    if (DOF[(DOF)i] == true) {
+                    if (DOF[(FEMModel.DOF)i] == true) {
                         counter++;
                     }
                 }
@@ -108,16 +109,15 @@ namespace GPC.Model.FEM.FiniteElements
         /// </summary>
         /// <param name="nodes">Set the nodes of element</param>
         /// <param name="id">id of element</param>
-        public FiniteElement(Node[] nodes, int id)
+        public FiniteElement(Node[] nodes, int id) : base(id)
         {
-            _ID = id;
             GlobalNodesElement = nodes;
-            _DOF[FEM.DOF.DX] = false;
-            _DOF[FEM.DOF.DY] = false;
-            _DOF[FEM.DOF.DZ] = false;
-            _DOF[FEM.DOF.RX] = false;
-            _DOF[FEM.DOF.RY] = false;
-            _DOF[FEM.DOF.RZ] = false;
+            _DOF[FEMModel.DOF.DX] = false;
+            _DOF[FEMModel.DOF.DY] = false;
+            _DOF[FEMModel.DOF.DZ] = false;
+            _DOF[FEMModel.DOF.RX] = false;
+            _DOF[FEMModel.DOF.RY] = false;
+            _DOF[FEMModel.DOF.RZ] = false;
         }
         #endregion
 
@@ -131,6 +131,21 @@ namespace GPC.Model.FEM.FiniteElements
         /// Build vector of Forces in nodes due to internal action applied (shear stress, prestress etc)
         /// </summary>
         public abstract void BuildF();
+
+        public override bool Equals(object obj)
+        {
+            return obj is FiniteElement element &&
+                   base.Equals(obj) &&
+                   EqualityComparer<Node[]>.Default.Equals(GlobalNodesElement, element.GlobalNodesElement);
+        }
+
+        public override int GetHashCode()
+        {
+            int hashCode = 651348243;
+            hashCode = hashCode * -1521134295 + base.GetHashCode();
+            hashCode = hashCode * -1521134295 + EqualityComparer<Node[]>.Default.GetHashCode(GlobalNodesElement);
+            return hashCode;
+        }
         #endregion
     }
 }

@@ -5,13 +5,12 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using GPC.Model.FEM.FiniteElements;
+using GPC.Geometry;
 
 namespace GPC.Model.FEM
 {
-
     public class FEMModel
     {
-
         public enum DOF
         {
             DX,   //0
@@ -21,7 +20,6 @@ namespace GPC.Model.FEM
             RY,   //4
             RZ,   //5
         }
-
 
         public static int MAXGDLPERNODE = Enum.GetNames(typeof(DOF)).Length;
 
@@ -54,14 +52,14 @@ namespace GPC.Model.FEM
                 {
                     Node node = element.GlobalNodesElement[j];
 
-                    var nodes = nodesModel.Where(n => n.X == node.X && n.Y == node.Y && n.Z == node.Z);
+                    var nodes = nodesModel.Where(n => n.Position.X == node.Position.X && n.Position.Y == node.Position.Y && n.Position.Z == node.Position.Z);
 
                     if (nodes.Count() > 1)
                     {
                         throw new Exception("Duplicate node!?");
                     } else if (nodes.Count() == 1) //Node already used in another element.
                     {
-                        int ID = nodes.Single().ID;
+                        int ID = nodes.Single().Index;
                         if (node.Label != nodes.Single().Label)
                         {
                             node.Label = node.Label + "+" + nodes.Single().Label;
@@ -154,14 +152,14 @@ namespace GPC.Model.FEM
                 for (int i = 0; i < element.GlobalNodesElement.Count(); i++)
                 {
                     //Node i
-                    int idNodeI = element.GlobalNodesElement[i].ID;
+                    int idNodeI = element.GlobalNodesElement[i].Index;
 
                     for (int j = 0; j < dofActive; j++) //each node i have degree of freedom j
                     {
                         //WARNING fare check ed eventualemte fixare per gradi di libertà attivi non contigui ad esempio UX, UY, UZ, RY
                         for (int k = 0; k < element.GlobalNodesElement.Count(); k++) //each node i with its degree of freedom j should be take in account with other node k.What hap in node k if force is applied in node i?
                         {
-                            int idNodeK = element.GlobalNodesElement[k].ID;
+                            int idNodeK = element.GlobalNodesElement[k].Index;
 
                             for (int l = 0; l < dofActive; l++) //what hap to the degree of freedom of node k?
                             {
@@ -184,7 +182,7 @@ namespace GPC.Model.FEM
             #region CalculationOfAppliedForcesF
             //Calculation of Forces vector
             _F = Vector<double>.Build.Dense(_KGlobal.RowCount);
-            _F[GetPositionInKGlobal("4",DOF.DX).First()] = 1000;
+            _F[GetPositionInKGlobal("3",DOF.DX).First()] = 1000;
             #endregion
 
             #region ApplyingRestrains
@@ -193,22 +191,22 @@ namespace GPC.Model.FEM
             _FRestrains = Vector<double>.Build.Dense(_F.Count);
             _F.CopyTo(_FRestrains);
 
-            //PrescribeDisplacement("1", GDL.UX, 0);
-            //PrescribeDisplacement("1", GDL.UY, 0);
+            PrescribeDisplacement("1", DOF.DX, 0);
+            PrescribeDisplacement("1", DOF.DY, 0);
             PrescribeDisplacement("1", DOF.DZ, 0);
             /*PrescribeDisplacement("1", DOF.RX, 0);
             PrescribeDisplacement("1", DOF.RY, 0);
             PrescribeDisplacement("1", DOF.RZ, 0);*/
 
-            /*PrescribeDisplacement("2", GDL.UX, 0);
-            PrescribeDisplacement("2", GDL.UY, 0);*/
+            PrescribeDisplacement("2", DOF.DX, 0);
+            PrescribeDisplacement("2", DOF.DY, 0);
             PrescribeDisplacement("2", DOF.DZ, 0);
             /*PrescribeDisplacement("2", DOF.RX, 0);
             PrescribeDisplacement("2", DOF.RY, 0);
             PrescribeDisplacement("2", DOF.RZ, 0);*/
 
-            PrescribeDisplacement("3", DOF.DX, 0);
-            PrescribeDisplacement("3", DOF.DY, 0);
+            /*PrescribeDisplacement("3", DOF.DX, 0);
+            PrescribeDisplacement("3", DOF.DY, 0);*/
             PrescribeDisplacement("3", DOF.DZ, 0);
             /*PrescribeDisplacement("3", DOF.RX, 0);
             PrescribeDisplacement("3", DOF.RY, 0);
@@ -216,7 +214,7 @@ namespace GPC.Model.FEM
 
             /*PrescribeDisplacement("4", GDL.UX, 0);
             PrescribeDisplacement("4", GDL.UY, 0);*/
-            PrescribeDisplacement("4", DOF.DZ, 0);
+            //PrescribeDisplacement("4", DOF.DZ, 0);
             /*PrescribeDisplacement("4", DOF.RX, 0);
             PrescribeDisplacement("4", DOF.RY, 0);
             PrescribeDisplacement("4", DOF.RZ, 0);*/
@@ -232,7 +230,7 @@ namespace GPC.Model.FEM
             equations[0] = new Costrain.MultiPointCostrain.Link("1", DOF.DX, 1.0);
             equations[1] = new Costrain.MultiPointCostrain.Link("1", DOF.DY, 1.0);
             Costrain.MultiPointCostrain Costrain1 = new Costrain.MultiPointCostrain(equations);
-            _costrains.Add(Costrain1);
+            //_costrains.Add(Costrain1);
 
             /* Use: Lagrange multiplier method 
              * rewrite constrains as : 1.0 * GdL NodeMaster + ValI * GdL NodeSlaveI + ... + ValN * GdL NodeSlaveN = const
@@ -291,7 +289,7 @@ namespace GPC.Model.FEM
                 for (int j = 0; j < element.GlobalNodesElement.Count(); j++) {
                     Node node = element.GlobalNodesElement[j];
                     for (int k = 0; k < element.NrDOFActive; k++) {
-                        pos[counter] = GetPositionInKGlobal(node.ID, (DOF)k);
+                        pos[counter] = GetPositionInKGlobal(node.Index, (DOF)k);
                         counter++;
                     }
                 }
@@ -337,22 +335,22 @@ namespace GPC.Model.FEM
 
                     //Rotation matrix
                     Matrix<double> rotation = Matrix<double>.Build.Dense(3, 3);
-                    double[][] versorsLocalAxis = element.LocalAxisVersors;
-                    double[] xVersor = versorsLocalAxis[0];
-                    double[] yVersor = versorsLocalAxis[1];
-                    double[] zVersor = versorsLocalAxis[2];
+                    CoordinateSystem versorsLocalAxis = element.LocalCoordinateSystem;
+                    Vector3d xVersor = versorsLocalAxis.V11;
+                    Vector3d yVersor = versorsLocalAxis.V22;
+                    Vector3d zVersor = versorsLocalAxis.V33;
 
-                    rotation[0, 0] = xVersor[0]; 
-                    rotation[0, 1] = yVersor[0];
-                    rotation[0, 2] = zVersor[0];
+                     rotation[0, 0] = xVersor.X; 
+                    rotation[0, 1] = yVersor.X;
+                    rotation[0, 2] = zVersor.X;
 
-                    rotation[1, 0] = xVersor[1];
-                    rotation[1, 1] = yVersor[1];
-                    rotation[1, 2] = zVersor[1];
+                    rotation[1, 0] = xVersor.Y;
+                    rotation[1, 1] = yVersor.Y;
+                    rotation[1, 2] = zVersor.Y;
 
-                    rotation[2, 0] = xVersor[2];
-                    rotation[2, 1] = yVersor[2];
-                    rotation[2, 2] = zVersor[2];
+                    rotation[2, 0] = xVersor.Z;
+                    rotation[2, 1] = yVersor.Z;
+                    rotation[2, 2] = zVersor.Z;
                     Console.WriteLine("Rotation matrix tensor:" + rotation.ToString());
 
                     //Second order tensor -> Trotated = Q * T * Q^T
@@ -431,7 +429,7 @@ namespace GPC.Model.FEM
             int counter = 0;
             for (int i = 0; i < Nodes.Length; i++)
             {
-                if (Nodes.ElementAt(i).ID == IdNode)
+                if (Nodes.ElementAt(i).Index == IdNode)
                 {
                     i = Nodes.Length;
                 }

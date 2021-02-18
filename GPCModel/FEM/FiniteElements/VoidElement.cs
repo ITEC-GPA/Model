@@ -14,10 +14,10 @@ namespace GPC.Model.FEM.FiniteElements
         public VoidElement(Node[] nodes, int id) : base(nodes, id)
         {
             //recalled base(nodes)
-            _DOF[FEM.DOF.DX] = true;
-            _DOF[FEM.DOF.DY] = true;
-            _DOF[FEM.DOF.DZ] = true;
-            _DOF[FEM.DOF.RX] = true;
+            _DOF[FEMModel.DOF.DX] = true;
+            _DOF[FEMModel.DOF.DY] = true;
+            _DOF[FEMModel.DOF.DZ] = true;
+            _DOF[FEMModel.DOF.RX] = true;
         }
 
         public override void BuildMatrix()

@@ -19,6 +19,7 @@ namespace GPC.Model.FEM
 
         public FEMObject(int index, string name) : base(Guid.NewGuid(), name)
         {
+            _index = index;
         }
 
         public FEMObject(SerializationInfo info, StreamingContext context) : base(info, context)

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using GPC.Geometry;
 using MathNet.Numerics.LinearAlgebra;
 using MathNet.Spatial.Euclidean;
 
@@ -13,9 +14,9 @@ namespace GPC.Model.FEM.FiniteElements
         public TriangularMembranal(Node[] nodes, int id) : base(nodes, id)
         {
             //recalled base(nodes)
-            _DOF[FEM.DOF.DX] = true;
-            _DOF[FEM.DOF.DY] = true;
-            _DOF[FEM.DOF.DZ] = true;
+            _DOF[FEMModel.DOF.DX] = true;
+            _DOF[FEMModel.DOF.DY] = true;
+            _DOF[FEMModel.DOF.DZ] = true;
             //a displacement in Local coordinate plane (Dx, Dy) can be a DX, DY, DZ in Global space!
         }
 
@@ -34,18 +35,18 @@ namespace GPC.Model.FEM.FiniteElements
             Node nodeJ = GlobalNodesElement.ElementAt(2 - 1);
             Node nodeK = GlobalNodesElement.ElementAt(3 - 1);
 
-            double dij = Math.Sqrt(Math.Pow(nodeJ.X - nodeI.X, 2.0) + Math.Pow(nodeJ.Y - nodeI.Y, 2.0) + Math.Pow(nodeJ.Z - nodeI.Z, 2.0));
-            double lij = (nodeJ.X - nodeI.X) / dij;
-            double mij = (nodeJ.Y - nodeI.Y) / dij;
-            double nij = (nodeJ.Z - nodeI.Z) / dij;
+            double dij = Math.Sqrt(Math.Pow(nodeJ.Position.X - nodeI.Position.X, 2.0) + Math.Pow(nodeJ.Position.Y - nodeI.Position.Y, 2.0) + Math.Pow(nodeJ.Position.Z - nodeI.Position.Z, 2.0));
+            double lij = (nodeJ.Position.X - nodeI.Position.X) / dij;
+            double mij = (nodeJ.Position.Y - nodeI.Position.Y) / dij;
+            double nij = (nodeJ.Position.Z - nodeI.Position.Z) / dij;
 
-            double dip = lij * (nodeK.X - nodeI.X) + mij * (nodeK.Y - nodeI.Y) + nij * (nodeK.Z - nodeI.Z);
-            Node nodeP = new Node(nodeI.X + lij * dip, nodeI.Y + mij * dip, nodeI.Z + nij * dip, -1);
-            double dpk = Math.Sqrt(Math.Pow(nodeK.X - nodeI.X, 2.0) + Math.Pow(nodeK.Y - nodeI.Y, 2.0) + Math.Pow(nodeK.Z - nodeI.Z, 2.0) - Math.Pow(dip, 2.0));
+            double dip = lij * (nodeK.Position.X - nodeI.Position.X) + mij * (nodeK.Position.Y - nodeI.Position.Y) + nij * (nodeK.Position.Z - nodeI.Position.Z);
+            Node nodeP = new Node(nodeI.Position.X + lij * dip, nodeI.Position.Y + mij * dip, nodeI.Position.Z + nij * dip, -1);
+            double dpk = Math.Sqrt(Math.Pow(nodeK.Position.X - nodeI.Position.X, 2.0) + Math.Pow(nodeK.Position.Y - nodeI.Position.Y, 2.0) + Math.Pow(nodeK.Position.Z - nodeI.Position.Z, 2.0) - Math.Pow(dip, 2.0));
 
-            double lpk = (nodeK.X - nodeP.X) / dpk;
-            double mpk = (nodeK.Y - nodeP.Y) / dpk;
-            double npk = (nodeK.Z - nodeP.Z) / dpk;
+            double lpk = (nodeK.Position.X - nodeP.Position.X) / dpk;
+            double mpk = (nodeK.Position.Y - nodeP.Position.Y) / dpk;
+            double npk = (nodeK.Position.Z - nodeP.Position.Z) / dpk;
 
             _dofGlobalToLocal = Matrix<double>.Build.Dense(6, 9);
             DofGlobalToLocal[0, 0] = lpk;
@@ -78,42 +79,47 @@ namespace GPC.Model.FEM.FiniteElements
 
             #region CalculationOfLocalCoordinates
             //Search for 3 local axis
-            Vector3D y = new Vector3D(nodeJ.X - nodeI.X, nodeJ.Y - nodeI.Y, nodeJ.Z - nodeI.Z);
-            UnitVector3D vecy = y.Normalize();
-            _vecYLocal = vecy.ToVector().ToArray();
+            Vector3d y = new Vector3d(nodeJ.Position.X - nodeI.Position.X, nodeJ.Position.Y - nodeI.Position.Y, nodeJ.Position.Z - nodeI.Position.Z);
+            Vector3d vecy = new Vector3d(y);
+            vecy.Unitize();
 
-            Vector3D x = new Vector3D(nodeK.X - nodeI.X, nodeK.Y - nodeI.Y, nodeK.Z - nodeI.Z);
-            UnitVector3D vecx = x.Normalize();
+            Vector3d x = new Vector3d(nodeK.Position.X - nodeI.Position.X, nodeK.Position.Y - nodeI.Position.Y, nodeK.Position.Z - nodeI.Position.Z);
+            Vector3d vecx = new Vector3d(x);
+            vecx.Unitize();
 
-            Vector3D z = x.CrossProduct(y);
-            UnitVector3D vecz = z.Normalize();
-            _vecZLocal = vecz.ToVector().ToArray();
+            Vector3d z = x.CrossProduct(y);
+            //UnitVector3D vecz = z.Normalize();
+            //_vecZLocal = vecz.ToVector().ToArray();
+            Vector3d vecz = new Vector3d(z);
+            vecz.Unitize();
 
             //recalculation of x that can be non-ortogonal
             x = y.CrossProduct(z);
-            vecx = x.Normalize();
-            _vecXLocal = vecx.ToVector().ToArray();
+            vecx = new Vector3d(x);
+            vecx.Unitize();
+            //_vecXLocal = vecx.ToVector().ToArray();
+            _localCoordinateSystem = new Geometry.CoordinateSystem(new Point3d(0,0,0), vecx, vecy);
 
             //move to local axis
             //calculation in local nodes
-            Vector3D v12 = new Vector3D(nodeJ.X - nodeI.X, nodeJ.Y - nodeI.Y, nodeJ.Z - nodeI.Z);
-            Vector3D v13 = new Vector3D(nodeK.X - nodeI.X, nodeK.Y - nodeI.Y, nodeK.Z - nodeI.Z);
+            Vector3d v12 = new Vector3d(nodeJ.Position.X - nodeI.Position.X, nodeJ.Position.Y - nodeI.Position.Y, nodeJ.Position.Z - nodeI.Position.Z);
+            Vector3d v13 = new Vector3d(nodeK.Position.X - nodeI.Position.X, nodeK.Position.Y - nodeI.Position.Y, nodeK.Position.Z - nodeI.Position.Z);
 
-            Node node1 = new Node(0, 0, 0, nodeI.ID, nodeI.Label); //Origin GlobalNodes.ElementAt(1 - 1);
-            Node node2 = new Node(v12.DotProduct(vecx), v12.DotProduct(vecy), v12.DotProduct(vecz), nodeJ.ID, nodeJ.Label); //Axis y GlobalNodes.ElementAt(2 - 1);
-            Node node3 = new Node(v13.DotProduct(vecx), v13.DotProduct(vecy), v13.DotProduct(vecz), nodeK.ID, nodeK.Label); //GlobalNodes.ElementAt(3 - 1);
+            Node node1 = new Node(0, 0, 0, nodeI.Index, nodeI.Label); //Origin GlobalNodes.ElementAt(1 - 1);
+            Node node2 = new Node(v12.DotProduct(vecx), v12.DotProduct(vecy), v12.DotProduct(vecz), nodeJ.Index, nodeJ.Label); //Axis y GlobalNodes.ElementAt(2 - 1);
+            Node node3 = new Node(v13.DotProduct(vecx), v13.DotProduct(vecy), v13.DotProduct(vecz), nodeK.Index, nodeK.Label); //GlobalNodes.ElementAt(3 - 1);
 
             //_localNodesElement = new Node[] { node1, node2, node3 };
             #endregion
 
             #region ShapeFuction
-            double dx32 = node3.X - node2.X;
-            double dy21 = node2.Y - node1.Y;
-            double dx21 = node2.X - node1.X;
-            double dy32 = node3.Y - node2.Y;
+            double dx32 = node3.Position.X - node2.Position.X;
+            double dy21 = node2.Position.Y - node1.Position.Y;
+            double dx21 = node2.Position.X - node1.Position.X;
+            double dy32 = node3.Position.Y - node2.Position.Y;
 
-            double dx31 = node3.X - node1.X;
-            double dy31 = node3.Y - node1.X;
+            double dx31 = node3.Position.X - node1.Position.X;
+            double dy31 = node3.Position.Y - node1.Position.X;
 
             double A = 1.0 / 2.0 * (dx32 * dy21 - dx21 * dy32);
 
@@ -193,22 +199,17 @@ namespace GPC.Model.FEM.FiniteElements
         public override bool Equals(object obj)
         {
             return obj is TriangularMembranal membranal &&
-                   base.Equals(obj) &&
-                   _ID == membranal._ID &&
-                   EqualityComparer<Node[]>.Default.Equals(GlobalNodesElement, membranal.GlobalNodesElement);
+                   base.Equals(obj);
+        }
+
+        public override int GetHashCode()
+        {
+            return 624022166 + base.GetHashCode();
         }
 
         public bool Equals(TriangularMembranal other)
         {
             return Equals((object)other);
-        }
-        public override int GetHashCode()
-        {
-            int hashCode = -125827218;
-            hashCode = hashCode * -1521134295 + base.GetHashCode();
-            hashCode = hashCode * -1521134295 + _ID.GetHashCode();
-            hashCode = hashCode * -1521134295 + EqualityComparer<Node[]>.Default.GetHashCode(GlobalNodesElement);
-            return hashCode;
         }
     }
 }

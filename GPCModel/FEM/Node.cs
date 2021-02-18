@@ -90,24 +90,18 @@ namespace GPC.Model.FEM
         {
             return obj is Node node &&
                    base.Equals(obj) &&
-                   _x == node._x &&
-                   _y == node._y &&
-                   _z == node._z &&
-                   _ID == node._ID &&
-                   Label == node.Label &&
-                   EqualityComparer<Dictionary<FEM.FEMModel.DOF, bool>>.Default.Equals(DOF, node.DOF);
+                   EqualityComparer<Point3d>.Default.Equals(_position, node._position) &&
+                   EqualityComparer<List<INodeLoadCaseAttribute>>.Default.Equals(_attributesLoadCase, node._attributesLoadCase) &&
+                   EqualityComparer<List<INodeFreedomCaseAttribute>>.Default.Equals(_attributesFreedomCase, node._attributesFreedomCase);
         }
 
         public override int GetHashCode()
         {
-            int hashCode = 1581907463;
+            int hashCode = -689368791;
             hashCode = hashCode * -1521134295 + base.GetHashCode();
-            hashCode = hashCode * -1521134295 + _x.GetHashCode();
-            hashCode = hashCode * -1521134295 + _y.GetHashCode();
-            hashCode = hashCode * -1521134295 + _z.GetHashCode();
-            hashCode = hashCode * -1521134295 + _ID.GetHashCode();
-            hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(Label);
-            hashCode = hashCode * -1521134295 + EqualityComparer<Dictionary<DOF, bool>>.Default.GetHashCode(DOF);
+            hashCode = hashCode * -1521134295 + EqualityComparer<Point3d>.Default.GetHashCode(_position);
+            hashCode = hashCode * -1521134295 + EqualityComparer<List<INodeLoadCaseAttribute>>.Default.GetHashCode(_attributesLoadCase);
+            hashCode = hashCode * -1521134295 + EqualityComparer<List<INodeFreedomCaseAttribute>>.Default.GetHashCode(_attributesFreedomCase);
             return hashCode;
         }
 
