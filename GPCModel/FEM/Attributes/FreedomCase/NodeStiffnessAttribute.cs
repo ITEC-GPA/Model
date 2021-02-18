@@ -59,7 +59,7 @@ namespace GPC.Model.FEM.Attributes
             if (ReferenceEquals(this, other))
                 return true;
 
-            return !(other is null) && other._stiffness.SequenceEqual(other._stiffness) && base.Equals(other);
+            return !(other is null) && _stiffness.SequenceEqual(other._stiffness) && base.Equals(other);
         }
 
 

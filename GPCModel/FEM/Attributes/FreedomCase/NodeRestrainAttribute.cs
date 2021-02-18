@@ -64,7 +64,7 @@ namespace GPC.Model.FEM.Attributes
             if (ReferenceEquals(this, other))
                 return true;
 
-            return !(other is null) && other._restrains.SequenceEqual(other._restrains) && base.Equals(other);
+            return !(other is null) && _restrains.SequenceEqual(other._restrains) && base.Equals(other);
         }
 
 

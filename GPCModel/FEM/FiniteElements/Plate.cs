@@ -7,7 +7,7 @@ using GPC.Model.Elements;
 
 namespace GPC.Model.FEM.FiniteElements
 {
-    class Plate : FiniteElement
+    public class Plate : FiniteElement
     {
         public Plate(Node[] nodes, PlateProperty property, int id) : base (nodes, id)
         {
