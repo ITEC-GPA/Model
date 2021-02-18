@@ -44,7 +44,7 @@ namespace GPC.Model.FEM.Attributes
             if (ReferenceEquals(this, other))
                 return true;
 
-            return !(other is null) && other.Equals(other._pressure)
+            return !(other is null) && _pressure.Equals(other._pressure)
                                     && base.Equals(other);
         }
 
