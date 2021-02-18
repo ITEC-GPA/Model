@@ -25,7 +25,6 @@ namespace GPC.Model.FEM
 
         #region Properties
         public Point3d Position => _position;
-        public string Label { get; set; }
         public Dictionary<FEMModel.DOF, bool> DOF { get; set; } //used for GlobalSystemMatrix
 
         public int NrActiveDof
@@ -38,17 +37,17 @@ namespace GPC.Model.FEM
                     if (DOF[(FEMModel.DOF)i] == true)
                     {
                         ris++;
-                    }
-                   
+                    }  
                 }
                 return ris;
             }
         }
+
+        public List<INodeFreedomCaseAttribute> AttributesFreedomCases => _attributesFreedomCase;
         #endregion
 
-        public Node(Point3d point, int ID, string label = "") : base(ID)
+        public Node(Point3d point, int ID, string label = "") : base(ID, label)
         {
-            Label = label;
             _position = point;
             
             DOF = new Dictionary<FEMModel.DOF, bool>(FEMModel.MAXGDLPERNODE);
@@ -73,7 +72,7 @@ namespace GPC.Model.FEM
 
         public override string ToString()
         {
-            return "ID = " + Index + " Label = " + Label + "  X=" + Position.X + " Y=" + Position.Y + " Z=" + Position.Z;
+            return "ID = " + Index + " Name = " + Name + "  X=" + Position.X + " Y=" + Position.Y + " Z=" + Position.Z;
         }
 
         public void AddAttribute(INodeFreedomCaseAttribute attribute)

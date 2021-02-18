@@ -1,4 +1,5 @@
 ﻿using GPC.Geometry;
+using GPC.Model.Elements;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -25,8 +26,8 @@ namespace GPC.Model.FEM.FiniteElements
         protected mnl.Matrix<double> _kElementLocalCoord;
         protected mnl.Matrix<double> _b;
         protected mnl.Matrix<double> _d;
+        protected ElementProperty _property;
         #endregion
-
 
         #region Properties
         /*public double[][] LocalAxisVersors
@@ -60,6 +61,11 @@ namespace GPC.Model.FEM.FiniteElements
         public Dictionary<FEMModel.DOF, bool> DOF => _DOF;
 
         /// <summary>
+        /// Contains Material for brick, thickness and material for plate, material + section for beam
+        /// </summary>
+        public ElementProperty Property => _property;
+
+        /// <summary>
         /// Nr of degree of freedom active
         /// </summary>
         public int NrDOFActive
@@ -88,6 +94,11 @@ namespace GPC.Model.FEM.FiniteElements
         public mnl.Matrix<double> DofGlobalToLocal => _dofGlobalToLocal;
 
         /// <summary>
+        /// used for KeGlobal = DofGlobalToLocal^T [KeLocal] [DofGlobaltoLocal]
+        /// </summary>
+        public mnl.Matrix<double> KElementGlobalCoord => DofGlobalToLocal.Transpose() * KElementLocalCoord * DofGlobalToLocal;
+
+        /// <summary>
         /// B : derivative of ShapeFunctions, need for epsilon = [B] * q with q = node displacements vector
         /// </summary>
         public mnl.Matrix<double> B => _b;
@@ -109,9 +120,10 @@ namespace GPC.Model.FEM.FiniteElements
         /// </summary>
         /// <param name="nodes">Set the nodes of element</param>
         /// <param name="id">id of element</param>
-        public FiniteElement(Node[] nodes, int id) : base(id)
+        public FiniteElement(Node[] nodes, ElementProperty property, int id) : base(id)
         {
             GlobalNodesElement = nodes;
+            _property = property;
             _DOF[FEMModel.DOF.DX] = false;
             _DOF[FEMModel.DOF.DY] = false;
             _DOF[FEMModel.DOF.DZ] = false;
@@ -136,13 +148,15 @@ namespace GPC.Model.FEM.FiniteElements
         {
             return obj is FiniteElement element &&
                    base.Equals(obj) &&
+                   EqualityComparer<ElementProperty>.Default.Equals(_property, element._property) &&
                    EqualityComparer<Node[]>.Default.Equals(GlobalNodesElement, element.GlobalNodesElement);
         }
 
         public override int GetHashCode()
         {
-            int hashCode = 651348243;
+            int hashCode = 1596002646;
             hashCode = hashCode * -1521134295 + base.GetHashCode();
+            hashCode = hashCode * -1521134295 + EqualityComparer<ElementProperty>.Default.GetHashCode(_property);
             hashCode = hashCode * -1521134295 + EqualityComparer<Node[]>.Default.GetHashCode(GlobalNodesElement);
             return hashCode;
         }

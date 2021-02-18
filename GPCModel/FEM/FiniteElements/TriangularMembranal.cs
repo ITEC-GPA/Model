@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using GPC.Geometry;
+using GPC.Model.Elements;
 using MathNet.Numerics.LinearAlgebra;
 using MathNet.Spatial.Euclidean;
 
@@ -11,7 +12,7 @@ namespace GPC.Model.FEM.FiniteElements
 {
     public class TriangularMembranal : FiniteElement, IEquatable<TriangularMembranal>
     {
-        public TriangularMembranal(Node[] nodes, int id) : base(nodes, id)
+        public TriangularMembranal(Node[] nodes, PlateProperty property, int id) : base(nodes, property, id)
         {
             //recalled base(nodes)
             _DOF[FEMModel.DOF.DX] = true;
@@ -105,9 +106,9 @@ namespace GPC.Model.FEM.FiniteElements
             Vector3d v12 = new Vector3d(nodeJ.Position.X - nodeI.Position.X, nodeJ.Position.Y - nodeI.Position.Y, nodeJ.Position.Z - nodeI.Position.Z);
             Vector3d v13 = new Vector3d(nodeK.Position.X - nodeI.Position.X, nodeK.Position.Y - nodeI.Position.Y, nodeK.Position.Z - nodeI.Position.Z);
 
-            Node node1 = new Node(0, 0, 0, nodeI.Index, nodeI.Label); //Origin GlobalNodes.ElementAt(1 - 1);
-            Node node2 = new Node(v12.DotProduct(vecx), v12.DotProduct(vecy), v12.DotProduct(vecz), nodeJ.Index, nodeJ.Label); //Axis y GlobalNodes.ElementAt(2 - 1);
-            Node node3 = new Node(v13.DotProduct(vecx), v13.DotProduct(vecy), v13.DotProduct(vecz), nodeK.Index, nodeK.Label); //GlobalNodes.ElementAt(3 - 1);
+            Node node1 = new Node(0, 0, 0, nodeI.Index, nodeI.Name); //Origin GlobalNodes.ElementAt(1 - 1);
+            Node node2 = new Node(v12.DotProduct(vecx), v12.DotProduct(vecy), v12.DotProduct(vecz), nodeJ.Index, nodeJ.Name); //Axis y GlobalNodes.ElementAt(2 - 1);
+            Node node3 = new Node(v13.DotProduct(vecx), v13.DotProduct(vecy), v13.DotProduct(vecz), nodeK.Index, nodeK.Name); //GlobalNodes.ElementAt(3 - 1);
 
             //_localNodesElement = new Node[] { node1, node2, node3 };
             #endregion
@@ -169,8 +170,9 @@ namespace GPC.Model.FEM.FiniteElements
             #endregion
 
             #region matrixD
-            double E = 200000;
-            double ni = 0.2;
+            double E = ((PlateProperty)_property).GetE();
+            double ni = ((PlateProperty)_property).GetNi();
+
             _d = Matrix<double>.Build.Dense(3, 3);
             _d[0, 0] = 1.0;
             _d[0, 1] = ni;
@@ -182,7 +184,7 @@ namespace GPC.Model.FEM.FiniteElements
             #endregion
 
             #region stiffnessMatrixInLocalCoordinates
-            double thk = 1; //mm
+            double thk = ((PlateProperty)_property).MembraneThickness;
             double V = A * thk;
             _kElementLocalCoord = V * _b.Transpose() * _d * _b;
             Console.WriteLine("KElementLocalCoord = " + KElementLocalCoord.ToString());
