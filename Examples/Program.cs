@@ -33,7 +33,8 @@ namespace Examples
             NodeRestrainAttribute DZ = new NodeRestrainAttribute(freedomCase, sys);
             DZ.AddRestrain(FEMModel.DOF.DZ);
 
-            NodeForceAttribute fX1000 = new NodeForceAttribute(loadCase, sys, 1000, 0, 0, 0, 0, 0);
+            CoordinateSystem sys2 = new CoordinateSystem(new Point3d(1, 1, 0), new Point3d(2, 2, 0), new Point3d(0, 2, 0));
+            NodeForceAttribute fX1000 = new NodeForceAttribute(loadCase, sys2, 1000, 0, 0, 0, 0, 0);
 
             List<Node> nodesPlate1 = new List<Node>();
             Node nd1 = new Node(0, 0, 0, 1, "1");

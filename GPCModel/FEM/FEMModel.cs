@@ -223,20 +223,17 @@ namespace GPC.Model.FEM
                     {
                         NodeForceAttribute nodeForceAttribute = (NodeForceAttribute)loadCaseAttribute;
                         
-                        /*Vector3d dirX = nodeForceAttribute.CoordinateSystem.V11;
+                        Vector3d dirX = nodeForceAttribute.CoordinateSystem.V11;
                         dirX.Unitize();
                         Vector3d dirY = nodeForceAttribute.CoordinateSystem.V22;
                         dirY.Unitize();
                         Vector3d dirZ = nodeForceAttribute.CoordinateSystem.V33;
-                        dirZ.Unitize();*/
+                        dirZ.Unitize();
 
                         //Set in global coordinates
-                        double fX = nodeForceAttribute.F.DotProduct(X);
-                        double fY = nodeForceAttribute.F.DotProduct(Y);
-                        double fZ = nodeForceAttribute.F.DotProduct(Z);
-                        double mX = nodeForceAttribute.F.DotProduct(X);
-                        double mY = nodeForceAttribute.F.DotProduct(Y);
-                        double mZ = nodeForceAttribute.F.DotProduct(Z);
+                        double fX = nodeForceAttribute.F1 * dirX.DotProduct(X) + nodeForceAttribute.F2 * dirY.DotProduct(X) + nodeForceAttribute.F3 * dirZ.DotProduct(X);
+                        double fY = nodeForceAttribute.F1 * dirX.DotProduct(Y) + nodeForceAttribute.F2 * dirY.DotProduct(Y) + nodeForceAttribute.F3 * dirZ.DotProduct(Y);
+                        double fZ = nodeForceAttribute.F1 * dirX.DotProduct(Z) + nodeForceAttribute.F2 * dirY.DotProduct(Z) + nodeForceAttribute.F3 * dirZ.DotProduct(Z);
 
                         DOF dof = DOF.DX;
                         if (Nodes[i].DOF.Contains(dof) == true)
@@ -253,21 +250,21 @@ namespace GPC.Model.FEM
                         {
                             _F[GetPositionInKGlobal(Nodes[i].Index, dof)] = _F[GetPositionInKGlobal(Nodes[i].Index, dof)] + fZ;
                         }
-                        dof = DOF.RX;
+                        /*dof = DOF.RX;
                         if (Nodes[i].DOF.Contains(dof) == true)
                         {
-                            _F[GetPositionInKGlobal(Nodes[i].Index, dof)] = _F[GetPositionInKGlobal(Nodes[i].Index, dof)] + mX;
+                            _F[GetPositionInKGlobal(Nodes[i].Index, dof)] = _F[GetPositionInKGlobal(Nodes[i].Index, dof)] + m.DotProduct(X);
                         }
                         dof = DOF.RY;
                         if (Nodes[i].DOF.Contains(dof) == true)
                         {
-                            _F[GetPositionInKGlobal(Nodes[i].Index, dof)] = _F[GetPositionInKGlobal(Nodes[i].Index, dof)] + mY;
+                            _F[GetPositionInKGlobal(Nodes[i].Index, dof)] = _F[GetPositionInKGlobal(Nodes[i].Index, dof)] + m.DotProduct(Y);
                         }
                         dof = DOF.RZ;
                         if (Nodes[i].DOF.Contains(dof) == true)
                         {
-                            _F[GetPositionInKGlobal(Nodes[i].Index, dof)] = _F[GetPositionInKGlobal(Nodes[i].Index, dof)] + mZ;
-                        }
+                            _F[GetPositionInKGlobal(Nodes[i].Index, dof)] = _F[GetPositionInKGlobal(Nodes[i].Index, dof)] + m.DotProduct(Z);
+                        }*/
                     }
                 }
             }
