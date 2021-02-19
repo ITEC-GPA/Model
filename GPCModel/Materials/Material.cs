@@ -36,10 +36,7 @@ namespace GPC.Model.Materials
         public Material(string name, double elasticModulus, double poisson, double density, double alfaThermalExpansion)
             : this(name, elasticModulus, poisson, density, alfaThermalExpansion, Guid.NewGuid())
         {
-
         }
-
-
 
         /// <summary>
         /// </summary>
@@ -65,16 +62,15 @@ namespace GPC.Model.Materials
         public Material(string name, double elasticModulus, double ni, Guid guid) 
             : this(name, elasticModulus, ni, 0, 0, guid)
         { 
-
         }
 
         public Material(Guid guid) 
             : this("", 0, 0, 0, 0, guid) 
         { 
-
         }
 
-        protected Material(SerializationInfo info, StreamingContext context) : base(info, context)
+        protected Material(SerializationInfo info, StreamingContext context) 
+            : base(info, context)
         {
             _alfaThermalExpansion = info.GetDouble("AlfaThermalExpansion");
             _density = info.GetDouble("Density");
