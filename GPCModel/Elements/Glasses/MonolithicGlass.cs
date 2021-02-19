@@ -12,6 +12,7 @@ namespace GPC.Model.Elements.Glasses
     public sealed class MonolithicGlass : Glass, IGlassPanel, IEquatable<MonolithicGlass>
     {
         #region Variables
+
         private GlassMaterial _material;
 
         private double _thickness;
@@ -65,7 +66,6 @@ namespace GPC.Model.Elements.Glasses
         }
 
         #endregion 
-
 
         #region PUBLIC METHODS
 
