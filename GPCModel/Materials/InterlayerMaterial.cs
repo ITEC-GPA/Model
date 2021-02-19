@@ -112,10 +112,19 @@ namespace GPC.Model.Materials
         {
             if (ReferenceEquals(this, other))
                 return true;
+            if (other is null || !base.Equals(other) || !other._type.Equals(_type) || other._shearModulus.Count != _shearModulus.Count)
+                return false;
 
-            return !(other is null) && other._shearModulus.Equals(_shearModulus)
-                                    && other._type.Equals(_type)
-                                    && base.Equals(other);
+            bool isEqual = true;
+            for (int i = 0; i < other._shearModulus.Count; i++)            
+            {
+                if (!other._shearModulus[i].Equals(_shearModulus[i]))
+                {
+                    isEqual = false;
+                    break;
+                }
+            }
+            return isEqual;
         }
 
         public override bool Equals(object obj)
@@ -331,9 +340,21 @@ namespace GPC.Model.Materials
                 if (ReferenceEquals(this, other))
                     return true;
 
-                return !(other is null) && other._loadDuration.Equals(_loadDuration)
-                                        && other._temperatureShearModules.Equals(_temperatureShearModules)
-                                        && base.Equals(other);
+                if (other is null || !other._loadDuration.Equals(_loadDuration) || 
+                    other._temperatureShearModules.Count != _temperatureShearModules.Count)
+                    return false;
+
+                bool isEqual = true;
+                for (int i = 0; i < other._temperatureShearModules.Count; i++)
+                {
+                    if (!other._temperatureShearModules[i].Equals(_temperatureShearModules[i]))
+                    {
+                        isEqual = false;
+                        break;
+                    }
+                    
+                }
+                return isEqual;
             }
 
             public override bool Equals(object obj)
@@ -412,8 +433,7 @@ namespace GPC.Model.Materials
                     return true;
 
                 return !(other is null) && other._temperature.Equals(_temperature)
-                                        && other._shearModule.Equals(_shearModule)
-                                        && base.Equals(other);
+                                        && other._shearModule.Equals(_shearModule);
             }
 
             public override bool Equals(object obj)
