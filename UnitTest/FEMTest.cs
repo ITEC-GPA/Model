@@ -10,6 +10,7 @@ using GPC.Model.FreedomCases;
 using GPC.Geometry;
 using GPC.Model.FEM.Attributes;
 using GPC.Model.LoadCases;
+using System.Linq;
 
 namespace UnitTest
 {
@@ -44,6 +45,32 @@ namespace UnitTest
 
             //Controllo equals elementi
             Assert.IsFalse(el0.Equals(el1));
+        }
+
+        [TestMethod]
+        public void AlwaysOrderedGDL()
+        {
+            SortedSet<FEMModel.DOF> unordered = new SortedSet<FEMModel.DOF>();
+
+            unordered.Add(FEMModel.DOF.RY);
+            unordered.Add(FEMModel.DOF.RX);
+            unordered.Add(FEMModel.DOF.RZ);
+            unordered.Add(FEMModel.DOF.DX);
+            unordered.Add(FEMModel.DOF.DY);
+
+            var order = unordered;
+
+            Assert.IsTrue(order.ElementAt(0) == FEMModel.DOF.DX);
+            Assert.IsTrue(order.ElementAt(1) == FEMModel.DOF.DY);
+            Assert.IsTrue(order.ElementAt(2) == FEMModel.DOF.RX);
+            Assert.IsTrue(order.ElementAt(3) == FEMModel.DOF.RY);
+            Assert.IsTrue(order.ElementAt(4) == FEMModel.DOF.RZ);
+
+            SortedSet<int> unordered2 = new SortedSet<int>();
+            unordered2.Add(5);
+            unordered2.Add(105);
+            unordered2.Add(7);
+            unordered2.Add(4);
         }
 
         [TestMethod]
@@ -423,6 +450,90 @@ namespace UnitTest
             DZ(mm) 0.000000*/
             double dXNode3 = 0.011004;
             double dYNode3 = 0.00643;
+            Assert.AreEqual(Node3DX[0], dXNode3, 0.000001);
+            Assert.AreEqual(Node3DY[0], dYNode3, 0.000001);
+            Assert.AreEqual(Node3CopyDX[0], dXNode3, 0.000001);
+            Assert.AreEqual(Node3CopyDY[0], dYNode3, 0.000001);
+        }
+
+        [TestMethod]
+        public void PlatePressureTest1()
+        {
+            LoadCase loadCase = new LoadCase("myLoadCase", new Guid());
+            FreedomCase freedomCase = new FreedomCase("freedomCase1");
+
+            Material mat = new SteelMaterial("steel", 200000, 0.2, 355, 510, 7850);
+            PlateProperty prop = new PlateProperty(mat, 0, 1);
+
+            CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
+            NodeRestrainAttribute DXDYDZ = new NodeRestrainAttribute(freedomCase, sys);
+            DXDYDZ.AddRestrain(FEMModel.DOF.DX);
+            DXDYDZ.AddRestrain(FEMModel.DOF.DY);
+            DXDYDZ.AddRestrain(FEMModel.DOF.DZ);
+
+            NodeRestrainAttribute DZ = new NodeRestrainAttribute(freedomCase, sys);
+            DZ.AddRestrain(FEMModel.DOF.DZ);
+
+            //CoordinateSystem sys2 = new CoordinateSystem(new Point3d(1, 1, 0), new Point3d(2, 2, 0), new Point3d(0, 2, 0));
+
+            List<Node> nodesPlate1 = new List<Node>();
+            Node nd1 = new Node(0, 0, 0, 1, "1");
+            Node nd2 = new Node(0, 100, 0, 2, "2");
+            Node nd3 = new Node(100, 0, 0, 3, "3");
+
+            nd1.AddAttribute(DXDYDZ);
+            nd2.AddAttribute(DXDYDZ);
+
+            nodesPlate1.Add(nd1);
+            nodesPlate1.Add(nd2);
+            nodesPlate1.Add(nd3);
+
+            List<Node> nodesPlate2 = new List<Node>();
+            Node nd2copy = new Node(0, 100, 0, 2, "2");
+            Node nd3copy = new Node(100, 0, 0, 3, "3");
+            Node nd4 = new Node(100, 100, 0, 4, "4");
+
+            nd2copy.AddAttribute(DZ);
+            nd3copy.AddAttribute(DZ);
+            nd4.AddAttribute(DZ);
+
+            nodesPlate2.Add(nd2copy);
+            nodesPlate2.Add(nd3copy);
+            nodesPlate2.Add(nd4);
+
+            List<FiniteElement> elements = new List<FiniteElement>();
+            FiniteElement e0 = new TriangularMembranal(nodesPlate1.ToArray(), prop, 1);
+            PlatePressureAttribute p = new PlatePressureAttribute(loadCase, sys, -1, 0, 0);
+            e0.AddAttribute(p);
+
+            elements.Add(e0);
+            elements.Add(new TriangularMembranal(nodesPlate2.ToArray(), prop, 2));
+
+            FEMModel fem = new FEMModel(elements.ToArray());
+            double[] Node4DX = fem.GetDisplacementGlobalCoordinates(nd4, FEMModel.DOF.DX);
+            double[] Node4DY = fem.GetDisplacementGlobalCoordinates(nd4, FEMModel.DOF.DY);
+
+            double[] Node3DX = fem.GetDisplacementGlobalCoordinates(nd3, FEMModel.DOF.DX);
+            double[] Node3DY = fem.GetDisplacementGlobalCoordinates(nd3, FEMModel.DOF.DY);
+
+            double[] Node3CopyDX = fem.GetDisplacementGlobalCoordinates(nd3copy, FEMModel.DOF.DX);
+            double[] Node3CopyDY = fem.GetDisplacementGlobalCoordinates(nd3copy, FEMModel.DOF.DY);
+
+            /*Node 4 Displacement
+            DX (mm)	-0.000002	
+            DY (mm)	-0.000007	
+            DZ(mm) 0.000000*/
+            double dXNode4 = -0.000002;
+            double dYNode4 = -0.000007;
+            Assert.AreEqual(Node4DX[0], dXNode4, 0.000001);
+            Assert.AreEqual(Node4DY[0], dYNode4, 0.000001);
+
+            /*Node 3 Displacement
+            DX (mm)	-0.000014	
+            DY (mm)	-0.000005
+            DZ(mm) 0.000000*/
+            double dXNode3 = -0.000014;
+            double dYNode3 = -0.000005;
             Assert.AreEqual(Node3DX[0], dXNode3, 0.000001);
             Assert.AreEqual(Node3DY[0], dYNode3, 0.000001);
             Assert.AreEqual(Node3CopyDX[0], dXNode3, 0.000001);

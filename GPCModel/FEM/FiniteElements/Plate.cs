@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using GPC.Model.Elements;
+using mnl = MathNet.Numerics.LinearAlgebra;
 
 namespace GPC.Model.FEM.FiniteElements
 {
@@ -14,7 +15,7 @@ namespace GPC.Model.FEM.FiniteElements
            
         }
 
-        public override void BuildF()
+        protected override mnl.Vector<double> BuildFLocalCoord()
         {
             throw new NotImplementedException();
         }

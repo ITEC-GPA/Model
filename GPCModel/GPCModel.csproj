@@ -101,7 +101,7 @@
     <Compile Include="FEM\Attributes\LoadCase\LoadCaseAttribute.cs" />
     <Compile Include="FEM\Attributes\LoadCase\NodeForceAttribute.cs" />
     <Compile Include="FEM\Attributes\LoadCase\PlateNormalPressureAttribute.cs" />
-    <Compile Include="FEM\Attributes\LoadCase\PlateGlobalPressureAttribute.cs" />
+    <Compile Include="FEM\Attributes\LoadCase\PlatePressureAttribute.cs" />
     <Compile Include="FEM\Costrain\Costrain.cs" />
     <Compile Include="FEM\FEMObject.cs" />
     <Compile Include="FEM\FiniteElements\FiniteElement.cs" />

@@ -268,6 +268,28 @@ namespace GPC.Model.FEM
                     }
                 }
             }
+            for (int i = 0; i < Elements.Count(); i++) //cycle over elements
+            {
+                FiniteElement element = Elements[i];
+                mnl.Vector<double> FElementGlobalCoord = element.GlobalCoordF();
+                for (int j = 0; i < element.GlobalNodesElement.Length; j++) //cycle over nodes of element
+                {
+                    Node node = element.GlobalNodesElement[j];
+                    Node[] nds = Nodes.Where(x => x.Position == node.Position).ToArray();
+                    if (nds.Length <= 0 || nds.Length > 1)
+                    {
+                        throw new Exception("something wrong with nodes and elemens");
+                    }
+
+                    //check wich DOF are active for the node to put in the right position the force
+                    for (int k = 0; k < nds[0].NrActiveDof; k++) {
+                        
+                    }
+
+                    /*int pos = GetPositionInKGlobal(node.Index,)
+                    _F[_F]*/
+                }
+            }
             #endregion
 
             #region ApplyingRestrains

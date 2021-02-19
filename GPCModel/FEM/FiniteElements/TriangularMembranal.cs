@@ -5,13 +5,16 @@ using System.Text;
 using System.Threading.Tasks;
 using GPC.Geometry;
 using GPC.Model.Elements;
+using GPC.Model.FEM.Attributes;
 using MathNet.Numerics.LinearAlgebra;
-using MathNet.Spatial.Euclidean;
 
 namespace GPC.Model.FEM.FiniteElements
 {
     public class TriangularMembranal : FiniteElement, IEquatable<TriangularMembranal>
     {
+        //calculated and used in BuildMatrix and used also in BuildF
+        private double _areaElement;
+
         public TriangularMembranal(Node[] nodes, PlateProperty property, int id) : base(nodes, property, id)
         {
             //recalled base(nodes)
@@ -122,7 +125,7 @@ namespace GPC.Model.FEM.FiniteElements
             double dx31 = node3.Position.X - node1.Position.X;
             double dy31 = node3.Position.Y - node1.Position.X;
 
-            double A = 1.0 / 2.0 * (dx32 * dy21 - dx21 * dy32);
+            _areaElement = 1.0 / 2.0 * (dx32 * dy21 - dx21 * dy32);
 
             /*ShapeFunctions = new Polynome[3];
             for (int i = 0; i < nodes.Count(); i++) {
@@ -165,7 +168,7 @@ namespace GPC.Model.FEM.FiniteElements
             _b[2, 5] = dy21;
             Console.WriteLine("Matrix B = " + _b.ToString());
 
-            _b = 1.0 / (2.0 * A) * _b;
+            _b = 1.0 / (2.0 * _areaElement) * _b;
             Console.WriteLine("Matrix B = " + _b.ToString());
             #endregion
 
@@ -185,17 +188,56 @@ namespace GPC.Model.FEM.FiniteElements
 
             #region stiffnessMatrixInLocalCoordinates
             double thk = ((PlateProperty)_property).MembraneThickness;
-            double V = A * thk;
+            double V = _areaElement * thk;
             _kElementLocalCoord = V * _b.Transpose() * _d * _b;
             Console.WriteLine("KElementLocalCoord = " + KElementLocalCoord.ToString());
             #endregion
-
         }
 
-        public override void BuildF()
+        protected override Vector<double> BuildFLocalCoord()
         {
-            // implement force equivalent to node due to prestress, or temperature etc
-            throw new NotImplementedException();
+            Vector<double> _fLocalCoord = Vector<double>.Build.Dense(2 * GlobalNodesElement.Length);
+            foreach (IPlateLoadCaseAttribute iAttribute in _attributes)
+            {
+                if (iAttribute is PlatePressureAttribute)
+                {
+                    PlatePressureAttribute attribute = (PlatePressureAttribute)iAttribute;
+                    //calcultation of pressures in local coordinate system of the element
+                    Vector3d dirX = attribute.Sys.V11;
+                    dirX.Unitize();
+                    Vector3d dirY = attribute.Sys.V22;
+                    dirY.Unitize();
+                    Vector3d dirZ = attribute.Sys.V33;
+                    dirZ.Unitize();
+
+                    Vector3d x = LocalCoordinateSystem.V11;
+                    dirX.Unitize();
+                    Vector3d y = LocalCoordinateSystem.V22;
+                    dirY.Unitize();
+                    Vector3d z = LocalCoordinateSystem.V33;
+                    dirZ.Unitize();
+
+                    //Set in local coordinates
+                    double px = attribute.P11 * dirX.DotProduct(x) + attribute.P22 * dirY.DotProduct(x) + attribute.P33 * dirZ.DotProduct(x);
+                    double py = attribute.P11 * dirX.DotProduct(y) + attribute.P22 * dirY.DotProduct(y) + attribute.P33 * dirZ.DotProduct(y);
+                    double pz = attribute.P11 * dirX.DotProduct(z) + attribute.P22 * dirY.DotProduct(z) + attribute.P33 * dirZ.DotProduct(z);
+
+                    if (pz != 0.0)
+                    {
+                        throw new Exception("this finite element can't support out of plane pressure");
+                    }
+
+                    //Pressure --> node force
+                    Vector3d f = new Vector3d(px * _areaElement / 3.0, py * _areaElement / 3.0, pz * _areaElement / 3.0); //force applied in each node
+
+                    for (int i = 0; i < _fLocalCoord.Count; i=i+2)
+                    {
+                        _fLocalCoord[i] = f.X;
+                        _fLocalCoord[i+1] = f.Y;
+                    }
+                }
+            }
+            return _fLocalCoord;
         }
 
         public override bool Equals(object obj)
