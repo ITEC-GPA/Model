@@ -25,7 +25,10 @@ namespace GPC.Model.FEM
 
         #region Properties
         public Point3d Position => _position;
-        public HashSet<FEMModel.DOF> DOF { get; set; } //used for GlobalSystemMatrix
+        /// <summary>
+        /// Contains the degree of freedom active for the node
+        /// </summary>
+        public HashSet<FEMModel.DOF> DOF { get; set; }
 
         public int NrActiveDof
         {
@@ -34,7 +37,7 @@ namespace GPC.Model.FEM
                 int ris = 0;
                 for (int i = 0; i < FEMModel.MAXGDLPERNODE; i++)
                 {
-                    if (DOF[(FEMModel.DOF)i] == true)
+                    if (DOF.Contains((FEMModel.DOF)i) == true)
                     {
                         ris++;
                     }  
@@ -51,12 +54,8 @@ namespace GPC.Model.FEM
         {
             _position = point;
             
-            DOF = new Dictionary<FEMModel.DOF, bool>(FEMModel.MAXGDLPERNODE);
-            for (int i = 0; i < FEMModel.MAXGDLPERNODE; i++)
-            {
-                DOF.Add((FEMModel.DOF)i, false);
-            }
-
+            DOF = new HashSet<FEMModel.DOF>();
+            
             _attributesLoadCase = new List<INodeLoadCaseAttribute>();
             _attributesFreedomCase = new List<INodeFreedomCaseAttribute>();
         }

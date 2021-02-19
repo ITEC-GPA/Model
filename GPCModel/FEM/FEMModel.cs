@@ -73,15 +73,15 @@ namespace GPC.Model.FEM
 
                         for (int k = 0; k < MAXGDLPERNODE; k++)
                         {
-                            if (element.DOF[(DOF)k] == true)
+                            if (element.DOF.Contains((DOF)k) == true)
                             {
-                                node.DOF[(DOF)k] = true;
+                                node.DOF.Add((DOF)k);
                             }
 
                             //Merge old DOF due to other element
-                            if (nodes.Single().DOF[(DOF)k] == true)
+                            if (nodes.Single().DOF.Contains((DOF)k) == true)
                             {
-                                node.DOF[(DOF)k] = true;
+                                node.DOF.Add((DOF)k);
                             }
                         }
 
@@ -109,9 +109,9 @@ namespace GPC.Model.FEM
                     {
                         for (int k = 0; k < MAXGDLPERNODE; k++)
                         {
-                            if (element.DOF[(DOF)k] == true)
+                            if (element.DOF.Contains((DOF)k) == true)
                             {
-                                node.DOF[(DOF)k] = true;
+                                node.DOF.Add((DOF)k);
                             }
                         }
                         node.SetID(iter);
@@ -239,32 +239,32 @@ namespace GPC.Model.FEM
                         double mZ = nodeForceAttribute.F.DotProduct(Z);
 
                         DOF dof = DOF.DX;
-                        if (Nodes[i].DOF[dof] == true)
+                        if (Nodes[i].DOF.Contains(dof) == true)
                         {
                             _F[GetPositionInKGlobal(Nodes[i].Index, dof)] = _F[GetPositionInKGlobal(Nodes[i].Index, dof)] + fX;
                         }
                         dof = DOF.DY;
-                        if (Nodes[i].DOF[dof] == true)
+                        if (Nodes[i].DOF.Contains(dof) == true)
                         {
                             _F[GetPositionInKGlobal(Nodes[i].Index, dof)] = _F[GetPositionInKGlobal(Nodes[i].Index, dof)] + fY;
                         }
                         dof = DOF.DZ;
-                        if (Nodes[i].DOF[dof] == true)
+                        if (Nodes[i].DOF.Contains(dof) == true)
                         {
                             _F[GetPositionInKGlobal(Nodes[i].Index, dof)] = _F[GetPositionInKGlobal(Nodes[i].Index, dof)] + fZ;
                         }
                         dof = DOF.RX;
-                        if (Nodes[i].DOF[dof] == true)
+                        if (Nodes[i].DOF.Contains(dof) == true)
                         {
                             _F[GetPositionInKGlobal(Nodes[i].Index, dof)] = _F[GetPositionInKGlobal(Nodes[i].Index, dof)] + mX;
                         }
                         dof = DOF.RY;
-                        if (Nodes[i].DOF[dof] == true)
+                        if (Nodes[i].DOF.Contains(dof) == true)
                         {
                             _F[GetPositionInKGlobal(Nodes[i].Index, dof)] = _F[GetPositionInKGlobal(Nodes[i].Index, dof)] + mY;
                         }
                         dof = DOF.RZ;
-                        if (Nodes[i].DOF[dof] == true)
+                        if (Nodes[i].DOF.Contains(dof) == true)
                         {
                             _F[GetPositionInKGlobal(Nodes[i].Index, dof)] = _F[GetPositionInKGlobal(Nodes[i].Index, dof)] + mZ;
                         }

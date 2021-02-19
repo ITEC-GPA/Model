@@ -20,7 +20,7 @@ namespace GPC.Model.FEM.FiniteElements
         protected double[] _vecYLocal = new double[3]; //versor Y local in Global Coordinate Sys
         protected double[] _vecZLocal = new double[3]; //versor Z local in Global Coordinate Sys*/
 
-        protected Dictionary<FEMModel.DOF, bool> _DOF = new Dictionary<FEMModel.DOF, bool>(Enum.GetNames(typeof(FEMModel.DOF)).Length);
+        protected HashSet<FEMModel.DOF> _DOF = new HashSet<FEMModel.DOF>();
         
         protected mnl.Matrix<double> _dofGlobalToLocal;
         protected mnl.Matrix<double> _kElementLocalCoord;
@@ -56,9 +56,9 @@ namespace GPC.Model.FEM.FiniteElements
         public CoordinateSystem LocalCoordinateSystem => _localCoordinateSystem;
 
         /// <summary>
-        /// DOF[degree of freedom] = true if active, false if unactive
+        /// Contains the DOF active in the element
         /// </summary>
-        public Dictionary<FEMModel.DOF, bool> DOF => _DOF;
+        public HashSet<FEMModel.DOF> DOF => _DOF;
 
         /// <summary>
         /// Contains Material for brick, thickness and material for plate, material + section for beam
@@ -75,7 +75,7 @@ namespace GPC.Model.FEM.FiniteElements
                 int counter = 0;
                 for (int i = 0; i < DOF.Count; i++)
                 {
-                    if (DOF[(FEMModel.DOF)i] == true) {
+                    if (DOF.Contains((FEMModel.DOF)i) == true) {
                         counter++;
                     }
                 }
@@ -124,12 +124,6 @@ namespace GPC.Model.FEM.FiniteElements
         {
             GlobalNodesElement = nodes;
             _property = property;
-            _DOF[FEMModel.DOF.DX] = false;
-            _DOF[FEMModel.DOF.DY] = false;
-            _DOF[FEMModel.DOF.DZ] = false;
-            _DOF[FEMModel.DOF.RX] = false;
-            _DOF[FEMModel.DOF.RY] = false;
-            _DOF[FEMModel.DOF.RZ] = false;
         }
         #endregion
 

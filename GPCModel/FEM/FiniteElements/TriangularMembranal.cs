@@ -15,9 +15,9 @@ namespace GPC.Model.FEM.FiniteElements
         public TriangularMembranal(Node[] nodes, PlateProperty property, int id) : base(nodes, property, id)
         {
             //recalled base(nodes)
-            _DOF[FEMModel.DOF.DX] = true;
-            _DOF[FEMModel.DOF.DY] = true;
-            _DOF[FEMModel.DOF.DZ] = true;
+            _DOF.Add(FEMModel.DOF.DX);
+            _DOF.Add(FEMModel.DOF.DY);
+            _DOF.Add(FEMModel.DOF.DZ);
             //a displacement in Local coordinate plane (Dx, Dy) can be a DX, DY, DZ in Global space!
         }
 
