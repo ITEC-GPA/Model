@@ -33,7 +33,7 @@ namespace GPC.Model.FEM
         protected mnl.Vector<double> _nodeGlobalDisplacement;
         #endregion
 
-        public mnl.Matrix<double> KGlobal => _KGlobal;
+        public mnl.Matrix<double> KGlobal => _KGlobalRestrains;
 
         /// <summary>
         /// Unique nodes in model
@@ -73,29 +73,29 @@ namespace GPC.Model.FEM
 
                         for (int k = 0; k < MAXGDLPERNODE; k++)
                         {
-                            if (element.DOF[(DOF)k] == true)
+                            if (element.DOF.Contains((DOF)k) == true)
                             {
-                                node.DOF[(DOF)k] = true;
+                                node.DOF.Add((DOF)k);
                             }
 
                             //Merge old DOF due to other element
-                            if (nodes.Single().DOF[(DOF)k] == true)
+                            if (nodes.Single().DOF.Contains((DOF)k) == true)
                             {
-                                node.DOF[(DOF)k] = true;
+                                node.DOF.Add((DOF)k);
                             }
                         }
 
                         //Merge Attribute of node in other element in the node
-                        foreach (FreedomCaseAttribute freedomCasecAttribute in nodes.Single().AttributesFreedomCases)
+                        foreach (FreedomCaseAttribute freedomCasecAttribute in nodes.Single().AttributesFreedomCase)
                         {
                             if (freedomCasecAttribute is NodeRestrainAttribute)
                             {
                                 NodeRestrainAttribute restrainAttribute = (NodeRestrainAttribute)freedomCasecAttribute;
                                 //check if already exist
-                                if (node.AttributesFreedomCases.Contains(restrainAttribute) == false)
+                                if (node.AttributesFreedomCase.Contains(restrainAttribute) == false)
                                 {
                                     //Copy
-                                    node.AttributesFreedomCases.Add(new NodeRestrainAttribute(restrainAttribute.FreedomCase, restrainAttribute.CSys, restrainAttribute.Restrains, restrainAttribute.Name, Guid.NewGuid()));
+                                    node.AttributesFreedomCase.Add(new NodeRestrainAttribute(restrainAttribute.FreedomCase, restrainAttribute.CSys, restrainAttribute.Restrains, restrainAttribute.Name, Guid.NewGuid()));
                                 }
                             }
                         }
@@ -109,9 +109,9 @@ namespace GPC.Model.FEM
                     {
                         for (int k = 0; k < MAXGDLPERNODE; k++)
                         {
-                            if (element.DOF[(DOF)k] == true)
+                            if (element.DOF.Contains((DOF)k) == true)
                             {
-                                node.DOF[(DOF)k] = true;
+                                node.DOF.Add((DOF)k);
                             }
                         }
                         node.SetID(iter);
@@ -209,7 +209,65 @@ namespace GPC.Model.FEM
             #region CalculationOfAppliedForcesF
             //Calculation of Forces vector
             _F = mnl.Vector<double>.Build.Dense(_KGlobal.RowCount);
-            _F[GetPositionInKGlobal("4",DOF.DX).First()] = 1000;
+            //_F[GetPositionInKGlobal("4",DOF.DX).First()] = 1000;
+
+            Vector3d X = new Vector3d(1, 0, 0);
+            Vector3d Y = new Vector3d(0, 1, 0);
+            Vector3d Z = new Vector3d(0, 0, 1);
+
+            for (int i = 0; i < Nodes.Count(); i++)
+            {
+                foreach (LoadCaseAttribute loadCaseAttribute in Nodes[i].AttributesLoadCase)
+                {
+                    if (loadCaseAttribute is NodeForceAttribute)
+                    {
+                        NodeForceAttribute nodeForceAttribute = (NodeForceAttribute)loadCaseAttribute;
+                        
+                        Vector3d dirX = nodeForceAttribute.CoordinateSystem.V11;
+                        dirX.Unitize();
+                        Vector3d dirY = nodeForceAttribute.CoordinateSystem.V22;
+                        dirY.Unitize();
+                        Vector3d dirZ = nodeForceAttribute.CoordinateSystem.V33;
+                        dirZ.Unitize();
+
+                        //Set in global coordinates
+                        double fX = nodeForceAttribute.F1 * dirX.DotProduct(X) + nodeForceAttribute.F2 * dirY.DotProduct(X) + nodeForceAttribute.F3 * dirZ.DotProduct(X);
+                        double fY = nodeForceAttribute.F1 * dirX.DotProduct(Y) + nodeForceAttribute.F2 * dirY.DotProduct(Y) + nodeForceAttribute.F3 * dirZ.DotProduct(Y);
+                        double fZ = nodeForceAttribute.F1 * dirX.DotProduct(Z) + nodeForceAttribute.F2 * dirY.DotProduct(Z) + nodeForceAttribute.F3 * dirZ.DotProduct(Z);
+
+                        DOF dof = DOF.DX;
+                        if (Nodes[i].DOF.Contains(dof) == true)
+                        {
+                            _F[GetPositionInKGlobal(Nodes[i].Index, dof)] = _F[GetPositionInKGlobal(Nodes[i].Index, dof)] + fX;
+                        }
+                        dof = DOF.DY;
+                        if (Nodes[i].DOF.Contains(dof) == true)
+                        {
+                            _F[GetPositionInKGlobal(Nodes[i].Index, dof)] = _F[GetPositionInKGlobal(Nodes[i].Index, dof)] + fY;
+                        }
+                        dof = DOF.DZ;
+                        if (Nodes[i].DOF.Contains(dof) == true)
+                        {
+                            _F[GetPositionInKGlobal(Nodes[i].Index, dof)] = _F[GetPositionInKGlobal(Nodes[i].Index, dof)] + fZ;
+                        }
+                        /*dof = DOF.RX;
+                        if (Nodes[i].DOF.Contains(dof) == true)
+                        {
+                            _F[GetPositionInKGlobal(Nodes[i].Index, dof)] = _F[GetPositionInKGlobal(Nodes[i].Index, dof)] + m.DotProduct(X);
+                        }
+                        dof = DOF.RY;
+                        if (Nodes[i].DOF.Contains(dof) == true)
+                        {
+                            _F[GetPositionInKGlobal(Nodes[i].Index, dof)] = _F[GetPositionInKGlobal(Nodes[i].Index, dof)] + m.DotProduct(Y);
+                        }
+                        dof = DOF.RZ;
+                        if (Nodes[i].DOF.Contains(dof) == true)
+                        {
+                            _F[GetPositionInKGlobal(Nodes[i].Index, dof)] = _F[GetPositionInKGlobal(Nodes[i].Index, dof)] + m.DotProduct(Z);
+                        }*/
+                    }
+                }
+            }
             #endregion
 
             #region ApplyingRestrains
@@ -220,7 +278,7 @@ namespace GPC.Model.FEM
 
             for (int i = 0; i < Nodes.Count(); i++)
             {
-                foreach (FreedomCaseAttribute freedomCasecAttribute in Nodes[i].AttributesFreedomCases)
+                foreach (FreedomCaseAttribute freedomCasecAttribute in Nodes[i].AttributesFreedomCase)
                 {
                     if (freedomCasecAttribute is NodeRestrainAttribute)
                     {
@@ -232,9 +290,6 @@ namespace GPC.Model.FEM
                         dirY.Unitize();
                         Vector3d dirZ = restrainAttribute.CSys.V33;
                         dirZ.Unitize();
-
-                        Vector3d X = new Vector3d(1, 0, 0);
-                        Vector3d Y = new Vector3d(0, 1, 0);
 
                         if (dirX.DotProduct(X) == 1.0 && dirY.DotProduct(Y) == 1.0) //Coord sys == Global Coord
                         {
@@ -277,7 +332,6 @@ namespace GPC.Model.FEM
              * rewrite constrains as : 1.0 * GdL NodeMaster + ValI * GdL NodeSlaveI + ... + ValN * GdL NodeSlaveN = const
              * and modify K matrix and F vector
              */
-
             int nLagrangianMultiplier = _costrains.Count;
             for (int i = 0; i < _costrains.Count; i++)
             {
@@ -409,6 +463,13 @@ namespace GPC.Model.FEM
         }
 
         #region PublicFuction
+        /// <summary>
+        /// Ritorna spostamento per un selezionato nodo e per un selezione grado di libertà.
+        /// Per selezionare il nodo è usata la label in quanto l'index potrebbe essere stato modificato rispetto a fase di input...(forse è meglio dare un errore in fase di costruzione e non cambiare index?)
+        /// </summary>
+        /// <param name="node"></param>
+        /// <param name="dof"></param>
+        /// <returns></returns>
         public double[] GetDisplacementGlobalCoordinates(Node node, DOF dof)
         {
             int[] pos = GetPositionInKGlobal(node.Name, dof);
@@ -422,6 +483,12 @@ namespace GPC.Model.FEM
         #endregion
 
         #region PrivateFunction
+        /// <summary>
+        /// odifica la matrice K e il termine noto F per l'inserimento di un spostamento imposto nei nodi con label "labelNode", grado di libertà dof e con spostamento = value;
+        /// </summary>
+        /// <param name="labelNode"></param>
+        /// <param name="dof"></param>
+        /// <param name="val"></param>
         private void PrescribeDisplacement(string labelNode, DOF dof, double val)
         {
             int[] positions = GetPositionInKGlobal(labelNode, dof);
@@ -439,7 +506,12 @@ namespace GPC.Model.FEM
             }
 
         }
-
+        /// <summary>
+        /// Modifica la matrice K e il termine noto F per l'inserimento di un spostamento imposto nel nodo index, grado di libertà dof e con spostamento = value;
+        /// </summary>
+        /// <param name="index"></param>
+        /// <param name="dof"></param>
+        /// <param name="val"></param>
         private void PrescribeDisplacement(int index, DOF dof, double val)
         {
             int position = GetPositionInKGlobal(index, dof);
@@ -453,8 +525,6 @@ namespace GPC.Model.FEM
             _KGlobalRestrains[position, position] = 1.0;
             _FRestrains[position] = val;
         }
-
-
 
         /// <summary>
         /// Give the position of selected GDL from 0 to N where N is dimension of matrix KGloabl or the dimension of the vector of Forces or Displacments
