@@ -3,6 +3,10 @@ using System.Runtime.Serialization;
 
 namespace GPC.Model.Materials
 {
+    /// <summary>
+    /// Glass Material for ASTM standard.
+    /// according ot NCSEA - Engineering structural glass design guide
+    /// </summary>
     [Serializable]
     public class GlassMaterialAstm : GlassMaterial, IEquatable<GlassMaterialAstm>
     {
@@ -40,7 +44,7 @@ namespace GPC.Model.Materials
         /// <param name="density">Density of the material [T/mm^3]</param>
         /// <param name="alfaThermalExpansion">Alfa linear thermal expansion coefficient</param>
         public GlassMaterialAstm(string name, double elasticModulus, double poisson, double psiSurface, double nGlassCoefficient, double surfaceBaseStress, double surfaceBaseEdgeStress, double probabiltyOfBreakage, double density, double alfaThermalExpansion)
-            : this(name, elasticModulus, poisson, density, psiSurface, nGlassCoefficient, surfaceBaseStress, surfaceBaseEdgeStress, probabiltyOfBreakage, alfaThermalExpansion, Guid.NewGuid())
+            : this(name, elasticModulus, poisson, psiSurface, nGlassCoefficient, surfaceBaseStress, surfaceBaseEdgeStress, probabiltyOfBreakage, density, alfaThermalExpansion, Guid.NewGuid())
         {
 
         }
@@ -131,7 +135,7 @@ namespace GPC.Model.Materials
         {
             if (ReferenceEquals(this, obj))
                 return true;
-            return base.Equals(obj as GlassMaterialAstm);
+            return Equals(obj as GlassMaterialAstm);
         }
 
         public override int GetHashCode()

@@ -92,7 +92,7 @@ namespace GPC.Model.Elements
             if (ReferenceEquals(this, obj))
                 return true;
 
-            return base.Equals(obj as LaminatedGlassProperty);
+            return Equals(obj as LaminatedGlassProperty);
         }
 
         public override int GetHashCode()

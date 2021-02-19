@@ -29,19 +29,23 @@ namespace GPC.Model.Materials
 
         #endregion
 
+        #region PROPERTIES
+
         public InterlayerType Type => _type;
+
+        #endregion
 
         #region CONSTRUCTOR
 
-        public InterlayerMaterial(double density, double alfaThermalExpansion, InterlayerType type, Guid guid)
-            : base("", 0, 0, density, alfaThermalExpansion, guid)
+        public InterlayerMaterial(string name, double density, double alfaThermalExpansion, InterlayerType type, Guid guid)
+            : base(name, 0, 0, density, alfaThermalExpansion, guid)
         {
             _shearModulus = new List<LoadDurationShearModules>();
-            this._type = type;
+            _type = type;
         }
 
-        public InterlayerMaterial(double density, double alfaThermalExpansion, InterlayerType type)
-            : this(density, alfaThermalExpansion, type, Guid.NewGuid())
+        public InterlayerMaterial(string name, double density, double alfaThermalExpansion, InterlayerType type)
+            : this(name, density, alfaThermalExpansion, type, Guid.NewGuid())
         {
         }
 
@@ -118,7 +122,7 @@ namespace GPC.Model.Materials
         {
             if (ReferenceEquals(this, obj))
                 return true;
-            return base.Equals(obj as InterlayerMaterial);
+            return Equals(obj as InterlayerMaterial);
         }
 
         public override int GetHashCode()

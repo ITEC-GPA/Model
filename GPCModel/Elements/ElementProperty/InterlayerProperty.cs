@@ -69,16 +69,17 @@ namespace GPC.Model.Elements
             if (ReferenceEquals(this, other))
                 return true;
 
-            return !(other is null) && base.Equals(other) &&
+            return !(other is null) &&
                         _temperature.Equals(other._temperature) &&
-                        _loadDuration.Equals(other._loadDuration);
+                        _loadDuration.Equals(other._loadDuration) && base.Equals(other);
         }
 
         public override bool Equals(object obj)
         {
             if (ReferenceEquals(this, obj))
                 return true;
-            return base.Equals(obj as InterlayerProperty);
+
+            return Equals(obj as InterlayerProperty);
         }
 
         public override int GetHashCode()

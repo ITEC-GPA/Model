@@ -9,13 +9,13 @@ namespace GPC.Model.Elements.Glasses
     /// Abstract class that represent the interlayer between two monolithic glasses to compose a laminated glass
     /// </summary>
     [Serializable]
-    public class Interlayer : ModelObject, IEquatable<Interlayer>
+    public sealed class Interlayer : ModelObject, IEquatable<Interlayer>
     {
         #region VARIABLES
 
-        protected double _thickness;
+        private double _thickness;
 
-        protected InterlayerMaterial _interlayerMaterial;
+        private InterlayerMaterial _interlayerMaterial;
 
         #endregion
 
@@ -68,7 +68,7 @@ namespace GPC.Model.Elements.Glasses
 
         public override bool Equals(object obj)
         {
-            return base.Equals(obj as Interlayer);
+            return Equals(obj as Interlayer);
         }
 
         public override int GetHashCode()

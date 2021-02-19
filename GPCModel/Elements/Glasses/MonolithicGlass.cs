@@ -12,6 +12,7 @@ namespace GPC.Model.Elements.Glasses
     public sealed class MonolithicGlass : Glass, IGlassPanel, IEquatable<MonolithicGlass>
     {
         #region Variables
+
         private GlassMaterial _material;
 
         private double _thickness;
@@ -66,7 +67,6 @@ namespace GPC.Model.Elements.Glasses
 
         #endregion 
 
-
         #region PUBLIC METHODS
 
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
@@ -91,7 +91,7 @@ namespace GPC.Model.Elements.Glasses
             if (ReferenceEquals(this, obj))
                 return true;
 
-            return base.Equals(obj as MonolithicGlass);
+            return Equals(obj as MonolithicGlass);
         }
 
         public override int GetHashCode()

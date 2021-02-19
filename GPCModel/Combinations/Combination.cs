@@ -15,11 +15,11 @@ namespace GPC.Model.Combinations
         protected Combination(string name, Guid guid)
             : base(guid, name)
         {
-            if (String.IsNullOrEmpty(name) || string.IsNullOrWhiteSpace(name))
+            if (string.IsNullOrEmpty(name) || string.IsNullOrWhiteSpace(name))
                 throw new ArgumentException("Combination name cannot be empty");
 
             this._name = name;
-            _coefficients = new List<LoadCaseCoefficient>();
+            this._coefficients = new List<LoadCaseCoefficient>();
         }
 
         protected Combination(string name)

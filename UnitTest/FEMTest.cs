@@ -1,574 +1,432 @@
 ﻿using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System.Collections.Generic;
+using GPC.Model.FEM.FiniteElements;
 using GPC.Model.FEM;
-using GPC.Model.Sections;
-using GPC.Model.Materials;
-using GPC.Model;
-using GPC.Geometry;
-using MathNet.Numerics.LinearAlgebra;
-using System.IO;
+using mnl = MathNet.Numerics.LinearAlgebra;
 using GPC.Model.Elements;
+using GPC.Model.Materials;
+using GPC.Model.FreedomCases;
+using GPC.Geometry;
+using GPC.Model.FEM.Attributes;
+using GPC.Model.LoadCases;
 
 namespace UnitTest
 {
-
     [TestClass]
-    public class FEMTestPlates
+    public class FEMTest
     {
-        public TestContext TestContext { get; set; }
-        private static string _outputFolder;
-        private string _testName;
-
-        [TestInitialize]
-        public void TestInitialize()
+        [TestMethod]
+        public void EqualsNodesTest1()
         {
-            _outputFolder = System.IO.Path.Combine(Directory.GetParent(TestContext.TestDir).ToString(), "OutputTests");
-            Directory.CreateDirectory(_outputFolder);
-            _testName = TestContext.TestName;
-        }
+            //Node in same place with different ID
+            Node n1 = new Node(0, 0, 0, 1);
+            Node n2 = new Node(0, 0, 0, 2);
 
-        [TestCleanup]
-        public void CleanUp()
-        {
-            if (Directory.Exists(TestContext.TestDir))
-                Directory.Delete(TestContext.TestDir, true);
+            //controllo equals nodi
+            Assert.IsFalse(n1.Equals(n2));
         }
 
         [TestMethod]
-        public void Benchmark10001()
+        public void EqualsFiniteElementTest1()
         {
-            /// Benchmark10001 - Bathe, Numerical Methods in Finite Elements Analysis - Esercizio Nr 5.11 pg 358
-            /// 0 - active degree of freedom
-            /// 1 - non-active degree of freedom
-            int[] NodeDoFID = new int[] { 1, 2, 3, 4, 5, 6 };
+            Material mat = new SteelMaterial("steel", 200000, 0.2, 355, 510, 7850);
+            PlateProperty prop = new PlateProperty(mat,0,1);
 
-            /// Nodes in 3D  XYZ
-            int[] Node1DoF = new int[] { 1, 1, 1, 0, 0, 1 };
-            int[] Node2DoF = new int[] { 1, 1, 1, 0, 0, 1 };
-            int[] Node3DoF = new int[] { 0, 0, 1, 0, 0, 1 };
-            int[] Node4DoF = new int[] { 0, 0, 1, 0, 0, 1 };
+            //Node in same place with different ID
+            Node[] nodes = new Node[3];
+            nodes[0] = new Node(0, 0, 0, 1);
+            nodes[1] = new Node(1, 0, 0, 2);
+            nodes[2] = new Node(0, 1, 0, 3);
 
-            Node Node1 = new Node(Guid.NewGuid(), new Point3d(+0.0, 0.0, 0.0), 1, NodeDoFID, Node1DoF);
-            Node Node2 = new Node(Guid.NewGuid(), new Point3d(+20, 10, 0.0), 2, NodeDoFID, Node2DoF);
-            Node Node3 = new Node(Guid.NewGuid(), new Point3d(+15, 20, 0.0), 3, NodeDoFID, Node3DoF);
-            Node Node4 = new Node(Guid.NewGuid(), new Point3d(-20, +20, 0.0), 4, NodeDoFID, Node4DoF);
+            FiniteElement el0 = new TriangularMembranal(nodes, prop, 0);
+            FiniteElement el1 = new TriangularMembranal(nodes, prop, 1);
 
-            Node[] nodes = new Node[4];
-            nodes[0] = Node1;
-            nodes[1] = Node2;
-            nodes[2] = Node3;
-            nodes[3] = Node4;
+            //Controllo equals elementi
+            Assert.IsFalse(el0.Equals(el1));
+        }
 
-            int _globalDoF = 0;
-            int _reactionDoF = 0;
+        [TestMethod]
+        public void TriangularMembranalKTest1()
+        {
+            Material mat = new SteelMaterial("steel", 200000, 0.2, 355, 510, 7850);
+            PlateProperty prop = new PlateProperty(mat, 0, 1);
 
-            // Arrange Nodes
-            for (int nd = 0; nd < nodes.Length; nd++)
+            Node[] nds = new Node[3];
+            nds[0] = new Node(0, 0, 0, 1, "1");
+            nds[1] = new Node(0, 1, 0, 2, "2");
+            nds[2] = new Node(1, 0, 0, 3, "3");
+
+            TriangularMembranal el = new TriangularMembranal(nds, prop, 1);
+            el.BuildMatrix();
+            mnl.Matrix<double> kLocal = el.KElementLocalCoord;
+            mnl.Matrix<double> kLocalManual = mnl.Matrix<double>.Build.Dense(0, 6);
+            double[] r0 = new double[] { 145833,  62500, - 41667, - 20833, - 104167, - 41667 };
+            double[] r1 = new double[] { 62500,   145833, - 41667, - 104167, - 20833, - 41667 };
+            double[] r2 = new double[] { -41667, - 41667, 41667,   0,   0,   41667 };
+            double[] r3 = new double[] { -20833, - 104167, 0,   104167,  20833,   0 };
+            double[] r4 = new double[] { -104167, - 20833,  0,   20833,   104167,  0 };
+            double[] r5 = new double[] { -41667, - 41667,  41667,   0,   0,   41667 };
+
+            kLocalManual = kLocalManual.InsertRow(0, mnl.Vector<double>.Build.Dense(r0));
+            kLocalManual = kLocalManual.InsertRow(1, mnl.Vector<double>.Build.Dense(r1));
+            kLocalManual = kLocalManual.InsertRow(2, mnl.Vector<double>.Build.Dense(r2));
+            kLocalManual = kLocalManual.InsertRow(3, mnl.Vector<double>.Build.Dense(r3));
+            kLocalManual = kLocalManual.InsertRow(4, mnl.Vector<double>.Build.Dense(r4));
+            kLocalManual = kLocalManual.InsertRow(5, mnl.Vector<double>.Build.Dense(r5));
+
+            //controllo klocale elemento finito 3 nodi stato piano di tensione
+            for (int i = 0; i < kLocal.RowCount; i++)
             {
-                nodes[nd].DoF.FormIncidence(ref _globalDoF, ref _reactionDoF);
-            }
-
-            CoordinateSystem Csys = new CoordinateSystem(Node1.Position, Node2.Position, Node3.Position, 0, string.Empty, new Guid());
-
-            //Point3d p1 = new Point3d(1, 1, 0);
-            //Point3d p2 = new Point3d(3, 4, 0);
-            //Point3d p3 = new Point3d(3, 4, 4);
-            //Point3d p4 = new Point3d(1, 1, 4);
-            //GPC.Model.CoordinateSystems.CoordinateSystem Csys = new GPC.Model.CoordinateSystems.CoordinateSystem(Guid.Empty, p1, p2, p3);
-            //Point3d p1local = Csys.PointToLocal(p1);
-            //Point3d p2local = Csys.PointToLocal(p2);
-            //Point3d p3local = Csys.PointToLocal(p3);
-            //Point3d p4local = Csys.PointToLocal(p4);
-
-            ///  Section
-            double E = 210000; // MPa
-            double ni = 0.3;
-
-            /// Material
-            Material mat = new SteelMaterial("Steel", E, ni, 355, 510, 355/E, 0, 0, new Guid());// new Material("Steel", E, ni, 0.0, 0.0, new Guid());
-            PlateProperty property = new PlateProperty(mat, 1.00, 1.00);
-            //CoordinateSystemPlateQuad4 quad4 = new PlateQuad4(new Guid(), property, nodes);
-            PlateDKQ shell = new PlateDKQ(new Guid(), property, 1, nodes);
-
-            Matrix<double> _stiffnessMatrix = Matrix<double>.Build.Dense(_globalDoF, _globalDoF, 0.0);
-            shell.BuildElementDoFIncidence();
-            shell.KInGlobal(ref _stiffnessMatrix);
-
-
-
-            string TestName = "DKQ_SHELL_STIFF-MATRIX_REDUCED.txt";
-            string path = Path.Combine(_outputFolder, TestName);
-
-            // This text is added only once to the file.
-            if (File.Exists(path) == true)
-            {
-                File.Delete(path);
-            }
-            if (!File.Exists(path))
-            {
-                string matrix = "";
-                for (int r = 0; r < _stiffnessMatrix.RowCount; r++)
+                for (int j = 0; j < kLocal.ColumnCount; j++)
                 {
-                    for (int c = 0; c < _stiffnessMatrix.ColumnCount; c++)
-                    {
-                        matrix = matrix + "\t" + _stiffnessMatrix[r, c].ToString();
-                    }
-                    matrix = matrix + Environment.NewLine;
+                    Assert.AreEqual(kLocal[i,j] - kLocalManual[i,j], 0, 1, "kLocal no OK -> row " + i + " col " + j );
+                    //sarebbe stato meglio usare kLocal[i,j] / kLocalManual[i,j] ma 0/0 = NaN!!
                 }
-                File.WriteAllText(path, matrix);
             }
-
-         
-            /// Costruzione vettore delle forze esterne
-            Vector<double> Fmaffem = Vector<double>.Build.Dense(12, 0);
-            Fmaffem[4] = 10e3;
-
-            /// Solve Linear System
-            Vector<double> ResultsMAFFEM = _stiffnessMatrix.Solve(Fmaffem);
-            double DX = ResultsMAFFEM[4];
-            double DY = ResultsMAFFEM[5];
-
-            double test = 0.0;
-            double test1 = test;
         }
 
         [TestMethod]
-        public void Benchmark10002()
+        public void TriangularMembranalKTest2()
         {
-            /// Benchmark10001 - Bathe, Numerical Methods in Finite Elements Analysis - Esercizio Nr 5.11 pg 358
-            /// 0 - active degree of freedom
-            /// 1 - non-active degree of freedom
-            int[] NodeDoFID = new int[] { 1, 2, 3, 4, 5, 6 };
+            Material mat = new SteelMaterial("steel", 200000, 0.2, 355, 510, 7850);
+            PlateProperty prop = new PlateProperty(mat, 0, 1);
 
-            /// Nodes in 3D  XYZ
-            int[] Node1DoF = new int[] { 1, 1, 1, 0, 0, 1 };
-            int[] Node2DoF = new int[] { 1, 1, 1, 0, 0, 1 };
-            int[] Node3DoF = new int[] { 0, 0, 0, 0, 0, 1 };
-            int[] Node4DoF = new int[] { 0, 0, 1, 0, 0, 1 };
+            Node[] nds = new Node[3];
+            nds[0] = new Node(0, 0, 0, 1, "1");
+            nds[1] = new Node(0, 100, 0, 2, "2");
+            nds[2] = new Node(100, 0, 0, 3, "3");
 
-            Node Node1 = new Node(Guid.NewGuid(), new Point3d(+0.0, 0.0, 0.0), 1, NodeDoFID, Node1DoF);
-            Node Node2 = new Node(Guid.NewGuid(), new Point3d(+20, 10, 0.0), 2, NodeDoFID, Node2DoF);
-            Node Node3 = new Node(Guid.NewGuid(), new Point3d(+15, 20, 0.0), 3, NodeDoFID, Node3DoF);
-            Node Node4 = new Node(Guid.NewGuid(), new Point3d(-20, +20, 0.0), 4, NodeDoFID, Node4DoF);
+            TriangularMembranal el = new TriangularMembranal(nds, prop, 1);
+            el.BuildMatrix();
+            mnl.Matrix<double> kLocal = el.KElementLocalCoord;
+            //Add DZ global DOF
+            kLocal = kLocal.InsertColumn(kLocal.ColumnCount, mnl.Vector<double>.Build.Dense(kLocal.RowCount));
+            kLocal = kLocal.InsertRow(kLocal.RowCount, mnl.Vector<double>.Build.Dense(kLocal.ColumnCount));
 
-            Node[] nodes = new Node[4];
-            nodes[0] = Node1;
-            nodes[1] = Node2;
-            nodes[2] = Node3;
-            nodes[3] = Node4;
+            kLocal = kLocal.InsertColumn(4, mnl.Vector<double>.Build.Dense(kLocal.RowCount));
+            kLocal = kLocal.InsertRow(4, mnl.Vector<double>.Build.Dense(kLocal.ColumnCount));
 
-            int _globalDoF = 0;
-            int _reactionDoF = 0;
+            kLocal = kLocal.InsertColumn(2, mnl.Vector<double>.Build.Dense(kLocal.RowCount));
+            kLocal = kLocal.InsertRow(2, mnl.Vector<double>.Build.Dense(kLocal.ColumnCount));
 
-            // Arrange Nodes
-            for (int nd = 0; nd < nodes.Length; nd++)
+            mnl.Matrix<double> kGlobal = el.DofGlobalToLocal.Transpose() * el.KElementLocalCoord * el.DofGlobalToLocal;
+            //controllo che passaggio da coordinate locali a globali sia fatto corretamente
+            Assert.AreEqual(kLocal, kGlobal, "kLocal not equal to Kglobal with local axis");
+        }
+
+        [TestMethod]
+        public void AssemblyGlobalMatrixTest1()
+        {
+            Material mat = new SteelMaterial("steel", 200000, 0.2, 355, 510, 7850);
+            PlateProperty prop = new PlateProperty(mat, 0, 1);
+
+            List<Node> nodesPlate1 = new List<Node>();
+            nodesPlate1.Add(new Node(0, 0, 0, 1, "1"));
+            nodesPlate1.Add(new Node(0, 100, 0, 2, "2"));
+            nodesPlate1.Add(new Node(100, 0, 0, 3, "3"));
+
+            List<Node> nodesPlate2 = new List<Node>();
+            nodesPlate2.Add(new Node(100, 0, 0, 2, "2"));
+            nodesPlate2.Add(new Node(0, 100, 0, 3, "3"));
+            nodesPlate2.Add(new Node(100, 100, 0, 4, "4"));
+
+            List<FiniteElement> elements = new List<FiniteElement>();
+
+            elements.Add(new TriangularMembranal(nodesPlate1.ToArray(), prop, 1));
+            elements.Add(new TriangularMembranal(nodesPlate2.ToArray(), prop, 2));
+
+            FEMModel fem = new FEMModel(elements.ToArray());
+            mnl.Matrix<double> K = fem.KGlobal;
+
+            mnl.Matrix<double> KManual = mnl.Matrix<double>.Build.Dense(0, fem.KGlobal.ColumnCount);
+            double[] r0 = new double[] { 145833.3, 62500.0,0.0, -41666.7, -20833.3, 0.0, -104166.7, -41666.7, 0.0, 0.0, 0.0, 0.0 };
+            double[] r1 = new double[] { 62500.0, 145833.3, 0.0, -41666.7, -104166.7, 0.0, -20833.3, -41666.7, 0.0, 0.0, 0.0, 0.0 };
+            double[] r2 = new double[] { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
+            double[] r3 = new double[] { -41666.7, -41666.7, 0.0, 145833.3, 0.0, 0.0, 0.0, 62500.0, 0.0, -104166.7, -20833.3, 0.0 };
+            double[] r4 = new double[] { -20833.3, -104166.7, 0.0, 0.0, 145833.3, 0.0, 62500.0, 0.0, 0.0, -41666.7, -41666.7, 0.0 };
+            double[] r5 = new double[] { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
+            double[] r6 = new double[] { -104166.7, -20833.3, 0.0, 0.0, 62500.0, 0.0, 145833.3, 0.0, 0.0, -41666.7, -41666.7, 0.0 };
+            double[] r7 = new double[] { -41666.7, -41666.7, 0.0, 62500.0, 0.0, 0.0, 0.0, 145833.3, 0.0, -20833.3, -104166.7, 0.0 };
+            double[] r8 = new double[] { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
+            double[] r9 = new double[] { 0.0, 0.0, 0.0, -104166.7, -41666.7, 0.0, -41666.7, -20833.3, 0.0, 145833.3, 62500.0, 0.0 };
+            double[] r10 = new double[] { 0.0, 0.0, 0.0, -20833.3, -41666.7, 0.0, -41666.7, -104166.7, 0.0, 62500.0, 145833.3, 0.0 };
+            double[] r11 = new double[] { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
+
+            KManual = KManual.InsertRow(0, mnl.Vector<double>.Build.Dense(r0));
+            KManual = KManual.InsertRow(1, mnl.Vector<double>.Build.Dense(r1));
+            KManual = KManual.InsertRow(2, mnl.Vector<double>.Build.Dense(r2));
+            KManual = KManual.InsertRow(3, mnl.Vector<double>.Build.Dense(r3));
+            KManual = KManual.InsertRow(4, mnl.Vector<double>.Build.Dense(r4));
+            KManual = KManual.InsertRow(5, mnl.Vector<double>.Build.Dense(r5));
+            KManual = KManual.InsertRow(6, mnl.Vector<double>.Build.Dense(r6));
+            KManual = KManual.InsertRow(7, mnl.Vector<double>.Build.Dense(r7));
+            KManual = KManual.InsertRow(8, mnl.Vector<double>.Build.Dense(r8));
+            KManual = KManual.InsertRow(9, mnl.Vector<double>.Build.Dense(r9));
+            KManual = KManual.InsertRow(10, mnl.Vector<double>.Build.Dense(r10));
+            KManual = KManual.InsertRow(11, mnl.Vector<double>.Build.Dense(r11));
+
+            //controllo klocale elemento finito 3 nodi stato piano di tensione
+            for (int i = 0; i < K.RowCount; i++)
             {
-                nodes[nd].DoF.FormIncidence(ref _globalDoF, ref _reactionDoF);
-            }
-
-            CoordinateSystem Csys = new CoordinateSystem(Node1.Position, Node2.Position, Node3.Position, 0, string.Empty, new Guid());
-
-            //Point3d p1 = new Point3d(1, 1, 0);
-            //Point3d p2 = new Point3d(3, 4, 0);
-            //Point3d p3 = new Point3d(3, 4, 4);
-            //Point3d p4 = new Point3d(1, 1, 4);
-            //GPC.Model.CoordinateSystems.CoordinateSystem Csys = new GPC.Model.CoordinateSystems.CoordinateSystem(Guid.Empty, p1, p2, p3);
-            //Point3d p1local = Csys.PointToLocal(p1);
-            //Point3d p2local = Csys.PointToLocal(p2);
-            //Point3d p3local = Csys.PointToLocal(p3);
-            //Point3d p4local = Csys.PointToLocal(p4);
-
-            ///  Section
-            double E = 210000; // MPa
-            double ni = 0.3;
-
-            /// Material
-            Material mat = new SteelMaterial("Steel",E,ni,355,510,355/E,0.0,0.0,new Guid());//new Material("Steel", E, ni, 0.0, 0.0, new Guid());
-            PlateProperty property = new PlateProperty(mat, 1.00, 1.00);
-            //CoordinateSystemPlateQuad4 quad4 = new PlateQuad4(new Guid(), property, nodes);
-            PlateDKQ shell = new PlateDKQ(new Guid(), property, 1, nodes);
-
-            Matrix<double> _stiffnessMatrix = Matrix<double>.Build.Dense(_globalDoF, _globalDoF, 0.0);
-            shell.BuildElementDoFIncidence();
-            shell.KInGlobal(ref _stiffnessMatrix);
-
-
-            string TestName = "DKQ_SHELL_STIFF-MATRIX_REDUCED.txt";
-            string path = Path.Combine(_outputFolder, TestName);
-            // This text is added only once to the file.
-            if (File.Exists(path) == true)
-            {
-                File.Delete(path);
-            }
-            if (!File.Exists(path))
-            {
-                string matrix = "";
-                for (int r = 0; r < _stiffnessMatrix.RowCount; r++)
+                for (int j = 0; j < K.ColumnCount; j++)
                 {
-                    for (int c = 0; c < _stiffnessMatrix.ColumnCount; c++)
-                    {
-                        matrix = matrix + "\t" + _stiffnessMatrix[r, c].ToString();
-                    }
-                    matrix = matrix + Environment.NewLine;
+                    Assert.AreEqual(K[i, j] - KManual[i, j], 0, 1, "KGlobal no OK -> row " + i + " col " + j);
+                    //sarebbe stato meglio usare k[i,j] / kManual[i,j] ma 0/0 = NaN!!
                 }
-                File.WriteAllText(path, matrix);
             }
-
-            /// Costruzione vettore delle forze esterne
-            Vector<double> Fmaffem = Vector<double>.Build.Dense(_stiffnessMatrix.RowCount, 0);
-            Fmaffem[6] = 10e3;
-
-            /// Solve Linear System
-            Vector<double> ResultsMAFFEM = _stiffnessMatrix.Solve(Fmaffem);
-            double DZ3fem = ResultsMAFFEM[6];
-            double RX3fem = ResultsMAFFEM[7];
-            double RY3fem = ResultsMAFFEM[8];
-
-
-            double DZ3expected = 107.857444269;
-            double RX3expected = -9.21934439;
-            double RY3expected = -2.06369963;
-
-
-            double toll = Math.Pow(10, -6);
-
-            Assert.IsTrue((DZ3fem - DZ3expected) < toll);
-            Assert.IsTrue((RX3fem - RX3expected) < toll);
-            Assert.IsTrue((RY3fem - RY3expected) < toll);
-        }
-    }
-    [TestClass]
-    public class FEMTestBeams
-    {
-        public TestContext TestContext { get; set; }
-        private static string _outputFolder;
-        private string _testName;
-
-        [TestInitialize]
-        public void TestInitialize()
-        {
-            _outputFolder = System.IO.Path.Combine(Directory.GetParent(TestContext.TestDir).ToString(), "OutputTests");
-            Directory.CreateDirectory(_outputFolder);
-            _testName = TestContext.TestName;
-        }
-
-        [TestCleanup]
-        public void CleanUp()
-        {
-            if (Directory.Exists(TestContext.TestDir))
-                Directory.Delete(TestContext.TestDir, true);
         }
 
         [TestMethod]
-        public void Benchmark00001()
+        public void AddRestrainMatrixTest1()
         {
-            /// Nodes DoF
-            /// Bathe Convention
-            /// 0 - active degree of freedom
-            /// 1 - non-active degree of freedom
-            int[] NodeDoFID = new int[] { 1, 2, 3, 4, 5, 6 };
+            FreedomCase fc = new FreedomCase("freedomCase1");
 
-
-            /// Nodes in 3D  XYZ
-            int[] Node1DoF = new int[] { 1, 1, 1, 1, 1, 1 };
-            int[] Node2DoF = new int[] { 0, 1, 0, 1, 0, 1 };
-            int[] Node3DoF = new int[] { 0, 1, 1, 1, 0, 1 };
-            Node Node1 = new Node(Guid.NewGuid(), new Point3d(0.0, 0.0, 0.0), 1, NodeDoFID, Node1DoF);
-            Node Node2 = new Node(Guid.NewGuid(), new Point3d(0.0, 0.0, 5000.0), 2, NodeDoFID, Node2DoF);
-            Node Node3 = new Node(Guid.NewGuid(), new Point3d(5000.0, 0.0, 5000.0), 2, NodeDoFID, Node3DoF);
-
-
-            /// Nodes in 2D (XY)
-            //int[] Node1DoF = new int[] { 1, 1, 1, 1, 1, 1 };
-            //int[] Node2DoF = new int[] { 0, 0, 1, 1, 1, 0 };
-            //int[] Node3DoF = new int[] { 0, 1, 1, 1, 1, 0 };
-            //Node Node1 = new Node(new Guid(), new Point3d(0.0, 0.0, 0.0), 1, NodeDoFID, Node1DoF);
-            //Node Node2 = new Node(new Guid(), new Point3d(0.0, 5000.0, 0.0), 2, NodeDoFID, Node2DoF);
-            //Node Node3 = new Node(new Guid(), new Point3d(5000.0, 5000.0, 0.0), 2, NodeDoFID, Node3DoF);
-
-            /// Material
-            double E = 30000; // MPa
-
-            ConcreteMaterial mat = new ConcreteMaterial(E, 0.3, 20, 2.5e-9);
-            ///  Proprietà
-            double J = 6.75e8; //mm4
-            double A = 300 * 300; //mm2
-            Section sec = new Section(mat);
-            sec.Area = A;
-
-            sec.J11 = J;
-            sec.J22 = J;
-            sec.Jt = 0.0;
-            sec.Material = mat;
-
-
-            /// Beams
-            Node[] NodesB1 = new Node[] { Node1, Node2 };
-            Node[] NodesB2 = new Node[] { Node2, Node3 };
-            Beam Beam1 = new Beam(Guid.NewGuid(), sec, NodesB1, 1);
-            Beam Beam2 = new Beam(Guid.NewGuid(), sec, NodesB2, 2);
-
-            Node[] Nodes = new Node[] { Node1, Node2, Node3 };
-            Beam[] Beams = new Beam[] { Beam1, Beam2 };
-
-            int _globalDoF = 0;
-            int _reactionDoF = 0;
-
-            // Arrange Nodes
-            for (int nd = 0; nd < Nodes.Length; nd++)
-            {
-                Nodes[nd].DoF.FormIncidence(ref _globalDoF, ref _reactionDoF);
-            }
-            // Arrange Beam Elements
-            for (int bm = 0; bm < Beams.Length; bm++)
-            {
-                /// Choose Integrator
-                Beams[bm].ChooseIntegrator();
-
-                /// Create Incidence
-                Beams[bm].BuildElementDoFIncidence();
-            }
-
-            Matrix<double> _stiffnessMatrix = Matrix<double>.Build.Dense(_globalDoF, _globalDoF, 0.0);
-
-            for (int el = 0; el < Beams.Length; el++)
-            {
-                Beams[el].KInGlobal(ref _stiffnessMatrix);
-            }
-
-            //string path = "C:\\Users\\r.vochescu\\Desktop\\" + "GLOBAl_K" + ".txt";
-            //// This text is added only once to the file.
-            //if (File.Exists(path) == true)
-            //{
-            //    File.Delete(path);
-            //}
-            //if (!File.Exists(path))
-            //{
-            //    //File.WriteAllText(path, _stiffnessMatrix.ToString());
-
-            //    string matrix = "";
-            //    for (int r = 0; r < _stiffnessMatrix.RowCount; r++)
-            //    {
-            //        for (int c = 0; c < _stiffnessMatrix.ColumnCount; c++)
-            //        {
-            //            matrix = matrix + "\t" + _stiffnessMatrix[r, c].ToString();
-            //        }
-            //        matrix = matrix + Environment.NewLine;
-            //    }
-            //    File.WriteAllText(path, matrix);
-            //}
-
-
-
-            /// Costruzione vettore delle forze esterne
-            Vector<double> Fmaffem = Vector<double>.Build.Dense(5, 0);
-            Fmaffem[0] = 1000e3;
-
-            /// Solve Linear System
-            Vector<double> ResultsMAFFEM = _stiffnessMatrix.Solve(Fmaffem);
-            double DXfem = ResultsMAFFEM[0];
-
-            double DXexpected = 900.4661;
-            double toll = Math.Pow(10, -4);
-            Assert.IsTrue((DXfem - DXexpected) < toll);
-        }
-
-        [TestMethod]
-        public void Benchmark00002()
-        {
-
-            /// Nodes DoF
-            /// Bathe Convention
-            /// 0 - active degree of freedom
-            /// 1 - non-active degree of freedom
-            int[] NodeDoFID = new int[] { 1, 2, 3, 4, 5, 6 };
-
-
-            /// Nodes in 3D  XYZ
-            int[] Node1DoF = new int[] { 1, 1, 1, 1, 1, 1 };
-            int[] Node2DoF = new int[] { 0, 1, 0, 1, 0, 1 };
-            int[] Node3DoF = new int[] { 0, 1, 1, 1, 0, 1 };
-            Node Node1 = new Node(Guid.NewGuid(), new Point3d(0.0, 0.0, 0.0), 1, NodeDoFID, Node1DoF);
-            Node Node2 = new Node(Guid.NewGuid(), new Point3d(4000.0, 0.0, 5000.0), 2, NodeDoFID, Node2DoF);
-            Node Node3 = new Node(Guid.NewGuid(), new Point3d(9000.0, 0.0, 5000.0), 2, NodeDoFID, Node3DoF);
-
-
-            /// Nodes in 2D (XY)
-            //int[] Node1DoF = new int[] { 1, 1, 1, 1, 1, 1 };
-            //int[] Node2DoF = new int[] { 0, 0, 1, 1, 1, 0 };
-            //int[] Node3DoF = new int[] { 0, 1, 1, 1, 1, 0 };
-            //Node Node1 = new Node(new Guid(), new Point3d(0.0, 0.0, 0.0), 1, NodeDoFID, Node1DoF);
-            //Node Node2 = new Node(new Guid(), new Point3d(0.0, 5000.0, 0.0), 2, NodeDoFID, Node2DoF);
-            //Node Node3 = new Node(new Guid(), new Point3d(5000.0, 5000.0, 0.0), 2, NodeDoFID, Node3DoF);
-
-            /// Material
-            double E = 30000; // MPa
-
-            ConcreteMaterial mat = new ConcreteMaterial(E, 0.3, 0, 2.5e-9);
-            ///  Proprietà
-            double J = 6.75e8; //mm4
-            double A = 300 * 300; //mm2
-            Section sec = new Section(mat);
-            sec.Area = A;
-
-            sec.J11 = J;
-            sec.J22 = J;
-            sec.Jt = 0.0;
-            sec.Material = mat;
-
-            /// Beams
-            Node[] NodesB1 = new Node[] { Node1, Node2 };
-            Node[] NodesB2 = new Node[] { Node2, Node3 };
-            Beam Beam1 = new Beam(Guid.NewGuid(), sec, NodesB1, 1);
-            Beam Beam2 = new Beam(Guid.NewGuid(), sec, NodesB2, 2);
-
-            Node[] Nodes = new Node[] { Node1, Node2, Node3 };
-            Beam[] Beams = new Beam[] { Beam1, Beam2 };
-
-            int _globalDoF = 0;
-            int _reactionDoF = 0;
-
-            // Arrange Nodes
-            for (int nd = 0; nd < Nodes.Length; nd++)
-            {
-                Nodes[nd].DoF.FormIncidence(ref _globalDoF, ref _reactionDoF);
-            }
-            // Arrange Beam Elements
-            for (int bm = 0; bm < Beams.Length; bm++)
-            {
-                /// Choose Integrator
-                Beams[bm].ChooseIntegrator();
-
-                /// Create Incidence
-                Beams[bm].BuildElementDoFIncidence();
-            }
-
-            Matrix<double> _stiffnessMatrix = Matrix<double>.Build.Dense(_globalDoF, _globalDoF, 0.0);
-
-            for (int el = 0; el < Beams.Length; el++)
-            {
-                Beams[el].KInGlobal(ref _stiffnessMatrix);
-            }
-
-            //string path = "C:\\Users\\r.vochescu\\Desktop\\" + "GLOBAl_K" + ".txt";
-            //// This text is added only once to the file.
-            //if (File.Exists(path) == true)
-            //{
-            //    File.Delete(path);
-            //}
-            //if (!File.Exists(path))
-            //{
-            //    //File.WriteAllText(path, _stiffnessMatrix.ToString());
-
-            //    string matrix = "";
-            //    for (int r = 0; r < _stiffnessMatrix.RowCount; r++)
-            //    {
-            //        for (int c = 0; c < _stiffnessMatrix.ColumnCount; c++)
-            //        {
-            //            matrix = matrix + "\t" + _stiffnessMatrix[r, c].ToString();
-            //        }
-            //        matrix = matrix + Environment.NewLine;
-            //    }
-            //    File.WriteAllText(path, matrix);
-            //}
-
-            double k11 = _stiffnessMatrix[0, 0];
-            double k55 = _stiffnessMatrix[4, 4];
-            double k41 = _stiffnessMatrix[3, 0];
-
-            double ciao = 0;
-            double ciao1 = ciao;
-
-
-            /// Costruzione vettore delle forze esterne
-            Vector<double> Fmaffem = Vector<double>.Build.Dense(5, 0);
-            Fmaffem[0] = 1000e3;
-
-            /// Solve Linear System
-            Vector<double> ResultsMAFFEM = _stiffnessMatrix.Solve(Fmaffem);
-            double DX = ResultsMAFFEM[0];
-            double DY = ResultsMAFFEM[1];
-
-            double DXexpected = 593.2735;
-            double DYexpected = -471.9221;
-
-            double toll = Math.Pow(10,-4);
-           Assert.IsTrue((DX - DXexpected) < toll && (DY - DYexpected) < toll);
-        }
-
-        [TestMethod]
-        public void Benchmark00003()
-        {
-
-            /// Nodes DoF
-            /// Bathe Convention
-            /// 0 - active degree of freedom
-            /// 1 - non-active degree of freedom
-            int[] NodeDoFID = new int[] { 1, 2, 3, 4, 5, 6 };
-
-
-            /// Nodes in 3D  XYZ
-            int[] Node1DoF = new int[] { 1, 1, 1, 1, 1, 1 };
-            int[] Node2DoF = new int[] { 0, 1, 0, 1, 0, 1 };
-            int[] Node3DoF = new int[] { 0, 1, 1, 1, 0, 1 };
-            Node Node1 = new Node(Guid.NewGuid(), new Point3d(0.0, 0.0, 0.0), 1, NodeDoFID, Node1DoF);
-            Node Node2 = new Node(Guid.NewGuid(), new Point3d(0.0, 0.0, 5000.0), 2, NodeDoFID, Node2DoF);
-
-
-            /// Material
-            double E = 30000; // MPa
-            ConcreteMaterial mat = new ConcreteMaterial(E, 0.3, 0, 7.697E-09);
-
-            ///  Proprietà
-            double J = 6.75e8; //mm4
-            double A = 300 * 300; //mm2
-            Section sec = new Section(mat);
-            sec.Area = A;
-            sec.J11 = J;
-            sec.J22 = J;
-            sec.Jt = 0.0;
-
-            //int _globalDoF = 0;
-            //int _reactionDoF = 0;
-
-            /// Nodi ed Incidenza nodi
-            Node[] NodesB1 = new Node[] { Node1, Node2 };
+            Material mat = new SteelMaterial("steel", 200000, 0.2, 355, 510, 7850);
+            PlateProperty prop = new PlateProperty(mat, 0, 1);
             
-            //Node[] Nodes = new Node[] { Node1, Node2 };
-            //for (int nd = 0; nd < Nodes.Length; nd++)
-            //{
-            //    Nodes[nd].DoF.FormIncidence(ref _globalDoF, ref _reactionDoF);
-            //}
+            CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
+            NodeRestrainAttribute DXDYDZ = new NodeRestrainAttribute(fc, sys);
+            DXDYDZ.AddRestrain(FEMModel.DOF.DX);
+            DXDYDZ.AddRestrain(FEMModel.DOF.DY);
+            DXDYDZ.AddRestrain(FEMModel.DOF.DZ);
 
-            /// Creazione dei beam
-            Beam Beam1 = new Beam(Guid.NewGuid(), sec, NodesB1, 1);
-          
-       
+            NodeRestrainAttribute DZ = new NodeRestrainAttribute(fc, sys);
+            DZ.AddRestrain(FEMModel.DOF.DZ);
 
-            //string path = "C:\\Users\\r.vochescu\\Desktop\\" + "GLOBAl_K" + ".txt";
-            //// This text is added only once to the file.
-            //if (File.Exists(path) == true)
-            //{
-            //    File.Delete(path);
-            //}
-            //if (!File.Exists(path))
-            //{
-            //    //File.WriteAllText(path, _stiffnessMatrix.ToString());
+            List<Node> nodesPlate1 = new List<Node>();
+            Node nd1 = new Node(0, 0, 0, 1, "1");
+            Node nd2 = new Node(0, 100, 0, 2, "2");
+            Node nd3 = new Node(100, 0, 0, 3, "3");
 
-            //    string matrix = "";
-            //    for (int r = 0; r < _stiffnessMatrix.RowCount; r++)
-            //    {
-            //        for (int c = 0; c < _stiffnessMatrix.ColumnCount; c++)
-            //        {
-            //            matrix = matrix + "\t" + _stiffnessMatrix[r, c].ToString();
-            //        }
-            //        matrix = matrix + Environment.NewLine;
-            //    }
-            //    File.WriteAllText(path, matrix);
-            //}
+            nd1.AddAttribute(DXDYDZ);
+            nd2.AddAttribute(DXDYDZ);
 
-            
-            //Assert.IsTrue((DX - DXexpected) < toll && (DY - DYexpected) < toll);
+            nodesPlate1.Add(nd1);
+            nodesPlate1.Add(nd2);
+            nodesPlate1.Add(nd3);
+
+            List<Node> nodesPlate2 = new List<Node>();
+            Node nd2copy = new Node(0, 100, 0, 2, "2");
+            Node nd3copy = new Node(100, 0, 0, 3, "3");
+            Node nd4 = new Node(100, 100, 0, 4, "4");
+
+            nd2copy.AddAttribute(DZ);
+            nd3copy.AddAttribute(DZ);
+            nd4.AddAttribute(DZ);
+
+            nodesPlate2.Add(nd2copy);
+            nodesPlate2.Add(nd3copy);
+            nodesPlate2.Add(nd4);
+
+            List<FiniteElement> elements = new List<FiniteElement>();
+            elements.Add(new TriangularMembranal(nodesPlate1.ToArray(), prop, 1));
+            elements.Add(new TriangularMembranal(nodesPlate2.ToArray(), prop, 2));
+
+            FEMModel fem = new FEMModel(elements.ToArray());
+            mnl.Matrix<double> K = fem.KGlobal;
+
+            mnl.Matrix<double> KManual = mnl.Matrix<double>.Build.Dense(0, fem.KGlobal.ColumnCount);
+            double[] r0 = new double[] { 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+            double[] r1 = new double[] { 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+            double[] r2 = new double[] { 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+            double[] r3 = new double[] { 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0 };
+            double[] r4 = new double[] { 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0 };
+            double[] r5 = new double[] { 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0 };
+            double[] r6 = new double[] { 0, 0, 0, 0, 0, 0, 145833, 0, 0, -41666.7, -41666.7, 0 };
+            double[] r7 = new double[] { 0, 0, 0, 0, 0, 0, 0, 145833, 0, -20833.3, -104167, 0 };
+            double[] r8 = new double[] { 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0 };
+            double[] r9 = new double[] { 0, 0, 0, 0, 0, 0, -41666.7, -20833.3, 0, 145833, 62500, 0 };
+            double[] r10 = new double[] { 0, 0, 0, 0, 0, 0, -41666.7, -104167, 0, 62500, 145833, 0 };
+            double[] r11 = new double[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1 };
+
+            KManual = KManual.InsertRow(0, mnl.Vector<double>.Build.Dense(r0));
+            KManual = KManual.InsertRow(1, mnl.Vector<double>.Build.Dense(r1));
+            KManual = KManual.InsertRow(2, mnl.Vector<double>.Build.Dense(r2));
+            KManual = KManual.InsertRow(3, mnl.Vector<double>.Build.Dense(r3));
+            KManual = KManual.InsertRow(4, mnl.Vector<double>.Build.Dense(r4));
+            KManual = KManual.InsertRow(5, mnl.Vector<double>.Build.Dense(r5));
+            KManual = KManual.InsertRow(6, mnl.Vector<double>.Build.Dense(r6));
+            KManual = KManual.InsertRow(7, mnl.Vector<double>.Build.Dense(r7));
+            KManual = KManual.InsertRow(8, mnl.Vector<double>.Build.Dense(r8));
+            KManual = KManual.InsertRow(9, mnl.Vector<double>.Build.Dense(r9));
+            KManual = KManual.InsertRow(10, mnl.Vector<double>.Build.Dense(r10));
+            KManual = KManual.InsertRow(11, mnl.Vector<double>.Build.Dense(r11));
+
+            //controllo klocale elemento finito 3 nodi stato piano di tensione
+            for (int i = 0; i < K.RowCount; i++)
+            {
+                for (int j = 0; j < K.ColumnCount; j++)
+                {
+                    Assert.AreEqual(K[i, j] - KManual[i, j], 0, 1, "KGlobal no OK -> row " + i + " col " + j);
+                    //sarebbe stato meglio usare k[i,j] / kManual[i,j] ma 0/0 = NaN!!
+                }
+            }
+        }
+
+        [TestMethod]
+        public void AddRestrainAndForceMatrixTest1()
+        {
+            LoadCase loadCase = new LoadCase("myLoadCase", new Guid());
+            FreedomCase freedomCase = new FreedomCase("freedomCase1");
+
+            Material mat = new SteelMaterial("steel", 200000, 0.2, 355, 510, 7850);
+            PlateProperty prop = new PlateProperty(mat, 0, 1);
+
+            CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
+            NodeRestrainAttribute DXDYDZ = new NodeRestrainAttribute(freedomCase, sys);
+            DXDYDZ.AddRestrain(FEMModel.DOF.DX);
+            DXDYDZ.AddRestrain(FEMModel.DOF.DY);
+            DXDYDZ.AddRestrain(FEMModel.DOF.DZ);
+
+            NodeRestrainAttribute DZ = new NodeRestrainAttribute(freedomCase, sys);
+            DZ.AddRestrain(FEMModel.DOF.DZ);
+
+            NodeForceAttribute fX1000 = new NodeForceAttribute(loadCase, sys, 1000, 0, 0, 0, 0, 0);
+
+            List<Node> nodesPlate1 = new List<Node>();
+            Node nd1 = new Node(0, 0, 0, 1, "1");
+            Node nd2 = new Node(0, 100, 0, 2, "2");
+            Node nd3 = new Node(100, 0, 0, 3, "3");
+
+            nd1.AddAttribute(DXDYDZ);
+            nd2.AddAttribute(DXDYDZ);
+
+            nodesPlate1.Add(nd1);
+            nodesPlate1.Add(nd2);
+            nodesPlate1.Add(nd3);
+
+            List<Node> nodesPlate2 = new List<Node>();
+            Node nd2copy = new Node(0, 100, 0, 2, "2");
+            Node nd3copy = new Node(100, 0, 0, 3, "3");
+            Node nd4 = new Node(100, 100, 0, 4, "4");
+
+            nd2copy.AddAttribute(DZ);
+            nd3copy.AddAttribute(DZ);
+            nd4.AddAttribute(DZ);
+            nd4.AddAttribute(fX1000);
+
+            nodesPlate2.Add(nd2copy);
+            nodesPlate2.Add(nd3copy);
+            nodesPlate2.Add(nd4);
+
+            List<FiniteElement> elements = new List<FiniteElement>();
+            elements.Add(new TriangularMembranal(nodesPlate1.ToArray(), prop, 1));
+            elements.Add(new TriangularMembranal(nodesPlate2.ToArray(), prop, 2));
+
+            FEMModel fem = new FEMModel(elements.ToArray());
+            double[] Node4DX = fem.GetDisplacementGlobalCoordinates(nd4, FEMModel.DOF.DX);
+            double[] Node4DY = fem.GetDisplacementGlobalCoordinates(nd4, FEMModel.DOF.DY);
+
+            double[] Node3DX = fem.GetDisplacementGlobalCoordinates(nd3, FEMModel.DOF.DX);
+            double[] Node3DY = fem.GetDisplacementGlobalCoordinates(nd3, FEMModel.DOF.DY);
+
+            double[] Node3CopyDX = fem.GetDisplacementGlobalCoordinates(nd3copy, FEMModel.DOF.DX);
+            double[] Node3CopyDY = fem.GetDisplacementGlobalCoordinates(nd3copy, FEMModel.DOF.DY);
+
+            /*Node 4 Displacement
+            DX(mm) 0.009130
+            DY(mm) - 0.005478
+            DZ(mm) 0.000000*/
+            double dXNode4 = 0.009130;
+            double dYNode4 = -0.005478;
+            Assert.AreEqual(Node4DX[0], dXNode4, 0.000001);
+            Assert.AreEqual(Node4DY[0], dYNode4, 0.000001);
+
+            /*Node 3 Displacement
+            DX(mm) 0.001043
+            DY(mm) - 0.002609
+            DZ(mm) 0.000000*/
+            double dXNode3 = 0.001043;
+            double dYNode3 = -0.002609;
+            Assert.AreEqual(Node3DX[0], dXNode3, 0.000001);
+            Assert.AreEqual(Node3DY[0], dYNode3, 0.000001);
+            Assert.AreEqual(Node3CopyDX[0], dXNode3, 0.000001);
+            Assert.AreEqual(Node3CopyDY[0], dYNode3, 0.000001);
+        }
+
+        [TestMethod]
+        public void AddRestrainAndForceMatrixTest2()
+        {
+            LoadCase loadCase = new LoadCase("myLoadCase", new Guid());
+            FreedomCase freedomCase = new FreedomCase("freedomCase1");
+
+            Material mat = new SteelMaterial("steel", 200000, 0.2, 355, 510, 7850);
+            PlateProperty prop = new PlateProperty(mat, 0, 1);
+
+            CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
+            NodeRestrainAttribute DXDYDZ = new NodeRestrainAttribute(freedomCase, sys);
+            DXDYDZ.AddRestrain(FEMModel.DOF.DX);
+            DXDYDZ.AddRestrain(FEMModel.DOF.DY);
+            DXDYDZ.AddRestrain(FEMModel.DOF.DZ);
+
+            NodeRestrainAttribute DZ = new NodeRestrainAttribute(freedomCase, sys);
+            DZ.AddRestrain(FEMModel.DOF.DZ);
+
+            CoordinateSystem sys2 = new CoordinateSystem(new Point3d(1, 1, 0), new Point3d(2, 2, 0), new Point3d(0, 2, 0));
+            NodeForceAttribute f1 = new NodeForceAttribute(loadCase, sys, 1000, 0, 0, 0, 0, 0);
+            NodeForceAttribute f2 = new NodeForceAttribute(loadCase, sys2, 1000, -500, 0, 0, 0, 0);
+
+            List<Node> nodesPlate1 = new List<Node>();
+            Node nd1 = new Node(0, 0, 0, 1, "1");
+            Node nd2 = new Node(0, 100, 0, 2, "2");
+            Node nd3 = new Node(100, 0, 0, 3, "3");
+
+            nd1.AddAttribute(DXDYDZ);
+            nd2.AddAttribute(DXDYDZ);
+
+            nodesPlate1.Add(nd1);
+            nodesPlate1.Add(nd2);
+            nodesPlate1.Add(nd3);
+
+            List<Node> nodesPlate2 = new List<Node>();
+            Node nd2copy = new Node(0, 100, 0, 2, "2");
+            Node nd3copy = new Node(100, 0, 0, 3, "3");
+            Node nd4 = new Node(100, 100, 0, 4, "4");
+
+            nd2copy.AddAttribute(DZ);
+            nd3copy.AddAttribute(DZ);
+            nd3copy.AddAttribute(f2);
+            nd4.AddAttribute(DZ);
+            nd4.AddAttribute(f1);
+
+            nodesPlate2.Add(nd2copy);
+            nodesPlate2.Add(nd3copy);
+            nodesPlate2.Add(nd4);
+
+            List<FiniteElement> elements = new List<FiniteElement>();
+            elements.Add(new TriangularMembranal(nodesPlate1.ToArray(), prop, 1));
+            elements.Add(new TriangularMembranal(nodesPlate2.ToArray(), prop, 2));
+
+            FEMModel fem = new FEMModel(elements.ToArray());
+            double[] Node4DX = fem.GetDisplacementGlobalCoordinates(nd4, FEMModel.DOF.DX);
+            double[] Node4DY = fem.GetDisplacementGlobalCoordinates(nd4, FEMModel.DOF.DY);
+
+            double[] Node3DX = fem.GetDisplacementGlobalCoordinates(nd3, FEMModel.DOF.DX);
+            double[] Node3DY = fem.GetDisplacementGlobalCoordinates(nd3, FEMModel.DOF.DY);
+
+            double[] Node3CopyDX = fem.GetDisplacementGlobalCoordinates(nd3copy, FEMModel.DOF.DX);
+            double[] Node3CopyDY = fem.GetDisplacementGlobalCoordinates(nd3copy, FEMModel.DOF.DY);
+
+            /*Node 4 Displacement
+            DX (mm)	0.009315	
+            DY (mm)	0.003745	
+            DZ(mm) 0.000000*/
+            double dXNode4 = 0.009315;
+            double dYNode4 = 0.003745;
+            Assert.AreEqual(Node4DX[0], dXNode4, 0.000001);
+            Assert.AreEqual(Node4DY[0], dYNode4, 0.000001);
+
+            /*Node 3 Displacement
+            DX (mm)	0.011004	
+            DY (mm)	0.006430
+            DZ(mm) 0.000000*/
+            double dXNode3 = 0.011004;
+            double dYNode3 = 0.00643;
+            Assert.AreEqual(Node3DX[0], dXNode3, 0.000001);
+            Assert.AreEqual(Node3DY[0], dYNode3, 0.000001);
+            Assert.AreEqual(Node3CopyDX[0], dXNode3, 0.000001);
+            Assert.AreEqual(Node3CopyDY[0], dYNode3, 0.000001);
         }
     }
 }

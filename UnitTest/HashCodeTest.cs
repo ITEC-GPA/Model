@@ -35,8 +35,8 @@ namespace UnitTest
         [TestMethod]
         public void Test1()
         {
-            GlassMaterialPrEn gm1 = new GlassMaterialPrEn("test", 10, 0.2, 30, GlassMaterialPrEn.GlassType.DrawnSheetGlass, GlassMaterialPrEn.SurfaceTreatment.AsProduced, GlassMaterialPrEn.PrestressType.Annealed, GlassMaterialPrEn.ManufactoringProcess.HorizontalToughening, 20, 30);
-            GlassMaterialPrEn gm2 = new GlassMaterialPrEn("test", 10, 0.2, 30, GlassMaterialPrEn.GlassType.DrawnSheetGlass, GlassMaterialPrEn.SurfaceTreatment.AsProduced, GlassMaterialPrEn.PrestressType.Annealed, GlassMaterialPrEn.ManufactoringProcess.HorizontalToughening, 20, 30);
+            GlassMaterialEn16612 gm1 = new GlassMaterialEn16612("test", 10, 0.2, 30, GlassMaterialEn16612.GlassType.DrawnSheetGlass, GlassMaterialEn16612.SurfaceTreatment.AsProduced, GlassMaterialEn16612.PrestressType.Annealed, GlassMaterialEn16612.ManufactoringProcess.HorizontalToughening, 20, 30);
+            GlassMaterialEn16612 gm2 = new GlassMaterialEn16612("test", 10, 0.2, 30, GlassMaterialEn16612.GlassType.DrawnSheetGlass, GlassMaterialEn16612.SurfaceTreatment.AsProduced, GlassMaterialEn16612.PrestressType.Annealed, GlassMaterialEn16612.ManufactoringProcess.HorizontalToughening, 20, 30);
 
             MonolithicGlass mg1 = new MonolithicGlass("test", 10, gm1);
             MonolithicGlass mg2 = new MonolithicGlass("test", 10, gm2);
