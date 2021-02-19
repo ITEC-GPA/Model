@@ -9,6 +9,7 @@ namespace GPC.Model.FEM.Attributes
     [Serializable]
     public sealed class NodeForceAttribute : LoadCaseAttribute, INodeLoadCaseAttribute, IEquatable<NodeForceAttribute>, ISerializable
     {
+        #region variables
         private double _f1;
         private double _f2;
         private double _f3;
@@ -16,7 +17,9 @@ namespace GPC.Model.FEM.Attributes
         private double _m2;
         private double _m3;
         private CoordinateSystem _coordinateSystem;
+        #endregion
 
+        #region Properties
         public double F1 => _f1;
         public double F2 => _f2;
         public double F3 => _f3;
@@ -24,6 +27,9 @@ namespace GPC.Model.FEM.Attributes
         public double M2 => _m2;
         public double M3 => _m3;
         public CoordinateSystem CoordinateSystem => _coordinateSystem;
+        public Vector3d F { get { return new Vector3d(_f1, _f2, _f3); } }
+        public Vector3d M { get { return new Vector3d(_m1, _m2, _m3); } }
+        #endregion
 
         public NodeForceAttribute(LoadCase loadCase, CoordinateSystem cSys, double f1, double f2, double f3, double m1, double m2, double m3)
             : this (loadCase, cSys, f1, f2, f3, m1, m2, m3, string.Empty)
@@ -103,9 +109,6 @@ namespace GPC.Model.FEM.Attributes
             hashCode = hashCode * -17 + EqualityComparer<CoordinateSystem>.Default.GetHashCode(_coordinateSystem);
             return hashCode;
         }
-
-
-
 
         #region Override Operator
         public static bool operator ==(NodeForceAttribute obj1, NodeForceAttribute obj2)

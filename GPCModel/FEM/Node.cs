@@ -25,7 +25,7 @@ namespace GPC.Model.FEM
 
         #region Properties
         public Point3d Position => _position;
-        public Dictionary<FEMModel.DOF, bool> DOF { get; set; } //used for GlobalSystemMatrix
+        public HashSet<FEMModel.DOF> DOF { get; set; } //used for GlobalSystemMatrix
 
         public int NrActiveDof
         {
@@ -43,7 +43,8 @@ namespace GPC.Model.FEM
             }
         }
 
-        public List<INodeFreedomCaseAttribute> AttributesFreedomCases => _attributesFreedomCase;
+        public List<INodeFreedomCaseAttribute> AttributesFreedomCase => _attributesFreedomCase;
+        public List<INodeLoadCaseAttribute> AttributesLoadCase => _attributesLoadCase;
         #endregion
 
         public Node(Point3d point, int ID, string label = "") : base(ID, label)

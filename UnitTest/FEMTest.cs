@@ -9,6 +9,7 @@ using GPC.Model.Materials;
 using GPC.Model.FreedomCases;
 using GPC.Geometry;
 using GPC.Model.FEM.Attributes;
+using GPC.Model.LoadCases;
 
 namespace UnitTest
 {
@@ -213,6 +214,97 @@ namespace UnitTest
             nd2copy.AddAttribute(DZ);
             nd3copy.AddAttribute(DZ);
             nd4.AddAttribute(DZ);
+
+            nodesPlate2.Add(nd2copy);
+            nodesPlate2.Add(nd3copy);
+            nodesPlate2.Add(nd4);
+
+            List<FiniteElement> elements = new List<FiniteElement>();
+            elements.Add(new TriangularMembranal(nodesPlate1.ToArray(), prop, 1));
+            elements.Add(new TriangularMembranal(nodesPlate2.ToArray(), prop, 2));
+
+            FEMModel fem = new FEMModel(elements.ToArray());
+            mnl.Matrix<double> K = fem.KGlobal;
+
+            mnl.Matrix<double> KManual = mnl.Matrix<double>.Build.Dense(0, fem.KGlobal.ColumnCount);
+            double[] r0 = new double[] { 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+            double[] r1 = new double[] { 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+            double[] r2 = new double[] { 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+            double[] r3 = new double[] { 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0 };
+            double[] r4 = new double[] { 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0 };
+            double[] r5 = new double[] { 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0 };
+            double[] r6 = new double[] { 0, 0, 0, 0, 0, 0, 145833, 0, 0, -41666.7, -41666.7, 0 };
+            double[] r7 = new double[] { 0, 0, 0, 0, 0, 0, 0, 145833, 0, -20833.3, -104167, 0 };
+            double[] r8 = new double[] { 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0 };
+            double[] r9 = new double[] { 0, 0, 0, 0, 0, 0, -41666.7, -20833.3, 0, 145833, 62500, 0 };
+            double[] r10 = new double[] { 0, 0, 0, 0, 0, 0, -41666.7, -104167, 0, 62500, 145833, 0 };
+            double[] r11 = new double[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1 };
+
+            KManual = KManual.InsertRow(0, mnl.Vector<double>.Build.Dense(r0));
+            KManual = KManual.InsertRow(1, mnl.Vector<double>.Build.Dense(r1));
+            KManual = KManual.InsertRow(2, mnl.Vector<double>.Build.Dense(r2));
+            KManual = KManual.InsertRow(3, mnl.Vector<double>.Build.Dense(r3));
+            KManual = KManual.InsertRow(4, mnl.Vector<double>.Build.Dense(r4));
+            KManual = KManual.InsertRow(5, mnl.Vector<double>.Build.Dense(r5));
+            KManual = KManual.InsertRow(6, mnl.Vector<double>.Build.Dense(r6));
+            KManual = KManual.InsertRow(7, mnl.Vector<double>.Build.Dense(r7));
+            KManual = KManual.InsertRow(8, mnl.Vector<double>.Build.Dense(r8));
+            KManual = KManual.InsertRow(9, mnl.Vector<double>.Build.Dense(r9));
+            KManual = KManual.InsertRow(10, mnl.Vector<double>.Build.Dense(r10));
+            KManual = KManual.InsertRow(11, mnl.Vector<double>.Build.Dense(r11));
+
+            //controllo klocale elemento finito 3 nodi stato piano di tensione
+            for (int i = 0; i < K.RowCount; i++)
+            {
+                for (int j = 0; j < K.ColumnCount; j++)
+                {
+                    Assert.AreEqual(K[i, j] - KManual[i, j], 0, 1, "KGlobal no OK -> row " + i + " col " + j);
+                    //sarebbe stato meglio usare k[i,j] / kManual[i,j] ma 0/0 = NaN!!
+                }
+            }
+        }
+
+        [TestMethod]
+        public void AddRestrainAndForceMatrixTest1()
+        {
+            LoadCase loadCase = new LoadCase("myLoadCase", new Guid());
+            FreedomCase freedomCase = new FreedomCase("freedomCase1");
+
+            Material mat = new SteelMaterial("steel", 200000, 0.2, 355, 510, 7850);
+            PlateProperty prop = new PlateProperty(mat, 0, 1);
+
+            CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
+            NodeRestrainAttribute DXDYDZ = new NodeRestrainAttribute(freedomCase, sys);
+            DXDYDZ.AddRestrain(FEMModel.DOF.DX);
+            DXDYDZ.AddRestrain(FEMModel.DOF.DY);
+            DXDYDZ.AddRestrain(FEMModel.DOF.DZ);
+
+            NodeRestrainAttribute DZ = new NodeRestrainAttribute(freedomCase, sys);
+            DZ.AddRestrain(FEMModel.DOF.DZ);
+
+            NodeForceAttribute fX1000 = new NodeForceAttribute(loadCase, sys, 1000, 0, 0, 0, 0, 0);
+
+            List<Node> nodesPlate1 = new List<Node>();
+            Node nd1 = new Node(0, 0, 0, 1, "1");
+            Node nd2 = new Node(0, 100, 0, 2, "2");
+            Node nd3 = new Node(100, 0, 0, 3, "3");
+
+            nd1.AddAttribute(DXDYDZ);
+            nd2.AddAttribute(DXDYDZ);
+
+            nodesPlate1.Add(nd1);
+            nodesPlate1.Add(nd2);
+            nodesPlate1.Add(nd3);
+
+            List<Node> nodesPlate2 = new List<Node>();
+            Node nd2copy = new Node(0, 100, 0, 2, "2");
+            Node nd3copy = new Node(100, 0, 0, 3, "3");
+            Node nd4 = new Node(100, 100, 0, 4, "4");
+
+            nd2copy.AddAttribute(DZ);
+            nd3copy.AddAttribute(DZ);
+            nd4.AddAttribute(DZ);
+            nd4.AddAttribute(fX1000);
 
             nodesPlate2.Add(nd2copy);
             nodesPlate2.Add(nd3copy);
