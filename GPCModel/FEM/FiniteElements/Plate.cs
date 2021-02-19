@@ -3,18 +3,16 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using GPC.Model.Materials;
+using GPC.Model.Elements;
 
-namespace GPC.Model.FEM.Elements
+namespace GPC.Model.FEM.FiniteElements
 {
-    class Brick : FiniteElement
+    public class Plate : FiniteElement
     {
-        /*public Brick(Node[] nodes, BrickProperty property, int id) : base (nodes, id)
+        public Plate(Node[] nodes, PlateProperty property, int id) : base (nodes, property, id)
         {
            
-        }*/
-
-        public Brick(Node[] nodes, int id) : base(nodes, id) { } //eliminare e decommentare sopra dopo merge
+        }
 
         public override void BuildF()
         {

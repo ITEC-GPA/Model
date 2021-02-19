@@ -3,15 +3,16 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using GPC.Model.Elements;
 using MathNet.Numerics.LinearAlgebra;
 using MathNet.Spatial.Euclidean;
 
-namespace GPC.Model.FEM.Elements
+namespace GPC.Model.FEM.FiniteElements
 {
     public class VoidElement : FiniteElement
     {
 
-        public VoidElement(IEnumerable<Node> nodes, int id) : base(nodes, id)
+        public VoidElement(Node[] nodes, ElementProperty p, int id) : base(nodes, p, id)
         {
             //recalled base(nodes)
             _DOF[FEMModel.DOF.DX] = true;
@@ -29,11 +30,6 @@ namespace GPC.Model.FEM.Elements
         {
             // implement force equivalent to node due to prestress, or temperature etc
             throw new NotImplementedException();
-        }
-
-        public override void CalcResults(double[] Displacements)
-        {
-           
         }
     }
 }

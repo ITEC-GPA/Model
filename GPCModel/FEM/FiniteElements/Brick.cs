@@ -4,15 +4,13 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using GPC.Model.Elements;
+using GPC.Model.Materials;
 
-namespace GPC.Model.FEM.Elements
+namespace GPC.Model.FEM.FiniteElements
 {
-    class Plate : FiniteElement
+    class Brick : FiniteElement
     {
-        public Plate(Node[] nodes, PlateProperty property, int id) : base (nodes, id)
-        {
-           
-        }
+        public Brick(Node[] nodes, BrickProperty property, int id) : base(nodes, property, id) { }
 
         public override void BuildF()
         {

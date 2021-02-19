@@ -9,13 +9,13 @@ namespace GPC.Model.Elements.Glasses
     /// This represent a double glazing panel composed by two glass panels separated by air.
     /// </summary>
     [Serializable]
-    public class DoubleInsulatingGlass : Glass, IInsulatingGlass, IEquatable<DoubleInsulatingGlass>
+    public sealed class DoubleInsulatingGlass : Glass, IInsulatingGlass, IEquatable<DoubleInsulatingGlass>
     {
         #region Variables
 
-        protected readonly IGlassPanel _glassPanelOuter;
-        protected readonly double _airThickness;
-        protected readonly IGlassPanel _glassPanelInner;
+        private IGlassPanel _glassPanelOuter;
+        private double _airThickness;
+        private IGlassPanel _glassPanelInner;
 
         #endregion Variables
 
@@ -86,12 +86,13 @@ namespace GPC.Model.Elements.Glasses
 
             return !(other is null) && other._glassPanelOuter.Equals(_glassPanelOuter) 
                                     && other._airThickness.Equals(_airThickness)
-                                    && other._glassPanelInner.Equals(_glassPanelInner);
+                                    && other._glassPanelInner.Equals(_glassPanelInner)
+                                    && base.Equals(other);
         }
 
         public override bool Equals(object obj)
         {
-            return base.Equals(obj as DoubleInsulatingGlass);
+            return Equals(obj as DoubleInsulatingGlass);
         }
 
         public override int GetHashCode()
