@@ -2,6 +2,7 @@
 using System.Linq;
 using GPC.Geometry;
 using GPC.Model.Elements;
+using GPC.Model.FEM.Properties;
 using GPC.Model.FEM.Attributes;
 using MathNet.Numerics.LinearAlgebra;
 
@@ -30,6 +31,7 @@ namespace GPC.Model.FEM.FiniteElements
             //Node 1 = Origin = Node i
             //Axis y assigned as Node 1 to Node 2, Node j = Node 2
             //Axis x ortogonal to axis y, Node k = node 3
+
             //calculation of matrix for transformation from Local to Global coordinates
             #region TransformationMatrixLocalCoordinatesToGlobalCoordinates
             Node nodeI = GlobalNodesElement.ElementAt(1 - 1);
@@ -76,42 +78,7 @@ namespace GPC.Model.FEM.FiniteElements
             Console.WriteLine("Local To Global Matrix = " + DofGlobalToLocal.ToString());
             #endregion
 
-            #region BMatrixDerivateOfShapeFunctionInLocalCoordinates
-
-            #region CalculationOfLocalCoordinates
-            //Search for 3 local axis
-            Vector3d y = new Vector3d(nodeJ.Position.X - nodeI.Position.X, nodeJ.Position.Y - nodeI.Position.Y, nodeJ.Position.Z - nodeI.Position.Z);
-            Vector3d vecy = new Vector3d(y);
-            vecy.Unitize();
-
-            Vector3d x = new Vector3d(nodeK.Position.X - nodeI.Position.X, nodeK.Position.Y - nodeI.Position.Y, nodeK.Position.Z - nodeI.Position.Z);
-            Vector3d vecx = new Vector3d(x);
-            vecx.Unitize();
-
-            Vector3d z = x.CrossProduct(y);
-            //UnitVector3D vecz = z.Normalize();
-            //_vecZLocal = vecz.ToVector().ToArray();
-            Vector3d vecz = new Vector3d(z);
-            vecz.Unitize();
-
-            //recalculation of x that can be non-ortogonal
-            x = y.CrossProduct(z);
-            vecx = new Vector3d(x);
-            vecx.Unitize();
-            //_vecXLocal = vecx.ToVector().ToArray();
-            _localCoordinateSystem = new Geometry.CoordinateSystem(new Point3d(0,0,0), vecx, vecy);
-
-            //move to local axis
-            //calculation in local nodes
-            Vector3d v12 = new Vector3d(nodeJ.Position.X - nodeI.Position.X, nodeJ.Position.Y - nodeI.Position.Y, nodeJ.Position.Z - nodeI.Position.Z);
-            Vector3d v13 = new Vector3d(nodeK.Position.X - nodeI.Position.X, nodeK.Position.Y - nodeI.Position.Y, nodeK.Position.Z - nodeI.Position.Z);
-
-            Node node1 = new Node(0, 0, 0, nodeI.Index, nodeI.Name); //Origin GlobalNodes.ElementAt(1 - 1);
-            Node node2 = new Node(v12.DotProduct(vecx), v12.DotProduct(vecy), v12.DotProduct(vecz), nodeJ.Index, nodeJ.Name); //Axis y GlobalNodes.ElementAt(2 - 1);
-            Node node3 = new Node(v13.DotProduct(vecx), v13.DotProduct(vecy), v13.DotProduct(vecz), nodeK.Index, nodeK.Name); //GlobalNodes.ElementAt(3 - 1);
-
-            //_localNodesElement = new Node[] { node1, node2, node3 };
-            #endregion
+            LocalNodes(nodeI, nodeJ, nodeK, out Node node1, out Node node2, out Node node3); //take global node and transform in local nodes
 
             #region ShapeFuction
             double dx32 = node3.Position.X - node2.Position.X;
@@ -148,6 +115,7 @@ namespace GPC.Model.FEM.FiniteElements
             ShapeFunctions.ElementAt(2).Coefficients = shapeCoeff;*/
             #endregion
 
+            #region BMatrixDerivateOfShapeFunctionInLocalCoordinates
             _b = Matrix<double>.Build.Dense(3, 6);
             _b[0, 0] = dy32;
             _b[0, 2] = -dy31;
@@ -235,6 +203,42 @@ namespace GPC.Model.FEM.FiniteElements
                 }
             }
             return _fLocalCoord;
+        }
+
+        protected void LocalNodes(Node nodeI, Node nodeJ, Node nodeK, out Node node1, out Node node2, out Node node3)
+        {
+            #region CalculationOfLocalCoordinates
+            //Search for 3 local axis
+            Vector3d y = new Vector3d(nodeJ.Position.X - nodeI.Position.X, nodeJ.Position.Y - nodeI.Position.Y, nodeJ.Position.Z - nodeI.Position.Z);
+            Vector3d vecy = new Vector3d(y);
+            vecy.Unitize();
+
+            Vector3d x = new Vector3d(nodeK.Position.X - nodeI.Position.X, nodeK.Position.Y - nodeI.Position.Y, nodeK.Position.Z - nodeI.Position.Z);
+            Vector3d vecx = new Vector3d(x);
+            vecx.Unitize();
+
+            Vector3d z = x.CrossProduct(y);
+            //UnitVector3D vecz = z.Normalize();
+            //_vecZLocal = vecz.ToVector().ToArray();
+            Vector3d vecz = new Vector3d(z);
+            vecz.Unitize();
+
+            //recalculation of x that can be non-ortogonal
+            x = y.CrossProduct(z);
+            vecx = new Vector3d(x);
+            vecx.Unitize();
+            //_vecXLocal = vecx.ToVector().ToArray();
+            _localCoordinateSystem = new Geometry.CoordinateSystem(new Point3d(0, 0, 0), vecx, vecy);
+
+            //move to local axis
+            //calculation in local nodes
+            Vector3d v12 = new Vector3d(nodeJ.Position.X - nodeI.Position.X, nodeJ.Position.Y - nodeI.Position.Y, nodeJ.Position.Z - nodeI.Position.Z);
+            Vector3d v13 = new Vector3d(nodeK.Position.X - nodeI.Position.X, nodeK.Position.Y - nodeI.Position.Y, nodeK.Position.Z - nodeI.Position.Z);
+
+            node1 = new Node(0, 0, 0, nodeI.Index, nodeI.Name); //Origin GlobalNodes.ElementAt(1 - 1);
+            node2 = new Node(v12.DotProduct(vecx), v12.DotProduct(vecy), v12.DotProduct(vecz), nodeJ.Index, nodeJ.Name); //Axis y GlobalNodes.ElementAt(2 - 1);
+            node3 = new Node(v13.DotProduct(vecx), v13.DotProduct(vecy), v13.DotProduct(vecz), nodeK.Index, nodeK.Name); //GlobalNodes.ElementAt(3 - 1);
+            #endregion
         }
 
         public override bool Equals(object obj)
