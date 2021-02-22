@@ -41,10 +41,10 @@ namespace GPC.Model.FEM.Costrain
         public struct Link
         {
             public string LabelNode;
-            public FEMModel.DOF GdlNode;
+            public LinearSolver.DOF GdlNode;
             public double Value;
 
-            public Link(string labelNodeSlave, FEMModel.DOF gdlNodeSlave, double val)
+            public Link(string labelNodeSlave, LinearSolver.DOF gdlNodeSlave, double val)
             {
                 LabelNode = labelNodeSlave;
                 GdlNode = gdlNodeSlave;

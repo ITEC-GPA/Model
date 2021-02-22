@@ -7,10 +7,11 @@ using GPC.Model.FEM.FiniteElements;
 using GPC.Geometry;
 using mnl = MathNet.Numerics.LinearAlgebra;
 using GPC.Model.FEM.Attributes;
+using GPC.Model.FEM;
 
 namespace GPC.Model.FEM
 {
-    public class FEMModel
+    public class LinearSolver : Solver
     {
         #region variables
         public enum DOF
@@ -29,7 +30,7 @@ namespace GPC.Model.FEM
         protected mnl.Matrix<double> _KGlobalRestrains;
         protected mnl.Vector<double> _F;
         protected mnl.Vector<double> _FRestrains;
-        protected HashSet<Costrain.MultiPointCostrain> _costrains;
+        protected HashSet<FEM.Costrain.MultiPointCostrain> _costrains;
         protected mnl.Vector<double> _nodeGlobalDisplacement;
         #endregion
 
@@ -45,7 +46,7 @@ namespace GPC.Model.FEM
         /// </summary>
         public FiniteElement[] Elements { get; }
 
-        public FEMModel(FiniteElement[] inputElements)
+        public LinearSolver(FiniteElement[] inputElements)
         {
             #region NodeOfModel
             HashSet<Node> nodesModel = new HashSet<Node>();
@@ -73,13 +74,13 @@ namespace GPC.Model.FEM
 
                         for (int k = 0; k < MAXGDLPERNODE; k++)
                         {
-                            if (element.DOF.Contains((DOF)k) == true)
+                            if (element.DOF.Contains((DOF)k))
                             {
                                 node.DOF.Add((DOF)k);
                             }
 
                             //Merge old DOF due to other element
-                            if (nodes.Single().DOF.Contains((DOF)k) == true)
+                            if (nodes.Single().DOF.Contains((DOF)k))
                             {
                                 node.DOF.Add((DOF)k);
                             }
@@ -215,6 +216,7 @@ namespace GPC.Model.FEM
             Vector3d Y = new Vector3d(0, 1, 0);
             Vector3d Z = new Vector3d(0, 0, 1);
 
+            #region ForceFromNodes
             for (int i = 0; i < Nodes.Count(); i++)
             {
                 foreach (LoadCaseAttribute loadCaseAttribute in Nodes[i].AttributesLoadCase)
@@ -235,6 +237,10 @@ namespace GPC.Model.FEM
                         double fY = nodeForceAttribute.F1 * dirX.DotProduct(Y) + nodeForceAttribute.F2 * dirY.DotProduct(Y) + nodeForceAttribute.F3 * dirZ.DotProduct(Y);
                         double fZ = nodeForceAttribute.F1 * dirX.DotProduct(Z) + nodeForceAttribute.F2 * dirY.DotProduct(Z) + nodeForceAttribute.F3 * dirZ.DotProduct(Z);
 
+                        double mX = nodeForceAttribute.M1 * dirX.DotProduct(X) + nodeForceAttribute.M2 * dirY.DotProduct(X) + nodeForceAttribute.M3 * dirZ.DotProduct(X);
+                        double mY = nodeForceAttribute.M1 * dirX.DotProduct(Y) + nodeForceAttribute.M2 * dirY.DotProduct(Y) + nodeForceAttribute.M3 * dirZ.DotProduct(Y);
+                        double mZ = nodeForceAttribute.M1 * dirX.DotProduct(Z) + nodeForceAttribute.M2 * dirY.DotProduct(Z) + nodeForceAttribute.M3 * dirZ.DotProduct(Z);
+
                         DOF dof = DOF.DX;
                         if (Nodes[i].DOF.Contains(dof) == true)
                         {
@@ -250,24 +256,64 @@ namespace GPC.Model.FEM
                         {
                             _F[GetPositionInKGlobal(Nodes[i].Index, dof)] = _F[GetPositionInKGlobal(Nodes[i].Index, dof)] + fZ;
                         }
-                        /*dof = DOF.RX;
+                        dof = DOF.RX;
                         if (Nodes[i].DOF.Contains(dof) == true)
                         {
-                            _F[GetPositionInKGlobal(Nodes[i].Index, dof)] = _F[GetPositionInKGlobal(Nodes[i].Index, dof)] + m.DotProduct(X);
+                            _F[GetPositionInKGlobal(Nodes[i].Index, dof)] = _F[GetPositionInKGlobal(Nodes[i].Index, dof)] + mX;
                         }
                         dof = DOF.RY;
                         if (Nodes[i].DOF.Contains(dof) == true)
                         {
-                            _F[GetPositionInKGlobal(Nodes[i].Index, dof)] = _F[GetPositionInKGlobal(Nodes[i].Index, dof)] + m.DotProduct(Y);
+                            _F[GetPositionInKGlobal(Nodes[i].Index, dof)] = _F[GetPositionInKGlobal(Nodes[i].Index, dof)] + mY;
                         }
                         dof = DOF.RZ;
                         if (Nodes[i].DOF.Contains(dof) == true)
                         {
-                            _F[GetPositionInKGlobal(Nodes[i].Index, dof)] = _F[GetPositionInKGlobal(Nodes[i].Index, dof)] + m.DotProduct(Z);
-                        }*/
+                            _F[GetPositionInKGlobal(Nodes[i].Index, dof)] = _F[GetPositionInKGlobal(Nodes[i].Index, dof)] + mZ;
+                        }
                     }
                 }
             }
+            #endregion
+
+            #region ForceFromElements
+            for (int i = 0; i < Elements.Count(); i++) //cycle over elements
+            {
+                FiniteElement element = Elements[i];
+                mnl.Vector<double> FElementGlobalCoord = element.GlobalCoordF();
+                for (int j = 0; j < element.GlobalNodesElement.Length; j++) //cycle over nodes of element
+                {
+                    Node node = element.GlobalNodesElement[j];
+                    Node[] nds = Nodes.Where(x => x.Position == node.Position).ToArray();
+
+                    //just a check
+                    if (nds.Length <= 0 || nds.Length > 1)
+                    {
+                        throw new Exception("something wrong with nodes and elemens");
+                    }
+
+                    //check which DOF are active for the node to put the force in the right position
+                    for (int k = 0; k < nds[0].NrActiveDof; k++)
+                    {
+                        int pos = GetPositionInKGlobal(node.Index, nds[0].DOF.ElementAt(k));
+
+                        //search in local vector the value in DOF selected
+                        double val = 0;
+                        for (int l = 0; l < element.DOF.Count; l++)
+                        {
+                            DOF dof = element.DOF.ElementAt(l);
+
+                            if (dof == nds[0].DOF.ElementAt(k))
+                            {
+                                val = FElementGlobalCoord[j * element.DOF.Count + l];
+                            }
+                        }
+                        
+                        _F[pos] = _F[pos] + val;
+                    }
+                }
+            }
+            #endregion
             #endregion
 
             #region ApplyingRestrains
@@ -320,12 +366,12 @@ namespace GPC.Model.FEM
             #endregion
 
             #region ApplyingMultiPointCostrains
-            _costrains = new HashSet<Costrain.MultiPointCostrain>();
+            _costrains = new HashSet<FEM.Costrain.MultiPointCostrain>();
             //applying as example in node 1 : DX = DY (simply support with 45 degrees direction
-            Costrain.MultiPointCostrain.Link[] equations = new Costrain.MultiPointCostrain.Link[2];
-            equations[0] = new Costrain.MultiPointCostrain.Link("1", DOF.DX, 1.0);
-            equations[1] = new Costrain.MultiPointCostrain.Link("1", DOF.DY, 1.0);
-            Costrain.MultiPointCostrain Costrain1 = new Costrain.MultiPointCostrain(equations);
+            FEM.Costrain.MultiPointCostrain.Link[] equations = new FEM.Costrain.MultiPointCostrain.Link[2];
+            equations[0] = new FEM.Costrain.MultiPointCostrain.Link("1", DOF.DX, 1.0);
+            equations[1] = new FEM.Costrain.MultiPointCostrain.Link("1", DOF.DY, 1.0);
+            FEM.Costrain.MultiPointCostrain Costrain1 = new FEM.Costrain.MultiPointCostrain(equations);
             //_costrains.Add(Costrain1);
 
             /* Use: Lagrange multiplier method 
@@ -335,7 +381,7 @@ namespace GPC.Model.FEM
             int nLagrangianMultiplier = _costrains.Count;
             for (int i = 0; i < _costrains.Count; i++)
             {
-                Costrain.MultiPointCostrain c = _costrains.ElementAt(i);
+                FEM.Costrain.MultiPointCostrain c = _costrains.ElementAt(i);
                 Console.WriteLine(c.ToString());
 
                 mnl.Vector<double> voidVector = mnl.Vector<double>.Build.Dense(_KGlobalRestrains.RowCount);
@@ -544,7 +590,7 @@ namespace GPC.Model.FEM
                 }
                 else
                 {
-                    counter = counter + Nodes.ElementAt(i).NrActiveDof;
+                    counter = counter + Nodes.ElementAt(i).NrActiveDof; //add the dof of previous nodes
                 }
             }
             return results.ToArray();
@@ -558,19 +604,37 @@ namespace GPC.Model.FEM
         /// <returns></returns>
         private int GetPositionInKGlobal(int IdNode, DOF dof = 0)
         {
+            #region CounterForPreviousNodes
             int counter = 0;
+            int posNode = -1;
             for (int i = 0; i < Nodes.Length; i++)
             {
                 if (Nodes.ElementAt(i).Index == IdNode)
                 {
-                    i = Nodes.Length;
+                    posNode = i;
+                    i = Nodes.Length; //exit from the cycle
                 }
                 else
                 {
-                    counter = counter + Nodes.ElementAt(i).NrActiveDof;
+                    counter = counter + Nodes.ElementAt(i).NrActiveDof; //add the dof of previous nodes
                 }
             }
-            return counter + (int)dof;
+            #endregion
+            #region CounterForDOFofCurrentNode
+            int counter2 = 0;
+            for (int i = 0; i < Nodes[posNode].DOF.Count; i++)
+            {
+                if (dof != Nodes[posNode].DOF.ElementAt(i))
+                {
+                    counter2++;
+                } else
+                {
+                    i = Nodes[posNode].DOF.Count; //exit from cycle
+                }
+            }
+            return counter + counter2;
+            //return counter + (int)dof;
+            #endregion
         }
         #endregion       
     }

@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using GPC.Model.Elements;
 using GPC.Model.Materials;
+using mnl = MathNet.Numerics.LinearAlgebra;
 
 namespace GPC.Model.FEM.FiniteElements
 {
@@ -12,7 +13,7 @@ namespace GPC.Model.FEM.FiniteElements
     {
         public Brick(Node[] nodes, BrickProperty property, int id) : base(nodes, property, id) { }
 
-        public override void BuildF()
+        protected override mnl.Vector<double> BuildFLocalCoord()
         {
             throw new NotImplementedException();
         }

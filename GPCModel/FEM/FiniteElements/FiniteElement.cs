@@ -1,10 +1,8 @@
-﻿using GPC.Geometry;
-using GPC.Model.Elements;
-using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using GPC.Geometry;
+using GPC.Model.Elements;
+using GPC.Model.FEM.Attributes;
 using mnl = MathNet.Numerics.LinearAlgebra;
 
 namespace GPC.Model.FEM.FiniteElements
@@ -20,13 +18,14 @@ namespace GPC.Model.FEM.FiniteElements
         protected double[] _vecYLocal = new double[3]; //versor Y local in Global Coordinate Sys
         protected double[] _vecZLocal = new double[3]; //versor Z local in Global Coordinate Sys*/
 
-        protected HashSet<FEMModel.DOF> _DOF = new HashSet<FEMModel.DOF>();
+        protected SortedSet<LinearSolver.DOF> _DOF;
         
         protected mnl.Matrix<double> _dofGlobalToLocal;
         protected mnl.Matrix<double> _kElementLocalCoord;
         protected mnl.Matrix<double> _b;
         protected mnl.Matrix<double> _d;
         protected ElementProperty _property;
+        protected List<IPlateLoadCaseAttribute> _attributes;
         #endregion
 
         #region Properties
@@ -58,7 +57,7 @@ namespace GPC.Model.FEM.FiniteElements
         /// <summary>
         /// Contains the DOF active in the element
         /// </summary>
-        public HashSet<FEMModel.DOF> DOF => _DOF;
+        public SortedSet<LinearSolver.DOF> DOF => _DOF;
 
         /// <summary>
         /// Contains Material for brick, thickness and material for plate, material + section for beam
@@ -73,9 +72,9 @@ namespace GPC.Model.FEM.FiniteElements
             get
             {
                 int counter = 0;
-                for (int i = 0; i < DOF.Count; i++)
+                for (int i = 0; i < DOF.Count(); i++)
                 {
-                    if (DOF.Contains((FEMModel.DOF)i) == true) {
+                    if (DOF.Contains((LinearSolver.DOF)i) == true) {
                         counter++;
                     }
                 }
@@ -124,6 +123,8 @@ namespace GPC.Model.FEM.FiniteElements
         {
             GlobalNodesElement = nodes;
             _property = property;
+            _attributes = new List<IPlateLoadCaseAttribute>();
+            _DOF = new SortedSet<LinearSolver.DOF>();
         }
         #endregion
 
@@ -136,7 +137,20 @@ namespace GPC.Model.FEM.FiniteElements
         /// <summary>
         /// Build vector of Forces in nodes due to internal action applied (shear stress, prestress etc)
         /// </summary>
-        public abstract void BuildF();
+        protected abstract mnl.Vector<double> BuildFLocalCoord();
+
+        public mnl.Vector<double> GlobalCoordF()
+        {
+            mnl.Vector<double> _fLocalCoord = BuildFLocalCoord();
+            mnl.Vector<double> F = DofGlobalToLocal.Transpose() * _fLocalCoord;
+            
+            return F;
+        }
+
+        public void AddAttribute(IPlateLoadCaseAttribute attribute)
+        {
+            _attributes.Add(attribute);
+        }
 
         public override bool Equals(object obj)
         {
