@@ -9,6 +9,7 @@ using GPC.Model.Elements;
 using GPC.Model.Materials;
 using GPC.Model.FreedomCases;
 using GPC.Geometry;
+using GPC.Model.FEM.Properties;
 using GPC.Model.FEM.Attributes;
 using GPC.Model.LoadCases;
 

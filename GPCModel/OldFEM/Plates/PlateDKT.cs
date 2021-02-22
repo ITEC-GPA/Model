@@ -9,6 +9,7 @@ using GPC.Model.Sections;
 using MathNet.Numerics.LinearAlgebra;
 using GPC.Geometry;
 using GPC.Model.Elements;
+using GPC.Model.FEM.Properties;
 using GPC.Model.Results;
 
 namespace GPC.Model.FEMOld

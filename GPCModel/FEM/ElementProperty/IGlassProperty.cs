@@ -1,6 +1,6 @@
 ﻿
 
-namespace GPC.Model.Elements
+namespace GPC.Model.FEM.Properties
 {
     public interface IGlassProperty
     {

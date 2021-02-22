@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using GPC.Model.FEM.Properties;
 using GPC.Model.Elements;
 using mnl = MathNet.Numerics.LinearAlgebra;
 

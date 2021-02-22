@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using GPC.Geometry;
 using GPC.Model.Materials;
+using GPC.Model.FEM.Properties;
 using GPC.Model.Elements;
 
 namespace GPC.Model.Sections

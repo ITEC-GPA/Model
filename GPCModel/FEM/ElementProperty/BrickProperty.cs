@@ -4,7 +4,7 @@ using GPC.Model.Materials;
 
 
 
-namespace GPC.Model.Elements
+namespace GPC.Model.FEM.Properties
 {
 
     public class BrickProperty : ElementProperty, IBrickProperty

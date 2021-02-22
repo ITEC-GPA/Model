@@ -4,6 +4,7 @@ using System.IO;
 using GPC.Model.Elements;
 using GPC.Model.Elements.Glasses;
 using GPC.Model.Materials;
+using GPC.Model.FEM.Properties;
 
 namespace UnitTest
 {

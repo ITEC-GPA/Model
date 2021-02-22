@@ -4,7 +4,7 @@ using GPC.Model.Materials;
 using GPC.Model.Elements.Glasses;
 using System.Collections.Generic;
 
-namespace GPC.Model.Elements
+namespace GPC.Model.FEM.Properties
 {
     public sealed class MonolithicGlassProperty : PlateProperty, IGlassProperty, IEquatable<MonolithicGlassProperty>
     {

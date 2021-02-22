@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using MathNet.Numerics.LinearAlgebra;
 using System.IO;
+using GPC.Model.FEM.Properties;
 using GPC.Model.Sections;
 using GPC.Model.Elements;
 

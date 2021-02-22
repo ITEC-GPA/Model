@@ -5,6 +5,7 @@ using System.Runtime.Serialization;
 using System.Text;
 using System.Threading.Tasks;
 using GPC.Model.Materials;
+using GPC.Model.FEM.Properties;
 using GPC.Model.Sections;
 using MathNet.Numerics.LinearAlgebra;
 using GPC.Geometry;

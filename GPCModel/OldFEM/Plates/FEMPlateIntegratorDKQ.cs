@@ -8,6 +8,7 @@ using MathNet.Numerics.LinearAlgebra;
 using System.IO;
 using GPC.Model.Sections;
 using GPC.Model.Elements;
+using GPC.Model.FEM.Properties;
 using GPC.Geometry;
 
 namespace GPC.Model.FEMOld

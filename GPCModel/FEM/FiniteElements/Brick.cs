@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using GPC.Model.Elements;
+using GPC.Model.FEM.Properties;
 using GPC.Model.Materials;
 using mnl = MathNet.Numerics.LinearAlgebra;
 
