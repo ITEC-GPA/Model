@@ -8,6 +8,8 @@ namespace GPC.Model.FEM
 {
     public class Solver : ModelObject
     {
+        public Solver() { }
 
+        public void Call() { }
     }
 }
