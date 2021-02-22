@@ -66,11 +66,11 @@ namespace UnitTest
             Assert.IsTrue(order.ElementAt(3) == FEMModel.DOF.RY);
             Assert.IsTrue(order.ElementAt(4) == FEMModel.DOF.RZ);
 
-            SortedSet<int> unordered2 = new SortedSet<int>();
+            /*SortedSet<int> unordered2 = new SortedSet<int>();
             unordered2.Add(5);
             unordered2.Add(105);
             unordered2.Add(7);
-            unordered2.Add(4);
+            unordered2.Add(4);*/
         }
 
         [TestMethod]
@@ -139,7 +139,7 @@ namespace UnitTest
 
             mnl.Matrix<double> kGlobal = el.DofGlobalToLocal.Transpose() * el.KElementLocalCoord * el.DofGlobalToLocal;
             //controllo che passaggio da coordinate locali a globali sia fatto corretamente
-            Assert.AreEqual(kLocal, kGlobal, "kLocal not equal to Kglobal with local axis");
+            Assert.AreEqual(kLocal, kGlobal, "kLocal not equal to Kglobal");
         }
 
         [TestMethod]
@@ -193,7 +193,6 @@ namespace UnitTest
             KManual = KManual.InsertRow(10, mnl.Vector<double>.Build.Dense(r10));
             KManual = KManual.InsertRow(11, mnl.Vector<double>.Build.Dense(r11));
 
-            //controllo klocale elemento finito 3 nodi stato piano di tensione
             for (int i = 0; i < K.RowCount; i++)
             {
                 for (int j = 0; j < K.ColumnCount; j++)
@@ -280,7 +279,6 @@ namespace UnitTest
             KManual = KManual.InsertRow(10, mnl.Vector<double>.Build.Dense(r10));
             KManual = KManual.InsertRow(11, mnl.Vector<double>.Build.Dense(r11));
 
-            //controllo klocale elemento finito 3 nodi stato piano di tensione
             for (int i = 0; i < K.RowCount; i++)
             {
                 for (int j = 0; j < K.ColumnCount; j++)
@@ -478,8 +476,8 @@ namespace UnitTest
 
             List<Node> nodesPlate1 = new List<Node>();
             Node nd1 = new Node(0, 0, 0, 1, "1");
-            Node nd2 = new Node(0, 100, 0, 2, "2");
-            Node nd3 = new Node(100, 0, 0, 3, "3");
+            Node nd2 = new Node(0, 1, 0, 2, "2");
+            Node nd3 = new Node(1, 0, 0, 3, "3");
 
             nd1.AddAttribute(DXDYDZ);
             nd2.AddAttribute(DXDYDZ);
@@ -489,9 +487,9 @@ namespace UnitTest
             nodesPlate1.Add(nd3);
 
             List<Node> nodesPlate2 = new List<Node>();
-            Node nd2copy = new Node(0, 100, 0, 2, "2");
-            Node nd3copy = new Node(100, 0, 0, 3, "3");
-            Node nd4 = new Node(100, 100, 0, 4, "4");
+            Node nd2copy = new Node(0, 1, 0, 2, "2");
+            Node nd3copy = new Node(1, 0, 0, 3, "3");
+            Node nd4 = new Node(1, 1, 0, 4, "4");
 
             nd2copy.AddAttribute(DZ);
             nd3copy.AddAttribute(DZ);
@@ -503,7 +501,7 @@ namespace UnitTest
 
             List<FiniteElement> elements = new List<FiniteElement>();
             FiniteElement e0 = new TriangularMembranal(nodesPlate1.ToArray(), prop, 1);
-            PlatePressureAttribute p = new PlatePressureAttribute(loadCase, sys, -1, 0, 0);
+            PlatePressureAttribute p = new PlatePressureAttribute(loadCase, sys, -10.0, 0, 0);
             e0.AddAttribute(p);
 
             elements.Add(e0);

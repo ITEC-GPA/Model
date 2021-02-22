@@ -196,7 +196,7 @@ namespace GPC.Model.FEM.FiniteElements
 
         protected override Vector<double> BuildFLocalCoord()
         {
-            Vector<double> _fLocalCoord = Vector<double>.Build.Dense(2 * GlobalNodesElement.Length);
+            Vector<double> _fLocalCoord = Vector<double>.Build.Dense(2 * GlobalNodesElement.Length); //2 = DOF in local : DX and DY
             foreach (IPlateLoadCaseAttribute iAttribute in _attributes)
             {
                 if (iAttribute is PlatePressureAttribute)
