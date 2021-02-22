@@ -105,13 +105,15 @@
     <Compile Include="FEM\Costrain\Costrain.cs" />
     <Compile Include="FEM\FEMObject.cs" />
     <Compile Include="FEM\FiniteElements\FiniteElement.cs" />
+    <Compile Include="FEM\FiniteElements\TriangularFlexural.cs" />
     <Compile Include="FEM\Node.cs" />
     <Compile Include="FEM\FiniteElements\Brick.cs" />
     <Compile Include="FEM\FiniteElements\Plate.cs" />
     <Compile Include="FEM\FiniteElements\VoidElement.cs" />
     <Compile Include="FEM\FiniteElements\TriangularMembranal.cs" />
-    <Compile Include="FEM\FEMModel.cs" />
+    <Compile Include="FEM\LinearSolver.cs" />
     <Compile Include="FEM\MyMath\Polynome.cs" />
+    <Compile Include="FEM\Solver.cs" />
     <Compile Include="FreedomCases\FreedomCase.cs" />
     <Compile Include="LoadCases\ClimateHLoadCase.cs" />
     <Compile Include="LoadCases\IClimate.cs" />

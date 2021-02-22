@@ -11,10 +11,10 @@ namespace GPC.Model.FEM.Attributes
     public class NodeStiffnessAttribute : FreedomCaseAttribute, ISerializable, IEquatable<NodeStiffnessAttribute>, INodeFreedomCaseAttribute
     {
 
-        private Dictionary<FEMModel.DOF, double> _stiffness;
+        private Dictionary<LinearSolver.DOF, double> _stiffness;
 
 
-        public Dictionary<FEMModel.DOF, double> Stiffnesses => _stiffness;
+        public Dictionary<LinearSolver.DOF, double> Stiffnesses => _stiffness;
 
 
         public NodeStiffnessAttribute(FreedomCase freedomCase)
@@ -32,16 +32,16 @@ namespace GPC.Model.FEM.Attributes
         public NodeStiffnessAttribute(FreedomCase freedomCase, string name, Guid guid) 
             : base(freedomCase, name, guid)
         {
-            _stiffness = new Dictionary<FEMModel.DOF, double>();
+            _stiffness = new Dictionary<LinearSolver.DOF, double>();
         }
 
         protected NodeStiffnessAttribute(SerializationInfo info, StreamingContext context) 
             : base(info, context)
         {
-            _stiffness = (Dictionary<FEMModel.DOF, double>)info.GetValue("stiffnesses", typeof(Dictionary<FEMModel.DOF, double>));
+            _stiffness = (Dictionary<LinearSolver.DOF, double>)info.GetValue("stiffnesses", typeof(Dictionary<LinearSolver.DOF, double>));
         }
 
-        public void AddStiffness(FEMModel.DOF dof, double value)
+        public void AddStiffness(LinearSolver.DOF dof, double value)
         {
             _stiffness[dof] = value;
         }
@@ -75,7 +75,7 @@ namespace GPC.Model.FEM.Attributes
         {
             int hashCode = -23;
             hashCode = hashCode * -17 + base.GetHashCode();
-            hashCode = hashCode * -17 + EqualityComparer<Dictionary<FEMModel.DOF, double>>.Default.GetHashCode(_stiffness);
+            hashCode = hashCode * -17 + EqualityComparer<Dictionary<LinearSolver.DOF, double>>.Default.GetHashCode(_stiffness);
             return hashCode;
         }
     }

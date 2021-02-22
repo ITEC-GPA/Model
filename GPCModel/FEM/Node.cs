@@ -1,8 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using GPC.Geometry;
 using GPC.Model.FEM.Attributes;
 
@@ -28,16 +25,16 @@ namespace GPC.Model.FEM
         /// <summary>
         /// Contains the degree of freedom active for the node
         /// </summary>
-        public HashSet<FEMModel.DOF> DOF { get; set; }
+        public HashSet<LinearSolver.DOF> DOF { get; set; }
 
         public int NrActiveDof
         {
             get
             {
                 int ris = 0;
-                for (int i = 0; i < FEMModel.MAXGDLPERNODE; i++)
+                for (int i = 0; i < LinearSolver.MAXGDLPERNODE; i++)
                 {
-                    if (DOF.Contains((FEMModel.DOF)i) == true)
+                    if (DOF.Contains((LinearSolver.DOF)i) == true)
                     {
                         ris++;
                     }  
@@ -54,7 +51,7 @@ namespace GPC.Model.FEM
         {
             _position = point;
             
-            DOF = new HashSet<FEMModel.DOF>();
+            DOF = new HashSet<LinearSolver.DOF>();
             
             _attributesLoadCase = new List<INodeLoadCaseAttribute>();
             _attributesFreedomCase = new List<INodeFreedomCaseAttribute>();

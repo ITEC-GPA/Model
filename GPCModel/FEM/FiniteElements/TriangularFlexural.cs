@@ -1,40 +1,87 @@
 ﻿using System;
 using System.Linq;
-using GPC.Geometry;
 using GPC.Model.Elements;
-using GPC.Model.FEM.Attributes;
-using MathNet.Numerics.LinearAlgebra;
+using mnl = MathNet.Numerics.LinearAlgebra;
 
 namespace GPC.Model.FEM.FiniteElements
 {
-    public class TriangularMembranal : FiniteElement, IEquatable<TriangularMembranal>
+    public class TriangularFlexural : FiniteElement, IEquatable<TriangularFlexural>
     {
         //calculated and used in BuildMatrix and used also in BuildF
-        private double _areaElement;
+        //private double _areaElement;
 
-        public TriangularMembranal(Node[] nodes, PlateProperty property, int id) : base(nodes, property, id)
+        public TriangularFlexural(Node[] nodes, PlateProperty property, int id) : base(nodes, property, id)
         {
             //recalled base(nodes)
-            _DOF.Add(LinearSolver.DOF.DX);
-            _DOF.Add(LinearSolver.DOF.DY);
-            _DOF.Add(LinearSolver.DOF.DZ);
-            //a displacement in Local coordinate plane (Dx, Dy) can be a DX, DY, DZ in Global space!
+            _DOF.Add(LinearSolver.DOF.RX);
+            _DOF.Add(LinearSolver.DOF.RY);
+            _DOF.Add(LinearSolver.DOF.RZ);
+            //a rotation in Local coordinate plane (rx, ry) can be a RX, RY, RZ in Global space!
         }
 
         public override void BuildMatrix()
         {
             /*
-            * REFERENCE: CHAPTER 10 - THE FINITE ELEMENT METHOD IN ENGINEERING - SINGIRESU S.RAO
+            * REFERENCE: CHAPTER 10.5 - THE FINITE ELEMENT METHOD IN ENGINEERING - SINGIRESU S.RAO
             */
 
             //Node 1 = Origin = Node i
             //Axis y assigned as Node 1 to Node 2, Node j = Node 2
             //Axis x ortogonal to axis y, Node k = node 3
-            //calculation of matrix for transformation from Local to Global coordinates
-            #region TransformationMatrixLocalCoordinatesToGlobalCoordinates
             Node nodeI = GlobalNodesElement.ElementAt(1 - 1);
             Node nodeJ = GlobalNodesElement.ElementAt(2 - 1);
             Node nodeK = GlobalNodesElement.ElementAt(3 - 1);
+
+            //calculation of matrix eta q = eta * alpha
+            //alpha = constant of polynome
+            //q = displacements, int this case rx1, ry1, rz1, rx2, .... rz3
+            int n = GlobalNodesElement.Length * _DOF.Count;
+            mnl.Matrix<double> eta = mnl.Matrix<double>.Build.Dense(n,n);
+            eta[0, 0] = 1.0;
+
+            eta[1, 2] = 1.0;
+
+            eta[2, 1] = -1.0;
+
+            eta[3, 0] = 1.0;
+            eta[3, 2] = nodeJ.Position.Y;
+            eta[3, 5] = Math.Pow(nodeJ.Position.Y, 2.0);
+            eta[3, 8] = Math.Pow(nodeJ.Position.Y, 3.0);
+
+            eta[4, 2] = 1.0;
+            eta[4, 5] = 2.0 * nodeJ.Position.Y;
+            eta[4, 8] = 3.0 * Math.Pow(nodeJ.Position.Y, 2.0);
+
+            eta[5, 1] = -1.0;
+            eta[5, 4] = -nodeJ.Position.Y;
+            eta[5, 7] = -Math.Pow(nodeJ.Position.Y, 2.0);
+
+            eta[6, 0] = 1.0;
+            eta[6, 1] = nodeK.Position.X;
+            eta[6, 2] = nodeK.Position.Y;
+            eta[6, 3] = Math.Pow(nodeK.Position.X, 2.0);
+            eta[6, 4] = nodeK.Position.X * nodeK.Position.Y;
+            eta[6, 5] = Math.Pow(nodeK.Position.Y, 2.0);
+            eta[6, 6] = Math.Pow(nodeK.Position.X, 3.0);
+            eta[6, 7] = Math.Pow(nodeK.Position.X, 3.0) * nodeK.Position.Y + nodeK.Position.X * Math.Pow(nodeK.Position.Y, 2.0);
+            eta[6, 8] = Math.Pow(nodeK.Position.Y, 2.0);
+
+            eta[7, 2] = 1.0;
+            eta[7, 4] = nodeK.Position.X;
+            eta[7, 5] = 2.0 * nodeK.Position.Y;
+            eta[7, 7] = 2.0 * nodeK.Position.X * nodeK.Position.Y + Math.Pow(nodeK.Position.X, 2.0);
+            eta[7, 8] = 3.0 * Math.Pow(nodeK.Position.Y, 3.0);
+
+            eta[8, 1] = -1.0;
+            eta[8, 3] = -2.0 * nodeK.Position.X;
+            eta[8, 4] = - nodeK.Position.Y;
+            eta[8, 6] = -3.0 * Math.Pow(nodeK.Position.X,2.0);
+            eta[8, 7] = - Math.Pow(nodeK.Position.Y, 2.0) + 2.0 * nodeK.Position.X * nodeK.Position.Y;
+
+            /*
+            //calculation of matrix for transformation from Local to Global coordinates
+            #region TransformationMatrixLocalCoordinatesToGlobalCoordinates
+
 
             double dij = Math.Sqrt(Math.Pow(nodeJ.Position.X - nodeI.Position.X, 2.0) + Math.Pow(nodeJ.Position.Y - nodeI.Position.Y, 2.0) + Math.Pow(nodeJ.Position.Z - nodeI.Position.Z, 2.0));
             double lij = (nodeJ.Position.X - nodeI.Position.X) / dij;
@@ -123,29 +170,6 @@ namespace GPC.Model.FEM.FiniteElements
             double dy31 = node3.Position.Y - node1.Position.X;
 
             _areaElement = 1.0 / 2.0 * (dx32 * dy21 - dx21 * dy32);
-
-            /*ShapeFunctions = new Polynome[3];
-            for (int i = 0; i < nodes.Count(); i++) {
-                Polynome1D px = new Polynome1D(1, "x");
-                Polynome1D py = new Polynome1D(1, "y");
-                ShapeFunctions[i] = new Polynome(new Polynome1D[] { px, py });
-            }
-
-            double[] shapeCoeff = new double[3];
-            shapeCoeff[0] = 1.0 / (2.0 * A) * (dy32 * -node2.X - dx32 * -node2.Y);
-            shapeCoeff[1] = 1.0 / (2.0 * A) * (dy32);
-            shapeCoeff[2] = 1.0 / (2.0 * A) * (-dx32);
-            ShapeFunctions.ElementAt(0).Coefficients = shapeCoeff;
-
-            shapeCoeff[0] = 1.0 / (2.0 * A) * (-dy31 * -node3.X + dx31 * -node3.Y);
-            shapeCoeff[1] = 1.0 / (2.0 * A) * (-dy31);
-            shapeCoeff[2] = 1.0 / (2.0 * A) * (dx31);
-            ShapeFunctions.ElementAt(1).Coefficients = shapeCoeff;
-
-            shapeCoeff[0] = 1.0 / (2.0 * A) * (dy21 * -node1.X - dx21 * -node1.Y);
-            shapeCoeff[1] = 1.0 / (2.0 * A) * (dy21);
-            shapeCoeff[2] = 1.0 / (2.0 * A) * (-dx21);
-            ShapeFunctions.ElementAt(2).Coefficients = shapeCoeff;*/
             #endregion
 
             _b = Matrix<double>.Build.Dense(3, 6);
@@ -188,13 +212,16 @@ namespace GPC.Model.FEM.FiniteElements
             double V = _areaElement * thk;
             _kElementLocalCoord = V * _b.Transpose() * _d * _b;
             Console.WriteLine("KElementLocalCoord = " + KElementLocalCoord.ToString());
+            
             #endregion
+            */
         }
 
-        protected override Vector<double> BuildFLocalCoord()
+        protected override mnl.Vector<double> BuildFLocalCoord()
         {
-            Vector<double> _fLocalCoord = Vector<double>.Build.Dense(2 * GlobalNodesElement.Length); //2 = DOF in local : DX and DY
-            foreach (IPlateLoadCaseAttribute iAttribute in _attributes)
+            
+            mnl.Vector<double> _fLocalCoord = mnl.Vector<double>.Build.Dense(2 * GlobalNodesElement.Length); //2 = DOF in local : DX and DY
+            /*foreach (IPlateLoadCaseAttribute iAttribute in _attributes)
             {
                 if (iAttribute is PlatePressureAttribute)
                 {
@@ -233,7 +260,7 @@ namespace GPC.Model.FEM.FiniteElements
                         _fLocalCoord[i+1] = f.Y;
                     }
                 }
-            }
+            }*/
             return _fLocalCoord;
         }
 
@@ -248,7 +275,7 @@ namespace GPC.Model.FEM.FiniteElements
             return 624022166 + base.GetHashCode();
         }
 
-        public bool Equals(TriangularMembranal other)
+        public bool Equals(TriangularFlexural other)
         {
             return Equals((object)other);
         }

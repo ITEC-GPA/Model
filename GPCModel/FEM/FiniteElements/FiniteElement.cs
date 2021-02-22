@@ -1,11 +1,8 @@
-﻿using GPC.Geometry;
+﻿using System.Collections.Generic;
+using System.Linq;
+using GPC.Geometry;
 using GPC.Model.Elements;
 using GPC.Model.FEM.Attributes;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using mnl = MathNet.Numerics.LinearAlgebra;
 
 namespace GPC.Model.FEM.FiniteElements
@@ -21,7 +18,7 @@ namespace GPC.Model.FEM.FiniteElements
         protected double[] _vecYLocal = new double[3]; //versor Y local in Global Coordinate Sys
         protected double[] _vecZLocal = new double[3]; //versor Z local in Global Coordinate Sys*/
 
-        protected SortedSet<FEMModel.DOF> _DOF;
+        protected SortedSet<LinearSolver.DOF> _DOF;
         
         protected mnl.Matrix<double> _dofGlobalToLocal;
         protected mnl.Matrix<double> _kElementLocalCoord;
@@ -60,7 +57,7 @@ namespace GPC.Model.FEM.FiniteElements
         /// <summary>
         /// Contains the DOF active in the element
         /// </summary>
-        public SortedSet<FEMModel.DOF> DOF => _DOF;
+        public SortedSet<LinearSolver.DOF> DOF => _DOF;
 
         /// <summary>
         /// Contains Material for brick, thickness and material for plate, material + section for beam
@@ -77,7 +74,7 @@ namespace GPC.Model.FEM.FiniteElements
                 int counter = 0;
                 for (int i = 0; i < DOF.Count(); i++)
                 {
-                    if (DOF.Contains((FEMModel.DOF)i) == true) {
+                    if (DOF.Contains((LinearSolver.DOF)i) == true) {
                         counter++;
                     }
                 }
@@ -127,7 +124,7 @@ namespace GPC.Model.FEM.FiniteElements
             GlobalNodesElement = nodes;
             _property = property;
             _attributes = new List<IPlateLoadCaseAttribute>();
-            _DOF = new SortedSet<FEMModel.DOF>();
+            _DOF = new SortedSet<LinearSolver.DOF>();
         }
         #endregion
 

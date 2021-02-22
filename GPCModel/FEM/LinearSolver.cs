@@ -7,10 +7,11 @@ using GPC.Model.FEM.FiniteElements;
 using GPC.Geometry;
 using mnl = MathNet.Numerics.LinearAlgebra;
 using GPC.Model.FEM.Attributes;
+using GPC.Model.FEM;
 
 namespace GPC.Model.FEM
 {
-    public class FEMModel
+    public class LinearSolver : Solver
     {
         #region variables
         public enum DOF
@@ -29,7 +30,7 @@ namespace GPC.Model.FEM
         protected mnl.Matrix<double> _KGlobalRestrains;
         protected mnl.Vector<double> _F;
         protected mnl.Vector<double> _FRestrains;
-        protected HashSet<Costrain.MultiPointCostrain> _costrains;
+        protected HashSet<FEM.Costrain.MultiPointCostrain> _costrains;
         protected mnl.Vector<double> _nodeGlobalDisplacement;
         #endregion
 
@@ -45,7 +46,7 @@ namespace GPC.Model.FEM
         /// </summary>
         public FiniteElement[] Elements { get; }
 
-        public FEMModel(FiniteElement[] inputElements)
+        public LinearSolver(FiniteElement[] inputElements)
         {
             #region NodeOfModel
             HashSet<Node> nodesModel = new HashSet<Node>();
@@ -73,13 +74,13 @@ namespace GPC.Model.FEM
 
                         for (int k = 0; k < MAXGDLPERNODE; k++)
                         {
-                            if (element.DOF.Contains((DOF)k) == true)
+                            if (element.DOF.Contains((DOF)k))
                             {
                                 node.DOF.Add((DOF)k);
                             }
 
                             //Merge old DOF due to other element
-                            if (nodes.Single().DOF.Contains((DOF)k) == true)
+                            if (nodes.Single().DOF.Contains((DOF)k))
                             {
                                 node.DOF.Add((DOF)k);
                             }
@@ -365,12 +366,12 @@ namespace GPC.Model.FEM
             #endregion
 
             #region ApplyingMultiPointCostrains
-            _costrains = new HashSet<Costrain.MultiPointCostrain>();
+            _costrains = new HashSet<FEM.Costrain.MultiPointCostrain>();
             //applying as example in node 1 : DX = DY (simply support with 45 degrees direction
-            Costrain.MultiPointCostrain.Link[] equations = new Costrain.MultiPointCostrain.Link[2];
-            equations[0] = new Costrain.MultiPointCostrain.Link("1", DOF.DX, 1.0);
-            equations[1] = new Costrain.MultiPointCostrain.Link("1", DOF.DY, 1.0);
-            Costrain.MultiPointCostrain Costrain1 = new Costrain.MultiPointCostrain(equations);
+            FEM.Costrain.MultiPointCostrain.Link[] equations = new FEM.Costrain.MultiPointCostrain.Link[2];
+            equations[0] = new FEM.Costrain.MultiPointCostrain.Link("1", DOF.DX, 1.0);
+            equations[1] = new FEM.Costrain.MultiPointCostrain.Link("1", DOF.DY, 1.0);
+            FEM.Costrain.MultiPointCostrain Costrain1 = new FEM.Costrain.MultiPointCostrain(equations);
             //_costrains.Add(Costrain1);
 
             /* Use: Lagrange multiplier method 
@@ -380,7 +381,7 @@ namespace GPC.Model.FEM
             int nLagrangianMultiplier = _costrains.Count;
             for (int i = 0; i < _costrains.Count; i++)
             {
-                Costrain.MultiPointCostrain c = _costrains.ElementAt(i);
+                FEM.Costrain.MultiPointCostrain c = _costrains.ElementAt(i);
                 Console.WriteLine(c.ToString());
 
                 mnl.Vector<double> voidVector = mnl.Vector<double>.Build.Dense(_KGlobalRestrains.RowCount);

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Collections.Generic;
 using GPC.Model.FEM.FiniteElements;
@@ -10,7 +11,6 @@ using GPC.Model.FreedomCases;
 using GPC.Geometry;
 using GPC.Model.FEM.Attributes;
 using GPC.Model.LoadCases;
-using System.Linq;
 
 namespace UnitTest
 {
@@ -50,21 +50,21 @@ namespace UnitTest
         [TestMethod]
         public void AlwaysOrderedGDL()
         {
-            SortedSet<FEMModel.DOF> unordered = new SortedSet<FEMModel.DOF>();
+            SortedSet<LinearSolver.DOF> unordered = new SortedSet<LinearSolver.DOF>();
 
-            unordered.Add(FEMModel.DOF.RY);
-            unordered.Add(FEMModel.DOF.RX);
-            unordered.Add(FEMModel.DOF.RZ);
-            unordered.Add(FEMModel.DOF.DX);
-            unordered.Add(FEMModel.DOF.DY);
+            unordered.Add(LinearSolver.DOF.RY);
+            unordered.Add(LinearSolver.DOF.RX);
+            unordered.Add(LinearSolver.DOF.RZ);
+            unordered.Add(LinearSolver.DOF.DX);
+            unordered.Add(LinearSolver.DOF.DY);
 
             var order = unordered;
 
-            Assert.IsTrue(order.ElementAt(0) == FEMModel.DOF.DX);
-            Assert.IsTrue(order.ElementAt(1) == FEMModel.DOF.DY);
-            Assert.IsTrue(order.ElementAt(2) == FEMModel.DOF.RX);
-            Assert.IsTrue(order.ElementAt(3) == FEMModel.DOF.RY);
-            Assert.IsTrue(order.ElementAt(4) == FEMModel.DOF.RZ);
+            Assert.IsTrue(order.ElementAt(0) == LinearSolver.DOF.DX);
+            Assert.IsTrue(order.ElementAt(1) == LinearSolver.DOF.DY);
+            Assert.IsTrue(order.ElementAt(2) == LinearSolver.DOF.RX);
+            Assert.IsTrue(order.ElementAt(3) == LinearSolver.DOF.RY);
+            Assert.IsTrue(order.ElementAt(4) == LinearSolver.DOF.RZ);
 
             /*SortedSet<int> unordered2 = new SortedSet<int>();
             unordered2.Add(5);
@@ -163,7 +163,7 @@ namespace UnitTest
             elements.Add(new TriangularMembranal(nodesPlate1.ToArray(), prop, 1));
             elements.Add(new TriangularMembranal(nodesPlate2.ToArray(), prop, 2));
 
-            FEMModel fem = new FEMModel(elements.ToArray());
+            LinearSolver fem = new LinearSolver(elements.ToArray());
             mnl.Matrix<double> K = fem.KGlobal;
 
             mnl.Matrix<double> KManual = mnl.Matrix<double>.Build.Dense(0, fem.KGlobal.ColumnCount);
@@ -213,12 +213,12 @@ namespace UnitTest
             
             CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
             NodeRestrainAttribute DXDYDZ = new NodeRestrainAttribute(fc, sys);
-            DXDYDZ.AddRestrain(FEMModel.DOF.DX);
-            DXDYDZ.AddRestrain(FEMModel.DOF.DY);
-            DXDYDZ.AddRestrain(FEMModel.DOF.DZ);
+            DXDYDZ.AddRestrain(LinearSolver.DOF.DX);
+            DXDYDZ.AddRestrain(LinearSolver.DOF.DY);
+            DXDYDZ.AddRestrain(LinearSolver.DOF.DZ);
 
             NodeRestrainAttribute DZ = new NodeRestrainAttribute(fc, sys);
-            DZ.AddRestrain(FEMModel.DOF.DZ);
+            DZ.AddRestrain(LinearSolver.DOF.DZ);
 
             List<Node> nodesPlate1 = new List<Node>();
             Node nd1 = new Node(0, 0, 0, 1, "1");
@@ -249,7 +249,7 @@ namespace UnitTest
             elements.Add(new TriangularMembranal(nodesPlate1.ToArray(), prop, 1));
             elements.Add(new TriangularMembranal(nodesPlate2.ToArray(), prop, 2));
 
-            FEMModel fem = new FEMModel(elements.ToArray());
+            LinearSolver fem = new LinearSolver(elements.ToArray());
             mnl.Matrix<double> K = fem.KGlobal;
 
             mnl.Matrix<double> KManual = mnl.Matrix<double>.Build.Dense(0, fem.KGlobal.ColumnCount);
@@ -300,12 +300,12 @@ namespace UnitTest
 
             CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
             NodeRestrainAttribute DXDYDZ = new NodeRestrainAttribute(freedomCase, sys);
-            DXDYDZ.AddRestrain(FEMModel.DOF.DX);
-            DXDYDZ.AddRestrain(FEMModel.DOF.DY);
-            DXDYDZ.AddRestrain(FEMModel.DOF.DZ);
+            DXDYDZ.AddRestrain(LinearSolver.DOF.DX);
+            DXDYDZ.AddRestrain(LinearSolver.DOF.DY);
+            DXDYDZ.AddRestrain(LinearSolver.DOF.DZ);
 
             NodeRestrainAttribute DZ = new NodeRestrainAttribute(freedomCase, sys);
-            DZ.AddRestrain(FEMModel.DOF.DZ);
+            DZ.AddRestrain(LinearSolver.DOF.DZ);
 
             NodeForceAttribute fX1000 = new NodeForceAttribute(loadCase, sys, 1000, 0, 0, 0, 0, 0);
 
@@ -339,15 +339,15 @@ namespace UnitTest
             elements.Add(new TriangularMembranal(nodesPlate1.ToArray(), prop, 1));
             elements.Add(new TriangularMembranal(nodesPlate2.ToArray(), prop, 2));
 
-            FEMModel fem = new FEMModel(elements.ToArray());
-            double[] Node4DX = fem.GetDisplacementGlobalCoordinates(nd4, FEMModel.DOF.DX);
-            double[] Node4DY = fem.GetDisplacementGlobalCoordinates(nd4, FEMModel.DOF.DY);
+            LinearSolver fem = new LinearSolver(elements.ToArray());
+            double[] Node4DX = fem.GetDisplacementGlobalCoordinates(nd4, LinearSolver.DOF.DX);
+            double[] Node4DY = fem.GetDisplacementGlobalCoordinates(nd4, LinearSolver.DOF.DY);
 
-            double[] Node3DX = fem.GetDisplacementGlobalCoordinates(nd3, FEMModel.DOF.DX);
-            double[] Node3DY = fem.GetDisplacementGlobalCoordinates(nd3, FEMModel.DOF.DY);
+            double[] Node3DX = fem.GetDisplacementGlobalCoordinates(nd3, LinearSolver.DOF.DX);
+            double[] Node3DY = fem.GetDisplacementGlobalCoordinates(nd3, LinearSolver.DOF.DY);
 
-            double[] Node3CopyDX = fem.GetDisplacementGlobalCoordinates(nd3copy, FEMModel.DOF.DX);
-            double[] Node3CopyDY = fem.GetDisplacementGlobalCoordinates(nd3copy, FEMModel.DOF.DY);
+            double[] Node3CopyDX = fem.GetDisplacementGlobalCoordinates(nd3copy, LinearSolver.DOF.DX);
+            double[] Node3CopyDY = fem.GetDisplacementGlobalCoordinates(nd3copy, LinearSolver.DOF.DY);
 
             /*Node 4 Displacement
             DX(mm) 0.009130
@@ -381,12 +381,12 @@ namespace UnitTest
 
             CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
             NodeRestrainAttribute DXDYDZ = new NodeRestrainAttribute(freedomCase, sys);
-            DXDYDZ.AddRestrain(FEMModel.DOF.DX);
-            DXDYDZ.AddRestrain(FEMModel.DOF.DY);
-            DXDYDZ.AddRestrain(FEMModel.DOF.DZ);
+            DXDYDZ.AddRestrain(LinearSolver.DOF.DX);
+            DXDYDZ.AddRestrain(LinearSolver.DOF.DY);
+            DXDYDZ.AddRestrain(LinearSolver.DOF.DZ);
 
             NodeRestrainAttribute DZ = new NodeRestrainAttribute(freedomCase, sys);
-            DZ.AddRestrain(FEMModel.DOF.DZ);
+            DZ.AddRestrain(LinearSolver.DOF.DZ);
 
             CoordinateSystem sys2 = new CoordinateSystem(new Point3d(1, 1, 0), new Point3d(2, 2, 0), new Point3d(0, 2, 0));
             NodeForceAttribute f1 = new NodeForceAttribute(loadCase, sys, 1000, 0, 0, 0, 0, 0);
@@ -423,15 +423,15 @@ namespace UnitTest
             elements.Add(new TriangularMembranal(nodesPlate1.ToArray(), prop, 1));
             elements.Add(new TriangularMembranal(nodesPlate2.ToArray(), prop, 2));
 
-            FEMModel fem = new FEMModel(elements.ToArray());
-            double[] Node4DX = fem.GetDisplacementGlobalCoordinates(nd4, FEMModel.DOF.DX);
-            double[] Node4DY = fem.GetDisplacementGlobalCoordinates(nd4, FEMModel.DOF.DY);
+            LinearSolver fem = new LinearSolver(elements.ToArray());
+            double[] Node4DX = fem.GetDisplacementGlobalCoordinates(nd4, LinearSolver.DOF.DX);
+            double[] Node4DY = fem.GetDisplacementGlobalCoordinates(nd4, LinearSolver.DOF.DY);
 
-            double[] Node3DX = fem.GetDisplacementGlobalCoordinates(nd3, FEMModel.DOF.DX);
-            double[] Node3DY = fem.GetDisplacementGlobalCoordinates(nd3, FEMModel.DOF.DY);
+            double[] Node3DX = fem.GetDisplacementGlobalCoordinates(nd3, LinearSolver.DOF.DX);
+            double[] Node3DY = fem.GetDisplacementGlobalCoordinates(nd3, LinearSolver.DOF.DY);
 
-            double[] Node3CopyDX = fem.GetDisplacementGlobalCoordinates(nd3copy, FEMModel.DOF.DX);
-            double[] Node3CopyDY = fem.GetDisplacementGlobalCoordinates(nd3copy, FEMModel.DOF.DY);
+            double[] Node3CopyDX = fem.GetDisplacementGlobalCoordinates(nd3copy, LinearSolver.DOF.DX);
+            double[] Node3CopyDY = fem.GetDisplacementGlobalCoordinates(nd3copy, LinearSolver.DOF.DY);
 
             /*Node 4 Displacement
             DX (mm)	0.009315	
@@ -465,12 +465,12 @@ namespace UnitTest
 
             CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
             NodeRestrainAttribute DXDYDZ = new NodeRestrainAttribute(freedomCase, sys);
-            DXDYDZ.AddRestrain(FEMModel.DOF.DX);
-            DXDYDZ.AddRestrain(FEMModel.DOF.DY);
-            DXDYDZ.AddRestrain(FEMModel.DOF.DZ);
+            DXDYDZ.AddRestrain(LinearSolver.DOF.DX);
+            DXDYDZ.AddRestrain(LinearSolver.DOF.DY);
+            DXDYDZ.AddRestrain(LinearSolver.DOF.DZ);
 
             NodeRestrainAttribute DZ = new NodeRestrainAttribute(freedomCase, sys);
-            DZ.AddRestrain(FEMModel.DOF.DZ);
+            DZ.AddRestrain(LinearSolver.DOF.DZ);
 
             //CoordinateSystem sys2 = new CoordinateSystem(new Point3d(1, 1, 0), new Point3d(2, 2, 0), new Point3d(0, 2, 0));
 
@@ -507,15 +507,15 @@ namespace UnitTest
             elements.Add(e0);
             elements.Add(new TriangularMembranal(nodesPlate2.ToArray(), prop, 2));
 
-            FEMModel fem = new FEMModel(elements.ToArray());
-            double[] Node4DX = fem.GetDisplacementGlobalCoordinates(nd4, FEMModel.DOF.DX);
-            double[] Node4DY = fem.GetDisplacementGlobalCoordinates(nd4, FEMModel.DOF.DY);
+            LinearSolver fem = new LinearSolver(elements.ToArray());
+            double[] Node4DX = fem.GetDisplacementGlobalCoordinates(nd4, LinearSolver.DOF.DX);
+            double[] Node4DY = fem.GetDisplacementGlobalCoordinates(nd4, LinearSolver.DOF.DY);
 
-            double[] Node3DX = fem.GetDisplacementGlobalCoordinates(nd3, FEMModel.DOF.DX);
-            double[] Node3DY = fem.GetDisplacementGlobalCoordinates(nd3, FEMModel.DOF.DY);
+            double[] Node3DX = fem.GetDisplacementGlobalCoordinates(nd3, LinearSolver.DOF.DX);
+            double[] Node3DY = fem.GetDisplacementGlobalCoordinates(nd3, LinearSolver.DOF.DY);
 
-            double[] Node3CopyDX = fem.GetDisplacementGlobalCoordinates(nd3copy, FEMModel.DOF.DX);
-            double[] Node3CopyDY = fem.GetDisplacementGlobalCoordinates(nd3copy, FEMModel.DOF.DY);
+            double[] Node3CopyDX = fem.GetDisplacementGlobalCoordinates(nd3copy, LinearSolver.DOF.DX);
+            double[] Node3CopyDY = fem.GetDisplacementGlobalCoordinates(nd3copy, LinearSolver.DOF.DY);
 
             /*Node 4 Displacement
             DX (mm)	-0.000002	
