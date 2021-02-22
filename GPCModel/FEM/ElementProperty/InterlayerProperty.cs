@@ -4,7 +4,7 @@ using System.Runtime.Serialization;
 using GPC.Model.Elements.Glasses;
 
 
-namespace GPC.Model.Elements
+namespace GPC.Model.FEM.Properties
 {
     public sealed class InterlayerProperty : PlateProperty, IGlassProperty, IEquatable<InterlayerProperty>
     {

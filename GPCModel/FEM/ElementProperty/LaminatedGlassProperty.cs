@@ -5,7 +5,7 @@ using System.Runtime.Serialization;
 using GPC.Model.Elements.Glasses;
 using System.Collections.Generic;
 
-namespace GPC.Model.Elements
+namespace GPC.Model.FEM.Properties
 {
     public class LaminatedGlassProperty : ElementProperty, IPlateProperty, IGlassProperty, IEquatable<LaminatedGlassProperty>
     {

@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
+using GPC.Model.FEM.Properties;
 using MathNet.Numerics.LinearAlgebra;
 using GPC.Geometry;
 

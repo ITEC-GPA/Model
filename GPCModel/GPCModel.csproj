@@ -38,8 +38,8 @@
     <Reference Include="GMsh.Net, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\GMsh.Net.1.0.0.1\lib\net472\GMsh.Net.dll</HintPath>
     </Reference>
-    <Reference Include="GPCGeometry, Version=1.0.4.4, Culture=neutral, processorArchitecture=AMD64">
-      <HintPath>..\packages\GPCGeometry.1.0.4.4\lib\net472\GPCGeometry.dll</HintPath>
+    <Reference Include="GPCGeometry, Version=1.0.4.6, Culture=neutral, processorArchitecture=AMD64">
+      <HintPath>..\packages\GPCGeometry.1.0.4.6\lib\net472\GPCGeometry.dll</HintPath>
     </Reference>
     <Reference Include="GPCUtilities, Version=1.0.8.0, Culture=neutral, processorArchitecture=AMD64">
       <HintPath>..\packages\GPCUtilities.1.0.8\lib\net472\GPCUtilities.dll</HintPath>
@@ -66,16 +66,16 @@
     <Compile Include="Combinations\Combination.cs" />
     <Compile Include="Combinations\CombinationAsce.cs" />
     <Compile Include="Combinations\CombinationEn.cs" />
-    <Compile Include="Elements\ElementProperty\BrickProperty.cs" />
-    <Compile Include="Elements\ElementProperty\ElementProperty.cs" />
+    <Compile Include="FEM\ElementProperty\BrickProperty.cs" />
+    <Compile Include="FEM\ElementProperty\ElementProperty.cs" />
     <Compile Include="Elements\Element.cs" />
-    <Compile Include="Elements\ElementProperty\IBrickProperty.cs" />
-    <Compile Include="Elements\ElementProperty\InterlayerProperty.cs" />
-    <Compile Include="Elements\ElementProperty\IPlateProperty.cs" />
-    <Compile Include="Elements\ElementProperty\LaminatedGlassProperty.cs" />
-    <Compile Include="Elements\ElementProperty\MonolithicGlassProperty.cs" />
+    <Compile Include="FEM\ElementProperty\IBrickProperty.cs" />
+    <Compile Include="FEM\ElementProperty\InterlayerProperty.cs" />
+    <Compile Include="FEM\ElementProperty\IPlateProperty.cs" />
+    <Compile Include="FEM\ElementProperty\LaminatedGlassProperty.cs" />
+    <Compile Include="FEM\ElementProperty\MonolithicGlassProperty.cs" />
     <Compile Include="Elements\Glasses\Glass.cs" />
-    <Compile Include="Elements\ElementProperty\IGlassProperty.cs" />
+    <Compile Include="FEM\ElementProperty\IGlassProperty.cs" />
     <Compile Include="Elements\Glasses\IGlassPanel.cs" />
     <Compile Include="Elements\Glasses\MonolithicGlass.cs" />
     <Compile Include="Elements\Glasses\LaminatedGlass.cs" />
@@ -86,7 +86,7 @@
     <Compile Include="Elements\Restrain\IGeometryRestrain.cs" />
     <Compile Include="Elements\Restrain\PointRestrain.cs" />
     <Compile Include="Elements\Restrain\LineRestrain.cs" />
-    <Compile Include="Elements\ElementProperty\PlateProperty.cs" />
+    <Compile Include="FEM\ElementProperty\PlateProperty.cs" />
     <Compile Include="Elements\Rebar.cs" />
     <Compile Include="Elements\Glasses\TripleInsulatingGlass.cs" />
     <Compile Include="Elements\Restrain\Restrain.cs" />
@@ -103,6 +103,7 @@
     <Compile Include="FEM\Attributes\LoadCase\PlateNormalPressureAttribute.cs" />
     <Compile Include="FEM\Attributes\LoadCase\PlatePressureAttribute.cs" />
     <Compile Include="FEM\Costrain\Costrain.cs" />
+    <Compile Include="FEM\FemModel.cs" />
     <Compile Include="FEM\FEMObject.cs" />
     <Compile Include="FEM\FiniteElements\FiniteElement.cs" />
     <Compile Include="FEM\FiniteElements\TriangularFlexural.cs" />
@@ -197,10 +198,8 @@
     <Compile Include="Sections\SectionT.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="OldFEM\Plates\Plate.cs.bak" />
     <None Include="packages.config" />
   </ItemGroup>
-  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="..\packages\GMsh.Net.1.0.0.1\build\GMsh.Net.targets" Condition="Exists('..\packages\GMsh.Net.1.0.0.1\build\GMsh.Net.targets')" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">

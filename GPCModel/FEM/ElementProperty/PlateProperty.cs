@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Runtime.Serialization;
 using GPC.Model.Materials;
 
-namespace GPC.Model.Elements
+namespace GPC.Model.FEM.Properties
 {
     public class PlateProperty : ElementProperty, IPlateProperty
     {

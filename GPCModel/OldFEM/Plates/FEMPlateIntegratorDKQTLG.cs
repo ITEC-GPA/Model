@@ -10,6 +10,7 @@ using GPC.Model.Sections;
 using GPC.Model.Elements;
 using GPC.Model.Elements.Glasses;
 using GPC.Geometry;
+using GPC.Model.FEM.Properties;
 using GPC.Model.Materials;
 
 namespace GPC.Model.FEMOld

@@ -4,6 +4,7 @@ using GPC.Model.Elements.Glasses;
 using GPC.Model.LoadCases;
 using GPC.Model.Materials;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using GPC.Model.FEM.Properties;
 using System;
 using System.IO;
 

@@ -4,11 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace GPC.Model.Elements
+namespace GPC.Model.FEM.Properties
 {
-    public interface IPlateProperty
+    public interface IBrickProperty
     {
-
 
     }
 }
