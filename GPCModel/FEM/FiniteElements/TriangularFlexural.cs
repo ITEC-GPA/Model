@@ -3,7 +3,6 @@ using System.Linq;
 using GPC.Geometry;
 using GPC.Model.FEM.Properties;
 using GPC.Model.Elements;
-using GPC.Model.FEM.Properties;
 using mnl = MathNet.Numerics.LinearAlgebra;
 
 namespace GPC.Model.FEM.FiniteElements

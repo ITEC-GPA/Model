@@ -4,7 +4,6 @@ using GPC.Geometry;
 using GPC.Model.Elements;
 using GPC.Model.FEM.Properties;
 using GPC.Model.FEM.Attributes;
-using GPC.Model.FEM.Properties;
 using MathNet.Numerics.LinearAlgebra;
 
 namespace GPC.Model.FEM.FiniteElements
