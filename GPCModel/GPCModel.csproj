@@ -106,6 +106,7 @@
     <Compile Include="FEM\FemModel.cs" />
     <Compile Include="FEM\FEMObject.cs" />
     <Compile Include="FEM\FiniteElements\FiniteElement.cs" />
+    <Compile Include="FEM\FiniteElements\TriangularDK.cs" />
     <Compile Include="FEM\FiniteElements\TriangularFlexural.cs" />
     <Compile Include="FEM\Node.cs" />
     <Compile Include="FEM\FiniteElements\Brick.cs" />
