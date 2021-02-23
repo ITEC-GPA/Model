@@ -1,9 +1,11 @@
 ﻿using System;
+using System.ComponentModel;
 using System.Runtime.Serialization;
 
 namespace GPC.Model.Materials
 {
     [Serializable]
+    [Description("Silicon"), Category("Materials")]
     public class SiliconMaterial : Material
     {
         private double _adhesiveStress;

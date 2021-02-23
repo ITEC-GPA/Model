@@ -8,6 +8,7 @@ namespace GPC.Model.Materials
     /// Glass Material according to EN 16612 - 2019 standard
     /// </summary>
     [Serializable]
+    [Description("Glass EN 16612"), Category("Materials")]
     public sealed class GlassMaterialEn16612 : GlassMaterial, IEquatable<GlassMaterialEn16612>
     {
         #region PUBLIC ENUMS

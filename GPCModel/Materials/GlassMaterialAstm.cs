@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel;
 using System.Runtime.Serialization;
 
 namespace GPC.Model.Materials
@@ -8,6 +9,7 @@ namespace GPC.Model.Materials
     /// according ot NCSEA - Engineering structural glass design guide
     /// </summary>
     [Serializable]
+    [Description("Glass ASTM"), Category("Materials")]
     public class GlassMaterialAstm : GlassMaterial, IEquatable<GlassMaterialAstm>
     {
         #region VARIABLES
