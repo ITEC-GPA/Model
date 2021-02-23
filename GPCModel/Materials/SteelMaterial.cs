@@ -1,9 +1,11 @@
 ﻿using System;
+using System.ComponentModel;
 using System.Runtime.Serialization;
 
 namespace GPC.Model.Materials
 {
     [Serializable]
+    [Description("Steel"), Category("Materials")]
     public class SteelMaterial : Material
     {
         #region VARIABLES
