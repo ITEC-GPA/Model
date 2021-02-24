@@ -204,7 +204,7 @@ namespace GPC.Model.FEM
         /// <param name="loadMeshEntityMap"></param>
         /// <param name="restrainMeshEntityMap">Map between IGeometryRestrain and MeshVertex.Id</param>
         /// <exception cref="KeyNotFoundException">If a meshvertex.id of <paramref name="restrainMeshEntityMap"/> is not found in the <paramref name="mesh"/> vertices ids</exception>
-        public virtual void AddMesh(Mesh mesh, IPlateProperty plateProperty, IBrickProperty brickProperty, Dictionary<Load, int[]> loadMeshEntityMap, Dictionary<GeometryRestrain, int[]> restrainMeshEntityMap )
+        public virtual void AddMesh(Mesh mesh, IPlateProperty plateProperty, IBrickProperty brickProperty, Dictionary<IPointLoad, int[]> vertexLoadMeshEntityMap, Dictionary<IAreaLoad, int[]> plateLoadMeshEntityMap,  Dictionary<GeometryRestrain, int[]> restrainMeshEntityMap )
         {
             Dictionary<int, int> nodesNewIndexMap = new Dictionary<int, int>(); // Mappa tra indici dei nodi dentro _nodes e indici dei vertici della mesh nel caso esistano già dentro _nodes.
             Dictionary<int, int> platesNewIndexMap = new Dictionary<int, int>(); 
@@ -320,6 +320,8 @@ namespace GPC.Model.FEM
 
             }
 
+
+            // Gestione restrain 
             foreach (var kvp in restrainMeshEntityMap)
             {
                 GeometryRestrain geometryRestrain = kvp.Key;
@@ -362,11 +364,33 @@ namespace GPC.Model.FEM
 
                     if (nsa.Stiffnesses.Count > 0)
                         node.AddAttribute(nsa);
-
                 }
             }
 
+            // Gestione carichi
+            foreach (var kvp in vertexLoadMeshEntityMap)
+            {
+                IPointLoad load = kvp.Key;
+                int[] indexes = kvp.Value;
 
+                foreach(var index in indexes)
+                {
+                    int nodeId = nodesNewIndexMap.ContainsKey(index) ? nodesNewIndexMap[index] : index;
+
+                    Node node = _nodes.GetElementById(nodeId); // se non trova l'indice viene lanciata una keynotfoundException
+
+                    if (load is PointLoad pl)
+                    {
+                        NodeForceAttribute nfa = new NodeForceAttribute(pl.LoadCase, pl.CoordinateSystem, pl.F1, pl.F2, pl.F3, pl.M1, pl.M2, pl.M3);
+                        node.AddAttribute(nfa);
+                    }
+                    else
+                        throw new NotImplementedException();
+
+                }
+
+
+            }
         }
 
 
