@@ -84,7 +84,7 @@
     <Compile Include="Elements\Glasses\DoubleInsulatingGlass.cs" />
     <Compile Include="Elements\Glasses\Interlayer.cs" />
     <Compile Include="Elements\Glasses\GlassSurface.cs" />
-    <Compile Include="Restrains\IGeometryRestrain.cs" />
+    <Compile Include="Restrains\GeometryRestrain.cs" />
     <Compile Include="Restrains\PointRestrain.cs" />
     <Compile Include="Restrains\LineRestrain.cs" />
     <Compile Include="FEM\ElementProperty\PlateProperty.cs" />

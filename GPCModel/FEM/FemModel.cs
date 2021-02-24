@@ -39,7 +39,7 @@ namespace GPC.Model.FEM
         private Dictionary<LoadCase, int> _loadCases;
         private Dictionary<FreedomCase, int> _freedomCases;
 
-        private Dictionary<IGeometryRestrain, int> _geometryRestrain;
+        private Dictionary<GeometryRestrain, int> _geometryRestrain;
 
         private List<Load> _loads;
 
@@ -66,7 +66,7 @@ namespace GPC.Model.FEM
             _loadCases = new Dictionary<LoadCase, int>();
             _freedomCases = new Dictionary<FreedomCase, int>();
 
-            _geometryRestrain = new Dictionary<IGeometryRestrain, int>();
+            _geometryRestrain = new Dictionary<GeometryRestrain, int>();
             _loads = new List<Load>();
         }
 
@@ -88,13 +88,13 @@ namespace GPC.Model.FEM
         /// <param name="brickProperty"></param>
         /// <param name="loads"></param>
         /// <param name="restrains"></param>
-        public virtual void AddShape(Shape shape, IPlateProperty plateProperty, IBrickProperty brickProperty, List<Load> loads, List<IGeometryRestrain> restrains)
+        public virtual void AddShape(Shape shape, IPlateProperty plateProperty, IBrickProperty brickProperty, List<Load> loads, List<GeometryRestrain> restrains)
         {
             //Dictionary<Shape, List<GeometryBase>> embeddedGeometries = new Dictionary<Shape, List<GeometryBase>>();
 
             var embeddedGeometries = new HashSet<GeometryBase>(); // geometrie uniche da passare al meshatore
             var geometryLoadMap = new Dictionary<GeometryBase, List<Load>>(); // associazione fra geometria e carichi
-            var geometryRestrainMap = new Dictionary<GeometryBase, List<IGeometryRestrain>>(); // associazione fra geometria e restrain
+            var geometryRestrainMap = new Dictionary<GeometryBase, List<GeometryRestrain>>(); // associazione fra geometria e restrain
 
             foreach (var load in loads) // per ogni carico embedda la geometria
             {
@@ -142,7 +142,7 @@ namespace GPC.Model.FEM
                     var geom = lr.GetGeometry();
                     if (!geometryRestrainMap.ContainsKey(geom))
                     {
-                        geometryRestrainMap[geom] = new List<IGeometryRestrain>() { restrain };
+                        geometryRestrainMap[geom] = new List<GeometryRestrain>() { restrain };
                         embeddedGeometries.Add(geom);
                     }
                     else
@@ -153,7 +153,7 @@ namespace GPC.Model.FEM
                     var geom = pr.GetGeometry();
                     if (!geometryRestrainMap.ContainsKey(geom))
                     {
-                        geometryRestrainMap[geom] = new List<IGeometryRestrain>() { restrain };
+                        geometryRestrainMap[geom] = new List<GeometryRestrain>() { restrain };
                         embeddedGeometries.Add(geom);
                     }
                     else
@@ -181,14 +181,14 @@ namespace GPC.Model.FEM
         /// <param name="brickProperties"></param>
         /// <param name="loads"></param>
         /// <param name="restrains"></param>
-        public virtual void AddShapes(List<Shape> shapes, List<IPlateProperty> plateProperties, List<IBrickProperty> brickProperties, List<List<Load>> loads, List<List<IGeometryRestrain>> restrains)
+        public virtual void AddShapes(List<Shape> shapes, List<IPlateProperty> plateProperties, List<IBrickProperty> brickProperties, List<List<Load>> loads, List<List<GeometryRestrain>> restrains)
         {
             throw new NotImplementedException();
         }
 
 
         public virtual void AddMeshes(List<Mesh> meshes, List<IPlateProperty> plateProperties, List<IBrickProperty> brickProperties, Dictionary<Mesh, Dictionary<Load, int[]>> loadMeshEntityMap, 
-                                        Dictionary<Mesh, Dictionary<IGeometryRestrain, int[]>> restrainMeshEntityMap)
+                                        Dictionary<Mesh, Dictionary<GeometryRestrain, int[]>> restrainMeshEntityMap)
         {
 
 
@@ -203,7 +203,7 @@ namespace GPC.Model.FEM
         /// <param name="brickProperty"></param>
         /// <param name="loadMeshEntityMap"></param>
         /// <param name="restrainMeshEntityMap">Map between IGeometryRestrain and MeshVertex.Id</param>
-        public virtual void AddMesh(Mesh mesh, IPlateProperty plateProperty, IBrickProperty brickProperty, Dictionary<Load, int[]> loadMeshEntityMap, Dictionary<IGeometryRestrain, int[]> restrainMeshEntityMap )
+        public virtual void AddMesh(Mesh mesh, IPlateProperty plateProperty, IBrickProperty brickProperty, Dictionary<Load, int[]> loadMeshEntityMap, Dictionary<GeometryRestrain, int[]> restrainMeshEntityMap )
         {
             Dictionary<int, int> nodesNewIndexMap = new Dictionary<int, int>(); // Mappa tra indici dei nodi dentro _nodes e indici dei vertici della mesh nel caso esistano già dentro _nodes.
             Dictionary<int, int> platesNewIndexMap = new Dictionary<int, int>(); // Mappa tra indici dei nodi dentro _nodes e indici dei vertici della mesh nel caso esistano già dentro _nodes.
