@@ -5,7 +5,7 @@ using GPC.Model.FreedomCases;
 
 namespace GPC.Model.FEM.Attributes
 {
-    public class FreedomCaseAttribute : Attribute, ISerializable
+    public abstract class FreedomCaseAttribute : Attribute, ISerializable
     {
         private FreedomCase _freedomCase;
 
