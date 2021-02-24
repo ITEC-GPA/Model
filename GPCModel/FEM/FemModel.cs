@@ -8,10 +8,12 @@ using GPC.Geometry;
 using GPC.Geometry.Meshes;
 using GPC.Model.Elements;
 using GPC.Model.FEM.FiniteElements;
+using GPC.Model.FEM.Attributes;
 using GPC.Model.FEM.Properties;
 using GPC.Model.FEM.Collections;
 using GPC.Model.FreedomCases;
 using GPC.Model.LoadCases;
+using GPC.Model.Restrains;
 using GPC.Model.Loads;
 
 namespace GPC.Model.FEM
@@ -193,7 +195,14 @@ namespace GPC.Model.FEM
 
         }
 
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="mesh"></param> 
+        /// <param name="plateProperty"></param>
+        /// <param name="brickProperty"></param>
+        /// <param name="loadMeshEntityMap"></param>
+        /// <param name="restrainMeshEntityMap">Map between IGeometryRestrain and MeshVertex.Id</param>
         public virtual void AddMesh(Mesh mesh, IPlateProperty plateProperty, IBrickProperty brickProperty, Dictionary<Load, int[]> loadMeshEntityMap, Dictionary<IGeometryRestrain, int[]> restrainMeshEntityMap )
         {
             Dictionary<int, int> nodesNewIndexMap = new Dictionary<int, int>(); // Mappa tra indici dei nodi dentro _nodes e indici dei vertici della mesh nel caso esistano già dentro _nodes.
@@ -298,6 +307,24 @@ namespace GPC.Model.FEM
 
             }
 
+            //foreach(var kvp in restrainMeshEntityMap)
+            //{
+            //    IGeometryRestrain geometryRestrain = kvp.Key;
+            //    int[] indexes = kvp.Value;
+
+            //    foreach (var index in indexes)
+            //    {
+            //        Node node = _nodes.GetElementById(index); // se non trova l'indice viene lanciata una keynotfoundException
+
+            //        if (geometryRestrain is PointRestrain pr)
+            //        {
+            //            pr.fr
+            //            node.AddAttribute(new NodeRestrainAttribute());
+            //        }
+
+
+            //    }
+            //}
 
 
         }

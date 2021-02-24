@@ -1,7 +1,9 @@
 ﻿
 using GPC.Geometry;
+using GPC.Model.FEM;
+using System.Collections.Generic;
 
-namespace GPC.Model.Elements
+namespace GPC.Model.Restrains
 {
     public interface IGeometryRestrain
     {
@@ -13,9 +15,9 @@ namespace GPC.Model.Elements
 
         Point3d GetCoordinateSystemOrigin();
 
-        bool[] GetRestrains();
+        KeyValuePair<LinearSolver.DOF, bool>[] GetRestrains();
 
-        double[] GetStiffnesses();
+        KeyValuePair<LinearSolver.DOF, double>[] GetStiffnesses();
 
         GeometryBase GetGeometry();
     }
