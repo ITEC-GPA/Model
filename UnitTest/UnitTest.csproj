@@ -81,6 +81,7 @@
     <Compile Include="EquatableTest.cs" />
     <Compile Include="HashCodeTest.cs" />
     <Compile Include="LoadTest.cs" />
+    <Compile Include="PerformanceTest.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
