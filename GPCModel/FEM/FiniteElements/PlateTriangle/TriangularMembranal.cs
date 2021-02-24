@@ -7,11 +7,8 @@ using MathNet.Numerics.LinearAlgebra;
 
 namespace GPC.Model.FEM.FiniteElements
 {
-    public class TriangularMembranal : FiniteElement, IEquatable<TriangularMembranal>
+    public class TriangularMembranal : TriangleElement, IEquatable<TriangularMembranal>
     {
-        //calculated and used in BuildMatrix and used also in BuildF
-        private double _areaElement;
-
         public TriangularMembranal(Node[] nodes, PlateProperty property, int id) : base(nodes, property, id)
         {
             //recalled base(nodes)
@@ -204,7 +201,7 @@ namespace GPC.Model.FEM.FiniteElements
             return _fLocalCoord;
         }
 
-        protected void LocalNodes(Node nodeI, Node nodeJ, Node nodeK, out Node node1, out Node node2, out Node node3)
+        /*protected void LocalNodes(Node nodeI, Node nodeJ, Node nodeK, out Node node1, out Node node2, out Node node3)
         {
             #region CalculationOfLocalCoordinates
             //Search for 3 local axis
@@ -238,7 +235,7 @@ namespace GPC.Model.FEM.FiniteElements
             node2 = new Node(v12.DotProduct(vecx), v12.DotProduct(vecy), v12.DotProduct(vecz), nodeJ.Index, nodeJ.Name); //Axis y GlobalNodes.ElementAt(2 - 1);
             node3 = new Node(v13.DotProduct(vecx), v13.DotProduct(vecy), v13.DotProduct(vecz), nodeK.Index, nodeK.Name); //GlobalNodes.ElementAt(3 - 1);
             #endregion
-        }
+        }*/
 
         public override bool Equals(object obj)
         {

@@ -17,8 +17,16 @@ namespace GPC.Model.FEM.Attributes
         public Dictionary<LinearSolver.DOF, double> Restrains => _restrains;
         public CoordinateSystem CSys => _csys;
         #endregion
-
-        public NodeRestrainAttribute(FreedomCase freedomCase, CoordinateSystem csys, Dictionary<LinearSolver.DOF,double> values, string name, Guid guid)
+        /// <summary>
+        /// WARNING: da modificare da Dictionary<LinearSolver.DOF,double> a Dictionary<LinearSolver.LocalDOF,double>
+        /// il vincolo/spostamento imposto deve essere definito in un sistema locale definito da csys
+        /// </summary>
+        /// <param name="freedomCase"></param>
+        /// <param name="csys"></param>
+        /// <param name="values"></param>
+        /// <param name="name"></param>
+        /// <param name="guid"></param>
+        public NodeRestrainAttribute(FreedomCase freedomCase, CoordinateSystem csys, Dictionary<LinearSolver.DOF,double> values, string name, Guid guid) 
             : base(freedomCase, name, guid)
         {
             _restrains = new Dictionary<LinearSolver.DOF, double>();
