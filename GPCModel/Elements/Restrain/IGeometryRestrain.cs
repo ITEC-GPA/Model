@@ -16,5 +16,7 @@ namespace GPC.Model.Elements
         bool[] GetRestrains();
 
         double[] GetStiffnesses();
+
+        GeometryBase GetGeometry();
     }
 }

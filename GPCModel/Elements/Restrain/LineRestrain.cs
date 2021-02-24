@@ -4,7 +4,7 @@ using GPC.Geometry;
 
 namespace GPC.Model.Elements
 {
-    public class LineRestrain : Element, IGeometryRestrain
+    public class LineRestrain : ModelObject, IGeometryRestrain
     {
         #region Variables
 
@@ -107,6 +107,8 @@ namespace GPC.Model.Elements
         public Vector3d GetV3() => _restrain.GetV3();
 
         public Point3d GetCoordinateSystemOrigin() => _restrain.GetCoordinateSystemOrigin();
+
+        public GeometryBase GetGeometry() => Line;
 
         #endregion
 

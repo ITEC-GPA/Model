@@ -90,8 +90,9 @@ namespace GPC.Model.FEM.FiniteElements
             eta[8, 4] = - node3.Position.Y;
             eta[8, 6] = -3.0 * Math.Pow(node3.Position.X,2.0);
             eta[8, 7] = - Math.Pow(node3.Position.Y, 2.0) + 2.0 * node3.Position.X * node3.Position.Y;
+            Console.WriteLine(eta);
 
-            _etaInv = eta.Inverse();
+            _etaInv = eta.Inverse(); //<<--- Problem with simply Triangle (0,0),(0,1),(1,0) --> non-invertible matrix 
 
             #region matrixD
             double E = ((PlateProperty)_property).GetE();
@@ -155,6 +156,8 @@ namespace GPC.Model.FEM.FiniteElements
 
             _kElementLocalCoord = mnl.Matrix<double>.Build.Dense(n, n);
             _kElementLocalCoord = D * integratedBTraspDB;
+
+            //matrix for rotation from local to global....
         }
 
         protected override mnl.Vector<double> BuildFLocalCoord()

@@ -4,7 +4,7 @@ using GPC.Geometry;
 
 namespace GPC.Model.Elements
 {
-    public class PointRestrain : Element, IGeometryRestrain
+    public class PointRestrain : ModelObject, IGeometryRestrain
     {
         #region Variables
 
@@ -105,6 +105,8 @@ namespace GPC.Model.Elements
         public Vector3d GetV3() => _restrain.GetV3();
 
         public Point3d GetCoordinateSystemOrigin() => _restrain.GetCoordinateSystemOrigin();
+
+        public GeometryBase GetGeometry() => Point;
 
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {

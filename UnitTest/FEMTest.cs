@@ -538,5 +538,30 @@ namespace UnitTest
             Assert.AreEqual(Node3CopyDX[0], dXNode3, 0.000001);
             Assert.AreEqual(Node3CopyDY[0], dYNode3, 0.000001);
         }
+
+        [TestMethod]
+        public void TriangleFlexuralTest1()
+        {
+            //LoadCase loadCase = new LoadCase("myLoadCase", new Guid());
+            FreedomCase freedomCase = new FreedomCase("freedomCase1");
+
+            Material mat = new SteelMaterial("steel", 200000, 0.2, 355, 510, 7850);
+            PlateProperty prop = new PlateProperty(mat, 1, 0);
+
+            CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
+            NodeRestrainAttribute RXRYRZ = new NodeRestrainAttribute(freedomCase, sys);
+            RXRYRZ.AddRestrain(LinearSolver.DOF.RX);
+            RXRYRZ.AddRestrain(LinearSolver.DOF.RY);
+            RXRYRZ.AddRestrain(LinearSolver.DOF.RZ);
+
+            Node[] nodesPlate1 = new Node[3];
+            nodesPlate1[0] = new Node(0, 0, 0, 1, "1");
+            nodesPlate1[1] = new Node(0, 1, 0, 2, "2");
+            nodesPlate1[2] = new Node(1, 0, 0, 3, "3");
+
+            FiniteElement e0 = new TriangularFlexural(nodesPlate1, prop, 1);
+            e0.BuildMatrix();
+            Console.WriteLine(e0.KElementLocalCoord);
+        }
     }
 }

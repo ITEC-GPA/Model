@@ -66,6 +66,7 @@
     <Compile Include="Combinations\Combination.cs" />
     <Compile Include="Combinations\CombinationAsce.cs" />
     <Compile Include="Combinations\CombinationEn.cs" />
+    <Compile Include="FEM\Collections\FemObjectCollection.cs" />
     <Compile Include="FEM\ElementProperty\BrickProperty.cs" />
     <Compile Include="FEM\ElementProperty\ElementProperty.cs" />
     <Compile Include="Elements\Element.cs" />
@@ -106,6 +107,7 @@
     <Compile Include="FEM\FemModel.cs" />
     <Compile Include="FEM\FEMObject.cs" />
     <Compile Include="FEM\FiniteElements\FiniteElement.cs" />
+    <Compile Include="FEM\FiniteElements\TriangularDK.cs" />
     <Compile Include="FEM\FiniteElements\TriangularFlexural.cs" />
     <Compile Include="FEM\Node.cs" />
     <Compile Include="FEM\FiniteElements\Brick.cs" />
@@ -200,6 +202,7 @@
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="..\packages\GMsh.Net.1.0.0.1\build\GMsh.Net.targets" Condition="Exists('..\packages\GMsh.Net.1.0.0.1\build\GMsh.Net.targets')" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">

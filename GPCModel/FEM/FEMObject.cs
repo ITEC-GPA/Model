@@ -11,18 +11,22 @@ namespace GPC.Model.FEM
     {
         protected int _index;
 
-        public int Index => _index;
+        public int Index { get => _index; internal set => _index = value; }
 
-        public FEMObject(int index) : this(index, string.Empty)
+        public FEMObject(int index) 
+            : this(index, string.Empty)
         {
+
         }
 
-        public FEMObject(int index, string name) : base(Guid.NewGuid(), name)
+        public FEMObject(int index, string name) 
+            : base(Guid.NewGuid(), name)
         {
             _index = index;
         }
 
-        public FEMObject(SerializationInfo info, StreamingContext context) : base(info, context)
+        public FEMObject(SerializationInfo info, StreamingContext context) 
+            : base(info, context)
         {
             info.AddValue("index", _index);
         }

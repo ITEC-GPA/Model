@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Linq;
 using GPC.Geometry;
-using GPC.Model.Elements;
 using GPC.Model.FEM.Properties;
 using GPC.Model.FEM.Attributes;
 using MathNet.Numerics.LinearAlgebra;
