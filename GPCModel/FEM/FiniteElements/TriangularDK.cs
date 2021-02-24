@@ -25,9 +25,5 @@ namespace GPC.Model.FEM.FiniteElements
             return 2.0 * (1.0 - csi - eta) * (0.5 - csi - eta);
         }
 
-        private double N1(double csi, double eta)
-        {
-            return 2.0 * (1.0 - csi - eta) * (0.5 - csi - eta);
-        }
     }
 }
