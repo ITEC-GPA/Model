@@ -18,10 +18,32 @@ namespace GPC.Model.FEM.Collections
 
         public int Count => _collection.Count();
 
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        /// <exception cref="KeyNotFoundException">If collection does not contain a element with Id:<param name="id"></param> </exception>
         public T this[int id]
         {
-            get => _collection.Where(i => i.Id == id).First();
+            get
+            { 
+                if (!_ids.Contains(id))
+                    throw new KeyNotFoundException($"Collection does not contain a element with Id:{id}");
+                
+                return _collection.Where(i => i.Id.Equals(id)).First();
+            }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        /// <exception cref="KeyNotFoundException">If collection does not contain a element with Id:<param name="id"></param> </exception>
+        public T GetElementById(int id)
+        {
+            return this[id];
         }
 
 
