@@ -9,12 +9,12 @@ namespace GPC.Model.Loads
     {
         #region Variables
 
-        private double _fX;
-        private double _fY;
-        private double _fZ;
-        private double _mX;
-        private double _mY;
-        private double _mZ;
+        private double _f1;
+        private double _f2;
+        private double _f3;
+        private double _m1;
+        private double _m2;
+        private double _m3;
 
         private CoordinateSystem _coordinateSystem;
 
@@ -25,12 +25,12 @@ namespace GPC.Model.Loads
 
         #region Properties
 
-        public double Fx => _fX;
-        public double Fy => _fY;
-        public double Fz => _fZ;
-        public double Mx => _mX;
-        public double My => _mY;
-        public double Mz => _mZ;
+        public double F1 => _f1;
+        public double F2 => _f2;
+        public double F3 => _f3;
+        public double M1 => _m1;
+        public double M2 => _m2;
+        public double M3 => _m3;
 
         public Point3d Point => _point;
 
@@ -41,21 +41,21 @@ namespace GPC.Model.Loads
 
         #region Public Constructors
 
-        public PointLoad(double fx, double fy, double fz, double mx, double my, double mz, Point3d point, LoadCase loadCase, CoordinateSystem coordinateSystem, Guid guid) 
+        public PointLoad(double f1, double f2, double f3, double m1, double m2, double m3, Point3d point, LoadCase loadCase, CoordinateSystem coordinateSystem, Guid guid) 
             : base(loadCase, guid)
         {
-            _fX = fx;                                       
-            _fY = fy;
-            _fZ = fz;
-            _mX = mx;
-            _mY = my;
-            _mZ = mz;
+            _f1 = f1;                                       
+            _f2 = f2;
+            _f3 = f3;
+            _m1 = m1;
+            _m2 = m2;
+            _m3 = m3;
             _coordinateSystem = coordinateSystem ?? throw new ArgumentNullException("Coordinate system cannot be null");
             _point = point ?? throw new ArgumentNullException("Point cannot be null") ;
         }
 
-        public PointLoad(double fx, double fy, double fz, double mx, double my, double mz, Point3d point, LoadCase loadCase, Guid guid)
-            : this(fx, fy, fz, mx, my, mz, point, loadCase, CoordinateSystem.Global, guid)
+        public PointLoad(double f1, double f2, double f3, double m1, double m2, double m3, Point3d point, LoadCase loadCase, Guid guid)
+            : this(f1, f2, f3, m1, m2, m3, point, loadCase, CoordinateSystem.Global, guid)
         {
 
         }
@@ -73,12 +73,12 @@ namespace GPC.Model.Loads
         public PointLoad(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
-            _fX = info.GetDouble("Fx");
-            _fY = info.GetDouble("Fy");
-            _fZ = info.GetDouble("Fz");
-            _mX = info.GetDouble("Mx");
-            _mY = info.GetDouble("My");
-            _mZ = info.GetDouble("Mz");
+            _f1 = info.GetDouble("F1");
+            _f2 = info.GetDouble("F2");
+            _f3 = info.GetDouble("F3");
+            _m1 = info.GetDouble("M1");
+            _m2 = info.GetDouble("M2");
+            _m3 = info.GetDouble("M3");
             _coordinateSystem = (CoordinateSystem)info.GetValue("CoordinateSystem", typeof(CoordinateSystem));
         }
 
@@ -90,12 +90,12 @@ namespace GPC.Model.Loads
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             base.GetObjectData(info, context);
-            info.AddValue("Fx", _fX);
-            info.AddValue("Fy", _fY);
-            info.AddValue("Fz", _fZ);
-            info.AddValue("Mx", _mX);
-            info.AddValue("My", _mY);
-            info.AddValue("Mz", _mZ);
+            info.AddValue("F1", _f1);
+            info.AddValue("F2", _f2);
+            info.AddValue("F3", _f3);
+            info.AddValue("M1", _m1);
+            info.AddValue("M2", _m2);
+            info.AddValue("M3", _m3);
             info.AddValue("CoordinateSystem", _coordinateSystem);
         }
 
@@ -106,8 +106,8 @@ namespace GPC.Model.Loads
         /// <returns>The array [fx, fy, fz, mx, my, mz]</returns>
         public double[] GetLocalForces(CoordinateSystem cSys)
         {
-            Point3d forceGlobal = new Point3d(_fX, _fY, _fZ);                               // 
-            Point3d momentglobal = new Point3d(_mX, _mY, _mZ);                              // Crea un array di double in le 3 componenti di forza e di momento
+            Point3d forceGlobal = new Point3d(_f1, _f2, _f3);                               // 
+            Point3d momentglobal = new Point3d(_m1, _m2, _m3);                              // Crea un array di double in le 3 componenti di forza e di momento
                                                                                             // nelle 3 direzioni del sistema di coordinate locali.
             Point3d PointForceLocal = cSys.ToLocal(forceGlobal);                            // 
             Point3d PointMomentLocal = cSys.ToLocal(momentglobal);
@@ -133,16 +133,16 @@ namespace GPC.Model.Loads
         /// </summary>
         public void ToGlobal()
         {
-            Vector3d forceLocal = new Vector3d(_fX, _fY, _fZ);                              // 
-            Vector3d momentLocal = new Vector3d(_mX, _mY, _mZ);                             // Cambia le proprietà del PointLoad passando da un sistema di riferimento globale
+            Vector3d forceLocal = new Vector3d(_f1, _f2, _f3);                              // 
+            Vector3d momentLocal = new Vector3d(_m1, _m2, _m3);                             // Cambia le proprietà del PointLoad passando da un sistema di riferimento globale
                                                                                             // ad un sistema di rifarimento locale.
             _point = _coordinateSystem.ToGlobal(_point);                                    // 
-            _fX = _coordinateSystem.ToGlobal(forceLocal).X - _coordinateSystem.Origin.X;
-            _fY = _coordinateSystem.ToGlobal(forceLocal).Y - _coordinateSystem.Origin.Y;
-            _fZ = _coordinateSystem.ToGlobal(forceLocal).Z - _coordinateSystem.Origin.Z;
-            _mX = _coordinateSystem.ToGlobal(momentLocal).X - _coordinateSystem.Origin.X;
-            _mY = _coordinateSystem.ToGlobal(momentLocal).Y - _coordinateSystem.Origin.Y;
-            _mZ = _coordinateSystem.ToGlobal(momentLocal).Z - _coordinateSystem.Origin.Z;
+            _f1 = _coordinateSystem.ToGlobal(forceLocal).X - _coordinateSystem.Origin.X;
+            _f2 = _coordinateSystem.ToGlobal(forceLocal).Y - _coordinateSystem.Origin.Y;
+            _f3 = _coordinateSystem.ToGlobal(forceLocal).Z - _coordinateSystem.Origin.Z;
+            _m1 = _coordinateSystem.ToGlobal(momentLocal).X - _coordinateSystem.Origin.X;
+            _m2 = _coordinateSystem.ToGlobal(momentLocal).Y - _coordinateSystem.Origin.Y;
+            _m3 = _coordinateSystem.ToGlobal(momentLocal).Z - _coordinateSystem.Origin.Z;
             _coordinateSystem = CoordinateSystem.Global;
         }
 
@@ -152,10 +152,10 @@ namespace GPC.Model.Loads
         /// <returns>The array [fx, fy, fz, mx, my, mz]</returns>
         public double[] GetGlobalForces()
         {
-            Vector3d forceLocal = new Vector3d(_fX, _fY, _fZ);                                      // 
-            Vector3d momentLocal = new Vector3d(_mX, _mY, _mZ);                                     // Crea un array di double in le 3 componenti di forza e di momento
-                                                                                                    // nelle 3 direzioni del sistema di coordinate globali.
-            // Point3d point = _coordinateSystem.ToGlobal(_point);                                  // 
+            Vector3d forceLocal = new Vector3d(_f1, _f2, _f3);                                   // 
+            Vector3d momentLocal = new Vector3d(_m1, _m2, _m3);                                   // Crea un array di double in le 3 componenti di forza e di momento
+                                                                                                  // nelle 3 direzioni del sistema di coordinate globali.
+                                                                                                  // Point3d point = _coordinateSystem.ToGlobal(_point);                                  // 
             double fX = _coordinateSystem.ToGlobal(forceLocal).X - _coordinateSystem.Origin.X;
             double fY = _coordinateSystem.ToGlobal(forceLocal).Y - _coordinateSystem.Origin.Y;
             double fZ = _coordinateSystem.ToGlobal(forceLocal).Z - _coordinateSystem.Origin.Z;

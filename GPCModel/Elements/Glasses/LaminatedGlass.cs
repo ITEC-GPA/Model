@@ -1,4 +1,4 @@
-﻿using GPC.Model.Materials;
+﻿using GPC.Utilities.Attributes;
 using System;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
@@ -9,6 +9,7 @@ namespace GPC.Model.Elements.Glasses
     /// Laminated glass. This represent a multilayer glass panel. Between each layer there is an interlayer
     /// </summary>
     [Serializable]
+    [UI(Description = "Laminated", Group = "Glasses", Kind = "Glass")]
     public sealed class LaminatedGlass : Glass, IGlassPanel, IEquatable<LaminatedGlass>
     {
         #region Variables

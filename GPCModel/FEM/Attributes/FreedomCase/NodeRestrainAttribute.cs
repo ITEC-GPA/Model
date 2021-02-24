@@ -9,14 +9,19 @@ namespace GPC.Model.FEM.Attributes
     public class NodeRestrainAttribute : FreedomCaseAttribute, ISerializable, IEquatable<NodeRestrainAttribute>, INodeFreedomCaseAttribute
     {
         #region variables
+
         private Dictionary<LinearSolver.DOF, double> _restrains;
-        private CoordinateSystem _csys;
+        private CoordinateSystem _coordinateSystem;
+
         #endregion
 
         #region properties
+
         public Dictionary<LinearSolver.DOF, double> Restrains => _restrains;
-        public CoordinateSystem CSys => _csys;
+        public CoordinateSystem CoordinateSystem => _coordinateSystem;
+
         #endregion
+		
         /// <summary>
         /// WARNING: da modificare da Dictionary<LinearSolver.DOF,double> a Dictionary<LinearSolver.LocalDOF,double>
         /// il vincolo/spostamento imposto deve essere definito in un sistema locale definito da csys
@@ -26,15 +31,16 @@ namespace GPC.Model.FEM.Attributes
         /// <param name="values"></param>
         /// <param name="name"></param>
         /// <param name="guid"></param>
-        public NodeRestrainAttribute(FreedomCase freedomCase, CoordinateSystem csys, Dictionary<LinearSolver.DOF,double> values, string name, Guid guid) 
+        public NodeRestrainAttribute(FreedomCase freedomCase, CoordinateSystem coordinateSystem, Dictionary<LinearSolver.DOF,double> values, string name, Guid guid)
             : base(freedomCase, name, guid)
         {
             _restrains = new Dictionary<LinearSolver.DOF, double>();
             _restrains = values;
-            _csys = csys;
+            _coordinateSystem = coordinateSystem;
         }
 
-        public NodeRestrainAttribute(FreedomCase freedomCase, CoordinateSystem csys) : this(freedomCase, csys, new Dictionary<LinearSolver.DOF, double>(), string.Empty, Guid.NewGuid())
+        public NodeRestrainAttribute(FreedomCase freedomCase, CoordinateSystem coordinateSystem)
+            : this(freedomCase, coordinateSystem, new Dictionary<LinearSolver.DOF, double>(), string.Empty, Guid.NewGuid())
         {
 
         }
@@ -43,23 +49,24 @@ namespace GPC.Model.FEM.Attributes
             : base(info, context)
         {
             _restrains = (Dictionary<LinearSolver.DOF, double>)info.GetValue("Restrains", typeof(Dictionary<LinearSolver.DOF, double>));
-            _csys = (CoordinateSystem)info.GetValue("CSys", typeof(CoordinateSystem));
+            _coordinateSystem = (CoordinateSystem)info.GetValue("CoordinateSystem", typeof(CoordinateSystem));
         }
 
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             base.GetObjectData(info, context);
             info.AddValue("Restrains", _restrains);
+            throw new NotImplementedException();
         }
 
-        public void AddRestrain(LinearSolver.DOF dof)
+        public void AddExternalRestrain(LinearSolver.DOF dof)
         {
-            _restrains.Add(dof,0);
+            _restrains[dof] = 0;
         }
 
-        public void AddDisplacement(LinearSolver.DOF dof, double value)
+        public void AddImposedDisplacement(LinearSolver.DOF dof, double displacement)
         {
-            _restrains.Add(dof,value);
+            _restrains[dof] = displacement; // Facendo cosi sovrascrivo il valore precedente se presente, es è vincolato e lo rimpiazzo con spostamento imposto
         }
 
         public override bool Equals(object obj)
@@ -67,7 +74,7 @@ namespace GPC.Model.FEM.Attributes
             return obj is NodeRestrainAttribute attribute &&
                    base.Equals(obj) &&
                    EqualityComparer<Dictionary<LinearSolver.DOF, double>>.Default.Equals(_restrains, attribute._restrains) &&
-                   EqualityComparer<CoordinateSystem>.Default.Equals(_csys, attribute._csys);
+                   EqualityComparer<CoordinateSystem>.Default.Equals(_coordinateSystem, attribute._coordinateSystem);
         }
 
         public override int GetHashCode()
@@ -75,7 +82,7 @@ namespace GPC.Model.FEM.Attributes
             int hashCode = 789669813;
             hashCode = hashCode * -1521134295 + base.GetHashCode();
             hashCode = hashCode * -1521134295 + EqualityComparer<Dictionary<LinearSolver.DOF, double>>.Default.GetHashCode(_restrains);
-            hashCode = hashCode * -1521134295 + EqualityComparer<CoordinateSystem>.Default.GetHashCode(_csys);
+            hashCode = hashCode * -1521134295 + EqualityComparer<CoordinateSystem>.Default.GetHashCode(_coordinateSystem);
             return hashCode;
         }
 

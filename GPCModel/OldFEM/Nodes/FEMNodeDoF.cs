@@ -1,7 +1,8 @@
-﻿using GPC.Model.Elements;
-using GPC.Geometry;
+﻿using GPC.Geometry;
 using System;
 using System.Collections.Generic;
+using GPC.Model.Elements;
+using GPC.Model.Restrains;
 using System.Linq;
 
 
@@ -47,18 +48,19 @@ namespace GPC.Model.FEMOld
 
         #region Public Methods Specific
 
-        public Restrain GetRestrain()
+        public DofRestrain GetRestrain()
         {
-            var cs = new CoordinateSystem(Vector3d.XAxis, Vector3d.YAxis, Vector3d.ZAxis);
+            throw new NotImplementedException();
+            //var cs = new CoordinateSystem(Vector3d.XAxis, Vector3d.YAxis, Vector3d.ZAxis);
 
-            return new Restrain(cs,
-                _femDoFs.Where(i => i.Id == 1).Select(i => i.Active).FirstOrDefault() == 1 ? true  : false, 
-                _femDoFs.Where(i => i.Id == 2).Select(i => i.Active).FirstOrDefault() == 1 ? true  : false,
-                _femDoFs.Where(i => i.Id == 3).Select(i => i.Active).FirstOrDefault() == 1 ? true  : false,
-                _femDoFs.Where(i => i.Id == 4).Select(i => i.Active).FirstOrDefault() == 1 ? true  : false, 
-                _femDoFs.Where(i => i.Id == 5).Select(i => i.Active).FirstOrDefault() == 1 ? true  : false, 
-                _femDoFs.Where(i => i.Id == 6).Select(i => i.Active).FirstOrDefault() == 1 ? true  : false, 
-                0, 0, 0, 0, 0, 0, Guid.NewGuid());
+            //return new DofRestrain(cs,
+            //    _femDoFs.Where(i => i.Id == 1).Select(i => i.Active).FirstOrDefault() == 1 ? true  : false, 
+            //    _femDoFs.Where(i => i.Id == 2).Select(i => i.Active).FirstOrDefault() == 1 ? true  : false,
+            //    _femDoFs.Where(i => i.Id == 3).Select(i => i.Active).FirstOrDefault() == 1 ? true  : false,
+            //    _femDoFs.Where(i => i.Id == 4).Select(i => i.Active).FirstOrDefault() == 1 ? true  : false, 
+            //    _femDoFs.Where(i => i.Id == 5).Select(i => i.Active).FirstOrDefault() == 1 ? true  : false, 
+            //    _femDoFs.Where(i => i.Id == 6).Select(i => i.Active).FirstOrDefault() == 1 ? true  : false, 
+            //    0, 0, 0, 0, 0, 0, Guid.NewGuid());
         }
 
         public virtual void RegisterDoF(int[] idDoF, int[] activeDoF)

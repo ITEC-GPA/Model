@@ -1,0 +1,77 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Runtime.Serialization;
+using GPC.Geometry;
+using GPC.Model.FEM;
+using GPC.Model.FreedomCases;
+
+namespace GPC.Model.Restrains
+{
+    public class LineRestrain : GeometryRestrain
+    {
+        #region Variables
+
+        private Line3d _line;
+
+        #endregion
+
+        #region Properties
+
+        public Line3d Line => _line;
+
+        #endregion
+
+        #region Public Constructors
+
+        public LineRestrain(Line3d line, FreedomCase freedomCase, CoordinateSystem coordinateSystem)
+            : this(line, freedomCase, coordinateSystem, null, Guid.NewGuid(), string.Empty)
+        {
+
+        }
+
+        public LineRestrain(Line3d line, FreedomCase freedomCase, CoordinateSystem coordinateSystem, List<DofRestrain> restrains) 
+            : this(line, freedomCase, coordinateSystem, restrains, Guid.NewGuid(), string.Empty)
+        {
+
+        }
+
+        public LineRestrain(Line3d line, FreedomCase freedomCase, CoordinateSystem coordinateSystem, List<DofRestrain> restrains, Guid guid, string name) 
+            : base(freedomCase, coordinateSystem, restrains, guid, name)
+        {
+            this._line = line ?? throw new ArgumentNullException("Base line is null");
+        }
+
+        public static LineRestrain GetAllFixed(Line3d line, FreedomCase freedomCase, CoordinateSystem coordinateSystem)
+        {
+            List<DofRestrain> restrains = new List<DofRestrain>();
+
+            foreach (var dof in (LinearSolver.DOF[])Enum.GetValues(typeof(LinearSolver.DOF)))
+            {
+                restrains.Add(new DofRestrain(dof, true));
+            }
+
+            return new LineRestrain(line, freedomCase, coordinateSystem, restrains);
+        }
+
+        
+        public LineRestrain(SerializationInfo info, StreamingContext context)
+            : base(info, context)
+        {
+            _line = (Line3d)info.GetValue("Line", typeof(Line3d));
+        }
+
+
+        #endregion
+
+      
+        public override GeometryBase GetGeometry() => _line;
+
+
+        public override void GetObjectData(SerializationInfo info, StreamingContext context)
+        {
+            base.GetObjectData(info, context);
+            info.AddValue("Line", _line);
+        }
+
+    }
+}

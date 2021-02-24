@@ -214,12 +214,12 @@ namespace UnitTest
             
             CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
             NodeRestrainAttribute DXDYDZ = new NodeRestrainAttribute(fc, sys);
-            DXDYDZ.AddRestrain(LinearSolver.DOF.DX);
-            DXDYDZ.AddRestrain(LinearSolver.DOF.DY);
-            DXDYDZ.AddRestrain(LinearSolver.DOF.DZ);
+            DXDYDZ.AddExternalRestrain(LinearSolver.DOF.DX);
+            DXDYDZ.AddExternalRestrain(LinearSolver.DOF.DY);
+            DXDYDZ.AddExternalRestrain(LinearSolver.DOF.DZ);
 
             NodeRestrainAttribute DZ = new NodeRestrainAttribute(fc, sys);
-            DZ.AddRestrain(LinearSolver.DOF.DZ);
+            DZ.AddExternalRestrain(LinearSolver.DOF.DZ);
 
             List<Node> nodesPlate1 = new List<Node>();
             Node nd1 = new Node(0, 0, 0, 1, "1");
@@ -301,12 +301,12 @@ namespace UnitTest
 
             CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
             NodeRestrainAttribute DXDYDZ = new NodeRestrainAttribute(freedomCase, sys);
-            DXDYDZ.AddRestrain(LinearSolver.DOF.DX);
-            DXDYDZ.AddRestrain(LinearSolver.DOF.DY);
-            DXDYDZ.AddRestrain(LinearSolver.DOF.DZ);
+            DXDYDZ.AddExternalRestrain(LinearSolver.DOF.DX);
+            DXDYDZ.AddExternalRestrain(LinearSolver.DOF.DY);
+            DXDYDZ.AddExternalRestrain(LinearSolver.DOF.DZ);
 
             NodeRestrainAttribute DZ = new NodeRestrainAttribute(freedomCase, sys);
-            DZ.AddRestrain(LinearSolver.DOF.DZ);
+            DZ.AddExternalRestrain(LinearSolver.DOF.DZ);
 
             NodeForceAttribute fX1000 = new NodeForceAttribute(loadCase, sys, 1000, 0, 0, 0, 0, 0);
 
@@ -382,12 +382,12 @@ namespace UnitTest
 
             CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
             NodeRestrainAttribute DXDYDZ = new NodeRestrainAttribute(freedomCase, sys);
-            DXDYDZ.AddRestrain(LinearSolver.DOF.DX);
-            DXDYDZ.AddRestrain(LinearSolver.DOF.DY);
-            DXDYDZ.AddRestrain(LinearSolver.DOF.DZ);
+            DXDYDZ.AddExternalRestrain(LinearSolver.DOF.DX);
+            DXDYDZ.AddExternalRestrain(LinearSolver.DOF.DY);
+            DXDYDZ.AddExternalRestrain(LinearSolver.DOF.DZ);
 
             NodeRestrainAttribute DZ = new NodeRestrainAttribute(freedomCase, sys);
-            DZ.AddRestrain(LinearSolver.DOF.DZ);
+            DZ.AddExternalRestrain(LinearSolver.DOF.DZ);
 
             CoordinateSystem sys2 = new CoordinateSystem(new Point3d(1, 1, 0), new Point3d(2, 2, 0), new Point3d(0, 2, 0));
             NodeForceAttribute f1 = new NodeForceAttribute(loadCase, sys, 1000, 0, 0, 0, 0, 0);
@@ -466,12 +466,12 @@ namespace UnitTest
 
             CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
             NodeRestrainAttribute DXDYDZ = new NodeRestrainAttribute(freedomCase, sys);
-            DXDYDZ.AddRestrain(LinearSolver.DOF.DX);
-            DXDYDZ.AddRestrain(LinearSolver.DOF.DY);
-            DXDYDZ.AddRestrain(LinearSolver.DOF.DZ);
+            DXDYDZ.AddExternalRestrain(LinearSolver.DOF.DX);
+            DXDYDZ.AddExternalRestrain(LinearSolver.DOF.DY);
+            DXDYDZ.AddExternalRestrain(LinearSolver.DOF.DZ);
 
             NodeRestrainAttribute DZ = new NodeRestrainAttribute(freedomCase, sys);
-            DZ.AddRestrain(LinearSolver.DOF.DZ);
+            DZ.AddExternalRestrain(LinearSolver.DOF.DZ);
 
             //CoordinateSystem sys2 = new CoordinateSystem(new Point3d(1, 1, 0), new Point3d(2, 2, 0), new Point3d(0, 2, 0));
 
@@ -550,9 +550,9 @@ namespace UnitTest
 
             CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
             NodeRestrainAttribute RXRYRZ = new NodeRestrainAttribute(freedomCase, sys);
-            RXRYRZ.AddRestrain(LinearSolver.DOF.RX);
-            RXRYRZ.AddRestrain(LinearSolver.DOF.RY);
-            RXRYRZ.AddRestrain(LinearSolver.DOF.RZ);
+            RXRYRZ.AddExternalRestrain(LinearSolver.DOF.RX);
+            RXRYRZ.AddExternalRestrain(LinearSolver.DOF.RY);
+            RXRYRZ.AddExternalRestrain(LinearSolver.DOF.RZ);
 
             Node[] nodesPlate1 = new Node[3];
             nodesPlate1[0] = new Node(0, 0, 0, 1, "1");

@@ -9,28 +9,32 @@ namespace GPC.Model.FEM
 {
     public class FEMObject : ModelObject
     {
-        protected int _index;
+        protected int _id;
 
-        public int Index => _index;
+        public int Id { get => _id; internal set => _id = value; }
 
-        public FEMObject(int index) : this(index, string.Empty)
+        public FEMObject(int id) 
+            : this(id, string.Empty)
         {
+
         }
 
-        public FEMObject(int index, string name) : base(Guid.NewGuid(), name)
+        public FEMObject(int id, string name) 
+            : base(Guid.NewGuid(), name)
         {
-            _index = index;
+            _id = id;
         }
 
-        public FEMObject(SerializationInfo info, StreamingContext context) : base(info, context)
+        public FEMObject(SerializationInfo info, StreamingContext context) 
+            : base(info, context)
         {
-            info.AddValue("index", _index);
+            info.AddValue("Id", _id);
         }
 
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             base.GetObjectData(info, context);
-            _index = info.GetInt32("Index");
+            _id = info.GetInt32("Id");
         }       
 
         public override bool Equals(object obj)
@@ -39,14 +43,14 @@ namespace GPC.Model.FEM
                 return true;
             
             FEMObject objCasted = obj as FEMObject;
-            return !(objCasted is null) && base.Equals(objCasted) && _index == objCasted._index;
+            return !(objCasted is null) && base.Equals(objCasted) && _id == objCasted._id;
         }
 
         public override int GetHashCode()
         {
             int hashCode = -738623263;
             hashCode = hashCode * -1521134295 + base.GetHashCode();
-            hashCode = hashCode * -1521134295 + Index.GetHashCode();
+            hashCode = hashCode * -1521134295 + Id.GetHashCode();
             return hashCode;
         }
 

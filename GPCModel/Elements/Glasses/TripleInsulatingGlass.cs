@@ -1,4 +1,5 @@
-﻿using System;
+﻿using GPC.Utilities.Attributes;
+using System;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
 
@@ -8,6 +9,7 @@ namespace GPC.Model.Elements.Glasses
     /// This represent a triple glazing panel composed by three glass panels separated by air.
     /// </summary>
     [Serializable]
+    [UI(Description = "Triple insulating", Group = "Glasses", Kind = "Glass")]
     public sealed class TripleInsulatingGlass : Glass, IInsulatingGlass, IEquatable<TripleInsulatingGlass>
     {
         #region Variables

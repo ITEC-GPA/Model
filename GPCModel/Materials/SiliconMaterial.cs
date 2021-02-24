@@ -1,11 +1,11 @@
-﻿using System;
-using System.ComponentModel;
+﻿using GPC.Utilities.Attributes;
+using System;
 using System.Runtime.Serialization;
 
 namespace GPC.Model.Materials
 {
     [Serializable]
-    [Description("Silicon"), Category("Materials")]
+    [UI(Description = "Silicon", Group = "Materials", Kind = "Material")]
     public class SiliconMaterial : Material
     {
         private double _adhesiveStress;

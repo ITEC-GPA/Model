@@ -64,12 +64,12 @@ namespace GPC.Model.FEM
 
         public void SetID(int id)
         {
-            base._index = id;
+            base._id = id;
         }
 
         public override string ToString()
         {
-            return "ID = " + Index + " Name = " + Name + "  X=" + Position.X + " Y=" + Position.Y + " Z=" + Position.Z;
+            return "ID = " + Id + " Name = " + Name + "  X=" + Position.X + " Y=" + Position.Y + " Z=" + Position.Z;
         }
 
         public void AddAttribute(INodeFreedomCaseAttribute attribute)

@@ -1,11 +1,11 @@
-﻿using System;
-using System.ComponentModel;
+﻿using GPC.Utilities.Attributes;
+using System;
 using System.Runtime.Serialization;
 
 namespace GPC.Model.Materials
 {
     [Serializable]
-    [Description("Rebar"), Category("Materials")]
+    [UI(Description = "Rebar", Group = "Materials", Kind = "Material")]
     public class RebarMaterial : SteelMaterial
     {
         #region CONSTRUCTORS
