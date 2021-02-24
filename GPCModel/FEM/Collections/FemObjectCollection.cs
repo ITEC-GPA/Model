@@ -12,7 +12,9 @@ namespace GPC.Model.FEM.Collections
     /// </summary>
     public class FemObjectCollection<T> : IEnumerable<T> where T : FEMObject
     {
-        private List<T> _collection;
+        private List<T> _collection = new List<T>();
+        private HashSet<int> _index = new HashSet<int>();
+        private int _maxIndex = 0;
 
         public int Count => _collection.Count();
 
@@ -30,12 +32,18 @@ namespace GPC.Model.FEM.Collections
         /// <returns>The index of the item</returns>
         public int Add(T item)
         {
-            if (_collection.Where(i => i.Index == item.Index).Count() > 0)
+            if (_index.Contains(item.Index))
             {
-                item.Index = _collection.Select(i => i.Index).Max() + 1;
+                item.Index = _maxIndex++;
+            }
+            else
+            {
+                if (item.Index > _maxIndex)
+                    _maxIndex = item.Index;
             }
 
             _collection.Add(item);
+            _index.Add(item.Index);
 
             return item.Index;
         }
