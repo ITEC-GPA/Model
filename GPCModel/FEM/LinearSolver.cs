@@ -1,13 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using GPC.Model.FEM.FiniteElements;
 using GPC.Geometry;
 using mnl = MathNet.Numerics.LinearAlgebra;
 using GPC.Model.FEM.Attributes;
-using GPC.Model.FEM;
 
 namespace GPC.Model.FEM
 {
@@ -465,6 +462,7 @@ namespace GPC.Model.FEM
                     epsilonCouchy[1, 1] = epsilon[1]; //epsilon_yy
                     epsilonCouchy[0, 1] = epsilon[2]; //epsilon_xy
                     epsilonCouchy[1, 0] = epsilon[2]; //epsilon_yx
+                    //epsilonCouchy[2, 2] = -ni / E * (sigma_xx + sigma_yy) + alpha * Temperature ; //epsilon_zz
                     Console.WriteLine("Epsilon local coordinate:" + epsilonCouchy.ToString());
 
                     mnl.Matrix<double> stressCouchy = mnl.Matrix<double>.Build.Dense(3, 3);

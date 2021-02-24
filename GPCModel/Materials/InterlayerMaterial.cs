@@ -8,6 +8,7 @@ using System.Runtime.Serialization;
 namespace GPC.Model.Materials
 {
     [Serializable]
+    [Description("Interlayer"), Category("Materials")]
     public sealed class InterlayerMaterial : Material, IEquatable<InterlayerMaterial>
     {
         #region PUBLIC ENUMS
