@@ -1,4 +1,5 @@
 ﻿using GPC.Model.Materials;
+using GPC.Utilities.Attributes;
 using System;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
@@ -9,6 +10,7 @@ namespace GPC.Model.Elements.Glasses
     /// Monolithic glass. This represent the simpler glass panel. It is composed by a single layer of glass
     /// </summary>
     [Serializable]
+    [UI(Description = "Monolithic", Group = "Glasses", Kind = "Glass")]
     public sealed class MonolithicGlass : Glass, IGlassPanel, IEquatable<MonolithicGlass>
     {
         #region Variables
@@ -67,7 +69,7 @@ namespace GPC.Model.Elements.Glasses
 
         #endregion 
 
-        #region PUBLIC METHODS
+        #region Public Methods
 
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {

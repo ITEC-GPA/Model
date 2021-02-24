@@ -1,4 +1,5 @@
 ﻿using GPC.Model.Materials;
+using GPC.Utilities.Attributes;
 using System;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
@@ -9,6 +10,7 @@ namespace GPC.Model.Elements.Glasses
     /// Abstract class that represent the interlayer between two monolithic glasses to compose a laminated glass
     /// </summary>
     [Serializable]
+    [UI(Description = "Interlayer", Group = "Glasses", Kind = "Interlayer")]
     public sealed class Interlayer : ModelObject, IEquatable<Interlayer>
     {
         #region VARIABLES
@@ -27,18 +29,20 @@ namespace GPC.Model.Elements.Glasses
 
         #endregion
 
+        #region Constructors
+
         public Interlayer(string name, double thickness, InterlayerMaterial interlayerMaterial)
             : base(Guid.NewGuid(), name)
         {
-            this._thickness = thickness;
-            this._interlayerMaterial = interlayerMaterial;
+            _thickness = thickness;
+            _interlayerMaterial = interlayerMaterial;
         }
 
         public Interlayer(string name, double thickness, InterlayerMaterial interlayerMaterial, Guid guid)
             : base(guid, name)
         {
-            this._thickness = thickness;
-            this._interlayerMaterial = interlayerMaterial;
+            _thickness = thickness;
+            _interlayerMaterial = interlayerMaterial;
         }
 
         public Interlayer(SerializationInfo info, StreamingContext context)
@@ -48,6 +52,9 @@ namespace GPC.Model.Elements.Glasses
             _thickness = info.GetDouble("Thickness");
         }
 
+        #endregion
+
+        #region Public Methods
 
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
@@ -95,5 +102,7 @@ namespace GPC.Model.Elements.Glasses
         {
             return !(obj1 == obj2);
         }
+
+        #endregion
     }
 }
