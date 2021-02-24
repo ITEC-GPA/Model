@@ -1,11 +1,11 @@
-﻿using System;
-using System.ComponentModel;
+﻿using GPC.Utilities.Attributes;
+using System;
 using System.Runtime.Serialization;
 
 namespace GPC.Model.Materials
 {
     [Serializable]
-    [Description("Steel"), Category("Materials")]
+    [UI(Description = "Steel", Group = "Materials", Kind = "Material")]
     public class SteelMaterial : Material
     {
         #region VARIABLES
