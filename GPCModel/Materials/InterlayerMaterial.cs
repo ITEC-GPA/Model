@@ -2,13 +2,14 @@
 using System;
 using System.Linq;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Runtime.Serialization;
+using GPC.Utilities.Attributes;
+using System.ComponentModel;
 
 namespace GPC.Model.Materials
 {
     [Serializable]
-    [Description("Interlayer"), Category("Materials")]
+    [UI(Description = "Interlayer", Group = "Materials", Kind = "Material")]
     public sealed class InterlayerMaterial : Material, IEquatable<InterlayerMaterial>
     {
         #region PUBLIC ENUMS
