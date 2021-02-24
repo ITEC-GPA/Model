@@ -63,7 +63,7 @@ namespace GPC.Model.FEM
                         throw new Exception("Duplicate node!?");
                     } else if (nodes.Count() == 1) //Node already used in another element.
                     {
-                        int ID = nodes.Single().Index;
+                        int ID = nodes.Single().Id;
                         if (node.Name != nodes.Single().Name)
                         {
                             node.Name = node.Name + "+" + nodes.Single().Name;
@@ -169,14 +169,14 @@ namespace GPC.Model.FEM
                 for (int i = 0; i < element.GlobalNodesElement.Count(); i++)
                 {
                     //Node i
-                    int idNodeI = element.GlobalNodesElement[i].Index;
+                    int idNodeI = element.GlobalNodesElement[i].Id;
 
                     for (int j = 0; j < dofActive; j++) //each node i have degree of freedom j
                     {
                         //WARNING fare check ed eventualemte fixare per gradi di libertà attivi non contigui ad esempio UX, UY, UZ, RY
                         for (int k = 0; k < element.GlobalNodesElement.Count(); k++) //each node i with its degree of freedom j should be take in account with other node k.What hap in node k if force is applied in node i?
                         {
-                            int idNodeK = element.GlobalNodesElement[k].Index;
+                            int idNodeK = element.GlobalNodesElement[k].Id;
 
                             for (int l = 0; l < dofActive; l++) //what hap to the degree of freedom of node k?
                             {
@@ -241,32 +241,32 @@ namespace GPC.Model.FEM
                         DOF dof = DOF.DX;
                         if (Nodes[i].DOF.Contains(dof) == true)
                         {
-                            _F[GetPositionInKGlobal(Nodes[i].Index, dof)] = _F[GetPositionInKGlobal(Nodes[i].Index, dof)] + fX;
+                            _F[GetPositionInKGlobal(Nodes[i].Id, dof)] = _F[GetPositionInKGlobal(Nodes[i].Id, dof)] + fX;
                         }
                         dof = DOF.DY;
                         if (Nodes[i].DOF.Contains(dof) == true)
                         {
-                            _F[GetPositionInKGlobal(Nodes[i].Index, dof)] = _F[GetPositionInKGlobal(Nodes[i].Index, dof)] + fY;
+                            _F[GetPositionInKGlobal(Nodes[i].Id, dof)] = _F[GetPositionInKGlobal(Nodes[i].Id, dof)] + fY;
                         }
                         dof = DOF.DZ;
                         if (Nodes[i].DOF.Contains(dof) == true)
                         {
-                            _F[GetPositionInKGlobal(Nodes[i].Index, dof)] = _F[GetPositionInKGlobal(Nodes[i].Index, dof)] + fZ;
+                            _F[GetPositionInKGlobal(Nodes[i].Id, dof)] = _F[GetPositionInKGlobal(Nodes[i].Id, dof)] + fZ;
                         }
                         dof = DOF.RX;
                         if (Nodes[i].DOF.Contains(dof) == true)
                         {
-                            _F[GetPositionInKGlobal(Nodes[i].Index, dof)] = _F[GetPositionInKGlobal(Nodes[i].Index, dof)] + mX;
+                            _F[GetPositionInKGlobal(Nodes[i].Id, dof)] = _F[GetPositionInKGlobal(Nodes[i].Id, dof)] + mX;
                         }
                         dof = DOF.RY;
                         if (Nodes[i].DOF.Contains(dof) == true)
                         {
-                            _F[GetPositionInKGlobal(Nodes[i].Index, dof)] = _F[GetPositionInKGlobal(Nodes[i].Index, dof)] + mY;
+                            _F[GetPositionInKGlobal(Nodes[i].Id, dof)] = _F[GetPositionInKGlobal(Nodes[i].Id, dof)] + mY;
                         }
                         dof = DOF.RZ;
                         if (Nodes[i].DOF.Contains(dof) == true)
                         {
-                            _F[GetPositionInKGlobal(Nodes[i].Index, dof)] = _F[GetPositionInKGlobal(Nodes[i].Index, dof)] + mZ;
+                            _F[GetPositionInKGlobal(Nodes[i].Id, dof)] = _F[GetPositionInKGlobal(Nodes[i].Id, dof)] + mZ;
                         }
                     }
                 }
@@ -292,7 +292,7 @@ namespace GPC.Model.FEM
                     //check which DOF are active for the node to put the force in the right position
                     for (int k = 0; k < nds[0].NrActiveDof; k++)
                     {
-                        int pos = GetPositionInKGlobal(node.Index, nds[0].DOF.ElementAt(k));
+                        int pos = GetPositionInKGlobal(node.Id, nds[0].DOF.ElementAt(k));
 
                         //search in local vector the value in DOF selected
                         double val = 0;
@@ -339,7 +339,7 @@ namespace GPC.Model.FEM
                             DOF[] keys = restrainAttribute.Restrains.Keys.ToArray();
                             for (int j = 0; j < keys.Length; j++) {
                                 
-                                PrescribeDisplacement(Nodes[i].Index, keys[j], restrainAttribute.Restrains[keys[j]]);
+                                PrescribeDisplacement(Nodes[i].Id, keys[j], restrainAttribute.Restrains[keys[j]]);
                             }
                         } else
                         {
@@ -427,7 +427,7 @@ namespace GPC.Model.FEM
                 for (int j = 0; j < element.GlobalNodesElement.Count(); j++) {
                     Node node = element.GlobalNodesElement[j];
                     for (int k = 0; k < element.NrDOFActive; k++) {
-                        pos[counter] = GetPositionInKGlobal(node.Index, (DOF)k);
+                        pos[counter] = GetPositionInKGlobal(node.Id, (DOF)k);
                         counter++;
                     }
                 }
@@ -607,7 +607,7 @@ namespace GPC.Model.FEM
             int posNode = -1;
             for (int i = 0; i < Nodes.Length; i++)
             {
-                if (Nodes.ElementAt(i).Index == IdNode)
+                if (Nodes.ElementAt(i).Id == IdNode)
                 {
                     posNode = i;
                     i = Nodes.Length; //exit from the cycle
