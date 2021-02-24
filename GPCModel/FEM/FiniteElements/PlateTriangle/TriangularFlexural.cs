@@ -95,7 +95,7 @@ namespace GPC.Model.FEM.FiniteElements
 
             _etaInv = eta.Inverse(); //<<--- Problem with simply Triangle (0,0),(0,1),(1,0) --> non-invertible matrix 
 
-#region matrixD
+            #region matrixD
             double E = ((PlateProperty)_property).GetE();
             double ni = ((PlateProperty)_property).GetNi();
 
@@ -107,7 +107,7 @@ namespace GPC.Model.FEM.FiniteElements
             _d[2, 2] = (1.0 - ni) / 2.0;
             _d = E / (1.0 - ni * ni) * _d;
             Console.WriteLine("D = " + _d.ToString());
-#endregion
+            #endregion
 
             double tb = ((PlateProperty)Property).BendingThickness;
             double D = E * Math.Pow(tb, 3.0) / (12.0 * (1.0 - Math.Pow(ni, 2.0))); //flexural rigidity
@@ -219,7 +219,7 @@ namespace GPC.Model.FEM.FiniteElements
         /// <param name="node3"></param>
         protected void LocalNodes(Node nodeI, Node nodeJ, Node nodeK, out Node node1, out Node node2, out Node node3)
         {
-#region CalculationOfLocalCoordinates
+            #region CalculationOfLocalCoordinates
             //Search for 3 local axis
             Vector3d y = new Vector3d(nodeJ.Position.X - nodeI.Position.X, nodeJ.Position.Y - nodeI.Position.Y, nodeJ.Position.Z - nodeI.Position.Z);
             Vector3d vecy = new Vector3d(y);
@@ -250,6 +250,7 @@ namespace GPC.Model.FEM.FiniteElements
             node1 = new Node(0, 0, 0, nodeI.Id, nodeI.Name); //Origin GlobalNodes.ElementAt(1 - 1);
             node2 = new Node(v12.DotProduct(vecx), v12.DotProduct(vecy), v12.DotProduct(vecz), nodeJ.Id, nodeJ.Name); //Axis y GlobalNodes.ElementAt(2 - 1);
             node3 = new Node(v13.DotProduct(vecx), v13.DotProduct(vecy), v13.DotProduct(vecz), nodeK.Id, nodeK.Name); //GlobalNodes.ElementAt(3 - 1);
+            #endregion
         }
 
         /// <summary>
@@ -273,7 +274,7 @@ namespace GPC.Model.FEM.FiniteElements
              * w = eta * alpha ; w is the approx function of real displacement. By theory rotation etc are all in depends of w
              */
 
-#region matrixB
+            #region matrixB
             mnl.Matrix<double> b = mnl.Matrix<double>.Build.Dense(3, 9);
             b[0, 3] = 2.0;
             b[0, 6] = 6.0 * x;
@@ -289,7 +290,7 @@ namespace GPC.Model.FEM.FiniteElements
             b = -z * b;
             _b = b * _etaInv;
             return _b;
-#endregion
+            #endregion
         }
 
         public override bool Equals(object obj)
