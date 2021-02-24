@@ -93,7 +93,7 @@ namespace GPC.Model.FEM
                                 if (node.AttributesFreedomCase.Contains(restrainAttribute) == false)
                                 {
                                     //Copy
-                                    node.AttributesFreedomCase.Add(new NodeRestrainAttribute(restrainAttribute.FreedomCase, restrainAttribute.CSys, restrainAttribute.Restrains, restrainAttribute.Name, Guid.NewGuid()));
+                                    node.AttributesFreedomCase.Add(new NodeRestrainAttribute(restrainAttribute.FreedomCase, restrainAttribute.CoordinateSystem, restrainAttribute.Restrains, restrainAttribute.Name, Guid.NewGuid()));
                                 }
                             }
                         }
@@ -327,11 +327,11 @@ namespace GPC.Model.FEM
                     {
                         NodeRestrainAttribute restrainAttribute = (NodeRestrainAttribute)freedomCasecAttribute;
                         //check if is in Global Coordinate otherwise ...
-                        Vector3d dirX = restrainAttribute.CSys.V11;
+                        Vector3d dirX = restrainAttribute.CoordinateSystem.V11;
                         dirX.Unitize();
-                        Vector3d dirY = restrainAttribute.CSys.V22;
+                        Vector3d dirY = restrainAttribute.CoordinateSystem.V22;
                         dirY.Unitize();
-                        Vector3d dirZ = restrainAttribute.CSys.V33;
+                        Vector3d dirZ = restrainAttribute.CoordinateSystem.V33;
                         dirZ.Unitize();
 
                         if (dirX.DotProduct(X) == 1.0 && dirY.DotProduct(Y) == 1.0) //Coord sys == Global Coord

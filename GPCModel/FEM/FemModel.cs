@@ -203,10 +203,12 @@ namespace GPC.Model.FEM
         /// <param name="brickProperty"></param>
         /// <param name="loadMeshEntityMap"></param>
         /// <param name="restrainMeshEntityMap">Map between IGeometryRestrain and MeshVertex.Id</param>
+        /// <exception cref="KeyNotFoundException">If a meshvertex.id of <paramref name="restrainMeshEntityMap"/> is not found in the <paramref name="mesh"/> vertices ids</exception>
         public virtual void AddMesh(Mesh mesh, IPlateProperty plateProperty, IBrickProperty brickProperty, Dictionary<Load, int[]> loadMeshEntityMap, Dictionary<GeometryRestrain, int[]> restrainMeshEntityMap )
         {
             Dictionary<int, int> nodesNewIndexMap = new Dictionary<int, int>(); // Mappa tra indici dei nodi dentro _nodes e indici dei vertici della mesh nel caso esistano già dentro _nodes.
-            Dictionary<int, int> platesNewIndexMap = new Dictionary<int, int>(); // Mappa tra indici dei nodi dentro _nodes e indici dei vertici della mesh nel caso esistano già dentro _nodes.
+            Dictionary<int, int> platesNewIndexMap = new Dictionary<int, int>(); 
+            Dictionary<int, int> brickNewIndexMap = new Dictionary<int, int>(); 
 
 
             // Aggiorno lista proprietà
@@ -247,11 +249,14 @@ namespace GPC.Model.FEM
                 {
                     if (plateProperty is PlateProperty pp)
                     {
-                        _elements.Add(new Plate(new Node[] { _nodes[nodesNewIndexMap.ContainsKey(face.A) ? nodesNewIndexMap[face.A] : face.A],
-                                                             _nodes[nodesNewIndexMap.ContainsKey(face.B) ? nodesNewIndexMap[face.B] : face.B],
-                                                             _nodes[nodesNewIndexMap.ContainsKey(face.C) ? nodesNewIndexMap[face.C] : face.C],
-                                                             _nodes[nodesNewIndexMap.ContainsKey(face.D) ? nodesNewIndexMap[face.D] : face.D]},
-                                                             pp, face.Id));
+                        var plateIndex = _elements.Add(new Plate(new Node[] { _nodes[nodesNewIndexMap.ContainsKey(face.A) ? nodesNewIndexMap[face.A] : face.A],
+                                                                             _nodes[nodesNewIndexMap.ContainsKey(face.B) ? nodesNewIndexMap[face.B] : face.B],
+                                                                             _nodes[nodesNewIndexMap.ContainsKey(face.C) ? nodesNewIndexMap[face.C] : face.C],
+                                                                             _nodes[nodesNewIndexMap.ContainsKey(face.D) ? nodesNewIndexMap[face.D] : face.D]},
+                                                                             pp, face.Id));
+
+                        if (plateIndex != face.Id) // Se sono diversi vuol dire che esisteva già l'indice element .iD e la collection l'ha modificato
+                            platesNewIndexMap[plateIndex] = face.Id;
                     }
                     else
                         throw new NotImplementedException();
@@ -260,10 +265,13 @@ namespace GPC.Model.FEM
                 {
                     if (plateProperty is PlateProperty pp)
                     {
-                        _elements.Add(new Plate(new Node[] { _nodes[nodesNewIndexMap.ContainsKey(face.A) ? nodesNewIndexMap[face.A] : face.A],
-                                                             _nodes[nodesNewIndexMap.ContainsKey(face.B) ? nodesNewIndexMap[face.B] : face.B],
-                                                             _nodes[nodesNewIndexMap.ContainsKey(face.C) ? nodesNewIndexMap[face.C] : face.C]},
-                                                             pp, face.Id));
+                        var plateIndex = _elements.Add(new Plate(new Node[] { _nodes[nodesNewIndexMap.ContainsKey(face.A) ? nodesNewIndexMap[face.A] : face.A],
+                                                                             _nodes[nodesNewIndexMap.ContainsKey(face.B) ? nodesNewIndexMap[face.B] : face.B],
+                                                                             _nodes[nodesNewIndexMap.ContainsKey(face.C) ? nodesNewIndexMap[face.C] : face.C]},
+                                                                             pp, face.Id));
+
+                        if (plateIndex != face.Id) // Se sono diversi vuol dire che esisteva già l'indice element .iD e la collection l'ha modificato
+                            platesNewIndexMap[plateIndex] = face.Id;
                     }
                     else
                         throw new NotImplementedException();
@@ -276,15 +284,18 @@ namespace GPC.Model.FEM
                 {
                     if (brickProperty is BrickProperty bp)
                     {
-                        _elements.Add(new Brick(new Node[] { _nodes[nodesNewIndexMap.ContainsKey(volume.A) ? nodesNewIndexMap[volume.A] : volume.A],
-                                                             _nodes[nodesNewIndexMap.ContainsKey(volume.B) ? nodesNewIndexMap[volume.B] : volume.B],
-                                                             _nodes[nodesNewIndexMap.ContainsKey(volume.C) ? nodesNewIndexMap[volume.C] : volume.C],
-                                                             _nodes[nodesNewIndexMap.ContainsKey(volume.D) ? nodesNewIndexMap[volume.D] : volume.D],
-                                                             _nodes[nodesNewIndexMap.ContainsKey(volume.E) ? nodesNewIndexMap[volume.E] : volume.E],
-                                                             _nodes[nodesNewIndexMap.ContainsKey(volume.F) ? nodesNewIndexMap[volume.F] : volume.F],
-                                                             _nodes[nodesNewIndexMap.ContainsKey(volume.G) ? nodesNewIndexMap[volume.G] : volume.G],
-                                                             _nodes[nodesNewIndexMap.ContainsKey(volume.H) ? nodesNewIndexMap[volume.H] : volume.H]},
-                                                             bp, volume.Id));
+                        var brickIndex = _elements.Add(new Brick(new Node[] { _nodes[nodesNewIndexMap.ContainsKey(volume.A) ? nodesNewIndexMap[volume.A] : volume.A],
+                                                                             _nodes[nodesNewIndexMap.ContainsKey(volume.B) ? nodesNewIndexMap[volume.B] : volume.B],
+                                                                             _nodes[nodesNewIndexMap.ContainsKey(volume.C) ? nodesNewIndexMap[volume.C] : volume.C],
+                                                                             _nodes[nodesNewIndexMap.ContainsKey(volume.D) ? nodesNewIndexMap[volume.D] : volume.D],
+                                                                             _nodes[nodesNewIndexMap.ContainsKey(volume.E) ? nodesNewIndexMap[volume.E] : volume.E],
+                                                                             _nodes[nodesNewIndexMap.ContainsKey(volume.F) ? nodesNewIndexMap[volume.F] : volume.F],
+                                                                             _nodes[nodesNewIndexMap.ContainsKey(volume.G) ? nodesNewIndexMap[volume.G] : volume.G],
+                                                                             _nodes[nodesNewIndexMap.ContainsKey(volume.H) ? nodesNewIndexMap[volume.H] : volume.H]},
+                                                                             bp, volume.Id));
+
+                        if (brickIndex != volume.Id) // Se sono diversi vuol dire che esisteva già l'indice element .iD e la collection l'ha modificato
+                            brickNewIndexMap[brickIndex] = volume.Id;
                     }
                     else
                         throw new NotImplementedException();
@@ -293,13 +304,15 @@ namespace GPC.Model.FEM
                 {
                     if (brickProperty is BrickProperty bp)
                     {
-                        _elements.Add(new Brick(new Node[] { _nodes[nodesNewIndexMap.ContainsKey(volume.A) ? nodesNewIndexMap[volume.A] : volume.A],
-                                                             _nodes[nodesNewIndexMap.ContainsKey(volume.B) ? nodesNewIndexMap[volume.B] : volume.B],
-                                                             _nodes[nodesNewIndexMap.ContainsKey(volume.C) ? nodesNewIndexMap[volume.C] : volume.C],
-                                                             _nodes[nodesNewIndexMap.ContainsKey(volume.D) ? nodesNewIndexMap[volume.D] : volume.D],
-                                                             _nodes[nodesNewIndexMap.ContainsKey(volume.E) ? nodesNewIndexMap[volume.E] : volume.E],
-                                                             _nodes[nodesNewIndexMap.ContainsKey(volume.F) ? nodesNewIndexMap[volume.F] : volume.F]},
-                                                             bp, volume.Id));
+                        var brickIndex = _elements.Add(new Brick(new Node[] { _nodes[nodesNewIndexMap.ContainsKey(volume.A) ? nodesNewIndexMap[volume.A] : volume.A],
+                                                                             _nodes[nodesNewIndexMap.ContainsKey(volume.B) ? nodesNewIndexMap[volume.B] : volume.B],
+                                                                             _nodes[nodesNewIndexMap.ContainsKey(volume.C) ? nodesNewIndexMap[volume.C] : volume.C],
+                                                                             _nodes[nodesNewIndexMap.ContainsKey(volume.D) ? nodesNewIndexMap[volume.D] : volume.D],
+                                                                             _nodes[nodesNewIndexMap.ContainsKey(volume.E) ? nodesNewIndexMap[volume.E] : volume.E],
+                                                                             _nodes[nodesNewIndexMap.ContainsKey(volume.F) ? nodesNewIndexMap[volume.F] : volume.F]},
+                                                                             bp, volume.Id));
+                        if (brickIndex != volume.Id) // Se sono diversi vuol dire che esisteva già l'indice element .iD e la collection l'ha modificato
+                            brickNewIndexMap[brickIndex] = volume.Id;
                     }
                     else
                         throw new NotImplementedException();
@@ -307,24 +320,51 @@ namespace GPC.Model.FEM
 
             }
 
-            //foreach(var kvp in restrainMeshEntityMap)
-            //{
-            //    IGeometryRestrain geometryRestrain = kvp.Key;
-            //    int[] indexes = kvp.Value;
+            foreach (var kvp in restrainMeshEntityMap)
+            {
+                GeometryRestrain geometryRestrain = kvp.Key;
+                int[] indexes = kvp.Value;
 
-            //    foreach (var index in indexes)
-            //    {
-            //        Node node = _nodes.GetElementById(index); // se non trova l'indice viene lanciata una keynotfoundException
-
-            //        if (geometryRestrain is PointRestrain pr)
-            //        {
-            //            pr.fr
-            //            node.AddAttribute(new NodeRestrainAttribute());
-            //        }
+                KeyValuePair<LinearSolver.DOF, bool>[] restrains = geometryRestrain.GetRestrains();
+                KeyValuePair<LinearSolver.DOF, double>[] stiffneses = geometryRestrain.GetStiffnesses();
+                KeyValuePair<LinearSolver.DOF, double>[] displacements = geometryRestrain.GetImposedDisplacement();
 
 
-            //    }
-            //}
+                NodeRestrainAttribute nra = new NodeRestrainAttribute(geometryRestrain.FreedomCase, geometryRestrain.CoordinateSystem);
+                NodeStiffnessAttribute nsa = new NodeStiffnessAttribute(geometryRestrain.FreedomCase, geometryRestrain.CoordinateSystem);
+
+                // TODO:  gestire il fatto che uno spostamento imposto può essere applicato in un grado di libertà vincolato
+                foreach (var restrain in restrains)
+                {
+                    if (restrain.Value)
+                        nra.AddExternalRestrain(restrain.Key);
+                }
+
+                foreach (var displacement in displacements)
+                {
+                    nra.AddImposedDisplacement(displacement.Key, displacement.Value);
+                }
+
+                foreach (var stiffness in stiffneses)
+                {
+                    nsa.AddStiffness(stiffness.Key, stiffness.Value);
+                }
+
+
+                foreach (var index in indexes)
+                {
+                    int nodeId = nodesNewIndexMap.ContainsKey(index) ? nodesNewIndexMap[index] : index;
+
+                    Node node = _nodes.GetElementById(nodeId); // se non trova l'indice viene lanciata una keynotfoundException
+
+                    if (nra.Restrains.Count > 0)
+                        node.AddAttribute(nra);
+
+                    if (nsa.Stiffnesses.Count > 0)
+                        node.AddAttribute(nsa);
+
+                }
+            }
 
 
         }

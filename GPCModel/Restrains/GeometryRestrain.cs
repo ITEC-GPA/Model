@@ -79,6 +79,18 @@ namespace GPC.Model.Restrains
             return kvp;
         }
 
+        public KeyValuePair<LinearSolver.DOF, double>[] GetImposedDisplacement()
+        {
+            KeyValuePair<LinearSolver.DOF, double>[] kvp = new KeyValuePair<LinearSolver.DOF, double>[Restrains.Count];
+
+            for (int i = 0; i < _restrains.Count; i++)
+            {
+                kvp[i] = new KeyValuePair<LinearSolver.DOF, double>(key: _restrains[i].Dof, value: _restrains[i].ImposedDisplacement);
+            }
+
+            return kvp;
+        }
+
         public abstract GeometryBase GetGeometry();
 
 
