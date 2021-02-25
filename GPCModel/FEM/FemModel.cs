@@ -120,7 +120,7 @@ namespace GPC.Model.FEM
                     else
                         geometryLoadMap[geom].Add(load);
                 }
-                else if (load is GlobalAreaLoad gal)
+                else if (load is AreaLoad gal)
                 {
                     throw new NotImplementedException($"Load type: {load.GetType()} not implemented");
                     //embeddedGeometries.Add(gal.GetGeometry());
@@ -201,9 +201,10 @@ namespace GPC.Model.FEM
         /// <param name="mesh"></param> 
         /// <param name="plateProperty"></param>
         /// <param name="brickProperty"></param>
-        /// <param name="loadMeshEntityMap"></param>
-        /// <param name="restrainMeshEntityMap">Map between IGeometryRestrain and MeshVertex.Id</param>
-        /// <exception cref="KeyNotFoundException">If a meshvertex.id of <paramref name="restrainMeshEntityMap"/> is not found in the <paramref name="mesh"/> vertices ids</exception>
+        /// <param name="vertexLoadMeshEntityMap">Map between <see cref="IPointLoad"/> and <see cref="MeshVertex.Id"/></param>
+        /// <param name="plateLoadMeshEntityMap">Map between <see cref="IAreaLoad"/> and <see cref="MeshVertex.Id"/></param>
+        /// <param name="restrainMeshEntityMap">Map between IGeometryRestrain and <see cref="MeshVertex.Id"/></param>
+        /// <exception cref="KeyNotFoundException">If a <see cref="MeshVertex.Id"/> of <paramref name="restrainMeshEntityMap"/> is not found in the <paramref name="mesh"/> vertices ids</exception>
         public virtual void AddMesh(Mesh mesh, IPlateProperty plateProperty, IBrickProperty brickProperty, Dictionary<IPointLoad, int[]> vertexLoadMeshEntityMap, Dictionary<IAreaLoad, int[]> plateLoadMeshEntityMap,  Dictionary<GeometryRestrain, int[]> restrainMeshEntityMap )
         {
             Dictionary<int, int> nodesNewIndexMap = new Dictionary<int, int>(); // Mappa tra indici dei nodi dentro _nodes e indici dei vertici della mesh nel caso esistano già dentro _nodes.
@@ -386,11 +387,42 @@ namespace GPC.Model.FEM
                     }
                     else
                         throw new NotImplementedException();
+                }
+            }
+            
+            // Gestione carichi
+            foreach (var kvp in plateLoadMeshEntityMap)
+            {
+                IAreaLoad load = kvp.Key;
+                int[] indexes = kvp.Value;
+
+                foreach (var index in indexes)
+                {
+                    int plateId = platesNewIndexMap.ContainsKey(index) ? platesNewIndexMap[index] : index;
+
+                    FiniteElement finiteElement = _elements.GetElementById(plateId); // se non trova l'indice viene lanciata una keynotfoundException
+
+                    Plate plate = finiteElement as Plate;
+
+                    if (plate is null)
+                        throw new ArgumentException($"Element with id: {plateId} {index} is not a plate");
+
+                    if (load is NormalAreaLoad pl)
+                    {
+                        PlateNormalPressureAttribute pna = new PlateNormalPressureAttribute(pl.LoadCase, pl.Pressure);
+                        plate.AddAttribute(pna);
+                    }
+                    else if (load is AreaLoad gal)
+                    {
+                        PlatePressureAttribute ppa = new PlatePressureAttribute(gal.LoadCase, gal.CoordinateSystem, gal.P1, gal.P2, gal.P3);
+                        plate.AddAttribute(ppa);
+                    }
+                    else
+                        throw new NotImplementedException();
 
                 }
-
-
             }
+
         }
 
 

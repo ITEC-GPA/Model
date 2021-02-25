@@ -7,7 +7,7 @@ using System.IO;
 using System.Collections.Generic;
 using GPC.Utilities.Serialization;
 
-namespace UnitTest
+namespace ModelObjectTest
 {
     [TestClass]
     public class MaterialTest

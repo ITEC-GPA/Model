@@ -4,7 +4,7 @@ using GPC.Model.Sections;
 using GPC.Model.Materials;
 using GPC.Geometry;
 
-namespace UnitTest
+namespace ModelObjectTest
 {
     [TestClass]
     public class SectionsTest

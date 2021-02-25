@@ -6,7 +6,7 @@ using GPC.Model.FEM;
 using GPC.Utilities.Time;
 using System.Collections.Generic;
 
-namespace UnitTest
+namespace GeneralTest
 {
     [TestClass]
     public class PerformanceTest

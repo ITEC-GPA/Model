@@ -4,7 +4,7 @@ using GPC.Model.Combinations;
 using GPC.Model.LoadCases;
 using System.Collections.Generic;
 
-namespace UnitTest
+namespace ModelObjectTest
 {
     [TestClass]
     public class CombinationTest

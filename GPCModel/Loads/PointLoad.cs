@@ -41,8 +41,8 @@ namespace GPC.Model.Loads
 
         #region Public Constructors
 
-        public PointLoad(double f1, double f2, double f3, double m1, double m2, double m3, Point3d point, LoadCase loadCase, CoordinateSystem coordinateSystem, Guid guid) 
-            : base(loadCase, guid)
+        public PointLoad(double f1, double f2, double f3, double m1, double m2, double m3, Point3d point, LoadCase loadCase, CoordinateSystem coordinateSystem, string name = "") 
+            : base(loadCase, Guid.NewGuid(), name)
         {
             _f1 = f1;                                       
             _f2 = f2;
@@ -54,15 +54,27 @@ namespace GPC.Model.Loads
             _point = point ?? throw new ArgumentNullException("Point cannot be null") ;
         }
 
-        public PointLoad(double f1, double f2, double f3, double m1, double m2, double m3, Point3d point, LoadCase loadCase, Guid guid)
-            : this(f1, f2, f3, m1, m2, m3, point, loadCase, CoordinateSystem.Global, guid)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="f1"></param>
+        /// <param name="f2"></param>
+        /// <param name="f3"></param>
+        /// <param name="m1"></param>
+        /// <param name="m2"></param>
+        /// <param name="m3"></param>
+        /// <param name="point"></param>
+        /// <param name="loadCase"></param>
+        /// <remarks> <see cref="CoordinateSystem"/> set to Global </remarks>
+        public PointLoad(double f1, double f2, double f3, double m1, double m2, double m3, Point3d point, LoadCase loadCase, string name = "")
+            : this(f1, f2, f3, m1, m2, m3, point, loadCase, CoordinateSystem.Global, name)
         {
 
         }
 
 
-        public PointLoad(Vector3d force, Vector3d moment, Point3d point, LoadCase loadCase, CoordinateSystem cSys, Guid guid)
-            : this(force.X, force.Y, force.Z, moment.X, moment.Y, moment.Z, point, loadCase, cSys, guid)
+        public PointLoad(Vector3d force, Vector3d moment, Point3d point, LoadCase loadCase, CoordinateSystem cSys)
+            : this(force.X, force.Y, force.Z, moment.X, moment.Y, moment.Z, point, loadCase, cSys)
         {
             
         }
@@ -80,6 +92,7 @@ namespace GPC.Model.Loads
             _m2 = info.GetDouble("M2");
             _m3 = info.GetDouble("M3");
             _coordinateSystem = (CoordinateSystem)info.GetValue("CoordinateSystem", typeof(CoordinateSystem));
+            _point = (Point3d)info.GetValue("Point", typeof(Point3d));
         }
 
         #endregion
@@ -97,6 +110,7 @@ namespace GPC.Model.Loads
             info.AddValue("M2", _m2);
             info.AddValue("M3", _m3);
             info.AddValue("CoordinateSystem", _coordinateSystem);
+            info.AddValue("Point", _point);
         }
 
         /// <summary>
