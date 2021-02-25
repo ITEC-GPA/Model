@@ -640,16 +640,13 @@ namespace UnitTest
                 nodes[nd].DoF.FormIncidence(ref _globalDoF, ref _reactionDoF);
             }
 
-            CoordinateSystem Csys = new CoordinateSystem(Node1.Position, Node2.Position, Node3.Position, 0, string.Empty, new Guid());
-
             ///  Section
-            double E = 200000; // MPa
-            double ni = 0.2;
+            double E = 12; // MPa
+            double ni = 0.0;
 
             /// Material
             Material mat = new SteelMaterial("Steel", E, ni, 355, 510, 355 / E, 0, 0, new Guid());// new Material("Steel", E, ni, 0.0, 0.0, new Guid());
-            PlateProperty property = new PlateProperty(mat, 0.1, 0.1);
-            //CoordinateSystemPlateQuad4 quad4 = new PlateQuad4(new Guid(), property, nodes);
+            PlateProperty property = new PlateProperty(mat, 1.0, 1.0);
             GPC.Model.FEMOld.PlateDKQ shell = new GPC.Model.FEMOld.PlateDKQ(new Guid(), property, 1, nodes);
 
             mnl.Matrix<double> _stiffnessMatrix = mnl.Matrix<double>.Build.Dense(_globalDoF, _globalDoF, 0.0);
@@ -673,8 +670,8 @@ namespace UnitTest
             //LoadCase loadCase = new LoadCase("myLoadCase", new Guid());
             /*FreedomCase freedomCase = new FreedomCase("freedomCase1");*/
 
-            Material mat = new SteelMaterial("steel", 200000, 0.2, 355, 510, 7850);
-            PlateProperty prop = new PlateProperty(mat, 0.10, 0);
+            Material mat = new SteelMaterial("steel", 12, 0.0, 355, 510, 7850);
+            PlateProperty prop = new PlateProperty(mat, 1.0, 1.0);
 
             /*CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
             NodeRestrainAttribute RXRYRZ = new NodeRestrainAttribute(freedomCase, sys);

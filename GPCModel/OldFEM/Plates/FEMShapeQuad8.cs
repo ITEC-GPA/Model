@@ -82,6 +82,24 @@ namespace GPC.Model.FEMOld
             _dNShape[1, 5] = -(1.0 + c) * e;
             _dNShape[1, 6] = (1.0 - cc) / 2.0;
             _dNShape[1, 7] = -(1.0 - c) * e;
+
+            for (int r = 0; r < _dNShape.RowCount; r++)
+            {
+                string deriv;
+                if (r == 0)
+                {
+                    deriv = "csi";
+                    Console.WriteLine("dN,csi=");
+                } else
+                {
+                    deriv = "eta";
+                    Console.WriteLine("dN,eta=");
+                }
+                for (int col = 0; col < _dNShape.ColumnCount; col++)
+                {
+                    Console.WriteLine("n"+(col + 1) + "," + deriv + "(csi="+c.ToString("F2")+",eta="+e.ToString("F2") + ") = " + _dNShape[r, col].ToString("F2") + " ");
+                }
+            }
         }
         #endregion
     }

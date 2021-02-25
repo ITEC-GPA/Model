@@ -20,6 +20,19 @@ namespace GPC.Model.FEM.FiniteElements
             DOF.Add(LinearSolver.DOF.RX);
             DOF.Add(LinearSolver.DOF.RY);
             DOF.Add(LinearSolver.DOF.RZ);
+
+            /*Just for debug
+            double c = -1.0 / Math.Pow(3, 0.5);
+            double e = -1.0 / Math.Pow(3, 0.5);
+            for (int i = 1; i <= 8; i++)
+            {
+                Console.WriteLine("n"+i+",csi = " + dNdCsi(i,c,e));
+            }
+            for (int i = 1; i <= 8; i++)
+            {
+                Console.WriteLine("n" + i + ",eta = " + dNdEta(i, c, e));
+            }
+            */
         }
 
         public override void BuildMatrix()
@@ -36,11 +49,11 @@ namespace GPC.Model.FEM.FiniteElements
             _d[1, 1] = 1.0;
             _d[2, 2] = (1.0 - ni) / 2.0;
             _d = E * Math.Pow(tb, 3.0) / (12.0 * (1.0 - ni * ni)) * _d; //flexural rigidity
-            //Console.WriteLine("D = " + _d.ToString());
+            //Console.WriteLine("Db = " + _d.ToString());
             #endregion
 
             //4 Gauss Integration points
-            double[] csiGauss = new [] { -1.0/Math.Pow(3,0.5), 1.0 / Math.Pow(3, 0.5)};
+            double[] csiGauss = new [] { -1.0 / Math.Pow(3,0.5), 1.0 / Math.Pow(3, 0.5)};
             double[] etaGauss = new[] { -1.0 / Math.Pow(3, 0.5), 1.0 / Math.Pow(3, 0.5) };
             double[] weightGauss = new[] { 1.0, 1.0};
 
@@ -56,7 +69,6 @@ namespace GPC.Model.FEM.FiniteElements
                     _kElementLocalCoord = _kElementLocalCoord + m;
                 }
             }
-            
         }
 
         protected override mnl.Vector<double> BuildFLocalCoord()
@@ -66,13 +78,13 @@ namespace GPC.Model.FEM.FiniteElements
 
         protected mnl.Matrix<double> B(double csi, double eta)
         {
-            //LocalNodes(GlobalNodesElement[0], GlobalNodesElement[1], GlobalNodesElement[2], out Node node1, out Node node3, out Node node2); //node 1 is origin, node 3 is in (0,y2), node2 is in (x2,y2)
-            Node node1 = new Node(-1, -1, 0, 0);
-            Node node2 = new Node( 1, -1, 0, 0);
-            Node node3 = new Node( 1,  1, 0, 0);
-            Node node4 = new Node(-1,  1, 0, 0);
+            LocalNodes(out Node[] localNodes);
+            Node node1 = localNodes[0];
+            Node node2 = localNodes[1];
+            Node node3 = localNodes[2];
+            Node node4 = localNodes[3];
 
-            double x12 = node1.Position.X - node2.Position.X;
+            /*double x12 = node1.Position.X - node2.Position.X;
             double y12 = node1.Position.Y - node2.Position.Y;
             double l12 = node1.Position.DistanceTo(node2.Position);
 
@@ -98,7 +110,35 @@ namespace GPC.Model.FEM.FiniteElements
             double y31 = node3.Position.Y - node1.Position.Y;
             
             double x42 = node4.Position.X - node2.Position.X;
-            double y42 = node4.Position.Y - node2.Position.Y;
+            double y42 = node4.Position.Y - node2.Position.Y;*/
+
+            double x12 = node2.Position.X - node1.Position.X;
+            double y12 = node2.Position.Y - node1.Position.Y;
+            double l12 = node2.Position.DistanceTo(node1.Position);
+
+            double x21 = node1.Position.X - node2.Position.X;
+            double y21 = node1.Position.Y - node2.Position.Y;
+
+            double x23 = node3.Position.X - node2.Position.X;
+            double y23 = node3.Position.Y - node2.Position.Y;
+            double l23 = node3.Position.DistanceTo(node2.Position);
+
+            double x34 = node4.Position.X - node3.Position.X;
+            double y34 = node4.Position.Y - node3.Position.Y;
+            double l34 = node4.Position.DistanceTo(node3.Position);
+
+            double x32 = node2.Position.X - node3.Position.X;
+            double y32 = node2.Position.Y - node3.Position.Y;
+
+            double x41 = node1.Position.X - node4.Position.X;
+            double y41 = node1.Position.Y - node4.Position.Y;
+            double l41 = node1.Position.DistanceTo(node4.Position);
+
+            double x31 = node1.Position.X - node3.Position.X;
+            double y31 = node1.Position.Y - node3.Position.Y;
+            
+            double x42 = node2.Position.X - node4.Position.X;
+            double y42 = node2.Position.Y - node4.Position.Y;
 
             double detJ = 1.0 / 8.0 * (y42 * x31 - y31 * x42) + csi / 8.0 * (y34 * x21 - y21 * x34) + eta / 8.0 * (y41 * x32 - y32 * x41);
             if (detJ < 0)
@@ -116,10 +156,10 @@ namespace GPC.Model.FEM.FiniteElements
             mnl.Vector<double> hxEta = mnl.Vector<double>.Build.Dense(12, 1);
             mnl.Vector<double> hyEta = mnl.Vector<double>.Build.Dense(12, 1);
 
-            double a5 = -x12 / Math.Pow(l12, 2.0);
-            double a6 = -x23 / Math.Pow(l23, 2.0);
-            double a7 = -x34 / Math.Pow(l34, 2.0);
-            double a8 = -x41 / Math.Pow(l41, 2.0);
+            double a5 = - x12 / Math.Pow(l12, 2.0);
+            double a6 = - x23 / Math.Pow(l23, 2.0);
+            double a7 = - x34 / Math.Pow(l34, 2.0);
+            double a8 = - x41 / Math.Pow(l41, 2.0);
 
             double b5 = 3.0 / 4.0 * x12 * y12 / Math.Pow(l12, 2.0);
             double b6 = 3.0 / 4.0 * x23 * y12 / Math.Pow(l23, 2.0);
@@ -140,6 +180,31 @@ namespace GPC.Model.FEM.FiniteElements
             double e6 = (-1.0 / 2.0 * Math.Pow(x23, 2.0) + 1.0 / 4.0 * Math.Pow(y23, 2.0)) / Math.Pow(l23, 2.0);
             double e7 = (-1.0 / 2.0 * Math.Pow(x34, 2.0) + 1.0 / 4.0 * Math.Pow(y34, 2.0)) / Math.Pow(l34, 2.0);
             double e8 = (-1.0 / 2.0 * Math.Pow(x41, 2.0) + 1.0 / 4.0 * Math.Pow(y41, 2.0)) / Math.Pow(l41, 2.0);
+
+            Console.WriteLine("a5 = " + a5);
+            Console.WriteLine("b5 = " + b5);
+            Console.WriteLine("c5 = " + c5);
+            Console.WriteLine("d5 = " + d5);
+            Console.WriteLine("e5 = " + e5);
+
+            Console.WriteLine("a6 = " + a6);
+            Console.WriteLine("b6 = " + b6);
+            Console.WriteLine("c6 = " + c6);
+            Console.WriteLine("d6 = " + d6);
+            Console.WriteLine("e6 = " + e6);
+            
+
+            Console.WriteLine("a7 = " + a7);
+            Console.WriteLine("b7 = " + b7);
+            Console.WriteLine("c7 = " + c7);
+            Console.WriteLine("d7 = " + d7);
+            Console.WriteLine("e7 = " + e7);
+
+            Console.WriteLine("a8 = " + a8);
+            Console.WriteLine("b8 = " + b8);
+            Console.WriteLine("c8 = " + c8);
+            Console.WriteLine("d8 = " + d8);
+            Console.WriteLine("e8 = " + e8);
 
             hxCsi[1 - 1] = 3.0 / 2.0 * (a5 * dNdCsi(5, csi, eta) - a8 * dNdCsi(8, csi, eta));
             hxCsi[2 - 1] = b5 * dNdCsi(5, csi, eta) - a8 * dNdCsi(8, csi, eta);
@@ -216,6 +281,31 @@ namespace GPC.Model.FEM.FiniteElements
             mnl.Vector<double> r2 = j11 * hyCsi + j12 * hyEta + j21 * hxCsi + j22 * hxEta;
             
             _b = mnl.Matrix<double>.Build.DenseOfRowVectors(r0, r1, r2);
+            Console.WriteLine("csi = " + csi + " eta = " + eta);
+            Console.WriteLine("B(csi,eta) matrix:" + _b);
+
+            Console.WriteLine("dH");
+            for (int i = 0; i < 12; i++)
+            {
+                Console.Write(hxCsi[i].ToString("F2") + " ");
+            }
+            Console.WriteLine();
+            for (int i = 0; i < 12; i++)
+            {
+                Console.Write(hxEta[i].ToString("F2") + " ");
+            }
+            Console.WriteLine();
+            for (int i = 0; i < 12; i++)
+            {
+                Console.Write(hyCsi[i].ToString("F2") + " ");
+            }
+            Console.WriteLine();
+            for (int i = 0; i < 12; i++)
+            {
+                Console.Write(hyEta[i].ToString("F2") + " ");
+            }
+            Console.WriteLine();
+            Console.WriteLine();
             return _b;
         }
 
@@ -264,7 +354,7 @@ namespace GPC.Model.FEM.FiniteElements
             }
         }*/
 
-            private double dNdCsi(int index, double csi, double eta)
+        private double dNdCsi(int index, double csi, double eta)
         {
             switch (index)
             {
@@ -314,5 +404,50 @@ namespace GPC.Model.FEM.FiniteElements
             }
         }
         #endregion
+        /// <summary>
+        /// out Local Node in clockwise
+        /// </summary>
+        /// <param name="localNodes"></param>
+        protected void LocalNodes(out Node[] localNodes)
+        {
+            #region CalculationOfLocalCoordinates
+            //Search for 3 local axis
+            Node nodeI = GlobalNodesElement[0];
+            Node nodeJ = GlobalNodesElement[1];
+            Node nodeK = GlobalNodesElement[2];
+            Node nodeL = GlobalNodesElement[3];
+
+            Vector3d x = new Vector3d(nodeJ.Position.X - nodeI.Position.X, nodeJ.Position.Y - nodeI.Position.Y, nodeJ.Position.Z - nodeI.Position.Z);
+            Vector3d vecx = new Vector3d(x);
+            vecx.Unitize();
+
+            Vector3d y = new Vector3d(nodeL.Position.X - nodeI.Position.X, nodeL.Position.Y - nodeI.Position.Y, nodeL.Position.Z - nodeI.Position.Z);
+            Vector3d vecy = new Vector3d(y);
+            vecy.Unitize();
+
+            Vector3d z = x.CrossProduct(y);
+            Vector3d vecz = new Vector3d(z);
+            vecz.Unitize();
+
+            //recalculation of y that can be non-ortogonal
+            y = z.CrossProduct(x);
+            vecy = new Vector3d(y);
+            vecy.Unitize();
+            //_vecXLocal = vecx.ToVector().ToArray();
+            _localCoordinateSystem = new Geometry.CoordinateSystem(new Point3d(0, 0, 0), vecx, vecy);
+
+            //move to local axis
+            //calculation in local nodes
+            Vector3d v12 = new Vector3d(nodeJ.Position.X - nodeI.Position.X, nodeJ.Position.Y - nodeI.Position.Y, nodeJ.Position.Z - nodeI.Position.Z);
+            Vector3d v13 = new Vector3d(nodeK.Position.X - nodeI.Position.X, nodeK.Position.Y - nodeI.Position.Y, nodeK.Position.Z - nodeI.Position.Z);
+            Vector3d v14 = new Vector3d(nodeL.Position.X - nodeI.Position.X, nodeL.Position.Y - nodeI.Position.Y, nodeL.Position.Z - nodeI.Position.Z);
+
+            localNodes = new Node[4];
+            localNodes[0] = new Node(0, 0, 0, nodeI.Id, nodeI.Name); //Origin GlobalNodes.ElementAt(1 - 1);
+            localNodes[1] = new Node(v12.DotProduct(vecx), v12.DotProduct(vecy), v12.DotProduct(vecz), nodeJ.Id, nodeJ.Name); //Axis x GlobalNodes.ElementAt(2 - 1);
+            localNodes[2] = new Node(v13.DotProduct(vecx), v13.DotProduct(vecy), v13.DotProduct(vecz), nodeK.Id, nodeK.Name); //GlobalNodes.ElementAt(3 - 1);
+            localNodes[3] = new Node(v14.DotProduct(vecx), v14.DotProduct(vecy), v14.DotProduct(vecz), nodeL.Id, nodeL.Name); //GlobalNodes.ElementAt(4 - 1);
+            #endregion
+        }
     }
 }

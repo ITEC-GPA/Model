@@ -66,6 +66,12 @@ namespace GPC.Model.FEMOld
                 _d[i] = -v.Y / length2;
                 _e[i] = (-0.5 * v.X * v.X + 0.25 * v.Y * v.Y) / length2;
 
+                Console.WriteLine("a" + (i + 5) + " = " + _a[i]);
+                Console.WriteLine("b" + (i + 5) + " = " + _b[i]);
+                Console.WriteLine("c" + (i + 5) + " = " + _c[i]);
+                Console.WriteLine("d" + (i + 5) + " = " + _d[i]);
+                Console.WriteLine("e" + (i + 5) + " = " + _e[i]);
+
                 double angle = Math.Atan2(v.X, -v.Y);
                 _Cu[i] = 0.0625 * length * Math.Cos(angle);
                 _Cv[i] = 0.0625 * length * Math.Sin(angle);
@@ -352,6 +358,25 @@ namespace GPC.Model.FEMOld
 
                     /// Compute Membranal Components of B matrix
                     BuildBending(ref _BbMatrix[i], ref _dHMatrix[i], _JInvMatrix[i]);
+                    Console.WriteLine("guass " + _gaussIntegrationPoints.Coords[i]);
+                    Console.WriteLine("Bb matrix = ");
+                    for (int r = 0; r < _BbMatrix[i].RowCount; r++)
+                    {
+                        for (int c = 0; c < _BbMatrix[i].ColumnCount; c++)
+                        {
+                            Console.Write(_BbMatrix[i][r,c].ToString("F2") + " ");
+                        }
+                        Console.WriteLine();
+                    }
+                    Console.WriteLine("dH matrix ");
+                    for (int r = 0; r < _dHMatrix[i].RowCount; r++)
+                    {
+                        for (int c = 0; c < _dHMatrix[i].ColumnCount; c++)
+                        {
+                            Console.Write(_dHMatrix[i][r, c].ToString("F2") + " ");
+                        }
+                        Console.WriteLine();
+                    }
 
                     /// Compute Mass Components
                     BuildMass(ref _NmassMatrix[i]);

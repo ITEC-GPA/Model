@@ -24,9 +24,9 @@ namespace GPC.Model.FEMOld
         /// <param name="_KbMatrix"> Stiffness matrix - Bending Components  </param>
         /// </summary>
         protected Matrix<double> _Dm;
-        protected Matrix<double> _Db;
+        public Matrix<double> _Db;
         protected Matrix<double>[] _BmMatrix;
-        protected Matrix<double>[] _BbMatrix;
+        public Matrix<double>[] _BbMatrix;
         protected Matrix<double>[] _dHMatrix;
         protected Matrix<double> _KmMatrix;
         protected Matrix<double> _KbMatrix;
