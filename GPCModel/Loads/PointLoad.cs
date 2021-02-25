@@ -1,11 +1,12 @@
 ﻿using GPC.Geometry;
 using GPC.Model.LoadCases;
 using System;
+using System.Collections.Generic;
 using System.Runtime.Serialization;
 
 namespace GPC.Model.Loads
 {
-    public class PointLoad : Load, IPointLoad
+    public sealed class PointLoad : Load, IPointLoad, IEquatable<PointLoad>
     {
         #region Variables
 
@@ -188,6 +189,58 @@ namespace GPC.Model.Loads
             return PointLoad;
         }
 
+        #endregion
+
+        #region Equals, HasCode and operators
+        
+        public bool Equals(PointLoad other)
+        {
+            if (ReferenceEquals(other, this))
+                return true;
+
+            if (other is null)
+                return false;
+
+            return _point.Equals(other._point) && _coordinateSystem.Equals(other._coordinateSystem)
+                                               && _f1.Equals(_f1) && _f2.Equals(_f2) && _f3.Equals(_f3)
+                                               && _m1.Equals(_m1) && _m2.Equals(_m2) && _m3.Equals(_m3) && base.Equals(other);
+        }
+
+        public override bool Equals(object obj)
+        {
+            return Equals(obj);
+        }
+
+        public override int GetHashCode()
+        {
+            int hashCode = -23;
+            hashCode = hashCode * -17 + base.GetHashCode();
+            hashCode = hashCode * -17 + _f1.GetHashCode();
+            hashCode = hashCode * -17 + _f2.GetHashCode();
+            hashCode = hashCode * -17 + _f3.GetHashCode();
+            hashCode = hashCode * -17 + _m1.GetHashCode();
+            hashCode = hashCode * -17 + _m2.GetHashCode();
+            hashCode = hashCode * -17 + _m3.GetHashCode();
+            hashCode = hashCode * -17 + EqualityComparer<CoordinateSystem>.Default.GetHashCode(_coordinateSystem);
+            hashCode = hashCode * -17 + EqualityComparer<Point3d>.Default.GetHashCode(_point);
+            return hashCode;
+        }
+
+        public static bool operator ==(PointLoad obj1, PointLoad obj2)
+        {
+            if (ReferenceEquals(obj1, obj2))
+                return true;
+
+            if (obj1 is null || obj2 is null)
+                return false;
+
+            return obj1.Equals(obj2);
+        }
+
+        public static bool operator !=(PointLoad obj1, PointLoad obj2)
+        {
+            return !(obj1 == obj2);
+        }
         #endregion
     }
 }

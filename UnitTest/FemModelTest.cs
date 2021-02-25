@@ -109,20 +109,22 @@ namespace FemTest
         #region Test
 
         [TestMethod]
-        public void Test1()
+        public void FemModelTest1()
         {
             // Arrange            
             Mesh mesh = CreateSimpleMesh(10, 10, 3, 5);
             GlassMaterial gm = new GlassMaterialAstm("", 1, 0.2, 3, 4, 5, 6, 0.008, 0.008, 9);
             PlateProperty pp = new PlateProperty(gm, 1, 2);
 
-
+            Dictionary<IPointLoad, int[]> pointLoads = new Dictionary<IPointLoad, int[]>();
+            pointLoads.Add(new PointLoad(1, 2, 3, 4, 5, 6, Point3d.Origin, new LoadCase("lc1", null)), new int[] { 0 });
+            pointLoads.Add(new PointLoad(1, 2, 3, 4, 5, 6, Point3d.Origin, new LoadCase("lc2", null)), new int[] { 1 });
+            pointLoads.Add(new PointLoad(1, 2, 3, 4, 5, 6, Point3d.Origin, new LoadCase("lc3", null)), new int[] { 2 });
 
             // Act
-
             FemModel femModel = new FemModel();
 
-            femModel.AddMesh(mesh, pp, null, null, null, null);
+            femModel.AddMesh(mesh, pp, null, pointLoads, null, null);
 
             Debugger.Break();
         }
