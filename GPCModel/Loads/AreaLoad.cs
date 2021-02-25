@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 namespace GPC.Model.Loads
 {
     [Serializable]
-    public class GlobalAreaLoad : Load, IAreaLoad
+    public class AreaLoad : Load, IAreaLoad
     {
         private double _p1;
         private double _p2;
@@ -27,13 +27,13 @@ namespace GPC.Model.Loads
         public Shape Shape => _shape;
         public CoordinateSystem CoordinateSystem => _coordinateSystem;
 
-        public GlobalAreaLoad(double p1, double p2, double p3, Shape shape, LoadCase loadCase, CoordinateSystem coordinateSystem)
+        public AreaLoad(double p1, double p2, double p3, Shape shape, LoadCase loadCase, CoordinateSystem coordinateSystem)
             : this(p1, p2, p3, shape, loadCase, coordinateSystem, Guid.NewGuid(), string.Empty)
         {
 
         }
 
-        public GlobalAreaLoad(double p1, double p2, double p3, Shape shape, LoadCase loadCase, CoordinateSystem coordinateSystem, Guid guid, string name)
+        public AreaLoad(double p1, double p2, double p3, Shape shape, LoadCase loadCase, CoordinateSystem coordinateSystem, Guid guid, string name)
             : base(loadCase, guid, name)
         {
             this._p1 = p1;
@@ -44,7 +44,7 @@ namespace GPC.Model.Loads
             this._coordinateSystem = coordinateSystem ?? throw new ArgumentNullException(nameof(coordinateSystem));
         }
 
-        public GlobalAreaLoad(SerializationInfo info, StreamingContext context) 
+        public AreaLoad(SerializationInfo info, StreamingContext context) 
             : base(info, context)
         {
             throw new NotImplementedException();
