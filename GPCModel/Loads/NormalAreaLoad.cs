@@ -15,14 +15,20 @@ namespace GPC.Model.Loads
         #region Properties
         public double Pressure => _pressure;
 
-        public Shape Shape => _shape; 
+        public Shape Shape => _shape;
 
         #endregion
 
         #region Public constructors 
+        
+        public NormalAreaLoad(double pressure, Shape shape, LoadCase loadCase)
+            : this(pressure, shape, loadCase, Guid.NewGuid(), string.Empty)
+        {
 
-        public NormalAreaLoad(double pressure, Shape shape, LoadCase loadCase, Guid guid)
-            : base(loadCase, guid)
+        }
+
+        public NormalAreaLoad(double pressure, Shape shape, LoadCase loadCase, Guid guid, string name)
+            : base(loadCase, guid, name)
         {
             this._pressure = pressure;
             this._shape = shape ?? throw new ArgumentNullException("Shape cannot be null");

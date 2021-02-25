@@ -12,10 +12,10 @@ namespace GPC.Model.Loads
 
         public LoadCase LoadCase => _loadCase;
 
-        protected Load(LoadCase loadCase, Guid guid)
-            : base(guid)
+        protected Load(LoadCase loadCase, Guid guid, string name)
+            : base(guid, name)
         {
-            _loadCase = loadCase;
+            _loadCase = loadCase ?? throw new ArgumentNullException(nameof(loadCase));
         }
 
         protected Load(SerializationInfo info, StreamingContext context)
