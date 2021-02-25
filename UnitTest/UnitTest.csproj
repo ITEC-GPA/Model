@@ -83,6 +83,7 @@
     <Compile Include="LoadTest.cs" />
     <Compile Include="PerformanceTest.cs" />
     <Compile Include="FemModel.cs" />
+    <Compile Include="UnitsTest.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
