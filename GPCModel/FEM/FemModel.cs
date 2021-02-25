@@ -213,21 +213,28 @@ namespace GPC.Model.FEM
 
 
             // Aggiorno lista proprietà
-            if (plateProperty is null && mesh.Faces.Count == 0)
-                throw new ArgumentNullException(nameof(plateProperty));
-            else
+
+            if (mesh.Faces.Count != 0)
             {
-                if (!_plateProperties.ContainsKey(plateProperty))
-                    _plateProperties[plateProperty] = _plateProperties.Values.Max() + 1;
+                if (plateProperty is null)
+                    throw new ArgumentNullException(nameof(plateProperty));
+                else
+                {
+                    if (!_plateProperties.ContainsKey(plateProperty))
+                        _plateProperties[plateProperty] = _plateProperties.Values.DefaultIfEmpty().Max() + 1;
+                }
             }
 
 
-            if (brickProperty is null && mesh.Faces.Count == 0)
-                throw new ArgumentNullException(nameof(brickProperty));
-            else
+            if (mesh.Volumes.Count != 0)
             {
-                if (!_brickProperties.ContainsKey(brickProperty))
-                    _brickProperties[brickProperty] = _brickProperties.Values.Max() + 1;
+                if (brickProperty is null )
+                    throw new ArgumentNullException(nameof(brickProperty));
+                else
+                {
+                    if (!_brickProperties.ContainsKey(brickProperty))
+                        _brickProperties[brickProperty] = _brickProperties.Values.DefaultIfEmpty().Max() + 1;
+                } 
             }
 
 
@@ -323,106 +330,115 @@ namespace GPC.Model.FEM
 
 
             // Gestione restrain 
-            foreach (var kvp in restrainMeshEntityMap)
+            if (restrainMeshEntityMap != null)
             {
-                GeometryRestrain geometryRestrain = kvp.Key;
-                int[] indexes = kvp.Value;
-
-                KeyValuePair<LinearSolver.DOF, bool>[] restrains = geometryRestrain.GetRestrains();
-                KeyValuePair<LinearSolver.DOF, double>[] stiffneses = geometryRestrain.GetStiffnesses();
-                KeyValuePair<LinearSolver.DOF, double>[] displacements = geometryRestrain.GetImposedDisplacement();
-
-
-                NodeRestrainAttribute nra = new NodeRestrainAttribute(geometryRestrain.FreedomCase, geometryRestrain.CoordinateSystem);
-                NodeStiffnessAttribute nsa = new NodeStiffnessAttribute(geometryRestrain.FreedomCase, geometryRestrain.CoordinateSystem);
-
-                // TODO:  gestire il fatto che uno spostamento imposto può essere applicato in un grado di libertà vincolato
-                foreach (var restrain in restrains)
+                foreach (var kvp in restrainMeshEntityMap)
                 {
-                    if (restrain.Value)
-                        nra.AddExternalRestrain(restrain.Key);
-                }
+                    GeometryRestrain geometryRestrain = kvp.Key;
+                    int[] indexes = kvp.Value;
 
-                foreach (var displacement in displacements)
-                {
-                    nra.AddImposedDisplacement(displacement.Key, displacement.Value);
-                }
-
-                foreach (var stiffness in stiffneses)
-                {
-                    nsa.AddStiffness(stiffness.Key, stiffness.Value);
-                }
+                    KeyValuePair<LinearSolver.DOF, bool>[] restrains = geometryRestrain.GetRestrains();
+                    KeyValuePair<LinearSolver.DOF, double>[] stiffneses = geometryRestrain.GetStiffnesses();
+                    KeyValuePair<LinearSolver.DOF, double>[] displacements = geometryRestrain.GetImposedDisplacement();
 
 
-                foreach (var index in indexes)
-                {
-                    int nodeId = nodesNewIndexMap.ContainsKey(index) ? nodesNewIndexMap[index] : index;
+                    NodeRestrainAttribute nra = new NodeRestrainAttribute(geometryRestrain.FreedomCase, geometryRestrain.CoordinateSystem);
+                    NodeStiffnessAttribute nsa = new NodeStiffnessAttribute(geometryRestrain.FreedomCase, geometryRestrain.CoordinateSystem);
 
-                    Node node = _nodes.GetElementById(nodeId); // se non trova l'indice viene lanciata una keynotfoundException
+                    // TODO:  gestire il fatto che uno spostamento imposto può essere applicato in un grado di libertà vincolato
+                    foreach (var restrain in restrains)
+                    {
+                        if (restrain.Value)
+                            nra.AddExternalRestrain(restrain.Key);
+                    }
 
-                    if (nra.Restrains.Count > 0)
-                        node.AddAttribute(nra);
+                    foreach (var displacement in displacements)
+                    {
+                        nra.AddImposedDisplacement(displacement.Key, displacement.Value);
+                    }
 
-                    if (nsa.Stiffnesses.Count > 0)
-                        node.AddAttribute(nsa);
-                }
+                    foreach (var stiffness in stiffneses)
+                    {
+                        nsa.AddStiffness(stiffness.Key, stiffness.Value);
+                    }
+
+
+                    foreach (var index in indexes)
+                    {
+                        int nodeId = nodesNewIndexMap.ContainsKey(index) ? nodesNewIndexMap[index] : index;
+
+                        Node node = _nodes.GetElementById(nodeId); // se non trova l'indice viene lanciata una keynotfoundException
+
+                        if (nra.Restrains.Count > 0)
+                            node.AddAttribute(nra);
+
+                        if (nsa.Stiffnesses.Count > 0)
+                            node.AddAttribute(nsa);
+                    }
+                } 
             }
 
             // Gestione carichi
-            foreach (var kvp in vertexLoadMeshEntityMap)
+            if (vertexLoadMeshEntityMap != null)
             {
-                IPointLoad load = kvp.Key;
-                int[] indexes = kvp.Value;
-
-                foreach(var index in indexes)
+                foreach (var kvp in vertexLoadMeshEntityMap)
                 {
-                    int nodeId = nodesNewIndexMap.ContainsKey(index) ? nodesNewIndexMap[index] : index;
+                    IPointLoad load = kvp.Key;
+                    int[] indexes = kvp.Value;
 
-                    Node node = _nodes.GetElementById(nodeId); // se non trova l'indice viene lanciata una keynotfoundException
-
-                    if (load is PointLoad pl)
+                    foreach (var index in indexes)
                     {
-                        NodeForceAttribute nfa = new NodeForceAttribute(pl.LoadCase, pl.CoordinateSystem, pl.F1, pl.F2, pl.F3, pl.M1, pl.M2, pl.M3);
-                        node.AddAttribute(nfa);
+                        int nodeId = nodesNewIndexMap.ContainsKey(index) ? nodesNewIndexMap[index] : index;
+
+                        Node node = _nodes.GetElementById(nodeId); // se non trova l'indice viene lanciata una keynotfoundException
+
+                        if (load is PointLoad pl)
+                        {
+                            NodeForceAttribute nfa = new NodeForceAttribute(pl.LoadCase, pl.CoordinateSystem, pl.F1, pl.F2, pl.F3, pl.M1, pl.M2, pl.M3);
+                            node.AddAttribute(nfa);
+                        }
+                        else
+                            throw new NotImplementedException();
                     }
-                    else
-                        throw new NotImplementedException();
-                }
+                } 
             }
-            
+
             // Gestione carichi
-            foreach (var kvp in plateLoadMeshEntityMap)
+            if (plateLoadMeshEntityMap != null)
             {
-                IAreaLoad load = kvp.Key;
-                int[] indexes = kvp.Value;
-
-                foreach (var index in indexes)
+                foreach (var kvp in plateLoadMeshEntityMap)
                 {
-                    int plateId = platesNewIndexMap.ContainsKey(index) ? platesNewIndexMap[index] : index;
+                    IAreaLoad load = kvp.Key;
+                    int[] indexes = kvp.Value;
 
-                    FiniteElement finiteElement = _elements.GetElementById(plateId); // se non trova l'indice viene lanciata una keynotfoundException
-
-                    Plate plate = finiteElement as Plate;
-
-                    if (plate is null)
-                        throw new ArgumentException($"Element with id: {plateId} {index} is not a plate");
-
-                    if (load is NormalAreaLoad pl)
+                    foreach (var index in indexes)
                     {
-                        PlateNormalPressureAttribute pna = new PlateNormalPressureAttribute(pl.LoadCase, pl.Pressure);
-                        plate.AddAttribute(pna);
-                    }
-                    else if (load is AreaLoad gal)
-                    {
-                        PlatePressureAttribute ppa = new PlatePressureAttribute(gal.LoadCase, gal.CoordinateSystem, gal.P1, gal.P2, gal.P3);
-                        plate.AddAttribute(ppa);
-                    }
-                    else
-                        throw new NotImplementedException();
+                        int plateId = platesNewIndexMap.ContainsKey(index) ? platesNewIndexMap[index] : index;
 
+                        FiniteElement finiteElement = _elements.GetElementById(plateId); // se non trova l'indice viene lanciata una keynotfoundException
+
+                        Plate plate = finiteElement as Plate;
+
+                        if (plate is null)
+                            throw new ArgumentException($"Element with id: {plateId} {index} is not a plate");
+
+                        if (load is NormalAreaLoad pl)
+                        {
+                            PlateNormalPressureAttribute pna = new PlateNormalPressureAttribute(pl.LoadCase, pl.Pressure);
+                            plate.AddAttribute(pna);
+                        }
+                        else if (load is AreaLoad gal)
+                        {
+                            PlatePressureAttribute ppa = new PlatePressureAttribute(gal.LoadCase, gal.CoordinateSystem, gal.P1, gal.P2, gal.P3);
+                            plate.AddAttribute(ppa);
+                        }
+                        else
+                            throw new NotImplementedException();
+
+                    }
                 }
-            }
 
+            }
         }
 
 
