@@ -620,10 +620,10 @@ namespace FemTest
             int[] Node3DoF = new int[] { 1, 1, 0, 0, 0, 1 };
             int[] Node4DoF = new int[] { 1, 1, 0, 0, 0, 1 };
 
-            GPC.Model.FEMOld.Node Node1 = new GPC.Model.FEMOld.Node(Guid.NewGuid(), new Point3d(-1.0, -1.0, 0.0), 1, NodeDoFID, Node1DoF);
-            GPC.Model.FEMOld.Node Node2 = new GPC.Model.FEMOld.Node(Guid.NewGuid(), new Point3d(+1.0, -1.0, 0.0), 2, NodeDoFID, Node2DoF);
-            GPC.Model.FEMOld.Node Node3 = new GPC.Model.FEMOld.Node(Guid.NewGuid(), new Point3d(+1.0, +1.0, 0.0), 3, NodeDoFID, Node3DoF);
-            GPC.Model.FEMOld.Node Node4 = new GPC.Model.FEMOld.Node(Guid.NewGuid(), new Point3d(-1.0, +1.0, 0.0), 4, NodeDoFID, Node4DoF);
+            GPC.Model.FEMOld.Node Node1 = new GPC.Model.FEMOld.Node(Guid.NewGuid(), new Point3d(0.0, 0.0, 0.0), 1, NodeDoFID, Node1DoF);
+            GPC.Model.FEMOld.Node Node2 = new GPC.Model.FEMOld.Node(Guid.NewGuid(), new Point3d(2.0, 0.0, 0.0), 2, NodeDoFID, Node2DoF);
+            GPC.Model.FEMOld.Node Node3 = new GPC.Model.FEMOld.Node(Guid.NewGuid(), new Point3d(2.0, 3.0, 0.0), 3, NodeDoFID, Node3DoF);
+            GPC.Model.FEMOld.Node Node4 = new GPC.Model.FEMOld.Node(Guid.NewGuid(), new Point3d(0.0, 3.0, 0.0), 4, NodeDoFID, Node4DoF);
 
             GPC.Model.FEMOld.Node[] nodes = new GPC.Model.FEMOld.Node[4];
             nodes[0] = Node1;
@@ -680,7 +680,7 @@ namespace FemTest
             RXRYRZ.AddRestrain(LinearSolver.DOF.RZ);*/
 
             Node[] nodesPlate1 = new Node[4];
-            nodesPlate1[0] = new Node(-1, -1, 0, 1, "1");
+            nodesPlate1[0] = new Node(1, -1, 0, 1, "1");
             nodesPlate1[1] = new Node(1, -1, 0, 2, "2");
             nodesPlate1[2] = new Node(1, 1, 0, 3, "3");
             nodesPlate1[3] = new Node(-1, 1, 0, 3, "4");
@@ -693,7 +693,45 @@ namespace FemTest
             {
                 for (int c = 0; c < e0.KElementLocalCoord.ColumnCount; c++)
                 {
-                    Console.Write(e0.KElementLocalCoord[r, c].ToString("F1") + " ");
+                    Console.Write(e0.KElementLocalCoord[r, c].ToString("F2") + " ");
+                }
+                Console.WriteLine();
+            }
+
+            //actually does not word
+            Assert.AreEqual(true, false);
+        }
+
+        [TestMethod]
+        public void RectangleDKTTest2()
+        {
+            //LoadCase loadCase = new LoadCase("myLoadCase", new Guid());
+            /*FreedomCase freedomCase = new FreedomCase("freedomCase1");*/
+
+            Material mat = new SteelMaterial("steel", 12, 0.0, 355, 510, 7850);
+            PlateProperty prop = new PlateProperty(mat, 1.0, 1.0);
+
+            /*CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
+            NodeRestrainAttribute RXRYRZ = new NodeRestrainAttribute(freedomCase, sys);
+            RXRYRZ.AddRestrain(LinearSolver.DOF.RX);
+            RXRYRZ.AddRestrain(LinearSolver.DOF.RY);
+            RXRYRZ.AddRestrain(LinearSolver.DOF.RZ);*/
+
+            Node[] nodesPlate1 = new Node[4];
+            nodesPlate1[0] = new Node(0, 0, 0, 1, "1");
+            nodesPlate1[1] = new Node(2, 0, 0, 2, "2");
+            nodesPlate1[2] = new Node(2, 3, 0, 3, "3");
+            nodesPlate1[3] = new Node(0, 3, 0, 3, "4");
+
+            FiniteElement e0 = new RectangularDK(nodesPlate1, prop, 1);
+            e0.BuildMatrix();
+
+            Console.WriteLine("Element local stiffness matrix");
+            for (int r = 0; r < e0.KElementLocalCoord.RowCount; r++)
+            {
+                for (int c = 0; c < e0.KElementLocalCoord.ColumnCount; c++)
+                {
+                    Console.Write(e0.KElementLocalCoord[r, c].ToString("F2") + " ");
                 }
                 Console.WriteLine();
             }

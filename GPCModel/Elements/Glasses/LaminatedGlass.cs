@@ -1,5 +1,6 @@
 ﻿using GPC.Utilities.Attributes;
 using System;
+using System.Linq;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
 
@@ -88,8 +89,8 @@ namespace GPC.Model.Elements.Glasses
             if (ReferenceEquals(this, other))
                 return true;
 
-            return !(other is null) && other._interlayers.Equals(_interlayers)
-                                    && other._monolithicGlasses.Equals(_monolithicGlasses) 
+            return !(other is null) && other._interlayers.SequenceEqual(_interlayers)
+                                    && other._monolithicGlasses.SequenceEqual(_monolithicGlasses) 
                                     && base.Equals(other);
         }
 
