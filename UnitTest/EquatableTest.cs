@@ -87,13 +87,13 @@ namespace GeneralTest
         }
 
         [TestMethod]
-        public void Test4()
+        public void LoadCase()
         {
-            LoadCase sdl1 = new LoadCase("SDL", LoadCase.LoadCaseType.SuperImposedDeadLoad, Guid.NewGuid());
-            LoadCase sdl2 = new LoadCase("SDL", LoadCase.LoadCaseType.SuperImposedDeadLoad, Guid.NewGuid());
-            LoadCasePrEn ldpr = new LoadCasePrEn("SDL", LoadCase.LoadCaseType.SuperImposedDeadLoad, LoadCasePrEn.LoadCasePrEnType.SnowCanopies, Guid.NewGuid());
+            LoadCase sdl1 = new LoadCase("SDL", GPC.Model.LoadCases.LoadCase.LoadCaseType.SuperImposedDeadLoad, Guid.NewGuid());
+            LoadCase sdl2 = new LoadCase("SDL", GPC.Model.LoadCases.LoadCase.LoadCaseType.SuperImposedDeadLoad, Guid.NewGuid());
+            LoadCasePrEn ldpr = new LoadCasePrEn("SDL", GPC.Model.LoadCases.LoadCase.LoadCaseType.SuperImposedDeadLoad, LoadCasePrEn.LoadCasePrEnType.SnowCanopies, Guid.NewGuid());
 
-            LoadCase lc3 = new LoadCasePrEn("SDL", LoadCase.LoadCaseType.SuperImposedDeadLoad, LoadCasePrEn.LoadCasePrEnType.SnowCanopies, Guid.NewGuid());
+            LoadCase lc3 = new LoadCasePrEn("SDL", GPC.Model.LoadCases.LoadCase.LoadCaseType.SuperImposedDeadLoad, LoadCasePrEn.LoadCasePrEnType.SnowCanopies, Guid.NewGuid());
 
             Assert.IsTrue(sdl1.Equals(ldpr));
             Assert.IsFalse(ldpr.Equals(sdl1));
@@ -102,6 +102,38 @@ namespace GeneralTest
             Assert.IsFalse(ldpr.Equals(sdl1));
 
             Assert.IsTrue(lc3.Equals(ldpr));
+
+        }
+
+
+        [TestMethod]
+        public void LaminatedGlass()
+        {
+            GlassMaterialEn16612 gm1 = new GlassMaterialEn16612("test", 10, 0.2, 30, GlassMaterialEn16612.GlassTypes.DrawnSheetGlass, GlassMaterialEn16612.SurfaceTreatments.AsProduced, GlassMaterialEn16612.PrestressTypes.Annealed, GlassMaterialEn16612.ManufactoringProcesses.HorizontalToughening, 20, 30);
+            GlassMaterialEn16612 gm2 = new GlassMaterialEn16612("test", 10, 0.2, 30, GlassMaterialEn16612.GlassTypes.DrawnSheetGlass, GlassMaterialEn16612.SurfaceTreatments.AsProduced, GlassMaterialEn16612.PrestressTypes.Annealed, GlassMaterialEn16612.ManufactoringProcesses.HorizontalToughening, 20, 30);
+
+            MonolithicGlass mg1 = new MonolithicGlass("test", 10, gm1);
+            MonolithicGlass mg2 = new MonolithicGlass("test", 10, gm2);
+
+            InterlayerMaterial im1 = new InterlayerMaterial("im", 1000, 2000, InterlayerMaterial.InterlayerType.AcusticPVB);
+            InterlayerMaterial im2 = new InterlayerMaterial("im", 1000, 2000, InterlayerMaterial.InterlayerType.AcusticPVB);
+
+            Interlayer intr1 = new Interlayer("int", 0.4, im1);
+            Interlayer intr2 = new Interlayer("int", 0.5, im2);
+
+            LaminatedGlass l1 = new LaminatedGlass("test", new MonolithicGlass[] { mg1, mg2 }, new Interlayer[] { intr1 });
+            LaminatedGlass l2 = new LaminatedGlass("test", new MonolithicGlass[] { mg1, mg2 }, new Interlayer[] { intr1 });
+            LaminatedGlass l3 = new LaminatedGlass("test", new MonolithicGlass[] { mg1, mg2 }, new Interlayer[] { intr2 });
+
+            Assert.IsTrue(gm1.Equals(gm2));
+            Assert.IsTrue(mg1.Equals(mg2));
+            Assert.IsTrue(im1.Equals(im2));
+
+            Assert.IsFalse(intr1.Equals(intr2));
+
+
+            Assert.IsTrue(l1.Equals(l2));
+            Assert.IsFalse(l1.Equals(l3));
 
         }
     }
