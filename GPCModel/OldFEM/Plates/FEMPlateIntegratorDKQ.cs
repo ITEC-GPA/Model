@@ -55,8 +55,8 @@ namespace GPC.Model.FEMOld
                 Node p0 = element.NodesLocal[i];
                 Node p1 = element.NodesLocal[(i + 1) % 4];
 
-                //Vector2d v = new Vector2d(p0.Position.X - p1.Position.X, p0.Position.Y - p1.Position.Y);
-                Vector2d v = new Vector2d(p1.Position.X - p0.Position.X, p1.Position.Y - p0.Position.Y);
+                Vector2d v = new Vector2d(p0.Position.X - p1.Position.X, p0.Position.Y - p1.Position.Y);
+                //Vector2d v = new Vector2d(p1.Position.X - p0.Position.X, p1.Position.Y - p0.Position.Y);
                 double length2 = Math.Pow(v.Length, 2.0);
                 double length = v.Length;
 
@@ -66,11 +66,11 @@ namespace GPC.Model.FEMOld
                 _d[i] = -v.Y / length2;
                 _e[i] = (-0.5 * v.X * v.X + 0.25 * v.Y * v.Y) / length2;
 
-                Console.WriteLine("a" + (i + 5) + " = " + _a[i]);
+                /*Console.WriteLine("a" + (i + 5) + " = " + _a[i]);
                 Console.WriteLine("b" + (i + 5) + " = " + _b[i]);
                 Console.WriteLine("c" + (i + 5) + " = " + _c[i]);
                 Console.WriteLine("d" + (i + 5) + " = " + _d[i]);
-                Console.WriteLine("e" + (i + 5) + " = " + _e[i]);
+                Console.WriteLine("e" + (i + 5) + " = " + _e[i]);*/
 
                 double angle = Math.Atan2(v.X, -v.Y);
                 _Cu[i] = 0.0625 * length * Math.Cos(angle);
@@ -166,6 +166,7 @@ namespace GPC.Model.FEMOld
                     int row = 2 + m;
                     dHMatrix[row, j] = 1.5 * (_d[t] * dNLoc[m, r] - _d[s] * dNLoc[m, q]);
                     dHMatrix[row, k] = -dNLoc[m, p] + _e[t] * dNLoc[m, r] + _e[s] * dNLoc[m, q];
+                    Console.WriteLine("dH["+row+","+k+"] = -" + dNLoc[m, p] + "+" + _e[t] + " * " + dNLoc[m, r] + " + " +  _e[s] + " * " + dNLoc[m, q] + "=" + dHMatrix[row, k]);
                     dHMatrix[row, n] = -_b[t] * dNLoc[m, r] - _b[s] * dNLoc[m, q];
                 }
             }
@@ -182,6 +183,11 @@ namespace GPC.Model.FEMOld
                 BpMatrix[1, i] = JInvMatrix[1, 0] * dHMatrix[2, i] + JInvMatrix[1, 1] * dHMatrix[3, i];
                 BpMatrix[2, i] = JInvMatrix[0, 0] * dHMatrix[2, i] + JInvMatrix[0, 1] * dHMatrix[3, i] +
                                  JInvMatrix[1, 0] * dHMatrix[0, i] + JInvMatrix[1, 1] * dHMatrix[1, i];
+                /*Console.WriteLine("j11 = " + JInvMatrix[0, 0]);
+                Console.WriteLine("j12 = " + JInvMatrix[0, 1]);
+                Console.WriteLine("j21 = " + JInvMatrix[1, 0]);
+                Console.WriteLine("j22 = " + JInvMatrix[1, 1]);
+                Console.WriteLine();*/
             }
         }
 
@@ -224,6 +230,7 @@ namespace GPC.Model.FEMOld
             for (int i = 0; i < _gaussIntegrationPoints.NumPoints; i++)
             {
                 double ar = _gaussIntegrationPoints.Weights[i] * _detJacobian[i];
+                Console.WriteLine("detJ(csi,eta) * weightgauss = " + ar);
                 scalD = ar * _Db;
                 gaussK = _BbMatrix[i].Transpose() * scalD * _BbMatrix[i];
                 _KbMatrix = _KbMatrix + gaussK;
