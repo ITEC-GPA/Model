@@ -37,7 +37,7 @@ namespace UnitTest
         [TestMethod]
         public void Test1()
         {
-            GlassMaterialEn16612 gm = new GlassMaterialEn16612("test", 10, 0.2, 30, GlassMaterialEn16612.GlassType.DrawnSheetGlass, GlassMaterialEn16612.SurfaceTreatment.AsProduced, GlassMaterialEn16612.PrestressType.Annealed, GlassMaterialEn16612.ManufactoringProcess.HorizontalToughening, 20, 30);
+            GlassMaterialEn16612 gm = new GlassMaterialEn16612("test", 10, 0.2, 30, GlassMaterialEn16612.GlassTypes.DrawnSheetGlass, GlassMaterialEn16612.SurfaceTreatments.AsProduced, GlassMaterialEn16612.PrestressTypes.Annealed, GlassMaterialEn16612.ManufactoringProcesses.HorizontalToughening, 20, 30);
             MonolithicGlass mg = new MonolithicGlass("test", 10, gm);
 
             MonolithicGlassProperty mgp1 = new MonolithicGlassProperty(mg);
@@ -51,7 +51,7 @@ namespace UnitTest
         [TestMethod]
         public void Test2()
         {
-            GlassMaterialEn16612 gm = new GlassMaterialEn16612("test", 10, 0.2, 30, GlassMaterialEn16612.GlassType.DrawnSheetGlass, GlassMaterialEn16612.SurfaceTreatment.AsProduced, GlassMaterialEn16612.PrestressType.Annealed, GlassMaterialEn16612.ManufactoringProcess.HorizontalToughening, 20, 30);
+            GlassMaterialEn16612 gm = new GlassMaterialEn16612("test", 10, 0.2, 30, GlassMaterialEn16612.GlassTypes.DrawnSheetGlass, GlassMaterialEn16612.SurfaceTreatments.AsProduced, GlassMaterialEn16612.PrestressTypes.Annealed, GlassMaterialEn16612.ManufactoringProcesses.HorizontalToughening, 20, 30);
 
             MonolithicGlass mg1 = new MonolithicGlass("test", 10, gm);
             MonolithicGlass mg2 = new MonolithicGlass("test", 10, gm);
@@ -69,8 +69,8 @@ namespace UnitTest
         [TestMethod]
         public void Test3()
         {
-            GlassMaterialEn16612 gm1 = new GlassMaterialEn16612("test", 10, 0.2, 30, GlassMaterialEn16612.GlassType.DrawnSheetGlass, GlassMaterialEn16612.SurfaceTreatment.AsProduced, GlassMaterialEn16612.PrestressType.Annealed, GlassMaterialEn16612.ManufactoringProcess.HorizontalToughening, 20, 30);
-            GlassMaterialEn16612 gm2 = new GlassMaterialEn16612("test", 10, 0.2, 30, GlassMaterialEn16612.GlassType.DrawnSheetGlass, GlassMaterialEn16612.SurfaceTreatment.AsProduced, GlassMaterialEn16612.PrestressType.Annealed, GlassMaterialEn16612.ManufactoringProcess.HorizontalToughening, 20, 30);
+            GlassMaterialEn16612 gm1 = new GlassMaterialEn16612("test", 10, 0.2, 30, GlassMaterialEn16612.GlassTypes.DrawnSheetGlass, GlassMaterialEn16612.SurfaceTreatments.AsProduced, GlassMaterialEn16612.PrestressTypes.Annealed, GlassMaterialEn16612.ManufactoringProcesses.HorizontalToughening, 20, 30);
+            GlassMaterialEn16612 gm2 = new GlassMaterialEn16612("test", 10, 0.2, 30, GlassMaterialEn16612.GlassTypes.DrawnSheetGlass, GlassMaterialEn16612.SurfaceTreatments.AsProduced, GlassMaterialEn16612.PrestressTypes.Annealed, GlassMaterialEn16612.ManufactoringProcesses.HorizontalToughening, 20, 30);
 
             MonolithicGlass mg1 = new MonolithicGlass("test", 10, gm1);
             MonolithicGlass mg2 = new MonolithicGlass("test", 10, gm2);
