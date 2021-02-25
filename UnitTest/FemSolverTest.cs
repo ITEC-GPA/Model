@@ -13,10 +13,10 @@ using GPC.Model.FEM.Properties;
 using GPC.Model.FEM.Attributes;
 using GPC.Model.LoadCases;
 
-namespace UnitTest
+namespace FemTest
 {
     [TestClass]
-    public class FEMTest
+    public class FemSolverTest
     {
         [TestMethod]
         public void EqualsNodesTest1()

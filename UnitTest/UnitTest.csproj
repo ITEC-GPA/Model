@@ -69,7 +69,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="DescriptionAttributesTest.cs" />
-    <Compile Include="FEMTest.cs" />
+    <Compile Include="FemSolverTest.cs" />
     <Compile Include="InterlayerMaterialTest.cs" />
     <Compile Include="ResultTest.cs" />
     <Compile Include="MaterialTest.cs" />
@@ -82,6 +82,7 @@
     <Compile Include="HashCodeTest.cs" />
     <Compile Include="LoadTest.cs" />
     <Compile Include="PerformanceTest.cs" />
+    <Compile Include="FemModel.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

@@ -29,8 +29,21 @@ namespace GPC.Model.Loads
 
         public CoordinateSystem CoordinateSystem => _coordinateSystem;
 
-        public LineLoad(double fx, double fy, double fz, double mx, double my, double mz, Line3d line, LoadCase loadCase, CoordinateSystem coordinateSystem, Guid guid) 
-            : base(loadCase, guid)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="fx">Unit measure [F/L]</param>
+        /// <param name="fy">Unit measure [F/L]</param>
+        /// <param name="fz">Unit measure [F/L]</param>
+        /// <param name="mx">Unit measure [FL/L]</param>
+        /// <param name="my">Unit measure [FL/L]</param>
+        /// <param name="mz">Unit measure [FL/L]</param>
+        /// <param name="line"></param>
+        /// <param name="loadCase"></param>
+        /// <param name="coordinateSystem"></param>
+        /// <param name="name"></param>
+        public LineLoad(double fx, double fy, double fz, double mx, double my, double mz, Line3d line, LoadCase loadCase, CoordinateSystem coordinateSystem, string name = "") 
+            : base(loadCase, Guid.NewGuid(), name)
         {
             _fX = fx;                                       
             _fY = fy;
@@ -42,14 +55,26 @@ namespace GPC.Model.Loads
             _line = line ?? throw new ArgumentNullException("Line cannot be null") ;
         }
 
-        public LineLoad(double fx, double fy, double fz, double mx, double my, double mz, Line3d line, LoadCase loadCase, Guid guid)
-            : this(fx, fy, fz, mx, my, mz, line, loadCase, CoordinateSystem.Global, guid)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="fx">Unit measure [F/L]</param>
+        /// <param name="fy">Unit measure [F/L]</param>
+        /// <param name="fz">Unit measure [F/L]</param>
+        /// <param name="mx">Unit measure [FL/L]</param>
+        /// <param name="my">Unit measure [FL/L]</param>
+        /// <param name="mz">Unit measure [FL/L]</param>
+        /// <param name="line"></param>
+        /// <param name="loadCase"></param>
+        /// <remarks> <see cref="CoordinateSystem"/> set to Global </remarks>
+        public LineLoad(double fx, double fy, double fz, double mx, double my, double mz, Line3d line, LoadCase loadCase, string name = "")
+            : this(fx, fy, fz, mx, my, mz, line, loadCase, CoordinateSystem.Global, name)
         {
 
         }
 
-        public LineLoad(Vector3d force, Vector3d moment, Line3d line, LoadCase loadCase, CoordinateSystem cSys, Guid guid)
-            : this(force.X, force.Y, force.Z, moment.X, moment.Y, moment.Z, line, loadCase, cSys, guid)
+        public LineLoad(Vector3d force, Vector3d moment, Line3d line, LoadCase loadCase, CoordinateSystem cSys)
+            : this(force.X, force.Y, force.Z, moment.X, moment.Y, moment.Z, line, loadCase, cSys)
         {
             
         }

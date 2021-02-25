@@ -3,7 +3,7 @@ using System;
 using System.Reflection;
 using GPC.Utilities.Attributes;
 
-namespace UnitTest
+namespace GeneralTest
 {
     [TestClass]
     public class DescriptionAttributesTest

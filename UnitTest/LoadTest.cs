@@ -5,7 +5,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.IO;
 
-namespace UnitTest
+namespace ModelObjectTest
 {
     [TestClass]
     public class LoadTest
@@ -26,16 +26,16 @@ namespace UnitTest
 
             LoadCase LoadCase = new LoadCase("SelfWeight", loadCaseType: GPC.Model.LoadCases.LoadCase.LoadCaseType.SelfWeight);
 
-            PointLoad pl1 = new PointLoad(force, moment, point, LoadCase, CoordinateSystem1, new Guid());
+            PointLoad pl1 = new PointLoad(force, moment, point, LoadCase, CoordinateSystem1);
 
             // PointLoad previsto nel globale
             Vector3d expForce = new Vector3d(0, 1, 0);
             Vector3d expMoment = new Vector3d(0, 0, 1);
             Point3d expPoint = new Point3d(3, 0, 0);
 
-            PointLoad expl1 = new PointLoad(expForce, expMoment, expPoint, LoadCase, CoordinateSystem.Global, Guid.NewGuid());
+            PointLoad expl1 = new PointLoad(expForce, expMoment, expPoint, LoadCase, CoordinateSystem.Global);
 
-            PointLoad pl2 = new PointLoad(expForce, expMoment, expPoint, LoadCase, CoordinateSystem.Global, Guid.NewGuid());
+            PointLoad pl2 = new PointLoad(expForce, expMoment, expPoint, LoadCase, CoordinateSystem.Global);
 
             pl1.ToGlobal();
 
@@ -85,16 +85,16 @@ namespace UnitTest
 
             LoadCase LoadCase = new LoadCase("SelfWeight", loadCaseType: GPC.Model.LoadCases.LoadCase.LoadCaseType.SelfWeight);
 
-            PointLoad pl1 = new PointLoad(force, moment, point, LoadCase, CoordinateSystem1, new Guid());
+            PointLoad pl1 = new PointLoad(force, moment, point, LoadCase, CoordinateSystem1);
 
             // PointLoad previsto nel globale
             Vector3d expForce = new Vector3d(+1,-1, -1);
             Vector3d expMoment = new Vector3d(-1, +1, 0);
             Point3d expPoint = new Point3d(1, -2, 5);
 
-            PointLoad expl1 = new PointLoad(expForce, expMoment, expPoint, LoadCase, CoordinateSystem.Global, Guid.NewGuid());
+            PointLoad expl1 = new PointLoad(expForce, expMoment, expPoint, LoadCase, CoordinateSystem.Global);
 
-            PointLoad pl2 = new PointLoad(expForce, expMoment, expPoint, LoadCase, CoordinateSystem.Global, Guid.NewGuid());
+            PointLoad pl2 = new PointLoad(expForce, expMoment, expPoint, LoadCase, CoordinateSystem.Global);
 
             pl1.ToGlobal();
 
@@ -144,16 +144,16 @@ namespace UnitTest
 
             LoadCase LoadCase = new LoadCase("SelfWeight", loadCaseType: GPC.Model.LoadCases.LoadCase.LoadCaseType.SelfWeight);
 
-            PointLoad pl1 = new PointLoad(force, moment, point, LoadCase, CoordinateSystem1, new Guid());
+            PointLoad pl1 = new PointLoad(force, moment, point, LoadCase, CoordinateSystem1);
 
             // PointLoad previsto nel globale
             Vector3d expForce = new Vector3d(+1, +1, +1);
             Vector3d expMoment = new Vector3d(-1, -1, -1);
             Point3d expPoint = new Point3d(0, 0, 0);
 
-            PointLoad expl1 = new PointLoad(expForce, expMoment, expPoint, LoadCase, CoordinateSystem.Global, Guid.NewGuid());
+            PointLoad expl1 = new PointLoad(expForce, expMoment, expPoint, LoadCase, CoordinateSystem.Global);
 
-            PointLoad pl2 = new PointLoad(expForce, expMoment, expPoint, LoadCase, CoordinateSystem.Global, Guid.NewGuid());
+            PointLoad pl2 = new PointLoad(expForce, expMoment, expPoint, LoadCase, CoordinateSystem.Global);
 
             pl1.ToGlobal();
 
@@ -205,16 +205,16 @@ namespace UnitTest
 
             LoadCase LoadCase = new LoadCase("SelfWeight", loadCaseType: GPC.Model.LoadCases.LoadCase.LoadCaseType.SelfWeight);
 
-            LineLoad ll1 = new LineLoad(force, moment, line, LoadCase, CoordinateSystem1, new Guid());
+            LineLoad ll1 = new LineLoad(force, moment, line, LoadCase, CoordinateSystem1);
 
             // PointLoad previsto nel globale
             Vector3d expForce = new Vector3d(0, 1, 0);
             Vector3d expMoment = new Vector3d(0, 0, 1);
             Point3d expPoint = new Point3d(3, 0, 0);
 
-            PointLoad expl1 = new PointLoad(expForce, expMoment, expPoint, LoadCase, CoordinateSystem.Global, Guid.NewGuid());
+            PointLoad expl1 = new PointLoad(expForce, expMoment, expPoint, LoadCase, CoordinateSystem.Global);
 
-            PointLoad pl2 = new PointLoad(expForce, expMoment, expPoint, LoadCase, CoordinateSystem.Global, Guid.NewGuid());
+            PointLoad pl2 = new PointLoad(expForce, expMoment, expPoint, LoadCase, CoordinateSystem.Global);
 
             ll1.ToGlobal();
 

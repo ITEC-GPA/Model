@@ -6,7 +6,7 @@ using GPC.Model.Elements.Glasses;
 using GPC.Model.Materials;
 using GPC.Model.FEM.Properties;
 
-namespace UnitTest
+namespace GeneralTest
 {
     [TestClass]
     public class HashCodeTest

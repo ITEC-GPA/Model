@@ -8,7 +8,7 @@ using GPC.Model.FEM.Properties;
 using System;
 using System.IO;
 
-namespace UnitTest
+namespace GeneralTest
 {
     [TestClass]
     public class EquatableTest
