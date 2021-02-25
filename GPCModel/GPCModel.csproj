@@ -143,7 +143,7 @@
     <Compile Include="Materials\RebarMaterial.cs" />
     <Compile Include="Materials\SiliconMaterial.cs" />
     <Compile Include="Materials\SteelMaterial.cs" />
-    <Compile Include="ModelObject\ModelObject.cs" />
+    <Compile Include="Base\ModelObject.cs" />
     <Compile Include="OldFEM\Attributes\Attribute.cs" />
     <Compile Include="OldFEM\Attributes\IBeamFemAttribute.cs" />
     <Compile Include="OldFEM\Attributes\INodeFemAttribute.cs" />
