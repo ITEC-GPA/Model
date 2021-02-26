@@ -11,6 +11,7 @@ using GPC.Model.FreedomCases;
 using GPC.Model.FEM;
 using GPC.Model.FEM.Properties;
 using GPC.Model.FEM.Attributes;
+using GPC.Model.Restrains;
 using System.Diagnostics;
 
 namespace FemTest
@@ -136,7 +137,14 @@ namespace FemTest
         [TestMethod]
         public void FemModelTest1()
         {
-            // Arrange            
+            // Arrange   
+            Polygon3d p1 = new Polygon3d()
+            {
+                new Point3d(0,0,0),
+                new Point3d(1,0,0),
+                new Point3d(2,0,0)
+            };
+
             Mesh mesh = CreateSimpleMesh(10, 10, 3, 5, 2, 20);
             Mesh mesh2 = CreateSimpleMesh(10, 10, 3, 5, 0, 0);
 
@@ -151,15 +159,26 @@ namespace FemTest
             pointLoads.Add(new PointLoad(1, 2, 3, 4, 5, 6, Point3d.Origin, new LoadCase("lc3", null)), new int[] { 3 });
 
             Dictionary<IAreaLoad, int[]> plateLoads = new Dictionary<IAreaLoad, int[]>();
-            plateLoads.Add(new AreaLoad(1, 2, 3, null, new LoadCase("lc1", null)), new int[] { 1 });
+            plateLoads.Add(new AreaLoad(1, 2, 3, new Shape(p1), new LoadCase("lc1", null)), new int[] { 1 });
+            plateLoads.Add(new AreaLoad(1, 2, 3, new Shape(p1), new LoadCase("lc2", null)), new int[] { 2 });
+            plateLoads.Add(new AreaLoad(1, 2, 3, new Shape(p1), new LoadCase("lc3", null)), new int[] { 3 });
+
+            Dictionary<GeometryRestrain, int[]> geometryRestrains = new Dictionary<GeometryRestrain, int[]>();
+            
+            geometryRestrains.Add(new PointRestrain(Point3d.Origin, new FreedomCase("fc1"), CoordinateSystem.Global, new List<DofRestrain> { new DofRestrain(LinearSolver.DOF.DX) } ), new int[] { 1 }) ;
+            geometryRestrains.Add(new PointRestrain(Point3d.Origin, new FreedomCase("fc2"), CoordinateSystem.Global, new List<DofRestrain> { new DofRestrain(LinearSolver.DOF.DX) } ), new int[] { 2 }) ;
+            geometryRestrains.Add(new PointRestrain(Point3d.Origin, new FreedomCase("fc3"), CoordinateSystem.Global, new List<DofRestrain> { new DofRestrain(LinearSolver.DOF.DX) } ), new int[] { 3 });
 
 
             // Act
             FemModel femModel = new FemModel();
 
-            femModel.AddMesh(mesh, pp, bp, pointLoads, null, null);
+            femModel.AddMesh(mesh, pp, bp, pointLoads, plateLoads, geometryRestrains);
 
             Debugger.Break();
+            // Assert
+            
+
         }
 
         #endregion

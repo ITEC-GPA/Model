@@ -338,9 +338,9 @@ namespace GPC.Model.FEM
                     GeometryRestrain geometryRestrain = kvp.Key;
                     int[] indexes = kvp.Value;
 
-                    KeyValuePair<LinearSolver.DOF, bool>[] restrains = geometryRestrain.GetRestrains();
-                    KeyValuePair<LinearSolver.DOF, double>[] stiffneses = geometryRestrain.GetStiffnesses();
-                    KeyValuePair<LinearSolver.DOF, double>[] displacements = geometryRestrain.GetImposedDisplacement();
+                    Dictionary<LinearSolver.DOF, bool>  restrains = geometryRestrain.GetRestrains();
+                    Dictionary<LinearSolver.DOF, double>  stiffneses = geometryRestrain.GetStiffnesses();
+                    Dictionary<LinearSolver.DOF, double>  displacements = geometryRestrain.GetImposedDisplacement();
 
 
                     NodeRestrainAttribute nra = new NodeRestrainAttribute(geometryRestrain.FreedomCase, geometryRestrain.CoordinateSystem);
