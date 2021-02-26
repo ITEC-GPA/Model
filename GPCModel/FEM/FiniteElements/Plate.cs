@@ -11,6 +11,10 @@ namespace GPC.Model.FEM.FiniteElements
 {
     public class Plate : FiniteElement
     {
+        public bool IsTriangle => Nodes.Length == 3 ? true : false;
+
+        public bool IsQuad => Nodes.Length == 4 ? true : false;
+
         public Plate(Node[] nodes, PlateProperty property, int id) : base (nodes, property, id)
         {
            
