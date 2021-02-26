@@ -130,6 +130,7 @@ namespace GPC.Model.FEM.FiniteElements
             _attributes = new List<IPlateLoadCaseAttribute>();
             _DOF = new SortedSet<LinearSolver.DOF>();
         }
+
         #endregion
 
         #region PublicFunction
@@ -154,6 +155,15 @@ namespace GPC.Model.FEM.FiniteElements
         public void AddAttribute(IPlateLoadCaseAttribute attribute)
         {
             _attributes.Add(attribute);
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns>An array of <see cref="FEMObject.Id"/>of the element Nodes</returns>
+        public int[] GetNodesID()
+        {
+            return Nodes.Select(i => i.Id).ToArray();
         }
 
         public override bool Equals(object obj)
