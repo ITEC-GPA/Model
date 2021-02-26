@@ -129,6 +129,19 @@ namespace FemTest
             MeshExport.ExportToMshFormatv2(Path.Combine(_outputFolder, $"{_testName}Mesh.msh"), new List<Mesh>() { mesh });
         }
 
+        private Shape CreateSimpleShape(double width, double height)
+        {
+            Polygon3d p = new Polygon3d()
+            {
+                new Point3d(0,0,0),
+                new Point3d(width, 0, 0),
+                new Point3d(width, height, 0),
+                new Point3d(0, height, 0)
+            };
+
+            return new Shape(p);
+        }
+
         #endregion
 
 
@@ -158,6 +171,10 @@ namespace FemTest
             pointLoads.Add(new PointLoad(1, 2, 3, 4, 5, 6, Point3d.Origin, new LoadCase("lc2", null)), new int[] { 2 });
             pointLoads.Add(new PointLoad(1, 2, 3, 4, 5, 6, Point3d.Origin, new LoadCase("lc3", null)), new int[] { 3 });
 
+            Dictionary<ILineLoad, int[]> lineLoads = new Dictionary<ILineLoad, int[]>();
+            lineLoads.Add(new LineLoad(1, 2, 3, 4, 5, 6, new Line3d(Point3d.Origin, new Point3d(10, 20, 0)), new LoadCase("lc1", null)), new int[] { 1 });
+
+
             Dictionary<IAreaLoad, int[]> plateLoads = new Dictionary<IAreaLoad, int[]>();
             plateLoads.Add(new AreaLoad(1, 2, 3, new Shape(p1), new LoadCase("lc1", null)), new int[] { 1 });
             plateLoads.Add(new AreaLoad(1, 2, 3, new Shape(p1), new LoadCase("lc2", null)), new int[] { 2 });
@@ -173,11 +190,55 @@ namespace FemTest
             // Act
             FemModel femModel = new FemModel();
 
-            femModel.AddMesh(mesh, pp, bp, pointLoads, plateLoads, geometryRestrains);
+            femModel.AddMesh(mesh, pp, bp, pointLoads, lineLoads, plateLoads, geometryRestrains);
 
-            Debugger.Break();
-            // Assert
-            
+
+            // Assert            
+
+        }
+
+
+        [TestMethod]
+        public void FemModelTest2()
+        {
+            // Arrange
+
+            Polygon3d p1 = new Polygon3d()
+            {
+                new Point3d(0, 0, 0),
+                new Point3d(1, 0, 0),
+                new Point3d(2, 0, 0)
+            };
+
+            Shape s = CreateSimpleShape(100, 200);
+
+
+            GlassMaterial gm = new GlassMaterialAstm("", 1, 0.2, 3, 4, 5, 6, 0.008, 0.008, 9);
+            PlateProperty pp = new PlateProperty(gm, 1, 2);
+
+            BrickProperty bp = new BrickProperty(gm);
+
+            List<Load> loads = new List<Load>();
+
+            loads.Add(new PointLoad(1, 2, 3, 4, 5, 6, Point3d.Origin, new LoadCase("lc1", null)));
+            loads.Add(new LineLoad(1, 2, 3, 4, 5, 6, new Line3d(new Point3d(50, 50, 0), new Point3d(100, 100, 0)), new LoadCase("lc2", null)));
+
+            List<GeometryRestrain> restrains = new List<GeometryRestrain>();
+            restrains.Add(new PointRestrain(Point3d.Origin, new FreedomCase("fc1"), CoordinateSystem.Global, new List<DofRestrain> { new DofRestrain(LinearSolver.DOF.DX) }));
+            restrains.Add(new PointRestrain(Point3d.Origin, new FreedomCase("fc2"), CoordinateSystem.Global, new List<DofRestrain> { new DofRestrain(LinearSolver.DOF.DX) }));
+
+
+            // Act
+            FemModel femModel = new FemModel();
+
+            Mesh.GenerateMeshOptions.Size = 10;
+
+            femModel.AddShape(s, pp, loads, restrains);
+
+            var mesh = femModel.GetMesh();
+            ExportMesh(mesh);
+
+            // Assert            
 
         }
 
