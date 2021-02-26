@@ -109,12 +109,10 @@
     <Compile Include="FEM\FiniteElements\FiniteElement.cs" />
     <Compile Include="FEM\FiniteElements\PlateTriangle\TriangleElement.cs" />
     <Compile Include="FEM\FiniteElements\PlateTriangle\TriangularDK.cs" />
-    <Compile Include="FEM\FiniteElements\PlateTriangle\TriangularFlexural.cs" />
     <Compile Include="FEM\FiniteElements\Rectangular\RectangularDK.cs" />
     <Compile Include="FEM\Node.cs" />
     <Compile Include="FEM\FiniteElements\Brick.cs" />
     <Compile Include="FEM\FiniteElements\Plate.cs" />
-    <Compile Include="FEM\FiniteElements\VoidElement.cs" />
     <Compile Include="FEM\FiniteElements\PlateTriangle\TriangularMembranal.cs" />
     <Compile Include="FEM\LinearSolver.cs" />
     <Compile Include="FEM\MyMath\Polynome.cs" />

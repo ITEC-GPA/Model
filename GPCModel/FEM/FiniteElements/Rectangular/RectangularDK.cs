@@ -119,10 +119,53 @@ namespace GPC.Model.FEM.FiniteElements
             //Console.WriteLine("Db = " + _d.ToString());
             #endregion
 
-            //4 Gauss Integration points
-            double[] csiGauss = new [] { -1.0 / Math.Pow(3,0.5), 1.0 / Math.Pow(3, 0.5)};
-            double[] etaGauss = new[] { -1.0 / Math.Pow(3, 0.5), 1.0 / Math.Pow(3, 0.5) };
-            double[] weightGauss = new[] { 1.0, 1.0};
+            //4 Gauss Integration points - Sufficient but **probably** not exact
+            double[] csiGauss = new [] {
+                -1.0 / Math.Pow(3,0.5),
+                1.0 / Math.Pow(3, 0.5)
+            };
+            double[] etaGauss = new[] {
+                -1.0 / Math.Pow(3, 0.5),
+                1.0 / Math.Pow(3, 0.5)
+            };
+            double[] weightGauss = new[] {
+                1.0,
+                1.0
+            };
+            
+            /*double[] csiGauss = new[] { //probably integration exact
+                -Math.Sqrt(3.0 / 5.0),  //1
+                0.0,                    //2
+                +Math.Sqrt(3.0 / 5.0),  //3
+                -Math.Sqrt(3.0 / 5.0),  //4
+                0.0,                    //5
+                +Math.Sqrt(3.0 / 5.0),  //6
+                -Math.Sqrt(3.0 / 5.0),  //7
+                0.0,                    //4
+                +Math.Sqrt(3.0 / 5.0)   //9
+            };
+            double[] etaGauss = new[] {
+                -Math.Sqrt(3.0 / 5.0),  //1
+                -Math.Sqrt(3.0 / 5.0),  //2
+                -Math.Sqrt(3.0 / 5.0),  //3
+                0.0,                    //4
+                0.0,                    //5
+                0.0,                    //6
+                Math.Sqrt(3.0 / 5.0),   //7
+                Math.Sqrt(3.0 / 5.0),   //4
+                Math.Sqrt(3.0 / 5.0)    //9
+            };
+            double[] weightGauss = new[] {
+                25.0 / 81.0,  //1
+                40.0 / 81.0,  //2
+                25.0 / 81.0,  //3
+                40.0 / 81.0,  //4
+                64.0 / 81.0,  //5
+                40.0 / 81.0,  //6
+                25.0 / 81.0,  //7
+                40.0 / 81.0,  //4
+                25.0 / 81.0   //9
+            };*/
 
             //calculation of kelement using gauss quadrature
             _kElementLocalCoord = mnl.Matrix<double>.Build.Dense(12, 12);
@@ -138,6 +181,17 @@ namespace GPC.Model.FEM.FiniteElements
                     _kElementLocalCoord = _kElementLocalCoord + m;
                 }
             }
+
+            /*for (int i = 0; i < csiGauss.Length; i++)
+            {
+                double csi = csiGauss[i];                
+                double eta = etaGauss[i];
+                mnl.Matrix<double> b = B(csi, eta);
+                //Console.WriteLine("b(csi="+csi+",eta="+eta+")" + b);
+                    
+                mnl.Matrix<double> m = weightGauss[i] * b.Transpose() * _d * b * getDetJ(csi, eta);
+                _kElementLocalCoord = _kElementLocalCoord + m;  
+            }*/
         }
 
         protected override mnl.Vector<double> BuildFLocalCoord()
@@ -272,7 +326,7 @@ namespace GPC.Model.FEM.FiniteElements
             
             hyCsi[1 - 1] = 3.0 / 2.0 * (d5 * dNdCsi(5, csi, eta) - d8 * dNdCsi(8, csi, eta));
             hyCsi[2 - 1] = -dNdCsi(1, csi, eta) + e5 * dNdCsi(5, csi, eta) + e8 * dNdCsi(8, csi, eta);
-            //Console.WriteLine("hy,csi[2-1=1]("+csi.ToString("F2")+","+eta.ToString("F2") + ") = -" + dNdCsi(1, csi, eta).ToString("F2") + "+" + e5.ToString("F2") + " * " + dNdCsi(5, eta, csi).ToString("F2") + " + " + e8.ToString("F2") + " * "+ dNdCsi(8, csi, eta).ToString("F2") + "=" + hyCsi[2 - 1]);
+            //Console.WriteLine("hy,csi[2-1=1]("+csi.ToString("F2")+","+eta.ToString("F2") + ") = -" + dNdCsi(1, csi, eta).ToString("F2") + "+" + e5.ToString("F2") + " * " + dNdCsi(5, csi, eta).ToString("F2") + " + " + e8.ToString("F2") + " * "+ dNdCsi(8, csi, eta).ToString("F2") + "=" + hyCsi[2 - 1]);
             hyCsi[3 - 1] = -b5 * dNdCsi(5, csi, eta) - b8 * dNdCsi(8, csi, eta);
 
             hyCsi[4 - 1] = 3.0 / 2.0 * (d6 * dNdCsi(6, csi, eta) - d5 * dNdCsi(5, csi, eta));

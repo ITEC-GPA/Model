@@ -570,8 +570,8 @@ namespace FemTest
             //LoadCase loadCase = new LoadCase("myLoadCase", new Guid());
             /*FreedomCase freedomCase = new FreedomCase("freedomCase1");*/
 
-            Material mat = new SteelMaterial("steel", 200000, 0.2, 355, 510, 7850);
-            PlateProperty prop = new PlateProperty(mat, 1.0, 0);
+            Material mat = new SteelMaterial("steel", 12, 0.0, 355, 510, 7850);
+            PlateProperty prop = new PlateProperty(mat, 1.0, 1.0);
 
             /*CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
             NodeRestrainAttribute RXRYRZ = new NodeRestrainAttribute(freedomCase, sys);
