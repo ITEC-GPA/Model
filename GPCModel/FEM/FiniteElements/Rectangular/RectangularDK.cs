@@ -491,10 +491,10 @@ namespace GPC.Model.FEM.FiniteElements
         {
 #region CalculationOfLocalCoordinates
             //Search for 3 local axis
-            Node nodeI = GlobalNodesElement[0];
-            Node nodeJ = GlobalNodesElement[1];
-            Node nodeK = GlobalNodesElement[2];
-            Node nodeL = GlobalNodesElement[3];
+            Node nodeI = Nodes[0];
+            Node nodeJ = Nodes[1];
+            Node nodeK = Nodes[2];
+            Node nodeL = Nodes[3];
 
             Vector3d x = new Vector3d(nodeJ.Position.X - nodeI.Position.X, nodeJ.Position.Y - nodeI.Position.Y, nodeJ.Position.Z - nodeI.Position.Z);
             Vector3d vecx = new Vector3d(x);

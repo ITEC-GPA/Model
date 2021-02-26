@@ -27,6 +27,8 @@ namespace GPC.Model.FEM.FiniteElements
         protected mnl.Matrix<double> _d;
         protected ElementProperty _property;
         protected List<IPlateLoadCaseAttribute> _attributes;
+
+        protected Node[] _nodes;
         #endregion
 
         #region Properties
@@ -84,9 +86,9 @@ namespace GPC.Model.FEM.FiniteElements
         }
 
         /// <summary>
-        /// Node with in gloabal coordinate system
+        /// Nodes of the element
         /// </summary>
-        public Node[] GlobalNodesElement { get; }
+        public Node[] Nodes => _nodes;
 
         /// <summary>
         /// used for KeGlobal = DofGlobalToLocal^T [KeLocal] [DofGlobaltoLocal] or for UlocalCoord = DofGlobalToLocal UglobalCoord; NOTE: DofLocalToGlobal = DofGlobalToLocal^TRASPOSTE
@@ -115,18 +117,20 @@ namespace GPC.Model.FEM.FiniteElements
         #endregion
 
         #region Constructor
+
         /// <summary>
-        /// Constructor 
+        ///  
         /// </summary>
-        /// <param name="nodes">Set the nodes of element</param>
+        /// <param name="nodes">Nodes of the element</param>
         /// <param name="id">id of element</param>
         public FiniteElement(Node[] nodes, ElementProperty property, int id) : base(id)
         {
-            GlobalNodesElement = nodes;
+            _nodes = nodes;
             _property = property;
             _attributes = new List<IPlateLoadCaseAttribute>();
             _DOF = new SortedSet<LinearSolver.DOF>();
         }
+
         #endregion
 
         #region PublicFunction
@@ -153,12 +157,21 @@ namespace GPC.Model.FEM.FiniteElements
             _attributes.Add(attribute);
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns>An array of <see cref="FEMObject.Id"/>of the element Nodes</returns>
+        public int[] GetNodesID()
+        {
+            return Nodes.Select(i => i.Id).ToArray();
+        }
+
         public override bool Equals(object obj)
         {
             return obj is FiniteElement element &&
                    base.Equals(obj) &&
                    EqualityComparer<ElementProperty>.Default.Equals(_property, element._property) &&
-                   EqualityComparer<Node[]>.Default.Equals(GlobalNodesElement, element.GlobalNodesElement);
+                   EqualityComparer<Node[]>.Default.Equals(Nodes, element.Nodes);
         }
 
         public override int GetHashCode()
@@ -166,7 +179,7 @@ namespace GPC.Model.FEM.FiniteElements
             int hashCode = 1596002646;
             hashCode = hashCode * -1521134295 + base.GetHashCode();
             hashCode = hashCode * -1521134295 + EqualityComparer<ElementProperty>.Default.GetHashCode(_property);
-            hashCode = hashCode * -1521134295 + EqualityComparer<Node[]>.Default.GetHashCode(GlobalNodesElement);
+            hashCode = hashCode * -1521134295 + EqualityComparer<Node[]>.Default.GetHashCode(Nodes);
             return hashCode;
         }
         #endregion

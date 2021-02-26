@@ -44,8 +44,8 @@
     <Reference Include="GMsh.Net, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\GMsh.Net.1.0.0.1\lib\net472\GMsh.Net.dll</HintPath>
     </Reference>
-    <Reference Include="GPCGeometry, Version=1.0.4.7, Culture=neutral, processorArchitecture=AMD64">
-      <HintPath>..\packages\GPCGeometry.1.0.4.7\lib\net472\GPCGeometry.dll</HintPath>
+    <Reference Include="GPCGeometry, Version=1.0.4.9, Culture=neutral, processorArchitecture=AMD64">
+      <HintPath>..\packages\GPCGeometry.1.0.4.9\lib\net472\GPCGeometry.dll</HintPath>
     </Reference>
     <Reference Include="GPCUtilities, Version=1.0.10.0, Culture=neutral, processorArchitecture=AMD64">
       <HintPath>..\packages\GPCUtilities.1.0.10\lib\net472\GPCUtilities.dll</HintPath>
@@ -83,6 +83,7 @@
     <Compile Include="LoadTest.cs" />
     <Compile Include="PerformanceTest.cs" />
     <Compile Include="FemModelTest.cs" />
+    <Compile Include="UnitsTest.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
@@ -92,10 +93,6 @@
       <Project>{175a9b69-232c-41b7-aba8-2d0bfe9c2062}</Project>
       <Name>GPCModel</Name>
     </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="gmsh-4.7.dll" />
-    <Content Include="UnsafeEx.dll" />
   </ItemGroup>
   <Import Project="$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets" Condition="Exists('$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets')" />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

@@ -27,6 +27,21 @@ namespace GPC.Model.Loads
         public Shape Shape => _shape;
         public CoordinateSystem CoordinateSystem => _coordinateSystem;
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="p1"></param>
+        /// <param name="p2"></param>
+        /// <param name="p3"></param>
+        /// <param name="shape"></param>
+        /// <param name="loadCase"></param>
+        /// <remarks><see cref="CoordinateSystem"/> set to Global</remarks>
+        public AreaLoad(double p1, double p2, double p3, Shape shape, LoadCase loadCase)
+            : this(p1, p2, p3, shape, loadCase, CoordinateSystem.Global, Guid.NewGuid(), string.Empty)
+        {
+
+        }
+
         public AreaLoad(double p1, double p2, double p3, Shape shape, LoadCase loadCase, CoordinateSystem coordinateSystem)
             : this(p1, p2, p3, shape, loadCase, coordinateSystem, Guid.NewGuid(), string.Empty)
         {
@@ -57,5 +72,52 @@ namespace GPC.Model.Loads
             base.GetObjectData(info, context);
             throw new NotImplementedException();
         }
+
+        #region Equals, HasCode and operators
+        public bool Equals(AreaLoad other)
+        {
+            if (ReferenceEquals(other, this))
+                return true;
+
+            if (other is null)
+                return false;
+
+            return _shape.Equals(other._shape) && _coordinateSystem.Equals(other._coordinateSystem)
+                                               && _p1.Equals(_p1) && _p2.Equals(_p2) && _p3.Equals(_p3) && base.Equals(other);
+        }
+
+        public override bool Equals(object obj)
+        {
+            return Equals(obj);
+        }
+
+        public override int GetHashCode()
+        {
+            int hashCode = -23;
+            hashCode = hashCode * -17 + base.GetHashCode();
+            hashCode = hashCode * -17 + _p1.GetHashCode();
+            hashCode = hashCode * -17 + _p2.GetHashCode();
+            hashCode = hashCode * -17 + _p3.GetHashCode();
+            hashCode = hashCode * -17 + EqualityComparer<CoordinateSystem>.Default.GetHashCode(_coordinateSystem);
+            hashCode = hashCode * -17 + EqualityComparer<Shape>.Default.GetHashCode(_shape);
+            return hashCode;
+        }
+
+        public static bool operator ==(AreaLoad obj1, AreaLoad obj2)
+        {
+            if (ReferenceEquals(obj1, obj2))
+                return true;
+
+            if (obj1 is null || obj2 is null)
+                return false;
+
+            return obj1.Equals(obj2);
+        }
+
+        public static bool operator !=(AreaLoad obj1, AreaLoad obj2)
+        {
+            return !(obj1 == obj2);
+        }
+#endregion
     }
 }

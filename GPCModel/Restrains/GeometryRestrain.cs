@@ -55,37 +55,66 @@ namespace GPC.Model.Restrains
 
         public Point3d GetCoordinateSystemOrigin() => _coordinateSystem.Origin;
 
-        public KeyValuePair<LinearSolver.DOF, bool>[] GetRestrains()
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns>Dictionary of each restrained DOF where <see cref="DofRestrain.Restrained"/> is <c>true</c></returns>
+        public Dictionary<LinearSolver.DOF, bool> GetRestrains()
         {
-            KeyValuePair<LinearSolver.DOF, bool>[] kvp = new KeyValuePair<LinearSolver.DOF, bool>[Restrains.Count];
+            Dictionary<LinearSolver.DOF, bool> kvp = new Dictionary<LinearSolver.DOF, bool>();
 
             for (int i = 0; i < _restrains.Count; i++)
             {
-                kvp[i] = new KeyValuePair<LinearSolver.DOF, bool>(key: _restrains[i].Dof, value: _restrains[i].Restrained);
+                if (_restrains[i].Restrained)
+                {
+                    if (kvp.ContainsKey(_restrains[i].Dof))
+                    {
+                        kvp[_restrains[i].Dof] = kvp[_restrains[i].Dof] | kvp[_restrains[i].Dof]; // in teoria ritorna questo: V V = V, V F = V, F F = F. Cioè se è vincolato almeno una volta resta vincolato
+                    }
+                    else
+                    {
+                        kvp[_restrains[i].Dof] = _restrains[i].Restrained;
+                    }
+                }
             }
 
             return kvp;
         }
 
-        public KeyValuePair<LinearSolver.DOF, double>[] GetStiffnesses()
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns>Dictionary of each restrained DOF where <see cref="DofRestrain.Stiffness"/> is != 0</returns>
+        public Dictionary<LinearSolver.DOF, double> GetStiffnesses()
         {
-            KeyValuePair<LinearSolver.DOF, double>[] kvp = new KeyValuePair<LinearSolver.DOF, double>[Restrains.Count];
+            Dictionary<LinearSolver.DOF, double> kvp = new Dictionary<LinearSolver.DOF, double>();
 
             for (int i = 0; i < _restrains.Count; i++)
             {
-                kvp[i] = new KeyValuePair<LinearSolver.DOF, double>(key: _restrains[i].Dof, value: _restrains[i].Stiffness);
+                if (_restrains[i].Stiffness != 0)
+                {
+                    kvp[_restrains[i].Dof] += _restrains[i].Stiffness;
+                }
             }
 
             return kvp;
         }
 
-        public KeyValuePair<LinearSolver.DOF, double>[] GetImposedDisplacement()
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns>Dictionary of each restrained DOF where <see cref="DofRestrain.ImposedDisplacement"/> is != 0</returns>
+        public Dictionary<LinearSolver.DOF, double> GetImposedDisplacement()
         {
-            KeyValuePair<LinearSolver.DOF, double>[] kvp = new KeyValuePair<LinearSolver.DOF, double>[Restrains.Count];
+            Dictionary<LinearSolver.DOF, double> kvp = new Dictionary<LinearSolver.DOF, double>();
 
             for (int i = 0; i < _restrains.Count; i++)
             {
-                kvp[i] = new KeyValuePair<LinearSolver.DOF, double>(key: _restrains[i].Dof, value: _restrains[i].ImposedDisplacement);
+                if (_restrains[i].ImposedDisplacement != 0)
+                {
+                    kvp[_restrains[i].Dof] += _restrains[i].ImposedDisplacement;
+                }
             }
 
             return kvp;

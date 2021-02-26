@@ -102,7 +102,7 @@ namespace GPC.Model.FEM.FiniteElements
 
         protected mnl.Matrix<double> B(double csi, double eta)
         {
-            LocalNodes(GlobalNodesElement[0], GlobalNodesElement[1], GlobalNodesElement[2], out Node node1, out Node node3, out Node node2); //node 1 is origin, node 3 is in (0,y2), node2 is in (x2,y2)
+            LocalNodes(Nodes[0], Nodes[1], Nodes[2], out Node node1, out Node node3, out Node node2); //node 1 is origin, node 3 is in (0,y2), node2 is in (x2,y2)
 
             double x31 = node3.Position.X - node1.Position.X; 
             double y31 = node3.Position.Y - node1.Position.Y;
