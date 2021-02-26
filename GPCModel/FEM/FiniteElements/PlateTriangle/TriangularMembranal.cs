@@ -164,11 +164,11 @@ namespace GPC.Model.FEM.FiniteElements
                 {
                     PlatePressureAttribute attribute = (PlatePressureAttribute)iAttribute;
                     //calcultation of pressures in local coordinate system of the element
-                    Vector3d dirX = attribute.Sys.V11;
+                    Vector3d dirX = attribute.CoordinateSystem.V11;
                     dirX.Unitize();
-                    Vector3d dirY = attribute.Sys.V22;
+                    Vector3d dirY = attribute.CoordinateSystem.V22;
                     dirY.Unitize();
-                    Vector3d dirZ = attribute.Sys.V33;
+                    Vector3d dirZ = attribute.CoordinateSystem.V33;
                     dirZ.Unitize();
 
                     Vector3d x = LocalCoordinateSystem.V11;
@@ -179,9 +179,9 @@ namespace GPC.Model.FEM.FiniteElements
                     dirZ.Unitize();
 
                     //Set in local coordinates
-                    double px = attribute.P11 * dirX.DotProduct(x) + attribute.P22 * dirY.DotProduct(x) + attribute.P33 * dirZ.DotProduct(x);
-                    double py = attribute.P11 * dirX.DotProduct(y) + attribute.P22 * dirY.DotProduct(y) + attribute.P33 * dirZ.DotProduct(y);
-                    double pz = attribute.P11 * dirX.DotProduct(z) + attribute.P22 * dirY.DotProduct(z) + attribute.P33 * dirZ.DotProduct(z);
+                    double px = attribute.P1 * dirX.DotProduct(x) + attribute.P2 * dirY.DotProduct(x) + attribute.P3 * dirZ.DotProduct(x);
+                    double py = attribute.P1 * dirX.DotProduct(y) + attribute.P2 * dirY.DotProduct(y) + attribute.P3 * dirZ.DotProduct(y);
+                    double pz = attribute.P1 * dirX.DotProduct(z) + attribute.P2 * dirY.DotProduct(z) + attribute.P3 * dirZ.DotProduct(z);
 
                     if (pz != 0.0)
                     {
