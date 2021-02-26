@@ -12,10 +12,10 @@ namespace UnitTest
         {
             double dist = 10; // m
 
-            double mm = dist.ConvertLengthToNmm(Units.Knm);
+            double mm = dist.ConvertLengthToDefault(Units.Knm);
             Assert.IsTrue(mm == 10000.0);
 
-            double m = mm.ConvertLengthFromNmm(Units.Knm);
+            double m = mm.ConvertLengthFromDefault(Units.Knm);
             Assert.IsTrue(m == dist);
         }
 
@@ -24,10 +24,10 @@ namespace UnitTest
         {
             double force = 10; // kN
 
-            double N = force.ConvertForceToNmm(Units.Knm);
+            double N = force.ConvertForceToDefault(Units.Knm);
             Assert.IsTrue(N == 10000);
 
-            double kN = N.ConvertForceFromNmm(Units.Knm);
+            double kN = N.ConvertForceFromDefault(Units.Knm);
             Assert.IsTrue(kN == force);
         }
     }
