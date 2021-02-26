@@ -47,12 +47,13 @@ namespace FemTest
 
         #region Private Methods
 
-        private Mesh CreateSimpleMesh(int incrementX, int incrementY, int numberOfFaceX, int numberOfFaceY)
+        private Mesh CreateSimpleMesh(int incrementX, int incrementY, int numberOfFaceX, int numberOfFaceY, int numberOfVolumeZ, int incrementZ = 0)
         {            
             Mesh mesh = new Mesh();
 
             double[] xIncrement = new double[numberOfFaceX + 1];
             double[] yIncrement = new double[numberOfFaceY + 1];
+            double[] zIncrement = new double[numberOfVolumeZ + 1];
 
 
             for (int i = 0; i < numberOfFaceX; i++)
@@ -67,10 +68,10 @@ namespace FemTest
 
 
                 mesh.AddFaceMesh(new[] {
-                        new MeshVertex(new Point3d(xIncrement[i],                0,     0)),
-                        new MeshVertex(new Point3d(xIncrement[i + 1],            0,     0)),
-                        new MeshVertex(new Point3d(xIncrement[i + 1],   incrementY,     0)),
-                        new MeshVertex(new Point3d(xIncrement[i],       incrementY,     0))
+                    new MeshVertex(new Point3d(xIncrement[i],                0,     0)),
+                    new MeshVertex(new Point3d(xIncrement[i + 1],            0,     0)),
+                    new MeshVertex(new Point3d(xIncrement[i + 1],   incrementY,     0)),
+                    new MeshVertex(new Point3d(xIncrement[i],       incrementY,     0))
                 });
 
 
@@ -86,13 +87,35 @@ namespace FemTest
                         yIncrement[j + 1] = yIncrement[j] + incrementY;
 
                         mesh.AddFaceMesh(new[] {
-                        new MeshVertex(new Point3d(xIncrement[i],       yIncrement[j],              0)),
-                        new MeshVertex(new Point3d(xIncrement[i + 1],   yIncrement[j],              0)),
-                        new MeshVertex(new Point3d(xIncrement[i + 1],   yIncrement[j + 1],          0)),
-                        new MeshVertex(new Point3d(xIncrement[i],       yIncrement[j + 1],          0))
-                    });
+                            new MeshVertex(new Point3d(xIncrement[i],       yIncrement[j],              0)),
+                            new MeshVertex(new Point3d(xIncrement[i + 1],   yIncrement[j],              0)),
+                            new MeshVertex(new Point3d(xIncrement[i + 1],   yIncrement[j + 1],          0)),
+                            new MeshVertex(new Point3d(xIncrement[i],       yIncrement[j + 1],          0))
+                        });
                     }
 
+                    for (int z = 0; z < numberOfVolumeZ; z++)
+                    {
+                        if (z == 0)
+                        {
+                            zIncrement[z] = 0;
+                            zIncrement[z + 1] = incrementZ;
+                        }
+                        else
+                        {
+                            zIncrement[z + 1] = zIncrement[z] + incrementZ;
+                            mesh.AddVolumeMesh(new[] {
+                                new MeshVertex(new Point3d(xIncrement[i],       yIncrement[j],         zIncrement[z])   ),
+                                new MeshVertex(new Point3d(xIncrement[i + 1],   yIncrement[j],         zIncrement[z])   ),
+                                new MeshVertex(new Point3d(xIncrement[i + 1],   yIncrement[j + 1],     zIncrement[z])   ),
+                                new MeshVertex(new Point3d(xIncrement[i],       yIncrement[j + 1],     zIncrement[z])   ),
+                                new MeshVertex(new Point3d(xIncrement[i],       yIncrement[j + 1],     zIncrement[z + 1])),
+                                new MeshVertex(new Point3d(xIncrement[i],       yIncrement[j + 1],     zIncrement[z + 1])),
+                                new MeshVertex(new Point3d(xIncrement[i],       yIncrement[j + 1],     zIncrement[z + 1])),
+                                new MeshVertex(new Point3d(xIncrement[i],       yIncrement[j + 1],     zIncrement[z + 1]))
+                            });
+                        }
+                    }
                 }
 
             }
@@ -106,25 +129,35 @@ namespace FemTest
         }
 
         #endregion
-        #region Test
 
+
+        #region Test
+          
         [TestMethod]
         public void FemModelTest1()
         {
             // Arrange            
-            Mesh mesh = CreateSimpleMesh(10, 10, 3, 5);
+            Mesh mesh = CreateSimpleMesh(10, 10, 3, 5, 2, 20);
+            Mesh mesh2 = CreateSimpleMesh(10, 10, 3, 5, 0, 0);
+
             GlassMaterial gm = new GlassMaterialAstm("", 1, 0.2, 3, 4, 5, 6, 0.008, 0.008, 9);
             PlateProperty pp = new PlateProperty(gm, 1, 2);
 
+            BrickProperty bp = new BrickProperty(gm);
+
             Dictionary<IPointLoad, int[]> pointLoads = new Dictionary<IPointLoad, int[]>();
-            pointLoads.Add(new PointLoad(1, 2, 3, 4, 5, 6, Point3d.Origin, new LoadCase("lc1", null)), new int[] { 0 });
-            pointLoads.Add(new PointLoad(1, 2, 3, 4, 5, 6, Point3d.Origin, new LoadCase("lc2", null)), new int[] { 1 });
-            pointLoads.Add(new PointLoad(1, 2, 3, 4, 5, 6, Point3d.Origin, new LoadCase("lc3", null)), new int[] { 2 });
+            pointLoads.Add(new PointLoad(1, 2, 3, 4, 5, 6, Point3d.Origin, new LoadCase("lc1", null)), new int[] { 1 });
+            pointLoads.Add(new PointLoad(1, 2, 3, 4, 5, 6, Point3d.Origin, new LoadCase("lc2", null)), new int[] { 2 });
+            pointLoads.Add(new PointLoad(1, 2, 3, 4, 5, 6, Point3d.Origin, new LoadCase("lc3", null)), new int[] { 3 });
+
+            Dictionary<IAreaLoad, int[]> plateLoads = new Dictionary<IAreaLoad, int[]>();
+            plateLoads.Add(new AreaLoad(1, 2, 3, null, new LoadCase("lc1", null)), new int[] { 1 });
+
 
             // Act
             FemModel femModel = new FemModel();
 
-            femModel.AddMesh(mesh, pp, null, pointLoads, null, null);
+            femModel.AddMesh(mesh, pp, bp, pointLoads, null, null);
 
             Debugger.Break();
         }

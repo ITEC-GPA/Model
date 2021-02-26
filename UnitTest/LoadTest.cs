@@ -223,12 +223,12 @@ namespace ModelObjectTest
             double[] LocalForces = pl2.GetLocalForces(CoordinateSystem1);
 
             // Assert
-            Assert.IsTrue((Math.Abs(ll1.Fx - expl1.F1)) < 0.001);
-            Assert.IsTrue((Math.Abs(ll1.Fy - expl1.F2)) < 0.001);
-            Assert.IsTrue((Math.Abs(ll1.Fz - expl1.F3)) < 0.001);
-            Assert.IsTrue((Math.Abs(ll1.Mx - expl1.M1)) < 0.001);
-            Assert.IsTrue((Math.Abs(ll1.My - expl1.M2)) < 0.001);
-            Assert.IsTrue((Math.Abs(ll1.Mz - expl1.M3)) < 0.001);
+            Assert.IsTrue((Math.Abs(ll1.F1 - expl1.F1)) < 0.001);
+            Assert.IsTrue((Math.Abs(ll1.F2 - expl1.F2)) < 0.001);
+            Assert.IsTrue((Math.Abs(ll1.F3 - expl1.F3)) < 0.001);
+            Assert.IsTrue((Math.Abs(ll1.M1 - expl1.M1)) < 0.001);
+            Assert.IsTrue((Math.Abs(ll1.M2 - expl1.M2)) < 0.001);
+            Assert.IsTrue((Math.Abs(ll1.M3 - expl1.M3)) < 0.001);
             Assert.IsTrue(Math.Abs(ll1.Line.Start.X - expPoint.X) < 0.001);
             Assert.IsTrue(Math.Abs(ll1.Line.Start.Y - expPoint.Y) < 0.001);
             Assert.IsTrue(Math.Abs(ll1.Line.Start.Z - expPoint.Z) < 0.001);
