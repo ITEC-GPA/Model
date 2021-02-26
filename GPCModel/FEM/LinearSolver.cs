@@ -52,9 +52,9 @@ namespace GPC.Model.FEM
             {
                 FiniteElement element = inputElements[i];
 
-                for (int j = 0; j < element.GlobalNodesElement.Count(); j++)
+                for (int j = 0; j < element.Nodes.Count(); j++)
                 {
-                    Node node = element.GlobalNodesElement[j];
+                    Node node = element.Nodes[j];
 
                     var nodes = nodesModel.Where(n => n.Position.X == node.Position.X && n.Position.Y == node.Position.Y && n.Position.Z == node.Position.Z);
 
@@ -130,15 +130,15 @@ namespace GPC.Model.FEM
             for (int i = 0; i < inputElements.Count(); i++)
             {
                 //update node
-                for (int j = 0; j < inputElements[i].GlobalNodesElement.Count(); j++)
+                for (int j = 0; j < inputElements[i].Nodes.Count(); j++)
                 {
-                    var nodes = Nodes.Where(x => x.Position == inputElements[i].GlobalNodesElement[j].Position).ToList();
+                    var nodes = Nodes.Where(x => x.Position == inputElements[i].Nodes[j].Position).ToList();
                     if (nodes.Count == 0 || nodes.Count > 1)
                     {
                         throw new Exception("Something wrong with nodes");
                     } else
                     {
-                        inputElements[i].GlobalNodesElement[j] = nodes[0];
+                        inputElements[i].Nodes[j] = nodes[0];
                     }
                 }
                 elementsModel.Add(inputElements[i]);
@@ -166,17 +166,17 @@ namespace GPC.Model.FEM
                 mnl.Matrix<double> KElementGlobalCoord = element.DofGlobalToLocal.Transpose() * element.KElementLocalCoord * element.DofGlobalToLocal;
                 Console.WriteLine("KElementGlobalCoord = " + KElementGlobalCoord.ToString());
 
-                for (int i = 0; i < element.GlobalNodesElement.Count(); i++)
+                for (int i = 0; i < element.Nodes.Count(); i++)
                 {
                     //Node i
-                    int idNodeI = element.GlobalNodesElement[i].Id;
+                    int idNodeI = element.Nodes[i].Id;
 
                     for (int j = 0; j < dofActive; j++) //each node i have degree of freedom j
                     {
                         //WARNING fare check ed eventualemte fixare per gradi di libertà attivi non contigui ad esempio UX, UY, UZ, RY
-                        for (int k = 0; k < element.GlobalNodesElement.Count(); k++) //each node i with its degree of freedom j should be take in account with other node k.What hap in node k if force is applied in node i?
+                        for (int k = 0; k < element.Nodes.Count(); k++) //each node i with its degree of freedom j should be take in account with other node k.What hap in node k if force is applied in node i?
                         {
-                            int idNodeK = element.GlobalNodesElement[k].Id;
+                            int idNodeK = element.Nodes[k].Id;
 
                             for (int l = 0; l < dofActive; l++) //what hap to the degree of freedom of node k?
                             {
@@ -278,9 +278,9 @@ namespace GPC.Model.FEM
             {
                 FiniteElement element = Elements[i];
                 mnl.Vector<double> FElementGlobalCoord = element.GlobalCoordF();
-                for (int j = 0; j < element.GlobalNodesElement.Length; j++) //cycle over nodes of element
+                for (int j = 0; j < element.Nodes.Length; j++) //cycle over nodes of element
                 {
-                    Node node = element.GlobalNodesElement[j];
+                    Node node = element.Nodes[j];
                     Node[] nds = Nodes.Where(x => x.Position == node.Position).ToArray();
 
                     //just a check
@@ -421,19 +421,19 @@ namespace GPC.Model.FEM
             {
                 #region SelectGlobalDisplacementForElement
                 FiniteElement element = Elements[i];
-                int[] pos = new int[element.NrDOFActive * element.GlobalNodesElement.Length];
+                int[] pos = new int[element.NrDOFActive * element.Nodes.Length];
 
                 counter = 0;
-                for (int j = 0; j < element.GlobalNodesElement.Count(); j++) {
-                    Node node = element.GlobalNodesElement[j];
+                for (int j = 0; j < element.Nodes.Count(); j++) {
+                    Node node = element.Nodes[j];
                     for (int k = 0; k < element.NrDOFActive; k++) {
                         pos[counter] = GetPositionInKGlobal(node.Id, (DOF)k);
                         counter++;
                     }
                 }
 
-                double[] globalDisplacementsNodesElement = new double[element.NrDOFActive * element.GlobalNodesElement.Length];
-                for (int j = 0; j < element.NrDOFActive * element.GlobalNodesElement.Length; j++) {
+                double[] globalDisplacementsNodesElement = new double[element.NrDOFActive * element.Nodes.Length];
+                for (int j = 0; j < element.NrDOFActive * element.Nodes.Length; j++) {
                     globalDisplacementsNodesElement[j] = _nodeGlobalDisplacement[pos[j]];
                     Console.WriteLine("Element " + i + " Displacemente global coordintates DOF nr. " + j + " = " + globalDisplacementsNodesElement[j]);
                 }

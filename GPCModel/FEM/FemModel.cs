@@ -644,11 +644,11 @@ namespace GPC.Model.FEM
             {
                 if (element is Plate p)
                 {
-                    mesh.AddFaceMesh(p.GlobalNodesElement.Select(i => i.Position).ToArray());
+                    mesh.AddFaceMesh(p.Nodes.Select(i => i.Position).ToArray());
                 }
                 else if (element is Brick b)
                 {
-                    mesh.AddFaceMesh(b.GlobalNodesElement.Select(i => i.Position).ToArray());
+                    mesh.AddFaceMesh(b.Nodes.Select(i => i.Position).ToArray());
                 }
             }
 

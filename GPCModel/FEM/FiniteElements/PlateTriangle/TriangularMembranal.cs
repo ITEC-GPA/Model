@@ -30,9 +30,9 @@ namespace GPC.Model.FEM.FiniteElements
 
             //calculation of matrix for transformation from Local to Global coordinates
             #region TransformationMatrixLocalCoordinatesToGlobalCoordinates
-            Node nodeI = GlobalNodesElement.ElementAt(1 - 1);
-            Node nodeJ = GlobalNodesElement.ElementAt(2 - 1);
-            Node nodeK = GlobalNodesElement.ElementAt(3 - 1);
+            Node nodeI = Nodes.ElementAt(1 - 1);
+            Node nodeJ = Nodes.ElementAt(2 - 1);
+            Node nodeK = Nodes.ElementAt(3 - 1);
 
             double dij = Math.Sqrt(Math.Pow(nodeJ.Position.X - nodeI.Position.X, 2.0) + Math.Pow(nodeJ.Position.Y - nodeI.Position.Y, 2.0) + Math.Pow(nodeJ.Position.Z - nodeI.Position.Z, 2.0));
             double lij = (nodeJ.Position.X - nodeI.Position.X) / dij;
@@ -157,7 +157,7 @@ namespace GPC.Model.FEM.FiniteElements
 
         protected override Vector<double> BuildFLocalCoord()
         {
-            Vector<double> _fLocalCoord = Vector<double>.Build.Dense(2 * GlobalNodesElement.Length); //2 = DOF in local : DX and DY
+            Vector<double> _fLocalCoord = Vector<double>.Build.Dense(2 * Nodes.Length); //2 = DOF in local : DX and DY
             foreach (IPlateLoadCaseAttribute iAttribute in _attributes)
             {
                 if (iAttribute is PlatePressureAttribute)
