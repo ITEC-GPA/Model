@@ -5,6 +5,9 @@ using GPC.Model.Elements;
 using GPC.Model.Elements.Glasses;
 using GPC.Model.Materials;
 using GPC.Model.FEM.Properties;
+using GPC.Model.LoadCases;
+using GPC.Model.Loads;
+using GPC.Geometry;
 
 namespace GeneralTest
 {
@@ -34,7 +37,7 @@ namespace GeneralTest
 
 
         [TestMethod]
-        public void Test1()
+        public void GlassTest()
         {
             GlassMaterialEn16612 gm1 = new GlassMaterialEn16612("test", 10, 0.2, 30, GlassMaterialEn16612.GlassTypes.DrawnSheetGlass, GlassMaterialEn16612.SurfaceTreatments.AsProduced, GlassMaterialEn16612.PrestressTypes.Annealed, GlassMaterialEn16612.ManufactoringProcesses.HorizontalToughening, 20, 30);
             GlassMaterialEn16612 gm2 = new GlassMaterialEn16612("test", 10, 0.2, 30, GlassMaterialEn16612.GlassTypes.DrawnSheetGlass, GlassMaterialEn16612.SurfaceTreatments.AsProduced, GlassMaterialEn16612.PrestressTypes.Annealed, GlassMaterialEn16612.ManufactoringProcesses.HorizontalToughening, 20, 30);
@@ -50,6 +53,18 @@ namespace GeneralTest
             Assert.IsTrue(gm1.GetHashCode() == gm2.GetHashCode(), $"Material Obj1 {gm1.GetHashCode()} Obj2 {gm2.GetHashCode()}");
             Assert.IsTrue(mg1.GetHashCode() == mg2.GetHashCode(), $"Glass Obj1 {mg1.GetHashCode()} Obj2 {mg2.GetHashCode()}");
             Assert.IsTrue(mgp1.GetHashCode() == mgp2.GetHashCode(), $"Property Obj1 {mgp1.GetHashCode()} Obj2 {mgp2.GetHashCode()}");
+        }
+
+
+        [TestMethod]
+        public void LoadTest1()
+        {
+            var pl1 = new PointLoad(1, 2, 3, 4, 5, 6, Point3d.Origin, new LoadCase("lc1", null));
+            var pl2 = new PointLoad(1, 2, 3, 4, 5, 6, Point3d.Origin, new LoadCase("lc1", null));
+            var pl3 = new PointLoad(1, 2, 3, 4, 5, 6, Point3d.Origin, new LoadCase("lc3", null));
+
+            Assert.IsTrue(pl1.GetHashCode() == pl2.GetHashCode(), $"Obj1 {pl1.GetHashCode()} Obj2 {pl2.GetHashCode()}");
+            Assert.IsTrue(pl1.GetHashCode() != pl3.GetHashCode(), $"Obj1 {pl1.GetHashCode()} Obj2 {pl3.GetHashCode()}");
         }
     }
 }
