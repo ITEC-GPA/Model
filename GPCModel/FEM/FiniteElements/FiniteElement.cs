@@ -125,7 +125,7 @@ namespace GPC.Model.FEM.FiniteElements
         /// <param name="id">id of element</param>
         public FiniteElement(Node[] nodes, ElementProperty property, int id) : base(id)
         {
-            Nodes = nodes;
+            _nodes = nodes;
             _property = property;
             _attributes = new List<IPlateLoadCaseAttribute>();
             _DOF = new SortedSet<LinearSolver.DOF>();
