@@ -25,23 +25,23 @@ namespace GPC.Model.FEM
         /// <summary>
         /// Collection of <see cref="Node"/>
         /// </summary>
-        private FemObjectCollection<Node> _nodes;
+        protected FemObjectCollection<Node> _nodes;
 
         /// <summary>
         /// Collection of <see cref="FiniteElement"/>
         /// </summary>
-        private FemObjectCollection<FiniteElement> _elements;
+        protected FemObjectCollection<FiniteElement> _elements;
 
 
-        private Dictionary<IPlateProperty, int> _plateProperties;
-        private Dictionary<IBrickProperty, int> _brickProperties;
+        protected Dictionary<IPlateProperty, int> _plateProperties;
+        protected Dictionary<IBrickProperty, int> _brickProperties;
 
-        private Dictionary<LoadCase, int> _loadCases;
-        private Dictionary<FreedomCase, int> _freedomCases;
+        protected Dictionary<LoadCase, int> _loadCases;
+        protected Dictionary<FreedomCase, int> _freedomCases;
 
-        private Dictionary<GeometryRestrain, int> _geometryRestrain;
+        protected Dictionary<GeometryRestrain, int> _geometryRestrain;
 
-        private List<Load> _loads;
+        protected List<Load> _loads;
 
         // CoordinatesSystem ? 
 
