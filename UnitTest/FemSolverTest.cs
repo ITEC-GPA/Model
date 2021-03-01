@@ -77,13 +77,13 @@ namespace FemTest
         [TestMethod]
         public void TriangularMembranalKTest1()
         {
-            Material mat = new SteelMaterial("steel", 200000, 0.2, 355, 510, 7850);
+            Material mat = new SteelMaterial("steel", 200000.0, 0.2, 355, 510, 7850);
             PlateProperty prop = new PlateProperty(mat, 0, 1);
 
             Node[] nds = new Node[3];
             nds[0] = new Node(0, 0, 0, 1, "1");
-            nds[1] = new Node(0, 1, 0, 2, "2");
-            nds[2] = new Node(1, 0, 0, 3, "3");
+            nds[1] = new Node(1, 0, 0, 2, "2");
+            nds[2] = new Node(0, 1, 0, 3, "3");
 
             TriangularMembranal el = new TriangularMembranal(nds, prop, 1);
             el.BuildMatrix();
@@ -356,8 +356,8 @@ namespace FemTest
             DZ(mm) 0.000000*/
             double dXNode4 = 0.009130;
             double dYNode4 = -0.005478;
-            Assert.AreEqual(Node4DX[0], dXNode4, 0.000001);
-            Assert.AreEqual(Node4DY[0], dYNode4, 0.000001);
+            Assert.AreEqual(dXNode4, Node4DX[0], 0.000001);
+            Assert.AreEqual(dYNode4, Node4DY[0], 0.000001);
 
             /*Node 3 Displacement
             DX(mm) 0.001043
@@ -670,7 +670,7 @@ namespace FemTest
 
             //actually does not work
             double dz = fem.GetDisplacementGlobalCoordinates(nodeC, LinearSolver.DOF.DZ).First();
-            Assert.AreEqual(0.24960, dz);
+            Assert.AreEqual(0.24960, dz, 1e-6);
         }
 
         [TestMethod]

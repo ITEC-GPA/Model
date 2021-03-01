@@ -54,7 +54,10 @@ namespace GPC.Model.FEM.FiniteElements
         public override void BuildMatrix()
         {
             #region calculationLocalAxisAndLocalCoordinates
-            LocalNodes(Nodes[0], Nodes[1], Nodes[2], out Node node1, out Node node2, out Node node3); //node 1 is origin, node 2 is in (0,y2), node3 is in (x2,y2)
+            Node[] localNodes = LocalNodes(); //node 1 is origin, node 2 is in (0,y2), node3 is in (x2,y2)
+            Node node1 = localNodes[0];
+            Node node2 = localNodes[1];
+            Node node3 = localNodes[2];
             Console.WriteLine("node 1: " + node1.Name + "==" + node1.Id + " " + node1.ToString());
             Console.WriteLine("node 2: " + node2.Name + "==" + node2.Id + " " + node2.ToString());
             Console.WriteLine("node 3: " + node3.Name + "==" + node3.Id + " " + node3.ToString());
@@ -86,9 +89,9 @@ namespace GPC.Model.FEM.FiniteElements
             Vector3d globalY = new Vector3d(0.0, 1.0, 0.0);
             Vector3d globalZ = new Vector3d(0.0, 0.0, 1.0);
 
-            Vector3d localX = LocalCoordinateSystem.V11;
-            Vector3d localY = LocalCoordinateSystem.V22;
-            Vector3d localZ = LocalCoordinateSystem.V33;
+            Vector3d localX = LocalCoordinateSystem.V1;
+            Vector3d localY = LocalCoordinateSystem.V2;
+            Vector3d localZ = LocalCoordinateSystem.V3;
 
             #region localToGlobalNode1
             //local node1 z-displacement in global coordinate
@@ -482,5 +485,46 @@ namespace GPC.Model.FEM.FiniteElements
             }
         }
         #endregion
+        /// <summary>
+        /// According to article, order of nodes are ANTICLOCKWISE
+        /// </summary>
+        /// <returns></returns>
+        protected override Node[] LocalNodes()
+        {
+            #region CalculationOfLocalCoordinates
+            //Search for 3 local axis
+            Node nodeI = Nodes[0];
+            Node nodeJ = Nodes[1];
+            Node nodeK = Nodes[2];
+            Vector3d x = new Vector3d(nodeJ.Position.X - nodeI.Position.X, nodeJ.Position.Y - nodeI.Position.Y, nodeJ.Position.Z - nodeI.Position.Z);
+            Vector3d vecx = new Vector3d(x);
+            vecx.Unitize();
+
+            Vector3d y = new Vector3d(nodeK.Position.X - nodeI.Position.X, nodeK.Position.Y - nodeI.Position.Y, nodeK.Position.Z - nodeI.Position.Z);
+            Vector3d vecy = new Vector3d(y);
+            vecy.Unitize();
+
+            Vector3d z = vecx.CrossProduct(vecy);
+            Vector3d vecz = new Vector3d(z);
+            vecz.Unitize();
+
+            //recalculation of y that can be non-ortogonal
+            y = z.CrossProduct(x);
+            vecy = new Vector3d(y);
+            vecy.Unitize();
+            _localCoordinateSystem = new Geometry.CoordinateSystem(new Point3d(0, 0, 0), vecx, vecy);
+
+            //move to local axis
+            //calculation in local nodes
+            Vector3d v12 = new Vector3d(nodeJ.Position.X - nodeI.Position.X, nodeJ.Position.Y - nodeI.Position.Y, nodeJ.Position.Z - nodeI.Position.Z);
+            Vector3d v13 = new Vector3d(nodeK.Position.X - nodeI.Position.X, nodeK.Position.Y - nodeI.Position.Y, nodeK.Position.Z - nodeI.Position.Z);
+
+            Node[] localNodes = new Node[3];
+            localNodes[0] = new Node(0, 0, 0, nodeI.Id, nodeI.Name); //Origin GlobalNodes.ElementAt(1 - 1);
+            localNodes[1] = new Node(v12.DotProduct(vecx), v12.DotProduct(vecy), v12.DotProduct(vecz), nodeJ.Id, nodeJ.Name); //Axis x GlobalNodes.ElementAt(2 - 1);
+            localNodes[2] = new Node(v13.DotProduct(vecx), v13.DotProduct(vecy), v13.DotProduct(vecz), nodeK.Id, nodeK.Name); //GlobalNodes.ElementAt(3 - 1);
+            #endregion
+            return localNodes;
+        }
     }
 }

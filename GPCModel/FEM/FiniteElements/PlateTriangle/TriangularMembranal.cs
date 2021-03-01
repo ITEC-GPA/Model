@@ -80,7 +80,10 @@ namespace GPC.Model.FEM.FiniteElements
             Console.WriteLine("Local To Global Matrix = " + DofGlobalToLocal.ToString());
             #endregion
 
-            LocalNodes(nodeI, nodeJ, nodeK, out Node node1, out Node node2, out Node node3); //take global node and transform in local nodes
+            Node[] localNodes = LocalNodes(); //take global node and transform in local nodes
+            Node node1 = localNodes[0];
+            Node node2 = localNodes[1];
+            Node node3 = localNodes[2];
 
             #region ShapeFuction
             double dx32 = node3.Position.X - node2.Position.X;
@@ -92,29 +95,6 @@ namespace GPC.Model.FEM.FiniteElements
             double dy31 = node3.Position.Y - node1.Position.X;
 
             _areaElement = 1.0 / 2.0 * (dx32 * dy21 - dx21 * dy32);
-
-            /*ShapeFunctions = new Polynome[3];
-            for (int i = 0; i < nodes.Count(); i++) {
-                Polynome1D px = new Polynome1D(1, "x");
-                Polynome1D py = new Polynome1D(1, "y");
-                ShapeFunctions[i] = new Polynome(new Polynome1D[] { px, py });
-            }
-
-            double[] shapeCoeff = new double[3];
-            shapeCoeff[0] = 1.0 / (2.0 * A) * (dy32 * -node2.X - dx32 * -node2.Y);
-            shapeCoeff[1] = 1.0 / (2.0 * A) * (dy32);
-            shapeCoeff[2] = 1.0 / (2.0 * A) * (-dx32);
-            ShapeFunctions.ElementAt(0).Coefficients = shapeCoeff;
-
-            shapeCoeff[0] = 1.0 / (2.0 * A) * (-dy31 * -node3.X + dx31 * -node3.Y);
-            shapeCoeff[1] = 1.0 / (2.0 * A) * (-dy31);
-            shapeCoeff[2] = 1.0 / (2.0 * A) * (dx31);
-            ShapeFunctions.ElementAt(1).Coefficients = shapeCoeff;
-
-            shapeCoeff[0] = 1.0 / (2.0 * A) * (dy21 * -node1.X - dx21 * -node1.Y);
-            shapeCoeff[1] = 1.0 / (2.0 * A) * (dy21);
-            shapeCoeff[2] = 1.0 / (2.0 * A) * (-dx21);
-            ShapeFunctions.ElementAt(2).Coefficients = shapeCoeff;*/
             #endregion
 
             #region BMatrixDerivateOfShapeFunctionInLocalCoordinates
@@ -206,9 +186,16 @@ namespace GPC.Model.FEM.FiniteElements
             }
             return _fLocalCoord;
         }
-
-        /*protected void LocalNodes(Node nodeI, Node nodeJ, Node nodeK, out Node node1, out Node node2, out Node node3)
+        /// <summary>
+        /// According to RAO, order of nodes are CLOCKWISE
+        /// </summary>
+        /// <returns></returns>
+        protected override Node[] LocalNodes()
         {
+            Node nodeI = Nodes[0];
+            Node nodeJ = Nodes[1];
+            Node nodeK = Nodes[2];
+
             #region CalculationOfLocalCoordinates
             //Search for 3 local axis
             Vector3d y = new Vector3d(nodeJ.Position.X - nodeI.Position.X, nodeJ.Position.Y - nodeI.Position.Y, nodeJ.Position.Z - nodeI.Position.Z);
@@ -220,28 +207,27 @@ namespace GPC.Model.FEM.FiniteElements
             vecx.Unitize();
 
             Vector3d z = x.CrossProduct(y);
-            //UnitVector3D vecz = z.Normalize();
-            //_vecZLocal = vecz.ToVector().ToArray();
             Vector3d vecz = new Vector3d(z);
             vecz.Unitize();
 
             //recalculation of x that can be non-ortogonal
             x = y.CrossProduct(z);
             vecx = new Vector3d(x);
-            vecx.Unitize();
-            //_vecXLocal = vecx.ToVector().ToArray();
-            _localCoordinateSystem = new Geometry.CoordinateSystem(new Point3d(0, 0, 0), vecx, vecy);
+            vecx.Unitize();;
+            _localCoordinateSystem = new CoordinateSystem(new Point3d(0, 0, 0), vecx, vecy);
 
             //move to local axis
             //calculation in local nodes
             Vector3d v12 = new Vector3d(nodeJ.Position.X - nodeI.Position.X, nodeJ.Position.Y - nodeI.Position.Y, nodeJ.Position.Z - nodeI.Position.Z);
             Vector3d v13 = new Vector3d(nodeK.Position.X - nodeI.Position.X, nodeK.Position.Y - nodeI.Position.Y, nodeK.Position.Z - nodeI.Position.Z);
 
-            node1 = new Node(0, 0, 0, nodeI.Id, nodeI.Name); //Origin GlobalNodes.ElementAt(1 - 1);
-            node2 = new Node(v12.DotProduct(vecx), v12.DotProduct(vecy), v12.DotProduct(vecz), nodeJ.Id, nodeJ.Name); //Axis y GlobalNodes.ElementAt(2 - 1);
-            node3 = new Node(v13.DotProduct(vecx), v13.DotProduct(vecy), v13.DotProduct(vecz), nodeK.Id, nodeK.Name); //GlobalNodes.ElementAt(3 - 1);
+            Node[] localNodes = new Node[3];
+            localNodes[0] = new Node(0, 0, 0, nodeI.Id, nodeI.Name); //Origin GlobalNodes.ElementAt(1 - 1);
+            localNodes[1] = new Node(v12.DotProduct(vecx), v12.DotProduct(vecy), v12.DotProduct(vecz), nodeJ.Id, nodeJ.Name); //Axis y GlobalNodes.ElementAt(2 - 1);
+            localNodes[2] = new Node(v13.DotProduct(vecx), v13.DotProduct(vecy), v13.DotProduct(vecz), nodeK.Id, nodeK.Name); //GlobalNodes.ElementAt(3 - 1);
             #endregion
-        }*/
+            return localNodes;
+        }
 
         public override bool Equals(object obj)
         {
