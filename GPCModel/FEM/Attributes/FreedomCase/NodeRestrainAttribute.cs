@@ -37,7 +37,7 @@ namespace GPC.Model.FEM.Attributes
         {
             _restrains = new List<DofRestrain>();
             if (restrains != null)
-                _restrains.AddRange(restrains);
+                _restrains.AddRange(restrains); //TODO: aggiungere la validazione. Fare in modo che non ci siano Dofrestrain con lo stesso dof dentro _Restrains
 
             _coordinateSystem = coordinateSystem;
         }

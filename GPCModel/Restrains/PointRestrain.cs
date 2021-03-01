@@ -25,8 +25,15 @@ namespace GPC.Model.Restrains
 
         #region Constructors
 
-        public PointRestrain(Point3d point, FreedomCase freedomCase, CoordinateSystem coordinateSystem)
-            : this(point, freedomCase, coordinateSystem, null, Guid.NewGuid(), string.Empty)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="point"></param>
+        /// <param name="freedomCase"></param>
+        /// <param name="restrains"></param>
+        /// <remarks><see cref="GeometryRestrain.CoordinateSystem"/> set to Global</remarks>
+        public PointRestrain(Point3d point, FreedomCase freedomCase, List<DofRestrain> restrains)
+            : this(point, freedomCase, CoordinateSystem.Global, restrains, Guid.NewGuid(), string.Empty)
         {
 
         }
