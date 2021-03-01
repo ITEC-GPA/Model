@@ -336,11 +336,11 @@ namespace GPC.Model.FEM
 
                         if (dirX.DotProduct(X) == 1.0 && dirY.DotProduct(Y) == 1.0) //Coord sys == Global Coord
                         {
-                            DOF[] keys = restrainAttribute.Restrains.Keys.ToArray();
-                            for (int j = 0; j < keys.Length; j++) {
-                                
-                                PrescribeDisplacement(Nodes[i].Id, keys[j], restrainAttribute.Restrains[keys[j]]);
+                            foreach(var restrain in restrainAttribute.Restrains)
+                            {
+                                PrescribeDisplacement(Nodes[i].Id, restrain.Dof, restrain.ImposedDisplacement);
                             }
+
                         } else
                         {
                             throw new NotImplementedException();
