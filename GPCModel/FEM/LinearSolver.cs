@@ -231,11 +231,11 @@ namespace GPC.Model.FEM
                     {
                         NodeForceAttribute nodeForceAttribute = (NodeForceAttribute)loadCaseAttribute;
                         
-                        Vector3d dirX = nodeForceAttribute.CoordinateSystem.V11;
+                        Vector3d dirX = nodeForceAttribute.CoordinateSystem.V1;
                         dirX.Unitize();
-                        Vector3d dirY = nodeForceAttribute.CoordinateSystem.V22;
+                        Vector3d dirY = nodeForceAttribute.CoordinateSystem.V2;
                         dirY.Unitize();
-                        Vector3d dirZ = nodeForceAttribute.CoordinateSystem.V33;
+                        Vector3d dirZ = nodeForceAttribute.CoordinateSystem.V3;
                         dirZ.Unitize();
 
                         //Set in global coordinates
@@ -336,20 +336,20 @@ namespace GPC.Model.FEM
                     {
                         NodeRestrainAttribute restrainAttribute = (NodeRestrainAttribute)freedomCasecAttribute;
                         //check if is in Global Coordinate otherwise ...
-                        Vector3d dirX = restrainAttribute.CoordinateSystem.V11;
+                        Vector3d dirX = restrainAttribute.CoordinateSystem.V1;
                         dirX.Unitize();
-                        Vector3d dirY = restrainAttribute.CoordinateSystem.V22;
+                        Vector3d dirY = restrainAttribute.CoordinateSystem.V2;
                         dirY.Unitize();
-                        Vector3d dirZ = restrainAttribute.CoordinateSystem.V33;
+                        Vector3d dirZ = restrainAttribute.CoordinateSystem.V3;
                         dirZ.Unitize();
 
                         if (dirX.DotProduct(X) == 1.0 && dirY.DotProduct(Y) == 1.0) //Coord sys == Global Coord
                         {
-                            DOF[] keys = restrainAttribute.Restrains.Keys.ToArray();
-                            for (int j = 0; j < keys.Length; j++) {
-                                
-                                PrescribeDisplacement(Nodes[i].Id, keys[j], restrainAttribute.Restrains[keys[j]]);
+                            foreach(var restrain in restrainAttribute.Restrains)
+                            {
+                                PrescribeDisplacement(Nodes[i].Id, restrain.Dof, restrain.ImposedDisplacement);
                             }
+
                         } else
                         {
                             throw new NotImplementedException();
@@ -492,9 +492,9 @@ namespace GPC.Model.FEM
                     //Rotation matrix
                     mnl.Matrix<double> rotation = mnl.Matrix<double>.Build.Dense(3, 3);
                     CoordinateSystem versorsLocalAxis = element.LocalCoordinateSystem;
-                    Vector3d xVersor = versorsLocalAxis.V11;
-                    Vector3d yVersor = versorsLocalAxis.V22;
-                    Vector3d zVersor = versorsLocalAxis.V33;
+                    Vector3d xVersor = versorsLocalAxis.V1;
+                    Vector3d yVersor = versorsLocalAxis.V2;
+                    Vector3d zVersor = versorsLocalAxis.V3;
 
                      rotation[0, 0] = xVersor.X; 
                     rotation[0, 1] = yVersor.X;

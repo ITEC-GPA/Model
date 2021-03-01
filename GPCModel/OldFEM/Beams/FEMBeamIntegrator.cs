@@ -271,16 +271,16 @@ namespace GPC.Model.FEMOld
         {
             Beam beam = element as Beam;
             Vector3d ZAxis = new Vector3d(0, 0, 1);
-            double checkVert = ZAxis.CrossProduct(beam.CoordSys.V33).Length;
+            double checkVert = ZAxis.CrossProduct(beam.CoordSys.V3).Length;
 
             /// Create Local Transformation Matrix
             Matrix<double> tfrMatrix1 = Matrix<double>.Build.Dense(3, 3, 0);
 
             if (checkVert < 1.0E-12)
             {
-                double CX = beam.CoordSys.V33.X;
-                double CY = beam.CoordSys.V33.Y;
-                double CZ = beam.CoordSys.V33.Z;
+                double CX = beam.CoordSys.V3.X;
+                double CY = beam.CoordSys.V3.Y;
+                double CZ = beam.CoordSys.V3.Z;
                 double sen = Math.Sin(beam.CoordSys.RotAngle * 3.14159 / 180);
                 double cos = Math.Cos(beam.CoordSys.RotAngle * 3.14159 / 180);
 
@@ -298,9 +298,9 @@ namespace GPC.Model.FEMOld
             }
             else
             {
-                double CX = beam.CoordSys.V33.X;
-                double CY = beam.CoordSys.V33.Y;
-                double CZ = beam.CoordSys.V33.Z;
+                double CX = beam.CoordSys.V3.X;
+                double CY = beam.CoordSys.V3.Y;
+                double CZ = beam.CoordSys.V3.Z;
                 double d = Math.Sqrt(Math.Pow(CX, 2.0) + Math.Pow(CY, 2.0));
                 double sen = Math.Sin(beam.CoordSys.RotAngle * 3.14159 / 180);
                 double cos = Math.Cos(beam.CoordSys.RotAngle * 3.14159 / 180);

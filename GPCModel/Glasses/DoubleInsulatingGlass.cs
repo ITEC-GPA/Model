@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
 
-namespace GPC.Model.Elements.Glasses
+namespace GPC.Model.Glasses
 {
     /// <summary>
     /// This represent a double glazing panel composed by two glass panels separated by air.

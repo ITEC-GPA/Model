@@ -47,11 +47,11 @@ namespace GPC.Model.Restrains
             _restrains.Add(dofRestrain);
         }
 
-        public Vector3d GetV1() => _coordinateSystem.V11;
+        public Vector3d GetV1() => _coordinateSystem.V1;
 
-        public Vector3d GetV2() => _coordinateSystem.V22;
+        public Vector3d GetV2() => _coordinateSystem.V2;
 
-        public Vector3d GetV3() => _coordinateSystem.V33;
+        public Vector3d GetV3() => _coordinateSystem.V3;
 
         public Point3d GetCoordinateSystemOrigin() => _coordinateSystem.Origin;
 

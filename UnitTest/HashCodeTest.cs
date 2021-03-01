@@ -2,7 +2,7 @@
 using System;
 using System.IO;
 using GPC.Model.Elements;
-using GPC.Model.Elements.Glasses;
+using GPC.Model.Glasses;
 using GPC.Model.Materials;
 using GPC.Model.FEM.Properties;
 using GPC.Model.LoadCases;

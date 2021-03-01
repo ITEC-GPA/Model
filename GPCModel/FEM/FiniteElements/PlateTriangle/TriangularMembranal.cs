@@ -170,18 +170,18 @@ namespace GPC.Model.FEM.FiniteElements
                 {
                     PlatePressureAttribute attribute = (PlatePressureAttribute)iAttribute;
                     //calcultation of pressures in local coordinate system of the element
-                    Vector3d dirX = attribute.CoordinateSystem.V11;
+                    Vector3d dirX = attribute.CoordinateSystem.V1;
                     dirX.Unitize();
-                    Vector3d dirY = attribute.CoordinateSystem.V22;
+                    Vector3d dirY = attribute.CoordinateSystem.V2;
                     dirY.Unitize();
-                    Vector3d dirZ = attribute.CoordinateSystem.V33;
+                    Vector3d dirZ = attribute.CoordinateSystem.V3;
                     dirZ.Unitize();
 
-                    Vector3d x = LocalCoordinateSystem.V11;
+                    Vector3d x = LocalCoordinateSystem.V1;
                     dirX.Unitize();
-                    Vector3d y = LocalCoordinateSystem.V22;
+                    Vector3d y = LocalCoordinateSystem.V2;
                     dirY.Unitize();
-                    Vector3d z = LocalCoordinateSystem.V33;
+                    Vector3d z = LocalCoordinateSystem.V3;
                     dirZ.Unitize();
 
                     //Set in local coordinates

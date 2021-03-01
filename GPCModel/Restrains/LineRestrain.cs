@@ -23,8 +23,16 @@ namespace GPC.Model.Restrains
 
         #region Public Constructors
 
-        public LineRestrain(Line3d line, FreedomCase freedomCase, CoordinateSystem coordinateSystem)
-            : this(line, freedomCase, coordinateSystem, null, Guid.NewGuid(), string.Empty)
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="line"></param>
+        /// <param name="freedomCase"></param>
+        /// <param name="restrains"></param>
+        /// <remarks><see cref="GeometryRestrain.CoordinateSystem"/> set to Global</remarks>
+        public LineRestrain(Line3d line, FreedomCase freedomCase, List<DofRestrain> restrains)
+            : this(line, freedomCase, CoordinateSystem.Global, restrains, Guid.NewGuid(), string.Empty)
         {
 
         }

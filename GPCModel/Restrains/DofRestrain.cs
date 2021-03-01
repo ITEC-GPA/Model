@@ -73,6 +73,15 @@ namespace GPC.Model.Restrains
             _imposedDisplacement = value;
         }
 
+        public void SetRestrain(bool condition)
+        {
+            _restrained = condition;
+        }
+
+        public void SetStiffness(double value)
+        {
+            _stiffness = value;
+        }
 
         public DofRestrain(SerializationInfo info, StreamingContext context) 
             : base(info, context)

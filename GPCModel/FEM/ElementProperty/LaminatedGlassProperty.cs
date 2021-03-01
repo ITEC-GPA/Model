@@ -2,7 +2,7 @@
 using System;
 using System.Linq;
 using System.Runtime.Serialization;
-using GPC.Model.Elements.Glasses;
+using GPC.Model.Glasses;
 using System.Collections.Generic;
 
 namespace GPC.Model.FEM.Properties

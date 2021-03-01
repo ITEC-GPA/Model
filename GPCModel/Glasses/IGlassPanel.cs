@@ -1,5 +1,5 @@
 ﻿
-namespace GPC.Model.Elements.Glasses
+namespace GPC.Model.Glasses
 {
     public interface IGlassPanel
     {

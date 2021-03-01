@@ -1,8 +1,10 @@
 ﻿using System;
+using System.Linq;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
 using GPC.Geometry;
 using GPC.Model.FreedomCases;
+using GPC.Model.Restrains;
 
 namespace GPC.Model.FEM.Attributes
 {
@@ -10,37 +12,38 @@ namespace GPC.Model.FEM.Attributes
     {
         #region variables
 
-        private Dictionary<LinearSolver.DOF, double> _restrains;
+        private List<DofRestrain> _restrains;
         private CoordinateSystem _coordinateSystem;
 
         #endregion
 
         #region properties
 
-        public Dictionary<LinearSolver.DOF, double> Restrains => _restrains;
+        public List<DofRestrain> Restrains => _restrains;
         public CoordinateSystem CoordinateSystem => _coordinateSystem;
 
         #endregion
-		
+
         /// <summary>
-        /// WARNING: da modificare da Dictionary<LinearSolver.DOF,double> a Dictionary<LinearSolver.LocalDOF,double>
-        /// il vincolo/spostamento imposto deve essere definito in un sistema locale definito da csys
+        /// 
         /// </summary>
         /// <param name="freedomCase"></param>
-        /// <param name="csys"></param>
-        /// <param name="values"></param>
+        /// <param name="coordinateSystem">Coordinate system where the restrains are applied</param>
+        /// <param name="restrains"></param>
         /// <param name="name"></param>
         /// <param name="guid"></param>
-        public NodeRestrainAttribute(FreedomCase freedomCase, CoordinateSystem coordinateSystem, Dictionary<LinearSolver.DOF,double> values, string name, Guid guid)
+        public NodeRestrainAttribute(FreedomCase freedomCase, CoordinateSystem coordinateSystem, List<DofRestrain> restrains, string name, Guid guid)
             : base(freedomCase, name, guid)
         {
-            _restrains = new Dictionary<LinearSolver.DOF, double>();
-            _restrains = values;
+            _restrains = new List<DofRestrain>();
+            if (restrains != null)
+                _restrains.AddRange(restrains); //TODO: aggiungere la validazione. Fare in modo che non ci siano Dofrestrain con lo stesso dof dentro _Restrains
+
             _coordinateSystem = coordinateSystem;
         }
 
         public NodeRestrainAttribute(FreedomCase freedomCase, CoordinateSystem coordinateSystem)
-            : this(freedomCase, coordinateSystem, new Dictionary<LinearSolver.DOF, double>(), string.Empty, Guid.NewGuid())
+            : this(freedomCase, coordinateSystem, new List <DofRestrain>(), string.Empty, Guid.NewGuid())
         {
 
         }
@@ -48,7 +51,7 @@ namespace GPC.Model.FEM.Attributes
         protected NodeRestrainAttribute(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
-            _restrains = (Dictionary<LinearSolver.DOF, double>)info.GetValue("Restrains", typeof(Dictionary<LinearSolver.DOF, double>));
+            _restrains = (List<DofRestrain>)info.GetValue("Restrains", typeof(List<DofRestrain>));
             _coordinateSystem = (CoordinateSystem)info.GetValue("CoordinateSystem", typeof(CoordinateSystem));
         }
 
@@ -61,28 +64,46 @@ namespace GPC.Model.FEM.Attributes
 
         public void AddExternalRestrain(LinearSolver.DOF dof)
         {
-            _restrains[dof] = 0;
+            if (_restrains.Where(i => i.Dof == dof).Count() > 0)
+            {
+                _restrains.Where(i => i.Dof == dof).FirstOrDefault().SetRestrain(true);
+            }
+            else
+            {
+                _restrains.Add(new DofRestrain(dof, true));
+            }
         }
 
         public void AddImposedDisplacement(LinearSolver.DOF dof, double displacement)
         {
-            _restrains[dof] = displacement; // Facendo cosi sovrascrivo il valore precedente se presente, es è vincolato e lo rimpiazzo con spostamento imposto
+            if (_restrains.Where(i => i.Dof == dof).Count() > 0)
+            {
+                // Facendo cosi sovrascrivo il valore precedente se presente
+                _restrains.Where(i => i.Dof == dof).FirstOrDefault().SetImposedDisplacement(displacement);
+            }
+            else
+            {
+                var d = new DofRestrain(dof);
+                d.SetImposedDisplacement(displacement);
+                _restrains.Add(d);
+            }
         }
+
 
         public override bool Equals(object obj)
         {
             return obj is NodeRestrainAttribute attribute &&
                    base.Equals(obj) &&
-                   EqualityComparer<Dictionary<LinearSolver.DOF, double>>.Default.Equals(_restrains, attribute._restrains) &&
+                   EqualityComparer<List<DofRestrain>>.Default.Equals(_restrains, attribute._restrains) &&
                    EqualityComparer<CoordinateSystem>.Default.Equals(_coordinateSystem, attribute._coordinateSystem);
         }
 
         public override int GetHashCode()
         {
-            int hashCode = 789669813;
-            hashCode = hashCode * -1521134295 + base.GetHashCode();
-            hashCode = hashCode * -1521134295 + EqualityComparer<Dictionary<LinearSolver.DOF, double>>.Default.GetHashCode(_restrains);
-            hashCode = hashCode * -1521134295 + EqualityComparer<CoordinateSystem>.Default.GetHashCode(_coordinateSystem);
+            int hashCode = 23;
+            hashCode = hashCode * -17 + base.GetHashCode();
+            hashCode = hashCode * -17 + EqualityComparer<List<DofRestrain>>.Default.GetHashCode(_restrains);
+            hashCode = hashCode * -17 + EqualityComparer<CoordinateSystem>.Default.GetHashCode(_coordinateSystem);
             return hashCode;
         }
 

@@ -101,14 +101,18 @@ namespace GPC.Model.FEM
 
 
             // per ogni carico embedda la geometria nella mesh
-            foreach (var load in loads)
+
+            if (loads != null)
             {
-                if (load is LineLoad || load is PointLoad)
-                    embeddedGeometries.Add(load.GetGeometry());
-                else if (load is AreaLoad || load is NormalAreaLoad)
-                    throw new NotImplementedException($"Load type: {load.GetType()} not implemented");
-                else
-                    throw new NotSupportedException($"Load type: {load.GetType()} not supported");
+                foreach (var load in loads)
+                {
+                    if (load is LineLoad || load is PointLoad)
+                        embeddedGeometries.Add(load.GetGeometry());
+                    else if (load is AreaLoad || load is NormalAreaLoad)
+                        throw new NotImplementedException($"Load type: {load.GetType()} not implemented");
+                    else
+                        throw new NotSupportedException($"Load type: {load.GetType()} not supported");
+                } 
             }
 
             //// per ogni carico embedda la geometria nella mesh
@@ -152,18 +156,21 @@ namespace GPC.Model.FEM
 
             // Versione 2
             // per ogni vincolo embedda la geometria nella mesh
-            foreach (var restrain in restrains) 
+            if (restrains != null)
             {
-                if (restrain is LineRestrain lr)
+                foreach (var restrain in restrains)
                 {
-                    embeddedGeometries.Add(lr.GetGeometry());
-                }
-                else if (restrain is PointRestrain pr)
-                {
-                    embeddedGeometries.Add(pr.GetGeometry());
-                }
-                else
-                    throw new NotSupportedException($"Restrain type: {restrain.GetType()} not supported");
+                    if (restrain is LineRestrain lr)
+                    {
+                        embeddedGeometries.Add(lr.GetGeometry());
+                    }
+                    else if (restrain is PointRestrain pr)
+                    {
+                        embeddedGeometries.Add(pr.GetGeometry());
+                    }
+                    else
+                        throw new NotSupportedException($"Restrain type: {restrain.GetType()} not supported");
+                } 
             }
 
             //// Versione 1
@@ -196,39 +203,49 @@ namespace GPC.Model.FEM
             //        throw new NotSupportedException($"Restrain type: {restrain.GetType()} not supported");
             //}
 
+            // Genera la mesh
             List<Mesh> meshes = Mesh.Generate(new List<Shape> { shape }, new Dictionary<Shape, GeometryBase[]>() { [shape] = embeddedGeometries.ToArray() }, 
-                                                out Dictionary<Mesh, Dictionary<GeometryBase, int[]>> embeddedGeometriesVertexMap);
+                                              out Dictionary<Mesh, Dictionary<GeometryBase, int[]>> embeddedGeometriesVertexMap);
 
             if (meshes.Count > 1) // Non è possibile ma controlliamo lo stesso
                 throw new Exception();
 
 
+            // Creo associazioni fra carichi e indici elementi
             Dictionary<IPointLoad, int[]> vertexLoadMeshEntityMap = new Dictionary<IPointLoad, int[]>();
             Dictionary<ILineLoad, int[]> vertexLineLoadMeshEntityMap = new Dictionary<ILineLoad, int[]>();
             Dictionary<IAreaLoad, int[]> plateLoadMeshEntityMap = new Dictionary<IAreaLoad, int[]>();
             Dictionary<GeometryRestrain, int[]> restrainMeshEntityMap = new Dictionary<GeometryRestrain, int[]>();
 
-            foreach (var load in loads)
+            if (loads != null)
             {
-                if (load is IPointLoad pl)
+                foreach (var load in loads)
                 {
-                    vertexLoadMeshEntityMap[pl] = embeddedGeometriesVertexMap[meshes.First()][load.GetGeometry()];
-                }
-                else if (load is ILineLoad ll)
-                {
-                    vertexLineLoadMeshEntityMap[ll] = embeddedGeometriesVertexMap[meshes.First()][load.GetGeometry()];
-                }
-                else if (load is IAreaLoad)
-                {
-                    throw new NotSupportedException($"Load type: {load.GetType()} not supported");
-                }
-                else
-                    throw new NotSupportedException($"Load type: {load.GetType()} not supported");
+                    if (load is IPointLoad pl)
+                    {
+                        if (embeddedGeometriesVertexMap[meshes.First()].ContainsKey(load.GetGeometry()))
+                            vertexLoadMeshEntityMap[pl] = embeddedGeometriesVertexMap[meshes.First()][load.GetGeometry()];
+                    }
+                    else if (load is ILineLoad ll)
+                    {
+                        if (embeddedGeometriesVertexMap[meshes.First()].ContainsKey(load.GetGeometry()))
+                            vertexLineLoadMeshEntityMap[ll] = embeddedGeometriesVertexMap[meshes.First()][load.GetGeometry()];
+                    }
+                    else if (load is IAreaLoad)
+                    {
+                        throw new NotSupportedException($"Load type: {load.GetType()} not supported");
+                    }
+                    else
+                        throw new NotSupportedException($"Load type: {load.GetType()} not supported");
+                } 
             }
 
-            foreach(var restrain in restrains)
+            if (restrains != null)
             {
-                restrainMeshEntityMap[restrain] = embeddedGeometriesVertexMap[meshes.First()][restrain.GetGeometry()];
+                foreach (var restrain in restrains)
+                {
+                    restrainMeshEntityMap[restrain] = embeddedGeometriesVertexMap[meshes.First()][restrain.GetGeometry()];
+                } 
             }
 
             AddMesh(meshes.First(), plateProperty, null, vertexLoadMeshEntityMap, vertexLineLoadMeshEntityMap, null, restrainMeshEntityMap);
@@ -517,6 +534,9 @@ namespace GPC.Model.FEM
 
                         if (nsa.Stiffnesses.Count > 0)
                             node.AddAttribute(nsa);
+
+                        if (!_geometryRestrain.ContainsKey(geometryRestrain))
+                            _geometryRestrain[geometryRestrain] = _geometryRestrain.Values.Count > 0 ? _geometryRestrain.Values.Max() + 1 : 1;
                     }
                 } 
             }
@@ -539,6 +559,9 @@ namespace GPC.Model.FEM
                         {
                             NodeForceAttribute nfa = new NodeForceAttribute(pl.LoadCase, pl.CoordinateSystem, pl.F1, pl.F2, pl.F3, pl.M1, pl.M2, pl.M3);
                             node.AddAttribute(nfa);
+
+                            if (!_loadCases.ContainsKey(pl.LoadCase))
+                                _loadCases[pl.LoadCase] = _loadCases.Values.Count > 0 ? _loadCases.Values.Max() + 1 : 1;
                         }
                         else
                             throw new NotImplementedException();
@@ -564,6 +587,9 @@ namespace GPC.Model.FEM
                         {
                             NodeForceAttribute nfa = new NodeForceAttribute(ll.LoadCase, ll.CoordinateSystem, ll.F1, ll.F2, ll.F3, ll.M1, ll.M2, ll.M3);
                             node.AddAttribute(nfa);
+
+                            if (!_loadCases.ContainsKey(ll.LoadCase))
+                                _loadCases[ll.LoadCase] = _loadCases.Values.Count > 0 ? _loadCases.Values.Max() + 1 : 1 ;
                         }
                         else
                             throw new NotImplementedException();
@@ -594,11 +620,17 @@ namespace GPC.Model.FEM
                         {
                             PlateNormalPressureAttribute pna = new PlateNormalPressureAttribute(pl.LoadCase, pl.Pressure);
                             plate.AddAttribute(pna);
+
+                            if (!_loadCases.ContainsKey(pl.LoadCase))
+                                _loadCases[pl.LoadCase] = _loadCases.Values.Count > 0 ? _loadCases.Values.Max() + 1 : 1;
                         }
                         else if (load is AreaLoad gal)
                         {
                             PlatePressureAttribute ppa = new PlatePressureAttribute(gal.LoadCase, gal.CoordinateSystem, gal.P1, gal.P2, gal.P3);
                             plate.AddAttribute(ppa);
+
+                            if (!_loadCases.ContainsKey(gal.LoadCase))
+                                _loadCases[gal.LoadCase] = _loadCases.Values.Count > 0 ? _loadCases.Values.Max() + 1 : 1;
                         }
                         else
                             throw new NotImplementedException();
