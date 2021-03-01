@@ -539,31 +539,6 @@ namespace FemTest
             Assert.AreEqual(Node3CopyDY[0], dYNode3, 0.000001);
         }
 
-        /*[TestMethod]
-        public void TriangleFlexuralTest1()
-        {
-            //LoadCase loadCase = new LoadCase("myLoadCase", new Guid());
-            FreedomCase freedomCase = new FreedomCase("freedomCase1");
-
-            Material mat = new SteelMaterial("steel", 200000, 0.2, 355, 510, 7850);
-            PlateProperty prop = new PlateProperty(mat, 1, 0);
-
-            CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
-            NodeRestrainAttribute RXRYRZ = new NodeRestrainAttribute(freedomCase, sys);
-            RXRYRZ.AddExternalRestrain(LinearSolver.DOF.RX);
-            RXRYRZ.AddExternalRestrain(LinearSolver.DOF.RY);
-            RXRYRZ.AddExternalRestrain(LinearSolver.DOF.RZ);
-
-            Node[] nodesPlate1 = new Node[3];
-            nodesPlate1[0] = new Node(0, 0, 0, 1, "1");
-            nodesPlate1[1] = new Node(0, 1, 0, 2, "2");
-            nodesPlate1[2] = new Node(1, 0, 0, 3, "3");
-
-            FiniteElement e0 = new TriangularFlexural(nodesPlate1, prop, 1);
-            e0.BuildMatrix();
-            Console.WriteLine(e0.KElementLocalCoord);
-        }*/
-
         [TestMethod]
         public void TriangleDKTTest1()
         {
@@ -597,8 +572,105 @@ namespace FemTest
                 Console.WriteLine();
             }
 
-            //actually does not word
+            //actually does not work
             Assert.AreEqual(true, false);
+        }
+
+        [TestMethod]
+        public void TriangleDKTTest2()
+        {
+            //LoadCase loadCase = new LoadCase("myLoadCase", new Guid());
+            /*FreedomCase freedomCase = new FreedomCase("freedomCase1");*/
+
+            Material mat = new SteelMaterial("steel", 12, 0.0, 355, 510, 7850);
+            PlateProperty prop = new PlateProperty(mat, 1.0, 1.0);
+
+            /*CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
+            NodeRestrainAttribute RXRYRZ = new NodeRestrainAttribute(freedomCase, sys);
+            RXRYRZ.AddRestrain(LinearSolver.DOF.RX);
+            RXRYRZ.AddRestrain(LinearSolver.DOF.RY);
+            RXRYRZ.AddRestrain(LinearSolver.DOF.RZ);*/
+
+            Node[] nodesPlate1 = new Node[3];
+            nodesPlate1[0] = new Node(0, 0, 0, 1, "1");
+            nodesPlate1[1] = new Node(0, 1, 0, 2, "2");
+            nodesPlate1[2] = new Node(1, 0, 0, 3, "3");
+
+            FiniteElement e0 = new TriangularDK(nodesPlate1, prop, 1);
+            LinearSolver fem = new LinearSolver(new FiniteElement[] { e0 });
+            
+            Console.WriteLine("Element Global stiffness matrix");
+            for (int r = 0; r < fem.KGlobal.RowCount; r++)
+            {
+                for (int c = 0; c < fem.KGlobal.ColumnCount; c++)
+                {
+                    Console.Write(fem.KGlobal[r, c].ToString("F1") + " ");
+                }
+                Console.WriteLine();
+            }
+
+            //actually does not work
+            Assert.AreEqual(true, false);
+        }
+
+        /// <summary>
+        /// Example PatchTest in "A study of three-node trinagular plate bending elements - batoz (1980)
+        /// international journal for numerical methods in engineering, vol. 15 - 1771-1812 -> pg. 1797
+        /// </summary>
+        [TestMethod]
+        public void TriangleDKTTest3()
+        {
+            LoadCase loadCase = new LoadCase("myLoadCase", new Guid());
+            FreedomCase freedomCase = new FreedomCase("freedomCase1");
+
+            Material mat = new SteelMaterial("mat", 10000, 0.3, 355, 510, 7850);
+            PlateProperty prop = new PlateProperty(mat, 1.0, 1.0);
+
+            #region restrains
+            CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
+            NodeRestrainAttribute fixDXDYDZRZ = new NodeRestrainAttribute(freedomCase, sys);
+            fixDXDYDZRZ.AddExternalRestrain(LinearSolver.DOF.DX);
+            fixDXDYDZRZ.AddExternalRestrain(LinearSolver.DOF.DY);
+            fixDXDYDZRZ.AddExternalRestrain(LinearSolver.DOF.DZ);
+            fixDXDYDZRZ.AddExternalRestrain(LinearSolver.DOF.RZ);
+
+            NodeRestrainAttribute fixDXDYRZ = new NodeRestrainAttribute(freedomCase, sys);
+            fixDXDYRZ.AddExternalRestrain(LinearSolver.DOF.DX);
+            fixDXDYRZ.AddExternalRestrain(LinearSolver.DOF.DY);
+            fixDXDYRZ.AddExternalRestrain(LinearSolver.DOF.RZ);
+            #endregion
+
+            #region nodalforces
+            NodeForceAttribute F = new NodeForceAttribute(loadCase, sys, 0, 0, 5.0, 0, 0, 0);
+            #endregion
+
+            Node nodeA = new Node(0, 8, 0, 1, "A");
+            nodeA.AddAttribute(fixDXDYDZRZ);
+            Node nodeB = new Node(0, 0, 0, 2, "B");
+            nodeB.AddAttribute(fixDXDYDZRZ);
+            Node nodeC = new Node(8, 8, 0, 3, "C");
+            nodeC.AddAttribute(F);
+            nodeC.AddAttribute(fixDXDYRZ);
+            Node nodeD = new Node(8, 0, 0, 3, "D");
+            nodeD.AddAttribute(fixDXDYDZRZ);
+
+            FiniteElement e0 = new TriangularDK(new Node[] { nodeA, nodeB, nodeC }, prop, 1);
+            FiniteElement e1 = new TriangularDK(new Node[] { nodeB, nodeD, nodeC }, prop, 1);
+            LinearSolver fem = new LinearSolver(new FiniteElement[] { e0, e1 });
+
+            /*Console.WriteLine("Element Global stiffness matrix");
+            for (int r = 0; r < fem.KGlobal.RowCount; r++)
+            {
+                for (int c = 0; c < fem.KGlobal.ColumnCount; c++)
+                {
+                    Console.Write(fem.KGlobal[r, c].ToString("F1") + " ");
+                }
+                Console.WriteLine();
+            }*/
+
+            //actually does not work
+            double dz = fem.GetDisplacementGlobalCoordinates(nodeC, LinearSolver.DOF.DZ).First();
+            Assert.AreEqual(0.24960, dz);
         }
 
         [TestMethod]
@@ -624,6 +696,69 @@ namespace FemTest
             GPC.Model.FEMOld.Node Node2 = new GPC.Model.FEMOld.Node(Guid.NewGuid(), new Point3d(2.0, 0.0, 0.0), 2, NodeDoFID, Node2DoF);
             GPC.Model.FEMOld.Node Node3 = new GPC.Model.FEMOld.Node(Guid.NewGuid(), new Point3d(2.0, 3.0, 0.0), 3, NodeDoFID, Node3DoF);
             GPC.Model.FEMOld.Node Node4 = new GPC.Model.FEMOld.Node(Guid.NewGuid(), new Point3d(0.0, 3.0, 0.0), 4, NodeDoFID, Node4DoF);
+
+            GPC.Model.FEMOld.Node[] nodes = new GPC.Model.FEMOld.Node[4];
+            nodes[0] = Node1;
+            nodes[1] = Node2;
+            nodes[2] = Node3;
+            nodes[3] = Node4;
+
+            int _globalDoF = 0;
+            int _reactionDoF = 0;
+
+            // Arrange Nodes
+            for (int nd = 0; nd < nodes.Length; nd++)
+            {
+                nodes[nd].DoF.FormIncidence(ref _globalDoF, ref _reactionDoF);
+            }
+
+            ///  Section
+            double E = 12; // MPa
+            double ni = 0.0;
+
+            /// Material
+            Material mat = new SteelMaterial("Steel", E, ni, 355, 510, 355 / E, 0, 0, new Guid());// new Material("Steel", E, ni, 0.0, 0.0, new Guid());
+            PlateProperty property = new PlateProperty(mat, 1.0, 1.0);
+            GPC.Model.FEMOld.PlateDKQ shell = new GPC.Model.FEMOld.PlateDKQ(new Guid(), property, 1, nodes);
+
+            mnl.Matrix<double> _stiffnessMatrix = mnl.Matrix<double>.Build.Dense(_globalDoF, _globalDoF, 0.0);
+            shell.BuildElementDoFIncidence();
+            shell.KInGlobal(ref _stiffnessMatrix);
+
+            Console.WriteLine("Element local stiffness matrix");
+            for (int r = 0; r < _stiffnessMatrix.RowCount; r++)
+            {
+                for (int c = 0; c < _stiffnessMatrix.ColumnCount; c++)
+                {
+                    Console.Write(_stiffnessMatrix[r, c].ToString("F1") + " ");
+                }
+                Console.WriteLine();
+            }
+        }
+
+        [TestMethod]
+        public void Benchmark10002()
+        {
+            /// Benchmark10001 - Bathe, Numerical Methods in Finite Elements Analysis - Esercizio Nr 5.11 pg 358
+            /// 0 - active degree of freedom
+            /// 1 - non-active degree of freedom
+            int[] NodeDoFID = new int[] { 1, 2, 3, 4, 5, 6 };
+
+            /// Nodes in 3D  XYZ
+            /*int[] Node1DoF = new int[] { 0, 0, 1, 0, 0, 1 };
+            int[] Node2DoF = new int[] { 0, 0, 1, 0, 0, 1 };
+            int[] Node3DoF = new int[] { 0, 0, 1, 0, 0, 1 };
+            int[] Node4DoF = new int[] { 0, 0, 1, 0, 0, 1 };*/
+
+            int[] Node1DoF = new int[] { 1, 1, 0, 0, 0, 1 };
+            int[] Node2DoF = new int[] { 1, 1, 0, 0, 0, 1 };
+            int[] Node3DoF = new int[] { 1, 1, 0, 0, 0, 1 };
+            int[] Node4DoF = new int[] { 1, 1, 0, 0, 0, 1 };
+
+            GPC.Model.FEMOld.Node Node1 = new GPC.Model.FEMOld.Node(Guid.NewGuid(), new Point3d(0.0, 0.0, 0.0), 1, NodeDoFID, Node1DoF);
+            GPC.Model.FEMOld.Node Node2 = new GPC.Model.FEMOld.Node(Guid.NewGuid(), new Point3d(2.0, 0.0, 0.0), 2, NodeDoFID, Node2DoF);
+            GPC.Model.FEMOld.Node Node3 = new GPC.Model.FEMOld.Node(Guid.NewGuid(), new Point3d(3.0, 1.0, 0.0), 3, NodeDoFID, Node3DoF);
+            GPC.Model.FEMOld.Node Node4 = new GPC.Model.FEMOld.Node(Guid.NewGuid(), new Point3d(1.0, 1.0, 0.0), 4, NodeDoFID, Node4DoF);
 
             GPC.Model.FEMOld.Node[] nodes = new GPC.Model.FEMOld.Node[4];
             nodes[0] = Node1;
@@ -720,8 +855,8 @@ namespace FemTest
             Node[] nodesPlate1 = new Node[4];
             nodesPlate1[0] = new Node(0, 0, 0, 1, "1");
             nodesPlate1[1] = new Node(2, 0, 0, 2, "2");
-            nodesPlate1[2] = new Node(2, 3, 0, 3, "3");
-            nodesPlate1[3] = new Node(0, 3, 0, 3, "4");
+            nodesPlate1[2] = new Node(3, 1, 0, 3, "3");
+            nodesPlate1[3] = new Node(1, 1, 0, 3, "4");
 
             FiniteElement e0 = new RectangularDK(nodesPlate1, prop, 1);
             e0.BuildMatrix();

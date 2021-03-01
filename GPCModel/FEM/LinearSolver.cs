@@ -164,7 +164,15 @@ namespace GPC.Model.FEM
                 element.BuildMatrix();
                 //Stiffness Matrix of element in global coordinates, KElementGlobal = GlobalToLocal ^ T * [KeLocal] * [GlobalToLocal]
                 mnl.Matrix<double> KElementGlobalCoord = element.DofGlobalToLocal.Transpose() * element.KElementLocalCoord * element.DofGlobalToLocal;
-                Console.WriteLine("KElementGlobalCoord = " + KElementGlobalCoord.ToString());
+                Console.WriteLine("KElementGlobalCoord element " + el);
+                for (int r = 0; r < KElementGlobalCoord.RowCount; r++)
+                {
+                    for (int c = 0; c < KElementGlobalCoord.RowCount; c++)
+                    {
+                        Console.Write(KElementGlobalCoord[r,c] + " ");
+                    }
+                    Console.WriteLine();
+                }
 
                 for (int i = 0; i < element.Nodes.Count(); i++)
                 {
@@ -181,7 +189,7 @@ namespace GPC.Model.FEM
                             for (int l = 0; l < dofActive; l++) //what hap to the degree of freedom of node k?
                             {
                                 counter++;
-                                //Console.WriteLine(counter + " El=" + el + " Node " + idNodeI + " DOF: "+ j + " vs  Node " + idNodeK + " DOF: " + l + "");
+                                //Console.WriteLine(counter + " El=" + el + " Node "+ element.Nodes[i].Name + " (id=" + idNodeI + ") DOF: " + (LinearSolver.DOF)j + "("+ j + ") vs  Node "+ element.Nodes[k].Name + " (id=" + idNodeK + ") DOF: " +(LinearSolver.DOF)l +"(" + l + ")");
                                 //Console.WriteLine( (i * dofActive + j) +"," + (k * dofActive + l) + " --> " + "[" + GetPositionInKGlobal(idNodeI, (DOF)j) + "," + GetPositionInKGlobal(idNodeK, (DOF)l) + "]");
                                 int rowGlobal = GetPositionInKGlobal(idNodeI, (DOF)j);
                                 int colGlobal = GetPositionInKGlobal(idNodeK, (DOF)l);
@@ -189,11 +197,12 @@ namespace GPC.Model.FEM
                                 int colLocal = k * dofActive + l;
                                 _KGlobal[rowGlobal, colGlobal] = _KGlobal[rowGlobal, colGlobal] + KElementGlobalCoord[rowLocal, colLocal];
                             }
+                            //Console.WriteLine();
                         }
                     }
                 }
             }
-            Console.WriteLine("kGlobal System : " + _KGlobal.ToString());
+            //Console.WriteLine("kGlobal System : " + _KGlobal.ToString());
             /*for (int i = 0; i < _KGlobal.RowCount; i++)
             {
                 for (int j = 0; j < _KGlobal.ColumnCount; j++)
@@ -350,7 +359,7 @@ namespace GPC.Model.FEM
                 }
             }
             
-            Console.WriteLine("kGlobal System + Restrains: " + _KGlobalRestrains.ToString());
+            //Console.WriteLine("kGlobal System + Restrains: " + _KGlobalRestrains.ToString());
             /*for (int i = 0; i < _KGlobalRestrains.RowCount; i++)
             {
                 for (int j = 0; j < _KGlobalRestrains.ColumnCount; j++)
@@ -359,7 +368,7 @@ namespace GPC.Model.FEM
                 }
                 Console.WriteLine();
             }*/
-            Console.WriteLine("Fmodified(Restrains): " + _FRestrains.ToString());
+            //Console.WriteLine("Fmodified(Restrains): " + _FRestrains.ToString());
             #endregion
 
             #region ApplyingMultiPointCostrains
@@ -406,14 +415,22 @@ namespace GPC.Model.FEM
                     _KGlobalRestrains[_KGlobalRestrains.RowCount - 1, positionGDLNodeSlave] = c.Links[j].Value;
                 }
             }
-            Console.WriteLine("kGlobal System + Restrains + Constrains: " + _KGlobalRestrains.ToString());
+            Console.WriteLine("kGlobal System + Restrains + Constrains:");
+            for (int row = 0; row < _KGlobalRestrains.RowCount; row++)
+            {
+                for (int col = 0; col < _KGlobalRestrains.ColumnCount; col++)
+                {
+                    Console.Write(_KGlobalRestrains[row, col].ToString("F2") + " ");
+                }
+                Console.WriteLine();
+            }
             Console.WriteLine("Fmodified(Restrains + Constrains) = " + _FRestrains.ToString());
             #endregion
 
             #region SolveModel
             //Solve Matrix
             _nodeGlobalDisplacement = _KGlobalRestrains.Solve(_FRestrains);
-            Console.WriteLine("Node displacements results:" + _nodeGlobalDisplacement.ToString());
+            //Console.WriteLine("Node displacements results:" + _nodeGlobalDisplacement.ToString());
             #endregion
 
             #region CalcResults
@@ -435,13 +452,13 @@ namespace GPC.Model.FEM
                 double[] globalDisplacementsNodesElement = new double[element.NrDOFActive * element.Nodes.Length];
                 for (int j = 0; j < element.NrDOFActive * element.Nodes.Length; j++) {
                     globalDisplacementsNodesElement[j] = _nodeGlobalDisplacement[pos[j]];
-                    Console.WriteLine("Element " + i + " Displacemente global coordintates DOF nr. " + j + " = " + globalDisplacementsNodesElement[j]);
+                    //Console.WriteLine("Element " + i + " Displacemente global coordintates DOF nr. " + j + " = " + globalDisplacementsNodesElement[j]);
                 }
                 #endregion
 
                 #region ConvertGlobalDisplacementToLocalDisplacement
                 mnl.Vector<double> vecLocalDispl = element.DofGlobalToLocal * mnl.Vector<double>.Build.Dense(globalDisplacementsNodesElement);
-                Console.WriteLine("Displacement in Local coordinates:" + vecLocalDispl.ToString());
+                //Console.WriteLine("Displacement in Local coordinates:" + vecLocalDispl.ToString());
                 #endregion
 
                 if (element is TriangularMembranal) {
@@ -500,7 +517,8 @@ namespace GPC.Model.FEM
                     #endregion
                 } else
                 {
-                    throw new NotImplementedException("retrieve result not implemented");
+                    //throw new NotImplementedException("retrieve result not implemented");
+                    Console.WriteLine("retrieve result not implemented");
                 }
             }
             #endregion

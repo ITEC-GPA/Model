@@ -16,6 +16,12 @@ namespace GPC.Model.FEM.FiniteElements
             _DOF.Add(LinearSolver.DOF.DY);
             _DOF.Add(LinearSolver.DOF.DZ);
             //a displacement in Local coordinate plane (Dx, Dy) can be a DX, DY, DZ in Global space!
+
+            //Local matrix: 3 nodes x 2(dX, dY) gdl = 6x6 matrix
+            //Global matrix: 3 nodes x 3(DX, DY, DZ) gdl = 9x9 matrix
+
+            //DofGlobalToLocal^T * kLocal * DofGlobalToLocal
+            //   [9x6]               [6x6]     [6x9]
         }
 
         public override void BuildMatrix()

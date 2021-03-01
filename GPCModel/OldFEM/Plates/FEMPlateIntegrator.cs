@@ -103,6 +103,8 @@ namespace GPC.Model.FEMOld
             J = _shape.dNShape * matCoord;
             detJ = J.Determinant();
             Jinv = J.Inverse();
+            Console.WriteLine("detJ = " + detJ);
+            Console.WriteLine("JInv = " + Jinv);
 
             //dNGlob = JInv * dNloc
             dNMatrix = Jinv * _shape.dNShape;

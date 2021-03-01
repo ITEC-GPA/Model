@@ -1,5 +1,6 @@
 ﻿using System;
 using GPC.Model.FEM.Properties;
+using GPC.Geometry;
 using mnl = MathNet.Numerics.LinearAlgebra;
 
 namespace GPC.Model.FEM.FiniteElements
@@ -10,7 +11,20 @@ namespace GPC.Model.FEM.FiniteElements
     /// </summary>
     public class TriangularDK : TriangleElement
     {
-        private Func<double, double, double>[] _shapeFunctions;
+        #region variables
+        double _x31;
+        double _y31;
+        double _l31;
+
+        double _x12;
+        double _y12;
+        double _l12;
+
+        double _x23;
+        double _y23;
+        double _l23;
+        //private Func<double, double, double>[] _shapeFunctions;
+        #endregion
 
         public TriangularDK(Node[] nodes, PlateProperty property, int id) : base(nodes, property, id)
         {
@@ -22,17 +36,124 @@ namespace GPC.Model.FEM.FiniteElements
             DOF.Add(LinearSolver.DOF.RY);
             DOF.Add(LinearSolver.DOF.RZ);
 
-            _shapeFunctions = new Func<double, double, double>[6];
+            //Global : 3 nodes x 6 (DX, DY, DZ, RX, RY, RZ) DOF each = matrix 18x18
+            //Local  : 3 nodes x 3 (dZ+rX+rZ) DOF each = matrix 9x9
+
+            //DofGlobalToLocal^T * kLocal * DofGlobalToLocal
+            //   [18x9]             [9x9]     [9x18]
+
+            /*_shapeFunctions = new Func<double, double, double>[6];
             _shapeFunctions[0] = N1;
             _shapeFunctions[1] = N2;
             _shapeFunctions[2] = N3;
             _shapeFunctions[3] = N4;
             _shapeFunctions[4] = N5;
-            _shapeFunctions[5] = N6;
+            _shapeFunctions[5] = N6;*/
         }
 
         public override void BuildMatrix()
         {
+            #region calculationLocalAxisAndLocalCoordinates
+            LocalNodes(Nodes[0], Nodes[1], Nodes[2], out Node node1, out Node node2, out Node node3); //node 1 is origin, node 2 is in (0,y2), node3 is in (x2,y2)
+            Console.WriteLine("node 1: " + node1.Name + "==" + node1.Id + " " + node1.ToString());
+            Console.WriteLine("node 2: " + node2.Name + "==" + node2.Id + " " + node2.ToString());
+            Console.WriteLine("node 3: " + node3.Name + "==" + node3.Id + " " + node3.ToString());
+            #endregion
+
+            #region calculationVariablesForStiffnessEtcetera
+            _x31 = node3.Position.X - node1.Position.X;
+            _y31 = node3.Position.Y - node1.Position.Y;
+            _l31 = Math.Sqrt(_x31 * _x31 + _y31 * _y31);
+
+            _x12 = node1.Position.X - node2.Position.X;
+            _y12 = node1.Position.Y - node2.Position.Y;
+            _l12 = Math.Sqrt(_x12 * _x12 + _y12 * _y12);
+
+            _x23 = node2.Position.X - node3.Position.X;
+            _y23 = node2.Position.Y - node3.Position.Y;
+            _l23 = Math.Sqrt(_x23 * _x23 + _y23 * _y23);
+
+            _areaElement = (_x31 * _y12 - _x12 * _y31) / 2.0;
+            #endregion
+
+            //calculation of matrix for transformation from Local to Global coordinates
+            #region TransformationMatrixLocalCoordinatesToGlobalCoordinates
+            _dofGlobalToLocal = mnl.Matrix<double>.Build.Dense(9, 18);
+
+            mnl.Matrix<double> dofGlobalToLocalTranspose = mnl.Matrix<double>.Build.Dense(18, 9);
+
+            Vector3d globalX = new Vector3d(1.0, 0.0, 0.0);
+            Vector3d globalY = new Vector3d(0.0, 1.0, 0.0);
+            Vector3d globalZ = new Vector3d(0.0, 0.0, 1.0);
+
+            Vector3d localX = LocalCoordinateSystem.V11;
+            Vector3d localY = LocalCoordinateSystem.V22;
+            Vector3d localZ = LocalCoordinateSystem.V33;
+
+            #region localToGlobalNode1
+            //local node1 z-displacement in global coordinate
+            dofGlobalToLocalTranspose[0, 0] = localZ.DotProduct(globalX);
+            dofGlobalToLocalTranspose[1, 0] = localZ.DotProduct(globalY);
+            dofGlobalToLocalTranspose[2, 0] = localZ.DotProduct(globalZ);
+
+            //local node1 rx-rotation in global coordinate
+            dofGlobalToLocalTranspose[3, 1] = localX.DotProduct(globalX);
+            dofGlobalToLocalTranspose[3, 2] = localY.DotProduct(globalX);
+
+            dofGlobalToLocalTranspose[4, 1] = localX.DotProduct(globalY);
+            dofGlobalToLocalTranspose[4, 2] = localY.DotProduct(globalY);
+
+            dofGlobalToLocalTranspose[5, 1] = localX.DotProduct(globalZ);
+            dofGlobalToLocalTranspose[5, 2] = localY.DotProduct(globalZ);
+            #endregion
+
+            #region localToGlobalNode2
+            //local node2 z-displacement in global coordinate
+            dofGlobalToLocalTranspose[6, 3] = localZ.DotProduct(globalX);
+            dofGlobalToLocalTranspose[7, 3] = localZ.DotProduct(globalY);
+            dofGlobalToLocalTranspose[8, 3] = localZ.DotProduct(globalZ);
+
+            //local node2 rx-rotation in global coordinate
+            dofGlobalToLocalTranspose[9, 4] = localX.DotProduct(globalX);
+            dofGlobalToLocalTranspose[9, 5] = localY.DotProduct(globalX);
+
+            dofGlobalToLocalTranspose[10, 4] = localX.DotProduct(globalY);
+            dofGlobalToLocalTranspose[10, 5] = localY.DotProduct(globalY);
+
+            dofGlobalToLocalTranspose[11, 4] = localX.DotProduct(globalZ);
+            dofGlobalToLocalTranspose[11, 5] = localY.DotProduct(globalZ);
+            #endregion
+
+            #region localToGlobalNode3
+            //local node3 z-displacement in global coordinate
+            dofGlobalToLocalTranspose[12, 6] = localZ.DotProduct(globalX);
+            dofGlobalToLocalTranspose[13, 6] = localZ.DotProduct(globalY);
+            dofGlobalToLocalTranspose[14, 6] = localZ.DotProduct(globalZ);
+
+            //local node3 rx-rotation in global coordinate
+            dofGlobalToLocalTranspose[15, 7] = localX.DotProduct(globalX);
+            dofGlobalToLocalTranspose[15, 8] = localY.DotProduct(globalX);
+
+            dofGlobalToLocalTranspose[16, 7] = localX.DotProduct(globalY);
+            dofGlobalToLocalTranspose[16, 8] = localY.DotProduct(globalY);
+
+            dofGlobalToLocalTranspose[17, 7] = localX.DotProduct(globalZ);
+            dofGlobalToLocalTranspose[17, 8] = localY.DotProduct(globalZ);
+            #endregion
+            _dofGlobalToLocal = dofGlobalToLocalTranspose.Transpose();
+
+            Console.WriteLine("dofGlobalToLocalTranspose.");
+            for (int r = 0; r < dofGlobalToLocalTranspose.RowCount; r++)
+            {
+                for (int c = 0; c < dofGlobalToLocalTranspose.ColumnCount; c++)
+                {
+                    Console.Write(dofGlobalToLocalTranspose[r,c] + " ");
+                }
+                Console.WriteLine();
+            }
+            
+            #endregion
+
             #region matrixD
             double E = ((PlateProperty)_property).GetE();
             double ni = ((PlateProperty)_property).GetNi();
@@ -45,11 +166,11 @@ namespace GPC.Model.FEM.FiniteElements
             _d[1, 1] = 1.0;
             _d[2, 2] = (1.0 - ni) / 2.0;
             _d = E * Math.Pow(tb, 3.0) / (12.0 * (1.0 - ni * ni)) * _d; //flexural rigidity
-            Console.WriteLine("D = " + _d.ToString());
+            //Console.WriteLine("D = " + _d.ToString());
             #endregion
 
             //3 Gauss Integration points
-            /*double[] csiGauss = new []   { 1.0 / 6.0, 2.0 / 3.0, 1.0 / 6.0 };
+            /*double[] csiGauss = new [] { 1.0 / 6.0, 2.0 / 3.0, 1.0 / 6.0 };
             double[] etaGauss = new[]    { 1.0 / 6.0, 1.0 / 6.0, 2.0 / 3.0 };
             double[] weightGauss = new[] { 1.0 / 6.0, 1.0 / 6.0, 1.0 / 6.0 };*/
 
@@ -81,43 +202,38 @@ namespace GPC.Model.FEM.FiniteElements
                 double eta = etaGauss[i];
                 mnl.Matrix<double> b = B(csi, eta);
                 mnl.Matrix<double> m = b.Transpose() * _d * b;
-                Console.WriteLine("B(csi=" + csi.ToString("F2") + ",eta=" + eta.ToString("F2") + ")^T * D * B(csi=" + csi.ToString("F2") + ",eta=");
-                for (int row = 0; row < m.RowCount; row++)
+                //Console.WriteLine("B(csi=" + csi.ToString("F2") + ",eta=" + eta.ToString("F2") + ")^T * D * B(csi=" + csi.ToString("F2") + ",eta=");
+                /*for (int row = 0; row < m.RowCount; row++)
                 {
                     for (int col = 0; col < m.RowCount; col++)
                     {
                         Console.Write(m[row, col] +" ");
                     }
                     Console.WriteLine();
-                }
+                }*/
                 _kElementLocalCoord = _kElementLocalCoord + weightGauss[i] * m;
             }
             _kElementLocalCoord = (2.0 * _areaElement) * _kElementLocalCoord;
+            Console.WriteLine("kElementLocal:");
+            for (int row = 0; row < _kElementLocalCoord.RowCount; row++)
+            {
+                for (int col = 0; col < _kElementLocalCoord.RowCount; col++)
+                {
+                    Console.Write(_kElementLocalCoord[row, col] +" ");
+                }
+                Console.WriteLine();
+            }
         }
 
         protected override mnl.Vector<double> BuildFLocalCoord()
         {
-            throw new System.NotImplementedException();
+            Console.WriteLine("BuildFLocalCoord TriangularDKT not yet implemented");
+            //throw new System.NotImplementedException();
+            return mnl.Vector<double>.Build.Dense(9);
         }
 
         protected mnl.Matrix<double> B(double csi, double eta)
         {
-            LocalNodes(Nodes[0], Nodes[1], Nodes[2], out Node node1, out Node node3, out Node node2); //node 1 is origin, node 3 is in (0,y2), node2 is in (x2,y2)
-
-            double x31 = node3.Position.X - node1.Position.X; 
-            double y31 = node3.Position.Y - node1.Position.Y;
-            double l31 = Math.Sqrt(x31 * x31 + y31 * y31);
-
-            double x12 = node1.Position.X - node2.Position.X;
-            double y12 = node1.Position.Y - node2.Position.Y;
-            double l12 = Math.Sqrt(x12 * x12 + y12 * y12); 
-
-            double x23 = node2.Position.X - node3.Position.X;
-            double y23 = node2.Position.Y - node3.Position.Y;
-            double l23 = Math.Sqrt(x23 * x23 + y23 * y23);
-
-            _areaElement = (x31 * y12 - x12 * y31) / 2.0;
-
             //create vector of derivative of "new shape function"
             #region formuleFornite
             /*
@@ -192,40 +308,40 @@ namespace GPC.Model.FEM.FiniteElements
             #endregion
 
             #region Derivatives
-            double a4 = -x23 / Math.Pow(l23, 2.0);
-            double a5 = -x31 / Math.Pow(l31, 2.0);
-            double a6 = -x12 / Math.Pow(l12, 2.0);
-            Console.WriteLine("a4 = " + a4);
+            double a4 = -_x23 / Math.Pow(_l23, 2.0);
+            double a5 = -_x31 / Math.Pow(_l31, 2.0);
+            double a6 = -_x12 / Math.Pow(_l12, 2.0);
+            /*Console.WriteLine("a4 = " + a4);
             Console.WriteLine("a5 = " + a5);
-            Console.WriteLine("a6 = " + a6);
+            Console.WriteLine("a6 = " + a6);*/
 
-            double b4 = 3.0 / 4.0 * x23 * y23 / Math.Pow(l23, 2.0);
-            double b5 = 3.0 / 4.0 * x31 * y31 / Math.Pow(l31, 2.0);
-            double b6 = 3.0 / 4.0 * x12 * y12 / Math.Pow(l12, 2.0);
-            Console.WriteLine("b4 = " + b4);
+            double b4 = 3.0 / 4.0 * _x23 * _y23 / Math.Pow(_l23, 2.0);
+            double b5 = 3.0 / 4.0 * _x31 * _y31 / Math.Pow(_l31, 2.0);
+            double b6 = 3.0 / 4.0 * _x12 * _y12 / Math.Pow(_l12, 2.0);
+            /*Console.WriteLine("b4 = " + b4);
             Console.WriteLine("b5 = " + b5);
-            Console.WriteLine("b6 = " + b6);
+            Console.WriteLine("b6 = " + b6);*/
 
-            double c4 = (1.0 / 4.0 * Math.Pow(x23, 2.0) - 1.0 / 2.0 * Math.Pow(y23, 2.0)) / Math.Pow(l23, 2.0);
-            double c5 = (1.0 / 4.0 * Math.Pow(x31, 2.0) - 1.0 / 2.0 * Math.Pow(y31, 2.0)) / Math.Pow(l31, 2.0);
-            double c6 = (1.0 / 4.0 * Math.Pow(x12, 2.0) - 1.0 / 2.0 * Math.Pow(y12, 2.0)) / Math.Pow(l12, 2.0);
-            Console.WriteLine("c4 = " + c4);
+            double c4 = (1.0 / 4.0 * Math.Pow(_x23, 2.0) - 1.0 / 2.0 * Math.Pow(_y23, 2.0)) / Math.Pow(_l23, 2.0);
+            double c5 = (1.0 / 4.0 * Math.Pow(_x31, 2.0) - 1.0 / 2.0 * Math.Pow(_y31, 2.0)) / Math.Pow(_l31, 2.0);
+            double c6 = (1.0 / 4.0 * Math.Pow(_x12, 2.0) - 1.0 / 2.0 * Math.Pow(_y12, 2.0)) / Math.Pow(_l12, 2.0);
+            /*Console.WriteLine("c4 = " + c4);
             Console.WriteLine("c5 = " + c5);
-            Console.WriteLine("c6 = " + c6);
+            Console.WriteLine("c6 = " + c6);*/
 
-            double d4 = -y23 / Math.Pow(l23, 2.0);
-            double d5 = -y31 / Math.Pow(l31, 2.0);
-            double d6 = -y12 / Math.Pow(l12, 2.0);
-            Console.WriteLine("d4 = " + d4);
+            double d4 = -_y23 / Math.Pow(_l23, 2.0);
+            double d5 = -_y31 / Math.Pow(_l31, 2.0);
+            double d6 = -_y12 / Math.Pow(_l12, 2.0);
+            /*Console.WriteLine("d4 = " + d4);
             Console.WriteLine("d5 = " + d5);
-            Console.WriteLine("d6 = " + d6);
+            Console.WriteLine("d6 = " + d6);*/
 
-            double e4 = (1.0 / 4.0 * Math.Pow(y23, 2.0) - 1.0 / 2.0 * Math.Pow(x23, 2.0)) / Math.Pow(l23, 2.0);
-            double e5 = (1.0 / 4.0 * Math.Pow(y31, 2.0) - 1.0 / 2.0 * Math.Pow(x31, 2.0)) / Math.Pow(l31, 2.0);
-            double e6 = (1.0 / 4.0 * Math.Pow(y12, 2.0) - 1.0 / 2.0 * Math.Pow(x12, 2.0)) / Math.Pow(l12, 2.0);
-            Console.WriteLine("e4 = " + e4);
+            double e4 = (1.0 / 4.0 * Math.Pow(_y23, 2.0) - 1.0 / 2.0 * Math.Pow(_x23, 2.0)) / Math.Pow(_l23, 2.0);
+            double e5 = (1.0 / 4.0 * Math.Pow(_y31, 2.0) - 1.0 / 2.0 * Math.Pow(_x31, 2.0)) / Math.Pow(_l31, 2.0);
+            double e6 = (1.0 / 4.0 * Math.Pow(_y12, 2.0) - 1.0 / 2.0 * Math.Pow(_x12, 2.0)) / Math.Pow(_l12, 2.0);
+            /*Console.WriteLine("e4 = " + e4);
             Console.WriteLine("e5 = " + e5);
-            Console.WriteLine("e6 = " + e6);
+            Console.WriteLine("e6 = " + e6);*/
 
             mnl.Vector<double> hxdCsi = mnl.Vector<double>.Build.Dense(9);
             mnl.Vector<double> hydCsi = mnl.Vector<double>.Build.Dense(9);
@@ -286,14 +402,14 @@ namespace GPC.Model.FEM.FiniteElements
             hydEta[8 - 1] = -dNdEta(3, csi, eta) + e4 * dNdEta(4, csi, eta) + e5 * dNdEta(5, csi, eta);
             hydEta[9 - 1] = -b4 * dNdEta(4, csi, eta) - b5 * dNdEta(5, csi, eta);
 
-            mnl.Vector<double> r0 = y31 * hxdCsi + y12 * hxdEta;
-            mnl.Vector<double> r1 = -x31 * hydCsi - x12 * hydEta;
-            mnl.Vector<double> r2 = -x31 * hxdCsi - x12 * hxdEta + y31 * hydCsi + y12 * hydEta;
+            mnl.Vector<double> r0 = _y31 * hxdCsi + _y12 * hxdEta;
+            mnl.Vector<double> r1 = -_x31 * hydCsi - _x12 * hydEta;
+            mnl.Vector<double> r2 = -_x31 * hxdCsi - _x12 * hxdEta + _y31 * hydCsi + _y12 * hydEta;
             #endregion
 
             mnl.Matrix<double> b = mnl.Matrix<double>.Build.DenseOfRowVectors(r0,r1,r2);
             b = 1.0 / (2.0 * _areaElement) * b;
-            Console.WriteLine("B(csi=" + csi.ToString("F2") + " ,eta=" + eta.ToString("F2") + ") = " + b);
+            //Console.WriteLine("B(csi=" + csi.ToString("F2") + " ,eta=" + eta.ToString("F2") + ") = " + b);
             return b;
         }
 

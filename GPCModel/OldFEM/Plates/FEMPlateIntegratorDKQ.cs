@@ -161,12 +161,13 @@ namespace GPC.Model.FEMOld
                 {
                     dHMatrix[m, j] = 1.5 * (_a[t] * dNLoc[m, r] - _a[s] * dNLoc[m, q]);
                     dHMatrix[m, k] = _b[t] * dNLoc[m, r] + _b[s] * dNLoc[m, q];
+                    Console.WriteLine("dH[" + m + "," + k + "] = " + _b[t] + " * " + dNLoc[m, r] + " + " + _b[s] + " * " + dNLoc[m, q] +"=" + dHMatrix[m, k]);
                     dHMatrix[m, n] = dNLoc[m, p] - _c[t] * dNLoc[m, r] - _c[s] * dNLoc[m, q];
 
                     int row = 2 + m;
                     dHMatrix[row, j] = 1.5 * (_d[t] * dNLoc[m, r] - _d[s] * dNLoc[m, q]);
                     dHMatrix[row, k] = -dNLoc[m, p] + _e[t] * dNLoc[m, r] + _e[s] * dNLoc[m, q];
-                    Console.WriteLine("dH["+row+","+k+"] = -" + dNLoc[m, p] + "+" + _e[t] + " * " + dNLoc[m, r] + " + " +  _e[s] + " * " + dNLoc[m, q] + "=" + dHMatrix[row, k]);
+                    //Console.WriteLine("dH["+row+","+k+"] = -" + dNLoc[m, p] + "+" + _e[t] + " * " + dNLoc[m, r] + " + " +  _e[s] + " * " + dNLoc[m, q] + "=" + dHMatrix[row, k]);
                     dHMatrix[row, n] = -_b[t] * dNLoc[m, r] - _b[s] * dNLoc[m, q];
                 }
             }

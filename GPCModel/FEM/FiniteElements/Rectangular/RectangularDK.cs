@@ -133,6 +133,21 @@ namespace GPC.Model.FEM.FiniteElements
                 1.0
             };
             
+            //calculation of kelement using gauss quadrature
+            _kElementLocalCoord = mnl.Matrix<double>.Build.Dense(12, 12);
+            for (int i = 0; i < csiGauss.Length; i++)
+            {
+                double csi = csiGauss[i];
+                for (int j = 0; j < etaGauss.Length; j++) {
+                    double eta = etaGauss[j];
+                    mnl.Matrix<double> b = B(csi, eta);
+                    //Console.WriteLine("b(csi="+csi+",eta="+eta+")" + b);
+                    
+                    mnl.Matrix<double> m = weightGauss[i] * weightGauss[j] * b.Transpose() * _d * b * getDetJ(csi, eta);
+                    _kElementLocalCoord = _kElementLocalCoord + m;
+                }
+            }
+
             /*double[] csiGauss = new[] { //probably integration exact
                 -Math.Sqrt(3.0 / 5.0),  //1
                 0.0,                    //2
@@ -166,21 +181,6 @@ namespace GPC.Model.FEM.FiniteElements
                 40.0 / 81.0,  //4
                 25.0 / 81.0   //9
             };*/
-
-            //calculation of kelement using gauss quadrature
-            _kElementLocalCoord = mnl.Matrix<double>.Build.Dense(12, 12);
-            for (int i = 0; i < csiGauss.Length; i++)
-            {
-                double csi = csiGauss[i];
-                for (int j = 0; j < etaGauss.Length; j++) {
-                    double eta = etaGauss[j];
-                    mnl.Matrix<double> b = B(csi, eta);
-                    //Console.WriteLine("b(csi="+csi+",eta="+eta+")" + b);
-                    
-                    mnl.Matrix<double> m = weightGauss[i] * weightGauss[j] * b.Transpose() * _d * b * getDetJ(csi, eta);
-                    _kElementLocalCoord = _kElementLocalCoord + m;
-                }
-            }
 
             /*for (int i = 0; i < csiGauss.Length; i++)
             {
@@ -242,10 +242,10 @@ namespace GPC.Model.FEM.FiniteElements
             double j21 = -1.0 / detJ * 1.0 / 4.0 * (_x32 + _x41 + csi * (_x12 + _x34)); //to be inverted?
             double j22 = 1.0 / detJ * 1.0 / 4.0 * (_x21 + _x34 + eta * (_x12 + _x34));
 
-            /*Console.WriteLine("j11 = " + j11);
+            Console.WriteLine("j11 = " + j11);
             Console.WriteLine("j12 = " + j12);
             Console.WriteLine("j21 = " + j21);
-            Console.WriteLine("j22 = " + j22);*/
+            Console.WriteLine("j22 = " + j22);
 
             mnl.Vector<double> hxCsi = mnl.Vector<double>.Build.Dense(12, 1);
             mnl.Vector<double> hyCsi = mnl.Vector<double>.Build.Dense(12, 1);
@@ -258,9 +258,9 @@ namespace GPC.Model.FEM.FiniteElements
             double a8 = - _x41 / Math.Pow(l41, 2.0);
 
             double b5 = 3.0 / 4.0 * _x12 * _y12 / Math.Pow(l12, 2.0);
-            double b6 = 3.0 / 4.0 * _x23 * _y12 / Math.Pow(l23, 2.0);
-            double b7 = 3.0 / 4.0 * _x34 * _y12 / Math.Pow(l34, 2.0);
-            double b8 = 3.0 / 4.0 * _x41 * _y12 / Math.Pow(l41, 2.0);
+            double b6 = 3.0 / 4.0 * _x23 * _y23 / Math.Pow(l23, 2.0);
+            double b7 = 3.0 / 4.0 * _x34 * _y34 / Math.Pow(l34, 2.0);
+            double b8 = 3.0 / 4.0 * _x41 * _y41 / Math.Pow(l41, 2.0);
 
             double c5 = (1.0 / 4.0 * Math.Pow(_x12, 2.0) - 1.0 / 2.0 * Math.Pow(_y12, 2.0)) / Math.Pow(l12, 2.0);
             double c6 = (1.0 / 4.0 * Math.Pow(_x23, 2.0) - 1.0 / 2.0 * Math.Pow(_y23, 2.0)) / Math.Pow(l23, 2.0);
@@ -307,19 +307,20 @@ namespace GPC.Model.FEM.FiniteElements
             #endregion
 
             hxCsi[1 - 1] = 3.0 / 2.0 * (a5 * dNdCsi(5, csi, eta) - a8 * dNdCsi(8, csi, eta));
-            hxCsi[2 - 1] = b5 * dNdCsi(5, csi, eta) - b8 * dNdCsi(8, csi, eta);
+            hxCsi[2 - 1] = b5 * dNdCsi(5, csi, eta) + b8 * dNdCsi(8, csi, eta);
+            Console.WriteLine("hx,csi[2-1=1] = " + b5.ToString("F2") + " * " + dNdCsi(5, csi, eta).ToString("F2") + " + " + b8.ToString("F2") + " * " + dNdCsi(8, csi, eta).ToString("F2") + " = " + hxCsi[2 - 1].ToString("F2"));
             hxCsi[3 - 1] = dNdCsi(1, csi, eta) - c5 * dNdCsi(5, csi, eta) - c8 * dNdCsi(8, csi, eta);
 
             hxCsi[4 - 1] = 3.0 / 2.0 * (a6 * dNdCsi(6, csi, eta) - a5 * dNdCsi(5, csi, eta));
-            hxCsi[5 - 1] = b6 * dNdCsi(6, csi, eta) - b5 * dNdCsi(5, csi, eta);
+            hxCsi[5 - 1] = b6 * dNdCsi(6, csi, eta) + b5 * dNdCsi(5, csi, eta);
             hxCsi[6 - 1] = dNdCsi(2, csi, eta) - c6 * dNdCsi(6, csi, eta) - c5 * dNdCsi(5, csi, eta);
 
             hxCsi[7 - 1] = 3.0 / 2.0 * (a7 * dNdCsi(7, csi, eta) - a6 * dNdCsi(6, csi, eta));
-            hxCsi[8 - 1] = b7 * dNdCsi(7, csi, eta) - b6 * dNdCsi(6, csi, eta);
+            hxCsi[8 - 1] = b7 * dNdCsi(7, csi, eta) + b6 * dNdCsi(6, csi, eta);
             hxCsi[9 - 1] = dNdCsi(3, csi, eta) - c7 * dNdCsi(7, csi, eta) - c6 * dNdCsi(6, csi, eta);
 
             hxCsi[10 - 1] = 3.0 / 2.0 * (a8 * dNdCsi(8, csi, eta) - a7 * dNdCsi(7, csi, eta));
-            hxCsi[11 - 1] = b8 * dNdCsi(8, csi, eta) - b7 * dNdCsi(7, csi, eta);
+            hxCsi[11 - 1] = b8 * dNdCsi(8, csi, eta) + b7 * dNdCsi(7, csi, eta);
             hxCsi[12 - 1] = dNdCsi(4, csi, eta) - c8 * dNdCsi(8, csi, eta) - c7 * dNdCsi(7, csi, eta);
 
             /////////////////////////////////////////////////////////////////////////////////////////////////
@@ -344,19 +345,19 @@ namespace GPC.Model.FEM.FiniteElements
             /////////////////////////////////////////////////////////////////////////////////////////////////
 
             hxEta[1 - 1] = 3.0 / 2.0 * (a5 * dNdEta(5, csi, eta) - a8 * dNdEta(8, csi, eta));
-            hxEta[2 - 1] = b5 * dNdEta(5, csi, eta) - b8 * dNdEta(8, csi, eta);
+            hxEta[2 - 1] = b5 * dNdEta(5, csi, eta) + b8 * dNdEta(8, csi, eta);
             hxEta[3 - 1] = dNdEta(1, csi, eta) - c5 * dNdEta(5, csi, eta) - c8 * dNdEta(8, csi, eta);
 
             hxEta[4 - 1] = 3.0 / 2.0 * (a6 * dNdEta(6, csi, eta) - a5 * dNdEta(5, csi, eta));
-            hxEta[5 - 1] = b6 * dNdEta(6, csi, eta) - b5 * dNdEta(5, csi, eta);
+            hxEta[5 - 1] = b6 * dNdEta(6, csi, eta) + b5 * dNdEta(5, csi, eta);
             hxEta[6 - 1] = dNdEta(2, csi, eta) - c6 * dNdEta(6, csi, eta) - c5 * dNdEta(5, csi, eta);
 
             hxEta[7 - 1] = 3.0 / 2.0 * (a7 * dNdEta(7, csi, eta) - a6 * dNdEta(6, csi, eta));
-            hxEta[8 - 1] = b7 * dNdEta(7, csi, eta) - b6 * dNdEta(6, csi, eta);
+            hxEta[8 - 1] = b7 * dNdEta(7, csi, eta) + b6 * dNdEta(6, csi, eta);
             hxEta[9 - 1] = dNdEta(3, csi, eta) - c7 * dNdEta(7, csi, eta) - c6 * dNdEta(6, csi, eta);
 
             hxEta[10 - 1] = 3.0 / 2.0 * (a8 * dNdEta(8, csi, eta) - a7 * dNdEta(7, csi, eta));
-            hxEta[11 - 1] = b8 * dNdEta(8, csi, eta) - b7 * dNdEta(7, csi, eta);
+            hxEta[11 - 1] = b8 * dNdEta(8, csi, eta) + b7 * dNdEta(7, csi, eta);
             hxEta[12 - 1] = dNdEta(4, csi, eta) - c8 * dNdEta(8, csi, eta) - c7 * dNdEta(7, csi, eta);
 
             /////////////////////////////////////////////////////////////////////////////////////////////////
@@ -383,10 +384,10 @@ namespace GPC.Model.FEM.FiniteElements
             mnl.Vector<double> r2 = j11 * hyCsi + j12 * hyEta + j21 * hxCsi + j22 * hxEta;
                        
             _b = mnl.Matrix<double>.Build.DenseOfRowVectors(r0, r1, r2);
-            //Console.WriteLine("csi = " + csi + " eta = " + eta);
-            //Console.WriteLine("B(csi,eta) matrix:" + _b);
+            Console.WriteLine("csi = " + csi + " eta = " + eta);
+            Console.WriteLine("B(csi,eta) matrix:" + _b);
 
-            /*Console.WriteLine("dH(csi="+csi+",eta="+eta+")");
+            Console.WriteLine("dH(csi="+csi+",eta="+eta+")");
             for (int i = 0; i < 12; i++)
             {
                 Console.Write(hxCsi[i].ToString("F2") + " ");
@@ -407,7 +408,7 @@ namespace GPC.Model.FEM.FiniteElements
                 Console.Write(hyEta[i].ToString("F2") + " ");
             }
             Console.WriteLine();
-            Console.WriteLine();*/
+            Console.WriteLine();
             return _b;
         }
 
