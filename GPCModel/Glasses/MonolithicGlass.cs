@@ -4,7 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
 
-namespace GPC.Model.Elements.Glasses
+namespace GPC.Model.Glasses
 {
     /// <summary>
     /// Monolithic glass. This represent the simpler glass panel. It is composed by a single layer of glass

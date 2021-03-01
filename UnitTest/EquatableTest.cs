@@ -1,6 +1,6 @@
 ﻿using GPC.Model;
 using GPC.Model.Elements;
-using GPC.Model.Elements.Glasses;
+using GPC.Model.Glasses;
 using GPC.Model.LoadCases;
 using GPC.Model.Materials;
 using Microsoft.VisualStudio.TestTools.UnitTesting;

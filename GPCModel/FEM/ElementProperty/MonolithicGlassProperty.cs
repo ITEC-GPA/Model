@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Runtime.Serialization;
 using GPC.Model.Materials;
-using GPC.Model.Elements.Glasses;
+using GPC.Model.Glasses;
 using System.Collections.Generic;
 
 namespace GPC.Model.FEM.Properties

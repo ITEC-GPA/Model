@@ -77,21 +77,21 @@
     <Compile Include="FEM\ElementProperty\IPlateProperty.cs" />
     <Compile Include="FEM\ElementProperty\LaminatedGlassProperty.cs" />
     <Compile Include="FEM\ElementProperty\MonolithicGlassProperty.cs" />
-    <Compile Include="Elements\Glasses\Glass.cs" />
+    <Compile Include="Glasses\Glass.cs" />
     <Compile Include="FEM\ElementProperty\IGlassProperty.cs" />
-    <Compile Include="Elements\Glasses\IGlassPanel.cs" />
-    <Compile Include="Elements\Glasses\MonolithicGlass.cs" />
-    <Compile Include="Elements\Glasses\LaminatedGlass.cs" />
-    <Compile Include="Elements\Glasses\IInsulatingGlass.cs" />
-    <Compile Include="Elements\Glasses\DoubleInsulatingGlass.cs" />
-    <Compile Include="Elements\Glasses\Interlayer.cs" />
-    <Compile Include="Elements\Glasses\GlassSurface.cs" />
+    <Compile Include="Glasses\IGlassPanel.cs" />
+    <Compile Include="Glasses\MonolithicGlass.cs" />
+    <Compile Include="Glasses\LaminatedGlass.cs" />
+    <Compile Include="Glasses\IInsulatingGlass.cs" />
+    <Compile Include="Glasses\DoubleInsulatingGlass.cs" />
+    <Compile Include="Glasses\Interlayer.cs" />
+    <Compile Include="Elements\GlassSurface.cs" />
     <Compile Include="Restrains\GeometryRestrain.cs" />
     <Compile Include="Restrains\PointRestrain.cs" />
     <Compile Include="Restrains\LineRestrain.cs" />
     <Compile Include="FEM\ElementProperty\PlateProperty.cs" />
     <Compile Include="Elements\Rebar.cs" />
-    <Compile Include="Elements\Glasses\TripleInsulatingGlass.cs" />
+    <Compile Include="Glasses\TripleInsulatingGlass.cs" />
     <Compile Include="Restrains\DofRestrain.cs" />
     <Compile Include="FEM\Attributes\Attribute.cs" />
     <Compile Include="FEM\Attributes\FreedomCase\FreedomCaseAttribute.cs" />
@@ -204,6 +204,7 @@
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="..\packages\GMsh.Net.1.0.0.1\build\GMsh.Net.targets" Condition="Exists('..\packages\GMsh.Net.1.0.0.1\build\GMsh.Net.targets')" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
