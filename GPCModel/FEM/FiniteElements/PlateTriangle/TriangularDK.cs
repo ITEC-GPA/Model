@@ -551,6 +551,14 @@ namespace GPC.Model.FEM.FiniteElements
             Console.WriteLine("M node 2 =" + Mnode2);
             Console.WriteLine("M node 3 =" + Mnode3);
 
+            //get Shear in local nodes
+            ///NOT APPLICABLE -> Kirchoff -> No shear
+            /*double E = ((PlateProperty)_property).GetE();
+            double ni = ((PlateProperty)_property).GetNi();
+            double tb = ((PlateProperty)Property).BendingThickness;
+            double k = 5.0 / 6.0; //shear correction factor
+            mnl.Matrix<double> Ds = E * tb * k / (2.0 * (1.0 + ni)) * mnl.Matrix<double>.Build.DenseIdentity(2);*/
+            
             Console.WriteLine("Global coordinates:");
             /*...coordinate system ...
             Console.WriteLine("M node 1 =" + Mnode1);
