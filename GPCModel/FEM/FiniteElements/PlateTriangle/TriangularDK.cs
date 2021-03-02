@@ -9,7 +9,7 @@ namespace GPC.Model.FEM.FiniteElements
     /// Discrete Kirchoff Triangle - A study of three-node triangular plate bending elements - Jean-Louis Batoz
     /// International Jurnal for numerical methods in engineering, vol 15, 1771-1812 (1980)
     /// </summary>
-    public class TriangularDK : TriangleElement
+    public class TriangularDK : Plate
     {
         #region variables
         double _x31;
@@ -23,6 +23,8 @@ namespace GPC.Model.FEM.FiniteElements
         double _x23;
         double _y23;
         double _l23;
+
+        double _areaElement;
         //private Func<double, double, double>[] _shapeFunctions;
         #endregion
 
@@ -203,7 +205,7 @@ namespace GPC.Model.FEM.FiniteElements
             {
                 double csi = csiGauss[i];
                 double eta = etaGauss[i];
-                mnl.Matrix<double> b = B(csi, eta);
+                mnl.Matrix<double> b = GetB(csi, eta);
                 mnl.Matrix<double> m = b.Transpose() * _d * b;
                 //Console.WriteLine("B(csi=" + csi.ToString("F2") + ",eta=" + eta.ToString("F2") + ")^T * D * B(csi=" + csi.ToString("F2") + ",eta=");
                 /*for (int row = 0; row < m.RowCount; row++)
@@ -235,7 +237,7 @@ namespace GPC.Model.FEM.FiniteElements
             return mnl.Vector<double>.Build.Dense(9);
         }
 
-        protected mnl.Matrix<double> B(double csi, double eta)
+        public override mnl.Matrix<double> GetB(double csi, double eta, double zeta = 0)
         {
             //create vector of derivative of "new shape function"
             #region formuleFornite
@@ -489,7 +491,7 @@ namespace GPC.Model.FEM.FiniteElements
         /// According to article, order of nodes are ANTICLOCKWISE
         /// </summary>
         /// <returns></returns>
-        protected override Node[] LocalNodes()
+        protected Node[] LocalNodes()
         {
             #region CalculationOfLocalCoordinates
             //Search for 3 local axis
@@ -525,6 +527,36 @@ namespace GPC.Model.FEM.FiniteElements
             localNodes[2] = new Node(v13.DotProduct(vecx), v13.DotProduct(vecy), v13.DotProduct(vecz), nodeK.Id, nodeK.Name); //GlobalNodes.ElementAt(3 - 1);
             #endregion
             return localNodes;
+        }
+
+        public override void GetResults(double[] displacementsNodes, bool displacementsInGlobalCoordinates = true)
+        {
+            mnl.Vector<double> localDisplacements;
+            //convert in local displacements
+            if (displacementsInGlobalCoordinates == true)
+            {
+                localDisplacements = DofGlobalToLocal * mnl.Vector<double>.Build.Dense(displacementsNodes);
+            } else
+            {
+                localDisplacements = mnl.Vector<double>.Build.Dense(displacementsNodes);
+            }
+
+            //get bending moment in the three nodes
+            mnl.Vector<double> Mnode1 = D * GetB(0.0, 0.0) * localDisplacements; //node 1
+            mnl.Vector<double> Mnode2 = D * GetB(1.0, 0.0) * localDisplacements; //node 2
+            mnl.Vector<double> Mnode3 = D * GetB(0.0, 1.0) * localDisplacements; //node 3
+
+            Console.WriteLine("Local coordinates:");
+            Console.WriteLine("M node 1 =" + Mnode1);
+            Console.WriteLine("M node 2 =" + Mnode2);
+            Console.WriteLine("M node 3 =" + Mnode3);
+
+            Console.WriteLine("Global coordinates:");
+            /*...coordinate system ...
+            Console.WriteLine("M node 1 =" + Mnode1);
+            Console.WriteLine("M node 2 =" + Mnode2);
+            Console.WriteLine("M node 3 =" + Mnode3);
+            */
         }
     }
 }

@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using GPC.Model.Elements;
 using GPC.Model.FEM.Properties;
+using MathNet.Numerics.LinearAlgebra;
 using mnl = MathNet.Numerics.LinearAlgebra;
 
 namespace GPC.Model.FEM.FiniteElements
@@ -19,8 +20,7 @@ namespace GPC.Model.FEM.FiniteElements
 
         public Plate(Node[] nodes, PlateProperty property, int id) 
             : base (nodes, property, id)
-        {
-           
+        {           
         }
 
         protected override mnl.Vector<double> BuildFLocalCoord()
@@ -29,6 +29,16 @@ namespace GPC.Model.FEM.FiniteElements
         }
 
         public override void BuildMatrix()
+        {
+            throw new NotImplementedException();
+        }
+
+        public override mnl.Matrix<double> GetB(double csi = 0, double eta = 0, double zeta = 0)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void GetResults(double[] displacementsNodes, bool displacementsInGlobalCoordinates = true)
         {
             throw new NotImplementedException();
         }

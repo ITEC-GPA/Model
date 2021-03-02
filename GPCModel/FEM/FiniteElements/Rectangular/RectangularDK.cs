@@ -140,7 +140,7 @@ namespace GPC.Model.FEM.FiniteElements
                 double csi = csiGauss[i];
                 for (int j = 0; j < etaGauss.Length; j++) {
                     double eta = etaGauss[j];
-                    mnl.Matrix<double> b = B(csi, eta);
+                    mnl.Matrix<double> b = GetB(csi, eta);
                     //Console.WriteLine("b(csi="+csi+",eta="+eta+")" + b);
                     
                     mnl.Matrix<double> m = weightGauss[i] * weightGauss[j] * b.Transpose() * _d * b * getDetJ(csi, eta);
@@ -199,7 +199,7 @@ namespace GPC.Model.FEM.FiniteElements
             throw new System.NotImplementedException();
         }
 
-        protected mnl.Matrix<double> B(double csi, double eta)
+        public override mnl.Matrix<double> GetB(double csi, double eta, double zeta = 0)
         {
             LocalNodes(out Node[] localNodes);
             Node node1 = localNodes[0];
@@ -383,9 +383,9 @@ namespace GPC.Model.FEM.FiniteElements
             mnl.Vector<double> r1 = j21 * hyCsi + j22 * hyEta;
             mnl.Vector<double> r2 = j11 * hyCsi + j12 * hyEta + j21 * hxCsi + j22 * hxEta;
                        
-            _b = mnl.Matrix<double>.Build.DenseOfRowVectors(r0, r1, r2);
+            mnl.Matrix<double> b = mnl.Matrix<double>.Build.DenseOfRowVectors(r0, r1, r2);
             Console.WriteLine("csi = " + csi + " eta = " + eta);
-            Console.WriteLine("B(csi,eta) matrix:" + _b);
+            Console.WriteLine("B(csi,eta) matrix:" + b);
 
             Console.WriteLine("dH(csi="+csi+",eta="+eta+")");
             for (int i = 0; i < 12; i++)
@@ -409,7 +409,7 @@ namespace GPC.Model.FEM.FiniteElements
             }
             Console.WriteLine();
             Console.WriteLine();
-            return _b;
+            return b;
         }
 
         private double getDetJ(double csi, double eta)
@@ -417,7 +417,7 @@ namespace GPC.Model.FEM.FiniteElements
             return 1.0 / 8.0 * (_y42 * _x31 - _y31 * _x42) + csi / 8.0 * (_y34 * _x21 - _y21 * _x34) + eta / 8.0 * (_y41 * _x32 - _y32 * _x41);
         }
 
-#region ShapeFunction
+        #region ShapeFunction
         /*private double N(int index, double csi, double eta)
         {
             switch (index)
@@ -483,14 +483,15 @@ namespace GPC.Model.FEM.FiniteElements
                     throw new Exception();
             }
         }
-#endregion
+        #endregion
+
         /// <summary>
         /// out Local Node in clockwise
         /// </summary>
         /// <param name="localNodes"></param>
         protected void LocalNodes(out Node[] localNodes)
         {
-#region CalculationOfLocalCoordinates
+            #region CalculationOfLocalCoordinates
             //Search for 3 local axis
             Node nodeI = Nodes[0];
             Node nodeJ = Nodes[1];
@@ -527,7 +528,12 @@ namespace GPC.Model.FEM.FiniteElements
             localNodes[1] = new Node(v12.DotProduct(vecx), v12.DotProduct(vecy), v12.DotProduct(vecz), nodeJ.Id, nodeJ.Name); //Axis x GlobalNodes.ElementAt(2 - 1);
             localNodes[2] = new Node(v13.DotProduct(vecx), v13.DotProduct(vecy), v13.DotProduct(vecz), nodeK.Id, nodeK.Name); //GlobalNodes.ElementAt(3 - 1);
             localNodes[3] = new Node(v14.DotProduct(vecx), v14.DotProduct(vecy), v14.DotProduct(vecz), nodeL.Id, nodeL.Name); //GlobalNodes.ElementAt(4 - 1);
-#endregion
+            #endregion
+        }
+
+        public override void GetResults(double[] displacementsNodes, bool displacementsInGlobalCoordinates = true)
+        {
+            throw new NotImplementedException();
         }
     }
 }

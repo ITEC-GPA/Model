@@ -23,7 +23,6 @@ namespace GPC.Model.FEM.FiniteElements
         
         protected mnl.Matrix<double> _dofGlobalToLocal;
         protected mnl.Matrix<double> _kElementLocalCoord;
-        protected mnl.Matrix<double> _b;
         protected mnl.Matrix<double> _d;
         protected ElementProperty _property;
         protected List<IPlateLoadCaseAttribute> _attributes;
@@ -32,29 +31,6 @@ namespace GPC.Model.FEM.FiniteElements
         #endregion
 
         #region Properties
-        /*public double[][] LocalAxisVersors
-        {
-            get
-            {
-                double[][] axis = new double[3][];
-                axis[0] = new double[3];
-                for (int i = 0; i < 3; i++)
-                {
-                    axis[0][i] = _vecXLocal[i];
-                }
-                axis[1] = new double[3];
-                for (int i = 0; i < 3; i++)
-                {
-                    axis[1][i] = _vecYLocal[i];
-                }
-                axis[2] = new double[3];
-                for (int i = 0; i < 3; i++)
-                {
-                    axis[2][i] = _vecZLocal[i];
-                }
-                return axis;
-            }
-        }*/
         public CoordinateSystem LocalCoordinateSystem => _localCoordinateSystem;
 
         /// <summary>
@@ -68,7 +44,7 @@ namespace GPC.Model.FEM.FiniteElements
         public ElementProperty Property => _property;
 
         /// <summary>
-        /// Nr of degree of freedom active
+        /// Nr of degree of freedom active for each node
         /// </summary>
         public int NrDOFActive
         {
@@ -98,12 +74,12 @@ namespace GPC.Model.FEM.FiniteElements
         /// <summary>
         /// used for KeGlobal = DofGlobalToLocal^T [KeLocal] [DofGlobaltoLocal]
         /// </summary>
-        public mnl.Matrix<double> KElementGlobalCoord => DofGlobalToLocal.Transpose() * KElementLocalCoord * DofGlobalToLocal;
+        public virtual mnl.Matrix<double> KElementGlobalCoord => DofGlobalToLocal.Transpose() * KElementLocalCoord * DofGlobalToLocal;
 
         /// <summary>
         /// B : derivative of ShapeFunctions, need for epsilon = [B] * q with q = node displacements vector
         /// </summary>
-        public mnl.Matrix<double> B => _b;
+        public abstract mnl.Matrix<double> GetB(double csi = 0, double eta = 0, double zeta = 0);
 
         /// <summary>
         /// sigma = [D] * epsilon
@@ -144,7 +120,7 @@ namespace GPC.Model.FEM.FiniteElements
         /// </summary>
         protected abstract mnl.Vector<double> BuildFLocalCoord();
 
-        public mnl.Vector<double> GlobalCoordF()
+        public virtual mnl.Vector<double> GetGlobalCoordF()
         {
             mnl.Vector<double> _fLocalCoord = BuildFLocalCoord();
             mnl.Vector<double> F = DofGlobalToLocal.Transpose() * _fLocalCoord;
@@ -152,9 +128,26 @@ namespace GPC.Model.FEM.FiniteElements
             return F;
         }
 
-        public void AddAttribute(IPlateLoadCaseAttribute attribute)
+        public virtual void AddAttribute(IPlateLoadCaseAttribute attribute)
         {
             _attributes.Add(attribute);
+        }
+
+        /// <summary>
+        /// Retrieve sigma, N, M, in the element from displacement
+        /// </summary>
+        /// <param name="displacementsNodes"></param>
+        /// <param name="displacementsInGlobalCoordinates"></param>
+        public abstract void GetResults(double[] displacementsNodes, bool displacementsInGlobalCoordinates = true);
+
+        /// <summary>
+        /// Get displacements in local coordinates of the element
+        /// </summary>
+        /// <param name="displacementsNodes"></param>
+        /// <returns></returns>
+        public double[] GetLocalDisplacement(double[] displacementsNodes)
+        {
+            return (DofGlobalToLocal * mnl.Vector<double>.Build.Dense(displacementsNodes)).ToArray();
         }
 
         /// <summary>

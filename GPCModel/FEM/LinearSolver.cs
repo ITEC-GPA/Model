@@ -163,7 +163,7 @@ namespace GPC.Model.FEM
 
                 element.BuildMatrix();
                 //Stiffness Matrix of element in global coordinates, KElementGlobal = GlobalToLocal ^ T * [KeLocal] * [GlobalToLocal]
-                mnl.Matrix<double> KElementGlobalCoord = element.DofGlobalToLocal.Transpose() * element.KElementLocalCoord * element.DofGlobalToLocal;
+                mnl.Matrix<double> KElementGlobalCoord = element.KElementGlobalCoord;
                 Console.WriteLine("KElementGlobalCoord element " + el);
                 for (int r = 0; r < KElementGlobalCoord.RowCount; r++)
                 {
@@ -216,7 +216,6 @@ namespace GPC.Model.FEM
             #region CalculationOfAppliedForcesF
             //Calculation of Forces vector
             _F = mnl.Vector<double>.Build.Dense(_KGlobal.RowCount);
-            //_F[GetPositionInKGlobal("4",DOF.DX).First()] = 1000;
 
             Vector3d X = new Vector3d(1, 0, 0);
             Vector3d Y = new Vector3d(0, 1, 0);
@@ -286,7 +285,7 @@ namespace GPC.Model.FEM
             for (int i = 0; i < Elements.Count(); i++) //cycle over elements
             {
                 FiniteElement element = Elements[i];
-                mnl.Vector<double> FElementGlobalCoord = element.GlobalCoordF();
+                mnl.Vector<double> FElementGlobalCoord = element.GetGlobalCoordF();
                 for (int j = 0; j < element.Nodes.Length; j++) //cycle over nodes of element
                 {
                     Node node = element.Nodes[j];
@@ -320,6 +319,7 @@ namespace GPC.Model.FEM
                 }
             }
             #endregion
+
             #endregion
 
             #region ApplyingRestrains
@@ -454,72 +454,42 @@ namespace GPC.Model.FEM
                     globalDisplacementsNodesElement[j] = _nodeGlobalDisplacement[pos[j]];
                     //Console.WriteLine("Element " + i + " Displacemente global coordintates DOF nr. " + j + " = " + globalDisplacementsNodesElement[j]);
                 }
-                #endregion
 
-                #region ConvertGlobalDisplacementToLocalDisplacement
-                mnl.Vector<double> vecLocalDispl = element.DofGlobalToLocal * mnl.Vector<double>.Build.Dense(globalDisplacementsNodesElement);
-                //Console.WriteLine("Displacement in Local coordinates:" + vecLocalDispl.ToString());
-                #endregion
-
-                if (element is TriangularMembranal) {
-                    #region CalculationOfStressAndDeformationsInLocalCoordinates
-                    mnl.Vector<double> epsilon = mnl.Vector<double>.Build.Dense(3); //epsilon_xx; epsilon_yy; epsilon_xy
-                    mnl.Vector<double> stress = mnl.Vector<double>.Build.Dense(epsilon.Count); //sigma_xx; sigma_yy; tau_xy
-
-                    epsilon = element.B * vecLocalDispl;
-                    stress = element.D * epsilon;
-                    Console.WriteLine("Strains in Local coordinates:" + epsilon.ToString());
-                    Console.WriteLine("Stress in Local coordinates:" + stress.ToString());
-                    #endregion
-
-                    #region ConvertInGlobalCoordinates
-                    //Define Couchy Tensor
-                    mnl.Matrix<double> epsilonCouchy = mnl.Matrix<double>.Build.Dense(3, 3);
-                    epsilonCouchy[0, 0] = epsilon[0]; //epsilon_xx
-                    epsilonCouchy[1, 1] = epsilon[1]; //epsilon_yy
-                    epsilonCouchy[0, 1] = epsilon[2]; //epsilon_xy
-                    epsilonCouchy[1, 0] = epsilon[2]; //epsilon_yx
-                    //epsilonCouchy[2, 2] = -ni / E * (sigma_xx + sigma_yy) + alpha * Temperature ; //epsilon_zz
-                    Console.WriteLine("Epsilon local coordinate:" + epsilonCouchy.ToString());
-
-                    mnl.Matrix<double> stressCouchy = mnl.Matrix<double>.Build.Dense(3, 3);
-                    stressCouchy[0, 0] = stress[0]; //sigma_xx
-                    stressCouchy[1, 1] = stress[1]; //sigma_yy
-                    stressCouchy[0, 1] = stress[2]; //sigma_xy
-                    stressCouchy[1, 0] = stress[2]; //sigma_yx
-                    Console.WriteLine("Stress local coordinate:" + stressCouchy.ToString());
-
-                    //Rotation matrix
-                    mnl.Matrix<double> rotation = mnl.Matrix<double>.Build.Dense(3, 3);
-                    CoordinateSystem versorsLocalAxis = element.LocalCoordinateSystem;
-                    Vector3d xVersor = versorsLocalAxis.V1;
-                    Vector3d yVersor = versorsLocalAxis.V2;
-                    Vector3d zVersor = versorsLocalAxis.V3;
-
-                     rotation[0, 0] = xVersor.X; 
-                    rotation[0, 1] = yVersor.X;
-                    rotation[0, 2] = zVersor.X;
-
-                    rotation[1, 0] = xVersor.Y;
-                    rotation[1, 1] = yVersor.Y;
-                    rotation[1, 2] = zVersor.Y;
-
-                    rotation[2, 0] = xVersor.Z;
-                    rotation[2, 1] = yVersor.Z;
-                    rotation[2, 2] = zVersor.Z;
-                    Console.WriteLine("Rotation matrix tensor:" + rotation.ToString());
-
-                    //Second order tensor -> Trotated = Q * T * Q^T
-                    mnl.Matrix<double> epsilonGlobalCoord = rotation * epsilonCouchy * rotation.Transpose();
-                    Console.WriteLine("Epsilon in global coordinates = " + epsilonGlobalCoord);
-                    mnl.Matrix<double> sigmaGlobalCoord = rotation * stressCouchy * rotation.Transpose();
-                    Console.WriteLine("Stress in global coordinates = " + sigmaGlobalCoord);
-                    #endregion
-                } else
+                //if element is simply finite element or a composed finite element
+                if (element is TriangleElement)
                 {
-                    //throw new NotImplementedException("retrieve result not implemented");
-                    Console.WriteLine("retrieve result not implemented");
+                    TriangleElement elementCasted = (TriangleElement)element;
+                    //Decompose with TriangleMembranal and TriangleDK
+
+                    mnl.Vector<double> membranalDisplacements = mnl.Vector<double>.Build.Dense(3 * 3); //in plane displacement can be in DX, DY, DZ in global coordinates
+                    //node 1
+                    int start = 0;
+                    for (int j = 0; j < 3; j++)
+                    {
+                        membranalDisplacements[j] = globalDisplacementsNodesElement[start + j];
+                    }
+
+                    //node 2
+                    start = 6;
+                    for (int j = 0; j < 3; j++)
+                    {
+                        membranalDisplacements[j] = globalDisplacementsNodesElement[start + j];
+                    }
+
+                    //node 3
+                    start = 9;
+                    for (int j = 0; j < 3; j++)
+                    {
+                        membranalDisplacements[j] = globalDisplacementsNodesElement[start + j];
+                    }
+
+                    mnl.Vector<double> flexuralDisplacementsflexuralDisplacements = mnl.Vector<double>.Build.Dense(globalDisplacementsNodesElement); //dz + rx + ry can be in DX, DY, DZ, RX, RY, RZ in global coordinates
                 }
+                else
+                {
+                    element.GetResults(globalDisplacementsNodesElement, true);
+                }
+                #endregion             
             }
             #endregion
         }

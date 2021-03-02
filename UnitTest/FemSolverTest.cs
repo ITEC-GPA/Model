@@ -545,7 +545,7 @@ namespace FemTest
             //LoadCase loadCase = new LoadCase("myLoadCase", new Guid());
             /*FreedomCase freedomCase = new FreedomCase("freedomCase1");*/
 
-            Material mat = new SteelMaterial("steel", 12, 0.0, 355, 510, 7850);
+            Material mat = new GeneralElasticMaterial("mat", 12, 0.0);
             PlateProperty prop = new PlateProperty(mat, 1.0, 1.0);
 
             /*CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
@@ -582,7 +582,7 @@ namespace FemTest
             //LoadCase loadCase = new LoadCase("myLoadCase", new Guid());
             /*FreedomCase freedomCase = new FreedomCase("freedomCase1");*/
 
-            Material mat = new SteelMaterial("steel", 12, 0.0, 355, 510, 7850);
+            Material mat = new GeneralElasticMaterial("mat", 12, 0.0);
             PlateProperty prop = new PlateProperty(mat, 1.0, 1.0);
 
             /*CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
@@ -805,7 +805,7 @@ namespace FemTest
             //LoadCase loadCase = new LoadCase("myLoadCase", new Guid());
             /*FreedomCase freedomCase = new FreedomCase("freedomCase1");*/
 
-            Material mat = new SteelMaterial("steel", 12, 0.0, 355, 510, 7850);
+            Material mat = new GeneralElasticMaterial("mat", 12, 0.0);
             PlateProperty prop = new PlateProperty(mat, 1.0, 1.0);
 
             /*CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
@@ -843,7 +843,7 @@ namespace FemTest
             //LoadCase loadCase = new LoadCase("myLoadCase", new Guid());
             /*FreedomCase freedomCase = new FreedomCase("freedomCase1");*/
 
-            Material mat = new SteelMaterial("steel", 12, 0.0, 355, 510, 7850);
+            Material mat = new GeneralElasticMaterial("mat", 12, 0.0);
             PlateProperty prop = new PlateProperty(mat, 1.0, 1.0);
 
             /*CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
@@ -873,6 +873,83 @@ namespace FemTest
 
             //actually does not word
             Assert.AreEqual(true, false);
+        }
+
+        [TestMethod]
+        public void TriangleElementTest1()
+        {
+            Material mat = new GeneralElasticMaterial("mat", 12, 0.0);
+            PlateProperty prop = new PlateProperty(mat, 1.0, 1.0);
+
+            Node[] nodesPlate1 = new Node[4];
+            nodesPlate1[0] = new Node(0, 0, 0, 1, "1");
+            nodesPlate1[1] = new Node(1, 0, 0, 2, "2");
+            nodesPlate1[2] = new Node(0, 1, 0, 3, "3");
+
+            FiniteElement e0 = new TriangleElement(nodesPlate1, prop, 1);
+            e0.BuildMatrix();
+
+            /*Console.WriteLine("Element local stiffness matrix");
+            for (int r = 0; r < e0.KElementLocalCoord.RowCount; r++)
+            {
+                for (int c = 0; c < e0.KElementLocalCoord.ColumnCount; c++)
+                {
+                    Console.Write(e0.KElementLocalCoord[r, c].ToString("F2") + " ");
+                }
+                Console.WriteLine();
+            }*/
+
+            //actually does not word
+            Assert.AreEqual(true, false);
+        }
+
+        /// <summary>
+        /// Example PatchTest in "A study of three-node trinagular plate bending elements - batoz (1980)
+        /// international journal for numerical methods in engineering, vol. 15 - 1771-1812 -> pg. 1797
+        /// </summary>
+        [TestMethod]
+        public void TriangleElementTest2()
+        {
+            LoadCase loadCase = new LoadCase("myLoadCase", new Guid());
+            FreedomCase freedomCase = new FreedomCase("freedomCase1");
+
+            Material mat = new SteelMaterial("mat", 10000, 0.3, 355, 510, 7850);
+            PlateProperty prop = new PlateProperty(mat, 1.0, 1.0);
+
+            #region restrains
+            CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
+            NodeRestrainAttribute fixDXDYDZRZ = new NodeRestrainAttribute(freedomCase, sys);
+            fixDXDYDZRZ.AddExternalRestrain(LinearSolver.DOF.DX);
+            fixDXDYDZRZ.AddExternalRestrain(LinearSolver.DOF.DY);
+            fixDXDYDZRZ.AddExternalRestrain(LinearSolver.DOF.DZ);
+            fixDXDYDZRZ.AddExternalRestrain(LinearSolver.DOF.RZ);
+
+            NodeRestrainAttribute fixRZ = new NodeRestrainAttribute(freedomCase, sys);
+            fixRZ.AddExternalRestrain(LinearSolver.DOF.RZ);
+            #endregion
+
+            #region nodalforces
+            NodeForceAttribute F = new NodeForceAttribute(loadCase, sys, -10.0, 0, 5.0, 0, 0, 0);
+            #endregion
+
+            Node nodeA = new Node(0, 8, 0, 1, "A");
+            nodeA.AddAttribute(fixDXDYDZRZ);
+            Node nodeB = new Node(0, 0, 0, 2, "B");
+            nodeB.AddAttribute(fixDXDYDZRZ);
+            Node nodeC = new Node(8, 8, 0, 3, "C");
+            nodeC.AddAttribute(F);
+            nodeC.AddAttribute(fixRZ);
+            Node nodeD = new Node(8, 0, 0, 3, "D");
+            nodeD.AddAttribute(fixDXDYDZRZ);
+
+            FiniteElement e0 = new TriangleElement(new Node[] { nodeA, nodeB, nodeC }, prop, 1);
+            FiniteElement e1 = new TriangleElement(new Node[] { nodeB, nodeD, nodeC }, prop, 1);
+            LinearSolver fem = new LinearSolver(new FiniteElement[] { e0, e1 });
+
+            double DX = fem.GetDisplacementGlobalCoordinates(nodeC, LinearSolver.DOF.DX).First();
+            double DZ = fem.GetDisplacementGlobalCoordinates(nodeC, LinearSolver.DOF.DZ).First();
+            Assert.AreEqual(-0.0013481, DX, 1e-6);
+            Assert.AreEqual(0.24960, DZ, 1e-6);
         }
     }
 }

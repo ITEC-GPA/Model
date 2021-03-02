@@ -3,12 +3,19 @@ using System.Linq;
 using GPC.Geometry;
 using GPC.Model.FEM.Properties;
 using GPC.Model.FEM.Attributes;
+using mnl = MathNet.Numerics.LinearAlgebra;
 using MathNet.Numerics.LinearAlgebra;
 
 namespace GPC.Model.FEM.FiniteElements
 {
-    public class TriangularMembranal : TriangleElement, IEquatable<TriangularMembranal>
+    public class TriangularMembranal : Plate, IEquatable<TriangularMembranal>
     {
+        #region variables
+        protected double _areaElement;
+
+        protected mnl.Matrix<double> _b;
+        #endregion
+
         public TriangularMembranal(Node[] nodes, PlateProperty property, int id) : base(nodes, property, id)
         {
             //recalled base(nodes)
@@ -53,7 +60,7 @@ namespace GPC.Model.FEM.FiniteElements
             double mpk = (nodeK.Position.Y - nodeP.Position.Y) / dpk;
             double npk = (nodeK.Position.Z - nodeP.Position.Z) / dpk;
 
-            _dofGlobalToLocal = Matrix<double>.Build.Dense(6, 9);
+            _dofGlobalToLocal = mnl.Matrix<double>.Build.Dense(6, 9);
             DofGlobalToLocal[0, 0] = lpk;
             DofGlobalToLocal[0, 1] = mpk;
             DofGlobalToLocal[0, 2] = npk;
@@ -98,7 +105,7 @@ namespace GPC.Model.FEM.FiniteElements
             #endregion
 
             #region BMatrixDerivateOfShapeFunctionInLocalCoordinates
-            _b = Matrix<double>.Build.Dense(3, 6);
+            _b = mnl.Matrix<double>.Build.Dense(3, 6);
             _b[0, 0] = dy32;
             _b[0, 2] = -dy31;
             _b[0, 4] = dy21;
@@ -123,7 +130,7 @@ namespace GPC.Model.FEM.FiniteElements
             double E = ((PlateProperty)_property).GetE();
             double ni = ((PlateProperty)_property).GetNi();
 
-            _d = Matrix<double>.Build.Dense(3, 3);
+            _d = mnl.Matrix<double>.Build.Dense(3, 3);
             _d[0, 0] = 1.0;
             _d[0, 1] = ni;
             _d[1, 0] = ni;
@@ -141,9 +148,14 @@ namespace GPC.Model.FEM.FiniteElements
             #endregion
         }
 
-        protected override Vector<double> BuildFLocalCoord()
+        public override Matrix<double> GetB(double csi = 0, double eta = 0, double zeta = 0)
         {
-            Vector<double> _fLocalCoord = Vector<double>.Build.Dense(2 * Nodes.Length); //2 = DOF in local : DX and DY
+            return _b;
+        }
+
+        protected override mnl.Vector<double> BuildFLocalCoord()
+        {
+            mnl.Vector<double> _fLocalCoord = mnl.Vector<double>.Build.Dense(2 * Nodes.Length); //2 = DOF in local : DX and DY
             foreach (IPlateLoadCaseAttribute iAttribute in _attributes)
             {
                 if (iAttribute is PlatePressureAttribute)
@@ -190,7 +202,7 @@ namespace GPC.Model.FEM.FiniteElements
         /// According to RAO, order of nodes are CLOCKWISE
         /// </summary>
         /// <returns></returns>
-        protected override Node[] LocalNodes()
+        protected Node[] LocalNodes()
         {
             Node nodeI = Nodes[0];
             Node nodeJ = Nodes[1];
@@ -227,6 +239,72 @@ namespace GPC.Model.FEM.FiniteElements
             localNodes[2] = new Node(v13.DotProduct(vecx), v13.DotProduct(vecy), v13.DotProduct(vecz), nodeK.Id, nodeK.Name); //GlobalNodes.ElementAt(3 - 1);
             #endregion
             return localNodes;
+        }
+
+        public override void GetResults(double[] displacementsNodes, bool displacementsInGlobalCoordinates = true)
+        {
+            mnl.Vector<double> vecLocalDispl;
+            if (displacementsInGlobalCoordinates == true) { 
+                //conversion from global displacements to local displacements
+                vecLocalDispl = mnl.Vector<double>.Build.Dense(GetLocalDisplacement(displacementsNodes));
+            } else
+            {
+                vecLocalDispl = mnl.Vector<double>.Build.Dense(displacementsNodes);
+            }
+
+            #region CalculationOfStressAndDeformationsInLocalCoordinates
+            mnl.Vector<double> epsilon = mnl.Vector<double>.Build.Dense(3); //epsilon_xx; epsilon_yy; epsilon_xy
+            mnl.Vector<double> stress = mnl.Vector<double>.Build.Dense(epsilon.Count); //sigma_xx; sigma_yy; tau_xy
+
+            epsilon = GetB() * vecLocalDispl;
+            stress = D * epsilon;
+            Console.WriteLine("Strains in Local coordinates:" + epsilon.ToString());
+            Console.WriteLine("Stress in Local coordinates:" + stress.ToString());
+            #endregion
+
+            #region ConvertInGlobalCoordinates
+            //Define Couchy Tensor
+            mnl.Matrix<double> epsilonCouchy = mnl.Matrix<double>.Build.Dense(3, 3);
+            epsilonCouchy[0, 0] = epsilon[0]; //epsilon_xx
+            epsilonCouchy[1, 1] = epsilon[1]; //epsilon_yy
+            epsilonCouchy[0, 1] = epsilon[2]; //epsilon_xy
+            epsilonCouchy[1, 0] = epsilon[2]; //epsilon_yx
+                                              //epsilonCouchy[2, 2] = -ni / E * (sigma_xx + sigma_yy) + alpha * Temperature ; //epsilon_zz
+            Console.WriteLine("Epsilon local coordinate:" + epsilonCouchy.ToString());
+
+            mnl.Matrix<double> stressCouchy = mnl.Matrix<double>.Build.Dense(3, 3);
+            stressCouchy[0, 0] = stress[0]; //sigma_xx
+            stressCouchy[1, 1] = stress[1]; //sigma_yy
+            stressCouchy[0, 1] = stress[2]; //sigma_xy
+            stressCouchy[1, 0] = stress[2]; //sigma_yx
+            Console.WriteLine("Stress local coordinate:" + stressCouchy.ToString());
+
+            //Rotation matrix
+            mnl.Matrix<double> rotation = mnl.Matrix<double>.Build.Dense(3, 3);
+            CoordinateSystem versorsLocalAxis = LocalCoordinateSystem;
+            Vector3d xVersor = versorsLocalAxis.V1;
+            Vector3d yVersor = versorsLocalAxis.V2;
+            Vector3d zVersor = versorsLocalAxis.V3;
+
+            rotation[0, 0] = xVersor.X;
+            rotation[0, 1] = yVersor.X;
+            rotation[0, 2] = zVersor.X;
+
+            rotation[1, 0] = xVersor.Y;
+            rotation[1, 1] = yVersor.Y;
+            rotation[1, 2] = zVersor.Y;
+
+            rotation[2, 0] = xVersor.Z;
+            rotation[2, 1] = yVersor.Z;
+            rotation[2, 2] = zVersor.Z;
+            Console.WriteLine("Rotation matrix tensor:" + rotation.ToString());
+
+            //Second order tensor -> Trotated = Q * T * Q^T
+            mnl.Matrix<double> epsilonGlobalCoord = rotation * epsilonCouchy * rotation.Transpose();
+            Console.WriteLine("Epsilon in global coordinates = " + epsilonGlobalCoord);
+            mnl.Matrix<double> sigmaGlobalCoord = rotation * stressCouchy * rotation.Transpose();
+            Console.WriteLine("Stress in global coordinates = " + sigmaGlobalCoord);
+            #endregion
         }
 
         public override bool Equals(object obj)

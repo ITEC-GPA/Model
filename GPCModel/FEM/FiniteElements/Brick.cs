@@ -23,5 +23,14 @@ namespace GPC.Model.FEM.FiniteElements
         {
             throw new NotImplementedException();
         }
+
+        public override mnl.Matrix<double> GetB(double csi, double eta, double zeta)
+        {
+            throw new NotImplementedException();
+        }
+        public override void GetResults(double[] displacementsNodes, bool displacementsInGlobalCoordinates = true)
+        {
+            throw new NotImplementedException();
+        }
     }
 }
