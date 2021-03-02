@@ -47,8 +47,8 @@
     <Reference Include="GPCGeometry, Version=1.0.4.10, Culture=neutral, processorArchitecture=AMD64">
       <HintPath>..\packages\GPCGeometry.1.0.4.10\lib\net472\GPCGeometry.dll</HintPath>
     </Reference>
-    <Reference Include="GPCUtilities, Version=1.0.11.0, Culture=neutral, processorArchitecture=AMD64">
-      <HintPath>..\packages\GPCUtilities.1.0.11\lib\net472\GPCUtilities.dll</HintPath>
+    <Reference Include="GPCUtilities, Version=1.0.13.0, Culture=neutral, processorArchitecture=AMD64">
+      <HintPath>..\packages\GPCUtilities.1.0.13\lib\net472\GPCUtilities.dll</HintPath>
     </Reference>
     <Reference Include="MathNet.Numerics, Version=4.15.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\MathNet.Numerics.4.15.0\lib\net461\MathNet.Numerics.dll</HintPath>
