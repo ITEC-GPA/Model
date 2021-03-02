@@ -1,4 +1,5 @@
-﻿using GPC.Utilities.Units;
+﻿using GPC.Utilities.Converters;
+using GPC.Utilities.Units;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -10,7 +11,7 @@ namespace GPC.Model
 {
     public static class Units    
     {
-        [Description("kNm")]
+        [Description("kNm"), TypeConverter(typeof(EnumDescriptionTypeConverter))]
         public static UnitsSystem Knm = new UnitsSystem(UnitsConvert.LengthUnits.m, UnitsConvert.ForceUnits.kN, 
             UnitsConvert.MassUnits.ton, UnitsConvert.PressureUnits.kPa, UnitsConvert.TemperatureUnits.C);
 
@@ -23,7 +24,7 @@ namespace GPC.Model
         public static UnitsSystem IPS = new UnitsSystem(UnitsConvert.LengthUnits.inch, UnitsConvert.ForceUnits.lbf, 
             UnitsConvert.MassUnits.lb, UnitsConvert.PressureUnits.psi, UnitsConvert.TemperatureUnits.C);
 
-        private static readonly UnitsSystem DefaultUnits = Nmm;
+        public static readonly UnitsSystem DefaultUnits = Nmm;
 
         /// <summary>
         /// Convert lengths from the given units to the default units
