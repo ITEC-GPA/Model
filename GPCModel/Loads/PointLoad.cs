@@ -6,7 +6,7 @@ using System.Runtime.Serialization;
 
 namespace GPC.Model.Loads
 {
-    public sealed class PointLoad : Load, IPointLoad, IEquatable<PointLoad>
+    public class PointLoad : Load, IPointLoad
     {
         #region Variables
 
@@ -193,22 +193,19 @@ namespace GPC.Model.Loads
 
         #region Equals, HasCode and operators
         
-        public bool Equals(PointLoad other)
-        {
-            if (ReferenceEquals(other, this))
-                return true;
-
-            if (other is null)
-                return false;
-
-            return _point.Equals(other._point) && _coordinateSystem.Equals(other._coordinateSystem)
-                                               && _f1.Equals(_f1) && _f2.Equals(_f2) && _f3.Equals(_f3)
-                                               && _m1.Equals(_m1) && _m2.Equals(_m2) && _m3.Equals(_m3) && base.Equals(other);
-        }
-
         public override bool Equals(object obj)
         {
-            return Equals(obj);
+            if (ReferenceEquals(obj, this))
+                return true;
+
+            if (obj is null)
+                return false;
+                
+            var objCasted = obj as PointLoad;
+
+            return objCasted != null && _point.Equals(objCasted._point) && _coordinateSystem.Equals(objCasted._coordinateSystem)
+                                                                        && _f1.Equals(objCasted._f1) && _f2.Equals(objCasted._f2) && _f3.Equals(objCasted._f3)
+                                                                        && _m1.Equals(objCasted._m1) && _m2.Equals(objCasted._m2) && _m3.Equals(objCasted._m3) && base.Equals(objCasted);
         }
 
         public override int GetHashCode()

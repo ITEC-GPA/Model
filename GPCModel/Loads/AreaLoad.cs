@@ -74,21 +74,19 @@ namespace GPC.Model.Loads
         }
 
         #region Equals, HasCode and operators
-        public bool Equals(AreaLoad other)
-        {
-            if (ReferenceEquals(other, this))
-                return true;
-
-            if (other is null)
-                return false;
-
-            return _shape.Equals(other._shape) && _coordinateSystem.Equals(other._coordinateSystem)
-                                               && _p1.Equals(_p1) && _p2.Equals(_p2) && _p3.Equals(_p3) && base.Equals(other);
-        }
 
         public override bool Equals(object obj)
         {
-            return Equals(obj);
+            if (ReferenceEquals(obj, this))
+                return true;
+
+            if (obj is null)
+                return false;
+
+            var objCasted = obj as AreaLoad;
+
+            return objCasted != null && _shape.Equals(objCasted._shape) && _coordinateSystem.Equals(objCasted._coordinateSystem)
+                                                                        && _p1.Equals(objCasted._p1) && _p2.Equals(objCasted._p2) && _p3.Equals(objCasted._p3) && base.Equals(objCasted);
         }
 
         public override int GetHashCode()
@@ -118,6 +116,7 @@ namespace GPC.Model.Loads
         {
             return !(obj1 == obj2);
         }
-#endregion
+
+        #endregion
     }
 }
