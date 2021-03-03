@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Runtime.Serialization;
 using GPC.Utilities.Attributes;
 using System.ComponentModel;
+using GPC.Utilities.Converters;
 
 namespace GPC.Model.Materials
 {
@@ -15,6 +16,7 @@ namespace GPC.Model.Materials
         #region PUBLIC ENUMS
 
         [Serializable]
+        [TypeConverter(typeof(EnumDescriptionTypeConverter))]
         public enum InterlayerType
         {
             [Description("AcusticPVB / Family0 prEN")] AcusticPVB = 0,
