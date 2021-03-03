@@ -11,7 +11,7 @@ namespace GPC.Model
 {
     public static class Units    
     {
-        [Description("kNm"), TypeConverter(typeof(EnumDescriptionTypeConverter))]
+        [Description("kNm")]
         public static UnitsSystem Knm = new UnitsSystem(UnitsConvert.LengthUnits.m, UnitsConvert.ForceUnits.kN, 
             UnitsConvert.MassUnits.ton, UnitsConvert.PressureUnits.kPa, UnitsConvert.TemperatureUnits.C);
 
