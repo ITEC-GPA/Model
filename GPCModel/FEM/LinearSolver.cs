@@ -434,6 +434,7 @@ namespace GPC.Model.FEM
             #endregion
 
             #region CalcResults
+            //controllare cosa succede con elementi finiti con dof attivi diversi
             for (int i = 0; i < Elements.Length; i++)
             {
                 #region SelectGlobalDisplacementForElement
@@ -455,40 +456,8 @@ namespace GPC.Model.FEM
                     //Console.WriteLine("Element " + i + " Displacemente global coordintates DOF nr. " + j + " = " + globalDisplacementsNodesElement[j]);
                 }
 
-                //if element is simply finite element or a composed finite element
-                if (element is TriangleElement)
-                {
-                    TriangleElement elementCasted = (TriangleElement)element;
-                    //Decompose with TriangleMembranal and TriangleDK
-
-                    mnl.Vector<double> membranalDisplacements = mnl.Vector<double>.Build.Dense(3 * 3); //in plane displacement can be in DX, DY, DZ in global coordinates
-                    //node 1
-                    int start = 0;
-                    for (int j = 0; j < 3; j++)
-                    {
-                        membranalDisplacements[j] = globalDisplacementsNodesElement[start + j];
-                    }
-
-                    //node 2
-                    start = 6;
-                    for (int j = 0; j < 3; j++)
-                    {
-                        membranalDisplacements[j] = globalDisplacementsNodesElement[start + j];
-                    }
-
-                    //node 3
-                    start = 9;
-                    for (int j = 0; j < 3; j++)
-                    {
-                        membranalDisplacements[j] = globalDisplacementsNodesElement[start + j];
-                    }
-
-                    mnl.Vector<double> flexuralDisplacementsflexuralDisplacements = mnl.Vector<double>.Build.Dense(globalDisplacementsNodesElement); //dz + rx + ry can be in DX, DY, DZ, RX, RY, RZ in global coordinates
-                }
-                else
-                {
-                    element.GetResults(globalDisplacementsNodesElement, true);
-                }
+                //get results of element
+                element.GetResults(globalDisplacementsNodesElement, true);
                 #endregion             
             }
             #endregion
