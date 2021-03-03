@@ -226,24 +226,27 @@ namespace GPC.Model.FEM.FiniteElements
             mnl.Vector<double> membranalGlobalDisplacements = mnl.Vector<double>.Build.Dense(3 * 3); //in plane displacement can be in DX, DY, DZ in global coordinates
             
             //node 1
-            int start = 0;
+            int startGlobal = 0;
+            int startLocal = 0;
             for (int j = 0; j < 3; j++)
             {
-                membranalGlobalDisplacements[j] = displacementsNodes[start + j];
+                membranalGlobalDisplacements[startLocal + j] = displacementsNodes[startGlobal + j];
             }
 
             //node 2
-            start = 6;
+            startGlobal = 6;
+            startLocal = 3;
             for (int j = 0; j < 3; j++)
             {
-                membranalGlobalDisplacements[j] = displacementsNodes[start + j];
+                membranalGlobalDisplacements[startLocal + j] = displacementsNodes[startGlobal + j];
             }
 
             //node 3
-            start = 9;
+            startGlobal = 12;
+            startLocal = 6;
             for (int j = 0; j < 3; j++)
             {
-                membranalGlobalDisplacements[j] = displacementsNodes[start + j];
+                membranalGlobalDisplacements[startLocal + j] = displacementsNodes[startGlobal + j];
             }
 
             mnl.Vector<double> flexuralGlobalDisplacements = mnl.Vector<double>.Build.Dense(displacementsNodes); //dz + rx + ry can be in DX, DY, DZ, RX, RY, RZ in global coordinates

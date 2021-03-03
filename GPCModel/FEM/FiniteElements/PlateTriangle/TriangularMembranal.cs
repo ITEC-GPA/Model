@@ -84,7 +84,7 @@ namespace GPC.Model.FEM.FiniteElements
             DofGlobalToLocal[5, 6] = lij;
             DofGlobalToLocal[5, 7] = mij;
             DofGlobalToLocal[5, 8] = nij;
-            Console.WriteLine("Local To Global Matrix = " + DofGlobalToLocal.ToString());
+            //Console.WriteLine("Local To Global Matrix = " + DofGlobalToLocal.ToString());
             #endregion
 
             Node[] localNodes = LocalNodes(); //take global node and transform in local nodes
@@ -120,10 +120,10 @@ namespace GPC.Model.FEM.FiniteElements
             _b[2, 3] = -dy31;
             _b[2, 4] = -dx21;
             _b[2, 5] = dy21;
-            Console.WriteLine("Matrix B = " + _b.ToString());
+            //Console.WriteLine("Matrix B = " + _b.ToString());
 
             _b = 1.0 / (2.0 * _areaElement) * _b;
-            Console.WriteLine("Matrix B = " + _b.ToString());
+            //Console.WriteLine("Matrix B = " + _b.ToString());
             #endregion
 
             #region matrixD
@@ -137,14 +137,14 @@ namespace GPC.Model.FEM.FiniteElements
             _d[1, 1] = 1.0;
             _d[2, 2] = (1.0 - ni) / 2.0;
             _d = E / (1.0 - ni * ni) * _d;
-            Console.WriteLine("D = " + _d.ToString());
+            //Console.WriteLine("D = " + _d.ToString());
             #endregion
 
             #region stiffnessMatrixInLocalCoordinates
             double thk = ((PlateProperty)_property).MembraneThickness;
             double V = _areaElement * thk;
             _kElementLocalCoord = V * _b.Transpose() * _d * _b;
-            Console.WriteLine("KElementLocalCoord = " + KElementLocalCoord.ToString());
+            //Console.WriteLine("KElementLocalCoord = " + KElementLocalCoord.ToString());
             #endregion
         }
 
@@ -258,8 +258,8 @@ namespace GPC.Model.FEM.FiniteElements
 
             epsilon = GetB() * vecLocalDispl;
             stress = D * epsilon;
-            Console.WriteLine("Strains in Local coordinates:" + epsilon.ToString());
-            Console.WriteLine("Stress in Local coordinates:" + stress.ToString());
+            /*Console.WriteLine("Strains in Local coordinates:" + epsilon.ToString());
+            Console.WriteLine("Stress in Local coordinates:" + stress.ToString());*/
             #endregion
 
             #region ConvertInGlobalCoordinates
@@ -271,7 +271,7 @@ namespace GPC.Model.FEM.FiniteElements
             epsilonCouchy[0, 1] = epsilon[2]; //epsilon_xy
             epsilonCouchy[1, 0] = epsilon[2]; //epsilon_yx
                                               //epsilonCouchy[2, 2] = -ni / E * (sigma_xx + sigma_yy) + alpha * Temperature ; //epsilon_zz
-            Console.WriteLine("Epsilon local coordinate:" + epsilonCouchy.ToString());
+            //Console.WriteLine("Epsilon local coordinate:" + epsilonCouchy.ToString());
 
             mnl.Matrix<double> stressCouchy = mnl.Matrix<double>.Build.Dense(3, 3);
             stressCouchy[0, 0] = stress[0]; //sigma_xx
@@ -279,7 +279,7 @@ namespace GPC.Model.FEM.FiniteElements
 
             stressCouchy[0, 1] = stress[2]; //sigma_xy
             stressCouchy[1, 0] = stress[2]; //sigma_yx
-            Console.WriteLine("Stress local coordinate:" + stressCouchy.ToString());
+            //Console.WriteLine("Stress local coordinate:" + stressCouchy.ToString());
 
             //Rotation matrix
             mnl.Matrix<double> rotation = mnl.Matrix<double>.Build.Dense(3, 3);
@@ -299,7 +299,7 @@ namespace GPC.Model.FEM.FiniteElements
             rotation[2, 0] = xVersor.Z;
             rotation[2, 1] = yVersor.Z;
             rotation[2, 2] = zVersor.Z;
-            Console.WriteLine("Rotation matrix tensor:" + rotation.ToString());
+            //Console.WriteLine("Rotation matrix tensor:" + rotation.ToString());
 
             //Second order tensor -> Trotated = Q * T * Q^T
             mnl.Matrix<double> epsilonGlobalCoord = rotation * epsilonCouchy * rotation.Transpose();

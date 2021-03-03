@@ -164,7 +164,7 @@ namespace GPC.Model.FEM
                 element.BuildMatrix();
                 //Stiffness Matrix of element in global coordinates, KElementGlobal = GlobalToLocal ^ T * [KeLocal] * [GlobalToLocal]
                 mnl.Matrix<double> KElementGlobalCoord = element.KElementGlobalCoord;
-                Console.WriteLine("KElementGlobalCoord element " + el);
+                /*Console.WriteLine("KElementGlobalCoord element " + el);
                 for (int r = 0; r < KElementGlobalCoord.RowCount; r++)
                 {
                     for (int c = 0; c < KElementGlobalCoord.RowCount; c++)
@@ -172,7 +172,7 @@ namespace GPC.Model.FEM
                         Console.Write(KElementGlobalCoord[r,c] + " ");
                     }
                     Console.WriteLine();
-                }
+                }*/
 
                 for (int i = 0; i < element.Nodes.Count(); i++)
                 {
@@ -430,11 +430,11 @@ namespace GPC.Model.FEM
             #region SolveModel
             //Solve Matrix
             _nodeGlobalDisplacement = _KGlobalRestrains.Solve(_FRestrains);
-            //Console.WriteLine("Node displacements results:" + _nodeGlobalDisplacement.ToString());
+            Console.WriteLine("Node displacements results:" + _nodeGlobalDisplacement.ToString());
             #endregion
 
             #region CalcResults
-            //controllare cosa succede con elementi finiti con dof attivi diversi
+            //attenzione controllare cosa succede con elementi finiti con dof attivi diversi
             for (int i = 0; i < Elements.Length; i++)
             {
                 #region SelectGlobalDisplacementForElement

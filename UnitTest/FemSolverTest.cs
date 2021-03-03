@@ -943,13 +943,64 @@ namespace FemTest
             nodeD.AddAttribute(fixDXDYDZRZ);
 
             FiniteElement e0 = new TriangleElement(new Node[] { nodeA, nodeB, nodeC }, prop, 1);
-            FiniteElement e1 = new TriangleElement(new Node[] { nodeB, nodeC, nodeD }, prop, 1);
+            FiniteElement e1 = new TriangleElement(new Node[] { nodeB, nodeD, nodeC }, prop, 1);
             LinearSolver fem = new LinearSolver(new FiniteElement[] { e0, e1 });
 
             double DX = fem.GetDisplacementGlobalCoordinates(nodeC, LinearSolver.DOF.DX).First();
             double DZ = fem.GetDisplacementGlobalCoordinates(nodeC, LinearSolver.DOF.DZ).First();
             Assert.AreEqual(-0.0013481, DX, 1e-6);
             Assert.AreEqual(0.24960, DZ, 1e-6);
+        }
+
+        [TestMethod]
+        public void TriangleElementTest3()
+        {
+            LoadCase loadCase = new LoadCase("myLoadCase", new Guid());
+            FreedomCase freedomCase = new FreedomCase("freedomCase1");
+
+            Material mat = new SteelMaterial("mat", 10000, 0.0, 355, 510, 7850);
+            PlateProperty prop = new PlateProperty(mat, 1.0, 1.0);
+
+            #region restrains
+            CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
+            NodeRestrainAttribute allFixed = new NodeRestrainAttribute(freedomCase, sys);
+            allFixed.AddExternalRestrain(LinearSolver.DOF.DX);
+            allFixed.AddExternalRestrain(LinearSolver.DOF.DY);
+            allFixed.AddExternalRestrain(LinearSolver.DOF.DZ);
+            allFixed.AddExternalRestrain(LinearSolver.DOF.RX);
+            allFixed.AddExternalRestrain(LinearSolver.DOF.RY);
+            allFixed.AddExternalRestrain(LinearSolver.DOF.RZ);
+
+            NodeRestrainAttribute fixedRZ = new NodeRestrainAttribute(freedomCase, sys);
+            fixedRZ.AddExternalRestrain(LinearSolver.DOF.RZ);
+            #endregion
+
+            #region nodalforces
+            NodeForceAttribute M = new NodeForceAttribute(loadCase, sys, 0.0, 0, 0.0, 1.0, 0, 0);
+            #endregion
+
+            Node nodeA = new Node(0, 8, 0, 1, "A");
+            nodeA.AddAttribute(M);
+            nodeA.AddAttribute(fixedRZ);
+
+            Node nodeB = new Node(0, 0, 0, 2, "B");
+            nodeB.AddAttribute(allFixed);
+
+            Node nodeC = new Node(8, 8, 0, 3, "C");
+            nodeC.AddAttribute(M);
+            nodeC.AddAttribute(fixedRZ);
+
+            Node nodeD = new Node(8, 0, 0, 3, "D");
+            nodeD.AddAttribute(allFixed);
+
+            FiniteElement e0 = new TriangleElement(new Node[] { nodeA, nodeB, nodeC }, prop, 1);
+            FiniteElement e1 = new TriangleElement(new Node[] { nodeB, nodeC, nodeD }, prop, 2);
+            LinearSolver fem = new LinearSolver(new FiniteElement[] { e0, e1 });
+
+            /*double DX = fem.GetDisplacementGlobalCoordinates(nodeC, LinearSolver.DOF.DX).First();
+            double DZ = fem.GetDisplacementGlobalCoordinates(nodeC, LinearSolver.DOF.DZ).First();
+            Assert.AreEqual(-0.0013481, DX, 1e-6);
+            Assert.AreEqual(0.24960, DZ, 1e-6);*/
         }
     }
 }
