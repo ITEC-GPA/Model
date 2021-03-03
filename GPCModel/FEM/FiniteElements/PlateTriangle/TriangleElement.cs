@@ -215,5 +215,42 @@ namespace GPC.Model.FEM.FiniteElements
             _membranal.AddAttribute(attribute);
             _flexural.AddAttribute(attribute);
         }
+
+        public override void GetResults(double[] displacementsNodes, bool displacementsInGlobalCoordinates = true)
+        {
+            if (displacementsInGlobalCoordinates == false)
+            {
+                //essendo un elemento composto, non ha molto senso passare direttamente spostamenti in coordinate locali
+                throw new NotImplementedException();
+            }
+            mnl.Vector<double> membranalGlobalDisplacements = mnl.Vector<double>.Build.Dense(3 * 3); //in plane displacement can be in DX, DY, DZ in global coordinates
+            
+            //node 1
+            int start = 0;
+            for (int j = 0; j < 3; j++)
+            {
+                membranalGlobalDisplacements[j] = displacementsNodes[start + j];
+            }
+
+            //node 2
+            start = 6;
+            for (int j = 0; j < 3; j++)
+            {
+                membranalGlobalDisplacements[j] = displacementsNodes[start + j];
+            }
+
+            //node 3
+            start = 9;
+            for (int j = 0; j < 3; j++)
+            {
+                membranalGlobalDisplacements[j] = displacementsNodes[start + j];
+            }
+
+            mnl.Vector<double> flexuralGlobalDisplacements = mnl.Vector<double>.Build.Dense(displacementsNodes); //dz + rx + ry can be in DX, DY, DZ, RX, RY, RZ in global coordinates
+
+            //get results
+            _membranal.GetResults(membranalGlobalDisplacements, true);
+            _flexural.GetResults(flexuralGlobalDisplacements, true);
+        }
     }
 }

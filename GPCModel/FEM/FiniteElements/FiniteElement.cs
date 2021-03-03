@@ -140,6 +140,11 @@ namespace GPC.Model.FEM.FiniteElements
         /// <param name="displacementsInGlobalCoordinates"></param>
         public abstract void GetResults(double[] displacementsNodes, bool displacementsInGlobalCoordinates = true);
 
+        public void GetResults(mnl.Vector<double> displacementsNodes, bool displacementsInGlobalCoordinates = true)
+        {
+            GetResults(displacementsNodes.ToArray(), displacementsInGlobalCoordinates);
+        }
+
         /// <summary>
         /// Get displacements in local coordinates of the element
         /// </summary>

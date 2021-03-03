@@ -267,6 +267,7 @@ namespace GPC.Model.FEM.FiniteElements
             mnl.Matrix<double> epsilonCouchy = mnl.Matrix<double>.Build.Dense(3, 3);
             epsilonCouchy[0, 0] = epsilon[0]; //epsilon_xx
             epsilonCouchy[1, 1] = epsilon[1]; //epsilon_yy
+
             epsilonCouchy[0, 1] = epsilon[2]; //epsilon_xy
             epsilonCouchy[1, 0] = epsilon[2]; //epsilon_yx
                                               //epsilonCouchy[2, 2] = -ni / E * (sigma_xx + sigma_yy) + alpha * Temperature ; //epsilon_zz
@@ -275,6 +276,7 @@ namespace GPC.Model.FEM.FiniteElements
             mnl.Matrix<double> stressCouchy = mnl.Matrix<double>.Build.Dense(3, 3);
             stressCouchy[0, 0] = stress[0]; //sigma_xx
             stressCouchy[1, 1] = stress[1]; //sigma_yy
+
             stressCouchy[0, 1] = stress[2]; //sigma_xy
             stressCouchy[1, 0] = stress[2]; //sigma_yx
             Console.WriteLine("Stress local coordinate:" + stressCouchy.ToString());

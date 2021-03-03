@@ -25,7 +25,6 @@ namespace GPC.Model.FEM.FiniteElements
         double _l23;
 
         double _areaElement;
-        //private Func<double, double, double>[] _shapeFunctions;
         #endregion
 
         public TriangularDK(Node[] nodes, PlateProperty property, int id) : base(nodes, property, id)
@@ -33,7 +32,7 @@ namespace GPC.Model.FEM.FiniteElements
             DOF.Add(LinearSolver.DOF.DX);
             DOF.Add(LinearSolver.DOF.DY);
             DOF.Add(LinearSolver.DOF.DZ);
-            //displacement w il local coordinate system can be in X,Y,Z in global local coordinate system
+            //displacement out of local plane "w" in local coordinate system can be in X,Y,Z in global local coordinate system
             DOF.Add(LinearSolver.DOF.RX);
             DOF.Add(LinearSolver.DOF.RY);
             DOF.Add(LinearSolver.DOF.RZ);
@@ -43,20 +42,13 @@ namespace GPC.Model.FEM.FiniteElements
 
             //DofGlobalToLocal^T * kLocal * DofGlobalToLocal
             //   [18x9]             [9x9]     [9x18]
-
-            /*_shapeFunctions = new Func<double, double, double>[6];
-            _shapeFunctions[0] = N1;
-            _shapeFunctions[1] = N2;
-            _shapeFunctions[2] = N3;
-            _shapeFunctions[3] = N4;
-            _shapeFunctions[4] = N5;
-            _shapeFunctions[5] = N6;*/
         }
 
         public override void BuildMatrix()
         {
             #region calculationLocalAxisAndLocalCoordinates
-            Node[] localNodes = LocalNodes(); //node 1 is origin, node 2 is in (0,y2), node3 is in (x2,y2)
+            //Local axes calculater clockwise
+            Node[] localNodes = LocalNodes(); 
             Node node1 = localNodes[0];
             Node node2 = localNodes[1];
             Node node3 = localNodes[2];
@@ -495,16 +487,17 @@ namespace GPC.Model.FEM.FiniteElements
         {
             #region CalculationOfLocalCoordinates
             //Search for 3 local axis
+            //Local axes calculater clockwise
             Node nodeI = Nodes[0];
             Node nodeJ = Nodes[1];
             Node nodeK = Nodes[2];
             Vector3d x = new Vector3d(nodeJ.Position.X - nodeI.Position.X, nodeJ.Position.Y - nodeI.Position.Y, nodeJ.Position.Z - nodeI.Position.Z);
             Vector3d vecx = new Vector3d(x);
-            vecx.Unitize();
+            vecx.Unitize(); //calculated along Node I -> Node J
 
             Vector3d y = new Vector3d(nodeK.Position.X - nodeI.Position.X, nodeK.Position.Y - nodeI.Position.Y, nodeK.Position.Z - nodeI.Position.Z);
             Vector3d vecy = new Vector3d(y);
-            vecy.Unitize();
+            vecy.Unitize(); //calculated along Node K -> Node J
 
             Vector3d z = vecx.CrossProduct(vecy);
             Vector3d vecz = new Vector3d(z);
@@ -513,7 +506,7 @@ namespace GPC.Model.FEM.FiniteElements
             //recalculation of y that can be non-ortogonal
             y = z.CrossProduct(x);
             vecy = new Vector3d(y);
-            vecy.Unitize();
+            vecy.Unitize(); //recalculated direction y
             _localCoordinateSystem = new Geometry.CoordinateSystem(new Point3d(0, 0, 0), vecx, vecy);
 
             //move to local axis
@@ -542,14 +535,71 @@ namespace GPC.Model.FEM.FiniteElements
             }
 
             //get bending moment in the three nodes
-            mnl.Vector<double> Mnode1 = D * GetB(0.0, 0.0) * localDisplacements; //node 1
-            mnl.Vector<double> Mnode2 = D * GetB(1.0, 0.0) * localDisplacements; //node 2
-            mnl.Vector<double> Mnode3 = D * GetB(0.0, 1.0) * localDisplacements; //node 3
+            mnl.Vector<double> MNode1 = D * GetB(0.0, 0.0) * localDisplacements; //node 1
+            mnl.Vector<double> MNode2 = D * GetB(1.0, 0.0) * localDisplacements; //node 2
+            mnl.Vector<double> MNode3 = D * GetB(0.0, 1.0) * localDisplacements; //node 3
 
             Console.WriteLine("Local coordinates:");
-            Console.WriteLine("M node 1 =" + Mnode1);
-            Console.WriteLine("M node 2 =" + Mnode2);
-            Console.WriteLine("M node 3 =" + Mnode3);
+            Console.WriteLine("M node 1 =" + MNode1);
+            Console.WriteLine("M node 2 =" + MNode2);
+            Console.WriteLine("M node 3 =" + MNode3);
+
+            //Node 1
+            #region ConvertInGlobalCoordinates
+            //Define Couchy Tensor
+            mnl.Matrix<double> MCouchyNode1 = mnl.Matrix<double>.Build.Dense(3, 3);
+            MCouchyNode1[0, 0] = MNode1[0]; //M_xx
+            MCouchyNode1[1, 1] = MNode1[1]; //M_yy
+
+            MCouchyNode1[0, 1] = MNode1[2]; //M_xy
+            MCouchyNode1[1, 0] = MNode1[2]; //M_yx
+
+            //node2
+            mnl.Matrix<double> MCouchyNode2 = mnl.Matrix<double>.Build.Dense(3, 3);
+            MCouchyNode2[0, 0] = MNode2[0]; //M_xx
+            MCouchyNode2[1, 1] = MNode2[1]; //M_yy
+
+            MCouchyNode2[0, 1] = MNode2[2]; //M_xy
+            MCouchyNode2[1, 0] = MNode2[2]; //M_yx
+
+            //node3
+            mnl.Matrix<double> MCouchyNode3 = mnl.Matrix<double>.Build.Dense(3, 3);
+            MCouchyNode3[0, 0] = MNode3[0]; //M_xx
+            MCouchyNode3[1, 1] = MNode3[1]; //M_yy
+
+            MCouchyNode3[0, 1] = MNode3[2]; //M_xy
+            MCouchyNode3[1, 0] = MNode3[2]; //M_yx
+
+            //Rotation matrix
+            mnl.Matrix<double> rotation = mnl.Matrix<double>.Build.Dense(3, 3);
+            CoordinateSystem versorsLocalAxis = LocalCoordinateSystem;
+            Vector3d xVersor = versorsLocalAxis.V1;
+            Vector3d yVersor = versorsLocalAxis.V2;
+            Vector3d zVersor = versorsLocalAxis.V3;
+
+            rotation[0, 0] = xVersor.X;
+            rotation[0, 1] = yVersor.X;
+            rotation[0, 2] = zVersor.X;
+
+            rotation[1, 0] = xVersor.Y;
+            rotation[1, 1] = yVersor.Y;
+            rotation[1, 2] = zVersor.Y;
+
+            rotation[2, 0] = xVersor.Z;
+            rotation[2, 1] = yVersor.Z;
+            rotation[2, 2] = zVersor.Z;
+            Console.WriteLine("Rotation matrix tensor:" + rotation.ToString());
+                        
+            #endregion
+            Console.WriteLine("Global coordinates:");
+            //Second order tensor -> Trotated = Q * T * Q^T
+            mnl.Matrix<double> MGlobalNode1 = rotation * MCouchyNode1 * rotation.Transpose();
+            mnl.Matrix<double> MGlobalNode2 = rotation * MCouchyNode2 * rotation.Transpose();
+            mnl.Matrix<double> MGlobalNode3 = rotation * MCouchyNode3 * rotation.Transpose();
+
+            Console.WriteLine("M Global node 1 =" + MGlobalNode1);
+            Console.WriteLine("M Global node 2 =" + MGlobalNode2);
+            Console.WriteLine("M Global node 3 =" + MGlobalNode3);
 
             //get Shear in local nodes
             ///NOT APPLICABLE -> Kirchoff -> No shear
@@ -558,13 +608,6 @@ namespace GPC.Model.FEM.FiniteElements
             double tb = ((PlateProperty)Property).BendingThickness;
             double k = 5.0 / 6.0; //shear correction factor
             mnl.Matrix<double> Ds = E * tb * k / (2.0 * (1.0 + ni)) * mnl.Matrix<double>.Build.DenseIdentity(2);*/
-            
-            Console.WriteLine("Global coordinates:");
-            /*...coordinate system ...
-            Console.WriteLine("M node 1 =" + Mnode1);
-            Console.WriteLine("M node 2 =" + Mnode2);
-            Console.WriteLine("M node 3 =" + Mnode3);
-            */
         }
     }
 }
