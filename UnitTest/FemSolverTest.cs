@@ -545,7 +545,7 @@ namespace FemTest
             //LoadCase loadCase = new LoadCase("myLoadCase", new Guid());
             /*FreedomCase freedomCase = new FreedomCase("freedomCase1");*/
 
-            Material mat = new GeneralElasticMaterial("mat", 12, 0.0);
+            Material mat = new SteelMaterial("mat", 12, 0.0, 355, 510, 7850);
             PlateProperty prop = new PlateProperty(mat, 1.0, 1.0);
 
             /*CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
@@ -582,7 +582,7 @@ namespace FemTest
             //LoadCase loadCase = new LoadCase("myLoadCase", new Guid());
             /*FreedomCase freedomCase = new FreedomCase("freedomCase1");*/
 
-            Material mat = new GeneralElasticMaterial("mat", 12, 0.0);
+            Material mat = new SteelMaterial("mat", 12, 0.0, 355, 510, 7850);
             PlateProperty prop = new PlateProperty(mat, 1.0, 1.0);
 
             /*CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
@@ -805,7 +805,7 @@ namespace FemTest
             //LoadCase loadCase = new LoadCase("myLoadCase", new Guid());
             /*FreedomCase freedomCase = new FreedomCase("freedomCase1");*/
 
-            Material mat = new GeneralElasticMaterial("mat", 12, 0.0);
+            Material mat = new SteelMaterial("mat", 12, 0.0, 355, 510, 7850);
             PlateProperty prop = new PlateProperty(mat, 1.0, 1.0);
 
             /*CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
@@ -843,7 +843,7 @@ namespace FemTest
             //LoadCase loadCase = new LoadCase("myLoadCase", new Guid());
             /*FreedomCase freedomCase = new FreedomCase("freedomCase1");*/
 
-            Material mat = new GeneralElasticMaterial("mat", 12, 0.0);
+            Material mat = new SteelMaterial("mat", 12, 0.0, 355, 510, 7850);
             PlateProperty prop = new PlateProperty(mat, 1.0, 1.0);
 
             /*CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
@@ -878,7 +878,7 @@ namespace FemTest
         [TestMethod]
         public void TriangleElementTest1()
         {
-            Material mat = new GeneralElasticMaterial("mat", 12, 0.0);
+            Material mat = new SteelMaterial("mat", 12, 0.0, 355, 510, 7850);
             PlateProperty prop = new PlateProperty(mat, 1.0, 1.0);
 
             Node[] nodesPlate1 = new Node[4];
@@ -943,7 +943,7 @@ namespace FemTest
             nodeD.AddAttribute(fixDXDYDZRZ);
 
             FiniteElement e0 = new TriangleElement(new Node[] { nodeA, nodeB, nodeC }, prop, 1);
-            FiniteElement e1 = new TriangleElement(new Node[] { nodeB, nodeD, nodeC }, prop, 1);
+            FiniteElement e1 = new TriangleElement(new Node[] { nodeB, nodeC, nodeD }, prop, 1);
             LinearSolver fem = new LinearSolver(new FiniteElement[] { e0, e1 });
 
             double DX = fem.GetDisplacementGlobalCoordinates(nodeC, LinearSolver.DOF.DX).First();
