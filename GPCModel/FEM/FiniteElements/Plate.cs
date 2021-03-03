@@ -38,7 +38,7 @@ namespace GPC.Model.FEM.FiniteElements
             throw new NotImplementedException();
         }
 
-        public override void GetResults(double[] displacementsNodes, bool displacementsInGlobalCoordinates = true)
+        public override void GetResults(double[] globalDisplacementsNodes, out double[] localDisplacements, out mnl.Matrix<double>[] gloabalPseudoDeformation, out mnl.Matrix<double>[] localPseudoDeformation, out mnl.Matrix<double>[] globalForces, out mnl.Matrix<double>[] localForces, out mnl.Matrix<double>[] globalStress, out mnl.Matrix<double>[] localStress, out mnl.Matrix<double>[] globalEpsilon, out mnl.Matrix<double>[] localEpsilon)
         {
             throw new NotImplementedException();
         }

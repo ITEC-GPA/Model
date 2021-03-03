@@ -82,7 +82,7 @@ namespace GPC.Model.FEM.FiniteElements
         public abstract mnl.Matrix<double> GetB(double csi = 0, double eta = 0, double zeta = 0);
 
         /// <summary>
-        /// sigma = [D] * epsilon
+        /// F,M = [D] * (epsilon, curvature...)
         /// </summary>
         public mnl.Matrix<double> D => _d;
 
@@ -134,15 +134,15 @@ namespace GPC.Model.FEM.FiniteElements
         }
 
         /// <summary>
-        /// Retrieve sigma, N, M, in the element from displacement
+        /// Retrieve sigma, epsilon, N, M, etc in the element from displacement
+        /// Top then bottom , then nr node. Example: stress[5] in element with 3 nodes with top and bottom: in equal to: 3 top, 2 bottom -> node 2 bottom
         /// </summary>
         /// <param name="displacementsNodes"></param>
-        /// <param name="displacementsInGlobalCoordinates"></param>
-        public abstract void GetResults(double[] displacementsNodes, bool displacementsInGlobalCoordinates = true);
+        public abstract void GetResults(double[] globalDisplacementsNodes, out double[] localDisplacements, out mnl.Matrix<double>[] gloabalPseudoDeformation, out mnl.Matrix<double>[] localPseudoDeformation, out mnl.Matrix<double>[] globalForces, out mnl.Matrix<double>[] localForces, out mnl.Matrix<double>[] globalStress, out mnl.Matrix<double>[] localStress, out mnl.Matrix<double>[] globalEpsilon, out mnl.Matrix<double>[] localEpsilon);
 
-        public void GetResults(mnl.Vector<double> displacementsNodes, bool displacementsInGlobalCoordinates = true)
+        public void GetResults(mnl.Vector<double> globalDisplacementsNodes, out double[] localDisplacements, out mnl.Matrix<double>[] globalPseudoDeformation, out mnl.Matrix<double>[] localPseudoDeformation, out mnl.Matrix<double>[] globalForces, out mnl.Matrix<double>[] localForces, out mnl.Matrix<double>[] globalStress, out mnl.Matrix<double>[] localStress, out mnl.Matrix<double>[] globalEpsilon, out mnl.Matrix<double>[] localEpsilon)
         {
-            GetResults(displacementsNodes.ToArray(), displacementsInGlobalCoordinates);
+            GetResults(globalDisplacementsNodes.ToArray(), out localDisplacements, out globalPseudoDeformation, out localPseudoDeformation, out globalForces, out localForces, out globalStress, out localStress, out globalEpsilon, out localEpsilon);
         }
 
         /// <summary>
@@ -150,9 +150,9 @@ namespace GPC.Model.FEM.FiniteElements
         /// </summary>
         /// <param name="displacementsNodes"></param>
         /// <returns></returns>
-        public double[] GetLocalDisplacement(double[] displacementsNodes)
+        public double[] GetLocalDisplacement(double[] globalDisplacementsNodes)
         {
-            return (DofGlobalToLocal * mnl.Vector<double>.Build.Dense(displacementsNodes)).ToArray();
+            return (DofGlobalToLocal * mnl.Vector<double>.Build.Dense(globalDisplacementsNodes)).ToArray();
         }
 
         /// <summary>

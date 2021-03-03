@@ -1,6 +1,7 @@
 ﻿using System;
 using GPC.Geometry;
 using GPC.Model.FEM.Properties;
+using MathNet.Numerics.LinearAlgebra;
 using mnl = MathNet.Numerics.LinearAlgebra;
 
 namespace GPC.Model.FEM.FiniteElements
@@ -531,7 +532,7 @@ namespace GPC.Model.FEM.FiniteElements
             #endregion
         }
 
-        public override void GetResults(double[] displacementsNodes, bool displacementsInGlobalCoordinates = true)
+        public override void GetResults(double[] globalDisplacementsNodes, out double[] localDisplacements, out Matrix<double>[] gloabalPseudoDeformation, out Matrix<double>[] localPseudoDeformation, out Matrix<double>[] globalForces, out Matrix<double>[] localForces, out Matrix<double>[] globalStress, out Matrix<double>[] localStress, out Matrix<double>[] globalEpsilon, out Matrix<double>[] localEpsilon)
         {
             throw new NotImplementedException();
         }

@@ -523,57 +523,11 @@ namespace GPC.Model.FEM.FiniteElements
             return localNodes;
         }
 
-        public override void GetResults(double[] displacementsNodes, bool displacementsInGlobalCoordinates = true)
+        public override void GetResults(double[] globalDisplacementsNodes, out double[] localDisplacements, out mnl.Matrix<double>[] globalPseudoDeformation, out mnl.Matrix<double>[] localPseudoDeformation, out mnl.Matrix<double>[] globalForces, out mnl.Matrix<double>[] localForces, out mnl.Matrix<double>[] globalStress, out mnl.Matrix<double>[] localStress, out mnl.Matrix<double>[] globalEpsilon, out mnl.Matrix<double>[] localEpsilon)
         {
             Console.WriteLine("Result element " + this.Name + " " + this.Id);
-            mnl.Vector<double> localDisplacements;
-            //convert in local displacements
-            if (displacementsInGlobalCoordinates == true)
-            {
-                localDisplacements = DofGlobalToLocal * mnl.Vector<double>.Build.Dense(displacementsNodes);
-            } else
-            {
-                localDisplacements = mnl.Vector<double>.Build.Dense(displacementsNodes);
-            }
 
-            //get bending moment in the three nodes
-            mnl.Vector<double> MLocalNode1 = D * GetB(0.0, 0.0) * localDisplacements; //node 1
-            mnl.Vector<double> MLocalNode2 = D * GetB(1.0, 0.0) * localDisplacements; //node 2
-            mnl.Vector<double> MLocalNode3 = D * GetB(0.0, 1.0) * localDisplacements; //node 3
-
-            /*Console.WriteLine("Local coordinates:");
-            Console.WriteLine("M node " + Nodes[0].Name +" =" + MNode1);
-            Console.WriteLine("M node " + Nodes[1].Name + " =" + MNode2);
-            Console.WriteLine("M node " + Nodes[2].Name + " =" + MNode3);*/
-
-            //Node 1
-            #region ConvertInGlobalCoordinates
-            //Define Couchy Tensor
-            mnl.Matrix<double> MLocalCouchyNode1 = mnl.Matrix<double>.Build.Dense(3, 3);
-            MLocalCouchyNode1[0, 0] = MLocalNode1[0]; //M_xx
-            MLocalCouchyNode1[1, 1] = MLocalNode1[1]; //M_yy
-
-            MLocalCouchyNode1[0, 1] = MLocalNode1[2]; //M_xy
-            MLocalCouchyNode1[1, 0] = MLocalNode1[2]; //M_yx
-            Console.WriteLine("M local node 1 = " + MLocalCouchyNode1);
-
-            //node2
-            mnl.Matrix<double> MLocalCouchyNode2 = mnl.Matrix<double>.Build.Dense(3, 3);
-            MLocalCouchyNode2[0, 0] = MLocalNode2[0]; //M_xx
-            MLocalCouchyNode2[1, 1] = MLocalNode2[1]; //M_yy
-
-            MLocalCouchyNode2[0, 1] = MLocalNode2[2]; //M_xy
-            MLocalCouchyNode2[1, 0] = MLocalNode2[2]; //M_yx
-
-            //node3
-            mnl.Matrix<double> MLocalCouchyNode3 = mnl.Matrix<double>.Build.Dense(3, 3);
-            MLocalCouchyNode3[0, 0] = MLocalNode3[0]; //M_xx
-            MLocalCouchyNode3[1, 1] = MLocalNode3[1]; //M_yy
-
-            MLocalCouchyNode3[0, 1] = MLocalNode3[2]; //M_xy
-            MLocalCouchyNode3[1, 0] = MLocalNode3[2]; //M_yx
-
-            //Rotation matrix
+            //Tensor Rotation matrix
             mnl.Matrix<double> rotation = mnl.Matrix<double>.Build.Dense(3, 3);
             CoordinateSystem versorsLocalAxis = LocalCoordinateSystem;
             Vector3d xVersor = versorsLocalAxis.V1;
@@ -592,17 +546,97 @@ namespace GPC.Model.FEM.FiniteElements
             rotation[2, 1] = yVersor.Z;
             rotation[2, 2] = zVersor.Z;
             Console.WriteLine("Rotation matrix tensor:" + rotation.ToString());
-                        
+
+            mnl.Vector<double> localDisplacementsVector = DofGlobalToLocal * mnl.Vector<double>.Build.Dense(globalDisplacementsNodes);
+            localDisplacements = localDisplacementsVector.ToArray();
+
+            //curvature = B * U
+            //contains curvature xx, yy, xy
+            mnl.Vector<double> curvatureLocal1 = GetB(0.0, 0.0) * localDisplacementsVector; //node 1
+            mnl.Vector<double> curvatureLocal2 = GetB(1.0, 0.0) * localDisplacementsVector; //node 2
+            mnl.Vector<double> curvatureLocal3 = GetB(0.0, 1.0) * localDisplacementsVector; //node 3
+
+            mnl.Matrix<double> localPseudoDeformationNode1 = mnl.Matrix<double>.Build.Dense(3, 3);
+            localPseudoDeformationNode1[0, 0] = curvatureLocal1[0];
+            localPseudoDeformationNode1[1, 0] = curvatureLocal1[2];
+            localPseudoDeformationNode1[0, 1] = curvatureLocal1[2];
+            localPseudoDeformationNode1[1, 1] = curvatureLocal1[1];
+
+            mnl.Matrix<double> localPseudoDeformationNode2 = mnl.Matrix<double>.Build.Dense(3, 3);
+            localPseudoDeformationNode2[0, 0] = curvatureLocal2[0];
+            localPseudoDeformationNode2[1, 0] = curvatureLocal2[2];
+            localPseudoDeformationNode2[0, 1] = curvatureLocal2[2];
+            localPseudoDeformationNode2[1, 1] = curvatureLocal2[1];
+
+            mnl.Matrix<double> localPseudoDeformationNode3 = mnl.Matrix<double>.Build.Dense(3, 3);
+            localPseudoDeformationNode3[0, 0] = curvatureLocal3[0];
+            localPseudoDeformationNode3[1, 0] = curvatureLocal3[2];
+            localPseudoDeformationNode3[0, 1] = curvatureLocal3[2];
+            localPseudoDeformationNode3[1, 1] = curvatureLocal3[1];
+
+            localPseudoDeformation = new mnl.Matrix<double>[3]
+            {
+                localPseudoDeformationNode1,
+                localPseudoDeformationNode2,
+                localPseudoDeformationNode3
+            };
+            Console.WriteLine("local curvature = " + localPseudoDeformation[0]);
+
+            //convert in global coords
+            globalPseudoDeformation = new mnl.Matrix<double>[3]
+            {
+                rotation * localPseudoDeformationNode1 * rotation.Transpose(),
+                rotation * localPseudoDeformationNode2 * rotation.Transpose(),
+                rotation * localPseudoDeformationNode3 * rotation.Transpose()
+            };
+            Console.WriteLine("global curvature = " + globalPseudoDeformation[0]);
+
+            //get bending moment in the three nodes
+            mnl.Vector<double> MLocalNode1 = D * curvatureLocal1; //node 1
+            mnl.Vector<double> MLocalNode2 = D * curvatureLocal2; //node 2
+            mnl.Vector<double> MLocalNode3 = D * curvatureLocal3; //node 3
+            
+            /*Console.WriteLine("Local coordinates:");
+            Console.WriteLine("M node " + Nodes[0].Name +" =" + MNode1);
+            Console.WriteLine("M node " + Nodes[1].Name + " =" + MNode2);
+            Console.WriteLine("M node " + Nodes[2].Name + " =" + MNode3);*/
+
+            //Node 1
+            #region ConvertInGlobalCoordinates
+            //Define Couchy Tensor
+            mnl.Matrix<double> MLocalCouchyNode1 = mnl.Matrix<double>.Build.Dense(3, 3);
+
+            MLocalCouchyNode1[0, 0] = MLocalNode1[0]; //M_xx
+            MLocalCouchyNode1[1, 1] = MLocalNode1[1]; //M_yy
+            MLocalCouchyNode1[0, 1] = MLocalNode1[2]; //M_xy
+            MLocalCouchyNode1[1, 0] = MLocalNode1[2]; //M_yx
+            Console.WriteLine("M local node 1 = " + MLocalCouchyNode1);
+
+            //node2
+            mnl.Matrix<double> MLocalCouchyNode2 = mnl.Matrix<double>.Build.Dense(3, 3);
+            MLocalCouchyNode2[0, 0] = MLocalNode2[0]; //M_xx
+            MLocalCouchyNode2[1, 1] = MLocalNode2[1]; //M_yy
+            MLocalCouchyNode2[0, 1] = MLocalNode2[2]; //M_xy
+            MLocalCouchyNode2[1, 0] = MLocalNode2[2]; //M_yx
+
+            //node3
+            mnl.Matrix<double> MLocalCouchyNode3 = mnl.Matrix<double>.Build.Dense(3, 3);
+            MLocalCouchyNode3[0, 0] = MLocalNode3[0]; //M_xx
+            MLocalCouchyNode3[1, 1] = MLocalNode3[1]; //M_yy
+            MLocalCouchyNode3[0, 1] = MLocalNode3[2]; //M_xy
+            MLocalCouchyNode3[1, 0] = MLocalNode3[2]; //M_yx
+
+            localForces = new mnl.Matrix<double>[3] { MLocalCouchyNode1, MLocalCouchyNode2, MLocalCouchyNode3 };
             #endregion
+
             Console.WriteLine("Global coordinates:");
             //Second order tensor -> Trotated = Q * T * Q^T
-            mnl.Matrix<double> MGlobalCouchyNode1 = rotation * MLocalCouchyNode1 * rotation.Transpose();
-            mnl.Matrix<double> MGlobalCouchyNode2 = rotation * MLocalCouchyNode2 * rotation.Transpose();
-            mnl.Matrix<double> MGlobalCouchyNode3 = rotation * MLocalCouchyNode3 * rotation.Transpose();
-
-            Console.WriteLine("M Global node " + Nodes[0].Name + " =" + MGlobalCouchyNode1);
-            Console.WriteLine("M Global node " + Nodes[1].Name + " =" + MGlobalCouchyNode2);
-            Console.WriteLine("M Global node " + Nodes[2].Name + " =" + MGlobalCouchyNode3);
+            globalForces = new mnl.Matrix<double>[3] {
+                rotation * MLocalCouchyNode1 * rotation.Transpose(),
+                rotation * MLocalCouchyNode2 * rotation.Transpose(),
+                rotation * MLocalCouchyNode3 * rotation.Transpose()
+            };
+            Console.WriteLine("M Global node " + Nodes[0].Name + " =" + globalForces[0]);
 
             //calculation of stress
             double tb = ((PlateProperty)Property).BendingThickness;
@@ -610,25 +644,64 @@ namespace GPC.Model.FEM.FiniteElements
 
             //local top
             mnl.Matrix<double> stressLocalChouchyNode1Top = MLocalCouchyNode1 / W; //M > 0 -> sigma(z > t/2) > 0
-            mnl.Matrix<double> stressLocalChouchyNode2Top = MLocalCouchyNode2 / W; 
+            mnl.Matrix<double> stressLocalChouchyNode2Top = MLocalCouchyNode2 / W;
             mnl.Matrix<double> stressLocalChouchyNode3Top = MLocalCouchyNode3 / W;
 
             //local bottom
             mnl.Matrix<double> stressLocalChouchyNode1Bottom = -MLocalCouchyNode1 / W; //M > 0 -> sigma(z < t/2) < 0
             mnl.Matrix<double> stressLocalChouchyNode2Bottom = -MLocalCouchyNode2 / W;
             mnl.Matrix<double> stressLocalChouchyNode3Bottom = -MLocalCouchyNode2 / W;
+            localStress = new mnl.Matrix<double>[6] {
+                stressLocalChouchyNode1Top,
+                stressLocalChouchyNode2Top,
+                stressLocalChouchyNode3Top,
+                stressLocalChouchyNode1Bottom,
+                stressLocalChouchyNode2Bottom,
+                stressLocalChouchyNode3Bottom
+            };
 
-            //global top
-            mnl.Matrix<double> stressGlobalChouchyNode1Top = rotation * stressLocalChouchyNode1Top * rotation.Transpose();
-            mnl.Matrix<double> stressGlobalChouchyNode2Top = rotation * stressLocalChouchyNode2Top * rotation.Transpose();
-            mnl.Matrix<double> stressGlobalChouchyNode3Top = rotation * stressLocalChouchyNode3Top * rotation.Transpose();
+            globalStress = new mnl.Matrix<double>[6] {
+                rotation * stressLocalChouchyNode1Top * rotation.Transpose(),
+                rotation * stressLocalChouchyNode2Top * rotation.Transpose(),
+                rotation * stressLocalChouchyNode3Top * rotation.Transpose(),
+                rotation * stressLocalChouchyNode1Bottom * rotation.Transpose(),
+                rotation * stressLocalChouchyNode2Bottom * rotation.Transpose(),
+                rotation * stressLocalChouchyNode3Bottom * rotation.Transpose()
+            };
+            Console.WriteLine("stress global node 1 top (localz=t/2): " + globalStress[0]);
 
-            //global bottom
-            mnl.Matrix<double> stressGlobalChouchyNode1Bottom = rotation * stressLocalChouchyNode1Bottom * rotation.Transpose();
-            mnl.Matrix<double> stressGlobalChouchyNode2Bottom = rotation * stressLocalChouchyNode2Bottom * rotation.Transpose();
-            mnl.Matrix<double> stressGlobalChouchyNode3Bottom = rotation* stressLocalChouchyNode3Bottom * rotation.Transpose();
+            //matrix for plane stress
+            double E = ((PlateProperty)_property).GetE();
+            double ni = ((PlateProperty)_property).GetNi();
 
-            Console.WriteLine("stress global node 1 top (localz=t/2): " + stressGlobalChouchyNode1Top);
+            mnl.Matrix<double> dPlaneStress = mnl.Matrix<double>.Build.Dense(3, 3);
+            dPlaneStress[0, 0] = 1.0;
+            dPlaneStress[0, 1] = ni;
+            dPlaneStress[1, 0] = ni;
+            dPlaneStress[1, 1] = 1.0;
+            dPlaneStress[2, 2] = (1.0 - ni) / 2.0;
+            dPlaneStress = E / (1.0 - ni * ni) * dPlaneStress;
+
+            mnl.Matrix<double> dPlaneStressInv = dPlaneStress.Inverse();
+
+            //calculation of epsilons
+            localEpsilon = new mnl.Matrix<double>[6] {
+                dPlaneStressInv * stressLocalChouchyNode1Top,
+                dPlaneStressInv * stressLocalChouchyNode2Top,
+                dPlaneStressInv * stressLocalChouchyNode3Top,
+                dPlaneStressInv * stressLocalChouchyNode1Bottom,
+                dPlaneStressInv * stressLocalChouchyNode2Bottom,
+                dPlaneStressInv * stressLocalChouchyNode3Bottom
+            };
+
+            globalEpsilon = new mnl.Matrix<double>[6] {
+                dPlaneStressInv * globalStress[0],
+                dPlaneStressInv * globalStress[1],
+                dPlaneStressInv * globalStress[2],
+                dPlaneStressInv * globalStress[3],
+                dPlaneStressInv * globalStress[4],
+                dPlaneStressInv * globalStress[5]
+            };
 
             //get Shear in local nodes
             ///NOT APPLICABLE -> Kirchoff -> No shear

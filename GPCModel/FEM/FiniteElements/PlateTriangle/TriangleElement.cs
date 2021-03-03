@@ -216,13 +216,9 @@ namespace GPC.Model.FEM.FiniteElements
             _flexural.AddAttribute(attribute);
         }
 
-        public override void GetResults(double[] displacementsNodes, bool displacementsInGlobalCoordinates = true)
+        public override void GetResults(double[] globalDisplacementsNodes, out double[] localDisplacements, out mnl.Matrix<double>[] globalPseudoDeformation, out mnl.Matrix<double>[] localPseudoDeformation, out mnl.Matrix<double>[] globalForces, out mnl.Matrix<double>[] localForces, out mnl.Matrix<double>[] globalStress, out mnl.Matrix<double>[] localStress, out mnl.Matrix<double>[] globalEpsilon, out mnl.Matrix<double>[] localEpsilon)
         {
-            if (displacementsInGlobalCoordinates == false)
-            {
-                //essendo un elemento composto, non ha molto senso passare direttamente spostamenti in coordinate locali
-                throw new NotImplementedException();
-            }
+            
             mnl.Vector<double> membranalGlobalDisplacements = mnl.Vector<double>.Build.Dense(3 * 3); //in plane displacement can be in DX, DY, DZ in global coordinates
             
             //node 1
@@ -230,7 +226,7 @@ namespace GPC.Model.FEM.FiniteElements
             int startLocal = 0;
             for (int j = 0; j < 3; j++)
             {
-                membranalGlobalDisplacements[startLocal + j] = displacementsNodes[startGlobal + j];
+                membranalGlobalDisplacements[startLocal + j] = globalDisplacementsNodes[startGlobal + j];
             }
 
             //node 2
@@ -238,7 +234,7 @@ namespace GPC.Model.FEM.FiniteElements
             startLocal = 3;
             for (int j = 0; j < 3; j++)
             {
-                membranalGlobalDisplacements[startLocal + j] = displacementsNodes[startGlobal + j];
+                membranalGlobalDisplacements[startLocal + j] = globalDisplacementsNodes[startGlobal + j];
             }
 
             //node 3
@@ -246,14 +242,30 @@ namespace GPC.Model.FEM.FiniteElements
             startLocal = 6;
             for (int j = 0; j < 3; j++)
             {
-                membranalGlobalDisplacements[startLocal + j] = displacementsNodes[startGlobal + j];
+                membranalGlobalDisplacements[startLocal + j] = globalDisplacementsNodes[startGlobal + j];
             }
 
-            mnl.Vector<double> flexuralGlobalDisplacements = mnl.Vector<double>.Build.Dense(displacementsNodes); //dz + rx + ry can be in DX, DY, DZ, RX, RY, RZ in global coordinates
+            mnl.Vector<double> flexuralGlobalDisplacements = mnl.Vector<double>.Build.Dense(globalDisplacementsNodes); //dz + rx + ry can be in DX, DY, DZ, RX, RY, RZ in global coordinates
 
             //get results
-            _membranal.GetResults(membranalGlobalDisplacements, true);
-            _flexural.GetResults(flexuralGlobalDisplacements, true);
+            _membranal.GetResults(membranalGlobalDisplacements, out double[] membranalLocalDisplacements, out mnl.Matrix<double>[] membranalGlobalPseudoDisplacements, out mnl.Matrix<double>[] membranalLocalPseudoDisplacements, out mnl.Matrix<double>[] membranalGlobalForces, out mnl.Matrix<double>[] membranalLocalForces, out mnl.Matrix<double>[] membranalGlobalStress, out mnl.Matrix<double>[] membranalLocalStress, out mnl.Matrix<double>[] membranalGlobalEpsilon, out mnl.Matrix<double>[] membranalLocalEpsilon);
+            _flexural.GetResults(flexuralGlobalDisplacements, out double[] flexuralLocalDisplacements, out mnl.Matrix<double>[] flexuralGlobalPseudoDisplacements, out mnl.Matrix<double>[] flexuralLocalPseudoDisplacements, out mnl.Matrix<double>[] flexuralGlobalForces, out mnl.Matrix<double>[] flexuralLocalForces, out mnl.Matrix<double>[] flexuralGlobalStress, out mnl.Matrix<double>[] flexuralLocalStress, out mnl.Matrix<double>[] flexuralGlobalEpsilon, out mnl.Matrix<double>[] flexuralLocalEpsilon);
+            
+            //sum of results
+            ///WARNING to be completed
+
+            localDisplacements = new double[0];
+            globalForces = new mnl.Matrix<double>[] { mnl.Matrix<double>.Build.Dense(0, 0) };
+            localForces = new mnl.Matrix<double>[] { mnl.Matrix<double>.Build.Dense(0, 0) };
+
+            globalStress = new mnl.Matrix<double>[] { mnl.Matrix<double>.Build.Dense(0, 0) };
+            localStress = new mnl.Matrix<double>[] { mnl.Matrix<double>.Build.Dense(0, 0) };
+
+            globalEpsilon = new mnl.Matrix<double>[] { mnl.Matrix<double>.Build.Dense(0, 0) };
+            localEpsilon = new mnl.Matrix<double>[] { mnl.Matrix<double>.Build.Dense(0, 0) };
+
+            localPseudoDeformation = new mnl.Matrix<double>[] { mnl.Matrix<double>.Build.Dense(0, 0) };
+            globalPseudoDeformation = new mnl.Matrix<double>[] { mnl.Matrix<double>.Build.Dense(0, 0) };
         }
     }
 }

@@ -542,17 +542,8 @@ namespace FemTest
         [TestMethod]
         public void TriangleDKTTest1()
         {
-            //LoadCase loadCase = new LoadCase("myLoadCase", new Guid());
-            /*FreedomCase freedomCase = new FreedomCase("freedomCase1");*/
-
             Material mat = new SteelMaterial("mat", 12, 0.0, 355, 510, 7850);
             PlateProperty prop = new PlateProperty(mat, 1.0, 1.0);
-
-            /*CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
-            NodeRestrainAttribute RXRYRZ = new NodeRestrainAttribute(freedomCase, sys);
-            RXRYRZ.AddRestrain(LinearSolver.DOF.RX);
-            RXRYRZ.AddRestrain(LinearSolver.DOF.RY);
-            RXRYRZ.AddRestrain(LinearSolver.DOF.RZ);*/
 
             Node[] nodesPlate1 = new Node[3];
             nodesPlate1[0] = new Node(0, 0, 0, 1, "1");
@@ -562,39 +553,78 @@ namespace FemTest
             FiniteElement e0 = new TriangularDK(nodesPlate1, prop, 1);
             e0.BuildMatrix();
 
+            mnl.Matrix<double> SAPkMatrix = mnl.Matrix<double>.Build.Dense(0,9);
+            
+            mnl.Vector<double> r0 = mnl.Vector<double>.Build.Dense(new double[] { 10.50, 1.63, -1.63, -5.25, 1.00, -2.63, -5.25, 2.63, -1.00 });
+            mnl.Vector<double> r1 = mnl.Vector<double>.Build.Dense(new double[] { 1.63, 1.38, 0.06, 0.44, 0.16, 0.22, - 2.06, 0.53, 0.16 });
+            mnl.Vector<double> r2 = mnl.Vector<double>.Build.Dense(new double[] { -1.63, 0.06, 1.38, 2.06, 0.16, 0.53, - 0.44, 0.22, 0.16 });
+            mnl.Vector<double> r3 = mnl.Vector<double>.Build.Dense(new double[] { -5.25, 0.44, 2.06, 5.63, 0.25, 2.31, - 0.37, - 0.31, 1.25 });
+            mnl.Vector<double> r4 = mnl.Vector<double>.Build.Dense(new double[] { 1.00, 0.16, 0.16, 0.25, 0.72, - 0.13, - 1.25, 0.38, 0.22 });
+            mnl.Vector<double> r5 = mnl.Vector<double>.Build.Dense(new double[] { -2.63, 0.22, 0.53, 2.31, - 0.13, 1.41, 0.31, - 0.41, 0.38 });
+            mnl.Vector<double> r6 = mnl.Vector<double>.Build.Dense(new double[] { -5.25, - 2.06, - 0.44, - 0.37, - 1.25, 0.31, 5.63, - 2.31, - 0.25 });
+            mnl.Vector<double> r7 = mnl.Vector<double>.Build.Dense(new double[] { 2.63, 0.53, 0.22, - 0.31, 0.38, - 0.41, - 2.31, 1.41, - 0.13 });
+            mnl.Vector<double> r8 = mnl.Vector<double>.Build.Dense(new double[] { -1.00, 0.16, 0.16, 1.25, 0.22, 0.38, - 0.25, - 0.13, 0.72 });
+
+            SAPkMatrix = SAPkMatrix.InsertRow(0, r0);
+            SAPkMatrix = SAPkMatrix.InsertRow(1, r1);
+            SAPkMatrix = SAPkMatrix.InsertRow(2, r2);
+            SAPkMatrix = SAPkMatrix.InsertRow(3, r3);
+            SAPkMatrix = SAPkMatrix.InsertRow(4, r4);
+            SAPkMatrix = SAPkMatrix.InsertRow(5, r5);
+            SAPkMatrix = SAPkMatrix.InsertRow(6, r6);
+            SAPkMatrix = SAPkMatrix.InsertRow(7, r7);
+            SAPkMatrix = SAPkMatrix.InsertRow(8, r8);
+
             Console.WriteLine("Element local stiffness matrix");
             for (int r = 0; r < e0.KElementLocalCoord.RowCount; r++)
             {
                 for (int c = 0; c < e0.KElementLocalCoord.ColumnCount; c++)
                 {
-                    Console.Write(e0.KElementLocalCoord[r,c].ToString("F1") + " ");    
+                    Assert.AreEqual(e0.KElementLocalCoord[r, c] - SAPkMatrix[r, c], 0.0, 0.01);
+                    //Console.Write(e0.KElementLocalCoord[r,c].ToString("F2") + " ");    
                 }
-                Console.WriteLine();
+                //Console.WriteLine();
             }
-
-            //actually does not work
-            Assert.AreEqual(true, false);
+            
         }
 
         [TestMethod]
         public void TriangleDKTTest2()
         {
-            //LoadCase loadCase = new LoadCase("myLoadCase", new Guid());
-            /*FreedomCase freedomCase = new FreedomCase("freedomCase1");*/
-
             Material mat = new SteelMaterial("mat", 12, 0.0, 355, 510, 7850);
             PlateProperty prop = new PlateProperty(mat, 1.0, 1.0);
 
-            /*CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
-            NodeRestrainAttribute RXRYRZ = new NodeRestrainAttribute(freedomCase, sys);
-            RXRYRZ.AddRestrain(LinearSolver.DOF.RX);
-            RXRYRZ.AddRestrain(LinearSolver.DOF.RY);
-            RXRYRZ.AddRestrain(LinearSolver.DOF.RZ);*/
-
             Node[] nodesPlate1 = new Node[3];
             nodesPlate1[0] = new Node(0, 0, 0, 1, "1");
-            nodesPlate1[1] = new Node(0, 1, 0, 2, "2");
-            nodesPlate1[2] = new Node(1, 0, 0, 3, "3");
+            nodesPlate1[1] = new Node(1, 0, 0, 2, "2");
+            nodesPlate1[2] = new Node(0, 1, 0, 3, "3");
+
+            mnl.Matrix<double> SAPkMatrix = mnl.Matrix<double>.Build.Dense(0, 18);
+            mnl.Vector<double>[] row = new mnl.Vector<double>[18];
+
+            row[0] = mnl.Vector<double>.Build.Dense(new double[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 });
+            row[1] = mnl.Vector<double>.Build.Dense(new double[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 });
+            row[2] = mnl.Vector<double>.Build.Dense(new double[] { 0, 0, 10.5, 1.63, -1.63, 0, 0, 0, -5.25, 1, -2.63, 0, 0, 0, -5.25, 2.63, -1, 0 });
+            row[3] = mnl.Vector<double>.Build.Dense(new double[] { 0, 0, 1.63, 1.38, 0.06, 0, 0, 0, 0.44, 0.16, 0.22, 0, 0, 0, -2.06, 0.53, 0.16, 0 });
+            row[4] = mnl.Vector<double>.Build.Dense(new double[] { 0, 0, -1.63, 0.06, 1.38, 0, 0, 0, 2.06, 0.16, 0.53, 0, 0, 0, -0.44, 0.22, 0.16, 0 });
+            row[5] = mnl.Vector<double>.Build.Dense(new double[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 });
+            row[6] = mnl.Vector<double>.Build.Dense(new double[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 });
+            row[7] = mnl.Vector<double>.Build.Dense(new double[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 });
+            row[8] = mnl.Vector<double>.Build.Dense(new double[] { 0, 0, -5.25, 0.44, 2.06, 0, 0, 0, 5.63, 0.25, 2.31, 0, 0, 0, -0.37, -0.31, 1.25, 0 });
+            row[9] = mnl.Vector<double>.Build.Dense(new double[] { 0, 0, 1, 0.16, 0.16, 0, 0, 0, 0.25, 0.72, -0.13, 0, 0, 0, -1.25, 0.38, 0.22, 0 });
+            row[10] = mnl.Vector<double>.Build.Dense(new double[] { 0, 0, -2.63, 0.22, 0.53, 0, 0, 0, 2.31, -0.13, 1.41, 0, 0, 0, 0.31, -0.41, 0.38, 0 });
+            row[11] = mnl.Vector<double>.Build.Dense(new double[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 });
+            row[12] = mnl.Vector<double>.Build.Dense(new double[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 });
+            row[13] = mnl.Vector<double>.Build.Dense(new double[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 });
+            row[14] = mnl.Vector<double>.Build.Dense(new double[] { 0, 0, -5.25, -2.06, -0.44, 0, 0, 0, -0.37, -1.25, 0.31, 0, 0, 0, 5.63, -2.31, -0.25, 0 });
+            row[15] = mnl.Vector<double>.Build.Dense(new double[] { 0, 0, 2.63, 0.53, 0.22, 0, 0, 0, -0.31, 0.38, -0.41, 0, 0, 0, -2.31, 1.41, -0.13, 0 });
+            row[16] = mnl.Vector<double>.Build.Dense(new double[] { 0, 0, -1, 0.16, 0.16, 0, 0, 0, 1.25, 0.22, 0.38, 0, 0, 0, -0.25, -0.13, 0.72, 0 });
+            row[17] = mnl.Vector<double>.Build.Dense(new double[] { 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 });
+
+            for (int i = 0; i < 18; i++)
+            {
+                SAPkMatrix = SAPkMatrix.InsertRow(i, row[i]);
+            }
 
             FiniteElement e0 = new TriangularDK(nodesPlate1, prop, 1);
             LinearSolver fem = new LinearSolver(new FiniteElement[] { e0 });
@@ -604,13 +634,11 @@ namespace FemTest
             {
                 for (int c = 0; c < fem.KGlobal.ColumnCount; c++)
                 {
-                    Console.Write(fem.KGlobal[r, c].ToString("F1") + " ");
+                    Assert.AreEqual(fem.KGlobal[r, c] - SAPkMatrix[r, c], 0.0, 0.01, "error in position " + r +" "+ c);
+                    //Console.Write(fem.KGlobal[r, c].ToString("F2") + " ");
                 }
-                Console.WriteLine();
+                //Console.WriteLine();
             }
-
-            //actually does not work
-            Assert.AreEqual(true, false);
         }
 
         /// <summary>
@@ -658,19 +686,21 @@ namespace FemTest
             FiniteElement e1 = new TriangularDK(new Node[] { nodeB, nodeD, nodeC }, prop, 1);
             LinearSolver fem = new LinearSolver(new FiniteElement[] { e0, e1 });
 
-            /*Console.WriteLine("Element Global stiffness matrix");
-            for (int r = 0; r < fem.KGlobal.RowCount; r++)
-            {
-                for (int c = 0; c < fem.KGlobal.ColumnCount; c++)
-                {
-                    Console.Write(fem.KGlobal[r, c].ToString("F1") + " ");
-                }
-                Console.WriteLine();
-            }*/
-
-            //actually does not work
             double dz = fem.GetDisplacementGlobalCoordinates(nodeC, LinearSolver.DOF.DZ).First();
             Assert.AreEqual(0.24960, dz, 1e-6);
+
+            double[] displElement = fem.GetDisplacementsGlobalCoordinates(e0);
+            e0.GetResults(displElement, out double[] localDispl,
+                            out mnl.Matrix<double>[] globalPseudoDef, out mnl.Matrix<double>[] localPseudoDef,
+                            out mnl.Matrix<double>[] globalForces, out mnl.Matrix<double>[] localForces,
+                            out mnl.Matrix<double>[] globalStress, out mnl.Matrix<double>[] localStress,
+                            out mnl.Matrix<double>[] globalEpsilon, out mnl.Matrix<double>[] localEpsilon);
+
+            double tauXY1 = globalStress[0][1, 0]; //node 1
+            double tauXY2 = globalStress[0][0, 1]; //node 1
+
+            Assert.AreEqual(-15.0, tauXY1, 0.01);
+            Assert.AreEqual(-15.0, tauXY2, 0.01);
         }
 
         [TestMethod]
@@ -802,17 +832,8 @@ namespace FemTest
         [TestMethod]
         public void RectangleDKTTest1()
         {
-            //LoadCase loadCase = new LoadCase("myLoadCase", new Guid());
-            /*FreedomCase freedomCase = new FreedomCase("freedomCase1");*/
-
             Material mat = new SteelMaterial("mat", 12, 0.0, 355, 510, 7850);
             PlateProperty prop = new PlateProperty(mat, 1.0, 1.0);
-
-            /*CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
-            NodeRestrainAttribute RXRYRZ = new NodeRestrainAttribute(freedomCase, sys);
-            RXRYRZ.AddRestrain(LinearSolver.DOF.RX);
-            RXRYRZ.AddRestrain(LinearSolver.DOF.RY);
-            RXRYRZ.AddRestrain(LinearSolver.DOF.RZ);*/
 
             Node[] nodesPlate1 = new Node[4];
             nodesPlate1[0] = new Node(1, -1, 0, 1, "1");
@@ -875,85 +896,13 @@ namespace FemTest
             Assert.AreEqual(true, false);
         }
 
-        [TestMethod]
-        public void TriangleElementTest1()
-        {
-            Material mat = new SteelMaterial("mat", 12, 0.0, 355, 510, 7850);
-            PlateProperty prop = new PlateProperty(mat, 1.0, 1.0);
-
-            Node[] nodesPlate1 = new Node[4];
-            nodesPlate1[0] = new Node(0, 0, 0, 1, "1");
-            nodesPlate1[1] = new Node(1, 0, 0, 2, "2");
-            nodesPlate1[2] = new Node(0, 1, 0, 3, "3");
-
-            FiniteElement e0 = new TriangleElement(nodesPlate1, prop, 1);
-            e0.BuildMatrix();
-
-            /*Console.WriteLine("Element local stiffness matrix");
-            for (int r = 0; r < e0.KElementLocalCoord.RowCount; r++)
-            {
-                for (int c = 0; c < e0.KElementLocalCoord.ColumnCount; c++)
-                {
-                    Console.Write(e0.KElementLocalCoord[r, c].ToString("F2") + " ");
-                }
-                Console.WriteLine();
-            }*/
-
-            //actually does not word
-            Assert.AreEqual(true, false);
-        }
 
         /// <summary>
         /// Example PatchTest in "A study of three-node trinagular plate bending elements - batoz (1980)
         /// international journal for numerical methods in engineering, vol. 15 - 1771-1812 -> pg. 1797
         /// </summary>
         [TestMethod]
-        public void TriangleElementTest2()
-        {
-            LoadCase loadCase = new LoadCase("myLoadCase", new Guid());
-            FreedomCase freedomCase = new FreedomCase("freedomCase1");
-
-            Material mat = new SteelMaterial("mat", 10000, 0.3, 355, 510, 7850);
-            PlateProperty prop = new PlateProperty(mat, 1.0, 1.0);
-
-            #region restrains
-            CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
-            NodeRestrainAttribute fixDXDYDZRZ = new NodeRestrainAttribute(freedomCase, sys);
-            fixDXDYDZRZ.AddExternalRestrain(LinearSolver.DOF.DX);
-            fixDXDYDZRZ.AddExternalRestrain(LinearSolver.DOF.DY);
-            fixDXDYDZRZ.AddExternalRestrain(LinearSolver.DOF.DZ);
-            fixDXDYDZRZ.AddExternalRestrain(LinearSolver.DOF.RZ);
-
-            NodeRestrainAttribute fixRZ = new NodeRestrainAttribute(freedomCase, sys);
-            fixRZ.AddExternalRestrain(LinearSolver.DOF.RZ);
-            #endregion
-
-            #region nodalforces
-            NodeForceAttribute F = new NodeForceAttribute(loadCase, sys, -10.0, 0, 5.0, 0, 0, 0);
-            #endregion
-
-            Node nodeA = new Node(0, 8, 0, 1, "A");
-            nodeA.AddAttribute(fixDXDYDZRZ);
-            Node nodeB = new Node(0, 0, 0, 2, "B");
-            nodeB.AddAttribute(fixDXDYDZRZ);
-            Node nodeC = new Node(8, 8, 0, 3, "C");
-            nodeC.AddAttribute(F);
-            nodeC.AddAttribute(fixRZ);
-            Node nodeD = new Node(8, 0, 0, 3, "D");
-            nodeD.AddAttribute(fixDXDYDZRZ);
-
-            FiniteElement e0 = new TriangleElement(new Node[] { nodeA, nodeB, nodeC }, prop, 1);
-            FiniteElement e1 = new TriangleElement(new Node[] { nodeB, nodeD, nodeC }, prop, 1);
-            LinearSolver fem = new LinearSolver(new FiniteElement[] { e0, e1 });
-
-            double DX = fem.GetDisplacementGlobalCoordinates(nodeC, LinearSolver.DOF.DX).First();
-            double DZ = fem.GetDisplacementGlobalCoordinates(nodeC, LinearSolver.DOF.DZ).First();
-            Assert.AreEqual(-0.0013481, DX, 1e-6);
-            Assert.AreEqual(0.24960, DZ, 1e-6);
-        }
-
-        [TestMethod]
-        public void TriangleElementTest3()
+        public void TriangleElementTest1()
         {
             LoadCase loadCase = new LoadCase("myLoadCase", new Guid());
             FreedomCase freedomCase = new FreedomCase("freedomCase1");
@@ -963,44 +912,62 @@ namespace FemTest
 
             #region restrains
             CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
-            NodeRestrainAttribute allFixed = new NodeRestrainAttribute(freedomCase, sys);
-            allFixed.AddExternalRestrain(LinearSolver.DOF.DX);
-            allFixed.AddExternalRestrain(LinearSolver.DOF.DY);
-            allFixed.AddExternalRestrain(LinearSolver.DOF.DZ);
-            allFixed.AddExternalRestrain(LinearSolver.DOF.RX);
-            allFixed.AddExternalRestrain(LinearSolver.DOF.RY);
-            allFixed.AddExternalRestrain(LinearSolver.DOF.RZ);
+            NodeRestrainAttribute fix = new NodeRestrainAttribute(freedomCase, sys);
+            fix.AddExternalRestrain(LinearSolver.DOF.DX);
+            fix.AddExternalRestrain(LinearSolver.DOF.DY);
+            fix.AddExternalRestrain(LinearSolver.DOF.DZ);
+            fix.AddExternalRestrain(LinearSolver.DOF.RX);
+            fix.AddExternalRestrain(LinearSolver.DOF.RY);
+            fix.AddExternalRestrain(LinearSolver.DOF.RZ);
 
-            NodeRestrainAttribute fixedRZ = new NodeRestrainAttribute(freedomCase, sys);
-            fixedRZ.AddExternalRestrain(LinearSolver.DOF.RZ);
+            NodeRestrainAttribute fixRZ = new NodeRestrainAttribute(freedomCase, sys);
+            fixRZ.AddExternalRestrain(LinearSolver.DOF.RZ);
             #endregion
 
             #region nodalforces
-            NodeForceAttribute M = new NodeForceAttribute(loadCase, sys, 0.0, 0, 0.0, 1.0, 0, 0);
+            NodeForceAttribute F = new NodeForceAttribute(loadCase, sys, 0.0, 1.0, 0.0, 1.0, 0, 0);
             #endregion
 
             Node nodeA = new Node(0, 8, 0, 1, "A");
-            nodeA.AddAttribute(M);
-            nodeA.AddAttribute(fixedRZ);
+            nodeA.AddAttribute(fixRZ);
+            nodeA.AddAttribute(F);
 
             Node nodeB = new Node(0, 0, 0, 2, "B");
-            nodeB.AddAttribute(allFixed);
+            nodeB.AddAttribute(fix);
 
             Node nodeC = new Node(8, 8, 0, 3, "C");
-            nodeC.AddAttribute(M);
-            nodeC.AddAttribute(fixedRZ);
+            nodeC.AddAttribute(F);
+            nodeC.AddAttribute(fixRZ);
 
             Node nodeD = new Node(8, 0, 0, 3, "D");
-            nodeD.AddAttribute(allFixed);
+            nodeD.AddAttribute(fix);
 
             FiniteElement e0 = new TriangleElement(new Node[] { nodeA, nodeB, nodeC }, prop, 1);
-            FiniteElement e1 = new TriangleElement(new Node[] { nodeB, nodeC, nodeD }, prop, 2);
+            FiniteElement e1 = new TriangleElement(new Node[] { nodeB, nodeD, nodeC }, prop, 1);
             LinearSolver fem = new LinearSolver(new FiniteElement[] { e0, e1 });
 
-            /*double DX = fem.GetDisplacementGlobalCoordinates(nodeC, LinearSolver.DOF.DX).First();
+            double DY = fem.GetDisplacementGlobalCoordinates(nodeC, LinearSolver.DOF.DY).First();
             double DZ = fem.GetDisplacementGlobalCoordinates(nodeC, LinearSolver.DOF.DZ).First();
-            Assert.AreEqual(-0.0013481, DX, 1e-6);
-            Assert.AreEqual(0.24960, DZ, 1e-6);*/
+            Assert.AreEqual(0.0096, DZ, 1e-4);
+            Assert.AreEqual(0.0002, DY, 1e-4);
+
+            double sigmaTopYY = -(1.0 + 1.0) / (1.0 / 6.0 * 8.0 * (1.0 * 1.0)) + (1.0 + 1.0) / (1.0 * 8.0);
+
+            double[] e0GlobalDispl = fem.GetDisplacementsGlobalCoordinates(e0);
+            e0.GetResults(e0GlobalDispl, out double[] localDispl,
+                            out mnl.Matrix<double>[] globalPseudoDef, out mnl.Matrix<double>[] localPseudoDef,
+                            out mnl.Matrix<double>[] globalForces, out mnl.Matrix<double>[] localForces,
+                            out mnl.Matrix<double>[] globalStress, out mnl.Matrix<double>[] localStress,
+                            out mnl.Matrix<double>[] globalEpsilon, out mnl.Matrix<double>[] localEpsilon);
+            Assert.AreEqual(sigmaTopYY, globalStress[0][1,1]); //sigmaYY top face
+
+            double[] e1GlobalDispl = fem.GetDisplacementsGlobalCoordinates(e1);
+            e1.GetResults(e1GlobalDispl, out localDispl,
+                            out globalPseudoDef, out localPseudoDef,
+                            out globalForces, out localForces,
+                            out globalStress, out localStress,
+                            out globalEpsilon, out localEpsilon);
+            Assert.AreEqual(sigmaTopYY, globalStress[0][1, 1]); //sigmaYY top face
         }
     }
 }

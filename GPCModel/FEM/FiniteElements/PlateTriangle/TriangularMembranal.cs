@@ -241,17 +241,10 @@ namespace GPC.Model.FEM.FiniteElements
             return localNodes;
         }
 
-        public override void GetResults(double[] displacementsNodes, bool displacementsInGlobalCoordinates = true)
+        public override void GetResults(double[] globalDisplacementsNodes, out double[] localDisplacements, out mnl.Matrix<double>[] gloabalPseudoDeformation, out mnl.Matrix<double>[] localPseudoDeformation, out mnl.Matrix<double>[] globalForces, out mnl.Matrix<double>[] localForces, out mnl.Matrix<double>[] globalStress, out mnl.Matrix<double>[] localStress, out mnl.Matrix<double>[] globalEpsilon, out mnl.Matrix<double>[] localEpsilon)
         {
-            mnl.Vector<double> vecLocalDispl;
-            if (displacementsInGlobalCoordinates == true) { 
-                //conversion from global displacements to local displacements
-                vecLocalDispl = mnl.Vector<double>.Build.Dense(GetLocalDisplacement(displacementsNodes));
-            } else
-            {
-                vecLocalDispl = mnl.Vector<double>.Build.Dense(displacementsNodes);
-            }
-
+            mnl.Vector<double> vecLocalDispl = mnl.Vector<double>.Build.Dense(GetLocalDisplacement(globalDisplacementsNodes));
+        
             #region CalculationOfStressAndDeformationsInLocalCoordinates
             mnl.Vector<double> epsilon = mnl.Vector<double>.Build.Dense(3); //epsilon_xx; epsilon_yy; epsilon_xy
             mnl.Vector<double> stress = mnl.Vector<double>.Build.Dense(epsilon.Count); //sigma_xx; sigma_yy; tau_xy
@@ -307,6 +300,17 @@ namespace GPC.Model.FEM.FiniteElements
             mnl.Matrix<double> sigmaGlobalCoord = rotation * stressCouchy * rotation.Transpose();
             Console.WriteLine("Stress in global coordinates = " + sigmaGlobalCoord);
             #endregion
+
+            #warning to be completed
+            localDisplacements = new double[0];
+            gloabalPseudoDeformation = new mnl.Matrix<double>[0];
+            localPseudoDeformation = new mnl.Matrix<double>[0];
+            globalForces = new mnl.Matrix<double>[0];
+            localForces = new mnl.Matrix<double>[0];
+            globalStress = new mnl.Matrix<double>[0];
+            localStress = new mnl.Matrix<double>[0];
+            globalEpsilon = new mnl.Matrix<double>[0];
+            localEpsilon = new mnl.Matrix<double>[0];
         }
 
         public override bool Equals(object obj)

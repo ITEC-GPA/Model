@@ -31,6 +31,7 @@ namespace GPC.Model.FEM
         protected mnl.Vector<double> _nodeGlobalDisplacement;
         #endregion
 
+        #region Properties
         public mnl.Matrix<double> KGlobal => _KGlobalRestrains;
 
         /// <summary>
@@ -42,6 +43,7 @@ namespace GPC.Model.FEM
         /// Unique elements in Models contains all the informations: node connectivity, material, property, LOAD as attribute, end releases...etc
         /// </summary>
         public FiniteElement[] Elements { get; }
+        #endregion
 
         public LinearSolver(FiniteElement[] inputElements)
         {
@@ -437,28 +439,7 @@ namespace GPC.Model.FEM
             //attenzione controllare cosa succede con elementi finiti con dof attivi diversi
             for (int i = 0; i < Elements.Length; i++)
             {
-                #region SelectGlobalDisplacementForElement
-                FiniteElement element = Elements[i];
-                int[] pos = new int[element.NrDOFActive * element.Nodes.Length];
-
-                counter = 0;
-                for (int j = 0; j < element.Nodes.Count(); j++) {
-                    Node node = element.Nodes[j];
-                    for (int k = 0; k < element.NrDOFActive; k++) {
-                        pos[counter] = GetPositionInKGlobal(node.Id, (DOF)k);
-                        counter++;
-                    }
-                }
-
-                double[] globalDisplacementsNodesElement = new double[element.NrDOFActive * element.Nodes.Length];
-                for (int j = 0; j < element.NrDOFActive * element.Nodes.Length; j++) {
-                    globalDisplacementsNodesElement[j] = _nodeGlobalDisplacement[pos[j]];
-                    //Console.WriteLine("Element " + i + " Displacemente global coordintates DOF nr. " + j + " = " + globalDisplacementsNodesElement[j]);
-                }
-
-                //get results of element
-                element.GetResults(globalDisplacementsNodesElement, true);
-                #endregion             
+                          
             }
             #endregion
         }
@@ -480,6 +461,44 @@ namespace GPC.Model.FEM
                 ris[i] = _nodeGlobalDisplacement[pos[i]];
             }
             return ris;
+        }
+
+        public double[] GetDisplacementsGlobalCoordinates(FiniteElement e)
+        {
+            #region SelectGlobalDisplacementForElement
+            var elements = Elements.Where(x => x == e);
+            if (elements.Count() > 1)
+            {
+                throw new Exception("More than 1 element selected");
+            }
+            else
+            {
+                FiniteElement element = elements.First();
+                int[] pos = new int[element.NrDOFActive * element.Nodes.Length];
+
+                int counter = 0;
+                for (int j = 0; j < element.Nodes.Count(); j++)
+                {
+                    Node node = element.Nodes[j];
+                    for (int k = 0; k < element.NrDOFActive; k++) //attenzione qui, se c'è un elemento con gdl attivi non contigui....
+                    {
+                        pos[counter] = GetPositionInKGlobal(node.Id, (DOF)k);
+                        counter++;
+                    }
+                }
+
+                double[] globalDisplacementsNodesElement = new double[element.NrDOFActive * element.Nodes.Length];
+                for (int j = 0; j < element.NrDOFActive * element.Nodes.Length; j++)
+                {
+                    globalDisplacementsNodesElement[j] = _nodeGlobalDisplacement[pos[j]];
+                    //Console.WriteLine("Element " + i + " Displacemente global coordintates DOF nr. " + j + " = " + globalDisplacementsNodesElement[j]);
+                }
+
+                return globalDisplacementsNodesElement;
+                //get results of element
+                //element.GetResults(globalDisplacementsNodesElement, out double[] localDisplacements, out mnl.Matrix<double>[] gloabalPseudoDeformation, out mnl.Matrix<double>[] localPseudoDeformation, out mnl.Matrix<double>[] globalForces, out mnl.Matrix<double>[] localForces, out mnl.Matrix<double>[] globalStress, out mnl.Matrix<double>[] localStress, out mnl.Matrix<double>[] globalEpsilon, out mnl.Matrix<double>[] localEpsilon);
+                #endregion
+            }
         }
         #endregion
 
