@@ -11,6 +11,11 @@ namespace GPC.Model.Elements
     [Serializable]
     public abstract class Element : ModelObject
     {
+
+        private int _id;
+
+        public int Id { get => _id; set => _id = value; }
+
         #region Public Constructors
 
         protected Element() : base(Guid.NewGuid())
@@ -41,6 +46,7 @@ namespace GPC.Model.Elements
         {
             if (ReferenceEquals(this, obj))
                 return true;
+
             Element objCasted = obj as Element;
             return !(objCasted is null) && base.Equals(objCasted);
         }
