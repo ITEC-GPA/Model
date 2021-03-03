@@ -501,7 +501,7 @@ namespace FemTest
             nodesPlate2.Add(nd4);
 
             List<FiniteElement> elements = new List<FiniteElement>();
-            FiniteElement e0 = new TriangularMembranal(nodesPlate1.ToArray(), prop, 1);
+            Plate e0 = new TriangularMembranal(nodesPlate1.ToArray(), prop, 1);
             PlatePressureAttribute p = new PlatePressureAttribute(loadCase, sys, -10.0, 0, 0);
             e0.AddAttribute(p);
 

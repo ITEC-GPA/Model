@@ -25,7 +25,6 @@ namespace GPC.Model.FEM.FiniteElements
         protected mnl.Matrix<double> _kElementLocalCoord;
         protected mnl.Matrix<double> _d;
         protected ElementProperty _property;
-        protected List<IPlateLoadCaseAttribute> _attributes;
 
         protected Node[] _nodes;
         #endregion
@@ -103,7 +102,6 @@ namespace GPC.Model.FEM.FiniteElements
         {
             _nodes = nodes;
             _property = property;
-            _attributes = new List<IPlateLoadCaseAttribute>();
             _DOF = new SortedSet<LinearSolver.DOF>();
         }
 
@@ -128,10 +126,6 @@ namespace GPC.Model.FEM.FiniteElements
             return F;
         }
 
-        public virtual void AddAttribute(IPlateLoadCaseAttribute attribute)
-        {
-            _attributes.Add(attribute);
-        }
 
         /// <summary>
         /// Retrieve sigma, N, M, in the element from displacement
