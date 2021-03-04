@@ -338,7 +338,7 @@ namespace GPC.Model.FEM
             {
                 if (face.IsQuad)
                 {
-                    if (plateProperty is PlateProperty pp)
+                    if (plateProperty is PlateProperty pp) 
                     {
                         var plateIndex = _elements.Add(new Plate(new Node[] { _nodes[nodesNewIndexMap.ContainsKey(face.A) ? nodesNewIndexMap[face.A] : face.A],
                                                                              _nodes[nodesNewIndexMap.ContainsKey(face.B) ? nodesNewIndexMap[face.B] : face.B],

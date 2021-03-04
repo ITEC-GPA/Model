@@ -43,8 +43,8 @@ namespace GPC.Model.Results
         /// <param name="T"> torque moment </param>
         /// <param name="M1"> Bending moment around axis 1 (in plane 2, right hand rule) </param>
         /// <param name="M2"> Bending moment around axis 2 (in plane 1, right hand rule) </param>
-        public ResultBeamForces(int elementID, string elementLabel, int caseId, double N, double V1, double V2, double T, double M1, double M2)
-            : base(elementID, elementLabel, caseId, null)
+        public ResultBeamForces(int elementID, string elementLabel, int caseId, int resultPointId, double N, double V1, double V2, double T, double M1, double M2)
+            : base(elementID, elementLabel, caseId, resultPointId, null)
         {
             _N = N;
             _V1 = V1;

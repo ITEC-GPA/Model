@@ -6,60 +6,65 @@ using System.Threading.Tasks;
 using GPC.Model.LoadCases;
 using GPC.Geometry;
 using MathNet.Numerics.LinearAlgebra;
+using System.Runtime.Serialization;
 
 namespace GPC.Model.Results
 {
-    public class ResultPlateStress : Result
+    [Serializable]
+    public sealed class ResultPlateStress : Result, IEquatable<ResultPlateStress>, ISerializable
     {
         #region Variables
 
         /// <summary>
         /// Local Stresses
         /// </summary>
-        protected double _sxx;
-        protected double _syy;
-        protected double _szz;
-        protected double _sxy;
-        protected double _sxz;
-        protected double _syz;
+        private double _sxx;
+        private double _syy;
+        private double _szz;
+        private double _sxy;
+        private double _sxz;
+        private double _syz;
+
         /// <summary>
         /// Global Stresses
         /// </summary>
-        protected double _sXX;
-        protected double _sYY;
-        protected double _sZZ;
-        protected double _sXY;
-        protected double _sXZ;
-        protected double _sYZ;
+        private double _sXX;
+        private double _sYY;
+        private double _sZZ;
+        private double _sXY;
+        private double _sXZ;
+        private double _sYZ;
+
         /// <summary>
         /// Principal Stresses
         /// </summary>
-        protected double _s11;
-        protected double _s22;
-        protected double _s33;
+        private double _s11;
+        private double _s22;
+        private double _s33;
+
         /// <summary>
         /// Combined Stresses
         /// </summary>
-        protected double _sVM;
-        protected double _sTR;
+        private double _sVM;
+        private double _sTR;
 
         #endregion
 
 
         #region Properties
 
-        protected double Sxx => _sxx;
-        protected double Syy => _syy;
-        protected double Szz => _szz;
-        protected double Sxy => _sxy;
-        protected double Sxz => _sxz;
-        protected double Syz => _syz;
+        public double Sxx => _sxx;
+        public double Syy => _syy;
+        public double Szz => _szz;
+        public double Sxy => _sxy;
+        public double Sxz => _sxz;
+        public double Syz => _syz;
 
         #endregion
 
 
         #region Public Constructors
-
+          
         /// <summary>
         /// 
         /// </summary>
@@ -73,7 +78,7 @@ namespace GPC.Model.Results
         /// <param name="sxz">Stress on <see cref="CoordinateSystem.V1"/> side of the plate along <see cref="CoordinateSystem.V3"/> direction</param>
         /// <param name="syz">Stress on <see cref="CoordinateSystem.V2"/> side of the plate along <see cref="CoordinateSystem.V3"/> direction</param>
         public ResultPlateStress(int elementID, string elementLabel, int resultPointId, int caseId, CoordinateSystem coordinateSystem, double sxx, double syy, double sxy, double sxz, double syz) 
-            : base(elementID, elementLabel, caseId, coordinateSystem)
+            : base(elementID, elementLabel, caseId, resultPointId, coordinateSystem)
         {
             _sxx = sxx;
             _syy = syy;
@@ -165,10 +170,10 @@ namespace GPC.Model.Results
         public double[] GetGlobalStress()
         {
             Vector3d SigmaResult = new Vector3d(_sxx, _syy, 0 );
-            Vector3d GlobalSigmaResult = _cSys.ToGlobal(SigmaResult);
+            Vector3d GlobalSigmaResult = _coordinateSystem.ToGlobal(SigmaResult);
 
             Vector3d TauResult = new Vector3d(0, 0, _sxy);
-            Vector3d GlobalTauResult = _cSys.ToGlobal(TauResult);
+            Vector3d GlobalTauResult = _coordinateSystem.ToGlobal(TauResult);
 
             double[] globalstress = new double[6];
 
@@ -181,6 +186,67 @@ namespace GPC.Model.Results
 
             return globalstress;
         }
+
+
+
+        public override bool Equals(object obj)
+        {
+            if (ReferenceEquals(this, obj))
+                return true;
+
+            return base.Equals(obj as ResultPlateStress);
+        }
+
+        public bool Equals(ResultPlateStress other)
+        {
+            if (ReferenceEquals(this, other))
+                return true;
+
+            return !(other is null) && _sxx == other._sxx 
+                                    && _syy == other._syy
+                                    && _szz == other._szz
+                                    && _sxy == other._sxy
+                                    && _sxz == other._sxz
+                                    && _syz == other._syz && base.Equals(other);
+        }
+
+        public override int GetHashCode()
+        {
+            int hashCode = 23;
+            hashCode = hashCode * -17 + base.GetHashCode();
+            hashCode = hashCode * -17 + _sxx.GetHashCode();
+            hashCode = hashCode * -17 + _syy.GetHashCode();
+            hashCode = hashCode * -17 + _szz.GetHashCode();
+            hashCode = hashCode * -17 + _sxy.GetHashCode();
+            hashCode = hashCode * -17 + _sxz.GetHashCode();
+            hashCode = hashCode * -17 + _syz.GetHashCode();
+            return hashCode;
+        }
+
+        public override void GetObjectData(SerializationInfo info, StreamingContext context)
+        {
+            base.GetObjectData(info, context);
+            throw new NotSupportedException();
+        }
+
+        public static bool operator ==(ResultPlateStress obj1, ResultPlateStress obj2)
+        {
+            if (ReferenceEquals(obj1, obj2))
+                return true;
+
+            if (obj1 is null || obj2 is null)
+                return false;
+
+            return obj1.Equals(obj2);
+        }
+
+        public static bool operator !=(ResultPlateStress obj1, ResultPlateStress obj2)
+        {
+            return !(obj1 == obj2);
+        }
+
+
+
 
         #endregion
     }

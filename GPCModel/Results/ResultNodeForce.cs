@@ -43,9 +43,9 @@ namespace GPC.Model.Results
 
         #region Public Constructors
 
-        public ResultNodeForce(int elementID, string elementLabel, int caseID, double fx, double fy, double fz, 
+        public ResultNodeForce(int elementID, string elementLabel, int caseID, int resultPointId, double fx, double fy, double fz, 
                                 double mx, double my, double mz)
-                                : base(elementID, elementLabel, caseID, CoordinateSystem.Global)
+                                : base(elementID, elementLabel, caseID, resultPointId, CoordinateSystem.Global)
         {
             _fx = fx;
             _fy = fy;
