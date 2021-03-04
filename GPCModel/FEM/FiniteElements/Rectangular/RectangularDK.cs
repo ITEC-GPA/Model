@@ -10,7 +10,7 @@ namespace GPC.Model.FEM.FiniteElements
     /// Discrete Kirchoff Rectangular - Evaluation of new quadrilateral thin plate bending element - Jean-Louis Batoz
     /// International Jurnal for numerical methods in engineering, vol 18, 1655-1977 (1982)
     /// </summary>
-    public class RectangularDK : FiniteElement
+    public class RectangularDK : Plate
     {
         #region variables
         //Differences of coordinates used for Matrix B and KLocal

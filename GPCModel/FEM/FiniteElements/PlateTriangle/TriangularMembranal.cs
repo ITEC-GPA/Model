@@ -150,7 +150,7 @@ namespace GPC.Model.FEM.FiniteElements
 
         public override Matrix<double> GetB(double csi = 0, double eta = 0, double zeta = 0)
         {
-            return _b;
+            return _b; //constant in the element
         }
 
         protected override mnl.Vector<double> BuildFLocalCoord()

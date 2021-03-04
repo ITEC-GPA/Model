@@ -1018,12 +1018,12 @@ namespace FemTest
             Assert.AreEqual(0.75597, DZA, 1e-4); //value from SAP
 
             double[] e0GlobalDispl = fem.GetDisplacementsGlobalCoordinates(e0);
-            e0.GetResults(e0GlobalDispl, out double[] localDispl,
+            /*e0.GetResults(e0GlobalDispl, out double[] localDispl,
                             out mnl.Matrix<double>[] globalPseudoDef, out mnl.Matrix<double>[] localPseudoDef,
                             out mnl.Matrix<double>[] globalForces, out mnl.Matrix<double>[] localForces,
                             out mnl.Matrix<double>[] globalStress, out mnl.Matrix<double>[] localStress,
                             out mnl.Matrix<double>[] globalEpsilon, out mnl.Matrix<double>[] localEpsilon);
-            //Assert.AreEqual(sigmaTopYY, globalStress[0][1, 1], 0.001); //sigmaYY top face
+            */
         }
     }
 }
