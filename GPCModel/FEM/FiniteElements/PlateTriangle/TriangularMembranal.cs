@@ -241,37 +241,35 @@ namespace GPC.Model.FEM.FiniteElements
             return localNodes;
         }
 
-        public override void GetResults(double[] globalDisplacementsNodes, out double[] localDisplacements, out mnl.Matrix<double>[] gloabalPseudoDeformation, out mnl.Matrix<double>[] localPseudoDeformation, out mnl.Matrix<double>[] globalForces, out mnl.Matrix<double>[] localForces, out mnl.Matrix<double>[] globalStress, out mnl.Matrix<double>[] localStress, out mnl.Matrix<double>[] globalEpsilon, out mnl.Matrix<double>[] localEpsilon)
+        public override void GetResults(double[] globalDisplacementsNodes, out double[] localDisplacements, out mnl.Matrix<double>[] globalPseudoDeformation, out mnl.Matrix<double>[] localPseudoDeformation, out mnl.Matrix<double>[] globalForces, out mnl.Matrix<double>[] localForces, out mnl.Matrix<double>[] globalStress, out mnl.Matrix<double>[] localStress, out mnl.Matrix<double>[] globalEpsilon, out mnl.Matrix<double>[] localEpsilon)
         {
-            mnl.Vector<double> vecLocalDispl = mnl.Vector<double>.Build.Dense(GetLocalDisplacement(globalDisplacementsNodes));
+            localDisplacements = GetLocalDisplacement(globalDisplacementsNodes);
+            mnl.Vector<double> vecLocalDispl = mnl.Vector<double>.Build.Dense(localDisplacements);
         
             #region CalculationOfStressAndDeformationsInLocalCoordinates
-            mnl.Vector<double> epsilon = mnl.Vector<double>.Build.Dense(3); //epsilon_xx; epsilon_yy; epsilon_xy
-            mnl.Vector<double> stress = mnl.Vector<double>.Build.Dense(epsilon.Count); //sigma_xx; sigma_yy; tau_xy
-
-            epsilon = GetB() * vecLocalDispl;
-            stress = D * epsilon;
+            mnl.Vector<double> epsilonLocal = GetB() * vecLocalDispl; //epsilon_xx; epsilon_yy; epsilon_xy
+            mnl.Vector<double> stressLocal = D * epsilonLocal; //sigma_xx; sigma_yy; tau_xy
             /*Console.WriteLine("Strains in Local coordinates:" + epsilon.ToString());
             Console.WriteLine("Stress in Local coordinates:" + stress.ToString());*/
             #endregion
 
             #region ConvertInGlobalCoordinates
             //Define Couchy Tensor
-            mnl.Matrix<double> epsilonCouchy = mnl.Matrix<double>.Build.Dense(3, 3);
-            epsilonCouchy[0, 0] = epsilon[0]; //epsilon_xx
-            epsilonCouchy[1, 1] = epsilon[1]; //epsilon_yy
+            mnl.Matrix<double> epsilonLocalCouchy = mnl.Matrix<double>.Build.Dense(3, 3);
+            epsilonLocalCouchy[0, 0] = epsilonLocal[0]; //epsilon_xx
+            epsilonLocalCouchy[1, 1] = epsilonLocal[1]; //epsilon_yy
 
-            epsilonCouchy[0, 1] = epsilon[2]; //epsilon_xy
-            epsilonCouchy[1, 0] = epsilon[2]; //epsilon_yx
-                                              //epsilonCouchy[2, 2] = -ni / E * (sigma_xx + sigma_yy) + alpha * Temperature ; //epsilon_zz
+            epsilonLocalCouchy[0, 1] = epsilonLocal[2]; //epsilon_xy
+            epsilonLocalCouchy[1, 0] = epsilonLocal[2]; //epsilon_yx
+            //epsilonCouchy[2, 2] = -ni / E * (sigma_xx + sigma_yy) + alpha * Temperature ; //epsilon_zz
             //Console.WriteLine("Epsilon local coordinate:" + epsilonCouchy.ToString());
 
-            mnl.Matrix<double> stressCouchy = mnl.Matrix<double>.Build.Dense(3, 3);
-            stressCouchy[0, 0] = stress[0]; //sigma_xx
-            stressCouchy[1, 1] = stress[1]; //sigma_yy
+            mnl.Matrix<double> stressLocalCouchy = mnl.Matrix<double>.Build.Dense(3, 3);
+            stressLocalCouchy[0, 0] = stressLocal[0]; //sigma_xx
+            stressLocalCouchy[1, 1] = stressLocal[1]; //sigma_yy
 
-            stressCouchy[0, 1] = stress[2]; //sigma_xy
-            stressCouchy[1, 0] = stress[2]; //sigma_yx
+            stressLocalCouchy[0, 1] = stressLocal[2]; //sigma_xy
+            stressLocalCouchy[1, 0] = stressLocal[2]; //sigma_yx
             //Console.WriteLine("Stress local coordinate:" + stressCouchy.ToString());
 
             //Rotation matrix
@@ -295,22 +293,25 @@ namespace GPC.Model.FEM.FiniteElements
             //Console.WriteLine("Rotation matrix tensor:" + rotation.ToString());
 
             //Second order tensor -> Trotated = Q * T * Q^T
-            mnl.Matrix<double> epsilonGlobalCoord = rotation * epsilonCouchy * rotation.Transpose();
-            Console.WriteLine("Epsilon in global coordinates = " + epsilonGlobalCoord);
-            mnl.Matrix<double> sigmaGlobalCoord = rotation * stressCouchy * rotation.Transpose();
-            Console.WriteLine("Stress in global coordinates = " + sigmaGlobalCoord);
+            mnl.Matrix<double> epsilonGlobalCouchy = rotation * epsilonLocalCouchy * rotation.Transpose();
+            Console.WriteLine("Epsilon in global coordinates = " + epsilonGlobalCouchy);
+
+            mnl.Matrix<double> stressGlobalCouchy = rotation * stressLocalCouchy * rotation.Transpose();
+            Console.WriteLine("Stress in global coordinates = " + stressGlobalCouchy);
             #endregion
 
-            #warning to be completed
-            localDisplacements = new double[0];
-            gloabalPseudoDeformation = new mnl.Matrix<double>[0];
-            localPseudoDeformation = new mnl.Matrix<double>[0];
-            globalForces = new mnl.Matrix<double>[0];
-            localForces = new mnl.Matrix<double>[0];
-            globalStress = new mnl.Matrix<double>[0];
-            localStress = new mnl.Matrix<double>[0];
-            globalEpsilon = new mnl.Matrix<double>[0];
-            localEpsilon = new mnl.Matrix<double>[0];
+            localPseudoDeformation = new mnl.Matrix<double>[1] { epsilonLocalCouchy };
+            globalPseudoDeformation = new mnl.Matrix<double>[1] { epsilonGlobalCouchy };
+
+            localStress = new mnl.Matrix<double>[1] { stressLocalCouchy };
+            globalStress = new mnl.Matrix<double>[1] { stressGlobalCouchy };
+
+            double thickness = ((PlateProperty)_property).MembraneThickness;
+            globalForces = new mnl.Matrix<double>[1] { thickness * stressGlobalCouchy };
+            localForces = new mnl.Matrix<double>[1] { thickness * stressLocalCouchy };
+                        
+            globalEpsilon = new mnl.Matrix<double>[1] { epsilonGlobalCouchy };
+            localEpsilon = new mnl.Matrix<double>[1] { stressGlobalCouchy };
         }
 
         public override bool Equals(object obj)

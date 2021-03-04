@@ -908,7 +908,8 @@ namespace FemTest
             FreedomCase freedomCase = new FreedomCase("freedomCase1");
 
             Material mat = new SteelMaterial("mat", 10000, 0.0, 355, 510, 7850);
-            PlateProperty prop = new PlateProperty(mat, 1.0, 1.0);
+            double t = 1.0;
+            PlateProperty prop = new PlateProperty(mat, t, t);
 
             #region restrains
             CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
@@ -951,7 +952,7 @@ namespace FemTest
             Assert.AreEqual(0.0096, DZ, 1e-4);
             Assert.AreEqual(0.0002, DY, 1e-4);
 
-            double sigmaTopYY = -(1.0 + 1.0) / (1.0 / 6.0 * 8.0 * (1.0 * 1.0)) + (1.0 + 1.0) / (1.0 * 8.0);
+            double sigmaTopYY = -(F.M1 + F.M1) / (1.0 / 6.0 * 8.0 * (t * t)) + (F.F2 + F.F2) / (t * 8.0);
 
             double[] e0GlobalDispl = fem.GetDisplacementsGlobalCoordinates(e0);
             e0.GetResults(e0GlobalDispl, out double[] localDispl,
@@ -959,7 +960,7 @@ namespace FemTest
                             out mnl.Matrix<double>[] globalForces, out mnl.Matrix<double>[] localForces,
                             out mnl.Matrix<double>[] globalStress, out mnl.Matrix<double>[] localStress,
                             out mnl.Matrix<double>[] globalEpsilon, out mnl.Matrix<double>[] localEpsilon);
-            Assert.AreEqual(sigmaTopYY, globalStress[0][1,1]); //sigmaYY top face
+            Assert.AreEqual(sigmaTopYY, globalStress[0][1,1], 0.001); //sigmaYY top face
 
             double[] e1GlobalDispl = fem.GetDisplacementsGlobalCoordinates(e1);
             e1.GetResults(e1GlobalDispl, out localDispl,
@@ -967,7 +968,7 @@ namespace FemTest
                             out globalForces, out localForces,
                             out globalStress, out localStress,
                             out globalEpsilon, out localEpsilon);
-            Assert.AreEqual(sigmaTopYY, globalStress[0][1, 1]); //sigmaYY top face
+            Assert.AreEqual(sigmaTopYY, globalStress[0][1, 1], 0.001); //sigmaYY top face
         }
     }
 }

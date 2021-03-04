@@ -250,22 +250,101 @@ namespace GPC.Model.FEM.FiniteElements
             //get results
             _membranal.GetResults(membranalGlobalDisplacements, out double[] membranalLocalDisplacements, out mnl.Matrix<double>[] membranalGlobalPseudoDisplacements, out mnl.Matrix<double>[] membranalLocalPseudoDisplacements, out mnl.Matrix<double>[] membranalGlobalForces, out mnl.Matrix<double>[] membranalLocalForces, out mnl.Matrix<double>[] membranalGlobalStress, out mnl.Matrix<double>[] membranalLocalStress, out mnl.Matrix<double>[] membranalGlobalEpsilon, out mnl.Matrix<double>[] membranalLocalEpsilon);
             _flexural.GetResults(flexuralGlobalDisplacements, out double[] flexuralLocalDisplacements, out mnl.Matrix<double>[] flexuralGlobalPseudoDisplacements, out mnl.Matrix<double>[] flexuralLocalPseudoDisplacements, out mnl.Matrix<double>[] flexuralGlobalForces, out mnl.Matrix<double>[] flexuralLocalForces, out mnl.Matrix<double>[] flexuralGlobalStress, out mnl.Matrix<double>[] flexuralLocalStress, out mnl.Matrix<double>[] flexuralGlobalEpsilon, out mnl.Matrix<double>[] flexuralLocalEpsilon);
-            
+
             //sum of results
-            ///WARNING to be completed
+            localDisplacements = new double[5 * 3]; //dx, dy, dz, rx, ry
+            //node 1
+            localDisplacements[0] = membranalLocalDisplacements[0]; //dx
+            localDisplacements[1] = membranalLocalDisplacements[1]; //dy
+            localDisplacements[2] = flexuralLocalDisplacements[0]; //dz
+            localDisplacements[3] = flexuralLocalDisplacements[1]; //rx
+            localDisplacements[4] = flexuralLocalDisplacements[2]; //ry
 
-            localDisplacements = new double[0];
-            globalForces = new mnl.Matrix<double>[] { mnl.Matrix<double>.Build.Dense(0, 0) };
-            localForces = new mnl.Matrix<double>[] { mnl.Matrix<double>.Build.Dense(0, 0) };
+            //node 2
+            localDisplacements[5] = membranalLocalDisplacements[2]; //dx
+            localDisplacements[6] = membranalLocalDisplacements[3]; //dy
+            localDisplacements[7] = flexuralLocalDisplacements[3]; //dz
+            localDisplacements[8] = flexuralLocalDisplacements[4]; //rx
+            localDisplacements[9] = flexuralLocalDisplacements[5]; //ry
 
-            globalStress = new mnl.Matrix<double>[] { mnl.Matrix<double>.Build.Dense(0, 0) };
-            localStress = new mnl.Matrix<double>[] { mnl.Matrix<double>.Build.Dense(0, 0) };
+            //node 3
+            localDisplacements[10] = membranalLocalDisplacements[4]; //dx
+            localDisplacements[11] = membranalLocalDisplacements[5]; //dy
+            localDisplacements[12] = flexuralLocalDisplacements[6]; //dz
+            localDisplacements[13] = flexuralLocalDisplacements[7]; //rx
+            localDisplacements[14] = flexuralLocalDisplacements[8]; //ry
 
-            globalEpsilon = new mnl.Matrix<double>[] { mnl.Matrix<double>.Build.Dense(0, 0) };
-            localEpsilon = new mnl.Matrix<double>[] { mnl.Matrix<double>.Build.Dense(0, 0) };
+#warning to be completed
 
-            localPseudoDeformation = new mnl.Matrix<double>[] { mnl.Matrix<double>.Build.Dense(0, 0) };
-            globalPseudoDeformation = new mnl.Matrix<double>[] { mnl.Matrix<double>.Build.Dense(0, 0) };
+            localPseudoDeformation = new mnl.Matrix<double>[3] { //three nodes
+                mnl.Matrix<double>.Build.Dense(3 + 3, 3 + 3), //couchy epsilon + couchy curvatures
+                mnl.Matrix<double>.Build.Dense(3 + 3, 3 + 3),
+                mnl.Matrix<double>.Build.Dense(3 + 3, 3 + 3)
+            };
+
+            globalPseudoDeformation = new mnl.Matrix<double>[3] { //three nodes
+                mnl.Matrix<double>.Build.Dense(3 + 3, 3 + 3), //couchy epsilon + couchy curvatures
+                mnl.Matrix<double>.Build.Dense(3 + 3, 3 + 3),
+                mnl.Matrix<double>.Build.Dense(3 + 3, 3 + 3)
+            };
+
+            localForces = new mnl.Matrix<double>[3] { //three nodes
+                mnl.Matrix<double>.Build.Dense(3 + 3, 3 + 3), //couchy F + couchy M
+                mnl.Matrix<double>.Build.Dense(3 + 3, 3 + 3),
+                mnl.Matrix<double>.Build.Dense(3 + 3, 3 + 3)
+            };
+
+            globalForces = new mnl.Matrix<double>[3] { //three nodes
+                mnl.Matrix<double>.Build.Dense(3 + 3, 3 + 3), //couchy F + couchy M
+                mnl.Matrix<double>.Build.Dense(3 + 3, 3 + 3),
+                mnl.Matrix<double>.Build.Dense(3 + 3, 3 + 3)
+            };
+
+            globalStress = new mnl.Matrix<double>[3 * 2]; //3 nodes, top + bottom
+            localStress = new mnl.Matrix<double>[3 * 2];
+
+            globalEpsilon = new mnl.Matrix<double>[3 * 2];
+            localEpsilon = new mnl.Matrix<double>[3 * 2];
+
+            for (int node = 0; node < 3; node++) {
+                for (int r = 0; r < 3; r++)
+                {
+                    for (int c = 0; c < 3; c++)
+                    {
+                        localPseudoDeformation[node][r,c] = membranalLocalPseudoDisplacements[0][r,c]; //inplane epsilon
+                        globalPseudoDeformation[node][r, c] = membranalGlobalPseudoDisplacements[0][r, c]; //inplane epsilon
+
+                        localForces[node][r, c] = membranalLocalForces[0][r, c]; //inplane force
+                        globalForces[node][r, c] = membranalGlobalForces[0][r, c]; //inplane force
+                    }
+                }
+
+                for (int r = 0; r < 3; r++)
+                {
+                    for (int c = 0; c < 3; c++)
+                    {
+                        localPseudoDeformation[node][r + 3, c + 3] = flexuralLocalPseudoDisplacements[node][r, c]; //add curvature
+                        globalPseudoDeformation[node][r + 3, c + 3] = flexuralGlobalPseudoDisplacements[node][r, c]; //add curvature
+
+                        localForces[node][r + 3, c + 3] = flexuralLocalForces[0][r, c]; //add M
+                        globalForces[node][r + 3, c + 3] = flexuralGlobalForces[0][r, c]; //add M
+                    }
+                }
+
+                //top
+                localStress[node] = membranalLocalStress[0] + flexuralLocalStress[node];
+                globalStress[node] = membranalGlobalStress[0] + flexuralGlobalStress[node];
+
+                localEpsilon[node] = membranalLocalEpsilon[0] + flexuralLocalEpsilon[node];
+                globalEpsilon[node] = membranalGlobalEpsilon[0] + flexuralGlobalEpsilon[node];
+
+                //bottom
+                localStress[node + 3] = membranalLocalStress[0] + flexuralLocalStress[node + 3];
+                globalStress[node + 3] = membranalGlobalStress[0] + flexuralGlobalStress[node + 3];
+
+                localEpsilon[node + 3] = membranalLocalEpsilon[0] + flexuralLocalEpsilon[node + 3];
+                globalEpsilon[node + 3] = membranalGlobalEpsilon[0] + flexuralGlobalEpsilon[node +3];
+            }           
         }
     }
 }
