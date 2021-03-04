@@ -1099,20 +1099,25 @@ namespace FemTest
             RectangularMembranal el = new RectangularMembranal(nds, prop, 1);
             el.BuildMatrix();
             mnl.Matrix<double> kLocal = el.KElementLocalCoord;
-            mnl.Matrix<double> kLocalManual = mnl.Matrix<double>.Build.Dense(0, 6);
-            /*double[] r0 = new double[] { 145833, 62500, -41667, -20833, -104167, -41667 };
-            double[] r1 = new double[] { 62500, 145833, -41667, -104167, -20833, -41667 };
-            double[] r2 = new double[] { -41667, -41667, 41667, 0, 0, 41667 };
-            double[] r3 = new double[] { -20833, -104167, 0, 104167, 20833, 0 };
-            double[] r4 = new double[] { -104167, -20833, 0, 20833, 104167, 0 };
-            double[] r5 = new double[] { -41667, -41667, 41667, 0, 0, 41667 };
+            mnl.Matrix<double> kLocalManual = mnl.Matrix<double>.Build.Dense(0, 8);
+            
+            double[] r0 = new double[] { 0.5000, 0.1250, -0.2500, -0.1250, -0.2500, -0.1250, 0.0000, 0.1250 };
+            double[] r1 = new double[] { 0.1250, 0.5000, 0.1250, 0.0000, -0.1250, -0.2500, -0.1250, -0.2500 };
+            double[] r2 = new double[] { -0.2500, 0.1250, 0.5000, -0.1250, 0.0000, -0.1250, -0.2500, 0.1250 };
+            double[] r3 = new double[] { -0.1250, 0.0000, -0.1250, 0.5000, 0.1250, -0.2500, 0.1250, -0.2500 };
+            double[] r4 = new double[] { -0.2500, -0.1250, 0.0000, 0.1250, 0.5000, 0.1250, -0.2500, -0.1250 };
+            double[] r5 = new double[] { -0.1250, -0.2500, -0.1250, -0.2500, 0.1250, 0.5000, 0.1250, 0.0000 };
+            double[] r6 = new double[] { 0.0000, -0.1250, -0.2500, 0.1250, -0.2500, 0.1250, 0.5000, -0.1250 };
+            double[] r7 = new double[] { 0.1250, -0.2500, 0.1250, -0.2500, -0.1250, 0.0000, -0.1250, 0.5000 };
 
             kLocalManual = kLocalManual.InsertRow(0, mnl.Vector<double>.Build.Dense(r0));
             kLocalManual = kLocalManual.InsertRow(1, mnl.Vector<double>.Build.Dense(r1));
             kLocalManual = kLocalManual.InsertRow(2, mnl.Vector<double>.Build.Dense(r2));
             kLocalManual = kLocalManual.InsertRow(3, mnl.Vector<double>.Build.Dense(r3));
             kLocalManual = kLocalManual.InsertRow(4, mnl.Vector<double>.Build.Dense(r4));
-            kLocalManual = kLocalManual.InsertRow(5, mnl.Vector<double>.Build.Dense(r5));*/
+            kLocalManual = kLocalManual.InsertRow(5, mnl.Vector<double>.Build.Dense(r5));
+            kLocalManual = kLocalManual.InsertRow(6, mnl.Vector<double>.Build.Dense(r6));
+            kLocalManual = kLocalManual.InsertRow(7, mnl.Vector<double>.Build.Dense(r7));
 
             //controllo klocale elemento finito 4 nodi stato piano di tensione
             Console.WriteLine("kLocal");
@@ -1120,8 +1125,8 @@ namespace FemTest
             {
                 for (int j = 0; j < kLocal.ColumnCount; j++)
                 {
-                    Console.Write(kLocal[i, j].ToString("F2") + " ");
-                    //Assert.AreEqual(kLocal[i, j] - kLocalManual[i, j], 0, 1, "kLocal no OK -> row " + i + " col " + j);
+                    Console.Write(kLocal[i, j].ToString("F4") + " ");
+                    Assert.AreEqual(kLocal[i, j] - kLocalManual[i, j], 0, 0.001, "kLocal no OK -> row " + i + " col " + j);
                     //sarebbe stato meglio usare kLocal[i,j] / kLocalManual[i,j] ma 0/0 = NaN!!
                 }
                 Console.WriteLine();
