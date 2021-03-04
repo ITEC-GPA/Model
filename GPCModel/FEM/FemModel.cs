@@ -39,8 +39,6 @@ namespace GPC.Model.FEM
         protected Dictionary<LoadCase, int> _loadCases;
         protected Dictionary<FreedomCase, int> _freedomCases;
 
-        protected Dictionary<GeometryRestrain, int> _geometryRestrain;
-
         protected List<Load> _loads;
 
         // CoordinatesSystem ? 
@@ -66,7 +64,6 @@ namespace GPC.Model.FEM
             _loadCases = new Dictionary<LoadCase, int>();
             _freedomCases = new Dictionary<FreedomCase, int>();
 
-            _geometryRestrain = new Dictionary<GeometryRestrain, int>();
             _loads = new List<Load>();
         }
 
@@ -96,12 +93,7 @@ namespace GPC.Model.FEM
 
             var embeddedGeometries = new HashSet<GeometryBase>(); // geometrie uniche da passare al meshatore
 
-            var geometryLoadMap = new Dictionary<GeometryBase, List<Load>>(); // associazione fra geometria e carichi
-            var geometryRestrainMap = new Dictionary<GeometryBase, List<GeometryRestrain>>(); // associazione fra geometria e restrain
-
-
             // per ogni carico embedda la geometria nella mesh
-
             if (loads != null)
             {
                 foreach (var load in loads)
@@ -115,46 +107,6 @@ namespace GPC.Model.FEM
                 } 
             }
 
-            //// per ogni carico embedda la geometria nella mesh
-            //foreach (var load in loads)
-            //{
-            //    if (load is LineLoad ll)
-            //    {
-            //        var geom = ll.GetGeometry();
-
-            //        if (!geometryLoadMap.ContainsKey(geom))
-            //        {
-            //            geometryLoadMap[geom] = new List<Load>() { load };
-            //            embeddedGeometries.Add(geom);
-            //        }
-            //        else
-            //            geometryLoadMap[geom].Add(load);
-            //    }
-            //    else if (load is PointLoad pl)
-            //    {
-            //        var geom = pl.GetGeometry();
-            //        if (!geometryLoadMap.ContainsKey(geom))
-            //        {
-            //            geometryLoadMap[geom] = new List<Load>() { load };
-            //            embeddedGeometries.Add(geom);
-            //        }
-            //        else
-            //            geometryLoadMap[geom].Add(load);
-            //    }
-            //    else if (load is AreaLoad gal)
-            //    {
-            //        throw new NotImplementedException($"Load type: {load.GetType()} not implemented");
-            //    }
-            //    else if (load is NormalAreaLoad nal)
-            //    {
-            //        throw new NotImplementedException($"Load type: {load.GetType()} not implemented");
-            //    }
-            //    else
-            //        throw new NotSupportedException($"Load type: {load.GetType()} not supported");                        
-            //}
-
-
-            // Versione 2
             // per ogni vincolo embedda la geometria nella mesh
             if (restrains != null)
             {
@@ -172,36 +124,6 @@ namespace GPC.Model.FEM
                         throw new NotSupportedException($"Restrain type: {restrain.GetType()} not supported");
                 } 
             }
-
-            //// Versione 1
-            //// per ogni vincolo embedda la geometria nella mesh
-            //foreach (var restrain in restrains)
-            //{
-            //    if (restrain is LineRestrain lr)
-            //    {
-            //        var geom = lr.GetGeometry();
-            //        if (!geometryRestrainMap.ContainsKey(geom))
-            //        {
-            //            geometryRestrainMap[geom] = new List<GeometryRestrain>() { restrain };
-            //            embeddedGeometries.Add(geom);
-            //        }
-            //        else
-            //            geometryRestrainMap[geom].Add(restrain);
-            //    }
-            //    else if (restrain is PointRestrain pr)
-            //    {
-            //        var geom = pr.GetGeometry();
-            //        if (!geometryRestrainMap.ContainsKey(geom))
-            //        {
-            //            geometryRestrainMap[geom] = new List<GeometryRestrain>() { restrain };
-            //            embeddedGeometries.Add(geom);
-            //        }
-            //        else
-            //            geometryRestrainMap[geom].Add(restrain);
-            //    }
-            //    else
-            //        throw new NotSupportedException($"Restrain type: {restrain.GetType()} not supported");
-            //}
 
             // Genera la mesh
             List<Mesh> meshes = Mesh.Generate(new List<Shape> { shape }, new Dictionary<Shape, GeometryBase[]>() { [shape] = embeddedGeometries.ToArray() }, 
@@ -536,8 +458,8 @@ namespace GPC.Model.FEM
                         if (nsa.Stiffnesses.Count > 0)
                             node.AddAttribute(nsa);
 
-                        if (!_geometryRestrain.ContainsKey(geometryRestrain))
-                            _geometryRestrain[geometryRestrain] = _geometryRestrain.Values.Count > 0 ? _geometryRestrain.Values.Max() + 1 : 1;
+                        if (!_freedomCases.ContainsKey(geometryRestrain.FreedomCase))
+                            _freedomCases[geometryRestrain.FreedomCase] = _freedomCases.Values.Count > 0 ? _freedomCases.Values.Max() + 1 : 1;
                     }
                 } 
             }
