@@ -25,28 +25,28 @@ namespace GPC.Model.Results
         private double _sxz;
         private double _syz;
 
-        /// <summary>
-        /// Global Stresses
-        /// </summary>
-        private double _sXX;
-        private double _sYY;
-        private double _sZZ;
-        private double _sXY;
-        private double _sXZ;
-        private double _sYZ;
+        ///// <summary>
+        ///// Global Stresses
+        ///// </summary>
+        //private double _sXX;
+        //private double _sYY;
+        //private double _sZZ;
+        //private double _sXY;
+        //private double _sXZ;
+        //private double _sYZ;
 
-        /// <summary>
-        /// Principal Stresses
-        /// </summary>
-        private double _s11;
-        private double _s22;
-        private double _s33;
+        ///// <summary>
+        ///// Principal Stresses
+        ///// </summary>
+        //private double _s11;
+        //private double _s22;
+        //private double _s33;
 
-        /// <summary>
-        /// Combined Stresses
-        /// </summary>
-        private double _sVM;
-        private double _sTR;
+        ///// <summary>
+        ///// Combined Stresses
+        ///// </summary>
+        //private double _sVM;
+        //private double _sTR;
 
         #endregion
 
@@ -154,7 +154,7 @@ namespace GPC.Model.Results
         /// <param name="Svm"></param>
         public void GetVMStress(out double Svm)
         {
-            GetPrincipalStress(out _s11, out _s22, out _s33);
+            GetPrincipalStress(out double _s11, out double _s22, out double _s33);
             
             if (_s33 == 0)
                 Svm = Math.Sqrt(Math.Pow((_s11), 2.0) + (Math.Pow((_s22), 2.0) - (_s22 * _s11)));
