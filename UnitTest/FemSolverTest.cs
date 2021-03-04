@@ -830,6 +830,64 @@ namespace FemTest
         }
 
         [TestMethod]
+        public void Benchmark10003()
+        {
+            /// Benchmark10001 - Bathe, Numerical Methods in Finite Elements Analysis - Esercizio Nr 5.11 pg 358
+            /// 0 - active degree of freedom
+            /// 1 - non-active degree of freedom
+            int[] NodeDoFID = new int[] { 1, 2, 3, 4, 5, 6 };
+
+            /// Nodes in 3D  XYZ
+            int[] Node1DoF = new int[] { 0, 0, 1, 1, 1, 1 };
+            int[] Node2DoF = new int[] { 0, 0, 1, 1, 1, 1 };
+            int[] Node3DoF = new int[] { 0, 0, 1, 1, 1, 1 };
+            int[] Node4DoF = new int[] { 0, 0, 1, 1, 1, 1 };
+
+            GPC.Model.FEMOld.Node Node1 = new GPC.Model.FEMOld.Node(Guid.NewGuid(), new Point3d(-1.0, -1.0, 0.0), 1, NodeDoFID, Node1DoF);
+            GPC.Model.FEMOld.Node Node2 = new GPC.Model.FEMOld.Node(Guid.NewGuid(), new Point3d(+1.0, -1.0, 0.0), 2, NodeDoFID, Node2DoF);
+            GPC.Model.FEMOld.Node Node3 = new GPC.Model.FEMOld.Node(Guid.NewGuid(), new Point3d(+1.0, +1.0, 0.0), 3, NodeDoFID, Node3DoF);
+            GPC.Model.FEMOld.Node Node4 = new GPC.Model.FEMOld.Node(Guid.NewGuid(), new Point3d(-1.0, +1.0, 0.0), 4, NodeDoFID, Node4DoF);
+
+            GPC.Model.FEMOld.Node[] nodes = new GPC.Model.FEMOld.Node[4];
+            nodes[0] = Node1;
+            nodes[1] = Node2;
+            nodes[2] = Node3;
+            nodes[3] = Node4;
+
+            int _globalDoF = 0;
+            int _reactionDoF = 0;
+
+            // Arrange Nodes
+            for (int nd = 0; nd < nodes.Length; nd++)
+            {
+                nodes[nd].DoF.FormIncidence(ref _globalDoF, ref _reactionDoF);
+            }
+
+            ///  Section
+            double E = 1; // MPa
+            double ni = 0.0;
+
+            /// Material
+            Material mat = new SteelMaterial("Steel", E, ni, 355, 510, 355 / E, 0, 0, new Guid());
+            PlateProperty property = new PlateProperty(mat, 1.0, 1.0);
+            GPC.Model.FEMOld.PlateDKQ shell = new GPC.Model.FEMOld.PlateDKQ(new Guid(), property, 1, nodes);
+
+            mnl.Matrix<double> _stiffnessMatrix = mnl.Matrix<double>.Build.Dense(_globalDoF, _globalDoF, 0.0);
+            shell.BuildElementDoFIncidence();
+            shell.KInGlobal(ref _stiffnessMatrix);
+
+            Console.WriteLine("Element local stiffness matrix");
+            for (int r = 0; r < _stiffnessMatrix.RowCount; r++)
+            {
+                for (int c = 0; c < _stiffnessMatrix.ColumnCount; c++)
+                {
+                    Console.Write(_stiffnessMatrix[r, c].ToString("F2") + " ");
+                }
+                Console.WriteLine();
+            }
+        }
+
+        [TestMethod]
         public void RectangleDKTTest1()
         {
             Material mat = new SteelMaterial("mat", 12, 0.0, 355, 510, 7850);
@@ -1024,6 +1082,50 @@ namespace FemTest
                             out mnl.Matrix<double>[] globalStress, out mnl.Matrix<double>[] localStress,
                             out mnl.Matrix<double>[] globalEpsilon, out mnl.Matrix<double>[] localEpsilon);
             */
+        }
+
+        [TestMethod]
+        public void QuadrilateralMembranalKTest1()
+        {
+            Material mat = new SteelMaterial("steel", 1.0, 0.0, 355, 510, 7850);
+            PlateProperty prop = new PlateProperty(mat, 0, 1);
+
+            Node[] nds = new Node[4];
+            nds[0] = new Node(-1, -1, 0, 1, "1");
+            nds[1] = new Node(+1, -1, 0, 2, "2");
+            nds[2] = new Node(+1, +1, 0, 3, "3");
+            nds[3] = new Node(-1, +1, 0, 4, "4");
+
+            RectangularMembranal el = new RectangularMembranal(nds, prop, 1);
+            el.BuildMatrix();
+            mnl.Matrix<double> kLocal = el.KElementLocalCoord;
+            mnl.Matrix<double> kLocalManual = mnl.Matrix<double>.Build.Dense(0, 6);
+            /*double[] r0 = new double[] { 145833, 62500, -41667, -20833, -104167, -41667 };
+            double[] r1 = new double[] { 62500, 145833, -41667, -104167, -20833, -41667 };
+            double[] r2 = new double[] { -41667, -41667, 41667, 0, 0, 41667 };
+            double[] r3 = new double[] { -20833, -104167, 0, 104167, 20833, 0 };
+            double[] r4 = new double[] { -104167, -20833, 0, 20833, 104167, 0 };
+            double[] r5 = new double[] { -41667, -41667, 41667, 0, 0, 41667 };
+
+            kLocalManual = kLocalManual.InsertRow(0, mnl.Vector<double>.Build.Dense(r0));
+            kLocalManual = kLocalManual.InsertRow(1, mnl.Vector<double>.Build.Dense(r1));
+            kLocalManual = kLocalManual.InsertRow(2, mnl.Vector<double>.Build.Dense(r2));
+            kLocalManual = kLocalManual.InsertRow(3, mnl.Vector<double>.Build.Dense(r3));
+            kLocalManual = kLocalManual.InsertRow(4, mnl.Vector<double>.Build.Dense(r4));
+            kLocalManual = kLocalManual.InsertRow(5, mnl.Vector<double>.Build.Dense(r5));*/
+
+            //controllo klocale elemento finito 4 nodi stato piano di tensione
+            Console.WriteLine("kLocal");
+            for (int i = 0; i < kLocal.RowCount; i++)
+            {
+                for (int j = 0; j < kLocal.ColumnCount; j++)
+                {
+                    Console.Write(kLocal[i, j].ToString("F2") + " ");
+                    //Assert.AreEqual(kLocal[i, j] - kLocalManual[i, j], 0, 1, "kLocal no OK -> row " + i + " col " + j);
+                    //sarebbe stato meglio usare kLocal[i,j] / kLocalManual[i,j] ma 0/0 = NaN!!
+                }
+                Console.WriteLine();
+            }
         }
     }
 }

@@ -41,7 +41,7 @@ namespace GPC.Model.FEM.FiniteElements
             #region TransformationMatrixLocalCoordinatesToGlobalCoordinates
             _dofGlobalToLocal = mnl.Matrix<double>.Build.Dense(12, 8);
 
-            mnl.Matrix<double> dofGlobalToLocalTranspose = mnl.Matrix<double>.Build.Dense(8, 12);
+            mnl.Matrix<double> dofGlobalToLocalTranspose = mnl.Matrix<double>.Build.Dense(12, 8);
 
             Vector3d globalX = new Vector3d(1.0, 0.0, 0.0);
             Vector3d globalY = new Vector3d(0.0, 1.0, 0.0);
@@ -122,7 +122,8 @@ namespace GPC.Model.FEM.FiniteElements
             _d[1, 1] = 1.0;
             _d[2, 2] = (1.0 - ni) / 2.0;
             _d = E / (1.0 - ni * ni) * _d;
-            //Console.WriteLine("D = " + _d.ToString());
+            /*Console.WriteLine();
+            Console.WriteLine("D = " + _d.ToString());*/
             #endregion
 
             #region stiffnessMatrixInLocalCoordinates
@@ -130,18 +131,18 @@ namespace GPC.Model.FEM.FiniteElements
 
             double[] csiGauss = new[]   {
                 -1.0 / Math.Sqrt(3.0),
-                1.0 / Math.Sqrt(3.0)
+                +1.0 / Math.Sqrt(3.0)
             };
             double[] etaGauss = new[] {
                 -1.0 / Math.Sqrt(3.0),
-                1.0 / Math.Sqrt(3.0)
+                +1.0 / Math.Sqrt(3.0)
             };
             double[] weightGauss = new[] {
                 1.0,
                 1.0
             };
 
-
+            _kElementLocalCoord = mnl.Matrix<double>.Build.Dense(8, 8);
             for (int i = 0; i < csiGauss.Length; i++) //trhough the 2 gauss points
             {
                 double csi = csiGauss[i];
@@ -153,22 +154,24 @@ namespace GPC.Model.FEM.FiniteElements
                     mnl.Matrix<double> m = b.Transpose() * _d * b;
                     mnl.Matrix<double> jacob = J(csi, eta);
 
-                    //Console.WriteLine("B(csi=" + csi.ToString("F2") + ",eta=" + eta.ToString("F2") + ")^T * D * B(csi=" + csi.ToString("F2") + ",eta=");
-                    /*for (int row = 0; row < m.RowCount; row++)
+                    /*Console.WriteLine();
+                    Console.WriteLine("B(csi=" + csi.ToString("F2") + ",eta=" + eta.ToString("F2") + ")^T * D * B(csi=" + csi.ToString("F2") + ",eta=" + eta.ToString("F2")+"):");
+                    for (int row = 0; row < m.RowCount; row++)
                     {
                         for (int col = 0; col < m.RowCount; col++)
                         {
-                            Console.Write(m[row, col] +" ");
+                            Console.Write(m[row, col].ToString("F2") +" ");
                         }
                         Console.WriteLine();
-                    }*/
+                    }
+                    Console.WriteLine("detJ = " + jacob.Determinant());*/
 
                     _kElementLocalCoord = _kElementLocalCoord + weightGauss[i] * weightGauss[j] * m * jacob.Determinant();
                 }
             }
             _kElementLocalCoord = thk * _kElementLocalCoord;
 
-            //Console.WriteLine("KElementLocalCoord = " + KElementLocalCoord.ToString());
+            //Console.WriteLine("KElementLocalCoord = " + KElementLocalCoord);
             #endregion
         }
 
@@ -178,22 +181,49 @@ namespace GPC.Model.FEM.FiniteElements
              * THESIS - DEVELOPMENT OF MEMBRANE, PLATE AND SHELL ELEMENTS IN JAVA
              * pg. 28
              * */
+
+
+            /*
+             * Matrix A
+             *   [3x4]
+             *      
+             * epsilon_x        du/dcsi
+             * epsllon_y  = a * du/deta
+             * gamma_xy         dv/dcsi
+             *                  dv/deta
+             * 
+             * a = Jacob^(-1) oppurtunamente disposto in matrice 3x4
+            */
             mnl.Matrix<double> a = mnl.Matrix<double>.Build.Dense(3, 4);
             mnl.Matrix<double> j = J(csi, eta);
-            a[0, 0] = j[1,1];
-            a[0, 1] = -j[0,1];
+            a[0, 0] = j[1, 1];
+            a[0, 1] = -j[0, 1];
 
-            a[1, 2] = -j[1,0];
-            a[1, 3] = j[0,0];
+            a[1, 2] = -j[1, 0];
+            a[1, 3] = j[0, 0];
 
-            a[2, 0] = -j[1,0];
-            a[2, 1] = j[0,0];
+            a[2, 0] = -j[1, 0];
+            a[2, 1] = j[0, 0];
             a[2, 2] = j[1, 1];
             a[2, 3] = -j[0, 1];
 
             a = a / j.Determinant();
+            //Console.WriteLine("A=" + a);
 
             mnl.Matrix<double> g = mnl.Matrix<double>.Build.Dense(4, 8);
+            /*
+             * matrice g
+             *  [4x8]
+             * du/dcsi          u1
+             * du/eta   = g *   v1
+             * ...              ...
+             * dv/deta          v4
+             * 
+             * g = dN1/dcsi  ... dN4/dcsi 0
+             *     dNi1/deta ... dN4/deta 0
+             *     ..        ...  ...     dN4/dcsi
+             *     0         ...  ...     dN4/deta
+             */
             g[0, 0] = dNdCsi(1, csi, eta);
             g[0, 2] = dNdCsi(2, csi, eta);
             g[0, 4] = dNdCsi(3, csi, eta);
@@ -209,16 +239,27 @@ namespace GPC.Model.FEM.FiniteElements
             g[2, 5] = dNdCsi(3, csi, eta);
             g[2, 7] = dNdCsi(4, csi, eta);
 
-            g[2, 1] = dNdEta(1, csi, eta);
-            g[2, 3] = dNdEta(2, csi, eta);
-            g[2, 5] = dNdEta(3, csi, eta);
-            g[2, 7] = dNdEta(4, csi, eta);
+            g[3, 1] = dNdEta(1, csi, eta);
+            g[3, 3] = dNdEta(2, csi, eta);
+            g[3, 5] = dNdEta(3, csi, eta);
+            g[3, 7] = dNdEta(4, csi, eta);
+            /*Console.WriteLine("g=");
+            for (int row = 0; row < g.RowCount; row++)
+            {
+                for (int col = 0; col < g.RowCount; col++)
+                {
+                    Console.Write(g[row, col].ToString("F4") + " ");
+                }
+                Console.WriteLine();
+            }*/
 
             return a * g;
         }
 
         /// <summary>
-        /// jacobiano in funzione di csi ed eta
+        /// jacobiano:
+        /// dx/dCsi, dy/dEta
+        /// dy/dCsi, dy/dEta
         /// </summary>
         /// <param name="csi"></param>
         /// <param name="eta"></param>
@@ -231,20 +272,26 @@ namespace GPC.Model.FEM.FiniteElements
             double j22 = 0.0;
             for (int node = 0; node < 4; node++)
             {
+                int i = node + 1;
                 double xi = _nodes[node].Position.X;
                 double yi = _nodes[node].Position.Y;
 
-                j11 = j11 + dNdCsi(node, csi, eta) * xi;
-                j12 = j12 + dNdCsi(node, csi, eta) * yi;
-                j21 = j21 + dNdEta(node, csi, eta) * xi;
-                j22 = j22 + dNdEta(node, csi, eta) * yi;
+                j11 = j11 + dNdCsi(i, csi, eta) * xi;
+                j12 = j12 + dNdCsi(i, csi, eta) * yi;
+                j21 = j21 + dNdEta(i, csi, eta) * xi;
+                j22 = j22 + dNdEta(i, csi, eta) * yi;
             }
 
             mnl.Matrix<double> J = mnl.Matrix<double>.Build.Dense(2, 2);
             J[0, 0] = j11;
-            J[1, 0] = j12;
-            J[0, 1] = j21;
+
+            J[0, 1] = j12;
+            J[1, 0] = j21;
+
             J[1, 1] = j22;
+
+            /*Console.WriteLine("J(csi="+csi.ToString("F2")+",eta="+eta.ToString("F2")+"="+J);
+            Console.WriteLine("detJ(csi=" + csi.ToString("F2") + ",eta=" + eta.ToString("F2") + "=" + J.Determinant());*/
 
             return J;
         }
