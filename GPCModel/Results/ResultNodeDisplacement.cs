@@ -72,8 +72,8 @@ namespace GPC.Model.Results
         /// <param name="rxy"></param>
         /// <param name="ryz"></param>
         /// <param name="rzx"></param>
-        public ResultNodeDisplacement(int elementID, string elementLabel, int resultPointId, int caseId, CoordinateSystem cSys, double dx, double dy, double dz, double rxy, double ryz, double rzx) 
-            : base(elementID, elementLabel, caseId, cSys)
+        public ResultNodeDisplacement(int elementID, string elementLabel, int caseId, int resultPointId, CoordinateSystem cSys, double dx, double dy, double dz, double rxy, double ryz, double rzx) 
+            : base(elementID, elementLabel, caseId, resultPointId, cSys)
         {
             _dx = dx;
             _dy = dy;
@@ -133,10 +133,10 @@ namespace GPC.Model.Results
         public double[] GetGlobalStress()
         {
             Vector3d DisplResult = new Vector3d(_dx, _dy, _dz );
-            Vector3d GlobalDisplResult = _cSys.ToGlobal(DisplResult);
+            Vector3d GlobalDisplResult = _coordinateSystem.ToGlobal(DisplResult);
 
             Vector3d RotResult = new Vector3d(_rxy, _ryz, _rzx);
-            Vector3d GlobalRotResult = _cSys.ToGlobal(RotResult);
+            Vector3d GlobalRotResult = _coordinateSystem.ToGlobal(RotResult);
 
             double[] globalDispRot = new double[6];
 
