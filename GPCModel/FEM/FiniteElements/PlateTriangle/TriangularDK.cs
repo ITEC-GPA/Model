@@ -2,6 +2,7 @@
 using GPC.Model.FEM.Properties;
 using GPC.Geometry;
 using mnl = MathNet.Numerics.LinearAlgebra;
+using GPC.Model.FEM.Attributes;
 
 namespace GPC.Model.FEM.FiniteElements
 {
@@ -225,9 +226,42 @@ namespace GPC.Model.FEM.FiniteElements
 
         protected override mnl.Vector<double> BuildFLocalCoord()
         {
-            Console.WriteLine("BuildFLocalCoord TriangularDKT not yet implemented");
-            //throw new System.NotImplementedException();
-            return mnl.Vector<double>.Build.Dense(9);
+            mnl.Vector<double> _fLocalCoord = mnl.Vector<double>.Build.Dense(3 * Nodes.Length); //3 = DOF in local : DZ, RX, RZ
+            foreach (IPlateLoadCaseAttribute iAttribute in _attributesLoadCase)
+            {
+                if (iAttribute is PlatePressureAttribute)
+                {
+                    PlatePressureAttribute attribute = (PlatePressureAttribute)iAttribute;
+                    //calcultation of pressures in local coordinate system of the element
+                    Vector3d dirX = attribute.CoordinateSystem.V1;
+                    dirX.Unitize();
+                    Vector3d dirY = attribute.CoordinateSystem.V2;
+                    dirY.Unitize();
+                    Vector3d dirZ = attribute.CoordinateSystem.V3;
+                    dirZ.Unitize();
+
+                    Vector3d x = LocalCoordinateSystem.V1;
+                    dirX.Unitize();
+                    Vector3d y = LocalCoordinateSystem.V2;
+                    dirY.Unitize();
+                    Vector3d z = LocalCoordinateSystem.V3;
+                    dirZ.Unitize();
+
+                    //Set in local coordinates
+                    double px = attribute.P1 * dirX.DotProduct(x) + attribute.P2 * dirY.DotProduct(x) + attribute.P3 * dirZ.DotProduct(x);
+                    double py = attribute.P1 * dirX.DotProduct(y) + attribute.P2 * dirY.DotProduct(y) + attribute.P3 * dirZ.DotProduct(y);
+                    double pz = attribute.P1 * dirX.DotProduct(z) + attribute.P2 * dirY.DotProduct(z) + attribute.P3 * dirZ.DotProduct(z);
+
+                    //Pressure --> node force
+                    Vector3d f = new Vector3d(px * _areaElement / 3.0, py * _areaElement / 3.0, pz * _areaElement / 3.0); //force applied in each node
+
+                    for (int i = 0; i < _fLocalCoord.Count; i = i + 3)
+                    {
+                        _fLocalCoord[i] = f.Z;
+                    }
+                }
+            }
+            return _fLocalCoord;
         }
 
         public override mnl.Matrix<double> GetB(double csi, double eta, double zeta = 0)

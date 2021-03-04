@@ -181,11 +181,6 @@ namespace GPC.Model.FEM.FiniteElements
                     double py = attribute.P1 * dirX.DotProduct(y) + attribute.P2 * dirY.DotProduct(y) + attribute.P3 * dirZ.DotProduct(y);
                     double pz = attribute.P1 * dirX.DotProduct(z) + attribute.P2 * dirY.DotProduct(z) + attribute.P3 * dirZ.DotProduct(z);
 
-                    if (pz != 0.0)
-                    {
-                        throw new Exception("this finite element can't support out of plane pressure");
-                    }
-
                     //Pressure --> node force
                     Vector3d f = new Vector3d(px * _areaElement / 3.0, py * _areaElement / 3.0, pz * _areaElement / 3.0); //force applied in each node
 

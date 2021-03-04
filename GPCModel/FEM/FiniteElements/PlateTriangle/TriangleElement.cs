@@ -274,8 +274,6 @@ namespace GPC.Model.FEM.FiniteElements
             localDisplacements[13] = flexuralLocalDisplacements[7]; //rx
             localDisplacements[14] = flexuralLocalDisplacements[8]; //ry
 
-#warning to be completed
-
             localPseudoDeformation = new mnl.Matrix<double>[3] { //three nodes
                 mnl.Matrix<double>.Build.Dense(3 + 3, 3 + 3), //couchy epsilon + couchy curvatures
                 mnl.Matrix<double>.Build.Dense(3 + 3, 3 + 3),

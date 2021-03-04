@@ -896,11 +896,6 @@ namespace FemTest
             Assert.AreEqual(true, false);
         }
 
-
-        /// <summary>
-        /// Example PatchTest in "A study of three-node trinagular plate bending elements - batoz (1980)
-        /// international journal for numerical methods in engineering, vol. 15 - 1771-1812 -> pg. 1797
-        /// </summary>
         [TestMethod]
         public void TriangleElementTest1()
         {
@@ -969,6 +964,66 @@ namespace FemTest
                             out globalStress, out localStress,
                             out globalEpsilon, out localEpsilon);
             Assert.AreEqual(sigmaTopYY, globalStress[0][1, 1], 0.001); //sigmaYY top face
+        }
+
+        [TestMethod]
+        public void TriangleElementTest2()
+        {
+            LoadCase loadCase = new LoadCase("myLoadCase", new Guid());
+            FreedomCase freedomCase = new FreedomCase("freedomCase1");
+
+            Material mat = new SteelMaterial("mat", 10000, 0.0, 355, 510, 7850);
+            double t = 1.0;
+            PlateProperty prop = new PlateProperty(mat, t, t);
+
+            #region restrains
+            CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
+            NodeRestrainAttribute fix = new NodeRestrainAttribute(freedomCase, sys);
+            fix.AddExternalRestrain(LinearSolver.DOF.DX);
+            fix.AddExternalRestrain(LinearSolver.DOF.DY);
+            fix.AddExternalRestrain(LinearSolver.DOF.DZ);
+            fix.AddExternalRestrain(LinearSolver.DOF.RX);
+            fix.AddExternalRestrain(LinearSolver.DOF.RY);
+            fix.AddExternalRestrain(LinearSolver.DOF.RZ);
+
+            NodeRestrainAttribute fixRZ = new NodeRestrainAttribute(freedomCase, sys);
+            fixRZ.AddExternalRestrain(LinearSolver.DOF.RZ);
+            #endregion
+
+            #region forces
+            PlatePressureAttribute p = new PlatePressureAttribute(loadCase, sys, 0.0, 0.0, 1.0);
+            #endregion
+
+            Node nodeA = new Node(0, 8, 0, 1, "A");
+            nodeA.AddAttribute(fixRZ);
+            
+            Node nodeB = new Node(0, 0, 0, 2, "B");
+            nodeB.AddAttribute(fix);
+
+            Node nodeC = new Node(8, 8, 0, 3, "C");
+            nodeC.AddAttribute(fixRZ);
+
+            Node nodeD = new Node(8, 0, 0, 3, "D");
+            nodeD.AddAttribute(fix);
+
+            Plate e0 = new TriangleElement(new Node[] { nodeA, nodeB, nodeC }, prop, 1);
+            e0.AddAttribute(p);
+            Plate e1 = new TriangleElement(new Node[] { nodeB, nodeD, nodeC }, prop, 2);
+            e1.AddAttribute(p);
+            LinearSolver fem = new LinearSolver(new FiniteElement[] { e0, e1 });
+
+            double DZC = fem.GetDisplacementGlobalCoordinates(nodeC, LinearSolver.DOF.DZ).First();
+            Assert.AreEqual(0.97765, DZC, 1e-4); //value from SAP
+            double DZA = fem.GetDisplacementGlobalCoordinates(nodeA, LinearSolver.DOF.DZ).First();
+            Assert.AreEqual(0.75597, DZA, 1e-4); //value from SAP
+
+            double[] e0GlobalDispl = fem.GetDisplacementsGlobalCoordinates(e0);
+            e0.GetResults(e0GlobalDispl, out double[] localDispl,
+                            out mnl.Matrix<double>[] globalPseudoDef, out mnl.Matrix<double>[] localPseudoDef,
+                            out mnl.Matrix<double>[] globalForces, out mnl.Matrix<double>[] localForces,
+                            out mnl.Matrix<double>[] globalStress, out mnl.Matrix<double>[] localStress,
+                            out mnl.Matrix<double>[] globalEpsilon, out mnl.Matrix<double>[] localEpsilon);
+            //Assert.AreEqual(sigmaTopYY, globalStress[0][1, 1], 0.001); //sigmaYY top face
         }
     }
 }
