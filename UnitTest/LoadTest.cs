@@ -17,7 +17,7 @@ namespace ModelObjectTest
             Point3d Origin = new Point3d(2, 0, 0);
             Point3d AsseX = new Point3d(2, 2, 0);
             Point3d AsseY = new Point3d(2, 0, 2);
-            CoordinateSystem CoordinateSystem1 = new CoordinateSystem(Origin, AsseX, AsseY, 0.0, "CS", new Guid());
+            CoordinateSystem CoordinateSystem1 = new CoordinateSystem(Origin, AsseX, AsseY, "CS", new Guid());
 
             // PointLoad nel sistema locale
             Vector3d force = new Vector3d(1, 0, 0);
@@ -76,7 +76,7 @@ namespace ModelObjectTest
             Point3d Origin = new Point3d(2, 0, 5);
             Point3d AsseX = new Point3d(2, 2, 5);
             Point3d AsseY = new Point3d(2, 0, 3);
-            CoordinateSystem CoordinateSystem1 = new CoordinateSystem(Origin, AsseX, AsseY, 0.0, "CS", new Guid());
+            CoordinateSystem CoordinateSystem1 = new CoordinateSystem(Origin, AsseX, AsseY, "CS", new Guid());
 
             // PointLoad nel sistema locale
             Vector3d force = new Vector3d(-1, +1, -1);
@@ -135,7 +135,7 @@ namespace ModelObjectTest
             Point3d Origin = new Point3d(-2, -2, -2);
             Point3d AsseX = new Point3d(-2, -2, -4);
             Point3d AsseY = new Point3d(-2, 0, -2);
-            CoordinateSystem CoordinateSystem1 = new CoordinateSystem(Origin, AsseX, AsseY, 0.0, "CS", new Guid());
+            CoordinateSystem CoordinateSystem1 = new CoordinateSystem(Origin, AsseX, AsseY, "CS", new Guid());
 
             // PointLoad nel sistema locale
             Vector3d force = new Vector3d(-1, +1, +1);
@@ -195,7 +195,7 @@ namespace ModelObjectTest
             Point3d Origin = new Point3d(2, 0, 0);
             Point3d AsseX = new Point3d(2, 2, 0);
             Point3d AsseY = new Point3d(2, 0, 2);
-            CoordinateSystem CoordinateSystem1 = new CoordinateSystem(Origin, AsseX, AsseY, 0.0, "CS", new Guid());
+            CoordinateSystem CoordinateSystem1 = new CoordinateSystem(Origin, AsseX, AsseY, "CS", new Guid());
 
             // PointLoad nel sistema locale
             Vector3d force = new Vector3d(1, 0, 0);             // sono forze e momenti per unità di lunghezza

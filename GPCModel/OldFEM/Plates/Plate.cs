@@ -119,7 +119,8 @@ namespace GPC.Model.FEMOld
 
         protected override void SetLocalCoordinateSystem(double rotationAngle)
         {
-            _coordSys = new CoordinateSystem(_nodesGlobal[0].Position, _nodesGlobal[1].Position, _nodesGlobal[2].Position, rotationAngle, string.Empty, Guid.NewGuid());
+            _coordSys = new CoordinateSystem(_nodesGlobal[0].Position, _nodesGlobal[1].Position, _nodesGlobal[2].Position, string.Empty, Guid.NewGuid());
+            _coordSys.RotateV3(rotationAngle);
             for (int nd = 0; nd < _nodesGlobal.Length; nd++)
             {
                 var pointLocal = _coordSys.ToLocal(_nodesGlobal[nd].Position);

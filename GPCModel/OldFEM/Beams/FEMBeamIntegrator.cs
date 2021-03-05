@@ -281,8 +281,8 @@ namespace GPC.Model.FEMOld
                 double CX = beam.CoordSys.V3.X;
                 double CY = beam.CoordSys.V3.Y;
                 double CZ = beam.CoordSys.V3.Z;
-                double sen = Math.Sin(beam.CoordSys.RotAngle * 3.14159 / 180);
-                double cos = Math.Cos(beam.CoordSys.RotAngle * 3.14159 / 180);
+                //double sen = Math.Sin(beam.CoordSys.RotAngle * 3.14159 / 180);
+                //double cos = Math.Cos(beam.CoordSys.RotAngle * 3.14159 / 180);
 
                 tfrMatrix1[0, 0] = 0;
                 tfrMatrix1[0, 1] = 0;
@@ -302,8 +302,8 @@ namespace GPC.Model.FEMOld
                 double CY = beam.CoordSys.V3.Y;
                 double CZ = beam.CoordSys.V3.Z;
                 double d = Math.Sqrt(Math.Pow(CX, 2.0) + Math.Pow(CY, 2.0));
-                double sen = Math.Sin(beam.CoordSys.RotAngle * 3.14159 / 180);
-                double cos = Math.Cos(beam.CoordSys.RotAngle * 3.14159 / 180);
+                //double sen = Math.Sin(beam.CoordSys.RotAngle * 3.14159 / 180);
+                //double cos = Math.Cos(beam.CoordSys.RotAngle * 3.14159 / 180);
 
                 tfrMatrix1[0, 0] = CX;
                 tfrMatrix1[0, 1] = CY;

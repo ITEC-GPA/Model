@@ -95,8 +95,8 @@ namespace GPC.Model.FEMOld
                 v33.Unitize();
             }
 
-            _coordSys = new CoordinateSystem(_nodesGlobal[0].Position, v33, v22, v11, rotationAngle, string.Empty, Guid.NewGuid());
-
+            _coordSys = new CoordinateSystem(_nodesGlobal[0].Position, v33, v22, v11, string.Empty, Guid.NewGuid());
+            _coordSys.RotateV3(rotationAngle);
             for (int nd = 0; nd < _nodesGlobal.Length; nd++)
             {
                 var p = _coordSys.ToLocal(_nodesGlobal[nd].Position);
