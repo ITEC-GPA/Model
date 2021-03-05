@@ -1,18 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Runtime.Serialization;
-using System.Text;
-using System.Threading.Tasks;
+using GPC.Model.Elements;
 
 namespace GPC.Model.FEM
 {
-    public class FEMObject : ModelObject
+    public abstract class FEMObject : Element
     {
-        protected int _id;
-
-        public int Id { get => _id; internal set => _id = value; }
-
         public FEMObject(int id) 
             : this(id, string.Empty)
         {
@@ -22,19 +15,19 @@ namespace GPC.Model.FEM
         public FEMObject(int id, string name) 
             : base(Guid.NewGuid(), name)
         {
-            _id = id;
+            base.Id = id;
         }
 
         public FEMObject(SerializationInfo info, StreamingContext context) 
             : base(info, context)
         {
-            info.AddValue("Id", _id);
+
         }
 
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             base.GetObjectData(info, context);
-            _id = info.GetInt32("Id");
+
         }       
 
         public override bool Equals(object obj)
@@ -43,14 +36,13 @@ namespace GPC.Model.FEM
                 return true;
             
             FEMObject objCasted = obj as FEMObject;
-            return !(objCasted is null) && base.Equals(objCasted) && _id == objCasted._id;
+            return !(objCasted is null) && base.Equals(objCasted);
         }
 
         public override int GetHashCode()
         {
-            int hashCode = -738623263;
-            hashCode = hashCode * -1521134295 + base.GetHashCode();
-            hashCode = hashCode * -1521134295 + Id.GetHashCode();
+            int hashCode = -23;
+            hashCode = hashCode * -17 + base.GetHashCode();
             return hashCode;
         }
 

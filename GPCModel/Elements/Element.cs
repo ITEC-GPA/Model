@@ -14,17 +14,24 @@ namespace GPC.Model.Elements
 
         private int _id;
 
-        public int Id { get => _id; set => _id = value; }
+        public int Id { get => _id; internal set => _id = value; }
 
         #region Public Constructors
 
-        protected Element() : base(Guid.NewGuid())
+        protected Element() 
+            : base(Guid.NewGuid())
         {
 
         }
 
         protected Element(Guid guid)
             : base(guid)
+        {
+
+        }
+
+        protected Element(Guid guid, string name)
+            : base(guid, name)
         {
 
         }

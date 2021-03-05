@@ -55,6 +55,11 @@ namespace GPC.Model.LoadCases
         {
 
         }
+        public LoadCase(string name)
+            : this(name, null, Guid.NewGuid())
+        {
+
+        }
 
         public LoadCase(SerializationInfo info, StreamingContext context)
             : base(info, context)

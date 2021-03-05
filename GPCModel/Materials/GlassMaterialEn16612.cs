@@ -57,6 +57,7 @@ namespace GPC.Model.Materials
         #endregion
 
         #region VARIABLES
+
         private double _fgk;
         private GlassTypes _glassType;
         private SurfaceTreatments _surfaceTreatment;
