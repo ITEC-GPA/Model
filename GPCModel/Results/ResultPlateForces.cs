@@ -1,4 +1,5 @@
 ﻿using GPC.Geometry;
+using GPC.Model.Elements;
 using GPC.Model.LoadCases;
 using System;
 using System.Runtime.Serialization;
@@ -91,10 +92,10 @@ namespace GPC.Model.Results
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="elementID">Id of the element where these result are referred to</param>
-        /// <param name="elementLabel">Label of the element where these result are referred t</param>
-        /// <param name="caseId">Represenet the id of the loadcase / loadCombination where these result are referred to</param>
-        /// <param name="cSys">Coordinate system where these result are provided</param>
+        /// <param name="element">Element where these result are referred </param>
+        /// <param name="Case">The case where these results are reffered </param>
+        /// <param name="coordinateSystem">Coordinate system where these result are provided</param>
+        /// <param name="resultPoint">Stress point where these results are provided</param>
         /// <param name="fxx"></param>
         /// <param name="fyy"></param>
         /// <param name="fxy"></param>
@@ -103,9 +104,9 @@ namespace GPC.Model.Results
         /// <param name="mxx"></param>
         /// <param name="myy"></param>
         /// <param name="mxy"></param>
-        public ResultPlateForces(int elementID, string elementLabel, int caseID, int resultPointId, CoordinateSystem coordinateSystem, 
+        public ResultPlateForces(Element element, ILoadCase Case, ResultStressPoint resultPoint, CoordinateSystem coordinateSystem, 
                                  double fxx, double fyy, double fxy, double fxz, double fyz, double mxx, double myy, double mxy)
-                                 : base(elementID, elementLabel, caseID, resultPointId, coordinateSystem)
+                                 : base(element, Case, resultPoint, coordinateSystem)
         {
                 _fxx = fxx;
                 _fyy = fyy;

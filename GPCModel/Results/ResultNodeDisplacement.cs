@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using GPC.Model.LoadCases;
 using GPC.Geometry;
 using System.Runtime.Serialization;
+using GPC.Model.Elements;
 
 namespace GPC.Model.Results
 {
@@ -44,7 +45,6 @@ namespace GPC.Model.Results
 
         #endregion
 
-
         #region Properties
 
         protected double Dx => _dx;
@@ -62,18 +62,17 @@ namespace GPC.Model.Results
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="elementID">Id of the element where these result are referred to</param>
-        /// <param name="elementLabel">Label of the element where these result are referred t</param>
-        /// <param name="caseId">Represenet the id of the loadcase / loadCombination where these result are referred to</param>
-        /// <param name="cSys">Coordinate system where these result are provided</param>
+        /// <param name="element">Element where these result are referred </param>
+        /// <param name="Case">The case where these results are reffered </param>
+        /// <param name="coordinateSystem">Coordinate system where these result are provided</param>
         /// <param name="dx"></param>
         /// <param name="dy"></param>
         /// <param name="dz"></param>
         /// <param name="rxy"></param>
         /// <param name="ryz"></param>
         /// <param name="rzx"></param>
-        public ResultNodeDisplacement(int elementID, string elementLabel, int caseId, int resultPointId, CoordinateSystem cSys, double dx, double dy, double dz, double rxy, double ryz, double rzx) 
-            : base(elementID, elementLabel, caseId, resultPointId, cSys)
+        public ResultNodeDisplacement(Element element, ILoadCase Case, CoordinateSystem coordinateSystem, double dx, double dy, double dz, double rxy, double ryz, double rzx) 
+            : base(element, Case, null, coordinateSystem)
         {
             _dx = dx;
             _dy = dy;

@@ -2,6 +2,8 @@
 using GPC.Geometry;
 using System.Runtime.Serialization;
 using System.Collections.Generic;
+using GPC.Model.LoadCases;
+using GPC.Model.Elements;
 
 namespace GPC.Model.Results
 {
@@ -11,37 +13,42 @@ namespace GPC.Model.Results
         #region Variables
 
         protected CoordinateSystem _coordinateSystem;
-        protected int _elementID;
-        protected string _elementLabel;
-        protected int _caseId;
-        protected int _resultPointId;
+
+        protected Element _element;
+
+        protected ILoadCase _case;
+
+        protected ResultPoint _resultPoint;
 
         #endregion
 
         public CoordinateSystem CoordinateSystem => _coordinateSystem;
-        public int ElementID => _elementID;
-        public string ElementLabel => _elementLabel;
-        public int CaseId => _caseId;
-        public int ResultPointId => _resultPointId;
+
+        public Element Element => _element;
+
+        public ILoadCase Case => _case;
+
+        public ResultPoint ResultPoint => _resultPoint;
 
 
         #region Constructors
 
+
+
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="elementID">Id of the element where these result are referred to</param>
-        /// <param name="elementLabel">Label of the element where these result are referred t</param>
-        /// <param name="caseId">Represent the id of the loadcase / loadCombination where these result are referred to</param>
-        /// <param name="resultPointId">Represent the id of the point where the resultsa are provided</param>
-        /// <param name="coordinateSystem">Coordinate system where these result are provided</param>
-        protected Result(int elementID, string elementLabel, int caseId, int resultPointId, CoordinateSystem coordinateSystem) : base(Guid.NewGuid())
+        /// <param name="element">Element where these result are referred </param>
+        /// <param name="Case">The case where these results are reffered </param>
+        /// <param name="resultPoint"></param>
+        /// <param name="coordinateSystem">The coordianteSystem where these results are referred</param>
+        protected Result(Element element, ILoadCase Case, ResultPoint resultPoint, CoordinateSystem coordinateSystem) : base(Guid.NewGuid())
         {
-            _elementID = elementID;
-            _elementLabel = elementLabel;
-            _caseId = caseId;
+            _element = element;
+            _case = Case;
+            _resultPoint = resultPoint;
             _coordinateSystem = coordinateSystem;
-            _resultPointId = resultPointId;
+
         }
 
         protected Result(SerializationInfo info, StreamingContext context) 
@@ -60,10 +67,10 @@ namespace GPC.Model.Results
             Result other = obj as Result;
 
             return !(other is null) && _coordinateSystem == other._coordinateSystem &&
-                                            _elementID == other._elementID &&
-                                            _elementLabel == other._elementLabel &&
-                                            _caseId == other._caseId &&
-                                            _resultPointId == other._resultPointId && base.Equals(other);
+                                        _element == other._element &&
+                                        _case == other._case &&
+                                        _resultPoint == other._resultPoint &&
+                                        _coordinateSystem == other._coordinateSystem && base.Equals(other);
         }
 
         public override int GetHashCode()
@@ -71,13 +78,11 @@ namespace GPC.Model.Results
             int hashCode = -23;
             hashCode = hashCode * -17 + base.GetHashCode();
             hashCode = hashCode * -17 + EqualityComparer<CoordinateSystem>.Default.GetHashCode(_coordinateSystem);
-            hashCode = hashCode * -17 + _elementID.GetHashCode();
-            hashCode = hashCode * -17 + EqualityComparer<string>.Default.GetHashCode(_elementLabel);
-            hashCode = hashCode * -17 + _caseId.GetHashCode();
-            hashCode = hashCode * -17 + _resultPointId.GetHashCode();
+            hashCode = hashCode * -17 + EqualityComparer<Element>.Default.GetHashCode(_element);
+            hashCode = hashCode * -17 + EqualityComparer<ILoadCase>.Default.GetHashCode(_case);
+            hashCode = hashCode * -17 + EqualityComparer<ResultPoint>.Default.GetHashCode(_resultPoint);
             return hashCode;
         }
-
 
         public static bool operator ==(Result obj1, Result obj2)
         {

@@ -1,12 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using GPC.Model.LoadCases;
 using GPC.Geometry;
 using MathNet.Numerics.LinearAlgebra;
 using System.Runtime.Serialization;
+using GPC.Model.Elements;
 
 namespace GPC.Model.Results
 {
@@ -105,17 +102,18 @@ namespace GPC.Model.Results
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="elementID">Id of the element where these result are referred to</param>
-        /// <param name="elementLabel">Label of the element where these result are referred t</param>
-        /// <param name="caseId">Represenet the id of the loadcase / loadCombination where these result are referred to</param>
+        /// <param name="element">Element where these result are referred </param>
+        /// <param name="Case">The case where these results are reffered </param>
         /// <param name="coordinateSystem">Coordinate system where these result are provided</param>
+        /// <param name="resultPoint">Stress point where these results are provided</param>
         /// <param name="sxx">Stress on <see cref="CoordinateSystem.V1"/> side of the plate along <see cref="CoordinateSystem.V1"/> direction</param>
         /// <param name="syy">Stress on <see cref="CoordinateSystem.V2"/> side of the plate along <see cref="CoordinateSystem.V2"/> direction</param>
         /// <param name="sxy">Stress on <see cref="CoordinateSystem.V1"/> side of the plate along <see cref="CoordinateSystem.V2"/> direction</param>
         /// <param name="sxz">Stress on <see cref="CoordinateSystem.V1"/> side of the plate along <see cref="CoordinateSystem.V3"/> direction</param>
         /// <param name="syz">Stress on <see cref="CoordinateSystem.V2"/> side of the plate along <see cref="CoordinateSystem.V3"/> direction</param>
-        public ResultPlateStress(int elementID, string elementLabel, int resultPointId, int caseId, CoordinateSystem coordinateSystem, double sxx, double syy, double sxy, double sxz, double syz) 
-            : base(elementID, elementLabel, caseId, resultPointId, coordinateSystem)
+        /// <remarks>_szz is set to zero by default</remarks>
+        public ResultPlateStress(Element element, ILoadCase Case, ResultStressPoint resultPoint, CoordinateSystem coordinateSystem, double sxx, double syy, double sxy, double sxz, double syz) 
+            : base(element, Case, resultPoint, coordinateSystem)
         {
             _sxx = sxx;
             _syy = syy;
@@ -249,12 +247,9 @@ namespace GPC.Model.Results
             if (ReferenceEquals(this, other))
                 return true;
 
-            return !(other is null) && _sxx == other._sxx 
-                                    && _syy == other._syy
-                                    && _szz == other._szz
-                                    && _sxy == other._sxy
-                                    && _sxz == other._sxz
-                                    && _syz == other._syz && base.Equals(other);
+            return !(other is null) && _sxx == other._sxx && _syy == other._syy
+                                    && _szz == other._szz && _sxy == other._sxy
+                                    && _sxz == other._sxz && _syz == other._syz && base.Equals(other);
         }
 
         public override int GetHashCode()
