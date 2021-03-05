@@ -34,3 +34,6 @@ using System.Runtime.InteropServices;
 // [assembly: AssemblyVersion("1.0.*")]
 [assembly: AssemblyVersion("0.0.9.7")]
 [assembly: AssemblyFileVersion("0.0.9.7")]
+
+
+[assembly: InternalsVisibleTo("UnitTest")]
