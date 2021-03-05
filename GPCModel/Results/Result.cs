@@ -18,6 +18,13 @@ namespace GPC.Model.Results
 
         #endregion
 
+        public CoordinateSystem CoordinateSystem => _coordinateSystem;
+        public int ElementID => _elementID;
+        public string ElementLabel => _elementLabel;
+        public int CaseId => _caseId;
+        public int ResultPointId => _resultPointId;
+
+
         #region Constructors
 
         /// <summary>

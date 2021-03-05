@@ -45,6 +45,7 @@ namespace GPC.Model.FEM.Properties
 
             return !(other is null) && base.Equals(other);
         }
+
         public override bool Equals(object obj)
         {
             if (ReferenceEquals(this, obj))

@@ -23,6 +23,7 @@ namespace GPC.Model.FEM.Properties
 
         public double MembraneThickness => _membraneThickness;
 
+        public Material Material => _material;
         #endregion
 
         #region Public Constructors
