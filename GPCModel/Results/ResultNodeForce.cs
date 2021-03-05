@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using GPC.Model.LoadCases;
 using GPC.Geometry;
 using System.Runtime.Serialization;
+using GPC.Model.Elements;
 
 namespace GPC.Model.Results
 {
@@ -43,9 +44,9 @@ namespace GPC.Model.Results
 
         #region Public Constructors
 
-        public ResultNodeForce(int elementID, string elementLabel, int caseID, int resultPointId, double fx, double fy, double fz, 
-                                double mx, double my, double mz)
-                                : base(elementID, elementLabel, caseID, resultPointId, CoordinateSystem.Global)
+        public ResultNodeForce(Element element, ILoadCase Case, CoordinateSystem coordinateSystem, 
+                                double fx, double fy, double fz, double mx, double my, double mz)
+                                : base(element, Case, null, coordinateSystem)
         {
             _fx = fx;
             _fy = fy;

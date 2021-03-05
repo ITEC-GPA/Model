@@ -1,4 +1,6 @@
-﻿using GPC.Model.LoadCases;
+﻿using GPC.Geometry;
+using GPC.Model.Elements;
+using GPC.Model.LoadCases;
 using System;
 
 namespace GPC.Model.Results
@@ -32,19 +34,20 @@ namespace GPC.Model.Results
         #region Public Constructors
 
         /// <summary>
-        ///
+        /// 
         /// </summary>
-        /// <param name="elementID">Id of the element where these result are referred to</param>
-        /// <param name="elementLabel">Label of the element where these result are referred t</param>
-        /// <param name="caseId">Represenet the id of the loadcase / loadCombination where these result are referred to</param>
+        /// <param name="element">Element where these result are referred </param>
+        /// <param name="Case">The case where these results are reffered </param>
+        /// <param name="coordinateSystem">Coordinate system where these result are provided</param>
+        /// <param name="resultPoint">Stress point where these results are provided</param>
         /// <param name="N"> axial force </param>
         /// <param name="V1"> shear along principal axis 1 </param>
         /// <param name="V2"> shear along principal axis 2</param>
         /// <param name="T"> torque moment </param>
         /// <param name="M1"> Bending moment around axis 1 (in plane 2, right hand rule) </param>
         /// <param name="M2"> Bending moment around axis 2 (in plane 1, right hand rule) </param>
-        public ResultBeamForces(int elementID, string elementLabel, int caseId, int resultPointId, double N, double V1, double V2, double T, double M1, double M2)
-            : base(elementID, elementLabel, caseId, resultPointId, null)
+        public ResultBeamForces(Element element, ILoadCase Case, ResultBeamStation resultPoint, CoordinateSystem coordinateSystem, double N, double V1, double V2, double T, double M1, double M2)
+            : base(element, Case, resultPoint, coordinateSystem)
         {
             _N = N;
             _V1 = V1;

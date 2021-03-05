@@ -45,7 +45,14 @@ namespace GPC.Model.Materials
             throw new NotImplementedException();
         }
 
-        #region PUBLIC METHODS
+        #region Public method
+
+        public abstract double GetGlassResistance(bool edgeResistance, double loadDuration);
+
+        #endregion
+
+
+        #region Equals - haschode - operators - serialization
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             base.GetObjectData(info, context);

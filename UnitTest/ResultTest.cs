@@ -5,6 +5,7 @@ using GPC.Model.Results;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.IO;
+using GPC.Model.Elements;
 
 namespace ModelObjectTest
 {
@@ -14,8 +15,7 @@ namespace ModelObjectTest
         [TestMethod]
         public void PrincipalStressTest1() 
         {
-            ResultPlateStress rps1 = new ResultPlateStress(1, "1", 1, 1, CoordinateSystem.Global, -341, -895, 573, 777, -18);
-
+            ResultPlateStress rps1 = new ResultPlateStress(new GhostElement(1),new LoadCase("lc1"), new ResultStressPoint(1), CoordinateSystem.Global, -341, -895, 573, 777, -18);
 
             rps1.GetPrincipalStress(out double s11, out double s22, out double s33);
 
@@ -28,7 +28,7 @@ namespace ModelObjectTest
         [TestMethod]
         public void PrincipalStressTest2()
         {
-            ResultPlateStress rps1 = new ResultPlateStress(1, "1", 1, 1, CoordinateSystem.Global, 49.8, 49.9, 0.059, -3.66, 0.521);
+            ResultPlateStress rps1 = new ResultPlateStress(new GhostElement(1), new LoadCase("lc1"), new ResultStressPoint(1), CoordinateSystem.Global, 49.8, 49.9, 0.059, -3.66, 0.521);
 
 
             rps1.GetPrincipalStress(out double s11, out double s22);
@@ -41,7 +41,7 @@ namespace ModelObjectTest
         [TestMethod]
         public void PrincipalStressTest3()
         {
-            ResultPlateStress rps1 = new ResultPlateStress(1, "1", 1, 1, CoordinateSystem.Global, 0, 0, 573, 777, -18);
+            ResultPlateStress rps1 = new ResultPlateStress(new GhostElement(1), new LoadCase("lc1"), new ResultStressPoint(1), CoordinateSystem.Global, 0, 0, 573, 777, -18);
 
 
             rps1.GetPrincipalStress(out double s11, out double s22, out double s33);
@@ -54,7 +54,7 @@ namespace ModelObjectTest
         [TestMethod]
         public void PrincipalStressTest4()
         {
-            ResultPlateStress rps1 = new ResultPlateStress(1, "1", 1, 1, CoordinateSystem.Global, 100, 200, 573, 0, 0);
+            ResultPlateStress rps1 = new ResultPlateStress(new GhostElement(1), new LoadCase("lc1"), new ResultStressPoint(1), CoordinateSystem.Global, 100, 200, 573, 0, 0);
 
 
             rps1.GetPrincipalStress(out double s11, out double s22);
@@ -66,7 +66,7 @@ namespace ModelObjectTest
         [TestMethod]
         public void VonMisesStressTest1()
         {
-            ResultPlateStress rps1 = new ResultPlateStress(1, "1", 1, 1, CoordinateSystem.Global, 56.89, 40.32, -1.065, 0, 0);
+            ResultPlateStress rps1 = new ResultPlateStress(new GhostElement(1), new LoadCase("lc1"), new ResultStressPoint(1), CoordinateSystem.Global, 56.89, 40.32, -1.065, 0, 0);
 
             rps1.GetVMStress(out double vm);
 
@@ -79,7 +79,7 @@ namespace ModelObjectTest
         {
             // https://www.graniteng.com/mohr-3d?lang=en
 
-            ResultPlateStress rps1 = new ResultPlateStress(1, "1", 1, 1, CoordinateSystem.Global, 100, 200, 573, 400, 500);
+            ResultPlateStress rps1 = new ResultPlateStress(new GhostElement(1), new LoadCase("lc1"), new ResultStressPoint(1), CoordinateSystem.Global, 100, 200, 573, 400, 500);
 
             rps1.GetVMStress(out double vm);
 

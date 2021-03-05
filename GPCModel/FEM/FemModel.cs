@@ -15,6 +15,7 @@ using GPC.Model.FreedomCases;
 using GPC.Model.LoadCases;
 using GPC.Model.Restrains;
 using GPC.Model.Loads;
+using GPC.Model.Results;
 
 namespace GPC.Model.FEM
 {
@@ -41,7 +42,15 @@ namespace GPC.Model.FEM
 
         protected List<Load> _loads;
 
+        protected List<ResultPlateStress> _resultPlateStress;
+
         // CoordinatesSystem ? 
+
+        #endregion
+
+        #region MyRegion
+
+        public List<ResultPlateStress> ResultPlateStresses => _resultPlateStress;
 
         #endregion
 
@@ -65,6 +74,8 @@ namespace GPC.Model.FEM
             _freedomCases = new Dictionary<FreedomCase, int>();
 
             _loads = new List<Load>();
+            
+            _resultPlateStress = new List<ResultPlateStress>();
         }
 
         public FemModel(SerializationInfo info, StreamingContext context)

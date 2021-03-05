@@ -57,6 +57,7 @@ namespace GPC.Model.Materials
         #endregion
 
         #region VARIABLES
+
         private double _fgk;
         private GlassTypes _glassType;
         private SurfaceTreatments _surfaceTreatment;
@@ -129,7 +130,26 @@ namespace GPC.Model.Materials
 
         #endregion PUBLIC CONSTRUCTORS
 
-        #region PUBLIC METHODS
+
+        #region Public method override 
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="edgeResistance">if true give the resistance on edge</param>
+        /// <param name="loadDuration">load duration [seconds]</param>
+        /// <returns>The glass resistance according to NCSEA §3.5</returns>
+        /// <exception cref="ArgumentException">If <paramref name="loadDuration"/> is lower than zero</exception>
+        public override double GetGlassResistance(bool edgeResistance, double loadDuration)
+        {
+            // TODO: implementare verifica
+            return _fgk;
+        }
+
+
+        #endregion
+
+        #region Equals - haschode - operators - serialization
 
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {

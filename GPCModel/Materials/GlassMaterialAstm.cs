@@ -10,7 +10,7 @@ namespace GPC.Model.Materials
     /// </summary>
     [Serializable]
     [UI(Description = "Glass ASTM", Group = "Materials", Kind = "Material")]
-    public class GlassMaterialAstm : GlassMaterial, IEquatable<GlassMaterialAstm>
+    public sealed class GlassMaterialAstm : GlassMaterial, IEquatable<GlassMaterialAstm>
     {
         #region VARIABLES
 
@@ -19,6 +19,7 @@ namespace GPC.Model.Materials
         private double _surfaceBaseStress;
         private double _surfaceBaseEdgeStress;
         private double _probabiltyOfBreakage;
+        
 
         #endregion 
 
@@ -29,6 +30,7 @@ namespace GPC.Model.Materials
         public double SurfaceBaseStress => _surfaceBaseStress;
         public double SurfaceBaseEdgeStress => _surfaceBaseEdgeStress;
         public double ProbabiltyOfBreakage => _probabiltyOfBreakage;
+
         #endregion 
 
         #region PUBLIC CONSTRUCTORS
@@ -106,11 +108,60 @@ namespace GPC.Model.Materials
             _nGlassCoefficient = info.GetDouble("NGlassCoefficient");
             _surfaceBaseStress = info.GetDouble("SigmaBase");
             _surfaceBaseEdgeStress = info.GetDouble("SigmaBaseEdge");
+            _probabiltyOfBreakage = info.GetDouble("ProbabiltyOfBreakage");
         }
 
         #endregion
 
-        #region PUBLIC METHODS
+        #region Private Methods
+
+        private double GetLoadDurationFactor(double loadDuration)
+        {
+            if (_nGlassCoefficient == 0)
+                throw new ArgumentException();
+
+            if (loadDuration < 3.00)
+                loadDuration = 3;
+
+            return 1.0 / Math.Pow(loadDuration / 3.0, 1.0 / _nGlassCoefficient);
+        }
+
+        private double GetProbabiltyOfBreakageFactor()
+        {
+            return Math.Pow(_probabiltyOfBreakage / 0.008, 1.0 / 7.0);
+        }
+
+
+        #endregion
+
+
+        #region Public method override 
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="edgeResistance">if true give the resistance on edge</param>
+        /// <param name="loadDuration">load duration [seconds]</param>
+        /// <returns>The glass resistance according to NCSEA §3.5</returns>
+        /// <exception cref="ArgumentException">If <paramref name="loadDuration"/> is lower than zero</exception>
+        public override double GetGlassResistance(bool edgeResistance, double loadDuration)
+        {
+            if (loadDuration < 0)
+                throw new ArgumentException("Load duration lower than zero");
+
+            double loadDurationFactor = GetLoadDurationFactor(loadDuration);
+            double probabiltyOfBreakageFactor = GetProbabiltyOfBreakageFactor();
+
+            if (edgeResistance)
+                return _surfaceBaseEdgeStress * loadDurationFactor * probabiltyOfBreakageFactor * _psiSurface;
+
+            return _surfaceBaseStress * loadDurationFactor * probabiltyOfBreakageFactor * _psiSurface;
+        }
+
+
+        #endregion
+
+        #region Equals - haschode - operators - serialization
 
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
@@ -119,6 +170,7 @@ namespace GPC.Model.Materials
             info.AddValue("NGlassCoefficient", _nGlassCoefficient);
             info.AddValue("SigmaBase", _surfaceBaseStress);
             info.AddValue("SigmaBaseEdge", _surfaceBaseEdgeStress);
+            info.AddValue("ProbabiltyOfBreakage", _probabiltyOfBreakage);
         }
 
         public bool Equals(GlassMaterialAstm other)
