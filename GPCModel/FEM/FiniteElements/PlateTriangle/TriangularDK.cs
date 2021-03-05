@@ -94,7 +94,7 @@ namespace GPC.Model.FEM.FiniteElements
             dofGlobalToLocalTranspose[1, 0] = localZ.DotProduct(globalY);
             dofGlobalToLocalTranspose[2, 0] = localZ.DotProduct(globalZ);
 
-            //local node1 rx-rotation in global coordinate
+            //local node1 rx-rotation and ry in global coordinate
             dofGlobalToLocalTranspose[3, 1] = localX.DotProduct(globalX);
             dofGlobalToLocalTranspose[3, 2] = localY.DotProduct(globalX);
 
@@ -111,7 +111,7 @@ namespace GPC.Model.FEM.FiniteElements
             dofGlobalToLocalTranspose[7, 3] = localZ.DotProduct(globalY);
             dofGlobalToLocalTranspose[8, 3] = localZ.DotProduct(globalZ);
 
-            //local node2 rx-rotation in global coordinate
+            //local node2 rx-rotation and ry in global coordinate
             dofGlobalToLocalTranspose[9, 4] = localX.DotProduct(globalX);
             dofGlobalToLocalTranspose[9, 5] = localY.DotProduct(globalX);
 
@@ -128,7 +128,7 @@ namespace GPC.Model.FEM.FiniteElements
             dofGlobalToLocalTranspose[13, 6] = localZ.DotProduct(globalY);
             dofGlobalToLocalTranspose[14, 6] = localZ.DotProduct(globalZ);
 
-            //local node3 rx-rotation in global coordinate
+            //local node3 rx-rotation and ry in global coordinate
             dofGlobalToLocalTranspose[15, 7] = localX.DotProduct(globalX);
             dofGlobalToLocalTranspose[15, 8] = localY.DotProduct(globalX);
 

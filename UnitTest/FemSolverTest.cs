@@ -894,64 +894,188 @@ namespace FemTest
             PlateProperty prop = new PlateProperty(mat, 1.0, 1.0);
 
             Node[] nodesPlate1 = new Node[4];
-            nodesPlate1[0] = new Node(1, -1, 0, 1, "1");
-            nodesPlate1[1] = new Node(1, -1, 0, 2, "2");
-            nodesPlate1[2] = new Node(1, 1, 0, 3, "3");
-            nodesPlate1[3] = new Node(-1, 1, 0, 3, "4");
+            nodesPlate1[0] = new Node(-1, -1, 0, 1, "1");
+            nodesPlate1[1] = new Node(+1, -1, 0, 2, "2");
+            nodesPlate1[2] = new Node(+1, +1, 0, 3, "3");
+            nodesPlate1[3] = new Node(-1, +1, 0, 3, "4");
 
             FiniteElement e0 = new RectangularDK(nodesPlate1, prop, 1);
             e0.BuildMatrix();
+
+            mnl.Matrix<double> kLocalManual = mnl.Matrix<double>.Build.Dense(12, 12);
+
+            double[] r0 = new double[] { 2.5, 1, -1, -1, 0.5, -1, -0.5, 0.5, -0.5, -1, 1, -0.5 };
+            double[] r1 = new double[] { 1, 1.375, 0, 0.5, 0.625, 0, -0.5, 0.375, 0, -1, 0.625, 0 };
+            double[] r2 = new double[] { -1, 0, 1.375, 1, 0, 0.625, 0.5, 0, 0.375, -0.5, 0, 0.625 };
+            double[] r3 = new double[] { -1, 0.5, 1, 2.5, 1, 1, -1, 1, 0.5, -0.5, 0.5, 0.5 };
+            double[] r4 = new double[] { 0.5, 0.625, 0, 1, 1.375, 0, -1, 0.625, 0, -0.5, 0.375, 0 };
+            double[] r5 = new double[] { -1, 0, 0.625, 1, 0, 1.375, 0.5, 0, 0.625, -0.5, 0, 0.375 };
+            double[] r6 = new double[] { -0.5, -0.5, 0.5, -1, -1, 0.5, 2.5, -1, 1, -1, -0.5, 1 };
+            double[] r7 = new double[] { 0.5, 0.375, 0, 1, 0.625, 0, -1, 1.375, 0, -0.5, 0.625, 0 };
+            double[] r8 = new double[] { -0.5, 0, 0.375, 0.5, 0, 0.625, 1, 0, 1.375, -1, 0, 0.625 };
+            double[] r9 = new double[] { -1, -1, -0.5, -0.5, -0.5, -0.5, -1, -0.5, -1, 2.5, -1, -1 };
+            double[] r10 = new double[] { 1, 0.625, 0, 0.5, 0.375, 0, -0.5, 0.625, 0, -1, 1.375, 0 };
+            double[] r11 = new double[] { -0.5, 0, 0.625, 0.5, 0, 0.375, 1, 0, 0.625, -1, 0, 1.375 };
+
+            kLocalManual = kLocalManual.InsertRow(0, mnl.Vector<double>.Build.Dense(r0));
+            kLocalManual = kLocalManual.InsertRow(1, mnl.Vector<double>.Build.Dense(r1));
+            kLocalManual = kLocalManual.InsertRow(2, mnl.Vector<double>.Build.Dense(r2));
+            kLocalManual = kLocalManual.InsertRow(3, mnl.Vector<double>.Build.Dense(r3));
+            kLocalManual = kLocalManual.InsertRow(4, mnl.Vector<double>.Build.Dense(r4));
+            kLocalManual = kLocalManual.InsertRow(5, mnl.Vector<double>.Build.Dense(r5));
+            kLocalManual = kLocalManual.InsertRow(6, mnl.Vector<double>.Build.Dense(r6));
+            kLocalManual = kLocalManual.InsertRow(7, mnl.Vector<double>.Build.Dense(r7));
+            kLocalManual = kLocalManual.InsertRow(8, mnl.Vector<double>.Build.Dense(r8));
+            kLocalManual = kLocalManual.InsertRow(9, mnl.Vector<double>.Build.Dense(r9));
+            kLocalManual = kLocalManual.InsertRow(10, mnl.Vector<double>.Build.Dense(r10));
+            kLocalManual = kLocalManual.InsertRow(11, mnl.Vector<double>.Build.Dense(r11));
 
             Console.WriteLine("Element local stiffness matrix");
             for (int r = 0; r < e0.KElementLocalCoord.RowCount; r++)
             {
                 for (int c = 0; c < e0.KElementLocalCoord.ColumnCount; c++)
                 {
-                    Console.Write(e0.KElementLocalCoord[r, c].ToString("F2") + " ");
+                    Console.Write(e0.KElementLocalCoord[r, c].ToString("F3") + " ");
+                    Assert.AreEqual(e0.KElementLocalCoord[r, c] - kLocalManual[r, c], 0, 0.001, "kLocal no OK -> row " + r + " col " + c);
                 }
                 Console.WriteLine();
             }
-
-            //actually does not word
-            Assert.AreEqual(true, false);
         }
 
         [TestMethod]
         public void RectangleDKTTest2()
         {
-            //LoadCase loadCase = new LoadCase("myLoadCase", new Guid());
-            /*FreedomCase freedomCase = new FreedomCase("freedomCase1");*/
-
             Material mat = new SteelMaterial("mat", 12, 0.0, 355, 510, 7850);
             PlateProperty prop = new PlateProperty(mat, 1.0, 1.0);
-
-            /*CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
-            NodeRestrainAttribute RXRYRZ = new NodeRestrainAttribute(freedomCase, sys);
-            RXRYRZ.AddRestrain(LinearSolver.DOF.RX);
-            RXRYRZ.AddRestrain(LinearSolver.DOF.RY);
-            RXRYRZ.AddRestrain(LinearSolver.DOF.RZ);*/
 
             Node[] nodesPlate1 = new Node[4];
             nodesPlate1[0] = new Node(0, 0, 0, 1, "1");
             nodesPlate1[1] = new Node(2, 0, 0, 2, "2");
-            nodesPlate1[2] = new Node(3, 1, 0, 3, "3");
-            nodesPlate1[3] = new Node(1, 1, 0, 3, "4");
+            nodesPlate1[2] = new Node(2, 2, 0, 3, "3");
+            nodesPlate1[3] = new Node(0, 2, 0, 3, "4");
 
             FiniteElement e0 = new RectangularDK(nodesPlate1, prop, 1);
+
+            LinearSolver fem = new LinearSolver(new FiniteElement[] { e0 });
+
+            mnl.Matrix<double> kGlobalManual = mnl.Matrix<double>.Build.Dense(0, 24);
+
+            double[] r0 = new double[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+            double[] r1 = new double[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+            double[] r2 = new double[] { 0, 0, 2.5, 1, -1, 0, 0, 0, -1, 0.5, -1, 0, 0, 0, -0.5, 0.5, -0.5, 0, 0, 0, -1, 1, -0.5, 0 };
+            double[] r3 = new double[] { 0, 0, 1, 1.375, 0, 0, 0, 0, 0.5, 0.625, 0, 0, 0, 0, -0.5, 0.375, 0, 0, 0, 0, -1, 0.625, 0, 0 };
+            double[] r4 = new double[] { 0, 0, -1, 0, 1.375, 0, 0, 0, 1, 0, 0.625, 0, 0, 0, 0.5, 0, 0.375, 0, 0, 0, -0.5, 0, 0.625, 0 };
+            double[] r5 = new double[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+            double[] r6 = new double[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+            double[] r7 = new double[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+            double[] r8 = new double[] { 0, 0, -1, 0.5, 1, 0, 0, 0, 2.5, 1, 1, 0, 0, 0, -1, 1, 0.5, 0, 0, 0, -0.5, 0.5, 0.5, 0 };
+            double[] r9 = new double[] { 0, 0, 0.5, 0.625, 0, 0, 0, 0, 1, 1.375, 0, 0, 0, 0, -1, 0.625, 0, 0, 0, 0, -0.5, 0.375, 0, 0 };
+            double[] r10 = new double[] { 0, 0, -1, 0, 0.625, 0, 0, 0, 1, 0, 1.375, 0, 0, 0, 0.5, 0, 0.625, 0, 0, 0, -0.5, 0, 0.375, 0 };
+            double[] r11 = new double[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+            double[] r12 = new double[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+            double[] r13 = new double[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+            double[] r14 = new double[] { 0, 0, -0.5, -0.5, 0.5, 0, 0, 0, -1, -1, 0.5, 0, 0, 0, 2.5, -1, 1, 0, 0, 0, -1, -0.5, 1, 0 };
+            double[] r15 = new double[] { 0, 0, 0.5, 0.375, 0, 0, 0, 0, 1, 0.625, 0, 0, 0, 0, -1, 1.375, 0, 0, 0, 0, -0.5, 0.625, 0, 0 };
+            double[] r16 = new double[] { 0, 0, -0.5, 0, 0.375, 0, 0, 0, 0.5, 0, 0.625, 0, 0, 0, 1, 0, 1.375, 0, 0, 0, -1, 0, 0.625, 0 };
+            double[] r17 = new double[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+            double[] r18 = new double[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+            double[] r19 = new double[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+            double[] r20 = new double[] { 0, 0, -1, -1, -0.5, 0, 0, 0, -0.5, -0.5, -0.5, 0, 0, 0, -1, -0.5, -1, 0, 0, 0, 2.5, -1, -1, 0 };
+            double[] r21 = new double[] { 0, 0, 1, 0.625, 0, 0, 0, 0, 0.5, 0.375, 0, 0, 0, 0, -0.5, 0.625, 0, 0, 0, 0, -1, 1.375, 0, 0 };
+            double[] r22 = new double[] { 0, 0, -0.5, 0, 0.625, 0, 0, 0, 0.5, 0, 0.375, 0, 0, 0, 1, 0, 0.625, 0, 0, 0, -1, 0, 1.375, 0 };
+            double[] r23 = new double[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+
+            kGlobalManual = kGlobalManual.InsertRow(0, mnl.Vector<double>.Build.Dense(r0));
+            kGlobalManual = kGlobalManual.InsertRow(1, mnl.Vector<double>.Build.Dense(r1));
+            kGlobalManual = kGlobalManual.InsertRow(2, mnl.Vector<double>.Build.Dense(r2));
+            kGlobalManual = kGlobalManual.InsertRow(3, mnl.Vector<double>.Build.Dense(r3));
+            kGlobalManual = kGlobalManual.InsertRow(4, mnl.Vector<double>.Build.Dense(r4));
+            kGlobalManual = kGlobalManual.InsertRow(5, mnl.Vector<double>.Build.Dense(r5));
+            kGlobalManual = kGlobalManual.InsertRow(6, mnl.Vector<double>.Build.Dense(r6));
+            kGlobalManual = kGlobalManual.InsertRow(7, mnl.Vector<double>.Build.Dense(r7));
+            kGlobalManual = kGlobalManual.InsertRow(8, mnl.Vector<double>.Build.Dense(r8));
+            kGlobalManual = kGlobalManual.InsertRow(9, mnl.Vector<double>.Build.Dense(r9));
+            kGlobalManual = kGlobalManual.InsertRow(10, mnl.Vector<double>.Build.Dense(r10));
+            kGlobalManual = kGlobalManual.InsertRow(11, mnl.Vector<double>.Build.Dense(r11));
+            kGlobalManual = kGlobalManual.InsertRow(12, mnl.Vector<double>.Build.Dense(r12));
+            kGlobalManual = kGlobalManual.InsertRow(13, mnl.Vector<double>.Build.Dense(r13));
+            kGlobalManual = kGlobalManual.InsertRow(14, mnl.Vector<double>.Build.Dense(r14));
+            kGlobalManual = kGlobalManual.InsertRow(15, mnl.Vector<double>.Build.Dense(r15));
+            kGlobalManual = kGlobalManual.InsertRow(16, mnl.Vector<double>.Build.Dense(r16));
+            kGlobalManual = kGlobalManual.InsertRow(17, mnl.Vector<double>.Build.Dense(r17));
+            kGlobalManual = kGlobalManual.InsertRow(18, mnl.Vector<double>.Build.Dense(r18));
+            kGlobalManual = kGlobalManual.InsertRow(19, mnl.Vector<double>.Build.Dense(r19));
+            kGlobalManual = kGlobalManual.InsertRow(20, mnl.Vector<double>.Build.Dense(r20));
+            kGlobalManual = kGlobalManual.InsertRow(21, mnl.Vector<double>.Build.Dense(r21));
+            kGlobalManual = kGlobalManual.InsertRow(22, mnl.Vector<double>.Build.Dense(r22));
+            kGlobalManual = kGlobalManual.InsertRow(23, mnl.Vector<double>.Build.Dense(r23));
+
+            Console.WriteLine("Element global stiffness matrix");
+            for (int r = 0; r < fem.KGlobal.RowCount; r++)
+            {
+                for (int c = 0; c < fem.KGlobal.ColumnCount; c++)
+                {
+                    Console.Write(fem.KGlobal[r, c].ToString("F3") + " ");
+                    Assert.AreEqual(fem.KGlobal[r, c] - kGlobalManual[r, c], 0, 0.01, "kGlobal no OK -> row " + r + " col " + c);
+                }
+                Console.WriteLine();
+            }
+        }
+
+        [TestMethod]
+        public void RectangleDKTTest3()
+        {
+            Material mat = new SteelMaterial("mat", 12, 0.0, 355, 510, 7850);
+            PlateProperty prop = new PlateProperty(mat, 1.0, 1.0);
+
+            Node[] nodesPlate1 = new Node[4];
+            nodesPlate1[0] = new Node(0, 0, 0, 1, "1");
+            nodesPlate1[1] = new Node(+1, 0, 0, 2, "2");
+            nodesPlate1[2] = new Node(+2, +2, 0, 3, "3");
+            nodesPlate1[3] = new Node(0, +1, 0, 3, "4");
+
+            //FiniteElement e0 = new RectangularDK(nodesPlate1, prop, 1);
+            FiniteElement e0 = new RectangularMembranal(nodesPlate1, prop, 1);
             e0.BuildMatrix();
+
+            mnl.Matrix<double> kLocalManual = mnl.Matrix<double>.Build.Dense(12, 12);
+
+            /*double[] r0 = new double[] { 2.5, 1, -1, -1, 0.5, -1, -0.5, 0.5, -0.5, -1, 1, -0.5 };
+            double[] r1 = new double[] { 1, 1.375, 0, 0.5, 0.625, 0, -0.5, 0.375, 0, -1, 0.625, 0 };
+            double[] r2 = new double[] { -1, 0, 1.375, 1, 0, 0.625, 0.5, 0, 0.375, -0.5, 0, 0.625 };
+            double[] r3 = new double[] { -1, 0.5, 1, 2.5, 1, 1, -1, 1, 0.5, -0.5, 0.5, 0.5 };
+            double[] r4 = new double[] { 0.5, 0.625, 0, 1, 1.375, 0, -1, 0.625, 0, -0.5, 0.375, 0 };
+            double[] r5 = new double[] { -1, 0, 0.625, 1, 0, 1.375, 0.5, 0, 0.625, -0.5, 0, 0.375 };
+            double[] r6 = new double[] { -0.5, -0.5, 0.5, -1, -1, 0.5, 2.5, -1, 1, -1, -0.5, 1 };
+            double[] r7 = new double[] { 0.5, 0.375, 0, 1, 0.625, 0, -1, 1.375, 0, -0.5, 0.625, 0 };
+            double[] r8 = new double[] { -0.5, 0, 0.375, 0.5, 0, 0.625, 1, 0, 1.375, -1, 0, 0.625 };
+            double[] r9 = new double[] { -1, -1, -0.5, -0.5, -0.5, -0.5, -1, -0.5, -1, 2.5, -1, -1 };
+            double[] r10 = new double[] { 1, 0.625, 0, 0.5, 0.375, 0, -0.5, 0.625, 0, -1, 1.375, 0 };
+            double[] r11 = new double[] { -0.5, 0, 0.625, 0.5, 0, 0.375, 1, 0, 0.625, -1, 0, 1.375 };
+
+            kLocalManual = kLocalManual.InsertRow(0, mnl.Vector<double>.Build.Dense(r0));
+            kLocalManual = kLocalManual.InsertRow(1, mnl.Vector<double>.Build.Dense(r1));
+            kLocalManual = kLocalManual.InsertRow(2, mnl.Vector<double>.Build.Dense(r2));
+            kLocalManual = kLocalManual.InsertRow(3, mnl.Vector<double>.Build.Dense(r3));
+            kLocalManual = kLocalManual.InsertRow(4, mnl.Vector<double>.Build.Dense(r4));
+            kLocalManual = kLocalManual.InsertRow(5, mnl.Vector<double>.Build.Dense(r5));
+            kLocalManual = kLocalManual.InsertRow(6, mnl.Vector<double>.Build.Dense(r6));
+            kLocalManual = kLocalManual.InsertRow(7, mnl.Vector<double>.Build.Dense(r7));
+            kLocalManual = kLocalManual.InsertRow(8, mnl.Vector<double>.Build.Dense(r8));
+            kLocalManual = kLocalManual.InsertRow(9, mnl.Vector<double>.Build.Dense(r9));
+            kLocalManual = kLocalManual.InsertRow(10, mnl.Vector<double>.Build.Dense(r10));
+            kLocalManual = kLocalManual.InsertRow(11, mnl.Vector<double>.Build.Dense(r11));*/
 
             Console.WriteLine("Element local stiffness matrix");
             for (int r = 0; r < e0.KElementLocalCoord.RowCount; r++)
             {
                 for (int c = 0; c < e0.KElementLocalCoord.ColumnCount; c++)
                 {
-                    Console.Write(e0.KElementLocalCoord[r, c].ToString("F2") + " ");
+                    Console.Write(e0.KElementLocalCoord[r, c].ToString("F3") + " ");
+                    //Assert.AreEqual(e0.KElementLocalCoord[r, c] - kLocalManual[r, c], 0, 0.001, "kLocal no OK -> row " + r + " col " + c);
                 }
                 Console.WriteLine();
             }
-
-            //actually does not word
-            Assert.AreEqual(true, false);
         }
 
         [TestMethod]
@@ -1127,6 +1251,65 @@ namespace FemTest
                 {
                     Console.Write(kLocal[i, j].ToString("F4") + " ");
                     Assert.AreEqual(kLocal[i, j] - kLocalManual[i, j], 0, 0.001, "kLocal no OK -> row " + i + " col " + j);
+                    //sarebbe stato meglio usare kLocal[i,j] / kLocalManual[i,j] ma 0/0 = NaN!!
+                }
+                Console.WriteLine();
+            }
+        }
+
+        [TestMethod]
+        public void QuadrilateralMembranalKTest2()
+        {
+            Material mat = new SteelMaterial("steel", 1.0, 0.0, 355, 510, 7850);
+            PlateProperty prop = new PlateProperty(mat, 0, 1);
+
+            Node[] nds = new Node[4];
+            nds[0] = new Node(-1, -1, 0, 1, "1");
+            nds[1] = new Node(+1, -1, 0, 2, "2");
+            nds[2] = new Node(+1, +1, 0, 3, "3");
+            nds[3] = new Node(-1, +1, 0, 4, "4");
+
+            RectangularMembranal el = new RectangularMembranal(nds, prop, 1);
+            el.BuildMatrix();
+            mnl.Matrix<double> kLocal = el.KElementLocalCoord;
+            mnl.Matrix<double> kGlobalManual = mnl.Matrix<double>.Build.Dense(0, 12);
+
+            double[] r0 = new double[] { 0.5, 0.125, 0, -0.25, -0.125, 0, -0.25, -0.125, 0, 0, 0.125, 0 };
+            double[] r1 = new double[] { 0.125, 0.5, 0, 0.125, 0, 0, -0.125, -0.25, 0, -0.125, -0.25, 0 };
+            double[] r2 = new double[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+            double[] r3 = new double[] { -0.25, 0.125, 0, 0.5, -0.125, 0, 0, -0.125, 0, -0.25, 0.125, 0 };
+            double[] r4 = new double[] { -0.125, 0, 0, -0.125, 0.5, 0, 0.125, -0.25, 0, 0.125, -0.25, 0 };
+            double[] r5 = new double[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+            double[] r6 = new double[] { -0.25, -0.125, 0, 0, 0.125, 0, 0.5, 0.125, 0, -0.25, -0.125, 0 };
+            double[] r7 = new double[] { -0.125, -0.25, 0, -0.125, -0.25, 0, 0.125, 0.5, 0, 0.125, 0, 0 };
+            double[] r8 = new double[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+            double[] r9 = new double[] { 0, -0.125, 0, -0.25, 0.125, 0, -0.25, 0.125, 0, 0.5, -0.125, 0 };
+            double[] r10 = new double[] { 0.125, -0.25, 0, 0.125, -0.25, 0, -0.125, 0, 0, -0.125, 0.5, 0 };
+            double[] r11 = new double[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+
+            kGlobalManual = kGlobalManual.InsertRow(0, mnl.Vector<double>.Build.Dense(r0));
+            kGlobalManual = kGlobalManual.InsertRow(1, mnl.Vector<double>.Build.Dense(r1));
+            kGlobalManual = kGlobalManual.InsertRow(2, mnl.Vector<double>.Build.Dense(r2));
+            kGlobalManual = kGlobalManual.InsertRow(3, mnl.Vector<double>.Build.Dense(r3));
+            kGlobalManual = kGlobalManual.InsertRow(4, mnl.Vector<double>.Build.Dense(r4));
+            kGlobalManual = kGlobalManual.InsertRow(5, mnl.Vector<double>.Build.Dense(r5));
+            kGlobalManual = kGlobalManual.InsertRow(6, mnl.Vector<double>.Build.Dense(r6));
+            kGlobalManual = kGlobalManual.InsertRow(7, mnl.Vector<double>.Build.Dense(r7));
+            kGlobalManual = kGlobalManual.InsertRow(8, mnl.Vector<double>.Build.Dense(r8));
+            kGlobalManual = kGlobalManual.InsertRow(9, mnl.Vector<double>.Build.Dense(r9));
+            kGlobalManual = kGlobalManual.InsertRow(10, mnl.Vector<double>.Build.Dense(r10));
+            kGlobalManual = kGlobalManual.InsertRow(11, mnl.Vector<double>.Build.Dense(r11));
+
+            LinearSolver fem = new LinearSolver(new FiniteElement[] { el });
+
+            //controllo klocale elemento finito 4 nodi stato piano di tensione
+            Console.WriteLine("kLGlobal");
+            for (int i = 0; i < kGlobalManual.RowCount; i++)
+            {
+                for (int j = 0; j < kGlobalManual.ColumnCount; j++)
+                {
+                    Console.Write(kGlobalManual[i, j].ToString("F4") + " ");
+                    Assert.AreEqual(kGlobalManual[i, j] - fem.KGlobal[i, j], 0, 0.001, "kGlobal no OK -> row " + i + " col " + j);
                     //sarebbe stato meglio usare kLocal[i,j] / kLocalManual[i,j] ma 0/0 = NaN!!
                 }
                 Console.WriteLine();

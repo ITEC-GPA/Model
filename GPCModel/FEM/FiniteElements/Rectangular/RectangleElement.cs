@@ -6,11 +6,11 @@ using mnl = MathNet.Numerics.LinearAlgebra;
 
 namespace GPC.Model.FEM.FiniteElements
 {
-    public class TriangleElement : Plate
+    public class RectangleElement : Plate
     {
         #region variables
-        private TriangularMembranal _membranal;
-        private TriangularDK _flexural;
+        private RectangularMembranal _membranal;
+        private RectangularDK _flexural;
         private mnl.Matrix<double> _kElementGlobalCoord; //the sum of the 2 stiffness matrix of TriangularMembranal and TriangularDK
         #endregion
 
@@ -20,7 +20,7 @@ namespace GPC.Model.FEM.FiniteElements
         public override mnl.Matrix<double> KElementGlobalCoord => _kElementGlobalCoord;
         #endregion
 
-        public TriangleElement(Node[] nodes, PlateProperty property, int id) : base(nodes, property, id)
+        public RectangleElement(Node[] nodes, PlateProperty property, int id) : base(nodes, property, id)
         {
             DOF.Add(LinearSolver.DOF.DX);
             DOF.Add(LinearSolver.DOF.DY);
@@ -29,9 +29,9 @@ namespace GPC.Model.FEM.FiniteElements
             DOF.Add(LinearSolver.DOF.RY);
             DOF.Add(LinearSolver.DOF.RZ);
 
-            //kElementGlobal = 3 * 6 = 18x18
-            _membranal = new TriangularMembranal(nodes, property, id);
-            _flexural = new TriangularDK(nodes, property, id);
+            //kElementGlobal = 4 * 6 = 24
+            _membranal = new RectangularMembranal(nodes, property, id);
+            _flexural = new RectangularDK(nodes, property, id);
         }
 
         public override void BuildMatrix()
@@ -65,11 +65,12 @@ namespace GPC.Model.FEM.FiniteElements
                 Console.WriteLine();
             }*/
 
-            _kElementGlobalCoord = mnl.Matrix<double>.Build.Dense(18, 18); //3 nodes x 6 dof = 18
+            _kElementGlobalCoord = mnl.Matrix<double>.Build.Dense(24, 24); //4 nodes x 6 dof = 24
             _kElementGlobalCoord = b;
 
             //Add stiffness due to membrane element in the right position
             #region AddStiffnessMembraneNode1
+
             //3x3 of Node 1
             int rStartGlobal = 0;
             int cStartGlobal = 0;
@@ -112,6 +113,21 @@ namespace GPC.Model.FEM.FiniteElements
                     _kElementGlobalCoord[cStartGlobal + c, rStartGlobal + r] = _kElementGlobalCoord[cStartGlobal + c, rStartGlobal + r] + m[cStartLocal + c, rStartLocal + r];
                 }
             }
+
+            //3 x 3 of node1 to Node4
+            rStartGlobal = 18;
+            cStartGlobal = 0;
+            rStartLocal = 9;
+            cStartLocal = 0;
+            for (int r = 0; r < 3; r++)
+            {
+                for (int c = 0; c < 3; c++)
+                {
+                    _kElementGlobalCoord[rStartGlobal + r, cStartGlobal + c] = _kElementGlobalCoord[rStartGlobal + r, cStartGlobal + c] + m[rStartLocal + r, cStartLocal + c];
+                    //next line used for the symmetric
+                    _kElementGlobalCoord[cStartGlobal + c, rStartGlobal + r] = _kElementGlobalCoord[cStartGlobal + c, rStartGlobal + r] + m[cStartLocal + c, rStartLocal + r];
+                }
+            }
             #endregion
 
             #region AddStiffnessMembraneNode2
@@ -143,6 +159,21 @@ namespace GPC.Model.FEM.FiniteElements
                     _kElementGlobalCoord[cStartGlobal + c, rStartGlobal + r] = _kElementGlobalCoord[cStartGlobal + c, rStartGlobal + r] + m[cStartLocal + c, rStartLocal + r];
                 }
             }
+
+            //3 x 3 of node2 to Node4
+            rStartGlobal = 18;
+            cStartGlobal = 6;
+            rStartLocal = 9;
+            cStartLocal = 3;
+            for (int r = 0; r < 3; r++)
+            {
+                for (int c = 0; c < 3; c++)
+                {
+                    _kElementGlobalCoord[rStartGlobal + r, cStartGlobal + c] = _kElementGlobalCoord[rStartGlobal + r, cStartGlobal + c] + m[rStartLocal + r, cStartLocal + c];
+                    //next line used for the symmetric
+                    _kElementGlobalCoord[cStartGlobal + c, rStartGlobal + r] = _kElementGlobalCoord[cStartGlobal + c, rStartGlobal + r] + m[cStartLocal + c, rStartLocal + r];
+                }
+            }
             #endregion
 
             #region AddStiffnessMembraneNode3
@@ -152,6 +183,37 @@ namespace GPC.Model.FEM.FiniteElements
             cStartGlobal = 12;
             rStartLocal = 6;
             cStartLocal = 6;
+            for (int r = 0; r < 3; r++)
+            {
+                for (int c = 0; c < 3; c++)
+                {
+                    _kElementGlobalCoord[rStartGlobal + r, cStartGlobal + c] = _kElementGlobalCoord[rStartGlobal + r, cStartGlobal + c] + m[rStartLocal + r, cStartLocal + c];
+                }
+            }
+
+            //3 x 3 of node3 to Node4
+            rStartGlobal = 18;
+            cStartGlobal = 12;
+            rStartLocal = 9;
+            cStartLocal = 6;
+            for (int r = 0; r < 3; r++)
+            {
+                for (int c = 0; c < 3; c++)
+                {
+                    _kElementGlobalCoord[rStartGlobal + r, cStartGlobal + c] = _kElementGlobalCoord[rStartGlobal + r, cStartGlobal + c] + m[rStartLocal + r, cStartLocal + c];
+                    //next line used for the symmetric
+                    _kElementGlobalCoord[cStartGlobal + c, rStartGlobal + r] = _kElementGlobalCoord[cStartGlobal + c, rStartGlobal + r] + m[cStartLocal + c, rStartLocal + r];
+                }
+            }
+            #endregion
+
+            #region AddStiffnessMembraneNode3
+
+            //3x3 of Node 4
+            rStartGlobal = 18;
+            cStartGlobal = 18;
+            rStartLocal = 9;
+            cStartLocal = 9;
             for (int r = 0; r < 3; r++)
             {
                 for (int c = 0; c < 3; c++)
@@ -205,6 +267,14 @@ namespace GPC.Model.FEM.FiniteElements
             {
                 f[globalStart + i] = f[globalStart + i] + fMembranal[localStart + i];
             }
+
+            //Node4
+            globalStart = 18;
+            localStart = 9;
+            for (int i = 0; i < 3; i++)
+            {
+                f[globalStart + i] = f[globalStart + i] + fMembranal[localStart + i];
+            }
             return f;
         }
 
@@ -218,8 +288,8 @@ namespace GPC.Model.FEM.FiniteElements
 
         public override void GetResults(double[] globalDisplacementsNodes, out double[] localDisplacements, out mnl.Matrix<double>[] globalPseudoDeformation, out mnl.Matrix<double>[] localPseudoDeformation, out mnl.Matrix<double>[] globalForces, out mnl.Matrix<double>[] localForces, out mnl.Matrix<double>[] globalStress, out mnl.Matrix<double>[] localStress, out mnl.Matrix<double>[] globalEpsilon, out mnl.Matrix<double>[] localEpsilon)
         {
-            
-            mnl.Vector<double> membranalGlobalDisplacements = mnl.Vector<double>.Build.Dense(3 * 3); //in plane displacement can be in DX, DY, DZ in global coordinates
+
+            mnl.Vector<double> membranalGlobalDisplacements = mnl.Vector<double>.Build.Dense(3 * 4); //in plane displacement can be in DX, DY, DZ in global coordinates
             
             //node 1
             int startGlobal = 0;
@@ -245,6 +315,14 @@ namespace GPC.Model.FEM.FiniteElements
                 membranalGlobalDisplacements[startLocal + j] = globalDisplacementsNodes[startGlobal + j];
             }
 
+            //node 4
+            startGlobal = 18;
+            startLocal = 9;
+            for (int j = 0; j < 3; j++)
+            {
+                membranalGlobalDisplacements[startLocal + j] = globalDisplacementsNodes[startGlobal + j];
+            }
+
             mnl.Vector<double> flexuralGlobalDisplacements = mnl.Vector<double>.Build.Dense(globalDisplacementsNodes); //dz + rx + ry can be in DX, DY, DZ, RX, RY, RZ in global coordinates
 
             //get results
@@ -252,7 +330,7 @@ namespace GPC.Model.FEM.FiniteElements
             _flexural.GetResults(flexuralGlobalDisplacements, out double[] flexuralLocalDisplacements, out mnl.Matrix<double>[] flexuralGlobalPseudoDisplacements, out mnl.Matrix<double>[] flexuralLocalPseudoDisplacements, out mnl.Matrix<double>[] flexuralGlobalForces, out mnl.Matrix<double>[] flexuralLocalForces, out mnl.Matrix<double>[] flexuralGlobalStress, out mnl.Matrix<double>[] flexuralLocalStress, out mnl.Matrix<double>[] flexuralGlobalEpsilon, out mnl.Matrix<double>[] flexuralLocalEpsilon);
 
             //sum of results
-            localDisplacements = new double[5 * 3]; //dx, dy, dz, rx, ry
+            localDisplacements = new double[5 * 4]; //dx, dy, dz, rx, ry
             //node 1
             localDisplacements[0] = membranalLocalDisplacements[0]; //dx
             localDisplacements[1] = membranalLocalDisplacements[1]; //dy
@@ -274,37 +352,48 @@ namespace GPC.Model.FEM.FiniteElements
             localDisplacements[13] = flexuralLocalDisplacements[7]; //rx
             localDisplacements[14] = flexuralLocalDisplacements[8]; //ry
 
-            localPseudoDeformation = new mnl.Matrix<double>[3] { //three nodes
+            //node 4
+            localDisplacements[15] = membranalLocalDisplacements[6]; //dx
+            localDisplacements[16] = membranalLocalDisplacements[7]; //dy
+            localDisplacements[17] = flexuralLocalDisplacements[9]; //dz
+            localDisplacements[18] = flexuralLocalDisplacements[10]; //rx
+            localDisplacements[19] = flexuralLocalDisplacements[11]; //ry
+
+            localPseudoDeformation = new mnl.Matrix<double>[4] { //four nodes
                 mnl.Matrix<double>.Build.Dense(3 + 3, 3 + 3), //couchy epsilon + couchy curvatures
                 mnl.Matrix<double>.Build.Dense(3 + 3, 3 + 3),
+                mnl.Matrix<double>.Build.Dense(3 + 3, 3 + 3),
                 mnl.Matrix<double>.Build.Dense(3 + 3, 3 + 3)
             };
 
-            globalPseudoDeformation = new mnl.Matrix<double>[3] { //three nodes
+            globalPseudoDeformation = new mnl.Matrix<double>[4] { //four nodes
                 mnl.Matrix<double>.Build.Dense(3 + 3, 3 + 3), //couchy epsilon + couchy curvatures
                 mnl.Matrix<double>.Build.Dense(3 + 3, 3 + 3),
-                mnl.Matrix<double>.Build.Dense(3 + 3, 3 + 3)
-            };
-
-            localForces = new mnl.Matrix<double>[3] { //three nodes
-                mnl.Matrix<double>.Build.Dense(3 + 3, 3 + 3), //couchy F + couchy M
                 mnl.Matrix<double>.Build.Dense(3 + 3, 3 + 3),
                 mnl.Matrix<double>.Build.Dense(3 + 3, 3 + 3)
             };
 
-            globalForces = new mnl.Matrix<double>[3] { //three nodes
+            localForces = new mnl.Matrix<double>[4] { //four nodes
                 mnl.Matrix<double>.Build.Dense(3 + 3, 3 + 3), //couchy F + couchy M
+                mnl.Matrix<double>.Build.Dense(3 + 3, 3 + 3),
                 mnl.Matrix<double>.Build.Dense(3 + 3, 3 + 3),
                 mnl.Matrix<double>.Build.Dense(3 + 3, 3 + 3)
             };
 
-            globalStress = new mnl.Matrix<double>[3 * 2]; //3 nodes, top + bottom
-            localStress = new mnl.Matrix<double>[3 * 2];
+            globalForces = new mnl.Matrix<double>[4] { //four nodes
+                mnl.Matrix<double>.Build.Dense(3 + 3, 3 + 3), //couchy F + couchy M
+                mnl.Matrix<double>.Build.Dense(3 + 3, 3 + 3),
+                mnl.Matrix<double>.Build.Dense(3 + 3, 3 + 3),
+                mnl.Matrix<double>.Build.Dense(3 + 3, 3 + 3)
+            };
 
-            globalEpsilon = new mnl.Matrix<double>[3 * 2];
-            localEpsilon = new mnl.Matrix<double>[3 * 2];
+            globalStress = new mnl.Matrix<double>[4 * 2]; //4 nodes, top + bottom
+            localStress = new mnl.Matrix<double>[4 * 2];
 
-            for (int node = 0; node < 3; node++) {
+            globalEpsilon = new mnl.Matrix<double>[4 * 2];
+            localEpsilon = new mnl.Matrix<double>[4 * 2];
+
+            for (int node = 0; node < 4; node++) {
                 for (int r = 0; r < 3; r++)
                 {
                     for (int c = 0; c < 3; c++)
@@ -343,24 +432,6 @@ namespace GPC.Model.FEM.FiniteElements
                 localEpsilon[node + 3] = membranalLocalEpsilon[0] + flexuralLocalEpsilon[node + 3];
                 globalEpsilon[node + 3] = membranalGlobalEpsilon[0] + flexuralGlobalEpsilon[node +3];
             }           
-        }
-
-        public static double GetArea(Node[] nds)
-        {
-            mnl.Matrix<double> t1 = mnl.Matrix<double>.Build.Dense(3, 3);
-            t1[0, 0] = nds[0].Position.X;
-            t1[0, 1] = nds[0].Position.Y;
-            t1[0, 2] = 1.0;
-
-            t1[1, 0] = nds[1].Position.X;
-            t1[1, 1] = nds[1].Position.Y;
-            t1[1, 2] = 1.0;
-
-            t1[2, 0] = nds[2].Position.X;
-            t1[2, 1] = nds[2].Position.Y;
-            t1[2, 2] = 1.0;
-
-            return t1.Determinant();
         }
     }
 }

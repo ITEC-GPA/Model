@@ -100,7 +100,7 @@ namespace GPC.Model.FEM.FiniteElements
             #endregion
             _dofGlobalToLocal = dofGlobalToLocalTranspose.Transpose();
 
-            /*Console.WriteLine("dofGlobalToLocalTranspose.");
+            Console.WriteLine("dofGlobalToLocalTranspose.");
             for (int r = 0; r < dofGlobalToLocalTranspose.RowCount; r++)
             {
                 for (int c = 0; c < dofGlobalToLocalTranspose.ColumnCount; c++)
@@ -108,7 +108,7 @@ namespace GPC.Model.FEM.FiniteElements
                     Console.Write(dofGlobalToLocalTranspose[r,c] + " ");
                 }
                 Console.WriteLine();
-            }*/
+            }
             #endregion            
 
             #region matrixD
@@ -153,7 +153,7 @@ namespace GPC.Model.FEM.FiniteElements
                     mnl.Matrix<double> b = GetB(csi, eta);
                     mnl.Matrix<double> m = b.Transpose() * _d * b;
                     mnl.Matrix<double> jacob = J(csi, eta);
-
+                    
                     /*Console.WriteLine();
                     Console.WriteLine("B(csi=" + csi.ToString("F2") + ",eta=" + eta.ToString("F2") + ")^T * D * B(csi=" + csi.ToString("F2") + ",eta=" + eta.ToString("F2")+"):");
                     for (int row = 0; row < m.RowCount; row++)
@@ -163,8 +163,8 @@ namespace GPC.Model.FEM.FiniteElements
                             Console.Write(m[row, col].ToString("F2") +" ");
                         }
                         Console.WriteLine();
-                    }
-                    Console.WriteLine("detJ = " + jacob.Determinant());*/
+                    }*/
+                    Console.WriteLine("detJ("+csi.ToString("F2")+","+eta.ToString("F2")+") = " + jacob.Determinant());
 
                     _kElementLocalCoord = _kElementLocalCoord + weightGauss[i] * weightGauss[j] * m * jacob.Determinant();
                 }
@@ -334,7 +334,7 @@ namespace GPC.Model.FEM.FiniteElements
 
         protected override mnl.Vector<double> BuildFLocalCoord()
         {
-#warning aggiornare
+            //TODO "aggiornare"
             
             mnl.Vector<double> _fLocalCoord = mnl.Vector<double>.Build.Dense(2 * Nodes.Length); //2 = DOF in local : DX and DY
             /*foreach (IPlateLoadCaseAttribute iAttribute in _attributesLoadCase)
@@ -423,7 +423,7 @@ namespace GPC.Model.FEM.FiniteElements
 
         public override void GetResults(double[] globalDisplacementsNodes, out double[] localDisplacements, out mnl.Matrix<double>[] globalPseudoDeformation, out mnl.Matrix<double>[] localPseudoDeformation, out mnl.Matrix<double>[] globalForces, out mnl.Matrix<double>[] localForces, out mnl.Matrix<double>[] globalStress, out mnl.Matrix<double>[] localStress, out mnl.Matrix<double>[] globalEpsilon, out mnl.Matrix<double>[] localEpsilon)
         {
-            #warning aggiornare
+            //TODO "aggiornare"
             localDisplacements = GetLocalDisplacement(globalDisplacementsNodes);
             mnl.Vector<double> vecLocalDispl = mnl.Vector<double>.Build.Dense(localDisplacements);
         

@@ -78,6 +78,7 @@
     <Compile Include="FEM\ElementProperty\LaminatedGlassProperty.cs" />
     <Compile Include="FEM\ElementProperty\MonolithicGlassProperty.cs" />
     <Compile Include="FEM\FiniteElements\Rectangular\RectangularMembranal.cs" />
+    <Compile Include="FEM\FiniteElements\Rectangular\RectangleElement.cs" />
     <Compile Include="Glasses\Glass.cs" />
     <Compile Include="FEM\ElementProperty\IGlassProperty.cs" />
     <Compile Include="Glasses\IGlassPanel.cs" />
