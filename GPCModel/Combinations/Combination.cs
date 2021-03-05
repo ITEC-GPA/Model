@@ -8,7 +8,7 @@ using System.Text;
 namespace GPC.Model.Combinations
 {
     [Serializable]
-    public abstract class Combination : ModelObject
+    public abstract class Combination : ModelObject, ILoadCase
     {
         private List<LoadCaseCoefficient> _coefficients;
 

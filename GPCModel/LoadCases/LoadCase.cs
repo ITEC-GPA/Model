@@ -6,7 +6,7 @@ using System.Runtime.Serialization;
 namespace GPC.Model.LoadCases
 {
     [Serializable]
-    public class LoadCase : ModelObject, ISerializable
+    public class LoadCase : ModelObject, ISerializable, ILoadCase
     {
         #region PUBLIC ENUMS
 
