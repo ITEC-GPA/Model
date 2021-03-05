@@ -35,12 +35,16 @@ namespace GPC.Model.Results
         //private double _sXZ;
         //private double _sYZ;
 
-        ///// <summary>
-        ///// Principal Stresses
-        ///// </summary>
-        //private double _s11;
-        //private double _s22;
-        //private double _s33;
+        /// <summary>
+        /// Principal Stresses
+        /// </summary>
+
+        // questa variabile serve per sapere se gli stress principali sono stati calcolati, in modo da evitare di calcolari due volte. 
+        // Confrotando i valori non è giusto perchè potrebbero essere zero. Lo svantaggio è che non so se sono stati calcolati con il metodo preciso o approssimato.
+        private bool _principalStressCalculated; 
+        private double _s11;
+        private double _s22;
+        private double _s33;
 
         ///// <summary>
         ///// Combined Stresses
@@ -60,11 +64,44 @@ namespace GPC.Model.Results
         public double Sxz => _sxz;
         public double Syz => _syz;
 
+        public double S11
+        {
+            get
+            {
+                if (_principalStressCalculated)
+                    GetPrincipalStress(out _, out _, out _);
+
+                return _s11;
+            }
+        }
+
+        public double S22
+        {
+            get
+            {
+                if (_principalStressCalculated)
+                    GetPrincipalStress(out _, out _, out _);
+
+                return _s22;
+            }
+        }
+
+        public double S33
+        {
+            get
+            {
+                if (_principalStressCalculated)
+                    GetPrincipalStress(out _, out _, out _);
+
+                return _s33;
+            }
+        }
+
         #endregion
 
 
         #region Public Constructors
-          
+
         /// <summary>
         /// 
         /// </summary>
@@ -110,6 +147,11 @@ namespace GPC.Model.Results
             // double phi = 0.5 * Math.Atan( Math.Abs( (2*_sxy) / (_sxx + _syy )));         // The angle, Φ, is the angle in radians between the maximum normal stress and the local x-axis.
             S11 = ((_sxx + _syy) / 2.0) + Math.Sqrt((Math.Pow((_sxx - _syy), 2.0) / 4.0) + Math.Pow(_sxy, 2.0));
             S22 = ((_sxx + _syy) / 2.0) - Math.Sqrt((Math.Pow((_sxx - _syy), 2.0) / 4.0) + Math.Pow(_sxy, 2.0));
+
+            _principalStressCalculated = true;
+            _s11 = S11;
+            _s22 = S22;
+            _s33 = 0;
         }
 
         /// <summary>
@@ -145,6 +187,11 @@ namespace GPC.Model.Results
                 S22 = eigen.EigenValues[1].Real;
                 S33 = eigen.EigenValues[0].Real;
             }
+
+            _principalStressCalculated = true;
+            _s11 = S11;
+            _s22 = S22;
+            _s33 = S33;
         }
 
 
