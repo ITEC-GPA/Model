@@ -1320,5 +1320,34 @@ namespace FemTest
                 Console.WriteLine();
             }
         }
+
+        [TestMethod]
+        public void Quad4MembranalTest3()
+        {
+            Material mat = new SteelMaterial("steel", 1.0, 0.0, 355, 510, 7850);
+            PlateProperty prop = new PlateProperty(mat, 0, 1);
+
+            Node[] nds = new Node[4];
+            nds[0] = new Node(0, 0, 0, 1, "1");
+            nds[1] = new Node(+1, 0, 0, 2, "2");
+            nds[2] = new Node(+2, +2, 0, 3, "3");
+            nds[3] = new Node(0, +1, 0, 4, "4");
+
+            CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
+            LoadCase lc = new LoadCase("lc");
+            PlatePressureAttribute pressure = new PlatePressureAttribute(lc, sys, 1, 0, 0);
+
+            Quad4Membranal el = new Quad4Membranal(nds, prop, 1);
+            el.AddAttribute(pressure);
+            
+            LinearSolver fem = new LinearSolver(new FiniteElement[] { el });
+
+            Console.WriteLine(fem.F);
+
+            Assert.AreEqual(0.4167, fem.F[0], 0.001);
+            Assert.AreEqual(0.50, fem.F[3], 0.001);
+            Assert.AreEqual(0.583, fem.F[6], 0.001);
+            Assert.AreEqual(0.50, fem.F[9], 0.001);
+        }
     }
 }

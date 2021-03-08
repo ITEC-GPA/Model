@@ -139,12 +139,6 @@ namespace GPC.Model.FEM.FiniteElements
             _x42 = node4.Position.X - node2.Position.X;
             _y42 = node4.Position.Y - node2.Position.Y;
 
-            //area elemento come somma di 2 triangoli
-            //TODO: serve?
-            /*double areaTriangle1 = TriangleElement.GetArea(new Node[] { node1, node2, node3 });
-            double areaTriangle2 = TriangleElement.GetArea(new Node[] { node1, node3, node4 });
-            _areaElement = areaTriangle1 + areaTriangle2;*/
-
             //calculation of matrix for transformation from Local to Global coordinates
             #region TransformationMatrixLocalCoordinatesToGlobalCoordinates
             _dofGlobalToLocal = mnl.Matrix<double>.Build.Dense(9, 18);
@@ -274,9 +268,8 @@ namespace GPC.Model.FEM.FiniteElements
 
         protected override mnl.Vector<double> BuildFLocalCoord()
         {
-            //TODO "sistemare"
-            // vedi file excel, occorre fare integrazione sulle funzioni di forma lineari di un quad4 (è possibile usare quella dell'elemento quad4 membranale)
-            // l'integrazione delle funzione di forma Ni sul dominio dell'elemento è la quaota parte della forza che va nell'elemento i
+            // Occorre fare integrazione sulle funzioni di forma lineari di un quad4 (è possibile usare quella dell'elemento quad4 membranale)
+            // l'integrazione delle funzione di forma Ni sul dominio dell'elemento è la quota parte della forza che va nel nodo i
             //esempio: F(nodo 1 = p * integrazione(N1 dcsi deta) = somma gauss N1(csi gauss, eta gauss) * detj(csi gauss, eta guass) * weightgauss
             mnl.Vector<double> _fLocalCoord = mnl.Vector<double>.Build.Dense(3 * Nodes.Length); //3 = DOF in local : DZ, RX, RZ
             foreach (IPlateLoadCaseAttribute iAttribute in _attributesLoadCase)
@@ -320,22 +313,24 @@ namespace GPC.Model.FEM.FiniteElements
                         J4nodeElement = mnl.Matrix<double>.Build.Dense(2, 2);
 
                         for (int j = 0; j < _localNodes.Length; j++) {
-                            J4nodeElement[0, 0] = J4nodeElement[0, 0] + dNdCsi4nodes(j + 1, csi, eta) * _localNodes[j].Position.X; // dx/dcsi
-                            J4nodeElement[0, 1] = J4nodeElement[0, 1] + dNdCsi4nodes(j + 1, csi, eta) * _localNodes[j].Position.Y; // dy/dcsi
-                            J4nodeElement[1, 0] = J4nodeElement[1, 0] + dNdEta4nodes(j + 1, csi, eta) * _localNodes[j].Position.X; // dx/deta
-                            J4nodeElement[1, 1] = J4nodeElement[1, 1] + dNdEta4nodes(j + 1, csi, eta) * _localNodes[j].Position.Y; // dy/deta
+                            J4nodeElement[0, 0] = J4nodeElement[0, 0] + Quad4Element.dNdCsi4nodes(j + 1, csi, eta) * _localNodes[j].Position.X; // dx/dcsi
+                            J4nodeElement[0, 1] = J4nodeElement[0, 1] + Quad4Element.dNdCsi4nodes(j + 1, csi, eta) * _localNodes[j].Position.Y; // dy/dcsi
+                            J4nodeElement[1, 0] = J4nodeElement[1, 0] + Quad4Element.dNdEta4nodes(j + 1, csi, eta) * _localNodes[j].Position.X; // dx/deta
+                            J4nodeElement[1, 1] = J4nodeElement[1, 1] + Quad4Element.dNdEta4nodes(j + 1, csi, eta) * _localNodes[j].Position.Y; // dy/deta
                         }
                         double detJ = J4nodeElement.Determinant();
-                        Console.WriteLine("N1(" + csi + "," + eta + ") = " + N4nodes(1, csi, eta));
-                        Console.WriteLine("N2(" + csi + "," + eta + ") = " + N4nodes(2, csi, eta));
-                        Console.WriteLine("N3(" + csi + "," + eta + ") = " + N4nodes(3, csi, eta));
-                        Console.WriteLine("N4(" + csi + "," + eta + ") = " + N4nodes(4, csi, eta));
+                        /*
+                        Console.WriteLine("N1(" + csi + "," + eta + ") = " + Quad4Element.N4nodes(1, csi, eta));
+                        Console.WriteLine("N2(" + csi + "," + eta + ") = " + Quad4Element.N4nodes(2, csi, eta));
+                        Console.WriteLine("N3(" + csi + "," + eta + ") = " + Quad4Element.N4nodes(3, csi, eta));
+                        Console.WriteLine("N4(" + csi + "," + eta + ") = " + Quad4Element.N4nodes(4, csi, eta));
                         Console.WriteLine("F: detJ("+csi+","+eta+") = " + detJ);
+                        */
                         
-                        _fLocalCoord[0] = _fLocalCoord[0] + N4nodes(1, csi, eta) * detJ * gaussWeight * pz; //node1
-                        _fLocalCoord[3] = _fLocalCoord[3] + N4nodes(2, csi, eta) * detJ * gaussWeight * pz; //node2
-                        _fLocalCoord[6] = _fLocalCoord[6] + N4nodes(3, csi, eta) * detJ * gaussWeight * pz; //node3
-                        _fLocalCoord[9] = _fLocalCoord[9] + N4nodes(4, csi, eta) * detJ * gaussWeight * pz; //node4
+                        _fLocalCoord[0] = _fLocalCoord[0] + Quad4Element.N4nodes(1, csi, eta) * detJ * gaussWeight * pz; //node1
+                        _fLocalCoord[3] = _fLocalCoord[3] + Quad4Element.N4nodes(2, csi, eta) * detJ * gaussWeight * pz; //node2
+                        _fLocalCoord[6] = _fLocalCoord[6] + Quad4Element.N4nodes(3, csi, eta) * detJ * gaussWeight * pz; //node3
+                        _fLocalCoord[9] = _fLocalCoord[9] + Quad4Element.N4nodes(4, csi, eta) * detJ * gaussWeight * pz; //node4
                     }
                 }
             }
@@ -532,57 +527,6 @@ namespace GPC.Model.FEM.FiniteElements
         }
 
         #region ShapeFunction
-        private double N4nodes(int index, double csi, double eta)
-        {
-            switch (index)
-            {
-                case 1:
-                    return 1.0 / 4.0 * (1.0 - csi) * (1.0 - eta);
-                case 2:
-                    return 1.0 / 4.0 * (1.0 + csi) * (1.0 - eta);
-                case 3:
-                    return 1.0 / 4.0 * (1.0 + csi) * (1.0 + eta);
-                case 4:
-                    return 1.0 / 4.0 * (1.0 - csi) * (1.0 + eta);
-                default:
-                    throw new Exception();
-            }
-        }
-
-        private double dNdCsi4nodes(int index, double csi, double eta)
-        {
-            switch (index)
-            {
-                case 1:
-                    return (eta - 1.0) / 4.0;
-                case 2:
-                    return (1.0 - eta) / 4.0;
-                case 3:
-                    return (eta + 1.0) / 4.0;
-                case 4:
-                    return (-eta - 1.0) / 4.0;
-                default:
-                    throw new Exception();
-            }
-        }
-
-        private double dNdEta4nodes(int index, double csi, double eta)
-        {
-            switch (index)
-            {
-                case 1:
-                    return (csi - 1.0) / 4.0;
-                case 2:
-                    return (-csi - 1.0) / 4.0;
-                case 3:
-                    return (csi + 1.0) / 4.0;
-                case 4:
-                    return (1.0 - csi) / 4.0;
-                default:
-                    throw new Exception();
-            }
-        }
-
         private double dNdCsi8nodes(int index, double csi, double eta)
         {
             switch (index)

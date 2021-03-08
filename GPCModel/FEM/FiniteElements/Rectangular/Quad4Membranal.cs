@@ -10,6 +10,10 @@ namespace GPC.Model.FEM.FiniteElements
 {
     public class Quad4Membranal : Plate
     {
+        #region variables
+        Node[] _localNodes;
+        #endregion
+
         public Quad4Membranal(Node[] nodes, PlateProperty property, int id) : base(nodes, property, id)
         {
             //recalled base(nodes)
@@ -32,11 +36,11 @@ namespace GPC.Model.FEM.FiniteElements
             //Axis y ortogonal to axis y, Node k = node 3
 
             //calculation of matrix for transformation from Local to Global coordinates
-            Node[] localNodes = Quad4Element.LocalNodes(_nodesGlobal, out _localCoordinateSystem);
-            Node node1 = localNodes[0];
-            Node node2 = localNodes[1];
-            Node node3 = localNodes[2];
-            Node node4 = localNodes[3];
+            _localNodes = Quad4Element.LocalNodes(_nodesGlobal, out _localCoordinateSystem);
+            Node node1 = _localNodes[0];
+            Node node2 = _localNodes[1];
+            Node node3 = _localNodes[2];
+            Node node4 = _localNodes[3];
 
             #region TransformationMatrixLocalCoordinatesToGlobalCoordinates
             _dofGlobalToLocal = mnl.Matrix<double>.Build.Dense(12, 8);
@@ -210,25 +214,25 @@ namespace GPC.Model.FEM.FiniteElements
              *     ..        ...  ...     dN4/dcsi
              *     0         ...  ...     dN4/deta
              */
-            g[0, 0] = dNdCsi(1, csi, eta);
-            g[0, 2] = dNdCsi(2, csi, eta);
-            g[0, 4] = dNdCsi(3, csi, eta);
-            g[0, 6] = dNdCsi(4, csi, eta);
+            g[0, 0] = Quad4Element.dNdCsi4nodes(1, csi, eta);
+            g[0, 2] = Quad4Element.dNdCsi4nodes(2, csi, eta);
+            g[0, 4] = Quad4Element.dNdCsi4nodes(3, csi, eta);
+            g[0, 6] = Quad4Element.dNdCsi4nodes(4, csi, eta);
 
-            g[1, 0] = dNdEta(1, csi, eta);
-            g[1, 2] = dNdEta(2, csi, eta);
-            g[1, 4] = dNdEta(3, csi, eta);
-            g[1, 6] = dNdEta(4, csi, eta);
+            g[1, 0] = Quad4Element.dNdEta4nodes(1, csi, eta);
+            g[1, 2] = Quad4Element.dNdEta4nodes(2, csi, eta);
+            g[1, 4] = Quad4Element.dNdEta4nodes(3, csi, eta);
+            g[1, 6] = Quad4Element.dNdEta4nodes(4, csi, eta);
 
-            g[2, 1] = dNdCsi(1, csi, eta);
-            g[2, 3] = dNdCsi(2, csi, eta);
-            g[2, 5] = dNdCsi(3, csi, eta);
-            g[2, 7] = dNdCsi(4, csi, eta);
+            g[2, 1] = Quad4Element.dNdCsi4nodes(1, csi, eta);
+            g[2, 3] = Quad4Element.dNdCsi4nodes(2, csi, eta);
+            g[2, 5] = Quad4Element.dNdCsi4nodes(3, csi, eta);
+            g[2, 7] = Quad4Element.dNdCsi4nodes(4, csi, eta);
 
-            g[3, 1] = dNdEta(1, csi, eta);
-            g[3, 3] = dNdEta(2, csi, eta);
-            g[3, 5] = dNdEta(3, csi, eta);
-            g[3, 7] = dNdEta(4, csi, eta);
+            g[3, 1] = Quad4Element.dNdEta4nodes(1, csi, eta);
+            g[3, 3] = Quad4Element.dNdEta4nodes(2, csi, eta);
+            g[3, 5] = Quad4Element.dNdEta4nodes(3, csi, eta);
+            g[3, 7] = Quad4Element.dNdEta4nodes(4, csi, eta);
             /*Console.WriteLine("g=");
             for (int row = 0; row < g.RowCount; row++)
             {
@@ -259,13 +263,13 @@ namespace GPC.Model.FEM.FiniteElements
             for (int node = 0; node < 4; node++)
             {
                 int i = node + 1;
-                double xi = _nodesGlobal[node].Position.X;
-                double yi = _nodesGlobal[node].Position.Y;
+                double xi = _localNodes[node].Position.X;
+                double yi = _localNodes[node].Position.Y;
 
-                j11 = j11 + dNdCsi(i, csi, eta) * xi;
-                j12 = j12 + dNdCsi(i, csi, eta) * yi;
-                j21 = j21 + dNdEta(i, csi, eta) * xi;
-                j22 = j22 + dNdEta(i, csi, eta) * yi;
+                j11 = j11 + Quad4Element.dNdCsi4nodes(i, csi, eta) * xi;
+                j12 = j12 + Quad4Element.dNdCsi4nodes(i, csi, eta) * yi;
+                j21 = j21 + Quad4Element.dNdEta4nodes(i, csi, eta) * xi;
+                j22 = j22 + Quad4Element.dNdEta4nodes(i, csi, eta) * yi;
             }
 
             mnl.Matrix<double> J = mnl.Matrix<double>.Build.Dense(2, 2);
@@ -282,48 +286,13 @@ namespace GPC.Model.FEM.FiniteElements
             return J;
         }
 
-        #region ShapeFunction
-        private double dNdCsi(int index, double csi, double eta)
-        {
-            switch (index)
-            {
-                case 1:
-                    return 1.0 / 4.0 * (eta - 1.0);
-                case 2:
-                    return 1.0 / 4.0 * (-eta + 1.0);
-                case 3:
-                    return 1.0 / 4.0 * (eta + 1.0);
-                case 4:
-                    return 1.0 / 4.0 * (-eta - 1.0);
-                default:
-                    throw new Exception();
-            }
-        }
-
-        private double dNdEta(int index, double csi, double eta)
-        {
-            switch (index)
-            {
-                case 1:
-                    return 1.0 / 4.0 * (csi - 1.0);
-                case 2:
-                    return 1.0 / 4.0 * (-csi - 1.0);
-                case 3:
-                    return 1.0 / 4.0 * (csi + 1.0);
-                case 4:
-                    return 1.0 / 4.0 * (-csi + 1.0);
-                default:
-                    throw new Exception();
-            }
-        }
-        #endregion
-
         protected override mnl.Vector<double> BuildFLocalCoord()
         {
-            //TODO "aggiornare"
-            
-            mnl.Vector<double> _fLocalCoord = mnl.Vector<double>.Build.Dense(2 * Nodes.Length); //2 = DOF in local : DX and DY
-            /*foreach (IPlateLoadCaseAttribute iAttribute in _attributesLoadCase)
+            // Occorre fare integrazione sulle funzioni di forma lineari di un quad4 (è possibile usare quella dell'elemento quad4 membranale)
+            // l'integrazione delle funzione di forma Ni sul dominio dell'elemento è la quota parte della forza che va nel nodo i
+            //esempio: F(nodo 1 = p * integrazione(N1 dcsi deta) = somma gauss N1(csi gauss, eta gauss) * detj(csi gauss, eta guass) * weightgauss
+            mnl.Vector<double> _fLocalCoord = mnl.Vector<double>.Build.Dense(2 * Nodes.Length); //2 = DOF in local : DX, DY
+            foreach (IPlateLoadCaseAttribute iAttribute in _attributesLoadCase)
             {
                 if (iAttribute is PlatePressureAttribute)
                 {
@@ -348,16 +317,44 @@ namespace GPC.Model.FEM.FiniteElements
                     double py = attribute.P1 * dirX.DotProduct(y) + attribute.P2 * dirY.DotProduct(y) + attribute.P3 * dirZ.DotProduct(y);
                     double pz = attribute.P1 * dirX.DotProduct(z) + attribute.P2 * dirY.DotProduct(z) + attribute.P3 * dirZ.DotProduct(z);
 
-                    //Pressure --> node force
-                    Vector3d f = new Vector3d(px * _areaElement / 3.0, py * _areaElement / 3.0, pz * _areaElement / 3.0); //force applied in each node
-
-                    for (int i = 0; i < _fLocalCoord.Count; i=i+2)
+                    GaussIntegration.GaussPoint[] gaussPoints = GaussIntegration.GetRectangularDomain(4);
+                    mnl.Matrix<double> J4nodeElement;
+                    for (int i = 0; i < gaussPoints.Length; i++)
                     {
-                        _fLocalCoord[i] = f.X;
-                        _fLocalCoord[i+1] = f.Y;
+                        double csi = gaussPoints[i].Point.X;
+                        double eta = gaussPoints[i].Point.Y;
+                        double gaussWeight = gaussPoints[i].Weight;
+
+                        J4nodeElement = mnl.Matrix<double>.Build.Dense(2, 2);
+
+                        for (int j = 0; j < _localNodes.Length; j++)
+                        {
+                            J4nodeElement[0, 0] = J4nodeElement[0, 0] + Quad4Element.dNdCsi4nodes(j + 1, csi, eta) * _localNodes[j].Position.X; // dx/dcsi
+                            J4nodeElement[0, 1] = J4nodeElement[0, 1] + Quad4Element.dNdCsi4nodes(j + 1, csi, eta) * _localNodes[j].Position.Y; // dy/dcsi
+                            J4nodeElement[1, 0] = J4nodeElement[1, 0] + Quad4Element.dNdEta4nodes(j + 1, csi, eta) * _localNodes[j].Position.X; // dx/deta
+                            J4nodeElement[1, 1] = J4nodeElement[1, 1] + Quad4Element.dNdEta4nodes(j + 1, csi, eta) * _localNodes[j].Position.Y; // dy/deta
+                        }
+                        double detJ = J4nodeElement.Determinant();
+                        /*Console.WriteLine("N1(" + csi + "," + eta + ") = " + Quad4Element.N4nodes(1, csi, eta));
+                        Console.WriteLine("N2(" + csi + "," + eta + ") = " + Quad4Element.N4nodes(2, csi, eta));
+                        Console.WriteLine("N3(" + csi + "," + eta + ") = " + Quad4Element.N4nodes(3, csi, eta));
+                        Console.WriteLine("N4(" + csi + "," + eta + ") = " + Quad4Element.N4nodes(4, csi, eta));
+                        Console.WriteLine("F: detJ(" + csi + "," + eta + ") = " + detJ);*/
+
+                        _fLocalCoord[0] = _fLocalCoord[0] + Quad4Element.N4nodes(1, csi, eta) * detJ * gaussWeight * px; //node1
+                        _fLocalCoord[1] = _fLocalCoord[1] + Quad4Element.N4nodes(1, csi, eta) * detJ * gaussWeight * py; //node1
+
+                        _fLocalCoord[2] = _fLocalCoord[2] + Quad4Element.N4nodes(2, csi, eta) * detJ * gaussWeight * px; //node2
+                        _fLocalCoord[3] = _fLocalCoord[3] + Quad4Element.N4nodes(2, csi, eta) * detJ * gaussWeight * py; //node2
+
+                        _fLocalCoord[4] = _fLocalCoord[4] + Quad4Element.N4nodes(3, csi, eta) * detJ * gaussWeight * px; //node3
+                        _fLocalCoord[5] = _fLocalCoord[5] + Quad4Element.N4nodes(3, csi, eta) * detJ * gaussWeight * py; //node3
+                    
+                        _fLocalCoord[6] = _fLocalCoord[6] + Quad4Element.N4nodes(4, csi, eta) * detJ * gaussWeight * px; //node4
+                        _fLocalCoord[7] = _fLocalCoord[7] + Quad4Element.N4nodes(4, csi, eta) * detJ * gaussWeight * py; //node4
                     }
                 }
-            }*/
+            }
             return _fLocalCoord;
         }
 

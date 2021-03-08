@@ -238,7 +238,6 @@ namespace GPC.Model.FEM.FiniteElements
         public override mnl.Vector<double> GetGlobalCoordF()
         {
             //Return membranal + flexural node forces
-
             var fMembranal = _membranal.GetGlobalCoordF();
             var fDK = _flexural.GetGlobalCoordF();
 
@@ -481,5 +480,58 @@ namespace GPC.Model.FEM.FiniteElements
             return localNodes;
             #endregion
         }
+
+        #region shapeFunction
+        public static double N4nodes(int index, double csi, double eta)
+        {
+            switch (index)
+            {
+                case 1:
+                    return 1.0 / 4.0 * (1.0 - csi) * (1.0 - eta);
+                case 2:
+                    return 1.0 / 4.0 * (1.0 + csi) * (1.0 - eta);
+                case 3:
+                    return 1.0 / 4.0 * (1.0 + csi) * (1.0 + eta);
+                case 4:
+                    return 1.0 / 4.0 * (1.0 - csi) * (1.0 + eta);
+                default:
+                    throw new Exception();
+            }
+        }
+
+        public static double dNdCsi4nodes(int index, double csi, double eta)
+        {
+            switch (index)
+            {
+                case 1:
+                    return (eta - 1.0) / 4.0;
+                case 2:
+                    return (1.0 - eta) / 4.0;
+                case 3:
+                    return (eta + 1.0) / 4.0;
+                case 4:
+                    return (-eta - 1.0) / 4.0;
+                default:
+                    throw new Exception();
+            }
+        }
+
+        public static double dNdEta4nodes(int index, double csi, double eta)
+        {
+            switch (index)
+            {
+                case 1:
+                    return (csi - 1.0) / 4.0;
+                case 2:
+                    return (-csi - 1.0) / 4.0;
+                case 3:
+                    return (csi + 1.0) / 4.0;
+                case 4:
+                    return (1.0 - csi) / 4.0;
+                default:
+                    throw new Exception();
+            }
+        }
+        #endregion
     }
 }
