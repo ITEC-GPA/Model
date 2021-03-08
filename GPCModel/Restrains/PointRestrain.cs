@@ -57,6 +57,13 @@ namespace GPC.Model.Restrains
         }
 
 
+        /// <summary>
+        /// Set all the <see cref="LinearSolver.DOF"/> to restrained for the given point and freedomcase
+        /// </summary>
+        /// <param name="point"></param>
+        /// <param name="freedomCase"></param>
+        /// <param name="coordinateSystem"></param>
+        /// <returns></returns>
         public static PointRestrain GetAllFixed(Point3d point, FreedomCase freedomCase, CoordinateSystem coordinateSystem) 
         {
             List<DofRestrain> restrains = new List<DofRestrain>();
@@ -69,6 +76,23 @@ namespace GPC.Model.Restrains
             return new PointRestrain(point, freedomCase, coordinateSystem, restrains);                
         }
 
+        /// <summary>
+        /// Set <see cref="LinearSolver.DOF.DX"/>, <see cref="LinearSolver.DOF.DY"/> and <see cref="LinearSolver.DOF.DZ"/> to restrained for the given line and freedomcase
+        /// </summary>
+        /// <param name="point"></param>
+        /// <param name="freedomCase"></param>
+        /// <param name="coordinateSystem"></param>
+        /// <returns></returns>
+        public static PointRestrain GetAllDisplacementFixed(Point3d point, FreedomCase freedomCase, CoordinateSystem coordinateSystem)
+        {
+            List<DofRestrain> restrains = new List<DofRestrain>();
+
+            restrains.Add(new DofRestrain(LinearSolver.DOF.DX, true));
+            restrains.Add(new DofRestrain(LinearSolver.DOF.DY, true));
+            restrains.Add(new DofRestrain(LinearSolver.DOF.DZ, true));
+
+            return new PointRestrain(point, freedomCase, coordinateSystem, restrains);
+        }
 
         #endregion
 

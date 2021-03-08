@@ -49,6 +49,13 @@ namespace GPC.Model.Restrains
             this._line = line ?? throw new ArgumentNullException("Base line is null");
         }
 
+        /// <summary>
+        /// Set all the <see cref="LinearSolver.DOF"/> to restrained for the given line and freedomcase
+        /// </summary>
+        /// <param name="line"></param>
+        /// <param name="freedomCase"></param>
+        /// <param name="coordinateSystem"></param>
+        /// <returns></returns>
         public static LineRestrain GetAllFixed(Line3d line, FreedomCase freedomCase, CoordinateSystem coordinateSystem)
         {
             List<DofRestrain> restrains = new List<DofRestrain>();
@@ -61,7 +68,24 @@ namespace GPC.Model.Restrains
             return new LineRestrain(line, freedomCase, coordinateSystem, restrains);
         }
 
-        
+        /// <summary>
+        /// Set <see cref="LinearSolver.DOF.DX"/>, <see cref="LinearSolver.DOF.DY"/> and <see cref="LinearSolver.DOF.DZ"/> to restrained for the given line and freedomcase
+        /// </summary>
+        /// <param name="line"></param>
+        /// <param name="freedomCase"></param>
+        /// <param name="coordinateSystem"></param>
+        /// <returns></returns>
+        public static LineRestrain GetAllDisplacementFixed(Line3d line, FreedomCase freedomCase, CoordinateSystem coordinateSystem)
+        {
+            List<DofRestrain> restrains = new List<DofRestrain>();
+
+            restrains.Add(new DofRestrain(LinearSolver.DOF.DX, true));
+            restrains.Add(new DofRestrain(LinearSolver.DOF.DY, true));
+            restrains.Add(new DofRestrain(LinearSolver.DOF.DZ, true));
+
+            return new LineRestrain(line, freedomCase, coordinateSystem, restrains);
+        }
+
         public LineRestrain(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {

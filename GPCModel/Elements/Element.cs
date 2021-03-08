@@ -9,12 +9,12 @@ namespace GPC.Model.Elements
     /// </summary>
 
     [Serializable]
-    public abstract class Element : ModelObject
+    public abstract class Element : ModelObject, ISerializable
     {
 
         private int _id;
 
-        public int Id { get => _id; internal set => _id = value; }
+        public int Id => _id;
 
         #region Public Constructors
 
@@ -39,14 +39,19 @@ namespace GPC.Model.Elements
         protected Element(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
-
         }
 
         #endregion Public Constructors
 
+        public void SetId(int id)
+        {
+            _id = id;
+        }
+
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             base.GetObjectData(info, context);
+            throw new NotImplementedException();
         }
 
         public override bool Equals(object obj)

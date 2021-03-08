@@ -64,7 +64,7 @@ namespace GPC.Model.FEM
 
         public void SetID(int id)
         {
-            base.Id = id;
+            base.SetId(id);
         }
 
         public override string ToString()

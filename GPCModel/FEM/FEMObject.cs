@@ -15,7 +15,7 @@ namespace GPC.Model.FEM
         public FEMObject(int id, string name) 
             : base(Guid.NewGuid(), name)
         {
-            base.Id = id;
+            base.SetId(id);
         }
 
         public FEMObject(SerializationInfo info, StreamingContext context) 

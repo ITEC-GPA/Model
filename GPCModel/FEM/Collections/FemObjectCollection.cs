@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 namespace GPC.Model.FEM.Collections
 {
     /// <summary>
-    /// A collection of FemObject. This collection does not contains elements a duplicated ID
+    /// A collection of FemObject. This collection does not contains elements with a duplicated ID
     /// </summary>
     public class FemObjectCollection<T> : IEnumerable<T> where T : FEMObject
     {
@@ -56,7 +56,7 @@ namespace GPC.Model.FEM.Collections
         {
             if (_ids.Contains(item.Id))
             {
-                item.Id = _maxId++;
+                item.SetId(++_maxId);
             }
             else
             {
