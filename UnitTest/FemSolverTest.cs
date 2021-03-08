@@ -41,8 +41,8 @@ namespace FemTest
             nodes[1] = new Node(1, 0, 0, 2);
             nodes[2] = new Node(0, 1, 0, 3);
 
-            FiniteElement el0 = new TriangularMembranal(nodes, prop, 0);
-            FiniteElement el1 = new TriangularMembranal(nodes, prop, 1);
+            FiniteElement el0 = new Tri3Membranal(nodes, prop, 0);
+            FiniteElement el1 = new Tri3Membranal(nodes, prop, 1);
 
             //Controllo equals elementi
             Assert.IsFalse(el0.Equals(el1));
@@ -75,7 +75,7 @@ namespace FemTest
         }
 
         [TestMethod]
-        public void TriangularMembranalKTest1()
+        public void Tri3MembranalKTest1()
         {
             Material mat = new SteelMaterial("steel", 200000.0, 0.2, 355, 510, 7850);
             PlateProperty prop = new PlateProperty(mat, 0, 1);
@@ -85,7 +85,7 @@ namespace FemTest
             nds[1] = new Node(1, 0, 0, 2, "2");
             nds[2] = new Node(0, 1, 0, 3, "3");
 
-            TriangularMembranal el = new TriangularMembranal(nds, prop, 1);
+            Tri3Membranal el = new Tri3Membranal(nds, prop, 1);
             el.BuildMatrix();
             mnl.Matrix<double> kLocal = el.KElementLocalCoord;
             mnl.Matrix<double> kLocalManual = mnl.Matrix<double>.Build.Dense(0, 6);
@@ -117,7 +117,7 @@ namespace FemTest
         }
 
         [TestMethod]
-        public void TriangularMembranalKTest2()
+        public void Tri3MembranalKTest2()
         {
             Material mat = new SteelMaterial("steel", 200000, 0.2, 355, 510, 7850);
             PlateProperty prop = new PlateProperty(mat, 0, 1);
@@ -127,7 +127,7 @@ namespace FemTest
             nds[1] = new Node(100, 0, 0, 2, "2");
             nds[2] = new Node(0, 100, 0, 3, "3");
 
-            TriangularMembranal el = new TriangularMembranal(nds, prop, 1);
+            Tri3Membranal el = new Tri3Membranal(nds, prop, 1);
             el.BuildMatrix();
             mnl.Matrix<double> kLocal = el.KElementLocalCoord;
             //Add DZ global DOF
@@ -166,8 +166,8 @@ namespace FemTest
 
             List<FiniteElement> elements = new List<FiniteElement>();
 
-            elements.Add(new TriangularMembranal(nodesPlate1.ToArray(), prop, 1));
-            elements.Add(new TriangularMembranal(nodesPlate2.ToArray(), prop, 2));
+            elements.Add(new Tri3Membranal(nodesPlate1.ToArray(), prop, 1));
+            elements.Add(new Tri3Membranal(nodesPlate2.ToArray(), prop, 2));
 
             LinearSolver fem = new LinearSolver(elements.ToArray());
             mnl.Matrix<double> K = fem.KGlobal;
@@ -252,8 +252,8 @@ namespace FemTest
             nodesPlate2.Add(nd4);
 
             List<FiniteElement> elements = new List<FiniteElement>();
-            elements.Add(new TriangularMembranal(nodesPlate1.ToArray(), prop, 1));
-            elements.Add(new TriangularMembranal(nodesPlate2.ToArray(), prop, 2));
+            elements.Add(new Tri3Membranal(nodesPlate1.ToArray(), prop, 1));
+            elements.Add(new Tri3Membranal(nodesPlate2.ToArray(), prop, 2));
 
             LinearSolver fem = new LinearSolver(elements.ToArray());
             mnl.Matrix<double> K = fem.KGlobal;
@@ -342,8 +342,8 @@ namespace FemTest
             nodesPlate2.Add(nd4);
 
             List<FiniteElement> elements = new List<FiniteElement>();
-            elements.Add(new TriangularMembranal(nodesPlate1.ToArray(), prop, 1));
-            elements.Add(new TriangularMembranal(nodesPlate2.ToArray(), prop, 2));
+            elements.Add(new Tri3Membranal(nodesPlate1.ToArray(), prop, 1));
+            elements.Add(new Tri3Membranal(nodesPlate2.ToArray(), prop, 2));
 
             LinearSolver fem = new LinearSolver(elements.ToArray());
             double[] Node4DX = fem.GetDisplacementGlobalCoordinates(nd4, LinearSolver.DOF.DX);
@@ -426,8 +426,8 @@ namespace FemTest
             nodesPlate2.Add(nd4);
 
             List<FiniteElement> elements = new List<FiniteElement>();
-            elements.Add(new TriangularMembranal(nodesPlate1.ToArray(), prop, 1));
-            elements.Add(new TriangularMembranal(nodesPlate2.ToArray(), prop, 2));
+            elements.Add(new Tri3Membranal(nodesPlate1.ToArray(), prop, 1));
+            elements.Add(new Tri3Membranal(nodesPlate2.ToArray(), prop, 2));
 
             LinearSolver fem = new LinearSolver(elements.ToArray());
             double[] Node4DX = fem.GetDisplacementGlobalCoordinates(nd4, LinearSolver.DOF.DX);
@@ -506,12 +506,12 @@ namespace FemTest
             nodesPlate2.Add(nd4);
 
             List<FiniteElement> elements = new List<FiniteElement>();
-            Plate e0 = new TriangularMembranal(nodesPlate1.ToArray(), prop, 1);
+            Plate e0 = new Tri3Membranal(nodesPlate1.ToArray(), prop, 1);
             PlatePressureAttribute p = new PlatePressureAttribute(loadCase, sys, -10.0, 0, 0);
             e0.AddAttribute(p);
 
             elements.Add(e0);
-            elements.Add(new TriangularMembranal(nodesPlate2.ToArray(), prop, 2));
+            elements.Add(new Tri3Membranal(nodesPlate2.ToArray(), prop, 2));
 
             LinearSolver fem = new LinearSolver(elements.ToArray());
             double[] Node4DX = fem.GetDisplacementGlobalCoordinates(nd4, LinearSolver.DOF.DX);
@@ -545,7 +545,7 @@ namespace FemTest
         }
 
         [TestMethod]
-        public void TriangleDKTTest1()
+        public void Tri3DKTTest1()
         {
             Material mat = new SteelMaterial("mat", 12, 0.0, 355, 510, 7850);
             PlateProperty prop = new PlateProperty(mat, 1.0, 1.0);
@@ -555,7 +555,7 @@ namespace FemTest
             nodesPlate1[1] = new Node(1, 0, 0, 2, "2");
             nodesPlate1[2] = new Node(0, 1, 0, 3, "3");
 
-            FiniteElement e0 = new TriangularDK(nodesPlate1, prop, 1);
+            FiniteElement e0 = new Tri3DK(nodesPlate1, prop, 1);
             e0.BuildMatrix();
 
             mnl.Matrix<double> SAPkMatrix = mnl.Matrix<double>.Build.Dense(0,9);
@@ -594,7 +594,7 @@ namespace FemTest
         }
 
         [TestMethod]
-        public void TriangleDKTTest2()
+        public void Tri3DKTTest2()
         {
             Material mat = new SteelMaterial("mat", 12, 0.0, 355, 510, 7850);
             PlateProperty prop = new PlateProperty(mat, 1.0, 1.0);
@@ -631,7 +631,7 @@ namespace FemTest
                 SAPkMatrix = SAPkMatrix.InsertRow(i, row[i]);
             }
 
-            FiniteElement e0 = new TriangularDK(nodesPlate1, prop, 1);
+            FiniteElement e0 = new Tri3DK(nodesPlate1, prop, 1);
             LinearSolver fem = new LinearSolver(new FiniteElement[] { e0 });
             
             Console.WriteLine("Element Global stiffness matrix");
@@ -651,7 +651,7 @@ namespace FemTest
         /// international journal for numerical methods in engineering, vol. 15 - 1771-1812 -> pg. 1797
         /// </summary>
         [TestMethod]
-        public void TriangleDKTTest3()
+        public void Tri3DKTTest3()
         {
             LoadCase loadCase = new LoadCase("myLoadCase", new Guid());
             FreedomCase freedomCase = new FreedomCase("freedomCase1");
@@ -687,8 +687,8 @@ namespace FemTest
             Node nodeD = new Node(8, 0, 0, 3, "D");
             nodeD.AddAttribute(fixDXDYDZRZ);
 
-            FiniteElement e0 = new TriangularDK(new Node[] { nodeA, nodeB, nodeC }, prop, 1);
-            FiniteElement e1 = new TriangularDK(new Node[] { nodeB, nodeD, nodeC }, prop, 1);
+            FiniteElement e0 = new Tri3DK(new Node[] { nodeA, nodeB, nodeC }, prop, 1);
+            FiniteElement e1 = new Tri3DK(new Node[] { nodeB, nodeD, nodeC }, prop, 1);
             LinearSolver fem = new LinearSolver(new FiniteElement[] { e0, e1 });
 
             double dz = fem.GetDisplacementGlobalCoordinates(nodeC, LinearSolver.DOF.DZ).First();
@@ -893,7 +893,7 @@ namespace FemTest
         }
 
         [TestMethod]
-        public void RectangleDKTTest1()
+        public void Quad4DKTTest1()
         {
             Material mat = new SteelMaterial("mat", 12, 0.0, 355, 510, 7850);
             PlateProperty prop = new PlateProperty(mat, 1.0, 1.0);
@@ -904,7 +904,7 @@ namespace FemTest
             nodesPlate1[2] = new Node(+1, +1, 0, 3, "3");
             nodesPlate1[3] = new Node(-1, +1, 0, 3, "4");
 
-            FiniteElement e0 = new RectangularDK(nodesPlate1, prop, 1);
+            FiniteElement e0 = new Quad4DK(nodesPlate1, prop, 1);
             e0.BuildMatrix();
 
             mnl.Matrix<double> kLocalManual = mnl.Matrix<double>.Build.Dense(12, 12);
@@ -948,7 +948,7 @@ namespace FemTest
         }
 
         [TestMethod]
-        public void RectangleDKTTest2()
+        public void Quad4DKTTest2()
         {
             Material mat = new SteelMaterial("mat", 12, 0.0, 355, 510, 7850);
             PlateProperty prop = new PlateProperty(mat, 1.0, 1.0);
@@ -959,7 +959,7 @@ namespace FemTest
             nodesPlate1[2] = new Node(2, 2, 0, 3, "3");
             nodesPlate1[3] = new Node(0, 2, 0, 3, "4");
 
-            FiniteElement e0 = new RectangularDK(nodesPlate1, prop, 1);
+            FiniteElement e0 = new Quad4DK(nodesPlate1, prop, 1);
 
             LinearSolver fem = new LinearSolver(new FiniteElement[] { e0 });
 
@@ -1028,7 +1028,7 @@ namespace FemTest
         }
 
         [TestMethod]
-        public void RectangleDKTTest3()
+        public void Quad4DKTTest3()
         {
             Material mat = new SteelMaterial("mat", 12, 0.0, 355, 510, 7850);
             PlateProperty prop = new PlateProperty(mat, 1.0, 1.0);
@@ -1039,7 +1039,7 @@ namespace FemTest
             nodesPlate1[2] = new Node(+2, +2, 0, 3, "3");
             nodesPlate1[3] = new Node(0, +1, 0, 3, "4");
 
-            Plate e0 = new RectangularDK(nodesPlate1, prop, 1);
+            Plate e0 = new Quad4DK(nodesPlate1, prop, 1);
 
             LoadCase loadCase = new LoadCase("myLoadCase", new Guid());
             FreedomCase freedomCase = new FreedomCase("freedomCase1");
@@ -1067,7 +1067,7 @@ namespace FemTest
             nodesPlate1[2] = new Node(+2, +2, 0, 3, "3");
             nodesPlate1[3] = new Node(0, +1, 0, 3, "4");
 
-            Plate e0 = new RectangleElement(nodesPlate1, prop, 1);
+            Plate e0 = new Quad4Element(nodesPlate1, prop, 1);
 
             LoadCase loadCase = new LoadCase("myLoadCase", new Guid());
             FreedomCase freedomCase = new FreedomCase("freedomCase1");
@@ -1084,7 +1084,7 @@ namespace FemTest
         }
 
         [TestMethod]
-        public void TriangleElementTest1()
+        public void Tri3ElementTest1()
         {
             LoadCase loadCase = new LoadCase("myLoadCase", new Guid());
             FreedomCase freedomCase = new FreedomCase("freedomCase1");
@@ -1125,8 +1125,8 @@ namespace FemTest
             Node nodeD = new Node(8, 0, 0, 3, "D");
             nodeD.AddAttribute(fix);
 
-            FiniteElement e0 = new TriangleElement(new Node[] { nodeA, nodeB, nodeC }, prop, 1);
-            FiniteElement e1 = new TriangleElement(new Node[] { nodeB, nodeD, nodeC }, prop, 1);
+            FiniteElement e0 = new Tri3Element(new Node[] { nodeA, nodeB, nodeC }, prop, 1);
+            FiniteElement e1 = new Tri3Element(new Node[] { nodeB, nodeD, nodeC }, prop, 1);
             LinearSolver fem = new LinearSolver(new FiniteElement[] { e0, e1 });
 
             double DY = fem.GetDisplacementGlobalCoordinates(nodeC, LinearSolver.DOF.DY).First();
@@ -1154,7 +1154,7 @@ namespace FemTest
         }
 
         [TestMethod]
-        public void TriangleElementTest2()
+        public void Tri3ElementTest2()
         {
             LoadCase loadCase = new LoadCase("myLoadCase", new Guid());
             FreedomCase freedomCase = new FreedomCase("freedomCase1");
@@ -1193,9 +1193,9 @@ namespace FemTest
             Node nodeD = new Node(8, 0, 0, 3, "D");
             nodeD.AddAttribute(fix);
 
-            Plate e0 = new TriangleElement(new Node[] { nodeA, nodeB, nodeC }, prop, 1);
+            Plate e0 = new Tri3Element(new Node[] { nodeA, nodeB, nodeC }, prop, 1);
             e0.AddAttribute(p);
-            Plate e1 = new TriangleElement(new Node[] { nodeB, nodeD, nodeC }, prop, 2);
+            Plate e1 = new Tri3Element(new Node[] { nodeB, nodeD, nodeC }, prop, 2);
             e1.AddAttribute(p);
             LinearSolver fem = new LinearSolver(new FiniteElement[] { e0, e1 });
 
@@ -1214,7 +1214,7 @@ namespace FemTest
         }
 
         [TestMethod]
-        public void QuadrilateralMembranalKTest1()
+        public void Quad4MembranalTest1()
         {
             Material mat = new SteelMaterial("steel", 1.0, 0.0, 355, 510, 7850);
             PlateProperty prop = new PlateProperty(mat, 0, 1);
@@ -1225,7 +1225,7 @@ namespace FemTest
             nds[2] = new Node(+1, +1, 0, 3, "3");
             nds[3] = new Node(-1, +1, 0, 4, "4");
 
-            RectangularMembranal el = new RectangularMembranal(nds, prop, 1);
+            Quad4Membranal el = new Quad4Membranal(nds, prop, 1);
             el.BuildMatrix();
             mnl.Matrix<double> kLocal = el.KElementLocalCoord;
             mnl.Matrix<double> kLocalManual = mnl.Matrix<double>.Build.Dense(0, 8);
@@ -1263,7 +1263,7 @@ namespace FemTest
         }
 
         [TestMethod]
-        public void QuadrilateralMembranalKTest2()
+        public void Quad4MembranalTest2()
         {
             Material mat = new SteelMaterial("steel", 1.0, 0.0, 355, 510, 7850);
             PlateProperty prop = new PlateProperty(mat, 0, 1);
@@ -1274,7 +1274,7 @@ namespace FemTest
             nds[2] = new Node(+1, +1, 0, 3, "3");
             nds[3] = new Node(-1, +1, 0, 4, "4");
 
-            RectangularMembranal el = new RectangularMembranal(nds, prop, 1);
+            Quad4Membranal el = new Quad4Membranal(nds, prop, 1);
             el.BuildMatrix();
             mnl.Matrix<double> kLocal = el.KElementLocalCoord;
             mnl.Matrix<double> kGlobalManual = mnl.Matrix<double>.Build.Dense(0, 12);

@@ -8,9 +8,9 @@ using MathNet.Numerics.LinearAlgebra;
 
 namespace GPC.Model.FEM.FiniteElements
 {
-    public class RectangularMembranal : Plate
+    public class Quad4Membranal : Plate
     {
-        public RectangularMembranal(Node[] nodes, PlateProperty property, int id) : base(nodes, property, id)
+        public Quad4Membranal(Node[] nodes, PlateProperty property, int id) : base(nodes, property, id)
         {
             //recalled base(nodes)
             _DOF.Add(LinearSolver.DOF.DX);
@@ -32,7 +32,7 @@ namespace GPC.Model.FEM.FiniteElements
             //Axis y ortogonal to axis y, Node k = node 3
 
             //calculation of matrix for transformation from Local to Global coordinates
-            Node[] localNodes = RectangleElement.LocalNodes(_nodesGlobal, out _localCoordinateSystem);
+            Node[] localNodes = Quad4Element.LocalNodes(_nodesGlobal, out _localCoordinateSystem);
             Node node1 = localNodes[0];
             Node node2 = localNodes[1];
             Node node3 = localNodes[2];

@@ -10,7 +10,7 @@ namespace GPC.Model.FEM.FiniteElements
     /// Discrete Kirchoff Triangle - A study of three-node triangular plate bending elements - Jean-Louis Batoz
     /// International Jurnal for numerical methods in engineering, vol 15, 1771-1812 (1980)
     /// </summary>
-    public class TriangularDK : Plate
+    public class Tri3DK : Plate
     {
         #region variables
         double _x31;
@@ -28,7 +28,7 @@ namespace GPC.Model.FEM.FiniteElements
         double _areaElement;
         #endregion
 
-        public TriangularDK(Node[] nodes, PlateProperty property, int id) : base(nodes, property, id)
+        public Tri3DK(Node[] nodes, PlateProperty property, int id) : base(nodes, property, id)
         {
             DOF.Add(LinearSolver.DOF.DX);
             DOF.Add(LinearSolver.DOF.DY);
@@ -49,7 +49,7 @@ namespace GPC.Model.FEM.FiniteElements
         {
             #region calculationLocalAxisAndLocalCoordinates
             //Local axes calculater anticlockwise
-            Node[] localNodes = TriangleElement.LocalNodes(_nodesGlobal, out _localCoordinateSystem); 
+            Node[] localNodes = Tri3Element.LocalNodes(_nodesGlobal, out _localCoordinateSystem); 
             Node node1 = localNodes[0];
             Node node2 = localNodes[1];
             Node node3 = localNodes[2];

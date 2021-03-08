@@ -8,7 +8,7 @@ using MathNet.Numerics.LinearAlgebra;
 
 namespace GPC.Model.FEM.FiniteElements
 {
-    public class TriangularMembranal : Plate, IEquatable<TriangularMembranal>
+    public class Tri3Membranal : Plate, IEquatable<Tri3Membranal>
     {
         #region variables
         protected double _areaElement;
@@ -16,7 +16,7 @@ namespace GPC.Model.FEM.FiniteElements
         protected mnl.Matrix<double> _b; //constant in the element
         #endregion
 
-        public TriangularMembranal(Node[] nodes, PlateProperty property, int id) : base(nodes, property, id)
+        public Tri3Membranal(Node[] nodes, PlateProperty property, int id) : base(nodes, property, id)
         {
             //recalled base(nodes)
             _DOF.Add(LinearSolver.DOF.DX);
@@ -44,7 +44,7 @@ namespace GPC.Model.FEM.FiniteElements
             //calculation of matrix for transformation from Local to Global coordinates
             #region TransformationMatrixLocalCoordinatesToGlobalCoordinates
 
-            Node[] localNodes = TriangleElement.LocalNodes(_nodesGlobal, out _localCoordinateSystem); //take global node and transform in local nodes
+            Node[] localNodes = Tri3Element.LocalNodes(_nodesGlobal, out _localCoordinateSystem); //take global node and transform in local nodes
             Node node1 = localNodes[0];
             Node node2 = localNodes[1];
             Node node3 = localNodes[2];
@@ -279,7 +279,7 @@ namespace GPC.Model.FEM.FiniteElements
 
         public override bool Equals(object obj)
         {
-            return obj is TriangularMembranal membranal &&
+            return obj is Tri3Membranal membranal &&
                    base.Equals(obj);
         }
 
@@ -288,7 +288,7 @@ namespace GPC.Model.FEM.FiniteElements
             return 624022166 + base.GetHashCode();
         }
 
-        public bool Equals(TriangularMembranal other)
+        public bool Equals(Tri3Membranal other)
         {
             return Equals((object)other);
         }

@@ -11,7 +11,7 @@ namespace GPC.Model.FEM.FiniteElements
     /// Discrete Kirchoff Rectangular - Evaluation of new quadrilateral thin plate bending element - Jean-Louis Batoz
     /// International Jurnal for numerical methods in engineering, vol 18, 1655-1977 (1982)
     /// </summary>
-    public class RectangularDK : Plate
+    public class Quad4DK : Plate
     {
         #region variables
         //Differences of coordinates used for Matrix B and KLocal
@@ -42,7 +42,7 @@ namespace GPC.Model.FEM.FiniteElements
         Node[] _localNodes;
         #endregion
 
-        public RectangularDK(Node[] nodes, PlateProperty property, int id) : base(nodes, property, id)
+        public Quad4DK(Node[] nodes, PlateProperty property, int id) : base(nodes, property, id)
         {
             DOF.Add(LinearSolver.DOF.DX);
             DOF.Add(LinearSolver.DOF.DY);
@@ -109,7 +109,7 @@ namespace GPC.Model.FEM.FiniteElements
         public override void BuildMatrix()
         {
             //set local coordinate system
-            _localNodes = RectangleElement.LocalNodes(_nodesGlobal, out _localCoordinateSystem);
+            _localNodes = Quad4Element.LocalNodes(_nodesGlobal, out _localCoordinateSystem);
             Node node1 = _localNodes[0];
             Node node2 = _localNodes[1];
             Node node3 = _localNodes[2];
