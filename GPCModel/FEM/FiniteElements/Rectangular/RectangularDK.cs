@@ -39,7 +39,7 @@ namespace GPC.Model.FEM.FiniteElements
         double _x42;
         double _y42;
 
-        double _areaElement;
+        Node[] _localNodes;
         #endregion
 
         public RectangularDK(Node[] nodes, PlateProperty property, int id) : base(nodes, property, id)
@@ -109,11 +109,11 @@ namespace GPC.Model.FEM.FiniteElements
         public override void BuildMatrix()
         {
             //set local coordinate system
-            Node[] localNodes = RectangleElement.LocalNodes(_nodesGlobal, out _localCoordinateSystem);
-            Node node1 = localNodes[0];
-            Node node2 = localNodes[1];
-            Node node3 = localNodes[2];
-            Node node4 = localNodes[3];
+            _localNodes = RectangleElement.LocalNodes(_nodesGlobal, out _localCoordinateSystem);
+            Node node1 = _localNodes[0];
+            Node node2 = _localNodes[1];
+            Node node3 = _localNodes[2];
+            Node node4 = _localNodes[3];
 
             _x12 = node1.Position.X - node2.Position.X;
             _y12 = node1.Position.Y - node2.Position.Y;
@@ -141,9 +141,9 @@ namespace GPC.Model.FEM.FiniteElements
 
             //area elemento come somma di 2 triangoli
             //TODO: serve?
-            double areaTriangle1 = TriangleElement.GetArea(new Node[] { node1, node2, node3 });
+            /*double areaTriangle1 = TriangleElement.GetArea(new Node[] { node1, node2, node3 });
             double areaTriangle2 = TriangleElement.GetArea(new Node[] { node1, node3, node4 });
-            _areaElement = areaTriangle1 + areaTriangle2;
+            _areaElement = areaTriangle1 + areaTriangle2;*/
 
             //calculation of matrix for transformation from Local to Global coordinates
             #region TransformationMatrixLocalCoordinatesToGlobalCoordinates
@@ -255,79 +255,21 @@ namespace GPC.Model.FEM.FiniteElements
             //Console.WriteLine("Db = " + _d.ToString());
             #endregion
 
-            //4 Gauss Integration points - Sufficient but **probably** not exact
-            double[] csiGauss = new [] {
-                -1.0 / Math.Pow(3,0.5),
-                1.0 / Math.Pow(3, 0.5)
-            };
-            double[] etaGauss = new[] {
-                -1.0 / Math.Pow(3, 0.5),
-                1.0 / Math.Pow(3, 0.5)
-            };
-            double[] weightGauss = new[] {
-                1.0,
-                1.0
-            };
-            
             //calculation of kelement using gauss quadrature
             _kElementLocalCoord = mnl.Matrix<double>.Build.Dense(12, 12);
-            for (int i = 0; i < csiGauss.Length; i++)
-            {
-                double csi = csiGauss[i];
-                for (int j = 0; j < etaGauss.Length; j++) {
-                    double eta = etaGauss[j];
-                    mnl.Matrix<double> b = GetB(csi, eta);
-                    //Console.WriteLine("b(csi="+csi+",eta="+eta+")" + b);
-                    Console.WriteLine("detJ("+csi.ToString("F2")+","+eta.ToString("F2")+")="+ getDetJ(csi, eta));
-                    mnl.Matrix<double> m = weightGauss[i] * weightGauss[j] * b.Transpose() * _d * b * getDetJ(csi, eta);
-                    _kElementLocalCoord = _kElementLocalCoord + m;
-                }
-            }
+            GaussIntegration.GaussPoint[] gaussPoints = GaussIntegration.GetRectangularDomain(4);
 
-            /*double[] csiGauss = new[] { //probably integration exact
-                -Math.Sqrt(3.0 / 5.0),  //1
-                0.0,                    //2
-                +Math.Sqrt(3.0 / 5.0),  //3
-                -Math.Sqrt(3.0 / 5.0),  //4
-                0.0,                    //5
-                +Math.Sqrt(3.0 / 5.0),  //6
-                -Math.Sqrt(3.0 / 5.0),  //7
-                0.0,                    //4
-                +Math.Sqrt(3.0 / 5.0)   //9
-            };
-            double[] etaGauss = new[] {
-                -Math.Sqrt(3.0 / 5.0),  //1
-                -Math.Sqrt(3.0 / 5.0),  //2
-                -Math.Sqrt(3.0 / 5.0),  //3
-                0.0,                    //4
-                0.0,                    //5
-                0.0,                    //6
-                Math.Sqrt(3.0 / 5.0),   //7
-                Math.Sqrt(3.0 / 5.0),   //4
-                Math.Sqrt(3.0 / 5.0)    //9
-            };
-            double[] weightGauss = new[] {
-                25.0 / 81.0,  //1
-                40.0 / 81.0,  //2
-                25.0 / 81.0,  //3
-                40.0 / 81.0,  //4
-                64.0 / 81.0,  //5
-                40.0 / 81.0,  //6
-                25.0 / 81.0,  //7
-                40.0 / 81.0,  //4
-                25.0 / 81.0   //9
-            };*/
-
-            /*for (int i = 0; i < csiGauss.Length; i++)
+            for (int i = 0; i < gaussPoints.Length; i++)
             {
-                double csi = csiGauss[i];                
-                double eta = etaGauss[i];
-                mnl.Matrix<double> b = B(csi, eta);
+                double csi = gaussPoints[i].Point.X;
+                double eta = gaussPoints[i].Point.Y;
+                mnl.Matrix<double> b = GetB(csi, eta);
                 //Console.WriteLine("b(csi="+csi+",eta="+eta+")" + b);
-                    
-                mnl.Matrix<double> m = weightGauss[i] * b.Transpose() * _d * b * getDetJ(csi, eta);
-                _kElementLocalCoord = _kElementLocalCoord + m;  
-            }*/
+                Console.WriteLine("detJ("+csi.ToString("F2")+","+eta.ToString("F2")+")="+ getDetJ(csi, eta));
+                mnl.Matrix<double> m = gaussPoints[i].Weight * b.Transpose() * _d * b * getDetJ(csi, eta);
+                _kElementLocalCoord = _kElementLocalCoord + m;
+                
+            }
         }
 
         protected override mnl.Vector<double> BuildFLocalCoord()
@@ -335,7 +277,7 @@ namespace GPC.Model.FEM.FiniteElements
             //TODO "sistemare"
             // vedi file excel, occorre fare integrazione sulle funzioni di forma lineari di un quad4 (è possibile usare quella dell'elemento quad4 membranale)
             // l'integrazione delle funzione di forma Ni sul dominio dell'elemento è la quaota parte della forza che va nell'elemento i
-            //esempio: F(nodo 19 = p * integrazione(N1 dcsi deta) = somma gauss N1(csi gauss, eta gauss) * detj(csi gauss, eta guass) * weightgauss
+            //esempio: F(nodo 1 = p * integrazione(N1 dcsi deta) = somma gauss N1(csi gauss, eta gauss) * detj(csi gauss, eta guass) * weightgauss
             mnl.Vector<double> _fLocalCoord = mnl.Vector<double>.Build.Dense(3 * Nodes.Length); //3 = DOF in local : DZ, RX, RZ
             foreach (IPlateLoadCaseAttribute iAttribute in _attributesLoadCase)
             {
@@ -367,14 +309,33 @@ namespace GPC.Model.FEM.FiniteElements
                     double py = attribute.P1 * dirX.DotProduct(y) + attribute.P2 * dirY.DotProduct(y) + attribute.P3 * dirZ.DotProduct(y);
                     double pz = attribute.P1 * dirX.DotProduct(z) + attribute.P2 * dirY.DotProduct(z) + attribute.P3 * dirZ.DotProduct(z);
 
-                    //Pressure --> node force
-                    Vector3d F = new Vector3d(px * _areaElement, py * _areaElement, pz * _areaElement); //Total force to be distribuited in the plate
-
-                    int j = 0;
-                    for (int i = 0; i < _fLocalCoord.Count; i = i + 3)
+                    GaussIntegration.GaussPoint[] gaussPoints = GaussIntegration.GetRectangularDomain(4);
+                    mnl.Matrix<double> J4nodeElement;
+                    for (int i = 0; i < gaussPoints.Length; i++)
                     {
-                        _fLocalCoord[i] = F.Z;
-                        j++;
+                        double csi = gaussPoints[i].Point.X;
+                        double eta = gaussPoints[i].Point.Y;
+                        double gaussWeight = gaussPoints[i].Weight;
+
+                        J4nodeElement = mnl.Matrix<double>.Build.Dense(2, 2);
+
+                        for (int j = 0; j < _localNodes.Length; j++) {
+                            J4nodeElement[0, 0] = J4nodeElement[0, 0] + dNdCsi4nodes(j + 1, csi, eta) * _localNodes[j].Position.X; // dx/dcsi
+                            J4nodeElement[0, 1] = J4nodeElement[0, 1] + dNdCsi4nodes(j + 1, csi, eta) * _localNodes[j].Position.Y; // dy/dcsi
+                            J4nodeElement[1, 0] = J4nodeElement[1, 0] + dNdEta4nodes(j + 1, csi, eta) * _localNodes[j].Position.X; // dx/deta
+                            J4nodeElement[1, 1] = J4nodeElement[1, 1] + dNdEta4nodes(j + 1, csi, eta) * _localNodes[j].Position.Y; // dy/deta
+                        }
+                        double detJ = J4nodeElement.Determinant();
+                        Console.WriteLine("N1(" + csi + "," + eta + ") = " + N4nodes(1, csi, eta));
+                        Console.WriteLine("N2(" + csi + "," + eta + ") = " + N4nodes(2, csi, eta));
+                        Console.WriteLine("N3(" + csi + "," + eta + ") = " + N4nodes(3, csi, eta));
+                        Console.WriteLine("N4(" + csi + "," + eta + ") = " + N4nodes(4, csi, eta));
+                        Console.WriteLine("F: detJ("+csi+","+eta+") = " + detJ);
+                        
+                        _fLocalCoord[0] = _fLocalCoord[0] + N4nodes(1, csi, eta) * detJ * gaussWeight * pz; //node1
+                        _fLocalCoord[3] = _fLocalCoord[3] + N4nodes(2, csi, eta) * detJ * gaussWeight * pz; //node2
+                        _fLocalCoord[6] = _fLocalCoord[6] + N4nodes(3, csi, eta) * detJ * gaussWeight * pz; //node3
+                        _fLocalCoord[9] = _fLocalCoord[9] + N4nodes(4, csi, eta) * detJ * gaussWeight * pz; //node4
                     }
                 }
             }
@@ -459,78 +420,78 @@ namespace GPC.Model.FEM.FiniteElements
             */
             #endregion
 
-            hxCsi[1 - 1] = 3.0 / 2.0 * (a5 * dNdCsi(5, csi, eta) - a8 * dNdCsi(8, csi, eta));
-            hxCsi[2 - 1] = b5 * dNdCsi(5, csi, eta) + b8 * dNdCsi(8, csi, eta);
+            hxCsi[1 - 1] = 3.0 / 2.0 * (a5 * dNdCsi8nodes(5, csi, eta) - a8 * dNdCsi8nodes(8, csi, eta));
+            hxCsi[2 - 1] = b5 * dNdCsi8nodes(5, csi, eta) + b8 * dNdCsi8nodes(8, csi, eta);
             //Console.WriteLine("hx,csi[2-1=1] = " + b5.ToString("F2") + " * " + dNdCsi(5, csi, eta).ToString("F2") + " + " + b8.ToString("F2") + " * " + dNdCsi(8, csi, eta).ToString("F2") + " = " + hxCsi[2 - 1].ToString("F2"));
-            hxCsi[3 - 1] = dNdCsi(1, csi, eta) - c5 * dNdCsi(5, csi, eta) - c8 * dNdCsi(8, csi, eta);
+            hxCsi[3 - 1] = dNdCsi8nodes(1, csi, eta) - c5 * dNdCsi8nodes(5, csi, eta) - c8 * dNdCsi8nodes(8, csi, eta);
 
-            hxCsi[4 - 1] = 3.0 / 2.0 * (a6 * dNdCsi(6, csi, eta) - a5 * dNdCsi(5, csi, eta));
-            hxCsi[5 - 1] = b6 * dNdCsi(6, csi, eta) + b5 * dNdCsi(5, csi, eta);
-            hxCsi[6 - 1] = dNdCsi(2, csi, eta) - c6 * dNdCsi(6, csi, eta) - c5 * dNdCsi(5, csi, eta);
+            hxCsi[4 - 1] = 3.0 / 2.0 * (a6 * dNdCsi8nodes(6, csi, eta) - a5 * dNdCsi8nodes(5, csi, eta));
+            hxCsi[5 - 1] = b6 * dNdCsi8nodes(6, csi, eta) + b5 * dNdCsi8nodes(5, csi, eta);
+            hxCsi[6 - 1] = dNdCsi8nodes(2, csi, eta) - c6 * dNdCsi8nodes(6, csi, eta) - c5 * dNdCsi8nodes(5, csi, eta);
 
-            hxCsi[7 - 1] = 3.0 / 2.0 * (a7 * dNdCsi(7, csi, eta) - a6 * dNdCsi(6, csi, eta));
-            hxCsi[8 - 1] = b7 * dNdCsi(7, csi, eta) + b6 * dNdCsi(6, csi, eta);
-            hxCsi[9 - 1] = dNdCsi(3, csi, eta) - c7 * dNdCsi(7, csi, eta) - c6 * dNdCsi(6, csi, eta);
+            hxCsi[7 - 1] = 3.0 / 2.0 * (a7 * dNdCsi8nodes(7, csi, eta) - a6 * dNdCsi8nodes(6, csi, eta));
+            hxCsi[8 - 1] = b7 * dNdCsi8nodes(7, csi, eta) + b6 * dNdCsi8nodes(6, csi, eta);
+            hxCsi[9 - 1] = dNdCsi8nodes(3, csi, eta) - c7 * dNdCsi8nodes(7, csi, eta) - c6 * dNdCsi8nodes(6, csi, eta);
 
-            hxCsi[10 - 1] = 3.0 / 2.0 * (a8 * dNdCsi(8, csi, eta) - a7 * dNdCsi(7, csi, eta));
-            hxCsi[11 - 1] = b8 * dNdCsi(8, csi, eta) + b7 * dNdCsi(7, csi, eta);
-            hxCsi[12 - 1] = dNdCsi(4, csi, eta) - c8 * dNdCsi(8, csi, eta) - c7 * dNdCsi(7, csi, eta);
+            hxCsi[10 - 1] = 3.0 / 2.0 * (a8 * dNdCsi8nodes(8, csi, eta) - a7 * dNdCsi8nodes(7, csi, eta));
+            hxCsi[11 - 1] = b8 * dNdCsi8nodes(8, csi, eta) + b7 * dNdCsi8nodes(7, csi, eta);
+            hxCsi[12 - 1] = dNdCsi8nodes(4, csi, eta) - c8 * dNdCsi8nodes(8, csi, eta) - c7 * dNdCsi8nodes(7, csi, eta);
 
             /////////////////////////////////////////////////////////////////////////////////////////////////
             
-            hyCsi[1 - 1] = 3.0 / 2.0 * (d5 * dNdCsi(5, csi, eta) - d8 * dNdCsi(8, csi, eta));
-            hyCsi[2 - 1] = -dNdCsi(1, csi, eta) + e5 * dNdCsi(5, csi, eta) + e8 * dNdCsi(8, csi, eta);
+            hyCsi[1 - 1] = 3.0 / 2.0 * (d5 * dNdCsi8nodes(5, csi, eta) - d8 * dNdCsi8nodes(8, csi, eta));
+            hyCsi[2 - 1] = -dNdCsi8nodes(1, csi, eta) + e5 * dNdCsi8nodes(5, csi, eta) + e8 * dNdCsi8nodes(8, csi, eta);
             //Console.WriteLine("hy,csi[2-1=1]("+csi.ToString("F2")+","+eta.ToString("F2") + ") = -" + dNdCsi(1, csi, eta).ToString("F2") + "+" + e5.ToString("F2") + " * " + dNdCsi(5, csi, eta).ToString("F2") + " + " + e8.ToString("F2") + " * "+ dNdCsi(8, csi, eta).ToString("F2") + "=" + hyCsi[2 - 1]);
-            hyCsi[3 - 1] = -b5 * dNdCsi(5, csi, eta) - b8 * dNdCsi(8, csi, eta);
+            hyCsi[3 - 1] = -b5 * dNdCsi8nodes(5, csi, eta) - b8 * dNdCsi8nodes(8, csi, eta);
 
-            hyCsi[4 - 1] = 3.0 / 2.0 * (d6 * dNdCsi(6, csi, eta) - d5 * dNdCsi(5, csi, eta));
-            hyCsi[5 - 1] = -dNdCsi(2, csi, eta) + e6 * dNdCsi(6, csi, eta) + e5 * dNdCsi(5, csi, eta);
-            hyCsi[6 - 1] = -b6 * dNdCsi(6, csi, eta) - b5 * dNdCsi(5, csi, eta);
+            hyCsi[4 - 1] = 3.0 / 2.0 * (d6 * dNdCsi8nodes(6, csi, eta) - d5 * dNdCsi8nodes(5, csi, eta));
+            hyCsi[5 - 1] = -dNdCsi8nodes(2, csi, eta) + e6 * dNdCsi8nodes(6, csi, eta) + e5 * dNdCsi8nodes(5, csi, eta);
+            hyCsi[6 - 1] = -b6 * dNdCsi8nodes(6, csi, eta) - b5 * dNdCsi8nodes(5, csi, eta);
 
-            hyCsi[7 - 1] = 3.0 / 2.0 * (d7 * dNdCsi(7, csi, eta) - d6 * dNdCsi(6, csi, eta));
-            hyCsi[8 - 1] = -dNdCsi(3, csi, eta) + e7 * dNdCsi(7, csi, eta) + e6 * dNdCsi(6, csi, eta);
-            hyCsi[9 - 1] = -b7 * dNdCsi(7, csi, eta) - b6 * dNdCsi(6, csi, eta);
+            hyCsi[7 - 1] = 3.0 / 2.0 * (d7 * dNdCsi8nodes(7, csi, eta) - d6 * dNdCsi8nodes(6, csi, eta));
+            hyCsi[8 - 1] = -dNdCsi8nodes(3, csi, eta) + e7 * dNdCsi8nodes(7, csi, eta) + e6 * dNdCsi8nodes(6, csi, eta);
+            hyCsi[9 - 1] = -b7 * dNdCsi8nodes(7, csi, eta) - b6 * dNdCsi8nodes(6, csi, eta);
 
-            hyCsi[10 - 1] = 3.0 / 2.0 * (d8 * dNdCsi(8, csi, eta) - d7 * dNdCsi(7, csi, eta));
-            hyCsi[11 - 1] = -dNdCsi(4, csi, eta) + e8 * dNdCsi(8, csi, eta) + e7 * dNdCsi(7, csi, eta);
-            hyCsi[12 - 1] = -b8 * dNdCsi(8, csi, eta) - b7 * dNdCsi(7, csi, eta);
-
-            /////////////////////////////////////////////////////////////////////////////////////////////////
-
-            hxEta[1 - 1] = 3.0 / 2.0 * (a5 * dNdEta(5, csi, eta) - a8 * dNdEta(8, csi, eta));
-            hxEta[2 - 1] = b5 * dNdEta(5, csi, eta) + b8 * dNdEta(8, csi, eta);
-            hxEta[3 - 1] = dNdEta(1, csi, eta) - c5 * dNdEta(5, csi, eta) - c8 * dNdEta(8, csi, eta);
-
-            hxEta[4 - 1] = 3.0 / 2.0 * (a6 * dNdEta(6, csi, eta) - a5 * dNdEta(5, csi, eta));
-            hxEta[5 - 1] = b6 * dNdEta(6, csi, eta) + b5 * dNdEta(5, csi, eta);
-            hxEta[6 - 1] = dNdEta(2, csi, eta) - c6 * dNdEta(6, csi, eta) - c5 * dNdEta(5, csi, eta);
-
-            hxEta[7 - 1] = 3.0 / 2.0 * (a7 * dNdEta(7, csi, eta) - a6 * dNdEta(6, csi, eta));
-            hxEta[8 - 1] = b7 * dNdEta(7, csi, eta) + b6 * dNdEta(6, csi, eta);
-            hxEta[9 - 1] = dNdEta(3, csi, eta) - c7 * dNdEta(7, csi, eta) - c6 * dNdEta(6, csi, eta);
-
-            hxEta[10 - 1] = 3.0 / 2.0 * (a8 * dNdEta(8, csi, eta) - a7 * dNdEta(7, csi, eta));
-            hxEta[11 - 1] = b8 * dNdEta(8, csi, eta) + b7 * dNdEta(7, csi, eta);
-            hxEta[12 - 1] = dNdEta(4, csi, eta) - c8 * dNdEta(8, csi, eta) - c7 * dNdEta(7, csi, eta);
+            hyCsi[10 - 1] = 3.0 / 2.0 * (d8 * dNdCsi8nodes(8, csi, eta) - d7 * dNdCsi8nodes(7, csi, eta));
+            hyCsi[11 - 1] = -dNdCsi8nodes(4, csi, eta) + e8 * dNdCsi8nodes(8, csi, eta) + e7 * dNdCsi8nodes(7, csi, eta);
+            hyCsi[12 - 1] = -b8 * dNdCsi8nodes(8, csi, eta) - b7 * dNdCsi8nodes(7, csi, eta);
 
             /////////////////////////////////////////////////////////////////////////////////////////////////
 
-            hyEta[1 - 1] = 3.0 / 2.0 * (d5 * dNdEta(5, csi, eta) - d8 * dNdEta(8, csi, eta));
-            hyEta[2 - 1] = -dNdEta(1, csi, eta) + e5 * dNdEta(5, csi, eta) + e8 * dNdEta(8, csi, eta);
-            hyEta[3 - 1] = -b5 * dNdEta(5, csi, eta) - b8 * dNdEta(8, csi, eta);
+            hxEta[1 - 1] = 3.0 / 2.0 * (a5 * dNdEta8nodes(5, csi, eta) - a8 * dNdEta8nodes(8, csi, eta));
+            hxEta[2 - 1] = b5 * dNdEta8nodes(5, csi, eta) + b8 * dNdEta8nodes(8, csi, eta);
+            hxEta[3 - 1] = dNdEta8nodes(1, csi, eta) - c5 * dNdEta8nodes(5, csi, eta) - c8 * dNdEta8nodes(8, csi, eta);
 
-            hyEta[4 - 1] = 3.0 / 2.0 * (d6 * dNdEta(6, csi, eta) - d5 * dNdEta(5, csi, eta));
-            hyEta[5 - 1] = -dNdEta(2, csi, eta) + e6 * dNdEta(6, csi, eta) + e5 * dNdEta(5, csi, eta);
-            hyEta[6 - 1] = -b6 * dNdEta(6, csi, eta) - b5 * dNdEta(5, csi, eta);
+            hxEta[4 - 1] = 3.0 / 2.0 * (a6 * dNdEta8nodes(6, csi, eta) - a5 * dNdEta8nodes(5, csi, eta));
+            hxEta[5 - 1] = b6 * dNdEta8nodes(6, csi, eta) + b5 * dNdEta8nodes(5, csi, eta);
+            hxEta[6 - 1] = dNdEta8nodes(2, csi, eta) - c6 * dNdEta8nodes(6, csi, eta) - c5 * dNdEta8nodes(5, csi, eta);
 
-            hyEta[7 - 1] = 3.0 / 2.0 * (d7 * dNdEta(7, csi, eta) - d6 * dNdEta(6, csi, eta));
-            hyEta[8 - 1] = -dNdEta(3, csi, eta) + e7 * dNdEta(7, csi, eta) + e6 * dNdEta(6, csi, eta);
-            hyEta[9 - 1] = -b7 * dNdEta(7, csi, eta) - b6 * dNdEta(6, csi, eta);
+            hxEta[7 - 1] = 3.0 / 2.0 * (a7 * dNdEta8nodes(7, csi, eta) - a6 * dNdEta8nodes(6, csi, eta));
+            hxEta[8 - 1] = b7 * dNdEta8nodes(7, csi, eta) + b6 * dNdEta8nodes(6, csi, eta);
+            hxEta[9 - 1] = dNdEta8nodes(3, csi, eta) - c7 * dNdEta8nodes(7, csi, eta) - c6 * dNdEta8nodes(6, csi, eta);
 
-            hyEta[10 - 1] = 3.0 / 2.0 * (d8 * dNdEta(8, csi, eta) - d7 * dNdEta(7, csi, eta));
-            hyEta[11 - 1] = -dNdEta(4, csi, eta) + e8 * dNdEta(8, csi, eta) + e7 * dNdEta(7, csi, eta);
+            hxEta[10 - 1] = 3.0 / 2.0 * (a8 * dNdEta8nodes(8, csi, eta) - a7 * dNdEta8nodes(7, csi, eta));
+            hxEta[11 - 1] = b8 * dNdEta8nodes(8, csi, eta) + b7 * dNdEta8nodes(7, csi, eta);
+            hxEta[12 - 1] = dNdEta8nodes(4, csi, eta) - c8 * dNdEta8nodes(8, csi, eta) - c7 * dNdEta8nodes(7, csi, eta);
+
+            /////////////////////////////////////////////////////////////////////////////////////////////////
+
+            hyEta[1 - 1] = 3.0 / 2.0 * (d5 * dNdEta8nodes(5, csi, eta) - d8 * dNdEta8nodes(8, csi, eta));
+            hyEta[2 - 1] = -dNdEta8nodes(1, csi, eta) + e5 * dNdEta8nodes(5, csi, eta) + e8 * dNdEta8nodes(8, csi, eta);
+            hyEta[3 - 1] = -b5 * dNdEta8nodes(5, csi, eta) - b8 * dNdEta8nodes(8, csi, eta);
+
+            hyEta[4 - 1] = 3.0 / 2.0 * (d6 * dNdEta8nodes(6, csi, eta) - d5 * dNdEta8nodes(5, csi, eta));
+            hyEta[5 - 1] = -dNdEta8nodes(2, csi, eta) + e6 * dNdEta8nodes(6, csi, eta) + e5 * dNdEta8nodes(5, csi, eta);
+            hyEta[6 - 1] = -b6 * dNdEta8nodes(6, csi, eta) - b5 * dNdEta8nodes(5, csi, eta);
+
+            hyEta[7 - 1] = 3.0 / 2.0 * (d7 * dNdEta8nodes(7, csi, eta) - d6 * dNdEta8nodes(6, csi, eta));
+            hyEta[8 - 1] = -dNdEta8nodes(3, csi, eta) + e7 * dNdEta8nodes(7, csi, eta) + e6 * dNdEta8nodes(6, csi, eta);
+            hyEta[9 - 1] = -b7 * dNdEta8nodes(7, csi, eta) - b6 * dNdEta8nodes(6, csi, eta);
+
+            hyEta[10 - 1] = 3.0 / 2.0 * (d8 * dNdEta8nodes(8, csi, eta) - d7 * dNdEta8nodes(7, csi, eta));
+            hyEta[11 - 1] = -dNdEta8nodes(4, csi, eta) + e8 * dNdEta8nodes(8, csi, eta) + e7 * dNdEta8nodes(7, csi, eta);
             //Console.WriteLine("hy,eta[10]("+csi+","+eta+") = -" + dNdEta(4, csi, eta) + "+" + e8 + " * " + dNdEta(8, csi, eta) + " + " + e7 +" * "+ dNdEta(7, csi, eta));
-            hyEta[12 - 1] = -b8 * dNdEta(8, csi, eta) - b7 * dNdEta(7, csi, eta);
+            hyEta[12 - 1] = -b8 * dNdEta8nodes(8, csi, eta) - b7 * dNdEta8nodes(7, csi, eta);
 
             mnl.Vector<double> r0 = j11 * hxCsi + j12 * hxEta;
             mnl.Vector<double> r1 = j21 * hyCsi + j22 * hyEta;
@@ -571,7 +532,58 @@ namespace GPC.Model.FEM.FiniteElements
         }
 
         #region ShapeFunction
-        private double dNdCsi(int index, double csi, double eta)
+        private double N4nodes(int index, double csi, double eta)
+        {
+            switch (index)
+            {
+                case 1:
+                    return 1.0 / 4.0 * (1.0 - csi) * (1.0 - eta);
+                case 2:
+                    return 1.0 / 4.0 * (1.0 + csi) * (1.0 - eta);
+                case 3:
+                    return 1.0 / 4.0 * (1.0 + csi) * (1.0 + eta);
+                case 4:
+                    return 1.0 / 4.0 * (1.0 - csi) * (1.0 + eta);
+                default:
+                    throw new Exception();
+            }
+        }
+
+        private double dNdCsi4nodes(int index, double csi, double eta)
+        {
+            switch (index)
+            {
+                case 1:
+                    return (eta - 1.0) / 4.0;
+                case 2:
+                    return (1.0 - eta) / 4.0;
+                case 3:
+                    return (eta + 1.0) / 4.0;
+                case 4:
+                    return (-eta - 1.0) / 4.0;
+                default:
+                    throw new Exception();
+            }
+        }
+
+        private double dNdEta4nodes(int index, double csi, double eta)
+        {
+            switch (index)
+            {
+                case 1:
+                    return (csi - 1.0) / 4.0;
+                case 2:
+                    return (-csi - 1.0) / 4.0;
+                case 3:
+                    return (csi + 1.0) / 4.0;
+                case 4:
+                    return (1.0 - csi) / 4.0;
+                default:
+                    throw new Exception();
+            }
+        }
+
+        private double dNdCsi8nodes(int index, double csi, double eta)
         {
             switch (index)
             {
@@ -596,7 +608,7 @@ namespace GPC.Model.FEM.FiniteElements
             }
         }
 
-        private double dNdEta(int index, double csi, double eta)
+        private double dNdEta8nodes(int index, double csi, double eta)
         {
             switch (index)
             {
@@ -621,52 +633,6 @@ namespace GPC.Model.FEM.FiniteElements
             }
         }
         #endregion
-
-        /// <summary>
-        /// out Local Node in clockwise
-        /// </summary>
-        /// <param name="localNodes"></param>
-        protected void LocalNodes(out Node[] localNodes)
-        {
-            #region CalculationOfLocalCoordinates
-            //Search for 3 local axis
-            Node nodeI = Nodes[0];
-            Node nodeJ = Nodes[1];
-            Node nodeK = Nodes[2];
-            Node nodeL = Nodes[3];
-
-            Vector3d x = new Vector3d(nodeJ.Position.X - nodeI.Position.X, nodeJ.Position.Y - nodeI.Position.Y, nodeJ.Position.Z - nodeI.Position.Z);
-            Vector3d vecx = new Vector3d(x);
-            vecx.Unitize();
-
-            Vector3d y = new Vector3d(nodeL.Position.X - nodeI.Position.X, nodeL.Position.Y - nodeI.Position.Y, nodeL.Position.Z - nodeI.Position.Z);
-            Vector3d vecy = new Vector3d(y);
-            vecy.Unitize();
-
-            Vector3d z = x.CrossProduct(y);
-            Vector3d vecz = new Vector3d(z);
-            vecz.Unitize();
-
-            //recalculation of y that can be non-ortogonal
-            y = z.CrossProduct(x);
-            vecy = new Vector3d(y);
-            vecy.Unitize();
-            //_vecXLocal = vecx.ToVector().ToArray();
-            _localCoordinateSystem = new Geometry.CoordinateSystem(new Point3d(0, 0, 0), vecx, vecy);
-
-            //move to local axis
-            //calculation in local nodes
-            Vector3d v12 = new Vector3d(nodeJ.Position.X - nodeI.Position.X, nodeJ.Position.Y - nodeI.Position.Y, nodeJ.Position.Z - nodeI.Position.Z);
-            Vector3d v13 = new Vector3d(nodeK.Position.X - nodeI.Position.X, nodeK.Position.Y - nodeI.Position.Y, nodeK.Position.Z - nodeI.Position.Z);
-            Vector3d v14 = new Vector3d(nodeL.Position.X - nodeI.Position.X, nodeL.Position.Y - nodeI.Position.Y, nodeL.Position.Z - nodeI.Position.Z);
-
-            localNodes = new Node[4];
-            localNodes[0] = new Node(0, 0, 0, nodeI.Id, nodeI.Name); //Origin GlobalNodes.ElementAt(1 - 1);
-            localNodes[1] = new Node(v12.DotProduct(vecx), v12.DotProduct(vecy), v12.DotProduct(vecz), nodeJ.Id, nodeJ.Name); //Axis x GlobalNodes.ElementAt(2 - 1);
-            localNodes[2] = new Node(v13.DotProduct(vecx), v13.DotProduct(vecy), v13.DotProduct(vecz), nodeK.Id, nodeK.Name); //GlobalNodes.ElementAt(3 - 1);
-            localNodes[3] = new Node(v14.DotProduct(vecx), v14.DotProduct(vecy), v14.DotProduct(vecz), nodeL.Id, nodeL.Name); //GlobalNodes.ElementAt(4 - 1);
-            #endregion
-        }
 
         public override void GetResults(double[] globalDisplacementsNodes, out double[] localDisplacements, out Matrix<double>[] gloabalPseudoDeformation, out Matrix<double>[] localPseudoDeformation, out Matrix<double>[] globalForces, out Matrix<double>[] localForces, out Matrix<double>[] globalStress, out Matrix<double>[] localStress, out Matrix<double>[] globalEpsilon, out Matrix<double>[] localEpsilon)
         {

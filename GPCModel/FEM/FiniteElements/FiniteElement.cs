@@ -114,7 +114,7 @@ namespace GPC.Model.FEM.FiniteElements
         public abstract void BuildMatrix();
 
         /// <summary>
-        /// Build vector of Forces in nodes due to internal action applied (shear stress, prestress etc)
+        /// Build vector of Forces in nodes due to internal action applied (shear stress, prestress etc) : integral N^T vectorPression dS, N = shape function matrix
         /// </summary>
         protected abstract mnl.Vector<double> BuildFLocalCoord();
 

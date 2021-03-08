@@ -128,46 +128,32 @@ namespace GPC.Model.FEM.FiniteElements
 
             #region stiffnessMatrixInLocalCoordinates
             double thk = ((PlateProperty)_property).MembraneThickness;
-
-            double[] csiGauss = new[]   {
-                -1.0 / Math.Sqrt(3.0),
-                +1.0 / Math.Sqrt(3.0)
-            };
-            double[] etaGauss = new[] {
-                -1.0 / Math.Sqrt(3.0),
-                +1.0 / Math.Sqrt(3.0)
-            };
-            double[] weightGauss = new[] {
-                1.0,
-                1.0
-            };
-
             _kElementLocalCoord = mnl.Matrix<double>.Build.Dense(8, 8);
-            for (int i = 0; i < csiGauss.Length; i++) //trhough the 2 gauss points
+
+            GaussIntegration.GaussPoint[] gaussPoints = GaussIntegration.GetRectangularDomain(4);
+
+            for (int i = 0; i < gaussPoints.Length; i++) //trhough the 2 gauss points
             {
-                double csi = csiGauss[i];
-                for (int j = 0; j < etaGauss.Length; j++) //trhough the 2 gauss points
-                {
-                    double eta = etaGauss[j];
+                double csi = gaussPoints[i].Point.X;
+                double eta = gaussPoints[i].Point.Y;
 
-                    mnl.Matrix<double> b = GetB(csi, eta);
-                    mnl.Matrix<double> m = b.Transpose() * _d * b;
-                    mnl.Matrix<double> jacob = J(csi, eta);
+                mnl.Matrix<double> b = GetB(csi, eta);
+                mnl.Matrix<double> m = b.Transpose() * _d * b;
+                mnl.Matrix<double> jacob = J(csi, eta);
                     
-                    /*Console.WriteLine();
-                    Console.WriteLine("B(csi=" + csi.ToString("F2") + ",eta=" + eta.ToString("F2") + ")^T * D * B(csi=" + csi.ToString("F2") + ",eta=" + eta.ToString("F2")+"):");
-                    for (int row = 0; row < m.RowCount; row++)
+                /*Console.WriteLine();
+                Console.WriteLine("B(csi=" + csi.ToString("F2") + ",eta=" + eta.ToString("F2") + ")^T * D * B(csi=" + csi.ToString("F2") + ",eta=" + eta.ToString("F2")+"):");
+                for (int row = 0; row < m.RowCount; row++)
+                {
+                    for (int col = 0; col < m.RowCount; col++)
                     {
-                        for (int col = 0; col < m.RowCount; col++)
-                        {
-                            Console.Write(m[row, col].ToString("F2") +" ");
-                        }
-                        Console.WriteLine();
-                    }*/
-                    Console.WriteLine("detJ("+csi.ToString("F2")+","+eta.ToString("F2")+") = " + jacob.Determinant());
+                        Console.Write(m[row, col].ToString("F2") +" ");
+                    }
+                    Console.WriteLine();
+                }*/
+                Console.WriteLine("detJ("+csi.ToString("F2")+","+eta.ToString("F2")+") = " + jacob.Determinant());
 
-                    _kElementLocalCoord = _kElementLocalCoord + weightGauss[i] * weightGauss[j] * m * jacob.Determinant();
-                }
+                _kElementLocalCoord = _kElementLocalCoord + gaussPoints[i].Weight * m * jacob.Determinant();
             }
             _kElementLocalCoord = thk * _kElementLocalCoord;
 

@@ -167,37 +167,13 @@ namespace GPC.Model.FEM.FiniteElements
             //Console.WriteLine("D = " + _d.ToString());
             #endregion
 
-            //3 Gauss Integration points
-            /*double[] csiGauss = new [] { 1.0 / 6.0, 2.0 / 3.0, 1.0 / 6.0 };
-            double[] etaGauss = new[]    { 1.0 / 6.0, 1.0 / 6.0, 2.0 / 3.0 };
-            double[] weightGauss = new[] { 1.0 / 6.0, 1.0 / 6.0, 1.0 / 6.0 };*/
-
-            double[] csiGauss = new[]   {
-                1.0 / 2.0,
-                0.0,
-                1.0 / 2.0
-            };
-            double[] etaGauss = new[] {
-                1.0 / 2.0,
-                1.0 / 2.0,
-                0.0
-            };
-            double[] weightGauss = new[] {
-                1.0 / 6.0,
-                1.0 / 6.0,
-                1.0 / 6.0
-            };
-
-            /*double[] csiGauss = new []   { 1.0 / 3.0, 1.0 / 5.0, 3.0 / 5.0, 1.0 / 5.0 }; //unnecessary integration over 4 points
-            double[] etaGauss = new[]    { 1.0 / 3.0, 1.0 / 5.0, 1.0 / 5.0, 3.0 / 5.0 };
-            double[] weightGauss = new[] { -27.0 / 96.0, 25.0 / 96.0, 25.0 / 96.0, 25.0 / 96.0 };*/
-
             //calculation of kelement using gauss quadrature
             _kElementLocalCoord = mnl.Matrix<double>.Build.Dense(9, 9);
-            for (int i = 0; i < csiGauss.Length; i++) //trhough the 3 gauss points
+            GaussIntegration.GaussPoint[] gaussPoints = GaussIntegration.GetTriangularDomain(3);
+            for (int i = 0; i < gaussPoints.Length; i++) //trhough the 3 gauss points
             {
-                double csi = csiGauss[i];
-                double eta = etaGauss[i];
+                double csi = gaussPoints[i].Point.X;
+                double eta = gaussPoints[i].Point.Y;
                 mnl.Matrix<double> b = GetB(csi, eta);
                 mnl.Matrix<double> m = b.Transpose() * _d * b;
                 //Console.WriteLine("B(csi=" + csi.ToString("F2") + ",eta=" + eta.ToString("F2") + ")^T * D * B(csi=" + csi.ToString("F2") + ",eta=");
@@ -209,7 +185,7 @@ namespace GPC.Model.FEM.FiniteElements
                     }
                     Console.WriteLine();
                 }*/
-                _kElementLocalCoord = _kElementLocalCoord + weightGauss[i] * m;
+                _kElementLocalCoord = _kElementLocalCoord + gaussPoints[i].Weight * m;
             }
             _kElementLocalCoord = (2.0 * _areaElement) * _kElementLocalCoord;
             

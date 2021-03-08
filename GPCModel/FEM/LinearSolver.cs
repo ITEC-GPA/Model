@@ -33,6 +33,7 @@ namespace GPC.Model.FEM
 
         #region Properties
         public mnl.Matrix<double> KGlobal => _KGlobalRestrains;
+        public mnl.Vector<double> F => _F;
 
         /// <summary>
         /// Unique nodes in model

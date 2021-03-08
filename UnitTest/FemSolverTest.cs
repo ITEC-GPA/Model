@@ -1039,48 +1039,48 @@ namespace FemTest
             nodesPlate1[2] = new Node(+2, +2, 0, 3, "3");
             nodesPlate1[3] = new Node(0, +1, 0, 3, "4");
 
-            //FiniteElement e0 = new RectangularDK(nodesPlate1, prop, 1);
-            FiniteElement e0 = new RectangularMembranal(nodesPlate1, prop, 1);
-            e0.BuildMatrix();
+            Plate e0 = new RectangularDK(nodesPlate1, prop, 1);
 
-            mnl.Matrix<double> kLocalManual = mnl.Matrix<double>.Build.Dense(12, 12);
+            LoadCase loadCase = new LoadCase("myLoadCase", new Guid());
+            FreedomCase freedomCase = new FreedomCase("freedomCase1");
+            CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
+            PlatePressureAttribute pressure = new PlatePressureAttribute(loadCase, sys, 0.0, 0.0, 1.0);
+            e0.AddAttribute(pressure);
 
-            /*double[] r0 = new double[] { 2.5, 1, -1, -1, 0.5, -1, -0.5, 0.5, -0.5, -1, 1, -0.5 };
-            double[] r1 = new double[] { 1, 1.375, 0, 0.5, 0.625, 0, -0.5, 0.375, 0, -1, 0.625, 0 };
-            double[] r2 = new double[] { -1, 0, 1.375, 1, 0, 0.625, 0.5, 0, 0.375, -0.5, 0, 0.625 };
-            double[] r3 = new double[] { -1, 0.5, 1, 2.5, 1, 1, -1, 1, 0.5, -0.5, 0.5, 0.5 };
-            double[] r4 = new double[] { 0.5, 0.625, 0, 1, 1.375, 0, -1, 0.625, 0, -0.5, 0.375, 0 };
-            double[] r5 = new double[] { -1, 0, 0.625, 1, 0, 1.375, 0.5, 0, 0.625, -0.5, 0, 0.375 };
-            double[] r6 = new double[] { -0.5, -0.5, 0.5, -1, -1, 0.5, 2.5, -1, 1, -1, -0.5, 1 };
-            double[] r7 = new double[] { 0.5, 0.375, 0, 1, 0.625, 0, -1, 1.375, 0, -0.5, 0.625, 0 };
-            double[] r8 = new double[] { -0.5, 0, 0.375, 0.5, 0, 0.625, 1, 0, 1.375, -1, 0, 0.625 };
-            double[] r9 = new double[] { -1, -1, -0.5, -0.5, -0.5, -0.5, -1, -0.5, -1, 2.5, -1, -1 };
-            double[] r10 = new double[] { 1, 0.625, 0, 0.5, 0.375, 0, -0.5, 0.625, 0, -1, 1.375, 0 };
-            double[] r11 = new double[] { -0.5, 0, 0.625, 0.5, 0, 0.375, 1, 0, 0.625, -1, 0, 1.375 };
+            LinearSolver fem = new LinearSolver(new FiniteElement[] { e0 });
 
-            kLocalManual = kLocalManual.InsertRow(0, mnl.Vector<double>.Build.Dense(r0));
-            kLocalManual = kLocalManual.InsertRow(1, mnl.Vector<double>.Build.Dense(r1));
-            kLocalManual = kLocalManual.InsertRow(2, mnl.Vector<double>.Build.Dense(r2));
-            kLocalManual = kLocalManual.InsertRow(3, mnl.Vector<double>.Build.Dense(r3));
-            kLocalManual = kLocalManual.InsertRow(4, mnl.Vector<double>.Build.Dense(r4));
-            kLocalManual = kLocalManual.InsertRow(5, mnl.Vector<double>.Build.Dense(r5));
-            kLocalManual = kLocalManual.InsertRow(6, mnl.Vector<double>.Build.Dense(r6));
-            kLocalManual = kLocalManual.InsertRow(7, mnl.Vector<double>.Build.Dense(r7));
-            kLocalManual = kLocalManual.InsertRow(8, mnl.Vector<double>.Build.Dense(r8));
-            kLocalManual = kLocalManual.InsertRow(9, mnl.Vector<double>.Build.Dense(r9));
-            kLocalManual = kLocalManual.InsertRow(10, mnl.Vector<double>.Build.Dense(r10));
-            kLocalManual = kLocalManual.InsertRow(11, mnl.Vector<double>.Build.Dense(r11));*/
+            Assert.AreEqual(0.4167, fem.F[2], 0.001); //UX, UY, UZ
+            Assert.AreEqual(0.50, fem.F[8], 0.001);
+            Assert.AreEqual(0.5833, fem.F[14], 0.001);
+            Assert.AreEqual(0.50, fem.F[20], 0.001);
+        }
 
-            Console.WriteLine("Element local stiffness matrix");
-            for (int r = 0; r < e0.KElementLocalCoord.RowCount; r++)
-            {
-                for (int c = 0; c < e0.KElementLocalCoord.ColumnCount; c++)
-                {
-                    Console.Write(e0.KElementLocalCoord[r, c].ToString("F3") + " ");
-                    //Assert.AreEqual(e0.KElementLocalCoord[r, c] - kLocalManual[r, c], 0, 0.001, "kLocal no OK -> row " + r + " col " + c);
-                }
-                Console.WriteLine();
-            }
+        [TestMethod]
+        public void Quad4Test1()
+        {
+            Material mat = new SteelMaterial("mat", 12, 0.0, 355, 510, 7850);
+            PlateProperty prop = new PlateProperty(mat, 1.0, 1.0);
+
+            Node[] nodesPlate1 = new Node[4];
+            nodesPlate1[0] = new Node(0, 0, 0, 1, "1");
+            nodesPlate1[1] = new Node(+1, 0, 0, 2, "2");
+            nodesPlate1[2] = new Node(+2, +2, 0, 3, "3");
+            nodesPlate1[3] = new Node(0, +1, 0, 3, "4");
+
+            Plate e0 = new RectangleElement(nodesPlate1, prop, 1);
+
+            LoadCase loadCase = new LoadCase("myLoadCase", new Guid());
+            FreedomCase freedomCase = new FreedomCase("freedomCase1");
+            CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
+            PlatePressureAttribute pressure = new PlatePressureAttribute(loadCase, sys, 0.0, 0.0, 1.0);
+            e0.AddAttribute(pressure);
+
+            LinearSolver fem = new LinearSolver(new FiniteElement[] { e0 });
+
+            Assert.AreEqual(0.4167, fem.F[2], 0.001); //UX, UY, UZ
+            Assert.AreEqual(0.50, fem.F[8], 0.001);
+            Assert.AreEqual(0.5833, fem.F[14], 0.001);
+            Assert.AreEqual(0.50, fem.F[20], 0.001);
         }
 
         [TestMethod]
@@ -1319,23 +1319,6 @@ namespace FemTest
                 }
                 Console.WriteLine();
             }
-        }
-
-        [TestMethod]
-        public void GaussTest1()
-        {
-            int dim = 1;
-            int ptPerDimension = 1;
-            GaussIntegration.GaussPoint[] pts = GaussIntegration.Get(dim, ptPerDimension);
-
-            dim = 2;
-            ptPerDimension = 1;
-            pts = GaussIntegration.Get(dim, ptPerDimension);
-
-            dim = 2;
-            ptPerDimension = 2;
-            pts = GaussIntegration.Get(dim, ptPerDimension);
-
         }
     }
 }
