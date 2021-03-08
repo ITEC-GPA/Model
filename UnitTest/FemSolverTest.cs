@@ -695,7 +695,7 @@ namespace FemTest
             Assert.AreEqual(0.24960, dz, 1e-6);
 
             double[] displElement = fem.GetDisplacementsGlobalCoordinates(e0);
-            e0.GetResults(displElement, out double[] localDispl,
+            e0.GetNodesResults(displElement, out double[] localDispl,
                             out mnl.Matrix<double>[] globalPseudoDef, out mnl.Matrix<double>[] localPseudoDef,
                             out mnl.Matrix<double>[] globalForces, out mnl.Matrix<double>[] localForces,
                             out mnl.Matrix<double>[] globalStress, out mnl.Matrix<double>[] localStress,
@@ -1137,7 +1137,7 @@ namespace FemTest
             double sigmaTopYY = -(F.M1 + F.M1) / (1.0 / 6.0 * 8.0 * (t * t)) + (F.F2 + F.F2) / (t * 8.0);
 
             double[] e0GlobalDispl = fem.GetDisplacementsGlobalCoordinates(e0);
-            e0.GetResults(e0GlobalDispl, out double[] localDispl,
+            e0.GetNodesResults(e0GlobalDispl, out double[] localDispl,
                             out mnl.Matrix<double>[] globalPseudoDef, out mnl.Matrix<double>[] localPseudoDef,
                             out mnl.Matrix<double>[] globalForces, out mnl.Matrix<double>[] localForces,
                             out mnl.Matrix<double>[] globalStress, out mnl.Matrix<double>[] localStress,
@@ -1145,7 +1145,7 @@ namespace FemTest
             Assert.AreEqual(sigmaTopYY, globalStress[0][1,1], 0.001); //sigmaYY top face
 
             double[] e1GlobalDispl = fem.GetDisplacementsGlobalCoordinates(e1);
-            e1.GetResults(e1GlobalDispl, out localDispl,
+            e1.GetNodesResults(e1GlobalDispl, out localDispl,
                             out globalPseudoDef, out localPseudoDef,
                             out globalForces, out localForces,
                             out globalStress, out localStress,

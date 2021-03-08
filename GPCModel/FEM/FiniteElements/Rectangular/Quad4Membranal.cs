@@ -358,12 +358,12 @@ namespace GPC.Model.FEM.FiniteElements
             return _fLocalCoord;
         }
 
-        public override void GetResults(double[] globalDisplacementsNodes, out double[] localDisplacements, out mnl.Matrix<double>[] globalPseudoDeformation, out mnl.Matrix<double>[] localPseudoDeformation, out mnl.Matrix<double>[] globalForces, out mnl.Matrix<double>[] localForces, out mnl.Matrix<double>[] globalStress, out mnl.Matrix<double>[] localStress, out mnl.Matrix<double>[] globalEpsilon, out mnl.Matrix<double>[] localEpsilon)
+        public override void GetNodesResults(double[] globalDisplacementsNodes, out double[] localDisplacements, out mnl.Matrix<double>[] globalPseudoDeformation, out mnl.Matrix<double>[] localPseudoDeformation, out mnl.Matrix<double>[] globalForces, out mnl.Matrix<double>[] localForces, out mnl.Matrix<double>[] globalStress, out mnl.Matrix<double>[] localStress, out mnl.Matrix<double>[] globalEpsilon, out mnl.Matrix<double>[] localEpsilon)
         {
-            //TODO "aggiornare"
             localDisplacements = GetLocalDisplacement(globalDisplacementsNodes);
             mnl.Vector<double> vecLocalDispl = mnl.Vector<double>.Build.Dense(localDisplacements);
         
+            //TODO: aggiornare
             #region CalculationOfStressAndDeformationsInLocalCoordinates
             mnl.Vector<double> epsilonLocal = GetB(0, 0) * vecLocalDispl; //epsilon_xx; epsilon_yy; epsilon_xy
             mnl.Vector<double> stressLocal = D * epsilonLocal; //sigma_xx; sigma_yy; tau_xy

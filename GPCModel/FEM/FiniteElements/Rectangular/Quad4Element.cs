@@ -285,7 +285,7 @@ namespace GPC.Model.FEM.FiniteElements
             _flexural.AddAttribute(attribute);
         }
 
-        public override void GetResults(double[] globalDisplacementsNodes, out double[] localDisplacements, out mnl.Matrix<double>[] globalPseudoDeformation, out mnl.Matrix<double>[] localPseudoDeformation, out mnl.Matrix<double>[] globalForces, out mnl.Matrix<double>[] localForces, out mnl.Matrix<double>[] globalStress, out mnl.Matrix<double>[] localStress, out mnl.Matrix<double>[] globalEpsilon, out mnl.Matrix<double>[] localEpsilon)
+        public override void GetNodesResults(double[] globalDisplacementsNodes, out double[] localDisplacements, out mnl.Matrix<double>[] globalPseudoDeformation, out mnl.Matrix<double>[] localPseudoDeformation, out mnl.Matrix<double>[] globalForces, out mnl.Matrix<double>[] localForces, out mnl.Matrix<double>[] globalStress, out mnl.Matrix<double>[] localStress, out mnl.Matrix<double>[] globalEpsilon, out mnl.Matrix<double>[] localEpsilon)
         {
 
             mnl.Vector<double> membranalGlobalDisplacements = mnl.Vector<double>.Build.Dense(3 * 4); //in plane displacement can be in DX, DY, DZ in global coordinates
@@ -325,11 +325,11 @@ namespace GPC.Model.FEM.FiniteElements
             mnl.Vector<double> flexuralGlobalDisplacements = mnl.Vector<double>.Build.Dense(globalDisplacementsNodes); //dz + rx + ry can be in DX, DY, DZ, RX, RY, RZ in global coordinates
 
             //get results
-            _membranal.GetResults(membranalGlobalDisplacements, out double[] membranalLocalDisplacements, out mnl.Matrix<double>[] membranalGlobalPseudoDisplacements, out mnl.Matrix<double>[] membranalLocalPseudoDisplacements, out mnl.Matrix<double>[] membranalGlobalForces, out mnl.Matrix<double>[] membranalLocalForces, out mnl.Matrix<double>[] membranalGlobalStress, out mnl.Matrix<double>[] membranalLocalStress, out mnl.Matrix<double>[] membranalGlobalEpsilon, out mnl.Matrix<double>[] membranalLocalEpsilon);
-            _flexural.GetResults(flexuralGlobalDisplacements, out double[] flexuralLocalDisplacements, out mnl.Matrix<double>[] flexuralGlobalPseudoDisplacements, out mnl.Matrix<double>[] flexuralLocalPseudoDisplacements, out mnl.Matrix<double>[] flexuralGlobalForces, out mnl.Matrix<double>[] flexuralLocalForces, out mnl.Matrix<double>[] flexuralGlobalStress, out mnl.Matrix<double>[] flexuralLocalStress, out mnl.Matrix<double>[] flexuralGlobalEpsilon, out mnl.Matrix<double>[] flexuralLocalEpsilon);
+            _membranal.GetNodesResults(membranalGlobalDisplacements.ToArray(), out double[] membranalLocalDisplacements, out mnl.Matrix<double>[] membranalGlobalPseudoDisplacements, out mnl.Matrix<double>[] membranalLocalPseudoDisplacements, out mnl.Matrix<double>[] membranalGlobalForces, out mnl.Matrix<double>[] membranalLocalForces, out mnl.Matrix<double>[] membranalGlobalStress, out mnl.Matrix<double>[] membranalLocalStress, out mnl.Matrix<double>[] membranalGlobalEpsilon, out mnl.Matrix<double>[] membranalLocalEpsilon);
+            _flexural.GetNodesResults(flexuralGlobalDisplacements.ToArray(), out double[] flexuralLocalDisplacements, out mnl.Matrix<double>[] flexuralGlobalPseudoDisplacements, out mnl.Matrix<double>[] flexuralLocalPseudoDisplacements, out mnl.Matrix<double>[] flexuralGlobalForces, out mnl.Matrix<double>[] flexuralLocalForces, out mnl.Matrix<double>[] flexuralGlobalStress, out mnl.Matrix<double>[] flexuralLocalStress, out mnl.Matrix<double>[] flexuralGlobalEpsilon, out mnl.Matrix<double>[] flexuralLocalEpsilon);
 
             //sum of results
-            localDisplacements = new double[5 * 4]; //dx, dy, dz, rx, ry
+            localDisplacements = new double[5 * 4]; //dx, dy, dz, rx, ry * 4 nodes
             //node 1
             localDisplacements[0] = membranalLocalDisplacements[0]; //dx
             localDisplacements[1] = membranalLocalDisplacements[1]; //dy
@@ -386,11 +386,11 @@ namespace GPC.Model.FEM.FiniteElements
                 mnl.Matrix<double>.Build.Dense(3 + 3, 3 + 3)
             };
 
-            globalStress = new mnl.Matrix<double>[4 * 2]; //4 nodes, top + bottom
-            localStress = new mnl.Matrix<double>[4 * 2];
+            globalStress = new mnl.Matrix<double>[4 * 3]; //4 nodes, top + center + bottom
+            localStress = new mnl.Matrix<double>[4 * 3];
 
-            globalEpsilon = new mnl.Matrix<double>[4 * 2];
-            localEpsilon = new mnl.Matrix<double>[4 * 2];
+            globalEpsilon = new mnl.Matrix<double>[4 * 3];
+            localEpsilon = new mnl.Matrix<double>[4 * 3];
 
             for (int node = 0; node < 4; node++) {
                 for (int r = 0; r < 3; r++)
@@ -424,12 +424,19 @@ namespace GPC.Model.FEM.FiniteElements
                 localEpsilon[node] = membranalLocalEpsilon[0] + flexuralLocalEpsilon[node];
                 globalEpsilon[node] = membranalGlobalEpsilon[0] + flexuralGlobalEpsilon[node];
 
-                //bottom
-                localStress[node + 3] = membranalLocalStress[0] + flexuralLocalStress[node + 3];
-                globalStress[node + 3] = membranalGlobalStress[0] + flexuralGlobalStress[node + 3];
+                //center
+                localStress[node + 4] = membranalLocalStress[0];
+                globalStress[node + 4] = membranalGlobalStress[0];
 
-                localEpsilon[node + 3] = membranalLocalEpsilon[0] + flexuralLocalEpsilon[node + 3];
-                globalEpsilon[node + 3] = membranalGlobalEpsilon[0] + flexuralGlobalEpsilon[node +3];
+                localEpsilon[node + 4] = membranalLocalEpsilon[0];
+                globalEpsilon[node + 4] = membranalGlobalEpsilon[0];
+
+                //bottom
+                localStress[node + 8] = membranalLocalStress[0] + flexuralLocalStress[node + 3];
+                globalStress[node + 8] = membranalGlobalStress[0] + flexuralGlobalStress[node + 3];
+
+                localEpsilon[node + 8] = membranalLocalEpsilon[0] + flexuralLocalEpsilon[node + 3];
+                globalEpsilon[node + 8] = membranalGlobalEpsilon[0] + flexuralGlobalEpsilon[node +3];
             }           
         }
 
