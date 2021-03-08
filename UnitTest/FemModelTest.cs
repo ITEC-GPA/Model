@@ -13,6 +13,7 @@ using GPC.Model.FEM.Properties;
 using GPC.Model.FEM.Attributes;
 using GPC.Model.Restrains;
 using System.Diagnostics;
+using System.Linq;
 
 namespace FemTest
 {
@@ -148,6 +149,7 @@ namespace FemTest
         #region Test
           
         [TestMethod]
+        [TestCategory("Missing Assert")]
         public void FemModelTest1()
         {
             // Arrange   
@@ -193,8 +195,7 @@ namespace FemTest
             femModel.AddMesh(mesh, pp, bp, pointLoads, lineLoads, plateLoads, geometryRestrains);
 
 
-            // Assert            
-
+            // Assert
         }
 
 
@@ -202,6 +203,8 @@ namespace FemTest
         public void FemModelTest2()
         {
             // Arrange
+
+            double maximumEdgeLenght = 20;
 
             Polygon3d p1 = new Polygon3d()
             {
@@ -236,15 +239,27 @@ namespace FemTest
             femModel.AddShape(s, pp, loads, restrains);
 
             var mesh = femModel.GetMesh();
-            ExportMesh(mesh);
 
-            // Assert            
+            // Assert
+            
+            foreach (var edge in mesh.Edges)
+            {
+                var vertex1 = mesh.Vertices.Where(i => i.Id == edge.A).DefaultIfEmpty(null).FirstOrDefault();
+                var vertex2 = mesh.Vertices.Where(i => i.Id == edge.B).DefaultIfEmpty(null).FirstOrDefault();
+
+                if (vertex1.Point.DistanceTo(vertex2.Point) > maximumEdgeLenght)
+                {
+                    ExportMesh(mesh);
+                    Assert.Fail(vertex1.Point.DistanceTo(vertex2.Point).ToString());
+                }
+            }
 
         }
 
         [TestMethod]
         public void FemModelTest3()
         {
+            double maximumEdgeLenght = 20;
             FemModel femModel = new FemModel();
 
             Shape s1 = CreateSimpleShape(100, 200);
@@ -259,8 +274,63 @@ namespace FemTest
 
             femModel.AddShape(s1, pp, new List<Load>() { p1, l1}, null);
 
+
+            var mesh = femModel.GetMesh();
+
+
+            //Arrange
+            foreach (var edge in mesh.Edges)
+            {
+                var vertex1 = mesh.Vertices.Where(i => i.Id == edge.A).DefaultIfEmpty(null).FirstOrDefault();
+                var vertex2 = mesh.Vertices.Where(i => i.Id == edge.B).DefaultIfEmpty(null).FirstOrDefault();
+
+                if (vertex1.Point.DistanceTo(vertex2.Point) > maximumEdgeLenght)
+                {
+                    ExportMesh(mesh);
+                    Assert.Fail(vertex1.Point.DistanceTo(vertex2.Point).ToString());
+                }
+            }
         }
 
+
+        [TestMethod]
+        public void FemModelTest4()
+        {
+            double maximumEdgeLenght = 20;
+            //Arrange
+            FemModel femModel = new FemModel();
+
+            Shape s1 = CreateSimpleShape(100, 200);
+            Shape s2 = new Shape(s1);
+            s2.Pan(100, 0, 0);
+
+            GlassMaterial gm = new GlassMaterialAstm("", 1, 0.2, 3, 4, 5, 6, 0.008, 0.008, 9);
+            MonolithicGlassProperty pp = new MonolithicGlassProperty(1, 2, gm);
+
+            Mesh.GenerateMeshOptions.Size = 10;
+
+            PointLoad p1 = new PointLoad(1, 2, 3, 4, 5, 6, new Point3d(35, 35, 0), new LoadCase("LC1", null));
+            LineLoad l1 = new LineLoad(1, 2, 3, 4, 5, 6, new Line3d(new Point3d(35, 150, 0), new Point3d(75, 100, 0)), new LoadCase("LC2", null));
+
+            //Act
+            femModel.AddShape(s1, pp, null, null);
+            femModel.AddShape(s2, pp, null, null);
+
+            var mesh = femModel.GetMesh();
+
+            //Arrange
+            foreach(var edge in mesh.Edges)
+            {
+                var vertex1 = mesh.Vertices.Where(i => i.Id == edge.A).DefaultIfEmpty(null).FirstOrDefault();
+                var vertex2 = mesh.Vertices.Where(i => i.Id == edge.B).DefaultIfEmpty(null).FirstOrDefault();
+
+                if (vertex1.Point.DistanceTo(vertex2.Point) > maximumEdgeLenght)
+                {
+                    ExportMesh(mesh);
+                    Assert.Fail(vertex1.Point.DistanceTo(vertex2.Point).ToString());
+                }
+            }
+        }
         #endregion
 
     }

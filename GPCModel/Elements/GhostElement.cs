@@ -15,7 +15,7 @@ namespace GPC.Model.Elements
     {
         public GhostElement(int id)
         {
-            this.Id = id;
+            this.SetId(id);
         }
 
         public GhostElement(Guid guid) : base(guid)
@@ -24,7 +24,7 @@ namespace GPC.Model.Elements
 
         public GhostElement(Guid guid, string name, int id) : base(guid, name)
         {
-            this.Id = id;
+            this.SetId(id);
         }
 
         public GhostElement(SerializationInfo info, StreamingContext context) : base(info, context)
@@ -33,8 +33,7 @@ namespace GPC.Model.Elements
 
         public override bool Equals(object obj)
         {
-            return obj is GhostElement element &&
-                   base.Equals(obj);
+            return obj is GhostElement element && base.Equals(obj);
         }
 
         public override int GetHashCode()

@@ -301,6 +301,7 @@ namespace GPC.Model.FEM
         public virtual void AddMesh(Mesh mesh, IPlateProperty plateProperty, IBrickProperty brickProperty, Dictionary<IPointLoad, int[]> vertexLoadMeshEntityMap, Dictionary<ILineLoad, int[]> vertexLineLoadMeshEntityMap,
                                      Dictionary<IAreaLoad, int[]> plateLoadMeshEntityMap,  Dictionary<GeometryRestrain, int[]> restrainMeshEntityMap)
         {
+            
             Dictionary<int, int> nodesNewIndexMap = new Dictionary<int, int>(); // Mappa tra indici dei nodi dentro _nodes e indici dei vertici della mesh nel caso esistano già dentro _nodes.
             Dictionary<int, int> platesNewIndexMap = new Dictionary<int, int>(); 
             Dictionary<int, int> brickNewIndexMap = new Dictionary<int, int>(); 
@@ -337,9 +338,12 @@ namespace GPC.Model.FEM
             {
                 var nodeIndex = _nodes.Add(new Node(vertex.Point, vertex.Id));
 
-                if (nodeIndex != vertex.Id) // Se sono diversi vuol dire che esisteva già l'indice Vertex.iD e la collection l'ha modificato
+                
+                if (nodeIndex != vertex.Id) // Se sono diversi vuol dire che esisteva già l'indice Vertex.iD e il vertice è stato aggiunto alla collection con un ID diverso.
                 {
-                    nodesNewIndexMap[nodeIndex] = vertex.Id;
+                    //nodesNewIndexMap[nodeIndex] = vertex.Id; // Mappa fra vecchio e nuovo
+
+                    nodesNewIndexMap[vertex.Id] = nodeIndex; // Mappa fra vecchio e nuovo
                 }
             }
 
@@ -349,16 +353,33 @@ namespace GPC.Model.FEM
             {
                 if (face.IsQuad)
                 {
-                    if (plateProperty is PlateProperty pp) 
+                    if (plateProperty is PlateProperty pp)
                     {
-                        var plateIndex = _elements.Add(new Plate(new Node[] { _nodes[nodesNewIndexMap.ContainsKey(face.A) ? nodesNewIndexMap[face.A] : face.A],
-                                                                             _nodes[nodesNewIndexMap.ContainsKey(face.B) ? nodesNewIndexMap[face.B] : face.B],
-                                                                             _nodes[nodesNewIndexMap.ContainsKey(face.C) ? nodesNewIndexMap[face.C] : face.C],
-                                                                             _nodes[nodesNewIndexMap.ContainsKey(face.D) ? nodesNewIndexMap[face.D] : face.D]},
-                                                                             pp, face.Id));
+                        var nodes = new Node[] { _nodes[nodesNewIndexMap.ContainsKey(face.A) ? nodesNewIndexMap[face.A] : face.A],
+                                                                            _nodes[nodesNewIndexMap.ContainsKey(face.B) ? nodesNewIndexMap[face.B] : face.B],
+                                                                            _nodes[nodesNewIndexMap.ContainsKey(face.C) ? nodesNewIndexMap[face.C] : face.C],
+                                                                            _nodes[nodesNewIndexMap.ContainsKey(face.D) ? nodesNewIndexMap[face.D] : face.D] };
+                        
+                        
+                        for (int i = 0; i < nodes.Length - 1; i++)
+                        {
+                            if (nodes[i].Position.DistanceTo(nodes[i + 1].Position) > 20)
+                            {
+                                int a = 1;
+                            }
+                            
+                        
+                        }
 
+
+                        var plateIndex = _elements.Add(new Plate(new Node[] { _nodes[nodesNewIndexMap.ContainsKey(face.A) ? nodesNewIndexMap[face.A] : face.A],
+                                                                              _nodes[nodesNewIndexMap.ContainsKey(face.B) ? nodesNewIndexMap[face.B] : face.B],
+                                                                              _nodes[nodesNewIndexMap.ContainsKey(face.C) ? nodesNewIndexMap[face.C] : face.C],
+                                                                              _nodes[nodesNewIndexMap.ContainsKey(face.D) ? nodesNewIndexMap[face.D] : face.D]},
+                                                                              pp, face.Id));
+                        
                         if (plateIndex != face.Id) // Se sono diversi vuol dire che esisteva già l'indice element .iD e la collection l'ha modificato
-                            platesNewIndexMap[plateIndex] = face.Id;
+                            platesNewIndexMap[face.Id] = plateIndex;
                     }
                     else
                         throw new NotImplementedException();
@@ -368,12 +389,12 @@ namespace GPC.Model.FEM
                     if (plateProperty is PlateProperty pp)
                     {
                         var plateIndex = _elements.Add(new Plate(new Node[] { _nodes[nodesNewIndexMap.ContainsKey(face.A) ? nodesNewIndexMap[face.A] : face.A],
-                                                                             _nodes[nodesNewIndexMap.ContainsKey(face.B) ? nodesNewIndexMap[face.B] : face.B],
-                                                                             _nodes[nodesNewIndexMap.ContainsKey(face.C) ? nodesNewIndexMap[face.C] : face.C]},
-                                                                             pp, face.Id));
+                                                                              _nodes[nodesNewIndexMap.ContainsKey(face.B) ? nodesNewIndexMap[face.B] : face.B],
+                                                                              _nodes[nodesNewIndexMap.ContainsKey(face.C) ? nodesNewIndexMap[face.C] : face.C]},
+                                                                              pp, face.Id));
 
                         if (plateIndex != face.Id) // Se sono diversi vuol dire che esisteva già l'indice element .iD e la collection l'ha modificato
-                            platesNewIndexMap[plateIndex] = face.Id;
+                            platesNewIndexMap[face.Id] = plateIndex;
                     }
                     else
                         throw new NotImplementedException();
@@ -397,7 +418,7 @@ namespace GPC.Model.FEM
                                                                              bp, volume.Id));
 
                         if (brickIndex != volume.Id) // Se sono diversi vuol dire che esisteva già l'indice element .iD e la collection l'ha modificato
-                            brickNewIndexMap[brickIndex] = volume.Id;
+                            brickNewIndexMap[volume.Id] = brickIndex;
                     }
                     else
                         throw new NotImplementedException();
@@ -414,7 +435,7 @@ namespace GPC.Model.FEM
                                                                              _nodes[nodesNewIndexMap.ContainsKey(volume.F) ? nodesNewIndexMap[volume.F] : volume.F]},
                                                                              bp, volume.Id));
                         if (brickIndex != volume.Id) // Se sono diversi vuol dire che esisteva già l'indice element .iD e la collection l'ha modificato
-                            brickNewIndexMap[brickIndex] = volume.Id;
+                            brickNewIndexMap[volume.Id] = brickIndex;
                     }
                     else
                         throw new NotImplementedException();
