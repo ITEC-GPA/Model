@@ -433,5 +433,53 @@ namespace GPC.Model.FEM.FiniteElements
                 globalEpsilon[node + 3] = membranalGlobalEpsilon[0] + flexuralGlobalEpsilon[node +3];
             }           
         }
+
+        /// <summary>
+        /// out Local Node in clockwise
+        /// </summary>
+        /// <returns></returns>
+        public static Node[] LocalNodes(Node[] globalNodes, out CoordinateSystem cSys)
+        {
+            #region CalculationOfLocalCoordinates
+            //Search for 3 local axis
+            Node nodeI = globalNodes[0];
+            Node nodeJ = globalNodes[1];
+            Node nodeK = globalNodes[2];
+            Node nodeL = globalNodes[3];
+
+            Vector3d x = new Vector3d(nodeJ.Position.X - nodeI.Position.X, nodeJ.Position.Y - nodeI.Position.Y, nodeJ.Position.Z - nodeI.Position.Z);
+            Vector3d vecx = new Vector3d(x);
+            vecx.Unitize();
+
+            Vector3d y = new Vector3d(nodeL.Position.X - nodeI.Position.X, nodeL.Position.Y - nodeI.Position.Y, nodeL.Position.Z - nodeI.Position.Z);
+            Vector3d vecy = new Vector3d(y);
+            vecy.Unitize();
+
+            Vector3d z = x.CrossProduct(y);
+            Vector3d vecz = new Vector3d(z);
+            vecz.Unitize();
+
+            //recalculation of y that can be non-ortogonal
+            y = z.CrossProduct(x);
+            vecy = new Vector3d(y);
+            vecy.Unitize();
+            //_vecXLocal = vecx.ToVector().ToArray();
+            cSys = new CoordinateSystem(new Point3d(0, 0, 0), vecx, vecy);
+
+            //move to local axis
+            //calculation in local nodes
+            Vector3d v12 = new Vector3d(nodeJ.Position.X - nodeI.Position.X, nodeJ.Position.Y - nodeI.Position.Y, nodeJ.Position.Z - nodeI.Position.Z);
+            Vector3d v13 = new Vector3d(nodeK.Position.X - nodeI.Position.X, nodeK.Position.Y - nodeI.Position.Y, nodeK.Position.Z - nodeI.Position.Z);
+            Vector3d v14 = new Vector3d(nodeL.Position.X - nodeI.Position.X, nodeL.Position.Y - nodeI.Position.Y, nodeL.Position.Z - nodeI.Position.Z);
+
+            Node[] localNodes = new Node[4];
+            localNodes[0] = new Node(0, 0, 0, nodeI.Id, nodeI.Name); //Origin GlobalNodes.ElementAt(1 - 1);
+            localNodes[1] = new Node(v12.DotProduct(vecx), v12.DotProduct(vecy), v12.DotProduct(vecz), nodeJ.Id, nodeJ.Name); //Axis x GlobalNodes.ElementAt(2 - 1);
+            localNodes[2] = new Node(v13.DotProduct(vecx), v13.DotProduct(vecy), v13.DotProduct(vecz), nodeK.Id, nodeK.Name); //GlobalNodes.ElementAt(3 - 1);
+            localNodes[3] = new Node(v14.DotProduct(vecx), v14.DotProduct(vecy), v14.DotProduct(vecz), nodeL.Id, nodeL.Name); //GlobalNodes.ElementAt(4 - 1);
+
+            return localNodes;
+            #endregion
+        }
     }
 }

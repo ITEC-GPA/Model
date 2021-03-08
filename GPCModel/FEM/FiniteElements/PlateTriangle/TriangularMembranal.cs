@@ -14,7 +14,7 @@ namespace GPC.Model.FEM.FiniteElements
         #region variables
         protected double _areaElement;
 
-        protected mnl.Matrix<double> _b;
+        protected mnl.Matrix<double> _b; //constant in the element
         #endregion
 
         public TriangularMembranal(Node[] nodes, PlateProperty property, int id) : base(nodes, property, id)
@@ -35,92 +35,102 @@ namespace GPC.Model.FEM.FiniteElements
         public override void BuildMatrix()
         {
             /*
-            * REFERENCE: CHAPTER 10 - THE FINITE ELEMENT METHOD IN ENGINEERING - SINGIRESU S.RAO
+            * REFERENCE: CHAPTER 10 - THE FINITE ELEMENT METHOD IN ENGINEERING - SINGIRESU S.RAO with different local axis
             */
 
             //Node 1 = Origin = Node i
-            //Axis y assigned as Node 1 to Node 2, Node j = Node 2
-            //Axis x ortogonal to axis y, Node k = node 3
+            //Axis x assigned as Node 1 to Node 2, Node j = Node 2
+            //Axis y ortogonal to axis x, Node k = node 3
 
             //calculation of matrix for transformation from Local to Global coordinates
             #region TransformationMatrixLocalCoordinatesToGlobalCoordinates
-            Node nodeI = Nodes.ElementAt(1 - 1);
-            Node nodeJ = Nodes.ElementAt(2 - 1);
-            Node nodeK = Nodes.ElementAt(3 - 1);
 
-            double dij = Math.Sqrt(Math.Pow(nodeJ.Position.X - nodeI.Position.X, 2.0) + Math.Pow(nodeJ.Position.Y - nodeI.Position.Y, 2.0) + Math.Pow(nodeJ.Position.Z - nodeI.Position.Z, 2.0));
-            double lij = (nodeJ.Position.X - nodeI.Position.X) / dij;
-            double mij = (nodeJ.Position.Y - nodeI.Position.Y) / dij;
-            double nij = (nodeJ.Position.Z - nodeI.Position.Z) / dij;
-
-            double dip = lij * (nodeK.Position.X - nodeI.Position.X) + mij * (nodeK.Position.Y - nodeI.Position.Y) + nij * (nodeK.Position.Z - nodeI.Position.Z);
-            Node nodeP = new Node(nodeI.Position.X + lij * dip, nodeI.Position.Y + mij * dip, nodeI.Position.Z + nij * dip, -1);
-            double dpk = Math.Sqrt(Math.Pow(nodeK.Position.X - nodeI.Position.X, 2.0) + Math.Pow(nodeK.Position.Y - nodeI.Position.Y, 2.0) + Math.Pow(nodeK.Position.Z - nodeI.Position.Z, 2.0) - Math.Pow(dip, 2.0));
-
-            double lpk = (nodeK.Position.X - nodeP.Position.X) / dpk;
-            double mpk = (nodeK.Position.Y - nodeP.Position.Y) / dpk;
-            double npk = (nodeK.Position.Z - nodeP.Position.Z) / dpk;
-
-            _dofGlobalToLocal = mnl.Matrix<double>.Build.Dense(6, 9);
-            DofGlobalToLocal[0, 0] = lpk;
-            DofGlobalToLocal[0, 1] = mpk;
-            DofGlobalToLocal[0, 2] = npk;
-
-            DofGlobalToLocal[1, 0] = lij;
-            DofGlobalToLocal[1, 1] = mij;
-            DofGlobalToLocal[1, 2] = nij;
-
-            DofGlobalToLocal[2, 3] = lpk;
-            DofGlobalToLocal[2, 4] = mpk;
-            DofGlobalToLocal[2, 5] = npk;
-
-            DofGlobalToLocal[3, 3] = lij;
-            DofGlobalToLocal[3, 4] = mij;
-            DofGlobalToLocal[3, 5] = nij;
-
-            DofGlobalToLocal[4, 6] = lpk;
-            DofGlobalToLocal[4, 7] = mpk;
-            DofGlobalToLocal[4, 8] = npk;
-
-            DofGlobalToLocal[5, 6] = lij;
-            DofGlobalToLocal[5, 7] = mij;
-            DofGlobalToLocal[5, 8] = nij;
-            //Console.WriteLine("Local To Global Matrix = " + DofGlobalToLocal.ToString());
-            #endregion
-
-            Node[] localNodes = LocalNodes(); //take global node and transform in local nodes
+            Node[] localNodes = TriangleElement.LocalNodes(_nodesGlobal, out _localCoordinateSystem); //take global node and transform in local nodes
             Node node1 = localNodes[0];
             Node node2 = localNodes[1];
             Node node3 = localNodes[2];
+            
+            _dofGlobalToLocal = mnl.Matrix<double>.Build.Dense(6, 9);
+            mnl.Matrix<double> dofGlobalToLocalTranspose = mnl.Matrix<double>.Build.Dense(9, 6);
+
+            Vector3d globalX = new Vector3d(1.0, 0.0, 0.0);
+            Vector3d globalY = new Vector3d(0.0, 1.0, 0.0);
+            Vector3d globalZ = new Vector3d(0.0, 0.0, 1.0);
+
+            Vector3d localX = LocalCoordinateSystem.V1;
+            Vector3d localY = LocalCoordinateSystem.V2;
+            Vector3d localZ = LocalCoordinateSystem.V3;
+
+            #region localToGlobalNode1
+            //local node1 x-displacement in global coordinate
+            dofGlobalToLocalTranspose[0, 0] = localX.DotProduct(globalX);
+            dofGlobalToLocalTranspose[1, 0] = localX.DotProduct(globalY);
+            dofGlobalToLocalTranspose[2, 0] = localX.DotProduct(globalZ);
+
+            //local node1 y-displacement in global coord
+            dofGlobalToLocalTranspose[0, 1] = localY.DotProduct(globalX);
+            dofGlobalToLocalTranspose[1, 1] = localY.DotProduct(globalY);
+            dofGlobalToLocalTranspose[2, 1] = localY.DotProduct(globalZ);
+            #endregion
+
+            #region localToGlobalNode2
+            //local node1 x-displacement in global coordinate
+            dofGlobalToLocalTranspose[3, 2] = localX.DotProduct(globalX);
+            dofGlobalToLocalTranspose[4, 2] = localX.DotProduct(globalY);
+            dofGlobalToLocalTranspose[5, 2] = localX.DotProduct(globalZ);
+
+            //local node1 y-displacement in global coord
+            dofGlobalToLocalTranspose[3, 3] = localY.DotProduct(globalX);
+            dofGlobalToLocalTranspose[4, 3] = localY.DotProduct(globalY);
+            dofGlobalToLocalTranspose[5, 3] = localY.DotProduct(globalZ);
+            #endregion
+
+            #region localToGlobalNode3
+            //local node1 x-displacement in global coordinate
+            dofGlobalToLocalTranspose[6, 4] = localX.DotProduct(globalX);
+            dofGlobalToLocalTranspose[7, 4] = localX.DotProduct(globalY);
+            dofGlobalToLocalTranspose[8, 4] = localX.DotProduct(globalZ);
+
+            //local node1 y-displacement in global coord
+            dofGlobalToLocalTranspose[6, 5] = localY.DotProduct(globalX);
+            dofGlobalToLocalTranspose[7, 5] = localY.DotProduct(globalY);
+            dofGlobalToLocalTranspose[8, 5] = localY.DotProduct(globalZ);
+            #endregion
+
+            _dofGlobalToLocal = dofGlobalToLocalTranspose.Transpose();
+            //Console.WriteLine("Local To Global Matrix = " + DofGlobalToLocal.ToString());
+            #endregion
 
             #region ShapeFuction
             double dx32 = node3.Position.X - node2.Position.X;
-            double dy21 = node2.Position.Y - node1.Position.Y;
+            double dy12 = node1.Position.Y - node2.Position.Y;
             double dx21 = node2.Position.X - node1.Position.X;
-            double dy32 = node3.Position.Y - node2.Position.Y;
+            double dx23 = node2.Position.X - node3.Position.X;
+            double dy23 = node2.Position.Y - node3.Position.Y;
 
-            double dx31 = node3.Position.X - node1.Position.X;
+            double dx13 = node1.Position.X - node3.Position.X;
+            double dy13 = node1.Position.Y - node3.Position.Y;
             double dy31 = node3.Position.Y - node1.Position.X;
 
-            _areaElement = 1.0 / 2.0 * (dx32 * dy21 - dx21 * dy32);
+            _areaElement = 1.0 / 2.0 * (dx13 * dy23 - dx23 * dy13);
             #endregion
 
             #region BMatrixDerivateOfShapeFunctionInLocalCoordinates
             _b = mnl.Matrix<double>.Build.Dense(3, 6);
-            _b[0, 0] = dy32;
-            _b[0, 2] = -dy31;
-            _b[0, 4] = dy21;
+            _b[0, 0] = dy23;
+            _b[0, 2] = dy31;
+            _b[0, 4] = dy12;
 
-            _b[1, 1] = -dx32;
-            _b[1, 3] = dx31;
-            _b[1, 5] = -dx21;
+            _b[1, 1] = dx32;
+            _b[1, 3] = dx13;
+            _b[1, 5] = dx21;
 
-            _b[2, 0] = -dx32;
-            _b[2, 1] = dy32;
-            _b[2, 2] = dx31;
-            _b[2, 3] = -dy31;
-            _b[2, 4] = -dx21;
-            _b[2, 5] = dy21;
+            _b[2, 0] = dx32;
+            _b[2, 1] = dy23;
+            _b[2, 2] = dx13;
+            _b[2, 3] = dy31;
+            _b[2, 4] = dx21;
+            _b[2, 5] = dy12;
             //Console.WriteLine("Matrix B = " + _b.ToString());
 
             _b = 1.0 / (2.0 * _areaElement) * _b;
@@ -193,48 +203,6 @@ namespace GPC.Model.FEM.FiniteElements
                 }
             }
             return _fLocalCoord;
-        }
-        /// <summary>
-        /// According to RAO, order of nodes are CLOCKWISE
-        /// </summary>
-        /// <returns></returns>
-        protected Node[] LocalNodes()
-        {
-            Node nodeI = Nodes[0];
-            Node nodeJ = Nodes[1];
-            Node nodeK = Nodes[2];
-
-            #region CalculationOfLocalCoordinates
-            //Search for 3 local axis
-            Vector3d y = new Vector3d(nodeJ.Position.X - nodeI.Position.X, nodeJ.Position.Y - nodeI.Position.Y, nodeJ.Position.Z - nodeI.Position.Z);
-            Vector3d vecy = new Vector3d(y);
-            vecy.Unitize();
-
-            Vector3d x = new Vector3d(nodeK.Position.X - nodeI.Position.X, nodeK.Position.Y - nodeI.Position.Y, nodeK.Position.Z - nodeI.Position.Z);
-            Vector3d vecx = new Vector3d(x);
-            vecx.Unitize();
-
-            Vector3d z = x.CrossProduct(y);
-            Vector3d vecz = new Vector3d(z);
-            vecz.Unitize();
-
-            //recalculation of x that can be non-ortogonal
-            x = y.CrossProduct(z);
-            vecx = new Vector3d(x);
-            vecx.Unitize();;
-            _localCoordinateSystem = new CoordinateSystem(new Point3d(0, 0, 0), vecx, vecy);
-
-            //move to local axis
-            //calculation in local nodes
-            Vector3d v12 = new Vector3d(nodeJ.Position.X - nodeI.Position.X, nodeJ.Position.Y - nodeI.Position.Y, nodeJ.Position.Z - nodeI.Position.Z);
-            Vector3d v13 = new Vector3d(nodeK.Position.X - nodeI.Position.X, nodeK.Position.Y - nodeI.Position.Y, nodeK.Position.Z - nodeI.Position.Z);
-
-            Node[] localNodes = new Node[3];
-            localNodes[0] = new Node(0, 0, 0, nodeI.Id, nodeI.Name); //Origin GlobalNodes.ElementAt(1 - 1);
-            localNodes[1] = new Node(v12.DotProduct(vecx), v12.DotProduct(vecy), v12.DotProduct(vecz), nodeJ.Id, nodeJ.Name); //Axis y GlobalNodes.ElementAt(2 - 1);
-            localNodes[2] = new Node(v13.DotProduct(vecx), v13.DotProduct(vecy), v13.DotProduct(vecz), nodeK.Id, nodeK.Name); //GlobalNodes.ElementAt(3 - 1);
-            #endregion
-            return localNodes;
         }
 
         public override void GetResults(double[] globalDisplacementsNodes, out double[] localDisplacements, out mnl.Matrix<double>[] globalPseudoDeformation, out mnl.Matrix<double>[] localPseudoDeformation, out mnl.Matrix<double>[] globalForces, out mnl.Matrix<double>[] localForces, out mnl.Matrix<double>[] globalStress, out mnl.Matrix<double>[] localStress, out mnl.Matrix<double>[] globalEpsilon, out mnl.Matrix<double>[] localEpsilon)

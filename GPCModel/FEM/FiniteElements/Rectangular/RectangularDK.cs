@@ -109,7 +109,7 @@ namespace GPC.Model.FEM.FiniteElements
         public override void BuildMatrix()
         {
             //set local coordinate system
-            LocalNodes(out Node[] localNodes);
+            Node[] localNodes = RectangleElement.LocalNodes(_nodesGlobal, out _localCoordinateSystem);
             Node node1 = localNodes[0];
             Node node2 = localNodes[1];
             Node node3 = localNodes[2];
@@ -140,6 +140,7 @@ namespace GPC.Model.FEM.FiniteElements
             _y42 = node4.Position.Y - node2.Position.Y;
 
             //area elemento come somma di 2 triangoli
+            //TODO: serve?
             double areaTriangle1 = TriangleElement.GetArea(new Node[] { node1, node2, node3 });
             double areaTriangle2 = TriangleElement.GetArea(new Node[] { node1, node3, node4 });
             _areaElement = areaTriangle1 + areaTriangle2;

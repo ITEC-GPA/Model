@@ -26,7 +26,7 @@ namespace GPC.Model.FEM.FiniteElements
         protected mnl.Matrix<double> _d;
         protected ElementProperty _property;
 
-        protected Node[] _nodes;
+        protected Node[] _nodesGlobal;
         #endregion
 
         #region Properties
@@ -63,7 +63,7 @@ namespace GPC.Model.FEM.FiniteElements
         /// <summary>
         /// Nodes of the element
         /// </summary>
-        public Node[] Nodes => _nodes;
+        public Node[] Nodes => _nodesGlobal;
 
         /// <summary>
         /// used for KeGlobal = DofGlobalToLocal^T [KeLocal] [DofGlobaltoLocal] or for UlocalCoord = DofGlobalToLocal UglobalCoord; NOTE: DofLocalToGlobal = DofGlobalToLocal^TRASPOSTE
@@ -100,7 +100,7 @@ namespace GPC.Model.FEM.FiniteElements
         /// <param name="id">id of element</param>
         public FiniteElement(Node[] nodes, ElementProperty property, int id) : base(id)
         {
-            _nodes = nodes;
+            _nodesGlobal = nodes;
             _property = property;
             _DOF = new SortedSet<LinearSolver.DOF>();
         }
