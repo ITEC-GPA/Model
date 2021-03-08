@@ -10,6 +10,7 @@ namespace GPC.Model.FEM.FiniteElements
 {
     public class TriangularMembranal : Plate, IEquatable<TriangularMembranal>
     {
+        //TODO: riscrivere elemento finito rendendo assi locali uguali a TriangularDK
         #region variables
         protected double _areaElement;
 
