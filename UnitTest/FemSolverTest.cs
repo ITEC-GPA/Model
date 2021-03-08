@@ -1320,5 +1320,22 @@ namespace FemTest
                 Console.WriteLine();
             }
         }
+
+        [TestMethod]
+        public void GaussTest1()
+        {
+            int dim = 1;
+            int ptPerDimension = 1;
+            GaussIntegration.GaussPoint[] pts = GaussIntegration.Get(dim, ptPerDimension);
+
+            dim = 2;
+            ptPerDimension = 1;
+            pts = GaussIntegration.Get(dim, ptPerDimension);
+
+            dim = 2;
+            ptPerDimension = 2;
+            pts = GaussIntegration.Get(dim, ptPerDimension);
+
+        }
     }
 }
