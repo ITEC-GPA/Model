@@ -9,7 +9,7 @@ namespace GPC.Model.FEM.FiniteElements
     public class Tri3Element : Plate
     {
         #region variables
-        private Tri3Membranal _membranal;
+        private Tri3PlaneStress _membranal;
         private Tri3DK _flexural;
         private mnl.Matrix<double> _kElementGlobalCoord; //the sum of the 2 stiffness matrix of TriangularMembranal and TriangularDK
         #endregion
@@ -30,7 +30,7 @@ namespace GPC.Model.FEM.FiniteElements
             DOF.Add(LinearSolver.DOF.RZ);
 
             //kElementGlobal = 3 * 6 = 18x18
-            _membranal = new Tri3Membranal(nodes, property, id);
+            _membranal = new Tri3PlaneStress(nodes, property, id);
             _flexural = new Tri3DK(nodes, property, id);
         }
 

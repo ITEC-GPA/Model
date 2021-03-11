@@ -8,7 +8,7 @@ using MathNet.Numerics.LinearAlgebra;
 
 namespace GPC.Model.FEM.FiniteElements
 {
-    public class Tri3Membranal : Plate, IEquatable<Tri3Membranal>
+    public class Tri3PlaneStress : Plate, IEquatable<Tri3PlaneStress>
     {
         #region variables
         protected double _areaElement;
@@ -16,7 +16,7 @@ namespace GPC.Model.FEM.FiniteElements
         protected mnl.Matrix<double> _b; //constant in the element
         #endregion
 
-        public Tri3Membranal(Node[] nodes, PlateProperty property, int id) : base(nodes, property, id)
+        public Tri3PlaneStress(Node[] nodes, PlateProperty property, int id) : base(nodes, property, id)
         {
             //recalled base(nodes)
             _DOF.Add(LinearSolver.DOF.DX);
@@ -279,7 +279,7 @@ namespace GPC.Model.FEM.FiniteElements
 
         public override bool Equals(object obj)
         {
-            return obj is Tri3Membranal membranal &&
+            return obj is Tri3PlaneStress membranal &&
                    base.Equals(obj);
         }
 
@@ -288,7 +288,7 @@ namespace GPC.Model.FEM.FiniteElements
             return 624022166 + base.GetHashCode();
         }
 
-        public bool Equals(Tri3Membranal other)
+        public bool Equals(Tri3PlaneStress other)
         {
             return Equals((object)other);
         }

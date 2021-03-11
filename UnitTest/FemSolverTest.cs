@@ -41,8 +41,8 @@ namespace FemTest
             nodes[1] = new Node(1, 0, 0, 2);
             nodes[2] = new Node(0, 1, 0, 3);
 
-            FiniteElement el0 = new Tri3Membranal(nodes, prop, 0);
-            FiniteElement el1 = new Tri3Membranal(nodes, prop, 1);
+            FiniteElement el0 = new Tri3PlaneStress(nodes, prop, 0);
+            FiniteElement el1 = new Tri3PlaneStress(nodes, prop, 1);
 
             //Controllo equals elementi
             Assert.IsFalse(el0.Equals(el1));
@@ -75,7 +75,7 @@ namespace FemTest
         }
 
         [TestMethod]
-        public void Tri3MembranalKTest1()
+        public void Tri3PlaneStressKTest1()
         {
             Material mat = new SteelMaterial("steel", 200000.0, 0.2, 355, 510, 7850);
             PlateProperty prop = new PlateProperty(mat, 0, 1);
@@ -85,7 +85,7 @@ namespace FemTest
             nds[1] = new Node(1, 0, 0, 2, "2");
             nds[2] = new Node(0, 1, 0, 3, "3");
 
-            Tri3Membranal el = new Tri3Membranal(nds, prop, 1);
+            Tri3PlaneStress el = new Tri3PlaneStress(nds, prop, 1);
             el.BuildMatrix();
             mnl.Matrix<double> kLocal = el.KElementLocalCoord;
             mnl.Matrix<double> kLocalManual = mnl.Matrix<double>.Build.Dense(0, 6);
@@ -117,7 +117,7 @@ namespace FemTest
         }
 
         [TestMethod]
-        public void Tri3MembranalKTest2()
+        public void Tri3PlaneStressKTest2()
         {
             Material mat = new SteelMaterial("steel", 200000, 0.2, 355, 510, 7850);
             PlateProperty prop = new PlateProperty(mat, 0, 1);
@@ -127,7 +127,7 @@ namespace FemTest
             nds[1] = new Node(100, 0, 0, 2, "2");
             nds[2] = new Node(0, 100, 0, 3, "3");
 
-            Tri3Membranal el = new Tri3Membranal(nds, prop, 1);
+            Tri3PlaneStress el = new Tri3PlaneStress(nds, prop, 1);
             el.BuildMatrix();
             mnl.Matrix<double> kLocal = el.KElementLocalCoord;
             //Add DZ global DOF
@@ -166,8 +166,8 @@ namespace FemTest
 
             List<FiniteElement> elements = new List<FiniteElement>();
 
-            elements.Add(new Tri3Membranal(nodesPlate1.ToArray(), prop, 1));
-            elements.Add(new Tri3Membranal(nodesPlate2.ToArray(), prop, 2));
+            elements.Add(new Tri3PlaneStress(nodesPlate1.ToArray(), prop, 1));
+            elements.Add(new Tri3PlaneStress(nodesPlate2.ToArray(), prop, 2));
 
             LinearSolver fem = new LinearSolver(elements.ToArray());
             mnl.Matrix<double> K = fem.KGlobal;
@@ -252,8 +252,8 @@ namespace FemTest
             nodesPlate2.Add(nd4);
 
             List<FiniteElement> elements = new List<FiniteElement>();
-            elements.Add(new Tri3Membranal(nodesPlate1.ToArray(), prop, 1));
-            elements.Add(new Tri3Membranal(nodesPlate2.ToArray(), prop, 2));
+            elements.Add(new Tri3PlaneStress(nodesPlate1.ToArray(), prop, 1));
+            elements.Add(new Tri3PlaneStress(nodesPlate2.ToArray(), prop, 2));
 
             LinearSolver fem = new LinearSolver(elements.ToArray());
             mnl.Matrix<double> K = fem.KGlobal;
@@ -342,8 +342,8 @@ namespace FemTest
             nodesPlate2.Add(nd4);
 
             List<FiniteElement> elements = new List<FiniteElement>();
-            elements.Add(new Tri3Membranal(nodesPlate1.ToArray(), prop, 1));
-            elements.Add(new Tri3Membranal(nodesPlate2.ToArray(), prop, 2));
+            elements.Add(new Tri3PlaneStress(nodesPlate1.ToArray(), prop, 1));
+            elements.Add(new Tri3PlaneStress(nodesPlate2.ToArray(), prop, 2));
 
             LinearSolver fem = new LinearSolver(elements.ToArray());
             double[] Node4DX = fem.GetDisplacementGlobalCoordinates(nd4, LinearSolver.DOF.DX);
@@ -426,8 +426,8 @@ namespace FemTest
             nodesPlate2.Add(nd4);
 
             List<FiniteElement> elements = new List<FiniteElement>();
-            elements.Add(new Tri3Membranal(nodesPlate1.ToArray(), prop, 1));
-            elements.Add(new Tri3Membranal(nodesPlate2.ToArray(), prop, 2));
+            elements.Add(new Tri3PlaneStress(nodesPlate1.ToArray(), prop, 1));
+            elements.Add(new Tri3PlaneStress(nodesPlate2.ToArray(), prop, 2));
 
             LinearSolver fem = new LinearSolver(elements.ToArray());
             double[] Node4DX = fem.GetDisplacementGlobalCoordinates(nd4, LinearSolver.DOF.DX);
@@ -506,12 +506,12 @@ namespace FemTest
             nodesPlate2.Add(nd4);
 
             List<FiniteElement> elements = new List<FiniteElement>();
-            Plate e0 = new Tri3Membranal(nodesPlate1.ToArray(), prop, 1);
+            Plate e0 = new Tri3PlaneStress(nodesPlate1.ToArray(), prop, 1);
             PlatePressureAttribute p = new PlatePressureAttribute(loadCase, sys, -10.0, 0, 0);
             e0.AddAttribute(p);
 
             elements.Add(e0);
-            elements.Add(new Tri3Membranal(nodesPlate2.ToArray(), prop, 2));
+            elements.Add(new Tri3PlaneStress(nodesPlate2.ToArray(), prop, 2));
 
             LinearSolver fem = new LinearSolver(elements.ToArray());
             double[] Node4DX = fem.GetDisplacementGlobalCoordinates(nd4, LinearSolver.DOF.DX);

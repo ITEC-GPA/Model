@@ -120,7 +120,7 @@
     <Compile Include="FEM\Node.cs" />
     <Compile Include="FEM\FiniteElements\Brick.cs" />
     <Compile Include="FEM\FiniteElements\Plate.cs" />
-    <Compile Include="FEM\FiniteElements\PlateTriangle\Tri3Membranal.cs" />
+    <Compile Include="FEM\FiniteElements\PlateTriangle\Tri3PlaneStress.cs" />
     <Compile Include="FEM\LinearSolver.cs" />
     <Compile Include="FEM\Solver.cs" />
     <Compile Include="FreedomCases\FreedomCase.cs" />
