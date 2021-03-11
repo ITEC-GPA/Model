@@ -205,15 +205,15 @@ namespace GPC.Model.FEM
                     }
                 }
             }
-            //Console.WriteLine("kGlobal System : " + _KGlobal.ToString());
-            /*for (int i = 0; i < _KGlobal.RowCount; i++)
+            Console.WriteLine("kGlobal System :");
+            for (int i = 0; i < _KGlobal.RowCount; i++)
             {
                 for (int j = 0; j < _KGlobal.ColumnCount; j++)
                 {
-                    Console.Write(_KGlobal[i, j].ToString("F1") + "\t");
+                    Console.Write(_KGlobal[i, j].ToString("F3") + "\t");
                 }
                 Console.WriteLine();
-            }*/
+            }
             #endregion
 
             #region CalculationOfAppliedForcesF

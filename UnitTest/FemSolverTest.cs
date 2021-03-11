@@ -893,6 +893,64 @@ namespace FemTest
         }
 
         [TestMethod]
+        public void Benchmark10004()
+        {
+            /// Benchmark10004
+            /// 0 - active degree of freedom
+            /// 1 - non-active degree of freedom
+            int[] NodeDoFID = new int[] { 1, 2, 3, 4, 5, 6 };
+
+            /// Nodes in 3D  XYZ
+            int[] Node1DoF = new int[] { 0, 0, 0, 0, 0, 0 };
+            int[] Node2DoF = new int[] { 0, 0, 0, 0, 0, 0 };
+            int[] Node3DoF = new int[] { 0, 0, 0, 0, 0, 0 };
+            int[] Node4DoF = new int[] { 0, 0, 0, 0, 0, 0 };
+
+            GPC.Model.FEMOld.Node Node1 = new GPC.Model.FEMOld.Node(Guid.NewGuid(), new Point3d(0.0, 0.0, 0.0), 1, NodeDoFID, Node1DoF);
+            GPC.Model.FEMOld.Node Node2 = new GPC.Model.FEMOld.Node(Guid.NewGuid(), new Point3d(+1.0, 0.0, 0.0), 2, NodeDoFID, Node2DoF);
+            GPC.Model.FEMOld.Node Node3 = new GPC.Model.FEMOld.Node(Guid.NewGuid(), new Point3d(+2.0, +2.0, 0.0), 3, NodeDoFID, Node3DoF);
+            GPC.Model.FEMOld.Node Node4 = new GPC.Model.FEMOld.Node(Guid.NewGuid(), new Point3d(0.0, +1.0, 0.0), 4, NodeDoFID, Node4DoF);
+
+            GPC.Model.FEMOld.Node[] nodes = new GPC.Model.FEMOld.Node[4];
+            nodes[0] = Node1;
+            nodes[1] = Node2;
+            nodes[2] = Node3;
+            nodes[3] = Node4;
+
+            int _globalDoF = 0;
+            int _reactionDoF = 0;
+
+            // Arrange Nodes
+            for (int nd = 0; nd < nodes.Length; nd++)
+            {
+                nodes[nd].DoF.FormIncidence(ref _globalDoF, ref _reactionDoF);
+            }
+
+            ///  Section
+            double E = 1; // MPa
+            double ni = 0.0;
+
+            /// Material
+            Material mat = new SteelMaterial("Steel", E, ni, 355, 510, 355 / E, 0, 0, new Guid());
+            PlateProperty property = new PlateProperty(mat, 1.0, 1.0);
+            GPC.Model.FEMOld.PlateDKQ shell = new GPC.Model.FEMOld.PlateDKQ(new Guid(), property, 1, nodes);
+
+            mnl.Matrix<double> _stiffnessMatrix = mnl.Matrix<double>.Build.Dense(_globalDoF, _globalDoF, 0.0);
+            shell.BuildElementDoFIncidence();
+            shell.KInGlobal(ref _stiffnessMatrix);
+
+            Console.WriteLine("Stiffness matrix");
+            for (int r = 0; r < _stiffnessMatrix.RowCount; r++)
+            {
+                for (int c = 0; c < _stiffnessMatrix.ColumnCount; c++)
+                {
+                    Console.Write(_stiffnessMatrix[r, c].ToString("F3") + " ");
+                }
+                Console.WriteLine();
+            }
+        }
+
+        [TestMethod]
         public void Quad4DKTTest1()
         {
             Material mat = new SteelMaterial("mat", 12, 0.0, 355, 510, 7850);
@@ -1213,9 +1271,13 @@ namespace FemTest
             */
         }
 
+        /// <summary>
+        /// TEST LOCAL MATRIX
+        /// </summary>
         [TestMethod]
         public void Quad4MembranalTest1()
         {
+            
             Material mat = new SteelMaterial("steel", 1.0, 0.0, 355, 510, 7850);
             PlateProperty prop = new PlateProperty(mat, 0, 1);
 
@@ -1262,8 +1324,115 @@ namespace FemTest
             }
         }
 
+        /// <summary>
+        /// TEST LOCAL MATRIX NON RECTANGLE NON SQUARED
+        /// </summary>
         [TestMethod]
         public void Quad4MembranalTest2()
+        {
+            Material mat = new SteelMaterial("steel", 1.0, 0.0, 355, 510, 7850);
+            PlateProperty prop = new PlateProperty(mat, 0, 1);
+
+            Node[] nds = new Node[4];
+            nds[0] = new Node(+0, +0, 0, 1, "1");
+            nds[1] = new Node(+2, +0, 0, 2, "2");
+            nds[2] = new Node(+2, +1, 0, 3, "3");
+            nds[3] = new Node(+0, +1, 0, 4, "4");
+
+            Quad4Membranal el = new Quad4Membranal(nds, prop, 1);
+            el.BuildMatrix();
+            mnl.Matrix<double> kLocal = el.KElementLocalCoord;
+            mnl.Matrix<double> kLocalManual = mnl.Matrix<double>.Build.Dense(0, 8);
+
+            double[] r0 = new double[] { 0.5000, 0.1250, 0.0000, -0.1250, -0.2500, -0.1250, -0.2500, 0.1250 };
+            double[] r1 = new double[] { 0.1250, 0.7500, 0.1250, 0.2500, -0.1250, -0.3750, -0.1250, -0.6250 };
+            double[] r2 = new double[] { 0.0000, 0.1250, 0.5000, -0.1250, -0.2500, -0.1250, -0.2500, 0.1250 };
+            double[] r3 = new double[] { -0.1250, 0.2500, -0.1250, 0.7500, 0.1250, -0.6250, 0.1250, -0.3750 };
+            double[] r4 = new double[] { -0.2500, -0.1250, -0.2500, 0.1250, 0.5000, 0.1250, 0.0000, -0.1250 };
+            double[] r5 = new double[] { -0.1250, -0.3750, -0.1250, -0.6250, 0.1250, 0.7500, 0.1250, 0.2500 };
+            double[] r6 = new double[] { -0.2500, -0.1250, -0.2500, 0.1250, 0.0000, 0.1250, 0.5000, -0.1250 };
+            double[] r7 = new double[] { 0.1250, -0.6250, 0.1250, -0.3750, -0.1250, 0.2500, -0.1250, 0.7500 };
+
+            kLocalManual = kLocalManual.InsertRow(0, mnl.Vector<double>.Build.Dense(r0));
+            kLocalManual = kLocalManual.InsertRow(1, mnl.Vector<double>.Build.Dense(r1));
+            kLocalManual = kLocalManual.InsertRow(2, mnl.Vector<double>.Build.Dense(r2));
+            kLocalManual = kLocalManual.InsertRow(3, mnl.Vector<double>.Build.Dense(r3));
+            kLocalManual = kLocalManual.InsertRow(4, mnl.Vector<double>.Build.Dense(r4));
+            kLocalManual = kLocalManual.InsertRow(5, mnl.Vector<double>.Build.Dense(r5));
+            kLocalManual = kLocalManual.InsertRow(6, mnl.Vector<double>.Build.Dense(r6));
+            kLocalManual = kLocalManual.InsertRow(7, mnl.Vector<double>.Build.Dense(r7));
+
+            //controllo klocale elemento finito 4 nodi stato piano di tensione
+            Console.WriteLine("kLocal");
+            for (int i = 0; i < kLocal.RowCount; i++)
+            {
+                for (int j = 0; j < kLocal.ColumnCount; j++)
+                {
+                    Console.Write(kLocal[i, j].ToString("F4") + " ");
+                    Assert.AreEqual(kLocal[i, j] - kLocalManual[i, j], 0, 0.001, "kLocal no OK -> row " + i + " col " + j);
+                    //sarebbe stato meglio usare kLocal[i,j] / kLocalManual[i,j] ma 0/0 = NaN!!
+                }
+                Console.WriteLine();
+            }
+        }
+
+        /// <summary>
+        /// TEST LOCAL MATRIX GENERAL QUADRILATERAL
+        /// </summary>
+        [TestMethod]
+        public void Quad4MembranalTest3()
+        {
+            Material mat = new SteelMaterial("steel", 1.0, 0.0, 355, 510, 7850);
+            PlateProperty prop = new PlateProperty(mat, 0, 1);
+
+            Node[] nds = new Node[4];
+            nds[0] = new Node(+0, +0, 0, 1, "1");
+            nds[1] = new Node(+2, +0, 0, 2, "2");
+            nds[2] = new Node(+2, +2, 0, 3, "3");
+            nds[3] = new Node(+0, +1, 0, 4, "4");
+
+            Quad4Membranal el = new Quad4Membranal(nds, prop, 1);
+            el.BuildMatrix();
+            mnl.Matrix<double> kLocal = el.KElementLocalCoord;
+            mnl.Matrix<double> kLocalManual = mnl.Matrix<double>.Build.Dense(0, 8);
+
+            double[] r0 = new double[] { 0.4808, 0.0577, -0.1154, -0.1538, -0.1346, -0.0962, -0.2308, 0.1923 };
+            double[] r1 = new double[] { 0.0577, 0.6442, 0.0962, 0.1154, -0.0962, -0.2404, -0.0577, -0.5192 };
+            double[] r2 = new double[] { -0.1154, 0.0962, 0.5577, -0.1731, -0.0577, -0.0769, -0.3846, 0.1538 };
+            double[] r3 = new double[] { -0.1538, 0.1154, -0.1731, 0.5673, 0.1731, -0.3173, 0.1538, -0.3654 };
+            double[] r4 = new double[] { -0.1346, -0.0962, -0.0577, 0.1731, 0.3077, 0.0769, -0.1154, -0.1538 };
+            double[] r5 = new double[] { -0.0962, -0.2404, -0.0769, -0.3173, 0.0769, 0.4423, 0.0962, 0.1154 };
+            double[] r6 = new double[] { -0.2308, -0.0577, -0.3846, 0.1538, -0.1154, 0.0962, 0.7308, -0.1923 };
+            double[] r7 = new double[] { 0.1923, -0.5192, 0.1538, -0.3654, -0.1538, 0.1154, -0.1923, 0.7692 };
+
+            kLocalManual = kLocalManual.InsertRow(0, mnl.Vector<double>.Build.Dense(r0));
+            kLocalManual = kLocalManual.InsertRow(1, mnl.Vector<double>.Build.Dense(r1));
+            kLocalManual = kLocalManual.InsertRow(2, mnl.Vector<double>.Build.Dense(r2));
+            kLocalManual = kLocalManual.InsertRow(3, mnl.Vector<double>.Build.Dense(r3));
+            kLocalManual = kLocalManual.InsertRow(4, mnl.Vector<double>.Build.Dense(r4));
+            kLocalManual = kLocalManual.InsertRow(5, mnl.Vector<double>.Build.Dense(r5));
+            kLocalManual = kLocalManual.InsertRow(6, mnl.Vector<double>.Build.Dense(r6));
+            kLocalManual = kLocalManual.InsertRow(7, mnl.Vector<double>.Build.Dense(r7));
+
+            //controllo klocale elemento finito 4 nodi stato piano di tensione
+            Console.WriteLine("kLocal");
+            for (int i = 0; i < kLocal.RowCount; i++)
+            {
+                for (int j = 0; j < kLocal.ColumnCount; j++)
+                {
+                    Console.Write(kLocal[i, j].ToString("F4") + " ");
+                    Assert.AreEqual(kLocal[i, j] - kLocalManual[i, j], 0, 0.001, "kLocal no OK -> row " + i + " col " + j);
+                    //sarebbe stato meglio usare kLocal[i,j] / kLocalManual[i,j] ma 0/0 = NaN!!
+                }
+                Console.WriteLine();
+            }
+        }
+
+        /// <summary>
+        /// TEST local to Gloabal matrix
+        /// </summary>
+        [TestMethod]
+        public void Quad4MembranalTest4()
         {
             Material mat = new SteelMaterial("steel", 1.0, 0.0, 355, 510, 7850);
             PlateProperty prop = new PlateProperty(mat, 0, 1);
@@ -1322,10 +1491,14 @@ namespace FemTest
         }
 
         [TestMethod]
-        public void Quad4MembranalTest3()
+        public void Quad4MembranalTest5()
         {
-            Material mat = new SteelMaterial("steel", 1.0, 0.0, 355, 510, 7850);
-            PlateProperty prop = new PlateProperty(mat, 0, 1);
+            double E = 1.0;
+            double ni = 0.0;
+            Material mat = new SteelMaterial("steel", E, ni, 355, 510, 7850);
+
+            double thickness = 1.0;
+            PlateProperty prop = new PlateProperty(mat, thickness, thickness);
 
             Node[] nds = new Node[4];
             nds[0] = new Node(0, 0, 0, 1, "1");
@@ -1334,20 +1507,50 @@ namespace FemTest
             nds[3] = new Node(0, +1, 0, 4, "4");
 
             CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
-            LoadCase lc = new LoadCase("lc");
-            PlatePressureAttribute pressure = new PlatePressureAttribute(lc, sys, 1, 0, 0);
 
+            FreedomCase freedomCase = new FreedomCase("freedomcase");
+            NodeRestrainAttribute fix = new NodeRestrainAttribute(freedomCase, sys);
+            fix.AddExternalRestrain(LinearSolver.DOF.DX);
+            fix.AddExternalRestrain(LinearSolver.DOF.DY);
+            fix.AddExternalRestrain(LinearSolver.DOF.DZ);
+
+            NodeRestrainAttribute dZ = new NodeRestrainAttribute(freedomCase, sys);
+            dZ.AddExternalRestrain(LinearSolver.DOF.DZ);
+            
+            nds[0].AddAttribute(fix);
+            nds[1].AddAttribute(fix);
+            nds[2].AddAttribute(dZ);
+            nds[3].AddAttribute(dZ);
+
+            LoadCase lc = new LoadCase("lc");
+            double px = 0.1;
+            PlatePressureAttribute pressure = new PlatePressureAttribute(lc, sys, px, 0, 0);
+            
             Quad4Membranal el = new Quad4Membranal(nds, prop, 1);
             el.AddAttribute(pressure);
             
             LinearSolver fem = new LinearSolver(new FiniteElement[] { el });
+            Console.WriteLine("kGlob="+fem.KGlobal);
+            Console.WriteLine("F="+fem.F);
 
-            Console.WriteLine(fem.F);
+            //Check force applied
+            Assert.AreEqual(0.04167, fem.F[0], 0.001);
+            Assert.AreEqual(0.050, fem.F[3], 0.001);
+            Assert.AreEqual(0.0583, fem.F[6], 0.001);
+            Assert.AreEqual(0.050, fem.F[9], 0.001);
 
-            Assert.AreEqual(0.4167, fem.F[0], 0.001);
-            Assert.AreEqual(0.50, fem.F[3], 0.001);
-            Assert.AreEqual(0.583, fem.F[6], 0.001);
-            Assert.AreEqual(0.50, fem.F[9], 0.001);
+            //check stress
+            /*Console.WriteLine("stress");
+            double[] elGlobalDispl = fem.GetDisplacementsGlobalCoordinates(el);
+            el.GetNodesResults(elGlobalDispl, out double[] localDispl,
+                            out mnl.Matrix<double>[] globalPseudoDef, out mnl.Matrix<double>[] localPseudoDef,
+                            out mnl.Matrix<double>[] globalForces, out mnl.Matrix<double>[] localForces,
+                            out mnl.Matrix<double>[] globalStress, out mnl.Matrix<double>[] localStress,
+                            out mnl.Matrix<double>[] globalEpsilon, out mnl.Matrix<double>[] localEpsilon);*/
+
+            //Console.WriteLine(globalStress[0]);
+
+            //Assert.AreEqual(sigmaTopYY, globalStress[0][1, 1], 0.001); //sigmaYY top face
         }
     }
 }

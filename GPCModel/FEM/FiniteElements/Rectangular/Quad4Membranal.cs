@@ -4,7 +4,6 @@ using GPC.Geometry;
 using GPC.Model.FEM.Properties;
 using GPC.Model.FEM.Attributes;
 using mnl = MathNet.Numerics.LinearAlgebra;
-using MathNet.Numerics.LinearAlgebra;
 
 namespace GPC.Model.FEM.FiniteElements
 {
@@ -37,11 +36,7 @@ namespace GPC.Model.FEM.FiniteElements
 
             //calculation of matrix for transformation from Local to Global coordinates
             _localNodes = Quad4Element.LocalNodes(_nodesGlobal, out _localCoordinateSystem);
-            Node node1 = _localNodes[0];
-            Node node2 = _localNodes[1];
-            Node node3 = _localNodes[2];
-            Node node4 = _localNodes[3];
-
+            
             #region TransformationMatrixLocalCoordinatesToGlobalCoordinates
             _dofGlobalToLocal = mnl.Matrix<double>.Build.Dense(12, 8);
 
@@ -104,7 +99,7 @@ namespace GPC.Model.FEM.FiniteElements
             #endregion
             _dofGlobalToLocal = dofGlobalToLocalTranspose.Transpose();
 
-            Console.WriteLine("dofGlobalToLocalTranspose.");
+            /*Console.WriteLine("dofGlobalToLocalTranspose.");
             for (int r = 0; r < dofGlobalToLocalTranspose.RowCount; r++)
             {
                 for (int c = 0; c < dofGlobalToLocalTranspose.ColumnCount; c++)
@@ -112,7 +107,7 @@ namespace GPC.Model.FEM.FiniteElements
                     Console.Write(dofGlobalToLocalTranspose[r,c] + " ");
                 }
                 Console.WriteLine();
-            }
+            }*/
             #endregion            
 
             #region matrixD
@@ -136,7 +131,7 @@ namespace GPC.Model.FEM.FiniteElements
 
             GaussIntegration.GaussPoint[] gaussPoints = GaussIntegration.GetRectangularDomain(4);
 
-            for (int i = 0; i < gaussPoints.Length; i++) //trhough the 2 gauss points
+            for (int i = 0; i < gaussPoints.Length; i++) //trhough the gauss points
             {
                 double csi = gaussPoints[i].Point.X;
                 double eta = gaussPoints[i].Point.Y;
@@ -155,7 +150,7 @@ namespace GPC.Model.FEM.FiniteElements
                     }
                     Console.WriteLine();
                 }*/
-                Console.WriteLine("detJ("+csi.ToString("F2")+","+eta.ToString("F2")+") = " + jacob.Determinant());
+                //Console.WriteLine("detJ("+csi.ToString("F2")+","+eta.ToString("F2")+") = " + jacob.Determinant());
 
                 _kElementLocalCoord = _kElementLocalCoord + gaussPoints[i].Weight * m * jacob.Determinant();
             }
@@ -165,7 +160,7 @@ namespace GPC.Model.FEM.FiniteElements
             #endregion
         }
 
-        public override Matrix<double> GetB(double csi, double eta, double zeta = 0)
+        public override mnl.Matrix<double> GetB(double csi, double eta, double zeta = 0)
         {
             /*
              * THESIS - DEVELOPMENT OF MEMBRANE, PLATE AND SHELL ELEMENTS IN JAVA
@@ -292,6 +287,8 @@ namespace GPC.Model.FEM.FiniteElements
             // l'integrazione delle funzione di forma Ni sul dominio dell'elemento è la quota parte della forza che va nel nodo i
             //esempio: F(nodo 1 = p * integrazione(N1 dcsi deta) = somma gauss N1(csi gauss, eta gauss) * detj(csi gauss, eta guass) * weightgauss
             mnl.Vector<double> _fLocalCoord = mnl.Vector<double>.Build.Dense(2 * Nodes.Length); //2 = DOF in local : DX, DY
+
+            double thk = ((PlateProperty)Property).MembraneThickness;
             foreach (IPlateLoadCaseAttribute iAttribute in _attributesLoadCase)
             {
                 if (iAttribute is PlatePressureAttribute)
@@ -362,33 +359,14 @@ namespace GPC.Model.FEM.FiniteElements
         {
             localDisplacements = GetLocalDisplacement(globalDisplacementsNodes);
             mnl.Vector<double> vecLocalDispl = mnl.Vector<double>.Build.Dense(localDisplacements);
-        
+
             //TODO: aggiornare
-            #region CalculationOfStressAndDeformationsInLocalCoordinates
-            mnl.Vector<double> epsilonLocal = GetB(0, 0) * vecLocalDispl; //epsilon_xx; epsilon_yy; epsilon_xy
-            mnl.Vector<double> stressLocal = D * epsilonLocal; //sigma_xx; sigma_yy; tau_xy
-            /*Console.WriteLine("Strains in Local coordinates:" + epsilon.ToString());
-            Console.WriteLine("Stress in Local coordinates:" + stress.ToString());*/
-            #endregion
-
-            #region ConvertInGlobalCoordinates
-            //Define Couchy Tensor
-            mnl.Matrix<double> epsilonLocalCouchy = mnl.Matrix<double>.Build.Dense(3, 3);
-            epsilonLocalCouchy[0, 0] = epsilonLocal[0]; //epsilon_xx
-            epsilonLocalCouchy[1, 1] = epsilonLocal[1]; //epsilon_yy
-
-            epsilonLocalCouchy[0, 1] = epsilonLocal[2]; //epsilon_xy
-            epsilonLocalCouchy[1, 0] = epsilonLocal[2]; //epsilon_yx
-            //epsilonCouchy[2, 2] = -ni / E * (sigma_xx + sigma_yy) + alpha * Temperature ; //epsilon_zz
-            //Console.WriteLine("Epsilon local coordinate:" + epsilonCouchy.ToString());
-
-            mnl.Matrix<double> stressLocalCouchy = mnl.Matrix<double>.Build.Dense(3, 3);
-            stressLocalCouchy[0, 0] = stressLocal[0]; //sigma_xx
-            stressLocalCouchy[1, 1] = stressLocal[1]; //sigma_yy
-
-            stressLocalCouchy[0, 1] = stressLocal[2]; //sigma_xy
-            stressLocalCouchy[1, 0] = stressLocal[2]; //sigma_yx
-            //Console.WriteLine("Stress local coordinate:" + stressCouchy.ToString());
+            
+            Point2d[] naturalCoordNodes = new Point2d[4];
+            naturalCoordNodes[0] = new Point2d(-1.0, -1.0);
+            naturalCoordNodes[1] = new Point2d(+1.0, -1.0);
+            naturalCoordNodes[2] = new Point2d(+1.0, +1.0);
+            naturalCoordNodes[3] = new Point2d(-1.0, +1.0);
 
             //Rotation matrix
             mnl.Matrix<double> rotation = mnl.Matrix<double>.Build.Dense(3, 3);
@@ -410,26 +388,66 @@ namespace GPC.Model.FEM.FiniteElements
             rotation[2, 2] = zVersor.Z;
             //Console.WriteLine("Rotation matrix tensor:" + rotation.ToString());
 
-            //Second order tensor -> Trotated = Q * T * Q^T
-            mnl.Matrix<double> epsilonGlobalCouchy = rotation * epsilonLocalCouchy * rotation.Transpose();
-            Console.WriteLine("Epsilon in global coordinates = " + epsilonGlobalCouchy);
+            mnl.Vector<double>[] epsilonLocal = new mnl.Vector<double>[4];
+            mnl.Vector<double>[] stressLocal = new mnl.Vector<double>[4];
 
-            mnl.Matrix<double> stressGlobalCouchy = rotation * stressLocalCouchy * rotation.Transpose();
-            Console.WriteLine("Stress in global coordinates = " + stressGlobalCouchy);
-            #endregion
+            mnl.Matrix<double>[] epsilonLocalCouchy = new mnl.Matrix<double>[4];
+            mnl.Matrix<double>[] stressLocalCouchy = new mnl.Matrix<double>[4];
 
-            localPseudoDeformation = new mnl.Matrix<double>[1] { epsilonLocalCouchy };
-            globalPseudoDeformation = new mnl.Matrix<double>[1] { epsilonGlobalCouchy };
+            mnl.Matrix<double>[] epsilonGlobalCouchy = new mnl.Matrix<double>[4];
+            mnl.Matrix<double>[] stressGlobalCouchy = new mnl.Matrix<double>[4];
 
-            localStress = new mnl.Matrix<double>[1] { stressLocalCouchy };
-            globalStress = new mnl.Matrix<double>[1] { stressGlobalCouchy };
+            globalForces = new mnl.Matrix<double>[4];
+            localForces = new mnl.Matrix<double>[4];
 
             double thickness = ((PlateProperty)_property).MembraneThickness;
-            globalForces = new mnl.Matrix<double>[1] { thickness * stressGlobalCouchy };
-            localForces = new mnl.Matrix<double>[1] { thickness * stressLocalCouchy };
-                        
-            globalEpsilon = new mnl.Matrix<double>[1] { epsilonGlobalCouchy };
-            localEpsilon = new mnl.Matrix<double>[1] { stressGlobalCouchy };
+
+            for (int i = 0; i < naturalCoordNodes.Length; i++) {
+                #region CalculationOfStressAndDeformationsInLocalCoordinates
+                epsilonLocal[i] = GetB(naturalCoordNodes[i].X, naturalCoordNodes[i].Y) * vecLocalDispl; //epsilon_xx; epsilon_yy; epsilon_xy
+                stressLocal[i] = D * epsilonLocal[i]; //sigma_xx; sigma_yy; tau_xy
+                /*Console.WriteLine("Strains in Local coordinates:" + epsilon.ToString());
+                Console.WriteLine("Stress in Local coordinates:" + stress.ToString());*/
+                #endregion
+
+                #region ConvertInGlobalCoordinates
+                epsilonLocalCouchy[i] = mnl.Matrix<double>.Build.Dense(3, 3);
+                epsilonLocalCouchy[i][0, 0] = epsilonLocal[i][0]; //epsilon_xx
+                epsilonLocalCouchy[i][1, 1] = epsilonLocal[i][1]; //epsilon_yy
+
+                epsilonLocalCouchy[i][0, 1] = epsilonLocal[i][2]; //epsilon_xy
+                epsilonLocalCouchy[i][1, 0] = epsilonLocal[i][2]; //epsilon_yx
+                                                            //epsilonCouchy[2, 2] = -ni / E * (sigma_xx + sigma_yy) + alpha * Temperature ; //epsilon_zz
+                                                            //Console.WriteLine("Epsilon local coordinate:" + epsilonCouchy.ToString());
+
+                stressLocalCouchy[i] = mnl.Matrix<double>.Build.Dense(3, 3);
+                stressLocalCouchy[i][0, 0] = stressLocal[i][0]; //sigma_xx
+                stressLocalCouchy[i][1, 1] = stressLocal[i][1]; //sigma_yy
+
+                stressLocalCouchy[i][0, 1] = stressLocal[i][2]; //sigma_xy
+                stressLocalCouchy[i][1, 0] = stressLocal[i][2]; //sigma_yx
+                                                          //Console.WriteLine("Stress local coordinate:" + stressCouchy.ToString());
+
+                //Second order tensor -> Trotated = Q * T * Q^T
+                epsilonGlobalCouchy[i] = rotation * epsilonLocalCouchy[i] * rotation.Transpose();
+                //Console.WriteLine("Epsilon in global coordinates = " + epsilonGlobalCouchy);
+
+                stressGlobalCouchy[i] = rotation * stressLocalCouchy[i] * rotation.Transpose();
+                //Console.WriteLine("Stress in global coordinates = " + stressGlobalCouchy);
+                #endregion
+
+                globalForces[i] = thickness * stressGlobalCouchy[i];
+                localForces[i] = thickness * stressLocalCouchy[i];
+            }
+
+            localPseudoDeformation = epsilonLocalCouchy;
+            globalPseudoDeformation = epsilonGlobalCouchy;
+
+            localStress = stressLocalCouchy;
+            globalStress = stressGlobalCouchy;
+
+            globalEpsilon = epsilonGlobalCouchy;
+            localEpsilon = stressGlobalCouchy;
         }
     }
 }
