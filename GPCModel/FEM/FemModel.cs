@@ -360,15 +360,7 @@ namespace GPC.Model.FEM
                                                                             _nodes[nodesNewIndexMap.ContainsKey(face.C) ? nodesNewIndexMap[face.C] : face.C],
                                                                             _nodes[nodesNewIndexMap.ContainsKey(face.D) ? nodesNewIndexMap[face.D] : face.D] };
 
-                        /* Giorgio: Commentato per togliere il warning CS0219 dovuto alla variabile "a" assegnata e mai usata
-                        for (int i = 0; i < nodes.Length - 1; i++)
-                        {
-                            if (nodes[i].Position.DistanceTo(nodes[i + 1].Position) > 20)
-                            {
-                                int a = 1;
-                            }
-                        } */
-
+                        
                         var plateIndex = _elements.Add(new Plate(new Node[] { _nodes[nodesNewIndexMap.ContainsKey(face.A) ? nodesNewIndexMap[face.A] : face.A],
                                                                               _nodes[nodesNewIndexMap.ContainsKey(face.B) ? nodesNewIndexMap[face.B] : face.B],
                                                                               _nodes[nodesNewIndexMap.ContainsKey(face.C) ? nodesNewIndexMap[face.C] : face.C],
