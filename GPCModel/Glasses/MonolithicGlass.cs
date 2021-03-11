@@ -25,7 +25,9 @@ namespace GPC.Model.Glasses
 
         public double Thickness => _thickness;
 
-        public GlassMaterial Material => _material; 
+        public GlassMaterial Material => _material;
+
+        public double TotalThickness => _thickness;
 
         #endregion
 

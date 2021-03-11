@@ -24,7 +24,10 @@ namespace GPC.Model.Glasses
         #region Properties
 
         public MonolithicGlass[] MonolithicGlasses => _monolithicGlasses;
+
         public Interlayer[] Interlayers => _interlayers;
+
+        public double TotalThickness => _monolithicGlasses.Sum(glass => glass.Thickness) + _interlayers.Sum(interlayer => interlayer.Thickness);
 
         #endregion Properties
 
