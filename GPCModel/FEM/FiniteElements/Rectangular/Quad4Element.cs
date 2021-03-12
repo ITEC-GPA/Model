@@ -479,7 +479,7 @@ namespace GPC.Model.FEM.FiniteElements
             Vector3d v14 = new Vector3d(nodeL.Position.X - nodeI.Position.X, nodeL.Position.Y - nodeI.Position.Y, nodeL.Position.Z - nodeI.Position.Z);
 
             Node[] localNodes = new Node[4];
-            localNodes[0] = new Node(0, 0, 0, nodeI.Id, nodeI.Name); //Origin GlobalNodes.ElementAt(1 - 1);
+            localNodes[0] = new Node(0.0, 0, 0, nodeI.Id, nodeI.Name); //Origin GlobalNodes.ElementAt(1 - 1);
             localNodes[1] = new Node(v12.DotProduct(vecx), v12.DotProduct(vecy), v12.DotProduct(vecz), nodeJ.Id, nodeJ.Name); //Axis x GlobalNodes.ElementAt(2 - 1);
             localNodes[2] = new Node(v13.DotProduct(vecx), v13.DotProduct(vecy), v13.DotProduct(vecz), nodeK.Id, nodeK.Name); //GlobalNodes.ElementAt(3 - 1);
             localNodes[3] = new Node(v14.DotProduct(vecx), v14.DotProduct(vecy), v14.DotProduct(vecz), nodeL.Id, nodeL.Name); //GlobalNodes.ElementAt(4 - 1);

@@ -62,6 +62,11 @@ namespace GPC.Model.FEM
 
         }
 
+        public Node(int id, double X, double Y, double Z, string label = "") : this(new Point3d(X, Y, Z), id, label)
+        {
+
+        }
+
         public void SetID(int id)
         {
             base.SetId(id);

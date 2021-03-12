@@ -40,7 +40,7 @@ namespace GeneralTest
             List<Node> nodesCollection = new List<Node>();
             for (int i = 0; i < amountOfNodes; i++)
             {
-                nodesCollection.Add(new Node(10, 20, 30, indexArray[i]));
+                nodesCollection.Add(new Node(10.0, 20, 30, indexArray[i]));
             }
         }
 
@@ -51,7 +51,7 @@ namespace GeneralTest
 
             for (int i = 0; i < amountOfNodes; i++)
             {
-                nodesCollection.Add(new Node(10, 20, 30, indexArray[i]));
+                nodesCollection.Add(new Node(10.0, 20, 30, indexArray[i]));
             }
         }
 
@@ -62,7 +62,7 @@ namespace GeneralTest
 
             for (int i = 0; i < amountOfNodes; i++)
             {
-                nodesCollection.Add(i, new Node(10, 20, 30, indexArray[i]));
+                nodesCollection.Add(i, new Node(10.0, 20, 30, indexArray[i]));
             }
         }
 
