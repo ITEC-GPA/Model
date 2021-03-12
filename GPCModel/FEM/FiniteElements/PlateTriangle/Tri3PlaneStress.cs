@@ -4,7 +4,6 @@ using GPC.Geometry;
 using GPC.Model.FEM.Properties;
 using GPC.Model.FEM.Attributes;
 using mnl = MathNet.Numerics.LinearAlgebra;
-using MathNet.Numerics.LinearAlgebra;
 
 namespace GPC.Model.FEM.FiniteElements
 {
@@ -158,7 +157,7 @@ namespace GPC.Model.FEM.FiniteElements
             #endregion
         }
 
-        public override Matrix<double> GetB(double csi = 0, double eta = 0, double zeta = 0)
+        public override mnl.Matrix<double> GetB(double csi = 0, double eta = 0, double zeta = 0)
         {
             return _b; //constant in the element
         }

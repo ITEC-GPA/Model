@@ -78,6 +78,7 @@
     <Compile Include="FEM\ElementProperty\IPlateProperty.cs" />
     <Compile Include="FEM\ElementProperty\LaminatedGlassProperty.cs" />
     <Compile Include="FEM\ElementProperty\MonolithicGlassProperty.cs" />
+    <Compile Include="FEM\FiniteElements\PlateTriangle\Tri3OPTMembrane.cs" />
     <Compile Include="FEM\FiniteElements\Rectangular\Quad4Membranal.cs" />
     <Compile Include="FEM\FiniteElements\Rectangular\Quad4Element.cs" />
     <Compile Include="FEM\GaussIntegration.cs" />

@@ -1552,5 +1552,67 @@ namespace FemTest
 
             //Assert.AreEqual(sigmaTopYY, globalStress[0][1, 1], 0.001); //sigmaYY top face
         }
+
+        [TestMethod]
+        public void TriOPTMembranalTest1()
+        {
+            double E = 120.0;
+            double ni = 1.0 / 4.0;
+            Material mat = new SteelMaterial("steel", E, ni, 355, 510, 7850);
+
+            double thickness = 1.0 / 8.0;
+            PlateProperty prop = new PlateProperty(mat, thickness, thickness);
+
+            Node[] nds = new Node[3];
+            nds[0] = new Node(+0.00, +0.00, 0.0, 1, "1");
+            nds[1] = new Node(+4.08, -3.44, 0.0, 2, "2");
+            nds[2] = new Node(+3.40, +1.14, 0.0, 3, "3");
+
+            Tri3OPTMembrane el = new Tri3OPTMembrane(nds, prop, 1);
+
+            /*CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
+
+            FreedomCase freedomCase = new FreedomCase("freedomcase");
+            NodeRestrainAttribute fix = new NodeRestrainAttribute(freedomCase, sys);
+            fix.AddExternalRestrain(LinearSolver.DOF.DX);
+            fix.AddExternalRestrain(LinearSolver.DOF.DY);
+            fix.AddExternalRestrain(LinearSolver.DOF.DZ);
+
+            NodeRestrainAttribute dZ = new NodeRestrainAttribute(freedomCase, sys);
+            dZ.AddExternalRestrain(LinearSolver.DOF.DZ);
+
+            nds[0].AddAttribute(fix);
+            nds[1].AddAttribute(fix);
+            nds[2].AddAttribute(dZ);
+            nds[3].AddAttribute(dZ);
+
+            LoadCase lc = new LoadCase("lc");
+            double px = 0.1;
+            PlatePressureAttribute pressure = new PlatePressureAttribute(lc, sys, px, 0, 0)
+            el.AddAttribute(pressure);*/
+
+            LinearSolver fem = new LinearSolver(new FiniteElement[] { el });
+            Console.WriteLine("kGlob=" + fem.KGlobal);
+            //Console.WriteLine("F=" + fem.F);
+
+            //Check force applied
+            /*Assert.AreEqual(0.04167, fem.F[0], 0.001);
+            Assert.AreEqual(0.050, fem.F[3], 0.001);
+            Assert.AreEqual(0.0583, fem.F[6], 0.001);
+            Assert.AreEqual(0.050, fem.F[9], 0.001);*/
+
+            //check stress
+            /*Console.WriteLine("stress");
+            double[] elGlobalDispl = fem.GetDisplacementsGlobalCoordinates(el);
+            el.GetNodesResults(elGlobalDispl, out double[] localDispl,
+                            out mnl.Matrix<double>[] globalPseudoDef, out mnl.Matrix<double>[] localPseudoDef,
+                            out mnl.Matrix<double>[] globalForces, out mnl.Matrix<double>[] localForces,
+                            out mnl.Matrix<double>[] globalStress, out mnl.Matrix<double>[] localStress,
+                            out mnl.Matrix<double>[] globalEpsilon, out mnl.Matrix<double>[] localEpsilon);*/
+
+            //Console.WriteLine(globalStress[0]);
+
+            //Assert.AreEqual(sigmaTopYY, globalStress[0][1, 1], 0.001); //sigmaYY top face
+        }
     }
 }
