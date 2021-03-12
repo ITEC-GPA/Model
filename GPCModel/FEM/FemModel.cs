@@ -137,8 +137,13 @@ namespace GPC.Model.FEM
             }
 
             // Genera la mesh
-            List<Mesh> meshes = Mesh.Generate(new List<Shape> { shape }, new Dictionary<Shape, GeometryBase[]>() { [shape] = embeddedGeometries.ToArray() }, 
-                                              out Dictionary<Mesh, Dictionary<GeometryBase, int[]>> embeddedGeometriesVertexMap);
+
+            bool status = Mesh.Generate(new List<Shape> { shape }, new Dictionary<Shape, GeometryBase[]>() { [shape] = embeddedGeometries.ToArray() }, null, null, out List<Mesh> meshes, out Mesh.GenerateMeshStatus generateMeshStatus);
+
+            if (!status)
+            {                
+                throw generateMeshStatus.GetLastException();
+            }
 
             if (meshes.Count > 1) // Non è possibile ma controlliamo lo stesso
                 throw new Exception();
@@ -156,13 +161,13 @@ namespace GPC.Model.FEM
                 {
                     if (load is IPointLoad pl)
                     {
-                        if (embeddedGeometriesVertexMap[meshes.First()].ContainsKey(load.GetGeometry()))
-                            vertexLoadMeshEntityMap[pl] = embeddedGeometriesVertexMap[meshes.First()][load.GetGeometry()];
+                        if (generateMeshStatus.EmbeddedGeometriesVertexMap[meshes.First()].ContainsKey(load.GetGeometry()))
+                            vertexLoadMeshEntityMap[pl] = generateMeshStatus.EmbeddedGeometriesVertexMap[meshes.First()][load.GetGeometry()];
                     }
                     else if (load is ILineLoad ll)
                     {
-                        if (embeddedGeometriesVertexMap[meshes.First()].ContainsKey(load.GetGeometry()))
-                            vertexLineLoadMeshEntityMap[ll] = embeddedGeometriesVertexMap[meshes.First()][load.GetGeometry()];
+                        if (generateMeshStatus.EmbeddedGeometriesVertexMap[meshes.First()].ContainsKey(load.GetGeometry()))
+                            vertexLineLoadMeshEntityMap[ll] = generateMeshStatus.EmbeddedGeometriesVertexMap[meshes.First()][load.GetGeometry()];
                     }
                     else if (load is IAreaLoad)
                     {
@@ -177,7 +182,7 @@ namespace GPC.Model.FEM
             {
                 foreach (var restrain in restrains)
                 {
-                    restrainMeshEntityMap[restrain] = embeddedGeometriesVertexMap[meshes.First()][restrain.GetGeometry()];
+                    restrainMeshEntityMap[restrain] = generateMeshStatus.EmbeddedGeometriesVertexMap[meshes.First()][restrain.GetGeometry()];
                 } 
             }
 
