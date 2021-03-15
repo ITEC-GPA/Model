@@ -66,6 +66,7 @@ namespace GPC.Model.Loads
         }
 
         public Shape GetGeometry() => _shape;
+        public override GeometryBase GetGeometryBase() => GetGeometry();
 
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {

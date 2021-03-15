@@ -81,6 +81,7 @@ namespace GPC.Model.Loads
         }
 
         public Line3d GetGeometry() => _line;
+        public override GeometryBase GetGeometryBase() => GetGeometry();
 
 
         public LineLoad(SerializationInfo info, StreamingContext context)

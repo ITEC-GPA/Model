@@ -32,6 +32,9 @@ namespace GPC.Model.Loads
             info.AddValue("LoadCase", _loadCase);
         }
 
+
+        public abstract GeometryBase GetGeometryBase();
+
         #region Equals, HasCode and operators
         public override bool Equals(object obj)
         {

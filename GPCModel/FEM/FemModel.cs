@@ -529,7 +529,8 @@ namespace GPC.Model.FEM
                 {
                     ILineLoad load = kvp.Key;
                     int[] indexes = kvp.Value;
-                    
+                    var lineLenght = load.GetGeometry().GetLength();
+
                     foreach (var index in indexes)
                     {
                         int nodeId = nodesNewIndexMap.ContainsKey(index) ? nodesNewIndexMap[index] : index;
@@ -540,7 +541,11 @@ namespace GPC.Model.FEM
                         {
                             var l = ll.GetGeometry();
 
-                            NodeForceAttribute nfa = new NodeForceAttribute(ll.LoadCase, ll.CoordinateSystem, ll.F1 / indexes.Count(), ll.F2 / indexes.Count(), ll.F3 / indexes.Count(), ll.M1 / indexes.Count(), ll.M2 / indexes.Count(), ll.M3 / indexes.Count());
+                            // carico è F/L o FL/L
+                            // carico puntuale è F/L*L/nnodi
+                            NodeForceAttribute nfa = new NodeForceAttribute(ll.LoadCase, ll.CoordinateSystem, ll.F1 * lineLenght / indexes.Count(), ll.F2 * lineLenght / indexes.Count(), 
+                                                                            ll.F3 * lineLenght / indexes.Count(), ll.M1 * lineLenght / indexes.Count(), ll.M2 * lineLenght / indexes.Count(),
+                                                                            ll.M3 * lineLenght / indexes.Count());
                             node.AddAttribute(nfa);
 
                             if (!_loadCases.ContainsKey(ll.LoadCase))
