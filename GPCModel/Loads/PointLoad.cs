@@ -80,7 +80,7 @@ namespace GPC.Model.Loads
             
         }
 
-        public override GeometryBase GetGeometry() => _point;
+        public Point3d GetGeometry() => _point;
 
 
         public PointLoad(SerializationInfo info, StreamingContext context)

@@ -109,8 +109,10 @@ namespace GPC.Model.FEM
             {
                 foreach (var load in loads)
                 {
-                    if (load is LineLoad || load is PointLoad)
-                        embeddedGeometries.Add(load.GetGeometry());
+                    if (load is LineLoad ll)
+                        embeddedGeometries.Add(ll.GetGeometry());
+                    else if (load is PointLoad pl)
+                        embeddedGeometries.Add(pl.GetGeometry());
                     else if (load is AreaLoad || load is NormalAreaLoad)
                         throw new NotImplementedException($"Load type: {load.GetType()} not implemented");
                     else
@@ -161,13 +163,13 @@ namespace GPC.Model.FEM
                 {
                     if (load is IPointLoad pl)
                     {
-                        if (generateMeshStatus.EmbeddedGeometriesVertexMap[meshes.First()].ContainsKey(load.GetGeometry()))
-                            vertexLoadMeshEntityMap[pl] = generateMeshStatus.EmbeddedGeometriesVertexMap[meshes.First()][load.GetGeometry()];
+                        if (generateMeshStatus.EmbeddedGeometriesVertexMap[meshes.First()].ContainsKey(pl.GetGeometry()))
+                            vertexLoadMeshEntityMap[pl] = generateMeshStatus.EmbeddedGeometriesVertexMap[meshes.First()][pl.GetGeometry()];
                     }
                     else if (load is ILineLoad ll)
                     {
-                        if (generateMeshStatus.EmbeddedGeometriesVertexMap[meshes.First()].ContainsKey(load.GetGeometry()))
-                            vertexLineLoadMeshEntityMap[ll] = generateMeshStatus.EmbeddedGeometriesVertexMap[meshes.First()][load.GetGeometry()];
+                        if (generateMeshStatus.EmbeddedGeometriesVertexMap[meshes.First()].ContainsKey(ll.GetGeometry()))
+                            vertexLineLoadMeshEntityMap[ll] = generateMeshStatus.EmbeddedGeometriesVertexMap[meshes.First()][ll.GetGeometry()];
                     }
                     else if (load is IAreaLoad)
                     {
@@ -527,7 +529,7 @@ namespace GPC.Model.FEM
                 {
                     ILineLoad load = kvp.Key;
                     int[] indexes = kvp.Value;
-
+                    
                     foreach (var index in indexes)
                     {
                         int nodeId = nodesNewIndexMap.ContainsKey(index) ? nodesNewIndexMap[index] : index;
@@ -536,7 +538,9 @@ namespace GPC.Model.FEM
 
                         if (load is LineLoad ll)
                         {
-                            NodeForceAttribute nfa = new NodeForceAttribute(ll.LoadCase, ll.CoordinateSystem, ll.F1, ll.F2, ll.F3, ll.M1, ll.M2, ll.M3);
+                            var l = ll.GetGeometry();
+
+                            NodeForceAttribute nfa = new NodeForceAttribute(ll.LoadCase, ll.CoordinateSystem, ll.F1 / indexes.Count(), ll.F2 / indexes.Count(), ll.F3 / indexes.Count(), ll.M1 / indexes.Count(), ll.M2 / indexes.Count(), ll.M3 / indexes.Count());
                             node.AddAttribute(nfa);
 
                             if (!_loadCases.ContainsKey(ll.LoadCase))
