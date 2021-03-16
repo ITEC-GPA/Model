@@ -75,9 +75,8 @@ namespace GPC.Model.FEM.FiniteElements
             #region TransformationMatrixLocalCoordinatesToGlobalCoordinates
 
             _localNodes = Tri3Element.LocalNodes(_nodesGlobal, out _localCoordinateSystem); //take global node and transform in local nodes
-            /*Node node1 = localNodes[0];
-            Node node2 = localNodes[1];
-            Node node3 = localNodes[2];*/
+            Console.WriteLine("Element Local Nodes");
+            _localNodes.ToList().ForEach(x => Console.WriteLine(x));
             
             _dofGlobalToLocal = mnl.Matrix<double>.Build.Dense(9, 18);
             mnl.Matrix<double> dofGlobalToLocalTranspose = mnl.Matrix<double>.Build.Dense(18, 9);
@@ -89,9 +88,6 @@ namespace GPC.Model.FEM.FiniteElements
             Vector3d localX = LocalCoordinateSystem.V1;
             Vector3d localY = LocalCoordinateSystem.V2;
             Vector3d localZ = LocalCoordinateSystem.V3;
-
-            /*Console.WriteLine("kb:" + k[0]);
-            Console.WriteLine("kh:" + k[1]);*/
 
             #region localToGlobalNode1
             //local node1 x-displacement in global coordinate
@@ -177,8 +173,9 @@ namespace GPC.Model.FEM.FiniteElements
             double y13 = -y31;
 
             _areaElement = (y21 * x13 - x21 * y13) / 2.0;
+            Console.WriteLine("element area " + _areaElement);
 
-            #region UNUSED
+            #region SHOULDBEUSEDFORNONISOTROPMATERIAL
 
             /*
              * This part came directly from routine in Mathematica of "A study of optimal membrane triangles with drilling
@@ -220,7 +217,7 @@ namespace GPC.Model.FEM.FiniteElements
 
             //Coefficient for OPTimal element
             double alphab = 3.0 / 2.0;
-            double beta0 = Math.Max(1.0 / 2.0 * (1.0 - 4.0 * ni * ni), 0.01);//Math.Max(2.0 / e11C11avg - 3.0 / 2.0, 0.01);
+            double beta0 = Math.Max(1.0 / 2.0 * (1.0 - 4.0 * ni * ni), 0.01);//Non isotrop material: Math.Max(2.0 / e11C11avg - 3.0 / 2.0, 0.01);
             double beta1 = 1.0;
             double beta2 = 2.0;
             double beta3 = 1.0;
@@ -242,9 +239,21 @@ namespace GPC.Model.FEM.FiniteElements
             _L = _L.InsertRow(7, mnl.Vector<double>.Build.Dense(new double[] { 0.0, x21, y12 }));
             _L = _L.InsertRow(8, alphab / 6.0 * mnl.Vector<double>.Build.Dense(new double[] { y12 * (y32 - y13), x21 * (x23 - x31), (x23 * y32 - x31 * y13) * 2.0 }));
 
+            //Console.WriteLine("2 / h * L = " + _L);
+
             _L = _L * _thickness / 2.0;
 
             mnl.Matrix<double> kb = _L * D * _L.Transpose() / (_thickness * _areaElement);
+
+            /*Console.WriteLine("kb = ");
+            for (int r = 0; r < kb.RowCount; r++)
+            {
+                for (int c = 0; c < kb.ColumnCount; c++)
+                {
+                    Console.Write(kb[r, c].ToString("F2") + " ");
+                }
+                Console.WriteLine();
+            }*/
 
             _Tthetau = mnl.Matrix<double>.Build.Dense(0, 9);
             _Tthetau = _Tthetau.InsertRow(0, 1.0 / (4.0 * _areaElement) * mnl.Vector<double>.Build.Dense(new double[] { x32, y32, 4.0 * _areaElement, x13, y13, 0.0, x21, y21, 0.0 }));
@@ -273,7 +282,7 @@ namespace GPC.Model.FEM.FiniteElements
             _Q3 = mnl.Matrix<double>.Build.Dense(0, 3);
             _Q3 = _Q3.InsertRow(0, mnl.Vector<double>.Build.Dense(new double[] { beta5, beta6, beta4 }) / ll21 * 2.0 * _areaElement / 3.0);
             _Q3 = _Q3.InsertRow(1, mnl.Vector<double>.Build.Dense(new double[] { beta8, beta9, beta7 }) / ll32 * 2.0 * _areaElement / 3.0);
-            _Q3 = _Q3.InsertRow(2, mnl.Vector<double>.Build.Dense(new double[] { beta2, beta3, beta1 }) / ll13 * 2.0 * _areaElement / 3.0); //attention Section 6 different with section 4.6!!!
+            _Q3 = _Q3.InsertRow(2, mnl.Vector<double>.Build.Dense(new double[] { beta2, beta3, beta1 }) / ll13 * 2.0 * _areaElement / 3.0); //attention Section 6 different with section 4.6!!! beta2, beta3, beta1 
 
             mnl.Matrix<double> Q4 = (_Q1 + _Q2) / 2.0;
             mnl.Matrix<double> Q5 = (_Q2 + _Q3) / 2.0;
@@ -282,6 +291,16 @@ namespace GPC.Model.FEM.FiniteElements
             mnl.Matrix<double> Enat = _Te.Transpose() * D * _Te;
             mnl.Matrix<double> kTheta = 3.0 / 4.0 * beta0 * _thickness * _areaElement * (Q4.Transpose() * Enat * Q4 + Q5.Transpose() * Enat * Q5 + Q6.Transpose() * Enat * Q6);
             mnl.Matrix<double> kh = _Tthetau.Transpose() * kTheta * _Tthetau;
+
+            /*Console.WriteLine("kh = ");
+            for (int r = 0; r < kh.RowCount; r++)
+            {
+                for (int c = 0; c < kh.ColumnCount; c++)
+                {
+                    Console.Write(kh[r, c].ToString("F2") + " ");
+                }
+                Console.WriteLine();
+            }*/
 
             _kElementLocalCoord = kb + kh; //k basic stiffness + k higher order stiffness (drilling)
             /*Console.WriteLine("KElementLocalCoord = ");
@@ -386,7 +405,7 @@ namespace GPC.Model.FEM.FiniteElements
             #region CalculationOfStressAndDeformationsInLocalCoordinates
             mnl.Vector<double>[] epsilonLocal = new mnl.Vector<double>[] {
                 //epsilon_xx; epsilon_yy; epsilon_xy
-                GetB(0, 0, 0) * vecLocalDispl, //Node1
+                GetB(_localNodes[0].Position.X, _localNodes[0].Position.Y, 0) * vecLocalDispl, //Node1
                 GetB(_localNodes[1].Position.X, _localNodes[1].Position.Y, 0) * vecLocalDispl, //Node2
                 GetB(_localNodes[2].Position.X, _localNodes[2].Position.Y, 0) * vecLocalDispl, //Node3
                 GetB(xG, yG, 0) * vecLocalDispl, //Centroid

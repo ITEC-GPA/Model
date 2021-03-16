@@ -69,7 +69,11 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="DescriptionAttributesTest.cs" />
-    <Compile Include="FemSolverTest.cs" />
+    <Compile Include="FEM\Plates\Tri3OPT.cs" />
+    <Compile Include="FEM\FemSolverTest.cs" />
+    <Compile Include="FEM\Plates\MembraneTest.cs" />
+    <Compile Include="FEM\Plates\ElementTest.cs" />
+    <Compile Include="FEM\Plates\DKTTest.cs" />
     <Compile Include="InterlayerMaterialTest.cs" />
     <Compile Include="ResultTest.cs" />
     <Compile Include="MaterialTest.cs" />
