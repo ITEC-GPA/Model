@@ -16,6 +16,7 @@ using GPC.Model.LoadCases;
 using GPC.Model.Restrains;
 using GPC.Model.Loads;
 using GPC.Model.Results;
+using GPC.Model.Combinations;
 
 namespace GPC.Model.FEM
 {
@@ -33,16 +34,19 @@ namespace GPC.Model.FEM
         /// </summary>
         protected FemObjectCollection<FiniteElement> _elements;
 
-
+        // indice del valore dei dizionari parte da 1
         protected Dictionary<IPlateProperty, int> _plateProperties;
         protected Dictionary<IBrickProperty, int> _brickProperties;
 
-        protected Dictionary<LoadCase, int> _loadCases;
-        protected Dictionary<FreedomCase, int> _freedomCases;
+        protected Dictionary<LoadCase, int> _loadCases
+        protected Dictionary<Combination, int> _combinations;
+
+        protected Dictionary<FreedomCase, int> _freedomCases; 
 
         protected List<Load> _loads;
 
         protected List<ResultPlateStress> _resultPlateStress;
+
 
         // CoordinatesSystem ? 
 
@@ -70,8 +74,10 @@ namespace GPC.Model.FEM
 
             _plateProperties = new Dictionary<IPlateProperty, int>();
             _brickProperties = new Dictionary<IBrickProperty, int>();
+
             _loadCases = new Dictionary<LoadCase, int>();
             _freedomCases = new Dictionary<FreedomCase, int>();
+            _combinations = new Dictionary<Combination, int>();
 
             _loads = new List<Load>();
             
@@ -514,7 +520,7 @@ namespace GPC.Model.FEM
                             node.AddAttribute(nfa);
 
                             if (!_loadCases.ContainsKey(pl.LoadCase))
-                                _loadCases[pl.LoadCase] = _loadCases.Values.Count > 0 ? _loadCases.Values.Max() + 1 : 1;
+                                _loadCases[pl.LoadCase] = _loadCases.Values.DefaultIfEmpty().Max() + 1;
                         }
                         else
                             throw new NotImplementedException();
@@ -549,7 +555,7 @@ namespace GPC.Model.FEM
                             node.AddAttribute(nfa);
 
                             if (!_loadCases.ContainsKey(ll.LoadCase))
-                                _loadCases[ll.LoadCase] = _loadCases.Values.Count > 0 ? _loadCases.Values.Max() + 1 : 1 ;
+                                _loadCases[ll.LoadCase] = _loadCases.Values.DefaultIfEmpty().Max() + 1;
                         }
                         else
                             throw new NotImplementedException();
@@ -582,7 +588,7 @@ namespace GPC.Model.FEM
                             plate.AddAttribute(pna);
 
                             if (!_loadCases.ContainsKey(pl.LoadCase))
-                                _loadCases[pl.LoadCase] = _loadCases.Values.Count > 0 ? _loadCases.Values.Max() + 1 : 1;
+                                _loadCases[pl.LoadCase] = _loadCases.Values.DefaultIfEmpty().Max() + 1;
                         }
                         else if (load is AreaLoad gal)
                         {
@@ -590,7 +596,7 @@ namespace GPC.Model.FEM
                             plate.AddAttribute(ppa);
 
                             if (!_loadCases.ContainsKey(gal.LoadCase))
-                                _loadCases[gal.LoadCase] = _loadCases.Values.Count > 0 ? _loadCases.Values.Max() + 1 : 1;
+                                _loadCases[gal.LoadCase] = _loadCases.Values.DefaultIfEmpty().Max() + 1;
                         }
                         else
                             throw new NotImplementedException();
@@ -625,6 +631,25 @@ namespace GPC.Model.FEM
         public virtual void AddGeometryRestrain()
         {
             throw new NotImplementedException();
+        }
+
+        public virtual void AddCombination(Combination combination)
+        {
+            if (!_combinations.ContainsKey(combination))
+            {
+                _combinations.Add(combination, _combinations.Values.DefaultIfEmpty().Max() + 1);
+            }
+        }
+        public virtual void AddCombinations(List<Combination> combinations)
+        {
+            int index = _combinations.Values.DefaultIfEmpty().Max();
+            foreach (var combination in combinations)
+            {
+                if (!_combinations.ContainsKey(combination))
+                {
+                    _combinations.Add(combination, index++);
+                }
+            }
         }
 
 
