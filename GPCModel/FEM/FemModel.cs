@@ -38,7 +38,7 @@ namespace GPC.Model.FEM
         protected Dictionary<IPlateProperty, int> _plateProperties;
         protected Dictionary<IBrickProperty, int> _brickProperties;
 
-        protected Dictionary<LoadCase, int> _loadCases
+        protected Dictionary<LoadCase, int> _loadCases;
         protected Dictionary<Combination, int> _combinations;
 
         protected Dictionary<FreedomCase, int> _freedomCases; 
