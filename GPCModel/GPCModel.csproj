@@ -38,8 +38,8 @@
     <Reference Include="GMsh.Net, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\GMsh.Net.1.0.0.1\lib\net472\GMsh.Net.dll</HintPath>
     </Reference>
-    <Reference Include="GPCGeometry, Version=1.0.5.5, Culture=neutral, processorArchitecture=AMD64">
-      <HintPath>..\packages\GPCGeometry.1.0.5.5\lib\net472\GPCGeometry.dll</HintPath>
+    <Reference Include="GPCGeometry, Version=1.0.6.1, Culture=neutral, processorArchitecture=AMD64">
+      <HintPath>..\packages\GPCGeometry.1.0.6.1\lib\net472\GPCGeometry.dll</HintPath>
     </Reference>
     <Reference Include="GPCUtilities, Version=1.0.17.0, Culture=neutral, processorArchitecture=AMD64">
       <HintPath>..\packages\GPCUtilities.1.0.17\lib\net472\GPCUtilities.dll</HintPath>
