@@ -14,10 +14,7 @@ namespace GPC.Model.FEM
         private Point3d _position;
 
         private List<INodeLoadCaseAttribute> _attributesLoadCase;
-
         private List<INodeFreedomCaseAttribute> _attributesFreedomCase;
-
-
         #endregion
 
         #region Properties
