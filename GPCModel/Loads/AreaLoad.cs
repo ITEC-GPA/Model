@@ -65,7 +65,8 @@ namespace GPC.Model.Loads
             throw new NotImplementedException();
         }
 
-        public override GeometryBase GetGeometry() => _shape;
+        public Shape GetGeometry() => _shape;
+        public override GeometryBase GetGeometryBase() => GetGeometry();
 
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {

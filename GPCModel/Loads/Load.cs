@@ -25,14 +25,15 @@ namespace GPC.Model.Loads
             _loadCase = (LoadCase)info.GetValue("LoadCase", typeof(LoadCase));
         }
 
-        public abstract GeometryBase GetGeometry();
-
 
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             base.GetObjectData(info, context);
             info.AddValue("LoadCase", _loadCase);
         }
+
+
+        public abstract GeometryBase GetGeometryBase();
 
         #region Equals, HasCode and operators
         public override bool Equals(object obj)

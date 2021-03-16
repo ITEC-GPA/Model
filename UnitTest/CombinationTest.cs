@@ -176,24 +176,27 @@ namespace ModelObjectTest
             List<LoadCase> loadCases = new List<LoadCase>();
             List<double> coefficients = new List<double>();
 
-            loadCases.Add(new LoadCase("Snow", LoadCase.LoadCaseType.Snow, Guid.NewGuid()));
+            loadCases.Add(new LoadCase("Snow", LoadCase.LoadCaseType.Snow));
             coefficients.Add(2);
 
-            loadCases.Add(new LoadCase("Live", LoadCase.LoadCaseType.LiveLoad, Guid.NewGuid()));
+            loadCases.Add(new LoadCase("Live", LoadCase.LoadCaseType.LiveLoad));
             coefficients.Add(1);
 
-            loadCases.Add(new LoadCase("SW", LoadCase.LoadCaseType.SelfWeight, Guid.NewGuid()));
+            loadCases.Add(new LoadCase("SW", LoadCase.LoadCaseType.SelfWeight));
             coefficients.Add(0.5);
 
-            LoadCase sdl = new LoadCase("SDL", LoadCase.LoadCaseType.SuperImposedDeadLoad, Guid.NewGuid());
+            LoadCase sdl = new LoadCase("SDL", LoadCase.LoadCaseType.SuperImposedDeadLoad);
             loadCases.Add(sdl);
             coefficients.Add(4);
-            loadCases.Add(new LoadCase("SDL", LoadCase.LoadCaseType.SuperImposedDeadLoad, Guid.NewGuid()));
+            loadCases.Add(new LoadCase("SDL", LoadCase.LoadCaseType.SuperImposedDeadLoad));
             coefficients.Add(4);
 
-            CombinationAsce combination = new CombinationAsce("test", CombinationAsce.CombinationType.LFRD, Guid.NewGuid());
+
+            CombinationAsce combination = new CombinationAsce("test", CombinationAsce.CombinationType.LFRD);
 
             combination.AddLoadCaseCoefficients(loadCases, coefficients);
+
+            combination.AddLoadCaseCoefficient(new LoadCase("Zero", LoadCase.LoadCaseType.Earthquake), 0);
 
             // Act
             string combinationName = combination.ToString();
@@ -203,7 +206,11 @@ namespace ModelObjectTest
 
             Console.WriteLine(combinationName);
             Assert.IsTrue(combination[sdl] == 8, combinationName);
+            Assert.IsTrue(combination[new LoadCase("test")] == 0, combinationName);
+            Assert.IsTrue(combination[new LoadCase("Zero", LoadCase.LoadCaseType.Earthquake)] == 0, combinationName);
             Assert.IsTrue(splitted[0].Contains("SW"), combinationName);
+            Assert.IsFalse(splitted[0].Contains("Zero"), combinationName);
         }
+
     }
 }

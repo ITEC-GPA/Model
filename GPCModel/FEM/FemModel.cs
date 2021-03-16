@@ -16,6 +16,7 @@ using GPC.Model.LoadCases;
 using GPC.Model.Restrains;
 using GPC.Model.Loads;
 using GPC.Model.Results;
+using GPC.Model.Combinations;
 
 namespace GPC.Model.FEM
 {
@@ -33,16 +34,19 @@ namespace GPC.Model.FEM
         /// </summary>
         protected FemObjectCollection<FiniteElement> _elements;
 
-
+        // indice del valore dei dizionari parte da 1
         protected Dictionary<IPlateProperty, int> _plateProperties;
         protected Dictionary<IBrickProperty, int> _brickProperties;
 
         protected Dictionary<LoadCase, int> _loadCases;
-        protected Dictionary<FreedomCase, int> _freedomCases;
+        protected Dictionary<Combination, int> _combinations;
+
+        protected Dictionary<FreedomCase, int> _freedomCases; 
 
         protected List<Load> _loads;
 
         protected List<ResultPlateStress> _resultPlateStress;
+
 
         // CoordinatesSystem ? 
 
@@ -70,8 +74,10 @@ namespace GPC.Model.FEM
 
             _plateProperties = new Dictionary<IPlateProperty, int>();
             _brickProperties = new Dictionary<IBrickProperty, int>();
+
             _loadCases = new Dictionary<LoadCase, int>();
             _freedomCases = new Dictionary<FreedomCase, int>();
+            _combinations = new Dictionary<Combination, int>();
 
             _loads = new List<Load>();
             
@@ -109,8 +115,10 @@ namespace GPC.Model.FEM
             {
                 foreach (var load in loads)
                 {
-                    if (load is LineLoad || load is PointLoad)
-                        embeddedGeometries.Add(load.GetGeometry());
+                    if (load is LineLoad ll)
+                        embeddedGeometries.Add(ll.GetGeometry());
+                    else if (load is PointLoad pl)
+                        embeddedGeometries.Add(pl.GetGeometry());
                     else if (load is AreaLoad || load is NormalAreaLoad)
                         throw new NotImplementedException($"Load type: {load.GetType()} not implemented");
                     else
@@ -161,13 +169,13 @@ namespace GPC.Model.FEM
                 {
                     if (load is IPointLoad pl)
                     {
-                        if (generateMeshStatus.EmbeddedGeometriesVertexMap[meshes.First()].ContainsKey(load.GetGeometry()))
-                            vertexLoadMeshEntityMap[pl] = generateMeshStatus.EmbeddedGeometriesVertexMap[meshes.First()][load.GetGeometry()];
+                        if (generateMeshStatus.EmbeddedGeometriesVertexMap[meshes.First()].ContainsKey(pl.GetGeometry()))
+                            vertexLoadMeshEntityMap[pl] = generateMeshStatus.EmbeddedGeometriesVertexMap[meshes.First()][pl.GetGeometry()];
                     }
                     else if (load is ILineLoad ll)
                     {
-                        if (generateMeshStatus.EmbeddedGeometriesVertexMap[meshes.First()].ContainsKey(load.GetGeometry()))
-                            vertexLineLoadMeshEntityMap[ll] = generateMeshStatus.EmbeddedGeometriesVertexMap[meshes.First()][load.GetGeometry()];
+                        if (generateMeshStatus.EmbeddedGeometriesVertexMap[meshes.First()].ContainsKey(ll.GetGeometry()))
+                            vertexLineLoadMeshEntityMap[ll] = generateMeshStatus.EmbeddedGeometriesVertexMap[meshes.First()][ll.GetGeometry()];
                     }
                     else if (load is IAreaLoad)
                     {
@@ -512,7 +520,7 @@ namespace GPC.Model.FEM
                             node.AddAttribute(nfa);
 
                             if (!_loadCases.ContainsKey(pl.LoadCase))
-                                _loadCases[pl.LoadCase] = _loadCases.Values.Count > 0 ? _loadCases.Values.Max() + 1 : 1;
+                                _loadCases[pl.LoadCase] = _loadCases.Values.DefaultIfEmpty().Max() + 1;
                         }
                         else
                             throw new NotImplementedException();
@@ -527,6 +535,7 @@ namespace GPC.Model.FEM
                 {
                     ILineLoad load = kvp.Key;
                     int[] indexes = kvp.Value;
+                    var lineLenght = load.GetGeometry().GetLength();
 
                     foreach (var index in indexes)
                     {
@@ -536,11 +545,17 @@ namespace GPC.Model.FEM
 
                         if (load is LineLoad ll)
                         {
-                            NodeForceAttribute nfa = new NodeForceAttribute(ll.LoadCase, ll.CoordinateSystem, ll.F1, ll.F2, ll.F3, ll.M1, ll.M2, ll.M3);
+                            var l = ll.GetGeometry();
+
+                            // carico è F/L o FL/L
+                            // carico puntuale è F/L*L/nnodi
+                            NodeForceAttribute nfa = new NodeForceAttribute(ll.LoadCase, ll.CoordinateSystem, ll.F1 * lineLenght / indexes.Count(), ll.F2 * lineLenght / indexes.Count(), 
+                                                                            ll.F3 * lineLenght / indexes.Count(), ll.M1 * lineLenght / indexes.Count(), ll.M2 * lineLenght / indexes.Count(),
+                                                                            ll.M3 * lineLenght / indexes.Count());
                             node.AddAttribute(nfa);
 
                             if (!_loadCases.ContainsKey(ll.LoadCase))
-                                _loadCases[ll.LoadCase] = _loadCases.Values.Count > 0 ? _loadCases.Values.Max() + 1 : 1 ;
+                                _loadCases[ll.LoadCase] = _loadCases.Values.DefaultIfEmpty().Max() + 1;
                         }
                         else
                             throw new NotImplementedException();
@@ -573,7 +588,7 @@ namespace GPC.Model.FEM
                             plate.AddAttribute(pna);
 
                             if (!_loadCases.ContainsKey(pl.LoadCase))
-                                _loadCases[pl.LoadCase] = _loadCases.Values.Count > 0 ? _loadCases.Values.Max() + 1 : 1;
+                                _loadCases[pl.LoadCase] = _loadCases.Values.DefaultIfEmpty().Max() + 1;
                         }
                         else if (load is AreaLoad gal)
                         {
@@ -581,7 +596,7 @@ namespace GPC.Model.FEM
                             plate.AddAttribute(ppa);
 
                             if (!_loadCases.ContainsKey(gal.LoadCase))
-                                _loadCases[gal.LoadCase] = _loadCases.Values.Count > 0 ? _loadCases.Values.Max() + 1 : 1;
+                                _loadCases[gal.LoadCase] = _loadCases.Values.DefaultIfEmpty().Max() + 1;
                         }
                         else
                             throw new NotImplementedException();
@@ -616,6 +631,26 @@ namespace GPC.Model.FEM
         public virtual void AddGeometryRestrain()
         {
             throw new NotImplementedException();
+        }
+
+        public virtual void AddCombination(Combination combination)
+        {
+            if (!_combinations.ContainsKey(combination))
+            {
+                _combinations.Add(combination, _combinations.Values.DefaultIfEmpty().Max() + 1);
+            }
+        }
+
+        public virtual void AddCombinations(List<Combination> combinations)
+        {
+            int index = _combinations.Values.DefaultIfEmpty().Max();
+            foreach (var combination in combinations)
+            {
+                if (!_combinations.ContainsKey(combination))
+                {
+                    _combinations.Add(combination, index++);
+                }
+            }
         }
 
 
