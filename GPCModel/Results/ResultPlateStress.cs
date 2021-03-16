@@ -111,7 +111,7 @@ namespace GPC.Model.Results
         /// <param name="sxy">Stress on <see cref="CoordinateSystem.V1"/> side of the plate along <see cref="CoordinateSystem.V2"/> direction</param>
         /// <param name="sxz">Stress on <see cref="CoordinateSystem.V1"/> side of the plate along <see cref="CoordinateSystem.V3"/> direction</param>
         /// <param name="syz">Stress on <see cref="CoordinateSystem.V2"/> side of the plate along <see cref="CoordinateSystem.V3"/> direction</param>
-        /// <remarks>_szz is set to zero by default</remarks>
+        /// <remarks> _szz is set to zero by default </remarks>
         public ResultPlateStress(Element element, ILoadCase Case, ResultStressPoint resultPoint, CoordinateSystem coordinateSystem, double sxx, double syy, double sxy, double sxz, double syz) 
             : base(element, Case, resultPoint, coordinateSystem)
         {
@@ -239,7 +239,7 @@ namespace GPC.Model.Results
             if (ReferenceEquals(this, obj))
                 return true;
 
-            return base.Equals(obj as ResultPlateStress);
+            return Equals(obj as ResultPlateStress);
         }
 
         public bool Equals(ResultPlateStress other)

@@ -45,6 +45,9 @@ namespace GPC.Model.FEM
 
         protected List<Load> _loads;
 
+        protected List<ResultNodeDisplacement> _resultNodeDisplacements;
+        protected List<ResultNodeForce> _resultNodeForce;
+
         protected List<ResultPlateStress> _resultPlateStress;
 
 
@@ -55,6 +58,8 @@ namespace GPC.Model.FEM
         #region MyRegion
 
         public List<ResultPlateStress> ResultPlateStresses => _resultPlateStress;
+        public List<ResultNodeDisplacement> ResultNodeDisplacement => _resultNodeDisplacements;
+        public List<ResultNodeForce> ResultNodeForce => _resultNodeForce;
 
         #endregion
 
@@ -82,6 +87,9 @@ namespace GPC.Model.FEM
             _loads = new List<Load>();
             
             _resultPlateStress = new List<ResultPlateStress>();
+            _resultNodeForce = new List<ResultNodeForce>();
+            _resultNodeDisplacements = new List<ResultNodeDisplacement>();
+
         }
 
         public FemModel(SerializationInfo info, StreamingContext context)
@@ -412,14 +420,14 @@ namespace GPC.Model.FEM
                     if (brickProperty is BrickProperty bp)
                     {
                         var brickIndex = _elements.Add(new Brick(new Node[] { _nodes[nodesNewIndexMap.ContainsKey(volume.A) ? nodesNewIndexMap[volume.A] : volume.A],
-                                                                             _nodes[nodesNewIndexMap.ContainsKey(volume.B) ? nodesNewIndexMap[volume.B] : volume.B],
-                                                                             _nodes[nodesNewIndexMap.ContainsKey(volume.C) ? nodesNewIndexMap[volume.C] : volume.C],
-                                                                             _nodes[nodesNewIndexMap.ContainsKey(volume.D) ? nodesNewIndexMap[volume.D] : volume.D],
-                                                                             _nodes[nodesNewIndexMap.ContainsKey(volume.E) ? nodesNewIndexMap[volume.E] : volume.E],
-                                                                             _nodes[nodesNewIndexMap.ContainsKey(volume.F) ? nodesNewIndexMap[volume.F] : volume.F],
-                                                                             _nodes[nodesNewIndexMap.ContainsKey(volume.G) ? nodesNewIndexMap[volume.G] : volume.G],
-                                                                             _nodes[nodesNewIndexMap.ContainsKey(volume.H) ? nodesNewIndexMap[volume.H] : volume.H]},
-                                                                             bp, volume.Id));
+                                                                              _nodes[nodesNewIndexMap.ContainsKey(volume.B) ? nodesNewIndexMap[volume.B] : volume.B],
+                                                                              _nodes[nodesNewIndexMap.ContainsKey(volume.C) ? nodesNewIndexMap[volume.C] : volume.C],
+                                                                              _nodes[nodesNewIndexMap.ContainsKey(volume.D) ? nodesNewIndexMap[volume.D] : volume.D],
+                                                                              _nodes[nodesNewIndexMap.ContainsKey(volume.E) ? nodesNewIndexMap[volume.E] : volume.E],
+                                                                              _nodes[nodesNewIndexMap.ContainsKey(volume.F) ? nodesNewIndexMap[volume.F] : volume.F],
+                                                                              _nodes[nodesNewIndexMap.ContainsKey(volume.G) ? nodesNewIndexMap[volume.G] : volume.G],
+                                                                              _nodes[nodesNewIndexMap.ContainsKey(volume.H) ? nodesNewIndexMap[volume.H] : volume.H]},
+                                                                              bp, volume.Id));
 
                         if (brickIndex != volume.Id) // Se sono diversi vuol dire che esisteva già l'indice element .iD e la collection l'ha modificato
                             brickNewIndexMap[volume.Id] = brickIndex;
@@ -432,12 +440,12 @@ namespace GPC.Model.FEM
                     if (brickProperty is BrickProperty bp)
                     {
                         var brickIndex = _elements.Add(new Brick(new Node[] { _nodes[nodesNewIndexMap.ContainsKey(volume.A) ? nodesNewIndexMap[volume.A] : volume.A],
-                                                                             _nodes[nodesNewIndexMap.ContainsKey(volume.B) ? nodesNewIndexMap[volume.B] : volume.B],
-                                                                             _nodes[nodesNewIndexMap.ContainsKey(volume.C) ? nodesNewIndexMap[volume.C] : volume.C],
-                                                                             _nodes[nodesNewIndexMap.ContainsKey(volume.D) ? nodesNewIndexMap[volume.D] : volume.D],
-                                                                             _nodes[nodesNewIndexMap.ContainsKey(volume.E) ? nodesNewIndexMap[volume.E] : volume.E],
-                                                                             _nodes[nodesNewIndexMap.ContainsKey(volume.F) ? nodesNewIndexMap[volume.F] : volume.F]},
-                                                                             bp, volume.Id));
+                                                                              _nodes[nodesNewIndexMap.ContainsKey(volume.B) ? nodesNewIndexMap[volume.B] : volume.B],
+                                                                              _nodes[nodesNewIndexMap.ContainsKey(volume.C) ? nodesNewIndexMap[volume.C] : volume.C],
+                                                                              _nodes[nodesNewIndexMap.ContainsKey(volume.D) ? nodesNewIndexMap[volume.D] : volume.D],
+                                                                              _nodes[nodesNewIndexMap.ContainsKey(volume.E) ? nodesNewIndexMap[volume.E] : volume.E],
+                                                                              _nodes[nodesNewIndexMap.ContainsKey(volume.F) ? nodesNewIndexMap[volume.F] : volume.F]},
+                                                                              bp, volume.Id));
                         if (brickIndex != volume.Id) // Se sono diversi vuol dire che esisteva già l'indice element .iD e la collection l'ha modificato
                             brickNewIndexMap[volume.Id] = brickIndex;
                     }
