@@ -10,7 +10,7 @@ namespace GPC.Model.Combinations
     [Serializable]
     public abstract class Combination : ModelObject, ILoadCase
     {
-        private List<LoadCaseCoefficient> _coefficients;
+        protected List<LoadCaseCoefficient> _coefficients;
 
         protected Combination(string name, Guid guid)
             : base(guid, name)
@@ -66,7 +66,7 @@ namespace GPC.Model.Combinations
         /// <param name="coefficients"></param>
         /// <remarks>The <paramref name="loadCases"/> will be added only if the coefficient is not zero</remarks>
         /// <exception cref="ArgumentException"> If <paramref name="loadCases"/> Count != <paramref name="coefficients"/> </exception>
-        public void AddLoadCaseCoefficients(IEnumerable<LoadCase> loadCases, IEnumerable<double> coefficients)
+        public virtual void AddLoadCaseCoefficients(IEnumerable<LoadCase> loadCases, IEnumerable<double> coefficients)
         {
             if (loadCases.Count() != coefficients.Count())
                 throw new ArgumentException("loadcases and coefficients list lenght must be equal");
@@ -88,10 +88,11 @@ namespace GPC.Model.Combinations
         /// <param name="loadcase"></param>
         /// <param name="coefficient"></param>
         /// <remarks>The <paramref name="loadcase"/> will be added only if the coefficient is not zero</remarks>
-        public void AddLoadCaseCoefficient(LoadCase loadcase, double coefficient)
+        public virtual void AddLoadCaseCoefficient(LoadCase loadcase, double coefficient)
         {
             this[loadcase] = coefficient;
         }
+
 
         /// <summary>
         /// 
@@ -100,10 +101,27 @@ namespace GPC.Model.Combinations
         /// <returns>The coefficient associated to the <paramref name="loadcase"/>
         /// <para>If the <paramref name="loadcase"/> is not found, then return 0</para>
         /// </returns>
-        public double GetLoadCaseCoefficient(LoadCase loadcase)
+        public virtual double GetLoadCaseCoefficient(LoadCase loadcase)
         {
             return this[loadcase];
         }
+
+
+        public virtual List<double> GetLoadCaseCoefficients(out List<LoadCase> loadCases)
+        {
+            List<double> coefficients = new List<double>() ;
+            loadCases = new List<LoadCase>();
+
+            foreach (var coeff in _coefficients)
+            {
+                loadCases.Add(coeff.LoadCase);
+                coefficients.Add(coeff.Coefficient);
+            }
+
+            return coefficients;
+        }
+
+
 
         #endregion
 

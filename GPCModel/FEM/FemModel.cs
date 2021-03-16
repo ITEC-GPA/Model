@@ -640,6 +640,7 @@ namespace GPC.Model.FEM
                 _combinations.Add(combination, _combinations.Values.DefaultIfEmpty().Max() + 1);
             }
         }
+
         public virtual void AddCombinations(List<Combination> combinations)
         {
             int index = _combinations.Values.DefaultIfEmpty().Max();
