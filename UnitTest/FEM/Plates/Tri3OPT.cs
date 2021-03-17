@@ -16,7 +16,7 @@ using GPC.Model.LoadCases;
 namespace FemTest.Solver
 {
     [TestClass]
-    public class FemSolverTest
+    public class TriOPTTest
     {
         /// <summary>
         /// Based of "A study of optima membrane triangles with drilling freedoms" - Felippa - 2003 pg. 22
