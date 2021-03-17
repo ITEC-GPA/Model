@@ -34,6 +34,18 @@ namespace GPC.Model.Glasses
         #region Public Constructors
 
         /// <summary>
+        /// Initialize the Laminated glass with empty arrays of monolithics and interlayers. 
+        /// Used in UI to create an empty laminated that the user will interactively define.
+        /// </summary>
+        /// <param name="name"></param>
+        public LaminatedGlass(string name)
+            : base(Guid.NewGuid(), name)
+        {
+            _monolithicGlasses = new MonolithicGlass[0];
+            _interlayers = new Interlayer[0];
+        }
+
+        /// <summary>
         ///
         /// </summary>
         /// <param name="monolithicGlasses">Monolithic glasses composing the laminated panel</param>
@@ -41,7 +53,6 @@ namespace GPC.Model.Glasses
         public LaminatedGlass(string name, MonolithicGlass[] monolithicGlasses, Interlayer[] interlayers)
             : this(name, monolithicGlasses, interlayers, Guid.NewGuid())
         {
-
         }
 
         /// <summary>

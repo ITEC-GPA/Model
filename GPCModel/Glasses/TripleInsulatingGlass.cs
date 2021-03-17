@@ -35,6 +35,21 @@ namespace GPC.Model.Glasses
         #region Public constructor
 
         /// <summary>
+        /// Initialize the empty triple insulating glass 
+        /// Used in UI to create an empty laminated that the user will interactively define.
+        /// </summary>
+        /// <param name="name"></param>
+        public TripleInsulatingGlass(string name)
+            : base (Guid.NewGuid(), name)
+        {
+            _glassPanelOuter = null;
+            _glassPanelCentral = null;
+            _glassPanelInner = null;
+            _airThicknessOuter = 0;
+            _airThicknessInner = 0;
+        }
+
+        /// <summary>
         ///
         /// </summary>
         /// <param name="glassPanelOuter">Outer glass panel</param>

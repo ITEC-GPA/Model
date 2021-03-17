@@ -31,6 +31,19 @@ namespace GPC.Model.Glasses
         #region Public constructor
 
         /// <summary>
+        /// Initialize the empty double insulating glass 
+        /// Used in UI to create an empty laminated that the user will interactively define.
+        /// </summary>
+        /// <param name="name"></param>
+        public DoubleInsulatingGlass(string name)
+            : base (Guid.NewGuid(), name)
+        {
+            _glassPanelOuter = null;
+            _glassPanelInner = null;
+            _airThickness = 0;
+        }
+
+        /// <summary>
         ///
         /// </summary>
         /// <param name="glassPanelOuter">Outer glass panel</param>
@@ -54,10 +67,10 @@ namespace GPC.Model.Glasses
             if (airThickness <= 0.001)
                 throw new ArgumentOutOfRangeException("Air thickness can't be negative or zero");
 
-            this._glassPanelOuter = glassPanelOuter ?? throw new ArgumentException("Outer Glass panel can't be null");
-            this._glassPanelInner = glassPanelInner ?? throw new ArgumentException("Inner Glass panel can't be null");
+            _glassPanelOuter = glassPanelOuter ?? throw new ArgumentException("Outer Glass panel can't be null");
+            _glassPanelInner = glassPanelInner ?? throw new ArgumentException("Inner Glass panel can't be null");
 
-            this._airThickness = airThickness;
+            _airThickness = airThickness;
         }
 
         public DoubleInsulatingGlass(SerializationInfo info, StreamingContext context)
