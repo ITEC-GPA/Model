@@ -9,11 +9,11 @@ namespace GPC.Model.FEM
 {
     public static class GaussIntegration
     {
-        public static GaussPoint[] GetRLinearDomain(int points)
+        public static GaussPoint[] GetPointsLinear(int nPoints)
         {
-            GaussPoint[] pts = new GaussPoint[points];
+            GaussPoint[] pts = new GaussPoint[nPoints];
           
-            switch (points)
+            switch (nPoints)
             {
                 case 1:
                     pts[0] = new GaussPoint(0, 0, 0, 2.0);
@@ -30,12 +30,16 @@ namespace GPC.Model.FEM
             }
             return pts;
         }
-
-        public static GaussPoint[] GetRectangularDomain(int points)
+        /// <summary>
+        /// Get position and weigth of gauss points for a rectangular domain
+        /// </summary>
+        /// <param name="points">nr of gauss points for integration</param>
+        /// <returns></returns>
+        public static GaussPoint[] GetPointsRectangular(int nPoints)
         {
-            GaussPoint[] pts = new GaussPoint[points];
+            GaussPoint[] pts = new GaussPoint[nPoints];
                
-            switch (points)
+            switch (nPoints)
             {
                 case 1:
                     pts[0] = new GaussPoint(0, 0, 0, 2.0);
@@ -61,11 +65,16 @@ namespace GPC.Model.FEM
             return pts;
         }
 
-        public static GaussPoint[] GetTriangularDomain(int points)
+        /// <summary>
+        /// Get position and weigth of gauss points for a triangular domain
+        /// </summary>
+        /// <param name="points">nr of gauss points for integration</param>
+        /// <returns></returns>
+        public static GaussPoint[] GetPointsTriangular(int nPoints)
         {
-            GaussPoint[] pts = new GaussPoint[points];
+            GaussPoint[] pts = new GaussPoint[nPoints];
             
-            switch (points)
+            switch (nPoints)
             {
                 case 1:
                     pts[0] = new GaussPoint(1.0 / 3.0, 1.0 / 3.0, 0, 0.5);

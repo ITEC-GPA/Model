@@ -14,10 +14,7 @@ namespace GPC.Model.FEM
         private Point3d _position;
 
         private List<INodeLoadCaseAttribute> _attributesLoadCase;
-
         private List<INodeFreedomCaseAttribute> _attributesFreedomCase;
-
-
         #endregion
 
         #region Properties
@@ -58,6 +55,11 @@ namespace GPC.Model.FEM
         }
 
         public Node(double X, double Y, double Z, int id, string label="") : this(new Point3d(X, Y, Z), id, label)
+        {
+
+        }
+
+        public Node(int id, double X, double Y, double Z, string label = "") : this(new Point3d(X, Y, Z), id, label)
         {
 
         }

@@ -10,7 +10,7 @@ namespace GPC.Model.Combinations
     [Serializable]
     public abstract class Combination : ModelObject, ILoadCase
     {
-        private List<LoadCaseCoefficient> _coefficients;
+        protected List<LoadCaseCoefficient> _coefficients;
 
         protected Combination(string name, Guid guid)
             : base(guid, name)
@@ -59,7 +59,14 @@ namespace GPC.Model.Combinations
             return sb.ToString();
         }
 
-        public void AddLoadCaseCoefficients(IEnumerable<LoadCase> loadCases, IEnumerable<double> coefficients)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="loadCases"></param>
+        /// <param name="coefficients"></param>
+        /// <remarks>The <paramref name="loadCases"/> will be added only if the coefficient is not zero</remarks>
+        /// <exception cref="ArgumentException"> If <paramref name="loadCases"/> Count != <paramref name="coefficients"/> </exception>
+        public virtual void AddLoadCaseCoefficients(IEnumerable<LoadCase> loadCases, IEnumerable<double> coefficients)
         {
             if (loadCases.Count() != coefficients.Count())
                 throw new ArgumentException("loadcases and coefficients list lenght must be equal");
@@ -74,10 +81,59 @@ namespace GPC.Model.Combinations
             }
         }
 
-        #endregion PUBLIC METHODS
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="loadcase"></param>
+        /// <param name="coefficient"></param>
+        /// <remarks>The <paramref name="loadcase"/> will be added only if the coefficient is not zero</remarks>
+        public virtual void AddLoadCaseCoefficient(LoadCase loadcase, double coefficient)
+        {
+            this[loadcase] = coefficient;
+        }
+
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="loadcase"></param>
+        /// <returns>The coefficient associated to the <paramref name="loadcase"/>
+        /// <para>If the <paramref name="loadcase"/> is not found, then return 0</para>
+        /// </returns>
+        public virtual double GetLoadCaseCoefficient(LoadCase loadcase)
+        {
+            return this[loadcase];
+        }
+
+
+        public virtual List<double> GetLoadCaseCoefficients(out List<LoadCase> loadCases)
+        {
+            List<double> coefficients = new List<double>() ;
+            loadCases = new List<LoadCase>();
+
+            foreach (var coeff in _coefficients)
+            {
+                loadCases.Add(coeff.LoadCase);
+                coefficients.Add(coeff.Coefficient);
+            }
+
+            return coefficients;
+        }
+
+
+
+        #endregion
 
         #region INDEXER
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="loadcase"></param>
+        /// <returns>The coefficient associated to the <paramref name="loadcase"/>
+        /// <para>If the <paramref name="loadcase"/> is not found, then return 0</para></returns>
+        /// <remarks>The <paramref name="loadcase"/> will be added only if the coefficient is not zero</remarks>
         public double this[LoadCase loadcase]
         {
             set
@@ -100,8 +156,6 @@ namespace GPC.Model.Combinations
                     }
                     _coefficients.Sort();
                 }
-                else
-                    throw new ArgumentException("Coefficient can't be zero");
             }
             get
             {
@@ -112,15 +166,15 @@ namespace GPC.Model.Combinations
                         return _coefficients[i].Coefficient;
                     }
                 }
-                throw new KeyNotFoundException();
+                return 0;
             }
         }
 
-        #endregion INDEXER
+        #endregion
 
-        #region NESTED STRUCT
+        #region Nested class
 
-        protected struct LoadCaseCoefficient : IComparable<LoadCaseCoefficient>
+        protected class LoadCaseCoefficient : IComparable<LoadCaseCoefficient>
         {
             private LoadCase _loadcase;
             private double _coefficient;
@@ -136,7 +190,6 @@ namespace GPC.Model.Combinations
 
             public override string ToString() => $"{String.Format("{0:0.0##}", Coefficient)}*{LoadCase.Name}";
 
-            #region INTERFACE IMPLEMENTATION
 
             int IComparable<LoadCaseCoefficient>.CompareTo(LoadCaseCoefficient other)
             {
@@ -173,9 +226,8 @@ namespace GPC.Model.Combinations
                 }
             }
 
-            #endregion INTERFACE IMPLEMENTATION
         }
 
-        #endregion NESTED STRUCT
+        #endregion
     }
 }

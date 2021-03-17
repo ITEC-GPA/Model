@@ -38,11 +38,11 @@
     <Reference Include="GMsh.Net, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\GMsh.Net.1.0.0.1\lib\net472\GMsh.Net.dll</HintPath>
     </Reference>
-    <Reference Include="GPCGeometry, Version=1.0.5.0, Culture=neutral, processorArchitecture=AMD64">
-      <HintPath>..\packages\GPCGeometry.1.0.5\lib\net472\GPCGeometry.dll</HintPath>
+    <Reference Include="GPCGeometry, Version=1.0.6.2, Culture=neutral, processorArchitecture=AMD64">
+      <HintPath>..\packages\GPCGeometry.1.0.6.2\lib\net472\GPCGeometry.dll</HintPath>
     </Reference>
-    <Reference Include="GPCUtilities, Version=1.0.15.0, Culture=neutral, processorArchitecture=AMD64">
-      <HintPath>..\packages\GPCUtilities.1.0.15\lib\net472\GPCUtilities.dll</HintPath>
+    <Reference Include="GPCUtilities, Version=1.0.17.0, Culture=neutral, processorArchitecture=AMD64">
+      <HintPath>..\packages\GPCUtilities.1.0.17\lib\net472\GPCUtilities.dll</HintPath>
     </Reference>
     <Reference Include="MathNet.Numerics, Version=4.15.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\MathNet.Numerics.4.15.0\lib\net461\MathNet.Numerics.dll</HintPath>
@@ -78,6 +78,9 @@
     <Compile Include="FEM\ElementProperty\IPlateProperty.cs" />
     <Compile Include="FEM\ElementProperty\LaminatedGlassProperty.cs" />
     <Compile Include="FEM\ElementProperty\MonolithicGlassProperty.cs" />
+    <Compile Include="FEM\FiniteElements\PlateTriangle\Tri3SBTEMembrane.cs" />
+    <Compile Include="FEM\FiniteElements\PlateTriangle\Tri3SBTDRMembrane.cs" />
+    <Compile Include="FEM\FiniteElements\PlateTriangle\Tri3OPTMembrane.cs" />
     <Compile Include="FEM\FiniteElements\Rectangular\Quad4Membranal.cs" />
     <Compile Include="FEM\FiniteElements\Rectangular\Quad4Element.cs" />
     <Compile Include="FEM\GaussIntegration.cs" />
@@ -120,7 +123,7 @@
     <Compile Include="FEM\Node.cs" />
     <Compile Include="FEM\FiniteElements\Brick.cs" />
     <Compile Include="FEM\FiniteElements\Plate.cs" />
-    <Compile Include="FEM\FiniteElements\PlateTriangle\Tri3Membranal.cs" />
+    <Compile Include="FEM\FiniteElements\PlateTriangle\Tri3PlaneStress.cs" />
     <Compile Include="FEM\LinearSolver.cs" />
     <Compile Include="FEM\Solver.cs" />
     <Compile Include="FreedomCases\FreedomCase.cs" />

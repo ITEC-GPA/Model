@@ -16,6 +16,7 @@ using GPC.Model.LoadCases;
 using GPC.Model.Restrains;
 using GPC.Model.Loads;
 using GPC.Model.Results;
+using GPC.Model.Combinations;
 
 namespace GPC.Model.FEM
 {
@@ -33,16 +34,22 @@ namespace GPC.Model.FEM
         /// </summary>
         protected FemObjectCollection<FiniteElement> _elements;
 
-
+        // indice del valore dei dizionari parte da 1
         protected Dictionary<IPlateProperty, int> _plateProperties;
         protected Dictionary<IBrickProperty, int> _brickProperties;
 
         protected Dictionary<LoadCase, int> _loadCases;
-        protected Dictionary<FreedomCase, int> _freedomCases;
+        protected Dictionary<Combination, int> _combinations;
+
+        protected Dictionary<FreedomCase, int> _freedomCases; 
 
         protected List<Load> _loads;
 
+        protected List<ResultNodeDisplacement> _resultNodeDisplacements;
+        protected List<ResultNodeForce> _resultNodeForce;
+
         protected List<ResultPlateStress> _resultPlateStress;
+
 
         // CoordinatesSystem ? 
 
@@ -51,6 +58,8 @@ namespace GPC.Model.FEM
         #region MyRegion
 
         public List<ResultPlateStress> ResultPlateStresses => _resultPlateStress;
+        public List<ResultNodeDisplacement> ResultNodeDisplacement => _resultNodeDisplacements;
+        public List<ResultNodeForce> ResultNodeForce => _resultNodeForce;
 
         #endregion
 
@@ -70,12 +79,17 @@ namespace GPC.Model.FEM
 
             _plateProperties = new Dictionary<IPlateProperty, int>();
             _brickProperties = new Dictionary<IBrickProperty, int>();
+
             _loadCases = new Dictionary<LoadCase, int>();
             _freedomCases = new Dictionary<FreedomCase, int>();
+            _combinations = new Dictionary<Combination, int>();
 
             _loads = new List<Load>();
             
             _resultPlateStress = new List<ResultPlateStress>();
+            _resultNodeForce = new List<ResultNodeForce>();
+            _resultNodeDisplacements = new List<ResultNodeDisplacement>();
+
         }
 
         public FemModel(SerializationInfo info, StreamingContext context)
@@ -109,8 +123,10 @@ namespace GPC.Model.FEM
             {
                 foreach (var load in loads)
                 {
-                    if (load is LineLoad || load is PointLoad)
-                        embeddedGeometries.Add(load.GetGeometry());
+                    if (load is LineLoad ll)
+                        embeddedGeometries.Add(ll.GetGeometry());
+                    else if (load is PointLoad pl)
+                        embeddedGeometries.Add(pl.GetGeometry());
                     else if (load is AreaLoad || load is NormalAreaLoad)
                         throw new NotImplementedException($"Load type: {load.GetType()} not implemented");
                     else
@@ -137,8 +153,13 @@ namespace GPC.Model.FEM
             }
 
             // Genera la mesh
-            List<Mesh> meshes = Mesh.Generate(new List<Shape> { shape }, new Dictionary<Shape, GeometryBase[]>() { [shape] = embeddedGeometries.ToArray() }, 
-                                              out Dictionary<Mesh, Dictionary<GeometryBase, int[]>> embeddedGeometriesVertexMap);
+
+            bool status = Mesh.Generate(new List<Shape> { shape }, new Dictionary<Shape, GeometryBase[]>() { [shape] = embeddedGeometries.ToArray() }, null, null, out List<Mesh> meshes, out Mesh.GenerateMeshStatus generateMeshStatus);
+
+            if (!status)
+            {                
+                throw generateMeshStatus.GetLastException();
+            }
 
             if (meshes.Count > 1) // Non è possibile ma controlliamo lo stesso
                 throw new Exception();
@@ -156,13 +177,13 @@ namespace GPC.Model.FEM
                 {
                     if (load is IPointLoad pl)
                     {
-                        if (embeddedGeometriesVertexMap[meshes.First()].ContainsKey(load.GetGeometry()))
-                            vertexLoadMeshEntityMap[pl] = embeddedGeometriesVertexMap[meshes.First()][load.GetGeometry()];
+                        if (generateMeshStatus.EmbeddedGeometriesVertexMap[meshes.First()].ContainsKey(pl.GetGeometry()))
+                            vertexLoadMeshEntityMap[pl] = generateMeshStatus.EmbeddedGeometriesVertexMap[meshes.First()][pl.GetGeometry()];
                     }
                     else if (load is ILineLoad ll)
                     {
-                        if (embeddedGeometriesVertexMap[meshes.First()].ContainsKey(load.GetGeometry()))
-                            vertexLineLoadMeshEntityMap[ll] = embeddedGeometriesVertexMap[meshes.First()][load.GetGeometry()];
+                        if (generateMeshStatus.EmbeddedGeometriesVertexMap[meshes.First()].ContainsKey(ll.GetGeometry()))
+                            vertexLineLoadMeshEntityMap[ll] = generateMeshStatus.EmbeddedGeometriesVertexMap[meshes.First()][ll.GetGeometry()];
                     }
                     else if (load is IAreaLoad)
                     {
@@ -177,7 +198,7 @@ namespace GPC.Model.FEM
             {
                 foreach (var restrain in restrains)
                 {
-                    restrainMeshEntityMap[restrain] = embeddedGeometriesVertexMap[meshes.First()][restrain.GetGeometry()];
+                    restrainMeshEntityMap[restrain] = generateMeshStatus.EmbeddedGeometriesVertexMap[meshes.First()][restrain.GetGeometry()];
                 } 
             }
 
@@ -360,15 +381,7 @@ namespace GPC.Model.FEM
                                                                             _nodes[nodesNewIndexMap.ContainsKey(face.C) ? nodesNewIndexMap[face.C] : face.C],
                                                                             _nodes[nodesNewIndexMap.ContainsKey(face.D) ? nodesNewIndexMap[face.D] : face.D] };
 
-                        /* Giorgio: Commentato per togliere il warning CS0219 dovuto alla variabile "a" assegnata e mai usata
-                        for (int i = 0; i < nodes.Length - 1; i++)
-                        {
-                            if (nodes[i].Position.DistanceTo(nodes[i + 1].Position) > 20)
-                            {
-                                int a = 1;
-                            }
-                        } */
-
+                        
                         var plateIndex = _elements.Add(new Plate(new Node[] { _nodes[nodesNewIndexMap.ContainsKey(face.A) ? nodesNewIndexMap[face.A] : face.A],
                                                                               _nodes[nodesNewIndexMap.ContainsKey(face.B) ? nodesNewIndexMap[face.B] : face.B],
                                                                               _nodes[nodesNewIndexMap.ContainsKey(face.C) ? nodesNewIndexMap[face.C] : face.C],
@@ -407,14 +420,14 @@ namespace GPC.Model.FEM
                     if (brickProperty is BrickProperty bp)
                     {
                         var brickIndex = _elements.Add(new Brick(new Node[] { _nodes[nodesNewIndexMap.ContainsKey(volume.A) ? nodesNewIndexMap[volume.A] : volume.A],
-                                                                             _nodes[nodesNewIndexMap.ContainsKey(volume.B) ? nodesNewIndexMap[volume.B] : volume.B],
-                                                                             _nodes[nodesNewIndexMap.ContainsKey(volume.C) ? nodesNewIndexMap[volume.C] : volume.C],
-                                                                             _nodes[nodesNewIndexMap.ContainsKey(volume.D) ? nodesNewIndexMap[volume.D] : volume.D],
-                                                                             _nodes[nodesNewIndexMap.ContainsKey(volume.E) ? nodesNewIndexMap[volume.E] : volume.E],
-                                                                             _nodes[nodesNewIndexMap.ContainsKey(volume.F) ? nodesNewIndexMap[volume.F] : volume.F],
-                                                                             _nodes[nodesNewIndexMap.ContainsKey(volume.G) ? nodesNewIndexMap[volume.G] : volume.G],
-                                                                             _nodes[nodesNewIndexMap.ContainsKey(volume.H) ? nodesNewIndexMap[volume.H] : volume.H]},
-                                                                             bp, volume.Id));
+                                                                              _nodes[nodesNewIndexMap.ContainsKey(volume.B) ? nodesNewIndexMap[volume.B] : volume.B],
+                                                                              _nodes[nodesNewIndexMap.ContainsKey(volume.C) ? nodesNewIndexMap[volume.C] : volume.C],
+                                                                              _nodes[nodesNewIndexMap.ContainsKey(volume.D) ? nodesNewIndexMap[volume.D] : volume.D],
+                                                                              _nodes[nodesNewIndexMap.ContainsKey(volume.E) ? nodesNewIndexMap[volume.E] : volume.E],
+                                                                              _nodes[nodesNewIndexMap.ContainsKey(volume.F) ? nodesNewIndexMap[volume.F] : volume.F],
+                                                                              _nodes[nodesNewIndexMap.ContainsKey(volume.G) ? nodesNewIndexMap[volume.G] : volume.G],
+                                                                              _nodes[nodesNewIndexMap.ContainsKey(volume.H) ? nodesNewIndexMap[volume.H] : volume.H]},
+                                                                              bp, volume.Id));
 
                         if (brickIndex != volume.Id) // Se sono diversi vuol dire che esisteva già l'indice element .iD e la collection l'ha modificato
                             brickNewIndexMap[volume.Id] = brickIndex;
@@ -427,12 +440,12 @@ namespace GPC.Model.FEM
                     if (brickProperty is BrickProperty bp)
                     {
                         var brickIndex = _elements.Add(new Brick(new Node[] { _nodes[nodesNewIndexMap.ContainsKey(volume.A) ? nodesNewIndexMap[volume.A] : volume.A],
-                                                                             _nodes[nodesNewIndexMap.ContainsKey(volume.B) ? nodesNewIndexMap[volume.B] : volume.B],
-                                                                             _nodes[nodesNewIndexMap.ContainsKey(volume.C) ? nodesNewIndexMap[volume.C] : volume.C],
-                                                                             _nodes[nodesNewIndexMap.ContainsKey(volume.D) ? nodesNewIndexMap[volume.D] : volume.D],
-                                                                             _nodes[nodesNewIndexMap.ContainsKey(volume.E) ? nodesNewIndexMap[volume.E] : volume.E],
-                                                                             _nodes[nodesNewIndexMap.ContainsKey(volume.F) ? nodesNewIndexMap[volume.F] : volume.F]},
-                                                                             bp, volume.Id));
+                                                                              _nodes[nodesNewIndexMap.ContainsKey(volume.B) ? nodesNewIndexMap[volume.B] : volume.B],
+                                                                              _nodes[nodesNewIndexMap.ContainsKey(volume.C) ? nodesNewIndexMap[volume.C] : volume.C],
+                                                                              _nodes[nodesNewIndexMap.ContainsKey(volume.D) ? nodesNewIndexMap[volume.D] : volume.D],
+                                                                              _nodes[nodesNewIndexMap.ContainsKey(volume.E) ? nodesNewIndexMap[volume.E] : volume.E],
+                                                                              _nodes[nodesNewIndexMap.ContainsKey(volume.F) ? nodesNewIndexMap[volume.F] : volume.F]},
+                                                                              bp, volume.Id));
                         if (brickIndex != volume.Id) // Se sono diversi vuol dire che esisteva già l'indice element .iD e la collection l'ha modificato
                             brickNewIndexMap[volume.Id] = brickIndex;
                     }
@@ -515,7 +528,7 @@ namespace GPC.Model.FEM
                             node.AddAttribute(nfa);
 
                             if (!_loadCases.ContainsKey(pl.LoadCase))
-                                _loadCases[pl.LoadCase] = _loadCases.Values.Count > 0 ? _loadCases.Values.Max() + 1 : 1;
+                                _loadCases[pl.LoadCase] = _loadCases.Values.DefaultIfEmpty().Max() + 1;
                         }
                         else
                             throw new NotImplementedException();
@@ -530,6 +543,7 @@ namespace GPC.Model.FEM
                 {
                     ILineLoad load = kvp.Key;
                     int[] indexes = kvp.Value;
+                    var lineLenght = load.GetGeometry().GetLength();
 
                     foreach (var index in indexes)
                     {
@@ -539,11 +553,17 @@ namespace GPC.Model.FEM
 
                         if (load is LineLoad ll)
                         {
-                            NodeForceAttribute nfa = new NodeForceAttribute(ll.LoadCase, ll.CoordinateSystem, ll.F1, ll.F2, ll.F3, ll.M1, ll.M2, ll.M3);
+                            var l = ll.GetGeometry();
+
+                            // carico è F/L o FL/L
+                            // carico puntuale è F/L*L/nnodi
+                            NodeForceAttribute nfa = new NodeForceAttribute(ll.LoadCase, ll.CoordinateSystem, ll.F1 * lineLenght / indexes.Count(), ll.F2 * lineLenght / indexes.Count(), 
+                                                                            ll.F3 * lineLenght / indexes.Count(), ll.M1 * lineLenght / indexes.Count(), ll.M2 * lineLenght / indexes.Count(),
+                                                                            ll.M3 * lineLenght / indexes.Count());
                             node.AddAttribute(nfa);
 
                             if (!_loadCases.ContainsKey(ll.LoadCase))
-                                _loadCases[ll.LoadCase] = _loadCases.Values.Count > 0 ? _loadCases.Values.Max() + 1 : 1 ;
+                                _loadCases[ll.LoadCase] = _loadCases.Values.DefaultIfEmpty().Max() + 1;
                         }
                         else
                             throw new NotImplementedException();
@@ -576,7 +596,7 @@ namespace GPC.Model.FEM
                             plate.AddAttribute(pna);
 
                             if (!_loadCases.ContainsKey(pl.LoadCase))
-                                _loadCases[pl.LoadCase] = _loadCases.Values.Count > 0 ? _loadCases.Values.Max() + 1 : 1;
+                                _loadCases[pl.LoadCase] = _loadCases.Values.DefaultIfEmpty().Max() + 1;
                         }
                         else if (load is AreaLoad gal)
                         {
@@ -584,7 +604,7 @@ namespace GPC.Model.FEM
                             plate.AddAttribute(ppa);
 
                             if (!_loadCases.ContainsKey(gal.LoadCase))
-                                _loadCases[gal.LoadCase] = _loadCases.Values.Count > 0 ? _loadCases.Values.Max() + 1 : 1;
+                                _loadCases[gal.LoadCase] = _loadCases.Values.DefaultIfEmpty().Max() + 1;
                         }
                         else
                             throw new NotImplementedException();
@@ -619,6 +639,26 @@ namespace GPC.Model.FEM
         public virtual void AddGeometryRestrain()
         {
             throw new NotImplementedException();
+        }
+
+        public virtual void AddCombination(Combination combination)
+        {
+            if (!_combinations.ContainsKey(combination))
+            {
+                _combinations.Add(combination, _combinations.Values.DefaultIfEmpty().Max() + 1);
+            }
+        }
+
+        public virtual void AddCombinations(List<Combination> combinations)
+        {
+            int index = _combinations.Values.DefaultIfEmpty().Max();
+            foreach (var combination in combinations)
+            {
+                if (!_combinations.ContainsKey(combination))
+                {
+                    _combinations.Add(combination, index++);
+                }
+            }
         }
 
 

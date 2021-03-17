@@ -29,6 +29,7 @@ namespace GPC.Model.FEM
         protected mnl.Vector<double> _FRestrains;
         protected HashSet<FEM.Costrain.MultiPointCostrain> _costrains;
         protected mnl.Vector<double> _nodeGlobalDisplacement;
+        protected mnl.Vector<double> _reactions;
         #endregion
 
         #region Properties
@@ -167,35 +168,40 @@ namespace GPC.Model.FEM
                 element.BuildMatrix();
                 //Stiffness Matrix of element in global coordinates, KElementGlobal = GlobalToLocal ^ T * [KeLocal] * [GlobalToLocal]
                 mnl.Matrix<double> KElementGlobalCoord = element.KElementGlobalCoord;
-                /*Console.WriteLine("KElementGlobalCoord element " + el);
+                Console.WriteLine("KElementGlobalCoord element " + el);
                 for (int r = 0; r < KElementGlobalCoord.RowCount; r++)
                 {
                     for (int c = 0; c < KElementGlobalCoord.RowCount; c++)
                     {
-                        Console.Write(KElementGlobalCoord[r,c] + " ");
+                        Console.Write(KElementGlobalCoord[r,c].ToString("F3") + " ");
                     }
                     Console.WriteLine();
-                }*/
-
+                }
+                                
                 for (int i = 0; i < element.Nodes.Count(); i++)
                 {
                     //Node i
-                    int idNodeI = element.Nodes[i].Id;
+                    Node nodeI = element.Nodes[i];
 
                     for (int j = 0; j < dofActive; j++) //each node i have degree of freedom j
                     {
                         //WARNING fare check ed eventualemte fixare per gradi di libertà attivi non contigui ad esempio UX, UY, UZ, RY
                         for (int k = 0; k < element.Nodes.Count(); k++) //each node i with its degree of freedom j should be take in account with other node k.What hap in node k if force is applied in node i?
                         {
-                            int idNodeK = element.Nodes[k].Id;
+                            Node nodeK = element.Nodes[k];
 
                             for (int l = 0; l < dofActive; l++) //what hap to the degree of freedom of node k?
                             {
                                 counter++;
                                 //Console.WriteLine(counter + " El=" + el + " Node "+ element.Nodes[i].Name + " (id=" + idNodeI + ") DOF: " + (LinearSolver.DOF)j + "("+ j + ") vs  Node "+ element.Nodes[k].Name + " (id=" + idNodeK + ") DOF: " +(LinearSolver.DOF)l +"(" + l + ")");
                                 //Console.WriteLine( (i * dofActive + j) +"," + (k * dofActive + l) + " --> " + "[" + GetPositionInKGlobal(idNodeI, (DOF)j) + "," + GetPositionInKGlobal(idNodeK, (DOF)l) + "]");
-                                int rowGlobal = GetPositionInKGlobal(idNodeI, (DOF)j);
-                                int colGlobal = GetPositionInKGlobal(idNodeK, (DOF)l);
+
+                                /*int rowGlobal = GetPositionInKGlobal(idNodeI, (DOF)j);
+                                int colGlobal = GetPositionInKGlobal(idNodeK, (DOF)l);*/
+
+                                int rowGlobal = GetPositionInKGlobal(nodeI, (DOF)j);
+                                int colGlobal = GetPositionInKGlobal(nodeK, (DOF)l);
+
                                 int rowLocal = i * dofActive + j;
                                 int colLocal = k * dofActive + l;
                                 _KGlobal[rowGlobal, colGlobal] = _KGlobal[rowGlobal, colGlobal] + KElementGlobalCoord[rowLocal, colLocal];
@@ -205,18 +211,19 @@ namespace GPC.Model.FEM
                     }
                 }
             }
-            //Console.WriteLine("kGlobal System : " + _KGlobal.ToString());
-            /*for (int i = 0; i < _KGlobal.RowCount; i++)
+            Console.WriteLine("kGlobal System :");
+            for (int i = 0; i < _KGlobal.RowCount; i++)
             {
                 for (int j = 0; j < _KGlobal.ColumnCount; j++)
                 {
-                    Console.Write(_KGlobal[i, j].ToString("F1") + "\t");
+                    Console.Write(_KGlobal[i, j].ToString("F3") + "\t");
                 }
                 Console.WriteLine();
-            }*/
+            }
             #endregion
 
             #region CalculationOfAppliedForcesF
+            Dictionary<int, string> legend = new Dictionary<int, string>();
             //Calculation of Forces vector
             _F = mnl.Vector<double>.Build.Dense(_KGlobal.RowCount);
 
@@ -227,6 +234,12 @@ namespace GPC.Model.FEM
             #region ForceFromNodes
             for (int i = 0; i < Nodes.Count(); i++)
             {
+                List<string> dofs = Enum.GetNames(typeof(DOF)).ToList();
+
+                Nodes[i].DOF.ToList().ForEach( dof =>
+                     legend.Add(GetPositionInKGlobal(Nodes[i], dof), Nodes[i].ToString())
+                );
+               
                 foreach (LoadCaseAttribute loadCaseAttribute in Nodes[i].AttributesLoadCase)
                 {
                     if (loadCaseAttribute is NodeForceAttribute)
@@ -241,44 +254,23 @@ namespace GPC.Model.FEM
                         dirZ.Unitize();
 
                         //Set in global coordinates
-                        double fX = nodeForceAttribute.F1 * dirX.DotProduct(X) + nodeForceAttribute.F2 * dirY.DotProduct(X) + nodeForceAttribute.F3 * dirZ.DotProduct(X);
-                        double fY = nodeForceAttribute.F1 * dirX.DotProduct(Y) + nodeForceAttribute.F2 * dirY.DotProduct(Y) + nodeForceAttribute.F3 * dirZ.DotProduct(Y);
-                        double fZ = nodeForceAttribute.F1 * dirX.DotProduct(Z) + nodeForceAttribute.F2 * dirY.DotProduct(Z) + nodeForceAttribute.F3 * dirZ.DotProduct(Z);
+                        double[] additionalForce = new double[6];
+                        additionalForce[0] = nodeForceAttribute.F1 * dirX.DotProduct(X) + nodeForceAttribute.F2 * dirY.DotProduct(X) + nodeForceAttribute.F3 * dirZ.DotProduct(X); //fX
+                        additionalForce[1] = nodeForceAttribute.F1 * dirX.DotProduct(Y) + nodeForceAttribute.F2 * dirY.DotProduct(Y) + nodeForceAttribute.F3 * dirZ.DotProduct(Y); //fY
+                        additionalForce[2] = nodeForceAttribute.F1 * dirX.DotProduct(Z) + nodeForceAttribute.F2 * dirY.DotProduct(Z) + nodeForceAttribute.F3 * dirZ.DotProduct(Z); //fZ
 
-                        double mX = nodeForceAttribute.M1 * dirX.DotProduct(X) + nodeForceAttribute.M2 * dirY.DotProduct(X) + nodeForceAttribute.M3 * dirZ.DotProduct(X);
-                        double mY = nodeForceAttribute.M1 * dirX.DotProduct(Y) + nodeForceAttribute.M2 * dirY.DotProduct(Y) + nodeForceAttribute.M3 * dirZ.DotProduct(Y);
-                        double mZ = nodeForceAttribute.M1 * dirX.DotProduct(Z) + nodeForceAttribute.M2 * dirY.DotProduct(Z) + nodeForceAttribute.M3 * dirZ.DotProduct(Z);
+                        additionalForce[3] = nodeForceAttribute.M1 * dirX.DotProduct(X) + nodeForceAttribute.M2 * dirY.DotProduct(X) + nodeForceAttribute.M3 * dirZ.DotProduct(X); //mX
+                        additionalForce[4] = nodeForceAttribute.M1 * dirX.DotProduct(Y) + nodeForceAttribute.M2 * dirY.DotProduct(Y) + nodeForceAttribute.M3 * dirZ.DotProduct(Y); //mY
+                        additionalForce[5] = nodeForceAttribute.M1 * dirX.DotProduct(Z) + nodeForceAttribute.M2 * dirY.DotProduct(Z) + nodeForceAttribute.M3 * dirZ.DotProduct(Z); //mZ
 
-                        DOF dof = DOF.DX;
-                        if (Nodes[i].DOF.Contains(dof) == true)
-                        {
-                            _F[GetPositionInKGlobal(Nodes[i].Id, dof)] = _F[GetPositionInKGlobal(Nodes[i].Id, dof)] + fX;
-                        }
-                        dof = DOF.DY;
-                        if (Nodes[i].DOF.Contains(dof) == true)
-                        {
-                            _F[GetPositionInKGlobal(Nodes[i].Id, dof)] = _F[GetPositionInKGlobal(Nodes[i].Id, dof)] + fY;
-                        }
-                        dof = DOF.DZ;
-                        if (Nodes[i].DOF.Contains(dof) == true)
-                        {
-                            _F[GetPositionInKGlobal(Nodes[i].Id, dof)] = _F[GetPositionInKGlobal(Nodes[i].Id, dof)] + fZ;
-                        }
-                        dof = DOF.RX;
-                        if (Nodes[i].DOF.Contains(dof) == true)
-                        {
-                            _F[GetPositionInKGlobal(Nodes[i].Id, dof)] = _F[GetPositionInKGlobal(Nodes[i].Id, dof)] + mX;
-                        }
-                        dof = DOF.RY;
-                        if (Nodes[i].DOF.Contains(dof) == true)
-                        {
-                            _F[GetPositionInKGlobal(Nodes[i].Id, dof)] = _F[GetPositionInKGlobal(Nodes[i].Id, dof)] + mY;
-                        }
-                        dof = DOF.RZ;
-                        if (Nodes[i].DOF.Contains(dof) == true)
-                        {
-                            _F[GetPositionInKGlobal(Nodes[i].Id, dof)] = _F[GetPositionInKGlobal(Nodes[i].Id, dof)] + mZ;
-                        }
+                        //Modify F vector adding the forces from the node
+                        dofs.ForEach(
+                            (stringDOF) => {
+                                DOF dof = (DOF)Enum.Parse(typeof(DOF), stringDOF);
+                                if (Nodes[i].DOF.Contains(dof) == true) {
+                                    _F[GetPositionInKGlobal(Nodes[i], dof)] = _F[GetPositionInKGlobal(Nodes[i], dof)] + additionalForce[dofs.IndexOf(stringDOF)];
+                                }
+                            });
                     }
                 }
             }
@@ -303,7 +295,8 @@ namespace GPC.Model.FEM
                     //check which DOF are active for the node to put the force in the right position
                     for (int k = 0; k < nds[0].NrActiveDof; k++)
                     {
-                        int pos = GetPositionInKGlobal(node.Id, nds[0].DOF.ElementAt(k));
+                        //int pos = GetPositionInKGlobal(node.Id, nds[0].DOF.ElementAt(k));
+                        int pos = GetPositionInKGlobal(node, nds[0].DOF.ElementAt(k));
 
                         //search in local vector the value in DOF selected
                         double val = 0;
@@ -322,7 +315,8 @@ namespace GPC.Model.FEM
                 }
             }
             #endregion
-
+            Console.WriteLine("Vector F");
+            _F.ToList().ForEach(x => Console.WriteLine(x));
             #endregion
 
             #region ApplyingRestrains
@@ -350,7 +344,8 @@ namespace GPC.Model.FEM
                         {
                             foreach(var restrain in restrainAttribute.Restrains)
                             {
-                                PrescribeDisplacement(Nodes[i].Id, restrain.Dof, restrain.ImposedDisplacement);
+                                //PrescribeDisplacement(Nodes[i].Id, restrain.Dof, restrain.ImposedDisplacement);
+                                PrescribeDisplacement(Nodes[i], restrain.Dof, restrain.ImposedDisplacement);
                             }
 
                         } else
@@ -427,35 +422,56 @@ namespace GPC.Model.FEM
                 }
                 Console.WriteLine();
             }
-            Console.WriteLine("Fmodified(Restrains + Constrains) = " + _FRestrains.ToString());
+            //Console.WriteLine("Fmodified(Restrains + Constrains) = " + _FRestrains.ToString());
             #endregion
 
             #region SolveModel
             //Solve Matrix
             _nodeGlobalDisplacement = _KGlobalRestrains.Solve(_FRestrains);
-            Console.WriteLine("Node displacements results:" + _nodeGlobalDisplacement.ToString());
+            Console.WriteLine("Node displacements results:");
+
+            //_nodeGlobalDisplacement.ToList().ForEach(x => Console.WriteLine(x));
+
+            for (int i = 0; i < _nodeGlobalDisplacement.Count; i++)
+            {
+                Console.WriteLine("Displ. " + legend[i] + " : \t " + _nodeGlobalDisplacement[i].ToString("F3"));
+            }
+            #endregion
+
+            #region Reactions
+            _reactions = _KGlobal * _nodeGlobalDisplacement - _F; //Or Fmodified?
+            for (int i = 0; i < _reactions.Count; i++)
+            {
+                Console.WriteLine("React." + legend[i] + " : \t " + _reactions[i].ToString("F3"));
+            }
             #endregion
 
             #region CalcResults
-            //attenzione controllare cosa succede con elementi finiti con dof attivi diversi
-            for (int i = 0; i < Elements.Length; i++)
-            {
-                          
-            }
             #endregion
         }
 
         #region PublicFuction
         /// <summary>
-        /// Ritorna spostamento per un selezionato nodo e per un selezione grado di libertà.
-        /// Per selezionare il nodo è usata la label in quanto l'index potrebbe essere stato modificato rispetto a fase di input...(forse è meglio dare un errore in fase di costruzione e non cambiare index?)
+        /// Ritorna spostamento per un selezionato nodo e per un certp grado di libertà.
+        /// Per selezionare il nodo è usata la label in quanto l'index potrebbe essere stato modificato rispetto a fase di input...
+        /// (forse è meglio dare un errore in fase di costruzione e non cambiare index?)
         /// </summary>
         /// <param name="node"></param>
         /// <param name="dof"></param>
         /// <returns></returns>
-        public double[] GetDisplacementGlobalCoordinates(Node node, DOF dof)
+        public double GetDisplacementGlobalCoordinates(Node node, DOF dof)
         {
-            int[] pos = GetPositionInKGlobal(node.Name, dof);
+            int pos = GetPositionInKGlobal(node, dof);
+            return _nodeGlobalDisplacement[pos];
+        }
+
+        public double[] GetDisplacementGlobalCoordinates(string labelNode, DOF dof)
+        {
+            if (labelNode== "" || labelNode == null)
+            {
+                throw new Exception("Select a node with a name!");
+            }
+            int[] pos = GetPositionInKGlobal(labelNode, dof);
             double[] ris = new double[pos.Length];
             for (int i = 0; i < pos.Length; i++)
             {
@@ -483,7 +499,8 @@ namespace GPC.Model.FEM
                     Node node = element.Nodes[j];
                     for (int k = 0; k < element.NrDOFActive; k++) //attenzione qui, se c'è un elemento con gdl attivi non contigui....
                     {
-                        pos[counter] = GetPositionInKGlobal(node.Id, (DOF)k);
+                        //pos[counter] = GetPositionInKGlobal(node.Id, (DOF)k);
+                        pos[counter] = GetPositionInKGlobal(node, (DOF)k);
                         counter++;
                     }
                 }
@@ -505,7 +522,7 @@ namespace GPC.Model.FEM
 
         #region PrivateFunction
         /// <summary>
-        /// odifica la matrice K e il termine noto F per l'inserimento di un spostamento imposto nei nodi con label "labelNode", grado di libertà dof e con spostamento = value;
+        /// Modifica la matrice K e il termine noto F per l'inserimento di un spostamento imposto nei nodi con label "labelNode", grado di libertà dof e con spostamento = value;
         /// </summary>
         /// <param name="labelNode"></param>
         /// <param name="dof"></param>
@@ -527,15 +544,17 @@ namespace GPC.Model.FEM
             }
 
         }
+
+
         /// <summary>
-        /// Modifica la matrice K e il termine noto F per l'inserimento di un spostamento imposto nel nodo index, grado di libertà dof e con spostamento = value;
+        /// Modifica la matrice K e il termine noto F per l'inserimento di un spostamento imposto nel nodo node, grado di libertà dof e con spostamento = value;
         /// </summary>
         /// <param name="index"></param>
         /// <param name="dof"></param>
         /// <param name="val"></param>
-        private void PrescribeDisplacement(int index, DOF dof, double val)
+        private void PrescribeDisplacement(Node node, DOF dof, double val)
         {
-            int position = GetPositionInKGlobal(index, dof);
+            int position = GetPositionInKGlobal(node, dof);
 
             for (int j = 0; j < _F.Count; j++)
             {
@@ -572,19 +591,19 @@ namespace GPC.Model.FEM
         }
 
         /// <summary>
-        /// return the position in Gloab System Matrix of in F vector or Displacement vector
+        /// return the position in Gloab System Matrix of in F vector or Displacement vector usign geometric position of the node (after a general clear mesh, no double node in same place should exist)
         /// </summary>
         /// <param name="IdNode">ID node</param>
         /// <param name="dof">Searched dof</param>
         /// <returns></returns>
-        private int GetPositionInKGlobal(int IdNode, DOF dof = 0)
+        private int GetPositionInKGlobal(Node node, DOF dof = 0)
         {
             #region CounterForPreviousNodes
             int counter = 0;
             int posNode = -1;
             for (int i = 0; i < Nodes.Length; i++)
             {
-                if (Nodes.ElementAt(i).Id == IdNode)
+                if (Nodes.ElementAt(i).Position.X == node.Position.X && Nodes.ElementAt(i).Position.Y == node.Position.Y && Nodes.ElementAt(i).Position.Z == node.Position.Z)
                 {
                     posNode = i;
                     i = Nodes.Length; //exit from the cycle
@@ -602,7 +621,8 @@ namespace GPC.Model.FEM
                 if (dof != Nodes[posNode].DOF.ElementAt(i))
                 {
                     counter2++;
-                } else
+                }
+                else
                 {
                     i = Nodes[posNode].DOF.Count; //exit from cycle
                 }
