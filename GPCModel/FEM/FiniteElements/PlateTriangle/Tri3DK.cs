@@ -187,7 +187,9 @@ namespace GPC.Model.FEM.FiniteElements
                 }*/
                 _kElementLocalCoord = _kElementLocalCoord + gaussPoints[i].Weight * m;
             }
-            _kElementLocalCoord = (2.0 * _areaElement) * _kElementLocalCoord;
+            double detJ = 2.0 * _areaElement;
+
+            _kElementLocalCoord = (detJ) * _kElementLocalCoord;
             
             /*Console.WriteLine("kElementLocal:");
             for (int row = 0; row < _kElementLocalCoord.RowCount; row++)

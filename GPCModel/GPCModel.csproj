@@ -79,6 +79,7 @@
     <Compile Include="FEM\ElementProperty\LaminatedGlassProperty.cs" />
     <Compile Include="FEM\ElementProperty\MonolithicGlassProperty.cs" />
     <Compile Include="FEM\FiniteElements\PlateTriangle\Tri3SBTEMembrane.cs" />
+    <Compile Include="FEM\FiniteElements\PlateTriangle\Tri3TR3RDOFMembrane.cs" />
     <Compile Include="FEM\FiniteElements\PlateTriangle\Tri3SBTDRMembrane.cs" />
     <Compile Include="FEM\FiniteElements\PlateTriangle\Tri3OPTMembrane.cs" />
     <Compile Include="FEM\FiniteElements\Rectangular\Quad4Membranal.cs" />

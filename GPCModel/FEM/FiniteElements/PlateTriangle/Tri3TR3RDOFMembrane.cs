@@ -9,18 +9,18 @@ using System.Collections.Generic;
 namespace GPC.Model.FEM.FiniteElements
 {
     /// <summary>
-    /// FINITE ELEMENT ANALYSIS OF 2-D STRUCTURES BY NEW STRAIN BASED TRIANGULAR ELEMENT - C. Rebiai - 2019
+    /// A conforming triangular plate element with rotationa degrees of freedom - 2014 - Xiang-Rong Fu - Ming-Wu Yuan - Chen Pu
+    /// NON FUNZIONA - NON MI FORNISCE BUONI RISULTATI
     /// </summary>
-    public class Tri3SBTEMembrane : Plate
+    public class Tri3TR3RDOFMembrane : Plate
     {
         #region variables
         Node[] _localNodes;
         double _thickness;
-
-        mnl.Matrix<double> _C;
+        double _areaElement;
         #endregion
 
-        public Tri3SBTEMembrane(Node[] nodes, PlateProperty property, int id) : base(nodes, property, id)
+        public Tri3TR3RDOFMembrane(Node[] nodes, PlateProperty property, int id) : base(nodes, property, id)
         {
             //recalled base(nodes)
             _DOF.Add(LinearSolver.DOF.DX);
@@ -39,7 +39,7 @@ namespace GPC.Model.FEM.FiniteElements
             //[18x18]          [18x9]         [9x9]     [9x18]
         }
 
-        public Tri3SBTEMembrane(int id, Node[] nodes, PlateProperty property) : this(nodes, property, id)
+        public Tri3TR3RDOFMembrane(int id, Node[] nodes, PlateProperty property) : this(nodes, property, id)
         {
         }
 
@@ -149,58 +149,15 @@ namespace GPC.Model.FEM.FiniteElements
             #endregion
 
             #region stiffnessMatrixInLocalCoordinates
-            Func<Point3d, mnl.Matrix<double>> C = delegate (Point3d p) {
-                mnl.Matrix<double> matrix = mnl.Matrix<double>.Build.Dense(3, 9);
-                double x = p.X;
-                double y = p.Y;
-
-                matrix[1 - 1, 1 - 1] = 1.0;
-                matrix[1 - 1, 3 - 1] = -y;
-                matrix[1 - 1, 4 - 1] = x;
-                matrix[1 - 1, 5 - 1] = x * y;
-                matrix[1 - 1, 7 - 1] = - y*y / 2.0;
-                matrix[1 - 1, 8 - 1] = y / 2.0;
-                matrix[1 - 1, 9 - 1] = x* y*y + 2.0 * y*y*y / 3.0;
-
-                matrix[2 - 1, 2 - 1] = 1.0;
-                matrix[2 - 1, 3 - 1] = x;
-                matrix[2 - 1, 5 - 1] = - x*x / 2.0;
-                matrix[2 - 1, 6 - 1] = y;
-                matrix[2 - 1, 7 - 1] = x * y;
-                matrix[2 - 1, 8 - 1] = x / 2.0;
-                matrix[2 - 1, 9 - 1] = (x*x* y + 2.0 *x*x*x / 3.0);
-
-                matrix[3 - 1, 5 - 1] = -x;
-                matrix[3 - 1, 7 - 1] = y;
-                matrix[3 - 1, 9 - 1] = (x * x - y * y);
-                return matrix;
-            };
-
-            mnl.Matrix<double>[] Cnodes = _localNodes.Select(node => C(node.Position)).ToArray();
-
-            Console.WriteLine("C matrix:");
-            Cnodes.ToList().ForEach(x => Console.WriteLine(x));
-
-            mnl.Matrix<double> Ctrasposta = mnl.Matrix<double>.Build.Dense(9, 0);
-            Ctrasposta = Ctrasposta.Append(Cnodes[0].Transpose());
-            //Console.WriteLine("Atrasp = " + Atrasposta);
-            Ctrasposta = Ctrasposta.Append(Cnodes[1].Transpose());
-            //Console.WriteLine("Atrasp = " + Atrasposta);
-            Ctrasposta = Ctrasposta.Append(Cnodes[2].Transpose());
-            //Console.WriteLine("Atrasp = " + Atrasposta);
-
-            _C = Ctrasposta.Transpose();
-            Console.WriteLine("C = " + _C);
-
-            double areaElement = 0.5 * ((-_localNodes[1 - 1].Position.X + _localNodes[2 - 1].Position.X) * (-_localNodes[1 - 1].Position.Y + _localNodes[3 - 1].Position.Y)
-                                       -(-_localNodes[1 - 1].Position.X + _localNodes[3 - 1].Position.X) * (-_localNodes[1 - 1].Position.Y + _localNodes[2 - 1].Position.Y));
-
-            Console.WriteLine("area element = " + areaElement);
+            /*_areaElement = 0.5 * ((-_localNodes[1 - 1].Position.X + _localNodes[2 - 1].Position.X) * (-_localNodes[1 - 1].Position.Y + _localNodes[3 - 1].Position.Y)
+                                       -(-_localNodes[1 - 1].Position.X + _localNodes[3 - 1].Position.X) * (-_localNodes[1 - 1].Position.Y + _localNodes[2 - 1].Position.Y));*/
+            
+            
 
             //calculation of kelement using gauss quadrature
             _kElementLocalCoord = mnl.Matrix<double>.Build.Dense(9, 9);
             GaussIntegration.GaussPoint[] gaussPoints = GaussIntegration.GetPointsTriangular(3);
-            for (int i = 0; i < gaussPoints.Length; i++) //trhough the 3 gauss points
+            for (int i = 0; i < gaussPoints.Length; i++) //trhough the gauss points
             {
                 double csi = gaussPoints[i].Point.X;
                 double eta = gaussPoints[i].Point.Y;
@@ -217,7 +174,8 @@ namespace GPC.Model.FEM.FiniteElements
                 }*/
                 _kElementLocalCoord = _kElementLocalCoord + gaussPoints[i].Weight * m;
             }
-            _kElementLocalCoord = (_thickness * areaElement) * _kElementLocalCoord;
+            double detJ = 2.0 * _areaElement;
+            _kElementLocalCoord = (_thickness * detJ) * _kElementLocalCoord;
 
             //_kElementLocalCoord = ; 
             /*Console.WriteLine("KElementLocalCoord = ");
@@ -234,17 +192,105 @@ namespace GPC.Model.FEM.FiniteElements
 
         public override mnl.Matrix<double> GetB(double csi, double eta, double zeta = 0)
         {
-            double x = N(1, csi, eta) * _localNodes[1 - 1].Position.X + N(2, csi, eta) * _localNodes[2 - 1].Position.X + N(3, csi, eta) * _localNodes[3 - 1].Position.X;
-            double y = N(1, csi, eta) * _localNodes[1 - 1].Position.Y + N(2, csi, eta) * _localNodes[2 - 1].Position.Y + N(3, csi, eta) * _localNodes[3 - 1].Position.Y;
+            /*double x = N(1, csi, eta) * _localNodes[1 - 1].Position.X + N(2, csi, eta) * _localNodes[2 - 1].Position.X + N(3, csi, eta) * _localNodes[3 - 1].Position.X;
+            double y = N(1, csi, eta) * _localNodes[1 - 1].Position.Y + N(2, csi, eta) * _localNodes[2 - 1].Position.Y + N(3, csi, eta) * _localNodes[3 - 1].Position.Y;*/
+
+            //uso variabili naturali poi uso detJ e integratura di gauss per integrare
+
+            double x = csi;
+            double y = eta;
 
             Console.WriteLine("x = " + x);
             Console.WriteLine("y = " + y);
 
-            mnl.Matrix<double> Q = GetQ(x, y);
-            Console.WriteLine("Q(x,y) = " + Q);
-            Console.WriteLine("C^-1 = " + _C.Inverse());
-            Console.WriteLine("B(x,y) = " + Q * _C.Inverse());
-            return Q * _C.Inverse();
+            double x1 = _localNodes[1 - 1].Position.X;
+            double y1 = _localNodes[1 - 1].Position.Y;
+            Console.WriteLine("x1 = " + x1 + " y1 = " + y1);
+
+            double x2 = _localNodes[2 - 1].Position.X;
+            double y2 = _localNodes[2 - 1].Position.Y;
+            Console.WriteLine("x2 = " + x2 + " y2 = " + y2);
+
+            double x3 = _localNodes[3 - 1].Position.X;
+            double y3 = _localNodes[3 - 1].Position.Y;
+            Console.WriteLine("x3 = " + x3 + " y3 = " + y3);
+
+            _areaElement = 0.5 * (x1 * y2 - x2 * y1 - x1 * y3 + x3 * y1 + x2 * y3 - x3 * y2);
+            Console.WriteLine("area element = " + _areaElement);
+
+            /*double a1 = (x2 * y3) - (x3 * y2);
+            double a2 = (x3 * y1) - (x1 * y3);
+            double a3 = (x1 * y2) - (x2 * y1);*/
+
+            double b1 = y2 - y3;
+            double b2 = y3 - y1;
+            double b3 = y1 - y2;
+            Console.WriteLine("b1 = " + b1);
+            Console.WriteLine("b2 = " + b2);
+            Console.WriteLine("b3 = " + b3);
+
+            double c1 = x3 - x2;
+            double c2 = x1 - x3;
+            double c3 = x2 - x1;
+            Console.WriteLine("c1 = " + c1);
+            Console.WriteLine("c2 = " + c2);
+            Console.WriteLine("c3 = " + c3);
+
+            double bx = (x1 * y1 * b1 + x2 * y2 * b2 + x3 * y3 * b3) / (2.0 * _areaElement);
+            Console.WriteLine("bx = " + bx);
+            double by = (x1 * y1 * c1 + x2 * y2 * c2 + x3 * y3 * c3) / (2.0 * _areaElement);
+            Console.WriteLine("by = " + by);
+
+            mnl.Matrix<double> B1 = mnl.Matrix<double>.Build.Dense(3, 3);
+            mnl.Matrix<double> B2 = mnl.Matrix<double>.Build.Dense(3, 3);
+            mnl.Matrix<double> B3 = mnl.Matrix<double>.Build.Dense(3, 3);
+
+            #region B1
+            B1[1 - 1, 1 - 1] = b1 / (2.0 * _areaElement);
+            B1[1 - 1, 3 - 1] = b1 * (2.0 * y - y1 - bx) / 4.0;
+
+            B1[2 - 1, 2 - 1] = c1 / (2.0 * _areaElement);
+            B1[2 - 1, 3 - 1] = -c1 * (2.0 * x - x1 - by) / 4.0;
+
+            B1[3 - 1, 1 - 1] = c1 / (2.0 * _areaElement);
+            B1[3 - 1, 2 - 1] = b1 / (2.0 * _areaElement);
+            B1[3 - 1, 3 - 1] = (x1 * b1 + x2 * b3 + x3 * b2) / 4.0;
+            Console.WriteLine("B1 = " + B1);
+            #endregion
+
+            #region B2
+            B2[1 - 1, 1 - 1] = b2 / (2.0 * _areaElement);
+            B2[1 - 1, 3 - 1] = b2 * (2.0 * y - y2 - bx) / 4.0;
+
+            B2[2 - 1, 2 - 1] = c2 / (2.0 * _areaElement);
+            B2[2 - 1, 3 - 1] = -c2 * (2.0 * x - x2 - by) / 4.0;
+
+            B2[3 - 1, 1 - 1] = c2 / (2.0 * _areaElement);
+            B2[3 - 1, 2 - 1] = b2 / (2.0 * _areaElement);
+            B2[3 - 1, 3 - 1] = (x1 * b3 + x2 * b2 + x3 * b2) / 4.0;
+            Console.WriteLine("B2 = " + B2);
+            #endregion
+
+            #region B3
+            B3[1 - 1, 1 - 1] = b3 / (2.0 * _areaElement);
+            B3[1 - 1, 3 - 1] = b3 * (2.0 * y - y3 - bx) / 4.0;
+
+            B3[2 - 1, 2 - 1] = c3 / (2.0 * _areaElement);
+            B3[2 - 1, 3 - 1] = -c3 * (2.0 * x - x3 - by) / 4.0;
+
+            B3[3 - 1, 1 - 1] = c3 / (2.0 * _areaElement);
+            B3[3 - 1, 2 - 1] = b3 / (2.0 * _areaElement);
+            B3[3 - 1, 3 - 1] = (x1 * b2 + x2 * b1 + x3 * b3) / 4.0;
+            Console.WriteLine("B3 = " + B3);
+            #endregion
+
+            mnl.Matrix<double> B = mnl.Matrix<double>.Build.Dense(3, 0);
+            B = B.Append(B1);
+            B = B.Append(B2);
+            B = B.Append(B3);
+
+            Console.WriteLine("B = " + B);
+            return B;
         }
 
         protected override mnl.Vector<double> BuildFLocalCoord()
@@ -372,30 +418,6 @@ namespace GPC.Model.FEM.FiniteElements
                         
             globalEpsilon = epsilonGlobalCouchy;
             localEpsilon = stressGlobalCouchy;
-        }
-        
-        /// <summary>
-        /// 3 x 9 matrix
-        /// </summary>
-        /// <param name="x"></param>
-        /// <param name="y"></param>
-        /// <returns></returns>
-        private mnl.Matrix<double> GetQ (double x, double y)
-        {
-            double ni = ((PlateProperty)_property).GetNi();
-
-            mnl.Matrix<double> Q = mnl.Matrix<double>.Build.Dense(3, 9);
-            Q[1 - 1, 4 - 1] = 1.0;
-            Q[1 - 1, 5 - 1] = y;
-            Q[1 - 1, 9 - 1] = y * y;
-
-            Q[2 - 1, 6 - 1] = 1.0;
-            Q[2 - 1, 7 - 1] = x;
-            Q[2 - 1, 9 - 1] = x*x;
-
-            Q[3 - 1, 8 - 1] = 1.0;
-            Q[3 - 1, 9 - 1] = 2.0*(x*x + y*y + 2 * x*y);
-            return Q;
         }
 
         /// <summary>
