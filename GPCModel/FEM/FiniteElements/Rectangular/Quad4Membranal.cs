@@ -129,7 +129,7 @@ namespace GPC.Model.FEM.FiniteElements
             double thk = ((PlateProperty)_property).MembraneThickness;
             _kElementLocalCoord = mnl.Matrix<double>.Build.Dense(8, 8);
 
-            GaussIntegration.GaussPoint[] gaussPoints = GaussIntegration.GetRectangularDomain(4);
+            GaussIntegration.GaussPoint[] gaussPoints = GaussIntegration.GetPointsRectangular(4);
 
             for (int i = 0; i < gaussPoints.Length; i++) //trhough the gauss points
             {
@@ -314,7 +314,7 @@ namespace GPC.Model.FEM.FiniteElements
                     double py = attribute.P1 * dirX.DotProduct(y) + attribute.P2 * dirY.DotProduct(y) + attribute.P3 * dirZ.DotProduct(y);
                     double pz = attribute.P1 * dirX.DotProduct(z) + attribute.P2 * dirY.DotProduct(z) + attribute.P3 * dirZ.DotProduct(z);
 
-                    GaussIntegration.GaussPoint[] gaussPoints = GaussIntegration.GetRectangularDomain(4);
+                    GaussIntegration.GaussPoint[] gaussPoints = GaussIntegration.GetPointsRectangular(4);
                     mnl.Matrix<double> J4nodeElement;
                     for (int i = 0; i < gaussPoints.Length; i++)
                     {

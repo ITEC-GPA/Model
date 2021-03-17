@@ -16,7 +16,7 @@ using GPC.Model.LoadCases;
 namespace FemTest.Solver
 {
     [TestClass]
-    public class FemSolverTest
+    public class FemSolverTestGeneral
     {
         [TestMethod]
         public void EqualsNodesTest1()

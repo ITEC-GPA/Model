@@ -16,65 +16,78 @@ using GPC.Model.LoadCases;
 namespace FemTest.Solver
 {
     [TestClass]
-    public class FemSolverTestTriOPT
+    public class FemSolverTestSBTE
     {
         /// <summary>
-        /// Based of "A study of optima membrane triangles with drilling freedoms" - Felippa - 2003 pg. 22
+        /// Easy example, not valid as test
         /// </summary>
         [TestMethod]
-        public void TriOPTMembranalTest1()
+        public void Tri3SBTEMembranalTest1()
         {
-            double E = 120.0;
-            double ni = 1.0 / 4.0;
+            double E = 1.0;
+            double ni = 0.0;
             Material mat = new SteelMaterial("steel", E, ni, 355, 510, 7850);
 
-            double thickness = 1.0 / 8.0;
+            double thickness = 1.0;
             PlateProperty prop = new PlateProperty(mat, thickness, thickness);
 
-            Node[] nds = new Node[3];
-            nds[0] = new Node(+0.00, +0.00, 0.0, 1, "1");
-            nds[1] = new Node(+4.08, -3.44, 0.0, 2, "2");
-            nds[2] = new Node(+3.40, +1.14, 0.0, 3, "3");
+            List<Node> nodes = new List<Node>();
+            nodes.Add(new Node(1, 0.0, 0.0, 0.0));
+            nodes.Add(new Node(2, 1.0, 0.0, 0.0));
+            nodes.Add(new Node(3, 0.0, 1.0, 0.0));
 
-            Tri3OPTMembrane el = new Tri3OPTMembrane(nds, prop, 1);
+            FreedomCase fc = new FreedomCase("fc1");
+            CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
 
-            LinearSolver fem = new LinearSolver(new FiniteElement[] { el });
-            Console.WriteLine("kGlob=" + fem.KGlobal);
+            NodeRestrainAttribute fix = new NodeRestrainAttribute(fc, sys);
+            fix.AddExternalRestrain(LinearSolver.DOF.DX);
+            fix.AddExternalRestrain(LinearSolver.DOF.DY);
+            fix.AddExternalRestrain(LinearSolver.DOF.DZ);
+            fix.AddExternalRestrain(LinearSolver.DOF.RX);
+            fix.AddExternalRestrain(LinearSolver.DOF.RY);
+            fix.AddExternalRestrain(LinearSolver.DOF.RZ);
 
-            mnl.Matrix<double> kGlobalTest = mnl.Matrix<double>.Build.Dense(0, 18);
-            kGlobalTest = kGlobalTest.InsertRow(0, mnl.Vector<double>.Build.Dense(new double[] { 10.392, 0.67281, 0, 0, 0, 7.0955, -1.9232, 1.8325, 0, 0, 0, 1.6467, -8.4687, -2.5053, 0, 0, 0, -10.739 }));
-            kGlobalTest = kGlobalTest.InsertRow(1, mnl.Vector<double>.Build.Dense(new double[] { 0.67281, 5.9602, 0, 0, 0, 12.462, 1.364,-0.29577, 0, 0, 0,-2.1909,-2.0368,-5.6644, 0, 0, 0, 3.1805 }));
-            kGlobalTest = kGlobalTest.InsertRow(2, mnl.Vector<double>.Build.Dense(new double[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }));
-            kGlobalTest = kGlobalTest.InsertRow(3, mnl.Vector<double>.Build.Dense(new double[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }));
-            kGlobalTest = kGlobalTest.InsertRow(4, mnl.Vector<double>.Build.Dense(new double[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }));
-            kGlobalTest = kGlobalTest.InsertRow(5, mnl.Vector<double>.Build.Dense(new double[] { 7.0955, 12.462, 0, 0, 0, 32.557, 0.75498, 0.26929, 0, 0, 0,-1.7792,-7.8504,-12.731, 0, 0, 0,-0.13702 }));
-            kGlobalTest = kGlobalTest.InsertRow(6, mnl.Vector<double>.Build.Dense(new double[] { -1.9232, 1.364, 0, 0, 0, 0.75498, 3.7959,-0.83734, 0, 0, 0,-6.7570,-1.8728,-0.52670, 0, 0, 0,-3.9838 }));
-            kGlobalTest = kGlobalTest.InsertRow(7, mnl.Vector<double>.Build.Dense(new double[] { 1.8325,-0.29577, 0, 0, 0, 0.26929,-0.83734, 6.0125, 0, 0, 0,-5.5238,-0.99520,-5.7167, 0, 0, 0, 1.9063 }));
-            kGlobalTest = kGlobalTest.InsertRow(8, mnl.Vector<double>.Build.Dense(new double[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }));
-            kGlobalTest = kGlobalTest.InsertRow(9, mnl.Vector<double>.Build.Dense(new double[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }));
-            kGlobalTest = kGlobalTest.InsertRow(10, mnl.Vector<double>.Build.Dense(new double[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }));
-            kGlobalTest = kGlobalTest.InsertRow(11, mnl.Vector<double>.Build.Dense(new double[] { 1.6467,-2.1909, 0, 0, 0,-1.7792,-6.7570,-5.5238, 0, 0, 0, 21.728, 5.1102, 7.7147, 0, 0, 0, 5.4278 }));
-            kGlobalTest = kGlobalTest.InsertRow(12, mnl.Vector<double>.Build.Dense(new double[] {  -8.4687,-2.0368, 0, 0, 0,-7.8504,-1.8728,-0.99520, 0, 0, 0, 5.1102, 10.341, 3.032, 0, 0, 0, 14.723 }));
-            kGlobalTest = kGlobalTest.InsertRow(13, mnl.Vector<double>.Build.Dense(new double[] { -2.5053,-5.6644, 0, 0, 0,-12.731,-0.52670,-5.7167, 0, 0, 0, 7.7147, 3.032, 11.381, 0, 0, 0,-5.0869 }));
-            kGlobalTest = kGlobalTest.InsertRow(14, mnl.Vector<double>.Build.Dense(new double[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }));
-            kGlobalTest = kGlobalTest.InsertRow(15, mnl.Vector<double>.Build.Dense(new double[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }));
-            kGlobalTest = kGlobalTest.InsertRow(16, mnl.Vector<double>.Build.Dense(new double[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }));
-            kGlobalTest = kGlobalTest.InsertRow(17, mnl.Vector<double>.Build.Dense(new double[] { -10.739, 3.1805, 0, 0, 0,-0.13702,-3.9838, 1.9063, 0, 0, 0, 5.4278, 14.723,-5.0869, 0, 0, 0, 34.716 }));
+            NodeRestrainAttribute fix2 = new NodeRestrainAttribute(fc, sys);
+            fix2.AddExternalRestrain(LinearSolver.DOF.DZ);
+            fix2.AddExternalRestrain(LinearSolver.DOF.RX);
+            fix2.AddExternalRestrain(LinearSolver.DOF.RY);
+            //fix2.AddExternalRestrain(LinearSolver.DOF.RZ);
 
-            for (int r = 0; r < kGlobalTest.RowCount; r++)
-            {
-                for (int c = 0; c < kGlobalTest.ColumnCount; c++)
-                {
-                    Assert.AreEqual(kGlobalTest[r, c], fem.KGlobal[r, c], 0.001);
-                }
-            }
+            nodes[1 - 1].AddAttribute(fix);
+            nodes[2 - 1].AddAttribute(fix);
+
+            nodes.ForEach(node => node.AddAttribute(fix2));
+
+            LoadCase lc = new LoadCase("lc");
+            NodeForceAttribute f1 = new NodeForceAttribute(lc, sys, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0);
+
+            nodes[3 - 1].AddAttribute(f1);
+
+            List<Tri3SBTEMembrane> elements = new List<Tri3SBTEMembrane>();
+            elements.Add(new Tri3SBTEMembrane(1, new Node[] { nodes[1 - 1], nodes[2 - 1], nodes[3 - 1] }, prop));
+
+            LinearSolver fem = new LinearSolver(elements.ToArray());
+
+            /*double displacementNode = fem.GetDisplacementGlobalCoordinates(nodes[1], LinearSolver.DOF.DX);
+            Console.WriteLine("DX node = " + displacementNode);
+            Assert.AreEqual(1.0, displacementNode, 0.001);*/
+
+            Console.WriteLine("Element 1");
+            double[] elementGlobalDispl = fem.GetDisplacementsGlobalCoordinates(elements[1 - 1]);
+            elements[1 - 1].GetNodesResults(elementGlobalDispl, out double[] localDispl,
+                            out mnl.Matrix<double>[] globalPseudoDef, out mnl.Matrix<double>[] localPseudoDef,
+                            out mnl.Matrix<double>[] globalForces, out mnl.Matrix<double>[] localForces,
+                            out mnl.Matrix<double>[] globalStress, out mnl.Matrix<double>[] localStress,
+                            out mnl.Matrix<double>[] globalEpsilon, out mnl.Matrix<double>[] localEpsilon);
+            globalStress.ToList().ForEach(x => Console.WriteLine("global stress" + x));
         }
 
+#if false
         /// <summary>
         /// Based of "A study of optima membrane triangles with drilling freedoms" - Felippa - 2003 pg. 32
         /// </summary>
         [TestMethod]
-        public void TriOPTMembranalTest2()
+        public void TriSBTDRMembranalTest2()
         {
             double E = 768.0;
             double ni = 0.0;
@@ -136,18 +149,19 @@ namespace FemTest.Solver
             /*NodeForceAttribute M = new NodeForceAttribute(lc, sys, 0.0, 0.0, 0.0, 0.0, 0.0, 100.0);
             node8.AddAttribute(M);*/
 
-            List<Tri3OPTMembrane> elements = new List<Tri3OPTMembrane>();
-            elements.Add(new Tri3OPTMembrane(new Node[] { node1, node2, node3 }, prop, 1));
-            elements.Add(new Tri3OPTMembrane(new Node[] { node3, node2, node4 }, prop, 2));
-            elements.Add(new Tri3OPTMembrane(new Node[] { node3, node4, node5 }, prop, 3));
-            elements.Add(new Tri3OPTMembrane(new Node[] { node5, node4, node6 }, prop, 4));
-            elements.Add(new Tri3OPTMembrane(new Node[] { node2, node7, node4 }, prop, 5));
-            elements.Add(new Tri3OPTMembrane(new Node[] { node4, node7, node8 }, prop, 6));
-            elements.Add(new Tri3OPTMembrane(new Node[] { node4, node8, node6 }, prop, 7));
-            elements.Add(new Tri3OPTMembrane(new Node[] { node6, node8, node9 }, prop, 8));
+            List<Tri3SBTDRMembrane> elements = new List<Tri3SBTDRMembrane>();
+            elements.Add(new Tri3SBTDRMembrane(new Node[] { node1, node2, node3 }, prop, 1));
+            elements.Add(new Tri3SBTDRMembrane(new Node[] { node3, node2, node4 }, prop, 2));
+            elements.Add(new Tri3SBTDRMembrane(new Node[] { node3, node4, node5 }, prop, 3));
+            elements.Add(new Tri3SBTDRMembrane(new Node[] { node5, node4, node6 }, prop, 4));
+            elements.Add(new Tri3SBTDRMembrane(new Node[] { node2, node7, node4 }, prop, 5));
+            elements.Add(new Tri3SBTDRMembrane(new Node[] { node4, node7, node8 }, prop, 6));
+            elements.Add(new Tri3SBTDRMembrane(new Node[] { node4, node8, node6 }, prop, 7));
+            elements.Add(new Tri3SBTDRMembrane(new Node[] { node6, node8, node9 }, prop, 8));
 
             LinearSolver fem = new LinearSolver(elements.ToArray());
 
+            Console.WriteLine(fem.GetDisplacementGlobalCoordinates(node8, LinearSolver.DOF.DY) + " vs 100");
             Assert.AreEqual(100.0, fem.GetDisplacementGlobalCoordinates(node8, LinearSolver.DOF.DY), 0.1);
         }
 
@@ -601,69 +615,6 @@ namespace FemTest.Solver
                             out globalEpsilon, out localEpsilon);
             globalStress.ToList().ForEach(x => Console.WriteLine("global stress" + x));*/
         }
-
-        /// <summary>
-        /// Easy example, not valid as test
-        /// </summary>
-        [TestMethod]
-        public void TriOPTMembranalTest7()
-        {
-            double E = 1.0;
-            double ni = 0.0;
-            Material mat = new SteelMaterial("steel", E, ni, 355, 510, 7850);
-
-            double thickness = 1.0;
-            PlateProperty prop = new PlateProperty(mat, thickness, thickness);
-
-            List<Node> nodes = new List<Node>();
-            nodes.Add(new Node(1, 0.0, 0.0, 0.0));
-            nodes.Add(new Node(2, 1.0, 0.0, 0.0));
-            nodes.Add(new Node(3, 0.5, 1.0, 0.0));
-
-            FreedomCase fc = new FreedomCase("fc1");
-            CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
-
-            NodeRestrainAttribute fix = new NodeRestrainAttribute(fc, sys);
-            fix.AddExternalRestrain(LinearSolver.DOF.DX);
-            fix.AddExternalRestrain(LinearSolver.DOF.DY);
-            fix.AddExternalRestrain(LinearSolver.DOF.DZ);
-            fix.AddExternalRestrain(LinearSolver.DOF.RX);
-            fix.AddExternalRestrain(LinearSolver.DOF.RY);
-            fix.AddExternalRestrain(LinearSolver.DOF.RZ);
-
-            NodeRestrainAttribute fix2 = new NodeRestrainAttribute(fc, sys);
-            fix2.AddExternalRestrain(LinearSolver.DOF.DZ);
-            fix2.AddExternalRestrain(LinearSolver.DOF.RX);
-            fix2.AddExternalRestrain(LinearSolver.DOF.RY);
-            //fix2.AddExternalRestrain(LinearSolver.DOF.RZ);
-
-            nodes[1 - 1].AddAttribute(fix);
-            nodes[2 - 1].AddAttribute(fix);
-
-            nodes.ForEach(node => node.AddAttribute(fix2));
-
-            LoadCase lc = new LoadCase("lc");
-            NodeForceAttribute f1 = new NodeForceAttribute(lc, sys, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0);
-
-            nodes[3 - 1].AddAttribute(f1);
-
-            List<Tri3OPTMembrane> elements = new List<Tri3OPTMembrane>();
-            elements.Add(new Tri3OPTMembrane(1, new Node[] { nodes[1 - 1], nodes[2 - 1], nodes[3 - 1] }, prop));
-
-            LinearSolver fem = new LinearSolver(elements.ToArray());
-
-            /*double displacementNode = fem.GetDisplacementGlobalCoordinates(nodes[1], LinearSolver.DOF.DX);
-            Console.WriteLine("DX node = " + displacementNode);
-            Assert.AreEqual(1.0, displacementNode, 0.001);*/
-
-            Console.WriteLine("Element 1");
-            double[] elementGlobalDispl = fem.GetDisplacementsGlobalCoordinates(elements[1 - 1]);
-            elements[1 - 1].GetNodesResults(elementGlobalDispl, out double[] localDispl,
-                            out mnl.Matrix<double>[] globalPseudoDef, out mnl.Matrix<double>[] localPseudoDef,
-                            out mnl.Matrix<double>[] globalForces, out mnl.Matrix<double>[] localForces,
-                            out mnl.Matrix<double>[] globalStress, out mnl.Matrix<double>[] localStress,
-                            out mnl.Matrix<double>[] globalEpsilon, out mnl.Matrix<double>[] localEpsilon);
-            globalStress.ToList().ForEach(x => Console.WriteLine("global stress" + x));
-        }
+#endif
     }
 }
