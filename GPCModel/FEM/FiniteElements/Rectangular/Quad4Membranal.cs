@@ -38,8 +38,6 @@ namespace GPC.Model.FEM.FiniteElements
             _localNodes = Quad4Element.LocalNodes(_nodesGlobal, out _localCoordinateSystem);
             
             #region TransformationMatrixLocalCoordinatesToGlobalCoordinates
-            _dofGlobalToLocal = mnl.Matrix<double>.Build.Dense(12, 8);
-
             mnl.Matrix<double> dofGlobalToLocalTranspose = mnl.Matrix<double>.Build.Dense(12, 8);
 
             Vector3d globalX = new Vector3d(1.0, 0.0, 0.0);
@@ -138,7 +136,7 @@ namespace GPC.Model.FEM.FiniteElements
 
                 mnl.Matrix<double> b = GetB(csi, eta);
                 mnl.Matrix<double> m = b.Transpose() * _d * b;
-                mnl.Matrix<double> jacob = J(csi, eta);
+                mnl.Matrix<double> jacob = Quad4Element.J(csi, eta, _localNodes);
                     
                 /*Console.WriteLine();
                 Console.WriteLine("B(csi=" + csi.ToString("F2") + ",eta=" + eta.ToString("F2") + ")^T * D * B(csi=" + csi.ToString("F2") + ",eta=" + eta.ToString("F2")+"):");
@@ -167,7 +165,6 @@ namespace GPC.Model.FEM.FiniteElements
              * pg. 28
              * */
 
-
             /*
              * Matrix A
              *   [3x4]
@@ -180,7 +177,7 @@ namespace GPC.Model.FEM.FiniteElements
              * a = Jacob^(-1) oppurtunamente disposto in matrice 3x4
             */
             mnl.Matrix<double> a = mnl.Matrix<double>.Build.Dense(3, 4);
-            mnl.Matrix<double> j = J(csi, eta);
+            mnl.Matrix<double> j = Quad4Element.J(csi, eta, _localNodes);
             a[0, 0] = j[1, 1];
             a[0, 1] = -j[0, 1];
 
@@ -239,46 +236,6 @@ namespace GPC.Model.FEM.FiniteElements
             }*/
 
             return a * g;
-        }
-
-        /// <summary>
-        /// jacobiano:
-        /// dx/dCsi, dy/dEta
-        /// dy/dCsi, dy/dEta
-        /// </summary>
-        /// <param name="csi"></param>
-        /// <param name="eta"></param>
-        /// <returns></returns>
-        private mnl.Matrix<double> J(double csi, double eta)
-        {
-            double j11 = 0.0;
-            double j12 = 0.0;
-            double j21 = 0.0;
-            double j22 = 0.0;
-            for (int node = 0; node < 4; node++)
-            {
-                int i = node + 1;
-                double xi = _localNodes[node].Position.X;
-                double yi = _localNodes[node].Position.Y;
-
-                j11 = j11 + Quad4Element.dNdCsi4nodes(i, csi, eta) * xi;
-                j12 = j12 + Quad4Element.dNdCsi4nodes(i, csi, eta) * yi;
-                j21 = j21 + Quad4Element.dNdEta4nodes(i, csi, eta) * xi;
-                j22 = j22 + Quad4Element.dNdEta4nodes(i, csi, eta) * yi;
-            }
-
-            mnl.Matrix<double> J = mnl.Matrix<double>.Build.Dense(2, 2);
-            J[0, 0] = j11;
-
-            J[0, 1] = j12;
-            J[1, 0] = j21;
-
-            J[1, 1] = j22;
-
-            /*Console.WriteLine("J(csi="+csi.ToString("F2")+",eta="+eta.ToString("F2")+"="+J);
-            Console.WriteLine("detJ(csi=" + csi.ToString("F2") + ",eta=" + eta.ToString("F2") + "=" + J.Determinant());*/
-
-            return J;
         }
 
         protected override mnl.Vector<double> BuildFLocalCoord()
