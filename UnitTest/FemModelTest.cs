@@ -1,4 +1,4 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.IO;
 using System.Collections.Generic;
@@ -234,9 +234,10 @@ namespace FemTest
             // Act
             FemModel femModel = new FemModel();
 
-            Mesh.GenerateMeshOptions.MeshSize = 10;
+            Mesh.GenerateOptions meshOptions = new Mesh.GenerateOptions();
+            meshOptions.MeshSize = 10;
 
-            femModel.AddShape(s, pp, loads, restrains);
+            femModel.AddShape(s, pp, meshOptions, loads, restrains);
 
             var mesh = femModel.GetMesh();
 
@@ -267,12 +268,13 @@ namespace FemTest
             GlassMaterial gm = new GlassMaterialAstm("", 1, 0.2, 3, 4, 5, 6, 0.008, 0.008, 9);
             MonolithicGlassProperty pp = new MonolithicGlassProperty(1, 2, gm);
 
-            Mesh.GenerateMeshOptions.MeshSize = 10;
+            Mesh.GenerateOptions meshOptions = new Mesh.GenerateOptions();
+            meshOptions.MeshSize = 10;
 
             PointLoad p1 = new PointLoad(1, 2, 3, 4, 5, 6, new Point3d(35, 35, 0), new LoadCase("LC1", null));
             LineLoad l1 = new LineLoad(1, 2, 3, 4, 5, 6, new Line3d(new Point3d(35, 150, 0), new Point3d(75, 100, 0)), new LoadCase("LC2", null));
 
-            femModel.AddShape(s1, pp, new List<Load>() { p1, l1}, null);
+            femModel.AddShape(s1, pp, meshOptions, new List<Load>() { p1, l1}, null);
 
 
             var mesh = femModel.GetMesh();
@@ -307,14 +309,15 @@ namespace FemTest
             GlassMaterial gm = new GlassMaterialAstm("", 1, 0.2, 3, 4, 5, 6, 0.008, 0.008, 9);
             MonolithicGlassProperty pp = new MonolithicGlassProperty(1, 2, gm);
 
-            Mesh.GenerateMeshOptions.MeshSize = 10;
+            Mesh.GenerateOptions meshOptions = new Mesh.GenerateOptions();
+            meshOptions.MeshSize = 10;
 
             PointLoad p1 = new PointLoad(1, 2, 3, 4, 5, 6, new Point3d(35, 35, 0), new LoadCase("LC1", null));
             LineLoad l1 = new LineLoad(1, 2, 3, 4, 5, 6, new Line3d(new Point3d(35, 150, 0), new Point3d(75, 100, 0)), new LoadCase("LC2", null));
 
             //Act
-            femModel.AddShape(s1, pp, null, null);
-            femModel.AddShape(s2, pp, null, null);
+            femModel.AddShape(s1, pp, meshOptions, null, null);
+            femModel.AddShape(s2, pp, meshOptions, null, null);
 
             var mesh = femModel.GetMesh();
 
@@ -346,12 +349,13 @@ namespace FemTest
             GlassMaterial gm = new GlassMaterialAstm("", 1, 0.2, 3, 4, 5, 6, 0.008, 0.008, 9);
             MonolithicGlassProperty pp = new MonolithicGlassProperty(1, 2, gm);
 
-            Mesh.GenerateMeshOptions.MeshSize = 50;
+            Mesh.GenerateOptions meshOptions = new Mesh.GenerateOptions();
+            meshOptions.MeshSize = 50;
 
             LineLoad l1 = new LineLoad(1, 2, 3, 4, 5, 6, new Line3d(new Point3d(0, 500, 0), new Point3d(800, 500, 0)), new LoadCase("LC2", null));
 
             //Act
-            femModel.AddShape(s1, pp, null, null);
+            femModel.AddShape(s1, pp, meshOptions, null, null);
 
             var mesh = femModel.GetMesh();
 
@@ -367,6 +371,35 @@ namespace FemTest
                     Assert.Fail(vertex1.Point.DistanceTo(vertex2.Point).ToString());
                 }
             }
+        }
+
+
+        [TestMethod]
+        public void FemModelTest6()
+        {
+            Mesh mesh = CreateSimpleMesh(20, 30, 3, 4, 0, 0);
+
+            GlassMaterial gm = new GlassMaterialAstm("", 1, 0.2, 3, 4, 5, 6, 0.008, 0.008, 9);
+            MonolithicGlassProperty pp = new MonolithicGlassProperty(1, 2, gm);
+
+            FemModel femModel = new FemModel();
+            femModel.AddMesh(mesh, pp, null, null, null, null, null);
+
+            Mesh mesh2 = femModel.GetMesh();
+
+            Assert.IsTrue(mesh.Equals(mesh2));
+
+        }
+
+
+        [TestMethod]
+        public void FemModelTest7()
+        {
+            Mesh mesh1 = CreateSimpleMesh(20, 30, 3, 4, 0, 0);
+            Mesh mesh2 = CreateSimpleMesh(20, 30, 3, 4, 0, 0);
+
+            Assert.IsTrue(mesh1.Equals(mesh2));
+
         }
         #endregion
 

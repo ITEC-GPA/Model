@@ -4,6 +4,7 @@ using GPC.Geometry;
 using MathNet.Numerics.LinearAlgebra;
 using System.Runtime.Serialization;
 using GPC.Model.Elements;
+using GPC.Model.FEM.FiniteElements;
 
 namespace GPC.Model.Results
 {
@@ -94,6 +95,9 @@ namespace GPC.Model.Results
             }
         }
 
+        public new Plate Element => (Plate)_element;
+
+        public new ResultStressPoint ResultPoint => (ResultStressPoint)_resultPoint;
         #endregion
 
 
@@ -112,7 +116,7 @@ namespace GPC.Model.Results
         /// <param name="sxz">Stress on <see cref="CoordinateSystem.V1"/> side of the plate along <see cref="CoordinateSystem.V3"/> direction</param>
         /// <param name="syz">Stress on <see cref="CoordinateSystem.V2"/> side of the plate along <see cref="CoordinateSystem.V3"/> direction</param>
         /// <remarks> _szz is set to zero by default </remarks>
-        public ResultPlateStress(Element element, ILoadCase Case, ResultStressPoint resultPoint, CoordinateSystem coordinateSystem, double sxx, double syy, double sxy, double sxz, double syz) 
+        public ResultPlateStress(Plate element, ILoadCase Case, ResultStressPoint resultPoint, CoordinateSystem coordinateSystem, double sxx, double syy, double sxy, double sxz, double syz) 
             : base(element, Case, resultPoint, coordinateSystem)
         {
             _sxx = sxx;

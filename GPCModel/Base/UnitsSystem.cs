@@ -50,7 +50,7 @@ namespace GPC.Model
         {
             if (ReferenceEquals(us1, us2))
                 return true;
-            return us1 != null && us1.Equals(us2);
+            return !(us1 is null) && us1.Equals(us2);
         }
 
         public static bool operator !=(UnitsSystem us1, UnitsSystem us2)

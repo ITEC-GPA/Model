@@ -30,5 +30,13 @@ namespace UnitSystemTest
             double kN = N.ConvertForceFromDefault(Units.Knm);
             Assert.IsTrue(kN == force);
         }
+
+        [TestMethod]
+        public void EqualityTest()
+        {
+            UnitsSystem units = Units.Knm;
+            Assert.IsFalse(units == Units.DefaultUnits);
+            Assert.IsTrue(Units.Nmm == Units.DefaultUnits);
+        }
     }
 }

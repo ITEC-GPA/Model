@@ -34,6 +34,7 @@ namespace GPC.Model.Results
         public double R2 => _r2;
         public double R3 => _r3;
 
+        public new Node Element => (Node)_element;
         #endregion
 
 

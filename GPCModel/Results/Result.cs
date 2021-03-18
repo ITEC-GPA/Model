@@ -24,11 +24,11 @@ namespace GPC.Model.Results
 
         public CoordinateSystem CoordinateSystem => _coordinateSystem;
 
-        public Element Element => _element;
+        public virtual Element Element => _element;
 
         public ILoadCase Case => _case;
 
-        public ResultPoint ResultPoint => _resultPoint;
+        public virtual ResultPoint ResultPoint => _resultPoint;
 
 
         #region Constructors
