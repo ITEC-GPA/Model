@@ -3,9 +3,13 @@ using GPC.Model.Elements;
 using GPC.Model.LoadCases;
 using System;
 using System.Runtime.Serialization;
+using GPC.Model.FEM.FiniteElements;
 
 namespace GPC.Model.Results
 {
+    /// <summary>
+    /// This class needs to be revised and updated according to <see cref="ResultPlateStress"/>
+    /// </summary>
     [Serializable]
     public sealed class ResultPlateForces : Result, ISerializable, IEquatable<ResultPlateForces>
     {
@@ -84,6 +88,7 @@ namespace GPC.Model.Results
         public double Mxz => _mxz;
         public double Myz => _myz;
 
+        public new Plate Element => (Plate)_element;
         #endregion
 
 
@@ -104,7 +109,7 @@ namespace GPC.Model.Results
         /// <param name="mxx"></param>
         /// <param name="myy"></param>
         /// <param name="mxy"></param>
-        public ResultPlateForces(Element element, ILoadCase Case, ResultStressPoint resultPoint, CoordinateSystem coordinateSystem, 
+        public ResultPlateForces(Plate element, ILoadCase Case, ResultStressPoint resultPoint, CoordinateSystem coordinateSystem, 
                                  double fxx, double fyy, double fxy, double fxz, double fyz, double mxx, double myy, double mxy)
                                  : base(element, Case, resultPoint, coordinateSystem)
         {
