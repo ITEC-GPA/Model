@@ -97,6 +97,7 @@ namespace GPC.Model.Results
 
         public new Plate Element => (Plate)_element;
 
+        public new ResultStressPoint ResultPoint => (ResultStressPoint)_resultPoint;
         #endregion
 
 

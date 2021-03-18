@@ -28,7 +28,7 @@ namespace GPC.Model.Results
 
         public ILoadCase Case => _case;
 
-        public ResultPoint ResultPoint => _resultPoint;
+        public virtual ResultPoint ResultPoint => _resultPoint;
 
 
         #region Constructors
