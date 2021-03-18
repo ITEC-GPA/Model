@@ -106,10 +106,11 @@ namespace GPC.Model.FEM
         /// Generate planar mesh from a shapes. Mesh options need to be setted by <see cref="Mesh.GenerateMeshOptions"/>
         /// </summary>
         /// <param name="shape"></param>
+        /// <param name="options"></param>
         /// <param name="plateProperty"></param>
         /// <param name="loads"></param>
         /// <param name="restrains"></param>
-        public virtual void AddShape(Shape shape, IPlateProperty plateProperty, List<Load> loads, List<GeometryRestrain> restrains)
+        public virtual void AddShape(Shape shape, IPlateProperty plateProperty, Mesh.GenerateOptions options, List<Load> loads, List<GeometryRestrain> restrains)
         {
 
             if (shape is null)
@@ -154,7 +155,7 @@ namespace GPC.Model.FEM
 
             // Genera la mesh
 
-            bool status = Mesh.Generate(new List<Shape> { shape }, new Dictionary<Shape, GeometryBase[]>() { [shape] = embeddedGeometries.ToArray() }, null, null, out List<Mesh> meshes, out Mesh.GenerateMeshStatus generateMeshStatus);
+            bool status = Mesh.Generate(new List<Shape> { shape }, new Dictionary<Shape, GeometryBase[]>() { [shape] = embeddedGeometries.ToArray() }, options, out List<Mesh> meshes, out Mesh.GenerateMeshStatus generateMeshStatus);
 
             if (!status)
             {                
@@ -207,13 +208,14 @@ namespace GPC.Model.FEM
 
 
         /// <summary>
-        /// Generate planar meshes from a List of shapes. Mesh options need to be setted by <see cref="GenerateMeshOptions"/>
+        /// 
         /// </summary>
         /// <param name="shapes"></param>
+        /// <param name="options"></param>
         /// <param name="plateProperties"></param>
         /// <param name="loads"></param>
         /// <param name="restrains"></param>
-        public virtual void AddShapes(List<Shape> shapes, List<IPlateProperty> plateProperties, List<List<Load>> loads, List<List<GeometryRestrain>> restrains)
+        public virtual void AddShapes(List<Shape> shapes, List<IPlateProperty> plateProperties, Mesh.GenerateOptions options, List<List<Load>> loads, List<List<GeometryRestrain>> restrains)
         {
             if (shapes is null)
                 throw new ArgumentNullException(nameof(shapes));
@@ -242,7 +244,7 @@ namespace GPC.Model.FEM
                     throw new ArgumentNullException(nameof(restrains));
 
 
-                AddShape(shapes[i], plateProperties[i], loads[i], restrains[i]);
+                AddShape(shapes[i], plateProperties[i], options, loads[i], restrains[i]);
             }
         }
 
