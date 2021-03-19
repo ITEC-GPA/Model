@@ -29,16 +29,83 @@ namespace FemTest.Solver
             PlateProperty prop = new PlateProperty(mat, 0, 1);
 
             Node[] nds = new Node[4];
-            nds[0] = new Node(-1.0, -1, 0, 1, "1");
-            nds[1] = new Node(+1.0, -1, 0, 2, "2");
-            nds[2] = new Node(+1.0, +1, 0, 3, "3");
-            nds[3] = new Node(-1.0, +1, 0, 4, "4");
+            nds[0] = new Node(-1.0, -1.0, 0, 1, "1");
+            nds[1] = new Node(+1.0, -1.0, 0, 2, "2");
+            nds[2] = new Node(+1.0, +1.0, 0, 3, "3");
+            nds[3] = new Node(-1.0, +1.0, 0, 4, "4");
 
             Quad4MQ2IbraMembranal el = new Quad4MQ2IbraMembranal(nds, prop, 1);
+            Quad4Membranal el2 = new Quad4Membranal(nds, prop, 1);
             el.BuildMatrix();
-            /*mnl.Matrix<double> kLocal = el.KElementLocalCoord;
-            mnl.Matrix<double> kLocalManual = mnl.Matrix<double>.Build.Dense(0, 8);*/
-            
+            el2.BuildMatrix();
+            mnl.Matrix<double> k1 = el.KElementGlobalCoord;
+            mnl.Matrix<double> k2 = el2.KElementGlobalCoord;
+
+            Console.WriteLine("k1 Non Correct= ");
+            Util.WriteMatrix(k1, "F2");
+
+            Console.WriteLine("k2 Correct = ");
+            Util.WriteMatrix(k2, "F2");
+            /*mnl.Matrix<double> kLocalManual = mnl.Matrix<double>.Build.Dense(0, 8);*/
+
+            /*double[] r0 = new double[] { 0.5000, 0.1250, -0.2500, -0.1250, -0.2500, -0.1250, 0.0000, 0.1250 };
+            double[] r1 = new double[] { 0.1250, 0.5000, 0.1250, 0.0000, -0.1250, -0.2500, -0.1250, -0.2500 };
+            double[] r2 = new double[] { -0.2500, 0.1250, 0.5000, -0.1250, 0.0000, -0.1250, -0.2500, 0.1250 };
+            double[] r3 = new double[] { -0.1250, 0.0000, -0.1250, 0.5000, 0.1250, -0.2500, 0.1250, -0.2500 };
+            double[] r4 = new double[] { -0.2500, -0.1250, 0.0000, 0.1250, 0.5000, 0.1250, -0.2500, -0.1250 };
+            double[] r5 = new double[] { -0.1250, -0.2500, -0.1250, -0.2500, 0.1250, 0.5000, 0.1250, 0.0000 };
+            double[] r6 = new double[] { 0.0000, -0.1250, -0.2500, 0.1250, -0.2500, 0.1250, 0.5000, -0.1250 };
+            double[] r7 = new double[] { 0.1250, -0.2500, 0.1250, -0.2500, -0.1250, 0.0000, -0.1250, 0.5000 };
+
+            kLocalManual = kLocalManual.InsertRow(0, mnl.Vector<double>.Build.Dense(r0));
+            kLocalManual = kLocalManual.InsertRow(1, mnl.Vector<double>.Build.Dense(r1));
+            kLocalManual = kLocalManual.InsertRow(2, mnl.Vector<double>.Build.Dense(r2));
+            kLocalManual = kLocalManual.InsertRow(3, mnl.Vector<double>.Build.Dense(r3));
+            kLocalManual = kLocalManual.InsertRow(4, mnl.Vector<double>.Build.Dense(r4));
+            kLocalManual = kLocalManual.InsertRow(5, mnl.Vector<double>.Build.Dense(r5));
+            kLocalManual = kLocalManual.InsertRow(6, mnl.Vector<double>.Build.Dense(r6));
+            kLocalManual = kLocalManual.InsertRow(7, mnl.Vector<double>.Build.Dense(r7));
+
+            //controllo klocale elemento finito 4 nodi stato piano di tensione
+            Console.WriteLine("kLocal");
+            for (int i = 0; i < kLocal.RowCount; i++)
+            {
+                for (int j = 0; j < kLocal.ColumnCount; j++)
+                {
+                    Console.Write(kLocal[i, j].ToString("F4") + " ");
+                    Assert.AreEqual(kLocal[i, j] - kLocalManual[i, j], 0, 0.001, "kLocal no OK -> row " + i + " col " + j);
+                    //sarebbe stato meglio usare kLocal[i,j] / kLocalManual[i,j] ma 0/0 = NaN!!
+                }
+                Console.WriteLine();
+            }*/
+        }
+
+        [TestMethod]
+        public void Quad4MQ2IbraMembranalTest2()
+        {
+            Material mat = new SteelMaterial("steel", 1.0, 0.0, 355, 510, 7850);
+            PlateProperty prop = new PlateProperty(mat, 0, 1);
+
+            Node[] nds = new Node[4];
+            nds[0] = new Node(-2.0, -2.0, 0, 1, "1");
+            nds[1] = new Node(+2.0, -2.0, 0, 2, "2");
+            nds[2] = new Node(+2.0, +2.0, 0, 3, "3");
+            nds[3] = new Node(-2.0, +2.0, 0, 4, "4");
+
+            Quad4MQ2IbraMembranal el = new Quad4MQ2IbraMembranal(nds, prop, 1);
+            Quad4Membranal el2 = new Quad4Membranal(nds, prop, 1);
+            el.BuildMatrix();
+            el2.BuildMatrix();
+            mnl.Matrix<double> k1 = el.KElementGlobalCoord;
+            mnl.Matrix<double> k2 = el2.KElementGlobalCoord;
+
+            Console.WriteLine("k1 Non Correct= ");
+            Util.WriteMatrix(k1, "F1");
+
+            Console.WriteLine("k2 Correct = ");
+            Util.WriteMatrix(k2, "F1");
+            /*mnl.Matrix<double> kLocalManual = mnl.Matrix<double>.Build.Dense(0, 8);*/
+
             /*double[] r0 = new double[] { 0.5000, 0.1250, -0.2500, -0.1250, -0.2500, -0.1250, 0.0000, 0.1250 };
             double[] r1 = new double[] { 0.1250, 0.5000, 0.1250, 0.0000, -0.1250, -0.2500, -0.1250, -0.2500 };
             double[] r2 = new double[] { -0.2500, 0.1250, 0.5000, -0.1250, 0.0000, -0.1250, -0.2500, 0.1250 };
@@ -237,9 +304,9 @@ namespace FemTest.Solver
                 Console.WriteLine();
             }
         }
-        #endif
+#endif
         [TestMethod]
-        public void Quad4MembranalTest2()
+        public void Quad4MQ2IbraMembranalTest3()
         {
             double E = 30000.0;
             double ni = 0.25;
@@ -254,11 +321,12 @@ namespace FemTest.Solver
             nds.Add(new Node(24.0, 0, 0, 1, "3"));
             nds.Add(new Node(36.0, 0, 0, 1, "4"));
             nds.Add(new Node(48.0, 0, 0, 1, "5"));
-            nds.Add(new Node(0.0, 12, 0, 1, "6"));
-            nds.Add(new Node(12.0, 12, 0, 1, "7"));
-            nds.Add(new Node(24.0, 12, 0, 1, "8"));
-            nds.Add(new Node(36.0, 12, 0, 1, "9"));
-            nds.Add(new Node(48.0, 12, 0, 1, "10"));
+
+            nds.Add(new Node(0.0, 12.0, 0, 1, "6"));
+            nds.Add(new Node(12.0, 12.0, 0, 1, "7"));
+            nds.Add(new Node(24.0, 12.0, 0, 1, "8"));
+            nds.Add(new Node(36.0, 12.0, 0, 1, "9"));
+            nds.Add(new Node(48.0, 12.0, 0, 1, "10"));
 
             CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
 
@@ -266,17 +334,16 @@ namespace FemTest.Solver
             NodeRestrainAttribute fix = new NodeRestrainAttribute(freedomCase, sys);
             fix.AddExternalRestrain(LinearSolver.DOF.DX);
             fix.AddExternalRestrain(LinearSolver.DOF.DY);
-            fix.AddExternalRestrain(LinearSolver.DOF.DZ);
-            fix.AddExternalRestrain(LinearSolver.DOF.RX);
-            fix.AddExternalRestrain(LinearSolver.DOF.RY);
-            fix.AddExternalRestrain(LinearSolver.DOF.RZ);
+
+            NodeRestrainAttribute fix3 = new NodeRestrainAttribute(freedomCase, sys);
+            fix.AddExternalRestrain(LinearSolver.DOF.DX);
 
             NodeRestrainAttribute fix2 = new NodeRestrainAttribute(freedomCase, sys);
+            fix2.AddExternalRestrain(LinearSolver.DOF.DZ);
             fix2.AddExternalRestrain(LinearSolver.DOF.RX);
             fix2.AddExternalRestrain(LinearSolver.DOF.RY);
-            fix2.AddExternalRestrain(LinearSolver.DOF.DZ);
             
-            nds[1-1].AddAttribute(fix);
+            nds[1-1].AddAttribute(fix3);
             nds[6-1].AddAttribute(fix);
 
             nds.ForEach(x => x.AddAttribute(fix2));

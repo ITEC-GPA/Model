@@ -27,6 +27,8 @@ namespace GPC.Model.FEM
                     pts[1] = new GaussPoint(0.0, 0.0, 0.0, 8.0 / 9.0);
                     pts[2] = new GaussPoint(+Math.Sqrt(3.0 / 5.0), 0.0, 0.0, 5.0 / 9.0);
                     break;
+                default:
+                    throw new Exception("Actually nr of possible gauss points = 1, 2 or 3");
             }
             return pts;
         }
@@ -61,6 +63,8 @@ namespace GPC.Model.FEM
                     pts[7] = new GaussPoint(                  0.0, +Math.Sqrt(3.0 / 5.0), 0.0, 40.0 / 81.0);
                     pts[8] = new GaussPoint(+Math.Sqrt(3.0 / 5.0), +Math.Sqrt(3.0 / 5.0), 0.0, 25.0 / 81.0);
                     break;
+                default:
+                    throw new Exception("Actually nr of possible gauss points = 1, 4 or 9");
             }
             return pts;
         }
@@ -95,6 +99,8 @@ namespace GPC.Model.FEM
                     pts[2] = new GaussPoint(3.0 / 5.0, 1.0 / 5.0, 0.0, 25.0 / 96.0);
                     pts[3] = new GaussPoint(1.0 / 5.0, 1.0 / 3.0, 0.0, 25.0 / 96.0);
                     break;
+                default:
+                    throw new Exception("Actually nr of possible gauss points = 1, 3 or 4");
             }
                 
             return pts;
