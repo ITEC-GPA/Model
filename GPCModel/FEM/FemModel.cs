@@ -23,6 +23,16 @@ namespace GPC.Model.FEM
     public class FemModel : ModelObject
     {
 
+        public enum AnalysisType
+        {
+            Linear, 
+            NonLinear,
+            Modal,
+            Buckling, 
+            LinearDynamic
+        }
+
+
         #region Variables
         /// <summary>
         /// Collection of <see cref="Node"/>
