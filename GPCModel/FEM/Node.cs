@@ -8,7 +8,7 @@ namespace GPC.Model.FEM
     /// <summary>
     /// Nodo with unique ID, and X,Y,Z global coordinates
     /// </summary>
-    public class Node : FEMObject, IEquatable<Node>
+    public sealed class Node : FEMObject, IEquatable<Node>
     {
         #region Variables
         private Point3d _position;
