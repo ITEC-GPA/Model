@@ -43,6 +43,15 @@ namespace GPC.Model
 
         /// <summary>
         /// <param name="guid"> Object GUID</param>
+        /// </summary>
+        public ModelObject(string name)
+        {
+            _name = name;
+            _guid = Guid.NewGuid();
+        }
+
+        /// <summary>
+        /// <param name="guid"> Object GUID</param>
         /// <param name="name"> Object name</param>
         /// </summary>
         public ModelObject(Guid guid, string name)

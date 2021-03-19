@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using GPC.Geometry;
 using GPC.Model.FEM.Attributes;
+using GPC.Utilities.Extensions;
 
 namespace GPC.Model.FEM
 {
@@ -15,6 +16,8 @@ namespace GPC.Model.FEM
 
         private List<INodeLoadCaseAttribute> _attributesLoadCase;
         private List<INodeFreedomCaseAttribute> _attributesFreedomCase;
+
+
         #endregion
 
         #region Properties
@@ -86,11 +89,7 @@ namespace GPC.Model.FEM
 
         public override bool Equals(object obj)
         {
-            return obj is Node node &&
-                   base.Equals(obj) &&
-                   EqualityComparer<Point3d>.Default.Equals(_position, node._position) &&
-                   EqualityComparer<List<INodeLoadCaseAttribute>>.Default.Equals(_attributesLoadCase, node._attributesLoadCase) &&
-                   EqualityComparer<List<INodeFreedomCaseAttribute>>.Default.Equals(_attributesFreedomCase, node._attributesFreedomCase);
+            return this.Equals(obj as Node);
         }
 
         public override int GetHashCode()
@@ -104,8 +103,17 @@ namespace GPC.Model.FEM
         }
 
         public bool Equals(Node other)
-        {
-            return Equals((object)other);
+        {        
+            if (other is null)
+                return false;
+
+            if (ReferenceEquals(this, other))
+                return true;
+
+            return !(other is null) && _position.Equals(other._position)
+                                    && _attributesFreedomCase.ScrambledEquals(other._attributesFreedomCase)
+                                    && _attributesLoadCase.ScrambledEquals(other._attributesLoadCase)
+                                    && base.Equals(other);
         }
     }
 }
