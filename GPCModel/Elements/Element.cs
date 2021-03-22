@@ -23,6 +23,11 @@ namespace GPC.Model.Elements
         {
 
         }
+        protected Element(int id)
+            : base(Guid.NewGuid())
+        {
+            SetId(id);
+        }
 
         protected Element(Guid guid)
             : base(guid)
@@ -39,9 +44,10 @@ namespace GPC.Model.Elements
         protected Element(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
+            _id = info.GetInt32("Id");
         }
 
-        #endregion Public Constructors
+        #endregion
 
         public void SetId(int id)
         {
@@ -51,7 +57,7 @@ namespace GPC.Model.Elements
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             base.GetObjectData(info, context);
-            throw new NotImplementedException();
+            info.AddValue("Id", _id);
         }
 
         public override bool Equals(object obj)
