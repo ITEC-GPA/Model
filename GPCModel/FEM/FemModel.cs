@@ -60,6 +60,7 @@ namespace GPC.Model.FEM
 
         protected List<ResultPlateStress> _resultPlateStress;
 
+        protected List<Stage> _stages;
 
         // CoordinatesSystem ? 
 
@@ -67,9 +68,12 @@ namespace GPC.Model.FEM
 
         #region MyRegion
 
+        public List<Stage> Stages => _stages;
+
         public List<ResultPlateStress> ResultPlateStresses => _resultPlateStress;
         public List<ResultNodeDisplacement> ResultNodeDisplacement => _resultNodeDisplacements;
         public List<ResultNodeForce> ResultNodeForce => _resultNodeForce;
+
 
         #endregion
 
@@ -82,10 +86,12 @@ namespace GPC.Model.FEM
             
         }
 
-        public FemModel(string name) : base(Guid.NewGuid(), name)
+        public FemModel(string name) 
+            : base(Guid.NewGuid(), name)
         {
             _nodes = new FemObjectCollection<Node>();
             _elements = new FemObjectCollection<FiniteElement>();
+            _stages = new List<Stage>();
 
             _plateProperties = new Dictionary<IPlateProperty, int>();
             _brickProperties = new Dictionary<IBrickProperty, int>();
@@ -100,6 +106,8 @@ namespace GPC.Model.FEM
             _resultNodeForce = new List<ResultNodeForce>();
             _resultNodeDisplacements = new List<ResultNodeDisplacement>();
 
+
+            _stages.Add(new Stage("Stage 0", AnalysisType.Linear));
         }
 
         public FemModel(SerializationInfo info, StreamingContext context)

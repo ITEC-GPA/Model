@@ -86,8 +86,7 @@
     <Compile Include="SectionsTest.cs" />
     <Compile Include="SerializationTest.cs" />
     <Compile Include="LoadCaseTest.cs" />
-    <Compile Include="EquatableTest.cs" />
-    <Compile Include="HashCodeTest.cs" />
+    <Compile Include="EquatableHashCodeTest.cs" />
     <Compile Include="LoadTest.cs" />
     <Compile Include="PerformanceTest.cs" />
     <Compile Include="FemModelTest.cs" />
