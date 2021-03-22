@@ -97,8 +97,16 @@ namespace GPC.Model.FEM
             int hashCode = -689368791;
             hashCode = hashCode * -1521134295 + base.GetHashCode();
             hashCode = hashCode * -1521134295 + EqualityComparer<Point3d>.Default.GetHashCode(_position);
-            hashCode = hashCode * -1521134295 + EqualityComparer<List<INodeLoadCaseAttribute>>.Default.GetHashCode(_attributesLoadCase);
-            hashCode = hashCode * -1521134295 + EqualityComparer<List<INodeFreedomCaseAttribute>>.Default.GetHashCode(_attributesFreedomCase);
+
+            foreach (var element in _attributesLoadCase)
+            {
+                hashCode = hashCode + EqualityComparer<INodeLoadCaseAttribute>.Default.GetHashCode(element);
+            }
+            foreach (var element in _attributesFreedomCase)
+            {
+                hashCode = hashCode + EqualityComparer<INodeFreedomCaseAttribute>.Default.GetHashCode(element);
+            }
+
             return hashCode;
         }
 

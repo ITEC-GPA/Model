@@ -1,11 +1,19 @@
 ﻿using System;
+using System.Linq;
+using System.Collections.Generic;
 using System.Runtime.Serialization;
 using GPC.Model.Elements;
+using GPC.Utilities.Extensions;
 
 namespace GPC.Model.FEM
 {
-    public abstract class FEMObject : Element
+    [Serializable]
+    public abstract class FEMObject : Element, ISerializable
     {
+
+        private Dictionary<Stage, bool> _activeStages;
+
+
         public FEMObject(int id) 
             : this(id, string.Empty)
         {
@@ -16,33 +24,65 @@ namespace GPC.Model.FEM
             : base(Guid.NewGuid(), name)
         {
             base.SetId(id);
+            _activeStages = new Dictionary<Stage, bool>();
         }
 
         public FEMObject(SerializationInfo info, StreamingContext context) 
             : base(info, context)
         {
-
+            _activeStages = (Dictionary<Stage, bool>)info.GetValue("ActiveStage", typeof(Dictionary<Stage, bool>));
         }
 
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             base.GetObjectData(info, context);
+            info.AddValue("ActiveStage", _activeStages);
+        }
 
-        }       
+        public bool IsStageActive(Stage stage)
+        {
+            if (!_activeStages.ContainsKey(stage))
+                return false;
 
+            return _activeStages[stage];
+        }
+
+        public void SetStageActive(Stage stage, bool active)
+        {
+            if (_activeStages.ContainsKey(stage))
+                _activeStages[stage] = active;
+            else
+                _activeStages.Add(stage, active);
+        }
+
+        #region Equals, hascode, operators, 
+
+        /// <inheritdoc/>
         public override bool Equals(object obj)
         {
             if (ReferenceEquals(this, obj))
                 return true;
-            
+
             FEMObject objCasted = obj as FEMObject;
-            return !(objCasted is null) && base.Equals(objCasted);
+
+            return !(objCasted is null) && _activeStages.ScrambledEquals(objCasted._activeStages)
+                                        && base.Equals(objCasted);
         }
 
         public override int GetHashCode()
         {
             int hashCode = -23;
             hashCode = hashCode * -17 + base.GetHashCode();
+
+            if (_activeStages.Count > 0)
+            {
+                foreach (var kvp in _activeStages)
+                {
+                    hashCode = hashCode + EqualityComparer<Stage>.Default.GetHashCode(kvp.Key);
+                    hashCode = hashCode + EqualityComparer<bool>.Default.GetHashCode(kvp.Value);
+                }
+            }
+
             return hashCode;
         }
 
@@ -60,6 +100,7 @@ namespace GPC.Model.FEM
         public static bool operator !=(FEMObject obj1, FEMObject obj2)
         {
             return !(obj1 == obj2);
-        }
+        } 
+        #endregion
     }
 }

@@ -10,34 +10,38 @@ using GPC.Utilities.Extensions;
 namespace GPC.Model.FEM
 {
     [Serializable]
-    public class StageConstruction : ModelObject, ISerializable, IEquatable<StageConstruction>, ICloneable
+    public class Stage : ModelObject, ISerializable, IEquatable<Stage>, ICloneable
     {
 
         private List<Combination> _combinations;
+
         private FemModel.AnalysisType _analysisType;
 
         private bool _morph;
+
 
         public List<Combination> Combinations => _combinations;
         public FemModel.AnalysisType AnalysisType => _analysisType;
         public bool Morph => _morph;
 
 
-        public StageConstruction(string name, FemModel.AnalysisType analysisType, bool morph, List<Combination> combinations)
+        public Stage(string name, FemModel.AnalysisType analysisType, bool morph, List<Combination> combinations)
             : base(name)
         {
             this._analysisType = analysisType;
-            this._combinations = combinations;
+            this._combinations = combinations ?? new List<Combination>();
             this._morph = morph;
         }
 
-        public StageConstruction(string name) 
-            : base(name)
+
+        public Stage(string name, FemModel.AnalysisType analysisType) 
+            : this(name, analysisType, false, null)
         {
 
         }
 
-        public StageConstruction(SerializationInfo info, StreamingContext context) 
+
+        public Stage(SerializationInfo info, StreamingContext context) 
             : base(info, context)
         {
             throw new NotImplementedException();
@@ -49,13 +53,24 @@ namespace GPC.Model.FEM
             _combinations.Add(combination);
         }
 
+
+        public void SetAnalysisType(FemModel.AnalysisType analysisType)
+        {
+            _analysisType = analysisType;
+        }
+
+        public void SetMorph(bool active)
+        {
+            _morph = active;
+        }
+
         #region Interface, operators, hashcode
         public object Clone()
         {
-            return new StageConstruction(_name, _analysisType, _morph, _combinations);
+            return new Stage(_name, _analysisType, _morph, _combinations);
         }
 
-        public bool Equals(StageConstruction sc)
+        public bool Equals(Stage sc)
         {
             if (sc is null)
                 return false;
@@ -71,7 +86,7 @@ namespace GPC.Model.FEM
 
         public override bool Equals(object obj)
         {
-            return Equals(obj as StageConstruction);
+            return Equals(obj as Stage);
         }
 
         public override int GetHashCode()
@@ -89,7 +104,7 @@ namespace GPC.Model.FEM
             return hashCode;
         }
 
-        public static bool operator ==(StageConstruction obj1, StageConstruction obj2)
+        public static bool operator ==(Stage obj1, Stage obj2)
         {
             if (ReferenceEquals(obj1, obj2))
                 return true;
@@ -100,7 +115,7 @@ namespace GPC.Model.FEM
             return obj1.Equals(obj2);
         }
 
-        public static bool operator !=(StageConstruction obj1, StageConstruction obj2)
+        public static bool operator !=(Stage obj1, Stage obj2)
         {
             return !(obj1 == obj2);
         }
