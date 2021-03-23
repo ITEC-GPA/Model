@@ -26,6 +26,22 @@ namespace GPC.Model.FEM.FiniteElements
 
         }
 
+        public override FiniteElement Duplicate(ElementProperty property, List<LoadCaseAttribute> attributes)
+        {
+            var plate = new Plate(_nodesGlobal, Property, Id); 
+
+            foreach(LoadCaseAttribute attribute in attributes)
+            {
+                if (attribute is IPlateLoadCaseAttribute plca)
+                {
+                    plate.AddAttribute(plca);
+                }
+            }
+
+            return new Plate(_nodesGlobal, Property, Id);
+        }
+
+
         public virtual void AddAttribute(IPlateLoadCaseAttribute attribute)
         {
             _attributesLoadCase.Add((LoadCaseAttribute)attribute);

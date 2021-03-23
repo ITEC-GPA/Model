@@ -14,7 +14,7 @@ using GPC.Utilities.Extensions;
 namespace GPC.Model.FEM
 {
     [Serializable]
-    public class Stage : ModelObject, ISerializable, IEquatable<Stage>, ICloneable
+    public sealed class Stage : ModelObject, ISerializable, IEquatable<Stage>, ICloneable
     {
 
         private List<Combination> _combinations;
@@ -28,6 +28,8 @@ namespace GPC.Model.FEM
 
         private bool _morph;
 
+        private FemModel _femModel;
+
 
         public List<Combination> Combinations => _combinations;
 
@@ -35,12 +37,12 @@ namespace GPC.Model.FEM
 
         public bool Morph => _morph;
 
-        public NodeStageCollection<Node, StageProperty> nodes => _nodes;
+        public NodeStageCollection<Node, StageProperty> Nodes => _nodes;
 
-        public FiniteElementStageCollection<FiniteElement, StageFiniteElementProperty> elements => _elements;
+        public FiniteElementStageCollection<FiniteElement, StageFiniteElementProperty> Elements => _elements;
 
 
-        public Stage(string name, FemModel.AnalysisType analysisType, bool morph, List<Combination> combinations)
+        public Stage(string name, FemModel.AnalysisType analysisType, bool morph, List<Combination> combinations, FemModel femModel)
             : base(name)
         {
             this._analysisType = analysisType;
@@ -49,18 +51,50 @@ namespace GPC.Model.FEM
 
             this._elements = new FiniteElementStageCollection<FiniteElement, StageFiniteElementProperty>();
             this._nodes = new NodeStageCollection<Node, StageProperty>();
+
+            this._femModel = femModel;
         }
 
-        public Stage(string name, FemModel.AnalysisType analysisType) 
-            : this(name, analysisType, false, null)
-        {
+        //public Stage(string name, FemModel.AnalysisType analysisType) 
+        //    : this(name, analysisType, false, null)
+        //{
 
-        }
+        //}
 
         public Stage(SerializationInfo info, StreamingContext context) 
             : base(info, context)
         {
             throw new NotImplementedException();
+        }
+
+        public void AddFiniteElements(int[] idArray)
+        {
+            foreach(var id in idArray)
+            {
+                foreach (var node in _femModel.Elements[id].Nodes)
+                {
+                    _nodes.Add(node);
+                }
+
+                _elements.Add(_femModel.Elements[id]);
+            }
+        }
+
+        public void AddFiniteElements(FiniteElement[] elements)
+        {
+            foreach (var element in elements)
+            {
+                foreach (var node in element.Nodes)
+                {
+                    _nodes.Add(node);
+                }
+
+                if (!_femModel.Elements.Contains(element))
+                {
+                    throw new ArgumentException();
+                }
+                _elements.Add(element);
+            }
         }
 
         public void AddCombination(Combination combination)
@@ -98,6 +132,23 @@ namespace GPC.Model.FEM
         }
 
 
+        public void SetFiniteElementProperty(int elementId, StageFiniteElementProperty sp)
+        {
+            var element = _elements[elementId];
+            _elements.SetStageProperty(element, sp);
+        }
+
+        public StageFiniteElementProperty AddFiniteElement(FiniteElement element)
+        {
+            StageFiniteElementProperty sp = new StageFiniteElementProperty(element.Property);
+
+            sp.AddLoadCaseAttributes(element.AttributesLoadCase);
+
+            _elements.Add(element, sp);
+
+            return sp;
+        }
+
         public void AddFiniteElements(FemObjectCollection<FiniteElement> elements)
         {
 
@@ -118,10 +169,30 @@ namespace GPC.Model.FEM
         }
 
 
+        public FemModel ToModel()
+        {
+            FemModel femModel = new FemModel();
+
+            for (int i = 0; i < _elements.Count; i++)
+            {
+                FiniteElement duplicated = _elements[i].Duplicate(_elements.GetStageProperty(i).Property, _elements.GetStageProperty(i).LoadCaseAttributes);
+
+                femModel.Elements.Add(duplicated);
+
+            }
+
+            return femModel;
+        }
+
+
         #region Interface, operators, hashcode
         public object Clone()
         {
-            return new Stage(_name, _analysisType, _morph, _combinations);
+            var s = new Stage(_name, _analysisType, _morph, _combinations);
+            s._nodes = nodes;
+            s._elements = elements;
+
+            return s;
         }
 
         public bool Equals(Stage sc)
@@ -181,6 +252,8 @@ namespace GPC.Model.FEM
         {
             private List<LoadCaseAttribute> _loadCaseAttributes;
             private List<FreedomCaseAttribute> _freedomCaseAttributes;
+
+            public List<LoadCaseAttribute> LoadCaseAttributes => _loadCaseAttributes;
 
             public StageProperty()
             {

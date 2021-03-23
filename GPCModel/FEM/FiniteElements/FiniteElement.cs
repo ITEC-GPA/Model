@@ -121,6 +121,11 @@ namespace GPC.Model.FEM.FiniteElements
 
         #region PublicFunction
 
+
+
+        public abstract FiniteElement Duplicate(ElementProperty property, List<LoadCaseAttribute> attributes);
+
+
         /// <summary>
         /// Build Stiffness Matrix etc
         /// </summary>

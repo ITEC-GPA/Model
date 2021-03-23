@@ -82,7 +82,8 @@ namespace GPC.Model.FEM
         public List<ResultPlateStress> ResultPlateStresses => _resultPlateStress;
         public List<ResultNodeDisplacement> ResultNodeDisplacement => _resultNodeDisplacements;
         public List<ResultNodeForce> ResultNodeForce => _resultNodeForce;
-
+        
+        public FemObjectCollection<FiniteElement> Elements => _elements;
 
         #endregion
 
@@ -699,25 +700,35 @@ namespace GPC.Model.FEM
         }
         
 
-        public virtual void AddStage(string name, AnalysisType analysisType, FemModel femModel)
+        //public virtual void AddStage(string name, AnalysisType analysisType, FemModel femModel)
+        //{
+        //    Stage stage = new Stage(name, analysisType);
+        //    stage.AddNodes(femModel._nodes);
+        //    stage.AddFiniteElements(femModel._elements);
+
+        //    _stages.Add(stage);
+        //}
+
+
+        //public virtual Stage AddStage(string name, AnalysisType analysisType, Stage stageToCopy)
+        //{
+        //    Stage stage = new Stage(name, analysisType, stageToCopy.Morph, stageToCopy.Combinations);
+
+        //    stage.AddNodes(stageToCopy.nodes);
+        //    stage.AddFiniteElements(stageToCopy.elements);
+
+        //    _stages.Add(stage);
+        //    return stage;
+        //}
+
+
+        public virtual Stage AddStage(string name, AnalysisType analysisType)
         {
-            Stage stage = new Stage(name, analysisType);
-            stage.AddNodes(femModel._nodes);
-            stage.AddFiniteElements(femModel._elements);
-
+            Stage stage = new Stage(name, analysisType, false, null, this);
             _stages.Add(stage);
+            return stage;
         }
-
-
-        public virtual void AddStage(string name, AnalysisType analysisType, Stage stageToCopy)
-        {
-            Stage stage = new Stage(name, analysisType, stageToCopy.Morph, stageToCopy.Combinations);
-            stage.AddNodes(stageToCopy.nodes);
-            stage.AddFiniteElements(stageToCopy.elements);
-
-            _stages.Add(stage);
-        }
-
+        
 
         public virtual Mesh GetMesh()
         {
