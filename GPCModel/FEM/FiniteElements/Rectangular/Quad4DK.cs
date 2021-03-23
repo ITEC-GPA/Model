@@ -415,78 +415,78 @@ namespace GPC.Model.FEM.FiniteElements
             */
             #endregion
 
-            hxCsi[1 - 1] = 3.0 / 2.0 * (a5 * dNdCsi8nodes(5, csi, eta) - a8 * dNdCsi8nodes(8, csi, eta));
-            hxCsi[2 - 1] = b5 * dNdCsi8nodes(5, csi, eta) + b8 * dNdCsi8nodes(8, csi, eta);
+            hxCsi[1 - 1] = 3.0 / 2.0 * (a5 * Quad8Element.dNdCsi(5, csi, eta) - a8 * Quad8Element.dNdCsi(8, csi, eta));
+            hxCsi[2 - 1] = b5 * Quad8Element.dNdCsi(5, csi, eta) + b8 * Quad8Element.dNdCsi(8, csi, eta);
             //Console.WriteLine("hx,csi[2-1=1] = " + b5.ToString("F2") + " * " + dNdCsi(5, csi, eta).ToString("F2") + " + " + b8.ToString("F2") + " * " + dNdCsi(8, csi, eta).ToString("F2") + " = " + hxCsi[2 - 1].ToString("F2"));
-            hxCsi[3 - 1] = dNdCsi8nodes(1, csi, eta) - c5 * dNdCsi8nodes(5, csi, eta) - c8 * dNdCsi8nodes(8, csi, eta);
+            hxCsi[3 - 1] = Quad8Element.dNdCsi(1, csi, eta) - c5 * Quad8Element.dNdCsi(5, csi, eta) - c8 * Quad8Element.dNdCsi(8, csi, eta);
 
-            hxCsi[4 - 1] = 3.0 / 2.0 * (a6 * dNdCsi8nodes(6, csi, eta) - a5 * dNdCsi8nodes(5, csi, eta));
-            hxCsi[5 - 1] = b6 * dNdCsi8nodes(6, csi, eta) + b5 * dNdCsi8nodes(5, csi, eta);
-            hxCsi[6 - 1] = dNdCsi8nodes(2, csi, eta) - c6 * dNdCsi8nodes(6, csi, eta) - c5 * dNdCsi8nodes(5, csi, eta);
+            hxCsi[4 - 1] = 3.0 / 2.0 * (a6 * Quad8Element.dNdCsi(6, csi, eta) - a5 * Quad8Element.dNdCsi(5, csi, eta));
+            hxCsi[5 - 1] = b6 * Quad8Element.dNdCsi(6, csi, eta) + b5 * Quad8Element.dNdCsi(5, csi, eta);
+            hxCsi[6 - 1] = Quad8Element.dNdCsi(2, csi, eta) - c6 * Quad8Element.dNdCsi(6, csi, eta) - c5 * Quad8Element.dNdCsi(5, csi, eta);
 
-            hxCsi[7 - 1] = 3.0 / 2.0 * (a7 * dNdCsi8nodes(7, csi, eta) - a6 * dNdCsi8nodes(6, csi, eta));
-            hxCsi[8 - 1] = b7 * dNdCsi8nodes(7, csi, eta) + b6 * dNdCsi8nodes(6, csi, eta);
-            hxCsi[9 - 1] = dNdCsi8nodes(3, csi, eta) - c7 * dNdCsi8nodes(7, csi, eta) - c6 * dNdCsi8nodes(6, csi, eta);
+            hxCsi[7 - 1] = 3.0 / 2.0 * (a7 * Quad8Element.dNdCsi(7, csi, eta) - a6 * Quad8Element.dNdCsi(6, csi, eta));
+            hxCsi[8 - 1] = b7 * Quad8Element.dNdCsi(7, csi, eta) + b6 * Quad8Element.dNdCsi(6, csi, eta);
+            hxCsi[9 - 1] = Quad8Element.dNdCsi(3, csi, eta) - c7 * Quad8Element.dNdCsi(7, csi, eta) - c6 * Quad8Element.dNdCsi(6, csi, eta);
 
-            hxCsi[10 - 1] = 3.0 / 2.0 * (a8 * dNdCsi8nodes(8, csi, eta) - a7 * dNdCsi8nodes(7, csi, eta));
-            hxCsi[11 - 1] = b8 * dNdCsi8nodes(8, csi, eta) + b7 * dNdCsi8nodes(7, csi, eta);
-            hxCsi[12 - 1] = dNdCsi8nodes(4, csi, eta) - c8 * dNdCsi8nodes(8, csi, eta) - c7 * dNdCsi8nodes(7, csi, eta);
+            hxCsi[10 - 1] = 3.0 / 2.0 * (a8 * Quad8Element.dNdCsi(8, csi, eta) - a7 * Quad8Element.dNdCsi(7, csi, eta));
+            hxCsi[11 - 1] = b8 * Quad8Element.dNdCsi(8, csi, eta) + b7 * Quad8Element.dNdCsi(7, csi, eta);
+            hxCsi[12 - 1] = Quad8Element.dNdCsi(4, csi, eta) - c8 * Quad8Element.dNdCsi(8, csi, eta) - c7 * Quad8Element.dNdCsi(7, csi, eta);
 
             /////////////////////////////////////////////////////////////////////////////////////////////////
             
-            hyCsi[1 - 1] = 3.0 / 2.0 * (d5 * dNdCsi8nodes(5, csi, eta) - d8 * dNdCsi8nodes(8, csi, eta));
-            hyCsi[2 - 1] = -dNdCsi8nodes(1, csi, eta) + e5 * dNdCsi8nodes(5, csi, eta) + e8 * dNdCsi8nodes(8, csi, eta);
+            hyCsi[1 - 1] = 3.0 / 2.0 * (d5 * Quad8Element.dNdCsi(5, csi, eta) - d8 * Quad8Element.dNdCsi(8, csi, eta));
+            hyCsi[2 - 1] = -Quad8Element.dNdCsi(1, csi, eta) + e5 * Quad8Element.dNdCsi(5, csi, eta) + e8 * Quad8Element.dNdCsi(8, csi, eta);
             //Console.WriteLine("hy,csi[2-1=1]("+csi.ToString("F2")+","+eta.ToString("F2") + ") = -" + dNdCsi(1, csi, eta).ToString("F2") + "+" + e5.ToString("F2") + " * " + dNdCsi(5, csi, eta).ToString("F2") + " + " + e8.ToString("F2") + " * "+ dNdCsi(8, csi, eta).ToString("F2") + "=" + hyCsi[2 - 1]);
-            hyCsi[3 - 1] = -b5 * dNdCsi8nodes(5, csi, eta) - b8 * dNdCsi8nodes(8, csi, eta);
+            hyCsi[3 - 1] = -b5 * Quad8Element.dNdCsi(5, csi, eta) - b8 * Quad8Element.dNdCsi(8, csi, eta);
 
-            hyCsi[4 - 1] = 3.0 / 2.0 * (d6 * dNdCsi8nodes(6, csi, eta) - d5 * dNdCsi8nodes(5, csi, eta));
-            hyCsi[5 - 1] = -dNdCsi8nodes(2, csi, eta) + e6 * dNdCsi8nodes(6, csi, eta) + e5 * dNdCsi8nodes(5, csi, eta);
-            hyCsi[6 - 1] = -b6 * dNdCsi8nodes(6, csi, eta) - b5 * dNdCsi8nodes(5, csi, eta);
+            hyCsi[4 - 1] = 3.0 / 2.0 * (d6 * Quad8Element.dNdCsi(6, csi, eta) - d5 * Quad8Element.dNdCsi(5, csi, eta));
+            hyCsi[5 - 1] = -Quad8Element.dNdCsi(2, csi, eta) + e6 * Quad8Element.dNdCsi(6, csi, eta) + e5 * Quad8Element.dNdCsi(5, csi, eta);
+            hyCsi[6 - 1] = -b6 * Quad8Element.dNdCsi(6, csi, eta) - b5 * Quad8Element.dNdCsi(5, csi, eta);
 
-            hyCsi[7 - 1] = 3.0 / 2.0 * (d7 * dNdCsi8nodes(7, csi, eta) - d6 * dNdCsi8nodes(6, csi, eta));
-            hyCsi[8 - 1] = -dNdCsi8nodes(3, csi, eta) + e7 * dNdCsi8nodes(7, csi, eta) + e6 * dNdCsi8nodes(6, csi, eta);
-            hyCsi[9 - 1] = -b7 * dNdCsi8nodes(7, csi, eta) - b6 * dNdCsi8nodes(6, csi, eta);
+            hyCsi[7 - 1] = 3.0 / 2.0 * (d7 * Quad8Element.dNdCsi(7, csi, eta) - d6 * Quad8Element.dNdCsi(6, csi, eta));
+            hyCsi[8 - 1] = -Quad8Element.dNdCsi(3, csi, eta) + e7 * Quad8Element.dNdCsi(7, csi, eta) + e6 * Quad8Element.dNdCsi(6, csi, eta);
+            hyCsi[9 - 1] = -b7 * Quad8Element.dNdCsi(7, csi, eta) - b6 * Quad8Element.dNdCsi(6, csi, eta);
 
-            hyCsi[10 - 1] = 3.0 / 2.0 * (d8 * dNdCsi8nodes(8, csi, eta) - d7 * dNdCsi8nodes(7, csi, eta));
-            hyCsi[11 - 1] = -dNdCsi8nodes(4, csi, eta) + e8 * dNdCsi8nodes(8, csi, eta) + e7 * dNdCsi8nodes(7, csi, eta);
-            hyCsi[12 - 1] = -b8 * dNdCsi8nodes(8, csi, eta) - b7 * dNdCsi8nodes(7, csi, eta);
-
-            /////////////////////////////////////////////////////////////////////////////////////////////////
-
-            hxEta[1 - 1] = 3.0 / 2.0 * (a5 * dNdEta8nodes(5, csi, eta) - a8 * dNdEta8nodes(8, csi, eta));
-            hxEta[2 - 1] = b5 * dNdEta8nodes(5, csi, eta) + b8 * dNdEta8nodes(8, csi, eta);
-            hxEta[3 - 1] = dNdEta8nodes(1, csi, eta) - c5 * dNdEta8nodes(5, csi, eta) - c8 * dNdEta8nodes(8, csi, eta);
-
-            hxEta[4 - 1] = 3.0 / 2.0 * (a6 * dNdEta8nodes(6, csi, eta) - a5 * dNdEta8nodes(5, csi, eta));
-            hxEta[5 - 1] = b6 * dNdEta8nodes(6, csi, eta) + b5 * dNdEta8nodes(5, csi, eta);
-            hxEta[6 - 1] = dNdEta8nodes(2, csi, eta) - c6 * dNdEta8nodes(6, csi, eta) - c5 * dNdEta8nodes(5, csi, eta);
-
-            hxEta[7 - 1] = 3.0 / 2.0 * (a7 * dNdEta8nodes(7, csi, eta) - a6 * dNdEta8nodes(6, csi, eta));
-            hxEta[8 - 1] = b7 * dNdEta8nodes(7, csi, eta) + b6 * dNdEta8nodes(6, csi, eta);
-            hxEta[9 - 1] = dNdEta8nodes(3, csi, eta) - c7 * dNdEta8nodes(7, csi, eta) - c6 * dNdEta8nodes(6, csi, eta);
-
-            hxEta[10 - 1] = 3.0 / 2.0 * (a8 * dNdEta8nodes(8, csi, eta) - a7 * dNdEta8nodes(7, csi, eta));
-            hxEta[11 - 1] = b8 * dNdEta8nodes(8, csi, eta) + b7 * dNdEta8nodes(7, csi, eta);
-            hxEta[12 - 1] = dNdEta8nodes(4, csi, eta) - c8 * dNdEta8nodes(8, csi, eta) - c7 * dNdEta8nodes(7, csi, eta);
+            hyCsi[10 - 1] = 3.0 / 2.0 * (d8 * Quad8Element.dNdCsi(8, csi, eta) - d7 * Quad8Element.dNdCsi(7, csi, eta));
+            hyCsi[11 - 1] = -Quad8Element.dNdCsi(4, csi, eta) + e8 * Quad8Element.dNdCsi(8, csi, eta) + e7 * Quad8Element.dNdCsi(7, csi, eta);
+            hyCsi[12 - 1] = -b8 * Quad8Element.dNdCsi(8, csi, eta) - b7 * Quad8Element.dNdCsi(7, csi, eta);
 
             /////////////////////////////////////////////////////////////////////////////////////////////////
 
-            hyEta[1 - 1] = 3.0 / 2.0 * (d5 * dNdEta8nodes(5, csi, eta) - d8 * dNdEta8nodes(8, csi, eta));
-            hyEta[2 - 1] = -dNdEta8nodes(1, csi, eta) + e5 * dNdEta8nodes(5, csi, eta) + e8 * dNdEta8nodes(8, csi, eta);
-            hyEta[3 - 1] = -b5 * dNdEta8nodes(5, csi, eta) - b8 * dNdEta8nodes(8, csi, eta);
+            hxEta[1 - 1] = 3.0 / 2.0 * (a5 * Quad8Element.dNdEta(5, csi, eta) - a8 * Quad8Element.dNdEta(8, csi, eta));
+            hxEta[2 - 1] = b5 * Quad8Element.dNdEta(5, csi, eta) + b8 * Quad8Element.dNdEta(8, csi, eta);
+            hxEta[3 - 1] = Quad8Element.dNdEta(1, csi, eta) - c5 * Quad8Element.dNdEta(5, csi, eta) - c8 * Quad8Element.dNdEta(8, csi, eta);
 
-            hyEta[4 - 1] = 3.0 / 2.0 * (d6 * dNdEta8nodes(6, csi, eta) - d5 * dNdEta8nodes(5, csi, eta));
-            hyEta[5 - 1] = -dNdEta8nodes(2, csi, eta) + e6 * dNdEta8nodes(6, csi, eta) + e5 * dNdEta8nodes(5, csi, eta);
-            hyEta[6 - 1] = -b6 * dNdEta8nodes(6, csi, eta) - b5 * dNdEta8nodes(5, csi, eta);
+            hxEta[4 - 1] = 3.0 / 2.0 * (a6 * Quad8Element.dNdEta(6, csi, eta) - a5 * Quad8Element.dNdEta(5, csi, eta));
+            hxEta[5 - 1] = b6 * Quad8Element.dNdEta(6, csi, eta) + b5 * Quad8Element.dNdEta(5, csi, eta);
+            hxEta[6 - 1] = Quad8Element.dNdEta(2, csi, eta) - c6 * Quad8Element.dNdEta(6, csi, eta) - c5 * Quad8Element.dNdEta(5, csi, eta);
 
-            hyEta[7 - 1] = 3.0 / 2.0 * (d7 * dNdEta8nodes(7, csi, eta) - d6 * dNdEta8nodes(6, csi, eta));
-            hyEta[8 - 1] = -dNdEta8nodes(3, csi, eta) + e7 * dNdEta8nodes(7, csi, eta) + e6 * dNdEta8nodes(6, csi, eta);
-            hyEta[9 - 1] = -b7 * dNdEta8nodes(7, csi, eta) - b6 * dNdEta8nodes(6, csi, eta);
+            hxEta[7 - 1] = 3.0 / 2.0 * (a7 * Quad8Element.dNdEta(7, csi, eta) - a6 * Quad8Element.dNdEta(6, csi, eta));
+            hxEta[8 - 1] = b7 * Quad8Element.dNdEta(7, csi, eta) + b6 * Quad8Element.dNdEta(6, csi, eta);
+            hxEta[9 - 1] = Quad8Element.dNdEta(3, csi, eta) - c7 * Quad8Element.dNdEta(7, csi, eta) - c6 * Quad8Element.dNdEta(6, csi, eta);
 
-            hyEta[10 - 1] = 3.0 / 2.0 * (d8 * dNdEta8nodes(8, csi, eta) - d7 * dNdEta8nodes(7, csi, eta));
-            hyEta[11 - 1] = -dNdEta8nodes(4, csi, eta) + e8 * dNdEta8nodes(8, csi, eta) + e7 * dNdEta8nodes(7, csi, eta);
+            hxEta[10 - 1] = 3.0 / 2.0 * (a8 * Quad8Element.dNdEta(8, csi, eta) - a7 * Quad8Element.dNdEta(7, csi, eta));
+            hxEta[11 - 1] = b8 * Quad8Element.dNdEta(8, csi, eta) + b7 * Quad8Element.dNdEta(7, csi, eta);
+            hxEta[12 - 1] = Quad8Element.dNdEta(4, csi, eta) - c8 * Quad8Element.dNdEta(8, csi, eta) - c7 * Quad8Element.dNdEta(7, csi, eta);
+
+            /////////////////////////////////////////////////////////////////////////////////////////////////
+
+            hyEta[1 - 1] = 3.0 / 2.0 * (d5 * Quad8Element.dNdEta(5, csi, eta) - d8 * Quad8Element.dNdEta(8, csi, eta));
+            hyEta[2 - 1] = -Quad8Element.dNdEta(1, csi, eta) + e5 * Quad8Element.dNdEta(5, csi, eta) + e8 * Quad8Element.dNdEta(8, csi, eta);
+            hyEta[3 - 1] = -b5 * Quad8Element.dNdEta(5, csi, eta) - b8 * Quad8Element.dNdEta(8, csi, eta);
+
+            hyEta[4 - 1] = 3.0 / 2.0 * (d6 * Quad8Element.dNdEta(6, csi, eta) - d5 * Quad8Element.dNdEta(5, csi, eta));
+            hyEta[5 - 1] = -Quad8Element.dNdEta(2, csi, eta) + e6 * Quad8Element.dNdEta(6, csi, eta) + e5 * Quad8Element.dNdEta(5, csi, eta);
+            hyEta[6 - 1] = -b6 * Quad8Element.dNdEta(6, csi, eta) - b5 * Quad8Element.dNdEta(5, csi, eta);
+
+            hyEta[7 - 1] = 3.0 / 2.0 * (d7 * Quad8Element.dNdEta(7, csi, eta) - d6 * Quad8Element.dNdEta(6, csi, eta));
+            hyEta[8 - 1] = -Quad8Element.dNdEta(3, csi, eta) + e7 * Quad8Element.dNdEta(7, csi, eta) + e6 * Quad8Element.dNdEta(6, csi, eta);
+            hyEta[9 - 1] = -b7 * Quad8Element.dNdEta(7, csi, eta) - b6 * Quad8Element.dNdEta(6, csi, eta);
+
+            hyEta[10 - 1] = 3.0 / 2.0 * (d8 * Quad8Element.dNdEta(8, csi, eta) - d7 * Quad8Element.dNdEta(7, csi, eta));
+            hyEta[11 - 1] = -Quad8Element.dNdEta(4, csi, eta) + e8 * Quad8Element.dNdEta(8, csi, eta) + e7 * Quad8Element.dNdEta(7, csi, eta);
             //Console.WriteLine("hy,eta[10]("+csi+","+eta+") = -" + dNdEta(4, csi, eta) + "+" + e8 + " * " + dNdEta(8, csi, eta) + " + " + e7 +" * "+ dNdEta(7, csi, eta));
-            hyEta[12 - 1] = -b8 * dNdEta8nodes(8, csi, eta) - b7 * dNdEta8nodes(7, csi, eta);
+            hyEta[12 - 1] = -b8 * Quad8Element.dNdEta(8, csi, eta) - b7 * Quad8Element.dNdEta(7, csi, eta);
 
             mnl.Vector<double> r0 = j11 * hxCsi + j12 * hxEta;
             mnl.Vector<double> r1 = j21 * hyCsi + j22 * hyEta;
@@ -525,58 +525,7 @@ namespace GPC.Model.FEM.FiniteElements
         {
             return 1.0 / 8.0 * (_y42 * _x31 - _y31 * _x42) + csi / 8.0 * (_y34 * _x21 - _y21 * _x34) + eta / 8.0 * (_y41 * _x32 - _y32 * _x41);
         }
-
-        #region ShapeFunction
-        private double dNdCsi8nodes(int index, double csi, double eta)
-        {
-            switch (index)
-            {
-                case 1:
-                    return 1.0 / 4.0 * (2.0 * csi + eta) * (1.0 - eta);
-                case 2:
-                    return 1.0 / 4.0 * (2.0 * csi - eta) * (1.0 - eta);
-                case 3:
-                    return 1.0 / 4.0 * (2.0 * csi + eta) * (1.0 + eta);
-                case 4:
-                    return 1.0 / 4.0 * (2.0 * csi - eta) * (1.0 + eta);
-                case 5:
-                    return -csi * (1.0 - eta);
-                case 6:
-                    return 1.0 / 2.0 * (1.0 - eta * eta);
-                case 7:
-                    return -csi * (1.0 + eta);
-                case 8:
-                    return -1.0 / 2.0 * (1.0 - eta * eta);
-                default:
-                    throw new Exception();
-            }
-        }
-
-        private double dNdEta8nodes(int index, double csi, double eta)
-        {
-            switch (index)
-            {
-                case 1:
-                    return 1.0 / 4.0 * (2.0 * eta + csi) * (1.0 - csi);
-                case 2:
-                    return 1.0 / 4.0 * (2.0 * eta - csi) * (1.0 + csi);
-                case 3:
-                    return 1.0 / 4.0 * (2.0 * eta + csi) * (1.0 + csi);
-                case 4:
-                    return 1.0 / 4.0 * (2.0 * eta - csi) * (1.0 - csi);
-                case 5:
-                    return -1.0 / 2.0 * (1.0 - csi * csi);
-                case 6:
-                    return -eta * (1.0 + csi);
-                case 7:
-                    return 1.0 / 2.0 * (1.0 - eta * eta);
-                case 8:
-                    return -eta * (1.0 - csi);
-                default:
-                    throw new Exception();
-            }
-        }
-        #endregion
+        
 
         public override void GetNodesResults(double[] globalDisplacementsNodes, out double[] localDisplacements, out Matrix<double>[] gloabalPseudoDeformation, out Matrix<double>[] localPseudoDeformation, out Matrix<double>[] globalForces, out Matrix<double>[] localForces, out Matrix<double>[] globalStress, out Matrix<double>[] localStress, out Matrix<double>[] globalEpsilon, out Matrix<double>[] localEpsilon)
         {

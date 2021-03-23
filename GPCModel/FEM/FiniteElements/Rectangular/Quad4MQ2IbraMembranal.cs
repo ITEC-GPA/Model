@@ -9,7 +9,7 @@ namespace GPC.Model.FEM.FiniteElements
 {
     /// <summary>
     /// A ROBUST QUADRILATERAL MEMBRANE FINITE ELEMENT WITH DRILLING DEGREES OF FREEDOM - ADNAN IBRAHIMBEGOVIC,* ROBERT L. TAYLOR’ AND EDWARD L. WILSON’ - 1990
-    /// THESIS REPORT - Analysis and Evaluation of a Shell Finite Element with Drilling Degree of Freedom
+    /// + THESIS REPORT - Analysis and Evaluation of a Shell Finite Element with Drilling Degree of Freedom - L.Jin, Austin
     /// </summary>
     public class Quad4MQ2IbraMembranal : Plate
     {
@@ -19,7 +19,6 @@ namespace GPC.Model.FEM.FiniteElements
 
         public Quad4MQ2IbraMembranal(Node[] nodes, PlateProperty property, int id) : base(nodes, property, id)
         {
-            //recalled base(nodes)
             _DOF.Add(LinearSolver.DOF.DX);
             _DOF.Add(LinearSolver.DOF.DY);
             _DOF.Add(LinearSolver.DOF.DZ);
@@ -40,7 +39,7 @@ namespace GPC.Model.FEM.FiniteElements
         {
             //Node 1 = Origin = Node i
             //Axis x assigned as Node 1 to Node 2, Node j = Node 2
-            //Axis y ortogonal to axis y, Node k = node 3
+            //Axis y ortogonal to axis x, Node k = node 3
 
             //calculation of matrix for transformation from Local to Global coordinates
             _localNodes = Quad4Element.LocalNodes(_nodesGlobal, out _localCoordinateSystem);
@@ -171,18 +170,6 @@ namespace GPC.Model.FEM.FiniteElements
                 double detJ = jacob.Determinant();
                 Console.WriteLine("detJ=" + detJ);
 
-                /*Console.WriteLine();
-                Console.WriteLine("B(csi=" + csi.ToString("F2") + ",eta=" + eta.ToString("F2") + ")^T * D * B(csi=" + csi.ToString("F2") + ",eta=" + eta.ToString("F2")+"):");
-                for (int row = 0; row < m.RowCount; row++)
-                {
-                    for (int col = 0; col < m.RowCount; col++)
-                    {
-                        Console.Write(m[row, col].ToString("F2") +" ");
-                    }
-                    Console.WriteLine();
-                }*/
-                //Console.WriteLine("detJ("+csi.ToString("F2")+","+eta.ToString("F2")+") = " + jacob.Determinant());
-
                 kSymmetric = kSymmetric + gaussPoints[i].Weight * detJ * m;
             }
             kSymmetric = thk * kSymmetric;
@@ -190,23 +177,19 @@ namespace GPC.Model.FEM.FiniteElements
             Util.WriteMatrix(kSymmetric, "F3");
 
             //Matrix P ---> reference: eq. 38 of the Article 1990
-            double rho = ((PlateProperty)_property).GetG() / 1000.0;
+            double rho = 1.0 * ((PlateProperty)_property).GetG();
             mnl.Matrix<double> P = mnl.Matrix<double>.Build.Dense(12, 12);
-            gaussPoints = GaussIntegration.GetPointsRectangular(1); //reference article 1990
+            gaussPoints = GaussIntegration.GetPointsRectangular(1); //1 gauss point reference article 1990
             for (int i = 0; i < gaussPoints.Length; i++) //trhough the gauss points
             {
                 double csi = gaussPoints[i].Point.X;
                 double eta = gaussPoints[i].Point.Y;
 
-                mnl.Matrix<double> b1 = biVectorSigned(1, csi, eta);
-                mnl.Matrix<double> b2 = biVectorSigned(2, csi, eta);
-                mnl.Matrix<double> b3 = biVectorSigned(3, csi, eta);
-                mnl.Matrix<double> b4 = biVectorSigned(4, csi, eta);
                 #region createOfbSigned
-                mnl.Matrix<double> bSigned = b1;
-                bSigned = bSigned.Append(b2);
-                bSigned = bSigned.Append(b3);
-                bSigned = bSigned.Append(b4);
+                mnl.Matrix<double> bSigned = biVectorSigned(1, csi, eta);
+                bSigned = bSigned.Append(biVectorSigned(2, csi, eta));
+                bSigned = bSigned.Append(biVectorSigned(3, csi, eta));
+                bSigned = bSigned.Append(biVectorSigned(4, csi, eta));
                 Console.WriteLine("bSigned=");
                 Util.WriteMatrix(bSigned,"F4");
                 #endregion
@@ -235,16 +218,11 @@ namespace GPC.Model.FEM.FiniteElements
              * THESIS REPORT - Analysis and Evaluation of a Shell Finite Element with Drilling Degree of Freedom
              * pg. 27
              * */
-            mnl.Matrix<double> B1 = BiMatrixSigned(1, csi, eta);
-            mnl.Matrix<double> B2 = BiMatrixSigned(2, csi, eta);
-            mnl.Matrix<double> B3 = BiMatrixSigned(3, csi, eta);
-            mnl.Matrix<double> B4 = BiMatrixSigned(4, csi, eta);
-
             mnl.Matrix<double> B = mnl.Matrix<double>.Build.Dense(3, 0);
-            B = B.Append(B1);
-            B = B.Append(B2);
-            B = B.Append(B3);
-            B = B.Append(B4);
+            B = B.Append(BiMatrixSigned(1, csi, eta));
+            B = B.Append(BiMatrixSigned(2, csi, eta));
+            B = B.Append(BiMatrixSigned(3, csi, eta));
+            B = B.Append(BiMatrixSigned(4, csi, eta));
 
             Console.WriteLine("B(csi="+csi+",eta="+eta+") = ");
             Util.WriteMatrix(B, "F3");
@@ -372,8 +350,8 @@ namespace GPC.Model.FEM.FiniteElements
 
             #region gi
             #region dNl
-            double dNldCsi = dNdCsi(l, csi, eta);
-            double dNldEta = dNdEta(l, csi, eta);
+            double dNldCsi = Quad8Element.dNdCsi(l, csi, eta);
+            double dNldEta = Quad8Element.dNdEta(l, csi, eta);
             mnl.Vector<double> dNldNatural = mnl.Vector<double>.Build.Dense(2);
             dNldNatural[0] = dNldCsi;
             dNldNatural[1] = dNldEta;
@@ -386,8 +364,8 @@ namespace GPC.Model.FEM.FiniteElements
             #endregion
 
             #region dNm
-            double dNmdCsi = dNdCsi(m, csi, eta);
-            double dNmdEta = dNdEta(m, csi, eta);
+            double dNmdCsi = Quad8Element.dNdCsi(m, csi, eta);
+            double dNmdEta = Quad8Element.dNdEta(m, csi, eta);
             mnl.Vector<double> dNmdNatural = mnl.Vector<double>.Build.Dense(2);
             dNmdNatural[0] = dNmdCsi;
             dNmdNatural[1] = dNmdEta;
@@ -467,15 +445,15 @@ namespace GPC.Model.FEM.FiniteElements
             Console.WriteLine("s" + i + k + "=" + sik);
             Console.WriteLine();
 
-            double dNldCsi = dNdCsi(l, csi, eta);
-            double dNldEta = dNdEta(l, csi, eta);
+            double dNldCsi = Quad8Element.dNdCsi(l, csi, eta);
+            double dNldEta = Quad8Element.dNdEta(l, csi, eta);
             mnl.Vector<double> dNldNatural = mnl.Vector<double>.Build.Dense(2);
             dNldNatural[0] = dNldCsi;
             dNldNatural[1] = dNldEta;
             Console.WriteLine("dN" + l + "dNatural(csi=" + csi + ",eta=" + eta + ") = " + dNldNatural);
 
-            double dNmdCsi = dNdCsi(m, csi, eta);
-            double dNmdEta = dNdEta(m, csi, eta);
+            double dNmdCsi = Quad8Element.dNdCsi(m, csi, eta);
+            double dNmdEta = Quad8Element.dNdEta(m, csi, eta);
             mnl.Vector<double> dNmdNatural = mnl.Vector<double>.Build.Dense(2);
             dNmdNatural[0] = dNmdCsi;
             dNmdNatural[1] = dNmdEta;
@@ -562,52 +540,7 @@ namespace GPC.Model.FEM.FiniteElements
             double xij = Xij(pi, pj);
             return xij / lij; // "+" sign in according to reference to An improved quadrilateral flat element with drilling degrees of freedom for shell structural analysis - H. Nguyen-Van1 , N. Mai-Duy1 and T. Tran-Cong1 - 2009 
         }*/
-
-        /// <summary>
-        /// shape functions only for degree of freedom
-        /// </summary>
-        /// <param name="i"> i = 5 to 8, refer to pg. 25 of "Thesis Report" - Analysis and Evaluation of a Shell Finite Element with Drilling Degree of freedom</param>
-        /// <param name="csi"></param>
-        /// <param name="eta"></param>
-        private static double dNdCsi(int i, double csi, double eta)
-        {
-            switch (i) {
-                case 5:
-                    return csi * (eta - 1.0);
-                case 6:
-                    return 1.0 / 2.0 * (1.0 - eta * eta);
-                case 7:
-                    return -csi * (eta + 1.0);
-                case 8:
-                    return 1.0 / 2.0 * (eta * eta - 1.0);
-                default:
-                    throw new Exception();
-            }
-        }
-
-        /// <summary>
-        /// shape functions only for degree of freedom
-        /// </summary>
-        /// <param name="i"> i = 5 to 8, refer to pg. 25 of "Thesis Report" - Analysis and Evaluation of a Shell Finite Element with Drilling Degree of freedom</param>
-        /// <param name="csi"></param>
-        /// <param name="eta"></param>
-        private static double dNdEta(int i, double csi, double eta)
-        {
-            switch (i)
-            {
-                case 5:
-                    return 1.0 / 2.0 * (csi * csi - 1.0);
-                case 6:
-                    return -(csi + 1.0) * eta;
-                case 7:
-                    return 1.0 / 2.0 * (1.0 - csi * csi);
-                case 8:
-                    return (csi - 1.0) * eta;
-                default:
-                    throw new Exception();
-            }
-        }
-
+               
         protected override mnl.Vector<double> BuildFLocalCoord()
         {
             // Occorre fare integrazione sulle funzioni di forma lineari di un quad4 (è possibile usare quella dell'elemento quad4 membranale)

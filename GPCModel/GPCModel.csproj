@@ -85,6 +85,7 @@
     <Compile Include="FEM\FiniteElements\Rectangular\Quad4MQ2IbraMembranal.cs" />
     <Compile Include="FEM\FiniteElements\Rectangular\Quad4Membranal.cs" />
     <Compile Include="FEM\FiniteElements\Rectangular\Quad4Element.cs" />
+    <Compile Include="FEM\FiniteElements\Rectangular\Quad8Element.cs" />
     <Compile Include="FEM\GaussIntegration.cs" />
     <Compile Include="FEM\Stage.cs" />
     <Compile Include="FEM\util.cs" />
