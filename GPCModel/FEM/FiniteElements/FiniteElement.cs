@@ -14,7 +14,9 @@ namespace GPC.Model.FEM.FiniteElements
     public abstract class FiniteElement : FEMObject
     {
         #region Variables
+
         protected CoordinateSystem _localCoordinateSystem;
+
         /*protected double[] _vecXLocal = new double[3]; //versor X local in Global Coordinate Sys
         protected double[] _vecYLocal = new double[3]; //versor Y local in Global Coordinate Sys
         protected double[] _vecZLocal = new double[3]; //versor Z local in Global Coordinate Sys*/
@@ -24,12 +26,18 @@ namespace GPC.Model.FEM.FiniteElements
         protected mnl.Matrix<double> _dofGlobalToLocal;
         protected mnl.Matrix<double> _kElementLocalCoord;
         protected mnl.Matrix<double> _d;
+
+
+        protected List<LoadCaseAttribute> _attributesLoadCase;
+
         protected ElementProperty _property;
 
         protected Node[] _nodesGlobal;
+
         #endregion
 
         #region Properties
+
         public CoordinateSystem LocalCoordinateSystem => _localCoordinateSystem;
 
         /// <summary>
@@ -89,6 +97,9 @@ namespace GPC.Model.FEM.FiniteElements
         /// ke = int [B]^T [D] [B] dV (stiffness matrix in local coordinates)
         /// </summary>
         public mnl.Matrix<double> KElementLocalCoord => _kElementLocalCoord;
+        
+        public List<LoadCaseAttribute> AttributesLoadCase => _attributesLoadCase;
+
         #endregion
 
         #region Constructor
@@ -103,11 +114,13 @@ namespace GPC.Model.FEM.FiniteElements
             _nodesGlobal = nodes;
             _property = property;
             _DOF = new SortedSet<LinearSolver.DOF>();
+            _attributesLoadCase = new List<LoadCaseAttribute>();
         }
 
         #endregion
 
         #region PublicFunction
+
         /// <summary>
         /// Build Stiffness Matrix etc
         /// </summary>
@@ -125,7 +138,6 @@ namespace GPC.Model.FEM.FiniteElements
             
             return F;
         }
-
 
         /// <summary>
         /// Retrieve sigma, epsilon, N, M, etc in the element from displacement
@@ -171,6 +183,7 @@ namespace GPC.Model.FEM.FiniteElements
             hashCode = hashCode * -1521134295 + EqualityComparer<Node[]>.Default.GetHashCode(Nodes);
             return hashCode;
         }
+
         #endregion
     }
 }
