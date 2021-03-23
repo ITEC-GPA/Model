@@ -144,32 +144,6 @@ namespace GeneralTest
 
 
         [TestMethod]
-        public void FemObject()
-        {
-            Stage s1 = new Stage("S1", FemModel.AnalysisType.Linear);
-            Stage s2 = new Stage("S2", FemModel.AnalysisType.Linear);
-
-            Node n1 = new Node(Point3d.Origin, 1);
-            Node n2 = new Node(Point3d.Origin, 2);
-
-            n1.SetStageActive(s1, false);
-            n1.SetStageActive(s2, true);
-            n2.SetStageActive(s1, false);
-            n2.SetStageActive(s2, true);
-
-
-            Assert.IsFalse(n1.IsStageActive(s1));
-            Assert.IsTrue(n1.IsStageActive(s2));
-
-            Assert.IsTrue(n1.Equals(n2));
-
-            Assert.AreNotEqual(s1.GetHashCode(), s2.GetHashCode());
-
-            Assert.AreEqual(n1.GetHashCode(), n2.GetHashCode());
-        }
-
-
-        [TestMethod]
         public void GlassTest()
         {
             GlassMaterialEn16612 gm1 = new GlassMaterialEn16612("test", 10, 0.2, 30, GlassMaterialEn16612.GlassTypes.DrawnSheetGlass, GlassMaterialEn16612.SurfaceTreatments.AsProduced, GlassMaterialEn16612.PrestressTypes.Annealed, GlassMaterialEn16612.ManufactoringProcesses.HorizontalToughening, 20, 30);
@@ -232,7 +206,7 @@ namespace GeneralTest
             Node n2 = new Node(Point3d.Origin, 2);
             Node n3 = new Node(Point3d.Origin, 2);
 
-            Dictionary<FEMObject, int> dictWithComparer = new Dictionary<FEMObject, int>(new FemObjectIdComparer());
+            Dictionary<FEMObject, int> dictWithComparer = new Dictionary<FEMObject, int>(new FEMObject.FemObjectIdComparer());
             Dictionary<FEMObject, int> dict = new Dictionary<FEMObject, int>();
 
             dictWithComparer.Add(n1, 1);
@@ -253,7 +227,7 @@ namespace GeneralTest
             Node n2 = new Node(Point3d.Origin, 2);
             Node n3 = new Node(Point3d.Origin, 2);
 
-            Dictionary<Node, int> dictWithComparer = new Dictionary<Node, int>(new FemObjectIdComparer());
+            Dictionary<Node, int> dictWithComparer = new Dictionary<Node, int>(new FEMObject.FemObjectIdComparer());
             Dictionary<Node, int> dict = new Dictionary<Node, int>();
 
             dictWithComparer.Add(n1, 1);

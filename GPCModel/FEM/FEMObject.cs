@@ -43,23 +43,13 @@ namespace GPC.Model.FEM
 
             FEMObject objCasted = obj as FEMObject;
 
-            return !(objCasted is null) && _activeStages.ScrambledEquals(objCasted._activeStages)
-                                        && base.Equals(objCasted);
+            return !(objCasted is null) && base.Equals(objCasted);
         }
 
         public override int GetHashCode()
         {
             int hashCode = -23;
             hashCode = hashCode * -17 + base.GetHashCode();
-
-            if (_activeStages.Count > 0)
-            {
-                foreach (var kvp in _activeStages)
-                {
-                    hashCode = hashCode + EqualityComparer<Stage>.Default.GetHashCode(kvp.Key);
-                    hashCode = hashCode + EqualityComparer<bool>.Default.GetHashCode(kvp.Value);
-                }
-            }
 
             return hashCode;
         }

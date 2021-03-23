@@ -9,7 +9,7 @@ namespace GPC.Model.FEM
     /// <summary>
     /// Nodo with unique ID, and X,Y,Z global coordinates
     /// </summary>
-    public sealed class Node : FEMObject, IEquatable<Node>
+    public class Node : FEMObject
     {
         #region Variables
         private Point3d _position;
@@ -89,7 +89,17 @@ namespace GPC.Model.FEM
 
         public override bool Equals(object obj)
         {
-            return this.Equals(obj as Node);
+            if (obj is null)
+                return false;
+
+            if (ReferenceEquals(this, obj))
+                return true;
+
+            Node node = obj as Node;
+            return !(node is null) && _position.Equals(node._position)
+                                    && _attributesFreedomCase.ScrambledEquals(node._attributesFreedomCase)
+                                    && _attributesLoadCase.ScrambledEquals(node._attributesLoadCase)
+                                    && base.Equals(node);
         }
 
         public override int GetHashCode()
@@ -110,18 +120,5 @@ namespace GPC.Model.FEM
             return hashCode;
         }
 
-        public bool Equals(Node other)
-        {        
-            if (other is null)
-                return false;
-
-            if (ReferenceEquals(this, other))
-                return true;
-
-            return !(other is null) && _position.Equals(other._position)
-                                    && _attributesFreedomCase.ScrambledEquals(other._attributesFreedomCase)
-                                    && _attributesLoadCase.ScrambledEquals(other._attributesLoadCase)
-                                    && base.Equals(other);
-        }
     }
 }
