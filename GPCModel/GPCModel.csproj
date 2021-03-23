@@ -69,6 +69,7 @@
     <Compile Include="Combinations\CombinationAsce.cs" />
     <Compile Include="Combinations\CombinationEn.cs" />
     <Compile Include="Elements\GhostElement.cs" />
+    <Compile Include="FEM\Attributes\IPlateLoadCaseAttribute.cs" />
     <Compile Include="FEM\Collections\FemObjectCollection.cs" />
     <Compile Include="FEM\ElementProperty\BrickProperty.cs" />
     <Compile Include="FEM\ElementProperty\ElementProperty.cs" />
@@ -113,7 +114,7 @@
     <Compile Include="FEM\Attributes\IBeamLoadCaseAttribute.cs" />
     <Compile Include="FEM\Attributes\INodeFreedomCaseAttribute.cs" />
     <Compile Include="FEM\Attributes\INodeLoadCaseAttribute.cs" />
-    <Compile Include="FEM\Attributes\IPlateLoadCaseFemAttribute.cs" />
+    <Compile Include="FEM\Attributes\IPlateLoadCaseAttribute.cs" />
     <Compile Include="FEM\Attributes\LoadCase\LoadCaseAttribute.cs" />
     <Compile Include="FEM\Attributes\LoadCase\NodeForceAttribute.cs" />
     <Compile Include="FEM\Attributes\LoadCase\PlateNormalPressureAttribute.cs" />
