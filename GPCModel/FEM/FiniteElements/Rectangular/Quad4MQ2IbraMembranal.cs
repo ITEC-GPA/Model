@@ -192,7 +192,7 @@ namespace GPC.Model.FEM.FiniteElements
             //Matrix P ---> reference: eq. 38 of the Article 1990
             double rho = ((PlateProperty)_property).GetG() / 1000.0;
             mnl.Matrix<double> P = mnl.Matrix<double>.Build.Dense(12, 12);
-            gaussPoints = GaussIntegration.GetPointsRectangular(9); //reference article 1990
+            gaussPoints = GaussIntegration.GetPointsRectangular(1); //reference article 1990
             for (int i = 0; i < gaussPoints.Length; i++) //trhough the gauss points
             {
                 double csi = gaussPoints[i].Point.X;
