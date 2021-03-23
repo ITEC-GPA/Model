@@ -221,6 +221,29 @@ namespace GeneralTest
             Assert.AreEqual(stc1.GetHashCode(), stc2.GetHashCode());
             Assert.AreEqual(stc1, stc2);
         }
-    
+
+
+
+
+        [TestMethod]
+        public void FemObjectEqualityComparer()
+        {
+            Node n1 = new Node(Point3d.Origin, 1);
+            Node n2 = new Node(Point3d.Origin, 2);
+            Node n3 = new Node(Point3d.Origin, 2);
+
+            Dictionary<FEMObject, int> dictWithComparer = new Dictionary<FEMObject, int>(new FemObjectIdComparer());
+            Dictionary<FEMObject, int> dict = new Dictionary<FEMObject, int>();
+
+            dictWithComparer.Add(n1, 1);
+            dictWithComparer.Add(n2, 1);
+
+            dict.Add(n1, 1);
+            
+            Assert.IsTrue(dictWithComparer.ContainsKey(n3));
+            Assert.IsTrue(dict.ContainsKey(n2));
+            Assert.IsTrue(dict.ContainsKey(n3));
+        }
+
     }
 }

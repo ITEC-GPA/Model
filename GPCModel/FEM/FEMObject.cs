@@ -103,4 +103,41 @@ namespace GPC.Model.FEM
         } 
         #endregion
     }
+
+
+    /// <summary>
+    /// Custom equality comparer that compare two <see cref="FEMObject"/> using also the <see cref="Element.Id"/>
+    /// </summary>
+    public class FemObjectIdComparer : IEqualityComparer<FEMObject>
+    {
+        public bool Equals(FEMObject x, FEMObject y)
+        {
+            if (ReferenceEquals(x, y))
+                return true;
+
+            if (x == null && y == null)
+                return true;
+
+            if (x == null || y == null)
+                return false;
+
+            if (x.Equals(y) && x.Id == y.Id)
+                return true;
+
+            return false;
+        }
+
+
+        public int GetHashCode(FEMObject obj)
+        {
+            int hashCode = -23 * -17 + base.GetHashCode();
+
+            hashCode = hashCode + obj.GetHashCode();
+
+            hashCode = hashCode + obj.Id.GetHashCode();
+
+            return hashCode;
+        }
+    }
+
 }
