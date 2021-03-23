@@ -86,7 +86,6 @@
     <Compile Include="FEM\FiniteElements\Rectangular\Quad4Membranal.cs" />
     <Compile Include="FEM\FiniteElements\Rectangular\Quad4Element.cs" />
     <Compile Include="FEM\GaussIntegration.cs" />
-    <Compile Include="FEM\util.cs" />
     <Compile Include="FEM\Stage.cs" />
     <Compile Include="Glasses\Glass.cs" />
     <Compile Include="FEM\ElementProperty\IGlassProperty.cs" />
