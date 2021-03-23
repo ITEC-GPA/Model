@@ -1,9 +1,7 @@
-ï»¿using System;
+using GPC.Model.FEM.FiniteElements;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace GPC.Model.FEM.Collections
 {
@@ -12,47 +10,52 @@ namespace GPC.Model.FEM.Collections
     /// </summary>
     public class FemObjectCollection<T> : IEnumerable<T> where T : FEMObject
     {
-        private List<T> _collection = new List<T>();
-        private HashSet<int> _ids = new HashSet<int>();
-        private int _maxId = 0;
+        protected ICollection<T> _collection;
+        protected HashSet<int> _ids = new HashSet<int>();
+        protected int _maxId = 0;
+
+        public FemObjectCollection()
+        {
+            // Non ha equality comparer quindi gli oggetti vengono aggiunti senza controllare se esistono già
+            _collection = new List<T>();
+        }
 
         public int Count => _collection.Count();
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
         /// <exception cref="KeyNotFoundException">If collection does not contain a element with Id:<param name="id"></param> </exception>
-        public T this[int id]
+        public virtual T this[int id]
         {
             get
-            { 
+            {
                 if (!_ids.Contains(id))
                     throw new KeyNotFoundException($"Collection does not contain a element with Id:{id}");
-                
+
                 return _collection.Where(i => i.Id.Equals(id)).First();
             }
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
         /// <exception cref="KeyNotFoundException">If collection does not contain a element with Id:<param name="id"></param> </exception>
-        public T GetElementById(int id)
+        public virtual T GetElementById(int id)
         {
             return this[id];
         }
-
 
         /// <summary>
         /// Add a FEMObject to the collection. If the item.Index already exist in the collection it will be replaced with the collection maximum index + 1;
         /// </summary>
         /// <param name="item"></param>
         /// <returns>The index of the item</returns>
-        public int Add(T item)
+        public virtual int Add(T item)
         {
             if (_ids.Contains(item.Id))
             {
@@ -70,17 +73,17 @@ namespace GPC.Model.FEM.Collections
             return item.Id;
         }
 
-        public void Clear()
+        public virtual void Clear()
         {
             _collection.Clear();
         }
 
-        public bool Contains(T item)
+        public virtual bool Contains(T item)
         {
             return _collection.Contains(item);
         }
 
-        public void CopyTo(T[] array, int arrayIndex)
+        public virtual void CopyTo(T[] array, int arrayIndex)
         {
             _collection.CopyTo(array, arrayIndex);
         }
@@ -90,7 +93,7 @@ namespace GPC.Model.FEM.Collections
             return _collection.GetEnumerator();
         }
 
-        public bool Remove(T item)
+        public virtual bool Remove(T item)
         {
             return _collection.Remove(item);
         }
@@ -101,4 +104,5 @@ namespace GPC.Model.FEM.Collections
         }
     }
 
+    
 }
