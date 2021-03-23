@@ -14,22 +14,28 @@ namespace GPC.Model.FEM.FiniteElements
     public abstract class FiniteElement : FEMObject
     {
         #region Variables
+        //define the local axis of the element
         protected CoordinateSystem _localCoordinateSystem;
-        /*protected double[] _vecXLocal = new double[3]; //versor X local in Global Coordinate Sys
-        protected double[] _vecYLocal = new double[3]; //versor Y local in Global Coordinate Sys
-        protected double[] _vecZLocal = new double[3]; //versor Z local in Global Coordinate Sys*/
-
+        //contains the degree of fredom active foreach node in global coordinates
         protected SortedSet<LinearSolver.DOF> _DOF;
         
+        //transformation matrix from local coordinates to global coordinates
         protected mnl.Matrix<double> _dofGlobalToLocal;
+        //local stiffness matrix of the element in local coordinates
         protected mnl.Matrix<double> _kElementLocalCoord;
+        //contains Material information of the element
         protected mnl.Matrix<double> _d;
+        //contains informations about section, thickness, material etc of the element
         protected ElementProperty _property;
 
+        //contains the nodes in global coordinates
         protected Node[] _nodesGlobal;
         #endregion
 
         #region Properties
+        /// <summary>
+        /// Return the local axis of the element in global exis
+        /// </summary>
         public CoordinateSystem LocalCoordinateSystem => _localCoordinateSystem;
 
         /// <summary>
@@ -61,7 +67,7 @@ namespace GPC.Model.FEM.FiniteElements
         }
 
         /// <summary>
-        /// Nodes of the element
+        /// Nodes of the element in global axis
         /// </summary>
         public Node[] Nodes => _nodesGlobal;
 
@@ -76,7 +82,7 @@ namespace GPC.Model.FEM.FiniteElements
         public virtual mnl.Matrix<double> KElementGlobalCoord => DofGlobalToLocal.Transpose() * KElementLocalCoord * DofGlobalToLocal;
 
         /// <summary>
-        /// B : derivative of ShapeFunctions, need for epsilon = [B] * q with q = node displacements vector
+        /// usually = B : derivative of ShapeFunctions, need for epsilon = [B] * q with q = node displacements vector
         /// </summary>
         public abstract mnl.Matrix<double> GetB(double csi = 0, double eta = 0, double zeta = 0);
 

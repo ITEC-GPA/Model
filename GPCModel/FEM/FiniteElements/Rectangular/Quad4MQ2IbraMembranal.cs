@@ -161,7 +161,7 @@ namespace GPC.Model.FEM.FiniteElements
                 double csi = gaussPoints[i].Point.X;
                 double eta = gaussPoints[i].Point.Y;
 
-                mnl.Matrix<double> BSymmetric = GetB(csi, eta);
+                mnl.Matrix<double> BSymmetric = GetBSymmetric(csi, eta);
                 Console.WriteLine("BSymmetric(csi=" + csi + ",eta=" + eta + ") =");
                 Util.WriteMatrix(BSymmetric, "F3");
                 mnl.Matrix<double> m = BSymmetric.Transpose() * _d * BSymmetric;
@@ -212,6 +212,18 @@ namespace GPC.Model.FEM.FiniteElements
             #endregion
         }
 
+        public override mnl.Matrix<double> GetB(double csi, double eta, double zeta = 0)
+        {
+            //epsilon = epsilon_symmetric + epsilon_skew
+
+            //symmetric part
+            mnl.Matrix<double> B = GetBSymmetric(csi, eta);
+            
+            //skew part ??
+
+            return B;
+        }
+
         /// <summary>
         /// THESIS REPORT - Analysis and Evaluation of a Shell Finite Element with Drilling Degree of Freedom
         ///  pg. 27
@@ -220,7 +232,7 @@ namespace GPC.Model.FEM.FiniteElements
         /// <param name="eta"></param>
         /// <param name="zeta"></param>
         /// <returns></returns>
-        public override mnl.Matrix<double> GetB(double csi, double eta, double zeta = 0)
+        private mnl.Matrix<double> GetBSymmetric(double csi, double eta)
         {
             mnl.Matrix<double> B = mnl.Matrix<double>.Build.Dense(3, 0);
             B = B.Append(BiMatrixSigned(1, csi, eta));
@@ -228,7 +240,7 @@ namespace GPC.Model.FEM.FiniteElements
             B = B.Append(BiMatrixSigned(3, csi, eta));
             B = B.Append(BiMatrixSigned(4, csi, eta));
 
-            Console.WriteLine("B(csi="+csi+",eta="+eta+") = ");
+            Console.WriteLine("B(csi=" + csi + ",eta=" + eta + ") = ");
             Util.WriteMatrix(B, "F3");
             return B;
         }
@@ -360,12 +372,17 @@ namespace GPC.Model.FEM.FiniteElements
             Console.WriteLine();
         }
 
+        /// <summary>
+        /// Skew part
+        /// THESIS REPORT - Analysis and Evaluation of a Shell Finite Element with Drilling Degree of Freedom
+        /// pg. 25-26 
+        /// </summary>
+        /// <param name="i"></param>
+        /// <param name="csi"></param>
+        /// <param name="eta"></param>
+        /// <returns></returns>
         private mnl.Matrix<double> biVectorSigned(int i, double csi, double eta)
         {
-            /*
-             * THESIS REPORT - Analysis and Evaluation of a Shell Finite Element with Drilling Degree of Freedom
-             * pg. 25-26 
-             */
             Console.WriteLine("Calculation of biVectorSigned, i = " + i);
 
             getDataCalculation(i, out double lij, out double sij, out double cij, out double lik, out double sik, out double cik, out int j, out int k, out int m, out int l);
@@ -658,7 +675,7 @@ namespace GPC.Model.FEM.FiniteElements
             rotation[2, 2] = zVersor.Z;
             //Console.WriteLine("Rotation matrix tensor:" + rotation.ToString());
 
-            mnl.Vector<double>[] epsilonLocal = new mnl.Vector<double>[4];
+            mnl.Vector<double>[] epsilonLocal = new mnl.Vector<double>[4]; //4 = nr of points
             mnl.Vector<double>[] stressLocal = new mnl.Vector<double>[4];
 
             mnl.Matrix<double>[] epsilonLocalCouchy = new mnl.Matrix<double>[4];

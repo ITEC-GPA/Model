@@ -490,15 +490,17 @@ namespace FemTest.Solver
 
             Assert.AreEqual(0.3553, fem.GetDisplacementGlobalCoordinates(nds[9 - 1], LinearSolver.DOF.DY), 0.025);
 
-            /*Console.WriteLine("stress");
-            double[] elGlobalDispl = fem.GetDisplacementsGlobalCoordinates(el);
-            el.GetNodesResults(elGlobalDispl, out double[] localDispl,
+            Console.WriteLine("stress");
+            double[] elGlobalDispl = fem.GetDisplacementsGlobalCoordinates(els[2-1]);
+            els[2-1].GetNodesResults(elGlobalDispl, out double[] localDispl,
                             out mnl.Matrix<double>[] globalPseudoDef, out mnl.Matrix<double>[] localPseudoDef,
                             out mnl.Matrix<double>[] globalForces, out mnl.Matrix<double>[] localForces,
                             out mnl.Matrix<double>[] globalStress, out mnl.Matrix<double>[] localStress,
-                            out mnl.Matrix<double>[] globalEpsilon, out mnl.Matrix<double>[] localEpsilon);*/
+                            out mnl.Matrix<double>[] globalEpsilon, out mnl.Matrix<double>[] localEpsilon);
 
-            //Console.WriteLine(globalStress[0]);
+            mnl.Matrix<double> centroidStress = mnl.Matrix<double>.Build.Dense(3,3);
+            globalStress.ToList().ForEach(x => centroidStress = centroidStress + x / 4.0);
+            Console.WriteLine(centroidStress);
 
             //Assert.AreEqual(sigmaTopYY, globalStress[0][1, 1], 0.001); //sigmaYY top face
         }
@@ -835,16 +837,16 @@ namespace FemTest.Solver
             nds[10].AddAttribute(Mminus);
 
             List<Quad4MQ2IbraMembranal> els = new List<Quad4MQ2IbraMembranal>();
-            els.Add(new Quad4MQ2IbraMembranal(new Node[] { nds[0], nds[1], nds[12], nds[11] }, prop, 1));
+            els.Add(new Quad4MQ2IbraMembranal(new Node[] { nds[0], nds[1], nds[12], nds[11] }, prop, 0));
             els.Add(new Quad4MQ2IbraMembranal(new Node[] { nds[1], nds[2], nds[13], nds[12] }, prop, 1));
-            els.Add(new Quad4MQ2IbraMembranal(new Node[] { nds[2], nds[3], nds[14], nds[13] }, prop, 1));
-            els.Add(new Quad4MQ2IbraMembranal(new Node[] { nds[3], nds[4], nds[15], nds[14] }, prop, 1));
-            els.Add(new Quad4MQ2IbraMembranal(new Node[] { nds[4], nds[5], nds[16], nds[15] }, prop, 1));
-            els.Add(new Quad4MQ2IbraMembranal(new Node[] { nds[5], nds[6], nds[17], nds[16] }, prop, 1));
-            els.Add(new Quad4MQ2IbraMembranal(new Node[] { nds[6], nds[7], nds[18], nds[17] }, prop, 1));
-            els.Add(new Quad4MQ2IbraMembranal(new Node[] { nds[7], nds[8], nds[19], nds[18] }, prop, 1));
-            els.Add(new Quad4MQ2IbraMembranal(new Node[] { nds[8], nds[9], nds[20], nds[19] }, prop, 1));
-            els.Add(new Quad4MQ2IbraMembranal(new Node[] { nds[9], nds[10], nds[21], nds[20] }, prop, 1));
+            els.Add(new Quad4MQ2IbraMembranal(new Node[] { nds[2], nds[3], nds[14], nds[13] }, prop, 2));
+            els.Add(new Quad4MQ2IbraMembranal(new Node[] { nds[3], nds[4], nds[15], nds[14] }, prop, 3));
+            els.Add(new Quad4MQ2IbraMembranal(new Node[] { nds[4], nds[5], nds[16], nds[15] }, prop, 4));
+            els.Add(new Quad4MQ2IbraMembranal(new Node[] { nds[5], nds[6], nds[17], nds[16] }, prop, 5));
+            els.Add(new Quad4MQ2IbraMembranal(new Node[] { nds[6], nds[7], nds[18], nds[17] }, prop, 6));
+            els.Add(new Quad4MQ2IbraMembranal(new Node[] { nds[7], nds[8], nds[19], nds[18] }, prop, 7));
+            els.Add(new Quad4MQ2IbraMembranal(new Node[] { nds[8], nds[9], nds[20], nds[19] }, prop, 8));
+            els.Add(new Quad4MQ2IbraMembranal(new Node[] { nds[9], nds[10], nds[21], nds[20] }, prop, 9));
 
             LinearSolver fem = new LinearSolver(els.ToArray());
 
@@ -853,16 +855,16 @@ namespace FemTest.Solver
             Assert.AreEqual(0.0, fem.GetDisplacementGlobalCoordinates(nds[16], LinearSolver.DOF.RZ), 0.01);
 
             //check stress
-            /*Console.WriteLine("stress");
-            double[] elGlobalDispl = fem.GetDisplacementsGlobalCoordinates(el);
-            el.GetNodesResults(elGlobalDispl, out double[] localDispl,
+            Console.WriteLine("stress");
+            double[] elGlobalDispl = fem.GetDisplacementsGlobalCoordinates(els[4]);
+            els[4].GetNodesResults(elGlobalDispl, out double[] localDispl,
                             out mnl.Matrix<double>[] globalPseudoDef, out mnl.Matrix<double>[] localPseudoDef,
                             out mnl.Matrix<double>[] globalForces, out mnl.Matrix<double>[] localForces,
                             out mnl.Matrix<double>[] globalStress, out mnl.Matrix<double>[] localStress,
-                            out mnl.Matrix<double>[] globalEpsilon, out mnl.Matrix<double>[] localEpsilon);*/
+                            out mnl.Matrix<double>[] globalEpsilon, out mnl.Matrix<double>[] localEpsilon);
 
-            //Console.WriteLine(globalStress[0]);
-
+            globalStress.ToList().ForEach(x => Console.WriteLine(x));
+            
             //Assert.AreEqual(sigmaTopYY, globalStress[0][1, 1], 0.001); //sigmaYY top face
         }
     }
