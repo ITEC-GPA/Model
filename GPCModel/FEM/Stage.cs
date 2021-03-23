@@ -5,6 +5,10 @@ using System.Runtime.Serialization;
 using System.Text;
 using System.Threading.Tasks;
 using GPC.Model.Combinations;
+using GPC.Model.FEM.FiniteElements;
+using GPC.Model.FEM.Properties;
+using GPC.Model.FEM.Attributes;
+using GPC.Model.FEM.Collections;
 using GPC.Utilities.Extensions;
 
 namespace GPC.Model.FEM
@@ -17,12 +21,23 @@ namespace GPC.Model.FEM
 
         private FemModel.AnalysisType _analysisType;
 
+        private FiniteElementStageCollection<FiniteElement, StageFiniteElementProperty> _elements;
+
+        private NodeStageCollection<Node, StageProperty> _nodes;
+
+
         private bool _morph;
 
 
         public List<Combination> Combinations => _combinations;
+
         public FemModel.AnalysisType AnalysisType => _analysisType;
+
         public bool Morph => _morph;
+
+        public NodeStageCollection<Node, StageProperty> nodes => _nodes;
+
+        public FiniteElementStageCollection<FiniteElement, StageFiniteElementProperty> elements => _elements;
 
 
         public Stage(string name, FemModel.AnalysisType analysisType, bool morph, List<Combination> combinations)
@@ -31,8 +46,10 @@ namespace GPC.Model.FEM
             this._analysisType = analysisType;
             this._combinations = combinations ?? new List<Combination>();
             this._morph = morph;
-        }
 
+            this._elements = new FiniteElementStageCollection<FiniteElement, StageFiniteElementProperty>();
+            this._nodes = new NodeStageCollection<Node, StageProperty>();
+        }
 
         public Stage(string name, FemModel.AnalysisType analysisType) 
             : this(name, analysisType, false, null)
@@ -40,19 +57,16 @@ namespace GPC.Model.FEM
 
         }
 
-
         public Stage(SerializationInfo info, StreamingContext context) 
             : base(info, context)
         {
             throw new NotImplementedException();
         }
 
-
         public void AddCombination(Combination combination)
         {
             _combinations.Add(combination);
         }
-
 
         public void SetAnalysisType(FemModel.AnalysisType analysisType)
         {
@@ -63,6 +77,46 @@ namespace GPC.Model.FEM
         {
             _morph = active;
         }
+
+        public void AddNodes(FemObjectCollection<Node> nodes)
+        {
+
+            foreach (var node in nodes)
+            {
+                StageProperty sp = new StageProperty();
+                sp.AddLoadCaseAttributes(node.AttributesLoadCase.Cast<LoadCaseAttribute>().ToList());
+                sp.AddFreedomCaseAttributes(node.AttributesFreedomCase.Cast<FreedomCaseAttribute>().ToList());
+
+                _nodes.Add(node, sp);
+            }
+
+        }
+
+        public void AddNodes(NodeStageCollection<Node, StageProperty> nodes)
+        {
+            this._nodes = nodes;
+        }
+
+
+        public void AddFiniteElements(FemObjectCollection<FiniteElement> elements)
+        {
+
+            foreach (var element in elements)
+            {
+                StageFiniteElementProperty sp = new StageFiniteElementProperty(element.Property);
+                
+                sp.AddLoadCaseAttributes(element.AttributesLoadCase);
+
+                _elements.Add(element, sp);
+            }
+
+        }
+
+        public void AddFiniteElements(FiniteElementStageCollection<FiniteElement, StageFiniteElementProperty> finiteElements)
+        {
+            this._elements = finiteElements;
+        }
+
 
         #region Interface, operators, hashcode
         public object Clone()
@@ -121,5 +175,53 @@ namespace GPC.Model.FEM
         }
 
         #endregion
+
+
+        public class StageProperty
+        {
+            private List<LoadCaseAttribute> _loadCaseAttributes;
+            private List<FreedomCaseAttribute> _freedomCaseAttributes;
+
+            public StageProperty()
+            {
+                _loadCaseAttributes = new List<LoadCaseAttribute>();
+                _freedomCaseAttributes = new List<FreedomCaseAttribute>();
+            }
+
+            public void AddLoadCaseAttribute(LoadCaseAttribute attribute)
+            {
+                _loadCaseAttributes.Add(attribute);
+            }
+
+            public void AddLoadCaseAttributes(List<LoadCaseAttribute> attributes)
+            {
+                _loadCaseAttributes.AddRange(attributes);
+            }
+
+            public void AddFreedomCaseAttributes(FreedomCaseAttribute attribute)
+            {
+                _freedomCaseAttributes.Add(attribute);
+            }
+
+            public void AddFreedomCaseAttributes(List<FreedomCaseAttribute> attributes)
+            {
+                _freedomCaseAttributes.AddRange(attributes);
+            }
+
+        }
+
+
+        public class StageFiniteElementProperty : StageProperty
+        {
+            private ElementProperty _property;
+
+            public ElementProperty Property => _property;
+
+            public StageFiniteElementProperty(ElementProperty property)
+            {
+                _property = property;
+            }
+        }
+
     }
 }

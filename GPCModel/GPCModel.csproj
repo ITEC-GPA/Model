@@ -69,8 +69,8 @@
     <Compile Include="Combinations\CombinationAsce.cs" />
     <Compile Include="Combinations\CombinationEn.cs" />
     <Compile Include="Elements\GhostElement.cs" />
-    <Compile Include="FEM\Attributes\IPlateLoadCaseAttribute.cs" />
     <Compile Include="FEM\Collections\FemObjectCollection.cs" />
+    <Compile Include="FEM\Collections\FemObjectStageCollection.cs" />
     <Compile Include="FEM\ElementProperty\BrickProperty.cs" />
     <Compile Include="FEM\ElementProperty\ElementProperty.cs" />
     <Compile Include="Elements\Element.cs" />

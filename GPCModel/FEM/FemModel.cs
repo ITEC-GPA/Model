@@ -34,39 +34,48 @@ namespace GPC.Model.FEM
 
 
         #region Variables
+
+        // ELEMENTI
         /// <summary>
         /// Collection of <see cref="Node"/>
+        /// The nodes on this collection does not have duplicate ID but they can be duplicate (same point)
         /// </summary>
         protected FemObjectCollection<Node> _nodes;
 
         /// <summary>
         /// Collection of <see cref="FiniteElement"/>
+        /// The element on this collection does not have duplicate ID but they can be duplicate (same point)
         /// </summary>
         protected FemObjectCollection<FiniteElement> _elements;
 
+        // PROPRIETà
         // indice del valore dei dizionari parte da 1
         protected Dictionary<IPlateProperty, int> _plateProperties;
         protected Dictionary<IBrickProperty, int> _brickProperties;
 
+        // CARICHI
+        protected List<Load> _loads;
         protected Dictionary<LoadCase, int> _loadCases;
         protected Dictionary<Combination, int> _combinations;
 
-        protected Dictionary<FreedomCase, int> _freedomCases; 
+        // FREDOMCASES 
+        protected Dictionary<FreedomCase, int> _freedomCases;
 
-        protected List<Load> _loads;
-
+        // RISULTATI
         protected List<ResultNodeDisplacement> _resultNodeDisplacements;
+
         protected List<ResultNodeForce> _resultNodeForce;
 
         protected List<ResultPlateStress> _resultPlateStress;
 
+        // STAGE
         protected List<Stage> _stages;
 
         // CoordinatesSystem ? 
 
         #endregion
 
-        #region MyRegion
+        #region PROPERTIES
 
         public List<Stage> Stages => _stages;
 
@@ -661,6 +670,14 @@ namespace GPC.Model.FEM
             throw new NotImplementedException();
         }
 
+        public void CleanMesh()
+        {
+            /// Fare in modo che chiamando questo metodo i nodi uguali ma che avranno ID diverso vengano tolti dalla collection <see cref="FemModel._nodes"/> 
+            /// tranne uno, e che i riferimenti ai nodi dentro gli elementi vengano sostituiti con quelli dell'unico nodo rimasto 
+
+            throw new NotImplementedException();
+        }
+
         public virtual void AddCombination(Combination combination)
         {
             if (!_combinations.ContainsKey(combination))
@@ -679,6 +696,26 @@ namespace GPC.Model.FEM
                     _combinations.Add(combination, index++);
                 }
             }
+        }
+        
+
+        public virtual void AddStage(string name, AnalysisType analysisType, FemModel femModel)
+        {
+            Stage stage = new Stage(name, analysisType);
+            stage.AddNodes(femModel._nodes);
+            stage.AddFiniteElements(femModel._elements);
+
+            _stages.Add(stage);
+        }
+
+
+        public virtual void AddStage(string name, AnalysisType analysisType, Stage stageToCopy)
+        {
+            Stage stage = new Stage(name, analysisType, stageToCopy.Morph, stageToCopy.Combinations);
+            stage.AddNodes(stageToCopy.nodes);
+            stage.AddFiniteElements(stageToCopy.elements);
+
+            _stages.Add(stage);
         }
 
 
