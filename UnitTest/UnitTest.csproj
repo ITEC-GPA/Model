@@ -78,7 +78,6 @@
     <Compile Include="FEM\Plates\MembraneTest.cs" />
     <Compile Include="FEM\Plates\ElementTest.cs" />
     <Compile Include="FEM\Plates\DKTTest.cs" />
-    <Compile Include="FEM\util.cs" />
     <Compile Include="InterlayerMaterialTest.cs" />
     <Compile Include="ResultTest.cs" />
     <Compile Include="MaterialTest.cs" />
