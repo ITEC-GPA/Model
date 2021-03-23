@@ -226,7 +226,7 @@ namespace GeneralTest
 
 
         [TestMethod]
-        public void FemObjectEqualityComparer()
+        public void FemObjectEqualityComparer1()
         {
             Node n1 = new Node(Point3d.Origin, 1);
             Node n2 = new Node(Point3d.Origin, 2);
@@ -245,5 +245,25 @@ namespace GeneralTest
             Assert.IsTrue(dict.ContainsKey(n3));
         }
 
+
+        [TestMethod]
+        public void FemObjectEqualityComparer2()
+        {
+            Node n1 = new Node(Point3d.Origin, 1);
+            Node n2 = new Node(Point3d.Origin, 2);
+            Node n3 = new Node(Point3d.Origin, 2);
+
+            Dictionary<Node, int> dictWithComparer = new Dictionary<Node, int>(new FemObjectIdComparer());
+            Dictionary<Node, int> dict = new Dictionary<Node, int>();
+
+            dictWithComparer.Add(n1, 1);
+            dictWithComparer.Add(n2, 1);
+
+            dict.Add(n1, 1);
+
+            Assert.IsTrue(dictWithComparer.ContainsKey(n3));
+            Assert.IsTrue(dict.ContainsKey(n2));
+            Assert.IsTrue(dict.ContainsKey(n3));
+        }
     }
 }
