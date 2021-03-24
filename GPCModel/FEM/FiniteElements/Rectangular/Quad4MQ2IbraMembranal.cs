@@ -140,15 +140,7 @@ namespace GPC.Model.FEM.FiniteElements
             double E = ((PlateProperty)_property).GetE();
             double ni = ((PlateProperty)_property).GetNi();
 
-            _d = mnl.Matrix<double>.Build.Dense(3, 3);
-            _d[0, 0] = 1.0;
-            _d[0, 1] = ni;
-            _d[1, 0] = ni;
-            _d[1, 1] = 1.0;
-            _d[2, 2] = (1.0 - ni) / 2.0;
-            _d = E / (1.0 - ni * ni) * _d;
-            /*Console.WriteLine();
-            Console.WriteLine("D = " + _d.ToString());*/
+            _d = Util.DPlaneStress(E, ni);
             #endregion
 
             #region stiffnessMatrixInLocalCoordinates
@@ -240,8 +232,8 @@ namespace GPC.Model.FEM.FiniteElements
             B = B.Append(BiMatrixSigned(3, csi, eta));
             B = B.Append(BiMatrixSigned(4, csi, eta));
 
-            Console.WriteLine("B(csi=" + csi + ",eta=" + eta + ") = ");
-            Util.WriteMatrix(B, "F3");
+            /*Console.WriteLine("B(csi=" + csi + ",eta=" + eta + ") = ");
+            Util.WriteMatrix(B, "F3");*/
             return B;
         }
 
@@ -253,8 +245,12 @@ namespace GPC.Model.FEM.FiniteElements
         /// <param name="k"></param>
         /// <param name="l"></param>
         /// <param name="m"></param>
-        private static void getIndex(int i, out int j, out int k, out int l, out int m)
+        internal static void GetIndexCalculation(int i, out int j, out int k, out int l, out int m)
         {
+            if (i < 1 || i > 4)
+            {
+                throw new Exception("Out of range of indexes");
+            }
             m = i + 4;
             l = i + 3;
             k = i + 1;
@@ -268,7 +264,8 @@ namespace GPC.Model.FEM.FiniteElements
             }
             j = l - 4;
 
-            if (l != m - 1 + 4 * Math.Floor(1.0 / i))
+            //reference article 1990
+            if (l != m - 1 + 4 * (int)(1.0 / i))
             {
                 throw new Exception("l");
             }
@@ -276,7 +273,7 @@ namespace GPC.Model.FEM.FiniteElements
             {
                 throw new Exception("k");
             }
-            Console.WriteLine("i="+i + " j="+j + " k="+k+" l="+l+" m="+m);
+           
         }
 
         /// <summary>
@@ -293,16 +290,11 @@ namespace GPC.Model.FEM.FiniteElements
         /// <param name="k">out index k -> reference to Thesis Report - Analysis and Evaluation of a shell finite element with degree of freedom</param>
         /// <param name="m">out index m -> reference to Thesis Report - Analysis and Evaluation of a shell finite element with degree of freedom</param>
         /// <param name="l">out index l -> reference to Thesis Report - Analysis and Evaluation of a shell finite element with degree of freedom</param>
-        private void getDataCalculation(int i, out double lij, out double sij, out double cij, out double lik, out double sik, out double cik, out int j, out int k, out int m, out int l)
+        internal static void GetDataCalculation(int i, Node[] localNodes, out double lij, out double sij, out double cij, out double lik, out double sik, out double cik, out int j, out int k, out int m, out int l)
         {
-            getIndex(i, out j, out k, out l, out m);
-            /*Console.WriteLine("i ="+ i);
-            Console.WriteLine("j =" + j);
-            Console.WriteLine("k =" + k);
-            Console.WriteLine("l =" + l);
-            Console.WriteLine("m =" + m);*/
+            GetIndexCalculation(i, out j, out k, out l, out m);
 
-            lij = Lij(_localNodes[i - 1].Position, _localNodes[j - 1].Position);
+            lij = Lij(localNodes[i - 1].Position, localNodes[j - 1].Position);
             /*double yij = Yij(_localNodes[i - 1].Position, _localNodes[j - 1].Position);
             Console.WriteLine("y" + i + j + "=" + yij);*/
             /*double xij = Xij(_localNodes[i - 1].Position, _localNodes[j - 1].Position);
@@ -312,15 +304,15 @@ namespace GPC.Model.FEM.FiniteElements
             double cij = Math.Cos(angleij);// Cij(_localNodes[i - 1].Position, _localNodes[j - 1].Position);
             double sij = Math.Sin(angleij);// Sij(_localNodes[i - 1].Position, _localNodes[j - 1].Position);*/
 
-            Vector3d vIJ = _localNodes[i - 1].Position - _localNodes[j - 1].Position;
+            Vector3d vIJ = localNodes[i - 1].Position - localNodes[j - 1].Position;
             vIJ.Unitize();
             Vector3d nIJ = vIJ.CrossProduct(new Vector3d(0, 0, 1));
-            Console.WriteLine(nIJ);
 
+            //As define in Article 1990, this is the direction of the OUTWARD unit normal vector
             cij = nIJ.X;//Math.Cos(angleij);
             sij = nIJ.Y;//Math.Sin(angleij);
 
-            if (cij != Cij(_localNodes[i - 1].Position, _localNodes[j - 1].Position))
+            /*if (cij != Cij(_localNodes[i - 1].Position, _localNodes[j - 1].Position))
             {
                 //cij è != da Cij() calcolato nella formula per alcuni casi, ma, da alcuni test, non cambia il risultato finale.
                 Console.WriteLine("NOTE: cij = " + cij + " vs " + Cij(_localNodes[i - 1].Position, _localNodes[j - 1].Position));
@@ -331,14 +323,9 @@ namespace GPC.Model.FEM.FiniteElements
                 //cij è != da Cij() calcolato nella formula per alcuni casi, ma, da alcuni test, non cambia il risultato finale.
                 Console.WriteLine("NOTE: cij = " + sij + " vs " + Sij(_localNodes[i - 1].Position, _localNodes[j - 1].Position));
                 //throw new Exception("cij = " + sij + " vs " + Sij(_localNodes[i - 1].Position, _localNodes[j - 1].Position));
-            }
+            }*/
 
-            Console.WriteLine("l" + i + j + "=" + lij);
-            Console.WriteLine("c" + i + j + "=" + cij);
-            Console.WriteLine("s" + i + j + "=" + sij);
-            Console.WriteLine();
-
-            lik = Lij(_localNodes[i - 1].Position, _localNodes[k - 1].Position);
+            lik = Lij(localNodes[i - 1].Position, localNodes[k - 1].Position);
             /*double yik = Yij(_localNodes[i - 1].Position, _localNodes[k - 1].Position);
             Console.WriteLine("y" + i + k + "=" + yik);*/
             /*double xik = Xij(_localNodes[i - 1].Position, _localNodes[k - 1].Position);
@@ -348,15 +335,15 @@ namespace GPC.Model.FEM.FiniteElements
             double cik = Math.Cos(angleik); //Cij(_localNodes[i - 1].Position, _localNodes[k - 1].Position);
             double sik = Math.Sin(angleik); //Sij(_localNodes[i - 1].Position, _localNodes[k - 1].Position);*/
 
-            Vector3d vKI = _localNodes[k - 1].Position - _localNodes[i - 1].Position;
+            Vector3d vKI = localNodes[k - 1].Position - localNodes[i - 1].Position;
             vKI.Unitize();
             Vector3d nKI = vKI.CrossProduct(new Vector3d(0, 0, 1));
-            Console.WriteLine(nKI);
 
+            //As define in Article 1990, this is the direction of the OUTWARD unit normal vector
             cik = nKI.X;// Math.Cos(angleik);// Cij(_localNodes[i - 1].Position, _localNodes[k - 1].Position);
             sik = nKI.Y;// Math.Sin(angleik);// Sij(_localNodes[i - 1].Position, _localNodes[k - 1].Position);
 
-            if (cik != Cij(_localNodes[i - 1].Position, _localNodes[k - 1].Position))
+            /*if (cik != Cij(_localNodes[i - 1].Position, _localNodes[k - 1].Position))
             {
                 Console.WriteLine("NOTE: cik = " + cik + " vs " + Cij(_localNodes[i - 1].Position, _localNodes[k - 1].Position));
                 //throw new Exception("cik = " + cik + " vs " + Cij(_localNodes[i - 1].Position, _localNodes[k - 1].Position));
@@ -365,11 +352,7 @@ namespace GPC.Model.FEM.FiniteElements
             {
                 Console.WriteLine("NOTE: cik = " + sik + " vs " + Sij(_localNodes[i - 1].Position, _localNodes[k - 1].Position));
                 //throw new Exception("cik = " + sik + " vs " + Sij(_localNodes[i - 1].Position, _localNodes[k - 1].Position));
-            }
-            Console.WriteLine("l" + i + k + "=" + lik);
-            Console.WriteLine("c" + i + k + "=" + cik);
-            Console.WriteLine("s" + i + k + "=" + sik);
-            Console.WriteLine();
+            }*/
         }
 
         /// <summary>
@@ -385,72 +368,62 @@ namespace GPC.Model.FEM.FiniteElements
         {
             Console.WriteLine("Calculation of biVectorSigned, i = " + i);
 
-            getDataCalculation(i, out double lij, out double sij, out double cij, out double lik, out double sik, out double cik, out int j, out int k, out int m, out int l);
+            GetDataCalculation(i, _localNodes, out double lij, out double sij, out double cij, out double lik, out double sik, out double cik, out int j, out int k, out int m, out int l);
 
             #region bVectorSigned
             #region bi
-            #region dNi
-            double dNidCsi = Quad4Element.dNdCsi4nodes(i, csi, eta);
-            double dNidEta = Quad4Element.dNdEta4nodes(i, csi, eta);
+    
+            /*
             mnl.Vector<double> dNidNatural = mnl.Vector<double>.Build.Dense(2);
-            dNidNatural[0] = dNidCsi;
-            dNidNatural[1] = dNidEta;
+            dNidNatural[0] = Quad4Element.dNdCsi4nodes(i, csi, eta); //dNidCsi
+            dNidNatural[1] = Quad4Element.dNdEta4nodes(i, csi, eta); //dNidEta
             Console.WriteLine("dN" + i + "dNatural(csi=" + csi + ",eta=" + eta + ") = " + dNidNatural);
-
-            mnl.Matrix<double> J = Quad4Element.J(csi, eta, _localNodes);
-            mnl.Matrix<double> invJ = J.Inverse();
-            Console.WriteLine("J(csi="+csi+",eta="+eta+") = " + J);
 
             mnl.Vector<double> dNidLocal = invJ * dNidNatural;
             double dNidX = dNidLocal[0];
             double dNidY = dNidLocal[1];
             Console.WriteLine("dN" + i + "dLocal(csi=" + csi + ",eta=" + eta + ") = " + dNidLocal);
-            #endregion
+            */
+
+            var dNidCsi = Util.F(i, Quad4Element.dNdCsi); //f(csi, eta)
+            var dNidEta = Util.F(i, Quad4Element.dNdEta); //f(csi, eta)
+
+            var dNldCsi = Util.F(l, Quad8Element.dNdCsi); //f(csi, eta)
+            var dNldEta = Util.F(l, Quad8Element.dNdEta); //f(csi, eta)
+
+            var dNmdCsi = Util.F(m, Quad8Element.dNdCsi); //f(csi, eta)
+            var dNmdEta = Util.F(m, Quad8Element.dNdEta); //f(csi, eta)
+
+            var J4nodes = Util.J(Quad4Element.J, _localNodes); //f(csi, eta)
+            //var J8nodes = Ji(Quad8Element.J, _localNodes); //f(csi, eta)
+
+            mnl.Vector<double> dNidLocal = Util.GetdNdLocalFromdNdNatural(csi, eta, dNidCsi, dNidEta, J4nodes);
+            mnl.Vector<double> dNldLocal = Util.GetdNdLocalFromdNdNatural(csi, eta, dNldCsi, dNldEta, J4nodes); //quad4 or quad8 for j?
+            mnl.Vector<double> dNmdLocal = Util.GetdNdLocalFromdNdNatural(csi, eta, dNmdCsi, dNmdEta, J4nodes); //quad4 or quad8 for j?
+
+            double dNidX = dNidLocal[0];
+            double dNidY = dNidLocal[1];
+
+            double dNldX = dNldLocal[0];
+            double dNldY = dNldLocal[1];
+
+            double dNmdX = dNmdLocal[0];
+            double dNmdY = dNmdLocal[1];
 
             mnl.Matrix<double> bVectorSigned = mnl.Matrix<double>.Build.Dense(1, 3);
             bVectorSigned[0,0] = -1.0 / 2.0 * dNidY;
             bVectorSigned[0,1] = +1.0 / 2.0 * dNidX;
-            Console.WriteLine("bVectorSigned" + i + " = " + bVectorSigned);
             #endregion
 
             #region gi
-            #region dNl
-            double dNldCsi = Quad8Element.dNdCsi(l, csi, eta);
-            double dNldEta = Quad8Element.dNdEta(l, csi, eta);
-            mnl.Vector<double> dNldNatural = mnl.Vector<double>.Build.Dense(2);
-            dNldNatural[0] = dNldCsi;
-            dNldNatural[1] = dNldEta;
-            Console.WriteLine("dN" + l + "dNatural(csi=" + csi + ",eta=" + eta + ") = " + dNldNatural);
-
-            mnl.Vector<double> dNldLocal = invJ * dNldNatural;
-            double dNldX = dNldLocal[0];
-            double dNldY = dNldLocal[1];
-            Console.WriteLine("dN" + l + "dLocalXY(csi="+csi+",eta="+eta+") = " + dNldLocal);
-            #endregion
-
-            #region dNm
-            double dNmdCsi = Quad8Element.dNdCsi(m, csi, eta);
-            double dNmdEta = Quad8Element.dNdEta(m, csi, eta);
-            mnl.Vector<double> dNmdNatural = mnl.Vector<double>.Build.Dense(2);
-            dNmdNatural[0] = dNmdCsi;
-            dNmdNatural[1] = dNmdEta;
-            Console.WriteLine("dN" + m + "dNatural(csi=" + csi + ",eta=" + eta + ") = " + dNmdNatural);
-
-            mnl.Vector<double> dNmdLocal = invJ * dNmdNatural;
-            double dNmdX = dNmdLocal[0];
-            double dNmdY = dNmdLocal[1];
-            Console.WriteLine("dN" + m + "dLocalXY(csi=" + csi + ",eta=" + eta + ") = " + dNmdLocal);
-            #endregion
-
             double gi = -1.0 / 16.0 * (lij * cij * dNldY - lik * cik * dNmdY) + 1.0 / 16.0 * (lij * sij * dNldX - lik * sik * dNmdX) - Quad4Element.N4nodes(i, csi, eta);
-            Console.WriteLine("g" + i + " = " + gi);
+            //Console.WriteLine("g" + i + " = " + gi);
             #endregion
-
             bVectorSigned[0, 2] = gi;
             #endregion
-            Console.WriteLine("N" + i + "(csi = "+csi+", eta="+eta+") = " + Quad4Element.N4nodes(i, csi, eta));
-            Console.WriteLine("b vector signed (csi="+csi+", eta="+eta+") = " + bVectorSigned); 
 
+            /*Console.WriteLine("N" + i + "(csi = "+csi+", eta="+eta+") = " + Quad4Element.N4nodes(i, csi, eta));
+            Console.WriteLine("b vector signed (csi="+csi+", eta="+eta+") = " + bVectorSigned); */
             return bVectorSigned;
         }
 
@@ -469,35 +442,32 @@ namespace GPC.Model.FEM.FiniteElements
              */
             Console.WriteLine("Calculation of BiMatrixSigned, i = " + i + "(csi=" + csi + ",eta="+eta+")");
 
-            getDataCalculation(i, out double lij, out double sij, out double cij, out double lik, out double sik, out double cik, out int j, out int k, out int m, out int l);
+            GetDataCalculation(i, _localNodes, out double lij, out double sij, out double cij, out double lik, out double sik, out double cik, out int j, out int k, out int m, out int l);
 
-            double dNldCsi = Quad8Element.dNdCsi(l, csi, eta);
-            double dNldEta = Quad8Element.dNdEta(l, csi, eta);
-            mnl.Vector<double> dNldNatural = mnl.Vector<double>.Build.Dense(2);
-            dNldNatural[0] = dNldCsi;
-            dNldNatural[1] = dNldEta;
-            Console.WriteLine("dN" + l + "dNatural(csi=" + csi + ",eta=" + eta + ") = " + dNldNatural);
+            var dNidCsi = Util.F(i, Quad4Element.dNdCsi); //f(csi, eta)
+            var dNidEta = Util.F(i, Quad4Element.dNdEta); //f(csi, eta)
 
-            double dNmdCsi = Quad8Element.dNdCsi(m, csi, eta);
-            double dNmdEta = Quad8Element.dNdEta(m, csi, eta);
-            mnl.Vector<double> dNmdNatural = mnl.Vector<double>.Build.Dense(2);
-            dNmdNatural[0] = dNmdCsi;
-            dNmdNatural[1] = dNmdEta;
-            Console.WriteLine("dN" + m + "dNatural(csi=" + csi + ",eta=" + eta + ") = " + dNmdNatural);
+            var dNldCsi = Util.F(l, Quad8Element.dNdCsi); //f(csi, eta)
+            var dNldEta = Util.F(l, Quad8Element.dNdEta); //f(csi, eta)
 
-            mnl.Matrix<double> J = Quad4Element.J(csi, eta, _localNodes);
-            mnl.Matrix<double> invJ = J.Inverse();
-            Console.WriteLine("j(csi="+csi+",eta="+eta+")=" + J);
+            var dNmdCsi = Util.F(m, Quad8Element.dNdCsi); //f(csi, eta)
+            var dNmdEta = Util.F(m, Quad8Element.dNdEta); //f(csi, eta)
 
-            mnl.Vector<double> dNldLocal = invJ * dNldNatural;
+            var J4nodes = Util.J(Quad4Element.J, _localNodes); //f(csi, eta)
+            //var J8nodes = Ji(Quad8Element.J, _localNodes); //f(csi, eta)
+
+            mnl.Vector<double> dNidLocal = Util.GetdNdLocalFromdNdNatural(csi, eta, dNidCsi, dNidEta, J4nodes);
+            mnl.Vector<double> dNldLocal = Util.GetdNdLocalFromdNdNatural(csi, eta, dNldCsi, dNldEta, J4nodes); //quad4 or quad8 for j?
+            mnl.Vector<double> dNmdLocal = Util.GetdNdLocalFromdNdNatural(csi, eta, dNmdCsi, dNmdEta, J4nodes); //quad4 or quad8 for j?
+
+            double dNidX = dNidLocal[0];
+            double dNidY = dNidLocal[1];
+
             double dNldX = dNldLocal[0];
             double dNldY = dNldLocal[1];
-            Console.WriteLine("dN" + l + "dLocalXY(csi=" + csi + ",eta=" + eta + ") = " + dNldLocal);
 
-            mnl.Vector<double> dNmdLocal = invJ * dNmdNatural;
             double dNmdX = dNmdLocal[0];
             double dNmdY = dNmdLocal[1];
-            Console.WriteLine("dN" + m + "dLocalXY(csi=" + csi + ",eta=" + eta + ") = " + dNmdLocal);
 
             #region Gi
             mnl.Matrix<double> Gi = mnl.Matrix<double>.Build.Dense(3,1);
@@ -511,8 +481,8 @@ namespace GPC.Model.FEM.FiniteElements
 
             #region Bi
             mnl.Matrix<double> Bi = mnl.Matrix<double>.Build.Dense(3,2);
-            double dNidCsi = Quad4Element.dNdCsi4nodes(i, csi, eta);
-            double dNidEta = Quad4Element.dNdEta4nodes(i, csi, eta);
+            /*double dNidCsi = Quad4Element.dNdCsi(i, csi, eta);
+            double dNidEta = Quad4Element.dNdEta(i, csi, eta);
             mnl.Vector<double> dNidNatural = mnl.Vector<double>.Build.Dense(2);
             dNidNatural[0] = dNidCsi;
             dNidNatural[1] = dNidEta;
@@ -521,7 +491,7 @@ namespace GPC.Model.FEM.FiniteElements
             mnl.Vector<double> dNidLocal = invJ * dNidNatural;
             double dNidX = dNidLocal[0];
             double dNidY = dNidLocal[1];
-            Console.WriteLine("dN" + i + "dLocalXY(csi=" + csi + ",eta=" + eta + ") = " + dNidLocal);
+            Console.WriteLine("dN" + i + "dLocalXY(csi=" + csi + ",eta=" + eta + ") = " + dNidLocal);*/
 
             Bi[0, 0] = dNidX;
 
@@ -536,38 +506,70 @@ namespace GPC.Model.FEM.FiniteElements
             return bSigned;
         }
 
-        private static double Xij(Point3d pi, Point3d pj)
+        
+
+        /// <summary>
+        /// DX between 2 points, reference pg. 24 Thesis report - Analysis and evaluation of a shell finite element with drilling degree of freedom
+        /// </summary>
+        /// <param name="pi"></param>
+        /// <param name="pj"></param>
+        /// <returns></returns>
+        internal static double Xij(Point3d pi, Point3d pj)
         {
             return pj.X - pi.X;
         }
 
-        private static double Yij(Point3d pi, Point3d pj)
+        /// <summary>
+        /// DY between 2 points, reference pg. 24 Thesis report - Analysis and evaluation of a shell finite element with drilling degree of freedom
+        /// </summary>
+        /// <param name="pi"></param>
+        /// <param name="pj"></param>
+        /// <returns></returns>
+        internal static double Yij(Point3d pi, Point3d pj)
         {
             return pj.Y - pi.Y;
         }
 
-        private static double Lij(Point3d pi, Point3d pj)
+        /// <summary>
+        /// Lenght between 2 points, reference pg. 24 Thesis report - Analysis and evaluation of a shell finite element with drilling degree of freedom
+        /// </summary>
+        /// <param name="pi"></param>
+        /// <param name="pj"></param>
+        /// <returns></returns>
+        internal static double Lij(Point3d pi, Point3d pj)
         {
             double xij = Xij(pi, pj);
             double yij = Yij(pi, pj);
             return Math.Sqrt(xij * xij + yij * yij);
         }
 
-        private static double Cij(Point3d pi, Point3d pj)
+        /// <summary>
+        /// pg. 24 Thesis report - Analysis and evaluation of a shell finite element with drilling degree of freedom
+        /// </summary>
+        /// <param name="pi"></param>
+        /// <param name="pj"></param>
+        /// <returns></returns>
+        /*internal static double Cij(Point3d pi, Point3d pj)
         {
             double lij = Lij(pi, pj);
             double yij = Yij(pi, pj);
             return yij / lij;
-        }
+        }*/
 
-        private static double Sij(Point3d pi, Point3d pj)
+        /// <summary>
+        /// pg. 24 Thesis report - Analysis and evaluation of a shell finite element with drilling degree of freedom
+        /// </summary>
+        /// <param name="pi"></param>
+        /// <param name="pj"></param>
+        /// <returns></returns>
+        /*private static double Sij(Point3d pi, Point3d pj)
         {
             double lij = Lij(pi, pj);
             double xij = Xij(pi, pj);
-            /*"+" sign in according to reference to An improved quadrilateral flat element with drilling degrees of freedom for shell structural analysis - H. Nguyen-Van1 , N. Mai-Duy1 and T. Tran-Cong1 - 2009 
-            and DEVELOPMENT AND APPLICATION OF ASSUMED STRAIN SMOOTHING FINITE ELEMENT TECHNIQUE FOR COMPOSITE PLATE/SHELL STRUCTURES - Hieu Nguyen-Van - 1998 / 2000*/
+            // "+" sign in according to reference to An improved quadrilateral flat element with drilling degrees of freedom for shell structural analysis - H. Nguyen-Van1 , N. Mai-Duy1 and T. Tran-Cong1 - 2009 
+            // and DEVELOPMENT AND APPLICATION OF ASSUMED STRAIN SMOOTHING FINITE ELEMENT TECHNIQUE FOR COMPOSITE PLATE/SHELL STRUCTURES - Hieu Nguyen-Van - 1998 / 2000
             return xij / lij;
-        }
+        }*/
 
         protected override mnl.Vector<double> BuildFLocalCoord()
         {

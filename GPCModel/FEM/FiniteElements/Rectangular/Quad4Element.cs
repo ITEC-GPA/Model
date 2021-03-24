@@ -507,7 +507,7 @@ namespace GPC.Model.FEM.FiniteElements
             }
         }
 
-        public static double dNdCsi4nodes(int index, double csi, double eta)
+        public static double dNdCsi(int index, double csi, double eta)
         {
             switch (index)
             {
@@ -524,7 +524,7 @@ namespace GPC.Model.FEM.FiniteElements
             }
         }
 
-        public static double dNdEta4nodes(int index, double csi, double eta)
+        public static double dNdEta(int index, double csi, double eta)
         {
             switch (index)
             {
@@ -562,10 +562,10 @@ namespace GPC.Model.FEM.FiniteElements
                 double xi = localNodes[node].Position.X;
                 double yi = localNodes[node].Position.Y;
 
-                j11 = j11 + Quad4Element.dNdCsi4nodes(i, csi, eta) * xi;
-                j12 = j12 + Quad4Element.dNdCsi4nodes(i, csi, eta) * yi;
-                j21 = j21 + Quad4Element.dNdEta4nodes(i, csi, eta) * xi;
-                j22 = j22 + Quad4Element.dNdEta4nodes(i, csi, eta) * yi;
+                j11 = j11 + Quad4Element.dNdCsi(i, csi, eta) * xi;
+                j12 = j12 + Quad4Element.dNdCsi(i, csi, eta) * yi;
+                j21 = j21 + Quad4Element.dNdEta(i, csi, eta) * xi;
+                j22 = j22 + Quad4Element.dNdEta(i, csi, eta) * yi;
             }
 
             mnl.Matrix<double> J = mnl.Matrix<double>.Build.Dense(2, 2);

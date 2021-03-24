@@ -17,6 +17,185 @@ namespace FemTest.Solver
     [TestClass]
     public class FemSolverQuad4MQ2IbraMembranalTest
     {
+        [TestMethod]
+        public void GetIndexCalculationTest1()
+        {
+            for (int i = 1; i <= 4; i++)
+            {
+                Quad4MQ2IbraMembranal.GetIndexCalculation(i, out int j, out int k, out int l, out int m);
+                if (i == 1)
+                {   
+                    Assert.AreEqual(5, m);
+                    Assert.AreEqual(8, l);
+                    Assert.AreEqual(2, k);
+                    Assert.AreEqual(4, j);
+                }
+                if (i == 2)
+                {   
+                    Assert.AreEqual(6, m);
+                    Assert.AreEqual(5, l);
+                    Assert.AreEqual(3, k);
+                    Assert.AreEqual(1, j);
+                }
+                if (i == 3)
+                {   
+                    Assert.AreEqual(7, m);
+                    Assert.AreEqual(6, l);
+                    Assert.AreEqual(4, k);
+                    Assert.AreEqual(2, j);
+                }
+                if (i == 4)
+                {
+                    Assert.AreEqual(8, m);
+                    Assert.AreEqual(7, l);
+                    Assert.AreEqual(1, k);
+                    Assert.AreEqual(3, j);
+                }
+                Console.WriteLine("i="+i + " j="+j + " k="+k+" l="+l+" m="+m);
+            }
+        }
+
+        [TestMethod]
+        public void LijTest1()
+        {
+            Point2d p = new Point2d(0.5, 0.5);
+            Point2d p1 = new Point2d(10.5, 0.5);
+            Point2d p2 = new Point2d(0.5, 20.5);
+            Point2d p3 = new Point2d(Math.Sqrt(2.0)+0.5, Math.Sqrt(2.0)+0.5);
+
+            Assert.AreEqual(10, Quad4MQ2IbraMembranal.Lij(p, p1));
+            Assert.AreEqual(20, Quad4MQ2IbraMembranal.Lij(p, p2));
+            Assert.AreEqual(2, Quad4MQ2IbraMembranal.Lij(p, p3));
+        }
+
+        [TestMethod]
+        public void XYijTest1()
+        {
+            Point2d p = new Point2d(0.5, 0.5);
+            Point2d p1 = new Point2d(10.5, 0.5);
+            Point2d p2 = new Point2d(0.5, 20.5);
+            Point2d p3 = new Point2d(Math.Sqrt(2.0) + 0.5, Math.Sqrt(2.0) + 0.5);
+
+            Assert.AreEqual(10, Quad4MQ2IbraMembranal.Xij(p, p1));
+            Assert.AreEqual(0.0, Quad4MQ2IbraMembranal.Xij(p2, p2));
+            Assert.AreEqual(Math.Sqrt(2.0), Quad4MQ2IbraMembranal.Xij(p, p3));
+
+            Assert.AreEqual(0.0, Quad4MQ2IbraMembranal.Yij(p, p1));
+            Assert.AreEqual(20.0, Quad4MQ2IbraMembranal.Yij(p, p2));
+            Assert.AreEqual(Math.Sqrt(2.0), Quad4MQ2IbraMembranal.Yij(p, p3));
+        }
+
+        [TestMethod]
+        public void GetDataCalculation()
+        {
+            Node[] nodes = new Node[]{
+                new Node(0.0, 0.0, 0.0, 0),
+                new Node(1.0, 0.0, 0.0, 1),
+                new Node(1.0, 1.0, 0.0, 2),
+                new Node(0.0, 1.0, 0.0, 3),
+            };
+
+            for (int i = 1; i < 4; i++) {
+                Quad4MQ2IbraMembranal.GetDataCalculation(i, nodes, out double lij, out double sij, out double cij, out double lik, out double sik, out double cik, out int j, out int k, out int m, out int l);
+
+                if (i == 1)
+                {
+                    //with node i+1
+                    Assert.AreEqual(0.0, cik); //x
+                    Assert.AreEqual(-1.0, sik); //y
+
+                    //with node i-1
+                    Assert.AreEqual(-1.0, cik); //x
+                    Assert.AreEqual(0.0, sik); //y
+                }
+                if (i == 2)
+                {
+                    //with node i+1
+                    Assert.AreEqual(1.0, cik); //x
+                    Assert.AreEqual(0.0, sik); //y
+
+                    //with node i-1
+                    Assert.AreEqual(0.0, cik); //x
+                    Assert.AreEqual(-1.0, sik); //y
+                }
+                if (i == 3)
+                {
+                    //with node i+1
+                    Assert.AreEqual(0.0, cik); //x
+                    Assert.AreEqual(1.0, sik); //y
+
+                    //with node i-1
+                    Assert.AreEqual(1.0, cik); //x
+                    Assert.AreEqual(0.0, sik); //y
+                }
+                if (i == 4)
+                {
+                    //with node i+1
+                    Assert.AreEqual(-1.0, cik); //x
+                    Assert.AreEqual(0.0, sik); //y
+
+                    //with node i-1
+                    Assert.AreEqual(0.0, cik); //x
+                    Assert.AreEqual(1.0, sik); //y
+                }
+            }
+
+            ////////////////////////////////////////////
+
+            nodes = new Node[]{
+                new Node(0.0, 0.0, 0.0, 0),
+                new Node(2.0, 0.0, 0.0, 1),
+                new Node(1.0, 1.0, 0.0, 2),
+                new Node(0.0, 1.0, 0.0, 3),
+            };
+
+            for (int i = 1; i < 4; i++)
+            {
+                Quad4MQ2IbraMembranal.GetDataCalculation(i, nodes, out double lij, out double sij, out double cij, out double lik, out double sik, out double cik, out int j, out int k, out int m, out int l);
+
+                if (i == 1)
+                {
+                    //with node i+1
+                    Assert.AreEqual(0.0, cik); //x
+                    Assert.AreEqual(-1.0, sik); //y
+
+                    //with node i-1
+                    Assert.AreEqual(-1.0, cik); //x
+                    Assert.AreEqual(0.0, sik); //y
+                }
+                if (i == 2)
+                {
+                    //with node i+1
+                    Assert.AreEqual(Math.Sqrt(2.0), cik); //x
+                    Assert.AreEqual(Math.Sqrt(2.0), sik); //y
+
+                    //with node i-1
+                    Assert.AreEqual(0.0, cik); //x
+                    Assert.AreEqual(-1.0, sik); //y
+                }
+                if (i == 3)
+                {
+                    //with node i+1
+                    Assert.AreEqual(0.0, cik); //x
+                    Assert.AreEqual(1.0, sik); //y
+
+                    //with node i-1
+                    Assert.AreEqual(Math.Sqrt(2.0), cik); //x
+                    Assert.AreEqual(Math.Sqrt(2.0), sik); //y
+                }
+                if (i == 4)
+                {
+                    //with node i+1
+                    Assert.AreEqual(-1.0, cik); //x
+                    Assert.AreEqual(0.0, sik); //y
+
+                    //with node i-1
+                    Assert.AreEqual(0.0, cik); //x
+                    Assert.AreEqual(1.0, sik); //y
+                }
+            }
+        }
+
         /// <summary>
         /// TEST LOCAL MATRIX
         /// </summary>
@@ -340,8 +519,6 @@ namespace FemTest.Solver
             els.Add(new Quad4Membranal(new Node[] { nds[3], nds[4], nds[9], nds[8] }, prop, 1));
 
             LinearSolver fem = new LinearSolver(els.ToArray());
-            Console.WriteLine("kGlob=" + fem.KGlobal);
-            Console.WriteLine("F=" + fem.F);
         }
 
         /// <summary>
@@ -864,7 +1041,7 @@ namespace FemTest.Solver
                             out mnl.Matrix<double>[] globalEpsilon, out mnl.Matrix<double>[] localEpsilon);
 
             globalStress.ToList().ForEach(x => Console.WriteLine(x));
-            
+                        
             //Assert.AreEqual(sigmaTopYY, globalStress[0][1, 1], 0.001); //sigmaYY top face
         }
     }

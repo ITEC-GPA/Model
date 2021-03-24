@@ -206,25 +206,25 @@ namespace GPC.Model.FEM.FiniteElements
              *     ..        ...  ...     dN4/dcsi
              *     0         ...  ...     dN4/deta
              */
-            g[0, 0] = Quad4Element.dNdCsi4nodes(1, csi, eta);
-            g[0, 2] = Quad4Element.dNdCsi4nodes(2, csi, eta);
-            g[0, 4] = Quad4Element.dNdCsi4nodes(3, csi, eta);
-            g[0, 6] = Quad4Element.dNdCsi4nodes(4, csi, eta);
+            g[0, 0] = Quad4Element.dNdCsi(1, csi, eta);
+            g[0, 2] = Quad4Element.dNdCsi(2, csi, eta);
+            g[0, 4] = Quad4Element.dNdCsi(3, csi, eta);
+            g[0, 6] = Quad4Element.dNdCsi(4, csi, eta);
 
-            g[1, 0] = Quad4Element.dNdEta4nodes(1, csi, eta);
-            g[1, 2] = Quad4Element.dNdEta4nodes(2, csi, eta);
-            g[1, 4] = Quad4Element.dNdEta4nodes(3, csi, eta);
-            g[1, 6] = Quad4Element.dNdEta4nodes(4, csi, eta);
+            g[1, 0] = Quad4Element.dNdEta(1, csi, eta);
+            g[1, 2] = Quad4Element.dNdEta(2, csi, eta);
+            g[1, 4] = Quad4Element.dNdEta(3, csi, eta);
+            g[1, 6] = Quad4Element.dNdEta(4, csi, eta);
 
-            g[2, 1] = Quad4Element.dNdCsi4nodes(1, csi, eta);
-            g[2, 3] = Quad4Element.dNdCsi4nodes(2, csi, eta);
-            g[2, 5] = Quad4Element.dNdCsi4nodes(3, csi, eta);
-            g[2, 7] = Quad4Element.dNdCsi4nodes(4, csi, eta);
+            g[2, 1] = Quad4Element.dNdCsi(1, csi, eta);
+            g[2, 3] = Quad4Element.dNdCsi(2, csi, eta);
+            g[2, 5] = Quad4Element.dNdCsi(3, csi, eta);
+            g[2, 7] = Quad4Element.dNdCsi(4, csi, eta);
 
-            g[3, 1] = Quad4Element.dNdEta4nodes(1, csi, eta);
-            g[3, 3] = Quad4Element.dNdEta4nodes(2, csi, eta);
-            g[3, 5] = Quad4Element.dNdEta4nodes(3, csi, eta);
-            g[3, 7] = Quad4Element.dNdEta4nodes(4, csi, eta);
+            g[3, 1] = Quad4Element.dNdEta(1, csi, eta);
+            g[3, 3] = Quad4Element.dNdEta(2, csi, eta);
+            g[3, 5] = Quad4Element.dNdEta(3, csi, eta);
+            g[3, 7] = Quad4Element.dNdEta(4, csi, eta);
             /*Console.WriteLine("g=");
             for (int row = 0; row < g.RowCount; row++)
             {
@@ -283,10 +283,10 @@ namespace GPC.Model.FEM.FiniteElements
 
                         for (int j = 0; j < _localNodes.Length; j++)
                         {
-                            J4nodeElement[0, 0] = J4nodeElement[0, 0] + Quad4Element.dNdCsi4nodes(j + 1, csi, eta) * _localNodes[j].Position.X; // dx/dcsi
-                            J4nodeElement[0, 1] = J4nodeElement[0, 1] + Quad4Element.dNdCsi4nodes(j + 1, csi, eta) * _localNodes[j].Position.Y; // dy/dcsi
-                            J4nodeElement[1, 0] = J4nodeElement[1, 0] + Quad4Element.dNdEta4nodes(j + 1, csi, eta) * _localNodes[j].Position.X; // dx/deta
-                            J4nodeElement[1, 1] = J4nodeElement[1, 1] + Quad4Element.dNdEta4nodes(j + 1, csi, eta) * _localNodes[j].Position.Y; // dy/deta
+                            J4nodeElement[0, 0] = J4nodeElement[0, 0] + Quad4Element.dNdCsi(j + 1, csi, eta) * _localNodes[j].Position.X; // dx/dcsi
+                            J4nodeElement[0, 1] = J4nodeElement[0, 1] + Quad4Element.dNdCsi(j + 1, csi, eta) * _localNodes[j].Position.Y; // dy/dcsi
+                            J4nodeElement[1, 0] = J4nodeElement[1, 0] + Quad4Element.dNdEta(j + 1, csi, eta) * _localNodes[j].Position.X; // dx/deta
+                            J4nodeElement[1, 1] = J4nodeElement[1, 1] + Quad4Element.dNdEta(j + 1, csi, eta) * _localNodes[j].Position.Y; // dy/deta
                         }
                         double detJ = J4nodeElement.Determinant();
                         /*Console.WriteLine("N1(" + csi + "," + eta + ") = " + Quad4Element.N4nodes(1, csi, eta));

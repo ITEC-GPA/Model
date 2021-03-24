@@ -313,10 +313,10 @@ namespace GPC.Model.FEM.FiniteElements
                         J4nodeElement = mnl.Matrix<double>.Build.Dense(2, 2);
 
                         for (int j = 0; j < _localNodes.Length; j++) {
-                            J4nodeElement[0, 0] = J4nodeElement[0, 0] + Quad4Element.dNdCsi4nodes(j + 1, csi, eta) * _localNodes[j].Position.X; // dx/dcsi
-                            J4nodeElement[0, 1] = J4nodeElement[0, 1] + Quad4Element.dNdCsi4nodes(j + 1, csi, eta) * _localNodes[j].Position.Y; // dy/dcsi
-                            J4nodeElement[1, 0] = J4nodeElement[1, 0] + Quad4Element.dNdEta4nodes(j + 1, csi, eta) * _localNodes[j].Position.X; // dx/deta
-                            J4nodeElement[1, 1] = J4nodeElement[1, 1] + Quad4Element.dNdEta4nodes(j + 1, csi, eta) * _localNodes[j].Position.Y; // dy/deta
+                            J4nodeElement[0, 0] = J4nodeElement[0, 0] + Quad4Element.dNdCsi(j + 1, csi, eta) * _localNodes[j].Position.X; // dx/dcsi
+                            J4nodeElement[0, 1] = J4nodeElement[0, 1] + Quad4Element.dNdCsi(j + 1, csi, eta) * _localNodes[j].Position.Y; // dy/dcsi
+                            J4nodeElement[1, 0] = J4nodeElement[1, 0] + Quad4Element.dNdEta(j + 1, csi, eta) * _localNodes[j].Position.X; // dx/deta
+                            J4nodeElement[1, 1] = J4nodeElement[1, 1] + Quad4Element.dNdEta(j + 1, csi, eta) * _localNodes[j].Position.Y; // dy/deta
                         }
                         double detJ = J4nodeElement.Determinant();
                         /*
