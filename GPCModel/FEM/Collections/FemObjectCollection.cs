@@ -6,18 +6,25 @@ using System.Linq;
 namespace GPC.Model.FEM.Collections
 {
     /// <summary>
-    /// A collection of FemObject. This collection does not contains elements with a duplicated ID
+    /// A collection of FemObject. 
+    /// <para>This collection does not contains elements with a duplicated ID</para>
+    /// <para>This collection can contain duplicate element (with different ID)</para>
     /// </summary>
+    /// <typeparam name="T">A <see cref="FEMObject"/></typeparam>
     public class FemObjectCollection<T> : IEnumerable<T> where T : FEMObject
     {
         protected ICollection<T> _collection;
+
+        /// <summary>
+        /// Set di ID unici, l'indice d'ingresso non è garantito essere quello di uscita
+        /// </summary>
         protected HashSet<int> _ids = new HashSet<int>();
         protected int _maxId = 0;
 
         public FemObjectCollection()
         {
-            // Non ha equality comparer quindi gli oggetti vengono aggiunti senza controllare se esistono già
-            _collection = new List<T>();
+            // Usiamo l'equality comparer che confronta solamente gli ID, quindi due oggetti uguali vengono aggiunti se hanno id diverso
+            _collection = new HashSet<T>(new FEMObject.FemObjectOnlyIdComparer());
         }
 
         public int Count => _collection.Count();
@@ -35,7 +42,7 @@ namespace GPC.Model.FEM.Collections
                 if (!_ids.Contains(id))
                     throw new KeyNotFoundException($"Collection does not contain a element with Id:{id}");
 
-                return _collection.Where(i => i.Id.Equals(id)).First();
+                return _collection.SingleOrDefault(i => i.Id.Equals(id));
             }
         }
 
@@ -51,12 +58,14 @@ namespace GPC.Model.FEM.Collections
         }
 
         /// <summary>
-        /// Add a FEMObject to the collection. If the item.Index already exist in the collection it will be replaced with the collection maximum index + 1;
+        /// Add a FEMObject to the collection. 
+        /// <para>If the item index already exist in the collection, its ID will be replaced with the collection maximum index + 1</para> 
         /// </summary>
         /// <param name="item"></param>
         /// <returns>The index of the item</returns>
         public virtual int Add(T item)
         {
+
             if (_ids.Contains(item.Id))
             {
                 item.SetId(++_maxId);
@@ -83,6 +92,7 @@ namespace GPC.Model.FEM.Collections
             return _collection.Contains(item);
         }
 
+        /// <inheritdoc cref="ICollection.CopyTo(System.Array, int)"/>
         public virtual void CopyTo(T[] array, int arrayIndex)
         {
             _collection.CopyTo(array, arrayIndex);
