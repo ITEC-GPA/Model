@@ -5,33 +5,14 @@ using GPC.Model.FEM.Collections;
 using GPC.Model.FEM;
 using GPC.Utilities.Time;
 using System.Collections.Generic;
+using GPC.TestUtilities;
 
 namespace GeneralTest
 {
     [TestClass]
-    public class PerformanceTest
+    public class PerformanceTest : UnitTestBase
     {
-        public TestContext TestContext { get; set; }
-
-        [ClassInitialize]
-        public static void ClassInitialize(TestContext context)
-        {
-            // Nothing
-        }
-
-        [TestInitialize]
-        public void TestInitialize()
-        {
-            // Nothing
-        }
-
-        [TestCleanup]
-        public void CleanUp()
-        {
-            if (Directory.Exists(TestContext.TestDir))
-                Directory.Delete(TestContext.TestDir, true);
-        }
-
+        
         private int[] indexArray;
 
         private void FunctionToTest0()

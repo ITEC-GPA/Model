@@ -14,37 +14,13 @@ using GPC.Model.FEM.Attributes;
 using GPC.Model.Restrains;
 using System.Diagnostics;
 using System.Linq;
+using GPC.TestUtilities;
 
 namespace FemTest
 {
     [TestClass]
-    public class FemModelTest
+    public class FemModelTest : UnitTestBase
     {
-        public TestContext TestContext { get; set; }
-
-        private static string _outputFolder;
-        private string _testName;
-
-        [ClassInitialize]
-        public static void ClassInitialize(TestContext context)
-        {
-
-        }
-
-        [TestInitialize]
-        public void TestInitialize()
-        {
-            _outputFolder = Path.Combine(Directory.GetParent(TestContext.TestDir).ToString(), TestContext.FullyQualifiedTestClassName.Split(new char[] { '.' })[1]);
-            Directory.CreateDirectory(_outputFolder);
-            _testName = TestContext.TestName;
-        }
-
-        [TestCleanup]
-        public void CleanUp()
-        {
-            if (Directory.Exists(TestContext.TestDir))
-                Directory.Delete(TestContext.TestDir, true);
-        }
 
 
         #region Private Methods
@@ -127,7 +103,7 @@ namespace FemTest
 
         private void ExportMesh(Mesh mesh)
         {
-            MeshExport.ExportToMshFormatv2(Path.Combine(_outputFolder, $"{_testName}Mesh.msh"), new List<Mesh>() { mesh });
+            MeshExport.ExportToMshFormatv2(base.GetFileInOutputFolder(GetTestName() + "Mesh", "msh"), new List<Mesh>() { mesh });
         }
 
         private Shape CreateSimpleShape(double width, double height)

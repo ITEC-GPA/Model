@@ -7,11 +7,12 @@ using System;
 using System.IO;
 using GPC.Model.Elements;
 using GPC.Model.FEM.FiniteElements;
+using GPC.TestUtilities;
 
 namespace ModelObjectTest
 {
     [TestClass]
-    public class ResultTest
+    public class ResultTest : UnitTestBase
     {
         [TestMethod]
         public void PrincipalStressTest1() 

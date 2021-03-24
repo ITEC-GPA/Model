@@ -6,11 +6,12 @@ using System.Runtime.Serialization.Formatters.Binary;
 using System.IO;
 using System.Collections.Generic;
 using GPC.Utilities.Serialization;
+using GPC.TestUtilities;
 
 namespace ModelObjectTest
 {
     [TestClass]
-    public class MaterialTest
+    public class MaterialTest : UnitTestBase
     {
         [TestMethod]
         public void TestMethod1()

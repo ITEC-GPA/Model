@@ -3,11 +3,12 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using GPC.Model.Sections;
 using GPC.Model.Materials;
 using GPC.Geometry;
+using GPC.TestUtilities;
 
 namespace ModelObjectTest
 {
     [TestClass]
-    public class SectionsTest
+    public class SectionsTest : UnitTestBase
     {
         [TestMethod]
         public void SectionCHSTest()
