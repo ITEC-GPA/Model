@@ -327,10 +327,10 @@ namespace GPC.Model.FEM.FiniteElements
                         Console.WriteLine("F: detJ("+csi+","+eta+") = " + detJ);
                         */
                         
-                        _fLocalCoord[0] = _fLocalCoord[0] + Quad4Element.N4nodes(1, csi, eta) * detJ * gaussWeight * pz; //node1
-                        _fLocalCoord[3] = _fLocalCoord[3] + Quad4Element.N4nodes(2, csi, eta) * detJ * gaussWeight * pz; //node2
-                        _fLocalCoord[6] = _fLocalCoord[6] + Quad4Element.N4nodes(3, csi, eta) * detJ * gaussWeight * pz; //node3
-                        _fLocalCoord[9] = _fLocalCoord[9] + Quad4Element.N4nodes(4, csi, eta) * detJ * gaussWeight * pz; //node4
+                        _fLocalCoord[0] = _fLocalCoord[0] + Quad4Element.N(1, csi, eta) * detJ * gaussWeight * pz; //node1
+                        _fLocalCoord[3] = _fLocalCoord[3] + Quad4Element.N(2, csi, eta) * detJ * gaussWeight * pz; //node2
+                        _fLocalCoord[6] = _fLocalCoord[6] + Quad4Element.N(3, csi, eta) * detJ * gaussWeight * pz; //node3
+                        _fLocalCoord[9] = _fLocalCoord[9] + Quad4Element.N(4, csi, eta) * detJ * gaussWeight * pz; //node4
                     }
                 }
             }

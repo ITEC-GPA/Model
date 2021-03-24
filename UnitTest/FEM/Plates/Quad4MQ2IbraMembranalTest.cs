@@ -105,8 +105,8 @@ namespace FemTest.Solver
                     Assert.AreEqual(-1.0, sik); //y
 
                     //with node i-1
-                    Assert.AreEqual(-1.0, cik); //x
-                    Assert.AreEqual(0.0, sik); //y
+                    Assert.AreEqual(-1.0, cij); //x
+                    Assert.AreEqual(0.0, sij); //y
                 }
                 if (i == 2)
                 {
@@ -115,8 +115,8 @@ namespace FemTest.Solver
                     Assert.AreEqual(0.0, sik); //y
 
                     //with node i-1
-                    Assert.AreEqual(0.0, cik); //x
-                    Assert.AreEqual(-1.0, sik); //y
+                    Assert.AreEqual(0.0, cij); //x
+                    Assert.AreEqual(-1.0, sij); //y
                 }
                 if (i == 3)
                 {
@@ -125,8 +125,8 @@ namespace FemTest.Solver
                     Assert.AreEqual(1.0, sik); //y
 
                     //with node i-1
-                    Assert.AreEqual(1.0, cik); //x
-                    Assert.AreEqual(0.0, sik); //y
+                    Assert.AreEqual(1.0, cij); //x
+                    Assert.AreEqual(0.0, sij); //y
                 }
                 if (i == 4)
                 {
@@ -135,8 +135,8 @@ namespace FemTest.Solver
                     Assert.AreEqual(0.0, sik); //y
 
                     //with node i-1
-                    Assert.AreEqual(0.0, cik); //x
-                    Assert.AreEqual(1.0, sik); //y
+                    Assert.AreEqual(0.0, cij); //x
+                    Assert.AreEqual(1.0, sij); //y
                 }
             }
 
@@ -149,7 +149,7 @@ namespace FemTest.Solver
                 new Node(0.0, 1.0, 0.0, 3),
             };
 
-            for (int i = 1; i < 4; i++)
+            for (int i = 1; i <= 4; i++)
             {
                 Quad4MQ2IbraMembranal.GetDataCalculation(i, nodes, out double lij, out double sij, out double cij, out double lik, out double sik, out double cik, out int j, out int k, out int m, out int l);
 
@@ -160,18 +160,18 @@ namespace FemTest.Solver
                     Assert.AreEqual(-1.0, sik); //y
 
                     //with node i-1
-                    Assert.AreEqual(-1.0, cik); //x
-                    Assert.AreEqual(0.0, sik); //y
+                    Assert.AreEqual(-1.0, cij); //x
+                    Assert.AreEqual(0.0, sij); //y
                 }
                 if (i == 2)
                 {
                     //with node i+1
-                    Assert.AreEqual(Math.Sqrt(2.0), cik); //x
-                    Assert.AreEqual(Math.Sqrt(2.0), sik); //y
+                    Assert.AreEqual(Math.Sqrt(2.0)/2.0, cik, 0.00001); //x
+                    Assert.AreEqual(Math.Sqrt(2.0)/2.0, sik, 0.00001); //y
 
                     //with node i-1
-                    Assert.AreEqual(0.0, cik); //x
-                    Assert.AreEqual(-1.0, sik); //y
+                    Assert.AreEqual(0.0, cij); //x
+                    Assert.AreEqual(-1.0, sij); //y
                 }
                 if (i == 3)
                 {
@@ -180,8 +180,8 @@ namespace FemTest.Solver
                     Assert.AreEqual(1.0, sik); //y
 
                     //with node i-1
-                    Assert.AreEqual(Math.Sqrt(2.0), cik); //x
-                    Assert.AreEqual(Math.Sqrt(2.0), sik); //y
+                    Assert.AreEqual(Math.Sqrt(2.0)/2.0, cij, 0.00001); //x
+                    Assert.AreEqual(Math.Sqrt(2.0)/2.0, sij, 0.00001); //y
                 }
                 if (i == 4)
                 {
@@ -190,8 +190,8 @@ namespace FemTest.Solver
                     Assert.AreEqual(0.0, sik); //y
 
                     //with node i-1
-                    Assert.AreEqual(0.0, cik); //x
-                    Assert.AreEqual(1.0, sik); //y
+                    Assert.AreEqual(0.0, cij); //x
+                    Assert.AreEqual(1.0, sij); //y
                 }
             }
         }

@@ -147,6 +147,20 @@ namespace GPC.Model.FEM.FiniteElements
             double thk = ((PlateProperty)_property).MembraneThickness;
 
             mnl.Matrix<double> kSymmetric = mnl.Matrix<double>.Build.Dense(12, 12);
+            mnl.Matrix<double> kSymmetric2 = mnl.Matrix<double>.Build.Dense(12, 12);
+
+            Func<double, double, mnl.Matrix<double>> BtraspDB = (double csi, double eta) =>
+            {
+                return GetBSymmetric(csi, eta).Transpose() * _d * GetBSymmetric(csi, eta);
+            };
+            Func<double, double, mnl.Matrix<double>> jacobiano = (double csi, double eta) =>
+            {
+                return Quad4Element.J(csi, eta, _localNodes);
+            };
+
+            kSymmetric2 = GaussIntegration.IntegrationQuadrangular(BtraspDB, jacobiano, 9);
+
+
             GaussIntegration.GaussPoint[] gaussPoints = GaussIntegration.GetPointsRectangular(9); // 9 by reference article 1990
             for (int i = 0; i < gaussPoints.Length; i++) //trhough the gauss points
             {
@@ -162,8 +176,22 @@ namespace GPC.Model.FEM.FiniteElements
                 double detJ = jacob.Determinant();
                 Console.WriteLine("detJ=" + detJ);
 
+                //kSymmetric = kSymmetric + gaussPoints[i].Weight * jacob.Determinant() * BSymmetric.Transpose() * _d * BSymmetric;
                 kSymmetric = kSymmetric + gaussPoints[i].Weight * detJ * m;
             }
+
+            mnl.Matrix<double> r = kSymmetric - kSymmetric2;
+            for (int row = 0; row < r.RowCount; row++)
+            {
+                for (int col = 0; col < r.RowCount; col++)
+                {
+                    if (r[row, col] != 0.0)
+                    {
+                        throw new Exception();
+                    }
+                }
+            }
+
             kSymmetric = thk * kSymmetric;
             Console.WriteLine("k symm tensor =");
             Util.WriteMatrix(kSymmetric, "F3");
@@ -395,11 +423,19 @@ namespace GPC.Model.FEM.FiniteElements
             var dNmdEta = Util.F(m, Quad8Element.dNdEta); //f(csi, eta)
 
             var J4nodes = Util.J(Quad4Element.J, _localNodes); //f(csi, eta)
-            //var J8nodes = Ji(Quad8Element.J, _localNodes); //f(csi, eta)
+            //create fake 8 nodes
+            Node[] local8Nodes = Quad4Element.Get8Nodes(_localNodes);
+            var J8nodes = Util.J(Quad8Element.J, local8Nodes); //f(csi, eta)
+
+            if (J4nodes(csi, eta).Determinant() / J8nodes(csi, eta).Determinant() > 1.0001 || J4nodes(csi, eta).Determinant() / J8nodes(csi, eta).Determinant() < 0.99999)
+            {
+                //dall'articolo non è detto quale usare....nel caso venga trovato un caso con determinante J diverso allora scegliere quello "corretto"
+                throw new Exception("det(J4nodi) =" + J4nodes(csi, eta).Determinant() + " != det(j8nodi) = " + J8nodes(csi, eta).Determinant());
+            }
 
             mnl.Vector<double> dNidLocal = Util.GetdNdLocalFromdNdNatural(csi, eta, dNidCsi, dNidEta, J4nodes);
-            mnl.Vector<double> dNldLocal = Util.GetdNdLocalFromdNdNatural(csi, eta, dNldCsi, dNldEta, J4nodes); //quad4 or quad8 for j?
-            mnl.Vector<double> dNmdLocal = Util.GetdNdLocalFromdNdNatural(csi, eta, dNmdCsi, dNmdEta, J4nodes); //quad4 or quad8 for j?
+            mnl.Vector<double> dNldLocal = Util.GetdNdLocalFromdNdNatural(csi, eta, dNldCsi, dNldEta, J8nodes); //quad4 or quad8 for j?
+            mnl.Vector<double> dNmdLocal = Util.GetdNdLocalFromdNdNatural(csi, eta, dNmdCsi, dNmdEta, J8nodes); //quad4 or quad8 for j?
 
             double dNidX = dNidLocal[0];
             double dNidY = dNidLocal[1];
@@ -416,7 +452,7 @@ namespace GPC.Model.FEM.FiniteElements
             #endregion
 
             #region gi
-            double gi = -1.0 / 16.0 * (lij * cij * dNldY - lik * cik * dNmdY) + 1.0 / 16.0 * (lij * sij * dNldX - lik * sik * dNmdX) - Quad4Element.N4nodes(i, csi, eta);
+            double gi = -1.0 / 16.0 * (lij * cij * dNldY - lik * cik * dNmdY) + 1.0 / 16.0 * (lij * sij * dNldX - lik * sik * dNmdX) - Quad4Element.N(i, csi, eta);
             //Console.WriteLine("g" + i + " = " + gi);
             #endregion
             bVectorSigned[0, 2] = gi;
@@ -454,11 +490,20 @@ namespace GPC.Model.FEM.FiniteElements
             var dNmdEta = Util.F(m, Quad8Element.dNdEta); //f(csi, eta)
 
             var J4nodes = Util.J(Quad4Element.J, _localNodes); //f(csi, eta)
-            //var J8nodes = Ji(Quad8Element.J, _localNodes); //f(csi, eta)
+
+            //create fake 8 nodes
+            Node[] local8Nodes = Quad4Element.Get8Nodes(_localNodes);
+            var J8nodes = Util.J(Quad8Element.J, local8Nodes); //f(csi, eta)
+
+            if (J4nodes(csi, eta).Determinant() / J8nodes(csi, eta).Determinant() > 1.0001 || J4nodes(csi, eta).Determinant() / J8nodes(csi, eta).Determinant() < 0.99999)
+            {
+                //dall'articolo non è detto quale usare....nel caso venga trovato un caso con determinante J diverso allora scegliere quello "corretto"
+                throw new Exception("det(J4nodi) =" + J4nodes(csi, eta).Determinant() + " != det(j8nodi) = " + J8nodes(csi, eta).Determinant());
+            }
 
             mnl.Vector<double> dNidLocal = Util.GetdNdLocalFromdNdNatural(csi, eta, dNidCsi, dNidEta, J4nodes);
-            mnl.Vector<double> dNldLocal = Util.GetdNdLocalFromdNdNatural(csi, eta, dNldCsi, dNldEta, J4nodes); //quad4 or quad8 for j?
-            mnl.Vector<double> dNmdLocal = Util.GetdNdLocalFromdNdNatural(csi, eta, dNmdCsi, dNmdEta, J4nodes); //quad4 or quad8 for j?
+            mnl.Vector<double> dNldLocal = Util.GetdNdLocalFromdNdNatural(csi, eta, dNldCsi, dNldEta, J8nodes); //quad4 or quad8 for j?
+            mnl.Vector<double> dNmdLocal = Util.GetdNdLocalFromdNdNatural(csi, eta, dNmdCsi, dNmdEta, J8nodes); //quad4 or quad8 for j?
 
             double dNidX = dNidLocal[0];
             double dNidY = dNidLocal[1];

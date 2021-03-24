@@ -48,6 +48,12 @@ namespace GPC.Model.FEM
             #endif
         }
 
+        /// <summary>
+        /// Matrice stato piano di tensione da materiale elastico lineare isotropo
+        /// </summary>
+        /// <param name="E"></param>
+        /// <param name="ni"></param>
+        /// <returns></returns>
         public static mnl.Matrix<double> DPlaneStress(double E, double ni)
         {
             mnl.Matrix<double>  D = mnl.Matrix<double>.Build.Dense(3, 3);

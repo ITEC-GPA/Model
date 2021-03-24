@@ -4,11 +4,31 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using mnl = MathNet.Numerics.LinearAlgebra;
 
 namespace GPC.Model.FEM
 {
     public static class GaussIntegration
     {
+        public static mnl.Matrix<double> IntegrationQuadrangular(Func<double, double, mnl.Matrix<double>> GetM, Func<double, double, mnl.Matrix<double>> Jacob, int nrPoints)
+        {
+            GaussPoint[] gaussPoints = GetPointsRectangular(nrPoints);
+            #region
+            //primo giro per determinare dimensioni della matrice di risultato
+            double csi = gaussPoints[0].Point.X;
+            double eta = gaussPoints[0].Point.Y;
+
+            mnl.Matrix<double> ris = gaussPoints[0].Weight * Jacob(csi, eta).Determinant() * GetM(csi, eta);
+            #endregion
+            for (int i = 1; i < gaussPoints.Length; i++) //trhough the gauss points "variable i START FROM 1 NOT FROM 0!!!"
+            {
+                csi = gaussPoints[i].Point.X;
+                eta = gaussPoints[i].Point.Y;
+                ris = ris + gaussPoints[i].Weight * Jacob(csi, eta).Determinant() * GetM(csi, eta);
+            }
+            return ris;
+        }
+
         public static GaussPoint[] GetPointsLinear(int nPoints)
         {
             GaussPoint[] pts = new GaussPoint[nPoints];
@@ -105,7 +125,6 @@ namespace GPC.Model.FEM
                 
             return pts;
         }
-
 
         public struct GaussPoint
         {

@@ -490,7 +490,14 @@ namespace GPC.Model.FEM.FiniteElements
         }
 
         #region shapeFunction
-        public static double N4nodes(int index, double csi, double eta)
+        /// <summary>
+        /// Linear Shaper Function for Quad4
+        /// </summary>
+        /// <param name="index"></param>
+        /// <param name="csi"></param>
+        /// <param name="eta"></param>
+        /// <returns></returns>
+        public static double N(int index, double csi, double eta)
         {
             switch (index)
             {
@@ -579,6 +586,32 @@ namespace GPC.Model.FEM.FiniteElements
             //Console.WriteLine("J(csi="+csi.ToString("F2")+",eta="+eta.ToString("F2")+"="+J);
             //Console.WriteLine("detJ(csi=" + csi.ToString("F2") + ",eta=" + eta.ToString("F2") + "=" + J.Determinant());
             return J;
+        }
+
+        /// <summary>
+        /// Convert 4 nodes in 8 nodes (only nodes / geometry)
+        /// </summary>
+        /// <param name="nodes4"></param>
+        /// <returns></returns>
+        public static Node[] Get8Nodes(Node[] nodes4)
+        {
+            Func<Node, Node, Node> middleNode = (Node n1, Node n2) => {
+
+                Node n = new Node((n1.Position.X + n2.Position.X) / 2.0, (n1.Position.Y + n2.Position.Y) / 2.0, (n1.Position.Z + n2.Position.Z) / 2.0, 0);
+                return n;
+            };
+
+            Node[] nodes8 = new Node[8];
+            nodes8[1 - 1] = nodes4[1 - 1];
+            nodes8[2 - 1] = nodes4[2 - 1];
+            nodes8[3 - 1] = nodes4[3 - 1];
+            nodes8[4 - 1] = nodes4[4 - 1];
+            nodes8[5 - 1] = middleNode(nodes4[2 - 1], nodes4[1 - 1]);
+            nodes8[6 - 1] = middleNode(nodes4[3 - 1], nodes4[2 - 1]);
+            nodes8[7 - 1] = middleNode(nodes4[4 - 1], nodes4[3 - 1]);
+            nodes8[8 - 1] = middleNode(nodes4[1 - 1], nodes4[4 - 1]);
+
+            return nodes8;
         }
     }
 }

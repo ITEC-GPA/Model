@@ -295,17 +295,17 @@ namespace GPC.Model.FEM.FiniteElements
                         Console.WriteLine("N4(" + csi + "," + eta + ") = " + Quad4Element.N4nodes(4, csi, eta));
                         Console.WriteLine("F: detJ(" + csi + "," + eta + ") = " + detJ);*/
 
-                        _fLocalCoord[0] = _fLocalCoord[0] + Quad4Element.N4nodes(1, csi, eta) * detJ * gaussWeight * px; //node1
-                        _fLocalCoord[1] = _fLocalCoord[1] + Quad4Element.N4nodes(1, csi, eta) * detJ * gaussWeight * py; //node1
+                        _fLocalCoord[0] = _fLocalCoord[0] + Quad4Element.N(1, csi, eta) * detJ * gaussWeight * px; //node1
+                        _fLocalCoord[1] = _fLocalCoord[1] + Quad4Element.N(1, csi, eta) * detJ * gaussWeight * py; //node1
 
-                        _fLocalCoord[2] = _fLocalCoord[2] + Quad4Element.N4nodes(2, csi, eta) * detJ * gaussWeight * px; //node2
-                        _fLocalCoord[3] = _fLocalCoord[3] + Quad4Element.N4nodes(2, csi, eta) * detJ * gaussWeight * py; //node2
+                        _fLocalCoord[2] = _fLocalCoord[2] + Quad4Element.N(2, csi, eta) * detJ * gaussWeight * px; //node2
+                        _fLocalCoord[3] = _fLocalCoord[3] + Quad4Element.N(2, csi, eta) * detJ * gaussWeight * py; //node2
 
-                        _fLocalCoord[4] = _fLocalCoord[4] + Quad4Element.N4nodes(3, csi, eta) * detJ * gaussWeight * px; //node3
-                        _fLocalCoord[5] = _fLocalCoord[5] + Quad4Element.N4nodes(3, csi, eta) * detJ * gaussWeight * py; //node3
+                        _fLocalCoord[4] = _fLocalCoord[4] + Quad4Element.N(3, csi, eta) * detJ * gaussWeight * px; //node3
+                        _fLocalCoord[5] = _fLocalCoord[5] + Quad4Element.N(3, csi, eta) * detJ * gaussWeight * py; //node3
                     
-                        _fLocalCoord[6] = _fLocalCoord[6] + Quad4Element.N4nodes(4, csi, eta) * detJ * gaussWeight * px; //node4
-                        _fLocalCoord[7] = _fLocalCoord[7] + Quad4Element.N4nodes(4, csi, eta) * detJ * gaussWeight * py; //node4
+                        _fLocalCoord[6] = _fLocalCoord[6] + Quad4Element.N(4, csi, eta) * detJ * gaussWeight * px; //node4
+                        _fLocalCoord[7] = _fLocalCoord[7] + Quad4Element.N(4, csi, eta) * detJ * gaussWeight * py; //node4
                     }
                 }
             }

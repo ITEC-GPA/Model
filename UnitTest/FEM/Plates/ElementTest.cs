@@ -47,6 +47,86 @@ namespace FemTest.Solver
         }
 
         [TestMethod]
+        public void Quad4ToQuad8NodesTest1()
+        {
+            Node[] nodes = new Node[4];
+            nodes[1 - 1] = new Node(0.0, 0.0, 0.0, 0);
+            nodes[2 - 1] = new Node(1.0, 0.0, 0.0, 0);
+            nodes[3 - 1] = new Node(1.0, 1.0, 0.0, 0);
+            nodes[4 - 1] = new Node(0.0, 1.0, 0.0, 0);
+
+            Node[] nodes8 = Quad4Element.Get8Nodes(nodes);
+
+            Assert.AreEqual(0.0, nodes8[1 - 1].Position.X);
+            Assert.AreEqual(0.0, nodes8[1 - 1].Position.Y);
+
+            Assert.AreEqual(1.0, nodes8[2 - 1].Position.X);
+            Assert.AreEqual(0.0, nodes8[2 - 1].Position.Y);
+
+            Assert.AreEqual(1.0, nodes8[3 - 1].Position.X);
+            Assert.AreEqual(1.0, nodes8[3 - 1].Position.Y);
+
+            Assert.AreEqual(0.0, nodes8[4 - 1].Position.X);
+            Assert.AreEqual(1.0, nodes8[4 - 1].Position.Y);
+
+            Assert.AreEqual(0.5, nodes8[5 - 1].Position.X);
+            Assert.AreEqual(0.0, nodes8[5 - 1].Position.Y);
+
+            Assert.AreEqual(1.0, nodes8[6 - 1].Position.X);
+            Assert.AreEqual(0.5, nodes8[6 - 1].Position.Y);
+
+            Assert.AreEqual(0.5, nodes8[7 - 1].Position.X);
+            Assert.AreEqual(1.0, nodes8[7 - 1].Position.Y);
+
+            Assert.AreEqual(0.0, nodes8[8 - 1].Position.X);
+            Assert.AreEqual(0.5, nodes8[8 - 1].Position.Y);
+        }
+
+        [TestMethod]
+        public void Quad4GetLocalNodesTest1()
+        {
+            Node[] nodes = new Node[4];
+            nodes[1 - 1] = new Node(0.0, 0.0, 0.0, 0);
+            nodes[2 - 1] = new Node(1.0, 0.0, 0.0, 0);
+            nodes[3 - 1] = new Node(1.0, 1.0, 0.0, 0);
+            nodes[4 - 1] = new Node(0.0, 1.0, 0.0, 0);
+
+            Node[] localNodes = Quad4Element.LocalNodes(nodes, out CoordinateSystem sys);
+
+            Assert.AreEqual(0.0, localNodes[1 - 1].Position.X);
+            Assert.AreEqual(0.0, localNodes[1 - 1].Position.Y);
+
+            Assert.AreEqual(1.0, localNodes[2 - 1].Position.X);
+            Assert.AreEqual(0.0, localNodes[2 - 1].Position.Y);
+
+            Assert.AreEqual(1.0, localNodes[3 - 1].Position.X);
+            Assert.AreEqual(1.0, localNodes[3 - 1].Position.Y);
+
+            Assert.AreEqual(0.0, localNodes[4 - 1].Position.X);
+            Assert.AreEqual(1.0, localNodes[4 - 1].Position.Y);
+
+            //non clock wise nodes
+            nodes[1 - 1] = new Node(0.0, 0.0, 0.0, 0);
+            nodes[2 - 1] = new Node(1.0, 0.0, 0.0, 0);
+            nodes[3 - 1] = new Node(0.0, 1.0, 0.0, 0);
+            nodes[4 - 1] = new Node(1.0, 1.0, 0.0, 0);
+
+            localNodes = Quad4Element.LocalNodes(nodes, out sys);
+
+            Assert.AreEqual(0.0, localNodes[1 - 1].Position.X);
+            Assert.AreEqual(0.0, localNodes[1 - 1].Position.Y);
+
+            Assert.AreEqual(1.0, localNodes[2 - 1].Position.X);
+            Assert.AreEqual(0.0, localNodes[2 - 1].Position.Y);
+
+            Assert.AreEqual(1.0, localNodes[3 - 1].Position.X);
+            Assert.AreEqual(1.0, localNodes[3 - 1].Position.Y);
+
+            Assert.AreEqual(0.0, localNodes[4 - 1].Position.X);
+            Assert.AreEqual(1.0, localNodes[4 - 1].Position.Y);
+        }
+
+        [TestMethod]
         public void Tri3ElementTest1()
         {
             LoadCase loadCase = new LoadCase("myLoadCase", new Guid());
