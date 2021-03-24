@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using GPC.Model.Elements;
+using GPC.Model.FEM.Attributes;
 using GPC.Model.FEM.Properties;
 using GPC.Model.Materials;
 using MathNet.Numerics.LinearAlgebra;
@@ -11,7 +12,7 @@ using mnl = MathNet.Numerics.LinearAlgebra;
 
 namespace GPC.Model.FEM.FiniteElements
 {
-    class Brick : FiniteElement
+    public class Brick : FiniteElement
     {
         public Brick(Node[] nodes, BrickProperty property, int id) : base(nodes, property, id) { }
 
@@ -36,6 +37,11 @@ namespace GPC.Model.FEM.FiniteElements
         }
 
         public override void GetResultPositionNaturalCoordinates(double csi, double eta, double zeta, double[] globalDisplacementsNodes, out double x, out double y, out double z, out double[] localDisplacements, out Matrix<double> gloabalPseudoDeformation, out Matrix<double> localPseudoDeformation, out Matrix<double> globalForces, out Matrix<double> localForces, out Matrix<double> globalStress, out Matrix<double> localStress, out Matrix<double> globalEpsilon, out Matrix<double> localEpsilon)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override FiniteElement Duplicate(ElementProperty property, List<LoadCaseAttribute> attributes, List<FreedomCaseAttribute> fdAttributes)
         {
             throw new NotImplementedException();
         }

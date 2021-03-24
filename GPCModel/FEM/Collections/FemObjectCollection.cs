@@ -34,7 +34,7 @@ namespace GPC.Model.FEM.Collections
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
-        /// <exception cref="KeyNotFoundException">If collection does not contain a element with Id:<param name="id"></param> </exception>
+        /// <exception cref="KeyNotFoundException"> If collection does not contain a element with Id: <param name="id" /> </exception>
         public virtual T this[int id]
         {
             get

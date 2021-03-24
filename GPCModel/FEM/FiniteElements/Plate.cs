@@ -26,11 +26,11 @@ namespace GPC.Model.FEM.FiniteElements
 
         }
 
-        public override FiniteElement Duplicate(ElementProperty property, List<LoadCaseAttribute> attributes)
+        public override FiniteElement Duplicate(ElementProperty property, List<LoadCaseAttribute> lcAttributes, List<FreedomCaseAttribute> fdAttributes)
         {
             var plate = new Plate(_nodesGlobal, Property, Id); 
 
-            foreach(LoadCaseAttribute attribute in attributes)
+            foreach(LoadCaseAttribute attribute in lcAttributes)
             {
                 if (attribute is IPlateLoadCaseAttribute plca)
                 {

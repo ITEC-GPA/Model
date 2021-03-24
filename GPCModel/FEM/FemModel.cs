@@ -83,7 +83,6 @@ namespace GPC.Model.FEM
         public List<ResultNodeDisplacement> ResultNodeDisplacement => _resultNodeDisplacements;
         public List<ResultNodeForce> ResultNodeForce => _resultNodeForce;
         
-        public FemObjectCollection<FiniteElement> Elements => _elements;
 
         #endregion
 
@@ -117,7 +116,7 @@ namespace GPC.Model.FEM
             _resultNodeDisplacements = new List<ResultNodeDisplacement>();
 
 
-            _stages.Add(new Stage("Stage 0", AnalysisType.Linear));
+            //_stages.Add(new Stage("Stage 0", AnalysisType.Linear));
         }
 
         public FemModel(SerializationInfo info, StreamingContext context)
@@ -646,6 +645,19 @@ namespace GPC.Model.FEM
         }
 
 
+        public virtual void AddFiniteElement(FiniteElement finiteElement)
+        {
+            if (finiteElement != null)
+            {
+                foreach (var node in finiteElement.Nodes)
+                {
+                    _nodes.Add(node);
+                } // TODO: proprietà
+                _elements.Add(finiteElement);
+            }
+        }
+        
+
         public virtual void AddPlate()
         {
             throw new NotImplementedException();
@@ -669,6 +681,28 @@ namespace GPC.Model.FEM
         public virtual void AddGeometryRestrain()
         {
             throw new NotImplementedException();
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="index"></param>
+        /// <returns></returns>
+        /// <inheritdoc cref="FemObjectCollection{T}.GetElementById(int)"/>
+        public virtual FiniteElement GetFiniteElement(int index)
+        {
+            return _elements[index];
+        }
+
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="finiteElement"></param>
+        /// <returns>True if <paramref name="finiteElement"/> is contained in the <see cref="FemModel._elements"/> collections </returns>
+        public virtual bool ContainsFiniteElement(FiniteElement finiteElement)
+        {
+            return _elements.Contains(finiteElement);
         }
 
         public void CleanMesh()
@@ -724,7 +758,7 @@ namespace GPC.Model.FEM
 
         public virtual Stage AddStage(string name, AnalysisType analysisType)
         {
-            Stage stage = new Stage(name, analysisType, false, null, this);
+            Stage stage = new Stage(name, this, analysisType, false, null);
             _stages.Add(stage);
             return stage;
         }

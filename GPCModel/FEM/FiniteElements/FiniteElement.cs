@@ -29,6 +29,7 @@ namespace GPC.Model.FEM.FiniteElements
 
 
         protected List<LoadCaseAttribute> _attributesLoadCase;
+        protected List<FreedomCaseAttribute> _attributesFreedomCase;
 
         protected ElementProperty _property;
 
@@ -99,6 +100,7 @@ namespace GPC.Model.FEM.FiniteElements
         public mnl.Matrix<double> KElementLocalCoord => _kElementLocalCoord;
         
         public List<LoadCaseAttribute> AttributesLoadCase => _attributesLoadCase;
+        public List<FreedomCaseAttribute> AttributesFreedomCase => _attributesFreedomCase;
 
         #endregion
 
@@ -123,7 +125,7 @@ namespace GPC.Model.FEM.FiniteElements
 
 
 
-        public abstract FiniteElement Duplicate(ElementProperty property, List<LoadCaseAttribute> attributes);
+        public abstract FiniteElement Duplicate(ElementProperty property, List<LoadCaseAttribute> lcAttributes, List<FreedomCaseAttribute> fcAttributes);
 
 
         /// <summary>
@@ -171,6 +173,7 @@ namespace GPC.Model.FEM.FiniteElements
         {
             return Nodes.Select(i => i.Id).ToArray();
         }
+
 
         public override bool Equals(object obj)
         {

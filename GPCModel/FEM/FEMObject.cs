@@ -74,7 +74,7 @@ namespace GPC.Model.FEM
         /// <summary>
         /// Custom Equality comparer that compare two <see cref="FEMObject"/> adding also the <see cref="Element.Id"/> as an equality parameter
         /// </summary>
-        public class FemObjectIdComparer : IEqualityComparer<FEMObject>
+        public class FemObjectWithIdComparer : IEqualityComparer<FEMObject>
         {
             public bool Equals(FEMObject x, FEMObject y)
             {
@@ -99,6 +99,36 @@ namespace GPC.Model.FEM
                 int hashCode = -23 * -17 + base.GetHashCode();
 
                 hashCode = hashCode + obj.GetHashCode();
+
+                hashCode = hashCode + obj.Id.GetHashCode();
+
+                return hashCode;
+            }
+        }
+
+
+        /// <summary>
+        /// Custom equality comparer that compare two <see cref="FEMObject"/> using only the <see cref="Element.Id"/> as an equality parameter
+        /// </summary>
+        public class FemObjectOnlyIdComparer : IEqualityComparer<FEMObject>
+        {
+            public bool Equals(FEMObject x, FEMObject y)
+            {
+                if (x == null && y == null)
+                    return true;
+
+                if (x == null || y == null)
+                    return false;
+
+                if (x.Id == y.Id)
+                    return true;
+
+                return false;
+            }
+
+            public int GetHashCode(FEMObject obj)
+            {
+                int hashCode = -23 * -17 + base.GetHashCode();
 
                 hashCode = hashCode + obj.Id.GetHashCode();
 

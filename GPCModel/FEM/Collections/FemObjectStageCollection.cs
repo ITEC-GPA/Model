@@ -99,7 +99,7 @@ namespace GPC.Model.FEM.Collections
 
         /// <summary>
         /// <inheritdoc />
-        /// The <see cref="FiniteElement.AttributesLoadCase"/> and <see cref="FiniteElement.AttributesFreedomCase"/> 
+        /// The <see cref="Node.AttributesLoadCase"/> and <see cref="Node.AttributesFreedomCase"/> 
         /// will be copied to the <see cref="Stage.StageProperty"/> associated the <paramref name="item"/>
         /// </summary>
         /// <inheritdoc />
@@ -113,5 +113,6 @@ namespace GPC.Model.FEM.Collections
 
             return item.Id;
         }
+
     }
 }
