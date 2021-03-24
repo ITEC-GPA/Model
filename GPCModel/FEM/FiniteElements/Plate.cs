@@ -61,7 +61,6 @@ namespace GPC.Model.FEM.FiniteElements
             throw new NotImplementedException();
         }
 
-
         // GetNodalDisplacement()
 
         // GetGaussPointStress() => List<ResultPLateStress> [ngauspoint * 3facce]

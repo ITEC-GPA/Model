@@ -146,51 +146,17 @@ namespace GPC.Model.FEM.FiniteElements
             #region stiffnessMatrixInLocalCoordinates
             double thk = ((PlateProperty)_property).MembraneThickness;
 
-            mnl.Matrix<double> kSymmetric = mnl.Matrix<double>.Build.Dense(12, 12);
-            mnl.Matrix<double> kSymmetric2 = mnl.Matrix<double>.Build.Dense(12, 12);
-
             Func<double, double, mnl.Matrix<double>> BtraspDB = (double csi, double eta) =>
             {
                 return GetBSymmetric(csi, eta).Transpose() * _d * GetBSymmetric(csi, eta);
             };
+
             Func<double, double, mnl.Matrix<double>> jacobiano = (double csi, double eta) =>
             {
                 return Quad4Element.J(csi, eta, _localNodes);
             };
 
-            kSymmetric2 = GaussIntegration.IntegrationQuadrangular(BtraspDB, jacobiano, 9);
-
-
-            GaussIntegration.GaussPoint[] gaussPoints = GaussIntegration.GetPointsRectangular(9); // 9 by reference article 1990
-            for (int i = 0; i < gaussPoints.Length; i++) //trhough the gauss points
-            {
-                double csi = gaussPoints[i].Point.X;
-                double eta = gaussPoints[i].Point.Y;
-
-                mnl.Matrix<double> BSymmetric = GetBSymmetric(csi, eta);
-                Console.WriteLine("BSymmetric(csi=" + csi + ",eta=" + eta + ") =");
-                Util.WriteMatrix(BSymmetric, "F3");
-                mnl.Matrix<double> m = BSymmetric.Transpose() * _d * BSymmetric;
-                mnl.Matrix<double> jacob = Quad4Element.J(csi, eta, _localNodes);
-                Console.WriteLine("J(csi=" + csi + ",eta=" + eta + ") = " + jacob);
-                double detJ = jacob.Determinant();
-                Console.WriteLine("detJ=" + detJ);
-
-                //kSymmetric = kSymmetric + gaussPoints[i].Weight * jacob.Determinant() * BSymmetric.Transpose() * _d * BSymmetric;
-                kSymmetric = kSymmetric + gaussPoints[i].Weight * detJ * m;
-            }
-
-            mnl.Matrix<double> r = kSymmetric - kSymmetric2;
-            for (int row = 0; row < r.RowCount; row++)
-            {
-                for (int col = 0; col < r.RowCount; col++)
-                {
-                    if (r[row, col] != 0.0)
-                    {
-                        throw new Exception();
-                    }
-                }
-            }
+            mnl.Matrix<double> kSymmetric = GaussIntegration.IntegrationQuadrangular(BtraspDB, jacobiano, 9); //9 points by reference article 1990
 
             kSymmetric = thk * kSymmetric;
             Console.WriteLine("k symm tensor =");
@@ -198,29 +164,17 @@ namespace GPC.Model.FEM.FiniteElements
 
             //Matrix P ---> reference: eq. 38 of the Article 1990
             double rho = 1.0 * ((PlateProperty)_property).GetG();
-            mnl.Matrix<double> P = mnl.Matrix<double>.Build.Dense(12, 12);
-            gaussPoints = GaussIntegration.GetPointsRectangular(1); //1 gauss point reference article 1990
-            for (int i = 0; i < gaussPoints.Length; i++) //trhough the gauss points
-            {
-                double csi = gaussPoints[i].Point.X;
-                double eta = gaussPoints[i].Point.Y;
 
-                #region createOfbSigned
+            Func<double, double, mnl.Matrix<double>> bTraspb = (double csi, double eta) => {
                 mnl.Matrix<double> bSigned = biVectorSigned(1, csi, eta);
                 bSigned = bSigned.Append(biVectorSigned(2, csi, eta));
                 bSigned = bSigned.Append(biVectorSigned(3, csi, eta));
                 bSigned = bSigned.Append(biVectorSigned(4, csi, eta));
-                Console.WriteLine("bSigned=");
-                Util.WriteMatrix(bSigned,"F4");
-                #endregion
+                
+                return bSigned.Transpose() * bSigned;
+            };
 
-                mnl.Matrix<double> jacob = Quad4Element.J(csi, eta, _localNodes);
-                //Console.WriteLine("J(csi="+csi+",eta="+eta+") = " + jacob);
-                double detJ = jacob.Determinant();
-                Console.WriteLine("detJ=" + detJ);
-
-                P = P + gaussPoints[i].Weight * detJ * bSigned.Transpose() * bSigned;
-            }
+            mnl.Matrix<double> P = GaussIntegration.IntegrationQuadrangular(bTraspb, jacobiano, 1); //1 gauss point reference article 1990
 
             P = thk * rho * P;
             Console.WriteLine("rho = G = " + rho);
@@ -550,8 +504,6 @@ namespace GPC.Model.FEM.FiniteElements
             Console.WriteLine("bSigned" + i + "=" + bSigned);
             return bSigned;
         }
-
-        
 
         /// <summary>
         /// DX between 2 points, reference pg. 24 Thesis report - Analysis and evaluation of a shell finite element with drilling degree of freedom

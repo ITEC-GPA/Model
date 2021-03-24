@@ -489,66 +489,6 @@ namespace GPC.Model.FEM.FiniteElements
             #endregion
         }
 
-        #region shapeFunction
-        /// <summary>
-        /// Linear Shaper Function for Quad4
-        /// </summary>
-        /// <param name="index"></param>
-        /// <param name="csi"></param>
-        /// <param name="eta"></param>
-        /// <returns></returns>
-        public static double N(int index, double csi, double eta)
-        {
-            switch (index)
-            {
-                case 1:
-                    return 1.0 / 4.0 * (1.0 - csi) * (1.0 - eta);
-                case 2:
-                    return 1.0 / 4.0 * (1.0 + csi) * (1.0 - eta);
-                case 3:
-                    return 1.0 / 4.0 * (1.0 + csi) * (1.0 + eta);
-                case 4:
-                    return 1.0 / 4.0 * (1.0 - csi) * (1.0 + eta);
-                default:
-                    throw new Exception();
-            }
-        }
-
-        public static double dNdCsi(int index, double csi, double eta)
-        {
-            switch (index)
-            {
-                case 1:
-                    return (eta - 1.0) / 4.0;
-                case 2:
-                    return (1.0 - eta) / 4.0;
-                case 3:
-                    return (eta + 1.0) / 4.0;
-                case 4:
-                    return (-eta - 1.0) / 4.0;
-                default:
-                    throw new Exception();
-            }
-        }
-
-        public static double dNdEta(int index, double csi, double eta)
-        {
-            switch (index)
-            {
-                case 1:
-                    return (csi - 1.0) / 4.0;
-                case 2:
-                    return (-csi - 1.0) / 4.0;
-                case 3:
-                    return (csi + 1.0) / 4.0;
-                case 4:
-                    return (1.0 - csi) / 4.0;
-                default:
-                    throw new Exception();
-            }
-        }
-        #endregion
-
         /// <summary>
         /// jacobiano:
         /// dx/dCsi, dy/dCsi
