@@ -27,8 +27,8 @@ namespace GeneralTest
             GlassMaterialEn16612 gm = new GlassMaterialEn16612("test", 10, 0.2, 30, GlassMaterialEn16612.GlassTypes.DrawnSheetGlass, GlassMaterialEn16612.SurfaceTreatments.AsProduced, GlassMaterialEn16612.PrestressTypes.Annealed, GlassMaterialEn16612.ManufactoringProcesses.HorizontalToughening, 20, 30);
             MonolithicGlass mg = new MonolithicGlass("test", 10, gm);
 
-            MonolithicGlassProperty mgp1 = new MonolithicGlassProperty(mg);
-            MonolithicGlassProperty mgp2 = new MonolithicGlassProperty(mg);
+            MonolithicGlassProperty mgp1 = new MonolithicGlassProperty(mg, string.Empty);
+            MonolithicGlassProperty mgp2 = new MonolithicGlassProperty(mg, string.Empty);
 
             Assert.IsTrue(mg is ModelObject);
             Assert.IsTrue(mgp1.Equals(mgp2));
@@ -43,8 +43,8 @@ namespace GeneralTest
             MonolithicGlass mg1 = new MonolithicGlass("test", 10, gm);
             MonolithicGlass mg2 = new MonolithicGlass("test", 10, gm);
 
-            MonolithicGlassProperty mgp1 = new MonolithicGlassProperty(mg1);
-            MonolithicGlassProperty mgp2 = new MonolithicGlassProperty(mg2);
+            MonolithicGlassProperty mgp1 = new MonolithicGlassProperty(mg1, string.Empty);
+            MonolithicGlassProperty mgp2 = new MonolithicGlassProperty(mg2, string.Empty);
 
             Assert.IsTrue(mg1.Equals(mg2), "Glass are not equals");
             Assert.IsTrue(mgp1.Equals(mgp2), "Properties are not equals");
@@ -62,8 +62,8 @@ namespace GeneralTest
             MonolithicGlass mg1 = new MonolithicGlass("test", 10, gm1);
             MonolithicGlass mg2 = new MonolithicGlass("test", 10, gm2);
 
-            MonolithicGlassProperty mgp1 = new MonolithicGlassProperty(mg1);
-            MonolithicGlassProperty mgp2 = new MonolithicGlassProperty(mg2);
+            MonolithicGlassProperty mgp1 = new MonolithicGlassProperty(mg1, string.Empty);
+            MonolithicGlassProperty mgp2 = new MonolithicGlassProperty(mg2, string.Empty);
 
             Assert.IsFalse(gm1.Equals(mg1));
             Assert.IsFalse(gm1.Equals(mgp1));
@@ -134,8 +134,8 @@ namespace GeneralTest
             MonolithicGlass mg1 = new MonolithicGlass("test", 10, gm1);
             MonolithicGlass mg2 = new MonolithicGlass("test", 10, gm2);
 
-            MonolithicGlassProperty mgp1 = new MonolithicGlassProperty(mg1);
-            MonolithicGlassProperty mgp2 = new MonolithicGlassProperty(mg2);
+            MonolithicGlassProperty mgp1 = new MonolithicGlassProperty(mg1, string.Empty);
+            MonolithicGlassProperty mgp2 = new MonolithicGlassProperty(mg2, string.Empty);
 
             Assert.IsTrue(gm1.Equals(gm2));
 

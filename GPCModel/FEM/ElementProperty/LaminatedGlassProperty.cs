@@ -26,8 +26,8 @@ namespace GPC.Model.FEM.Properties
         public List<double> InterlayerThickness => _interlayerThickness;
 
 
-        public LaminatedGlassProperty(LaminatedGlass laminatedGlass)
-            : base(Guid.NewGuid())
+        public LaminatedGlassProperty(LaminatedGlass laminatedGlass, string name)
+            : base(name, Guid.NewGuid())
         {
             if (laminatedGlass == null)
                 throw new ArgumentNullException("Laminated glass can not be null");

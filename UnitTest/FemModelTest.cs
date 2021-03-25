@@ -242,7 +242,7 @@ namespace FemTest
             Shape s1 = CreateSimpleShape(100, 200);
 
             GlassMaterial gm = new GlassMaterialAstm("", 1, 0.2, 3, 4, 5, 6, 0.008, 0.008, 9);
-            MonolithicGlassProperty pp = new MonolithicGlassProperty(1, 2, gm);
+            MonolithicGlassProperty pp = new MonolithicGlassProperty(1, 2, gm, string.Empty);
 
             Mesh.GenerateOptions meshOptions = new Mesh.GenerateOptions();
             meshOptions.MeshSize = 10;
@@ -283,7 +283,7 @@ namespace FemTest
             s2.Pan(100, 0, 0);
 
             GlassMaterial gm = new GlassMaterialAstm("", 1, 0.2, 3, 4, 5, 6, 0.008, 0.008, 9);
-            MonolithicGlassProperty pp = new MonolithicGlassProperty(1, 2, gm);
+            MonolithicGlassProperty pp = new MonolithicGlassProperty(1, 2, gm, string.Empty);
 
             Mesh.GenerateOptions meshOptions = new Mesh.GenerateOptions();
             meshOptions.MeshSize = 10;
@@ -323,7 +323,7 @@ namespace FemTest
             Shape s1 = CreateSimpleShape(800, 1600);
 
             GlassMaterial gm = new GlassMaterialAstm("", 1, 0.2, 3, 4, 5, 6, 0.008, 0.008, 9);
-            MonolithicGlassProperty pp = new MonolithicGlassProperty(1, 2, gm);
+            MonolithicGlassProperty pp = new MonolithicGlassProperty(1, 2, gm, string.Empty);
 
             Mesh.GenerateOptions meshOptions = new Mesh.GenerateOptions();
             meshOptions.MeshSize = 50;
@@ -356,7 +356,7 @@ namespace FemTest
             Mesh mesh = CreateSimpleMesh(20, 30, 3, 4, 0, 0);
 
             GlassMaterial gm = new GlassMaterialAstm("", 1, 0.2, 3, 4, 5, 6, 0.008, 0.008, 9);
-            MonolithicGlassProperty pp = new MonolithicGlassProperty(1, 2, gm);
+            MonolithicGlassProperty pp = new MonolithicGlassProperty(1, 2, gm, string.Empty);
 
             FemModel femModel = new FemModel();
             femModel.AddMesh(mesh, pp, null, null, null, null, null);

@@ -9,20 +9,20 @@ namespace GPC.Model.FEM.Properties
     public sealed class MonolithicGlassProperty : PlateProperty, IGlassProperty, IEquatable<MonolithicGlassProperty>
     {
 
-        public MonolithicGlassProperty(MonolithicGlass monolithicGlass)
-            : this(monolithicGlass.Thickness, monolithicGlass.Thickness, monolithicGlass.Material)
+        public MonolithicGlassProperty(MonolithicGlass monolithicGlass, string name)
+            : this(monolithicGlass.Thickness, monolithicGlass.Thickness, monolithicGlass.Material, name)
         {
 
         }
 
-        public MonolithicGlassProperty(double thickness, GlassMaterial material)
-            : this(thickness, thickness, material)
+        public MonolithicGlassProperty(double thickness, GlassMaterial material, string name)
+            : this(thickness, thickness, material, name)
         {
-
+            
         }
 
-        public MonolithicGlassProperty(double tb, double tm, GlassMaterial material) 
-            : base(material, tb, tm)
+        public MonolithicGlassProperty(double tb, double tm, GlassMaterial material, string name) 
+            : base(material, tb, tm, name)
         {
 
         }
@@ -58,9 +58,6 @@ namespace GPC.Model.FEM.Properties
         {
             int hashCode = 23;
             hashCode = hashCode * -17 + base.GetHashCode();
-            hashCode = hashCode * -17 + _bendingThickness.GetHashCode();
-            hashCode = hashCode * -17 + _membraneThickness.GetHashCode();
-            hashCode = hashCode * -17 + EqualityComparer<Material>.Default.GetHashCode(_material);
             return hashCode;
         }
 
