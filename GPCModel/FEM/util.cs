@@ -76,6 +76,7 @@ namespace GPC.Model.FEM
 
         /// <summary>
         /// Return J(x,y) = J(x,y,dNdCsi, dNdEta,nodes) with "nodes" and derivative of shape function assigned
+        /// arg1 = dFdInput1; arg1 = dFdInput2, arg3 = nodes
         /// </summary>
         public static Func<Func<int, double, double, double>, Func<int, double, double, double>, Node[], Func<double, double, mnl.Matrix<double>>> J = (Func<int, double, double, double> dFdInput1, Func<int, double, double, double> dFdInput2, Node[] nodes) => {
             return (double input1, double input2) => Jacob(input1, input2, dFdInput1, dFdInput2, nodes);
@@ -85,9 +86,9 @@ namespace GPC.Model.FEM
         /// Matrice jacobiana per cambiamento di variabile
         /// dN/dCsi = dx/dCsi * dN/dx + dy/dCsi * dN/dy
         /// dN/dEta = dx/dEta * dN/dx + dy/dEta * dN/dy
-        /// => dN/dNatural = J * dN/dLocal
-        /// => dN/dLocal = J^-1 * dN/dNatural
-        /// => dF/dNatural = J^-1 dF/dLocal
+        /// => dN/dNatural = J * dN/dLocal;
+        /// => dN/dLocal = J^-1 * dN/dNatural;
+        /// => dF/dNatural = J^-1 dF/dLocal;
         /// </summary>
         /// <param name="csi">coordinata naturale</param>
         /// <param name="eta">coordinata naturale</param>

@@ -10,7 +10,7 @@ namespace GPC.Model.FEM
 {
     public static class GaussIntegration
     {
-        public static mnl.Matrix<double> IntegrationQuadrangular(Func<double, double, mnl.Matrix<double>> GetM, Func<double, double, mnl.Matrix<double>> Jacob, int nrPoints)
+        public static mnl.Matrix<double> IntegrationQuadrilateral(Func<double, double, mnl.Matrix<double>> GetM, Func<double, double, mnl.Matrix<double>> Jacob, int nrPoints)
         {
             GaussPoint[] gaussPoints = GetPointsRectangular(nrPoints);
             #region
@@ -64,7 +64,7 @@ namespace GPC.Model.FEM
             switch (nPoints)
             {
                 case 1:
-                    pts[0] = new GaussPoint(0, 0, 0, 2.0);
+                    pts[0] = new GaussPoint(0, 0, 0, 4.0);
                     break;
                 case 4:
                     pts[0] = new GaussPoint(-1.0 / Math.Sqrt(3.0), -1.0 / Math.Sqrt(3.0), 0.0, 1.0);

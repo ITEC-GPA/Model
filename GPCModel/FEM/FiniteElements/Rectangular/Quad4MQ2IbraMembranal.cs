@@ -153,10 +153,10 @@ namespace GPC.Model.FEM.FiniteElements
 
             Func<double, double, mnl.Matrix<double>> jacobiano = (double csi, double eta) =>
             {
-                return Util.Jacob(csi, eta, LinearShapeFunctionQuad4.DNdCsi, LinearShapeFunctionQuad4.DNdEta, _localNodes); //attention
+                return Util.Jacob(csi, eta, LinearShapeFunctionQuad4.DNdCsi, LinearShapeFunctionQuad4.DNdEta, _localNodes);
             };
 
-            mnl.Matrix<double> kSymmetric = GaussIntegration.IntegrationQuadrangular(BtraspDB, jacobiano, 9); //9 points by reference article 1990
+            mnl.Matrix<double> kSymmetric = GaussIntegration.IntegrationQuadrilateral(BtraspDB, jacobiano, 9); //9 points by reference article 1990
 
             kSymmetric = thk * kSymmetric;
             Console.WriteLine("k symm tensor =");
@@ -174,7 +174,7 @@ namespace GPC.Model.FEM.FiniteElements
                 return bSigned.Transpose() * bSigned;
             };
 
-            mnl.Matrix<double> P = GaussIntegration.IntegrationQuadrangular(bTraspb, jacobiano, 1); //1 gauss point reference article 1990
+            mnl.Matrix<double> P = GaussIntegration.IntegrationQuadrilateral(bTraspb, jacobiano, 1); //1 gauss point reference article 1990
 
             P = thk * rho * P;
             Console.WriteLine("rho = G = " + rho);
@@ -473,7 +473,7 @@ namespace GPC.Model.FEM.FiniteElements
             mnl.Matrix<double> Gi = mnl.Matrix<double>.Build.Dense(3,1);
             Gi[1 - 1, 0] = 1.0 / 8.0 * (lij * cij * dNldX - lik * cik * dNmdX);
             Gi[2 - 1, 0] = 1.0 / 8.0 * (lij * sij * dNldY - lik * sik * dNmdY);
-            Gi[3 - 1, 0] = 1.0 / 8.0 * (lij * cij * dNldY - lik * cik * dNmdY + lij * sij * dNldX - lik * sik * dNmdX);
+            Gi[3 - 1, 0] = 1.0 / 8.0 * ((lij * cij * dNldY - lik * cik * dNmdY) + (lij * sij * dNldX - lik * sik * dNmdX));
 
             Console.WriteLine("G"+i+ "[3-1](csi=" + csi + ",eta=" + eta + ")=" + 1.0 / 8.0 +"*("+lij +"*" +cij+ "*" +dNldY +"-"+ lik +"*" +cik +"*" +dNmdY+ "+" +lij +"*" +sij+ "*" +dNldX+ "-" +lik+ "*" +sik+ "*" +dNmdX+") = "+ Gi[3 - 1, 0]);
             Console.WriteLine("G"+i +"(csi="+csi+",eta="+eta+")="+Gi);

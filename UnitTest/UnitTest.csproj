@@ -69,6 +69,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="DescriptionAttributesTest.cs" />
+    <Compile Include="FEM\GaussIntegrationTest.cs" />
+    <Compile Include="FEM\Plates\Quad4QFSUQMembranalTest.cs" />
     <Compile Include="FEM\Plates\Quad4MQ2IbraMembranalTest.cs" />
     <Compile Include="FEM\Plates\Tri3TR3RDOF.cs" />
     <Compile Include="FEM\Plates\Tri3SBTE.cs" />

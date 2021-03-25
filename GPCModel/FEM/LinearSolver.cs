@@ -224,6 +224,7 @@ namespace GPC.Model.FEM
 
             #region CalculationOfAppliedForcesF
             Dictionary<int, string> legend = new Dictionary<int, string>();
+            Dictionary<int, DOF> legendDOF = new Dictionary<int, DOF>();
             //Calculation of Forces vector
             _F = mnl.Vector<double>.Build.Dense(_KGlobal.RowCount);
 
@@ -236,8 +237,11 @@ namespace GPC.Model.FEM
             {
                 List<string> dofs = Enum.GetNames(typeof(DOF)).ToList();
 
-                Nodes[i].DOF.ToList().ForEach( dof =>
-                     legend.Add(GetPositionInKGlobal(Nodes[i], dof), Nodes[i].ToString())
+                Nodes[i].DOF.ToList().ForEach(dof =>
+                     {
+                         legend.Add(GetPositionInKGlobal(Nodes[i], dof), Nodes[i].ToString() + " " + dof);
+                         legendDOF.Add(GetPositionInKGlobal(Nodes[i], dof), dof);
+                     }
                 );
                
                 foreach (LoadCaseAttribute loadCaseAttribute in Nodes[i].AttributesLoadCase)
@@ -440,10 +444,29 @@ namespace GPC.Model.FEM
 
             #region Reactions
             _reactions = _KGlobal * _nodeGlobalDisplacement - _F; //Or Fmodified?
+            double sumFX = 0.0;
+            double sumFY = 0.0;
+            double sumFZ = 0.0;
+            
             for (int i = 0; i < _reactions.Count; i++)
             {
                 Console.WriteLine("React." + legend[i] + " : \t " + _reactions[i].ToString("F3"));
+                if (legendDOF[i] == DOF.DX)
+                {
+                    sumFX = sumFX + _reactions[i];
+                }
+                else if (legendDOF[i] == DOF.DY)
+                {
+                    sumFY = sumFY + _reactions[i];
+                }
+                else if (legendDOF[i] == DOF.DZ)
+                {
+                    sumFZ = sumFZ + _reactions[i];
+                }
             }
+            Console.WriteLine("Sum of FX = " + sumFX);
+            Console.WriteLine("Sum of FY = " + sumFY);
+            Console.WriteLine("Sum of FZ = " + sumFZ);
             #endregion
 
             #region CalcResults

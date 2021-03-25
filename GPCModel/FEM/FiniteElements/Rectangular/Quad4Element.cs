@@ -494,7 +494,10 @@ namespace GPC.Model.FEM.FiniteElements
             {
                 if (angles[i] != anglesOrdered[i])
                 {
-                    throw new Exception("Points unordered!");
+                    Console.WriteLine("Points unordered:");
+                    globalNodes.ToList().ForEach(p => Console.WriteLine(p));
+                    throw new Exception("Points unordered! :");
+                    
                 }
             }
             
