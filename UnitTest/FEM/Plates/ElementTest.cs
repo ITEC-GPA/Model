@@ -105,11 +105,11 @@ namespace FemTest.Solver
             Assert.AreEqual(0.0, localNodes[4 - 1].Position.X);
             Assert.AreEqual(1.0, localNodes[4 - 1].Position.Y);
 
-            //non clock wise nodes
+            //anticlock wise nodes
             nodes[1 - 1] = new Node(0.0, 0.0, 0.0, 0);
-            nodes[2 - 1] = new Node(1.0, 0.0, 0.0, 0);
-            nodes[3 - 1] = new Node(0.0, 1.0, 0.0, 0);
-            nodes[4 - 1] = new Node(1.0, 1.0, 0.0, 0);
+            nodes[2 - 1] = new Node(0.0, 1.0, 0.0, 0);
+            nodes[3 - 1] = new Node(1.0, 1.0, 0.0, 0);
+            nodes[4 - 1] = new Node(1.0, 0.0, 0.0, 0);
 
             localNodes = Quad4Element.LocalNodes(nodes, out sys);
 

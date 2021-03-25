@@ -1,5 +1,6 @@
 ﻿using System;
-using GPC.Utilities.Fem;
+using System.Collections.Generic;
+using System.Linq;
 using GPC.Geometry;
 using GPC.Model.FEM.Attributes;
 using GPC.Model.FEM.Properties;
@@ -447,7 +448,6 @@ namespace GPC.Model.FEM.FiniteElements
         /// <returns></returns>
         public static Node[] LocalNodes(Node[] globalNodes, out CoordinateSystem cSys)
         {
-            ///TODO: calcolo automatico nodi locali anche se inseriti in ordine sparso.
             #region CalculationOfLocalCoordinates
             //Search for 3 local axis
             Node nodeI = globalNodes[0];
@@ -486,6 +486,18 @@ namespace GPC.Model.FEM.FiniteElements
             localNodes[2] = new Node(v13.DotProduct(vecx), v13.DotProduct(vecy), v13.DotProduct(vecz), nodeK.Id, nodeK.Name); //GlobalNodes.ElementAt(3 - 1);
             localNodes[3] = new Node(v14.DotProduct(vecx), v14.DotProduct(vecy), v14.DotProduct(vecz), nodeL.Id, nodeL.Name); //GlobalNodes.ElementAt(4 - 1);
 
+            //controllo che nodi siano in ordine, orario o antiorario ma non in ordine sparso
+            List<double> angles = localNodes.Select(p => Math.Atan(p.Position.Y / p.Position.X)).ToList();
+            angles.RemoveAt(0); //primo nodo su se stesso -> NaN
+            var anglesOrdered = angles.OrderBy(a => a).ToList();
+            for (int i = 0; i < angles.Count; i++)
+            {
+                if (angles[i] != anglesOrdered[i])
+                {
+                    throw new Exception("Points unordered!");
+                }
+            }
+            
             return localNodes;
             #endregion
         }
