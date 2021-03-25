@@ -32,7 +32,7 @@ namespace GPC.Model.FEM.Collections
         /// <summary>
         ///
         /// </summary>
-        /// <param name="id"></param>
+        /// <param name="id">The <see cref="Elements.Element.Id"/> of the FemObject</param>
         /// <returns></returns>
         /// <exception cref="KeyNotFoundException"> If collection does not contain a element with Id: <param name="id" /> </exception>
         public virtual T this[int id]
@@ -49,7 +49,7 @@ namespace GPC.Model.FEM.Collections
         /// <summary>
         ///
         /// </summary>
-        /// <param name="id"></param>
+        /// <inheritdoc cref="this[int]"/>
         /// <returns></returns>
         /// <exception cref="KeyNotFoundException">If collection does not contain a element with Id:<param name="id"></param> </exception>
         public virtual T GetElementById(int id)

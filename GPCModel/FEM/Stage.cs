@@ -38,9 +38,6 @@ namespace GPC.Model.FEM
 
         public bool Morph => _morph;
 
-        public NodeStageCollection<Node, StageProperty> Nodes => _nodes;
-
-        public FiniteElementStageCollection<FiniteElement, StageFiniteElementProperty> Elements => _elements; 
 
         #endregion
 
@@ -135,7 +132,7 @@ namespace GPC.Model.FEM
         /// <param name="nodes"></param>
         public void AddNodes(FemObjectCollection<Node> nodes)
         {
-                        
+            
             foreach (var node in nodes)
             {
                 StageProperty sp = new StageProperty();
@@ -182,7 +179,7 @@ namespace GPC.Model.FEM
         }
 
         /// <summary>
-        /// Add a <see cref="FiniteElement"/> to the stage element collection
+        /// Add a <see cref="FiniteElement"/> to the stage element collection. All its attributes will be copied
         /// </summary>
         /// <param name="element"></param>
         /// <returns></returns>
@@ -201,6 +198,29 @@ namespace GPC.Model.FEM
             }
             throw new ArgumentException("Element not contained in the reference femModel");
         }
+
+        /// <summary>
+        /// Add a <see cref="FiniteElement"/> to the stage element collection. All its attributes will be copied
+        /// </summary>
+        /// <param name="element"></param>
+        /// <param name="property">Overriding property</param>
+        /// <returns></returns>
+        public StageFiniteElementProperty AddFiniteElement(FiniteElement element, ElementProperty property)
+        {
+            if (_femModel.ContainsFiniteElement(element))
+            {
+                StageFiniteElementProperty sp = new StageFiniteElementProperty(property);
+
+                sp.AddLoadCaseAttributes(element.AttributesLoadCase);
+                sp.AddFreedomCaseAttributes(element.AttributesFreedomCase);
+
+                _elements.Add(element, sp);
+
+                return sp;
+            }
+            throw new ArgumentException("Element not contained in the reference femModel");
+        }
+
 
         /// <inheritdoc cref="AddFiniteElement(FiniteElement)"/>
         public void AddFiniteElements(FemObjectCollection<FiniteElement> elements)
@@ -229,11 +249,15 @@ namespace GPC.Model.FEM
         /// <returns></returns>
         public FemModel ToModel()
         {
-            FemModel femModel = new FemModel();
+            FemModel femModel = new FemModel(_name);
 
-            for (int i = 0; i < _elements.Count; i++)
+            var enumerator = _elements.GetEnumerator();
+            while (enumerator.MoveNext())
             {
-                FiniteElement duplicated = _elements[i].Duplicate(_elements.GetStageProperty(i).Property, _elements.GetStageProperty(i).LoadCaseAttributes, _elements.GetStageProperty(i).FreedomCaseAttribute);
+                var finiteElement = enumerator.Current;
+                FiniteElement duplicated = finiteElement.Duplicate(_elements.GetStageProperty(finiteElement).Property, 
+                                                                    _elements.GetStageProperty(finiteElement).LoadCaseAttributes,
+                                                                    _elements.GetStageProperty(finiteElement).FreedomCaseAttribute);
 
                 femModel.AddFiniteElement(duplicated);
             }
@@ -262,6 +286,7 @@ namespace GPC.Model.FEM
             if (ReferenceEquals(this, sc))
                 return true;
 
+            throw new NotImplementedException();
             return !(sc is null) && _combinations.ScrambledEquals(sc._combinations)
                                  && _analysisType.Equals(sc._analysisType)
                                  && _morph.Equals(sc._morph)
@@ -278,6 +303,7 @@ namespace GPC.Model.FEM
             int hashCode = -23;
             hashCode = hashCode * -17 + base.GetHashCode();
 
+            throw new NotImplementedException();
             foreach (var combo in _combinations)
             {
                 hashCode = hashCode + EqualityComparer<Combination>.Default.GetHashCode(combo);
@@ -322,22 +348,26 @@ namespace GPC.Model.FEM
 
             public void AddLoadCaseAttribute(LoadCaseAttribute attribute)
             {
-                _loadCaseAttributes.Add(attribute);
+                if (attribute != null)
+                    _loadCaseAttributes.Add(attribute);
             }
 
             public void AddLoadCaseAttributes(List<LoadCaseAttribute> attributes)
             {
-                _loadCaseAttributes.AddRange(attributes);
+                if (attributes != null)
+                    _loadCaseAttributes.AddRange(attributes);
             }
 
             public void AddFreedomCaseAttributes(FreedomCaseAttribute attribute)
             {
-                _freedomCaseAttributes.Add(attribute);
+                if (attribute != null)
+                    _freedomCaseAttributes.Add(attribute);
             }
 
             public void AddFreedomCaseAttributes(List<FreedomCaseAttribute> attributes)
             {
-                _freedomCaseAttributes.AddRange(attributes);
+                if (attributes != null)
+                    _freedomCaseAttributes.AddRange(attributes);
             }
 
         }

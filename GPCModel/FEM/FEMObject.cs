@@ -69,6 +69,7 @@ namespace GPC.Model.FEM
         {
             return !(obj1 == obj2);
         }
+
         #endregion
 
         /// <summary>

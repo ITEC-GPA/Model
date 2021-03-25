@@ -36,6 +36,7 @@ namespace GPC.Model.FEM
         #region Variables
 
         // ELEMENTI
+
         /// <summary>
         /// Collection of <see cref="Node"/>
         /// The nodes on this collection does not have duplicate ID but they can be duplicate (same point)
@@ -49,17 +50,16 @@ namespace GPC.Model.FEM
         protected FemObjectCollection<FiniteElement> _elements;
 
         // PROPRIETà
-        // indice del valore dei dizionari parte da 1
-        protected Dictionary<IPlateProperty, int> _plateProperties;
-        protected Dictionary<IBrickProperty, int> _brickProperties;
+        protected List<IPlateProperty> _plateProperties;
+        protected List<IBrickProperty> _brickProperties;
 
         // CARICHI
         protected List<Load> _loads;
-        protected Dictionary<LoadCase, int> _loadCases;
-        protected Dictionary<Combination, int> _combinations;
+        protected List<LoadCase> _loadCases;
+        protected List<Combination> _combinations;
 
-        // FREDOMCASES 
-        protected Dictionary<FreedomCase, int> _freedomCases;
+        // FREEDOM CASES 
+        protected List<FreedomCase> _freedomCases;
 
         // RISULTATI
         protected List<ResultNodeDisplacement> _resultNodeDisplacements;
@@ -102,12 +102,12 @@ namespace GPC.Model.FEM
             _elements = new FemObjectCollection<FiniteElement>();
             _stages = new List<Stage>();
 
-            _plateProperties = new Dictionary<IPlateProperty, int>();
-            _brickProperties = new Dictionary<IBrickProperty, int>();
+            _plateProperties = new List<IPlateProperty>();
+            _brickProperties = new List<IBrickProperty>();
 
-            _loadCases = new Dictionary<LoadCase, int>();
-            _freedomCases = new Dictionary<FreedomCase, int>();
-            _combinations = new Dictionary<Combination, int>();
+            _loadCases = new List<LoadCase>();
+            _freedomCases = new List<FreedomCase>();
+            _combinations = new List<Combination>();
 
             _loads = new List<Load>();
             
@@ -365,8 +365,8 @@ namespace GPC.Model.FEM
                     throw new ArgumentNullException(nameof(plateProperty));
                 else
                 {
-                    if (!_plateProperties.ContainsKey(plateProperty))
-                        _plateProperties[plateProperty] = _plateProperties.Values.DefaultIfEmpty().Max() + 1;
+                    if (!_plateProperties.Contains(plateProperty))
+                        _plateProperties.Add(plateProperty);
                 }
             }
 
@@ -377,8 +377,8 @@ namespace GPC.Model.FEM
                     throw new ArgumentNullException(nameof(brickProperty));
                 else
                 {
-                    if (!_brickProperties.ContainsKey(brickProperty))
-                        _brickProperties[brickProperty] = _brickProperties.Values.DefaultIfEmpty().Max() + 1;
+                    if (!_brickProperties.Contains(brickProperty))
+                        _brickProperties.Add(brickProperty);
                 } 
             }
 
@@ -531,8 +531,8 @@ namespace GPC.Model.FEM
                         if (nsa.Stiffnesses.Count > 0)
                             node.AddAttribute(nsa);
 
-                        if (!_freedomCases.ContainsKey(geometryRestrain.FreedomCase))
-                            _freedomCases[geometryRestrain.FreedomCase] = _freedomCases.Values.Count > 0 ? _freedomCases.Values.Max() + 1 : 1;
+                        if (!_freedomCases.Contains(geometryRestrain.FreedomCase))
+                            _freedomCases.Add(geometryRestrain.FreedomCase);
                     }
                 } 
             }
@@ -556,8 +556,8 @@ namespace GPC.Model.FEM
                             NodeForceAttribute nfa = new NodeForceAttribute(pl.LoadCase, pl.CoordinateSystem, pl.F1, pl.F2, pl.F3, pl.M1, pl.M2, pl.M3);
                             node.AddAttribute(nfa);
 
-                            if (!_loadCases.ContainsKey(pl.LoadCase))
-                                _loadCases[pl.LoadCase] = _loadCases.Values.DefaultIfEmpty().Max() + 1;
+                            if (!_loadCases.Contains(pl.LoadCase))
+                                _loadCases.Add(pl.LoadCase);
                         }
                         else
                             throw new NotImplementedException();
@@ -591,8 +591,8 @@ namespace GPC.Model.FEM
                                                                             ll.M3 * lineLenght / indexes.Count());
                             node.AddAttribute(nfa);
 
-                            if (!_loadCases.ContainsKey(ll.LoadCase))
-                                _loadCases[ll.LoadCase] = _loadCases.Values.DefaultIfEmpty().Max() + 1;
+                            if (!_loadCases.Contains(ll.LoadCase))
+                                _loadCases.Add(ll.LoadCase);
                         }
                         else
                             throw new NotImplementedException();
@@ -624,16 +624,16 @@ namespace GPC.Model.FEM
                             PlateNormalPressureAttribute pna = new PlateNormalPressureAttribute(pl.LoadCase, pl.Pressure);
                             plate.AddAttribute(pna);
 
-                            if (!_loadCases.ContainsKey(pl.LoadCase))
-                                _loadCases[pl.LoadCase] = _loadCases.Values.DefaultIfEmpty().Max() + 1;
+                            if (!_loadCases.Contains(pl.LoadCase))
+                                _loadCases.Add(pl.LoadCase);
                         }
                         else if (load is AreaLoad gal)
                         {
                             PlatePressureAttribute ppa = new PlatePressureAttribute(gal.LoadCase, gal.CoordinateSystem, gal.P1, gal.P2, gal.P3);
                             plate.AddAttribute(ppa);
 
-                            if (!_loadCases.ContainsKey(gal.LoadCase))
-                                _loadCases[gal.LoadCase] = _loadCases.Values.DefaultIfEmpty().Max() + 1;
+                            if (!_loadCases.Contains(gal.LoadCase))
+                                _loadCases.Add(gal.LoadCase);
                         }
                         else
                             throw new NotImplementedException();
@@ -652,31 +652,46 @@ namespace GPC.Model.FEM
                 foreach (var node in finiteElement.Nodes)
                 {
                     _nodes.Add(node);
-                } // TODO: proprietà
+                } 
+                
                 _elements.Add(finiteElement);
+                AddProperty(finiteElement.Property);
             }
         }
         
-
-        public virtual void AddPlate()
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="elementProperty"></param>
+        /// <returns>True if the property has been added or already contained in the FemModel</returns>
+        protected virtual bool AddProperty(ElementProperty elementProperty)
         {
-            throw new NotImplementedException();
+            if (elementProperty is IPlateProperty ipl)
+            {
+                if (_plateProperties.Contains(ipl))
+                {
+                    _plateProperties.Add(ipl);
+                }
+                return true;
+            }
+            else if (elementProperty is IBrickProperty ibp)
+            {
+                if (_brickProperties.Contains(ibp))
+                {
+                    _brickProperties.Add(ibp);
+                }
+                return true;
+            }
+
+            return false;
         }
 
-        public virtual void AddBrick()
-        {
-            throw new NotImplementedException();
-        }
-
-        public virtual void AddBeam()
-        {
-            throw new NotImplementedException();
-        }
 
         public virtual void AddLoad()
         {
             throw new NotImplementedException();
         }
+
 
         public virtual void AddGeometryRestrain()
         {
@@ -692,6 +707,11 @@ namespace GPC.Model.FEM
         public virtual FiniteElement GetFiniteElement(int index)
         {
             return _elements[index];
+        }
+
+        public virtual IEnumerator<FiniteElement> GetElementsEnumerator()
+        {
+            return _elements.GetEnumerator();
         }
 
 
@@ -715,47 +735,30 @@ namespace GPC.Model.FEM
 
         public virtual void AddCombination(Combination combination)
         {
-            if (!_combinations.ContainsKey(combination))
+            if (!_combinations.Contains(combination))
             {
-                _combinations.Add(combination, _combinations.Values.DefaultIfEmpty().Max() + 1);
+                _combinations.Add(combination);
             }
         }
 
         public virtual void AddCombinations(List<Combination> combinations)
         {
-            int index = _combinations.Values.DefaultIfEmpty().Max();
             foreach (var combination in combinations)
             {
-                if (!_combinations.ContainsKey(combination))
+                if (!_combinations.Contains(combination))
                 {
-                    _combinations.Add(combination, index++);
+                    _combinations.Add(combination);
                 }
             }
         }
         
 
-        //public virtual void AddStage(string name, AnalysisType analysisType, FemModel femModel)
-        //{
-        //    Stage stage = new Stage(name, analysisType);
-        //    stage.AddNodes(femModel._nodes);
-        //    stage.AddFiniteElements(femModel._elements);
-
-        //    _stages.Add(stage);
-        //}
-
-
-        //public virtual Stage AddStage(string name, AnalysisType analysisType, Stage stageToCopy)
-        //{
-        //    Stage stage = new Stage(name, analysisType, stageToCopy.Morph, stageToCopy.Combinations);
-
-        //    stage.AddNodes(stageToCopy.nodes);
-        //    stage.AddFiniteElements(stageToCopy.elements);
-
-        //    _stages.Add(stage);
-        //    return stage;
-        //}
-
-
+        /// <summary>
+        /// Add a stage to the stage list. The stage will empty (without elements and nodes)
+        /// </summary>
+        /// <param name="name"></param>
+        /// <param name="analysisType"></param>
+        /// <returns></returns>
         public virtual Stage AddStage(string name, AnalysisType analysisType)
         {
             Stage stage = new Stage(name, this, analysisType, false, null);
