@@ -30,13 +30,27 @@ namespace GPC.Model.FEM.FiniteElements
 
         public override FiniteElement Duplicate(ElementProperty property, List<LoadCaseAttribute> lcAttributes, List<FreedomCaseAttribute> fdAttributes)
         {
-            var plate = new Plate(_nodesGlobal, Property, Id); 
+            var plate = new Plate(_nodesGlobal, (PlateProperty)property, Id);
 
-            foreach(LoadCaseAttribute attribute in lcAttributes)
+            if(lcAttributes != null)
+            { 
+                foreach(LoadCaseAttribute attribute in lcAttributes)
+                { 
+                    if (attribute is IPlateLoadCaseAttribute plca)
+                    {
+                        plate.AddLoadCaseAttribute(plca);
+                    }
+                } 
+            }
+
+            if (fdAttributes != null)
             {
-                if (attribute is IPlateLoadCaseAttribute plca)
+                foreach (FreedomCaseAttribute attribute in fdAttributes)
                 {
-                    plate.AddAttribute(plca);
+                    if (attribute is IPlateFreedomCaseAttribute pfca)
+                    {
+                        plate.AddFreedomCaseAttribute(pfca);
+                    }
                 }
             }
 
@@ -44,10 +58,17 @@ namespace GPC.Model.FEM.FiniteElements
         }
 
 
-        public virtual void AddAttribute(IPlateLoadCaseAttribute attribute)
+        public virtual void AddLoadCaseAttribute(IPlateLoadCaseAttribute attribute)
         {
             _attributesLoadCase.Add((LoadCaseAttribute)attribute);
         }
+
+
+        public virtual void AddFreedomCaseAttribute(IPlateFreedomCaseAttribute attribute)
+        {
+            _attributesFreedomCase.Add((FreedomCaseAttribute)attribute);
+        }
+
 
         protected override mnl.Vector<double> BuildFLocalCoord()
         {

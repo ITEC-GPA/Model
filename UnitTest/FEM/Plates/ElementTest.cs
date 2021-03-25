@@ -36,7 +36,7 @@ namespace FemTest.Solver
             FreedomCase freedomCase = new FreedomCase("freedomCase1");
             CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
             PlatePressureAttribute pressure = new PlatePressureAttribute(loadCase, sys, 0.0, 0.0, 1.0);
-            e0.AddAttribute(pressure);
+            e0.AddLoadCaseAttribute(pressure);
 
             LinearSolver fem = new LinearSolver(new FiniteElement[] { e0 });
 
@@ -157,9 +157,9 @@ namespace FemTest.Solver
             nodeD.AddAttribute(fix);
 
             Plate e0 = new Tri3Element(new Node[] { nodeA, nodeB, nodeC }, prop, 1);
-            e0.AddAttribute(p);
+            e0.AddLoadCaseAttribute(p);
             Plate e1 = new Tri3Element(new Node[] { nodeB, nodeD, nodeC }, prop, 2);
-            e1.AddAttribute(p);
+            e1.AddLoadCaseAttribute(p);
             LinearSolver fem = new LinearSolver(new FiniteElement[] { e0, e1 });
 
             double DZC = fem.GetDisplacementGlobalCoordinates(nodeC, LinearSolver.DOF.DZ);

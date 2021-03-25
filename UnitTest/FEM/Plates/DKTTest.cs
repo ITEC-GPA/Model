@@ -577,7 +577,7 @@ namespace FemTest.Solver
             FreedomCase freedomCase = new FreedomCase("freedomCase1");
             CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
             PlatePressureAttribute pressure = new PlatePressureAttribute(loadCase, sys, 0.0, 0.0, 1.0);
-            e0.AddAttribute(pressure);
+            e0.AddLoadCaseAttribute(pressure);
 
             LinearSolver fem = new LinearSolver(new FiniteElement[] { e0 });
 

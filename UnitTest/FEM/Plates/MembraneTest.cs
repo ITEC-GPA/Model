@@ -140,7 +140,7 @@ namespace FemTest.Solver
             List<FiniteElement> elements = new List<FiniteElement>();
             Plate e0 = new Tri3PlaneStress(nodesPlate1.ToArray(), prop, 1);
             PlatePressureAttribute p = new PlatePressureAttribute(loadCase, sys, -10.0, 0, 0);
-            e0.AddAttribute(p);
+            e0.AddLoadCaseAttribute(p);
 
             elements.Add(e0);
             elements.Add(new Tri3PlaneStress(nodesPlate2.ToArray(), prop, 2));
@@ -432,7 +432,7 @@ namespace FemTest.Solver
             PlatePressureAttribute pressure = new PlatePressureAttribute(lc, sys, px, 0, 0);
             
             Quad4Membranal el = new Quad4Membranal(nds, prop, 1);
-            el.AddAttribute(pressure);
+            el.AddLoadCaseAttribute(pressure);
             
             LinearSolver fem = new LinearSolver(new FiniteElement[] { el });
             Console.WriteLine("kGlob="+fem.KGlobal);
