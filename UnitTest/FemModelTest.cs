@@ -103,7 +103,7 @@ namespace FemTest
 
         private void ExportMesh(Mesh mesh)
         {
-            MeshExport.ExportToMshFormatv2(base.GetFileInOutputFolder(GetTestName() + "Mesh", "msh"), new List<Mesh>() { mesh });
+            MeshExport.ExportToMshFormatv2(base.GetFilePathInOutputFolder(GetTestName() + "Mesh", "msh"), new List<Mesh>() { mesh });
         }
 
         private Shape CreateSimpleShape(double width, double height)

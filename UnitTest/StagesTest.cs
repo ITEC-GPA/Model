@@ -86,18 +86,23 @@ namespace FemTest
         [TestMethod]
         public void StageTest1()
         {
+            PlateProperty p1 = new PlateProperty(new SteelMaterial("", 1, 0.1, 2, 3, 4), 1, 2, "P1");
+            PlateProperty p2 = new PlateProperty(new SteelMaterial("", 1, 0.1, 2, 3, 4), 10, 20, "P1");
+
             FemModel model = new FemModel();
 
-            Mesh mesh = CreateSimpleMesh(40, 60, 40, 60, 0);
-            model.AddMesh(mesh, new PlateProperty(new SteelMaterial("", 1, 0.1, 2, 3, 4), 1, 2), null, null, null, null, null);
+            Mesh mesh = CreateSimpleMesh(10, 10, 2, 4, 0);
+            model.AddMesh(mesh, p1 ,null, null, null, null, null);
 
             var stage1 = model.AddStage("Stg1", FemModel.AnalysisType.Linear);
             var stage2 = model.AddStage("Stg2", FemModel.AnalysisType.Linear);
+            
+
+            var enumerator = model.GetElementsEnumerator();
+
 
             foreach (var stage in model.Stages)
             {
-                var enumerator = model.GetElementsEnumerator();
-
                 while (enumerator.MoveNext())
                 {
                     var fe = enumerator.Current;
@@ -105,9 +110,34 @@ namespace FemTest
                 }
             }
 
-            var m = stage1.ToModel();
+            while (enumerator.MoveNext())
+            {
+                var fe = enumerator.Current;
+                stage1.AddFiniteElement(fe);
+            }
 
-            Assert.IsTrue(m == model);
+
+            while (enumerator.MoveNext())
+            {
+                var fe = enumerator.Current;
+                if (fe.Id > 4)
+                {
+                    stage2.AddFiniteElement(fe, p2);
+                }
+                else
+                {
+                    stage2.AddFiniteElement(fe);
+                }
+            }
+
+            var m1 = stage1.ToModel();
+            var m2 = stage2.ToModel();
+
+
+            Assert.IsTrue((m1.GetFiniteElement(5).Property as PlateProperty).MembraneThickness == 2);
+            Assert.IsTrue((m2.GetFiniteElement(5).Property as PlateProperty).MembraneThickness == 20);
+
+
         }
     }
 }
