@@ -75,11 +75,59 @@ namespace GPC.Model.FEM
         };
 
         /// <summary>
-        /// Return J(x,y) = J(x,y,nodes) with nodes assigned
+        /// Return J(x,y) = J(x,y,dNdCsi, dNdEta,nodes) with "nodes" and derivative of shape function assigned
         /// </summary>
-        public static Func<Func<double, double, Node[], mnl.Matrix<double>>, Node[], Func<double, double, mnl.Matrix<double>>> J = (Func<double, double, Node[], mnl.Matrix<double>> J, Node[] local) => {
-            return (double input1, double input2) => J(input1, input2, local);
+        public static Func<Func<int, double, double, double>, Func<int, double, double, double>, Node[], Func<double, double, mnl.Matrix<double>>> J = (Func<int, double, double, double> dFdInput1, Func<int, double, double, double> dFdInput2, Node[] nodes) => {
+            return (double input1, double input2) => Jacob(input1, input2, dFdInput1, dFdInput2, nodes);
         };
+
+        /// <summary>
+        /// Matrice jacobiana per cambiamento di variabile
+        /// dN/dCsi = dx/dCsi * dN/dx + dy/dCsi * dN/dy
+        /// dN/dEta = dx/dEta * dN/dx + dy/dEta * dN/dy
+        /// => dN/dNatural = J * dN/dLocal
+        /// => dN/dLocal = J^-1 * dN/dNatural
+        /// => dF/dNatural = J^-1 dF/dLocal
+        /// </summary>
+        /// <param name="csi">coordinata naturale</param>
+        /// <param name="eta">coordinata naturale</param>
+        /// <param name="dNdCsi">derivata funzioni di forma rispetto a Csi che descrive la GEOMETRIA (passaggio da coordinate locali a naturali) in funzione dell'indice di nodo e coordinate naturali</param>
+        /// <param name="dNdEta">derivata funzioni di forma rispetto a Eta che descrive la GEOMETRIA (passaggio da coordinate locali a naturali) in funzione dell'indice di nodo e coordinate naturali</param>
+        /// <param name="localNodes"></param>
+        /// <returns>
+        /// dx/dCsi, dy/dCsi
+        /// dy/dEta, dy/dEta
+        /// </returns>
+        public static mnl.Matrix<double> Jacob(double csi, double eta, Func<int, double, double, double> dNdCsi, Func<int, double, double, double> dNdEta, Node[] localNodes)
+        {
+            double j11 = 0.0;
+            double j12 = 0.0;
+            double j21 = 0.0;
+            double j22 = 0.0;
+            for (int node = 0; node < localNodes.Length; node++)
+            {
+                int i = node + 1;
+                double xi = localNodes[node].Position.X;
+                double yi = localNodes[node].Position.Y;
+
+                j11 = j11 + dNdCsi(i, csi, eta) * xi;
+                j12 = j12 + dNdCsi(i, csi, eta) * yi;
+                j21 = j21 + dNdEta(i, csi, eta) * xi;
+                j22 = j22 + dNdEta(i, csi, eta) * yi;
+            }
+
+            mnl.Matrix<double> J = mnl.Matrix<double>.Build.Dense(2, 2);
+            J[0, 0] = j11;
+
+            J[0, 1] = j12;
+            J[1, 0] = j21;
+
+            J[1, 1] = j22;
+
+            //Console.WriteLine("J(csi="+csi.ToString("F2")+",eta="+eta.ToString("F2")+"="+J);
+            //Console.WriteLine("detJ(csi=" + csi.ToString("F2") + ",eta=" + eta.ToString("F2") + "=" + J.Determinant());
+            return J;
+        }
 
         /// <summary>
         /// Convert: dF/dCsi -> dF/dX and dF/dEta -> dF/dY

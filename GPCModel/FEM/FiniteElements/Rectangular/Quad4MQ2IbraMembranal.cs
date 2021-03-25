@@ -2,7 +2,7 @@
 using System.Linq;
 using GPC.Geometry;
 using GPC.Model.FEM.Properties;
-using GPC.Model.FEM.Attributes;
+using GPC.Utilities.Fem;
 using mnl = MathNet.Numerics.LinearAlgebra;
 
 namespace GPC.Model.FEM.FiniteElements
@@ -153,7 +153,7 @@ namespace GPC.Model.FEM.FiniteElements
 
             Func<double, double, mnl.Matrix<double>> jacobiano = (double csi, double eta) =>
             {
-                return Quad4Element.J(csi, eta, _localNodes);
+                return Util.Jacob(csi, eta, LinearShapeFunctionQuad4.DNdCsi, LinearShapeFunctionQuad4.DNdEta, _localNodes); //attention
             };
 
             mnl.Matrix<double> kSymmetric = GaussIntegration.IntegrationQuadrangular(BtraspDB, jacobiano, 9); //9 points by reference article 1990
@@ -357,8 +357,8 @@ namespace GPC.Model.FEM.FiniteElements
     
             /*
             mnl.Vector<double> dNidNatural = mnl.Vector<double>.Build.Dense(2);
-            dNidNatural[0] = Quad4Element.dNdCsi4nodes(i, csi, eta); //dNidCsi
-            dNidNatural[1] = Quad4Element.dNdEta4nodes(i, csi, eta); //dNidEta
+            dNidNatural[0] = LinearShapeFunctionQuad4.DNdCsi4nodes(i, csi, eta); //dNidCsi
+            dNidNatural[1] = LinearShapeFunctionQuad4.DNdEta4nodes(i, csi, eta); //dNidEta
             Console.WriteLine("dN" + i + "dNatural(csi=" + csi + ",eta=" + eta + ") = " + dNidNatural);
 
             mnl.Vector<double> dNidLocal = invJ * dNidNatural;
@@ -367,19 +367,20 @@ namespace GPC.Model.FEM.FiniteElements
             Console.WriteLine("dN" + i + "dLocal(csi=" + csi + ",eta=" + eta + ") = " + dNidLocal);
             */
 
-            var dNidCsi = Util.F(i, Quad4Element.dNdCsi); //f(csi, eta)
-            var dNidEta = Util.F(i, Quad4Element.dNdEta); //f(csi, eta)
+            var dNidCsi = Util.F(i, LinearShapeFunctionQuad4.DNdCsi); //f(csi, eta)
+            var dNidEta = Util.F(i, LinearShapeFunctionQuad4.DNdEta); //f(csi, eta)
 
-            var dNldCsi = Util.F(l, Quad8Element.dNdCsi); //f(csi, eta)
-            var dNldEta = Util.F(l, Quad8Element.dNdEta); //f(csi, eta)
+            var dNldCsi = Util.F(l, QuadraticShapeFunctionQuad8.DNdCsi); //f(csi, eta)
+            var dNldEta = Util.F(l, QuadraticShapeFunctionQuad8.DNdEta); //f(csi, eta)
 
-            var dNmdCsi = Util.F(m, Quad8Element.dNdCsi); //f(csi, eta)
-            var dNmdEta = Util.F(m, Quad8Element.dNdEta); //f(csi, eta)
+            var dNmdCsi = Util.F(m, QuadraticShapeFunctionQuad8.DNdCsi); //f(csi, eta)
+            var dNmdEta = Util.F(m, QuadraticShapeFunctionQuad8.DNdEta); //f(csi, eta)
 
-            var J4nodes = Util.J(Quad4Element.J, _localNodes); //f(csi, eta)
+            var J4nodes = Util.J(LinearShapeFunctionQuad4.DNdCsi, LinearShapeFunctionQuad4.DNdEta, _localNodes); //f(csi, eta)
             //create fake 8 nodes
             Node[] local8Nodes = Quad4Element.Get8Nodes(_localNodes);
-            var J8nodes = Util.J(Quad8Element.J, local8Nodes); //f(csi, eta)
+            
+            var J8nodes = Util.J(QuadraticShapeFunctionQuad8.DNdCsi, QuadraticShapeFunctionQuad8.DNdEta, local8Nodes); //f(csi, eta)
 
             if (J4nodes(csi, eta).Determinant() / J8nodes(csi, eta).Determinant() > 1.0001 || J4nodes(csi, eta).Determinant() / J8nodes(csi, eta).Determinant() < 0.99999)
             {
@@ -406,7 +407,7 @@ namespace GPC.Model.FEM.FiniteElements
             #endregion
 
             #region gi
-            double gi = -1.0 / 16.0 * (lij * cij * dNldY - lik * cik * dNmdY) + 1.0 / 16.0 * (lij * sij * dNldX - lik * sik * dNmdX) - Quad4Element.N(i, csi, eta);
+            double gi = -1.0 / 16.0 * (lij * cij * dNldY - lik * cik * dNmdY) + 1.0 / 16.0 * (lij * sij * dNldX - lik * sik * dNmdX) - LinearShapeFunctionQuad4.NaturalShapeFunction(i, csi, eta);
             //Console.WriteLine("g" + i + " = " + gi);
             #endregion
             bVectorSigned[0, 2] = gi;
@@ -434,20 +435,20 @@ namespace GPC.Model.FEM.FiniteElements
 
             GetDataCalculation(i, _localNodes, out double lij, out double sij, out double cij, out double lik, out double sik, out double cik, out int j, out int k, out int m, out int l);
 
-            var dNidCsi = Util.F(i, Quad4Element.dNdCsi); //f(csi, eta)
-            var dNidEta = Util.F(i, Quad4Element.dNdEta); //f(csi, eta)
+            var dNidCsi = Util.F(i, LinearShapeFunctionQuad4.DNdCsi); //f(csi, eta)
+            var dNidEta = Util.F(i, LinearShapeFunctionQuad4.DNdEta); //f(csi, eta)
 
-            var dNldCsi = Util.F(l, Quad8Element.dNdCsi); //f(csi, eta)
-            var dNldEta = Util.F(l, Quad8Element.dNdEta); //f(csi, eta)
+            var dNldCsi = Util.F(l, QuadraticShapeFunctionQuad8.DNdCsi); //f(csi, eta)
+            var dNldEta = Util.F(l, QuadraticShapeFunctionQuad8.DNdEta); //f(csi, eta)
 
-            var dNmdCsi = Util.F(m, Quad8Element.dNdCsi); //f(csi, eta)
-            var dNmdEta = Util.F(m, Quad8Element.dNdEta); //f(csi, eta)
+            var dNmdCsi = Util.F(m, QuadraticShapeFunctionQuad8.DNdCsi); //f(csi, eta)
+            var dNmdEta = Util.F(m, QuadraticShapeFunctionQuad8.DNdEta); //f(csi, eta)
 
-            var J4nodes = Util.J(Quad4Element.J, _localNodes); //f(csi, eta)
+            var J4nodes = Util.J(LinearShapeFunctionQuad4.DNdCsi, LinearShapeFunctionQuad4.DNdEta, _localNodes); //f(csi, eta)
 
             //create fake 8 nodes
             Node[] local8Nodes = Quad4Element.Get8Nodes(_localNodes);
-            var J8nodes = Util.J(Quad8Element.J, local8Nodes); //f(csi, eta)
+            var J8nodes = Util.J(QuadraticShapeFunctionQuad8.DNdCsi, QuadraticShapeFunctionQuad8.DNdEta, local8Nodes); //f(csi, eta)
 
             if (J4nodes(csi, eta).Determinant() / J8nodes(csi, eta).Determinant() > 1.0001 || J4nodes(csi, eta).Determinant() / J8nodes(csi, eta).Determinant() < 0.99999)
             {
@@ -480,8 +481,8 @@ namespace GPC.Model.FEM.FiniteElements
 
             #region Bi
             mnl.Matrix<double> Bi = mnl.Matrix<double>.Build.Dense(3,2);
-            /*double dNidCsi = Quad4Element.dNdCsi(i, csi, eta);
-            double dNidEta = Quad4Element.dNdEta(i, csi, eta);
+            /*double dNidCsi = LinearShapeFunctionQuad4.DNdCsi(i, csi, eta);
+            double dNidEta = LinearShapeFunctionQuad4.DNdEta(i, csi, eta);
             mnl.Vector<double> dNidNatural = mnl.Vector<double>.Build.Dense(2);
             dNidNatural[0] = dNidCsi;
             dNidNatural[1] = dNidEta;
@@ -613,10 +614,10 @@ namespace GPC.Model.FEM.FiniteElements
 
                         for (int j = 0; j < _localNodes.Length; j++)
                         {
-                            J4nodeElement[0, 0] = J4nodeElement[0, 0] + Quad4Element.dNdCsi4nodes(j + 1, csi, eta) * _localNodes[j].Position.X; // dx/dcsi
-                            J4nodeElement[0, 1] = J4nodeElement[0, 1] + Quad4Element.dNdCsi4nodes(j + 1, csi, eta) * _localNodes[j].Position.Y; // dy/dcsi
-                            J4nodeElement[1, 0] = J4nodeElement[1, 0] + Quad4Element.dNdEta4nodes(j + 1, csi, eta) * _localNodes[j].Position.X; // dx/deta
-                            J4nodeElement[1, 1] = J4nodeElement[1, 1] + Quad4Element.dNdEta4nodes(j + 1, csi, eta) * _localNodes[j].Position.Y; // dy/deta
+                            J4nodeElement[0, 0] = J4nodeElement[0, 0] + LinearShapeFunctionQuad4.DNdCsi4nodes(j + 1, csi, eta) * _localNodes[j].Position.X; // dx/dcsi
+                            J4nodeElement[0, 1] = J4nodeElement[0, 1] + LinearShapeFunctionQuad4.DNdCsi4nodes(j + 1, csi, eta) * _localNodes[j].Position.Y; // dy/dcsi
+                            J4nodeElement[1, 0] = J4nodeElement[1, 0] + LinearShapeFunctionQuad4.DNdEta4nodes(j + 1, csi, eta) * _localNodes[j].Position.X; // dx/deta
+                            J4nodeElement[1, 1] = J4nodeElement[1, 1] + LinearShapeFunctionQuad4.DNdEta4nodes(j + 1, csi, eta) * _localNodes[j].Position.Y; // dy/deta
                         }
                         double detJ = J4nodeElement.Determinant();
                         /*Console.WriteLine("N1(" + csi + "," + eta + ") = " + Quad4Element.N4nodes(1, csi, eta));

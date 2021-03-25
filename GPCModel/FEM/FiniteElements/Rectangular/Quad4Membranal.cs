@@ -3,6 +3,7 @@ using System.Linq;
 using GPC.Geometry;
 using GPC.Model.FEM.Properties;
 using GPC.Model.FEM.Attributes;
+using GPC.Utilities.Fem;
 using mnl = MathNet.Numerics.LinearAlgebra;
 
 namespace GPC.Model.FEM.FiniteElements
@@ -136,7 +137,7 @@ namespace GPC.Model.FEM.FiniteElements
 
                 mnl.Matrix<double> b = GetB(csi, eta);
                 mnl.Matrix<double> m = b.Transpose() * _d * b;
-                mnl.Matrix<double> jacob = Quad4Element.J(csi, eta, _localNodes);
+                mnl.Matrix<double> jacob = Util.Jacob(csi, eta, LinearShapeFunctionQuad4.DNdCsi, LinearShapeFunctionQuad4.DNdEta, _localNodes);
                     
                 /*Console.WriteLine();
                 Console.WriteLine("B(csi=" + csi.ToString("F2") + ",eta=" + eta.ToString("F2") + ")^T * D * B(csi=" + csi.ToString("F2") + ",eta=" + eta.ToString("F2")+"):");
@@ -177,7 +178,7 @@ namespace GPC.Model.FEM.FiniteElements
              * a = Jacob^(-1) oppurtunamente disposto in matrice 3x4
             */
             mnl.Matrix<double> a = mnl.Matrix<double>.Build.Dense(3, 4);
-            mnl.Matrix<double> j = Quad4Element.J(csi, eta, _localNodes);
+            mnl.Matrix<double> j = Util.Jacob(csi, eta, LinearShapeFunctionQuad4.DNdCsi, LinearShapeFunctionQuad4.DNdEta, _localNodes);
             a[0, 0] = j[1, 1];
             a[0, 1] = -j[0, 1];
 
@@ -206,25 +207,25 @@ namespace GPC.Model.FEM.FiniteElements
              *     ..        ...  ...     dN4/dcsi
              *     0         ...  ...     dN4/deta
              */
-            g[0, 0] = Quad4Element.dNdCsi(1, csi, eta);
-            g[0, 2] = Quad4Element.dNdCsi(2, csi, eta);
-            g[0, 4] = Quad4Element.dNdCsi(3, csi, eta);
-            g[0, 6] = Quad4Element.dNdCsi(4, csi, eta);
+            g[0, 0] = LinearShapeFunctionQuad4.DNdCsi(1, csi, eta);
+            g[0, 2] = LinearShapeFunctionQuad4.DNdCsi(2, csi, eta);
+            g[0, 4] = LinearShapeFunctionQuad4.DNdCsi(3, csi, eta);
+            g[0, 6] = LinearShapeFunctionQuad4.DNdCsi(4, csi, eta);
 
-            g[1, 0] = Quad4Element.dNdEta(1, csi, eta);
-            g[1, 2] = Quad4Element.dNdEta(2, csi, eta);
-            g[1, 4] = Quad4Element.dNdEta(3, csi, eta);
-            g[1, 6] = Quad4Element.dNdEta(4, csi, eta);
+            g[1, 0] = LinearShapeFunctionQuad4.DNdEta(1, csi, eta);
+            g[1, 2] = LinearShapeFunctionQuad4.DNdEta(2, csi, eta);
+            g[1, 4] = LinearShapeFunctionQuad4.DNdEta(3, csi, eta);
+            g[1, 6] = LinearShapeFunctionQuad4.DNdEta(4, csi, eta);
 
-            g[2, 1] = Quad4Element.dNdCsi(1, csi, eta);
-            g[2, 3] = Quad4Element.dNdCsi(2, csi, eta);
-            g[2, 5] = Quad4Element.dNdCsi(3, csi, eta);
-            g[2, 7] = Quad4Element.dNdCsi(4, csi, eta);
+            g[2, 1] = LinearShapeFunctionQuad4.DNdCsi(1, csi, eta);
+            g[2, 3] = LinearShapeFunctionQuad4.DNdCsi(2, csi, eta);
+            g[2, 5] = LinearShapeFunctionQuad4.DNdCsi(3, csi, eta);
+            g[2, 7] = LinearShapeFunctionQuad4.DNdCsi(4, csi, eta);
 
-            g[3, 1] = Quad4Element.dNdEta(1, csi, eta);
-            g[3, 3] = Quad4Element.dNdEta(2, csi, eta);
-            g[3, 5] = Quad4Element.dNdEta(3, csi, eta);
-            g[3, 7] = Quad4Element.dNdEta(4, csi, eta);
+            g[3, 1] = LinearShapeFunctionQuad4.DNdEta(1, csi, eta);
+            g[3, 3] = LinearShapeFunctionQuad4.DNdEta(2, csi, eta);
+            g[3, 5] = LinearShapeFunctionQuad4.DNdEta(3, csi, eta);
+            g[3, 7] = LinearShapeFunctionQuad4.DNdEta(4, csi, eta);
             /*Console.WriteLine("g=");
             for (int row = 0; row < g.RowCount; row++)
             {
@@ -283,10 +284,10 @@ namespace GPC.Model.FEM.FiniteElements
 
                         for (int j = 0; j < _localNodes.Length; j++)
                         {
-                            J4nodeElement[0, 0] = J4nodeElement[0, 0] + Quad4Element.dNdCsi(j + 1, csi, eta) * _localNodes[j].Position.X; // dx/dcsi
-                            J4nodeElement[0, 1] = J4nodeElement[0, 1] + Quad4Element.dNdCsi(j + 1, csi, eta) * _localNodes[j].Position.Y; // dy/dcsi
-                            J4nodeElement[1, 0] = J4nodeElement[1, 0] + Quad4Element.dNdEta(j + 1, csi, eta) * _localNodes[j].Position.X; // dx/deta
-                            J4nodeElement[1, 1] = J4nodeElement[1, 1] + Quad4Element.dNdEta(j + 1, csi, eta) * _localNodes[j].Position.Y; // dy/deta
+                            J4nodeElement[0, 0] = J4nodeElement[0, 0] + LinearShapeFunctionQuad4.DNdCsi(j + 1, csi, eta) * _localNodes[j].Position.X; // dx/dcsi
+                            J4nodeElement[0, 1] = J4nodeElement[0, 1] + LinearShapeFunctionQuad4.DNdCsi(j + 1, csi, eta) * _localNodes[j].Position.Y; // dy/dcsi
+                            J4nodeElement[1, 0] = J4nodeElement[1, 0] + LinearShapeFunctionQuad4.DNdEta(j + 1, csi, eta) * _localNodes[j].Position.X; // dx/deta
+                            J4nodeElement[1, 1] = J4nodeElement[1, 1] + LinearShapeFunctionQuad4.DNdEta(j + 1, csi, eta) * _localNodes[j].Position.Y; // dy/deta
                         }
                         double detJ = J4nodeElement.Determinant();
                         /*Console.WriteLine("N1(" + csi + "," + eta + ") = " + Quad4Element.N4nodes(1, csi, eta));
@@ -295,17 +296,17 @@ namespace GPC.Model.FEM.FiniteElements
                         Console.WriteLine("N4(" + csi + "," + eta + ") = " + Quad4Element.N4nodes(4, csi, eta));
                         Console.WriteLine("F: detJ(" + csi + "," + eta + ") = " + detJ);*/
 
-                        _fLocalCoord[0] = _fLocalCoord[0] + Quad4Element.N(1, csi, eta) * detJ * gaussWeight * px; //node1
-                        _fLocalCoord[1] = _fLocalCoord[1] + Quad4Element.N(1, csi, eta) * detJ * gaussWeight * py; //node1
+                        _fLocalCoord[0] = _fLocalCoord[0] + LinearShapeFunctionQuad4.NaturalShapeFunction(1, csi, eta) * detJ * gaussWeight * px; //node1
+                        _fLocalCoord[1] = _fLocalCoord[1] + LinearShapeFunctionQuad4.NaturalShapeFunction(1, csi, eta) * detJ * gaussWeight * py; //node1
 
-                        _fLocalCoord[2] = _fLocalCoord[2] + Quad4Element.N(2, csi, eta) * detJ * gaussWeight * px; //node2
-                        _fLocalCoord[3] = _fLocalCoord[3] + Quad4Element.N(2, csi, eta) * detJ * gaussWeight * py; //node2
+                        _fLocalCoord[2] = _fLocalCoord[2] + LinearShapeFunctionQuad4.NaturalShapeFunction(2, csi, eta) * detJ * gaussWeight * px; //node2
+                        _fLocalCoord[3] = _fLocalCoord[3] + LinearShapeFunctionQuad4.NaturalShapeFunction(2, csi, eta) * detJ * gaussWeight * py; //node2
 
-                        _fLocalCoord[4] = _fLocalCoord[4] + Quad4Element.N(3, csi, eta) * detJ * gaussWeight * px; //node3
-                        _fLocalCoord[5] = _fLocalCoord[5] + Quad4Element.N(3, csi, eta) * detJ * gaussWeight * py; //node3
+                        _fLocalCoord[4] = _fLocalCoord[4] + LinearShapeFunctionQuad4.NaturalShapeFunction(3, csi, eta) * detJ * gaussWeight * px; //node3
+                        _fLocalCoord[5] = _fLocalCoord[5] + LinearShapeFunctionQuad4.NaturalShapeFunction(3, csi, eta) * detJ * gaussWeight * py; //node3
                     
-                        _fLocalCoord[6] = _fLocalCoord[6] + Quad4Element.N(4, csi, eta) * detJ * gaussWeight * px; //node4
-                        _fLocalCoord[7] = _fLocalCoord[7] + Quad4Element.N(4, csi, eta) * detJ * gaussWeight * py; //node4
+                        _fLocalCoord[6] = _fLocalCoord[6] + LinearShapeFunctionQuad4.NaturalShapeFunction(4, csi, eta) * detJ * gaussWeight * px; //node4
+                        _fLocalCoord[7] = _fLocalCoord[7] + LinearShapeFunctionQuad4.NaturalShapeFunction(4, csi, eta) * detJ * gaussWeight * py; //node4
                     }
                 }
             }
