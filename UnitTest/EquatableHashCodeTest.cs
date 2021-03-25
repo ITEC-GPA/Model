@@ -13,6 +13,7 @@ using GPC.Model.Combinations;
 using System.Collections.Generic;
 using GPC.Model.Loads;
 using GPC.TestUtilities;
+using GPC.Model.FEM.Collections;
 
 namespace GeneralTest
 {
@@ -178,9 +179,6 @@ namespace GeneralTest
         }
 
 
-
-
-
         [TestMethod]
         public void FemObjectEqualityComparer1()
         {
@@ -246,6 +244,39 @@ namespace GeneralTest
             Assert.IsTrue(dictWithComparer.ContainsKey(n2));
             Assert.IsTrue(dictWithComparer.ContainsKey(n3));
             Assert.IsTrue(dictWithComparer.ContainsKey(n4));
+        }
+
+
+
+        [TestMethod]
+        public void FemObjectEqualityComparer4()
+        {
+            FemObjectCollection<Node> cnode1 = new FemObjectCollection<Node>();
+            FemObjectCollection<Node> cnode2 = new FemObjectCollection<Node>();
+            FemObjectCollection<Node> cnode3 = new FemObjectCollection<Node>();
+
+            Node n1 = new Node(Point3d.Origin, 1);
+            Node n2 = new Node(Point3d.Origin, 2);
+            Node n3 = new Node(new Point3d(0, 1, 2), 2);
+            Node n4 = new Node(new Point3d(2, 1, 2), 2);
+
+            cnode1.Add(n1);
+            cnode1.Add(n2);
+            cnode1.Add(n3);
+
+            cnode2.Add(n3);
+            cnode2.Add(n1);
+            cnode2.Add(n2);
+
+            cnode3.Add(n1);
+            cnode3.Add(n4);
+            cnode3.Add(n2);
+            cnode3.Add(n3);
+
+            Assert.AreEqual(cnode1, cnode2);
+            Assert.AreEqual(cnode1.GetHashCode(), cnode1.GetHashCode());
+            Assert.AreNotEqual(cnode1, cnode3);
+            Assert.AreNotEqual(cnode1.GetHashCode(), cnode3.GetHashCode());
         }
     }
 }

@@ -38,7 +38,7 @@ namespace GPC.Model.FEM.FiniteElements
                 }
             }
 
-            return new Plate(_nodesGlobal, Property, Id);
+            return plate;
         }
 
 

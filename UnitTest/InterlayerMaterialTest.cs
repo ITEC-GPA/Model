@@ -1,8 +1,8 @@
 ﻿using GPC.Model.Materials;
+using GPC.TestUtilities;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Generic;
-using GPC.TestUtilities;
 
 namespace ModelObjectTest
 {
@@ -47,7 +47,7 @@ namespace ModelObjectTest
             Console.WriteLine(message);
             Assert.IsTrue(result == expected, message);
         }
-        
+
         [TestMethod]
         public void ShearModulus2()
         {
@@ -82,7 +82,6 @@ namespace ModelObjectTest
             List<double> temperatureExpected = new List<double>(_temperatures);
             temperatureExpected.Sort();
 
-
             for (int i = 0; i < temperatureExpected.Count; i++)
             {
                 if (temperatureExpected[i] != temperatures[i])
@@ -105,7 +104,6 @@ namespace ModelObjectTest
 
             List<double> loadDurationseExpected = new List<double>(_loadDuration);
             loadDurationseExpected.Sort();
-
 
             for (int i = 0; i < loadDurationseExpected.Count; i++)
             {

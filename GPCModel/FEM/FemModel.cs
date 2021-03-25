@@ -20,7 +20,8 @@ using GPC.Model.Combinations;
 
 namespace GPC.Model.FEM
 {
-    public class FemModel : ModelObject
+    [Serializable]
+    public class FemModel : ModelObject, ISerializable
     {
 
         public enum AnalysisType
@@ -644,7 +645,10 @@ namespace GPC.Model.FEM
             }
         }
 
-
+        /// <summary>
+        /// Add a finite element to the FemModel
+        /// </summary>
+        /// <param name="finiteElement"></param>
         public virtual void AddFiniteElement(FiniteElement finiteElement)
         {
             if (finiteElement != null)
@@ -668,7 +672,7 @@ namespace GPC.Model.FEM
         {
             if (elementProperty is IPlateProperty ipl)
             {
-                if (_plateProperties.Contains(ipl))
+                if (!_plateProperties.Contains(ipl))
                 {
                     _plateProperties.Add(ipl);
                 }
@@ -676,7 +680,7 @@ namespace GPC.Model.FEM
             }
             else if (elementProperty is IBrickProperty ibp)
             {
-                if (_brickProperties.Contains(ibp))
+                if (!_brickProperties.Contains(ibp))
                 {
                     _brickProperties.Add(ibp);
                 }
@@ -795,6 +799,62 @@ namespace GPC.Model.FEM
         {
             base.GetObjectData(info, context);
             throw new NotImplementedException();
+        }
+
+
+        public override bool Equals(object obj)
+        {
+
+
+
+            return obj is FemModel model &&
+                   base.Equals(obj) &&
+                   EqualityComparer<FemObjectCollection<Node>>.Default.Equals(_nodes, model._nodes) &&
+                   EqualityComparer<FemObjectCollection<FiniteElement>>.Default.Equals(_elements, model._elements) &&
+                   EqualityComparer<List<IPlateProperty>>.Default.Equals(_plateProperties, model._plateProperties) &&
+                   EqualityComparer<List<IBrickProperty>>.Default.Equals(_brickProperties, model._brickProperties) &&
+                   EqualityComparer<List<Load>>.Default.Equals(_loads, model._loads) &&
+                   EqualityComparer<List<LoadCase>>.Default.Equals(_loadCases, model._loadCases) &&
+                   EqualityComparer<List<Combination>>.Default.Equals(_combinations, model._combinations) &&
+                   EqualityComparer<List<FreedomCase>>.Default.Equals(_freedomCases, model._freedomCases) &&
+                   EqualityComparer<List<ResultNodeDisplacement>>.Default.Equals(_resultNodeDisplacements, model._resultNodeDisplacements) &&
+                   EqualityComparer<List<ResultNodeForce>>.Default.Equals(_resultNodeForce, model._resultNodeForce) &&
+                   EqualityComparer<List<ResultPlateStress>>.Default.Equals(_resultPlateStress, model._resultPlateStress) &&
+                   EqualityComparer<List<Stage>>.Default.Equals(_stages, model._stages);
+        }
+
+
+        public override int GetHashCode()
+        {
+            int hashCode = -23;
+            hashCode = hashCode * -17 + base.GetHashCode();
+            hashCode = hashCode * -17 + EqualityComparer<FemObjectCollection<Node>>.Default.GetHashCode(_nodes);
+            hashCode = hashCode * -17 + EqualityComparer<FemObjectCollection<FiniteElement>>.Default.GetHashCode(_elements);
+            hashCode = hashCode * -17 + EqualityComparer<List<IPlateProperty>>.Default.GetHashCode(_plateProperties);
+            hashCode = hashCode * -17 + EqualityComparer<List<IBrickProperty>>.Default.GetHashCode(_brickProperties);
+            hashCode = hashCode * -17 + EqualityComparer<List<Load>>.Default.GetHashCode(_loads);
+            hashCode = hashCode * -17 + EqualityComparer<List<LoadCase>>.Default.GetHashCode(_loadCases);
+            hashCode = hashCode * -17 + EqualityComparer<List<Combination>>.Default.GetHashCode(_combinations);
+            hashCode = hashCode * -17 + EqualityComparer<List<FreedomCase>>.Default.GetHashCode(_freedomCases);
+            hashCode = hashCode * -17 + EqualityComparer<List<ResultNodeDisplacement>>.Default.GetHashCode(_resultNodeDisplacements);
+            hashCode = hashCode * -17 + EqualityComparer<List<ResultNodeForce>>.Default.GetHashCode(_resultNodeForce);
+            hashCode = hashCode * -17 + EqualityComparer<List<ResultPlateStress>>.Default.GetHashCode(_resultPlateStress);
+            hashCode = hashCode * -17 + EqualityComparer<List<Stage>>.Default.GetHashCode(_stages);
+            return hashCode;
+        }
+
+
+        public static bool operator ==(FemModel obj1, FemModel obj2)
+        {
+            if (obj1 is null || obj2 is null)
+                return false;
+
+            return obj1.Equals(obj2);
+        }
+
+        public static bool operator !=(FemModel obj1, FemModel obj2)
+        {
+            return !(obj1 == obj2);
         }
 
         #endregion

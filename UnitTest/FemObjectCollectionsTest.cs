@@ -34,5 +34,6 @@ namespace FemTest
 
             Assert.IsTrue(cnode.GetElementById(3).Position.Equals(new Point3d(0, 1, 2)));
         }
+
     }
 }

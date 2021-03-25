@@ -1,21 +1,16 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System;
-using GPC.TestUtilities;
-using GPC.Model.FEM;
-using GPC.Model.Materials;
-using GPC.Model.FEM.Properties;
-using GPC.Model.FEM.Attributes;
-using GPC.Model.FEM.Costrain;
-using GPC.Model.FEM.FiniteElements;
+﻿using GPC.Geometry;
 using GPC.Geometry.Meshes;
-using GPC.Geometry;
+using GPC.Model.FEM;
+using GPC.Model.FEM.Properties;
+using GPC.Model.Materials;
+using GPC.TestUtilities;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace FemTest
 {
     [TestClass]
     public class StagesTest : UnitTestBase
     {
-
         private Mesh CreateSimpleMesh(int incrementX, int incrementY, int numberOfFaceX, int numberOfFaceY, int numberOfVolumeZ, int incrementZ = 0)
         {
             Mesh mesh = new Mesh();
@@ -23,7 +18,6 @@ namespace FemTest
             double[] xIncrement = new double[numberOfFaceX + 1];
             double[] yIncrement = new double[numberOfFaceY + 1];
             double[] zIncrement = new double[numberOfVolumeZ + 1];
-
 
             for (int i = 0; i < numberOfFaceX; i++)
             {
@@ -35,14 +29,12 @@ namespace FemTest
                 else
                     xIncrement[i + 1] = xIncrement[i] + incrementX;
 
-
                 mesh.AddFaceMesh(new[] {
                     new MeshVertex(new Point3d(xIncrement[i],                0,     0)),
                     new MeshVertex(new Point3d(xIncrement[i + 1],            0,     0)),
                     new MeshVertex(new Point3d(xIncrement[i + 1],   incrementY,     0)),
                     new MeshVertex(new Point3d(xIncrement[i],       incrementY,     0))
                 });
-
 
                 for (int j = 0; j < numberOfFaceY; j++)
                 {
@@ -86,13 +78,10 @@ namespace FemTest
                         }
                     }
                 }
-
             }
 
             return mesh;
         }
-
-
 
         [TestMethod]
         public void StageTest1()
@@ -105,8 +94,7 @@ namespace FemTest
             var stage1 = model.AddStage("Stg1", FemModel.AnalysisType.Linear);
             var stage2 = model.AddStage("Stg2", FemModel.AnalysisType.Linear);
 
-
-            foreach(var stage in model.Stages)
+            foreach (var stage in model.Stages)
             {
                 var enumerator = model.GetElementsEnumerator();
 
@@ -118,9 +106,8 @@ namespace FemTest
             }
 
             var m = stage1.ToModel();
-            Assert.IsTrue(stage1.ToModel() == model);
+
+            Assert.IsTrue(m == model);
         }
-
-
     }
 }
