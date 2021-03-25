@@ -61,6 +61,16 @@ namespace GPC.Model.FEM
 
         }
 
+        public Stage(Stage stage)
+        {
+            this._analysisType = stage._analysisType;
+            this._combinations = stage._combinations;
+            this._morph        = stage._morph;
+            this._elements     = stage._elements;
+            this._nodes        = stage._nodes;
+            this._femModel     = stage._femModel;
+        }
+
         public Stage(SerializationInfo info, StreamingContext context) 
             : base(info, context)
         {
@@ -255,6 +265,7 @@ namespace GPC.Model.FEM
             while (enumerator.MoveNext())
             {
                 var finiteElement = enumerator.Current;
+                var a = _elements.GetStageProperty(finiteElement).Property;
                 FiniteElement duplicated = finiteElement.Duplicate(_elements.GetStageProperty(finiteElement).Property, 
                                                                     _elements.GetStageProperty(finiteElement).LoadCaseAttributes,
                                                                     _elements.GetStageProperty(finiteElement).FreedomCaseAttribute);
@@ -267,17 +278,17 @@ namespace GPC.Model.FEM
 
 
         #region Interface, operators, hashcode
+
         public object Clone()
         {
-
-            var s = new Stage(_name, _femModel, _analysisType, _morph, _combinations);
-
-            s._nodes = this._nodes;
-            s._elements = this._elements;
-
-            return null;
+            return new Stage(this);
         }
 
+        /// <summary>
+        /// <see cref="Stage._femModel"/> is not used as comparative factor
+        /// </summary>
+        /// <param name="sc"></param>
+        /// <returns></returns>
         public bool Equals(Stage sc)
         {
             if (sc is null)
@@ -286,8 +297,9 @@ namespace GPC.Model.FEM
             if (ReferenceEquals(this, sc))
                 return true;
 
-            throw new NotImplementedException();
             return !(sc is null) && _combinations.ScrambledEquals(sc._combinations)
+                                 && _elements.Equals(sc._elements)
+                                 && _nodes.Equals(sc._nodes)
                                  && _analysisType.Equals(sc._analysisType)
                                  && _morph.Equals(sc._morph)
                                  && base.Equals(sc);
@@ -298,16 +310,21 @@ namespace GPC.Model.FEM
             return Equals(obj as Stage);
         }
 
+        /// <summary>
+        /// <see cref="Stage._femModel"/> is not used to calculate the hashcode
+        /// </summary>
+        /// <returns></returns>
         public override int GetHashCode()
         {
             int hashCode = -23;
             hashCode = hashCode * -17 + base.GetHashCode();
 
-            throw new NotImplementedException();
             foreach (var combo in _combinations)
             {
                 hashCode = hashCode + EqualityComparer<Combination>.Default.GetHashCode(combo);
             }
+            hashCode = hashCode + _elements.GetHashCode();
+            hashCode = hashCode + _nodes.GetHashCode();
             hashCode = hashCode + _morph.GetHashCode();
             hashCode = hashCode + _analysisType.GetHashCode();
 

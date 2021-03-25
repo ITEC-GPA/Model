@@ -623,7 +623,7 @@ namespace GPC.Model.FEM
                         if (load is NormalAreaLoad pl)
                         {
                             PlateNormalPressureAttribute pna = new PlateNormalPressureAttribute(pl.LoadCase, pl.Pressure);
-                            plate.AddAttribute(pna);
+                            plate.AddLoadCaseAttribute(pna);
 
                             if (!_loadCases.Contains(pl.LoadCase))
                                 _loadCases.Add(pl.LoadCase);
@@ -631,7 +631,7 @@ namespace GPC.Model.FEM
                         else if (load is AreaLoad gal)
                         {
                             PlatePressureAttribute ppa = new PlatePressureAttribute(gal.LoadCase, gal.CoordinateSystem, gal.P1, gal.P2, gal.P3);
-                            plate.AddAttribute(ppa);
+                            plate.AddLoadCaseAttribute(ppa);
 
                             if (!_loadCases.Contains(gal.LoadCase))
                                 _loadCases.Add(gal.LoadCase);
@@ -769,7 +769,20 @@ namespace GPC.Model.FEM
             _stages.Add(stage);
             return stage;
         }
-        
+
+        /// <summary>
+        /// Add a stage the to the stage list. This stage will the copy of <paramref name="stageToCopy"/>
+        /// </summary>
+        /// <param name="stageToCopy"></param>
+        /// <returns></returns>
+        public virtual Stage AddStage(Stage stageToCopy)
+        {
+            Stage stage = new Stage(stageToCopy);
+            _stages.Add(stage);
+            return stage;
+        }
+
+
 
         public virtual Mesh GetMesh()
         {

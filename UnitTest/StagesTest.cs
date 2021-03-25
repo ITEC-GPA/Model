@@ -87,7 +87,7 @@ namespace FemTest
         public void StageTest1()
         {
             PlateProperty p1 = new PlateProperty(new SteelMaterial("", 1, 0.1, 2, 3, 4), 1, 2, "P1");
-            PlateProperty p2 = new PlateProperty(new SteelMaterial("", 1, 0.1, 2, 3, 4), 10, 20, "P1");
+            PlateProperty p2 = new PlateProperty(new SteelMaterial("", 1, 0.1, 2, 3, 4), 10, 20, "P2");
 
             FemModel model = new FemModel();
 
@@ -99,17 +99,6 @@ namespace FemTest
             
 
             var enumerator = model.GetElementsEnumerator();
-
-
-            foreach (var stage in model.Stages)
-            {
-                while (enumerator.MoveNext())
-                {
-                    var fe = enumerator.Current;
-                    stage.AddFiniteElement(fe);
-                }
-            }
-
             while (enumerator.MoveNext())
             {
                 var fe = enumerator.Current;
@@ -117,6 +106,7 @@ namespace FemTest
             }
 
 
+            enumerator = model.GetElementsEnumerator();
             while (enumerator.MoveNext())
             {
                 var fe = enumerator.Current;
@@ -134,8 +124,8 @@ namespace FemTest
             var m2 = stage2.ToModel();
 
 
-            Assert.IsTrue((m1.GetFiniteElement(5).Property as PlateProperty).MembraneThickness == 2);
-            Assert.IsTrue((m2.GetFiniteElement(5).Property as PlateProperty).MembraneThickness == 20);
+            Assert.AreEqual((m1.GetFiniteElement(5).Property as PlateProperty).MembraneThickness, 2);
+            Assert.AreEqual((m2.GetFiniteElement(5).Property as PlateProperty).MembraneThickness, 20, (m2.GetFiniteElement(5).Property as PlateProperty).MembraneThickness.ToString());
 
 
         }
