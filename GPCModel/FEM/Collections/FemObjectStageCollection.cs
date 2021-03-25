@@ -1,18 +1,10 @@
-﻿using System;
+﻿using GPC.Utilities.Extensions;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using GPC.Model.FEM;
-using GPC.Model.FEM.Attributes;
-using GPC.Model.FEM.FiniteElements;
-using GPC.Model.LoadCases;
-using GPC.Model.FreedomCases;
 
 namespace GPC.Model.FEM.Collections
 {
     /// <summary>
-    /// 
+    ///
     /// </summary>
     /// <typeparam name="T"></typeparam>
     /// <typeparam name="D"></typeparam>
@@ -23,11 +15,11 @@ namespace GPC.Model.FEM.Collections
         public FemObjectStageCollection() : base()
         {
             // Chiamo il costruttore di FemObjectCollection per cui uso la sua _collection.
-            // _stageFiniteElementProperty è un dizionario che usa lo stesso equality comparer sulla chiave, 
-            // quindi le chiavi sono femobject con id diversi 
+            // _stageFiniteElementProperty è un dizionario che usa lo stesso equality comparer sulla chiave,
+            // quindi le chiavi sono femobject con id diversi
             _stageFiniteElementProperty = new Dictionary<T, D>(new FEMObject.FemObjectOnlyIdComparer());
         }
-        
+
         /// <inheritdoc cref="FemObjectCollection{T}.Add(T)"/>
         public int Add(T item, D stageFiniteElementProperty)
         {
@@ -69,50 +61,36 @@ namespace GPC.Model.FEM.Collections
         {
             return base.Remove(item) && this._stageFiniteElementProperty.Remove(item);
         }
-    }
 
-
-    public class FiniteElementStageCollection<T, D> : FemObjectStageCollection<FiniteElement, Stage.StageFiniteElementProperty>
-    {
-
-        /// <summary>
-        /// <inheritdoc />
-        /// The <see cref="FiniteElement.AttributesLoadCase"/> and <see cref="FiniteElement.AttributesFreedomCase"/> 
-        /// will be copied to the <see cref="Stage.StageFiniteElementProperty"/> associated the <paramref name="item"/>
-        /// </summary>
-        /// <inheritdoc />
-        public override int Add(FiniteElement item)
+        public override bool Equals(object obj)
         {
-            var sfep = new Stage.StageFiniteElementProperty(item.Property);
-            sfep.AddLoadCaseAttributes(item.AttributesLoadCase);
-            sfep.AddFreedomCaseAttributes(item.AttributesFreedomCase);
-            
-            Add(item, sfep);
-
-            return item.Id;
-        }
-    }
-
-
-    public class NodeStageCollection<T, D> : FemObjectStageCollection<Node, Stage.StageProperty>
-    {
-
-        /// <summary>
-        /// <inheritdoc />
-        /// The <see cref="Node.AttributesLoadCase"/> and <see cref="Node.AttributesFreedomCase"/> 
-        /// will be copied to the <see cref="Stage.StageProperty"/> associated the <paramref name="item"/>
-        /// </summary>
-        /// <inheritdoc />
-        public override int Add(Node item)
-        {
-            var sfep = new Stage.StageProperty();
-            sfep.AddLoadCaseAttributes(item.AttributesLoadCase.Cast<LoadCaseAttribute>().ToList());
-            sfep.AddFreedomCaseAttributes(item.AttributesFreedomCase.Cast<FreedomCaseAttribute>().ToList());
-
-            Add(item, sfep);
-
-            return item.Id;
+            return obj is FemObjectStageCollection<T, D> collection && _stageFiniteElementProperty.ScrambledEquals(collection._stageFiniteElementProperty) && base.Equals(collection);
         }
 
+        public override int GetHashCode()
+        {
+            int hashCode = -23;
+            hashCode = hashCode * -17 + base.GetHashCode();
+
+            foreach (var element in _collection)
+            {
+                hashCode = hashCode + EqualityComparer<FEMObject>.Default.GetHashCode(element);
+            }
+
+            return hashCode;
+        }
+
+        public static bool operator ==(FemObjectStageCollection<T, D> obj1, FemObjectStageCollection<T, D> obj2)
+        {
+            if (obj1 is null || obj2 is null)
+                return false;
+
+            return obj1.Equals(obj2);
+        }
+
+        public static bool operator !=(FemObjectStageCollection<T, D> obj1, FemObjectStageCollection<T, D> obj2)
+        {
+            return !(obj1 == obj2);
+        }
     }
 }

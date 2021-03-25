@@ -1,4 +1,4 @@
-using GPC.Model.FEM.FiniteElements;
+using GPC.Utilities.Extensions;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -6,7 +6,7 @@ using System.Linq;
 namespace GPC.Model.FEM.Collections
 {
     /// <summary>
-    /// A collection of FemObject. 
+    /// A collection of FemObject.
     /// <para>This collection does not contains elements with a duplicated ID</para>
     /// <para>This collection can contain duplicate element (with different ID)</para>
     /// </summary>
@@ -19,6 +19,7 @@ namespace GPC.Model.FEM.Collections
         /// Set di ID unici, l'indice d'ingresso non è garantito essere quello di uscita
         /// </summary>
         protected HashSet<int> _ids = new HashSet<int>();
+
         protected int _maxId = 0;
 
         public FemObjectCollection()
@@ -58,14 +59,13 @@ namespace GPC.Model.FEM.Collections
         }
 
         /// <summary>
-        /// Add a FEMObject to the collection. 
-        /// <para>If the item index already exist in the collection, its ID will be replaced with the collection maximum index + 1</para> 
+        /// Add a FEMObject to the collection.
+        /// <para>If the item index already exist in the collection, its ID will be replaced with the collection maximum index + 1</para>
         /// </summary>
         /// <param name="item"></param>
         /// <returns>The index of the item</returns>
         public virtual int Add(T item)
         {
-
             if (_ids.Contains(item.Id))
             {
                 item.SetId(++_maxId);
@@ -112,7 +112,36 @@ namespace GPC.Model.FEM.Collections
         {
             return _collection.GetEnumerator();
         }
-    }
 
-    
+        public override bool Equals(object obj)
+        {
+            return obj is FemObjectCollection<T> collection && _collection.ScrambledEquals(collection._collection);
+        }
+
+        public override int GetHashCode()
+        {
+            int hashCode = -23;
+            hashCode = hashCode * -17 + base.GetHashCode();
+
+            foreach (var element in _collection)
+            {
+                hashCode = hashCode + EqualityComparer<FEMObject>.Default.GetHashCode(element);
+            }
+
+            return hashCode;
+        }
+
+        public static bool operator ==(FemObjectCollection<T> obj1, FemObjectCollection<T> obj2)
+        {
+            if (obj1 is null || obj2 is null)
+                return false;
+
+            return obj1.Equals(obj2);
+        }
+
+        public static bool operator !=(FemObjectCollection<T> obj1, FemObjectCollection<T> obj2)
+        {
+            return !(obj1 == obj2);
+        }
+    }
 }
