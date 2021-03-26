@@ -10,21 +10,22 @@ namespace GPC.Model.FEM
     [Serializable]
     public abstract class FEMObject : Element, ISerializable
     {
-        public FEMObject(int id) 
-            : this(id, string.Empty)
+        public FEMObject() 
+            : this(string.Empty)
         {
 
         }
 
-        public FEMObject(int id, string name) 
+        public FEMObject(string name) 
             : base(Guid.NewGuid(), name)
         {
-            base.SetId(id);
+
         }
 
         public FEMObject(SerializationInfo info, StreamingContext context) 
             : base(info, context)
         {
+
         }
 
         public override void GetObjectData(SerializationInfo info, StreamingContext context)

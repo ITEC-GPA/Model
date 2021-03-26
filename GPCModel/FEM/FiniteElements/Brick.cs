@@ -14,7 +14,7 @@ namespace GPC.Model.FEM.FiniteElements
 {
     public class Brick : FiniteElement
     {
-        public Brick(Node[] nodes, BrickProperty property, int id) : base(nodes, property, id) { }
+        public Brick(Node[] nodes) : base(nodes) { }
 
         protected override mnl.Vector<double> BuildFLocalCoord()
         {

@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using System;
 using GPC.Geometry;
 using GPC.Model.Elements;
 using GPC.Model.FEM.Properties;
@@ -110,19 +111,25 @@ namespace GPC.Model.FEM.FiniteElements
         ///  
         /// </summary>
         /// <param name="nodes">Nodes of the element</param>
-        /// <param name="id">id of element</param>
-        public FiniteElement(Node[] nodes, ElementProperty property, int id) : base(id)
+        internal FiniteElement(Node[] nodes) : base()
         {
             _nodesGlobal = nodes;
-            _property = property;
             _DOF = new SortedSet<LinearSolver.DOF>();
             _attributesLoadCase = new List<LoadCaseAttribute>();
+            _attributesFreedomCase = new List<FreedomCaseAttribute>();
         }
 
         #endregion
 
         #region PublicFunction
 
+        internal void SetProperty(ElementProperty property)
+        {
+            if (property is null)
+                throw new ArgumentNullException(nameof(property));
+
+            _property = property;
+        }
 
 
         public abstract FiniteElement Duplicate(ElementProperty property, List<LoadCaseAttribute> lcAttributes, List<FreedomCaseAttribute> fcAttributes);

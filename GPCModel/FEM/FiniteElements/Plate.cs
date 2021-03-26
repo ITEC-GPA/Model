@@ -22,15 +22,17 @@ namespace GPC.Model.FEM.FiniteElements
         public new PlateProperty Property => (PlateProperty)_property;
 
 
-        public Plate(Node[] nodes, PlateProperty property, int id) 
-            : base(nodes, property, id)
+        public Plate(Node[] nodes) 
+            : base(nodes)
         {
 
         }
 
         public override FiniteElement Duplicate(ElementProperty property, List<LoadCaseAttribute> lcAttributes, List<FreedomCaseAttribute> fdAttributes)
         {
-            var plate = new Plate(_nodesGlobal, (PlateProperty)property, Id);
+            var plate = new Plate(_nodesGlobal);
+            plate.SetProperty(property);
+            plate.SetId(Id);
 
             if(lcAttributes != null)
             { 
