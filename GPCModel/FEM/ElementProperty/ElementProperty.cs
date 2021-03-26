@@ -8,29 +8,22 @@ namespace GPC.Model.FEM.Properties
     {
         #region Public Constructors
 
-        protected ElementProperty()
-            : this(string.Empty, Guid.NewGuid())
-        {
-        }
-
         protected ElementProperty(string name)
             : base(Guid.NewGuid(), name)
         {
-        }
 
-        protected ElementProperty(Guid guid)
-            : this(string.Empty, guid)
-        {
         }
 
         protected ElementProperty(string name, Guid guid)
             : base(guid, name)
         {
+
         }
 
         protected ElementProperty(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
+
         }
 
         #endregion 
