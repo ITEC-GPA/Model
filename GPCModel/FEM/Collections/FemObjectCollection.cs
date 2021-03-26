@@ -2,6 +2,7 @@ using GPC.Utilities.Extensions;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System;
 
 namespace GPC.Model.FEM.Collections
 {
@@ -64,8 +65,12 @@ namespace GPC.Model.FEM.Collections
         /// </summary>
         /// <param name="item"></param>
         /// <returns>The index of the item</returns>
+        /// <exception cref="ArgumentNullException">If <paramref name="item"/> is null </exception>
         public virtual int Add(T item)
         {
+            if (item is null)
+                throw new ArgumentNullException(item.ToString());
+
             if (_ids.Contains(item.Id))
             {
                 item.SetId(++_maxId);
@@ -103,10 +108,19 @@ namespace GPC.Model.FEM.Collections
             return _collection.GetEnumerator();
         }
 
+        /// <inheritdoc cref="ICollection{T}.Remove(T)"/>
         public virtual bool Remove(T item)
         {
             return _collection.Remove(item);
         }
+
+        /// <inheritdoc cref="ICollection{T}.Remove(T)"/>
+        /// <inheritdoc cref="this[int]"/>
+        public virtual bool Remove(int id)
+        {
+            return _collection.Remove(this[id]);
+        }
+
 
         IEnumerator IEnumerable.GetEnumerator()
         {

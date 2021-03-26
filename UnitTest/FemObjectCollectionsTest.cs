@@ -17,7 +17,7 @@ namespace FemTest
         public void FemObjectCollectionTest1()
         {
             FemObjectCollection<Node> cnode = new FemObjectCollection<Node>();
-
+            
             Node n1 = new Node(Point3d.Origin, 1);
             Node n2 = new Node(Point3d.Origin, 2);
             Node n3 = new Node(new Point3d(0, 1, 2), 2);

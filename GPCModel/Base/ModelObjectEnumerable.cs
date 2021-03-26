@@ -13,6 +13,7 @@ namespace GPC.Model
             _collection = new List<T>();
         }
 
+        /// <inheritdoc cref="ICollection{T}.Add(T)"/>
         public virtual bool Add(T item)
         {
             _collection.Add(item);

@@ -19,6 +19,10 @@ namespace GPC.Model
 
         public bool IsReadOnly => _collection.IsReadOnly;
 
+        /// <inheritdoc cref="ModelObjectEnumerable{T}.Add(T)" />
+        /// <returns>True if the element has been added
+        /// <para>False if the element has not been added since there was already an element in the collection with the same name</para>
+        /// </returns>
         public override bool Add(T item)
         {
             if (Contains(item)) // stesso nome
@@ -28,11 +32,14 @@ namespace GPC.Model
             return true;
         }
 
+        /// <summary><inheritdoc cref="Enumerable.SingleOrDefault"/></summary>
+        /// <returns><inheritdoc cref="Enumerable.SingleOrDefault"/></returns>
+        /// <exception cref="InvalidOperationException" ></exception>
         public virtual T GetElementByName(string name)
         {
-            // posso usare single tanto l'add tiene conto non posso avere nomi duplicati.
-            // se le istanze variano dopo che sono stati aggiunti è giusto che vada in eccezione
-            return _collection.Single(i => i.Name == name);
+            // l'add non fa aggiungere oggetti con nome duplicato.
+            // se le istanze variano dopo che sono stati aggiunti e trova un duplicato va in eccezione
+            return _collection.SingleOrDefault(i => i.Name == name);
         }
 
         public void Clear()
