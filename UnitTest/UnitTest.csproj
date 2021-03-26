@@ -96,6 +96,7 @@
     <Compile Include="UnitsTest.cs" />
     <Compile Include="FemObjectCollectionsTest.cs" />
     <Compile Include="StagesTest.cs" />
+    <Compile Include="ModelObjectCollectionTest.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

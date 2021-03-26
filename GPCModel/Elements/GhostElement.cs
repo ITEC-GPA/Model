@@ -18,6 +18,13 @@ namespace GPC.Model.Elements
             this.SetId(id);
         }
 
+        public GhostElement(int id, string name)
+        {
+            this.SetId(id);
+            this._name = name;
+        }
+
+
         public GhostElement(Guid guid) : base(guid)
         {
         }
