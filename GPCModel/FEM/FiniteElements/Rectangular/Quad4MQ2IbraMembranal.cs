@@ -367,14 +367,14 @@ namespace GPC.Model.FEM.FiniteElements
             Console.WriteLine("dN" + i + "dLocal(csi=" + csi + ",eta=" + eta + ") = " + dNidLocal);
             */
 
-            var dNidCsi = Util.F(i, LinearShapeFunctionQuad4.DNdCsi); //f(csi, eta)
-            var dNidEta = Util.F(i, LinearShapeFunctionQuad4.DNdEta); //f(csi, eta)
+            var dNidCsi = Util.FFixedI(i, LinearShapeFunctionQuad4.DNdCsi); //f(csi, eta)
+            var dNidEta = Util.FFixedI(i, LinearShapeFunctionQuad4.DNdEta); //f(csi, eta)
 
-            var dNldCsi = Util.F(l, QuadraticShapeFunctionQuad8.DNdCsi); //f(csi, eta)
-            var dNldEta = Util.F(l, QuadraticShapeFunctionQuad8.DNdEta); //f(csi, eta)
+            var dNldCsi = Util.FFixedI(l, QuadraticShapeFunctionQuad8.DNdCsi); //f(csi, eta)
+            var dNldEta = Util.FFixedI(l, QuadraticShapeFunctionQuad8.DNdEta); //f(csi, eta)
 
-            var dNmdCsi = Util.F(m, QuadraticShapeFunctionQuad8.DNdCsi); //f(csi, eta)
-            var dNmdEta = Util.F(m, QuadraticShapeFunctionQuad8.DNdEta); //f(csi, eta)
+            var dNmdCsi = Util.FFixedI(m, QuadraticShapeFunctionQuad8.DNdCsi); //f(csi, eta)
+            var dNmdEta = Util.FFixedI(m, QuadraticShapeFunctionQuad8.DNdEta); //f(csi, eta)
 
             var J4nodes = Util.J(LinearShapeFunctionQuad4.DNdCsi, LinearShapeFunctionQuad4.DNdEta, _localNodes); //f(csi, eta)
             //create fake 8 nodes
@@ -435,14 +435,14 @@ namespace GPC.Model.FEM.FiniteElements
 
             GetDataCalculation(i, _localNodes, out double lij, out double sij, out double cij, out double lik, out double sik, out double cik, out int j, out int k, out int m, out int l);
 
-            var dNidCsi = Util.F(i, LinearShapeFunctionQuad4.DNdCsi); //f(csi, eta)
-            var dNidEta = Util.F(i, LinearShapeFunctionQuad4.DNdEta); //f(csi, eta)
+            var dNidCsi = Util.FFixedI(i, LinearShapeFunctionQuad4.DNdCsi); //f(csi, eta)
+            var dNidEta = Util.FFixedI(i, LinearShapeFunctionQuad4.DNdEta); //f(csi, eta)
 
-            var dNldCsi = Util.F(l, QuadraticShapeFunctionQuad8.DNdCsi); //f(csi, eta)
-            var dNldEta = Util.F(l, QuadraticShapeFunctionQuad8.DNdEta); //f(csi, eta)
+            var dNldCsi = Util.FFixedI(l, QuadraticShapeFunctionQuad8.DNdCsi); //f(csi, eta)
+            var dNldEta = Util.FFixedI(l, QuadraticShapeFunctionQuad8.DNdEta); //f(csi, eta)
 
-            var dNmdCsi = Util.F(m, QuadraticShapeFunctionQuad8.DNdCsi); //f(csi, eta)
-            var dNmdEta = Util.F(m, QuadraticShapeFunctionQuad8.DNdEta); //f(csi, eta)
+            var dNmdCsi = Util.FFixedI(m, QuadraticShapeFunctionQuad8.DNdCsi); //f(csi, eta)
+            var dNmdEta = Util.FFixedI(m, QuadraticShapeFunctionQuad8.DNdEta); //f(csi, eta)
 
             var J4nodes = Util.J(LinearShapeFunctionQuad4.DNdCsi, LinearShapeFunctionQuad4.DNdEta, _localNodes); //f(csi, eta)
 

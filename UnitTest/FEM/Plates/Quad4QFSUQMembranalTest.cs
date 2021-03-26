@@ -40,7 +40,7 @@ namespace FemTest.Solver
             Assert.AreEqual(1.0, p.Y);
         }
 
-        [TestMethod]
+        /*[TestMethod]
         public void Quad4QFSUQMembranalTestB()
         {
             double E = 1.0;
@@ -56,8 +56,9 @@ namespace FemTest.Solver
 
             mnl.Matrix<double> B = Quad4QFSUQMembranal.BMatrix(0, 0, nds);
             Util.WriteMatrix(B, "F3");
-        }
+        }*/
 
+        /*
         [TestMethod]
         public void Quad4QFSUQMembranalTestL()
         {
@@ -72,10 +73,34 @@ namespace FemTest.Solver
             nds[2] = new Node(+1.0, +1.0, 0, 3, "3");
             nds[3] = new Node(-1.0, +1.0, 0, 4, "4");
 
-            mnl.Matrix<double> L = Quad4QFSUQMembranal.L(0, 0, nds);
-            Util.WriteMatrix(L, "F3");
-        }
+            mnl.Matrix<double> L = Quad4QFSUQMembranal.LMatrix(0, 0, nds);
 
+            L[0, 2] = 2.0;
+            L[0, 5] = 2.0 * x;
+            L[0, 6] = 6.0 * y;
+            L[0, 8] = 6.0 * x * y;
+            L[0, 9] = -12.0 * y * y;
+            L[0, 10] = -12.0 * (x * x - y * y);
+
+            L[1, 0] = 2.0;
+            L[1, 3] = 6.0 * x;
+            L[1, 4] = 2.0 * y;
+            L[1, 7] = 6.0 * x * y;
+            L[1, 9] = 12.0 * x * x;
+            L[1, 10] = -12.0 * (x * x - y * y);
+
+            L[2, 1] = -1.0;
+            L[2, 4] = -2.0 * x;
+            L[2, 5] = -2.0 * y;
+            L[2, 7] = -3.0 * x * x;
+            L[2, 9] = -3.0 * y * y;
+            L[2, 10] = -24.0 * x * y;
+
+
+            Util.WriteMatrix(L, "F3");
+        }*/
+
+        /*
         [TestMethod]
         public void Quad4QFSUQMembranalTestM()
         {
@@ -95,15 +120,18 @@ namespace FemTest.Solver
 
             GaussIntegration.GaussPoint[] pts =  GaussIntegration.GetPointsRectangular(9);
 
-            pts.ToList().ForEach(x => Console.WriteLine(Quad4QFSUQMembranal.M(x.Point.X, x.Point.Y, D, nds)));
-
-            mnl.Matrix<double> M = Quad4QFSUQMembranal.M(0.0, 0.0, D, nds);
-            Util.WriteMatrix(M, "F3");
-        }
+            mnl.Matrix<double> M = mnl.Matrix<double>.Build.Dense(11,11);
+            for (int i = 0; i < pts.Length; i++)
+            {
+                M = M + Quad4QFSUQMembranal.MMatrix(pts[i].Point.X, pts[i].Point.Y, D, nds).Inverse();
+            }
+            Util.WriteMatrix(M,"F3");
+        }*/
 
         /// <summary>
         /// TEST LOCAL MATRIX
         /// </summary>
+        /*
         [TestMethod]
         public void Quad4QFSUQMembranalTest1()
         {
@@ -158,11 +186,12 @@ namespace FemTest.Solver
                     //sarebbe stato meglio usare kLocal[i,j] / kLocalManual[i,j] ma 0/0 = NaN!!
                 }
                 Console.WriteLine();
-            }*/
-        }
+            }
+        }*/
 
         ///SINGLE ELEMENT WITH X AXIAL FORCES
-        public void Quad4MQ2IbraMembranalTest1a()
+        [TestMethod]
+        public void Quad4QFSUQMembranalTest1a()
         {
             double E = 1.0;
             double ni = 0.0;
@@ -197,22 +226,22 @@ namespace FemTest.Solver
             //nds[4 - 1].AddAttribute(dx);
 
             LoadCase lc = new LoadCase("lc");
-
-            double F = 1.0;
-            double M = F * (0.5 * 0.5) / 2.0;
+            double q = 1.0;
+            double F = 0.5 * q;
+            double M = 0.0; // F * (0.5 * 0.5) / 2.0;
             NodeForceAttribute FTop = new NodeForceAttribute(lc, sys, F, 0.0, 0, 0, 0, M);
             NodeForceAttribute FBottom = new NodeForceAttribute(lc, sys, F, 0.0, 0, 0, 0, -M);
             nds[2 - 1].AddAttribute(FBottom);
             nds[3 - 1].AddAttribute(FTop);
 
-            List<Quad4MQ2IbraMembranal> els = new List<Quad4MQ2IbraMembranal>();
-            els.Add(new Quad4MQ2IbraMembranal(new Node[] { nds[0], nds[1], nds[2], nds[3] }, prop, 1));
+            List<Quad4QFSUQMembranal> els = new List<Quad4QFSUQMembranal>();
+            els.Add(new Quad4QFSUQMembranal(new Node[] { nds[0], nds[1], nds[2], nds[3] }, prop, 1));
 
             LinearSolver fem = new LinearSolver(els.ToArray());
         }
 
         //DISTORTED ELEMENT WITH AXIAL FORCE
-        public void Quad4MQ2IbraMembranalTest2()
+        /*public void Quad4MQ2IbraMembranalTest2()
         {
             double E = 1.0;
             double ni = 0.0;
@@ -257,7 +286,7 @@ namespace FemTest.Solver
             els.Add(new Quad4MQ2IbraMembranal(new Node[] { nds[0], nds[1], nds[2], nds[3] }, prop, 1));
 
             LinearSolver fem = new LinearSolver(els.ToArray());
-        }
+        }*/
 
         /*[TestMethod]
         public void Quad4MQ2IbraMembranalOldFem1()
@@ -428,7 +457,7 @@ namespace FemTest.Solver
         /// Mesh 4x1
         /// </summary>
         [TestMethod]
-        public void Quad4MQ2IbraMembranalTest3()
+        public void Quad4QFSUQMembranalTest3()
         {
             double E = 30000.0;
             double ni = 0.25;
@@ -476,11 +505,11 @@ namespace FemTest.Solver
             nds[4].AddAttribute(F);
             nds[9].AddAttribute(F);
 
-            List<Quad4MQ2IbraMembranal> els = new List<Quad4MQ2IbraMembranal>();
-            els.Add(new Quad4MQ2IbraMembranal(new Node[] { nds[0], nds[1], nds[6], nds[5] }, prop, 1));
-            els.Add(new Quad4MQ2IbraMembranal(new Node[] { nds[1], nds[2], nds[7], nds[6] }, prop, 1));
-            els.Add(new Quad4MQ2IbraMembranal(new Node[] { nds[2], nds[3], nds[8], nds[7] }, prop, 1));
-            els.Add(new Quad4MQ2IbraMembranal(new Node[] { nds[3], nds[4], nds[9], nds[8] }, prop, 1));
+            List<Quad4QFSUQMembranal> els = new List<Quad4QFSUQMembranal>();
+            els.Add(new Quad4QFSUQMembranal(new Node[] { nds[0], nds[1], nds[6], nds[5] }, prop, 1));
+            els.Add(new Quad4QFSUQMembranal(new Node[] { nds[1], nds[2], nds[7], nds[6] }, prop, 1));
+            els.Add(new Quad4QFSUQMembranal(new Node[] { nds[2], nds[3], nds[8], nds[7] }, prop, 1));
+            els.Add(new Quad4QFSUQMembranal(new Node[] { nds[3], nds[4], nds[9], nds[8] }, prop, 1));
 
             LinearSolver fem = new LinearSolver(els.ToArray());
 
@@ -505,7 +534,7 @@ namespace FemTest.Solver
         /// Mesh 4x2
         /// </summary>
         [TestMethod]
-        public void Quad4MQ2IbraMembranalTest3a()
+        public void Quad4QFSUQMembranalTest3a()
         {
             double E = 30000.0;
             double ni = 0.25;
@@ -559,16 +588,16 @@ namespace FemTest.Solver
             nds[4].AddAttribute(F);
             nds[9].AddAttribute(F);
 
-            List<Quad4MQ2IbraMembranal> els = new List<Quad4MQ2IbraMembranal>();
-            els.Add(new Quad4MQ2IbraMembranal(new Node[] { nds[0], nds[1], nds[6], nds[5] }, prop, 1));
-            els.Add(new Quad4MQ2IbraMembranal(new Node[] { nds[1], nds[2], nds[7], nds[6] }, prop, 1));
-            els.Add(new Quad4MQ2IbraMembranal(new Node[] { nds[2], nds[3], nds[8], nds[7] }, prop, 1));
-            els.Add(new Quad4MQ2IbraMembranal(new Node[] { nds[3], nds[4], nds[9], nds[8] }, prop, 1));
+            List<Quad4QFSUQMembranal> els = new List<Quad4QFSUQMembranal>();
+            els.Add(new Quad4QFSUQMembranal(new Node[] { nds[0], nds[1], nds[6], nds[5] }, prop, 1));
+            els.Add(new Quad4QFSUQMembranal(new Node[] { nds[1], nds[2], nds[7], nds[6] }, prop, 1));
+            els.Add(new Quad4QFSUQMembranal(new Node[] { nds[2], nds[3], nds[8], nds[7] }, prop, 1));
+            els.Add(new Quad4QFSUQMembranal(new Node[] { nds[3], nds[4], nds[9], nds[8] }, prop, 1));
 
-            els.Add(new Quad4MQ2IbraMembranal(new Node[] { nds[5], nds[6], nds[11], nds[10] }, prop, 1));
-            els.Add(new Quad4MQ2IbraMembranal(new Node[] { nds[6], nds[7], nds[12], nds[11] }, prop, 1));
-            els.Add(new Quad4MQ2IbraMembranal(new Node[] { nds[7], nds[8], nds[13], nds[12] }, prop, 1));
-            els.Add(new Quad4MQ2IbraMembranal(new Node[] { nds[8], nds[9], nds[14], nds[13] }, prop, 1));
+            els.Add(new Quad4QFSUQMembranal(new Node[] { nds[5], nds[6], nds[11], nds[10] }, prop, 1));
+            els.Add(new Quad4QFSUQMembranal(new Node[] { nds[6], nds[7], nds[12], nds[11] }, prop, 1));
+            els.Add(new Quad4QFSUQMembranal(new Node[] { nds[7], nds[8], nds[13], nds[12] }, prop, 1));
+            els.Add(new Quad4QFSUQMembranal(new Node[] { nds[8], nds[9], nds[14], nds[13] }, prop, 1));
 
             LinearSolver fem = new LinearSolver(els.ToArray());
 
@@ -593,7 +622,7 @@ namespace FemTest.Solver
         /// Mesh 8x2
         /// </summary>
         [TestMethod]
-        public void Quad4MQ2IbraMembranalTest3b()
+        public void Quad4QFSUQMembranalTest3b()
         {
             double E = 30000.0;
             double ni = 0.25;
@@ -661,24 +690,24 @@ namespace FemTest.Solver
             nds[18 - 1].AddAttribute(Fcent);
             nds[27 - 1].AddAttribute(Fext);
 
-            List<Quad4MQ2IbraMembranal> els = new List<Quad4MQ2IbraMembranal>();
-            els.Add(new Quad4MQ2IbraMembranal(new Node[] { nds[0], nds[1], nds[10], nds[9] }, prop, 1));
-            els.Add(new Quad4MQ2IbraMembranal(new Node[] { nds[1], nds[2], nds[11], nds[10] }, prop, 2));
-            els.Add(new Quad4MQ2IbraMembranal(new Node[] { nds[2], nds[3], nds[12], nds[11] }, prop, 3));
-            els.Add(new Quad4MQ2IbraMembranal(new Node[] { nds[3], nds[4], nds[13], nds[12] }, prop, 4));
-            els.Add(new Quad4MQ2IbraMembranal(new Node[] { nds[4], nds[5], nds[14], nds[13] }, prop, 5));
-            els.Add(new Quad4MQ2IbraMembranal(new Node[] { nds[5], nds[6], nds[15], nds[14] }, prop, 6));
-            els.Add(new Quad4MQ2IbraMembranal(new Node[] { nds[6], nds[7], nds[16], nds[15] }, prop, 7));
-            els.Add(new Quad4MQ2IbraMembranal(new Node[] { nds[7], nds[8], nds[17], nds[16] }, prop, 8));
+            List<Quad4QFSUQMembranal> els = new List<Quad4QFSUQMembranal>();
+            els.Add(new Quad4QFSUQMembranal(new Node[] { nds[0], nds[1], nds[10], nds[9] }, prop, 1));
+            els.Add(new Quad4QFSUQMembranal(new Node[] { nds[1], nds[2], nds[11], nds[10] }, prop, 2));
+            els.Add(new Quad4QFSUQMembranal(new Node[] { nds[2], nds[3], nds[12], nds[11] }, prop, 3));
+            els.Add(new Quad4QFSUQMembranal(new Node[] { nds[3], nds[4], nds[13], nds[12] }, prop, 4));
+            els.Add(new Quad4QFSUQMembranal(new Node[] { nds[4], nds[5], nds[14], nds[13] }, prop, 5));
+            els.Add(new Quad4QFSUQMembranal(new Node[] { nds[5], nds[6], nds[15], nds[14] }, prop, 6));
+            els.Add(new Quad4QFSUQMembranal(new Node[] { nds[6], nds[7], nds[16], nds[15] }, prop, 7));
+            els.Add(new Quad4QFSUQMembranal(new Node[] { nds[7], nds[8], nds[17], nds[16] }, prop, 8));
 
-            els.Add(new Quad4MQ2IbraMembranal(new Node[] { nds[9], nds[10], nds[19], nds[18] }, prop, 9));
-            els.Add(new Quad4MQ2IbraMembranal(new Node[] { nds[10], nds[11], nds[20], nds[19] }, prop, 10));
-            els.Add(new Quad4MQ2IbraMembranal(new Node[] { nds[11], nds[12], nds[21], nds[20] }, prop, 11));
-            els.Add(new Quad4MQ2IbraMembranal(new Node[] { nds[12], nds[13], nds[22], nds[21] }, prop, 12));
-            els.Add(new Quad4MQ2IbraMembranal(new Node[] { nds[13], nds[14], nds[23], nds[22] }, prop, 13));
-            els.Add(new Quad4MQ2IbraMembranal(new Node[] { nds[14], nds[15], nds[24], nds[23] }, prop, 14));
-            els.Add(new Quad4MQ2IbraMembranal(new Node[] { nds[15], nds[16], nds[25], nds[24] }, prop, 15));
-            els.Add(new Quad4MQ2IbraMembranal(new Node[] { nds[16], nds[17], nds[26], nds[25] }, prop, 16));
+            els.Add(new Quad4QFSUQMembranal(new Node[] { nds[9], nds[10], nds[19], nds[18] }, prop, 9));
+            els.Add(new Quad4QFSUQMembranal(new Node[] { nds[10], nds[11], nds[20], nds[19] }, prop, 10));
+            els.Add(new Quad4QFSUQMembranal(new Node[] { nds[11], nds[12], nds[21], nds[20] }, prop, 11));
+            els.Add(new Quad4QFSUQMembranal(new Node[] { nds[12], nds[13], nds[22], nds[21] }, prop, 12));
+            els.Add(new Quad4QFSUQMembranal(new Node[] { nds[13], nds[14], nds[23], nds[22] }, prop, 13));
+            els.Add(new Quad4QFSUQMembranal(new Node[] { nds[14], nds[15], nds[24], nds[23] }, prop, 14));
+            els.Add(new Quad4QFSUQMembranal(new Node[] { nds[15], nds[16], nds[25], nds[24] }, prop, 15));
+            els.Add(new Quad4QFSUQMembranal(new Node[] { nds[16], nds[17], nds[26], nds[25] }, prop, 16));
 
             LinearSolver fem = new LinearSolver(els.ToArray());
 
@@ -704,7 +733,7 @@ namespace FemTest.Solver
         /// Mesh 6 x 1
         /// </summary>
         [TestMethod]
-        public void Quad4MQ2IbraMembranalTest4()
+        public void Quad4QFSUQMembranalTest4()
         {
             double E = 100.0;
             double ni = 0.0;
@@ -758,13 +787,13 @@ namespace FemTest.Solver
             nds[13].AddAttribute(Fplus);
             nds[6].AddAttribute(Fminus);
 
-            List<Quad4MQ2IbraMembranal> els = new List<Quad4MQ2IbraMembranal>();
-            els.Add(new Quad4MQ2IbraMembranal(new Node[] { nds[0], nds[1], nds[8], nds[7] }, prop, 1));
-            els.Add(new Quad4MQ2IbraMembranal(new Node[] { nds[1], nds[2], nds[9], nds[8] }, prop, 1));
-            els.Add(new Quad4MQ2IbraMembranal(new Node[] { nds[2], nds[3], nds[10], nds[9] }, prop, 1));
-            els.Add(new Quad4MQ2IbraMembranal(new Node[] { nds[3], nds[4], nds[11], nds[10] }, prop, 1));
-            els.Add(new Quad4MQ2IbraMembranal(new Node[] { nds[4], nds[5], nds[12], nds[11] }, prop, 1));
-            els.Add(new Quad4MQ2IbraMembranal(new Node[] { nds[5], nds[6], nds[13], nds[12] }, prop, 1));
+            List<Quad4QFSUQMembranal> els = new List<Quad4QFSUQMembranal>();
+            els.Add(new Quad4QFSUQMembranal(new Node[] { nds[0], nds[1], nds[8], nds[7] }, prop, 1));
+            els.Add(new Quad4QFSUQMembranal(new Node[] { nds[1], nds[2], nds[9], nds[8] }, prop, 1));
+            els.Add(new Quad4QFSUQMembranal(new Node[] { nds[2], nds[3], nds[10], nds[9] }, prop, 1));
+            els.Add(new Quad4QFSUQMembranal(new Node[] { nds[3], nds[4], nds[11], nds[10] }, prop, 1));
+            els.Add(new Quad4QFSUQMembranal(new Node[] { nds[4], nds[5], nds[12], nds[11] }, prop, 1));
+            els.Add(new Quad4QFSUQMembranal(new Node[] { nds[5], nds[6], nds[13], nds[12] }, prop, 1));
 
             LinearSolver fem = new LinearSolver(els.ToArray());
 

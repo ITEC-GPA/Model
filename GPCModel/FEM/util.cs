@@ -15,7 +15,7 @@ namespace GPC.Model.FEM
         /// </summary>
         /// <param name="m"></param>
         /// <param name="format"></param>
-        public static void WriteMatrix(mnl.Matrix<double> m, string format)
+        public static void WriteMatrix(mnl.Matrix<double> m, string format = "F2")
         {
             #if DEBUG
             Console.WriteLine("dim: " + m.RowCount + " x " + m.ColumnCount);
@@ -70,8 +70,15 @@ namespace GPC.Model.FEM
         /// <summary>
         /// Return F(x,y) = F(i,x,y) with "i" assigned
         /// </summary>
-        public static Func<int, Func<int, double, double, double>, Func<double, double, double>> F = (int index, Func<int, double, double, double> F) => {
-            return (double input1, double input2) => F(index, input1, input2);
+        public static Func<int, Func<int, double, double, double>, Func<double, double, double>> FFixedI = (int index, Func<int, double, double, double> fun) => {
+            return (double input1, double input2) => fun(index, input1, input2);
+        };
+
+        /// <summary>
+        /// Return F(x,y) = F(x,y,nodes) with "nodes" assigned
+        /// </summary>
+        public static Func<Func<double, double, Node[], mnl.Matrix<double>>, Node[], Func<double, double, mnl.Matrix<double>>> FFixedNodes = (Func<double, double, Node[], mnl.Matrix<double>> fun, Node[] nodes) => {
+            return (double x, double y) => fun(x, y, nodes);
         };
 
         /// <summary>

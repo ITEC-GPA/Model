@@ -36,6 +36,7 @@ namespace GPC.Model.FEM.FiniteElements
 
         public override void BuildMatrix()
         {
+            
             //Node 1 = Origin = Node i
             //Axis x assigned as Node 1 to Node 2, Node j = Node 2
             //Axis y ortogonal to axis x, Node k = node 3
@@ -144,18 +145,32 @@ namespace GPC.Model.FEM.FiniteElements
 
             #region stiffnessMatrixInLocalCoordinates
             double thk = ((PlateProperty)_property).MembraneThickness;
-            
-            Func<double, double, mnl.Matrix<double>> BTraspLMInvH = (double csi, double eta) =>
-            {
-                return GetB(csi, eta).Transpose() * L(csi,eta, _localNodes) * M(csi, eta, _d, _localNodes).Inverse() * H(csi,eta, _localNodes);
+
+            Func<double, double, mnl.Matrix<double>> funJacobiano = Util.J(LinearShapeFunctionQuad4.DNdCsi, LinearShapeFunctionQuad4.DNdEta, _localNodes);
+
+            Func<double, double, mnl.Matrix<double>> funMmatrix = (double csi, double eta) =>
+            {                
+                return MMatrix(csi, eta, _d, _localNodes);
             };
 
-            Func<double, double, mnl.Matrix<double>> jacobiano = (double csi, double eta) =>
+            mnl.Matrix<double> M = thk * GaussIntegration.IntegrationQuadrilateral(funMmatrix, funJacobiano, 9);
+
+            Func<double, double, mnl.Matrix<double>> funHmatrix = (double csi, double eta) =>
             {
-                return Util.Jacob(csi, eta, LinearShapeFunctionQuad4.DNdCsi, LinearShapeFunctionQuad4.DNdEta, _localNodes);
+                return HMatrix(csi, eta, _localNodes);
             };
 
-            _kElementLocalCoord = thk * GaussIntegration.IntegrationQuadrilateral(BTraspLMInvH, jacobiano, 9);
+            mnl.Matrix<double> H = thk * GaussIntegration.IntegrationQuadrilateral(funHmatrix, funJacobiano, 9);
+
+            Func<double, double, mnl.Matrix<double>> funBTraspLMInvH = (double csi, double eta) =>
+            {
+                mnl.Matrix<double> bTrasp = GetB(csi, eta).Transpose();
+                mnl.Matrix<double> L = LMatrix(csi, eta, _localNodes);
+                mnl.Matrix<double> m = bTrasp * L * M.Inverse() * H;
+                return m;
+            };                        
+
+            _kElementLocalCoord = thk * GaussIntegration.IntegrationQuadrilateral(funBTraspLMInvH, funJacobiano, 9);
 
             Console.WriteLine("KElementLocalCoord = ");
             Util.WriteMatrix(_kElementLocalCoord, "F3");
@@ -223,7 +238,7 @@ namespace GPC.Model.FEM.FiniteElements
             return new Point2d(x, y);
         }
 
-        internal static mnl.Matrix<double> L(double csi, double eta, Node[] nodes)
+        internal static mnl.Matrix<double> LMatrix(double csi, double eta, Node[] nodes)
         {
             Point2d p = GetXY(csi, eta, nodes);
             double x = p.X;
@@ -254,18 +269,17 @@ namespace GPC.Model.FEM.FiniteElements
             return L;
         }
 
-        internal static mnl.Matrix<double> M(double csi, double eta, mnl.Matrix<double> D, Node[] nodes)
+        internal static mnl.Matrix<double> MMatrix(double csi, double eta, mnl.Matrix<double> D, Node[] nodes)
         {
-            mnl.Matrix<double> LMatrix = L(csi, eta, nodes);
-
-            return LMatrix.Transpose() * D.Inverse() * LMatrix;
+            mnl.Matrix<double> L = LMatrix(csi, eta, nodes);
+            return L.Transpose() * D.Inverse() * L;
         }
 
-        internal static mnl.Matrix<double> H(double csi, double eta, Node[] nodes)
+        internal static mnl.Matrix<double> HMatrix(double csi, double eta, Node[] nodes)
         {
-            mnl.Matrix<double> LMatrix = L(csi, eta, nodes);
+            mnl.Matrix<double> L = LMatrix(csi, eta, nodes);
 
-            return LMatrix.Transpose() * BMatrix(csi,eta, nodes);
+            return L.Transpose() * BMatrix(csi,eta, nodes);
         }
 
         protected override mnl.Vector<double> BuildFLocalCoord()

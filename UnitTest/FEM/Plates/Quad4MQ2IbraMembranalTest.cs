@@ -256,6 +256,7 @@ namespace FemTest.Solver
         }
 
         ///SINGLE ELEMENT WITH X AXIAL FORCES
+        [TestMethod]
         public void Quad4MQ2IbraMembranalTest1a()
         {
             double E = 1.0;
@@ -292,7 +293,8 @@ namespace FemTest.Solver
 
             LoadCase lc = new LoadCase("lc");
 
-            double F = 1.0;
+            double q = 1.0;
+            double F = q * 0.5;
             double M = F * (0.5 * 0.5) / 2.0;
             NodeForceAttribute FTop = new NodeForceAttribute(lc, sys, F, 0.0, 0, 0, 0, M);
             NodeForceAttribute FBottom = new NodeForceAttribute(lc, sys, F, 0.0, 0, 0, 0, -M);
