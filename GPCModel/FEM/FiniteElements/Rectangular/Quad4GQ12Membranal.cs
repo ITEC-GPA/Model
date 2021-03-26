@@ -10,13 +10,13 @@ namespace GPC.Model.FEM.FiniteElements
     /// <summary>
     /// A high‑performance four‑node flat shell element with drilling degrees of freedom - Hosein Sangtarash1 · Hamed G. Arab1 · Mohammad R. Sohrabi1 · Mohammad R. Ghasemi1 - 2020
     /// </summary>
-    public class Quad4QFSUQMembranal : Plate
+    public class Quad4GQ12Membranal : Plate
     {
         #region variables
         Node[] _localNodes;
         #endregion
 
-        public Quad4QFSUQMembranal(Node[] nodes, PlateProperty property, int id) : base(nodes, property, id)
+        public Quad4GQ12Membranal(Node[] nodes, PlateProperty property, int id) : base(nodes, property, id)
         {
             _DOF.Add(LinearSolver.DOF.DX);
             _DOF.Add(LinearSolver.DOF.DY);
@@ -43,16 +43,6 @@ namespace GPC.Model.FEM.FiniteElements
 
             //calculation of matrix for transformation from Local to Global coordinates
             _localNodes = Quad4Element.GetLocalNodes(_nodesGlobal, out _localCoordinateSystem);
-
-            //move origin to centroid
-            double xG = _localNodes.ToList().Sum(x => x.Position.X) / 4.0;
-            double yG = _localNodes.ToList().Sum(x => x.Position.Y) / 4.0;
-
-            for (int i = 0; i < _localNodes.Length; i++)
-            {
-                Node moved = new Node(_localNodes[i].Position.X - xG, _localNodes[i].Position.Y - yG, _localNodes[i].Position.Z, _localNodes[i].Id, _localNodes[i].Name);
-                _localNodes[i] = moved;
-            }
 
             _localNodes.ToList().ForEach(x => Console.WriteLine(x));
 
@@ -159,23 +149,16 @@ namespace GPC.Model.FEM.FiniteElements
 
             Func<double, double, mnl.Matrix<double>> funJacobiano = Util.J(LinearShapeFunctionQuad4.DNdCsi, LinearShapeFunctionQuad4.DNdEta, _localNodes);
 
-            mnl.Matrix<double> M = MMatrix(_d, _localNodes, thk);
-            Console.WriteLine("M = ");
-            Util.WriteMatrix(M,"F1");
-
-            mnl.Matrix<double> H = HMatrix(_localNodes, thk);
-            Console.WriteLine("H = ");
-            Util.WriteMatrix(H, "F2");
-
-            Func<double, double, mnl.Matrix<double>> funBTraspLMInvH = (double csi, double eta) =>
+            Func<double, double, mnl.Matrix<double>> BTraspDB = (double csi, double eta) =>
             {
-                return BMatrix(csi, eta, _localNodes).Transpose() * LMatrix(csi, eta, _localNodes) * M.Inverse() * H;
+                mnl.Matrix<double> B = BMatrix(csi, eta, _localNodes);
+                return B.Transpose() * _d * B;
             };
-            mnl.Matrix<double> k = thk * GaussIntegration.IntegrationQuadrilateral(funBTraspLMInvH, funJacobiano, 9);
+            mnl.Matrix<double> k = thk * GaussIntegration.IntegrationQuadrilateral(BTraspDB, funJacobiano, 9);
 
             _kElementLocalCoord = k;
-            Console.WriteLine("KElementLocalCoord = ");
-            Util.WriteMatrix(_kElementLocalCoord, "F2");
+            /*Console.WriteLine("KElementLocalCoord = ");
+            Util.WriteMatrix(_kElementLocalCoord, "F2");*/
             #endregion
         }
 
@@ -186,40 +169,59 @@ namespace GPC.Model.FEM.FiniteElements
 
         internal static mnl.Matrix<double> BMatrix(double csi, double eta, Node[] nodes)
         {
-            mnl.Matrix<double> jacob = Util.Jacob(csi, eta, LinearShapeFunctionQuad4.DNdCsi, LinearShapeFunctionQuad4.DNdEta, nodes);
-            mnl.Matrix<double> invJacob = jacob.Inverse();
-
-            Point2d p = GetXY(csi, eta, nodes);
-            double x = p.X;
-            double y = p.Y;
+            Func<double, double, mnl.Matrix<double>> fJacob = (double varCsi, double varEta) =>
+            {
+                return Util.Jacob(varCsi, varEta, LinearShapeFunctionQuad4.DNdCsi, LinearShapeFunctionQuad4.DNdEta, nodes);
+            };
             
             mnl.Matrix<double> B = mnl.Matrix<double>.Build.Dense(3, 0);
             for (int i = 1; i <= nodes.Length; i++)
             {
-                //trasnformation of dN/ dLocal to dN/ dNatural : dNdLocal = J ^ -1 * dNdNatural
-                mnl.Vector<double> dNidLocal = mnl.Vector<double>.Build.Dense(2);
-                mnl.Vector<double> dNidNatural = mnl.Vector<double>.Build.Dense(2);
+                var dNdCsi = Util.FFixedI(i, LinearShapeFunctionQuad4.DNdCsi);
+                var dNdEta = Util.FFixedI(i, LinearShapeFunctionQuad4.DNdEta);
 
-                dNidNatural[0] = LinearShapeFunctionQuad4.DNdCsi(i, csi, eta);
-                dNidNatural[1] = LinearShapeFunctionQuad4.DNdEta(i, csi, eta);
-                dNidLocal = invJacob * dNidNatural;
+                Func<double, double, double> fdNuThetadCsi = (double varCsi, double varEta) =>
+                {
+                    return DNuThetadCsi(i, varCsi, varEta, nodes); //fix "i" and "nodes"
+                };
 
+                Func<double, double, double> fdNvThetadCsi = (double varCsi, double varEta) =>
+                {
+                    return DNvThetadCsi(i, varCsi, varEta, nodes); //fix "i" and "nodes"
+                };
+
+                Func<double, double, double> fdNuThetadEta = (double varCsi, double varEta) =>
+                {
+                    return DNuThetadEta(i, varCsi, varEta, nodes); //fix "i" and "nodes"
+                };
+
+                Func<double, double, double> fdNvThetadEta = (double varCsi, double varEta) =>
+                {
+                    return DNvThetadEta(i, varCsi, varEta, nodes); //fix "i" and "nodes"
+                };
+
+                mnl.Vector<double> dNidLocal = Util.GetdNdLocalFromdNdNatural(csi, eta, dNdCsi, dNdEta, fJacob);
                 double dNidX = dNidLocal[0];
                 double dNidY = dNidLocal[1];
 
-                double xi = nodes[i - 1].Position.X;
-                double yi = nodes[i - 1].Position.Y;
+                mnl.Vector<double> dNuThetadLocal = Util.GetdNdLocalFromdNdNatural(csi, eta, fdNuThetadCsi, fdNuThetadEta, fJacob);
+                double dNuThetadX = dNuThetadLocal[0];
+                double dNuThetadY = dNuThetadLocal[1];
+
+                mnl.Vector<double> dNvThetadLocal = Util.GetdNdLocalFromdNdNatural(csi, eta, fdNvThetadCsi, fdNvThetadEta, fJacob);
+                double dNvThetadX = dNvThetadLocal[0];
+                double dNvThetadY = dNvThetadLocal[1];
 
                 mnl.Matrix<double> Bi = mnl.Matrix<double>.Build.Dense(3, 3);
                 Bi[0, 0] = dNidX;
-                Bi[0, 2] = -2.0 / 3.0 * dNidX * (y - yi);
+                Bi[0, 2] = dNuThetadX;
 
                 Bi[1, 1] = dNidY;
-                Bi[1, 2] = 2.0 / 3.0 * dNidY * (x - xi);
+                Bi[1, 2] = dNvThetadY;
 
                 Bi[2, 0] = dNidY;
                 Bi[2, 1] = dNidX;
-                Bi[2, 2] = 2.0 / 3.0 * (dNidX * (x - xi) - dNidY * (y - yi));
+                Bi[2, 2] = dNuThetadY + dNvThetadX;
 
                 B = B.Append(Bi);
             }
@@ -227,76 +229,128 @@ namespace GPC.Model.FEM.FiniteElements
             return B;
         }
 
-        internal static Point2d GetXY(double csi, double eta, Node[] nodes)
+        public static double DNuThetadCsi(int index, double csi, double eta, Node[] nodes)
         {
-            double x = 0;
-            double y = 0;
-            for (int i = 1; i <= nodes.Length; i++)
+            double b1 = 1.0 / 4.0 * ((-1.0) * nodes[1 - 1].Position.Y + (+1.0) * nodes[2 - 1].Position.Y + (+1.0) * nodes[3 - 1].Position.Y + (-1) * nodes[4 - 1].Position.Y);
+            double b2 = 1.0 / 4.0 * ((-1.0) * nodes[1 - 1].Position.Y + (-1.0) * nodes[2 - 1].Position.Y + (+1.0) * nodes[3 - 1].Position.Y + (+1) * nodes[4 - 1].Position.Y);
+            double b3 = 1.0 / 4.0 * ((-1.0)*(-1.0) * nodes[1 - 1].Position.Y + (+1.0)*(-1.0) * nodes[2 - 1].Position.Y + (+1.0)*(+1.0) * nodes[3 - 1].Position.Y + (-1)*(+1.0) * nodes[4 - 1].Position.Y);
+
+            double a = 0.0;
+            double b = 0.0;
+            switch (index)
             {
-                x = x + LinearShapeFunctionQuad4.NaturalShapeFunction(i, csi, eta) * nodes[i - 1].Position.X;
-                y = y + LinearShapeFunctionQuad4.NaturalShapeFunction(i, csi, eta) * nodes[i - 1].Position.Y;
+                case 1:
+                    a = (b1 + b3 * (-1.0)); //eta_i
+                    b = (b2 + b3 * (-1.0)); //csi_i
+                    return -1.0 / 8.0 * (eta - 1.0) * (2.0 * a * csi + b * eta + b);
+                case 2:
+                    a = (b1 + b3 * (-1.0)); //eta_i
+                    b = (b2 + b3 * (+1.0)); //csi_i
+                    return 1.0 / 8.0 * (eta - 1.0) * (2.0 * a * csi + b * eta + b);
+                case 3:
+                    a = (b1 + b3 * (+1.0)); //eta_i
+                    b = (b2 + b3 * (+1.0)); //csi_i
+                    return -1.0 / 8.0 * (eta + 1.0) * (2.0 * a *csi + b * (eta - 1.0));
+                case 4:
+                    a = (b1 + b3 * (+1.0)); //eta_i
+                    b = (b2 + b3 * (-1.0)); //csi_i
+                    return 1.0 / 8.0 * (eta + 1.0) * (2.0 * a * csi + b * (eta - 1.0));
+                default:
+                    throw new ArgumentException("indice compreso tra 1 e 4");
             }
-
-            return new Point2d(x, y);
         }
 
-        internal static mnl.Matrix<double> LMatrix(double csi, double eta, Node[] nodes)
+        public static double DNuThetadEta(int index, double csi, double eta, Node[] nodes)
         {
-            Point2d p = GetXY(csi, eta, nodes);
-            double x = p.X;
-            double y = p.Y;
+            double b1 = 1.0 / 4.0 * ((-1.0) * nodes[1 - 1].Position.Y + (+1.0) * nodes[2 - 1].Position.Y + (+1.0) * nodes[3 - 1].Position.Y + (-1) * nodes[4 - 1].Position.Y);
+            double b2 = 1.0 / 4.0 * ((-1.0) * nodes[1 - 1].Position.Y + (-1.0) * nodes[2 - 1].Position.Y + (+1.0) * nodes[3 - 1].Position.Y + (+1) * nodes[4 - 1].Position.Y);
+            double b3 = 1.0 / 4.0 * ((-1.0) * (-1.0) * nodes[1 - 1].Position.Y + (+1.0) * (-1.0) * nodes[2 - 1].Position.Y + (+1.0) * (+1.0) * nodes[3 - 1].Position.Y + (-1) * (+1.0) * nodes[4 - 1].Position.Y);
 
-            mnl.Matrix<double> L = mnl.Matrix<double>.Build.Dense(3, 11);
-            L[0, 2] = 2.0;
-            L[0, 5] = 2.0 * x;
-            L[0, 6] = 6.0 * y;
-            L[0, 8] = 6.0 * x * y;
-            L[0, 9] = -12.0 * y * y;
-            L[0, 10] = 12.0 * (x * x - y * y);
-
-            L[1, 0] = 2.0;
-            L[1, 3] = 6.0 * x;
-            L[1, 4] = 2.0 * y;
-            L[1, 7] = 6.0 * x * y;
-            L[1, 9] = 12.0 * x * x;
-            L[1, 10] = -12.0 * (x * x - y * y);
-
-            L[2, 1] = -1.0;
-            L[2, 4] = -2.0 * x;
-            L[2, 5] = -2.0 * y;
-            L[2, 7] = -3.0 * x * x;
-            L[2, 9] = -3.0 * y * y;
-            L[2, 10] = -24.0 * x * y;
-
-            return L;
-        }
-
-        internal static mnl.Matrix<double> MMatrix(mnl.Matrix<double> D, Node[] nodes, double thickness)
-        {
-            Func<double, double, mnl.Matrix<double>> funJacobiano = Util.J(LinearShapeFunctionQuad4.DNdCsi, LinearShapeFunctionQuad4.DNdEta, nodes);
-
-            Func<double, double, mnl.Matrix<double>> funcM = (double csi, double eta) =>
+            double a;
+            double b;
+            switch (index)
             {
-                return LMatrix(csi, eta, nodes).Transpose() * D.Inverse() * LMatrix(csi, eta, nodes);
-            };
-
-            mnl.Matrix<double> M = thickness * GaussIntegration.IntegrationQuadrilateral(funcM, funJacobiano, 9);
-            
-            return M;
+                case 1:
+                    a = (b1 + b3 * (-1.0)); //eta_i
+                    b = (b2 + b3 * (-1.0)); //csi_i
+                    return -1.0 / 8.0 * (csi - 1.0) * (a * csi + a + 2.0 * b * eta);
+                case 2:
+                    a = (b1 + b3 * (-1.0)); //eta_i
+                    b = (b2 + b3 * (+1.0)); //csi_i
+                    return 1.0 / 8.0 * (csi + 1.0) * (a * (csi - 1.0) + 2.0 * b * eta);
+                case 3:
+                    a = (b1 + b3 * (+1.0)); //eta_i
+                    b = (b2 + b3 * (+1.0)); //csi_i
+                    return -1.0 / 8.0 * (csi + 1.0) * (a * (csi - 1.0) + 2.0 * b * eta);
+                case 4:
+                    a = (b1 + b3 * (+1.0)); //eta_i
+                    b = (b2 + b3 * (-1.0)); //csi_i
+                    return 1.0 / 8.0 * (csi - 1.0) * (a * csi + a + 2.0 * b * eta);
+                default:
+                    throw new ArgumentException("indice compreso tra 1 e 4");
+            }
         }
 
-        internal static mnl.Matrix<double> HMatrix(Node[] nodes, double thickness)
+        public static double DNvThetadCsi(int index, double csi, double eta, Node[] nodes)
         {
-            Func<double, double, mnl.Matrix<double>> funJacobiano = Util.J(LinearShapeFunctionQuad4.DNdCsi, LinearShapeFunctionQuad4.DNdEta, nodes);
+            double a1 = 1.0 / 4.0 * ((-1.0) * nodes[1 - 1].Position.X + (+1.0) * nodes[2 - 1].Position.X + (+1.0) * nodes[3 - 1].Position.X + (-1) * nodes[4 - 1].Position.X);
+            double a2 = 1.0 / 4.0 * ((-1.0) * nodes[1 - 1].Position.X + (-1.0) * nodes[2 - 1].Position.X + (+1.0) * nodes[3 - 1].Position.X + (+1) * nodes[4 - 1].Position.X);
+            double a3 = 1.0 / 4.0 * ((-1.0) * (-1.0) * nodes[1 - 1].Position.X + (+1.0) * (-1.0) * nodes[2 - 1].Position.X + (+1.0) * (+1.0) * nodes[3 - 1].Position.X + (-1) * (+1.0) * nodes[4 - 1].Position.X);
 
-            Func<double, double, mnl.Matrix<double>> funcH = (double csi, double eta) =>
+            double a = 0.0;
+            double b = 0.0;
+            switch (index)
             {
-                return LMatrix(csi, eta, nodes).Transpose() * BMatrix(csi, eta, nodes);
-            };
+                case 1:
+                    a = (a1 + a3 * (-1.0)); //eta_i
+                    b = (a2 + a3 * (-1.0)); //csi_i
+                    return 1.0 / 8.0 * (eta - 1.0) * (2.0 * a * csi + b * eta + b);
+                case 2:
+                    a = (a1 + a3 * (-1.0)); //eta_i
+                    b = (a2 + a3 * (+1.0)); //csi_i
+                    return -1.0 / 8.0 * (eta - 1.0) * (2.0 * a * csi + b * eta + b);
+                case 3:
+                    a = (a1 + a3 * (+1.0)); //eta_i
+                    b = (a2 + a3 * (+1.0)); //csi_i
+                    return 1.0 / 8.0 * (eta + 1.0) * (2.0 * a * csi + b * (eta - 1.0));
+                case 4:
+                    a = (a1 + a3 * (+1.0)); //eta_i
+                    b = (a2 + a3 * (-1.0)); //csi_i
+                    return -1.0 / 8.0 * (eta + 1.0) * (2.0 * a * csi + b * (eta - 1.0));
+                default:
+                    throw new ArgumentException("indice compreso tra 1 e 4");
+            }
+        }
 
-            mnl.Matrix<double> H = thickness * GaussIntegration.IntegrationQuadrilateral(funcH, funJacobiano, 9);
+        public static double DNvThetadEta(int index, double csi, double eta, Node[] nodes)
+        {
+            double a1 = 1.0 / 4.0 * ((-1.0) * nodes[1 - 1].Position.X + (+1.0) * nodes[2 - 1].Position.X + (+1.0) * nodes[3 - 1].Position.X + (-1) * nodes[4 - 1].Position.X);
+            double a2 = 1.0 / 4.0 * ((-1.0) * nodes[1 - 1].Position.X + (-1.0) * nodes[2 - 1].Position.X + (+1.0) * nodes[3 - 1].Position.X + (+1) * nodes[4 - 1].Position.X);
+            double a3 = 1.0 / 4.0 * ((-1.0) * (-1.0) * nodes[1 - 1].Position.X + (+1.0) * (-1.0) * nodes[2 - 1].Position.X + (+1.0) * (+1.0) * nodes[3 - 1].Position.X + (-1) * (+1.0) * nodes[4 - 1].Position.X);
 
-            return H;
+            double a = 0.0;
+            double b = 0.0;
+            switch (index)
+            {
+                case 1:
+                    a = (a1 + a3 * (-1.0)); //eta_i
+                    b = (a2 + a3 * (-1.0)); //csi_i
+                    return 1.0 / 8.0 * (csi - 1.0) * (a * csi + a + 2.0 * b * eta);
+                case 2:
+                    a = (a1 + a3 * (-1.0)); //eta_i
+                    b = (a2 + a3 * (+1.0)); //csi_i
+                    return -1.0 / 8.0 * (csi + 1.0) * (a * (csi - 1.0) + 2.0 * b * eta);
+                case 3:
+                    a = (a1 + a3 * (+1.0)); //eta_i
+                    b = (a2 + a3 * (+1.0)); //csi_i
+                    return 1.0 / 8.0 * (csi + 1.0) * (a * (csi - 1.0) + 2.0 * b * eta);
+                case 4:
+                    a = (a1 + a3 * (+1.0)); //eta_i
+                    b = (a2 + a3 * (-1.0)); //csi_i
+                    return -1.0 / 8.0 * (csi - 1.0) * (a * csi + a + 2.0 * b * eta);
+                default:
+                    throw new ArgumentException("indice compreso tra 1 e 4");
+            }
         }
 
         protected override mnl.Vector<double> BuildFLocalCoord()

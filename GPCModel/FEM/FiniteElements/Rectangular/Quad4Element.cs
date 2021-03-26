@@ -443,7 +443,7 @@ namespace GPC.Model.FEM.FiniteElements
         }
 
         /// <summary>
-        /// out Local Node in clockwise
+        /// out Local Node in clockwise, centro nel primo nodo dell'elemento
         /// </summary>
         /// <returns></returns>
         public static Node[] LocalNodes(Node[] globalNodes, out CoordinateSystem cSys)
@@ -503,6 +503,68 @@ namespace GPC.Model.FEM.FiniteElements
             
             return localNodes;
             #endregion
+        }
+
+        /// <summary>
+        /// Centro nel baricentro dell'elemento
+        /// </summary>
+        /// <param name="globalCoordinatesNodes"></param>
+        /// <param name="cSys"></param>
+        /// <returns></returns>
+        public static Node[] GetLocalNodes(Node[] globalCoordinatesNodes, out CoordinateSystem cSys)
+        {
+            ///reference fig. 3
+            //Search for 3 local axis
+            Node[] global8Nodes = Quad4Element.Get8Nodes(globalCoordinatesNodes);
+
+            Node nodeJ = global8Nodes[6 - 1];
+            Node nodeL = global8Nodes[8 - 1];
+
+            Vector3d x = new Vector3d(nodeJ.Position.X - nodeL.Position.X, nodeJ.Position.Y - nodeL.Position.Y, nodeJ.Position.Z - nodeL.Position.Z);
+            Vector3d vecx = new Vector3d(x);
+            vecx.Unitize();
+
+            Node nodeK = global8Nodes[7 - 1];
+            Node nodeI = global8Nodes[5 - 1];
+
+            Vector3d y = new Vector3d(nodeK.Position.X - nodeI.Position.X, nodeK.Position.Y - nodeI.Position.Y, nodeK.Position.Z - nodeI.Position.Z);
+            Vector3d vecy = new Vector3d(y);
+            vecy.Unitize();
+
+            Vector3d z = x.CrossProduct(y);
+            Vector3d vecz = new Vector3d(z);
+            vecz.Unitize();
+
+            //recalculation of y that can be non-ortogonal
+            y = z.CrossProduct(x);
+            vecy = new Vector3d(y);
+            vecy.Unitize();
+            //_vecXLocal = vecx.ToVector().ToArray();
+            cSys = new CoordinateSystem(new Point3d(0, 0, 0), vecx, vecy);
+
+            //move to local axis
+            //calculation in local nodes
+            double Xg = globalCoordinatesNodes.ToList().Sum(p => p.Position.X) / 4.0;
+            double Yg = globalCoordinatesNodes.ToList().Sum(p => p.Position.Y) / 4.0;
+            double Zg = globalCoordinatesNodes.ToList().Sum(p => p.Position.Z) / 4.0;
+
+            Node node1 = global8Nodes[1 - 1];
+            Node node2 = global8Nodes[2 - 1];
+            Node node3 = global8Nodes[3 - 1];
+            Node node4 = global8Nodes[4 - 1];
+
+            Vector3d vO1 = new Vector3d(node1.Position.X - Xg, node1.Position.Y - Yg, node1.Position.Z - Zg);
+            Vector3d vO2 = new Vector3d(node2.Position.X - Xg, node2.Position.Y - Yg, node2.Position.Z - Zg);
+            Vector3d vO3 = new Vector3d(node3.Position.X - Xg, node3.Position.Y - Yg, node3.Position.Z - Zg);
+            Vector3d vO4 = new Vector3d(node4.Position.X - Xg, node4.Position.Y - Yg, node4.Position.Z - Zg);
+
+            Node[] localNodes = new Node[4];
+            localNodes[0] = new Node(vO1.DotProduct(vecx), vO1.DotProduct(vecy), vO1.DotProduct(vecz), node1.Id, node1.Name);
+            localNodes[1] = new Node(vO2.DotProduct(vecx), vO2.DotProduct(vecy), vO2.DotProduct(vecz), node2.Id, node2.Name);
+            localNodes[2] = new Node(vO3.DotProduct(vecx), vO3.DotProduct(vecy), vO3.DotProduct(vecz), node3.Id, node3.Name);
+            localNodes[3] = new Node(vO4.DotProduct(vecx), vO4.DotProduct(vecy), vO4.DotProduct(vecz), node4.Id, node4.Name);
+
+            return localNodes;
         }
 
         /// <summary>
