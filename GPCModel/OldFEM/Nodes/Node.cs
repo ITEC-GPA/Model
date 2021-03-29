@@ -1,0 +1,141 @@
+﻿using GPC.Geometry;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using GPC.Model.FEMOld.Attributes;
+using GPC.Model.Elements;
+using GPC.Model.Restrains;
+
+namespace GPC.Model.FEMOld
+{
+    public class Node : FEMObject
+    {
+        #region Variables
+
+        protected Point3d _position;
+
+        protected int _nodeIndex;
+
+        protected string _nodeLabel;
+
+        protected FEMNodeDoF _doF;
+
+        protected List<INodeFemAttribute> _attributes;
+
+        #endregion 
+
+        #region Properties
+
+        public Point3d Position => _position;
+
+        public int NodeIndex => _nodeIndex;
+
+        public string NodeLabel => _nodeLabel;
+
+        public FEMNodeDoF DoF => _doF;
+
+        public List<INodeFemAttribute> Attributes => _attributes;
+
+        #endregion
+
+        #region Public Constructors
+
+        public Node(Guid guid, Point3d position, int nodeIndex, DofRestrain restrain)
+            : base(guid, "")
+        {
+            _attributes = new List<INodeFemAttribute>();
+            int[] doFid = new int[6];
+            int[] activeDoF = new int[6];
+
+            //if (restrain != null)
+            //{
+            //    doFid[0] = 1;
+            //    activeDoF[0] = restrain.D1 == true ? 1 : 0;
+
+            //    doFid[1] = 2;
+            //    activeDoF[1] = restrain.D2 == true ? 1 : 0;
+
+            //    doFid[2] = 3;
+            //    activeDoF[2] = restrain.D3 == true ? 1 : 0;
+
+            //    doFid[3] = 4;
+            //    activeDoF[3] = restrain.R1 == true ? 1 : 0;
+
+            //    doFid[4] = 5;
+            //    activeDoF[4] = restrain.R2 == true ? 1 : 0;
+
+            //    doFid[5] = 5;
+            //    activeDoF[5] = restrain.R3 == true ? 1 : 0;
+            //}
+            //else
+            //{
+            //    doFid[0] = 0;
+            //    doFid[1] = 0;
+            //    doFid[2] = 0;
+            //    doFid[3] = 0;
+            //    doFid[4] = 0;
+            //    doFid[5] = 0;
+            //    activeDoF[0] = 0;
+            //    activeDoF[1] = 0;
+            //    activeDoF[2] = 0;
+            //    activeDoF[3] = 0;
+            //    activeDoF[4] = 0;
+            //    activeDoF[5] = 0;
+            //}
+
+            _doF = new FEMNodeDoF(doFid, activeDoF);
+            _position = position ?? throw new ArgumentNullException("Node position cannot be null");
+            _nodeIndex = nodeIndex >= 0 ? nodeIndex : throw new ArgumentException("Node index cannot be lower than zero");
+        }
+
+
+        public Node(Guid guid, Point3d position, int nodeIndex, int[] doFid, int[] activeDoF)
+            : this(guid, "", position, nodeIndex, doFid, activeDoF)
+        {
+
+        }
+
+        public Node(Guid guid, Point3d position, int nodeIndex, FEMNodeDoF doF)
+            : base(guid, "")
+        {
+            _doF = doF;
+            _position = position ?? throw new ArgumentNullException("Node position cannot be null");
+            _nodeIndex = nodeIndex >= 0 ? nodeIndex : throw new ArgumentException("Node index cannot be lower than zero");
+        }
+
+        public Node(Guid guid, string name, Point3d position, int nodeIndex, int[] doFid, int[] activeDoF)
+             : base(guid, name)
+        {
+            _doF = new FEMNodeDoF(doFid, activeDoF);
+            _position = position ?? throw new ArgumentNullException("Node position cannot be null");
+            _nodeIndex = nodeIndex >= 0 ? nodeIndex : throw new ArgumentException("Node index cannot be lower than zero");
+        }
+
+        public Node(Point3d position, int nodeIndex, int[] doFid, int[] activeDoF)
+            : this(Guid.NewGuid(), "", position, nodeIndex, doFid, activeDoF)
+        {
+
+        }
+
+        #endregion 
+
+        #region Public Methods Specific
+
+        public DofRestrain GetRestrain()
+        {
+            throw new NotImplementedException();
+        }
+
+        public void SetPosition(Point3d newPos)
+        {
+            _position = new Point3d(newPos.X, newPos.Y, newPos.Z);
+        }
+
+        public void AddAttribute(INodeFemAttribute attribute)
+        {
+            _attributes.Add(attribute);
+        }
+
+        #endregion 
+    }
+}
