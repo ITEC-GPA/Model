@@ -78,7 +78,7 @@ namespace FemTest.Solver
             nds[2] = new Node(+1.0, +1.0, 0, 3, "3");
             nds[3] = new Node(-1.0, +1.0, 0, 4, "4");
 
-            nds = Quad4Element.LocalNodes(nds, out CoordinateSystem sys);
+            nds = Quad4Element.GetLocalNodes(nds, out CoordinateSystem sys);
 
             var Lm = nds.ToList().Select(x => Quad4QFSUQMembranal.LMatrix(x.Position.X, x.Position.Y, nds)).ToList();
 
@@ -87,7 +87,7 @@ namespace FemTest.Solver
             nds[2] = new Node(2.0, 2.0, 0, 3, "3");
             nds[3] = new Node(0.0, 2.0, 0, 4, "4");
 
-            nds = Quad4Element.LocalNodes(nds, out sys);
+            nds = Quad4Element.GetLocalNodes(nds, out sys);
 
             var Lm2 = nds.ToList().Select(x => Quad4QFSUQMembranal.LMatrix(x.Position.X, x.Position.Y, nds)).ToList();
 
@@ -298,114 +298,7 @@ namespace FemTest.Solver
             LinearSolver fem = new LinearSolver(els.ToArray());
         }*/
 
-        /*[TestMethod]
-        public void Quad4MQ2IbraMembranalOldFem1()
-        {
-            /// 0 - active degree of freedom
-            /// 1 - non-active degree of freedom
-            int[] NodeDoFID = new int[] { 1, 2, 3, 4, 5, 6 };
-
-            /// Nodes in 3D  XYZ
-            int[] Node1DoF = new int[] { 0, 0, 1, 1, 1, 0 };
-            int[] Node2DoF = new int[] { 0, 0, 1, 1, 1, 0 };
-            int[] Node3DoF = new int[] { 0, 0, 1, 1, 1, 0 };
-            int[] Node4DoF = new int[] { 0, 0, 1, 1, 1, 0 };
-
-            GPC.Model.FEMOld.Node Node1 = new GPC.Model.FEMOld.Node(Guid.NewGuid(), new Point3d(-1.0, -1.0, 0.0), 1, NodeDoFID, Node1DoF);
-            GPC.Model.FEMOld.Node Node2 = new GPC.Model.FEMOld.Node(Guid.NewGuid(), new Point3d(+1.0, -1.0, 0.0), 2, NodeDoFID, Node2DoF);
-            GPC.Model.FEMOld.Node Node3 = new GPC.Model.FEMOld.Node(Guid.NewGuid(), new Point3d(+1.0, +1.0, 0.0), 3, NodeDoFID, Node3DoF);
-            GPC.Model.FEMOld.Node Node4 = new GPC.Model.FEMOld.Node(Guid.NewGuid(), new Point3d(-1.0, +1.0, 0.0), 4, NodeDoFID, Node4DoF);
-
-            GPC.Model.FEMOld.Node[] nodes = new GPC.Model.FEMOld.Node[4];
-            nodes[0] = Node1;
-            nodes[1] = Node2;
-            nodes[2] = Node3;
-            nodes[3] = Node4;
-
-            int _globalDoF = 0;
-            int _reactionDoF = 0;
-
-            // Arrange Nodes
-            for (int nd = 0; nd < nodes.Length; nd++)
-            {
-                nodes[nd].DoF.FormIncidence(ref _globalDoF, ref _reactionDoF);
-            }
-
-            ///  Section
-            double E = 1; // MPa
-            double ni = 0.0;
-
-            /// Material
-            Material mat = new SteelMaterial("Steel", E, ni, 355, 510, 355 / E, 0, 0, new Guid());// new Material("Steel", E, ni, 0.0, 0.0, new Guid());
-            PlateProperty property = new PlateProperty(mat, 1.0, 1.0);
-            GPC.Model.FEMOld.PlateDKQ shell = new GPC.Model.FEMOld.PlateDKQ(new Guid(), property, 1, nodes);
-
-            mnl.Matrix<double> _stiffnessMatrix = mnl.Matrix<double>.Build.Dense(_globalDoF, _globalDoF, 0.0);
-            shell.BuildElementDoFIncidence();
-            shell.KInGlobal(ref _stiffnessMatrix);
-
-            Console.WriteLine("Element local stiffness matrix");
-            for (int r = 0; r < _stiffnessMatrix.RowCount; r++)
-            {
-                for (int c = 0; c < _stiffnessMatrix.ColumnCount; c++)
-                {
-                    Console.Write(_stiffnessMatrix[r, c].ToString("F3") + " \t");
-                }
-                Console.WriteLine();
-            }
-        }*/
-
-        /*
-        [TestMethod]
-        public void Quad4MQ2IbraMembranalOldFem2()
-        {
-            /// 0 - active degree of freedom
-            /// 1 - non-active degree of freedom
-            int[] NodeDoFID = new int[] { 1, 2, 3, 4, 5, 6 };
-
-            /// Nodes in 3D  XYZ
-            int[] Node1DoF = new int[] { 0, 0, 1, 1, 1, 0 };
-            int[] Node2DoF = new int[] { 0, 0, 1, 1, 1, 0 };
-            int[] Node3DoF = new int[] { 0, 0, 1, 1, 1, 0 };
-            int[] Node4DoF = new int[] { 0, 0, 1, 1, 1, 0 };
-
-            List<GPC.Model.FEMOld.Node> nodes = new List<GPC.Model.FEMOld.Node>();
-            nodes.Add(new GPC.Model.FEMOld.Node(Guid.NewGuid(), new Point3d(+0.0, 0.0, 0.0), 1, NodeDoFID, Node1DoF));
-            nodes.Add(new GPC.Model.FEMOld.Node(Guid.NewGuid(), new Point3d(12.0, 0.0, 0.0), 1, NodeDoFID, Node1DoF));
-            nodes.Add(new GPC.Model.FEMOld.Node(Guid.NewGuid(), new Point3d(24.0, 0.0, 0.0), 1, NodeDoFID, Node1DoF));
-            nodes.Add(new GPC.Model.FEMOld.Node(Guid.NewGuid(), new Point3d(36.0, 0.0, 0.0), 1, NodeDoFID, Node1DoF));
-            nodes.Add(new GPC.Model.FEMOld.Node(Guid.NewGuid(), new Point3d(48.0, 0.0, 0.0), 1, NodeDoFID, Node1DoF));
-
-            nodes.Add(new GPC.Model.FEMOld.Node(Guid.NewGuid(), new Point3d(+0.0, 12.0, 0.0), 1, NodeDoFID, Node1DoF));
-            nodes.Add(new GPC.Model.FEMOld.Node(Guid.NewGuid(), new Point3d(12.0, 12.0, 0.0), 1, NodeDoFID, Node1DoF));
-            nodes.Add(new GPC.Model.FEMOld.Node(Guid.NewGuid(), new Point3d(24.0, 12.0, 0.0), 1, NodeDoFID, Node1DoF));
-            nodes.Add(new GPC.Model.FEMOld.Node(Guid.NewGuid(), new Point3d(36.0, 12.0, 0.0), 1, NodeDoFID, Node1DoF));
-            nodes.Add(new GPC.Model.FEMOld.Node(Guid.NewGuid(), new Point3d(48.0, 12.0, 0.0), 1, NodeDoFID, Node1DoF));
-
-            int _globalDoF = 0;
-            int _reactionDoF = 0;
-
-            // Arrange Nodes
-            for (int nd = 0; nd < nodes.Count; nd++)
-            {
-                nodes[nd].DoF.FormIncidence(ref _globalDoF, ref _reactionDoF);
-            }
-
-            ///  Section
-            double E = 30000; // MPa
-            double ni = 0.25;
-
-            /// Material
-            Material mat = new SteelMaterial("Steel", E, ni, 355, 510, 355 / E, 0, 0, new Guid());// new Material("Steel", E, ni, 0.0, 0.0, new Guid());
-            PlateProperty property = new PlateProperty(mat, 1.0, 1.0);
-            GPC.Model.FEMOld.PlateDKQ shell = new GPC.Model.FEMOld.PlateDKQ(new Guid(), property, 1, nodes.ToArray());
-
-            mnl.Matrix<double> _stiffnessMatrix = mnl.Matrix<double>.Build.Dense(_globalDoF, _globalDoF, 0.0);
-            shell.BuildElementDoFIncidence();
-            shell.KInGlobal(ref _stiffnessMatrix);
-            Util.WriteMatrix(_stiffnessMatrix, "F3");
-            
-        }*/
+        
 
         /*[TestMethod]
         public void Quad4MembranalTestAsReference()
