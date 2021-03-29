@@ -23,11 +23,23 @@ namespace GPC.Model.FEM.Collections
 
         protected int _maxId = 0;
 
+        /// <summary>
+        /// Inizialize the collection using <see cref="FEMObject.FemObjectOnlyIdComparer"/> as equality comparer
+        /// </summary>
         public FemObjectCollection()
         {
             // Usiamo l'equality comparer che confronta solamente gli ID, quindi due oggetti uguali vengono aggiunti se hanno id diverso
             _collection = new HashSet<T>(new FEMObject.FemObjectOnlyIdComparer());
         }
+
+        /// <summary>
+        /// Inizialize with a custom Equality Comparer <paramref name="customEqualityComparer"/>
+        /// </summary>
+        public FemObjectCollection(IEqualityComparer<T> customEqualityComparer)
+        {
+            _collection = new HashSet<T>(customEqualityComparer);
+        }
+
 
         public int Count => _collection.Count();
 
