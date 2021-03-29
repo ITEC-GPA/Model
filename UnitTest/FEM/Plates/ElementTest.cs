@@ -91,7 +91,7 @@ namespace FemTest.Solver
             nodes[3 - 1] = new Node(1.0, 1.0, 0.0, 0);
             nodes[4 - 1] = new Node(0.0, 1.0, 0.0, 0);
 
-            Node[] localNodes = Quad4Element.LocalNodes(nodes, out CoordinateSystem sys);
+            Node[] localNodes = Quad4Element.GetLocalNodes(nodes, out CoordinateSystem sys);
 
             Assert.AreEqual(0.0, localNodes[1 - 1].Position.X);
             Assert.AreEqual(0.0, localNodes[1 - 1].Position.Y);
@@ -111,7 +111,7 @@ namespace FemTest.Solver
             nodes[3 - 1] = new Node(1.0, 1.0, 0.0, 0);
             nodes[4 - 1] = new Node(1.0, 0.0, 0.0, 0);
 
-            localNodes = Quad4Element.LocalNodes(nodes, out sys);
+            localNodes = Quad4Element.GetLocalNodes(nodes, out sys);
 
             Assert.AreEqual(0.0, localNodes[1 - 1].Position.X);
             Assert.AreEqual(0.0, localNodes[1 - 1].Position.Y);
