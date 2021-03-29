@@ -11,11 +11,9 @@ namespace ModelObjectTest
 
 
         [TestMethod]
-        public void CollectionTest1()
+        public void UniqueNameTest1()
         {
-            ModelObject.ModelObjectNameEqualityComparer comparer = new ModelObject.ModelObjectNameEqualityComparer();
-
-            ModelObjectCollection<GhostElement> moc = new ModelObjectCollection<GhostElement>(comparer);
+            UniqueNameCollection<GhostElement> moc = new UniqueNameCollection<GhostElement>();
 
 
             moc.Add(new GhostElement(1, "E1"));

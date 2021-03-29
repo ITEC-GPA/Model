@@ -104,7 +104,7 @@ namespace GPC.Model.FEM
 
                         //update the HashSet
                         nodesModel.Remove(nodes.Single());
-                        node.SetID(ID);
+                        node.SetId(ID);
                         nodesModel.Add(node);
                     }
                     else
@@ -116,7 +116,7 @@ namespace GPC.Model.FEM
                                 node.DOF.Add((DOF)k);
                             }
                         }
-                        node.SetID(iter);
+                        node.SetId(iter);
                         nodesModel.Add(node);
                         iter++;
                     }

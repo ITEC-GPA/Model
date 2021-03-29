@@ -29,7 +29,9 @@ namespace FemTest.Solver
             nds[1] = new Node(1.0, 0, 0, 2, "2");
             nds[2] = new Node(0.0, 1, 0, 3, "3");
 
-            Tri3PlaneStress el = new Tri3PlaneStress(nds, prop, 1);
+            Tri3PlaneStress el = new Tri3PlaneStress(nds);
+            el.SetProperty(prop);
+            el.SetId(1);
             el.BuildMatrix();
             mnl.Matrix<double> kLocal = el.KElementLocalCoord;
             mnl.Matrix<double> kLocalManual = mnl.Matrix<double>.Build.Dense(0, 6);
@@ -71,7 +73,9 @@ namespace FemTest.Solver
             nds[1] = new Node(100.0, 0, 0, 2, "2");
             nds[2] = new Node(0.0, 100, 0, 3, "3");
 
-            Tri3PlaneStress el = new Tri3PlaneStress(nds, prop, 1);
+            Tri3PlaneStress el = new Tri3PlaneStress(nds);
+            el.SetProperty(prop);
+            el.SetId(1);
             el.BuildMatrix();
             mnl.Matrix<double> kLocal = el.KElementLocalCoord;
             //Add DZ global DOF
@@ -138,12 +142,16 @@ namespace FemTest.Solver
             nodesPlate2.Add(nd4);
 
             List<FiniteElement> elements = new List<FiniteElement>();
-            Plate e0 = new Tri3PlaneStress(nodesPlate1.ToArray(), prop, 1);
+            Plate e0 = new Tri3PlaneStress(nodesPlate1.ToArray());
+            e0.SetProperty(prop);
+            e0.SetId(1);
             PlatePressureAttribute p = new PlatePressureAttribute(loadCase, sys, -10.0, 0, 0);
             e0.AddLoadCaseAttribute(p);
 
             elements.Add(e0);
-            elements.Add(new Tri3PlaneStress(nodesPlate2.ToArray(), prop, 2));
+            elements.Add(new Tri3PlaneStress(nodesPlate2.ToArray()));
+            e0.SetProperty(prop);
+            e0.SetId(2);
 
             LinearSolver fem = new LinearSolver(elements.ToArray());
             double Node4DX = fem.GetDisplacementGlobalCoordinates(nd4, LinearSolver.DOF.DX);
@@ -192,7 +200,9 @@ namespace FemTest.Solver
             nds[2] = new Node(+1.0, +1, 0, 3, "3");
             nds[3] = new Node(-1.0, +1, 0, 4, "4");
 
-            Quad4Membranal el = new Quad4Membranal(nds, prop, 1);
+            Quad4Membranal el = new Quad4Membranal(nds);
+            el.SetProperty(prop);
+            el.SetId(1);
             el.BuildMatrix();
             mnl.Matrix<double> kLocal = el.KElementLocalCoord;
             mnl.Matrix<double> kLocalManual = mnl.Matrix<double>.Build.Dense(0, 8);
@@ -244,7 +254,9 @@ namespace FemTest.Solver
             nds[2] = new Node(+2.0, +1, 0, 3, "3");
             nds[3] = new Node(+0.0, +1, 0, 4, "4");
 
-            Quad4Membranal el = new Quad4Membranal(nds, prop, 1);
+            Quad4Membranal el = new Quad4Membranal(nds);
+            el.SetProperty(prop);
+            el.SetId(1);
             el.BuildMatrix();
             mnl.Matrix<double> kLocal = el.KElementLocalCoord;
             mnl.Matrix<double> kLocalManual = mnl.Matrix<double>.Build.Dense(0, 8);
@@ -296,7 +308,9 @@ namespace FemTest.Solver
             nds[2] = new Node(+2.0, +2, 0, 3, "3");
             nds[3] = new Node(+0.0, +1, 0, 4, "4");
 
-            Quad4Membranal el = new Quad4Membranal(nds, prop, 1);
+            Quad4Membranal el = new Quad4Membranal(nds);
+            el.SetProperty(prop);
+            el.SetId(1);
             el.BuildMatrix();
             mnl.Matrix<double> kLocal = el.KElementLocalCoord;
             mnl.Matrix<double> kLocalManual = mnl.Matrix<double>.Build.Dense(0, 8);
@@ -348,7 +362,9 @@ namespace FemTest.Solver
             nds[2] = new Node(+1.0, +1, 0, 3, "3");
             nds[3] = new Node(-1.0, +1, 0, 4, "4");
 
-            Quad4Membranal el = new Quad4Membranal(nds, prop, 1);
+            Quad4Membranal el = new Quad4Membranal(nds);
+            el.SetProperty(prop);
+            el.SetId(1);
             el.BuildMatrix();
             mnl.Matrix<double> kLocal = el.KElementLocalCoord;
             mnl.Matrix<double> kGlobalManual = mnl.Matrix<double>.Build.Dense(0, 12);
@@ -431,7 +447,9 @@ namespace FemTest.Solver
             double px = 0.1;
             PlatePressureAttribute pressure = new PlatePressureAttribute(lc, sys, px, 0, 0);
             
-            Quad4Membranal el = new Quad4Membranal(nds, prop, 1);
+            Quad4Membranal el = new Quad4Membranal(nds);
+            el.SetProperty(prop);
+            el.SetId(1);
             el.AddLoadCaseAttribute(pressure);
             
             LinearSolver fem = new LinearSolver(new FiniteElement[] { el });

@@ -12,7 +12,12 @@ using mnl = MathNet.Numerics.LinearAlgebra;
 
 namespace GPC.Model.FEM.FiniteElements
 {
+    // TODO: Classe Plate: farla diventare abstract
+    /// <summary>
+    /// Va messa abstract una volta che è stabile il fem
+    /// </summary>
     [DebuggerDisplay("{" + nameof(GetDebuggerDisplay) + "(),nq}")]
+    [System.ComponentModel.Description("Verrà messa abstract una volta che il fem è stabile")]
     public class Plate : FiniteElement
     {
         public bool IsTriangle => Nodes.Length == 3 ? true : false;
@@ -22,11 +27,20 @@ namespace GPC.Model.FEM.FiniteElements
         public new PlateProperty Property => (PlateProperty)_property;
 
 
-        public Plate(Node[] nodes) 
-            : base(nodes)
+        public Plate(Node[] nodes) : base(nodes)
         {
 
         }
+
+        /// <summary>
+        /// This constructor to be used only for debugging purpose. Use setproperty or setid instead
+        /// </summary>
+        internal Plate(Node[] nodes, PlateProperty property, int id) : base(nodes)
+        {
+            SetProperty(property);
+            SetId(id);
+        }
+
 
         public override FiniteElement Duplicate(ElementProperty property, List<LoadCaseAttribute> lcAttributes, List<FreedomCaseAttribute> fdAttributes)
         {

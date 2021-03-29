@@ -44,8 +44,8 @@ namespace GPC.Model.Sections
         #endregion
 
 
-        public SectionShape(Shape[] shapes, Material[] materials)
-            : base(materials)
+        public SectionShape(Shape[] shapes, Material[] materials, string name)
+            : base(materials, name)
         {
             _shapes = new List<Shape>(shapes);
             _material = new MultiMaterial(materials, new Guid());

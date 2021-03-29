@@ -15,12 +15,12 @@ namespace GPC.Model.Elements
     {
         public GhostElement(int id)
         {
-            this.SetId(id);
+            Id = id;
         }
 
         public GhostElement(int id, string name)
         {
-            this.SetId(id);
+            Id = id;
             this._name = name;
         }
 
@@ -31,7 +31,7 @@ namespace GPC.Model.Elements
 
         public GhostElement(Guid guid, string name, int id) : base(guid, name)
         {
-            this.SetId(id);
+            Id = id;
         }
 
         public GhostElement(SerializationInfo info, StreamingContext context) : base(info, context)

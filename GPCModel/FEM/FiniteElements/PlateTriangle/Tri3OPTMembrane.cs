@@ -26,7 +26,7 @@ namespace GPC.Model.FEM.FiniteElements
         mnl.Matrix<double> _Tthetau;
         #endregion
 
-        public Tri3OPTMembrane(Node[] nodes, PlateProperty property, int id) : base(nodes, property, id)
+        public Tri3OPTMembrane(Node[] nodes) : base(nodes)
         {
             //recalled base(nodes)
             _DOF.Add(LinearSolver.DOF.DX);
@@ -45,8 +45,13 @@ namespace GPC.Model.FEM.FiniteElements
             //[18x18]          [18x9]         [9x9]     [9x18]
         }
 
-        public Tri3OPTMembrane(int id, Node[] nodes, PlateProperty property) : this(nodes, property, id)
+        /// <summary>
+        /// This constructor to be used ONLY for debugging purpose. Use <see cref="FiniteElement.SetProperty(ElementProperty)"/> or <see cref="FEMObject.SetId(int)"/> instead
+        /// </summary>
+        internal Tri3OPTMembrane(Node[] nodes, PlateProperty property, int id) : base(nodes)
         {
+            SetProperty(property);
+            SetId(id);
         }
 
         public override void BuildMatrix()

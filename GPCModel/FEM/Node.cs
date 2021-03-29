@@ -57,14 +57,30 @@ namespace GPC.Model.FEM
             _attributesFreedomCase = new List<INodeFreedomCaseAttribute>();
         }
 
-        public Node(double X, double Y, double Z, string label="") : this(new Point3d(X, Y, Z), label)
+        internal Node(double X, double Y, double Z, string label="") : this(new Point3d(X, Y, Z), label)
         {
 
         }
 
-        public void SetID(int id)
+        internal Node(double X, double Y, double Z, int id, string name) : this(new Point3d(X, Y, Z), name, id)
         {
-            base.SetId(id);
+
+        }
+        internal Node(double X, double Y, double Z, string name, int id) : this(new Point3d(X, Y, Z), name, id)
+        {
+
+        }
+
+        internal Node(Point3d point, string name, int id) : this(point)
+        {
+            Name = name;
+            SetId(id);
+        }
+
+        internal Node(Point3d point, int id) : this(point)
+        {
+            Name = string.Empty;
+            SetId(id);
         }
 
         public override string ToString()

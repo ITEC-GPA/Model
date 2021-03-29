@@ -42,7 +42,7 @@ namespace GPC.Model.FEM
         #endregion
 
 
-        public Stage(string name, FemModel referenceFemModel, FemModel.AnalysisType analysisType, bool morph, List<Combination> combinations)
+        internal Stage(string name, FemModel referenceFemModel, FemModel.AnalysisType analysisType, bool morph, List<Combination> combinations)
             : base(name)
         {
             this._analysisType = analysisType;
@@ -55,13 +55,13 @@ namespace GPC.Model.FEM
             this._femModel = referenceFemModel ?? throw new  ArgumentNullException("Fem Model can't be null");
         }
 
-        public Stage(string name, FemModel femModel, FemModel.AnalysisType analysisType)
+        internal Stage(string name, FemModel femModel, FemModel.AnalysisType analysisType)
             : this(name, femModel, analysisType, false, null)
         {
 
         }
 
-        public Stage(Stage stage)
+        internal Stage(Stage stage)
         {
             this._analysisType = stage._analysisType;
             this._combinations = stage._combinations;
@@ -71,7 +71,7 @@ namespace GPC.Model.FEM
             this._femModel     = stage._femModel;
         }
 
-        public Stage(SerializationInfo info, StreamingContext context) 
+        internal Stage(SerializationInfo info, StreamingContext context) 
             : base(info, context)
         {
             throw new NotImplementedException();
@@ -265,12 +265,12 @@ namespace GPC.Model.FEM
             while (enumerator.MoveNext())
             {
                 var finiteElement = enumerator.Current;
-                var a = _elements.GetStageProperty(finiteElement).Property;
                 FiniteElement duplicated = finiteElement.Duplicate(_elements.GetStageProperty(finiteElement).Property, 
                                                                     _elements.GetStageProperty(finiteElement).LoadCaseAttributes,
                                                                     _elements.GetStageProperty(finiteElement).FreedomCaseAttribute);
 
-                femModel.AddFiniteElement(duplicated);
+                femModel.AddProperty(finiteElement.Property);
+                femModel.AddFiniteElement(duplicated, finiteElement.Property.Name);
             }
 
             return femModel;

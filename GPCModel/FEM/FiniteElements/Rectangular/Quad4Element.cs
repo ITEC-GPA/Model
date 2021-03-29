@@ -20,7 +20,7 @@ namespace GPC.Model.FEM.FiniteElements
         public override mnl.Matrix<double> KElementGlobalCoord => _kElementGlobalCoord;
         #endregion
 
-        public Quad4Element(Node[] nodes, PlateProperty property, int id) : base(nodes, property, id)
+        public Quad4Element(Node[] nodes) : base(nodes)
         {
             DOF.Add(LinearSolver.DOF.DX);
             DOF.Add(LinearSolver.DOF.DY);
@@ -30,8 +30,8 @@ namespace GPC.Model.FEM.FiniteElements
             DOF.Add(LinearSolver.DOF.RZ);
 
             //kElementGlobal = 4 * 6 = 24
-            _membranal = new Quad4Membranal(nodes, property, id);
-            _flexural = new Quad4DK(nodes, property, id);
+            _membranal = new Quad4Membranal(nodes);
+            _flexural = new Quad4DK(nodes);
         }
 
         public override void BuildMatrix()
@@ -480,10 +480,10 @@ namespace GPC.Model.FEM.FiniteElements
             Vector3d v14 = new Vector3d(nodeL.Position.X - nodeI.Position.X, nodeL.Position.Y - nodeI.Position.Y, nodeL.Position.Z - nodeI.Position.Z);
 
             Node[] localNodes = new Node[4];
-            localNodes[0] = new Node(0.0, 0, 0, nodeI.Id, nodeI.Name); //Origin GlobalNodes.ElementAt(1 - 1);
-            localNodes[1] = new Node(v12.DotProduct(vecx), v12.DotProduct(vecy), v12.DotProduct(vecz), nodeJ.Id, nodeJ.Name); //Axis x GlobalNodes.ElementAt(2 - 1);
-            localNodes[2] = new Node(v13.DotProduct(vecx), v13.DotProduct(vecy), v13.DotProduct(vecz), nodeK.Id, nodeK.Name); //GlobalNodes.ElementAt(3 - 1);
-            localNodes[3] = new Node(v14.DotProduct(vecx), v14.DotProduct(vecy), v14.DotProduct(vecz), nodeL.Id, nodeL.Name); //GlobalNodes.ElementAt(4 - 1);
+            localNodes[0] = new Node(0.0, 0, 0, nodeI.Name, nodeI.Id); //Origin GlobalNodes.ElementAt(1 - 1);
+            localNodes[1] = new Node(v12.DotProduct(vecx), v12.DotProduct(vecy), v12.DotProduct(vecz), nodeJ.Name, nodeJ.Id); //Axis x GlobalNodes.ElementAt(2 - 1);
+            localNodes[2] = new Node(v13.DotProduct(vecx), v13.DotProduct(vecy), v13.DotProduct(vecz), nodeK.Name, nodeK.Id); //GlobalNodes.ElementAt(3 - 1);
+            localNodes[3] = new Node(v14.DotProduct(vecx), v14.DotProduct(vecy), v14.DotProduct(vecz), nodeL.Name, nodeL.Id); //GlobalNodes.ElementAt(4 - 1);
 
             return localNodes;
             #endregion

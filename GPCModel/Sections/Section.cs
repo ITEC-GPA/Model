@@ -133,15 +133,18 @@ namespace GPC.Model.Sections
         #endregion
 
         #region Public Constructors
-        public Section(Material material) {
+
+        public Section(Material material, string name) : base(name)
+        {
             _material = material;
         }
 
-        public Section(Material[] materials)
+        public Section(Material[] materials, string name) : base(name)
         {
+
         }
 
-        public Section(SerializationInfo info, StreamingContext context)
+        public Section(SerializationInfo info, StreamingContext context) : base(info, context)
         {
             _area = info.GetDouble("Area");
             _jt = info.GetDouble("Jt");

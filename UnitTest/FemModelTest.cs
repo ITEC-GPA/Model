@@ -142,7 +142,7 @@ namespace FemTest
             GlassMaterial gm = new GlassMaterialAstm("", 1, 0.2, 3, 4, 5, 6, 0.008, 0.008, 9);
             PlateProperty pp = new PlateProperty(gm, 1, 2);
 
-            BrickProperty bp = new BrickProperty(gm);
+            BrickProperty bp = new BrickProperty(gm, "bp1");
 
             Dictionary<IPointLoad, int[]> pointLoads = new Dictionary<IPointLoad, int[]>();
             pointLoads.Add(new PointLoad(1, 2, 3, 4, 5, 6, Point3d.Origin, new LoadCase("lc1", null)), new int[] { 1 });
@@ -195,7 +195,7 @@ namespace FemTest
             GlassMaterial gm = new GlassMaterialAstm("", 1, 0.2, 3, 4, 5, 6, 0.008, 0.008, 9);
             PlateProperty pp = new PlateProperty(gm, 1, 2);
 
-            BrickProperty bp = new BrickProperty(gm);
+            BrickProperty bp = new BrickProperty(gm, "bp1");
 
             List<Load> loads = new List<Load>();
 

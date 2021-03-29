@@ -40,13 +40,13 @@ namespace GPC.Model.FEM
 
         /// <summary>
         /// Collection of <see cref="Node"/>
-        /// The nodes on this collection does not have duplicate ID but they can be duplicate (same point)
+        /// The nodes on this collection does not have duplicate ID and can not be duplicate. (different point with different id
         /// </summary>
         protected FemObjectCollection<Node> _nodes;
 
         /// <summary>
         /// Collection of <see cref="FiniteElement"/>
-        /// The element on this collection does not have duplicate ID but they can be duplicate (same point)
+        /// The element on this collection does not have duplicate ID but they can be duplicate (same element)
         /// </summary>
         protected FemObjectCollection<FiniteElement> _elements;
 
@@ -122,7 +122,7 @@ namespace GPC.Model.FEM
         public FemModel(string name) 
             : base(Guid.NewGuid(), name)
         {
-            _nodes = new FemObjectCollection<Node>();
+            _nodes = new FemObjectCollection<Node>(new FEMObject.FemObjectWithIdComparer());
             _elements = new FemObjectCollection<FiniteElement>();
             _stages = new List<Stage>();
 
@@ -299,7 +299,9 @@ namespace GPC.Model.FEM
         {
             if (finiteElement != null)
             {
+#pragma warning disable CS0618 // Type or member is obsolete
                 if (finiteElement is Plate)
+#pragma warning restore CS0618 // Type or member is obsolete
                 {
                     ElementProperty property = GetPlateProperty(propertyName);
 
@@ -378,9 +380,12 @@ namespace GPC.Model.FEM
 
         #region Nodes
 
+
+
         /// <inheritdoc cref="FemObjectCollection{T}.Add(T)"/>
         protected virtual int AddNode(Node node)
         {
+            // non fa la copia, cosi i riferimenti ai nodi dentro agli elementi finiti rimangono 
             return _nodes.Add(node); // l'Add lancia un ArgumentNullException se gli si passa null
         }
 
@@ -692,6 +697,7 @@ namespace GPC.Model.FEM
             {
                 if (plateProperty is IPlateProperty ipp)
                 {
+#pragma warning disable CS0618 // Type or member is obsolete
                     if (face.IsQuad)
                     {
                         var plate = new Plate(new Node[] { _nodes[nodesNewIndexMap.ContainsKey(face.A) ? nodesNewIndexMap[face.A] : face.A],
@@ -722,6 +728,7 @@ namespace GPC.Model.FEM
                         if (plateIndex != face.Id) // Se sono diversi vuol dire che esisteva già l'indice element .iD e la collection l'ha modificato
                             platesNewIndexMap[face.Id] = plateIndex;
                     }
+#pragma warning restore CS0618 // Type or member is obsolete
                 }
                 else
                 {
@@ -937,9 +944,10 @@ namespace GPC.Model.FEM
 
                         FiniteElement finiteElement = _elements.GetElementById(plateId); // se non trova l'indice viene lanciata una keynotfoundException
 
-                        Plate plate = finiteElement as Plate;
 
-                        if (plate is null)
+#pragma warning disable CS0618 // Type or member is obsolete
+                        if (!(finiteElement is Plate plate))
+#pragma warning restore CS0618 // Type or member is obsolete
                             throw new ArgumentException($"Element with id: {plateId} {index} is not a plate");
 
                         if (load is NormalAreaLoad pl)
@@ -970,7 +978,9 @@ namespace GPC.Model.FEM
 
             foreach (var element in _elements)
             {
+#pragma warning disable CS0618 // Type or member is obsolete
                 if (element is Plate p)
+#pragma warning restore CS0618 // Type or member is obsolete
                 {
                     mesh.AddFaceMesh(p.Nodes.Select(i => i.Position).ToArray());
                 }
@@ -1032,38 +1042,14 @@ namespace GPC.Model.FEM
 
 
             return obj is FemModel model &&
-                   base.Equals(obj) &&
-                   EqualityComparer<FemObjectCollection<Node>>.Default.Equals(_nodes, model._nodes) &&
-                   EqualityComparer<FemObjectCollection<FiniteElement>>.Default.Equals(_elements, model._elements) &&
-                   EqualityComparer<List<IPlateProperty>>.Default.Equals(_plateProperties, model._plateProperties) &&
-                   EqualityComparer<List<IBrickProperty>>.Default.Equals(_brickProperties, model._brickProperties) &&
-                   EqualityComparer<List<Load>>.Default.Equals(_loads, model._loads) &&
-                   EqualityComparer<List<LoadCase>>.Default.Equals(_loadCases, model._loadCases) &&
-                   EqualityComparer<List<Combination>>.Default.Equals(_combinations, model._combinations) &&
-                   EqualityComparer<List<FreedomCase>>.Default.Equals(_freedomCases, model._freedomCases) &&
-                   EqualityComparer<List<ResultNodeDisplacement>>.Default.Equals(_resultNodeDisplacements, model._resultNodeDisplacements) &&
-                   EqualityComparer<List<ResultNodeForce>>.Default.Equals(_resultNodeForce, model._resultNodeForce) &&
-                   EqualityComparer<List<ResultPlateStress>>.Default.Equals(_resultPlateStress, model._resultPlateStress) &&
-                   EqualityComparer<List<Stage>>.Default.Equals(_stages, model._stages);
+                   base.Equals(obj);
+                  
         }
 
 
         public override int GetHashCode()
         {
             int hashCode = -23;
-            hashCode = hashCode * -17 + base.GetHashCode();
-            hashCode = hashCode * -17 + EqualityComparer<FemObjectCollection<Node>>.Default.GetHashCode(_nodes);
-            hashCode = hashCode * -17 + EqualityComparer<FemObjectCollection<FiniteElement>>.Default.GetHashCode(_elements);
-            hashCode = hashCode * -17 + EqualityComparer<List<IPlateProperty>>.Default.GetHashCode(_plateProperties);
-            hashCode = hashCode * -17 + EqualityComparer<List<IBrickProperty>>.Default.GetHashCode(_brickProperties);
-            hashCode = hashCode * -17 + EqualityComparer<List<Load>>.Default.GetHashCode(_loads);
-            hashCode = hashCode * -17 + EqualityComparer<List<LoadCase>>.Default.GetHashCode(_loadCases);
-            hashCode = hashCode * -17 + EqualityComparer<List<Combination>>.Default.GetHashCode(_combinations);
-            hashCode = hashCode * -17 + EqualityComparer<List<FreedomCase>>.Default.GetHashCode(_freedomCases);
-            hashCode = hashCode * -17 + EqualityComparer<List<ResultNodeDisplacement>>.Default.GetHashCode(_resultNodeDisplacements);
-            hashCode = hashCode * -17 + EqualityComparer<List<ResultNodeForce>>.Default.GetHashCode(_resultNodeForce);
-            hashCode = hashCode * -17 + EqualityComparer<List<ResultPlateStress>>.Default.GetHashCode(_resultPlateStress);
-            hashCode = hashCode * -17 + EqualityComparer<List<Stage>>.Default.GetHashCode(_stages);
             return hashCode;
         }
 

@@ -22,8 +22,8 @@ namespace FemTest.Solver
         public void EqualsNodesTest1()
         {
             //Node in same place with different ID
-            Node n1 = new Node(0.0, 0, 0, 1);
-            Node n2 = new Node(0.0, 0, 0, 2);
+            Node n1 = new Node(0.0, 0, 0, "", 1);
+            Node n2 = new Node(0.0, 0, 0, "", 2);
 
             //controllo equals nodi
             Assert.IsFalse(n1.Equals(n2));
@@ -37,12 +37,16 @@ namespace FemTest.Solver
 
             //Node in same place with different ID
             Node[] nodes = new Node[3];
-            nodes[0] = new Node(0.0, 0, 0, 1);
-            nodes[1] = new Node(1.0, 0, 0, 2);
-            nodes[2] = new Node(0.0, 1, 0, 3);
+            nodes[0] = new Node(0.0, 0, 0, "", 1);
+            nodes[1] = new Node(1.0, 0, 0, "", 2);
+            nodes[2] = new Node(0.0, 1, 0, "", 3);
 
-            FiniteElement el0 = new Tri3PlaneStress(nodes, prop, 0);
-            FiniteElement el1 = new Tri3PlaneStress(nodes, prop, 1);
+            FiniteElement el0 = new Tri3PlaneStress(nodes);
+            el0.SetProperty(prop);
+            el0.SetId(0);
+            FiniteElement el1 = new Tri3PlaneStress(nodes);
+            el1.SetProperty(prop);
+            el1.SetId(0);
 
             //Controllo equals elementi
             Assert.IsFalse(el0.Equals(el1));

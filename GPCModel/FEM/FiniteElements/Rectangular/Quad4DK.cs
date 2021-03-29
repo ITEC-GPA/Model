@@ -42,7 +42,7 @@ namespace GPC.Model.FEM.FiniteElements
         Node[] _localNodes;
         #endregion
 
-        public Quad4DK(Node[] nodes, PlateProperty property, int id) : base(nodes, property, id)
+        public Quad4DK(Node[] nodes) : base(nodes)
         {
             DOF.Add(LinearSolver.DOF.DX);
             DOF.Add(LinearSolver.DOF.DY);

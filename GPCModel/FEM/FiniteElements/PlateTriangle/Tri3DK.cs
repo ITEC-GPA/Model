@@ -28,7 +28,7 @@ namespace GPC.Model.FEM.FiniteElements
         double _areaElement;
         #endregion
 
-        public Tri3DK(Node[] nodes, PlateProperty property, int id) : base(nodes, property, id)
+        public Tri3DK(Node[] nodes) : base(nodes)
         {
             DOF.Add(LinearSolver.DOF.DX);
             DOF.Add(LinearSolver.DOF.DY);

@@ -20,7 +20,7 @@ namespace GPC.Model.FEM.FiniteElements
         double _areaElement;
         #endregion
 
-        public Tri3TR3RDOFMembrane(Node[] nodes, PlateProperty property, int id) : base(nodes, property, id)
+        public Tri3TR3RDOFMembrane(Node[] nodes) : base(nodes)
         {
             //recalled base(nodes)
             _DOF.Add(LinearSolver.DOF.DX);
@@ -37,10 +37,6 @@ namespace GPC.Model.FEM.FiniteElements
 
             //keGlobal = DofGlobalToLocal^T * kLocal * DofGlobalToLocal
             //[18x18]          [18x9]         [9x9]     [9x18]
-        }
-
-        public Tri3TR3RDOFMembrane(int id, Node[] nodes, PlateProperty property) : this(nodes, property, id)
-        {
         }
 
         public override void BuildMatrix()

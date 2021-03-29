@@ -25,11 +25,13 @@ namespace FemTest.Solver
             PlateProperty prop = new PlateProperty(mat, 1.0, 1.0);
 
             Node[] nodesPlate1 = new Node[3];
-            nodesPlate1[0] = new Node(0.0, 0, 0, 1, "1");
-            nodesPlate1[1] = new Node(1.0, 0, 0, 2, "2");
-            nodesPlate1[2] = new Node(0.0, 1, 0, 3, "3");
+            nodesPlate1[0] = new Node(0.0, 0, 0, "1", 1);
+            nodesPlate1[1] = new Node(1.0, 0, 0, "2", 2);
+            nodesPlate1[2] = new Node(0.0, 1, 0, "3", 3);
 
-            FiniteElement e0 = new Tri3DK(nodesPlate1, prop, 1);
+            FiniteElement e0 = new Tri3DK(nodesPlate1);
+            e0.SetProperty(prop);
+            e0.SetId(1);
             e0.BuildMatrix();
 
             mnl.Matrix<double> SAPkMatrix = mnl.Matrix<double>.Build.Dense(0,9);
@@ -74,9 +76,9 @@ namespace FemTest.Solver
             PlateProperty prop = new PlateProperty(mat, 1.0, 1.0);
 
             Node[] nodesPlate1 = new Node[3];
-            nodesPlate1[0] = new Node(0.0, 0, 0, 1, "1");
-            nodesPlate1[1] = new Node(1.0, 0, 0, 2, "2");
-            nodesPlate1[2] = new Node(0.0, 1, 0, 3, "3");
+            nodesPlate1[0] = new Node(0.0, 0, 0, "1", 1);
+            nodesPlate1[1] = new Node(1.0, 0, 0, "2", 2);
+            nodesPlate1[2] = new Node(0.0, 1, 0, "3", 3);
 
             mnl.Matrix<double> SAPkMatrix = mnl.Matrix<double>.Build.Dense(0, 18);
             mnl.Vector<double>[] row = new mnl.Vector<double>[18];
@@ -105,7 +107,9 @@ namespace FemTest.Solver
                 SAPkMatrix = SAPkMatrix.InsertRow(i, row[i]);
             }
 
-            FiniteElement e0 = new Tri3DK(nodesPlate1, prop, 1);
+            FiniteElement e0 = new Tri3DK(nodesPlate1);
+            e0.SetProperty(prop);
+            e0.SetId(1);
             LinearSolver fem = new LinearSolver(new FiniteElement[] { e0 });
             
             Console.WriteLine("Element Global stiffness matrix");
@@ -161,8 +165,12 @@ namespace FemTest.Solver
             Node nodeD = new Node(8.0, 0, 0, 3, "D");
             nodeD.AddAttribute(fixDXDYDZRZ);
 
-            FiniteElement e0 = new Tri3DK(new Node[] { nodeA, nodeB, nodeC }, prop, 1);
-            FiniteElement e1 = new Tri3DK(new Node[] { nodeB, nodeD, nodeC }, prop, 1);
+            FiniteElement e0 = new Tri3DK(new Node[] { nodeA, nodeB, nodeC });
+            e0.SetProperty(prop);
+            e0.SetId(1);
+            FiniteElement e1 = new Tri3DK(new Node[] { nodeB, nodeD, nodeC });
+            e1.SetProperty(prop);
+            e1.SetId(1);
             LinearSolver fem = new LinearSolver(new FiniteElement[] { e0, e1 });
 
             double dz = fem.GetDisplacementGlobalCoordinates(nodeC, LinearSolver.DOF.DZ);
@@ -182,248 +190,7 @@ namespace FemTest.Solver
             Assert.AreEqual(-15.0, tauXY2, 0.01);
         }
 
-        [TestMethod]
-        public void Benchmark10001()
-        {
-            /// Benchmark10001 - Bathe, Numerical Methods in Finite Elements Analysis - Esercizio Nr 5.11 pg 358
-            /// 0 - active degree of freedom
-            /// 1 - non-active degree of freedom
-            int[] NodeDoFID = new int[] { 1, 2, 3, 4, 5, 6 };
-
-            /// Nodes in 3D  XYZ
-            /*int[] Node1DoF = new int[] { 0, 0, 1, 0, 0, 1 };
-            int[] Node2DoF = new int[] { 0, 0, 1, 0, 0, 1 };
-            int[] Node3DoF = new int[] { 0, 0, 1, 0, 0, 1 };
-            int[] Node4DoF = new int[] { 0, 0, 1, 0, 0, 1 };*/
-
-            int[] Node1DoF = new int[] { 1, 1, 0, 0, 0, 1 };
-            int[] Node2DoF = new int[] { 1, 1, 0, 0, 0, 1 };
-            int[] Node3DoF = new int[] { 1, 1, 0, 0, 0, 1 };
-            int[] Node4DoF = new int[] { 1, 1, 0, 0, 0, 1 };
-
-            GPC.Model.FEMOld.Node Node1 = new GPC.Model.FEMOld.Node(Guid.NewGuid(), new Point3d(0.0, 0.0, 0.0), 1, NodeDoFID, Node1DoF);
-            GPC.Model.FEMOld.Node Node2 = new GPC.Model.FEMOld.Node(Guid.NewGuid(), new Point3d(2.0, 0.0, 0.0), 2, NodeDoFID, Node2DoF);
-            GPC.Model.FEMOld.Node Node3 = new GPC.Model.FEMOld.Node(Guid.NewGuid(), new Point3d(2.0, 3.0, 0.0), 3, NodeDoFID, Node3DoF);
-            GPC.Model.FEMOld.Node Node4 = new GPC.Model.FEMOld.Node(Guid.NewGuid(), new Point3d(0.0, 3.0, 0.0), 4, NodeDoFID, Node4DoF);
-
-            GPC.Model.FEMOld.Node[] nodes = new GPC.Model.FEMOld.Node[4];
-            nodes[0] = Node1;
-            nodes[1] = Node2;
-            nodes[2] = Node3;
-            nodes[3] = Node4;
-
-            int _globalDoF = 0;
-            int _reactionDoF = 0;
-
-            // Arrange Nodes
-            for (int nd = 0; nd < nodes.Length; nd++)
-            {
-                nodes[nd].DoF.FormIncidence(ref _globalDoF, ref _reactionDoF);
-            }
-
-            ///  Section
-            double E = 12; // MPa
-            double ni = 0.0;
-
-            /// Material
-            Material mat = new SteelMaterial("Steel", E, ni, 355, 510, 355 / E, 0, 0, new Guid());// new Material("Steel", E, ni, 0.0, 0.0, new Guid());
-            PlateProperty property = new PlateProperty(mat, 1.0, 1.0);
-            GPC.Model.FEMOld.PlateDKQ shell = new GPC.Model.FEMOld.PlateDKQ(new Guid(), property, 1, nodes);
-
-            mnl.Matrix<double> _stiffnessMatrix = mnl.Matrix<double>.Build.Dense(_globalDoF, _globalDoF, 0.0);
-            shell.BuildElementDoFIncidence();
-            shell.KInGlobal(ref _stiffnessMatrix);
-
-            Console.WriteLine("Element local stiffness matrix");
-            for (int r = 0; r < _stiffnessMatrix.RowCount; r++)
-            {
-                for (int c = 0; c < _stiffnessMatrix.ColumnCount; c++)
-                {
-                    Console.Write(_stiffnessMatrix[r, c].ToString("F1") + " ");
-                }
-                Console.WriteLine();
-            }
-        }
-
-        [TestMethod]
-        public void Benchmark10002()
-        {
-            /// Benchmark10001 - Bathe, Numerical Methods in Finite Elements Analysis - Esercizio Nr 5.11 pg 358
-            /// 0 - active degree of freedom
-            /// 1 - non-active degree of freedom
-            int[] NodeDoFID = new int[] { 1, 2, 3, 4, 5, 6 };
-
-            /// Nodes in 3D  XYZ
-            /*int[] Node1DoF = new int[] { 0, 0, 1, 0, 0, 1 };
-            int[] Node2DoF = new int[] { 0, 0, 1, 0, 0, 1 };
-            int[] Node3DoF = new int[] { 0, 0, 1, 0, 0, 1 };
-            int[] Node4DoF = new int[] { 0, 0, 1, 0, 0, 1 };*/
-
-            int[] Node1DoF = new int[] { 1, 1, 0, 0, 0, 1 };
-            int[] Node2DoF = new int[] { 1, 1, 0, 0, 0, 1 };
-            int[] Node3DoF = new int[] { 1, 1, 0, 0, 0, 1 };
-            int[] Node4DoF = new int[] { 1, 1, 0, 0, 0, 1 };
-
-            GPC.Model.FEMOld.Node Node1 = new GPC.Model.FEMOld.Node(Guid.NewGuid(), new Point3d(0.0, 0.0, 0.0), 1, NodeDoFID, Node1DoF);
-            GPC.Model.FEMOld.Node Node2 = new GPC.Model.FEMOld.Node(Guid.NewGuid(), new Point3d(2.0, 0.0, 0.0), 2, NodeDoFID, Node2DoF);
-            GPC.Model.FEMOld.Node Node3 = new GPC.Model.FEMOld.Node(Guid.NewGuid(), new Point3d(3.0, 1.0, 0.0), 3, NodeDoFID, Node3DoF);
-            GPC.Model.FEMOld.Node Node4 = new GPC.Model.FEMOld.Node(Guid.NewGuid(), new Point3d(1.0, 1.0, 0.0), 4, NodeDoFID, Node4DoF);
-
-            GPC.Model.FEMOld.Node[] nodes = new GPC.Model.FEMOld.Node[4];
-            nodes[0] = Node1;
-            nodes[1] = Node2;
-            nodes[2] = Node3;
-            nodes[3] = Node4;
-
-            int _globalDoF = 0;
-            int _reactionDoF = 0;
-
-            // Arrange Nodes
-            for (int nd = 0; nd < nodes.Length; nd++)
-            {
-                nodes[nd].DoF.FormIncidence(ref _globalDoF, ref _reactionDoF);
-            }
-
-            ///  Section
-            double E = 12; // MPa
-            double ni = 0.0;
-
-            /// Material
-            Material mat = new SteelMaterial("Steel", E, ni, 355, 510, 355 / E, 0, 0, new Guid());// new Material("Steel", E, ni, 0.0, 0.0, new Guid());
-            PlateProperty property = new PlateProperty(mat, 1.0, 1.0);
-            GPC.Model.FEMOld.PlateDKQ shell = new GPC.Model.FEMOld.PlateDKQ(new Guid(), property, 1, nodes);
-
-            mnl.Matrix<double> _stiffnessMatrix = mnl.Matrix<double>.Build.Dense(_globalDoF, _globalDoF, 0.0);
-            shell.BuildElementDoFIncidence();
-            shell.KInGlobal(ref _stiffnessMatrix);
-
-            Console.WriteLine("Element local stiffness matrix");
-            for (int r = 0; r < _stiffnessMatrix.RowCount; r++)
-            {
-                for (int c = 0; c < _stiffnessMatrix.ColumnCount; c++)
-                {
-                    Console.Write(_stiffnessMatrix[r, c].ToString("F1") + " ");
-                }
-                Console.WriteLine();
-            }
-        }
-
-        [TestMethod]
-        public void Benchmark10003()
-        {
-            /// Benchmark10001 - Bathe, Numerical Methods in Finite Elements Analysis - Esercizio Nr 5.11 pg 358
-            /// 0 - active degree of freedom
-            /// 1 - non-active degree of freedom
-            int[] NodeDoFID = new int[] { 1, 2, 3, 4, 5, 6 };
-
-            /// Nodes in 3D  XYZ
-            int[] Node1DoF = new int[] { 0, 0, 1, 1, 1, 1 };
-            int[] Node2DoF = new int[] { 0, 0, 1, 1, 1, 1 };
-            int[] Node3DoF = new int[] { 0, 0, 1, 1, 1, 1 };
-            int[] Node4DoF = new int[] { 0, 0, 1, 1, 1, 1 };
-
-            GPC.Model.FEMOld.Node Node1 = new GPC.Model.FEMOld.Node(Guid.NewGuid(), new Point3d(-1.0, -1.0, 0.0), 1, NodeDoFID, Node1DoF);
-            GPC.Model.FEMOld.Node Node2 = new GPC.Model.FEMOld.Node(Guid.NewGuid(), new Point3d(+1.0, -1.0, 0.0), 2, NodeDoFID, Node2DoF);
-            GPC.Model.FEMOld.Node Node3 = new GPC.Model.FEMOld.Node(Guid.NewGuid(), new Point3d(+1.0, +1.0, 0.0), 3, NodeDoFID, Node3DoF);
-            GPC.Model.FEMOld.Node Node4 = new GPC.Model.FEMOld.Node(Guid.NewGuid(), new Point3d(-1.0, +1.0, 0.0), 4, NodeDoFID, Node4DoF);
-
-            GPC.Model.FEMOld.Node[] nodes = new GPC.Model.FEMOld.Node[4];
-            nodes[0] = Node1;
-            nodes[1] = Node2;
-            nodes[2] = Node3;
-            nodes[3] = Node4;
-
-            int _globalDoF = 0;
-            int _reactionDoF = 0;
-
-            // Arrange Nodes
-            for (int nd = 0; nd < nodes.Length; nd++)
-            {
-                nodes[nd].DoF.FormIncidence(ref _globalDoF, ref _reactionDoF);
-            }
-
-            ///  Section
-            double E = 1; // MPa
-            double ni = 0.0;
-
-            /// Material
-            Material mat = new SteelMaterial("Steel", E, ni, 355, 510, 355 / E, 0, 0, new Guid());
-            PlateProperty property = new PlateProperty(mat, 1.0, 1.0);
-            GPC.Model.FEMOld.PlateDKQ shell = new GPC.Model.FEMOld.PlateDKQ(new Guid(), property, 1, nodes);
-
-            mnl.Matrix<double> _stiffnessMatrix = mnl.Matrix<double>.Build.Dense(_globalDoF, _globalDoF, 0.0);
-            shell.BuildElementDoFIncidence();
-            shell.KInGlobal(ref _stiffnessMatrix);
-
-            Console.WriteLine("Element local stiffness matrix");
-            for (int r = 0; r < _stiffnessMatrix.RowCount; r++)
-            {
-                for (int c = 0; c < _stiffnessMatrix.ColumnCount; c++)
-                {
-                    Console.Write(_stiffnessMatrix[r, c].ToString("F2") + " ");
-                }
-                Console.WriteLine();
-            }
-        }
-
-        [TestMethod]
-        public void Benchmark10004()
-        {
-            /// Benchmark10004
-            /// 0 - active degree of freedom
-            /// 1 - non-active degree of freedom
-            int[] NodeDoFID = new int[] { 1, 2, 3, 4, 5, 6 };
-
-            /// Nodes in 3D  XYZ
-            int[] Node1DoF = new int[] { 0, 0, 0, 0, 0, 0 };
-            int[] Node2DoF = new int[] { 0, 0, 0, 0, 0, 0 };
-            int[] Node3DoF = new int[] { 0, 0, 0, 0, 0, 0 };
-            int[] Node4DoF = new int[] { 0, 0, 0, 0, 0, 0 };
-
-            GPC.Model.FEMOld.Node Node1 = new GPC.Model.FEMOld.Node(Guid.NewGuid(), new Point3d(0.0, 0.0, 0.0), 1, NodeDoFID, Node1DoF);
-            GPC.Model.FEMOld.Node Node2 = new GPC.Model.FEMOld.Node(Guid.NewGuid(), new Point3d(+1.0, 0.0, 0.0), 2, NodeDoFID, Node2DoF);
-            GPC.Model.FEMOld.Node Node3 = new GPC.Model.FEMOld.Node(Guid.NewGuid(), new Point3d(+2.0, +2.0, 0.0), 3, NodeDoFID, Node3DoF);
-            GPC.Model.FEMOld.Node Node4 = new GPC.Model.FEMOld.Node(Guid.NewGuid(), new Point3d(0.0, +1.0, 0.0), 4, NodeDoFID, Node4DoF);
-
-            GPC.Model.FEMOld.Node[] nodes = new GPC.Model.FEMOld.Node[4];
-            nodes[0] = Node1;
-            nodes[1] = Node2;
-            nodes[2] = Node3;
-            nodes[3] = Node4;
-
-            int _globalDoF = 0;
-            int _reactionDoF = 0;
-
-            // Arrange Nodes
-            for (int nd = 0; nd < nodes.Length; nd++)
-            {
-                nodes[nd].DoF.FormIncidence(ref _globalDoF, ref _reactionDoF);
-            }
-
-            ///  Section
-            double E = 1; // MPa
-            double ni = 0.0;
-
-            /// Material
-            Material mat = new SteelMaterial("Steel", E, ni, 355, 510, 355 / E, 0, 0, new Guid());
-            PlateProperty property = new PlateProperty(mat, 1.0, 1.0);
-            GPC.Model.FEMOld.PlateDKQ shell = new GPC.Model.FEMOld.PlateDKQ(new Guid(), property, 1, nodes);
-
-            mnl.Matrix<double> _stiffnessMatrix = mnl.Matrix<double>.Build.Dense(_globalDoF, _globalDoF, 0.0);
-            shell.BuildElementDoFIncidence();
-            shell.KInGlobal(ref _stiffnessMatrix);
-
-            Console.WriteLine("Stiffness matrix");
-            for (int r = 0; r < _stiffnessMatrix.RowCount; r++)
-            {
-                for (int c = 0; c < _stiffnessMatrix.ColumnCount; c++)
-                {
-                    Console.Write(_stiffnessMatrix[r, c].ToString("F3") + " ");
-                }
-                Console.WriteLine();
-            }
-        }
-
+        
         [TestMethod]
         public void Quad4DKTTest1()
         {
@@ -431,12 +198,14 @@ namespace FemTest.Solver
             PlateProperty prop = new PlateProperty(mat, 1.0, 1.0);
 
             Node[] nodesPlate1 = new Node[4];
-            nodesPlate1[0] = new Node(-1.0, -1, 0, 1, "1");
-            nodesPlate1[1] = new Node(+1.0, -1, 0, 2, "2");
-            nodesPlate1[2] = new Node(+1.0, +1, 0, 3, "3");
-            nodesPlate1[3] = new Node(-1.0, +1, 0, 3, "4");
+            nodesPlate1[0] = new Node(-1.0, -1, 0, "1", 1);
+            nodesPlate1[1] = new Node(+1.0, -1, 0, "2", 2);
+            nodesPlate1[2] = new Node(+1.0, +1, 0, "3", 3);
+            nodesPlate1[3] = new Node(-1.0, +1, 0, "4", 4);
 
-            FiniteElement e0 = new Quad4DK(nodesPlate1, prop, 1);
+            FiniteElement e0 = new Quad4DK(nodesPlate1);
+            e0.SetProperty(prop);
+            e0.SetId(1);
             e0.BuildMatrix();
 
             mnl.Matrix<double> kLocalManual = mnl.Matrix<double>.Build.Dense(12, 12);
@@ -491,7 +260,9 @@ namespace FemTest.Solver
             nodesPlate1[2] = new Node(2.0, 2, 0, 3, "3");
             nodesPlate1[3] = new Node(0.0, 2, 0, 3, "4");
 
-            FiniteElement e0 = new Quad4DK(nodesPlate1, prop, 1);
+            FiniteElement e0 = new Quad4DK(nodesPlate1);
+            e0.SetProperty(prop);
+            e0.SetId(1);
 
             LinearSolver fem = new LinearSolver(new FiniteElement[] { e0 });
 
@@ -571,7 +342,9 @@ namespace FemTest.Solver
             nodesPlate1[2] = new Node(+2.0, +2, 0, 3, "3");
             nodesPlate1[3] = new Node(0.0, +1, 0, 3, "4");
 
-            Plate e0 = new Quad4DK(nodesPlate1, prop, 1);
+            Plate e0 = new Quad4DK(nodesPlate1);
+            e0.SetProperty(prop);
+            e0.SetId(1);
 
             LoadCase loadCase = new LoadCase("myLoadCase", new Guid());
             FreedomCase freedomCase = new FreedomCase("freedomCase1");
