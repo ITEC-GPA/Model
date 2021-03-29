@@ -14,7 +14,7 @@ namespace GPC.Model.Elements
 
         private int _id;
 
-        public int Id => _id;
+        public virtual int Id { get => _id; set { _id = value; } }
 
         #region Public Constructors
 
@@ -26,7 +26,7 @@ namespace GPC.Model.Elements
         protected Element(int id)
             : base(Guid.NewGuid())
         {
-            SetId(id);
+            _id = id;
         }
 
         protected Element(Guid guid)
@@ -49,10 +49,6 @@ namespace GPC.Model.Elements
 
         #endregion
 
-        public void SetId(int id)
-        {
-            _id = id;
-        }
 
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {

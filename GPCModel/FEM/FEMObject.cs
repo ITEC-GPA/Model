@@ -10,6 +10,12 @@ namespace GPC.Model.FEM
     [Serializable]
     public abstract class FEMObject : Element, ISerializable
     {
+        /// <remarks>
+        /// Public setter not available, in the same assembly you can use <see cref="SetId(int)"/> otherwise you can not set the id of a <see cref="FEMObject"/>
+        /// </remarks>
+        /// <exception cref="NotSupportedException"></exception>
+        public override int Id { get => base.Id; set => throw new NotSupportedException($"Public setter not available, use method {nameof(SetId)}"); }
+
         public FEMObject() 
             : this(string.Empty)
         {
@@ -34,6 +40,11 @@ namespace GPC.Model.FEM
         }
 
 
+        internal void SetId(int id)
+        {
+            base.Id = id;
+        }
+
         #region Equals, hascode, operators, 
 
         /// <inheritdoc/>
@@ -54,6 +65,7 @@ namespace GPC.Model.FEM
 
             return hashCode;
         }
+
 
         public static bool operator ==(FEMObject obj1, FEMObject obj2)
         {
