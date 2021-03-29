@@ -109,7 +109,7 @@ namespace GPC.Model.FEM.FiniteElements
         public override void BuildMatrix()
         {
             //set local coordinate system
-            _localNodes = Quad4Element.LocalNodes(_nodesGlobal, out _localCoordinateSystem);
+            _localNodes = Quad4Element.GetLocalNodes(_nodesGlobal, out _localCoordinateSystem);
             Node node1 = _localNodes[0];
             Node node2 = _localNodes[1];
             Node node3 = _localNodes[2];

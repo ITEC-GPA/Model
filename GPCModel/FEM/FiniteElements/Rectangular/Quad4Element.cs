@@ -11,14 +11,14 @@ namespace GPC.Model.FEM.FiniteElements
     public class Quad4Element : Plate
     {
         #region variables
-        private Quad4Membranal _membranal;
+        private Quad4GQ12Membranal _membranal;
         private Quad4DK _flexural;
         private mnl.Matrix<double> _kElementGlobalCoord; //the sum of the 2 stiffness matrix of TriangularMembranal and TriangularDK
         #endregion
 
         #region properties
-        //public TriangularMembranal Membranal => _membranal;
-        //public TriangularDK Flexural => _flexural;
+        public Quad4GQ12Membranal Membranal => _membranal;
+        public Quad4DK Flexural => _flexural;
         public override mnl.Matrix<double> KElementGlobalCoord => _kElementGlobalCoord;
         #endregion
 
@@ -32,7 +32,7 @@ namespace GPC.Model.FEM.FiniteElements
             DOF.Add(LinearSolver.DOF.RZ);
 
             //kElementGlobal = 4 * 6 = 24
-            _membranal = new Quad4Membranal(nodes, property, id);
+            _membranal = new Quad4GQ12Membranal(nodes, property, id);
             _flexural = new Quad4DK(nodes, property, id);
         }
 
@@ -446,7 +446,7 @@ namespace GPC.Model.FEM.FiniteElements
         /// out Local Node in clockwise, centro nel primo nodo dell'elemento
         /// </summary>
         /// <returns></returns>
-        public static Node[] LocalNodes(Node[] globalNodes, out CoordinateSystem cSys)
+        public static Node[] GetLocalNodes(Node[] globalNodes, out CoordinateSystem cSys)
         {
             #region CalculationOfLocalCoordinates
             //Search for 3 local axis
@@ -511,7 +511,7 @@ namespace GPC.Model.FEM.FiniteElements
         /// <param name="globalCoordinatesNodes"></param>
         /// <param name="cSys"></param>
         /// <returns></returns>
-        public static Node[] GetLocalNodes(Node[] globalCoordinatesNodes, out CoordinateSystem cSys)
+        public static Node[] GetLocalNodesFromCentroid(Node[] globalCoordinatesNodes, out CoordinateSystem cSys)
         {
             ///reference fig. 3
             //Search for 3 local axis

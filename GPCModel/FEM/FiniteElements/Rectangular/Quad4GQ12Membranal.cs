@@ -8,7 +8,7 @@ using mnl = MathNet.Numerics.LinearAlgebra;
 namespace GPC.Model.FEM.FiniteElements
 {
     /// <summary>
-    /// A high‑performance four‑node flat shell element with drilling degrees of freedom - Hosein Sangtarash1 · Hamed G. Arab1 · Mohammad R. Sohrabi1 · Mohammad R. Ghasemi1 - 2020
+    /// 1993 - GENERALIZED CONFORMING QUADRILATERAL - YUQIU YIN
     /// </summary>
     public class Quad4GQ12Membranal : Plate
     {
@@ -42,7 +42,7 @@ namespace GPC.Model.FEM.FiniteElements
             //Axis y ortogonal to axis x, Node k = node 3
 
             //calculation of matrix for transformation from Local to Global coordinates
-            _localNodes = Quad4Element.GetLocalNodes(_nodesGlobal, out _localCoordinateSystem);
+            _localNodes = Quad4Element.GetLocalNodesFromCentroid(_nodesGlobal, out _localCoordinateSystem);
 
             _localNodes.ToList().ForEach(x => Console.WriteLine(x));
 
