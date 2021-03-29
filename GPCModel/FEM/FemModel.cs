@@ -51,16 +51,45 @@ namespace GPC.Model.FEM
         protected FemObjectCollection<FiniteElement> _elements;
 
         // PROPRIETà
-        protected UniqueNameCollection<ElementProperty> _plateProperties;
-        protected UniqueNameCollection<ElementProperty> _brickProperties;
 
-        // CARICHI
-        protected List<Load> _loads;
+        /// <summary>
+        /// Collection of <see cref="PlateProperty"/> with unique name 
+        /// </summary>
+        protected UniqueNameCollection<PlateProperty> _plateProperties;
+
+        /// <summary>
+        /// Collection of <see cref="BrickProperty"/> with unique name 
+        /// </summary>
+        protected UniqueNameCollection<BrickProperty> _brickProperties;
+
+        // LOADCASES
+
+        /// <summary>
+        /// Collection of <see cref="LoadCase"/> with unique name 
+        /// </summary>
         protected UniqueNameCollection<LoadCase> _loadCases;
-        protected UniqueNameCollection<Combination> _combinations;
 
         // FREEDOM CASES 
+
+        /// <summary>
+        /// Collection of <see cref="FreedomCase"/> with unique name 
+        /// </summary>
         protected UniqueNameCollection<FreedomCase> _freedomCases;
+
+        // COMBINATION
+
+        /// <summary>
+        /// Collection of <see cref="Combination"/> with unique name 
+        /// </summary>
+        protected UniqueNameCollection<Combination> _combinations;
+
+        // STAGE
+
+        protected List<Stage> _stages;
+
+
+        // CoordinatesSystem ? 
+
 
         // RISULTATI
         protected List<ResultNodeDisplacement> _resultNodeDisplacements;
@@ -68,11 +97,6 @@ namespace GPC.Model.FEM
         protected List<ResultNodeForce> _resultNodeForce;
 
         protected List<ResultPlateStress> _resultPlateStress;
-
-        // STAGE
-        protected List<Stage> _stages;
-
-        // CoordinatesSystem ? 
 
         #endregion
 
@@ -102,15 +126,13 @@ namespace GPC.Model.FEM
             _elements = new FemObjectCollection<FiniteElement>();
             _stages = new List<Stage>();
 
-            _plateProperties = new UniqueNameCollection<ElementProperty>();
-            _brickProperties = new UniqueNameCollection<ElementProperty>();
+            _plateProperties = new UniqueNameCollection<PlateProperty>();
+            _brickProperties = new UniqueNameCollection<BrickProperty>();
             
             _loadCases = new UniqueNameCollection<LoadCase>();
             _freedomCases = new UniqueNameCollection<FreedomCase>();
             _combinations = new UniqueNameCollection<Combination>();
-
-            _loads = new List<Load>();
-            
+                        
             _resultPlateStress = new List<ResultPlateStress>();
             _resultNodeForce = new List<ResultNodeForce>();
             _resultNodeDisplacements = new List<ResultNodeDisplacement>();
@@ -119,6 +141,7 @@ namespace GPC.Model.FEM
             //_stages.Add(new Stage("Stage 0", AnalysisType.Linear));
         }
 
+        
         public FemModel(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
@@ -144,7 +167,7 @@ namespace GPC.Model.FEM
                 if (_plateProperties.Contains(elementProperty))
                     return false;
 
-                _plateProperties.Add(elementProperty);
+                _plateProperties.Add((PlateProperty)elementProperty);
                 return true;
             }
             else if (elementProperty is IBrickProperty)
@@ -152,7 +175,7 @@ namespace GPC.Model.FEM
                 if (_brickProperties.Contains(elementProperty))
                     return false;
 
-                _brickProperties.Add(elementProperty);
+                _brickProperties.Add((BrickProperty)elementProperty);
                 return true;
             }
             else
@@ -173,13 +196,6 @@ namespace GPC.Model.FEM
         public virtual ElementProperty GetBrickProperty(string name)
         {
             return _brickProperties.GetElementByName(name);
-        }
-
-
-        protected virtual void AddLoad(Load load)
-        {
-            if (load != null)
-                _loads.Add(load);
         }
 
 
@@ -251,6 +267,7 @@ namespace GPC.Model.FEM
             return stage;
         }
 
+
         /// <summary>
         /// Add a stage the to the stage list. This stage will the copy of <paramref name="stageToCopy"/>
         /// </summary>
@@ -284,7 +301,7 @@ namespace GPC.Model.FEM
             {
                 if (finiteElement is Plate)
                 {
-                    var property = GetPlateProperty(propertyName);
+                    ElementProperty property = GetPlateProperty(propertyName);
 
                     if (property is null)
                         throw new ArgumentOutOfRangeException($"The property list does not contain {propertyName}");
@@ -297,7 +314,7 @@ namespace GPC.Model.FEM
                 }
                 else if (finiteElement is Brick)
                 {
-                    var property = GetBrickProperty(propertyName);
+                    ElementProperty property = GetBrickProperty(propertyName);
 
                     if (property is null)
                         throw new ArgumentOutOfRangeException($"The property list does not contain {propertyName}");
@@ -321,9 +338,11 @@ namespace GPC.Model.FEM
             }
         }
 
-        public virtual void AddFiniteElements(FiniteElement[] finiteElement, string propertyName)
+
+        /// <inheritdoc cref="FemModel.AddFiniteElement(FiniteElement, string)"/>
+        public virtual void AddFiniteElements(FiniteElement[] finiteElements, string propertyName)
         {
-            foreach (var element in finiteElement)
+            foreach (var element in finiteElements)
             {
                 AddFiniteElement(element, propertyName);
             }
@@ -620,8 +639,9 @@ namespace GPC.Model.FEM
         /// <param name="plateLoadMeshEntityMap">Map between <see cref="IAreaLoad"/> and <see cref="MeshFace.Id"/></param>
         /// <param name="restrainMeshEntityMap">Map between IGeometryRestrain and <see cref="MeshVertex.Id"/></param>
         /// <exception cref="KeyNotFoundException">If a <see cref="MeshVertex.Id"/> of <paramref name="restrainMeshEntityMap"/> is not found in the <paramref name="mesh"/> vertices ids</exception>
-        public virtual void AddMesh(Mesh mesh, IPlateProperty plateProperty, IBrickProperty brickProperty, Dictionary<IPointLoad, int[]> vertexLoadMeshEntityMap, Dictionary<ILineLoad, int[]> vertexLineLoadMeshEntityMap,
-                                     Dictionary<IAreaLoad, int[]> plateLoadMeshEntityMap, Dictionary<GeometryRestrain, int[]> restrainMeshEntityMap)
+        public virtual void AddMesh(Mesh mesh, IPlateProperty plateProperty, IBrickProperty brickProperty, 
+                                    Dictionary<IPointLoad, int[]> vertexLoadMeshEntityMap, Dictionary<ILineLoad, int[]> vertexLineLoadMeshEntityMap,
+                                    Dictionary<IAreaLoad, int[]> plateLoadMeshEntityMap, Dictionary<GeometryRestrain, int[]> restrainMeshEntityMap)
         {
 
             Dictionary<int, int> nodesNewIndexMap = new Dictionary<int, int>(); // Mappa tra indici dei nodi dentro _nodes e indici dei vertici della mesh nel caso esistano già dentro _nodes.
@@ -944,8 +964,6 @@ namespace GPC.Model.FEM
 
 
 
-
-
         public virtual Mesh GetMesh()
         {
             Mesh mesh = new Mesh();
@@ -964,6 +982,8 @@ namespace GPC.Model.FEM
 
             return mesh;
         }
+
+
         #endregion
 
 
@@ -971,6 +991,7 @@ namespace GPC.Model.FEM
 
         #region Edits
 
+        [Obsolete("This method has not been implemented yet", false)]
         public void CleanMesh()
         {
             /// Fare in modo che chiamando questo metodo i nodi uguali ma che avranno ID diverso vengano tolti dalla collection <see cref="FemModel._nodes"/> 

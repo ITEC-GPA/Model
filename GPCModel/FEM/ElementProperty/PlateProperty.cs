@@ -36,7 +36,7 @@ namespace GPC.Model.FEM.Properties
         internal PlateProperty(Material material, double bendingThickness, double membraneThickness)
             : this(material, bendingThickness, membraneThickness, string.Empty)
         {
-
+            // Internal perchè per il fem il nome è un requisito obbligatorio
         }
 
         /// <summary>
