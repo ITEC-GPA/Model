@@ -105,7 +105,7 @@ namespace FemTest.Solver
             Material mat = new SteelMaterial("mat", E, ni, 355, 510, 7850);
             PlateProperty prop = new PlateProperty(mat, 0, 1);
 
-            mnl.Matrix<double> D = Util.DPlaneStress(E, ni);
+            mnl.Matrix<double> D = Plate.DPlaneStress(E, ni);
             Console.WriteLine(D.Inverse());
 
             Node[] nds = new Node[4];

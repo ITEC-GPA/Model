@@ -5,7 +5,6 @@ using System.Collections.Generic;
 using GPC.Model.FEM.FiniteElements;
 using GPC.Model.FEM;
 using mnl = MathNet.Numerics.LinearAlgebra;
-using GPC.Model.Elements;
 using GPC.Model.Materials;
 using GPC.Model.FreedomCases;
 using GPC.Geometry;

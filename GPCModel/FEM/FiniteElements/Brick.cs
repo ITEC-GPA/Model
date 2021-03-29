@@ -11,15 +11,22 @@ using mnl = MathNet.Numerics.LinearAlgebra;
 
 namespace GPC.Model.FEM.FiniteElements
 {
-    class Brick : FiniteElement
+    public class Brick : FiniteElement
     {
         public Brick(Node[] nodes, BrickProperty property, int id) : base(nodes, property, id) { }
 
+        /// <summary>
+        /// Convert attribute in node forces
+        /// </summary>
+        /// <returns></returns>
         protected override mnl.Vector<double> BuildFLocalCoord()
         {
             throw new NotImplementedException();
         }
 
+        /// <summary>
+        /// Create K matrix, B matrix etc
+        /// </summary>
         public override void BuildMatrix()
         {
             throw new NotImplementedException();
@@ -30,6 +37,7 @@ namespace GPC.Model.FEM.FiniteElements
             throw new NotImplementedException();
         }
 
+        #region Result
         public override void GetNodesResults(double[] globalDisplacementsNodes, out double[] localDisplacements, out Matrix<double>[] gloabalPseudoDeformation, out Matrix<double>[] localPseudoDeformation, out Matrix<double>[] globalForces, out Matrix<double>[] localForces, out Matrix<double>[] globalStress, out Matrix<double>[] localStress, out Matrix<double>[] globalEpsilon, out Matrix<double>[] localEpsilon)
         {
             throw new NotImplementedException();
@@ -38,6 +46,40 @@ namespace GPC.Model.FEM.FiniteElements
         public override void GetResultPositionNaturalCoordinates(double csi, double eta, double zeta, double[] globalDisplacementsNodes, out double x, out double y, out double z, out double[] localDisplacements, out Matrix<double> gloabalPseudoDeformation, out Matrix<double> localPseudoDeformation, out Matrix<double> globalForces, out Matrix<double> localForces, out Matrix<double> globalStress, out Matrix<double> localStress, out Matrix<double> globalEpsilon, out Matrix<double> localEpsilon)
         {
             throw new NotImplementedException();
+        }
+        #endregion
+
+        /// <summary>
+        /// reference eq. 11.10 - Finite element method by Rao
+        /// </summary>
+        /// <param name="E"></param>
+        /// <param name="poisson"></param>
+        /// <returns></returns>
+        public static mnl.Matrix<double> GetD (double E, double poisson)
+        {
+            double factor = E / ((1.0 + poisson) * (1.0 - 2.0 * poisson));
+
+            mnl.Matrix<double> d = mnl.Matrix<double>.Build.Dense(6, 6);
+
+            d[0, 0] = 1.0 - poisson;
+            d[0, 1] = poisson;
+            d[0, 2] = poisson;
+
+            d[1, 0] = poisson;
+            d[1, 1] = 1.0 - poisson;
+            d[1, 2] = poisson;
+
+            d[2, 0] = poisson;
+            d[2, 1] = poisson;
+            d[2, 2] = (1.0 - poisson);
+
+            d[3, 3] = (1.0 - 2.0 * poisson) / 2.0;
+
+            d[4, 4] = (1.0 - 2.0 * poisson) / 2.0;
+
+            d[5, 5] = (1.0 - 2.0 * poisson) / 2.0;
+
+            return factor * d;
         }
     }
 }

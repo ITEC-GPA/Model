@@ -140,7 +140,7 @@ namespace GPC.Model.FEM.FiniteElements
             double E = ((PlateProperty)_property).GetE();
             double ni = ((PlateProperty)_property).GetNi();
 
-            _d = Util.DPlaneStress(E, ni);
+            _d = Plate.DPlaneStress(E, ni);
             #endregion
 
             #region stiffnessMatrixInLocalCoordinates
