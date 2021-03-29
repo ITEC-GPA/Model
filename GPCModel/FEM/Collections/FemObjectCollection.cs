@@ -28,8 +28,8 @@ namespace GPC.Model.FEM.Collections
         /// </summary>
         public FemObjectCollection()
         {
-            // Usiamo l'equality comparer che confronta solamente gli ID, quindi due oggetti uguali vengono aggiunti se hanno id diverso
-            _collection = new HashSet<T>(new FEMObject.FemObjectOnlyIdComparer());
+            // Usiamo l'equality comparer di default di T che non confronta gli ID, usiamo una lista a parte per confrontare gli ID
+            _collection = new HashSet<T>();
         }
 
         /// <summary>
@@ -82,21 +82,52 @@ namespace GPC.Model.FEM.Collections
         {
             if (item is null)
                 throw new ArgumentNullException(item.ToString());
-
-            if (_ids.Contains(item.Id))
+             
+            if (!_ids.Contains(item.Id))
             {
-                item.SetId(++_maxId);
+                if (!_collection.Contains(item))
+                {
+                    // id non presente, obj non presente
+                    // va aggiunto
+
+                    _collection.Add(item);
+                    _ids.Add(item.Id);
+
+                    if (item.Id > _maxId)
+                        _maxId = item.Id;
+
+                    return item.Id;
+                }
+                else
+                {
+                    // id non presente, obj già presente
+                    // non va aggiunto
+
+                    (_collection as HashSet<T>).TryGetValue(item, out T itemFound);
+                    return itemFound.Id;
+                }
             }
             else
             {
-                if (item.Id > _maxId)
-                    _maxId = item.Id;
+                if (!_collection.Contains(item))
+                {
+                    item.SetId(++_maxId);
+
+                    _collection.Add(item);
+                    _ids.Add(item.Id);
+
+                    // id già presente ma obj diverso
+                    // va aggiunto, ma cambio ID
+                    return item.Id;
+                }
+                else
+                {
+                    // id già presente, obj già presente
+                    // non aggiunto
+                    return item.Id;
+                }
             }
 
-            _collection.Add(item);
-            _ids.Add(item.Id);
-
-            return item.Id;
         }
 
         public virtual void Clear()

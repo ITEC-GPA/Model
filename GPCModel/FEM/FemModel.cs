@@ -162,6 +162,12 @@ namespace GPC.Model.FEM
         /// <returns>True if the property has been added. <para>False if a property with the same name is already present</para> </returns>
         public virtual bool AddProperty(ElementProperty elementProperty)
         {
+            if (elementProperty is null)
+            {
+                throw new ArgumentNullException(nameof(elementProperty));
+            }
+
+
             if (elementProperty is IPlateProperty)
             {
                 if (_plateProperties.Contains(elementProperty))
@@ -297,47 +303,40 @@ namespace GPC.Model.FEM
         /// <exception cref="ArgumentNullException">If the nodes inside the <paramref name="finiteElement"/> are null</exception>
         public virtual void AddFiniteElement(FiniteElement finiteElement, string propertyName)
         {
-            if (finiteElement != null)
+            if (finiteElement is null)
+                throw new ArgumentNullException(nameof(finiteElement));
+
+            if (string.IsNullOrEmpty(propertyName) || string.IsNullOrWhiteSpace(propertyName))
+                throw new ArgumentNullException(nameof(propertyName));
+
+
+            ElementProperty property;
+            if (finiteElement is Plate)
             {
-#pragma warning disable CS0618 // Type or member is obsolete
-                if (finiteElement is Plate)
-#pragma warning restore CS0618 // Type or member is obsolete
-                {
-                    ElementProperty property = GetPlateProperty(propertyName);
+                property = GetPlateProperty(propertyName);
 
-                    if (property is null)
-                        throw new ArgumentOutOfRangeException($"The property list does not contain {propertyName}");
-
-                    finiteElement.SetProperty(property);
-
-                    AddNodes(finiteElement.Nodes);
-
-                    _elements.Add(finiteElement);
-                }
-                else if (finiteElement is Brick)
-                {
-                    ElementProperty property = GetBrickProperty(propertyName);
-
-                    if (property is null)
-                        throw new ArgumentOutOfRangeException($"The property list does not contain {propertyName}");
-
-                    finiteElement.SetProperty(property);
-
-                    AddNodes(finiteElement.Nodes);
-
-                    _elements.Add(finiteElement);
-                }
-                else
-                {
-                    throw new NotSupportedException(finiteElement.GetType().ToString());
-                }
-
-                foreach (var node in finiteElement.Nodes)
-                {
-                    _nodes.Add(node);
-                }
-
+                if (property is null)
+                    throw new ArgumentOutOfRangeException($"The property list does not contain {propertyName}");
             }
+            else if (finiteElement is Brick)
+            {
+                property = GetBrickProperty(propertyName);
+
+                if (property is null)
+                    throw new ArgumentOutOfRangeException($"The property list does not contain {propertyName}");
+            }
+            else
+            {
+                throw new NotSupportedException(finiteElement.GetType().ToString());
+            }
+
+
+            finiteElement.SetProperty(property);
+
+            AddNodes(finiteElement.Nodes);
+
+            _elements.Add(finiteElement);
+
         }
 
 
@@ -697,7 +696,6 @@ namespace GPC.Model.FEM
             {
                 if (plateProperty is IPlateProperty ipp)
                 {
-#pragma warning disable CS0618 // Type or member is obsolete
                     if (face.IsQuad)
                     {
                         var plate = new Plate(new Node[] { _nodes[nodesNewIndexMap.ContainsKey(face.A) ? nodesNewIndexMap[face.A] : face.A],
@@ -728,7 +726,6 @@ namespace GPC.Model.FEM
                         if (plateIndex != face.Id) // Se sono diversi vuol dire che esisteva già l'indice element .iD e la collection l'ha modificato
                             platesNewIndexMap[face.Id] = plateIndex;
                     }
-#pragma warning restore CS0618 // Type or member is obsolete
                 }
                 else
                 {
@@ -945,9 +942,7 @@ namespace GPC.Model.FEM
                         FiniteElement finiteElement = _elements.GetElementById(plateId); // se non trova l'indice viene lanciata una keynotfoundException
 
 
-#pragma warning disable CS0618 // Type or member is obsolete
                         if (!(finiteElement is Plate plate))
-#pragma warning restore CS0618 // Type or member is obsolete
                             throw new ArgumentException($"Element with id: {plateId} {index} is not a plate");
 
                         if (load is NormalAreaLoad pl)
@@ -978,9 +973,7 @@ namespace GPC.Model.FEM
 
             foreach (var element in _elements)
             {
-#pragma warning disable CS0618 // Type or member is obsolete
                 if (element is Plate p)
-#pragma warning restore CS0618 // Type or member is obsolete
                 {
                     mesh.AddFaceMesh(p.Nodes.Select(i => i.Position).ToArray());
                 }

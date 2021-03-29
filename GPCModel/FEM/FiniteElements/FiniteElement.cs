@@ -187,7 +187,7 @@ namespace GPC.Model.FEM.FiniteElements
             return obj is FiniteElement element &&
                    base.Equals(obj) &&
                    EqualityComparer<ElementProperty>.Default.Equals(_property, element._property) &&
-                   EqualityComparer<Node[]>.Default.Equals(Nodes, element.Nodes);
+                   Nodes.SequenceEqual(element.Nodes);
         }
 
         public override int GetHashCode()
@@ -195,7 +195,11 @@ namespace GPC.Model.FEM.FiniteElements
             int hashCode = 1596002646;
             hashCode = hashCode * -1521134295 + base.GetHashCode();
             hashCode = hashCode * -1521134295 + EqualityComparer<ElementProperty>.Default.GetHashCode(_property);
-            hashCode = hashCode * -1521134295 + EqualityComparer<Node[]>.Default.GetHashCode(Nodes);
+
+            foreach (var node in _nodesGlobal)
+            {
+                hashCode = hashCode + EqualityComparer<Node>.Default.GetHashCode(node);
+            }
             return hashCode;
         }
 

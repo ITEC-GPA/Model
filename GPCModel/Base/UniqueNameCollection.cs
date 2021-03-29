@@ -25,6 +25,12 @@ namespace GPC.Model
         /// </returns>
         public override bool Add(T item)
         {
+            if (item is null)
+                throw new ArgumentNullException(nameof(item));
+
+            if (string.IsNullOrEmpty(item.Name) || string.IsNullOrWhiteSpace(item.Name))
+                throw new ArgumentNullException(nameof(item));
+
             if (Contains(item)) // stesso nome
                 return false;
 
