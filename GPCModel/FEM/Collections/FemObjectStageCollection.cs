@@ -12,9 +12,11 @@ namespace GPC.Model.FEM.Collections
     {
         protected Dictionary<T, D> _stageFiniteElementProperty;
 
-        public FemObjectStageCollection() : base()
+        public FemObjectStageCollection() 
+            : base()
         {
-            // Chiamo il costruttore di FemObjectCollection per cui uso la sua _collection.
+            // Chiamo il costruttore di FemObjectCollection per cui uso la sua _collection e uso il costruttore di default di T.
+
             // _stageFiniteElementProperty è un dizionario che usa lo stesso equality comparer sulla chiave,
             // quindi le chiavi sono femobject con id diversi
             _stageFiniteElementProperty = new Dictionary<T, D>(new FEMObject.FemObjectOnlyIdComparer());
@@ -23,11 +25,25 @@ namespace GPC.Model.FEM.Collections
         /// <inheritdoc cref="FemObjectCollection{T}.Add(T)"/>
         public int Add(T item, D stageFiniteElementProperty)
         {
-            base.Add(item);
+            var baseItemId = base.Add(item);
 
-            _stageFiniteElementProperty.Add(item, stageFiniteElementProperty);
+            // l'add cambia l'id se già presente.
+            // mi prendo l'istanza di quello presente nella base.collection dato che non è detto che item venga aggiunto (se già presente)
+            var baseItem = base.GetElementById(baseItemId); 
 
-            return item.Id;
+            if (!_stageFiniteElementProperty.ContainsKey(baseItem))
+            {
+                // se la chiave non è presente aggiungo il valore
+                _stageFiniteElementProperty.Add(baseItem, stageFiniteElementProperty);
+            }
+            else
+            {
+                // Se già presente, sommo gli attributi
+                var a = _stageFiniteElementProperty[baseItem].Merge(stageFiniteElementProperty);
+                _stageFiniteElementProperty[baseItem] = (D)a;
+            }
+
+            return baseItemId;
         }
 
         public void SetStageProperty(T item, D stageFiniteElementProperty)

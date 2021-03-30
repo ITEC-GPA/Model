@@ -29,6 +29,7 @@ namespace GPC.Model.FEM.Collections
         public FemObjectCollection()
         {
             // Usiamo l'equality comparer di default di T che non confronta gli ID, usiamo una lista a parte per confrontare gli ID
+            // l'equality di default usa l'equals degli oggetti 
             _collection = new HashSet<T>();
         }
 
@@ -73,10 +74,10 @@ namespace GPC.Model.FEM.Collections
 
         /// <summary>
         /// Add a FEMObject to the collection.
-        /// <para>If the item index already exist in the collection, its ID will be replaced with the collection maximum index + 1</para>
+        /// <para>Object will be added only if not already present, using the equality comparer chosed on the the constructor</para>
+        /// <para>In any case, if the <paramref name="item"/> id already exist in the collection, its ID will be replaced with the collection maximum index + 1</para>
         /// </summary>
-        /// <param name="item"></param>
-        /// <returns>The index of the item</returns>
+        /// <returns>The Id of the item</returns>
         /// <exception cref="ArgumentNullException">If <paramref name="item"/> is null </exception>
         public virtual int Add(T item)
         {
@@ -104,6 +105,7 @@ namespace GPC.Model.FEM.Collections
                     // non va aggiunto
 
                     (_collection as HashSet<T>).TryGetValue(item, out T itemFound);
+                    item.SetId(itemFound.Id);
                     return itemFound.Id;
                 }
             }

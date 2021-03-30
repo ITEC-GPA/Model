@@ -40,13 +40,13 @@ namespace GPC.Model.FEM
 
         /// <summary>
         /// Collection of <see cref="Node"/>
-        /// The nodes on this collection does not have duplicate ID and can not be duplicate. (different point with different id
+        /// The nodes on this collection does not have duplicate ID and can not be duplicate. (different point with different id)
         /// </summary>
         protected FemObjectCollection<Node> _nodes;
 
         /// <summary>
         /// Collection of <see cref="FiniteElement"/>
-        /// The element on this collection does not have duplicate ID but they can be duplicate (same element)
+        /// The elements on this collection does not have duplicate ID and can not be duplicate. (different element with different id)
         /// </summary>
         protected FemObjectCollection<FiniteElement> _elements;
 
@@ -122,7 +122,7 @@ namespace GPC.Model.FEM
         public FemModel(string name) 
             : base(Guid.NewGuid(), name)
         {
-            _nodes = new FemObjectCollection<Node>(new FEMObject.FemObjectWithIdComparer());
+            _nodes = new FemObjectCollection<Node>();
             _elements = new FemObjectCollection<FiniteElement>();
             _stages = new List<Stage>();
 
