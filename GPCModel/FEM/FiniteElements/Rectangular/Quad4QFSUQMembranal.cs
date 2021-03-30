@@ -157,7 +157,7 @@ namespace GPC.Model.FEM.FiniteElements
             #region stiffnessMatrixInLocalCoordinates
             double thk = ((PlateProperty)_property).MembraneThickness;
 
-            Func<double, double, mnl.Matrix<double>> funJacobiano = Util.J(LinearShapeFunctionQuad4.DNdCsi, LinearShapeFunctionQuad4.DNdEta, _localNodes);
+            Func<double, double, mnl.Matrix<double>> funJacobiano = Util.J2D(LinearShapeFunctionQuad4.DNdCsi, LinearShapeFunctionQuad4.DNdEta, _localNodes);
 
             mnl.Matrix<double> M = MMatrix(_d, _localNodes, thk);
             Console.WriteLine("M = ");
@@ -186,7 +186,7 @@ namespace GPC.Model.FEM.FiniteElements
 
         internal static mnl.Matrix<double> BMatrix(double csi, double eta, Node[] nodes)
         {
-            mnl.Matrix<double> jacob = Util.Jacob(csi, eta, LinearShapeFunctionQuad4.DNdCsi, LinearShapeFunctionQuad4.DNdEta, nodes);
+            mnl.Matrix<double> jacob = Util.Jacob2D(csi, eta, LinearShapeFunctionQuad4.DNdCsi, LinearShapeFunctionQuad4.DNdEta, nodes);
             mnl.Matrix<double> invJacob = jacob.Inverse();
 
             Point2d p = GetXY(csi, eta, nodes);
@@ -273,7 +273,7 @@ namespace GPC.Model.FEM.FiniteElements
 
         internal static mnl.Matrix<double> MMatrix(mnl.Matrix<double> D, Node[] nodes, double thickness)
         {
-            Func<double, double, mnl.Matrix<double>> funJacobiano = Util.J(LinearShapeFunctionQuad4.DNdCsi, LinearShapeFunctionQuad4.DNdEta, nodes);
+            Func<double, double, mnl.Matrix<double>> funJacobiano = Util.J2D(LinearShapeFunctionQuad4.DNdCsi, LinearShapeFunctionQuad4.DNdEta, nodes);
 
             Func<double, double, mnl.Matrix<double>> funcM = (double csi, double eta) =>
             {
@@ -287,7 +287,7 @@ namespace GPC.Model.FEM.FiniteElements
 
         internal static mnl.Matrix<double> HMatrix(Node[] nodes, double thickness)
         {
-            Func<double, double, mnl.Matrix<double>> funJacobiano = Util.J(LinearShapeFunctionQuad4.DNdCsi, LinearShapeFunctionQuad4.DNdEta, nodes);
+            Func<double, double, mnl.Matrix<double>> funJacobiano = Util.J2D(LinearShapeFunctionQuad4.DNdCsi, LinearShapeFunctionQuad4.DNdEta, nodes);
 
             Func<double, double, mnl.Matrix<double>> funcH = (double csi, double eta) =>
             {

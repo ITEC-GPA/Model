@@ -40,8 +40,6 @@ namespace GPC.Model.FEM.FiniteElements
             #endregion
         }
 
-        public override mnl.Matrix<double> KElementGlobalCoord => base.KElementGlobalCoord;
-
         public override void BuildMatrix()
         {
             //For this element there is not advantage in setting up a local coordinate system

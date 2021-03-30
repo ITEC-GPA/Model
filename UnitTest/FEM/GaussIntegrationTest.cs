@@ -29,7 +29,7 @@ namespace FemTest.Solver
                 return m;
             };
 
-            var j = Util.J(LinearShapeFunctionQuad4.DNdCsi, LinearShapeFunctionQuad4.DNdEta, nds);
+            var j = Util.J2D(LinearShapeFunctionQuad4.DNdCsi, LinearShapeFunctionQuad4.DNdEta, nds);
 
             var ris = GaussIntegration.IntegrationQuadrilateral(F, j, nrpoints);
             Assert.AreEqual(4.0, ris[0, 0]);
@@ -46,7 +46,7 @@ namespace FemTest.Solver
                 return m;
             };
 
-            j = Util.J(LinearShapeFunctionQuad4.DNdCsi, LinearShapeFunctionQuad4.DNdEta, nds);
+            j = Util.J2D(LinearShapeFunctionQuad4.DNdCsi, LinearShapeFunctionQuad4.DNdEta, nds);
 
             ris = GaussIntegration.IntegrationQuadrilateral(F, j, nrpoints);
             Assert.AreEqual(1.0, ris[0, 0]);
@@ -71,7 +71,7 @@ namespace FemTest.Solver
                 return m;
             };
 
-            var j = Util.J(LinearShapeFunctionQuad4.DNdCsi, LinearShapeFunctionQuad4.DNdEta, nds);
+            var j = Util.J2D(LinearShapeFunctionQuad4.DNdCsi, LinearShapeFunctionQuad4.DNdEta, nds);
 
             var ris = GaussIntegration.IntegrationQuadrilateral(F, j, nrpoints);
             Assert.AreEqual(4.0, ris[0, 0]);
@@ -88,7 +88,7 @@ namespace FemTest.Solver
                 return m;
             };
 
-            j = Util.J(LinearShapeFunctionQuad4.DNdCsi, LinearShapeFunctionQuad4.DNdEta, nds);
+            j = Util.J2D(LinearShapeFunctionQuad4.DNdCsi, LinearShapeFunctionQuad4.DNdEta, nds);
 
             ris = GaussIntegration.IntegrationQuadrilateral(F, j, nrpoints);
             Assert.AreEqual(1.0, ris[0, 0]);
@@ -112,7 +112,7 @@ namespace FemTest.Solver
                 return m;
             };
 
-            var j = Util.J(LinearShapeFunctionQuad4.DNdCsi, LinearShapeFunctionQuad4.DNdEta, nds);
+            var j = Util.J2D(LinearShapeFunctionQuad4.DNdCsi, LinearShapeFunctionQuad4.DNdEta, nds);
 
             var ris = GaussIntegration.IntegrationQuadrilateral(F, j, nrpoints);
             Assert.AreEqual(4.0, ris[0, 0]);
@@ -129,7 +129,7 @@ namespace FemTest.Solver
                 return m;
             };
 
-            j = Util.J(LinearShapeFunctionQuad4.DNdCsi, LinearShapeFunctionQuad4.DNdEta, nds);
+            j = Util.J2D(LinearShapeFunctionQuad4.DNdCsi, LinearShapeFunctionQuad4.DNdEta, nds);
 
             ris = GaussIntegration.IntegrationQuadrilateral(F, j, nrpoints);
             Assert.AreEqual(1.0, ris[0, 0]);
@@ -163,7 +163,7 @@ namespace FemTest.Solver
                 return m;
             };
 
-            var j = Util.J(LinearShapeFunctionQuad4.DNdCsi, LinearShapeFunctionQuad4.DNdEta, nds);
+            var j = Util.J2D(LinearShapeFunctionQuad4.DNdCsi, LinearShapeFunctionQuad4.DNdEta, nds);
 
             var ris = GaussIntegration.IntegrationQuadrilateral(F, j, nrpoints);
             Assert.AreEqual(0.0, ris[0, 0]);
@@ -180,7 +180,7 @@ namespace FemTest.Solver
                 return m;
             };
 
-            j = Util.J(LinearShapeFunctionQuad4.DNdCsi, LinearShapeFunctionQuad4.DNdEta, nds);
+            j = Util.J2D(LinearShapeFunctionQuad4.DNdCsi, LinearShapeFunctionQuad4.DNdEta, nds);
 
             ris = GaussIntegration.IntegrationQuadrilateral(F, j, nrpoints);
             Assert.AreEqual(1.0 * 1.0 * 1.0 / 2.0, ris[0, 0]);
@@ -214,7 +214,7 @@ namespace FemTest.Solver
                 return m;
             };
 
-            var j = Util.J(LinearShapeFunctionQuad4.DNdCsi, LinearShapeFunctionQuad4.DNdEta, nds);
+            var j = Util.J2D(LinearShapeFunctionQuad4.DNdCsi, LinearShapeFunctionQuad4.DNdEta, nds);
 
             var ris = GaussIntegration.IntegrationQuadrilateral(F, j, nrpoints);
             Assert.AreEqual(0.0, ris[0, 0], 0.00000000001);
@@ -231,7 +231,7 @@ namespace FemTest.Solver
                 return m;
             };
 
-            j = Util.J(LinearShapeFunctionQuad4.DNdCsi, LinearShapeFunctionQuad4.DNdEta, nds);
+            j = Util.J2D(LinearShapeFunctionQuad4.DNdCsi, LinearShapeFunctionQuad4.DNdEta, nds);
 
             ris = GaussIntegration.IntegrationQuadrilateral(F, j, nrpoints);
             Assert.AreEqual(1.0 * 1.0 * 1.0 / 2.0, ris[0, 0]);
@@ -266,7 +266,7 @@ namespace FemTest.Solver
                 return m;
             };
 
-            var j = Util.J(LinearShapeFunctionQuad4.DNdCsi, LinearShapeFunctionQuad4.DNdEta, nds);
+            var j = Util.J2D(LinearShapeFunctionQuad4.DNdCsi, LinearShapeFunctionQuad4.DNdEta, nds);
 
             var ris = GaussIntegration.IntegrationQuadrilateral(F, j, nrpoints);
             Assert.AreEqual(constant * 0.0, ris[0, 0], 0.00000000001);
@@ -283,7 +283,7 @@ namespace FemTest.Solver
                 return m;
             };
 
-            j = Util.J(LinearShapeFunctionQuad4.DNdCsi, LinearShapeFunctionQuad4.DNdEta, nds);
+            j = Util.J2D(LinearShapeFunctionQuad4.DNdCsi, LinearShapeFunctionQuad4.DNdEta, nds);
 
             ris = GaussIntegration.IntegrationQuadrilateral(F, j, nrpoints);
             Assert.AreEqual(constant * 1.0 * 1.0 * 1.0 / 2.0, ris[0, 0]);
@@ -318,7 +318,7 @@ namespace FemTest.Solver
                 return m;
             };
 
-            var j = Util.J(LinearShapeFunctionQuad4.DNdCsi, LinearShapeFunctionQuad4.DNdEta, nds);
+            var j = Util.J2D(LinearShapeFunctionQuad4.DNdCsi, LinearShapeFunctionQuad4.DNdEta, nds);
 
             var ris = GaussIntegration.IntegrationQuadrilateral(F, j, nrpoints);
             Assert.AreEqual(constant * ((1.0 * 1.0 * 1.0) - (-1.0 * -1.0 *-1.0)) / 3.0 * 2.0, ris[0, 0], 0.00000000001);
@@ -335,7 +335,7 @@ namespace FemTest.Solver
                 return m;
             };
 
-            j = Util.J(LinearShapeFunctionQuad4.DNdCsi, LinearShapeFunctionQuad4.DNdEta, nds);
+            j = Util.J2D(LinearShapeFunctionQuad4.DNdCsi, LinearShapeFunctionQuad4.DNdEta, nds);
 
             ris = GaussIntegration.IntegrationQuadrilateral(F, j, nrpoints);
             Assert.AreEqual(constant * (1.0*1.0*1.0)/3.0 * 1.0, ris[0, 0], 0.0000000000001);
@@ -370,7 +370,7 @@ namespace FemTest.Solver
                 return m;
             };
 
-            var j = Util.J(LinearShapeFunctionQuad4.DNdCsi, LinearShapeFunctionQuad4.DNdEta, nds);
+            var j = Util.J2D(LinearShapeFunctionQuad4.DNdCsi, LinearShapeFunctionQuad4.DNdEta, nds);
 
             var ris = GaussIntegration.IntegrationQuadrilateral(F, j, nrpoints);
             Assert.AreEqual(constant * ((1.0 * 1.0 * 1.0) - (-1.0 * -1.0 * -1.0)) / 3.0 * 2.0, ris[0, 0], 0.00000000001);
@@ -387,7 +387,7 @@ namespace FemTest.Solver
                 return m;
             };
 
-            j = Util.J(LinearShapeFunctionQuad4.DNdCsi, LinearShapeFunctionQuad4.DNdEta, nds);
+            j = Util.J2D(LinearShapeFunctionQuad4.DNdCsi, LinearShapeFunctionQuad4.DNdEta, nds);
 
             ris = GaussIntegration.IntegrationQuadrilateral(F, j, nrpoints);
             Assert.AreEqual(constant * (1.0 * 1.0 * 1.0) / 3.0 * 1.0, ris[0, 0]);

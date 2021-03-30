@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using GPC.Geometry;
+using GPC.Utilities.Fem;
 using GPC.Model.FEM.Properties;
 using mnl = MathNet.Numerics.LinearAlgebra;
 
@@ -40,8 +38,6 @@ namespace GPC.Model.FEM.FiniteElements
             #endregion
         }
 
-        public override mnl.Matrix<double> KElementGlobalCoord => base.KElementGlobalCoord;
-
         public override void BuildMatrix()
         {
             //For this element there is not advantage in setting up a local coordinate system
@@ -52,8 +48,8 @@ namespace GPC.Model.FEM.FiniteElements
             double ni = ((BrickProperty)_property).GetNi();
             _d = Brick.GetD(E, ni);
 
-            mnl.Matrix<double> b = GetB();
-            _kElementLocalCoord = b.Transpose() * _d * b;
+           
+            //_kElementLocalCoord = b.Transpose() * _d * b;
         }
 
         /// <summary>
@@ -63,11 +59,15 @@ namespace GPC.Model.FEM.FiniteElements
         /// <param name="eta"></param>
         /// <param name="zeta"></param>
         /// <returns></returns>
-        public override mnl.Matrix<double> GetB(double csi = 0, double eta = 0, double zeta = 0)
+        public override mnl.Matrix<double> GetB(double csi, double eta, double zeta)
         {
+            mnl.Matrix<double> b = mnl.Matrix<double>.Build.Dense(6,0);
             
-            mnl.Matrix<double> b = mnl.Matrix<double>.Build.Dense(6, 12);
-            
+            for (int i = 1; i <= 8; i++)
+            {
+                b = b.Append(GetBi(i, csi, eta, zeta, _nodesGlobal));
+            }
+
             return b;
         }
 
@@ -87,6 +87,52 @@ namespace GPC.Model.FEM.FiniteElements
         protected override mnl.Vector<double> BuildFLocalCoord()
         {
             return base.BuildFLocalCoord();
+        }
+        /// <summary>
+        /// Eq. 11.21 - Finite element method by Rao
+        /// </summary>
+        /// <param name="i"></param>
+        /// <param name="csi"></param>
+        /// <param name="eta"></param>
+        /// <param name="zeta"></param>
+        /// <returns></returns>
+        private static mnl.Matrix<double> GetBi(int i, double csi, double eta, double zeta, Node[] nodes)
+        {
+            Func<double, double, double, mnl.Matrix<double>> jacob = Util.J3D(TriLinearShapeFunctionHexaedron8.DNdCsi, TriLinearShapeFunctionHexaedron8.DNdEta, TriLinearShapeFunctionHexaedron8.DNdZeta, nodes);
+
+            Func<double, double, double, double> FdNdCsi = (double r, double s, double t) => {
+                return TriLinearShapeFunctionHexaedron8.DNdCsi(i, r, s, t);
+            };
+
+            Func<double, double, double, double> FdNdEta = (double r, double s, double t) => {
+                return TriLinearShapeFunctionHexaedron8.DNdEta(i, r, s, t);
+            };
+
+            Func<double, double, double, double> FdNdZeta = (double r, double s, double t) => {
+                return TriLinearShapeFunctionHexaedron8.DNdZeta(i, r, s, t);
+            };
+
+            mnl.Vector<double> dNdLocal = Util.GetdNdLocalFromdNdNatural3D(csi, eta, zeta, FdNdCsi, FdNdEta, FdNdZeta, jacob);
+            double dNdX = dNdLocal[0];
+            double dNdY = dNdLocal[1];
+            double dNdZ = dNdLocal[2];
+
+            mnl.Matrix<double> bi = mnl.Matrix<double>.Build.Dense(6, 3);
+            bi[0, 0] = dNdX;
+
+            bi[1, 1] = dNdY;
+
+            bi[2, 2] = dNdZ;
+
+            bi[3, 0] = dNdY;
+            bi[3, 1] = dNdX;
+
+            bi[4, 1] = dNdZ;
+            bi[4, 2] = dNdY;
+
+            bi[5, 1] = dNdZ;
+            bi[5, 2] = dNdX;
+            return bi;
         }
     }
 }
