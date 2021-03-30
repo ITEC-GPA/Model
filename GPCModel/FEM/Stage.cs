@@ -382,7 +382,6 @@ namespace GPC.Model.FEM
                 }
             }
 
-
             public virtual StageProperty Merge(StageProperty stagePropertyToMerge)
             {
                 StageProperty merged = new StageProperty(this);
