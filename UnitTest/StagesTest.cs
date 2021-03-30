@@ -92,11 +92,10 @@ namespace FemTest
             FemModel model = new FemModel();
 
             Mesh mesh = CreateSimpleMesh(10, 10, 2, 4, 0);
-            model.AddMesh(mesh, p1 ,null, null, null, null, null);
+            model.AddMesh(mesh, p1, null, null, null, null, null);
 
             var stage1 = model.AddStage("Stg1", FemModel.AnalysisType.Linear);
             var stage2 = model.AddStage("Stg2", FemModel.AnalysisType.Linear);
-            
 
             var enumerator = model.GetElementsEnumerator();
             while (enumerator.MoveNext())
@@ -104,7 +103,6 @@ namespace FemTest
                 var fe = enumerator.Current;
                 stage1.AddFiniteElement(fe);
             }
-
 
             enumerator = model.GetElementsEnumerator();
             while (enumerator.MoveNext())
@@ -123,11 +121,51 @@ namespace FemTest
             var m1 = stage1.ToModel();
             var m2 = stage2.ToModel();
 
+            Assert.AreEqual(2, (m1.GetFiniteElement(5).Property as PlateProperty).MembraneThickness);
+            Assert.AreEqual(20, (m2.GetFiniteElement(5).Property as PlateProperty).MembraneThickness, (m2.GetFiniteElement(5).Property as PlateProperty).MembraneThickness.ToString());
+        }
 
-            Assert.AreEqual((m1.GetFiniteElement(5).Property as PlateProperty).MembraneThickness, 2);
-            Assert.AreEqual((m2.GetFiniteElement(5).Property as PlateProperty).MembraneThickness, 20, (m2.GetFiniteElement(5).Property as PlateProperty).MembraneThickness.ToString());
 
+        [TestMethod]
+        public void StageTest2()
+        {
+            PlateProperty p1 = new PlateProperty(new SteelMaterial("", 1, 0.1, 2, 3, 4), 1, 2, "P1");
+            PlateProperty p2 = new PlateProperty(new SteelMaterial("", 1, 0.1, 2, 3, 4), 10, 20, "P2");
 
+            FemModel model = new FemModel();
+
+            Mesh mesh = CreateSimpleMesh(10, 10, 2, 4, 0);
+            model.AddMesh(mesh, p1, null, null, null, null, null);
+
+            var stage1 = model.AddStage("Stg1", FemModel.AnalysisType.Linear);
+            var stage2 = model.AddStage("Stg2", FemModel.AnalysisType.Linear);
+
+            var enumerator = model.GetElementsEnumerator();
+            while (enumerator.MoveNext())
+            {
+                var fe = enumerator.Current;
+                stage1.AddFiniteElement(fe);
+            }
+
+            enumerator = model.GetElementsEnumerator();
+            while (enumerator.MoveNext())
+            {
+                var fe = enumerator.Current;
+                if (fe.Id > 4)
+                {
+                    stage2.AddFiniteElement(fe, p2);
+                }
+                else
+                {
+                    stage2.AddFiniteElement(fe);
+                }
+            }
+
+            var m1 = stage1.ToModel();
+            var m2 = stage2.ToModel();
+
+            Assert.AreEqual(2, (m1.GetFiniteElement(5).Property as PlateProperty).MembraneThickness);
+            Assert.AreEqual(20, (m2.GetFiniteElement(5).Property as PlateProperty).MembraneThickness, (m2.GetFiniteElement(5).Property as PlateProperty).MembraneThickness.ToString());
         }
     }
 }

@@ -374,7 +374,6 @@ namespace GPC.Model.FEM
         #region Nodes
 
 
-
         /// <inheritdoc cref="FemObjectCollection{T}.Add(T)"/>
         protected virtual int AddNode(Node node)
         {

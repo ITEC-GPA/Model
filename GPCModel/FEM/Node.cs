@@ -47,7 +47,7 @@ namespace GPC.Model.FEM
         public List<INodeLoadCaseAttribute> AttributesLoadCase => _attributesLoadCase;
         #endregion
 
-        public Node(Point3d point, string label = "") : base(label)
+        public Node(Point3d point, string name = "") : base(name)
         {
             _position = point;
             
@@ -57,31 +57,51 @@ namespace GPC.Model.FEM
             _attributesFreedomCase = new List<INodeFreedomCaseAttribute>();
         }
 
+
+        /// <summary>
+        /// only for test purpose
+        /// </summary>
         internal Node(double X, double Y, double Z, string label="") : this(new Point3d(X, Y, Z), label)
         {
 
         }
 
+        /// <summary>
+        /// only for test purpose
+        /// </summary>
         internal Node(double X, double Y, double Z, int id, string name) : this(new Point3d(X, Y, Z), name, id)
         {
 
         }
+
+        /// <summary>
+        /// only for test purpose
+        /// </summary>
         internal Node(double X, double Y, double Z, string name, int id) : this(new Point3d(X, Y, Z), name, id)
         {
 
         }
 
+
+        /// <summary>
+        /// only for test purpose
+        /// </summary>
         internal Node(Point3d point, string name, int id) : this(point)
         {
             Name = name;
             SetId(id);
         }
 
+
+        /// <summary>
+        /// only for test purpose
+        /// </summary>
         internal Node(Point3d point, int id) : this(point)
         {
             Name = string.Empty;
             SetId(id);
         }
+
 
         public override string ToString()
         {
@@ -108,9 +128,9 @@ namespace GPC.Model.FEM
 
             Node node = obj as Node;
             return !(node is null) && _position.Equals(node._position)
-                                    && _attributesFreedomCase.ScrambledEquals(node._attributesFreedomCase)
-                                    && _attributesLoadCase.ScrambledEquals(node._attributesLoadCase)
-                                    && base.Equals(node);
+                                   && _attributesFreedomCase.ScrambledEquals(node._attributesFreedomCase)
+                                   && _attributesLoadCase.ScrambledEquals(node._attributesLoadCase)
+                                   && base.Equals(node);
         }
 
         public override int GetHashCode()

@@ -269,8 +269,8 @@ namespace GPC.Model.FEM
                                                                     _elements.GetStageProperty(finiteElement).LoadCaseAttributes,
                                                                     _elements.GetStageProperty(finiteElement).FreedomCaseAttribute);
 
-                femModel.AddProperty(finiteElement.Property);
-                femModel.AddFiniteElement(duplicated, finiteElement.Property.Name);
+                femModel.AddProperty(duplicated.Property);
+                femModel.AddFiniteElement(duplicated, duplicated.Property.Name);
             }
 
             return femModel;
