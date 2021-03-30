@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using GPC.Geometry;
 using GPC.Model.FEM.Properties;
 using mnl = MathNet.Numerics.LinearAlgebra;
 
@@ -17,6 +18,26 @@ namespace GPC.Model.FEM.FiniteElements
             _DOF.Add(LinearSolver.DOF.DY);
             _DOF.Add(LinearSolver.DOF.DZ);
             //a displacement in Local coordinate plane (Dx, Dy) can be a DX, DY, DZ in Global space!
+
+            #region
+            //Controllo che per ogni nodo I vengano visti gli altri 3 in senso antiorario.
+            //Uso formula per trovare area del triangolo, se area è positiva -> punti in senso orario, altrimenti in senso antiorario
+            for (int i = 1; i <= 4; i++)
+            {
+                List<Node> check = OrderNode(i, globalNodes).ToList();
+                check.RemoveAt(0);
+
+                //Mi sposto nelle coordinate locali della faccia
+                Node[] localFaceNode = Tri3Element.LocalNodes(check.ToArray(), out CoordinateSystem sys);
+
+                if (Tri3Element.GetArea(localFaceNode) < 0)
+                {
+                    Console.WriteLine("Ordine non corretto dei nodi con vista dal nodo " + i);
+                    check.ForEach(p => Console.WriteLine(p.Position.ToString()));
+                    throw new Exception("Ordine non corretto dei nodi");
+                }
+            }
+            #endregion
         }
 
         public override mnl.Matrix<double> KElementGlobalCoord => base.KElementGlobalCoord;
@@ -112,6 +133,12 @@ namespace GPC.Model.FEM.FiniteElements
 
         protected override mnl.Vector<double> BuildFLocalCoord()
         {
+            /*
+             * Finite Element by Rao: Equation (11.13) shows that the body force is distributed equally between the four nodes of the element.
+             */
+
+            //ripartire secondo V/4 ed eventualmente per pressioni su facce come A/3
+
             return base.BuildFLocalCoord();
         }
 
@@ -183,7 +210,7 @@ namespace GPC.Model.FEM.FiniteElements
             Node[] nodeOrdered = OrderNode(index,nodes);
             /*nodeOrdered.ToList().ForEach(x => Console.WriteLine(x));
             Console.WriteLine();*/
-            
+
             var listNodes = nodeOrdered.ToList();
             listNodes.RemoveAt(0); //remove node
             listNodes.ForEach(x => Console.WriteLine(x));

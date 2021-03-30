@@ -360,7 +360,7 @@ namespace GPC.Model.FEM.FiniteElements
             t1[2, 1] = nds[2].Position.Y;
             t1[2, 2] = 1.0;
 
-            return t1.Determinant();
+            return 0.5 * t1.Determinant();
         }
 
         /// <summary>
