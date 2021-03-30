@@ -205,12 +205,6 @@ namespace GPC.Model.FEM
         }
 
 
-        public virtual void AddGeometryRestrain()
-        {
-            throw new NotImplementedException();
-        }
-
-
         /// <inheritdoc cref="UniqueNameCollection{T}.Add(T)"/>
         public virtual bool AddLoadCase(LoadCase loadCase)
         {
@@ -1033,16 +1027,16 @@ namespace GPC.Model.FEM
         {
 
 
-
+            throw new NotImplementedException();
             return obj is FemModel model &&
                    base.Equals(obj);
-                  
         }
 
 
         public override int GetHashCode()
         {
             int hashCode = -23;
+            throw new NotImplementedException();
             return hashCode;
         }
 
