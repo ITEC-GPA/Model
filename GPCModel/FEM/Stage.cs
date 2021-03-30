@@ -349,7 +349,7 @@ namespace GPC.Model.FEM
 
         #endregion
 
-        public class StageProperty
+        public class StageProperty : ICloneable
         {
             private List<LoadCaseAttribute> _loadCaseAttributes;
             private List<FreedomCaseAttribute> _freedomCaseAttributes;
@@ -361,6 +361,55 @@ namespace GPC.Model.FEM
             {
                 _loadCaseAttributes = new List<LoadCaseAttribute>();
                 _freedomCaseAttributes = new List<FreedomCaseAttribute>();
+            }
+
+
+            public StageProperty(StageProperty stageProperty)
+            {
+
+                _loadCaseAttributes = new List<LoadCaseAttribute>();
+                _freedomCaseAttributes = new List<FreedomCaseAttribute>();
+                foreach (var lc in stageProperty._loadCaseAttributes)
+                {
+                    _loadCaseAttributes.Add((LoadCaseAttribute)lc.Clone());
+                }
+
+                foreach (var fc in stageProperty._freedomCaseAttributes)
+                {
+                    _freedomCaseAttributes.Add((FreedomCaseAttribute)fc.Clone());
+                }
+            }
+
+
+            public StageProperty Merge(StageProperty stagePropertyToMerge)
+            {
+                StageProperty merged = new StageProperty(this);
+
+                for (int i = 0; i < stagePropertyToMerge.LoadCaseAttributes.Count; i++)
+                {
+                    if (!merged._loadCaseAttributes.Contains(stagePropertyToMerge.LoadCaseAttributes[i]))
+                    {
+                        merged.AddLoadCaseAttribute(stagePropertyToMerge.LoadCaseAttributes[i]);
+                    }
+                    else
+                    {
+                        // TODO: fare merge del singolo attributo
+                    }
+                }
+
+                for (int i = 0; i < stagePropertyToMerge.FreedomCaseAttribute.Count; i++)
+                {
+                    if (!merged._freedomCaseAttributes.Contains(stagePropertyToMerge.FreedomCaseAttribute[i]))
+                    {
+                        merged.AddFreedomCaseAttributes(stagePropertyToMerge.FreedomCaseAttribute[i]);
+                    }
+                    else
+                    {
+                        // TODO: fare merge del singolo attributo
+                    }
+                }
+
+                return merged;
             }
 
             public void AddLoadCaseAttribute(LoadCaseAttribute attribute)
@@ -387,6 +436,10 @@ namespace GPC.Model.FEM
                     _freedomCaseAttributes.AddRange(attributes);
             }
 
+            public object Clone()
+            {
+                return new StageProperty(this);
+            }
         }
 
 
