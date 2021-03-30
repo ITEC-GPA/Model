@@ -4,7 +4,7 @@ using System.Runtime.Serialization;
 namespace GPC.Model.FEM.Attributes
 {
     [Serializable]
-    public abstract class Attribute : ModelObject, ISerializable
+    public abstract class Attribute : ModelObject, ISerializable, ICloneable
     {
 
 
@@ -18,6 +18,8 @@ namespace GPC.Model.FEM.Attributes
             : base(info, context)
         {
         }
+
+        public abstract object Clone();
 
         public override bool Equals(object obj)
         {

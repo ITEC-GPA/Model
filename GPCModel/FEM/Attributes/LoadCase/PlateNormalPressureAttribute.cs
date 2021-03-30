@@ -26,6 +26,13 @@ namespace GPC.Model.FEM.Attributes
         }
 
 
+        public PlateNormalPressureAttribute(PlateNormalPressureAttribute plateNormalPressureAttribute)
+            : base(plateNormalPressureAttribute)
+        {
+            this._pressure = plateNormalPressureAttribute.Pressure;
+        }
+
+
         public PlateNormalPressureAttribute(SerializationInfo info, StreamingContext context) 
             : base(info, context)
         {
@@ -64,6 +71,11 @@ namespace GPC.Model.FEM.Attributes
             hashCode = hashCode * -17 + base.GetHashCode();
             hashCode = hashCode * -17 + _pressure.GetHashCode();
             return hashCode;
+        }
+
+        public override object Clone()
+        {
+            return new PlateNormalPressureAttribute(this);
         }
 
 

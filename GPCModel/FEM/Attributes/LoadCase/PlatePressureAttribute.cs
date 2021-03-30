@@ -66,6 +66,17 @@ namespace GPC.Model.FEM.Attributes
             _coordinateSystem = sys;
         }
 
+
+        public PlatePressureAttribute(PlatePressureAttribute platePressureAttribute)
+            : base(platePressureAttribute)
+        {
+            _p1 = platePressureAttribute._p1;
+            _p2 = platePressureAttribute._p2;
+            _p3 = platePressureAttribute._p3;
+            _coordinateSystem = platePressureAttribute.CoordinateSystem;
+        }
+
+
         public PlatePressureAttribute(SerializationInfo info, StreamingContext context) 
             : base(info, context)
         {
@@ -116,6 +127,11 @@ namespace GPC.Model.FEM.Attributes
             info.AddValue("p2", _p2);
             info.AddValue("p3", _p3);
             info.AddValue("CoordinateSystem", _coordinateSystem);
+        }
+
+        public override object Clone()
+        {
+            return new PlatePressureAttribute(this);
         }
 
 
