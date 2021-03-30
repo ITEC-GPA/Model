@@ -10,9 +10,9 @@ namespace GPC.Model.FEM.FiniteElements
     /// <summary>
     /// Refecente to Finite Element Method by Rao
     /// </summary>
-    public class Tethraedron : Brick
+    public class Tethraedron4 : Brick
     {
-        public Tethraedron(Node[] globalNodes, BrickProperty brickProperty, int id) :base(globalNodes, brickProperty, id)
+        public Tethraedron4(Node[] globalNodes, BrickProperty brickProperty, int id) :base(globalNodes, brickProperty, id)
         {
             _DOF.Add(LinearSolver.DOF.DX);
             _DOF.Add(LinearSolver.DOF.DY);
@@ -111,11 +111,6 @@ namespace GPC.Model.FEM.FiniteElements
             b[5, 11] = GetCoefficientShapeFunction(4, "b", _nodesGlobal);
 
             return b / (6.0 * volume);
-        }
-
-        public override mnl.Vector<double> GetGlobalCoordF()
-        {
-            return base.GetGlobalCoordF();
         }
 
         #region Results

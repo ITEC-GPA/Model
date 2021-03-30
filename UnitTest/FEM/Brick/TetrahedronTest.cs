@@ -10,7 +10,7 @@ using GPC.Model.Materials;
 namespace FemTest.Solver
 {
     [TestClass]
-    public class TetrahedronTest
+    public class Tetrahedron4Test
     {
         [TestMethod]
         public void VolumeTest1()
@@ -27,7 +27,7 @@ namespace FemTest.Solver
 
             double A = (1.0 / 2.0 * a * b);
             double V = A * h / 3.0;
-            Assert.AreEqual(V, Tethraedron.GetVolume(nds.ToArray()));
+            Assert.AreEqual(V, Tethraedron4.GetVolume(nds.ToArray()));
         }
 
         [TestMethod]
@@ -45,16 +45,16 @@ namespace FemTest.Solver
             
             Func<int, Node, double> N = (int index, Node n) =>
             {
-                double V = Tethraedron.GetVolume(nds.ToArray());
-                double a = Tethraedron.GetCoefficientShapeFunction(index, "a", nds.ToArray());
-                double b = Tethraedron.GetCoefficientShapeFunction(index, "b", nds.ToArray());
-                double c = Tethraedron.GetCoefficientShapeFunction(index, "c", nds.ToArray());
-                double d = Tethraedron.GetCoefficientShapeFunction(index, "d", nds.ToArray());
+                double V = Tethraedron4.GetVolume(nds.ToArray());
+                double a = Tethraedron4.GetCoefficientShapeFunction(index, "a", nds.ToArray());
+                double b = Tethraedron4.GetCoefficientShapeFunction(index, "b", nds.ToArray());
+                double c = Tethraedron4.GetCoefficientShapeFunction(index, "c", nds.ToArray());
+                double d = Tethraedron4.GetCoefficientShapeFunction(index, "d", nds.ToArray());
                 return 1.0 / (6.0 * V) * (a + b * n.Position.X + c * n.Position.Y + d * n.Position.Z);
             };
 
-            Assert.AreEqual(-1.0, Tethraedron.GetCoefficientShapeFunction(1, "b", nds.ToArray()));
-            Assert.AreEqual(1.0, Tethraedron.GetCoefficientShapeFunction(2, "b", nds.ToArray()));
+            Assert.AreEqual(-1.0, Tethraedron4.GetCoefficientShapeFunction(1, "b", nds.ToArray()));
+            Assert.AreEqual(1.0, Tethraedron4.GetCoefficientShapeFunction(2, "b", nds.ToArray()));
 
             Assert.AreEqual(1.0, N(1, nds[0]));
             Assert.AreEqual(0.0, N(2, nds[0]));
@@ -88,11 +88,11 @@ namespace FemTest.Solver
 
             Func<int, Node, double> N = (int index, Node n) =>
             {
-                double V = Tethraedron.GetVolume(nds.ToArray());
-                double a = Tethraedron.GetCoefficientShapeFunction(index, "a", nds.ToArray());
-                double b = Tethraedron.GetCoefficientShapeFunction(index, "b", nds.ToArray());
-                double c = Tethraedron.GetCoefficientShapeFunction(index, "c", nds.ToArray());
-                double d = Tethraedron.GetCoefficientShapeFunction(index, "d", nds.ToArray());
+                double V = Tethraedron4.GetVolume(nds.ToArray());
+                double a = Tethraedron4.GetCoefficientShapeFunction(index, "a", nds.ToArray());
+                double b = Tethraedron4.GetCoefficientShapeFunction(index, "b", nds.ToArray());
+                double c = Tethraedron4.GetCoefficientShapeFunction(index, "c", nds.ToArray());
+                double d = Tethraedron4.GetCoefficientShapeFunction(index, "d", nds.ToArray());
                 return 1.0 / (6.0 * V) * (a + b * n.Position.X + c * n.Position.Y + d * n.Position.Z);
             };
 
@@ -126,13 +126,13 @@ namespace FemTest.Solver
             nds.Add(new Node(2.0, 5.0, 1.0, 0));
             nds.Add(new Node(4.0, 3.0, 6.0, 0));
 
-            Assert.AreEqual(4.0, Tethraedron.GetVolume(nds.ToArray()));
+            Assert.AreEqual(4.0, Tethraedron4.GetVolume(nds.ToArray()));
 
             SteelMaterial mat = new SteelMaterial("mat", 96.0, 1.0 / 3.0, 355, 510, 7850.0);
 
             BrickProperty brickProperty = new BrickProperty(mat);
 
-            Tethraedron e = new Tethraedron(nds.ToArray(), brickProperty, 1);
+            Tethraedron4 e = new Tethraedron4(nds.ToArray(), brickProperty, 1);
             e.BuildMatrix();
 
             Util.WriteMatrix(e.KElementLocalCoord);
