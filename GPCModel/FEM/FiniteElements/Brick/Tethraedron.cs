@@ -87,7 +87,7 @@ namespace GPC.Model.FEM.FiniteElements
             b[5, 6] = GetCoefficientShapeFunction(3, "d", _nodesGlobal);
             b[5, 8] = GetCoefficientShapeFunction(3, "b", _nodesGlobal);
             b[5, 9] = GetCoefficientShapeFunction(4, "d", _nodesGlobal);
-            b[5, 10] = GetCoefficientShapeFunction(4, "b", _nodesGlobal);
+            b[5, 11] = GetCoefficientShapeFunction(4, "b", _nodesGlobal);
 
             return b / (6.0 * volume);
         }
@@ -151,28 +151,28 @@ namespace GPC.Model.FEM.FiniteElements
             switch(i)
             {
                 case 1:
-                    list[0] = nodes[0]; //I
-                    list[1] = nodes[1]; //J
-                    list[2] = nodes[2]; //K
-                    list[3] = nodes[3]; //L
+                    list[0] = nodes[1-1]; //I
+                    list[1] = nodes[2-1]; //J
+                    list[2] = nodes[3-1]; //K
+                    list[3] = nodes[4-1]; //L
                     break;
                 case 2:
-                    list[0] = nodes[1];
-                    list[1] = nodes[0];
-                    list[2] = nodes[2];
-                    list[3] = nodes[3];
+                    list[0] = nodes[2-1];
+                    list[1] = nodes[1-1];
+                    list[2] = nodes[3-1];
+                    list[3] = nodes[4-1];
                     break;
                 case 3:
-                    list[0] = nodes[2];
-                    list[1] = nodes[3];
-                    list[2] = nodes[0];
-                    list[3] = nodes[1];
+                    list[0] = nodes[3-1];
+                    list[1] = nodes[1-1];
+                    list[2] = nodes[2-1];
+                    list[3] = nodes[4-1];
                     break;
                 case 4:
-                    list[0] = nodes[3];
-                    list[1] = nodes[0];
-                    list[2] = nodes[1];
-                    list[3] = nodes[2];
+                    list[0] = nodes[4-1];
+                    list[1] = nodes[1-1];
+                    list[2] = nodes[2-1];
+                    list[3] = nodes[3-1];
                     break;
             }
             return list;

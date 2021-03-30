@@ -78,6 +78,46 @@ namespace FemTest.Solver
         }
 
         [TestMethod]
+        public void GetCoefficientTest2()
+        {
+            List<Node> nds = new List<Node>();
+            nds.Add(new Node(2.0, 3.0, 4.0, 0));
+            nds.Add(new Node(6.0, 3.0, 2.0, 0));
+            nds.Add(new Node(2.0, 5.0, 1.0, 0));
+            nds.Add(new Node(4.0, 3.0, 6.0, 0));
+
+            Func<int, Node, double> N = (int index, Node n) =>
+            {
+                double V = Tethraedron.GetVolume(nds.ToArray());
+                double a = Tethraedron.GetCoefficientShapeFunction(index, "a", nds.ToArray());
+                double b = Tethraedron.GetCoefficientShapeFunction(index, "b", nds.ToArray());
+                double c = Tethraedron.GetCoefficientShapeFunction(index, "c", nds.ToArray());
+                double d = Tethraedron.GetCoefficientShapeFunction(index, "d", nds.ToArray());
+                return 1.0 / (6.0 * V) * (a + b * n.Position.X + c * n.Position.Y + d * n.Position.Z);
+            };
+
+            Assert.AreEqual(1.0, N(1, nds[0]), 0.000001);
+            Assert.AreEqual(0.0, N(2, nds[0]), 0.000001);
+            Assert.AreEqual(0.0, N(3, nds[0]), 0.000001);
+            Assert.AreEqual(0.0, N(4, nds[0]), 0.000001);
+
+            Assert.AreEqual(0.0, N(1, nds[1]), 0.000001);
+            Assert.AreEqual(1.0, N(2, nds[1]), 0.000001);
+            Assert.AreEqual(0.0, N(3, nds[1]), 0.000001);
+            Assert.AreEqual(0.0, N(4, nds[1]), 0.000001);
+
+            Assert.AreEqual(0.0, N(1, nds[2]), 0.000001);
+            Assert.AreEqual(0.0, N(2, nds[2]), 0.000001);
+            Assert.AreEqual(1.0, N(3, nds[2]), 0.000001);
+            Assert.AreEqual(0.0, N(4, nds[2]), 0.000001);
+
+            Assert.AreEqual(0.0, N(1, nds[3]), 0.000001);
+            Assert.AreEqual(0.0, N(2, nds[3]), 0.000001);
+            Assert.AreEqual(0.0, N(3, nds[3]), 0.000001);
+            Assert.AreEqual(1.0, N(4, nds[3]), 0.000001);
+        }
+
+        [TestMethod]
         public void KMatrixTest1()
         {
             List<Node> nds = new List<Node>();
@@ -115,34 +155,33 @@ namespace FemTest.Solver
             Node 4	4.0000	3.0000	6.0000	-94.0000	-66.0000	-36.0000	 	 	 
             */
 
-            /*149 108 24 −1 6 12 −54 −48 0 −94 −66 −36
-            108 344 54 −24 104 42 −24 −216 −12 −60 −232 −84
-            24 54 113 0 30 35 0 −24 −54 −24 −60 −94
-            −1 −24 0 29 −18 −12 −18 24 0 −10 18 12
-            6 104 30 −18 44 18 12 −72 −12 0 −76 −36
-            12 42 35 −12 18 29 0 −24 −18 0 −36 −46
-            −54 −24 0 −18 12 0 36 0 0 36 12 0
-            −48 −216 −24 24 −72 −24 0 144 0 24 144 48
-            0 −12 −54 0 −12 −18 0 0 36 0 24 36
-            −94 −60 −24 −10 0 0 36 24 0 68 36 24
-            −66 −232 −60 18 −76 −36 12 144 24 36 164 72
-            −36 −84 −94 12 −36 −46 0 48 36 24 72 104*/
+            List<mnl.Vector<double>> rows = new List<mnl.Vector<double>>();
 
-            Assert.AreEqual(e.KElementGlobalCoord[0, 0], 149, 0.0001);
-            Assert.AreEqual(e.KElementGlobalCoord[0, 1], 108, 0.0001);
-            Assert.AreEqual(e.KElementGlobalCoord[0, 2], 24, 0.0001);
+            rows.Add(mnl.Vector<double>.Build.DenseOfArray(new double[] { 149, 108, 24, -1, 6, 12, -54, -48, 0, -94, -66, -36 }));
+            rows.Add(mnl.Vector<double>.Build.DenseOfArray(new double[] { 108, 344, 54, -24, 104, 42, -24, -216, -12, -60, -232, -84 }));
+            rows.Add(mnl.Vector<double>.Build.DenseOfArray(new double[] { 24, 54, 113, 0, 30, 35, 0, -24, -54, -24, -60, -94 }));
+            rows.Add(mnl.Vector<double>.Build.DenseOfArray(new double[] { -1, -24, 0, 29, -18, -12, -18, 24, 0, -10, 18, 12 }));
+            rows.Add(mnl.Vector<double>.Build.DenseOfArray(new double[] { 6, 104, 30, -18, 44, 18, 12, -72, -12, 0, -76, -36 }));
+            rows.Add(mnl.Vector<double>.Build.DenseOfArray(new double[] { 12, 42, 35, -12, 18, 29, 0, -24, -18, 0, -36, -46 }));
+            rows.Add(mnl.Vector<double>.Build.DenseOfArray(new double[] { -54, -24, 0, -18, 12, 0, 36, 0, 0, 36, 12, 0 }));
+            rows.Add(mnl.Vector<double>.Build.DenseOfArray(new double[] { -48, -216, -24, 24, -72, -24, 0, 144, 0, 24, 144, 48 }));
+            rows.Add(mnl.Vector<double>.Build.DenseOfArray(new double[] { 0, -12, -54, 0, -12, -18, 0, 0, 36, 0, 24, 36 }));
+            rows.Add(mnl.Vector<double>.Build.DenseOfArray(new double[] { -94, -60, -24, -10, 0, 0, 36, 24, 0, 68, 36, 24 }));
+            rows.Add(mnl.Vector<double>.Build.DenseOfArray(new double[] { -66, -232, -60, 18, -76, -36, 12, 144, 24, 36, 164, 72 }));
+            rows.Add(mnl.Vector<double>.Build.DenseOfArray(new double[] { -36, -84, -94, 12, -36, -46, 0, 48, 36, 24, 72, 104 }));
 
-            Assert.AreEqual(e.KElementGlobalCoord[0, 3], -1, 0.0001);
-            Assert.AreEqual(e.KElementGlobalCoord[0, 4], 6, 0.0001);
-            Assert.AreEqual(e.KElementGlobalCoord[0, 5], 12, 0.0001);
+            mnl.Matrix<double> k = mnl.Matrix<double>.Build.Dense(0, 12);
 
-            Assert.AreEqual(e.KElementGlobalCoord[0, 6], -54, 0.0001);
-            Assert.AreEqual(e.KElementGlobalCoord[0, 7], -48, 0.0001);
-            Assert.AreEqual(e.KElementGlobalCoord[0, 8], 0, 0.0001);
+            int index = 0;
+            rows.ForEach(r => { k = k.InsertRow(index, r); index++; });
 
-            Assert.AreEqual(e.KElementGlobalCoord[0, 9], -94, 0.0001);
-            Assert.AreEqual(e.KElementGlobalCoord[0, 10], -66, 0.0001);
-            Assert.AreEqual(e.KElementGlobalCoord[0, 11], -36, 0.0001);
+            for (int r = 0; r < 12; r++)
+            {
+                for (int c = 0; c < 12; c++)
+                {
+                    Assert.AreEqual(e.KElementGlobalCoord[r, c], k[r,c], 0.0001, "Error in row "+r+" col " +c);
+                }
+            }
         }
     }
 }
