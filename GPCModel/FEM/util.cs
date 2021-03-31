@@ -207,7 +207,7 @@ namespace GPC.Model.FEM
                 j33 += dNdZeta(i, csi, eta, zeta) * zi;
             }
 
-            mnl.Matrix<double> J = mnl.Matrix<double>.Build.Dense(2, 2);
+            mnl.Matrix<double> J = mnl.Matrix<double>.Build.Dense(3, 3);
             J[0, 0] = j11;
             J[0, 1] = j12;
             J[0, 2] = j13;
@@ -253,6 +253,58 @@ namespace GPC.Model.FEM
             mnl.Matrix<double> jacobian = Jacobian(csi, eta, zeta);
 
             return jacobian.Inverse() * dFdNatural;
+        }
+        #endregion
+
+        #region GetXYZ
+        public static double GetLocalCoordinate3D(string direction, double csi, double eta, double zeta, Func<int, double, double, double, double> ShapeFunctions, Node[] nodes)
+        {
+            double val = 0;
+            
+            for (int i = 1; i <= nodes.Length; i++)
+            {
+                double factor;
+                switch (direction.ToUpper())
+                {
+                    case "X":
+                        factor = nodes[i - 1].Position.X;
+                        break;
+                    case "Y":
+                        factor = nodes[i - 1].Position.Y;
+                        break;
+                    case "Z":
+                        factor = nodes[i - 1].Position.Z;
+                        break;
+                    default:
+                        throw new IndexOutOfRangeException("direction can be X, Y or Z");
+                }
+                val += ShapeFunctions(i, csi, eta, zeta) * factor;
+            }
+            return val;
+        }
+
+
+        public static double GetLocalCoordinate2D(string direction, double csi, double eta, Func<int, double, double, double> ShapeFunctions, Node[] nodes)
+        {
+            double val = 0;
+
+            for (int i = 1; i <= nodes.Length; i++)
+            {
+                double factor;
+                switch (direction.ToUpper())
+                {
+                    case "X":
+                        factor = nodes[i - 1].Position.X;
+                        break;
+                    case "Y":
+                        factor = nodes[i - 1].Position.Y;
+                        break;
+                    default:
+                        throw new IndexOutOfRangeException("direction can be X or Y");
+                }
+                val += ShapeFunctions(i, csi, eta) * factor;
+            }
+            return val;
         }
         #endregion
     }

@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using GPC.Model.FEM;
+using GPC.Utilities.Fem;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace FemTest.Solver
@@ -26,6 +27,28 @@ namespace FemTest.Solver
 
             Assert.AreEqual(3, Util.FFirstFix(1, F3)(1, 1));
             Assert.AreEqual(6, Util.FFirstFix(1, F3)(2, 3));
+        }
+
+        [TestMethod]
+        public void Test2()
+        {
+            Node[] nds = new Node[4];
+            nds[0] = new Node(-1.0, -1.0, 0, 1, "1");
+            nds[1] = new Node(+1.0, -1.0, 0, 2, "2");
+            nds[2] = new Node(+1.0, +1.0, 0, 3, "3");
+            nds[3] = new Node(-1.0, +1.0, 0, 4, "4");
+
+            Func<double, double, Node[], double> X = (double csi, double eta, Node[] nodi) =>
+            {
+                double x = 0;
+                for (int i = 1; i <= nds.Length; i++)
+                {
+                    x = x + LinearShapeFunctionQuad4.NaturalShapeFunction(i, csi, eta) * nodi[i - 1].Position.X;
+                }
+                return x;
+            };
+
+            Assert.AreEqual(X(-1,-1,nds), Util.GetLocalCoordinate2D("X",-1, -1, LinearShapeFunctionQuad4.NaturalShapeFunction, nds));
         }
     }
 }

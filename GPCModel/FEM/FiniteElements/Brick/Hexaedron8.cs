@@ -41,15 +41,21 @@ namespace GPC.Model.FEM.FiniteElements
         public override void BuildMatrix()
         {
             //For this element there is not advantage in setting up a local coordinate system
-            // -> local axis coincide with global axis -> ref. Finite Element Method - by Rao §11.2
-            _dofGlobalToLocal = mnl.Matrix<double>.Build.DenseDiagonal(4*3, 1.0);
+            // -> local axis coincide with global axis -> ref. Finite Element Method - by Rao
+            _dofGlobalToLocal = mnl.Matrix<double>.Build.DenseDiagonal(4*2*3, 1.0);
 
             double E = ((BrickProperty)_property).GetE();
             double ni = ((BrickProperty)_property).GetNi();
             _d = Brick.GetD(E, ni);
 
-           
-            //_kElementLocalCoord = b.Transpose() * _d * b;
+            Func<double, double, double, mnl.Matrix<double>> kFunc = (double csi, double eta, double zeta) => {
+                mnl.Matrix<double> b = GetB(csi, eta, zeta);
+                return b.Transpose() * _d * b;
+            };
+
+            var jacob = Util.J3D(TriLinearShapeFunctionHexaedron8.DNdCsi, TriLinearShapeFunctionHexaedron8.DNdEta, TriLinearShapeFunctionHexaedron8.DNdZeta, _nodesGlobal);
+
+            _kElementLocalCoord = GaussIntegration.IntegrationHexaedron(kFunc, jacob, 8);
         }
 
         /// <summary>
@@ -67,7 +73,8 @@ namespace GPC.Model.FEM.FiniteElements
             {
                 b = b.Append(GetBi(i, csi, eta, zeta, _nodesGlobal));
             }
-
+            /*Console.WriteLine("B");
+            Util.WriteMatrix(b);*/
             return b;
         }
 
@@ -86,7 +93,9 @@ namespace GPC.Model.FEM.FiniteElements
 
         protected override mnl.Vector<double> BuildFLocalCoord()
         {
-            return base.BuildFLocalCoord();
+            //read attribute and convert
+            mnl.Vector<double> local = mnl.Vector<double>.Build.Dense(8 * 3);
+            return local;
         }
         /// <summary>
         /// Eq. 11.21 - Finite element method by Rao
@@ -130,8 +139,10 @@ namespace GPC.Model.FEM.FiniteElements
             bi[4, 1] = dNdZ;
             bi[4, 2] = dNdY;
 
-            bi[5, 1] = dNdZ;
+            bi[5, 0] = dNdZ;
             bi[5, 2] = dNdX;
+            /*Console.WriteLine("b"+i);
+            Util.WriteMatrix(bi,"F3");*/
             return bi;
         }
     }

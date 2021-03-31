@@ -18,17 +18,6 @@ namespace FemTest.Solver
     public class FemSolverTestGeneral
     {
         [TestMethod]
-        public void EqualsNodesTest1()
-        {
-            //Node in same place with different ID
-            Node n1 = new Node(0.0, 0, 0, 1);
-            Node n2 = new Node(0.0, 0, 0, 2);
-
-            //controllo equals nodi
-            Assert.IsFalse(n1.Equals(n2));
-        }
-
-        [TestMethod]
         public void EqualsFiniteElementTest1()
         {
             Material mat = new SteelMaterial("steel", 200000, 0.2, 355, 510, 7850);

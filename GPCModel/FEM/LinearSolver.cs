@@ -418,14 +418,7 @@ namespace GPC.Model.FEM
                 }
             }
             Console.WriteLine("kGlobal System + Restrains + Constrains:");
-            for (int row = 0; row < _KGlobalRestrains.RowCount; row++)
-            {
-                for (int col = 0; col < _KGlobalRestrains.ColumnCount; col++)
-                {
-                    Console.Write(_KGlobalRestrains[row, col].ToString("F2") + " ");
-                }
-                Console.WriteLine();
-            }
+            Util.WriteMatrix(_KGlobalRestrains, "F3");
             //Console.WriteLine("Fmodified(Restrains + Constrains) = " + _FRestrains.ToString());
             #endregion
 
@@ -433,8 +426,6 @@ namespace GPC.Model.FEM
             //Solve Matrix
             _nodeGlobalDisplacement = _KGlobalRestrains.Solve(_FRestrains);
             Console.WriteLine("Node displacements results:");
-
-            //_nodeGlobalDisplacement.ToList().ForEach(x => Console.WriteLine(x));
 
             for (int i = 0; i < _nodeGlobalDisplacement.Count; i++)
             {

@@ -79,6 +79,8 @@ namespace GPC.Model.FEM.FiniteElements
 
             d[5, 5] = (1.0 - 2.0 * poisson) / 2.0;
 
+            /*Console.WriteLine("D");
+            Util.WriteMatrix(factor * d);*/
             return factor * d;
         }
     }
