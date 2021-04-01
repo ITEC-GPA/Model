@@ -47,6 +47,19 @@ namespace GPC.Model.FEM.Attributes
             _coordinateSystem = cSys;
         }
 
+        public NodeForceAttribute(NodeForceAttribute nodeForceAttribute)
+            : base(nodeForceAttribute)
+        {
+            _f1 = nodeForceAttribute._f1;
+            _f2 = nodeForceAttribute._f2;
+            _f3 = nodeForceAttribute._f3;
+            _m1 = nodeForceAttribute._m1;
+            _m2 = nodeForceAttribute._m2;
+            _m3 = nodeForceAttribute._m3;
+            _coordinateSystem = nodeForceAttribute._coordinateSystem;
+        }
+
+
         public NodeForceAttribute(SerializationInfo info, StreamingContext context) : base(info, context)
         {
             _f1 = info.GetDouble("F1");
@@ -106,6 +119,11 @@ namespace GPC.Model.FEM.Attributes
             hashCode = hashCode * -17 + _m3.GetHashCode();
             hashCode = hashCode * -17 + EqualityComparer<CoordinateSystem>.Default.GetHashCode(_coordinateSystem);
             return hashCode;
+        }
+
+        public override object Clone()
+        {
+            return new NodeForceAttribute(this);
         }
 
         #region Override Operator

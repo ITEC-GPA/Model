@@ -1,4 +1,5 @@
 ﻿using GPC.Model.Materials;
+using GPC.TestUtilities;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Generic;
@@ -6,15 +7,17 @@ using System.Collections.Generic;
 namespace ModelObjectTest
 {
     [TestClass]
-    public class InterlayerMaterialTest
+    public class InterlayerMaterialTest : UnitTestBase
     {
         private static double[] _loadDuration;
         private static double[] _temperatures;
         private static double[][] _shearModules;
 
-        [ClassInitialize]
-        public static void ClassInitialize(TestContext context)
+        [TestInitialize]
+        public override void TestInitialize()
         {
+            base.TestInitialize();
+
             _loadDuration = new double[6] { 3, 40, 60, 100, 900, 700 }; // Non in ordine
             _temperatures = new double[5] { 1, 20, 60, 50, 40 }; // Non in ordine
 
@@ -25,18 +28,6 @@ namespace ModelObjectTest
                                               new double[5] { 7, 70, 70000, 7000, 700},
                                               new double[5] { 8, 80, 80000, 8000, 800},
                                             };
-        }
-
-        [TestInitialize]
-        public void TestInitialize()
-        {
-            // Nothing
-        }
-
-        [TestCleanup]
-        public void CleanUp()
-        {
-            // Nothing
         }
 
         [TestMethod]
@@ -56,7 +47,7 @@ namespace ModelObjectTest
             Console.WriteLine(message);
             Assert.IsTrue(result == expected, message);
         }
-        
+
         [TestMethod]
         public void ShearModulus2()
         {
@@ -91,7 +82,6 @@ namespace ModelObjectTest
             List<double> temperatureExpected = new List<double>(_temperatures);
             temperatureExpected.Sort();
 
-
             for (int i = 0; i < temperatureExpected.Count; i++)
             {
                 if (temperatureExpected[i] != temperatures[i])
@@ -114,7 +104,6 @@ namespace ModelObjectTest
 
             List<double> loadDurationseExpected = new List<double>(_loadDuration);
             loadDurationseExpected.Sort();
-
 
             for (int i = 0; i < loadDurationseExpected.Count; i++)
             {

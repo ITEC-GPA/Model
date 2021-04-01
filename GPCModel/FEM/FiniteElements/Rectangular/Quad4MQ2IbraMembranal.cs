@@ -17,7 +17,7 @@ namespace GPC.Model.FEM.FiniteElements
         Node[] _localNodes;
         #endregion
 
-        public Quad4MQ2IbraMembranal(Node[] nodes, PlateProperty property, int id) : base(nodes, property, id)
+        public Quad4MQ2IbraMembranal(Node[] nodes) : base(nodes)
         {
             _DOF.Add(LinearSolver.DOF.DX);
             _DOF.Add(LinearSolver.DOF.DY);
@@ -33,6 +33,15 @@ namespace GPC.Model.FEM.FiniteElements
 
             //DofGlobalToLocal^T * kLocal * DofGlobalToLocal
             //   [24x12]           [12x12]     [12x24]
+        }
+
+        /// <summary>
+        /// This constructor to be used ONLY for debugging purpose. Use <see cref="FiniteElement.SetProperty(ElementProperty)"/> or <see cref="FEMObject.SetId(int)"/> instead
+        /// </summary>
+        internal Quad4MQ2IbraMembranal(Node[] nodes, PlateProperty property, int id) : base(nodes)
+        {
+            SetProperty(property);
+            SetId(id);
         }
 
         public override void BuildMatrix()

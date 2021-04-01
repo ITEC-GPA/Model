@@ -10,49 +10,39 @@ namespace GPC.Model.FEM
     [Serializable]
     public abstract class FEMObject : Element, ISerializable
     {
+        /// <remarks>
+        /// Public setter not available, in the same assembly you can use <see cref="SetId(int)"/> otherwise you can not set the id of a <see cref="FEMObject"/>
+        /// </remarks>
+        /// <exception cref="NotSupportedException"></exception>
+        public override int Id { get => base.Id; set => throw new NotSupportedException($"Public setter not available, use method {nameof(SetId)}"); }
 
-        private Dictionary<Stage, bool> _activeStages;
-
-
-        public FEMObject(int id) 
-            : this(id, string.Empty)
+        public FEMObject() 
+            : this(string.Empty)
         {
 
         }
 
-        public FEMObject(int id, string name) 
+        public FEMObject(string name) 
             : base(Guid.NewGuid(), name)
         {
-            base.SetId(id);
-            _activeStages = new Dictionary<Stage, bool>();
+
         }
 
         public FEMObject(SerializationInfo info, StreamingContext context) 
             : base(info, context)
         {
-            _activeStages = (Dictionary<Stage, bool>)info.GetValue("ActiveStage", typeof(Dictionary<Stage, bool>));
+
         }
 
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             base.GetObjectData(info, context);
-            info.AddValue("ActiveStage", _activeStages);
         }
 
-        public bool IsStageActive(Stage stage)
-        {
-            if (!_activeStages.ContainsKey(stage))
-                return false;
 
-            return _activeStages[stage];
-        }
-
-        public void SetStageActive(Stage stage, bool active)
+        internal void SetId(int id)
         {
-            if (_activeStages.ContainsKey(stage))
-                _activeStages[stage] = active;
-            else
-                _activeStages.Add(stage, active);
+            base.Id = id;
         }
 
         #region Equals, hascode, operators, 
@@ -65,8 +55,7 @@ namespace GPC.Model.FEM
 
             FEMObject objCasted = obj as FEMObject;
 
-            return !(objCasted is null) && _activeStages.ScrambledEquals(objCasted._activeStages)
-                                        && base.Equals(objCasted);
+            return !(objCasted is null) && base.Equals(objCasted);
         }
 
         public override int GetHashCode()
@@ -74,17 +63,9 @@ namespace GPC.Model.FEM
             int hashCode = -23;
             hashCode = hashCode * -17 + base.GetHashCode();
 
-            if (_activeStages.Count > 0)
-            {
-                foreach (var kvp in _activeStages)
-                {
-                    hashCode = hashCode + EqualityComparer<Stage>.Default.GetHashCode(kvp.Key);
-                    hashCode = hashCode + EqualityComparer<bool>.Default.GetHashCode(kvp.Value);
-                }
-            }
-
             return hashCode;
         }
+
 
         public static bool operator ==(FEMObject obj1, FEMObject obj2)
         {
@@ -100,44 +81,73 @@ namespace GPC.Model.FEM
         public static bool operator !=(FEMObject obj1, FEMObject obj2)
         {
             return !(obj1 == obj2);
-        } 
+        }
+
         #endregion
-    }
 
-
-    /// <summary>
-    /// Custom equality comparer that compare two <see cref="FEMObject"/> using also the <see cref="Element.Id"/>
-    /// </summary>
-    public class FemObjectIdComparer : IEqualityComparer<FEMObject>
-    {
-        public bool Equals(FEMObject x, FEMObject y)
+        /// <summary>
+        /// Custom Equality comparer that compare two <see cref="FEMObject"/> adding also the <see cref="Element.Id"/> as an equality parameter
+        /// </summary>
+        public class FemObjectWithIdComparer : IEqualityComparer<FEMObject>
         {
-            if (ReferenceEquals(x, y))
-                return true;
+            public bool Equals(FEMObject x, FEMObject y)
+            {
+                if (ReferenceEquals(x, y))
+                    return true;
 
-            if (x == null && y == null)
-                return true;
+                if (x == null && y == null)
+                    return true;
 
-            if (x == null || y == null)
+                if (x == null || y == null)
+                    return false;
+
+                if (x.Equals(y) && x.Id == y.Id)
+                    return true;
+
                 return false;
+            }
 
-            if (x.Equals(y) && x.Id == y.Id)
-                return true;
 
-            return false;
+            public int GetHashCode(FEMObject obj)
+            {
+                int hashCode = -23 * -17 + base.GetHashCode();
+
+                hashCode = hashCode + obj.GetHashCode();
+
+                hashCode = hashCode + obj.Id.GetHashCode();
+
+                return hashCode;
+            }
         }
 
 
-        public int GetHashCode(FEMObject obj)
+        /// <summary>
+        /// Custom equality comparer that compare two <see cref="FEMObject"/> using only the <see cref="Element.Id"/> as an equality parameter
+        /// </summary>
+        public class FemObjectOnlyIdComparer : IEqualityComparer<FEMObject>
         {
-            int hashCode = -23 * -17 + base.GetHashCode();
+            public bool Equals(FEMObject x, FEMObject y)
+            {
+                if (x == null && y == null)
+                    return true;
 
-            hashCode = hashCode + obj.GetHashCode();
+                if (x == null || y == null)
+                    return false;
 
-            hashCode = hashCode + obj.Id.GetHashCode();
+                if (x.Id == y.Id)
+                    return true;
 
-            return hashCode;
+                return false;
+            }
+
+            public int GetHashCode(FEMObject obj)
+            {
+                int hashCode = -23 * -17 + base.GetHashCode();
+
+                hashCode = hashCode + obj.Id.GetHashCode();
+
+                return hashCode;
+            }
         }
     }
-
 }

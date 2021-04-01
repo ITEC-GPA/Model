@@ -29,7 +29,7 @@ namespace GPC.Model.Sections
         #endregion
 
         #region Public Constructors
-        public SectionCHS(double dext, double t, Material material, bool isColdFormed = true) : base(material)
+        public SectionCHS(double dext, double t, Material material, string name, bool isColdFormed = true) : base(material, name)
         {
             #region check_inputs
             if (t > dext/2.0)

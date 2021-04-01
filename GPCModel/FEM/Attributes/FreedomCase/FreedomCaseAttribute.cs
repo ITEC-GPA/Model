@@ -28,12 +28,26 @@ namespace GPC.Model.FEM.Attributes
         {
             _freedomCase = freedomCase ?? throw new ArgumentNullException(nameof(freedomCase));
         }
+        
+
+
+        public FreedomCaseAttribute(FreedomCaseAttribute freedomCaseAttribute)
+            : base(freedomCaseAttribute.Guid, freedomCaseAttribute._name)
+        {
+            _freedomCase = freedomCaseAttribute._freedomCase;
+        }
+
+
+
 
         protected FreedomCaseAttribute(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
             _freedomCase = (FreedomCase)info.GetValue("FreedomCase", typeof(FreedomCase));
         }
+
+
+
 
         public override bool Equals(object obj)
         {

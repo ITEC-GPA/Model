@@ -38,11 +38,11 @@
     <Reference Include="GMsh.Net, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\GMsh.Net.1.0.0.1\lib\net472\GMsh.Net.dll</HintPath>
     </Reference>
-    <Reference Include="GPCGeometry, Version=1.0.6.4, Culture=neutral, processorArchitecture=AMD64">
-      <HintPath>..\packages\GPCGeometry.1.0.6.4\lib\net472\GPCGeometry.dll</HintPath>
+    <Reference Include="GPCGeometry, Version=1.0.6.8, Culture=neutral, processorArchitecture=AMD64">
+      <HintPath>..\packages\GPCGeometry.1.0.6.8\lib\net472\GPCGeometry.dll</HintPath>
     </Reference>
-    <Reference Include="GPCUtilities, Version=1.0.21.1, Culture=neutral, processorArchitecture=AMD64">
-      <HintPath>..\packages\GPCUtilities.1.0.21.1\lib\net472\GPCUtilities.dll</HintPath>
+    <Reference Include="GPCUtilities, Version=1.0.18.0, Culture=neutral, processorArchitecture=AMD64">
+      <HintPath>..\packages\GPCUtilities.1.0.18\lib\net472\GPCUtilities.dll</HintPath>
     </Reference>
     <Reference Include="MathNet.Numerics, Version=4.15.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\MathNet.Numerics.4.15.0\lib\net461\MathNet.Numerics.dll</HintPath>
@@ -63,14 +63,19 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Base\UniqueNameCollection.cs" />
+    <Compile Include="Base\ModelObjectEnumerable.cs" />
     <Compile Include="Base\UnitsSystem.cs" />
     <Compile Include="Base\Units.cs" />
     <Compile Include="Combinations\Combination.cs" />
     <Compile Include="Combinations\CombinationAsce.cs" />
     <Compile Include="Combinations\CombinationEn.cs" />
     <Compile Include="Elements\GhostElement.cs" />
-    <Compile Include="FEM\Attributes\IPlateLoadCaseAttribute.cs" />
+    <Compile Include="FEM\Attributes\IPlateFreedomCaseAttribute.cs" />
     <Compile Include="FEM\Collections\FemObjectCollection.cs" />
+    <Compile Include="FEM\Collections\FemObjectStageCollection.cs" />
+    <Compile Include="FEM\Collections\FiniteElementStageCollection.cs" />
+    <Compile Include="FEM\Collections\NodeStageCollection.cs" />
     <Compile Include="FEM\ElementProperty\BrickProperty.cs" />
     <Compile Include="FEM\ElementProperty\ElementProperty.cs" />
     <Compile Include="Elements\Element.cs" />

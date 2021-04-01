@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -11,30 +12,79 @@ using mnl = MathNet.Numerics.LinearAlgebra;
 
 namespace GPC.Model.FEM.FiniteElements
 {
+    // TODO: Classe Plate: farla diventare abstract
+    /// <summary>
+    /// Va messa abstract una volta che è stabile il fem
+    /// </summary>
+    [DebuggerDisplay("{" + nameof(GetDebuggerDisplay) + "(),nq}")]
+    [System.ComponentModel.Description("Verrà messa abstract una volta che il fem è stabile")]
     public class Plate : FiniteElement
     {
-        protected List<IPlateLoadCaseAttribute> _attributesLoadCase;
-
         public bool IsTriangle => Nodes.Length == 3 ? true : false;
 
         public bool IsQuad => Nodes.Length == 4 ? true : false;
 
         public new PlateProperty Property => (PlateProperty)_property;
 
-        public List<IPlateLoadCaseAttribute> AttributesLoadCase => _attributesLoadCase;
 
-
-        public Plate(Node[] nodes, PlateProperty property, int id) 
-            : base (nodes, property, id)
+        public Plate(Node[] nodes) : base(nodes)
         {
-            _attributesLoadCase = new List<IPlateLoadCaseAttribute>();
+
+        }
+
+        /// <summary>
+        /// This constructor to be used only for debugging purpose. Use setproperty or setid instead
+        /// </summary>
+        internal Plate(Node[] nodes, PlateProperty property, int id) : base(nodes)
+        {
+            SetProperty(property);
+            SetId(id);
         }
 
 
-        public virtual void AddAttribute(IPlateLoadCaseAttribute attribute)
+        public override FiniteElement Duplicate(ElementProperty property, List<LoadCaseAttribute> lcAttributes, List<FreedomCaseAttribute> fdAttributes)
         {
-            _attributesLoadCase.Add(attribute);
+            var plate = new Plate(_nodesGlobal);
+            plate.SetProperty(property);
+            plate.SetId(Id);
+
+            if(lcAttributes != null)
+            { 
+                foreach(LoadCaseAttribute attribute in lcAttributes)
+                { 
+                    if (attribute is IPlateLoadCaseAttribute plca)
+                    {
+                        plate.AddLoadCaseAttribute(plca);
+                    }
+                } 
+            }
+
+            if (fdAttributes != null)
+            {
+                foreach (FreedomCaseAttribute attribute in fdAttributes)
+                {
+                    if (attribute is IPlateFreedomCaseAttribute pfca)
+                    {
+                        plate.AddFreedomCaseAttribute(pfca);
+                    }
+                }
+            }
+
+            return plate;
         }
+
+
+        public virtual void AddLoadCaseAttribute(IPlateLoadCaseAttribute attribute)
+        {
+            _attributesLoadCase.Add((LoadCaseAttribute)attribute);
+        }
+
+
+        public virtual void AddFreedomCaseAttribute(IPlateFreedomCaseAttribute attribute)
+        {
+            _attributesFreedomCase.Add((FreedomCaseAttribute)attribute);
+        }
+
 
         protected override mnl.Vector<double> BuildFLocalCoord()
         {
@@ -60,6 +110,13 @@ namespace GPC.Model.FEM.FiniteElements
         {
             throw new NotImplementedException();
         }
+
+        private string GetDebuggerDisplay()
+        {
+            return $"Plate, Id: {Id}, PropertyName: {Property.Name}";
+        }
+
+
 
         // GetNodalDisplacement()
 

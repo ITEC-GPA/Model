@@ -1,11 +1,12 @@
 ﻿using GPC.Model;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
+using GPC.TestUtilities;
 
 namespace UnitSystemTest
 {
     [TestClass]
-    public class UnitsTest
+    public class UnitsTest  : UnitTestBase
     {
         [TestMethod]
         public void ConvertLength()

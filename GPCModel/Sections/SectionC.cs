@@ -32,7 +32,7 @@ namespace GPC.Model.Sections
         public Plate[] Plates => _plates;
         #endregion
 
-        public SectionC(double h, double tw, double LTop, double tTop, double LBottom, double tBottom, Material material) : base(material)
+        public SectionC(double h, double tw, double LTop, double tTop, double LBottom, double tBottom, Material material, string name) : base(material, name)
         {
             _hw = h - tBottom - tTop;
             _h = h;
@@ -97,7 +97,7 @@ namespace GPC.Model.Sections
                     if (_area/2.0 > _h * _tw)
                     {
                         double hDown = _area / 2.0 / (_tTop + _tBottom);
-                        SectionT secTop = new SectionT(_lengthBottom - hDown, _h, _tBottom + _tTop, _tw, material);
+                        SectionT secTop = new SectionT(_lengthBottom - hDown, _h, _tBottom + _tTop, _tw, material, string.Empty);
                         _wpl11 = _area / 2.0 * (hDown/2.0 + secTop.Centroid.Y);
                     } else
                     {
@@ -110,8 +110,8 @@ namespace GPC.Model.Sections
                     if (_area/2.0 > _tTop * _lengthTop)
                     {
                         double hTop = _tTop + (_area / 2.0 - _tTop * _lengthTop) / _tw;
-                        SectionT secTop = new SectionT(hTop, _lengthTop, _tw, _tTop, material);
-                        SectionT secBottom = new SectionT(_h - hTop, _lengthBottom, _tw, _tBottom, material);
+                        SectionT secTop = new SectionT(hTop, _lengthTop, _tw, _tTop, material, string.Empty);
+                        SectionT secBottom = new SectionT(_h - hTop, _lengthBottom, _tw, _tBottom, material, string.Empty);
                         _wpl22 = _area / 2.0 * (secTop.Centroid.Y + secBottom.Centroid.Y);
                     }
                     else

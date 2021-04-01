@@ -20,7 +20,7 @@ namespace GPC.Model.FEM.FiniteElements
         public override mnl.Matrix<double> KElementGlobalCoord => _kElementGlobalCoord;
         #endregion
 
-        public Tri3Element(Node[] nodes, PlateProperty property, int id) : base(nodes, property, id)
+        public Tri3Element(Node[] nodes) : base(nodes)
         {
             DOF.Add(LinearSolver.DOF.DX);
             DOF.Add(LinearSolver.DOF.DY);
@@ -30,8 +30,8 @@ namespace GPC.Model.FEM.FiniteElements
             DOF.Add(LinearSolver.DOF.RZ);
 
             //kElementGlobal = 3 * 6 = 18x18
-            _membranal = new Tri3PlaneStress(nodes, property, id);
-            _flexural = new Tri3DK(nodes, property, id);
+            _membranal = new Tri3PlaneStress(nodes);
+            _flexural = new Tri3DK(nodes);
         }
 
         public override void BuildMatrix()
@@ -208,12 +208,12 @@ namespace GPC.Model.FEM.FiniteElements
             return f;
         }
 
-        public override void AddAttribute(IPlateLoadCaseAttribute attribute)
+        public override void AddLoadCaseAttribute(IPlateLoadCaseAttribute attribute)
         {
             //the attribute will add to the 2 finite element, Membrane and Discrete Kirchoff (DK). The attribute will have its impact in each finite element.
             //The nodal forces will be added
-            _membranal.AddAttribute(attribute);
-            _flexural.AddAttribute(attribute);
+            _membranal.AddLoadCaseAttribute(attribute);
+            _flexural.AddLoadCaseAttribute(attribute);
         }
 
         public override void GetNodesResults(double[] globalDisplacementsNodes, out double[] localDisplacements, out mnl.Matrix<double>[] globalPseudoDeformation, out mnl.Matrix<double>[] localPseudoDeformation, out mnl.Matrix<double>[] globalForces, out mnl.Matrix<double>[] localForces, out mnl.Matrix<double>[] globalStress, out mnl.Matrix<double>[] localStress, out mnl.Matrix<double>[] globalEpsilon, out mnl.Matrix<double>[] localEpsilon)
@@ -399,9 +399,9 @@ namespace GPC.Model.FEM.FiniteElements
             Vector3d v13 = new Vector3d(nodeK.Position.X - nodeI.Position.X, nodeK.Position.Y - nodeI.Position.Y, nodeK.Position.Z - nodeI.Position.Z);
 
             Node[] localNodes = new Node[3];
-            localNodes[0] = new Node(0.0, 0, 0, nodeI.Id, nodeI.Name); //Origin GlobalNodes.ElementAt(1 - 1);
-            localNodes[1] = new Node(v12.DotProduct(vecx), v12.DotProduct(vecy), v12.DotProduct(vecz), nodeJ.Id, nodeJ.Name); //Axis x GlobalNodes.ElementAt(2 - 1);
-            localNodes[2] = new Node(v13.DotProduct(vecx), v13.DotProduct(vecy), v13.DotProduct(vecz), nodeK.Id, nodeK.Name); //GlobalNodes.ElementAt(3 - 1);
+            localNodes[0] = new Node(Point3d.Origin, nodeI.Name, nodeI.Id); //Origin GlobalNodes.ElementAt(1 - 1);
+            localNodes[1] = new Node(v12.DotProduct(vecx), v12.DotProduct(vecy), v12.DotProduct(vecz), nodeJ.Name, nodeJ.Id); //Axis x GlobalNodes.ElementAt(2 - 1);
+            localNodes[2] = new Node(v13.DotProduct(vecx), v13.DotProduct(vecy), v13.DotProduct(vecz), nodeK.Name, nodeJ.Id); //GlobalNodes.ElementAt(3 - 1);
             #endregion
             return localNodes;
         }

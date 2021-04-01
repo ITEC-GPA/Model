@@ -39,6 +39,14 @@ namespace GPC.Model.FEM.Attributes
             _coordinateSystem = coordinateSystem;
         }
 
+        public NodeStiffnessAttribute(NodeStiffnessAttribute nodeStiffnessAttribute)
+            : base(nodeStiffnessAttribute.FreedomCase, nodeStiffnessAttribute.Name, nodeStiffnessAttribute.Guid)
+        {
+            _stiffness = nodeStiffnessAttribute._stiffness;
+            _coordinateSystem = nodeStiffnessAttribute.CoordinateSystem;
+        }
+
+
         protected NodeStiffnessAttribute(SerializationInfo info, StreamingContext context) 
             : base(info, context)
         {
@@ -93,6 +101,11 @@ namespace GPC.Model.FEM.Attributes
             hashCode = hashCode * -17 + EqualityComparer<List<DofRestrain>>.Default.GetHashCode(_stiffness);
             hashCode = hashCode * -17 + EqualityComparer<CoordinateSystem>.Default.GetHashCode(_coordinateSystem);
             return hashCode;
+        }
+
+        public override object Clone()
+        {
+            return new NodeStiffnessAttribute(this);
         }
     }
 }

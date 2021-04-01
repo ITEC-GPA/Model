@@ -28,24 +28,29 @@ namespace GPC.Model.FEM.Properties
 
         #region Public Constructors
 
+
         /// <summary>
         /// <param name="bendingThickness"> Bending thickness</param>
         /// <param name="membraneThickness"> Membranal thickness</param>
         /// </summary>
-        public PlateProperty(Material material, double bendingThickness, double membraneThickness)
-            : base(Guid.NewGuid())
+        internal PlateProperty(Material material, double bendingThickness, double membraneThickness)
+            : this(material, bendingThickness, membraneThickness, string.Empty)
+        {
+            // Internal perchè per il fem il nome è un requisito obbligatorio
+        }
+
+        /// <summary>
+        /// <param name="bendingThickness"> Bending thickness</param>
+        /// <param name="membraneThickness"> Membranal thickness</param>
+        /// </summary>
+        public PlateProperty(Material material, double bendingThickness, double membraneThickness, string name)
+            : base(name, Guid.NewGuid())
         {
             _bendingThickness = bendingThickness;
             _membraneThickness = membraneThickness;
             _material = material ?? throw new ArgumentNullException("Plate property material cannot be null");
         }
 
-        protected PlateProperty(double tb, double tm)
-            : base(Guid.NewGuid())
-        {
-            _bendingThickness = tb;
-            _membraneThickness = tm;
-        }
 
         public PlateProperty(SerializationInfo info, StreamingContext context)
             : base(info, context)

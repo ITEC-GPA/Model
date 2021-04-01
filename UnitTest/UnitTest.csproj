@@ -44,11 +44,16 @@
     <Reference Include="GMsh.Net, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\GMsh.Net.1.0.0.1\lib\net472\GMsh.Net.dll</HintPath>
     </Reference>
-    <Reference Include="GPCGeometry, Version=1.0.6.4, Culture=neutral, processorArchitecture=AMD64">
-      <HintPath>..\packages\GPCGeometry.1.0.6.4\lib\net472\GPCGeometry.dll</HintPath>
+    <Reference Include="GPCGeometry, Version=1.0.6.8, Culture=neutral, processorArchitecture=AMD64">
+      <HintPath>..\packages\GPCGeometry.1.0.6.8\lib\net472\GPCGeometry.dll</HintPath>
     </Reference>
+    <Reference Include="GPCTestUtilities, Version=1.0.0.4, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\GPCTestUtilities.1.0.0.4\lib\net472\GPCTestUtilities.dll</HintPath>
     <Reference Include="GPCUtilities, Version=1.0.21.1, Culture=neutral, processorArchitecture=AMD64">
       <HintPath>..\packages\GPCUtilities.1.0.21.1\lib\net472\GPCUtilities.dll</HintPath>
+    </Reference>
+    <Reference Include="GPCUtilities, Version=1.0.20.0, Culture=neutral, processorArchitecture=AMD64">
+      <HintPath>..\packages\GPCUtilities.1.0.20\lib\net472\GPCUtilities.dll</HintPath>
     </Reference>
     <Reference Include="MathNet.Numerics, Version=4.15.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\MathNet.Numerics.4.15.0\lib\net461\MathNet.Numerics.dll</HintPath>
@@ -57,10 +62,10 @@
       <HintPath>..\packages\MathNet.Spatial.0.6.0\lib\net461\MathNet.Spatial.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.VisualStudio.TestPlatform.TestFramework, Version=14.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
-      <HintPath>..\packages\MSTest.TestFramework.2.1.2\lib\net45\Microsoft.VisualStudio.TestPlatform.TestFramework.dll</HintPath>
+      <HintPath>..\packages\MSTest.TestFramework.2.2.3\lib\net45\Microsoft.VisualStudio.TestPlatform.TestFramework.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.VisualStudio.TestPlatform.TestFramework.Extensions, Version=14.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
-      <HintPath>..\packages\MSTest.TestFramework.2.1.2\lib\net45\Microsoft.VisualStudio.TestPlatform.TestFramework.Extensions.dll</HintPath>
+      <HintPath>..\packages\MSTest.TestFramework.2.2.3\lib\net45\Microsoft.VisualStudio.TestPlatform.TestFramework.Extensions.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -98,6 +103,9 @@
     <Compile Include="PerformanceTest.cs" />
     <Compile Include="FemModelTest.cs" />
     <Compile Include="UnitsTest.cs" />
+    <Compile Include="FemObjectCollectionsTest.cs" />
+    <Compile Include="StagesTest.cs" />
+    <Compile Include="ModelObjectCollectionTest.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

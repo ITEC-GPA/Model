@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using GPC.Model.Elements;
+using GPC.Model.FEM.Attributes;
 using GPC.Model.FEM.Properties;
 using GPC.Model.Materials;
 using MathNet.Numerics.LinearAlgebra;
@@ -13,7 +14,7 @@ namespace GPC.Model.FEM.FiniteElements
 {
     public class Brick : FiniteElement
     {
-        public Brick(Node[] nodes, BrickProperty property, int id) : base(nodes, property, id) { }
+        public Brick(Node[] nodes) : base(nodes) { }
 
         /// <summary>
         /// Convert attribute in node forces
@@ -82,6 +83,11 @@ namespace GPC.Model.FEM.FiniteElements
             /*Console.WriteLine("D");
             Util.WriteMatrix(factor * d);*/
             return factor * d;
+        }
+
+        public override FiniteElement Duplicate(ElementProperty property, List<LoadCaseAttribute> attributes, List<FreedomCaseAttribute> fdAttributes)
+        {
+            throw new NotImplementedException();
         }
     }
 }

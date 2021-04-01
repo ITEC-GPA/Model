@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using System;
 using GPC.Geometry;
 using GPC.Model.Elements;
 using GPC.Model.FEM.Properties;
@@ -26,10 +27,16 @@ namespace GPC.Model.FEM.FiniteElements
         //contains Material information of the element
         protected mnl.Matrix<double> _d;
         //contains informations about section, thickness, material etc of the element
+
+
+        protected List<LoadCaseAttribute> _attributesLoadCase;
+        protected List<FreedomCaseAttribute> _attributesFreedomCase;
+
         protected ElementProperty _property;
 
         //contains the nodes in global coordinates
         protected Node[] _nodesGlobal;
+
         #endregion
 
         #region Properties
@@ -95,6 +102,10 @@ namespace GPC.Model.FEM.FiniteElements
         /// ke = int [B]^T [D] [B] dV (stiffness matrix in local coordinates)
         /// </summary>
         public mnl.Matrix<double> KElementLocalCoord => _kElementLocalCoord;
+        
+        public List<LoadCaseAttribute> AttributesLoadCase => _attributesLoadCase;
+        public List<FreedomCaseAttribute> AttributesFreedomCase => _attributesFreedomCase;
+
         #endregion
 
         #region Constructor
@@ -103,17 +114,30 @@ namespace GPC.Model.FEM.FiniteElements
         ///  
         /// </summary>
         /// <param name="nodes">Nodes of the element</param>
-        /// <param name="id">id of element</param>
-        public FiniteElement(Node[] nodes, ElementProperty property, int id) : base(id)
+        internal FiniteElement(Node[] nodes) : base()
         {
             _nodesGlobal = nodes;
-            _property = property;
             _DOF = new SortedSet<LinearSolver.DOF>();
+            _attributesLoadCase = new List<LoadCaseAttribute>();
+            _attributesFreedomCase = new List<FreedomCaseAttribute>();
         }
 
         #endregion
 
         #region PublicFunction
+
+        internal void SetProperty(ElementProperty property)
+        {
+            if (property is null)
+                throw new ArgumentNullException(nameof(property));
+
+            _property = property;
+        }
+
+
+        public abstract FiniteElement Duplicate(ElementProperty property, List<LoadCaseAttribute> lcAttributes, List<FreedomCaseAttribute> fcAttributes);
+
+
         /// <summary>
         /// Build Stiffness Matrix etc
         /// </summary>
@@ -131,7 +155,6 @@ namespace GPC.Model.FEM.FiniteElements
             
             return F;
         }
-
 
         /// <summary>
         /// Retrieve sigma, epsilon, N, M, etc in the element from displacement
@@ -161,12 +184,13 @@ namespace GPC.Model.FEM.FiniteElements
             return Nodes.Select(i => i.Id).ToArray();
         }
 
+
         public override bool Equals(object obj)
         {
             return obj is FiniteElement element &&
                    base.Equals(obj) &&
                    EqualityComparer<ElementProperty>.Default.Equals(_property, element._property) &&
-                   EqualityComparer<Node[]>.Default.Equals(Nodes, element.Nodes);
+                   Nodes.SequenceEqual(element.Nodes);
         }
 
         public override int GetHashCode()
@@ -174,9 +198,14 @@ namespace GPC.Model.FEM.FiniteElements
             int hashCode = 1596002646;
             hashCode = hashCode * -1521134295 + base.GetHashCode();
             hashCode = hashCode * -1521134295 + EqualityComparer<ElementProperty>.Default.GetHashCode(_property);
-            hashCode = hashCode * -1521134295 + EqualityComparer<Node[]>.Default.GetHashCode(Nodes);
+
+            foreach (var node in _nodesGlobal)
+            {
+                hashCode = hashCode + EqualityComparer<Node>.Default.GetHashCode(node);
+            }
             return hashCode;
         }
+
         #endregion
     }
 }
