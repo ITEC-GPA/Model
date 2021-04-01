@@ -32,9 +32,9 @@ namespace FemTest.Solver
             PlateProperty prop = new PlateProperty(mat, thickness, thickness, "p");
 
             List<Node> nodes = new List<Node>();
-            nodes.Add(new Node(1, 0.0, 0.0));
-            nodes.Add(new Node(2, 1.0, 0.0));
-            nodes.Add(new Node(3, 0.0, 1.0));
+            nodes.Add(new Node(0.0, 0.0, 0.0));
+            nodes.Add(new Node(1.0, 0.0, 0.0));
+            nodes.Add(new Node(0.0, 1.0, 0.0));
 
             FreedomCase fc = new FreedomCase("fc1");
             CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
@@ -94,10 +94,10 @@ namespace FemTest.Solver
             PlateProperty prop = new PlateProperty(mat, thickness, thickness, "p");
 
             List<Node> nodes = new List<Node>();
-            nodes.Add(new Node(1, 0.0, 0.0));
-            nodes.Add(new Node(2, 1.0, 0.0));
-            nodes.Add(new Node(3, 0.0, 1.0));
-            nodes.Add(new Node(4, 1.0, 1.0));
+            nodes.Add(new Node(0.0, 0.0, 0.0));
+            nodes.Add(new Node(1.0, 0.0, 0.0));
+            nodes.Add(new Node(0.0, 1.0, 0.0));
+            nodes.Add(new Node(1.0, 1.0, 0.0));
 
             FreedomCase fc = new FreedomCase("fc1");
             CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
@@ -162,15 +162,15 @@ namespace FemTest.Solver
             PlateProperty prop = new PlateProperty(mat, thickness, thickness, "p");
 
             List<Node> nodes = new List<Node>();
-            nodes.Add(new Node(1, 0.0,  1.0));
-            nodes.Add(new Node(2, 32.0, 1.0));
-            nodes.Add(new Node(3, 0.0,  2.0));
-            nodes.Add(new Node(4, 32.0, 2.0));
-            nodes.Add(new Node(5, 0.0,  0.0));
-            nodes.Add(new Node(6, 32.0, 0.0));
-            nodes.Add(new Node(7, 16.0, 1.0));
-            nodes.Add(new Node(8, 16.0, 2.0));
-            nodes.Add(new Node(9, 16.0, 0.0));
+            nodes.Add(new Node(0.0, 1.0, 0.0));
+            nodes.Add(new Node(32.0, 1.0, 0.0));
+            nodes.Add(new Node(0.0, 2.0, 0.0));
+            nodes.Add(new Node(32.0, 2.0, 0.0));
+            nodes.Add(new Node(0.0, 0.0, 0.0));
+            nodes.Add(new Node(32.0, 0.0, 0.0));
+            nodes.Add(new Node(16.0, 1.0, 0.0));
+            nodes.Add(new Node(16.0, 2.0, 0.0));
+            nodes.Add(new Node(16.0, 0.0, 0.0));
 
             FreedomCase fc = new FreedomCase("fc1");
             CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
