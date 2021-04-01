@@ -18,25 +18,6 @@ namespace FemTest.Solver
     public class FemSolverTestGeneral
     {
         [TestMethod]
-        public void EqualsFiniteElementTest1()
-        {
-            Material mat = new SteelMaterial("steel", 200000, 0.2, 355, 510, 7850);
-            PlateProperty prop = new PlateProperty(mat,0,1);
-
-            //Node in same place with different ID
-            Node[] nodes = new Node[3];
-            nodes[0] = new Node(0.0, 0, 0, 1);
-            nodes[1] = new Node(1.0, 0, 0, 2);
-            nodes[2] = new Node(0.0, 1, 0, 3);
-
-            FiniteElement el0 = new Tri3PlaneStress(nodes, prop, 0);
-            FiniteElement el1 = new Tri3PlaneStress(nodes, prop, 1);
-
-            //Controllo equals elementi
-            Assert.IsFalse(el0.Equals(el1));
-        }
-
-        [TestMethod]
         public void AlwaysOrderedGDL()
         {
             SortedSet<LinearSolver.DOF> unordered = new SortedSet<LinearSolver.DOF>();

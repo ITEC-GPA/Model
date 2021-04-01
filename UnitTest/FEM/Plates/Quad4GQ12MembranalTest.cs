@@ -930,6 +930,7 @@ namespace FemTest.Solver
         [TestMethod]
         public void Quad4GQ12MembranalTest6()
         {
+            //TODO: assicurarsi convergenza con + elementi
             double E = 1;
             double ni = 1.0 / 3.0;
             Material mat = new SteelMaterial("mat", E, ni, 355, 510, 7850);

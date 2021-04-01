@@ -19,6 +19,7 @@ namespace GPC.Model.FEM.FiniteElements
 
             #region
             //Controllo che per ogni nodo I vengano visti gli altri 3 in senso antiorario.
+            //TODO : assicurarsi che ordine nodi sia corretto
             //Uso formula per trovare area del triangolo, se area è positiva -> punti in senso orario, altrimenti in senso antiorario
             /*for (int i = 1; i <= 4; i++)
             {
