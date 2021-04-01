@@ -50,14 +50,14 @@ namespace FemTest.Solver
             PlateProperty prop = new PlateProperty(mat, 0, 1);
 
             List<Node> nodesPlate1 = new List<Node>();
-            nodesPlate1.Add(new Node(0.0, 0, 0, 1, "1"));
-            nodesPlate1.Add(new Node(0.0, 100, 0, 2, "2"));
-            nodesPlate1.Add(new Node(100.0, 0, 0, 3, "3"));
+            nodesPlate1.Add(new Node(0.0, 0, 0, "1"));
+            nodesPlate1.Add(new Node(0.0, 100, 0, "2"));
+            nodesPlate1.Add(new Node(100.0, 0, 0, "3"));
 
             List<Node> nodesPlate2 = new List<Node>();
-            nodesPlate2.Add(new Node(100.0, 0, 0, 2, "2"));
-            nodesPlate2.Add(new Node(0.0, 100, 0, 3, "3"));
-            nodesPlate2.Add(new Node(100.0, 100, 0, 4, "4"));
+            nodesPlate2.Add(new Node(100.0, 0, 0, "2"));
+            nodesPlate2.Add(new Node(0.0, 100, 0, "3"));
+            nodesPlate2.Add(new Node(100.0, 100, 0, "4"));
 
             List<FiniteElement> elements = new List<FiniteElement>();
 
@@ -122,9 +122,9 @@ namespace FemTest.Solver
             DZ.AddExternalRestrain(LinearSolver.DOF.DZ);
 
             List<Node> nodesPlate1 = new List<Node>();
-            Node nd1 = new Node(0.0, 0, 0, 1, "1");
-            Node nd2 = new Node(0.0, 100, 0, 2, "2");
-            Node nd3 = new Node(100.0, 0, 0, 3, "3");
+            Node nd1 = new Node(0.0, 0, 0, "1");
+            Node nd2 = new Node(0.0, 100, 0, "2");
+            Node nd3 = new Node(100.0, 0, 0, "3");
 
             nd1.AddAttribute(DXDYDZ);
             nd2.AddAttribute(DXDYDZ);
@@ -134,9 +134,9 @@ namespace FemTest.Solver
             nodesPlate1.Add(nd3);
 
             List<Node> nodesPlate2 = new List<Node>();
-            Node nd2copy = new Node(0.0, 100, 0, 2, "2");
-            Node nd3copy = new Node(100.0, 0, 0, 3, "3");
-            Node nd4 = new Node(100.0, 100, 0, 4, "4");
+            Node nd2copy = new Node(0.0, 100, 0, "2");
+            Node nd3copy = new Node(100.0, 0, 0, "3");
+            Node nd4 = new Node(100.0, 100, 0, "4");
 
             nd2copy.AddAttribute(DZ);
             nd3copy.AddAttribute(DZ);
@@ -211,9 +211,9 @@ namespace FemTest.Solver
             NodeForceAttribute fX1000 = new NodeForceAttribute(loadCase, sys, 1000, 0, 0, 0, 0, 0);
 
             List<Node> nodesPlate1 = new List<Node>();
-            Node nd1 = new Node(0.0, 0, 0, 1, "1");
-            Node nd2 = new Node(0.0, 100, 0, 2, "2");
-            Node nd3 = new Node(100.0, 0, 0, 3, "3");
+            Node nd1 = new Node(0.0, 0, 0, "1");
+            Node nd2 = new Node(0.0, 100, 0, "2");
+            Node nd3 = new Node(100.0, 0, 0, "3");
 
             nd1.AddAttribute(DXDYDZ);
             nd2.AddAttribute(DXDYDZ);
@@ -223,9 +223,9 @@ namespace FemTest.Solver
             nodesPlate1.Add(nd3);
 
             List<Node> nodesPlate2 = new List<Node>();
-            Node nd2copy = new Node(0.0, 100, 0, 2, "2");
-            Node nd3copy = new Node(100.0, 0, 0, 3, "3");
-            Node nd4 = new Node(100.0, 100, 0, 4, "4");
+            Node nd2copy = new Node(0.0, 100, 0, "2");
+            Node nd3copy = new Node(100.0, 0, 0, "3");
+            Node nd4 = new Node(100.0, 100, 0, "4");
 
             nd2copy.AddAttribute(DZ);
             nd3copy.AddAttribute(DZ);
@@ -294,9 +294,9 @@ namespace FemTest.Solver
             NodeForceAttribute f2 = new NodeForceAttribute(loadCase, sys2, 1000, -500, 0, 0, 0, 0);
 
             List<Node> nodesPlate1 = new List<Node>();
-            Node nd1 = new Node(0.0, 0, 0, 1, "1");
-            Node nd2 = new Node(0.0, 100, 0, 2, "2");
-            Node nd3 = new Node(100.0, 0, 0, 3, "3");
+            Node nd1 = new Node(0.0, 0, 0, "1");
+            Node nd2 = new Node(0.0, 100, 0, "2");
+            Node nd3 = new Node(100.0, 0, 0, "3");
 
             nd1.AddAttribute(DXDYDZ);
             nd2.AddAttribute(DXDYDZ);
@@ -306,9 +306,9 @@ namespace FemTest.Solver
             nodesPlate1.Add(nd3);
 
             List<Node> nodesPlate2 = new List<Node>();
-            Node nd2copy = new Node(0.0, 100, 0, 2, "2");
-            Node nd3copy = new Node(100.0, 0, 0, 3, "3");
-            Node nd4 = new Node(100.0, 100, 0, 4, "4");
+            Node nd2copy = new Node(0.0, 100, 0, "2");
+            Node nd3copy = new Node(100.0, 0, 0, "3");
+            Node nd4 = new Node(100.0, 100, 0, "4");
 
             nd2copy.AddAttribute(DZ);
             nd3copy.AddAttribute(DZ);

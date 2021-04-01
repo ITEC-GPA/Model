@@ -399,9 +399,9 @@ namespace GPC.Model.FEM.FiniteElements
             Vector3d v13 = new Vector3d(nodeK.Position.X - nodeI.Position.X, nodeK.Position.Y - nodeI.Position.Y, nodeK.Position.Z - nodeI.Position.Z);
 
             Node[] localNodes = new Node[3];
-            localNodes[0] = new Node(Point3d.Origin, nodeI.Name, nodeI.Id); //Origin GlobalNodes.ElementAt(1 - 1);
-            localNodes[1] = new Node(v12.DotProduct(vecx), v12.DotProduct(vecy), v12.DotProduct(vecz), nodeJ.Name, nodeJ.Id); //Axis x GlobalNodes.ElementAt(2 - 1);
-            localNodes[2] = new Node(v13.DotProduct(vecx), v13.DotProduct(vecy), v13.DotProduct(vecz), nodeK.Name, nodeJ.Id); //GlobalNodes.ElementAt(3 - 1);
+            localNodes[0] = new Node(Point3d.Origin, nodeI.Name); //Origin GlobalNodes.ElementAt(1 - 1);
+            localNodes[1] = new Node(v12.DotProduct(vecx), v12.DotProduct(vecy), v12.DotProduct(vecz), nodeJ.Name); //Axis x GlobalNodes.ElementAt(2 - 1);
+            localNodes[2] = new Node(v13.DotProduct(vecx), v13.DotProduct(vecy), v13.DotProduct(vecz), nodeK.Name); //GlobalNodes.ElementAt(3 - 1);
             #endregion
             return localNodes;
         }

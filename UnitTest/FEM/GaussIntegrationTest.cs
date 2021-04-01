@@ -18,10 +18,10 @@ namespace FemTest.Solver
             int nrpoints = 1;
 
             Node[] nds = new Node[4];
-            nds[0] = new Node(-1.0, -1.0, 0, 1, "1");
-            nds[1] = new Node(+1.0, -1.0, 0, 2, "2");
-            nds[2] = new Node(+1.0, +1.0, 0, 3, "3");
-            nds[3] = new Node(-1.0, +1.0, 0, 4, "4");
+            nds[0] = new Node(-1.0, -1.0, 0, "1");
+            nds[1] = new Node(+1.0, -1.0, 0, "2");
+            nds[2] = new Node(+1.0, +1.0, 0, "3");
+            nds[3] = new Node(-1.0, +1.0, 0, "4");
 
             Func<double, double, mnl.Matrix<double>> F = (double csi, double eta) => {
 
@@ -35,10 +35,10 @@ namespace FemTest.Solver
             var ris = GaussIntegration.IntegrationQuadrilateral(F, j, nrpoints);
             Assert.AreEqual(4.0, ris[0, 0]);
 
-            nds[0] = new Node(0.0, 0.0, 0, 1, "1");
-            nds[1] = new Node(1.0, 0.0, 0, 2, "2");
-            nds[2] = new Node(1.0, 1.0, 0, 3, "3");
-            nds[3] = new Node(0.0, 1.0, 0, 4, "4");
+            nds[0] = new Node(0.0, 0.0, 0, "1");
+            nds[1] = new Node(1.0, 0.0, 0, "2");
+            nds[2] = new Node(1.0, 1.0, 0, "3");
+            nds[3] = new Node(0.0, 1.0, 0, "4");
 
             F = (double csi, double eta) => {
 
@@ -60,10 +60,10 @@ namespace FemTest.Solver
             int nrpoints = 4;
 
             Node[] nds = new Node[4];
-            nds[0] = new Node(-1.0, -1.0, 0, 1, "1");
-            nds[1] = new Node(+1.0, -1.0, 0, 2, "2");
-            nds[2] = new Node(+1.0, +1.0, 0, 3, "3");
-            nds[3] = new Node(-1.0, +1.0, 0, 4, "4");
+            nds[0] = new Node(-1.0, -1.0, 0, "1");
+            nds[1] = new Node(+1.0, -1.0, 0, "2");
+            nds[2] = new Node(+1.0, +1.0, 0, "3");
+            nds[3] = new Node(-1.0, +1.0, 0, "4");
 
             Func<double, double, mnl.Matrix<double>> F = (double csi, double eta) => {
 
@@ -77,10 +77,10 @@ namespace FemTest.Solver
             var ris = GaussIntegration.IntegrationQuadrilateral(F, j, nrpoints);
             Assert.AreEqual(4.0, ris[0, 0]);
 
-            nds[0] = new Node(0.0, 0.0, 0, 1, "1");
-            nds[1] = new Node(1.0, 0.0, 0, 2, "2");
-            nds[2] = new Node(1.0, 1.0, 0, 3, "3");
-            nds[3] = new Node(0.0, 1.0, 0, 4, "4");
+            nds[0] = new Node(0.0, 0.0, 0, "1");
+            nds[1] = new Node(1.0, 0.0, 0, "2");
+            nds[2] = new Node(1.0, 1.0, 0, "3");
+            nds[3] = new Node(0.0, 1.0, 0, "4");
 
             F = (double csi, double eta) => {
 
@@ -101,10 +101,10 @@ namespace FemTest.Solver
         {
             int nrpoints = 9;
             Node[] nds = new Node[4];
-            nds[0] = new Node(-1.0, -1.0, 0, 1, "1");
-            nds[1] = new Node(+1.0, -1.0, 0, 2, "2");
-            nds[2] = new Node(+1.0, +1.0, 0, 3, "3");
-            nds[3] = new Node(-1.0, +1.0, 0, 4, "4");
+            nds[0] = new Node(-1.0, -1.0, 0, "1");
+            nds[1] = new Node(+1.0, -1.0, 0, "2");
+            nds[2] = new Node(+1.0, +1.0, 0, "3");
+            nds[3] = new Node(-1.0, +1.0, 0, "4");
 
             Func<double, double, mnl.Matrix<double>> F = (double csi, double eta) => {
 
@@ -118,10 +118,10 @@ namespace FemTest.Solver
             var ris = GaussIntegration.IntegrationQuadrilateral(F, j, nrpoints);
             Assert.AreEqual(4.0, ris[0, 0]);
 
-            nds[0] = new Node(0.0, 0.0, 0, 1, "1");
-            nds[1] = new Node(1.0, 0.0, 0, 2, "2");
-            nds[2] = new Node(1.0, 1.0, 0, 3, "3");
-            nds[3] = new Node(0.0, 1.0, 0, 4, "4");
+            nds[0] = new Node(0.0, 0.0, 0, "1");
+            nds[1] = new Node(1.0, 0.0, 0, "2");
+            nds[2] = new Node(1.0, 1.0, 0, "3");
+            nds[3] = new Node(0.0, 1.0, 0, "4");
 
             F = (double csi, double eta) => {
 
@@ -142,10 +142,10 @@ namespace FemTest.Solver
         {
             int nrpoints = 1;
             Node[] nds = new Node[4];
-            nds[0] = new Node(-1.0, -1.0, 0, 1, "1");
-            nds[1] = new Node(+1.0, -1.0, 0, 2, "2");
-            nds[2] = new Node(+1.0, +1.0, 0, 3, "3");
-            nds[3] = new Node(-1.0, +1.0, 0, 4, "4");
+            nds[0] = new Node(-1.0, -1.0, 0, "1");
+            nds[1] = new Node(+1.0, -1.0, 0, "2");
+            nds[2] = new Node(+1.0, +1.0, 0, "3");
+            nds[3] = new Node(-1.0, +1.0, 0, "4");
 
             Func<double, double, mnl.Matrix<double>> F = (double csi, double eta) => {
 
@@ -159,10 +159,10 @@ namespace FemTest.Solver
             var ris = GaussIntegration.IntegrationQuadrilateral(F, j, nrpoints);
             Assert.AreEqual(0.0, ris[0, 0]);
 
-            nds[0] = new Node(0.0, 0.0, 0, 1, "1");
-            nds[1] = new Node(1.0, 0.0, 0, 2, "2");
-            nds[2] = new Node(1.0, 1.0, 0, 3, "3");
-            nds[3] = new Node(0.0, 1.0, 0, 4, "4");
+            nds[0] = new Node(0.0, 0.0, 0, "1");
+            nds[1] = new Node(1.0, 0.0, 0, "2");
+            nds[2] = new Node(1.0, 1.0, 0, "3");
+            nds[3] = new Node(0.0, 1.0, 0, "4");
 
             F = (double csi, double eta) => {
 
@@ -183,10 +183,10 @@ namespace FemTest.Solver
         {
             int nrpoints = 4;
             Node[] nds = new Node[4];
-            nds[0] = new Node(-1.0, -1.0, 0, 1, "1");
-            nds[1] = new Node(+1.0, -1.0, 0, 2, "2");
-            nds[2] = new Node(+1.0, +1.0, 0, 3, "3");
-            nds[3] = new Node(-1.0, +1.0, 0, 4, "4");
+            nds[0] = new Node(-1.0, -1.0, 0, "1");
+            nds[1] = new Node(+1.0, -1.0, 0, "2");
+            nds[2] = new Node(+1.0, +1.0, 0, "3");
+            nds[3] = new Node(-1.0, +1.0, 0, "4");
 
             Func<double, double, mnl.Matrix<double>> F = (double csi, double eta) => {
 
@@ -200,10 +200,10 @@ namespace FemTest.Solver
             var ris = GaussIntegration.IntegrationQuadrilateral(F, j, nrpoints);
             Assert.AreEqual(0.0, ris[0, 0], 0.00000000001);
 
-            nds[0] = new Node(0.0, 0.0, 0, 1, "1");
-            nds[1] = new Node(1.0, 0.0, 0, 2, "2");
-            nds[2] = new Node(1.0, 1.0, 0, 3, "3");
-            nds[3] = new Node(0.0, 1.0, 0, 4, "4");
+            nds[0] = new Node(0.0, 0.0, 0, "1");
+            nds[1] = new Node(1.0, 0.0, 0, "2");
+            nds[2] = new Node(1.0, 1.0, 0, "3");
+            nds[3] = new Node(0.0, 1.0, 0, "4");
 
             F = (double csi, double eta) => {
 
@@ -225,10 +225,10 @@ namespace FemTest.Solver
             int nrpoints = 9;
             double constant = 5.0;
             Node[] nds = new Node[4];
-            nds[0] = new Node(-1.0, -1.0, 0, 1, "1");
-            nds[1] = new Node(+1.0, -1.0, 0, 2, "2");
-            nds[2] = new Node(+1.0, +1.0, 0, 3, "3");
-            nds[3] = new Node(-1.0, +1.0, 0, 4, "4");
+            nds[0] = new Node(-1.0, -1.0, 0, "1");
+            nds[1] = new Node(+1.0, -1.0, 0, "2");
+            nds[2] = new Node(+1.0, +1.0, 0, "3");
+            nds[3] = new Node(-1.0, +1.0, 0, "4");
 
             Func<double, double, mnl.Matrix<double>> F = (double csi, double eta) => {
 
@@ -242,10 +242,10 @@ namespace FemTest.Solver
             var ris = GaussIntegration.IntegrationQuadrilateral(F, j, nrpoints);
             Assert.AreEqual(constant * 0.0, ris[0, 0], 0.00000000001);
 
-            nds[0] = new Node(0.0, 0.0, 0, 1, "1");
-            nds[1] = new Node(1.0, 0.0, 0, 2, "2");
-            nds[2] = new Node(1.0, 1.0, 0, 3, "3");
-            nds[3] = new Node(0.0, 1.0, 0, 4, "4");
+            nds[0] = new Node(0.0, 0.0, 0, "1");
+            nds[1] = new Node(1.0, 0.0, 0, "2");
+            nds[2] = new Node(1.0, 1.0, 0, "3");
+            nds[3] = new Node(0.0, 1.0, 0, "4");
 
             F = (double csi, double eta) => {
 
@@ -267,10 +267,10 @@ namespace FemTest.Solver
             int nrpoints = 4;
             double constant = 5.0;
             Node[] nds = new Node[4];
-            nds[0] = new Node(-1.0, -1.0, 0, 1, "1");
-            nds[1] = new Node(+1.0, -1.0, 0, 2, "2");
-            nds[2] = new Node(+1.0, +1.0, 0, 3, "3");
-            nds[3] = new Node(-1.0, +1.0, 0, 4, "4");
+            nds[0] = new Node(-1.0, -1.0, 0, "1");
+            nds[1] = new Node(+1.0, -1.0, 0, "2");
+            nds[2] = new Node(+1.0, +1.0, 0, "3");
+            nds[3] = new Node(-1.0, +1.0, 0, "4");
 
             Func<double, double, mnl.Matrix<double>> F = (double csi, double eta) => {
 
@@ -285,10 +285,10 @@ namespace FemTest.Solver
             var ris = GaussIntegration.IntegrationQuadrilateral(F, j, nrpoints);
             Assert.AreEqual(constant * ((1.0 * 1.0 * 1.0) - (-1.0 * -1.0 *-1.0)) / 3.0 * 2.0, ris[0, 0], 0.00000000001);
 
-            nds[0] = new Node(0.0, 0.0, 0, 1, "1");
-            nds[1] = new Node(1.0, 0.0, 0, 2, "2");
-            nds[2] = new Node(1.0, 1.0, 0, 3, "3");
-            nds[3] = new Node(0.0, 1.0, 0, 4, "4");
+            nds[0] = new Node(0.0, 0.0, 0, "1");
+            nds[1] = new Node(1.0, 0.0, 0, "2");
+            nds[2] = new Node(1.0, 1.0, 0, "3");
+            nds[3] = new Node(0.0, 1.0, 0, "4");
 
             F = (double csi, double eta) => {
 
@@ -311,10 +311,10 @@ namespace FemTest.Solver
             int nrpoints = 9;
             double constant = 3.0;
             Node[] nds = new Node[4];
-            nds[0] = new Node(-1.0, -1.0, 0, 1, "1");
-            nds[1] = new Node(+1.0, -1.0, 0, 2, "2");
-            nds[2] = new Node(+1.0, +1.0, 0, 3, "3");
-            nds[3] = new Node(-1.0, +1.0, 0, 4, "4");
+            nds[0] = new Node(-1.0, -1.0, 0, "1");
+            nds[1] = new Node(+1.0, -1.0, 0, "2");
+            nds[2] = new Node(+1.0, +1.0, 0, "3");
+            nds[3] = new Node(-1.0, +1.0, 0, "4");
 
             Func<double, double, mnl.Matrix<double>> F = (double csi, double eta) => {
 
@@ -329,10 +329,10 @@ namespace FemTest.Solver
             var ris = GaussIntegration.IntegrationQuadrilateral(F, j, nrpoints);
             Assert.AreEqual(constant * ((1.0 * 1.0 * 1.0) - (-1.0 * -1.0 * -1.0)) / 3.0 * 2.0, ris[0, 0], 0.00000000001);
 
-            nds[0] = new Node(0.0, 0.0, 0, 1, "1");
-            nds[1] = new Node(1.0, 0.0, 0, 2, "2");
-            nds[2] = new Node(1.0, 1.0, 0, 3, "3");
-            nds[3] = new Node(0.0, 1.0, 0, 4, "4");
+            nds[0] = new Node(0.0, 0.0, 0, "1");
+            nds[1] = new Node(1.0, 0.0, 0, "2");
+            nds[2] = new Node(1.0, 1.0, 0, "3");
+            nds[3] = new Node(0.0, 1.0, 0, "4");
 
             F = (double csi, double eta) => {
 
@@ -355,14 +355,14 @@ namespace FemTest.Solver
             int nrpoints = 1;
             double constant = 3.0;
             Node[] nds = new Node[8];
-            nds[0] = new Node(-1.0, -1.0, -1.0, 1, "1");
-            nds[1] = new Node(+1.0, -1.0, -1.0, 2, "2");
-            nds[2] = new Node(+1.0, +1.0, -1.0, 3, "3");
-            nds[3] = new Node(-1.0, +1.0, -1.0, 4, "4");
-            nds[4] = new Node(-1.0, -1.0, +1.0, 1, "1");
-            nds[5] = new Node(+1.0, -1.0, +1.0, 2, "2");
-            nds[6] = new Node(+1.0, +1.0, +1.0, 3, "3");
-            nds[7] = new Node(-1.0, +1.0, +1.0, 4, "4");
+            nds[0] = new Node(-1.0, -1.0, -1.0, "1");
+            nds[1] = new Node(+1.0, -1.0, -1.0, "2");
+            nds[2] = new Node(+1.0, +1.0, -1.0, "3");
+            nds[3] = new Node(-1.0, +1.0, -1.0, "4");
+            nds[4] = new Node(-1.0, -1.0, +1.0, "1");
+            nds[5] = new Node(+1.0, -1.0, +1.0, "2");
+            nds[6] = new Node(+1.0, +1.0, +1.0, "3");
+            nds[7] = new Node(-1.0, +1.0, +1.0, "4");
 
             Func<double, double, double, mnl.Matrix<double>> F = (double csi, double eta, double zeta) => {
 
@@ -376,15 +376,15 @@ namespace FemTest.Solver
             double volume = 2.0 * 2.0 * 2.0;
             Assert.AreEqual(constant * volume, ris[0, 0], 0.00000000001);
 
-            nds[0] = new Node(0.0, 0.0, 0.0, 1, "1");
-            nds[1] = new Node(+2.0, 0.0, 0.0, 2, "2");
-            nds[2] = new Node(+2.0, 1.0, 0.0, 3, "3");
-            nds[3] = new Node(0.0, 1.0, 0.0, 4, "4");
+            nds[0] = new Node(0.0, 0.0, 0.0, "1");
+            nds[1] = new Node(+2.0, 0.0, 0.0, "2");
+            nds[2] = new Node(+2.0, 1.0, 0.0, "3");
+            nds[3] = new Node(0.0, 1.0, 0.0, "4");
 
-            nds[4] = new Node(0.0, 0.0, 3.0, 1, "1");
-            nds[5] = new Node(+2.0, 0.0, 3.0, 2, "2");
-            nds[6] = new Node(+2.0, 1.0, 3.0, 3, "3");
-            nds[7] = new Node(0.0, 1.0, 3.0, 4, "4");
+            nds[4] = new Node(0.0, 0.0, 3.0, "1");
+            nds[5] = new Node(+2.0, 0.0, 3.0, "2");
+            nds[6] = new Node(+2.0, 1.0, 3.0, "3");
+            nds[7] = new Node(0.0, 1.0, 3.0, "4");
 
             volume = 2.0 * 1.0 * 3.0;
             j = Util.J3D(TriLinearShapeFunctionHexaedron8.DNdCsi, TriLinearShapeFunctionHexaedron8.DNdEta, TriLinearShapeFunctionHexaedron8.DNdZeta, nds);
@@ -399,14 +399,14 @@ namespace FemTest.Solver
             int nrpoints = 8;
             double constant = 3.0;
             Node[] nds = new Node[8];
-            nds[0] = new Node(-1.0, -1.0, -1.0, 1, "1");
-            nds[1] = new Node(+1.0, -1.0, -1.0, 2, "2");
-            nds[2] = new Node(+1.0, +1.0, -1.0, 3, "3");
-            nds[3] = new Node(-1.0, +1.0, -1.0, 4, "4");
-            nds[4] = new Node(-1.0, -1.0, +1.0, 1, "1");
-            nds[5] = new Node(+1.0, -1.0, +1.0, 2, "2");
-            nds[6] = new Node(+1.0, +1.0, +1.0, 3, "3");
-            nds[7] = new Node(-1.0, +1.0, +1.0, 4, "4");
+            nds[0] = new Node(-1.0, -1.0, -1.0, "1");
+            nds[1] = new Node(+1.0, -1.0, -1.0, "2");
+            nds[2] = new Node(+1.0, +1.0, -1.0, "3");
+            nds[3] = new Node(-1.0, +1.0, -1.0, "4");
+            nds[4] = new Node(-1.0, -1.0, +1.0, "1");
+            nds[5] = new Node(+1.0, -1.0, +1.0, "2");
+            nds[6] = new Node(+1.0, +1.0, +1.0, "3");
+            nds[7] = new Node(-1.0, +1.0, +1.0, "4");
 
             Func<double, double, double, mnl.Matrix<double>> F = (double csi, double eta, double zeta) => {
 
@@ -420,15 +420,15 @@ namespace FemTest.Solver
             double volume = 2.0 * 2.0 * 2.0;
             Assert.AreEqual(constant * volume, ris[0, 0], 0.00000000001);
 
-            nds[0] = new Node(0.0, 0.0, 0.0, 1, "1");
-            nds[1] = new Node(+2.0, 0.0, 0.0, 2, "2");
-            nds[2] = new Node(+2.0, 1.0, 0.0, 3, "3");
-            nds[3] = new Node(0.0, 1.0, 0.0, 4, "4");
+            nds[0] = new Node(0.0, 0.0, 0.0, "1");
+            nds[1] = new Node(+2.0, 0.0, 0.0, "2");
+            nds[2] = new Node(+2.0, 1.0, 0.0, "3");
+            nds[3] = new Node(0.0, 1.0, 0.0, "4");
 
-            nds[4] = new Node(0.0, 0.0, 3.0, 1, "1");
-            nds[5] = new Node(+2.0, 0.0, 3.0, 2, "2");
-            nds[6] = new Node(+2.0, 1.0, 3.0, 3, "3");
-            nds[7] = new Node(0.0, 1.0, 3.0, 4, "4");
+            nds[4] = new Node(0.0, 0.0, 3.0, "1");
+            nds[5] = new Node(+2.0, 0.0, 3.0, "2");
+            nds[6] = new Node(+2.0, 1.0, 3.0, "3");
+            nds[7] = new Node(0.0, 1.0, 3.0, "4");
 
             volume = 2.0 * 1.0 * 3.0;
             j = Util.J3D(TriLinearShapeFunctionHexaedron8.DNdCsi, TriLinearShapeFunctionHexaedron8.DNdEta, TriLinearShapeFunctionHexaedron8.DNdZeta, nds);
@@ -443,14 +443,14 @@ namespace FemTest.Solver
             int nrpoints = 1;
             double constant = 2.0;
             Node[] nds = new Node[8];
-            nds[0] = new Node(-1.0, -1.0, -1.0, 1, "1");
-            nds[1] = new Node(+1.0, -1.0, -1.0, 2, "2");
-            nds[2] = new Node(+1.0, +1.0, -1.0, 3, "3");
-            nds[3] = new Node(-1.0, +1.0, -1.0, 4, "4");
-            nds[4] = new Node(-1.0, -1.0, +1.0, 1, "1");
-            nds[5] = new Node(+1.0, -1.0, +1.0, 2, "2");
-            nds[6] = new Node(+1.0, +1.0, +1.0, 3, "3");
-            nds[7] = new Node(-1.0, +1.0, +1.0, 4, "4");
+            nds[0] = new Node(-1.0, -1.0, -1.0, "1");
+            nds[1] = new Node(+1.0, -1.0, -1.0, "2");
+            nds[2] = new Node(+1.0, +1.0, -1.0, "3");
+            nds[3] = new Node(-1.0, +1.0, -1.0, "4");
+            nds[4] = new Node(-1.0, -1.0, +1.0, "1");
+            nds[5] = new Node(+1.0, -1.0, +1.0, "2");
+            nds[6] = new Node(+1.0, +1.0, +1.0, "3");
+            nds[7] = new Node(-1.0, +1.0, +1.0, "4");
 
             Func<double, double, double, mnl.Matrix<double>> F = (double csi, double eta, double zeta) => {
 
@@ -469,15 +469,15 @@ namespace FemTest.Solver
 
             Assert.AreEqual(constant * integral(-1,1) * integral(-1, 1) * integral(-1, 1), ris[0, 0], 0.00000000001);
 
-            nds[0] = new Node(0.0, 0.0, 0.0, 1, "1");
-            nds[1] = new Node(+2.0, 0.0, 0.0, 2, "2");
-            nds[2] = new Node(+2.0, 1.0, 0.0, 3, "3");
-            nds[3] = new Node(0.0, 1.0, 0.0, 4, "4");
+            nds[0] = new Node(0.0, 0.0, 0.0, "1");
+            nds[1] = new Node(+2.0, 0.0, 0.0, "2");
+            nds[2] = new Node(+2.0, 1.0, 0.0, "3");
+            nds[3] = new Node(0.0, 1.0, 0.0, "4");
 
-            nds[4] = new Node(0.0, 0.0, 3.0, 1, "1");
-            nds[5] = new Node(+2.0, 0.0, 3.0, 2, "2");
-            nds[6] = new Node(+2.0, 1.0, 3.0, 3, "3");
-            nds[7] = new Node(0.0, 1.0, 3.0, 4, "4");
+            nds[4] = new Node(0.0, 0.0, 3.0, "1");
+            nds[5] = new Node(+2.0, 0.0, 3.0, "2");
+            nds[6] = new Node(+2.0, 1.0, 3.0, "3");
+            nds[7] = new Node(0.0, 1.0, 3.0, "4");
 
             F = (double csi, double eta, double zeta) => {
 
@@ -501,14 +501,14 @@ namespace FemTest.Solver
             int nrpoints = 8;
             double constant = 2.0;
             Node[] nds = new Node[8];
-            nds[0] = new Node(-1.0, -1.0, -1.0, 1, "1");
-            nds[1] = new Node(+1.0, -1.0, -1.0, 2, "2");
-            nds[2] = new Node(+1.0, +1.0, -1.0, 3, "3");
-            nds[3] = new Node(-1.0, +1.0, -1.0, 4, "4");
-            nds[4] = new Node(-1.0, -1.0, +1.0, 1, "1");
-            nds[5] = new Node(+1.0, -1.0, +1.0, 2, "2");
-            nds[6] = new Node(+1.0, +1.0, +1.0, 3, "3");
-            nds[7] = new Node(-1.0, +1.0, +1.0, 4, "4");
+            nds[0] = new Node(-1.0, -1.0, -1.0, "1");
+            nds[1] = new Node(+1.0, -1.0, -1.0, "2");
+            nds[2] = new Node(+1.0, +1.0, -1.0, "3");
+            nds[3] = new Node(-1.0, +1.0, -1.0, "4");
+            nds[4] = new Node(-1.0, -1.0, +1.0, "1");
+            nds[5] = new Node(+1.0, -1.0, +1.0, "2");
+            nds[6] = new Node(+1.0, +1.0, +1.0, "3");
+            nds[7] = new Node(-1.0, +1.0, +1.0, "4");
 
             Func<double, double, double, mnl.Matrix<double>> F = (double csi, double eta, double zeta) => {
 
@@ -527,15 +527,15 @@ namespace FemTest.Solver
 
             Assert.AreEqual(constant * integral(-1, 1) * integral(-1, 1) * integral(-1, 1), ris[0, 0], 0.00000000001);
 
-            nds[0] = new Node(0.0, 0.0, 0.0, 1, "1");
-            nds[1] = new Node(+2.0, 0.0, 0.0, 2, "2");
-            nds[2] = new Node(+2.0, 1.0, 0.0, 3, "3");
-            nds[3] = new Node(0.0, 1.0, 0.0, 4, "4");
+            nds[0] = new Node(0.0, 0.0, 0.0, "1");
+            nds[1] = new Node(+2.0, 0.0, 0.0, "2");
+            nds[2] = new Node(+2.0, 1.0, 0.0, "3");
+            nds[3] = new Node(0.0, 1.0, 0.0, "4");
 
-            nds[4] = new Node(0.0, 0.0, 3.0, 1, "1");
-            nds[5] = new Node(+2.0, 0.0, 3.0, 2, "2");
-            nds[6] = new Node(+2.0, 1.0, 3.0, 3, "3");
-            nds[7] = new Node(0.0, 1.0, 3.0, 4, "4");
+            nds[4] = new Node(0.0, 0.0, 3.0, "1");
+            nds[5] = new Node(+2.0, 0.0, 3.0, "2");
+            nds[6] = new Node(+2.0, 1.0, 3.0, "3");
+            nds[7] = new Node(0.0, 1.0, 3.0, "4");
 
             F = (double csi, double eta, double zeta) => {
 
@@ -559,14 +559,14 @@ namespace FemTest.Solver
             int nrpoints = 8;
             double constant = 2.0;
             Node[] nds = new Node[8];
-            nds[0] = new Node(-1.0, -1.0, -1.0, 1, "1");
-            nds[1] = new Node(+1.0, -1.0, -1.0, 2, "2");
-            nds[2] = new Node(+1.0, +1.0, -1.0, 3, "3");
-            nds[3] = new Node(-1.0, +1.0, -1.0, 4, "4");
-            nds[4] = new Node(-1.0, -1.0, +1.0, 1, "1");
-            nds[5] = new Node(+1.0, -1.0, +1.0, 2, "2");
-            nds[6] = new Node(+1.0, +1.0, +1.0, 3, "3");
-            nds[7] = new Node(-1.0, +1.0, +1.0, 4, "4");
+            nds[0] = new Node(-1.0, -1.0, -1.0, "1");
+            nds[1] = new Node(+1.0, -1.0, -1.0, "2");
+            nds[2] = new Node(+1.0, +1.0, -1.0, "3");
+            nds[3] = new Node(-1.0, +1.0, -1.0, "4");
+            nds[4] = new Node(-1.0, -1.0, +1.0, "1");
+            nds[5] = new Node(+1.0, -1.0, +1.0, "2");
+            nds[6] = new Node(+1.0, +1.0, +1.0, "3");
+            nds[7] = new Node(-1.0, +1.0, +1.0, "4");
 
             Func<double, double, double, mnl.Matrix<double>> F = (double csi, double eta, double zeta) => {
 
@@ -585,15 +585,15 @@ namespace FemTest.Solver
 
             Assert.AreEqual(constant * integral(-1, 1) * integral(-1, 1) * integral(-1, 1), ris[0, 0], 0.00000000001);
 
-            nds[0] = new Node(0.0, 0.0, 0.0, 1, "1");
-            nds[1] = new Node(+2.0, 0.0, 0.0, 2, "2");
-            nds[2] = new Node(+2.0, 1.0, 0.0, 3, "3");
-            nds[3] = new Node(0.0, 1.0, 0.0, 4, "4");
+            nds[0] = new Node(0.0, 0.0, 0.0, "1");
+            nds[1] = new Node(+2.0, 0.0, 0.0, "2");
+            nds[2] = new Node(+2.0, 1.0, 0.0, "3");
+            nds[3] = new Node(0.0, 1.0, 0.0, "4");
 
-            nds[4] = new Node(0.0, 0.0, 3.0, 1, "1");
-            nds[5] = new Node(+2.0, 0.0, 3.0, 2, "2");
-            nds[6] = new Node(+2.0, 1.0, 3.0, 3, "3");
-            nds[7] = new Node(0.0, 1.0, 3.0, 4, "4");
+            nds[4] = new Node(0.0, 0.0, 3.0, "1");
+            nds[5] = new Node(+2.0, 0.0, 3.0, "2");
+            nds[6] = new Node(+2.0, 1.0, 3.0, "3");
+            nds[7] = new Node(0.0, 1.0, 3.0, "4");
 
             F = (double csi, double eta, double zeta) => {
 

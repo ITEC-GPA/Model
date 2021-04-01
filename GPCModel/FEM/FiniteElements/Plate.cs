@@ -32,16 +32,6 @@ namespace GPC.Model.FEM.FiniteElements
 
         }
 
-        /// <summary>
-        /// This constructor to be used only for debugging purpose. Use setproperty or setid instead
-        /// </summary>
-        internal Plate(Node[] nodes, PlateProperty property, int id) : base(nodes)
-        {
-            SetProperty(property);
-            SetId(id);
-        }
-
-
         public override FiniteElement Duplicate(ElementProperty property, List<LoadCaseAttribute> lcAttributes, List<FreedomCaseAttribute> fdAttributes)
         {
             var plate = new Plate(_nodesGlobal);

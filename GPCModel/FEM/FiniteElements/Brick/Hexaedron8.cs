@@ -10,12 +10,15 @@ namespace GPC.Model.FEM.FiniteElements
     /// </summary>
     public class Hexaedron : Brick
     {
-        public Hexaedron(Node[] globalNodes, BrickProperty brickProperty, int id) :base(globalNodes, brickProperty, id)
+        public Hexaedron(Node[] globalNodes, BrickProperty brickProperty, int id) :base(globalNodes)
         {
             _DOF.Add(LinearSolver.DOF.DX);
             _DOF.Add(LinearSolver.DOF.DY);
             _DOF.Add(LinearSolver.DOF.DZ);
             //a displacement in Local coordinate plane (Dx, Dy) can be a DX, DY, DZ in Global space!
+
+            SetProperty(brickProperty);
+            SetId(id);
 
             #region
             //Controllo che per ogni nodo I vengano visti gli altri 3 in senso antiorario.

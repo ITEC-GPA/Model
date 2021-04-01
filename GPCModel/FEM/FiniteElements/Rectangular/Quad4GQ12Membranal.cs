@@ -16,7 +16,7 @@ namespace GPC.Model.FEM.FiniteElements
         Node[] _localNodes;
         #endregion
 
-        public Quad4GQ12Membranal(Node[] nodes, PlateProperty property, int id) : base(nodes, property, id)
+        public Quad4GQ12Membranal(Node[] nodes) : base(nodes)
         {
             _DOF.Add(LinearSolver.DOF.DX);
             _DOF.Add(LinearSolver.DOF.DY);

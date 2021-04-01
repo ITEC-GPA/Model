@@ -89,10 +89,10 @@ namespace FemTest.Solver
         public void GetDataCalculation()
         {
             Node[] nodes = new Node[]{
-                new Node(0.0, 0.0, 0.0, 0),
-                new Node(1.0, 0.0, 0.0, 1),
-                new Node(1.0, 1.0, 0.0, 2),
-                new Node(0.0, 1.0, 0.0, 3),
+                new Node(0.0, 0.0, 0.0),
+                new Node(1.0, 0.0, 0.0),
+                new Node(1.0, 1.0, 0.0),
+                new Node(0.0, 1.0, 0.0),
             };
 
             for (int i = 1; i < 4; i++) {
@@ -143,10 +143,10 @@ namespace FemTest.Solver
             ////////////////////////////////////////////
 
             nodes = new Node[]{
-                new Node(0.0, 0.0, 0.0, 0),
-                new Node(2.0, 0.0, 0.0, 1),
-                new Node(1.0, 1.0, 0.0, 2),
-                new Node(0.0, 1.0, 0.0, 3),
+                new Node(0.0, 0.0, 0.0),
+                new Node(2.0, 0.0, 0.0),
+                new Node(1.0, 1.0, 0.0),
+                new Node(0.0, 1.0, 0.0),
             };
 
             for (int i = 1; i <= 4; i++)
@@ -207,10 +207,10 @@ namespace FemTest.Solver
             PlateProperty prop = new PlateProperty(mat, 0, 1);
 
             Node[] nds = new Node[4];
-            nds[0] = new Node(-1.0, -1.0, 0, 1, "1");
-            nds[1] = new Node(+1.0, -1.0, 0, 2, "2");
-            nds[2] = new Node(+1.0, +1.0, 0, 3, "3");
-            nds[3] = new Node(-1.0, +1.0, 0, 4, "4");
+            nds[0] = new Node(-1.0, -1.0, 0);
+            nds[1] = new Node(+1.0, -1.0, 0);
+            nds[2] = new Node(+1.0, +1.0, 0);
+            nds[3] = new Node(-1.0, +1.0, 0);
 
             Quad4MQ2IbraMembranal el = new Quad4MQ2IbraMembranal(nds, prop, 1);
             el.BuildMatrix();
@@ -265,10 +265,10 @@ namespace FemTest.Solver
             PlateProperty prop = new PlateProperty(mat, 0, 1);
 
             List<Node> nds = new List<Node>();
-            nds.Add( new Node(+0.0, +0.0, 0, 1, "1"));
-            nds.Add( new Node(+1.0, +0.0, 0, 2, "2"));
-            nds.Add( new Node(+1.0, +1.0, 0, 3, "3"));
-            nds.Add( new Node(+0.0, +1.0, 0, 4, "4"));
+            nds.Add( new Node(+0.0, +0.0, 0));
+            nds.Add( new Node(+1.0, +0.0, 0));
+            nds.Add( new Node(+1.0, +1.0, 0));
+            nds.Add( new Node(+0.0, +1.0, 0));
 
             CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
 
@@ -316,10 +316,10 @@ namespace FemTest.Solver
             PlateProperty prop = new PlateProperty(mat, 0, 1);
 
             List<Node> nds = new List<Node>();
-            nds.Add(new Node(+0.0, +0.0, 0, 1, "1"));
-            nds.Add(new Node(+2.0, +0.0, 0, 2, "2"));
-            nds.Add(new Node(+1.0, +1.0, 0, 3, "3"));
-            nds.Add(new Node(+0.0, +1.0, 0, 4, "4"));
+            nds.Add(new Node(+0.0, +0.0, 0));
+            nds.Add(new Node(+2.0, +0.0, 0));
+            nds.Add(new Node(+1.0, +1.0, 0));
+            nds.Add(new Node(+0.0, +1.0, 0));
 
             Quad4MQ2IbraMembranal el = new Quad4MQ2IbraMembranal(nds.ToArray(), prop, 1);
 
@@ -427,17 +427,17 @@ namespace FemTest.Solver
             PlateProperty prop = new PlateProperty(mat, thickness, thickness);
 
             List<Node> nds = new List<Node>();
-            nds.Add(new Node(0.0, 0, 0, 1, "1"));
-            nds.Add(new Node(12.0, 0, 0, 1, "2"));
-            nds.Add(new Node(24.0, 0, 0, 1, "3"));
-            nds.Add(new Node(36.0, 0, 0, 1, "4"));
-            nds.Add(new Node(48.0, 0, 0, 1, "5"));
+            nds.Add(new Node(0.0, 0, 0, "1"));
+            nds.Add(new Node(12.0, 0, 0, "2"));
+            nds.Add(new Node(24.0, 0, 0, "3"));
+            nds.Add(new Node(36.0, 0, 0, "4"));
+            nds.Add(new Node(48.0, 0, 0, "5"));
 
-            nds.Add(new Node(0.0, 12.0, 0, 1, "6"));
-            nds.Add(new Node(12.0, 12.0, 0, 1, "7"));
-            nds.Add(new Node(24.0, 12.0, 0, 1, "8"));
-            nds.Add(new Node(36.0, 12.0, 0, 1, "9"));
-            nds.Add(new Node(48.0, 12.0, 0, 1, "10"));
+            nds.Add(new Node(0.0, 12.0, 0, "6"));
+            nds.Add(new Node(12.0, 12.0, 0, "7"));
+            nds.Add(new Node(24.0, 12.0, 0, "8"));
+            nds.Add(new Node(36.0, 12.0, 0, "9"));
+            nds.Add(new Node(48.0, 12.0, 0, "10"));
 
             CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
 
@@ -504,23 +504,23 @@ namespace FemTest.Solver
             PlateProperty prop = new PlateProperty(mat, thickness, thickness);
 
             List<Node> nds = new List<Node>();
-            nds.Add(new Node(0.0, 0, 0, 1, "1"));
-            nds.Add(new Node(12.0, 0, 0, 1, "2"));
-            nds.Add(new Node(24.0, 0, 0, 1, "3"));
-            nds.Add(new Node(36.0, 0, 0, 1, "4"));
-            nds.Add(new Node(48.0, 0, 0, 1, "5"));
+            nds.Add(new Node(0.0, 0, 0, "1"));
+            nds.Add(new Node(12.0, 0, 0, "2"));
+            nds.Add(new Node(24.0, 0, 0, "3"));
+            nds.Add(new Node(36.0, 0, 0, "4"));
+            nds.Add(new Node(48.0, 0, 0, "5"));
 
-            nds.Add(new Node(0.0, 6.0, 0, 1, "6"));
-            nds.Add(new Node(12.0, 6.0, 0, 1, "7"));
-            nds.Add(new Node(24.0, 6.0, 0, 1, "8"));
-            nds.Add(new Node(36.0, 6.0, 0, 1, "9"));
-            nds.Add(new Node(48.0, 6.0, 0, 1, "10"));
+            nds.Add(new Node(0.0, 6.0, 0, "6"));
+            nds.Add(new Node(12.0, 6.0, 0, "7"));
+            nds.Add(new Node(24.0, 6.0, 0, "8"));
+            nds.Add(new Node(36.0, 6.0, 0, "9"));
+            nds.Add(new Node(48.0, 6.0, 0, "10"));
 
-            nds.Add(new Node(0.0, 12.0, 0, 1, "11"));
-            nds.Add(new Node(12.0, 12.0, 0, 1, "12"));
-            nds.Add(new Node(24.0, 12.0, 0, 1, "13"));
-            nds.Add(new Node(36.0, 12.0, 0, 1, "14"));
-            nds.Add(new Node(48.0, 12.0, 0, 1, "15"));
+            nds.Add(new Node(0.0, 12.0, 0, "11"));
+            nds.Add(new Node(12.0, 12.0, 0, "12"));
+            nds.Add(new Node(24.0, 12.0, 0, "13"));
+            nds.Add(new Node(36.0, 12.0, 0, "14"));
+            nds.Add(new Node(48.0, 12.0, 0, "15"));
 
             CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
 
@@ -592,35 +592,35 @@ namespace FemTest.Solver
             PlateProperty prop = new PlateProperty(mat, thickness, thickness);
 
             List<Node> nds = new List<Node>();
-            nds.Add(new Node(0.0, 0, 0, 1, "1"));
-            nds.Add(new Node(6.0, 0, 0, 1, "2"));
-            nds.Add(new Node(12.0, 0, 0, 1, "3"));
-            nds.Add(new Node(18.0, 0, 0, 1, "4"));
-            nds.Add(new Node(24.0, 0, 0, 1, "5"));
-            nds.Add(new Node(30.0, 0, 0, 1, "6"));
-            nds.Add(new Node(36.0, 0, 0, 1, "7"));
-            nds.Add(new Node(42.0, 0, 0, 1, "8"));
-            nds.Add(new Node(48.0, 0, 0, 1, "9"));
+            nds.Add(new Node(0.0, 0, 0, "1"));
+            nds.Add(new Node(6.0, 0, 0, "2"));
+            nds.Add(new Node(12.0, 0, 0, "3"));
+            nds.Add(new Node(18.0, 0, 0, "4"));
+            nds.Add(new Node(24.0, 0, 0, "5"));
+            nds.Add(new Node(30.0, 0, 0, "6"));
+            nds.Add(new Node(36.0, 0, 0, "7"));
+            nds.Add(new Node(42.0, 0, 0, "8"));
+            nds.Add(new Node(48.0, 0, 0, "9"));
 
-            nds.Add(new Node(0.0, 6.0, 0, 1, "10"));
-            nds.Add(new Node(6.0, 6.0, 0, 1, "11"));
-            nds.Add(new Node(12.0, 6.0, 0, 1, "12"));
-            nds.Add(new Node(18.0, 6.0, 0, 1, "13"));
-            nds.Add(new Node(24.0, 6.0, 0, 1, "14"));
-            nds.Add(new Node(30.0, 6.0, 0, 1, "15"));
-            nds.Add(new Node(36.0, 6.0, 0, 1, "16"));
-            nds.Add(new Node(42.0, 6.0, 0, 1, "17"));
-            nds.Add(new Node(48.0, 6.0, 0, 1, "18"));
+            nds.Add(new Node(0.0, 6.0, 0, "10"));
+            nds.Add(new Node(6.0, 6.0, 0, "11"));
+            nds.Add(new Node(12.0, 6.0, 0, "12"));
+            nds.Add(new Node(18.0, 6.0, 0, "13"));
+            nds.Add(new Node(24.0, 6.0, 0, "14"));
+            nds.Add(new Node(30.0, 6.0, 0, "15"));
+            nds.Add(new Node(36.0, 6.0, 0, "16"));
+            nds.Add(new Node(42.0, 6.0, 0, "17"));
+            nds.Add(new Node(48.0, 6.0, 0, "18"));
 
-            nds.Add(new Node(0.0, 12.0, 0, 1, "19"));
-            nds.Add(new Node(6.0, 12.0, 0, 1, "20"));
-            nds.Add(new Node(12.0, 12.0, 0, 1, "21"));
-            nds.Add(new Node(18.0, 12.0, 0, 1, "22"));
-            nds.Add(new Node(24.0, 12.0, 0, 1, "23"));
-            nds.Add(new Node(30.0, 12.0, 0, 1, "24"));
-            nds.Add(new Node(36.0, 12.0, 0, 1, "25"));
-            nds.Add(new Node(42.0, 12.0, 0, 1, "26"));
-            nds.Add(new Node(48.0, 12.0, 0, 1, "27"));
+            nds.Add(new Node(0.0, 12.0, 0, "19"));
+            nds.Add(new Node(6.0, 12.0, 0, "20"));
+            nds.Add(new Node(12.0, 12.0, 0, "21"));
+            nds.Add(new Node(18.0, 12.0, 0, "22"));
+            nds.Add(new Node(24.0, 12.0, 0, "23"));
+            nds.Add(new Node(30.0, 12.0, 0, "24"));
+            nds.Add(new Node(36.0, 12.0, 0, "25"));
+            nds.Add(new Node(42.0, 12.0, 0, "26"));
+            nds.Add(new Node(48.0, 12.0, 0, "27"));
 
             CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
 
@@ -703,21 +703,21 @@ namespace FemTest.Solver
             PlateProperty prop = new PlateProperty(mat, thickness, thickness);
 
             List<Node> nds = new List<Node>();
-            nds.Add(new Node(0.0 * 10.0 / 6.0, 0, 0, 1, "0"));
-            nds.Add(new Node(1.0 * 10.0 / 6.0, 0, 0, 1, "1"));
-            nds.Add(new Node(2.0 * 10.0 / 6.0, 0, 0, 1, "2"));
-            nds.Add(new Node(3.0 * 10.0 / 6.0, 0, 0, 1, "3"));
-            nds.Add(new Node(4.0 * 10.0 / 6.0, 0, 0, 1, "4"));
-            nds.Add(new Node(5.0 * 10.0 / 6.0, 0, 0, 1, "5"));
-            nds.Add(new Node(6.0 * 10.0 / 6.0, 0, 0, 1, "6"));
+            nds.Add(new Node(0.0 * 10.0 / 6.0, 0, 0, "0"));
+            nds.Add(new Node(1.0 * 10.0 / 6.0, 0, 0, "1"));
+            nds.Add(new Node(2.0 * 10.0 / 6.0, 0, 0, "2"));
+            nds.Add(new Node(3.0 * 10.0 / 6.0, 0, 0, "3"));
+            nds.Add(new Node(4.0 * 10.0 / 6.0, 0, 0, "4"));
+            nds.Add(new Node(5.0 * 10.0 / 6.0, 0, 0, "5"));
+            nds.Add(new Node(6.0 * 10.0 / 6.0, 0, 0, "6"));
 
-            nds.Add(new Node(0.0 * 10.0 / 6.0, 1.0, 0, 1, "7"));
-            nds.Add(new Node(1.0 * 10.0 / 6.0, 1.0, 0, 1, "8"));
-            nds.Add(new Node(2.0 * 10.0 / 6.0, 1.0, 0, 1, "9"));
-            nds.Add(new Node(3.0 * 10.0 / 6.0, 1.0, 0, 1, "10"));
-            nds.Add(new Node(4.0 * 10.0 / 6.0, 1.0, 0, 1, "11"));
-            nds.Add(new Node(5.0 * 10.0 / 6.0, 1.0, 0, 1, "12"));
-            nds.Add(new Node(6.0 * 10.0 / 6.0, 1.0, 0, 1, "13"));
+            nds.Add(new Node(0.0 * 10.0 / 6.0, 1.0, 0, "7"));
+            nds.Add(new Node(1.0 * 10.0 / 6.0, 1.0, 0, "8"));
+            nds.Add(new Node(2.0 * 10.0 / 6.0, 1.0, 0, "9"));
+            nds.Add(new Node(3.0 * 10.0 / 6.0, 1.0, 0, "10"));
+            nds.Add(new Node(4.0 * 10.0 / 6.0, 1.0, 0, "11"));
+            nds.Add(new Node(5.0 * 10.0 / 6.0, 1.0, 0, "12"));
+            nds.Add(new Node(6.0 * 10.0 / 6.0, 1.0, 0, "13"));
 
             CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
 
@@ -790,21 +790,21 @@ namespace FemTest.Solver
             PlateProperty prop = new PlateProperty(mat, thickness, thickness);
 
             List<Node> nds = new List<Node>();
-            nds.Add(new Node(0.0 * 10.0 / 6.0, 0, 0, 1, "0"));
-            nds.Add(new Node(1.0 * 10.0 / 6.0, 0, 0, 1, "1"));
-            nds.Add(new Node(2.0 * 10.0 / 6.0, 0, 0, 1, "2"));
-            nds.Add(new Node(3.0 * 10.0 / 6.0, 0, 0, 1, "3"));
-            nds.Add(new Node(4.0 * 10.0 / 6.0, 0, 0, 1, "4"));
-            nds.Add(new Node(5.0 * 10.0 / 6.0, 0, 0, 1, "5"));
-            nds.Add(new Node(6.0 * 10.0 / 6.0, 0, 0, 1, "6"));
+            nds.Add(new Node(0.0 * 10.0 / 6.0, 0, 0, "0"));
+            nds.Add(new Node(1.0 * 10.0 / 6.0, 0, 0, "1"));
+            nds.Add(new Node(2.0 * 10.0 / 6.0, 0, 0, "2"));
+            nds.Add(new Node(3.0 * 10.0 / 6.0, 0, 0, "3"));
+            nds.Add(new Node(4.0 * 10.0 / 6.0, 0, 0, "4"));
+            nds.Add(new Node(5.0 * 10.0 / 6.0, 0, 0, "5"));
+            nds.Add(new Node(6.0 * 10.0 / 6.0, 0, 0, "6"));
 
-            nds.Add(new Node(0.0 * 10.0 / 6.0, 1.0, 0, 1, "7"));
-            nds.Add(new Node(1.0 * 10.0 / 6.0, 1.0, 0, 1, "8"));
-            nds.Add(new Node(2.0 * 10.0 / 6.0, 1.0, 0, 1, "9"));
-            nds.Add(new Node(3.0 * 10.0 / 6.0, 1.0, 0, 1, "10"));
-            nds.Add(new Node(4.0 * 10.0 / 6.0, 1.0, 0, 1, "11"));
-            nds.Add(new Node(5.0 * 10.0 / 6.0, 1.0, 0, 1, "12"));
-            nds.Add(new Node(6.0 * 10.0 / 6.0, 1.0, 0, 1, "13"));
+            nds.Add(new Node(0.0 * 10.0 / 6.0, 1.0, 0, "7"));
+            nds.Add(new Node(1.0 * 10.0 / 6.0, 1.0, 0, "8"));
+            nds.Add(new Node(2.0 * 10.0 / 6.0, 1.0, 0, "9"));
+            nds.Add(new Node(3.0 * 10.0 / 6.0, 1.0, 0, "10"));
+            nds.Add(new Node(4.0 * 10.0 / 6.0, 1.0, 0, "11"));
+            nds.Add(new Node(5.0 * 10.0 / 6.0, 1.0, 0, "12"));
+            nds.Add(new Node(6.0 * 10.0 / 6.0, 1.0, 0, "13"));
 
             CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
 
@@ -876,29 +876,29 @@ namespace FemTest.Solver
             PlateProperty prop = new PlateProperty(mat, thickness, thickness);
 
             List<Node> nds = new List<Node>();
-            nds.Add(new Node(0.0, 0, 0, 1, "0"));
-            nds.Add(new Node(1.0, 0, 0, 2, "1"));
-            nds.Add(new Node(2.0, 0, 0, 3, "2"));
-            nds.Add(new Node(3.0, 0, 0, 4, "3"));
-            nds.Add(new Node(4.0, 0, 0, 5, "4"));
-            nds.Add(new Node(5.0, 0, 0, 6, "5"));
-            nds.Add(new Node(6.0, 0, 0, 7, "6"));
-            nds.Add(new Node(7.0, 0, 0, 8, "7"));
-            nds.Add(new Node(8.0, 0, 0, 9, "8"));
-            nds.Add(new Node(9.0, 0, 0, 10, "9"));
-            nds.Add(new Node(10.0, 0, 0, 11, "10"));
+            nds.Add(new Node(0.0, 0, 0, "0"));
+            nds.Add(new Node(1.0, 0, 0, "1"));
+            nds.Add(new Node(2.0, 0, 0, "2"));
+            nds.Add(new Node(3.0, 0, 0, "3"));
+            nds.Add(new Node(4.0, 0, 0, "4"));
+            nds.Add(new Node(5.0, 0, 0, "5"));
+            nds.Add(new Node(6.0, 0, 0, "6"));
+            nds.Add(new Node(7.0, 0, 0, "7"));
+            nds.Add(new Node(8.0, 0, 0, "8"));
+            nds.Add(new Node(9.0, 0, 0, "9"));
+            nds.Add(new Node(10.0, 0, 0, "10"));
 
-            nds.Add(new Node(0.0, 1.0, 0, 12, "11"));
-            nds.Add(new Node(1.0, 1.0, 0, 13, "12"));
-            nds.Add(new Node(2.0, 1.0, 0, 14, "13"));
-            nds.Add(new Node(3.0, 1.0, 0, 15, "14"));
-            nds.Add(new Node(4.0, 1.0, 0, 16, "15"));
-            nds.Add(new Node(5.0, 1.0, 0, 17, "16"));
-            nds.Add(new Node(6.0, 1.0, 0, 18, "17"));
-            nds.Add(new Node(7.0, 1.0, 0, 19, "18"));
-            nds.Add(new Node(8.0, 1.0, 0, 20, "19"));
-            nds.Add(new Node(9.0, 1.0, 0, 21, "20"));
-            nds.Add(new Node(10.0, 1.0, 0, 22, "21"));
+            nds.Add(new Node(0.0, 1.0, 0, "11"));
+            nds.Add(new Node(1.0, 1.0, 0, "12"));
+            nds.Add(new Node(2.0, 1.0, 0, "13"));
+            nds.Add(new Node(3.0, 1.0, 0, "14"));
+            nds.Add(new Node(4.0, 1.0, 0, "15"));
+            nds.Add(new Node(5.0, 1.0, 0, "16"));
+            nds.Add(new Node(6.0, 1.0, 0, "17"));
+            nds.Add(new Node(7.0, 1.0, 0, "18"));
+            nds.Add(new Node(8.0, 1.0, 0, "19"));
+            nds.Add(new Node(9.0, 1.0, 0, "20"));
+            nds.Add(new Node(10.0, 1.0, 0, "21"));
 
             CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
 
@@ -979,29 +979,29 @@ namespace FemTest.Solver
             PlateProperty prop = new PlateProperty(mat, thickness, thickness);
 
             List<Node> nds = new List<Node>();
-            nds.Add(new Node(0.0, 0, 0, 1, "0"));
-            nds.Add(new Node(1.0, 0, 0, 1, "1"));
-            nds.Add(new Node(2.0, 0, 0, 1, "2"));
-            nds.Add(new Node(3.0, 0, 0, 1, "3"));
-            nds.Add(new Node(4.0, 0, 0, 1, "4"));
-            nds.Add(new Node(5.0, 0, 0, 1, "5"));
-            nds.Add(new Node(6.0, 0, 0, 1, "6"));
-            nds.Add(new Node(7.0, 0, 0, 1, "7"));
-            nds.Add(new Node(8.0, 0, 0, 1, "8"));
-            nds.Add(new Node(9.0, 0, 0, 1, "9"));
-            nds.Add(new Node(10.0, 0, 0, 1, "10"));
+            nds.Add(new Node(0.0, 0, 0, "0"));
+            nds.Add(new Node(1.0, 0, 0, "1"));
+            nds.Add(new Node(2.0, 0, 0, "2"));
+            nds.Add(new Node(3.0, 0, 0, "3"));
+            nds.Add(new Node(4.0, 0, 0, "4"));
+            nds.Add(new Node(5.0, 0, 0, "5"));
+            nds.Add(new Node(6.0, 0, 0, "6"));
+            nds.Add(new Node(7.0, 0, 0, "7"));
+            nds.Add(new Node(8.0, 0, 0, "8"));
+            nds.Add(new Node(9.0, 0, 0, "9"));
+            nds.Add(new Node(10.0, 0, 0, "10"));
 
-            nds.Add(new Node(0.0, 1.0, 0, 1, "11"));
-            nds.Add(new Node(1.0, 1.0, 0, 1, "12"));
-            nds.Add(new Node(2.0, 1.0, 0, 1, "13"));
-            nds.Add(new Node(3.0, 1.0, 0, 1, "14"));
-            nds.Add(new Node(4.0, 1.0, 0, 1, "15"));
-            nds.Add(new Node(5.0, 1.0, 0, 1, "16"));
-            nds.Add(new Node(6.0, 1.0, 0, 1, "17"));
-            nds.Add(new Node(7.0, 1.0, 0, 1, "18"));
-            nds.Add(new Node(8.0, 1.0, 0, 1, "19"));
-            nds.Add(new Node(9.0, 1.0, 0, 1, "20"));
-            nds.Add(new Node(10.0, 1.0, 0, 1, "21"));
+            nds.Add(new Node(0.0, 1.0, 0, "11"));
+            nds.Add(new Node(1.0, 1.0, 0, "12"));
+            nds.Add(new Node(2.0, 1.0, 0, "13"));
+            nds.Add(new Node(3.0, 1.0, 0, "14"));
+            nds.Add(new Node(4.0, 1.0, 0, "15"));
+            nds.Add(new Node(5.0, 1.0, 0, "16"));
+            nds.Add(new Node(6.0, 1.0, 0, "17"));
+            nds.Add(new Node(7.0, 1.0, 0, "18"));
+            nds.Add(new Node(8.0, 1.0, 0, "19"));
+            nds.Add(new Node(9.0, 1.0, 0, "20"));
+            nds.Add(new Node(10.0, 1.0, 0, "21"));
 
             CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
 

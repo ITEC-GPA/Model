@@ -25,10 +25,10 @@ namespace FemTest.Solver
             PlateProperty prop = new PlateProperty(mat, 1.0, 1.0);
 
             Node[] nodesPlate1 = new Node[4];
-            nodesPlate1[0] = new Node(0.0, 0, 0, 1, "1");
-            nodesPlate1[1] = new Node(+1.0, 0, 0, 2, "2");
-            nodesPlate1[2] = new Node(+2.0, +2, 0, 3, "3");
-            nodesPlate1[3] = new Node(0.0, +1, 0, 3, "4");
+            nodesPlate1[0] = new Node(0.0, 0, 0, "1");
+            nodesPlate1[1] = new Node(+1.0, 0, 0, "2");
+            nodesPlate1[2] = new Node(+2.0, +2, 0, "3");
+            nodesPlate1[3] = new Node(0.0, +1, 0, "4");
 
             Plate e0 = new Quad4Element(nodesPlate1);
             e0.SetProperty(prop);
@@ -52,10 +52,10 @@ namespace FemTest.Solver
         public void Quad4ToQuad8NodesTest1()
         {
             Node[] nodes = new Node[4];
-            nodes[1 - 1] = new Node(0.0, 0.0, 0.0, 0);
-            nodes[2 - 1] = new Node(1.0, 0.0, 0.0, 0);
-            nodes[3 - 1] = new Node(1.0, 1.0, 0.0, 0);
-            nodes[4 - 1] = new Node(0.0, 1.0, 0.0, 0);
+            nodes[1 - 1] = new Node(0.0, 0.0, 0.0);
+            nodes[2 - 1] = new Node(1.0, 0.0, 0.0);
+            nodes[3 - 1] = new Node(1.0, 1.0, 0.0);
+            nodes[4 - 1] = new Node(0.0, 1.0, 0.0);
 
             Node[] nodes8 = Quad4Element.Get8Nodes(nodes);
 
@@ -88,10 +88,10 @@ namespace FemTest.Solver
         public void Quad4GetLocalNodesTest1()
         {
             Node[] nodes = new Node[4];
-            nodes[1 - 1] = new Node(0.0, 0.0, 0.0, 0);
-            nodes[2 - 1] = new Node(1.0, 0.0, 0.0, 0);
-            nodes[3 - 1] = new Node(1.0, 1.0, 0.0, 0);
-            nodes[4 - 1] = new Node(0.0, 1.0, 0.0, 0);
+            nodes[1 - 1] = new Node(0.0, 0.0, 0.0);
+            nodes[2 - 1] = new Node(1.0, 0.0, 0.0);
+            nodes[3 - 1] = new Node(1.0, 1.0, 0.0);
+            nodes[4 - 1] = new Node(0.0, 1.0, 0.0);
 
             Node[] localNodes = Quad4Element.GetLocalNodes(nodes, out CoordinateSystem sys);
 
@@ -108,10 +108,10 @@ namespace FemTest.Solver
             Assert.AreEqual(1.0, localNodes[4 - 1].Position.Y);
 
             //anticlock wise nodes
-            nodes[1 - 1] = new Node(0.0, 0.0, 0.0, 0);
-            nodes[2 - 1] = new Node(0.0, 1.0, 0.0, 0);
-            nodes[3 - 1] = new Node(1.0, 1.0, 0.0, 0);
-            nodes[4 - 1] = new Node(1.0, 0.0, 0.0, 0);
+            nodes[1 - 1] = new Node(0.0, 0.0, 0.0);
+            nodes[2 - 1] = new Node(0.0, 1.0, 0.0);
+            nodes[3 - 1] = new Node(1.0, 1.0, 0.0);
+            nodes[4 - 1] = new Node(1.0, 0.0, 0.0);
 
             localNodes = Quad4Element.GetLocalNodes(nodes, out sys);
 
@@ -156,18 +156,18 @@ namespace FemTest.Solver
             NodeForceAttribute F = new NodeForceAttribute(loadCase, sys, 0.0, 1.0, 0.0, 1.0, 0, 0);
             #endregion
 
-            Node nodeA = new Node(0.0, 8, 0,  "A", 1);
+            Node nodeA = new Node(0.0, 8, 0,  "A");
             nodeA.AddAttribute(fixRZ);            
             nodeA.AddAttribute(F);                
                                                   
-            Node nodeB = new Node(0.0, 0, 0,  "B", 2);
+            Node nodeB = new Node(0.0, 0, 0,  "B");
             nodeB.AddAttribute(fix);              
                                                   
-            Node nodeC = new Node(8.0, 8, 0,  "C", 3);
+            Node nodeC = new Node(8.0, 8, 0,  "C");
             nodeC.AddAttribute(F);                
             nodeC.AddAttribute(fixRZ);            
                                                   
-            Node nodeD = new Node(8.0, 0, 0,  "D", 3);
+            Node nodeD = new Node(8.0, 0, 0,  "D");
             nodeD.AddAttribute(fix);
 
             FiniteElement e0 = new Tri3Element(new Node[] { nodeA, nodeB, nodeC });

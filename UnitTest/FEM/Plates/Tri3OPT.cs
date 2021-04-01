@@ -32,9 +32,9 @@ namespace FemTest.Solver
             PlateProperty prop = new PlateProperty(mat, thickness, thickness);
 
             Node[] nds = new Node[3];
-            nds[0] = new Node(+0.00, +0.00, 0.0, 1, "1");
-            nds[1] = new Node(+4.08, -3.44, 0.0, 2, "2");
-            nds[2] = new Node(+3.40, +1.14, 0.0, 3, "3");
+            nds[0] = new Node(+0.00, +0.00, 0.0, "1");
+            nds[1] = new Node(+4.08, -3.44, 0.0, "2");
+            nds[2] = new Node(+3.40, +1.14, 0.0, "3");
 
             Tri3OPTMembrane el = new Tri3OPTMembrane(nds, prop, 1);
 
@@ -83,15 +83,15 @@ namespace FemTest.Solver
             double thickness = 1.0;
             PlateProperty prop = new PlateProperty(mat, thickness, thickness);
 
-            Node node1 = new Node(0.0, 0.0, 0.0, 1, "1");
-            Node node2 = new Node(16.0, 0.0, 0.0, 2, "2");
-            Node node3 = new Node(0.0, 1.0, 0.0, 3, "3");
-            Node node4 = new Node(16.0, 1.0, 0.0, 4, "4");
-            Node node5 = new Node(0.0, 2.0, 0.0, 5, "5");
-            Node node6 = new Node(16.0, 2.0, 0.0, 6, "6");
-            Node node7 = new Node(32.0, 0.0, 0.0, 7, "7");
-            Node node8 = new Node(32.0, 1.0, 0.0, 8, "8");
-            Node node9 = new Node(32.0, 2.0, 0.0, 9, "9");
+            Node node1 = new Node(0.0, 0.0, 0.0, "1");
+            Node node2 = new Node(16.0, 0.0, 0.0, "2");
+            Node node3 = new Node(0.0, 1.0, 0.0, "3");
+            Node node4 = new Node(16.0, 1.0, 0.0, "4");
+            Node node5 = new Node(0.0, 2.0, 0.0, "5");
+            Node node6 = new Node(16.0, 2.0, 0.0, "6");
+            Node node7 = new Node(32.0, 0.0, 0.0, "7");
+            Node node8 = new Node(32.0, 1.0, 0.0, "8");
+            Node node9 = new Node(32.0, 2.0, 0.0, "9");
 
             FreedomCase fc = new FreedomCase("fc1");
             CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
@@ -164,15 +164,15 @@ namespace FemTest.Solver
             double thickness = 1.0;
             PlateProperty prop = new PlateProperty(mat, thickness, thickness);
 
-            Node node1 = new Node(0.0, 0.0, 0.0, 1, "1");
-            Node node2 = new Node(0.0, 6.0, 0.0, 2, "2");
-            Node node3 = new Node(0.0, 12.0, 0.0, 3, "3");
-            Node node4 = new Node(24.0, 0.0, 0.0, 4, "4");
-            Node node5 = new Node(24.0, 6.0, 0.0, 5, "5");
-            Node node6 = new Node(24.0, 12.0, 0.0, 6, "6");
-            Node node7 = new Node(48.0, 0.0, 0.0, 7, "7");
-            Node node8 = new Node(48.0, 6.0, 0.0, 8, "8");
-            Node node9 = new Node(48.0, 12.0, 0.0, 9, "9");
+            Node node1 = new Node(0.0, 0.0, 0.0, "1");
+            Node node2 = new Node(0.0, 6.0, 0.0, "2");
+            Node node3 = new Node(0.0, 12.0, 0.0, "3");
+            Node node4 = new Node(24.0, 0.0, 0.0, "4");
+            Node node5 = new Node(24.0, 6.0, 0.0, "5");
+            Node node6 = new Node(24.0, 12.0, 0.0, "6");
+            Node node7 = new Node(48.0, 0.0, 0.0, "7");
+            Node node8 = new Node(48.0, 6.0, 0.0, "8");
+            Node node9 = new Node(48.0, 12.0, 0.0, "9");
 
             FreedomCase fc = new FreedomCase("fc1");
             CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
@@ -247,7 +247,7 @@ namespace FemTest.Solver
             PlateProperty prop = new PlateProperty(mat, thickness, thickness);
 
             List<Node> nodes = new List<Node>();
-            nodes.Add(new Node(0.0, -1000, -1000, -1000, "NULL"));
+            nodes.Add(new Node(-1000 -1000, -1000, -1000, "NULL"));
             nodes.Add(new Node(1, 0.0,  -10.0));
             nodes.Add(new Node(2, 24.0,  -4.0));
             nodes.Add(new Node(3, 0.0,   -4.0));

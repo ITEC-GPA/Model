@@ -25,9 +25,9 @@ namespace FemTest.Solver
             PlateProperty prop = new PlateProperty(mat, 0, 1);
 
             Node[] nds = new Node[3];
-            nds[0] = new Node(0.0, 0, 0, 1, "1");
-            nds[1] = new Node(1.0, 0, 0, 2, "2");
-            nds[2] = new Node(0.0, 1, 0, 3, "3");
+            nds[0] = new Node(0.0, 0, 0, "1");
+            nds[1] = new Node(1.0, 0, 0, "2");
+            nds[2] = new Node(0.0, 1, 0, "3");
 
             Tri3PlaneStress el = new Tri3PlaneStress(nds);
             el.SetProperty(prop);
@@ -69,9 +69,9 @@ namespace FemTest.Solver
             PlateProperty prop = new PlateProperty(mat, 0, 1);
 
             Node[] nds = new Node[3];
-            nds[0] = new Node(0.0, 0, 0, 1, "1");
-            nds[1] = new Node(100.0, 0, 0, 2, "2");
-            nds[2] = new Node(0.0, 100, 0, 3, "3");
+            nds[0] = new Node(0.0, 0, 0, "1");
+            nds[1] = new Node(100.0, 0, 0, "2");
+            nds[2] = new Node(0.0, 100, 0, "3");
 
             Tri3PlaneStress el = new Tri3PlaneStress(nds);
             el.SetProperty(prop);
@@ -117,9 +117,9 @@ namespace FemTest.Solver
             //CoordinateSystem sys2 = new CoordinateSystem(new Point3d(1, 1, 0), new Point3d(2, 2, 0), new Point3d(0, 2, 0));
 
             List<Node> nodesPlate1 = new List<Node>();
-            Node nd1 = new Node(0.0, 0, 0, 1, "1");
-            Node nd2 = new Node(0.0, 1, 0, 2, "2");
-            Node nd3 = new Node(1.0, 0, 0, 3, "3");
+            Node nd1 = new Node(0.0, 0, 0, "1");
+            Node nd2 = new Node(0.0, 1, 0, "2");
+            Node nd3 = new Node(1.0, 0, 0, "3");
 
             nd1.AddAttribute(DXDYDZ);
             nd2.AddAttribute(DXDYDZ);
@@ -129,9 +129,9 @@ namespace FemTest.Solver
             nodesPlate1.Add(nd3);
 
             List<Node> nodesPlate2 = new List<Node>();
-            Node nd2copy = new Node(0.0, 1, 0, 2, "2");
-            Node nd3copy = new Node(1.0, 0, 0, 3, "3");
-            Node nd4 = new Node(1.0, 1, 0, 4, "4");
+            Node nd2copy = new Node(0.0, 1, 0, "2");
+            Node nd3copy = new Node(1.0, 0, 0, "3");
+            Node nd4 = new Node(1.0, 1, 0, "4");
 
             nd2copy.AddAttribute(DZ);
             nd3copy.AddAttribute(DZ);
@@ -195,10 +195,10 @@ namespace FemTest.Solver
             PlateProperty prop = new PlateProperty(mat, 0, 1);
 
             Node[] nds = new Node[4];
-            nds[0] = new Node(-1.0, -1, 0, 1, "1");
-            nds[1] = new Node(+1.0, -1, 0, 2, "2");
-            nds[2] = new Node(+1.0, +1, 0, 3, "3");
-            nds[3] = new Node(-1.0, +1, 0, 4, "4");
+            nds[0] = new Node(-1.0, -1, 0, "1");
+            nds[1] = new Node(+1.0, -1, 0, "2");
+            nds[2] = new Node(+1.0, +1, 0, "3");
+            nds[3] = new Node(-1.0, +1, 0, "4");
 
             Quad4Membranal el = new Quad4Membranal(nds);
             el.SetProperty(prop);
@@ -249,10 +249,10 @@ namespace FemTest.Solver
             PlateProperty prop = new PlateProperty(mat, 0, 1);
 
             Node[] nds = new Node[4];
-            nds[0] = new Node(+0.0, +0, 0, 1, "1");
-            nds[1] = new Node(+2.0, +0, 0, 2, "2");
-            nds[2] = new Node(+2.0, +1, 0, 3, "3");
-            nds[3] = new Node(+0.0, +1, 0, 4, "4");
+            nds[0] = new Node(+0.0, +0, 0, "1");
+            nds[1] = new Node(+2.0, +0, 0, "2");
+            nds[2] = new Node(+2.0, +1, 0, "3");
+            nds[3] = new Node(+0.0, +1, 0, "4");
 
             Quad4Membranal el = new Quad4Membranal(nds);
             el.SetProperty(prop);
@@ -303,10 +303,10 @@ namespace FemTest.Solver
             PlateProperty prop = new PlateProperty(mat, 0, 1);
 
             Node[] nds = new Node[4];
-            nds[0] = new Node(+0.0, +0, 0, 1, "1");
-            nds[1] = new Node(+2.0, +0, 0, 2, "2");
-            nds[2] = new Node(+2.0, +2, 0, 3, "3");
-            nds[3] = new Node(+0.0, +1, 0, 4, "4");
+            nds[0] = new Node(+0.0, +0, 0, "1");
+            nds[1] = new Node(+2.0, +0, 0, "2");
+            nds[2] = new Node(+2.0, +2, 0, "3");
+            nds[3] = new Node(+0.0, +1, 0, "4");
 
             Quad4Membranal el = new Quad4Membranal(nds);
             el.SetProperty(prop);
@@ -357,10 +357,10 @@ namespace FemTest.Solver
             PlateProperty prop = new PlateProperty(mat, 0, 1);
 
             Node[] nds = new Node[4];
-            nds[0] = new Node(-1.0, -1, 0, 1, "1");
-            nds[1] = new Node(+1.0, -1, 0, 2, "2");
-            nds[2] = new Node(+1.0, +1, 0, 3, "3");
-            nds[3] = new Node(-1.0, +1, 0, 4, "4");
+            nds[0] = new Node(-1.0, -1, 0, "1");
+            nds[1] = new Node(+1.0, -1, 0, "2");
+            nds[2] = new Node(+1.0, +1, 0, "3");
+            nds[3] = new Node(-1.0, +1, 0, "4");
 
             Quad4Membranal el = new Quad4Membranal(nds);
             el.SetProperty(prop);
@@ -422,10 +422,10 @@ namespace FemTest.Solver
             PlateProperty prop = new PlateProperty(mat, thickness, thickness);
 
             Node[] nds = new Node[4];
-            nds[0] = new Node(0.0, 0, 0, 1, "1");
-            nds[1] = new Node(+1.0, 0, 0, 2, "2");
-            nds[2] = new Node(+2.0, +2, 0, 3, "3");
-            nds[3] = new Node(0.0, +1, 0, 4, "4");
+            nds[0] = new Node(0.0, 0, 0, "1");
+            nds[1] = new Node(+1.0, 0, 0, "2");
+            nds[2] = new Node(+2.0, +2, 0, "3");
+            nds[3] = new Node(0.0, +1, 0, "4");
 
             CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
 

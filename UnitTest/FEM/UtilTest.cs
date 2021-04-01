@@ -33,10 +33,10 @@ namespace FemTest.Solver
         public void Test2()
         {
             Node[] nds = new Node[4];
-            nds[0] = new Node(-1.0, -1.0, 0, 1, "1");
-            nds[1] = new Node(+1.0, -1.0, 0, 2, "2");
-            nds[2] = new Node(+1.0, +1.0, 0, 3, "3");
-            nds[3] = new Node(-1.0, +1.0, 0, 4, "4");
+            nds[0] = new Node(-1.0, -1.0, 0, "1");
+            nds[1] = new Node(+1.0, -1.0, 0, "2");
+            nds[2] = new Node(+1.0, +1.0, 0, "3");
+            nds[3] = new Node(-1.0, +1.0, 0, "4");
 
             Func<double, double, Node[], double> X = (double csi, double eta, Node[] nodi) =>
             {

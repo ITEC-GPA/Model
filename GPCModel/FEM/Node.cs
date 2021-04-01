@@ -32,7 +32,7 @@ namespace GPC.Model.FEM
             get
             {
                 int ris = 0;
-                for (int i = 0; i < LinearSolver.MAXGDLPERNODE; i++)
+                for (int i = 0; i < LinearSolver.MAXDOFPERNODE; i++)
                 {
                     if (DOF.Contains((LinearSolver.DOF)i) == true)
                     {
@@ -57,7 +57,6 @@ namespace GPC.Model.FEM
             _attributesFreedomCase = new List<INodeFreedomCaseAttribute>();
         }
 
-
         /// <summary>
         /// only for test purpose
         /// </summary>
@@ -69,39 +68,19 @@ namespace GPC.Model.FEM
         /// <summary>
         /// only for test purpose
         /// </summary>
-        internal Node(double X, double Y, double Z, int id, string name) : this(new Point3d(X, Y, Z), name, id)
+        internal Node(Point3d point, int id) : this(point)
         {
-
+            SetId(id);
         }
 
         /// <summary>
         /// only for test purpose
         /// </summary>
-        internal Node(double X, double Y, double Z, string name, int id) : this(new Point3d(X, Y, Z), name, id)
-        {
-
-        }
-
-
-        /// <summary>
-        /// only for test purpose
-        /// </summary>
-        internal Node(Point3d point, string name, int id) : this(point)
+        internal Node(double X, double Y, double Z, string name, int id) : this(new Point3d(X, Y, Z))
         {
             Name = name;
             SetId(id);
         }
-
-
-        /// <summary>
-        /// only for test purpose
-        /// </summary>
-        internal Node(Point3d point, int id) : this(point)
-        {
-            Name = string.Empty;
-            SetId(id);
-        }
-
 
         public override string ToString()
         {

@@ -25,9 +25,9 @@ namespace FemTest.Solver
             PlateProperty prop = new PlateProperty(mat, 1.0, 1.0);
 
             Node[] nodesPlate1 = new Node[3];
-            nodesPlate1[0] = new Node(0.0, 0, 0, "1", 1);
-            nodesPlate1[1] = new Node(1.0, 0, 0, "2", 2);
-            nodesPlate1[2] = new Node(0.0, 1, 0, "3", 3);
+            nodesPlate1[0] = new Node(0.0, 0, 0, "1");
+            nodesPlate1[1] = new Node(1.0, 0, 0, "2");
+            nodesPlate1[2] = new Node(0.0, 1, 0, "3");
 
             FiniteElement e0 = new Tri3DK(nodesPlate1);
             e0.SetProperty(prop);
@@ -76,9 +76,9 @@ namespace FemTest.Solver
             PlateProperty prop = new PlateProperty(mat, 1.0, 1.0);
 
             Node[] nodesPlate1 = new Node[3];
-            nodesPlate1[0] = new Node(0.0, 0, 0, "1", 1);
-            nodesPlate1[1] = new Node(1.0, 0, 0, "2", 2);
-            nodesPlate1[2] = new Node(0.0, 1, 0, "3", 3);
+            nodesPlate1[0] = new Node(0.0, 0, 0, "1");
+            nodesPlate1[1] = new Node(1.0, 0, 0, "2");
+            nodesPlate1[2] = new Node(0.0, 1, 0, "3");
 
             mnl.Matrix<double> SAPkMatrix = mnl.Matrix<double>.Build.Dense(0, 18);
             mnl.Vector<double>[] row = new mnl.Vector<double>[18];
@@ -155,14 +155,14 @@ namespace FemTest.Solver
             NodeForceAttribute F = new NodeForceAttribute(loadCase, sys, 0, 0, 5.0, 0, 0, 0);
             #endregion
 
-            Node nodeA = new Node(0.0, 8, 0, 1, "A");
+            Node nodeA = new Node(0.0, 8, 0, "A");
             nodeA.AddAttribute(fixDXDYDZRZ);
-            Node nodeB = new Node(0.0, 0, 0, 2, "B");
+            Node nodeB = new Node(0.0, 0, 0, "B");
             nodeB.AddAttribute(fixDXDYDZRZ);
-            Node nodeC = new Node(8.0, 8, 0, 3, "C");
+            Node nodeC = new Node(8.0, 8, 0, "C");
             nodeC.AddAttribute(F);
             nodeC.AddAttribute(fixDXDYRZ);
-            Node nodeD = new Node(8.0, 0, 0, 3, "D");
+            Node nodeD = new Node(8.0, 0, 0, "D");
             nodeD.AddAttribute(fixDXDYDZRZ);
 
             FiniteElement e0 = new Tri3DK(new Node[] { nodeA, nodeB, nodeC });
@@ -198,10 +198,10 @@ namespace FemTest.Solver
             PlateProperty prop = new PlateProperty(mat, 1.0, 1.0);
 
             Node[] nodesPlate1 = new Node[4];
-            nodesPlate1[0] = new Node(-1.0, -1, 0, "1", 1);
-            nodesPlate1[1] = new Node(+1.0, -1, 0, "2", 2);
-            nodesPlate1[2] = new Node(+1.0, +1, 0, "3", 3);
-            nodesPlate1[3] = new Node(-1.0, +1, 0, "4", 4);
+            nodesPlate1[0] = new Node(-1.0, -1, 0);
+            nodesPlate1[1] = new Node(+1.0, -1, 0);
+            nodesPlate1[2] = new Node(+1.0, +1, 0);
+            nodesPlate1[3] = new Node(-1.0, +1, 0);
 
             FiniteElement e0 = new Quad4DK(nodesPlate1);
             e0.SetProperty(prop);
@@ -255,10 +255,10 @@ namespace FemTest.Solver
             PlateProperty prop = new PlateProperty(mat, 1.0, 1.0);
 
             Node[] nodesPlate1 = new Node[4];
-            nodesPlate1[0] = new Node(0.0, 0, 0, 1, "1");
-            nodesPlate1[1] = new Node(2.0, 0, 0, 2, "2");
-            nodesPlate1[2] = new Node(2.0, 2, 0, 3, "3");
-            nodesPlate1[3] = new Node(0.0, 2, 0, 3, "4");
+            nodesPlate1[0] = new Node(0.0, 0, 0, "1");
+            nodesPlate1[1] = new Node(2.0, 0, 0, "2");
+            nodesPlate1[2] = new Node(2.0, 2, 0, "3");
+            nodesPlate1[3] = new Node(0.0, 2, 0, "4");
 
             FiniteElement e0 = new Quad4DK(nodesPlate1);
             e0.SetProperty(prop);
@@ -337,10 +337,10 @@ namespace FemTest.Solver
             PlateProperty prop = new PlateProperty(mat, 1.0, 1.0);
 
             Node[] nodesPlate1 = new Node[4];
-            nodesPlate1[0] = new Node(0.0, 0, 0, 1, "1");
-            nodesPlate1[1] = new Node(+1.0, 0, 0, 2, "2");
-            nodesPlate1[2] = new Node(+2.0, +2, 0, 3, "3");
-            nodesPlate1[3] = new Node(0.0, +1, 0, 3, "4");
+            nodesPlate1[0] = new Node(0.0, 0, 0, "1");
+            nodesPlate1[1] = new Node(+1.0, 0, 0, "2");
+            nodesPlate1[2] = new Node(+2.0, +2, 0, "3");
+            nodesPlate1[3] = new Node(0.0, +1, 0, "4");
 
             Plate e0 = new Quad4DK(nodesPlate1);
             e0.SetProperty(prop);
