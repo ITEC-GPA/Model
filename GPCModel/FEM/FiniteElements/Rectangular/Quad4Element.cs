@@ -38,6 +38,12 @@ namespace GPC.Model.FEM.FiniteElements
             //TODO: aggiungere Properietà
         }
 
+        internal Quad4Element(Node[] nodes, PlateProperty property) : this(nodes)
+        {
+            _membranal.SetProperty(property);
+            _flexural.SetProperty(property);
+        }
+
         public override void BuildMatrix()
         {
             //Calculation of the stiffness matrix of the 2 elements: sum of membrane and bending in the right position
@@ -444,6 +450,8 @@ namespace GPC.Model.FEM.FiniteElements
             }           
         }
 
+
+        #region PublicStaticFunction
         /// <summary>
         /// out Local Node in clockwise, centro nel primo nodo dell'elemento
         /// </summary>
@@ -594,5 +602,6 @@ namespace GPC.Model.FEM.FiniteElements
 
             return nodes8;
         }
+        #endregion
     }
 }

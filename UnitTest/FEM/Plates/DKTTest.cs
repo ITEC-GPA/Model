@@ -31,7 +31,7 @@ namespace FemTest.Solver
 
             FiniteElement e0 = new Tri3DK(nodesPlate1);
             e0.SetProperty(prop);
-            e0.SetId(1);
+        
             e0.BuildMatrix();
 
             mnl.Matrix<double> SAPkMatrix = mnl.Matrix<double>.Build.Dense(0,9);
@@ -109,7 +109,7 @@ namespace FemTest.Solver
 
             FiniteElement e0 = new Tri3DK(nodesPlate1);
             e0.SetProperty(prop);
-            e0.SetId(1);
+            
             LinearSolver fem = new LinearSolver(new FiniteElement[] { e0 });
             
             Console.WriteLine("Element Global stiffness matrix");
@@ -167,10 +167,10 @@ namespace FemTest.Solver
 
             FiniteElement e0 = new Tri3DK(new Node[] { nodeA, nodeB, nodeC });
             e0.SetProperty(prop);
-            e0.SetId(1);
+          
             FiniteElement e1 = new Tri3DK(new Node[] { nodeB, nodeD, nodeC });
             e1.SetProperty(prop);
-            e1.SetId(1);
+        
             LinearSolver fem = new LinearSolver(new FiniteElement[] { e0, e1 });
 
             double dz = fem.GetDisplacementGlobalCoordinates(nodeC, LinearSolver.DOF.DZ);
@@ -205,7 +205,7 @@ namespace FemTest.Solver
 
             FiniteElement e0 = new Quad4DK(nodesPlate1);
             e0.SetProperty(prop);
-            e0.SetId(1);
+     
             e0.BuildMatrix();
 
             mnl.Matrix<double> kLocalManual = mnl.Matrix<double>.Build.Dense(12, 12);
@@ -262,7 +262,6 @@ namespace FemTest.Solver
 
             FiniteElement e0 = new Quad4DK(nodesPlate1);
             e0.SetProperty(prop);
-            e0.SetId(1);
 
             LinearSolver fem = new LinearSolver(new FiniteElement[] { e0 });
 
@@ -344,7 +343,6 @@ namespace FemTest.Solver
 
             Plate e0 = new Quad4DK(nodesPlate1);
             e0.SetProperty(prop);
-            e0.SetId(1);
 
             LoadCase loadCase = new LoadCase("myLoadCase", new Guid());
             FreedomCase freedomCase = new FreedomCase("freedomCase1");

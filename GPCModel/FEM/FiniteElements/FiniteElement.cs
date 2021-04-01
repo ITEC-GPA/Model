@@ -184,7 +184,6 @@ namespace GPC.Model.FEM.FiniteElements
             return Nodes.Select(i => i.Id).ToArray();
         }
 
-
         public override bool Equals(object obj)
         {
             return obj is FiniteElement element &&
