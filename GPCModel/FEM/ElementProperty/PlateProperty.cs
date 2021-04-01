@@ -28,17 +28,6 @@ namespace GPC.Model.FEM.Properties
 
         #region Public Constructors
 
-
-        /// <summary>
-        /// <param name="bendingThickness"> Bending thickness</param>
-        /// <param name="membraneThickness"> Membranal thickness</param>
-        /// </summary>
-        internal PlateProperty(Material material, double bendingThickness, double membraneThickness)
-            : this(material, bendingThickness, membraneThickness, string.Empty)
-        {
-            // Internal perchè per il fem il nome è un requisito obbligatorio
-        }
-
         /// <summary>
         /// <param name="bendingThickness"> Bending thickness</param>
         /// <param name="membraneThickness"> Membranal thickness</param>

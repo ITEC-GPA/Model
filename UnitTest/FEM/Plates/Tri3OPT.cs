@@ -29,14 +29,14 @@ namespace FemTest.Solver
             Material mat = new SteelMaterial("steel", E, ni, 355, 510, 7850);
 
             double thickness = 1.0 / 8.0;
-            PlateProperty prop = new PlateProperty(mat, thickness, thickness);
+            PlateProperty prop = new PlateProperty(mat, thickness, thickness, "p");
 
             Node[] nds = new Node[3];
             nds[0] = new Node(+0.00, +0.00, 0.0, "1");
             nds[1] = new Node(+4.08, -3.44, 0.0, "2");
             nds[2] = new Node(+3.40, +1.14, 0.0, "3");
 
-            Tri3OPTMembrane el = new Tri3OPTMembrane(nds, prop, 1);
+            Tri3OPTMembrane el = new Tri3OPTMembrane(nds, prop);
 
             LinearSolver fem = new LinearSolver(new FiniteElement[] { el });
             Console.WriteLine("kGlob=" + fem.KGlobal);
@@ -81,7 +81,7 @@ namespace FemTest.Solver
             Material mat = new SteelMaterial("steel", E, ni, 355, 510, 7850);
 
             double thickness = 1.0;
-            PlateProperty prop = new PlateProperty(mat, thickness, thickness);
+            PlateProperty prop = new PlateProperty(mat, thickness, thickness, "p");
 
             Node node1 = new Node(0.0, 0.0, 0.0, "1");
             Node node2 = new Node(16.0, 0.0, 0.0, "2");
@@ -137,14 +137,14 @@ namespace FemTest.Solver
             node8.AddAttribute(M);*/
 
             List<Tri3OPTMembrane> elements = new List<Tri3OPTMembrane>();
-            elements.Add(new Tri3OPTMembrane(new Node[] { node1, node2, node3 }, prop, 1));
-            elements.Add(new Tri3OPTMembrane(new Node[] { node3, node2, node4 }, prop, 2));
-            elements.Add(new Tri3OPTMembrane(new Node[] { node3, node4, node5 }, prop, 3));
-            elements.Add(new Tri3OPTMembrane(new Node[] { node5, node4, node6 }, prop, 4));
-            elements.Add(new Tri3OPTMembrane(new Node[] { node2, node7, node4 }, prop, 5));
-            elements.Add(new Tri3OPTMembrane(new Node[] { node4, node7, node8 }, prop, 6));
-            elements.Add(new Tri3OPTMembrane(new Node[] { node4, node8, node6 }, prop, 7));
-            elements.Add(new Tri3OPTMembrane(new Node[] { node6, node8, node9 }, prop, 8));
+            elements.Add(new Tri3OPTMembrane(new Node[] { node1, node2, node3 }, prop));
+            elements.Add(new Tri3OPTMembrane(new Node[] { node3, node2, node4 }, prop));
+            elements.Add(new Tri3OPTMembrane(new Node[] { node3, node4, node5 }, prop));
+            elements.Add(new Tri3OPTMembrane(new Node[] { node5, node4, node6 }, prop));
+            elements.Add(new Tri3OPTMembrane(new Node[] { node2, node7, node4 }, prop));
+            elements.Add(new Tri3OPTMembrane(new Node[] { node4, node7, node8 }, prop));
+            elements.Add(new Tri3OPTMembrane(new Node[] { node4, node8, node6 }, prop));
+            elements.Add(new Tri3OPTMembrane(new Node[] { node6, node8, node9 }, prop));
 
             LinearSolver fem = new LinearSolver(elements.ToArray());
 
@@ -162,7 +162,7 @@ namespace FemTest.Solver
             Material mat = new SteelMaterial("steel", E, ni, 355, 510, 7850);
 
             double thickness = 1.0;
-            PlateProperty prop = new PlateProperty(mat, thickness, thickness);
+            PlateProperty prop = new PlateProperty(mat, thickness, thickness, "p");
 
             Node node1 = new Node(0.0, 0.0, 0.0, "1");
             Node node2 = new Node(0.0, 6.0, 0.0, "2");
@@ -210,14 +210,14 @@ namespace FemTest.Solver
             node9.AddAttribute(fLateral);
 
             List<Tri3OPTMembrane> elements = new List<Tri3OPTMembrane>();
-            elements.Add(new Tri3OPTMembrane(new Node[] { node1, node4, node5 }, prop, 1));
-            elements.Add(new Tri3OPTMembrane(new Node[] { node1, node5, node2 }, prop, 2));
-            elements.Add(new Tri3OPTMembrane(new Node[] { node2, node5, node6 }, prop, 3));
-            elements.Add(new Tri3OPTMembrane(new Node[] { node2, node6, node3 }, prop, 4));
-            elements.Add(new Tri3OPTMembrane(new Node[] { node4, node7, node8 }, prop, 5));
-            elements.Add(new Tri3OPTMembrane(new Node[] { node4, node8, node5 }, prop, 6));
-            elements.Add(new Tri3OPTMembrane(new Node[] { node5, node8, node9 }, prop, 7));
-            elements.Add(new Tri3OPTMembrane(new Node[] { node6, node9, node5 }, prop, 8));
+            elements.Add(new Tri3OPTMembrane(new Node[] { node1, node4, node5 }, prop));
+            elements.Add(new Tri3OPTMembrane(new Node[] { node1, node5, node2 }, prop));
+            elements.Add(new Tri3OPTMembrane(new Node[] { node2, node5, node6 }, prop));
+            elements.Add(new Tri3OPTMembrane(new Node[] { node2, node6, node3 }, prop));
+            elements.Add(new Tri3OPTMembrane(new Node[] { node4, node7, node8 }, prop));
+            elements.Add(new Tri3OPTMembrane(new Node[] { node4, node8, node5 }, prop));
+            elements.Add(new Tri3OPTMembrane(new Node[] { node5, node8, node9 }, prop));
+            elements.Add(new Tri3OPTMembrane(new Node[] { node6, node9, node5 }, prop));
 
             LinearSolver fem = new LinearSolver(elements.ToArray());
 
@@ -244,7 +244,7 @@ namespace FemTest.Solver
             Material mat = new SteelMaterial("steel", E, ni, 355, 510, 7850);
 
             double thickness = 1.0;
-            PlateProperty prop = new PlateProperty(mat, thickness, thickness);
+            PlateProperty prop = new PlateProperty(mat, thickness, thickness, "p");
 
             List<Node> nodes = new List<Node>();
             nodes.Add(new Node(-1000 -1000, -1000, -1000, "NULL"));
@@ -310,38 +310,38 @@ namespace FemTest.Solver
             nodes[8].AddAttribute(fLateral);
 
             List<Tri3OPTMembrane> elements = new List<Tri3OPTMembrane>();
-            elements.Add(new Tri3OPTMembrane(new Node[] { nodes[14], nodes[13], nodes[7] },   prop, 1));
-            elements.Add(new Tri3OPTMembrane(new Node[] { nodes[19], nodes[18], nodes[7] },   prop, 2));
-            elements.Add(new Tri3OPTMembrane(new Node[] { nodes[14], nodes[22], nodes[2] },   prop, 3));
-            elements.Add(new Tri3OPTMembrane(new Node[] { nodes[25], nodes[13], nodes[1] },   prop, 4));
-            elements.Add(new Tri3OPTMembrane(new Node[] { nodes[3], nodes[10], nodes[11] },   prop, 5));
-            elements.Add(new Tri3OPTMembrane(new Node[] { nodes[11], nodes[10], nodes[12] },  prop, 6));
-            elements.Add(new Tri3OPTMembrane(new Node[] { nodes[10], nodes[1], nodes[12] },   prop, 7));
-            elements.Add(new Tri3OPTMembrane(new Node[] { nodes[12], nodes[1], nodes[13] },   prop, 8));
-            elements.Add(new Tri3OPTMembrane(new Node[] { nodes[11], nodes[12], nodes[2] },   prop, 9));
-            elements.Add(new Tri3OPTMembrane(new Node[] { nodes[2], nodes[12], nodes[14] },  prop, 10));
-            elements.Add(new Tri3OPTMembrane(new Node[] { nodes[12], nodes[13], nodes[14] }, prop, 11));
-            elements.Add(new Tri3OPTMembrane(new Node[] { nodes[4], nodes[15], nodes[16] },  prop, 12));
-            elements.Add(new Tri3OPTMembrane(new Node[] { nodes[16], nodes[15], nodes[17] }, prop, 13));
-            elements.Add(new Tri3OPTMembrane(new Node[] { nodes[15], nodes[5], nodes[17] },  prop, 14));
-            elements.Add(new Tri3OPTMembrane(new Node[] { nodes[17], nodes[5], nodes[18] },  prop, 15));
-            elements.Add(new Tri3OPTMembrane(new Node[] { nodes[16], nodes[17], nodes[6] },  prop, 16));
-            elements.Add(new Tri3OPTMembrane(new Node[] { nodes[6], nodes[17], nodes[19] },  prop, 17));
-            elements.Add(new Tri3OPTMembrane(new Node[] { nodes[17], nodes[18], nodes[19] }, prop, 18));
-            elements.Add(new Tri3OPTMembrane(new Node[] { nodes[5], nodes[20], nodes[18] },  prop, 19));
-            elements.Add(new Tri3OPTMembrane(new Node[] { nodes[18], nodes[20], nodes[21] }, prop, 20));
-            elements.Add(new Tri3OPTMembrane(new Node[] { nodes[20], nodes[8], nodes[21] },  prop, 21));
-            elements.Add(new Tri3OPTMembrane(new Node[] { nodes[21], nodes[8], nodes[22] },  prop, 22));
-            elements.Add(new Tri3OPTMembrane(new Node[] { nodes[18], nodes[21], nodes[7] },  prop, 23));
-            elements.Add(new Tri3OPTMembrane(new Node[] { nodes[7], nodes[21], nodes[14] },  prop, 24));
-            elements.Add(new Tri3OPTMembrane(new Node[] { nodes[21], nodes[22], nodes[14] }, prop, 25));
-            elements.Add(new Tri3OPTMembrane(new Node[] { nodes[6], nodes[19], nodes[23] },  prop, 26));
-            elements.Add(new Tri3OPTMembrane(new Node[] { nodes[23], nodes[19], nodes[24] }, prop, 27));
-            elements.Add(new Tri3OPTMembrane(new Node[] { nodes[19], nodes[7], nodes[24] },  prop, 28));
-            elements.Add(new Tri3OPTMembrane(new Node[] { nodes[24], nodes[7], nodes[13] },  prop, 29));
-            elements.Add(new Tri3OPTMembrane(new Node[] { nodes[23], nodes[24], nodes[9] },  prop, 30));
-            elements.Add(new Tri3OPTMembrane(new Node[] { nodes[9], nodes[24], nodes[25] },  prop, 31));
-            elements.Add(new Tri3OPTMembrane(new Node[] { nodes[24], nodes[13], nodes[25] }, prop, 32));
+            elements.Add(new Tri3OPTMembrane(new Node[] { nodes[14], nodes[13], nodes[7] },   prop));
+            elements.Add(new Tri3OPTMembrane(new Node[] { nodes[19], nodes[18], nodes[7] },   prop));
+            elements.Add(new Tri3OPTMembrane(new Node[] { nodes[14], nodes[22], nodes[2] },   prop));
+            elements.Add(new Tri3OPTMembrane(new Node[] { nodes[25], nodes[13], nodes[1] },   prop));
+            elements.Add(new Tri3OPTMembrane(new Node[] { nodes[3], nodes[10], nodes[11] },   prop));
+            elements.Add(new Tri3OPTMembrane(new Node[] { nodes[11], nodes[10], nodes[12] },  prop));
+            elements.Add(new Tri3OPTMembrane(new Node[] { nodes[10], nodes[1], nodes[12] },   prop));
+            elements.Add(new Tri3OPTMembrane(new Node[] { nodes[12], nodes[1], nodes[13] },   prop));
+            elements.Add(new Tri3OPTMembrane(new Node[] { nodes[11], nodes[12], nodes[2] },   prop));
+            elements.Add(new Tri3OPTMembrane(new Node[] { nodes[2], nodes[12], nodes[14] },  prop));
+            elements.Add(new Tri3OPTMembrane(new Node[] { nodes[12], nodes[13], nodes[14] }, prop));
+            elements.Add(new Tri3OPTMembrane(new Node[] { nodes[4], nodes[15], nodes[16] },  prop));
+            elements.Add(new Tri3OPTMembrane(new Node[] { nodes[16], nodes[15], nodes[17] }, prop));
+            elements.Add(new Tri3OPTMembrane(new Node[] { nodes[15], nodes[5], nodes[17] },  prop));
+            elements.Add(new Tri3OPTMembrane(new Node[] { nodes[17], nodes[5], nodes[18] },  prop));
+            elements.Add(new Tri3OPTMembrane(new Node[] { nodes[16], nodes[17], nodes[6] },  prop));
+            elements.Add(new Tri3OPTMembrane(new Node[] { nodes[6], nodes[17], nodes[19] },  prop));
+            elements.Add(new Tri3OPTMembrane(new Node[] { nodes[17], nodes[18], nodes[19] }, prop));
+            elements.Add(new Tri3OPTMembrane(new Node[] { nodes[5], nodes[20], nodes[18] },  prop));
+            elements.Add(new Tri3OPTMembrane(new Node[] { nodes[18], nodes[20], nodes[21] }, prop));
+            elements.Add(new Tri3OPTMembrane(new Node[] { nodes[20], nodes[8], nodes[21] },  prop));
+            elements.Add(new Tri3OPTMembrane(new Node[] { nodes[21], nodes[8], nodes[22] },  prop));
+            elements.Add(new Tri3OPTMembrane(new Node[] { nodes[18], nodes[21], nodes[7] },  prop));
+            elements.Add(new Tri3OPTMembrane(new Node[] { nodes[7], nodes[21], nodes[14] },  prop));
+            elements.Add(new Tri3OPTMembrane(new Node[] { nodes[21], nodes[22], nodes[14] }, prop));
+            elements.Add(new Tri3OPTMembrane(new Node[] { nodes[6], nodes[19], nodes[23] },  prop));
+            elements.Add(new Tri3OPTMembrane(new Node[] { nodes[23], nodes[19], nodes[24] }, prop));
+            elements.Add(new Tri3OPTMembrane(new Node[] { nodes[19], nodes[7], nodes[24] },  prop));
+            elements.Add(new Tri3OPTMembrane(new Node[] { nodes[24], nodes[7], nodes[13] },  prop));
+            elements.Add(new Tri3OPTMembrane(new Node[] { nodes[23], nodes[24], nodes[9] },  prop));
+            elements.Add(new Tri3OPTMembrane(new Node[] { nodes[9], nodes[24], nodes[25] },  prop));
+            elements.Add(new Tri3OPTMembrane(new Node[] { nodes[24], nodes[13], nodes[25] }, prop));
 
             LinearSolver fem = new LinearSolver(elements.ToArray());
                        
@@ -394,7 +394,7 @@ namespace FemTest.Solver
             Material mat = new SteelMaterial("steel", E, ni, 355, 510, 7850);
 
             double thickness = 1.0;
-            PlateProperty prop = new PlateProperty(mat, thickness, thickness);
+            PlateProperty prop = new PlateProperty(mat, thickness, thickness, "p");
 
             List<Node> nodes = new List<Node>();
             nodes.Add(new Node(1, 0.0, 0.0));
@@ -438,10 +438,10 @@ namespace FemTest.Solver
             /*elements.Add(new Tri3OPTMembrane(1, new Node[] { nodes[1 - 1], nodes[2 - 1], nodes[3 - 1] }, prop));
             elements.Add(new Tri3OPTMembrane(2, new Node[] { nodes[4 - 1], nodes[3 - 1], nodes[2 - 1] }, prop));*/
 
-            elements.Add(new Tri3OPTMembrane(new Node[] { nodes[1 - 1], nodes[5 - 1], nodes[3 - 1] }, prop, 1 ));
-            elements.Add(new Tri3OPTMembrane(new Node[] { nodes[1 - 1], nodes[2 - 1], nodes[5 - 1] }, prop, 2 ));
-            elements.Add(new Tri3OPTMembrane(new Node[] { nodes[2 - 1], nodes[4 - 1], nodes[5 - 1] }, prop, 3 ));
-            elements.Add(new Tri3OPTMembrane(new Node[] { nodes[4 - 1], nodes[3 - 1], nodes[5 - 1] }, prop, 4 ));
+            elements.Add(new Tri3OPTMembrane(new Node[] { nodes[1 - 1], nodes[5 - 1], nodes[3 - 1] }, prop));
+            elements.Add(new Tri3OPTMembrane(new Node[] { nodes[1 - 1], nodes[2 - 1], nodes[5 - 1] }, prop));
+            elements.Add(new Tri3OPTMembrane(new Node[] { nodes[2 - 1], nodes[4 - 1], nodes[5 - 1] }, prop));
+            elements.Add(new Tri3OPTMembrane(new Node[] { nodes[4 - 1], nodes[3 - 1], nodes[5 - 1] }, prop));
 
             LinearSolver fem = new LinearSolver(elements.ToArray());
 
@@ -497,7 +497,7 @@ namespace FemTest.Solver
             Material mat = new SteelMaterial("steel", E, ni, 355, 510, 7850);
 
             double thickness = 1.0;
-            PlateProperty prop = new PlateProperty(mat, thickness, thickness);
+            PlateProperty prop = new PlateProperty(mat, thickness, thickness, "p");
 
             List<Node> nodes = new List<Node>();
             nodes.Add(new Node(1, 0.0, 0.0));
@@ -545,14 +545,14 @@ namespace FemTest.Solver
             nodes[4 - 1].AddAttribute(f05);
 
             List<Tri3OPTMembrane> elements = new List<Tri3OPTMembrane>();
-            elements.Add(new Tri3OPTMembrane(new Node[] { nodes[1 - 1], nodes[5 - 1], nodes[7 - 1] }, prop, 1 ));
-            elements.Add(new Tri3OPTMembrane(new Node[] { nodes[5 - 1], nodes[2 - 1], nodes[7 - 1] }, prop, 2 ));
-            elements.Add(new Tri3OPTMembrane(new Node[] { nodes[1 - 1], nodes[6 - 1], nodes[7 - 1] }, prop, 3 ));
-            elements.Add(new Tri3OPTMembrane(new Node[] { nodes[2 - 1], nodes[7 - 1], nodes[8 - 1] }, prop, 4 ));
-            elements.Add(new Tri3OPTMembrane(new Node[] { nodes[6 - 1], nodes[7 - 1], nodes[3 - 1] }, prop, 5 ));
-            elements.Add(new Tri3OPTMembrane(new Node[] { nodes[3 - 1], nodes[7 - 1], nodes[9 - 1] }, prop, 6 ));
-            elements.Add(new Tri3OPTMembrane(new Node[] { nodes[9 - 1], nodes[7 - 1], nodes[4 - 1] }, prop, 7 ));
-            elements.Add(new Tri3OPTMembrane(new Node[] { nodes[7 - 1], nodes[4 - 1], nodes[8 - 1] }, prop, 7 ));
+            elements.Add(new Tri3OPTMembrane(new Node[] { nodes[1 - 1], nodes[5 - 1], nodes[7 - 1] }, prop));
+            elements.Add(new Tri3OPTMembrane(new Node[] { nodes[5 - 1], nodes[2 - 1], nodes[7 - 1] }, prop));
+            elements.Add(new Tri3OPTMembrane(new Node[] { nodes[1 - 1], nodes[6 - 1], nodes[7 - 1] }, prop));
+            elements.Add(new Tri3OPTMembrane(new Node[] { nodes[2 - 1], nodes[7 - 1], nodes[8 - 1] }, prop));
+            elements.Add(new Tri3OPTMembrane(new Node[] { nodes[6 - 1], nodes[7 - 1], nodes[3 - 1] }, prop));
+            elements.Add(new Tri3OPTMembrane(new Node[] { nodes[3 - 1], nodes[7 - 1], nodes[9 - 1] }, prop));
+            elements.Add(new Tri3OPTMembrane(new Node[] { nodes[9 - 1], nodes[7 - 1], nodes[4 - 1] }, prop));
+            elements.Add(new Tri3OPTMembrane(new Node[] { nodes[7 - 1], nodes[4 - 1], nodes[8 - 1] }, prop));
 
             /*elements.Add(new Tri3OPTMembrane(1, new Node[] { nodes[1 - 1], nodes[5 - 1], nodes[3 - 1] }, prop));
             elements.Add(new Tri3OPTMembrane(2, new Node[] { nodes[1 - 1], nodes[2 - 1], nodes[5 - 1] }, prop));
@@ -613,7 +613,7 @@ namespace FemTest.Solver
             Material mat = new SteelMaterial("steel", E, ni, 355, 510, 7850);
 
             double thickness = 1.0;
-            PlateProperty prop = new PlateProperty(mat, thickness, thickness);
+            PlateProperty prop = new PlateProperty(mat, thickness, thickness, "p");
 
             List<Node> nodes = new List<Node>();
             nodes.Add(new Node(1, 0.0, 0.0));
@@ -648,7 +648,7 @@ namespace FemTest.Solver
             nodes[3 - 1].AddAttribute(f1);
 
             List<Tri3OPTMembrane> elements = new List<Tri3OPTMembrane>();
-            elements.Add(new Tri3OPTMembrane(new Node[] { nodes[1 - 1], nodes[2 - 1], nodes[3 - 1] }, prop, 1));
+            elements.Add(new Tri3OPTMembrane(new Node[] { nodes[1 - 1], nodes[2 - 1], nodes[3 - 1] }, prop));
 
             LinearSolver fem = new LinearSolver(elements.ToArray());
 
@@ -677,7 +677,7 @@ namespace FemTest.Solver
             Material mat = new SteelMaterial("steel", E, ni, 355, 510, 7850);
 
             double thickness = 1.0;
-            PlateProperty prop = new PlateProperty(mat, thickness, thickness);
+            PlateProperty prop = new PlateProperty(mat, thickness, thickness, "p");
 
             List<Node> nodes = new List<Node>();
             nodes.Add(new Node(1, 0.0, 0.0));
@@ -712,7 +712,7 @@ namespace FemTest.Solver
             nodes[3 - 1].AddAttribute(f1);
 
             List<Tri3OPTMembrane> elements = new List<Tri3OPTMembrane>();
-            elements.Add(new Tri3OPTMembrane(new Node[] { nodes[1 - 1], nodes[2 - 1], nodes[3 - 1] }, prop, 1));
+            elements.Add(new Tri3OPTMembrane(new Node[] { nodes[1 - 1], nodes[2 - 1], nodes[3 - 1] }, prop));
 
             LinearSolver fem = new LinearSolver(elements.ToArray());
 

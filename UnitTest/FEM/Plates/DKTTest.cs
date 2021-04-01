@@ -22,7 +22,7 @@ namespace FemTest.Solver
         public void Tri3DKTTest1()
         {
             Material mat = new SteelMaterial("mat", 12, 0.0, 355, 510, 7850);
-            PlateProperty prop = new PlateProperty(mat, 1.0, 1.0);
+            PlateProperty prop = new PlateProperty(mat, 1.0, 1.0, "p");
 
             Node[] nodesPlate1 = new Node[3];
             nodesPlate1[0] = new Node(0.0, 0, 0, "1");
@@ -73,7 +73,7 @@ namespace FemTest.Solver
         public void Tri3DKTTest2()
         {
             Material mat = new SteelMaterial("mat", 12, 0.0, 355, 510, 7850);
-            PlateProperty prop = new PlateProperty(mat, 1.0, 1.0);
+            PlateProperty prop = new PlateProperty(mat, 1.0, 1.0, "p");
 
             Node[] nodesPlate1 = new Node[3];
             nodesPlate1[0] = new Node(0.0, 0, 0, "1");
@@ -135,7 +135,7 @@ namespace FemTest.Solver
             FreedomCase freedomCase = new FreedomCase("freedomCase1");
 
             Material mat = new SteelMaterial("mat", 10000, 0.3, 355, 510, 7850);
-            PlateProperty prop = new PlateProperty(mat, 1.0, 1.0);
+            PlateProperty prop = new PlateProperty(mat, 1.0, 1.0, "p");
 
             #region restrains
             CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
@@ -195,7 +195,7 @@ namespace FemTest.Solver
         public void Quad4DKTTest1()
         {
             Material mat = new SteelMaterial("mat", 12, 0.0, 355, 510, 7850);
-            PlateProperty prop = new PlateProperty(mat, 1.0, 1.0);
+            PlateProperty prop = new PlateProperty(mat, 1.0, 1.0, "p");
 
             Node[] nodesPlate1 = new Node[4];
             nodesPlate1[0] = new Node(-1.0, -1, 0);
@@ -252,7 +252,7 @@ namespace FemTest.Solver
         public void Quad4DKTTest2()
         {
             Material mat = new SteelMaterial("mat", 12, 0.0, 355, 510, 7850);
-            PlateProperty prop = new PlateProperty(mat, 1.0, 1.0);
+            PlateProperty prop = new PlateProperty(mat, 1.0, 1.0, "p");
 
             Node[] nodesPlate1 = new Node[4];
             nodesPlate1[0] = new Node(0.0, 0, 0, "1");
@@ -334,7 +334,7 @@ namespace FemTest.Solver
         public void Quad4DKTTest3()
         {
             Material mat = new SteelMaterial("mat", 12, 0.0, 355, 510, 7850);
-            PlateProperty prop = new PlateProperty(mat, 1.0, 1.0);
+            PlateProperty prop = new PlateProperty(mat, 1.0, 1.0, "p");
 
             Node[] nodesPlate1 = new Node[4];
             nodesPlate1[0] = new Node(0.0, 0, 0, "1");

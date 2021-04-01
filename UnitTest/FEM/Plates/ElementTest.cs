@@ -22,7 +22,7 @@ namespace FemTest.Solver
         public void Quad4Test1()
         {
             Material mat = new SteelMaterial("mat", 12, 0.0, 355, 510, 7850);
-            PlateProperty prop = new PlateProperty(mat, 1.0, 1.0);
+            PlateProperty prop = new PlateProperty(mat, 1.0, 1.0, "p");
 
             Node[] nodesPlate1 = new Node[4];
             nodesPlate1[0] = new Node(0.0, 0, 0, "1");
@@ -136,7 +136,7 @@ namespace FemTest.Solver
 
             Material mat = new SteelMaterial("mat", 10000, 0.0, 355, 510, 7850);
             double t = 1.0;
-            PlateProperty prop = new PlateProperty(mat, t, t);
+            PlateProperty prop = new PlateProperty(mat, t, t, "p");
 
             #region restrains
             CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
@@ -210,7 +210,7 @@ namespace FemTest.Solver
 
             Material mat = new SteelMaterial("mat", 10000, 0.0, 355, 510, 7850);
             double t = 1.0;
-            PlateProperty prop = new PlateProperty(mat, t, t);
+            PlateProperty prop = new PlateProperty(mat, t, t, "p");
 
             #region restrains
             CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));

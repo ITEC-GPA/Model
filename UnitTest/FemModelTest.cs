@@ -140,7 +140,7 @@ namespace FemTest
             Mesh mesh2 = CreateSimpleMesh(10, 10, 3, 5, 0, 0);
 
             GlassMaterial gm = new GlassMaterialAstm("", 1, 0.2, 3, 4, 5, 6, 0.008, 0.008, 9);
-            PlateProperty pp = new PlateProperty(gm, 1, 2);
+            PlateProperty pp = new PlateProperty(gm, 1, 2, "p");
 
             BrickProperty bp = new BrickProperty(gm, "bp1");
 
@@ -193,7 +193,7 @@ namespace FemTest
 
 
             GlassMaterial gm = new GlassMaterialAstm("", 1, 0.2, 3, 4, 5, 6, 0.008, 0.008, 9);
-            PlateProperty pp = new PlateProperty(gm, 1, 2);
+            PlateProperty pp = new PlateProperty(gm, 1, 2, "p");
 
             BrickProperty bp = new BrickProperty(gm, "bp1");
 

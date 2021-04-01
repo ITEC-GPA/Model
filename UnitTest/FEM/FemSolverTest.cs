@@ -47,7 +47,7 @@ namespace FemTest.Solver
         public void AssemblyGlobalMatrixTest1()
         {
             Material mat = new SteelMaterial("steel", 200000, 0.2, 355, 510, 7850);
-            PlateProperty prop = new PlateProperty(mat, 0, 1);
+            PlateProperty prop = new PlateProperty(mat, 0, 1, "p");
 
             List<Node> nodesPlate1 = new List<Node>();
             nodesPlate1.Add(new Node(0.0, 0, 0, "1"));
@@ -110,7 +110,7 @@ namespace FemTest.Solver
             FreedomCase fc = new FreedomCase("freedomCase1");
 
             Material mat = new SteelMaterial("steel", 200000, 0.2, 355, 510, 7850);
-            PlateProperty prop = new PlateProperty(mat, 0, 1);
+            PlateProperty prop = new PlateProperty(mat, 0, 1, "p");
             
             CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
             NodeRestrainAttribute DXDYDZ = new NodeRestrainAttribute(fc, sys);
@@ -197,7 +197,7 @@ namespace FemTest.Solver
             FreedomCase freedomCase = new FreedomCase("freedomCase1");
 
             Material mat = new SteelMaterial("steel", 200000, 0.2, 355, 510, 7850);
-            PlateProperty prop = new PlateProperty(mat, 0, 1);
+            PlateProperty prop = new PlateProperty(mat, 0, 1, "p");
 
             CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
             NodeRestrainAttribute DXDYDZ = new NodeRestrainAttribute(freedomCase, sys);
@@ -278,7 +278,7 @@ namespace FemTest.Solver
             FreedomCase freedomCase = new FreedomCase("freedomCase1");
 
             Material mat = new SteelMaterial("steel", 200000, 0.2, 355, 510, 7850);
-            PlateProperty prop = new PlateProperty(mat, 0, 1);
+            PlateProperty prop = new PlateProperty(mat, 0, 1, "p");
 
             CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
             NodeRestrainAttribute DXDYDZ = new NodeRestrainAttribute(freedomCase, sys);
