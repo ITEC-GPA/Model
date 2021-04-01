@@ -61,8 +61,8 @@ namespace FemTest.Solver
 
             List<FiniteElement> elements = new List<FiniteElement>();
 
-            elements.Add(new Tri3PlaneStress(nodesPlate1.ToArray(), prop, 1));
-            elements.Add(new Tri3PlaneStress(nodesPlate2.ToArray(), prop, 2));
+            elements.Add(new Tri3PlaneStress(nodesPlate1.ToArray(), prop));
+            elements.Add(new Tri3PlaneStress(nodesPlate2.ToArray(), prop));
 
             LinearSolver fem = new LinearSolver(elements.ToArray());
             mnl.Matrix<double> K = fem.KGlobal;
@@ -147,8 +147,8 @@ namespace FemTest.Solver
             nodesPlate2.Add(nd4);
 
             List<FiniteElement> elements = new List<FiniteElement>();
-            elements.Add(new Tri3PlaneStress(nodesPlate1.ToArray(), prop, 1));
-            elements.Add(new Tri3PlaneStress(nodesPlate2.ToArray(), prop, 2));
+            elements.Add(new Tri3PlaneStress(nodesPlate1.ToArray(), prop));
+            elements.Add(new Tri3PlaneStress(nodesPlate2.ToArray(), prop));
 
             LinearSolver fem = new LinearSolver(elements.ToArray());
             mnl.Matrix<double> K = fem.KGlobal;
@@ -237,8 +237,8 @@ namespace FemTest.Solver
             nodesPlate2.Add(nd4);
 
             List<FiniteElement> elements = new List<FiniteElement>();
-            elements.Add(new Tri3PlaneStress(nodesPlate1.ToArray(), prop, 1));
-            elements.Add(new Tri3PlaneStress(nodesPlate2.ToArray(), prop, 2));
+            elements.Add(new Tri3PlaneStress(nodesPlate1.ToArray(), prop));
+            elements.Add(new Tri3PlaneStress(nodesPlate2.ToArray(), prop));
 
             LinearSolver fem = new LinearSolver(elements.ToArray());
             double Node4DX = fem.GetDisplacementGlobalCoordinates(nd4, LinearSolver.DOF.DX);
@@ -321,8 +321,8 @@ namespace FemTest.Solver
             nodesPlate2.Add(nd4);
 
             List<FiniteElement> elements = new List<FiniteElement>();
-            elements.Add(new Tri3PlaneStress(nodesPlate1.ToArray(), prop, 1));
-            elements.Add(new Tri3PlaneStress(nodesPlate2.ToArray(), prop, 2));
+            elements.Add(new Tri3PlaneStress(nodesPlate1.ToArray(), prop));
+            elements.Add(new Tri3PlaneStress(nodesPlate2.ToArray(), prop));
 
             LinearSolver fem = new LinearSolver(elements.ToArray());
             double Node4DX = fem.GetDisplacementGlobalCoordinates(nd4, LinearSolver.DOF.DX);

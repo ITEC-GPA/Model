@@ -16,7 +16,7 @@ namespace GPC.Model.FEM.FiniteElements
         Node[] _localNodes;
         #endregion
 
-        public Quad4QFSUQMembranal(Node[] nodes, PlateProperty property, int id) : base(nodes)
+        public Quad4QFSUQMembranal(Node[] nodes) : base(nodes)
         {
             _DOF.Add(LinearSolver.DOF.DX);
             _DOF.Add(LinearSolver.DOF.DY);
@@ -27,13 +27,16 @@ namespace GPC.Model.FEM.FiniteElements
             _DOF.Add(LinearSolver.DOF.RZ);
             //a rotation in Local coordinate plane (Rx, Ry) can be a RX, RY, RZ in Global space!
 
-            SetProperty(property);
-
             //Local matrix: 4 nodes x 3(dX, dY, rZ) gdl = 12x12 matrix
             //Global matrix: 4 nodes x 6(DX, DY, DZ, RX, RY, RZ) gdl = 24x24 matrix
 
             //DofGlobalToLocal^T * kLocal * DofGlobalToLocal
             //   [24x12]           [12x12]     [12x24]
+        }
+
+        internal Quad4QFSUQMembranal(Node[] nodes, PlateProperty property) : this(nodes)
+        {
+            SetProperty(property);
         }
 
         public override void BuildMatrix()

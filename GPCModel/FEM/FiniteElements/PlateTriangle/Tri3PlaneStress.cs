@@ -34,12 +34,10 @@ namespace GPC.Model.FEM.FiniteElements
         /// <summary>
         /// This constructor to be used ONLY for debugging purpose. Use <see cref="FiniteElement.SetProperty(ElementProperty)"/> or <see cref="FEMObject.SetId(int)"/> instead
         /// </summary>
-        internal Tri3PlaneStress(Node[] nodes, PlateProperty property, int id) : base(nodes)
+        internal Tri3PlaneStress(Node[] nodes, PlateProperty property) : this(nodes)
         {
             SetProperty(property);
-            SetId(id);
         }
-
 
         public override void BuildMatrix()
         {
