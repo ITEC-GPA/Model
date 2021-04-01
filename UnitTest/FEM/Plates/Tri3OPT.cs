@@ -397,11 +397,11 @@ namespace FemTest.Solver
             PlateProperty prop = new PlateProperty(mat, thickness, thickness, "p");
 
             List<Node> nodes = new List<Node>();
-            nodes.Add(new Node(1, 0.0, 0.0));
-            nodes.Add(new Node(2, 1.0, 0.0));
-            nodes.Add(new Node(3, 0.0, 1.0));
-            nodes.Add(new Node(4, 1.0, 1.0));
-            nodes.Add(new Node(5, 0.5, 0.5));
+            nodes.Add(new Node(0.0, 0.0, 0.0));
+            nodes.Add(new Node(1.0, 0.0, 0.0));
+            nodes.Add(new Node(0.0, 1.0, 0.0));
+            nodes.Add(new Node(1.0, 1.0, 0.0));
+            nodes.Add(new Node(0.5, 0.5, 0.0));
 
             FreedomCase fc = new FreedomCase("fc1");
             CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
@@ -500,15 +500,16 @@ namespace FemTest.Solver
             PlateProperty prop = new PlateProperty(mat, thickness, thickness, "p");
 
             List<Node> nodes = new List<Node>();
-            nodes.Add(new Node(1, 0.0, 0.0));
-            nodes.Add(new Node(2, 1.0, 0.0));
-            nodes.Add(new Node(3, 0.0, 1.0));
-            nodes.Add(new Node(4, 1.0, 1.0));
-            nodes.Add(new Node(5, 0.5, 0.0));
-            nodes.Add(new Node(6, 0.0, 0.5));
-            nodes.Add(new Node(7, 0.5, 0.5));
-            nodes.Add(new Node(8, 1.0, 0.5));
-            nodes.Add(new Node(9, 0.5, 1.0));
+            nodes.Add(new Node(0.0, 0.0, 0.0));
+            nodes.Add(new Node(1.0, 0.0, 0.0));
+            nodes.Add(new Node(0.0, 1.0, 0.0));
+            nodes.Add(new Node(1.0, 1.0, 0.0));
+            nodes.Add(new Node(0.5, 0.0, 0.0));
+            nodes.Add(new Node(0.0, 0.5, 0.0));
+            nodes.Add(new Node(0.5, 0.5, 0.0));
+            nodes.Add(new Node(1.0, 0.5, 0.0));
+            nodes.Add(new Node(0.5, 1.0, 0.0));
+
 
             FreedomCase fc = new FreedomCase("fc1");
             CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
@@ -616,9 +617,9 @@ namespace FemTest.Solver
             PlateProperty prop = new PlateProperty(mat, thickness, thickness, "p");
 
             List<Node> nodes = new List<Node>();
-            nodes.Add(new Node(1, 0.0, 0.0));
-            nodes.Add(new Node(2, 1.0, 0.0));
-            nodes.Add(new Node(3, 0.0, 1.0));
+            nodes.Add(new Node(0.0, 0.0, 0.0));
+            nodes.Add(new Node(1.0, 0.0, 0.0));
+            nodes.Add(new Node(0.0, 1.0, 0.0));
 
             FreedomCase fc = new FreedomCase("fc1");
             CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
@@ -680,9 +681,9 @@ namespace FemTest.Solver
             PlateProperty prop = new PlateProperty(mat, thickness, thickness, "p");
 
             List<Node> nodes = new List<Node>();
-            nodes.Add(new Node(1, 0.0, 0.0));
-            nodes.Add(new Node(2, 1.0, 0.0));
-            nodes.Add(new Node(3, 0.5, 1.0));
+            nodes.Add(new Node(0.0, 0.0, 0.0));
+            nodes.Add(new Node(1.0, 0.0, 0.0));
+            nodes.Add(new Node(0.5, 1.0, 0.0));
 
             FreedomCase fc = new FreedomCase("fc1");
             CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
