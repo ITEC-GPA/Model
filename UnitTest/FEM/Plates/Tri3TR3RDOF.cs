@@ -65,6 +65,7 @@ namespace FemTest.Solver
 
             List<Tri3TR3RDOFMembrane> elements = new List<Tri3TR3RDOFMembrane>();
             elements.Add(new Tri3TR3RDOFMembrane(new Node[] { nodes[1 - 1], nodes[2 - 1], nodes[3 - 1] }));
+            elements.ForEach(el => el.SetProperty(prop));
 
             LinearSolver fem = new LinearSolver(elements.ToArray());
 
@@ -129,6 +130,7 @@ namespace FemTest.Solver
             List<Tri3TR3RDOFMembrane> elements = new List<Tri3TR3RDOFMembrane>();
             elements.Add(new Tri3TR3RDOFMembrane(new Node[] { nodes[1 - 1], nodes[2 - 1], nodes[3 - 1] }));
             elements.Add(new Tri3TR3RDOFMembrane(new Node[] { nodes[4 - 1], nodes[3 - 1], nodes[2 - 1] }));
+            elements.ForEach(el => el.SetProperty(prop));
 
             LinearSolver fem = new LinearSolver(elements.ToArray());
 
@@ -211,6 +213,7 @@ namespace FemTest.Solver
             elements.Add(new Tri3TR3RDOFMembrane(new Node[] { nodes[8 - 1], nodes[7 - 1], nodes[4 - 1] }));
             elements.Add(new Tri3TR3RDOFMembrane(new Node[] { nodes[1 - 1], nodes[5 - 1], nodes[7 - 1] }));
             elements.Add(new Tri3TR3RDOFMembrane(new Node[] { nodes[7 - 1], nodes[9 - 1], nodes[6 - 1] }));
+            elements.ForEach(el => el.SetProperty(prop));
 
             LinearSolver fem = new LinearSolver(elements.ToArray());
 

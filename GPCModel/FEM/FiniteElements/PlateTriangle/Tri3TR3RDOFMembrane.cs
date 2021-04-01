@@ -39,6 +39,11 @@ namespace GPC.Model.FEM.FiniteElements
             //[18x18]          [18x9]         [9x9]     [9x18]
         }
 
+        internal Tri3TR3RDOFMembrane(Node[] nodes, PlateProperty property) :this(nodes)
+        {
+            SetProperty(property);
+        }
+
         public override void BuildMatrix()
         {
             _thickness = ((PlateProperty)_property).MembraneThickness;
