@@ -34,6 +34,11 @@ namespace GPC.Model.FEM.FiniteElements
             //   [24x12]           [12x12]     [12x24]
         }
 
+        internal Quad4GQ12Membranal(Node[] nodes, PlateProperty property) : this(nodes)
+        {
+            SetProperty(property);
+        }
+
         public override void BuildMatrix()
         {
             
