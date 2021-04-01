@@ -30,7 +30,6 @@ namespace GPC.Model.FEM.FiniteElements
             //   [9x6]               [6x6]     [6x9]
         }
 
-
         /// <summary>
         /// This constructor to be used ONLY for debugging purpose. Use <see cref="FiniteElement.SetProperty(ElementProperty)"/> or <see cref="FEMObject.SetId(int)"/> instead
         /// </summary>
