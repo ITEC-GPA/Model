@@ -126,7 +126,7 @@ namespace GPC.Model.FEM.FiniteElements
 
         #region PublicFunction
 
-        internal void SetProperty(ElementProperty property)
+        internal virtual void SetProperty(ElementProperty property)
         {
             if (property is null)
                 throw new ArgumentNullException(nameof(property));

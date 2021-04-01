@@ -172,9 +172,9 @@ namespace FemTest.Solver
             FiniteElement e0 = new Tri3Element(new Node[] { nodeA, nodeB, nodeC });
             e0.SetProperty(prop);
           
-            FiniteElement e1 = new Tri3Element(new Node[] { nodeB, nodeD, nodeC });
-            e0.SetProperty(prop);
-          ;
+            Plate e1 = new Tri3Element(new Node[] { nodeB, nodeD, nodeC });
+            e1.SetProperty(prop);
+          
             LinearSolver fem = new LinearSolver(new FiniteElement[] { e0, e1 });
 
             double DY = fem.GetDisplacementGlobalCoordinates(nodeC, LinearSolver.DOF.DY);
@@ -254,7 +254,7 @@ namespace FemTest.Solver
          
             e0.AddLoadCaseAttribute(p);
             Plate e1 = new Tri3Element(new Node[] { nodeB, nodeD, nodeC });
-            e0.SetProperty(prop);
+            e1.SetProperty(prop);
            
             e1.AddLoadCaseAttribute(p);
             LinearSolver fem = new LinearSolver(new FiniteElement[] { e0, e1 });

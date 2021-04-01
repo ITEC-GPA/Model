@@ -15,8 +15,6 @@ namespace GPC.Model.FEM.FiniteElements
         #endregion
 
         #region properties
-        //public TriangularMembranal Membranal => _membranal;
-        //public TriangularDK Flexural => _flexural;
         public override mnl.Matrix<double> KElementGlobalCoord => _kElementGlobalCoord;
         #endregion
 
@@ -32,6 +30,18 @@ namespace GPC.Model.FEM.FiniteElements
             //kElementGlobal = 3 * 6 = 18x18
             _membranal = new Tri3PlaneStress(nodes);
             _flexural = new Tri3DK(nodes);
+        }
+
+        internal Tri3Element(Node[] nodes, PlateProperty property) : this(nodes)
+        {
+            SetProperty(property);
+        }
+
+        internal override void SetProperty(ElementProperty property)
+        {
+            _membranal.SetProperty(property);
+            _flexural.SetProperty(property);
+            base.SetProperty(property);
         }
 
         public override void BuildMatrix()

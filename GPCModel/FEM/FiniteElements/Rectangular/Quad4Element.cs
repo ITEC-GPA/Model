@@ -17,8 +17,6 @@ namespace GPC.Model.FEM.FiniteElements
         #endregion
 
         #region properties
-        public Quad4GQ12Membranal Membranal => _membranal;
-        public Quad4DK Flexural => _flexural;
         public override mnl.Matrix<double> KElementGlobalCoord => _kElementGlobalCoord;
         #endregion
 
@@ -40,8 +38,14 @@ namespace GPC.Model.FEM.FiniteElements
 
         internal Quad4Element(Node[] nodes, PlateProperty property) : this(nodes)
         {
+            SetProperty(property);
+        }
+
+        internal override void SetProperty(ElementProperty property)
+        {
             _membranal.SetProperty(property);
             _flexural.SetProperty(property);
+            base.SetProperty(property);
         }
 
         public override void BuildMatrix()
