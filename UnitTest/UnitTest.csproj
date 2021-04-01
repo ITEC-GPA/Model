@@ -49,6 +49,7 @@
     </Reference>
     <Reference Include="GPCTestUtilities, Version=1.0.0.4, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\GPCTestUtilities.1.0.0.4\lib\net472\GPCTestUtilities.dll</HintPath>
+    </Reference>
     <Reference Include="GPCUtilities, Version=1.0.21.1, Culture=neutral, processorArchitecture=AMD64">
       <HintPath>..\packages\GPCUtilities.1.0.21.1\lib\net472\GPCUtilities.dll</HintPath>
     </Reference>
