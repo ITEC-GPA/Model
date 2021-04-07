@@ -9,7 +9,7 @@ namespace GPC.Model.FEM.Collections
     /// <summary>
     /// A collection of FemObject.
     /// <para>This collection does not contains elements with a duplicated ID</para>
-    /// <para>This collection can contain duplicate element (with different ID)</para>
+    /// <para>This collection can not contain duplicate element (even with different ID)</para>
     /// </summary>
     /// <typeparam name="T">A <see cref="FEMObject"/></typeparam>
     public class FemObjectCollection<T> : IEnumerable<T> where T : FEMObject
@@ -83,13 +83,27 @@ namespace GPC.Model.FEM.Collections
         {
             if (item is null)
                 throw new ArgumentNullException(item.ToString());
-             
-            if (!_ids.Contains(item.Id))
+            
+
+            if (!_collection.Contains(item) || _collection.Count == 0)
             {
-                if (!_collection.Contains(item))
+                // obj non presente
+                if (_ids.Contains(item.Id))
                 {
-                    // id non presente, obj non presente
-                    // va aggiunto
+                    // id già presente
+                    // cambio id e aggiungo obj
+
+                    item.SetId(++_maxId);
+
+                    _collection.Add(item);
+                    _ids.Add(item.Id);
+
+                    return item.Id;
+                }
+                else
+                {
+                    // id non presente
+                    // aggiungo obj
 
                     _collection.Add(item);
                     _ids.Add(item.Id);
@@ -99,34 +113,26 @@ namespace GPC.Model.FEM.Collections
 
                     return item.Id;
                 }
-                else
-                {
-                    // id non presente, obj già presente
-                    // non va aggiunto
-
-                    (_collection as HashSet<T>).TryGetValue(item, out T itemFound);
-                    item.SetId(itemFound.Id);
-                    return itemFound.Id;
-                }
             }
             else
             {
-                if (!_collection.Contains(item))
+                // obj già presente
+                if (_ids.Contains(item.Id))
                 {
-                    item.SetId(++_maxId);
+                    // id già presente
+                    // non aggiungo, ritorno id dell'elemento già presente
 
-                    _collection.Add(item);
-                    _ids.Add(item.Id);
+                    (_collection as HashSet<T>).TryGetValue(item, out T itemFound);
 
-                    // id già presente ma obj diverso
-                    // va aggiunto, ma cambio ID
-                    return item.Id;
+                    return itemFound.Id;
                 }
                 else
                 {
-                    // id già presente, obj già presente
-                    // non aggiunto
-                    return item.Id;
+                    // id non presente
+                    // ritorno id dell'elemento già presente
+                    (_collection as HashSet<T>).TryGetValue(item, out T itemFound);
+                    item.SetId(itemFound.Id);
+                    return itemFound.Id;
                 }
             }
 

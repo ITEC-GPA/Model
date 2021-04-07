@@ -470,7 +470,10 @@ namespace GPC.Model.FEM
 
             // Genera la mesh
 
-            bool status = Mesh.Generate(new List<Shape> { shape }, new Dictionary<Shape, GeometryBase[]>() { [shape] = embeddedGeometries.ToArray() }, options, out List<Mesh> meshes, out Mesh.GenerateMeshStatus generateMeshStatus);
+            bool status = Mesh.Generate(new List<Shape> { shape }, 
+                                        new Dictionary<Shape, GeometryBase[]>() { [shape] = embeddedGeometries.ToArray() }, 
+                                        options, 
+                                        out List<Mesh> meshes, out Mesh.GenerateMeshStatus generateMeshStatus);
 
             if (!status)
             {
@@ -658,7 +661,9 @@ namespace GPC.Model.FEM
                     throw new ArgumentNullException(nameof(plateProperty));
 
                 if (!AddProperty((ElementProperty)plateProperty))
-                    throw new ArgumentException($"A property with name {(plateProperty as PlateProperty).Name} already exist");
+                {
+                    plateProperty = (IPlateProperty)GetPlateProperty((plateProperty as PlateProperty).Name);
+                }
             }
 
 
