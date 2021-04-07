@@ -62,9 +62,14 @@ namespace GPC.Model.FEM.Collections
             return _stageFiniteElementProperty[item];
         }
 
-        public D GetStageProperty(int index)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="elementID">The id of the element to get the stageProperty</param>
+        /// <returns></returns>
+        public D GetStageProperty(int elementID)
         {
-            return _stageFiniteElementProperty[base.GetElementById(index)];
+            return _stageFiniteElementProperty[base.GetElementById(elementID)];
         }
 
         public override void Clear()

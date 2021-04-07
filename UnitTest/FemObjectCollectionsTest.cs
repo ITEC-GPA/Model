@@ -31,7 +31,7 @@ namespace FemTest
             cnode.Add(n2);
             cnode.Add(n3);
 
-            Assert.IsTrue(cnode.Count == 2);
+            Assert.IsTrue(cnode.Count == 2, cnode.Count.ToString());
 
             Assert.IsTrue(cnode.Contains(n3));
 
@@ -80,10 +80,12 @@ namespace FemTest
 
             Node n1 = new Node(Point3d.Origin, 1);          // A 1
             Node n2 = new Node(Point3d.Origin, 2);
+
             Node n3 = new Node(new Point3d(0, 1, 2), 1);    // C 2
-            Node n4 = new Node(new Point3d(0, 1, 3), 1);    // D 3
             Node n5 = new Node(new Point3d(0, 1, 2), 1);
             Node n6 = new Node(new Point3d(0, 1, 2), 5);
+
+            Node n4 = new Node(new Point3d(0, 1, 3), 1);    // D 3
 
             Stage.StageProperty sp1 = new Stage.StageProperty();
             Stage.StageProperty sp2 = new Stage.StageProperty();
@@ -105,7 +107,7 @@ namespace FemTest
 
             Assert.IsTrue(nodes.GetStageProperty(2).LoadCaseAttributes[0].LoadCase.Name == "lc1");
             Assert.IsTrue(nodes.GetStageProperty(2).LoadCaseAttributes[1].LoadCase.Name == "lc2");
-            Assert.IsTrue(nodes.GetStageProperty(2).LoadCaseAttributes.Count == 2, nodes.GetStageProperty(2).LoadCaseAttributes.Count.ToString());
+            Assert.IsTrue(nodes.GetStageProperty(2).LoadCaseAttributes.Count == 3, nodes.GetStageProperty(2).LoadCaseAttributes.Count.ToString());
 
             Assert.IsTrue(nodes.GetStageProperty(3).LoadCaseAttributes.Count == 1, nodes.GetStageProperty(3).LoadCaseAttributes.Count.ToString());
             Assert.IsTrue(nodes.GetStageProperty(3).LoadCaseAttributes[0].LoadCase.Name == "lc1");
