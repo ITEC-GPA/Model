@@ -172,7 +172,7 @@ namespace GPC.Model.FEM
                 //Stiffness Matrix of element in global coordinates, KElementGlobal = GlobalToLocal ^ T * [KeLocal] * [GlobalToLocal]
                 mnl.Matrix<double> KElementGlobalCoord = element.KElementGlobalCoord;
                 //Console.WriteLine("KElementGlobalCoord element " + el);
-                Util.WriteMatrix(KElementGlobalCoord);
+                FEMUtilities.WriteMatrix(KElementGlobalCoord);
                                 
                 for (int i = 0; i < element.Nodes.Count(); i++) //node i - over nodes of element
                 {
@@ -208,7 +208,7 @@ namespace GPC.Model.FEM
             }
             #if DEBUG
             Console.WriteLine("kGlobal System :");
-            Util.WriteMatrix(_KGlobal);
+            FEMUtilities.WriteMatrix(_KGlobal);
             #endif
             #endregion
 
@@ -407,7 +407,7 @@ namespace GPC.Model.FEM
                 }
             }
             Console.WriteLine("kGlobal System + Restrains + Constrains:");
-            Util.WriteMatrix(_KGlobalRestrains, "F3");
+            FEMUtilities.WriteMatrix(_KGlobalRestrains, "F3");
             //Console.WriteLine("Fmodified(Restrains + Constrains) = " + _FRestrains.ToString());
             #endregion
 

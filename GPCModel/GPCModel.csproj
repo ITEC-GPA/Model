@@ -97,7 +97,7 @@
     <Compile Include="FEM\FiniteElements\Brick\Tethraedron4.cs" />
     <Compile Include="FEM\GaussIntegration.cs" />
     <Compile Include="FEM\Stage.cs" />
-    <Compile Include="FEM\Util.cs" />
+    <Compile Include="FEM\FEMUtilities.cs" />
     <Compile Include="Glasses\Glass.cs" />
     <Compile Include="FEM\ElementProperty\IGlassProperty.cs" />
     <Compile Include="Glasses\IGlassPanel.cs" />

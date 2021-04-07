@@ -161,14 +161,14 @@ namespace GPC.Model.FEM.FiniteElements
 
             Func<double, double, mnl.Matrix<double>> jacobiano = (double csi, double eta) =>
             {
-                return Util.Jacob2D(csi, eta, LinearShapeFunctionQuad4.DNdCsi, LinearShapeFunctionQuad4.DNdEta, _localNodes);
+                return FEMUtilities.Jacob2D(csi, eta, LinearShapeFunctionQuad4.DNdCsi, LinearShapeFunctionQuad4.DNdEta, _localNodes);
             };
 
             mnl.Matrix<double> kSymmetric = GaussIntegration.IntegrationQuadrilateral(BtraspDB, jacobiano, 9); //9 points by reference article 1990
 
             kSymmetric = thk * kSymmetric;
             Console.WriteLine("k symm tensor =");
-            Util.WriteMatrix(kSymmetric, "F3");
+            FEMUtilities.WriteMatrix(kSymmetric, "F3");
 
             //Matrix P ---> reference: eq. 38 of the Article 1990
             double rho = 1.0 * ((PlateProperty)_property).GetG();
@@ -187,10 +187,10 @@ namespace GPC.Model.FEM.FiniteElements
             P = thk * rho * P;
             Console.WriteLine("rho = G = " + rho);
             Console.WriteLine("P skew tensor =");
-            Util.WriteMatrix(P, "F3");
+            FEMUtilities.WriteMatrix(P, "F3");
             _kElementLocalCoord = kSymmetric + P;
             Console.WriteLine("KElementLocalCoord = ");
-            Util.WriteMatrix(_kElementLocalCoord, "F3");
+            FEMUtilities.WriteMatrix(_kElementLocalCoord, "F3");
             #endregion
         }
 
@@ -375,20 +375,20 @@ namespace GPC.Model.FEM.FiniteElements
             Console.WriteLine("dN" + i + "dLocal(csi=" + csi + ",eta=" + eta + ") = " + dNidLocal);
             */
 
-            var dNidCsi = Util.FFirstFix<int, double, double, double>(i, LinearShapeFunctionQuad4.DNdCsi); //f(csi, eta)
-            var dNidEta = Util.FFirstFix<int, double, double, double>(i, LinearShapeFunctionQuad4.DNdEta); //f(csi, eta)
+            var dNidCsi = FEMUtilities.FFirstFix<int, double, double, double>(i, LinearShapeFunctionQuad4.DNdCsi); //f(csi, eta)
+            var dNidEta = FEMUtilities.FFirstFix<int, double, double, double>(i, LinearShapeFunctionQuad4.DNdEta); //f(csi, eta)
 
-            var dNldCsi = Util.FFirstFix<int, double, double, double>(l, QuadraticShapeFunctionQuad8.DNdCsi); //f(csi, eta)
-            var dNldEta = Util.FFirstFix<int, double, double, double>(l, QuadraticShapeFunctionQuad8.DNdEta); //f(csi, eta)
+            var dNldCsi = FEMUtilities.FFirstFix<int, double, double, double>(l, QuadraticShapeFunctionQuad8.DNdCsi); //f(csi, eta)
+            var dNldEta = FEMUtilities.FFirstFix<int, double, double, double>(l, QuadraticShapeFunctionQuad8.DNdEta); //f(csi, eta)
 
-            var dNmdCsi = Util.FFirstFix<int, double, double, double>(m, QuadraticShapeFunctionQuad8.DNdCsi); //f(csi, eta)
-            var dNmdEta = Util.FFirstFix<int, double, double, double>(m, QuadraticShapeFunctionQuad8.DNdEta); //f(csi, eta)
+            var dNmdCsi = FEMUtilities.FFirstFix<int, double, double, double>(m, QuadraticShapeFunctionQuad8.DNdCsi); //f(csi, eta)
+            var dNmdEta = FEMUtilities.FFirstFix<int, double, double, double>(m, QuadraticShapeFunctionQuad8.DNdEta); //f(csi, eta)
 
-            var J4nodes = Util.J2D(LinearShapeFunctionQuad4.DNdCsi, LinearShapeFunctionQuad4.DNdEta, _localNodes); //f(csi, eta)
+            var J4nodes = FEMUtilities.J2D(LinearShapeFunctionQuad4.DNdCsi, LinearShapeFunctionQuad4.DNdEta, _localNodes); //f(csi, eta)
             //create fake 8 nodes
             Node[] local8Nodes = Quad4Element.Get8Nodes(_localNodes);
             
-            var J8nodes = Util.J2D(QuadraticShapeFunctionQuad8.DNdCsi, QuadraticShapeFunctionQuad8.DNdEta, local8Nodes); //f(csi, eta)
+            var J8nodes = FEMUtilities.J2D(QuadraticShapeFunctionQuad8.DNdCsi, QuadraticShapeFunctionQuad8.DNdEta, local8Nodes); //f(csi, eta)
 
             if (J4nodes(csi, eta).Determinant() / J8nodes(csi, eta).Determinant() > 1.0001 || J4nodes(csi, eta).Determinant() / J8nodes(csi, eta).Determinant() < 0.99999)
             {
@@ -396,9 +396,9 @@ namespace GPC.Model.FEM.FiniteElements
                 throw new Exception("det(J4nodi) =" + J4nodes(csi, eta).Determinant() + " != det(j8nodi) = " + J8nodes(csi, eta).Determinant());
             }
 
-            mnl.Vector<double> dNidLocal = Util.GetdNdLocalFromdNdNatural2D(csi, eta, dNidCsi, dNidEta, J4nodes);
-            mnl.Vector<double> dNldLocal = Util.GetdNdLocalFromdNdNatural2D(csi, eta, dNldCsi, dNldEta, J8nodes); //quad4 or quad8 for j?
-            mnl.Vector<double> dNmdLocal = Util.GetdNdLocalFromdNdNatural2D(csi, eta, dNmdCsi, dNmdEta, J8nodes); //quad4 or quad8 for j?
+            mnl.Vector<double> dNidLocal = FEMUtilities.GetdNdLocalFromdNdNatural2D(csi, eta, dNidCsi, dNidEta, J4nodes);
+            mnl.Vector<double> dNldLocal = FEMUtilities.GetdNdLocalFromdNdNatural2D(csi, eta, dNldCsi, dNldEta, J8nodes); //quad4 or quad8 for j?
+            mnl.Vector<double> dNmdLocal = FEMUtilities.GetdNdLocalFromdNdNatural2D(csi, eta, dNmdCsi, dNmdEta, J8nodes); //quad4 or quad8 for j?
 
             double dNidX = dNidLocal[0];
             double dNidY = dNidLocal[1];
@@ -443,20 +443,20 @@ namespace GPC.Model.FEM.FiniteElements
 
             GetDataCalculation(i, _localNodes, out double lij, out double sij, out double cij, out double lik, out double sik, out double cik, out int j, out int k, out int m, out int l);
 
-            var dNidCsi = Util.FFirstFix<int, double, double, double>(i, LinearShapeFunctionQuad4.DNdCsi); //f(csi, eta)
-            var dNidEta = Util.FFirstFix<int, double, double, double>(i, LinearShapeFunctionQuad4.DNdEta); //f(csi, eta)
+            var dNidCsi = FEMUtilities.FFirstFix<int, double, double, double>(i, LinearShapeFunctionQuad4.DNdCsi); //f(csi, eta)
+            var dNidEta = FEMUtilities.FFirstFix<int, double, double, double>(i, LinearShapeFunctionQuad4.DNdEta); //f(csi, eta)
 
-            var dNldCsi = Util.FFirstFix<int, double, double, double>(l, QuadraticShapeFunctionQuad8.DNdCsi); //f(csi, eta)
-            var dNldEta = Util.FFirstFix<int, double, double, double>(l, QuadraticShapeFunctionQuad8.DNdEta); //f(csi, eta)
+            var dNldCsi = FEMUtilities.FFirstFix<int, double, double, double>(l, QuadraticShapeFunctionQuad8.DNdCsi); //f(csi, eta)
+            var dNldEta = FEMUtilities.FFirstFix<int, double, double, double>(l, QuadraticShapeFunctionQuad8.DNdEta); //f(csi, eta)
 
-            var dNmdCsi = Util.FFirstFix<int, double, double, double>(m, QuadraticShapeFunctionQuad8.DNdCsi); //f(csi, eta)
-            var dNmdEta = Util.FFirstFix<int, double, double, double>(m, QuadraticShapeFunctionQuad8.DNdEta); //f(csi, eta)
+            var dNmdCsi = FEMUtilities.FFirstFix<int, double, double, double>(m, QuadraticShapeFunctionQuad8.DNdCsi); //f(csi, eta)
+            var dNmdEta = FEMUtilities.FFirstFix<int, double, double, double>(m, QuadraticShapeFunctionQuad8.DNdEta); //f(csi, eta)
 
-            var J4nodes = Util.J2D(LinearShapeFunctionQuad4.DNdCsi, LinearShapeFunctionQuad4.DNdEta, _localNodes); //f(csi, eta)
+            var J4nodes = FEMUtilities.J2D(LinearShapeFunctionQuad4.DNdCsi, LinearShapeFunctionQuad4.DNdEta, _localNodes); //f(csi, eta)
 
             //create fake 8 nodes
             Node[] local8Nodes = Quad4Element.Get8Nodes(_localNodes);
-            var J8nodes = Util.J2D(QuadraticShapeFunctionQuad8.DNdCsi, QuadraticShapeFunctionQuad8.DNdEta, local8Nodes); //f(csi, eta)
+            var J8nodes = FEMUtilities.J2D(QuadraticShapeFunctionQuad8.DNdCsi, QuadraticShapeFunctionQuad8.DNdEta, local8Nodes); //f(csi, eta)
 
             if (J4nodes(csi, eta).Determinant() / J8nodes(csi, eta).Determinant() > 1.0001 || J4nodes(csi, eta).Determinant() / J8nodes(csi, eta).Determinant() < 0.99999)
             {
@@ -464,9 +464,9 @@ namespace GPC.Model.FEM.FiniteElements
                 throw new Exception("det(J4nodi) =" + J4nodes(csi, eta).Determinant() + " != det(j8nodi) = " + J8nodes(csi, eta).Determinant());
             }
 
-            mnl.Vector<double> dNidLocal = Util.GetdNdLocalFromdNdNatural2D(csi, eta, dNidCsi, dNidEta, J4nodes);
-            mnl.Vector<double> dNldLocal = Util.GetdNdLocalFromdNdNatural2D(csi, eta, dNldCsi, dNldEta, J8nodes); //quad4 or quad8 for j?
-            mnl.Vector<double> dNmdLocal = Util.GetdNdLocalFromdNdNatural2D(csi, eta, dNmdCsi, dNmdEta, J8nodes); //quad4 or quad8 for j?
+            mnl.Vector<double> dNidLocal = FEMUtilities.GetdNdLocalFromdNdNatural2D(csi, eta, dNidCsi, dNidEta, J4nodes);
+            mnl.Vector<double> dNldLocal = FEMUtilities.GetdNdLocalFromdNdNatural2D(csi, eta, dNldCsi, dNldEta, J8nodes); //quad4 or quad8 for j?
+            mnl.Vector<double> dNmdLocal = FEMUtilities.GetdNdLocalFromdNdNatural2D(csi, eta, dNmdCsi, dNmdEta, J8nodes); //quad4 or quad8 for j?
 
             double dNidX = dNidLocal[0];
             double dNidY = dNidLocal[1];

@@ -30,7 +30,7 @@ namespace FemTest.Solver
                 return m;
             };
 
-            var j = Util.J2D(LinearShapeFunctionQuad4.DNdCsi, LinearShapeFunctionQuad4.DNdEta, nds);
+            var j = FEMUtilities.J2D(LinearShapeFunctionQuad4.DNdCsi, LinearShapeFunctionQuad4.DNdEta, nds);
 
             var ris = GaussIntegration.IntegrationQuadrilateral(F, j, nrpoints);
             Assert.AreEqual(4.0, ris[0, 0]);
@@ -47,7 +47,7 @@ namespace FemTest.Solver
                 return m;
             };
 
-            j = Util.J2D(LinearShapeFunctionQuad4.DNdCsi, LinearShapeFunctionQuad4.DNdEta, nds);
+            j = FEMUtilities.J2D(LinearShapeFunctionQuad4.DNdCsi, LinearShapeFunctionQuad4.DNdEta, nds);
 
             ris = GaussIntegration.IntegrationQuadrilateral(F, j, nrpoints);
             Assert.AreEqual(1.0, ris[0, 0]);
@@ -72,7 +72,7 @@ namespace FemTest.Solver
                 return m;
             };
 
-            var j = Util.J2D(LinearShapeFunctionQuad4.DNdCsi, LinearShapeFunctionQuad4.DNdEta, nds);
+            var j = FEMUtilities.J2D(LinearShapeFunctionQuad4.DNdCsi, LinearShapeFunctionQuad4.DNdEta, nds);
 
             var ris = GaussIntegration.IntegrationQuadrilateral(F, j, nrpoints);
             Assert.AreEqual(4.0, ris[0, 0]);
@@ -89,7 +89,7 @@ namespace FemTest.Solver
                 return m;
             };
 
-            j = Util.J2D(LinearShapeFunctionQuad4.DNdCsi, LinearShapeFunctionQuad4.DNdEta, nds);
+            j = FEMUtilities.J2D(LinearShapeFunctionQuad4.DNdCsi, LinearShapeFunctionQuad4.DNdEta, nds);
 
             ris = GaussIntegration.IntegrationQuadrilateral(F, j, nrpoints);
             Assert.AreEqual(1.0, ris[0, 0]);
@@ -113,7 +113,7 @@ namespace FemTest.Solver
                 return m;
             };
 
-            var j = Util.J2D(LinearShapeFunctionQuad4.DNdCsi, LinearShapeFunctionQuad4.DNdEta, nds);
+            var j = FEMUtilities.J2D(LinearShapeFunctionQuad4.DNdCsi, LinearShapeFunctionQuad4.DNdEta, nds);
 
             var ris = GaussIntegration.IntegrationQuadrilateral(F, j, nrpoints);
             Assert.AreEqual(4.0, ris[0, 0]);
@@ -130,7 +130,7 @@ namespace FemTest.Solver
                 return m;
             };
 
-            j = Util.J2D(LinearShapeFunctionQuad4.DNdCsi, LinearShapeFunctionQuad4.DNdEta, nds);
+            j = FEMUtilities.J2D(LinearShapeFunctionQuad4.DNdCsi, LinearShapeFunctionQuad4.DNdEta, nds);
 
             ris = GaussIntegration.IntegrationQuadrilateral(F, j, nrpoints);
             Assert.AreEqual(1.0, ris[0, 0]);
@@ -150,11 +150,11 @@ namespace FemTest.Solver
             Func<double, double, mnl.Matrix<double>> F = (double csi, double eta) => {
 
                 mnl.Matrix<double> m = mnl.Matrix<double>.Build.Dense(1, 1);
-                m[0, 0] = Util.GetLocalCoordinate2D("X", csi, eta, LinearShapeFunctionQuad4.NaturalShapeFunction, nds);
+                m[0, 0] = FEMUtilities.GetLocalCoordinate2D("X", csi, eta, LinearShapeFunctionQuad4.NaturalShapeFunction, nds);
                 return m;
             };
 
-            var j = Util.J2D(LinearShapeFunctionQuad4.DNdCsi, LinearShapeFunctionQuad4.DNdEta, nds);
+            var j = FEMUtilities.J2D(LinearShapeFunctionQuad4.DNdCsi, LinearShapeFunctionQuad4.DNdEta, nds);
 
             var ris = GaussIntegration.IntegrationQuadrilateral(F, j, nrpoints);
             Assert.AreEqual(0.0, ris[0, 0]);
@@ -167,11 +167,11 @@ namespace FemTest.Solver
             F = (double csi, double eta) => {
 
                 mnl.Matrix<double> m = mnl.Matrix<double>.Build.Dense(1, 1);
-                m[0, 0] = Util.GetLocalCoordinate2D("X", csi, eta, LinearShapeFunctionQuad4.NaturalShapeFunction, nds);
+                m[0, 0] = FEMUtilities.GetLocalCoordinate2D("X", csi, eta, LinearShapeFunctionQuad4.NaturalShapeFunction, nds);
                 return m;
             };
 
-            j = Util.J2D(LinearShapeFunctionQuad4.DNdCsi, LinearShapeFunctionQuad4.DNdEta, nds);
+            j = FEMUtilities.J2D(LinearShapeFunctionQuad4.DNdCsi, LinearShapeFunctionQuad4.DNdEta, nds);
 
             ris = GaussIntegration.IntegrationQuadrilateral(F, j, nrpoints);
             Assert.AreEqual(1.0 * 1.0 * 1.0 / 2.0, ris[0, 0]);
@@ -191,11 +191,11 @@ namespace FemTest.Solver
             Func<double, double, mnl.Matrix<double>> F = (double csi, double eta) => {
 
                 mnl.Matrix<double> m = mnl.Matrix<double>.Build.Dense(1, 1);
-                m[0, 0] = Util.GetLocalCoordinate2D("X", csi, eta, LinearShapeFunctionQuad4.NaturalShapeFunction, nds);
+                m[0, 0] = FEMUtilities.GetLocalCoordinate2D("X", csi, eta, LinearShapeFunctionQuad4.NaturalShapeFunction, nds);
                 return m;
             };
 
-            var j = Util.J2D(LinearShapeFunctionQuad4.DNdCsi, LinearShapeFunctionQuad4.DNdEta, nds);
+            var j = FEMUtilities.J2D(LinearShapeFunctionQuad4.DNdCsi, LinearShapeFunctionQuad4.DNdEta, nds);
 
             var ris = GaussIntegration.IntegrationQuadrilateral(F, j, nrpoints);
             Assert.AreEqual(0.0, ris[0, 0], 0.00000000001);
@@ -208,11 +208,11 @@ namespace FemTest.Solver
             F = (double csi, double eta) => {
 
                 mnl.Matrix<double> m = mnl.Matrix<double>.Build.Dense(1, 1);
-                m[0, 0] = Util.GetLocalCoordinate2D("X", csi, eta, LinearShapeFunctionQuad4.NaturalShapeFunction, nds);
+                m[0, 0] = FEMUtilities.GetLocalCoordinate2D("X", csi, eta, LinearShapeFunctionQuad4.NaturalShapeFunction, nds);
                 return m;
             };
 
-            j = Util.J2D(LinearShapeFunctionQuad4.DNdCsi, LinearShapeFunctionQuad4.DNdEta, nds);
+            j = FEMUtilities.J2D(LinearShapeFunctionQuad4.DNdCsi, LinearShapeFunctionQuad4.DNdEta, nds);
 
             ris = GaussIntegration.IntegrationQuadrilateral(F, j, nrpoints);
             Assert.AreEqual(1.0 * 1.0 * 1.0 / 2.0, ris[0, 0]);
@@ -233,11 +233,11 @@ namespace FemTest.Solver
             Func<double, double, mnl.Matrix<double>> F = (double csi, double eta) => {
 
                 mnl.Matrix<double> m = mnl.Matrix<double>.Build.Dense(1, 1);
-                m[0, 0] = constant * Util.GetLocalCoordinate2D("X", csi, eta, LinearShapeFunctionQuad4.NaturalShapeFunction, nds);
+                m[0, 0] = constant * FEMUtilities.GetLocalCoordinate2D("X", csi, eta, LinearShapeFunctionQuad4.NaturalShapeFunction, nds);
                 return m;
             };
 
-            var j = Util.J2D(LinearShapeFunctionQuad4.DNdCsi, LinearShapeFunctionQuad4.DNdEta, nds);
+            var j = FEMUtilities.J2D(LinearShapeFunctionQuad4.DNdCsi, LinearShapeFunctionQuad4.DNdEta, nds);
 
             var ris = GaussIntegration.IntegrationQuadrilateral(F, j, nrpoints);
             Assert.AreEqual(constant * 0.0, ris[0, 0], 0.00000000001);
@@ -250,11 +250,11 @@ namespace FemTest.Solver
             F = (double csi, double eta) => {
 
                 mnl.Matrix<double> m = mnl.Matrix<double>.Build.Dense(1, 1);
-                m[0, 0] = constant * Util.GetLocalCoordinate2D("X", csi, eta, LinearShapeFunctionQuad4.NaturalShapeFunction, nds);
+                m[0, 0] = constant * FEMUtilities.GetLocalCoordinate2D("X", csi, eta, LinearShapeFunctionQuad4.NaturalShapeFunction, nds);
                 return m;
             };
 
-            j = Util.J2D(LinearShapeFunctionQuad4.DNdCsi, LinearShapeFunctionQuad4.DNdEta, nds);
+            j = FEMUtilities.J2D(LinearShapeFunctionQuad4.DNdCsi, LinearShapeFunctionQuad4.DNdEta, nds);
 
             ris = GaussIntegration.IntegrationQuadrilateral(F, j, nrpoints);
             Assert.AreEqual(constant * 1.0 * 1.0 * 1.0 / 2.0, ris[0, 0]);
@@ -275,12 +275,12 @@ namespace FemTest.Solver
             Func<double, double, mnl.Matrix<double>> F = (double csi, double eta) => {
 
                 mnl.Matrix<double> m = mnl.Matrix<double>.Build.Dense(1, 1);
-                double x = Util.GetLocalCoordinate2D("X", csi, eta, LinearShapeFunctionQuad4.NaturalShapeFunction, nds);
+                double x = FEMUtilities.GetLocalCoordinate2D("X", csi, eta, LinearShapeFunctionQuad4.NaturalShapeFunction, nds);
                 m[0, 0] = constant * x * x;
                 return m;
             };
 
-            var j = Util.J2D(LinearShapeFunctionQuad4.DNdCsi, LinearShapeFunctionQuad4.DNdEta, nds);
+            var j = FEMUtilities.J2D(LinearShapeFunctionQuad4.DNdCsi, LinearShapeFunctionQuad4.DNdEta, nds);
 
             var ris = GaussIntegration.IntegrationQuadrilateral(F, j, nrpoints);
             Assert.AreEqual(constant * ((1.0 * 1.0 * 1.0) - (-1.0 * -1.0 *-1.0)) / 3.0 * 2.0, ris[0, 0], 0.00000000001);
@@ -293,12 +293,12 @@ namespace FemTest.Solver
             F = (double csi, double eta) => {
 
                 mnl.Matrix<double> m = mnl.Matrix<double>.Build.Dense(1, 1);
-                double x = Util.GetLocalCoordinate2D("X", csi, eta, LinearShapeFunctionQuad4.NaturalShapeFunction, nds);
+                double x = FEMUtilities.GetLocalCoordinate2D("X", csi, eta, LinearShapeFunctionQuad4.NaturalShapeFunction, nds);
                 m[0, 0] = constant * x * x;
                 return m;
             };
 
-            j = Util.J2D(LinearShapeFunctionQuad4.DNdCsi, LinearShapeFunctionQuad4.DNdEta, nds);
+            j = FEMUtilities.J2D(LinearShapeFunctionQuad4.DNdCsi, LinearShapeFunctionQuad4.DNdEta, nds);
 
             ris = GaussIntegration.IntegrationQuadrilateral(F, j, nrpoints);
             Assert.AreEqual(constant * (1.0*1.0*1.0)/3.0 * 1.0, ris[0, 0], 0.0000000000001);
@@ -319,12 +319,12 @@ namespace FemTest.Solver
             Func<double, double, mnl.Matrix<double>> F = (double csi, double eta) => {
 
                 mnl.Matrix<double> m = mnl.Matrix<double>.Build.Dense(1, 1);
-                double x = Util.GetLocalCoordinate2D("X", csi, eta, LinearShapeFunctionQuad4.NaturalShapeFunction, nds);
+                double x = FEMUtilities.GetLocalCoordinate2D("X", csi, eta, LinearShapeFunctionQuad4.NaturalShapeFunction, nds);
                 m[0, 0] = constant * x * x;
                 return m;
             };
 
-            var j = Util.J2D(LinearShapeFunctionQuad4.DNdCsi, LinearShapeFunctionQuad4.DNdEta, nds);
+            var j = FEMUtilities.J2D(LinearShapeFunctionQuad4.DNdCsi, LinearShapeFunctionQuad4.DNdEta, nds);
 
             var ris = GaussIntegration.IntegrationQuadrilateral(F, j, nrpoints);
             Assert.AreEqual(constant * ((1.0 * 1.0 * 1.0) - (-1.0 * -1.0 * -1.0)) / 3.0 * 2.0, ris[0, 0], 0.00000000001);
@@ -337,12 +337,12 @@ namespace FemTest.Solver
             F = (double csi, double eta) => {
 
                 mnl.Matrix<double> m = mnl.Matrix<double>.Build.Dense(1, 1);
-                double x = Util.GetLocalCoordinate2D("X", csi, eta, LinearShapeFunctionQuad4.NaturalShapeFunction, nds);
+                double x = FEMUtilities.GetLocalCoordinate2D("X", csi, eta, LinearShapeFunctionQuad4.NaturalShapeFunction, nds);
                 m[0, 0] = constant * x * x;
                 return m;
             };
 
-            j = Util.J2D(LinearShapeFunctionQuad4.DNdCsi, LinearShapeFunctionQuad4.DNdEta, nds);
+            j = FEMUtilities.J2D(LinearShapeFunctionQuad4.DNdCsi, LinearShapeFunctionQuad4.DNdEta, nds);
 
             ris = GaussIntegration.IntegrationQuadrilateral(F, j, nrpoints);
             Assert.AreEqual(constant * (1.0 * 1.0 * 1.0) / 3.0 * 1.0, ris[0, 0]);
@@ -371,7 +371,7 @@ namespace FemTest.Solver
                 return m;
             };
 
-            var j = Util.J3D(TriLinearShapeFunctionHexaedron8.DNdCsi, TriLinearShapeFunctionHexaedron8.DNdEta, TriLinearShapeFunctionHexaedron8.DNdZeta, nds);
+            var j = FEMUtilities.J3D(TriLinearShapeFunctionHexaedron8.DNdCsi, TriLinearShapeFunctionHexaedron8.DNdEta, TriLinearShapeFunctionHexaedron8.DNdZeta, nds);
             var ris = GaussIntegration.IntegrationHexaedron(F, j, nrpoints);
             double volume = 2.0 * 2.0 * 2.0;
             Assert.AreEqual(constant * volume, ris[0, 0], 0.00000000001);
@@ -387,7 +387,7 @@ namespace FemTest.Solver
             nds[7] = new Node(0.0, 1.0, 3.0, "4");
 
             volume = 2.0 * 1.0 * 3.0;
-            j = Util.J3D(TriLinearShapeFunctionHexaedron8.DNdCsi, TriLinearShapeFunctionHexaedron8.DNdEta, TriLinearShapeFunctionHexaedron8.DNdZeta, nds);
+            j = FEMUtilities.J3D(TriLinearShapeFunctionHexaedron8.DNdCsi, TriLinearShapeFunctionHexaedron8.DNdEta, TriLinearShapeFunctionHexaedron8.DNdZeta, nds);
             ris = GaussIntegration.IntegrationHexaedron(F, j, nrpoints);
             Assert.AreEqual(constant * volume, ris[0, 0], 0.00000000001);
         }
@@ -415,7 +415,7 @@ namespace FemTest.Solver
                 return m;
             };
 
-            var j = Util.J3D(TriLinearShapeFunctionHexaedron8.DNdCsi, TriLinearShapeFunctionHexaedron8.DNdEta, TriLinearShapeFunctionHexaedron8.DNdZeta, nds);
+            var j = FEMUtilities.J3D(TriLinearShapeFunctionHexaedron8.DNdCsi, TriLinearShapeFunctionHexaedron8.DNdEta, TriLinearShapeFunctionHexaedron8.DNdZeta, nds);
             var ris = GaussIntegration.IntegrationHexaedron(F, j, nrpoints);
             double volume = 2.0 * 2.0 * 2.0;
             Assert.AreEqual(constant * volume, ris[0, 0], 0.00000000001);
@@ -431,7 +431,7 @@ namespace FemTest.Solver
             nds[7] = new Node(0.0, 1.0, 3.0, "4");
 
             volume = 2.0 * 1.0 * 3.0;
-            j = Util.J3D(TriLinearShapeFunctionHexaedron8.DNdCsi, TriLinearShapeFunctionHexaedron8.DNdEta, TriLinearShapeFunctionHexaedron8.DNdZeta, nds);
+            j = FEMUtilities.J3D(TriLinearShapeFunctionHexaedron8.DNdCsi, TriLinearShapeFunctionHexaedron8.DNdEta, TriLinearShapeFunctionHexaedron8.DNdZeta, nds);
             ris = GaussIntegration.IntegrationHexaedron(F, j, nrpoints);
             Assert.AreEqual(constant * volume, ris[0, 0], 0.00000000001);
         }
@@ -455,14 +455,14 @@ namespace FemTest.Solver
             Func<double, double, double, mnl.Matrix<double>> F = (double csi, double eta, double zeta) => {
 
                 mnl.Matrix<double> m = mnl.Matrix<double>.Build.Dense(1, 1);
-                double x = Util.GetLocalCoordinate3D("X", csi, eta, zeta, TriLinearShapeFunctionHexaedron8.NaturalShapeFunction, nds);
-                double y = Util.GetLocalCoordinate3D("Y", csi, eta, zeta, TriLinearShapeFunctionHexaedron8.NaturalShapeFunction, nds);
-                double z = Util.GetLocalCoordinate3D("Z", csi, eta, zeta, TriLinearShapeFunctionHexaedron8.NaturalShapeFunction, nds);
+                double x = FEMUtilities.GetLocalCoordinate3D("X", csi, eta, zeta, TriLinearShapeFunctionHexaedron8.NaturalShapeFunction, nds);
+                double y = FEMUtilities.GetLocalCoordinate3D("Y", csi, eta, zeta, TriLinearShapeFunctionHexaedron8.NaturalShapeFunction, nds);
+                double z = FEMUtilities.GetLocalCoordinate3D("Z", csi, eta, zeta, TriLinearShapeFunctionHexaedron8.NaturalShapeFunction, nds);
                 m[0, 0] = constant * x * y * z;
                 return m;
             };
 
-            var j = Util.J3D(TriLinearShapeFunctionHexaedron8.DNdCsi, TriLinearShapeFunctionHexaedron8.DNdEta, TriLinearShapeFunctionHexaedron8.DNdZeta, nds);
+            var j = FEMUtilities.J3D(TriLinearShapeFunctionHexaedron8.DNdCsi, TriLinearShapeFunctionHexaedron8.DNdEta, TriLinearShapeFunctionHexaedron8.DNdZeta, nds);
             var ris = GaussIntegration.IntegrationHexaedron(F, j, nrpoints);
             
             Func<double, double, double> integral = (double start, double end) => { return 1.0 / 2.0 * (end * end - start * start); };
@@ -482,14 +482,14 @@ namespace FemTest.Solver
             F = (double csi, double eta, double zeta) => {
 
                 mnl.Matrix<double> m = mnl.Matrix<double>.Build.Dense(1, 1);
-                double x = Util.GetLocalCoordinate3D("X", csi, eta, zeta, TriLinearShapeFunctionHexaedron8.NaturalShapeFunction, nds);
-                double y = Util.GetLocalCoordinate3D("Y", csi, eta, zeta, TriLinearShapeFunctionHexaedron8.NaturalShapeFunction, nds);
-                double z = Util.GetLocalCoordinate3D("Z", csi, eta, zeta, TriLinearShapeFunctionHexaedron8.NaturalShapeFunction, nds);
+                double x = FEMUtilities.GetLocalCoordinate3D("X", csi, eta, zeta, TriLinearShapeFunctionHexaedron8.NaturalShapeFunction, nds);
+                double y = FEMUtilities.GetLocalCoordinate3D("Y", csi, eta, zeta, TriLinearShapeFunctionHexaedron8.NaturalShapeFunction, nds);
+                double z = FEMUtilities.GetLocalCoordinate3D("Z", csi, eta, zeta, TriLinearShapeFunctionHexaedron8.NaturalShapeFunction, nds);
                 m[0, 0] = constant * x * y * z;
                 return m;
             };
 
-            j = Util.J3D(TriLinearShapeFunctionHexaedron8.DNdCsi, TriLinearShapeFunctionHexaedron8.DNdEta, TriLinearShapeFunctionHexaedron8.DNdZeta, nds);
+            j = FEMUtilities.J3D(TriLinearShapeFunctionHexaedron8.DNdCsi, TriLinearShapeFunctionHexaedron8.DNdEta, TriLinearShapeFunctionHexaedron8.DNdZeta, nds);
             ris = GaussIntegration.IntegrationHexaedron(F, j, nrpoints);
             Assert.AreEqual(constant * integral(0, 2) * integral(0, 1) * integral(0, 3), ris[0, 0], 0.00000000001);
         }
@@ -513,14 +513,14 @@ namespace FemTest.Solver
             Func<double, double, double, mnl.Matrix<double>> F = (double csi, double eta, double zeta) => {
 
                 mnl.Matrix<double> m = mnl.Matrix<double>.Build.Dense(1, 1);
-                double x = Util.GetLocalCoordinate3D("X", csi, eta, zeta, TriLinearShapeFunctionHexaedron8.NaturalShapeFunction, nds);
-                double y = Util.GetLocalCoordinate3D("Y", csi, eta, zeta, TriLinearShapeFunctionHexaedron8.NaturalShapeFunction, nds);
-                double z = Util.GetLocalCoordinate3D("Z", csi, eta, zeta, TriLinearShapeFunctionHexaedron8.NaturalShapeFunction, nds);
+                double x = FEMUtilities.GetLocalCoordinate3D("X", csi, eta, zeta, TriLinearShapeFunctionHexaedron8.NaturalShapeFunction, nds);
+                double y = FEMUtilities.GetLocalCoordinate3D("Y", csi, eta, zeta, TriLinearShapeFunctionHexaedron8.NaturalShapeFunction, nds);
+                double z = FEMUtilities.GetLocalCoordinate3D("Z", csi, eta, zeta, TriLinearShapeFunctionHexaedron8.NaturalShapeFunction, nds);
                 m[0, 0] = constant * x * y * z;
                 return m;
             };
 
-            var j = Util.J3D(TriLinearShapeFunctionHexaedron8.DNdCsi, TriLinearShapeFunctionHexaedron8.DNdEta, TriLinearShapeFunctionHexaedron8.DNdZeta, nds);
+            var j = FEMUtilities.J3D(TriLinearShapeFunctionHexaedron8.DNdCsi, TriLinearShapeFunctionHexaedron8.DNdEta, TriLinearShapeFunctionHexaedron8.DNdZeta, nds);
             var ris = GaussIntegration.IntegrationHexaedron(F, j, nrpoints);
 
             Func<double, double, double> integral = (double start, double end) => { return 1.0 / 2.0 * (end * end - start * start); };
@@ -540,14 +540,14 @@ namespace FemTest.Solver
             F = (double csi, double eta, double zeta) => {
 
                 mnl.Matrix<double> m = mnl.Matrix<double>.Build.Dense(1, 1);
-                double x = Util.GetLocalCoordinate3D("X", csi, eta, zeta, TriLinearShapeFunctionHexaedron8.NaturalShapeFunction, nds);
-                double y = Util.GetLocalCoordinate3D("Y", csi, eta, zeta, TriLinearShapeFunctionHexaedron8.NaturalShapeFunction, nds);
-                double z = Util.GetLocalCoordinate3D("Z", csi, eta, zeta, TriLinearShapeFunctionHexaedron8.NaturalShapeFunction, nds);
+                double x = FEMUtilities.GetLocalCoordinate3D("X", csi, eta, zeta, TriLinearShapeFunctionHexaedron8.NaturalShapeFunction, nds);
+                double y = FEMUtilities.GetLocalCoordinate3D("Y", csi, eta, zeta, TriLinearShapeFunctionHexaedron8.NaturalShapeFunction, nds);
+                double z = FEMUtilities.GetLocalCoordinate3D("Z", csi, eta, zeta, TriLinearShapeFunctionHexaedron8.NaturalShapeFunction, nds);
                 m[0, 0] = constant * x * y * z;
                 return m;
             };
 
-            j = Util.J3D(TriLinearShapeFunctionHexaedron8.DNdCsi, TriLinearShapeFunctionHexaedron8.DNdEta, TriLinearShapeFunctionHexaedron8.DNdZeta, nds);
+            j = FEMUtilities.J3D(TriLinearShapeFunctionHexaedron8.DNdCsi, TriLinearShapeFunctionHexaedron8.DNdEta, TriLinearShapeFunctionHexaedron8.DNdZeta, nds);
             ris = GaussIntegration.IntegrationHexaedron(F, j, nrpoints);
             Assert.AreEqual(constant * integral(0, 2) * integral(0, 1) * integral(0, 3), ris[0, 0], 0.00000000001);
         }
@@ -571,14 +571,14 @@ namespace FemTest.Solver
             Func<double, double, double, mnl.Matrix<double>> F = (double csi, double eta, double zeta) => {
 
                 mnl.Matrix<double> m = mnl.Matrix<double>.Build.Dense(1, 1);
-                double x = Util.GetLocalCoordinate3D("X", csi, eta, zeta, TriLinearShapeFunctionHexaedron8.NaturalShapeFunction, nds);
-                double y = Util.GetLocalCoordinate3D("Y", csi, eta, zeta, TriLinearShapeFunctionHexaedron8.NaturalShapeFunction, nds);
-                double z = Util.GetLocalCoordinate3D("Z", csi, eta, zeta, TriLinearShapeFunctionHexaedron8.NaturalShapeFunction, nds);
+                double x = FEMUtilities.GetLocalCoordinate3D("X", csi, eta, zeta, TriLinearShapeFunctionHexaedron8.NaturalShapeFunction, nds);
+                double y = FEMUtilities.GetLocalCoordinate3D("Y", csi, eta, zeta, TriLinearShapeFunctionHexaedron8.NaturalShapeFunction, nds);
+                double z = FEMUtilities.GetLocalCoordinate3D("Z", csi, eta, zeta, TriLinearShapeFunctionHexaedron8.NaturalShapeFunction, nds);
                 m[0, 0] = constant * x*x * y*y * z*z;
                 return m;
             };
 
-            var j = Util.J3D(TriLinearShapeFunctionHexaedron8.DNdCsi, TriLinearShapeFunctionHexaedron8.DNdEta, TriLinearShapeFunctionHexaedron8.DNdZeta, nds);
+            var j = FEMUtilities.J3D(TriLinearShapeFunctionHexaedron8.DNdCsi, TriLinearShapeFunctionHexaedron8.DNdEta, TriLinearShapeFunctionHexaedron8.DNdZeta, nds);
             var ris = GaussIntegration.IntegrationHexaedron(F, j, nrpoints);
 
             Func<double, double, double> integral = (double start, double end) => { return 1.0 / 3.0 * (end * end * end - start * start * start); };
@@ -598,14 +598,14 @@ namespace FemTest.Solver
             F = (double csi, double eta, double zeta) => {
 
                 mnl.Matrix<double> m = mnl.Matrix<double>.Build.Dense(1, 1);
-                double x = Util.GetLocalCoordinate3D("X", csi, eta, zeta, TriLinearShapeFunctionHexaedron8.NaturalShapeFunction, nds);
-                double y = Util.GetLocalCoordinate3D("Y", csi, eta, zeta, TriLinearShapeFunctionHexaedron8.NaturalShapeFunction, nds);
-                double z = Util.GetLocalCoordinate3D("Z", csi, eta, zeta, TriLinearShapeFunctionHexaedron8.NaturalShapeFunction, nds);
+                double x = FEMUtilities.GetLocalCoordinate3D("X", csi, eta, zeta, TriLinearShapeFunctionHexaedron8.NaturalShapeFunction, nds);
+                double y = FEMUtilities.GetLocalCoordinate3D("Y", csi, eta, zeta, TriLinearShapeFunctionHexaedron8.NaturalShapeFunction, nds);
+                double z = FEMUtilities.GetLocalCoordinate3D("Z", csi, eta, zeta, TriLinearShapeFunctionHexaedron8.NaturalShapeFunction, nds);
                 m[0, 0] = constant * x*x * y*y * z*z;
                 return m;
             };
 
-            j = Util.J3D(TriLinearShapeFunctionHexaedron8.DNdCsi, TriLinearShapeFunctionHexaedron8.DNdEta, TriLinearShapeFunctionHexaedron8.DNdZeta, nds);
+            j = FEMUtilities.J3D(TriLinearShapeFunctionHexaedron8.DNdCsi, TriLinearShapeFunctionHexaedron8.DNdEta, TriLinearShapeFunctionHexaedron8.DNdZeta, nds);
             ris = GaussIntegration.IntegrationHexaedron(F, j, nrpoints);
             Assert.AreEqual(constant * integral(0, 2) * integral(0, 1) * integral(0, 3), ris[0, 0], 0.00000000001);
         }

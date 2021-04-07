@@ -58,7 +58,7 @@ namespace FemTest.Solver
             nds.ToList().ForEach(x => {
                 i++;
                 Console.WriteLine("B signed in Node " + i);
-                Util.WriteMatrix(Quad4QFSUQMembranal.BMatrix(x.Position.X, x.Position.Y, nds));
+                FEMUtilities.WriteMatrix(Quad4QFSUQMembranal.BMatrix(x.Position.X, x.Position.Y, nds));
                 }
             );
         }
@@ -93,7 +93,7 @@ namespace FemTest.Solver
 
             for (int i = 0; i < Lm.Count; i++)
             {
-                Util.WriteMatrix(Lm[i] - Lm2[i]);
+                FEMUtilities.WriteMatrix(Lm[i] - Lm2[i]);
             }
         }
             
@@ -121,7 +121,7 @@ namespace FemTest.Solver
             {
                 //M = M + Quad4QFSUQMembranal.MMatrix(pts[i].Point.X, pts[i].Point.Y, D, nds).Inverse();
             }
-            Util.WriteMatrix(M,"F3");
+            FEMUtilities.WriteMatrix(M,"F3");
         }
 
         /// <summary>
@@ -156,7 +156,7 @@ namespace FemTest.Solver
             k1 = el.KElementGlobalCoord;
 
             Console.WriteLine("k1 ");
-            Util.WriteMatrix(k1, "F3");
+            FEMUtilities.WriteMatrix(k1, "F3");
 
             //Console.WriteLine("k2 Correct = ");
             //Util.WriteMatrix(k2, "F3");

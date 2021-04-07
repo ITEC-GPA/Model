@@ -57,7 +57,7 @@ namespace GPC.Model.FEM.FiniteElements
                 return b.Transpose() * _d * b;
             };
 
-            var jacob = Util.J3D(TriLinearShapeFunctionHexaedron8.DNdCsi, TriLinearShapeFunctionHexaedron8.DNdEta, TriLinearShapeFunctionHexaedron8.DNdZeta, _nodesGlobal);
+            var jacob = FEMUtilities.J3D(TriLinearShapeFunctionHexaedron8.DNdCsi, TriLinearShapeFunctionHexaedron8.DNdEta, TriLinearShapeFunctionHexaedron8.DNdZeta, _nodesGlobal);
 
             _kElementLocalCoord = GaussIntegration.IntegrationHexaedron(kFunc, jacob, 8);
         }
@@ -111,7 +111,7 @@ namespace GPC.Model.FEM.FiniteElements
         /// <returns></returns>
         private static mnl.Matrix<double> GetBi(int i, double csi, double eta, double zeta, Node[] nodes)
         {
-            Func<double, double, double, mnl.Matrix<double>> jacob = Util.J3D(TriLinearShapeFunctionHexaedron8.DNdCsi, TriLinearShapeFunctionHexaedron8.DNdEta, TriLinearShapeFunctionHexaedron8.DNdZeta, nodes);
+            Func<double, double, double, mnl.Matrix<double>> jacob = FEMUtilities.J3D(TriLinearShapeFunctionHexaedron8.DNdCsi, TriLinearShapeFunctionHexaedron8.DNdEta, TriLinearShapeFunctionHexaedron8.DNdZeta, nodes);
 
             Func<double, double, double, double> FdNdCsi = (double r, double s, double t) => {
                 return TriLinearShapeFunctionHexaedron8.DNdCsi(i, r, s, t);
@@ -125,7 +125,7 @@ namespace GPC.Model.FEM.FiniteElements
                 return TriLinearShapeFunctionHexaedron8.DNdZeta(i, r, s, t);
             };
 
-            mnl.Vector<double> dNdLocal = Util.GetdNdLocalFromdNdNatural3D(csi, eta, zeta, FdNdCsi, FdNdEta, FdNdZeta, jacob);
+            mnl.Vector<double> dNdLocal = FEMUtilities.GetdNdLocalFromdNdNatural3D(csi, eta, zeta, FdNdCsi, FdNdEta, FdNdZeta, jacob);
             double dNdX = dNdLocal[0];
             double dNdY = dNdLocal[1];
             double dNdZ = dNdLocal[2];

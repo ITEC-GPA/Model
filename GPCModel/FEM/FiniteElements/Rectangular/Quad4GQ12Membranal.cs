@@ -152,7 +152,7 @@ namespace GPC.Model.FEM.FiniteElements
             #region stiffnessMatrixInLocalCoordinates
             double thk = ((PlateProperty)_property).MembraneThickness;
 
-            Func<double, double, mnl.Matrix<double>> funJacobiano = Util.J2D(LinearShapeFunctionQuad4.DNdCsi, LinearShapeFunctionQuad4.DNdEta, _localNodes);
+            Func<double, double, mnl.Matrix<double>> funJacobiano = FEMUtilities.J2D(LinearShapeFunctionQuad4.DNdCsi, LinearShapeFunctionQuad4.DNdEta, _localNodes);
 
             Func<double, double, mnl.Matrix<double>> BTraspDB = (double csi, double eta) =>
             {
@@ -176,14 +176,14 @@ namespace GPC.Model.FEM.FiniteElements
         {
             Func<double, double, mnl.Matrix<double>> fJacob = (double varCsi, double varEta) =>
             {
-                return Util.Jacob2D(varCsi, varEta, LinearShapeFunctionQuad4.DNdCsi, LinearShapeFunctionQuad4.DNdEta, nodes);
+                return FEMUtilities.Jacob2D(varCsi, varEta, LinearShapeFunctionQuad4.DNdCsi, LinearShapeFunctionQuad4.DNdEta, nodes);
             };
             
             mnl.Matrix<double> B = mnl.Matrix<double>.Build.Dense(3, 0);
             for (int i = 1; i <= nodes.Length; i++)
             {
-                var dNdCsi = Util.FFirstFix<int, double, double, double>(i, LinearShapeFunctionQuad4.DNdCsi);
-                var dNdEta = Util.FFirstFix<int, double, double, double>(i, LinearShapeFunctionQuad4.DNdEta);
+                var dNdCsi = FEMUtilities.FFirstFix<int, double, double, double>(i, LinearShapeFunctionQuad4.DNdCsi);
+                var dNdEta = FEMUtilities.FFirstFix<int, double, double, double>(i, LinearShapeFunctionQuad4.DNdEta);
 
 
                 Func<double, double, double> fdNuThetadCsi = (double varCsi, double varEta) =>
@@ -206,15 +206,15 @@ namespace GPC.Model.FEM.FiniteElements
                     return DNvThetadEta(i, varCsi, varEta, nodes); //fix "i" and "nodes"
                 };
 
-                mnl.Vector<double> dNidLocal = Util.GetdNdLocalFromdNdNatural2D(csi, eta, dNdCsi, dNdEta, fJacob);
+                mnl.Vector<double> dNidLocal = FEMUtilities.GetdNdLocalFromdNdNatural2D(csi, eta, dNdCsi, dNdEta, fJacob);
                 double dNidX = dNidLocal[0];
                 double dNidY = dNidLocal[1];
 
-                mnl.Vector<double> dNuThetadLocal = Util.GetdNdLocalFromdNdNatural2D(csi, eta, fdNuThetadCsi, fdNuThetadEta, fJacob);
+                mnl.Vector<double> dNuThetadLocal = FEMUtilities.GetdNdLocalFromdNdNatural2D(csi, eta, fdNuThetadCsi, fdNuThetadEta, fJacob);
                 double dNuThetadX = dNuThetadLocal[0];
                 double dNuThetadY = dNuThetadLocal[1];
 
-                mnl.Vector<double> dNvThetadLocal = Util.GetdNdLocalFromdNdNatural2D(csi, eta, fdNvThetadCsi, fdNvThetadEta, fJacob);
+                mnl.Vector<double> dNvThetadLocal = FEMUtilities.GetdNdLocalFromdNdNatural2D(csi, eta, fdNvThetadCsi, fdNvThetadEta, fJacob);
                 double dNvThetadX = dNvThetadLocal[0];
                 double dNvThetadY = dNvThetadLocal[1];
 

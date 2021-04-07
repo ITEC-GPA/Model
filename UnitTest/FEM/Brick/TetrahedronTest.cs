@@ -135,7 +135,7 @@ namespace FemTest.Solver
             Tethraedron4 e = new Tethraedron4(nds.ToArray(), brickProperty, 1);
             e.BuildMatrix();
 
-            Util.WriteMatrix(e.KElementLocalCoord);
+            FEMUtilities.WriteMatrix(e.KElementLocalCoord);
 
             //Local axis == global axis
             for (int r = 0; r < 12; r++)
