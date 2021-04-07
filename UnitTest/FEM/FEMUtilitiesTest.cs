@@ -10,7 +10,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 namespace FemTest.Solver
 {
     [TestClass]
-    public class UtilTest
+    public class FemUtilitiesTest
     {
         public double F(double x, double y, double z)
         {

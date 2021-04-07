@@ -72,6 +72,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="DescriptionAttributesTest.cs" />
+    <Compile Include="FEM\Beam\BeamTest.cs" />
     <Compile Include="FEM\Brick\BrickTest.cs" />
     <Compile Include="FEM\Brick\HexaedronTest.cs" />
     <Compile Include="FEM\Brick\TetrahedronTest.cs" />
@@ -87,7 +88,7 @@
     <Compile Include="FEM\Plates\MembraneTest.cs" />
     <Compile Include="FEM\Plates\ElementTest.cs" />
     <Compile Include="FEM\Plates\DKTTest.cs" />
-    <Compile Include="FEM\UtilTest.cs" />
+    <Compile Include="FEM\FEMUtilitiesTest.cs" />
     <Compile Include="InterlayerMaterialTest.cs" />
     <Compile Include="ResultTest.cs" />
     <Compile Include="MaterialTest.cs" />
@@ -113,10 +114,6 @@
       <Project>{175a9b69-232c-41b7-aba8-2d0bfe9c2062}</Project>
       <Name>GPCModel</Name>
     </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="gmsh-4.7.dll" />
-    <Content Include="UnsafeEx.dll" />
   </ItemGroup>
   <Import Project="$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets" Condition="Exists('$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets')" />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

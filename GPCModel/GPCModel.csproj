@@ -85,6 +85,7 @@
     <Compile Include="FEM\ElementProperty\LaminatedGlassProperty.cs" />
     <Compile Include="FEM\ElementProperty\MonolithicGlassProperty.cs" />
     <Compile Include="FEM\FiniteElements\Brick\Hexaedron8.cs" />
+    <Compile Include="FEM\FiniteElements\Beam.cs" />
     <Compile Include="FEM\FiniteElements\PlateTriangle\Tri3SBTEMembrane.cs" />
     <Compile Include="FEM\FiniteElements\PlateTriangle\Tri3TR3RDOFMembrane.cs" />
     <Compile Include="FEM\FiniteElements\PlateTriangle\Tri3SBTDRMembrane.cs" />
@@ -189,10 +190,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="gmsh-4.7.dll" />
-    <Content Include="UnsafeEx.dll" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="..\packages\GMsh.Net.1.0.0.1\build\GMsh.Net.targets" Condition="Exists('..\packages\GMsh.Net.1.0.0.1\build\GMsh.Net.targets')" />

@@ -34,7 +34,7 @@ namespace FemTest.Solver
 
             BrickProperty brickProperty = new BrickProperty(mat, "propBrick");
 
-            Hexaedron e = new Hexaedron(nds.ToArray(), brickProperty, 1);
+            Hexaedron e = new Hexaedron(nds.ToArray(), brickProperty);
             e.BuildMatrix();
 
             Console.WriteLine("klocalMatrix");
@@ -67,7 +67,7 @@ namespace FemTest.Solver
 
             BrickProperty brickProperty = new BrickProperty(mat, "proprBrick");
 
-            Hexaedron e = new Hexaedron(nds.ToArray(), brickProperty, 1);
+            Hexaedron e = new Hexaedron(nds.ToArray(), brickProperty);
 
             LoadCase lc = new LoadCase("lc1");
             CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
@@ -115,7 +115,7 @@ namespace FemTest.Solver
 
             BrickProperty brickProperty = new BrickProperty(mat, "proprBrick");
 
-            Hexaedron e = new Hexaedron(nds.ToArray(), brickProperty, 1);
+            Hexaedron e = new Hexaedron(nds.ToArray(), brickProperty);
 
             LoadCase lc = new LoadCase("lc1");
             CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
@@ -173,7 +173,7 @@ namespace FemTest.Solver
                 elementNodes.Add(nds[i + 2]);
                 elementNodes.Add(nds[i + 3]);
 
-                els.Add(new Hexaedron(elementNodes.ToArray(), brickProperty, 0));
+                els.Add(new Hexaedron(elementNodes.ToArray(), brickProperty));
             }
 
             LoadCase lc = new LoadCase("lc1");
