@@ -72,6 +72,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="DescriptionAttributesTest.cs" />
+    <Compile Include="FEM\CostrainTest.cs" />
+    <Compile Include="FEM\Beam\BeamTest.cs" />
     <Compile Include="FEM\Brick\BrickTest.cs" />
     <Compile Include="FEM\Brick\HexaedronTest.cs" />
     <Compile Include="FEM\Brick\TetrahedronTest.cs" />
@@ -87,7 +89,7 @@
     <Compile Include="FEM\Plates\MembraneTest.cs" />
     <Compile Include="FEM\Plates\ElementTest.cs" />
     <Compile Include="FEM\Plates\DKTTest.cs" />
-    <Compile Include="FEM\UtilTest.cs" />
+    <Compile Include="FEM\FEMUtilitiesTest.cs" />
     <Compile Include="InterlayerMaterialTest.cs" />
     <Compile Include="ResultTest.cs" />
     <Compile Include="MaterialTest.cs" />

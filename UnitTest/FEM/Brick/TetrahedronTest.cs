@@ -132,7 +132,7 @@ namespace FemTest.Solver
 
             BrickProperty brickProperty = new BrickProperty(mat, "propr");
 
-            Tethraedron4 e = new Tethraedron4(nds.ToArray(), brickProperty, 1);
+            Tethraedron4 e = new Tethraedron4(nds.ToArray(), brickProperty);
             e.BuildMatrix();
 
             FEMUtilities.WriteMatrix(e.KElementLocalCoord);

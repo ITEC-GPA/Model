@@ -12,7 +12,7 @@ namespace GPC.Model.FEM.FiniteElements
     /// </summary>
     public class Tethraedron4 : Brick
     {
-        public Tethraedron4(Node[] globalNodes, BrickProperty brickProperty, int id) :base(globalNodes)
+        internal Tethraedron4(Node[] globalNodes, BrickProperty brickProperty) :base(globalNodes)
         {
             _DOF.Add(LinearSolver.DOF.DX);
             _DOF.Add(LinearSolver.DOF.DY);
@@ -20,7 +20,6 @@ namespace GPC.Model.FEM.FiniteElements
             //a displacement in Local coordinate plane (Dx, Dy) can be a DX, DY, DZ in Global space!
 
             SetProperty(brickProperty);
-            SetId(id);
 
             #region Controllo
             //Controllo che per ogni nodo I vengano visti gli altri 3 in senso antiorario.

@@ -5,6 +5,7 @@ using GPC.Model.FEM.FiniteElements;
 using GPC.Geometry;
 using mnl = MathNet.Numerics.LinearAlgebra;
 using GPC.Model.FEM.Attributes;
+using GPC.Model.FEM.Costrain;
 
 namespace GPC.Model.FEM
 {
@@ -27,7 +28,7 @@ namespace GPC.Model.FEM
         protected mnl.Matrix<double> _KGlobalRestrains;
         protected mnl.Vector<double> _F;
         protected mnl.Vector<double> _FRestrains;
-        protected HashSet<FEM.Costrain.MultiPointCostrain> _costrains;
+        protected HashSet<MultiPointCostrain> _costrains;
         protected mnl.Vector<double> _nodeGlobalDisplacement;
         protected mnl.Vector<double> _reactions;
         #endregion
@@ -47,7 +48,12 @@ namespace GPC.Model.FEM
         public FiniteElement[] Elements { get; }
         #endregion
 
-        public LinearSolver(FiniteElement[] inputElements)
+        public LinearSolver(FiniteElement[] inputElements) : this(inputElements, new MultiPointCostrain[0])
+        {
+
+        }
+
+        public LinearSolver(FiniteElement[] inputElements, MultiPointCostrain[] costrains)
         {
             #region NodeOfModel
             HashSet<Node> nodesModel = new HashSet<Node>();
@@ -172,7 +178,7 @@ namespace GPC.Model.FEM
                 //Stiffness Matrix of element in global coordinates, KElementGlobal = GlobalToLocal ^ T * [KeLocal] * [GlobalToLocal]
                 mnl.Matrix<double> KElementGlobalCoord = element.KElementGlobalCoord;
                 //Console.WriteLine("KElementGlobalCoord element " + el);
-                FEMUtilities.WriteMatrix(KElementGlobalCoord);
+                //FEMUtilities.WriteMatrix(KElementGlobalCoord);
                                 
                 for (int i = 0; i < element.Nodes.Count(); i++) //node i - over nodes of element
                 {
@@ -363,12 +369,14 @@ namespace GPC.Model.FEM
             #endregion
 
             #region ApplyingMultiPointCostrains
-            _costrains = new HashSet<FEM.Costrain.MultiPointCostrain>();
+            _costrains = costrains.ToHashSet();
             //applying as example in node 1 : DX = DY (simply support with 45 degrees direction
-            FEM.Costrain.MultiPointCostrain.Link[] equations = new FEM.Costrain.MultiPointCostrain.Link[2];
-            equations[0] = new FEM.Costrain.MultiPointCostrain.Link("1", DOF.DX, 1.0);
-            equations[1] = new FEM.Costrain.MultiPointCostrain.Link("1", DOF.DY, 1.0);
-            FEM.Costrain.MultiPointCostrain Costrain1 = new FEM.Costrain.MultiPointCostrain(equations);
+            
+            /* EXAMPLE:
+             * MultiPointCostrain.Link[] equations = new MultiPointCostrain.Link[2];
+             * equations[0] = new MultiPointCostrain.Link("1", DOF.DX, 1.0);
+             * equations[1] = new MultiPointCostrain.Link("1", DOF.DY, 1.0);
+             * MultiPointCostrain Costrain1 = new MultiPointCostrain(equations);*/
             //_costrains.Add(Costrain1);
 
             /* Use: Lagrange multiplier method 
@@ -378,37 +386,44 @@ namespace GPC.Model.FEM
             int nLagrangianMultiplier = _costrains.Count;
             for (int i = 0; i < _costrains.Count; i++)
             {
-                FEM.Costrain.MultiPointCostrain c = _costrains.ElementAt(i);
+                MultiPointCostrain c = _costrains.ElementAt(i); //select equation constrain
+                #if DEBUG
                 Console.WriteLine(c.ToString());
+                #endif
 
+                #region ModificaStiffnessMatrixPerInserimentoCostrain
                 mnl.Vector<double> voidVector = mnl.Vector<double>.Build.Dense(_KGlobalRestrains.RowCount);
                 _KGlobalRestrains = _KGlobalRestrains.InsertColumn(_KGlobalRestrains.ColumnCount, voidVector);
                 voidVector = mnl.Vector<double>.Build.Dense(_KGlobalRestrains.ColumnCount);
                 _KGlobalRestrains = _KGlobalRestrains.InsertRow(_KGlobalRestrains.RowCount, voidVector);
+                #endregion
 
+                #region AggiornamentoTermineNoto
                 //add a row to F vector and update it
                 _FRestrains.CopySubVectorTo(voidVector,0,0,_FRestrains.Count);
                 _FRestrains = voidVector;
                 _FRestrains[_FRestrains.Count - 1] = c.ConstValue;
 
-                for (int j = 0; j < c.Links.Length; j++) {
+                /*_F.CopySubVectorTo(voidVector, 0, 0, _F.Count);
+                _F = voidVector;*/
+                #endregion
 
-                    string labelNodeSlave = c.Links[j].LabelNode;
+                #region AggiornamentoMatriceDiRigidezza
+                for (int j = 0; j < c.Links.Length; j++) {
+                    Node nodeSlave = c.Links[j].NodeSlave;
                     DOF gdlNodeSlave = c.Links[j].GdlNode;
 
-                    int[] positionsGDLNodeSlave = GetPositionInKGlobal(labelNodeSlave, gdlNodeSlave);
-                    if (positionsGDLNodeSlave.Length > 1)
-                    {
-                        throw new Exception("More than 1 nodes not yet supported");
-                    }
-                    int positionGDLNodeSlave = positionsGDLNodeSlave[0];
+                    int positionGDLNodeSlave = GetPositionInKGlobal(nodeSlave, gdlNodeSlave);
                     _KGlobalRestrains[positionGDLNodeSlave, _KGlobalRestrains.ColumnCount - 1] = c.Links[j].Value;
                     _KGlobalRestrains[_KGlobalRestrains.RowCount - 1, positionGDLNodeSlave] = c.Links[j].Value;
                 }
+                #endregion
             }
+            #if DEBUG
             Console.WriteLine("kGlobal System + Restrains + Constrains:");
             FEMUtilities.WriteMatrix(_KGlobalRestrains, "F3");
-            //Console.WriteLine("Fmodified(Restrains + Constrains) = " + _FRestrains.ToString());
+            FEMUtilities.WriteMatrix(_FRestrains, "F0");
+            #endif
             #endregion
 
             #region SolveModel
@@ -418,12 +433,20 @@ namespace GPC.Model.FEM
 
             for (int i = 0; i < _nodeGlobalDisplacement.Count; i++)
             {
-                Console.WriteLine("Displ. " + legend[i] + " : \t " + _nodeGlobalDisplacement[i].ToString("F3"));
+                if (i < legend.Count)
+                {
+                    Console.WriteLine("Displ. " + legend[i] + " : \t " + _nodeGlobalDisplacement[i].ToString("F3"));
+                } else
+                {
+                    Console.WriteLine("Lagrangian Multiplicator: : \t " + _nodeGlobalDisplacement[i].ToString("F3"));
+                }
             }
             #endregion
 
             #region Reactions
-            _reactions = _KGlobal * _nodeGlobalDisplacement - _F; //Or Fmodified?
+            mnl.Vector<double> nodeGlobalDisplacementWithoutLagrangian = mnl.Vector<double>.Build.Dense(_nodeGlobalDisplacement.Count - nLagrangianMultiplier);
+            _nodeGlobalDisplacement.CopySubVectorTo(nodeGlobalDisplacementWithoutLagrangian, 0, 0, _nodeGlobalDisplacement.Count - nLagrangianMultiplier);
+            _reactions = _KGlobal * nodeGlobalDisplacementWithoutLagrangian - _F;
             double sumFX = 0.0;
             double sumFY = 0.0;
             double sumFZ = 0.0;
@@ -456,8 +479,6 @@ namespace GPC.Model.FEM
         #region PublicFuction
         /// <summary>
         /// Ritorna spostamento per un selezionato nodo e per un certp grado di libertà.
-        /// Per selezionare il nodo è usata la label in quanto l'index potrebbe essere stato modificato rispetto a fase di input...
-        /// (forse è meglio dare un errore in fase di costruzione e non cambiare index?)
         /// </summary>
         /// <param name="node"></param>
         /// <param name="dof"></param>
