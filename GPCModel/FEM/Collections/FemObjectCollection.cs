@@ -136,53 +136,6 @@ namespace GPC.Model.FEM.Collections
                 }
             }
 
-
-            //if (!_ids.Contains(item.Id))
-            //{
-            //    if (!_collection.Contains(item))
-            //    {
-            //        // id non presente, obj non presente
-            //        // va aggiunto
-
-            //        _collection.Add(item);
-            //        _ids.Add(item.Id);
-
-            //        if (item.Id > _maxId)
-            //            _maxId = item.Id;
-
-            //        return item.Id;
-            //    }
-            //    else
-            //    {
-            //        // id non presente, obj già presente
-            //        // non va aggiunto
-
-            //        (_collection as HashSet<T>).TryGetValue(item, out T itemFound);
-            //        item.SetId(itemFound.Id);
-            //        return itemFound.Id;
-            //    }
-            //}
-            //else
-            //{
-            //    if (!_collection.Contains(item))
-            //    {
-            //        item.SetId(++_maxId);
-
-            //        _collection.Add(item);
-            //        _ids.Add(item.Id);
-
-            //        // id già presente ma obj diverso
-            //        // va aggiunto, ma cambio ID
-            //        return item.Id;
-            //    }
-            //    else
-            //    {
-            //        // id già presente, obj già presente
-            //        // non aggiunto
-            //        return item.Id;
-            //    }
-            //}
-
         }
 
         public virtual void Clear()
