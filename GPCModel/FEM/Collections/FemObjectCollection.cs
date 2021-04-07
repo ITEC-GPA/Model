@@ -105,6 +105,9 @@ namespace GPC.Model.FEM.Collections
                     // id non presente
                     // aggiungo obj
 
+                    if (item.Id == 0) // Forzo id ad essere maggiore di zero
+                        item.SetId(++_maxId);
+
                     _collection.Add(item);
                     _ids.Add(item.Id);
 

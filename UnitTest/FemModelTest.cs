@@ -379,6 +379,45 @@ namespace FemTest
             Assert.IsTrue(mesh1.Equals(mesh2));
 
         }
+
+
+        [TestMethod]
+        public void FemModelTest8()
+        {
+
+            Shape s1 = CreateSimpleShape(800, 1600);
+
+            GlassMaterial gm = new GlassMaterialAstm("gp1", 1, 0.2, 3, 4, 5, 6, 0.008, 0.008, 9);
+            MonolithicGlassProperty pp = new MonolithicGlassProperty(1, 2, gm, "gp1");
+
+            Mesh.GenerateOptions meshOptions = new Mesh.GenerateOptions();
+            meshOptions.MeshSize = 50;
+
+
+            FemModel femModel = new FemModel();
+            femModel.AddShape(s1, pp, meshOptions, null, null);
+
+
+            Exception exception = null;
+            try
+            {
+                femModel.GetNode(0);
+            }
+            catch (KeyNotFoundException e)
+            {
+                exception = e;
+            }
+
+            if (exception == null)
+            {
+                Assert.Fail();
+            }
+            else
+            {
+                
+            }
+
+        }
         #endregion
 
     }

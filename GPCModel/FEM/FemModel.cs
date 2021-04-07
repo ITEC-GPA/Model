@@ -399,6 +399,7 @@ namespace GPC.Model.FEM
         }
 
 
+        /// <inheritdoc cref="FemObjectCollection{T}.GetElementById(int)"/>
         public virtual Node GetNode(int index)
         {
             return _nodes.GetElementById(index);
