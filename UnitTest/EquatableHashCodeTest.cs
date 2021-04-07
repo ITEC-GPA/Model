@@ -12,32 +12,14 @@ using GPC.Model.FEM;
 using GPC.Model.Combinations;
 using System.Collections.Generic;
 using GPC.Model.Loads;
+using GPC.TestUtilities;
+using GPC.Model.FEM.Collections;
 
 namespace GeneralTest
 {
     [TestClass]
-    public class EquatableHashCodeTest
+    public class EquatableHashCodeTest : UnitTestBase
     {
-        public TestContext TestContext { get; set; }
-
-        [ClassInitialize]
-        public static void ClassInitialize(TestContext context)
-        {
-            // Nothing
-        }
-
-        [TestInitialize]
-        public void TestInitialize()
-        {
-            // Nothing
-        }
-
-        [TestCleanup]
-        public void CleanUp()
-        {
-            if (Directory.Exists(TestContext.TestDir))
-                Directory.Delete(TestContext.TestDir, true);
-        }
 
         [TestMethod]
         public void Test1()
@@ -45,8 +27,8 @@ namespace GeneralTest
             GlassMaterialEn16612 gm = new GlassMaterialEn16612("test", 10, 0.2, 30, GlassMaterialEn16612.GlassTypes.DrawnSheetGlass, GlassMaterialEn16612.SurfaceTreatments.AsProduced, GlassMaterialEn16612.PrestressTypes.Annealed, GlassMaterialEn16612.ManufactoringProcesses.HorizontalToughening, 20, 30);
             MonolithicGlass mg = new MonolithicGlass("test", 10, gm);
 
-            MonolithicGlassProperty mgp1 = new MonolithicGlassProperty(mg);
-            MonolithicGlassProperty mgp2 = new MonolithicGlassProperty(mg);
+            MonolithicGlassProperty mgp1 = new MonolithicGlassProperty(mg, string.Empty);
+            MonolithicGlassProperty mgp2 = new MonolithicGlassProperty(mg, string.Empty);
 
             Assert.IsTrue(mg is ModelObject);
             Assert.IsTrue(mgp1.Equals(mgp2));
@@ -61,8 +43,8 @@ namespace GeneralTest
             MonolithicGlass mg1 = new MonolithicGlass("test", 10, gm);
             MonolithicGlass mg2 = new MonolithicGlass("test", 10, gm);
 
-            MonolithicGlassProperty mgp1 = new MonolithicGlassProperty(mg1);
-            MonolithicGlassProperty mgp2 = new MonolithicGlassProperty(mg2);
+            MonolithicGlassProperty mgp1 = new MonolithicGlassProperty(mg1, string.Empty);
+            MonolithicGlassProperty mgp2 = new MonolithicGlassProperty(mg2, string.Empty);
 
             Assert.IsTrue(mg1.Equals(mg2), "Glass are not equals");
             Assert.IsTrue(mgp1.Equals(mgp2), "Properties are not equals");
@@ -80,8 +62,8 @@ namespace GeneralTest
             MonolithicGlass mg1 = new MonolithicGlass("test", 10, gm1);
             MonolithicGlass mg2 = new MonolithicGlass("test", 10, gm2);
 
-            MonolithicGlassProperty mgp1 = new MonolithicGlassProperty(mg1);
-            MonolithicGlassProperty mgp2 = new MonolithicGlassProperty(mg2);
+            MonolithicGlassProperty mgp1 = new MonolithicGlassProperty(mg1, string.Empty);
+            MonolithicGlassProperty mgp2 = new MonolithicGlassProperty(mg2, string.Empty);
 
             Assert.IsFalse(gm1.Equals(mg1));
             Assert.IsFalse(gm1.Equals(mgp1));
@@ -144,32 +126,6 @@ namespace GeneralTest
 
 
         [TestMethod]
-        public void FemObject()
-        {
-            Stage s1 = new Stage("S1", FemModel.AnalysisType.Linear);
-            Stage s2 = new Stage("S2", FemModel.AnalysisType.Linear);
-
-            Node n1 = new Node(Point3d.Origin, 1);
-            Node n2 = new Node(Point3d.Origin, 2);
-
-            n1.SetStageActive(s1, false);
-            n1.SetStageActive(s2, true);
-            n2.SetStageActive(s1, false);
-            n2.SetStageActive(s2, true);
-
-
-            Assert.IsFalse(n1.IsStageActive(s1));
-            Assert.IsTrue(n1.IsStageActive(s2));
-
-            Assert.IsTrue(n1.Equals(n2));
-
-            Assert.AreNotEqual(s1.GetHashCode(), s2.GetHashCode());
-
-            Assert.AreEqual(n1.GetHashCode(), n2.GetHashCode());
-        }
-
-
-        [TestMethod]
         public void GlassTest()
         {
             GlassMaterialEn16612 gm1 = new GlassMaterialEn16612("test", 10, 0.2, 30, GlassMaterialEn16612.GlassTypes.DrawnSheetGlass, GlassMaterialEn16612.SurfaceTreatments.AsProduced, GlassMaterialEn16612.PrestressTypes.Annealed, GlassMaterialEn16612.ManufactoringProcesses.HorizontalToughening, 20, 30);
@@ -178,8 +134,8 @@ namespace GeneralTest
             MonolithicGlass mg1 = new MonolithicGlass("test", 10, gm1);
             MonolithicGlass mg2 = new MonolithicGlass("test", 10, gm2);
 
-            MonolithicGlassProperty mgp1 = new MonolithicGlassProperty(mg1);
-            MonolithicGlassProperty mgp2 = new MonolithicGlassProperty(mg2);
+            MonolithicGlassProperty mgp1 = new MonolithicGlassProperty(mg1, string.Empty);
+            MonolithicGlassProperty mgp2 = new MonolithicGlassProperty(mg2, string.Empty);
 
             Assert.IsTrue(gm1.Equals(gm2));
 
@@ -214,25 +170,23 @@ namespace GeneralTest
             combinations.Add(cmb2);
             combinations.Add(cmb3);
 
-            Stage stc1 = new Stage("stg1", FemModel.AnalysisType.Linear, false, combinations);
-            Stage stc2 = new Stage("stg1", FemModel.AnalysisType.Linear, false, combinations);
+            //Stage stc1 = new Stage("stg1", FemModel.AnalysisType.Linear, false, combinations);
+            //Stage stc2 = new Stage("stg1", FemModel.AnalysisType.Linear, false, combinations);
 
 
-            Assert.AreEqual(stc1.GetHashCode(), stc2.GetHashCode());
-            Assert.AreEqual(stc1, stc2);
+            //Assert.AreEqual(stc1.GetHashCode(), stc2.GetHashCode());
+            //Assert.AreEqual(stc1, stc2);
         }
 
 
-
-
         [TestMethod]
-        public void FemObjectEqualityComparer()
+        public void FemObjectEqualityComparer1()
         {
             Node n1 = new Node(Point3d.Origin, 1);
             Node n2 = new Node(Point3d.Origin, 2);
             Node n3 = new Node(Point3d.Origin, 2);
 
-            Dictionary<FEMObject, int> dictWithComparer = new Dictionary<FEMObject, int>(new FemObjectIdComparer());
+            Dictionary<FEMObject, int> dictWithComparer = new Dictionary<FEMObject, int>(new FEMObject.FemObjectWithIdComparer());
             Dictionary<FEMObject, int> dict = new Dictionary<FEMObject, int>();
 
             dictWithComparer.Add(n1, 1);
@@ -245,5 +199,84 @@ namespace GeneralTest
             Assert.IsTrue(dict.ContainsKey(n3));
         }
 
+
+        [TestMethod]
+        public void FemObjectEqualityComparer2()
+        {
+            Node n1 = new Node(Point3d.Origin, 1);
+            Node n2 = new Node(Point3d.Origin, 2);
+            Node n3 = new Node(Point3d.Origin, 2);
+
+            Dictionary<Node, int> dictWithComparer = new Dictionary<Node, int>(new FEMObject.FemObjectWithIdComparer());
+            Dictionary<Node, int> dict = new Dictionary<Node, int>();
+
+            dictWithComparer.Add(n1, 1);
+            dictWithComparer.Add(n2, 1);
+
+            dict.Add(n1, 1);
+
+            Assert.IsTrue(dictWithComparer.ContainsKey(n3));
+            Assert.IsTrue(dict.ContainsKey(n2));
+            Assert.IsTrue(dict.ContainsKey(n3));
+        }
+
+
+        [TestMethod]
+        public void FemObjectEqualityComparer3()
+        {
+            Node n1 = new Node(Point3d.Origin, 1);
+            Node n2 = new Node(Point3d.Origin, 2);
+            Node n3 = new Node(Point3d.Origin, 2);
+            Node n4 = new Node(Point3d.Origin, 2);
+
+            Dictionary<Node, int> dictWithComparer = new Dictionary<Node, int>(new FEMObject.FemObjectOnlyIdComparer());
+            Dictionary<Node, int> dict = new Dictionary<Node, int>();
+
+            dictWithComparer.Add(n1, 1);
+            dictWithComparer.Add(n2, 1);
+
+            dict.Add(n1, 1);
+            Assert.IsTrue(dict.ContainsKey(n2));
+            Assert.IsTrue(dict.ContainsKey(n3));
+
+
+            Assert.IsTrue(dictWithComparer.Count == 2);
+            Assert.IsTrue(dictWithComparer.ContainsKey(n2));
+            Assert.IsTrue(dictWithComparer.ContainsKey(n3));
+            Assert.IsTrue(dictWithComparer.ContainsKey(n4));
+        }
+
+
+
+        [TestMethod]
+        public void FemObjectEqualityComparer4()
+        {
+            FemObjectCollection<Node> cnode1 = new FemObjectCollection<Node>();
+            FemObjectCollection<Node> cnode2 = new FemObjectCollection<Node>();
+            FemObjectCollection<Node> cnode3 = new FemObjectCollection<Node>();
+
+            Node n1 = new Node(Point3d.Origin, 1);
+            Node n2 = new Node(Point3d.Origin, 2);
+            Node n3 = new Node(new Point3d(0, 1, 2), 2);
+            Node n4 = new Node(new Point3d(2, 1, 2), 2);
+
+            cnode1.Add(n1);
+            cnode1.Add(n2);
+            cnode1.Add(n3);
+
+            cnode2.Add(n3);
+            cnode2.Add(n1);
+            cnode2.Add(n2);
+
+            cnode3.Add(n1);
+            cnode3.Add(n4);
+            cnode3.Add(n2);
+            cnode3.Add(n3);
+
+            Assert.AreEqual(cnode1, cnode2);
+            Assert.AreEqual(cnode1.GetHashCode(), cnode1.GetHashCode());
+            Assert.AreNotEqual(cnode1, cnode3);
+            Assert.AreNotEqual(cnode1.GetHashCode(), cnode3.GetHashCode());
+        }
     }
 }

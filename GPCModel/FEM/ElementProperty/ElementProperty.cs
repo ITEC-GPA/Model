@@ -1,29 +1,21 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Runtime.Serialization;
-using GPC.Model.Materials;
 
 namespace GPC.Model.FEM.Properties
 {
     [Serializable]
     public abstract class ElementProperty : ModelObject
     {
-
         #region Public Constructors
+
+        protected ElementProperty(string name)
+            : base(Guid.NewGuid(), name)
+        {
+
+        }
+
         protected ElementProperty(string name, Guid guid)
             : base(guid, name)
-        {
-
-        }
-
-        protected ElementProperty(Guid guid)
-            : this(string.Empty, guid)
-        {
-
-        }
-
-        protected ElementProperty()
-            : this(string.Empty, Guid.NewGuid())
         {
 
         }
@@ -31,12 +23,13 @@ namespace GPC.Model.FEM.Properties
         protected ElementProperty(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
-            
+
         }
 
-        #endregion Public Constructors
+        #endregion 
 
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
+
         {
             base.GetObjectData(info, context);
         }
@@ -66,10 +59,10 @@ namespace GPC.Model.FEM.Properties
 
             return obj1.Equals(obj2);
         }
+
         public static bool operator !=(ElementProperty obj1, ElementProperty obj2)
         {
             return !(obj1 == obj2);
         }
     }
 }
-

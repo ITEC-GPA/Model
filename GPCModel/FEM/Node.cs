@@ -9,7 +9,7 @@ namespace GPC.Model.FEM
     /// <summary>
     /// Nodo with unique ID, and X,Y,Z global coordinates
     /// </summary>
-    public sealed class Node : FEMObject, IEquatable<Node>
+    public class Node : FEMObject
     {
         #region Variables
         private Point3d _position;
@@ -32,7 +32,7 @@ namespace GPC.Model.FEM
             get
             {
                 int ris = 0;
-                for (int i = 0; i < LinearSolver.MAXGDLPERNODE; i++)
+                for (int i = 0; i < LinearSolver.MAXDOFPERNODE; i++)
                 {
                     if (DOF.Contains((LinearSolver.DOF)i) == true)
                     {
@@ -47,7 +47,7 @@ namespace GPC.Model.FEM
         public List<INodeLoadCaseAttribute> AttributesLoadCase => _attributesLoadCase;
         #endregion
 
-        public Node(Point3d point, int ID, string label = "") : base(ID, label)
+        public Node(Point3d point, string name = "") : base(name)
         {
             _position = point;
             
@@ -57,19 +57,29 @@ namespace GPC.Model.FEM
             _attributesFreedomCase = new List<INodeFreedomCaseAttribute>();
         }
 
-        public Node(double X, double Y, double Z, int id, string label="") : this(new Point3d(X, Y, Z), id, label)
+        /// <summary>
+        /// only for test purpose
+        /// </summary>
+        internal Node(double X, double Y, double Z, string label="") : this(new Point3d(X, Y, Z), label)
         {
 
         }
 
-        public Node(int id, double X, double Y, double Z, string label = "") : this(new Point3d(X, Y, Z), id, label)
+        /// <summary>
+        /// only for test purpose
+        /// </summary>
+        internal Node(Point3d point, int id) : this(point)
         {
-
+            SetId(id);
         }
 
-        public void SetID(int id)
+        /// <summary>
+        /// only for test purpose
+        /// </summary>
+        internal Node(double X, double Y, double Z, string name, int id) : this(new Point3d(X, Y, Z))
         {
-            base.SetId(id);
+            Name = name;
+            SetId(id);
         }
 
         public override string ToString()
@@ -89,7 +99,17 @@ namespace GPC.Model.FEM
 
         public override bool Equals(object obj)
         {
-            return this.Equals(obj as Node);
+            if (obj is null)
+                return false;
+
+            if (ReferenceEquals(this, obj))
+                return true;
+
+            Node node = obj as Node;
+            return !(node is null) && _position.Equals(node._position)
+                                   && _attributesFreedomCase.ScrambledEquals(node._attributesFreedomCase)
+                                   && _attributesLoadCase.ScrambledEquals(node._attributesLoadCase)
+                                   && base.Equals(node);
         }
 
         public override int GetHashCode()
@@ -110,18 +130,5 @@ namespace GPC.Model.FEM
             return hashCode;
         }
 
-        public bool Equals(Node other)
-        {        
-            if (other is null)
-                return false;
-
-            if (ReferenceEquals(this, other))
-                return true;
-
-            return !(other is null) && _position.Equals(other._position)
-                                    && _attributesFreedomCase.ScrambledEquals(other._attributesFreedomCase)
-                                    && _attributesLoadCase.ScrambledEquals(other._attributesLoadCase)
-                                    && base.Equals(other);
-        }
     }
 }

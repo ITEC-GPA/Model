@@ -2,27 +2,13 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.IO;
+using GPC.TestUtilities;
 
 namespace ModelObjectTest
 {
     [TestClass]
-    public class LoadCaseTest
+    public class LoadCaseTest : UnitTestBase
     {
-        public TestContext TestContext { get; set; }
-
-        [TestInitialize]
-        public void TestInitialize()
-        {
-
-        }
-
-        [TestCleanup]
-        public void CleanUp()
-        {
-            if (Directory.Exists(TestContext.TestDir))
-                Directory.Delete(TestContext.TestDir, true);
-        }
-
 
         [TestMethod]
         public void LoadCaseTest1()

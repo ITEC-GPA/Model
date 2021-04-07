@@ -20,10 +20,10 @@ namespace FemTest.Solver
             double h = 1.0;
 
             List<Node> nds = new List<Node>();
-            nds.Add(new Node(0.0, 0.0, 0, 0));
-            nds.Add(new Node(a, 0.0, 0, 0));
-            nds.Add(new Node(0.0, b, 0, 0));
-            nds.Add(new Node(0.0, 0.0, h, 0));
+            nds.Add(new Node(0.0, 0.0, 0));
+            nds.Add(new Node(a, 0.0, 0));
+            nds.Add(new Node(0.0, b, 0 ));
+            nds.Add(new Node(0.0, 0.0, h));
 
             double A = (1.0 / 2.0 * a * b);
             double V = A * h / 3.0;
@@ -38,10 +38,10 @@ namespace FemTest.Solver
             double h = 1.0;
 
             List<Node> nds = new List<Node>();
-            nds.Add(new Node(0.0, 0.0, 0, 0));
-            nds.Add(new Node(x, 0.0, 0, 0));
-            nds.Add(new Node(0.0, y, 0, 0));
-            nds.Add(new Node(0.0, 0.0, h, 0));
+            nds.Add(new Node(0.0, 0.0, 0));
+            nds.Add(new Node(x, 0.0, 0));
+            nds.Add(new Node(0.0, y, 0));
+            nds.Add(new Node(0.0, 0.0, h));
             
             Func<int, Node, double> N = (int index, Node n) =>
             {
@@ -81,10 +81,10 @@ namespace FemTest.Solver
         public void GetCoefficientTest2()
         {
             List<Node> nds = new List<Node>();
-            nds.Add(new Node(2.0, 3.0, 4.0, 0));
-            nds.Add(new Node(6.0, 3.0, 2.0, 0));
-            nds.Add(new Node(2.0, 5.0, 1.0, 0));
-            nds.Add(new Node(4.0, 3.0, 6.0, 0));
+            nds.Add(new Node(2.0, 3.0, 4.0));
+            nds.Add(new Node(6.0, 3.0, 2.0));
+            nds.Add(new Node(2.0, 5.0, 1.0));
+            nds.Add(new Node(4.0, 3.0, 6.0));
 
             Func<int, Node, double> N = (int index, Node n) =>
             {
@@ -121,21 +121,21 @@ namespace FemTest.Solver
         public void KMatrixTest1()
         {
             List<Node> nds = new List<Node>();
-            nds.Add(new Node(2.0, 3.0, 4.0, 0));
-            nds.Add(new Node(6.0, 3.0, 2.0, 0));
-            nds.Add(new Node(2.0, 5.0, 1.0, 0));
-            nds.Add(new Node(4.0, 3.0, 6.0, 0));
+            nds.Add(new Node(2.0, 3.0, 4.0));
+            nds.Add(new Node(6.0, 3.0, 2.0));
+            nds.Add(new Node(2.0, 5.0, 1.0));
+            nds.Add(new Node(4.0, 3.0, 6.0));
 
             Assert.AreEqual(4.0, Tethraedron4.GetVolume(nds.ToArray()));
 
             SteelMaterial mat = new SteelMaterial("mat", 96.0, 1.0 / 3.0, 355, 510, 7850.0);
 
-            BrickProperty brickProperty = new BrickProperty(mat);
+            BrickProperty brickProperty = new BrickProperty(mat, "propr");
 
             Tethraedron4 e = new Tethraedron4(nds.ToArray(), brickProperty, 1);
             e.BuildMatrix();
 
-            Util.WriteMatrix(e.KElementLocalCoord);
+            FEMUtilities.WriteMatrix(e.KElementLocalCoord);
 
             //Local axis == global axis
             for (int r = 0; r < 12; r++)

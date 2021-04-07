@@ -21,24 +21,24 @@ namespace FemTest.Solver
         public void KMatrixTest1()
         {
             List<Node> nds = new List<Node>();
-            nds.Add(new Node(0.0, 0.0, 0.0, 0));
-            nds.Add(new Node(2.0, 0.0, 0.0, 0));
-            nds.Add(new Node(2.0, 2.0, 0.0, 0));
-            nds.Add(new Node(0.0, 2.0, 0.0, 0));
-            nds.Add(new Node(0.0, 0.0, 2.0, 0));
-            nds.Add(new Node(2.0, 0.0, 2.0, 0));
-            nds.Add(new Node(2.0, 2.0, 2.0, 0));
-            nds.Add(new Node(0.0, 2.0, 2.0, 0));
+            nds.Add(new Node(0.0, 0.0, 0.0));
+            nds.Add(new Node(2.0, 0.0, 0.0));
+            nds.Add(new Node(2.0, 2.0, 0.0));
+            nds.Add(new Node(0.0, 2.0, 0.0));
+            nds.Add(new Node(0.0, 0.0, 2.0));
+            nds.Add(new Node(2.0, 0.0, 2.0));
+            nds.Add(new Node(2.0, 2.0, 2.0));
+            nds.Add(new Node(0.0, 2.0, 2.0));
 
             SteelMaterial mat = new SteelMaterial("mat", 1.0, 0.0, 355, 510, 7850.0);
 
-            BrickProperty brickProperty = new BrickProperty(mat);
+            BrickProperty brickProperty = new BrickProperty(mat, "propBrick");
 
             Hexaedron e = new Hexaedron(nds.ToArray(), brickProperty, 1);
             e.BuildMatrix();
 
             Console.WriteLine("klocalMatrix");
-            Util.WriteMatrix(e.KElementLocalCoord);
+            FEMUtilities.WriteMatrix(e.KElementLocalCoord);
 
             //Local axis == global axis
             for (int r = 0; r < 12; r++)
@@ -54,18 +54,18 @@ namespace FemTest.Solver
         public void KMatrixTest2()
         {
             List<Node> nds = new List<Node>();
-            nds.Add(new Node(0.0, 0.0, 0.0, 0));
-            nds.Add(new Node(1.0, 0.0, 0.0, 0));
-            nds.Add(new Node(1.0, 1.0, 0.0, 0));
-            nds.Add(new Node(0.0, 1.0, 0.0, 0));
-            nds.Add(new Node(0.0, 0.0, 1.0, 0));
-            nds.Add(new Node(1.0, 0.0, 1.0, 0));
-            nds.Add(new Node(1.0, 1.0, 1.0, 0));
-            nds.Add(new Node(0.0, 1.0, 1.0, 0));
+            nds.Add(new Node(0.0, 0.0, 0.0));
+            nds.Add(new Node(1.0, 0.0, 0.0));
+            nds.Add(new Node(1.0, 1.0, 0.0));
+            nds.Add(new Node(0.0, 1.0, 0.0));
+            nds.Add(new Node(0.0, 0.0, 1.0));
+            nds.Add(new Node(1.0, 0.0, 1.0));
+            nds.Add(new Node(1.0, 1.0, 1.0));
+            nds.Add(new Node(0.0, 1.0, 1.0));
 
             SteelMaterial mat = new SteelMaterial("mat", 1.0, 0.0, 355, 510, 7850.0);
 
-            BrickProperty brickProperty = new BrickProperty(mat);
+            BrickProperty brickProperty = new BrickProperty(mat, "proprBrick");
 
             Hexaedron e = new Hexaedron(nds.ToArray(), brickProperty, 1);
 
@@ -101,19 +101,19 @@ namespace FemTest.Solver
         public void CantileverTest1()
         {
             List<Node> nds = new List<Node>();
-            nds.Add(new Node(0.0, 0.0, 0.0, 0));
-            nds.Add(new Node(3.0, 0.0, 0.0, 0));
-            nds.Add(new Node(3.0, 1.0, 0.0, 0));
-            nds.Add(new Node(0.0, 1.0, 0.0, 0));
+            nds.Add(new Node(0.0, 0.0, 0.0));
+            nds.Add(new Node(3.0, 0.0, 0.0));
+            nds.Add(new Node(3.0, 1.0, 0.0));
+            nds.Add(new Node(0.0, 1.0, 0.0));
 
-            nds.Add(new Node(0.0, 0.0, 1.0, 0));
-            nds.Add(new Node(3.0, 0.0, 1.0, 0));
-            nds.Add(new Node(3.0, 1.0, 1.0, 0));
-            nds.Add(new Node(0.0, 1.0, 1.0, 0));
+            nds.Add(new Node(0.0, 0.0, 1.0));
+            nds.Add(new Node(3.0, 0.0, 1.0));
+            nds.Add(new Node(3.0, 1.0, 1.0));
+            nds.Add(new Node(0.0, 1.0, 1.0));
 
             SteelMaterial mat = new SteelMaterial("mat", 1.0, 0.0, 355, 510, 7850.0);
 
-            BrickProperty brickProperty = new BrickProperty(mat);
+            BrickProperty brickProperty = new BrickProperty(mat, "proprBrick");
 
             Hexaedron e = new Hexaedron(nds.ToArray(), brickProperty, 1);
 
@@ -150,15 +150,15 @@ namespace FemTest.Solver
             List<Node> nds = new List<Node>();
             for (int nr = 0; nr <= nrEl; nr++)
             {
-                nds.Add(new Node((1.0 * nr / nrEl) * L, 0.0, 0.0, 0));
-                nds.Add(new Node((1.0 * nr / nrEl) * L, 1.0, 0.0, 0));
-                nds.Add(new Node((1.0 * nr / nrEl) * L, 1.0, 1.0, 0));
-                nds.Add(new Node((1.0 * nr / nrEl) * L, 0.0, 1.0, 0));                                
+                nds.Add(new Node((1.0 * nr / nrEl) * L, 0.0, 0.0));
+                nds.Add(new Node((1.0 * nr / nrEl) * L, 1.0, 0.0));
+                nds.Add(new Node((1.0 * nr / nrEl) * L, 1.0, 1.0));
+                nds.Add(new Node((1.0 * nr / nrEl) * L, 0.0, 1.0));                                
             }
 
             SteelMaterial mat = new SteelMaterial("mat", 1000.0, 0.0, 355, 510, 7850.0);
 
-            BrickProperty brickProperty = new BrickProperty(mat);
+            BrickProperty brickProperty = new BrickProperty(mat, "proprBrick");
 
             List<Hexaedron> els = new List<Hexaedron>();
             for (int i = 4; i < nds.Count; i=i+4)

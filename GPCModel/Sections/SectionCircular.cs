@@ -23,7 +23,7 @@ namespace GPC.Model.Sections
         #endregion
 
         #region Public Constructors
-        public SectionCircular(double dext, double t, Material material) : base(material)
+        public SectionCircular(double dext, double t, Material material, string name) : base(material, name)
         {
             _dext = dext;
 

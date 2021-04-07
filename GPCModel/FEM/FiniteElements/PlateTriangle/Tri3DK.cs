@@ -28,7 +28,7 @@ namespace GPC.Model.FEM.FiniteElements
         double _areaElement;
         #endregion
 
-        public Tri3DK(Node[] nodes, PlateProperty property, int id) : base(nodes, property, id)
+        public Tri3DK(Node[] nodes) : base(nodes)
         {
             DOF.Add(LinearSolver.DOF.DX);
             DOF.Add(LinearSolver.DOF.DY);
@@ -43,6 +43,11 @@ namespace GPC.Model.FEM.FiniteElements
 
             //DofGlobalToLocal^T * kLocal * DofGlobalToLocal
             //   [18x9]             [9x9]     [9x18]
+        }
+
+        internal Tri3DK(Node[] nodes, PlateProperty property) : this(nodes)
+        {
+            SetProperty(property);
         }
 
         public override void BuildMatrix()

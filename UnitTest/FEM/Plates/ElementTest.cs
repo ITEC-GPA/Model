@@ -22,21 +22,22 @@ namespace FemTest.Solver
         public void Quad4Test1()
         {
             Material mat = new SteelMaterial("mat", 12, 0.0, 355, 510, 7850);
-            PlateProperty prop = new PlateProperty(mat, 1.0, 1.0);
+            PlateProperty prop = new PlateProperty(mat, 1.0, 1.0, "p");
 
             Node[] nodesPlate1 = new Node[4];
-            nodesPlate1[0] = new Node(0.0, 0, 0, 1, "1");
-            nodesPlate1[1] = new Node(+1.0, 0, 0, 2, "2");
-            nodesPlate1[2] = new Node(+2.0, +2, 0, 3, "3");
-            nodesPlate1[3] = new Node(0.0, +1, 0, 3, "4");
+            nodesPlate1[0] = new Node(0.0, 0, 0, "1");
+            nodesPlate1[1] = new Node(+1.0, 0, 0, "2");
+            nodesPlate1[2] = new Node(+2.0, +2, 0, "3");
+            nodesPlate1[3] = new Node(0.0, +1, 0, "4");
 
-            Plate e0 = new Quad4Element(nodesPlate1, prop, 1);
+            Plate e0 = new Quad4Element(nodesPlate1);
+            e0.SetProperty(prop);
 
             LoadCase loadCase = new LoadCase("myLoadCase", new Guid());
             FreedomCase freedomCase = new FreedomCase("freedomCase1");
             CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
             PlatePressureAttribute pressure = new PlatePressureAttribute(loadCase, sys, 0.0, 0.0, 1.0);
-            e0.AddAttribute(pressure);
+            e0.AddLoadCaseAttribute(pressure);
 
             LinearSolver fem = new LinearSolver(new FiniteElement[] { e0 });
 
@@ -50,10 +51,10 @@ namespace FemTest.Solver
         public void Quad4ToQuad8NodesTest1()
         {
             Node[] nodes = new Node[4];
-            nodes[1 - 1] = new Node(0.0, 0.0, 0.0, 0);
-            nodes[2 - 1] = new Node(1.0, 0.0, 0.0, 0);
-            nodes[3 - 1] = new Node(1.0, 1.0, 0.0, 0);
-            nodes[4 - 1] = new Node(0.0, 1.0, 0.0, 0);
+            nodes[1 - 1] = new Node(0.0, 0.0, 0.0);
+            nodes[2 - 1] = new Node(1.0, 0.0, 0.0);
+            nodes[3 - 1] = new Node(1.0, 1.0, 0.0);
+            nodes[4 - 1] = new Node(0.0, 1.0, 0.0);
 
             Node[] nodes8 = Quad4Element.Get8Nodes(nodes);
 
@@ -86,10 +87,10 @@ namespace FemTest.Solver
         public void Quad4GetLocalNodesTest1()
         {
             Node[] nodes = new Node[4];
-            nodes[1 - 1] = new Node(0.0, 0.0, 0.0, 0);
-            nodes[2 - 1] = new Node(1.0, 0.0, 0.0, 0);
-            nodes[3 - 1] = new Node(1.0, 1.0, 0.0, 0);
-            nodes[4 - 1] = new Node(0.0, 1.0, 0.0, 0);
+            nodes[1 - 1] = new Node(0.0, 0.0, 0.0);
+            nodes[2 - 1] = new Node(1.0, 0.0, 0.0);
+            nodes[3 - 1] = new Node(1.0, 1.0, 0.0);
+            nodes[4 - 1] = new Node(0.0, 1.0, 0.0);
 
             Node[] localNodes = Quad4Element.GetLocalNodes(nodes, out CoordinateSystem sys);
 
@@ -106,10 +107,10 @@ namespace FemTest.Solver
             Assert.AreEqual(1.0, localNodes[4 - 1].Position.Y);
 
             //anticlock wise nodes
-            nodes[1 - 1] = new Node(0.0, 0.0, 0.0, 0);
-            nodes[2 - 1] = new Node(0.0, 1.0, 0.0, 0);
-            nodes[3 - 1] = new Node(1.0, 1.0, 0.0, 0);
-            nodes[4 - 1] = new Node(1.0, 0.0, 0.0, 0);
+            nodes[1 - 1] = new Node(0.0, 0.0, 0.0);
+            nodes[2 - 1] = new Node(0.0, 1.0, 0.0);
+            nodes[3 - 1] = new Node(1.0, 1.0, 0.0);
+            nodes[4 - 1] = new Node(1.0, 0.0, 0.0);
 
             localNodes = Quad4Element.GetLocalNodes(nodes, out sys);
 
@@ -134,7 +135,7 @@ namespace FemTest.Solver
 
             Material mat = new SteelMaterial("mat", 10000, 0.0, 355, 510, 7850);
             double t = 1.0;
-            PlateProperty prop = new PlateProperty(mat, t, t);
+            PlateProperty prop = new PlateProperty(mat, t, t, "p");
 
             #region restrains
             CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
@@ -154,22 +155,26 @@ namespace FemTest.Solver
             NodeForceAttribute F = new NodeForceAttribute(loadCase, sys, 0.0, 1.0, 0.0, 1.0, 0, 0);
             #endregion
 
-            Node nodeA = new Node(0.0, 8, 0, 1, "A");
-            nodeA.AddAttribute(fixRZ);
-            nodeA.AddAttribute(F);
-
-            Node nodeB = new Node(0.0, 0, 0, 2, "B");
-            nodeB.AddAttribute(fix);
-
-            Node nodeC = new Node(8.0, 8, 0, 3, "C");
-            nodeC.AddAttribute(F);
-            nodeC.AddAttribute(fixRZ);
-
-            Node nodeD = new Node(8.0, 0, 0, 3, "D");
+            Node nodeA = new Node(0.0, 8, 0,  "A");
+            nodeA.AddAttribute(fixRZ);            
+            nodeA.AddAttribute(F);                
+                                                  
+            Node nodeB = new Node(0.0, 0, 0,  "B");
+            nodeB.AddAttribute(fix);              
+                                                  
+            Node nodeC = new Node(8.0, 8, 0,  "C");
+            nodeC.AddAttribute(F);                
+            nodeC.AddAttribute(fixRZ);            
+                                                  
+            Node nodeD = new Node(8.0, 0, 0,  "D");
             nodeD.AddAttribute(fix);
 
-            FiniteElement e0 = new Tri3Element(new Node[] { nodeA, nodeB, nodeC }, prop, 1);
-            FiniteElement e1 = new Tri3Element(new Node[] { nodeB, nodeD, nodeC }, prop, 1);
+            FiniteElement e0 = new Tri3Element(new Node[] { nodeA, nodeB, nodeC });
+            e0.SetProperty(prop);
+          
+            Plate e1 = new Tri3Element(new Node[] { nodeB, nodeD, nodeC });
+            e1.SetProperty(prop);
+          
             LinearSolver fem = new LinearSolver(new FiniteElement[] { e0, e1 });
 
             double DY = fem.GetDisplacementGlobalCoordinates(nodeC, LinearSolver.DOF.DY);
@@ -204,7 +209,7 @@ namespace FemTest.Solver
 
             Material mat = new SteelMaterial("mat", 10000, 0.0, 355, 510, 7850);
             double t = 1.0;
-            PlateProperty prop = new PlateProperty(mat, t, t);
+            PlateProperty prop = new PlateProperty(mat, t, t, "p");
 
             #region restrains
             CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
@@ -224,22 +229,34 @@ namespace FemTest.Solver
             PlatePressureAttribute p = new PlatePressureAttribute(loadCase, sys, 0.0, 0.0, 1.0);
             #endregion
 
-            Node nodeA = new Node(0.0, 8, 0, 1, "A");
+            Node nodeA = new Node(0.0, 8, 0);
+            nodeA.Name = "A";
+         
             nodeA.AddAttribute(fixRZ);
             
-            Node nodeB = new Node(0.0, 0, 0, 2, "B");
-            nodeB.AddAttribute(fix);
-
-            Node nodeC = new Node(8.0, 8, 0, 3, "C");
-            nodeC.AddAttribute(fixRZ);
-
-            Node nodeD = new Node(8.0, 0, 0, 3, "D");
+            Node nodeB = new Node(0.0, 0, 0);
+            nodeA.Name = "B";               
+        ;                 
+            nodeB.AddAttribute(fix);        
+                                            
+            Node nodeC = new Node(8.0, 8, 0);
+            nodeA.Name = "C";               
+                
+            nodeC.AddAttribute(fixRZ);      
+                                            
+            Node nodeD = new Node(8.0, 0, 0);
+            nodeA.Name = "D";
+        
             nodeD.AddAttribute(fix);
 
-            Plate e0 = new Tri3Element(new Node[] { nodeA, nodeB, nodeC }, prop, 1);
-            e0.AddAttribute(p);
-            Plate e1 = new Tri3Element(new Node[] { nodeB, nodeD, nodeC }, prop, 2);
-            e1.AddAttribute(p);
+            Plate e0 = new Tri3Element(new Node[] { nodeA, nodeB, nodeC });
+            e0.SetProperty(prop);
+         
+            e0.AddLoadCaseAttribute(p);
+            Plate e1 = new Tri3Element(new Node[] { nodeB, nodeD, nodeC });
+            e1.SetProperty(prop);
+           
+            e1.AddLoadCaseAttribute(p);
             LinearSolver fem = new LinearSolver(new FiniteElement[] { e0, e1 });
 
             double DZC = fem.GetDisplacementGlobalCoordinates(nodeC, LinearSolver.DOF.DZ);

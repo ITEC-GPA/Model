@@ -29,12 +29,12 @@ namespace FemTest.Solver
             Material mat = new SteelMaterial("steel", E, ni, 355, 510, 7850);
 
             double thickness = 1.0;
-            PlateProperty prop = new PlateProperty(mat, thickness, thickness);
+            PlateProperty prop = new PlateProperty(mat, thickness, thickness, "p");
 
             List<Node> nodes = new List<Node>();
-            nodes.Add(new Node(1, 0.0, 0.0, 0.0));
-            nodes.Add(new Node(2, 1.0, 0.0, 0.0));
-            nodes.Add(new Node(3, 0.0, 1.0, 0.0));
+            nodes.Add(new Node(0.0, 0.0, 0.0));
+            nodes.Add(new Node(1.0, 0.0, 0.0));
+            nodes.Add(new Node(0.0, 1.0, 0.0));
 
             FreedomCase fc = new FreedomCase("fc1");
             CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
@@ -64,7 +64,8 @@ namespace FemTest.Solver
             nodes[3 - 1].AddAttribute(f1);
 
             List<Tri3SBTDRMembrane> elements = new List<Tri3SBTDRMembrane>();
-            elements.Add(new Tri3SBTDRMembrane(1, new Node[] { nodes[1 - 1], nodes[2 - 1], nodes[3 - 1] }, prop));
+            elements.Add(new Tri3SBTDRMembrane(new Node[] { nodes[1 - 1], nodes[2 - 1], nodes[3 - 1] }));
+            elements.ForEach(el => el.SetProperty(prop));
 
             LinearSolver fem = new LinearSolver(elements.ToArray());
 

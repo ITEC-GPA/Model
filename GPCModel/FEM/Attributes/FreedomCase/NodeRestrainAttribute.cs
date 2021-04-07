@@ -48,6 +48,14 @@ namespace GPC.Model.FEM.Attributes
 
         }
 
+
+        public NodeRestrainAttribute(NodeRestrainAttribute nodeRestrainAttribute)
+            : base(nodeRestrainAttribute)
+        {
+            _restrains = nodeRestrainAttribute._restrains;
+            _name = nodeRestrainAttribute._name;
+        }
+
         protected NodeRestrainAttribute(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
@@ -110,6 +118,11 @@ namespace GPC.Model.FEM.Attributes
         public bool Equals(NodeRestrainAttribute other)
         {
             return Equals((object)other);
+        }
+
+        public override object Clone()
+        {
+            return new NodeRestrainAttribute(this);
         }
     }
 }

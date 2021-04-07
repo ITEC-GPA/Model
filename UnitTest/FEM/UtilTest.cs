@@ -25,18 +25,18 @@ namespace FemTest.Solver
             Assert.AreEqual(3, F3.FirstFix(1)(1, 1));
             Assert.AreEqual(6, F3.FirstFix(1)(2, 3));
 
-            Assert.AreEqual(3, Util.FFirstFix(1, F3)(1, 1));
-            Assert.AreEqual(6, Util.FFirstFix(1, F3)(2, 3));
+            Assert.AreEqual(3, FEMUtilities.FFirstFix(1, F3)(1, 1));
+            Assert.AreEqual(6, FEMUtilities.FFirstFix(1, F3)(2, 3));
         }
 
         [TestMethod]
         public void Test2()
         {
             Node[] nds = new Node[4];
-            nds[0] = new Node(-1.0, -1.0, 0, 1, "1");
-            nds[1] = new Node(+1.0, -1.0, 0, 2, "2");
-            nds[2] = new Node(+1.0, +1.0, 0, 3, "3");
-            nds[3] = new Node(-1.0, +1.0, 0, 4, "4");
+            nds[0] = new Node(-1.0, -1.0, 0, "1");
+            nds[1] = new Node(+1.0, -1.0, 0, "2");
+            nds[2] = new Node(+1.0, +1.0, 0, "3");
+            nds[3] = new Node(-1.0, +1.0, 0, "4");
 
             Func<double, double, Node[], double> X = (double csi, double eta, Node[] nodi) =>
             {
@@ -48,7 +48,7 @@ namespace FemTest.Solver
                 return x;
             };
 
-            Assert.AreEqual(X(-1,-1,nds), Util.GetLocalCoordinate2D("X",-1, -1, LinearShapeFunctionQuad4.NaturalShapeFunction, nds));
+            Assert.AreEqual(X(-1,-1,nds), FEMUtilities.GetLocalCoordinate2D("X",-1, -1, LinearShapeFunctionQuad4.NaturalShapeFunction, nds));
         }
     }
 }

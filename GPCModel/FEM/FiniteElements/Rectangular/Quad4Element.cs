@@ -17,12 +17,10 @@ namespace GPC.Model.FEM.FiniteElements
         #endregion
 
         #region properties
-        public Quad4GQ12Membranal Membranal => _membranal;
-        public Quad4DK Flexural => _flexural;
         public override mnl.Matrix<double> KElementGlobalCoord => _kElementGlobalCoord;
         #endregion
 
-        public Quad4Element(Node[] nodes, PlateProperty property, int id) : base(nodes, property, id)
+        public Quad4Element(Node[] nodes) : base(nodes)
         {
             DOF.Add(LinearSolver.DOF.DX);
             DOF.Add(LinearSolver.DOF.DY);
@@ -32,8 +30,22 @@ namespace GPC.Model.FEM.FiniteElements
             DOF.Add(LinearSolver.DOF.RZ);
 
             //kElementGlobal = 4 * 6 = 24
-            _membranal = new Quad4GQ12Membranal(nodes, property, id);
-            _flexural = new Quad4DK(nodes, property, id);
+            _membranal = new  Quad4GQ12Membranal(nodes);
+            //TODO: aggiungere Properietà
+            _flexural = new Quad4DK(nodes);
+            //TODO: aggiungere Properietà
+        }
+
+        internal Quad4Element(Node[] nodes, PlateProperty property) : this(nodes)
+        {
+            SetProperty(property);
+        }
+
+        internal override void SetProperty(ElementProperty property)
+        {
+            _membranal.SetProperty(property);
+            _flexural.SetProperty(property);
+            base.SetProperty(property);
         }
 
         public override void BuildMatrix()
@@ -279,12 +291,12 @@ namespace GPC.Model.FEM.FiniteElements
             return f;
         }
 
-        public override void AddAttribute(IPlateLoadCaseAttribute attribute)
+        public override void AddLoadCaseAttribute(IPlateLoadCaseAttribute attribute)
         {
             //the attribute will add to the 2 finite element, Membrane and Discrete Kirchoff (DK). The attribute will have its impact in each finite element.
             //The nodal forces will be added
-            _membranal.AddAttribute(attribute);
-            _flexural.AddAttribute(attribute);
+            _membranal.AddLoadCaseAttribute(attribute);
+            _flexural.AddLoadCaseAttribute(attribute);
         }
 
         public override void GetNodesResults(double[] globalDisplacementsNodes, out double[] localDisplacements, out mnl.Matrix<double>[] globalPseudoDeformation, out mnl.Matrix<double>[] localPseudoDeformation, out mnl.Matrix<double>[] globalForces, out mnl.Matrix<double>[] localForces, out mnl.Matrix<double>[] globalStress, out mnl.Matrix<double>[] localStress, out mnl.Matrix<double>[] globalEpsilon, out mnl.Matrix<double>[] localEpsilon)
@@ -442,6 +454,8 @@ namespace GPC.Model.FEM.FiniteElements
             }           
         }
 
+
+        #region PublicStaticFunction
         /// <summary>
         /// out Local Node in clockwise, centro nel primo nodo dell'elemento
         /// </summary>
@@ -481,10 +495,10 @@ namespace GPC.Model.FEM.FiniteElements
             Vector3d v14 = new Vector3d(nodeL.Position.X - nodeI.Position.X, nodeL.Position.Y - nodeI.Position.Y, nodeL.Position.Z - nodeI.Position.Z);
 
             Node[] localNodes = new Node[4];
-            localNodes[0] = new Node(0.0, 0, 0, nodeI.Id, nodeI.Name); //Origin GlobalNodes.ElementAt(1 - 1);
-            localNodes[1] = new Node(v12.DotProduct(vecx), v12.DotProduct(vecy), v12.DotProduct(vecz), nodeJ.Id, nodeJ.Name); //Axis x GlobalNodes.ElementAt(2 - 1);
-            localNodes[2] = new Node(v13.DotProduct(vecx), v13.DotProduct(vecy), v13.DotProduct(vecz), nodeK.Id, nodeK.Name); //GlobalNodes.ElementAt(3 - 1);
-            localNodes[3] = new Node(v14.DotProduct(vecx), v14.DotProduct(vecy), v14.DotProduct(vecz), nodeL.Id, nodeL.Name); //GlobalNodes.ElementAt(4 - 1);
+            localNodes[0] = new Node(0.0, 0, 0, nodeI.Name); //Origin GlobalNodes.ElementAt(1 - 1);
+            localNodes[1] = new Node(v12.DotProduct(vecx), v12.DotProduct(vecy), v12.DotProduct(vecz), nodeJ.Name); //Axis x GlobalNodes.ElementAt(2 - 1);
+            localNodes[2] = new Node(v13.DotProduct(vecx), v13.DotProduct(vecy), v13.DotProduct(vecz), nodeK.Name); //GlobalNodes.ElementAt(3 - 1);
+            localNodes[3] = new Node(v14.DotProduct(vecx), v14.DotProduct(vecy), v14.DotProduct(vecz), nodeL.Name); //GlobalNodes.ElementAt(4 - 1);
 
             //controllo che nodi siano in ordine, orario o antiorario ma non in ordine sparso
             List<double> angles = localNodes.Select(p => Math.Atan(p.Position.Y / p.Position.X)).ToList();
@@ -559,10 +573,10 @@ namespace GPC.Model.FEM.FiniteElements
             Vector3d vO4 = new Vector3d(node4.Position.X - Xg, node4.Position.Y - Yg, node4.Position.Z - Zg);
 
             Node[] localNodes = new Node[4];
-            localNodes[0] = new Node(vO1.DotProduct(vecx), vO1.DotProduct(vecy), vO1.DotProduct(vecz), node1.Id, node1.Name);
-            localNodes[1] = new Node(vO2.DotProduct(vecx), vO2.DotProduct(vecy), vO2.DotProduct(vecz), node2.Id, node2.Name);
-            localNodes[2] = new Node(vO3.DotProduct(vecx), vO3.DotProduct(vecy), vO3.DotProduct(vecz), node3.Id, node3.Name);
-            localNodes[3] = new Node(vO4.DotProduct(vecx), vO4.DotProduct(vecy), vO4.DotProduct(vecz), node4.Id, node4.Name);
+            localNodes[0] = new Node(vO1.DotProduct(vecx), vO1.DotProduct(vecy), vO1.DotProduct(vecz), node1.Name);
+            localNodes[1] = new Node(vO2.DotProduct(vecx), vO2.DotProduct(vecy), vO2.DotProduct(vecz), node2.Name);
+            localNodes[2] = new Node(vO3.DotProduct(vecx), vO3.DotProduct(vecy), vO3.DotProduct(vecz), node3.Name);
+            localNodes[3] = new Node(vO4.DotProduct(vecx), vO4.DotProduct(vecy), vO4.DotProduct(vecz), node4.Name);
 
             return localNodes;
         }
@@ -576,7 +590,7 @@ namespace GPC.Model.FEM.FiniteElements
         {
             Func<Node, Node, Node> middleNode = (Node n1, Node n2) => {
 
-                Node n = new Node((n1.Position.X + n2.Position.X) / 2.0, (n1.Position.Y + n2.Position.Y) / 2.0, (n1.Position.Z + n2.Position.Z) / 2.0, 0);
+                Node n = new Node((n1.Position.X + n2.Position.X) / 2.0, (n1.Position.Y + n2.Position.Y) / 2.0, (n1.Position.Z + n2.Position.Z) / 2.0);
                 return n;
             };
 
@@ -592,5 +606,6 @@ namespace GPC.Model.FEM.FiniteElements
 
             return nodes8;
         }
+        #endregion
     }
 }

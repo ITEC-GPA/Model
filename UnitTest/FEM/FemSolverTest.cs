@@ -47,22 +47,22 @@ namespace FemTest.Solver
         public void AssemblyGlobalMatrixTest1()
         {
             Material mat = new SteelMaterial("steel", 200000, 0.2, 355, 510, 7850);
-            PlateProperty prop = new PlateProperty(mat, 0, 1);
+            PlateProperty prop = new PlateProperty(mat, 0, 1, "p");
 
             List<Node> nodesPlate1 = new List<Node>();
-            nodesPlate1.Add(new Node(0.0, 0, 0, 1, "1"));
-            nodesPlate1.Add(new Node(0.0, 100, 0, 2, "2"));
-            nodesPlate1.Add(new Node(100.0, 0, 0, 3, "3"));
+            nodesPlate1.Add(new Node(0.0, 0, 0, "1"));
+            nodesPlate1.Add(new Node(0.0, 100, 0, "2"));
+            nodesPlate1.Add(new Node(100.0, 0, 0, "3"));
 
             List<Node> nodesPlate2 = new List<Node>();
-            nodesPlate2.Add(new Node(100.0, 0, 0, 2, "2"));
-            nodesPlate2.Add(new Node(0.0, 100, 0, 3, "3"));
-            nodesPlate2.Add(new Node(100.0, 100, 0, 4, "4"));
+            nodesPlate2.Add(new Node(100.0, 0, 0, "2"));
+            nodesPlate2.Add(new Node(0.0, 100, 0, "3"));
+            nodesPlate2.Add(new Node(100.0, 100, 0, "4"));
 
             List<FiniteElement> elements = new List<FiniteElement>();
 
-            elements.Add(new Tri3PlaneStress(nodesPlate1.ToArray(), prop, 1));
-            elements.Add(new Tri3PlaneStress(nodesPlate2.ToArray(), prop, 2));
+            elements.Add(new Tri3PlaneStress(nodesPlate1.ToArray(), prop));
+            elements.Add(new Tri3PlaneStress(nodesPlate2.ToArray(), prop));
 
             LinearSolver fem = new LinearSolver(elements.ToArray());
             mnl.Matrix<double> K = fem.KGlobal;
@@ -110,7 +110,7 @@ namespace FemTest.Solver
             FreedomCase fc = new FreedomCase("freedomCase1");
 
             Material mat = new SteelMaterial("steel", 200000, 0.2, 355, 510, 7850);
-            PlateProperty prop = new PlateProperty(mat, 0, 1);
+            PlateProperty prop = new PlateProperty(mat, 0, 1, "p");
             
             CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
             NodeRestrainAttribute DXDYDZ = new NodeRestrainAttribute(fc, sys);
@@ -122,9 +122,9 @@ namespace FemTest.Solver
             DZ.AddExternalRestrain(LinearSolver.DOF.DZ);
 
             List<Node> nodesPlate1 = new List<Node>();
-            Node nd1 = new Node(0.0, 0, 0, 1, "1");
-            Node nd2 = new Node(0.0, 100, 0, 2, "2");
-            Node nd3 = new Node(100.0, 0, 0, 3, "3");
+            Node nd1 = new Node(0.0, 0, 0, "1");
+            Node nd2 = new Node(0.0, 100, 0, "2");
+            Node nd3 = new Node(100.0, 0, 0, "3");
 
             nd1.AddAttribute(DXDYDZ);
             nd2.AddAttribute(DXDYDZ);
@@ -134,9 +134,9 @@ namespace FemTest.Solver
             nodesPlate1.Add(nd3);
 
             List<Node> nodesPlate2 = new List<Node>();
-            Node nd2copy = new Node(0.0, 100, 0, 2, "2");
-            Node nd3copy = new Node(100.0, 0, 0, 3, "3");
-            Node nd4 = new Node(100.0, 100, 0, 4, "4");
+            Node nd2copy = new Node(0.0, 100, 0, "2");
+            Node nd3copy = new Node(100.0, 0, 0, "3");
+            Node nd4 = new Node(100.0, 100, 0, "4");
 
             nd2copy.AddAttribute(DZ);
             nd3copy.AddAttribute(DZ);
@@ -147,8 +147,8 @@ namespace FemTest.Solver
             nodesPlate2.Add(nd4);
 
             List<FiniteElement> elements = new List<FiniteElement>();
-            elements.Add(new Tri3PlaneStress(nodesPlate1.ToArray(), prop, 1));
-            elements.Add(new Tri3PlaneStress(nodesPlate2.ToArray(), prop, 2));
+            elements.Add(new Tri3PlaneStress(nodesPlate1.ToArray(), prop));
+            elements.Add(new Tri3PlaneStress(nodesPlate2.ToArray(), prop));
 
             LinearSolver fem = new LinearSolver(elements.ToArray());
             mnl.Matrix<double> K = fem.KGlobal;
@@ -197,7 +197,7 @@ namespace FemTest.Solver
             FreedomCase freedomCase = new FreedomCase("freedomCase1");
 
             Material mat = new SteelMaterial("steel", 200000, 0.2, 355, 510, 7850);
-            PlateProperty prop = new PlateProperty(mat, 0, 1);
+            PlateProperty prop = new PlateProperty(mat, 0, 1, "p");
 
             CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
             NodeRestrainAttribute DXDYDZ = new NodeRestrainAttribute(freedomCase, sys);
@@ -211,9 +211,9 @@ namespace FemTest.Solver
             NodeForceAttribute fX1000 = new NodeForceAttribute(loadCase, sys, 1000, 0, 0, 0, 0, 0);
 
             List<Node> nodesPlate1 = new List<Node>();
-            Node nd1 = new Node(0.0, 0, 0, 1, "1");
-            Node nd2 = new Node(0.0, 100, 0, 2, "2");
-            Node nd3 = new Node(100.0, 0, 0, 3, "3");
+            Node nd1 = new Node(0.0, 0, 0, "1");
+            Node nd2 = new Node(0.0, 100, 0, "2");
+            Node nd3 = new Node(100.0, 0, 0, "3");
 
             nd1.AddAttribute(DXDYDZ);
             nd2.AddAttribute(DXDYDZ);
@@ -223,9 +223,9 @@ namespace FemTest.Solver
             nodesPlate1.Add(nd3);
 
             List<Node> nodesPlate2 = new List<Node>();
-            Node nd2copy = new Node(0.0, 100, 0, 2, "2");
-            Node nd3copy = new Node(100.0, 0, 0, 3, "3");
-            Node nd4 = new Node(100.0, 100, 0, 4, "4");
+            Node nd2copy = new Node(0.0, 100, 0, "2");
+            Node nd3copy = new Node(100.0, 0, 0, "3");
+            Node nd4 = new Node(100.0, 100, 0, "4");
 
             nd2copy.AddAttribute(DZ);
             nd3copy.AddAttribute(DZ);
@@ -237,8 +237,8 @@ namespace FemTest.Solver
             nodesPlate2.Add(nd4);
 
             List<FiniteElement> elements = new List<FiniteElement>();
-            elements.Add(new Tri3PlaneStress(nodesPlate1.ToArray(), prop, 1));
-            elements.Add(new Tri3PlaneStress(nodesPlate2.ToArray(), prop, 2));
+            elements.Add(new Tri3PlaneStress(nodesPlate1.ToArray(), prop));
+            elements.Add(new Tri3PlaneStress(nodesPlate2.ToArray(), prop));
 
             LinearSolver fem = new LinearSolver(elements.ToArray());
             double Node4DX = fem.GetDisplacementGlobalCoordinates(nd4, LinearSolver.DOF.DX);
@@ -278,7 +278,7 @@ namespace FemTest.Solver
             FreedomCase freedomCase = new FreedomCase("freedomCase1");
 
             Material mat = new SteelMaterial("steel", 200000, 0.2, 355, 510, 7850);
-            PlateProperty prop = new PlateProperty(mat, 0, 1);
+            PlateProperty prop = new PlateProperty(mat, 0, 1, "p");
 
             CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
             NodeRestrainAttribute DXDYDZ = new NodeRestrainAttribute(freedomCase, sys);
@@ -294,9 +294,9 @@ namespace FemTest.Solver
             NodeForceAttribute f2 = new NodeForceAttribute(loadCase, sys2, 1000, -500, 0, 0, 0, 0);
 
             List<Node> nodesPlate1 = new List<Node>();
-            Node nd1 = new Node(0.0, 0, 0, 1, "1");
-            Node nd2 = new Node(0.0, 100, 0, 2, "2");
-            Node nd3 = new Node(100.0, 0, 0, 3, "3");
+            Node nd1 = new Node(0.0, 0, 0, "1");
+            Node nd2 = new Node(0.0, 100, 0, "2");
+            Node nd3 = new Node(100.0, 0, 0, "3");
 
             nd1.AddAttribute(DXDYDZ);
             nd2.AddAttribute(DXDYDZ);
@@ -306,9 +306,9 @@ namespace FemTest.Solver
             nodesPlate1.Add(nd3);
 
             List<Node> nodesPlate2 = new List<Node>();
-            Node nd2copy = new Node(0.0, 100, 0, 2, "2");
-            Node nd3copy = new Node(100.0, 0, 0, 3, "3");
-            Node nd4 = new Node(100.0, 100, 0, 4, "4");
+            Node nd2copy = new Node(0.0, 100, 0, "2");
+            Node nd3copy = new Node(100.0, 0, 0, "3");
+            Node nd4 = new Node(100.0, 100, 0, "4");
 
             nd2copy.AddAttribute(DZ);
             nd3copy.AddAttribute(DZ);
@@ -321,8 +321,8 @@ namespace FemTest.Solver
             nodesPlate2.Add(nd4);
 
             List<FiniteElement> elements = new List<FiniteElement>();
-            elements.Add(new Tri3PlaneStress(nodesPlate1.ToArray(), prop, 1));
-            elements.Add(new Tri3PlaneStress(nodesPlate2.ToArray(), prop, 2));
+            elements.Add(new Tri3PlaneStress(nodesPlate1.ToArray(), prop));
+            elements.Add(new Tri3PlaneStress(nodesPlate2.ToArray(), prop));
 
             LinearSolver fem = new LinearSolver(elements.ToArray());
             double Node4DX = fem.GetDisplacementGlobalCoordinates(nd4, LinearSolver.DOF.DX);

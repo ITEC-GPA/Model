@@ -15,7 +15,7 @@ namespace GPC.Model.FEM.FiniteElements
         protected mnl.Matrix<double> _b; //constant in the element
         #endregion
 
-        public Tri3PlaneStress(Node[] nodes, PlateProperty property, int id) : base(nodes, property, id)
+        public Tri3PlaneStress(Node[] nodes) : base(nodes)
         {
             //recalled base(nodes)
             _DOF.Add(LinearSolver.DOF.DX);
@@ -28,6 +28,14 @@ namespace GPC.Model.FEM.FiniteElements
 
             //DofGlobalToLocal^T * kLocal * DofGlobalToLocal
             //   [9x6]               [6x6]     [6x9]
+        }
+
+        /// <summary>
+        /// This constructor to be used ONLY for debugging purpose. Use <see cref="FiniteElement.SetProperty(ElementProperty)"/> or <see cref="FEMObject.SetId(int)"/> instead
+        /// </summary>
+        internal Tri3PlaneStress(Node[] nodes, PlateProperty property) : this(nodes)
+        {
+            SetProperty(property);
         }
 
         public override void BuildMatrix()

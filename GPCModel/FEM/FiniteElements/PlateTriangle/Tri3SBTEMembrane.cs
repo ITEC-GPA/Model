@@ -20,7 +20,7 @@ namespace GPC.Model.FEM.FiniteElements
         mnl.Matrix<double> _C;
         #endregion
 
-        public Tri3SBTEMembrane(Node[] nodes, PlateProperty property, int id) : base(nodes, property, id)
+        public Tri3SBTEMembrane(Node[] nodes) : base(nodes)
         {
             //recalled base(nodes)
             _DOF.Add(LinearSolver.DOF.DX);
@@ -39,8 +39,9 @@ namespace GPC.Model.FEM.FiniteElements
             //[18x18]          [18x9]         [9x9]     [9x18]
         }
 
-        public Tri3SBTEMembrane(int id, Node[] nodes, PlateProperty property) : this(nodes, property, id)
+        internal Tri3SBTEMembrane(Node[] nodes, PlateProperty property) : this(nodes)
         {
+            SetProperty(property);
         }
 
         public override void BuildMatrix()

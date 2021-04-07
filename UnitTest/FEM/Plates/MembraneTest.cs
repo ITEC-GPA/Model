@@ -22,14 +22,16 @@ namespace FemTest.Solver
         public void Tri3PlaneStressKTest1()
         {
             Material mat = new SteelMaterial("steel", 200000.0, 0.2, 355, 510, 7850);
-            PlateProperty prop = new PlateProperty(mat, 0, 1);
+            PlateProperty prop = new PlateProperty(mat, 0, 1, "p");
 
             Node[] nds = new Node[3];
-            nds[0] = new Node(0.0, 0, 0, 1, "1");
-            nds[1] = new Node(1.0, 0, 0, 2, "2");
-            nds[2] = new Node(0.0, 1, 0, 3, "3");
+            nds[0] = new Node(0.0, 0, 0, "1");
+            nds[1] = new Node(1.0, 0, 0, "2");
+            nds[2] = new Node(0.0, 1, 0, "3");
 
-            Tri3PlaneStress el = new Tri3PlaneStress(nds, prop, 1);
+            Tri3PlaneStress el = new Tri3PlaneStress(nds);
+            el.SetProperty(prop);
+
             el.BuildMatrix();
             mnl.Matrix<double> kLocal = el.KElementLocalCoord;
             mnl.Matrix<double> kLocalManual = mnl.Matrix<double>.Build.Dense(0, 6);
@@ -64,14 +66,16 @@ namespace FemTest.Solver
         public void Tri3PlaneStressKTest2()
         {
             Material mat = new SteelMaterial("steel", 200000, 0.2, 355, 510, 7850);
-            PlateProperty prop = new PlateProperty(mat, 0, 1);
+            PlateProperty prop = new PlateProperty(mat, 0, 1, "p");
 
             Node[] nds = new Node[3];
-            nds[0] = new Node(0.0, 0, 0, 1, "1");
-            nds[1] = new Node(100.0, 0, 0, 2, "2");
-            nds[2] = new Node(0.0, 100, 0, 3, "3");
+            nds[0] = new Node(0.0, 0, 0, "1");
+            nds[1] = new Node(100.0, 0, 0, "2");
+            nds[2] = new Node(0.0, 100, 0, "3");
 
-            Tri3PlaneStress el = new Tri3PlaneStress(nds, prop, 1);
+            Tri3PlaneStress el = new Tri3PlaneStress(nds);
+            el.SetProperty(prop);
+
             el.BuildMatrix();
             mnl.Matrix<double> kLocal = el.KElementLocalCoord;
             //Add DZ global DOF
@@ -99,7 +103,7 @@ namespace FemTest.Solver
             FreedomCase freedomCase = new FreedomCase("freedomCase1");
 
             Material mat = new SteelMaterial("steel", 200000, 0.2, 355, 510, 7850);
-            PlateProperty prop = new PlateProperty(mat, 0, 1);
+            PlateProperty prop = new PlateProperty(mat, 0, 1, "p");
 
             CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
             NodeRestrainAttribute DXDYDZ = new NodeRestrainAttribute(freedomCase, sys);
@@ -113,9 +117,9 @@ namespace FemTest.Solver
             //CoordinateSystem sys2 = new CoordinateSystem(new Point3d(1, 1, 0), new Point3d(2, 2, 0), new Point3d(0, 2, 0));
 
             List<Node> nodesPlate1 = new List<Node>();
-            Node nd1 = new Node(0.0, 0, 0, 1, "1");
-            Node nd2 = new Node(0.0, 1, 0, 2, "2");
-            Node nd3 = new Node(1.0, 0, 0, 3, "3");
+            Node nd1 = new Node(0.0, 0, 0, "1");
+            Node nd2 = new Node(0.0, 1, 0, "2");
+            Node nd3 = new Node(1.0, 0, 0, "3");
 
             nd1.AddAttribute(DXDYDZ);
             nd2.AddAttribute(DXDYDZ);
@@ -125,9 +129,9 @@ namespace FemTest.Solver
             nodesPlate1.Add(nd3);
 
             List<Node> nodesPlate2 = new List<Node>();
-            Node nd2copy = new Node(0.0, 1, 0, 2, "2");
-            Node nd3copy = new Node(1.0, 0, 0, 3, "3");
-            Node nd4 = new Node(1.0, 1, 0, 4, "4");
+            Node nd2copy = new Node(0.0, 1, 0, "2");
+            Node nd3copy = new Node(1.0, 0, 0, "3");
+            Node nd4 = new Node(1.0, 1, 0, "4");
 
             nd2copy.AddAttribute(DZ);
             nd3copy.AddAttribute(DZ);
@@ -138,12 +142,13 @@ namespace FemTest.Solver
             nodesPlate2.Add(nd4);
 
             List<FiniteElement> elements = new List<FiniteElement>();
-            Plate e0 = new Tri3PlaneStress(nodesPlate1.ToArray(), prop, 1);
+            Plate e0 = new Tri3PlaneStress(nodesPlate1.ToArray(), prop);
+        
             PlatePressureAttribute p = new PlatePressureAttribute(loadCase, sys, -10.0, 0, 0);
-            e0.AddAttribute(p);
+            e0.AddLoadCaseAttribute(p);
 
             elements.Add(e0);
-            elements.Add(new Tri3PlaneStress(nodesPlate2.ToArray(), prop, 2));
+            elements.Add(new Tri3PlaneStress(nodesPlate2.ToArray(), prop));
 
             LinearSolver fem = new LinearSolver(elements.ToArray());
             double Node4DX = fem.GetDisplacementGlobalCoordinates(nd4, LinearSolver.DOF.DX);
@@ -184,15 +189,17 @@ namespace FemTest.Solver
         {
             
             Material mat = new SteelMaterial("steel", 1.0, 0.0, 355, 510, 7850);
-            PlateProperty prop = new PlateProperty(mat, 0, 1);
+            PlateProperty prop = new PlateProperty(mat, 0, 1, "p");
 
             Node[] nds = new Node[4];
-            nds[0] = new Node(-1.0, -1, 0, 1, "1");
-            nds[1] = new Node(+1.0, -1, 0, 2, "2");
-            nds[2] = new Node(+1.0, +1, 0, 3, "3");
-            nds[3] = new Node(-1.0, +1, 0, 4, "4");
+            nds[0] = new Node(-1.0, -1, 0, "1");
+            nds[1] = new Node(+1.0, -1, 0, "2");
+            nds[2] = new Node(+1.0, +1, 0, "3");
+            nds[3] = new Node(-1.0, +1, 0, "4");
 
-            Quad4Membranal el = new Quad4Membranal(nds, prop, 1);
+            Quad4Membranal el = new Quad4Membranal(nds);
+            el.SetProperty(prop);
+        
             el.BuildMatrix();
             mnl.Matrix<double> kLocal = el.KElementLocalCoord;
             mnl.Matrix<double> kLocalManual = mnl.Matrix<double>.Build.Dense(0, 8);
@@ -236,15 +243,17 @@ namespace FemTest.Solver
         public void Quad4MembranalTest2()
         {
             Material mat = new SteelMaterial("steel", 1.0, 0.0, 355, 510, 7850);
-            PlateProperty prop = new PlateProperty(mat, 0, 1);
+            PlateProperty prop = new PlateProperty(mat, 0, 1, "p");
 
             Node[] nds = new Node[4];
-            nds[0] = new Node(+0.0, +0, 0, 1, "1");
-            nds[1] = new Node(+2.0, +0, 0, 2, "2");
-            nds[2] = new Node(+2.0, +1, 0, 3, "3");
-            nds[3] = new Node(+0.0, +1, 0, 4, "4");
+            nds[0] = new Node(+0.0, +0, 0, "1");
+            nds[1] = new Node(+2.0, +0, 0, "2");
+            nds[2] = new Node(+2.0, +1, 0, "3");
+            nds[3] = new Node(+0.0, +1, 0, "4");
 
-            Quad4Membranal el = new Quad4Membranal(nds, prop, 1);
+            Quad4Membranal el = new Quad4Membranal(nds);
+            el.SetProperty(prop);
+       
             el.BuildMatrix();
             mnl.Matrix<double> kLocal = el.KElementLocalCoord;
             mnl.Matrix<double> kLocalManual = mnl.Matrix<double>.Build.Dense(0, 8);
@@ -288,15 +297,17 @@ namespace FemTest.Solver
         public void Quad4MembranalTest3()
         {
             Material mat = new SteelMaterial("steel", 1.0, 0.0, 355, 510, 7850);
-            PlateProperty prop = new PlateProperty(mat, 0, 1);
+            PlateProperty prop = new PlateProperty(mat, 0, 1, "p");
 
             Node[] nds = new Node[4];
-            nds[0] = new Node(+0.0, +0, 0, 1, "1");
-            nds[1] = new Node(+2.0, +0, 0, 2, "2");
-            nds[2] = new Node(+2.0, +2, 0, 3, "3");
-            nds[3] = new Node(+0.0, +1, 0, 4, "4");
+            nds[0] = new Node(+0.0, +0, 0, "1");
+            nds[1] = new Node(+2.0, +0, 0, "2");
+            nds[2] = new Node(+2.0, +2, 0, "3");
+            nds[3] = new Node(+0.0, +1, 0, "4");
 
-            Quad4Membranal el = new Quad4Membranal(nds, prop, 1);
+            Quad4Membranal el = new Quad4Membranal(nds);
+            el.SetProperty(prop);
+           
             el.BuildMatrix();
             mnl.Matrix<double> kLocal = el.KElementLocalCoord;
             mnl.Matrix<double> kLocalManual = mnl.Matrix<double>.Build.Dense(0, 8);
@@ -340,15 +351,17 @@ namespace FemTest.Solver
         public void Quad4MembranalTest4()
         {
             Material mat = new SteelMaterial("steel", 1.0, 0.0, 355, 510, 7850);
-            PlateProperty prop = new PlateProperty(mat, 0, 1);
+            PlateProperty prop = new PlateProperty(mat, 0, 1, "p");
 
             Node[] nds = new Node[4];
-            nds[0] = new Node(-1.0, -1, 0, 1, "1");
-            nds[1] = new Node(+1.0, -1, 0, 2, "2");
-            nds[2] = new Node(+1.0, +1, 0, 3, "3");
-            nds[3] = new Node(-1.0, +1, 0, 4, "4");
+            nds[0] = new Node(-1.0, -1, 0, "1");
+            nds[1] = new Node(+1.0, -1, 0, "2");
+            nds[2] = new Node(+1.0, +1, 0, "3");
+            nds[3] = new Node(-1.0, +1, 0, "4");
 
-            Quad4Membranal el = new Quad4Membranal(nds, prop, 1);
+            Quad4Membranal el = new Quad4Membranal(nds);
+            el.SetProperty(prop);
+     
             el.BuildMatrix();
             mnl.Matrix<double> kLocal = el.KElementLocalCoord;
             mnl.Matrix<double> kGlobalManual = mnl.Matrix<double>.Build.Dense(0, 12);
@@ -403,13 +416,13 @@ namespace FemTest.Solver
             Material mat = new SteelMaterial("steel", E, ni, 355, 510, 7850);
 
             double thickness = 1.0;
-            PlateProperty prop = new PlateProperty(mat, thickness, thickness);
+            PlateProperty prop = new PlateProperty(mat, thickness, thickness, "p");
 
             Node[] nds = new Node[4];
-            nds[0] = new Node(0.0, 0, 0, 1, "1");
-            nds[1] = new Node(+1.0, 0, 0, 2, "2");
-            nds[2] = new Node(+2.0, +2, 0, 3, "3");
-            nds[3] = new Node(0.0, +1, 0, 4, "4");
+            nds[0] = new Node(0.0, 0, 0, "1");
+            nds[1] = new Node(+1.0, 0, 0, "2");
+            nds[2] = new Node(+2.0, +2, 0, "3");
+            nds[3] = new Node(0.0, +1, 0, "4");
 
             CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
 
@@ -431,8 +444,10 @@ namespace FemTest.Solver
             double px = 0.1;
             PlatePressureAttribute pressure = new PlatePressureAttribute(lc, sys, px, 0, 0);
             
-            Quad4Membranal el = new Quad4Membranal(nds, prop, 1);
-            el.AddAttribute(pressure);
+            Quad4Membranal el = new Quad4Membranal(nds);
+            el.SetProperty(prop);
+    
+            el.AddLoadCaseAttribute(pressure);
             
             LinearSolver fem = new LinearSolver(new FiniteElement[] { el });
             Console.WriteLine("kGlob="+fem.KGlobal);

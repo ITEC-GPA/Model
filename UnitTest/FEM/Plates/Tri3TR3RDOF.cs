@@ -29,12 +29,12 @@ namespace FemTest.Solver
             Material mat = new SteelMaterial("steel", E, ni, 355, 510, 7850);
 
             double thickness = 1.0;
-            PlateProperty prop = new PlateProperty(mat, thickness, thickness);
+            PlateProperty prop = new PlateProperty(mat, thickness, thickness, "p");
 
             List<Node> nodes = new List<Node>();
-            nodes.Add(new Node(1, 0.0, 0.0, 0.0));
-            nodes.Add(new Node(2, 1.0, 0.0, 0.0));
-            nodes.Add(new Node(3, 0.0, 1.0, 0.0));
+            nodes.Add(new Node(0.0, 0.0, 0.0));
+            nodes.Add(new Node(1.0, 0.0, 0.0));
+            nodes.Add(new Node(0.0, 1.0, 0.0));
 
             FreedomCase fc = new FreedomCase("fc1");
             CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
@@ -64,7 +64,8 @@ namespace FemTest.Solver
             nodes[3 - 1].AddAttribute(f1);
 
             List<Tri3TR3RDOFMembrane> elements = new List<Tri3TR3RDOFMembrane>();
-            elements.Add(new Tri3TR3RDOFMembrane(1, new Node[] { nodes[1 - 1], nodes[2 - 1], nodes[3 - 1] }, prop));
+            elements.Add(new Tri3TR3RDOFMembrane(new Node[] { nodes[1 - 1], nodes[2 - 1], nodes[3 - 1] }));
+            elements.ForEach(el => el.SetProperty(prop));
 
             LinearSolver fem = new LinearSolver(elements.ToArray());
 
@@ -90,13 +91,13 @@ namespace FemTest.Solver
             Material mat = new SteelMaterial("steel", E, ni, 355, 510, 7850);
 
             double thickness = 1.0;
-            PlateProperty prop = new PlateProperty(mat, thickness, thickness);
+            PlateProperty prop = new PlateProperty(mat, thickness, thickness, "p");
 
             List<Node> nodes = new List<Node>();
-            nodes.Add(new Node(1, 0.0, 0.0, 0.0));
-            nodes.Add(new Node(2, 1.0, 0.0, 0.0));
-            nodes.Add(new Node(3, 0.0, 1.0, 0.0));
-            nodes.Add(new Node(4, 1.0, 1.0, 0.0));
+            nodes.Add(new Node(0.0, 0.0, 0.0));
+            nodes.Add(new Node(1.0, 0.0, 0.0));
+            nodes.Add(new Node(0.0, 1.0, 0.0));
+            nodes.Add(new Node(1.0, 1.0, 0.0));
 
             FreedomCase fc = new FreedomCase("fc1");
             CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
@@ -127,8 +128,9 @@ namespace FemTest.Solver
             nodes[2 - 1].AddAttribute(f1);
 
             List<Tri3TR3RDOFMembrane> elements = new List<Tri3TR3RDOFMembrane>();
-            elements.Add(new Tri3TR3RDOFMembrane(1, new Node[] { nodes[1 - 1], nodes[2 - 1], nodes[3 - 1] }, prop));
-            elements.Add(new Tri3TR3RDOFMembrane(1, new Node[] { nodes[4 - 1], nodes[3 - 1], nodes[2 - 1] }, prop));
+            elements.Add(new Tri3TR3RDOFMembrane(new Node[] { nodes[1 - 1], nodes[2 - 1], nodes[3 - 1] }));
+            elements.Add(new Tri3TR3RDOFMembrane(new Node[] { nodes[4 - 1], nodes[3 - 1], nodes[2 - 1] }));
+            elements.ForEach(el => el.SetProperty(prop));
 
             LinearSolver fem = new LinearSolver(elements.ToArray());
 
@@ -157,18 +159,18 @@ namespace FemTest.Solver
             Material mat = new SteelMaterial("steel", E, ni, 355, 510, 7850);
 
             double thickness = 1.0;
-            PlateProperty prop = new PlateProperty(mat, thickness, thickness);
+            PlateProperty prop = new PlateProperty(mat, thickness, thickness, "p");
 
             List<Node> nodes = new List<Node>();
-            nodes.Add(new Node(1, 0.0, 1.0, 0.0));
-            nodes.Add(new Node(2, 32.0, 1.0, 0.0));
-            nodes.Add(new Node(3, 0.0, 2.0, 0.0));
-            nodes.Add(new Node(4, 32.0, 2.0, 0.0));
-            nodes.Add(new Node(5, 0.0, 0.0, 0.0));
-            nodes.Add(new Node(6, 32.0, 0.0, 0.0));
-            nodes.Add(new Node(7, 16.0, 1.0, 0.0));
-            nodes.Add(new Node(8, 16.0, 2.0, 0.0));
-            nodes.Add(new Node(9, 16.0, 0.0, 0.0));
+            nodes.Add(new Node(0.0, 1.0, 0.0));
+            nodes.Add(new Node(32.0, 1.0, 0.0));
+            nodes.Add(new Node(0.0, 2.0, 0.0));
+            nodes.Add(new Node(32.0, 2.0, 0.0));
+            nodes.Add(new Node(0.0, 0.0, 0.0));
+            nodes.Add(new Node(32.0, 0.0, 0.0));
+            nodes.Add(new Node(16.0, 1.0, 0.0));
+            nodes.Add(new Node(16.0, 2.0, 0.0));
+            nodes.Add(new Node(16.0, 0.0, 0.0));
 
             FreedomCase fc = new FreedomCase("fc1");
             CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
@@ -203,14 +205,15 @@ namespace FemTest.Solver
             nodes[6 - 1].AddAttribute(fBottom);
 
             List<Tri3TR3RDOFMembrane> elements = new List<Tri3TR3RDOFMembrane>();
-            elements.Add(new Tri3TR3RDOFMembrane(1, new Node[] { nodes[7 - 1], nodes[2 - 1], nodes[4 - 1] }, prop));
-            elements.Add(new Tri3TR3RDOFMembrane(2, new Node[] { nodes[6 - 1], nodes[2 - 1], nodes[7 - 1] }, prop));
-            elements.Add(new Tri3TR3RDOFMembrane(3, new Node[] { nodes[7 - 1], nodes[8 - 1], nodes[3 - 1] }, prop));
-            elements.Add(new Tri3TR3RDOFMembrane(4, new Node[] { nodes[5 - 1], nodes[9 - 1], nodes[7 - 1] }, prop));
-            elements.Add(new Tri3TR3RDOFMembrane(5, new Node[] { nodes[1 - 1], nodes[7 - 1], nodes[3 - 1] }, prop));
-            elements.Add(new Tri3TR3RDOFMembrane(6, new Node[] { nodes[8 - 1], nodes[7 - 1], nodes[4 - 1] }, prop));
-            elements.Add(new Tri3TR3RDOFMembrane(7, new Node[] { nodes[1 - 1], nodes[5 - 1], nodes[7 - 1] }, prop));
-            elements.Add(new Tri3TR3RDOFMembrane(8, new Node[] { nodes[7 - 1], nodes[9 - 1], nodes[6 - 1] }, prop));
+            elements.Add(new Tri3TR3RDOFMembrane(new Node[] { nodes[7 - 1], nodes[2 - 1], nodes[4 - 1] }));
+            elements.Add(new Tri3TR3RDOFMembrane(new Node[] { nodes[6 - 1], nodes[2 - 1], nodes[7 - 1] }));
+            elements.Add(new Tri3TR3RDOFMembrane(new Node[] { nodes[7 - 1], nodes[8 - 1], nodes[3 - 1] }));
+            elements.Add(new Tri3TR3RDOFMembrane(new Node[] { nodes[5 - 1], nodes[9 - 1], nodes[7 - 1] }));
+            elements.Add(new Tri3TR3RDOFMembrane(new Node[] { nodes[1 - 1], nodes[7 - 1], nodes[3 - 1] }));
+            elements.Add(new Tri3TR3RDOFMembrane(new Node[] { nodes[8 - 1], nodes[7 - 1], nodes[4 - 1] }));
+            elements.Add(new Tri3TR3RDOFMembrane(new Node[] { nodes[1 - 1], nodes[5 - 1], nodes[7 - 1] }));
+            elements.Add(new Tri3TR3RDOFMembrane(new Node[] { nodes[7 - 1], nodes[9 - 1], nodes[6 - 1] }));
+            elements.ForEach(el => el.SetProperty(prop));
 
             LinearSolver fem = new LinearSolver(elements.ToArray());
 

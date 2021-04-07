@@ -105,10 +105,49 @@ namespace GPC.Model
         public static bool operator !=(ModelObject obj1, ModelObject obj2)
         {
             return !(obj1 == obj2);
-        } 
+        }
 
 
         #endregion
 
+
+        #region CUSTOM EQUALITY COMPARER
+
+        /// <summary>
+        /// Compare two <see cref="ModelObject"/> using only <see cref="ModelObject.Name"/> as equality parameter
+        /// </summary>
+        public class ModelObjectNameEqualityComparer : IEqualityComparer<ModelObject> 
+        {
+
+            /// <returns> <inheritdoc/> 
+            /// <para> true if both <paramref name="x"/> and <paramref name="y"/> are null </para>  
+            /// </returns>
+            /// <remarks> Only <see cref="ModelObject.Name"/> is used as equality parameter </remarks>
+            bool IEqualityComparer<ModelObject>.Equals(ModelObject x, ModelObject y)
+            {
+                if (ReferenceEquals(x, y))
+                    return true;
+
+                if (x == null && y == null)
+                    return true;
+
+                if (x == null || y == null)
+                    return false;
+
+                if (x.Name.Equals(y.Name))
+                    return true;
+
+                return false;
+            }
+
+            /// <inheritdoc/>
+            /// <remarks> Only <see cref="ModelObject.Name"/> is used as equality parameter </remarks>
+            int IEqualityComparer<ModelObject>.GetHashCode(ModelObject obj)
+            {
+                return 17 * obj.Name.GetHashCode();
+            }
+        }
+
+        #endregion
     }
 }

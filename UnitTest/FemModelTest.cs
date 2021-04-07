@@ -14,37 +14,13 @@ using GPC.Model.FEM.Attributes;
 using GPC.Model.Restrains;
 using System.Diagnostics;
 using System.Linq;
+using GPC.TestUtilities;
 
 namespace FemTest
 {
     [TestClass]
-    public class FemModelTest
+    public class FemModelTest : UnitTestBase
     {
-        public TestContext TestContext { get; set; }
-
-        private static string _outputFolder;
-        private string _testName;
-
-        [ClassInitialize]
-        public static void ClassInitialize(TestContext context)
-        {
-
-        }
-
-        [TestInitialize]
-        public void TestInitialize()
-        {
-            _outputFolder = Path.Combine(Directory.GetParent(TestContext.TestDir).ToString(), TestContext.FullyQualifiedTestClassName.Split(new char[] { '.' })[1]);
-            Directory.CreateDirectory(_outputFolder);
-            _testName = TestContext.TestName;
-        }
-
-        [TestCleanup]
-        public void CleanUp()
-        {
-            if (Directory.Exists(TestContext.TestDir))
-                Directory.Delete(TestContext.TestDir, true);
-        }
 
 
         #region Private Methods
@@ -127,7 +103,7 @@ namespace FemTest
 
         private void ExportMesh(Mesh mesh)
         {
-            MeshExport.ExportToMshFormatv2(Path.Combine(_outputFolder, $"{_testName}Mesh.msh"), new List<Mesh>() { mesh });
+            MeshExport.ExportToMshFormatv2(base.GetFilePathInOutputFolder(GetTestName() + "Mesh", "msh"), new List<Mesh>() { mesh });
         }
 
         private Shape CreateSimpleShape(double width, double height)
@@ -164,9 +140,9 @@ namespace FemTest
             Mesh mesh2 = CreateSimpleMesh(10, 10, 3, 5, 0, 0);
 
             GlassMaterial gm = new GlassMaterialAstm("", 1, 0.2, 3, 4, 5, 6, 0.008, 0.008, 9);
-            PlateProperty pp = new PlateProperty(gm, 1, 2);
+            PlateProperty pp = new PlateProperty(gm, 1, 2, "p");
 
-            BrickProperty bp = new BrickProperty(gm);
+            BrickProperty bp = new BrickProperty(gm, "bp1");
 
             Dictionary<IPointLoad, int[]> pointLoads = new Dictionary<IPointLoad, int[]>();
             pointLoads.Add(new PointLoad(1, 2, 3, 4, 5, 6, Point3d.Origin, new LoadCase("lc1", null)), new int[] { 1 });
@@ -217,9 +193,9 @@ namespace FemTest
 
 
             GlassMaterial gm = new GlassMaterialAstm("", 1, 0.2, 3, 4, 5, 6, 0.008, 0.008, 9);
-            PlateProperty pp = new PlateProperty(gm, 1, 2);
+            PlateProperty pp = new PlateProperty(gm, 1, 2, "p");
 
-            BrickProperty bp = new BrickProperty(gm);
+            BrickProperty bp = new BrickProperty(gm, "bp1");
 
             List<Load> loads = new List<Load>();
 
@@ -266,7 +242,7 @@ namespace FemTest
             Shape s1 = CreateSimpleShape(100, 200);
 
             GlassMaterial gm = new GlassMaterialAstm("", 1, 0.2, 3, 4, 5, 6, 0.008, 0.008, 9);
-            MonolithicGlassProperty pp = new MonolithicGlassProperty(1, 2, gm);
+            MonolithicGlassProperty pp = new MonolithicGlassProperty(1, 2, gm, string.Empty);
 
             Mesh.GenerateOptions meshOptions = new Mesh.GenerateOptions();
             meshOptions.MeshSize = 10;
@@ -307,7 +283,7 @@ namespace FemTest
             s2.Pan(100, 0, 0);
 
             GlassMaterial gm = new GlassMaterialAstm("", 1, 0.2, 3, 4, 5, 6, 0.008, 0.008, 9);
-            MonolithicGlassProperty pp = new MonolithicGlassProperty(1, 2, gm);
+            MonolithicGlassProperty pp = new MonolithicGlassProperty(1, 2, gm, string.Empty);
 
             Mesh.GenerateOptions meshOptions = new Mesh.GenerateOptions();
             meshOptions.MeshSize = 10;
@@ -347,7 +323,7 @@ namespace FemTest
             Shape s1 = CreateSimpleShape(800, 1600);
 
             GlassMaterial gm = new GlassMaterialAstm("", 1, 0.2, 3, 4, 5, 6, 0.008, 0.008, 9);
-            MonolithicGlassProperty pp = new MonolithicGlassProperty(1, 2, gm);
+            MonolithicGlassProperty pp = new MonolithicGlassProperty(1, 2, gm, string.Empty);
 
             Mesh.GenerateOptions meshOptions = new Mesh.GenerateOptions();
             meshOptions.MeshSize = 50;
@@ -380,7 +356,7 @@ namespace FemTest
             Mesh mesh = CreateSimpleMesh(20, 30, 3, 4, 0, 0);
 
             GlassMaterial gm = new GlassMaterialAstm("", 1, 0.2, 3, 4, 5, 6, 0.008, 0.008, 9);
-            MonolithicGlassProperty pp = new MonolithicGlassProperty(1, 2, gm);
+            MonolithicGlassProperty pp = new MonolithicGlassProperty(1, 2, gm, string.Empty);
 
             FemModel femModel = new FemModel();
             femModel.AddMesh(mesh, pp, null, null, null, null, null);

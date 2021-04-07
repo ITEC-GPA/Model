@@ -16,14 +16,14 @@ namespace GPC.Model.FEM.Properties
 
         public double LoadDuration => _loadDuration;
 
-        public InterlayerProperty(Interlayer interlayer, double temperature, double loadDuration)
-            : this(interlayer.Thickness, interlayer.Thickness, interlayer.Material, temperature, loadDuration)
+        public InterlayerProperty(Interlayer interlayer, double temperature, double loadDuration, string name)
+            : this(interlayer.Thickness, interlayer.Thickness, interlayer.Material, temperature, loadDuration, name)
         {
 
         }
 
-        public InterlayerProperty(double tb, double tm, InterlayerMaterial material, double temperature, double loadDuration)
-            : base(material, tb, tm)
+        public InterlayerProperty(double tb, double tm, InterlayerMaterial material, double temperature, double loadDuration, string name)
+            : base(material, tb, tm, name)
         {
             this._temperature = temperature > 0 ? temperature : throw new ArgumentException("Temperature can not be lower or equal to zero");
             this._loadDuration = loadDuration > 0 ? loadDuration : throw new ArgumentException("Temperature can not be lower or equal to zero");

@@ -22,7 +22,7 @@ namespace GPC.Model.Sections
         #endregion
 
         #region Public 
-        public ConcreteSectionShape(Shape[] shapes, Material[] materials, Rebar[] rebars) : base (shapes, materials)
+        public ConcreteSectionShape(Shape[] shapes, Material[] materials, Rebar[] rebars, string name) : base (shapes, materials, name)
         {
             _rebars = new List<Rebar>(rebars);
         }

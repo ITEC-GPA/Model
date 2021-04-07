@@ -21,7 +21,7 @@ namespace GPC.Model.FEM
             RZ,   //5
         }
 
-        public static int MAXGDLPERNODE = Enum.GetNames(typeof(DOF)).Length;
+        public static int MAXDOFPERNODE = Enum.GetNames(typeof(DOF)).Length;
 
         protected mnl.Matrix<double> _KGlobal;
         protected mnl.Matrix<double> _KGlobalRestrains;
@@ -52,11 +52,11 @@ namespace GPC.Model.FEM
             #region NodeOfModel
             HashSet<Node> nodesModel = new HashSet<Node>();
             int iter = 0;
-            for (int i = 0; i < inputElements.Count(); i++)
+            for (int i = 0; i < inputElements.Count(); i++) //over element i
             {
                 FiniteElement element = inputElements[i];
 
-                for (int j = 0; j < element.Nodes.Count(); j++)
+                for (int j = 0; j < element.Nodes.Count(); j++) //over node j
                 {
                     Node node = element.Nodes[j];
 
@@ -67,13 +67,15 @@ namespace GPC.Model.FEM
                         throw new Exception("Duplicate node!?");
                     } else if (nodes.Count() == 1) //Node already used in another element.
                     {
-                        int ID = nodes.Single().Id;
-                        if (node.Name != nodes.Single().Name)
+                        Node oldNode = nodes.Single();
+                        int ID = oldNode.Id; //tra i 2 ID da poter scegliere uso quello del nodo già usato
+                        
+                        if (node.Name != oldNode.Name) //if the nodes have different name --> generally shuld not happen
                         {
-                            node.Name = node.Name + "+" + nodes.Single().Name;
+                            node.Name = node.Name + "+" + oldNode.Name;
                         }
 
-                        for (int k = 0; k < MAXGDLPERNODE; k++)
+                        for (int k = 0; k < MAXDOFPERNODE; k++) //over degree of freedom
                         {
                             if (element.DOF.Contains((DOF)k))
                             {
@@ -81,14 +83,14 @@ namespace GPC.Model.FEM
                             }
 
                             //Merge old DOF due to other element
-                            if (nodes.Single().DOF.Contains((DOF)k))
+                            if (oldNode.DOF.Contains((DOF)k))
                             {
                                 node.DOF.Add((DOF)k);
                             }
                         }
 
-                        //Merge Attribute of node in other element in the node
-                        foreach (FreedomCaseAttribute freedomCasecAttribute in nodes.Single().AttributesFreedomCase)
+                        //Merge Attribute of old-duplicatenode the new node
+                        foreach (FreedomCaseAttribute freedomCasecAttribute in oldNode.AttributesFreedomCase)
                         {
                             if (freedomCasecAttribute is NodeRestrainAttribute)
                             {
@@ -103,20 +105,20 @@ namespace GPC.Model.FEM
                         }
 
                         //update the HashSet
-                        nodesModel.Remove(nodes.Single());
-                        node.SetID(ID);
+                        nodesModel.Remove(oldNode);
+                        node.SetId(ID);
                         nodesModel.Add(node);
                     }
                     else
                     {
-                        for (int k = 0; k < MAXGDLPERNODE; k++)
+                        for (int k = 0; k < MAXDOFPERNODE; k++)
                         {
                             if (element.DOF.Contains((DOF)k) == true)
                             {
                                 node.DOF.Add((DOF)k);
                             }
                         }
-                        node.SetID(iter);
+                        node.SetId(iter);
                         nodesModel.Add(node);
                         iter++;
                     }
@@ -124,17 +126,15 @@ namespace GPC.Model.FEM
             }
             Nodes = nodesModel.ToArray();
             int nrNodes = Nodes.Length;
-
             #endregion
 
             #region ElementsOfModel
             //Assumed that geometry has been meshed and forces and property applied inside elements
-            
             HashSet<FiniteElement> elementsModel = new HashSet<FiniteElement>();
-            for (int i = 0; i < inputElements.Count(); i++)
+            for (int i = 0; i < inputElements.Count(); i++) //over element i
             {
                 //update node
-                for (int j = 0; j < inputElements[i].Nodes.Count(); j++)
+                for (int j = 0; j < inputElements[i].Nodes.Count(); j++) //over node j
                 {
                     var nodes = Nodes.Where(x => x.Position == inputElements[i].Nodes[j].Position).ToList();
                     if (nodes.Count == 0 || nodes.Count > 1)
@@ -142,51 +142,46 @@ namespace GPC.Model.FEM
                         throw new Exception("Something wrong with nodes");
                     } else
                     {
-                        inputElements[i].Nodes[j] = nodes[0];
+                        inputElements[i].Nodes[j] = nodes[0]; //set updated node
                     }
                 }
-                elementsModel.Add(inputElements[i]);
+                elementsModel.Add(inputElements[i]); //add element with "new nodes" in model
             }
             Elements = elementsModel.ToArray();
             #endregion
 
             #region AssemblyOfStiffnessMatrix
             //Assembling the Stiffness Matrix
+
+            #region CalcoloDimensioneMatrice
             int dimensionKSystemMatrix = 0;
             for (int i = 0; i < Nodes.Length; i++)
             {
                 dimensionKSystemMatrix = dimensionKSystemMatrix + Nodes.ElementAt(i).NrActiveDof;
             }
+            #endregion
+
             _KGlobal = mnl.Matrix<double>.Build.Dense(dimensionKSystemMatrix, dimensionKSystemMatrix);
             int counter = 0;
-            for (int el = 0; el < Elements.Count(); el++)
+            for (int el = 0; el < Elements.Count(); el++) //over element el
             {
-                //element el
                 FiniteElement element = Elements.ElementAt(el);
                 int dofActive = element.NrDOFActive;
 
                 element.BuildMatrix();
                 //Stiffness Matrix of element in global coordinates, KElementGlobal = GlobalToLocal ^ T * [KeLocal] * [GlobalToLocal]
                 mnl.Matrix<double> KElementGlobalCoord = element.KElementGlobalCoord;
-                Console.WriteLine("KElementGlobalCoord element " + el);
-                for (int r = 0; r < KElementGlobalCoord.RowCount; r++)
-                {
-                    for (int c = 0; c < KElementGlobalCoord.RowCount; c++)
-                    {
-                        Console.Write(KElementGlobalCoord[r,c].ToString("F3") + " ");
-                    }
-                    Console.WriteLine();
-                }
+                //Console.WriteLine("KElementGlobalCoord element " + el);
+                FEMUtilities.WriteMatrix(KElementGlobalCoord);
                                 
-                for (int i = 0; i < element.Nodes.Count(); i++)
+                for (int i = 0; i < element.Nodes.Count(); i++) //node i - over nodes of element
                 {
-                    //Node i
-                    Node nodeI = element.Nodes[i];
+                    Node nodeI = element.Nodes[i];  //Node i
 
                     for (int j = 0; j < dofActive; j++) //each node i have degree of freedom j
                     {
-                        //WARNING fare check ed eventualemte fixare per gradi di libertà attivi non contigui ad esempio UX, UY, UZ, RY
-                        for (int k = 0; k < element.Nodes.Count(); k++) //each node i with its degree of freedom j should be take in account with other node k.What hap in node k if force is applied in node i?
+                        //TODO: fare check ed eventualemte fixare per gradi di libertà attivi non contigui ad esempio UX, UY, UZ, RY
+                        for (int k = 0; k < element.Nodes.Count(); k++) //each node i with its degree of freedom j should be take in account with other node k. -> What hap in node k if force is applied in node i?
                         {
                             Node nodeK = element.Nodes[k];
 
@@ -211,39 +206,36 @@ namespace GPC.Model.FEM
                     }
                 }
             }
+            #if DEBUG
             Console.WriteLine("kGlobal System :");
-            for (int i = 0; i < _KGlobal.RowCount; i++)
-            {
-                for (int j = 0; j < _KGlobal.ColumnCount; j++)
-                {
-                    Console.Write(_KGlobal[i, j].ToString("F3") + "\t");
-                }
-                Console.WriteLine();
-            }
+            FEMUtilities.WriteMatrix(_KGlobal);
+            #endif
             #endregion
 
             #region CalculationOfAppliedForcesF
-            Dictionary<int, string> legend = new Dictionary<int, string>();
-            Dictionary<int, DOF> legendDOF = new Dictionary<int, DOF>();
+            Dictionary<int, string> legend = new Dictionary<int, string>(); //Key = Position in vector F, Value = "Nodo XX DOFXXX", 
+            Dictionary<int, DOF> legendDOF = new Dictionary<int, DOF>(); //Key = Position in vector F, Value = "DOFXXX", 
             //Calculation of Forces vector
             _F = mnl.Vector<double>.Build.Dense(_KGlobal.RowCount);
 
-            Vector3d X = new Vector3d(1, 0, 0);
-            Vector3d Y = new Vector3d(0, 1, 0);
-            Vector3d Z = new Vector3d(0, 0, 1);
+            Vector3d X = new Vector3d(1.0, 0.0, 0.0);
+            Vector3d Y = new Vector3d(0.0, 1.0, 0.0);
+            Vector3d Z = new Vector3d(0.0, 0.0, 1.0);
 
             #region ForceFromNodes
             for (int i = 0; i < Nodes.Count(); i++)
             {
+                #region CreationLegendOfFvector
+                Nodes[i].DOF.ToList().ForEach(dof =>
+                    {
+                        legend.Add(GetPositionInKGlobal(Nodes[i], dof), Nodes[i].ToString() + " " + dof);
+                        legendDOF.Add(GetPositionInKGlobal(Nodes[i], dof), dof);
+                    }
+                );
+                #endregion
+
                 List<string> dofs = Enum.GetNames(typeof(DOF)).ToList();
 
-                Nodes[i].DOF.ToList().ForEach(dof =>
-                     {
-                         legend.Add(GetPositionInKGlobal(Nodes[i], dof), Nodes[i].ToString() + " " + dof);
-                         legendDOF.Add(GetPositionInKGlobal(Nodes[i], dof), dof);
-                     }
-                );
-               
                 foreach (LoadCaseAttribute loadCaseAttribute in Nodes[i].AttributesLoadCase)
                 {
                     if (loadCaseAttribute is NodeForceAttribute)
@@ -272,7 +264,7 @@ namespace GPC.Model.FEM
                             (stringDOF) => {
                                 DOF dof = (DOF)Enum.Parse(typeof(DOF), stringDOF);
                                 if (Nodes[i].DOF.Contains(dof) == true) {
-                                    _F[GetPositionInKGlobal(Nodes[i], dof)] = _F[GetPositionInKGlobal(Nodes[i], dof)] + additionalForce[dofs.IndexOf(stringDOF)];
+                                    _F[GetPositionInKGlobal(Nodes[i], dof)] = _F[GetPositionInKGlobal(Nodes[i], dof)] + additionalForce[dofs.IndexOf(stringDOF)]; //modifico termine noto delle forze
                                 }
                             });
                     }
@@ -293,41 +285,45 @@ namespace GPC.Model.FEM
                     //just a check
                     if (nds.Length <= 0 || nds.Length > 1)
                     {
-                        throw new Exception("something wrong with nodes and elemens");
+                        throw new Exception("something wrong with nodes of element");
                     }
+                    Node nodeFound = nds[0];
 
                     //check which DOF are active for the node to put the force in the right position
-                    for (int k = 0; k < nds[0].NrActiveDof; k++)
+                    for (int k = 0; k < nodeFound.NrActiveDof; k++)
                     {
-                        //int pos = GetPositionInKGlobal(node.Id, nds[0].DOF.ElementAt(k));
-                        int pos = GetPositionInKGlobal(node, nds[0].DOF.ElementAt(k));
+                        //int pos = GetPositionInKGlobal(nodFound.Id, nds[0].DOF.ElementAt(k));
+                        int pos = GetPositionInKGlobal(nodeFound, nds[0].DOF.ElementAt(k));
 
                         //search in local vector the value in DOF selected
                         double val = 0;
-                        for (int l = 0; l < element.DOF.Count; l++)
+                        for (int l = 0; l < element.DOF.Count; l++) //un elemento puà avere attivo DX, DY, DZ ma nel nodo può essere attivo anche MX, MY, MZ se un altro elemento attaccato a quel nodo ha attivi quei gdl
                         {
                             DOF dof = element.DOF.ElementAt(l);
 
-                            if (dof == nds[0].DOF.ElementAt(k))
+                            if (dof == nodeFound.DOF.ElementAt(k))
                             {
-                                val = FElementGlobalCoord[j * element.DOF.Count + l];
+                                val = FElementGlobalCoord[j * element.DOF.Count + l]; 
                             }
                         }
                         
-                        _F[pos] = _F[pos] + val;
+                        _F[pos] = _F[pos] + val; //modifico il vettore noto delle forze
                     }
                 }
             }
             #endregion
+
+            #if DEBUG
             Console.WriteLine("Vector F");
             _F.ToList().ForEach(x => Console.WriteLine(x));
+            #endif
             #endregion
 
             #region ApplyingRestrains
             _KGlobalRestrains = mnl.Matrix<double>.Build.Dense(_KGlobal.RowCount, _KGlobal.ColumnCount);
-            _KGlobal.CopyTo(_KGlobalRestrains);
+            _KGlobal.CopyTo(_KGlobalRestrains); //Copio matrice in modo da avere la KGlobal originale che mi servirà per il calcolo delle reazioni
             _FRestrains = mnl.Vector<double>.Build.Dense(_F.Count);
-            _F.CopyTo(_FRestrains);
+            _F.CopyTo(_FRestrains); //copio vettore termini noti / forze applicate
 
             for (int i = 0; i < Nodes.Count(); i++)
             {
@@ -360,17 +356,10 @@ namespace GPC.Model.FEM
                     }
                 }
             }
-            
-            //Console.WriteLine("kGlobal System + Restrains: " + _KGlobalRestrains.ToString());
-            /*for (int i = 0; i < _KGlobalRestrains.RowCount; i++)
-            {
-                for (int j = 0; j < _KGlobalRestrains.ColumnCount; j++)
-                {
-                    Console.Write(_KGlobalRestrains[i, j].ToString("F1") + "\t");
-                }
-                Console.WriteLine();
-            }*/
-            //Console.WriteLine("Fmodified(Restrains): " + _FRestrains.ToString());
+            //Console.WriteLine("kGlobal System + Restrains: ");
+            //Util.WriteMatrix(_KGlobalRestrains);
+            //Console.WriteLine("Fmodified(Restrains):");
+            //Util.WriteMatrix(_FRestrains);
             #endregion
 
             #region ApplyingMultiPointCostrains
@@ -418,7 +407,7 @@ namespace GPC.Model.FEM
                 }
             }
             Console.WriteLine("kGlobal System + Restrains + Constrains:");
-            Util.WriteMatrix(_KGlobalRestrains, "F3");
+            FEMUtilities.WriteMatrix(_KGlobalRestrains, "F3");
             //Console.WriteLine("Fmodified(Restrains + Constrains) = " + _FRestrains.ToString());
             #endregion
 
