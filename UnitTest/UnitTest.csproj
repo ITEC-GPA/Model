@@ -72,6 +72,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="DescriptionAttributesTest.cs" />
+    <Compile Include="FEM\CostrainTest.cs" />
     <Compile Include="FEM\Beam\BeamTest.cs" />
     <Compile Include="FEM\Brick\BrickTest.cs" />
     <Compile Include="FEM\Brick\HexaedronTest.cs" />

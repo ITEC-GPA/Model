@@ -37,7 +37,7 @@ namespace GPC.Model.FEM
             Console.WriteLine("dim: "+ v.Count);
             for (int r = 0; r < v.Count; r++)
             {
-                 Console.Write(v[r].ToString(format));
+                 Console.WriteLine(v[r].ToString(format));
             }
             #endif
         }
