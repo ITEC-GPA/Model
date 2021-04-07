@@ -6,54 +6,35 @@ using System.Threading.Tasks;
 using GPC.Model.LoadCases;
 using GPC.Geometry;
 using System.Runtime.Serialization;
+using GPC.Model.Elements;
+using GPC.Model.FEM;
 
 namespace GPC.Model.Results
 {
-    public class ResultNodeDisplacement : Result, ISerializable, IEquatable<ResultNodeDisplacement>
+    [Serializable]
+    public sealed class ResultNodeDisplacement : Result, ISerializable, IEquatable<ResultNodeDisplacement>
     {
         #region Variables
 
-        /// <summary>
-        /// Local Displacement
-        /// </summary>
-        protected double _dx;                   // the 6 Dof in local coordinates
-        protected double _dy;                   // 3 translation and 3 rotation
-        protected double _dz;                   // 
-        protected double _rxy;                  // 
-        protected double _ryz;                  // 
-        protected double _rzx;                  // 
-        /// <summary>
-        /// Global Displacement
-        /// </summary>
-        protected double _dX;                   // the 6 Dof in global coordinates
-        protected double _dY;                   // 3 translation and 3 rotation
-        protected double _dZ;                   // 
-        protected double _rXY;                  // 
-        protected double _rYZ;                  // 
-        protected double _rZX;                  // 
-        /// <summary>
-        /// Principal Displacement
-        /// </summary>
-        protected double _dip;                  // In Plane displacement
-        protected double _dop;                  // Out of plane displacement
-        /// <summary>
-        /// Combined Displacement
-        /// </summary>
-        protected double _resultDisplacement;   // 
-        protected double _resultRotation;       // 
+        private double _d1;                   
+        private double _d2;                   
+        private double _d3;                   
+        private double _r1;                  
+        private double _r2;                  
+        private double _r3;                  
 
         #endregion
 
-
         #region Properties
 
-        protected double Dx => _dx;
-        protected double Dy => _dy;
-        protected double Dz => _dz;
-        protected double Rxy => _rxy;
-        protected double Ryz => _ryz;
-        protected double Rzx => _rzx;
+        public double D1 => _d1;
+        public double D2 => _d2;
+        public double D3 => _d3;
+        public double R1 => _r1;
+        public double R2 => _r2;
+        public double R3 => _r3;
 
+        public new Node Element => (Node)_element;
         #endregion
 
 
@@ -62,81 +43,83 @@ namespace GPC.Model.Results
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="elementID">Id of the element where these result are referred to</param>
-        /// <param name="elementLabel">Label of the element where these result are referred t</param>
-        /// <param name="caseId">Represenet the id of the loadcase / loadCombination where these result are referred to</param>
-        /// <param name="cSys">Coordinate system where these result are provided</param>
-        /// <param name="dx"></param>
-        /// <param name="dy"></param>
-        /// <param name="dz"></param>
-        /// <param name="rxy"></param>
-        /// <param name="ryz"></param>
-        /// <param name="rzx"></param>
-        public ResultNodeDisplacement(int elementID, string elementLabel, int resultPointId, int caseId, CoordinateSystem cSys, double dx, double dy, double dz, double rxy, double ryz, double rzx) 
-            : base(elementID, elementLabel, caseId, cSys)
+        /// <param name="node">Node where these result are referred </param>
+        /// <param name="Case">The case where these results are reffered </param>
+        /// <param name="coordinateSystem">Coordinate system where these result are provided </param>
+        /// <param name="d1">Displacement along <see cref="CoordinateSystem.V1"/> direction </param>
+        /// <param name="d2">Displacement along <see cref="CoordinateSystem.V2"/> direction </param>
+        /// <param name="d3">Displacement along <see cref="CoordinateSystem.V3"/> direction </param>
+        /// <param name="r1">Rotation around <see cref="CoordinateSystem.V1"/> direction </param>
+        /// <param name="r2">Rotation around <see cref="CoordinateSystem.V2"/> direction </param>
+        /// <param name="r3">Rotation around <see cref="CoordinateSystem.V3"/> direction </param>
+        public ResultNodeDisplacement(Node node, ILoadCase Case, CoordinateSystem coordinateSystem, double d1, double d2, double d3, double r1, double r2, double r3) 
+            : base(node, Case, null, coordinateSystem)
         {
-            _dx = dx;
-            _dy = dy;
-            _dz = dz;
-            _rxy = rxy;
-            _ryz = ryz;
-            _rzx = rzx;
+            _d1 = d1;
+            _d2 = d2;
+            _d3 = d3;
+            _r1 = r1;
+            _r2 = r2;
+            _r3 = r3;
         }
+        
+
+        public ResultNodeDisplacement(SerializationInfo info, StreamingContext context)
+            : base(info, context)
+        {
+            throw new NotImplementedException();
+        }
+
 
         #endregion
 
 
         #region Public Methods Specific
 
-        /// <summary>
-        /// Return the Principal Displacement of the point
-        /// </summary>
-        /// <param name="dip">Displacement in plane</param>
-        /// <param name="dop">Displacement out of plane</param>
-        public void GetPrincipalDisplacement(out double dip, out double dop)
-        {
-            dip = Math.Sqrt(Math.Pow(_dx, 2) + Math.Pow(_dy, 2));
-            dop = _dz;
-        }
 
         /// <summary>
         /// Return the resulting displacement 
         /// </summary>
-        /// <param name="Svm"></param>
-        public void GetResultingDisplacement(out double resultDisplacement)
+        public double GetResultingDisplacement()
         {
-            resultDisplacement = Math.Sqrt(Math.Pow(_dx, 2) + Math.Pow(_dy, 2) + Math.Pow(_dz, 2));
+            return Math.Sqrt(Math.Pow(_d1, 2) + Math.Pow(_d2, 2) + Math.Pow(_d3, 2));
         }
 
         /// <summary>
         /// Return the resulting vector displacement 
         /// </summary>
-        /// <param name="Svm"></param>
-        public void GetResultingVectorDisplacement(out Vector3d resultDisplacement)
+        public Vector3d GetResultingVectorDisplacement()
         {
-            resultDisplacement = new Vector3d(_dx, _dy, _dz);
+            return new Vector3d(_d1, _d2, _d3);
         }
 
         /// <summary>
         /// Return the resulting Rotation 
         /// </summary>
-        /// <param name="Svm"></param>
-        public void GetResultingRotation(out double resultRotation)
+        public double GetResultingRotation()
         {
-            resultRotation = Math.Sqrt(Math.Pow(_rxy, 2) + Math.Pow(_ryz, 2) + Math.Pow(_rzx, 2));
+            return Math.Sqrt(Math.Pow(_r1, 2) + Math.Pow(_r2, 2) + Math.Pow(_r3, 2));
         }
 
         /// <summary>
-        /// Return the global stress of the point
+        /// Return the resulting vector rotation 
         /// </summary>
-        /// <returns>Array of stress in global coordinate</returns>
-        public double[] GetGlobalStress()
+        public Vector3d GetResultingVectorRotation()
         {
-            Vector3d DisplResult = new Vector3d(_dx, _dy, _dz );
-            Vector3d GlobalDisplResult = _cSys.ToGlobal(DisplResult);
+            return new Vector3d(_r1, _r2, _r3);
+        }
 
-            Vector3d RotResult = new Vector3d(_rxy, _ryz, _rzx);
-            Vector3d GlobalRotResult = _cSys.ToGlobal(RotResult);
+        /// <summary>
+        /// Return the global displacements of the point
+        /// </summary>
+        /// <returns>Array of displacements in global coordinate</returns>
+        public double[] GetGlobalDisplacements()
+        {
+            Vector3d DisplResult = new Vector3d(_d1, _d2, _d3);
+            Vector3d GlobalDisplResult = _coordinateSystem.ToGlobal(DisplResult);
+
+            Vector3d RotResult = new Vector3d(_r1, _r2, _r3);
+            Vector3d GlobalRotResult = _coordinateSystem.ToGlobal(RotResult);
 
             double[] globalDispRot = new double[6];
 
@@ -155,30 +138,58 @@ namespace GPC.Model.Results
 
         #region Interface implementation
 
+        public override bool Equals(object obj)
+        {
+            if (ReferenceEquals(this, obj))
+                return true;
+
+            return Equals(obj as ResultNodeDisplacement);
+        }
+
         public bool Equals(ResultNodeDisplacement other)
         {
             return !(other is null) &&
-                    _dx == other._dx &&
-                    _dy == other._dy &&
-                    _dz == other._dz &&
-                    _rxy == other._rxy &&
-                    _ryz == other._ryz &&
-                    _rzx == other._rzx &&
-                    _dX == other._dX &&
-                    _dY == other._dY &&
-                    _dZ == other._dZ &&
-                    _rXY == other._rXY &&
-                    _rYZ == other._rYZ &&
-                    _rZX == other._rZX &&
-                    _dip == other._dip && 
-                    _dop == other._dop && 
-                    _resultDisplacement == other._resultDisplacement &&
-                    _resultRotation == other._resultRotation;
+                    _d1 == other._d1 &&
+                    _d2 == other._d2 &&
+                    _d3 == other._d3 &&
+                    _r1 == other._r1 &&
+                    _r2 == other._r2 &&
+                    _r3 == other._r3 &&
+                    base.Equals(other);
+        }
+
+        public override int GetHashCode()
+        {
+            int hashCode = 23;
+            hashCode = hashCode * -17 + base.GetHashCode();
+            hashCode = hashCode * -17 + _d1.GetHashCode();
+            hashCode = hashCode * -17 + _d2.GetHashCode();
+            hashCode = hashCode * -17 + _d3.GetHashCode();
+            hashCode = hashCode * -17 + _r1.GetHashCode();
+            hashCode = hashCode * -17 + _r2.GetHashCode();
+            hashCode = hashCode * -17 + _r3.GetHashCode();
+            return hashCode;
         }
 
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             throw new NotImplementedException();
+        }
+
+        public static bool operator ==(ResultNodeDisplacement obj1, ResultNodeDisplacement obj2)
+        {
+            if (ReferenceEquals(obj1, obj2))
+                return true;
+
+            if (obj1 is null || obj2 is null)
+                return false;
+
+            return obj1.Equals(obj2);
+        }
+
+        public static bool operator !=(ResultNodeDisplacement obj1, ResultNodeDisplacement obj2)
+        {
+            return !(obj1 == obj2);
         }
 
         #endregion

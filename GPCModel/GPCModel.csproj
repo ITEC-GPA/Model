@@ -38,11 +38,11 @@
     <Reference Include="GMsh.Net, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\GMsh.Net.1.0.0.1\lib\net472\GMsh.Net.dll</HintPath>
     </Reference>
-    <Reference Include="GPCGeometry, Version=1.0.4.4, Culture=neutral, processorArchitecture=AMD64">
-      <HintPath>..\packages\GPCGeometry.1.0.4.4\lib\net472\GPCGeometry.dll</HintPath>
+    <Reference Include="GPCGeometry, Version=1.0.6.12, Culture=neutral, processorArchitecture=AMD64">
+      <HintPath>..\packages\GPCGeometry.1.0.6.12\lib\net472\GPCGeometry.dll</HintPath>
     </Reference>
-    <Reference Include="GPCUtilities, Version=1.0.8.0, Culture=neutral, processorArchitecture=AMD64">
-      <HintPath>..\packages\GPCUtilities.1.0.8\lib\net472\GPCUtilities.dll</HintPath>
+    <Reference Include="GPCUtilities, Version=1.0.21.2, Culture=neutral, processorArchitecture=AMD64">
+      <HintPath>..\packages\GPCUtilities.1.0.21.2\lib\net472\GPCUtilities.dll</HintPath>
     </Reference>
     <Reference Include="MathNet.Numerics, Version=4.15.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\MathNet.Numerics.4.15.0\lib\net461\MathNet.Numerics.dll</HintPath>
@@ -63,33 +63,58 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Base\UniqueNameCollection.cs" />
+    <Compile Include="Base\ModelObjectEnumerable.cs" />
+    <Compile Include="Base\UnitsSystem.cs" />
+    <Compile Include="Base\Units.cs" />
     <Compile Include="Combinations\Combination.cs" />
     <Compile Include="Combinations\CombinationAsce.cs" />
     <Compile Include="Combinations\CombinationEn.cs" />
-    <Compile Include="Elements\ElementProperty\BrickProperty.cs" />
-    <Compile Include="Elements\ElementProperty\ElementProperty.cs" />
+    <Compile Include="Elements\GhostElement.cs" />
+    <Compile Include="FEM\Attributes\IPlateFreedomCaseAttribute.cs" />
+    <Compile Include="FEM\Collections\FemObjectCollection.cs" />
+    <Compile Include="FEM\Collections\FemObjectStageCollection.cs" />
+    <Compile Include="FEM\Collections\FiniteElementStageCollection.cs" />
+    <Compile Include="FEM\Collections\NodeStageCollection.cs" />
+    <Compile Include="FEM\ElementProperty\BrickProperty.cs" />
+    <Compile Include="FEM\ElementProperty\ElementProperty.cs" />
     <Compile Include="Elements\Element.cs" />
-    <Compile Include="Elements\ElementProperty\IBrickProperty.cs" />
-    <Compile Include="Elements\ElementProperty\InterlayerProperty.cs" />
-    <Compile Include="Elements\ElementProperty\IPlateProperty.cs" />
-    <Compile Include="Elements\ElementProperty\LaminatedGlassProperty.cs" />
-    <Compile Include="Elements\ElementProperty\MonolithicGlassProperty.cs" />
-    <Compile Include="Elements\Glasses\Glass.cs" />
-    <Compile Include="Elements\ElementProperty\IGlassProperty.cs" />
-    <Compile Include="Elements\Glasses\IGlassPanel.cs" />
-    <Compile Include="Elements\Glasses\MonolithicGlass.cs" />
-    <Compile Include="Elements\Glasses\LaminatedGlass.cs" />
-    <Compile Include="Elements\Glasses\IInsulatingGlass.cs" />
-    <Compile Include="Elements\Glasses\DoubleInsulatingGlass.cs" />
-    <Compile Include="Elements\Glasses\Interlayer.cs" />
-    <Compile Include="Elements\Glasses\GlassSurface.cs" />
-    <Compile Include="Elements\Restrain\IGeometryRestrain.cs" />
-    <Compile Include="Elements\Restrain\PointRestrain.cs" />
-    <Compile Include="Elements\Restrain\LineRestrain.cs" />
-    <Compile Include="Elements\ElementProperty\PlateProperty.cs" />
+    <Compile Include="FEM\ElementProperty\IBrickProperty.cs" />
+    <Compile Include="FEM\ElementProperty\InterlayerProperty.cs" />
+    <Compile Include="FEM\ElementProperty\IPlateProperty.cs" />
+    <Compile Include="FEM\ElementProperty\LaminatedGlassProperty.cs" />
+    <Compile Include="FEM\ElementProperty\MonolithicGlassProperty.cs" />
+    <Compile Include="FEM\FiniteElements\Brick\Hexaedron8.cs" />
+    <Compile Include="FEM\FiniteElements\PlateTriangle\Tri3SBTEMembrane.cs" />
+    <Compile Include="FEM\FiniteElements\PlateTriangle\Tri3TR3RDOFMembrane.cs" />
+    <Compile Include="FEM\FiniteElements\PlateTriangle\Tri3SBTDRMembrane.cs" />
+    <Compile Include="FEM\FiniteElements\PlateTriangle\Tri3OPTMembrane.cs" />
+    <Compile Include="FEM\FiniteElements\Rectangular\Quad4MQ2IbraMembranal.cs" />
+    <Compile Include="FEM\FiniteElements\Rectangular\Quad4GQ12Membranal.cs" />
+    <Compile Include="FEM\FiniteElements\Rectangular\Quad4QFSUQMembranal.cs" />
+    <Compile Include="FEM\FiniteElements\Rectangular\Quad4Membranal.cs" />
+    <Compile Include="FEM\FiniteElements\Rectangular\Quad4Element.cs" />
+    <Compile Include="FEM\FiniteElements\Brick\Tethraedron4.cs" />
+    <Compile Include="FEM\GaussIntegration.cs" />
+    <Compile Include="FEM\Stage.cs" />
+    <Compile Include="FEM\FEMUtilities.cs" />
+    <Compile Include="Glasses\Glass.cs" />
+    <Compile Include="FEM\ElementProperty\IGlassProperty.cs" />
+    <Compile Include="Glasses\IGlassPanel.cs" />
+    <Compile Include="Glasses\MonolithicGlass.cs" />
+    <Compile Include="Glasses\LaminatedGlass.cs" />
+    <Compile Include="Glasses\IInsulatingGlass.cs" />
+    <Compile Include="Glasses\DoubleInsulatingGlass.cs" />
+    <Compile Include="Glasses\Interlayer.cs" />
+    <Compile Include="Elements\GlassSurface.cs" />
+    <Compile Include="LoadCases\ILoadCase.cs" />
+    <Compile Include="Restrains\GeometryRestrain.cs" />
+    <Compile Include="Restrains\PointRestrain.cs" />
+    <Compile Include="Restrains\LineRestrain.cs" />
+    <Compile Include="FEM\ElementProperty\PlateProperty.cs" />
     <Compile Include="Elements\Rebar.cs" />
-    <Compile Include="Elements\Glasses\TripleInsulatingGlass.cs" />
-    <Compile Include="Elements\Restrain\Restrain.cs" />
+    <Compile Include="Glasses\TripleInsulatingGlass.cs" />
+    <Compile Include="Restrains\DofRestrain.cs" />
     <Compile Include="FEM\Attributes\Attribute.cs" />
     <Compile Include="FEM\Attributes\FreedomCase\FreedomCaseAttribute.cs" />
     <Compile Include="FEM\Attributes\FreedomCase\NodeRestrainAttribute.cs" />
@@ -97,21 +122,24 @@
     <Compile Include="FEM\Attributes\IBeamLoadCaseAttribute.cs" />
     <Compile Include="FEM\Attributes\INodeFreedomCaseAttribute.cs" />
     <Compile Include="FEM\Attributes\INodeLoadCaseAttribute.cs" />
-    <Compile Include="FEM\Attributes\IPlateLoadCaseFemAttribute.cs" />
+    <Compile Include="FEM\Attributes\IPlateLoadCaseAttribute.cs" />
     <Compile Include="FEM\Attributes\LoadCase\LoadCaseAttribute.cs" />
     <Compile Include="FEM\Attributes\LoadCase\NodeForceAttribute.cs" />
     <Compile Include="FEM\Attributes\LoadCase\PlateNormalPressureAttribute.cs" />
-    <Compile Include="FEM\Attributes\LoadCase\PlateGlobalPressureAttribute.cs" />
+    <Compile Include="FEM\Attributes\LoadCase\PlatePressureAttribute.cs" />
     <Compile Include="FEM\Costrain\Costrain.cs" />
+    <Compile Include="FEM\FemModel.cs" />
     <Compile Include="FEM\FEMObject.cs" />
     <Compile Include="FEM\FiniteElements\FiniteElement.cs" />
+    <Compile Include="FEM\FiniteElements\PlateTriangle\Tri3Element.cs" />
+    <Compile Include="FEM\FiniteElements\PlateTriangle\Tri3DK.cs" />
+    <Compile Include="FEM\FiniteElements\Rectangular\Quad4DK.cs" />
     <Compile Include="FEM\Node.cs" />
     <Compile Include="FEM\FiniteElements\Brick.cs" />
     <Compile Include="FEM\FiniteElements\Plate.cs" />
-    <Compile Include="FEM\FiniteElements\VoidElement.cs" />
-    <Compile Include="FEM\FiniteElements\TriangularMembranal.cs" />
-    <Compile Include="FEM\FEMModel.cs" />
-    <Compile Include="FEM\MyMath\Polynome.cs" />
+    <Compile Include="FEM\FiniteElements\PlateTriangle\Tri3PlaneStress.cs" />
+    <Compile Include="FEM\LinearSolver.cs" />
+    <Compile Include="FEM\Solver.cs" />
     <Compile Include="FreedomCases\FreedomCase.cs" />
     <Compile Include="LoadCases\ClimateHLoadCase.cs" />
     <Compile Include="LoadCases\IClimate.cs" />
@@ -119,7 +147,7 @@
     <Compile Include="LoadCases\ClimateTLoadCase.cs" />
     <Compile Include="LoadCases\LoadCase.cs" />
     <Compile Include="LoadCases\LoadCasePrEn.cs" />
-    <Compile Include="Loads\GlobalAreaLoad.cs" />
+    <Compile Include="Loads\AreaLoad.cs" />
     <Compile Include="Loads\LineLoad.cs" />
     <Compile Include="Loads\PointLoad.cs" />
     <Compile Include="Loads\IAreaLoad.cs" />
@@ -136,14 +164,17 @@
     <Compile Include="Materials\RebarMaterial.cs" />
     <Compile Include="Materials\SiliconMaterial.cs" />
     <Compile Include="Materials\SteelMaterial.cs" />
-    <Compile Include="ModelObject\ModelObject.cs" />
+    <Compile Include="Base\ModelObject.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Results\ResultBeamForces.cs" />
     <Compile Include="Results\Result.cs" />
+    <Compile Include="Results\ResultBeamStation.cs" />
     <Compile Include="Results\ResultPlateForces.cs" />
     <Compile Include="Results\ResultNodeDisplacement.cs" />
     <Compile Include="Results\ResultNodeForce.cs" />
     <Compile Include="Results\ResultPlateStress.cs" />
+    <Compile Include="Results\ResultsPoint.cs" />
+    <Compile Include="Results\ResultStressPoint.cs" />
     <Compile Include="Sections\Concrete\ConcreteSectionShape.cs" />
     <Compile Include="Sections\Plate.cs" />
     <Compile Include="Sections\Section.cs" />
@@ -159,7 +190,6 @@
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
-  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="..\packages\GMsh.Net.1.0.0.1\build\GMsh.Net.targets" Condition="Exists('..\packages\GMsh.Net.1.0.0.1\build\GMsh.Net.targets')" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">

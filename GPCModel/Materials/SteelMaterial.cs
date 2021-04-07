@@ -1,9 +1,11 @@
-﻿using System;
+﻿using GPC.Utilities.Attributes;
+using System;
 using System.Runtime.Serialization;
 
 namespace GPC.Model.Materials
 {
     [Serializable]
+    [UI(Description = "Steel", Group = "Materials", Kind = "Material")]
     public class SteelMaterial : Material
     {
         #region VARIABLES
@@ -41,9 +43,6 @@ namespace GPC.Model.Materials
         {
             if (elasticModulus == 0)
                 throw new ArgumentException($"{nameof(elasticModulus)} cannot be equal to zero");
-
-            if (poisson == 0)
-                throw new ArgumentException($"{nameof(poisson)} cannot be equal to zero");
 
             this._fu = fu <= 0 ? throw new ArgumentException($"{nameof(fu)} cannot be zero or lower") : fu ;
             this._fyk = fyk <= 0 ? throw new ArgumentException($"{nameof(fyk)} cannot be zero or lower") : fyk;

@@ -1,14 +1,15 @@
 ﻿using GPC.Geometry;
 using GPC.Model.LoadCases;
 using GPC.Model.Loads;
+using GPC.TestUtilities;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.IO;
 
-namespace UnitTest
+namespace ModelObjectTest
 {
     [TestClass]
-    public class LoadTest
+    public class LoadTest : UnitTestBase
     {
         [TestMethod]
         public void PointLoad1() 
@@ -17,7 +18,7 @@ namespace UnitTest
             Point3d Origin = new Point3d(2, 0, 0);
             Point3d AsseX = new Point3d(2, 2, 0);
             Point3d AsseY = new Point3d(2, 0, 2);
-            CoordinateSystem CoordinateSystem1 = new CoordinateSystem(Origin, AsseX, AsseY, 0.0, "CS", new Guid());
+            CoordinateSystem CoordinateSystem1 = new CoordinateSystem(Origin, AsseX, AsseY, "CS", new Guid());
 
             // PointLoad nel sistema locale
             Vector3d force = new Vector3d(1, 0, 0);
@@ -26,16 +27,16 @@ namespace UnitTest
 
             LoadCase LoadCase = new LoadCase("SelfWeight", loadCaseType: GPC.Model.LoadCases.LoadCase.LoadCaseType.SelfWeight);
 
-            PointLoad pl1 = new PointLoad(force, moment, point, LoadCase, CoordinateSystem1, new Guid());
+            PointLoad pl1 = new PointLoad(force, moment, point, LoadCase, CoordinateSystem1);
 
             // PointLoad previsto nel globale
             Vector3d expForce = new Vector3d(0, 1, 0);
             Vector3d expMoment = new Vector3d(0, 0, 1);
             Point3d expPoint = new Point3d(3, 0, 0);
 
-            PointLoad expl1 = new PointLoad(expForce, expMoment, expPoint, LoadCase, CoordinateSystem.Global, Guid.NewGuid());
+            PointLoad expl1 = new PointLoad(expForce, expMoment, expPoint, LoadCase, CoordinateSystem.Global);
 
-            PointLoad pl2 = new PointLoad(expForce, expMoment, expPoint, LoadCase, CoordinateSystem.Global, Guid.NewGuid());
+            PointLoad pl2 = new PointLoad(expForce, expMoment, expPoint, LoadCase, CoordinateSystem.Global);
 
             pl1.ToGlobal();
 
@@ -44,12 +45,12 @@ namespace UnitTest
             double[] LocalForces = pl2.GetLocalForces(CoordinateSystem1);
 
             // Assert
-            Assert.IsTrue((Math.Abs(pl1.Fx - expl1.Fx)) < 0.001);
-            Assert.IsTrue((Math.Abs(pl1.Fy - expl1.Fy)) < 0.001);
-            Assert.IsTrue((Math.Abs(pl1.Fz - expl1.Fz)) < 0.001);
-            Assert.IsTrue((Math.Abs(pl1.Mx - expl1.Mx)) < 0.001);
-            Assert.IsTrue((Math.Abs(pl1.My - expl1.My)) < 0.001);
-            Assert.IsTrue((Math.Abs(pl1.Mz - expl1.Mz)) < 0.001);
+            Assert.IsTrue((Math.Abs(pl1.F1 - expl1.F1)) < 0.001);
+            Assert.IsTrue((Math.Abs(pl1.F2 - expl1.F2)) < 0.001);
+            Assert.IsTrue((Math.Abs(pl1.F3 - expl1.F3)) < 0.001);
+            Assert.IsTrue((Math.Abs(pl1.M1 - expl1.M1)) < 0.001);
+            Assert.IsTrue((Math.Abs(pl1.M2 - expl1.M2)) < 0.001);
+            Assert.IsTrue((Math.Abs(pl1.M3 - expl1.M3)) < 0.001);
             Assert.IsTrue(Math.Abs(pl1.Point.X - expPoint.X) < 0.001);
             Assert.IsTrue(Math.Abs(pl1.Point.Y - expPoint.Y) < 0.001);
             Assert.IsTrue(Math.Abs(pl1.Point.Z - expPoint.Z) < 0.001);
@@ -76,7 +77,7 @@ namespace UnitTest
             Point3d Origin = new Point3d(2, 0, 5);
             Point3d AsseX = new Point3d(2, 2, 5);
             Point3d AsseY = new Point3d(2, 0, 3);
-            CoordinateSystem CoordinateSystem1 = new CoordinateSystem(Origin, AsseX, AsseY, 0.0, "CS", new Guid());
+            CoordinateSystem CoordinateSystem1 = new CoordinateSystem(Origin, AsseX, AsseY, "CS", new Guid());
 
             // PointLoad nel sistema locale
             Vector3d force = new Vector3d(-1, +1, -1);
@@ -85,16 +86,16 @@ namespace UnitTest
 
             LoadCase LoadCase = new LoadCase("SelfWeight", loadCaseType: GPC.Model.LoadCases.LoadCase.LoadCaseType.SelfWeight);
 
-            PointLoad pl1 = new PointLoad(force, moment, point, LoadCase, CoordinateSystem1, new Guid());
+            PointLoad pl1 = new PointLoad(force, moment, point, LoadCase, CoordinateSystem1);
 
             // PointLoad previsto nel globale
             Vector3d expForce = new Vector3d(+1,-1, -1);
             Vector3d expMoment = new Vector3d(-1, +1, 0);
             Point3d expPoint = new Point3d(1, -2, 5);
 
-            PointLoad expl1 = new PointLoad(expForce, expMoment, expPoint, LoadCase, CoordinateSystem.Global, Guid.NewGuid());
+            PointLoad expl1 = new PointLoad(expForce, expMoment, expPoint, LoadCase, CoordinateSystem.Global);
 
-            PointLoad pl2 = new PointLoad(expForce, expMoment, expPoint, LoadCase, CoordinateSystem.Global, Guid.NewGuid());
+            PointLoad pl2 = new PointLoad(expForce, expMoment, expPoint, LoadCase, CoordinateSystem.Global);
 
             pl1.ToGlobal();
 
@@ -103,12 +104,12 @@ namespace UnitTest
             double[] LocalForces = pl2.GetLocalForces(CoordinateSystem1);
 
             // Assert
-            Assert.IsTrue((Math.Abs(pl1.Fx - expl1.Fx)) < 0.001);
-            Assert.IsTrue((Math.Abs(pl1.Fy - expl1.Fy)) < 0.001);
-            Assert.IsTrue((Math.Abs(pl1.Fz - expl1.Fz)) < 0.001);
-            Assert.IsTrue((Math.Abs(pl1.Mx - expl1.Mx)) < 0.001);
-            Assert.IsTrue((Math.Abs(pl1.My - expl1.My)) < 0.001);
-            Assert.IsTrue((Math.Abs(pl1.Mz - expl1.Mz)) < 0.001);
+            Assert.IsTrue((Math.Abs(pl1.F1 - expl1.F1)) < 0.001);
+            Assert.IsTrue((Math.Abs(pl1.F2 - expl1.F2)) < 0.001);
+            Assert.IsTrue((Math.Abs(pl1.F3 - expl1.F3)) < 0.001);
+            Assert.IsTrue((Math.Abs(pl1.M1 - expl1.M1)) < 0.001);
+            Assert.IsTrue((Math.Abs(pl1.M2 - expl1.M2)) < 0.001);
+            Assert.IsTrue((Math.Abs(pl1.M3 - expl1.M3)) < 0.001);
             Assert.IsTrue(Math.Abs(pl1.Point.X - expPoint.X) < 0.001);
             Assert.IsTrue(Math.Abs(pl1.Point.Y - expPoint.Y) < 0.001);
             Assert.IsTrue(Math.Abs(pl1.Point.Z - expPoint.Z) < 0.001);
@@ -135,7 +136,7 @@ namespace UnitTest
             Point3d Origin = new Point3d(-2, -2, -2);
             Point3d AsseX = new Point3d(-2, -2, -4);
             Point3d AsseY = new Point3d(-2, 0, -2);
-            CoordinateSystem CoordinateSystem1 = new CoordinateSystem(Origin, AsseX, AsseY, 0.0, "CS", new Guid());
+            CoordinateSystem CoordinateSystem1 = new CoordinateSystem(Origin, AsseX, AsseY, "CS", new Guid());
 
             // PointLoad nel sistema locale
             Vector3d force = new Vector3d(-1, +1, +1);
@@ -144,16 +145,16 @@ namespace UnitTest
 
             LoadCase LoadCase = new LoadCase("SelfWeight", loadCaseType: GPC.Model.LoadCases.LoadCase.LoadCaseType.SelfWeight);
 
-            PointLoad pl1 = new PointLoad(force, moment, point, LoadCase, CoordinateSystem1, new Guid());
+            PointLoad pl1 = new PointLoad(force, moment, point, LoadCase, CoordinateSystem1);
 
             // PointLoad previsto nel globale
             Vector3d expForce = new Vector3d(+1, +1, +1);
             Vector3d expMoment = new Vector3d(-1, -1, -1);
             Point3d expPoint = new Point3d(0, 0, 0);
 
-            PointLoad expl1 = new PointLoad(expForce, expMoment, expPoint, LoadCase, CoordinateSystem.Global, Guid.NewGuid());
+            PointLoad expl1 = new PointLoad(expForce, expMoment, expPoint, LoadCase, CoordinateSystem.Global);
 
-            PointLoad pl2 = new PointLoad(expForce, expMoment, expPoint, LoadCase, CoordinateSystem.Global, Guid.NewGuid());
+            PointLoad pl2 = new PointLoad(expForce, expMoment, expPoint, LoadCase, CoordinateSystem.Global);
 
             pl1.ToGlobal();
 
@@ -162,12 +163,12 @@ namespace UnitTest
             double[] LocalForces = pl2.GetLocalForces(CoordinateSystem1);
 
             // Assert
-            Assert.IsTrue((Math.Abs(pl1.Fx - expl1.Fx)) < 0.001);
-            Assert.IsTrue((Math.Abs(pl1.Fy - expl1.Fy)) < 0.001);
-            Assert.IsTrue((Math.Abs(pl1.Fz - expl1.Fz)) < 0.001);
-            Assert.IsTrue((Math.Abs(pl1.Mx - expl1.Mx)) < 0.001);
-            Assert.IsTrue((Math.Abs(pl1.My - expl1.My)) < 0.001);
-            Assert.IsTrue((Math.Abs(pl1.Mz - expl1.Mz)) < 0.001);
+            Assert.IsTrue((Math.Abs(pl1.F1 - expl1.F1)) < 0.001);
+            Assert.IsTrue((Math.Abs(pl1.F2 - expl1.F2)) < 0.001);
+            Assert.IsTrue((Math.Abs(pl1.F3 - expl1.F3)) < 0.001);
+            Assert.IsTrue((Math.Abs(pl1.M1 - expl1.M1)) < 0.001);
+            Assert.IsTrue((Math.Abs(pl1.M2 - expl1.M2)) < 0.001);
+            Assert.IsTrue((Math.Abs(pl1.M3 - expl1.M3)) < 0.001);
             Assert.IsTrue(Math.Abs(pl1.Point.X - expPoint.X) < 0.001);
             Assert.IsTrue(Math.Abs(pl1.Point.Y - expPoint.Y) < 0.001);
             Assert.IsTrue(Math.Abs(pl1.Point.Z - expPoint.Z) < 0.001);
@@ -195,7 +196,7 @@ namespace UnitTest
             Point3d Origin = new Point3d(2, 0, 0);
             Point3d AsseX = new Point3d(2, 2, 0);
             Point3d AsseY = new Point3d(2, 0, 2);
-            CoordinateSystem CoordinateSystem1 = new CoordinateSystem(Origin, AsseX, AsseY, 0.0, "CS", new Guid());
+            CoordinateSystem CoordinateSystem1 = new CoordinateSystem(Origin, AsseX, AsseY, "CS", new Guid());
 
             // PointLoad nel sistema locale
             Vector3d force = new Vector3d(1, 0, 0);             // sono forze e momenti per unità di lunghezza
@@ -205,16 +206,16 @@ namespace UnitTest
 
             LoadCase LoadCase = new LoadCase("SelfWeight", loadCaseType: GPC.Model.LoadCases.LoadCase.LoadCaseType.SelfWeight);
 
-            LineLoad ll1 = new LineLoad(force, moment, line, LoadCase, CoordinateSystem1, new Guid());
+            LineLoad ll1 = new LineLoad(force, moment, line, LoadCase, CoordinateSystem1);
 
             // PointLoad previsto nel globale
             Vector3d expForce = new Vector3d(0, 1, 0);
             Vector3d expMoment = new Vector3d(0, 0, 1);
             Point3d expPoint = new Point3d(3, 0, 0);
 
-            PointLoad expl1 = new PointLoad(expForce, expMoment, expPoint, LoadCase, CoordinateSystem.Global, Guid.NewGuid());
+            PointLoad expl1 = new PointLoad(expForce, expMoment, expPoint, LoadCase, CoordinateSystem.Global);
 
-            PointLoad pl2 = new PointLoad(expForce, expMoment, expPoint, LoadCase, CoordinateSystem.Global, Guid.NewGuid());
+            PointLoad pl2 = new PointLoad(expForce, expMoment, expPoint, LoadCase, CoordinateSystem.Global);
 
             ll1.ToGlobal();
 
@@ -223,12 +224,12 @@ namespace UnitTest
             double[] LocalForces = pl2.GetLocalForces(CoordinateSystem1);
 
             // Assert
-            Assert.IsTrue((Math.Abs(ll1.Fx - expl1.Fx)) < 0.001);
-            Assert.IsTrue((Math.Abs(ll1.Fy - expl1.Fy)) < 0.001);
-            Assert.IsTrue((Math.Abs(ll1.Fz - expl1.Fz)) < 0.001);
-            Assert.IsTrue((Math.Abs(ll1.Mx - expl1.Mx)) < 0.001);
-            Assert.IsTrue((Math.Abs(ll1.My - expl1.My)) < 0.001);
-            Assert.IsTrue((Math.Abs(ll1.Mz - expl1.Mz)) < 0.001);
+            Assert.IsTrue((Math.Abs(ll1.F1 - expl1.F1)) < 0.001);
+            Assert.IsTrue((Math.Abs(ll1.F2 - expl1.F2)) < 0.001);
+            Assert.IsTrue((Math.Abs(ll1.F3 - expl1.F3)) < 0.001);
+            Assert.IsTrue((Math.Abs(ll1.M1 - expl1.M1)) < 0.001);
+            Assert.IsTrue((Math.Abs(ll1.M2 - expl1.M2)) < 0.001);
+            Assert.IsTrue((Math.Abs(ll1.M3 - expl1.M3)) < 0.001);
             Assert.IsTrue(Math.Abs(ll1.Line.Start.X - expPoint.X) < 0.001);
             Assert.IsTrue(Math.Abs(ll1.Line.Start.Y - expPoint.Y) < 0.001);
             Assert.IsTrue(Math.Abs(ll1.Line.Start.Z - expPoint.Z) < 0.001);

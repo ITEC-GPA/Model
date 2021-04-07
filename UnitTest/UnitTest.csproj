@@ -44,12 +44,14 @@
     <Reference Include="GMsh.Net, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\GMsh.Net.1.0.0.1\lib\net472\GMsh.Net.dll</HintPath>
     </Reference>
-    <Reference Include="GPCGeometry, Version=1.0.4.4, Culture=neutral, processorArchitecture=AMD64">
-      <HintPath>..\packages\GPCGeometry.1.0.4.4\lib\net472\GPCGeometry.dll</HintPath>
-      <Private>True</Private>
+    <Reference Include="GPCGeometry, Version=1.0.6.12, Culture=neutral, processorArchitecture=AMD64">
+      <HintPath>..\packages\GPCGeometry.1.0.6.12\lib\net472\GPCGeometry.dll</HintPath>
     </Reference>
-    <Reference Include="GPCUtilities, Version=1.0.8.0, Culture=neutral, processorArchitecture=AMD64">
-      <HintPath>..\packages\GPCUtilities.1.0.8\lib\net472\GPCUtilities.dll</HintPath>
+    <Reference Include="GPCTestUtilities, Version=1.0.0.5, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\GPCTestUtilities.1.0.0.5\lib\net472\GPCTestUtilities.dll</HintPath>
+    </Reference>
+    <Reference Include="GPCUtilities, Version=1.0.21.2, Culture=neutral, processorArchitecture=AMD64">
+      <HintPath>..\packages\GPCUtilities.1.0.21.2\lib\net472\GPCUtilities.dll</HintPath>
     </Reference>
     <Reference Include="MathNet.Numerics, Version=4.15.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\MathNet.Numerics.4.15.0\lib\net461\MathNet.Numerics.dll</HintPath>
@@ -58,10 +60,10 @@
       <HintPath>..\packages\MathNet.Spatial.0.6.0\lib\net461\MathNet.Spatial.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.VisualStudio.TestPlatform.TestFramework, Version=14.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
-      <HintPath>..\packages\MSTest.TestFramework.2.1.2\lib\net45\Microsoft.VisualStudio.TestPlatform.TestFramework.dll</HintPath>
+      <HintPath>..\packages\MSTest.TestFramework.2.2.3\lib\net45\Microsoft.VisualStudio.TestPlatform.TestFramework.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.VisualStudio.TestPlatform.TestFramework.Extensions, Version=14.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
-      <HintPath>..\packages\MSTest.TestFramework.2.1.2\lib\net45\Microsoft.VisualStudio.TestPlatform.TestFramework.Extensions.dll</HintPath>
+      <HintPath>..\packages\MSTest.TestFramework.2.2.3\lib\net45\Microsoft.VisualStudio.TestPlatform.TestFramework.Extensions.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -69,7 +71,23 @@
     <Reference Include="System.Runtime.Serialization" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="FEMTest.cs" />
+    <Compile Include="DescriptionAttributesTest.cs" />
+    <Compile Include="FEM\Brick\BrickTest.cs" />
+    <Compile Include="FEM\Brick\HexaedronTest.cs" />
+    <Compile Include="FEM\Brick\TetrahedronTest.cs" />
+    <Compile Include="FEM\GaussIntegrationTest.cs" />
+    <Compile Include="FEM\Plates\Quad4GQ12MembranalTest.cs" />
+    <Compile Include="FEM\Plates\Quad4QFSUQMembranalTest.cs" />
+    <Compile Include="FEM\Plates\Quad4MQ2IbraMembranalTest.cs" />
+    <Compile Include="FEM\Plates\Tri3TR3RDOF.cs" />
+    <Compile Include="FEM\Plates\Tri3SBTE.cs" />
+    <Compile Include="FEM\Plates\Tri3SBTDR.cs" />
+    <Compile Include="FEM\Plates\Tri3OPT.cs" />
+    <Compile Include="FEM\FemSolverTest.cs" />
+    <Compile Include="FEM\Plates\MembraneTest.cs" />
+    <Compile Include="FEM\Plates\ElementTest.cs" />
+    <Compile Include="FEM\Plates\DKTTest.cs" />
+    <Compile Include="FEM\UtilTest.cs" />
     <Compile Include="InterlayerMaterialTest.cs" />
     <Compile Include="ResultTest.cs" />
     <Compile Include="MaterialTest.cs" />
@@ -78,9 +96,14 @@
     <Compile Include="SectionsTest.cs" />
     <Compile Include="SerializationTest.cs" />
     <Compile Include="LoadCaseTest.cs" />
-    <Compile Include="EquatableTest.cs" />
-    <Compile Include="HashCodeTest.cs" />
+    <Compile Include="EquatableHashCodeTest.cs" />
     <Compile Include="LoadTest.cs" />
+    <Compile Include="PerformanceTest.cs" />
+    <Compile Include="FemModelTest.cs" />
+    <Compile Include="UnitsTest.cs" />
+    <Compile Include="FemObjectCollectionsTest.cs" />
+    <Compile Include="StagesTest.cs" />
+    <Compile Include="ModelObjectCollectionTest.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

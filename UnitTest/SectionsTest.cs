@@ -3,11 +3,12 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using GPC.Model.Sections;
 using GPC.Model.Materials;
 using GPC.Geometry;
+using GPC.TestUtilities;
 
-namespace UnitTest
+namespace ModelObjectTest
 {
     [TestClass]
-    public class SectionsTest
+    public class SectionsTest : UnitTestBase
     {
         [TestMethod]
         public void SectionCHSTest()
@@ -16,7 +17,7 @@ namespace UnitTest
             double t = 10;
             double di = d - 2.0 * t;
             bool isColdFormed = true;
-            Section sec = new SectionCHS(d, t, new SteelMaterial("S355", 200000, 0.3, 355, 510, 7850), isColdFormed);
+            Section sec = new SectionCHS(d, t, new SteelMaterial("S355", 200000, 0.3, 355, 510, 7850),"", isColdFormed);
 
             Point2d centroid = new Point2d(d / 2, d / 2);
             Point2d shearCenter = centroid;
@@ -78,7 +79,7 @@ namespace UnitTest
             double b = 100;
             double tf = 20;
             double tw = 10;
-            SectionRHS sec = new SectionRHS(h, b, tf, tf, tw, tw, false, new SteelMaterial("steel", 200000, 0.3, 355, 510, 7850));
+            SectionRHS sec = new SectionRHS(h, b, tf, tf, tw, tw, false, new SteelMaterial("steel", 200000, 0.3, 355, 510, 7850), string.Empty);
 
             double A = 7200;
             double J2 = 39360000;
@@ -112,7 +113,7 @@ namespace UnitTest
             double bb = 300;
             double tt = 10;
             double tb = 25;
-            SectionH sec = new SectionH(h, tw, bt, tt, bb, tb, true, new SteelMaterial("steel", 200000, 0.3, 355, 510, 7850));
+            SectionH sec = new SectionH(h, tw, bt, tt, bb, tb, true, new SteelMaterial("steel", 200000, 0.3, 355, 510, 7850), string.Empty);
 
             double A = 13880;
             double J2 = 3.193 * 1e8;
@@ -145,7 +146,7 @@ namespace UnitTest
             double b = 200;
             double tf = 10;
             double tw = 50;
-            SectionT sec = new SectionT(h, b, tw, tf, new SteelMaterial("steel", 200000, 0.3, 355, 510, 7850));
+            SectionT sec = new SectionT(h, b, tw, tf, new SteelMaterial("steel", 200000, 0.3, 355, 510, 7850), string.Empty);
 
             double A = 21500;
             double J2 = 3.197*1e8;
@@ -173,7 +174,7 @@ namespace UnitTest
             double b = 200;
             double tf = 10;
             double tw = 20;
-            SectionT sec = new SectionT(h, b, tw, tf, new SteelMaterial("steel", 200000, 0.3, 355, 510, 7850));
+            SectionT sec = new SectionT(h, b, tw, tf, new SteelMaterial("steel", 200000, 0.3, 355, 510, 7850), string.Empty);
 
             //double JwLTBEAM = 39044 * 1e6; // --> WRONG
             double JwStraus = 1.32284 * 1e10;
@@ -188,7 +189,7 @@ namespace UnitTest
             double tw = 10;
             double b = 200;
             double tf = 25;
-            SectionC sec = new SectionC(h, tw, b, tf, b, tf, new SteelMaterial("steel", 200000, 0.3, 355, 510, 7850));
+            SectionC sec = new SectionC(h, tw, b, tf, b, tf, new SteelMaterial("steel", 200000, 0.3, 355, 510, 7850), string.Empty);
 
             double A = 13500;
             double J1 = 56760648.14815;
@@ -220,7 +221,7 @@ namespace UnitTest
             double tw = 40;
             double b = 40.01;
             double tb = 40;
-            SectionL sec = new SectionL(b, tb, h, tw, new SteelMaterial("steel", 200000, 0.3, 355, 510, 7850));
+            SectionL sec = new SectionL(b, tb, h, tw, new SteelMaterial("steel", 200000, 0.3, 355, 510, 7850), string.Empty);
 
             double Wel1 = 1.0 / 6.0 * h * tw*tw;
             double Wel2 = 1.0 / 6.0 * tw * h * h;
@@ -236,7 +237,7 @@ namespace UnitTest
             double tw = 40;
             double b = 500;
             double tb = 40;
-            SectionL sec = new SectionL(b, tb, h, tw, new SteelMaterial("steel", 200000, 0.3, 355, 510, 7850));
+            SectionL sec = new SectionL(b, tb, h, tw, new SteelMaterial("steel", 200000, 0.3, 355, 510, 7850), string.Empty);
 
             double Wel1 = 1.0 / 6.0 * b * tb * tb;
             double Wel2 = 1.0 / 6.0 * tb * b * b;
@@ -252,7 +253,7 @@ namespace UnitTest
             double tw = 40;
             double b = 500;
             double tb = 80;
-            SectionL sec = new SectionL(b, tb, h, tw, new SteelMaterial("steel", 200000, 0.3, 355, 510, 7850));
+            SectionL sec = new SectionL(b, tb, h, tw, new SteelMaterial("steel", 200000, 0.3, 355, 510, 7850), string.Empty);
 
             double A = 56800;
             double J1 = 517472668.5153;

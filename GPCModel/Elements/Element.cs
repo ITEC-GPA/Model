@@ -9,13 +9,24 @@ namespace GPC.Model.Elements
     /// </summary>
 
     [Serializable]
-    public abstract class Element : ModelObject
+    public abstract class Element : ModelObject, ISerializable
     {
+
+        private int _id;
+
+        public virtual int Id { get => _id; set { _id = value; } }
+
         #region Public Constructors
 
-        protected Element() : base(Guid.NewGuid())
+        protected Element() 
+            : base(Guid.NewGuid())
         {
 
+        }
+        protected Element(int id)
+            : base(Guid.NewGuid())
+        {
+            _id = id;
         }
 
         protected Element(Guid guid)
@@ -24,23 +35,39 @@ namespace GPC.Model.Elements
 
         }
 
-        protected Element(SerializationInfo info, StreamingContext context)
-            : base(info, context)
+        protected Element(Guid guid, string name)
+            : base(guid, name)
         {
 
         }
 
-        #endregion Public Constructors
+        protected Element(SerializationInfo info, StreamingContext context)
+            : base(info, context)
+        {
+            _id = info.GetInt32("Id");
+        }
+
+        #endregion
+
 
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             base.GetObjectData(info, context);
+            info.AddValue("Id", _id);
         }
 
+        /// <summary>
+        /// </summary>
+        /// <param name="obj"></param>
+        /// <returns></returns>
+        /// <remarks>Equality is not checked against <see cref="Element.Id"/> </remarks>
         public override bool Equals(object obj)
         {
             if (ReferenceEquals(this, obj))
                 return true;
+
+            // ID non viene messo in equals in quanto non tutte le derivate devono ritornare true se gli id sono uguali. 
+            // Se ne deve occupare la derivata
             Element objCasted = obj as Element;
             return !(objCasted is null) && base.Equals(objCasted);
         }

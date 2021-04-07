@@ -1,4 +1,6 @@
-﻿using System;
+﻿using GPC.Utilities.Attributes;
+using GPC.Utilities.Converters;
+using System;
 using System.ComponentModel;
 using System.Runtime.Serialization;
 
@@ -8,11 +10,14 @@ namespace GPC.Model.Materials
     /// Glass Material according to EN 16612 - 2019 standard
     /// </summary>
     [Serializable]
+    [UI(Description = "Glass EN 16612", Group = "Materials", Kind = "Material")]
     public sealed class GlassMaterialEn16612 : GlassMaterial, IEquatable<GlassMaterialEn16612>
     {
         #region PUBLIC ENUMS
+
         [Serializable]
-        public enum GlassType
+        [TypeConverter(typeof(EnumDescriptionTypeConverter))]
+        public enum GlassTypes
         {
             [Description("Float")] FloatGlass = 0,
             [Description("Drawn sheet")] DrawnSheetGlass = 1,
@@ -24,14 +29,16 @@ namespace GPC.Model.Materials
         }
 
         [Serializable]
-        public enum SurfaceTreatment
+        [TypeConverter(typeof(EnumDescriptionTypeConverter))]
+        public enum SurfaceTreatments
         {
             [Description("As produced")] AsProduced = 0,
             [Description("Sand blasted")] Sandblasted = 1
         }
 
         [Serializable]
-        public enum PrestressType
+        [TypeConverter(typeof(EnumDescriptionTypeConverter))]
+        public enum PrestressTypes
         {
             [Description("Annealed glass")] Annealed = 0,
             [Description("Thermally toughened glass")] ThermallyToughened = 1,
@@ -40,7 +47,8 @@ namespace GPC.Model.Materials
         }
 
         [Serializable]
-        public enum ManufactoringProcess
+        [TypeConverter(typeof(EnumDescriptionTypeConverter))]
+        public enum ManufactoringProcesses
         {
             [Description("None")] None = 0,
             [Description("Horizontal toughening")] HorizontalToughening = 1,
@@ -49,20 +57,26 @@ namespace GPC.Model.Materials
         #endregion
 
         #region VARIABLES
+
         private double _fgk;
-        private GlassType _glassType;
-        private SurfaceTreatment _surfaceTreatment;
-        private PrestressType _prestressType;
-        private ManufactoringProcess _manufactoringProcess;
+        private GlassTypes _glassType;
+        private SurfaceTreatments _surfaceTreatment;
+        private PrestressTypes _prestressType;
+        private ManufactoringProcesses _manufactoringProcess;
 
         #endregion
 
         #region PROPERTIES
+
         public double Fgk => _fgk;
-        public GlassType GetGlassType => _glassType;
-        public SurfaceTreatment GetSurfaceTreatment => _surfaceTreatment;
-        public PrestressType GetPrestressType => _prestressType;
-        public ManufactoringProcess GetManufactoringProcess => _manufactoringProcess;
+
+        public GlassTypes GlassType => _glassType;
+
+        public SurfaceTreatments SurfaceTreatment => _surfaceTreatment;
+
+        public PrestressTypes PrestressType => _prestressType;
+
+        public ManufactoringProcesses ManufactoringProcess => _manufactoringProcess;
 
         #endregion
 
@@ -76,8 +90,8 @@ namespace GPC.Model.Materials
         /// <param name="fgk">Characeristic value of bending strength of annealed glass [MPa]</param>
         /// <param name="density">Density of the material [T/mm^3]</param>
         /// <param name="alfaThermalExpansion">Alfa linear thermal expansion coefficient</param>
-        public GlassMaterialEn16612(string name, double elasticModulus, double poisson, double fgk, GlassType glassType, SurfaceTreatment surfaceTreatment, PrestressType prestressType, 
-                                    ManufactoringProcess manufactoringProcess, double density, double alfaThermalExpansion)
+        public GlassMaterialEn16612(string name, double elasticModulus, double poisson, double fgk, GlassTypes glassType, SurfaceTreatments surfaceTreatment, PrestressTypes prestressType, 
+                                    ManufactoringProcesses manufactoringProcess, double density, double alfaThermalExpansion)
             : this(name, elasticModulus, poisson, fgk, glassType, surfaceTreatment, prestressType, manufactoringProcess, density, alfaThermalExpansion, Guid.NewGuid())
         {
             // TODO: ke factors
@@ -92,8 +106,8 @@ namespace GPC.Model.Materials
         /// <param name="density">Density of the material [T/mm^3]</param>
         /// <param name="alfaThermalExpansion">Alfa linear thermal expansion coefficient</param>
         /// <param name="guid">Guid of the material</param>
-        public GlassMaterialEn16612(string name, double elasticModulus, double poisson, double fgk, GlassType glassType, SurfaceTreatment surfaceTreatment, PrestressType prestressType, 
-                                    ManufactoringProcess manufactoringProcess, double density, double alfaThermalExpansion, Guid guid)
+        public GlassMaterialEn16612(string name, double elasticModulus, double poisson, double fgk, GlassTypes glassType, SurfaceTreatments surfaceTreatment, PrestressTypes prestressType, 
+                                    ManufactoringProcesses manufactoringProcess, double density, double alfaThermalExpansion, Guid guid)
             : base(name, elasticModulus, poisson, density, alfaThermalExpansion, guid)
         {
             _fgk = fgk < 0.001 ? throw new ArgumentException($"{nameof(fgk)} cannot be zero or lower") : fgk;
@@ -108,13 +122,34 @@ namespace GPC.Model.Materials
             : base(info, context)
         {
             _fgk = info.GetDouble("Fgk");
-            _glassType = (GlassType)info.GetValue("GlassType", typeof(GlassType));
-            _surfaceTreatment = (SurfaceTreatment)info.GetValue("SurfaceTreatment", typeof(SurfaceTreatment));
-            _prestressType = (PrestressType)info.GetValue("PrestressType", typeof(PrestressType));
-            _manufactoringProcess = (ManufactoringProcess)info.GetValue("ManufactoringProcess", typeof(ManufactoringProcess));
+            _glassType = (GlassTypes)info.GetValue("GlassType", typeof(GlassTypes));
+            _surfaceTreatment = (SurfaceTreatments)info.GetValue("SurfaceTreatment", typeof(SurfaceTreatments));
+            _prestressType = (PrestressTypes)info.GetValue("PrestressType", typeof(PrestressTypes));
+            _manufactoringProcess = (ManufactoringProcesses)info.GetValue("ManufactoringProcess", typeof(ManufactoringProcesses));
         }
 
         #endregion PUBLIC CONSTRUCTORS
+
+
+        #region Public method override 
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="edgeResistance">if true give the resistance on edge</param>
+        /// <param name="loadDuration">load duration [seconds]</param>
+        /// <returns>The glass resistance according to NCSEA §3.5</returns>
+        /// <exception cref="ArgumentException">If <paramref name="loadDuration"/> is lower than zero</exception>
+        public override double GetGlassResistance(bool edgeResistance, double loadDuration)
+        {
+            // TODO: implementare verifica
+            return _fgk;
+        }
+
+
+        #endregion
+
+        #region Equals - haschode - operators - serialization
 
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
@@ -173,5 +208,7 @@ namespace GPC.Model.Materials
         {
             return !(obj1 == obj2);
         }
+
+        #endregion
     }
 }

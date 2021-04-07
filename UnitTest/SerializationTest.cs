@@ -2,7 +2,7 @@
 using System.Linq;
 using System.Reflection;
 
-namespace UnitTest
+namespace GeneralTest
 {
     [TestClass]
     public class SerializationTest

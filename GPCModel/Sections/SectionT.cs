@@ -30,7 +30,7 @@ namespace GPC.Model.Sections
         public double yPlastic => _yPlastic;
         #endregion
 
-        public SectionT(double h, double b, double tw, double tf, Material material) : base(material)
+        public SectionT(double h, double b, double tw, double tf, Material material, string name) : base(material, name)
         {
             _h = h;
             _b = b;
@@ -75,7 +75,7 @@ namespace GPC.Model.Sections
             if (_area / 2.0 > _b * _tf)
             {
                 _yPlastic= _area / 2.0 / _tw;
-                SectionT halfSectionTop = new SectionT(_h - _yPlastic, _b, _tw, _tf, material);
+                SectionT halfSectionTop = new SectionT(_h - _yPlastic, _b, _tw, _tf, material, string.Empty);
                 _wpl22 = _area / 2.0 * (halfSectionTop.Centroid.Y + _yPlastic/2.0);
             } else
             {

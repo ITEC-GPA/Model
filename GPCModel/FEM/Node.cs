@@ -1,23 +1,20 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using GPC.Geometry;
 using GPC.Model.FEM.Attributes;
+using GPC.Utilities.Extensions;
 
 namespace GPC.Model.FEM
 {
     /// <summary>
     /// Nodo with unique ID, and X,Y,Z global coordinates
     /// </summary>
-    public class Node : FEMObject, IEquatable<Node>
+    public class Node : FEMObject
     {
         #region Variables
         private Point3d _position;
 
         private List<INodeLoadCaseAttribute> _attributesLoadCase;
-
         private List<INodeFreedomCaseAttribute> _attributesFreedomCase;
 
 
@@ -28,16 +25,16 @@ namespace GPC.Model.FEM
         /// <summary>
         /// Contains the degree of freedom active for the node
         /// </summary>
-        public HashSet<FEMModel.DOF> DOF { get; set; }
+        public HashSet<LinearSolver.DOF> DOF { get; set; }
 
         public int NrActiveDof
         {
             get
             {
                 int ris = 0;
-                for (int i = 0; i < FEMModel.MAXGDLPERNODE; i++)
+                for (int i = 0; i < LinearSolver.MAXDOFPERNODE; i++)
                 {
-                    if (DOF.Contains((FEMModel.DOF)i) == true)
+                    if (DOF.Contains((LinearSolver.DOF)i) == true)
                     {
                         ris++;
                     }  
@@ -50,29 +47,44 @@ namespace GPC.Model.FEM
         public List<INodeLoadCaseAttribute> AttributesLoadCase => _attributesLoadCase;
         #endregion
 
-        public Node(Point3d point, int ID, string label = "") : base(ID, label)
+        public Node(Point3d point, string name = "") : base(name)
         {
             _position = point;
             
-            DOF = new HashSet<FEMModel.DOF>();
+            DOF = new HashSet<LinearSolver.DOF>();
             
             _attributesLoadCase = new List<INodeLoadCaseAttribute>();
             _attributesFreedomCase = new List<INodeFreedomCaseAttribute>();
         }
 
-        public Node(double X, double Y, double Z, int id, string label="") : this(new Point3d(X, Y, Z), id, label)
+        /// <summary>
+        /// only for test purpose
+        /// </summary>
+        internal Node(double X, double Y, double Z, string label="") : this(new Point3d(X, Y, Z), label)
         {
 
         }
 
-        public void SetID(int id)
+        /// <summary>
+        /// only for test purpose
+        /// </summary>
+        internal Node(Point3d point, int id) : this(point)
         {
-            base._index = id;
+            SetId(id);
+        }
+
+        /// <summary>
+        /// only for test purpose
+        /// </summary>
+        internal Node(double X, double Y, double Z, string name, int id) : this(new Point3d(X, Y, Z))
+        {
+            Name = name;
+            SetId(id);
         }
 
         public override string ToString()
         {
-            return "ID = " + Index + " Name = " + Name + "  X=" + Position.X + " Y=" + Position.Y + " Z=" + Position.Z;
+            return "ID = " + Id + " Name = " + Name + "  X=" + Position.X + " Y=" + Position.Y + " Z=" + Position.Z;
         }
 
         public void AddAttribute(INodeFreedomCaseAttribute attribute)
@@ -87,11 +99,17 @@ namespace GPC.Model.FEM
 
         public override bool Equals(object obj)
         {
-            return obj is Node node &&
-                   base.Equals(obj) &&
-                   EqualityComparer<Point3d>.Default.Equals(_position, node._position) &&
-                   EqualityComparer<List<INodeLoadCaseAttribute>>.Default.Equals(_attributesLoadCase, node._attributesLoadCase) &&
-                   EqualityComparer<List<INodeFreedomCaseAttribute>>.Default.Equals(_attributesFreedomCase, node._attributesFreedomCase);
+            if (obj is null)
+                return false;
+
+            if (ReferenceEquals(this, obj))
+                return true;
+
+            Node node = obj as Node;
+            return !(node is null) && _position.Equals(node._position)
+                                   && _attributesFreedomCase.ScrambledEquals(node._attributesFreedomCase)
+                                   && _attributesLoadCase.ScrambledEquals(node._attributesLoadCase)
+                                   && base.Equals(node);
         }
 
         public override int GetHashCode()
@@ -99,14 +117,18 @@ namespace GPC.Model.FEM
             int hashCode = -689368791;
             hashCode = hashCode * -1521134295 + base.GetHashCode();
             hashCode = hashCode * -1521134295 + EqualityComparer<Point3d>.Default.GetHashCode(_position);
-            hashCode = hashCode * -1521134295 + EqualityComparer<List<INodeLoadCaseAttribute>>.Default.GetHashCode(_attributesLoadCase);
-            hashCode = hashCode * -1521134295 + EqualityComparer<List<INodeFreedomCaseAttribute>>.Default.GetHashCode(_attributesFreedomCase);
+
+            foreach (var element in _attributesLoadCase)
+            {
+                hashCode = hashCode + EqualityComparer<INodeLoadCaseAttribute>.Default.GetHashCode(element);
+            }
+            foreach (var element in _attributesFreedomCase)
+            {
+                hashCode = hashCode + EqualityComparer<INodeFreedomCaseAttribute>.Default.GetHashCode(element);
+            }
+
             return hashCode;
         }
 
-        public bool Equals(Node other)
-        {
-            return Equals((object)other);
-        }
     }
 }

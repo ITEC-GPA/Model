@@ -4,46 +4,67 @@ using System.Linq;
 using System.Runtime.Serialization;
 using System.Text;
 using System.Threading.Tasks;
+using GPC.Geometry;
 using GPC.Model.FreedomCases;
+using GPC.Model.Restrains;
 
 namespace GPC.Model.FEM.Attributes
 {
     public class NodeStiffnessAttribute : FreedomCaseAttribute, ISerializable, IEquatable<NodeStiffnessAttribute>, INodeFreedomCaseAttribute
     {
 
-        private Dictionary<FEMModel.DOF, double> _stiffness;
+        private List<DofRestrain> _stiffness;
+        private CoordinateSystem _coordinateSystem;
 
 
-        public Dictionary<FEMModel.DOF, double> Stiffnesses => _stiffness;
+        public List<DofRestrain> Stiffnesses => _stiffness;
+        public CoordinateSystem CoordinateSystem => _coordinateSystem;
 
-
-        public NodeStiffnessAttribute(FreedomCase freedomCase)
-           : this(freedomCase, string.Empty, Guid.NewGuid())
+        public NodeStiffnessAttribute(FreedomCase freedomCase, CoordinateSystem coordinateSystem)
+           : this(freedomCase, coordinateSystem, string.Empty, Guid.NewGuid())
         {
 
         }
 
-        public NodeStiffnessAttribute(FreedomCase freedomCase, string name) 
-            : this(freedomCase, name, Guid.NewGuid())
+        public NodeStiffnessAttribute(FreedomCase freedomCase, CoordinateSystem coordinateSystem, string name) 
+            : this(freedomCase, coordinateSystem, name, Guid.NewGuid())
         {
 
         }
 
-        public NodeStiffnessAttribute(FreedomCase freedomCase, string name, Guid guid) 
+        public NodeStiffnessAttribute(FreedomCase freedomCase, CoordinateSystem coordinateSystem, string name, Guid guid) 
             : base(freedomCase, name, guid)
         {
-            _stiffness = new Dictionary<FEMModel.DOF, double>();
+            _stiffness = new List<DofRestrain>();
+            _coordinateSystem = coordinateSystem;
         }
+
+        public NodeStiffnessAttribute(NodeStiffnessAttribute nodeStiffnessAttribute)
+            : base(nodeStiffnessAttribute.FreedomCase, nodeStiffnessAttribute.Name, nodeStiffnessAttribute.Guid)
+        {
+            _stiffness = nodeStiffnessAttribute._stiffness;
+            _coordinateSystem = nodeStiffnessAttribute.CoordinateSystem;
+        }
+
 
         protected NodeStiffnessAttribute(SerializationInfo info, StreamingContext context) 
             : base(info, context)
         {
-            _stiffness = (Dictionary<FEMModel.DOF, double>)info.GetValue("stiffnesses", typeof(Dictionary<FEMModel.DOF, double>));
+            _stiffness = (List<DofRestrain>)info.GetValue("stiffnesses", typeof(List<DofRestrain>));
+            _coordinateSystem = (CoordinateSystem)info.GetValue("CoordinateSystem", typeof(CoordinateSystem));
         }
 
-        public void AddStiffness(FEMModel.DOF dof, double value)
+        public void AddStiffness(LinearSolver.DOF dof, double stiffness)
         {
-            _stiffness[dof] = value;
+            if (_stiffness.Where(i => i.Dof == dof).Count() > 0)
+            {
+                // Facendo cosi sovrascrivo il valore precedente se presente
+                _stiffness.Where(i => i.Dof == dof).FirstOrDefault().SetStiffness(stiffness);
+            }
+            else
+            {
+                _stiffness.Add(new DofRestrain(dof, stiffness));
+            }
         }
 
 
@@ -51,6 +72,8 @@ namespace GPC.Model.FEM.Attributes
         {
             base.GetObjectData(info, context);
             info.AddValue("stiffnesses", _stiffness);
+            info.AddValue("CoordinateSystem", _coordinateSystem);
+            throw new NotImplementedException();
         }
 
 
@@ -59,7 +82,7 @@ namespace GPC.Model.FEM.Attributes
             if (ReferenceEquals(this, other))
                 return true;
 
-            return !(other is null) && _stiffness.SequenceEqual(other._stiffness) && base.Equals(other);
+            return !(other is null) && _stiffness.SequenceEqual(other._stiffness) && _coordinateSystem.Equals(other._coordinateSystem) && base.Equals(other);
         }
 
 
@@ -75,8 +98,14 @@ namespace GPC.Model.FEM.Attributes
         {
             int hashCode = -23;
             hashCode = hashCode * -17 + base.GetHashCode();
-            hashCode = hashCode * -17 + EqualityComparer<Dictionary<FEMModel.DOF, double>>.Default.GetHashCode(_stiffness);
+            hashCode = hashCode * -17 + EqualityComparer<List<DofRestrain>>.Default.GetHashCode(_stiffness);
+            hashCode = hashCode * -17 + EqualityComparer<CoordinateSystem>.Default.GetHashCode(_coordinateSystem);
             return hashCode;
+        }
+
+        public override object Clone()
+        {
+            return new NodeStiffnessAttribute(this);
         }
     }
 }

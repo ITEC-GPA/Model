@@ -1,62 +1,71 @@
 ﻿using GPC.Geometry;
+using GPC.Model.Elements;
 using GPC.Model.LoadCases;
 using System;
 using System.Runtime.Serialization;
+using GPC.Model.FEM.FiniteElements;
 
 namespace GPC.Model.Results
 {
+    /// <summary>
+    /// This class needs to be revised and updated according to <see cref="ResultPlateStress"/>
+    /// </summary>
     [Serializable]
-    public class ResultPlateForces : Result, ISerializable, IEquatable<ResultPlateForces>
+    public sealed class ResultPlateForces : Result, ISerializable, IEquatable<ResultPlateForces>
     {
         #region Variables
 
         /// Local Forces
-        protected double _fxx;
-        protected double _fyy;
-        protected double _fzz;
-        protected double _fxy;
-        protected double _fxz;
-        protected double _fyz;
+        private double _fxx;
+        private double _fyy;
+        private double _fzz;
+        private double _fxy;
+        private double _fxz;
+        private double _fyz;
 
         /// Local Moments
-        protected double _mxx;
-        protected double _myy;
-        protected double _mzz;
-        protected double _mxy;
-        protected double _mxz;
-        protected double _myz;
+        private double _mxx;
+        private double _myy;
+        private double _mzz;
+        private double _mxy;
+        private double _mxz;
+        private double _myz;
 
         /// Global Forces
-        protected double _fXX;
-        protected double _fYY;
-        protected double _fZZ;
-        protected double _fXY;
-        protected double _fXZ;
-        protected double _fYZ;
+        
+        // TODO aggiungere proprietà se servono 
+#pragma warning disable CS0169 
+        private double _fXX;
+        private double _fYY;
+        private double _fZZ;
+        private double _fXY;
+        private double _fXZ;
+        private double _fYZ;
 
         /// Global Moments
-        protected double _mXX;
-        protected double _mYY;
-        protected double _mZZ;
-        protected double _mXY;
-        protected double _mXZ;
-        protected double _mYZ;
+        private double _mXX;
+        private double _mYY;
+        private double _mZZ;
+        private double _mXY;
+        private double _mXZ;
+        private double _mYZ;
 
         /// Principal forces
-        protected double _f11;
-        protected double _f22;
+        private double _f11;
+        private double _f22;
 
         /// Principal moments
-        protected double _m11;
-        protected double _m22;
+        private double _m11;
+        private double _m22;
 
         /// Combined forces
-        protected double _fVM;
-        protected double _fTR;
+        private double _fVM;
+        private double _fTR;
 
         /// Combined moments
-        protected double _mVM;
-        protected double _mTR;
+        private double _mVM;
+        private double _mTR;
+#pragma warning restore CS0169 
 
         #endregion
 
@@ -64,21 +73,22 @@ namespace GPC.Model.Results
         #region Properties
 
         /// Local Forces
-        protected double Fxx => _fxx;
-        protected double Fyy => _fyy;
-        protected double Fzz => _fzz;
-        protected double Fxy => _fxy;
-        protected double Fxz => _fxz;
-        protected double Fyz => _fyz;
+        public double Fxx => _fxx;
+        public double Fyy => _fyy;
+        public double Fzz => _fzz;
+        public double Fxy => _fxy;
+        public double Fxz => _fxz;
+        public double Fyz => _fyz;
 
         /// Local Moments      
-        protected double Mxx => _mxx;
-        protected double Myy => _myy;
-        protected double Mzz => _mzz;
-        protected double Mxy => _mxy;
-        protected double Mxz => _mxz;
-        protected double Myz => _myz;
+        public double Mxx => _mxx;
+        public double Myy => _myy;
+        public double Mzz => _mzz;
+        public double Mxy => _mxy;
+        public double Mxz => _mxz;
+        public double Myz => _myz;
 
+        public new Plate Element => (Plate)_element;
         #endregion
 
 
@@ -87,10 +97,10 @@ namespace GPC.Model.Results
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="elementID">Id of the element where these result are referred to</param>
-        /// <param name="elementLabel">Label of the element where these result are referred t</param>
-        /// <param name="caseId">Represenet the id of the loadcase / loadCombination where these result are referred to</param>
-        /// <param name="cSys">Coordinate system where these result are provided</param>
+        /// <param name="element">Element where these result are referred </param>
+        /// <param name="Case">The case where these results are reffered </param>
+        /// <param name="coordinateSystem">Coordinate system where these result are provided</param>
+        /// <param name="resultPoint">Stress point where these results are provided</param>
         /// <param name="fxx"></param>
         /// <param name="fyy"></param>
         /// <param name="fxy"></param>
@@ -99,9 +109,9 @@ namespace GPC.Model.Results
         /// <param name="mxx"></param>
         /// <param name="myy"></param>
         /// <param name="mxy"></param>
-        public ResultPlateForces(int elementID, string elementLabel, int caseID, CoordinateSystem coordinateSystem, 
+        public ResultPlateForces(Plate element, ILoadCase Case, ResultStressPoint resultPoint, CoordinateSystem coordinateSystem, 
                                  double fxx, double fyy, double fxy, double fxz, double fyz, double mxx, double myy, double mxy)
-                                 : base(elementID, elementLabel, caseID, coordinateSystem)
+                                 : base(element, Case, resultPoint, coordinateSystem)
         {
                 _fxx = fxx;
                 _fyy = fyy;
@@ -175,7 +185,7 @@ namespace GPC.Model.Results
 
         #region Interface implementation
 
-        public override bool Equals(ResultPlateForces other)
+        public bool Equals(ResultPlateForces other)
         {
             return !(other is null) &&
                     _fxx == other._fxx &&

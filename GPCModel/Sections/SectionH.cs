@@ -24,7 +24,7 @@ namespace GPC.Model.Sections
         Plate[] _plates = new Plate[5];
         #endregion
 
-        public SectionH(double hTot, double tw, double btop, double ttop, double bbottom, double tbottom, bool isWelded, Materials.Material material) : base(material)
+        public SectionH(double hTot, double tw, double btop, double ttop, double bbottom, double tbottom, bool isWelded, Materials.Material material, string name) : base(material, name)
         {
             _hTot = hTot;
             _tw = tw;
@@ -126,8 +126,8 @@ namespace GPC.Model.Sections
 
             _wpl11 = 0;
             {
-                SectionT halfSectionTop = new SectionT(_btop / 2.0, _hTot / 2.0, _ttop, _tw / 2.0, material);
-                SectionT halfSectionBottom = new SectionT(_bbottom / 2.0, _hTot / 2.0, _tbottom, _tw / 2.0, material);
+                SectionT halfSectionTop = new SectionT(_btop / 2.0, _hTot / 2.0, _ttop, _tw / 2.0, material, string.Empty);
+                SectionT halfSectionBottom = new SectionT(_bbottom / 2.0, _hTot / 2.0, _tbottom, _tw / 2.0, material, string.Empty);
                 double dTop = _btop / 2.0 - halfSectionTop.Centroid.Y;
                 double dBottom = _bbottom / 2.0 - halfSectionBottom.Centroid.Y;
                 double d = (halfSectionTop.Area * dTop + halfSectionBottom.Area * dBottom) / (halfSectionBottom.Area + halfSectionTop.Area);
@@ -139,18 +139,18 @@ namespace GPC.Model.Sections
                 if (_area/2.0 > _btop * _ttop && _area/2.0 > _bbottom * _tbottom)
                 {
                     double hw = (_area / 2.0 - _btop * _ttop) / _tw;
-                    SectionT halfSectionTop = new SectionT(hw + _ttop, _btop, _tw, _ttop, material);
-                    SectionT halfSectionBottom = new SectionT(_hTot - _ttop - hw, _bbottom, _tw, _tbottom, material);
+                    SectionT halfSectionTop = new SectionT(hw + _ttop, _btop, _tw, _ttop, material, string.Empty);
+                    SectionT halfSectionBottom = new SectionT(_hTot - _ttop - hw, _bbottom, _tw, _tbottom, material, string.Empty);
                     _wpl22 = _area/2.0 * (halfSectionTop.Centroid.Y + halfSectionBottom.Centroid.Y);
                 } else if (_area / 2.0 <= _btop * _ttop)
                 {
                     double hHalf = _area / 2.0 / _btop;
-                    SectionH halfSectionBottom = new SectionH(_hTot - hHalf, _tw, _btop, _ttop - hHalf, _bbottom, _tbottom, _isWelded, material);
+                    SectionH halfSectionBottom = new SectionH(_hTot - hHalf, _tw, _btop, _ttop - hHalf, _bbottom, _tbottom, _isWelded, material, string.Empty);
                     _wpl22 = _area / 2.0 * (hHalf/2.0 + (_hTot - hHalf - halfSectionBottom.Centroid.Y));
                 } else if (_area /2.0 <= _bbottom * _tbottom)
                 {
                     double hHalf = _area / 2.0 / _bbottom;
-                    SectionH halfSectionBottom = new SectionH(_hTot - hHalf, _tw, _btop, _ttop, _bbottom, _tbottom - hHalf, _isWelded, material);
+                    SectionH halfSectionBottom = new SectionH(_hTot - hHalf, _tw, _btop, _ttop, _bbottom, _tbottom - hHalf, _isWelded, material, string.Empty);
                     _wpl22 = _area / 2.0 * (hHalf / 2.0 + halfSectionBottom.Centroid.Y);
                 } else
                 {

@@ -30,6 +30,14 @@ namespace GPC.Model.FEM.Attributes
             _loadCase = loadCase ?? throw new ArgumentNullException("Loadcase cannot be null");
         }
 
+        public LoadCaseAttribute(LoadCaseAttribute loadCaseAttribute)
+            : base(loadCaseAttribute.Guid, loadCaseAttribute.Name)
+        {
+            _loadCase = loadCaseAttribute.LoadCase;
+        }
+
+
+
         protected LoadCaseAttribute(SerializationInfo info, StreamingContext context) 
             : base(info, context)
         {
