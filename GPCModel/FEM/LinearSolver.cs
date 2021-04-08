@@ -571,7 +571,6 @@ namespace GPC.Model.FEM
 
         }
 
-
         /// <summary>
         /// Modifica la matrice K e il termine noto F per l'inserimento di un spostamento imposto nel nodo node, grado di libertà dof e con spostamento = value;
         /// </summary>
@@ -656,6 +655,12 @@ namespace GPC.Model.FEM
             return counter + counter2;
             //return counter + (int)dof;
             #endregion
+        }
+
+        public double GetReaction(Node node, DOF dof)
+        {
+            int pos = GetPositionInKGlobal(node, dof);
+            return _reactions[pos];
         }
         #endregion       
     }

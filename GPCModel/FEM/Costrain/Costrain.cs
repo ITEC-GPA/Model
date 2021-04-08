@@ -82,9 +82,6 @@ namespace GPC.Model.FEM.Costrain
             double factorRY;
             double factorRZ;
 
-            //sin(x) = x - x^3/6 + x^5/120 - x^7/5040 .... (Taylor) 
-            //cos(x) = 1 - x^2/2 + x^4/24 -x^6/720 + x^8/40320 .... (Taylor) 
-
             //Y' = Y + cos(Theta) * L
             //0 = Y' + Y + cos(Theta) * L = Y' + Y + 1.0 * L
 
