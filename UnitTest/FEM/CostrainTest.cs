@@ -171,7 +171,7 @@ namespace FemTest.Solver {
             LoadCase lc = new LoadCase("lc1");
             CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
             double M = -1000.0;
-            NodeForceAttribute f = new NodeForceAttribute(lc, sys, 0, 0.0, 0.0, 0, 0, M);
+            NodeForceAttribute f = new NodeForceAttribute(lc, sys, 0, 0.0, 0.0, 0, -M, M);
 
             nds[3].AddAttribute(f);
 
@@ -193,7 +193,10 @@ namespace FemTest.Solver {
             LinearSolver fem2 = new LinearSolver(els.ToArray(), rigid2);
 
             Assert.AreEqual(6.1115, fem.GetDisplacementGlobalCoordinates(nds[3], LinearSolver.DOF.DY), 1e-4);
+            Assert.AreEqual(6.1115, fem.GetDisplacementGlobalCoordinates(nds[3], LinearSolver.DOF.DZ), 1e-4);
+
             Assert.AreEqual(6.1115, fem2.GetDisplacementGlobalCoordinates(nds[3], LinearSolver.DOF.DY), 1e-4);
+            Assert.AreEqual(6.1115, fem2.GetDisplacementGlobalCoordinates(nds[3], LinearSolver.DOF.DZ), 1e-4);
         }
 
         [TestMethod]
@@ -215,7 +218,7 @@ namespace FemTest.Solver {
             LoadCase lc = new LoadCase("lc1");
             CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
             double M = -1000.0;
-            NodeForceAttribute f = new NodeForceAttribute(lc, sys, 0, 0.0, 0.0, M, 0, 0);
+            NodeForceAttribute f = new NodeForceAttribute(lc, sys, 0, 0.0, 0.0, M, -M, 0);
 
             nds[3].AddAttribute(f);
 
@@ -237,7 +240,10 @@ namespace FemTest.Solver {
             LinearSolver fem2 = new LinearSolver(els.ToArray(), rigid2);
 
             Assert.AreEqual(6.1115, fem1.GetDisplacementGlobalCoordinates(nds[3], LinearSolver.DOF.DY), 1e-4);
+            Assert.AreEqual(6.1115, fem1.GetDisplacementGlobalCoordinates(nds[3], LinearSolver.DOF.DX), 1e-4);
+
             Assert.AreEqual(6.1115, fem2.GetDisplacementGlobalCoordinates(nds[3], LinearSolver.DOF.DY), 1e-4);
+            Assert.AreEqual(6.1115, fem2.GetDisplacementGlobalCoordinates(nds[3], LinearSolver.DOF.DX), 1e-4);
         }
 
         [TestMethod]
@@ -306,7 +312,7 @@ namespace FemTest.Solver {
             LoadCase lc = new LoadCase("lc1");
             CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
             double M = 1000.0;
-            NodeForceAttribute f = new NodeForceAttribute(lc, sys, 0, 0.0, 0.0, M, 0, 0);
+            NodeForceAttribute f = new NodeForceAttribute(lc, sys, 0, 0.0, 0.0, M, 0, -M);
 
             nds[3].AddAttribute(f);
 
@@ -327,7 +333,10 @@ namespace FemTest.Solver {
             LinearSolver fem = new LinearSolver(els.ToArray(), rigid1);
             LinearSolver fem2 = new LinearSolver(els.ToArray(), rigid2);
 
+            Assert.AreEqual(6.1115, fem.GetDisplacementGlobalCoordinates(nds[3], LinearSolver.DOF.DX), 1e-4);
             Assert.AreEqual(6.1115, fem.GetDisplacementGlobalCoordinates(nds[3], LinearSolver.DOF.DZ), 1e-4);
+
+            Assert.AreEqual(6.1115, fem2.GetDisplacementGlobalCoordinates(nds[3], LinearSolver.DOF.DX), 1e-4);
             Assert.AreEqual(6.1115, fem2.GetDisplacementGlobalCoordinates(nds[3], LinearSolver.DOF.DZ), 1e-4);
         }
 
@@ -350,7 +359,7 @@ namespace FemTest.Solver {
             LoadCase lc = new LoadCase("lc1");
             CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
             double M = -1000.0;
-            NodeForceAttribute f = new NodeForceAttribute(lc, sys, 0, 0.0, 0.0, M, 0, 0);
+            NodeForceAttribute f = new NodeForceAttribute(lc, sys, 0, 0.0, 0.0, M, 0, -M);
 
             nds[3].AddAttribute(f);
 
@@ -371,7 +380,10 @@ namespace FemTest.Solver {
             LinearSolver fem1 = new LinearSolver(els.ToArray(), rigid1);
             LinearSolver fem2 = new LinearSolver(els.ToArray(), rigid2);
 
-            Assert.AreEqual(6.1115, fem1.GetDisplacementGlobalCoordinates(nds[3], LinearSolver.DOF.DZ), 1e-4);
+            Assert.AreEqual(6.1115, fem1.GetDisplacementGlobalCoordinates(nds[3], LinearSolver.DOF.DX), 1e-4);
+            Assert.AreEqual(6.1115, fem2.GetDisplacementGlobalCoordinates(nds[3], LinearSolver.DOF.DZ), 1e-4);
+
+            Assert.AreEqual(6.1115, fem1.GetDisplacementGlobalCoordinates(nds[3], LinearSolver.DOF.DX), 1e-4);
             Assert.AreEqual(6.1115, fem2.GetDisplacementGlobalCoordinates(nds[3], LinearSolver.DOF.DZ), 1e-4);
         }
     }

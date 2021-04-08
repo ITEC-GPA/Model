@@ -91,7 +91,7 @@ namespace GPC.Model.FEM.Costrain
             #region traslations
             Link[] eqtnDX = new Link[4];
             factorRY = (node2.Position.Z - node1.Position.Z < 0) ? -1.0 : 1.0;
-            factorRZ = (node2.Position.Y - node1.Position.Y < 0) ? -1.0 : 1.0;
+            factorRZ = (node2.Position.Y - node1.Position.Y < 0) ? 1.0 : -1.0;
            
             eqtnDX[0] = new Link(node2, LinearSolver.DOF.DX, -1.0);
             eqtnDX[1] = new Link(node1, LinearSolver.DOF.DX, 1.0);
