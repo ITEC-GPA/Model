@@ -147,10 +147,10 @@ namespace GPC.Model.FEM.FiniteElements
             mnl.Matrix<double> lambda = mnl.Matrix<double>.Build.Dense(3, 3);
             if (lox == 0.0 && nox == 0.0)
             {
-                if (mox != 1.0)
+                /*if (mox != 1.0)
                 {
                     throw new Exception("mox shuold be 1");
-                }
+                }*/
                 lambda[0, 1] = mox;
 
                 lambda[1, 0] = -mox * Math.Cos(angle);

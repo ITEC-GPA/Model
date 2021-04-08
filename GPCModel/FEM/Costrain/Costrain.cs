@@ -74,7 +74,13 @@ namespace GPC.Model.FEM.Costrain
 
         public static MultiPointCostrain[] RigidLink(Node node1, Node node2)
         {
-            double L = node1.Position.DistanceTo(node2.Position);
+            double LX = Math.Abs(node1.Position.X - node2.Position.X);
+            double LY = Math.Abs(node1.Position.Y - node2.Position.Y);
+            double LZ = Math.Abs(node1.Position.Z - node2.Position.Z);
+
+            double factorRX;
+            double factorRY;
+            double factorRZ;
 
             //sin(x) = x - x^3/6 + x^5/120 - x^7/5040 .... (Taylor) 
             //cos(x) = 1 - x^2/2 + x^4/24 -x^6/720 + x^8/40320 .... (Taylor) 
@@ -83,56 +89,59 @@ namespace GPC.Model.FEM.Costrain
             //0 = Y' + Y + cos(Theta) * L = Y' + Y + 1.0 * L
 
             #region traslations
-            MultiPointCostrain.Link[] eqtnsDX = new MultiPointCostrain.Link[2];
-            eqtnsDX[0] = new Link(node2, LinearSolver.DOF.DX, -1.0);
-            eqtnsDX[1] = new Link(node1, LinearSolver.DOF.DX, 1.0);
-            /*eqtnsDX[2] = new MultiPointCostrain.Link(node1, LinearSolver.DOF.RY, L);
-            eqtnsDX[3] = new MultiPointCostrain.Link(node1, LinearSolver.DOF.RZ, L);*/
+            Link[] eqtnDX = new Link[4];
+            factorRY = (node2.Position.Z - node1.Position.Z < 0) ? -1.0 : 1.0;
+            factorRZ = (node2.Position.Y - node1.Position.Y < 0) ? -1.0 : 1.0;
+           
+            eqtnDX[0] = new Link(node2, LinearSolver.DOF.DX, -1.0);
+            eqtnDX[1] = new Link(node1, LinearSolver.DOF.DX, 1.0);
+            eqtnDX[2] = new Link(node1, LinearSolver.DOF.RY, factorRY * LZ);
+            eqtnDX[3] = new Link(node1, LinearSolver.DOF.RZ, factorRZ * LY);
 
-            MultiPointCostrain.Link[] eqtnsDY = new MultiPointCostrain.Link[4];
-            double signRZ = 1.0;
-            if (node2.Position.X - node1.Position.X < 0)
-            {
-                signRZ = -1.0;
-            }
-            double signRX = -1.0;
-            if (node2.Position.Z - node1.Position.Z < 0)
-            {
-                signRX = 1.0;
-            }
-            eqtnsDY[0] = new Link(node2, LinearSolver.DOF.DY, -1.0);
-            eqtnsDY[1] = new Link(node1, LinearSolver.DOF.DY, 1.0);
-            eqtnsDY[2] = new Link(node1, LinearSolver.DOF.RX, signRX * L);
-            eqtnsDY[3] = new Link(node1, LinearSolver.DOF.RZ, signRZ * L);
+            Link[] eqtnDY = new Link[4];
+            factorRX = (node2.Position.Z - node1.Position.Z < 0) ? 1.0 : -1.0;
+            factorRZ = (node2.Position.X - node1.Position.X < 0) ? -1.0 : 1.0;
+            
+            eqtnDY[0] = new Link(node2, LinearSolver.DOF.DY, -1.0);
+            eqtnDY[1] = new Link(node1, LinearSolver.DOF.DY, 1.0);
+            eqtnDY[2] = new Link(node1, LinearSolver.DOF.RX, factorRX * LZ);
+            eqtnDY[3] = new Link(node1, LinearSolver.DOF.RZ, factorRZ * LX);
 
-            Link[] eqtnsDZ = new Link[4];
-            eqtnsDZ[0] = new Link(node2, LinearSolver.DOF.DZ, -1.0);
-            eqtnsDZ[1] = new Link(node1, LinearSolver.DOF.DZ, 1.0);
-            eqtnsDZ[2] = new Link(node1, LinearSolver.DOF.RX, L);
-            eqtnsDZ[3] = new Link(node1, LinearSolver.DOF.RY, L);
+            Link[] eqtnDZ = new Link[4];
+            factorRX = (node2.Position.Y - node1.Position.Y < 0) ? -1.0 : 1.0;
+            factorRY = (node2.Position.X - node1.Position.X < 0) ? 1.0 : -1.0;
+            eqtnDZ[0] = new Link(node2, LinearSolver.DOF.DZ, -1.0);
+            eqtnDZ[1] = new Link(node1, LinearSolver.DOF.DZ, 1.0);
+            eqtnDZ[2] = new Link(node1, LinearSolver.DOF.RX, factorRX * LY);
+            eqtnDZ[3] = new Link(node1, LinearSolver.DOF.RY, factorRY * LX);
             #endregion
 
             #region rotation
-            Link[] eqtnsRX = new Link[2];
-            eqtnsRX[0] = new Link(node2, LinearSolver.DOF.RX, -1.0);
-            eqtnsRX[1] = new Link(node1, LinearSolver.DOF.RX, 1.0);
+            //RX node1 = RX node2
+            Link[] eqtnRX = new Link[2];
+            eqtnRX[0] = new Link(node2, LinearSolver.DOF.RX, -1.0);
+            eqtnRX[1] = new Link(node1, LinearSolver.DOF.RX, 1.0);
 
-            Link[] eqtnsRY = new Link[2];
-            eqtnsRY[0] = new Link(node2, LinearSolver.DOF.RY, -1.0);
-            eqtnsRY[1] = new Link(node1, LinearSolver.DOF.RY, 1.0);
+            //RY node1 = RY node2
+            Link[] eqtnRY = new Link[2];
+            eqtnRY[0] = new Link(node2, LinearSolver.DOF.RY, -1.0);
+            eqtnRY[1] = new Link(node1, LinearSolver.DOF.RY, 1.0);
 
-            Link[] eqtnsRZ = new Link[2];
-            eqtnsRZ[0] = new Link(node2, LinearSolver.DOF.RZ, -1.0);
-            eqtnsRZ[1] = new Link(node1, LinearSolver.DOF.RZ, 1.0);
+            //RZ node1 = RZ node2
+            Link[] eqtnRZ = new Link[2];
+            eqtnRZ[0] = new Link(node2, LinearSolver.DOF.RZ, -1.0);
+            eqtnRZ[1] = new Link(node1, LinearSolver.DOF.RZ, 1.0);
             #endregion
 
+            #region equations
             MultiPointCostrain[] links = new MultiPointCostrain[6];
-            links[0] = new MultiPointCostrain(eqtnsDX, 0.0);
-            links[1] = new MultiPointCostrain(eqtnsDY, 0.0);
-            links[2] = new MultiPointCostrain(eqtnsDZ, 0.0);
-            links[3] = new MultiPointCostrain(eqtnsRX, 0.0);
-            links[4] = new MultiPointCostrain(eqtnsRY, 0.0);
-            links[5] = new MultiPointCostrain(eqtnsRZ, 0.0);
+            links[0] = new MultiPointCostrain(eqtnDX, 0.0);
+            links[1] = new MultiPointCostrain(eqtnDY, 0.0);
+            links[2] = new MultiPointCostrain(eqtnDZ, 0.0);
+            links[3] = new MultiPointCostrain(eqtnRX, 0.0);
+            links[4] = new MultiPointCostrain(eqtnRY, 0.0);
+            links[5] = new MultiPointCostrain(eqtnRZ, 0.0);
+            #endregion
 
             return links;
         }

@@ -92,6 +92,42 @@ namespace FemTest.Solver {
         }
 
         [TestMethod]
+        public void BendingTest2()
+        {
+            double E = 10.0;
+            Section sec = new SectionCHS(100.0, 50.0, new SteelMaterial("m", E, 0.0, 355, 510, 7850), "sec");
+
+            double L = 1000;
+            List<Node> nds = new List<Node>();
+            nds.Add(new Node(0, 0, 0));
+            nds.Add(new Node(0, -L, 0));
+
+            Beam b = new Beam(nds.ToArray(), sec);
+
+            LoadCase lc = new LoadCase("lc1");
+            CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
+            
+            NodeForceAttribute f = new NodeForceAttribute(lc, sys, 0.0, 0.0, 0.0, -1000.0, 0.0, 0.0);
+
+            nds[1].AddAttribute(f);
+
+            FreedomCase fc = new FreedomCase("fc");
+            NodeRestrainAttribute fix = new NodeRestrainAttribute(fc, sys);
+            fix.AddExternalRestrain(LinearSolver.DOF.DX);
+            fix.AddExternalRestrain(LinearSolver.DOF.DY);
+            fix.AddExternalRestrain(LinearSolver.DOF.DZ);
+            fix.AddExternalRestrain(LinearSolver.DOF.RX);
+            fix.AddExternalRestrain(LinearSolver.DOF.RY);
+            fix.AddExternalRestrain(LinearSolver.DOF.RZ);
+
+            nds[0].AddAttribute(fix);
+
+            LinearSolver fem = new LinearSolver(new FiniteElement[] { b });
+
+            Assert.AreEqual(10.1859, fem.GetDisplacementGlobalCoordinates(nds[1], LinearSolver.DOF.DZ), 1e-4);
+        }
+
+        [TestMethod]
         public void ShearForceTest1()
         {
             Section sec = new SectionCHS(100.0, 50.0, new SteelMaterial("m", 10.0, 0.0, 355, 510, 7850), "sec");

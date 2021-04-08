@@ -31,7 +31,7 @@ namespace GPC.Model.FEM
             #endif
         }
 
-        public static void WriteMatrix(mnl.Vector<double> v, string format)
+        public static void WriteMatrix(mnl.Vector<double> v, string format = "F2")
         {
             #if DEBUG
             Console.WriteLine("dim: "+ v.Count);
@@ -42,7 +42,7 @@ namespace GPC.Model.FEM
             #endif
         }
 
-        public static void WriteVector(mnl.Vector<double> v, string format)
+        public static void WriteVector(mnl.Vector<double> v, string format = "F2")
         {
             #if DEBUG
             WriteMatrix(v, format);
