@@ -183,5 +183,64 @@ namespace FemTest.Solver
                 }
             }
         }
+
+        /*[TestMethod]
+        public void KMatrixTest2()
+        {
+            List<Node> nds = new List<Node>();
+            nds.Add(new Node(0.0, 0.0, 0.0));
+            nds.Add(new Node(1.0, 0.0, 0.0));
+            nds.Add(new Node(0.0, 1.0, 0.0));
+            nds.Add(new Node(0.0, 0.0, 1.0));
+
+            Assert.AreEqual(0.16666666666666, Tethraedron4.GetVolume(nds.ToArray()), 0.00001);
+
+            SteelMaterial mat = new SteelMaterial("mat", 1.0, 0.0, 355, 510, 7850.0);
+
+            BrickProperty brickProperty = new BrickProperty(mat, "propr");
+
+            Tethraedron4 e = new Tethraedron4(nds.ToArray(), brickProperty);
+            e.BuildMatrix();
+
+            FEMUtilities.WriteMatrix(e.KElementLocalCoord);
+
+            //Local axis == global axis
+            for (int r = 0; r < 12; r++)
+            {
+                for (int c = 0; c < 12; c++)
+                {
+                    Assert.AreEqual(e.KElementLocalCoord[r, c], e.KElementGlobalCoord[r, c], 0.00000001);
+                }
+            }
+
+            
+            List<mnl.Vector<double>> rows = new List<mnl.Vector<double>>();
+
+            rows.Add(mnl.Vector<double>.Build.DenseOfArray(new double[] { 0.3333, 0.0833, 0.0833, -0.1667, -0.0833, -0.0833, -0.0833, 0, 0, -0.0833, 0, 0 }));
+            rows.Add(mnl.Vector<double>.Build.DenseOfArray(new double[] { 108, 344, 54, -24, 104, 42, -24, -216, -12, -60, -232, -84 }));
+            rows.Add(mnl.Vector<double>.Build.DenseOfArray(new double[] { 24, 54, 113, 0, 30, 35, 0, -24, -54, -24, -60, -94 }));
+            rows.Add(mnl.Vector<double>.Build.DenseOfArray(new double[] { -1, -24, 0, 29, -18, -12, -18, 24, 0, -10, 18, 12 }));
+            rows.Add(mnl.Vector<double>.Build.DenseOfArray(new double[] { 6, 104, 30, -18, 44, 18, 12, -72, -12, 0, -76, -36 }));
+            rows.Add(mnl.Vector<double>.Build.DenseOfArray(new double[] { 12, 42, 35, -12, 18, 29, 0, -24, -18, 0, -36, -46 }));
+            rows.Add(mnl.Vector<double>.Build.DenseOfArray(new double[] { -54, -24, 0, -18, 12, 0, 36, 0, 0, 36, 12, 0 }));
+            rows.Add(mnl.Vector<double>.Build.DenseOfArray(new double[] { -48, -216, -24, 24, -72, -24, 0, 144, 0, 24, 144, 48 }));
+            rows.Add(mnl.Vector<double>.Build.DenseOfArray(new double[] { 0, -12, -54, 0, -12, -18, 0, 0, 36, 0, 24, 36 }));
+            rows.Add(mnl.Vector<double>.Build.DenseOfArray(new double[] { -94, -60, -24, -10, 0, 0, 36, 24, 0, 68, 36, 24 }));
+            rows.Add(mnl.Vector<double>.Build.DenseOfArray(new double[] { -66, -232, -60, 18, -76, -36, 12, 144, 24, 36, 164, 72 }));
+            rows.Add(mnl.Vector<double>.Build.DenseOfArray(new double[] { -36, -84, -94, 12, -36, -46, 0, 48, 36, 24, 72, 104 }));
+
+            mnl.Matrix<double> k = mnl.Matrix<double>.Build.Dense(0, 12);
+
+            int index = 0;
+            rows.ForEach(r => { k = k.InsertRow(index, r); index++; });
+
+            for (int r = 0; r < 12; r++)
+            {
+                for (int c = 0; c < 12; c++)
+                {
+                    Assert.AreEqual(e.KElementGlobalCoord[r, c], k[r, c], 0.0001, "Error in row " + r + " col " + c);
+                }
+            }
+        }*/
     }
 }

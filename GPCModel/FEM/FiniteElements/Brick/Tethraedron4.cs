@@ -134,7 +134,7 @@ namespace GPC.Model.FEM.FiniteElements
 
             //ripartire secondo V/4 ed eventualmente per pressioni su facce come A/3
 
-            return base.BuildFLocalCoord();
+            return mnl.Vector<double>.Build.Dense(4*3);
         }
 
         /// <summary>
@@ -208,8 +208,8 @@ namespace GPC.Model.FEM.FiniteElements
 
             var listNodes = nodeOrdered.ToList();
             listNodes.RemoveAt(0); //remove node
-            listNodes.ForEach(x => Console.WriteLine(x));
-            Console.WriteLine();
+            /*listNodes.ForEach(x => Console.WriteLine(x));
+            Console.WriteLine();*/
 
             mnl.Vector<double> a(Node n)
             {
@@ -276,7 +276,7 @@ namespace GPC.Model.FEM.FiniteElements
                 m = m.InsertRow(i, r);
                 i++;
             });
-            Console.WriteLine(m);
+            //Console.WriteLine(nameCoefficient + " = " + m);
 
             double factor;
             switch (nameCoefficient)

@@ -19,7 +19,7 @@ namespace FemTest.Solver {
     [TestClass]
     public class CostrainTest {
 
-        /*[TestMethod]
+        [TestMethod]
         public void Axial1()
         {
             double E = 10.0;
@@ -57,9 +57,9 @@ namespace FemTest.Solver {
             LinearSolver fem1 = new LinearSolver(els.ToArray(), rigids1);
             LinearSolver fem2 = new LinearSolver(els.ToArray(), rigids2);
 
-            Assert.AreEqual(FX / (Math.PI * 100.0 * 100.0 / 4.0 * E) * (300), fem1.GetDisplacementGlobalCoordinates(nds[3], LinearSolver.DOF.DX), 1e-6);
-            Assert.AreEqual(FX / (Math.PI * 100.0 * 100.0 / 4.0 * E) * (300), fem2.GetDisplacementGlobalCoordinates(nds[3], LinearSolver.DOF.DX), 1e-6);
-        }*/
+            Assert.AreEqual(FX / (Math.PI * 100.0 * 100.0 / 4.0 * E) * (300), fem1.GetDisplacementGlobalCoordinates(nds[2], LinearSolver.DOF.DX), 1e-6);
+            Assert.AreEqual(FX / (Math.PI * 100.0 * 100.0 / 4.0 * E) * (300), fem2.GetDisplacementGlobalCoordinates(nds[2], LinearSolver.DOF.DX), 1e-6);
+        }
 
         [TestMethod]
         public void AxialXPositive()

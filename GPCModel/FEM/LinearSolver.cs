@@ -117,6 +117,7 @@ namespace GPC.Model.FEM
                     }
                     else
                     {
+                        //New Node
                         for (int k = 0; k < MAXDOFPERNODE; k++)
                         {
                             if (element.DOF.Contains((DOF)k) == true)
@@ -127,6 +128,27 @@ namespace GPC.Model.FEM
                         node.SetId(iter);
                         nodesModel.Add(node);
                         iter++;
+                    }
+                }
+            }
+
+            //nodes due to Links
+            for (int i = 0; i < costrains.Length; i++) {
+                MultiPointCostrain costrain = costrains[i];
+                for (int j = 0; j < costrain.Links.Length; j++) {
+                    Node node = costrain.Links[j].NodeSlave;
+                    var nodes = nodesModel.Where(n => n.Position.X == node.Position.X && n.Position.Y == node.Position.Y && n.Position.Z == node.Position.Z);
+                    if (nodes.Count() == 0)
+                    {
+                        //New node not used in elements
+                        //Activate DOF in order to have place in stiffness matrix and Fvector
+                        node.DOF.Add(DOF.DX);
+                        node.DOF.Add(DOF.DY);
+                        node.DOF.Add(DOF.DZ);
+                        node.DOF.Add(DOF.RX);
+                        node.DOF.Add(DOF.RY);
+                        node.DOF.Add(DOF.RZ);
+                        nodesModel.Add(node);
                     }
                 }
             }
@@ -214,7 +236,7 @@ namespace GPC.Model.FEM
             }
             #if DEBUG
             Console.WriteLine("kGlobal System :");
-            FEMUtilities.WriteMatrix(_KGlobal);
+            FEMUtilities.WriteMatrix(_KGlobal, "F3");
             #endif
             #endregion
 
@@ -364,7 +386,7 @@ namespace GPC.Model.FEM
             }
             #if DEBUG
             Console.WriteLine("kGlobal System + Restrains: ");
-            FEMUtilities.WriteMatrix(_KGlobalRestrains);
+            FEMUtilities.WriteMatrix(_KGlobalRestrains, "F3");
             Console.WriteLine("Fmodified(Restrains):");
             FEMUtilities.WriteVector(_FRestrains);
             #endif

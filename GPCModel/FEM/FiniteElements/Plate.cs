@@ -122,7 +122,6 @@ namespace GPC.Model.FEM.FiniteElements
         /// <returns></returns>
         public static mnl.Matrix<double> DPlaneStress(double E, double ni)
         {
-            //TODO: spostare da qui in un posto migliore
             mnl.Matrix<double> D = mnl.Matrix<double>.Build.Dense(3, 3);
             D[0, 0] = 1.0;
             D[0, 1] = ni;

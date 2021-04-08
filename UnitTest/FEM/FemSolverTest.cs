@@ -11,6 +11,7 @@ using GPC.Geometry;
 using GPC.Model.FEM.Properties;
 using GPC.Model.FEM.Attributes;
 using GPC.Model.LoadCases;
+using GPC.Model.Sections;
 
 namespace FemTest.Solver
 {
@@ -68,7 +69,7 @@ namespace FemTest.Solver
             mnl.Matrix<double> K = fem.KGlobal;
 
             mnl.Matrix<double> KManual = mnl.Matrix<double>.Build.Dense(0, fem.KGlobal.ColumnCount);
-            double[] r0 = new double[] { 145833.3, 62500.0,0.0, -41666.7, -20833.3, 0.0, -104166.7, -41666.7, 0.0, 0.0, 0.0, 0.0 };
+            double[] r0 = new double[] { 145833.3, 62500.0, 0.0, -41666.7, -20833.3, 0.0, -104166.7, -41666.7, 0.0, 0.0, 0.0, 0.0 };
             double[] r1 = new double[] { 62500.0, 145833.3, 0.0, -41666.7, -104166.7, 0.0, -20833.3, -41666.7, 0.0, 0.0, 0.0, 0.0 };
             double[] r2 = new double[] { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
             double[] r3 = new double[] { -41666.7, -41666.7, 0.0, 145833.3, 0.0, 0.0, 0.0, 62500.0, 0.0, -104166.7, -20833.3, 0.0 };
@@ -111,7 +112,7 @@ namespace FemTest.Solver
 
             Material mat = new SteelMaterial("steel", 200000, 0.2, 355, 510, 7850);
             PlateProperty prop = new PlateProperty(mat, 0, 1, "p");
-            
+
             CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
             NodeRestrainAttribute DXDYDZ = new NodeRestrainAttribute(fc, sys);
             DXDYDZ.AddExternalRestrain(LinearSolver.DOF.DX);
@@ -355,5 +356,62 @@ namespace FemTest.Solver
             Assert.AreEqual(Node3CopyDY, dYNode3, 0.000001);
         }
 
+        [TestMethod]
+        public void AssemblyMixedElement()
+        {
+            LoadCase loadCase = new LoadCase("myLoadCase", new Guid());
+            FreedomCase freedomCase = new FreedomCase("freedomCase1");
+
+            Material mat = new SteelMaterial("steel", 1, 0.0, 355, 510, 7850);
+            BrickProperty prop = new BrickProperty(mat, "p");
+            double d = 0.5;
+            double t = d / 2.0;
+            Section sec = new SectionCHS(d, t, mat, "p");
+
+            List<Node> nds = new List<Node>();
+            nds.Add(new Node(0, 0, 0)); //0
+            nds.Add(new Node(1, 0, 0)); //1
+            nds.Add(new Node(0, 1, 0)); //2
+            nds.Add(new Node(0, 0, 1)); //3
+            nds.Add(new Node(0, 0, 2)); //4
+
+            FiniteElement[] els = new FiniteElement[2];
+            els[0] = new Beam(new Node[] { nds[3], nds[4] }, sec);
+            els[1] = new Tethraedron4(new Node[] { nds[0], nds[1], nds[2], nds[3] }, prop);
+
+            CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
+            NodeForceAttribute F = new NodeForceAttribute(loadCase, sys, 10, 0, 0, 0, 0, 0);
+            nds[0].AddAttribute(F);
+
+            NodeRestrainAttribute fix = new NodeRestrainAttribute(freedomCase, sys);
+            fix.AddExternalRestrain(LinearSolver.DOF.DX);
+            fix.AddExternalRestrain(LinearSolver.DOF.DY);
+            fix.AddExternalRestrain(LinearSolver.DOF.DZ);
+            fix.AddExternalRestrain(LinearSolver.DOF.RX);
+            fix.AddExternalRestrain(LinearSolver.DOF.RY);
+            fix.AddExternalRestrain(LinearSolver.DOF.RZ);
+
+            nds[4].AddAttribute(fix);
+
+            NodeRestrainAttribute dxdydz = new NodeRestrainAttribute(freedomCase, sys);
+            dxdydz.AddExternalRestrain(LinearSolver.DOF.DX);
+            dxdydz.AddExternalRestrain(LinearSolver.DOF.DY);
+            dxdydz.AddExternalRestrain(LinearSolver.DOF.DZ);
+
+            /*nds[1].AddAttribute(dxdydz);
+            nds[2].AddAttribute(dxdydz);*/
+
+            nds[1].AddAttribute(fix);
+            nds[2].AddAttribute(fix);
+
+            els[0].BuildMatrix();
+            Console.WriteLine("Matrix Beam");
+            FEMUtilities.WriteMatrix(els[0].KElementGlobalCoord, "F3");
+            els[1].BuildMatrix();
+            Console.WriteLine("Tetraedron");
+            FEMUtilities.WriteMatrix(els[1].KElementGlobalCoord, "F3");
+
+            LinearSolver fem = new LinearSolver(els);
+        }
     }
 }

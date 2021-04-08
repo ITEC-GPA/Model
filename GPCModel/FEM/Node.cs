@@ -25,7 +25,7 @@ namespace GPC.Model.FEM
         /// <summary>
         /// Contains the degree of freedom active for the node
         /// </summary>
-        public HashSet<LinearSolver.DOF> DOF { get; set; }
+        public SortedSet<LinearSolver.DOF> DOF { get; set; }
 
         public int NrActiveDof
         {
@@ -51,7 +51,7 @@ namespace GPC.Model.FEM
         {
             _position = point;
             
-            DOF = new HashSet<LinearSolver.DOF>();
+            DOF = new SortedSet<LinearSolver.DOF>();
             
             _attributesLoadCase = new List<INodeLoadCaseAttribute>();
             _attributesFreedomCase = new List<INodeFreedomCaseAttribute>();
