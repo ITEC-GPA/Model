@@ -15,7 +15,7 @@ using GPC.Model.LoadCases;
 namespace FemTest.Solver
 {
     [TestClass]
-    public class FemSolverQuad4MQ2IbraMembranalTest
+    public class Quad4MQ2IbraMembranalTest
     {
         [TestMethod]
         public void GetIndexCalculationTest1()

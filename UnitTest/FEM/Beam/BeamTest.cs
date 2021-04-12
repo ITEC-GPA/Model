@@ -261,5 +261,41 @@ namespace FemTest.Solver {
 
             Assert.AreEqual(1.1672, fem.GetDisplacementGlobalCoordinates(nds[1], LinearSolver.DOF.RX) * 180.0 / Math.PI, 1e-4);
         }
+
+        [TestMethod]
+        public void SimplySupportedTest1()
+        {
+            Section sec = new SectionCHS(100.0, 50.0, new SteelMaterial("m", 1.0, 0.0, 355, 510, 7850), "sec");
+
+            List<Node> nds = new List<Node>();
+            nds.Add(new Node(0, 0, 0));
+            nds.Add(new Node(1000, 0, 0));
+            nds.Add(new Node(2000, 0, 0));
+
+            List<Beam> beams = new List<Beam>();
+            beams.Add(new Beam(new Node[] { nds[0], nds[1] }, sec));
+            beams.Add(new Beam(new Node[] { nds[1], nds[2] }, sec));
+
+            LoadCase lc = new LoadCase("lc1");
+            CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
+            double F = 1.0;
+            NodeForceAttribute f = new NodeForceAttribute(lc, sys, 0.0, -F, 0.0, 0, 0.0, 0.0);
+
+            nds[1].AddAttribute(f);
+
+            FreedomCase fc = new FreedomCase("fc");
+            NodeRestrainAttribute support = new NodeRestrainAttribute(fc, sys);
+            support.AddExternalRestrain(LinearSolver.DOF.DX);
+            support.AddExternalRestrain(LinearSolver.DOF.DY);
+            support.AddExternalRestrain(LinearSolver.DOF.DZ);
+            support.AddExternalRestrain(LinearSolver.DOF.RX);
+
+            nds[0].AddAttribute(support);
+            nds[2].AddAttribute(support);
+
+            LinearSolver fem = new LinearSolver(beams.ToArray());
+
+            Assert.AreEqual(-33.9531, fem.GetDisplacementGlobalCoordinates(nds[1], LinearSolver.DOF.DY), 1e-4);
+        }
     }
 }

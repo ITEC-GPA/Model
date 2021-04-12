@@ -16,7 +16,7 @@ using GPC.Model.LoadCases;
 namespace FemTest.Solver
 {
     [TestClass]
-    public class FemSolverDKTTest
+    public class DKTTest
     {
         [TestMethod]
         public void Tri3DKTTest1()

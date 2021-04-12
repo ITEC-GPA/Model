@@ -650,7 +650,7 @@ namespace GPC.Model.FEM
             int posNode = -1;
             for (int i = 0; i < Nodes.Length; i++)
             {
-                if (Nodes.ElementAt(i).Position.X == node.Position.X && Nodes.ElementAt(i).Position.Y == node.Position.Y && Nodes.ElementAt(i).Position.Z == node.Position.Z)
+                if (Nodes[i].Position.X == node.Position.X && Nodes[i].Position.Y == node.Position.Y && Nodes[i].Position.Z == node.Position.Z)
                 {
                     posNode = i;
                     i = Nodes.Length; //exit from the cycle
@@ -663,6 +663,7 @@ namespace GPC.Model.FEM
             #endregion
             #region CounterForDOFofCurrentNode
             int counter2 = 0;
+            bool found = false;
             for (int i = 0; i < Nodes[posNode].DOF.Count; i++)
             {
                 if (dof != Nodes[posNode].DOF.ElementAt(i))
@@ -671,10 +672,16 @@ namespace GPC.Model.FEM
                 }
                 else
                 {
+                    found = true;
                     i = Nodes[posNode].DOF.Count; //exit from cycle
                 }
             }
-            return counter + counter2;
+            if (found == true) {
+                return counter + counter2;
+            } else
+            {
+                throw new Exception(dof + " for node " + node.ToString() + " not found");
+            }
             //return counter + (int)dof;
             #endregion
         }

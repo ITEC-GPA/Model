@@ -16,7 +16,7 @@ using GPC.Model.Sections;
 namespace FemTest.Solver
 {
     [TestClass]
-    public class FemSolverTestGeneral
+    public class GeneralTest
     {
         [TestMethod]
         public void AlwaysOrderedGDL()
@@ -398,11 +398,11 @@ namespace FemTest.Solver
             dxdydz.AddExternalRestrain(LinearSolver.DOF.DY);
             dxdydz.AddExternalRestrain(LinearSolver.DOF.DZ);
 
-            /*nds[1].AddAttribute(dxdydz);
-            nds[2].AddAttribute(dxdydz);*/
+            nds[1].AddAttribute(dxdydz);
+            nds[2].AddAttribute(dxdydz);
 
-            nds[1].AddAttribute(fix);
-            nds[2].AddAttribute(fix);
+            /*nds[1].AddAttribute(fix);
+            nds[2].AddAttribute(fix);*/
 
             els[0].BuildMatrix();
             Console.WriteLine("Matrix Beam");

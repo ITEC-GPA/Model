@@ -15,7 +15,7 @@ using GPC.Model.LoadCases;
 namespace FemTest.Solver
 {
     [TestClass]
-    public class FemSolverQuad4GQ12MembranalTest
+    public class Quad4GQ12MembranalTest
     {
         /*[TestMethod]
         public void Quad4GQ12MembranalTestB()

@@ -16,7 +16,7 @@ using GPC.Model.LoadCases;
 namespace FemTest.Solver
 {
     [TestClass]
-    public class FemSolverTestSBTE
+    public class Tri3SBTETest
     {
         /// <summary>
         /// Easy example, not valid as test

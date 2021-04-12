@@ -16,7 +16,7 @@ using GPC.Model.LoadCases;
 namespace FemTest.Solver
 {
     [TestClass]
-    public class FemSolverMembraneTest
+    public class MembraneTest
     {
         [TestMethod]
         public void Tri3PlaneStressKTest1()
