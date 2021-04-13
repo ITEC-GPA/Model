@@ -3,13 +3,13 @@ using System;
 
 namespace GPC.Model.FEM.Properties
 {
-    public class BrickProperty : ElementProperty, IBrickProperty
+    public class BrickProperty : ElementProperty
     {
         protected Material _material;
 
         public BrickProperty(Material material, string name) : base(name)
         {
-            _material = material ?? throw new ArgumentNullException("Brick property material cannot be null");
+            _material = material ?? throw new ArgumentNullException("Material cannot be null");
         }
 
         public override double GetAlphaThermalExpansion()
