@@ -7,6 +7,8 @@ namespace GPC.Model.FEM.Properties
     {
         protected Material _material;
 
+        public Material Material => _material;
+
         public BrickProperty(Material material, string name) : base(name)
         {
             _material = material ?? throw new ArgumentNullException("Material cannot be null");
