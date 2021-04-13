@@ -8,12 +8,11 @@ namespace GPC.Model.FEM.Properties
     public class PlateProperty : ElementProperty, IPlateProperty
     {
         #region Variables
+        protected Material _material;
 
         protected double _bendingThickness;
 
         protected double _membraneThickness;
-
-        protected Material _material;
 
         #endregion
 
@@ -24,6 +23,7 @@ namespace GPC.Model.FEM.Properties
         public double MembraneThickness => _membraneThickness;
 
         public Material Material => _material;
+
         #endregion
 
         #region Public Constructors
@@ -33,11 +33,11 @@ namespace GPC.Model.FEM.Properties
         /// <param name="membraneThickness"> Membranal thickness</param>
         /// </summary>
         public PlateProperty(Material material, double bendingThickness, double membraneThickness, string name)
-            : base(name, Guid.NewGuid())
+            : base(name)
         {
             _bendingThickness = bendingThickness;
             _membraneThickness = membraneThickness;
-            _material = material ?? throw new ArgumentNullException("Plate property material cannot be null");
+            _material = material ?? throw new ArgumentNullException("Material cannot be null");
         }
 
 
@@ -46,30 +46,39 @@ namespace GPC.Model.FEM.Properties
         {
             _bendingThickness = info.GetDouble("BendingThickness");
             _membraneThickness = info.GetDouble("MembranalThickness");
-            _material = (Material)info.GetValue("Material", typeof(Material));
+            throw new NotImplementedException();
         }
 
-        #endregion 
 
-        public virtual double GetE()
+        #endregion
+
+
+        public override double GetE()
         {
             return _material.E;
         }
 
-        public virtual double GetNi()
+        public override double GetNi()
         {
             return _material.Ni;
         }
 
-        public virtual double GetG()
+        public override double GetShearModule()
         {
-            return GetE() / (2.0 * (1.0 + GetNi()));
+            return _material.GetShearModule();
         }
 
-        public virtual double GetDensity()
+        public override double GetDensity()
         {
             return _material.Density;
         }
+
+        public override double GetAlphaThermalExpansion()
+        {
+            return _material.AlfaThermalExpansion;
+        }
+
+
 
 
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
@@ -88,7 +97,7 @@ namespace GPC.Model.FEM.Properties
             PlateProperty objCasted = obj as PlateProperty;
             return !(objCasted is null) && _bendingThickness == objCasted._bendingThickness &&
                                            _membraneThickness == objCasted._membraneThickness &&
-                                           _material.Equals(objCasted._material) &&
+                                           _material == objCasted._material &&
                                            base.Equals(objCasted);
         }
 

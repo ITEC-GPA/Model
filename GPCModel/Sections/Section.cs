@@ -217,6 +217,31 @@ namespace GPC.Model.Sections
 
             return sigmaN + sigmaMy + sigmaMz;
         }
+
+        public override double GetE()
+        {
+            return _material.E;
+        }
+
+        public override double GetNi()
+        {
+            return _material.Ni;
+        }
+
+        public override double GetShearModule()
+        {
+            return _material.GetShearModule();
+        }
+
+        public override double GetDensity()
+        {
+            return _material.Density;
+        }
+
+        public override double GetAlphaThermalExpansion()
+        {
+            return _material.AlfaThermalExpansion;
+        }
         #endregion
     }
 }

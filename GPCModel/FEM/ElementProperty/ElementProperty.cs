@@ -1,4 +1,6 @@
-﻿using System;
+﻿using GPC.Model.Materials;
+using System;
+using System.Collections.Generic;
 using System.Runtime.Serialization;
 
 namespace GPC.Model.FEM.Properties
@@ -6,32 +8,42 @@ namespace GPC.Model.FEM.Properties
     [Serializable]
     public abstract class ElementProperty : ModelObject
     {
+
         #region Public Constructors
 
         protected ElementProperty(string name)
             : base(Guid.NewGuid(), name)
         {
-
         }
 
-        protected ElementProperty(string name, Guid guid)
-            : base(guid, name)
-        {
-
-        }
 
         protected ElementProperty(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
-
+            throw new NotImplementedException();
         }
 
-        #endregion 
 
+        #endregion
+
+
+        public abstract double GetE();
+
+        public abstract double GetNi();
+
+        public abstract double GetShearModule();
+
+        public abstract double GetDensity();
+
+        public abstract double GetAlphaThermalExpansion();
+
+
+        #region Equals - Override - Operators
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
 
         {
             base.GetObjectData(info, context);
+            throw new NotImplementedException();
         }
 
         public override bool Equals(object obj)
@@ -63,6 +75,7 @@ namespace GPC.Model.FEM.Properties
         public static bool operator !=(ElementProperty obj1, ElementProperty obj2)
         {
             return !(obj1 == obj2);
-        }
+        } 
+        #endregion
     }
 }

@@ -1,32 +1,42 @@
-﻿
+﻿using GPC.Model.Materials;
 using System;
-using GPC.Model.Materials;
 
 namespace GPC.Model.FEM.Properties
 {
-
-    public class BrickProperty : ElementProperty, IBrickProperty
+    public class BrickProperty : ElementProperty
     {
-        
         protected Material _material;
 
+        public Material Material => _material;
 
-        public BrickProperty(Material material, string name) : base(name, Guid.NewGuid())
+        public BrickProperty(Material material, string name) : base(name)
         {
-
-            _material = material ?? throw new ArgumentNullException("Brick property material cannot be null");
+            _material = material ?? throw new ArgumentNullException("Material cannot be null");
         }
 
-        public double GetE()
+        public override double GetAlphaThermalExpansion()
+        {
+            return _material.AlfaThermalExpansion;
+        }
+
+        public override double GetDensity()
+        {
+            return _material.Density;
+        }
+
+        public override double GetE()
         {
             return _material.E;
         }
 
-        public double GetNi()
+        public override double GetNi()
         {
             return _material.Ni;
         }
 
+        public override double GetShearModule()
+        {
+            return _material.GetShearModule();
+        }
     }
-
 }

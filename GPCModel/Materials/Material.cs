@@ -64,10 +64,6 @@ namespace GPC.Model.Materials
         { 
         }
 
-        public Material(Guid guid) 
-            : this("", 0, 0, 0, 0, guid) 
-        { 
-        }
 
         protected Material(SerializationInfo info, StreamingContext context) 
             : base(info, context)
@@ -80,7 +76,13 @@ namespace GPC.Model.Materials
 
         #endregion 
 
-        #region PUBLIC METHODS
+        public virtual double GetShearModule()
+        {
+            return E / (2.0 * (1.0 + Ni));
+        }
+
+
+        #region Equals - HashCode - Operators
 
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {

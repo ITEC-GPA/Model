@@ -20,6 +20,8 @@ namespace GPC.Model.FEM.FiniteElements
     [System.ComponentModel.Description("Verrà messa abstract una volta che il fem è stabile")]
     public class Plate : FiniteElement
     {
+        // TODO: rendere abstract
+
         public bool IsTriangle => Nodes.Length == 3 ? true : false;
 
         public bool IsQuad => Nodes.Length == 4 ? true : false;

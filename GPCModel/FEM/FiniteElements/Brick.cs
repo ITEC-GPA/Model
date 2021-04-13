@@ -14,7 +14,17 @@ namespace GPC.Model.FEM.FiniteElements
 {
     public class Brick : FiniteElement
     {
-        public Brick(Node[] nodes) : base(nodes) { }
+
+        public bool IsTriangular => Nodes.Length == 6 ? true : false;
+
+        public bool IsQuadrangular => Nodes.Length == 8 ? true : false;
+
+
+        public Brick(Node[] nodes) 
+            : base(nodes)
+        {
+
+        }
 
         /// <summary>
         /// Convert attribute in node forces

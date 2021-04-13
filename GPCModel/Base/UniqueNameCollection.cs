@@ -23,6 +23,7 @@ namespace GPC.Model
         /// <returns>True if the element has been added
         /// <para>False if the element has not been added since there was already an element in the collection with the same name</para>
         /// </returns>
+        /// <remarks>This is a O(1) operation</remarks>
         public override bool Add(T item)
         {
             if (item is null)
@@ -41,10 +42,14 @@ namespace GPC.Model
         /// <summary><inheritdoc cref="Enumerable.SingleOrDefault"/></summary>
         /// <returns><inheritdoc cref="Enumerable.SingleOrDefault"/></returns>
         /// <exception cref="InvalidOperationException" ></exception>
+        /// <remarks>This is a O(n) operation</remarks>
         public virtual T GetElementByName(string name)
         {
             // l'add non fa aggiungere oggetti con nome duplicato.
             // se le istanze variano dopo che sono stati aggiunti e trova un duplicato va in eccezione
+
+            //(_collection as HashSet<T>).TryGetValue(new Elements.GhostElement(name), out T found);
+
             return _collection.SingleOrDefault(i => i.Name == name);
         }
 
@@ -58,6 +63,7 @@ namespace GPC.Model
             return _collection.Contains(item);
         }
 
+        /// <remarks>This is a O(1) operation</remarks>
         public bool Remove(T item)
         {
             return _collection.Remove(item);

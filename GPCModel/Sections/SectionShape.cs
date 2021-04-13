@@ -16,39 +16,23 @@ namespace GPC.Model.Sections
 
             public List<Material> Materials => _materials;
 
-            public MultiMaterial(Material[] materials, Guid guid)
-                : base(guid)
+            public MultiMaterial(Material[] materials)
+                : base(string.Empty, 1, 0.1, Guid.NewGuid())
             {
                 _materials = new List<Material>(materials);
             }
         }
 
-        #region Variables
         protected List<Shape> _shapes;
-        #endregion
 
-        #region Properties
         public List<Shape> Shapes => _shapes;
-        #endregion
-
-        #region Public Constructors
-        #endregion
-
-        #region Public Methods Specific
-        #endregion
-
-        #region Private Methods Specific
-        #endregion
-
-        #region Public Methods Override
-        #endregion
 
 
         public SectionShape(Shape[] shapes, Material[] materials, string name)
             : base(materials, name)
         {
             _shapes = new List<Shape>(shapes);
-            _material = new MultiMaterial(materials, new Guid());
+            _material = new MultiMaterial(materials);
         }
 
         public override ShapeMaterial[] GetShapes()

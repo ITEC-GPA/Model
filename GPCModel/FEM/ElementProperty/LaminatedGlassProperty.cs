@@ -27,7 +27,7 @@ namespace GPC.Model.FEM.Properties
 
 
         public LaminatedGlassProperty(LaminatedGlass laminatedGlass, string name)
-            : base(name, Guid.NewGuid())
+            : base(name)
         {
             if (laminatedGlass == null)
                 throw new ArgumentNullException("Laminated glass can not be null");
@@ -54,25 +54,38 @@ namespace GPC.Model.FEM.Properties
             throw new NotImplementedException();
         }
 
-        public virtual List<double> GetGlassE()
+        public override double GetE()
         {
-            return _glassMaterials.Select(i => i.E).ToList();
+            return _glassMaterials.Select(i => i.E).Min();
         }
 
-        public virtual List<double> GetGlassNi()
+        public override double GetNi()
         {
-            return _glassMaterials.Select(i => i.Ni).ToList();
+            return _glassMaterials.Select(i => i.Ni).Min();
         }
 
-        public virtual List<double> GetGlassG()
+        public override double GetShearModule()
         {
-            return _glassMaterials.Select(i => i.E / (2.0 * (1.0 + i.Ni))).ToList();
+            return _glassMaterials.Select(i => i.GetShearModule()).Min();
         }
 
-        public virtual List<double> GetInterlayerG(double loadDuration, double temperature)
+        public override double GetDensity()
+        {
+            return _glassMaterials.Select(i => i.Density).Min();
+        }
+
+        public override double GetAlphaThermalExpansion()
+        {
+            return _glassMaterials.Select(i => i.AlfaThermalExpansion).Min();
+        }
+
+
+        public virtual List<double> GetInterlayerShearModule(double loadDuration, double temperature)
         {
             return _interlayerMaterials.Select(i => i.GetShearModule(loadDuration, temperature)).ToList();
         }
+
+
 
         public bool Equals(LaminatedGlassProperty other)
         {

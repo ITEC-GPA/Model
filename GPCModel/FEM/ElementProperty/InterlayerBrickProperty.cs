@@ -1,12 +1,16 @@
-﻿using GPC.Model.Materials;
+﻿using GPC.Model.Glasses;
+using GPC.Model.Materials;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Runtime.Serialization;
-using GPC.Model.Glasses;
-
+using System.Text;
+using System.Threading.Tasks;
 
 namespace GPC.Model.FEM.Properties
 {
-    public sealed class InterlayerProperty : PlateProperty, IGlassProperty, IEquatable<InterlayerProperty>
+    [Serializable]
+    public sealed class InterlayerBrickProperty : BrickProperty, IGlassProperty, IEquatable<InterlayerBrickProperty>, ISerializable
     {
         private double _temperature;
 
@@ -16,62 +20,54 @@ namespace GPC.Model.FEM.Properties
 
         public double LoadDuration => _loadDuration;
 
-        public InterlayerProperty(Interlayer interlayer, double temperature, double loadDuration, string name)
-            : this(interlayer.Thickness, interlayer.Thickness, interlayer.Material, temperature, loadDuration, name)
-        {
-
-        }
-
-        public InterlayerProperty(double tb, double tm, InterlayerMaterial material, double temperature, double loadDuration, string name)
-            : base(material, tb, tm, name)
+        public InterlayerBrickProperty(Interlayer interlayer, double temperature, double loadDuration, string name) 
+            : base(interlayer.Material, name)
         {
             this._temperature = temperature > 0 ? temperature : throw new ArgumentException("Temperature can not be lower or equal to zero");
             this._loadDuration = loadDuration > 0 ? loadDuration : throw new ArgumentException("Temperature can not be lower or equal to zero");
         }
 
 
-        public InterlayerProperty(SerializationInfo info, StreamingContext context) 
-            : base(info, context)
+        public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
+            base.GetObjectData(info, context);
             throw new NotImplementedException();
         }
 
+
         /// <summary>
-        /// ni fissato pari a 0.49. E diventa 2.98*G
+        /// Poisson fixed to 0.49. E becomes equal to 2.98*G
         /// </summary>
-        /// <returns></returns>
+        /// <returns>The elastic modulus</returns>
         public override double GetE()
         {
-            return 2.98* GetG();
+            return 2.98 * GetShearModule();
         }
 
         /// <summary>
-        /// ni fissato pari a 0.49. E diventa 2.98*G
+        /// Poisson fixed to 0.49. E becomes equal to 2.98*G
         /// </summary>
-        /// <returns></returns>
         public override double GetNi()
         {
             return 0.49;
         }
 
-        public override double GetG()
+        public override double GetShearModule()
         {
-            return ((InterlayerMaterial)_material)[_temperature, _loadDuration];
+            return (_material as InterlayerMaterial).GetShearModule(_loadDuration, _temperature);
         }
 
-        public override void GetObjectData(SerializationInfo info, StreamingContext context)
-        {
-            throw new NotImplementedException();
-        }
 
-        public bool Equals(InterlayerProperty other)
+        #region Equals - Hashcode - Operators
+
+        public bool Equals(InterlayerBrickProperty other)
         {
             if (ReferenceEquals(this, other))
                 return true;
 
-            return !(other is null) &&
-                        _temperature.Equals(other._temperature) &&
-                        _loadDuration.Equals(other._loadDuration) && base.Equals(other);
+            return !(other is null) && _temperature.Equals(other._temperature)
+                                    && _loadDuration.Equals(other._loadDuration) 
+                                    && base.Equals(other);
         }
 
         public override bool Equals(object obj)
@@ -79,7 +75,7 @@ namespace GPC.Model.FEM.Properties
             if (ReferenceEquals(this, obj))
                 return true;
 
-            return Equals(obj as InterlayerProperty);
+            return Equals(obj as InterlayerBrickProperty);
         }
 
         public override int GetHashCode()
@@ -91,7 +87,7 @@ namespace GPC.Model.FEM.Properties
             return hashCode;
         }
 
-        public static bool operator ==(InterlayerProperty obj1, InterlayerProperty obj2)
+        public static bool operator ==(InterlayerBrickProperty obj1, InterlayerBrickProperty obj2)
         {
             if (ReferenceEquals(obj1, obj2))
                 return true;
@@ -102,9 +98,11 @@ namespace GPC.Model.FEM.Properties
             return obj1.Equals(obj2);
         }
 
-        public static bool operator !=(InterlayerProperty obj1, InterlayerProperty obj2)
+        public static bool operator !=(InterlayerBrickProperty obj1, InterlayerBrickProperty obj2)
         {
             return !(obj1 == obj2);
         }
+
+        #endregion
     }
 }

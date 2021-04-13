@@ -176,7 +176,7 @@ namespace GPC.Model.FEM
                 _plateProperties.Add((PlateProperty)elementProperty);
                 return true;
             }
-            else if (elementProperty is IBrickProperty)
+            else if (elementProperty is BrickProperty)
             {
                 if (_brickProperties.Contains(elementProperty))
                     return false;
@@ -363,6 +363,7 @@ namespace GPC.Model.FEM
 
 
         /// <returns>True if <paramref name="finiteElement"/> is contained in the <see cref="FemModel._elements"/> collections </returns>
+        /// <inheritdoc cref="FemObjectCollection{T}.Contains(T)"/>
         public virtual bool ContainsFiniteElement(FiniteElement finiteElement)
         {
             return _elements.Contains(finiteElement);
@@ -577,7 +578,7 @@ namespace GPC.Model.FEM
         /// <param name="plateLoadMeshEntityMap"></param>
         /// <param name="restrainMeshEntityMap"></param>
         /// <exception cref="ArgumentException">If list of argument does not match</exception>
-        public virtual void AddMeshes(List<Mesh> meshes, List<IPlateProperty> plateProperties, List<IBrickProperty> brickProperties, List<Dictionary<IPointLoad, int[]>> vertexLoadMeshEntityMap,
+        public virtual void AddMeshes(List<Mesh> meshes, List<IPlateProperty> plateProperties, List<BrickProperty> brickProperties, List<Dictionary<IPointLoad, int[]>> vertexLoadMeshEntityMap,
                                         List<Dictionary<ILineLoad, int[]>> vertexLineLoadMeshEntityMap,
                                         List<Dictionary<IAreaLoad, int[]>> plateLoadMeshEntityMap, List<Dictionary<GeometryRestrain, int[]>> restrainMeshEntityMap)
         {
@@ -640,7 +641,7 @@ namespace GPC.Model.FEM
         /// <param name="plateLoadMeshEntityMap">Map between <see cref="IAreaLoad"/> and <see cref="MeshFace.Id"/></param>
         /// <param name="restrainMeshEntityMap">Map between IGeometryRestrain and <see cref="MeshVertex.Id"/></param>
         /// <exception cref="KeyNotFoundException">If a <see cref="MeshVertex.Id"/> of <paramref name="restrainMeshEntityMap"/> is not found in the <paramref name="mesh"/> vertices ids</exception>
-        public virtual void AddMesh(Mesh mesh, IPlateProperty plateProperty, IBrickProperty brickProperty, 
+        public virtual void AddMesh(Mesh mesh, IPlateProperty plateProperty, BrickProperty brickProperty, 
                                     Dictionary<IPointLoad, int[]> vertexLoadMeshEntityMap, Dictionary<ILineLoad, int[]> vertexLineLoadMeshEntityMap,
                                     Dictionary<IAreaLoad, int[]> plateLoadMeshEntityMap, Dictionary<GeometryRestrain, int[]> restrainMeshEntityMap)
         {
