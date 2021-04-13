@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using GPC.Model.Elements;
 using GPC.Model.FEM.Attributes;
 using GPC.Model.FEM.Properties;
+using GPC.Model.FreedomCases;
 using GPC.Model.Sections;
 using MathNet.Numerics.LinearAlgebra;
 using mnl = MathNet.Numerics.LinearAlgebra;
@@ -84,6 +85,154 @@ namespace GPC.Model.FEM.FiniteElements
             _kElementLocalCoord[12 - 1, 6 - 1] = 2.0 * E * Jzz / L;
             _kElementLocalCoord[12 - 1, 8 - 1] = -6.0 * E * Jzz / L2;
             _kElementLocalCoord[12 - 1, 12 - 1] = 4.0 * E * Jzz / L;
+
+            #region ApplyReleases
+            foreach(BeamReleasesAttribute rel in _attributesFreedomCase)
+            {
+                int EndBeam = rel.EndBeam;
+                BeamReleasesAttribute.LocalDOF[] localDOFs = rel.LocalDOFReleased;
+
+                if (EndBeam == 1)
+                {
+                    for (int i = 0; i < localDOFs.Length; i++)
+                    {
+                        switch (localDOFs[i])
+                        {
+                            case BeamReleasesAttribute.LocalDOF.Axial:
+                                _kElementLocalCoord[0, 0] = 0.0;
+
+                                _kElementLocalCoord[6, 0] = 0.0;
+                                _kElementLocalCoord[0, 6] = 0.0;
+                                break;
+                            case BeamReleasesAttribute.LocalDOF.Torsion:
+                                _kElementLocalCoord[3, 3] = 0.0;
+
+                                _kElementLocalCoord[9, 3] = 0.0;
+                                _kElementLocalCoord[3, 9] = 0.0;
+                                break;
+                            case BeamReleasesAttribute.LocalDOF.U2:
+                                _kElementLocalCoord[1, 1] = 0.0;
+
+                                _kElementLocalCoord[1, 5] = 0.0;
+                                _kElementLocalCoord[5, 1] = 0.0;
+
+                                _kElementLocalCoord[1, 7] = 0.0;
+                                _kElementLocalCoord[7, 1] = 0.0;
+
+                                _kElementLocalCoord[1, 11] = 0.0;
+                                _kElementLocalCoord[11, 1] = 0.0;
+                                break;
+                            case BeamReleasesAttribute.LocalDOF.U3:
+                                _kElementLocalCoord[2, 2] = 0.0;
+
+                                _kElementLocalCoord[1, 4] = 0.0;
+                                _kElementLocalCoord[4, 1] = 0.0;
+
+                                _kElementLocalCoord[1, 8] = 0.0;
+                                _kElementLocalCoord[8, 1] = 0.0;
+
+                                _kElementLocalCoord[1, 10] = 0.0;
+                                _kElementLocalCoord[10, 1] = 0.0;
+                                break;
+                            case BeamReleasesAttribute.LocalDOF.R2:
+                                _kElementLocalCoord[4, 4] = 0.0;
+
+                                _kElementLocalCoord[2, 4] = 0.0;
+                                _kElementLocalCoord[4, 2] = 0.0;
+
+                                _kElementLocalCoord[8, 4] = 0.0;
+                                _kElementLocalCoord[4, 8] = 0.0;
+
+                                _kElementLocalCoord[4, 10] = 0.0;
+                                _kElementLocalCoord[10, 4] = 0.0;
+                                break;
+                            case BeamReleasesAttribute.LocalDOF.R3:
+                                _kElementLocalCoord[5, 5] = 0.0;
+
+                                _kElementLocalCoord[7, 5] = 0.0;
+                                _kElementLocalCoord[5, 7] = 0.0;
+
+                                _kElementLocalCoord[11, 5] = 0.0;
+                                _kElementLocalCoord[5, 11] = 0.0;
+
+                                _kElementLocalCoord[1, 5] = 0.0;
+                                _kElementLocalCoord[5, 1] = 0.0;
+                                break;
+                        }
+                    }
+                }
+
+                if (EndBeam == 2)
+                {
+                    for (int i = 0; i < localDOFs.Length; i++)
+                    {
+                        switch (localDOFs[i])
+                        {
+                            case BeamReleasesAttribute.LocalDOF.Axial:
+                                _kElementLocalCoord[6, 6] = 0.0;
+
+                                _kElementLocalCoord[6, 0] = 0.0;
+                                _kElementLocalCoord[0, 6] = 0.0;
+                                break;
+                            case BeamReleasesAttribute.LocalDOF.Torsion:
+                                _kElementLocalCoord[9, 9] = 0.0;
+
+                                _kElementLocalCoord[9, 3] = 0.0;
+                                _kElementLocalCoord[3, 9] = 0.0;
+                                break;
+                            case BeamReleasesAttribute.LocalDOF.U2:
+                                _kElementLocalCoord[7, 7] = 0.0;
+
+                                _kElementLocalCoord[7, 5] = 0.0;
+                                _kElementLocalCoord[5, 7] = 0.0;
+
+                                _kElementLocalCoord[1, 7] = 0.0;
+                                _kElementLocalCoord[7, 1] = 0.0;
+
+                                _kElementLocalCoord[7, 11] = 0.0;
+                                _kElementLocalCoord[11, 7] = 0.0;
+                                break;
+                            case BeamReleasesAttribute.LocalDOF.U3:
+                                _kElementLocalCoord[8, 8] = 0.0;
+
+                                _kElementLocalCoord[4, 8] = 0.0;
+                                _kElementLocalCoord[8, 4] = 0.0;
+
+                                _kElementLocalCoord[2, 8] = 0.0;
+                                _kElementLocalCoord[8, 2] = 0.0;
+
+                                _kElementLocalCoord[10, 8] = 0.0;
+                                _kElementLocalCoord[8, 10] = 0.0;
+                                break;
+                            case BeamReleasesAttribute.LocalDOF.R2:
+                                _kElementLocalCoord[10, 10] = 0.0;
+
+                                _kElementLocalCoord[8, 10] = 0.0;
+                                _kElementLocalCoord[10, 8] = 0.0;
+
+                                _kElementLocalCoord[4, 10] = 0.0;
+                                _kElementLocalCoord[10, 4] = 0.0;
+
+                                _kElementLocalCoord[2, 10] = 0.0;
+                                _kElementLocalCoord[10, 2] = 0.0;
+                                break;
+                            case BeamReleasesAttribute.LocalDOF.R3:
+                                _kElementLocalCoord[11, 11] = 0.0;
+
+                                _kElementLocalCoord[7, 11] = 0.0;
+                                _kElementLocalCoord[11, 7] = 0.0;
+
+                                _kElementLocalCoord[11, 5] = 0.0;
+                                _kElementLocalCoord[5, 11] = 0.0;
+
+                                _kElementLocalCoord[1, 11] = 0.0;
+                                _kElementLocalCoord[11, 1] = 0.0;
+                                break;
+                        }
+                    }
+                }
+            }
+            #endregion
 
             /*Console.WriteLine("kLocal");
             FEMUtilities.WriteMatrix(_kElementLocalCoord, "F0");*/
@@ -206,6 +355,12 @@ namespace GPC.Model.FEM.FiniteElements
         protected override Vector<double> BuildFLocalCoord()
         {
             return mnl.Vector<double>.Build.Dense(12);
+        }
+        
+        public void AddRelease(int indexEndBeam, BeamReleasesAttribute.LocalDOF[] dof, FreedomCase fc, string name)
+        {
+            BeamReleasesAttribute release = new BeamReleasesAttribute(indexEndBeam, dof.ToHashSet(), fc, name);
+            _attributesFreedomCase.Add(release);
         }
     }
 }

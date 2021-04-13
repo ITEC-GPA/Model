@@ -297,5 +297,58 @@ namespace FemTest.Solver {
 
             Assert.AreEqual(-33.9531, fem.GetDisplacementGlobalCoordinates(nds[1], LinearSolver.DOF.DY), 1e-4);
         }
+
+        [TestMethod]
+        public void EndReleaseTest1()
+        {
+            Section sec = new SectionCHS(100.0, 50.0, new SteelMaterial("m", 1.0, 0.0, 355, 510, 7850), "sec");
+
+            List<Node> nds = new List<Node>();
+            nds.Add(new Node(0, 0, 0));
+            nds.Add(new Node(1000, 0, 0));
+            nds.Add(new Node(1000, 1000, 0));
+
+            List<Beam> beams = new List<Beam>();
+            beams.Add(new Beam(new Node[] { nds[0], nds[1] }, sec));
+            beams.Add(new Beam(new Node[] { nds[1], nds[2] }, sec));
+
+            LoadCase lc = new LoadCase("lc1");
+            CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
+            double F = 1.0;
+            NodeForceAttribute f = new NodeForceAttribute(lc, sys, F, 0, F, 0, 0, 0);
+
+            nds[1].AddAttribute(f);
+
+            FreedomCase fc = new FreedomCase("fc");
+            NodeRestrainAttribute fix = new NodeRestrainAttribute(fc, sys);
+            fix.AddExternalRestrain(LinearSolver.DOF.DX);
+            fix.AddExternalRestrain(LinearSolver.DOF.DY);
+            fix.AddExternalRestrain(LinearSolver.DOF.DZ);
+            fix.AddExternalRestrain(LinearSolver.DOF.RX);
+            fix.AddExternalRestrain(LinearSolver.DOF.RY);
+            fix.AddExternalRestrain(LinearSolver.DOF.RZ);
+
+            nds[0].AddAttribute(fix);
+            nds[2].AddAttribute(fix);
+
+            //add release
+            beams[0].AddRelease(2, new BeamReleasesAttribute.LocalDOF[] {
+                BeamReleasesAttribute.LocalDOF.Axial,
+                BeamReleasesAttribute.LocalDOF.U2,
+                BeamReleasesAttribute.LocalDOF.U3,
+                BeamReleasesAttribute.LocalDOF.Torsion,
+                BeamReleasesAttribute.LocalDOF.R2,
+                BeamReleasesAttribute.LocalDOF.R3
+                },
+                fc, "rel1"); ;
+            beams[0].BuildMatrix();
+
+            FEMUtilities.WriteMatrix(beams[0].KElementGlobalCoord);
+
+            LinearSolver fem = new LinearSolver(beams.ToArray());
+
+            Assert.AreEqual(67.9061, fem.GetDisplacementGlobalCoordinates(nds[1], LinearSolver.DOF.DX), 1e-4);
+            Assert.AreEqual(67.9061, fem.GetDisplacementGlobalCoordinates(nds[1], LinearSolver.DOF.DZ), 1e-4);
+        }
     }
 }
