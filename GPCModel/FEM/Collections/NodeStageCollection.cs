@@ -4,27 +4,44 @@ using System.Linq;
 namespace GPC.Model.FEM.Collections
 {
     /// <summary>
-    /// Collection of nodes associate to a <see cref="Stage.StageProperty"/>
+    /// Collection of <see cref="Node"/> associated to a <see cref="Stage.StageProperty"/>
     /// </summary>
-    /// <typeparam name="T"></typeparam>
-    /// <typeparam name="D"></typeparam>
     public class NodeStageCollection<T, D> : FemObjectStageCollection<Node, Stage.StageProperty>
     {
         /// <summary>
-        /// <inheritdoc />
         /// The <see cref="Node.AttributesLoadCase"/> and <see cref="Node.AttributesFreedomCase"/>
         /// will be copied to the <see cref="Stage.StageProperty"/> associated the <paramref name="item"/>
         /// </summary>
-        /// <inheritdoc />
+        /// <inheritdoc cref="FemObjectStageCollection{T, D}.Add(T, D)"/>
         public override int Add(Node item)
         {
             var sfep = new Stage.StageProperty();
             sfep.AddLoadCaseAttributes(item.AttributesLoadCase.Cast<LoadCaseAttribute>().ToList());
             sfep.AddFreedomCaseAttributes(item.AttributesFreedomCase.Cast<FreedomCaseAttribute>().ToList());
 
-            Add(item, sfep);
+            base.Add(item, sfep);
 
             return item.Id;
+        }
+
+        /// <summary>
+        /// The <see cref="Node.AttributesLoadCase"/> and <see cref="Node.AttributesFreedomCase"/>
+        /// will be copied to the <see cref="Stage.StageProperty"/> associated the <paramref name="item"/>
+        /// </summary>
+        /// <inheritdoc cref="FemObjectStageCollection{T, D}.SetItem(T, D)"/>
+        public new int SetItem(Node item)
+        {
+            var sfep = new Stage.StageProperty();
+            sfep.AddLoadCaseAttributes(item.AttributesLoadCase.Cast<LoadCaseAttribute>().ToList());
+            sfep.AddFreedomCaseAttributes(item.AttributesFreedomCase.Cast<FreedomCaseAttribute>().ToList());
+
+            return base.SetItem(item, sfep);
+        }
+
+        /// <inheritdoc cref="FemObjectStageCollection{T, D}.SetItem(T, D)"/>
+        public override int SetItem(Node item, Stage.StageProperty stageFiniteElementProperty)
+        {
+            return base.SetItem(item, stageFiniteElementProperty);
         }
     }
 }

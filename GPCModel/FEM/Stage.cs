@@ -87,10 +87,10 @@ namespace GPC.Model.FEM
             {
                 foreach (var node in _femModel.GetFiniteElement(id).Nodes)
                 {
-                    _nodes.Add(node);
+                    _nodes.SetItem(node);
                 }
 
-                _elements.Add(_femModel.GetFiniteElement(id));
+                _elements.SetItem(_femModel.GetFiniteElement(id));
             }
         }
 
@@ -103,15 +103,13 @@ namespace GPC.Model.FEM
         {
             foreach (var element in elements)
             {
-                foreach (var node in element.Nodes)
-                    _nodes.Add(node);
-
-
                 if (!_femModel.ContainsFiniteElement(element))
                     throw new ArgumentException();
 
+                foreach (var node in element.Nodes)
+                    _nodes.SetItem(node);
 
-                _elements.Add(element);
+                _elements.SetItem(element);
             }
         }
 
@@ -145,11 +143,13 @@ namespace GPC.Model.FEM
             
             foreach (var node in nodes)
             {
+                // TODO: controllare che nodo sia nel ref model
+
                 StageProperty sp = new StageProperty();
                 sp.AddLoadCaseAttributes(node.AttributesLoadCase.Cast<LoadCaseAttribute>().ToList());
                 sp.AddFreedomCaseAttributes(node.AttributesFreedomCase.Cast<FreedomCaseAttribute>().ToList());
 
-                _nodes.Add(node, sp);
+                _nodes.SetItem(node, sp);
             }
         }
 
@@ -161,7 +161,8 @@ namespace GPC.Model.FEM
         {
             foreach (var node in nodes)
             {
-                _nodes.Add(node);
+                // TODO: controllare che nodo sia nel ref model
+                _nodes.SetItem(node);
             }
         }
 
@@ -176,12 +177,7 @@ namespace GPC.Model.FEM
         }
 
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="elementId"></param>
-        /// <param name="stageFiniteElementProperty"></param>
-        /// <exception cref="KeyNotFoundException">IF the <paramref name="elementId"/> is not contained in the reference femModel <see cref="FemModel._elements"/> collection </exception>
+        /// <exception cref="KeyNotFoundException">If the <paramref name="elementId"/> is not contained in the reference femModel <see cref="FemModel._elements"/> collection </exception>
         public void SetFiniteElementProperty(int elementId, StageFiniteElementProperty stageFiniteElementProperty)
         {
             if (stageFiniteElementProperty != null)
@@ -191,8 +187,6 @@ namespace GPC.Model.FEM
         /// <summary>
         /// Add a <see cref="FiniteElement"/> to the stage element collection. All its attributes will be copied
         /// </summary>
-        /// <param name="element"></param>
-        /// <returns></returns>
         public StageFiniteElementProperty AddFiniteElement(FiniteElement element)
         {
             if (_femModel.ContainsFiniteElement(element))

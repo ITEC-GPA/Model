@@ -363,6 +363,7 @@ namespace GPC.Model.FEM
 
 
         /// <returns>True if <paramref name="finiteElement"/> is contained in the <see cref="FemModel._elements"/> collections </returns>
+        /// <inheritdoc cref="FemObjectCollection{T}.Contains(T)"/>
         public virtual bool ContainsFiniteElement(FiniteElement finiteElement)
         {
             return _elements.Contains(finiteElement);
