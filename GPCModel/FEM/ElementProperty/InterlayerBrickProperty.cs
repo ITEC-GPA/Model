@@ -52,6 +52,11 @@ namespace GPC.Model.FEM.Properties
             return 0.49;
         }
 
+        public override double GetShearModule()
+        {
+            return (_material as InterlayerMaterial).GetShearModule(_loadDuration, _temperature);
+        }
+
 
         #region Equals - Hashcode - Operators
 
