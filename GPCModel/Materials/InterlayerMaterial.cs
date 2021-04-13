@@ -64,6 +64,16 @@ namespace GPC.Model.Materials
 
         #region PUBLIC METHODS
 
+
+        /// <summary>
+        /// Do not use this method. Use: <see cref="GetShearModule(double, double)"/>
+        /// </summary>
+        public override double GetShearModule()
+        {
+            throw new NotImplementedException($"Do not use this method. Use: GetShearModule(double, double)");
+        }
+
+
         public double GetShearModule(double loadDuration, double temperature)
         {
             return this[loadDuration, temperature];
@@ -105,6 +115,9 @@ namespace GPC.Model.Materials
             return _shearModulus.SelectMany(i => i.TemperatureShearModules.Select(j => j.Temperature)).Distinct().ToList();
         }
 
+
+        #region Equals - Hashcode - Operators
+
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             base.GetObjectData(info, context);
@@ -120,7 +133,7 @@ namespace GPC.Model.Materials
                 return false;
 
             bool isEqual = true;
-            for (int i = 0; i < other._shearModulus.Count; i++)            
+            for (int i = 0; i < other._shearModulus.Count; i++)
             {
                 if (!other._shearModulus[i].Equals(_shearModulus[i]))
                 {
@@ -161,9 +174,10 @@ namespace GPC.Model.Materials
         public static bool operator !=(InterlayerMaterial obj1, InterlayerMaterial obj2)
         {
             return !(obj1 == obj2);
-        }
+        } 
+        #endregion
 
-        #endregion 
+        #endregion
 
         #region INDEXER
 
