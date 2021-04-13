@@ -42,7 +42,7 @@ namespace GPC.Model.FEM.Properties
         /// <returns></returns>
         public override double GetE()
         {
-            return 2.98* GetG();
+            return 2.98* GetShearModule();
         }
 
         /// <summary>
@@ -54,10 +54,12 @@ namespace GPC.Model.FEM.Properties
             return 0.49;
         }
 
-        public override double GetG()
+        public override double GetShearModule()
         {
             return ((InterlayerMaterial)_material)[_temperature, _loadDuration];
         }
+
+        #region Equals - HashCode - Operators
 
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
@@ -105,6 +107,7 @@ namespace GPC.Model.FEM.Properties
         public static bool operator !=(InterlayerProperty obj1, InterlayerProperty obj2)
         {
             return !(obj1 == obj2);
-        }
+        } 
+        #endregion
     }
 }
