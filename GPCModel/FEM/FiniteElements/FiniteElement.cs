@@ -26,12 +26,11 @@ namespace GPC.Model.FEM.FiniteElements
         protected mnl.Matrix<double> _kElementLocalCoord;
         //contains Material information of the element
         protected mnl.Matrix<double> _d;
-        //contains informations about section, thickness, material etc of the element
-
-
+        
         protected List<LoadCaseAttribute> _attributesLoadCase;
         protected List<FreedomCaseAttribute> _attributesFreedomCase;
 
+        //contains informations about section, thickness, material etc of the element
         protected ElementProperty _property;
 
         //contains the nodes in global coordinates
@@ -137,6 +136,7 @@ namespace GPC.Model.FEM.FiniteElements
 
         public abstract FiniteElement Duplicate(ElementProperty property, List<LoadCaseAttribute> lcAttributes, List<FreedomCaseAttribute> fcAttributes);
 
+        public abstract FiniteElement Duplicate();
 
         /// <summary>
         /// Build Stiffness Matrix etc

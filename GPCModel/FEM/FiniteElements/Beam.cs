@@ -337,6 +337,26 @@ namespace GPC.Model.FEM.FiniteElements
             throw new NotImplementedException();
         }
 
+        public override FiniteElement Duplicate()
+        {
+            //duplicate nodes
+            Node[] duplicatedNodes = _nodesGlobal.Select(node => node.Duplicate()).ToArray();
+
+            //duplicate beam
+            Beam duplicatedBeam = new Beam(duplicatedNodes, (Section) _property);
+            duplicatedBeam.SetId(this.Id);
+
+            foreach (FreedomCaseAttribute attribute in _attributesFreedomCase)
+            {
+                duplicatedBeam.AttributesFreedomCase.Add(attribute);
+            }
+            foreach (LoadCaseAttribute attribute in _attributesLoadCase)
+            {
+                duplicatedBeam.AttributesLoadCase.Add(attribute);
+            }
+            return duplicatedBeam;
+        }
+
         public override Matrix<double> GetB(double csi = 0, double eta = 0, double zeta = 0)
         {
             throw new NotImplementedException();

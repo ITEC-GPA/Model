@@ -12,30 +12,21 @@ namespace GPC.Model.FEM
     public class LinearSolver : Solver
     {
         #region variables
-        public enum DOF
-        {
-            DX,   //0
-            DY,   //1
-            DZ,   //2
-            RX,   //3
-            RY,   //4
-            RZ,   //5
-        }
-
-        public static int MAXDOFPERNODE = Enum.GetNames(typeof(DOF)).Length;
-
         protected mnl.Matrix<double> _KGlobal;
         protected mnl.Matrix<double> _KGlobalRestrains;
         protected mnl.Vector<double> _F;
         protected mnl.Vector<double> _FRestrains;
-        protected HashSet<MultiPointCostrain> _costrains;
-        protected mnl.Vector<double> _nodeGlobalDisplacement;
+        protected HashSet<MultiPointsCostrain> _costrains;
+        protected mnl.Vector<double> _nodeGlobalDisplacements;
         protected mnl.Vector<double> _reactions;
         #endregion
 
         #region Properties
-        public mnl.Matrix<double> KGlobal => _KGlobalRestrains;
+        public mnl.Matrix<double> KGlobal => _KGlobal;
+        public mnl.Matrix<double> KGlobalRestrains => _KGlobalRestrains;
         public mnl.Vector<double> F => _F;
+        public mnl.Vector<double> FRestrains => _FRestrains;
+        public mnl.Vector<double> NodeGlobalDisplacements => _nodeGlobalDisplacements;
 
         /// <summary>
         /// Unique nodes in model
@@ -48,12 +39,13 @@ namespace GPC.Model.FEM
         public FiniteElement[] Elements { get; }
         #endregion
 
-        public LinearSolver(FiniteElement[] inputElements) : this(inputElements, new MultiPointCostrain[0])
+        #region Constructor
+        public LinearSolver(FiniteElement[] inputElements) : this(inputElements, new MultiPointsCostrain[0])
         {
 
         }
 
-        public LinearSolver(FiniteElement[] inputElements, MultiPointCostrain[] costrains)
+        public LinearSolver(FiniteElement[] inputElements, MultiPointsCostrain[] costrains)
         {
             #region NodeOfModel
             HashSet<Node> nodesModel = new HashSet<Node>();
@@ -134,7 +126,7 @@ namespace GPC.Model.FEM
 
             //nodes due to Links
             for (int i = 0; i < costrains.Length; i++) {
-                MultiPointCostrain costrain = costrains[i];
+                MultiPointsCostrain costrain = costrains[i];
                 for (int j = 0; j < costrain.Links.Length; j++) {
                     Node node = costrain.Links[j].NodeSlave;
                     var nodes = nodesModel.Where(n => n.Position.X == node.Position.X && n.Position.Y == node.Position.Y && n.Position.Z == node.Position.Z);
@@ -235,8 +227,8 @@ namespace GPC.Model.FEM
                 }
             }
             #if DEBUG
-            Console.WriteLine("kGlobal System :");
-            FEMUtilities.WriteMatrix(_KGlobal, "F3");
+            /*Console.WriteLine("kGlobal System :");
+            FEMUtilities.WriteMatrix(_KGlobal, "F3");*/
             #endif
             #endregion
 
@@ -385,10 +377,10 @@ namespace GPC.Model.FEM
                 }
             }
             #if DEBUG
-            Console.WriteLine("kGlobal System + Restrains: ");
+            /*Console.WriteLine("kGlobal System + Restrains: ");
             FEMUtilities.WriteMatrix(_KGlobalRestrains, "F3");
             Console.WriteLine("Fmodified(Restrains):");
-            FEMUtilities.WriteVector(_FRestrains);
+            FEMUtilities.WriteVector(_FRestrains);*/
             #endif
             #endregion
 
@@ -410,7 +402,7 @@ namespace GPC.Model.FEM
             int nLagrangianMultiplier = _costrains.Count;
             for (int i = 0; i < _costrains.Count; i++)
             {
-                MultiPointCostrain c = _costrains.ElementAt(i); //select equation constrain
+                MultiPointsCostrain c = _costrains.ElementAt(i); //select equation constrain
                 #if DEBUG
                 Console.WriteLine(c.ToString());
                 #endif
@@ -444,32 +436,32 @@ namespace GPC.Model.FEM
                 #endregion
             }
             #if DEBUG
-            Console.WriteLine("kGlobal System + Restrains + Constrains:");
+            /*Console.WriteLine("kGlobal System + Restrains + Constrains:");
             FEMUtilities.WriteMatrix(_KGlobalRestrains, "F3");
-            FEMUtilities.WriteMatrix(_FRestrains, "F0");
+            FEMUtilities.WriteMatrix(_FRestrains, "F0");*/
             #endif
             #endregion
 
             #region SolveModel
             //Solve Matrix
-            _nodeGlobalDisplacement = _KGlobalRestrains.Solve(_FRestrains);
+            _nodeGlobalDisplacements = _KGlobalRestrains.Solve(_FRestrains);
             Console.WriteLine("Node displacements results:");
 
-            for (int i = 0; i < _nodeGlobalDisplacement.Count; i++)
+            for (int i = 0; i < _nodeGlobalDisplacements.Count; i++)
             {
                 if (i < legend.Count)
                 {
-                    Console.WriteLine("Displ. " + legend[i] + " : \t " + _nodeGlobalDisplacement[i].ToString("F3"));
+                    Console.WriteLine("Displ. " + legend[i] + " : \t " + _nodeGlobalDisplacements[i].ToString("F3"));
                 } else
                 {
-                    Console.WriteLine("Lagrangian Multiplicator: : \t " + _nodeGlobalDisplacement[i].ToString("F3"));
+                    Console.WriteLine("Lagrangian Multiplicator: : \t " + _nodeGlobalDisplacements[i].ToString("F3"));
                 }
             }
             #endregion
 
             #region Reactions
-            mnl.Vector<double> nodeGlobalDisplacementWithoutLagrangian = mnl.Vector<double>.Build.Dense(_nodeGlobalDisplacement.Count - nLagrangianMultiplier);
-            _nodeGlobalDisplacement.CopySubVectorTo(nodeGlobalDisplacementWithoutLagrangian, 0, 0, _nodeGlobalDisplacement.Count - nLagrangianMultiplier);
+            mnl.Vector<double> nodeGlobalDisplacementWithoutLagrangian = mnl.Vector<double>.Build.Dense(_nodeGlobalDisplacements.Count - nLagrangianMultiplier);
+            _nodeGlobalDisplacements.CopySubVectorTo(nodeGlobalDisplacementWithoutLagrangian, 0, 0, _nodeGlobalDisplacements.Count - nLagrangianMultiplier);
             _reactions = _KGlobal * nodeGlobalDisplacementWithoutLagrangian - _F;
             double sumFX = 0.0;
             double sumFY = 0.0;
@@ -499,6 +491,7 @@ namespace GPC.Model.FEM
             #region CalcResults
             #endregion
         }
+        #endregion
 
         #region PublicFuction
         /// <summary>
@@ -510,7 +503,7 @@ namespace GPC.Model.FEM
         public double GetDisplacementGlobalCoordinates(Node node, DOF dof)
         {
             int pos = GetPositionInKGlobal(node, dof);
-            return _nodeGlobalDisplacement[pos];
+            return _nodeGlobalDisplacements[pos];
         }
 
         public double[] GetDisplacementGlobalCoordinates(string labelNode, DOF dof)
@@ -523,7 +516,7 @@ namespace GPC.Model.FEM
             double[] ris = new double[pos.Length];
             for (int i = 0; i < pos.Length; i++)
             {
-                ris[i] = _nodeGlobalDisplacement[pos[i]];
+                ris[i] = _nodeGlobalDisplacements[pos[i]];
             }
             return ris;
         }
@@ -556,7 +549,7 @@ namespace GPC.Model.FEM
                 double[] globalDisplacementsNodesElement = new double[element.NrDOFActive * element.Nodes.Length];
                 for (int j = 0; j < element.NrDOFActive * element.Nodes.Length; j++)
                 {
-                    globalDisplacementsNodesElement[j] = _nodeGlobalDisplacement[pos[j]];
+                    globalDisplacementsNodesElement[j] = _nodeGlobalDisplacements[pos[j]];
                     //Console.WriteLine("Element " + i + " Displacemente global coordintates DOF nr. " + j + " = " + globalDisplacementsNodesElement[j]);
                 }
 
@@ -643,7 +636,7 @@ namespace GPC.Model.FEM
         /// <param name="IdNode">ID node</param>
         /// <param name="dof">Searched dof</param>
         /// <returns></returns>
-        private int GetPositionInKGlobal(Node node, DOF dof = 0)
+        public int GetPositionInKGlobal(Node node, DOF dof = 0)
         {
             #region CounterForPreviousNodes
             int counter = 0;

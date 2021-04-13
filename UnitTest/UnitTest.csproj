@@ -77,6 +77,7 @@
     <Compile Include="FEM\Brick\BrickTest.cs" />
     <Compile Include="FEM\Brick\HexaedronTest.cs" />
     <Compile Include="FEM\Brick\TetrahedronTest.cs" />
+    <Compile Include="FEM\NnLinearSolverTest.cs" />
     <Compile Include="FEM\GaussIntegrationTest.cs" />
     <Compile Include="FEM\Plates\Quad4GQ12MembranalTest.cs" />
     <Compile Include="FEM\Plates\Quad4QFSUQMembranalTest.cs" />

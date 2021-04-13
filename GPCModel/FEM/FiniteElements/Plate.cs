@@ -65,6 +65,11 @@ namespace GPC.Model.FEM.FiniteElements
             return plate;
         }
 
+        public override FiniteElement Duplicate()
+        {
+            throw new NotImplementedException();
+        }
+
 
         public virtual void AddLoadCaseAttribute(IPlateLoadCaseAttribute attribute)
         {

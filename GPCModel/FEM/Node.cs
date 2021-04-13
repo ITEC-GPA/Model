@@ -97,6 +97,24 @@ namespace GPC.Model.FEM
             _attributesLoadCase.Add(attribute);
         }
 
+        public Node Duplicate()
+        {
+            Node duplicate = new Node(new Point3d(Position.X, Position.Y, Position.Z));
+            duplicate.DOF = this.DOF;
+            duplicate.SetId(this.Id);
+            duplicate.Name = this.Name;
+            
+            foreach (INodeFreedomCaseAttribute attribute in _attributesFreedomCase)
+            {
+                duplicate.AddAttribute(attribute);
+            }
+            foreach (INodeLoadCaseAttribute attribute in _attributesLoadCase)
+            {
+                duplicate.AddAttribute(attribute);
+            }
+            return duplicate;
+        }
+
         public override bool Equals(object obj)
         {
             if (obj is null)

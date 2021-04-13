@@ -152,7 +152,7 @@ namespace FemTest.Solver
             elements.Add(new Tri3PlaneStress(nodesPlate2.ToArray(), prop));
 
             LinearSolver fem = new LinearSolver(elements.ToArray());
-            mnl.Matrix<double> K = fem.KGlobal;
+            mnl.Matrix<double> K = fem.KGlobalRestrains;
 
             mnl.Matrix<double> KManual = mnl.Matrix<double>.Build.Dense(0, fem.KGlobal.ColumnCount);
             double[] r0 = new double[] { 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };

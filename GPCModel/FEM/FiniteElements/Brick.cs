@@ -99,5 +99,10 @@ namespace GPC.Model.FEM.FiniteElements
         {
             throw new NotImplementedException();
         }
+
+        public override FiniteElement Duplicate()
+        {
+            throw new NotImplementedException();
+        }
     }
 }
