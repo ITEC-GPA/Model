@@ -37,7 +37,9 @@ namespace GPC.Model.FEM.Collections
             else
             {
                 // Item già presente, faccio merge
-                el.Value.Merge(stageFiniteElementProperty);
+                var kvp = new KeyValuePair<T, D>(el.Key, (D)el.Value.Merge(stageFiniteElementProperty));
+                _stageFiniteElementProperty.Remove(el);
+                _stageFiniteElementProperty.Add(kvp);
             }
         }
 
@@ -97,8 +99,9 @@ namespace GPC.Model.FEM.Collections
             }
             else
             {
+                var kvp = new KeyValuePair<T, D>(el.Key, (D)el.Value.Merge(stageFiniteElementProperty));
                 _stageFiniteElementProperty.Remove(el);
-                _stageFiniteElementProperty.Add(new KeyValuePair<T, D>(item, stageFiniteElementProperty));
+                _stageFiniteElementProperty.Add(kvp);
                 return true;
             }
         }

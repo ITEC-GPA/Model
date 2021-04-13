@@ -52,7 +52,7 @@ namespace GPC.Model.FEM.Collections
                 // id già presente
                 // cambio id e aggiungo obj
 
-                item.Id = ++_maxId; // Forzo id ad essere maggiore di zero
+                item.SetId(++_maxId); // Forzo id ad essere maggiore di zero
 
                 _collection.Add(item);
                 _ids.Add(item.Id);
@@ -65,7 +65,7 @@ namespace GPC.Model.FEM.Collections
                 // aggiungo obj
 
                 if (item.Id == 0) // Forzo id ad essere maggiore di zero
-                    item.Id = ++_maxId;
+                    item.SetId(++_maxId);
 
                 _collection.Add(item);
                 _ids.Add(item.Id);
