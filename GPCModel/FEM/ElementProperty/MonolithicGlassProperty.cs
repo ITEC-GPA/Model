@@ -6,7 +6,7 @@ using System.Collections.Generic;
 
 namespace GPC.Model.FEM.Properties
 {
-    public sealed class MonolithicGlassProperty : PlateProperty, IGlassProperty, IEquatable<MonolithicGlassProperty>
+    public sealed class MonolithicGlassProperty : PlateProperty, IGlassProperty, IPlateProperty, IEquatable<MonolithicGlassProperty>
     {
 
         public MonolithicGlassProperty(MonolithicGlass monolithicGlass, string name)

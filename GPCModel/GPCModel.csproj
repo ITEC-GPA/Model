@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
@@ -79,8 +79,8 @@
     <Compile Include="FEM\ElementProperty\BrickProperty.cs" />
     <Compile Include="FEM\ElementProperty\ElementProperty.cs" />
     <Compile Include="Elements\Element.cs" />
-    <Compile Include="FEM\ElementProperty\IBrickProperty.cs" />
-    <Compile Include="FEM\ElementProperty\InterlayerProperty.cs" />
+    <Compile Include="FEM\ElementProperty\InterlayerBrickProperty.cs" />
+    <Compile Include="FEM\ElementProperty\InterlayerPlateProperty.cs" />
     <Compile Include="FEM\ElementProperty\IPlateProperty.cs" />
     <Compile Include="FEM\ElementProperty\LaminatedGlassProperty.cs" />
     <Compile Include="FEM\ElementProperty\MonolithicGlassProperty.cs" />

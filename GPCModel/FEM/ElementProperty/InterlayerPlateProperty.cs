@@ -6,7 +6,7 @@ using GPC.Model.Glasses;
 
 namespace GPC.Model.FEM.Properties
 {
-    public sealed class InterlayerProperty : PlateProperty, IGlassProperty, IEquatable<InterlayerProperty>
+    public sealed class InterlayerPlateProperty : PlateProperty, IGlassProperty, IPlateProperty, IEquatable<InterlayerPlateProperty>
     {
         private double _temperature;
 
@@ -16,13 +16,13 @@ namespace GPC.Model.FEM.Properties
 
         public double LoadDuration => _loadDuration;
 
-        public InterlayerProperty(Interlayer interlayer, double temperature, double loadDuration, string name)
+        public InterlayerPlateProperty(Interlayer interlayer, double temperature, double loadDuration, string name)
             : this(interlayer.Thickness, interlayer.Thickness, interlayer.Material, temperature, loadDuration, name)
         {
 
         }
 
-        public InterlayerProperty(double tb, double tm, InterlayerMaterial material, double temperature, double loadDuration, string name)
+        public InterlayerPlateProperty(double tb, double tm, InterlayerMaterial material, double temperature, double loadDuration, string name)
             : base(material, tb, tm, name)
         {
             this._temperature = temperature > 0 ? temperature : throw new ArgumentException("Temperature can not be lower or equal to zero");
@@ -30,7 +30,7 @@ namespace GPC.Model.FEM.Properties
         }
 
 
-        public InterlayerProperty(SerializationInfo info, StreamingContext context) 
+        public InterlayerPlateProperty(SerializationInfo info, StreamingContext context) 
             : base(info, context)
         {
             throw new NotImplementedException();
@@ -66,7 +66,7 @@ namespace GPC.Model.FEM.Properties
             throw new NotImplementedException();
         }
 
-        public bool Equals(InterlayerProperty other)
+        public bool Equals(InterlayerPlateProperty other)
         {
             if (ReferenceEquals(this, other))
                 return true;
@@ -81,7 +81,7 @@ namespace GPC.Model.FEM.Properties
             if (ReferenceEquals(this, obj))
                 return true;
 
-            return Equals(obj as InterlayerProperty);
+            return Equals(obj as InterlayerPlateProperty);
         }
 
         public override int GetHashCode()
@@ -93,7 +93,7 @@ namespace GPC.Model.FEM.Properties
             return hashCode;
         }
 
-        public static bool operator ==(InterlayerProperty obj1, InterlayerProperty obj2)
+        public static bool operator ==(InterlayerPlateProperty obj1, InterlayerPlateProperty obj2)
         {
             if (ReferenceEquals(obj1, obj2))
                 return true;
@@ -104,7 +104,7 @@ namespace GPC.Model.FEM.Properties
             return obj1.Equals(obj2);
         }
 
-        public static bool operator !=(InterlayerProperty obj1, InterlayerProperty obj2)
+        public static bool operator !=(InterlayerPlateProperty obj1, InterlayerPlateProperty obj2)
         {
             return !(obj1 == obj2);
         } 
