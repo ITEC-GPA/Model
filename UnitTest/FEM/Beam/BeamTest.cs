@@ -29,7 +29,7 @@ namespace FemTest.Solver {
             nds.Add(new Node(0, 0, 0));
             nds.Add(new Node(L, 0, 0));
 
-            Beam b = new Beam(nds.ToArray(), sec);
+            EulerBeam b = new EulerBeam(nds.ToArray(), sec);
 
             LoadCase lc = new LoadCase("lc1");
             CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
@@ -65,7 +65,7 @@ namespace FemTest.Solver {
             nds.Add(new Node(0, 0, 0));
             nds.Add(new Node(L, 0, 0));
 
-            Beam b = new Beam(nds.ToArray(), sec);
+            EulerBeam b = new EulerBeam(nds.ToArray(), sec);
 
             LoadCase lc = new LoadCase("lc1");
             CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
@@ -102,7 +102,7 @@ namespace FemTest.Solver {
             nds.Add(new Node(0, 0, 0));
             nds.Add(new Node(0, -L, 0));
 
-            Beam b = new Beam(nds.ToArray(), sec);
+            EulerBeam b = new EulerBeam(nds.ToArray(), sec);
 
             LoadCase lc = new LoadCase("lc1");
             CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
@@ -136,7 +136,7 @@ namespace FemTest.Solver {
             nds.Add(new Node(0, 0, 0));
             nds.Add(new Node(1000, 0, 0));
 
-            Beam b = new Beam(nds.ToArray(), sec);
+            EulerBeam b = new EulerBeam(nds.ToArray(), sec);
 
             LoadCase lc = new LoadCase("lc1");
             CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
@@ -169,7 +169,7 @@ namespace FemTest.Solver {
             nds.Add(new Node(0, 0, 0));
             nds.Add(new Node(0, 0, 1000.0));
 
-            Beam b = new Beam(nds.ToArray(), sec);
+            EulerBeam b = new EulerBeam(nds.ToArray(), sec);
 
             LoadCase lc = new LoadCase("lc1");
             CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
@@ -203,7 +203,7 @@ namespace FemTest.Solver {
             nds.Add(new Node(0, 0, 0));
             nds.Add(new Node(0, 1000.0, 0));
 
-            Beam b = new Beam(nds.ToArray(), sec);
+            EulerBeam b = new EulerBeam(nds.ToArray(), sec);
 
             LoadCase lc = new LoadCase("lc1");
             CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
@@ -237,7 +237,7 @@ namespace FemTest.Solver {
             nds.Add(new Node(0, 0, 0));
             nds.Add(new Node(1000, 0, 0));
 
-            Beam b = new Beam(nds.ToArray(), sec);
+            EulerBeam b = new EulerBeam(nds.ToArray(), sec);
 
             LoadCase lc = new LoadCase("lc1");
             CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
@@ -272,9 +272,9 @@ namespace FemTest.Solver {
             nds.Add(new Node(1000, 0, 0));
             nds.Add(new Node(2000, 0, 0));
 
-            List<Beam> beams = new List<Beam>();
-            beams.Add(new Beam(new Node[] { nds[0], nds[1] }, sec));
-            beams.Add(new Beam(new Node[] { nds[1], nds[2] }, sec));
+            List<EulerBeam> beams = new List<EulerBeam>();
+            beams.Add(new EulerBeam(new Node[] { nds[0], nds[1] }, sec));
+            beams.Add(new EulerBeam(new Node[] { nds[1], nds[2] }, sec));
 
             LoadCase lc = new LoadCase("lc1");
             CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
@@ -308,9 +308,9 @@ namespace FemTest.Solver {
             nds.Add(new Node(1000, 0, 0));
             nds.Add(new Node(1000, 1000, 0));
 
-            List<Beam> beams = new List<Beam>();
-            beams.Add(new Beam(new Node[] { nds[0], nds[1] }, sec));
-            beams.Add(new Beam(new Node[] { nds[1], nds[2] }, sec));
+            List<EulerBeam> beams = new List<EulerBeam>();
+            beams.Add(new EulerBeam(new Node[] { nds[0], nds[1] }, sec));
+            beams.Add(new EulerBeam(new Node[] { nds[1], nds[2] }, sec));
 
             LoadCase lc = new LoadCase("lc1");
             CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
@@ -361,9 +361,9 @@ namespace FemTest.Solver {
             nds.Add(new Node(1000, 300, 0));
             nds.Add(new Node(2000, 0, 0));
 
-            List<Beam> beams = new List<Beam>();
-            beams.Add(new Beam(new Node[] { nds[0], nds[1] }, sec));
-            beams.Add(new Beam(new Node[] { nds[2], nds[1] }, sec));
+            List<EulerBeam> beams = new List<EulerBeam>();
+            beams.Add(new EulerBeam(new Node[] { nds[0], nds[1] }, sec));
+            beams.Add(new EulerBeam(new Node[] { nds[2], nds[1] }, sec));
 
             LoadCase lc = new LoadCase("lc1");
             CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));

@@ -377,15 +377,19 @@ namespace GPC.Model.FEM
                 }
             }
             #if DEBUG
-            /*Console.WriteLine("kGlobal System + Restrains: ");
+            Console.WriteLine("kGlobal System + Restrains: ");
             FEMUtilities.WriteMatrix(_KGlobalRestrains, "F3");
             Console.WriteLine("Fmodified(Restrains):");
-            FEMUtilities.WriteVector(_FRestrains);*/
+            FEMUtilities.WriteVector(_FRestrains);
             #endif
             #endregion
 
             #region ApplyingMultiPointCostrains
             _costrains = costrains.ToHashSet();
+            if (_costrains.Count() != costrains.Count())
+            {
+                Console.WriteLine("Duplicate costrains");
+            }
             //applying as example in node 1 : DX = DY (simply support with 45 degrees direction
             
             /* EXAMPLE:
@@ -436,9 +440,9 @@ namespace GPC.Model.FEM
                 #endregion
             }
             #if DEBUG
-            /*Console.WriteLine("kGlobal System + Restrains + Constrains:");
+            Console.WriteLine("kGlobal System + Restrains + Constrains:");
             FEMUtilities.WriteMatrix(_KGlobalRestrains, "F3");
-            FEMUtilities.WriteMatrix(_FRestrains, "F0");*/
+            FEMUtilities.WriteMatrix(_FRestrains, "F0");
             #endif
             #endregion
 

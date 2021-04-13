@@ -376,7 +376,7 @@ namespace FemTest.Solver
             nds.Add(new Node(0, 0, 2)); //4
 
             FiniteElement[] els = new FiniteElement[2];
-            els[0] = new Beam(new Node[] { nds[3], nds[4] }, sec);
+            els[0] = new EulerBeam(new Node[] { nds[3], nds[4] }, sec);
             els[1] = new Tethraedron4(new Node[] { nds[0], nds[1], nds[2], nds[3] }, prop);
 
             CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));

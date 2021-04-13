@@ -30,8 +30,8 @@ namespace FemTest.Solver {
             nds.Add(new Node(300.0, 0, 0));
             nds.Add(new Node(700.0, 0, 0));
 
-            List<Beam> els = new List<Beam>();
-            els.Add(new Beam(new Node[] { nds[0], nds[1] }, sec));;
+            List<EulerBeam> els = new List<EulerBeam>();
+            els.Add(new EulerBeam(new Node[] { nds[0], nds[1] }, sec));;
 
             LoadCase lc = new LoadCase("lc1");
             CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
@@ -51,8 +51,8 @@ namespace FemTest.Solver {
 
             nds[0].AddAttribute(fix);
 
-            MultiPointCostrain[] rigids1 = MultiPointCostrain.RigidLink(nds[2], nds[1]);
-            MultiPointCostrain[] rigids2 = MultiPointCostrain.RigidLink(nds[1], nds[2]);
+            MultiPointsCostrain[] rigids1 = MultiPointsCostrain.RigidLink(nds[2], nds[1]);
+            MultiPointsCostrain[] rigids2 = MultiPointsCostrain.RigidLink(nds[1], nds[2]);
 
             LinearSolver fem1 = new LinearSolver(els.ToArray(), rigids1);
             LinearSolver fem2 = new LinearSolver(els.ToArray(), rigids2);
@@ -73,9 +73,9 @@ namespace FemTest.Solver {
             nds.Add(new Node(700.0, 0, 0));
             nds.Add(new Node(1000.0, 0, 0));
 
-            List<Beam> els = new List<Beam>();
-            els.Add(new Beam(new Node[] { nds[0], nds[1] }, sec));
-            els.Add(new Beam(new Node[] { nds[2], nds[3] }, sec));
+            List<EulerBeam> els = new List<EulerBeam>();
+            els.Add(new EulerBeam(new Node[] { nds[0], nds[1] }, sec));
+            els.Add(new EulerBeam(new Node[] { nds[2], nds[3] }, sec));
 
             LoadCase lc = new LoadCase("lc1");
             CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
@@ -95,8 +95,8 @@ namespace FemTest.Solver {
 
             nds[0].AddAttribute(fix);
 
-            MultiPointCostrain[] rigids1 = MultiPointCostrain.RigidLink(nds[2], nds[1]);
-            MultiPointCostrain[] rigids2 = MultiPointCostrain.RigidLink(nds[1], nds[2]);
+            MultiPointsCostrain[] rigids1 = MultiPointsCostrain.RigidLink(nds[2], nds[1]);
+            MultiPointsCostrain[] rigids2 = MultiPointsCostrain.RigidLink(nds[1], nds[2]);
             
             LinearSolver fem1 = new LinearSolver(els.ToArray(), rigids1);
             LinearSolver fem2 = new LinearSolver(els.ToArray(), rigids2);
@@ -117,9 +117,9 @@ namespace FemTest.Solver {
             nds.Add(new Node(-700.0, 0, 0));
             nds.Add(new Node(-1000.0, 0, 0));
 
-            List<Beam> els = new List<Beam>();
-            els.Add(new Beam(new Node[] { nds[0], nds[1] }, sec));
-            els.Add(new Beam(new Node[] { nds[2], nds[3] }, sec));
+            List<EulerBeam> els = new List<EulerBeam>();
+            els.Add(new EulerBeam(new Node[] { nds[0], nds[1] }, sec));
+            els.Add(new EulerBeam(new Node[] { nds[2], nds[3] }, sec));
 
             LoadCase lc = new LoadCase("lc1");
             CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
@@ -139,8 +139,8 @@ namespace FemTest.Solver {
 
             nds[0].AddAttribute(fix);
 
-            MultiPointCostrain[] rigids1 = MultiPointCostrain.RigidLink(nds[2], nds[1]);
-            MultiPointCostrain[] rigids2 = MultiPointCostrain.RigidLink(nds[1], nds[2]);
+            MultiPointsCostrain[] rigids1 = MultiPointsCostrain.RigidLink(nds[2], nds[1]);
+            MultiPointsCostrain[] rigids2 = MultiPointsCostrain.RigidLink(nds[1], nds[2]);
 
             LinearSolver fem1 = new LinearSolver(els.ToArray(), rigids1);
             LinearSolver fem2 = new LinearSolver(els.ToArray(), rigids2);
@@ -161,9 +161,9 @@ namespace FemTest.Solver {
             nds.Add(new Node(0, -700.0, 0));
             nds.Add(new Node(0, -1000.0, 0));
 
-            List<Beam> els = new List<Beam>();
-            els.Add(new Beam(new Node[] { nds[0], nds[1] }, sec));
-            els.Add(new Beam(new Node[] { nds[2], nds[3] }, sec));
+            List<EulerBeam> els = new List<EulerBeam>();
+            els.Add(new EulerBeam(new Node[] { nds[0], nds[1] }, sec));
+            els.Add(new EulerBeam(new Node[] { nds[2], nds[3] }, sec));
 
             LoadCase lc = new LoadCase("lc1");
             CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
@@ -183,8 +183,8 @@ namespace FemTest.Solver {
 
             nds[0].AddAttribute(fix);
 
-            MultiPointCostrain[] rigids1 = MultiPointCostrain.RigidLink(nds[2], nds[1]);
-            MultiPointCostrain[] rigids2 = MultiPointCostrain.RigidLink(nds[1], nds[2]);
+            MultiPointsCostrain[] rigids1 = MultiPointsCostrain.RigidLink(nds[2], nds[1]);
+            MultiPointsCostrain[] rigids2 = MultiPointsCostrain.RigidLink(nds[1], nds[2]);
 
             LinearSolver fem1 = new LinearSolver(els.ToArray(), rigids1);
             LinearSolver fem2 = new LinearSolver(els.ToArray(), rigids2);
@@ -205,9 +205,9 @@ namespace FemTest.Solver {
             nds.Add(new Node(0, 700.0, 0));
             nds.Add(new Node(0, 1000.0, 0));
 
-            List<Beam> els = new List<Beam>();
-            els.Add(new Beam(new Node[] { nds[0], nds[1] }, sec));
-            els.Add(new Beam(new Node[] { nds[2], nds[3] }, sec));
+            List<EulerBeam> els = new List<EulerBeam>();
+            els.Add(new EulerBeam(new Node[] { nds[0], nds[1] }, sec));
+            els.Add(new EulerBeam(new Node[] { nds[2], nds[3] }, sec));
 
             LoadCase lc = new LoadCase("lc1");
             CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
@@ -227,8 +227,8 @@ namespace FemTest.Solver {
 
             nds[0].AddAttribute(fix);
 
-            MultiPointCostrain[] rigids1 = MultiPointCostrain.RigidLink(nds[2], nds[1]);
-            MultiPointCostrain[] rigids2 = MultiPointCostrain.RigidLink(nds[1], nds[2]);
+            MultiPointsCostrain[] rigids1 = MultiPointsCostrain.RigidLink(nds[2], nds[1]);
+            MultiPointsCostrain[] rigids2 = MultiPointsCostrain.RigidLink(nds[1], nds[2]);
 
             LinearSolver fem1 = new LinearSolver(els.ToArray(), rigids1);
             LinearSolver fem2 = new LinearSolver(els.ToArray(), rigids2);
@@ -249,9 +249,9 @@ namespace FemTest.Solver {
             nds.Add(new Node(0, 0, 700.0));
             nds.Add(new Node(0, 0, 1000.0));
 
-            List<Beam> els = new List<Beam>();
-            els.Add(new Beam(new Node[] { nds[0], nds[1] }, sec));
-            els.Add(new Beam(new Node[] { nds[2], nds[3] }, sec));
+            List<EulerBeam> els = new List<EulerBeam>();
+            els.Add(new EulerBeam(new Node[] { nds[0], nds[1] }, sec));
+            els.Add(new EulerBeam(new Node[] { nds[2], nds[3] }, sec));
 
             LoadCase lc = new LoadCase("lc1");
             CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
@@ -271,8 +271,8 @@ namespace FemTest.Solver {
 
             nds[0].AddAttribute(fix);
 
-            MultiPointCostrain[] rigids1 = MultiPointCostrain.RigidLink(nds[2], nds[1]);
-            MultiPointCostrain[] rigids2 = MultiPointCostrain.RigidLink(nds[1], nds[2]);
+            MultiPointsCostrain[] rigids1 = MultiPointsCostrain.RigidLink(nds[2], nds[1]);
+            MultiPointsCostrain[] rigids2 = MultiPointsCostrain.RigidLink(nds[1], nds[2]);
 
             LinearSolver fem1 = new LinearSolver(els.ToArray(), rigids1);
             LinearSolver fem2 = new LinearSolver(els.ToArray(), rigids2);
@@ -293,9 +293,9 @@ namespace FemTest.Solver {
             nds.Add(new Node(0, 0, -700.0));
             nds.Add(new Node(0, 0, -1000.0));
 
-            List<Beam> els = new List<Beam>();
-            els.Add(new Beam(new Node[] { nds[0], nds[1] }, sec));
-            els.Add(new Beam(new Node[] { nds[2], nds[3] }, sec));
+            List<EulerBeam> els = new List<EulerBeam>();
+            els.Add(new EulerBeam(new Node[] { nds[0], nds[1] }, sec));
+            els.Add(new EulerBeam(new Node[] { nds[2], nds[3] }, sec));
 
             LoadCase lc = new LoadCase("lc1");
             CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
@@ -315,8 +315,8 @@ namespace FemTest.Solver {
 
             nds[0].AddAttribute(fix);
 
-            MultiPointCostrain[] rigids1 = MultiPointCostrain.RigidLink(nds[2], nds[1]);
-            MultiPointCostrain[] rigids2 = MultiPointCostrain.RigidLink(nds[1], nds[2]);
+            MultiPointsCostrain[] rigids1 = MultiPointsCostrain.RigidLink(nds[2], nds[1]);
+            MultiPointsCostrain[] rigids2 = MultiPointsCostrain.RigidLink(nds[1], nds[2]);
 
             LinearSolver fem1 = new LinearSolver(els.ToArray(), rigids1);
             LinearSolver fem2 = new LinearSolver(els.ToArray(), rigids2);
@@ -337,9 +337,9 @@ namespace FemTest.Solver {
             nds.Add(new Node(700.0, 0, 0));
             nds.Add(new Node(1000.0, 0, 0));
 
-            List<Beam> els = new List<Beam>();
-            els.Add(new Beam(new Node[] { nds[0], nds[1] }, sec));
-            els.Add(new Beam(new Node[] { nds[2], nds[3] }, sec));
+            List<EulerBeam> els = new List<EulerBeam>();
+            els.Add(new EulerBeam(new Node[] { nds[0], nds[1] }, sec));
+            els.Add(new EulerBeam(new Node[] { nds[2], nds[3] }, sec));
 
             LoadCase lc = new LoadCase("lc1");
             CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
@@ -359,8 +359,8 @@ namespace FemTest.Solver {
 
             nds[0].AddAttribute(fix);
 
-            MultiPointCostrain[] rigid1 = MultiPointCostrain.RigidLink(nds[1], nds[2]);
-            MultiPointCostrain[] rigid2 = MultiPointCostrain.RigidLink(nds[2], nds[1]);
+            MultiPointsCostrain[] rigid1 = MultiPointsCostrain.RigidLink(nds[1], nds[2]);
+            MultiPointsCostrain[] rigid2 = MultiPointsCostrain.RigidLink(nds[2], nds[1]);
 
             LinearSolver fem = new LinearSolver(els.ToArray(), rigid1);
             LinearSolver fem2 = new LinearSolver(els.ToArray(), rigid2);
@@ -384,9 +384,9 @@ namespace FemTest.Solver {
             nds.Add(new Node(-700.0, 0, 0));
             nds.Add(new Node(-1000.0, 0, 0));
 
-            List<Beam> els = new List<Beam>();
-            els.Add(new Beam(new Node[] { nds[0], nds[1] }, sec));
-            els.Add(new Beam(new Node[] { nds[2], nds[3] }, sec));
+            List<EulerBeam> els = new List<EulerBeam>();
+            els.Add(new EulerBeam(new Node[] { nds[0], nds[1] }, sec));
+            els.Add(new EulerBeam(new Node[] { nds[2], nds[3] }, sec));
 
             LoadCase lc = new LoadCase("lc1");
             CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
@@ -406,8 +406,8 @@ namespace FemTest.Solver {
 
             nds[0].AddAttribute(fix);
 
-            MultiPointCostrain[] rigid = MultiPointCostrain.RigidLink(nds[1], nds[2]);
-            MultiPointCostrain[] rigid2 = MultiPointCostrain.RigidLink(nds[2], nds[1]);
+            MultiPointsCostrain[] rigid = MultiPointsCostrain.RigidLink(nds[1], nds[2]);
+            MultiPointsCostrain[] rigid2 = MultiPointsCostrain.RigidLink(nds[2], nds[1]);
 
             LinearSolver fem = new LinearSolver(els.ToArray(), rigid);
             LinearSolver fem2 = new LinearSolver(els.ToArray(), rigid2);
@@ -431,9 +431,9 @@ namespace FemTest.Solver {
             nds.Add(new Node(0.0, 0, 700.0));
             nds.Add(new Node(0.0, 0, 1000.0));
 
-            List<Beam> els = new List<Beam>();
-            els.Add(new Beam(new Node[] { nds[0], nds[1] }, sec));
-            els.Add(new Beam(new Node[] { nds[2], nds[3] }, sec));
+            List<EulerBeam> els = new List<EulerBeam>();
+            els.Add(new EulerBeam(new Node[] { nds[0], nds[1] }, sec));
+            els.Add(new EulerBeam(new Node[] { nds[2], nds[3] }, sec));
 
             LoadCase lc = new LoadCase("lc1");
             CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
@@ -453,8 +453,8 @@ namespace FemTest.Solver {
 
             nds[0].AddAttribute(fix);
 
-            MultiPointCostrain[] rigid1 = MultiPointCostrain.RigidLink(nds[1], nds[2]);
-            MultiPointCostrain[] rigid2 = MultiPointCostrain.RigidLink(nds[2], nds[1]);
+            MultiPointsCostrain[] rigid1 = MultiPointsCostrain.RigidLink(nds[1], nds[2]);
+            MultiPointsCostrain[] rigid2 = MultiPointsCostrain.RigidLink(nds[2], nds[1]);
 
             LinearSolver fem1 = new LinearSolver(els.ToArray(), rigid1);
             LinearSolver fem2 = new LinearSolver(els.ToArray(), rigid2);
@@ -478,9 +478,9 @@ namespace FemTest.Solver {
             nds.Add(new Node(0.0, 0.0, -700.0));
             nds.Add(new Node(0.0, 0.0, -1000.0));
 
-            List<Beam> els = new List<Beam>();
-            els.Add(new Beam(new Node[] { nds[0], nds[1] }, sec));
-            els.Add(new Beam(new Node[] { nds[2], nds[3] }, sec));
+            List<EulerBeam> els = new List<EulerBeam>();
+            els.Add(new EulerBeam(new Node[] { nds[0], nds[1] }, sec));
+            els.Add(new EulerBeam(new Node[] { nds[2], nds[3] }, sec));
 
             LoadCase lc = new LoadCase("lc1");
             CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
@@ -500,8 +500,8 @@ namespace FemTest.Solver {
 
             nds[0].AddAttribute(fix);
 
-            MultiPointCostrain[] rigid1 = MultiPointCostrain.RigidLink(nds[1], nds[2]);
-            MultiPointCostrain[] rigid2 = MultiPointCostrain.RigidLink(nds[2], nds[1]);
+            MultiPointsCostrain[] rigid1 = MultiPointsCostrain.RigidLink(nds[1], nds[2]);
+            MultiPointsCostrain[] rigid2 = MultiPointsCostrain.RigidLink(nds[2], nds[1]);
 
             LinearSolver fem1 = new LinearSolver(els.ToArray(), rigid1);
             LinearSolver fem2 = new LinearSolver(els.ToArray(), rigid2);
@@ -525,9 +525,9 @@ namespace FemTest.Solver {
             nds.Add(new Node(0.0, 700.0, 0));
             nds.Add(new Node(0.0, 1000.0, 0));
 
-            List<Beam> els = new List<Beam>();
-            els.Add(new Beam(new Node[] { nds[0], nds[1] }, sec));
-            els.Add(new Beam(new Node[] { nds[2], nds[3] }, sec));
+            List<EulerBeam> els = new List<EulerBeam>();
+            els.Add(new EulerBeam(new Node[] { nds[0], nds[1] }, sec));
+            els.Add(new EulerBeam(new Node[] { nds[2], nds[3] }, sec));
 
             LoadCase lc = new LoadCase("lc1");
             CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
@@ -547,8 +547,8 @@ namespace FemTest.Solver {
 
             nds[0].AddAttribute(fix);
 
-            MultiPointCostrain[] rigid1 = MultiPointCostrain.RigidLink(nds[1], nds[2]);
-            MultiPointCostrain[] rigid2 = MultiPointCostrain.RigidLink(nds[2], nds[1]);
+            MultiPointsCostrain[] rigid1 = MultiPointsCostrain.RigidLink(nds[1], nds[2]);
+            MultiPointsCostrain[] rigid2 = MultiPointsCostrain.RigidLink(nds[2], nds[1]);
 
             LinearSolver fem = new LinearSolver(els.ToArray(), rigid1);
             LinearSolver fem2 = new LinearSolver(els.ToArray(), rigid2);
@@ -572,9 +572,9 @@ namespace FemTest.Solver {
             nds.Add(new Node(0.0, -700.0, 0));
             nds.Add(new Node(0.0, -1000.0, 0));
 
-            List<Beam> els = new List<Beam>();
-            els.Add(new Beam(new Node[] { nds[0], nds[1] }, sec));
-            els.Add(new Beam(new Node[] { nds[2], nds[3] }, sec));
+            List<EulerBeam> els = new List<EulerBeam>();
+            els.Add(new EulerBeam(new Node[] { nds[0], nds[1] }, sec));
+            els.Add(new EulerBeam(new Node[] { nds[2], nds[3] }, sec));
 
             LoadCase lc = new LoadCase("lc1");
             CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
@@ -594,8 +594,8 @@ namespace FemTest.Solver {
 
             nds[0].AddAttribute(fix);
 
-            MultiPointCostrain[] rigid1 = MultiPointCostrain.RigidLink(nds[1], nds[2]);
-            MultiPointCostrain[] rigid2 = MultiPointCostrain.RigidLink(nds[2], nds[1]);
+            MultiPointsCostrain[] rigid1 = MultiPointsCostrain.RigidLink(nds[1], nds[2]);
+            MultiPointsCostrain[] rigid2 = MultiPointsCostrain.RigidLink(nds[2], nds[1]);
 
             LinearSolver fem1 = new LinearSolver(els.ToArray(), rigid1);
             LinearSolver fem2 = new LinearSolver(els.ToArray(), rigid2);
@@ -618,9 +618,9 @@ namespace FemTest.Solver {
             nds.Add(new Node(300.0, 0.0, 0));
             nds.Add(new Node(600.0, 0.0, 0));
 
-            List<Beam> els = new List<Beam>();
-            els.Add(new Beam(new Node[] { nds[0], nds[1] }, sec));
-            els.Add(new Beam(new Node[] { nds[1], nds[2] }, sec));
+            List<EulerBeam> els = new List<EulerBeam>();
+            els.Add(new EulerBeam(new Node[] { nds[0], nds[1] }, sec));
+            els.Add(new EulerBeam(new Node[] { nds[1], nds[2] }, sec));
 
             LoadCase lc = new LoadCase("lc1");
             CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
@@ -640,12 +640,12 @@ namespace FemTest.Solver {
 
             nds[2].AddAttribute(fix);
 
-            MultiPointCostrain.Link[] eqts = new MultiPointCostrain.Link[2];
-            eqts[0] = new MultiPointCostrain.Link(nds[0], LinearSolver.DOF.DX, 1.0);
-            eqts[1] = new MultiPointCostrain.Link(nds[0], LinearSolver.DOF.DY, 1.0);
-            MultiPointCostrain rotatedSupport = new MultiPointCostrain(eqts);
+            MultiPointsCostrain.Link[] eqts = new MultiPointsCostrain.Link[2];
+            eqts[0] = new MultiPointsCostrain.Link(nds[0], LinearSolver.DOF.DX, 1.0);
+            eqts[1] = new MultiPointsCostrain.Link(nds[0], LinearSolver.DOF.DY, 1.0);
+            MultiPointsCostrain rotatedSupport = new MultiPointsCostrain(eqts, 0);
 
-            LinearSolver fem1 = new LinearSolver(els.ToArray(), new MultiPointCostrain[] { rotatedSupport });
+            LinearSolver fem1 = new LinearSolver(els.ToArray(), new MultiPointsCostrain[] { rotatedSupport });
 
             Assert.AreEqual(310.8808, fem1.GetReaction(nds[0], LinearSolver.DOF.DX), 1e-4);
             Assert.AreEqual(310.8808, fem1.GetReaction(nds[0], LinearSolver.DOF.DY), 1e-4);

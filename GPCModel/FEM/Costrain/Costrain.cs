@@ -8,5 +8,8 @@ namespace GPC.Model.FEM.Costrain
 {
     abstract public class Costrain : FEMObject
     {
+        public Costrain(string name) : base(name) { }
+
+        public Costrain() : base() { }
     }
 }
