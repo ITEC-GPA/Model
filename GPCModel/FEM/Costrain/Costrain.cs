@@ -4,12 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace GPC.Model.FEM.Costrain
+namespace GPC.Model.FEM.Costrains
 {
     abstract public class Costrain : FEMObject
     {
-        public Costrain(string name) : base(name) { }
-
-        public Costrain() : base() { }
+        public Costrain(Node nodo1, Node[] nodes, string name = "") : base(name) { }
     }
 }

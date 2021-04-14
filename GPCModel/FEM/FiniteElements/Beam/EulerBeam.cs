@@ -1,15 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using GPC.Model.Elements;
 using GPC.Model.FEM.Attributes;
 using GPC.Model.FEM.Properties;
 using GPC.Model.FreedomCases;
 using GPC.Model.Sections;
-using MathNet.Numerics.LinearAlgebra;
 using mnl = MathNet.Numerics.LinearAlgebra;
 
 namespace GPC.Model.FEM.FiniteElements
@@ -334,45 +329,45 @@ namespace GPC.Model.FEM.FiniteElements
 
         public override FiniteElement Duplicate(ElementProperty property, List<LoadCaseAttribute> lcAttributes, List<FreedomCaseAttribute> fcAttributes)
         {
-            throw new NotImplementedException();
-        }
-
-        public override FiniteElement Duplicate()
-        {
             //duplicate nodes
             Node[] duplicatedNodes = _nodesGlobal.Select(node => node.Duplicate()).ToArray();
 
             //duplicate beam
-            EulerBeam duplicatedBeam = new EulerBeam(duplicatedNodes, (Section) _property);
+            EulerBeam duplicatedBeam = new EulerBeam(duplicatedNodes, (Section) property);
             duplicatedBeam.SetId(this.Id);
 
-            foreach (FreedomCaseAttribute attribute in _attributesFreedomCase)
+            foreach (FreedomCaseAttribute attribute in fcAttributes)
             {
                 duplicatedBeam.AttributesFreedomCase.Add(attribute);
             }
-            foreach (LoadCaseAttribute attribute in _attributesLoadCase)
+            foreach (LoadCaseAttribute attribute in lcAttributes)
             {
                 duplicatedBeam.AttributesLoadCase.Add(attribute);
             }
             return duplicatedBeam;
         }
 
-        public override Matrix<double> GetB(double csi = 0, double eta = 0, double zeta = 0)
+        public override FiniteElement Duplicate()
+        {
+            return Duplicate(_property, _attributesLoadCase, _attributesFreedomCase);
+        }
+
+        public override mnl.Matrix<double> GetB(double csi = 0, double eta = 0, double zeta = 0)
         {
             throw new NotImplementedException();
         }
 
-        public override void GetNodesResults(double[] globalDisplacementsNodes, out double[] localDisplacements, out Matrix<double>[] gloabalPseudoDeformation, out Matrix<double>[] localPseudoDeformation, out Matrix<double>[] globalForces, out Matrix<double>[] localForces, out Matrix<double>[] globalStress, out Matrix<double>[] localStress, out Matrix<double>[] globalEpsilon, out Matrix<double>[] localEpsilon)
+        public override void GetNodesResults(double[] globalDisplacementsNodes, out double[] localDisplacements, out mnl.Matrix<double>[] gloabalPseudoDeformation, out mnl.Matrix<double>[] localPseudoDeformation, out mnl.Matrix<double>[] globalForces, out mnl.Matrix<double>[] localForces, out mnl.Matrix<double>[] globalStress, out mnl.Matrix<double>[] localStress, out mnl.Matrix<double>[] globalEpsilon, out mnl.Matrix<double>[] localEpsilon)
         {
             throw new NotImplementedException();
         }
 
-        public override void GetResultPositionNaturalCoordinates(double csi, double eta, double zeta, double[] globalDisplacementsNodes, out double x, out double y, out double z, out double[] localDisplacements, out Matrix<double> gloabalPseudoDeformation, out Matrix<double> localPseudoDeformation, out Matrix<double> globalForces, out Matrix<double> localForces, out Matrix<double> globalStress, out Matrix<double> localStress, out Matrix<double> globalEpsilon, out Matrix<double> localEpsilon)
+        public override void GetResultPositionNaturalCoordinates(double csi, double eta, double zeta, double[] globalDisplacementsNodes, out double x, out double y, out double z, out double[] localDisplacements, out mnl.Matrix<double> gloabalPseudoDeformation, out mnl.Matrix<double> localPseudoDeformation, out mnl.Matrix<double> globalForces, out mnl.Matrix<double> localForces, out mnl.Matrix<double> globalStress, out mnl.Matrix<double> localStress, out mnl.Matrix<double> globalEpsilon, out mnl.Matrix<double> localEpsilon)
         {
             throw new NotImplementedException();
         }
 
-        protected override Vector<double> BuildFLocalCoord()
+        protected override mnl.Vector<double> BuildFLocalCoord()
         {
             return mnl.Vector<double>.Build.Dense(12);
         }

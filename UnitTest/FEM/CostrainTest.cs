@@ -1,7 +1,7 @@
 ﻿using GPC.Geometry;
 using GPC.Model.FEM;
 using GPC.Model.FEM.Attributes;
-using GPC.Model.FEM.Costrain;
+using GPC.Model.FEM.Costrains;
 using GPC.Model.FEM.FiniteElements;
 using GPC.Model.FreedomCases;
 using GPC.Model.LoadCases;
@@ -11,13 +11,24 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using mnl = MathNet.Numerics.LinearAlgebra;
+using static GPC.Model.FEM.Solver;
 
 namespace FemTest.Solver { 
     [TestClass]
     public class CostrainTest {
+        [TestMethod]
+        public void CreateRigidLink()
+        {
+            Node node0 = new Node(0, 0, 0);
+
+            List<Node> nds = new List<Node>();
+            nds.Add(new Node(0, 1, 0));
+            nds.Add(new Node(0, 0, 1));
+
+            Costrain c = new RigidLink(node0, nds.ToArray());
+
+            Assert.AreEqual(6 * 2, ((RigidLink)c).Links.Count());
+        }
 
         [TestMethod]
         public void Axial1()
@@ -42,17 +53,17 @@ namespace FemTest.Solver {
 
             FreedomCase fc = new FreedomCase("fc");
             NodeRestrainAttribute fix = new NodeRestrainAttribute(fc, sys);
-            fix.AddExternalRestrain(LinearSolver.DOF.DX);
-            fix.AddExternalRestrain(LinearSolver.DOF.DY);
-            fix.AddExternalRestrain(LinearSolver.DOF.DZ);
-            fix.AddExternalRestrain(LinearSolver.DOF.RX);
-            fix.AddExternalRestrain(LinearSolver.DOF.RY);
-            fix.AddExternalRestrain(LinearSolver.DOF.RZ);
+            fix.AddExternalRestrain(DOF.DX);
+            fix.AddExternalRestrain(DOF.DY);
+            fix.AddExternalRestrain(DOF.DZ);
+            fix.AddExternalRestrain(DOF.RX);
+            fix.AddExternalRestrain(DOF.RY);
+            fix.AddExternalRestrain(DOF.RZ);
 
             nds[0].AddAttribute(fix);
 
-            MultiPointsCostrain[] rigids1 = MultiPointsCostrain.RigidLink(nds[2], nds[1]);
-            MultiPointsCostrain[] rigids2 = MultiPointsCostrain.RigidLink(nds[1], nds[2]);
+            MultiPointsCostrain[] rigids1 = RigidLink.GetRigidLink(nds[2], nds[1]);
+            MultiPointsCostrain[] rigids2 = RigidLink.GetRigidLink(nds[1], nds[2]);
 
             LinearSolver fem1 = new LinearSolver(els.ToArray(), rigids1);
             LinearSolver fem2 = new LinearSolver(els.ToArray(), rigids2);
@@ -86,17 +97,17 @@ namespace FemTest.Solver {
 
             FreedomCase fc = new FreedomCase("fc");
             NodeRestrainAttribute fix = new NodeRestrainAttribute(fc, sys);
-            fix.AddExternalRestrain(LinearSolver.DOF.DX);
-            fix.AddExternalRestrain(LinearSolver.DOF.DY);
-            fix.AddExternalRestrain(LinearSolver.DOF.DZ);
-            fix.AddExternalRestrain(LinearSolver.DOF.RX);
-            fix.AddExternalRestrain(LinearSolver.DOF.RY);
-            fix.AddExternalRestrain(LinearSolver.DOF.RZ);
+            fix.AddExternalRestrain(DOF.DX);
+            fix.AddExternalRestrain(DOF.DY);
+            fix.AddExternalRestrain(DOF.DZ);
+            fix.AddExternalRestrain(DOF.RX);
+            fix.AddExternalRestrain(DOF.RY);
+            fix.AddExternalRestrain(DOF.RZ);
 
             nds[0].AddAttribute(fix);
 
-            MultiPointsCostrain[] rigids1 = MultiPointsCostrain.RigidLink(nds[2], nds[1]);
-            MultiPointsCostrain[] rigids2 = MultiPointsCostrain.RigidLink(nds[1], nds[2]);
+            MultiPointsCostrain[] rigids1 = RigidLink.GetRigidLink(nds[2], nds[1]);
+            MultiPointsCostrain[] rigids2 = RigidLink.GetRigidLink(nds[1], nds[2]);
             
             LinearSolver fem1 = new LinearSolver(els.ToArray(), rigids1);
             LinearSolver fem2 = new LinearSolver(els.ToArray(), rigids2);
@@ -130,17 +141,17 @@ namespace FemTest.Solver {
 
             FreedomCase fc = new FreedomCase("fc");
             NodeRestrainAttribute fix = new NodeRestrainAttribute(fc, sys);
-            fix.AddExternalRestrain(LinearSolver.DOF.DX);
-            fix.AddExternalRestrain(LinearSolver.DOF.DY);
-            fix.AddExternalRestrain(LinearSolver.DOF.DZ);
-            fix.AddExternalRestrain(LinearSolver.DOF.RX);
-            fix.AddExternalRestrain(LinearSolver.DOF.RY);
-            fix.AddExternalRestrain(LinearSolver.DOF.RZ);
+            fix.AddExternalRestrain(DOF.DX);
+            fix.AddExternalRestrain(DOF.DY);
+            fix.AddExternalRestrain(DOF.DZ);
+            fix.AddExternalRestrain(DOF.RX);
+            fix.AddExternalRestrain(DOF.RY);
+            fix.AddExternalRestrain(DOF.RZ);
 
             nds[0].AddAttribute(fix);
 
-            MultiPointsCostrain[] rigids1 = MultiPointsCostrain.RigidLink(nds[2], nds[1]);
-            MultiPointsCostrain[] rigids2 = MultiPointsCostrain.RigidLink(nds[1], nds[2]);
+            MultiPointsCostrain[] rigids1 = RigidLink.GetRigidLink(nds[2], nds[1]);
+            MultiPointsCostrain[] rigids2 = RigidLink.GetRigidLink(nds[1], nds[2]);
 
             LinearSolver fem1 = new LinearSolver(els.ToArray(), rigids1);
             LinearSolver fem2 = new LinearSolver(els.ToArray(), rigids2);
@@ -174,17 +185,17 @@ namespace FemTest.Solver {
 
             FreedomCase fc = new FreedomCase("fc");
             NodeRestrainAttribute fix = new NodeRestrainAttribute(fc, sys);
-            fix.AddExternalRestrain(LinearSolver.DOF.DX);
-            fix.AddExternalRestrain(LinearSolver.DOF.DY);
-            fix.AddExternalRestrain(LinearSolver.DOF.DZ);
-            fix.AddExternalRestrain(LinearSolver.DOF.RX);
-            fix.AddExternalRestrain(LinearSolver.DOF.RY);
-            fix.AddExternalRestrain(LinearSolver.DOF.RZ);
+            fix.AddExternalRestrain(DOF.DX);
+            fix.AddExternalRestrain(DOF.DY);
+            fix.AddExternalRestrain(DOF.DZ);
+            fix.AddExternalRestrain(DOF.RX);
+            fix.AddExternalRestrain(DOF.RY);
+            fix.AddExternalRestrain(DOF.RZ);
 
             nds[0].AddAttribute(fix);
 
-            MultiPointsCostrain[] rigids1 = MultiPointsCostrain.RigidLink(nds[2], nds[1]);
-            MultiPointsCostrain[] rigids2 = MultiPointsCostrain.RigidLink(nds[1], nds[2]);
+            MultiPointsCostrain[] rigids1 = RigidLink.GetRigidLink(nds[2], nds[1]);
+            MultiPointsCostrain[] rigids2 = RigidLink.GetRigidLink(nds[1], nds[2]);
 
             LinearSolver fem1 = new LinearSolver(els.ToArray(), rigids1);
             LinearSolver fem2 = new LinearSolver(els.ToArray(), rigids2);
@@ -218,17 +229,17 @@ namespace FemTest.Solver {
 
             FreedomCase fc = new FreedomCase("fc");
             NodeRestrainAttribute fix = new NodeRestrainAttribute(fc, sys);
-            fix.AddExternalRestrain(LinearSolver.DOF.DX);
-            fix.AddExternalRestrain(LinearSolver.DOF.DY);
-            fix.AddExternalRestrain(LinearSolver.DOF.DZ);
-            fix.AddExternalRestrain(LinearSolver.DOF.RX);
-            fix.AddExternalRestrain(LinearSolver.DOF.RY);
-            fix.AddExternalRestrain(LinearSolver.DOF.RZ);
+            fix.AddExternalRestrain(DOF.DX);
+            fix.AddExternalRestrain(DOF.DY);
+            fix.AddExternalRestrain(DOF.DZ);
+            fix.AddExternalRestrain(DOF.RX);
+            fix.AddExternalRestrain(DOF.RY);
+            fix.AddExternalRestrain(DOF.RZ);
 
             nds[0].AddAttribute(fix);
 
-            MultiPointsCostrain[] rigids1 = MultiPointsCostrain.RigidLink(nds[2], nds[1]);
-            MultiPointsCostrain[] rigids2 = MultiPointsCostrain.RigidLink(nds[1], nds[2]);
+            MultiPointsCostrain[] rigids1 = RigidLink.GetRigidLink(nds[2], nds[1]);
+            MultiPointsCostrain[] rigids2 = RigidLink.GetRigidLink(nds[1], nds[2]);
 
             LinearSolver fem1 = new LinearSolver(els.ToArray(), rigids1);
             LinearSolver fem2 = new LinearSolver(els.ToArray(), rigids2);
@@ -262,17 +273,17 @@ namespace FemTest.Solver {
 
             FreedomCase fc = new FreedomCase("fc");
             NodeRestrainAttribute fix = new NodeRestrainAttribute(fc, sys);
-            fix.AddExternalRestrain(LinearSolver.DOF.DX);
-            fix.AddExternalRestrain(LinearSolver.DOF.DY);
-            fix.AddExternalRestrain(LinearSolver.DOF.DZ);
-            fix.AddExternalRestrain(LinearSolver.DOF.RX);
-            fix.AddExternalRestrain(LinearSolver.DOF.RY);
-            fix.AddExternalRestrain(LinearSolver.DOF.RZ);
+            fix.AddExternalRestrain(DOF.DX);
+            fix.AddExternalRestrain(DOF.DY);
+            fix.AddExternalRestrain(DOF.DZ);
+            fix.AddExternalRestrain(DOF.RX);
+            fix.AddExternalRestrain(DOF.RY);
+            fix.AddExternalRestrain(DOF.RZ);
 
             nds[0].AddAttribute(fix);
 
-            MultiPointsCostrain[] rigids1 = MultiPointsCostrain.RigidLink(nds[2], nds[1]);
-            MultiPointsCostrain[] rigids2 = MultiPointsCostrain.RigidLink(nds[1], nds[2]);
+            MultiPointsCostrain[] rigids1 = RigidLink.GetRigidLink(nds[2], nds[1]);
+            MultiPointsCostrain[] rigids2 = RigidLink.GetRigidLink(nds[1], nds[2]);
 
             LinearSolver fem1 = new LinearSolver(els.ToArray(), rigids1);
             LinearSolver fem2 = new LinearSolver(els.ToArray(), rigids2);
@@ -306,17 +317,17 @@ namespace FemTest.Solver {
 
             FreedomCase fc = new FreedomCase("fc");
             NodeRestrainAttribute fix = new NodeRestrainAttribute(fc, sys);
-            fix.AddExternalRestrain(LinearSolver.DOF.DX);
-            fix.AddExternalRestrain(LinearSolver.DOF.DY);
-            fix.AddExternalRestrain(LinearSolver.DOF.DZ);
-            fix.AddExternalRestrain(LinearSolver.DOF.RX);
-            fix.AddExternalRestrain(LinearSolver.DOF.RY);
-            fix.AddExternalRestrain(LinearSolver.DOF.RZ);
+            fix.AddExternalRestrain(DOF.DX);
+            fix.AddExternalRestrain(DOF.DY);
+            fix.AddExternalRestrain(DOF.DZ);
+            fix.AddExternalRestrain(DOF.RX);
+            fix.AddExternalRestrain(DOF.RY);
+            fix.AddExternalRestrain(DOF.RZ);
 
             nds[0].AddAttribute(fix);
 
-            MultiPointsCostrain[] rigids1 = MultiPointsCostrain.RigidLink(nds[2], nds[1]);
-            MultiPointsCostrain[] rigids2 = MultiPointsCostrain.RigidLink(nds[1], nds[2]);
+            MultiPointsCostrain[] rigids1 = RigidLink.GetRigidLink(nds[2], nds[1]);
+            MultiPointsCostrain[] rigids2 = RigidLink.GetRigidLink(nds[1], nds[2]);
 
             LinearSolver fem1 = new LinearSolver(els.ToArray(), rigids1);
             LinearSolver fem2 = new LinearSolver(els.ToArray(), rigids2);
@@ -350,17 +361,17 @@ namespace FemTest.Solver {
 
             FreedomCase fc = new FreedomCase("fc");
             NodeRestrainAttribute fix = new NodeRestrainAttribute(fc, sys);
-            fix.AddExternalRestrain(LinearSolver.DOF.DX);
-            fix.AddExternalRestrain(LinearSolver.DOF.DY);
-            fix.AddExternalRestrain(LinearSolver.DOF.DZ);
-            fix.AddExternalRestrain(LinearSolver.DOF.RX);
-            fix.AddExternalRestrain(LinearSolver.DOF.RY);
-            fix.AddExternalRestrain(LinearSolver.DOF.RZ);
+            fix.AddExternalRestrain(DOF.DX);
+            fix.AddExternalRestrain(DOF.DY);
+            fix.AddExternalRestrain(DOF.DZ);
+            fix.AddExternalRestrain(DOF.RX);
+            fix.AddExternalRestrain(DOF.RY);
+            fix.AddExternalRestrain(DOF.RZ);
 
             nds[0].AddAttribute(fix);
 
-            MultiPointsCostrain[] rigid1 = MultiPointsCostrain.RigidLink(nds[1], nds[2]);
-            MultiPointsCostrain[] rigid2 = MultiPointsCostrain.RigidLink(nds[2], nds[1]);
+            MultiPointsCostrain[] rigid1 = RigidLink.GetRigidLink(nds[1], nds[2]);
+            MultiPointsCostrain[] rigid2 = RigidLink.GetRigidLink(nds[2], nds[1]);
 
             LinearSolver fem = new LinearSolver(els.ToArray(), rigid1);
             LinearSolver fem2 = new LinearSolver(els.ToArray(), rigid2);
@@ -397,17 +408,17 @@ namespace FemTest.Solver {
 
             FreedomCase fc = new FreedomCase("fc");
             NodeRestrainAttribute fix = new NodeRestrainAttribute(fc, sys);
-            fix.AddExternalRestrain(LinearSolver.DOF.DX);
-            fix.AddExternalRestrain(LinearSolver.DOF.DY);
-            fix.AddExternalRestrain(LinearSolver.DOF.DZ);
-            fix.AddExternalRestrain(LinearSolver.DOF.RX);
-            fix.AddExternalRestrain(LinearSolver.DOF.RY);
-            fix.AddExternalRestrain(LinearSolver.DOF.RZ);
+            fix.AddExternalRestrain(DOF.DX);
+            fix.AddExternalRestrain(DOF.DY);
+            fix.AddExternalRestrain(DOF.DZ);
+            fix.AddExternalRestrain(DOF.RX);
+            fix.AddExternalRestrain(DOF.RY);
+            fix.AddExternalRestrain(DOF.RZ);
 
             nds[0].AddAttribute(fix);
 
-            MultiPointsCostrain[] rigid = MultiPointsCostrain.RigidLink(nds[1], nds[2]);
-            MultiPointsCostrain[] rigid2 = MultiPointsCostrain.RigidLink(nds[2], nds[1]);
+            MultiPointsCostrain[] rigid = RigidLink.GetRigidLink(nds[1], nds[2]);
+            MultiPointsCostrain[] rigid2 = RigidLink.GetRigidLink(nds[2], nds[1]);
 
             LinearSolver fem = new LinearSolver(els.ToArray(), rigid);
             LinearSolver fem2 = new LinearSolver(els.ToArray(), rigid2);
@@ -444,17 +455,17 @@ namespace FemTest.Solver {
 
             FreedomCase fc = new FreedomCase("fc");
             NodeRestrainAttribute fix = new NodeRestrainAttribute(fc, sys);
-            fix.AddExternalRestrain(LinearSolver.DOF.DX);
-            fix.AddExternalRestrain(LinearSolver.DOF.DY);
-            fix.AddExternalRestrain(LinearSolver.DOF.DZ);
-            fix.AddExternalRestrain(LinearSolver.DOF.RX);
-            fix.AddExternalRestrain(LinearSolver.DOF.RY);
-            fix.AddExternalRestrain(LinearSolver.DOF.RZ);
+            fix.AddExternalRestrain(DOF.DX);
+            fix.AddExternalRestrain(DOF.DY);
+            fix.AddExternalRestrain(DOF.DZ);
+            fix.AddExternalRestrain(DOF.RX);
+            fix.AddExternalRestrain(DOF.RY);
+            fix.AddExternalRestrain(DOF.RZ);
 
             nds[0].AddAttribute(fix);
 
-            MultiPointsCostrain[] rigid1 = MultiPointsCostrain.RigidLink(nds[1], nds[2]);
-            MultiPointsCostrain[] rigid2 = MultiPointsCostrain.RigidLink(nds[2], nds[1]);
+            MultiPointsCostrain[] rigid1 = RigidLink.GetRigidLink(nds[1], nds[2]);
+            MultiPointsCostrain[] rigid2 = RigidLink.GetRigidLink(nds[2], nds[1]);
 
             LinearSolver fem1 = new LinearSolver(els.ToArray(), rigid1);
             LinearSolver fem2 = new LinearSolver(els.ToArray(), rigid2);
@@ -491,17 +502,17 @@ namespace FemTest.Solver {
 
             FreedomCase fc = new FreedomCase("fc");
             NodeRestrainAttribute fix = new NodeRestrainAttribute(fc, sys);
-            fix.AddExternalRestrain(LinearSolver.DOF.DX);
-            fix.AddExternalRestrain(LinearSolver.DOF.DY);
-            fix.AddExternalRestrain(LinearSolver.DOF.DZ);
-            fix.AddExternalRestrain(LinearSolver.DOF.RX);
-            fix.AddExternalRestrain(LinearSolver.DOF.RY);
-            fix.AddExternalRestrain(LinearSolver.DOF.RZ);
+            fix.AddExternalRestrain(DOF.DX);
+            fix.AddExternalRestrain(DOF.DY);
+            fix.AddExternalRestrain(DOF.DZ);
+            fix.AddExternalRestrain(DOF.RX);
+            fix.AddExternalRestrain(DOF.RY);
+            fix.AddExternalRestrain(DOF.RZ);
 
             nds[0].AddAttribute(fix);
 
-            MultiPointsCostrain[] rigid1 = MultiPointsCostrain.RigidLink(nds[1], nds[2]);
-            MultiPointsCostrain[] rigid2 = MultiPointsCostrain.RigidLink(nds[2], nds[1]);
+            MultiPointsCostrain[] rigid1 = RigidLink.GetRigidLink(nds[1], nds[2]);
+            MultiPointsCostrain[] rigid2 = RigidLink.GetRigidLink(nds[2], nds[1]);
 
             LinearSolver fem1 = new LinearSolver(els.ToArray(), rigid1);
             LinearSolver fem2 = new LinearSolver(els.ToArray(), rigid2);
@@ -538,17 +549,17 @@ namespace FemTest.Solver {
 
             FreedomCase fc = new FreedomCase("fc");
             NodeRestrainAttribute fix = new NodeRestrainAttribute(fc, sys);
-            fix.AddExternalRestrain(LinearSolver.DOF.DX);
-            fix.AddExternalRestrain(LinearSolver.DOF.DY);
-            fix.AddExternalRestrain(LinearSolver.DOF.DZ);
-            fix.AddExternalRestrain(LinearSolver.DOF.RX);
-            fix.AddExternalRestrain(LinearSolver.DOF.RY);
-            fix.AddExternalRestrain(LinearSolver.DOF.RZ);
+            fix.AddExternalRestrain(DOF.DX);
+            fix.AddExternalRestrain(DOF.DY);
+            fix.AddExternalRestrain(DOF.DZ);
+            fix.AddExternalRestrain(DOF.RX);
+            fix.AddExternalRestrain(DOF.RY);
+            fix.AddExternalRestrain(DOF.RZ);
 
             nds[0].AddAttribute(fix);
 
-            MultiPointsCostrain[] rigid1 = MultiPointsCostrain.RigidLink(nds[1], nds[2]);
-            MultiPointsCostrain[] rigid2 = MultiPointsCostrain.RigidLink(nds[2], nds[1]);
+            MultiPointsCostrain[] rigid1 = RigidLink.GetRigidLink(nds[1], nds[2]);
+            MultiPointsCostrain[] rigid2 = RigidLink.GetRigidLink(nds[2], nds[1]);
 
             LinearSolver fem = new LinearSolver(els.ToArray(), rigid1);
             LinearSolver fem2 = new LinearSolver(els.ToArray(), rigid2);
@@ -585,17 +596,17 @@ namespace FemTest.Solver {
 
             FreedomCase fc = new FreedomCase("fc");
             NodeRestrainAttribute fix = new NodeRestrainAttribute(fc, sys);
-            fix.AddExternalRestrain(LinearSolver.DOF.DX);
-            fix.AddExternalRestrain(LinearSolver.DOF.DY);
-            fix.AddExternalRestrain(LinearSolver.DOF.DZ);
-            fix.AddExternalRestrain(LinearSolver.DOF.RX);
-            fix.AddExternalRestrain(LinearSolver.DOF.RY);
-            fix.AddExternalRestrain(LinearSolver.DOF.RZ);
+            fix.AddExternalRestrain(DOF.DX);
+            fix.AddExternalRestrain(DOF.DY);
+            fix.AddExternalRestrain(DOF.DZ);
+            fix.AddExternalRestrain(DOF.RX);
+            fix.AddExternalRestrain(DOF.RY);
+            fix.AddExternalRestrain(DOF.RZ);
 
             nds[0].AddAttribute(fix);
 
-            MultiPointsCostrain[] rigid1 = MultiPointsCostrain.RigidLink(nds[1], nds[2]);
-            MultiPointsCostrain[] rigid2 = MultiPointsCostrain.RigidLink(nds[2], nds[1]);
+            MultiPointsCostrain[] rigid1 = RigidLink.GetRigidLink(nds[1], nds[2]);
+            MultiPointsCostrain[] rigid2 = RigidLink.GetRigidLink(nds[2], nds[1]);
 
             LinearSolver fem1 = new LinearSolver(els.ToArray(), rigid1);
             LinearSolver fem2 = new LinearSolver(els.ToArray(), rigid2);
@@ -631,18 +642,18 @@ namespace FemTest.Solver {
 
             FreedomCase fc = new FreedomCase("fc");
             NodeRestrainAttribute fix = new NodeRestrainAttribute(fc, sys);
-            fix.AddExternalRestrain(LinearSolver.DOF.DX);
-            fix.AddExternalRestrain(LinearSolver.DOF.DY);
-            fix.AddExternalRestrain(LinearSolver.DOF.DZ);
-            fix.AddExternalRestrain(LinearSolver.DOF.RX);
-            fix.AddExternalRestrain(LinearSolver.DOF.RY);
-            fix.AddExternalRestrain(LinearSolver.DOF.RZ);
+            fix.AddExternalRestrain(DOF.DX);
+            fix.AddExternalRestrain(DOF.DY);
+            fix.AddExternalRestrain(DOF.DZ);
+            fix.AddExternalRestrain(DOF.RX);
+            fix.AddExternalRestrain(DOF.RY);
+            fix.AddExternalRestrain(DOF.RZ);
 
             nds[2].AddAttribute(fix);
 
-            MultiPointsCostrain.Link[] eqts = new MultiPointsCostrain.Link[2];
-            eqts[0] = new MultiPointsCostrain.Link(nds[0], LinearSolver.DOF.DX, 1.0);
-            eqts[1] = new MultiPointsCostrain.Link(nds[0], LinearSolver.DOF.DY, 1.0);
+            MultiPointsCostrain.Equation[] eqts = new MultiPointsCostrain.Equation[2];
+            eqts[0] = new MultiPointsCostrain.Equation(nds[0], DOF.DX, 1.0);
+            eqts[1] = new MultiPointsCostrain.Equation(nds[0], DOF.DY, 1.0);
             MultiPointsCostrain rotatedSupport = new MultiPointsCostrain(eqts, 0);
 
             LinearSolver fem1 = new LinearSolver(els.ToArray(), new MultiPointsCostrain[] { rotatedSupport });

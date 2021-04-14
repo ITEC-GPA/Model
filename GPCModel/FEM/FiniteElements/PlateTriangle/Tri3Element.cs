@@ -1,7 +1,6 @@
 ﻿using GPC.Geometry;
 using GPC.Model.FEM.Attributes;
 using GPC.Model.FEM.Properties;
-using System;
 using mnl = MathNet.Numerics.LinearAlgebra;
 
 namespace GPC.Model.FEM.FiniteElements

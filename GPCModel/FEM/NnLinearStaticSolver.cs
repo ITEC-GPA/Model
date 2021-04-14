@@ -5,7 +5,7 @@ using GPC.Model.FEM.FiniteElements;
 using GPC.Geometry;
 using mnl = MathNet.Numerics.LinearAlgebra;
 using GPC.Model.FEM.Attributes;
-using GPC.Model.FEM.Costrain;
+using GPC.Model.FEM.Costrains;
 
 namespace GPC.Model.FEM
 {

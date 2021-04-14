@@ -2,7 +2,6 @@
 using System.Linq;
 using System;
 using GPC.Geometry;
-using GPC.Model.Elements;
 using GPC.Model.FEM.Properties;
 using GPC.Model.FEM.Attributes;
 using mnl = MathNet.Numerics.LinearAlgebra;
@@ -108,7 +107,6 @@ namespace GPC.Model.FEM.FiniteElements
         #endregion
 
         #region Constructor
-
         /// <summary>
         ///  
         /// </summary>
@@ -120,7 +118,6 @@ namespace GPC.Model.FEM.FiniteElements
             _attributesLoadCase = new List<LoadCaseAttribute>();
             _attributesFreedomCase = new List<FreedomCaseAttribute>();
         }
-
         #endregion
 
         #region PublicFunction
