@@ -69,9 +69,16 @@ namespace GPC.Model.Glasses
             _material = (GlassMaterial)info.GetValue("Material", typeof(GlassMaterial));
         }
 
-        #endregion 
+        #endregion
 
-        #region Public Methods
+
+        public IGlassPackage[] GetGlassPackage()
+        {
+            return new IGlassPackage[] { this };
+        }
+
+
+        #region Equals - HashCode - Operators
 
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {

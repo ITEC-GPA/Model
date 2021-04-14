@@ -11,7 +11,7 @@ namespace GPC.Model.Glasses
     /// </summary>
     [Serializable]
     [UI(Description = "Interlayer", Group = "Glasses", Kind = "Interlayer")]
-    public sealed class Interlayer : ModelObject, IEquatable<Interlayer>
+    public sealed class Interlayer : ModelObject, IEquatable<Interlayer>, IGlassPackage
     {
         #region VARIABLES
 

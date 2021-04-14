@@ -71,7 +71,7 @@
     <Reference Include="System.Runtime.Serialization" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="DescriptionAttributesTest.cs" />
+    <Compile Include="General\DescriptionAttributesTest.cs" />
     <Compile Include="FEM\CostrainTest.cs" />
     <Compile Include="FEM\Beam\BeamTest.cs" />
     <Compile Include="FEM\Brick\BrickTest.cs" />
@@ -97,16 +97,17 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="CombinationTest.cs" />
     <Compile Include="SectionsTest.cs" />
-    <Compile Include="SerializationTest.cs" />
+    <Compile Include="General\SerializationTest.cs" />
     <Compile Include="LoadCaseTest.cs" />
-    <Compile Include="EquatableHashCodeTest.cs" />
+    <Compile Include="General\EquatableHashCodeTest.cs" />
     <Compile Include="LoadTest.cs" />
-    <Compile Include="PerformanceTest.cs" />
+    <Compile Include="General\PerformanceTest.cs" />
     <Compile Include="FemModelTest.cs" />
     <Compile Include="UnitsTest.cs" />
     <Compile Include="FemObjectCollectionsTest.cs" />
     <Compile Include="StagesTest.cs" />
     <Compile Include="ModelObjectCollectionTest.cs" />
+    <Compile Include="GlassTest.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
