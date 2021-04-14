@@ -30,7 +30,7 @@ namespace ModelObjectTest
             loadCases.Add(new LoadCase("SDL", LoadCase.LoadCaseType.SuperImposedDeadLoad, Guid.NewGuid()));
             coefficients.Add(4);
 
-            CombinationEn combination = new CombinationEn("test", CombinationEn.CombinationType.UltimateEquilibrium, Guid.NewGuid());
+            CombinationEn combination = new CombinationEn("test", CombinationEn.CombinationType.UltimateEquilibrium);
 
             combination.AddLoadCaseCoefficients(loadCases, coefficients);
 
@@ -64,7 +64,7 @@ namespace ModelObjectTest
             loadCases.Add(new LoadCase("SDL", LoadCase.LoadCaseType.SuperImposedDeadLoad, Guid.NewGuid()));
             coefficients.Add(4);
 
-            CombinationEn combination = new CombinationEn("test", CombinationEn.CombinationType.UltimateEquilibrium, Guid.NewGuid());
+            CombinationEn combination = new CombinationEn("test", CombinationEn.CombinationType.UltimateEquilibrium);
 
             combination.AddLoadCaseCoefficients(loadCases, coefficients);
 
@@ -101,7 +101,7 @@ namespace ModelObjectTest
             loadCases.Add(sdl);
             coefficients.Add(4);
 
-            CombinationEn combination = new CombinationEn("test", CombinationEn.CombinationType.UltimateEquilibrium, Guid.NewGuid());
+            CombinationEn combination = new CombinationEn("test", CombinationEn.CombinationType.UltimateEquilibrium);
 
             combination.AddLoadCaseCoefficients(loadCases, coefficients);
 
@@ -138,7 +138,7 @@ namespace ModelObjectTest
             loadCases.Add(new LoadCase("SDL", LoadCase.LoadCaseType.SuperImposedDeadLoad, Guid.NewGuid()));
             coefficients.Add(4);
 
-            CombinationEn combination = new CombinationEn("test", CombinationEn.CombinationType.UltimateEquilibrium, Guid.NewGuid());
+            CombinationEn combination = new CombinationEn("test", CombinationEn.CombinationType.UltimateEquilibrium);
 
             combination.AddLoadCaseCoefficients(loadCases, coefficients);
 

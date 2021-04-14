@@ -20,17 +20,12 @@ namespace GPC.Model.Combinations
 
         public CombinationType GetCombinationType => _combinationType;
 
-        public CombinationEn(string name, CombinationType combinationType, Guid guid)
-            : base(name, guid)
+        public CombinationEn(string name, CombinationType combinationType)
+            : base(name)
         {
             this._combinationType = combinationType;
         }
 
-        public CombinationEn(string name, CombinationType combinationType)
-            : this(name, combinationType, Guid.NewGuid())
-        {
-
-        }
 
         public CombinationEn(SerializationInfo info, StreamingContext context)
             : base(info, context)

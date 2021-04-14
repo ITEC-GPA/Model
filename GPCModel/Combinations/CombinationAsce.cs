@@ -16,17 +16,12 @@ namespace GPC.Model.Combinations
 
         public CombinationType GetCombinationType => _combinationType;
 
-        public CombinationAsce(string name, CombinationType combinationType, Guid guid)
-            : base(name, guid)
+        public CombinationAsce(string name, CombinationType combinationType)
+            : base(name)
         {
             this._combinationType = combinationType;
         }
 
-        public CombinationAsce(string name, CombinationType combinationType)
-            : this(name, combinationType, Guid.NewGuid())
-        {
-            this._combinationType = combinationType;
-        }
 
         public CombinationAsce(SerializationInfo info, StreamingContext context)
             : base(info, context)
