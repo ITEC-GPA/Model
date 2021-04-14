@@ -90,9 +90,10 @@ namespace FemTest
             PlateProperty p2 = new PlateProperty(new SteelMaterial("", 1, 0.1, 2, 3, 4), 10, 20, "P2");
 
             FemModel model = new FemModel();
-
+            model.AddProperty(p1);
+            model.AddProperty(p2);
             Mesh mesh = CreateSimpleMesh(10, 10, 2, 4, 0);
-            model.AddMesh(mesh, p1, null, null, null, null, null);
+            model.AddMesh(mesh, p1.Name, null, null, null, null, null);
 
             var stage1 = model.AddStage("Stg1", FemModel.AnalysisType.Linear);
             var stage2 = model.AddStage("Stg2", FemModel.AnalysisType.Linear);
@@ -134,8 +135,10 @@ namespace FemTest
 
             FemModel model = new FemModel();
 
+            model.AddProperty(p1);
+            model.AddProperty(p2);
             Mesh mesh = CreateSimpleMesh(10, 10, 2, 4, 0);
-            model.AddMesh(mesh, p1, null, null, null, null, null);
+            model.AddMesh(mesh, p1.Name, null, null, null, null, null);
 
             var stage1 = model.AddStage("Stg1", FemModel.AnalysisType.Linear);
             var stage2 = model.AddStage("Stg2", FemModel.AnalysisType.Linear);

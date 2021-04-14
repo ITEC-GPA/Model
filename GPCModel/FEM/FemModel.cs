@@ -156,10 +156,9 @@ namespace GPC.Model.FEM
         #region Add Get Attributes
 
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <returns>True if the property has been added. <para>False if a property with the same name is already present</para> </returns>
+        /// <returns><see langword="true"/> if the property has been added. 
+        /// <para><see langword="false"/> if a property with the same name is already present</para> 
+        /// </returns>
         public virtual bool AddProperty(ElementProperty elementProperty)
         {
             if (elementProperty is null)
@@ -424,10 +423,10 @@ namespace GPC.Model.FEM
         /// </summary>
         /// <param name="shape"></param>
         /// <param name="options"></param>
-        /// <param name="plateProperty"></param>
+        /// <param name="platePropertyName"></param>
         /// <param name="loads"></param>
         /// <param name="restrains"></param>
-        public virtual void AddShape(Shape shape, IPlateProperty plateProperty, Mesh.GenerateOptions options, List<Load> loads, List<GeometryRestrain> restrains)
+        public virtual void AddShape(Shape shape, string platePropertyName, Mesh.GenerateOptions options, List<Load> loads, List<GeometryRestrain> restrains)
         {
 
             if (shape is null)
@@ -523,7 +522,7 @@ namespace GPC.Model.FEM
                 }
             }
 
-            AddMesh(meshes.First(), plateProperty, null, vertexLoadMeshEntityMap, vertexLineLoadMeshEntityMap, null, restrainMeshEntityMap);
+            AddMesh(meshes.First(), platePropertyName, null, vertexLoadMeshEntityMap, vertexLineLoadMeshEntityMap, null, restrainMeshEntityMap);
         }
 
 
@@ -535,14 +534,14 @@ namespace GPC.Model.FEM
         /// <param name="plateProperties"></param>
         /// <param name="loads"></param>
         /// <param name="restrains"></param>
-        public virtual void AddShapes(List<Shape> shapes, List<IPlateProperty> plateProperties, Mesh.GenerateOptions options, List<List<Load>> loads, List<List<GeometryRestrain>> restrains)
+        public virtual void AddShapes(List<Shape> shapes, List<string> platePropertyNames, Mesh.GenerateOptions options, List<List<Load>> loads, List<List<GeometryRestrain>> restrains)
         {
             if (shapes is null)
                 throw new ArgumentNullException(nameof(shapes));
 
             // Garantisce la stessa lunghezza delle liste, ma non che siano liste di non nulli
-            if (shapes.Count != plateProperties.Count)
-                throw new ArgumentException($"Size of {nameof(shapes)} and {nameof(plateProperties)} are different");
+            if (shapes.Count != platePropertyNames.Count)
+                throw new ArgumentException($"Size of {nameof(shapes)} and {nameof(platePropertyNames)} are different");
             if (shapes.Count != loads.Count)
                 throw new ArgumentException($"Size of {nameof(shapes)} and {nameof(loads)} are different");
             if (shapes.Count != restrains.Count)
@@ -554,8 +553,8 @@ namespace GPC.Model.FEM
                 if (shapes[i] is null)
                     throw new ArgumentNullException(nameof(shapes));
 
-                if (plateProperties[i] is null)
-                    throw new ArgumentNullException(nameof(plateProperties));
+                if (!string.IsNullOrEmpty(platePropertyNames[i]) || !string.IsNullOrWhiteSpace(platePropertyNames[i]))
+                    throw new ArgumentNullException(nameof(platePropertyNames));
 
                 if (loads[i] is null)
                     throw new ArgumentNullException(nameof(loads));
@@ -564,7 +563,7 @@ namespace GPC.Model.FEM
                     throw new ArgumentNullException(nameof(restrains));
 
 
-                AddShape(shapes[i], plateProperties[i], options, loads[i], restrains[i]);
+                AddShape(shapes[i], platePropertyNames[i], options, loads[i], restrains[i]);
             }
         }
 
@@ -572,13 +571,13 @@ namespace GPC.Model.FEM
         /// 
         /// </summary>
         /// <param name="meshes"></param>
-        /// <param name="plateProperties"></param>
-        /// <param name="brickProperties"></param>
+        /// <param name="platePropertyNames"></param>
+        /// <param name="brickPropertyName"></param>
         /// <param name="vertexLoadMeshEntityMap"></param>
         /// <param name="plateLoadMeshEntityMap"></param>
         /// <param name="restrainMeshEntityMap"></param>
         /// <exception cref="ArgumentException">If list of argument does not match</exception>
-        public virtual void AddMeshes(List<Mesh> meshes, List<IPlateProperty> plateProperties, List<BrickProperty> brickProperties, List<Dictionary<IPointLoad, int[]>> vertexLoadMeshEntityMap,
+        public virtual void AddMeshes(List<Mesh> meshes, List<string> platePropertyNames, List<string> brickPropertyName, List<Dictionary<IPointLoad, int[]>> vertexLoadMeshEntityMap,
                                         List<Dictionary<ILineLoad, int[]>> vertexLineLoadMeshEntityMap,
                                         List<Dictionary<IAreaLoad, int[]>> plateLoadMeshEntityMap, List<Dictionary<GeometryRestrain, int[]>> restrainMeshEntityMap)
         {
@@ -587,10 +586,10 @@ namespace GPC.Model.FEM
                 throw new ArgumentNullException(nameof(meshes));
 
             // Garantisce la stessa lunghezza delle liste, ma non che siano liste di non nulli
-            if (meshes.Select(i => i.Faces.Count).Max() != 0 && meshes.Count != plateProperties.Count)
-                throw new ArgumentException($"Size of {nameof(meshes)} and {nameof(plateProperties)} are different");
-            if (meshes.Select(i => i.Volumes.Count).Max() != 0 && meshes.Count != brickProperties.Count)
-                throw new ArgumentException($"Size of {nameof(meshes)} and {nameof(brickProperties)} are different");
+            if (meshes.Select(i => i.Faces.Count).Max() != 0 && meshes.Count != platePropertyNames.Count)
+                throw new ArgumentException($"Size of {nameof(meshes)} and {nameof(platePropertyNames)} are different");
+            if (meshes.Select(i => i.Volumes.Count).Max() != 0 && meshes.Count != brickPropertyName.Count)
+                throw new ArgumentException($"Size of {nameof(meshes)} and {nameof(brickPropertyName)} are different");
             if (meshes.Count != vertexLoadMeshEntityMap.Count)
                 throw new ArgumentException($"Size of {nameof(meshes)} and {nameof(vertexLoadMeshEntityMap)} are different");
             if (meshes.Count != vertexLineLoadMeshEntityMap.Count)
@@ -606,11 +605,11 @@ namespace GPC.Model.FEM
                 if (meshes[i] is null)
                     throw new ArgumentNullException(nameof(meshes));
 
-                if (plateProperties[i] is null)
-                    throw new ArgumentNullException(nameof(plateProperties));
+                if (!string.IsNullOrEmpty(platePropertyNames[i]) || !string.IsNullOrWhiteSpace(platePropertyNames[i]))
+                    throw new ArgumentNullException(nameof(platePropertyNames));
 
-                if (brickProperties[i] is null)
-                    throw new ArgumentNullException(nameof(brickProperties));
+                if (!string.IsNullOrEmpty(brickPropertyName[i]) || !string.IsNullOrWhiteSpace(brickPropertyName[i]))
+                    throw new ArgumentNullException(nameof(brickPropertyName));
 
                 if (vertexLoadMeshEntityMap[i] is null)
                     throw new ArgumentNullException(nameof(vertexLoadMeshEntityMap));
@@ -624,7 +623,7 @@ namespace GPC.Model.FEM
                 if (restrainMeshEntityMap[i] is null)
                     throw new ArgumentNullException(nameof(restrainMeshEntityMap));
 
-                AddMesh(meshes[i], plateProperties[i], brickProperties[i], vertexLoadMeshEntityMap[i], vertexLineLoadMeshEntityMap[i], plateLoadMeshEntityMap[i], restrainMeshEntityMap[i]);
+                AddMesh(meshes[i], platePropertyNames[i], brickPropertyName[i], vertexLoadMeshEntityMap[i], vertexLineLoadMeshEntityMap[i], plateLoadMeshEntityMap[i], restrainMeshEntityMap[i]);
             }
 
         }
@@ -634,14 +633,14 @@ namespace GPC.Model.FEM
         /// Add a mesh to the Fem model
         /// </summary>
         /// <param name="mesh"></param> 
-        /// <param name="plateProperty"></param>
-        /// <param name="brickProperty"></param>
+        /// <param name="platePropertyName"></param>
+        /// <param name="brickPropertyName"></param>
         /// <param name="vertexLoadMeshEntityMap">Map between <see cref="IPointLoad"/> and <see cref="MeshVertex.Id"/></param>
         /// <param name="vertexLineLoadMeshEntityMap">Map between <see cref="ILineLoad"/> and <see cref="MeshVertex.Id"/></param>
         /// <param name="plateLoadMeshEntityMap">Map between <see cref="IAreaLoad"/> and <see cref="MeshFace.Id"/></param>
         /// <param name="restrainMeshEntityMap">Map between IGeometryRestrain and <see cref="MeshVertex.Id"/></param>
         /// <exception cref="KeyNotFoundException">If a <see cref="MeshVertex.Id"/> of <paramref name="restrainMeshEntityMap"/> is not found in the <paramref name="mesh"/> vertices ids</exception>
-        public virtual void AddMesh(Mesh mesh, IPlateProperty plateProperty, BrickProperty brickProperty, 
+        public virtual void AddMesh(Mesh mesh, string platePropertyName, string brickPropertyName, 
                                     Dictionary<IPointLoad, int[]> vertexLoadMeshEntityMap, Dictionary<ILineLoad, int[]> vertexLineLoadMeshEntityMap,
                                     Dictionary<IAreaLoad, int[]> plateLoadMeshEntityMap, Dictionary<GeometryRestrain, int[]> restrainMeshEntityMap)
         {
@@ -652,30 +651,21 @@ namespace GPC.Model.FEM
 
 
             if (mesh is null)
-            {
                 throw new ArgumentNullException(nameof(mesh));
-            }
+
+            IPlateProperty plateProperty = null;
+            BrickProperty brickProperty = null;
 
             // Aggiorno la lista proprietà
             if (mesh.Faces.Count != 0)
             {
-                if (plateProperty is null)
-                    throw new ArgumentNullException(nameof(plateProperty));
-
-                if (!AddProperty((ElementProperty)plateProperty))
-                {
-                    plateProperty = (IPlateProperty)GetPlateProperty((plateProperty as PlateProperty).Name);
-                }
+                plateProperty = (IPlateProperty)GetPlateProperty(platePropertyName);
             }
 
 
             if (mesh.Volumes.Count != 0)
             {
-                if (brickProperty is null)
-                    throw new ArgumentNullException(nameof(brickProperty));
-
-                if (!AddProperty((ElementProperty)brickProperty))
-                    throw new ArgumentException($"A property with name {(brickProperty as BrickProperty).Name} already exist");
+                brickProperty = (BrickProperty)GetBrickProperty(brickPropertyName);
             }
 
 

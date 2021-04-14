@@ -167,8 +167,9 @@ namespace FemTest
 
             // Act
             FemModel femModel = new FemModel();
-
-            femModel.AddMesh(mesh, pp, bp, pointLoads, lineLoads, plateLoads, geometryRestrains);
+            femModel.AddProperty(pp);
+            femModel.AddProperty(bp);
+            femModel.AddMesh(mesh, pp.Name, bp.Name, pointLoads, lineLoads, plateLoads, geometryRestrains);
 
 
             // Assert
@@ -209,11 +210,12 @@ namespace FemTest
 
             // Act
             FemModel femModel = new FemModel();
-
+            femModel.AddProperty(pp);
+            femModel.AddProperty(bp);
             Mesh.GenerateOptions meshOptions = new Mesh.GenerateOptions();
             meshOptions.MeshSize = 10;
 
-            femModel.AddShape(s, pp, meshOptions, loads, restrains);
+            femModel.AddShape(s, pp.Name, meshOptions, loads, restrains);
 
             var mesh = femModel.GetMesh();
 
@@ -250,7 +252,8 @@ namespace FemTest
             PointLoad p1 = new PointLoad(1, 2, 3, 4, 5, 6, new Point3d(35, 35, 0), new LoadCase("LC1", null));
             LineLoad l1 = new LineLoad(1, 2, 3, 4, 5, 6, new Line3d(new Point3d(35, 150, 0), new Point3d(75, 100, 0)), new LoadCase("LC2", null));
 
-            femModel.AddShape(s1, pp, meshOptions, new List<Load>() { p1, l1}, null);
+            femModel.AddProperty(pp);
+            femModel.AddShape(s1, pp.Name, meshOptions, new List<Load>() { p1, l1}, null);
 
 
             var mesh = femModel.GetMesh();
@@ -293,9 +296,10 @@ namespace FemTest
             PointLoad p1 = new PointLoad(1, 2, 3, 4, 5, 6, new Point3d(35, 35, 0), new LoadCase("LC1", null));
             LineLoad l1 = new LineLoad(1, 2, 3, 4, 5, 6, new Line3d(new Point3d(35, 150, 0), new Point3d(75, 100, 0)), new LoadCase("LC2", null));
 
+            femModel.AddProperty(pp);
             //Act
-            femModel.AddShape(s1, pp, meshOptions, null, null);
-            femModel.AddShape(s2, pp, meshOptions, null, null);
+            femModel.AddShape(s1, pp.Name, meshOptions, null, null);
+            femModel.AddShape(s2, pp.Name, meshOptions, null, null);
 
             var mesh = femModel.GetMesh();
 
@@ -332,8 +336,9 @@ namespace FemTest
 
             LineLoad l1 = new LineLoad(1, 2, 3, 4, 5, 6, new Line3d(new Point3d(0, 500, 0), new Point3d(800, 500, 0)), new LoadCase("LC2", null));
 
+            femModel.AddProperty(pp);
             //Act
-            femModel.AddShape(s1, pp, meshOptions, null, null);
+            femModel.AddShape(s1, pp.Name, meshOptions, null, null);
 
             var mesh = femModel.GetMesh();
 
@@ -361,7 +366,8 @@ namespace FemTest
             MonolithicGlassProperty pp = new MonolithicGlassProperty(1, 2, gm, "gp1");
 
             FemModel femModel = new FemModel();
-            femModel.AddMesh(mesh, pp, null, null, null, null, null);
+            femModel.AddProperty(pp);
+            femModel.AddMesh(mesh, pp.Name, null, null, null, null, null);
 
             Mesh mesh2 = femModel.GetMesh();
 
@@ -395,7 +401,8 @@ namespace FemTest
 
 
             FemModel femModel = new FemModel();
-            femModel.AddShape(s1, pp, meshOptions, null, null);
+            femModel.AddProperty(pp);
+            femModel.AddShape(s1, pp.Name, meshOptions, null, null);
 
 
             Exception exception = null;
