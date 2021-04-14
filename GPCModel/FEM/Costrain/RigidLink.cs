@@ -7,10 +7,15 @@ namespace GPC.Model.FEM.Costrains
 {
     public class RigidLink : Costrain
     {
+        #region variables
         private MultiPointsCostrain[] _links;
+        #endregion
 
+        #region properties
         public MultiPointsCostrain[] Links => _links;
+        #endregion
 
+        #region constructor
         public RigidLink(Node node1, Node[] nodes) : base(node1, nodes)
         {
             int nNodes = nodes.Count();
@@ -24,6 +29,12 @@ namespace GPC.Model.FEM.Costrains
             _links = links.ToArray();
         }
 
+        public RigidLink(Node node1, Node node2) : this(node1, new Node[] { node2 })
+        {
+        }
+        #endregion
+
+        #region PublicFunctions
         /// <summary>
         /// Ritorna le equazioni per rigid link tra 2 nodi
         /// </summary>
@@ -100,5 +111,6 @@ namespace GPC.Model.FEM.Costrains
 
             return links;
         }
+        #endregion
     }
 }

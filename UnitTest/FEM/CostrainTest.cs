@@ -73,6 +73,48 @@ namespace FemTest.Solver {
         }
 
         [TestMethod]
+        public void Axial2()
+        {
+            double E = 10.0;
+            Section sec = new SectionCHS(100.0, 50.0, new SteelMaterial("m", E, 0.0, 355, 510, 7850), "sec");
+
+            List<Node> nds = new List<Node>();
+            nds.Add(new Node(0, 0, 0));
+            nds.Add(new Node(300.0, 0, 0));
+            nds.Add(new Node(700.0, 0, 0));
+
+            List<EulerBeam> els = new List<EulerBeam>();
+            els.Add(new EulerBeam(new Node[] { nds[0], nds[1] }, sec)); ;
+
+            LoadCase lc = new LoadCase("lc1");
+            CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
+            double FX = 1000;
+            NodeForceAttribute f = new NodeForceAttribute(lc, sys, FX, 0.0, 0.0, 0.0, 0.0, 0.0);
+
+            nds[2].AddAttribute(f);
+
+            FreedomCase fc = new FreedomCase("fc");
+            NodeRestrainAttribute fix = new NodeRestrainAttribute(fc, sys);
+            fix.AddExternalRestrain(DOF.DX);
+            fix.AddExternalRestrain(DOF.DY);
+            fix.AddExternalRestrain(DOF.DZ);
+            fix.AddExternalRestrain(DOF.RX);
+            fix.AddExternalRestrain(DOF.RY);
+            fix.AddExternalRestrain(DOF.RZ);
+
+            nds[0].AddAttribute(fix);
+
+            Costrain c1 = new RigidLink(nds[2], nds[1]);
+            //Costrain c2 = new RigidLink(nds[1], nds[2]);
+
+            LinearSolver fem1 = new LinearSolver(els.ToArray(), new Costrain[] { c1 });
+            //LinearSolver fem2 = new LinearSolver(els.ToArray(), new Costrain[] { c2 });
+
+            Assert.AreEqual(FX / (Math.PI * 100.0 * 100.0 / 4.0 * E) * (300), fem1.GetDisplacementGlobalCoordinates(nds[2], DOF.DX), 1e-6);
+            //Assert.AreEqual(FX / (Math.PI * 100.0 * 100.0 / 4.0 * E) * (300), fem2.GetDisplacementGlobalCoordinates(nds[2], DOF.DX), 1e-6);
+        }
+
+        [TestMethod]
         public void AxialXPositive()
         {
             double E = 10.0;

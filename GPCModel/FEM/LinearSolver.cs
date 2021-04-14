@@ -48,6 +48,10 @@ namespace GPC.Model.FEM
         {
         }
 
+        public LinearSolver(FiniteElement[] inputElements, Costrain[] costrains) : this(inputElements, costrains, new MultiPointsCostrain[0])
+        {
+        }
+
         public LinearSolver(FiniteElement[] inputElements, Costrain[] costrains, MultiPointsCostrain[] multiPointCostrains)
         {
             #region NodeOfModel
@@ -465,7 +469,7 @@ namespace GPC.Model.FEM
             }
             #endregion
 
-            _multiPointCostrains = multiPointCostrains.ToArray();
+            _multiPointCostrains = multiPointCostrainsSet.ToArray();
 
             //check if all multipointcostrain has been added
             //if (_multiPointCostrains.Count() < multiPointCostrains.Length)
