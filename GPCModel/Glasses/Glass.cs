@@ -4,7 +4,7 @@ using System.Runtime.Serialization;
 
 namespace GPC.Model.Glasses
 {
-    public abstract class Glass : ModelObject
+    public abstract class Glass : ModelObject, IGlassPackage
     {
 
         protected Glass(Guid guid) 
