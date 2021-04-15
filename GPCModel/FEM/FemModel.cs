@@ -641,8 +641,10 @@ namespace GPC.Model.FEM
         /// <param name="restrainMeshEntityMap">Map between IGeometryRestrain and <see cref="MeshVertex.Id"/></param>
         /// <exception cref="KeyNotFoundException">If a <see cref="MeshVertex.Id"/> of <paramref name="restrainMeshEntityMap"/> is not found in the <paramref name="mesh"/> vertices ids</exception>
         public virtual void AddMesh(Mesh mesh, string platePropertyName, string brickPropertyName, 
-                                    Dictionary<IPointLoad, int[]> vertexLoadMeshEntityMap, Dictionary<ILineLoad, int[]> vertexLineLoadMeshEntityMap,
-                                    Dictionary<IAreaLoad, int[]> plateLoadMeshEntityMap, Dictionary<GeometryRestrain, int[]> restrainMeshEntityMap)
+                                    Dictionary<IPointLoad, int[]> vertexLoadMeshEntityMap, 
+                                    Dictionary<ILineLoad, int[]> vertexLineLoadMeshEntityMap,
+                                    Dictionary<IAreaLoad, int[]> plateLoadMeshEntityMap, 
+                                    Dictionary<GeometryRestrain, int[]> restrainMeshEntityMap)
         {
 
             Dictionary<int, int> nodesNewIndexMap = new Dictionary<int, int>(); // Mappa tra indici dei nodi dentro _nodes e indici dei vertici della mesh nel caso esistano già dentro _nodes.
@@ -927,11 +929,11 @@ namespace GPC.Model.FEM
 
                     foreach (var index in indexes)
                     {
-                        int plateId = platesNewIndexMap.ContainsKey(index) ? platesNewIndexMap[index] : index;
+                        int plateId = platesNewIndexMap.ContainsKey(index) ? platesNewIndexMap[index] : throw new KeyNotFoundException(index.ToString());
 
                         FiniteElement finiteElement = _elements.GetElementById(plateId); // se non trova l'indice viene lanciata una keynotfoundException
 
-
+                        
                         if (!(finiteElement is Plate plate))
                             throw new ArgumentException($"Element with id: {plateId} {index} is not a plate");
 
