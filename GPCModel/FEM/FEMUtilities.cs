@@ -69,20 +69,21 @@ namespace GPC.Model.FEM
         /// <summary>
         /// Return F(x,y) = F(x,y,nodes) with "nodes" assigned
         /// </summary>
-        public static Func<Func<double, double, Node[], mnl.Matrix<double>>, Node[], Func<double, double, mnl.Matrix<double>>> FFixedNodes = (Func<double, double, Node[], mnl.Matrix<double>> fun, Node[] nodes) => {
+        public static Func<double, double, mnl.Matrix<double>> FFixedNodes (Func<double, double, Node[], mnl.Matrix<double>> fun, Node[] nodes) {
             return (double x, double y) => fun(x, y, nodes);
-        };
+        }
+        #endregion
 
+        #region 2D
         /// <summary>
         /// Return J(x,y) = J(x,y,dNdCsi, dNdEta,nodes) with "nodes" and derivative of shape function assigned
         /// arg1 = dFdInput1; arg1 = dFdInput2, arg3 = nodes
         /// </summary>
-        public static Func<Func<int, double, double, double>, Func<int, double, double, double>, Node[], Func<double, double, mnl.Matrix<double>>> J2D = (Func<int, double, double, double> dFdInput1, Func<int, double, double, double> dFdInput2, Node[] nodes) => {
+        public static Func<double, double, mnl.Matrix<double>> J2D(Func<int, double, double, double> dFdInput1, Func<int, double, double, double> dFdInput2, Node[] nodes)
+        {
             return (double input1, double input2) => Jacob2D(input1, input2, dFdInput1, dFdInput2, nodes);
-        };
-        #endregion
+        }
 
-        #region 2D
         /// <summary>
         /// Matrice jacobiana per cambiamento di variabile
         /// dN/dCsi = dx/dCsi * dN/dx + dy/dCsi * dN/dy
@@ -229,9 +230,9 @@ namespace GPC.Model.FEM
         /// Return J(x,y,z) = J(x,y,z, dNdCsi, dNdEta,dNdZeta, nodes) with "nodes" and derivative of shape function assigned
         /// arg1 = dFdInput1; arg2 = dFdInput2, arg3 = dFdInput3, arg4 = nodes
         /// </summary>
-        public static Func<Func<int, double, double, double, double>, Func<int, double, double, double, double>, Func<int, double, double, double, double>, Node[], Func<double, double, double, mnl.Matrix<double>>> J3D = (Func<int, double, double, double, double> dFdInput1, Func<int, double, double, double, double> dFdInput2, Func<int, double, double, double, double> dFdInput3, Node[] nodes) => {
+        public static Func<double, double, double, mnl.Matrix<double>> J3D (Func<int, double, double, double, double> dFdInput1, Func<int, double, double, double, double> dFdInput2, Func<int, double, double, double, double> dFdInput3, Node[] nodes) {
             return (double input1, double input2, double input3) => Jacob3D(input1, input2, input3, dFdInput1, dFdInput2, dFdInput3, nodes);
-        };
+        }
 
         /// <summary>
         /// Convert: dF/dCsi -> dF/dX, dF/dEta -> dF/dY, dF/dZeta -> dF/dZ

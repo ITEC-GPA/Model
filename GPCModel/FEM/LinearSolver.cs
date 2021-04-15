@@ -515,7 +515,8 @@ namespace GPC.Model.FEM
 #if DEBUG
             Console.WriteLine("kGlobal System + Restrains + Constrains:");
             FEMUtilities.WriteMatrix(_KGlobalRestrains, "F3");
-            FEMUtilities.WriteMatrix(_FRestrains, "F0");
+            Console.WriteLine("F (Restrain + Costrains):");
+            FEMUtilities.WriteMatrix(_FRestrains, "F3");
 #endif
             #endregion
 

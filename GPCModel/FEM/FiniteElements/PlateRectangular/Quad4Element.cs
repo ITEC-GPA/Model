@@ -4,6 +4,7 @@ using System.Linq;
 using GPC.Geometry;
 using GPC.Model.FEM.Attributes;
 using GPC.Model.FEM.Properties;
+using GPC.Utilities.Fem;
 using mnl = MathNet.Numerics.LinearAlgebra;
 
 namespace GPC.Model.FEM.FiniteElements
@@ -22,12 +23,12 @@ namespace GPC.Model.FEM.FiniteElements
 
         public Quad4Element(Node[] nodes) : base(nodes)
         {
-            DOF.Add(LinearSolver.DOF.DX);
-            DOF.Add(LinearSolver.DOF.DY);
-            DOF.Add(LinearSolver.DOF.DZ);
-            DOF.Add(LinearSolver.DOF.RX);
-            DOF.Add(LinearSolver.DOF.RY);
-            DOF.Add(LinearSolver.DOF.RZ);
+            DOF.Add(Solver.DOF.DX);
+            DOF.Add(Solver.DOF.DY);
+            DOF.Add(Solver.DOF.DZ);
+            DOF.Add(Solver.DOF.RX);
+            DOF.Add(Solver.DOF.RY);
+            DOF.Add(Solver.DOF.RZ);
 
             //kElementGlobal = 4 * 6 = 24
             _membranal = new  Quad4GQ12Membranal(nodes);
@@ -454,7 +455,6 @@ namespace GPC.Model.FEM.FiniteElements
             }           
         }
 
-
         #region PublicStaticFunction
         /// <summary>
         /// out Local Node in clockwise, centro nel primo nodo dell'elemento
@@ -605,6 +605,44 @@ namespace GPC.Model.FEM.FiniteElements
             nodes8[8 - 1] = middleNode(nodes4[1 - 1], nodes4[4 - 1]);
 
             return nodes8;
+        }
+        #endregion
+
+        #region ShapeFunctions
+        /// <summary>
+        /// Funzioni di forma Quad4 lineare
+        /// </summary>
+        /// <param name="index">indice nodo 1-4</param>
+        /// <param name="csi"></param>
+        /// <param name="eta"></param>
+        /// <returns></returns>
+        public static double GetShapeFunction(int index, double csi, double eta)
+        {
+            return LinearShapeFunctionQuad4.NaturalShapeFunction(index, csi, eta);
+        }
+
+        /// <summary>
+        /// Derivate parziali delle funzioni di forma rispetto a csi
+        /// </summary>
+        /// <param name="index"></param>
+        /// <param name="csi"></param>
+        /// <param name="eta"></param>
+        /// <returns></returns>
+        public static double GetdNdCsi(int index, double csi, double eta)
+        {
+            return LinearShapeFunctionQuad4.DNdCsi(index, csi, eta);
+        }
+
+        /// <summary>
+        /// Derivate parziali delle funzioni di forma rispetto a eta
+        /// </summary>
+        /// <param name="index"></param>
+        /// <param name="csi"></param>
+        /// <param name="eta"></param>
+        /// <returns></returns>
+        public static double GetdNdEta(int index, double csi, double eta)
+        {
+            return LinearShapeFunctionQuad4.DNdEta(index, csi, eta);
         }
         #endregion
     }

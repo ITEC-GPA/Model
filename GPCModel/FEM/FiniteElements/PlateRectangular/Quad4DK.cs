@@ -44,13 +44,13 @@ namespace GPC.Model.FEM.FiniteElements
 
         public Quad4DK(Node[] nodes) : base(nodes)
         {
-            DOF.Add(LinearSolver.DOF.DX);
-            DOF.Add(LinearSolver.DOF.DY);
-            DOF.Add(LinearSolver.DOF.DZ);
+            DOF.Add(Solver.DOF.DX);
+            DOF.Add(Solver.DOF.DY);
+            DOF.Add(Solver.DOF.DZ);
             //displacement w il local coordinate system can be in X,Y,Z in global local coordinate system
-            DOF.Add(LinearSolver.DOF.RX);
-            DOF.Add(LinearSolver.DOF.RY);
-            DOF.Add(LinearSolver.DOF.RZ);
+            DOF.Add(Solver.DOF.RX);
+            DOF.Add(Solver.DOF.RY);
+            DOF.Add(Solver.DOF.RZ);
 
             #region DebugDerivativesOfShapeFunctions
             //Just for debug
@@ -141,8 +141,6 @@ namespace GPC.Model.FEM.FiniteElements
 
             //calculation of matrix for transformation from Local to Global coordinates
             #region TransformationMatrixLocalCoordinatesToGlobalCoordinates
-            _dofGlobalToLocal = mnl.Matrix<double>.Build.Dense(9, 18);
-
             mnl.Matrix<double> dofGlobalToLocalTranspose = mnl.Matrix<double>.Build.Dense(24, 12);
 
             Vector3d globalX = new Vector3d(1.0, 0.0, 0.0);
