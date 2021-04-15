@@ -29,6 +29,7 @@ namespace GPC.Model.Materials
 
         /// <summary>
         /// </summary>
+        /// <param name="name"></param>
         /// <param name="elasticModulus"> Elastic Modulus [MPa]</param>
         /// <param name="poisson"> Poisson modulus </param>
         /// <param name="alfaThermalExpansion"> Thermal expansion constant</param>
@@ -40,9 +41,11 @@ namespace GPC.Model.Materials
 
         /// <summary>
         /// </summary>
+        /// <param name="name"></param>
         /// <param name="elasticModulus"> Elastic Modulus [MPa]</param>
         /// <param name="poisson"> Poisson modulus </param>
         /// <param name="alfaThermalExpansion"> Thermal expansion constant</param>
+        /// <param name="guid"></param>
         /// <param name="density"> Density [T/mm^3]</param>
         public Material(string name, double elasticModulus, double poisson, double density, double alfaThermalExpansion, Guid guid) 
             : base(guid, name)

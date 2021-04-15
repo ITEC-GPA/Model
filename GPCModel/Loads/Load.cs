@@ -13,8 +13,8 @@ namespace GPC.Model.Loads
 
         public LoadCase LoadCase => _loadCase;
 
-        protected Load(LoadCase loadCase, Guid guid, string name)
-            : base(guid, name)
+        protected Load(LoadCase loadCase, Guid guid)
+            : base(guid)
         {
             _loadCase = loadCase ?? throw new ArgumentNullException(nameof(loadCase));
         }

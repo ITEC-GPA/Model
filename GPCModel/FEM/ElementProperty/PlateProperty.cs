@@ -29,8 +29,10 @@ namespace GPC.Model.FEM.Properties
         #region Public Constructors
 
         /// <summary>
+        /// <param name="material"></param>
         /// <param name="bendingThickness"> Bending thickness</param>
         /// <param name="membraneThickness"> Membranal thickness</param>
+        /// <param name="name"></param>
         /// </summary>
         public PlateProperty(Material material, double bendingThickness, double membraneThickness, string name)
             : base(name)

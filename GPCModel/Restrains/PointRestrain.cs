@@ -58,7 +58,7 @@ namespace GPC.Model.Restrains
 
 
         /// <summary>
-        /// Set all the <see cref="LinearSolver.DOF"/> to restrained for the given point and freedomcase
+        /// Set all the <see cref="Solver.DOF"/> to restrained for the given point and freedomcase
         /// </summary>
         /// <param name="point"></param>
         /// <param name="freedomCase"></param>
@@ -68,7 +68,7 @@ namespace GPC.Model.Restrains
         {
             List<DofRestrain> restrains = new List<DofRestrain>();
 
-            foreach (var dof in (LinearSolver.DOF[])Enum.GetValues(typeof(LinearSolver.DOF)))
+            foreach (var dof in (Solver.DOF[])Enum.GetValues(typeof(Solver.DOF)))
             {
                 restrains.Add(new DofRestrain(dof, true));
             }
@@ -77,7 +77,7 @@ namespace GPC.Model.Restrains
         }
 
         /// <summary>
-        /// Set <see cref="LinearSolver.DOF.DX"/>, <see cref="LinearSolver.DOF.DY"/> and <see cref="LinearSolver.DOF.DZ"/> to restrained for the given line and freedomcase
+        /// Set <see cref="Solver.DOF.DX"/>, <see cref="Solver.DOF.DY"/> and <see cref="Solver.DOF.DZ"/> to restrained for the given line and freedomcase
         /// </summary>
         /// <param name="point"></param>
         /// <param name="freedomCase"></param>
@@ -87,9 +87,9 @@ namespace GPC.Model.Restrains
         {
             List<DofRestrain> restrains = new List<DofRestrain>();
 
-            restrains.Add(new DofRestrain(LinearSolver.DOF.DX, true));
-            restrains.Add(new DofRestrain(LinearSolver.DOF.DY, true));
-            restrains.Add(new DofRestrain(LinearSolver.DOF.DZ, true));
+            restrains.Add(new DofRestrain(Solver.DOF.DX, true));
+            restrains.Add(new DofRestrain(Solver.DOF.DY, true));
+            restrains.Add(new DofRestrain(Solver.DOF.DZ, true));
 
             return new PointRestrain(point, freedomCase, coordinateSystem, restrains);
         }

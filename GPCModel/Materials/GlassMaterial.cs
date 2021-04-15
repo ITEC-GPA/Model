@@ -10,6 +10,7 @@ namespace GPC.Model.Materials
         /// <summary>
         /// 
         /// </summary>
+        /// <param name="name"></param>
         /// <param name="elasticModulus">Elastic modulus of the glass [MPa]</param>
         /// <param name="poisson">poisson ratio's of the glass</param>
         /// <param name="density">Density of the material [T/mm^3]</param>
@@ -29,6 +30,7 @@ namespace GPC.Model.Materials
         /// <summary>
         /// 
         /// </summary>
+        /// <param name="name"></param>
         /// <param name="elasticModulus">Elastic modulus of the glass [MPa]</param>
         /// <param name="poisson">poisson ratio's of the glass</param>
         /// <param name="density">Density of the material [T/mm^3]</param>

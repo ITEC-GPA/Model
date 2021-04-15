@@ -85,9 +85,14 @@ namespace GPC.Model.Materials
         /// <summary>
         /// 
         /// </summary>
+        /// <param name="name"></param>
         /// <param name="elasticModulus">Elastic modulus of the glass [MPa]</param>
         /// <param name="poisson">poisson ratio's of the glass</param>
         /// <param name="fgk">Characeristic value of bending strength of annealed glass [MPa]</param>
+        /// <param name="glassType"></param>
+        /// <param name="surfaceTreatment"></param>
+        /// <param name="prestressType"></param>
+        /// <param name="manufactoringProcess"></param>
         /// <param name="density">Density of the material [T/mm^3]</param>
         /// <param name="alfaThermalExpansion">Alfa linear thermal expansion coefficient</param>
         public GlassMaterialEn16612(string name, double elasticModulus, double poisson, double fgk, GlassTypes glassType, SurfaceTreatments surfaceTreatment, PrestressTypes prestressType, 
@@ -100,9 +105,14 @@ namespace GPC.Model.Materials
         /// <summary>
         ///
         /// </summary>
+        /// <param name="name"></param>
         /// <param name="elasticModulus">Elastic modulus of the glass [MPa]</param>
         /// <param name="poisson">poisson ratio's of the glass</param>
         /// <param name="fgk">Characeristic value of bending strength of annealed glass [MPa]</param>
+        /// <param name="glassType"></param>
+        /// <param name="surfaceTreatment"></param>
+        /// <param name="prestressType"></param>
+        /// <param name="manufactoringProcess"></param>
         /// <param name="density">Density of the material [T/mm^3]</param>
         /// <param name="alfaThermalExpansion">Alfa linear thermal expansion coefficient</param>
         /// <param name="guid">Guid of the material</param>

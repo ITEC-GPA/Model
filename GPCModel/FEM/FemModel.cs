@@ -211,7 +211,7 @@ namespace GPC.Model.FEM
         }
 
 
-        /// <inheritdoc cref="UniqueNameCollection{T}.GetElementByName(string)(T)"/>
+        /// <inheritdoc cref="UniqueNameCollection{T}.GetElementByName(string)"/>
         public virtual LoadCase GetLoadCase(string name)
         {
             return _loadCases.GetElementByName(name);
@@ -225,7 +225,7 @@ namespace GPC.Model.FEM
         }
 
 
-        /// <inheritdoc cref="UniqueNameCollection{T}.GetElementByName(string)(T)"/>
+        /// <inheritdoc cref="UniqueNameCollection{T}.GetElementByName(string)"/>
         public virtual FreedomCase GetFredomCase(string name)
         {
             return _freedomCases.GetElementByName(name);
@@ -419,7 +419,7 @@ namespace GPC.Model.FEM
 
 
         /// <summary>
-        /// Generate planar mesh from a shapes. Mesh options need to be setted by <see cref="Mesh.GenerateMeshOptions"/>
+        /// Generate planar mesh from a shapes. Mesh options need to be setted by <see cref="Mesh.GenerateOptions"/>
         /// </summary>
         /// <param name="shape"></param>
         /// <param name="options"></param>
@@ -531,7 +531,7 @@ namespace GPC.Model.FEM
         /// </summary>
         /// <param name="shapes"></param>
         /// <param name="options"></param>
-        /// <param name="plateProperties"></param>
+        /// <param name="platePropertyNames"></param>
         /// <param name="loads"></param>
         /// <param name="restrains"></param>
         public virtual void AddShapes(List<Shape> shapes, List<string> platePropertyNames, Mesh.GenerateOptions options, List<List<Load>> loads, List<List<GeometryRestrain>> restrains)
@@ -574,6 +574,7 @@ namespace GPC.Model.FEM
         /// <param name="platePropertyNames"></param>
         /// <param name="brickPropertyName"></param>
         /// <param name="vertexLoadMeshEntityMap"></param>
+        /// <param name="vertexLineLoadMeshEntityMap"></param>
         /// <param name="plateLoadMeshEntityMap"></param>
         /// <param name="restrainMeshEntityMap"></param>
         /// <exception cref="ArgumentException">If list of argument does not match</exception>
@@ -635,11 +636,11 @@ namespace GPC.Model.FEM
         /// <param name="mesh"></param> 
         /// <param name="platePropertyName"></param>
         /// <param name="brickPropertyName"></param>
-        /// <param name="vertexLoadMeshEntityMap">Map between <see cref="IPointLoad"/> and <see cref="MeshVertex.Id"/></param>
-        /// <param name="vertexLineLoadMeshEntityMap">Map between <see cref="ILineLoad"/> and <see cref="MeshVertex.Id"/></param>
-        /// <param name="plateLoadMeshEntityMap">Map between <see cref="IAreaLoad"/> and <see cref="MeshFace.Id"/></param>
-        /// <param name="restrainMeshEntityMap">Map between IGeometryRestrain and <see cref="MeshVertex.Id"/></param>
-        /// <exception cref="KeyNotFoundException">If a <see cref="MeshVertex.Id"/> of <paramref name="restrainMeshEntityMap"/> is not found in the <paramref name="mesh"/> vertices ids</exception>
+        /// <param name="vertexLoadMeshEntityMap">Map between <see cref="IPointLoad"/> and <see cref="MeshVertex"/>.Id</param>
+        /// <param name="vertexLineLoadMeshEntityMap">Map between <see cref="ILineLoad"/> and <see cref="MeshVertex"/>.Id</param>
+        /// <param name="plateLoadMeshEntityMap">Map between <see cref="IAreaLoad"/> and <see cref="MeshFace"/>.Id</param>
+        /// <param name="restrainMeshEntityMap">Map between IGeometryRestrain and <see cref="MeshVertex"/>.Id</param>
+        /// <exception cref="KeyNotFoundException">If a <see cref="MeshVertex"/>.Id of <paramref name="restrainMeshEntityMap"/> is not found in the <paramref name="mesh"/> vertices ids</exception>
         public virtual void AddMesh(Mesh mesh, string platePropertyName, string brickPropertyName, 
                                     Dictionary<IPointLoad, int[]> vertexLoadMeshEntityMap, 
                                     Dictionary<ILineLoad, int[]> vertexLineLoadMeshEntityMap,
@@ -989,8 +990,8 @@ namespace GPC.Model.FEM
         [Obsolete("This method has not been implemented yet", false)]
         public void CleanMesh()
         {
-            /// Fare in modo che chiamando questo metodo i nodi uguali ma che avranno ID diverso vengano tolti dalla collection <see cref="FemModel._nodes"/> 
-            /// tranne uno, e che i riferimenti ai nodi dentro gli elementi vengano sostituiti con quelli dell'unico nodo rimasto 
+            // Fare in modo che chiamando questo metodo i nodi uguali ma che avranno ID diverso vengano tolti dalla collection <see cref="FemModel._nodes"/> 
+            // tranne uno, e che i riferimenti ai nodi dentro gli elementi vengano sostituiti con quelli dell'unico nodo rimasto 
 
             throw new NotImplementedException();
         }
