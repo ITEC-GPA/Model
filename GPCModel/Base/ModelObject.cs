@@ -13,7 +13,9 @@ namespace GPC.Model
 
         protected string _name;
 
-        #endregion 
+        #endregion Variables
+
+
 
         #region Properties
 
@@ -21,7 +23,7 @@ namespace GPC.Model
 
         public string Name { get => _name; set { _name = value; } }
 
-        #endregion
+        #endregion Properties
 
         #region Public Constructors
 
@@ -66,9 +68,15 @@ namespace GPC.Model
             _name = info.GetString("Name");
         }
 
-        #endregion 
+        #endregion Public Constructors
 
-        #region Public Methods Specific
+        /// <returns> <see langword="true"/> if <paramref name="guid"/> match the object <see cref="Guid"/> </returns>
+        public bool CompareGuid(Guid guid)
+        {
+            return _guid.Equals(guid);
+        }
+
+        #region Equals - HashCode - Operators
 
         public virtual void GetObjectData(SerializationInfo info, StreamingContext context)
         {
@@ -81,7 +89,7 @@ namespace GPC.Model
             if (obj is null || !(obj is ModelObject))
                 return false;
 
-            return  _name == (obj as ModelObject)._name;
+            return _name == (obj as ModelObject)._name;
         }
 
         public override int GetHashCode()
@@ -107,20 +115,17 @@ namespace GPC.Model
             return !(obj1 == obj2);
         }
 
-
-        #endregion
-
+        #endregion Equals - HashCode - Operators
 
         #region CUSTOM EQUALITY COMPARER
 
         /// <summary>
         /// Compare two <see cref="ModelObject"/> using only <see cref="ModelObject.Name"/> as equality parameter
         /// </summary>
-        public class ModelObjectNameEqualityComparer : IEqualityComparer<ModelObject> 
+        public class ModelObjectNameEqualityComparer : IEqualityComparer<ModelObject>
         {
-
-            /// <returns> <inheritdoc/> 
-            /// <para> true if both <paramref name="x"/> and <paramref name="y"/> are null </para>  
+            /// <returns> <inheritdoc/>
+            /// <para> true if both <paramref name="x"/> and <paramref name="y"/> are null </para>
             /// </returns>
             /// <remarks> Only <see cref="ModelObject.Name"/> is used as equality parameter </remarks>
             bool IEqualityComparer<ModelObject>.Equals(ModelObject x, ModelObject y)
@@ -148,6 +153,6 @@ namespace GPC.Model
             }
         }
 
-        #endregion
+        #endregion CUSTOM EQUALITY COMPARER
     }
 }
