@@ -39,8 +39,8 @@ namespace GPC.Model
             return true;
         }
 
-        /// <summary><inheritdoc cref="Enumerable.SingleOrDefault"/></summary>
-        /// <returns><inheritdoc cref="Enumerable.SingleOrDefault"/></returns>
+        /// <summary><inheritdoc cref="Enumerable.SingleOrDefault{TSource}(IEnumerable{TSource})"/></summary>
+        /// <returns><inheritdoc cref="Enumerable.SingleOrDefault{TSource}(IEnumerable{TSource})"/></returns>
         /// <exception cref="InvalidOperationException" ></exception>
         /// <remarks>This is a O(n) operation</remarks>
         public virtual T GetElementByName(string name)

@@ -1,4 +1,4 @@
-using GPC.Utilities.Extensions;
+Ôªøusing GPC.Utilities.Extensions;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -16,7 +16,7 @@ namespace GPC.Model.FEM.Collections
         protected ICollection<T> _collection;
 
         /// <summary>
-        /// Set di ID unici, l'indice d'ingresso non Ë garantito essere quello di uscita
+        /// Set di ID unici, l'indice d'ingresso non √® garantito essere quello di uscita
         /// </summary>
         protected HashSet<int> _ids = new HashSet<int>();
 
@@ -49,7 +49,7 @@ namespace GPC.Model.FEM.Collections
             // obj non presente
             if (_ids.Contains(item.Id))
             {
-                // id gi‡ presente
+                // id gi√† presente
                 // cambio id e aggiungo obj
 
                 item.SetId(++_maxId); // Forzo id ad essere maggiore di zero
@@ -100,18 +100,18 @@ namespace GPC.Model.FEM.Collections
             }
             else
             {
-                // obj gi‡ presente
+                // obj gi√† presente
                 if (_ids.Contains(item.Id))
                 {
-                    // id gi‡ presente
-                    // non aggiungo, ritorno id dell'elemento gi‡ presente
+                    // id gi√† presente
+                    // non aggiungo, ritorno id dell'elemento gi√† presente
 
                     return (_collection as List<T>).SingleOrDefault(i => i.Equals(item)).Id;
                 }
                 else
                 {
                     // id non presente
-                    // ritorno id dell'elemento gi‡ presente
+                    // ritorno id dell'elemento gi√† presente
                     return (_collection as List<T>).SingleOrDefault(i => i.Equals(item)).Id;
                 }
             }
@@ -170,18 +170,18 @@ namespace GPC.Model.FEM.Collections
             }
             else
             {
-                // obj gi‡ presente
+                // obj gi√† presente
                 if (_ids.Contains(item.Id))
                 {
-                    // id gi‡ presente
-                    // non aggiungo, ritorno id dell'elemento gi‡ presente
+                    // id gi√† presente
+                    // non aggiungo, ritorno id dell'elemento gi√† presente
 
                     return (_collection as List<T>).ElementAt(_hash[item.GetHashCode()]).Id;
                 }
                 else
                 {
                     // id non presente
-                    // ritorno id dell'elemento gi‡ presente
+                    // ritorno id dell'elemento gi√† presente
 
                     return (_collection as List<T>).ElementAt(_hash[item.GetHashCode()]).Id;
                 }
@@ -194,7 +194,7 @@ namespace GPC.Model.FEM.Collections
 
         /// <param name="id">The <see cref="Elements.Element.Id"/> of the FemObject</param>
         /// <returns><typeparamref name="T"/> with id equal to <paramref name="id"/></returns>
-        /// <exception cref="KeyNotFoundException"> If collection does not contain a element with Id: <param name="id" /> </exception>
+        /// <exception cref="KeyNotFoundException"> If collection does not contain a element with Id: <paramref name="id"/> </exception>
         /// <remarks>This is an O(n) operation</remarks>
         public virtual T this[int id]
         {

@@ -27,9 +27,6 @@ namespace GPC.Model
 
         #region Public Constructors
 
-        /// <summary>
-        /// <param name="guid"> Object GUID</param>
-        /// </summary>
         public ModelObject()
         {
             _guid = Guid.NewGuid();
@@ -43,9 +40,6 @@ namespace GPC.Model
             _guid = guid;
         }
 
-        /// <summary>
-        /// <param name="guid"> Object GUID</param>
-        /// </summary>
         public ModelObject(string name)
         {
             _name = name;

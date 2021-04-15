@@ -48,6 +48,7 @@ namespace GPC.Model.Glasses
         /// <summary>
         ///
         /// </summary>
+        /// <param name="name"></param>
         /// <param name="monolithicGlasses">Monolithic glasses composing the laminated panel</param>
         /// <param name="interlayers">Interlayers between monolithic glasses, number of interlayer must be equal to glass number - 1</param>
         public LaminatedGlass(string name, MonolithicGlass[] monolithicGlasses, Interlayer[] interlayers)
@@ -59,6 +60,7 @@ namespace GPC.Model.Glasses
         /// <summary>
         ///
         /// </summary>
+        /// <param name="name"></param>
         /// <param name="monolithicGlasses">Monolithic glasses composing the laminated panel</param>
         /// <param name="interlayers">Interlayers between monolithic glasses, number of interlayer must be equal to glass number - 1</param>
         /// <param name="guid">The guid of of the glass</param>

@@ -24,18 +24,20 @@ namespace GPC.Model.Materials
 
         public double Epsilon0 { get => _epsilon0; set { _epsilon0 = value; } }
 
-        #endregion 
+        #endregion
 
         #region CONSTRUCTORS
 
         /// <summary>
         ///
         /// </summary>
+        /// <param name="name"></param>
         /// <param name="elasticModulus">Steel elastic modulus</param>
         /// <param name="poisson">Poissoins's Ratio</param>
-        /// <param name="fy">Yielding stress</param>
+        /// <param name="fyk">Yielding stress</param>
         /// <param name="fu">Ultimate stress</param>
         /// <param name="epsilon0">Yielding strain</param>
+        /// <param name="density"></param>
         /// <param name="alfaThermalExpansion">Linear thermal expasion coefficient</param>
         /// <param name="guid">Guid of the material</param>
         public SteelMaterial(string name, double elasticModulus, double poisson, double fyk, double fu, double epsilon0, double density, double alfaThermalExpansion, Guid guid)
@@ -52,11 +54,13 @@ namespace GPC.Model.Materials
         /// <summary>
         /// Guid setted to empty, alfaThermalExpansion setted to 0
         /// </summary>
+        /// <param name="name"></param>
         /// <param name="elasticModulus">Steel elastic modulus</param>
         /// <param name="poisson">Poissoins's Ratio</param>
         /// <param name="fy">Yielding stress</param>
         /// <param name="fu">Ultimate stress</param>
         /// <param name="epsilon0">Yielding strain</param>
+        /// <param name="density"></param>
         public SteelMaterial(string name, double elasticModulus, double poisson, double fy, double fu, double epsilon0, double density)
             : this(name, elasticModulus, poisson, fy, fu, epsilon0, density, 0, Guid.NewGuid())
         {
@@ -66,10 +70,12 @@ namespace GPC.Model.Materials
         /// <summary>
         /// Guid setted to empty, alfaThermalExpansion setted to 0. Epsilon0 equal to fy / E
         /// </summary>
+        /// <param name="name"></param>
         /// <param name="elasticModulus">Steel elastic modulus</param>
         /// <param name="poisson">Poissoins's Ratio</param>
         /// <param name="fy">Yielding stress</param>
         /// <param name="fu">Ultimate stress</param>
+        /// <param name="density"></param>
         public SteelMaterial(string name, double elasticModulus, double poisson, double fy, double fu, double density)
             : this(name, elasticModulus, poisson, fy, fu, fy / elasticModulus, density, 0, Guid.NewGuid())
         {

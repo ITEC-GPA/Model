@@ -419,9 +419,6 @@ namespace GPC.Model.FEM.FiniteElements
         /// <summary>
         /// Shape functions
         /// </summary>
-        /// <param name="csi"></param>
-        /// <param name="eta"></param>
-        /// <returns></returns>
         private double N(int i, double csi, double eta)
         {
             switch (i)

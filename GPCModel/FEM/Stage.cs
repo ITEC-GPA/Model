@@ -98,6 +98,7 @@ namespace GPC.Model.FEM
         /// <summary>
         /// Add a <see cref="FiniteElement"/> to the stage element collection. All its attributes will be copied
         /// </summary>
+        /// <param name="element"></param>
         /// <param name="property">Overriding property</param>
         /// <returns>The <see cref="StageFiniteElementProperty"/> assigned to <paramref name="element"/> </returns>
         /// <inheritdoc cref="FemObjectStageCollection{T, D}.Add(T, D)"/>

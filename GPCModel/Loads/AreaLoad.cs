@@ -37,20 +37,15 @@ namespace GPC.Model.Loads
         /// <param name="loadCase"></param>
         /// <remarks><see cref="CoordinateSystem"/> set to Global</remarks>
         public AreaLoad(double p1, double p2, double p3, Shape shape, LoadCase loadCase)
-            : this(p1, p2, p3, shape, loadCase, CoordinateSystem.Global, Guid.NewGuid(), string.Empty)
+            : this(p1, p2, p3, shape, loadCase, CoordinateSystem.Global)
         {
 
         }
 
         public AreaLoad(double p1, double p2, double p3, Shape shape, LoadCase loadCase, CoordinateSystem coordinateSystem)
-            : this(p1, p2, p3, shape, loadCase, coordinateSystem, Guid.NewGuid(), string.Empty)
+            : base(loadCase, Guid.NewGuid())
         {
 
-        }
-
-        public AreaLoad(double p1, double p2, double p3, Shape shape, LoadCase loadCase, CoordinateSystem coordinateSystem, Guid guid, string name)
-            : base(loadCase, guid, name)
-        {
             this._p1 = p1;
             this._p2 = p2;
             this._p3 = p3;
@@ -58,6 +53,7 @@ namespace GPC.Model.Loads
             this._shape = shape ?? throw new ArgumentNullException("Shape cannot be null");
             this._coordinateSystem = coordinateSystem ?? throw new ArgumentNullException(nameof(coordinateSystem));
         }
+
 
         public AreaLoad(SerializationInfo info, StreamingContext context) 
             : base(info, context)

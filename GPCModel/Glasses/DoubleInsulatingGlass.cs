@@ -44,6 +44,7 @@ namespace GPC.Model.Glasses
         }
 
 
+        /// <param name="name"></param>
         /// <param name="glassPanelOuter">Outer glass panel</param>
         /// <param name="glassPanelInner">Inner glass panel</param>
         /// <param name="airChamber">air gap</param>
