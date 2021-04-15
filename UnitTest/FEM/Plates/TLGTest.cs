@@ -2,7 +2,6 @@
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using GPC.Model.FEM.FiniteElements;
-using GPC.Model.FEM;
 using mnl = MathNet.Numerics.LinearAlgebra;
 using GPC.Model.Materials;
 using GPC.Model.FreedomCases;
@@ -11,6 +10,7 @@ using GPC.Model.FEM.Properties;
 using GPC.Model.FEM.Attributes;
 using GPC.Model.LoadCases;
 using System.Collections.Generic;
+using GPC.Model.FEM;
 
 namespace FemTest.Solver
 {
@@ -1673,7 +1673,7 @@ namespace FemTest.Solver
             List<Quad4TripleLaminatedGlass> els = new List<Quad4TripleLaminatedGlass>();
             #region PlatesDefinition
             els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[185], nodes[186], nodes[5], nodes[148] }, G0, h0, h1, h2, EGlass, niGlass));
-            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[223], nodes[224], nodes[6], nodes[18] }, G0, h0, h1, h2, EGlass, niGlass));
+            /*els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[223], nodes[224], nodes[6], nodes[18] }, G0, h0, h1, h2, EGlass, niGlass));
             els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[186], nodes[243], nodes[13], nodes[5] }, G0, h0, h1, h2, EGlass, niGlass));
             els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[243], nodes[262], nodes[14], nodes[13] }, G0, h0, h1, h2, EGlass, niGlass));
             els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[262], nodes[281], nodes[15], nodes[14] }, G0, h0, h1, h2, EGlass, niGlass));
@@ -3131,11 +3131,21 @@ namespace FemTest.Solver
             els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[1550], nodes[177], nodes[179], nodes[1551] }, G0, h0, h1, h2, EGlass, niGlass));
             els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[1551], nodes[179], nodes[181], nodes[1552] }, G0, h0, h1, h2, EGlass, niGlass));
             els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[1552], nodes[181], nodes[183], nodes[1553] }, G0, h0, h1, h2, EGlass, niGlass));
-            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[1553], nodes[183], nodes[185], nodes[1554] }, G0, h0, h1, h2, EGlass, niGlass));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[1553], nodes[183], nodes[185], nodes[1554] }, G0, h0, h1, h2, EGlass, niGlass));*/
             #endregion
 
             //restrains
-            nodes.Where
+            FreedomCase fc = new FreedomCase("fc");
+            CoordinateSystem sys = new CoordinateSystem(new Vector3d(0, 0, 0), new Vector3d(1, 0, 0), new Vector3d(0, 1, 0));
+            NodeRestrainAttribute support = new NodeRestrainAttribute(fc, sys);
+            support.AddExternalRestrain(LinearSolver.DOF.DX);
+            support.AddExternalRestrain(LinearSolver.DOF.DY);
+            support.AddExternalRestrain(LinearSolver.DOF.DZ);
+            support.AddExternalRestrain(LinearSolver.DOF.RX);
+            support.AddExternalRestrain(LinearSolver.DOF.RY);
+            support.AddExternalRestrain(LinearSolver.DOF.RZ);
+
+            nodes.Where(x => x.Position.X == 330).ToList().ForEach(x => x.AddAttribute(support));
 
             LinearSolver solver = new LinearSolver(els.ToArray());
         }
