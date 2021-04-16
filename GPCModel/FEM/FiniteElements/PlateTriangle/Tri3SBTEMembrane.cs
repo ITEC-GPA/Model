@@ -402,6 +402,7 @@ namespace GPC.Model.FEM.FiniteElements
         /// <summary>
         /// Shape functions
         /// </summary>
+        /// <param name="i">index from 1 to 3</param>
         /// <param name="csi"></param>
         /// <param name="eta"></param>
         /// <returns></returns>

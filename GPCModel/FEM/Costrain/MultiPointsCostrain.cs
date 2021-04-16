@@ -9,12 +9,13 @@ namespace GPC.Model.FEM.Costrains
 {
     /// <summary>
     /// Multipoints costrains is when as example: gdl_i = f(gdl_1, ... , gld_K, ... gdl_N) + const with K and N != i and const can be = 0
-    //  these are userful for rotated restrains
-    /* EXAMPLE:
-             * MultiPointCostrain.Link[] equations = new MultiPointCostrain.Link[2];
-             * equations[0] = new MultiPointCostrain.Link(node1, DOF.DX, 1.0);
-             * equations[1] = new MultiPointCostrain.Link(node1, DOF.DY, 1.0);
-             * MultiPointCostrain Costrain1 = new MultiPointCostrain(equations);*/
+    ///  these are userful for rotated restrains
+    ///<example>
+    /// MultiPointCostrain.Link[] equations = new MultiPointCostrain.Link[2];
+    /// equations[0] = new MultiPointCostrain.Link(node1, DOF.DX, 1.0);
+    /// equations[1] = new MultiPointCostrain.Link(node1, DOF.DY, 1.0);
+    /// MultiPointCostrain Costrain1 = new MultiPointCostrain(equations);
+    ///</example>
     /// </summary>
     public class MultiPointsCostrain
     {

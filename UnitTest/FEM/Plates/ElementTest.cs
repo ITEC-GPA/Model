@@ -272,5 +272,89 @@ namespace FemTest.Solver
                             out mnl.Matrix<double>[] globalEpsilon, out mnl.Matrix<double>[] localEpsilon);
             */
         }
+
+        [TestMethod]
+        public void Quad4Test2()
+        {
+            Material mat = new SteelMaterial("mat", 12, 0.0, 355, 510, 7850);
+            PlateProperty prop = new PlateProperty(mat, 1.0, 1.0, "p");
+
+            Node[] nodesPlate1 = new Node[4];
+            nodesPlate1[0] = new Node(0.0, 0, 0, "1");
+            nodesPlate1[1] = new Node(+1.0, 0, 0, "2");
+            nodesPlate1[2] = new Node(+1.0, +1, 0, "3");
+            nodesPlate1[3] = new Node(0.0, +1, 0, "4");
+
+            FiniteElement e0 = new Quad4Element(nodesPlate1);
+            e0.SetProperty(prop);
+
+            LoadCase loadCase = new LoadCase("myLoadCase");
+            FreedomCase freedomCase = new FreedomCase("freedomCase1");
+            CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
+
+            /*PlatePressureAttribute pressure = new PlatePressureAttribute(loadCase, sys, 0.0, 0.0, 1.0);
+            e0.AddLoadCaseAttribute(pressure);*/
+
+            NodeForceAttribute F = new NodeForceAttribute(loadCase, sys, 0, 0, 1, 0, 0, 0);
+            nodesPlate1[2].AddAttribute(F);
+            nodesPlate1[3].AddAttribute(F);
+
+            NodeRestrainAttribute fix = new NodeRestrainAttribute(freedomCase, sys);
+            fix.AddExternalRestrain(LinearSolver.DOF.DX);
+            fix.AddExternalRestrain(LinearSolver.DOF.DY);
+            fix.AddExternalRestrain(LinearSolver.DOF.DZ);
+            fix.AddExternalRestrain(LinearSolver.DOF.RX);
+            fix.AddExternalRestrain(LinearSolver.DOF.RY);
+            fix.AddExternalRestrain(LinearSolver.DOF.RZ);
+
+            nodesPlate1[0].AddAttribute(fix);
+            nodesPlate1[1].AddAttribute(fix);
+
+            LinearSolver fem = new LinearSolver(new FiniteElement[] { e0 });
+
+            Assert.AreEqual(0.667, fem.GetDisplacementGlobalCoordinates(nodesPlate1[2], LinearSolver.DOF.DZ), 0.001);
+        }
+
+        [TestMethod]
+        public void Quad4Test3()
+        {
+            Material mat = new SteelMaterial("mat", 72000, 0.23, 355, 510, 7850);
+            PlateProperty prop = new PlateProperty(mat, 6.13, 6.13, "p");
+
+            List<Node> nodes = new List<Node>();
+            nodes.Add(new Node(-1e6, -1e6, -1e6));
+            nodes.Add(new Node(330, -100, 0));
+            nodes.Add(new Node(330, 100, 0));
+            nodes.Add(new Node(15, 100, 0));
+            nodes.Add(new Node(15, -100, 0));
+
+            List<Quad4Element> els = new List<Quad4Element>();
+            els.Add(new Quad4Element(new Node[] { nodes[1], nodes[2], nodes[3], nodes[4] }, prop));
+
+            LoadCase loadCase = new LoadCase("myLoadCase");
+            FreedomCase freedomCase = new FreedomCase("freedomCase1");
+            CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
+
+            /*PlatePressureAttribute pressure = new PlatePressureAttribute(loadCase, sys, 0.0, 0.0, 1.0);
+            e0.AddLoadCaseAttribute(pressure);*/
+
+            NodeForceAttribute F = new NodeForceAttribute(loadCase, sys, 0, 0, 8.0 * 9.81 / 2 / 2, 0, 0, 0);
+
+            nodes.Where(x => x.Position.X == 15).ToList().ForEach(x => x.AddAttribute(F));
+
+            NodeRestrainAttribute fix = new NodeRestrainAttribute(freedomCase, sys);
+            fix.AddExternalRestrain(LinearSolver.DOF.DX);
+            fix.AddExternalRestrain(LinearSolver.DOF.DY);
+            fix.AddExternalRestrain(LinearSolver.DOF.DZ);
+            fix.AddExternalRestrain(LinearSolver.DOF.RX);
+            fix.AddExternalRestrain(LinearSolver.DOF.RY);
+            fix.AddExternalRestrain(LinearSolver.DOF.RZ);
+
+            nodes.Where(x => x.Position.X == 330).ToList().ForEach(x => x.AddAttribute(fix));
+
+            LinearSolver fem = new LinearSolver(els.ToArray());
+
+            Assert.AreEqual(1.4196, fem.GetDisplacementGlobalCoordinates(nodes[3], LinearSolver.DOF.DZ), 0.001);
+        }
     }
 }

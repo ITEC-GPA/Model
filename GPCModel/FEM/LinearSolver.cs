@@ -668,7 +668,7 @@ namespace GPC.Model.FEM
         /// <summary>
         /// Modifica la matrice K e il termine noto F per l'inserimento di un spostamento imposto nel nodo node, grado di libertà dof e con spostamento = value;
         /// </summary>
-        /// <param name="index"></param>
+        /// <param name="node"></param>
         /// <param name="dof"></param>
         /// <param name="val"></param>
         private void PrescribeDisplacement(Node node, DOF dof, double val)
@@ -689,7 +689,7 @@ namespace GPC.Model.FEM
         /// Give the position of selected GDL from 0 to N where N is dimension of matrix KGloabl or the dimension of the vector of Forces or Displacments
         /// </summary>
         /// <param name="labelNode">Label of the node or nodes searched</param>
-        /// <param name="gdl">GDL searched</param>
+        /// <param name="dof">degree of freedom searched</param>
         /// <returns></returns>
         private int[] GetPositionInKGlobal(string labelNode, DOF dof = 0)
         {
@@ -712,7 +712,7 @@ namespace GPC.Model.FEM
         /// <summary>
         /// return the position in Gloab System Matrix of in F vector or Displacement vector usign geometric position of the node (after a general clear mesh, no double node in same place should exist)
         /// </summary>
-        /// <param name="IdNode">ID node</param>
+        /// <param name="node">ID node</param>
         /// <param name="dof">Searched dof</param>
         /// <returns></returns>
         public int GetPositionInKGlobal(Node node, DOF dof = 0)

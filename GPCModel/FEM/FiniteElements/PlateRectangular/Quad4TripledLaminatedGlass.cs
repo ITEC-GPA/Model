@@ -30,11 +30,12 @@ namespace GPC.Model.FEM.FiniteElements
         /// 
         /// </summary>
         /// <param name="nodes"></param>
-        /// <param name="hc">distance between middle plane of glasses</param>
         /// <param name="G0">shear module of interlayer</param>
         /// <param name="h0">thickness interlayer</param>
         /// <param name="h1">Thickness of top glass</param>
         /// <param name="h2">Thickness of bottom glass</param>
+        /// <param name="EGlass">Glass elastic modulus</param>
+        /// <param name="niGlass">poisson glass</param>
         public Quad4TripleLaminatedGlass(Node[] nodes, double G0, double h0, double h1, double h2, double EGlass, double niGlass) : base(nodes)
         {
             //eq. 51 -> lista dof locali

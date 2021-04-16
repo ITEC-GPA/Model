@@ -679,7 +679,7 @@ namespace GPC.Model.FEM.FiniteElements
             };
 
             //get Shear in local nodes
-            ///NOT APPLICABLE -> Kirchoff -> No shear
+            //NOT APPLICABLE -> Kirchoff -> No shear
             /*double E = ((PlateProperty)_property).GetE();
             double ni = ((PlateProperty)_property).GetNi();
             double tb = ((PlateProperty)Property).BendingThickness;

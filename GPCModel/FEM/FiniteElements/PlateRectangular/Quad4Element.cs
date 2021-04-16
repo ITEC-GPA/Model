@@ -14,7 +14,7 @@ namespace GPC.Model.FEM.FiniteElements
         #region variables
         private Quad4GQ12Membranal _membranal;
         private Quad4DK _flexural;
-        private mnl.Matrix<double> _kElementGlobalCoord; //the sum of the 2 stiffness matrix of TriangularMembranal and TriangularDK
+        private mnl.Matrix<double> _kElementGlobalCoord; //the sum of the 2 stiffness matrix of Membranal element and Bending element
         #endregion
 
         #region properties
@@ -31,10 +31,8 @@ namespace GPC.Model.FEM.FiniteElements
             DOF.Add(Solver.DOF.RZ);
 
             //kElementGlobal = 4 * 6 = 24
-            _membranal = new  Quad4GQ12Membranal(nodes);
-            //TODO: aggiungere Properietà
-            _flexural = new Quad4DK(nodes);
-            //TODO: aggiungere Properietà
+            _membranal = new Quad4GQ12Membranal(nodes);
+            _flexural = new Quad4DK(nodes);            
         }
 
         internal Quad4Element(Node[] nodes, PlateProperty property) : this(nodes)
@@ -57,32 +55,25 @@ namespace GPC.Model.FEM.FiniteElements
 
             //Sum of the stiffness directly in global coordinates
             mnl.Matrix<double> m = _membranal.KElementGlobalCoord;
+
+            #if DEBUG
             //write stiffness matrix of membranal element
             /*Console.WriteLine("membranal component global coordinates:");
-            for (int r = 0; r < m.RowCount; r++)
-            {
-                for (int c = 0; c < m.ColumnCount; c++)
-                {
-                    Console.Write(m[r,c] + " ");
-                }
-                Console.WriteLine();
-            }*/
+            FEMUtilities.WriteMatrix(m);*/
+            #endif
 
             mnl.Matrix<double> b = _flexural.KElementGlobalCoord;
+
+            #if DEBUG
             //write stiffness matrix of flexural element
             /*Console.WriteLine("bending component global coordinates:");
-            for (int r = 0; r < b.RowCount; r++)
-            {
-                for (int c = 0; c < b.ColumnCount; c++)
-                {
-                    Console.Write(b[r, c] + " ");
-                }
-                Console.WriteLine();
-            }*/
+            FEMUtilities.WriteMatrix(b);*/
+            #endif
 
             _kElementGlobalCoord = mnl.Matrix<double>.Build.Dense(24, 24); //4 nodes x 6 dof = 24
-            _kElementGlobalCoord = b;
+            _kElementGlobalCoord = m+b; //TODO: check
 
+            /*
             //Add stiffness due to membrane element in the right position
             #region AddStiffnessMembraneNode1
 
@@ -237,15 +228,10 @@ namespace GPC.Model.FEM.FiniteElements
                 }
             }
             #endregion
+            */
 
             /*Console.WriteLine("Final Stiffness Matrix");
-            for (int r = 0; r < _kElementGlobalCoord.RowCount; r++)
-            {
-                for (int c = 0; c < _kElementGlobalCoord.ColumnCount; c++)
-                {
-                    Console.Write(_kElementGlobalCoord[r,c] + " ");
-                }
-                Console.WriteLine();
+            FemUtilities.WriteMatrix(_kElementGlobalCoord);
             }*/
 
         }
@@ -527,7 +513,7 @@ namespace GPC.Model.FEM.FiniteElements
         /// <returns></returns>
         public static Node[] GetLocalNodesFromCentroid(Node[] globalCoordinatesNodes, out CoordinateSystem cSys)
         {
-            ///reference fig. 3
+            //reference fig. 3
             //Search for 3 local axis
             Node[] global8Nodes = Quad4Element.Get8Nodes(globalCoordinatesNodes);
 

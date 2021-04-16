@@ -169,7 +169,7 @@ namespace GPC.Model.FEM
         /// <param name="dNdCsi">derivata funzioni di forma rispetto a Csi che descrive la GEOMETRIA (passaggio da coordinate locali a naturali) in funzione dell'indice di nodo e coordinate naturali</param>
         /// <param name="dNdEta">derivata funzioni di forma rispetto a Eta che descrive la GEOMETRIA (passaggio da coordinate locali a naturali) in funzione dell'indice di nodo e coordinate naturali</param>
         /// <param name="dNdZeta">derivata funzioni di forma rispetto a Eta che descrive la GEOMETRIA (passaggio da coordinate locali a naturali) in funzione dell'indice di nodo e coordinate naturali</param>
-        /// <param name="Nodes"></param>
+        /// <param name="nodes"></param>
         /// <returns>
         /// dx/dCsi, dy/dCsi, dz/dCsi
         /// dy/dEta, dy/dEta, dz/dEta
@@ -242,6 +242,7 @@ namespace GPC.Model.FEM
         /// <param name="zeta"></param>
         /// <param name="dFdCsi"></param>
         /// <param name="dFdEta"></param>
+        /// <param name="dFdZeta"></param>
         /// <param name="Jacobian"></param>
         /// <returns></returns>
         public static mnl.Vector<double> GetdNdLocalFromdNdNatural3D(double csi, double eta, double zeta, Func<double, double, double, double> dFdCsi, Func<double, double, double, double> dFdEta, Func<double, double, double, double> dFdZeta, Func<double, double, double, mnl.Matrix<double>> Jacobian)

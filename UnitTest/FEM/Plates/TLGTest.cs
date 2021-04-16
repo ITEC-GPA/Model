@@ -95,6 +95,98 @@ namespace FemTest.Solver
             double V = L * b * htot; //mm3
             double Qtot = rhoEquivalent * V * 9.81; //N
             double q = Qtot / L; //N/mm
+
+            double JSectionSolid = 1.0 / 12.0 * b * Math.Pow(htot, 3.0);
+            double JSection2Area = 2.0 * 1.0 / 12.0 * b * Math.Pow(hGlass, 3.0) + 2.0 * b * hGlass * Math.Pow((hGlass - hInterlayer) / 2.0, 2.0);
+
+            double fLowerBound = F * (L * L * L) / (48.0 * EGlass * JSectionSolid) + 5.0 / 384.0 * q * Math.Pow(L, 4.0) / (EGlass * JSectionSolid);
+            double fMaxBound = F * (L * L * L) / (48.0 * EGlass * JSection2Area) + 5.0 / 384.0 * q * Math.Pow(L, 4.0) / (EGlass * JSection2Area);
+
+            Console.WriteLine(fLowerBound);
+            Console.WriteLine(fMaxBound);
+
+            double G0 = 0.5173;
+            double h0 = 0.38;
+            double h1 = 2.875;
+            double h2 = 2.875;
+            double niGlass = 0.23;
+            
+            #region nodes
+            List<Node> nodes = new List<Node>();
+            nodes.Add(new Node(-1000, -1000, -1000)); //fake
+            nodes.Add(new Node(0, -100, 0));
+            nodes.Add(new Node(365, -100, 0));
+            nodes.Add(new Node(0, 100, 0));
+            nodes.Add(new Node(365, 100, 0));
+            nodes.Add(new Node(330, -100, 0));
+            nodes.Add(new Node(330, 100, 0));
+            nodes.Add(new Node(15, 100, 0));
+            nodes.Add(new Node(15, -100, 0));
+            nodes.Add(new Node(330, 0, 0));
+            nodes.Add(new Node(365, 0, 0));
+            nodes.Add(new Node(15, 0, 0));
+            nodes.Add(new Node(0, 0, 0));
+            nodes.Add(new Node(170, 0, 0));
+            nodes.Add(new Node(170, 100, 0));
+            nodes.Add(new Node(170, -100, 0));
+            #endregion
+
+            //List<Quad4TripleLaminatedGlass> els = new List<Quad4TripleLaminatedGlass>();
+            List<Quad4DK> els = new List<Quad4DK>();
+            Material mat = new SteelMaterial("mat", EGlass, niGlass, 355, 510, 7850);
+            PlateProperty prop = new PlateProperty(mat, htot, htot, "p");
+            #region PlatesDefinition
+            els.Add(new Quad4DK(new Node[] { nodes[9], nodes[10], nodes[4], nodes[6] }));
+            els.Add(new Quad4DK(new Node[] { nodes[11], nodes[12], nodes[1], nodes[8] }));
+            els.Add(new Quad4DK(new Node[] { nodes[13], nodes[9], nodes[6], nodes[14] }));
+            els.Add(new Quad4DK(new Node[] { nodes[5], nodes[2], nodes[10], nodes[9] }));
+            els.Add(new Quad4DK(new Node[] { nodes[7], nodes[3], nodes[12], nodes[11] }));
+            els.Add(new Quad4DK(new Node[] { nodes[15], nodes[5], nodes[9], nodes[13] }));
+            els.Add(new Quad4DK(new Node[] { nodes[11], nodes[13], nodes[14], nodes[7] }));
+            els.Add(new Quad4DK(new Node[] { nodes[8], nodes[15], nodes[13], nodes[11] }));
+
+            els.ForEach(x => x.SetProperty(prop));
+            #endregion
+
+            //restrains
+            FreedomCase fc = new FreedomCase("fc");
+            CoordinateSystem sys = new CoordinateSystem(new Vector3d(0, 0, 0), new Vector3d(1, 0, 0), new Vector3d(0, 1, 0));
+            NodeRestrainAttribute support = new NodeRestrainAttribute(fc, sys);
+            support.AddExternalRestrain(LinearSolver.DOF.DX);
+            support.AddExternalRestrain(LinearSolver.DOF.DY);
+            support.AddExternalRestrain(LinearSolver.DOF.DZ);
+            support.AddExternalRestrain(LinearSolver.DOF.RX);
+            support.AddExternalRestrain(LinearSolver.DOF.RY);
+            support.AddExternalRestrain(LinearSolver.DOF.RZ);
+
+            nodes.Where(x => x.Position.X == 330).ToList().ForEach(x => x.AddAttribute(support));
+
+            //forces
+            LoadCase lc = new LoadCase("LC");
+            NodeForceAttribute FCentral = new NodeForceAttribute(lc, sys, 0, 0, (-F / 2.0) / 2.0, 0, 0, 0);
+            NodeForceAttribute FExternal = new NodeForceAttribute(lc, sys, 0, 0, (-F / 2.0) / 4.0, 0, 0, 0);
+
+            nodes.Where(x => x.Position.X == 15 && x.Position.Y == 0).ToList().ForEach(x => x.AddAttribute(FCentral));
+            nodes.Where(x => x.Position.X == 15 && x.Position.Y == 100).ToList().ForEach(x => x.AddAttribute(FExternal));
+            nodes.Where(x => x.Position.X == 15 && x.Position.Y == -100).ToList().ForEach(x => x.AddAttribute(FExternal));
+
+            LinearSolver solver = new LinearSolver(els.ToArray());
+        }
+
+        [TestMethod]
+        public void SimplySupportedTest2()
+        {
+            double F = 8.0 * 9.81; //N
+            double EGlass = 72.0 * 1000; //MPa
+            double L = 660; //mm
+            double b = 200; //mm
+            double hGlass = 2.875; //mm
+            double hInterlayer = 0.38; //mm
+            double htot = 6.13; //mm
+            double rhoEquivalent = 2.418 / 1000.0 / 1000.0; //kg/mm3
+            double V = L * b * htot; //mm3
+            double Qtot = rhoEquivalent * V * 9.81; //N
+            double q = Qtot / L; //N/mm
             
             double JSectionSolid = 1.0 / 12.0 * b * Math.Pow(htot, 3.0);
             double JSection2Area = 2.0 * 1.0 / 12.0 * b * Math.Pow(hGlass, 3.0) + 2.0 * b * hGlass * Math.Pow((hGlass - hInterlayer) / 2.0, 2.0);

@@ -157,7 +157,6 @@ namespace GPC.Model.FEM.FiniteElements
         /// Retrieve sigma, epsilon, N, M, etc in the element from displacement
         /// Top then bottom , then nr node. Example: stress[5] in element with 3 nodes with top and bottom: in equal to: 3 top, 2 bottom -> node 2 bottom
         /// </summary>
-        /// <param name="displacementsNodes"></param>
         public abstract void GetNodesResults(double[] globalDisplacementsNodes, out double[] localDisplacements, out mnl.Matrix<double>[] gloabalPseudoDeformation, out mnl.Matrix<double>[] localPseudoDeformation, out mnl.Matrix<double>[] globalForces, out mnl.Matrix<double>[] localForces, out mnl.Matrix<double>[] globalStress, out mnl.Matrix<double>[] localStress, out mnl.Matrix<double>[] globalEpsilon, out mnl.Matrix<double>[] localEpsilon);
 
         public abstract void GetResultPositionNaturalCoordinates(double csi, double eta, double zeta, double[] globalDisplacementsNodes, out double x, out double y, out double z, out double[] localDisplacements, out mnl.Matrix<double> gloabalPseudoDeformation, out mnl.Matrix<double> localPseudoDeformation, out mnl.Matrix<double> globalForces, out mnl.Matrix<double> localForces, out mnl.Matrix<double> globalStress, out mnl.Matrix<double> localStress, out mnl.Matrix<double> globalEpsilon, out mnl.Matrix<double> localEpsilon);
@@ -165,7 +164,6 @@ namespace GPC.Model.FEM.FiniteElements
         /// <summary>
         /// Get displacements in local coordinates of the element
         /// </summary>
-        /// <param name="displacementsNodes"></param>
         /// <returns></returns>
         public double[] GetLocalDisplacement(double[] globalDisplacementsNodes)
         {

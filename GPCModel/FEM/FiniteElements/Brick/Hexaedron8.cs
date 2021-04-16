@@ -107,6 +107,7 @@ namespace GPC.Model.FEM.FiniteElements
         /// <param name="csi"></param>
         /// <param name="eta"></param>
         /// <param name="zeta"></param>
+        /// <param name="nodes"></param>
         /// <returns></returns>
         private static mnl.Matrix<double> GetBi(int i, double csi, double eta, double zeta, Node[] nodes)
         {

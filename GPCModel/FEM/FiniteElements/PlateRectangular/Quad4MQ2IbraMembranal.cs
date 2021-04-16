@@ -212,7 +212,6 @@ namespace GPC.Model.FEM.FiniteElements
         /// </summary>
         /// <param name="csi"></param>
         /// <param name="eta"></param>
-        /// <param name="zeta"></param>
         /// <returns></returns>
         private mnl.Matrix<double> GetBSymmetric(double csi, double eta)
         {
@@ -270,6 +269,7 @@ namespace GPC.Model.FEM.FiniteElements
         /// Output serveral variables used for calculation stiffness matrix
         /// </summary>
         /// <param name="i">node i</param>
+        /// <param name="localNodes">nodes in local coordinates</param>
         /// <param name="lij">lenght from node i to node j</param>
         /// <param name="sij">sine of normal vector to node i - j</param>
         /// <param name="cij">cosine of normal vector to node i - j</param>
@@ -549,12 +549,13 @@ namespace GPC.Model.FEM.FiniteElements
             return Math.Sqrt(xij * xij + yij * yij);
         }
 
+        /*
         /// <summary>
         /// pg. 24 Thesis report - Analysis and evaluation of a shell finite element with drilling degree of freedom
         /// </summary>
         /// <param name="pi"></param>
         /// <param name="pj"></param>
-        /// <returns></returns>
+        /// <returns></returns>*/
         /*internal static double Cij(Point3d pi, Point3d pj)
         {
             double lij = Lij(pi, pj);
@@ -562,12 +563,13 @@ namespace GPC.Model.FEM.FiniteElements
             return yij / lij;
         }*/
 
+        /*
         /// <summary>
         /// pg. 24 Thesis report - Analysis and evaluation of a shell finite element with drilling degree of freedom
         /// </summary>
         /// <param name="pi"></param>
         /// <param name="pj"></param>
-        /// <returns></returns>
+        /// <returns></returns>*/
         /*private static double Sij(Point3d pi, Point3d pj)
         {
             double lij = Lij(pi, pj);

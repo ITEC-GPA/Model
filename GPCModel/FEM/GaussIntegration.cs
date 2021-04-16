@@ -91,9 +91,9 @@ namespace GPC.Model.FEM
             return pts;
         }
         /// <summary>
-        /// Get position and weigth of gauss points for a rectangular domain
+        /// Get positions and weigths of gauss points for a rectangular 2D domain
         /// </summary>
-        /// <param name="points">nr of gauss points for integration</param>
+        /// <param name="nPoints">nr of gauss points for integration</param>
         /// <returns></returns>
         public static GaussPoint[] GetPointsRectangular(int nPoints)
         {
@@ -128,9 +128,9 @@ namespace GPC.Model.FEM
         }
 
         /// <summary>
-        /// Get position and weigth of gauss points for a rectangular domain
+        /// Get positions and weigths of gauss points for a Hexaedron domain
         /// </summary>
-        /// <param name="points">nr of gauss points for integration</param>
+        /// <param name="nPoints">nr of gauss points for integration</param>
         /// <returns></returns>
         public static GaussPoint[] GetPointsHexaedron(int nPoints)
         {
@@ -169,9 +169,9 @@ namespace GPC.Model.FEM
         }
 
         /// <summary>
-        /// Get position and weigth of gauss points for a triangular domain
+        /// Get positions and weigths of gauss points for a triangular 2D domain
         /// </summary>
-        /// <param name="points">nr of gauss points for integration</param>
+        /// <param name="nPoints">nr of gauss points for integration</param>
         /// <returns></returns>
         public static GaussPoint[] GetPointsTriangular(int nPoints)
         {
