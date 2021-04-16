@@ -14,7 +14,10 @@ namespace GPC.Model.FEM
     [Serializable]
     public sealed class Stage : ModelObject, ISerializable, IEquatable<Stage>, ICloneable
     {
-        private List<Combination> _combinations;
+        private static int _maxId = 0;
+        private int _id;
+
+        private UniqueNameCollection<Combination> _combinations;
 
         private FemModel.AnalysisTypes _analysisType;
 
@@ -26,27 +29,32 @@ namespace GPC.Model.FEM
 
         private bool _morph;
 
-        #region Properties
 
-        public List<Combination> Combinations => _combinations;
+        #region Properties
 
         public FemModel.AnalysisTypes AnalysisType => _analysisType;
 
         public bool Morph => _morph;
 
-        #endregion Properties
+        public int Id { get => _id; internal set => _id = value; }
 
-        internal Stage(string name, FemModel referenceFemModel, FemModel.AnalysisTypes analysisType, bool morph, List<Combination> combinations)
+
+        #endregion 
+
+        internal Stage(string name, FemModel referenceFemModel, FemModel.AnalysisTypes analysisType, bool morph, UniqueNameCollection<Combination> combinations)
             : base(name)
         {
+            // Il costruttore è internal in modo che sia solamente la classe fem model a poter creare l'istanza di stage.
+            // 
             this._analysisType = analysisType;
-            this._combinations = combinations ?? new List<Combination>();
+            this._combinations = combinations ?? new UniqueNameCollection<Combination>();
             this._morph = morph;
 
             this._elements = new FiniteElementStageCollection<FiniteElement, StageFiniteElementProperty>();
             this._nodes = new NodeStageCollection<Node, StageProperty>();
 
             this._femModel = referenceFemModel ?? throw new ArgumentNullException("Fem Model can't be null");
+            this._id = _maxId++;
         }
 
         internal Stage(string name, FemModel femModel, FemModel.AnalysisTypes analysisType)
@@ -63,6 +71,7 @@ namespace GPC.Model.FEM
             this._elements = stage._elements;
             this._nodes = stage._nodes;
             this._femModel = stage._femModel;
+            this._id = _maxId++;
         }
 
         internal Stage(SerializationInfo info, StreamingContext context)
@@ -155,7 +164,18 @@ namespace GPC.Model.FEM
             }
         }
 
-        /// <inheritdoc cref="FemObjectStageCollection{T, D}.SetItem(T, D)"/>
+        public void AddCombination(Combination combination)
+        {
+            if (combination != null)
+                _combinations.Add(combination);
+        }
+
+        public void AddCombinations(List<Combination> combinations)
+        {
+            _combinations.AddRange(combinations);
+        }
+
+        /// <inheritdoc cref="FiniteElementStageCollection{T, D}.SetItem(FiniteElement)"/>
         public void SetFiniteElements(FemObjectCollection<FiniteElement> elements)
         {
             foreach (var element in elements)
@@ -181,17 +201,6 @@ namespace GPC.Model.FEM
                 _elements.SetStageProperty(_elements[elementId], stageFiniteElementProperty);
         }
 
-        public void AddCombination(Combination combination)
-        {
-            if (combination != null)
-                _combinations.Add(combination);
-        }
-
-        public void AddCombinations(List<Combination> combinations)
-        {
-            _combinations.AddRange(combinations);
-        }
-
         public void SetAnalysisType(FemModel.AnalysisTypes analysisType)
         {
             _analysisType = analysisType;
@@ -204,7 +213,7 @@ namespace GPC.Model.FEM
 
         #endregion Public method - Add / Set
 
-
+         
         #region Internal method Add / Set
 
         /// <summary>
@@ -237,6 +246,18 @@ namespace GPC.Model.FEM
         }
 
         #endregion Internal method Add / Set
+
+
+        #region Public method - Edit
+
+        public void ClearCombinations()
+        {
+            _combinations.Clear();
+        }
+
+
+        #endregion
+
 
         /// <summary>
         /// Return a model only with the elements active on this stage and the ovverided property and attributes

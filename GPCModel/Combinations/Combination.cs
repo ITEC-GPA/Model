@@ -94,6 +94,13 @@ namespace GPC.Model.Combinations
         }
 
 
+        /// <returns>The loadcases of this combination</returns>
+        public virtual List<LoadCase> GetLoadCases()
+        {
+            return _coefficients.Select(i => i.LoadCase).ToList();
+        }
+
+
         /// <summary>
         /// 
         /// </summary>

@@ -39,6 +39,23 @@ namespace GPC.Model
             return true;
         }
 
+        /// <inheritdoc cref="Add(T)"/>
+        public virtual bool AddRange(List<T> items)
+        {
+            foreach (var item in items)
+            {
+                if (!this.Add(item))
+                    return false;
+            }
+            return true;
+        }
+
+        /// <inheritdoc cref="AddRange(List{T})"/>
+        public virtual bool AddRange(T[] items)
+        {
+            return this.AddRange(items.ToList());
+        }
+
         /// <summary><inheritdoc cref="Enumerable.SingleOrDefault{TSource}(IEnumerable{TSource})"/></summary>
         /// <returns><inheritdoc cref="Enumerable.SingleOrDefault{TSource}(IEnumerable{TSource})"/></returns>
         /// <exception cref="InvalidOperationException" ></exception>
@@ -81,7 +98,8 @@ namespace GPC.Model
 
         void ICollection<T>.Add(T item)
         {
-            _collection.Add(item);
+            // metodo privato
+            this.Add(item);
         }
 
         public void UnionWith(IEnumerable<T> other)
