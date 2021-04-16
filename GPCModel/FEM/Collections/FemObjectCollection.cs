@@ -43,7 +43,7 @@ namespace GPC.Model.FEM.Collections
         /// If the <paramref name="item"/>.Id already exist in the collection, its ID will be replaced with the collection maximum index + 1
         /// </summary>
         /// <returns>The Id of the item</returns>
-        /// <remarks>The item will be added without checking if already exist in <see cref="BaseEnumerable{T}._collection"/></remarks>
+        /// <remarks>The item will be added without checking if already exist in <see cref="FemObjectCollection{T}._collection"/></remarks>
         private int AddItem(T item)
         {
             // obj non presente

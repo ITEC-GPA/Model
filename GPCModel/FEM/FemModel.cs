@@ -235,24 +235,15 @@ namespace GPC.Model.FEM
         }
 
 
-        public virtual void AddCombination(Combination combination)
+        public virtual bool AddCombination(Combination combination)
         {
-            if (!_combinations.Contains(combination))
-            {
-                _combinations.Add(combination);
-            }
+            return _combinations.Add(combination);
         }
 
 
-        public virtual void AddCombinations(List<Combination> combinations)
+        public virtual bool AddCombinations(List<Combination> combinations)
         {
-            foreach (var combination in combinations)
-            {
-                if (!_combinations.Contains(combination))
-                {
-                    _combinations.Add(combination);
-                }
-            }
+            return _combinations.AddRange(combinations);
         }
 
 
@@ -271,16 +262,32 @@ namespace GPC.Model.FEM
 
 
         /// <summary>
-        /// Add a stage the to the stage list. This stage will the copy of <paramref name="stageToCopy"/>
+        /// Add a stage the to the stage list. This stage will the clone of stage with <see cref="Stage.Id"/> equal to <paramref name="stageId"/>"/>
         /// </summary>
-        /// <param name="stageToCopy"></param>
-        /// <returns></returns>
-        public virtual Stage AddStage(Stage stageToCopy)
+        /// <param name="stageId"></param>
+        public virtual Stage AddStage(int stageId)
         {
-            Stage stage = new Stage(stageToCopy);
-            _stages.Add(stage);
+            Stage stage = _stages.Where(i => i.Id == stageId).FirstOrDefault();
+            if (stage == default(Stage))
+                throw new ArgumentException($"Stage with Id:{stageId} does not exist");
+
+            var stageCloned = new Stage(stage);
+            _stages.Add(new Stage(stage));
+            return stageCloned;
+        }
+
+        /// <summary>
+        /// Add a stage to the femModel, all the elements will be copied into this stage. <see cref="FemModel._combinations"/> will be copied into the stage
+        /// </summary>
+        public virtual Stage AddStageAsCopyOfModel(string name, AnalysisTypes analysisType)
+        {
+            Stage stage = new Stage(name, this, analysisType, false, _combinations);
+
+            stage.SetFiniteElements(_elements);
+
             return stage;
         }
+
 
         #endregion
 
