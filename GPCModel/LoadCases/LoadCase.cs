@@ -23,6 +23,7 @@ namespace GPC.Model.LoadCases
             [Description("Temperature")] Temperature = 7,
             [Description("Climate Summer")] ClimateSummer = 8,
             [Description("Climate Winter")] ClimateWinter = 9,
+            [Description("Prestress")] Prestress = 10,
         }
 
         #endregion
