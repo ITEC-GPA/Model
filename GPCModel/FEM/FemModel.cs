@@ -24,7 +24,7 @@ namespace GPC.Model.FEM
     public class FemModel : ModelObject, ISerializable
     {
 
-        public enum AnalysisType
+        public enum AnalysisTypes
         {
             Linear, 
             NonLinear,
@@ -98,16 +98,18 @@ namespace GPC.Model.FEM
 
         protected List<ResultPlateStress> _resultPlateStress;
 
+
+        protected AnalysisTypes _analysisType;
+
         #endregion
 
-        #region PROPERTIES
-
-        public List<Stage> Stages => _stages;
+        #region Properties
 
         public List<ResultPlateStress> ResultPlateStresses => _resultPlateStress;
         public List<ResultNodeDisplacement> ResultNodeDisplacement => _resultNodeDisplacements;
         public List<ResultNodeForce> ResultNodeForce => _resultNodeForce;
-        
+
+        public AnalysisTypes AnalysisType { get => _analysisType; set => _analysisType = value; }
 
         #endregion
 
@@ -120,7 +122,7 @@ namespace GPC.Model.FEM
         }
 
         public FemModel(string name) 
-            : base(Guid.NewGuid(), name)
+            : base(name)
         {
             _nodes = new FemObjectCollection<Node>();
             _elements = new FemObjectCollection<FiniteElement>();
@@ -137,8 +139,9 @@ namespace GPC.Model.FEM
             _resultNodeForce = new List<ResultNodeForce>();
             _resultNodeDisplacements = new List<ResultNodeDisplacement>();
 
+            _analysisType = AnalysisTypes.Linear;
 
-            //_stages.Add(new Stage("Stage 0", AnalysisType.Linear));
+
         }
 
         
@@ -259,7 +262,7 @@ namespace GPC.Model.FEM
         /// <param name="name"></param>
         /// <param name="analysisType"></param>
         /// <returns></returns>
-        public virtual Stage AddStage(string name, AnalysisType analysisType)
+        public virtual Stage AddStage(string name, AnalysisTypes analysisType)
         {
             Stage stage = new Stage(name, this, analysisType, false, null);
             _stages.Add(stage);

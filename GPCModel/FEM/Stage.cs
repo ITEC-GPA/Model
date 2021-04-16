@@ -16,7 +16,7 @@ namespace GPC.Model.FEM
     {
         private List<Combination> _combinations;
 
-        private FemModel.AnalysisType _analysisType;
+        private FemModel.AnalysisTypes _analysisType;
 
         private FiniteElementStageCollection<FiniteElement, StageFiniteElementProperty> _elements;
 
@@ -30,13 +30,13 @@ namespace GPC.Model.FEM
 
         public List<Combination> Combinations => _combinations;
 
-        public FemModel.AnalysisType AnalysisType => _analysisType;
+        public FemModel.AnalysisTypes AnalysisType => _analysisType;
 
         public bool Morph => _morph;
 
         #endregion Properties
 
-        internal Stage(string name, FemModel referenceFemModel, FemModel.AnalysisType analysisType, bool morph, List<Combination> combinations)
+        internal Stage(string name, FemModel referenceFemModel, FemModel.AnalysisTypes analysisType, bool morph, List<Combination> combinations)
             : base(name)
         {
             this._analysisType = analysisType;
@@ -49,7 +49,7 @@ namespace GPC.Model.FEM
             this._femModel = referenceFemModel ?? throw new ArgumentNullException("Fem Model can't be null");
         }
 
-        internal Stage(string name, FemModel femModel, FemModel.AnalysisType analysisType)
+        internal Stage(string name, FemModel femModel, FemModel.AnalysisTypes analysisType)
             : this(name, femModel, analysisType, false, null)
         {
 
@@ -192,7 +192,7 @@ namespace GPC.Model.FEM
             _combinations.AddRange(combinations);
         }
 
-        public void SetAnalysisType(FemModel.AnalysisType analysisType)
+        public void SetAnalysisType(FemModel.AnalysisTypes analysisType)
         {
             _analysisType = analysisType;
         }

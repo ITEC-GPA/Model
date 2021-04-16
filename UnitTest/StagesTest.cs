@@ -95,8 +95,8 @@ namespace FemTest
             Mesh mesh = CreateSimpleMesh(10, 10, 2, 4, 0);
             model.AddMesh(mesh, p1.Name, null, null, null, null, null);
 
-            var stage1 = model.AddStage("Stg1", FemModel.AnalysisType.Linear);
-            var stage2 = model.AddStage("Stg2", FemModel.AnalysisType.Linear);
+            var stage1 = model.AddStage("Stg1", FemModel.AnalysisTypes.Linear);
+            var stage2 = model.AddStage("Stg2", FemModel.AnalysisTypes.Linear);
 
             var enumerator = model.GetElementsEnumerator();
             while (enumerator.MoveNext())
@@ -140,8 +140,8 @@ namespace FemTest
             Mesh mesh = CreateSimpleMesh(10, 10, 2, 4, 0);
             model.AddMesh(mesh, p1.Name, null, null, null, null, null);
 
-            var stage1 = model.AddStage("Stg1", FemModel.AnalysisType.Linear);
-            var stage2 = model.AddStage("Stg2", FemModel.AnalysisType.Linear);
+            var stage1 = model.AddStage("Stg1", FemModel.AnalysisTypes.Linear);
+            var stage2 = model.AddStage("Stg2", FemModel.AnalysisTypes.Linear);
 
             var enumerator = model.GetElementsEnumerator();
             while (enumerator.MoveNext())
