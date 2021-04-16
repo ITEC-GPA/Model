@@ -285,6 +285,8 @@ namespace GPC.Model.FEM
 
             stage.SetFiniteElements(_elements);
 
+            _stages.Add(stage);
+
             return stage;
         }
 
@@ -940,7 +942,7 @@ namespace GPC.Model.FEM
 
                     foreach (var index in indexes)
                     {
-                        int plateId = platesNewIndexMap.ContainsKey(index) ? platesNewIndexMap[index] : throw new KeyNotFoundException(index.ToString());
+                        int plateId = platesNewIndexMap.ContainsKey(index) ? platesNewIndexMap[index] : index;
 
                         FiniteElement finiteElement = _elements.GetElementById(plateId); // se non trova l'indice viene lanciata una keynotfoundException
 

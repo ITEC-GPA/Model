@@ -36,7 +36,7 @@ namespace GPC.Model.FEM
 
         public bool Morph => _morph;
 
-        internal int Id { get => _id; set => _id = value; }
+        public int Id { get => _id; internal set => _id = value; }
 
 
         #endregion 
@@ -213,7 +213,7 @@ namespace GPC.Model.FEM
 
         #endregion Public method - Add / Set
 
-
+         
         #region Internal method Add / Set
 
         /// <summary>
