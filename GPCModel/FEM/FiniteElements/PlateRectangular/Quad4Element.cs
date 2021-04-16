@@ -443,7 +443,7 @@ namespace GPC.Model.FEM.FiniteElements
 
         #region PublicStaticFunction
         /// <summary>
-        /// out Local Node in clockwise, centro nel primo nodo dell'elemento
+        /// out Local Node in clockwise, origin set in the first node of the element
         /// </summary>
         /// <returns></returns>
         public static Node[] GetLocalNodes(Node[] globalNodes, out CoordinateSystem cSys)

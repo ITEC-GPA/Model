@@ -380,10 +380,10 @@ namespace GPC.Model.FEM
             }
             #endregion
 
-#if DEBUG
+/*#if DEBUG
             Console.WriteLine("Vector F");
             _F.ToList().ForEach(x => Console.WriteLine(x));
-#endif
+#endif*/
             #endregion
 
             #region ApplyingRestrains
@@ -424,12 +424,12 @@ namespace GPC.Model.FEM
                     }
                 }
             }
-#if DEBUG
+/*#if DEBUG
             Console.WriteLine("kGlobal System + Restrains: ");
             FEMUtilities.WriteMatrix(_KGlobalRestrains, "F3");
             Console.WriteLine("Fmodified(Restrains):");
             FEMUtilities.WriteVector(_FRestrains);
-#endif
+#endif*/
             #endregion
 
             #region ApplyingMultiPointCostrains

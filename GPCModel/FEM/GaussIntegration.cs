@@ -22,7 +22,7 @@ namespace GPC.Model.FEM
 
             /*Console.WriteLine("M(csi="+csi+",eta="+eta+") = ");
             Util.WriteMatrix(GetM(csi, eta), "F3");*/
-            //Console.WriteLine("J=" + Jacob(csi, eta).Determinant());
+            Console.WriteLine("detJ=" + Jacob(csi, eta).Determinant());
             #endregion
             for (int i = 1; i < gaussPoints.Length; i++) //trhough the gauss points "variable i START FROM 1 NOT FROM 0!!!"
             {
@@ -32,7 +32,7 @@ namespace GPC.Model.FEM
 
                 /*Console.WriteLine("M(csi=" + csi + ",eta=" + eta + ") = ");
                 Util.WriteMatrix(GetM(csi, eta), "F3");*/
-                //Console.WriteLine("J=" + Jacob(csi, eta).Determinant());
+                Console.WriteLine("detJ=" + Jacob(csi, eta).Determinant());
             }
             return ris;
         }

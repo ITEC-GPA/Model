@@ -356,5 +356,196 @@ namespace FemTest.Solver
 
             Assert.AreEqual(1.4196, fem.GetDisplacementGlobalCoordinates(nodes[3], LinearSolver.DOF.DZ), 0.001);
         }
+
+        [TestMethod]
+        public void Quad4Test4()
+        {
+            Material mat = new SteelMaterial("mat", 72000, 0.23, 355, 510, 7850);
+            PlateProperty prop = new PlateProperty(mat, 6.13, 6.13, "p");
+
+            List<Node> nodes = new List<Node>();
+            nodes.Add(new Node(-1e6, -1e6, -1e6));
+            nodes.Add(new Node(330, -100, 0));
+            nodes.Add(new Node(330, 100, 0));
+            nodes.Add(new Node(15, 100, 0));
+            nodes.Add(new Node(15, -100, 0));
+            nodes.Add(new Node(330, 0, 0));
+            nodes.Add(new Node(172.5, -100, 0));
+            nodes.Add(new Node(172.5, 0, 0));
+            nodes.Add(new Node(172.5, 100, 0));
+            nodes.Add(new Node(15, 0, 0));
+
+            List<Quad4Element> els = new List<Quad4Element>();
+            els.Add(new Quad4Element(new Node[] { nodes[7], nodes[8], nodes[3], nodes[9] }, prop));
+            els.Add(new Quad4Element(new Node[] { nodes[1], nodes[5], nodes[7], nodes[6] }, prop));
+            els.Add(new Quad4Element(new Node[] { nodes[5], nodes[2], nodes[8], nodes[7] }, prop));
+            els.Add(new Quad4Element(new Node[] { nodes[6], nodes[7], nodes[9], nodes[4] }, prop));
+
+            LoadCase loadCase = new LoadCase("myLoadCase");
+            FreedomCase freedomCase = new FreedomCase("freedomCase1");
+            CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
+
+            /*PlatePressureAttribute pressure = new PlatePressureAttribute(loadCase, sys, 0.0, 0.0, 1.0);
+            e0.AddLoadCaseAttribute(pressure);*/
+
+            NodeForceAttribute F = new NodeForceAttribute(loadCase, sys, 0, 0, 8.0 * 9.81 / 2 / 3, 0, 0, 0);
+
+            nodes.Where(x => x.Position.X == 15).ToList().ForEach(x => x.AddAttribute(F));
+
+            NodeRestrainAttribute fix = new NodeRestrainAttribute(freedomCase, sys);
+            fix.AddExternalRestrain(LinearSolver.DOF.DX);
+            fix.AddExternalRestrain(LinearSolver.DOF.DY);
+            fix.AddExternalRestrain(LinearSolver.DOF.DZ);
+            fix.AddExternalRestrain(LinearSolver.DOF.RX);
+            fix.AddExternalRestrain(LinearSolver.DOF.RY);
+            fix.AddExternalRestrain(LinearSolver.DOF.RZ);
+
+            nodes.Where(x => x.Position.X == 330).ToList().ForEach(x => x.AddAttribute(fix));
+
+            LinearSolver fem = new LinearSolver(els.ToArray());
+
+            Assert.AreEqual(1.4314, fem.GetDisplacementGlobalCoordinates(nodes.Where(x => x.Position.X == 15 && x.Position.Y == 0).First(), LinearSolver.DOF.DZ), 0.001);
+        }
+
+        [TestMethod]
+        public void Quad4Test5()
+        {
+            Material mat = new SteelMaterial("mat", 72000, 0.23, 355, 510, 7850);
+            PlateProperty prop = new PlateProperty(mat, 6.13, 6.13, "p");
+
+            List<Node> nodes = new List<Node>();
+            nodes.Add(new Node(-1e6, -1e6, -1e6));
+            nodes.Add(new Node(330, -100, 0));
+            nodes.Add(new Node(330, 100, 0));
+            nodes.Add(new Node(15, 100, 0));
+            nodes.Add(new Node(15, -100, 0));
+            nodes.Add(new Node(330, 0, 0));
+            nodes.Add(new Node(172.5, -100, 0));
+            nodes.Add(new Node(172.5, 0, 0));
+            nodes.Add(new Node(172.5, 100, 0));
+            nodes.Add(new Node(15, 0, 0));
+            nodes.Add(new Node(0, 100, 0));
+            nodes.Add(new Node(0, 0, 0));
+            nodes.Add(new Node(0, -100, 0));
+            nodes.Add(new Node(365, 100, 0));
+            nodes.Add(new Node(365, 0, 0));
+            nodes.Add(new Node(365, -100, 0));
+
+            List<Quad4Element> els = new List<Quad4Element>();
+            els.Add(new Quad4Element(new Node[] { nodes[7], nodes[8], nodes[3], nodes[9] }, prop));
+            els.Add(new Quad4Element(new Node[] { nodes[1], nodes[5], nodes[7], nodes[6] }, prop));
+            els.Add(new Quad4Element(new Node[] { nodes[5], nodes[2], nodes[8], nodes[7] }, prop));
+            els.Add(new Quad4Element(new Node[] { nodes[6], nodes[7], nodes[9], nodes[4] }, prop));
+            els.Add(new Quad4Element(new Node[] { nodes[3], nodes[9], nodes[11], nodes[10] }, prop));
+            els.Add(new Quad4Element(new Node[] { nodes[9], nodes[4], nodes[12], nodes[11] }, prop));
+            els.Add(new Quad4Element(new Node[] { nodes[2], nodes[5], nodes[14], nodes[13] }, prop));
+            els.Add(new Quad4Element(new Node[] { nodes[5], nodes[1], nodes[15], nodes[14] }, prop));
+
+            LoadCase loadCase = new LoadCase("myLoadCase");
+            FreedomCase freedomCase = new FreedomCase("freedomCase1");
+            CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
+
+            /*PlatePressureAttribute pressure = new PlatePressureAttribute(loadCase, sys, 0.0, 0.0, 1.0);
+            e0.AddLoadCaseAttribute(pressure);*/
+
+            NodeForceAttribute F = new NodeForceAttribute(loadCase, sys, 0, 0, 8.0 * 9.81 / 2.0 / 3.0, 0, 0, 0);
+
+            nodes.Where(x => x.Position.X == 15).ToList().ForEach(x => x.AddAttribute(F));
+
+            NodeRestrainAttribute x0Restrain = new NodeRestrainAttribute(freedomCase, sys);
+            x0Restrain.AddExternalRestrain(LinearSolver.DOF.DX);
+            x0Restrain.AddExternalRestrain(LinearSolver.DOF.RY);
+            nodes.Where(x => x.Position.X == 0).ToList().ForEach(x => x.AddAttribute(x0Restrain));
+
+            NodeRestrainAttribute x0y0Restrain = new NodeRestrainAttribute(freedomCase, sys);
+            x0y0Restrain.AddExternalRestrain(LinearSolver.DOF.DX);
+            x0y0Restrain.AddExternalRestrain(LinearSolver.DOF.DY);
+            x0y0Restrain.AddExternalRestrain(LinearSolver.DOF.RY);
+            nodes.Where(x => x.Position.X == 0 && x.Position.Y == 0).ToList().ForEach(x => x.AddAttribute(x0y0Restrain));
+
+            NodeRestrainAttribute x330y0Restrain = new NodeRestrainAttribute(freedomCase, sys);
+            x330y0Restrain.AddExternalRestrain(LinearSolver.DOF.DY);
+            x330y0Restrain.AddExternalRestrain(LinearSolver.DOF.DZ);
+            nodes.Where(x => x.Position.X == 330 && x.Position.Y == 0).ToList().ForEach(x => x.AddAttribute(x330y0Restrain));
+
+            NodeRestrainAttribute x330Restrain = new NodeRestrainAttribute(freedomCase, sys);
+            x330Restrain.AddExternalRestrain(LinearSolver.DOF.DZ);
+            nodes.Where(x => x.Position.X == 330).ToList().ForEach(x => x.AddAttribute(x330Restrain));
+
+            LinearSolver fem = new LinearSolver(els.ToArray());
+
+            Assert.AreEqual(1.6686, fem.GetDisplacementGlobalCoordinates(nodes.Where(x => x.Position.X == 0 && x.Position.Y == 0).First(), LinearSolver.DOF.DZ), 0.001);
+        }
+
+        [TestMethod]
+        public void Quad4Test6()
+        {
+            double t = 6.13;
+            Material mat = new SteelMaterial("mat", 72000, 0.23, 355, 510, 7850);
+            PlateProperty prop = new PlateProperty(mat, t, t, "p");
+
+            List<Node> nodes = new List<Node>();
+            nodes.Add(new Node(-1e6, -1e6, -1e6));
+            nodes.Add(new Node(330, -100, 0));
+            nodes.Add(new Node(330, 100, 0));
+            nodes.Add(new Node(15, 100, 0));
+            nodes.Add(new Node(15, -100, 0));
+            nodes.Add(new Node(330, 0, 0));
+            nodes.Add(new Node(172.5, -100, 0));
+            nodes.Add(new Node(172.5, 0, 0));
+            nodes.Add(new Node(172.5, 100, 0));
+            nodes.Add(new Node(15, 0, 0));
+            nodes.Add(new Node(0, 100, 0));
+            nodes.Add(new Node(0, 0, 0));
+            nodes.Add(new Node(0, -100, 0));
+            nodes.Add(new Node(365, 100, 0));
+            nodes.Add(new Node(365, 0, 0));
+            nodes.Add(new Node(365, -100, 0));
+
+            List<Quad4Element> els = new List<Quad4Element>();
+            els.Add(new Quad4Element(new Node[] { nodes[7], nodes[8], nodes[3], nodes[9] }, prop));
+            els.Add(new Quad4Element(new Node[] { nodes[1], nodes[5], nodes[7], nodes[6] }, prop));
+            els.Add(new Quad4Element(new Node[] { nodes[5], nodes[2], nodes[8], nodes[7] }, prop));
+            els.Add(new Quad4Element(new Node[] { nodes[6], nodes[7], nodes[9], nodes[4] }, prop));
+            els.Add(new Quad4Element(new Node[] { nodes[3], nodes[9], nodes[11], nodes[10] }, prop));
+            els.Add(new Quad4Element(new Node[] { nodes[9], nodes[4], nodes[12], nodes[11] }, prop));
+            els.Add(new Quad4Element(new Node[] { nodes[2], nodes[5], nodes[14], nodes[13] }, prop));
+            els.Add(new Quad4Element(new Node[] { nodes[5], nodes[1], nodes[15], nodes[14] }, prop));
+
+            LoadCase loadCase = new LoadCase("myLoadCase");
+            FreedomCase freedomCase = new FreedomCase("freedomCase1");
+            CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
+
+            PlatePressureAttribute pressure = new PlatePressureAttribute(loadCase, sys, 0.0, 0.0, (2.418/1000.0 * 9.81) * (t / 1000.0));
+            els.ForEach(x => x.AddLoadCaseAttribute(pressure));
+
+            /*NodeForceAttribute F = new NodeForceAttribute(loadCase, sys, 0, 0, 8.0 * 9.81 / 2.0 / 3.0, 0, 0, 0);
+
+            nodes.Where(x => x.Position.X == 15).ToList().ForEach(x => x.AddAttribute(F));*/
+
+            NodeRestrainAttribute x0Restrain = new NodeRestrainAttribute(freedomCase, sys);
+            x0Restrain.AddExternalRestrain(LinearSolver.DOF.DX);
+            x0Restrain.AddExternalRestrain(LinearSolver.DOF.RY);
+            nodes.Where(x => x.Position.X == 0).ToList().ForEach(x => x.AddAttribute(x0Restrain));
+
+            NodeRestrainAttribute x0y0Restrain = new NodeRestrainAttribute(freedomCase, sys);
+            x0y0Restrain.AddExternalRestrain(LinearSolver.DOF.DX);
+            x0y0Restrain.AddExternalRestrain(LinearSolver.DOF.DY);
+            x0y0Restrain.AddExternalRestrain(LinearSolver.DOF.RY);
+            nodes.Where(x => x.Position.X == 0 && x.Position.Y == 0).ToList().ForEach(x => x.AddAttribute(x0y0Restrain));
+
+            NodeRestrainAttribute x330y0Restrain = new NodeRestrainAttribute(freedomCase, sys);
+            x330y0Restrain.AddExternalRestrain(LinearSolver.DOF.DY);
+            x330y0Restrain.AddExternalRestrain(LinearSolver.DOF.DZ);
+            nodes.Where(x => x.Position.X == 330 && x.Position.Y == 0).ToList().ForEach(x => x.AddAttribute(x330y0Restrain));
+
+            NodeRestrainAttribute x330Restrain = new NodeRestrainAttribute(freedomCase, sys);
+            x330Restrain.AddExternalRestrain(LinearSolver.DOF.DZ);
+            nodes.Where(x => x.Position.X == 330).ToList().ForEach(x => x.AddAttribute(x330Restrain));
+
+            LinearSolver fem = new LinearSolver(els.ToArray());
+
+            Assert.AreEqual(0.2415, fem.GetDisplacementGlobalCoordinates(nodes.Where(x => x.Position.X == 0 && x.Position.Y == 0).First(), LinearSolver.DOF.DZ), 0.001);
+        }
     }
 }
