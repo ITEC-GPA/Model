@@ -69,8 +69,9 @@
     <Compile Include="Base\ModelObjectEnumerable.cs" />
     <Compile Include="Base\UnitsSystem.cs" />
     <Compile Include="Base\Units.cs" />
-    <Compile Include="Combinations\NormativePrEn.cs" />
-    <Compile Include="Combinations\CombinationsGenerator.cs" />
+    <Compile Include="Combinations\Standard.cs" />
+    <Compile Include="Combinations\StandardASCE16.cs" />
+    <Compile Include="Combinations\StandardEN1990.cs" />
     <Compile Include="Combinations\Combination.cs" />
     <Compile Include="Combinations\CombinationAsce.cs" />
     <Compile Include="Combinations\CombinationEn.cs" />

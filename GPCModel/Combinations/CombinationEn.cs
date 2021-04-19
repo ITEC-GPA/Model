@@ -1,53 +1,350 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Runtime.Serialization;
+using GPC.Model.LoadCases;
 
 namespace GPC.Model.Combinations
 {
     public class CombinationEn : Combination
     {
-        public enum CombinationType
-        {
-            UltimateEquilibrium,
-            UltimateStructural,
-            UltimateGeotechnical,
-            UltimateFatigue,
-            ServiceabilityCharacteristic,
-            ServiceabilityFrequent,
-            ServiceabilityQuasiPermanent
-        }
+        #region VARIABLES
 
-        private CombinationType _combinationType;
+        private StandardEN1990 _standardEN1990;
 
-        public CombinationType GetCombinationType => _combinationType;
+        private StandardEN1990.LimitState _limitState;
+        public StandardEN1990.LimitState GetLimitState => _limitState;
 
-        public CombinationEn(string name, CombinationType combinationType)
+        private StandardEN1990.ULSCombinationSets _uLSCombinationSets;
+        public StandardEN1990.ULSCombinationSets GetCombinationSets => _uLSCombinationSets;
+
+        private StandardEN1990.ImposedLoadCategory _imposedLoadCategory;
+        public StandardEN1990.ImposedLoadCategory GetImposedLoadCategory => _imposedLoadCategory;
+
+        #endregion
+
+
+        #region PUBLIC CONSTRUCTOR
+
+        public CombinationEn(string name, StandardEN1990 combinationType)
             : base(name)
         {
-            this._combinationType = combinationType;
+            this._standardEN1990 = combinationType;
         }
-
 
         public CombinationEn(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
-            _combinationType = (CombinationType)info.GetValue("CombinationType", typeof(CombinationType));
+            _standardEN1990 = (StandardEN1990)info.GetValue("CombinationType", typeof(StandardEN1990));
         }
+
+        public CombinationEn(string name) 
+            : base(name)
+        {
+        }
+
+        public CombinationEn()
+            : base()
+        {
+        }
+
+        public CombinationEn(string name, StandardEN1990 combinationType, StandardEN1990.LimitState limitState, StandardEN1990.ULSCombinationSets uLSCombinationSets, StandardEN1990.ImposedLoadCategory category)
+            : base(name)
+        {
+            this._standardEN1990 = combinationType;
+            this._uLSCombinationSets = uLSCombinationSets;
+            this._imposedLoadCategory = category;
+        }
+
+        public CombinationEn(string name, StandardEN1990.LimitState limitState)
+            :base(name)
+        {
+            this._limitState = limitState;
+        }
+        #endregion
+
+
+        #region PUBLIC OVERRIDE METHODS
 
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             base.GetObjectData(info, context);
-            info.AddValue("CombinationType", _combinationType);
+            info.AddValue("CombinationType", _standardEN1990);
         }
 
-        public override bool IsUltimate() => (_combinationType == CombinationType.UltimateEquilibrium ||
-                                             _combinationType == CombinationType.UltimateFatigue ||
-                                             _combinationType == CombinationType.UltimateGeotechnical ||
-                                             _combinationType == CombinationType.UltimateStructural) ?
+        public override bool IsUltimate() => (_standardEN1990.GetLimitState() == StandardEN1990.LimitState.UltimateEquilibrium ||
+                                             _standardEN1990.GetLimitState() == StandardEN1990.LimitState.UltimateFatigue ||
+                                             _standardEN1990.GetLimitState() == StandardEN1990.LimitState.UltimateGeotechnical ||
+                                             _standardEN1990.GetLimitState() == StandardEN1990.LimitState.UltimateStructural) ?
                                              true : false;
 
         public override string ToString()
         {
             return base.ToString();
         }
+
+        #endregion
+
+
+        #region PUBLIC METHOD   
+
+        public static List<CombinationEn> GenerateCombinations(List<LoadCase> loadCases, StandardEN1990 standardEN1990, StandardEN1990.LimitState limitState, StandardEN1990.ULSCombinationSets uLS, StandardEN1990.ImposedLoadCategory category)
+        {
+            List<CombinationEn> combinations = new List<CombinationEn>();
+
+            List<List<LoadCaseCoefficient>> listFavourable = GetFavourableCombinations(loadCases, standardEN1990, limitState, uLS, category);
+            for (int i = 0; i< listFavourable.Count(); i++)
+            {
+                CombinationEn combo = new CombinationEn();
+
+                for (int j = 0; j < listFavourable[i].Count(); j++)
+                {
+                    combo.AddLoadCaseCoefficient(listFavourable[i][j].LoadCase, listFavourable[i][j].Coefficient);                    
+                }
+                combinations.Add(combo);
+            }
+
+            if (limitState == StandardEN1990.LimitState.UltimateEquilibrium || limitState == StandardEN1990.LimitState.UltimateFatigue || limitState == StandardEN1990.LimitState.UltimateGeotechnical || limitState == StandardEN1990.LimitState.UltimateStructural)
+            {
+                List<List<LoadCaseCoefficient>> listUnfavourable = GetUnfavourableCombinations(loadCases, standardEN1990, limitState, uLS, category);
+                for (int i = 0; i < listUnfavourable.Count(); i++)
+                {
+                    CombinationEn combo = new CombinationEn();
+
+                    for (int j = 0; j < listUnfavourable[i].Count(); j++)
+                    {
+                        combo.AddLoadCaseCoefficient(listUnfavourable[i][j].LoadCase, listUnfavourable[i][j].Coefficient);
+                    }
+                    combinations.Add(combo);
+                }
+            }
+
+            if (limitState == StandardEN1990.LimitState.UltimateEquilibrium || limitState == StandardEN1990.LimitState.UltimateFatigue || limitState == StandardEN1990.LimitState.UltimateGeotechnical || limitState == StandardEN1990.LimitState.UltimateStructural)
+            {
+                List<LoadCaseCoefficient> listFavourableBase = GetFavourableBasicCombinations(loadCases, standardEN1990, limitState, uLS, category);
+                CombinationEn comboBaseFav = new CombinationEn();
+                for (int j = 0; j < listFavourableBase.Count(); j++)
+                {
+                    comboBaseFav.AddLoadCaseCoefficient(listFavourableBase[j].LoadCase, listFavourableBase[j].Coefficient);
+                }
+                combinations.Add(comboBaseFav);
+            }
+
+            List<LoadCaseCoefficient> listUnfavourableBase = GetUnfavourableBasicCombinations(loadCases, standardEN1990, limitState, uLS, category);
+            CombinationEn comboBaseUnfav = new CombinationEn();
+            for (int j = 0; j < listUnfavourableBase.Count(); j++)
+            {
+                comboBaseUnfav.AddLoadCaseCoefficient(listUnfavourableBase[j].LoadCase, listUnfavourableBase[j].Coefficient);
+            }
+            combinations.Add(comboBaseUnfav);
+
+            return combinations;
+        }
+
+        #endregion
+
+
+        #region PRIVATE METHOD
+
+        private static List<LoadCaseCoefficient> GetFavourableBasicCombinations(List<LoadCase> loadCases, StandardEN1990 standardEN1990, StandardEN1990.LimitState limitState, StandardEN1990.ULSCombinationSets uLS, StandardEN1990.ImposedLoadCategory category)
+        {
+            List<LoadCaseCoefficient> loadCaseCoefficientsBuffer = new List<LoadCaseCoefficient>();
+
+            foreach (LoadCase loadCase in loadCases.Where(i => i.GetLoadCaseType() == LoadCase.LoadCaseType.SelfWeight))
+            {
+                LoadCaseCoefficient lc = new LoadCaseCoefficient(GetCoefficientFavourablePermanentActions(loadCase, standardEN1990, limitState, uLS, category), loadCase);
+                loadCaseCoefficientsBuffer.Add(lc);
+            }
+
+            foreach (LoadCase loadCase in loadCases.Where(i => i.GetLoadCaseType() == LoadCase.LoadCaseType.SuperImposedDeadLoad))
+            {
+                LoadCaseCoefficient lc = new LoadCaseCoefficient(GetCoefficientFavourablePermanentActions(loadCase, standardEN1990, limitState, uLS, category), loadCase);
+                loadCaseCoefficientsBuffer.Add(lc);
+            }
+
+            foreach (LoadCase loadCase in loadCases.Where(i => i.GetLoadCaseType() == LoadCase.LoadCaseType.Prestress))
+            {
+                LoadCaseCoefficient lc = new LoadCaseCoefficient(GetCoefficientFavourablePermanentActions(loadCase, standardEN1990, limitState, uLS, category), loadCase);
+                loadCaseCoefficientsBuffer.Add(lc);
+            }
+            return loadCaseCoefficientsBuffer;
+        }
+
+        private static List<LoadCaseCoefficient> GetUnfavourableBasicCombinations(List<LoadCase> loadCases, StandardEN1990 standardEN1990, StandardEN1990.LimitState limitState, StandardEN1990.ULSCombinationSets uLS, StandardEN1990.ImposedLoadCategory category)
+        {
+            List<LoadCaseCoefficient> loadCaseCoefficientsBuffer = new List<LoadCaseCoefficient>();
+
+            foreach (LoadCase loadCase in loadCases.Where(i => i.GetLoadCaseType() == LoadCase.LoadCaseType.SelfWeight))
+            {
+                LoadCaseCoefficient lc = new LoadCaseCoefficient(GetCoefficientUnfavourablePermanentActions(loadCase, standardEN1990, limitState, uLS, category), loadCase);
+                loadCaseCoefficientsBuffer.Add(lc);
+            }
+
+            foreach (LoadCase loadCase in loadCases.Where(i => i.GetLoadCaseType() == LoadCase.LoadCaseType.SuperImposedDeadLoad))
+            {
+                LoadCaseCoefficient lc = new LoadCaseCoefficient(GetCoefficientUnfavourablePermanentActions(loadCase, standardEN1990, limitState, uLS, category), loadCase);
+                loadCaseCoefficientsBuffer.Add(lc);
+            }
+
+            foreach (LoadCase loadCase in loadCases.Where(i => i.GetLoadCaseType() == LoadCase.LoadCaseType.Prestress))
+            {
+                LoadCaseCoefficient lc = new LoadCaseCoefficient(GetCoefficientUnfavourablePermanentActions(loadCase, standardEN1990, limitState, uLS, category), loadCase);
+                loadCaseCoefficientsBuffer.Add(lc);
+            }
+            return loadCaseCoefficientsBuffer;
+        }
+
+        private static List<List<LoadCaseCoefficient>> GetFavourableCombinations(List<LoadCase> loadCases, StandardEN1990 standardEN1990, StandardEN1990.LimitState limitState, StandardEN1990.ULSCombinationSets uLS, StandardEN1990.ImposedLoadCategory category)
+        {
+            List<List<LoadCaseCoefficient>> loadCaseCoefficients = new List<List<LoadCaseCoefficient>>();
+            List<LoadCaseCoefficient> loadCaseCoefficientsBuffer = new List<LoadCaseCoefficient>();
+
+            foreach (LoadCase loadCase in loadCases.Where(i => i.GetLoadCaseType() == LoadCase.LoadCaseType.SelfWeight))
+            {
+                LoadCaseCoefficient lc = new LoadCaseCoefficient(GetCoefficientFavourablePermanentActions(loadCase, standardEN1990, limitState, uLS, category), loadCase);
+                loadCaseCoefficientsBuffer.Add(lc);
+            }
+
+            foreach (LoadCase loadCase in loadCases.Where(i => i.GetLoadCaseType() == LoadCase.LoadCaseType.SuperImposedDeadLoad))
+            {
+                LoadCaseCoefficient lc = new LoadCaseCoefficient(GetCoefficientFavourablePermanentActions(loadCase, standardEN1990, limitState, uLS, category), loadCase);
+                loadCaseCoefficientsBuffer.Add(lc);
+            }
+
+            foreach (LoadCase loadCase in loadCases.Where(i => i.GetLoadCaseType() == LoadCase.LoadCaseType.Prestress))
+            {
+                LoadCaseCoefficient lc = new LoadCaseCoefficient(GetCoefficientFavourablePermanentActions(loadCase, standardEN1990, limitState, uLS, category), loadCase);
+                loadCaseCoefficientsBuffer.Add(lc);
+            }
+
+            List<LoadCase> list = new List<LoadCase>();
+            foreach (LoadCase loadCase in loadCases)
+                if ((loadCase.GetLoadCaseType() != LoadCase.LoadCaseType.Prestress && loadCase.GetLoadCaseType() != LoadCase.LoadCaseType.SelfWeight && loadCase.GetLoadCaseType() != LoadCase.LoadCaseType.SuperImposedDeadLoad))
+                    list.Add(loadCase);
+
+            List<List<LoadCaseCoefficient>> randomList = RandomizeVariableLoads(list, standardEN1990, limitState, uLS, category);
+            for (int i = 0; i < randomList.Count(); i++)
+            {
+                List<LoadCaseCoefficient> tempList = new List<LoadCaseCoefficient>();
+                tempList.AddRange(loadCaseCoefficientsBuffer);
+                tempList.AddRange(randomList[i]);
+                loadCaseCoefficients.Add(tempList);
+            }
+
+            return loadCaseCoefficients;
+        }
+
+        private static List<List<LoadCaseCoefficient>> GetUnfavourableCombinations(List<LoadCase> loadCases, StandardEN1990 standardEN1990, StandardEN1990.LimitState limitState, StandardEN1990.ULSCombinationSets uLS, StandardEN1990.ImposedLoadCategory category)
+        {
+            List<List<LoadCaseCoefficient>> loadCaseCoefficients = new List<List<LoadCaseCoefficient>>();
+            List<LoadCaseCoefficient> loadCaseCoefficientsBuffer = new List<LoadCaseCoefficient>();
+
+            foreach (LoadCase loadCase in loadCases.Where(i => i.GetLoadCaseType() == LoadCase.LoadCaseType.SelfWeight))
+            {
+                LoadCaseCoefficient lc = new LoadCaseCoefficient(GetCoefficientUnfavourablePermanentActions(loadCase, standardEN1990, limitState, uLS, category), loadCase);
+                loadCaseCoefficientsBuffer.Add(lc);
+            }
+
+            foreach (LoadCase loadCase in loadCases.Where(i => i.GetLoadCaseType() == LoadCase.LoadCaseType.SuperImposedDeadLoad))
+            {
+                LoadCaseCoefficient lc = new LoadCaseCoefficient(GetCoefficientUnfavourablePermanentActions(loadCase, standardEN1990, limitState, uLS, category), loadCase);
+                loadCaseCoefficientsBuffer.Add(lc);
+            }
+
+            foreach (LoadCase loadCase in loadCases.Where(i => i.GetLoadCaseType() == LoadCase.LoadCaseType.Prestress))
+            {
+                LoadCaseCoefficient lc = new LoadCaseCoefficient(GetCoefficientUnfavourablePermanentActions(loadCase, standardEN1990, limitState, uLS, category), loadCase);
+                loadCaseCoefficientsBuffer.Add(lc);
+            }
+
+            List<LoadCase> list = new List<LoadCase>();
+            foreach (LoadCase loadCase in loadCases)
+                if ((loadCase.GetLoadCaseType() != LoadCase.LoadCaseType.Prestress && loadCase.GetLoadCaseType() != LoadCase.LoadCaseType.SelfWeight && loadCase.GetLoadCaseType() != LoadCase.LoadCaseType.SuperImposedDeadLoad))
+                    list.Add(loadCase);
+
+            List<List<LoadCaseCoefficient>> randomList = RandomizeVariableLoads(list, standardEN1990, limitState, uLS, category);
+            for (int i = 0; i < randomList.Count(); i++)
+            {
+                List<LoadCaseCoefficient> tempList = new List<LoadCaseCoefficient>();
+                tempList.AddRange(loadCaseCoefficientsBuffer);
+                tempList.AddRange(randomList[i]);
+                loadCaseCoefficients.Add(tempList);
+            }
+
+            return loadCaseCoefficients;
+        }
+
+        private static List<List<LoadCaseCoefficient>> RandomizeVariableLoads(List<LoadCase> list, StandardEN1990 standardEN1990, StandardEN1990.LimitState limitState, StandardEN1990.ULSCombinationSets uLS, StandardEN1990.ImposedLoadCategory category)
+        {
+            List<List<LoadCaseCoefficient>> loadCaseCoefficients = new List<List<LoadCaseCoefficient>>();
+
+            for (int i = 0; i < list.Count(); i++)
+            {
+                List<LoadCaseCoefficient> loadCaseCoefficientsBuffer = new List<LoadCaseCoefficient>();
+                LoadCase loadCaseLead = list[i];
+                LoadCaseCoefficient loadCaseCoefficientLead = new LoadCaseCoefficient(GetCoefficientLeadingVariableAction(loadCaseLead, standardEN1990, limitState, uLS), loadCaseLead);
+                loadCaseCoefficientsBuffer.Add(loadCaseCoefficientLead);
+
+                foreach (LoadCase loadCaseAccompanying in list)
+                {
+                    if (!loadCaseAccompanying.Equals(loadCaseLead))
+                    {
+                        LoadCaseCoefficient loadCaseCoefficientAccompanying = new LoadCaseCoefficient(GetCoefficientAccompanyingVariableAction(loadCaseAccompanying, standardEN1990, limitState, uLS, category), loadCaseAccompanying);
+                        loadCaseCoefficientsBuffer.Add(loadCaseCoefficientAccompanying);
+                    }
+                }
+                loadCaseCoefficients.Add(loadCaseCoefficientsBuffer);
+            }
+            return loadCaseCoefficients;
+        }
+
+        private static double GetCoefficientUnfavourablePermanentActions(LoadCase loadCase, StandardEN1990 standardEN1990, StandardEN1990.LimitState limitState, StandardEN1990.ULSCombinationSets uLS, StandardEN1990.ImposedLoadCategory category)
+        {
+            var loadCaseType = loadCase.GetLoadCaseType();
+            double coef;
+
+            if (loadCaseType == LoadCase.LoadCaseType.SelfWeight || loadCaseType == LoadCase.LoadCaseType.SuperImposedDeadLoad)
+                coef = standardEN1990.GetGammaGUnfavourable(uLS, limitState, loadCase);
+
+            else if (loadCaseType == LoadCase.LoadCaseType.Prestress)
+                coef = standardEN1990.GetGammaPUnfavourable(uLS, limitState, loadCase);
+
+            else
+                throw new Exception("Failed to set coefficient favourable for permanent actions");
+
+            return coef;
+        }
+
+        private static double GetCoefficientFavourablePermanentActions(LoadCase loadCase, StandardEN1990 standardEN1990, StandardEN1990.LimitState limitState, StandardEN1990.ULSCombinationSets uLS, StandardEN1990.ImposedLoadCategory category)
+        {
+            var loadCaseType = loadCase.GetLoadCaseType();
+            double coef;
+
+            if (loadCaseType == LoadCase.LoadCaseType.SelfWeight || loadCaseType == LoadCase.LoadCaseType.SuperImposedDeadLoad)
+                coef = standardEN1990.GetGammaGFavourable(uLS, limitState, loadCase);
+
+            else if (loadCaseType == LoadCase.LoadCaseType.Prestress)
+                coef = standardEN1990.GetGammaPFavourable(uLS, limitState, loadCase);
+
+            else
+                throw new Exception("Failed to set coefficient favourable for permanent actions");
+
+            return coef;
+        }
+
+        private static double GetCoefficientLeadingVariableAction(LoadCase loadCase, StandardEN1990 standardEN1990, StandardEN1990.LimitState limitState, StandardEN1990.ULSCombinationSets uLS)
+        {
+            double gamma = standardEN1990.GetGammaQUnfavourable(uLS, limitState, loadCase);
+            return gamma;
+        }
+
+        private static double GetCoefficientAccompanyingVariableAction(LoadCase loadCase, StandardEN1990 standardEN1990, StandardEN1990.LimitState limitState, StandardEN1990.ULSCombinationSets uLS, StandardEN1990.ImposedLoadCategory category)
+        {
+            double gammaQ = standardEN1990.GetGammaQUnfavourable(uLS, limitState, loadCase);
+            double psi0 = standardEN1990.GetPsi0(category, loadCase);
+            return gammaQ * psi0;
+        }
+
+        #endregion
     }
 }

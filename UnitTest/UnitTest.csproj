@@ -96,7 +96,7 @@
     <Compile Include="ResultTest.cs" />
     <Compile Include="MaterialTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="CombinationTest.cs" />
+    <Compile Include="Combo\CombinationTest.cs" />
     <Compile Include="SectionsTest.cs" />
     <Compile Include="General\SerializationTest.cs" />
     <Compile Include="LoadCaseTest.cs" />
