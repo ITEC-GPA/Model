@@ -107,6 +107,7 @@ namespace GPC.Model.FEM
                 case 4:
                     pts[0] = new GaussPoint(-1.0 / Math.Sqrt(3.0), -1.0 / Math.Sqrt(3.0), 0.0, 1.0);
                     pts[1] = new GaussPoint(+1.0 / Math.Sqrt(3.0), -1.0 / Math.Sqrt(3.0), 0.0, 1.0);
+
                     pts[2] = new GaussPoint(-1.0 / Math.Sqrt(3.0), +1.0 / Math.Sqrt(3.0), 0.0, 1.0);
                     pts[3] = new GaussPoint(+1.0 / Math.Sqrt(3.0), +1.0 / Math.Sqrt(3.0), 0.0, 1.0);
                     break;
@@ -114,9 +115,11 @@ namespace GPC.Model.FEM
                     pts[0] = new GaussPoint(-Math.Sqrt(3.0 / 5.0), -Math.Sqrt(3.0 / 5.0), 0.0, 25.0 / 81.0);
                     pts[1] = new GaussPoint(                  0.0, -Math.Sqrt(3.0 / 5.0), 0.0, 40.0 / 81.0);
                     pts[2] = new GaussPoint(+Math.Sqrt(3.0 / 5.0), -Math.Sqrt(3.0 / 5.0), 0.0, 25.0 / 81.0);
+
                     pts[3] = new GaussPoint(-Math.Sqrt(3.0 / 5.0),                   0.0, 0.0, 40.0 / 81.0);
-                    pts[4] = new GaussPoint(                    0,                   0.0, 0.0, 64.0 / 81.0);
+                    pts[4] = new GaussPoint(                  0.0,                   0.0, 0.0, 64.0 / 81.0);
                     pts[5] = new GaussPoint(+Math.Sqrt(3.0 / 5.0),                   0.0, 0.0, 40.0 / 81.0);
+
                     pts[6] = new GaussPoint(-Math.Sqrt(3.0 / 5.0), +Math.Sqrt(3.0 / 5.0), 0.0, 25.0 / 81.0);
                     pts[7] = new GaussPoint(                  0.0, +Math.Sqrt(3.0 / 5.0), 0.0, 40.0 / 81.0);
                     pts[8] = new GaussPoint(+Math.Sqrt(3.0 / 5.0), +Math.Sqrt(3.0 / 5.0), 0.0, 25.0 / 81.0);

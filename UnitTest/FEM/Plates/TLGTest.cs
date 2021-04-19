@@ -201,6 +201,126 @@ namespace FemTest.Solver
         }
 
         [TestMethod]
+        public void TestBs()
+        {
+            double lx = 2;
+            double ly = 2;
+            double x = 0;
+            double y = 0;
+            int indexNode = 1;
+            FEMUtilities.WriteMatrix(Quad4TripleLaminatedGlass.GetBsi(indexNode, x, y, lx, ly));
+        }
+
+        [TestMethod]
+        public void TestBg()
+        {
+            double lx = 2;
+            double ly = 2;
+            double x = 0;
+            double y = 0;
+            int indexNode = 1;
+            FEMUtilities.WriteMatrix(Quad4TripleLaminatedGlass.GetBgi(indexNode, x, y, lx, ly));
+        }
+
+        [TestMethod]
+        public void TestKLayer1()
+        {
+            List<Node> nodes = new List<Node>();
+            nodes.Add(new Node(0.0, 0.0, 0));
+            nodes.Add(new Node(2.0, 0.0, 0));
+            nodes.Add(new Node(2.0, 2.0, 0));
+            nodes.Add(new Node(0.0, 2.0, 0));
+
+            double lx = nodes[1].Position.X - nodes[0].Position.X;
+            double ly = nodes[3].Position.Y - nodes[0].Position.Y;
+            Console.WriteLine("lx = " + lx);
+            Console.WriteLine("ly = " + ly);
+
+            double h1 = 0.5;
+            double h2 = 0.5;
+            double EGlass = 12.0;
+            double niGlass = 0.2;
+            double G0 = EGlass / (2.0 * (1.0 + niGlass));
+            double h0 = 0.1;
+            double hc = Quad4TripleLaminatedGlass.GetHc(h0, h1, h2);
+
+            Quad4TripleLaminatedGlass e0 = new Quad4TripleLaminatedGlass(new Node[] { nodes[0], nodes[1], nodes[2], nodes[3] }, G0, h0, h1, h2, EGlass, niGlass);
+
+            var pts = GaussIntegration.GetPointsRectangular(1);
+            double csi = pts[0].Point.X;
+            double eta = pts[0].Point.Y;
+
+            double x = FEMUtilities.GetLocalCoordinate2D("x", csi, eta, Quad4Element.GetShapeFunction, nodes.ToArray());
+            double y = FEMUtilities.GetLocalCoordinate2D("y", csi, eta, Quad4Element.GetShapeFunction, nodes.ToArray());
+            Console.WriteLine("x=" + x);
+            Console.WriteLine("y=" + y);
+
+            var Ds = Quad4TripleLaminatedGlass.GetDs(G0, h0, hc);
+            FEMUtilities.WriteMatrix("Ds",Ds);
+
+            int indexNode = 1;
+            var Bs1 = Quad4TripleLaminatedGlass.GetBsi(indexNode, x, y, lx, ly);
+            FEMUtilities.WriteMatrix(Bs1,"F3");
+
+            Console.WriteLine("BsNode1(x="+x+",y="+y+",lx="+lx+",ly="+ly+")");
+            FEMUtilities.WriteMatrix(Bs1.Transpose() * Ds * Bs1,"F3");
+        }
+
+        [TestMethod]
+        public void TestKLayer2()
+        {
+            List<Node> nodes = new List<Node>();
+            nodes.Add(new Node(0.0, 0.0, 0));
+            nodes.Add(new Node(2.0, 0.0, 0));
+            nodes.Add(new Node(2.0, 2.0, 0));
+            nodes.Add(new Node(0.0, 2.0, 0));
+
+            double lx = nodes[1].Position.X - nodes[0].Position.X;
+            double ly = nodes[3].Position.Y - nodes[0].Position.Y;
+            Console.WriteLine("lx = " + lx);
+            Console.WriteLine("ly = " + ly);
+
+            double h1 = 0.5;
+            double h2 = 0.5;
+            double EGlass = 12.0;
+            double niGlass = 0.2;
+            double G0 = EGlass / (2.0 * (1.0 + niGlass));
+            double h0 = 0.1;
+            double hc = Quad4TripleLaminatedGlass.GetHc(h0, h1, h2);
+
+            Quad4TripleLaminatedGlass e0 = new Quad4TripleLaminatedGlass(new Node[] { nodes[0], nodes[1], nodes[2], nodes[3] }, G0, h0, h1, h2, EGlass, niGlass);
+
+            var Ds = Quad4TripleLaminatedGlass.GetDs(G0, h0, hc);
+            FEMUtilities.WriteMatrix("Ds", Ds);
+
+            var pts = GaussIntegration.GetPointsRectangular(4);
+            mnl.Matrix<double> Ks = mnl.Matrix<double>.Build.Dense(6, 6);
+            for (int i = 0; i < pts.Count(); i++)
+            {
+                double csi = pts[i].Point.X;
+                double eta = pts[i].Point.Y;
+
+                double x = FEMUtilities.GetLocalCoordinate2D("x", csi, eta, Quad4Element.GetShapeFunction, nodes.ToArray());
+                double y = FEMUtilities.GetLocalCoordinate2D("y", csi, eta, Quad4Element.GetShapeFunction, nodes.ToArray());
+                Console.WriteLine("x=" + x);
+                Console.WriteLine("y=" + y);
+                Console.WriteLine("weitgh=" + pts[i].Weight);
+
+                int indexNode = 1;
+                var Bs1 = Quad4TripleLaminatedGlass.GetBsi(indexNode, x, y, lx, ly);
+                FEMUtilities.WriteMatrix("BsNode1(x=" + x + ",y=" + y + ",lx=" + lx + ",ly=" + ly + ")", Bs1, "F3");
+
+                Console.WriteLine("weight * BsNode1(x=" + x + ",y=" + y + ",lx=" + lx + ",ly=" + ly + ")");
+                var kGauss = pts[i].Weight * Bs1.Transpose() * Ds * Bs1;
+                FEMUtilities.WriteMatrix(kGauss, "F3");
+
+                Ks = Ks + kGauss;
+            }
+            FEMUtilities.WriteMatrix("Ks = ", Ks, "F3");
+        }
+
+
+        [TestMethod]
         public void Test1()
         {
             List<Node> nodes = new List<Node>();
@@ -219,7 +339,7 @@ namespace FemTest.Solver
             Material mat = new SteelMaterial("mat", EGlass, niGlass, 355, 510, 7850);
             PlateProperty prop = new PlateProperty(mat, h1 + h2 + h0, h1 + h2 + h0, "p");
 
-            FiniteElement e0 = new Quad4TripleLaminatedGlass(new Node[] { nodes[0], nodes[1], nodes[2], nodes[3] }, G0, h0, h1, h2, EGlass, niGlass);
+            Quad4TripleLaminatedGlass e0 = new Quad4TripleLaminatedGlass(new Node[] { nodes[0], nodes[1], nodes[2], nodes[3] }, G0, h0, h1, h2, EGlass, niGlass);
             FiniteElement e1 = new Quad4Element(new Node[] { nodes[0], nodes[1], nodes[2], nodes[3] }, prop);
 
             LoadCase loadCase = new LoadCase("myLoadCase");
@@ -247,6 +367,30 @@ namespace FemTest.Solver
 
             Console.WriteLine("Tripled = " + fem0.GetDisplacementGlobalCoordinates(nodes[2], GPC.Model.FEM.Solver.DOF.DZ));
             Console.WriteLine("Kirchoff = " + fem1.GetDisplacementGlobalCoordinates(nodes[2], GPC.Model.FEM.Solver.DOF.DZ));
+
+            Console.WriteLine("K layer");
+            FEMUtilities.WriteMatrix(e0.KLayer,"F3");
+
+            Console.WriteLine("K Glass");
+            FEMUtilities.WriteMatrix(e0.KGlass);
+
+            /*Console.WriteLine("Bsi(node1, x=0,y=0,lx=2,ly=2");
+            FEMUtilities.WriteMatrix(Quad4TripleLaminatedGlass.GetBsi(1, 0, 0, 2, 2));
+            Console.WriteLine("Bsi(node2, x=0,y=0,lx=2,ly=2");
+            FEMUtilities.WriteMatrix(Quad4TripleLaminatedGlass.GetBsi(2, 0, 0, 2, 2));
+            Console.WriteLine("Bsi(node3, x=0,y=0,lx=2,ly=2");
+            FEMUtilities.WriteMatrix(Quad4TripleLaminatedGlass.GetBsi(3, 0, 0, 2, 2));
+            Console.WriteLine("Bsi(node4,x=0,y=0,lx=2,ly=2");
+            FEMUtilities.WriteMatrix(Quad4TripleLaminatedGlass.GetBsi(4, 0, 0, 2, 2));
+
+            Console.WriteLine("Bsi(node1, x=0.5,y=0.5,lx=2,ly=2");
+            FEMUtilities.WriteMatrix(Quad4TripleLaminatedGlass.GetBsi(1, 0.5, 0.5, 2, 2));
+            Console.WriteLine("Bsi(node2, x=0.5,y=0.5,lx=2,ly=2");
+            FEMUtilities.WriteMatrix(Quad4TripleLaminatedGlass.GetBsi(2, 0.5, 0.5, 2, 2));
+            Console.WriteLine("Bsi(node3, x=0.5,y=0.5,lx=2,ly=2");
+            FEMUtilities.WriteMatrix(Quad4TripleLaminatedGlass.GetBsi(3, 0.5, 0.5, 2, 2));
+            Console.WriteLine("Bsi(node4,x=0.5,y=0.5,lx=2,ly=2");
+            FEMUtilities.WriteMatrix(Quad4TripleLaminatedGlass.GetBsi(4, 0.5, 0.5, 2, 2));*/
         }
 
         [TestMethod]

@@ -31,6 +31,14 @@ namespace GPC.Model.FEM
             #endif
         }
 
+        public static void WriteMatrix(string s, mnl.Matrix<double> m, string format = "F2")
+        {
+#if DEBUG
+            Console.WriteLine(s);
+            WriteMatrix(m, format);
+#endif
+        }
+
         public static void WriteMatrix(mnl.Vector<double> v, string format = "F2")
         {
             #if DEBUG

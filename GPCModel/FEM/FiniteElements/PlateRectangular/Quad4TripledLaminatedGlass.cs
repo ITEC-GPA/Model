@@ -25,6 +25,9 @@ namespace GPC.Model.FEM.FiniteElements
         mnl.Matrix<double> _Dg;
         mnl.Matrix<double> _Ds;
 
+        mnl.Matrix<double> _kLayer;
+        mnl.Matrix<double> _kGlass;
+
         Node[] _localNodes;
         double _lx;
         double _ly;
@@ -33,7 +36,10 @@ namespace GPC.Model.FEM.FiniteElements
         #region properties
         internal mnl.Matrix<double> Dg => _Dg;
         internal mnl.Matrix<double> Ds => _Ds;
+        internal mnl.Matrix<double> KLayer => _kLayer;
+        internal mnl.Matrix<double> KGlass => _kGlass;
         #endregion
+
         /// <summary>
         /// 
         /// </summary>
@@ -194,20 +200,7 @@ namespace GPC.Model.FEM.FiniteElements
             double ni = ((PlateProperty)_property).GetNi();*/
 
             #region Ds - INTERLAYER
-            _Ds = mnl.Matrix<double>.Build.Dense(4, 4); //equation (32)
-            _Ds[0, 0] = 1.0;
-            _Ds[0, 2] = _hc;
-
-            _Ds[1, 1] = 1.0;
-            _Ds[1, 3] = _hc;
-
-            _Ds[2, 0] = _hc;
-            _Ds[2, 2] = _hc * _hc;
-
-            _Ds[3, 1] = _hc;
-            _Ds[3, 3] = _hc * _hc;
-
-            _Ds = _G0 / _h0 * Ds; 
+            _Ds = GetDs(_G0, _h0, _hc);
             #if DEBUG
             /*Console.WriteLine("Ds");
             FEMUtilities.WriteMatrix(Ds);*/
@@ -216,31 +209,7 @@ namespace GPC.Model.FEM.FiniteElements
 
             #region Dg - GLASS
             mnl.Matrix<double> C = Plate.DPlaneStress(_EGlass,_niGlass);
-            _Dg = mnl.Matrix<double>.Build.Dense(6, 6); //equation (45)
-
-            double factor1 = (_h1 * _h2) / (_h1 + _h2);
-            double factor2 = (Math.Pow(_h1,3.0) + Math.Pow(_h2,3.0)) / 12.0;
-
-            /*#if DEBUG
-            Console.WriteLine("Dg factor 1 = " + factor1);
-            Console.WriteLine("Dg factor 2 = " + factor2);
-            #endif*/
-
-            for (int row = 0; row < 3; row++)
-            {
-                for (int col = 0; col < 3; col++)
-                {
-                    _Dg[row, col] = factor1 * C[row, col];
-                }
-            }
-
-            for (int row = 0; row < 3; row++)
-            {
-                for (int col = 0; col < 3; col++)
-                {
-                    _Dg[row + 3, col + 3] = factor2 * C[row, col];
-                }
-            }
+            _Dg = GetDg(_h1, _h2, C);
 
             #if DEBUG
             /*Console.WriteLine("Dg");
@@ -288,10 +257,10 @@ namespace GPC.Model.FEM.FiniteElements
 
             var jacob = FEMUtilities.J2D(Quad4Element.GetdNdCsi, Quad4Element.GetdNdEta, _localNodes);
 
-            mnl.Matrix<double> kLayer = GaussIntegration.IntegrationQuadrilateral(fKLayer, jacob, 9);
-            mnl.Matrix<double> kGlass = GaussIntegration.IntegrationQuadrilateral(fKGlass, jacob, 9);
+            _kLayer = GaussIntegration.IntegrationQuadrilateral(fKLayer, jacob, 9);
+            _kGlass = GaussIntegration.IntegrationQuadrilateral(fKGlass, jacob, 9);
 
-            _kElementLocalCoord = kLayer + kGlass;
+            _kElementLocalCoord = _kLayer + _kGlass;
         }
 
         /// <summary>
@@ -398,6 +367,7 @@ namespace GPC.Model.FEM.FiniteElements
                 Bs = Bs.Append(bsNode);
             }
             return Bs;
+            //return GetBsi(1, x, y, _lx, _ly);//TODO: cancellare
         }
 
         /// <summary>
@@ -418,6 +388,7 @@ namespace GPC.Model.FEM.FiniteElements
                 Bg = Bg.Append(bgNode);
             }
             return Bg;
+            //return GetBgi(1, x, y, _lx, _ly);
         }
 
         public override void GetNodesResults(double[] globalDisplacementsNodes, out double[] localDisplacements, out mnl.Matrix<double>[] gloabalPseudoDeformation, out mnl.Matrix<double>[] localPseudoDeformation, out mnl.Matrix<double>[] globalForces, out mnl.Matrix<double>[] localForces, out mnl.Matrix<double>[] globalStress, out mnl.Matrix<double>[] localStress, out mnl.Matrix<double>[] globalEpsilon, out mnl.Matrix<double>[] localEpsilon)
@@ -909,6 +880,62 @@ namespace GPC.Model.FEM.FiniteElements
             bg[5, 5] = -2.0 * GetdNdxdy(indexNode, 6, lx, ly)(x, y);
 
             return bg;
+        }
+
+        internal static mnl.Matrix<double> GetDs(double G0, double h0, double hc)
+        {
+            var Ds = mnl.Matrix<double>.Build.Dense(4, 4); //equation (32)
+            Ds[0, 0] = 1.0;
+            Ds[0, 2] = hc;
+
+            Ds[1, 1] = 1.0;
+            Ds[1, 3] = hc;
+
+            Ds[2, 0] = hc;
+            Ds[2, 2] = hc * hc;
+
+            Ds[3, 1] = hc;
+            Ds[3, 3] = hc * hc;
+
+            Ds = G0 / h0 * Ds;
+
+            return Ds;
+        }
+
+        internal static mnl.Matrix<double> GetDg(double h1, double h2, mnl.Matrix<double> C)
+        {
+            var Dg = mnl.Matrix<double>.Build.Dense(6, 6); //equation (45)
+
+            double factor1 = (h1 * h2) / (h1 + h2);
+            double factor2 = (Math.Pow(h1, 3.0) + Math.Pow(h2, 3.0)) / 12.0;
+
+            /*#if DEBUG
+            Console.WriteLine("Dg factor 1 = " + factor1);
+            Console.WriteLine("Dg factor 2 = " + factor2);
+            #endif*/
+
+            for (int row = 0; row < 3; row++)
+            {
+                for (int col = 0; col < 3; col++)
+                {
+                    Dg[row, col] = factor1 * C[row, col];
+                }
+            }
+
+            for (int row = 0; row < 3; row++)
+            {
+                for (int col = 0; col < 3; col++)
+                {
+                    Dg[row + 3, col + 3] = factor2 * C[row, col];
+                }
+            }
+
+            return Dg;
+        }
+
+        internal static double GetHc(double h0, double h1, double h2)
+        {
+            return (2.0 * h0 + h1 + h2) / 2.0;
         }
         #endregion
     }
