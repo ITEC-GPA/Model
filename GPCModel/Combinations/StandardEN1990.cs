@@ -275,13 +275,19 @@ namespace GPC.Model.Combinations
        
         private ImposedLoadCategory _imposedLoadCategory;
         public ImposedLoadCategory GetImposedLoadCategory() => _imposedLoadCategory;
-       
+
         #endregion
 
 
         #region PUBLIC METHOD
 
-        public double GetGammaGUnfavourable(ULSCombinationSets set, LimitState limitState, LoadCase loadCase)
+        /// <summary>
+        /// Get the coefficient gamma G unfavourable 
+        /// </summary>
+        /// <param name="set">The ULS combination set (if <paramref name="limitState"/> is an ultimate state limit</param>
+        /// <param name="limitState">The limit state of combinations</param>
+        /// <returns>The value of the coefficient</returns>
+        public double GetGammaGUnfavourable(ULSCombinationSets set, LimitState limitState)
         {
             if (limitState == LimitState.UltimateEquilibrium || limitState == LimitState.UltimateFatigue || limitState == LimitState.UltimateGeotechnical || limitState == LimitState.UltimateStructural)
             {
@@ -310,7 +316,13 @@ namespace GPC.Model.Combinations
 
         }
 
-        public double GetGammaGFavourable(ULSCombinationSets set, LimitState limitState, LoadCase loadCase)
+        /// <summary>
+        /// Get the coefficient gamma G favourable 
+        /// </summary>
+        /// <param name="set">The ULS combination set (if <paramref name="limitState"/> is an ultimate state limit</param>
+        /// <param name="limitState">The limit state of combinations</param>
+        /// <returns>The value of the coefficient</returns>
+        public double GetGammaGFavourable(ULSCombinationSets set, LimitState limitState)
         {
             if (limitState == LimitState.UltimateEquilibrium || limitState == LimitState.UltimateFatigue || limitState == LimitState.UltimateGeotechnical || limitState == LimitState.UltimateStructural)
             {
@@ -338,6 +350,13 @@ namespace GPC.Model.Combinations
                 throw new Exception("Failed to set coefficient gamma G favourable");
         }
 
+        /// <summary>
+        /// Get the coefficient gamma Q unfavourable 
+        /// </summary>
+        /// <param name="set">The ULS combination set (if <paramref name="limitState"/> is an ultimate state limit</param>
+        /// <param name="limitState">The limit state of combinations</param>
+        /// <param name="loadCase">The load case</param>
+        /// <returns>The value of the coefficient</returns>
         public double GetGammaQUnfavourable(ULSCombinationSets set, LimitState limitState, LoadCase loadCase)
         {
             var loadCaseType = loadCase.GetLoadCaseType();
@@ -523,6 +542,13 @@ namespace GPC.Model.Combinations
                 throw new Exception("Failed to set coefficient gamma favourable");
         }
 
+        /// <summary>
+        /// Get the coefficient gamma Q favourable 
+        /// </summary>
+        /// <param name="set">The ULS combination set (if <paramref name="limitState"/> is an ultimate state limit</param>
+        /// <param name="limitState">The limit state of combinations</param>
+        /// <param name="loadCase">The load case</param>
+        /// <returns>The value of the coefficient</returns>
         public double GetGammaQFavourable(ULSCombinationSets set, LimitState limitState, LoadCase loadCase)
         {
             var loadCaseType = loadCase.GetLoadCaseType();
@@ -615,6 +641,13 @@ namespace GPC.Model.Combinations
                 throw new Exception("Failed to set coefficient gamma Q favourable");
         }
 
+        /// <summary>
+        /// Get the coefficient gamma P favourable 
+        /// </summary>
+        /// <param name="set">The ULS combination set (if <paramref name="limitState"/> is an ultimate state limit</param>
+        /// <param name="limitState">The limit state of combinations</param>
+        /// <param name="loadCase">The load case</param>
+        /// <returns>The value of the coefficient</returns>
         public double GetGammaPFavourable(ULSCombinationSets set, LimitState limitState, LoadCase loadCase)
         {
             if (limitState == LimitState.UltimateEquilibrium || limitState == LimitState.UltimateGeotechnical || limitState == LimitState.UltimateFatigue || limitState == LimitState.UltimateStructural)
@@ -649,6 +682,13 @@ namespace GPC.Model.Combinations
                 throw new Exception("Failed to set coefficient gamma P favourable");
         }
 
+        /// <summary>
+        /// Get the coefficient gamma P unfavourable 
+        /// </summary>
+        /// <param name="set">The ULS combination set (if <paramref name="limitState"/> is an ultimate state limit</param>
+        /// <param name="limitState">The limit state of combinations</param>
+        /// <param name="loadCase">The load case</param>
+        /// <returns>The value of the coefficient</returns>
         public double GetGammaPUnfavourable(ULSCombinationSets set, LimitState limitState, LoadCase loadCase)
         {
             if (limitState == LimitState.UltimateEquilibrium || limitState == LimitState.UltimateGeotechnical || limitState == LimitState.UltimateFatigue || limitState == LimitState.UltimateStructural)
@@ -683,6 +723,12 @@ namespace GPC.Model.Combinations
                 throw new Exception("Failed to set coefficient gamma P favourable");
         }
 
+        /// <summary>
+        /// Get the coefficient psi 0
+        /// </summary>
+        /// <param name="category">The category of the imposed load</param>
+        /// <param name="loadCase">The load case</param>
+        /// <returns>The value of the coefficient</returns>
         public double GetPsi0(ImposedLoadCategory category, LoadCase loadCase)
         {
             var loadCaseType = loadCase.GetLoadCaseType();
@@ -743,6 +789,12 @@ namespace GPC.Model.Combinations
             }            
         }
 
+        /// <summary>
+        /// Get the coefficient psi 1
+        /// </summary>
+        /// <param name="category">The category of the imposed load</param>
+        /// <param name="loadCase">The load case</param>
+        /// <returns>The value of the coefficient</returns>
         public double GetPsi1(ImposedLoadCategory category, LoadCase loadCase)
         {
             var loadCaseType = loadCase.GetLoadCaseType();
@@ -803,6 +855,12 @@ namespace GPC.Model.Combinations
             }
         }
 
+        /// <summary>
+        /// Get the coefficient psi 2
+        /// </summary>
+        /// <param name="category">The category of the imposed load</param>
+        /// <param name="loadCase">The load case</param>
+        /// <returns>The value of the coefficient</returns>
         public double GetPsi2(ImposedLoadCategory category, LoadCase loadCase)
         {
             var loadCaseType = loadCase.GetLoadCaseType();

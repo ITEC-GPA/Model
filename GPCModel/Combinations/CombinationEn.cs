@@ -88,6 +88,15 @@ namespace GPC.Model.Combinations
 
         #region PUBLIC METHOD   
 
+        /// <summary>
+        /// Generate the combinations of design with the <paramref name="standardEN1990"/> normative
+        /// </summary>
+        /// <param name="loadCases">List of load cases</param>
+        /// <param name="standardEN1990">The used normative</param>
+        /// <param name="limitState">The limit state of combinations</param>
+        /// <param name="uLS">The ULS combination set (if <paramref name="limitState"/> is an ultimate state limit</param>
+        /// <param name="category">The category of the imposed load</param>
+        /// <returns>A list of combination</returns>
         public static List<CombinationEn> GenerateCombinations(List<LoadCase> loadCases, StandardEN1990 standardEN1990, StandardEN1990.LimitState limitState, StandardEN1990.ULSCombinationSets uLS, StandardEN1990.ImposedLoadCategory category)
         {
             List<CombinationEn> combinations = new List<CombinationEn>();
@@ -146,6 +155,15 @@ namespace GPC.Model.Combinations
 
         #region PRIVATE METHOD
 
+        /// <summary>
+        /// Generate all the combination for permanent loads with favourable coefficients
+        /// </summary>
+        /// <param name="loadCases">List of load cases</param>
+        /// <param name="standardEN1990">The used normative</param>
+        /// <param name="limitState">The limit state of combinations</param>
+        /// <param name="uLS">The ULS combination set (if <paramref name="limitState"/> is an ultimate state limit</param>
+        /// <param name="category">The category of the imposed load</param>
+        /// <returns>A list of load case coefficient</returns>
         private static List<LoadCaseCoefficient> GetFavourableBasicCombinations(List<LoadCase> loadCases, StandardEN1990 standardEN1990, StandardEN1990.LimitState limitState, StandardEN1990.ULSCombinationSets uLS, StandardEN1990.ImposedLoadCategory category)
         {
             List<LoadCaseCoefficient> loadCaseCoefficientsBuffer = new List<LoadCaseCoefficient>();
@@ -170,6 +188,15 @@ namespace GPC.Model.Combinations
             return loadCaseCoefficientsBuffer;
         }
 
+        /// <summary>
+        /// Generate all the combination for permanent loads with unfavourable coefficients
+        /// </summary>
+        /// <param name="loadCases">List of load cases</param>
+        /// <param name="standardEN1990">The used normative</param>
+        /// <param name="limitState">The limit state of combinations</param>
+        /// <param name="uLS">The ULS combination set (if <paramref name="limitState"/> is an ultimate state limit</param>
+        /// <param name="category">The category of the imposed load</param>
+        /// <returns>A list of load case coefficient</returns>
         private static List<LoadCaseCoefficient> GetUnfavourableBasicCombinations(List<LoadCase> loadCases, StandardEN1990 standardEN1990, StandardEN1990.LimitState limitState, StandardEN1990.ULSCombinationSets uLS, StandardEN1990.ImposedLoadCategory category)
         {
             List<LoadCaseCoefficient> loadCaseCoefficientsBuffer = new List<LoadCaseCoefficient>();
@@ -194,6 +221,15 @@ namespace GPC.Model.Combinations
             return loadCaseCoefficientsBuffer;
         }
 
+        /// <summary>
+        /// Generate all the combination with favourable coefficients
+        /// </summary>
+        /// <param name="loadCases">List of load cases</param>
+        /// <param name="standardEN1990">The used normative</param>
+        /// <param name="limitState">The limit state of combinations</param>
+        /// <param name="uLS">The ULS combination set (if <paramref name="limitState"/> is an ultimate state limit</param>
+        /// <param name="category">The category of the imposed load</param>
+        /// <returns>A list of load case coefficient</returns>
         private static List<List<LoadCaseCoefficient>> GetFavourableCombinations(List<LoadCase> loadCases, StandardEN1990 standardEN1990, StandardEN1990.LimitState limitState, StandardEN1990.ULSCombinationSets uLS, StandardEN1990.ImposedLoadCategory category)
         {
             List<List<LoadCaseCoefficient>> loadCaseCoefficients = new List<List<LoadCaseCoefficient>>();
@@ -234,6 +270,15 @@ namespace GPC.Model.Combinations
             return loadCaseCoefficients;
         }
 
+        /// <summary>
+        /// Generate all the combination with unfavourable coefficients
+        /// </summary>
+        /// <param name="loadCases">List of load cases</param>
+        /// <param name="standardEN1990">The used normative</param>
+        /// <param name="limitState">The limit state of combinations</param>
+        /// <param name="uLS">The ULS combination set (if <paramref name="limitState"/> is an ultimate state limit</param>
+        /// <param name="category">The category of the imposed load</param>
+        /// <returns>A list of load case coefficient</returns>
         private static List<List<LoadCaseCoefficient>> GetUnfavourableCombinations(List<LoadCase> loadCases, StandardEN1990 standardEN1990, StandardEN1990.LimitState limitState, StandardEN1990.ULSCombinationSets uLS, StandardEN1990.ImposedLoadCategory category)
         {
             List<List<LoadCaseCoefficient>> loadCaseCoefficients = new List<List<LoadCaseCoefficient>>();
@@ -274,6 +319,15 @@ namespace GPC.Model.Combinations
             return loadCaseCoefficients;
         }
 
+        /// <summary>
+        /// Generate all the combination for the variable loads
+        /// </summary>
+        /// <param name="list">List of load cases</param>
+        /// <param name="standardEN1990">The used normative</param>
+        /// <param name="limitState">The limit state of combinations</param>
+        /// <param name="uLS">The ULS combination set (if <paramref name="limitState"/> is an ultimate state limit</param>
+        /// <param name="category">The category of the imposed load</param>
+        /// <returns>A list of list of load case coefficient</returns>
         private static List<List<LoadCaseCoefficient>> RandomizeVariableLoads(List<LoadCase> list, StandardEN1990 standardEN1990, StandardEN1990.LimitState limitState, StandardEN1990.ULSCombinationSets uLS, StandardEN1990.ImposedLoadCategory category)
         {
             List<List<LoadCaseCoefficient>> loadCaseCoefficients = new List<List<LoadCaseCoefficient>>();
@@ -298,13 +352,22 @@ namespace GPC.Model.Combinations
             return loadCaseCoefficients;
         }
 
+        /// <summary>
+        /// Return the coefficient of unfavourable permanent actions
+        /// </summary>
+        /// <param name="loadCase">The load cases (only SelfWeight, SuperImposedDeadLoad and Prestress)</param>
+        /// <param name="standardEN1990">The used normative</param>
+        /// <param name="limitState">The limit state of combinations</param>
+        /// <param name="uLS">The ULS combination set (if <paramref name="limitState"/> is an ultimate state limit</param>
+        /// <param name="category">The category of the imposed load</param>
+        /// <returns>The coefficient</returns>
         private static double GetCoefficientUnfavourablePermanentActions(LoadCase loadCase, StandardEN1990 standardEN1990, StandardEN1990.LimitState limitState, StandardEN1990.ULSCombinationSets uLS, StandardEN1990.ImposedLoadCategory category)
         {
             var loadCaseType = loadCase.GetLoadCaseType();
             double coef;
 
             if (loadCaseType == LoadCase.LoadCaseType.SelfWeight || loadCaseType == LoadCase.LoadCaseType.SuperImposedDeadLoad)
-                coef = standardEN1990.GetGammaGUnfavourable(uLS, limitState, loadCase);
+                coef = standardEN1990.GetGammaGUnfavourable(uLS, limitState);
 
             else if (loadCaseType == LoadCase.LoadCaseType.Prestress)
                 coef = standardEN1990.GetGammaPUnfavourable(uLS, limitState, loadCase);
@@ -315,13 +378,22 @@ namespace GPC.Model.Combinations
             return coef;
         }
 
+        /// <summary>
+        /// Return the coefficient of favourable permanent actions
+        /// </summary>
+        /// <param name="loadCase">The load cases (only SelfWeight, SuperImposedDeadLoad and Prestress)</param>
+        /// <param name="standardEN1990">The used normative</param>
+        /// <param name="limitState">The limit state of combinations</param>
+        /// <param name="uLS">The ULS combination set (if <paramref name="limitState"/> is an ultimate state limit</param>
+        /// <param name="category">The category of the imposed load</param>
+        /// <returns>The coefficient</returns>
         private static double GetCoefficientFavourablePermanentActions(LoadCase loadCase, StandardEN1990 standardEN1990, StandardEN1990.LimitState limitState, StandardEN1990.ULSCombinationSets uLS, StandardEN1990.ImposedLoadCategory category)
         {
             var loadCaseType = loadCase.GetLoadCaseType();
             double coef;
 
             if (loadCaseType == LoadCase.LoadCaseType.SelfWeight || loadCaseType == LoadCase.LoadCaseType.SuperImposedDeadLoad)
-                coef = standardEN1990.GetGammaGFavourable(uLS, limitState, loadCase);
+                coef = standardEN1990.GetGammaGFavourable(uLS, limitState);
 
             else if (loadCaseType == LoadCase.LoadCaseType.Prestress)
                 coef = standardEN1990.GetGammaPFavourable(uLS, limitState, loadCase);
@@ -332,12 +404,29 @@ namespace GPC.Model.Combinations
             return coef;
         }
 
+        /// <summary>
+        /// Return the coefficient of leading variable actions
+        /// </summary>
+        /// <param name="loadCase">The load cases (only variable load are accepted)MO</param>
+        /// <param name="standardEN1990">The used normative</param>
+        /// <param name="limitState">The limit state of combinations</param>
+        /// <param name="uLS">The ULS combination set (if <paramref name="limitState"/> is an ultimate state limit</param>
+        /// <returns>The coefficient</returns>
         private static double GetCoefficientLeadingVariableAction(LoadCase loadCase, StandardEN1990 standardEN1990, StandardEN1990.LimitState limitState, StandardEN1990.ULSCombinationSets uLS)
         {
             double gamma = standardEN1990.GetGammaQUnfavourable(uLS, limitState, loadCase);
             return gamma;
         }
 
+        /// <summary>
+        /// Return the coefficient of accompanying variable actions
+        /// </summary>
+        /// <param name="loadCase">the load cases (only variable load are accepted)</param>
+        /// <param name="standardEN1990">The used normative</param>
+        /// <param name="limitState">The limit state of combinations</param>
+        /// <param name="uLS">The ULS combination set (if <paramref name="limitState"/> is an ultimate state limit</param>
+        /// <param name="category">The category of the imposed load</param>
+        /// <returns>The coefficient</returns>
         private static double GetCoefficientAccompanyingVariableAction(LoadCase loadCase, StandardEN1990 standardEN1990, StandardEN1990.LimitState limitState, StandardEN1990.ULSCombinationSets uLS, StandardEN1990.ImposedLoadCategory category)
         {
             double gammaQ = standardEN1990.GetGammaQUnfavourable(uLS, limitState, loadCase);
