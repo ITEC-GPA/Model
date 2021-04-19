@@ -13,7 +13,7 @@ namespace GPC.Model.FEM.Collections
         /// will be copied to the <see cref="Stage.StageProperty"/> associated the <paramref name="item"/>
         /// </summary>
         /// <inheritdoc cref="FemObjectStageCollection{T, D}.Add(T, D)"/>
-        public override int Add(Node item)
+        public int Add(Node item)
         {
             var sfep = new Stage.StageProperty();
             sfep.AddLoadCaseAttributes(item.AttributesLoadCase.Cast<LoadCaseAttribute>().ToList());
@@ -29,7 +29,7 @@ namespace GPC.Model.FEM.Collections
         /// will be copied to the <see cref="Stage.StageProperty"/> associated the <paramref name="item"/>
         /// </summary>
         /// <inheritdoc cref="FemObjectStageCollection{T, D}.SetItem(T, D)"/>
-        public new int SetItem(Node item)
+        public int SetItem(Node item)
         {
             var sfep = new Stage.StageProperty();
             sfep.AddLoadCaseAttributes(item.AttributesLoadCase.Cast<LoadCaseAttribute>().ToList());

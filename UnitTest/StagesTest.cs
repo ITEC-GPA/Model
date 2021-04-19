@@ -111,7 +111,7 @@ namespace FemTest
                 var fe = enumerator.Current;
                 if (fe.Id > 4)
                 {
-                    stage2.AddFiniteElement(fe, p2);
+                    stage2.AddFiniteElement(fe, p2.Name);
                 }
                 else
                 {
@@ -156,7 +156,7 @@ namespace FemTest
                 var fe = enumerator.Current;
                 if (fe.Id > 4)
                 {
-                    stage2.AddFiniteElement(fe, p2);
+                    stage2.AddFiniteElement(fe, p2.Name);
                 }
                 else
                 {
