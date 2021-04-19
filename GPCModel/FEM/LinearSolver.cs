@@ -76,11 +76,6 @@ namespace GPC.Model.FEM
                         Node oldNode = nodes.Single();
                         int ID = oldNode.Id; //tra i 2 ID da poter scegliere uso quello del nodo già usato
 
-                        if (node.Name != oldNode.Name) //if the nodes have different name --> generally shuld not happen
-                        {
-                            node.Name = node.Name + "+" + oldNode.Name;
-                        }
-
                         for (int k = 0; k < MAXDOFPERNODE; k++) //over degree of freedom
                         {
                             if (element.DOF.Contains((DOF)k))
