@@ -265,20 +265,20 @@ namespace GPC.Model.Combinations
         #endregion
 
 
-        #region GETTER
-       
-        private LimitState _limitState;
-        public LimitState GetLimitState() => _limitState;
-       
-        private ULSCombinationSets _ULSCombinationSets;
-        public ULSCombinationSets GetULSCombinationSets() => _ULSCombinationSets;
-       
-        private ImposedLoadCategory _imposedLoadCategory;
-        public ImposedLoadCategory GetImposedLoadCategory() => _imposedLoadCategory;
-
-        public bool IsHighAltitude() => _isHighAltitude;
-
-        #endregion
+      //   #region GETTER
+      //
+      //   private LimitState _limitState;
+      //   public LimitState GetLimitState() => _limitState;
+      //  
+      //   private ULSCombinationSets _ULSCombinationSets;
+      //   public ULSCombinationSets GetULSCombinationSets() => _ULSCombinationSets;
+      //  
+      //   private ImposedLoadCategory _imposedLoadCategory;
+      //   public ImposedLoadCategory GetImposedLoadCategory() => _imposedLoadCategory;
+      // 
+      //   public bool IsHighAltitude() => _isHighAltitude;
+      // 
+      //   #endregion
 
 
         #region PUBLIC METHOD

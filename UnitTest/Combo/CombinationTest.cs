@@ -226,11 +226,13 @@ namespace ModelObjectTest
             string loadCaseName4 = "PreStress";
             LoadCase prestressLoadCase = new LoadCase(loadCaseName4, LoadCase.LoadCaseType.Prestress);
 
-            List<LoadCase> loadCaseList = new List<LoadCase>();
-            loadCaseList.Add(selfWeightLoadCase);
-            loadCaseList.Add(windLoadCase);
-            loadCaseList.Add(snowLoadCase);
-            loadCaseList.Add(prestressLoadCase);
+            List<LoadCase> loadCaseList = new List<LoadCase>
+            {
+                selfWeightLoadCase,
+                windLoadCase,
+                snowLoadCase,
+                prestressLoadCase
+            };
 
             StandardEN1990 standardEN1990 = new StandardEN1990();
             StandardEN1990.ImposedLoadCategory category = StandardEN1990.ImposedLoadCategory.CategoryC;
@@ -267,11 +269,13 @@ namespace ModelObjectTest
             string loadCaseName4 = "PreStress";
             LoadCase prestressLoadCase = new LoadCase(loadCaseName4, LoadCase.LoadCaseType.Prestress);
 
-            List<LoadCase> loadCaseList = new List<LoadCase>();
-            loadCaseList.Add(selfWeightLoadCase);
-            loadCaseList.Add(windLoadCase);
-            loadCaseList.Add(snowLoadCase);
-            loadCaseList.Add(prestressLoadCase);
+            List<LoadCase> loadCaseList = new List<LoadCase>
+            {
+                selfWeightLoadCase,
+                windLoadCase,
+                snowLoadCase,
+                prestressLoadCase
+            };
 
             StandardEN1990 standardEN1990 = new StandardEN1990();
             StandardEN1990.ImposedLoadCategory category = StandardEN1990.ImposedLoadCategory.CategoryA;
@@ -308,11 +312,13 @@ namespace ModelObjectTest
             string loadCaseName4 = "PreStress";
             LoadCase prestressLoadCase = new LoadCase(loadCaseName4, LoadCase.LoadCaseType.Prestress);
 
-            List<LoadCase> loadCaseList = new List<LoadCase>();
-            loadCaseList.Add(selfWeightLoadCase);
-            loadCaseList.Add(windLoadCase);
-            loadCaseList.Add(snowLoadCase);
-            loadCaseList.Add(prestressLoadCase);
+            List<LoadCase> loadCaseList = new List<LoadCase>
+            {
+                selfWeightLoadCase,
+                windLoadCase,
+                snowLoadCase,
+                prestressLoadCase
+            };
 
             StandardEN1990 standardEN1990 = new StandardEN1990();
             StandardEN1990.ImposedLoadCategory category = StandardEN1990.ImposedLoadCategory.CategoryE;
@@ -349,11 +355,13 @@ namespace ModelObjectTest
             string loadCaseName4 = "PreStress";
             LoadCase prestressLoadCase = new LoadCase(loadCaseName4, LoadCase.LoadCaseType.Prestress);
 
-            List<LoadCase> loadCaseList = new List<LoadCase>();
-            loadCaseList.Add(selfWeightLoadCase);
-            loadCaseList.Add(windLoadCase);
-            loadCaseList.Add(snowLoadCase);
-            loadCaseList.Add(prestressLoadCase);
+            List<LoadCase> loadCaseList = new List<LoadCase>
+            {
+                selfWeightLoadCase,
+                windLoadCase,
+                snowLoadCase,
+                prestressLoadCase
+            };
 
             StandardEN1990 standardEN1990 = new StandardEN1990();
             StandardEN1990.ImposedLoadCategory category = StandardEN1990.ImposedLoadCategory.CategoryD;
@@ -390,11 +398,13 @@ namespace ModelObjectTest
             string loadCaseName4 = "PreStress";
             LoadCase prestressLoadCase = new LoadCase(loadCaseName4, LoadCase.LoadCaseType.Prestress);
 
-            List<LoadCase> loadCaseList = new List<LoadCase>();
-            loadCaseList.Add(selfWeightLoadCase);
-            loadCaseList.Add(windLoadCase);
-            loadCaseList.Add(snowLoadCase);
-            loadCaseList.Add(prestressLoadCase);
+            List<LoadCase> loadCaseList = new List<LoadCase>
+            {
+                selfWeightLoadCase,
+                windLoadCase,
+                snowLoadCase,
+                prestressLoadCase
+            };
 
             StandardEN1990 standardEN1990 = new StandardEN1990();
             StandardEN1990.ImposedLoadCategory category = StandardEN1990.ImposedLoadCategory.CategoryA;
@@ -431,11 +441,13 @@ namespace ModelObjectTest
             string loadCaseName4 = "PreStress";
             LoadCase prestressLoadCase = new LoadCase(loadCaseName4, LoadCase.LoadCaseType.Prestress);
 
-            List<LoadCase> loadCaseList = new List<LoadCase>();
-            loadCaseList.Add(selfWeightLoadCase);
-            loadCaseList.Add(windLoadCase);
-            loadCaseList.Add(snowLoadCase);
-            loadCaseList.Add(prestressLoadCase);
+            List<LoadCase> loadCaseList = new List<LoadCase>
+            {
+                selfWeightLoadCase,
+                windLoadCase,
+                snowLoadCase,
+                prestressLoadCase
+            };
 
             StandardEN1990 standardEN1990 = new StandardEN1990();
             StandardEN1990.ImposedLoadCategory category = StandardEN1990.ImposedLoadCategory.CategoryD;
@@ -472,11 +484,13 @@ namespace ModelObjectTest
             string loadCaseName4 = "PreStress";
             LoadCase prestressLoadCase = new LoadCase(loadCaseName4, LoadCase.LoadCaseType.Prestress);
 
-            List<LoadCase> loadCaseList = new List<LoadCase>();
-            loadCaseList.Add(selfWeightLoadCase);
-            loadCaseList.Add(windLoadCase);
-            loadCaseList.Add(snowLoadCase);
-            loadCaseList.Add(prestressLoadCase);
+            List<LoadCase> loadCaseList = new List<LoadCase>
+            {
+                selfWeightLoadCase,
+                windLoadCase,
+                snowLoadCase,
+                prestressLoadCase
+            };
 
             StandardEN1990 standardEN1990 = new StandardEN1990();
             StandardEN1990.ImposedLoadCategory category = StandardEN1990.ImposedLoadCategory.CategoryG;
@@ -513,11 +527,13 @@ namespace ModelObjectTest
             string loadCaseName4 = "PreStress";
             LoadCase prestressLoadCase = new LoadCase(loadCaseName4, LoadCase.LoadCaseType.Prestress);
 
-            List<LoadCase> loadCaseList = new List<LoadCase>();
-            loadCaseList.Add(selfWeightLoadCase);
-            loadCaseList.Add(windLoadCase);
-            loadCaseList.Add(snowLoadCase);
-            loadCaseList.Add(prestressLoadCase);
+            List<LoadCase> loadCaseList = new List<LoadCase>
+            {
+                selfWeightLoadCase,
+                windLoadCase,
+                snowLoadCase,
+                prestressLoadCase
+            };
 
             StandardEN1990 standardEN1990 = new StandardEN1990();
             StandardEN1990.ImposedLoadCategory category = StandardEN1990.ImposedLoadCategory.CategoryA;
@@ -554,11 +570,13 @@ namespace ModelObjectTest
             string loadCaseName4 = "PreStress";
             LoadCase prestressLoadCase = new LoadCase(loadCaseName4, LoadCase.LoadCaseType.Prestress);
 
-            List<LoadCase> loadCaseList = new List<LoadCase>();
-            loadCaseList.Add(selfWeightLoadCase);
-            loadCaseList.Add(windLoadCase);
-            loadCaseList.Add(snowLoadCase);
-            loadCaseList.Add(prestressLoadCase);
+            List<LoadCase> loadCaseList = new List<LoadCase>
+            {
+                selfWeightLoadCase,
+                windLoadCase,
+                snowLoadCase,
+                prestressLoadCase
+            };
 
             StandardEN1990 standardEN1990 = new StandardEN1990();
             StandardEN1990.ImposedLoadCategory category = StandardEN1990.ImposedLoadCategory.CategoryG;
@@ -595,11 +613,13 @@ namespace ModelObjectTest
             string loadCaseName4 = "PreStress";
             LoadCase prestressLoadCase = new LoadCase(loadCaseName4, LoadCase.LoadCaseType.Prestress);
 
-            List<LoadCase> loadCaseList = new List<LoadCase>();
-            loadCaseList.Add(selfWeightLoadCase);
-            loadCaseList.Add(windLoadCase);
-            loadCaseList.Add(snowLoadCase);
-            loadCaseList.Add(prestressLoadCase);
+            List<LoadCase> loadCaseList = new List<LoadCase>
+            {
+                selfWeightLoadCase,
+                windLoadCase,
+                snowLoadCase,
+                prestressLoadCase
+            };
 
             StandardEN1990 standardEN1990 = new StandardEN1990();
             StandardEN1990.ImposedLoadCategory category = StandardEN1990.ImposedLoadCategory.CategoryF;
@@ -636,11 +656,13 @@ namespace ModelObjectTest
             string loadCaseName4 = "PreStress";
             LoadCase prestressLoadCase = new LoadCase(loadCaseName4, LoadCase.LoadCaseType.Prestress);
 
-            List<LoadCase> loadCaseList = new List<LoadCase>();
-            loadCaseList.Add(selfWeightLoadCase);
-            loadCaseList.Add(windLoadCase);
-            loadCaseList.Add(snowLoadCase);
-            loadCaseList.Add(prestressLoadCase);
+            List<LoadCase> loadCaseList = new List<LoadCase>
+            {
+                selfWeightLoadCase,
+                windLoadCase,
+                snowLoadCase,
+                prestressLoadCase
+            };
 
             StandardEN1990 standardEN1990 = new StandardEN1990();
             StandardEN1990.ImposedLoadCategory category = StandardEN1990.ImposedLoadCategory.CategoryA;
@@ -677,11 +699,13 @@ namespace ModelObjectTest
             string loadCaseName4 = "PreStress";
             LoadCase prestressLoadCase = new LoadCase(loadCaseName4, LoadCase.LoadCaseType.Prestress);
 
-            List<LoadCase> loadCaseList = new List<LoadCase>();
-            loadCaseList.Add(superImposedDeadLoadLoadCase);
-            loadCaseList.Add(windLoadCase);
-            loadCaseList.Add(snowLoadCase);
-            loadCaseList.Add(prestressLoadCase);
+            List<LoadCase> loadCaseList = new List<LoadCase>
+            {
+                superImposedDeadLoadLoadCase,
+                windLoadCase,
+                snowLoadCase,
+                prestressLoadCase
+            };
 
             StandardEN1990 standardEN1990 = new StandardEN1990();
             StandardEN1990.ImposedLoadCategory category = StandardEN1990.ImposedLoadCategory.CategoryF;
@@ -718,11 +742,13 @@ namespace ModelObjectTest
             string loadCaseName4 = "PreStress";
             LoadCase prestressLoadCase = new LoadCase(loadCaseName4, LoadCase.LoadCaseType.Prestress);
 
-            List<LoadCase> loadCaseList = new List<LoadCase>();
-            loadCaseList.Add(selfWeightLoadCase);
-            loadCaseList.Add(windLoadCase);
-            loadCaseList.Add(snowLoadCase);
-            loadCaseList.Add(prestressLoadCase);
+            List<LoadCase> loadCaseList = new List<LoadCase>
+            {
+                selfWeightLoadCase,
+                windLoadCase,
+                snowLoadCase,
+                prestressLoadCase
+            };
 
             StandardEN1990 standardEN1990 = new StandardEN1990();
             StandardEN1990.ImposedLoadCategory category = StandardEN1990.ImposedLoadCategory.CategoryA;
@@ -756,11 +782,13 @@ namespace ModelObjectTest
             string loadCaseName4 = "PreStress";
             LoadCase prestressLoadCase = new LoadCase(loadCaseName4, LoadCase.LoadCaseType.Prestress);
 
-            List<LoadCase> loadCaseList = new List<LoadCase>();
-            loadCaseList.Add(selfWeightLoadCase);
-            loadCaseList.Add(windLoadCase);
-            loadCaseList.Add(snowLoadCase);
-            loadCaseList.Add(prestressLoadCase);
+            List<LoadCase> loadCaseList = new List<LoadCase>
+            {
+                selfWeightLoadCase,
+                windLoadCase,
+                snowLoadCase,
+                prestressLoadCase
+            };
 
             StandardEN1990 standardEN1990 = new StandardEN1990();
             StandardEN1990.ImposedLoadCategory category = StandardEN1990.ImposedLoadCategory.CategoryA;
@@ -794,11 +822,13 @@ namespace ModelObjectTest
             string loadCaseName4 = "PreStress";
             LoadCase prestressLoadCase = new LoadCase(loadCaseName4, LoadCase.LoadCaseType.Prestress);
 
-            List<LoadCase> loadCaseList = new List<LoadCase>();
-            loadCaseList.Add(selfWeightLoadCase);
-            loadCaseList.Add(windLoadCase);
-            loadCaseList.Add(snowLoadCase);
-            loadCaseList.Add(prestressLoadCase);
+            List<LoadCase> loadCaseList = new List<LoadCase>
+            {
+                selfWeightLoadCase,
+                windLoadCase,
+                snowLoadCase,
+                prestressLoadCase
+            };
 
             StandardEN1990 standardEN1990 = new StandardEN1990();
             StandardEN1990.ImposedLoadCategory category = StandardEN1990.ImposedLoadCategory.CategoryA;

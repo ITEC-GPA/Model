@@ -170,19 +170,19 @@ namespace GPC.Model.Combinations
 
             foreach (LoadCase loadCase in loadCases.Where(i => i.GetLoadCaseType() == LoadCase.LoadCaseType.SelfWeight))
             {
-                LoadCaseCoefficient lc = new LoadCaseCoefficient(GetCoefficientFavourablePermanentActions(loadCase, standardEN1990, limitState, uLS, category), loadCase);
+                LoadCaseCoefficient lc = new LoadCaseCoefficient(GetCoefficientFavourablePermanentActions(loadCase, standardEN1990, limitState, uLS), loadCase);
                 loadCaseCoefficientsBuffer.Add(lc);
             }
 
             foreach (LoadCase loadCase in loadCases.Where(i => i.GetLoadCaseType() == LoadCase.LoadCaseType.SuperImposedDeadLoad))
             {
-                LoadCaseCoefficient lc = new LoadCaseCoefficient(GetCoefficientFavourablePermanentActions(loadCase, standardEN1990, limitState, uLS, category), loadCase);
+                LoadCaseCoefficient lc = new LoadCaseCoefficient(GetCoefficientFavourablePermanentActions(loadCase, standardEN1990, limitState, uLS), loadCase);
                 loadCaseCoefficientsBuffer.Add(lc);
             }
 
             foreach (LoadCase loadCase in loadCases.Where(i => i.GetLoadCaseType() == LoadCase.LoadCaseType.Prestress))
             {
-                LoadCaseCoefficient lc = new LoadCaseCoefficient(GetCoefficientFavourablePermanentActions(loadCase, standardEN1990, limitState, uLS, category), loadCase);
+                LoadCaseCoefficient lc = new LoadCaseCoefficient(GetCoefficientFavourablePermanentActions(loadCase, standardEN1990, limitState, uLS), loadCase);
                 loadCaseCoefficientsBuffer.Add(lc);
             }
             return loadCaseCoefficientsBuffer;
@@ -203,19 +203,19 @@ namespace GPC.Model.Combinations
 
             foreach (LoadCase loadCase in loadCases.Where(i => i.GetLoadCaseType() == LoadCase.LoadCaseType.SelfWeight))
             {
-                LoadCaseCoefficient lc = new LoadCaseCoefficient(GetCoefficientUnfavourablePermanentActions(loadCase, standardEN1990, limitState, uLS, category), loadCase);
+                LoadCaseCoefficient lc = new LoadCaseCoefficient(GetCoefficientUnfavourablePermanentActions(loadCase, standardEN1990, limitState, uLS), loadCase);
                 loadCaseCoefficientsBuffer.Add(lc);
             }
 
             foreach (LoadCase loadCase in loadCases.Where(i => i.GetLoadCaseType() == LoadCase.LoadCaseType.SuperImposedDeadLoad))
             {
-                LoadCaseCoefficient lc = new LoadCaseCoefficient(GetCoefficientUnfavourablePermanentActions(loadCase, standardEN1990, limitState, uLS, category), loadCase);
+                LoadCaseCoefficient lc = new LoadCaseCoefficient(GetCoefficientUnfavourablePermanentActions(loadCase, standardEN1990, limitState, uLS), loadCase);
                 loadCaseCoefficientsBuffer.Add(lc);
             }
 
             foreach (LoadCase loadCase in loadCases.Where(i => i.GetLoadCaseType() == LoadCase.LoadCaseType.Prestress))
             {
-                LoadCaseCoefficient lc = new LoadCaseCoefficient(GetCoefficientUnfavourablePermanentActions(loadCase, standardEN1990, limitState, uLS, category), loadCase);
+                LoadCaseCoefficient lc = new LoadCaseCoefficient(GetCoefficientUnfavourablePermanentActions(loadCase, standardEN1990, limitState, uLS), loadCase);
                 loadCaseCoefficientsBuffer.Add(lc);
             }
             return loadCaseCoefficientsBuffer;
@@ -237,19 +237,19 @@ namespace GPC.Model.Combinations
 
             foreach (LoadCase loadCase in loadCases.Where(i => i.GetLoadCaseType() == LoadCase.LoadCaseType.SelfWeight))
             {
-                LoadCaseCoefficient lc = new LoadCaseCoefficient(GetCoefficientFavourablePermanentActions(loadCase, standardEN1990, limitState, uLS, category), loadCase);
+                LoadCaseCoefficient lc = new LoadCaseCoefficient(GetCoefficientFavourablePermanentActions(loadCase, standardEN1990, limitState, uLS), loadCase);
                 loadCaseCoefficientsBuffer.Add(lc);
             }
 
             foreach (LoadCase loadCase in loadCases.Where(i => i.GetLoadCaseType() == LoadCase.LoadCaseType.SuperImposedDeadLoad))
             {
-                LoadCaseCoefficient lc = new LoadCaseCoefficient(GetCoefficientFavourablePermanentActions(loadCase, standardEN1990, limitState, uLS, category), loadCase);
+                LoadCaseCoefficient lc = new LoadCaseCoefficient(GetCoefficientFavourablePermanentActions(loadCase, standardEN1990, limitState, uLS), loadCase);
                 loadCaseCoefficientsBuffer.Add(lc);
             }
 
             foreach (LoadCase loadCase in loadCases.Where(i => i.GetLoadCaseType() == LoadCase.LoadCaseType.Prestress))
             {
-                LoadCaseCoefficient lc = new LoadCaseCoefficient(GetCoefficientFavourablePermanentActions(loadCase, standardEN1990, limitState, uLS, category), loadCase);
+                LoadCaseCoefficient lc = new LoadCaseCoefficient(GetCoefficientFavourablePermanentActions(loadCase, standardEN1990, limitState, uLS), loadCase);
                 loadCaseCoefficientsBuffer.Add(lc);
             }
 
@@ -286,19 +286,19 @@ namespace GPC.Model.Combinations
 
             foreach (LoadCase loadCase in loadCases.Where(i => i.GetLoadCaseType() == LoadCase.LoadCaseType.SelfWeight))
             {
-                LoadCaseCoefficient lc = new LoadCaseCoefficient(GetCoefficientUnfavourablePermanentActions(loadCase, standardEN1990, limitState, uLS, category), loadCase);
+                LoadCaseCoefficient lc = new LoadCaseCoefficient(GetCoefficientUnfavourablePermanentActions(loadCase, standardEN1990, limitState, uLS), loadCase);
                 loadCaseCoefficientsBuffer.Add(lc);
             }
 
             foreach (LoadCase loadCase in loadCases.Where(i => i.GetLoadCaseType() == LoadCase.LoadCaseType.SuperImposedDeadLoad))
             {
-                LoadCaseCoefficient lc = new LoadCaseCoefficient(GetCoefficientUnfavourablePermanentActions(loadCase, standardEN1990, limitState, uLS, category), loadCase);
+                LoadCaseCoefficient lc = new LoadCaseCoefficient(GetCoefficientUnfavourablePermanentActions(loadCase, standardEN1990, limitState, uLS), loadCase);
                 loadCaseCoefficientsBuffer.Add(lc);
             }
 
             foreach (LoadCase loadCase in loadCases.Where(i => i.GetLoadCaseType() == LoadCase.LoadCaseType.Prestress))
             {
-                LoadCaseCoefficient lc = new LoadCaseCoefficient(GetCoefficientUnfavourablePermanentActions(loadCase, standardEN1990, limitState, uLS, category), loadCase);
+                LoadCaseCoefficient lc = new LoadCaseCoefficient(GetCoefficientUnfavourablePermanentActions(loadCase, standardEN1990, limitState, uLS), loadCase);
                 loadCaseCoefficientsBuffer.Add(lc);
             }
 
@@ -359,9 +359,8 @@ namespace GPC.Model.Combinations
         /// <param name="standardEN1990">The used normative</param>
         /// <param name="limitState">The limit state of combinations</param>
         /// <param name="uLS">The ULS combination set (if <paramref name="limitState"/> is an ultimate state limit</param>
-        /// <param name="category">The category of the imposed load</param>
         /// <returns>The coefficient</returns>
-        private static double GetCoefficientUnfavourablePermanentActions(LoadCase loadCase, StandardEN1990 standardEN1990, StandardEN1990.LimitState limitState, StandardEN1990.ULSCombinationSets uLS, StandardEN1990.ImposedLoadCategory category)
+        private static double GetCoefficientUnfavourablePermanentActions(LoadCase loadCase, StandardEN1990 standardEN1990, StandardEN1990.LimitState limitState, StandardEN1990.ULSCombinationSets uLS)
         {
             var loadCaseType = loadCase.GetLoadCaseType();
             double coef;
@@ -385,9 +384,8 @@ namespace GPC.Model.Combinations
         /// <param name="standardEN1990">The used normative</param>
         /// <param name="limitState">The limit state of combinations</param>
         /// <param name="uLS">The ULS combination set (if <paramref name="limitState"/> is an ultimate state limit</param>
-        /// <param name="category">The category of the imposed load</param>
         /// <returns>The coefficient</returns>
-        private static double GetCoefficientFavourablePermanentActions(LoadCase loadCase, StandardEN1990 standardEN1990, StandardEN1990.LimitState limitState, StandardEN1990.ULSCombinationSets uLS, StandardEN1990.ImposedLoadCategory category)
+        private static double GetCoefficientFavourablePermanentActions(LoadCase loadCase, StandardEN1990 standardEN1990, StandardEN1990.LimitState limitState, StandardEN1990.ULSCombinationSets uLS)
         {
             var loadCaseType = loadCase.GetLoadCaseType();
             double coef;
@@ -411,6 +409,7 @@ namespace GPC.Model.Combinations
         /// <param name="standardEN1990">The used normative</param>
         /// <param name="limitState">The limit state of combinations</param>
         /// <param name="uLS">The ULS combination set (if <paramref name="limitState"/> is an ultimate state limit</param>
+        /// <param name="category">The category of the imposed load</param>
         /// <returns>The coefficient</returns>
         private static double GetCoefficientLeadingVariableAction(LoadCase loadCase, StandardEN1990 standardEN1990, StandardEN1990.LimitState limitState, StandardEN1990.ULSCombinationSets uLS, StandardEN1990.ImposedLoadCategory category)
         {
