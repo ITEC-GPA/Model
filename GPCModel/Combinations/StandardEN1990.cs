@@ -276,6 +276,8 @@ namespace GPC.Model.Combinations
         private ImposedLoadCategory _imposedLoadCategory;
         public ImposedLoadCategory GetImposedLoadCategory() => _imposedLoadCategory;
 
+        public bool IsHighAltitude() => _isHighAltitude;
+
         #endregion
 
 
@@ -411,102 +413,7 @@ namespace GPC.Model.Combinations
                         case LoadCase.LoadCaseType.Temperature:
                         case LoadCase.LoadCaseType.ClimateSummer:
                         case LoadCase.LoadCaseType.ClimateWinter:
-                            return _gammaQUnfavourableSetB;
-
-                        default:
-                            throw new Exception("Not implemented coefficient for load case type");
-                    }
-                }
-                else
-                    throw new NotImplementedException("Not implemented Annex");
-            }
-            else if (limitState == LimitState.ServiceabilityQuasiPermanent)
-            {
-                if (set == ULSCombinationSets.SetA)
-                {
-                    if (loadCaseType == LoadCase.LoadCaseType.Snow)
-                    {
-                        if (IsHighAltidute)
-                            return Psi0SnowHighAltitude;
-                        else
-                            return Psi0SnowLowAltitude;
-                    }
-                    switch (loadCaseType)
-                    {
-                        case LoadCase.LoadCaseType.LiveLoad:
-                            throw new Exception("Not implemented coefficient for load case type");
-                        case LoadCase.LoadCaseType.Wind:
-                            return _psi0Wind;
-                        case LoadCase.LoadCaseType.Maintenance:
-                            throw new Exception("Not implemented coefficient for load case type");
-                        case LoadCase.LoadCaseType.Earthquake:
-                            throw new Exception("Not implemented coefficient for load case type");
-                        case LoadCase.LoadCaseType.Temperature:
-                            return _psi0Temperature;
-                        case LoadCase.LoadCaseType.ClimateSummer:
-                            throw new Exception("Not implemented coefficient for load case type");
-                        case LoadCase.LoadCaseType.ClimateWinter:
-                            throw new Exception("Not implemented coefficient for load case type");
-
-                        default:
-                            throw new Exception("Not implemented coefficient for load case type");
-                    }                    
-                }
-                else if (set == ULSCombinationSets.SetB)
-                {
-                    if (loadCaseType == LoadCase.LoadCaseType.Snow)
-                    {
-                        if (IsHighAltidute)
-                            return Psi0SnowHighAltitude;
-                        else
-                            return Psi0SnowLowAltitude;
-                    }
-                    switch (loadCaseType)
-                    {
-                        case LoadCase.LoadCaseType.LiveLoad:
-                            throw new Exception("Not implemented coefficient for load case type");
-                        case LoadCase.LoadCaseType.Wind:
-                            return _psi0Wind;
-                        case LoadCase.LoadCaseType.Maintenance:
-                            throw new Exception("Not implemented coefficient for load case type");
-                        case LoadCase.LoadCaseType.Earthquake:
-                            throw new Exception("Not implemented coefficient for load case type");
-                        case LoadCase.LoadCaseType.Temperature:
-                            return _psi0Temperature;
-                        case LoadCase.LoadCaseType.ClimateSummer:
-                            throw new Exception("Not implemented coefficient for load case type");
-                        case LoadCase.LoadCaseType.ClimateWinter:
-                            throw new Exception("Not implemented coefficient for load case type");
-
-                        default:
-                            throw new Exception("Not implemented coefficient for load case type");
-                    }
-                }
-                else if (set == ULSCombinationSets.SetC)
-                {
-                    if (loadCaseType == LoadCase.LoadCaseType.Snow)
-                    {
-                        if (IsHighAltidute)
-                            return Psi0SnowHighAltitude;
-                        else
-                            return Psi0SnowLowAltitude;
-                    }
-                    switch (loadCaseType)
-                    {
-                        case LoadCase.LoadCaseType.LiveLoad:
-                            throw new Exception("Not implemented coefficient for load case type");
-                        case LoadCase.LoadCaseType.Wind:
-                            return _psi0Wind;
-                        case LoadCase.LoadCaseType.Maintenance:
-                            throw new Exception("Not implemented coefficient for load case type");
-                        case LoadCase.LoadCaseType.Earthquake:
-                            throw new Exception("Not implemented coefficient for load case type");
-                        case LoadCase.LoadCaseType.Temperature:
-                            return _psi0Temperature;
-                        case LoadCase.LoadCaseType.ClimateSummer:
-                            throw new Exception("Not implemented coefficient for load case type");
-                        case LoadCase.LoadCaseType.ClimateWinter:
-                            throw new Exception("Not implemented coefficient for load case type");
+                            return _gammaQUnfavourableSetC;
 
                         default:
                             throw new Exception("Not implemented coefficient for load case type");
@@ -724,7 +631,7 @@ namespace GPC.Model.Combinations
         }
 
         /// <summary>
-        /// Get the coefficient psi 0
+        /// Get the coefficient psi 0 for buildings
         /// </summary>
         /// <param name="category">The category of the imposed load</param>
         /// <param name="loadCase">The load case</param>
@@ -790,7 +697,7 @@ namespace GPC.Model.Combinations
         }
 
         /// <summary>
-        /// Get the coefficient psi 1
+        /// Get the coefficient psi 1 for buildings
         /// </summary>
         /// <param name="category">The category of the imposed load</param>
         /// <param name="loadCase">The load case</param>
@@ -856,7 +763,7 @@ namespace GPC.Model.Combinations
         }
 
         /// <summary>
-        /// Get the coefficient psi 2
+        /// Get the coefficient psi 2 for buildings
         /// </summary>
         /// <param name="category">The category of the imposed load</param>
         /// <param name="loadCase">The load case</param>

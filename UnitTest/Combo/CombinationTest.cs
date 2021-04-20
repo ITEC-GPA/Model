@@ -214,6 +214,47 @@ namespace ModelObjectTest
         }
 
         [TestMethod]
+        public void GeneratorUltimateStructuralSetA()
+        {
+            // Arrange
+            string loadCaseName1 = "selfWeight";
+            LoadCase selfWeightLoadCase = new LoadCase(loadCaseName1, LoadCase.LoadCaseType.SelfWeight);
+            string loadCaseName2 = "Wind";
+            LoadCase windLoadCase = new LoadCase(loadCaseName2, LoadCase.LoadCaseType.Wind);
+            string loadCaseName3 = "Snow";
+            LoadCase snowLoadCase = new LoadCase(loadCaseName3, LoadCase.LoadCaseType.Snow);
+            string loadCaseName4 = "PreStress";
+            LoadCase prestressLoadCase = new LoadCase(loadCaseName4, LoadCase.LoadCaseType.Prestress);
+
+            List<LoadCase> loadCaseList = new List<LoadCase>();
+            loadCaseList.Add(selfWeightLoadCase);
+            loadCaseList.Add(windLoadCase);
+            loadCaseList.Add(snowLoadCase);
+            loadCaseList.Add(prestressLoadCase);
+
+            StandardEN1990 standardEN1990 = new StandardEN1990();
+            StandardEN1990.ImposedLoadCategory category = StandardEN1990.ImposedLoadCategory.CategoryC;
+            StandardEN1990.LimitState limitState = StandardEN1990.LimitState.UltimateStructural;
+            StandardEN1990.ULSCombinationSets uLSCombinationSets = StandardEN1990.ULSCombinationSets.SetA;
+
+            // Act
+            List<CombinationEn> outList = CombinationEn.GenerateCombinations(loadCaseList, standardEN1990, limitState, uLSCombinationSets, category);
+
+            // Assert
+            Assert.IsTrue(outList.Count() == 6);
+            Assert.IsTrue(Math.Abs(outList[0][selfWeightLoadCase] - 0.90) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[1][selfWeightLoadCase] - 0.90) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[2][selfWeightLoadCase] - 1.10) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[3][selfWeightLoadCase] - 1.10) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[4][selfWeightLoadCase] - 0.90) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[5][selfWeightLoadCase] - 1.10) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[0][windLoadCase] - 1.5) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[1][snowLoadCase] - 1.5) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[0][snowLoadCase] - 0.75) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[1][windLoadCase] - 0.90) < 0.001);
+        }
+
+        [TestMethod]
         public void GeneratorUltimateStructuralSetB()
         {
             // Arrange
@@ -255,6 +296,88 @@ namespace ModelObjectTest
         }
 
         [TestMethod]
+        public void GeneratorUltimateStructuralSetC()
+        {
+            // Arrange
+            string loadCaseName1 = "selfWeight";
+            LoadCase selfWeightLoadCase = new LoadCase(loadCaseName1, LoadCase.LoadCaseType.SelfWeight);
+            string loadCaseName2 = "Wind";
+            LoadCase windLoadCase = new LoadCase(loadCaseName2, LoadCase.LoadCaseType.Wind);
+            string loadCaseName3 = "Snow";
+            LoadCase snowLoadCase = new LoadCase(loadCaseName3, LoadCase.LoadCaseType.Snow);
+            string loadCaseName4 = "PreStress";
+            LoadCase prestressLoadCase = new LoadCase(loadCaseName4, LoadCase.LoadCaseType.Prestress);
+
+            List<LoadCase> loadCaseList = new List<LoadCase>();
+            loadCaseList.Add(selfWeightLoadCase);
+            loadCaseList.Add(windLoadCase);
+            loadCaseList.Add(snowLoadCase);
+            loadCaseList.Add(prestressLoadCase);
+
+            StandardEN1990 standardEN1990 = new StandardEN1990();
+            StandardEN1990.ImposedLoadCategory category = StandardEN1990.ImposedLoadCategory.CategoryE;
+            StandardEN1990.LimitState limitState = StandardEN1990.LimitState.UltimateStructural;
+            StandardEN1990.ULSCombinationSets uLSCombinationSets = StandardEN1990.ULSCombinationSets.SetC;
+
+            // Act
+            List<CombinationEn> outList = CombinationEn.GenerateCombinations(loadCaseList, standardEN1990, limitState, uLSCombinationSets, category);
+
+            // Assert
+            Assert.IsTrue(outList.Count() == 6);
+            Assert.IsTrue(Math.Abs(outList[0][selfWeightLoadCase] - 1.00) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[1][selfWeightLoadCase] - 1.00) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[2][selfWeightLoadCase] - 1.00) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[3][selfWeightLoadCase] - 1.00) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[4][selfWeightLoadCase] - 1.00) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[5][selfWeightLoadCase] - 1.00) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[0][windLoadCase] - 1.3) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[1][snowLoadCase] - 1.3) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[0][snowLoadCase] - 0.65) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[1][windLoadCase] - 0.78) < 0.001);
+        }
+
+        [TestMethod]
+        public void GeneratorUltimateEquilibriumSetA()
+        {
+            // Arrange
+            string loadCaseName1 = "selfWeight";
+            LoadCase selfWeightLoadCase = new LoadCase(loadCaseName1, LoadCase.LoadCaseType.SelfWeight);
+            string loadCaseName2 = "Wind";
+            LoadCase windLoadCase = new LoadCase(loadCaseName2, LoadCase.LoadCaseType.Wind);
+            string loadCaseName3 = "Snow";
+            LoadCase snowLoadCase = new LoadCase(loadCaseName3, LoadCase.LoadCaseType.Snow);
+            string loadCaseName4 = "PreStress";
+            LoadCase prestressLoadCase = new LoadCase(loadCaseName4, LoadCase.LoadCaseType.Prestress);
+
+            List<LoadCase> loadCaseList = new List<LoadCase>();
+            loadCaseList.Add(selfWeightLoadCase);
+            loadCaseList.Add(windLoadCase);
+            loadCaseList.Add(snowLoadCase);
+            loadCaseList.Add(prestressLoadCase);
+
+            StandardEN1990 standardEN1990 = new StandardEN1990();
+            StandardEN1990.ImposedLoadCategory category = StandardEN1990.ImposedLoadCategory.CategoryD;
+            StandardEN1990.LimitState limitState = StandardEN1990.LimitState.UltimateEquilibrium;
+            StandardEN1990.ULSCombinationSets uLSCombinationSets = StandardEN1990.ULSCombinationSets.SetA;
+
+            // Act
+            List<CombinationEn> outList = CombinationEn.GenerateCombinations(loadCaseList, standardEN1990, limitState, uLSCombinationSets, category);
+
+            // Assert
+            Assert.IsTrue(outList.Count() == 6);
+            Assert.IsTrue(Math.Abs(outList[0][selfWeightLoadCase] - 0.90) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[1][selfWeightLoadCase] - 0.90) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[2][selfWeightLoadCase] - 1.10) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[3][selfWeightLoadCase] - 1.10) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[4][selfWeightLoadCase] - 0.90) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[5][selfWeightLoadCase] - 1.10) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[0][windLoadCase] - 1.5) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[1][snowLoadCase] - 1.5) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[0][snowLoadCase] - 0.75) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[1][windLoadCase] - 0.90) < 0.001);
+        }
+
+        [TestMethod]
         public void GeneratorUltimateEquilibriumSetB()
         {
             // Arrange
@@ -289,6 +412,88 @@ namespace ModelObjectTest
             Assert.IsTrue(Math.Abs(outList[3][selfWeightLoadCase] - 1.35) < 0.001);
             Assert.IsTrue(Math.Abs(outList[4][selfWeightLoadCase] - 1.00) < 0.001);
             Assert.IsTrue(Math.Abs(outList[5][selfWeightLoadCase] - 1.35) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[0][windLoadCase] - 1.5) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[1][snowLoadCase] - 1.5) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[0][snowLoadCase] - 0.75) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[1][windLoadCase] - 0.90) < 0.001);
+        }
+
+        [TestMethod]
+        public void GeneratorUltimateEquilibriumSetC()
+        {
+            // Arrange
+            string loadCaseName1 = "selfWeight";
+            LoadCase selfWeightLoadCase = new LoadCase(loadCaseName1, LoadCase.LoadCaseType.SelfWeight);
+            string loadCaseName2 = "Temperature";
+            LoadCase windLoadCase = new LoadCase(loadCaseName2, LoadCase.LoadCaseType.Temperature);
+            string loadCaseName3 = "Snow";
+            LoadCase snowLoadCase = new LoadCase(loadCaseName3, LoadCase.LoadCaseType.Snow);
+            string loadCaseName4 = "PreStress";
+            LoadCase prestressLoadCase = new LoadCase(loadCaseName4, LoadCase.LoadCaseType.Prestress);
+
+            List<LoadCase> loadCaseList = new List<LoadCase>();
+            loadCaseList.Add(selfWeightLoadCase);
+            loadCaseList.Add(windLoadCase);
+            loadCaseList.Add(snowLoadCase);
+            loadCaseList.Add(prestressLoadCase);
+
+            StandardEN1990 standardEN1990 = new StandardEN1990();
+            StandardEN1990.ImposedLoadCategory category = StandardEN1990.ImposedLoadCategory.CategoryD;
+            StandardEN1990.LimitState limitState = StandardEN1990.LimitState.UltimateEquilibrium;
+            StandardEN1990.ULSCombinationSets uLSCombinationSets = StandardEN1990.ULSCombinationSets.SetC;
+
+            // Act
+            List<CombinationEn> outList = CombinationEn.GenerateCombinations(loadCaseList, standardEN1990, limitState, uLSCombinationSets, category);
+
+            // Assert
+            Assert.IsTrue(outList.Count() == 6);
+            Assert.IsTrue(Math.Abs(outList[0][selfWeightLoadCase] - 1.00) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[1][selfWeightLoadCase] - 1.00) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[2][selfWeightLoadCase] - 1.00) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[3][selfWeightLoadCase] - 1.00) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[4][selfWeightLoadCase] - 1.00) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[5][selfWeightLoadCase] - 1.00) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[0][windLoadCase] - 1.3) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[1][snowLoadCase] - 1.3) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[0][snowLoadCase] - 0.65) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[1][windLoadCase] - 0.78) < 0.001);
+        }
+
+        [TestMethod]
+        public void GeneratorUltimateFatigueSetA()
+        {
+            // Arrange
+            string loadCaseName1 = "selfWeight";
+            LoadCase selfWeightLoadCase = new LoadCase(loadCaseName1, LoadCase.LoadCaseType.SelfWeight);
+            string loadCaseName2 = "Wind";
+            LoadCase windLoadCase = new LoadCase(loadCaseName2, LoadCase.LoadCaseType.Wind);
+            string loadCaseName3 = "Snow";
+            LoadCase snowLoadCase = new LoadCase(loadCaseName3, LoadCase.LoadCaseType.Snow);
+            string loadCaseName4 = "PreStress";
+            LoadCase prestressLoadCase = new LoadCase(loadCaseName4, LoadCase.LoadCaseType.Prestress);
+
+            List<LoadCase> loadCaseList = new List<LoadCase>();
+            loadCaseList.Add(selfWeightLoadCase);
+            loadCaseList.Add(windLoadCase);
+            loadCaseList.Add(snowLoadCase);
+            loadCaseList.Add(prestressLoadCase);
+
+            StandardEN1990 standardEN1990 = new StandardEN1990();
+            StandardEN1990.ImposedLoadCategory category = StandardEN1990.ImposedLoadCategory.CategoryG;
+            StandardEN1990.LimitState limitState = StandardEN1990.LimitState.UltimateFatigue;
+            StandardEN1990.ULSCombinationSets uLSCombinationSets = StandardEN1990.ULSCombinationSets.SetA;
+
+            // Act
+            List<CombinationEn> outList = CombinationEn.GenerateCombinations(loadCaseList, standardEN1990, limitState, uLSCombinationSets, category);
+
+            // Assert
+            Assert.IsTrue(outList.Count() == 6);
+            Assert.IsTrue(Math.Abs(outList[0][selfWeightLoadCase] - 0.90) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[1][selfWeightLoadCase] - 0.90) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[2][selfWeightLoadCase] - 1.10) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[3][selfWeightLoadCase] - 1.10) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[4][selfWeightLoadCase] - 0.90) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[5][selfWeightLoadCase] - 1.10) < 0.001);
             Assert.IsTrue(Math.Abs(outList[0][windLoadCase] - 1.5) < 0.001);
             Assert.IsTrue(Math.Abs(outList[1][snowLoadCase] - 1.5) < 0.001);
             Assert.IsTrue(Math.Abs(outList[0][snowLoadCase] - 0.75) < 0.001);
@@ -337,130 +542,7 @@ namespace ModelObjectTest
         }
 
         [TestMethod]
-        public void GeneratorUltimateGeotechnicalSetB()
-        {
-            // Arrange
-            string loadCaseName1 = "selfWeight";
-            LoadCase selfWeightLoadCase = new LoadCase(loadCaseName1, LoadCase.LoadCaseType.SelfWeight);
-            string loadCaseName2 = "Wind";
-            LoadCase windLoadCase = new LoadCase(loadCaseName2, LoadCase.LoadCaseType.Wind);
-            string loadCaseName3 = "Snow";
-            LoadCase snowLoadCase = new LoadCase(loadCaseName3, LoadCase.LoadCaseType.Snow);
-            string loadCaseName4 = "PreStress";
-            LoadCase prestressLoadCase = new LoadCase(loadCaseName4, LoadCase.LoadCaseType.Prestress);
-
-            List<LoadCase> loadCaseList = new List<LoadCase>();
-            loadCaseList.Add(selfWeightLoadCase);
-            loadCaseList.Add(windLoadCase);
-            loadCaseList.Add(snowLoadCase);
-            loadCaseList.Add(prestressLoadCase);
-
-            StandardEN1990 standardEN1990 = new StandardEN1990();
-            StandardEN1990.ImposedLoadCategory category = StandardEN1990.ImposedLoadCategory.CategoryA;
-            StandardEN1990.LimitState limitState = StandardEN1990.LimitState.UltimateGeotechnical;
-            StandardEN1990.ULSCombinationSets uLSCombinationSets = StandardEN1990.ULSCombinationSets.SetB;
-
-            // Act
-            List<CombinationEn> outList = CombinationEn.GenerateCombinations(loadCaseList, standardEN1990, limitState, uLSCombinationSets, category);
-
-            // Assert
-            Assert.IsTrue(outList.Count() == 6);
-            Assert.IsTrue(Math.Abs(outList[0][selfWeightLoadCase] - 1.00) < 0.001);
-            Assert.IsTrue(Math.Abs(outList[1][selfWeightLoadCase] - 1.00) < 0.001);
-            Assert.IsTrue(Math.Abs(outList[2][selfWeightLoadCase] - 1.35) < 0.001);
-            Assert.IsTrue(Math.Abs(outList[3][selfWeightLoadCase] - 1.35) < 0.001);
-            Assert.IsTrue(Math.Abs(outList[4][selfWeightLoadCase] - 1.00) < 0.001);
-            Assert.IsTrue(Math.Abs(outList[5][selfWeightLoadCase] - 1.35) < 0.001);
-            Assert.IsTrue(Math.Abs(outList[0][windLoadCase] - 1.5) < 0.001);
-            Assert.IsTrue(Math.Abs(outList[1][snowLoadCase] - 1.5) < 0.001);
-            Assert.IsTrue(Math.Abs(outList[0][snowLoadCase] - 0.75) < 0.001);
-            Assert.IsTrue(Math.Abs(outList[1][windLoadCase] - 0.90) < 0.001);
-        }
-
-        [TestMethod]
-        public void GeneratorUltimateStructuralSetA()
-        {
-            // Arrange
-            string loadCaseName1 = "selfWeight";
-            LoadCase selfWeightLoadCase = new LoadCase(loadCaseName1, LoadCase.LoadCaseType.SelfWeight);
-            string loadCaseName2 = "Wind";
-            LoadCase windLoadCase = new LoadCase(loadCaseName2, LoadCase.LoadCaseType.Wind);
-            string loadCaseName3 = "Snow";
-            LoadCase snowLoadCase = new LoadCase(loadCaseName3, LoadCase.LoadCaseType.Snow);
-            string loadCaseName4 = "PreStress";
-            LoadCase prestressLoadCase = new LoadCase(loadCaseName4, LoadCase.LoadCaseType.Prestress);
-
-            List<LoadCase> loadCaseList = new List<LoadCase>();
-            loadCaseList.Add(selfWeightLoadCase);
-            loadCaseList.Add(windLoadCase);
-            loadCaseList.Add(snowLoadCase);
-            loadCaseList.Add(prestressLoadCase);
-
-            StandardEN1990 standardEN1990 = new StandardEN1990();
-            StandardEN1990.ImposedLoadCategory category = StandardEN1990.ImposedLoadCategory.CategoryC;
-            StandardEN1990.LimitState limitState = StandardEN1990.LimitState.UltimateStructural;
-            StandardEN1990.ULSCombinationSets uLSCombinationSets = StandardEN1990.ULSCombinationSets.SetA;
-
-            // Act
-            List<CombinationEn> outList = CombinationEn.GenerateCombinations(loadCaseList, standardEN1990, limitState, uLSCombinationSets, category);
-
-            // Assert
-            Assert.IsTrue(outList.Count() == 6);
-            Assert.IsTrue(Math.Abs(outList[0][selfWeightLoadCase] - 0.90) < 0.001);
-            Assert.IsTrue(Math.Abs(outList[1][selfWeightLoadCase] - 0.90) < 0.001);
-            Assert.IsTrue(Math.Abs(outList[2][selfWeightLoadCase] - 1.10) < 0.001);
-            Assert.IsTrue(Math.Abs(outList[3][selfWeightLoadCase] - 1.10) < 0.001);
-            Assert.IsTrue(Math.Abs(outList[4][selfWeightLoadCase] - 0.90) < 0.001);
-            Assert.IsTrue(Math.Abs(outList[5][selfWeightLoadCase] - 1.10) < 0.001);
-            Assert.IsTrue(Math.Abs(outList[0][windLoadCase] - 1.5) < 0.001);
-            Assert.IsTrue(Math.Abs(outList[1][snowLoadCase] - 1.5) < 0.001);
-            Assert.IsTrue(Math.Abs(outList[0][snowLoadCase] - 0.75) < 0.001);
-            Assert.IsTrue(Math.Abs(outList[1][windLoadCase] - 0.90) < 0.001);
-        }
-        
-        [TestMethod]
-        public void GeneratorUltimateEquilibriumSetA()
-        {
-            // Arrange
-            string loadCaseName1 = "selfWeight";
-            LoadCase selfWeightLoadCase = new LoadCase(loadCaseName1, LoadCase.LoadCaseType.SelfWeight);
-            string loadCaseName2 = "Wind";
-            LoadCase windLoadCase = new LoadCase(loadCaseName2, LoadCase.LoadCaseType.Wind);
-            string loadCaseName3 = "Snow";
-            LoadCase snowLoadCase = new LoadCase(loadCaseName3, LoadCase.LoadCaseType.Snow);
-            string loadCaseName4 = "PreStress";
-            LoadCase prestressLoadCase = new LoadCase(loadCaseName4, LoadCase.LoadCaseType.Prestress);
-
-            List<LoadCase> loadCaseList = new List<LoadCase>();
-            loadCaseList.Add(selfWeightLoadCase);
-            loadCaseList.Add(windLoadCase);
-            loadCaseList.Add(snowLoadCase);
-            loadCaseList.Add(prestressLoadCase);
-
-            StandardEN1990 standardEN1990 = new StandardEN1990();
-            StandardEN1990.ImposedLoadCategory category = StandardEN1990.ImposedLoadCategory.CategoryD;
-            StandardEN1990.LimitState limitState = StandardEN1990.LimitState.UltimateEquilibrium;
-            StandardEN1990.ULSCombinationSets uLSCombinationSets = StandardEN1990.ULSCombinationSets.SetA;
-
-            // Act
-            List<CombinationEn> outList = CombinationEn.GenerateCombinations(loadCaseList, standardEN1990, limitState, uLSCombinationSets, category);
-
-            // Assert
-            Assert.IsTrue(outList.Count() == 6);
-            Assert.IsTrue(Math.Abs(outList[0][selfWeightLoadCase] - 0.90) < 0.001);
-            Assert.IsTrue(Math.Abs(outList[1][selfWeightLoadCase] - 0.90) < 0.001);
-            Assert.IsTrue(Math.Abs(outList[2][selfWeightLoadCase] - 1.10) < 0.001);
-            Assert.IsTrue(Math.Abs(outList[3][selfWeightLoadCase] - 1.10) < 0.001);
-            Assert.IsTrue(Math.Abs(outList[4][selfWeightLoadCase] - 0.90) < 0.001);
-            Assert.IsTrue(Math.Abs(outList[5][selfWeightLoadCase] - 1.10) < 0.001);
-            Assert.IsTrue(Math.Abs(outList[0][windLoadCase] - 1.5) < 0.001);
-            Assert.IsTrue(Math.Abs(outList[1][snowLoadCase] - 1.5) < 0.001);
-            Assert.IsTrue(Math.Abs(outList[0][snowLoadCase] - 0.75) < 0.001);
-            Assert.IsTrue(Math.Abs(outList[1][windLoadCase] - 0.90) < 0.001);
-        }
-
-        [TestMethod]
-        public void GeneratorUltimateFatigueSetA()
+        public void GeneratorUltimateFatigueSetC()
         {
             // Arrange
             string loadCaseName1 = "selfWeight";
@@ -481,23 +563,23 @@ namespace ModelObjectTest
             StandardEN1990 standardEN1990 = new StandardEN1990();
             StandardEN1990.ImposedLoadCategory category = StandardEN1990.ImposedLoadCategory.CategoryG;
             StandardEN1990.LimitState limitState = StandardEN1990.LimitState.UltimateFatigue;
-            StandardEN1990.ULSCombinationSets uLSCombinationSets = StandardEN1990.ULSCombinationSets.SetA;
+            StandardEN1990.ULSCombinationSets uLSCombinationSets = StandardEN1990.ULSCombinationSets.SetC;
 
             // Act
             List<CombinationEn> outList = CombinationEn.GenerateCombinations(loadCaseList, standardEN1990, limitState, uLSCombinationSets, category);
 
             // Assert
             Assert.IsTrue(outList.Count() == 6);
-            Assert.IsTrue(Math.Abs(outList[0][selfWeightLoadCase] - 0.90) < 0.001);
-            Assert.IsTrue(Math.Abs(outList[1][selfWeightLoadCase] - 0.90) < 0.001);
-            Assert.IsTrue(Math.Abs(outList[2][selfWeightLoadCase] - 1.10) < 0.001);
-            Assert.IsTrue(Math.Abs(outList[3][selfWeightLoadCase] - 1.10) < 0.001);
-            Assert.IsTrue(Math.Abs(outList[4][selfWeightLoadCase] - 0.90) < 0.001);
-            Assert.IsTrue(Math.Abs(outList[5][selfWeightLoadCase] - 1.10) < 0.001);
-            Assert.IsTrue(Math.Abs(outList[0][windLoadCase] - 1.5) < 0.001);
-            Assert.IsTrue(Math.Abs(outList[1][snowLoadCase] - 1.5) < 0.001);
-            Assert.IsTrue(Math.Abs(outList[0][snowLoadCase] - 0.75) < 0.001);
-            Assert.IsTrue(Math.Abs(outList[1][windLoadCase] - 0.90) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[0][selfWeightLoadCase] - 1.00) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[1][selfWeightLoadCase] - 1.00) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[2][selfWeightLoadCase] - 1.00) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[3][selfWeightLoadCase] - 1.00) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[4][selfWeightLoadCase] - 1.00) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[5][selfWeightLoadCase] - 1.00) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[0][windLoadCase] - 1.3) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[1][snowLoadCase] - 1.3) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[0][snowLoadCase] - 0.65) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[1][windLoadCase] - 0.78) < 0.001);
         }
 
         [TestMethod]
@@ -539,6 +621,88 @@ namespace ModelObjectTest
             Assert.IsTrue(Math.Abs(outList[1][snowLoadCase] - 1.5) < 0.001);
             Assert.IsTrue(Math.Abs(outList[0][snowLoadCase] - 0.75) < 0.001);
             Assert.IsTrue(Math.Abs(outList[1][windLoadCase] - 0.90) < 0.001);
+        }
+
+        [TestMethod]
+        public void GeneratorUltimateGeotechnicalSetB()
+        {
+            // Arrange
+            string loadCaseName1 = "selfWeight";
+            LoadCase selfWeightLoadCase = new LoadCase(loadCaseName1, LoadCase.LoadCaseType.SelfWeight);
+            string loadCaseName2 = "Wind";
+            LoadCase windLoadCase = new LoadCase(loadCaseName2, LoadCase.LoadCaseType.Wind);
+            string loadCaseName3 = "Snow";
+            LoadCase snowLoadCase = new LoadCase(loadCaseName3, LoadCase.LoadCaseType.Snow);
+            string loadCaseName4 = "PreStress";
+            LoadCase prestressLoadCase = new LoadCase(loadCaseName4, LoadCase.LoadCaseType.Prestress);
+
+            List<LoadCase> loadCaseList = new List<LoadCase>();
+            loadCaseList.Add(selfWeightLoadCase);
+            loadCaseList.Add(windLoadCase);
+            loadCaseList.Add(snowLoadCase);
+            loadCaseList.Add(prestressLoadCase);
+
+            StandardEN1990 standardEN1990 = new StandardEN1990();
+            StandardEN1990.ImposedLoadCategory category = StandardEN1990.ImposedLoadCategory.CategoryA;
+            StandardEN1990.LimitState limitState = StandardEN1990.LimitState.UltimateGeotechnical;
+            StandardEN1990.ULSCombinationSets uLSCombinationSets = StandardEN1990.ULSCombinationSets.SetB;
+
+            // Act
+            List<CombinationEn> outList = CombinationEn.GenerateCombinations(loadCaseList, standardEN1990, limitState, uLSCombinationSets, category);
+
+            // Assert
+            Assert.IsTrue(outList.Count() == 6);
+            Assert.IsTrue(Math.Abs(outList[0][selfWeightLoadCase] - 1.00) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[1][selfWeightLoadCase] - 1.00) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[2][selfWeightLoadCase] - 1.35) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[3][selfWeightLoadCase] - 1.35) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[4][selfWeightLoadCase] - 1.00) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[5][selfWeightLoadCase] - 1.35) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[0][windLoadCase] - 1.5) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[1][snowLoadCase] - 1.5) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[0][snowLoadCase] - 0.75) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[1][windLoadCase] - 0.90) < 0.001);
+        }
+
+        [TestMethod]
+        public void GeneratorUltimateGeotechnicalSetC()
+        {
+            // Arrange
+            string loadCaseName1 = "SuperImposedDeadLoad";
+            LoadCase superImposedDeadLoadLoadCase = new LoadCase(loadCaseName1, LoadCase.LoadCaseType.SuperImposedDeadLoad);
+            string loadCaseName2 = "Wind";
+            LoadCase windLoadCase = new LoadCase(loadCaseName2, LoadCase.LoadCaseType.Temperature);
+            string loadCaseName3 = "Snow";
+            LoadCase snowLoadCase = new LoadCase(loadCaseName3, LoadCase.LoadCaseType.Snow);
+            string loadCaseName4 = "PreStress";
+            LoadCase prestressLoadCase = new LoadCase(loadCaseName4, LoadCase.LoadCaseType.Prestress);
+
+            List<LoadCase> loadCaseList = new List<LoadCase>();
+            loadCaseList.Add(superImposedDeadLoadLoadCase);
+            loadCaseList.Add(windLoadCase);
+            loadCaseList.Add(snowLoadCase);
+            loadCaseList.Add(prestressLoadCase);
+
+            StandardEN1990 standardEN1990 = new StandardEN1990();
+            StandardEN1990.ImposedLoadCategory category = StandardEN1990.ImposedLoadCategory.CategoryF;
+            StandardEN1990.LimitState limitState = StandardEN1990.LimitState.UltimateGeotechnical;
+            StandardEN1990.ULSCombinationSets uLSCombinationSets = StandardEN1990.ULSCombinationSets.SetC;
+
+            // Act
+            List<CombinationEn> outList = CombinationEn.GenerateCombinations(loadCaseList, standardEN1990, limitState, uLSCombinationSets, category);
+
+            // Assert
+            Assert.IsTrue(outList.Count() == 6);
+            Assert.IsTrue(Math.Abs(outList[0][superImposedDeadLoadLoadCase] - 1.00) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[1][superImposedDeadLoadLoadCase] - 1.00) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[2][superImposedDeadLoadLoadCase] - 1.00) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[3][superImposedDeadLoadLoadCase] - 1.00) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[4][superImposedDeadLoadLoadCase] - 1.00) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[5][superImposedDeadLoadLoadCase] - 1.00) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[0][windLoadCase] - 1.3) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[1][snowLoadCase] - 1.3) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[0][snowLoadCase] - 0.65) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[1][windLoadCase] - 0.78) < 0.001);
         }
 
         [TestMethod]
@@ -611,10 +775,10 @@ namespace ModelObjectTest
             Assert.IsTrue(Math.Abs(outList[0][selfWeightLoadCase] - 1.00) < 0.001);
             Assert.IsTrue(Math.Abs(outList[1][selfWeightLoadCase] - 1.00) < 0.001);
             Assert.IsTrue(Math.Abs(outList[2][selfWeightLoadCase] - 1.00) < 0.001);
-            Assert.IsTrue(Math.Abs(outList[0][windLoadCase] - 0.60) < 0.001);
-            Assert.IsTrue(Math.Abs(outList[1][snowLoadCase] - 0.50) < 0.001);
-            Assert.IsTrue(Math.Abs(outList[0][snowLoadCase] - 0.25) < 0.001);
-            Assert.IsTrue(Math.Abs(outList[1][windLoadCase] - 0.36) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[0][windLoadCase] - 0.00) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[1][snowLoadCase] - 0.00) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[0][snowLoadCase] - 0.00) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[1][windLoadCase] - 0.00) < 0.001);
         }
 
         [TestMethod]
@@ -649,10 +813,10 @@ namespace ModelObjectTest
             Assert.IsTrue(Math.Abs(outList[0][selfWeightLoadCase] - 1.00) < 0.001);
             Assert.IsTrue(Math.Abs(outList[1][selfWeightLoadCase] - 1.00) < 0.001);
             Assert.IsTrue(Math.Abs(outList[2][selfWeightLoadCase] - 1.00) < 0.001);
-            Assert.IsTrue(Math.Abs(outList[0][windLoadCase] - 1.00) < 0.001);
-            Assert.IsTrue(Math.Abs(outList[1][snowLoadCase] - 1.00) < 0.001);
-            Assert.IsTrue(Math.Abs(outList[0][snowLoadCase] - 0.50) < 0.001);
-            Assert.IsTrue(Math.Abs(outList[1][windLoadCase] - 0.60) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[0][windLoadCase] - 0.20) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[1][snowLoadCase] - 0.20) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[0][snowLoadCase] - 0.00) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[1][windLoadCase] - 0.00) < 0.001);
         }
     }
 }

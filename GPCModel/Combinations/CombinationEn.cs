@@ -72,10 +72,10 @@ namespace GPC.Model.Combinations
             info.AddValue("CombinationType", _standardEN1990);
         }
 
-        public override bool IsUltimate() => (_standardEN1990.GetLimitState() == StandardEN1990.LimitState.UltimateEquilibrium ||
-                                             _standardEN1990.GetLimitState() == StandardEN1990.LimitState.UltimateFatigue ||
-                                             _standardEN1990.GetLimitState() == StandardEN1990.LimitState.UltimateGeotechnical ||
-                                             _standardEN1990.GetLimitState() == StandardEN1990.LimitState.UltimateStructural) ?
+        public override bool IsUltimate() => (_limitState == StandardEN1990.LimitState.UltimateEquilibrium ||
+                                             _limitState == StandardEN1990.LimitState.UltimateFatigue ||
+                                             _limitState == StandardEN1990.LimitState.UltimateGeotechnical ||
+                                             _limitState == StandardEN1990.LimitState.UltimateStructural) ?
                                              true : false;
 
         public override string ToString()
@@ -336,7 +336,7 @@ namespace GPC.Model.Combinations
             {
                 List<LoadCaseCoefficient> loadCaseCoefficientsBuffer = new List<LoadCaseCoefficient>();
                 LoadCase loadCaseLead = list[i];
-                LoadCaseCoefficient loadCaseCoefficientLead = new LoadCaseCoefficient(GetCoefficientLeadingVariableAction(loadCaseLead, standardEN1990, limitState, uLS), loadCaseLead);
+                LoadCaseCoefficient loadCaseCoefficientLead = new LoadCaseCoefficient(GetCoefficientLeadingVariableAction(loadCaseLead, standardEN1990, limitState, uLS, category), loadCaseLead);
                 loadCaseCoefficientsBuffer.Add(loadCaseCoefficientLead);
 
                 foreach (LoadCase loadCaseAccompanying in list)
@@ -412,10 +412,32 @@ namespace GPC.Model.Combinations
         /// <param name="limitState">The limit state of combinations</param>
         /// <param name="uLS">The ULS combination set (if <paramref name="limitState"/> is an ultimate state limit</param>
         /// <returns>The coefficient</returns>
-        private static double GetCoefficientLeadingVariableAction(LoadCase loadCase, StandardEN1990 standardEN1990, StandardEN1990.LimitState limitState, StandardEN1990.ULSCombinationSets uLS)
+        private static double GetCoefficientLeadingVariableAction(LoadCase loadCase, StandardEN1990 standardEN1990, StandardEN1990.LimitState limitState, StandardEN1990.ULSCombinationSets uLS, StandardEN1990.ImposedLoadCategory category)
         {
-            double gamma = standardEN1990.GetGammaQUnfavourable(uLS, limitState, loadCase);
-            return gamma;
+            if(limitState == StandardEN1990.LimitState.UltimateEquilibrium || limitState == StandardEN1990.LimitState.UltimateFatigue || limitState == StandardEN1990.LimitState.UltimateGeotechnical || limitState == StandardEN1990.LimitState.UltimateStructural)
+            {
+                double gamma = standardEN1990.GetGammaQUnfavourable(uLS, limitState, loadCase);
+                return gamma;
+            }
+            if (limitState == StandardEN1990.LimitState.ServiceabilityCharacteristic)
+            {
+                double gamma = standardEN1990.GetGammaQUnfavourable(uLS, limitState, loadCase);
+                return gamma;
+            }
+            else if(limitState == StandardEN1990.LimitState.ServiceabilityFrequent)
+            {
+                double gamma = standardEN1990.GetGammaQUnfavourable(uLS, limitState, loadCase);
+                double psi1 = standardEN1990.GetPsi1(category, loadCase);
+                return gamma * psi1; 
+            }
+            else if (limitState == StandardEN1990.LimitState.ServiceabilityQuasiPermanent)
+            {
+                double gamma = standardEN1990.GetGammaQUnfavourable(uLS, limitState, loadCase);
+                double psi2 = standardEN1990.GetPsi2(category, loadCase);
+                return gamma * psi2;
+            }
+            else
+                throw new Exception("Failed to set the coefficient for leading variable actions");
         }
 
         /// <summary>
@@ -429,9 +451,26 @@ namespace GPC.Model.Combinations
         /// <returns>The coefficient</returns>
         private static double GetCoefficientAccompanyingVariableAction(LoadCase loadCase, StandardEN1990 standardEN1990, StandardEN1990.LimitState limitState, StandardEN1990.ULSCombinationSets uLS, StandardEN1990.ImposedLoadCategory category)
         {
-            double gammaQ = standardEN1990.GetGammaQUnfavourable(uLS, limitState, loadCase);
-            double psi0 = standardEN1990.GetPsi0(category, loadCase);
-            return gammaQ * psi0;
+            if (limitState == StandardEN1990.LimitState.UltimateEquilibrium || limitState == StandardEN1990.LimitState.UltimateFatigue || limitState == StandardEN1990.LimitState.UltimateGeotechnical || limitState == StandardEN1990.LimitState.UltimateStructural)
+            {
+                double gammaQ = standardEN1990.GetGammaQUnfavourable(uLS, limitState, loadCase);
+                double psi0 = standardEN1990.GetPsi0(category, loadCase);
+                return gammaQ * psi0;
+            }
+            if (limitState == StandardEN1990.LimitState.ServiceabilityCharacteristic)
+            {
+                double gammaQ = standardEN1990.GetGammaQUnfavourable(uLS, limitState, loadCase);
+                double psi0 = standardEN1990.GetPsi0(category, loadCase);
+                return gammaQ * psi0;
+            }
+            else if (limitState == StandardEN1990.LimitState.ServiceabilityFrequent || limitState == StandardEN1990.LimitState.ServiceabilityQuasiPermanent)
+            {
+                double gammaQ = standardEN1990.GetGammaQUnfavourable(uLS, limitState, loadCase);
+                double psi2 = standardEN1990.GetPsi2(category, loadCase);
+                return gammaQ * psi2;
+            }
+            else
+                throw new Exception("Failed to set the coefficient for accompanying variable actions");
         }
 
         #endregion
