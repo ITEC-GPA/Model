@@ -105,7 +105,8 @@ namespace GPC.Model.FEM.FiniteElements
 
         private string GetDebuggerDisplay()
         {
-            return $"Plate, Id: {Id}, PropertyName: {Property.Name}";
+            var prop = Property != null ? Property.Name : String.Empty;
+            return $"Plate, Id: {Id}, PropertyName: {prop}";
         }
 
 

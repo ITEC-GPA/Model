@@ -10,6 +10,7 @@ namespace GPC.Model.FEM.Collections
     /// <summary>
     /// This class rapresent an association between a <see cref="FEMObject"/> and a property override <see cref="Stage.StageProperty"/>
     /// </summary>
+    /// <remarks>This should be accessed only from the class <see cref="Stage"/> since it does not implement any check on the element duplicates</remarks>
     /// <typeparam name="T"></typeparam>
     /// <typeparam name="D"></typeparam>
     public abstract class FemObjectStageCollection<T, D>  where T : FEMObject where D : Stage.StageProperty
@@ -21,7 +22,7 @@ namespace GPC.Model.FEM.Collections
 
         public int Count => _stageFiniteElementProperty.Count();
 
-        public FemObjectStageCollection() : base()
+        public FemObjectStageCollection()
         {
             _stageFiniteElementProperty = new List<KeyValuePair<T, D>>();
         }
@@ -71,7 +72,7 @@ namespace GPC.Model.FEM.Collections
         /// <returns><see langword="false"/> if the <paramref name="item"/> does not exist in the collection </returns>
         /// <exception cref="ArgumentNullException">If <paramref name="item"/> or <paramref name="stageFiniteElementProperty"/> is null</exception>
         /// <remarks>This is an O(2n) operation         
-        /// <para>The <paramref name="stageFiniteElementProperty"/> will ovveride the existing one</para>
+        /// <para>The <paramref name="stageFiniteElementProperty"/> will ovveride the existing one if present</para>
         /// </remarks>
         public virtual bool SetStageProperty(T item, D stageFiniteElementProperty)
         {

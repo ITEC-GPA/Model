@@ -6,8 +6,12 @@ namespace GPC.Model.FEM.Collections
     /// <summary>
     /// Collection of <see cref="Node"/> associated to a <see cref="Stage.StageProperty"/>
     /// </summary>
+    /// <remarks>This should be accessed only from the class <see cref="Stage"/> since it does not implement any check on the element duplicates</remarks>
     public class NodeStageCollection<T, D> : FemObjectStageCollection<Node, Stage.StageProperty>
     {
+        public NodeStageCollection() : base()
+        {
+        }
 
         /// <summary>
         /// The <see cref="Node.AttributesLoadCase"/> and <see cref="Node.AttributesFreedomCase"/>
