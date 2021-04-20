@@ -257,8 +257,8 @@ namespace GPC.Model.FEM.FiniteElements
 
             var jacob = FEMUtilities.J2D(Quad4Element.GetdNdCsi, Quad4Element.GetdNdEta, _localNodes);
 
-            _kLayer = GaussIntegration.IntegrationQuadrilateral(fKLayer, jacob, 9);
-            _kGlass = GaussIntegration.IntegrationQuadrilateral(fKGlass, jacob, 9);
+            _kLayer = GaussIntegration.IntegrationQuadrilateral(fKLayer, jacob, 16);
+            _kGlass = GaussIntegration.IntegrationQuadrilateral(fKGlass, jacob, 16);
 
             _kElementLocalCoord = _kLayer + _kGlass;
         }
