@@ -26,9 +26,9 @@ namespace GPC.Model.Restrains
         public GeometryRestrain(FreedomCase freedomCase, CoordinateSystem coordinateSystem, List<DofRestrain> restrains, Guid guid, string name) 
             : base(guid, name)
         {
-            this._coordinateSystem = coordinateSystem ?? throw new ArgumentNullException(nameof(coordinateSystem));
-            this._freedomCases = freedomCase ?? throw new ArgumentNullException(nameof(freedomCase));
-            this._restrains = restrains ?? new List<DofRestrain>();
+            _coordinateSystem = coordinateSystem ?? throw new ArgumentNullException(nameof(coordinateSystem));
+            _freedomCases = freedomCase ?? throw new ArgumentNullException(nameof(freedomCase));
+            _restrains = restrains ?? new List<DofRestrain>();
         }
 
         public GeometryRestrain(SerializationInfo info, StreamingContext context) 
