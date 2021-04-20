@@ -160,8 +160,8 @@ namespace FemTest
             p3.SetId(1);
 
 
-            Stage.StageFiniteElementProperty sp1 = new Stage.StageFiniteElementProperty(new PlateProperty(new SteelMaterial("m1", 1, 0.1, 1, 2, 0.1, 0), 1, 2, "p"));
-            Stage.StageFiniteElementProperty sp2 = new Stage.StageFiniteElementProperty(new PlateProperty(new SteelMaterial("m2", 1, 0.1, 1, 2, 0.1, 0), 1, 2, "p"));
+            Stage.StageFiniteElementProperty sp1 = new Stage.StageFiniteElementProperty("m1");
+            Stage.StageFiniteElementProperty sp2 = new Stage.StageFiniteElementProperty("m2");
             sp1.AddLoadCaseAttribute(new NodeForceAttribute(new LoadCase("lc1"), null, 0, 1, 2, 3, 4, 5));
             sp2.AddLoadCaseAttribute(new NodeForceAttribute(new LoadCase("lc2"), null, 0, 1, 2, 3, 4, 5));
 

@@ -49,7 +49,18 @@ namespace GPC.Model.Glasses
         /// <param name="glassPanelInner">Inner glass panel</param>
         /// <param name="airChamber">air gap</param>
         public DoubleInsulatingGlass(string name, IGlassPanel glassPanelOuter, IGlassPanel glassPanelInner, AirChamber airChamber)
-            : base(Guid.NewGuid(), name)
+            : this(name, glassPanelOuter, glassPanelOuter, airChamber, Guid.NewGuid())
+        {
+
+        }
+
+        /// <param name="name"></param>
+        /// <param name="glassPanelOuter">Outer glass panel</param>
+        /// <param name="glassPanelInner">Inner glass panel</param>
+        /// <param name="airChamber">air gap</param>
+        /// <param name="guid"></param>
+        public DoubleInsulatingGlass(string name, IGlassPanel glassPanelOuter, IGlassPanel glassPanelInner, AirChamber airChamber, Guid guid)
+            : base(guid, name)
         {
             _glassPanelOuter = glassPanelOuter ?? throw new ArgumentException("Outer Glass panel can't be null");
             _glassPanelInner = glassPanelInner ?? throw new ArgumentException("Inner Glass panel can't be null");

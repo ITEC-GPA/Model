@@ -76,9 +76,8 @@ namespace GPC.Model.FEM
         /// <summary>
         /// only for test purpose
         /// </summary>
-        internal Node(double X, double Y, double Z, string name, int id) : this(new Point3d(X, Y, Z))
+        internal Node(double X, double Y, double Z, string name, int id) : this(new Point3d(X, Y, Z), name)
         {
-            Name = name;
             SetId(id);
         }
 
@@ -99,10 +98,9 @@ namespace GPC.Model.FEM
 
         public Node Duplicate()
         {
-            Node duplicate = new Node(new Point3d(Position.X, Position.Y, Position.Z));
+            Node duplicate = new Node(new Point3d(Position.X, Position.Y, Position.Z), this.Name);
             duplicate.DOF = this.DOF;
             duplicate.SetId(this.Id);
-            duplicate.Name = this.Name;
             
             foreach (INodeFreedomCaseAttribute attribute in _attributesFreedomCase)
             {

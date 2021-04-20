@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using GPC.Model.FEM.Attributes;
 using GPC.Model.FEM.Properties;
 using mnl = MathNet.Numerics.LinearAlgebra;
 
 namespace GPC.Model.FEM.FiniteElements
 {
+    [DebuggerDisplay("{" + nameof(GetDebuggerDisplay) + "(),nq}")]
     public class Brick : FiniteElement
     {
 
@@ -97,6 +99,11 @@ namespace GPC.Model.FEM.FiniteElements
         public override FiniteElement Duplicate()
         {
             throw new NotImplementedException();
+        }
+
+        private string GetDebuggerDisplay()
+        {
+            return $"Brick, Id: {Id}, PropertyName: {Property.Name}";
         }
     }
 }

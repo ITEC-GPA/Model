@@ -128,6 +128,7 @@ namespace GPC.Model.Materials
             this._manufactoringProcess = manufactoringProcess;
         }
 
+
         public GlassMaterialEn16612(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
