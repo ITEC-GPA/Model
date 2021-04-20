@@ -8,40 +8,38 @@ namespace GPC.Model.FEM.Collections
     /// </summary>
     public class NodeStageCollection<T, D> : FemObjectStageCollection<Node, Stage.StageProperty>
     {
+
         /// <summary>
         /// The <see cref="Node.AttributesLoadCase"/> and <see cref="Node.AttributesFreedomCase"/>
         /// will be copied to the <see cref="Stage.StageProperty"/> associated the <paramref name="item"/>
         /// </summary>
         /// <inheritdoc cref="FemObjectStageCollection{T, D}.Add(T, D)"/>
-        public int Add(Node item)
+        public void Add(Node item)
         {
             var sfep = new Stage.StageProperty();
             sfep.AddLoadCaseAttributes(item.AttributesLoadCase.Cast<LoadCaseAttribute>().ToList());
             sfep.AddFreedomCaseAttributes(item.AttributesFreedomCase.Cast<FreedomCaseAttribute>().ToList());
 
             base.Add(item, sfep);
-
-            return item.Id;
         }
 
-        /// <summary>
-        /// The <see cref="Node.AttributesLoadCase"/> and <see cref="Node.AttributesFreedomCase"/>
-        /// will be copied to the <see cref="Stage.StageProperty"/> associated the <paramref name="item"/>
-        /// </summary>
-        /// <inheritdoc cref="FemObjectStageCollection{T, D}.SetItem(T, D)"/>
-        public int SetItem(Node item)
+
+        /// <inheritdoc cref = "FemObjectStageCollection{T, D}.Add(T, D)" />
+        public override void Add(Node item, Stage.StageProperty stageProperty)
         {
-            var sfep = new Stage.StageProperty();
-            sfep.AddLoadCaseAttributes(item.AttributesLoadCase.Cast<LoadCaseAttribute>().ToList());
-            sfep.AddFreedomCaseAttributes(item.AttributesFreedomCase.Cast<FreedomCaseAttribute>().ToList());
+            if (stageProperty is null || item is null)
+                throw new System.ArgumentNullException();
 
-            return base.SetItem(item, sfep);
+            base.Add(item, stageProperty);
         }
 
-        /// <inheritdoc cref="FemObjectStageCollection{T, D}.SetItem(T, D)"/>
-        public override int SetItem(Node item, Stage.StageProperty stageFiniteElementProperty)
+
+        /// <inheritdoc cref="FemObjectStageCollection{T, D}.SetStageProperty(T, D)"/>
+        public override bool SetStageProperty(Node item, Stage.StageProperty stageProperty)
         {
-            return base.SetItem(item, stageFiniteElementProperty);
+            return base.SetStageProperty(item, stageProperty);
         }
+
+
     }
 }

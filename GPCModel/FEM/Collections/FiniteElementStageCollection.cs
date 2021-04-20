@@ -1,5 +1,6 @@
 ﻿using System;
 using GPC.Model.FEM.FiniteElements;
+using static GPC.Model.FEM.Stage;
 
 namespace GPC.Model.FEM.Collections
 {
@@ -11,17 +12,33 @@ namespace GPC.Model.FEM.Collections
 
 
         /// <inheritdoc cref="FemObjectStageCollection{T, D}.Add(T, D)"/>
-        public override int Add(FiniteElement item, Stage.StageFiniteElementProperty stageFiniteElementProperty)
+        public override void Add(FiniteElement item, Stage.StageFiniteElementProperty stageFiniteElementProperty)
         {
-            return base.Add(item, stageFiniteElementProperty);
+            base.Add(item, stageFiniteElementProperty);
         }
 
 
-
-        /// <inheritdoc cref="FemObjectStageCollection{T, D}.SetItem(T, D)"/>
-        public override int SetItem(FiniteElement item, Stage.StageFiniteElementProperty stageFiniteElementProperty)
+        /// <summary>
+        /// The <see cref="FiniteElement.AttributesLoadCase"/> and <see cref="FiniteElement.AttributesFreedomCase"/> 
+        /// will be copied to the <see cref="Stage.StageFiniteElementProperty"/> associated the <paramref name="item"/>
+        /// </summary>
+        /// <inheritdoc cref="FemObjectStageCollection{T, D}.Add(T, D)"/>
+        public void Add(FiniteElement item)
         {
-            return base.SetItem(item, stageFiniteElementProperty);
+            StageFiniteElementProperty sp = new StageFiniteElementProperty(item.Property.Name);
+
+            sp.AddLoadCaseAttributes(item.AttributesLoadCase);
+            sp.AddFreedomCaseAttributes(item.AttributesFreedomCase);
+
+            base.Add(item, sp);
         }
+
+
+        /// <inheritdoc cref="FemObjectStageCollection{T, D}.SetStageProperty(T, D)"/>
+        public override bool SetStageProperty(FiniteElement item, Stage.StageFiniteElementProperty stageFiniteElementProperty)
+        {
+            return base.SetStageProperty(item, stageFiniteElementProperty);
+        }
+
     }
 }
