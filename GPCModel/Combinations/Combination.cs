@@ -34,9 +34,6 @@ namespace GPC.Model.Combinations
             _coefficients = (List<LoadCaseCoefficient>)info.GetValue("Coefficients", typeof(List<LoadCaseCoefficient>));
         }
 
-        protected Combination()
-        {
-        }
 
         #region PUBLIC METHODS
 

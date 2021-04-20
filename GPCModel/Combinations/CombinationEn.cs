@@ -13,12 +13,15 @@ namespace GPC.Model.Combinations
         private StandardEN1990 _standardEN1990;
 
         private StandardEN1990.LimitState _limitState;
-        public StandardEN1990.LimitState GetLimitState => _limitState;
 
         private StandardEN1990.ULSCombinationSets _uLSCombinationSets;
-        public StandardEN1990.ULSCombinationSets GetCombinationSets => _uLSCombinationSets;
 
         private StandardEN1990.ImposedLoadCategory _imposedLoadCategory;
+
+
+
+        public StandardEN1990.LimitState GetLimitState => _limitState;
+        public StandardEN1990.ULSCombinationSets GetCombinationSets => _uLSCombinationSets;
         public StandardEN1990.ImposedLoadCategory GetImposedLoadCategory => _imposedLoadCategory;
 
         #endregion
@@ -26,10 +29,41 @@ namespace GPC.Model.Combinations
 
         #region PUBLIC CONSTRUCTOR
 
-        public CombinationEn(string name, StandardEN1990 combinationType)
+
+        public CombinationEn(string name, StandardEN1990.LimitState limitState)
             : base(name)
         {
             this._standardEN1990 = combinationType;
+            this._uLSCombinationSets = uLSCombinationSets;
+            this._imposedLoadCategory = category;
+
+            this._standard = new StandardEN1990();
+        }
+
+        public CombinationEn(string name, StandardEN1990.LimitState limitState, StandardEN1990 standard)
+            : base(name)
+        {
+            this._standardEN1990 = combinationType;
+            this._uLSCombinationSets = uLSCombinationSets;
+            this._imposedLoadCategory = category;
+        }
+
+
+        public CombinationEn(string name, StandardEN1990.LimitState limitState, StandardEN1990.ULSCombinationSets uLSCombinationSets, StandardEN1990.ImposedLoadCategory category)
+            : base(name)
+        {
+            this._standardEN1990 = combinationType;
+            this._uLSCombinationSets = uLSCombinationSets;
+            this._imposedLoadCategory = category;
+        }
+
+
+        public CombinationEn(string name, StandardEN1990.LimitState limitState, StandardEN1990.ULSCombinationSets uLSCombinationSets, StandardEN1990.ImposedLoadCategory category, StandardEN1990 combinationType)
+            : base(name)
+        {
+            this._standardEN1990 = combinationType;
+            this._uLSCombinationSets = uLSCombinationSets;
+            this._imposedLoadCategory = category;
         }
 
         public CombinationEn(SerializationInfo info, StreamingContext context)
@@ -38,29 +72,6 @@ namespace GPC.Model.Combinations
             _standardEN1990 = (StandardEN1990)info.GetValue("CombinationType", typeof(StandardEN1990));
         }
 
-        public CombinationEn(string name) 
-            : base(name)
-        {
-        }
-
-        public CombinationEn()
-            : base()
-        {
-        }
-
-        public CombinationEn(string name, StandardEN1990 combinationType, StandardEN1990.LimitState limitState, StandardEN1990.ULSCombinationSets uLSCombinationSets, StandardEN1990.ImposedLoadCategory category)
-            : base(name)
-        {
-            this._standardEN1990 = combinationType;
-            this._uLSCombinationSets = uLSCombinationSets;
-            this._imposedLoadCategory = category;
-        }
-
-        public CombinationEn(string name, StandardEN1990.LimitState limitState)
-            :base(name)
-        {
-            this._limitState = limitState;
-        }
         #endregion
 
 
@@ -97,7 +108,8 @@ namespace GPC.Model.Combinations
         /// <param name="uLS">The ULS combination set (if <paramref name="limitState"/> is an ultimate state limit</param>
         /// <param name="category">The category of the imposed load</param>
         /// <returns>A list of combination</returns>
-        public static List<CombinationEn> GenerateCombinations(List<LoadCase> loadCases, StandardEN1990 standardEN1990, StandardEN1990.LimitState limitState, StandardEN1990.ULSCombinationSets uLS, StandardEN1990.ImposedLoadCategory category)
+        public static List<CombinationEn> GenerateCombinations(List<LoadCase> loadCases, StandardEN1990 standardEN1990, StandardEN1990.LimitState limitState,
+                                                                StandardEN1990.ImposedLoadCategory category = ., StandardEN1990.ULSCombinationSets uLS = StandardEN1990.ULSCombinationSets.SetB )
         {
             List<CombinationEn> combinations = new List<CombinationEn>();
 

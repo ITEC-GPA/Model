@@ -14,7 +14,6 @@ namespace GPC.Model.Combinations
 
         public enum ULSCombinationSets
         {
-            [Description("ENSetA")] SetA,
             [Description("ENSetB")] SetB,
             [Description("ENSetC")] SetC,
         }
