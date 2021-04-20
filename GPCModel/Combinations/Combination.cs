@@ -34,9 +34,6 @@ namespace GPC.Model.Combinations
             _coefficients = (List<LoadCaseCoefficient>)info.GetValue("Coefficients", typeof(List<LoadCaseCoefficient>));
         }
 
-        protected Combination()
-        {
-        }
 
         #region PUBLIC METHODS
 
@@ -151,29 +148,21 @@ namespace GPC.Model.Combinations
             {
                 if (value != 0)
                 {
-                    if (_coefficients == null)
+                    var loadCaseCoefficient = _coefficients.Where(a => a.LoadCase == loadcase).ToList();
+
+                    if (loadCaseCoefficient.Count() > 0) // Se loadcase è già presente in lista
                     {
-                        _coefficients = new List<LoadCaseCoefficient>();
-                        _coefficients.Add(new LoadCaseCoefficient(value, loadcase));
+                        LoadCaseCoefficient lcc = new LoadCaseCoefficient(value + loadCaseCoefficient.First().Coefficient, loadcase);
+
+                        _coefficients.Remove(loadCaseCoefficient.First());
+
+                        _coefficients.Add(lcc);
                     }
                     else
                     {
-                        var loadCaseCoefficient = _coefficients.Where(a => a.LoadCase == loadcase).ToList();
-
-                        if (loadCaseCoefficient.Count() > 0) // Se loadcase è già presente in lista
-                        {
-                            LoadCaseCoefficient lcc = new LoadCaseCoefficient(value + loadCaseCoefficient.First().Coefficient, loadcase);
-
-                            _coefficients.Remove(loadCaseCoefficient.First());
-
-                            _coefficients.Add(lcc);
-                        }
-                        else
-                        {
-                            _coefficients.Add(new LoadCaseCoefficient(value, loadcase));
-                        }
-                        _coefficients.Sort();
+                        _coefficients.Add(new LoadCaseCoefficient(value, loadcase));
                     }
+                    _coefficients.Sort();
                 }
             }
             get

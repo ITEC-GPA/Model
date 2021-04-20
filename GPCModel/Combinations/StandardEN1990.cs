@@ -12,13 +12,18 @@ namespace GPC.Model.Combinations
     {
         #region PUBLIC ENUMS
 
-        public enum ULSCombinationSets
+        /// <summary>
+        /// The sets for structural and geotechical ultimate limit states. Reference: EN 1990:2002/A1:2005 Annex A1
+        /// </summary>
+        public enum ULSStructuralGeotechicalCombinationSets
         {
-            [Description("ENSetA")] SetA,
             [Description("ENSetB")] SetB,
             [Description("ENSetC")] SetC,
         }
 
+        /// <summary>
+        /// The limit states. Reference: EN 1990:2002/A1:2005 
+        /// </summary>
         public enum LimitState
         {
             UltimateEquilibrium,
@@ -30,6 +35,9 @@ namespace GPC.Model.Combinations
             ServiceabilityQuasiPermanent
         }
 
+        /// <summary>
+        /// The category of buildings for imposed loads. Reference: EN 1990:2002/A1:2005 Annex A1. EN 1991-1-1:2002
+        /// </summary>
         public enum ImposedLoadCategory
         {
             [Description("Category A")] CategoryA,
@@ -106,7 +114,6 @@ namespace GPC.Model.Combinations
         private double _psi1SnowLowAltitude;
         private double _psi2SnowHighAltitude;
         private double _psi2SnowLowAltitude;
-        private bool _isHighAltitude;
 
         // Wind Psi
         private double _psi0Wind;
@@ -178,7 +185,7 @@ namespace GPC.Model.Combinations
         public double Psi1SnowLowAltitude => _psi1SnowLowAltitude;
         public double Psi2SnowHighAltitude => _psi2SnowHighAltitude;
         public double Psi2SnowLowAltitude => _psi2SnowLowAltitude;
-        public bool IsHighAltidute => _isHighAltitude;
+        // public bool IsHighAltidute => _isHighAltitude;
 
         // Wind Psi
         public double Psi0Wind => _psi0Wind;
@@ -245,7 +252,7 @@ namespace GPC.Model.Combinations
             _psi2ImposedLoadCategoryG = 0.30;
             _psi2ImposedLoadCategoryH = 0.00;
 
-            _isHighAltitude = false;
+            // _isHighAltitude = false;
             _psi0SnowHighAltitude = 0.70;
             _psi0SnowLowAltitude = 0.50;
             _psi1SnowHighAltitude = 0.50;
@@ -289,32 +296,27 @@ namespace GPC.Model.Combinations
         /// <param name="set">The ULS combination set (if <paramref name="limitState"/> is an ultimate state limit</param>
         /// <param name="limitState">The limit state of combinations</param>
         /// <returns>The value of the coefficient</returns>
-        public double GetGammaGUnfavourable(ULSCombinationSets set, LimitState limitState)
+        public double GetGammaGUnfavourable(ULSStructuralGeotechicalCombinationSets set, LimitState limitState)
         {
-            if (limitState == LimitState.UltimateEquilibrium || limitState == LimitState.UltimateFatigue || limitState == LimitState.UltimateGeotechnical || limitState == LimitState.UltimateStructural)
+            if (limitState == LimitState.UltimateEquilibrium)
             {
-                if (set == ULSCombinationSets.SetA)
-                    return _gammaGUnfavourableSetA;
-                else if (set == ULSCombinationSets.SetB)
+                return _gammaGUnfavourableSetA;
+            }
+            else if (limitState == LimitState.UltimateFatigue || limitState == LimitState.UltimateGeotechnical || limitState == LimitState.UltimateStructural)
+            {
+                if (set == ULSStructuralGeotechicalCombinationSets.SetB)
                     return _gammaGUnfavourableSetB;
-                else if (set == ULSCombinationSets.SetC)
+                else if (set == ULSStructuralGeotechicalCombinationSets.SetC)
                     return _gammaGUnfavourableSetC;
-                else 
-                    throw new Exception("Failed to set coefficient gamma unfavourable");
+                else
+                    throw new NotImplementedException("Failed to set coefficient gamma unfavourable");
             }
             else if (limitState == LimitState.ServiceabilityQuasiPermanent || limitState == LimitState.ServiceabilityCharacteristic || limitState == LimitState.ServiceabilityFrequent)
             {
-                if (set == ULSCombinationSets.SetA)
-                    return 1.0;
-                else if (set == ULSCombinationSets.SetB)
-                    return 1.0;
-                else if (set == ULSCombinationSets.SetC)
-                    return 1.0;
-                else
-                    throw new Exception("Failed to set coefficient gamma G favourable");
+                return 1.0;
             }
             else 
-                throw new Exception("Failed to set coefficient gammaG unfavourable");
+                throw new ArgumentException("Failed to set coefficient gammaG unfavourable");
 
         }
 
@@ -324,32 +326,27 @@ namespace GPC.Model.Combinations
         /// <param name="set">The ULS combination set (if <paramref name="limitState"/> is an ultimate state limit</param>
         /// <param name="limitState">The limit state of combinations</param>
         /// <returns>The value of the coefficient</returns>
-        public double GetGammaGFavourable(ULSCombinationSets set, LimitState limitState)
+        public double GetGammaGFavourable(ULSStructuralGeotechicalCombinationSets set, LimitState limitState)
         {
-            if (limitState == LimitState.UltimateEquilibrium || limitState == LimitState.UltimateFatigue || limitState == LimitState.UltimateGeotechnical || limitState == LimitState.UltimateStructural)
+            if (limitState == LimitState.UltimateEquilibrium)
             {
-                if (set == ULSCombinationSets.SetA)
-                    return _gammaGFavourableSetA;
-                else if (set == ULSCombinationSets.SetB)
+                return _gammaGFavourableSetA;
+            }
+            else if (limitState == LimitState.UltimateFatigue || limitState == LimitState.UltimateGeotechnical || limitState == LimitState.UltimateStructural)
+            {
+                if (set == ULSStructuralGeotechicalCombinationSets.SetB)
                     return _gammaGFavourableSetB;
-                else if (set == ULSCombinationSets.SetC)
+                else if (set == ULSStructuralGeotechicalCombinationSets.SetC)
                     return _gammaGFavourableSetC;
                 else
-                    throw new Exception("Failed to set coefficient gamma G favourable");
+                    throw new NotImplementedException("Failed to set coefficient gamma G favourable");
             }
             else if (limitState == LimitState.ServiceabilityQuasiPermanent || limitState == LimitState.ServiceabilityCharacteristic || limitState == LimitState.ServiceabilityFrequent)
             {
-                if (set == ULSCombinationSets.SetA)
-                    return 1.0;
-                else if (set == ULSCombinationSets.SetB)
-                    return 1.0;
-                else if (set == ULSCombinationSets.SetC)
-                    return 1.0;
-                else
-                    throw new Exception("Failed to set coefficient gamma G favourable");
+                return 1.0;
             }
             else
-                throw new Exception("Failed to set coefficient gamma G favourable");
+                throw new ArgumentException("Failed to set coefficient gamma G favourable");
         }
 
         /// <summary>
@@ -359,31 +356,30 @@ namespace GPC.Model.Combinations
         /// <param name="limitState">The limit state of combinations</param>
         /// <param name="loadCase">The load case</param>
         /// <returns>The value of the coefficient</returns>
-        public double GetGammaQUnfavourable(ULSCombinationSets set, LimitState limitState, LoadCase loadCase)
+        public double GetGammaQUnfavourable(ULSStructuralGeotechicalCombinationSets set, LimitState limitState, LoadCase loadCase)
         {
             var loadCaseType = loadCase.GetLoadCaseType();
 
-            if (limitState == LimitState.UltimateEquilibrium || limitState == LimitState.UltimateGeotechnical || limitState == LimitState.UltimateFatigue || limitState == LimitState.UltimateStructural)
+            if (limitState == LimitState.UltimateEquilibrium)
             {
-                if (set == ULSCombinationSets.SetA)
+                switch (loadCaseType)
                 {
-                    switch (loadCaseType)
-                    {
-                        case LoadCase.LoadCaseType.LiveLoad:
-                        case LoadCase.LoadCaseType.Wind:
-                        case LoadCase.LoadCaseType.Snow:
-                        case LoadCase.LoadCaseType.Maintenance:
-                        case LoadCase.LoadCaseType.Earthquake:
-                        case LoadCase.LoadCaseType.Temperature:
-                        case LoadCase.LoadCaseType.ClimateSummer:
-                        case LoadCase.LoadCaseType.ClimateWinter:
-                            return _gammaQUnfavourableSetA;
-
-                        default:
-                            throw new Exception("Not implemented coefficient for load case type");
-                    }
-                }
-                else if (set == ULSCombinationSets.SetB)
+                    case LoadCase.LoadCaseType.LiveLoad:
+                    case LoadCase.LoadCaseType.Wind:
+                    case LoadCase.LoadCaseType.Snow:
+                    case LoadCase.LoadCaseType.Maintenance:
+                    case LoadCase.LoadCaseType.Earthquake:
+                    case LoadCase.LoadCaseType.Temperature:
+                    case LoadCase.LoadCaseType.ClimateSummer:
+                    case LoadCase.LoadCaseType.ClimateWinter:
+                        return _gammaQUnfavourableSetA;
+                    default:
+                        throw new NotImplementedException("Not implemented coefficient for load case type");
+                }                
+            }
+            else if (limitState == LimitState.UltimateGeotechnical || limitState == LimitState.UltimateFatigue || limitState == LimitState.UltimateStructural)
+            {
+                if (set == ULSStructuralGeotechicalCombinationSets.SetB)
                 {
                     switch (loadCaseType)
                     {
@@ -396,12 +392,11 @@ namespace GPC.Model.Combinations
                         case LoadCase.LoadCaseType.ClimateSummer:
                         case LoadCase.LoadCaseType.ClimateWinter:
                             return _gammaQUnfavourableSetB;
-
                         default:
-                            throw new Exception("Not implemented coefficient for load case type");
+                            throw new NotImplementedException("Not implemented coefficient for load case type");
                     }
                 }
-                else if (set == ULSCombinationSets.SetC)
+                else if (set == ULSStructuralGeotechicalCombinationSets.SetC)
                 {
                     switch (loadCaseType)
                     {
@@ -414,9 +409,8 @@ namespace GPC.Model.Combinations
                         case LoadCase.LoadCaseType.ClimateSummer:
                         case LoadCase.LoadCaseType.ClimateWinter:
                             return _gammaQUnfavourableSetC;
-
                         default:
-                            throw new Exception("Not implemented coefficient for load case type");
+                            throw new NotImplementedException("Not implemented coefficient for load case type");
                     }
                 }
                 else
@@ -424,29 +418,24 @@ namespace GPC.Model.Combinations
             }
             else if (limitState == LimitState.ServiceabilityCharacteristic || limitState == LimitState.ServiceabilityFrequent || limitState == LimitState.ServiceabilityQuasiPermanent)
             {
-                if (set == ULSCombinationSets.SetA || set == ULSCombinationSets.SetB || set == ULSCombinationSets.SetC)
+                switch (loadCaseType)
                 {
-                    switch (loadCaseType)
-                    {
-                        case LoadCase.LoadCaseType.LiveLoad:
-                        case LoadCase.LoadCaseType.Wind:
-                        case LoadCase.LoadCaseType.Snow:
-                        case LoadCase.LoadCaseType.Maintenance:
-                        case LoadCase.LoadCaseType.Earthquake:
-                        case LoadCase.LoadCaseType.Temperature:
-                        case LoadCase.LoadCaseType.ClimateSummer:
-                        case LoadCase.LoadCaseType.ClimateWinter:
-                            return 1.0;
+                    case LoadCase.LoadCaseType.LiveLoad:
+                    case LoadCase.LoadCaseType.Wind:
+                    case LoadCase.LoadCaseType.Snow:
+                    case LoadCase.LoadCaseType.Maintenance:
+                    case LoadCase.LoadCaseType.Earthquake:
+                    case LoadCase.LoadCaseType.Temperature:
+                    case LoadCase.LoadCaseType.ClimateSummer:
+                    case LoadCase.LoadCaseType.ClimateWinter:
+                        return 1.0;
 
-                        default:
-                            throw new Exception("Not implemented coefficient for load case type");
-                    }
-                }                
-                else
-                    throw new NotImplementedException("Not implemented Annex");
+                    default:
+                        throw new NotImplementedException("Not implemented coefficient for load case type");
+                }
             }            
             else
-                throw new Exception("Failed to set coefficient gamma favourable");
+                throw new ArgumentException("Failed to set coefficient gamma favourable");
         }
 
         /// <summary>
@@ -456,31 +445,30 @@ namespace GPC.Model.Combinations
         /// <param name="limitState">The limit state of combinations</param>
         /// <param name="loadCase">The load case</param>
         /// <returns>The value of the coefficient</returns>
-        public double GetGammaQFavourable(ULSCombinationSets set, LimitState limitState, LoadCase loadCase)
+        public double GetGammaQFavourable(ULSStructuralGeotechicalCombinationSets set, LimitState limitState, LoadCase loadCase)
         {
             var loadCaseType = loadCase.GetLoadCaseType();
 
-            if (limitState == LimitState.UltimateEquilibrium || limitState == LimitState.UltimateGeotechnical || limitState == LimitState.UltimateFatigue || limitState == LimitState.UltimateStructural)
+            if (limitState == LimitState.UltimateEquilibrium)
             {
-                if (set == ULSCombinationSets.SetA)
+                switch (loadCaseType)
                 {
-                    switch (loadCaseType)
-                    {
-                        case LoadCase.LoadCaseType.LiveLoad:
-                        case LoadCase.LoadCaseType.Wind:
-                        case LoadCase.LoadCaseType.Snow:
-                        case LoadCase.LoadCaseType.Maintenance:
-                        case LoadCase.LoadCaseType.Earthquake:
-                        case LoadCase.LoadCaseType.Temperature:
-                        case LoadCase.LoadCaseType.ClimateSummer:
-                        case LoadCase.LoadCaseType.ClimateWinter:
-                            return _gammaQFavourableSetA;
-
-                        default:
-                            throw new Exception("Not implemented coefficient for load case type");
-                    }
-                }
-                else if (set == ULSCombinationSets.SetB)
+                    case LoadCase.LoadCaseType.LiveLoad:
+                    case LoadCase.LoadCaseType.Wind:
+                    case LoadCase.LoadCaseType.Snow:
+                    case LoadCase.LoadCaseType.Maintenance:
+                    case LoadCase.LoadCaseType.Earthquake:
+                    case LoadCase.LoadCaseType.Temperature:
+                    case LoadCase.LoadCaseType.ClimateSummer:
+                    case LoadCase.LoadCaseType.ClimateWinter:
+                        return _gammaQFavourableSetA;
+                    default:
+                        throw new NotImplementedException("Not implemented coefficient for load case type");
+                }                
+            }
+            else if (limitState == LimitState.UltimateGeotechnical || limitState == LimitState.UltimateFatigue || limitState == LimitState.UltimateStructural)
+            {
+                if (set == ULSStructuralGeotechicalCombinationSets.SetB)
                 {
                     switch (loadCaseType)
                     {
@@ -493,12 +481,11 @@ namespace GPC.Model.Combinations
                         case LoadCase.LoadCaseType.ClimateSummer:
                         case LoadCase.LoadCaseType.ClimateWinter:
                             return _gammaQFavourableSetB;
-
                         default:
-                            throw new Exception("Not implemented coefficient for load case type");
+                            throw new NotImplementedException("Not implemented coefficient for load case type");
                     }
                 }
-                else if (set == ULSCombinationSets.SetC)
+                else if (set == ULSStructuralGeotechicalCombinationSets.SetC)
                 {
                     switch (loadCaseType)
                     {
@@ -511,9 +498,8 @@ namespace GPC.Model.Combinations
                         case LoadCase.LoadCaseType.ClimateSummer:
                         case LoadCase.LoadCaseType.ClimateWinter:
                             return _gammaQFavourableSetC;
-
                         default:
-                            throw new Exception("Not implemented coefficient for load case type");
+                            throw new NotImplementedException("Not implemented coefficient for load case type");
                     }
                 }
                 else
@@ -521,31 +507,10 @@ namespace GPC.Model.Combinations
             }
             else if (limitState == LimitState.ServiceabilityQuasiPermanent || limitState == LimitState.ServiceabilityCharacteristic || limitState == LimitState.ServiceabilityFrequent)
             {
-                if (set == ULSCombinationSets.SetA || set == ULSCombinationSets.SetB || set == ULSCombinationSets.SetC)
-                {
-                    switch (loadCaseType)
-                    {
-                        case LoadCase.LoadCaseType.LiveLoad:
-                        case LoadCase.LoadCaseType.Wind:
-                        case LoadCase.LoadCaseType.Snow:
-                        case LoadCase.LoadCaseType.Maintenance:
-                        case LoadCase.LoadCaseType.Earthquake:
-                        case LoadCase.LoadCaseType.Temperature:
-                        case LoadCase.LoadCaseType.ClimateSummer:
-                        case LoadCase.LoadCaseType.ClimateWinter:
-                            return 1.00;
-
-                        default:
-                            throw new Exception("Not implemented coefficient for load case type");
-                    }
-                }
-
-                else
-                    throw new NotImplementedException("Not implemented Annex");
+                return 1.00;
             }
-
             else
-                throw new Exception("Failed to set coefficient gamma Q favourable");
+                throw new ArgumentException("Not implemented coefficient for load case type");
         }
 
         /// <summary>
@@ -555,38 +520,30 @@ namespace GPC.Model.Combinations
         /// <param name="limitState">The limit state of combinations</param>
         /// <param name="loadCase">The load case</param>
         /// <returns>The value of the coefficient</returns>
-        public double GetGammaPFavourable(ULSCombinationSets set, LimitState limitState, LoadCase loadCase)
+        public double GetGammaPFavourable(ULSStructuralGeotechicalCombinationSets set, LimitState limitState, LoadCase loadCase)
         {
-            if (limitState == LimitState.UltimateEquilibrium || limitState == LimitState.UltimateGeotechnical || limitState == LimitState.UltimateFatigue || limitState == LimitState.UltimateStructural)
+            if (limitState == LimitState.UltimateEquilibrium)
+            {
+                return _gammaPFavourableSetA;            
+            }
+            else if (limitState == LimitState.UltimateGeotechnical || limitState == LimitState.UltimateFatigue || limitState == LimitState.UltimateStructural)
             {
                 switch (set)
                 {
-                    case ULSCombinationSets.SetA:
-                        return _gammaPFavourableSetA;
-                    case ULSCombinationSets.SetB:
+                    case ULSStructuralGeotechicalCombinationSets.SetB:
                         return _gammaPFavourableSetB;
-                    case ULSCombinationSets.SetC:
+                    case ULSStructuralGeotechicalCombinationSets.SetC:
                         return _gammaPFavourableSetC;
                     default:
-                        throw new Exception("Failed to set coefficient gamma P favourable");
-                }                
+                        throw new NotImplementedException("Failed to set coefficient gamma P favourable");
+                }
             }
             else if (limitState == LimitState.ServiceabilityQuasiPermanent || limitState == LimitState.ServiceabilityCharacteristic || limitState == LimitState.ServiceabilityFrequent)
             {
-                switch (set)
-                {
-                    case ULSCombinationSets.SetA:
-                        return 1.00;
-                    case ULSCombinationSets.SetB:
-                        return 1.00;
-                    case ULSCombinationSets.SetC:
-                        return 1.00;
-                    default:
-                        throw new Exception("Failed to set coefficient gamma P favourable");
-                }
+                return 1.00;                
             }
             else
-                throw new Exception("Failed to set coefficient gamma P favourable");
+                throw new ArgumentException("Failed to set coefficient gamma P favourable");
         }
 
         /// <summary>
@@ -596,38 +553,30 @@ namespace GPC.Model.Combinations
         /// <param name="limitState">The limit state of combinations</param>
         /// <param name="loadCase">The load case</param>
         /// <returns>The value of the coefficient</returns>
-        public double GetGammaPUnfavourable(ULSCombinationSets set, LimitState limitState, LoadCase loadCase)
+        public double GetGammaPUnfavourable(ULSStructuralGeotechicalCombinationSets set, LimitState limitState, LoadCase loadCase)
         {
-            if (limitState == LimitState.UltimateEquilibrium || limitState == LimitState.UltimateGeotechnical || limitState == LimitState.UltimateFatigue || limitState == LimitState.UltimateStructural)
+            if (limitState == LimitState.UltimateEquilibrium)
+            {
+                return _gammaPUnfavourableSetA;               
+            }
+            else if (limitState == LimitState.UltimateGeotechnical || limitState == LimitState.UltimateFatigue || limitState == LimitState.UltimateStructural)
             {
                 switch (set)
                 {
-                    case ULSCombinationSets.SetA:
-                        return _gammaPUnfavourableSetA;
-                    case ULSCombinationSets.SetB:
+                    case ULSStructuralGeotechicalCombinationSets.SetB:
                         return _gammaPUnfavourableSetB;
-                    case ULSCombinationSets.SetC:
+                    case ULSStructuralGeotechicalCombinationSets.SetC:
                         return _gammaPUnfavourableSetC;
                     default:
-                        throw new Exception("Failed to set coefficient gamma P unfavourable");
+                        throw new NotImplementedException("Failed to set coefficient gamma P unfavourable");
                 }
             }
             else if (limitState == LimitState.ServiceabilityQuasiPermanent || limitState == LimitState.ServiceabilityCharacteristic || limitState == LimitState.ServiceabilityFrequent)
             {
-                switch (set)
-                {
-                    case ULSCombinationSets.SetA:
-                        return 1.00;
-                    case ULSCombinationSets.SetB:
-                        return 1.00;
-                    case ULSCombinationSets.SetC:
-                        return 1.00;
-                    default:
-                        throw new Exception("Failed to set coefficient gamma P favourable");
-                }
+                return 1.00;
             }
             else
-                throw new Exception("Failed to set coefficient gamma P favourable");
+                throw new ArgumentException("Failed to set coefficient gamma P favourable");
         }
 
         /// <summary>
@@ -635,19 +584,20 @@ namespace GPC.Model.Combinations
         /// </summary>
         /// <param name="category">The category of the imposed load</param>
         /// <param name="loadCase">The load case</param>
+        /// <param name="highAltitude">If true, set the snow load with high altitude</param>
         /// <returns>The value of the coefficient</returns>
-        public double GetPsi0(ImposedLoadCategory category, LoadCase loadCase)
+        public double GetPsi0(ImposedLoadCategory category, LoadCase loadCase, bool highAltitude = true)
         {
             var loadCaseType = loadCase.GetLoadCaseType();
 
             if (loadCaseType == LoadCase.LoadCaseType.Snow)
             {
-                if (_isHighAltitude)
+                if (highAltitude)
                     return Psi0SnowHighAltitude;
-                else if (!_isHighAltitude)
+                else if (!highAltitude)
                     return Psi0SnowLowAltitude;
                 else
-                    throw new Exception("Failed to set coefficient psi0 for snow load");
+                    throw new NotImplementedException("Failed to set coefficient psi0 for snow load");
             }
             else if (loadCaseType == LoadCase.LoadCaseType.LiveLoad || loadCaseType == LoadCase.LoadCaseType.Maintenance)
             {
@@ -670,7 +620,7 @@ namespace GPC.Model.Combinations
                     case ImposedLoadCategory.CategoryH:
                         return _psi0ImposedLoadCategoryH;
                     default:
-                        throw new Exception("Failed to set coefficient psi0 for live load load or maintenance load");
+                        throw new NotImplementedException("Failed to set coefficient psi0 for live load load or maintenance load");
                 }
             }
             else 
@@ -679,19 +629,16 @@ namespace GPC.Model.Combinations
                 {
                     case LoadCase.LoadCaseType.SelfWeight:
                     case LoadCase.LoadCaseType.SuperImposedDeadLoad:
-                        throw new Exception("Don't exist coefficient for this load case type");
+                    case LoadCase.LoadCaseType.Earthquake:
+                    case LoadCase.LoadCaseType.ClimateSummer:
+                    case LoadCase.LoadCaseType.ClimateWinter:
+                        throw new ArgumentException("Don't exist coefficient for this load case type");
                     case LoadCase.LoadCaseType.Wind:
                         return _psi0Wind;
-                    case LoadCase.LoadCaseType.Earthquake:
-                        throw new Exception("Not implemented coefficient for load case type");
                     case LoadCase.LoadCaseType.Temperature:
                         return _psi0Temperature;
-                    case LoadCase.LoadCaseType.ClimateSummer:
-                        throw new Exception("Not implemented coefficient for load case type");
-                    case LoadCase.LoadCaseType.ClimateWinter:
-                        throw new Exception("Not implemented coefficient for load case type");
                     default:
-                        throw new Exception("Not implemented coefficient for load case type");
+                        throw new NotImplementedException("Not implemented coefficient for load case type");
                 }
             }            
         }
@@ -701,19 +648,20 @@ namespace GPC.Model.Combinations
         /// </summary>
         /// <param name="category">The category of the imposed load</param>
         /// <param name="loadCase">The load case</param>
+        /// <param name="highAltitude">If true, set the snow load with high altitude</param>        
         /// <returns>The value of the coefficient</returns>
-        public double GetPsi1(ImposedLoadCategory category, LoadCase loadCase)
+        public double GetPsi1(ImposedLoadCategory category, LoadCase loadCase, bool highAltitude = true)
         {
             var loadCaseType = loadCase.GetLoadCaseType();
 
             if (loadCaseType == LoadCase.LoadCaseType.Snow)
             {
-                if (_isHighAltitude)
+                if (highAltitude)
                     return Psi1SnowHighAltitude;
-                else if (!_isHighAltitude)
+                else if (!highAltitude)
                     return Psi1SnowLowAltitude;
                 else
-                    throw new Exception("Failed to set coefficient psi0 for snow load");
+                    throw new NotImplementedException("Failed to set coefficient psi0 for snow load");
             }
             else if (loadCaseType == LoadCase.LoadCaseType.LiveLoad || loadCaseType == LoadCase.LoadCaseType.Maintenance)
             {
@@ -736,7 +684,7 @@ namespace GPC.Model.Combinations
                     case ImposedLoadCategory.CategoryH:
                         return _psi1ImposedLoadCategoryH;
                     default:
-                        throw new Exception("Failed to set coefficient psi0 for live load load or maintenance load");
+                        throw new NotImplementedException("Failed to set coefficient psi0 for live load load or maintenance load");
                 }
             }
             else
@@ -744,20 +692,17 @@ namespace GPC.Model.Combinations
                 switch (loadCaseType)
                 {
                     case LoadCase.LoadCaseType.SelfWeight:
+                    case LoadCase.LoadCaseType.ClimateWinter:
+                    case LoadCase.LoadCaseType.ClimateSummer:
+                    case LoadCase.LoadCaseType.Earthquake:
                     case LoadCase.LoadCaseType.SuperImposedDeadLoad:
-                        throw new Exception("Don't exist coefficient for this load case type");
+                        throw new ArgumentException("Don't exist coefficient for this load case type");
                     case LoadCase.LoadCaseType.Wind:
                         return _psi1Wind;
-                    case LoadCase.LoadCaseType.Earthquake:
-                        throw new Exception("Not implemented coefficient for load case type");
                     case LoadCase.LoadCaseType.Temperature:
                         return _psi1Temperature;
-                    case LoadCase.LoadCaseType.ClimateSummer:
-                        throw new Exception("Not implemented coefficient for load case type");
-                    case LoadCase.LoadCaseType.ClimateWinter:
-                        throw new Exception("Not implemented coefficient for load case type");
                     default:
-                        throw new Exception("Not implemented coefficient for load case type");
+                        throw new NotImplementedException("Not implemented coefficient for load case type");
                 }
             }
         }
@@ -767,19 +712,20 @@ namespace GPC.Model.Combinations
         /// </summary>
         /// <param name="category">The category of the imposed load</param>
         /// <param name="loadCase">The load case</param>
+        /// <param name="highAltitude">If true, set the snow load with high altitude</param>
         /// <returns>The value of the coefficient</returns>
-        public double GetPsi2(ImposedLoadCategory category, LoadCase loadCase)
+        public double GetPsi2(ImposedLoadCategory category, LoadCase loadCase, bool highAltitude = true)
         {
             var loadCaseType = loadCase.GetLoadCaseType();
 
             if (loadCaseType == LoadCase.LoadCaseType.Snow)
             {
-                if (_isHighAltitude)
+                if (highAltitude)
                     return Psi2SnowHighAltitude;
-                else if (!_isHighAltitude)
+                else if (!highAltitude)
                     return Psi2SnowLowAltitude;
                 else
-                    throw new Exception("Failed to set coefficient psi0 for snow load");
+                    throw new NotImplementedException("Failed to set coefficient psi0 for snow load");
             }
             else if (loadCaseType == LoadCase.LoadCaseType.LiveLoad || loadCaseType == LoadCase.LoadCaseType.Maintenance)
             {
@@ -802,7 +748,7 @@ namespace GPC.Model.Combinations
                     case ImposedLoadCategory.CategoryH:
                         return _psi2ImposedLoadCategoryH;
                     default:
-                        throw new Exception("Failed to set coefficient psi0 for live load load or maintenance load");
+                        throw new NotImplementedException("Failed to set coefficient psi0 for live load load or maintenance load");
                 }
             }
             else
@@ -811,19 +757,16 @@ namespace GPC.Model.Combinations
                 {
                     case LoadCase.LoadCaseType.SelfWeight:
                     case LoadCase.LoadCaseType.SuperImposedDeadLoad:
-                        throw new Exception("Don't exist coefficient for this load case type");
+                    case LoadCase.LoadCaseType.Earthquake:
+                    case LoadCase.LoadCaseType.ClimateSummer:
+                    case LoadCase.LoadCaseType.ClimateWinter:
+                        throw new ArgumentException("Don't exist coefficient for this load case type");
                     case LoadCase.LoadCaseType.Wind:
                         return _psi2Wind;
-                    case LoadCase.LoadCaseType.Earthquake:
-                        throw new Exception("Not implemented coefficient for load case type");
                     case LoadCase.LoadCaseType.Temperature:
                         return _psi2Temperature;
-                    case LoadCase.LoadCaseType.ClimateSummer:
-                        throw new Exception("Not implemented coefficient for load case type");
-                    case LoadCase.LoadCaseType.ClimateWinter:
-                        throw new Exception("Not implemented coefficient for load case type");
                     default:
-                        throw new Exception("Not implemented coefficient for load case type");
+                        throw new NotImplementedException("Not implemented coefficient for load case type");
                 }
             }
         }
