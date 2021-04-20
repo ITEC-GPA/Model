@@ -14,14 +14,14 @@ namespace GPC.Model.Combinations
 
         private StandardEN1990.LimitState _limitState;
 
-        private StandardEN1990.ULSCombinationSets _uLSCombinationSets;
+        private StandardEN1990.ULSStructuralGeotechicalCombinationSets _uLSCombinationSets;
 
         private StandardEN1990.ImposedLoadCategory _imposedLoadCategory;
 
 
 
         public StandardEN1990.LimitState GetLimitState => _limitState;
-        public StandardEN1990.ULSCombinationSets GetCombinationSets => _uLSCombinationSets;
+        public StandardEN1990.ULSStructuralGeotechicalCombinationSets GetCombinationSets => _uLSCombinationSets;
         public StandardEN1990.ImposedLoadCategory GetImposedLoadCategory => _imposedLoadCategory;
 
         #endregion
@@ -29,39 +29,63 @@ namespace GPC.Model.Combinations
 
         #region PUBLIC CONSTRUCTOR
 
-
+        /// <summary>
+        /// Create a combination with the normative StandardEN1990 set ad default. <paramref name="limitState"/> identify the limit state of the combination
+        /// </summary>
+        /// <param name="name">The identifying name of combination</param>
+        /// <param name="limitState">The limit state of the combination</param>
+        ///<inheritdoc cref="Combination"/>
         public CombinationEn(string name, StandardEN1990.LimitState limitState)
-            : base(name)
+            : this(name, limitState, StandardEN1990.ULSStructuralGeotechicalCombinationSets.SetB, StandardEN1990.ImposedLoadCategory.CategoryA, null)
         {
-            this._standardEN1990 = combinationType;
-            this._uLSCombinationSets = uLSCombinationSets;
-            this._imposedLoadCategory = category;
-
-            this._standard = new StandardEN1990();
+            this._standardEN1990 = new StandardEN1990();
         }
 
+        /// <summary>
+        /// Create a combination with the normative StandardEN1990 set ad default. <paramref name="limitState"/> identify the limit state of the combination and 
+        /// <paramref name="standard"/> identify the annex of the normative.
+        /// </summary>
+        /// <param name="name">The identifying name of combination</param>
+        /// <param name="limitState">The limit state of the combination</param>
+        /// <param name="standard">The annex of EN1990</param>
+        ///<inheritdoc cref="Combination"/>
         public CombinationEn(string name, StandardEN1990.LimitState limitState, StandardEN1990 standard)
-            : base(name)
+            : this(name, limitState, StandardEN1990.ULSStructuralGeotechicalCombinationSets.SetB, StandardEN1990.ImposedLoadCategory.CategoryA, standard)
         {
-            this._standardEN1990 = combinationType;
-            this._uLSCombinationSets = uLSCombinationSets;
-            this._imposedLoadCategory = category;
+            this._limitState = limitState;
+            this._standardEN1990 = standard;
         }
 
-
-        public CombinationEn(string name, StandardEN1990.LimitState limitState, StandardEN1990.ULSCombinationSets uLSCombinationSets, StandardEN1990.ImposedLoadCategory category)
-            : base(name)
+        /// <summary>
+        /// Create a combination with the normative StandardEN1990.
+        /// </summary>
+        /// <param name="name">The identifying name of combination</param>
+        /// <param name="limitState">The limit state of the combination</param>
+        /// <param name="uLSCombinationSets">The sets for structural and geotechical ultimate limit states</param>
+        /// <param name="category">The category of buildings for imposed loads</param>
+        ///<inheritdoc cref="Combination"/>
+        ///<inheritdoc cref="StandardEN1990"/>
+        public CombinationEn(string name, StandardEN1990.LimitState limitState, StandardEN1990.ULSStructuralGeotechicalCombinationSets uLSCombinationSets, StandardEN1990.ImposedLoadCategory category)
+            : this(name, limitState, uLSCombinationSets, category, null)
         {
-            this._standardEN1990 = combinationType;
-            this._uLSCombinationSets = uLSCombinationSets;
-            this._imposedLoadCategory = category;
+            this._standardEN1990 = new StandardEN1990();
         }
 
-
-        public CombinationEn(string name, StandardEN1990.LimitState limitState, StandardEN1990.ULSCombinationSets uLSCombinationSets, StandardEN1990.ImposedLoadCategory category, StandardEN1990 combinationType)
+        /// <summary>
+        /// Create a combination with the normative StandardEN1990.
+        /// </summary>
+        /// <param name="name">The identifying name of combination</param>
+        /// <param name="limitState">The limit state of the combination</param>
+        /// <param name="uLSCombinationSets">The sets for structural and geotechical ultimate limit states</param>
+        /// <param name="category">The category of buildings for imposed loads</param>
+        /// <param name="standard">The annex of EN1990</param>
+        ///<inheritdoc cref="Combination"/>
+        ///<inheritdoc cref="StandardEN1990"/>
+        public CombinationEn(string name, StandardEN1990.LimitState limitState, StandardEN1990.ULSStructuralGeotechicalCombinationSets uLSCombinationSets, StandardEN1990.ImposedLoadCategory category, StandardEN1990 standard)
             : base(name)
         {
-            this._standardEN1990 = combinationType;
+            this._standardEN1990 = standard;
+            this._limitState = limitState;
             this._uLSCombinationSets = uLSCombinationSets;
             this._imposedLoadCategory = category;
         }
@@ -102,21 +126,24 @@ namespace GPC.Model.Combinations
         /// <summary>
         /// Generate the combinations of design with the <paramref name="standardEN1990"/> normative
         /// </summary>
+        /// <param name="name">The name of the combinations set</param>
         /// <param name="loadCases">List of load cases</param>
         /// <param name="standardEN1990">The used normative</param>
         /// <param name="limitState">The limit state of combinations</param>
+        /// <param name="category">The category of the imposed load</param>        /// 
         /// <param name="uLS">The ULS combination set (if <paramref name="limitState"/> is an ultimate state limit</param>
-        /// <param name="category">The category of the imposed load</param>
+        /// <param name="highAltitude">If true, set the snow load with high altitude</param>
         /// <returns>A list of combination</returns>
-        public static List<CombinationEn> GenerateCombinations(List<LoadCase> loadCases, StandardEN1990 standardEN1990, StandardEN1990.LimitState limitState,
-                                                                StandardEN1990.ImposedLoadCategory category = ., StandardEN1990.ULSCombinationSets uLS = StandardEN1990.ULSCombinationSets.SetB )
+        public static List<CombinationEn> GenerateCombinations(string name, List<LoadCase> loadCases, StandardEN1990 standardEN1990, StandardEN1990.LimitState limitState,
+                                                                StandardEN1990.ImposedLoadCategory category = StandardEN1990.ImposedLoadCategory.CategoryA, 
+                                                                StandardEN1990.ULSStructuralGeotechicalCombinationSets uLS = StandardEN1990.ULSStructuralGeotechicalCombinationSets.SetB, bool highAltitude = true)
         {
             List<CombinationEn> combinations = new List<CombinationEn>();
 
-            List<List<LoadCaseCoefficient>> listFavourable = GetFavourableCombinations(loadCases, standardEN1990, limitState, uLS, category);
+            List<List<LoadCaseCoefficient>> listFavourable = GetFavourableCombinations(loadCases, standardEN1990, limitState, uLS, category, highAltitude);
             for (int i = 0; i< listFavourable.Count(); i++)
             {
-                CombinationEn combo = new CombinationEn();
+                CombinationEn combo = new CombinationEn(name, limitState, uLS, category, standardEN1990);
 
                 for (int j = 0; j < listFavourable[i].Count(); j++)
                 {
@@ -127,10 +154,10 @@ namespace GPC.Model.Combinations
 
             if (limitState == StandardEN1990.LimitState.UltimateEquilibrium || limitState == StandardEN1990.LimitState.UltimateFatigue || limitState == StandardEN1990.LimitState.UltimateGeotechnical || limitState == StandardEN1990.LimitState.UltimateStructural)
             {
-                List<List<LoadCaseCoefficient>> listUnfavourable = GetUnfavourableCombinations(loadCases, standardEN1990, limitState, uLS, category);
+                List<List<LoadCaseCoefficient>> listUnfavourable = GetUnfavourableCombinations(loadCases, standardEN1990, limitState, uLS, category, highAltitude);
                 for (int i = 0; i < listUnfavourable.Count(); i++)
                 {
-                    CombinationEn combo = new CombinationEn();
+                    CombinationEn combo = new CombinationEn(name, limitState, uLS, category, standardEN1990);
 
                     for (int j = 0; j < listUnfavourable[i].Count(); j++)
                     {
@@ -142,8 +169,8 @@ namespace GPC.Model.Combinations
 
             if (limitState == StandardEN1990.LimitState.UltimateEquilibrium || limitState == StandardEN1990.LimitState.UltimateFatigue || limitState == StandardEN1990.LimitState.UltimateGeotechnical || limitState == StandardEN1990.LimitState.UltimateStructural)
             {
-                List<LoadCaseCoefficient> listFavourableBase = GetFavourableBasicCombinations(loadCases, standardEN1990, limitState, uLS, category);
-                CombinationEn comboBaseFav = new CombinationEn();
+                List<LoadCaseCoefficient> listFavourableBase = GetFavourableBasicCombinations(loadCases, standardEN1990, limitState, uLS);
+                CombinationEn comboBaseFav = new CombinationEn(name, limitState, uLS, category, standardEN1990);
                 for (int j = 0; j < listFavourableBase.Count(); j++)
                 {
                     comboBaseFav.AddLoadCaseCoefficient(listFavourableBase[j].LoadCase, listFavourableBase[j].Coefficient);
@@ -151,8 +178,8 @@ namespace GPC.Model.Combinations
                 combinations.Add(comboBaseFav);
             }
 
-            List<LoadCaseCoefficient> listUnfavourableBase = GetUnfavourableBasicCombinations(loadCases, standardEN1990, limitState, uLS, category);
-            CombinationEn comboBaseUnfav = new CombinationEn();
+            List<LoadCaseCoefficient> listUnfavourableBase = GetUnfavourableBasicCombinations(loadCases, standardEN1990, limitState, uLS);
+            CombinationEn comboBaseUnfav = new CombinationEn(name, limitState, uLS, category, standardEN1990);
             for (int j = 0; j < listUnfavourableBase.Count(); j++)
             {
                 comboBaseUnfav.AddLoadCaseCoefficient(listUnfavourableBase[j].LoadCase, listUnfavourableBase[j].Coefficient);
@@ -174,9 +201,9 @@ namespace GPC.Model.Combinations
         /// <param name="standardEN1990">The used normative</param>
         /// <param name="limitState">The limit state of combinations</param>
         /// <param name="uLS">The ULS combination set (if <paramref name="limitState"/> is an ultimate state limit</param>
-        /// <param name="category">The category of the imposed load</param>
         /// <returns>A list of load case coefficient</returns>
-        private static List<LoadCaseCoefficient> GetFavourableBasicCombinations(List<LoadCase> loadCases, StandardEN1990 standardEN1990, StandardEN1990.LimitState limitState, StandardEN1990.ULSCombinationSets uLS, StandardEN1990.ImposedLoadCategory category)
+        private static List<LoadCaseCoefficient> GetFavourableBasicCombinations(List<LoadCase> loadCases, StandardEN1990 standardEN1990, StandardEN1990.LimitState limitState, 
+                                                        StandardEN1990.ULSStructuralGeotechicalCombinationSets uLS)
         {
             List<LoadCaseCoefficient> loadCaseCoefficientsBuffer = new List<LoadCaseCoefficient>();
 
@@ -207,9 +234,9 @@ namespace GPC.Model.Combinations
         /// <param name="standardEN1990">The used normative</param>
         /// <param name="limitState">The limit state of combinations</param>
         /// <param name="uLS">The ULS combination set (if <paramref name="limitState"/> is an ultimate state limit</param>
-        /// <param name="category">The category of the imposed load</param>
         /// <returns>A list of load case coefficient</returns>
-        private static List<LoadCaseCoefficient> GetUnfavourableBasicCombinations(List<LoadCase> loadCases, StandardEN1990 standardEN1990, StandardEN1990.LimitState limitState, StandardEN1990.ULSCombinationSets uLS, StandardEN1990.ImposedLoadCategory category)
+        private static List<LoadCaseCoefficient> GetUnfavourableBasicCombinations(List<LoadCase> loadCases, StandardEN1990 standardEN1990, StandardEN1990.LimitState limitState, 
+                                                        StandardEN1990.ULSStructuralGeotechicalCombinationSets uLS)
         {
             List<LoadCaseCoefficient> loadCaseCoefficientsBuffer = new List<LoadCaseCoefficient>();
 
@@ -241,8 +268,10 @@ namespace GPC.Model.Combinations
         /// <param name="limitState">The limit state of combinations</param>
         /// <param name="uLS">The ULS combination set (if <paramref name="limitState"/> is an ultimate state limit</param>
         /// <param name="category">The category of the imposed load</param>
+        /// <param name="highAltitude">If true, set the snow load with high altitude</param>
         /// <returns>A list of load case coefficient</returns>
-        private static List<List<LoadCaseCoefficient>> GetFavourableCombinations(List<LoadCase> loadCases, StandardEN1990 standardEN1990, StandardEN1990.LimitState limitState, StandardEN1990.ULSCombinationSets uLS, StandardEN1990.ImposedLoadCategory category)
+        private static List<List<LoadCaseCoefficient>> GetFavourableCombinations(List<LoadCase> loadCases, StandardEN1990 standardEN1990, StandardEN1990.LimitState limitState, 
+                                                        StandardEN1990.ULSStructuralGeotechicalCombinationSets uLS, StandardEN1990.ImposedLoadCategory category, bool highAltitude = true)
         {
             List<List<LoadCaseCoefficient>> loadCaseCoefficients = new List<List<LoadCaseCoefficient>>();
             List<LoadCaseCoefficient> loadCaseCoefficientsBuffer = new List<LoadCaseCoefficient>();
@@ -270,7 +299,7 @@ namespace GPC.Model.Combinations
                 if ((loadCase.GetLoadCaseType() != LoadCase.LoadCaseType.Prestress && loadCase.GetLoadCaseType() != LoadCase.LoadCaseType.SelfWeight && loadCase.GetLoadCaseType() != LoadCase.LoadCaseType.SuperImposedDeadLoad))
                     list.Add(loadCase);
 
-            List<List<LoadCaseCoefficient>> randomList = RandomizeVariableLoads(list, standardEN1990, limitState, uLS, category);
+            List<List<LoadCaseCoefficient>> randomList = RandomizeVariableLoads(list, standardEN1990, limitState, uLS, category, highAltitude);
             for (int i = 0; i < randomList.Count(); i++)
             {
                 List<LoadCaseCoefficient> tempList = new List<LoadCaseCoefficient>();
@@ -290,8 +319,10 @@ namespace GPC.Model.Combinations
         /// <param name="limitState">The limit state of combinations</param>
         /// <param name="uLS">The ULS combination set (if <paramref name="limitState"/> is an ultimate state limit</param>
         /// <param name="category">The category of the imposed load</param>
+        /// <param name="highAltitude">If true, set the snow load with high altitude</param>
         /// <returns>A list of load case coefficient</returns>
-        private static List<List<LoadCaseCoefficient>> GetUnfavourableCombinations(List<LoadCase> loadCases, StandardEN1990 standardEN1990, StandardEN1990.LimitState limitState, StandardEN1990.ULSCombinationSets uLS, StandardEN1990.ImposedLoadCategory category)
+        private static List<List<LoadCaseCoefficient>> GetUnfavourableCombinations(List<LoadCase> loadCases, StandardEN1990 standardEN1990, StandardEN1990.LimitState limitState, 
+                                                        StandardEN1990.ULSStructuralGeotechicalCombinationSets uLS, StandardEN1990.ImposedLoadCategory category, bool highAltitude = true)
         {
             List<List<LoadCaseCoefficient>> loadCaseCoefficients = new List<List<LoadCaseCoefficient>>();
             List<LoadCaseCoefficient> loadCaseCoefficientsBuffer = new List<LoadCaseCoefficient>();
@@ -319,7 +350,7 @@ namespace GPC.Model.Combinations
                 if ((loadCase.GetLoadCaseType() != LoadCase.LoadCaseType.Prestress && loadCase.GetLoadCaseType() != LoadCase.LoadCaseType.SelfWeight && loadCase.GetLoadCaseType() != LoadCase.LoadCaseType.SuperImposedDeadLoad))
                     list.Add(loadCase);
 
-            List<List<LoadCaseCoefficient>> randomList = RandomizeVariableLoads(list, standardEN1990, limitState, uLS, category);
+            List<List<LoadCaseCoefficient>> randomList = RandomizeVariableLoads(list, standardEN1990, limitState, uLS, category, highAltitude);
             for (int i = 0; i < randomList.Count(); i++)
             {
                 List<LoadCaseCoefficient> tempList = new List<LoadCaseCoefficient>();
@@ -339,8 +370,10 @@ namespace GPC.Model.Combinations
         /// <param name="limitState">The limit state of combinations</param>
         /// <param name="uLS">The ULS combination set (if <paramref name="limitState"/> is an ultimate state limit</param>
         /// <param name="category">The category of the imposed load</param>
+        /// <param name="highAltitude">If true, set the snow load with high altitude</param>
         /// <returns>A list of list of load case coefficient</returns>
-        private static List<List<LoadCaseCoefficient>> RandomizeVariableLoads(List<LoadCase> list, StandardEN1990 standardEN1990, StandardEN1990.LimitState limitState, StandardEN1990.ULSCombinationSets uLS, StandardEN1990.ImposedLoadCategory category)
+        private static List<List<LoadCaseCoefficient>> RandomizeVariableLoads(List<LoadCase> list, StandardEN1990 standardEN1990, StandardEN1990.LimitState limitState, 
+                                                        StandardEN1990.ULSStructuralGeotechicalCombinationSets uLS, StandardEN1990.ImposedLoadCategory category, bool highAltitude = true)
         {
             List<List<LoadCaseCoefficient>> loadCaseCoefficients = new List<List<LoadCaseCoefficient>>();
 
@@ -348,14 +381,14 @@ namespace GPC.Model.Combinations
             {
                 List<LoadCaseCoefficient> loadCaseCoefficientsBuffer = new List<LoadCaseCoefficient>();
                 LoadCase loadCaseLead = list[i];
-                LoadCaseCoefficient loadCaseCoefficientLead = new LoadCaseCoefficient(GetCoefficientLeadingVariableAction(loadCaseLead, standardEN1990, limitState, uLS, category), loadCaseLead);
+                LoadCaseCoefficient loadCaseCoefficientLead = new LoadCaseCoefficient(GetCoefficientLeadingVariableAction(loadCaseLead, standardEN1990, limitState, uLS, category, highAltitude), loadCaseLead);
                 loadCaseCoefficientsBuffer.Add(loadCaseCoefficientLead);
 
                 foreach (LoadCase loadCaseAccompanying in list)
                 {
                     if (!loadCaseAccompanying.Equals(loadCaseLead))
                     {
-                        LoadCaseCoefficient loadCaseCoefficientAccompanying = new LoadCaseCoefficient(GetCoefficientAccompanyingVariableAction(loadCaseAccompanying, standardEN1990, limitState, uLS, category), loadCaseAccompanying);
+                        LoadCaseCoefficient loadCaseCoefficientAccompanying = new LoadCaseCoefficient(GetCoefficientAccompanyingVariableAction(loadCaseAccompanying, standardEN1990, limitState, uLS, category, highAltitude), loadCaseAccompanying);
                         loadCaseCoefficientsBuffer.Add(loadCaseCoefficientAccompanying);
                     }
                 }
@@ -372,7 +405,7 @@ namespace GPC.Model.Combinations
         /// <param name="limitState">The limit state of combinations</param>
         /// <param name="uLS">The ULS combination set (if <paramref name="limitState"/> is an ultimate state limit</param>
         /// <returns>The coefficient</returns>
-        private static double GetCoefficientUnfavourablePermanentActions(LoadCase loadCase, StandardEN1990 standardEN1990, StandardEN1990.LimitState limitState, StandardEN1990.ULSCombinationSets uLS)
+        private static double GetCoefficientUnfavourablePermanentActions(LoadCase loadCase, StandardEN1990 standardEN1990, StandardEN1990.LimitState limitState, StandardEN1990.ULSStructuralGeotechicalCombinationSets uLS)
         {
             var loadCaseType = loadCase.GetLoadCaseType();
             double coef;
@@ -397,7 +430,7 @@ namespace GPC.Model.Combinations
         /// <param name="limitState">The limit state of combinations</param>
         /// <param name="uLS">The ULS combination set (if <paramref name="limitState"/> is an ultimate state limit</param>
         /// <returns>The coefficient</returns>
-        private static double GetCoefficientFavourablePermanentActions(LoadCase loadCase, StandardEN1990 standardEN1990, StandardEN1990.LimitState limitState, StandardEN1990.ULSCombinationSets uLS)
+        private static double GetCoefficientFavourablePermanentActions(LoadCase loadCase, StandardEN1990 standardEN1990, StandardEN1990.LimitState limitState, StandardEN1990.ULSStructuralGeotechicalCombinationSets uLS)
         {
             var loadCaseType = loadCase.GetLoadCaseType();
             double coef;
@@ -422,8 +455,10 @@ namespace GPC.Model.Combinations
         /// <param name="limitState">The limit state of combinations</param>
         /// <param name="uLS">The ULS combination set (if <paramref name="limitState"/> is an ultimate state limit</param>
         /// <param name="category">The category of the imposed load</param>
+        /// <param name="highAltitude">If true, set the snow load with high altitude</param>
         /// <returns>The coefficient</returns>
-        private static double GetCoefficientLeadingVariableAction(LoadCase loadCase, StandardEN1990 standardEN1990, StandardEN1990.LimitState limitState, StandardEN1990.ULSCombinationSets uLS, StandardEN1990.ImposedLoadCategory category)
+        private static double GetCoefficientLeadingVariableAction(LoadCase loadCase, StandardEN1990 standardEN1990, StandardEN1990.LimitState limitState, 
+                                                        StandardEN1990.ULSStructuralGeotechicalCombinationSets uLS, StandardEN1990.ImposedLoadCategory category, bool highAltitude = true)
         {
             if(limitState == StandardEN1990.LimitState.UltimateEquilibrium || limitState == StandardEN1990.LimitState.UltimateFatigue || limitState == StandardEN1990.LimitState.UltimateGeotechnical || limitState == StandardEN1990.LimitState.UltimateStructural)
             {
@@ -438,13 +473,13 @@ namespace GPC.Model.Combinations
             else if(limitState == StandardEN1990.LimitState.ServiceabilityFrequent)
             {
                 double gamma = standardEN1990.GetGammaQUnfavourable(uLS, limitState, loadCase);
-                double psi1 = standardEN1990.GetPsi1(category, loadCase);
+                double psi1 = standardEN1990.GetPsi1(category, loadCase, highAltitude);
                 return gamma * psi1; 
             }
             else if (limitState == StandardEN1990.LimitState.ServiceabilityQuasiPermanent)
             {
                 double gamma = standardEN1990.GetGammaQUnfavourable(uLS, limitState, loadCase);
-                double psi2 = standardEN1990.GetPsi2(category, loadCase);
+                double psi2 = standardEN1990.GetPsi2(category, loadCase, highAltitude);
                 return gamma * psi2;
             }
             else
@@ -459,25 +494,27 @@ namespace GPC.Model.Combinations
         /// <param name="limitState">The limit state of combinations</param>
         /// <param name="uLS">The ULS combination set (if <paramref name="limitState"/> is an ultimate state limit</param>
         /// <param name="category">The category of the imposed load</param>
+        /// <param name="highAltitude">If true, set the snow load with high altitude</param>
         /// <returns>The coefficient</returns>
-        private static double GetCoefficientAccompanyingVariableAction(LoadCase loadCase, StandardEN1990 standardEN1990, StandardEN1990.LimitState limitState, StandardEN1990.ULSCombinationSets uLS, StandardEN1990.ImposedLoadCategory category)
+        private static double GetCoefficientAccompanyingVariableAction(LoadCase loadCase, StandardEN1990 standardEN1990, StandardEN1990.LimitState limitState, 
+                                                        StandardEN1990.ULSStructuralGeotechicalCombinationSets uLS, StandardEN1990.ImposedLoadCategory category, bool highAltitude = true)
         {
             if (limitState == StandardEN1990.LimitState.UltimateEquilibrium || limitState == StandardEN1990.LimitState.UltimateFatigue || limitState == StandardEN1990.LimitState.UltimateGeotechnical || limitState == StandardEN1990.LimitState.UltimateStructural)
             {
                 double gammaQ = standardEN1990.GetGammaQUnfavourable(uLS, limitState, loadCase);
-                double psi0 = standardEN1990.GetPsi0(category, loadCase);
+                double psi0 = standardEN1990.GetPsi0(category, loadCase, highAltitude);
                 return gammaQ * psi0;
             }
             if (limitState == StandardEN1990.LimitState.ServiceabilityCharacteristic)
             {
                 double gammaQ = standardEN1990.GetGammaQUnfavourable(uLS, limitState, loadCase);
-                double psi0 = standardEN1990.GetPsi0(category, loadCase);
+                double psi0 = standardEN1990.GetPsi0(category, loadCase, highAltitude);
                 return gammaQ * psi0;
             }
             else if (limitState == StandardEN1990.LimitState.ServiceabilityFrequent || limitState == StandardEN1990.LimitState.ServiceabilityQuasiPermanent)
             {
                 double gammaQ = standardEN1990.GetGammaQUnfavourable(uLS, limitState, loadCase);
-                double psi2 = standardEN1990.GetPsi2(category, loadCase);
+                double psi2 = standardEN1990.GetPsi2(category, loadCase, highAltitude);
                 return gammaQ * psi2;
             }
             else
