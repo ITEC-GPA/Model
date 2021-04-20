@@ -588,19 +588,19 @@ namespace ModelObjectTest
             // Arrange
             string loadCaseName1 = "selfWeight";
             LoadCase selfWeightLoadCase = new LoadCase(loadCaseName1, LoadCase.LoadCaseType.SelfWeight);
-            string loadCaseName2 = "Wind";
+            string loadCaseName2 = "Wind1";
             LoadCase windLoadCase = new LoadCase(loadCaseName2, LoadCase.LoadCaseType.Wind);
             string loadCaseName3 = "Snow";
             LoadCase snowLoadCase = new LoadCase(loadCaseName3, LoadCase.LoadCaseType.Snow);
-            string loadCaseName4 = "PreStress";
-            LoadCase prestressLoadCase = new LoadCase(loadCaseName4, LoadCase.LoadCaseType.Prestress);
+            string loadCaseName4 = "Wind2";
+            LoadCase windLoadCase2 = new LoadCase(loadCaseName4, LoadCase.LoadCaseType.Wind);
 
             List<LoadCase> loadCaseList = new List<LoadCase>
             {
                 selfWeightLoadCase,
                 windLoadCase,
                 snowLoadCase,
-                prestressLoadCase
+                windLoadCase2
             };
 
             StandardEN1990 standardEN1990 = new StandardEN1990();
@@ -620,9 +620,11 @@ namespace ModelObjectTest
             Assert.IsTrue(Math.Abs(outList[4][selfWeightLoadCase] - 1.00) < 0.001);
             Assert.IsTrue(Math.Abs(outList[5][selfWeightLoadCase] - 1.35) < 0.001);
             Assert.IsTrue(Math.Abs(outList[0][windLoadCase] - 1.5) < 0.001);
-            Assert.IsTrue(Math.Abs(outList[1][snowLoadCase] - 1.5) < 0.001);
-            Assert.IsTrue(Math.Abs(outList[0][snowLoadCase] - 0.75) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[0][windLoadCase2] - 1.5) < 0.001);
             Assert.IsTrue(Math.Abs(outList[1][windLoadCase] - 0.90) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[1][windLoadCase2] - 0.90) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[0][snowLoadCase] - 0.75) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[1][snowLoadCase] - 1.5) < 0.001);
         }
 
         [TestMethod]
@@ -826,6 +828,142 @@ namespace ModelObjectTest
             Assert.IsTrue(Math.Abs(outList[1][snowLoadCase] - 0.50) < 0.001);
             Assert.IsTrue(Math.Abs(outList[0][snowLoadCase] - 0.20) < 0.001);
             Assert.IsTrue(Math.Abs(outList[1][windLoadCase] - 0.00) < 0.001);
+        }
+
+        [TestMethod]
+        public void GeneratorMultyLoadCase()
+        {
+            // Arrange
+            string loadCaseName1 = "selfWeight";
+            LoadCase selfWeightLoadCase = new LoadCase(loadCaseName1, LoadCase.LoadCaseType.SelfWeight);
+            string loadCaseName5 = "selfWeight2";
+            LoadCase selfWeightLoadCase2 = new LoadCase(loadCaseName5, LoadCase.LoadCaseType.SelfWeight);
+            string loadCaseName2 = "Wind1";
+            LoadCase windLoadCase1 = new LoadCase(loadCaseName2, LoadCase.LoadCaseType.Wind);
+            string loadCaseName4 = "Wind2";
+            LoadCase windLoadCase2 = new LoadCase(loadCaseName4, LoadCase.LoadCaseType.Wind);
+            string loadCaseName8 = "Wind3";
+            LoadCase windLoadCase4 = new LoadCase(loadCaseName8, LoadCase.LoadCaseType.Wind);
+            string loadCaseName6 = "Wind4";
+            LoadCase windLoadCase3 = new LoadCase(loadCaseName6, LoadCase.LoadCaseType.Wind);
+            string loadCaseName7 = "Snow2";
+            LoadCase snowLoadCase2 = new LoadCase(loadCaseName7, LoadCase.LoadCaseType.Snow);
+            string loadCaseName3 = "Snow1";
+            LoadCase snowLoadCase1 = new LoadCase(loadCaseName3, LoadCase.LoadCaseType.Snow);
+
+
+            List<LoadCase> loadCaseList = new List<LoadCase>
+            {
+                selfWeightLoadCase,
+                selfWeightLoadCase2,
+                windLoadCase1,
+                windLoadCase2,
+                windLoadCase3,
+                windLoadCase4,
+                snowLoadCase1,
+                snowLoadCase2
+            };
+
+            StandardEN1990 standardEN1990 = new StandardEN1990();
+            StandardEN1990.ImposedLoadCategory category = StandardEN1990.ImposedLoadCategory.CategoryA;
+            StandardEN1990.LimitState limitState = StandardEN1990.LimitState.UltimateStructural;
+
+            // Act
+            List<CombinationEn> outList = CombinationEn.GenerateCombinations("combo", loadCaseList, standardEN1990, limitState, category);
+
+            // Assert
+            Assert.IsTrue(outList.Count() == 6);
+            Assert.IsTrue(Math.Abs(outList[0][selfWeightLoadCase] - 1.00) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[1][selfWeightLoadCase] - 1.00) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[2][selfWeightLoadCase] - 1.35) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[3][selfWeightLoadCase] - 1.35) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[4][selfWeightLoadCase] - 1.00) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[5][selfWeightLoadCase] - 1.35) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[0][windLoadCase1] - 1.50) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[0][windLoadCase2] - 1.50) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[0][windLoadCase3] - 1.50) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[0][windLoadCase4] - 1.50) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[0][snowLoadCase1] - 1.05) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[0][snowLoadCase2] - 1.05) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[1][windLoadCase1] - 0.90) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[1][windLoadCase2] - 0.90) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[1][windLoadCase3] - 0.90) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[1][windLoadCase4] - 0.90) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[1][snowLoadCase1] - 1.50) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[1][snowLoadCase2] - 1.50) < 0.001);
+        }
+
+        [TestMethod]
+        public void GeneratorMultyLoadCase2()
+        {
+            // Arrange
+            string loadCaseName1 = "selfWeight";
+            LoadCase selfWeightLoadCase = new LoadCase(loadCaseName1, LoadCase.LoadCaseType.SelfWeight);
+            string loadCaseName5 = "selfWeight2";
+            LoadCase selfWeightLoadCase2 = new LoadCase(loadCaseName5, LoadCase.LoadCaseType.SelfWeight);
+            string loadCaseName2 = "Wind1";
+            LoadCase windLoadCase1 = new LoadCase(loadCaseName2, LoadCase.LoadCaseType.Wind);
+            string loadCaseName4 = "Wind2";
+            LoadCase windLoadCase2 = new LoadCase(loadCaseName4, LoadCase.LoadCaseType.Wind);
+            string loadCaseName8 = "Temperature1";
+            LoadCase temperatureLoadCase4 = new LoadCase(loadCaseName8, LoadCase.LoadCaseType.Temperature);
+            string loadCaseName6 = "Temperature2";
+            LoadCase temperatureLoadCase3 = new LoadCase(loadCaseName6, LoadCase.LoadCaseType.Temperature);
+            string loadCaseName7 = "Snow2";
+            LoadCase snowLoadCase2 = new LoadCase(loadCaseName7, LoadCase.LoadCaseType.Snow);
+            string loadCaseName3 = "Snow1";
+            LoadCase snowLoadCase1 = new LoadCase(loadCaseName3, LoadCase.LoadCaseType.Snow);
+
+
+            List<LoadCase> loadCaseList = new List<LoadCase>
+            {
+                selfWeightLoadCase,
+                selfWeightLoadCase2,
+                windLoadCase1,
+                windLoadCase2,
+                temperatureLoadCase3,
+                temperatureLoadCase4,
+                snowLoadCase1,
+                snowLoadCase2
+            };
+
+            StandardEN1990 standardEN1990 = new StandardEN1990();
+            StandardEN1990.ImposedLoadCategory category = StandardEN1990.ImposedLoadCategory.CategoryA;
+            StandardEN1990.LimitState limitState = StandardEN1990.LimitState.UltimateStructural;
+
+            // Act
+            List<CombinationEn> outList = CombinationEn.GenerateCombinations("combo", loadCaseList, standardEN1990, limitState, category);
+
+            // Assert
+            Assert.IsTrue(outList.Count() == 8);
+            Assert.IsTrue(Math.Abs(outList[0][selfWeightLoadCase] - 1.00) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[1][selfWeightLoadCase] - 1.00) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[2][selfWeightLoadCase] - 1.00) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[3][selfWeightLoadCase] - 1.35) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[4][selfWeightLoadCase] - 1.35) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[5][selfWeightLoadCase] - 1.35) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[6][selfWeightLoadCase] - 1.00) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[7][selfWeightLoadCase] - 1.35) < 0.001);
+
+            Assert.IsTrue(Math.Abs(outList[0][windLoadCase1] - 1.50) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[0][windLoadCase2] - 1.50) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[1][temperatureLoadCase3] - 1.50) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[1][temperatureLoadCase4] - 1.50) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[2][snowLoadCase1] - 1.50) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[2][snowLoadCase2] - 1.50) < 0.001);
+
+            Assert.IsTrue(Math.Abs(outList[1][windLoadCase1] - 0.90) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[1][windLoadCase2] - 0.90) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[2][windLoadCase1] - 0.90) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[2][windLoadCase2] - 0.90) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[0][temperatureLoadCase3] - 0.90) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[0][temperatureLoadCase4] - 0.90) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[2][temperatureLoadCase3] - 0.90) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[2][temperatureLoadCase4] - 0.90) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[0][snowLoadCase1] - 1.05) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[0][snowLoadCase2] - 1.05) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[1][snowLoadCase1] - 1.05) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[1][snowLoadCase2] - 1.05) < 0.001);
         }
     }
 }

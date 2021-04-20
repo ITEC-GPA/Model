@@ -376,23 +376,41 @@ namespace GPC.Model.Combinations
                                                         StandardEN1990.ULSStructuralGeotechicalCombinationSets uLS, StandardEN1990.ImposedLoadCategory category, bool highAltitude = true)
         {
             List<List<LoadCaseCoefficient>> loadCaseCoefficients = new List<List<LoadCaseCoefficient>>();
+            HashSet<LoadCase.LoadCaseType> hash = new HashSet<LoadCase.LoadCaseType>();
 
             for (int i = 0; i < list.Count(); i++)
             {
                 List<LoadCaseCoefficient> loadCaseCoefficientsBuffer = new List<LoadCaseCoefficient>();
                 LoadCase loadCaseLead = list[i];
-                LoadCaseCoefficient loadCaseCoefficientLead = new LoadCaseCoefficient(GetCoefficientLeadingVariableAction(loadCaseLead, standardEN1990, limitState, uLS, category, highAltitude), loadCaseLead);
-                loadCaseCoefficientsBuffer.Add(loadCaseCoefficientLead);
-
-                foreach (LoadCase loadCaseAccompanying in list)
+                var lctype = loadCaseLead.GetLoadCaseType();
+                if (!hash.Contains((LoadCase.LoadCaseType)lctype))
                 {
-                    if (!loadCaseAccompanying.Equals(loadCaseLead))
+                    foreach (LoadCase lc in list.Where(j => j.GetLoadCaseType() == lctype))
                     {
-                        LoadCaseCoefficient loadCaseCoefficientAccompanying = new LoadCaseCoefficient(GetCoefficientAccompanyingVariableAction(loadCaseAccompanying, standardEN1990, limitState, uLS, category, highAltitude), loadCaseAccompanying);
-                        loadCaseCoefficientsBuffer.Add(loadCaseCoefficientAccompanying);
+                        LoadCaseCoefficient loadCaseCoefficientLead = new LoadCaseCoefficient(GetCoefficientLeadingVariableAction(lc, standardEN1990, limitState, uLS, category, highAltitude), lc);
+                        loadCaseCoefficientsBuffer.Add(loadCaseCoefficientLead);
                     }
+
+                    HashSet<LoadCase.LoadCaseType> hashAcc = new HashSet<LoadCase.LoadCaseType>();
+                    foreach (LoadCase loadCaseAccompanying in list)
+                    {                        
+                        if (!hashAcc.Contains((LoadCase.LoadCaseType)loadCaseAccompanying.GetLoadCaseType()))
+                        {
+                            if (!loadCaseAccompanying.GetLoadCaseType().Equals(loadCaseLead.GetLoadCaseType()))
+                            {
+                                var lcacctype = loadCaseAccompanying.GetLoadCaseType();
+                                foreach (LoadCase lca in list.Where(j => j.GetLoadCaseType() == lcacctype))
+                                {
+                                    LoadCaseCoefficient loadCaseCoefficientAccompanying = new LoadCaseCoefficient(GetCoefficientAccompanyingVariableAction(lca, standardEN1990, limitState, uLS, category, highAltitude), lca);
+                                    loadCaseCoefficientsBuffer.Add(loadCaseCoefficientAccompanying);
+                                }
+                                hashAcc.Add((LoadCase.LoadCaseType)lcacctype);
+                            }
+                        }
+                    }
+                    loadCaseCoefficients.Add(loadCaseCoefficientsBuffer);
+                    hash.Add((LoadCase.LoadCaseType)lctype);
                 }
-                loadCaseCoefficients.Add(loadCaseCoefficientsBuffer);
             }
             return loadCaseCoefficients;
         }
