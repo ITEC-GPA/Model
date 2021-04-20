@@ -77,6 +77,12 @@ namespace GPC.Model
                 throw new KeyNotFoundException($"Collection does not contain a element with name: {name}");
         }
 
+        /// <returns>A list of all element names of this collection</returns>
+        public virtual List<string> GetNames()
+        {
+            return _names.ToList();
+        }
+
         public void Clear()
         {
             _collection.Clear();

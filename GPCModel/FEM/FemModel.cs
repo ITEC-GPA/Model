@@ -205,6 +205,18 @@ namespace GPC.Model.FEM
             return _brickProperties.GetElementByName(name);
         }
 
+        /// <inheritdoc cref="UniqueNameCollection{T}.GetNames()"/>
+        public List<string> GetPlatePropertyNames()
+        {
+            return _plateProperties.GetNames();
+        }
+
+        /// <inheritdoc cref="UniqueNameCollection{T}.GetNames()"/>
+        public List<string> GetBrickPropertyNames()
+        {
+            return _brickProperties.GetNames();
+        }
+
 
         /// <inheritdoc cref="UniqueNameCollection{T}.Add(T)"/>
         public virtual bool AddLoadCase(LoadCase loadCase)
