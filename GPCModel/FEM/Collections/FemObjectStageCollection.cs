@@ -1,21 +1,23 @@
 ﻿using GPC.Utilities.Extensions;
 using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 
 namespace GPC.Model.FEM.Collections
 {
-    public abstract class FemObjectStageCollection<T, D> : FemObjectCollection<T> where T : FEMObject where D : Stage.StageProperty
+    public abstract class FemObjectStageCollection<T, D> : FemObjectBaseCollection<T> where T : FEMObject where D : Stage.StageProperty
     {
         /// <summary>
         /// Association between element and Stage.StageProperty of that element
         /// </summary>
         protected List<KeyValuePair<T, D>> _stageFiniteElementProperty;
 
-        public FemObjectStageCollection()
-            : base()
+
+        public FemObjectStageCollection() : base()
         {
-            // Chiamo il costruttore di FemObjectCollection per cui uso la sua _collection.
+            // Chiamo il costruttore di FemObjectBaseCollection per cui uso la sua _collection.
             // Mi serve per usare la sua logica di assegnamento ID
 
             _stageFiniteElementProperty = new List<KeyValuePair<T, D>>();
@@ -49,13 +51,13 @@ namespace GPC.Model.FEM.Collections
         /// <para>This is a O(2n) operations</para>
         /// <para>If <paramref name="item"/> already exist, <paramref name="stageFiniteElementProperty"/> will be merged into the one already assigned </para>
         /// </remarks>
-        /// <inheritdoc cref="FemObjectCollection{T}.Add(T)"/>
+        /// <inheritdoc cref="FemObjectBaseCollection{T}.AddItem(T)"/>
         public virtual int Add(T item, D stageFiniteElementProperty)
         {
             if (stageFiniteElementProperty is null)
                 throw new ArgumentNullException();
 
-            var baseItemId = base.Add(item);
+            var baseItemId = base.BaseAdd(item);
 
             AddStageFiniteElementProperty(item, stageFiniteElementProperty);
 
@@ -72,12 +74,13 @@ namespace GPC.Model.FEM.Collections
             if (stageFiniteElementProperty is null)
                 throw new ArgumentNullException();
 
-            int baseItemId = base.SetItem(item);
+            int baseItemId = base.BaseSetItem(item);
 
             AddStageFiniteElementProperty(item, stageFiniteElementProperty);
 
             return baseItemId;
         }
+
 
         /// <summary>
         /// Set the <paramref name="stageFiniteElementProperty"/> of <paramref name="item"/>
@@ -110,6 +113,16 @@ namespace GPC.Model.FEM.Collections
 
         #region Public methods - Getter
 
+        /// <inheritdoc cref="FemObjectBaseCollection{T}.BaseGetElementById(int)"/>
+        public virtual T this[int id]
+        {
+            get
+            {
+                return base.BaseGetElementById(id);
+            }
+        }
+
+
         /// <summary>
         /// Get the property associated to <paramref name="item"/>
         /// </summary>
@@ -136,7 +149,7 @@ namespace GPC.Model.FEM.Collections
         /// <remarks>This is a O(n^2) operations</remarks>
         public D GetStageProperty(int elementID)
         {
-            var el = _stageFiniteElementProperty.Where(i => i.Key == base.GetElementById(elementID)).SingleOrDefault();
+            var el = _stageFiniteElementProperty.Where(i => i.Key == base.BaseGetElementById(elementID)).SingleOrDefault();
 
             if (el.Equals(default(KeyValuePair<T, D>)))
             {
@@ -186,6 +199,7 @@ namespace GPC.Model.FEM.Collections
 
             return hashCode;
         }
+
 
         public static bool operator ==(FemObjectStageCollection<T, D> obj1, FemObjectStageCollection<T, D> obj2)
         {

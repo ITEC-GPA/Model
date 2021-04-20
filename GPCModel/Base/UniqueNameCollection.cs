@@ -10,9 +10,13 @@ namespace GPC.Model
     /// <typeparam name="T"></typeparam>
     public class UniqueNameCollection<T> : ModelObjectEnumerable<T>, ICollection<T> where T : ModelObject
     {
+        private HashSet<string> _names;
+
+
         public UniqueNameCollection()
         {
             _collection = new HashSet<T>(new ModelObject.ModelObjectNameEqualityComparer());
+            _names = new HashSet<string>();
         }
 
         public int Count => _collection.Count;
@@ -36,6 +40,7 @@ namespace GPC.Model
                 return false;
 
             _collection.Add(item);
+            _names.Add(item.Name);
             return true;
         }
 
@@ -65,14 +70,23 @@ namespace GPC.Model
             // l'add non fa aggiungere oggetti con nome duplicato.
             // se le istanze variano dopo che sono stati aggiunti e trova un duplicato va in eccezione
 
-            //(_collection as HashSet<T>).TryGetValue(new Elements.GhostElement(name), out T found);
 
-            return _collection.SingleOrDefault(i => i.Name == name);
+            if (this.Contains(name))
+                return _collection.SingleOrDefault(i => i.Name == name);
+            else
+                throw new KeyNotFoundException($"Collection does not contain a element with name: {name}");
+        }
+
+        /// <returns>A list of all element names of this collection</returns>
+        public virtual List<string> GetNames()
+        {
+            return _names.ToList();
         }
 
         public void Clear()
         {
             _collection.Clear();
+            _names.Clear();
         }
 
         public bool Contains(T item)
@@ -80,21 +94,25 @@ namespace GPC.Model
             return _collection.Contains(item);
         }
 
+
+        /// <param name="name"></param>
+        /// <returns><see langword="true" /> if this collection contains a property with name equals to <paramref name="name"/> </returns>
+        public bool Contains(string name)
+        {
+            return _names.Contains(name);
+        }
+
         /// <remarks>This is a O(1) operation</remarks>
         public bool Remove(T item)
         {
-            return _collection.Remove(item);
+            return _collection.Remove(item) && _names.Remove(item.Name) ;
         }
 
         public bool Remove(string name)
         {
-            return _collection.Remove(GetElementByName(name));
+            return _collection.Remove(GetElementByName(name)) && _names.Remove(name); ;
         }
 
-        public void CopyTo(T[] array, int arrayIndex)
-        {
-            _collection.CopyTo(array, arrayIndex);
-        }
 
         void ICollection<T>.Add(T item)
         {
@@ -102,25 +120,6 @@ namespace GPC.Model
             this.Add(item);
         }
 
-        public void UnionWith(IEnumerable<T> other)
-        {
-            (_collection as HashSet<T>).UnionWith(other);
-        }
-
-        public void IntersectWith(IEnumerable<T> other)
-        {
-            (_collection as HashSet<T>).IntersectWith(other);
-        }
-
-        public void ExceptWith(IEnumerable<T> other)
-        {
-            (_collection as HashSet<T>).ExceptWith(other);
-        }
-
-        public void SymmetricExceptWith(IEnumerable<T> other)
-        {
-            (_collection as HashSet<T>).SymmetricExceptWith(other);
-        }
 
         public bool IsSubsetOf(IEnumerable<T> other)
         {
@@ -150,6 +149,11 @@ namespace GPC.Model
         public bool SetEquals(IEnumerable<T> other)
         {
             return (_collection as HashSet<T>).SetEquals(other);
+        }
+
+        void ICollection<T>.CopyTo(T[] array, int arrayIndex)
+        {
+            throw new NotImplementedException();
         }
     }
 }
