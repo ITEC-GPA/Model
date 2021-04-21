@@ -253,8 +253,10 @@ namespace ModelObjectTest
             // Assert / Act
 
             Assert.IsTrue(combination.ContainsLoadCaseCoefficients(new[] { new KeyValuePair<LoadCase, double>(lc1, 1) } ));
+            Assert.IsTrue(combination.ContainsLoadCaseCoefficients(new List<(LoadCase, double)> { (lc1, 1) }));
 
             Assert.IsFalse(combination.ContainsLoadCaseCoefficients(new[] { new KeyValuePair<LoadCase, double>(lc1, 2) } ));
+            Assert.IsFalse(combination.ContainsLoadCaseCoefficients(new List<(LoadCase, double)> { (lc1, 2) }));
 
 
             Assert.IsTrue(combination.ContainsLoadCaseCoefficients(new[] { new KeyValuePair<LoadCase, double>(lc1, 1), 

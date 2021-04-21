@@ -207,6 +207,20 @@ namespace GPC.Model.Combinations
                 return true;
         }
 
+        public virtual bool ContainsLoadCaseCoefficients(IEnumerable<(LoadCase loadcase, double coefficient)> loadCasesCoefficients)
+        {
+            if (loadCasesCoefficients is null)
+                throw new ArgumentNullException();
+
+            if (loadCasesCoefficients.Count() > 0)
+            {
+                return _coefficients.Select(i => ( i.LoadCase, i.Coefficient )).Except(loadCasesCoefficients).Count() == _coefficients.Count() - loadCasesCoefficients.Count();
+            }
+            else
+                return true;
+        }
+
+
         #endregion
 
         #region INDEXER
