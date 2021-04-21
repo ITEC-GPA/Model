@@ -317,6 +317,11 @@ namespace GPC.Model.FEM
             _combinations.AddRange(combinations);
         }
 
+        internal IEnumerable<Combination> GetCombinations()
+        {
+            return _combinations.ToList();
+        }
+        
         #endregion
 
         #region StageProperties

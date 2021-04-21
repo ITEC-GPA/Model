@@ -153,7 +153,7 @@ namespace GPC.Model
 
         void ICollection<T>.CopyTo(T[] array, int arrayIndex)
         {
-            throw new NotImplementedException();
+            _collection.CopyTo(array, arrayIndex);
         }
     }
 }

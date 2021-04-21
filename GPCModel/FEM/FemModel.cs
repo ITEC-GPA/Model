@@ -302,6 +302,15 @@ namespace GPC.Model.FEM
             return stage;
         }
 
+        protected virtual Stage GetStageById(int stageId)
+        {
+            return _stages.Where(i => i.Id == stageId).FirstOrDefault();
+        }
+
+        protected virtual IEnumerable<Combination> GetStageCombinations(int stageId)
+        {
+            return _stages.Where(i => i.Id == stageId).FirstOrDefault().GetCombinations();
+        }
 
         #endregion
 
