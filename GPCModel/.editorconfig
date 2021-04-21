@@ -118,7 +118,7 @@ csharp_preserve_single_line_statements = true
 csharp_preserve_single_line_blocks = true
 
 #Warning preferences 
-dotnet_diagnostic.CS1591.severity = silent #Missing XML comment for publicly visible type or member 'Type_or_Member'
+dotnet_diagnostic.CS1591.severity = none  #Missing XML comment for publicly visible type or member 'Type_or_Member'
 
 
 ###############################
