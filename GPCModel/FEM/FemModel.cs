@@ -152,8 +152,7 @@ namespace GPC.Model.FEM
 
         #endregion
 
-        #region Public methods
-
+        #region Methods
 
         #region Add Get Attributes
 
@@ -310,10 +309,10 @@ namespace GPC.Model.FEM
 
         #region FiniteElements
 
-        /// <summary> Add a <paramref name="finiteElement"/> to the FemModel</summary>
+        /// <summary> Add a <paramref name="finiteElement"/> and its <see cref="Node"/> to the FemModel</summary>
         /// <param name="finiteElement"></param>
         /// <param name="propertyName">The name of the property that will be assigned to the <paramref name="finiteElement"/></param>
-        /// <returns></returns>
+        /// <remarks>This is a O(2n) Operation</remarks>
         /// <inheritdoc cref="GetPlateProperty(string)"/>
         /// <exception cref="ArgumentNullException">If the property list does not contain a property with a name equal to <paramref name="propertyName"/></exception>
         /// <exception cref="ArgumentNullException">If the nodes inside the <paramref name="finiteElement"/> are null</exception>
@@ -1055,7 +1054,9 @@ namespace GPC.Model.FEM
 
         #endregion
 
-        #region Public method override 
+
+
+        #region Equals - HashCode - Operators
 
 
         public override void GetObjectData(SerializationInfo info, StreamingContext context)

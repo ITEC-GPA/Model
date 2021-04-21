@@ -7,7 +7,7 @@ using GPC.Utilities.Extensions;
 namespace GPC.Model.FEM
 {
     /// <summary>
-    /// Nodo with unique ID, and X,Y,Z global coordinates
+    /// Rapresent a Node of a <see cref="FiniteElements.FiniteElement"/>
     /// </summary>
     public class Node : FEMObject
     {
