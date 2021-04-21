@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Runtime.Serialization;
 
 namespace GPC.Model.LoadCases
 {
     [Serializable]
+    [DebuggerDisplay("{" + nameof(GetDebuggerDisplay) + "(),nq}")]
     public class LoadCase : ModelObject, ISerializable, ILoadCase
     {
         #region PUBLIC ENUMS
@@ -111,6 +113,11 @@ namespace GPC.Model.LoadCases
         public static bool operator !=(LoadCase obj1, LoadCase obj2)
         {
             return !(obj1 == obj2);
+        }
+
+        private string GetDebuggerDisplay()
+        {
+            return $"LoadCase {Name} {_loadCaseType}";
         }
     }
 }

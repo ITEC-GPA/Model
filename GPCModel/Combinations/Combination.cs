@@ -128,16 +128,97 @@ namespace GPC.Model.Combinations
             return coefficients;
         }
 
-        public virtual bool ContainsLoadCases(List<LoadCase> loadCases)
+        /// <returns>An array of all the pairs <see cref="LoadCase"/>-LoadCaseCoefficient of this combination</returns>
+        public virtual KeyValuePair<LoadCase, double>[] GetLoadCaseCoefficientsPair()
+        {
+            KeyValuePair<LoadCase, double>[] pairs = new KeyValuePair<LoadCase, double>[_coefficients.Count];
+
+            for (var i = 0; i < _coefficients.Count; i++)
+            {
+                pairs[i] = new KeyValuePair<LoadCase, double>(_coefficients[i].LoadCase, _coefficients[i].Coefficient);
+            }
+
+            return pairs;
+        }
+
+        /// <returns>An array of all the tuples <see cref="LoadCase"/>-LoadCaseCoefficient of this combination</returns>
+        public virtual (LoadCase loadcase, double coefficient)[] GetLoadCaseCoefficientsTuple()
+        {
+            (LoadCase loadcase, double coefficient)[] pairs = new (LoadCase loadcase, double coefficient)[_coefficients.Count];
+
+            for (var i = 0; i < _coefficients.Count; i++)
+            {
+                pairs[i] = (_coefficients[i].LoadCase, _coefficients[i].Coefficient);
+            }
+
+            return pairs;
+        }
+
+
+        /// <returns>An array of tuples <see cref="LoadCase"/>-LoadCaseCoefficient. Where the <see cref="LoadCase"/> are only the ones contained in <paramref name="loadCases"/></returns>
+        public virtual (LoadCase loadcase, double coefficient)[] GetLoadCaseCoefficientsTuple(IEnumerable<LoadCase> loadCases)
+        {
+            var pairs = new List<(LoadCase loadcase, double coefficient)>();
+
+            for (var i = 0; i < _coefficients.Count; i++)
+            {
+                if (loadCases.Contains(_coefficients[i].LoadCase))
+                    pairs.Add((_coefficients[i].LoadCase, _coefficients[i].Coefficient));
+            }
+
+            return pairs.ToArray();
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="loadCases"></param>
+        /// <returns><see langword="True"/> if all the elements of <paramref name="loadCases"/> are contained in this combination</returns>
+        /// <exception cref="ArgumentNullException"></exception>
+        public virtual bool ContainsLoadCases(IEnumerable<LoadCase> loadCases)
         {
             if (loadCases is null)
                 throw new ArgumentNullException();
 
-            if (loadCases.Count > 0)
-                return _coefficients.Select(i => i.LoadCase).Intersect(loadCases).Count().Equals(loadCases.Count);
+            if (loadCases.Count() > 0)
+                return _coefficients.Select(i => i.LoadCase).Intersect(loadCases).Count().Equals(loadCases.Count());
             else
                 return true;
         }
+
+
+        /// <param name="loadCasesCoefficients"></param>
+        /// <returns><see langword="True"/> if all KeyValuePairs are contained in this combination</returns>
+        /// <exception cref="ArgumentNullException"></exception>
+        public virtual bool ContainsLoadCaseCoefficients(IEnumerable<KeyValuePair<LoadCase, double>> loadCasesCoefficients)
+        {
+            if (loadCasesCoefficients is null)
+                throw new ArgumentNullException();
+
+            if (loadCasesCoefficients.Count() > 0)
+            {
+                return _coefficients.Select(i => new KeyValuePair<LoadCase, double>(i.LoadCase, i.Coefficient)).Except(loadCasesCoefficients).Count() == _coefficients.Count() - loadCasesCoefficients.Count();
+            }
+            else
+                return true;
+        }
+
+        /// <param name="loadCasesCoefficients"></param>
+        /// <returns><see langword="True"/> if all Tuple are contained in this combination</returns>
+        /// <exception cref="ArgumentNullException"></exception>
+        public virtual bool ContainsLoadCaseCoefficients(IEnumerable<(LoadCase loadcase, double coefficient)> loadCasesCoefficients)
+        {
+            if (loadCasesCoefficients is null)
+                throw new ArgumentNullException();
+
+            if (loadCasesCoefficients.Count() > 0)
+            {
+                return _coefficients.Select(i => ( i.LoadCase, i.Coefficient )).Except(loadCasesCoefficients).Count() == _coefficients.Count() - loadCasesCoefficients.Count();
+            }
+            else
+                return true;
+        }
+
 
         #endregion
 
