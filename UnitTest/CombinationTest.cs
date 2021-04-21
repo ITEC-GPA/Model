@@ -196,5 +196,36 @@ namespace ModelObjectTest
             Assert.IsFalse(splitted[0].Contains("Zero"), combinationName);
         }
 
+
+        [TestMethod]
+        public void CombinationTest6()
+        {
+            // Arrange
+
+            CombinationAsce combination = new CombinationAsce("cmb1", CombinationAsce.CombinationType.LFRD);
+            
+            var lc1 = new LoadCase("LC1", LoadCase.LoadCaseType.SelfWeight);
+            var lc2 = new LoadCase("LC2", LoadCase.LoadCaseType.SuperImposedDeadLoad);
+            var lc3 = new LoadCase("LC3", LoadCase.LoadCaseType.ClimateSummer);
+            var lc4 = new LoadCase("LC4", LoadCase.LoadCaseType.Maintenance);
+            var lc5 = new LoadCase("LC5", LoadCase.LoadCaseType.LiveLoad);
+            var lc6 = new LoadCase("LC6", LoadCase.LoadCaseType.Snow);
+
+            combination.AddLoadCaseCoefficient(lc1, 1);
+            combination.AddLoadCaseCoefficient(lc2, 2);
+            combination.AddLoadCaseCoefficient(lc3, 3);
+            combination.AddLoadCaseCoefficient(lc4, 4);
+            combination.AddLoadCaseCoefficient(lc5, 5);
+
+
+            // Assert / Act
+
+            Assert.IsTrue(combination.ContainsLoadCases(new List<LoadCase> { lc1 }));
+            Assert.IsTrue(combination.ContainsLoadCases(new List<LoadCase> { lc1, lc2 }));
+            Assert.IsTrue(combination.ContainsLoadCases(new List<LoadCase> { lc5, lc1 }));
+            Assert.IsFalse(combination.ContainsLoadCases(new List<LoadCase> { lc6 }));
+            Assert.IsFalse(combination.ContainsLoadCases(new List<LoadCase> { lc6, lc1 }));
+            Assert.IsTrue(combination.ContainsLoadCases(new List<LoadCase> ()));
+        }
     }
 }

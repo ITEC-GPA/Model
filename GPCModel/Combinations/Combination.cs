@@ -128,7 +128,16 @@ namespace GPC.Model.Combinations
             return coefficients;
         }
 
+        public virtual bool ContainsLoadCases(List<LoadCase> loadCases)
+        {
+            if (loadCases is null)
+                throw new ArgumentNullException();
 
+            if (loadCases.Count > 0)
+                return _coefficients.Select(i => i.LoadCase).Intersect(loadCases).Count().Equals(loadCases.Count);
+            else
+                return true;
+        }
 
         #endregion
 
