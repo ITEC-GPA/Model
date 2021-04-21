@@ -198,7 +198,7 @@ namespace ModelObjectTest
 
 
         [TestMethod]
-        public void CombinationTest6()
+        public void CombinationContainsLoadCases()
         {
             // Arrange
 
@@ -226,6 +226,83 @@ namespace ModelObjectTest
             Assert.IsFalse(combination.ContainsLoadCases(new List<LoadCase> { lc6 }));
             Assert.IsFalse(combination.ContainsLoadCases(new List<LoadCase> { lc6, lc1 }));
             Assert.IsTrue(combination.ContainsLoadCases(new List<LoadCase> ()));
+        }
+
+
+        [TestMethod]
+        public void CombinationContainsLoadCaseCoefficients()
+        {
+            // Arrange
+
+            CombinationAsce combination = new CombinationAsce("cmb1", CombinationAsce.CombinationType.LFRD);
+
+            var lc1 = new LoadCase("LC1", LoadCase.LoadCaseType.SelfWeight);
+            var lc2 = new LoadCase("LC2", LoadCase.LoadCaseType.SuperImposedDeadLoad);
+            var lc3 = new LoadCase("LC3", LoadCase.LoadCaseType.ClimateSummer);
+            var lc4 = new LoadCase("LC4", LoadCase.LoadCaseType.Maintenance);
+            var lc5 = new LoadCase("LC5", LoadCase.LoadCaseType.LiveLoad);
+            var lc6 = new LoadCase("LC6", LoadCase.LoadCaseType.Snow);
+
+            combination.AddLoadCaseCoefficient(lc1, 1);
+            combination.AddLoadCaseCoefficient(lc2, 2);
+            combination.AddLoadCaseCoefficient(lc3, 3);
+            combination.AddLoadCaseCoefficient(lc4, 4);
+            combination.AddLoadCaseCoefficient(lc5, 5);
+
+
+            // Assert / Act
+
+            Assert.IsTrue(combination.ContainsLoadCaseCoefficients(new[] { new KeyValuePair<LoadCase, double>(lc1, 1) } ));
+
+            Assert.IsFalse(combination.ContainsLoadCaseCoefficients(new[] { new KeyValuePair<LoadCase, double>(lc1, 2) } ));
+
+
+            Assert.IsTrue(combination.ContainsLoadCaseCoefficients(new[] { new KeyValuePair<LoadCase, double>(lc1, 1), 
+                                                                           new KeyValuePair<LoadCase, double>(lc2, 2) } ));
+
+            Assert.IsFalse(combination.ContainsLoadCaseCoefficients(new[] { new KeyValuePair<LoadCase, double>(lc1, 1),
+                                                                            new KeyValuePair<LoadCase, double>(lc2, 3) }));
+
+
+            Assert.IsTrue(combination.ContainsLoadCaseCoefficients(new[] { new KeyValuePair<LoadCase, double>(lc1, 1),
+                                                                           new KeyValuePair<LoadCase, double>(lc4, 4) }));
+
+            Assert.IsFalse(combination.ContainsLoadCaseCoefficients(new[] { new KeyValuePair<LoadCase, double>(lc6, 1) }));
+
+            Assert.IsFalse(combination.ContainsLoadCaseCoefficients(new KeyValuePair<LoadCase, double>[1]));
+
+        }
+
+        [TestMethod]
+        public void CombinationGetLoadCaseCoefficients()
+        {
+            // Arrange
+
+            CombinationAsce combination = new CombinationAsce("cmb1", CombinationAsce.CombinationType.LFRD);
+
+            var lc1 = new LoadCase("LC1", LoadCase.LoadCaseType.SelfWeight);
+            var lc2 = new LoadCase("LC2", LoadCase.LoadCaseType.SuperImposedDeadLoad);
+            var lc3 = new LoadCase("LC3", LoadCase.LoadCaseType.ClimateSummer);
+            var lc4 = new LoadCase("LC4", LoadCase.LoadCaseType.Maintenance);
+            var lc5 = new LoadCase("LC5", LoadCase.LoadCaseType.LiveLoad);
+            var lc6 = new LoadCase("LC6", LoadCase.LoadCaseType.Snow);
+
+            combination.AddLoadCaseCoefficient(lc1, 1);
+            combination.AddLoadCaseCoefficient(lc2, 2);
+            combination.AddLoadCaseCoefficient(lc3, 3);
+            combination.AddLoadCaseCoefficient(lc4, 4);
+            combination.AddLoadCaseCoefficient(lc5, 5);
+
+
+            // Assert / Act
+            var pair = combination.GetLoadCaseCoefficientsPair();
+            var tuple = combination.GetLoadCaseCoefficientsTuple();
+
+
+            Assert.IsTrue(pair[0].Key == lc1, pair[0].Key.Name.ToString());
+            Assert.IsTrue(pair[1].Key == lc2, pair[1].Key.Name.ToString());
+            Assert.IsTrue(tuple[0].loadcase == lc1, tuple[0].loadcase.Name.ToString());
+            Assert.IsTrue(tuple[1].loadcase == lc2, tuple[1].loadcase.Name.ToString());
         }
     }
 }

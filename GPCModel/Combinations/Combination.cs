@@ -128,13 +128,81 @@ namespace GPC.Model.Combinations
             return coefficients;
         }
 
-        public virtual bool ContainsLoadCases(List<LoadCase> loadCases)
+        public virtual KeyValuePair<LoadCase, double>[] GetLoadCaseCoefficientsPair()
+        {
+            KeyValuePair<LoadCase, double>[] pairs = new KeyValuePair<LoadCase, double>[_coefficients.Count];
+
+            for (var i = 0; i < _coefficients.Count; i++)
+            {
+                pairs[i] = new KeyValuePair<LoadCase, double>(_coefficients[i].LoadCase, _coefficients[i].Coefficient);
+            }
+
+            return pairs;
+        }
+
+
+        public virtual (LoadCase loadcase, double coefficient)[] GetLoadCaseCoefficientsTuple()
+        {
+            (LoadCase loadcase, double coefficient)[] pairs = new (LoadCase loadcase, double coefficient)[_coefficients.Count];
+
+            for (var i = 0; i < _coefficients.Count; i++)
+            {
+                pairs[i] = (_coefficients[i].LoadCase, _coefficients[i].Coefficient);
+            }
+
+            return pairs;
+        }
+
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="loadCases"></param>
+        /// <returns><see langword="True"/> if all the elements of <paramref name="loadCases"/> are contained in this combination</returns>
+        /// <exception cref="ArgumentNullException"></exception>
+        public virtual bool ContainsLoadCases(IEnumerable<LoadCase> loadCases)
         {
             if (loadCases is null)
                 throw new ArgumentNullException();
 
-            if (loadCases.Count > 0)
-                return _coefficients.Select(i => i.LoadCase).Intersect(loadCases).Count().Equals(loadCases.Count);
+            if (loadCases.Count() > 0)
+                return _coefficients.Select(i => i.LoadCase).Intersect(loadCases).Count().Equals(loadCases.Count());
+            else
+                return true;
+        }
+
+
+        /// <param name="loadCases"></param>
+        /// <param name="coefficients"></param>
+        /// <returns><see langword="True"/> if all the pairs of <paramref name="loadCases"/> and <paramref name="coefficients"/> are contained in this combination</returns>
+        /// <remarks><paramref name="loadCases"/> lenght must be equal to <paramref name="coefficients"/> lenght </remarks>
+        /// <exception cref="ArgumentException">If <paramref name="loadCases"/> lenght is different than <paramref name="coefficients"/> lenght </exception>
+        /// <exception cref="ArgumentNullException"></exception>
+        public virtual bool ContainsLoadCaseCoefficients(IEnumerable<LoadCase> loadCases, IEnumerable<double> coefficients)
+        {
+            if (loadCases is null)
+                throw new ArgumentNullException();
+
+            if (loadCases.Count() != coefficients.Count())
+                throw new ArgumentException();
+
+            if (loadCases.Count() > 0)
+            {
+                return _coefficients.Select(i => i.LoadCase).Intersect(loadCases).Select(i => GetLoadCaseCoefficient(i)).Intersect(coefficients).Count().Equals(loadCases.Count());
+            }
+            else
+                return true;
+        }
+
+        public virtual bool ContainsLoadCaseCoefficients(IEnumerable<KeyValuePair<LoadCase, double>> loadCasesCoefficients)
+        {
+            if (loadCasesCoefficients is null)
+                throw new ArgumentNullException();
+
+            if (loadCasesCoefficients.Count() > 0)
+            {
+                return _coefficients.Select(i => new KeyValuePair<LoadCase, double>(i.LoadCase, i.Coefficient)).Except(loadCasesCoefficients).Count() == _coefficients.Count() - loadCasesCoefficients.Count();
+            }
             else
                 return true;
         }
