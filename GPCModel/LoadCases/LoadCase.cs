@@ -13,17 +13,22 @@ namespace GPC.Model.LoadCases
         [Serializable]
         public enum LoadCaseType
         {
-            [Description("Self weigth")] SelfWeight = 0,
-            [Description("Superimposed dead load")] SuperImposedDeadLoad = 1,
-            [Description("Live load")] LiveLoad = 2,
-            [Description("Wind")] Wind = 3,
-            [Description("Snow")] Snow = 4,
-            [Description("Maintenance")] Maintenance = 5,
-            [Description("Earthquake")] Earthquake = 6,
-            [Description("Temperature")] Temperature = 7,
-            [Description("Climate Summer")] ClimateSummer = 8,
-            [Description("Climate Winter")] ClimateWinter = 9,
-            [Description("Prestress")] Prestress = 10,
+            [Description("Self weigth")] SelfWeight,
+            [Description("Superimposed dead load")] SuperImposedDeadLoad,
+            [Description("Prestress")] Prestress,
+            [Description("Live load")] LiveLoad,
+            [Description("Wind pressure")] WindPressure,
+            [Description("Wind suction")] WindSuction,
+            [Description("Snow")] Snow,
+            [Description("Maintenance")] Maintenance,
+            [Description("Earthquake")] Earthquake,
+            [Description("Temperature")] Temperature,
+            [Description("Climate Summer delta H")] ClimateSummerDeltaH,
+            [Description("Climate Summer delta P")] ClimateSummerDeltaP,
+            [Description("Climate Summer delta T")] ClimateSummerDeltaT,
+            [Description("Climate Winter delta H")] ClimateWinterDeltaH,
+            [Description("Climate Winter delta P")] ClimateWinterDeltaP,
+            [Description("Climate Winter delta T")] ClimateWinterDeltaT,
         }
 
         #endregion

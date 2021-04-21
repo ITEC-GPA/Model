@@ -207,8 +207,8 @@ namespace ModelObjectTest
             // Arrange
             string loadCaseName1 = "selfWeight";
             LoadCase selfWeightLoadCase = new LoadCase(loadCaseName1, LoadCase.LoadCaseType.SelfWeight);
-            string loadCaseName2 = "Wind";
-            LoadCase windLoadCase = new LoadCase(loadCaseName2, LoadCase.LoadCaseType.Wind);
+            string loadCaseName2 = "WindPressure";
+            LoadCase WindPressureLoadCase = new LoadCase(loadCaseName2, LoadCase.LoadCaseType.WindPressure);
             string loadCaseName3 = "Snow";
             LoadCase snowLoadCase = new LoadCase(loadCaseName3, LoadCase.LoadCaseType.Snow);
             string loadCaseName4 = "PreStress";
@@ -217,7 +217,7 @@ namespace ModelObjectTest
             List<LoadCase> loadCaseList = new List<LoadCase>
             {
                 selfWeightLoadCase,
-                windLoadCase,
+                WindPressureLoadCase,
                 snowLoadCase,
                 prestressLoadCase
             };
@@ -238,10 +238,10 @@ namespace ModelObjectTest
             Assert.IsTrue(Math.Abs(outList[3][selfWeightLoadCase] - 1.00) < 0.001);
             Assert.IsTrue(Math.Abs(outList[4][selfWeightLoadCase] - 1.00) < 0.001);
             Assert.IsTrue(Math.Abs(outList[5][selfWeightLoadCase] - 1.00) < 0.001);
-            Assert.IsTrue(Math.Abs(outList[0][windLoadCase] - 1.3) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[0][WindPressureLoadCase] - 1.3) < 0.001);
             Assert.IsTrue(Math.Abs(outList[1][snowLoadCase] - 1.3) < 0.001);
             Assert.IsTrue(Math.Abs(outList[0][snowLoadCase] - 0.65) < 0.001);
-            Assert.IsTrue(Math.Abs(outList[1][windLoadCase] - 0.78) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[1][WindPressureLoadCase] - 0.78) < 0.001);
         }
 
         [TestMethod]
@@ -250,8 +250,8 @@ namespace ModelObjectTest
             // Arrange
             string loadCaseName1 = "selfWeight";
             LoadCase selfWeightLoadCase = new LoadCase(loadCaseName1, LoadCase.LoadCaseType.SelfWeight);
-            string loadCaseName2 = "Wind";
-            LoadCase windLoadCase = new LoadCase(loadCaseName2, LoadCase.LoadCaseType.Wind);
+            string loadCaseName2 = "WindPressure";
+            LoadCase WindPressureLoadCase = new LoadCase(loadCaseName2, LoadCase.LoadCaseType.WindPressure);
             string loadCaseName3 = "Snow";
             LoadCase snowLoadCase = new LoadCase(loadCaseName3, LoadCase.LoadCaseType.Snow);
             string loadCaseName4 = "PreStress";
@@ -260,7 +260,7 @@ namespace ModelObjectTest
             List<LoadCase> loadCaseList = new List<LoadCase>
             {
                 selfWeightLoadCase,
-                windLoadCase,
+                WindPressureLoadCase,
                 snowLoadCase,
                 prestressLoadCase
             };
@@ -280,11 +280,11 @@ namespace ModelObjectTest
             Assert.IsTrue(Math.Abs(outList[2][selfWeightLoadCase] - 1.35) < 0.001);
             Assert.IsTrue(Math.Abs(outList[3][selfWeightLoadCase] - 1.35) < 0.001);
             Assert.IsTrue(Math.Abs(outList[4][selfWeightLoadCase] - 1.00) < 0.001);
-            Assert.IsTrue(Math.Abs(outList[5][selfWeightLoadCase] - 1.35) < 0.001);                         
-            Assert.IsTrue(Math.Abs(outList[0][windLoadCase] - 1.5) < 0.001);
-            Assert.IsTrue(Math.Abs(outList[1][snowLoadCase] - 1.5) < 0.001);                         
+            Assert.IsTrue(Math.Abs(outList[5][selfWeightLoadCase] - 1.35) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[0][WindPressureLoadCase] - 1.5) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[1][snowLoadCase] - 1.5) < 0.001);
             Assert.IsTrue(Math.Abs(outList[0][snowLoadCase] - 1.05) < 0.001);
-            Assert.IsTrue(Math.Abs(outList[1][windLoadCase] - 0.90) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[1][WindPressureLoadCase] - 0.90) < 0.001);
         }
 
         [TestMethod]
@@ -293,8 +293,8 @@ namespace ModelObjectTest
             // Arrange
             string loadCaseName1 = "selfWeight";
             LoadCase selfWeightLoadCase = new LoadCase(loadCaseName1, LoadCase.LoadCaseType.SelfWeight);
-            string loadCaseName2 = "Wind";
-            LoadCase windLoadCase = new LoadCase(loadCaseName2, LoadCase.LoadCaseType.Wind);
+            string loadCaseName2 = "WindPressure";
+            LoadCase WindPressureLoadCase = new LoadCase(loadCaseName2, LoadCase.LoadCaseType.WindPressure);
             string loadCaseName3 = "Snow";
             LoadCase snowLoadCase = new LoadCase(loadCaseName3, LoadCase.LoadCaseType.Snow);
             string loadCaseName4 = "PreStress";
@@ -303,7 +303,7 @@ namespace ModelObjectTest
             List<LoadCase> loadCaseList = new List<LoadCase>
             {
                 selfWeightLoadCase,
-                windLoadCase,
+                WindPressureLoadCase,
                 snowLoadCase,
                 prestressLoadCase
             };
@@ -324,10 +324,10 @@ namespace ModelObjectTest
             Assert.IsTrue(Math.Abs(outList[3][selfWeightLoadCase] - 1.00) < 0.001);
             Assert.IsTrue(Math.Abs(outList[4][selfWeightLoadCase] - 1.00) < 0.001);
             Assert.IsTrue(Math.Abs(outList[5][selfWeightLoadCase] - 1.00) < 0.001);
-            Assert.IsTrue(Math.Abs(outList[0][windLoadCase] - 1.3) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[0][WindPressureLoadCase] - 1.3) < 0.001);
             Assert.IsTrue(Math.Abs(outList[1][snowLoadCase] - 1.3) < 0.001);
             Assert.IsTrue(Math.Abs(outList[0][snowLoadCase] - 0.65) < 0.001);
-            Assert.IsTrue(Math.Abs(outList[1][windLoadCase] - 0.78) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[1][WindPressureLoadCase] - 0.78) < 0.001);
         }
 
         [TestMethod]
@@ -336,8 +336,8 @@ namespace ModelObjectTest
             // Arrange
             string loadCaseName1 = "selfWeight";
             LoadCase selfWeightLoadCase = new LoadCase(loadCaseName1, LoadCase.LoadCaseType.SelfWeight);
-            string loadCaseName2 = "Wind";
-            LoadCase windLoadCase = new LoadCase(loadCaseName2, LoadCase.LoadCaseType.Wind);
+            string loadCaseName2 = "WindPressure";
+            LoadCase WindPressureLoadCase = new LoadCase(loadCaseName2, LoadCase.LoadCaseType.WindPressure);
             string loadCaseName3 = "Snow";
             LoadCase snowLoadCase = new LoadCase(loadCaseName3, LoadCase.LoadCaseType.Snow);
             string loadCaseName4 = "PreStress";
@@ -346,7 +346,7 @@ namespace ModelObjectTest
             List<LoadCase> loadCaseList = new List<LoadCase>
             {
                 selfWeightLoadCase,
-                windLoadCase,
+                WindPressureLoadCase,
                 snowLoadCase,
                 prestressLoadCase
             };
@@ -366,10 +366,10 @@ namespace ModelObjectTest
             Assert.IsTrue(Math.Abs(outList[3][selfWeightLoadCase] - 1.10) < 0.001);
             Assert.IsTrue(Math.Abs(outList[4][selfWeightLoadCase] - 0.90) < 0.001);
             Assert.IsTrue(Math.Abs(outList[5][selfWeightLoadCase] - 1.10) < 0.001);
-            Assert.IsTrue(Math.Abs(outList[0][windLoadCase] - 1.5) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[0][WindPressureLoadCase] - 1.5) < 0.001);
             Assert.IsTrue(Math.Abs(outList[1][snowLoadCase] - 1.5) < 0.001);
             Assert.IsTrue(Math.Abs(outList[0][snowLoadCase] - 1.05) < 0.001);
-            Assert.IsTrue(Math.Abs(outList[1][windLoadCase] - 0.90) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[1][WindPressureLoadCase] - 0.90) < 0.001);
         }
 
         [TestMethod]
@@ -378,8 +378,8 @@ namespace ModelObjectTest
             // Arrange
             string loadCaseName1 = "selfWeight";
             LoadCase selfWeightLoadCase = new LoadCase(loadCaseName1, LoadCase.LoadCaseType.SuperImposedDeadLoad);
-            string loadCaseName2 = "Wind";
-            LoadCase windLoadCase = new LoadCase(loadCaseName2, LoadCase.LoadCaseType.Wind);
+            string loadCaseName2 = "WindPressure";
+            LoadCase WindPressureLoadCase = new LoadCase(loadCaseName2, LoadCase.LoadCaseType.WindPressure);
             string loadCaseName3 = "Snow";
             LoadCase snowLoadCase = new LoadCase(loadCaseName3, LoadCase.LoadCaseType.Snow);
             string loadCaseName4 = "PreStress";
@@ -388,7 +388,7 @@ namespace ModelObjectTest
             List<LoadCase> loadCaseList = new List<LoadCase>
             {
                 selfWeightLoadCase,
-                windLoadCase,
+                WindPressureLoadCase,
                 snowLoadCase,
                 prestressLoadCase
             };
@@ -408,10 +408,10 @@ namespace ModelObjectTest
             Assert.IsTrue(Math.Abs(outList[3][selfWeightLoadCase] - 1.10) < 0.001);
             Assert.IsTrue(Math.Abs(outList[4][selfWeightLoadCase] - 0.90) < 0.001);
             Assert.IsTrue(Math.Abs(outList[5][selfWeightLoadCase] - 1.10) < 0.001);
-            Assert.IsTrue(Math.Abs(outList[0][windLoadCase] - 1.5) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[0][WindPressureLoadCase] - 1.5) < 0.001);
             Assert.IsTrue(Math.Abs(outList[1][snowLoadCase] - 1.5) < 0.001);
             Assert.IsTrue(Math.Abs(outList[0][snowLoadCase] - 1.05) < 0.001);
-            Assert.IsTrue(Math.Abs(outList[1][windLoadCase] - 0.90) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[1][WindPressureLoadCase] - 0.90) < 0.001);
         }
 
         [TestMethod]
@@ -462,8 +462,8 @@ namespace ModelObjectTest
             // Arrange
             string loadCaseName1 = "selfWeight";
             LoadCase selfWeightLoadCase = new LoadCase(loadCaseName1, LoadCase.LoadCaseType.SelfWeight);
-            string loadCaseName2 = "Wind";
-            LoadCase windLoadCase = new LoadCase(loadCaseName2, LoadCase.LoadCaseType.Wind);
+            string loadCaseName2 = "WindPressure";
+            LoadCase WindPressureLoadCase = new LoadCase(loadCaseName2, LoadCase.LoadCaseType.WindPressure);
             string loadCaseName3 = "Snow";
             LoadCase snowLoadCase = new LoadCase(loadCaseName3, LoadCase.LoadCaseType.Snow);
             string loadCaseName4 = "PreStress";
@@ -472,7 +472,7 @@ namespace ModelObjectTest
             List<LoadCase> loadCaseList = new List<LoadCase>
             {
                 selfWeightLoadCase,
-                windLoadCase,
+                WindPressureLoadCase,
                 snowLoadCase,
                 prestressLoadCase
             };
@@ -492,10 +492,10 @@ namespace ModelObjectTest
             Assert.IsTrue(Math.Abs(outList[3][selfWeightLoadCase] - 1.35) < 0.001);
             Assert.IsTrue(Math.Abs(outList[4][selfWeightLoadCase] - 1.00) < 0.001);
             Assert.IsTrue(Math.Abs(outList[5][selfWeightLoadCase] - 1.35) < 0.001);
-            Assert.IsTrue(Math.Abs(outList[0][windLoadCase] - 1.5) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[0][WindPressureLoadCase] - 1.5) < 0.001);
             Assert.IsTrue(Math.Abs(outList[1][snowLoadCase] - 1.5) < 0.001);
             Assert.IsTrue(Math.Abs(outList[0][snowLoadCase] - 1.05) < 0.001);
-            Assert.IsTrue(Math.Abs(outList[1][windLoadCase] - 0.90) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[1][WindPressureLoadCase] - 0.90) < 0.001);
         }
 
         [TestMethod]
@@ -504,8 +504,8 @@ namespace ModelObjectTest
             // Arrange
             string loadCaseName1 = "selfWeight";
             LoadCase selfWeightLoadCase = new LoadCase(loadCaseName1, LoadCase.LoadCaseType.SelfWeight);
-            string loadCaseName2 = "Wind";
-            LoadCase windLoadCase = new LoadCase(loadCaseName2, LoadCase.LoadCaseType.Wind);
+            string loadCaseName2 = "WindPressure";
+            LoadCase WindPressureLoadCase = new LoadCase(loadCaseName2, LoadCase.LoadCaseType.WindPressure);
             string loadCaseName3 = "Snow";
             LoadCase snowLoadCase = new LoadCase(loadCaseName3, LoadCase.LoadCaseType.Snow);
             string loadCaseName4 = "PreStress";
@@ -514,7 +514,7 @@ namespace ModelObjectTest
             List<LoadCase> loadCaseList = new List<LoadCase>
             {
                 selfWeightLoadCase,
-                windLoadCase,
+                WindPressureLoadCase,
                 snowLoadCase,
                 prestressLoadCase
             };
@@ -534,10 +534,10 @@ namespace ModelObjectTest
             Assert.IsTrue(Math.Abs(outList[3][selfWeightLoadCase] - 1.35) < 0.001);
             Assert.IsTrue(Math.Abs(outList[4][selfWeightLoadCase] - 1.00) < 0.001);
             Assert.IsTrue(Math.Abs(outList[5][selfWeightLoadCase] - 1.35) < 0.001);
-            Assert.IsTrue(Math.Abs(outList[0][windLoadCase] - 1.5) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[0][WindPressureLoadCase] - 1.5) < 0.001);
             Assert.IsTrue(Math.Abs(outList[1][snowLoadCase] - 1.5) < 0.001);
             Assert.IsTrue(Math.Abs(outList[0][snowLoadCase] - 1.05) < 0.001);
-            Assert.IsTrue(Math.Abs(outList[1][windLoadCase] - 0.90) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[1][WindPressureLoadCase] - 0.90) < 0.001);
         }
 
         [TestMethod]
@@ -546,8 +546,8 @@ namespace ModelObjectTest
             // Arrange
             string loadCaseName1 = "selfWeight";
             LoadCase selfWeightLoadCase = new LoadCase(loadCaseName1, LoadCase.LoadCaseType.SelfWeight);
-            string loadCaseName2 = "Wind";
-            LoadCase windLoadCase = new LoadCase(loadCaseName2, LoadCase.LoadCaseType.Wind);
+            string loadCaseName2 = "WindPressure";
+            LoadCase WindPressureLoadCase = new LoadCase(loadCaseName2, LoadCase.LoadCaseType.WindPressure);
             string loadCaseName3 = "Snow";
             LoadCase snowLoadCase = new LoadCase(loadCaseName3, LoadCase.LoadCaseType.Snow);
             string loadCaseName4 = "PreStress";
@@ -556,7 +556,7 @@ namespace ModelObjectTest
             List<LoadCase> loadCaseList = new List<LoadCase>
             {
                 selfWeightLoadCase,
-                windLoadCase,
+                WindPressureLoadCase,
                 snowLoadCase,
                 prestressLoadCase
             };
@@ -576,10 +576,10 @@ namespace ModelObjectTest
             Assert.IsTrue(Math.Abs(outList[3][selfWeightLoadCase] - 1.35) < 0.001);
             Assert.IsTrue(Math.Abs(outList[4][selfWeightLoadCase] - 1.00) < 0.001);
             Assert.IsTrue(Math.Abs(outList[5][selfWeightLoadCase] - 1.35) < 0.001);
-            Assert.IsTrue(Math.Abs(outList[0][windLoadCase] - 1.5) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[0][WindPressureLoadCase] - 1.5) < 0.001);
             Assert.IsTrue(Math.Abs(outList[1][snowLoadCase] - 1.5) < 0.001);
             Assert.IsTrue(Math.Abs(outList[0][snowLoadCase] - 1.05) < 0.001);
-            Assert.IsTrue(Math.Abs(outList[1][windLoadCase] - 0.90) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[1][WindPressureLoadCase] - 0.90) < 0.001);
         }
 
         [TestMethod]
@@ -588,19 +588,19 @@ namespace ModelObjectTest
             // Arrange
             string loadCaseName1 = "selfWeight";
             LoadCase selfWeightLoadCase = new LoadCase(loadCaseName1, LoadCase.LoadCaseType.SelfWeight);
-            string loadCaseName2 = "Wind1";
-            LoadCase windLoadCase = new LoadCase(loadCaseName2, LoadCase.LoadCaseType.Wind);
+            string loadCaseName2 = "WindPressure1";
+            LoadCase WindPressureLoadCase = new LoadCase(loadCaseName2, LoadCase.LoadCaseType.WindPressure);
             string loadCaseName3 = "Snow";
             LoadCase snowLoadCase = new LoadCase(loadCaseName3, LoadCase.LoadCaseType.Snow);
-            string loadCaseName4 = "Wind2";
-            LoadCase windLoadCase2 = new LoadCase(loadCaseName4, LoadCase.LoadCaseType.Wind);
+            string loadCaseName4 = "WindPressure2";
+            LoadCase WindPressureLoadCase2 = new LoadCase(loadCaseName4, LoadCase.LoadCaseType.WindPressure);
 
             List<LoadCase> loadCaseList = new List<LoadCase>
             {
                 selfWeightLoadCase,
-                windLoadCase,
+                WindPressureLoadCase,
                 snowLoadCase,
-                windLoadCase2
+                WindPressureLoadCase2
             };
 
             StandardEN1990 standardEN1990 = new StandardEN1990();
@@ -619,10 +619,10 @@ namespace ModelObjectTest
             Assert.IsTrue(Math.Abs(outList[3][selfWeightLoadCase] - 1.35) < 0.001);
             Assert.IsTrue(Math.Abs(outList[4][selfWeightLoadCase] - 1.00) < 0.001);
             Assert.IsTrue(Math.Abs(outList[5][selfWeightLoadCase] - 1.35) < 0.001);
-            Assert.IsTrue(Math.Abs(outList[0][windLoadCase] - 1.5) < 0.001);
-            Assert.IsTrue(Math.Abs(outList[0][windLoadCase2] - 1.5) < 0.001);
-            Assert.IsTrue(Math.Abs(outList[1][windLoadCase] - 0.90) < 0.001);
-            Assert.IsTrue(Math.Abs(outList[1][windLoadCase2] - 0.90) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[0][WindPressureLoadCase] - 1.5) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[0][WindPressureLoadCase2] - 1.5) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[1][WindPressureLoadCase] - 0.90) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[1][WindPressureLoadCase2] - 0.90) < 0.001);
             Assert.IsTrue(Math.Abs(outList[0][snowLoadCase] - 0.75) < 0.001);
             Assert.IsTrue(Math.Abs(outList[1][snowLoadCase] - 1.5) < 0.001);
         }
@@ -633,8 +633,8 @@ namespace ModelObjectTest
             // Arrange
             string loadCaseName1 = "selfWeight";
             LoadCase selfWeightLoadCase = new LoadCase(loadCaseName1, LoadCase.LoadCaseType.SelfWeight);
-            string loadCaseName2 = "Wind";
-            LoadCase windLoadCase = new LoadCase(loadCaseName2, LoadCase.LoadCaseType.Wind);
+            string loadCaseName2 = "WindPressure";
+            LoadCase WindPressureLoadCase = new LoadCase(loadCaseName2, LoadCase.LoadCaseType.WindPressure);
             string loadCaseName3 = "Snow";
             LoadCase snowLoadCase = new LoadCase(loadCaseName3, LoadCase.LoadCaseType.Snow);
             string loadCaseName4 = "PreStress";
@@ -643,7 +643,7 @@ namespace ModelObjectTest
             List<LoadCase> loadCaseList = new List<LoadCase>
             {
                 selfWeightLoadCase,
-                windLoadCase,
+                WindPressureLoadCase,
                 snowLoadCase,
                 prestressLoadCase
             };
@@ -654,7 +654,7 @@ namespace ModelObjectTest
             StandardEN1990.ULSStructuralGeotechicalCombinationSets uLSCombinationSets = StandardEN1990.ULSStructuralGeotechicalCombinationSets.SetB;
 
             // Act
-            List<CombinationEn> outList = CombinationEn.GenerateCombinations("combo", loadCaseList, standardEN1990, limitState,category, uLSCombinationSets);
+            List<CombinationEn> outList = CombinationEn.GenerateCombinations("combo", loadCaseList, standardEN1990, limitState, category, uLSCombinationSets);
 
             // Assert
             Assert.IsTrue(outList.Count() == 6);
@@ -664,10 +664,10 @@ namespace ModelObjectTest
             Assert.IsTrue(Math.Abs(outList[3][selfWeightLoadCase] - 1.35) < 0.001);
             Assert.IsTrue(Math.Abs(outList[4][selfWeightLoadCase] - 1.00) < 0.001);
             Assert.IsTrue(Math.Abs(outList[5][selfWeightLoadCase] - 1.35) < 0.001);
-            Assert.IsTrue(Math.Abs(outList[0][windLoadCase] - 1.5) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[0][WindPressureLoadCase] - 1.5) < 0.001);
             Assert.IsTrue(Math.Abs(outList[1][snowLoadCase] - 1.5) < 0.001);
             Assert.IsTrue(Math.Abs(outList[0][snowLoadCase] - 1.05) < 0.001);
-            Assert.IsTrue(Math.Abs(outList[1][windLoadCase] - 0.90) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[1][WindPressureLoadCase] - 0.90) < 0.001);
         }
 
         [TestMethod]
@@ -676,8 +676,8 @@ namespace ModelObjectTest
             // Arrange
             string loadCaseName1 = "SuperImposedDeadLoad";
             LoadCase superImposedDeadLoadLoadCase = new LoadCase(loadCaseName1, LoadCase.LoadCaseType.SuperImposedDeadLoad);
-            string loadCaseName2 = "Wind";
-            LoadCase windLoadCase = new LoadCase(loadCaseName2, LoadCase.LoadCaseType.Temperature);
+            string loadCaseName2 = "WindPressure";
+            LoadCase WindPressureLoadCase = new LoadCase(loadCaseName2, LoadCase.LoadCaseType.Temperature);
             string loadCaseName3 = "Snow";
             LoadCase snowLoadCase = new LoadCase(loadCaseName3, LoadCase.LoadCaseType.Snow);
             string loadCaseName4 = "PreStress";
@@ -686,7 +686,7 @@ namespace ModelObjectTest
             List<LoadCase> loadCaseList = new List<LoadCase>
             {
                 superImposedDeadLoadLoadCase,
-                windLoadCase,
+                WindPressureLoadCase,
                 snowLoadCase,
                 prestressLoadCase
             };
@@ -707,10 +707,10 @@ namespace ModelObjectTest
             Assert.IsTrue(Math.Abs(outList[3][superImposedDeadLoadLoadCase] - 1.00) < 0.001);
             Assert.IsTrue(Math.Abs(outList[4][superImposedDeadLoadLoadCase] - 1.00) < 0.001);
             Assert.IsTrue(Math.Abs(outList[5][superImposedDeadLoadLoadCase] - 1.00) < 0.001);
-            Assert.IsTrue(Math.Abs(outList[0][windLoadCase] - 1.3) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[0][WindPressureLoadCase] - 1.3) < 0.001);
             Assert.IsTrue(Math.Abs(outList[1][snowLoadCase] - 1.3) < 0.001);
             Assert.IsTrue(Math.Abs(outList[0][snowLoadCase] - 0.65) < 0.001);
-            Assert.IsTrue(Math.Abs(outList[1][windLoadCase] - 0.78) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[1][WindPressureLoadCase] - 0.78) < 0.001);
         }
 
         [TestMethod]
@@ -719,8 +719,8 @@ namespace ModelObjectTest
             // Arrange
             string loadCaseName1 = "selfWeight";
             LoadCase selfWeightLoadCase = new LoadCase(loadCaseName1, LoadCase.LoadCaseType.SelfWeight);
-            string loadCaseName2 = "Wind";
-            LoadCase windLoadCase = new LoadCase(loadCaseName2, LoadCase.LoadCaseType.Wind);
+            string loadCaseName2 = "WindPressure";
+            LoadCase WindPressureLoadCase = new LoadCase(loadCaseName2, LoadCase.LoadCaseType.WindPressure);
             string loadCaseName3 = "Snow";
             LoadCase snowLoadCase = new LoadCase(loadCaseName3, LoadCase.LoadCaseType.Snow);
             string loadCaseName4 = "PreStress";
@@ -729,7 +729,7 @@ namespace ModelObjectTest
             List<LoadCase> loadCaseList = new List<LoadCase>
             {
                 selfWeightLoadCase,
-                windLoadCase,
+                WindPressureLoadCase,
                 snowLoadCase,
                 prestressLoadCase
             };
@@ -746,10 +746,10 @@ namespace ModelObjectTest
             Assert.IsTrue(Math.Abs(outList[0][selfWeightLoadCase] - 1.00) < 0.001);
             Assert.IsTrue(Math.Abs(outList[1][selfWeightLoadCase] - 1.00) < 0.001);
             Assert.IsTrue(Math.Abs(outList[2][selfWeightLoadCase] - 1.00) < 0.001);
-            Assert.IsTrue(Math.Abs(outList[0][windLoadCase] - 1.00) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[0][WindPressureLoadCase] - 1.00) < 0.001);
             Assert.IsTrue(Math.Abs(outList[1][snowLoadCase] - 1.00) < 0.001);
             Assert.IsTrue(Math.Abs(outList[0][snowLoadCase] - 0.70) < 0.001);
-            Assert.IsTrue(Math.Abs(outList[1][windLoadCase] - 0.60) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[1][WindPressureLoadCase] - 0.60) < 0.001);
         }
 
         [TestMethod]
@@ -758,8 +758,8 @@ namespace ModelObjectTest
             // Arrange
             string loadCaseName1 = "selfWeight";
             LoadCase selfWeightLoadCase = new LoadCase(loadCaseName1, LoadCase.LoadCaseType.SelfWeight);
-            string loadCaseName2 = "Wind";
-            LoadCase windLoadCase = new LoadCase(loadCaseName2, LoadCase.LoadCaseType.Wind);
+            string loadCaseName2 = "WindPressure";
+            LoadCase WindPressureLoadCase = new LoadCase(loadCaseName2, LoadCase.LoadCaseType.WindPressure);
             string loadCaseName3 = "Snow";
             LoadCase snowLoadCase = new LoadCase(loadCaseName3, LoadCase.LoadCaseType.Snow);
             string loadCaseName4 = "PreStress";
@@ -768,7 +768,7 @@ namespace ModelObjectTest
             List<LoadCase> loadCaseList = new List<LoadCase>
             {
                 selfWeightLoadCase,
-                windLoadCase,
+                WindPressureLoadCase,
                 snowLoadCase,
                 prestressLoadCase
             };
@@ -785,10 +785,10 @@ namespace ModelObjectTest
             Assert.IsTrue(Math.Abs(outList[0][selfWeightLoadCase] - 1.00) < 0.001);
             Assert.IsTrue(Math.Abs(outList[1][selfWeightLoadCase] - 1.00) < 0.001);
             Assert.IsTrue(Math.Abs(outList[2][selfWeightLoadCase] - 1.00) < 0.001);
-            Assert.IsTrue(Math.Abs(outList[0][windLoadCase] - 0.00) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[0][WindPressureLoadCase] - 0.00) < 0.001);
             Assert.IsTrue(Math.Abs(outList[1][snowLoadCase] - 0.20) < 0.001);
             Assert.IsTrue(Math.Abs(outList[0][snowLoadCase] - 0.20) < 0.001);
-            Assert.IsTrue(Math.Abs(outList[1][windLoadCase] - 0.00) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[1][WindPressureLoadCase] - 0.00) < 0.001);
         }
 
         [TestMethod]
@@ -797,8 +797,8 @@ namespace ModelObjectTest
             // Arrange
             string loadCaseName1 = "selfWeight";
             LoadCase selfWeightLoadCase = new LoadCase(loadCaseName1, LoadCase.LoadCaseType.SelfWeight);
-            string loadCaseName2 = "Wind";
-            LoadCase windLoadCase = new LoadCase(loadCaseName2, LoadCase.LoadCaseType.Wind);
+            string loadCaseName2 = "WindPressure";
+            LoadCase WindPressureLoadCase = new LoadCase(loadCaseName2, LoadCase.LoadCaseType.WindPressure);
             string loadCaseName3 = "Snow";
             LoadCase snowLoadCase = new LoadCase(loadCaseName3, LoadCase.LoadCaseType.Snow);
             string loadCaseName4 = "PreStress";
@@ -807,7 +807,7 @@ namespace ModelObjectTest
             List<LoadCase> loadCaseList = new List<LoadCase>
             {
                 selfWeightLoadCase,
-                windLoadCase,
+                WindPressureLoadCase,
                 snowLoadCase,
                 prestressLoadCase
             };
@@ -824,10 +824,10 @@ namespace ModelObjectTest
             Assert.IsTrue(Math.Abs(outList[0][selfWeightLoadCase] - 1.00) < 0.001);
             Assert.IsTrue(Math.Abs(outList[1][selfWeightLoadCase] - 1.00) < 0.001);
             Assert.IsTrue(Math.Abs(outList[2][selfWeightLoadCase] - 1.00) < 0.001);
-            Assert.IsTrue(Math.Abs(outList[0][windLoadCase] - 0.20) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[0][WindPressureLoadCase] - 0.20) < 0.001);
             Assert.IsTrue(Math.Abs(outList[1][snowLoadCase] - 0.50) < 0.001);
             Assert.IsTrue(Math.Abs(outList[0][snowLoadCase] - 0.20) < 0.001);
-            Assert.IsTrue(Math.Abs(outList[1][windLoadCase] - 0.00) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[1][WindPressureLoadCase] - 0.00) < 0.001);
         }
 
         [TestMethod]
@@ -838,14 +838,14 @@ namespace ModelObjectTest
             LoadCase selfWeightLoadCase = new LoadCase(loadCaseName1, LoadCase.LoadCaseType.SelfWeight);
             string loadCaseName5 = "selfWeight2";
             LoadCase selfWeightLoadCase2 = new LoadCase(loadCaseName5, LoadCase.LoadCaseType.SelfWeight);
-            string loadCaseName2 = "Wind1";
-            LoadCase windLoadCase1 = new LoadCase(loadCaseName2, LoadCase.LoadCaseType.Wind);
-            string loadCaseName4 = "Wind2";
-            LoadCase windLoadCase2 = new LoadCase(loadCaseName4, LoadCase.LoadCaseType.Wind);
-            string loadCaseName8 = "Wind3";
-            LoadCase windLoadCase4 = new LoadCase(loadCaseName8, LoadCase.LoadCaseType.Wind);
-            string loadCaseName6 = "Wind4";
-            LoadCase windLoadCase3 = new LoadCase(loadCaseName6, LoadCase.LoadCaseType.Wind);
+            string loadCaseName2 = "WindPressure1";
+            LoadCase WindPressureLoadCase1 = new LoadCase(loadCaseName2, LoadCase.LoadCaseType.WindPressure);
+            string loadCaseName4 = "WindPressure2";
+            LoadCase WindPressureLoadCase2 = new LoadCase(loadCaseName4, LoadCase.LoadCaseType.WindPressure);
+            string loadCaseName8 = "WindPressure3";
+            LoadCase WindPressureLoadCase4 = new LoadCase(loadCaseName8, LoadCase.LoadCaseType.WindPressure);
+            string loadCaseName6 = "WindPressure4";
+            LoadCase WindPressureLoadCase3 = new LoadCase(loadCaseName6, LoadCase.LoadCaseType.WindPressure);
             string loadCaseName7 = "Snow2";
             LoadCase snowLoadCase2 = new LoadCase(loadCaseName7, LoadCase.LoadCaseType.Snow);
             string loadCaseName3 = "Snow1";
@@ -856,10 +856,10 @@ namespace ModelObjectTest
             {
                 selfWeightLoadCase,
                 selfWeightLoadCase2,
-                windLoadCase1,
-                windLoadCase2,
-                windLoadCase3,
-                windLoadCase4,
+                WindPressureLoadCase1,
+                WindPressureLoadCase2,
+                WindPressureLoadCase3,
+                WindPressureLoadCase4,
                 snowLoadCase1,
                 snowLoadCase2
             };
@@ -879,18 +879,30 @@ namespace ModelObjectTest
             Assert.IsTrue(Math.Abs(outList[3][selfWeightLoadCase] - 1.35) < 0.001);
             Assert.IsTrue(Math.Abs(outList[4][selfWeightLoadCase] - 1.00) < 0.001);
             Assert.IsTrue(Math.Abs(outList[5][selfWeightLoadCase] - 1.35) < 0.001);
-            Assert.IsTrue(Math.Abs(outList[0][windLoadCase1] - 1.50) < 0.001);
-            Assert.IsTrue(Math.Abs(outList[0][windLoadCase2] - 1.50) < 0.001);
-            Assert.IsTrue(Math.Abs(outList[0][windLoadCase3] - 1.50) < 0.001);
-            Assert.IsTrue(Math.Abs(outList[0][windLoadCase4] - 1.50) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[0][WindPressureLoadCase1] - 1.50) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[0][WindPressureLoadCase2] - 1.50) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[0][WindPressureLoadCase3] - 1.50) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[0][WindPressureLoadCase4] - 1.50) < 0.001);
             Assert.IsTrue(Math.Abs(outList[0][snowLoadCase1] - 1.05) < 0.001);
             Assert.IsTrue(Math.Abs(outList[0][snowLoadCase2] - 1.05) < 0.001);
-            Assert.IsTrue(Math.Abs(outList[1][windLoadCase1] - 0.90) < 0.001);
-            Assert.IsTrue(Math.Abs(outList[1][windLoadCase2] - 0.90) < 0.001);
-            Assert.IsTrue(Math.Abs(outList[1][windLoadCase3] - 0.90) < 0.001);
-            Assert.IsTrue(Math.Abs(outList[1][windLoadCase4] - 0.90) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[1][WindPressureLoadCase1] - 0.90) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[1][WindPressureLoadCase2] - 0.90) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[1][WindPressureLoadCase3] - 0.90) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[1][WindPressureLoadCase4] - 0.90) < 0.001);
             Assert.IsTrue(Math.Abs(outList[1][snowLoadCase1] - 1.50) < 0.001);
             Assert.IsTrue(Math.Abs(outList[1][snowLoadCase2] - 1.50) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[2][WindPressureLoadCase1] - 1.50) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[2][WindPressureLoadCase2] - 1.50) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[2][WindPressureLoadCase3] - 1.50) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[2][WindPressureLoadCase4] - 1.50) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[2][snowLoadCase1] - 1.05) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[2][snowLoadCase2] - 1.05) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[3][WindPressureLoadCase1] - 0.90) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[3][WindPressureLoadCase2] - 0.90) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[3][WindPressureLoadCase3] - 0.90) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[3][WindPressureLoadCase4] - 0.90) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[3][snowLoadCase1] - 1.50) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[3][snowLoadCase2] - 1.50) < 0.001);
         }
 
         [TestMethod]
@@ -901,10 +913,10 @@ namespace ModelObjectTest
             LoadCase selfWeightLoadCase = new LoadCase(loadCaseName1, LoadCase.LoadCaseType.SelfWeight);
             string loadCaseName5 = "selfWeight2";
             LoadCase selfWeightLoadCase2 = new LoadCase(loadCaseName5, LoadCase.LoadCaseType.SelfWeight);
-            string loadCaseName2 = "Wind1";
-            LoadCase windLoadCase1 = new LoadCase(loadCaseName2, LoadCase.LoadCaseType.Wind);
-            string loadCaseName4 = "Wind2";
-            LoadCase windLoadCase2 = new LoadCase(loadCaseName4, LoadCase.LoadCaseType.Wind);
+            string loadCaseName2 = "WindPressure1";
+            LoadCase WindPressureLoadCase1 = new LoadCase(loadCaseName2, LoadCase.LoadCaseType.WindPressure);
+            string loadCaseName4 = "WindPressure2";
+            LoadCase WindPressureLoadCase2 = new LoadCase(loadCaseName4, LoadCase.LoadCaseType.WindPressure);
             string loadCaseName8 = "Temperature1";
             LoadCase temperatureLoadCase4 = new LoadCase(loadCaseName8, LoadCase.LoadCaseType.Temperature);
             string loadCaseName6 = "Temperature2";
@@ -919,8 +931,8 @@ namespace ModelObjectTest
             {
                 selfWeightLoadCase,
                 selfWeightLoadCase2,
-                windLoadCase1,
-                windLoadCase2,
+                WindPressureLoadCase1,
+                WindPressureLoadCase2,
                 temperatureLoadCase3,
                 temperatureLoadCase4,
                 snowLoadCase1,
@@ -945,25 +957,470 @@ namespace ModelObjectTest
             Assert.IsTrue(Math.Abs(outList[6][selfWeightLoadCase] - 1.00) < 0.001);
             Assert.IsTrue(Math.Abs(outList[7][selfWeightLoadCase] - 1.35) < 0.001);
 
-            Assert.IsTrue(Math.Abs(outList[0][windLoadCase1] - 1.50) < 0.001);
-            Assert.IsTrue(Math.Abs(outList[0][windLoadCase2] - 1.50) < 0.001);
-            Assert.IsTrue(Math.Abs(outList[1][temperatureLoadCase3] - 1.50) < 0.001);
-            Assert.IsTrue(Math.Abs(outList[1][temperatureLoadCase4] - 1.50) < 0.001);
-            Assert.IsTrue(Math.Abs(outList[2][snowLoadCase1] - 1.50) < 0.001);
-            Assert.IsTrue(Math.Abs(outList[2][snowLoadCase2] - 1.50) < 0.001);
-
-            Assert.IsTrue(Math.Abs(outList[1][windLoadCase1] - 0.90) < 0.001);
-            Assert.IsTrue(Math.Abs(outList[1][windLoadCase2] - 0.90) < 0.001);
-            Assert.IsTrue(Math.Abs(outList[2][windLoadCase1] - 0.90) < 0.001);
-            Assert.IsTrue(Math.Abs(outList[2][windLoadCase2] - 0.90) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[0][WindPressureLoadCase1] - 1.50) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[0][WindPressureLoadCase2] - 1.50) < 0.001);
             Assert.IsTrue(Math.Abs(outList[0][temperatureLoadCase3] - 0.90) < 0.001);
             Assert.IsTrue(Math.Abs(outList[0][temperatureLoadCase4] - 0.90) < 0.001);
-            Assert.IsTrue(Math.Abs(outList[2][temperatureLoadCase3] - 0.90) < 0.001);
-            Assert.IsTrue(Math.Abs(outList[2][temperatureLoadCase4] - 0.90) < 0.001);
             Assert.IsTrue(Math.Abs(outList[0][snowLoadCase1] - 1.05) < 0.001);
             Assert.IsTrue(Math.Abs(outList[0][snowLoadCase2] - 1.05) < 0.001);
+
+            Assert.IsTrue(Math.Abs(outList[1][temperatureLoadCase3] - 1.50) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[1][temperatureLoadCase4] - 1.50) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[1][WindPressureLoadCase1] - 0.90) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[1][WindPressureLoadCase2] - 0.90) < 0.001);
             Assert.IsTrue(Math.Abs(outList[1][snowLoadCase1] - 1.05) < 0.001);
             Assert.IsTrue(Math.Abs(outList[1][snowLoadCase2] - 1.05) < 0.001);
+
+            Assert.IsTrue(Math.Abs(outList[2][snowLoadCase1] - 1.50) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[2][snowLoadCase2] - 1.50) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[2][WindPressureLoadCase1] - 0.90) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[2][WindPressureLoadCase2] - 0.90) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[2][temperatureLoadCase3] - 0.90) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[2][temperatureLoadCase4] - 0.90) < 0.001);
+
+            Assert.IsTrue(Math.Abs(outList[3][WindPressureLoadCase1] - 1.50) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[3][WindPressureLoadCase2] - 1.50) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[3][temperatureLoadCase3] - 0.90) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[3][temperatureLoadCase4] - 0.90) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[3][snowLoadCase1] - 1.05) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[3][snowLoadCase2] - 1.05) < 0.001);
+
+            Assert.IsTrue(Math.Abs(outList[4][temperatureLoadCase3] - 1.50) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[4][temperatureLoadCase4] - 1.50) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[4][WindPressureLoadCase1] - 0.90) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[4][WindPressureLoadCase2] - 0.90) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[4][snowLoadCase1] - 1.05) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[4][snowLoadCase2] - 1.05) < 0.001);
+
+            Assert.IsTrue(Math.Abs(outList[5][snowLoadCase1] - 1.50) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[5][snowLoadCase2] - 1.50) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[5][WindPressureLoadCase1] - 0.90) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[5][WindPressureLoadCase2] - 0.90) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[5][temperatureLoadCase3] - 0.90) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[5][temperatureLoadCase4] - 0.90) < 0.001);
+        }
+
+        [TestMethod]
+        public void GeneratorWindPressureSuction1()
+        {
+            // Arrange
+            string loadCaseName1 = "selfWeight";
+            LoadCase selfWeightLoadCase = new LoadCase(loadCaseName1, LoadCase.LoadCaseType.SelfWeight);
+            string loadCaseName5 = "WindPressure1";
+            LoadCase windPressureLoadCase1 = new LoadCase(loadCaseName5, LoadCase.LoadCaseType.WindPressure);
+            string loadCaseName2 = "WindPressure2";
+            LoadCase windPressureLoadCase2 = new LoadCase(loadCaseName2, LoadCase.LoadCaseType.WindPressure);
+            string loadCaseName4 = "WindSuction1";
+            LoadCase windSuctionLoadCase1 = new LoadCase(loadCaseName4, LoadCase.LoadCaseType.WindSuction);
+
+            List<LoadCase> loadCaseList = new List<LoadCase>
+            {
+                selfWeightLoadCase,
+                windPressureLoadCase1,
+                windPressureLoadCase2,
+                windSuctionLoadCase1
+            };
+
+            StandardEN1990 standardEN1990 = new StandardEN1990();
+            StandardEN1990.ImposedLoadCategory category = StandardEN1990.ImposedLoadCategory.CategoryA;
+            StandardEN1990.LimitState limitState = StandardEN1990.LimitState.UltimateStructural;
+
+            // Act
+            List<CombinationEn> outList = CombinationEn.GenerateCombinations("combo", loadCaseList, standardEN1990, limitState, category);
+
+            // Assert
+            Assert.IsTrue(outList.Count() == 6);
+            Assert.IsTrue(Math.Abs(outList[0][selfWeightLoadCase] - 1.00) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[1][selfWeightLoadCase] - 1.00) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[2][selfWeightLoadCase] - 1.35) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[3][selfWeightLoadCase] - 1.35) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[4][selfWeightLoadCase] - 1.00) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[5][selfWeightLoadCase] - 1.35) < 0.001);
+
+            Assert.IsTrue(Math.Abs(outList[0][windPressureLoadCase1] - 1.50) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[0][windPressureLoadCase2] - 1.50) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[1][windSuctionLoadCase1] - 1.50) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[2][windPressureLoadCase1] - 1.50) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[2][windPressureLoadCase2] - 1.50) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[3][windSuctionLoadCase1] - 1.50) < 0.001);
+        }
+
+        [TestMethod]
+        public void GeneratorWindPressureSuction2()
+        {
+            // Arrange
+            string loadCaseName1 = "selfWeight";
+            LoadCase selfWeightLoadCase = new LoadCase(loadCaseName1, LoadCase.LoadCaseType.SelfWeight);
+            string loadCaseName5 = "WindPressure1";
+            LoadCase windPressureLoadCase1 = new LoadCase(loadCaseName5, LoadCase.LoadCaseType.WindPressure);
+            string loadCaseName2 = "WindPressure2";
+            LoadCase windPressureLoadCase2 = new LoadCase(loadCaseName2, LoadCase.LoadCaseType.WindPressure);
+            string loadCaseName4 = "WindSuction1";
+            LoadCase windSuctionLoadCase1 = new LoadCase(loadCaseName4, LoadCase.LoadCaseType.WindSuction);
+            string loadCaseName8 = "WindSuction2";
+            LoadCase windSuctionLoadCase2 = new LoadCase(loadCaseName8, LoadCase.LoadCaseType.WindSuction);
+            string loadCaseName6 = "Temperature2";
+            LoadCase temperatureLoadCase1 = new LoadCase(loadCaseName6, LoadCase.LoadCaseType.Temperature);
+            string loadCaseName7 = "Snow2";
+            LoadCase snowLoadCase1 = new LoadCase(loadCaseName7, LoadCase.LoadCaseType.Snow);
+            string loadCaseName3 = "Snow1";
+            LoadCase snowLoadCase2 = new LoadCase(loadCaseName3, LoadCase.LoadCaseType.Snow);
+
+
+            List<LoadCase> loadCaseList = new List<LoadCase>
+            {
+                selfWeightLoadCase,
+                windPressureLoadCase1,
+                windPressureLoadCase2,
+                windSuctionLoadCase1,
+                windSuctionLoadCase2,
+                temperatureLoadCase1,
+                snowLoadCase1,
+                snowLoadCase2
+            };
+
+            StandardEN1990 standardEN1990 = new StandardEN1990();
+            StandardEN1990.ImposedLoadCategory category = StandardEN1990.ImposedLoadCategory.CategoryA;
+            StandardEN1990.LimitState limitState = StandardEN1990.LimitState.UltimateStructural;
+
+            // Act
+            List<CombinationEn> outList = CombinationEn.GenerateCombinations("combo", loadCaseList, standardEN1990, limitState, category);
+
+            // Assert
+            Assert.IsTrue(outList.Count() == 14);
+            Assert.IsTrue(Math.Abs(outList[0][selfWeightLoadCase] - 1.00) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[1][selfWeightLoadCase] - 1.00) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[2][selfWeightLoadCase] - 1.00) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[3][selfWeightLoadCase] - 1.00) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[4][selfWeightLoadCase] - 1.00) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[5][selfWeightLoadCase] - 1.00) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[6][selfWeightLoadCase] - 1.35) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[7][selfWeightLoadCase] - 1.35) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[8][selfWeightLoadCase] - 1.35) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[9][selfWeightLoadCase] - 1.35) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[10][selfWeightLoadCase] - 1.35) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[11][selfWeightLoadCase] - 1.35) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[12][selfWeightLoadCase] - 1.00) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[13][selfWeightLoadCase] - 1.35) < 0.001);
+
+            Assert.IsTrue(Math.Abs(outList[0][windPressureLoadCase1] - 1.50) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[0][windPressureLoadCase2] - 1.50) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[0][temperatureLoadCase1] - 0.90) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[0][snowLoadCase1] - 1.05) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[0][snowLoadCase1] - 1.05) < 0.001);
+
+            Assert.IsTrue(Math.Abs(outList[1][windSuctionLoadCase1] - 1.50) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[1][windSuctionLoadCase2] - 1.50) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[1][temperatureLoadCase1] - 0.90) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[1][snowLoadCase1] - 1.05) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[1][snowLoadCase1] - 1.05) < 0.001);
+
+            Assert.IsTrue(Math.Abs(outList[2][temperatureLoadCase1] - 1.50) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[2][windPressureLoadCase1] - 0.90) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[2][windPressureLoadCase2] - 0.90) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[2][snowLoadCase1] - 1.05) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[2][snowLoadCase2] - 1.05) < 0.001);
+
+            Assert.IsTrue(Math.Abs(outList[3][temperatureLoadCase1] - 1.50) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[3][windSuctionLoadCase1] - 0.90) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[3][windSuctionLoadCase2] - 0.90) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[3][snowLoadCase1] - 1.05) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[3][snowLoadCase2] - 1.05) < 0.001);
+
+            Assert.IsTrue(Math.Abs(outList[4][snowLoadCase1] - 1.50) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[4][snowLoadCase2] - 1.50) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[4][windPressureLoadCase1] - 0.90) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[4][windPressureLoadCase2] - 0.90) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[4][temperatureLoadCase1] - 0.90) < 0.001);
+
+            Assert.IsTrue(Math.Abs(outList[5][snowLoadCase1] - 1.50) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[5][snowLoadCase2] - 1.50) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[5][windSuctionLoadCase1] - 0.90) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[5][windSuctionLoadCase2] - 0.90) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[5][temperatureLoadCase1] - 0.90) < 0.001);
+
+            Assert.IsTrue(Math.Abs(outList[6][windPressureLoadCase1] - 1.50) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[6][windPressureLoadCase2] - 1.50) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[6][temperatureLoadCase1] - 0.90) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[6][snowLoadCase1] - 1.05) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[6][snowLoadCase1] - 1.05) < 0.001);
+
+            Assert.IsTrue(Math.Abs(outList[7][windSuctionLoadCase1] - 1.50) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[7][windSuctionLoadCase2] - 1.50) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[7][temperatureLoadCase1] - 0.90) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[7][snowLoadCase1] - 1.05) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[7][snowLoadCase1] - 1.05) < 0.001);
+
+            Assert.IsTrue(Math.Abs(outList[8][temperatureLoadCase1] - 1.50) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[8][windPressureLoadCase1] - 0.90) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[8][windPressureLoadCase2] - 0.90) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[8][snowLoadCase1] - 1.05) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[8][snowLoadCase2] - 1.05) < 0.001);
+
+            Assert.IsTrue(Math.Abs(outList[9][temperatureLoadCase1] - 1.50) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[9][windSuctionLoadCase1] - 0.90) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[9][windSuctionLoadCase2] - 0.90) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[9][snowLoadCase1] - 1.05) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[9][snowLoadCase2] - 1.05) < 0.001);
+
+            Assert.IsTrue(Math.Abs(outList[10][snowLoadCase1] - 1.50) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[10][snowLoadCase2] - 1.50) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[10][windPressureLoadCase1] - 0.90) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[10][windPressureLoadCase2] - 0.90) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[10][temperatureLoadCase1] - 0.90) < 0.001);
+
+            Assert.IsTrue(Math.Abs(outList[11][snowLoadCase1] - 1.50) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[11][snowLoadCase2] - 1.50) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[11][windSuctionLoadCase1] - 0.90) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[11][windSuctionLoadCase2] - 0.90) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[11][temperatureLoadCase1] - 0.90) < 0.001);
+
+        }
+
+        [TestMethod]
+        public void GeneratorClimate1()
+        {
+            // Arrange
+            string loadCaseName1 = "selfWeight";
+            LoadCase selfWeightLoadCase = new LoadCase(loadCaseName1, LoadCase.LoadCaseType.SelfWeight);
+            string loadCaseName6 = "ClimateSummerDeltaT";
+            LoadCase climateSummerDeltaTLoadCase1 = new LoadCase(loadCaseName6, LoadCase.LoadCaseType.ClimateSummerDeltaT);
+            string loadCaseName7 = "ClimateSummerDeltaH";
+            LoadCase climateSummerDeltaHLoadCase1 = new LoadCase(loadCaseName7, LoadCase.LoadCaseType.ClimateSummerDeltaH);
+            string loadCaseName3 = "ClimateSummerDeltaP";
+            LoadCase climateSummerDeltaPLoadCase2 = new LoadCase(loadCaseName3, LoadCase.LoadCaseType.ClimateSummerDeltaP);
+
+            List<LoadCase> loadCaseList = new List<LoadCase>
+            {
+                selfWeightLoadCase,
+                climateSummerDeltaTLoadCase1,
+                climateSummerDeltaHLoadCase1,
+                climateSummerDeltaPLoadCase2
+            };
+
+            StandardEN1990 standardEN1990 = new StandardEN1990();
+            StandardEN1990.ImposedLoadCategory category = StandardEN1990.ImposedLoadCategory.CategoryA;
+            StandardEN1990.LimitState limitState = StandardEN1990.LimitState.UltimateStructural;
+
+            // Act
+            List<CombinationEn> outList = CombinationEn.GenerateCombinations("combo", loadCaseList, standardEN1990, limitState, category);
+
+            // Assert
+            Assert.IsTrue(outList.Count() == 4);
+            Assert.IsTrue(Math.Abs(outList[0][selfWeightLoadCase] - 1.00) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[0][climateSummerDeltaHLoadCase1] - 1.00) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[1][selfWeightLoadCase] - 1.35) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[1][climateSummerDeltaHLoadCase1] - 1.35) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[2][selfWeightLoadCase] - 1.00) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[3][selfWeightLoadCase] - 1.35) < 0.001);
+
+            Assert.IsTrue(Math.Abs(outList[0][climateSummerDeltaTLoadCase1] - 1.50) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[0][climateSummerDeltaPLoadCase2] - 1.50) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[1][climateSummerDeltaTLoadCase1] - 1.50) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[1][climateSummerDeltaPLoadCase2] - 1.50) < 0.001);
+        }
+        [TestMethod]
+        public void GeneratorClimate2()
+        {
+            // Arrange
+            string loadCaseName1 = "selfWeight";
+            LoadCase selfWeightLoadCase = new LoadCase(loadCaseName1, LoadCase.LoadCaseType.SelfWeight);
+            string loadCaseName2 = "ClimateSummerDeltaT";
+            LoadCase climateSummerDeltaTLoadCase1 = new LoadCase(loadCaseName2, LoadCase.LoadCaseType.ClimateSummerDeltaT);
+            string loadCaseName3 = "ClimateSummerDeltaH";
+            LoadCase climateSummerDeltaHLoadCase1 = new LoadCase(loadCaseName3, LoadCase.LoadCaseType.ClimateSummerDeltaH);
+            string loadCaseName4 = "ClimateSummerDeltaP";
+            LoadCase climateSummerDeltaPLoadCase1 = new LoadCase(loadCaseName4, LoadCase.LoadCaseType.ClimateSummerDeltaP);
+            string loadCaseName5 = "ClimateSummerDeltaP2";
+            LoadCase climateSummerDeltaPLoadCase2 = new LoadCase(loadCaseName5, LoadCase.LoadCaseType.ClimateSummerDeltaP);
+            string loadCaseName6 = "ClimateSummerDeltaP3";
+            LoadCase climateSummerDeltaPLoadCase3 = new LoadCase(loadCaseName6, LoadCase.LoadCaseType.ClimateSummerDeltaP);
+
+            List<LoadCase> loadCaseList = new List<LoadCase>
+            {
+                selfWeightLoadCase,
+                climateSummerDeltaTLoadCase1,
+                climateSummerDeltaHLoadCase1,
+                climateSummerDeltaPLoadCase1,
+                climateSummerDeltaPLoadCase2,
+                climateSummerDeltaPLoadCase3
+            };
+
+            StandardEN1990 standardEN1990 = new StandardEN1990();
+            StandardEN1990.ImposedLoadCategory category = StandardEN1990.ImposedLoadCategory.CategoryA;
+            StandardEN1990.LimitState limitState = StandardEN1990.LimitState.UltimateStructural;
+
+            // Act
+            List<CombinationEn> outList = CombinationEn.GenerateCombinations("combo", loadCaseList, standardEN1990, limitState, category);
+
+            // Assert
+            Assert.IsTrue(outList.Count() == 4);
+            Assert.IsTrue(Math.Abs(outList[0][selfWeightLoadCase] - 1.00) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[0][climateSummerDeltaHLoadCase1] - 1.00) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[1][selfWeightLoadCase] - 1.35) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[1][climateSummerDeltaHLoadCase1] - 1.35) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[2][selfWeightLoadCase] - 1.00) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[3][selfWeightLoadCase] - 1.35) < 0.001);
+
+            Assert.IsTrue(Math.Abs(outList[0][climateSummerDeltaTLoadCase1] - 1.50) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[0][climateSummerDeltaPLoadCase1] - 1.50) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[0][climateSummerDeltaPLoadCase2] - 1.50) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[0][climateSummerDeltaPLoadCase3] - 1.50) < 0.001);
+
+            Assert.IsTrue(Math.Abs(outList[1][climateSummerDeltaTLoadCase1] - 1.50) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[1][climateSummerDeltaPLoadCase1] - 1.50) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[1][climateSummerDeltaPLoadCase2] - 1.50) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[1][climateSummerDeltaPLoadCase3] - 1.50) < 0.001);
+        }
+
+        [TestMethod]
+        public void GeneratorClimate3()
+        {
+            // Arrange
+            string loadCaseName1 = "selfWeight";
+            LoadCase selfWeightLoadCase = new LoadCase(loadCaseName1, LoadCase.LoadCaseType.SelfWeight);
+            string loadCaseName2 = "ClimateSummerDeltaT";
+            LoadCase climateSummerDeltaTLoadCase1 = new LoadCase(loadCaseName2, LoadCase.LoadCaseType.ClimateSummerDeltaT);
+            string loadCaseName3 = "ClimateSummerDeltaH";
+            LoadCase climateSummerDeltaHLoadCase1 = new LoadCase(loadCaseName3, LoadCase.LoadCaseType.ClimateSummerDeltaH);
+            string loadCaseName4 = "ClimateSummerDeltaP1";
+            LoadCase climateSummerDeltaPLoadCase1 = new LoadCase(loadCaseName4, LoadCase.LoadCaseType.ClimateSummerDeltaP);
+            string loadCaseName5 = "ClimateSummerDeltaP2";
+            LoadCase climateSummerDeltaPLoadCase2 = new LoadCase(loadCaseName5, LoadCase.LoadCaseType.ClimateSummerDeltaP);
+            string loadCaseName6 = "ClimateSummerDeltaP3";
+            LoadCase climateSummerDeltaPLoadCase3 = new LoadCase(loadCaseName6, LoadCase.LoadCaseType.ClimateSummerDeltaP);
+            string loadCaseName7 = "ClimateWinterDeltaP1";
+            LoadCase climateWinterDeltaPLoadCase1 = new LoadCase(loadCaseName7, LoadCase.LoadCaseType.ClimateWinterDeltaP);
+            string loadCaseName8 = "ClimateWinterDeltaP2";
+            LoadCase climateWinterDeltaPLoadCase2 = new LoadCase(loadCaseName8, LoadCase.LoadCaseType.ClimateWinterDeltaP);
+
+            List<LoadCase> loadCaseList = new List<LoadCase>
+            {
+                selfWeightLoadCase,
+                climateSummerDeltaTLoadCase1,
+                climateSummerDeltaHLoadCase1,
+                climateSummerDeltaPLoadCase1,
+                climateSummerDeltaPLoadCase2,
+                climateSummerDeltaPLoadCase3,
+                climateWinterDeltaPLoadCase1,
+                climateWinterDeltaPLoadCase2
+            };
+
+            StandardEN1990 standardEN1990 = new StandardEN1990();
+            StandardEN1990.ImposedLoadCategory category = StandardEN1990.ImposedLoadCategory.CategoryA;
+            StandardEN1990.LimitState limitState = StandardEN1990.LimitState.UltimateStructural;
+
+            // Act
+            List<CombinationEn> outList = CombinationEn.GenerateCombinations("combo", loadCaseList, standardEN1990, limitState, category);
+
+            // Assert
+            Assert.IsTrue(outList.Count() == 6);
+            Assert.IsTrue(Math.Abs(outList[0][selfWeightLoadCase] - 1.00) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[0][climateSummerDeltaHLoadCase1] - 1.00) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[1][selfWeightLoadCase] - 1.00) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[1][climateSummerDeltaHLoadCase1] - 1.00) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[2][selfWeightLoadCase] - 1.35) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[2][climateSummerDeltaHLoadCase1] - 1.35) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[3][selfWeightLoadCase] - 1.35) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[3][climateSummerDeltaHLoadCase1] - 1.35) < 0.001);
+
+            Assert.IsTrue(Math.Abs(outList[0][climateSummerDeltaTLoadCase1] - 1.50) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[0][climateSummerDeltaPLoadCase1] - 1.50) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[0][climateSummerDeltaPLoadCase2] - 1.50) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[0][climateSummerDeltaPLoadCase3] - 1.50) < 0.001);
+
+            Assert.IsTrue(Math.Abs(outList[1][climateWinterDeltaPLoadCase1] - 1.50) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[1][climateWinterDeltaPLoadCase2] - 1.50) < 0.001);
+
+            Assert.IsTrue(Math.Abs(outList[2][climateSummerDeltaTLoadCase1] - 1.50) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[2][climateSummerDeltaPLoadCase1] - 1.50) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[2][climateSummerDeltaPLoadCase2] - 1.50) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[2][climateSummerDeltaPLoadCase3] - 1.50) < 0.001);
+
+            Assert.IsTrue(Math.Abs(outList[3][climateWinterDeltaPLoadCase1] - 1.50) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[3][climateWinterDeltaPLoadCase2] - 1.50) < 0.001);
+        }
+
+        [TestMethod]
+        public void GeneratorClimate4()
+        {
+            // Arrange
+            string loadCaseName1 = "selfWeight";
+            LoadCase selfWeightLoadCase = new LoadCase(loadCaseName1, LoadCase.LoadCaseType.SelfWeight);
+            string loadCaseName2 = "ClimateSummerDeltaT";
+            LoadCase climateSummerDeltaTLoadCase1 = new LoadCase(loadCaseName2, LoadCase.LoadCaseType.ClimateSummerDeltaT);
+            string loadCaseName3 = "ClimateSummerDeltaH";
+            LoadCase climateSummerDeltaHLoadCase1 = new LoadCase(loadCaseName3, LoadCase.LoadCaseType.ClimateSummerDeltaH);
+            string loadCaseName4 = "ClimateSummerDeltaP1";
+            LoadCase climateSummerDeltaPLoadCase1 = new LoadCase(loadCaseName4, LoadCase.LoadCaseType.ClimateSummerDeltaP);
+            string loadCaseName5 = "ClimateSummerDeltaP2";
+            LoadCase climateSummerDeltaPLoadCase2 = new LoadCase(loadCaseName5, LoadCase.LoadCaseType.ClimateSummerDeltaP);
+            string loadCaseName6 = "ClimateSummerDeltaP3";
+            LoadCase climateSummerDeltaPLoadCase3 = new LoadCase(loadCaseName6, LoadCase.LoadCaseType.ClimateSummerDeltaP);
+            string loadCaseName7 = "ClimateWinterDeltaP1";
+            LoadCase climateWinterDeltaPLoadCase1 = new LoadCase(loadCaseName7, LoadCase.LoadCaseType.ClimateWinterDeltaP);
+            string loadCaseName8 = "ClimateWinterDeltaP2";
+            LoadCase climateWinterDeltaPLoadCase2 = new LoadCase(loadCaseName8, LoadCase.LoadCaseType.ClimateWinterDeltaP);
+            string loadCaseName9 = "Wind1";
+            LoadCase windLoadCase = new LoadCase(loadCaseName9, LoadCase.LoadCaseType.WindPressure);
+            string loadCaseName10 = "Wind2";
+            LoadCase windLoadCase2 = new LoadCase(loadCaseName10, LoadCase.LoadCaseType.WindPressure);
+
+            List<LoadCase> loadCaseList = new List<LoadCase>
+            {
+                selfWeightLoadCase,
+                climateSummerDeltaTLoadCase1,
+                climateSummerDeltaHLoadCase1,
+                climateSummerDeltaPLoadCase1,
+                climateSummerDeltaPLoadCase2,
+                climateSummerDeltaPLoadCase3,
+                climateWinterDeltaPLoadCase1,
+                climateWinterDeltaPLoadCase2,
+                windLoadCase,
+                windLoadCase2
+            };
+
+            StandardEN1990 standardEN1990 = new StandardEN1990();
+            StandardEN1990.ImposedLoadCategory category = StandardEN1990.ImposedLoadCategory.CategoryA;
+            StandardEN1990.LimitState limitState = StandardEN1990.LimitState.UltimateStructural;
+
+            // Act
+            List<CombinationEn> outList = CombinationEn.GenerateCombinations("combo", loadCaseList, standardEN1990, limitState, category);
+
+            // Assert
+            Assert.IsTrue(outList.Count() == 8);
+            Assert.IsTrue(Math.Abs(outList[0][selfWeightLoadCase] - 1.00) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[0][climateSummerDeltaHLoadCase1] - 1.00) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[1][selfWeightLoadCase] - 1.00) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[1][climateSummerDeltaHLoadCase1] - 1.00) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[2][selfWeightLoadCase] - 1.00) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[2][climateSummerDeltaHLoadCase1] - 1.00) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[3][selfWeightLoadCase] - 1.35) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[3][climateSummerDeltaHLoadCase1] - 1.35) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[4][selfWeightLoadCase] - 1.35) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[4][climateSummerDeltaHLoadCase1] - 1.35) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[5][selfWeightLoadCase] - 1.35) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[5][climateSummerDeltaHLoadCase1] - 1.35) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[6][selfWeightLoadCase] - 1.00) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[6][climateSummerDeltaHLoadCase1] - 1.00) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[7][selfWeightLoadCase] - 1.35) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[7][climateSummerDeltaHLoadCase1] - 1.35) < 0.001);
+
+            Assert.IsTrue(Math.Abs(outList[0][climateSummerDeltaTLoadCase1] - 1.50) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[0][climateSummerDeltaPLoadCase1] - 1.50) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[0][climateSummerDeltaPLoadCase2] - 1.50) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[0][climateSummerDeltaPLoadCase3] - 1.50) < 0.001);
+
+            Assert.IsTrue(Math.Abs(outList[1][climateWinterDeltaPLoadCase1] - 1.50) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[1][climateWinterDeltaPLoadCase2] - 1.50) < 0.001);
+
+           //  Assert.IsTrue(Math.Abs(outList[2][climateSummerDeltaTLoadCase1] - 1.50) < 0.001);
+           //  Assert.IsTrue(Math.Abs(outList[2][climateSummerDeltaPLoadCase1] - 1.50) < 0.001);
+           //  Assert.IsTrue(Math.Abs(outList[2][climateSummerDeltaPLoadCase2] - 1.50) < 0.001);
+           //  Assert.IsTrue(Math.Abs(outList[2][climateSummerDeltaPLoadCase3] - 1.50) < 0.001);
+           // 
+           //  Assert.IsTrue(Math.Abs(outList[3][climateWinterDeltaPLoadCase1] - 1.50) < 0.001);
+           //  Assert.IsTrue(Math.Abs(outList[3][climateWinterDeltaPLoadCase2] - 1.50) < 0.001);
         }
     }
 }
