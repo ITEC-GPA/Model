@@ -1,6 +1,8 @@
 ﻿using GPC.Model.LoadCases;
+using GPC.Utilities.Extensions;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.Text;
@@ -8,7 +10,8 @@ using System.Text;
 namespace GPC.Model.Combinations
 {
     [Serializable]
-    public abstract class Combination : ModelObject, ILoadCase
+    [DebuggerDisplay("{" + nameof(GetDebuggerDisplay) + "(),nq}")]
+    public abstract class Combination : ModelObject, ILoadCase, ICloneable
     {
         protected List<LoadCaseCoefficient> _coefficients;
 
@@ -27,6 +30,13 @@ namespace GPC.Model.Combinations
         {
 
         }
+
+        protected Combination(Combination combination)
+            : this(combination._name, combination.Guid)
+        {
+            _coefficients = combination._coefficients.ToList(); //Shallow copy, i puntatori dei loadcase non cambiano
+        }
+
 
         protected Combination(SerializationInfo info, StreamingContext context)
             : base(info, context)
@@ -83,6 +93,19 @@ namespace GPC.Model.Combinations
         }
 
 
+        /// <exception cref="ArgumentNullException"> If <see cref="LoadCase"/> is null </exception>
+        public virtual void AddLoadCaseCoefficients(IEnumerable<(LoadCase, double)> loadCaseCoefficients)
+        {
+            foreach(var lcc in loadCaseCoefficients)
+            {
+                if (lcc.Item1 is null)
+                    throw new ArgumentNullException();
+
+                this[lcc.Item1] = lcc.Item2;
+            }
+        }
+            
+
         /// <summary>
         /// 
         /// </summary>
@@ -129,7 +152,164 @@ namespace GPC.Model.Combinations
             return coefficients;
         }
 
+        /// <returns>An array of all the pairs <see cref="LoadCase"/>-LoadCaseCoefficient of this combination</returns>
+        public virtual KeyValuePair<LoadCase, double>[] GetLoadCaseCoefficientsPair()
+        {
+            KeyValuePair<LoadCase, double>[] pairs = new KeyValuePair<LoadCase, double>[_coefficients.Count];
 
+            for (var i = 0; i < _coefficients.Count; i++)
+            {
+                pairs[i] = new KeyValuePair<LoadCase, double>(_coefficients[i].LoadCase, _coefficients[i].Coefficient);
+            }
+
+            return pairs;
+        }
+
+        /// <returns>An array of all the tuples <see cref="LoadCase"/>-LoadCaseCoefficient of this combination</returns>
+        public virtual (LoadCase loadcase, double coefficient)[] GetLoadCaseCoefficientsTuple()
+        {
+            (LoadCase loadcase, double coefficient)[] pairs = new (LoadCase loadcase, double coefficient)[_coefficients.Count];
+
+            for (var i = 0; i < _coefficients.Count; i++)
+            {
+                pairs[i] = (_coefficients[i].LoadCase, _coefficients[i].Coefficient);
+            }
+
+            return pairs;
+        }
+
+
+        /// <returns>An array of tuples <see cref="LoadCase"/>-LoadCaseCoefficient. Where the <see cref="LoadCase"/> are only the ones contained in <paramref name="loadCases"/></returns>
+        public virtual (LoadCase loadcase, double coefficient)[] GetLoadCaseCoefficientsTuple(IEnumerable<LoadCase> loadCases)
+        {
+            var pairs = new List<(LoadCase loadcase, double coefficient)>();
+
+            for (var i = 0; i < _coefficients.Count; i++)
+            {
+                if (loadCases.Contains(_coefficients[i].LoadCase))
+                    pairs.Add((_coefficients[i].LoadCase, _coefficients[i].Coefficient));
+            }
+
+            return pairs.ToArray();
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="loadCases"></param>
+        /// <returns><see langword="True"/> if all the elements of <paramref name="loadCases"/> are contained in this combination</returns>
+        /// <exception cref="ArgumentNullException"></exception>
+        public virtual bool ContainsLoadCases(IEnumerable<LoadCase> loadCases)
+        {
+            if (loadCases is null)
+                throw new ArgumentNullException();
+
+            if (loadCases.Count() > 0)
+                return _coefficients.Select(i => i.LoadCase).Intersect(loadCases).Count().Equals(loadCases.Count());
+            else
+                return true;
+        }
+
+
+        /// <param name="loadCasesCoefficients"></param>
+        /// <returns><see langword="True"/> if all KeyValuePairs are contained in this combination</returns>
+        /// <exception cref="ArgumentNullException"></exception>
+        public virtual bool ContainsLoadCaseCoefficients(IEnumerable<KeyValuePair<LoadCase, double>> loadCasesCoefficients)
+        {
+            if (loadCasesCoefficients is null)
+                throw new ArgumentNullException();
+
+            if (loadCasesCoefficients.Count() > 0)
+            {
+                return _coefficients.Select(i => new KeyValuePair<LoadCase, double>(i.LoadCase, i.Coefficient)).Except(loadCasesCoefficients).Count() == _coefficients.Count() - loadCasesCoefficients.Count();
+            }
+            else
+                return true;
+        }
+
+        /// <param name="loadCasesCoefficients"></param>
+        /// <returns><see langword="True"/> if all Tuple are contained in this combination</returns>
+        /// <exception cref="ArgumentNullException"></exception>
+        public virtual bool ContainsLoadCaseCoefficients(IEnumerable<(LoadCase loadcase, double coefficient)> loadCasesCoefficients)
+        {
+            if (loadCasesCoefficients is null)
+                throw new ArgumentNullException();
+
+            if (loadCasesCoefficients.Count() > 0)
+            {
+                return _coefficients.Select(i => ( i.LoadCase, i.Coefficient )).Except(loadCasesCoefficients).Count() == _coefficients.Count() - loadCasesCoefficients.Count();
+            }
+            else
+                return true;
+        }
+
+
+        /// <exception cref="ArgumentNullException"> If <see cref="LoadCase"/> is null </exception>
+        public virtual void RemoveLoadCaseCoefficients(IEnumerable<(LoadCase, double)> loadCaseCoefficients)
+        {
+            foreach (var lcc in loadCaseCoefficients)
+            {
+                if (lcc.Item1 is null)
+                    throw new ArgumentNullException();
+
+                _coefficients.RemoveAll(i => i.LoadCase.Equals(lcc.Item1));
+            }
+        }
+
+
+        public abstract object Clone();
+
+        /// <summary>
+        /// Create a new empty <see cref="Combination"/> object. I.e. with the same properties except the <see cref="Combination.LoadCaseCoefficient"/> List that will be empty
+        /// </summary>
+        public abstract object CloneEmpty();
+
+
+        #endregion
+
+
+
+        #region Equals - HashCode - Operators
+
+        public override bool Equals(object obj)
+        {
+            if (obj is null)
+                return false;
+
+            if (ReferenceEquals(this, obj))
+                return true;
+
+            Combination objCasted = obj as Combination;
+
+            return !(objCasted is null) && _coefficients.ScrambledEquals(objCasted._coefficients) && base.Equals(objCasted);
+        }
+
+        public override int GetHashCode()
+        {
+            var hashCode = 23;
+            foreach (var element in _coefficients)
+            {
+                hashCode = hashCode + EqualityComparer<LoadCaseCoefficient>.Default.GetHashCode(element);
+            }
+            return hashCode;
+        }
+
+
+        public static bool operator ==(Combination obj1, Combination obj2)
+        {
+            if (ReferenceEquals(obj1, obj2))
+                return true;
+
+            if (obj1 is null || obj2 is null)
+                return false;
+
+            return obj1.Equals(obj2);
+        }
+
+        public static bool operator !=(Combination obj1, Combination obj2)
+        {
+            return !(obj1 == obj2);
+        }
 
         #endregion
 
@@ -182,7 +362,7 @@ namespace GPC.Model.Combinations
 
         #region Nested class
 
-        protected class LoadCaseCoefficient : IComparable<LoadCaseCoefficient>
+        protected sealed class LoadCaseCoefficient : IComparable<LoadCaseCoefficient>, IEquatable<LoadCaseCoefficient>
         {
             private LoadCase _loadcase;
             private double _coefficient;
@@ -234,7 +414,48 @@ namespace GPC.Model.Combinations
                 }
             }
 
+            public override bool Equals(object obj)
+            {
+                return Equals(obj as LoadCaseCoefficient);
+            }
+
+            public bool Equals(LoadCaseCoefficient other)
+            {
+                return other != null &&
+                       EqualityComparer<LoadCase>.Default.Equals(_loadcase, other._loadcase) &&
+                       _coefficient == other._coefficient;
+            }
+
+            public override int GetHashCode()
+            {
+                var hashCode = -23;
+                hashCode = hashCode * -17 + EqualityComparer<LoadCase>.Default.GetHashCode(_loadcase);
+                hashCode = hashCode * -17 + _coefficient.GetHashCode();
+                return hashCode;
+            }
+
+            public static bool operator ==(LoadCaseCoefficient obj1, LoadCaseCoefficient obj2)
+            {
+                if (ReferenceEquals(obj1, obj2))
+                    return true;
+
+                if (obj1 is null || obj2 is null)
+                    return false;
+
+                return obj1.Equals(obj2);
+            }
+
+            public static bool operator !=(LoadCaseCoefficient obj1, LoadCaseCoefficient obj2)
+            {
+                return !(obj1 == obj2);
+            }
         }
+
+        private string GetDebuggerDisplay()
+        {
+            return $"{Name}: {ToString()}"; 
+        }
+
 
         #endregion
     }

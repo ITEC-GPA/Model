@@ -174,13 +174,19 @@ namespace GPC.Model.Materials
         public static bool operator !=(InterlayerMaterial obj1, InterlayerMaterial obj2)
         {
             return !(obj1 == obj2);
-        } 
+        }
         #endregion
 
         #endregion
 
         #region INDEXER
 
+
+        /// <param name="loadDuration"></param>
+        /// <param name="temperature"></param>
+        /// <returns>The value of Shear modulus</returns>
+        /// <exception cref="IndexOutOfRangeException"></exception>
+        /// <exception cref="KeyNotFoundException"></exception>
         public double this[double loadDuration, double temperature]
         {
             get

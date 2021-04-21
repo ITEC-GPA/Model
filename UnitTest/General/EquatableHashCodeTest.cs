@@ -14,6 +14,7 @@ using System.Collections.Generic;
 using GPC.Model.Loads;
 using GPC.TestUtilities;
 using GPC.Model.FEM.Collections;
+using GPC.Model.Restrains;
 
 namespace GeneralTest
 {
@@ -277,6 +278,17 @@ namespace GeneralTest
             Assert.AreEqual(cnode1.GetHashCode(), cnode1.GetHashCode());
             Assert.AreNotEqual(cnode1, cnode3);
             Assert.AreNotEqual(cnode1.GetHashCode(), cnode3.GetHashCode());
+        }
+
+        [TestMethod]
+        public void DofRestrainEqualsAndHashCode()
+        {
+            DofRestrain dr1 = new DofRestrain(Solver.DOF.DX, 0.5);
+            DofRestrain dr2 = new DofRestrain(Solver.DOF.DZ, true);
+            DofRestrain dr3 = new DofRestrain(Solver.DOF.DX, 0.5);
+
+            Assert.IsFalse(dr1.Equals(dr2));
+            Assert.IsTrue(dr1.Equals(dr3));
         }
     }
 }

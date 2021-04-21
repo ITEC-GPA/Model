@@ -20,8 +20,8 @@ namespace GPC.Model.FEM.Properties
 
         public double LoadDuration => _loadDuration;
 
-        public InterlayerBrickProperty(Interlayer interlayer, double temperature, double loadDuration, string name) 
-            : base(interlayer.Material, name)
+        public InterlayerBrickProperty(InterlayerMaterial material, double temperature, double loadDuration, string name) 
+            : base(material, name)
         {
             this._temperature = temperature > 0 ? temperature : throw new ArgumentException("Temperature can not be lower or equal to zero");
             this._loadDuration = loadDuration > 0 ? loadDuration : throw new ArgumentException("Temperature can not be lower or equal to zero");

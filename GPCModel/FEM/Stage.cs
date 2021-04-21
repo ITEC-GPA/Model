@@ -21,12 +21,27 @@ namespace GPC.Model.FEM
 
         private FemModel.AnalysisTypes _analysisType;
 
+        /// <summary>
+        /// List of elements active in this stage. Each element is mapped to a property override.
+        /// </summary>
+        /// <remarks>
+        /// <para>Each of this elements must be contained in the reference model: <see cref="_femModel"/></para>
+        /// <para>If an element is not in this list, it will be not active in this stage</para>
+        /// <para>The id of the elements in this collection will be the same of the ones in the reference femModel</para>
+        /// </remarks>
         private FiniteElementStageCollection<FiniteElement, StageFiniteElementProperty> _elements;
 
+        /// <summary>
+        /// List of node property override. 
+        /// </summary>
+        /// <remarks>
+        /// <para>This map contains only the nodes with a property override. Not all the nodes of the <see cref="Stage._elements"/></para> 
+        /// <para>Each node in this list must be contained in the reference model: <see cref="_femModel"/></para>
+        /// </remarks>
         private NodeStageCollection<Node, StageProperty> _nodes;
 
         private FemModel _femModel;
-
+        
         private bool _morph;
 
 
@@ -80,19 +95,22 @@ namespace GPC.Model.FEM
             throw new NotImplementedException();
         }
 
+        #region Adder / Setter
 
-        #region Public method - Add / Set
+        #region Finite elements
 
         /// <summary>
         /// Add a <see cref="FiniteElement"/> to the stage element collection. All its attributes will be copied
         /// </summary>
         /// <returns>The <see cref="StageFiniteElementProperty"/> assigned to <paramref name="element"/> </returns>
         /// <inheritdoc cref="FemObjectStageCollection{T, D}.Add(T, D)"/>
+        /// <exception cref="ArgumentException">If <paramref name="element"/> is not contained in the reference FemModel <see cref="_femModel"/></exception>
+        /// <exception cref="ArgumentException">If <see cref="FiniteElement.Property"/> Name is not contained in the reference femModel properties list</exception>
         public StageFiniteElementProperty AddFiniteElement(FiniteElement element)
         {
-            if (_femModel.ContainsFiniteElement(element))
+            if (CanBeAdded(element, out Exception exception))
             {
-                StageFiniteElementProperty sp = new StageFiniteElementProperty(element.Property);
+                StageFiniteElementProperty sp = new StageFiniteElementProperty(element.Property.Name);
 
                 sp.AddLoadCaseAttributes(element.AttributesLoadCase);
                 sp.AddFreedomCaseAttributes(element.AttributesFreedomCase);
@@ -101,21 +119,26 @@ namespace GPC.Model.FEM
 
                 return sp;
             }
-            throw new ArgumentException("Element not contained in the reference femModel");
+            else
+            {
+                throw exception;
+            }
         }
 
         /// <summary>
         /// Add a <see cref="FiniteElement"/> to the stage element collection. All its attributes will be copied
         /// </summary>
         /// <param name="element"></param>
-        /// <param name="property">Overriding property</param>
+        /// <param name="propertyName">Name of the overriding property</param>
         /// <returns>The <see cref="StageFiniteElementProperty"/> assigned to <paramref name="element"/> </returns>
         /// <inheritdoc cref="FemObjectStageCollection{T, D}.Add(T, D)"/>
-        public StageFiniteElementProperty AddFiniteElement(FiniteElement element, ElementProperty property)
+        /// <exception cref="ArgumentException">If the <paramref name="element"/> does not exist the in the reference fem model</exception>
+        /// <exception cref="ArgumentException">If the <paramref name="propertyName"/> does not exist in the reference fem model</exception>
+        public StageFiniteElementProperty AddFiniteElement(FiniteElement element, string propertyName)
         {
-            if (_femModel.ContainsFiniteElement(element))
+            if (CanBeAdded(element, out Exception exception, propertyName))
             {
-                StageFiniteElementProperty sp = new StageFiniteElementProperty(property);
+                StageFiniteElementProperty sp = new StageFiniteElementProperty(propertyName);
 
                 sp.AddLoadCaseAttributes(element.AttributesLoadCase);
                 sp.AddFreedomCaseAttributes(element.AttributesFreedomCase);
@@ -124,45 +147,164 @@ namespace GPC.Model.FEM
 
                 return sp;
             }
-            throw new ArgumentException("Element not contained in the reference femModel");
+            else
+            {
+                throw exception;
+            }
         }
+
 
         /// <summary>
         /// Add the <see cref="FiniteElement"/> to the stage by means of their IDs from the reference FemModel: <see cref="Stage._femModel"/>
         /// </summary>
         /// <exception cref="KeyNotFoundException">If the <paramref name="elementIDs"/> are not in the reference model <see cref="FemModel._nodes"/> collection </exception>
-        /// <remarks>This is a O(n^2) operations</remarks>
+        /// <remarks>This is a O(n) operations</remarks>
         public void AddFiniteElements(int[] elementIDs)
         {
-            foreach (var id in elementIDs)
+            foreach (var id in elementIDs.Distinct())
             {
-                foreach (var node in _femModel.GetFiniteElement(id).Nodes)
-                {
-                    _nodes.SetItem(node);
-                }
-
-                _elements.SetItem(_femModel.GetFiniteElement(id));
+                _elements.Add(_femModel.GetFiniteElement(id));
             }
         }
+
+        /// <summary>
+        /// Add the <see cref="FiniteElement"/> to the stage by means of their IDs from the reference FemModel: <see cref="Stage._femModel"/>
+        /// </summary>
+        /// <param name="elementIDs"></param>
+        /// <param name="propertyName">Name of the overriding property</param>
+        /// <exception cref="KeyNotFoundException">If the <paramref name="elementIDs"/> are not in the reference model <see cref="FemModel._nodes"/> collection </exception>
+        /// <remarks>This is a O(n^2) operations</remarks>
+        public void AddFiniteElements(int[] elementIDs, string propertyName)
+        {
+            foreach (var id in elementIDs.Distinct())
+            {
+                var element = _femModel.GetFiniteElement(id);
+
+                StageFiniteElementProperty sp = new StageFiniteElementProperty(propertyName);
+
+                sp.AddLoadCaseAttributes(element.AttributesLoadCase);
+                sp.AddFreedomCaseAttributes(element.AttributesFreedomCase);
+
+                _elements.Add(element);
+            }
+        }
+
+
 
         /// <summary>
         /// Add the <see cref="FiniteElement"/> to the stage
         /// </summary>
         /// <exception cref="ArgumentException">If the <paramref name="elements"/> are not in the reference model <see cref="FemModel._elements"/> collection </exception>
-        /// <remarks>This is a O(2n^2) operations</remarks>
+        /// <remarks>This is a O(3n) operations</remarks>
         public void AddFiniteElements(FiniteElement[] elements)
         {
             foreach (var element in elements)
             {
-                if (!_femModel.ContainsFiniteElement(element))
-                    throw new ArgumentException();
-
-                foreach (var node in element.Nodes)
-                    _nodes.Add(node);
-
-                _elements.Add(element);
+                if (CanBeAdded(element, out Exception exception))
+                {
+                    _elements.Add(element, new StageFiniteElementProperty(element));
+                }
+                else
+                {
+                    throw exception;
+                }
             }
         }
+
+        /// <inheritdoc cref="FemObjectCollection{T}.Add(T)"/>
+        /// <exception cref="ArgumentException">If <see cref="FiniteElement"/> in <paramref name="elements"/> is not contained in the reference femModel</exception>
+        public void SetFiniteElements(FemObjectCollection<FiniteElement> elements)
+        {
+            foreach (var element in elements)
+            {
+                if (CanBeAdded(element, out Exception exception))
+                {
+                    _elements.Add(element);
+                }
+                else
+                    throw exception;
+            }
+        }
+
+
+        /// <summary>Set the <paramref name="stageFiniteElementProperty"/> of the element with id: <paramref name="elementId"/>
+        /// <para>The element must be contained the <see cref="Stage._elements"/> collection</para></summary>
+        /// <exception cref="KeyNotFoundException">If the <paramref name="elementId"/> is not contained in the reference femModel <see cref="FemModel._elements"/> collection </exception>
+        /// <inheritdoc cref="FemObjectStageCollection{T, D}.SetStageProperty(T, D)"/>
+        public bool SetFiniteElementProperty(int elementId, StageFiniteElementProperty stageFiniteElementProperty)
+        {
+            if (stageFiniteElementProperty != null)
+                return _elements.SetStageProperty(_elements[elementId], stageFiniteElementProperty);
+            else
+                throw new ArgumentNullException();
+        }
+
+
+        /// <summary>Set the <paramref name="stageFiniteElementProperty"/> of the elements with id: <paramref name="elementsId"/>
+        /// <para>The element must be contained the <see cref="Stage._elements"/> collection</para></summary>
+        /// <inheritdoc cref="FiniteElementStageCollection{T, D}.SetStageProperty(FiniteElement, StageFiniteElementProperty)"/>
+        public bool SetFiniteElementsProperty(int[] elementsId, StageFiniteElementProperty stageFiniteElementProperty)
+        {
+            if (stageFiniteElementProperty != null && elementsId != null)
+            {
+                foreach (int id in elementsId.Distinct())
+                {
+                    if (!_elements.SetStageProperty(_elements[id], stageFiniteElementProperty))
+                    {
+                        return false;
+                    }
+                }
+                return true;
+            }
+            else
+                throw new ArgumentNullException();
+        }
+
+        #endregion Public method - Add / Set
+
+        #region Nodes
+
+        public void SetNodesProperty(int nodeId, StageProperty stageProperty)
+        {
+            var node = _femModel.GetNode(nodeId);
+
+            _nodes.Add(node, stageProperty);
+
+        }
+
+        ///// <summary>
+        ///// Add each node of the collection to the stage
+        ///// </summary>
+        ///// <returns></returns>
+        ///// <inheritdoc cref="FemObjectStageCollection{T, D}.SetItem(T, D)"/>
+        //internal void SetNodes(FemObjectCollection<Node> nodes)
+        //{
+        //    foreach (var node in nodes)
+        //    {
+        //        // TODO: controllare che nodo sia nel ref model
+
+        //        StageProperty sp = new StageProperty();
+        //        sp.AddLoadCaseAttributes(node.AttributesLoadCase.Cast<LoadCaseAttribute>().ToList());
+        //        sp.AddFreedomCaseAttributes(node.AttributesFreedomCase.Cast<FreedomCaseAttribute>().ToList());
+
+        //        _nodes.SetItem(node, sp);
+        //    }
+        //}
+
+        ///// <summary>
+        ///// Set the <paramref name="nodes"/> collection as the <see cref="Stage._nodes"/>
+        ///// </summary>
+        ///// <param name="nodes"></param>
+        //internal void SetNodes(NodeStageCollection<Node, StageProperty> nodes)
+        //{
+        //    if (nodes != null)
+        //        this._nodes = nodes;
+        //}
+
+
+        #endregion
+
+        #region Combination
 
         public void AddCombination(Combination combination)
         {
@@ -175,31 +317,14 @@ namespace GPC.Model.FEM
             _combinations.AddRange(combinations);
         }
 
-        /// <inheritdoc cref="FiniteElementStageCollection{T, D}.SetItem(FiniteElement)"/>
-        public void SetFiniteElements(FemObjectCollection<FiniteElement> elements)
+        internal IEnumerable<Combination> GetCombinations()
         {
-            foreach (var element in elements)
-            {
-                _elements.SetItem(element);
-            }
+            return _combinations.ToList();
         }
+        
+        #endregion
 
-        /// <summary>
-        /// Set the <paramref name="finiteElements"/> collection as the <see cref="Stage._elements"/>
-        /// </summary>
-        public void SetFiniteElements(FiniteElementStageCollection<FiniteElement, StageFiniteElementProperty> finiteElements)
-        {
-            if (finiteElements != null)
-                this._elements = finiteElements;
-        }
-
-        /// <exception cref="KeyNotFoundException">If the <paramref name="elementId"/> is not contained in the reference femModel <see cref="FemModel._elements"/> collection </exception>
-        /// <inheritdoc cref="FemObjectStageCollection{T, D}.SetStageProperty(T, D)"/>
-        public void SetFiniteElementProperty(int elementId, StageFiniteElementProperty stageFiniteElementProperty)
-        {
-            if (stageFiniteElementProperty != null)
-                _elements.SetStageProperty(_elements[elementId], stageFiniteElementProperty);
-        }
+        #region StageProperties
 
         public void SetAnalysisType(FemModel.AnalysisTypes analysisType)
         {
@@ -211,53 +336,11 @@ namespace GPC.Model.FEM
             _morph = active;
         }
 
-        #endregion Public method - Add / Set
-
-         
-        #region Internal method Add / Set
-
-        /// <summary>
-        /// Add each node of the collection to the stage
-        /// </summary>
-        /// <returns></returns>
-        /// <inheritdoc cref="FemObjectStageCollection{T, D}.SetItem(T, D)"/>
-        internal void SetNodes(FemObjectCollection<Node> nodes)
-        {
-            foreach (var node in nodes)
-            {
-                // TODO: controllare che nodo sia nel ref model
-
-                StageProperty sp = new StageProperty();
-                sp.AddLoadCaseAttributes(node.AttributesLoadCase.Cast<LoadCaseAttribute>().ToList());
-                sp.AddFreedomCaseAttributes(node.AttributesFreedomCase.Cast<FreedomCaseAttribute>().ToList());
-
-                _nodes.SetItem(node, sp);
-            }
-        }
-
-        /// <summary>
-        /// Set the <paramref name="nodes"/> collection as the <see cref="Stage._nodes"/>
-        /// </summary>
-        /// <param name="nodes"></param>
-        internal void SetNodes(NodeStageCollection<Node, StageProperty> nodes)
-        {
-            if (nodes != null)
-                this._nodes = nodes;
-        }
-
-        #endregion Internal method Add / Set
-
-
-        #region Public method - Edit
-
-        public void ClearCombinations()
-        {
-            _combinations.Clear();
-        }
-
+        #endregion
 
         #endregion
 
+        #region Getter
 
         /// <summary>
         /// Return a model only with the elements active on this stage and the ovverided property and attributes
@@ -267,20 +350,90 @@ namespace GPC.Model.FEM
         {
             FemModel femModel = new FemModel(_name);
 
+            // TODO: al momento non scrive l'override delle proprietà dei nodi
             var enumerator = _elements.GetEnumerator();
             while (enumerator.MoveNext())
             {
-                var finiteElement = enumerator.Current;
-                FiniteElement duplicated = finiteElement.Duplicate(_elements.GetStageProperty(finiteElement).Property,
-                                                                    _elements.GetStageProperty(finiteElement).LoadCaseAttributes,
-                                                                    _elements.GetStageProperty(finiteElement).FreedomCaseAttribute);
+                var finiteElement = enumerator.Current.Key;
+                var elementStageProperty = enumerator.Current.Value;
+
+                ElementProperty property;
+                if (finiteElement is Plate)
+                    property = _femModel.GetPlateProperty(elementStageProperty.PropertyName);
+                else if (finiteElement is Brick)
+                    property = _femModel.GetBrickProperty(elementStageProperty.PropertyName);
+                else
+                    throw new NotImplementedException();
+
+
+                FiniteElement duplicated = finiteElement.Duplicate(property,
+                                                                   elementStageProperty.LoadCaseAttributes,
+                                                                   elementStageProperty.FreedomCaseAttribute);
 
                 femModel.AddProperty(duplicated.Property);
-                femModel.AddFiniteElement(duplicated, duplicated.Property.Name);
+                femModel.AddFiniteElement(duplicated, duplicated.Property.Name); // Aggiunge l'elemento finito e i suoi nodi al modello.
             }
 
             return femModel;
         }
+
+        #endregion
+
+        #region Edit
+
+        public void ClearCombinations()
+        {
+            _combinations.Clear();
+        }
+
+        public void ClearElements()
+        {
+            _elements.Clear();
+        }
+
+        public void ClearNodes()
+        {
+            _nodes.Clear();
+        }
+
+
+        #endregion
+
+
+        #region Interrogate
+
+        /// <summary>
+        /// This method checks if a <paramref name="element"/> can be added to the <see cref="_elements"/> collection
+        /// </summary>
+        /// <param name="element"></param>
+        /// <param name="exception"></param>
+        /// <param name="propertyNameOverride"></param>
+        /// <returns><see langword="true"/> if the element can be added</returns>
+        /// <remarks>This is a O(n) operation</remarks>
+        private bool CanBeAdded(FiniteElement element, out Exception exception, string propertyNameOverride = "")
+        {
+            if (_femModel.ContainsFiniteElement(element))
+            {
+                string property = String.IsNullOrEmpty(propertyNameOverride) || String.IsNullOrWhiteSpace(propertyNameOverride) ? element.Property.Name : propertyNameOverride;
+                if (_femModel.ContainsProperty(property))
+                {
+                    exception = null;
+                    return true;
+                }
+                else
+                {
+                    exception = new ArgumentException($"Property with name {property} not available in the reference femModel");
+                    return false;
+                }
+            }
+            exception = new ArgumentException($"Element not contained in the reference femModel");
+            return false;
+        }
+
+        #endregion
+
+
+
 
         #region Interface, operators, hashcode
 
@@ -353,6 +506,10 @@ namespace GPC.Model.FEM
         }
 
         #endregion Interface, operators, hashcode
+
+
+
+        #region Nested class
 
         public class StageProperty : ICloneable
         {
@@ -447,19 +604,29 @@ namespace GPC.Model.FEM
 
         public class StageFiniteElementProperty : StageProperty
         {
-            private ElementProperty _property;
+            private string _propertyName;
 
-            public ElementProperty Property => _property;
+            public string PropertyName => _propertyName;
 
-            public StageFiniteElementProperty(ElementProperty property)
+            public StageFiniteElementProperty(string propertyName)
             {
-                _property = property;
+                _propertyName = propertyName;
             }
 
-            public StageFiniteElementProperty(StageFiniteElementProperty stageFiniteElementProperty) : base(stageFiniteElementProperty)
+            public StageFiniteElementProperty(StageFiniteElementProperty stageFiniteElementProperty)
+                : base(stageFiniteElementProperty)
             {
-                _property = stageFiniteElementProperty.Property;
+                _propertyName = stageFiniteElementProperty._propertyName;
             }
+
+            public StageFiniteElementProperty(FiniteElement element)
+            {
+                this._propertyName = element.Property.Name;
+
+                this.AddLoadCaseAttributes(element.AttributesLoadCase);
+                this.AddFreedomCaseAttributes(element.AttributesFreedomCase);
+            }
+
 
             public override object Clone()
             {
@@ -496,6 +663,8 @@ namespace GPC.Model.FEM
 
                 return merged;
             }
-        }
+        } 
+        
+        #endregion
     }
 }

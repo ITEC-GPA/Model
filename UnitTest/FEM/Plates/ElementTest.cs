@@ -229,23 +229,19 @@ namespace FemTest.Solver
             PlatePressureAttribute p = new PlatePressureAttribute(loadCase, sys, 0.0, 0.0, 1.0);
             #endregion
 
-            Node nodeA = new Node(0.0, 8, 0);
-            nodeA.Name = "A";
+            Node nodeA = new Node(0.0, 8, 0, "A");
          
             nodeA.AddAttribute(fixRZ);
             
-            Node nodeB = new Node(0.0, 0, 0);
-            nodeA.Name = "B";               
+            Node nodeB = new Node(0.0, 0, 0, "B");
         ;                 
             nodeB.AddAttribute(fix);        
                                             
-            Node nodeC = new Node(8.0, 8, 0);
-            nodeA.Name = "C";               
+            Node nodeC = new Node(8.0, 8, 0, "C");
                 
             nodeC.AddAttribute(fixRZ);      
                                             
-            Node nodeD = new Node(8.0, 0, 0);
-            nodeA.Name = "D";
+            Node nodeD = new Node(8.0, 0, 0, "D");
         
             nodeD.AddAttribute(fix);
 

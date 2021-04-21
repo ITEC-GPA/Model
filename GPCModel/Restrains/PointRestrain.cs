@@ -47,7 +47,7 @@ namespace GPC.Model.Restrains
         public PointRestrain(Point3d point, FreedomCase freedomCase, CoordinateSystem coordinateSystem, List<DofRestrain> restrains, Guid guid, string name)
             : base(freedomCase, coordinateSystem, restrains, guid, name)
         {
-            this._point = point ?? throw new ArgumentNullException("Base point is null");
+            _point = point ?? throw new ArgumentNullException("Base point can't be null");
         }
 
         public PointRestrain(SerializationInfo info, StreamingContext context) 

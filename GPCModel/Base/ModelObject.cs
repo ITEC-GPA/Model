@@ -15,13 +15,11 @@ namespace GPC.Model
 
         #endregion Variables
 
-
-
         #region Properties
 
         public Guid Guid => _guid;
 
-        public string Name { get => _name; set { _name = value; } }
+        public string Name => _name; // Setter non disponibile in quanto il nome non deve essere una variabile mutabile in modo da poter avere la ModelObjectNameEqualityComparer
 
         #endregion Properties
 

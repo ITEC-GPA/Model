@@ -1,30 +1,38 @@
 ﻿using GPC.Utilities.Extensions;
 using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 
 namespace GPC.Model.FEM.Collections
 {
-    public abstract class FemObjectStageCollection<T, D> : FemObjectCollection<T> where T : FEMObject where D : Stage.StageProperty
+    /// <summary>
+    /// This class rapresent an association between a <see cref="FEMObject"/> and a property override <see cref="Stage.StageProperty"/>
+    /// </summary>
+    /// <remarks>This should be accessed only from the class <see cref="Stage"/> since it does not implement any check on the element duplicates</remarks>
+    /// <typeparam name="T"></typeparam>
+    /// <typeparam name="D"></typeparam>
+    public abstract class FemObjectStageCollection<T, D>  where T : FEMObject where D : Stage.StageProperty
     {
         /// <summary>
-        /// Association between element and Stage.StageProperty of that element
+        /// Association between an element and Stage.StageProperty of that element
         /// </summary>
         protected List<KeyValuePair<T, D>> _stageFiniteElementProperty;
 
-        public FemObjectStageCollection()
-            : base()
-        {
-            // Chiamo il costruttore di FemObjectCollection per cui uso la sua _collection.
-            // Mi serve per usare la sua logica di assegnamento ID
+        public int Count => _stageFiniteElementProperty.Count();
 
+        public FemObjectStageCollection()
+        {
             _stageFiniteElementProperty = new List<KeyValuePair<T, D>>();
         }
 
+
+        /// <summary>Add an <paramref name="item"/> to the collection. If the <paramref name="item"/> already exist the <paramref name="stageFiniteElementProperty"/> will be merged with the one already assigned</summary>
         /// <remarks>This is a O(n) operations</remarks>
         private void AddStageFiniteElementProperty(T item, D stageFiniteElementProperty)
         {
-            if (stageFiniteElementProperty is null)
+            if (stageFiniteElementProperty is null || item is null)
                 throw new ArgumentNullException();
 
             var el = _stageFiniteElementProperty.Where(i => i.Key == item).SingleOrDefault();
@@ -45,75 +53,71 @@ namespace GPC.Model.FEM.Collections
 
         #region Public methods - Add / Set
 
-        /// <remarks>
-        /// <para>This is a O(2n) operations</para>
-        /// <para>If <paramref name="item"/> already exist, <paramref name="stageFiniteElementProperty"/> will be merged into the one already assigned </para>
-        /// </remarks>
-        /// <inheritdoc cref="FemObjectCollection{T}.Add(T)"/>
-        public virtual int Add(T item, D stageFiniteElementProperty)
+
+        /// <inheritdoc cref = "FemObjectStageCollection{T, D}.AddStageFiniteElementProperty(T, D)" />
+        /// <exception cref="ArgumentNullException"></exception>
+        public virtual void Add(T item, D stageFiniteElementProperty)
         {
-            if (stageFiniteElementProperty is null)
+            if (stageFiniteElementProperty is null || item is null)
                 throw new ArgumentNullException();
 
-            var baseItemId = base.Add(item);
-
             AddStageFiniteElementProperty(item, stageFiniteElementProperty);
-
-            return baseItemId;
         }
 
-        /// <remarks>
-        /// <para>This is a O(n) operations</para>
-        /// <para>If <paramref name="item"/> already exist, <paramref name="stageFiniteElementProperty"/> will be merged into the one already assigned </para>
-        /// </remarks>
-        /// <inheritdoc cref="FemObjectCollection{T}.SetItem(T)"/>
-        public virtual int SetItem(T item, D stageFiniteElementProperty)
-        {
-            if (stageFiniteElementProperty is null)
-                throw new ArgumentNullException();
 
-            int baseItemId = base.SetItem(item);
-
-            AddStageFiniteElementProperty(item, stageFiniteElementProperty);
-
-            return baseItemId;
-        }
 
         /// <summary>
         /// Set the <paramref name="stageFiniteElementProperty"/> of <paramref name="item"/>
-        /// <para>The <paramref name="stageFiniteElementProperty"/> will ovveride the existing one</para>
         /// </summary>
         /// <returns><see langword="false"/> if the <paramref name="item"/> does not exist in the collection </returns>
         /// <exception cref="ArgumentNullException">If <paramref name="item"/> or <paramref name="stageFiniteElementProperty"/> is null</exception>
-        /// <remarks>This is an O(2n) operation</remarks>
+        /// <remarks>This is an O(2n) operation         
+        /// <para>The <paramref name="stageFiniteElementProperty"/> will ovveride the existing one if present</para>
+        /// </remarks>
         public virtual bool SetStageProperty(T item, D stageFiniteElementProperty)
         {
-            var el = _stageFiniteElementProperty.Where(i => i.Key == item).SingleOrDefault();
+            KeyValuePair<T,D> el = _stageFiniteElementProperty.Where(i => i.Key == item).SingleOrDefault();
 
-            if (stageFiniteElementProperty is null)
+            if (stageFiniteElementProperty is null || item is null)
                 throw new ArgumentNullException();
 
             if (el.Equals(default(KeyValuePair<T, D>)))
             {
+                // Elemento non presente
                 return false;
             }
             else
             {
-                var kvp = new KeyValuePair<T, D>(el.Key, (D)el.Value.Merge(stageFiniteElementProperty));
                 _stageFiniteElementProperty.Remove(el);
+
+                var kvp = new KeyValuePair<T, D>(el.Key, stageFiniteElementProperty);
                 _stageFiniteElementProperty.Add(kvp);
                 return true;
             }
+
         }
+
 
         #endregion Public methods - Add / Set
 
         #region Public methods - Getter
 
+        /// <param name="id"></param>
+        /// <returns>The <typeparamref name="T"/> with id equal to <paramref name="id"/></returns>
+        public virtual T this[int id]
+        {
+            get
+            {
+                return _stageFiniteElementProperty.Where(i => i.Key.Id == id).FirstOrDefault().Key;
+            }
+        }
+
+
         /// <summary>
         /// Get the property associated to <paramref name="item"/>
         /// </summary>
         /// <remarks>This is a O(n) operations</remarks>
+        /// <returns>The property associated to <paramref name="item"/></returns>
         public D GetStageProperty(T item)
         {
             var el = _stageFiniteElementProperty.Where(i => i.Key == item).SingleOrDefault();
@@ -134,9 +138,10 @@ namespace GPC.Model.FEM.Collections
         /// </summary>
         /// <param name="elementID">The id of the element to get the stageProperty</param>
         /// <remarks>This is a O(n^2) operations</remarks>
+        /// <returns>The property associated to <paramref name="elementID"/></returns>
         public D GetStageProperty(int elementID)
         {
-            var el = _stageFiniteElementProperty.Where(i => i.Key == base.GetElementById(elementID)).SingleOrDefault();
+            var el = _stageFiniteElementProperty.Where(i => i.Key == this[elementID]).SingleOrDefault();
 
             if (el.Equals(default(KeyValuePair<T, D>)))
             {
@@ -149,20 +154,25 @@ namespace GPC.Model.FEM.Collections
             }
         }
 
+        public IEnumerator<KeyValuePair<T, D>> GetEnumerator()
+        {
+            return _stageFiniteElementProperty.GetEnumerator();
+        }
+
+
         #endregion Public methods - Getter
 
         #region Public method - Edit
 
         /// <remarks>This is a O(n^2) operations</remarks>
-        public override bool Remove(T item)
+        public bool Remove(T item)
         {
-            return base.Remove(item) && this._stageFiniteElementProperty.Remove(_stageFiniteElementProperty.SingleOrDefault(i => i.Key == item));
+            return _stageFiniteElementProperty.Remove(_stageFiniteElementProperty.SingleOrDefault(i => i.Key == item));
         }
 
-        public override void Clear()
+        public void Clear()
         {
-            base.Clear();
-            this._stageFiniteElementProperty.Clear();
+            _stageFiniteElementProperty.Clear();
         }
 
         #endregion Public method - Edit
@@ -179,13 +189,15 @@ namespace GPC.Model.FEM.Collections
             int hashCode = -23;
             hashCode = hashCode * -17 + base.GetHashCode();
 
-            foreach (var element in _collection)
+            foreach (var element in _stageFiniteElementProperty)
             {
-                hashCode = hashCode + EqualityComparer<FEMObject>.Default.GetHashCode(element);
+                hashCode = hashCode + EqualityComparer<FEMObject>.Default.GetHashCode(element.Key);
+                hashCode = hashCode + EqualityComparer<Stage.StageProperty>.Default.GetHashCode(element.Value);
             }
 
             return hashCode;
         }
+
 
         public static bool operator ==(FemObjectStageCollection<T, D> obj1, FemObjectStageCollection<T, D> obj2)
         {

@@ -9,7 +9,12 @@ namespace GPC.Model.Glasses
 
         public double Thickness => _thickness;
 
-        public AirChamber(string name, double thickness) : base(name)
+        public AirChamber(string name, double thickness)
+            : this(name, thickness, Guid.NewGuid())
+        {
+        }
+
+        public AirChamber(string name, double thickness, Guid guid) : base(guid, name)
         {
             _thickness = thickness > 0.001 ? thickness : throw new ArgumentException("Air thickness can't be negative or zero");
         }
@@ -35,7 +40,6 @@ namespace GPC.Model.Glasses
             hashCode = hashCode * -17 + _thickness.GetHashCode();
             return hashCode;
         }
-
 
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
@@ -63,7 +67,5 @@ namespace GPC.Model.Glasses
         {
             return !(obj1 == obj2);
         }
-
-
     }
 }

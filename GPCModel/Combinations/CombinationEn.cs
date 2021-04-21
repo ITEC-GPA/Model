@@ -6,7 +6,7 @@ using GPC.Model.LoadCases;
 
 namespace GPC.Model.Combinations
 {
-    public class CombinationEn : Combination
+    public sealed class CombinationEn : Combination, IEquatable<CombinationEn>, ICloneable
     {
         #region VARIABLES
 

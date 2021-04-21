@@ -141,7 +141,6 @@ namespace GPC.Model.FEM
 
             _analysisType = AnalysisTypes.Linear;
 
-
         }
 
         
@@ -153,8 +152,7 @@ namespace GPC.Model.FEM
 
         #endregion
 
-        #region Public methods
-
+        #region Methods
 
         #region Add Get Attributes
 
@@ -206,6 +204,18 @@ namespace GPC.Model.FEM
             return _brickProperties.GetElementByName(name);
         }
 
+        /// <inheritdoc cref="UniqueNameCollection{T}.GetNames()"/>
+        public List<string> GetPlatePropertyNames()
+        {
+            return _plateProperties.GetNames();
+        }
+
+        /// <inheritdoc cref="UniqueNameCollection{T}.GetNames()"/>
+        public List<string> GetBrickPropertyNames()
+        {
+            return _brickProperties.GetNames();
+        }
+
 
         /// <inheritdoc cref="UniqueNameCollection{T}.Add(T)"/>
         public virtual bool AddLoadCase(LoadCase loadCase)
@@ -252,10 +262,11 @@ namespace GPC.Model.FEM
         /// </summary>
         /// <param name="name"></param>
         /// <param name="analysisType"></param>
+        /// <param name="morph"></param>
         /// <returns></returns>
-        public virtual Stage AddStage(string name, AnalysisTypes analysisType)
+        public virtual Stage AddStage(string name, AnalysisTypes analysisType, bool morph = false)
         {
-            Stage stage = new Stage(name, this, analysisType, false, null);
+            Stage stage = new Stage(name, this, analysisType, morph, null);
             _stages.Add(stage);
             return stage;
         }
@@ -265,6 +276,7 @@ namespace GPC.Model.FEM
         /// Add a stage the to the stage list. This stage will the clone of stage with <see cref="Stage.Id"/> equal to <paramref name="stageId"/>"/>
         /// </summary>
         /// <param name="stageId"></param>
+        /// <exception cref="ArgumentException">If stage with id equals to <paramref name="stageId"/> does not exist</exception>
         public virtual Stage AddStage(int stageId)
         {
             Stage stage = _stages.Where(i => i.Id == stageId).FirstOrDefault();
@@ -290,19 +302,27 @@ namespace GPC.Model.FEM
             return stage;
         }
 
+        protected virtual Stage GetStageById(int stageId)
+        {
+            return _stages.Where(i => i.Id == stageId).FirstOrDefault();
+        }
+
+        protected virtual IEnumerable<Combination> GetStageCombinations(int stageId)
+        {
+            return _stages.Where(i => i.Id == stageId).FirstOrDefault().GetCombinations();
+        }
 
         #endregion
-
 
         #region Add Get Geometry
 
 
         #region FiniteElements
 
-        /// <summary> Add a <paramref name="finiteElement"/> to the FemModel</summary>
+        /// <summary> Add a <paramref name="finiteElement"/> and its <see cref="Node"/> to the FemModel</summary>
         /// <param name="finiteElement"></param>
         /// <param name="propertyName">The name of the property that will be assigned to the <paramref name="finiteElement"/></param>
-        /// <returns></returns>
+        /// <remarks>This is a O(2n) Operation</remarks>
         /// <inheritdoc cref="GetPlateProperty(string)"/>
         /// <exception cref="ArgumentNullException">If the property list does not contain a property with a name equal to <paramref name="propertyName"/></exception>
         /// <exception cref="ArgumentNullException">If the nodes inside the <paramref name="finiteElement"/> are null</exception>
@@ -355,9 +375,7 @@ namespace GPC.Model.FEM
         }
 
 
-        /// <summary>
-        /// 
-        /// </summary>
+
         /// <param name="index"></param>
         /// <returns></returns>
         /// <inheritdoc cref="FemObjectCollection{T}.GetElementById(int)"/>
@@ -378,6 +396,13 @@ namespace GPC.Model.FEM
         public virtual bool ContainsFiniteElement(FiniteElement finiteElement)
         {
             return _elements.Contains(finiteElement);
+        }
+
+        /// <returns>True if property with name: <paramref name="propertyName"/> is contained in the <see cref="FemModel._plateProperties"/> or <see cref="FemModel._brickProperties"/> collections </returns>
+        /// <inheritdoc cref="UniqueNameCollection{T}.Contains(string)"/>
+        public virtual bool ContainsProperty(string propertyName)
+        {
+            return _plateProperties.Contains(propertyName) || _brickProperties.Contains(propertyName);
         }
 
         #endregion
@@ -590,10 +615,11 @@ namespace GPC.Model.FEM
         /// <param name="plateLoadMeshEntityMap"></param>
         /// <param name="restrainMeshEntityMap"></param>
         /// <exception cref="ArgumentException">If list of argument does not match</exception>
-        public virtual void AddMeshes(List<Mesh> meshes, List<string> platePropertyNames, List<string> brickPropertyName, List<Dictionary<IPointLoad, int[]>> vertexLoadMeshEntityMap,
+        public virtual List<int[]> AddMeshes(List<Mesh> meshes, List<string> platePropertyNames, List<string> brickPropertyName, List<Dictionary<IPointLoad, int[]>> vertexLoadMeshEntityMap,
                                         List<Dictionary<ILineLoad, int[]>> vertexLineLoadMeshEntityMap,
                                         List<Dictionary<IAreaLoad, int[]>> plateLoadMeshEntityMap, List<Dictionary<GeometryRestrain, int[]>> restrainMeshEntityMap)
         {
+            List<int[]> elementsIndexes = new List<int[]>();
 
             if (meshes is null)
                 throw new ArgumentNullException(nameof(meshes));
@@ -636,9 +662,10 @@ namespace GPC.Model.FEM
                 if (restrainMeshEntityMap[i] is null)
                     throw new ArgumentNullException(nameof(restrainMeshEntityMap));
 
-                AddMesh(meshes[i], platePropertyNames[i], brickPropertyName[i], vertexLoadMeshEntityMap[i], vertexLineLoadMeshEntityMap[i], plateLoadMeshEntityMap[i], restrainMeshEntityMap[i]);
+                elementsIndexes.Add(AddMesh(meshes[i], platePropertyNames[i], brickPropertyName[i], vertexLoadMeshEntityMap[i], vertexLineLoadMeshEntityMap[i], plateLoadMeshEntityMap[i], restrainMeshEntityMap[i]));
             }
 
+            return elementsIndexes;
         }
 
 
@@ -653,17 +680,18 @@ namespace GPC.Model.FEM
         /// <param name="plateLoadMeshEntityMap">Map between <see cref="IAreaLoad"/> and <see cref="MeshFace"/>.Id</param>
         /// <param name="restrainMeshEntityMap">Map between IGeometryRestrain and <see cref="MeshVertex"/>.Id</param>
         /// <exception cref="KeyNotFoundException">If a <see cref="MeshVertex"/>.Id of <paramref name="restrainMeshEntityMap"/> is not found in the <paramref name="mesh"/> vertices ids</exception>
-        public virtual void AddMesh(Mesh mesh, string platePropertyName, string brickPropertyName, 
+        public virtual int[] AddMesh(Mesh mesh, string platePropertyName, string brickPropertyName, 
                                     Dictionary<IPointLoad, int[]> vertexLoadMeshEntityMap, 
                                     Dictionary<ILineLoad, int[]> vertexLineLoadMeshEntityMap,
                                     Dictionary<IAreaLoad, int[]> plateLoadMeshEntityMap, 
                                     Dictionary<GeometryRestrain, int[]> restrainMeshEntityMap)
         {
+            
+            int[] elementIndexes = new int[mesh.FacesCount + mesh.VolumesCount];
 
             Dictionary<int, int> nodesNewIndexMap = new Dictionary<int, int>(); // Mappa tra indici dei nodi dentro _nodes e indici dei vertici della mesh nel caso esistano già dentro _nodes.
             Dictionary<int, int> platesNewIndexMap = new Dictionary<int, int>();
             Dictionary<int, int> brickNewIndexMap = new Dictionary<int, int>();
-
 
             if (mesh is null)
                 throw new ArgumentNullException(nameof(mesh));
@@ -697,10 +725,13 @@ namespace GPC.Model.FEM
 
 
             // Aggiunge elementi FEM
-            foreach (var face in mesh.Faces)
+            var faces = mesh.Faces.ToArray();
+            for (int i = 0; i < mesh.Faces.Count; i++)
             {
                 if (plateProperty is IPlateProperty ipp)
                 {
+                    var face = faces[i];
+
                     if (face.IsQuad)
                     {
                         var plate = new Plate(new Node[] { _nodes[nodesNewIndexMap.ContainsKey(face.A) ? nodesNewIndexMap[face.A] : face.A],
@@ -712,6 +743,8 @@ namespace GPC.Model.FEM
                         plate.SetProperty((ElementProperty)plateProperty);
 
                         var plateIndex = _elements.Add(plate);
+
+                        elementIndexes[i] = plateIndex;
 
                         if (plateIndex != face.Id) // Se sono diversi vuol dire che esisteva già l'indice element .iD e la collection l'ha modificato
                             platesNewIndexMap[face.Id] = plateIndex;
@@ -728,6 +761,8 @@ namespace GPC.Model.FEM
 
                         var plateIndex = _elements.Add(plate);
 
+                        elementIndexes[i] = plateIndex;
+
                         if (plateIndex != face.Id) // Se sono diversi vuol dire che esisteva già l'indice element .iD e la collection l'ha modificato
                             platesNewIndexMap[face.Id] = plateIndex;
                     }
@@ -736,12 +771,14 @@ namespace GPC.Model.FEM
                 {
                     throw new NotImplementedException();
                 }
-
             }
 
-
-            foreach (var volume in mesh.Volumes)
+            int faceNumber = mesh.FacesCount;
+            var volumes = mesh.Volumes.ToArray();
+            for (int i = 0; i < mesh.Volumes.Count; i++)
             {
+                var volume = volumes[i];
+
                 if (volume.IsQuadrangular)
                 {
                     if (brickProperty is BrickProperty bp)
@@ -756,11 +793,12 @@ namespace GPC.Model.FEM
                                                            _nodes[nodesNewIndexMap.ContainsKey(volume.G) ? nodesNewIndexMap[volume.G] : volume.G],
                                                            _nodes[nodesNewIndexMap.ContainsKey(volume.H) ? nodesNewIndexMap[volume.H] : volume.H]}
                                                        );
-                        
+
                         brick.SetProperty(bp);
 
                         var brickIndex = _elements.Add(brick);
-                        
+                        elementIndexes[i + faceNumber] = brickIndex;
+
                         if (brickIndex != volume.Id) // Se sono diversi vuol dire che esisteva già l'indice element .iD e la collection l'ha modificato
                             brickNewIndexMap[volume.Id] = brickIndex;
                     }
@@ -782,6 +820,7 @@ namespace GPC.Model.FEM
                         brick.SetProperty(bp);
 
                         var brickIndex = _elements.Add(brick);
+                        elementIndexes[i + faceNumber] = brickIndex;
 
                         if (brickIndex != volume.Id) // Se sono diversi vuol dire che esisteva già l'indice element .iD e la collection l'ha modificato
                             brickNewIndexMap[volume.Id] = brickIndex;
@@ -789,7 +828,6 @@ namespace GPC.Model.FEM
                     else
                         throw new NotImplementedException();
                 }
-
             }
 
 
@@ -968,9 +1006,11 @@ namespace GPC.Model.FEM
 
             }
 
+
+            return elementIndexes;
         }
 
-
+        
 
         public virtual Mesh GetMesh()
         {
@@ -1024,7 +1064,9 @@ namespace GPC.Model.FEM
 
         #endregion
 
-        #region Public method override 
+
+
+        #region Equals - HashCode - Operators
 
 
         public override void GetObjectData(SerializationInfo info, StreamingContext context)

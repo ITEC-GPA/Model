@@ -285,8 +285,8 @@ namespace FemTest
 
             Shape s1 = CreateSimpleShape(100, 200);
             Shape s2 = new Shape(s1);
-            s2.Pan(100, 0, 0);
-
+            s2.Move(100, 0, 0);
+            
             GlassMaterial gm = new GlassMaterialAstm("gp1", 1, 0.2, 3, 4, 5, 6, 0.008, 0.008, 9);
             MonolithicGlassProperty pp = new MonolithicGlassProperty(1, 2, gm, "gp1");
 
