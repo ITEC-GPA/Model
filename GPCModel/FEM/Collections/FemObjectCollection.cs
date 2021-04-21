@@ -13,7 +13,7 @@ namespace GPC.Model.FEM.Collections
     /// <typeparam name="T">A <see cref="FEMObject"/></typeparam>
     public class FemObjectCollection<T> : FemObjectBaseCollection<T> where T : FEMObject
     {
-
+        // TODO: la classe FemObjectBaseCollection non serve più, toglierla e copiare tutto il contenuto qua
         public FemObjectCollection() : base()
         {
             _collection = new List<T>();
