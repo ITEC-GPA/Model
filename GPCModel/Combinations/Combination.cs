@@ -9,7 +9,7 @@ using System.Text;
 namespace GPC.Model.Combinations
 {
     [Serializable]
-    public abstract class Combination : ModelObject, ILoadCase
+    public abstract class Combination : ModelObject, ILoadCase, ICloneable
     {
         protected List<LoadCaseCoefficient> _coefficients;
 
@@ -28,6 +28,13 @@ namespace GPC.Model.Combinations
         {
 
         }
+
+        protected Combination(Combination combination)
+            : this(combination._name, combination.Guid)
+        {
+            _coefficients = combination._coefficients;
+        }
+
 
         protected Combination(SerializationInfo info, StreamingContext context)
             : base(info, context)
@@ -82,6 +89,19 @@ namespace GPC.Model.Combinations
             }
         }
 
+
+        /// <exception cref="ArgumentNullException"> If <see cref="LoadCase"/> is null </exception>
+        public virtual void AddLoadCaseCoefficients(IEnumerable<(LoadCase, double)> loadCaseCoefficients)
+        {
+            foreach(var lcc in loadCaseCoefficients)
+            {
+                if (lcc.Item1 is null)
+                    throw new ArgumentNullException();
+
+                this[lcc.Item1] = lcc.Item2;
+            }
+        }
+            
 
         /// <summary>
         /// 
@@ -221,7 +241,16 @@ namespace GPC.Model.Combinations
         }
 
 
+        public abstract object Clone();
+
+        /// <summary>
+        /// Create a new empty <see cref="Combination"/> object. I.e. with the same properties except the <see cref="Combination.LoadCaseCoefficient"/> List that will be empty
+        /// </summary>
+        public abstract object CloneEmpty();
+
+
         #endregion
+
 
 
         #region Equals - HashCode - Operators
@@ -249,6 +278,7 @@ namespace GPC.Model.Combinations
             return hashCode;
         }
 
+
         public static bool operator ==(Combination obj1, Combination obj2)
         {
             if (ReferenceEquals(obj1, obj2))
@@ -266,8 +296,6 @@ namespace GPC.Model.Combinations
         }
 
         #endregion
-
-
 
         #region INDEXER
 

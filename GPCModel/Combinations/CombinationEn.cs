@@ -4,7 +4,7 @@ using System.Runtime.Serialization;
 
 namespace GPC.Model.Combinations
 {
-    public sealed class CombinationEn : Combination, IEquatable<CombinationEn>
+    public sealed class CombinationEn : Combination, IEquatable<CombinationEn>, ICloneable
     {
         public enum CombinationType
         {
@@ -28,11 +28,20 @@ namespace GPC.Model.Combinations
         }
 
 
+        public CombinationEn(CombinationEn combinationEn)
+            : base(combinationEn)
+        {
+            this._combinationType = combinationEn._combinationType;
+        }
+
+
         public CombinationEn(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
             _combinationType = (CombinationType)info.GetValue("CombinationType", typeof(CombinationType));
         }
+
+
 
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
@@ -50,6 +59,26 @@ namespace GPC.Model.Combinations
         {
             return base.ToString();
         }
+
+
+
+        public override object Clone()
+        {
+            return new CombinationEn(this);
+        }
+
+        /// <summary>
+        /// Create a new empty <see cref="CombinationEn"/> object. I.e. with the same properties except the <see cref="Combination.LoadCaseCoefficient"/> List that will be empty
+        /// </summary>
+        public override object CloneEmpty()
+        {
+            var cloned = new CombinationEn(this);
+            cloned._coefficients.Clear();
+
+            return cloned;
+        }
+
+
 
         public override bool Equals(object obj)
         {

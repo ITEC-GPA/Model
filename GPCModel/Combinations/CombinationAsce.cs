@@ -5,7 +5,7 @@ using System.Runtime.Serialization;
 
 namespace GPC.Model.Combinations
 {
-    public sealed class CombinationAsce : Combination, IEquatable<CombinationAsce>
+    public sealed class CombinationAsce : Combination, IEquatable<CombinationAsce>, ICloneable
     {
         public enum CombinationType
         {
@@ -21,6 +21,12 @@ namespace GPC.Model.Combinations
             : base(name)
         {
             this._combinationType = combinationType;
+        }
+
+        public CombinationAsce(CombinationAsce combination)
+            : base(combination)
+        {
+            this._combinationType = combination._combinationType;
         }
 
 
@@ -41,6 +47,23 @@ namespace GPC.Model.Combinations
         public override string ToString()
         {
             return base.ToString();
+        }
+
+
+        public override object Clone()
+        {
+            return new CombinationAsce(this);
+        }
+
+        /// <summary>
+        /// Create a new empty <see cref="CombinationAsce"/> object. I.e. with the same properties except the <see cref="Combination.LoadCaseCoefficient"/> List that will be empty
+        /// </summary>
+        public override object CloneEmpty()
+        {
+            var cloned = new CombinationAsce(this);
+            cloned._coefficients.Clear();
+
+            return cloned;
         }
 
         public override bool Equals(object obj)
