@@ -303,8 +303,9 @@ namespace GPC.Model.Combinations
                                                         StandardEN1990.ULSStructuralGeotechicalCombinationSets uLS)
         {
             List<List<LoadCaseCoefficient>> outList = new List<List<LoadCaseCoefficient>>();
-            List<LoadCaseCoefficient> loadCaseCoefficientsBuffer = new List<LoadCaseCoefficient>();
+            List<LoadCaseCoefficient> loadCaseCoefficientsBase = new List<LoadCaseCoefficient>();
             List<LoadCaseCoefficient> loadCaseCoefficientsBuffer2 = new List<LoadCaseCoefficient>();
+            List<LoadCaseCoefficient> loadCaseCoefficientsBuffer3 = new List<LoadCaseCoefficient>();
 
             // controllo che ci siano i carichi climatici
             bool haveCLimateSummer = false;
@@ -321,46 +322,49 @@ namespace GPC.Model.Combinations
             foreach (LoadCase loadCase in loadCases.Where(i => i.GetLoadCaseType() == LoadCase.LoadCaseType.SelfWeight))
             {
                 LoadCaseCoefficient lc = new LoadCaseCoefficient(GetCoefficientUnfavourablePermanentActions(loadCase, standardEN1990, limitState, uLS), loadCase);
-                loadCaseCoefficientsBuffer.Add(lc);
+                loadCaseCoefficientsBase.Add(lc);
             }
             // aggiungo i SuperImposedDeadLoad
             foreach (LoadCase loadCase in loadCases.Where(i => i.GetLoadCaseType() == LoadCase.LoadCaseType.SuperImposedDeadLoad))
             {
                 LoadCaseCoefficient lc = new LoadCaseCoefficient(GetCoefficientUnfavourablePermanentActions(loadCase, standardEN1990, limitState, uLS), loadCase);
-                loadCaseCoefficientsBuffer.Add(lc);
+                loadCaseCoefficientsBase.Add(lc);
             }
             // aggiunto i Prestress
             foreach (LoadCase loadCase in loadCases.Where(i => i.GetLoadCaseType() == LoadCase.LoadCaseType.Prestress))
             {
                 LoadCaseCoefficient lc = new LoadCaseCoefficient(GetCoefficientUnfavourablePermanentActions(loadCase, standardEN1990, limitState, uLS), loadCase);
-                loadCaseCoefficientsBuffer.Add(lc);
+                loadCaseCoefficientsBase.Add(lc);
             }
 
             // aggiunto i climate. summer e winter non possono stare insieme
             if (haveCLimateSummer == true && haveCLimateWinter == false)
             {
+                loadCaseCoefficientsBuffer2 = loadCaseCoefficientsBase.ToArray().ToList();
                 foreach (LoadCase loadCase in loadCases.Where(i => i.GetLoadCaseType() == LoadCase.LoadCaseType.ClimateSummerDeltaH))
                 {
                     LoadCaseCoefficient lc = new LoadCaseCoefficient(GetCoefficientUnfavourablePermanentActions(loadCase, standardEN1990, limitState, uLS), loadCase);
-                    loadCaseCoefficientsBuffer.Add(lc);
+                    loadCaseCoefficientsBuffer2.Add(lc);
                 }
             }
             if (haveCLimateSummer == false && haveCLimateWinter == true)
             {
+                loadCaseCoefficientsBuffer2 = loadCaseCoefficientsBase.ToArray().ToList();
                 foreach (LoadCase loadCase in loadCases.Where(i => i.GetLoadCaseType() == LoadCase.LoadCaseType.ClimateWinterDeltaH))
                 {
                     LoadCaseCoefficient lc = new LoadCaseCoefficient(GetCoefficientUnfavourablePermanentActions(loadCase, standardEN1990, limitState, uLS), loadCase);
-                    loadCaseCoefficientsBuffer.Add(lc);
+                    loadCaseCoefficientsBuffer2.Add(lc);
                 }
             }
             if (haveCLimateSummer == true && haveCLimateWinter == true)
             {
-                loadCaseCoefficientsBuffer2 = loadCaseCoefficientsBuffer.ToArray().ToList();
+                loadCaseCoefficientsBuffer2 = loadCaseCoefficientsBase.ToArray().ToList();
+                loadCaseCoefficientsBuffer3 = loadCaseCoefficientsBase.ToArray().ToList();
 
                 foreach (LoadCase loadCase in loadCases.Where(i => i.GetLoadCaseType() == LoadCase.LoadCaseType.ClimateWinterDeltaH))
                 {
                     LoadCaseCoefficient lc = new LoadCaseCoefficient(GetCoefficientUnfavourablePermanentActions(loadCase, standardEN1990, limitState, uLS), loadCase);
-                    loadCaseCoefficientsBuffer.Add(lc);
+                    loadCaseCoefficientsBuffer3.Add(lc);
                 }
                 foreach (LoadCase loadCase in loadCases.Where(i => i.GetLoadCaseType() == LoadCase.LoadCaseType.ClimateSummerDeltaH))
                 {
@@ -369,16 +373,13 @@ namespace GPC.Model.Combinations
                 }
             }
 
-            if (haveCLimateSummer == true && haveCLimateWinter == true)
-            {
-                outList.Add(loadCaseCoefficientsBuffer);
+            if (loadCaseCoefficientsBuffer2.Count() != 0)            
                 outList.Add(loadCaseCoefficientsBuffer2);
-            }
-            else
-            {
-                outList.Add(loadCaseCoefficientsBuffer);
-            }
+            if (loadCaseCoefficientsBuffer3.Count() != 0)
+                outList.Add(loadCaseCoefficientsBuffer3);
 
+            outList.Add(loadCaseCoefficientsBase);
+            
             return outList;
         }
 
@@ -406,14 +407,54 @@ namespace GPC.Model.Combinations
                     list.Add(loadCase);
 
             List<List<LoadCaseCoefficient>> randomList = RandomizeVariableLoads(list, standardEN1990, limitState, uLS, category, highAltitude);
+
             for (int i = 0; i < randomList.Count(); i++)
             {
+                bool summerComboVariabili = false;
+                bool winterComboVariabili = false;
+                bool summerComboBase = false;
+                bool winterComboBase = false;
+
+                foreach (LoadCaseCoefficient loadCaseCoefficient in randomList[i])
+                {
+                    var loadCaseType = loadCaseCoefficient.LoadCase.GetLoadCaseType();
+                    if ((loadCaseType == LoadCase.LoadCaseType.ClimateSummerDeltaT) || (loadCaseType == LoadCase.LoadCaseType.ClimateSummerDeltaP))
+                        summerComboVariabili = true;
+                    
+                    if ((loadCaseType == LoadCase.LoadCaseType.ClimateWinterDeltaT) || (loadCaseType == LoadCase.LoadCaseType.ClimateWinterDeltaP))
+                        winterComboVariabili = true;                    
+                }
+
                 foreach (List<LoadCaseCoefficient> l in loadCaseCoefficientsBuffer)
                 {
-                    List<LoadCaseCoefficient> tempList = new List<LoadCaseCoefficient>();
-                    tempList.AddRange(l);
-                    tempList.AddRange(randomList[i]);
-                    loadCaseCoefficients.Add(tempList);
+                    foreach (LoadCaseCoefficient lcc in l)
+                    {
+                        var loadCaseType = lcc.LoadCase.GetLoadCaseType();
+                        if ((loadCaseType == LoadCase.LoadCaseType.ClimateSummerDeltaT) || (loadCaseType == LoadCase.LoadCaseType.ClimateSummerDeltaP))
+                            summerComboBase = true;
+
+                        if ((loadCaseType == LoadCase.LoadCaseType.ClimateWinterDeltaT) || (loadCaseType == LoadCase.LoadCaseType.ClimateWinterDeltaP))
+                            winterComboBase = true;
+                    }
+
+                    if ((summerComboVariabili && summerComboBase) || (winterComboVariabili && winterComboBase) || (!summerComboVariabili && !winterComboVariabili))
+                    {
+                        List<LoadCaseCoefficient> tempList = new List<LoadCaseCoefficient>();
+                        tempList.AddRange(l);
+                        tempList.AddRange(randomList[i]);
+                        loadCaseCoefficients.Add(tempList);
+                    }
+                    else if ((summerComboVariabili && winterComboBase) || (winterComboVariabili && summerComboBase))
+                    {
+                         // non si possono mischiare le combinazioni
+                    }
+                    else
+                    {
+                        List<LoadCaseCoefficient> tempList = new List<LoadCaseCoefficient>();
+                        tempList.AddRange(l);
+                        tempList.AddRange(randomList[i]);
+                        loadCaseCoefficients.Add(tempList);
+                    }                  
                 }
             }
 
@@ -848,18 +889,13 @@ namespace GPC.Model.Combinations
                             if (loadCaseCoefficientsSummer.Count() != 0)
                             {
                                 loadCaseCoefficientsBuffer2.AddRange(loadCaseCoefficientsSummer);
-                                modS = true;
-                            }
+                                loadCaseCoefficientsBuffer3.AddRange(loadCaseCoefficientsSummer);
+                                modS = true;                            }
 
                             if (loadCaseCoefficientsWindSuction.Count() != 0)
                             {
                                 loadCaseCoefficientsBuffer3.AddRange(loadCaseCoefficientsWindSuction);
                                 modWS = true;
-                            }
-                            if (loadCaseCoefficientsSummer.Count() != 0)
-                            {
-                                loadCaseCoefficientsBuffer3.AddRange(loadCaseCoefficientsSummer);
-                                modS = true;
                             }
 
                             if(modWP && modS)
@@ -963,6 +999,11 @@ namespace GPC.Model.Combinations
                                 loadCaseCoefficients.Add(loadCaseCoefficientsBuffer4);
                             if (modWS && modW)
                                 loadCaseCoefficients.Add(loadCaseCoefficientsBuffer5);
+                            if(modW && modW)
+                            {
+                                loadCaseCoefficients.Add(loadCaseCoefficientsBuffer4);
+                                loadCaseCoefficients.Add(loadCaseCoefficientsBuffer5);
+                            }
                             else if ((modWS == false && modW) || (modWS && modW == false))
                                 loadCaseCoefficients.Add(loadCaseCoefficientsBuffer4);
                             else if ((modWS == false && modS) || (modWS && modS == false))
@@ -1068,7 +1109,12 @@ namespace GPC.Model.Combinations
                                 loadCaseCoefficients.Add(loadCaseCoefficientsBuffer4);
                             if(modWP && modS)
                                 loadCaseCoefficients.Add(loadCaseCoefficientsBuffer5);
-                            else if((modWP == false && modS) || (modWP && modS == false))
+                            if (modW && modS)
+                            {
+                                loadCaseCoefficients.Add(loadCaseCoefficientsBuffer4);
+                                loadCaseCoefficients.Add(loadCaseCoefficientsBuffer5);
+                            }
+                            else if ((modWP == false && modS) || (modWP && modS == false))
                                 loadCaseCoefficients.Add(loadCaseCoefficientsBuffer5);
                             else if ((modWP == false && modW) || (modWP && modW == false))
                                 loadCaseCoefficients.Add(loadCaseCoefficientsBuffer4);
