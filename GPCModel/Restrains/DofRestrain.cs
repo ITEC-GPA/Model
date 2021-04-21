@@ -121,7 +121,7 @@ namespace GPC.Model.Restrains
         /// </summary>
         public override bool Equals(object obj)
         {
-            if (obj is null || !Equals(obj) || !(obj is DofRestrain dr))
+            if (obj is null || !base.Equals(obj) || !(obj is DofRestrain dr))
                 return false;
             else
                 return _dof == dr._dof && _restrained == dr._restrained && _stiffness == dr._stiffness && _imposedDisplacement == dr._imposedDisplacement;
