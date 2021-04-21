@@ -432,7 +432,7 @@ namespace GPC.Model.FEM
 
         #region Interface, operators, hashcode
 
-public object Clone()
+        public object Clone()
         {
             return new Stage(this);
         }

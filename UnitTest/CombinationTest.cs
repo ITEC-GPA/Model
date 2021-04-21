@@ -315,5 +315,73 @@ namespace ModelObjectTest
             Assert.IsTrue(tuple3.Length == 1, tuple3.Length.ToString());
             Assert.IsTrue(tuple3[0].coefficient == 2, tuple3[0].coefficient.ToString());
         }
+
+
+
+        [TestMethod]
+        public void EqualsHashCode()
+        {
+            // Arrange
+
+            CombinationAsce combination1 = new CombinationAsce("cmb1", CombinationAsce.CombinationType.LFRD);
+            CombinationAsce combination2 = new CombinationAsce("cmb1", CombinationAsce.CombinationType.LFRD);
+            CombinationAsce combination3 = new CombinationAsce("cmb1", CombinationAsce.CombinationType.ASD);
+
+            CombinationAsce combination4 = new CombinationAsce("cmb1", CombinationAsce.CombinationType.LFRD);
+
+            CombinationAsce combination5 = new CombinationAsce("cmb1", CombinationAsce.CombinationType.LFRD);
+
+            var lc1 = new LoadCase("LC1", LoadCase.LoadCaseType.SelfWeight);
+            var lc2 = new LoadCase("LC2", LoadCase.LoadCaseType.SuperImposedDeadLoad);
+            var lc3 = new LoadCase("LC3", LoadCase.LoadCaseType.ClimateSummer);
+            var lc4 = new LoadCase("LC4", LoadCase.LoadCaseType.Maintenance);
+            var lc5 = new LoadCase("LC5", LoadCase.LoadCaseType.LiveLoad);
+            var lc6 = new LoadCase("LC6", LoadCase.LoadCaseType.Snow);
+
+            combination1.AddLoadCaseCoefficient(lc1, 1);
+            combination1.AddLoadCaseCoefficient(lc2, 2);
+            combination1.AddLoadCaseCoefficient(lc3, 3);
+            combination1.AddLoadCaseCoefficient(lc4, 4);
+            combination1.AddLoadCaseCoefficient(lc5, 5);
+
+            combination2.AddLoadCaseCoefficient(lc1, 1);
+            combination2.AddLoadCaseCoefficient(lc2, 2);
+            combination2.AddLoadCaseCoefficient(lc3, 3);
+            combination2.AddLoadCaseCoefficient(lc4, 4);
+            combination2.AddLoadCaseCoefficient(lc5, 5);
+
+            combination3.AddLoadCaseCoefficient(lc1, 1);
+            combination3.AddLoadCaseCoefficient(lc2, 2);
+            combination3.AddLoadCaseCoefficient(lc3, 3);
+            combination3.AddLoadCaseCoefficient(lc4, 4);
+            combination3.AddLoadCaseCoefficient(lc5, 5);
+
+            combination4.AddLoadCaseCoefficient(lc1, 1);
+            combination4.AddLoadCaseCoefficient(lc2, 2);
+            combination4.AddLoadCaseCoefficient(lc3, 3);
+            combination4.AddLoadCaseCoefficient(lc4, 4);
+            combination4.AddLoadCaseCoefficient(lc5, 5);
+            combination4.AddLoadCaseCoefficient(lc6, 5);
+
+            combination5.AddLoadCaseCoefficient(lc1, 1);
+            combination5.AddLoadCaseCoefficient(lc2, 2);
+            combination5.AddLoadCaseCoefficient(lc3, 2);
+            combination5.AddLoadCaseCoefficient(lc4, 4);
+            combination5.AddLoadCaseCoefficient(lc5, 5);
+
+            // Assert / Act
+            Assert.IsTrue(combination1.Equals(combination2));
+            Assert.IsTrue(combination1.GetHashCode().Equals(combination2.GetHashCode()));
+
+            Assert.IsFalse(combination1.Equals(combination3));
+            Assert.IsFalse(combination1.GetHashCode().Equals(combination3.GetHashCode()));
+            
+            Assert.IsFalse(combination1.Equals(combination4));
+            Assert.IsFalse(combination1.GetHashCode().Equals(combination4.GetHashCode()));
+
+            Assert.IsFalse(combination1.Equals(combination5));
+            Assert.IsFalse(combination1.GetHashCode().Equals(combination5.GetHashCode()));
+
+        }
     }
 }

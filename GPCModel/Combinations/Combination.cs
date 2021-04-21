@@ -1,4 +1,5 @@
 ﻿using GPC.Model.LoadCases;
+using GPC.Utilities.Extensions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -222,6 +223,52 @@ namespace GPC.Model.Combinations
 
         #endregion
 
+
+        #region Equals - HashCode - Operators
+
+        public override bool Equals(object obj)
+        {
+            if (obj is null)
+                return false;
+
+            if (ReferenceEquals(this, obj))
+                return true;
+
+            Combination objCasted = obj as Combination;
+
+            return !(objCasted is null) && _coefficients.ScrambledEquals(objCasted._coefficients) && base.Equals(objCasted);
+        }
+
+        public override int GetHashCode()
+        {
+            var hashCode = 23;
+            foreach (var element in _coefficients)
+            {
+                hashCode = hashCode + EqualityComparer<LoadCaseCoefficient>.Default.GetHashCode(element);
+            }
+            return hashCode;
+        }
+
+        public static bool operator ==(Combination obj1, Combination obj2)
+        {
+            if (ReferenceEquals(obj1, obj2))
+                return true;
+
+            if (obj1 is null || obj2 is null)
+                return false;
+
+            return obj1.Equals(obj2);
+        }
+
+        public static bool operator !=(Combination obj1, Combination obj2)
+        {
+            return !(obj1 == obj2);
+        }
+
+        #endregion
+
+
+
         #region INDEXER
 
         /// <summary>
@@ -271,7 +318,7 @@ namespace GPC.Model.Combinations
 
         #region Nested class
 
-        protected class LoadCaseCoefficient : IComparable<LoadCaseCoefficient>
+        protected sealed class LoadCaseCoefficient : IComparable<LoadCaseCoefficient>, IEquatable<LoadCaseCoefficient>
         {
             private LoadCase _loadcase;
             private double _coefficient;
@@ -323,7 +370,43 @@ namespace GPC.Model.Combinations
                 }
             }
 
+            public override bool Equals(object obj)
+            {
+                return Equals(obj as LoadCaseCoefficient);
+            }
+
+            public bool Equals(LoadCaseCoefficient other)
+            {
+                return other != null &&
+                       EqualityComparer<LoadCase>.Default.Equals(_loadcase, other._loadcase) &&
+                       _coefficient == other._coefficient;
+            }
+
+            public override int GetHashCode()
+            {
+                var hashCode = -23;
+                hashCode = hashCode * -17 + EqualityComparer<LoadCase>.Default.GetHashCode(_loadcase);
+                hashCode = hashCode * -17 + _coefficient.GetHashCode();
+                return hashCode;
+            }
+
+            public static bool operator ==(LoadCaseCoefficient obj1, LoadCaseCoefficient obj2)
+            {
+                if (ReferenceEquals(obj1, obj2))
+                    return true;
+
+                if (obj1 is null || obj2 is null)
+                    return false;
+
+                return obj1.Equals(obj2);
+            }
+
+            public static bool operator !=(LoadCaseCoefficient obj1, LoadCaseCoefficient obj2)
+            {
+                return !(obj1 == obj2);
+            }
         }
+
 
         #endregion
     }
