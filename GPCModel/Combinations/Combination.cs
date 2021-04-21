@@ -34,7 +34,7 @@ namespace GPC.Model.Combinations
         protected Combination(Combination combination)
             : this(combination._name, combination.Guid)
         {
-            _coefficients = combination._coefficients;
+            _coefficients = combination._coefficients.ToList(); //Shallow copy, i puntatori dei loadcase non cambiano
         }
 
 
