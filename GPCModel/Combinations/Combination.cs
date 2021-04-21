@@ -2,6 +2,7 @@
 using GPC.Utilities.Extensions;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.Text;
@@ -9,6 +10,7 @@ using System.Text;
 namespace GPC.Model.Combinations
 {
     [Serializable]
+    [DebuggerDisplay("{" + nameof(GetDebuggerDisplay) + "(),nq}")]
     public abstract class Combination : ModelObject, ILoadCase, ICloneable
     {
         protected List<LoadCaseCoefficient> _coefficients;
@@ -241,6 +243,19 @@ namespace GPC.Model.Combinations
         }
 
 
+        /// <exception cref="ArgumentNullException"> If <see cref="LoadCase"/> is null </exception>
+        public virtual void RemoveLoadCaseCoefficients(IEnumerable<(LoadCase, double)> loadCaseCoefficients)
+        {
+            foreach (var lcc in loadCaseCoefficients)
+            {
+                if (lcc.Item1 is null)
+                    throw new ArgumentNullException();
+
+                _coefficients.RemoveAll(i => i.LoadCase.Equals(lcc.Item1));
+            }
+        }
+
+
         public abstract object Clone();
 
         /// <summary>
@@ -433,6 +448,11 @@ namespace GPC.Model.Combinations
             {
                 return !(obj1 == obj2);
             }
+        }
+
+        private string GetDebuggerDisplay()
+        {
+            return $"{Name}: {ToString()}"; 
         }
 
 
