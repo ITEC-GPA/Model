@@ -15,8 +15,6 @@ namespace GPC.Model
 
         #endregion Variables
 
-
-
         #region Properties
 
         public Guid Guid => _guid;

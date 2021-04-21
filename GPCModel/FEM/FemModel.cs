@@ -262,10 +262,11 @@ namespace GPC.Model.FEM
         /// </summary>
         /// <param name="name"></param>
         /// <param name="analysisType"></param>
+        /// <param name="morph"></param>
         /// <returns></returns>
-        public virtual Stage AddStage(string name, AnalysisTypes analysisType)
+        public virtual Stage AddStage(string name, AnalysisTypes analysisType, bool morph = false)
         {
-            Stage stage = new Stage(name, this, analysisType, false, null);
+            Stage stage = new Stage(name, this, analysisType, morph, null);
             _stages.Add(stage);
             return stage;
         }
@@ -301,6 +302,15 @@ namespace GPC.Model.FEM
             return stage;
         }
 
+        protected virtual Stage GetStageById(int stageId)
+        {
+            return _stages.Where(i => i.Id == stageId).FirstOrDefault();
+        }
+
+        protected virtual IEnumerable<Combination> GetStageCombinations(int stageId)
+        {
+            return _stages.Where(i => i.Id == stageId).FirstOrDefault().GetCombinations();
+        }
 
         #endregion
 
