@@ -128,6 +128,7 @@ namespace GPC.Model.Combinations
             return coefficients;
         }
 
+        /// <returns>An array of all the pairs <see cref="LoadCase"/>-LoadCaseCoefficient of this combination</returns>
         public virtual KeyValuePair<LoadCase, double>[] GetLoadCaseCoefficientsPair()
         {
             KeyValuePair<LoadCase, double>[] pairs = new KeyValuePair<LoadCase, double>[_coefficients.Count];
@@ -140,7 +141,7 @@ namespace GPC.Model.Combinations
             return pairs;
         }
 
-
+        /// <returns>An array of all the tuples <see cref="LoadCase"/>-LoadCaseCoefficient of this combination</returns>
         public virtual (LoadCase loadcase, double coefficient)[] GetLoadCaseCoefficientsTuple()
         {
             (LoadCase loadcase, double coefficient)[] pairs = new (LoadCase loadcase, double coefficient)[_coefficients.Count];
@@ -153,6 +154,20 @@ namespace GPC.Model.Combinations
             return pairs;
         }
 
+
+        /// <returns>An array of tuples <see cref="LoadCase"/>-LoadCaseCoefficient. Where the <see cref="LoadCase"/> are only the ones contained in <paramref name="loadCases"/></returns>
+        public virtual (LoadCase loadcase, double coefficient)[] GetLoadCaseCoefficientsTuple(IEnumerable<LoadCase> loadCases)
+        {
+            var pairs = new List<(LoadCase loadcase, double coefficient)>();
+
+            for (var i = 0; i < _coefficients.Count; i++)
+            {
+                if (loadCases.Contains(_coefficients[i].LoadCase))
+                    pairs.Add((_coefficients[i].LoadCase, _coefficients[i].Coefficient));
+            }
+
+            return pairs.ToArray();
+        }
 
         /// <summary>
         /// 
@@ -172,28 +187,9 @@ namespace GPC.Model.Combinations
         }
 
 
-        /// <param name="loadCases"></param>
-        /// <param name="coefficients"></param>
-        /// <returns><see langword="True"/> if all the pairs of <paramref name="loadCases"/> and <paramref name="coefficients"/> are contained in this combination</returns>
-        /// <remarks><paramref name="loadCases"/> lenght must be equal to <paramref name="coefficients"/> lenght </remarks>
-        /// <exception cref="ArgumentException">If <paramref name="loadCases"/> lenght is different than <paramref name="coefficients"/> lenght </exception>
+        /// <param name="loadCasesCoefficients"></param>
+        /// <returns><see langword="True"/> if all KeyValuePairs are contained in this combination</returns>
         /// <exception cref="ArgumentNullException"></exception>
-        public virtual bool ContainsLoadCaseCoefficients(IEnumerable<LoadCase> loadCases, IEnumerable<double> coefficients)
-        {
-            if (loadCases is null)
-                throw new ArgumentNullException();
-
-            if (loadCases.Count() != coefficients.Count())
-                throw new ArgumentException();
-
-            if (loadCases.Count() > 0)
-            {
-                return _coefficients.Select(i => i.LoadCase).Intersect(loadCases).Select(i => GetLoadCaseCoefficient(i)).Intersect(coefficients).Count().Equals(loadCases.Count());
-            }
-            else
-                return true;
-        }
-
         public virtual bool ContainsLoadCaseCoefficients(IEnumerable<KeyValuePair<LoadCase, double>> loadCasesCoefficients)
         {
             if (loadCasesCoefficients is null)
@@ -207,6 +203,9 @@ namespace GPC.Model.Combinations
                 return true;
         }
 
+        /// <param name="loadCasesCoefficients"></param>
+        /// <returns><see langword="True"/> if all Tuple are contained in this combination</returns>
+        /// <exception cref="ArgumentNullException"></exception>
         public virtual bool ContainsLoadCaseCoefficients(IEnumerable<(LoadCase loadcase, double coefficient)> loadCasesCoefficients)
         {
             if (loadCasesCoefficients is null)

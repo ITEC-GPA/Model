@@ -300,11 +300,20 @@ namespace ModelObjectTest
             var pair = combination.GetLoadCaseCoefficientsPair();
             var tuple = combination.GetLoadCaseCoefficientsTuple();
 
+            var tuple2 = combination.GetLoadCaseCoefficientsTuple(new List<LoadCase> { lc1, lc2 });
+            var tuple3 = combination.GetLoadCaseCoefficientsTuple(new List<LoadCase> { lc2, lc6 });
+
 
             Assert.IsTrue(pair[0].Key == lc1, pair[0].Key.Name.ToString());
             Assert.IsTrue(pair[1].Key == lc2, pair[1].Key.Name.ToString());
             Assert.IsTrue(tuple[0].loadcase == lc1, tuple[0].loadcase.Name.ToString());
             Assert.IsTrue(tuple[1].loadcase == lc2, tuple[1].loadcase.Name.ToString());
+
+            Assert.IsTrue(tuple2.Length == 2, tuple2.Length.ToString());
+            Assert.IsTrue(tuple2[0].coefficient == 1, tuple2[0].coefficient.ToString());
+
+            Assert.IsTrue(tuple3.Length == 1, tuple3.Length.ToString());
+            Assert.IsTrue(tuple3[0].coefficient == 2, tuple3[0].coefficient.ToString());
         }
     }
 }
