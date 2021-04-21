@@ -203,7 +203,6 @@
     <Compile Include="Sections\SectionT.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include=".editorconfig" />
     <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
