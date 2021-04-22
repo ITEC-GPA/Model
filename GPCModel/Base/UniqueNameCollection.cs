@@ -64,6 +64,7 @@ namespace GPC.Model
         /// <summary><inheritdoc cref="Enumerable.SingleOrDefault{TSource}(IEnumerable{TSource})"/></summary>
         /// <returns><inheritdoc cref="Enumerable.SingleOrDefault{TSource}(IEnumerable{TSource})"/></returns>
         /// <exception cref="InvalidOperationException" ></exception>
+        /// <exception cref="KeyNotFoundException"></exception>
         /// <remarks>This is a O(n) operation</remarks>
         public virtual T GetElementByName(string name)
         {
@@ -89,14 +90,14 @@ namespace GPC.Model
             _names.Clear();
         }
 
+        /// <inheritdoc cref="Contains(string)"/>
         public bool Contains(T item)
         {
             return _collection.Contains(item);
         }
 
 
-        /// <param name="name"></param>
-        /// <returns><see langword="true" /> if this collection contains a property with name equals to <paramref name="name"/> </returns>
+        /// <returns><see langword="True" /> if this collection contains an element with <see cref="ModelObject.Name"/> equals to <paramref name="name"/> </returns>
         public bool Contains(string name)
         {
             return _names.Contains(name);

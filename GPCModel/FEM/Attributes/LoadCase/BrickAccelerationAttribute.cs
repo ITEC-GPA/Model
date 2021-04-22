@@ -6,6 +6,10 @@ using System.Collections.Generic;
 
 namespace GPC.Model.FEM.Attributes
 {
+    /// <summary>
+    /// Represent an acceleration attribute of a <see cref="FiniteElements.Brick"/>
+    /// </summary>
+    /// <remarks>The visibility of this class is internal since only the <see cref="FemModel"/> is responsibile to apply it to each <see cref="FiniteElements.Brick"/> </remarks>
     internal class BrickAccelerationAttribute : ModelAccelerationAttribute, IEquatable<BrickAccelerationAttribute>, IBrickLoadCaseAttribute
     {
 

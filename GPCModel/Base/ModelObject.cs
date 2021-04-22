@@ -76,6 +76,8 @@ namespace GPC.Model
             info.AddValue("Name", _name);
         }
 
+
+        /// <returns><see langword="True"/> if <paramref name="obj"/> have the same <see cref="Name"/> of this object </returns>
         public override bool Equals(object obj)
         {
             if (obj is null || !(obj is ModelObject))
