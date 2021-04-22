@@ -645,7 +645,7 @@ namespace GPC.Model.FEM
         public Dictionary<Beam.InternalAction, double> GetBeamInternalForces(EulerBeam b, int indexNode)
         {
             double station;
-            if (indexNode == 1)
+            if (indexNode == 1 || indexNode == 0)
             {
                 station = 0.0;
             } else if (indexNode == 2)

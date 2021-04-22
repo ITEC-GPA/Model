@@ -419,29 +419,9 @@ namespace GPC.Model.FEM.FiniteElements
                     Console.WriteLine(localForces[1][j, 0]);
                 }
             }
-
-            //Post-processing only for beam:
-            /*for (int i = 0; i < _attributesLoadCase.Count; i++)
-            {
-                if (_attributesLoadCase[i].GetType() == typeof(BeamDistribuitedLoadAttribute))
-                {
-                    BeamDistribuitedLoadAttribute q = (BeamDistribuitedLoadAttribute) _attributesLoadCase[i];
-                    localForces[0][5, 0] += -BendingBeamFixFix(q.Q2, 0, _length);
-                    localForces[1][5, 0] += -BendingBeamFixFix(q.Q2, _length, _length);
-
-                    localForces[0][1, 0] += -ShearBeamFixFix(q.Q2, 0, _length);
-                    localForces[1][1, 0] += -ShearBeamFixFix(q.Q2, _length, _length);
-
-                    localForces[0][4, 0] += -BendingBeamFixFix(q.Q3, 0, _length);
-                    localForces[1][4, 0] += -BendingBeamFixFix(q.Q3, _length, _length);
-
-                    localForces[0][2, 0] += -ShearBeamFixFix(q.Q3, 0, _length);
-                    localForces[1][2, 0] += -ShearBeamFixFix(q.Q3, _length, _length);
-                }
-            }*/
         }
 
-        public Dictionary<Beam.InternalAction, double> GetInternalAction(double x, double[] globalDisplacement)
+        public Dictionary<Beam.InternalAction, double> GetInternalAction(double station, double[] globalDisplacement)
         {
             //Post-processing only for beam:
             double qx = 0;
@@ -462,13 +442,33 @@ namespace GPC.Model.FEM.FiniteElements
 
             Dictionary<Beam.InternalAction, double> forces = new Dictionary<InternalAction, double>();
 
-            forces.Add(Beam.InternalAction.N, localForces[0][0, 0] - AxialBeamFixFix(qx, x, _length));
-            forces.Add(Beam.InternalAction.V2, localForces[0][1, 0] - ShearBeamFixFix(qy, x, _length));
-            forces.Add(Beam.InternalAction.V3, localForces[0][2, 0] - ShearBeamFixFix(qz, x, _length));
+            double N0(double x, double L)
+            {
+                return (L - x) / L;
+            }
 
-            forces.Add(Beam.InternalAction.T, localForces[0][3, 0]);
-            forces.Add(Beam.InternalAction.M2, localForces[0][4, 0] - BendingBeamFixFix(qz, x, _length));
-            forces.Add(Beam.InternalAction.M3, localForces[0][5, 0] - 1.0 * BendingBeamFixFix(qy, x, _length));
+            double N1(double x, double L)
+            {
+                return x / L;
+            }
+
+            double Nx = localForces[0][0, 0] * N0(station, _length) + localForces[1][0, 0] * N1(station, _length);
+            double V2x = localForces[0][1, 0] * N0(station, _length) + localForces[1][1, 0] * N1(station, _length);
+            double V3x = localForces[0][2, 0] * N0(station, _length) + localForces[1][2, 0] * N1(station, _length);
+            double Tx = localForces[0][3, 0] * N0(station, _length) + localForces[1][3, 0] * N1(station, _length);
+            double M2x = localForces[0][4, 0] * N0(station, _length) + localForces[1][4, 0] * N1(station, _length);
+            double M3x = localForces[0][5, 0] * N0(station, _length) + localForces[1][5, 0] * N1(station, _length);
+
+            forces.Add(Beam.InternalAction.N, Nx - AxialBeamFixFix(qx, station, _length));
+            forces.Add(Beam.InternalAction.V2, V2x - ShearBeamFixFix(qy, station, _length));
+            forces.Add(Beam.InternalAction.V3, V3x - ShearBeamFixFix(qz, station, _length));
+
+            forces.Add(Beam.InternalAction.T, Tx);
+            forces.Add(Beam.InternalAction.M2, M2x - BendingBeamFixFix(qz, station, _length));
+            forces.Add(Beam.InternalAction.M3, M3x - BendingBeamFixFix(qy, station, _length));
+
+            /*var x1 = localForces[0][5, 0];
+            var x2 = BendingBeamFixFix(qy, x, _length);*/
             return forces;            
         }
 

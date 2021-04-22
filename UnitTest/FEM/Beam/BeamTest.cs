@@ -513,7 +513,7 @@ namespace FemTest.Solver {
             LoadCase lc = new LoadCase("lc1");
             CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
             Random random = new Random();
-            double qx = 1;//random.Next(-1000,1000);
+            double qx = 0;//random.Next(-1000,1000);
             double qy = 1;//random.Next(-1000, 1000);
             double qz = 1;//random.Next(-1000, 1000);
             BeamDistribuitedLoadAttribute q = new BeamDistribuitedLoadAttribute(lc, qx, qy, qz);
@@ -547,20 +547,17 @@ namespace FemTest.Solver {
             Assert.AreEqual(qz * Math.Pow(L, 4.0) / (8.0 * E * sec.J22), fem.GetDisplacementGlobalCoordinates(nds[1], LinearSolver.DOF.DZ), 0.001); //displacement
             Assert.AreEqual(-qz * Math.Pow(L, 3.0) / (6.0 * E * sec.J22), fem.GetDisplacementGlobalCoordinates(nds[1], LinearSolver.DOF.RY), 0.001); //rotation
 
-            Assert.AreEqual(1.0 / 2.0 * qy * L * L, fem.GetBeamInternalForces(beams[0], 0.0)[Beam.InternalAction.M3], 0.0001);
-            Assert.AreEqual(0.0, fem.GetBeamInternalForces(beams[0], 2)[Beam.InternalAction.M3], 0.0001); //M //TODO: Funzionava con vecchio codice. Sistemare
+            Assert.AreEqual(1.0 / 2.0 * qy * L * L, fem.GetBeamInternalForces(beams[0], 0.0)[Beam.InternalAction.M3], 0.0001); //M(x=0)
+            Assert.AreEqual(0.0, fem.GetBeamInternalForces(beams[0], L)[Beam.InternalAction.M3], 0.0001); //M(x=L)
 
-            var globalDispl = fem.GetDisplacementsElementGlobalCoordinates(beams[0]);
-            beams[0].GetNodesResults(globalDispl, out double[] localDispl, out mnl.Matrix<double>[] globalPseudoDef, out mnl.Matrix<double>[] localPseudoDef, out mnl.Matrix<double>[] globalForces, out mnl.Matrix<double>[] localForces, out mnl.Matrix<double>[] globalStress, out mnl.Matrix<double>[] localStress, out mnl.Matrix<double>[] globalEpsilon, out mnl.Matrix<double>[] localEpsilon);
-            
-            
-            Assert.AreEqual(-qy * L, localForces[0][1, 0], 0.0001); //Shear
-            Assert.AreEqual(0.0, localForces[1][1, 0], 0.0001); //Shear
+            Assert.AreEqual(-qy * L, fem.GetBeamInternalForces(beams[0], 0.0)[Beam.InternalAction.V2], 0.0001); //Shear(x=0)
+            Assert.AreEqual(0.0, fem.GetBeamInternalForces(beams[0], L)[Beam.InternalAction.V2], 0.0001); //Shear(x=0)
 
-            Assert.AreEqual(1.0 / 2.0 * qz * L * L, localForces[0][4, 0], 0.0001); //M
-            Assert.AreEqual(0.0, localForces[1][4, 0], 0.0001); //M
-            Assert.AreEqual(-qz * L, localForces[0][2, 0], 0.0001); //Shear
-            Assert.AreEqual(0.0, localForces[1][2, 0], 0.0001); //Shear
+            Assert.AreEqual(1.0 / 2.0 * qz * L * L, fem.GetBeamInternalForces(beams[0],0.0)[Beam.InternalAction.M2], 0.0001); //M(x=0)
+            Assert.AreEqual(0.0, fem.GetBeamInternalForces(beams[0], L)[Beam.InternalAction.M2], 0.0001); //M(x=0)
+
+            Assert.AreEqual(-qz * L, fem.GetBeamInternalForces(beams[0], 0.0)[Beam.InternalAction.V3], 0.0001); //Shear(x=0)
+            Assert.AreEqual(0.0, fem.GetBeamInternalForces(beams[0], L)[Beam.InternalAction.V3], 0.0001); //Shear(x=L)
         }
 
         [TestMethod]
@@ -670,7 +667,7 @@ namespace FemTest.Solver {
             beams[0].GetNodesResults(globalDispl, out double[] localDispl, out mnl.Matrix<double>[] globalPseudoDef, out mnl.Matrix<double>[] localPseudoDef, out mnl.Matrix<double>[] globalForces, out mnl.Matrix<double>[] localForces, out mnl.Matrix<double>[] globalStress, out mnl.Matrix<double>[] localStress, out mnl.Matrix<double>[] globalEpsilon, out mnl.Matrix<double>[] localEpsilon);
 
             var internalActions = beams[0].GetInternalAction(L / 2.0, globalDispl);
-            Assert.AreEqual(1.0 / 24.0 * qy * L * L, internalActions[Beam.InternalAction.M3]);
+            Assert.AreEqual(-1.0 / 24.0 * qy * L * L, internalActions[Beam.InternalAction.M3]);
         }
 
         [TestMethod]
