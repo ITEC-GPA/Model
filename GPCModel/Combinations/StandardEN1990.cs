@@ -392,17 +392,17 @@ namespace GPC.Model.Combinations
             {
                 switch (loadCaseType)
                 {
-                    case LoadCase.LoadCaseType.LiveLoad:
-                    case LoadCase.LoadCaseType.WindPressure:
-                    case LoadCase.LoadCaseType.WindSuction:
-                    case LoadCase.LoadCaseType.Snow:
-                    case LoadCase.LoadCaseType.Maintenance:
-                    case LoadCase.LoadCaseType.Earthquake:
-                    case LoadCase.LoadCaseType.Temperature:
-                    case LoadCase.LoadCaseType.ClimateSummerDeltaP:
-                    case LoadCase.LoadCaseType.ClimateSummerDeltaT:
-                    case LoadCase.LoadCaseType.ClimateWinterDeltaP:
-                    case LoadCase.LoadCaseType.ClimateWinterDeltaT:
+                    case LoadCase.LoadCaseTypes.LiveLoad:
+                    case LoadCase.LoadCaseTypes.WindPressure:
+                    case LoadCase.LoadCaseTypes.WindSuction:
+                    case LoadCase.LoadCaseTypes.Snow:
+                    case LoadCase.LoadCaseTypes.Maintenance:
+                    case LoadCase.LoadCaseTypes.Earthquake:
+                    case LoadCase.LoadCaseTypes.Temperature:
+                    case LoadCase.LoadCaseTypes.ClimateSummerDeltaP:
+                    case LoadCase.LoadCaseTypes.ClimateSummerDeltaT:
+                    case LoadCase.LoadCaseTypes.ClimateWinterDeltaP:
+                    case LoadCase.LoadCaseTypes.ClimateWinterDeltaT:
                         return _gammaQUnfavourableSetA;
                     default:
                         throw new NotImplementedException("Not implemented coefficient for load case type");
@@ -414,17 +414,17 @@ namespace GPC.Model.Combinations
                 {
                     switch (loadCaseType)
                     {
-                        case LoadCase.LoadCaseType.LiveLoad:
-                        case LoadCase.LoadCaseType.WindPressure:
-                        case LoadCase.LoadCaseType.WindSuction:
-                        case LoadCase.LoadCaseType.Snow:
-                        case LoadCase.LoadCaseType.Maintenance:
-                        case LoadCase.LoadCaseType.Earthquake:
-                        case LoadCase.LoadCaseType.Temperature:
-                        case LoadCase.LoadCaseType.ClimateSummerDeltaP:
-                        case LoadCase.LoadCaseType.ClimateSummerDeltaT:
-                        case LoadCase.LoadCaseType.ClimateWinterDeltaP:
-                        case LoadCase.LoadCaseType.ClimateWinterDeltaT:
+                        case LoadCase.LoadCaseTypes.LiveLoad:
+                        case LoadCase.LoadCaseTypes.WindPressure:
+                        case LoadCase.LoadCaseTypes.WindSuction:
+                        case LoadCase.LoadCaseTypes.Snow:
+                        case LoadCase.LoadCaseTypes.Maintenance:
+                        case LoadCase.LoadCaseTypes.Earthquake:
+                        case LoadCase.LoadCaseTypes.Temperature:
+                        case LoadCase.LoadCaseTypes.ClimateSummerDeltaP:
+                        case LoadCase.LoadCaseTypes.ClimateSummerDeltaT:
+                        case LoadCase.LoadCaseTypes.ClimateWinterDeltaP:
+                        case LoadCase.LoadCaseTypes.ClimateWinterDeltaT:
                             return _gammaQUnfavourableSetB;
                         default:
                             throw new NotImplementedException("Not implemented coefficient for load case type");
@@ -434,17 +434,17 @@ namespace GPC.Model.Combinations
                 {
                     switch (loadCaseType)
                     {
-                        case LoadCase.LoadCaseType.LiveLoad:
-                        case LoadCase.LoadCaseType.WindPressure:
-                        case LoadCase.LoadCaseType.WindSuction:
-                        case LoadCase.LoadCaseType.Snow:
-                        case LoadCase.LoadCaseType.Maintenance:
-                        case LoadCase.LoadCaseType.Earthquake:
-                        case LoadCase.LoadCaseType.Temperature:
-                        case LoadCase.LoadCaseType.ClimateSummerDeltaP:
-                        case LoadCase.LoadCaseType.ClimateSummerDeltaT:
-                        case LoadCase.LoadCaseType.ClimateWinterDeltaP:
-                        case LoadCase.LoadCaseType.ClimateWinterDeltaT:
+                        case LoadCase.LoadCaseTypes.LiveLoad:
+                        case LoadCase.LoadCaseTypes.WindPressure:
+                        case LoadCase.LoadCaseTypes.WindSuction:
+                        case LoadCase.LoadCaseTypes.Snow:
+                        case LoadCase.LoadCaseTypes.Maintenance:
+                        case LoadCase.LoadCaseTypes.Earthquake:
+                        case LoadCase.LoadCaseTypes.Temperature:
+                        case LoadCase.LoadCaseTypes.ClimateSummerDeltaP:
+                        case LoadCase.LoadCaseTypes.ClimateSummerDeltaT:
+                        case LoadCase.LoadCaseTypes.ClimateWinterDeltaP:
+                        case LoadCase.LoadCaseTypes.ClimateWinterDeltaT:
                             return _gammaQUnfavourableSetC;
                         default:
                             throw new NotImplementedException("Not implemented coefficient for load case type");
@@ -457,17 +457,17 @@ namespace GPC.Model.Combinations
             {
                 switch (loadCaseType)
                 {
-                    case LoadCase.LoadCaseType.LiveLoad:
-                    case LoadCase.LoadCaseType.WindPressure:
-                    case LoadCase.LoadCaseType.WindSuction:
-                    case LoadCase.LoadCaseType.Snow:
-                    case LoadCase.LoadCaseType.Maintenance:
-                    case LoadCase.LoadCaseType.Earthquake:
-                    case LoadCase.LoadCaseType.Temperature:
-                    case LoadCase.LoadCaseType.ClimateSummerDeltaP:
-                    case LoadCase.LoadCaseType.ClimateSummerDeltaT:
-                    case LoadCase.LoadCaseType.ClimateWinterDeltaP:
-                    case LoadCase.LoadCaseType.ClimateWinterDeltaT:
+                    case LoadCase.LoadCaseTypes.LiveLoad:
+                    case LoadCase.LoadCaseTypes.WindPressure:
+                    case LoadCase.LoadCaseTypes.WindSuction:
+                    case LoadCase.LoadCaseTypes.Snow:
+                    case LoadCase.LoadCaseTypes.Maintenance:
+                    case LoadCase.LoadCaseTypes.Earthquake:
+                    case LoadCase.LoadCaseTypes.Temperature:
+                    case LoadCase.LoadCaseTypes.ClimateSummerDeltaP:
+                    case LoadCase.LoadCaseTypes.ClimateSummerDeltaT:
+                    case LoadCase.LoadCaseTypes.ClimateWinterDeltaP:
+                    case LoadCase.LoadCaseTypes.ClimateWinterDeltaT:
                         return 1.0;
 
                     default:
@@ -493,17 +493,17 @@ namespace GPC.Model.Combinations
             {
                 switch (loadCaseType)
                 {
-                    case LoadCase.LoadCaseType.LiveLoad:
-                    case LoadCase.LoadCaseType.WindPressure:
-                    case LoadCase.LoadCaseType.WindSuction:
-                    case LoadCase.LoadCaseType.Snow:
-                    case LoadCase.LoadCaseType.Maintenance:
-                    case LoadCase.LoadCaseType.Earthquake:
-                    case LoadCase.LoadCaseType.Temperature:
-                    case LoadCase.LoadCaseType.ClimateSummerDeltaP:
-                    case LoadCase.LoadCaseType.ClimateSummerDeltaT:
-                    case LoadCase.LoadCaseType.ClimateWinterDeltaP:
-                    case LoadCase.LoadCaseType.ClimateWinterDeltaT:
+                    case LoadCase.LoadCaseTypes.LiveLoad:
+                    case LoadCase.LoadCaseTypes.WindPressure:
+                    case LoadCase.LoadCaseTypes.WindSuction:
+                    case LoadCase.LoadCaseTypes.Snow:
+                    case LoadCase.LoadCaseTypes.Maintenance:
+                    case LoadCase.LoadCaseTypes.Earthquake:
+                    case LoadCase.LoadCaseTypes.Temperature:
+                    case LoadCase.LoadCaseTypes.ClimateSummerDeltaP:
+                    case LoadCase.LoadCaseTypes.ClimateSummerDeltaT:
+                    case LoadCase.LoadCaseTypes.ClimateWinterDeltaP:
+                    case LoadCase.LoadCaseTypes.ClimateWinterDeltaT:
                         return _gammaQFavourableSetA;
                     default:
                         throw new NotImplementedException("Not implemented coefficient for load case type");
@@ -515,17 +515,17 @@ namespace GPC.Model.Combinations
                 {
                     switch (loadCaseType)
                     {
-                        case LoadCase.LoadCaseType.LiveLoad:
-                        case LoadCase.LoadCaseType.WindPressure:
-                        case LoadCase.LoadCaseType.WindSuction:
-                        case LoadCase.LoadCaseType.Snow:
-                        case LoadCase.LoadCaseType.Maintenance:
-                        case LoadCase.LoadCaseType.Earthquake:
-                        case LoadCase.LoadCaseType.Temperature:
-                        case LoadCase.LoadCaseType.ClimateSummerDeltaP:
-                        case LoadCase.LoadCaseType.ClimateSummerDeltaT:
-                        case LoadCase.LoadCaseType.ClimateWinterDeltaP:
-                        case LoadCase.LoadCaseType.ClimateWinterDeltaT:
+                        case LoadCase.LoadCaseTypes.LiveLoad:
+                        case LoadCase.LoadCaseTypes.WindPressure:
+                        case LoadCase.LoadCaseTypes.WindSuction:
+                        case LoadCase.LoadCaseTypes.Snow:
+                        case LoadCase.LoadCaseTypes.Maintenance:
+                        case LoadCase.LoadCaseTypes.Earthquake:
+                        case LoadCase.LoadCaseTypes.Temperature:
+                        case LoadCase.LoadCaseTypes.ClimateSummerDeltaP:
+                        case LoadCase.LoadCaseTypes.ClimateSummerDeltaT:
+                        case LoadCase.LoadCaseTypes.ClimateWinterDeltaP:
+                        case LoadCase.LoadCaseTypes.ClimateWinterDeltaT:
                             return _gammaQFavourableSetB;
                         default:
                             throw new NotImplementedException("Not implemented coefficient for load case type");
@@ -535,17 +535,17 @@ namespace GPC.Model.Combinations
                 {
                     switch (loadCaseType)
                     {
-                        case LoadCase.LoadCaseType.LiveLoad:
-                        case LoadCase.LoadCaseType.WindPressure:
-                        case LoadCase.LoadCaseType.WindSuction:
-                        case LoadCase.LoadCaseType.Snow:
-                        case LoadCase.LoadCaseType.Maintenance:
-                        case LoadCase.LoadCaseType.Earthquake:
-                        case LoadCase.LoadCaseType.Temperature:
-                        case LoadCase.LoadCaseType.ClimateSummerDeltaP:
-                        case LoadCase.LoadCaseType.ClimateSummerDeltaT:
-                        case LoadCase.LoadCaseType.ClimateWinterDeltaP:
-                        case LoadCase.LoadCaseType.ClimateWinterDeltaT:
+                        case LoadCase.LoadCaseTypes.LiveLoad:
+                        case LoadCase.LoadCaseTypes.WindPressure:
+                        case LoadCase.LoadCaseTypes.WindSuction:
+                        case LoadCase.LoadCaseTypes.Snow:
+                        case LoadCase.LoadCaseTypes.Maintenance:
+                        case LoadCase.LoadCaseTypes.Earthquake:
+                        case LoadCase.LoadCaseTypes.Temperature:
+                        case LoadCase.LoadCaseTypes.ClimateSummerDeltaP:
+                        case LoadCase.LoadCaseTypes.ClimateSummerDeltaT:
+                        case LoadCase.LoadCaseTypes.ClimateWinterDeltaP:
+                        case LoadCase.LoadCaseTypes.ClimateWinterDeltaT:
                             return _gammaQFavourableSetC;
                         default:
                             throw new NotImplementedException("Not implemented coefficient for load case type");
@@ -639,7 +639,7 @@ namespace GPC.Model.Combinations
         {
             var loadCaseType = loadCase.GetLoadCaseType();
 
-            if (loadCaseType == LoadCase.LoadCaseType.Snow)
+            if (loadCaseType == LoadCase.LoadCaseTypes.Snow)
             {
                 if (highAltitude)
                     return Psi0SnowHighAltitude;
@@ -648,7 +648,7 @@ namespace GPC.Model.Combinations
                 else
                     throw new NotImplementedException("Failed to set coefficient psi0 for snow load");
             }
-            else if (loadCaseType == LoadCase.LoadCaseType.LiveLoad || loadCaseType == LoadCase.LoadCaseType.Maintenance)
+            else if (loadCaseType == LoadCase.LoadCaseTypes.LiveLoad || loadCaseType == LoadCase.LoadCaseTypes.Maintenance)
             {
                 switch (category)
                 {
@@ -676,22 +676,22 @@ namespace GPC.Model.Combinations
             {
                 switch (loadCaseType)
                 {
-                    case LoadCase.LoadCaseType.SelfWeight:
-                    case LoadCase.LoadCaseType.SuperImposedDeadLoad:
-                    case LoadCase.LoadCaseType.Earthquake: 
+                    case LoadCase.LoadCaseTypes.SelfWeight:
+                    case LoadCase.LoadCaseTypes.SuperImposedDeadLoad:
+                    case LoadCase.LoadCaseTypes.Earthquake: 
                         throw new ArgumentException("Don't exist coefficient for this load case type");
-                    case LoadCase.LoadCaseType.ClimateSummerDeltaP:
+                    case LoadCase.LoadCaseTypes.ClimateSummerDeltaP:
                         return _psi0ClimateSummerDeltaP;
-                    case LoadCase.LoadCaseType.ClimateSummerDeltaT:
+                    case LoadCase.LoadCaseTypes.ClimateSummerDeltaT:
                         return _psi0ClimateSummerDeltaP;
-                    case LoadCase.LoadCaseType.ClimateWinterDeltaP:
+                    case LoadCase.LoadCaseTypes.ClimateWinterDeltaP:
                         return _psi0ClimateWinterDeltaP;
-                    case LoadCase.LoadCaseType.ClimateWinterDeltaT:
+                    case LoadCase.LoadCaseTypes.ClimateWinterDeltaT:
                         return _psi0ClimateWinterDeltaT;
-                    case LoadCase.LoadCaseType.WindPressure:
-                    case LoadCase.LoadCaseType.WindSuction:
+                    case LoadCase.LoadCaseTypes.WindPressure:
+                    case LoadCase.LoadCaseTypes.WindSuction:
                         return _psi0Wind;
-                    case LoadCase.LoadCaseType.Temperature:
+                    case LoadCase.LoadCaseTypes.Temperature:
                         return _psi0Temperature;
                     default:
                         throw new NotImplementedException("Not implemented coefficient for load case type");
@@ -710,7 +710,7 @@ namespace GPC.Model.Combinations
         {
             var loadCaseType = loadCase.GetLoadCaseType();
 
-            if (loadCaseType == LoadCase.LoadCaseType.Snow)
+            if (loadCaseType == LoadCase.LoadCaseTypes.Snow)
             {
                 if (highAltitude)
                     return Psi1SnowHighAltitude;
@@ -719,7 +719,7 @@ namespace GPC.Model.Combinations
                 else
                     throw new NotImplementedException("Failed to set coefficient psi0 for snow load");
             }
-            else if (loadCaseType == LoadCase.LoadCaseType.LiveLoad || loadCaseType == LoadCase.LoadCaseType.Maintenance)
+            else if (loadCaseType == LoadCase.LoadCaseTypes.LiveLoad || loadCaseType == LoadCase.LoadCaseTypes.Maintenance)
             {
                 switch (category)
                 {
@@ -747,22 +747,22 @@ namespace GPC.Model.Combinations
             {
                 switch (loadCaseType)
                 {
-                    case LoadCase.LoadCaseType.SelfWeight:
-                    case LoadCase.LoadCaseType.ClimateSummerDeltaP:
+                    case LoadCase.LoadCaseTypes.SelfWeight:
+                    case LoadCase.LoadCaseTypes.ClimateSummerDeltaP:
                         return _psi1ClimateSummerDeltaP;
-                    case LoadCase.LoadCaseType.ClimateSummerDeltaT:
+                    case LoadCase.LoadCaseTypes.ClimateSummerDeltaT:
                         return _psi1ClimateSummerDeltaP;
-                    case LoadCase.LoadCaseType.ClimateWinterDeltaP:
+                    case LoadCase.LoadCaseTypes.ClimateWinterDeltaP:
                         return _psi1ClimateWinterDeltaP;
-                    case LoadCase.LoadCaseType.ClimateWinterDeltaT:
+                    case LoadCase.LoadCaseTypes.ClimateWinterDeltaT:
                         return _psi1ClimateWinterDeltaT;
-                    case LoadCase.LoadCaseType.Earthquake:
-                    case LoadCase.LoadCaseType.SuperImposedDeadLoad:
+                    case LoadCase.LoadCaseTypes.Earthquake:
+                    case LoadCase.LoadCaseTypes.SuperImposedDeadLoad:
                         throw new ArgumentException("Don't exist coefficient for this load case type");
-                    case LoadCase.LoadCaseType.WindPressure:
-                    case LoadCase.LoadCaseType.WindSuction:
+                    case LoadCase.LoadCaseTypes.WindPressure:
+                    case LoadCase.LoadCaseTypes.WindSuction:
                         return _psi1Wind;
-                    case LoadCase.LoadCaseType.Temperature:
+                    case LoadCase.LoadCaseTypes.Temperature:
                         return _psi1Temperature;
                     default:
                         throw new NotImplementedException("Not implemented coefficient for load case type");
@@ -781,7 +781,7 @@ namespace GPC.Model.Combinations
         {
             var loadCaseType = loadCase.GetLoadCaseType();
 
-            if (loadCaseType == LoadCase.LoadCaseType.Snow)
+            if (loadCaseType == LoadCase.LoadCaseTypes.Snow)
             {
                 if (highAltitude)
                     return Psi2SnowHighAltitude;
@@ -790,7 +790,7 @@ namespace GPC.Model.Combinations
                 else
                     throw new NotImplementedException("Failed to set coefficient psi0 for snow load");
             }
-            else if (loadCaseType == LoadCase.LoadCaseType.LiveLoad || loadCaseType == LoadCase.LoadCaseType.Maintenance)
+            else if (loadCaseType == LoadCase.LoadCaseTypes.LiveLoad || loadCaseType == LoadCase.LoadCaseTypes.Maintenance)
             {
                 switch (category)
                 {
@@ -818,22 +818,22 @@ namespace GPC.Model.Combinations
             {
                 switch (loadCaseType)
                 {
-                    case LoadCase.LoadCaseType.SelfWeight:
-                    case LoadCase.LoadCaseType.SuperImposedDeadLoad:
-                    case LoadCase.LoadCaseType.Earthquake:
+                    case LoadCase.LoadCaseTypes.SelfWeight:
+                    case LoadCase.LoadCaseTypes.SuperImposedDeadLoad:
+                    case LoadCase.LoadCaseTypes.Earthquake:
                         throw new ArgumentException("Don't exist coefficient for this load case type");
-                    case LoadCase.LoadCaseType.ClimateSummerDeltaP:
+                    case LoadCase.LoadCaseTypes.ClimateSummerDeltaP:
                         return _psi2ClimateSummerDeltaP;
-                    case LoadCase.LoadCaseType.ClimateSummerDeltaT:
+                    case LoadCase.LoadCaseTypes.ClimateSummerDeltaT:
                         return _psi2ClimateSummerDeltaP;
-                    case LoadCase.LoadCaseType.ClimateWinterDeltaP:
+                    case LoadCase.LoadCaseTypes.ClimateWinterDeltaP:
                         return _psi2ClimateWinterDeltaP;
-                    case LoadCase.LoadCaseType.ClimateWinterDeltaT:
+                    case LoadCase.LoadCaseTypes.ClimateWinterDeltaT:
                         return _psi2ClimateWinterDeltaT;
-                    case LoadCase.LoadCaseType.WindPressure:
-                    case LoadCase.LoadCaseType.WindSuction:
+                    case LoadCase.LoadCaseTypes.WindPressure:
+                    case LoadCase.LoadCaseTypes.WindSuction:
                         return _psi2Wind;
-                    case LoadCase.LoadCaseType.Temperature:
+                    case LoadCase.LoadCaseTypes.Temperature:
                         return _psi2Temperature;
                     default:
                         throw new NotImplementedException("Not implemented coefficient for load case type");

@@ -19,16 +19,16 @@ namespace ModelObjectTest
             List<LoadCase> loadCases = new List<LoadCase>();
             List<double> coefficients = new List<double>();
 
-            loadCases.Add(new LoadCase("Snow", LoadCase.LoadCaseType.Snow, Guid.NewGuid()));
+            loadCases.Add(new LoadCase("Snow", LoadCase.LoadCaseTypes.Snow, Guid.NewGuid()));
             coefficients.Add(2);
 
-            loadCases.Add(new LoadCase("Live", LoadCase.LoadCaseType.LiveLoad, Guid.NewGuid()));
+            loadCases.Add(new LoadCase("Live", LoadCase.LoadCaseTypes.LiveLoad, Guid.NewGuid()));
             coefficients.Add(1);
 
-            loadCases.Add(new LoadCase("SW", LoadCase.LoadCaseType.SelfWeight, Guid.NewGuid()));
+            loadCases.Add(new LoadCase("SW", LoadCase.LoadCaseTypes.SelfWeight, Guid.NewGuid()));
             coefficients.Add(3);
 
-            loadCases.Add(new LoadCase("SDL", LoadCase.LoadCaseType.SuperImposedDeadLoad, Guid.NewGuid()));
+            loadCases.Add(new LoadCase("SDL", LoadCase.LoadCaseTypes.SuperImposedDeadLoad, Guid.NewGuid()));
             coefficients.Add(4);
 
             StandardEN1990.LimitState limitState = StandardEN1990.LimitState.UltimateEquilibrium;
@@ -57,13 +57,13 @@ namespace ModelObjectTest
             loadCases.Add(new LoadCase("Snow", Guid.NewGuid()));
             coefficients.Add(2);
 
-            loadCases.Add(new LoadCase("Live", LoadCase.LoadCaseType.LiveLoad, Guid.NewGuid()));
+            loadCases.Add(new LoadCase("Live", LoadCase.LoadCaseTypes.LiveLoad, Guid.NewGuid()));
             coefficients.Add(1);
 
             loadCases.Add(new LoadCase("SW", Guid.NewGuid()));
             coefficients.Add(0.5);
 
-            loadCases.Add(new LoadCase("SDL", LoadCase.LoadCaseType.SuperImposedDeadLoad, Guid.NewGuid()));
+            loadCases.Add(new LoadCase("SDL", LoadCase.LoadCaseTypes.SuperImposedDeadLoad, Guid.NewGuid()));
             coefficients.Add(4);
 
             StandardEN1990.LimitState limitState = StandardEN1990.LimitState.UltimateEquilibrium;
@@ -89,16 +89,16 @@ namespace ModelObjectTest
             List<LoadCase> loadCases = new List<LoadCase>();
             List<double> coefficients = new List<double>();
 
-            loadCases.Add(new LoadCase("Snow", LoadCase.LoadCaseType.Snow, Guid.NewGuid()));
+            loadCases.Add(new LoadCase("Snow", LoadCase.LoadCaseTypes.Snow, Guid.NewGuid()));
             coefficients.Add(2);
 
-            loadCases.Add(new LoadCase("Live", LoadCase.LoadCaseType.LiveLoad, Guid.NewGuid()));
+            loadCases.Add(new LoadCase("Live", LoadCase.LoadCaseTypes.LiveLoad, Guid.NewGuid()));
             coefficients.Add(1);
 
-            loadCases.Add(new LoadCase("SW", LoadCase.LoadCaseType.SelfWeight, Guid.NewGuid()));
+            loadCases.Add(new LoadCase("SW", LoadCase.LoadCaseTypes.SelfWeight, Guid.NewGuid()));
             coefficients.Add(0.5);
 
-            LoadCase sdl = new LoadCase("SDL", LoadCase.LoadCaseType.SuperImposedDeadLoad, Guid.NewGuid());
+            LoadCase sdl = new LoadCase("SDL", LoadCase.LoadCaseTypes.SuperImposedDeadLoad, Guid.NewGuid());
             loadCases.Add(sdl);
             coefficients.Add(4);
             loadCases.Add(sdl);
@@ -127,19 +127,19 @@ namespace ModelObjectTest
             List<LoadCase> loadCases = new List<LoadCase>();
             List<double> coefficients = new List<double>();
 
-            loadCases.Add(new LoadCase("Snow", LoadCase.LoadCaseType.Snow, Guid.NewGuid()));
+            loadCases.Add(new LoadCase("Snow", LoadCase.LoadCaseTypes.Snow, Guid.NewGuid()));
             coefficients.Add(2);
 
-            loadCases.Add(new LoadCase("Live", LoadCase.LoadCaseType.LiveLoad, Guid.NewGuid()));
+            loadCases.Add(new LoadCase("Live", LoadCase.LoadCaseTypes.LiveLoad, Guid.NewGuid()));
             coefficients.Add(1);
 
-            loadCases.Add(new LoadCase("SW", LoadCase.LoadCaseType.SelfWeight, Guid.NewGuid()));
+            loadCases.Add(new LoadCase("SW", LoadCase.LoadCaseTypes.SelfWeight, Guid.NewGuid()));
             coefficients.Add(0.5);
 
-            LoadCase sdl = new LoadCase("SDL", LoadCase.LoadCaseType.SuperImposedDeadLoad, Guid.NewGuid());
+            LoadCase sdl = new LoadCase("SDL", LoadCase.LoadCaseTypes.SuperImposedDeadLoad, Guid.NewGuid());
             loadCases.Add(sdl);
             coefficients.Add(4);
-            loadCases.Add(new LoadCase("SDL", LoadCase.LoadCaseType.SuperImposedDeadLoad, Guid.NewGuid()));
+            loadCases.Add(new LoadCase("SDL", LoadCase.LoadCaseTypes.SuperImposedDeadLoad, Guid.NewGuid()));
             coefficients.Add(4);
 
             StandardEN1990.LimitState limitState = StandardEN1990.LimitState.UltimateGeotechnical;
@@ -165,19 +165,19 @@ namespace ModelObjectTest
             List<LoadCase> loadCases = new List<LoadCase>();
             List<double> coefficients = new List<double>();
 
-            loadCases.Add(new LoadCase("Snow", LoadCase.LoadCaseType.Snow));
+            loadCases.Add(new LoadCase("Snow", LoadCase.LoadCaseTypes.Snow));
             coefficients.Add(2);
 
-            loadCases.Add(new LoadCase("Live", LoadCase.LoadCaseType.LiveLoad));
+            loadCases.Add(new LoadCase("Live", LoadCase.LoadCaseTypes.LiveLoad));
             coefficients.Add(1);
 
-            loadCases.Add(new LoadCase("SW", LoadCase.LoadCaseType.SelfWeight));
+            loadCases.Add(new LoadCase("SW", LoadCase.LoadCaseTypes.SelfWeight));
             coefficients.Add(0.5);
 
-            LoadCase sdl = new LoadCase("SDL", LoadCase.LoadCaseType.SuperImposedDeadLoad);
+            LoadCase sdl = new LoadCase("SDL", LoadCase.LoadCaseTypes.SuperImposedDeadLoad);
             loadCases.Add(sdl);
             coefficients.Add(4);
-            loadCases.Add(new LoadCase("SDL", LoadCase.LoadCaseType.SuperImposedDeadLoad));
+            loadCases.Add(new LoadCase("SDL", LoadCase.LoadCaseTypes.SuperImposedDeadLoad));
             coefficients.Add(4);
 
 
@@ -185,7 +185,7 @@ namespace ModelObjectTest
 
             combination.AddLoadCaseCoefficients(loadCases, coefficients);
 
-            combination.AddLoadCaseCoefficient(new LoadCase("Zero", LoadCase.LoadCaseType.Earthquake), 0);
+            combination.AddLoadCaseCoefficient(new LoadCase("Zero", LoadCase.LoadCaseTypes.Earthquake), 0);
 
             // Act
             string combinationName = combination.ToString();
@@ -196,7 +196,7 @@ namespace ModelObjectTest
             Console.WriteLine(combinationName);
             Assert.IsTrue(combination[sdl] == 8, combinationName);
             Assert.IsTrue(combination[new LoadCase("test")] == 0, combinationName);
-            Assert.IsTrue(combination[new LoadCase("Zero", LoadCase.LoadCaseType.Earthquake)] == 0, combinationName);
+            Assert.IsTrue(combination[new LoadCase("Zero", LoadCase.LoadCaseTypes.Earthquake)] == 0, combinationName);
             Assert.IsTrue(splitted[0].Contains("SW"), combinationName);
             Assert.IsFalse(splitted[0].Contains("Zero"), combinationName);
         }
@@ -208,12 +208,12 @@ namespace ModelObjectTest
 
             CombinationAsce combination = new CombinationAsce("cmb1", CombinationAsce.CombinationType.LFRD);
             
-            var lc1 = new LoadCase("LC1", LoadCase.LoadCaseType.SelfWeight);
-            var lc2 = new LoadCase("LC2", LoadCase.LoadCaseType.SuperImposedDeadLoad);
-            var lc3 = new LoadCase("LC3", LoadCase.LoadCaseType.ClimateSummerDeltaH);
-            var lc4 = new LoadCase("LC4", LoadCase.LoadCaseType.Maintenance);
-            var lc5 = new LoadCase("LC5", LoadCase.LoadCaseType.LiveLoad);
-            var lc6 = new LoadCase("LC6", LoadCase.LoadCaseType.Snow);
+            var lc1 = new LoadCase("LC1", LoadCase.LoadCaseTypes.SelfWeight);
+            var lc2 = new LoadCase("LC2", LoadCase.LoadCaseTypes.SuperImposedDeadLoad);
+            var lc3 = new LoadCase("LC3", LoadCase.LoadCaseTypes.ClimateSummerDeltaH);
+            var lc4 = new LoadCase("LC4", LoadCase.LoadCaseTypes.Maintenance);
+            var lc5 = new LoadCase("LC5", LoadCase.LoadCaseTypes.LiveLoad);
+            var lc6 = new LoadCase("LC6", LoadCase.LoadCaseTypes.Snow);
 
             combination.AddLoadCaseCoefficient(lc1, 1);
             combination.AddLoadCaseCoefficient(lc2, 2);
@@ -239,12 +239,12 @@ namespace ModelObjectTest
 
             CombinationAsce combination = new CombinationAsce("cmb1", CombinationAsce.CombinationType.LFRD);
 
-            var lc1 = new LoadCase("LC1", LoadCase.LoadCaseType.SelfWeight);
-            var lc2 = new LoadCase("LC2", LoadCase.LoadCaseType.SuperImposedDeadLoad);
-            var lc3 = new LoadCase("LC3", LoadCase.LoadCaseType.ClimateSummerDeltaH);
-            var lc4 = new LoadCase("LC4", LoadCase.LoadCaseType.Maintenance);
-            var lc5 = new LoadCase("LC5", LoadCase.LoadCaseType.LiveLoad);
-            var lc6 = new LoadCase("LC6", LoadCase.LoadCaseType.Snow);
+            var lc1 = new LoadCase("LC1", LoadCase.LoadCaseTypes.SelfWeight);
+            var lc2 = new LoadCase("LC2", LoadCase.LoadCaseTypes.SuperImposedDeadLoad);
+            var lc3 = new LoadCase("LC3", LoadCase.LoadCaseTypes.ClimateSummerDeltaH);
+            var lc4 = new LoadCase("LC4", LoadCase.LoadCaseTypes.Maintenance);
+            var lc5 = new LoadCase("LC5", LoadCase.LoadCaseTypes.LiveLoad);
+            var lc6 = new LoadCase("LC6", LoadCase.LoadCaseTypes.Snow);
 
             combination.AddLoadCaseCoefficient(lc1, 1);
             combination.AddLoadCaseCoefficient(lc2, 2);
@@ -285,12 +285,12 @@ namespace ModelObjectTest
 
             CombinationAsce combination = new CombinationAsce("cmb1", CombinationAsce.CombinationType.LFRD);
 
-            var lc1 = new LoadCase("LC1", LoadCase.LoadCaseType.SelfWeight);
-            var lc2 = new LoadCase("LC2", LoadCase.LoadCaseType.SuperImposedDeadLoad);
-            var lc3 = new LoadCase("LC3", LoadCase.LoadCaseType.ClimateSummerDeltaH);
-            var lc4 = new LoadCase("LC4", LoadCase.LoadCaseType.Maintenance);
-            var lc5 = new LoadCase("LC5", LoadCase.LoadCaseType.LiveLoad);
-            var lc6 = new LoadCase("LC6", LoadCase.LoadCaseType.Snow);
+            var lc1 = new LoadCase("LC1", LoadCase.LoadCaseTypes.SelfWeight);
+            var lc2 = new LoadCase("LC2", LoadCase.LoadCaseTypes.SuperImposedDeadLoad);
+            var lc3 = new LoadCase("LC3", LoadCase.LoadCaseTypes.ClimateSummerDeltaH);
+            var lc4 = new LoadCase("LC4", LoadCase.LoadCaseTypes.Maintenance);
+            var lc5 = new LoadCase("LC5", LoadCase.LoadCaseTypes.LiveLoad);
+            var lc6 = new LoadCase("LC6", LoadCase.LoadCaseTypes.Snow);
 
             combination.AddLoadCaseCoefficient(lc1, 1);
             combination.AddLoadCaseCoefficient(lc2, 2);
@@ -332,12 +332,12 @@ namespace ModelObjectTest
 
             CombinationAsce combination5 = new CombinationAsce("cmb1", CombinationAsce.CombinationType.LFRD);
 
-            var lc1 = new LoadCase("LC1", LoadCase.LoadCaseType.SelfWeight);
-            var lc2 = new LoadCase("LC2", LoadCase.LoadCaseType.SuperImposedDeadLoad);
-            var lc3 = new LoadCase("LC3", LoadCase.LoadCaseType.ClimateSummerDeltaH);
-            var lc4 = new LoadCase("LC4", LoadCase.LoadCaseType.Maintenance);
-            var lc5 = new LoadCase("LC5", LoadCase.LoadCaseType.LiveLoad);
-            var lc6 = new LoadCase("LC6", LoadCase.LoadCaseType.Snow);
+            var lc1 = new LoadCase("LC1", LoadCase.LoadCaseTypes.SelfWeight);
+            var lc2 = new LoadCase("LC2", LoadCase.LoadCaseTypes.SuperImposedDeadLoad);
+            var lc3 = new LoadCase("LC3", LoadCase.LoadCaseTypes.ClimateSummerDeltaH);
+            var lc4 = new LoadCase("LC4", LoadCase.LoadCaseTypes.Maintenance);
+            var lc5 = new LoadCase("LC5", LoadCase.LoadCaseTypes.LiveLoad);
+            var lc6 = new LoadCase("LC6", LoadCase.LoadCaseTypes.Snow);
 
             combination1.AddLoadCaseCoefficient(lc1, 1);
             combination1.AddLoadCaseCoefficient(lc2, 2);
@@ -390,13 +390,13 @@ namespace ModelObjectTest
         {
             // Arrange
             string loadCaseName1 = "selfWeight";
-            LoadCase selfWeightLoadCase = new LoadCase(loadCaseName1, LoadCase.LoadCaseType.SelfWeight);
+            LoadCase selfWeightLoadCase = new LoadCase(loadCaseName1, LoadCase.LoadCaseTypes.SelfWeight);
             string loadCaseName2 = "WindPressure";
-            LoadCase WindPressureLoadCase = new LoadCase(loadCaseName2, LoadCase.LoadCaseType.WindPressure);
+            LoadCase WindPressureLoadCase = new LoadCase(loadCaseName2, LoadCase.LoadCaseTypes.WindPressure);
             string loadCaseName3 = "Snow";
-            LoadCase snowLoadCase = new LoadCase(loadCaseName3, LoadCase.LoadCaseType.Snow);
+            LoadCase snowLoadCase = new LoadCase(loadCaseName3, LoadCase.LoadCaseTypes.Snow);
             string loadCaseName4 = "PreStress";
-            LoadCase prestressLoadCase = new LoadCase(loadCaseName4, LoadCase.LoadCaseType.Prestress);
+            LoadCase prestressLoadCase = new LoadCase(loadCaseName4, LoadCase.LoadCaseTypes.Prestress);
 
             List<LoadCase> loadCaseList = new List<LoadCase>
             {
@@ -433,13 +433,13 @@ namespace ModelObjectTest
         {
             // Arrange
             string loadCaseName1 = "selfWeight";
-            LoadCase selfWeightLoadCase = new LoadCase(loadCaseName1, LoadCase.LoadCaseType.SelfWeight);
+            LoadCase selfWeightLoadCase = new LoadCase(loadCaseName1, LoadCase.LoadCaseTypes.SelfWeight);
             string loadCaseName2 = "WindPressure";
-            LoadCase WindPressureLoadCase = new LoadCase(loadCaseName2, LoadCase.LoadCaseType.WindPressure);
+            LoadCase WindPressureLoadCase = new LoadCase(loadCaseName2, LoadCase.LoadCaseTypes.WindPressure);
             string loadCaseName3 = "Snow";
-            LoadCase snowLoadCase = new LoadCase(loadCaseName3, LoadCase.LoadCaseType.Snow);
+            LoadCase snowLoadCase = new LoadCase(loadCaseName3, LoadCase.LoadCaseTypes.Snow);
             string loadCaseName4 = "PreStress";
-            LoadCase prestressLoadCase = new LoadCase(loadCaseName4, LoadCase.LoadCaseType.Prestress);
+            LoadCase prestressLoadCase = new LoadCase(loadCaseName4, LoadCase.LoadCaseTypes.Prestress);
 
             List<LoadCase> loadCaseList = new List<LoadCase>
             {
@@ -476,13 +476,13 @@ namespace ModelObjectTest
         {
             // Arrange
             string loadCaseName1 = "selfWeight";
-            LoadCase selfWeightLoadCase = new LoadCase(loadCaseName1, LoadCase.LoadCaseType.SelfWeight);
+            LoadCase selfWeightLoadCase = new LoadCase(loadCaseName1, LoadCase.LoadCaseTypes.SelfWeight);
             string loadCaseName2 = "WindPressure";
-            LoadCase WindPressureLoadCase = new LoadCase(loadCaseName2, LoadCase.LoadCaseType.WindPressure);
+            LoadCase WindPressureLoadCase = new LoadCase(loadCaseName2, LoadCase.LoadCaseTypes.WindPressure);
             string loadCaseName3 = "Snow";
-            LoadCase snowLoadCase = new LoadCase(loadCaseName3, LoadCase.LoadCaseType.Snow);
+            LoadCase snowLoadCase = new LoadCase(loadCaseName3, LoadCase.LoadCaseTypes.Snow);
             string loadCaseName4 = "PreStress";
-            LoadCase prestressLoadCase = new LoadCase(loadCaseName4, LoadCase.LoadCaseType.Prestress);
+            LoadCase prestressLoadCase = new LoadCase(loadCaseName4, LoadCase.LoadCaseTypes.Prestress);
 
             List<LoadCase> loadCaseList = new List<LoadCase>
             {
@@ -519,13 +519,13 @@ namespace ModelObjectTest
         {
             // Arrange
             string loadCaseName1 = "selfWeight";
-            LoadCase selfWeightLoadCase = new LoadCase(loadCaseName1, LoadCase.LoadCaseType.SelfWeight);
+            LoadCase selfWeightLoadCase = new LoadCase(loadCaseName1, LoadCase.LoadCaseTypes.SelfWeight);
             string loadCaseName2 = "WindPressure";
-            LoadCase WindPressureLoadCase = new LoadCase(loadCaseName2, LoadCase.LoadCaseType.WindPressure);
+            LoadCase WindPressureLoadCase = new LoadCase(loadCaseName2, LoadCase.LoadCaseTypes.WindPressure);
             string loadCaseName3 = "Snow";
-            LoadCase snowLoadCase = new LoadCase(loadCaseName3, LoadCase.LoadCaseType.Snow);
+            LoadCase snowLoadCase = new LoadCase(loadCaseName3, LoadCase.LoadCaseTypes.Snow);
             string loadCaseName4 = "PreStress";
-            LoadCase prestressLoadCase = new LoadCase(loadCaseName4, LoadCase.LoadCaseType.Prestress);
+            LoadCase prestressLoadCase = new LoadCase(loadCaseName4, LoadCase.LoadCaseTypes.Prestress);
 
             List<LoadCase> loadCaseList = new List<LoadCase>
             {
@@ -561,13 +561,13 @@ namespace ModelObjectTest
         {
             // Arrange
             string loadCaseName1 = "selfWeight";
-            LoadCase selfWeightLoadCase = new LoadCase(loadCaseName1, LoadCase.LoadCaseType.SuperImposedDeadLoad);
+            LoadCase selfWeightLoadCase = new LoadCase(loadCaseName1, LoadCase.LoadCaseTypes.SuperImposedDeadLoad);
             string loadCaseName2 = "WindPressure";
-            LoadCase WindPressureLoadCase = new LoadCase(loadCaseName2, LoadCase.LoadCaseType.WindPressure);
+            LoadCase WindPressureLoadCase = new LoadCase(loadCaseName2, LoadCase.LoadCaseTypes.WindPressure);
             string loadCaseName3 = "Snow";
-            LoadCase snowLoadCase = new LoadCase(loadCaseName3, LoadCase.LoadCaseType.Snow);
+            LoadCase snowLoadCase = new LoadCase(loadCaseName3, LoadCase.LoadCaseTypes.Snow);
             string loadCaseName4 = "PreStress";
-            LoadCase prestressLoadCase = new LoadCase(loadCaseName4, LoadCase.LoadCaseType.Prestress);
+            LoadCase prestressLoadCase = new LoadCase(loadCaseName4, LoadCase.LoadCaseTypes.Prestress);
 
             List<LoadCase> loadCaseList = new List<LoadCase>
             {
@@ -603,13 +603,13 @@ namespace ModelObjectTest
         {
             // Arrange
             string loadCaseName1 = "selfWeight";
-            LoadCase selfWeightLoadCase = new LoadCase(loadCaseName1, LoadCase.LoadCaseType.SelfWeight);
+            LoadCase selfWeightLoadCase = new LoadCase(loadCaseName1, LoadCase.LoadCaseTypes.SelfWeight);
             string loadCaseName2 = "Temperature";
-            LoadCase temperatureLoadCase = new LoadCase(loadCaseName2, LoadCase.LoadCaseType.Temperature);
+            LoadCase temperatureLoadCase = new LoadCase(loadCaseName2, LoadCase.LoadCaseTypes.Temperature);
             string loadCaseName3 = "Snow";
-            LoadCase snowLoadCase = new LoadCase(loadCaseName3, LoadCase.LoadCaseType.Snow);
+            LoadCase snowLoadCase = new LoadCase(loadCaseName3, LoadCase.LoadCaseTypes.Snow);
             string loadCaseName4 = "PreStress";
-            LoadCase prestressLoadCase = new LoadCase(loadCaseName4, LoadCase.LoadCaseType.Prestress);
+            LoadCase prestressLoadCase = new LoadCase(loadCaseName4, LoadCase.LoadCaseTypes.Prestress);
 
             List<LoadCase> loadCaseList = new List<LoadCase>
             {
@@ -645,13 +645,13 @@ namespace ModelObjectTest
         {
             // Arrange
             string loadCaseName1 = "selfWeight";
-            LoadCase selfWeightLoadCase = new LoadCase(loadCaseName1, LoadCase.LoadCaseType.SelfWeight);
+            LoadCase selfWeightLoadCase = new LoadCase(loadCaseName1, LoadCase.LoadCaseTypes.SelfWeight);
             string loadCaseName2 = "WindPressure";
-            LoadCase WindPressureLoadCase = new LoadCase(loadCaseName2, LoadCase.LoadCaseType.WindPressure);
+            LoadCase WindPressureLoadCase = new LoadCase(loadCaseName2, LoadCase.LoadCaseTypes.WindPressure);
             string loadCaseName3 = "Snow";
-            LoadCase snowLoadCase = new LoadCase(loadCaseName3, LoadCase.LoadCaseType.Snow);
+            LoadCase snowLoadCase = new LoadCase(loadCaseName3, LoadCase.LoadCaseTypes.Snow);
             string loadCaseName4 = "PreStress";
-            LoadCase prestressLoadCase = new LoadCase(loadCaseName4, LoadCase.LoadCaseType.Prestress);
+            LoadCase prestressLoadCase = new LoadCase(loadCaseName4, LoadCase.LoadCaseTypes.Prestress);
 
             List<LoadCase> loadCaseList = new List<LoadCase>
             {
@@ -687,13 +687,13 @@ namespace ModelObjectTest
         {
             // Arrange
             string loadCaseName1 = "selfWeight";
-            LoadCase selfWeightLoadCase = new LoadCase(loadCaseName1, LoadCase.LoadCaseType.SelfWeight);
+            LoadCase selfWeightLoadCase = new LoadCase(loadCaseName1, LoadCase.LoadCaseTypes.SelfWeight);
             string loadCaseName2 = "WindPressure";
-            LoadCase WindPressureLoadCase = new LoadCase(loadCaseName2, LoadCase.LoadCaseType.WindPressure);
+            LoadCase WindPressureLoadCase = new LoadCase(loadCaseName2, LoadCase.LoadCaseTypes.WindPressure);
             string loadCaseName3 = "Snow";
-            LoadCase snowLoadCase = new LoadCase(loadCaseName3, LoadCase.LoadCaseType.Snow);
+            LoadCase snowLoadCase = new LoadCase(loadCaseName3, LoadCase.LoadCaseTypes.Snow);
             string loadCaseName4 = "PreStress";
-            LoadCase prestressLoadCase = new LoadCase(loadCaseName4, LoadCase.LoadCaseType.Prestress);
+            LoadCase prestressLoadCase = new LoadCase(loadCaseName4, LoadCase.LoadCaseTypes.Prestress);
 
             List<LoadCase> loadCaseList = new List<LoadCase>
             {
@@ -729,13 +729,13 @@ namespace ModelObjectTest
         {
             // Arrange
             string loadCaseName1 = "selfWeight";
-            LoadCase selfWeightLoadCase = new LoadCase(loadCaseName1, LoadCase.LoadCaseType.SelfWeight);
+            LoadCase selfWeightLoadCase = new LoadCase(loadCaseName1, LoadCase.LoadCaseTypes.SelfWeight);
             string loadCaseName2 = "WindPressure";
-            LoadCase WindPressureLoadCase = new LoadCase(loadCaseName2, LoadCase.LoadCaseType.WindPressure);
+            LoadCase WindPressureLoadCase = new LoadCase(loadCaseName2, LoadCase.LoadCaseTypes.WindPressure);
             string loadCaseName3 = "Snow";
-            LoadCase snowLoadCase = new LoadCase(loadCaseName3, LoadCase.LoadCaseType.Snow);
+            LoadCase snowLoadCase = new LoadCase(loadCaseName3, LoadCase.LoadCaseTypes.Snow);
             string loadCaseName4 = "PreStress";
-            LoadCase prestressLoadCase = new LoadCase(loadCaseName4, LoadCase.LoadCaseType.Prestress);
+            LoadCase prestressLoadCase = new LoadCase(loadCaseName4, LoadCase.LoadCaseTypes.Prestress);
 
             List<LoadCase> loadCaseList = new List<LoadCase>
             {
@@ -771,13 +771,13 @@ namespace ModelObjectTest
         {
             // Arrange
             string loadCaseName1 = "selfWeight";
-            LoadCase selfWeightLoadCase = new LoadCase(loadCaseName1, LoadCase.LoadCaseType.SelfWeight);
+            LoadCase selfWeightLoadCase = new LoadCase(loadCaseName1, LoadCase.LoadCaseTypes.SelfWeight);
             string loadCaseName2 = "WindPressure1";
-            LoadCase WindPressureLoadCase = new LoadCase(loadCaseName2, LoadCase.LoadCaseType.WindPressure);
+            LoadCase WindPressureLoadCase = new LoadCase(loadCaseName2, LoadCase.LoadCaseTypes.WindPressure);
             string loadCaseName3 = "Snow";
-            LoadCase snowLoadCase = new LoadCase(loadCaseName3, LoadCase.LoadCaseType.Snow);
+            LoadCase snowLoadCase = new LoadCase(loadCaseName3, LoadCase.LoadCaseTypes.Snow);
             string loadCaseName4 = "WindPressure2";
-            LoadCase WindPressureLoadCase2 = new LoadCase(loadCaseName4, LoadCase.LoadCaseType.WindPressure);
+            LoadCase WindPressureLoadCase2 = new LoadCase(loadCaseName4, LoadCase.LoadCaseTypes.WindPressure);
 
             List<LoadCase> loadCaseList = new List<LoadCase>
             {
@@ -816,13 +816,13 @@ namespace ModelObjectTest
         {
             // Arrange
             string loadCaseName1 = "selfWeight";
-            LoadCase selfWeightLoadCase = new LoadCase(loadCaseName1, LoadCase.LoadCaseType.SelfWeight);
+            LoadCase selfWeightLoadCase = new LoadCase(loadCaseName1, LoadCase.LoadCaseTypes.SelfWeight);
             string loadCaseName2 = "WindPressure";
-            LoadCase WindPressureLoadCase = new LoadCase(loadCaseName2, LoadCase.LoadCaseType.WindPressure);
+            LoadCase WindPressureLoadCase = new LoadCase(loadCaseName2, LoadCase.LoadCaseTypes.WindPressure);
             string loadCaseName3 = "Snow";
-            LoadCase snowLoadCase = new LoadCase(loadCaseName3, LoadCase.LoadCaseType.Snow);
+            LoadCase snowLoadCase = new LoadCase(loadCaseName3, LoadCase.LoadCaseTypes.Snow);
             string loadCaseName4 = "PreStress";
-            LoadCase prestressLoadCase = new LoadCase(loadCaseName4, LoadCase.LoadCaseType.Prestress);
+            LoadCase prestressLoadCase = new LoadCase(loadCaseName4, LoadCase.LoadCaseTypes.Prestress);
 
             List<LoadCase> loadCaseList = new List<LoadCase>
             {
@@ -859,13 +859,13 @@ namespace ModelObjectTest
         {
             // Arrange
             string loadCaseName1 = "SuperImposedDeadLoad";
-            LoadCase superImposedDeadLoadLoadCase = new LoadCase(loadCaseName1, LoadCase.LoadCaseType.SuperImposedDeadLoad);
+            LoadCase superImposedDeadLoadLoadCase = new LoadCase(loadCaseName1, LoadCase.LoadCaseTypes.SuperImposedDeadLoad);
             string loadCaseName2 = "WindPressure";
-            LoadCase WindPressureLoadCase = new LoadCase(loadCaseName2, LoadCase.LoadCaseType.Temperature);
+            LoadCase WindPressureLoadCase = new LoadCase(loadCaseName2, LoadCase.LoadCaseTypes.Temperature);
             string loadCaseName3 = "Snow";
-            LoadCase snowLoadCase = new LoadCase(loadCaseName3, LoadCase.LoadCaseType.Snow);
+            LoadCase snowLoadCase = new LoadCase(loadCaseName3, LoadCase.LoadCaseTypes.Snow);
             string loadCaseName4 = "PreStress";
-            LoadCase prestressLoadCase = new LoadCase(loadCaseName4, LoadCase.LoadCaseType.Prestress);
+            LoadCase prestressLoadCase = new LoadCase(loadCaseName4, LoadCase.LoadCaseTypes.Prestress);
 
             List<LoadCase> loadCaseList = new List<LoadCase>
             {
@@ -902,13 +902,13 @@ namespace ModelObjectTest
         {
             // Arrange
             string loadCaseName1 = "selfWeight";
-            LoadCase selfWeightLoadCase = new LoadCase(loadCaseName1, LoadCase.LoadCaseType.SelfWeight);
+            LoadCase selfWeightLoadCase = new LoadCase(loadCaseName1, LoadCase.LoadCaseTypes.SelfWeight);
             string loadCaseName2 = "WindPressure";
-            LoadCase WindPressureLoadCase = new LoadCase(loadCaseName2, LoadCase.LoadCaseType.WindPressure);
+            LoadCase WindPressureLoadCase = new LoadCase(loadCaseName2, LoadCase.LoadCaseTypes.WindPressure);
             string loadCaseName3 = "Snow";
-            LoadCase snowLoadCase = new LoadCase(loadCaseName3, LoadCase.LoadCaseType.Snow);
+            LoadCase snowLoadCase = new LoadCase(loadCaseName3, LoadCase.LoadCaseTypes.Snow);
             string loadCaseName4 = "PreStress";
-            LoadCase prestressLoadCase = new LoadCase(loadCaseName4, LoadCase.LoadCaseType.Prestress);
+            LoadCase prestressLoadCase = new LoadCase(loadCaseName4, LoadCase.LoadCaseTypes.Prestress);
 
             List<LoadCase> loadCaseList = new List<LoadCase>
             {
@@ -941,13 +941,13 @@ namespace ModelObjectTest
         {
             // Arrange
             string loadCaseName1 = "selfWeight";
-            LoadCase selfWeightLoadCase = new LoadCase(loadCaseName1, LoadCase.LoadCaseType.SelfWeight);
+            LoadCase selfWeightLoadCase = new LoadCase(loadCaseName1, LoadCase.LoadCaseTypes.SelfWeight);
             string loadCaseName2 = "WindPressure";
-            LoadCase WindPressureLoadCase = new LoadCase(loadCaseName2, LoadCase.LoadCaseType.WindPressure);
+            LoadCase WindPressureLoadCase = new LoadCase(loadCaseName2, LoadCase.LoadCaseTypes.WindPressure);
             string loadCaseName3 = "Snow";
-            LoadCase snowLoadCase = new LoadCase(loadCaseName3, LoadCase.LoadCaseType.Snow);
+            LoadCase snowLoadCase = new LoadCase(loadCaseName3, LoadCase.LoadCaseTypes.Snow);
             string loadCaseName4 = "PreStress";
-            LoadCase prestressLoadCase = new LoadCase(loadCaseName4, LoadCase.LoadCaseType.Prestress);
+            LoadCase prestressLoadCase = new LoadCase(loadCaseName4, LoadCase.LoadCaseTypes.Prestress);
 
             List<LoadCase> loadCaseList = new List<LoadCase>
             {
@@ -980,13 +980,13 @@ namespace ModelObjectTest
         {
             // Arrange
             string loadCaseName1 = "selfWeight";
-            LoadCase selfWeightLoadCase = new LoadCase(loadCaseName1, LoadCase.LoadCaseType.SelfWeight);
+            LoadCase selfWeightLoadCase = new LoadCase(loadCaseName1, LoadCase.LoadCaseTypes.SelfWeight);
             string loadCaseName2 = "WindPressure";
-            LoadCase WindPressureLoadCase = new LoadCase(loadCaseName2, LoadCase.LoadCaseType.WindPressure);
+            LoadCase WindPressureLoadCase = new LoadCase(loadCaseName2, LoadCase.LoadCaseTypes.WindPressure);
             string loadCaseName3 = "Snow";
-            LoadCase snowLoadCase = new LoadCase(loadCaseName3, LoadCase.LoadCaseType.Snow);
+            LoadCase snowLoadCase = new LoadCase(loadCaseName3, LoadCase.LoadCaseTypes.Snow);
             string loadCaseName4 = "PreStress";
-            LoadCase prestressLoadCase = new LoadCase(loadCaseName4, LoadCase.LoadCaseType.Prestress);
+            LoadCase prestressLoadCase = new LoadCase(loadCaseName4, LoadCase.LoadCaseTypes.Prestress);
 
             List<LoadCase> loadCaseList = new List<LoadCase>
             {
@@ -1019,21 +1019,21 @@ namespace ModelObjectTest
         {
             // Arrange
             string loadCaseName1 = "selfWeight";
-            LoadCase selfWeightLoadCase = new LoadCase(loadCaseName1, LoadCase.LoadCaseType.SelfWeight);
+            LoadCase selfWeightLoadCase = new LoadCase(loadCaseName1, LoadCase.LoadCaseTypes.SelfWeight);
             string loadCaseName5 = "selfWeight2";
-            LoadCase selfWeightLoadCase2 = new LoadCase(loadCaseName5, LoadCase.LoadCaseType.SelfWeight);
+            LoadCase selfWeightLoadCase2 = new LoadCase(loadCaseName5, LoadCase.LoadCaseTypes.SelfWeight);
             string loadCaseName2 = "WindPressure1";
-            LoadCase WindPressureLoadCase1 = new LoadCase(loadCaseName2, LoadCase.LoadCaseType.WindPressure);
+            LoadCase WindPressureLoadCase1 = new LoadCase(loadCaseName2, LoadCase.LoadCaseTypes.WindPressure);
             string loadCaseName4 = "WindPressure2";
-            LoadCase WindPressureLoadCase2 = new LoadCase(loadCaseName4, LoadCase.LoadCaseType.WindPressure);
+            LoadCase WindPressureLoadCase2 = new LoadCase(loadCaseName4, LoadCase.LoadCaseTypes.WindPressure);
             string loadCaseName8 = "WindPressure3";
-            LoadCase WindPressureLoadCase4 = new LoadCase(loadCaseName8, LoadCase.LoadCaseType.WindPressure);
+            LoadCase WindPressureLoadCase4 = new LoadCase(loadCaseName8, LoadCase.LoadCaseTypes.WindPressure);
             string loadCaseName6 = "WindPressure4";
-            LoadCase WindPressureLoadCase3 = new LoadCase(loadCaseName6, LoadCase.LoadCaseType.WindPressure);
+            LoadCase WindPressureLoadCase3 = new LoadCase(loadCaseName6, LoadCase.LoadCaseTypes.WindPressure);
             string loadCaseName7 = "Snow2";
-            LoadCase snowLoadCase2 = new LoadCase(loadCaseName7, LoadCase.LoadCaseType.Snow);
+            LoadCase snowLoadCase2 = new LoadCase(loadCaseName7, LoadCase.LoadCaseTypes.Snow);
             string loadCaseName3 = "Snow1";
-            LoadCase snowLoadCase1 = new LoadCase(loadCaseName3, LoadCase.LoadCaseType.Snow);
+            LoadCase snowLoadCase1 = new LoadCase(loadCaseName3, LoadCase.LoadCaseTypes.Snow);
 
 
             List<LoadCase> loadCaseList = new List<LoadCase>
@@ -1094,21 +1094,21 @@ namespace ModelObjectTest
         {
             // Arrange
             string loadCaseName1 = "selfWeight";
-            LoadCase selfWeightLoadCase = new LoadCase(loadCaseName1, LoadCase.LoadCaseType.SelfWeight);
+            LoadCase selfWeightLoadCase = new LoadCase(loadCaseName1, LoadCase.LoadCaseTypes.SelfWeight);
             string loadCaseName5 = "selfWeight2";
-            LoadCase selfWeightLoadCase2 = new LoadCase(loadCaseName5, LoadCase.LoadCaseType.SelfWeight);
+            LoadCase selfWeightLoadCase2 = new LoadCase(loadCaseName5, LoadCase.LoadCaseTypes.SelfWeight);
             string loadCaseName2 = "WindPressure1";
-            LoadCase WindPressureLoadCase1 = new LoadCase(loadCaseName2, LoadCase.LoadCaseType.WindPressure);
+            LoadCase WindPressureLoadCase1 = new LoadCase(loadCaseName2, LoadCase.LoadCaseTypes.WindPressure);
             string loadCaseName4 = "WindPressure2";
-            LoadCase WindPressureLoadCase2 = new LoadCase(loadCaseName4, LoadCase.LoadCaseType.WindPressure);
+            LoadCase WindPressureLoadCase2 = new LoadCase(loadCaseName4, LoadCase.LoadCaseTypes.WindPressure);
             string loadCaseName8 = "Temperature1";
-            LoadCase temperatureLoadCase4 = new LoadCase(loadCaseName8, LoadCase.LoadCaseType.Temperature);
+            LoadCase temperatureLoadCase4 = new LoadCase(loadCaseName8, LoadCase.LoadCaseTypes.Temperature);
             string loadCaseName6 = "Temperature2";
-            LoadCase temperatureLoadCase3 = new LoadCase(loadCaseName6, LoadCase.LoadCaseType.Temperature);
+            LoadCase temperatureLoadCase3 = new LoadCase(loadCaseName6, LoadCase.LoadCaseTypes.Temperature);
             string loadCaseName7 = "Snow2";
-            LoadCase snowLoadCase2 = new LoadCase(loadCaseName7, LoadCase.LoadCaseType.Snow);
+            LoadCase snowLoadCase2 = new LoadCase(loadCaseName7, LoadCase.LoadCaseTypes.Snow);
             string loadCaseName3 = "Snow1";
-            LoadCase snowLoadCase1 = new LoadCase(loadCaseName3, LoadCase.LoadCaseType.Snow);
+            LoadCase snowLoadCase1 = new LoadCase(loadCaseName3, LoadCase.LoadCaseTypes.Snow);
 
 
             List<LoadCase> loadCaseList = new List<LoadCase>
@@ -1189,13 +1189,13 @@ namespace ModelObjectTest
         {
             // Arrange
             string loadCaseName1 = "selfWeight";
-            LoadCase selfWeightLoadCase = new LoadCase(loadCaseName1, LoadCase.LoadCaseType.SelfWeight);
+            LoadCase selfWeightLoadCase = new LoadCase(loadCaseName1, LoadCase.LoadCaseTypes.SelfWeight);
             string loadCaseName5 = "WindPressure1";
-            LoadCase windPressureLoadCase1 = new LoadCase(loadCaseName5, LoadCase.LoadCaseType.WindPressure);
+            LoadCase windPressureLoadCase1 = new LoadCase(loadCaseName5, LoadCase.LoadCaseTypes.WindPressure);
             string loadCaseName2 = "WindPressure2";
-            LoadCase windPressureLoadCase2 = new LoadCase(loadCaseName2, LoadCase.LoadCaseType.WindPressure);
+            LoadCase windPressureLoadCase2 = new LoadCase(loadCaseName2, LoadCase.LoadCaseTypes.WindPressure);
             string loadCaseName4 = "WindSuction1";
-            LoadCase windSuctionLoadCase1 = new LoadCase(loadCaseName4, LoadCase.LoadCaseType.WindSuction);
+            LoadCase windSuctionLoadCase1 = new LoadCase(loadCaseName4, LoadCase.LoadCaseTypes.WindSuction);
 
             List<LoadCase> loadCaseList = new List<LoadCase>
             {
@@ -1234,21 +1234,21 @@ namespace ModelObjectTest
         {
             // Arrange
             string loadCaseName1 = "selfWeight";
-            LoadCase selfWeightLoadCase = new LoadCase(loadCaseName1, LoadCase.LoadCaseType.SelfWeight);
+            LoadCase selfWeightLoadCase = new LoadCase(loadCaseName1, LoadCase.LoadCaseTypes.SelfWeight);
             string loadCaseName5 = "WindPressure1";
-            LoadCase windPressureLoadCase1 = new LoadCase(loadCaseName5, LoadCase.LoadCaseType.WindPressure);
+            LoadCase windPressureLoadCase1 = new LoadCase(loadCaseName5, LoadCase.LoadCaseTypes.WindPressure);
             string loadCaseName2 = "WindPressure2";
-            LoadCase windPressureLoadCase2 = new LoadCase(loadCaseName2, LoadCase.LoadCaseType.WindPressure);
+            LoadCase windPressureLoadCase2 = new LoadCase(loadCaseName2, LoadCase.LoadCaseTypes.WindPressure);
             string loadCaseName4 = "WindSuction1";
-            LoadCase windSuctionLoadCase1 = new LoadCase(loadCaseName4, LoadCase.LoadCaseType.WindSuction);
+            LoadCase windSuctionLoadCase1 = new LoadCase(loadCaseName4, LoadCase.LoadCaseTypes.WindSuction);
             string loadCaseName8 = "WindSuction2";
-            LoadCase windSuctionLoadCase2 = new LoadCase(loadCaseName8, LoadCase.LoadCaseType.WindSuction);
+            LoadCase windSuctionLoadCase2 = new LoadCase(loadCaseName8, LoadCase.LoadCaseTypes.WindSuction);
             string loadCaseName6 = "Temperature2";
-            LoadCase temperatureLoadCase1 = new LoadCase(loadCaseName6, LoadCase.LoadCaseType.Temperature);
+            LoadCase temperatureLoadCase1 = new LoadCase(loadCaseName6, LoadCase.LoadCaseTypes.Temperature);
             string loadCaseName7 = "Snow2";
-            LoadCase snowLoadCase1 = new LoadCase(loadCaseName7, LoadCase.LoadCaseType.Snow);
+            LoadCase snowLoadCase1 = new LoadCase(loadCaseName7, LoadCase.LoadCaseTypes.Snow);
             string loadCaseName3 = "Snow1";
-            LoadCase snowLoadCase2 = new LoadCase(loadCaseName3, LoadCase.LoadCaseType.Snow);
+            LoadCase snowLoadCase2 = new LoadCase(loadCaseName3, LoadCase.LoadCaseTypes.Snow);
 
 
             List<LoadCase> loadCaseList = new List<LoadCase>
@@ -1366,13 +1366,13 @@ namespace ModelObjectTest
         {
             // Arrange
             string loadCaseName1 = "selfWeight";
-            LoadCase selfWeightLoadCase = new LoadCase(loadCaseName1, LoadCase.LoadCaseType.SelfWeight);
+            LoadCase selfWeightLoadCase = new LoadCase(loadCaseName1, LoadCase.LoadCaseTypes.SelfWeight);
             string loadCaseName6 = "ClimateSummerDeltaT";
-            LoadCase climateSummerDeltaTLoadCase1 = new LoadCase(loadCaseName6, LoadCase.LoadCaseType.ClimateSummerDeltaT);
+            LoadCase climateSummerDeltaTLoadCase1 = new LoadCase(loadCaseName6, LoadCase.LoadCaseTypes.ClimateSummerDeltaT);
             string loadCaseName7 = "ClimateSummerDeltaH";
-            LoadCase climateSummerDeltaHLoadCase1 = new LoadCase(loadCaseName7, LoadCase.LoadCaseType.ClimateSummerDeltaH);
+            LoadCase climateSummerDeltaHLoadCase1 = new LoadCase(loadCaseName7, LoadCase.LoadCaseTypes.ClimateSummerDeltaH);
             string loadCaseName3 = "ClimateSummerDeltaP";
-            LoadCase climateSummerDeltaPLoadCase2 = new LoadCase(loadCaseName3, LoadCase.LoadCaseType.ClimateSummerDeltaP);
+            LoadCase climateSummerDeltaPLoadCase2 = new LoadCase(loadCaseName3, LoadCase.LoadCaseTypes.ClimateSummerDeltaP);
 
             List<LoadCase> loadCaseList = new List<LoadCase>
             {
@@ -1412,17 +1412,17 @@ namespace ModelObjectTest
         {
             // Arrange
             string loadCaseName1 = "selfWeight";
-            LoadCase selfWeightLoadCase = new LoadCase(loadCaseName1, LoadCase.LoadCaseType.SelfWeight);
+            LoadCase selfWeightLoadCase = new LoadCase(loadCaseName1, LoadCase.LoadCaseTypes.SelfWeight);
             string loadCaseName2 = "ClimateSummerDeltaT";
-            LoadCase climateSummerDeltaTLoadCase1 = new LoadCase(loadCaseName2, LoadCase.LoadCaseType.ClimateSummerDeltaT);
+            LoadCase climateSummerDeltaTLoadCase1 = new LoadCase(loadCaseName2, LoadCase.LoadCaseTypes.ClimateSummerDeltaT);
             string loadCaseName3 = "ClimateSummerDeltaH";
-            LoadCase climateSummerDeltaHLoadCase1 = new LoadCase(loadCaseName3, LoadCase.LoadCaseType.ClimateSummerDeltaH);
+            LoadCase climateSummerDeltaHLoadCase1 = new LoadCase(loadCaseName3, LoadCase.LoadCaseTypes.ClimateSummerDeltaH);
             string loadCaseName4 = "ClimateSummerDeltaP";
-            LoadCase climateSummerDeltaPLoadCase1 = new LoadCase(loadCaseName4, LoadCase.LoadCaseType.ClimateSummerDeltaP);
+            LoadCase climateSummerDeltaPLoadCase1 = new LoadCase(loadCaseName4, LoadCase.LoadCaseTypes.ClimateSummerDeltaP);
             string loadCaseName5 = "ClimateSummerDeltaP2";
-            LoadCase climateSummerDeltaPLoadCase2 = new LoadCase(loadCaseName5, LoadCase.LoadCaseType.ClimateSummerDeltaP);
+            LoadCase climateSummerDeltaPLoadCase2 = new LoadCase(loadCaseName5, LoadCase.LoadCaseTypes.ClimateSummerDeltaP);
             string loadCaseName6 = "ClimateSummerDeltaP3";
-            LoadCase climateSummerDeltaPLoadCase3 = new LoadCase(loadCaseName6, LoadCase.LoadCaseType.ClimateSummerDeltaP);
+            LoadCase climateSummerDeltaPLoadCase3 = new LoadCase(loadCaseName6, LoadCase.LoadCaseTypes.ClimateSummerDeltaP);
 
             List<LoadCase> loadCaseList = new List<LoadCase>
             {
@@ -1470,21 +1470,21 @@ namespace ModelObjectTest
         {
             // Arrange
             string loadCaseName1 = "selfWeight";
-            LoadCase selfWeightLoadCase = new LoadCase(loadCaseName1, LoadCase.LoadCaseType.SelfWeight);
+            LoadCase selfWeightLoadCase = new LoadCase(loadCaseName1, LoadCase.LoadCaseTypes.SelfWeight);
             string loadCaseName2 = "ClimateSummerDeltaT";
-            LoadCase climateSummerDeltaTLoadCase1 = new LoadCase(loadCaseName2, LoadCase.LoadCaseType.ClimateSummerDeltaT);
+            LoadCase climateSummerDeltaTLoadCase1 = new LoadCase(loadCaseName2, LoadCase.LoadCaseTypes.ClimateSummerDeltaT);
             string loadCaseName3 = "ClimateSummerDeltaH";
-            LoadCase climateSummerDeltaHLoadCase1 = new LoadCase(loadCaseName3, LoadCase.LoadCaseType.ClimateSummerDeltaH);
+            LoadCase climateSummerDeltaHLoadCase1 = new LoadCase(loadCaseName3, LoadCase.LoadCaseTypes.ClimateSummerDeltaH);
             string loadCaseName4 = "ClimateSummerDeltaP1";
-            LoadCase climateSummerDeltaPLoadCase1 = new LoadCase(loadCaseName4, LoadCase.LoadCaseType.ClimateSummerDeltaP);
+            LoadCase climateSummerDeltaPLoadCase1 = new LoadCase(loadCaseName4, LoadCase.LoadCaseTypes.ClimateSummerDeltaP);
             string loadCaseName5 = "ClimateSummerDeltaP2";
-            LoadCase climateSummerDeltaPLoadCase2 = new LoadCase(loadCaseName5, LoadCase.LoadCaseType.ClimateSummerDeltaP);
+            LoadCase climateSummerDeltaPLoadCase2 = new LoadCase(loadCaseName5, LoadCase.LoadCaseTypes.ClimateSummerDeltaP);
             string loadCaseName6 = "ClimateSummerDeltaP3";
-            LoadCase climateSummerDeltaPLoadCase3 = new LoadCase(loadCaseName6, LoadCase.LoadCaseType.ClimateSummerDeltaP);
+            LoadCase climateSummerDeltaPLoadCase3 = new LoadCase(loadCaseName6, LoadCase.LoadCaseTypes.ClimateSummerDeltaP);
             string loadCaseName7 = "ClimateWinterDeltaP1";
-            LoadCase climateWinterDeltaPLoadCase1 = new LoadCase(loadCaseName7, LoadCase.LoadCaseType.ClimateWinterDeltaP);
+            LoadCase climateWinterDeltaPLoadCase1 = new LoadCase(loadCaseName7, LoadCase.LoadCaseTypes.ClimateWinterDeltaP);
             string loadCaseName8 = "ClimateWinterDeltaP2";
-            LoadCase climateWinterDeltaPLoadCase2 = new LoadCase(loadCaseName8, LoadCase.LoadCaseType.ClimateWinterDeltaP);
+            LoadCase climateWinterDeltaPLoadCase2 = new LoadCase(loadCaseName8, LoadCase.LoadCaseTypes.ClimateWinterDeltaP);
 
             List<LoadCase> loadCaseList = new List<LoadCase>
             {
@@ -1543,25 +1543,25 @@ namespace ModelObjectTest
         {
             // Arrange
             string loadCaseName1 = "selfWeight";
-            LoadCase selfWeightLoadCase = new LoadCase(loadCaseName1, LoadCase.LoadCaseType.SelfWeight);
+            LoadCase selfWeightLoadCase = new LoadCase(loadCaseName1, LoadCase.LoadCaseTypes.SelfWeight);
             string loadCaseName2 = "ClimateSummerDeltaT";
-            LoadCase climateSummerDeltaTLoadCase1 = new LoadCase(loadCaseName2, LoadCase.LoadCaseType.ClimateSummerDeltaT);
+            LoadCase climateSummerDeltaTLoadCase1 = new LoadCase(loadCaseName2, LoadCase.LoadCaseTypes.ClimateSummerDeltaT);
             string loadCaseName3 = "ClimateSummerDeltaH";
-            LoadCase climateSummerDeltaHLoadCase1 = new LoadCase(loadCaseName3, LoadCase.LoadCaseType.ClimateSummerDeltaH);
+            LoadCase climateSummerDeltaHLoadCase1 = new LoadCase(loadCaseName3, LoadCase.LoadCaseTypes.ClimateSummerDeltaH);
             string loadCaseName4 = "ClimateSummerDeltaP1";
-            LoadCase climateSummerDeltaPLoadCase1 = new LoadCase(loadCaseName4, LoadCase.LoadCaseType.ClimateSummerDeltaP);
+            LoadCase climateSummerDeltaPLoadCase1 = new LoadCase(loadCaseName4, LoadCase.LoadCaseTypes.ClimateSummerDeltaP);
             string loadCaseName5 = "ClimateSummerDeltaP2";
-            LoadCase climateSummerDeltaPLoadCase2 = new LoadCase(loadCaseName5, LoadCase.LoadCaseType.ClimateSummerDeltaP);
+            LoadCase climateSummerDeltaPLoadCase2 = new LoadCase(loadCaseName5, LoadCase.LoadCaseTypes.ClimateSummerDeltaP);
             string loadCaseName6 = "ClimateSummerDeltaP3";
-            LoadCase climateSummerDeltaPLoadCase3 = new LoadCase(loadCaseName6, LoadCase.LoadCaseType.ClimateSummerDeltaP);
+            LoadCase climateSummerDeltaPLoadCase3 = new LoadCase(loadCaseName6, LoadCase.LoadCaseTypes.ClimateSummerDeltaP);
             string loadCaseName7 = "ClimateWinterDeltaP1";
-            LoadCase climateWinterDeltaPLoadCase1 = new LoadCase(loadCaseName7, LoadCase.LoadCaseType.ClimateWinterDeltaP);
+            LoadCase climateWinterDeltaPLoadCase1 = new LoadCase(loadCaseName7, LoadCase.LoadCaseTypes.ClimateWinterDeltaP);
             string loadCaseName8 = "ClimateWinterDeltaP2";
-            LoadCase climateWinterDeltaPLoadCase2 = new LoadCase(loadCaseName8, LoadCase.LoadCaseType.ClimateWinterDeltaP);
+            LoadCase climateWinterDeltaPLoadCase2 = new LoadCase(loadCaseName8, LoadCase.LoadCaseTypes.ClimateWinterDeltaP);
             string loadCaseName9 = "Wind1";
-            LoadCase windLoadCase1 = new LoadCase(loadCaseName9, LoadCase.LoadCaseType.WindPressure);
+            LoadCase windLoadCase1 = new LoadCase(loadCaseName9, LoadCase.LoadCaseTypes.WindPressure);
             string loadCaseName10 = "Wind2";
-            LoadCase windLoadCase2 = new LoadCase(loadCaseName10, LoadCase.LoadCaseType.WindPressure);
+            LoadCase windLoadCase2 = new LoadCase(loadCaseName10, LoadCase.LoadCaseTypes.WindPressure);
 
             List<LoadCase> loadCaseList = new List<LoadCase>
             {

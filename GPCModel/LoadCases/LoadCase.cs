@@ -13,7 +13,7 @@ namespace GPC.Model.LoadCases
         #region PUBLIC ENUMS
 
         [Serializable]
-        public enum LoadCaseType
+        public enum LoadCaseTypes
         {
             [Description("Self weigth")] SelfWeight,
             [Description("Superimposed dead load")] SuperImposedDeadLoad,
@@ -37,19 +37,22 @@ namespace GPC.Model.LoadCases
 
         #region VARIABLES
 
-        private LoadCaseType? _loadCaseType;
+        private LoadCaseTypes? _loadCaseType;
 
         #endregion 
 
+        public LoadCaseTypes? LoadCaseType => _loadCaseType;
+
+
         #region PUBLIC CONSTRUCTOR
 
-        public LoadCase(string name, LoadCaseType? loadCaseType)
+        public LoadCase(string name, LoadCaseTypes? loadCaseType)
             : this(name, loadCaseType, Guid.NewGuid())
         {
 
         }
 
-        public LoadCase(string name, LoadCaseType? loadCaseType, Guid guid)
+        public LoadCase(string name, LoadCaseTypes? loadCaseType, Guid guid)
             : base(guid, name)
         {
             if (String.IsNullOrEmpty(name) || string.IsNullOrWhiteSpace(name))
@@ -72,12 +75,10 @@ namespace GPC.Model.LoadCases
         public LoadCase(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
-            _loadCaseType = (LoadCaseType?)info.GetValue("LoadCaseType", typeof(LoadCaseType?));
+            _loadCaseType = (LoadCaseTypes?)info.GetValue("LoadCaseType", typeof(LoadCaseTypes?));
         }
 
         #endregion 
-
-        public LoadCaseType? GetLoadCaseType() => _loadCaseType;
 
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {

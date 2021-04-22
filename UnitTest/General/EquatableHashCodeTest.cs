@@ -77,11 +77,11 @@ namespace GeneralTest
         [TestMethod]
         public void LoadCase()
         {
-            LoadCase sdl1 = new LoadCase("SDL", GPC.Model.LoadCases.LoadCase.LoadCaseType.SuperImposedDeadLoad, Guid.NewGuid());
-            LoadCase sdl2 = new LoadCase("SDL", GPC.Model.LoadCases.LoadCase.LoadCaseType.SuperImposedDeadLoad, Guid.NewGuid());
-            LoadCasePrEn ldpr = new LoadCasePrEn("SDL", GPC.Model.LoadCases.LoadCase.LoadCaseType.SuperImposedDeadLoad, LoadCasePrEn.LoadCasePrEnType.SnowCanopies, Guid.NewGuid());
+            LoadCase sdl1 = new LoadCase("SDL", GPC.Model.LoadCases.LoadCase.LoadCaseTypes.SuperImposedDeadLoad, Guid.NewGuid());
+            LoadCase sdl2 = new LoadCase("SDL", GPC.Model.LoadCases.LoadCase.LoadCaseTypes.SuperImposedDeadLoad, Guid.NewGuid());
+            LoadCasePrEn ldpr = new LoadCasePrEn("SDL", GPC.Model.LoadCases.LoadCase.LoadCaseTypes.SuperImposedDeadLoad, LoadCasePrEn.LoadCasePrEnType.SnowCanopies, Guid.NewGuid());
 
-            LoadCase lc3 = new LoadCasePrEn("SDL", GPC.Model.LoadCases.LoadCase.LoadCaseType.SuperImposedDeadLoad, LoadCasePrEn.LoadCasePrEnType.SnowCanopies, Guid.NewGuid());
+            LoadCase lc3 = new LoadCasePrEn("SDL", GPC.Model.LoadCases.LoadCase.LoadCaseTypes.SuperImposedDeadLoad, LoadCasePrEn.LoadCasePrEnType.SnowCanopies, Guid.NewGuid());
 
             Assert.IsTrue(sdl1.Equals(ldpr));
             Assert.IsFalse(ldpr.Equals(sdl1));

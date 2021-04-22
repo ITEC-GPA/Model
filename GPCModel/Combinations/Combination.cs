@@ -385,19 +385,19 @@ namespace GPC.Model.Combinations
             {
                 if (_loadcase.GetLoadCaseType() != null && other.LoadCase.GetLoadCaseType() != null)
                 {
-                    if (_loadcase.GetLoadCaseType() == LoadCase.LoadCaseType.SelfWeight && other.LoadCase.GetLoadCaseType() == LoadCase.LoadCaseType.SelfWeight)
+                    if (_loadcase.GetLoadCaseType() == LoadCase.LoadCaseTypes.SelfWeight && other.LoadCase.GetLoadCaseType() == LoadCase.LoadCaseTypes.SelfWeight)
                         return 0;
-                    else if (_loadcase.GetLoadCaseType() == LoadCase.LoadCaseType.SelfWeight && other.LoadCase.GetLoadCaseType() != LoadCase.LoadCaseType.SelfWeight)
+                    else if (_loadcase.GetLoadCaseType() == LoadCase.LoadCaseTypes.SelfWeight && other.LoadCase.GetLoadCaseType() != LoadCase.LoadCaseTypes.SelfWeight)
                         return -1;
-                    else if (_loadcase.GetLoadCaseType() != LoadCase.LoadCaseType.SelfWeight && other.LoadCase.GetLoadCaseType() == LoadCase.LoadCaseType.SelfWeight)
+                    else if (_loadcase.GetLoadCaseType() != LoadCase.LoadCaseTypes.SelfWeight && other.LoadCase.GetLoadCaseType() == LoadCase.LoadCaseTypes.SelfWeight)
                         return 1;
-                    else if (_loadcase.GetLoadCaseType() == LoadCase.LoadCaseType.SuperImposedDeadLoad && other.LoadCase.GetLoadCaseType() == LoadCase.LoadCaseType.SuperImposedDeadLoad)
+                    else if (_loadcase.GetLoadCaseType() == LoadCase.LoadCaseTypes.SuperImposedDeadLoad && other.LoadCase.GetLoadCaseType() == LoadCase.LoadCaseTypes.SuperImposedDeadLoad)
                         return 0;
-                    else if (_loadcase.GetLoadCaseType() == LoadCase.LoadCaseType.SuperImposedDeadLoad
-                            && (other.LoadCase.GetLoadCaseType() != LoadCase.LoadCaseType.SuperImposedDeadLoad || other.LoadCase.GetLoadCaseType() != LoadCase.LoadCaseType.SelfWeight))
+                    else if (_loadcase.GetLoadCaseType() == LoadCase.LoadCaseTypes.SuperImposedDeadLoad
+                            && (other.LoadCase.GetLoadCaseType() != LoadCase.LoadCaseTypes.SuperImposedDeadLoad || other.LoadCase.GetLoadCaseType() != LoadCase.LoadCaseTypes.SelfWeight))
                         return -1;
-                    else if ((_loadcase.GetLoadCaseType() != LoadCase.LoadCaseType.SuperImposedDeadLoad || _loadcase.GetLoadCaseType() != LoadCase.LoadCaseType.SelfWeight)
-                            && other.LoadCase.GetLoadCaseType() == LoadCase.LoadCaseType.SuperImposedDeadLoad)
+                    else if ((_loadcase.GetLoadCaseType() != LoadCase.LoadCaseTypes.SuperImposedDeadLoad || _loadcase.GetLoadCaseType() != LoadCase.LoadCaseTypes.SelfWeight)
+                            && other.LoadCase.GetLoadCaseType() == LoadCase.LoadCaseTypes.SuperImposedDeadLoad)
                         return 1;
                     else
                     {

@@ -29,7 +29,7 @@ namespace GPC.Model.LoadCases
 
         #region PUBLIC CONSTRUCTOR
 
-        public LoadCasePrEn(string name, LoadCaseType loadCaseType, LoadCasePrEnType loadCasePrEnType, Guid guid)
+        public LoadCasePrEn(string name, LoadCaseTypes loadCaseType, LoadCasePrEnType loadCasePrEnType, Guid guid)
             : base(name, loadCaseType, guid)
         {
             this._loadCasePrEnType = loadCasePrEnType;
