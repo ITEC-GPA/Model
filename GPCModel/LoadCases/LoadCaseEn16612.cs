@@ -5,10 +5,13 @@ using System.Runtime.Serialization;
 
 namespace GPC.Model.LoadCases
 {
-    public class LoadCasePrEn : LoadCase, ISerializable
+    /// <summary>
+    /// This class rapresent a <see cref="LoadCase"/> with the additional information required by the Standard EN 16612:2020
+    /// </summary>
+    public class LoadCaseEn16612 : LoadCase, ISerializable
     {
         #region PUBLIC ENUMS
-        public enum LoadCasePrEnType
+        public enum LoadCaseEn16612Types
         {
             [Description("Wind gust load mediterranean")] WindGustLoadMediterranean,
             [Description("Wind gust load other")] WindGustLoadOther,
@@ -25,30 +28,30 @@ namespace GPC.Model.LoadCases
         }
         #endregion
 
-        private LoadCasePrEnType _loadCasePrEnType;
+        private readonly LoadCaseEn16612Types _loadCaseEn16612Type;
 
         #region PUBLIC CONSTRUCTOR
 
-        public LoadCasePrEn(string name, LoadCaseTypes loadCaseType, LoadCasePrEnType loadCasePrEnType, Guid guid)
+        public LoadCaseEn16612(string name, LoadCaseTypes loadCaseType, LoadCaseEn16612Types loadCaseEn16612Type, Guid guid)
             : base(name, loadCaseType, guid)
         {
-            this._loadCasePrEnType = loadCasePrEnType;
+            this._loadCaseEn16612Type = loadCaseEn16612Type;
         }
 
-        public LoadCasePrEn(SerializationInfo info, StreamingContext context)
+        public LoadCaseEn16612(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
-            _loadCasePrEnType = (LoadCasePrEnType)info.GetValue("LoadCasePrEnType", typeof(LoadCasePrEnType));
+            _loadCaseEn16612Type = (LoadCaseEn16612Types)info.GetValue("LoadCaseEn16612Type", typeof(LoadCaseEn16612Types));
         }
 
         #endregion
 
-        public LoadCasePrEnType GetLoadCasePrEnType() => _loadCasePrEnType;
+        public LoadCaseEn16612Types GetLoadCasePrEnType() => _loadCaseEn16612Type;
 
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             base.GetObjectData(info, context);
-            info.AddValue("LoadCasePrEnType", _loadCasePrEnType);
+            info.AddValue("LoadCaseEn16612Type", _loadCaseEn16612Type);
         }
 
         public override bool Equals(object obj)
@@ -59,20 +62,20 @@ namespace GPC.Model.LoadCases
             if (ReferenceEquals(this, obj))
                 return true;
 
-            LoadCasePrEn objCasted = obj as LoadCasePrEn;
-            return !(objCasted is null) && _loadCasePrEnType.Equals(objCasted._loadCasePrEnType) && base.Equals(objCasted);
+            LoadCaseEn16612 objCasted = obj as LoadCaseEn16612;
+            return !(objCasted is null) && _loadCaseEn16612Type.Equals(objCasted._loadCaseEn16612Type) && base.Equals(objCasted);
         }
 
         public override int GetHashCode()
         {
             int hashCode = 23;
             hashCode = hashCode * -17 + base.GetHashCode();
-            hashCode = hashCode * -17 + _loadCasePrEnType.GetHashCode();
+            hashCode = hashCode * -17 + _loadCaseEn16612Type.GetHashCode();
             return hashCode;
         }
 
 
-        public static bool operator ==(LoadCasePrEn obj1, LoadCasePrEn obj2)
+        public static bool operator ==(LoadCaseEn16612 obj1, LoadCaseEn16612 obj2)
         {
             if (ReferenceEquals(obj1, obj2))
                 return true;
@@ -83,7 +86,7 @@ namespace GPC.Model.LoadCases
             return obj1.Equals(obj2);
         }
 
-        public static bool operator !=(LoadCasePrEn obj1, LoadCasePrEn obj2)
+        public static bool operator !=(LoadCaseEn16612 obj1, LoadCaseEn16612 obj2)
         {
             return !(obj1 == obj2);
         }

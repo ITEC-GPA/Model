@@ -386,7 +386,7 @@ namespace GPC.Model.Combinations
         /// <returns>The value of the coefficient</returns>
         public double GetGammaQUnfavourable(ULSStructuralGeotechicalCombinationSets set, LimitState limitState, LoadCase loadCase)
         {
-            var loadCaseType = loadCase.GetLoadCaseType();
+            var loadCaseType = loadCase.LoadCaseType;
 
             if (limitState == LimitState.UltimateEquilibrium)
             {
@@ -487,7 +487,7 @@ namespace GPC.Model.Combinations
         /// <returns>The value of the coefficient</returns>
         public double GetGammaQFavourable(ULSStructuralGeotechicalCombinationSets set, LimitState limitState, LoadCase loadCase)
         {
-            var loadCaseType = loadCase.GetLoadCaseType();
+            var loadCaseType = loadCase.LoadCaseType;
 
             if (limitState == LimitState.UltimateEquilibrium)
             {
@@ -637,7 +637,7 @@ namespace GPC.Model.Combinations
         /// <returns>The value of the coefficient</returns>
         public double GetPsi0(ImposedLoadCategory category, LoadCase loadCase, bool highAltitude = true)
         {
-            var loadCaseType = loadCase.GetLoadCaseType();
+            var loadCaseType = loadCase.LoadCaseType;
 
             if (loadCaseType == LoadCase.LoadCaseTypes.Snow)
             {
@@ -708,7 +708,7 @@ namespace GPC.Model.Combinations
         /// <returns>The value of the coefficient</returns>
         public double GetPsi1(ImposedLoadCategory category, LoadCase loadCase, bool highAltitude = true)
         {
-            var loadCaseType = loadCase.GetLoadCaseType();
+            var loadCaseType = loadCase.LoadCaseType;
 
             if (loadCaseType == LoadCase.LoadCaseTypes.Snow)
             {
@@ -779,7 +779,7 @@ namespace GPC.Model.Combinations
         /// <returns>The value of the coefficient</returns>
         public double GetPsi2(ImposedLoadCategory category, LoadCase loadCase, bool highAltitude = true)
         {
-            var loadCaseType = loadCase.GetLoadCaseType();
+            var loadCaseType = loadCase.LoadCaseType;
 
             if (loadCaseType == LoadCase.LoadCaseTypes.Snow)
             {
