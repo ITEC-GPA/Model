@@ -34,6 +34,8 @@ namespace GPC.Model.Combinations
             UltimateStructural,
             UltimateGeotechnical,
             UltimateFatigue,
+            UltimateSeismic,
+            UltimateAccidental,
             ServiceabilityCharacteristic,
             ServiceabilityFrequent,
             ServiceabilityQuasiPermanent
@@ -339,6 +341,10 @@ namespace GPC.Model.Combinations
                 else
                     throw new NotImplementedException("Failed to set coefficient gamma unfavourable");
             }
+            else if (limitState == LimitState.UltimateSeismic || limitState == LimitState.UltimateAccidental)
+            {
+                return 1.0;
+            }
             else if (limitState == LimitState.ServiceabilityQuasiPermanent || limitState == LimitState.ServiceabilityCharacteristic || limitState == LimitState.ServiceabilityFrequent)
             {
                 return 1.0;
@@ -369,12 +375,90 @@ namespace GPC.Model.Combinations
                 else
                     throw new NotImplementedException("Failed to set coefficient gamma G favourable");
             }
+            else if(limitState == LimitState.UltimateSeismic || limitState == LimitState.UltimateAccidental)
+            {
+                return 1.0;
+            }
             else if (limitState == LimitState.ServiceabilityQuasiPermanent || limitState == LimitState.ServiceabilityCharacteristic || limitState == LimitState.ServiceabilityFrequent)
             {
                 return 1.0;
             }
             else
                 throw new ArgumentException("Failed to set coefficient gamma G favourable");
+        }
+
+        /// <summary>
+        /// Get the coefficient gamma P favourable 
+        /// </summary>
+        /// <param name="set">The ULS combination set (if <paramref name="limitState"/> is an ultimate state limit</param>
+        /// <param name="limitState">The limit state of combinations</param>
+        /// <param name="loadCase">The load case</param>
+        /// <returns>The value of the coefficient</returns>
+        public double GetGammaPFavourable(ULSStructuralGeotechicalCombinationSets set, LimitState limitState, LoadCase loadCase)
+        {
+            if (limitState == LimitState.UltimateEquilibrium)
+            {
+                return _gammaPFavourableSetA;            
+            }
+            else if (limitState == LimitState.UltimateGeotechnical || limitState == LimitState.UltimateFatigue || limitState == LimitState.UltimateStructural)
+            {
+                switch (set)
+                {
+                    case ULSStructuralGeotechicalCombinationSets.SetB:
+                        return _gammaPFavourableSetB;
+                    case ULSStructuralGeotechicalCombinationSets.SetC:
+                        return _gammaPFavourableSetC;
+                    default:
+                        throw new NotImplementedException("Failed to set coefficient gamma P favourable");
+                }
+            }
+            else if (limitState == LimitState.UltimateSeismic || limitState == LimitState.UltimateAccidental)
+            {
+                return 1.0;
+            }
+            else if (limitState == LimitState.ServiceabilityQuasiPermanent || limitState == LimitState.ServiceabilityCharacteristic || limitState == LimitState.ServiceabilityFrequent)
+            {
+                return 1.00;                
+            }
+            else
+                throw new ArgumentException("Failed to set coefficient gamma P favourable");
+        }
+
+        /// <summary>
+        /// Get the coefficient gamma P unfavourable 
+        /// </summary>
+        /// <param name="set">The ULS combination set (if <paramref name="limitState"/> is an ultimate state limit</param>
+        /// <param name="limitState">The limit state of combinations</param>
+        /// <param name="loadCase">The load case</param>
+        /// <returns>The value of the coefficient</returns>
+        public double GetGammaPUnfavourable(ULSStructuralGeotechicalCombinationSets set, LimitState limitState, LoadCase loadCase)
+        {
+            if (limitState == LimitState.UltimateEquilibrium)
+            {
+                return _gammaPUnfavourableSetA;               
+            }
+            else if (limitState == LimitState.UltimateGeotechnical || limitState == LimitState.UltimateFatigue || limitState == LimitState.UltimateStructural)
+            {
+                switch (set)
+                {
+                    case ULSStructuralGeotechicalCombinationSets.SetB:
+                        return _gammaPUnfavourableSetB;
+                    case ULSStructuralGeotechicalCombinationSets.SetC:
+                        return _gammaPUnfavourableSetC;
+                    default:
+                        throw new NotImplementedException("Failed to set coefficient gamma P unfavourable");
+                }
+            }
+            else if (limitState == LimitState.UltimateSeismic || limitState == LimitState.UltimateAccidental)
+            {
+                return 1.0;
+            }
+            else if (limitState == LimitState.ServiceabilityQuasiPermanent || limitState == LimitState.ServiceabilityCharacteristic || limitState == LimitState.ServiceabilityFrequent)
+            {
+                return 1.00;
+            }
+            else
+                throw new ArgumentException("Failed to set coefficient gamma P favourable");
         }
 
         /// <summary>
@@ -406,7 +490,7 @@ namespace GPC.Model.Combinations
                         return _gammaQUnfavourableSetA;
                     default:
                         throw new NotImplementedException("Not implemented coefficient for load case type");
-                }                
+                }
             }
             else if (limitState == LimitState.UltimateGeotechnical || limitState == LimitState.UltimateFatigue || limitState == LimitState.UltimateStructural)
             {
@@ -453,6 +537,10 @@ namespace GPC.Model.Combinations
                 else
                     throw new NotImplementedException("Not implemented Annex");
             }
+            else if (limitState == LimitState.UltimateSeismic || limitState == LimitState.UltimateAccidental)
+            {
+                return 1.0;
+            }
             else if (limitState == LimitState.ServiceabilityCharacteristic || limitState == LimitState.ServiceabilityFrequent || limitState == LimitState.ServiceabilityQuasiPermanent)
             {
                 switch (loadCaseType)
@@ -473,7 +561,7 @@ namespace GPC.Model.Combinations
                     default:
                         throw new NotImplementedException("Not implemented coefficient for load case type");
                 }
-            }            
+            }
             else
                 throw new ArgumentException("Failed to set coefficient gamma favourable");
         }
@@ -507,7 +595,7 @@ namespace GPC.Model.Combinations
                         return _gammaQFavourableSetA;
                     default:
                         throw new NotImplementedException("Not implemented coefficient for load case type");
-                }                
+                }
             }
             else if (limitState == LimitState.UltimateGeotechnical || limitState == LimitState.UltimateFatigue || limitState == LimitState.UltimateStructural)
             {
@@ -554,78 +642,16 @@ namespace GPC.Model.Combinations
                 else
                     throw new NotImplementedException("Not implemented Annex");
             }
+            else if (limitState == LimitState.UltimateSeismic || limitState == LimitState.UltimateAccidental)
+            {
+                return 1.0;
+            }
             else if (limitState == LimitState.ServiceabilityQuasiPermanent || limitState == LimitState.ServiceabilityCharacteristic || limitState == LimitState.ServiceabilityFrequent)
             {
                 return 1.00;
             }
             else
                 throw new ArgumentException("Not implemented coefficient for load case type");
-        }
-
-        /// <summary>
-        /// Get the coefficient gamma P favourable 
-        /// </summary>
-        /// <param name="set">The ULS combination set (if <paramref name="limitState"/> is an ultimate state limit</param>
-        /// <param name="limitState">The limit state of combinations</param>
-        /// <param name="loadCase">The load case</param>
-        /// <returns>The value of the coefficient</returns>
-        public double GetGammaPFavourable(ULSStructuralGeotechicalCombinationSets set, LimitState limitState, LoadCase loadCase)
-        {
-            if (limitState == LimitState.UltimateEquilibrium)
-            {
-                return _gammaPFavourableSetA;            
-            }
-            else if (limitState == LimitState.UltimateGeotechnical || limitState == LimitState.UltimateFatigue || limitState == LimitState.UltimateStructural)
-            {
-                switch (set)
-                {
-                    case ULSStructuralGeotechicalCombinationSets.SetB:
-                        return _gammaPFavourableSetB;
-                    case ULSStructuralGeotechicalCombinationSets.SetC:
-                        return _gammaPFavourableSetC;
-                    default:
-                        throw new NotImplementedException("Failed to set coefficient gamma P favourable");
-                }
-            }
-            else if (limitState == LimitState.ServiceabilityQuasiPermanent || limitState == LimitState.ServiceabilityCharacteristic || limitState == LimitState.ServiceabilityFrequent)
-            {
-                return 1.00;                
-            }
-            else
-                throw new ArgumentException("Failed to set coefficient gamma P favourable");
-        }
-
-        /// <summary>
-        /// Get the coefficient gamma P unfavourable 
-        /// </summary>
-        /// <param name="set">The ULS combination set (if <paramref name="limitState"/> is an ultimate state limit</param>
-        /// <param name="limitState">The limit state of combinations</param>
-        /// <param name="loadCase">The load case</param>
-        /// <returns>The value of the coefficient</returns>
-        public double GetGammaPUnfavourable(ULSStructuralGeotechicalCombinationSets set, LimitState limitState, LoadCase loadCase)
-        {
-            if (limitState == LimitState.UltimateEquilibrium)
-            {
-                return _gammaPUnfavourableSetA;               
-            }
-            else if (limitState == LimitState.UltimateGeotechnical || limitState == LimitState.UltimateFatigue || limitState == LimitState.UltimateStructural)
-            {
-                switch (set)
-                {
-                    case ULSStructuralGeotechicalCombinationSets.SetB:
-                        return _gammaPUnfavourableSetB;
-                    case ULSStructuralGeotechicalCombinationSets.SetC:
-                        return _gammaPUnfavourableSetC;
-                    default:
-                        throw new NotImplementedException("Failed to set coefficient gamma P unfavourable");
-                }
-            }
-            else if (limitState == LimitState.ServiceabilityQuasiPermanent || limitState == LimitState.ServiceabilityCharacteristic || limitState == LimitState.ServiceabilityFrequent)
-            {
-                return 1.00;
-            }
-            else
-                throw new ArgumentException("Failed to set coefficient gamma P favourable");
         }
 
         /// <summary>
