@@ -301,18 +301,18 @@ namespace GPC.Model.Combinations
             _psi2Temperature = 0.0;
 
             // da controllare. non sono corretti
-            _psi0ClimateSummerDeltaP = 0.50;
-            _psi0ClimateSummerDeltaT = 0.50;
-            _psi0ClimateWinterDeltaP = 0.50;
-            _psi0ClimateWinterDeltaT = 0.50;
-            _psi1ClimateSummerDeltaP = 0.50;
-            _psi1ClimateSummerDeltaT = 0.50;
-            _psi1ClimateWinterDeltaP = 0.50;
-            _psi1ClimateWinterDeltaT = 0.50;
-            _psi2ClimateSummerDeltaP = 0.50;
-            _psi2ClimateSummerDeltaT = 0.50;
-            _psi2ClimateWinterDeltaP = 0.50;
-            _psi2ClimateWinterDeltaT = 0.50;
+            _psi0ClimateSummerDeltaP = 0.30;
+            _psi0ClimateSummerDeltaT = 0.30;
+            _psi0ClimateWinterDeltaP = 0.30;
+            _psi0ClimateWinterDeltaT = 0.30;
+            _psi1ClimateSummerDeltaP = 0.30;
+            _psi1ClimateSummerDeltaT = 0.30;
+            _psi1ClimateWinterDeltaP = 0.30;
+            _psi1ClimateWinterDeltaT = 0.30;
+            _psi2ClimateSummerDeltaP = 0.00;
+            _psi2ClimateSummerDeltaT = 0.00;
+            _psi2ClimateWinterDeltaP = 0.00;
+            _psi2ClimateWinterDeltaT = 0.00;
         }
 
         #endregion
