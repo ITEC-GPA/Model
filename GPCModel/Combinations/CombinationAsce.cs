@@ -7,17 +7,20 @@ namespace GPC.Model.Combinations
 {
     public sealed class CombinationAsce : Combination, IEquatable<CombinationAsce>, ICloneable
     {
-        public enum CombinationType
-        {
-            LFRD,
-            ASD
-        }
+        #region VARIABLES
 
-        private CombinationType _combinationType;
+        private StandardASCE16 _standardASCE16;
 
-        public CombinationType GetCombinationType => _combinationType;
+        private StandardASCE16.LimitState _combinationType;
 
-        public CombinationAsce(string name, CombinationType combinationType)
+        public StandardASCE16.LimitState GetCombinationType => _combinationType;
+
+        #endregion
+
+
+        #region PUBLIC CONSTRUCTOR
+
+        public CombinationAsce(string name, StandardASCE16.LimitState combinationType)
             : base(name)
         {
             this._combinationType = combinationType;
@@ -33,8 +36,13 @@ namespace GPC.Model.Combinations
         public CombinationAsce(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
-            _combinationType = (CombinationType)info.GetValue("CombinationType", typeof(CombinationType));
+            _combinationType = (StandardASCE16.LimitState)info.GetValue("CombinationType", typeof(StandardASCE16.LimitState));
         }
+
+        #endregion
+
+
+        #region PUBLIC OVERRIDE METHODS
 
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
@@ -42,7 +50,7 @@ namespace GPC.Model.Combinations
             info.AddValue("CombinationType", _combinationType);
         }
 
-        public override bool IsUltimate() => _combinationType == CombinationType.LFRD ? true : false;
+        public override bool IsUltimate() => _combinationType == StandardASCE16.LimitState.LFRD ? true : false;
 
         public override string ToString()
         {
@@ -105,5 +113,8 @@ namespace GPC.Model.Combinations
         {
             return !(obj1 == obj2);
         }
+
+        #endregion
+
     }
 }

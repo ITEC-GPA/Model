@@ -21,8 +21,8 @@ namespace GPC.Model.Combinations
         /// </summary>
         public enum ULSStructuralGeotechicalCombinationSets
         {
-            [Description("ENSetB")] SetB,
-            [Description("ENSetC")] SetC,
+            SetB,
+            SetC,
         }
 
         /// <summary>
@@ -204,7 +204,6 @@ namespace GPC.Model.Combinations
         public double Psi1SnowLowAltitude => _psi1SnowLowAltitude;
         public double Psi2SnowHighAltitude => _psi2SnowHighAltitude;
         public double Psi2SnowLowAltitude => _psi2SnowLowAltitude;
-        // public bool IsHighAltidute => _isHighAltitude;
 
         // Wind Psi
         public double Psi0Wind => _psi0Wind;
