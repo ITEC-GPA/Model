@@ -218,7 +218,7 @@ namespace GPC.Model.FEM
 
 
         /// <inheritdoc cref="UniqueNameCollection{T}.Add(T)"/>
-        public virtual bool AddLoadCase(LoadCase loadCase)
+        protected virtual bool AddLoadCase(LoadCase loadCase)
         {
             return _loadCases.Add(loadCase);
         }
@@ -232,7 +232,7 @@ namespace GPC.Model.FEM
 
 
         /// <inheritdoc cref="UniqueNameCollection{T}.Add(T)"/>
-        public virtual bool AddFredomCase(FreedomCase freedomCase)
+        protected virtual bool AddFredomCase(FreedomCase freedomCase)
         {
             return _freedomCases.Add(freedomCase);
         }

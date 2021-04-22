@@ -14,9 +14,9 @@ namespace GPC.Model.FEM.Attributes
     {
         #region variables
         private double _p1;
-                        
+
         private double _p2;
-                        
+
         private double _p3;
 
         private CoordinateSystem _coordinateSystem;
@@ -24,16 +24,16 @@ namespace GPC.Model.FEM.Attributes
 
         #region properties
         public double P1 => _p1;
-                          
+
         public double P2 => _p2;
-                          
+
         public double P3 => _p3;
         public CoordinateSystem CoordinateSystem => _coordinateSystem;
 
         #endregion
 
 
-        public PlatePressureAttribute(LoadCase loadCase, CoordinateSystem coordinateSystem, double p11, double p22, double p33) 
+        public PlatePressureAttribute(LoadCase loadCase, CoordinateSystem coordinateSystem, double p11, double p22, double p33)
             : this(loadCase, coordinateSystem, p11, p22, p33, string.Empty, Guid.NewGuid())
         {
 
@@ -77,13 +77,13 @@ namespace GPC.Model.FEM.Attributes
         }
 
 
-        public PlatePressureAttribute(SerializationInfo info, StreamingContext context) 
+        public PlatePressureAttribute(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
             _p1 = info.GetDouble("p1");
             _p2 = info.GetDouble("p2");
             _p3 = info.GetDouble("p3");
-            _coordinateSystem = (CoordinateSystem) info.GetValue("sys", typeof(CoordinateSystem));
+            _coordinateSystem = (CoordinateSystem)info.GetValue("sys", typeof(CoordinateSystem));
         }
 
 
@@ -155,4 +155,6 @@ namespace GPC.Model.FEM.Attributes
 
         #endregion
     }
+
+
 }
