@@ -33,32 +33,32 @@ namespace GPC.Model.FEM.Attributes
         #endregion
 
 
-        public PlatePressureAttribute(LoadCase loadCase, CoordinateSystem coordinateSystem, double p11, double p22, double p33)
-            : this(loadCase, coordinateSystem, p11, p22, p33, string.Empty, Guid.NewGuid())
+        public PlatePressureAttribute(string loadCaseName, CoordinateSystem coordinateSystem, double p11, double p22, double p33)
+            : this(loadCaseName, coordinateSystem, p11, p22, p33, string.Empty, Guid.NewGuid())
         {
 
         }
 
-        public PlatePressureAttribute(LoadCase loadCase, CoordinateSystem coordinateSystem, double p11, double p22, double p33, string name)
-            : this(loadCase, coordinateSystem, p11, p22, p33, name, Guid.NewGuid())
+        public PlatePressureAttribute(string loadCaseName, CoordinateSystem coordinateSystem, double p11, double p22, double p33, string name)
+            : this(loadCaseName, coordinateSystem, p11, p22, p33, name, Guid.NewGuid())
         {
 
         }
 
-        public PlatePressureAttribute(LoadCase loadCase, CoordinateSystem coordinateSystem, Vector3d p)
-            : this(loadCase, coordinateSystem, p.X, p.Y, p.Z, string.Empty, Guid.NewGuid())
+        public PlatePressureAttribute(string loadCaseName, CoordinateSystem coordinateSystem, Vector3d p)
+            : this(loadCaseName, coordinateSystem, p.X, p.Y, p.Z, string.Empty, Guid.NewGuid())
         {
 
         }
 
-        public PlatePressureAttribute(LoadCase loadCase, CoordinateSystem coordinateSystem, Vector3d p, string name)
-            : this(loadCase, coordinateSystem, p.X, p.Y, p.Z, name, Guid.NewGuid())
+        public PlatePressureAttribute(string loadCaseName, CoordinateSystem coordinateSystem, Vector3d p, string name)
+            : this(loadCaseName, coordinateSystem, p.X, p.Y, p.Z, name, Guid.NewGuid())
         {
 
         }
 
-        public PlatePressureAttribute(LoadCase loadCase, CoordinateSystem sys, double p1, double p2, double p3, string name, Guid guid)
-            : base(loadCase, name, guid)
+        public PlatePressureAttribute(string loadCaseName, CoordinateSystem sys, double p1, double p2, double p3, string name, Guid guid)
+            : base(loadCaseName, name, guid)
         {
             _p1 = p1;
             _p2 = p2;
