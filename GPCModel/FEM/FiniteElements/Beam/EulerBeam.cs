@@ -15,10 +15,7 @@ namespace GPC.Model.FEM.FiniteElements
     /// </summary>
     public class EulerBeam : Beam
     {
-        double _length;
-        double _angleRadians;
-
-        internal EulerBeam(Node[] nodes, Section section, double angleRadians = 0.0) : base(nodes)
+        internal EulerBeam(Node[] nodes, Section section, double axisAngleRadians = 0.0) : base(nodes)
         {
             _DOF.Add(LinearSolver.DOF.DX);
             _DOF.Add(LinearSolver.DOF.DY);
@@ -27,7 +24,7 @@ namespace GPC.Model.FEM.FiniteElements
             _DOF.Add(LinearSolver.DOF.RY);
             _DOF.Add(LinearSolver.DOF.RZ);
 
-            _angleRadians = angleRadians; //rotazione rispetto asse 1-X
+            _axisAngleRadians = axisAngleRadians; //rotazione rispetto asse 1-X
             SetProperty(section);
         }
 
@@ -45,7 +42,7 @@ namespace GPC.Model.FEM.FiniteElements
             double L = _length;
             double L2 = L * L;
             double L3 = L2 * L;
-            double angleSection = section.AngleX1;
+            //double angleSection = section.AngleX1;
 
             _kElementLocalCoord = mnl.Matrix<double>.Build.Dense(12, 12);
 
@@ -91,7 +88,7 @@ namespace GPC.Model.FEM.FiniteElements
             foreach(BeamReleasesAttribute rel in _attributesFreedomCase)
             {
                 int EndBeam = rel.EndBeam;
-                BeamReleasesAttribute.LocalDOF[] localDOFs = rel.LocalDOFReleased;
+                LocalDOF[] localDOFs = rel.LocalDOFReleased;
 
                 if (EndBeam == 1)
                 {
@@ -99,19 +96,19 @@ namespace GPC.Model.FEM.FiniteElements
                     {
                         switch (localDOFs[i])
                         {
-                            case BeamReleasesAttribute.LocalDOF.Axial:
+                            case LocalDOF.AxialU1:
                                 _kElementLocalCoord[0, 0] = 0.0;
 
                                 _kElementLocalCoord[6, 0] = 0.0;
                                 _kElementLocalCoord[0, 6] = 0.0;
                                 break;
-                            case BeamReleasesAttribute.LocalDOF.Torsion:
+                            case LocalDOF.TorsionR1:
                                 _kElementLocalCoord[3, 3] = 0.0;
 
                                 _kElementLocalCoord[9, 3] = 0.0;
                                 _kElementLocalCoord[3, 9] = 0.0;
                                 break;
-                            case BeamReleasesAttribute.LocalDOF.U2:
+                            case LocalDOF.U2:
                                 _kElementLocalCoord[1, 1] = 0.0;
 
                                 _kElementLocalCoord[1, 5] = 0.0;
@@ -123,7 +120,7 @@ namespace GPC.Model.FEM.FiniteElements
                                 _kElementLocalCoord[1, 11] = 0.0;
                                 _kElementLocalCoord[11, 1] = 0.0;
                                 break;
-                            case BeamReleasesAttribute.LocalDOF.U3:
+                            case LocalDOF.U3:
                                 _kElementLocalCoord[2, 2] = 0.0;
 
                                 _kElementLocalCoord[1, 4] = 0.0;
@@ -135,7 +132,7 @@ namespace GPC.Model.FEM.FiniteElements
                                 _kElementLocalCoord[1, 10] = 0.0;
                                 _kElementLocalCoord[10, 1] = 0.0;
                                 break;
-                            case BeamReleasesAttribute.LocalDOF.R2:
+                            case LocalDOF.R2:
                                 _kElementLocalCoord[4, 4] = 0.0;
 
                                 _kElementLocalCoord[2, 4] = 0.0;
@@ -147,7 +144,7 @@ namespace GPC.Model.FEM.FiniteElements
                                 _kElementLocalCoord[4, 10] = 0.0;
                                 _kElementLocalCoord[10, 4] = 0.0;
                                 break;
-                            case BeamReleasesAttribute.LocalDOF.R3:
+                            case LocalDOF.R3:
                                 _kElementLocalCoord[5, 5] = 0.0;
 
                                 _kElementLocalCoord[7, 5] = 0.0;
@@ -169,19 +166,19 @@ namespace GPC.Model.FEM.FiniteElements
                     {
                         switch (localDOFs[i])
                         {
-                            case BeamReleasesAttribute.LocalDOF.Axial:
+                            case LocalDOF.AxialU1:
                                 _kElementLocalCoord[6, 6] = 0.0;
 
                                 _kElementLocalCoord[6, 0] = 0.0;
                                 _kElementLocalCoord[0, 6] = 0.0;
                                 break;
-                            case BeamReleasesAttribute.LocalDOF.Torsion:
+                            case LocalDOF.TorsionR1:
                                 _kElementLocalCoord[9, 9] = 0.0;
 
                                 _kElementLocalCoord[9, 3] = 0.0;
                                 _kElementLocalCoord[3, 9] = 0.0;
                                 break;
-                            case BeamReleasesAttribute.LocalDOF.U2:
+                            case LocalDOF.U2:
                                 _kElementLocalCoord[7, 7] = 0.0;
 
                                 _kElementLocalCoord[7, 5] = 0.0;
@@ -193,7 +190,7 @@ namespace GPC.Model.FEM.FiniteElements
                                 _kElementLocalCoord[7, 11] = 0.0;
                                 _kElementLocalCoord[11, 7] = 0.0;
                                 break;
-                            case BeamReleasesAttribute.LocalDOF.U3:
+                            case LocalDOF.U3:
                                 _kElementLocalCoord[8, 8] = 0.0;
 
                                 _kElementLocalCoord[4, 8] = 0.0;
@@ -205,7 +202,7 @@ namespace GPC.Model.FEM.FiniteElements
                                 _kElementLocalCoord[10, 8] = 0.0;
                                 _kElementLocalCoord[8, 10] = 0.0;
                                 break;
-                            case BeamReleasesAttribute.LocalDOF.R2:
+                            case LocalDOF.R2:
                                 _kElementLocalCoord[10, 10] = 0.0;
 
                                 _kElementLocalCoord[8, 10] = 0.0;
@@ -217,7 +214,7 @@ namespace GPC.Model.FEM.FiniteElements
                                 _kElementLocalCoord[2, 10] = 0.0;
                                 _kElementLocalCoord[10, 2] = 0.0;
                                 break;
-                            case BeamReleasesAttribute.LocalDOF.R3:
+                            case LocalDOF.R3:
                                 _kElementLocalCoord[11, 11] = 0.0;
 
                                 _kElementLocalCoord[7, 11] = 0.0;
@@ -285,11 +282,11 @@ namespace GPC.Model.FEM.FiniteElements
             mnl.Matrix<double> lambda2 = mnl.Matrix<double>.Build.Dense(3, 3);
             lambda2[0, 0] = 1.0;
 
-            lambda2[1, 1] = Math.Cos(_angleRadians);
-            lambda2[1, 2] = Math.Sin(_angleRadians);
+            lambda2[1, 1] = Math.Cos(_axisAngleRadians);
+            lambda2[1, 2] = Math.Sin(_axisAngleRadians);
 
-            lambda2[2, 1] = -Math.Sin(_angleRadians);
-            lambda2[2, 2] = Math.Cos(_angleRadians);
+            lambda2[2, 1] = -Math.Sin(_axisAngleRadians);
+            lambda2[2, 2] = Math.Cos(_axisAngleRadians);
 
             /*Console.WriteLine("lambda2");
             FEMUtilities.WriteMatrix(lambda2);*/
@@ -303,11 +300,11 @@ namespace GPC.Model.FEM.FiniteElements
                 }*/
                 lambda[0, 1] = mox;
 
-                lambda[1, 0] = -mox * Math.Cos(_angleRadians);
-                lambda[1, 2] = mox * Math.Sin(_angleRadians);
+                lambda[1, 0] = -mox * Math.Cos(_axisAngleRadians);
+                lambda[1, 2] = mox * Math.Sin(_axisAngleRadians);
 
-                lambda[2, 1] = Math.Sin(_angleRadians);
-                lambda[2, 2] = Math.Cos(_angleRadians);
+                lambda[2, 1] = Math.Sin(_axisAngleRadians);
+                lambda[2, 2] = Math.Cos(_axisAngleRadians);
             }
             else
             {
@@ -422,6 +419,57 @@ namespace GPC.Model.FEM.FiniteElements
                     Console.WriteLine(localForces[1][j, 0]);
                 }
             }
+
+            //Post-processing only for beam:
+            /*for (int i = 0; i < _attributesLoadCase.Count; i++)
+            {
+                if (_attributesLoadCase[i].GetType() == typeof(BeamDistribuitedLoadAttribute))
+                {
+                    BeamDistribuitedLoadAttribute q = (BeamDistribuitedLoadAttribute) _attributesLoadCase[i];
+                    localForces[0][5, 0] += -BendingBeamFixFix(q.Q2, 0, _length);
+                    localForces[1][5, 0] += -BendingBeamFixFix(q.Q2, _length, _length);
+
+                    localForces[0][1, 0] += -ShearBeamFixFix(q.Q2, 0, _length);
+                    localForces[1][1, 0] += -ShearBeamFixFix(q.Q2, _length, _length);
+
+                    localForces[0][4, 0] += -BendingBeamFixFix(q.Q3, 0, _length);
+                    localForces[1][4, 0] += -BendingBeamFixFix(q.Q3, _length, _length);
+
+                    localForces[0][2, 0] += -ShearBeamFixFix(q.Q3, 0, _length);
+                    localForces[1][2, 0] += -ShearBeamFixFix(q.Q3, _length, _length);
+                }
+            }*/
+        }
+
+        public Dictionary<Beam.InternalAction, double> GetInternalAction(double x, double[] globalDisplacement)
+        {
+            //Post-processing only for beam:
+            double qx = 0;
+            double qy = 0;
+            double qz = 0;
+            for (int i = 0; i < _attributesLoadCase.Count; i++)
+            {
+                if (_attributesLoadCase[i].GetType() == typeof(BeamDistribuitedLoadAttribute))
+                {
+                    BeamDistribuitedLoadAttribute q = (BeamDistribuitedLoadAttribute)_attributesLoadCase[i];
+                    qx += q.Q1;
+                    qy += q.Q2;
+                    qz += q.Q3;
+                }
+            }
+
+            GetNodesResults(globalDisplacement, out double[] localDispl, out mnl.Matrix<double>[] globalPseudoDef, out mnl.Matrix<double>[] localPseudoDef, out mnl.Matrix<double>[] globalForces, out mnl.Matrix<double>[] localForces, out mnl.Matrix<double>[] globalStress, out mnl.Matrix<double>[] localStress, out mnl.Matrix<double>[] globalEpsilon, out mnl.Matrix<double>[] localEpsilon);
+
+            Dictionary<Beam.InternalAction, double> forces = new Dictionary<InternalAction, double>();
+
+            forces.Add(Beam.InternalAction.N, localForces[0][0, 0] - AxialBeamFixFix(qx, x, _length));
+            forces.Add(Beam.InternalAction.V2, localForces[0][1, 0] - ShearBeamFixFix(qy, x, _length));
+            forces.Add(Beam.InternalAction.V3, localForces[0][2, 0] - ShearBeamFixFix(qz, x, _length));
+
+            forces.Add(Beam.InternalAction.T, localForces[0][3, 0]);
+            forces.Add(Beam.InternalAction.M2, localForces[0][4, 0] - BendingBeamFixFix(qz, x, _length));
+            forces.Add(Beam.InternalAction.M3, localForces[0][5, 0] - 1.0 * BendingBeamFixFix(qy, x, _length));
+            return forces;            
         }
 
         public override void GetResultPositionNaturalCoordinates(double csi, double eta, double zeta, double[] globalDisplacementsNodes, out double x, out double y, out double z, out double[] localDisplacements, out mnl.Matrix<double> gloabalPseudoDeformation, out mnl.Matrix<double> localPseudoDeformation, out mnl.Matrix<double> globalForces, out mnl.Matrix<double> localForces, out mnl.Matrix<double> globalStress, out mnl.Matrix<double> localStress, out mnl.Matrix<double> globalEpsilon, out mnl.Matrix<double> localEpsilon)
@@ -479,10 +527,73 @@ namespace GPC.Model.FEM.FiniteElements
             return fLocal;
         }
         
-        public void AddEndRelease(int indexEndBeam, BeamReleasesAttribute.LocalDOF[] dof, FreedomCase fc, string name)
+        public void AddEndRelease(int indexEndBeam, LocalDOF[] dof, FreedomCase fc, string name)
         {
             BeamReleasesAttribute release = new BeamReleasesAttribute(indexEndBeam, dof.ToHashSet(), fc, name);
             _attributesFreedomCase.Add(release);
+        }
+
+        /// <summary>
+        /// Return the Bending moment in a fix-fix beam with uniform load
+        /// </summary>
+        /// <param name="q">load [F/L]</param>
+        /// <param name="x">coordinate 0 to L</param>
+        /// <param name="L">Lenght of the beam</param>
+        /// <returns>Bending moment</returns>
+        private double BendingBeamFixFix(double q,double x, double L)
+        {
+            return -q / 12.0 * (L * L - 6.0 * L * x + 6.0 * x * x);
+        }
+
+        /// <summary>
+        /// Return the shear in a fix-fix beam with uniform load
+        /// </summary>
+        /// <param name="q">load [F/L]</param>
+        /// <param name="x">coordinate 0 to L</param>
+        /// <param name="L">Lenght of the beam</param>
+        /// <returns>Shear</returns>
+        private double AxialBeamFixFix(double q, double x, double L)
+        {
+            return q * x / L; //TODO: controllare
+        }
+
+        /// <summary>
+        /// Return the shear in a fix-fix beam with uniform load
+        /// </summary>
+        /// <param name="q">load [F/L]</param>
+        /// <param name="x">coordinate 0 to L</param>
+        /// <param name="L">Lenght of the beam</param>
+        /// <returns>Shear</returns>
+        private double ShearBeamFixFix(double q, double x, double L)
+        {
+            return q / 2.0 * (L - 2.0 * x);
+        }
+        /// <summary>
+        /// Return the rotation in a fix-fix beam with uniform load
+        /// </summary>
+        /// <param name="q">load [F/L]</param>
+        /// <param name="x">coordinate 0 to L</param>
+        /// <param name="L">Lenght of the beam</param>
+        /// <param name="E">Elastic Modulus</param>
+        /// <param name="J">Second moment area - Inertia</param>
+        /// <returns>rotation</returns>
+        private double RotationBeamFixFix(double q, double x, double L, double E, double J)
+        {
+            return -q * x /(12.0 * E * J) * (L*L - 3.0 * L * x + 2.0 * x*x);
+        }
+
+        /// <summary>
+        /// Return the displacement in a fix-fix beam with uniform load
+        /// </summary>
+        /// <param name="q">load [F/L]</param>
+        /// <param name="x">coordinate 0 to L</param>
+        /// <param name="L">Lenght of the beam</param>
+        /// <param name="E">Elastic Modulus</param>
+        /// <param name="J">Second moment area - Inertia</param>
+        /// <returns>displacement</returns>
+        private double DisplacementBeamFixFix(double q, double x, double L, double E, double J)
+        {
+            return q * x*x*x * Math.Pow(L - x,2.0) / (24.0 * E * J);
         }
     }
 }
