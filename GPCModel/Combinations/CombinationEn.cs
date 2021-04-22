@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
@@ -204,7 +204,7 @@ namespace GPC.Model.Combinations
                                                                 StandardEN1990.ImposedLoadCategory category = StandardEN1990.ImposedLoadCategory.CategoryA, 
                                                                 StandardEN1990.ULSStructuralGeotechicalCombinationSets uLS = StandardEN1990.ULSStructuralGeotechicalCombinationSets.SetB, bool highAltitude = true)
         {
-            List<CombinationEn> combinations = new List<CombinationEn>();
+            HashSet<CombinationEn> combinations = new HashSet<CombinationEn>();
 
             List<List<LoadCaseCoefficient>> listFavourable = GetFavourableCombinations(loadCases, standardEN1990, limitState, uLS, category, highAltitude);
             for (int i = 0; i< listFavourable.Count(); i++)
@@ -215,37 +215,40 @@ namespace GPC.Model.Combinations
                 {
                     combo.AddLoadCaseCoefficient(listFavourable[i][j].LoadCase, listFavourable[i][j].Coefficient);                    
                 }
-                combinations.Add(combo);
-            }
-
-            if (limitState == StandardEN1990.LimitState.UltimateEquilibrium || limitState == StandardEN1990.LimitState.UltimateFatigue || limitState == StandardEN1990.LimitState.UltimateGeotechnical || limitState == StandardEN1990.LimitState.UltimateStructural)
-            {
-                List<List<LoadCaseCoefficient>> listUnfavourable = GetUnfavourableCombinations(loadCases, standardEN1990, limitState, uLS, category, highAltitude);
-                for (int i = 0; i < listUnfavourable.Count(); i++)
+                if (!CombinationCoefficientEqualityComparer.Equals(combinations, combo))
                 {
-                    CombinationEn combo = new CombinationEn(name, limitState, uLS, category, standardEN1990);
-
-                    for (int j = 0; j < listUnfavourable[i].Count(); j++)
-                    {
-                        combo.AddLoadCaseCoefficient(listUnfavourable[i][j].LoadCase, listUnfavourable[i][j].Coefficient);
-                    }
                     combinations.Add(combo);
                 }
             }
 
-            if (limitState == StandardEN1990.LimitState.UltimateEquilibrium || limitState == StandardEN1990.LimitState.UltimateFatigue || limitState == StandardEN1990.LimitState.UltimateGeotechnical || limitState == StandardEN1990.LimitState.UltimateStructural)
+            List<List<LoadCaseCoefficient>> listUnfavourable = GetUnfavourableCombinations(loadCases, standardEN1990, limitState, uLS, category, highAltitude);
+            for (int i = 0; i < listUnfavourable.Count(); i++)
             {
-                List<List<LoadCaseCoefficient>> listFavourableBase = GetFavourableBasicCombinations(loadCases, standardEN1990, limitState, uLS);
-                for (int i = 0; i < listFavourableBase.Count(); i++)
+                CombinationEn combo = new CombinationEn(name, limitState, uLS, category, standardEN1990);
+
+                for (int j = 0; j < listUnfavourable[i].Count(); j++)
                 {
-                    CombinationEn comboBaseFav = new CombinationEn(name, limitState, uLS, category, standardEN1990);
-                    for (int j = 0; j < listFavourableBase[i].Count(); j++)
-                    {
-                        comboBaseFav.AddLoadCaseCoefficient(listFavourableBase[i][j].LoadCase, listFavourableBase[i][j].Coefficient);
-                    }
+                    combo.AddLoadCaseCoefficient(listUnfavourable[i][j].LoadCase, listUnfavourable[i][j].Coefficient);
+                }
+                if (!CombinationCoefficientEqualityComparer.Equals(combinations, combo))
+                {
+                    combinations.Add(combo);
+                }
+            }          
+
+            List<List<LoadCaseCoefficient>> listFavourableBase = GetFavourableBasicCombinations(loadCases, standardEN1990, limitState, uLS);
+            for (int i = 0; i < listFavourableBase.Count(); i++)
+            {
+                CombinationEn comboBaseFav = new CombinationEn(name, limitState, uLS, category, standardEN1990);
+                for (int j = 0; j < listFavourableBase[i].Count(); j++)
+                {
+                    comboBaseFav.AddLoadCaseCoefficient(listFavourableBase[i][j].LoadCase, listFavourableBase[i][j].Coefficient);
+                }
+                if (!CombinationCoefficientEqualityComparer.Equals(combinations, comboBaseFav))
+                {
                     combinations.Add(comboBaseFav);
                 }
-            }
+            }            
 
             List<List<LoadCaseCoefficient>> listUnfavourableBase = GetUnfavourableBasicCombinations(loadCases, standardEN1990, limitState, uLS);
             for (int i = 0; i < listUnfavourableBase.Count(); i++)
@@ -255,10 +258,13 @@ namespace GPC.Model.Combinations
                 {
                     comboBaseUnfav.AddLoadCaseCoefficient(listUnfavourableBase[i][j].LoadCase, listUnfavourableBase[i][j].Coefficient);
                 }
-                combinations.Add(comboBaseUnfav);
+                if (!CombinationCoefficientEqualityComparer.Equals(combinations, comboBaseUnfav))
+                {
+                    combinations.Add(comboBaseUnfav);
+                }
             }
 
-            return combinations;
+            return combinations.ToList();
         }
 
         #endregion
