@@ -1751,6 +1751,121 @@ namespace ModelObjectTest
             Assert.IsTrue(Math.Abs(outList[1][seismicLoadCase] - 1.00) < 0.001);
             Assert.IsTrue(Math.Abs(outList[0][liveLoadLoadCase] - 0.60) < 0.001);
         }
+
+        [TestMethod]
+        public void GeneratorUltimateSeismic2()
+        {
+            // Arrange
+            string loadCaseName1 = "selfWeight";
+            LoadCase selfWeightLoadCase = new LoadCase(loadCaseName1, LoadCase.LoadCaseType.SelfWeight);
+            string loadCaseName2 = "WindPressure";
+            LoadCase WindPressureLoadCase = new LoadCase(loadCaseName2, LoadCase.LoadCaseType.WindPressure);
+            string loadCaseName3 = "Snow";
+            LoadCase snowLoadCase = new LoadCase(loadCaseName3, LoadCase.LoadCaseType.Snow);
+            string loadCaseName4 = "PreStress";
+            LoadCase prestressLoadCase = new LoadCase(loadCaseName4, LoadCase.LoadCaseType.Prestress);
+            string loadCaseName5 = "Seismic";
+            LoadCase seismicLoadCase = new LoadCase(loadCaseName5, LoadCase.LoadCaseType.Earthquake);
+            string loadCaseName6 = "LiveLoad1";
+            LoadCase liveLoadLoadCase1 = new LoadCase(loadCaseName6, LoadCase.LoadCaseType.LiveLoad);
+            string loadCaseName7 = "LiveLoad2";
+            LoadCase liveLoadLoadCase2 = new LoadCase(loadCaseName7, LoadCase.LoadCaseType.LiveLoad);
+            string loadCaseName8 = "LiveLoad3";
+            LoadCase liveLoadLoadCase3 = new LoadCase(loadCaseName8, LoadCase.LoadCaseType.LiveLoad);
+
+            List<LoadCase> loadCaseList = new List<LoadCase>
+            {
+                selfWeightLoadCase,
+                WindPressureLoadCase,
+                snowLoadCase,
+                prestressLoadCase,
+                seismicLoadCase,
+                liveLoadLoadCase1,
+                liveLoadLoadCase2,
+                liveLoadLoadCase3,
+            };
+
+            StandardEN1990 standardEN1990 = new StandardEN1990();
+            StandardEN1990.ImposedLoadCategory category = StandardEN1990.ImposedLoadCategory.CategoryC;
+            StandardEN1990.LimitState limitState = StandardEN1990.LimitState.UltimateSeismic;
+            StandardEN1990.ULSStructuralGeotechicalCombinationSets uLS = StandardEN1990.ULSStructuralGeotechicalCombinationSets.SetC;
+
+            // Act
+            List<CombinationEn> outList = CombinationEn.GenerateCombinations("combo", loadCaseList, standardEN1990, limitState, category, uLS, false);
+
+            // Assert
+            Assert.IsTrue(outList.Count() == 2);
+            Assert.IsTrue(Math.Abs(outList[0][selfWeightLoadCase] - 1.00) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[1][selfWeightLoadCase] - 1.00) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[0][prestressLoadCase] - 1.00) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[1][prestressLoadCase] - 1.00) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[0][seismicLoadCase] - 1.00) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[1][seismicLoadCase] - 1.00) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[0][liveLoadLoadCase1] - 0.60) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[0][liveLoadLoadCase2] - 0.60) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[0][liveLoadLoadCase3] - 0.60) < 0.001);
+        }
+
+        [TestMethod]
+        public void GeneratorUltimateSeismic3()
+        {
+            // Arrange
+            string loadCaseName1 = "selfWeight";
+            LoadCase selfWeightLoadCase = new LoadCase(loadCaseName1, LoadCase.LoadCaseType.SelfWeight);
+            string loadCaseName2 = "WindPressure";
+            LoadCase WindPressureLoadCase = new LoadCase(loadCaseName2, LoadCase.LoadCaseType.WindPressure);
+            string loadCaseName3 = "Snow";
+            LoadCase snowLoadCase = new LoadCase(loadCaseName3, LoadCase.LoadCaseType.Snow);
+            string loadCaseName4 = "ClimateSummerDeltaH";
+            LoadCase climateSummerDeltaHLoadCase = new LoadCase(loadCaseName4, LoadCase.LoadCaseType.ClimateSummerDeltaH);
+            string loadCaseName5 = "Seismic";
+            LoadCase seismicLoadCase = new LoadCase(loadCaseName5, LoadCase.LoadCaseType.Earthquake);
+            string loadCaseName6 = "ClimateSummerDeltaP";
+            LoadCase climateSummerDeltaPLoadCase1 = new LoadCase(loadCaseName6, LoadCase.LoadCaseType.ClimateSummerDeltaP);
+            string loadCaseName7 = "LiveLoad2";
+            LoadCase liveLoadLoadCase1 = new LoadCase(loadCaseName7, LoadCase.LoadCaseType.LiveLoad);
+            string loadCaseName8 = "LiveLoad3";
+            LoadCase liveLoadLoadCase2 = new LoadCase(loadCaseName8, LoadCase.LoadCaseType.LiveLoad);
+
+            List<LoadCase> loadCaseList = new List<LoadCase>
+            {
+                selfWeightLoadCase,
+                WindPressureLoadCase,
+                snowLoadCase,
+                climateSummerDeltaHLoadCase,
+                seismicLoadCase,
+                climateSummerDeltaPLoadCase1,
+                liveLoadLoadCase1,
+                liveLoadLoadCase2,
+            };
+
+            StandardEN1990 standardEN1990 = new StandardEN1990();
+            StandardEN1990.ImposedLoadCategory category = StandardEN1990.ImposedLoadCategory.CategoryC;
+            StandardEN1990.LimitState limitState = StandardEN1990.LimitState.UltimateSeismic;
+            StandardEN1990.ULSStructuralGeotechicalCombinationSets uLS = StandardEN1990.ULSStructuralGeotechicalCombinationSets.SetC;
+
+            // Act
+            List<CombinationEn> outList = CombinationEn.GenerateCombinations("combo", loadCaseList, standardEN1990, limitState, category, uLS, false);
+
+            // Assert
+            Assert.IsTrue(outList.Count() == 4);
+            Assert.IsTrue(Math.Abs(outList[0][selfWeightLoadCase] - 1.00) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[1][selfWeightLoadCase] - 1.00) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[2][selfWeightLoadCase] - 1.00) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[3][selfWeightLoadCase] - 1.00) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[0][climateSummerDeltaHLoadCase] - 1.00) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[2][climateSummerDeltaHLoadCase] - 1.00) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[0][seismicLoadCase] - 1.00) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[1][seismicLoadCase] - 1.00) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[2][seismicLoadCase] - 1.00) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[3][seismicLoadCase] - 1.00) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[0][climateSummerDeltaPLoadCase1] - 0.50) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[0][liveLoadLoadCase1] - 0.60) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[0][liveLoadLoadCase2] - 0.60) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[1][climateSummerDeltaPLoadCase1] - 0.50) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[1][liveLoadLoadCase1] - 0.60) < 0.001);
+            Assert.IsTrue(Math.Abs(outList[1][liveLoadLoadCase2] - 0.60) < 0.001);
+        }
     }
 }
 
