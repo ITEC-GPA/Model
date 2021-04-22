@@ -87,6 +87,10 @@ namespace GPC.Model.FEM
 
         protected List<Stage> _stages;
 
+        // MODELATTRIBUTES
+
+        protected List<IModelAttribute> _modelAttributes;
+
 
         // CoordinatesSystem ? 
 
@@ -312,6 +316,15 @@ namespace GPC.Model.FEM
             return _stages.Where(i => i.Id == stageId).FirstOrDefault().GetCombinations();
         }
 
+
+        public void SetModelAcceleration(string loadcase, double a1, double a2, double a3)
+        {
+            var lc = _loadCases.GetElementByName(loadcase);
+
+            _modelAttributes.Add(new ModelAccelerationAttribute(lc, a1, a2, a3));
+        }
+
+
         #endregion
 
         #region Add Get Geometry
@@ -354,7 +367,6 @@ namespace GPC.Model.FEM
             {
                 throw new NotSupportedException(finiteElement.GetType().ToString());
             }
-
 
             finiteElement.SetProperty(property);
 
