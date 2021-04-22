@@ -13,6 +13,11 @@ namespace GPC.Model.Loads
 
         public LoadCase LoadCase => _loadCase;
 
+        protected Load(LoadCase loadCase)
+            : this(loadCase, Guid.NewGuid())
+        {
+        }
+
         protected Load(LoadCase loadCase, Guid guid)
             : base(guid)
         {
@@ -25,17 +30,16 @@ namespace GPC.Model.Loads
             _loadCase = (LoadCase)info.GetValue("LoadCase", typeof(LoadCase));
         }
 
-
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             base.GetObjectData(info, context);
             info.AddValue("LoadCase", _loadCase);
         }
 
-
         public abstract GeometryBase GetGeometryBase();
 
-        #region Equals, HasCode and operators
+        #region Equals, HashCode and operators
+
         public override bool Equals(object obj)
         {
             if (ReferenceEquals(obj, this))
@@ -70,7 +74,8 @@ namespace GPC.Model.Loads
         public static bool operator !=(Load obj1, Load obj2)
         {
             return !(obj1 == obj2);
-        } 
-        #endregion
+        }
+
+        #endregion Equals, HashCode and operators
     }
 }

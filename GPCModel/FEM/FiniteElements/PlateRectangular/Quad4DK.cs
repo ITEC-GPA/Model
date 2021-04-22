@@ -235,7 +235,7 @@ namespace GPC.Model.FEM.FiniteElements
             #region matrixD
             double E = ((PlateProperty)_property).GetE();
             double ni = ((PlateProperty)_property).GetNi();
-            double tb = ((PlateProperty)Property).BendingThickness;
+            double tb = ((PlateProperty)_property).BendingThickness;
 
             _d = mnl.Matrix<double>.Build.Dense(3, 3);
             _d[0, 0] = 1.0;

@@ -14,6 +14,8 @@ namespace GPC.Model.FEM.FiniteElements
     /// </summary>
     public class EulerBeam : Beam
     {
+        double _length;
+
         internal EulerBeam(Node[] nodes, Section section) : base(nodes)
         {
             _DOF.Add(LinearSolver.DOF.DX);
@@ -36,7 +38,8 @@ namespace GPC.Model.FEM.FiniteElements
             double Jzz = section.J22;
             double Jyy = section.J11;
             double Jt = section.Jt;
-            double L = _nodesGlobal[0].Position.DistanceTo(_nodesGlobal[1].Position);
+            _length = _nodesGlobal[0].Position.DistanceTo(_nodesGlobal[1].Position);
+            double L = _length;
             double L2 = L * L;
             double L3 = L2 * L;
             double angle = section.AngleX1; //necessaria un'altra variabile?
@@ -369,7 +372,52 @@ namespace GPC.Model.FEM.FiniteElements
 
         protected override mnl.Vector<double> BuildFLocalCoord()
         {
-            return mnl.Vector<double>.Build.Dense(12);
+            mnl.Vector<double> fLocal = mnl.Vector<double>.Build.Dense(12);
+            //Axial: eq. 9.16-9.17 - The Finite Element Method in Engineering - S.Rao
+            foreach (IBeamLoadCaseAttribute iAttribute in _attributesLoadCase)
+            {
+                if (iAttribute is BeamDistribuitedLoadAttribute)
+                {
+                    BeamDistribuitedLoadAttribute attribute = (BeamDistribuitedLoadAttribute)iAttribute;
+                    double q1; // N/mm along its axis
+                    double q2; // N/mm 
+                    double q3; // N/mm 
+                    if (attribute.CoordinateSystem == null)
+                    {
+                        q1 = attribute.Q1; // N/mm along its axis
+                        q2 = attribute.Q2; // N/mm 
+                        q3 = attribute.Q3; // N/mm 
+                    } else
+                    {
+                        //TODO: gestione coordinate system
+                        q1 = 0;
+                        q2 = 0;
+                        q3 = 0;
+                    }
+
+                    #region axial
+                    fLocal[0] = q1 * _length / 2.0;
+                    fLocal[6] = q1 * _length / 2.0;
+                    #endregion
+
+                    #region q2
+                    fLocal[1] = q2 * _length / 2.0;
+                    fLocal[7] = q2 * _length / 2.0;
+
+                    fLocal[5] = q2 * _length*_length / 12.0;
+                    fLocal[11] = -q2 * _length*_length / 12.0;
+                    #endregion
+
+                    #region q3
+                    fLocal[2] = q3 * _length / 2.0;
+                    fLocal[8] = q3 * _length / 2.0;
+
+                    fLocal[4] = -q3 * _length * _length / 12.0;
+                    fLocal[10] = q3 * _length * _length / 12.0;
+                    #endregion
+                }
+            }
+            return fLocal;
         }
         
         public void AddRelease(int indexEndBeam, BeamReleasesAttribute.LocalDOF[] dof, FreedomCase fc, string name)

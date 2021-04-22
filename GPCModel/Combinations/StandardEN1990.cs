@@ -8,6 +8,10 @@ using GPC.Model.LoadCases;
 
 namespace GPC.Model.Combinations
 {
+    /// <summary>
+    /// This class collects all the coefficient of the Eurocode Standard
+    /// </summary>
+    /// <remarks>Reference: EN 1990:2002/A1:2005</remarks>
     public class StandardEN1990 : Standard
     {
         #region PUBLIC ENUMS
@@ -310,22 +314,6 @@ namespace GPC.Model.Combinations
         }
 
         #endregion
-
-
-      //   #region GETTER
-      //
-      //   private LimitState _limitState;
-      //   public LimitState GetLimitState() => _limitState;
-      //  
-      //   private ULSCombinationSets _ULSCombinationSets;
-      //   public ULSCombinationSets GetULSCombinationSets() => _ULSCombinationSets;
-      //  
-      //   private ImposedLoadCategory _imposedLoadCategory;
-      //   public ImposedLoadCategory GetImposedLoadCategory() => _imposedLoadCategory;
-      // 
-      //   public bool IsHighAltitude() => _isHighAltitude;
-      // 
-      //   #endregion
 
 
         #region PUBLIC METHOD

@@ -81,6 +81,7 @@
     <Compile Include="FEM\Attributes\FreedomCase\BeamReleasesAttribute.cs" />
     <Compile Include="FEM\Attributes\IBeamFreedomCaseAttribute.cs" />
     <Compile Include="FEM\Attributes\IPlateFreedomCaseAttribute.cs" />
+    <Compile Include="FEM\Attributes\LoadCase\PlatePressureAttribute.cs" />
     <Compile Include="FEM\Collections\FemObjectBaseCollection.cs" />
     <Compile Include="FEM\Collections\FemObjectCollection.cs" />
     <Compile Include="FEM\Collections\FemObjectStageCollection.cs" />
@@ -144,7 +145,7 @@
     <Compile Include="FEM\Attributes\LoadCase\LoadCaseAttribute.cs" />
     <Compile Include="FEM\Attributes\LoadCase\NodeForceAttribute.cs" />
     <Compile Include="FEM\Attributes\LoadCase\PlateNormalPressureAttribute.cs" />
-    <Compile Include="FEM\Attributes\LoadCase\PlatePressureAttribute.cs" />
+    <Compile Include="FEM\Attributes\LoadCase\BeamDistribuitedLoadAttribute.cs" />
     <Compile Include="FEM\Costrain\Costrain.cs" />
     <Compile Include="FEM\FemModel.cs" />
     <Compile Include="FEM\FEMObject.cs" />

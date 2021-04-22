@@ -397,5 +397,119 @@ namespace FemTest.Solver {
 
             Assert.AreEqual(-8.0497, fem.GetDisplacementGlobalCoordinates(nds[1], LinearSolver.DOF.DY), 1e-2);
         }
+
+        [TestMethod]
+        public void AppliedDistributedLoadTest1()
+        {
+            double E = 100000.0;
+            Section sec = new SectionRHS(100.0, 100.0, 49.99, 49.99, 49.99, 49.99, false, new SteelMaterial("m", E, 0.0, 355, 510, 7850), "sec");
+            double A = sec.Area;
+            Console.WriteLine("A = " + sec.Area);
+
+            double L = 1000.0;
+
+            List<Node> nds = new List<Node>();
+            nds.Add(new Node(0, 0, 0));
+            nds.Add(new Node(L, 0, 0));
+
+            List<EulerBeam> beams = new List<EulerBeam>();
+            beams.Add(new EulerBeam(new Node[] { nds[0], nds[1] }, sec));
+
+            LoadCase lc = new LoadCase("lc1");
+            CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
+            Random random = new Random();
+            double qx = random.Next(-1000,1000);
+            double qy = random.Next(-1000, 1000);
+            double qz = random.Next(-1000, 1000);
+            BeamDistribuitedLoadAttribute q = new BeamDistribuitedLoadAttribute(lc, qx, qy, qz);
+            beams[0].AddLoadCaseAttribute(q);
+
+            FreedomCase fc = new FreedomCase("fc");
+            NodeRestrainAttribute fix = new NodeRestrainAttribute(fc, sys);
+            fix.AddExternalRestrain(LinearSolver.DOF.DX);
+            fix.AddExternalRestrain(LinearSolver.DOF.DY);
+            fix.AddExternalRestrain(LinearSolver.DOF.DZ);
+            fix.AddExternalRestrain(LinearSolver.DOF.RX);
+            fix.AddExternalRestrain(LinearSolver.DOF.RY);
+            fix.AddExternalRestrain(LinearSolver.DOF.RZ);
+
+            nds[0].AddAttribute(fix);
+
+            LinearSolver fem = new LinearSolver(beams.ToArray());
+
+            Assert.AreEqual( (qx * L/2) / E / sec.Area * L, fem.GetDisplacementGlobalCoordinates(nds[1], LinearSolver.DOF.DX),1e-6); //displacement
+            Assert.AreEqual(-qx * L, fem.GetReaction(nds[0], LinearSolver.DOF.DX), 1e-2); //reaction
+
+            Assert.AreEqual(-qy * L, fem.GetReaction(nds[0], LinearSolver.DOF.DY), 0.001); //Shear
+            Assert.AreEqual(-qy * L * L / 2.0, fem.GetReaction(nds[0], LinearSolver.DOF.RZ), 0.001); //Bending Moment
+
+            Assert.AreEqual(qy * Math.Pow(L, 4.0) / (8.0 * E * sec.J22), fem.GetDisplacementGlobalCoordinates(nds[1], LinearSolver.DOF.DY), 0.001); //displacement
+            Assert.AreEqual(qy * Math.Pow(L, 3.0) / (6.0 * E * sec.J22), fem.GetDisplacementGlobalCoordinates(nds[1], LinearSolver.DOF.RZ), 0.001); //rotation
+
+            Assert.AreEqual(-qz * L, fem.GetReaction(nds[0], LinearSolver.DOF.DZ), 0.001); //Shear
+            Assert.AreEqual(qz * L * L / 2.0, fem.GetReaction(nds[0], LinearSolver.DOF.RY), 0.001); //Bending Moment
+
+            Assert.AreEqual(qz * Math.Pow(L, 4.0) / (8.0 * E * sec.J22), fem.GetDisplacementGlobalCoordinates(nds[1], LinearSolver.DOF.DZ), 0.001); //displacement
+            Assert.AreEqual(-qz * Math.Pow(L, 3.0) / (6.0 * E * sec.J22), fem.GetDisplacementGlobalCoordinates(nds[1], LinearSolver.DOF.RY), 0.001); //rotation
+        }
+
+        [TestMethod]
+        public void SimplySupportedTest2()
+        {
+            double E = 100.0;
+            Section sec = new SectionRHS(100.0, 100.0, 49.99, 49.99, 49.99, 49.99, false, new SteelMaterial("m", E, 0.0, 355, 510, 7850), "sec");
+            double A = sec.Area;
+            Console.WriteLine("A = " + sec.Area);
+
+            double L = 1000.0;
+
+            List<Node> nds = new List<Node>();
+            nds.Add(new Node(0, 0, 0));
+            nds.Add(new Node(L/2.0, 0, 0));
+            nds.Add(new Node(2.0 * L/2.0, 0, 0));
+
+            List<EulerBeam> beams = new List<EulerBeam>();
+            beams.Add(new EulerBeam(new Node[] { nds[0], nds[1] }, sec));
+            beams.Add(new EulerBeam(new Node[] { nds[1], nds[2] }, sec));
+
+            LoadCase lc = new LoadCase("lc1");
+            CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
+            Random random = new Random();
+            double qx = 1; //random.Next(-1000, 1000);
+            double qy = 1; //random.Next(-1000, 1000);
+            double qz = 1;// random.Next(-1000, 1000);
+            BeamDistribuitedLoadAttribute q = new BeamDistribuitedLoadAttribute(lc, qx, qy, qz);
+            beams[0].AddLoadCaseAttribute(q);
+            beams[1].AddLoadCaseAttribute(q);
+
+            FreedomCase fc = new FreedomCase("fc");
+            NodeRestrainAttribute hinge = new NodeRestrainAttribute(fc, sys);
+            hinge.AddExternalRestrain(LinearSolver.DOF.DX);
+            hinge.AddExternalRestrain(LinearSolver.DOF.DY);
+            hinge.AddExternalRestrain(LinearSolver.DOF.DZ);
+            hinge.AddExternalRestrain(LinearSolver.DOF.RX);
+
+            nds[0].AddAttribute(hinge);
+            nds[2].AddAttribute(hinge);
+
+            LinearSolver fem = new LinearSolver(beams.ToArray());
+
+            Assert.AreEqual((qx * L) / E / sec.Area / 8.0 * L, fem.GetDisplacementGlobalCoordinates(nds[1], LinearSolver.DOF.DX), 1e-6); //displacement
+            Assert.AreEqual(-qx * L / 2.0, fem.GetReaction(nds[0], LinearSolver.DOF.DX), 1e-2); //reaction
+
+            Assert.AreEqual(-qy * L / 2.0, fem.GetReaction(nds[0], LinearSolver.DOF.DY), 0.001); //Shear
+            //Assert.AreEqual(-qy * L * L / 8.0, fem.GetReaction(nds[1], LinearSolver.DOF.RZ), 0.001); //Bending Moment
+
+            Assert.AreEqual(5.0 / 384.0 * qy * Math.Pow(L, 4.0) / (E * sec.J22), fem.GetDisplacementGlobalCoordinates(nds[1], LinearSolver.DOF.DY), 0.001); //displacement
+            Assert.AreEqual(qy * Math.Pow(L, 3.0) / (24.0 * E * sec.J22), fem.GetDisplacementGlobalCoordinates(nds[0], LinearSolver.DOF.RZ), 0.001); //rotation
+            Assert.AreEqual(-qy * Math.Pow(L, 3.0) / (24.0 * E * sec.J22), fem.GetDisplacementGlobalCoordinates(nds[2], LinearSolver.DOF.RZ), 0.001); //rotation
+
+            Assert.AreEqual(-qz * L / 2.0, fem.GetReaction(nds[0], LinearSolver.DOF.DZ), 0.001); //Shear
+            //Assert.AreEqual(qz * L * L / 2.0, fem.GetReaction(nds[0], LinearSolver.DOF.RY), 0.001); //Bending Moment
+
+            Assert.AreEqual(5.0 / 384.0 * qz * Math.Pow(L, 4.0) / (E * sec.J22), fem.GetDisplacementGlobalCoordinates(nds[1], LinearSolver.DOF.DZ), 0.001); //displacement
+            Assert.AreEqual(-qz * Math.Pow(L, 3.0) / (24.0 * E * sec.J22), fem.GetDisplacementGlobalCoordinates(nds[0], LinearSolver.DOF.RY), 0.001); //rotation
+            Assert.AreEqual(qz * Math.Pow(L, 3.0) / (24.0 * E * sec.J22), fem.GetDisplacementGlobalCoordinates(nds[2], LinearSolver.DOF.RY), 0.001); //rotation
+        }
     }
 }
