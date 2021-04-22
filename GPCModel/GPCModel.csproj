@@ -171,7 +171,7 @@
     <Compile Include="LoadCases\ClimatePLoadCase.cs" />
     <Compile Include="LoadCases\ClimateTLoadCase.cs" />
     <Compile Include="LoadCases\LoadCase.cs" />
-    <Compile Include="LoadCases\LoadCasePrEn.cs" />
+    <Compile Include="LoadCases\LoadCaseEn16612.cs" />
     <Compile Include="Loads\AreaLoad.cs" />
     <Compile Include="Loads\LineLoad.cs" />
     <Compile Include="Loads\PointLoad.cs" />

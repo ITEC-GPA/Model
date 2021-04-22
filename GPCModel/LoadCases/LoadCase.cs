@@ -37,7 +37,7 @@ namespace GPC.Model.LoadCases
 
         #region VARIABLES
 
-        private LoadCaseTypes? _loadCaseType;
+        private readonly LoadCaseTypes? _loadCaseType;
 
         #endregion 
 
@@ -49,7 +49,7 @@ namespace GPC.Model.LoadCases
         public LoadCase(string name, LoadCaseTypes? loadCaseType)
             : this(name, loadCaseType, Guid.NewGuid())
         {
-
+            
         }
 
         public LoadCase(string name, LoadCaseTypes? loadCaseType, Guid guid)
