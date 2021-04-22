@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
@@ -67,14 +67,14 @@ namespace GPC.Model.FEM
         /// <summary>
         /// Collection of <see cref="LoadCase"/> with unique name 
         /// </summary>
-        protected UniqueNameCollection<LoadCase> _loadCases;
+        protected UniqueObjectCollection<LoadCase> _loadCases;
 
         // FREEDOM CASES 
 
         /// <summary>
         /// Collection of <see cref="FreedomCase"/> with unique name 
         /// </summary>
-        protected UniqueNameCollection<FreedomCase> _freedomCases;
+        protected UniqueObjectCollection<FreedomCase> _freedomCases;
 
         // COMBINATION
 
@@ -135,8 +135,8 @@ namespace GPC.Model.FEM
             _plateProperties = new UniqueNameCollection<PlateProperty>();
             _brickProperties = new UniqueNameCollection<BrickProperty>();
             
-            _loadCases = new UniqueNameCollection<LoadCase>();
-            _freedomCases = new UniqueNameCollection<FreedomCase>();
+            _loadCases = new UniqueObjectCollection<LoadCase>();
+            _freedomCases = new UniqueObjectCollection<FreedomCase>();
             _combinations = new UniqueNameCollection<Combination>();
                         
             _resultPlateStress = new List<ResultPlateStress>();
@@ -160,6 +160,8 @@ namespace GPC.Model.FEM
 
         #region Add Get Attributes
 
+
+        #region Properties
 
         /// <returns><see langword="true"/> if the property has been added. 
         /// <para><see langword="false"/> if a property with the same name is already present</para> 
@@ -220,34 +222,50 @@ namespace GPC.Model.FEM
             return _brickProperties.GetNames();
         }
 
+        #endregion
 
-        /// <inheritdoc cref="UniqueNameCollection{T}.Add(T)"/>
-        protected virtual bool AddLoadCase(LoadCase loadCase)
+        #region LoadCase / FredomCase
+
+        /// <remarks>This is a O(n) operation
+        /// <para> To get the element in the collection use <see cref="GetLoadCase(LoadCase, out LoadCase)"/> </para></remarks>
+        /// <inheritdoc cref="UniqueObjectCollection{T}.Add(T)"/>
+        public bool AddLoadCase(LoadCase loadCase)
         {
             return _loadCases.Add(loadCase);
         }
 
 
-        /// <inheritdoc cref="UniqueNameCollection{T}.GetElementByName(string)"/>
-        public virtual LoadCase GetLoadCase(string name)
+        /// <summary>
+        /// Get the item inside the collection that is equal to <paramref name="loadCase"/>
+        /// </summary>
+        /// <returns><see langword="True" /> if there is an element equal to <paramref name="loadCase"/> in this collection </returns>
+        public bool GetLoadCase(LoadCase loadCase, out LoadCase found)
         {
-            return _loadCases.GetElementByName(name);
+            return _loadCases.GetItem(loadCase, out found);
         }
 
 
-        /// <inheritdoc cref="UniqueNameCollection{T}.Add(T)"/>
-        protected virtual bool AddFredomCase(FreedomCase freedomCase)
+        /// <remarks>This is a O(n) operation
+        /// <para> To get the element in the collection use <see cref="GetFreedomCase(FreedomCase, out FreedomCase)"/> </para></remarks>
+        /// <inheritdoc cref="UniqueObjectCollection{T}.Add(T)"/>
+        public bool AddFreedomCase(FreedomCase fredomCases)
         {
-            return _freedomCases.Add(freedomCase);
+            return _freedomCases.Add(fredomCases);
         }
 
 
-        /// <inheritdoc cref="UniqueNameCollection{T}.GetElementByName(string)"/>
-        public virtual FreedomCase GetFredomCase(string name)
+        /// <summary>
+        /// Get the item inside the collection that is equal to <paramref name="fredomCases"/>
+        /// </summary>
+        /// <returns><see langword="True" /> if there is an element equal to <paramref name="fredomCases"/> in this collection </returns>
+        public bool GetFreedomCase(FreedomCase fredomCases, out FreedomCase found)
         {
-            return _freedomCases.GetElementByName(name);
+            return _freedomCases.GetItem(fredomCases, out found);
         }
 
+        #endregion
+
+        #region Combinations
 
         public virtual bool AddCombination(Combination combination)
         {
@@ -260,6 +278,9 @@ namespace GPC.Model.FEM
             return _combinations.AddRange(combinations);
         }
 
+        #endregion
+
+        #region Stages
 
         /// <summary>
         /// Add a stage to the stage list. The stage will empty (without elements and nodes)
