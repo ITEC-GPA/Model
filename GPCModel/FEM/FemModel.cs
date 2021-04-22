@@ -481,6 +481,18 @@ namespace GPC.Model.FEM
                 for (int i = 0; i < nodes.Length; i++)
                 {
                     indexes[i] = AddNode(nodes[i]);
+
+                    foreach (var attribute in nodes[i].AttributesLoadCase)
+                    {
+                        if (!LoadCaseExist((attribute as LoadCaseAttribute).LoadCaseName))
+                            throw new InvalidOperationException($"Loadcase {(attribute as LoadCaseAttribute).LoadCaseName} does not exist in the femModel");
+                    }
+
+                    foreach (var attribute in nodes[i].AttributesFreedomCase)
+                    {
+                        if (!FreedomCaseExist((attribute as FreedomCaseAttribute).FreedomCaseName))
+                            throw new InvalidOperationException($"Loadcase {(attribute as FreedomCaseAttribute).FreedomCaseName} does not exist in the femModel");
+                    }
                 }
 
                 return indexes;
