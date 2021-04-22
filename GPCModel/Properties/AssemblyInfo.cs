@@ -9,7 +9,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyDescription("Base elements library for GPC Engineering SpA applications")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("GPC Engineering SpA")]
-[assembly: AssemblyProduct("GPCGeometry")]
+[assembly: AssemblyProduct("GPCModel")]
 [assembly: AssemblyCopyright("Copyright ©  2020 by GPC Engineering SpA")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
