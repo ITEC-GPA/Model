@@ -33,6 +33,12 @@ namespace GPC.Model.FEM.Attributes
         public CoordinateSystem CoordinateSystem => _coordinateSystem;
 
 
+        internal ModelAccelerationAttribute(LoadCase loadCase)
+            : this(loadCase, null, 0, 0, 0)
+        {
+
+        }
+
         /// <param name="loadCase"></param>
         /// <param name="coordinateSystem"></param>
         /// <param name="a1">Acceleration along the axis: <see cref="CoordinateSystem.V1"/> [L/T^2]</param>
@@ -60,7 +66,7 @@ namespace GPC.Model.FEM.Attributes
         public ModelAccelerationAttribute(ModelAccelerationAttribute loadCaseAttribute) 
             : this(loadCaseAttribute.LoadCase, loadCaseAttribute._coordinateSystem, loadCaseAttribute._a1, loadCaseAttribute._a2, loadCaseAttribute._a3)
         {
-            // costruttore di copia
+            
         }
 
         public override object Clone()

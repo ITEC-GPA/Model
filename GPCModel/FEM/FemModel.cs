@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
@@ -337,12 +337,30 @@ namespace GPC.Model.FEM
             return _stages.Where(i => i.Id == stageId).FirstOrDefault().GetCombinations();
         }
 
+        #endregion
 
-        public void SetModelAcceleration(string loadcase, double a1, double a2, double a3)
+
+
+        /// <remarks>If the <paramref name="loadcase"/> already exist, the instance of the exising object will be used to create <see cref="ModelAccelerationAttribute"/></remarks>
+        public ModelAccelerationAttribute AddModelAcceleration(LoadCase loadcase)
         {
-            var lc = _loadCases.GetElementByName(loadcase);
+            ModelAccelerationAttribute modelAttribute;
 
-            _modelAttributes.Add(new ModelAccelerationAttribute(lc, a1, a2, a3));
+            if (_loadCases.Add(loadcase))
+            {
+                modelAttribute = new ModelAccelerationAttribute(loadcase);
+            }
+            else
+            {
+                // loadcase già presente, prendo l'istanza e l'assegno al ModelCase
+                _loadCases.GetItem(loadcase, out LoadCase found);
+
+                modelAttribute = new ModelAccelerationAttribute(found);
+            }
+
+            _modelAttributes.Add(modelAttribute);
+
+            return modelAttribute;
         }
 
 
@@ -713,6 +731,7 @@ namespace GPC.Model.FEM
         /// <param name="plateLoadMeshEntityMap">Map between <see cref="IAreaLoad"/> and <see cref="MeshFace"/>.Id</param>
         /// <param name="restrainMeshEntityMap">Map between IGeometryRestrain and <see cref="MeshVertex"/>.Id</param>
         /// <exception cref="KeyNotFoundException">If a <see cref="MeshVertex"/>.Id of <paramref name="restrainMeshEntityMap"/> is not found in the <paramref name="mesh"/> vertices ids</exception>
+        /// <remarks>The instance of <see cref="LoadCase"/> and <see cref="FreedomCase"/> will be replaced with the one in the <see cref="FemModel._loadCases"/> and <see cref="FemModel._freedomCases"/>  </remarks>
         public virtual int[] AddMesh(Mesh mesh, string platePropertyName, string brickPropertyName, 
                                     Dictionary<IPointLoad, int[]> vertexLoadMeshEntityMap, 
                                     Dictionary<ILineLoad, int[]> vertexLineLoadMeshEntityMap,
@@ -877,10 +896,13 @@ namespace GPC.Model.FEM
                     Dictionary<LinearSolver.DOF, double> displacements = geometryRestrain.GetImposedDisplacement();
 
                     FreedomCase freedomCase;
-                    if (AddFredomCase(geometryRestrain.FreedomCase))
+                    if (AddFreedomCase(geometryRestrain.FreedomCase))
                         freedomCase = geometryRestrain.FreedomCase;
-                    else 
-                        freedomCase = GetFredomCase(geometryRestrain.FreedomCase.Name); // se è già presente, mi prendo l'istanza di quello già presente
+                    else
+                    {
+                        GetFreedomCase(geometryRestrain.FreedomCase, out FreedomCase found);
+                        freedomCase = found; // se è già presente, mi prendo l'istanza di quello già presente
+                    }
 
 
                     NodeRestrainAttribute nra = new NodeRestrainAttribute(freedomCase, geometryRestrain.CoordinateSystem);
@@ -934,7 +956,10 @@ namespace GPC.Model.FEM
                     if (AddLoadCase(lc))
                         loadCase = lc;
                     else
-                        loadCase = GetLoadCase(lc.Name); // se è già presente, mi prendo l'istanza di quello già presente
+                    {
+                        GetLoadCase(lc, out LoadCase found);
+                        loadCase = found; // se è già presente, mi prendo l'istanza di quello già presente
+                    }
 
 
                     foreach (var index in indexes)
@@ -969,8 +994,12 @@ namespace GPC.Model.FEM
                     if (AddLoadCase(lc))
                         loadCase = lc;
                     else
-                        loadCase = GetLoadCase(lc.Name); // se è già presente, mi prendo l'istanza di quello già presente
+                    {
+                        GetLoadCase(lc, out LoadCase found);
+                        loadCase = found; // se è già presente, mi prendo l'istanza di quello già presente
+                    }
 
+                    
                     foreach (var index in indexes)
                     {
                         int nodeId = nodesNewIndexMap.ContainsKey(index) ? nodesNewIndexMap[index] : index;
@@ -1009,7 +1038,10 @@ namespace GPC.Model.FEM
                     if (AddLoadCase(lc))
                         loadCase = lc;
                     else
-                        loadCase = GetLoadCase(lc.Name); // se è già presente, mi prendo l'istanza di quello già presente
+                    {
+                        GetLoadCase(lc, out LoadCase found);
+                        loadCase = found; // se è già presente, mi prendo l'istanza di quello già presente
+                    }
 
                     foreach (var index in indexes)
                     {
