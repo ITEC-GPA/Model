@@ -223,7 +223,7 @@ namespace FemTest.Solver
 
             Assert.AreEqual(91.03, fem.GetDisplacementGlobalCoordinates(node8, LinearSolver.DOF.DY), 0.1); //In article is 92.24
 
-            double[] elementGlobalDispl = fem.GetDisplacementsGlobalCoordinates(elements[2]);
+            double[] elementGlobalDispl = fem.GetDisplacementsElementGlobalCoordinates(elements[2]);
             elements[2].GetNodesResults(elementGlobalDispl, out double[] localDispl,
                             out mnl.Matrix<double>[] globalPseudoDef, out mnl.Matrix<double>[] localPseudoDef,
                             out mnl.Matrix<double>[] globalForces, out mnl.Matrix<double>[] localForces,
@@ -351,7 +351,7 @@ namespace FemTest.Solver
             
 
             Console.WriteLine("Element 9");
-            double[] elementGlobalDispl = fem.GetDisplacementsGlobalCoordinates(elements[9-1]);
+            double[] elementGlobalDispl = fem.GetDisplacementsElementGlobalCoordinates(elements[9-1]);
             elements[9-1].GetNodesResults(elementGlobalDispl, out double[] localDispl,
                             out mnl.Matrix<double>[] globalPseudoDef, out mnl.Matrix<double>[] localPseudoDef,
                             out mnl.Matrix<double>[] globalForces, out mnl.Matrix<double>[] localForces,
@@ -361,7 +361,7 @@ namespace FemTest.Solver
             globalStress.ToList().ForEach(x => Console.WriteLine("global stress" + x));
 
             Console.WriteLine("Element 29");
-            elementGlobalDispl = fem.GetDisplacementsGlobalCoordinates(elements[29 - 1]);
+            elementGlobalDispl = fem.GetDisplacementsElementGlobalCoordinates(elements[29 - 1]);
             elements[29 - 1].GetNodesResults(elementGlobalDispl, out localDispl,
                             out globalPseudoDef, out localPseudoDef,
                             out globalForces, out localForces,
@@ -371,7 +371,7 @@ namespace FemTest.Solver
             globalStress.ToList().ForEach(x => Console.WriteLine("global stress" + x));
 
             Console.WriteLine("Element 2");
-            elementGlobalDispl = fem.GetDisplacementsGlobalCoordinates(elements[2 - 1]);
+            elementGlobalDispl = fem.GetDisplacementsElementGlobalCoordinates(elements[2 - 1]);
             elements[2 - 1].GetNodesResults(elementGlobalDispl, out localDispl,
                             out globalPseudoDef, out localPseudoDef,
                             out globalForces, out localForces,
@@ -450,7 +450,7 @@ namespace FemTest.Solver
             //Assert.AreEqual(1.0, displacementNode, 0.001);
 
             Console.WriteLine("Element 1");
-            double[] elementGlobalDispl = fem.GetDisplacementsGlobalCoordinates(elements[1 - 1]);
+            double[] elementGlobalDispl = fem.GetDisplacementsElementGlobalCoordinates(elements[1 - 1]);
             elements[1 - 1].GetNodesResults(elementGlobalDispl, out double[] localDispl,
                             out mnl.Matrix<double>[] globalPseudoDef, out mnl.Matrix<double>[] localPseudoDef,
                             out mnl.Matrix<double>[] globalForces, out mnl.Matrix<double>[] localForces,
@@ -459,7 +459,7 @@ namespace FemTest.Solver
             globalStress.ToList().ForEach(x => Console.WriteLine("global stress" + x));
 
             Console.WriteLine("Element 2");
-            elementGlobalDispl = fem.GetDisplacementsGlobalCoordinates(elements[2 - 1]);
+            elementGlobalDispl = fem.GetDisplacementsElementGlobalCoordinates(elements[2 - 1]);
             elements[2 - 1].GetNodesResults(elementGlobalDispl, out localDispl,
                             out globalPseudoDef, out localPseudoDef,
                             out globalForces, out localForces,
@@ -567,7 +567,7 @@ namespace FemTest.Solver
             //Assert.AreEqual(1.0, displacementNode, 0.001);
 
             Console.WriteLine("Element 1");
-            double[] elementGlobalDispl = fem.GetDisplacementsGlobalCoordinates(elements[1 - 1]);
+            double[] elementGlobalDispl = fem.GetDisplacementsElementGlobalCoordinates(elements[1 - 1]);
             elements[1 - 1].GetNodesResults(elementGlobalDispl, out double[] localDispl,
                             out mnl.Matrix<double>[] globalPseudoDef, out mnl.Matrix<double>[] localPseudoDef,
                             out mnl.Matrix<double>[] globalForces, out mnl.Matrix<double>[] localForces,
@@ -576,7 +576,7 @@ namespace FemTest.Solver
             globalStress.ToList().ForEach(x => Console.WriteLine("global stress" + x));
 
             Console.WriteLine("Element 2");
-            elementGlobalDispl = fem.GetDisplacementsGlobalCoordinates(elements[2 - 1]);
+            elementGlobalDispl = fem.GetDisplacementsElementGlobalCoordinates(elements[2 - 1]);
             elements[2 - 1].GetNodesResults(elementGlobalDispl, out localDispl,
                             out globalPseudoDef, out localPseudoDef,
                             out globalForces, out localForces,
@@ -658,7 +658,7 @@ namespace FemTest.Solver
             Assert.AreEqual(1.0, displacementNode, 0.001);*/
 
             Console.WriteLine("Element 1");
-            double[] elementGlobalDispl = fem.GetDisplacementsGlobalCoordinates(elements[1 - 1]);
+            double[] elementGlobalDispl = fem.GetDisplacementsElementGlobalCoordinates(elements[1 - 1]);
             elements[1 - 1].GetNodesResults(elementGlobalDispl, out double[] localDispl,
                             out mnl.Matrix<double>[] globalPseudoDef, out mnl.Matrix<double>[] localPseudoDef,
                             out mnl.Matrix<double>[] globalForces, out mnl.Matrix<double>[] localForces,
@@ -722,7 +722,7 @@ namespace FemTest.Solver
             Assert.AreEqual(1.0, displacementNode, 0.001);*/
 
             Console.WriteLine("Element 1");
-            double[] elementGlobalDispl = fem.GetDisplacementsGlobalCoordinates(elements[1 - 1]);
+            double[] elementGlobalDispl = fem.GetDisplacementsElementGlobalCoordinates(elements[1 - 1]);
             elements[1 - 1].GetNodesResults(elementGlobalDispl, out double[] localDispl,
                             out mnl.Matrix<double>[] globalPseudoDef, out mnl.Matrix<double>[] localPseudoDef,
                             out mnl.Matrix<double>[] globalForces, out mnl.Matrix<double>[] localForces,

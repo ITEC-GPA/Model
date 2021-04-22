@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using GPC.Geometry;
 using GPC.Model.FEM.Attributes;
 using GPC.Model.FEM.Properties;
 using GPC.Model.FreedomCases;
@@ -15,8 +16,9 @@ namespace GPC.Model.FEM.FiniteElements
     public class EulerBeam : Beam
     {
         double _length;
+        double _angleRadians;
 
-        internal EulerBeam(Node[] nodes, Section section) : base(nodes)
+        internal EulerBeam(Node[] nodes, Section section, double angleRadians = 0.0) : base(nodes)
         {
             _DOF.Add(LinearSolver.DOF.DX);
             _DOF.Add(LinearSolver.DOF.DY);
@@ -25,6 +27,7 @@ namespace GPC.Model.FEM.FiniteElements
             _DOF.Add(LinearSolver.DOF.RY);
             _DOF.Add(LinearSolver.DOF.RZ);
 
+            _angleRadians = angleRadians; //rotazione rispetto asse 1-X
             SetProperty(section);
         }
 
@@ -42,7 +45,7 @@ namespace GPC.Model.FEM.FiniteElements
             double L = _length;
             double L2 = L * L;
             double L3 = L2 * L;
-            double angle = section.AngleX1; //necessaria un'altra variabile?
+            double angleSection = section.AngleX1;
 
             _kElementLocalCoord = mnl.Matrix<double>.Build.Dense(12, 12);
 
@@ -268,13 +271,13 @@ namespace GPC.Model.FEM.FiniteElements
             lambda1[0, 1] = mox;
             lambda1[0, 2] = nox;
 
-            lambda1[1, 0] = -(lox * mox) / d;
-            lambda1[1, 1] = (lox * lox + nox * nox) / d;
-            lambda1[1, 2] = -(mox * nox)/d;
+            lambda1[1, 0] = -(lox * mox) / d; //loy
+            lambda1[1, 1] = (lox * lox + nox * nox) / d; //moy
+            lambda1[1, 2] = -(mox * nox)/d; //noz
 
-            lambda1[2, 0] = -nox / d;
-            lambda1[2, 1] = 0.0;
-            lambda1[2, 2] = lox / d;
+            lambda1[2, 0] = -nox / d; //loz
+            lambda1[2, 1] = 0.0; //moz
+            lambda1[2, 2] = lox / d; //noz
 
             /*Console.WriteLine("lambda1");
             FEMUtilities.WriteMatrix(lambda1);*/
@@ -282,11 +285,11 @@ namespace GPC.Model.FEM.FiniteElements
             mnl.Matrix<double> lambda2 = mnl.Matrix<double>.Build.Dense(3, 3);
             lambda2[0, 0] = 1.0;
 
-            lambda2[1, 1] = Math.Cos(angle);
-            lambda2[1, 2] = Math.Sin(angle);
+            lambda2[1, 1] = Math.Cos(_angleRadians);
+            lambda2[1, 2] = Math.Sin(_angleRadians);
 
-            lambda2[2, 1] = -Math.Sin(angle);
-            lambda2[2, 2] = Math.Cos(angle);
+            lambda2[2, 1] = -Math.Sin(_angleRadians);
+            lambda2[2, 2] = Math.Cos(_angleRadians);
 
             /*Console.WriteLine("lambda2");
             FEMUtilities.WriteMatrix(lambda2);*/
@@ -300,11 +303,11 @@ namespace GPC.Model.FEM.FiniteElements
                 }*/
                 lambda[0, 1] = mox;
 
-                lambda[1, 0] = -mox * Math.Cos(angle);
-                lambda[1, 2] = mox * Math.Sin(angle);
+                lambda[1, 0] = -mox * Math.Cos(_angleRadians);
+                lambda[1, 2] = mox * Math.Sin(_angleRadians);
 
-                lambda[2, 1] = Math.Sin(angle);
-                lambda[2, 2] = Math.Cos(angle);
+                lambda[2, 1] = Math.Sin(_angleRadians);
+                lambda[2, 2] = Math.Cos(_angleRadians);
             }
             else
             {
@@ -327,6 +330,12 @@ namespace GPC.Model.FEM.FiniteElements
             }
             /*Console.WriteLine("localToGlobal");
             FEMUtilities.WriteMatrix(_dofGlobalToLocal);*/
+
+            Vector3d ux = new Vector3d(_dofGlobalToLocal[0, 0], _dofGlobalToLocal[0, 1], _dofGlobalToLocal[0, 2]);
+            Vector3d uy = new Vector3d(_dofGlobalToLocal[1, 0], _dofGlobalToLocal[1, 1], _dofGlobalToLocal[1, 2]);
+            //Vector3d uz = new Vector3d(_dofGlobalToLocal[2, 0], _dofGlobalToLocal[2, 1], _dofGlobalToLocal[2, 2]);
+
+            _localCoordinateSystem = new CoordinateSystem(new Point3d(0, 0, 0), ux, uy);
             #endregion
         }
 
@@ -360,9 +369,59 @@ namespace GPC.Model.FEM.FiniteElements
             throw new NotImplementedException();
         }
 
-        public override void GetNodesResults(double[] globalDisplacementsNodes, out double[] localDisplacements, out mnl.Matrix<double>[] gloabalPseudoDeformation, out mnl.Matrix<double>[] localPseudoDeformation, out mnl.Matrix<double>[] globalForces, out mnl.Matrix<double>[] localForces, out mnl.Matrix<double>[] globalStress, out mnl.Matrix<double>[] localStress, out mnl.Matrix<double>[] globalEpsilon, out mnl.Matrix<double>[] localEpsilon)
+        public override void GetNodesResults(double[] globalDisplacementsNodes, out double[] localDisplacements, out mnl.Matrix<double>[] globalPseudoDeformation, out mnl.Matrix<double>[] localPseudoDeformation, out mnl.Matrix<double>[] globalForces, out mnl.Matrix<double>[] localForces, out mnl.Matrix<double>[] globalStress, out mnl.Matrix<double>[] localStress, out mnl.Matrix<double>[] globalEpsilon, out mnl.Matrix<double>[] localEpsilon)
         {
-            throw new NotImplementedException();
+            localDisplacements = new double[_nodesGlobal.Count() * 6];
+            localStress = new mnl.Matrix<double>[0];
+            localPseudoDeformation = new mnl.Matrix<double>[0];
+            localForces = new mnl.Matrix<double>[_nodesGlobal.Count()];
+            localEpsilon = new mnl.Matrix<double>[0];
+            globalStress = new mnl.Matrix<double>[0];
+            globalForces = new mnl.Matrix<double>[0];
+            globalEpsilon = new mnl.Matrix<double>[0];
+            globalPseudoDeformation = new mnl.Matrix<double>[0];
+
+            mnl.Vector<double> localDisplacementsNodes = _dofGlobalToLocal * mnl.Vector<double>.Build.DenseOfArray(globalDisplacementsNodes);
+            mnl.Vector<double> localForcesNodes = _kElementLocalCoord * localDisplacementsNodes;
+
+            Console.WriteLine("CSys=");
+            Console.WriteLine("ux = " + _localCoordinateSystem.V1);
+            Console.WriteLine("uy = " + _localCoordinateSystem.V2);
+            Console.WriteLine("uz = " + _localCoordinateSystem.V3);
+            FEMUtilities.WriteMatrix("DofGlobaltoLocal=", _dofGlobalToLocal, "F4");
+            //FEMUtilities.WriteMatrix("kElLocal=", _kElementLocalCoord,  "F4");
+            FEMUtilities.WriteMatrix("localDispl", localDisplacementsNodes, "F5");
+
+            localForces[0] = mnl.Matrix<double>.Build.Dense(6, 1); //N, V1, V2, M1, M2, T Node1 //TODO: trasformare output in vettore
+            localForces[1] = mnl.Matrix<double>.Build.Dense(6, 1); //N, V1, V2, M1, M2, T Node1 //TODO: trasformare output in vettore
+
+            Console.WriteLine("Internal forces:");
+            for (int i = 0; i < 12; i++)
+            {
+                if (i < 6)
+                {
+                    if (i == 4 || i == 1 || i == 2)
+                    {
+                        localForces[0][i, 0] = localForcesNodes[i];
+                        
+                    } else
+                    {
+                        localForces[0][i, 0] = -localForcesNodes[i];
+                    }
+                    Console.WriteLine(localForces[0][i, 0]);
+                } else
+                {
+                    int j = i - 6;
+                    if (j == 4 || j == 1 || j == 2)
+                    {
+                        localForces[1][j, 0] = -localForcesNodes[i];                        
+                    } else
+                    {
+                        localForces[1][j, 0] = localForcesNodes[i];
+                    }
+                    Console.WriteLine(localForces[1][j, 0]);
+                }
+            }
         }
 
         public override void GetResultPositionNaturalCoordinates(double csi, double eta, double zeta, double[] globalDisplacementsNodes, out double x, out double y, out double z, out double[] localDisplacements, out mnl.Matrix<double> gloabalPseudoDeformation, out mnl.Matrix<double> localPseudoDeformation, out mnl.Matrix<double> globalForces, out mnl.Matrix<double> localForces, out mnl.Matrix<double> globalStress, out mnl.Matrix<double> localStress, out mnl.Matrix<double> globalEpsilon, out mnl.Matrix<double> localEpsilon)
@@ -420,7 +479,7 @@ namespace GPC.Model.FEM.FiniteElements
             return fLocal;
         }
         
-        public void AddRelease(int indexEndBeam, BeamReleasesAttribute.LocalDOF[] dof, FreedomCase fc, string name)
+        public void AddEndRelease(int indexEndBeam, BeamReleasesAttribute.LocalDOF[] dof, FreedomCase fc, string name)
         {
             BeamReleasesAttribute release = new BeamReleasesAttribute(indexEndBeam, dof.ToHashSet(), fc, name);
             _attributesFreedomCase.Add(release);

@@ -544,7 +544,7 @@ namespace FemTest.Solver
             Assert.AreEqual(0.3553, fem.GetDisplacementGlobalCoordinates(nds[17], LinearSolver.DOF.DY), 0.01);
 
             Console.WriteLine("stress");
-            double[] elGlobalDispl = fem.GetDisplacementsGlobalCoordinates(els[2-1]);
+            double[] elGlobalDispl = fem.GetDisplacementsElementGlobalCoordinates(els[2-1]);
             els[2-1].GetNodesResults(elGlobalDispl, out double[] localDispl,
                             out mnl.Matrix<double>[] globalPseudoDef, out mnl.Matrix<double>[] localPseudoDef,
                             out mnl.Matrix<double>[] globalForces, out mnl.Matrix<double>[] localForces,
@@ -921,7 +921,7 @@ namespace FemTest.Solver
 
             //check stress
             Console.WriteLine("stress");
-            double[] elGlobalDispl = fem.GetDisplacementsGlobalCoordinates(els[4]);
+            double[] elGlobalDispl = fem.GetDisplacementsElementGlobalCoordinates(els[4]);
             els[4].GetNodesResults(elGlobalDispl, out double[] localDispl,
                             out mnl.Matrix<double>[] globalPseudoDef, out mnl.Matrix<double>[] localPseudoDef,
                             out mnl.Matrix<double>[] globalForces, out mnl.Matrix<double>[] localForces,
@@ -1077,7 +1077,7 @@ namespace FemTest.Solver
 
             //check stress
             Console.WriteLine("stress");
-            double[] elGlobalDispl = fem.GetDisplacementsGlobalCoordinates(els[4]);
+            double[] elGlobalDispl = fem.GetDisplacementsElementGlobalCoordinates(els[4]);
             els[4].GetNodesResults(elGlobalDispl, out double[] localDispl,
                             out mnl.Matrix<double>[] globalPseudoDef, out mnl.Matrix<double>[] localPseudoDef,
                             out mnl.Matrix<double>[] globalForces, out mnl.Matrix<double>[] localForces,

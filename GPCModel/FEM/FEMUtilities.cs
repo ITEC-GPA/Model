@@ -33,10 +33,10 @@ namespace GPC.Model.FEM
 
         public static void WriteMatrix(string s, mnl.Matrix<double> m, string format = "F2")
         {
-#if DEBUG
+            #if DEBUG
             Console.WriteLine(s);
             WriteMatrix(m, format);
-#endif
+            #endif
         }
 
         public static void WriteMatrix(mnl.Vector<double> v, string format = "F2")
@@ -50,10 +50,36 @@ namespace GPC.Model.FEM
             #endif
         }
 
+        public static void WriteMatrix(string s, mnl.Vector<double> v, string format = "F2")
+        {
+            #if DEBUG
+            Console.WriteLine(s);
+            WriteMatrix(v, format);            
+            #endif
+        }
+
         public static void WriteVector(mnl.Vector<double> v, string format = "F2")
         {
             #if DEBUG
             WriteMatrix(v, format);
+            #endif
+        }
+
+        public static void WriteVector(double[] v, string format = "F2")
+        {
+            #if DEBUG
+            for (int i = 0; i < v.Length; i++)
+            {
+                Console.WriteLine(v[i].ToString(format));
+            }
+            #endif
+        }
+
+        public static void WriteVector(string s, double[] v, string format = "F2")
+        {
+            #if DEBUG
+            Console.WriteLine(s);
+            WriteVector(v,format);
             #endif
         }
         #endregion

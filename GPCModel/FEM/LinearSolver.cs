@@ -595,7 +595,7 @@ namespace GPC.Model.FEM
             return ris;
         }
 
-        public double[] GetDisplacementsGlobalCoordinates(FiniteElement e)
+        public double[] GetDisplacementsElementGlobalCoordinates(FiniteElement e)
         {
             #region SelectGlobalDisplacementForElement
             var elements = Elements.Where(x => x == e);
