@@ -40,7 +40,7 @@ namespace GPC.Model.FEM.Attributes
         }
 
         public NodeStiffnessAttribute(NodeStiffnessAttribute nodeStiffnessAttribute)
-            : base(nodeStiffnessAttribute.FreedomCase, nodeStiffnessAttribute.Name, nodeStiffnessAttribute.Guid)
+            : base(nodeStiffnessAttribute.FreedomCaseName, nodeStiffnessAttribute.Name, nodeStiffnessAttribute.Guid)
         {
             _stiffness = nodeStiffnessAttribute._stiffness;
             _coordinateSystem = nodeStiffnessAttribute.CoordinateSystem;
