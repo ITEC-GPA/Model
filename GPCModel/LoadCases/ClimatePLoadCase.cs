@@ -12,10 +12,11 @@ namespace GPC.Model.LoadCases
         public double InstallationPressure => _installationPressure;
 
 
-        public ClimatePLoadCase(string name, double manufactoringPressure, double installationPressure, LoadCaseType loadCaseType, Guid guid)
+        public ClimatePLoadCase(string name, double manufactoringPressure, double installationPressure, LoadCaseTypes loadCaseType, Guid guid)
             : base(name, loadCaseType, guid)
         {
-            if (loadCaseType != LoadCaseType.ClimateSummer || loadCaseType != LoadCaseType.ClimateWinter)
+            if (loadCaseType != LoadCaseTypes.ClimateSummerDeltaH || loadCaseType != LoadCaseTypes.ClimateSummerDeltaP || loadCaseType != LoadCaseTypes.ClimateSummerDeltaT ||
+                loadCaseType != LoadCaseTypes.ClimateWinterDeltaH || loadCaseType != LoadCaseTypes.ClimateWinterDeltaP || loadCaseType != LoadCaseTypes.ClimateWinterDeltaT)
                 throw new ArgumentException("Load case type must be climate");
 
 

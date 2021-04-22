@@ -15,10 +15,10 @@ namespace ModelObjectTest
         {
             Guid g = Guid.NewGuid();
 
-            LoadCase lc = new LoadCase("Snow", LoadCase.LoadCaseType.Snow, g);
+            LoadCase lc = new LoadCase("Snow", LoadCase.LoadCaseTypes.Snow, g);
 
-            LoadCase lc1 = new LoadCase("Snow", LoadCase.LoadCaseType.Snow, g);
-            LoadCase lc2 = new LoadCase("Wind", LoadCase.LoadCaseType.Wind, Guid.NewGuid());
+            LoadCase lc1 = new LoadCase("Snow", LoadCase.LoadCaseTypes.Snow, g);
+            LoadCase lc2 = new LoadCase("Wind", LoadCase.LoadCaseTypes.WindPressure, Guid.NewGuid());
 
             Assert.IsTrue(lc.Equals(lc1));
             Assert.IsFalse(lc.Equals(lc2));
@@ -30,10 +30,10 @@ namespace ModelObjectTest
         {
             Guid g = Guid.NewGuid();
 
-            LoadCasePrEn lc = new LoadCasePrEn("Snow", LoadCase.LoadCaseType.Snow, LoadCasePrEn.LoadCasePrEnType.SnowCanopies, g);
+            LoadCaseEn16612 lc = new LoadCaseEn16612("Snow", LoadCase.LoadCaseTypes.Snow, LoadCaseEn16612.LoadCaseEn16612Types.SnowCanopies, g);
 
-            LoadCasePrEn lc1 = new LoadCasePrEn("Snow", LoadCase.LoadCaseType.Snow, LoadCasePrEn.LoadCasePrEnType.SnowCanopies, g);
-            LoadCasePrEn lc2 = new LoadCasePrEn("Wind", LoadCase.LoadCaseType.Wind, LoadCasePrEn.LoadCasePrEnType.BalustradeDuty, Guid.NewGuid());
+            LoadCaseEn16612 lc1 = new LoadCaseEn16612("Snow", LoadCase.LoadCaseTypes.Snow, LoadCaseEn16612.LoadCaseEn16612Types.SnowCanopies, g);
+            LoadCaseEn16612 lc2 = new LoadCaseEn16612("Wind", LoadCase.LoadCaseTypes.WindPressure, LoadCaseEn16612.LoadCaseEn16612Types.BalustradeDuty, Guid.NewGuid());
 
             Assert.IsTrue(lc.Equals(lc1));
             Assert.IsFalse(lc.Equals(lc2));
