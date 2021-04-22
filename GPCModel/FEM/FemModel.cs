@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
@@ -337,12 +337,30 @@ namespace GPC.Model.FEM
             return _stages.Where(i => i.Id == stageId).FirstOrDefault().GetCombinations();
         }
 
+        #endregion
 
-        public void SetModelAcceleration(string loadcase, double a1, double a2, double a3)
+
+
+        /// <remarks>If the <paramref name="loadcase"/> already exist, the instance of the exising object will be used to create <see cref="ModelAccelerationAttribute"/></remarks>
+        public ModelAccelerationAttribute AddModelAcceleration(LoadCase loadcase)
         {
-            var lc = _loadCases.GetElementByName(loadcase);
+            ModelAccelerationAttribute modelAttribute;
 
-            _modelAttributes.Add(new ModelAccelerationAttribute(lc, a1, a2, a3));
+            if (_loadCases.Add(loadcase))
+            {
+                modelAttribute = new ModelAccelerationAttribute(loadcase);
+            }
+            else
+            {
+                // loadcase già presente, prendo l'istanza e l'assegno al ModelCase
+                _loadCases.GetItem(loadcase, out LoadCase found);
+
+                modelAttribute = new ModelAccelerationAttribute(found);
+            }
+
+            _modelAttributes.Add(modelAttribute);
+
+            return modelAttribute;
         }
 
 
