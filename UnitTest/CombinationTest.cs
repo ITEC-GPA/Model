@@ -580,12 +580,12 @@ namespace ModelObjectTest
                 prestressLoadCase
             };
 
-            StandardEN1990 standardEN1990 = new StandardEN1990();
+            StandardUNIEN1990 standardUNIEN1990 = new StandardUNIEN1990();
             StandardEN1990.ImposedLoadCategory category = StandardEN1990.ImposedLoadCategory.CategoryA;
             StandardEN1990.LimitState limitState = StandardEN1990.LimitState.UltimateEquilibrium;
 
             // Act
-            List<CombinationEn> outList = CombinationEn.GenerateCombinations("combo", loadCaseList, standardEN1990, limitState, category);
+            List<CombinationEn> outList = CombinationEn.GenerateCombinations("combo", loadCaseList, standardUNIEN1990, limitState, category);
 
             // Assert
             Assert.IsTrue(outList.Count() == 6);
@@ -835,13 +835,13 @@ namespace ModelObjectTest
                 prestressLoadCase
             };
 
-            StandardEN1990 standardEN1990 = new StandardEN1990();
+            StandardUNIEN1990 standardUNIEN1990 = new StandardUNIEN1990();
             StandardEN1990.ImposedLoadCategory category = StandardEN1990.ImposedLoadCategory.CategoryA;
             StandardEN1990.LimitState limitState = StandardEN1990.LimitState.UltimateGeotechnical;
             StandardEN1990.ULSStructuralGeotechicalCombinationSets uLSCombinationSets = StandardEN1990.ULSStructuralGeotechicalCombinationSets.SetB;
 
             // Act
-            List<CombinationEn> outList = CombinationEn.GenerateCombinations("combo", loadCaseList, standardEN1990, limitState, category, uLSCombinationSets);
+            List<CombinationEn> outList = CombinationEn.GenerateCombinations("combo", loadCaseList, standardUNIEN1990, limitState, category, uLSCombinationSets);
 
             // Assert
             Assert.IsTrue(outList.Count() == 6);
