@@ -386,7 +386,7 @@ namespace ModelObjectTest
         }
 
         [TestMethod]
-        public void GeneratorUltimateStructural1()
+        public void ENGeneratorUltimateStructural1()
         {
             // Arrange
             string loadCaseName1 = "selfWeight";
@@ -429,7 +429,7 @@ namespace ModelObjectTest
         }
 
         [TestMethod]
-        public void GeneratorUltimateStructural2()
+        public void ENGeneratorUltimateStructural2()
         {
             // Arrange
             string loadCaseName1 = "selfWeight";
@@ -472,7 +472,7 @@ namespace ModelObjectTest
         }
 
         [TestMethod]
-        public void GeneratorUltimateStructural3()
+        public void ENGeneratorUltimateStructural3()
         {
             // Arrange
             string loadCaseName1 = "selfWeight";
@@ -518,7 +518,7 @@ namespace ModelObjectTest
         }
 
         [TestMethod]
-        public void GeneratorUltimateEquilibrium1()
+        public void ENGeneratorUltimateEquilibrium1()
         {
             // Arrange
             string loadCaseName1 = "selfWeight";
@@ -560,7 +560,7 @@ namespace ModelObjectTest
         }
 
         [TestMethod]
-        public void GeneratorUltimateEquilibrium2()
+        public void ENGeneratorUltimateEquilibrium2()
         {
             // Arrange
             string loadCaseName1 = "selfWeight";
@@ -602,7 +602,7 @@ namespace ModelObjectTest
         }
 
         [TestMethod]
-        public void GeneratorUltimateEquilibrium3()
+        public void ENGeneratorUltimateEquilibrium3()
         {
             // Arrange
             string loadCaseName1 = "selfWeight";
@@ -644,7 +644,7 @@ namespace ModelObjectTest
         }
 
         [TestMethod]
-        public void GeneratorUltimateFatigue1()
+        public void ENGeneratorUltimateFatigue1()
         {
             // Arrange
             string loadCaseName1 = "selfWeight";
@@ -686,7 +686,7 @@ namespace ModelObjectTest
         }
 
         [TestMethod]
-        public void GeneratorUltimateFatigue2()
+        public void ENGeneratorUltimateFatigue2()
         {
             // Arrange
             string loadCaseName1 = "selfWeight";
@@ -728,7 +728,7 @@ namespace ModelObjectTest
         }
 
         [TestMethod]
-        public void GeneratorUltimateFatigue3()
+        public void ENGeneratorUltimateFatigue3()
         {
             // Arrange
             string loadCaseName1 = "selfWeight";
@@ -770,7 +770,7 @@ namespace ModelObjectTest
         }
 
         [TestMethod]
-        public void GeneratorUltimateGeotechnical1()
+        public void ENGeneratorUltimateGeotechnical1()
         {
             // Arrange
             string loadCaseName1 = "selfWeight";
@@ -815,7 +815,7 @@ namespace ModelObjectTest
         }
 
         [TestMethod]
-        public void GeneratorUltimateGeotechnical2()
+        public void ENGeneratorUltimateGeotechnical2()
         {
             // Arrange
             string loadCaseName1 = "selfWeight";
@@ -858,7 +858,7 @@ namespace ModelObjectTest
         }
 
         [TestMethod]
-        public void GeneratorUltimateGeotechnical3()
+        public void ENGeneratorUltimateGeotechnical3()
         {
             // Arrange
             string loadCaseName1 = "SuperImposedDeadLoad";
@@ -898,7 +898,7 @@ namespace ModelObjectTest
         }
 
         [TestMethod]
-        public void GeneratorServiceabilityCharacteristic()
+        public void ENGeneratorServiceabilityCharacteristic()
         {
             // Arrange
             string loadCaseName1 = "selfWeight";
@@ -936,7 +936,7 @@ namespace ModelObjectTest
         }
 
         [TestMethod]
-        public void GeneratorServiceabilityQuasiPermanent()
+        public void ENGeneratorServiceabilityQuasiPermanent()
         {
             // Arrange
             string loadCaseName1 = "selfWeight";
@@ -971,7 +971,7 @@ namespace ModelObjectTest
         }
 
         [TestMethod]
-        public void GeneratorServiceabilityFrequent()
+        public void ENGeneratorServiceabilityFrequent()
         {
             // Arrange
             string loadCaseName1 = "selfWeight";
@@ -1010,7 +1010,7 @@ namespace ModelObjectTest
         }
 
         [TestMethod]
-        public void GeneratorMultyLoadCase()
+        public void ENGeneratorMultyLoadCase()
         {
             // Arrange
             string loadCaseName1 = "selfWeight";
@@ -1085,7 +1085,7 @@ namespace ModelObjectTest
         }
 
         [TestMethod]
-        public void GeneratorMultyLoadCase2()
+        public void ENGeneratorMultyLoadCase2()
         {
             // Arrange
             string loadCaseName1 = "selfWeight";
@@ -1180,7 +1180,7 @@ namespace ModelObjectTest
         }
 
         [TestMethod]
-        public void GeneratorWindPressureSuction1()
+        public void ENGeneratorWindPressureSuction1()
         {
             // Arrange
             string loadCaseName1 = "selfWeight";
@@ -1225,7 +1225,7 @@ namespace ModelObjectTest
         }
 
         [TestMethod]
-        public void GeneratorWindPressureSuction2()
+        public void ENGeneratorWindPressureSuction2()
         {
             // Arrange
             string loadCaseName1 = "selfWeight";
@@ -1357,7 +1357,7 @@ namespace ModelObjectTest
         }
 
         [TestMethod]
-        public void GeneratorClimate1()
+        public void ENGeneratorClimate1()
         {
             // Arrange
             string loadCaseName1 = "selfWeight";
@@ -1408,7 +1408,7 @@ namespace ModelObjectTest
             Assert.IsTrue(Math.Abs(outList[3][climateSummerDeltaPLoadCase2] - 1.50) < 0.001);
         }
         [TestMethod]
-        public void GeneratorClimate2()
+        public void ENGeneratorClimate2()
         {
             // Arrange
             string loadCaseName1 = "selfWeight";
@@ -1475,7 +1475,7 @@ namespace ModelObjectTest
         }
 
         [TestMethod]
-        public void GeneratorClimate3()
+        public void ENGeneratorClimate3()
         {
             // Arrange
             string loadCaseName1 = "selfWeight";
@@ -1560,7 +1560,7 @@ namespace ModelObjectTest
         }
 
         [TestMethod]
-        public void GeneratorClimate4()
+        public void ENGeneratorClimate4()
         {
             // Arrange
             string loadCaseName1 = "selfWeight";
@@ -1707,7 +1707,7 @@ namespace ModelObjectTest
         }
 
         [TestMethod]
-        public void GeneratorUltimateSeismic1()
+        public void ENGeneratorUltimateSeismic1()
         {
             // Arrange
             string loadCaseName1 = "selfWeight";
@@ -1753,7 +1753,7 @@ namespace ModelObjectTest
         }
 
         [TestMethod]
-        public void GeneratorUltimateSeismic2()
+        public void ENGeneratorUltimateSeismic2()
         {
             // Arrange
             string loadCaseName1 = "selfWeight";
@@ -1807,7 +1807,7 @@ namespace ModelObjectTest
         }
 
         [TestMethod]
-        public void GeneratorUltimateSeismic3()
+        public void ENGeneratorUltimateSeismic3()
         {
             // Arrange
             string loadCaseName1 = "selfWeight";
@@ -1863,6 +1863,144 @@ namespace ModelObjectTest
             Assert.IsTrue(Math.Abs(outList[0][liveLoadLoadCase2] - 0.60) < 0.001);
             Assert.IsTrue(Math.Abs(outList[1][liveLoadLoadCase1] - 0.60) < 0.001);
             Assert.IsTrue(Math.Abs(outList[1][liveLoadLoadCase2] - 0.60) < 0.001);
+        }
+
+        [TestMethod]
+        public void ASCEGeneratorLFRD1()
+        {
+            // Arrange
+            string loadCaseName1 = "selfWeight";
+            LoadCase selfWeightLoadCase = new LoadCase(loadCaseName1, LoadCase.LoadCaseTypes.SelfWeight);
+            string loadCaseName2 = "WindPressure";
+            LoadCase WindPressureLoadCase = new LoadCase(loadCaseName2, LoadCase.LoadCaseTypes.WindPressure);
+            string loadCaseName3 = "Snow";
+            LoadCase snowLoadCase = new LoadCase(loadCaseName3, LoadCase.LoadCaseTypes.Snow);
+            string loadCaseName7 = "LiveLoad2";
+            LoadCase liveLoadLoadCase1 = new LoadCase(loadCaseName7, LoadCase.LoadCaseTypes.LiveLoad);
+            string loadCaseName8 = "LiveLoad3";
+            LoadCase liveLoadLoadCase2 = new LoadCase(loadCaseName8, LoadCase.LoadCaseTypes.LiveLoad);
+
+            List<LoadCase> loadCaseList = new List<LoadCase>
+            {
+                selfWeightLoadCase,
+                WindPressureLoadCase,
+                snowLoadCase,
+                liveLoadLoadCase1,
+                liveLoadLoadCase2,
+            };
+
+            StandardASCE16 standardASCE16 = new StandardASCE16();
+
+            // Act
+            List<CombinationAsce> outList = CombinationAsce.GenerateCombinations("combo", loadCaseList, standardASCE16, StandardASCE16.LimitState.LFRD);
+
+            // Assert
+            Assert.IsTrue(outList.Count() == 11);
+        }
+
+        [TestMethod]
+        public void ASCEGeneratorLFRD2()
+        {
+            // Arrange
+            string loadCaseName1 = "selfWeight1";
+            LoadCase selfWeightLoadCase = new LoadCase(loadCaseName1, LoadCase.LoadCaseTypes.SelfWeight);
+            string loadCaseName2 = "WindPressure";
+            LoadCase WindPressureLoadCase = new LoadCase(loadCaseName2, LoadCase.LoadCaseTypes.WindPressure);
+            string loadCaseName3 = "Snow";
+            LoadCase snowLoadCase = new LoadCase(loadCaseName3, LoadCase.LoadCaseTypes.Snow);
+            string loadCaseName7 = "LiveLoad2";
+            LoadCase liveLoadLoadCase1 = new LoadCase(loadCaseName7, LoadCase.LoadCaseTypes.LiveLoad);
+            string loadCaseName8 = "LiveLoad3";
+            LoadCase liveLoadLoadCase2 = new LoadCase(loadCaseName8, LoadCase.LoadCaseTypes.LiveLoad);
+            string loadCaseName9 = "selfWeight12";
+            LoadCase selfWeightLoadCase2 = new LoadCase(loadCaseName9, LoadCase.LoadCaseTypes.SelfWeight);
+            string loadCaseName10 = "Earthquake";
+            LoadCase earthquakeLoadCase = new LoadCase(loadCaseName10, LoadCase.LoadCaseTypes.Earthquake);
+
+            List<LoadCase> loadCaseList = new List<LoadCase>
+            {
+                selfWeightLoadCase,
+                selfWeightLoadCase2,
+                WindPressureLoadCase,
+                snowLoadCase,
+                liveLoadLoadCase1,
+                liveLoadLoadCase2,
+                earthquakeLoadCase,
+            };
+
+            StandardASCE16 standardASCE16 = new StandardASCE16();
+
+            // Act
+            List<CombinationAsce> outList = CombinationAsce.GenerateCombinations("combo", loadCaseList, standardASCE16, StandardASCE16.LimitState.LFRD);
+
+            // Assert
+            Assert.IsTrue(outList.Count() == 12);
+        }
+
+        [TestMethod]
+        public void ASCEGeneratorASD1()
+        {
+            // Arrange
+            string loadCaseName1 = "selfWeight";
+            LoadCase selfWeightLoadCase = new LoadCase(loadCaseName1, LoadCase.LoadCaseTypes.SelfWeight);
+            string loadCaseName2 = "WindPressure";
+            LoadCase WindPressureLoadCase = new LoadCase(loadCaseName2, LoadCase.LoadCaseTypes.WindPressure);
+            string loadCaseName3 = "Snow";
+            LoadCase snowLoadCase = new LoadCase(loadCaseName3, LoadCase.LoadCaseTypes.Snow);
+            string loadCaseName7 = "LiveLoad2";
+            LoadCase liveLoadLoadCase1 = new LoadCase(loadCaseName7, LoadCase.LoadCaseTypes.LiveLoad);
+            string loadCaseName8 = "LiveLoad3";
+            LoadCase liveLoadLoadCase2 = new LoadCase(loadCaseName8, LoadCase.LoadCaseTypes.LiveLoad);
+
+            List<LoadCase> loadCaseList = new List<LoadCase>
+            {
+                selfWeightLoadCase,
+                WindPressureLoadCase,
+                snowLoadCase,
+                liveLoadLoadCase1,
+                liveLoadLoadCase2,
+            };
+
+            StandardASCE16 standardASCE16 = new StandardASCE16();
+
+            // Act
+            List<CombinationAsce> outList = CombinationAsce.GenerateCombinations("combo", loadCaseList, standardASCE16, StandardASCE16.LimitState.ASD);
+
+            // Assert
+            Assert.IsTrue(outList.Count() == 11);
+        }
+
+        [TestMethod]
+        public void ASCEGeneratorASD2()
+        {
+            // Arrange
+            string loadCaseName1 = "selfWeight";
+            LoadCase selfWeightLoadCase = new LoadCase(loadCaseName1, LoadCase.LoadCaseTypes.SelfWeight);
+            string loadCaseName2 = "SuperImposedDeadLoad";
+            LoadCase superImposedLoadCase = new LoadCase(loadCaseName2, LoadCase.LoadCaseTypes.SuperImposedDeadLoad);
+            string loadCaseName3 = "Snow";
+            LoadCase snowLoadCase = new LoadCase(loadCaseName3, LoadCase.LoadCaseTypes.Snow);
+            string loadCaseName7 = "LiveLoad2";
+            LoadCase liveLoadLoadCase1 = new LoadCase(loadCaseName7, LoadCase.LoadCaseTypes.LiveLoad);
+            string loadCaseName8 = "LiveLoad3";
+            LoadCase liveLoadLoadCase2 = new LoadCase(loadCaseName8, LoadCase.LoadCaseTypes.LiveLoad);
+
+            List<LoadCase> loadCaseList = new List<LoadCase>
+            {
+                selfWeightLoadCase,
+                superImposedLoadCase,
+                snowLoadCase,
+                liveLoadLoadCase1,
+                liveLoadLoadCase2,
+            };
+
+            StandardASCE16 standardASCE16 = new StandardASCE16();
+
+            // Act
+            List<CombinationAsce> outList = CombinationAsce.GenerateCombinations("combo", loadCaseList, standardASCE16, StandardASCE16.LimitState.ASD);
+
+            // Assert
+            Assert.IsTrue(outList.Count() == 7);
         }
     }
 }
