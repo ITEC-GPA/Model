@@ -57,13 +57,13 @@ namespace FemTest.Solver
             nds[2].AddAttribute(fix);
 
             //add release
-            BeamReleasesAttribute.LocalDOF[] hinge = new BeamReleasesAttribute.LocalDOF[] {
-                BeamReleasesAttribute.LocalDOF.R2,
-                BeamReleasesAttribute.LocalDOF.R3
+            Beam.LocalDOF[] hinge = new Beam.LocalDOF[] {
+                Beam.LocalDOF.R2,
+                Beam.LocalDOF.R3
                 };
-            beams[0].AddRelease(1, hinge, fc, "rel");
-            beams[0].AddRelease(2, hinge, fc, "rel");
-            beams[1].AddRelease(1, hinge, fc, "rel");
+            beams[0].AddEndRelease(1, hinge, fc, "rel");
+            beams[0].AddEndRelease(2, hinge, fc, "rel");
+            beams[1].AddEndRelease(1, hinge, fc, "rel");
 
             NnLinearStaticSolver fem = new NnLinearStaticSolver(beams.ToArray());
 

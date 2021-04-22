@@ -580,7 +580,7 @@ namespace GPC.Model.FEM
             return _nodeGlobalDisplacements[pos];
         }
 
-        public double[] GetDisplacementGlobalCoordinates(string labelNode, DOF dof)
+        /*public double[] GetDisplacementGlobalCoordinates(string labelNode, DOF dof)
         {
             if (labelNode== "" || labelNode == null)
             {
@@ -593,9 +593,9 @@ namespace GPC.Model.FEM
                 ris[i] = _nodeGlobalDisplacements[pos[i]];
             }
             return ris;
-        }
+        }*/
 
-        public double[] GetDisplacementsGlobalCoordinates(FiniteElement e)
+        public double[] GetDisplacementsElementGlobalCoordinates(FiniteElement e)
         {
             #region SelectGlobalDisplacementForElement
             var elements = Elements.Where(x => x == e);
@@ -632,6 +632,31 @@ namespace GPC.Model.FEM
                 //element.GetResults(globalDisplacementsNodesElement, out double[] localDisplacements, out mnl.Matrix<double>[] gloabalPseudoDeformation, out mnl.Matrix<double>[] localPseudoDeformation, out mnl.Matrix<double>[] globalForces, out mnl.Matrix<double>[] localForces, out mnl.Matrix<double>[] globalStress, out mnl.Matrix<double>[] localStress, out mnl.Matrix<double>[] globalEpsilon, out mnl.Matrix<double>[] localEpsilon);
                 #endregion
             }
+        }
+
+        //TODO: trasformare in classe Beam
+        public Dictionary<Beam.InternalAction, double> GetBeamInternalForces(EulerBeam b, double x)
+        {
+            var globalDispl = GetDisplacementsElementGlobalCoordinates(b);
+            return b.GetInternalAction(x, globalDispl);
+        }
+
+        //TODO: trasformare in classe Beam
+        public Dictionary<Beam.InternalAction, double> GetBeamInternalForces(EulerBeam b, int indexNode)
+        {
+            double station;
+            if (indexNode == 1 || indexNode == 0)
+            {
+                station = 0.0;
+            } else if (indexNode == 2)
+            {
+                station = b.L;
+            } else
+            {
+                throw new ArgumentOutOfRangeException("Node I = 1 or J = 2?");
+            }
+            var globalDispl = GetDisplacementsElementGlobalCoordinates(b);
+            return b.GetInternalAction(station, globalDispl);
         }
         #endregion
 
