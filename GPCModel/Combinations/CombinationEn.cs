@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
@@ -503,8 +503,6 @@ namespace GPC.Model.Combinations
             {
                 bool summerComboVariabili = false;
                 bool winterComboVariabili = false;
-                bool summerComboBase = false;
-                bool winterComboBase = false;
 
                 foreach (LoadCaseCoefficient loadCaseCoefficient in randomList[i])
                 {
@@ -518,26 +516,29 @@ namespace GPC.Model.Combinations
 
                 foreach (List<LoadCaseCoefficient> l in loadCaseCoefficientsBuffer)
                 {
+                    bool summerComboBase = false;
+                    bool winterComboBase = false;
+
                     foreach (LoadCaseCoefficient lcc in l)
                     {
                         var loadCaseType = lcc.LoadCase.GetLoadCaseType();
-                        if ((loadCaseType == LoadCase.LoadCaseType.ClimateSummerDeltaT) || (loadCaseType == LoadCase.LoadCaseType.ClimateSummerDeltaP))
+                        if ((loadCaseType == LoadCase.LoadCaseType.ClimateSummerDeltaT) || (loadCaseType == LoadCase.LoadCaseType.ClimateSummerDeltaP) || (loadCaseType == LoadCase.LoadCaseType.ClimateSummerDeltaH))
                             summerComboBase = true;
 
-                        if ((loadCaseType == LoadCase.LoadCaseType.ClimateWinterDeltaT) || (loadCaseType == LoadCase.LoadCaseType.ClimateWinterDeltaP))
+                        if ((loadCaseType == LoadCase.LoadCaseType.ClimateWinterDeltaT) || (loadCaseType == LoadCase.LoadCaseType.ClimateWinterDeltaP) || (loadCaseType == LoadCase.LoadCaseType.ClimateWinterDeltaH))
                             winterComboBase = true;
                     }
 
-                    if ((summerComboVariabili && summerComboBase) || (winterComboVariabili && winterComboBase) || (!summerComboVariabili && !winterComboVariabili))
+                    if ((summerComboVariabili && winterComboBase) || (winterComboVariabili && summerComboBase))
+                    {
+                        // non si possono mischiare le combinazioni
+                    }
+                    else if ((summerComboVariabili && summerComboBase) || (winterComboVariabili && winterComboBase) || (!summerComboVariabili && !winterComboVariabili))
                     {
                         List<LoadCaseCoefficient> tempList = new List<LoadCaseCoefficient>();
                         tempList.AddRange(l);
                         tempList.AddRange(randomList[i]);
                         loadCaseCoefficients.Add(tempList);
-                    }
-                    else if ((summerComboVariabili && winterComboBase) || (winterComboVariabili && summerComboBase))
-                    {
-                         // non si possono mischiare le combinazioni
                     }
                     else
                     {
@@ -566,25 +567,66 @@ namespace GPC.Model.Combinations
                                                         StandardEN1990.ULSStructuralGeotechicalCombinationSets uLS, StandardEN1990.ImposedLoadCategory category, bool highAltitude = true)
         {
             List<List<LoadCaseCoefficient>> loadCaseCoefficients = new List<List<LoadCaseCoefficient>>();
-            List<List<LoadCaseCoefficient>> loadCaseCoefficientsBase = GetUnfavourableBasicCombinations(loadCases, standardEN1990, limitState, uLS);                       
+            List<List<LoadCaseCoefficient>> loadCaseCoefficientsBuffer = GetUnfavourableBasicCombinations(loadCases, standardEN1990, limitState, uLS);
 
             List<LoadCase> list = new List<LoadCase>();
             foreach (LoadCase loadCase in loadCases)
-                if (loadCase.GetLoadCaseType() != LoadCase.LoadCaseType.Prestress && loadCase.GetLoadCaseType() != LoadCase.LoadCaseType.SelfWeight && 
-                    loadCase.GetLoadCaseType() != LoadCase.LoadCaseType.SuperImposedDeadLoad && loadCase.GetLoadCaseType() != LoadCase.LoadCaseType.ClimateWinterDeltaH && 
+                if (loadCase.GetLoadCaseType() != LoadCase.LoadCaseType.Prestress && loadCase.GetLoadCaseType() != LoadCase.LoadCaseType.SelfWeight &&
+                    loadCase.GetLoadCaseType() != LoadCase.LoadCaseType.SuperImposedDeadLoad && loadCase.GetLoadCaseType() != LoadCase.LoadCaseType.ClimateWinterDeltaH &&
                     loadCase.GetLoadCaseType() != LoadCase.LoadCaseType.ClimateSummerDeltaH && loadCase.GetLoadCaseType() != LoadCase.LoadCaseType.Earthquake)
                     list.Add(loadCase);
 
-
             List<List<LoadCaseCoefficient>> randomList = RandomizeVariableLoads(list, standardEN1990, limitState, uLS, category, highAltitude);
+
             for (int i = 0; i < randomList.Count(); i++)
             {
-                foreach (List<LoadCaseCoefficient> l in loadCaseCoefficientsBase)
+                bool summerComboVariabili = false;
+                bool winterComboVariabili = false;
+
+
+                foreach (LoadCaseCoefficient loadCaseCoefficient in randomList[i])
                 {
-                    List<LoadCaseCoefficient> tempList = new List<LoadCaseCoefficient>();
-                    tempList.AddRange(l);
-                    tempList.AddRange(randomList[i]);
-                    loadCaseCoefficients.Add(tempList);
+                    var loadCaseType = loadCaseCoefficient.LoadCase.GetLoadCaseType();
+                    if ((loadCaseType == LoadCase.LoadCaseType.ClimateSummerDeltaT) || (loadCaseType == LoadCase.LoadCaseType.ClimateSummerDeltaP))
+                        summerComboVariabili = true;
+
+                    if ((loadCaseType == LoadCase.LoadCaseType.ClimateWinterDeltaT) || (loadCaseType == LoadCase.LoadCaseType.ClimateWinterDeltaP))
+                        winterComboVariabili = true;
+                }
+
+                foreach (List<LoadCaseCoefficient> l in loadCaseCoefficientsBuffer)
+                {
+                    bool summerComboBase = false;
+                    bool winterComboBase = false;
+
+                    foreach (LoadCaseCoefficient lcc in l)
+                    {
+                        var loadCaseType = lcc.LoadCase.GetLoadCaseType();
+                        if ((loadCaseType == LoadCase.LoadCaseType.ClimateSummerDeltaT) || (loadCaseType == LoadCase.LoadCaseType.ClimateSummerDeltaP) || (loadCaseType == LoadCase.LoadCaseType.ClimateSummerDeltaH))
+                            summerComboBase = true;
+
+                        if ((loadCaseType == LoadCase.LoadCaseType.ClimateWinterDeltaT) || (loadCaseType == LoadCase.LoadCaseType.ClimateWinterDeltaP) || (loadCaseType == LoadCase.LoadCaseType.ClimateWinterDeltaH))
+                            winterComboBase = true;
+                    }
+
+                    if ((summerComboVariabili && winterComboBase) || (winterComboVariabili && summerComboBase))
+                    {
+                        // non si possono mischiare le combinazioni
+                    }
+                    else if ((summerComboVariabili && summerComboBase) || (winterComboVariabili && winterComboBase) || (!summerComboVariabili && !winterComboVariabili))
+                    {
+                        List<LoadCaseCoefficient> tempList = new List<LoadCaseCoefficient>();
+                        tempList.AddRange(l);
+                        tempList.AddRange(randomList[i]);
+                        loadCaseCoefficients.Add(tempList);
+                    }
+                    else
+                    {
+                        List<LoadCaseCoefficient> tempList = new List<LoadCaseCoefficient>();
+                        tempList.AddRange(l);
+                        tempList.AddRange(randomList[i]);
+                        loadCaseCoefficients.Add(tempList);
+                    }
                 }
             }
 
