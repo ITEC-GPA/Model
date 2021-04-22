@@ -336,6 +336,8 @@ namespace GPC.Model.Combinations
         public override int GetHashCode()
         {
             var hashCode = 23;
+            hashCode = hashCode + base.GetHashCode();
+
             foreach (var element in _coefficients)
             {
                 hashCode = hashCode + EqualityComparer<LoadCaseCoefficient>.Default.GetHashCode(element);
@@ -457,5 +459,48 @@ namespace GPC.Model.Combinations
         }
 
         #endregion Nested protected class
+
+        #region Equality comprarer
+
+        /// <summary>
+        /// Compare two <see cref="Combination"/> using only <see cref="Combination._coefficients"/> as equality parameters
+        /// </summary>
+        public class CombinationCoefficientEqualityComparer : IEqualityComparer<Combination>
+        {
+            /// <returns> <inheritdoc/>
+            /// <para> true if both <paramref name="x"/> and <paramref name="y"/> are null </para>
+            /// </returns>
+            /// <remarks> Only <see cref="Combination._coefficients"/> are used as equality parameters</remarks>
+            bool IEqualityComparer<Combination>.Equals(Combination x, Combination y)
+            {
+                if (ReferenceEquals(x, y))
+                    return true;
+
+                if (x == null && y == null)
+                    return true;
+
+                if (x == null || y == null)
+                    return false;
+
+                if (x._coefficients.ScrambledEquals(y._coefficients))
+                    return true;
+
+                return false;
+            }
+
+            /// <inheritdoc/>
+            /// <remarks> Only <see cref="Combination._coefficients"/> are used as equality parameters </remarks>
+            int IEqualityComparer<Combination>.GetHashCode(Combination obj)
+            {
+                var hashCode = 23;
+                foreach (var element in obj._coefficients)
+                {
+                    hashCode = hashCode + EqualityComparer<LoadCaseCoefficient>.Default.GetHashCode(element);
+                }
+                return hashCode;
+            }
+        }
+
+        #endregion
     }
 }
