@@ -81,7 +81,13 @@
     <Compile Include="Elements\GhostElement.cs" />
     <Compile Include="FEM\Attributes\FreedomCase\BeamReleasesAttribute.cs" />
     <Compile Include="FEM\Attributes\IBeamFreedomCaseAttribute.cs" />
+    <Compile Include="FEM\Attributes\IBrickLoadCaseAttribute.cs" />
+    <Compile Include="FEM\Attributes\IModelAttribute.cs" />
     <Compile Include="FEM\Attributes\IPlateFreedomCaseAttribute.cs" />
+    <Compile Include="FEM\Attributes\LoadCase\BeamAccelerationAttribute.cs" />
+    <Compile Include="FEM\Attributes\LoadCase\BrickAccelerationAttribute.cs" />
+    <Compile Include="FEM\Attributes\LoadCase\ModelAccelerationAttribute.cs" />
+    <Compile Include="FEM\Attributes\LoadCase\PlateAccelerationAttribute.cs" />
     <Compile Include="FEM\Attributes\LoadCase\PlatePressureAttribute.cs" />
     <Compile Include="FEM\Collections\FemObjectBaseCollection.cs" />
     <Compile Include="FEM\Collections\FemObjectCollection.cs" />

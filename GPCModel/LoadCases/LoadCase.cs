@@ -85,6 +85,8 @@ namespace GPC.Model.LoadCases
             info.AddValue("LoadCaseType", _loadCaseType);
         }
 
+
+        /// <returns><see langword="True"/> if <paramref name="obj"/> have the same <see cref="_loadCaseType"/> and <see cref="ModelObject.Name"/> of this object </returns>
         public override bool Equals(object obj)
         {
             if (obj is null)
