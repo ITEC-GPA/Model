@@ -50,10 +50,9 @@ namespace GPC.Model.Combinations
         }
 
         #endregion
+
         #region Abstract methods
 
-
-        #region PUBLIC METHODS
         public abstract bool IsUltimate();
 
         public abstract object Clone();
@@ -330,6 +329,9 @@ namespace GPC.Model.Combinations
             return sb.ToString();
         }
 
+        #endregion
+
+
         #region Equals - HashCode - Operators
 
         public override bool Equals(object obj)
@@ -376,51 +378,9 @@ namespace GPC.Model.Combinations
         #endregion Equals - HashCode - Operators - Serialization - ToString
 
 
-        #region INDEXER
         #region Nested protected class
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="loadcase"></param>
-        /// <returns>The coefficient associated to the <paramref name="loadcase"/>
-        /// <para>If the <paramref name="loadcase"/> is not found, then return 0</para></returns>
-        /// <remarks>The <paramref name="loadcase"/> will be added only if the coefficient is not zero</remarks>
-        public double this[LoadCase loadcase]
-        {
-            set
-            {
-                if (value != 0)
-                {
-                    var loadCaseCoefficient = _coefficients.Where(a => a.LoadCase == loadcase).ToList();
-
-                    if (loadCaseCoefficient.Count() > 0) // Se loadcase è già presente in lista
-                    {
-                        LoadCaseCoefficient lcc = new LoadCaseCoefficient(value + loadCaseCoefficient.First().Coefficient, loadcase);
-
-                        _coefficients.Remove(loadCaseCoefficient.First());
-
-                        _coefficients.Add(lcc);
-                    }
-                    else
-                    {
-                        _coefficients.Add(new LoadCaseCoefficient(value, loadcase));
-                    }
-                    _coefficients.Sort();
-                }
-            }
-            get
-            {
-                for (int i = 0; i < _coefficients.Count; i++)
-                {
-                    if (_coefficients[i].LoadCase == loadcase)
-                    {
-                        return _coefficients[i].Coefficient;
-                    }
-                }
-                return 0;
-            }
-        }
+        
 
         #endregion
 
@@ -521,6 +481,7 @@ namespace GPC.Model.Combinations
         }
 
         #endregion Nested protected class
+
 
         #region Equality comprarer
 
