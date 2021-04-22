@@ -2111,7 +2111,7 @@ namespace ModelObjectTest
             List<CombinationAsce> outList = CombinationAsce.GenerateCombinations("combo", loadCaseList, standardASCE16, StandardASCE16.LimitState.ASD);
 
             // Assert
-            Assert.IsTrue(outList.Count() == 8);
+            Assert.IsTrue(outList.Count() == 7);
         }
 
         [TestMethod]
