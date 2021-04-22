@@ -15,7 +15,8 @@ namespace GPC.Model.LoadCases
         public ClimateHLoadCase(string name, double manufactoringHeight, double installationHeight, LoadCaseType loadCaseType, Guid guid)
             : base(name, loadCaseType, guid)
         {
-            if (loadCaseType != LoadCaseType.ClimateSummer || loadCaseType != LoadCaseType.ClimateWinter)
+            if (loadCaseType != LoadCaseType.ClimateSummerDeltaH || loadCaseType != LoadCaseType.ClimateSummerDeltaP || loadCaseType != LoadCaseType.ClimateSummerDeltaT ||
+                loadCaseType != LoadCaseType.ClimateWinterDeltaH || loadCaseType != LoadCaseType.ClimateWinterDeltaP || loadCaseType != LoadCaseType.ClimateWinterDeltaT)
                 throw new ArgumentException("Load case type must be climate");
 
             this._manufactoringHeight = manufactoringHeight;

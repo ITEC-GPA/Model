@@ -44,6 +44,7 @@ namespace GPC.Model.Combinations
             _coefficients = (List<LoadCaseCoefficient>)info.GetValue("Coefficients", typeof(List<LoadCaseCoefficient>));
         }
 
+
         #region PUBLIC METHODS
 
         public override void GetObjectData(SerializationInfo info, StreamingContext context)

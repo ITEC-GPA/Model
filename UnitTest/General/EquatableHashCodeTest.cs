@@ -162,9 +162,9 @@ namespace GeneralTest
         [TestMethod]
         public void StageConstruction1()
         {
-            Combination cmb1 = new CombinationEn("cmb1", CombinationEn.CombinationType.UltimateEquilibrium);
-            Combination cmb2 = new CombinationEn("cmb2", CombinationEn.CombinationType.ServiceabilityFrequent);
-            Combination cmb3 = new CombinationEn("cmb2", CombinationEn.CombinationType.UltimateEquilibrium);
+            Combination cmb1 = new CombinationEn("cmb1", StandardEN1990.LimitState.UltimateEquilibrium);
+            Combination cmb2 = new CombinationEn("cmb2", StandardEN1990.LimitState.ServiceabilityFrequent);
+            Combination cmb3 = new CombinationEn("cmb2", StandardEN1990.LimitState.UltimateEquilibrium);
 
             List<Combination> combinations = new List<Combination>();
             combinations.Add(cmb1);
