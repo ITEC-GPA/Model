@@ -400,6 +400,19 @@ namespace GPC.Model.FEM
 
             AddNodes(finiteElement.Nodes);
 
+            foreach(var attribute in finiteElement.AttributesLoadCase)
+            {
+                if (!LoadCaseExist(attribute.LoadCaseName))
+                    throw new InvalidOperationException($"Loadcase {attribute.LoadCaseName} does not exist in the femModel");
+            }
+
+            foreach (var attribute in finiteElement.AttributesFreedomCase)
+            {
+                if (!FreedomCaseExist(attribute.FreedomCaseName))
+                    throw new InvalidOperationException($"Loadcase {attribute.FreedomCaseName} does not exist in the femModel");
+            }
+
+
             _elements.Add(finiteElement);
 
         }
