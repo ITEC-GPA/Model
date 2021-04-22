@@ -114,12 +114,12 @@ namespace FemTest.Solver
             PlateProperty prop = new PlateProperty(mat, 0, 1, "p");
 
             CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
-            NodeRestrainAttribute DXDYDZ = new NodeRestrainAttribute(fc, sys);
+            NodeRestrainAttribute DXDYDZ = new NodeRestrainAttribute("fc", sys);
             DXDYDZ.AddExternalRestrain(LinearSolver.DOF.DX);
             DXDYDZ.AddExternalRestrain(LinearSolver.DOF.DY);
             DXDYDZ.AddExternalRestrain(LinearSolver.DOF.DZ);
 
-            NodeRestrainAttribute DZ = new NodeRestrainAttribute(fc, sys);
+            NodeRestrainAttribute DZ = new NodeRestrainAttribute("fc", sys);
             DZ.AddExternalRestrain(LinearSolver.DOF.DZ);
 
             List<Node> nodesPlate1 = new List<Node>();
@@ -201,15 +201,15 @@ namespace FemTest.Solver
             PlateProperty prop = new PlateProperty(mat, 0, 1, "p");
 
             CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
-            NodeRestrainAttribute DXDYDZ = new NodeRestrainAttribute(freedomCase, sys);
+            NodeRestrainAttribute DXDYDZ = new NodeRestrainAttribute("freedomCase", sys);
             DXDYDZ.AddExternalRestrain(LinearSolver.DOF.DX);
             DXDYDZ.AddExternalRestrain(LinearSolver.DOF.DY);
             DXDYDZ.AddExternalRestrain(LinearSolver.DOF.DZ);
 
-            NodeRestrainAttribute DZ = new NodeRestrainAttribute(freedomCase, sys);
+            NodeRestrainAttribute DZ = new NodeRestrainAttribute("freedomCase", sys);
             DZ.AddExternalRestrain(LinearSolver.DOF.DZ);
 
-            NodeForceAttribute fX1000 = new NodeForceAttribute(loadCase, sys, 1000, 0, 0, 0, 0, 0);
+            NodeForceAttribute fX1000 = new NodeForceAttribute("loadCase", sys, 1000, 0, 0, 0, 0, 0);
 
             List<Node> nodesPlate1 = new List<Node>();
             Node nd1 = new Node(0.0, 0, 0, "1");
@@ -282,17 +282,17 @@ namespace FemTest.Solver
             PlateProperty prop = new PlateProperty(mat, 0, 1, "p");
 
             CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
-            NodeRestrainAttribute DXDYDZ = new NodeRestrainAttribute(freedomCase, sys);
+            NodeRestrainAttribute DXDYDZ = new NodeRestrainAttribute("freedomCase", sys);
             DXDYDZ.AddExternalRestrain(LinearSolver.DOF.DX);
             DXDYDZ.AddExternalRestrain(LinearSolver.DOF.DY);
             DXDYDZ.AddExternalRestrain(LinearSolver.DOF.DZ);
 
-            NodeRestrainAttribute DZ = new NodeRestrainAttribute(freedomCase, sys);
+            NodeRestrainAttribute DZ = new NodeRestrainAttribute("freedomCase", sys);
             DZ.AddExternalRestrain(LinearSolver.DOF.DZ);
 
             CoordinateSystem sys2 = new CoordinateSystem(new Point3d(1, 1, 0), new Point3d(2, 2, 0), new Point3d(0, 2, 0));
-            NodeForceAttribute f1 = new NodeForceAttribute(loadCase, sys, 1000, 0, 0, 0, 0, 0);
-            NodeForceAttribute f2 = new NodeForceAttribute(loadCase, sys2, 1000, -500, 0, 0, 0, 0);
+            NodeForceAttribute f1 = new NodeForceAttribute("loadCase", sys, 1000, 0, 0, 0, 0, 0);
+            NodeForceAttribute f2 = new NodeForceAttribute("loadCase", sys2, 1000, -500, 0, 0, 0, 0);
 
             List<Node> nodesPlate1 = new List<Node>();
             Node nd1 = new Node(0.0, 0, 0, "1");
@@ -380,10 +380,10 @@ namespace FemTest.Solver
             els[1] = new Tethraedron4(new Node[] { nds[0], nds[1], nds[2], nds[3] }, prop);
 
             CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
-            NodeForceAttribute F = new NodeForceAttribute(loadCase, sys, 10, 0, 0, 0, 0, 0);
+            NodeForceAttribute F = new NodeForceAttribute("loadCase", sys, 10, 0, 0, 0, 0, 0);
             nds[0].AddAttribute(F);
 
-            NodeRestrainAttribute fix = new NodeRestrainAttribute(freedomCase, sys);
+            NodeRestrainAttribute fix = new NodeRestrainAttribute("freedomCase", sys);
             fix.AddExternalRestrain(LinearSolver.DOF.DX);
             fix.AddExternalRestrain(LinearSolver.DOF.DY);
             fix.AddExternalRestrain(LinearSolver.DOF.DZ);
@@ -393,7 +393,7 @@ namespace FemTest.Solver
 
             nds[4].AddAttribute(fix);
 
-            NodeRestrainAttribute dxdydz = new NodeRestrainAttribute(freedomCase, sys);
+            NodeRestrainAttribute dxdydz = new NodeRestrainAttribute("freedomCase", sys);
             dxdydz.AddExternalRestrain(LinearSolver.DOF.DX);
             dxdydz.AddExternalRestrain(LinearSolver.DOF.DY);
             dxdydz.AddExternalRestrain(LinearSolver.DOF.DZ);

@@ -139,20 +139,20 @@ namespace FemTest.Solver
 
             #region restrains
             CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
-            NodeRestrainAttribute fixDXDYDZRZ = new NodeRestrainAttribute(freedomCase, sys);
+            NodeRestrainAttribute fixDXDYDZRZ = new NodeRestrainAttribute("freedomCase", sys);
             fixDXDYDZRZ.AddExternalRestrain(LinearSolver.DOF.DX);
             fixDXDYDZRZ.AddExternalRestrain(LinearSolver.DOF.DY);
             fixDXDYDZRZ.AddExternalRestrain(LinearSolver.DOF.DZ);
             fixDXDYDZRZ.AddExternalRestrain(LinearSolver.DOF.RZ);
 
-            NodeRestrainAttribute fixDXDYRZ = new NodeRestrainAttribute(freedomCase, sys);
+            NodeRestrainAttribute fixDXDYRZ = new NodeRestrainAttribute("freedomCase", sys);
             fixDXDYRZ.AddExternalRestrain(LinearSolver.DOF.DX);
             fixDXDYRZ.AddExternalRestrain(LinearSolver.DOF.DY);
             fixDXDYRZ.AddExternalRestrain(LinearSolver.DOF.RZ);
             #endregion
 
             #region nodalforces
-            NodeForceAttribute F = new NodeForceAttribute(loadCase, sys, 0, 0, 5.0, 0, 0, 0);
+            NodeForceAttribute F = new NodeForceAttribute("loadCase", sys, 0, 0, 5.0, 0, 0, 0);
             #endregion
 
             Node nodeA = new Node(0.0, 8, 0, "A");
@@ -347,7 +347,7 @@ namespace FemTest.Solver
             LoadCase loadCase = new LoadCase("myLoadCase", new Guid());
             FreedomCase freedomCase = new FreedomCase("freedomCase1");
             CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
-            PlatePressureAttribute pressure = new PlatePressureAttribute(loadCase, sys, 0.0, 0.0, 1.0);
+            PlatePressureAttribute pressure = new PlatePressureAttribute("loadCase", sys, 0.0, 0.0, 1.0);
             e0.AddLoadCaseAttribute(pressure);
 
             LinearSolver fem = new LinearSolver(new FiniteElement[] { e0 });

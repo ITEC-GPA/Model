@@ -40,12 +40,12 @@ namespace FemTest.Solver
             LoadCase lc = new LoadCase("lc1");
             CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
             double F = -1000.0;
-            NodeForceAttribute f = new NodeForceAttribute(lc, sys, 0, F, 0, 0, 0, 0);
+            NodeForceAttribute f = new NodeForceAttribute("lc", sys, 0, F, 0, 0, 0, 0);
 
             nds[1].AddAttribute(f);
 
             FreedomCase fc = new FreedomCase("fc");
-            NodeRestrainAttribute fix = new NodeRestrainAttribute(fc, sys);
+            NodeRestrainAttribute fix = new NodeRestrainAttribute("fc", sys);
             fix.AddExternalRestrain(LinearSolver.DOF.DX);
             fix.AddExternalRestrain(LinearSolver.DOF.DY);
             fix.AddExternalRestrain(LinearSolver.DOF.DZ);
@@ -61,9 +61,9 @@ namespace FemTest.Solver
                 BeamReleasesAttribute.LocalDOF.R2,
                 BeamReleasesAttribute.LocalDOF.R3
                 };
-            beams[0].AddRelease(1, hinge, fc, "rel");
-            beams[0].AddRelease(2, hinge, fc, "rel");
-            beams[1].AddRelease(1, hinge, fc, "rel");
+            beams[0].AddRelease(1, hinge, "fc", "rel");
+            beams[0].AddRelease(2, hinge, "fc", "rel");
+            beams[1].AddRelease(1, hinge, "fc", "rel");
 
             NnLinearStaticSolver fem = new NnLinearStaticSolver(beams.ToArray());
 

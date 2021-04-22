@@ -39,7 +39,7 @@ namespace FemTest.Solver
             FreedomCase fc = new FreedomCase("fc1");
             CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
 
-            NodeRestrainAttribute fix = new NodeRestrainAttribute(fc, sys);
+            NodeRestrainAttribute fix = new NodeRestrainAttribute("fc", sys);
             fix.AddExternalRestrain(LinearSolver.DOF.DX);
             fix.AddExternalRestrain(LinearSolver.DOF.DY);
             fix.AddExternalRestrain(LinearSolver.DOF.DZ);
@@ -47,7 +47,7 @@ namespace FemTest.Solver
             fix.AddExternalRestrain(LinearSolver.DOF.RY);
             fix.AddExternalRestrain(LinearSolver.DOF.RZ);
 
-            NodeRestrainAttribute fix2 = new NodeRestrainAttribute(fc, sys);
+            NodeRestrainAttribute fix2 = new NodeRestrainAttribute("fc", sys);
             fix2.AddExternalRestrain(LinearSolver.DOF.DZ);
             fix2.AddExternalRestrain(LinearSolver.DOF.RX);
             fix2.AddExternalRestrain(LinearSolver.DOF.RY);
@@ -59,7 +59,7 @@ namespace FemTest.Solver
             nodes.ForEach(node => node.AddAttribute(fix2));
 
             LoadCase lc = new LoadCase("lc");
-            NodeForceAttribute f1 = new NodeForceAttribute(lc, sys, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0);
+            NodeForceAttribute f1 = new NodeForceAttribute("lc", sys, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0);
 
             nodes[3 - 1].AddAttribute(f1);
 
@@ -102,7 +102,7 @@ namespace FemTest.Solver
             FreedomCase fc = new FreedomCase("fc1");
             CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
 
-            NodeRestrainAttribute fix = new NodeRestrainAttribute(fc, sys);
+            NodeRestrainAttribute fix = new NodeRestrainAttribute("fc", sys);
             fix.AddExternalRestrain(LinearSolver.DOF.DX);
             fix.AddExternalRestrain(LinearSolver.DOF.DY);
             fix.AddExternalRestrain(LinearSolver.DOF.DZ);
@@ -110,7 +110,7 @@ namespace FemTest.Solver
             fix.AddExternalRestrain(LinearSolver.DOF.RY);
             fix.AddExternalRestrain(LinearSolver.DOF.RZ);
 
-            NodeRestrainAttribute fix2 = new NodeRestrainAttribute(fc, sys);
+            NodeRestrainAttribute fix2 = new NodeRestrainAttribute("fc", sys);
             fix2.AddExternalRestrain(LinearSolver.DOF.DZ);
             fix2.AddExternalRestrain(LinearSolver.DOF.RX);
             fix2.AddExternalRestrain(LinearSolver.DOF.RY);
@@ -122,7 +122,7 @@ namespace FemTest.Solver
             nodes.ForEach(node => node.AddAttribute(fix2));
 
             LoadCase lc = new LoadCase("lc");
-            NodeForceAttribute f1 = new NodeForceAttribute(lc, sys, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0);
+            NodeForceAttribute f1 = new NodeForceAttribute("lc", sys, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0);
 
             nodes[4 - 1].AddAttribute(f1);
             nodes[2 - 1].AddAttribute(f1);
@@ -175,7 +175,7 @@ namespace FemTest.Solver
             FreedomCase fc = new FreedomCase("fc1");
             CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
 
-            NodeRestrainAttribute fix = new NodeRestrainAttribute(fc, sys);
+            NodeRestrainAttribute fix = new NodeRestrainAttribute("fc", sys);
             fix.AddExternalRestrain(LinearSolver.DOF.DX);
             fix.AddExternalRestrain(LinearSolver.DOF.DY);
             fix.AddExternalRestrain(LinearSolver.DOF.DZ);
@@ -183,7 +183,7 @@ namespace FemTest.Solver
             fix.AddExternalRestrain(LinearSolver.DOF.RY);
             fix.AddExternalRestrain(LinearSolver.DOF.RZ);
 
-            NodeRestrainAttribute fix2 = new NodeRestrainAttribute(fc, sys);
+            NodeRestrainAttribute fix2 = new NodeRestrainAttribute("fc", sys);
             fix2.AddExternalRestrain(LinearSolver.DOF.DZ);
             fix2.AddExternalRestrain(LinearSolver.DOF.RX);
             fix2.AddExternalRestrain(LinearSolver.DOF.RY);
@@ -196,9 +196,9 @@ namespace FemTest.Solver
             nodes.ForEach(node => node.AddAttribute(fix2));
 
             LoadCase lc = new LoadCase("lc");
-            NodeForceAttribute fTop = new NodeForceAttribute(lc, sys, 0.0, 0.0, 0.0, 0.0, 0.0, 0.25);
-            NodeForceAttribute fCenter = new NodeForceAttribute(lc, sys, 0.0, 0.0, 0.0, 0.0, 0.0, 0.5);
-            NodeForceAttribute fBottom = new NodeForceAttribute(lc, sys, 0.0, 0.0, 0.0, 0.0, 0.0, 0.25);
+            NodeForceAttribute fTop = new NodeForceAttribute("lc", sys, 0.0, 0.0, 0.0, 0.0, 0.0, 0.25);
+            NodeForceAttribute fCenter = new NodeForceAttribute("lc", sys, 0.0, 0.0, 0.0, 0.0, 0.0, 0.5);
+            NodeForceAttribute fBottom = new NodeForceAttribute("lc", sys, 0.0, 0.0, 0.0, 0.0, 0.0, 0.25);
 
             nodes[4 - 1].AddAttribute(fTop);
             nodes[2 - 1].AddAttribute(fCenter);

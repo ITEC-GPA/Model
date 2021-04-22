@@ -47,12 +47,12 @@ namespace FemTest.Solver {
             LoadCase lc = new LoadCase("lc1");
             CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
             double FX = 1000;
-            NodeForceAttribute f = new NodeForceAttribute(lc, sys, FX, 0.0, 0.0, 0.0, 0.0, 0.0);
+            NodeForceAttribute f = new NodeForceAttribute("lc", sys, FX, 0.0, 0.0, 0.0, 0.0, 0.0);
 
             nds[2].AddAttribute(f);
 
             FreedomCase fc = new FreedomCase("fc");
-            NodeRestrainAttribute fix = new NodeRestrainAttribute(fc, sys);
+            NodeRestrainAttribute fix = new NodeRestrainAttribute("fc", sys);
             fix.AddExternalRestrain(DOF.DX);
             fix.AddExternalRestrain(DOF.DY);
             fix.AddExternalRestrain(DOF.DZ);
@@ -89,12 +89,12 @@ namespace FemTest.Solver {
             LoadCase lc = new LoadCase("lc1");
             CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
             double FX = 1000;
-            NodeForceAttribute f = new NodeForceAttribute(lc, sys, FX, 0.0, 0.0, 0.0, 0.0, 0.0);
+            NodeForceAttribute f = new NodeForceAttribute("lc", sys, FX, 0.0, 0.0, 0.0, 0.0, 0.0);
 
             nds[2].AddAttribute(f);
 
             FreedomCase fc = new FreedomCase("fc");
-            NodeRestrainAttribute fix = new NodeRestrainAttribute(fc, sys);
+            NodeRestrainAttribute fix = new NodeRestrainAttribute("fc", sys);
             fix.AddExternalRestrain(DOF.DX);
             fix.AddExternalRestrain(DOF.DY);
             fix.AddExternalRestrain(DOF.DZ);
@@ -133,12 +133,12 @@ namespace FemTest.Solver {
             LoadCase lc = new LoadCase("lc1");
             CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
             double FX = 1000;
-            NodeForceAttribute f = new NodeForceAttribute(lc, sys, FX, 0.0, 0.0, 0.0, 0.0, 0.0);
+            NodeForceAttribute f = new NodeForceAttribute("lc", sys, FX, 0.0, 0.0, 0.0, 0.0, 0.0);
 
             nds[3].AddAttribute(f);
 
             FreedomCase fc = new FreedomCase("fc");
-            NodeRestrainAttribute fix = new NodeRestrainAttribute(fc, sys);
+            NodeRestrainAttribute fix = new NodeRestrainAttribute("fc", sys);
             fix.AddExternalRestrain(DOF.DX);
             fix.AddExternalRestrain(DOF.DY);
             fix.AddExternalRestrain(DOF.DZ);
@@ -177,12 +177,12 @@ namespace FemTest.Solver {
             LoadCase lc = new LoadCase("lc1");
             CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
             double FX = 1000;
-            NodeForceAttribute f = new NodeForceAttribute(lc, sys, FX, 0.0, 0.0, 0.0, 0.0, 0.0);
+            NodeForceAttribute f = new NodeForceAttribute("lc", sys, FX, 0.0, 0.0, 0.0, 0.0, 0.0);
 
             nds[3].AddAttribute(f);
 
             FreedomCase fc = new FreedomCase("fc");
-            NodeRestrainAttribute fix = new NodeRestrainAttribute(fc, sys);
+            NodeRestrainAttribute fix = new NodeRestrainAttribute("fc", sys);
             fix.AddExternalRestrain(DOF.DX);
             fix.AddExternalRestrain(DOF.DY);
             fix.AddExternalRestrain(DOF.DZ);
@@ -221,12 +221,12 @@ namespace FemTest.Solver {
             LoadCase lc = new LoadCase("lc1");
             CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
             double F = 1000;
-            NodeForceAttribute f = new NodeForceAttribute(lc, sys, 0, F, 0.0, 0.0, 0.0, 0.0);
+            NodeForceAttribute f = new NodeForceAttribute("lc", sys, 0, F, 0.0, 0.0, 0.0, 0.0);
 
             nds[3].AddAttribute(f);
 
             FreedomCase fc = new FreedomCase("fc");
-            NodeRestrainAttribute fix = new NodeRestrainAttribute(fc, sys);
+            NodeRestrainAttribute fix = new NodeRestrainAttribute("fc", sys);
             fix.AddExternalRestrain(DOF.DX);
             fix.AddExternalRestrain(DOF.DY);
             fix.AddExternalRestrain(DOF.DZ);
@@ -265,12 +265,12 @@ namespace FemTest.Solver {
             LoadCase lc = new LoadCase("lc1");
             CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
             double F = 1000;
-            NodeForceAttribute f = new NodeForceAttribute(lc, sys, 0, F, 0.0, 0.0, 0.0, 0.0);
+            NodeForceAttribute f = new NodeForceAttribute("lc", sys, 0, F, 0.0, 0.0, 0.0, 0.0);
 
             nds[3].AddAttribute(f);
 
             FreedomCase fc = new FreedomCase("fc");
-            NodeRestrainAttribute fix = new NodeRestrainAttribute(fc, sys);
+            NodeRestrainAttribute fix = new NodeRestrainAttribute("fc", sys);
             fix.AddExternalRestrain(DOF.DX);
             fix.AddExternalRestrain(DOF.DY);
             fix.AddExternalRestrain(DOF.DZ);
@@ -309,12 +309,12 @@ namespace FemTest.Solver {
             LoadCase lc = new LoadCase("lc1");
             CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
             double F = 1000;
-            NodeForceAttribute f = new NodeForceAttribute(lc, sys, 0, 0, F, 0.0, 0.0, 0.0);
+            NodeForceAttribute f = new NodeForceAttribute("lc", sys, 0, 0, F, 0.0, 0.0, 0.0);
 
             nds[3].AddAttribute(f);
 
             FreedomCase fc = new FreedomCase("fc");
-            NodeRestrainAttribute fix = new NodeRestrainAttribute(fc, sys);
+            NodeRestrainAttribute fix = new NodeRestrainAttribute("fc", sys);
             fix.AddExternalRestrain(DOF.DX);
             fix.AddExternalRestrain(DOF.DY);
             fix.AddExternalRestrain(DOF.DZ);
@@ -353,12 +353,12 @@ namespace FemTest.Solver {
             LoadCase lc = new LoadCase("lc1");
             CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
             double F = 1000;
-            NodeForceAttribute f = new NodeForceAttribute(lc, sys, 0, 0, F, 0.0, 0.0, 0.0);
+            NodeForceAttribute f = new NodeForceAttribute("lc", sys, 0, 0, F, 0.0, 0.0, 0.0);
 
             nds[3].AddAttribute(f);
 
             FreedomCase fc = new FreedomCase("fc");
-            NodeRestrainAttribute fix = new NodeRestrainAttribute(fc, sys);
+            NodeRestrainAttribute fix = new NodeRestrainAttribute("fc", sys);
             fix.AddExternalRestrain(DOF.DX);
             fix.AddExternalRestrain(DOF.DY);
             fix.AddExternalRestrain(DOF.DZ);
@@ -397,12 +397,12 @@ namespace FemTest.Solver {
             LoadCase lc = new LoadCase("lc1");
             CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
             double M = 1000.0;
-            NodeForceAttribute f = new NodeForceAttribute(lc, sys, 0.0, 0.0, 0.0, 0.0, -M, M);
+            NodeForceAttribute f = new NodeForceAttribute("lc", sys, 0.0, 0.0, 0.0, 0.0, -M, M);
 
             nds[3].AddAttribute(f);
 
             FreedomCase fc = new FreedomCase("fc");
-            NodeRestrainAttribute fix = new NodeRestrainAttribute(fc, sys);
+            NodeRestrainAttribute fix = new NodeRestrainAttribute("fc", sys);
             fix.AddExternalRestrain(DOF.DX);
             fix.AddExternalRestrain(DOF.DY);
             fix.AddExternalRestrain(DOF.DZ);
@@ -444,12 +444,12 @@ namespace FemTest.Solver {
             LoadCase lc = new LoadCase("lc1");
             CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
             double M = -1000.0;
-            NodeForceAttribute f = new NodeForceAttribute(lc, sys, 0, 0.0, 0.0, 0, -M, M);
+            NodeForceAttribute f = new NodeForceAttribute("lc", sys, 0, 0.0, 0.0, 0, -M, M);
 
             nds[3].AddAttribute(f);
 
             FreedomCase fc = new FreedomCase("fc");
-            NodeRestrainAttribute fix = new NodeRestrainAttribute(fc, sys);
+            NodeRestrainAttribute fix = new NodeRestrainAttribute("fc", sys);
             fix.AddExternalRestrain(DOF.DX);
             fix.AddExternalRestrain(DOF.DY);
             fix.AddExternalRestrain(DOF.DZ);
@@ -491,12 +491,12 @@ namespace FemTest.Solver {
             LoadCase lc = new LoadCase("lc1");
             CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
             double M = -1000.0;
-            NodeForceAttribute f = new NodeForceAttribute(lc, sys, 0, 0.0, 0.0, M, -M, 0);
+            NodeForceAttribute f = new NodeForceAttribute("lc", sys, 0, 0.0, 0.0, M, -M, 0);
 
             nds[3].AddAttribute(f);
 
             FreedomCase fc = new FreedomCase("fc");
-            NodeRestrainAttribute fix = new NodeRestrainAttribute(fc, sys);
+            NodeRestrainAttribute fix = new NodeRestrainAttribute("fc", sys);
             fix.AddExternalRestrain(DOF.DX);
             fix.AddExternalRestrain(DOF.DY);
             fix.AddExternalRestrain(DOF.DZ);
@@ -538,12 +538,12 @@ namespace FemTest.Solver {
             LoadCase lc = new LoadCase("lc1");
             CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
             double M = 1000.0;
-            NodeForceAttribute f = new NodeForceAttribute(lc, sys, 0, 0.0, 0.0, M, -M, 0);
+            NodeForceAttribute f = new NodeForceAttribute("lc", sys, 0, 0.0, 0.0, M, -M, 0);
 
             nds[3].AddAttribute(f);
 
             FreedomCase fc = new FreedomCase("fc");
-            NodeRestrainAttribute fix = new NodeRestrainAttribute(fc, sys);
+            NodeRestrainAttribute fix = new NodeRestrainAttribute("fc", sys);
             fix.AddExternalRestrain(DOF.DX);
             fix.AddExternalRestrain(DOF.DY);
             fix.AddExternalRestrain(DOF.DZ);
@@ -585,12 +585,12 @@ namespace FemTest.Solver {
             LoadCase lc = new LoadCase("lc1");
             CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
             double M = 1000.0;
-            NodeForceAttribute f = new NodeForceAttribute(lc, sys, 0, 0.0, 0.0, M, 0, -M);
+            NodeForceAttribute f = new NodeForceAttribute("lc", sys, 0, 0.0, 0.0, M, 0, -M);
 
             nds[3].AddAttribute(f);
 
             FreedomCase fc = new FreedomCase("fc");
-            NodeRestrainAttribute fix = new NodeRestrainAttribute(fc, sys);
+            NodeRestrainAttribute fix = new NodeRestrainAttribute("fc", sys);
             fix.AddExternalRestrain(DOF.DX);
             fix.AddExternalRestrain(DOF.DY);
             fix.AddExternalRestrain(DOF.DZ);
@@ -632,12 +632,12 @@ namespace FemTest.Solver {
             LoadCase lc = new LoadCase("lc1");
             CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
             double M = -1000.0;
-            NodeForceAttribute f = new NodeForceAttribute(lc, sys, 0, 0.0, 0.0, M, 0, -M);
+            NodeForceAttribute f = new NodeForceAttribute("lc", sys, 0, 0.0, 0.0, M, 0, -M);
 
             nds[3].AddAttribute(f);
 
             FreedomCase fc = new FreedomCase("fc");
-            NodeRestrainAttribute fix = new NodeRestrainAttribute(fc, sys);
+            NodeRestrainAttribute fix = new NodeRestrainAttribute("fc", sys);
             fix.AddExternalRestrain(DOF.DX);
             fix.AddExternalRestrain(DOF.DY);
             fix.AddExternalRestrain(DOF.DZ);
@@ -678,12 +678,12 @@ namespace FemTest.Solver {
             LoadCase lc = new LoadCase("lc1");
             CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
             double F = -1000.0;
-            NodeForceAttribute f = new NodeForceAttribute(lc, sys, 0.0, F, 0, 0, 0, 0);
+            NodeForceAttribute f = new NodeForceAttribute("lc", sys, 0.0, F, 0, 0, 0, 0);
 
             nds[1].AddAttribute(f);
 
             FreedomCase fc = new FreedomCase("fc");
-            NodeRestrainAttribute fix = new NodeRestrainAttribute(fc, sys);
+            NodeRestrainAttribute fix = new NodeRestrainAttribute("fc", sys);
             fix.AddExternalRestrain(DOF.DX);
             fix.AddExternalRestrain(DOF.DY);
             fix.AddExternalRestrain(DOF.DZ);
