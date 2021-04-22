@@ -6,10 +6,17 @@ using System.Threading.Tasks;
 
 namespace GPC.Model.Combinations
 {
+    /// <summary>
+    /// This class collects all the coefficient of the ASCE7-16 Standard
+    /// </summary>
+    /// <remarks>Reference: ASCE7-16</remarks>
     public class StandardASCE16 : Standard
     {
         #region PUBLIC ENUMS        
 
+        /// <summary>
+        /// The limit states. Reference: ASCE7-16
+        /// </summary>
         public enum LimitState
         {
             LFRD,
@@ -31,7 +38,7 @@ namespace GPC.Model.Combinations
         private double _lfrd3PermCoef1;
         private double _lfrd3VarCoef1;
         private double _lfrd3VarCoef2L;
-        private double _lfrd3VarCoef2S;
+        private double _lfrd3VarCoef2W;
 
         private double _lfrd4PermCoef1;
         private double _lfrd4VarCoef1;
@@ -102,7 +109,7 @@ namespace GPC.Model.Combinations
         public double Lfrd3PermCoef1  =>  _lfrd3PermCoef1;
         public double Lfrd3VarCoef1   =>  _lfrd3VarCoef1;
         public double Lfrd3VarCoef2L  =>  _lfrd3VarCoef2L;
-        public double Lfrd3VarCoef2S  =>  _lfrd3VarCoef2S;
+        public double Lfrd3VarCoef2W  =>  _lfrd3VarCoef2W;
         // combo4      
         public double Lfrd4PermCoef1  =>  _lfrd4PermCoef1;
         public double Lfrd4VarCoef1   =>  _lfrd4VarCoef1;
@@ -121,7 +128,7 @@ namespace GPC.Model.Combinations
         public double Lfrd7VarCoef1   =>  _lfrd7VarCoef1;
         public double Lfrd7VarCoef2   =>  _lfrd7VarCoef2;
 
-
+        // ASD
         // combo1
         public double Asd1PermCoef1 => _asd1PermCoef1;
         // combo2              
@@ -177,7 +184,7 @@ namespace GPC.Model.Combinations
             _lfrd3PermCoef1 = 1.2;
             _lfrd3VarCoef1 = 1.6;
             _lfrd3VarCoef2L = 1;
-            _lfrd3VarCoef2S = 0.5;
+            _lfrd3VarCoef2W = 0.5;
 
             _lfrd4PermCoef1 = 1.2;
             _lfrd4VarCoef1 = 1.0;
@@ -237,10 +244,5 @@ namespace GPC.Model.Combinations
 
         #endregion
 
-
-        #region PUBLIC METHOD
-       
-
-        #endregion
     }
 }

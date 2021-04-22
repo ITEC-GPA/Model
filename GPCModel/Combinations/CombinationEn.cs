@@ -42,7 +42,7 @@ namespace GPC.Model.Combinations
         }
 
         /// <summary>
-        /// Create a combination with the normative StandardEN1990 set ad default. <paramref name="limitState"/> identify the limit state of the combination and 
+        /// Create a combination with the normative StandardEN1990 set ad default. <paramref name="limitState"/> identify the limit state of the combination 
         /// <paramref name="standard"/> identify the annex of the normative.
         /// </summary>
         /// <param name="name">The identifying name of combination</param>
@@ -72,7 +72,7 @@ namespace GPC.Model.Combinations
         }
 
         /// <summary>
-        /// Create a combination with the normative StandardEN1990.
+        /// Create a combination with the normative <paramref name="standard"/>.
         /// </summary>
         /// <param name="name">The identifying name of combination</param>
         /// <param name="limitState">The limit state of the combination</param>
