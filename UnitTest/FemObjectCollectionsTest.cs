@@ -126,7 +126,7 @@ namespace FemTest
             Stage.StageProperty sp1 = new Stage.StageProperty();
             Stage.StageProperty sp2 = new Stage.StageProperty();
             sp1.AddLoadCaseAttribute(new NodeForceAttribute("lc1", null, 0, 1, 2, 3, 4, 5));
-            sp2.AddLoadCaseAttribute(new NodeForceAttribute("lc1", null, 0, 1, 2, 3, 4, 5));
+            sp2.AddLoadCaseAttribute(new NodeForceAttribute("lc2", null, 0, 1, 2, 3, 4, 5));
 
 
             nodes.Add(n1, sp1);

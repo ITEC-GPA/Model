@@ -12,35 +12,34 @@ namespace GPC.Model.Combinations
 
         private StandardASCE16 _standardASCE16;
 
-        private StandardASCE16.LimitState _combinationType;
-
-        public StandardASCE16.LimitState GetCombinationType => _combinationType;
+        private StandardASCE16.LimitStates? _combinationType;
 
         #endregion
+
+        public StandardASCE16.LimitStates? LimitState => _combinationType;
 
 
         #region PUBLIC CONSTRUCTOR
 
+
+        /// <param name="name">The identifying name of combination</param>
+        public CombinationAsce(string name)
+            : base(name)
+        {
+
+        }
+
         /// <summary>
-        /// Create a combination with the normative StandardASCE7-16 set ad default. <paramref name="combinationType"/> identify the limit state of the combination 
+        /// Create a combination. <paramref name="combinationType"/> identify the limit state of the combination 
         /// </summary>
         /// <param name="name">The identifying name of combination</param>
         /// <param name="combinationType">The limit state of the combination</param>
-        public CombinationAsce(string name, StandardASCE16.LimitState combinationType)
+        public CombinationAsce(string name, StandardASCE16.LimitStates combinationType)
             : base(name)
         {
             this._combinationType = combinationType;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="combination"></param>
-        public CombinationAsce(CombinationAsce combination)
-            : base(combination)
-        {
-            this._combinationType = combination._combinationType;
-        }
 
         /// <summary>
         /// Create a combination with the normative <paramref name="standard"/>.
@@ -48,17 +47,26 @@ namespace GPC.Model.Combinations
         /// <param name="name">The identifying name of combination</param>
         /// <param name="standard">The annex of ASCE7</param>
         /// <param name="combination">The limit state of the combination</param>
-        public CombinationAsce(string name, StandardASCE16 standard, StandardASCE16.LimitState combination)
+        public CombinationAsce(string name, StandardASCE16 standard, StandardASCE16.LimitStates combination)
             : base(name)
         {
             this._standardASCE16 = standard;
             this._combinationType = combination;
         }
 
+
+        /// <param name="combination"></param>
+        public CombinationAsce(CombinationAsce combination)
+            : base(combination)
+        {
+            this._combinationType = combination._combinationType;
+            this._standardASCE16 = combination._standardASCE16;
+        }
+
         public CombinationAsce(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
-            _combinationType = (StandardASCE16.LimitState)info.GetValue("CombinationType", typeof(StandardASCE16.LimitState));
+            _combinationType = (StandardASCE16.LimitStates)info.GetValue("CombinationType", typeof(StandardASCE16.LimitStates));
         }
 
         #endregion
@@ -72,7 +80,7 @@ namespace GPC.Model.Combinations
             info.AddValue("CombinationType", _combinationType);
         }
 
-        public override bool IsUltimate() => _combinationType == StandardASCE16.LimitState.LFRD ? true : false;
+        public override bool IsUltimate() => _combinationType == StandardASCE16.LimitStates.LFRD ? true : false;
 
         public override string ToString()
         {
@@ -95,6 +103,15 @@ namespace GPC.Model.Combinations
 
             return cloned;
         }
+
+        public override Combination Duplicate(string nameOverride)
+        {
+            var duplicated = (CombinationAsce)Clone();
+            duplicated._name = nameOverride;
+
+            return duplicated;
+        }
+
 
         public override bool Equals(object obj)
         {
@@ -149,9 +166,9 @@ namespace GPC.Model.Combinations
         /// <param name="standardASCE16">The used normative</param>
         /// <param name="limitState">The limit state of combinations</param>
         /// <returns></returns>
-        public static List<CombinationAsce> GenerateCombinations(string name, List<LoadCase> loadCases, StandardASCE16 standardASCE16, StandardASCE16.LimitState limitState)
+        public static List<CombinationAsce> GenerateCombinations(string name, List<LoadCase> loadCases, StandardASCE16 standardASCE16, StandardASCE16.LimitStates limitState)
         {
-            if (limitState == StandardASCE16.LimitState.LFRD)
+            if (limitState == StandardASCE16.LimitStates.LFRD)
             {
                 HashSet<CombinationAsce> combinations = new HashSet<CombinationAsce>(); 
                 
@@ -246,7 +263,7 @@ namespace GPC.Model.Combinations
 
                 return combinations.ToList();
             }
-            else if (limitState == StandardASCE16.LimitState.ASD)
+            else if (limitState == StandardASCE16.LimitStates.ASD)
             {
                 HashSet<CombinationAsce> combinations = new HashSet<CombinationAsce>();
 

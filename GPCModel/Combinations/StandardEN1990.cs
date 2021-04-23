@@ -28,7 +28,7 @@ namespace GPC.Model.Combinations
         /// <summary>
         /// The limit states. Reference: EN 1990:2002/A1:2005 
         /// </summary>
-        public enum LimitState
+        public enum LimitStates
         {
             UltimateEquilibrium,
             UltimateStructural,
@@ -44,7 +44,7 @@ namespace GPC.Model.Combinations
         /// <summary>
         /// The category of buildings for imposed loads. Reference: EN 1990:2002/A1:2005 Annex A1. EN 1991-1-1:2002
         /// </summary>
-        public enum ImposedLoadCategory
+        public enum ImposedLoadCategories
         {
             [Description("Category A")] CategoryA,
             [Description("Category B")] CategoryB,
@@ -325,13 +325,13 @@ namespace GPC.Model.Combinations
         /// <param name="set">The ULS combination set (if <paramref name="limitState"/> is an ultimate state limit</param>
         /// <param name="limitState">The limit state of combinations</param>
         /// <returns>The value of the coefficient</returns>
-        public double GetGammaGUnfavourable(ULSStructuralGeotechicalCombinationSets set, LimitState limitState)
+        public double GetGammaGUnfavourable(ULSStructuralGeotechicalCombinationSets set, LimitStates limitState)
         {
-            if (limitState == LimitState.UltimateEquilibrium)
+            if (limitState == LimitStates.UltimateEquilibrium)
             {
                 return _gammaGUnfavourableSetA;
             }
-            else if (limitState == LimitState.UltimateFatigue || limitState == LimitState.UltimateGeotechnical || limitState == LimitState.UltimateStructural)
+            else if (limitState == LimitStates.UltimateFatigue || limitState == LimitStates.UltimateGeotechnical || limitState == LimitStates.UltimateStructural)
             {
                 if (set == ULSStructuralGeotechicalCombinationSets.SetB)
                     return _gammaGUnfavourableSetB;
@@ -340,11 +340,11 @@ namespace GPC.Model.Combinations
                 else
                     throw new NotImplementedException("Failed to set coefficient gamma unfavourable");
             }
-            else if (limitState == LimitState.UltimateSeismic || limitState == LimitState.UltimateAccidental)
+            else if (limitState == LimitStates.UltimateSeismic || limitState == LimitStates.UltimateAccidental)
             {
                 return 1.0;
             }
-            else if (limitState == LimitState.ServiceabilityQuasiPermanent || limitState == LimitState.ServiceabilityCharacteristic || limitState == LimitState.ServiceabilityFrequent)
+            else if (limitState == LimitStates.ServiceabilityQuasiPermanent || limitState == LimitStates.ServiceabilityCharacteristic || limitState == LimitStates.ServiceabilityFrequent)
             {
                 return 1.0;
             }
@@ -359,13 +359,13 @@ namespace GPC.Model.Combinations
         /// <param name="set">The ULS combination set (if <paramref name="limitState"/> is an ultimate state limit</param>
         /// <param name="limitState">The limit state of combinations</param>
         /// <returns>The value of the coefficient</returns>
-        public double GetGammaGFavourable(ULSStructuralGeotechicalCombinationSets set, LimitState limitState)
+        public double GetGammaGFavourable(ULSStructuralGeotechicalCombinationSets set, LimitStates limitState)
         {
-            if (limitState == LimitState.UltimateEquilibrium)
+            if (limitState == LimitStates.UltimateEquilibrium)
             {
                 return _gammaGFavourableSetA;
             }
-            else if (limitState == LimitState.UltimateFatigue || limitState == LimitState.UltimateGeotechnical || limitState == LimitState.UltimateStructural)
+            else if (limitState == LimitStates.UltimateFatigue || limitState == LimitStates.UltimateGeotechnical || limitState == LimitStates.UltimateStructural)
             {
                 if (set == ULSStructuralGeotechicalCombinationSets.SetB)
                     return _gammaGFavourableSetB;
@@ -374,11 +374,11 @@ namespace GPC.Model.Combinations
                 else
                     throw new NotImplementedException("Failed to set coefficient gamma G favourable");
             }
-            else if(limitState == LimitState.UltimateSeismic || limitState == LimitState.UltimateAccidental)
+            else if(limitState == LimitStates.UltimateSeismic || limitState == LimitStates.UltimateAccidental)
             {
                 return 1.0;
             }
-            else if (limitState == LimitState.ServiceabilityQuasiPermanent || limitState == LimitState.ServiceabilityCharacteristic || limitState == LimitState.ServiceabilityFrequent)
+            else if (limitState == LimitStates.ServiceabilityQuasiPermanent || limitState == LimitStates.ServiceabilityCharacteristic || limitState == LimitStates.ServiceabilityFrequent)
             {
                 return 1.0;
             }
@@ -393,13 +393,13 @@ namespace GPC.Model.Combinations
         /// <param name="limitState">The limit state of combinations</param>
         /// <param name="loadCase">The load case</param>
         /// <returns>The value of the coefficient</returns>
-        public double GetGammaPFavourable(ULSStructuralGeotechicalCombinationSets set, LimitState limitState, LoadCase loadCase)
+        public double GetGammaPFavourable(ULSStructuralGeotechicalCombinationSets set, LimitStates limitState, LoadCase loadCase)
         {
-            if (limitState == LimitState.UltimateEquilibrium)
+            if (limitState == LimitStates.UltimateEquilibrium)
             {
                 return _gammaPFavourableSetA;            
             }
-            else if (limitState == LimitState.UltimateGeotechnical || limitState == LimitState.UltimateFatigue || limitState == LimitState.UltimateStructural)
+            else if (limitState == LimitStates.UltimateGeotechnical || limitState == LimitStates.UltimateFatigue || limitState == LimitStates.UltimateStructural)
             {
                 switch (set)
                 {
@@ -411,11 +411,11 @@ namespace GPC.Model.Combinations
                         throw new NotImplementedException("Failed to set coefficient gamma P favourable");
                 }
             }
-            else if (limitState == LimitState.UltimateSeismic || limitState == LimitState.UltimateAccidental)
+            else if (limitState == LimitStates.UltimateSeismic || limitState == LimitStates.UltimateAccidental)
             {
                 return 1.0;
             }
-            else if (limitState == LimitState.ServiceabilityQuasiPermanent || limitState == LimitState.ServiceabilityCharacteristic || limitState == LimitState.ServiceabilityFrequent)
+            else if (limitState == LimitStates.ServiceabilityQuasiPermanent || limitState == LimitStates.ServiceabilityCharacteristic || limitState == LimitStates.ServiceabilityFrequent)
             {
                 return 1.00;                
             }
@@ -430,13 +430,13 @@ namespace GPC.Model.Combinations
         /// <param name="limitState">The limit state of combinations</param>
         /// <param name="loadCase">The load case</param>
         /// <returns>The value of the coefficient</returns>
-        public double GetGammaPUnfavourable(ULSStructuralGeotechicalCombinationSets set, LimitState limitState, LoadCase loadCase)
+        public double GetGammaPUnfavourable(ULSStructuralGeotechicalCombinationSets set, LimitStates limitState, LoadCase loadCase)
         {
-            if (limitState == LimitState.UltimateEquilibrium)
+            if (limitState == LimitStates.UltimateEquilibrium)
             {
                 return _gammaPUnfavourableSetA;               
             }
-            else if (limitState == LimitState.UltimateGeotechnical || limitState == LimitState.UltimateFatigue || limitState == LimitState.UltimateStructural)
+            else if (limitState == LimitStates.UltimateGeotechnical || limitState == LimitStates.UltimateFatigue || limitState == LimitStates.UltimateStructural)
             {
                 switch (set)
                 {
@@ -448,11 +448,11 @@ namespace GPC.Model.Combinations
                         throw new NotImplementedException("Failed to set coefficient gamma P unfavourable");
                 }
             }
-            else if (limitState == LimitState.UltimateSeismic || limitState == LimitState.UltimateAccidental)
+            else if (limitState == LimitStates.UltimateSeismic || limitState == LimitStates.UltimateAccidental)
             {
                 return 1.0;
             }
-            else if (limitState == LimitState.ServiceabilityQuasiPermanent || limitState == LimitState.ServiceabilityCharacteristic || limitState == LimitState.ServiceabilityFrequent)
+            else if (limitState == LimitStates.ServiceabilityQuasiPermanent || limitState == LimitStates.ServiceabilityCharacteristic || limitState == LimitStates.ServiceabilityFrequent)
             {
                 return 1.00;
             }
@@ -467,11 +467,11 @@ namespace GPC.Model.Combinations
         /// <param name="limitState">The limit state of combinations</param>
         /// <param name="loadCase">The load case</param>
         /// <returns>The value of the coefficient</returns>
-        public double GetGammaQUnfavourable(ULSStructuralGeotechicalCombinationSets set, LimitState limitState, LoadCase loadCase)
+        public double GetGammaQUnfavourable(ULSStructuralGeotechicalCombinationSets set, LimitStates limitState, LoadCase loadCase)
         {
             var loadCaseType = loadCase.LoadCaseType;
 
-            if (limitState == LimitState.UltimateEquilibrium)
+            if (limitState == LimitStates.UltimateEquilibrium)
             {
                 switch (loadCaseType)
                 {
@@ -491,7 +491,7 @@ namespace GPC.Model.Combinations
                         throw new NotImplementedException("Not implemented coefficient for load case type");
                 }
             }
-            else if (limitState == LimitState.UltimateGeotechnical || limitState == LimitState.UltimateFatigue || limitState == LimitState.UltimateStructural)
+            else if (limitState == LimitStates.UltimateGeotechnical || limitState == LimitStates.UltimateFatigue || limitState == LimitStates.UltimateStructural)
             {
                 if (set == ULSStructuralGeotechicalCombinationSets.SetB)
                 {
@@ -536,11 +536,11 @@ namespace GPC.Model.Combinations
                 else
                     throw new NotImplementedException("Not implemented Annex");
             }
-            else if (limitState == LimitState.UltimateSeismic || limitState == LimitState.UltimateAccidental)
+            else if (limitState == LimitStates.UltimateSeismic || limitState == LimitStates.UltimateAccidental)
             {
                 return 1.0;
             }
-            else if (limitState == LimitState.ServiceabilityCharacteristic || limitState == LimitState.ServiceabilityFrequent || limitState == LimitState.ServiceabilityQuasiPermanent)
+            else if (limitState == LimitStates.ServiceabilityCharacteristic || limitState == LimitStates.ServiceabilityFrequent || limitState == LimitStates.ServiceabilityQuasiPermanent)
             {
                 switch (loadCaseType)
                 {
@@ -572,11 +572,11 @@ namespace GPC.Model.Combinations
         /// <param name="limitState">The limit state of combinations</param>
         /// <param name="loadCase">The load case</param>
         /// <returns>The value of the coefficient</returns>
-        public double GetGammaQFavourable(ULSStructuralGeotechicalCombinationSets set, LimitState limitState, LoadCase loadCase)
+        public double GetGammaQFavourable(ULSStructuralGeotechicalCombinationSets set, LimitStates limitState, LoadCase loadCase)
         {
             var loadCaseType = loadCase.LoadCaseType;
 
-            if (limitState == LimitState.UltimateEquilibrium)
+            if (limitState == LimitStates.UltimateEquilibrium)
             {
                 switch (loadCaseType)
                 {
@@ -596,7 +596,7 @@ namespace GPC.Model.Combinations
                         throw new NotImplementedException("Not implemented coefficient for load case type");
                 }
             }
-            else if (limitState == LimitState.UltimateGeotechnical || limitState == LimitState.UltimateFatigue || limitState == LimitState.UltimateStructural)
+            else if (limitState == LimitStates.UltimateGeotechnical || limitState == LimitStates.UltimateFatigue || limitState == LimitStates.UltimateStructural)
             {
                 if (set == ULSStructuralGeotechicalCombinationSets.SetB)
                 {
@@ -641,11 +641,11 @@ namespace GPC.Model.Combinations
                 else
                     throw new NotImplementedException("Not implemented Annex");
             }
-            else if (limitState == LimitState.UltimateSeismic || limitState == LimitState.UltimateAccidental)
+            else if (limitState == LimitStates.UltimateSeismic || limitState == LimitStates.UltimateAccidental)
             {
                 return 1.0;
             }
-            else if (limitState == LimitState.ServiceabilityQuasiPermanent || limitState == LimitState.ServiceabilityCharacteristic || limitState == LimitState.ServiceabilityFrequent)
+            else if (limitState == LimitStates.ServiceabilityQuasiPermanent || limitState == LimitStates.ServiceabilityCharacteristic || limitState == LimitStates.ServiceabilityFrequent)
             {
                 return 1.00;
             }
@@ -660,7 +660,7 @@ namespace GPC.Model.Combinations
         /// <param name="loadCase">The load case</param>
         /// <param name="highAltitude">If true, set the snow load with high altitude</param>
         /// <returns>The value of the coefficient</returns>
-        public double GetPsi0(ImposedLoadCategory category, LoadCase loadCase, bool highAltitude = true)
+        public double GetPsi0(ImposedLoadCategories category, LoadCase loadCase, bool highAltitude = true)
         {
             var loadCaseType = loadCase.LoadCaseType;
 
@@ -677,21 +677,21 @@ namespace GPC.Model.Combinations
             {
                 switch (category)
                 {
-                    case ImposedLoadCategory.CategoryA:
+                    case ImposedLoadCategories.CategoryA:
                         return _psi0ImposedLoadCategoryA;
-                    case ImposedLoadCategory.CategoryB:
+                    case ImposedLoadCategories.CategoryB:
                         return _psi0ImposedLoadCategoryB;
-                    case ImposedLoadCategory.CategoryC:
+                    case ImposedLoadCategories.CategoryC:
                         return _psi0ImposedLoadCategoryC;
-                    case ImposedLoadCategory.CategoryD:
+                    case ImposedLoadCategories.CategoryD:
                         return _psi0ImposedLoadCategoryD;
-                    case ImposedLoadCategory.CategoryE:
+                    case ImposedLoadCategories.CategoryE:
                         return _psi0ImposedLoadCategoryE;
-                    case ImposedLoadCategory.CategoryF:
+                    case ImposedLoadCategories.CategoryF:
                         return _psi0ImposedLoadCategoryF;
-                    case ImposedLoadCategory.CategoryG:
+                    case ImposedLoadCategories.CategoryG:
                         return _psi0ImposedLoadCategoryG;
-                    case ImposedLoadCategory.CategoryH:
+                    case ImposedLoadCategories.CategoryH:
                         return _psi0ImposedLoadCategoryH;
                     default:
                         throw new NotImplementedException("Failed to set coefficient psi0 for live load load or maintenance load");
@@ -731,7 +731,7 @@ namespace GPC.Model.Combinations
         /// <param name="loadCase">The load case</param>
         /// <param name="highAltitude">If true, set the snow load with high altitude</param>        
         /// <returns>The value of the coefficient</returns>
-        public double GetPsi1(ImposedLoadCategory category, LoadCase loadCase, bool highAltitude = true)
+        public double GetPsi1(ImposedLoadCategories category, LoadCase loadCase, bool highAltitude = true)
         {
             var loadCaseType = loadCase.LoadCaseType;
 
@@ -748,21 +748,21 @@ namespace GPC.Model.Combinations
             {
                 switch (category)
                 {
-                    case ImposedLoadCategory.CategoryA:
+                    case ImposedLoadCategories.CategoryA:
                         return _psi1ImposedLoadCategoryA;
-                    case ImposedLoadCategory.CategoryB:
+                    case ImposedLoadCategories.CategoryB:
                         return _psi1ImposedLoadCategoryB;
-                    case ImposedLoadCategory.CategoryC:
+                    case ImposedLoadCategories.CategoryC:
                         return _psi1ImposedLoadCategoryC;
-                    case ImposedLoadCategory.CategoryD:
+                    case ImposedLoadCategories.CategoryD:
                         return _psi1ImposedLoadCategoryD;
-                    case ImposedLoadCategory.CategoryE:
+                    case ImposedLoadCategories.CategoryE:
                         return _psi1ImposedLoadCategoryE;
-                    case ImposedLoadCategory.CategoryF:
+                    case ImposedLoadCategories.CategoryF:
                         return _psi1ImposedLoadCategoryF;
-                    case ImposedLoadCategory.CategoryG:
+                    case ImposedLoadCategories.CategoryG:
                         return _psi1ImposedLoadCategoryG;
-                    case ImposedLoadCategory.CategoryH:
+                    case ImposedLoadCategories.CategoryH:
                         return _psi1ImposedLoadCategoryH;
                     default:
                         throw new NotImplementedException("Failed to set coefficient psi0 for live load load or maintenance load");
@@ -802,7 +802,7 @@ namespace GPC.Model.Combinations
         /// <param name="loadCase">The load case</param>
         /// <param name="highAltitude">If true, set the snow load with high altitude</param>
         /// <returns>The value of the coefficient</returns>
-        public double GetPsi2(ImposedLoadCategory category, LoadCase loadCase, bool highAltitude = true)
+        public double GetPsi2(ImposedLoadCategories category, LoadCase loadCase, bool highAltitude = true)
         {
             var loadCaseType = loadCase.LoadCaseType;
 
@@ -819,21 +819,21 @@ namespace GPC.Model.Combinations
             {
                 switch (category)
                 {
-                    case ImposedLoadCategory.CategoryA:
+                    case ImposedLoadCategories.CategoryA:
                         return _psi2ImposedLoadCategoryA;
-                    case ImposedLoadCategory.CategoryB:
+                    case ImposedLoadCategories.CategoryB:
                         return _psi2ImposedLoadCategoryB;
-                    case ImposedLoadCategory.CategoryC:
+                    case ImposedLoadCategories.CategoryC:
                         return _psi2ImposedLoadCategoryC;
-                    case ImposedLoadCategory.CategoryD:
+                    case ImposedLoadCategories.CategoryD:
                         return _psi2ImposedLoadCategoryD;
-                    case ImposedLoadCategory.CategoryE:
+                    case ImposedLoadCategories.CategoryE:
                         return _psi2ImposedLoadCategoryE;
-                    case ImposedLoadCategory.CategoryF:
+                    case ImposedLoadCategories.CategoryF:
                         return _psi2ImposedLoadCategoryF;
-                    case ImposedLoadCategory.CategoryG:
+                    case ImposedLoadCategories.CategoryG:
                         return _psi2ImposedLoadCategoryG;
-                    case ImposedLoadCategory.CategoryH:
+                    case ImposedLoadCategories.CategoryH:
                         return _psi2ImposedLoadCategoryH;
                     default:
                         throw new NotImplementedException("Failed to set coefficient psi0 for live load load or maintenance load");
