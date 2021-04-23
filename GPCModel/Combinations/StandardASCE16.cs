@@ -17,7 +17,7 @@ namespace GPC.Model.Combinations
         /// <summary>
         /// The limit states. Reference: ASCE7-16
         /// </summary>
-        public enum LimitState
+        public enum LimitStates
         {
             LFRD,
             ASD

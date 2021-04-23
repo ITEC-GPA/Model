@@ -31,7 +31,7 @@ namespace ModelObjectTest
             loadCases.Add(new LoadCase("SDL", LoadCase.LoadCaseTypes.SuperImposedDeadLoad, Guid.NewGuid()));
             coefficients.Add(4);
 
-            StandardEN1990.LimitState limitState = StandardEN1990.LimitState.UltimateEquilibrium;
+            StandardEN1990.LimitStates limitState = StandardEN1990.LimitStates.UltimateEquilibrium;
             CombinationEn combination = new CombinationEn("test", limitState);
 
             combination.AddLoadCaseCoefficients(loadCases, coefficients);
@@ -66,7 +66,7 @@ namespace ModelObjectTest
             loadCases.Add(new LoadCase("SDL", LoadCase.LoadCaseTypes.SuperImposedDeadLoad, Guid.NewGuid()));
             coefficients.Add(4);
 
-            StandardEN1990.LimitState limitState = StandardEN1990.LimitState.UltimateEquilibrium;
+            StandardEN1990.LimitStates limitState = StandardEN1990.LimitStates.UltimateEquilibrium;
             CombinationEn combination = new CombinationEn("test", limitState);
 
             combination.AddLoadCaseCoefficients(loadCases, coefficients);
@@ -104,7 +104,7 @@ namespace ModelObjectTest
             loadCases.Add(sdl);
             coefficients.Add(4);
 
-            StandardEN1990.LimitState limitState = StandardEN1990.LimitState.UltimateStructural;
+            StandardEN1990.LimitStates limitState = StandardEN1990.LimitStates.UltimateStructural;
             CombinationEn combination = new CombinationEn("test", limitState);
 
             combination.AddLoadCaseCoefficients(loadCases, coefficients);
@@ -142,7 +142,7 @@ namespace ModelObjectTest
             loadCases.Add(new LoadCase("SDL", LoadCase.LoadCaseTypes.SuperImposedDeadLoad, Guid.NewGuid()));
             coefficients.Add(4);
 
-            StandardEN1990.LimitState limitState = StandardEN1990.LimitState.UltimateGeotechnical;
+            StandardEN1990.LimitStates limitState = StandardEN1990.LimitStates.UltimateGeotechnical;
             CombinationEn combination = new CombinationEn("test", limitState);
 
             combination.AddLoadCaseCoefficients(loadCases, coefficients);
@@ -181,7 +181,7 @@ namespace ModelObjectTest
             coefficients.Add(4);
 
 
-            CombinationAsce combination = new CombinationAsce("test", StandardASCE16.LimitState.LFRD);
+            CombinationAsce combination = new CombinationAsce("test", StandardASCE16.LimitStates.LFRD);
 
             combination.AddLoadCaseCoefficients(loadCases, coefficients);
 
@@ -206,7 +206,7 @@ namespace ModelObjectTest
         {
             // Arrange
 
-            CombinationAsce combination = new CombinationAsce("cmb1", StandardASCE16.LimitState.LFRD);
+            CombinationAsce combination = new CombinationAsce("cmb1", StandardASCE16.LimitStates.LFRD);
             
             var lc1 = new LoadCase("LC1", LoadCase.LoadCaseTypes.SelfWeight);
             var lc2 = new LoadCase("LC2", LoadCase.LoadCaseTypes.SuperImposedDeadLoad);
@@ -237,7 +237,7 @@ namespace ModelObjectTest
         {
             // Arrange
 
-            CombinationAsce combination = new CombinationAsce("cmb1", StandardASCE16.LimitState.LFRD);
+            CombinationAsce combination = new CombinationAsce("cmb1", StandardASCE16.LimitStates.LFRD);
 
             var lc1 = new LoadCase("LC1", LoadCase.LoadCaseTypes.SelfWeight);
             var lc2 = new LoadCase("LC2", LoadCase.LoadCaseTypes.SuperImposedDeadLoad);
@@ -284,7 +284,7 @@ namespace ModelObjectTest
         {
             // Arrange
 
-            CombinationAsce combination = new CombinationAsce("cmb1", StandardASCE16.LimitState.LFRD);
+            CombinationAsce combination = new CombinationAsce("cmb1", StandardASCE16.LimitStates.LFRD);
 
             var lc1 = new LoadCase("LC1", LoadCase.LoadCaseTypes.SelfWeight);
             var lc2 = new LoadCase("LC2", LoadCase.LoadCaseTypes.SuperImposedDeadLoad);
@@ -325,13 +325,13 @@ namespace ModelObjectTest
         {
             // Arrange
 
-            CombinationAsce combination1 = new CombinationAsce("cmb1", StandardASCE16.LimitState.LFRD);
-            CombinationAsce combination2 = new CombinationAsce("cmb1", StandardASCE16.LimitState.LFRD);
-            CombinationAsce combination3 = new CombinationAsce("cmb1", StandardASCE16.LimitState.ASD);
+            CombinationAsce combination1 = new CombinationAsce("cmb1", StandardASCE16.LimitStates.LFRD);
+            CombinationAsce combination2 = new CombinationAsce("cmb1", StandardASCE16.LimitStates.LFRD);
+            CombinationAsce combination3 = new CombinationAsce("cmb1", StandardASCE16.LimitStates.ASD);
 
-            CombinationAsce combination4 = new CombinationAsce("cmb1", StandardASCE16.LimitState.LFRD);
+            CombinationAsce combination4 = new CombinationAsce("cmb1", StandardASCE16.LimitStates.LFRD);
 
-            CombinationAsce combination5 = new CombinationAsce("cmb1", StandardASCE16.LimitState.LFRD);
+            CombinationAsce combination5 = new CombinationAsce("cmb1", StandardASCE16.LimitStates.LFRD);
 
             var lc1 = new LoadCase("LC1", LoadCase.LoadCaseTypes.SelfWeight);
             var lc2 = new LoadCase("LC2", LoadCase.LoadCaseTypes.SuperImposedDeadLoad);
@@ -408,8 +408,8 @@ namespace ModelObjectTest
             };
 
             StandardEN1990 standardEN1990 = new StandardEN1990();
-            StandardEN1990.ImposedLoadCategory category = StandardEN1990.ImposedLoadCategory.CategoryC;
-            StandardEN1990.LimitState limitState = StandardEN1990.LimitState.UltimateStructural;
+            StandardEN1990.ImposedLoadCategories category = StandardEN1990.ImposedLoadCategories.CategoryC;
+            StandardEN1990.LimitStates limitState = StandardEN1990.LimitStates.UltimateStructural;
             StandardEN1990.ULSStructuralGeotechicalCombinationSets uLS = StandardEN1990.ULSStructuralGeotechicalCombinationSets.SetC;
 
             // Act
@@ -451,8 +451,8 @@ namespace ModelObjectTest
             };
 
             StandardEN1990 standardEN1990 = new StandardEN1990();
-            StandardEN1990.ImposedLoadCategory category = StandardEN1990.ImposedLoadCategory.CategoryA;
-            StandardEN1990.LimitState limitState = StandardEN1990.LimitState.UltimateStructural;
+            StandardEN1990.ImposedLoadCategories category = StandardEN1990.ImposedLoadCategories.CategoryA;
+            StandardEN1990.LimitStates limitState = StandardEN1990.LimitStates.UltimateStructural;
             StandardEN1990.ULSStructuralGeotechicalCombinationSets uLSCombinationSets = StandardEN1990.ULSStructuralGeotechicalCombinationSets.SetB;
 
             // Act
@@ -494,8 +494,8 @@ namespace ModelObjectTest
             };
 
             StandardEN1990 standardEN1990 = new StandardEN1990();
-            StandardEN1990.ImposedLoadCategory category = StandardEN1990.ImposedLoadCategory.CategoryE;
-            StandardEN1990.LimitState limitState = StandardEN1990.LimitState.UltimateStructural;
+            StandardEN1990.ImposedLoadCategories category = StandardEN1990.ImposedLoadCategories.CategoryE;
+            StandardEN1990.LimitStates limitState = StandardEN1990.LimitStates.UltimateStructural;
             StandardEN1990.ULSStructuralGeotechicalCombinationSets uLSCombinationSets = StandardEN1990.ULSStructuralGeotechicalCombinationSets.SetC;
 
             // Act
@@ -540,8 +540,8 @@ namespace ModelObjectTest
             };
 
             StandardEN1990 standardEN1990 = new StandardEN1990();
-            StandardEN1990.ImposedLoadCategory category = StandardEN1990.ImposedLoadCategory.CategoryD;
-            StandardEN1990.LimitState limitState = StandardEN1990.LimitState.UltimateEquilibrium;
+            StandardEN1990.ImposedLoadCategories category = StandardEN1990.ImposedLoadCategories.CategoryD;
+            StandardEN1990.LimitStates limitState = StandardEN1990.LimitStates.UltimateEquilibrium;
 
             // Act
             List<CombinationEn> outList = CombinationEn.GenerateCombinations("combo", loadCaseList, standardEN1990, limitState, category);
@@ -582,8 +582,8 @@ namespace ModelObjectTest
             };
 
             StandardUNIEN1990 standardUNIEN1990 = new StandardUNIEN1990();
-            StandardEN1990.ImposedLoadCategory category = StandardEN1990.ImposedLoadCategory.CategoryA;
-            StandardEN1990.LimitState limitState = StandardEN1990.LimitState.UltimateEquilibrium;
+            StandardEN1990.ImposedLoadCategories category = StandardEN1990.ImposedLoadCategories.CategoryA;
+            StandardEN1990.LimitStates limitState = StandardEN1990.LimitStates.UltimateEquilibrium;
 
             // Act
             List<CombinationEn> outList = CombinationEn.GenerateCombinations("combo", loadCaseList, standardUNIEN1990, limitState, category);
@@ -624,8 +624,8 @@ namespace ModelObjectTest
             };
 
             StandardEN1990 standardEN1990 = new StandardEN1990();
-            StandardEN1990.ImposedLoadCategory category = StandardEN1990.ImposedLoadCategory.CategoryD;
-            StandardEN1990.LimitState limitState = StandardEN1990.LimitState.UltimateEquilibrium;
+            StandardEN1990.ImposedLoadCategories category = StandardEN1990.ImposedLoadCategories.CategoryD;
+            StandardEN1990.LimitStates limitState = StandardEN1990.LimitStates.UltimateEquilibrium;
 
             // Act
             List<CombinationEn> outList = CombinationEn.GenerateCombinations("combo", loadCaseList, standardEN1990, limitState, category);
@@ -666,8 +666,8 @@ namespace ModelObjectTest
             };
 
             StandardEN1990 standardEN1990 = new StandardEN1990();
-            StandardEN1990.ImposedLoadCategory category = StandardEN1990.ImposedLoadCategory.CategoryG;
-            StandardEN1990.LimitState limitState = StandardEN1990.LimitState.UltimateFatigue;
+            StandardEN1990.ImposedLoadCategories category = StandardEN1990.ImposedLoadCategories.CategoryG;
+            StandardEN1990.LimitStates limitState = StandardEN1990.LimitStates.UltimateFatigue;
 
             // Act
             List<CombinationEn> outList = CombinationEn.GenerateCombinations("combo", loadCaseList, standardEN1990, limitState, category);
@@ -708,8 +708,8 @@ namespace ModelObjectTest
             };
 
             StandardEN1990 standardEN1990 = new StandardEN1990();
-            StandardEN1990.ImposedLoadCategory category = StandardEN1990.ImposedLoadCategory.CategoryA;
-            StandardEN1990.LimitState limitState = StandardEN1990.LimitState.UltimateFatigue;
+            StandardEN1990.ImposedLoadCategories category = StandardEN1990.ImposedLoadCategories.CategoryA;
+            StandardEN1990.LimitStates limitState = StandardEN1990.LimitStates.UltimateFatigue;
 
             // Act
             List<CombinationEn> outList = CombinationEn.GenerateCombinations("combo", loadCaseList, standardEN1990, limitState, category);
@@ -750,8 +750,8 @@ namespace ModelObjectTest
             };
 
             StandardEN1990 standardEN1990 = new StandardEN1990();
-            StandardEN1990.ImposedLoadCategory category = StandardEN1990.ImposedLoadCategory.CategoryG;
-            StandardEN1990.LimitState limitState = StandardEN1990.LimitState.UltimateFatigue;
+            StandardEN1990.ImposedLoadCategories category = StandardEN1990.ImposedLoadCategories.CategoryG;
+            StandardEN1990.LimitStates limitState = StandardEN1990.LimitStates.UltimateFatigue;
 
             // Act
             List<CombinationEn> outList = CombinationEn.GenerateCombinations("combo", loadCaseList, standardEN1990, limitState, category);
@@ -792,8 +792,8 @@ namespace ModelObjectTest
             };
 
             StandardEN1990 standardEN1990 = new StandardEN1990();
-            StandardEN1990.ImposedLoadCategory category = StandardEN1990.ImposedLoadCategory.CategoryF;
-            StandardEN1990.LimitState limitState = StandardEN1990.LimitState.UltimateGeotechnical;
+            StandardEN1990.ImposedLoadCategories category = StandardEN1990.ImposedLoadCategories.CategoryF;
+            StandardEN1990.LimitStates limitState = StandardEN1990.LimitStates.UltimateGeotechnical;
             StandardEN1990.ULSStructuralGeotechicalCombinationSets uLS = StandardEN1990.ULSStructuralGeotechicalCombinationSets.SetB;
 
             // Act
@@ -837,8 +837,8 @@ namespace ModelObjectTest
             };
 
             StandardUNIEN1990 standardUNIEN1990 = new StandardUNIEN1990();
-            StandardEN1990.ImposedLoadCategory category = StandardEN1990.ImposedLoadCategory.CategoryA;
-            StandardEN1990.LimitState limitState = StandardEN1990.LimitState.UltimateGeotechnical;
+            StandardEN1990.ImposedLoadCategories category = StandardEN1990.ImposedLoadCategories.CategoryA;
+            StandardEN1990.LimitStates limitState = StandardEN1990.LimitStates.UltimateGeotechnical;
             StandardEN1990.ULSStructuralGeotechicalCombinationSets uLSCombinationSets = StandardEN1990.ULSStructuralGeotechicalCombinationSets.SetB;
 
             // Act
@@ -880,8 +880,8 @@ namespace ModelObjectTest
             };
 
             StandardEN1990 standardEN1990 = new StandardEN1990();
-            StandardEN1990.ImposedLoadCategory category = StandardEN1990.ImposedLoadCategory.CategoryF;
-            StandardEN1990.LimitState limitState = StandardEN1990.LimitState.UltimateGeotechnical;
+            StandardEN1990.ImposedLoadCategories category = StandardEN1990.ImposedLoadCategories.CategoryF;
+            StandardEN1990.LimitStates limitState = StandardEN1990.LimitStates.UltimateGeotechnical;
             StandardEN1990.ULSStructuralGeotechicalCombinationSets uLSCombinationSets = StandardEN1990.ULSStructuralGeotechicalCombinationSets.SetC;
 
             // Act
@@ -920,8 +920,8 @@ namespace ModelObjectTest
             };
 
             StandardEN1990 standardEN1990 = new StandardEN1990();
-            StandardEN1990.ImposedLoadCategory category = StandardEN1990.ImposedLoadCategory.CategoryA;
-            StandardEN1990.LimitState limitState = StandardEN1990.LimitState.ServiceabilityCharacteristic;
+            StandardEN1990.ImposedLoadCategories category = StandardEN1990.ImposedLoadCategories.CategoryA;
+            StandardEN1990.LimitStates limitState = StandardEN1990.LimitStates.ServiceabilityCharacteristic;
 
             // Act
             List<CombinationEn> outList = CombinationEn.GenerateCombinations("combo", loadCaseList, standardEN1990, limitState, category);
@@ -958,8 +958,8 @@ namespace ModelObjectTest
             };
 
             StandardEN1990 standardEN1990 = new StandardEN1990();
-            StandardEN1990.ImposedLoadCategory category = StandardEN1990.ImposedLoadCategory.CategoryA;
-            StandardEN1990.LimitState limitState = StandardEN1990.LimitState.ServiceabilityQuasiPermanent;
+            StandardEN1990.ImposedLoadCategories category = StandardEN1990.ImposedLoadCategories.CategoryA;
+            StandardEN1990.LimitStates limitState = StandardEN1990.LimitStates.ServiceabilityQuasiPermanent;
 
             // Act
             List<CombinationEn> outList = CombinationEn.GenerateCombinations("combo", loadCaseList, standardEN1990, limitState, category);
@@ -993,8 +993,8 @@ namespace ModelObjectTest
             };
 
             StandardEN1990 standardEN1990 = new StandardEN1990();
-            StandardEN1990.ImposedLoadCategory category = StandardEN1990.ImposedLoadCategory.CategoryA;
-            StandardEN1990.LimitState limitState = StandardEN1990.LimitState.ServiceabilityFrequent;
+            StandardEN1990.ImposedLoadCategories category = StandardEN1990.ImposedLoadCategories.CategoryA;
+            StandardEN1990.LimitStates limitState = StandardEN1990.LimitStates.ServiceabilityFrequent;
 
             // Act
             List<CombinationEn> outList = CombinationEn.GenerateCombinations("combo", loadCaseList, standardEN1990, limitState, category);
@@ -1045,8 +1045,8 @@ namespace ModelObjectTest
             };
 
             StandardEN1990 standardEN1990 = new StandardEN1990();
-            StandardEN1990.ImposedLoadCategory category = StandardEN1990.ImposedLoadCategory.CategoryA;
-            StandardEN1990.LimitState limitState = StandardEN1990.LimitState.UltimateStructural;
+            StandardEN1990.ImposedLoadCategories category = StandardEN1990.ImposedLoadCategories.CategoryA;
+            StandardEN1990.LimitStates limitState = StandardEN1990.LimitStates.UltimateStructural;
 
             // Act
             List<CombinationEn> outList = CombinationEn.GenerateCombinations("combo", loadCaseList, standardEN1990, limitState, category);
@@ -1120,8 +1120,8 @@ namespace ModelObjectTest
             };
 
             StandardEN1990 standardEN1990 = new StandardEN1990();
-            StandardEN1990.ImposedLoadCategory category = StandardEN1990.ImposedLoadCategory.CategoryA;
-            StandardEN1990.LimitState limitState = StandardEN1990.LimitState.UltimateStructural;
+            StandardEN1990.ImposedLoadCategories category = StandardEN1990.ImposedLoadCategories.CategoryA;
+            StandardEN1990.LimitStates limitState = StandardEN1990.LimitStates.UltimateStructural;
 
             // Act
             List<CombinationEn> outList = CombinationEn.GenerateCombinations("combo", loadCaseList, standardEN1990, limitState, category);
@@ -1202,8 +1202,8 @@ namespace ModelObjectTest
             };
 
             StandardEN1990 standardEN1990 = new StandardEN1990();
-            StandardEN1990.ImposedLoadCategory category = StandardEN1990.ImposedLoadCategory.CategoryA;
-            StandardEN1990.LimitState limitState = StandardEN1990.LimitState.UltimateStructural;
+            StandardEN1990.ImposedLoadCategories category = StandardEN1990.ImposedLoadCategories.CategoryA;
+            StandardEN1990.LimitStates limitState = StandardEN1990.LimitStates.UltimateStructural;
 
             // Act
             List<CombinationEn> outList = CombinationEn.GenerateCombinations("combo", loadCaseList, standardEN1990, limitState, category);
@@ -1260,8 +1260,8 @@ namespace ModelObjectTest
             };
 
             StandardEN1990 standardEN1990 = new StandardEN1990();
-            StandardEN1990.ImposedLoadCategory category = StandardEN1990.ImposedLoadCategory.CategoryA;
-            StandardEN1990.LimitState limitState = StandardEN1990.LimitState.UltimateStructural;
+            StandardEN1990.ImposedLoadCategories category = StandardEN1990.ImposedLoadCategories.CategoryA;
+            StandardEN1990.LimitStates limitState = StandardEN1990.LimitStates.UltimateStructural;
 
             // Act
             List<CombinationEn> outList = CombinationEn.GenerateCombinations("combo", loadCaseList, standardEN1990, limitState, category);
@@ -1379,8 +1379,8 @@ namespace ModelObjectTest
             };
 
             StandardEN1990 standardEN1990 = new StandardEN1990();
-            StandardEN1990.ImposedLoadCategory category = StandardEN1990.ImposedLoadCategory.CategoryA;
-            StandardEN1990.LimitState limitState = StandardEN1990.LimitState.UltimateStructural;
+            StandardEN1990.ImposedLoadCategories category = StandardEN1990.ImposedLoadCategories.CategoryA;
+            StandardEN1990.LimitStates limitState = StandardEN1990.LimitStates.UltimateStructural;
 
             // Act
             List<CombinationEn> outList = CombinationEn.GenerateCombinations("combo", loadCaseList, standardEN1990, limitState, category);
@@ -1436,8 +1436,8 @@ namespace ModelObjectTest
             };
 
             StandardEN1990 standardEN1990 = new StandardEN1990();
-            StandardEN1990.ImposedLoadCategory category = StandardEN1990.ImposedLoadCategory.CategoryA;
-            StandardEN1990.LimitState limitState = StandardEN1990.LimitState.UltimateStructural;
+            StandardEN1990.ImposedLoadCategories category = StandardEN1990.ImposedLoadCategories.CategoryA;
+            StandardEN1990.LimitStates limitState = StandardEN1990.LimitStates.UltimateStructural;
 
             // Act
             List<CombinationEn> outList = CombinationEn.GenerateCombinations("combo", loadCaseList, standardEN1990, limitState, category);
@@ -1509,8 +1509,8 @@ namespace ModelObjectTest
             };
 
             StandardEN1990 standardEN1990 = new StandardEN1990();
-            StandardEN1990.ImposedLoadCategory category = StandardEN1990.ImposedLoadCategory.CategoryA;
-            StandardEN1990.LimitState limitState = StandardEN1990.LimitState.UltimateStructural;
+            StandardEN1990.ImposedLoadCategories category = StandardEN1990.ImposedLoadCategories.CategoryA;
+            StandardEN1990.LimitStates limitState = StandardEN1990.LimitStates.UltimateStructural;
 
             // Act
             List<CombinationEn> outList = CombinationEn.GenerateCombinations("combo", loadCaseList, standardEN1990, limitState, category);
@@ -1600,8 +1600,8 @@ namespace ModelObjectTest
             };
 
             StandardEN1990 standardEN1990 = new StandardEN1990();
-            StandardEN1990.ImposedLoadCategory category = StandardEN1990.ImposedLoadCategory.CategoryA;
-            StandardEN1990.LimitState limitState = StandardEN1990.LimitState.UltimateStructural;
+            StandardEN1990.ImposedLoadCategories category = StandardEN1990.ImposedLoadCategories.CategoryA;
+            StandardEN1990.LimitStates limitState = StandardEN1990.LimitStates.UltimateStructural;
 
             // Act
             List<CombinationEn> outList = CombinationEn.GenerateCombinations("combo", loadCaseList, standardEN1990, limitState, category);
@@ -1735,8 +1735,8 @@ namespace ModelObjectTest
             };
 
             StandardEN1990 standardEN1990 = new StandardEN1990();
-            StandardEN1990.ImposedLoadCategory category = StandardEN1990.ImposedLoadCategory.CategoryC;
-            StandardEN1990.LimitState limitState = StandardEN1990.LimitState.UltimateSeismic;
+            StandardEN1990.ImposedLoadCategories category = StandardEN1990.ImposedLoadCategories.CategoryC;
+            StandardEN1990.LimitStates limitState = StandardEN1990.LimitStates.UltimateSeismic;
             StandardEN1990.ULSStructuralGeotechicalCombinationSets uLS = StandardEN1990.ULSStructuralGeotechicalCombinationSets.SetC;
 
             // Act
@@ -1787,8 +1787,8 @@ namespace ModelObjectTest
             };
 
             StandardEN1990 standardEN1990 = new StandardEN1990();
-            StandardEN1990.ImposedLoadCategory category = StandardEN1990.ImposedLoadCategory.CategoryC;
-            StandardEN1990.LimitState limitState = StandardEN1990.LimitState.UltimateSeismic;
+            StandardEN1990.ImposedLoadCategories category = StandardEN1990.ImposedLoadCategories.CategoryC;
+            StandardEN1990.LimitStates limitState = StandardEN1990.LimitStates.UltimateSeismic;
             StandardEN1990.ULSStructuralGeotechicalCombinationSets uLS = StandardEN1990.ULSStructuralGeotechicalCombinationSets.SetC;
 
             // Act
@@ -1841,8 +1841,8 @@ namespace ModelObjectTest
             };
 
             StandardEN1990 standardEN1990 = new StandardEN1990();
-            StandardEN1990.ImposedLoadCategory category = StandardEN1990.ImposedLoadCategory.CategoryC;
-            StandardEN1990.LimitState limitState = StandardEN1990.LimitState.UltimateSeismic;
+            StandardEN1990.ImposedLoadCategories category = StandardEN1990.ImposedLoadCategories.CategoryC;
+            StandardEN1990.LimitStates limitState = StandardEN1990.LimitStates.UltimateSeismic;
             StandardEN1990.ULSStructuralGeotechicalCombinationSets uLS = StandardEN1990.ULSStructuralGeotechicalCombinationSets.SetC;
 
             // Act
@@ -1902,8 +1902,8 @@ namespace ModelObjectTest
             };
 
             StandardEN1990 standardEN1990 = new StandardEN1990();
-            StandardEN1990.ImposedLoadCategory category = StandardEN1990.ImposedLoadCategory.CategoryC;
-            StandardEN1990.LimitState limitState = StandardEN1990.LimitState.UltimateStructural;
+            StandardEN1990.ImposedLoadCategories category = StandardEN1990.ImposedLoadCategories.CategoryC;
+            StandardEN1990.LimitStates limitState = StandardEN1990.LimitStates.UltimateStructural;
             StandardEN1990.ULSStructuralGeotechicalCombinationSets uLS = StandardEN1990.ULSStructuralGeotechicalCombinationSets.SetB;
 
             // Act
@@ -1954,8 +1954,8 @@ namespace ModelObjectTest
             };
 
             StandardEN1990 standardEN1990 = new StandardEN1990();
-            StandardEN1990.ImposedLoadCategory category = StandardEN1990.ImposedLoadCategory.CategoryC;
-            StandardEN1990.LimitState limitState = StandardEN1990.LimitState.UltimateStructural;
+            StandardEN1990.ImposedLoadCategories category = StandardEN1990.ImposedLoadCategories.CategoryC;
+            StandardEN1990.LimitStates limitState = StandardEN1990.LimitStates.UltimateStructural;
             StandardEN1990.ULSStructuralGeotechicalCombinationSets uLS = StandardEN1990.ULSStructuralGeotechicalCombinationSets.SetB;
 
             // Act
@@ -2005,8 +2005,8 @@ namespace ModelObjectTest
             };
 
             StandardEN1990 standardEN1990 = new StandardEN1990();
-            StandardEN1990.ImposedLoadCategory category = StandardEN1990.ImposedLoadCategory.CategoryC;
-            StandardEN1990.LimitState limitState = StandardEN1990.LimitState.ServiceabilityCharacteristic;
+            StandardEN1990.ImposedLoadCategories category = StandardEN1990.ImposedLoadCategories.CategoryC;
+            StandardEN1990.LimitStates limitState = StandardEN1990.LimitStates.ServiceabilityCharacteristic;
 
             // Act
             List<CombinationEn> outList = CombinationEn.GenerateCombinations("combo", loadCaseList, standardEN1990, limitState, category);
@@ -2056,8 +2056,8 @@ namespace ModelObjectTest
             };
 
             StandardEN1990 standardEN1990 = new StandardEN1990();
-            StandardEN1990.ImposedLoadCategory category = StandardEN1990.ImposedLoadCategory.CategoryC;
-            StandardEN1990.LimitState limitState = StandardEN1990.LimitState.ServiceabilityCharacteristic;
+            StandardEN1990.ImposedLoadCategories category = StandardEN1990.ImposedLoadCategories.CategoryC;
+            StandardEN1990.LimitStates limitState = StandardEN1990.LimitStates.ServiceabilityCharacteristic;
 
             // Act
             List<CombinationEn> outList = CombinationEn.GenerateCombinations("combo", loadCaseList, standardEN1990, limitState, category);
@@ -2097,7 +2097,7 @@ namespace ModelObjectTest
             StandardASCE16 standardASCE16 = new StandardASCE16();
 
             // Act
-            List<CombinationAsce> outList = CombinationAsce.GenerateCombinations("combo", loadCaseList, standardASCE16, StandardASCE16.LimitState.LFRD);
+            List<CombinationAsce> outList = CombinationAsce.GenerateCombinations("combo", loadCaseList, standardASCE16, StandardASCE16.LimitStates.LFRD);
 
             // Assert
             Assert.IsTrue(outList.Count() == 11);
@@ -2136,7 +2136,7 @@ namespace ModelObjectTest
             StandardASCE16 standardASCE16 = new StandardASCE16();
 
             // Act
-            List<CombinationAsce> outList = CombinationAsce.GenerateCombinations("combo", loadCaseList, standardASCE16, StandardASCE16.LimitState.LFRD);
+            List<CombinationAsce> outList = CombinationAsce.GenerateCombinations("combo", loadCaseList, standardASCE16, StandardASCE16.LimitStates.LFRD);
 
             // Assert
             Assert.IsTrue(outList.Count() == 12);
@@ -2169,7 +2169,7 @@ namespace ModelObjectTest
             StandardASCE16 standardASCE16 = new StandardASCE16();
 
             // Act
-            List<CombinationAsce> outList = CombinationAsce.GenerateCombinations("combo", loadCaseList, standardASCE16, StandardASCE16.LimitState.LFRD);
+            List<CombinationAsce> outList = CombinationAsce.GenerateCombinations("combo", loadCaseList, standardASCE16, StandardASCE16.LimitStates.LFRD);
 
             // Assert
             Assert.IsTrue(outList.Count() == 8);
@@ -2214,7 +2214,7 @@ namespace ModelObjectTest
             StandardASCE16 standardASCE16 = new StandardASCE16();
 
             // Act
-            List<CombinationAsce> outList = CombinationAsce.GenerateCombinations("combo", loadCaseList, standardASCE16, StandardASCE16.LimitState.LFRD);
+            List<CombinationAsce> outList = CombinationAsce.GenerateCombinations("combo", loadCaseList, standardASCE16, StandardASCE16.LimitStates.LFRD);
 
             // Assert
             Assert.IsTrue(outList.Count() == 13);
@@ -2247,7 +2247,7 @@ namespace ModelObjectTest
             StandardASCE16 standardASCE16 = new StandardASCE16();
 
             // Act
-            List<CombinationAsce> outList = CombinationAsce.GenerateCombinations("combo", loadCaseList, standardASCE16, StandardASCE16.LimitState.ASD);
+            List<CombinationAsce> outList = CombinationAsce.GenerateCombinations("combo", loadCaseList, standardASCE16, StandardASCE16.LimitStates.ASD);
 
             // Assert
             Assert.IsTrue(outList.Count() == 11);
@@ -2280,7 +2280,7 @@ namespace ModelObjectTest
             StandardASCE16 standardASCE16 = new StandardASCE16();
 
             // Act
-            List<CombinationAsce> outList = CombinationAsce.GenerateCombinations("combo", loadCaseList, standardASCE16, StandardASCE16.LimitState.ASD);
+            List<CombinationAsce> outList = CombinationAsce.GenerateCombinations("combo", loadCaseList, standardASCE16, StandardASCE16.LimitStates.ASD);
 
             // Assert
             Assert.IsTrue(outList.Count() == 7);
@@ -2313,7 +2313,7 @@ namespace ModelObjectTest
             StandardASCE16 standardASCE16 = new StandardASCE16();
 
             // Act
-            List<CombinationAsce> outList = CombinationAsce.GenerateCombinations("combo", loadCaseList, standardASCE16, StandardASCE16.LimitState.ASD);
+            List<CombinationAsce> outList = CombinationAsce.GenerateCombinations("combo", loadCaseList, standardASCE16, StandardASCE16.LimitStates.ASD);
 
             // Assert
             Assert.IsTrue(outList.Count() == 7);
@@ -2358,7 +2358,7 @@ namespace ModelObjectTest
             StandardASCE16 standardASCE16 = new StandardASCE16();
 
             // Act
-            List<CombinationAsce> outList = CombinationAsce.GenerateCombinations("combo", loadCaseList, standardASCE16, StandardASCE16.LimitState.ASD);
+            List<CombinationAsce> outList = CombinationAsce.GenerateCombinations("combo", loadCaseList, standardASCE16, StandardASCE16.LimitStates.ASD);
 
             // Assert
             Assert.IsTrue(outList.Count() == 15);
