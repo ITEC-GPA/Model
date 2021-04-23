@@ -27,13 +27,13 @@ namespace GPC.Model.FEM.Attributes
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="freedomCase"></param>
+        /// <param name="freedomCaseName"></param>
         /// <param name="coordinateSystem">Coordinate system where the restrains are applied</param>
         /// <param name="restrains"></param>
         /// <param name="name"></param>
         /// <param name="guid"></param>
-        public NodeRestrainAttribute(FreedomCase freedomCase, CoordinateSystem coordinateSystem, List<DofRestrain> restrains, string name, Guid guid)
-            : base(freedomCase, name, guid)
+        public NodeRestrainAttribute(string freedomCaseName, CoordinateSystem coordinateSystem, List<DofRestrain> restrains, string name, Guid guid)
+            : base(freedomCaseName, name, guid)
         {
             _restrains = new List<DofRestrain>();
             if (restrains != null)
@@ -42,8 +42,8 @@ namespace GPC.Model.FEM.Attributes
             _coordinateSystem = coordinateSystem;
         }
 
-        public NodeRestrainAttribute(FreedomCase freedomCase, CoordinateSystem coordinateSystem)
-            : this(freedomCase, coordinateSystem, new List <DofRestrain>(), string.Empty, Guid.NewGuid())
+        public NodeRestrainAttribute(string freedomCaseName, CoordinateSystem coordinateSystem)
+            : this(freedomCaseName, coordinateSystem, new List <DofRestrain>(), string.Empty, Guid.NewGuid())
         {
 
         }

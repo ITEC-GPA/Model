@@ -100,7 +100,7 @@ namespace GPC.Model.FEM
                                 if (node.AttributesFreedomCase.Contains(restrainAttribute) == false)
                                 {
                                     //Copy
-                                    node.AttributesFreedomCase.Add(new NodeRestrainAttribute(restrainAttribute.FreedomCase, restrainAttribute.CoordinateSystem, restrainAttribute.Restrains, restrainAttribute.Name, Guid.NewGuid()));
+                                    node.AttributesFreedomCase.Add(new NodeRestrainAttribute(restrainAttribute.FreedomCaseName, restrainAttribute.CoordinateSystem, restrainAttribute.Restrains, restrainAttribute.Name, Guid.NewGuid()));
                                 }
                             }
                         }

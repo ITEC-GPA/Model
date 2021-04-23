@@ -8,32 +8,32 @@ namespace GPC.Model.FEM.Attributes
     [Serializable]
     public abstract class LoadCaseAttribute : Attribute, ISerializable
     {
-        private LoadCase _loadCase;
+        private string _loadCaseName;
 
-        public LoadCase LoadCase => _loadCase;
+        public string LoadCaseName => _loadCaseName;
 
-        public LoadCaseAttribute(LoadCase loadCase)
-            : this(loadCase, string.Empty, Guid.NewGuid())
+        public LoadCaseAttribute(string loadCaseName)
+            : this(loadCaseName, string.Empty, Guid.NewGuid())
         {
 
         }
 
-        public LoadCaseAttribute(LoadCase loadCase, string name) 
-            : this(loadCase, name, Guid.NewGuid())
+        public LoadCaseAttribute(string loadCaseName, string name) 
+            : this(loadCaseName, name, Guid.NewGuid())
         {
 
         }
 
-        public LoadCaseAttribute(LoadCase loadCase, string name, Guid guid) 
+        public LoadCaseAttribute(string loadCaseName, string name, Guid guid) 
             : base(guid, name)
         {
-            _loadCase = loadCase ?? throw new ArgumentNullException("Loadcase cannot be null");
+            _loadCaseName = String.IsNullOrEmpty(loadCaseName) || String.IsNullOrWhiteSpace(loadCaseName) ? throw new ArgumentNullException() : loadCaseName;
         }
 
         public LoadCaseAttribute(LoadCaseAttribute loadCaseAttribute)
             : base(loadCaseAttribute.Guid, loadCaseAttribute.Name)
         {
-            _loadCase = loadCaseAttribute.LoadCase;
+            _loadCaseName = loadCaseAttribute.LoadCaseName;
         }
 
 
@@ -41,7 +41,7 @@ namespace GPC.Model.FEM.Attributes
         protected LoadCaseAttribute(SerializationInfo info, StreamingContext context) 
             : base(info, context)
         {
-            _loadCase = (LoadCase)info.GetValue("LoadCase", typeof(LoadCase));
+            _loadCaseName = (string)info.GetValue("LoadCaseName", typeof(string));
         }
 
         public override bool Equals(object obj)
@@ -51,14 +51,14 @@ namespace GPC.Model.FEM.Attributes
 
             LoadCaseAttribute lca = obj as LoadCaseAttribute;
 
-            return !(obj is null) && _loadCase.Equals(lca._loadCase) && base.Equals(obj);
+            return !(obj is null) && _loadCaseName.Equals(lca._loadCaseName) && base.Equals(obj);
         }
 
 
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             base.GetObjectData(info, context);
-            info.AddValue("LoadCase", _loadCase);
+            info.AddValue("LoadCaseName", _loadCaseName);
         }
 
 
@@ -66,7 +66,7 @@ namespace GPC.Model.FEM.Attributes
         {
             int hashCode = -23;
             hashCode = hashCode * -17 + base.GetHashCode();
-            hashCode = hashCode * -17 + EqualityComparer<LoadCase>.Default.GetHashCode(_loadCase);
+            hashCode = hashCode * -17 + EqualityComparer<string>.Default.GetHashCode(_loadCaseName);
             return hashCode;
         }
 

@@ -12,15 +12,15 @@ namespace GPC.Model.FEM.Attributes
     internal sealed class PlateAccelerationAttribute : ModelAccelerationAttribute, IEquatable<PlateAccelerationAttribute>, IPlateLoadCaseAttribute
     {
 
-        internal PlateAccelerationAttribute(LoadCase loadCase, CoordinateSystem coordinateSystem, double a1, double a2, double a3)
-            : base(loadCase, coordinateSystem, a1, a2, a3)
+        internal PlateAccelerationAttribute(string loadCaseName, CoordinateSystem coordinateSystem, double a1, double a2, double a3)
+            : base(loadCaseName, coordinateSystem, a1, a2, a3)
         {
 
         }
 
 
         internal PlateAccelerationAttribute(PlateAccelerationAttribute beamAccelerationAttribute)
-            : this(beamAccelerationAttribute.LoadCase, beamAccelerationAttribute.CoordinateSystem, beamAccelerationAttribute.A1, beamAccelerationAttribute.A2, beamAccelerationAttribute.A3)
+            : this(beamAccelerationAttribute.LoadCaseName, beamAccelerationAttribute.CoordinateSystem, beamAccelerationAttribute.A1, beamAccelerationAttribute.A2, beamAccelerationAttribute.A3)
         {
 
         }

@@ -36,7 +36,7 @@ namespace FemTest.Solver
             LoadCase loadCase = new LoadCase("myLoadCase", new Guid());
             FreedomCase freedomCase = new FreedomCase("freedomCase1");
             CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
-            PlatePressureAttribute pressure = new PlatePressureAttribute(loadCase, sys, 0.0, 0.0, 1.0);
+            PlatePressureAttribute pressure = new PlatePressureAttribute("loadCase", sys, 0.0, 0.0, 1.0);
             e0.AddLoadCaseAttribute(pressure);
 
             LinearSolver fem = new LinearSolver(new FiniteElement[] { e0 });
@@ -139,7 +139,7 @@ namespace FemTest.Solver
 
             #region restrains
             CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
-            NodeRestrainAttribute fix = new NodeRestrainAttribute(freedomCase, sys);
+            NodeRestrainAttribute fix = new NodeRestrainAttribute("freedomCase", sys);
             fix.AddExternalRestrain(LinearSolver.DOF.DX);
             fix.AddExternalRestrain(LinearSolver.DOF.DY);
             fix.AddExternalRestrain(LinearSolver.DOF.DZ);
@@ -147,12 +147,12 @@ namespace FemTest.Solver
             fix.AddExternalRestrain(LinearSolver.DOF.RY);
             fix.AddExternalRestrain(LinearSolver.DOF.RZ);
 
-            NodeRestrainAttribute fixRZ = new NodeRestrainAttribute(freedomCase, sys);
+            NodeRestrainAttribute fixRZ = new NodeRestrainAttribute("freedomCase", sys);
             fixRZ.AddExternalRestrain(LinearSolver.DOF.RZ);
             #endregion
 
             #region nodalforces
-            NodeForceAttribute F = new NodeForceAttribute(loadCase, sys, 0.0, 1.0, 0.0, 1.0, 0, 0);
+            NodeForceAttribute F = new NodeForceAttribute("loadCase", sys, 0.0, 1.0, 0.0, 1.0, 0, 0);
             #endregion
 
             Node nodeA = new Node(0.0, 8, 0,  "A");
@@ -213,7 +213,7 @@ namespace FemTest.Solver
 
             #region restrains
             CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
-            NodeRestrainAttribute fix = new NodeRestrainAttribute(freedomCase, sys);
+            NodeRestrainAttribute fix = new NodeRestrainAttribute("freedomCase", sys);
             fix.AddExternalRestrain(LinearSolver.DOF.DX);
             fix.AddExternalRestrain(LinearSolver.DOF.DY);
             fix.AddExternalRestrain(LinearSolver.DOF.DZ);
@@ -221,12 +221,12 @@ namespace FemTest.Solver
             fix.AddExternalRestrain(LinearSolver.DOF.RY);
             fix.AddExternalRestrain(LinearSolver.DOF.RZ);
 
-            NodeRestrainAttribute fixRZ = new NodeRestrainAttribute(freedomCase, sys);
+            NodeRestrainAttribute fixRZ = new NodeRestrainAttribute("freedomCase", sys);
             fixRZ.AddExternalRestrain(LinearSolver.DOF.RZ);
             #endregion
 
             #region forces
-            PlatePressureAttribute p = new PlatePressureAttribute(loadCase, sys, 0.0, 0.0, 1.0);
+            PlatePressureAttribute p = new PlatePressureAttribute("loadCase", sys, 0.0, 0.0, 1.0);
             #endregion
 
             Node nodeA = new Node(0.0, 8, 0, "A");
@@ -291,11 +291,11 @@ namespace FemTest.Solver
             /*PlatePressureAttribute pressure = new PlatePressureAttribute(loadCase, sys, 0.0, 0.0, 1.0);
             e0.AddLoadCaseAttribute(pressure);*/
 
-            NodeForceAttribute F = new NodeForceAttribute(loadCase, sys, 0, 0, 1, 0, 0, 0);
+            NodeForceAttribute F = new NodeForceAttribute("loadCase", sys, 0, 0, 1, 0, 0, 0);
             nodesPlate1[2].AddAttribute(F);
             nodesPlate1[3].AddAttribute(F);
 
-            NodeRestrainAttribute fix = new NodeRestrainAttribute(freedomCase, sys);
+            NodeRestrainAttribute fix = new NodeRestrainAttribute("freedomCase", sys);
             fix.AddExternalRestrain(LinearSolver.DOF.DX);
             fix.AddExternalRestrain(LinearSolver.DOF.DY);
             fix.AddExternalRestrain(LinearSolver.DOF.DZ);
@@ -334,11 +334,11 @@ namespace FemTest.Solver
             /*PlatePressureAttribute pressure = new PlatePressureAttribute(loadCase, sys, 0.0, 0.0, 1.0);
             e0.AddLoadCaseAttribute(pressure);*/
 
-            NodeForceAttribute F = new NodeForceAttribute(loadCase, sys, 0, 0, 8.0 * 9.81 / 2 / 2, 0, 0, 0);
+            NodeForceAttribute F = new NodeForceAttribute("loadCase", sys, 0, 0, 8.0 * 9.81 / 2 / 2, 0, 0, 0);
 
             nodes.Where(x => x.Position.X == 15).ToList().ForEach(x => x.AddAttribute(F));
 
-            NodeRestrainAttribute fix = new NodeRestrainAttribute(freedomCase, sys);
+            NodeRestrainAttribute fix = new NodeRestrainAttribute("freedomCase", sys);
             fix.AddExternalRestrain(LinearSolver.DOF.DX);
             fix.AddExternalRestrain(LinearSolver.DOF.DY);
             fix.AddExternalRestrain(LinearSolver.DOF.DZ);
@@ -384,11 +384,11 @@ namespace FemTest.Solver
             /*PlatePressureAttribute pressure = new PlatePressureAttribute(loadCase, sys, 0.0, 0.0, 1.0);
             e0.AddLoadCaseAttribute(pressure);*/
 
-            NodeForceAttribute F = new NodeForceAttribute(loadCase, sys, 0, 0, 8.0 * 9.81 / 2 / 3, 0, 0, 0);
+            NodeForceAttribute F = new NodeForceAttribute("loadCase", sys, 0, 0, 8.0 * 9.81 / 2 / 3, 0, 0, 0);
 
             nodes.Where(x => x.Position.X == 15).ToList().ForEach(x => x.AddAttribute(F));
 
-            NodeRestrainAttribute fix = new NodeRestrainAttribute(freedomCase, sys);
+            NodeRestrainAttribute fix = new NodeRestrainAttribute("freedomCase", sys);
             fix.AddExternalRestrain(LinearSolver.DOF.DX);
             fix.AddExternalRestrain(LinearSolver.DOF.DY);
             fix.AddExternalRestrain(LinearSolver.DOF.DZ);
@@ -444,27 +444,27 @@ namespace FemTest.Solver
             /*PlatePressureAttribute pressure = new PlatePressureAttribute(loadCase, sys, 0.0, 0.0, 1.0);
             e0.AddLoadCaseAttribute(pressure);*/
 
-            NodeForceAttribute F = new NodeForceAttribute(loadCase, sys, 0, 0, 8.0 * 9.81 / 2.0 / 3.0, 0, 0, 0);
+            NodeForceAttribute F = new NodeForceAttribute("loadCase", sys, 0, 0, 8.0 * 9.81 / 2.0 / 3.0, 0, 0, 0);
 
             nodes.Where(x => x.Position.X == 15).ToList().ForEach(x => x.AddAttribute(F));
 
-            NodeRestrainAttribute x0Restrain = new NodeRestrainAttribute(freedomCase, sys);
+            NodeRestrainAttribute x0Restrain = new NodeRestrainAttribute("freedomCase", sys);
             x0Restrain.AddExternalRestrain(LinearSolver.DOF.DX);
             x0Restrain.AddExternalRestrain(LinearSolver.DOF.RY);
             nodes.Where(x => x.Position.X == 0).ToList().ForEach(x => x.AddAttribute(x0Restrain));
 
-            NodeRestrainAttribute x0y0Restrain = new NodeRestrainAttribute(freedomCase, sys);
+            NodeRestrainAttribute x0y0Restrain = new NodeRestrainAttribute("freedomCase", sys);
             x0y0Restrain.AddExternalRestrain(LinearSolver.DOF.DX);
             x0y0Restrain.AddExternalRestrain(LinearSolver.DOF.DY);
             x0y0Restrain.AddExternalRestrain(LinearSolver.DOF.RY);
             nodes.Where(x => x.Position.X == 0 && x.Position.Y == 0).ToList().ForEach(x => x.AddAttribute(x0y0Restrain));
 
-            NodeRestrainAttribute x330y0Restrain = new NodeRestrainAttribute(freedomCase, sys);
+            NodeRestrainAttribute x330y0Restrain = new NodeRestrainAttribute("freedomCase", sys);
             x330y0Restrain.AddExternalRestrain(LinearSolver.DOF.DY);
             x330y0Restrain.AddExternalRestrain(LinearSolver.DOF.DZ);
             nodes.Where(x => x.Position.X == 330 && x.Position.Y == 0).ToList().ForEach(x => x.AddAttribute(x330y0Restrain));
 
-            NodeRestrainAttribute x330Restrain = new NodeRestrainAttribute(freedomCase, sys);
+            NodeRestrainAttribute x330Restrain = new NodeRestrainAttribute("freedomCase", sys);
             x330Restrain.AddExternalRestrain(LinearSolver.DOF.DZ);
             nodes.Where(x => x.Position.X == 330).ToList().ForEach(x => x.AddAttribute(x330Restrain));
 
@@ -512,30 +512,30 @@ namespace FemTest.Solver
             FreedomCase freedomCase = new FreedomCase("freedomCase1");
             CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
 
-            PlatePressureAttribute pressure = new PlatePressureAttribute(loadCase, sys, 0.0, 0.0, (2.418/1000.0 * 9.81) * (t / 1000.0));
+            PlatePressureAttribute pressure = new PlatePressureAttribute("loadCase", sys, 0.0, 0.0, (2.418/1000.0 * 9.81) * (t / 1000.0));
             els.ForEach(x => x.AddLoadCaseAttribute(pressure));
 
             /*NodeForceAttribute F = new NodeForceAttribute(loadCase, sys, 0, 0, 8.0 * 9.81 / 2.0 / 3.0, 0, 0, 0);
 
             nodes.Where(x => x.Position.X == 15).ToList().ForEach(x => x.AddAttribute(F));*/
 
-            NodeRestrainAttribute x0Restrain = new NodeRestrainAttribute(freedomCase, sys);
+            NodeRestrainAttribute x0Restrain = new NodeRestrainAttribute("freedomCase", sys);
             x0Restrain.AddExternalRestrain(LinearSolver.DOF.DX);
             x0Restrain.AddExternalRestrain(LinearSolver.DOF.RY);
             nodes.Where(x => x.Position.X == 0).ToList().ForEach(x => x.AddAttribute(x0Restrain));
 
-            NodeRestrainAttribute x0y0Restrain = new NodeRestrainAttribute(freedomCase, sys);
+            NodeRestrainAttribute x0y0Restrain = new NodeRestrainAttribute("freedomCase", sys);
             x0y0Restrain.AddExternalRestrain(LinearSolver.DOF.DX);
             x0y0Restrain.AddExternalRestrain(LinearSolver.DOF.DY);
             x0y0Restrain.AddExternalRestrain(LinearSolver.DOF.RY);
             nodes.Where(x => x.Position.X == 0 && x.Position.Y == 0).ToList().ForEach(x => x.AddAttribute(x0y0Restrain));
 
-            NodeRestrainAttribute x330y0Restrain = new NodeRestrainAttribute(freedomCase, sys);
+            NodeRestrainAttribute x330y0Restrain = new NodeRestrainAttribute("freedomCase", sys);
             x330y0Restrain.AddExternalRestrain(LinearSolver.DOF.DY);
             x330y0Restrain.AddExternalRestrain(LinearSolver.DOF.DZ);
             nodes.Where(x => x.Position.X == 330 && x.Position.Y == 0).ToList().ForEach(x => x.AddAttribute(x330y0Restrain));
 
-            NodeRestrainAttribute x330Restrain = new NodeRestrainAttribute(freedomCase, sys);
+            NodeRestrainAttribute x330Restrain = new NodeRestrainAttribute("freedomCase", sys);
             x330Restrain.AddExternalRestrain(LinearSolver.DOF.DZ);
             nodes.Where(x => x.Position.X == 330).ToList().ForEach(x => x.AddAttribute(x330Restrain));
 

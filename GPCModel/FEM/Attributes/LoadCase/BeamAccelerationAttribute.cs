@@ -13,15 +13,15 @@ namespace GPC.Model.FEM.Attributes
     internal sealed class BeamAccelerationAttribute : ModelAccelerationAttribute, IEquatable<BeamAccelerationAttribute>, IBeamLoadCaseAttribute
     {
 
-        internal BeamAccelerationAttribute(LoadCase loadCase, CoordinateSystem coordinateSystem, double a1, double a2, double a3) 
-            : base(loadCase, coordinateSystem, a1, a2, a3)
+        internal BeamAccelerationAttribute(string loadCaseName, CoordinateSystem coordinateSystem, double a1, double a2, double a3) 
+            : base(loadCaseName, coordinateSystem, a1, a2, a3)
         {
 
         }
 
 
         internal BeamAccelerationAttribute(BeamAccelerationAttribute beamAccelerationAttribute)
-            : this(beamAccelerationAttribute.LoadCase, beamAccelerationAttribute.CoordinateSystem, beamAccelerationAttribute.A1, beamAccelerationAttribute.A2, beamAccelerationAttribute.A3)
+            : this(beamAccelerationAttribute.LoadCaseName, beamAccelerationAttribute.CoordinateSystem, beamAccelerationAttribute.A1, beamAccelerationAttribute.A2, beamAccelerationAttribute.A3)
         {
 
         }

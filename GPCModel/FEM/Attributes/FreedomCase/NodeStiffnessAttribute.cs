@@ -20,27 +20,27 @@ namespace GPC.Model.FEM.Attributes
         public List<DofRestrain> Stiffnesses => _stiffness;
         public CoordinateSystem CoordinateSystem => _coordinateSystem;
 
-        public NodeStiffnessAttribute(FreedomCase freedomCase, CoordinateSystem coordinateSystem)
-           : this(freedomCase, coordinateSystem, string.Empty, Guid.NewGuid())
+        public NodeStiffnessAttribute(string freedomCaseName, CoordinateSystem coordinateSystem)
+           : this(freedomCaseName, coordinateSystem, string.Empty, Guid.NewGuid())
         {
 
         }
 
-        public NodeStiffnessAttribute(FreedomCase freedomCase, CoordinateSystem coordinateSystem, string name) 
-            : this(freedomCase, coordinateSystem, name, Guid.NewGuid())
+        public NodeStiffnessAttribute(string freedomCaseName, CoordinateSystem coordinateSystem, string name) 
+            : this(freedomCaseName, coordinateSystem, name, Guid.NewGuid())
         {
 
         }
 
-        public NodeStiffnessAttribute(FreedomCase freedomCase, CoordinateSystem coordinateSystem, string name, Guid guid) 
-            : base(freedomCase, name, guid)
+        public NodeStiffnessAttribute(string freedomCaseName, CoordinateSystem coordinateSystem, string name, Guid guid) 
+            : base(freedomCaseName, name, guid)
         {
             _stiffness = new List<DofRestrain>();
             _coordinateSystem = coordinateSystem;
         }
 
         public NodeStiffnessAttribute(NodeStiffnessAttribute nodeStiffnessAttribute)
-            : base(nodeStiffnessAttribute.FreedomCase, nodeStiffnessAttribute.Name, nodeStiffnessAttribute.Guid)
+            : base(nodeStiffnessAttribute.FreedomCaseName, nodeStiffnessAttribute.Name, nodeStiffnessAttribute.Guid)
         {
             _stiffness = nodeStiffnessAttribute._stiffness;
             _coordinateSystem = nodeStiffnessAttribute.CoordinateSystem;

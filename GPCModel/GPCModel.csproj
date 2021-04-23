@@ -69,6 +69,7 @@
   <ItemGroup>
     <Compile Include="Base\UniqueNameCollection.cs" />
     <Compile Include="Base\ModelObjectEnumerable.cs" />
+    <Compile Include="Base\UniqueObjectCollection.cs" />
     <Compile Include="Base\UnitsSystem.cs" />
     <Compile Include="Base\Units.cs" />
     <Compile Include="Combinations\Standard.cs" />

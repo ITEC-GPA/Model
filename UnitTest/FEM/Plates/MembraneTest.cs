@@ -106,12 +106,12 @@ namespace FemTest.Solver
             PlateProperty prop = new PlateProperty(mat, 0, 1, "p");
 
             CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
-            NodeRestrainAttribute DXDYDZ = new NodeRestrainAttribute(freedomCase, sys);
+            NodeRestrainAttribute DXDYDZ = new NodeRestrainAttribute("freedomCase", sys);
             DXDYDZ.AddExternalRestrain(LinearSolver.DOF.DX);
             DXDYDZ.AddExternalRestrain(LinearSolver.DOF.DY);
             DXDYDZ.AddExternalRestrain(LinearSolver.DOF.DZ);
 
-            NodeRestrainAttribute DZ = new NodeRestrainAttribute(freedomCase, sys);
+            NodeRestrainAttribute DZ = new NodeRestrainAttribute("freedomCase", sys);
             DZ.AddExternalRestrain(LinearSolver.DOF.DZ);
 
             //CoordinateSystem sys2 = new CoordinateSystem(new Point3d(1, 1, 0), new Point3d(2, 2, 0), new Point3d(0, 2, 0));
@@ -144,7 +144,7 @@ namespace FemTest.Solver
             List<FiniteElement> elements = new List<FiniteElement>();
             Plate e0 = new Tri3PlaneStress(nodesPlate1.ToArray(), prop);
         
-            PlatePressureAttribute p = new PlatePressureAttribute(loadCase, sys, -10.0, 0, 0);
+            PlatePressureAttribute p = new PlatePressureAttribute("loadCase", sys, -10.0, 0, 0);
             e0.AddLoadCaseAttribute(p);
 
             elements.Add(e0);
@@ -427,12 +427,12 @@ namespace FemTest.Solver
             CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
 
             FreedomCase freedomCase = new FreedomCase("freedomcase");
-            NodeRestrainAttribute fix = new NodeRestrainAttribute(freedomCase, sys);
+            NodeRestrainAttribute fix = new NodeRestrainAttribute("freedomCase", sys);
             fix.AddExternalRestrain(LinearSolver.DOF.DX);
             fix.AddExternalRestrain(LinearSolver.DOF.DY);
             fix.AddExternalRestrain(LinearSolver.DOF.DZ);
 
-            NodeRestrainAttribute dZ = new NodeRestrainAttribute(freedomCase, sys);
+            NodeRestrainAttribute dZ = new NodeRestrainAttribute("freedomCase", sys);
             dZ.AddExternalRestrain(LinearSolver.DOF.DZ);
             
             nds[0].AddAttribute(fix);
@@ -442,7 +442,7 @@ namespace FemTest.Solver
 
             LoadCase lc = new LoadCase("lc");
             double px = 0.1;
-            PlatePressureAttribute pressure = new PlatePressureAttribute(lc, sys, px, 0, 0);
+            PlatePressureAttribute pressure = new PlatePressureAttribute("lc", sys, px, 0, 0);
             
             Quad4Membranal el = new Quad4Membranal(nds);
             el.SetProperty(prop);
