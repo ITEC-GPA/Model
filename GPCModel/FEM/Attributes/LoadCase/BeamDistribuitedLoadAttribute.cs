@@ -65,13 +65,13 @@ namespace GPC.Model.FEM.Attributes
         }
 
 
-        public BeamDistribuitedLoadAttribute(BeamDistribuitedLoadAttribute platePressureAttribute)
-            : base(platePressureAttribute)
+        public BeamDistribuitedLoadAttribute(BeamDistribuitedLoadAttribute beamDistribuitedLoadAttribute)
+            : base(beamDistribuitedLoadAttribute)
         {
-            _q1 = platePressureAttribute._q1;
-            _q2 = platePressureAttribute._q2;
-            _q3 = platePressureAttribute._q3;
-            _coordinateSystem = platePressureAttribute.CoordinateSystem;
+            _q1 = beamDistribuitedLoadAttribute._q1;
+            _q2 = beamDistribuitedLoadAttribute._q2;
+            _q3 = beamDistribuitedLoadAttribute._q3;
+            _coordinateSystem = beamDistribuitedLoadAttribute.CoordinateSystem;
         }
 
 

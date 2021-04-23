@@ -634,6 +634,7 @@ namespace GPC.Model.FEM
             }
         }
 
+        #region GetResultsBeam
         //TODO: trasformare in classe Beam
         public Dictionary<Beam.InternalAction, double> GetBeamInternalForces(EulerBeam b, double station)
         {
@@ -658,6 +659,20 @@ namespace GPC.Model.FEM
             var globalDispl = GetDisplacementsElementGlobalCoordinates(b);
             return b.GetInternalAction(station, globalDispl);
         }
+
+        //TODO: trasformare in classe Beam
+        public double GetBeamInternalForces(EulerBeam b, int indexNode, Beam.InternalAction action)
+        {
+            return GetBeamInternalForces(b, indexNode)[action];
+        }
+
+        //TODO: trasformare in classe Beam
+        public double GetBeamInternalForces(EulerBeam b, double station, Beam.InternalAction action)
+        {
+            return GetBeamInternalForces(b, station)[action];
+        }
+        #endregion
+
         #endregion
 
         #region PrivateFunction

@@ -62,10 +62,10 @@ namespace FemTest.Solver {
         }
 
         /// <summary>
-        /// Momento flettente nodale su trave incastro - libero - direzione trave +X
+        /// Sforzo uniforme Assiale su trave incastro - libero - direzione +X
         /// </summary>
         [TestMethod]
-        public void BendingTest1()
+        public void Axial2()
         {
             double E = 100000.0;
             double H = 1;
@@ -82,14 +82,58 @@ namespace FemTest.Solver {
 
             LoadCase lc = new LoadCase("lc1");
             CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
+            double qx = 1;
+            BeamDistribuitedLoadAttribute q = new BeamDistribuitedLoadAttribute("lc", qx, 0, 0);
+
+            b.AddLoadCaseAttribute(q);
+
+            FreedomCase fc = new FreedomCase("fc");
+            NodeRestrainAttribute fix = new NodeRestrainAttribute("fc", sys);
+            fix.AddExternalRestrain(LinearSolver.DOF.DX);
+            fix.AddExternalRestrain(LinearSolver.DOF.DY);
+            fix.AddExternalRestrain(LinearSolver.DOF.DZ);
+            fix.AddExternalRestrain(LinearSolver.DOF.RX);
+            fix.AddExternalRestrain(LinearSolver.DOF.RY);
+            fix.AddExternalRestrain(LinearSolver.DOF.RZ);
+
+            nds[0].AddAttribute(fix);
+
+            LinearSolver fem = new LinearSolver(new FiniteElement[] { b });
+
+            Assert.AreEqual(qx * L / 2.0 / (E * A) * L, fem.GetDisplacementGlobalCoordinates(nds[1], LinearSolver.DOF.DX), 1e-6);
+            Assert.AreEqual(-qx * L, fem.GetReaction(nds[0], DOF.DX));
+            Assert.AreEqual(0.0, fem.GetReaction(nds[1], DOF.DX));
+
+            Assert.AreEqual(qx*L, fem.GetBeamInternalForces(b, 0)[Beam.InternalAction.N]);
+            Assert.AreEqual(0.0, fem.GetBeamInternalForces(b, b.L)[Beam.InternalAction.N]);
+        }
+
+        /// <summary>
+        /// Momento flettente nodale su trave incastro - libero - direzione trave +X
+        /// </summary>
+        [TestMethod]
+        public void BendingTest1()
+        {
+            double E = 100000.0;
+            double H = 1;
+            double t = (H / 2.0) * 0.999;
+            Section sec = new SectionRHS(H, H, t, t, t, t, true, new SteelMaterial("m", E, 0.0, 355, 510, 7850), "sec");
+
+            double L = 1000;
+            List<Node> nds = new List<Node>();
+            nds.Add(new Node(0, 0, 0));
+            nds.Add(new Node(L, 0, 0));
+
+            EulerBeam b = new EulerBeam(nds.ToArray(), sec);
+
+            CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
             double FX = 0.0;
             double MY = 1000.0;
             double MZ = 1000.0;
-            NodeForceAttribute f = new NodeForceAttribute("lc", sys, FX, 0.0, 0.0, 0.0, 0.0, MZ);
+            NodeForceAttribute f = new NodeForceAttribute("lc", sys, FX, 0.0, 0.0, 0, MY, MZ);
 
             nds[1].AddAttribute(f);
 
-            FreedomCase fc = new FreedomCase("fc");
             NodeRestrainAttribute fix = new NodeRestrainAttribute("fc", sys);
             fix.AddExternalRestrain(LinearSolver.DOF.DX);
             fix.AddExternalRestrain(LinearSolver.DOF.DY);
@@ -217,7 +261,7 @@ namespace FemTest.Solver {
 
             LoadCase lc = new LoadCase("lc1");
             CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
-            double FX = 10;
+            double FX = 10/2.0;
             double FY = 10;
             NodeForceAttribute f = new NodeForceAttribute("lc", sys, FX, FY, 0.0, 0.0, 0.0, 0.0);
 
@@ -357,21 +401,17 @@ namespace FemTest.Solver {
 
             Assert.AreEqual(-33.9531, fem.GetDisplacementGlobalCoordinates(nds[1], LinearSolver.DOF.DY), 1e-4);
 
-            var globalDisplBeam0 = fem.GetDisplacementsElementGlobalCoordinates(beams[0]);
-            beams[0].GetNodesResults(globalDisplBeam0, out double[] localDispl, out mnl.Matrix<double>[] globalPseudoDef, out mnl.Matrix<double>[] localPseudoDef, out mnl.Matrix<double>[] globalForces, out mnl.Matrix<double>[] localForcesBeam0, out mnl.Matrix<double>[] globalStress, out mnl.Matrix<double>[] localStress, out mnl.Matrix<double>[] globalEpsilon, out mnl.Matrix<double>[] localEpsilon);
-            Assert.AreEqual(0, localForcesBeam0[0][5, 0], 0.0001);
-            Assert.AreEqual(F * L /4.0, localForcesBeam0[1][5, 0], 0.0001);
+            Assert.AreEqual(0, fem.GetBeamInternalForces(beams[0], 0)[Beam.InternalAction.M3]);
+            Assert.AreEqual(F*L/4.0, fem.GetBeamInternalForces(beams[0], beams[0].L)[Beam.InternalAction.M3], 1e-6);
 
-            Assert.AreEqual(F / 2.0, localForcesBeam0[0][1, 0], 0.0001);
-            Assert.AreEqual(F / 2.0, localForcesBeam0[1][1, 0], 0.0001);
+            Assert.AreEqual(F / 2.0, fem.GetBeamInternalForces(beams[0], 0.0)[Beam.InternalAction.V2], 1e-6);
+            Assert.AreEqual(F / 2.0, fem.GetBeamInternalForces(beams[0], beams[0].L)[Beam.InternalAction.V2], 1e-6);
 
-            var globalDisplBeam1 = fem.GetDisplacementsElementGlobalCoordinates(beams[1]);
-            beams[0].GetNodesResults(globalDisplBeam1, out double[] localDispl1, out mnl.Matrix<double>[] globalPseudoDef1, out mnl.Matrix<double>[] localPseudoDef1, out mnl.Matrix<double>[] globalForces1, out mnl.Matrix<double>[] localForcesBeam1, out mnl.Matrix<double>[] globalStress1, out mnl.Matrix<double>[] localStress1, out mnl.Matrix<double>[] globalEpsilon1, out mnl.Matrix<double>[] localEpsilon1);
-            Assert.AreEqual(F * L / 4.0, localForcesBeam1[0][5, 0], 0.0001);
-            Assert.AreEqual(0, localForcesBeam1[1][5, 0], 0.0001);
+            Assert.AreEqual(F * L /4.0, fem.GetBeamInternalForces(beams[1], 0)[Beam.InternalAction.M3], 1e-6);
+            Assert.AreEqual(0.0, fem.GetBeamInternalForces(beams[1], beams[1].L)[Beam.InternalAction.M3], 1e-6);
 
-            Assert.AreEqual(-F / 2.0, localForcesBeam1[0][1, 0], 0.0001);
-            Assert.AreEqual(-F / 2.0, localForcesBeam1[1][1, 0], 0.0001);
+            Assert.AreEqual(-F/2.0, fem.GetBeamInternalForces(beams[1],0)[Beam.InternalAction.V2], 1e-6);
+            Assert.AreEqual(-F / 2.0, fem.GetBeamInternalForces(beams[1], beams[1].L)[Beam.InternalAction.V2], 1e-6);
         }
 
         [TestMethod]
@@ -543,7 +583,9 @@ namespace FemTest.Solver {
             Assert.AreEqual(-qz * L, fem.GetBeamInternalForces(beams[0], 0.0)[Beam.InternalAction.V3], 0.0001); //Shear(x=0)
             Assert.AreEqual(0.0, fem.GetBeamInternalForces(beams[0], L)[Beam.InternalAction.V3], 0.0001); //Shear(x=L)
         }
-
+        /// <summary>
+        /// Simply supported beam descretized with 2 elements and uniform load
+        /// </summary>
         [TestMethod]
         public void SimplySupportedTest2()
         {
@@ -567,8 +609,8 @@ namespace FemTest.Solver {
             CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
             Random random = new Random();
             double qx = 1; //random.Next(-1000, 1000);
-            double qy = 1; //random.Next(-1000, 1000);
-            double qz = 1;// random.Next(-1000, 1000);
+            double qy = 2; //random.Next(-1000, 1000);
+            double qz = 3;// random.Next(-1000, 1000);
             BeamDistribuitedLoadAttribute q = new BeamDistribuitedLoadAttribute("lc", qx, qy, qz);
             beams[0].AddLoadCaseAttribute(q);
             beams[1].AddLoadCaseAttribute(q);
@@ -589,17 +631,14 @@ namespace FemTest.Solver {
             Assert.AreEqual(-qx * L / 2.0, fem.GetReaction(nds[0], LinearSolver.DOF.DX), 1e-2); //reaction
 
             Assert.AreEqual(-qy * L / 2.0, fem.GetReaction(nds[0], LinearSolver.DOF.DY), 0.001); //Shear
-            double[] globalDispl = fem.GetDisplacementsElementGlobalCoordinates(beams[0]);
-            beams[0].GetNodesResults(globalDispl, out double[] localDispl, out mnl.Matrix<double>[] globalPseudoDef, out mnl.Matrix<double>[] localPseudoDef, out mnl.Matrix<double>[] globalForces, out mnl.Matrix<double>[] localForces, out mnl.Matrix<double>[] globalStress, out mnl.Matrix<double>[] localStress, out mnl.Matrix<double>[] globalEpsilon, out mnl.Matrix<double>[] localEpsilon);
-            
-            //Assert.AreEqual(-qy * L * L / 8.0, fem.GetReaction(nds[1], LinearSolver.DOF.RZ), 0.001); //Bending Moment
+            Assert.AreEqual(-qy * L * L / 8.0, fem.GetBeamInternalForces(beams[0],beams[0].L)[Beam.InternalAction.M3], 1e-6); //Bending Moment
+            Assert.AreEqual(-qy * L * L / 8.0, fem.GetBeamInternalForces(beams[1],0)[Beam.InternalAction.M3], 1e-6); //Bending Moment
 
             Assert.AreEqual(5.0 / 384.0 * qy * Math.Pow(L, 4.0) / (E * sec.J22), fem.GetDisplacementGlobalCoordinates(nds[1], LinearSolver.DOF.DY), 0.001); //displacement
             Assert.AreEqual(qy * Math.Pow(L, 3.0) / (24.0 * E * sec.J22), fem.GetDisplacementGlobalCoordinates(nds[0], LinearSolver.DOF.RZ), 0.001); //rotation
             Assert.AreEqual(-qy * Math.Pow(L, 3.0) / (24.0 * E * sec.J22), fem.GetDisplacementGlobalCoordinates(nds[2], LinearSolver.DOF.RZ), 0.001); //rotation
 
             Assert.AreEqual(-qz * L / 2.0, fem.GetReaction(nds[0], LinearSolver.DOF.DZ), 0.001); //Shear
-            //Assert.AreEqual(qz * L * L / 2.0, fem.GetReaction(nds[0], LinearSolver.DOF.RY), 0.001); //Bending Moment
 
             Assert.AreEqual(5.0 / 384.0 * qz * Math.Pow(L, 4.0) / (E * sec.J22), fem.GetDisplacementGlobalCoordinates(nds[1], LinearSolver.DOF.DZ), 0.001); //displacement
             Assert.AreEqual(-qz * Math.Pow(L, 3.0) / (24.0 * E * sec.J22), fem.GetDisplacementGlobalCoordinates(nds[0], LinearSolver.DOF.RY), 0.001); //rotation
@@ -626,7 +665,7 @@ namespace FemTest.Solver {
             Random random = new Random();
             double qx = 0; //random.Next(-1000, 1000);
             double qy = 1; //random.Next(-1000, 1000);
-            double qz = 1;// random.Next(-1000, 1000);
+            double qz = 2;// random.Next(-1000, 1000);
             BeamDistribuitedLoadAttribute q = new BeamDistribuitedLoadAttribute("lc", qx, qy, qz);
             beams[0].AddLoadCaseAttribute(q);
 
@@ -690,23 +729,165 @@ namespace FemTest.Solver {
 
             LinearSolver fem = new LinearSolver(beams.ToArray());
 
-            double stationCenter = beams[0].L/2.0;
-            var resultsCenter = fem.GetBeamInternalForces(beams[0], stationCenter);
-
             Assert.AreEqual(0.0, fem.GetDisplacementGlobalCoordinates(nds[1], LinearSolver.DOF.DY), 1e-6); //displacement
             Assert.AreEqual(-qy * L / 2.0, fem.GetReaction(nds[0], LinearSolver.DOF.DY), 1e-2); //reaction
 
-            double[] globalDispl = fem.GetDisplacementsElementGlobalCoordinates(beams[0]);
-            beams[0].GetNodesResults(globalDispl, out double[] localDispl, out mnl.Matrix<double>[] globalPseudoDef, out mnl.Matrix<double>[] localPseudoDef, out mnl.Matrix<double>[] globalForces, out mnl.Matrix<double>[] localForces, out mnl.Matrix<double>[] globalStress, out mnl.Matrix<double>[] localStress, out mnl.Matrix<double>[] globalEpsilon, out mnl.Matrix<double>[] localEpsilon);
+            Assert.AreEqual(-1.0 / 8.0 * qy * L * L, fem.GetBeamInternalForces(beams[0],beams[0].L/2.0)[Beam.InternalAction.M3],1e-6);
 
-            var internalActionsCenter = beams[0].GetInternalAction(L / 2.0, globalDispl);
-            Assert.AreEqual(-1.0 / 8.0 * qy * L * L, resultsCenter[Beam.InternalAction.M3]);
+            Assert.AreEqual(0.0, fem.GetBeamInternalForces(beams[0],0)[Beam.InternalAction.M3], 1e-6);
+            Assert.AreEqual(0.0, fem.GetBeamInternalForces(beams[0],beams[0].L)[Beam.InternalAction.M3], 1e-6);
+        }
 
-            var internalActions0 = beams[0].GetInternalAction(0, globalDispl);
-            Assert.AreEqual(0.0, internalActions0[Beam.InternalAction.M3], 1e-6);
+        /// <summary>
+        /// Momento flettente nodale su trave incastro - libero - direzione trave +X, rotazione 45 gradi
+        /// </summary>
+        [TestMethod]
+        public void RotatedBeamTest1()
+        {
+            double E = 100000.0;
+            double H = 100;
+            double B = 50;
+            double tw = 5.0;
+            double tf = 5.0;
+            Section sec = new SectionRHS(H, B, tf, tf, tw, tw, true, new SteelMaterial("m", E, 0.0, 355, 510, 7850), "sec");
 
-            var internalActionsL = beams[0].GetInternalAction(L, globalDispl);
-            Assert.AreEqual(0.0, internalActionsL[Beam.InternalAction.M3], 1e-6);
+            double L = 1000;
+            List<Node> nds = new List<Node>();
+            nds.Add(new Node(0, 0, 0));
+            nds.Add(new Node(L, 0, 0));
+
+            double rotationRad = 25.0 * Math.PI / 180.0;
+            EulerBeam b = new EulerBeam(nds.ToArray(), sec, rotationRad);
+
+            CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
+            double FX = 0.0;
+            double FY = 10.0;
+            double MY = 0.0;
+            double MZ = 0.0;
+            NodeForceAttribute f = new NodeForceAttribute("lc", sys, FX, FY, 0.0, 0, MY, MZ);
+
+            nds[1].AddAttribute(f);
+
+            NodeRestrainAttribute fix = new NodeRestrainAttribute("fc", sys);
+            fix.AddExternalRestrain(LinearSolver.DOF.DX);
+            fix.AddExternalRestrain(LinearSolver.DOF.DY);
+            fix.AddExternalRestrain(LinearSolver.DOF.DZ);
+            fix.AddExternalRestrain(LinearSolver.DOF.RX);
+            fix.AddExternalRestrain(LinearSolver.DOF.RY);
+            fix.AddExternalRestrain(LinearSolver.DOF.RZ);
+
+            nds[0].AddAttribute(fix);
+
+            LinearSolver fem = new LinearSolver(new FiniteElement[] { b });
+
+            Assert.AreEqual(0.0264, fem.GetDisplacementGlobalCoordinates(nds[1], DOF.DY), 1e-4);
+            Assert.AreEqual(-0.0154, fem.GetDisplacementGlobalCoordinates(nds[1], DOF.DZ), 1e-4);
+
+            Assert.AreEqual(9063.0779, fem.GetBeamInternalForces(b, 0)[Beam.InternalAction.M3], 0.01);
+
+            Assert.AreEqual(-4226.1826, fem.GetBeamInternalForces(b, 0)[Beam.InternalAction.M2], 0.01);
+        }
+
+        /// <summary>
+        /// Momento flettente nodale su trave incastro - libero - direzione trave +Y, rotazione 45 gradi
+        /// </summary>
+        [TestMethod]
+        public void RotatedBeamTest2()
+        {
+            double E = 100000.0;
+            double H = 100;
+            double B = 50;
+            double tw = 5.0;
+            double tf = 5.0;
+            Section sec = new SectionRHS(H, B, tf, tf, tw, tw, true, new SteelMaterial("m", E, 0.0, 355, 510, 7850), "sec");
+
+            double L = 1000;
+            List<Node> nds = new List<Node>();
+            nds.Add(new Node(0, 0, 0));
+            nds.Add(new Node(0, L, 0));
+
+            double rotationRad = 35.0 * Math.PI / 180.0;
+            EulerBeam b = new EulerBeam(nds.ToArray(), sec, rotationRad);
+
+            CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
+            double FX = 0.0;
+            double FY = 0.0;
+            double FZ = 10.0;
+            double MY = 0.0;
+            double MZ = 0.0;
+            NodeForceAttribute f = new NodeForceAttribute("lc", sys, FX, FY, FZ, 0, MY, MZ);
+
+            nds[1].AddAttribute(f);
+
+            NodeRestrainAttribute fix = new NodeRestrainAttribute("fc", sys);
+            fix.AddExternalRestrain(LinearSolver.DOF.DX);
+            fix.AddExternalRestrain(LinearSolver.DOF.DY);
+            fix.AddExternalRestrain(LinearSolver.DOF.DZ);
+            fix.AddExternalRestrain(LinearSolver.DOF.RX);
+            fix.AddExternalRestrain(LinearSolver.DOF.RY);
+            fix.AddExternalRestrain(LinearSolver.DOF.RZ);
+
+            nds[0].AddAttribute(fix);
+
+            LinearSolver fem = new LinearSolver(new FiniteElement[] { b });
+
+            Assert.AreEqual(0.0189, fem.GetDisplacementGlobalCoordinates(nds[1], DOF.DX), 1e-4);
+            Assert.AreEqual(0.0461, fem.GetDisplacementGlobalCoordinates(nds[1], DOF.DZ), 1e-4);
+
+            Assert.AreEqual(8191.5204, fem.GetBeamInternalForces(b, 0)[Beam.InternalAction.M2], 0.01);
+
+            Assert.AreEqual(5735.7644, fem.GetBeamInternalForces(b, 0)[Beam.InternalAction.M3], 0.01);
+        }
+
+        /// <summary>
+        /// Momento flettente nodale su trave incastro - libero - direzione trave +Z, rotazione 45 gradi
+        /// </summary>
+        [TestMethod]
+        public void RotatedBeamTest3()
+        {
+            double E = 100000.0;
+            double H = 100;
+            double B = 50;
+            double tw = 5.0;
+            double tf = 5.0;
+            Section sec = new SectionRHS(H, B, tf, tf, tw, tw, true, new SteelMaterial("m", E, 0.0, 355, 510, 7850), "sec");
+
+            double L = 1000;
+            List<Node> nds = new List<Node>();
+            nds.Add(new Node(0, 0, 0));
+            nds.Add(new Node(0, 0, L));
+
+            double rotationRad = 25.0 * Math.PI / 180.0;
+            EulerBeam b = new EulerBeam(nds.ToArray(), sec, rotationRad);
+
+            CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
+            double FX = 0.0;
+            double FY = 10.0;
+            double FZ = 0.0;
+            double MY = 0.0;
+            double MZ = 0.0;
+            NodeForceAttribute f = new NodeForceAttribute("lc", sys, FX, FY, FZ, 0, MY, MZ);
+
+            nds[1].AddAttribute(f);
+
+            NodeRestrainAttribute fix = new NodeRestrainAttribute("fc", sys);
+            fix.AddExternalRestrain(LinearSolver.DOF.DX);
+            fix.AddExternalRestrain(LinearSolver.DOF.DY);
+            fix.AddExternalRestrain(LinearSolver.DOF.DZ);
+            fix.AddExternalRestrain(LinearSolver.DOF.RX);
+            fix.AddExternalRestrain(LinearSolver.DOF.RY);
+            fix.AddExternalRestrain(LinearSolver.DOF.RZ);
+
+            nds[0].AddAttribute(fix);
+
+            LinearSolver fem = new LinearSolver(new FiniteElement[] { b });
+
+            Assert.AreEqual(0.0154, fem.GetDisplacementGlobalCoordinates(nds[1], DOF.DX), 1e-4);
+            Assert.AreEqual(0.0264, fem.GetDisplacementGlobalCoordinates(nds[1], DOF.DY), 1e-4);
+
+            Assert.AreEqual(9063.0779, fem.GetBeamInternalForces(b, 0)[Beam.InternalAction.M3], 0.01);
+
+            Assert.AreEqual(-4226.1826, fem.GetBeamInternalForces(b, 0)[Beam.InternalAction.M2], 0.01);
         }
     }
 }

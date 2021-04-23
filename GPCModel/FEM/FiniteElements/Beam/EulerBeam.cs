@@ -263,7 +263,7 @@ namespace GPC.Model.FEM.FiniteElements
 
             double d = Math.Sqrt(lox * lox + nox * nox);
 
-            mnl.Matrix<double> lambda1 = mnl.Matrix<double>.Build.Dense(3, 3);
+            mnl.Matrix<double> lambda1 = mnl.Matrix<double>.Build.Dense(3, 3); //eq. 9.57
             lambda1[0, 0] = lox;
             lambda1[0, 1] = mox;
             lambda1[0, 2] = nox;
@@ -279,7 +279,7 @@ namespace GPC.Model.FEM.FiniteElements
             /*Console.WriteLine("lambda1");
             FEMUtilities.WriteMatrix(lambda1);*/
 
-            mnl.Matrix<double> lambda2 = mnl.Matrix<double>.Build.Dense(3, 3);
+            mnl.Matrix<double> lambda2 = mnl.Matrix<double>.Build.Dense(3, 3); //eq. 9.58
             lambda2[0, 0] = 1.0;
 
             lambda2[1, 1] = Math.Cos(_axisAngleRadians);
@@ -294,21 +294,18 @@ namespace GPC.Model.FEM.FiniteElements
             mnl.Matrix<double> lambda = mnl.Matrix<double>.Build.Dense(3, 3);
             if (lox == 0.0 && nox == 0.0)
             {
-                /*if (mox != 1.0)
-                {
-                    throw new Exception("mox shuold be 1");
-                }*/
+                //eq. 9.60
                 lambda[0, 1] = mox;
 
                 lambda[1, 0] = -mox * Math.Cos(_axisAngleRadians);
                 lambda[1, 2] = mox * Math.Sin(_axisAngleRadians);
 
-                lambda[2, 1] = Math.Sin(_axisAngleRadians);
+                lambda[2, 0] = Math.Sin(_axisAngleRadians);
                 lambda[2, 2] = Math.Cos(_axisAngleRadians);
             }
             else
             {
-                lambda = lambda2 * lambda1;
+                lambda = lambda2 * lambda1; //eq. 9.48
             }   
             /*Console.WriteLine("lambda");
             FEMUtilities.WriteMatrix(lambda);*/
@@ -325,14 +322,18 @@ namespace GPC.Model.FEM.FiniteElements
                 }
                 
             }
-            /*Console.WriteLine("localToGlobal");
-            FEMUtilities.WriteMatrix(_dofGlobalToLocal);*/
+            Console.WriteLine("localToGlobal");
+            FEMUtilities.WriteMatrix(_dofGlobalToLocal);
 
             Vector3d ux = new Vector3d(_dofGlobalToLocal[0, 0], _dofGlobalToLocal[0, 1], _dofGlobalToLocal[0, 2]);
             Vector3d uy = new Vector3d(_dofGlobalToLocal[1, 0], _dofGlobalToLocal[1, 1], _dofGlobalToLocal[1, 2]);
             //Vector3d uz = new Vector3d(_dofGlobalToLocal[2, 0], _dofGlobalToLocal[2, 1], _dofGlobalToLocal[2, 2]);
 
             _localCoordinateSystem = new CoordinateSystem(new Point3d(0, 0, 0), ux, uy);
+            Console.WriteLine("Local System Beam");
+            Console.WriteLine("ux = " + _localCoordinateSystem.V1);
+            Console.WriteLine("uy = " + _localCoordinateSystem.V2);
+            Console.WriteLine("uz = " + _localCoordinateSystem.V3);
             #endregion
         }
 
@@ -421,7 +422,7 @@ namespace GPC.Model.FEM.FiniteElements
             }
         }
 
-        public Dictionary<Beam.InternalAction, double> GetInternalAction(double station, double[] globalDisplacement)
+        internal Dictionary<Beam.InternalAction, double> GetInternalAction(double station, double[] globalDisplacement)
         {
             //Post-processing only for beam:
             double qx = 0;
@@ -554,7 +555,10 @@ namespace GPC.Model.FEM.FiniteElements
         /// <returns>Shear</returns>
         private double AxialBeamFixFix(double q, double x, double L)
         {
-            return q * x / L; //TODO: controllare
+            double qEq = q * L / 2.0;
+            double mEq = -2.0 * (qEq) / L;
+
+            return -(mEq * x + qEq);
         }
 
         /// <summary>
