@@ -57,16 +57,12 @@ namespace FemTest.Solver {
 
             Assert.AreEqual(FX / (E * A) * L, fem.GetDisplacementGlobalCoordinates(nds[1], LinearSolver.DOF.DX), 1e-6);
 
-            double[] globalDispl = fem.GetDisplacementsElementGlobalCoordinates(b);
-            b.GetNodesResults(globalDispl, out double[] localDispl, out mnl.Matrix<double>[] globalPseudoDef, out mnl.Matrix<double>[] localPseudoDef, out mnl.Matrix<double>[] globalForces, out mnl.Matrix<double>[] localForces, out mnl.Matrix<double>[] globalStress, out mnl.Matrix<double>[] localStress, out mnl.Matrix<double>[] globalEpsilon, out mnl.Matrix<double>[] localEpsilon);
-            /*FEMUtilities.WriteMatrix("local force Node 0 = ", localForces[0]);
-            FEMUtilities.WriteMatrix("local force Node 1 = ", localForces[1]);*/
-            Assert.AreEqual(FX, localForces[0][0, 0]);
-            Assert.AreEqual(FX, localForces[1][0, 0]);
+            Assert.AreEqual(FX, fem.GetBeamInternalForces(b, 0)[Beam.InternalAction.N]);
+            Assert.AreEqual(FX, fem.GetBeamInternalForces(b, b.L)[Beam.InternalAction.N]);
         }
 
         /// <summary>
-        /// Momento flettente nodale su trave incastro - libero - direzione +X
+        /// Momento flettente nodale su trave incastro - libero - direzione trave +X
         /// </summary>
         [TestMethod]
         public void BendingTest1()
@@ -108,14 +104,11 @@ namespace FemTest.Solver {
 
             Assert.AreEqual(MZ * L*L / (2.0 * E * sec.J22), fem.GetDisplacementGlobalCoordinates(nds[1], LinearSolver.DOF.DY), 1e-4);
 
-            double[] globalDispl = fem.GetDisplacementsElementGlobalCoordinates(b);
-            b.GetNodesResults(globalDispl, out double[] localDispl, out mnl.Matrix<double>[] globalPseudoDef, out mnl.Matrix<double>[] localPseudoDef, out mnl.Matrix<double>[] globalForces, out mnl.Matrix<double>[] localForces, out mnl.Matrix<double>[] globalStress, out mnl.Matrix<double>[] localStress, out mnl.Matrix<double>[] globalEpsilon, out mnl.Matrix<double>[] localEpsilon);
+            Assert.AreEqual(MZ, fem.GetBeamInternalForces(b, 0)[Beam.InternalAction.M3],1e-6);
+            Assert.AreEqual(MZ, fem.GetBeamInternalForces(b, b.L)[Beam.InternalAction.M3], 1e-6);
 
-            Assert.AreEqual(MZ, localForces[0][5, 0], 0.0001);
-            Assert.AreEqual(MZ, localForces[1][5, 0], 0.0001);
-
-            Assert.AreEqual(-MY, localForces[0][4, 0], 0.0001);
-            Assert.AreEqual(-MY, localForces[1][4, 0], 0.0001);
+            Assert.AreEqual(-MY, fem.GetBeamInternalForces(b, 0)[Beam.InternalAction.M2], 1e-6);
+            Assert.AreEqual(-MY, fem.GetBeamInternalForces(b, b.L)[Beam.InternalAction.M2], 1e-6);
         }
 
         /// <summary>
@@ -160,12 +153,8 @@ namespace FemTest.Solver {
 
             Assert.AreEqual(1.0 / 2.0 * -MX * L*L / (E * sec.J22), fem.GetDisplacementGlobalCoordinates(nds[1], LinearSolver.DOF.DZ), 1e-4);
 
-            double[] globalDispl = fem.GetDisplacementsElementGlobalCoordinates(b);
-            b.GetNodesResults(globalDispl, out double[] localDispl, out mnl.Matrix<double>[] globalPseudoDef, out mnl.Matrix<double>[] localPseudoDef, out mnl.Matrix<double>[] globalForces, out mnl.Matrix<double>[] localForces, out mnl.Matrix<double>[] globalStress, out mnl.Matrix<double>[] localStress, out mnl.Matrix<double>[] globalEpsilon, out mnl.Matrix<double>[] localEpsilon);
-            FEMUtilities.WriteMatrix("local force Node 0 = ", localForces[0]);
-            FEMUtilities.WriteMatrix("local force Node 1 = ", localForces[1]);
-            Assert.AreEqual(-MX, localForces[0][4, 0], 0.0001);
-            Assert.AreEqual(-MX, localForces[1][4, 0], 0.0001);
+            Assert.AreEqual(-MX, fem.GetBeamInternalForces(b, 0)[Beam.InternalAction.M2], 1e-6);
+            Assert.AreEqual(-MX, fem.GetBeamInternalForces(b, b.L)[Beam.InternalAction.M2], 1e-6);
         }
 
         /// <summary>
@@ -209,12 +198,8 @@ namespace FemTest.Solver {
 
             Assert.AreEqual(1.0 / 3.0 * FY * L*L*L/(E*sec.J22), fem.GetDisplacementGlobalCoordinates(nds[1], LinearSolver.DOF.DY), 1e-4);
 
-            double[] globalDispl = fem.GetDisplacementsElementGlobalCoordinates(b);
-            b.GetNodesResults(globalDispl, out double[] localDispl, out mnl.Matrix<double>[] globalPseudoDef, out mnl.Matrix<double>[] localPseudoDef, out mnl.Matrix<double>[] globalForces, out mnl.Matrix<double>[] localForces, out mnl.Matrix<double>[] globalStress, out mnl.Matrix<double>[] localStress, out mnl.Matrix<double>[] globalEpsilon, out mnl.Matrix<double>[] localEpsilon);
-            FEMUtilities.WriteMatrix("local force Node 0 = ", localForces[0]);
-            FEMUtilities.WriteMatrix("local force Node 1 = ", localForces[1]);
-            Assert.AreEqual(-FY, localForces[0][1, 0], 0.0001);
-            Assert.AreEqual(-FY, localForces[1][1, 0], 0.0001);
+            Assert.AreEqual(-FY, fem.GetBeamInternalForces(b, 0)[Beam.InternalAction.V2]);
+            Assert.AreEqual(-FY, fem.GetBeamInternalForces(b, b.L)[Beam.InternalAction.V2]);
         }
 
         [TestMethod]
@@ -252,14 +237,11 @@ namespace FemTest.Solver {
             Assert.AreEqual(67.9061/2, fem.GetDisplacementGlobalCoordinates(nds[1], LinearSolver.DOF.DX), 1e-4);
             Assert.AreEqual(67.9061, fem.GetDisplacementGlobalCoordinates(nds[1], LinearSolver.DOF.DY), 1e-4);
 
-            double[] globalDispl = fem.GetDisplacementsElementGlobalCoordinates(b);
-            b.GetNodesResults(globalDispl, out double[] localDispl, out mnl.Matrix<double>[] globalPseudoDef, out mnl.Matrix<double>[] localPseudoDef, out mnl.Matrix<double>[] globalForces, out mnl.Matrix<double>[] localForces, out mnl.Matrix<double>[] globalStress, out mnl.Matrix<double>[] localStress, out mnl.Matrix<double>[] globalEpsilon, out mnl.Matrix<double>[] localEpsilon);
-            FEMUtilities.WriteMatrix("local force Node 0 = ", localForces[0]);
-            FEMUtilities.WriteMatrix("local force Node 1 = ", localForces[1]);
-            Assert.AreEqual(-FY, localForces[0][1, 0], 0.0001);
-            Assert.AreEqual(-FY, localForces[1][1, 0], 0.0001);
-            Assert.AreEqual(FX, localForces[0][2, 0], 0.0001);
-            Assert.AreEqual(FX, localForces[1][2, 0], 0.0001);
+            Assert.AreEqual(-FY, fem.GetBeamInternalForces(b, 0)[Beam.InternalAction.V2]);
+            Assert.AreEqual(-FY, fem.GetBeamInternalForces(b, b.L)[Beam.InternalAction.V2]);
+
+            Assert.AreEqual(FX, fem.GetBeamInternalForces(b, 0)[Beam.InternalAction.V3]);
+            Assert.AreEqual(FX, fem.GetBeamInternalForces(b, b.L)[Beam.InternalAction.V3]);
         }
 
         [TestMethod]
@@ -296,6 +278,9 @@ namespace FemTest.Solver {
             Assert.AreEqual(67.9061, fem.GetDisplacementGlobalCoordinates(nds[1], LinearSolver.DOF.DZ), 1e-4);
         }
 
+        /// <summary>
+        /// cantilever sottoposto a torsione
+        /// </summary>
         [TestMethod]
         public void TorsionTest1()
         {
@@ -328,12 +313,9 @@ namespace FemTest.Solver {
             LinearSolver fem = new LinearSolver(new FiniteElement[] { b });
 
             Assert.AreEqual(1.1672, fem.GetDisplacementGlobalCoordinates(nds[1], LinearSolver.DOF.RX) * 180.0 / Math.PI, 1e-4);
-            var globalDispl = fem.GetDisplacementsElementGlobalCoordinates(b);
-            b.GetNodesResults(globalDispl, out double[] localDispl, out mnl.Matrix<double>[] globalPseudoDef, out mnl.Matrix<double>[] localPseudoDef, out mnl.Matrix<double>[] globalForces, out mnl.Matrix<double>[] localForces, out mnl.Matrix<double>[] globalStress, out mnl.Matrix<double>[] localStress, out mnl.Matrix<double>[] globalEpsilon, out mnl.Matrix<double>[] localEpsilon);
-            FEMUtilities.WriteMatrix("local force Node 0 = ", localForces[0]);
-            FEMUtilities.WriteMatrix("local force Node 1 = ", localForces[1]);
-            Assert.AreEqual(MX, localForces[0][3, 0], 0.0001);
-            Assert.AreEqual(MX, localForces[1][3, 0], 0.0001);
+
+            Assert.AreEqual(MX, fem.GetBeamInternalForces(b, 0)[Beam.InternalAction.T]);
+            Assert.AreEqual(MX, fem.GetBeamInternalForces(b, b.L)[Beam.InternalAction.T]);
         }
 
         [TestMethod]

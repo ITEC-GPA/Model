@@ -635,10 +635,10 @@ namespace GPC.Model.FEM
         }
 
         //TODO: trasformare in classe Beam
-        public Dictionary<Beam.InternalAction, double> GetBeamInternalForces(EulerBeam b, double x)
+        public Dictionary<Beam.InternalAction, double> GetBeamInternalForces(EulerBeam b, double station)
         {
             var globalDispl = GetDisplacementsElementGlobalCoordinates(b);
-            return b.GetInternalAction(x, globalDispl);
+            return b.GetInternalAction(station, globalDispl);
         }
 
         //TODO: trasformare in classe Beam
