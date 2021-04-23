@@ -19,18 +19,19 @@ namespace GPC.Model.FEM.Attributes
         /// </summary>
         public const double GRAVITYACCELERATION = 9806.65;
 
-        private double _a1;
-        private double _a2;
-        private double _a3;
-
-        private CoordinateSystem _coordinateSystem;
-
-
-
-        public double A1 => _a2;
-        public double A2 => _a3;
-        public double A3 => _a1;
-        public CoordinateSystem CoordinateSystem => _coordinateSystem;
+        /// <summary>
+        /// Acceleration along the axis: <see cref="CoordinateSystem.V1"/> [L/T^2]
+        /// </summary>
+        public double A1 { get; set; }
+        /// <summary>
+        /// Acceleration along the axis: <see cref="CoordinateSystem.V2"/> [L/T^2]
+        /// </summary>
+        public double A2 { get; set; }
+        /// <summary>
+        /// Acceleration along the axis: <see cref="CoordinateSystem.V3"/> [L/T^2]
+        /// </summary>
+        public double A3 { get; set; }
+        public CoordinateSystem CoordinateSystem { get; set;  }
 
 
         internal ModelAccelerationAttribute(string loadCaseName)
@@ -47,11 +48,11 @@ namespace GPC.Model.FEM.Attributes
         public ModelAccelerationAttribute(string loadCaseName, CoordinateSystem coordinateSystem, double a1, double a2, double a3) 
             : base(loadCaseName)
         {
-            _coordinateSystem = coordinateSystem ?? throw new ArgumentNullException();
+            CoordinateSystem = coordinateSystem ?? throw new ArgumentNullException();
 
-            _a1 = a1;
-            _a2 = a2;
-            _a3 = a3;
+            A3 = a1;
+            A1 = a2;
+            A2 = a3;
         }
 
 
@@ -64,7 +65,7 @@ namespace GPC.Model.FEM.Attributes
 
 
         public ModelAccelerationAttribute(ModelAccelerationAttribute loadCaseAttribute) 
-            : this(loadCaseAttribute.LoadCaseName, loadCaseAttribute._coordinateSystem, loadCaseAttribute._a1, loadCaseAttribute._a2, loadCaseAttribute._a3)
+            : this(loadCaseAttribute.LoadCaseName, loadCaseAttribute.CoordinateSystem, loadCaseAttribute.A3, loadCaseAttribute.A1, loadCaseAttribute.A2)
         {
             
         }
@@ -85,10 +86,10 @@ namespace GPC.Model.FEM.Attributes
             ModelAccelerationAttribute objCasted = obj as ModelAccelerationAttribute;
             return objCasted != null &&
                    base.Equals(objCasted) &&
-                   _a1 == objCasted._a1 &&
-                   _a2 == objCasted._a2 &&
-                   _a3 == objCasted._a3 &&
-                   EqualityComparer<CoordinateSystem>.Default.Equals(_coordinateSystem, objCasted._coordinateSystem);
+                   A3 == objCasted.A3 &&
+                   A1 == objCasted.A1 &&
+                   A2 == objCasted.A2 &&
+                   EqualityComparer<CoordinateSystem>.Default.Equals(CoordinateSystem, objCasted.CoordinateSystem);
         }
 
 
@@ -96,10 +97,10 @@ namespace GPC.Model.FEM.Attributes
         {
             int hashCode = 23;
             hashCode = hashCode * -17 + base.GetHashCode();
-            hashCode = hashCode * -17 + _a1.GetHashCode();
-            hashCode = hashCode * -17 + _a2.GetHashCode();
-            hashCode = hashCode * -17 + _a3.GetHashCode();
-            hashCode = hashCode * -17 + EqualityComparer<CoordinateSystem>.Default.GetHashCode(_coordinateSystem);
+            hashCode = hashCode * -17 + A3.GetHashCode();
+            hashCode = hashCode * -17 + A1.GetHashCode();
+            hashCode = hashCode * -17 + A2.GetHashCode();
+            hashCode = hashCode * -17 + EqualityComparer<CoordinateSystem>.Default.GetHashCode(CoordinateSystem);
             return hashCode;
         }
 

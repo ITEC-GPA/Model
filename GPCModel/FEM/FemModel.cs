@@ -752,7 +752,7 @@ namespace GPC.Model.FEM
         /// <param name="plateLoadMeshEntityMap">Map between <see cref="IAreaLoad"/> and <see cref="MeshFace"/>.Id</param>
         /// <param name="restrainMeshEntityMap">Map between IGeometryRestrain and <see cref="MeshVertex"/>.Id</param>
         /// <exception cref="KeyNotFoundException">If a <see cref="MeshVertex"/>.Id of <paramref name="restrainMeshEntityMap"/> is not found in the <paramref name="mesh"/> vertices ids</exception>
-        /// <remarks>The instance of <see cref="LoadCase"/> and <see cref="FreedomCase"/> will be replaced with the one in the <see cref="FemModel._loadCases"/> and <see cref="FemModel._freedomCases"/>  </remarks>
+        /// <remarks>The instances of <see cref="LoadCase"/> and <see cref="FreedomCase"/> will be replaced with the one in the <see cref="FemModel._loadCases"/> and <see cref="FemModel._freedomCases"/>  </remarks>
         public virtual int[] AddMesh(Mesh mesh, string platePropertyName, string brickPropertyName, 
                                     Dictionary<IPointLoad, int[]> vertexLoadMeshEntityMap, 
                                     Dictionary<ILineLoad, int[]> vertexLineLoadMeshEntityMap,
@@ -918,7 +918,7 @@ namespace GPC.Model.FEM
 
 
                     FreedomCase freedomCase;
-                    if (LoadCaseExist(geometryRestrain.FreedomCase.Name))
+                    if (FreedomCaseExist(geometryRestrain.FreedomCase.Name))
                     {
                         freedomCase = GetFreedomCaseByName(geometryRestrain.FreedomCase.Name);
                         if (!freedomCase.Equals(geometryRestrain.FreedomCase))
