@@ -45,17 +45,21 @@ namespace GPC.Model
         }
 
         /// <inheritdoc cref="Add(T)"/>
-        public virtual bool AddRange(List<T> items)
+        public virtual bool AddRange(IEnumerable<T> items)
         {
-            foreach (var item in items)
+            if (items != null)
             {
-                if (!this.Add(item))
-                    return false;
+                foreach (var item in items)
+                {
+                    if (!this.Add(item))
+                        return false;
+                }
+                return true;
             }
-            return true;
+            return false;
         }
 
-        /// <inheritdoc cref="AddRange(List{T})"/>
+        /// <inheritdoc cref="AddRange(IEnumerable{T})"/>
         public virtual bool AddRange(T[] items)
         {
             return this.AddRange(items.ToList());
