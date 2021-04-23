@@ -225,9 +225,9 @@ namespace GPC.Model.FEM.FiniteElements
             _flexural.AddLoadCaseAttribute(attribute);
         }
 
-        public override void GetNodesResults(double[] globalDisplacementsNodes, out double[] localDisplacements, out mnl.Matrix<double>[] globalPseudoDeformation, out mnl.Matrix<double>[] localPseudoDeformation, out mnl.Matrix<double>[] globalForces, out mnl.Matrix<double>[] localForces, out mnl.Matrix<double>[] globalStress, out mnl.Matrix<double>[] localStress, out mnl.Matrix<double>[] globalEpsilon, out mnl.Matrix<double>[] localEpsilon)
+        //TODO: Da ottimizzare/scrivere
+        public void GetNodesResults(double[] globalDisplacementsNodes, out double[] localDisplacements, out mnl.Matrix<double>[] globalPseudoDeformation, out mnl.Matrix<double>[] localPseudoDeformation, out mnl.Matrix<double>[] globalForces, out mnl.Matrix<double>[] localForces, out mnl.Matrix<double>[] globalStress, out mnl.Matrix<double>[] localStress, out mnl.Matrix<double>[] globalEpsilon, out mnl.Matrix<double>[] localEpsilon)
         {
-            
             mnl.Vector<double> membranalGlobalDisplacements = mnl.Vector<double>.Build.Dense(3 * 3); //in plane displacement can be in DX, DY, DZ in global coordinates
             
             //node 1
@@ -354,19 +354,24 @@ namespace GPC.Model.FEM.FiniteElements
             }           
         }
 
-        public static double GetArea(Node[] nds)
+        /// <summary>
+        /// Get area of triangle from its nodes
+        /// </summary>
+        /// <param name="nds">3 Points3d</param>
+        /// <returns></returns>
+        public static double GetArea(Point3d[] nds)
         {
             mnl.Matrix<double> t1 = mnl.Matrix<double>.Build.Dense(3, 3);
-            t1[0, 0] = nds[0].Position.X;
-            t1[0, 1] = nds[0].Position.Y;
+            t1[0, 0] = nds[0].X;
+            t1[0, 1] = nds[0].Y;
             t1[0, 2] = 1.0;
 
-            t1[1, 0] = nds[1].Position.X;
-            t1[1, 1] = nds[1].Position.Y;
+            t1[1, 0] = nds[1].X;
+            t1[1, 1] = nds[1].Y;
             t1[1, 2] = 1.0;
 
-            t1[2, 0] = nds[2].Position.X;
-            t1[2, 1] = nds[2].Position.Y;
+            t1[2, 0] = nds[2].X;
+            t1[2, 1] = nds[2].Y;
             t1[2, 2] = 1.0;
 
             return 0.5 * t1.Determinant();

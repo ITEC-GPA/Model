@@ -17,6 +17,14 @@ namespace GPC.Model.FEM.FiniteElements
     {
         // TODO: rendere abstract
 
+        //contains Material information of the element
+        protected mnl.Matrix<double> _d;
+
+        /// <summary>
+        /// F,M = [D] * (epsilon, curvature...)
+        /// </summary>
+        public mnl.Matrix<double> D => _d;
+
         public bool IsTriangle => Nodes.Length == 3 ? true : false;
 
         public bool IsQuad => Nodes.Length == 4 ? true : false;
@@ -88,17 +96,19 @@ namespace GPC.Model.FEM.FiniteElements
             throw new NotImplementedException();
         }
 
-        public override mnl.Matrix<double> GetB(double csi = 0, double eta = 0, double zeta = 0)
+        /// <summary>
+        /// usually = B : derivative of ShapeFunctions, need for epsilon = [B] * q with q = node displacements vector
+        /// </summary>
+        /// <param name="csi">natural coordinate -1 to 1</param>
+        /// <param name="eta">natural coordinate -1 to 1</param>
+        /// <returns></returns>
+        public virtual mnl.Matrix<double> GetB(double csi = 0, double eta = 0)
         {
             throw new NotImplementedException();
         }
 
-        public override void GetNodesResults(double[] globalDisplacementsNodes, out double[] localDisplacements, out mnl.Matrix<double>[] gloabalPseudoDeformation, out mnl.Matrix<double>[] localPseudoDeformation, out mnl.Matrix<double>[] globalForces, out mnl.Matrix<double>[] localForces, out mnl.Matrix<double>[] globalStress, out mnl.Matrix<double>[] localStress, out mnl.Matrix<double>[] globalEpsilon, out mnl.Matrix<double>[] localEpsilon)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override void GetResultPositionNaturalCoordinates(double csi, double eta, double zeta, double[] globalDisplacementsNodes, out double x, out double y, out double z, out double[] localDisplacements, out mnl.Matrix<double> gloabalPseudoDeformation, out mnl.Matrix<double> localPseudoDeformation, out mnl.Matrix<double> globalForces, out mnl.Matrix<double> localForces, out mnl.Matrix<double> globalStress, out mnl.Matrix<double> localStress, out mnl.Matrix<double> globalEpsilon, out mnl.Matrix<double> localEpsilon)
+        //TODO: Da ottimizzare/scrivere
+        public new void GetNodesResults(double[] globalDisplacementsNodes, out mnl.Matrix<double>[] gloabalPseudoDeformation, out mnl.Matrix<double>[] localPseudoDeformation, out mnl.Matrix<double>[] globalForces, out mnl.Matrix<double>[] localForces, out mnl.Matrix<double>[] globalStress, out mnl.Matrix<double>[] localStress, out mnl.Matrix<double>[] globalEpsilon, out mnl.Matrix<double>[] localEpsilon)
         {
             throw new NotImplementedException();
         }

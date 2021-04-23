@@ -130,6 +130,8 @@ namespace FemTest.Solver
         [TestMethod]
         public void Tri3ElementTest1()
         {
+            //TODO: aggiornare per calcolo tensioni
+
             LoadCase loadCase = new LoadCase("myLoadCase", new Guid());
             FreedomCase freedomCase = new FreedomCase("freedomCase1");
 
@@ -171,7 +173,7 @@ namespace FemTest.Solver
 
             FiniteElement e0 = new Tri3Element(new Node[] { nodeA, nodeB, nodeC });
             e0.SetProperty(prop);
-          
+
             Plate e1 = new Tri3Element(new Node[] { nodeB, nodeD, nodeC });
             e1.SetProperty(prop);
           
@@ -185,7 +187,7 @@ namespace FemTest.Solver
             double sigmaTopYY = -(F.M1 + F.M1) / (1.0 / 6.0 * 8.0 * (t * t)) + (F.F2 + F.F2) / (t * 8.0);
 
             double[] e0GlobalDispl = fem.GetDisplacementsElementGlobalCoordinates(e0);
-            e0.GetNodesResults(e0GlobalDispl, out double[] localDispl,
+            e0.GetNodesResults(e0GlobalDispl,
                             out mnl.Matrix<double>[] globalPseudoDef, out mnl.Matrix<double>[] localPseudoDef,
                             out mnl.Matrix<double>[] globalForces, out mnl.Matrix<double>[] localForces,
                             out mnl.Matrix<double>[] globalStress, out mnl.Matrix<double>[] localStress,
@@ -193,7 +195,7 @@ namespace FemTest.Solver
             Assert.AreEqual(sigmaTopYY, globalStress[0][1,1], 0.001); //sigmaYY top face
 
             double[] e1GlobalDispl = fem.GetDisplacementsElementGlobalCoordinates(e1);
-            e1.GetNodesResults(e1GlobalDispl, out localDispl,
+            e1.GetNodesResults(e1GlobalDispl,
                             out globalPseudoDef, out localPseudoDef,
                             out globalForces, out localForces,
                             out globalStress, out localStress,

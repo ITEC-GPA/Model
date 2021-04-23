@@ -25,6 +25,12 @@ namespace GPC.Model.FEM.FiniteElements
             R3
         }
 
+        public enum EndSide
+        {
+            End1,
+            End2
+        }
+
         #region Variables
         protected double _length;
         protected double _axisAngleRadians;
@@ -41,7 +47,6 @@ namespace GPC.Model.FEM.FiniteElements
         {
             _attributesLoadCase.Add((LoadCaseAttribute)attribute);
         }
-
 
         public virtual void AddFreedomCaseAttribute(IBeamFreedomCaseAttribute attribute)
         {

@@ -23,8 +23,6 @@ namespace GPC.Model.FEM.FiniteElements
         protected mnl.Matrix<double> _dofGlobalToLocal;
         //local stiffness matrix of the element in local coordinates
         protected mnl.Matrix<double> _kElementLocalCoord;
-        //contains Material information of the element
-        protected mnl.Matrix<double> _d;
         
         protected List<LoadCaseAttribute> _attributesLoadCase;
         protected List<FreedomCaseAttribute> _attributesFreedomCase;
@@ -63,7 +61,7 @@ namespace GPC.Model.FEM.FiniteElements
                 int counter = 0;
                 for (int i = 0; i < DOF.Count(); i++)
                 {
-                    if (DOF.Contains((LinearSolver.DOF)i) == true) {
+                    if (DOF.Contains((Solver.DOF)i) == true) {
                         counter++;
                     }
                 }
@@ -87,23 +85,12 @@ namespace GPC.Model.FEM.FiniteElements
         public virtual mnl.Matrix<double> KElementGlobalCoord => DofGlobalToLocal.Transpose() * KElementLocalCoord * DofGlobalToLocal;
 
         /// <summary>
-        /// usually = B : derivative of ShapeFunctions, need for epsilon = [B] * q with q = node displacements vector
-        /// </summary>
-        public abstract mnl.Matrix<double> GetB(double csi = 0, double eta = 0, double zeta = 0);
-
-        /// <summary>
-        /// F,M = [D] * (epsilon, curvature...)
-        /// </summary>
-        public mnl.Matrix<double> D => _d;
-
-        /// <summary>
         /// ke = int [B]^T [D] [B] dV (stiffness matrix in local coordinates)
         /// </summary>
         public mnl.Matrix<double> KElementLocalCoord => _kElementLocalCoord;
         
         public List<LoadCaseAttribute> AttributesLoadCase => _attributesLoadCase;
         public List<FreedomCaseAttribute> AttributesFreedomCase => _attributesFreedomCase;
-
         #endregion
 
         #region Constructor
@@ -114,7 +101,7 @@ namespace GPC.Model.FEM.FiniteElements
         internal FiniteElement(Node[] nodes) : base()
         {
             _nodesGlobal = nodes;
-            _DOF = new SortedSet<LinearSolver.DOF>();
+            _DOF = new SortedSet<Solver.DOF>();
             _attributesLoadCase = new List<LoadCaseAttribute>();
             _attributesFreedomCase = new List<FreedomCaseAttribute>();
         }
@@ -129,7 +116,6 @@ namespace GPC.Model.FEM.FiniteElements
 
             _property = property;
         }
-
 
         public abstract FiniteElement Duplicate(ElementProperty property, List<LoadCaseAttribute> lcAttributes, List<FreedomCaseAttribute> fcAttributes);
 
@@ -153,22 +139,58 @@ namespace GPC.Model.FEM.FiniteElements
             return F;
         }
 
-        /// <summary>
+        /*/// <summary>
         /// Retrieve sigma, epsilon, N, M, etc in the element from displacement
         /// Top then bottom , then nr node. Example: stress[5] in element with 3 nodes with top and bottom: in equal to: 3 top, 2 bottom -> node 2 bottom
+        /// </summary>*/
+        //TODO: Da ottimizzare/scrivere
+        public void GetNodesResults(double[] globalDisplacementsNodes, out mnl.Matrix<double>[] gloabalPseudoDeformation, out mnl.Matrix<double>[] localPseudoDeformation, out mnl.Matrix<double>[] globalForces, out mnl.Matrix<double>[] localForces, out mnl.Matrix<double>[] globalStress, out mnl.Matrix<double>[] localStress, out mnl.Matrix<double>[] globalEpsilon, out mnl.Matrix<double>[] localEpsilon)
+        {
+            throw new Exception("ottimizzare questa funzione");
+        }
+
+        #region GetInternalForces
+        /// <summary>
+        /// Return global internal force for the element
         /// </summary>
-        public abstract void GetNodesResults(double[] globalDisplacementsNodes, out double[] localDisplacements, out mnl.Matrix<double>[] gloabalPseudoDeformation, out mnl.Matrix<double>[] localPseudoDeformation, out mnl.Matrix<double>[] globalForces, out mnl.Matrix<double>[] localForces, out mnl.Matrix<double>[] globalStress, out mnl.Matrix<double>[] localStress, out mnl.Matrix<double>[] globalEpsilon, out mnl.Matrix<double>[] localEpsilon);
+        /// <param name="globalDisplacementsNodes"></param>
+        /// <returns>KglobalElement * displGlobal</returns>
+        public mnl.Vector<double> GetInternalGlobalForces(double[] globalDisplacementsNodes)
+        {
+            return KElementGlobalCoord * mnl.Vector<double>.Build.Dense(globalDisplacementsNodes);
+        }
 
-        public abstract void GetResultPositionNaturalCoordinates(double csi, double eta, double zeta, double[] globalDisplacementsNodes, out double x, out double y, out double z, out double[] localDisplacements, out mnl.Matrix<double> gloabalPseudoDeformation, out mnl.Matrix<double> localPseudoDeformation, out mnl.Matrix<double> globalForces, out mnl.Matrix<double> localForces, out mnl.Matrix<double> globalStress, out mnl.Matrix<double> localStress, out mnl.Matrix<double> globalEpsilon, out mnl.Matrix<double> localEpsilon);
+        /// <summary>
+        /// Return local internal force for the element
+        /// </summary>
+        /// <param name="localDisplacementsNodes"></param>
+        /// <returns>KglobalElement * displGlobal</returns>
+        public mnl.Vector<double> GetInternalNodalLocalForces(mnl.Vector<double> localDisplacementsNodes)
+        {
+            return _kElementLocalCoord * localDisplacementsNodes;
+        }
 
+        public mnl.Vector<double> GetInternalLocalForces(double[] localDisplacementsNodes)
+        {
+            return GetInternalNodalLocalForces(mnl.Vector<double>.Build.Dense(localDisplacementsNodes));
+        }       
+        #endregion
+
+        #region GetLocalDisplacement
         /// <summary>
         /// Get displacements in local coordinates of the element
         /// </summary>
         /// <returns></returns>
+        public mnl.Vector<double> GetLocalDisplacementVector(double[] globalDisplacementsNodes)
+        {
+            return (DofGlobalToLocal * mnl.Vector<double>.Build.Dense(globalDisplacementsNodes));
+        }
+
         public double[] GetLocalDisplacement(double[] globalDisplacementsNodes)
         {
-            return (DofGlobalToLocal * mnl.Vector<double>.Build.Dense(globalDisplacementsNodes)).ToArray();
+            return (GetLocalDisplacementVector(globalDisplacementsNodes)).ToArray();
         }
+        #endregion
 
         /// <summary>
         /// 
@@ -179,6 +201,7 @@ namespace GPC.Model.FEM.FiniteElements
             return Nodes.Select(i => i.Id).ToArray();
         }
 
+        #region EqualsAndHashCode
         public override bool Equals(object obj)
         {
             return obj is FiniteElement element &&
@@ -199,7 +222,7 @@ namespace GPC.Model.FEM.FiniteElements
             }
             return hashCode;
         }
-
+        #endregion
         #endregion
     }
 }

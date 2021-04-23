@@ -568,6 +568,8 @@ namespace GPC.Model.FEM
         #endregion
 
         #region PublicFuction
+
+        #region GetDisplacement
         /// <summary>
         /// Ritorna spostamento per un selezionato nodo e per un certp grado di libertà.
         /// </summary>
@@ -633,6 +635,7 @@ namespace GPC.Model.FEM
                 #endregion
             }
         }
+        #endregion
 
         #region GetResultsBeam
         //TODO: trasformare in classe Beam
@@ -673,16 +676,14 @@ namespace GPC.Model.FEM
         }
         #endregion
 
-        #endregion
-
-        #region PrivateFunction
+        #region PrescribeDisplacement
         /// <summary>
         /// Modifica la matrice K e il termine noto F per l'inserimento di un spostamento imposto nei nodi con label "labelNode", grado di libertà dof e con spostamento = value;
         /// </summary>
         /// <param name="labelNode"></param>
         /// <param name="dof"></param>
         /// <param name="val"></param>
-        private void PrescribeDisplacement(string labelNode, DOF dof, double val)
+        public void PrescribeDisplacement(string labelNode, DOF dof, double val)
         {
             int[] positions = GetPositionInKGlobal(labelNode, dof);
 
@@ -706,7 +707,7 @@ namespace GPC.Model.FEM
         /// <param name="node"></param>
         /// <param name="dof"></param>
         /// <param name="val"></param>
-        private void PrescribeDisplacement(Node node, DOF dof, double val)
+        public void PrescribeDisplacement(Node node, DOF dof, double val)
         {
             int position = GetPositionInKGlobal(node, dof);
 
@@ -719,7 +720,32 @@ namespace GPC.Model.FEM
             _KGlobalRestrains[position, position] = 1.0;
             _FRestrains[position] = val;
         }
+        #endregion
 
+        #region GetReactions
+        public double GetReaction(Node node, DOF dof)
+        {
+            int pos = GetPositionInKGlobal(node, dof);
+            return _reactions[pos];
+        }
+
+        public Dictionary<DOF, double> GetReaction(Node node)
+        {
+            Dictionary<DOF, double> results = new Dictionary<DOF, double>();
+            for (int i = 0; i < node.DOF.Count; i++)
+            {
+                DOF dof = node.DOF.ElementAt(i);
+                int pos = GetPositionInKGlobal(node, dof);
+                results.Add(dof, _reactions[pos]);
+            }
+            return results;
+        }
+        #endregion
+        #endregion
+
+        #region PrivateFunction
+
+        #region GetPosition
         /// <summary>
         /// Give the position of selected GDL from 0 to N where N is dimension of matrix KGloabl or the dimension of the vector of Forces or Displacments
         /// </summary>
@@ -750,7 +776,7 @@ namespace GPC.Model.FEM
         /// <param name="node">ID node</param>
         /// <param name="dof">Searched dof</param>
         /// <returns></returns>
-        public int GetPositionInKGlobal(Node node, DOF dof = 0)
+        private int GetPositionInKGlobal(Node node, DOF dof = 0)
         {
             #region CounterForPreviousNodes
             int counter = 0;
@@ -792,12 +818,8 @@ namespace GPC.Model.FEM
             //return counter + (int)dof;
             #endregion
         }
+        #endregion
 
-        public double GetReaction(Node node, DOF dof)
-        {
-            int pos = GetPositionInKGlobal(node, dof);
-            return _reactions[pos];
-        }
-        #endregion       
+        #endregion
     }
 }

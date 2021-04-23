@@ -10,11 +10,13 @@ namespace GPC.Model.FEM.FiniteElements
     [DebuggerDisplay("{" + nameof(GetDebuggerDisplay) + "(),nq}")]
     public class Brick : FiniteElement
     {
+        //contains Material information of the element
+        protected mnl.Matrix<double> _d;
 
-        public bool IsTriangular => Nodes.Length == 6 ? true : false;
-
-        public bool IsQuadrangular => Nodes.Length == 8 ? true : false;
-
+        /// <summary>
+        /// F,M = [D] * (epsilon, curvature...)
+        /// </summary>
+        public mnl.Matrix<double> D => _d;
 
         public Brick(Node[] nodes) 
             : base(nodes)
@@ -39,21 +41,17 @@ namespace GPC.Model.FEM.FiniteElements
             throw new NotImplementedException();
         }
 
-        public override mnl.Matrix<double> GetB(double csi, double eta, double zeta)
+        public virtual mnl.Matrix<double> GetB(double csi, double eta, double zeta)
         {
             throw new NotImplementedException();
         }
 
         #region Result
-        public override void GetNodesResults(double[] globalDisplacementsNodes, out double[] localDisplacements, out mnl.Matrix<double>[] gloabalPseudoDeformation, out mnl.Matrix<double>[] localPseudoDeformation, out mnl.Matrix<double>[] globalForces, out mnl.Matrix<double>[] localForces, out mnl.Matrix<double>[] globalStress, out mnl.Matrix<double>[] localStress, out mnl.Matrix<double>[] globalEpsilon, out mnl.Matrix<double>[] localEpsilon)
+        //TODO: Da ottimizzare/scrivere
+        /*public override void GetNodesResults(double[] globalDisplacementsNodes, out mnl.Matrix<double>[] gloabalPseudoDeformation, out mnl.Matrix<double>[] localPseudoDeformation, out mnl.Matrix<double>[] globalForces, out mnl.Matrix<double>[] localForces, out mnl.Matrix<double>[] globalStress, out mnl.Matrix<double>[] localStress, out mnl.Matrix<double>[] globalEpsilon, out mnl.Matrix<double>[] localEpsilon)
         {
             throw new NotImplementedException();
-        }
-
-        public override void GetResultPositionNaturalCoordinates(double csi, double eta, double zeta, double[] globalDisplacementsNodes, out double x, out double y, out double z, out double[] localDisplacements, out mnl.Matrix<double> gloabalPseudoDeformation, out mnl.Matrix<double> localPseudoDeformation, out mnl.Matrix<double> globalForces, out mnl.Matrix<double> localForces, out mnl.Matrix<double> globalStress, out mnl.Matrix<double> localStress, out mnl.Matrix<double> globalEpsilon, out mnl.Matrix<double> localEpsilon)
-        {
-            throw new NotImplementedException();
-        }
+        }*/
         #endregion
 
         /// <summary>

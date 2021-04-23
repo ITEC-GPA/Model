@@ -131,6 +131,7 @@ namespace FemTest.Solver
         [TestMethod]
         public void Tri3DKTTest3()
         {
+            //TODO: sistemare per calcolo tensioni
             LoadCase loadCase = new LoadCase("myLoadCase", new Guid());
             FreedomCase freedomCase = new FreedomCase("freedomCase1");
 
@@ -177,7 +178,7 @@ namespace FemTest.Solver
             Assert.AreEqual(0.24960, dz, 1e-6);
 
             double[] displElement = fem.GetDisplacementsElementGlobalCoordinates(e0);
-            e0.GetNodesResults(displElement, out double[] localDispl,
+            e0.GetNodesResults(displElement, 
                             out mnl.Matrix<double>[] globalPseudoDef, out mnl.Matrix<double>[] localPseudoDef,
                             out mnl.Matrix<double>[] globalForces, out mnl.Matrix<double>[] localForces,
                             out mnl.Matrix<double>[] globalStress, out mnl.Matrix<double>[] localStress,

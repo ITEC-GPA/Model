@@ -59,6 +59,8 @@ namespace FemTest.Solver {
 
             Assert.AreEqual(FX, fem.GetBeamInternalForces(b, 0)[Beam.InternalAction.N]);
             Assert.AreEqual(FX, fem.GetBeamInternalForces(b, b.L)[Beam.InternalAction.N]);
+
+            var reactNode0 = fem.GetReaction(nds[0]);
         }
 
         /// <summary>
@@ -686,11 +688,7 @@ namespace FemTest.Solver {
             Assert.AreEqual(0.0, fem.GetDisplacementGlobalCoordinates(nds[1], LinearSolver.DOF.DY), 1e-6); //displacement
             Assert.AreEqual(-qy * L /2.0, fem.GetReaction(nds[0], LinearSolver.DOF.DY), 1e-2); //reaction
 
-            double[] globalDispl = fem.GetDisplacementsElementGlobalCoordinates(beams[0]);
-            beams[0].GetNodesResults(globalDispl, out double[] localDispl, out mnl.Matrix<double>[] globalPseudoDef, out mnl.Matrix<double>[] localPseudoDef, out mnl.Matrix<double>[] globalForces, out mnl.Matrix<double>[] localForces, out mnl.Matrix<double>[] globalStress, out mnl.Matrix<double>[] localStress, out mnl.Matrix<double>[] globalEpsilon, out mnl.Matrix<double>[] localEpsilon);
-
-            var internalActions = beams[0].GetInternalAction(L / 2.0, globalDispl);
-            Assert.AreEqual(-1.0 / 24.0 * qy * L * L, internalActions[Beam.InternalAction.M3]);
+            Assert.AreEqual(-1.0 / 24.0 * qy * L * L, fem.GetBeamInternalForces(beams[0], beams[0].L / 2.0, Beam.InternalAction.M3));
         }
 
         [TestMethod]

@@ -60,7 +60,7 @@ namespace GPC.Model.FEM
         /// <summary>
         /// only for test purpose
         /// </summary>
-        internal Node(double X, double Y, double Z, string label="") : this(new Point3d(X, Y, Z), label)
+        public Node(double X, double Y, double Z, string label="") : this(new Point3d(X, Y, Z), label)
         {
 
         }

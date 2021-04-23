@@ -13,22 +13,33 @@ namespace GPC.Model.FEM.Attributes
 {
     public class BeamReleasesAttribute : FreedomCaseAttribute, IBeamFreedomCaseAttribute
     {
-
-        int _indexEndBeam; //node 1 or node 2 of the beam
+        Beam.EndSide _endBeam;
         HashSet<Beam.LocalDOF> _localDOFs = new HashSet<Beam.LocalDOF>(); //non permetto di avere duplicati
 
-        public int EndBeam => _indexEndBeam;
+        public Beam.EndSide EndBeam => _endBeam;
         public Beam.LocalDOF[] LocalDOFReleased => _localDOFs.ToArray();
 
         public BeamReleasesAttribute(int indexEndBeam, HashSet<Beam.LocalDOF> releases, string freedomCaseName, string name) 
             : base(freedomCaseName, name)
         {
-            if (indexEndBeam != 1 && indexEndBeam != 2)
+            if (indexEndBeam == 1)
             {
-                throw new Exception("Release can be applicated in End 1 or End 2");
+                _endBeam = Beam.EndSide.End1;
+            } else if (indexEndBeam == 2)
+            {
+                _endBeam = Beam.EndSide.End2;
             } else
             {
-                _indexEndBeam = indexEndBeam;
+                throw new IndexOutOfRangeException("Release can be applicated in End 1 or End 2");
+            }
+            _localDOFs = releases;
+        }
+
+        public BeamReleasesAttribute(Beam.EndSide end, HashSet<Beam.LocalDOF> releases, string freedomCaseName, string name)
+            : base(freedomCaseName, name)
+        {
+            {
+                _endBeam = end;
                 _localDOFs = releases;
             }
         }

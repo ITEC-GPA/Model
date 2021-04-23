@@ -317,7 +317,7 @@ namespace GPC.Model.FEM.FiniteElements
             #endregion
         }
 
-        public override mnl.Matrix<double> GetB(double x, double y, double z = 0)
+        public override mnl.Matrix<double> GetB(double x, double y)
         {
             /*
              * csi1, csi2 and csi3 are defined in 
@@ -396,7 +396,8 @@ namespace GPC.Model.FEM.FiniteElements
             return _fLocalCoord;
         }
 
-        public override void GetNodesResults(double[] globalDisplacementsNodes, out double[] localDisplacements, out mnl.Matrix<double>[] globalPseudoDeformation, out mnl.Matrix<double>[] localPseudoDeformation, out mnl.Matrix<double>[] globalForces, out mnl.Matrix<double>[] localForces, out mnl.Matrix<double>[] globalStress, out mnl.Matrix<double>[] localStress, out mnl.Matrix<double>[] globalEpsilon, out mnl.Matrix<double>[] localEpsilon)
+        //TODO: Da ottimizzare/scrivere
+        public void GetNodesResults(double[] globalDisplacementsNodes, out double[] localDisplacements, out mnl.Matrix<double>[] globalPseudoDeformation, out mnl.Matrix<double>[] localPseudoDeformation, out mnl.Matrix<double>[] globalForces, out mnl.Matrix<double>[] localForces, out mnl.Matrix<double>[] globalStress, out mnl.Matrix<double>[] localStress, out mnl.Matrix<double>[] globalEpsilon, out mnl.Matrix<double>[] localEpsilon)
         {
             localDisplacements = GetLocalDisplacement(globalDisplacementsNodes);
             mnl.Vector<double> vecLocalDispl = mnl.Vector<double>.Build.Dense(localDisplacements);
@@ -407,10 +408,10 @@ namespace GPC.Model.FEM.FiniteElements
             #region CalculationOfStressAndDeformationsInLocalCoordinates
             mnl.Vector<double>[] epsilonLocal = new mnl.Vector<double>[] {
                 //epsilon_xx; epsilon_yy; epsilon_xy
-                GetB(_localNodes[0].Position.X, _localNodes[0].Position.Y, 0) * vecLocalDispl, //Node1
-                GetB(_localNodes[1].Position.X, _localNodes[1].Position.Y, 0) * vecLocalDispl, //Node2
-                GetB(_localNodes[2].Position.X, _localNodes[2].Position.Y, 0) * vecLocalDispl, //Node3
-                GetB(xG, yG, 0) * vecLocalDispl, //Centroid
+                GetB(_localNodes[0].Position.X, _localNodes[0].Position.Y) * vecLocalDispl, //Node1
+                GetB(_localNodes[1].Position.X, _localNodes[1].Position.Y) * vecLocalDispl, //Node2
+                GetB(_localNodes[2].Position.X, _localNodes[2].Position.Y) * vecLocalDispl, //Node3
+                GetB(xG, yG) * vecLocalDispl, //Centroid
             };
 
             mnl.Vector<double>[] stressLocal = epsilonLocal.Select(epsilonLoc => D * epsilonLoc).ToArray(); //sigma_xx; sigma_yy; tau_xy

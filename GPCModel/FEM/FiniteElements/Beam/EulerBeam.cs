@@ -15,14 +15,14 @@ namespace GPC.Model.FEM.FiniteElements
     /// </summary>
     public class EulerBeam : Beam
     {
-        internal EulerBeam(Node[] nodes, Section section, double axisAngleRadians = 0.0) : base(nodes)
+        public EulerBeam(Node[] nodes, Section section, double axisAngleRadians = 0.0) : base(nodes)
         {
-            _DOF.Add(LinearSolver.DOF.DX);
-            _DOF.Add(LinearSolver.DOF.DY);
-            _DOF.Add(LinearSolver.DOF.DZ);
-            _DOF.Add(LinearSolver.DOF.RX);
-            _DOF.Add(LinearSolver.DOF.RY);
-            _DOF.Add(LinearSolver.DOF.RZ);
+            _DOF.Add(Solver.DOF.DX);
+            _DOF.Add(Solver.DOF.DY);
+            _DOF.Add(Solver.DOF.DZ);
+            _DOF.Add(Solver.DOF.RX);
+            _DOF.Add(Solver.DOF.RY);
+            _DOF.Add(Solver.DOF.RZ);
 
             _axisAngleRadians = axisAngleRadians; //rotazione rispetto asse 1-X
             SetProperty(section);
@@ -87,10 +87,10 @@ namespace GPC.Model.FEM.FiniteElements
             #region ApplyReleases
             foreach(BeamReleasesAttribute rel in _attributesFreedomCase)
             {
-                int EndBeam = rel.EndBeam;
+                EndSide EndBeam = rel.EndBeam;
                 LocalDOF[] localDOFs = rel.LocalDOFReleased;
 
-                if (EndBeam == 1)
+                if (EndBeam == EndSide.End1)
                 {
                     for (int i = 0; i < localDOFs.Length; i++)
                     {
@@ -160,7 +160,7 @@ namespace GPC.Model.FEM.FiniteElements
                     }
                 }
 
-                if (EndBeam == 2)
+                if (EndBeam == EndSide.End2)
                 {
                     for (int i = 0; i < localDOFs.Length; i++)
                     {
@@ -337,147 +337,6 @@ namespace GPC.Model.FEM.FiniteElements
             #endregion
         }
 
-        public override FiniteElement Duplicate(ElementProperty property, List<LoadCaseAttribute> lcAttributes, List<FreedomCaseAttribute> fcAttributes)
-        {
-            //duplicate nodes
-            Node[] duplicatedNodes = _nodesGlobal.Select(node => node.Duplicate()).ToArray();
-
-            //duplicate beam
-            EulerBeam duplicatedBeam = new EulerBeam(duplicatedNodes, (Section) property);
-            duplicatedBeam.SetId(this.Id);
-
-            foreach (FreedomCaseAttribute attribute in fcAttributes)
-            {
-                duplicatedBeam.AttributesFreedomCase.Add(attribute);
-            }
-            foreach (LoadCaseAttribute attribute in lcAttributes)
-            {
-                duplicatedBeam.AttributesLoadCase.Add(attribute);
-            }
-            return duplicatedBeam;
-        }
-
-        public override FiniteElement Duplicate()
-        {
-            return Duplicate(_property, _attributesLoadCase, _attributesFreedomCase);
-        }
-
-        public override mnl.Matrix<double> GetB(double csi = 0, double eta = 0, double zeta = 0)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override void GetNodesResults(double[] globalDisplacementsNodes, out double[] localDisplacements, out mnl.Matrix<double>[] globalPseudoDeformation, out mnl.Matrix<double>[] localPseudoDeformation, out mnl.Matrix<double>[] globalForces, out mnl.Matrix<double>[] localForces, out mnl.Matrix<double>[] globalStress, out mnl.Matrix<double>[] localStress, out mnl.Matrix<double>[] globalEpsilon, out mnl.Matrix<double>[] localEpsilon)
-        {
-            localDisplacements = new double[_nodesGlobal.Count() * 6];
-            localStress = new mnl.Matrix<double>[0];
-            localPseudoDeformation = new mnl.Matrix<double>[0];
-            localForces = new mnl.Matrix<double>[_nodesGlobal.Count()];
-            localEpsilon = new mnl.Matrix<double>[0];
-            globalStress = new mnl.Matrix<double>[0];
-            globalForces = new mnl.Matrix<double>[0];
-            globalEpsilon = new mnl.Matrix<double>[0];
-            globalPseudoDeformation = new mnl.Matrix<double>[0];
-
-            mnl.Vector<double> localDisplacementsNodes = _dofGlobalToLocal * mnl.Vector<double>.Build.DenseOfArray(globalDisplacementsNodes);
-            mnl.Vector<double> localForcesNodes = _kElementLocalCoord * localDisplacementsNodes;
-
-            Console.WriteLine("CSys=");
-            Console.WriteLine("ux = " + _localCoordinateSystem.V1);
-            Console.WriteLine("uy = " + _localCoordinateSystem.V2);
-            Console.WriteLine("uz = " + _localCoordinateSystem.V3);
-            FEMUtilities.WriteMatrix("DofGlobaltoLocal=", _dofGlobalToLocal, "F4");
-            //FEMUtilities.WriteMatrix("kElLocal=", _kElementLocalCoord,  "F4");
-            FEMUtilities.WriteMatrix("localDispl", localDisplacementsNodes, "F5");
-
-            localForces[0] = mnl.Matrix<double>.Build.Dense(6, 1); //N, V1, V2, M1, M2, T Node1 //TODO: trasformare output in vettore
-            localForces[1] = mnl.Matrix<double>.Build.Dense(6, 1); //N, V1, V2, M1, M2, T Node1 //TODO: trasformare output in vettore
-
-            Console.WriteLine("Internal forces:");
-            for (int i = 0; i < 12; i++)
-            {
-                if (i < 6)
-                {
-                    if (i == 4 || i == 1 || i == 2)
-                    {
-                        localForces[0][i, 0] = localForcesNodes[i];
-                        
-                    } else
-                    {
-                        localForces[0][i, 0] = -localForcesNodes[i];
-                    }
-                    Console.WriteLine(localForces[0][i, 0]);
-                } else
-                {
-                    int j = i - 6;
-                    if (j == 4 || j == 1 || j == 2)
-                    {
-                        localForces[1][j, 0] = -localForcesNodes[i];                        
-                    } else
-                    {
-                        localForces[1][j, 0] = localForcesNodes[i];
-                    }
-                    Console.WriteLine(localForces[1][j, 0]);
-                }
-            }
-        }
-
-        internal Dictionary<Beam.InternalAction, double> GetInternalAction(double station, double[] globalDisplacement)
-        {
-            //Post-processing only for beam:
-            double qx = 0;
-            double qy = 0;
-            double qz = 0;
-            for (int i = 0; i < _attributesLoadCase.Count; i++)
-            {
-                if (_attributesLoadCase[i].GetType() == typeof(BeamDistribuitedLoadAttribute))
-                {
-                    BeamDistribuitedLoadAttribute q = (BeamDistribuitedLoadAttribute)_attributesLoadCase[i];
-                    qx += q.Q1;
-                    qy += q.Q2;
-                    qz += q.Q3;
-                }
-            }
-
-            GetNodesResults(globalDisplacement, out double[] localDispl, out mnl.Matrix<double>[] globalPseudoDef, out mnl.Matrix<double>[] localPseudoDef, out mnl.Matrix<double>[] globalForces, out mnl.Matrix<double>[] localForces, out mnl.Matrix<double>[] globalStress, out mnl.Matrix<double>[] localStress, out mnl.Matrix<double>[] globalEpsilon, out mnl.Matrix<double>[] localEpsilon);
-
-            Dictionary<Beam.InternalAction, double> forces = new Dictionary<InternalAction, double>();
-
-            double N0(double x, double L)
-            {
-                return (L - x) / L;
-            }
-
-            double N1(double x, double L)
-            {
-                return x / L;
-            }
-
-            double Nx = localForces[0][0, 0] * N0(station, _length) + localForces[1][0, 0] * N1(station, _length);
-            double V2x = localForces[0][1, 0] * N0(station, _length) + localForces[1][1, 0] * N1(station, _length);
-            double V3x = localForces[0][2, 0] * N0(station, _length) + localForces[1][2, 0] * N1(station, _length);
-            double Tx = localForces[0][3, 0] * N0(station, _length) + localForces[1][3, 0] * N1(station, _length);
-            double M2x = localForces[0][4, 0] * N0(station, _length) + localForces[1][4, 0] * N1(station, _length);
-            double M3x = localForces[0][5, 0] * N0(station, _length) + localForces[1][5, 0] * N1(station, _length);
-
-            forces.Add(Beam.InternalAction.N, Nx - AxialBeamFixFix(qx, station, _length));
-            forces.Add(Beam.InternalAction.V2, V2x - ShearBeamFixFix(qy, station, _length));
-            forces.Add(Beam.InternalAction.V3, V3x - ShearBeamFixFix(qz, station, _length));
-
-            forces.Add(Beam.InternalAction.T, Tx);
-            forces.Add(Beam.InternalAction.M2, M2x - BendingBeamFixFix(qz, station, _length));
-            forces.Add(Beam.InternalAction.M3, M3x - BendingBeamFixFix(qy, station, _length));
-
-            /*var x1 = localForces[0][5, 0];
-            var x2 = BendingBeamFixFix(qy, x, _length);*/
-            return forces;            
-        }
-
-        public override void GetResultPositionNaturalCoordinates(double csi, double eta, double zeta, double[] globalDisplacementsNodes, out double x, out double y, out double z, out double[] localDisplacements, out mnl.Matrix<double> gloabalPseudoDeformation, out mnl.Matrix<double> localPseudoDeformation, out mnl.Matrix<double> globalForces, out mnl.Matrix<double> localForces, out mnl.Matrix<double> globalStress, out mnl.Matrix<double> localStress, out mnl.Matrix<double> globalEpsilon, out mnl.Matrix<double> localEpsilon)
-        {
-            throw new NotImplementedException();
-        }
-
         protected override mnl.Vector<double> BuildFLocalCoord()
         {
             mnl.Vector<double> fLocal = mnl.Vector<double>.Build.Dense(12);
@@ -495,7 +354,8 @@ namespace GPC.Model.FEM.FiniteElements
                         q1 = attribute.Q1; // N/mm along its axis
                         q2 = attribute.Q2; // N/mm 
                         q3 = attribute.Q3; // N/mm 
-                    } else
+                    }
+                    else
                     {
                         //TODO: gestione coordinate system
                         q1 = 0;
@@ -512,8 +372,8 @@ namespace GPC.Model.FEM.FiniteElements
                     fLocal[1] = q2 * _length / 2.0;
                     fLocal[7] = q2 * _length / 2.0;
 
-                    fLocal[5] = q2 * _length*_length / 12.0;
-                    fLocal[11] = -q2 * _length*_length / 12.0;
+                    fLocal[5] = q2 * _length * _length / 12.0;
+                    fLocal[11] = -q2 * _length * _length / 12.0;
                     #endregion
 
                     #region q3
@@ -527,13 +387,145 @@ namespace GPC.Model.FEM.FiniteElements
             }
             return fLocal;
         }
-        
+
+        #region Duplicate
+        public override FiniteElement Duplicate(ElementProperty property, List<LoadCaseAttribute> lcAttributes, List<FreedomCaseAttribute> fcAttributes)
+        {
+            //duplicate nodes
+            Node[] duplicatedNodes = _nodesGlobal.Select(node => node.Duplicate()).ToArray();
+
+            //duplicate beam
+            EulerBeam duplicatedBeam = new EulerBeam(duplicatedNodes, (Section) property, _axisAngleRadians);
+            duplicatedBeam.SetId(this.Id);
+
+            foreach (FreedomCaseAttribute attribute in fcAttributes)
+            {
+                duplicatedBeam.AttributesFreedomCase.Add(attribute);
+            }
+            foreach (LoadCaseAttribute attribute in lcAttributes)
+            {
+                duplicatedBeam.AttributesLoadCase.Add(attribute);
+            }
+            return duplicatedBeam;
+        }
+
+        public override FiniteElement Duplicate()
+        {
+            return Duplicate(_property, _attributesLoadCase, _attributesFreedomCase);
+        }
+        #endregion
+
+        #region GetForces
+        public Dictionary<Beam.InternalAction, double> GetInternalNodalLocalForces(int indexNode, double[] globalDisplacements)
+        {
+            Dictionary<Beam.InternalAction, double> result = new Dictionary<InternalAction, double>();
+            if (indexNode == 1 || indexNode == 2) {
+                
+                mnl.Vector<double> localDisplacementsNodes = GetLocalDisplacementVector(globalDisplacements);
+                mnl.Vector<double> localForcesNodes = GetInternalNodalLocalForces(localDisplacementsNodes);
+
+                if (indexNode == 1)
+                {
+                    for (int i = 0; i < 6; i++)
+                    {
+                        if (i == 4 || i == 1 || i == 2)
+                        {
+                            result.Add((InternalAction) i , localForcesNodes[i]);
+                        }
+                        else
+                        {
+                            result.Add((InternalAction)i, -localForcesNodes[i]);
+                        }
+                    }
+                } else if (indexNode == 2)
+                {
+                    for (int i = 6; i < 12; i++)
+                    {
+                        int j = i - 6;
+                        if (j == 4 || j == 1 || j == 2)
+                        {
+                            result.Add((InternalAction)j, -localForcesNodes[i]);
+                        }
+                        else
+                        {
+                            result.Add((InternalAction)j, localForcesNodes[i]);
+                        }
+                    }
+                }
+
+                return result;
+            } else 
+            {
+                throw new IndexOutOfRangeException("Node 1 or node 2 for the beam element");
+            }
+        }
+
+        internal Dictionary<Beam.InternalAction, double> GetInternalAction(double station, double[] globalDisplacement)
+        {
+            Dictionary<Beam.InternalAction, double> forces = new Dictionary<InternalAction, double>();
+
+            //Post-processing only for beam:
+            double qx = 0;
+            double qy = 0;
+            double qz = 0;
+            for (int i = 0; i < _attributesLoadCase.Count; i++)
+            {
+                if (_attributesLoadCase[i].GetType() == typeof(BeamDistribuitedLoadAttribute))
+                {
+                    BeamDistribuitedLoadAttribute q = (BeamDistribuitedLoadAttribute)_attributesLoadCase[i];
+                    qx += q.Q1;
+                    qy += q.Q2;
+                    qz += q.Q3;
+                }
+            }
+
+            double N0(double x, double L)
+            {
+                return (L - x) / L;
+            }
+
+            double N1(double x, double L)
+            {
+                return x / L;
+            }
+
+            var internalForcesNode1 = GetInternalNodalLocalForces(1, globalDisplacement);
+            var internalForcesNode2 = GetInternalNodalLocalForces(2, globalDisplacement);
+
+            double Nx = internalForcesNode1[InternalAction.N] * N0(station, _length) + internalForcesNode2[InternalAction.N] * N1(station, _length);
+            double V2x = internalForcesNode1[InternalAction.V2] * N0(station, _length) + internalForcesNode2[InternalAction.V2] * N1(station, _length);
+            double V3x = internalForcesNode1[InternalAction.V3] * N0(station, _length) + internalForcesNode2[InternalAction.V3] * N1(station, _length);
+            double Tx = internalForcesNode1[InternalAction.T] * N0(station, _length) + internalForcesNode2[InternalAction.T] * N1(station, _length);
+            double M2x = internalForcesNode1[InternalAction.M2] * N0(station, _length) + internalForcesNode2[InternalAction.M2] * N1(station, _length);
+            double M3x = internalForcesNode1[InternalAction.M3] * N0(station, _length) + internalForcesNode2[InternalAction.M3] * N1(station, _length);
+
+            forces.Add(Beam.InternalAction.N, Nx - AxialBeamFixFix(qx, station, _length));
+            forces.Add(Beam.InternalAction.V2, V2x - ShearBeamFixFix(qy, station, _length));
+            forces.Add(Beam.InternalAction.V3, V3x - ShearBeamFixFix(qz, station, _length));
+
+            forces.Add(Beam.InternalAction.T, Tx);
+            forces.Add(Beam.InternalAction.M2, M2x - BendingBeamFixFix(qz, station, _length));
+            forces.Add(Beam.InternalAction.M3, M3x - BendingBeamFixFix(qy, station, _length));
+
+            return forces;            
+        }
+        #endregion
+
+        #region EndRelease
         public void AddEndRelease(int indexEndBeam, Beam.LocalDOF[] dof, string freedomCaseName, string name)
         {
             BeamReleasesAttribute release = new BeamReleasesAttribute(indexEndBeam, dof.ToHashSet(), freedomCaseName, name);
             _attributesFreedomCase.Add(release);
         }
 
+        public void AddEndRelease(EndSide endBeam, Beam.LocalDOF[] dof, string freedomCaseName, string name)
+        {
+            BeamReleasesAttribute release = new BeamReleasesAttribute(endBeam, dof.ToHashSet(), freedomCaseName, name);
+            _attributesFreedomCase.Add(release);
+        }
+        #endregion
+
+        #region PostProcessorFunctions
         /// <summary>
         /// Return the Bending moment in a fix-fix beam with uniform load
         /// </summary>
@@ -599,5 +591,6 @@ namespace GPC.Model.FEM.FiniteElements
         {
             return q * x*x*x * Math.Pow(L - x,2.0) / (24.0 * E * J);
         }
+        #endregion
     }
 }

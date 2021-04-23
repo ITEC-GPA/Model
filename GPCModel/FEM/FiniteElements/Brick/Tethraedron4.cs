@@ -30,7 +30,7 @@ namespace GPC.Model.FEM.FiniteElements
                 check.RemoveAt(0);
 
                 //Mi sposto nelle coordinate locali della faccia
-                Node[] localFaceNode = Tri3Element.LocalNodes(check.ToArray(), out CoordinateSystem sys);
+                Point3d[] localFaceNode = Tri3Element.LocalNodes(check.ToArray(), out CoordinateSystem sys).Select(x => x.Position).ToArray();
 
                 if (Tri3Element.GetArea(localFaceNode) < 0)
                 {
@@ -114,16 +114,11 @@ namespace GPC.Model.FEM.FiniteElements
         }
 
         #region Results
-        public override void GetNodesResults(double[] globalDisplacementsNodes, out double[] localDisplacements, out mnl.Matrix<double>[] gloabalPseudoDeformation, out mnl.Matrix<double>[] localPseudoDeformation, out mnl.Matrix<double>[] globalForces, out mnl.Matrix<double>[] localForces, out mnl.Matrix<double>[] globalStress, out mnl.Matrix<double>[] localStress, out mnl.Matrix<double>[] globalEpsilon, out mnl.Matrix<double>[] localEpsilon)
+        //TODO: Da ottimizzare/scrivere
+        /*public override void GetNodesResults(double[] globalDisplacementsNodes, out double[] localDisplacements, out mnl.Matrix<double>[] gloabalPseudoDeformation, out mnl.Matrix<double>[] localPseudoDeformation, out mnl.Matrix<double>[] globalForces, out mnl.Matrix<double>[] localForces, out mnl.Matrix<double>[] globalStress, out mnl.Matrix<double>[] localStress, out mnl.Matrix<double>[] globalEpsilon, out mnl.Matrix<double>[] localEpsilon)
         {
             base.GetNodesResults(globalDisplacementsNodes, out localDisplacements, out gloabalPseudoDeformation, out localPseudoDeformation, out globalForces, out localForces, out globalStress, out localStress, out globalEpsilon, out localEpsilon);
-        }
-
-
-        public override void GetResultPositionNaturalCoordinates(double csi, double eta, double zeta, double[] globalDisplacementsNodes, out double x, out double y, out double z, out double[] localDisplacements, out mnl.Matrix<double> gloabalPseudoDeformation, out mnl.Matrix<double> localPseudoDeformation, out mnl.Matrix<double> globalForces, out mnl.Matrix<double> localForces, out mnl.Matrix<double> globalStress, out mnl.Matrix<double> localStress, out mnl.Matrix<double> globalEpsilon, out mnl.Matrix<double> localEpsilon)
-        {
-            base.GetResultPositionNaturalCoordinates(csi, eta, zeta, globalDisplacementsNodes, out x, out y, out z, out localDisplacements, out gloabalPseudoDeformation, out localPseudoDeformation, out globalForces, out localForces, out globalStress, out localStress, out globalEpsilon, out localEpsilon);
-        }
+        }*/
         #endregion
 
         protected override mnl.Vector<double> BuildFLocalCoord()
