@@ -276,6 +276,7 @@ namespace ModelObjectTest
 
             Assert.IsFalse(combination.ContainsLoadCaseCoefficients(new KeyValuePair<LoadCase, double>[1]));
 
+
         }
 
         [TestMethod]
@@ -1866,6 +1867,210 @@ namespace ModelObjectTest
         }
 
         [TestMethod]
+        public void ENGeneratorAGC_ULS1()
+        {
+            // Arrange
+            string loadCaseName1 = "Dead Load";
+            LoadCase selfWeightLoadCase = new LoadCase(loadCaseName1, LoadCase.LoadCaseTypes.SelfWeight);
+            string loadCaseName2 = "WindPressure";
+            LoadCase WindPressureLoadCase = new LoadCase(loadCaseName2, LoadCase.LoadCaseTypes.WindPressure);
+
+            string loadCaseName3 = "ClimateSummerDeltaH";
+            LoadCase climateSummerDeltaHLoadCase = new LoadCase(loadCaseName3, LoadCase.LoadCaseTypes.ClimateSummerDeltaH);
+            string loadCaseName4 = "ClimateSummerDeltaP";
+            LoadCase climateSummerDeltaPLoadCase1 = new LoadCase(loadCaseName4, LoadCase.LoadCaseTypes.ClimateSummerDeltaP);
+            string loadCaseName5 = "ClimateSummerDeltaT";
+            LoadCase climateSummerDeltaTLoadCase1 = new LoadCase(loadCaseName5, LoadCase.LoadCaseTypes.ClimateSummerDeltaT);
+            string loadCaseName6 = "ClimateWinterDeltaH";
+            LoadCase climateWinterDeltaHLoadCase = new LoadCase(loadCaseName6, LoadCase.LoadCaseTypes.ClimateWinterDeltaH);
+            string loadCaseName7 = "ClimateWinterDeltaP";
+            LoadCase climateWinterDeltaPLoadCase1 = new LoadCase(loadCaseName7, LoadCase.LoadCaseTypes.ClimateWinterDeltaP);
+            string loadCaseName8 = "ClimateWinterDeltaT";
+            LoadCase climateWinterDeltaTLoadCase1 = new LoadCase(loadCaseName8, LoadCase.LoadCaseTypes.ClimateWinterDeltaT);
+
+            List<LoadCase> loadCaseList = new List<LoadCase>
+            {
+                selfWeightLoadCase,
+                WindPressureLoadCase,
+                climateSummerDeltaHLoadCase,
+                climateSummerDeltaTLoadCase1,
+                climateSummerDeltaPLoadCase1,
+                climateWinterDeltaHLoadCase,
+                climateWinterDeltaPLoadCase1,
+                climateWinterDeltaTLoadCase1,
+
+            };
+
+            StandardEN1990 standardEN1990 = new StandardEN1990();
+            StandardEN1990.ImposedLoadCategory category = StandardEN1990.ImposedLoadCategory.CategoryC;
+            StandardEN1990.LimitState limitState = StandardEN1990.LimitState.UltimateStructural;
+            StandardEN1990.ULSStructuralGeotechicalCombinationSets uLS = StandardEN1990.ULSStructuralGeotechicalCombinationSets.SetB;
+
+            // Act
+            List<CombinationEn> outList = CombinationEn.GenerateCombinations("combo", loadCaseList, standardEN1990, limitState, category, uLS, false);
+
+            // Assert
+            Assert.IsTrue(outList.Count() == 22);
+            foreach(CombinationEn combo in outList)
+            {
+                Console.WriteLine(combo.ToString());
+            }
+        }
+
+        [TestMethod]
+        public void ENGeneratorAGC_ULS2()
+        {
+            // Arrange
+            string loadCaseName1 = "Dead Load";
+            LoadCase selfWeightLoadCase = new LoadCase(loadCaseName1, LoadCase.LoadCaseTypes.SelfWeight);
+
+            string loadCaseName3 = "ClimateSummerDeltaH";
+            LoadCase climateSummerDeltaHLoadCase = new LoadCase(loadCaseName3, LoadCase.LoadCaseTypes.ClimateSummerDeltaH);
+            string loadCaseName4 = "ClimateSummerDeltaP";
+            LoadCase climateSummerDeltaPLoadCase1 = new LoadCase(loadCaseName4, LoadCase.LoadCaseTypes.ClimateSummerDeltaP);
+            string loadCaseName5 = "ClimateSummerDeltaT";
+            LoadCase climateSummerDeltaTLoadCase1 = new LoadCase(loadCaseName5, LoadCase.LoadCaseTypes.ClimateSummerDeltaT);
+            string loadCaseName6 = "ClimateWinterDeltaH";
+            LoadCase climateWinterDeltaHLoadCase = new LoadCase(loadCaseName6, LoadCase.LoadCaseTypes.ClimateWinterDeltaH);
+            string loadCaseName7 = "ClimateWinterDeltaP";
+            LoadCase climateWinterDeltaPLoadCase1 = new LoadCase(loadCaseName7, LoadCase.LoadCaseTypes.ClimateWinterDeltaP);
+            string loadCaseName8 = "ClimateWinterDeltaT";
+            LoadCase climateWinterDeltaTLoadCase1 = new LoadCase(loadCaseName8, LoadCase.LoadCaseTypes.ClimateWinterDeltaT);
+
+            string loadCaseName9 = "LiveLoad";
+            LoadCase liveLoadLoadCase1 = new LoadCase(loadCaseName9, LoadCase.LoadCaseTypes.LiveLoad);
+
+            List<LoadCase> loadCaseList = new List<LoadCase>
+            {
+                selfWeightLoadCase,
+                climateSummerDeltaHLoadCase,
+                climateSummerDeltaTLoadCase1,
+                climateSummerDeltaPLoadCase1,
+                climateWinterDeltaHLoadCase,
+                climateWinterDeltaPLoadCase1,
+                climateWinterDeltaTLoadCase1,
+                liveLoadLoadCase1,
+
+            };
+
+            StandardEN1990 standardEN1990 = new StandardEN1990();
+            StandardEN1990.ImposedLoadCategory category = StandardEN1990.ImposedLoadCategory.CategoryC;
+            StandardEN1990.LimitState limitState = StandardEN1990.LimitState.UltimateStructural;
+            StandardEN1990.ULSStructuralGeotechicalCombinationSets uLS = StandardEN1990.ULSStructuralGeotechicalCombinationSets.SetB;
+
+            // Act
+            List<CombinationEn> outList = CombinationEn.GenerateCombinations("combo", loadCaseList, standardEN1990, limitState, category, uLS, false);
+
+            // Assert
+            Assert.IsTrue(outList.Count() == 22);
+            foreach (CombinationEn combo in outList)
+            {
+                Console.WriteLine(combo.ToString());
+            }
+        }
+
+        [TestMethod]
+        public void ENGeneratorAGC_SLS1()
+        {
+            // Arrange
+            string loadCaseName1 = "Dead Load";
+            LoadCase selfWeightLoadCase = new LoadCase(loadCaseName1, LoadCase.LoadCaseTypes.SelfWeight);
+            string loadCaseName2 = "WindPressure";
+            LoadCase WindPressureLoadCase = new LoadCase(loadCaseName2, LoadCase.LoadCaseTypes.WindPressure);
+
+            string loadCaseName3 = "ClimateSummerDeltaH";
+            LoadCase climateSummerDeltaHLoadCase = new LoadCase(loadCaseName3, LoadCase.LoadCaseTypes.ClimateSummerDeltaH);
+            string loadCaseName4 = "ClimateSummerDeltaP";
+            LoadCase climateSummerDeltaPLoadCase1 = new LoadCase(loadCaseName4, LoadCase.LoadCaseTypes.ClimateSummerDeltaP);
+            string loadCaseName5 = "ClimateSummerDeltaT";
+            LoadCase climateSummerDeltaTLoadCase1 = new LoadCase(loadCaseName5, LoadCase.LoadCaseTypes.ClimateSummerDeltaT);
+            string loadCaseName6 = "ClimateWinterDeltaH";
+            LoadCase climateWinterDeltaHLoadCase = new LoadCase(loadCaseName6, LoadCase.LoadCaseTypes.ClimateWinterDeltaH);
+            string loadCaseName7 = "ClimateWinterDeltaP";
+            LoadCase climateWinterDeltaPLoadCase1 = new LoadCase(loadCaseName7, LoadCase.LoadCaseTypes.ClimateWinterDeltaP);
+            string loadCaseName8 = "ClimateWinterDeltaT";
+            LoadCase climateWinterDeltaTLoadCase1 = new LoadCase(loadCaseName8, LoadCase.LoadCaseTypes.ClimateWinterDeltaT);
+
+            List<LoadCase> loadCaseList = new List<LoadCase>
+            {
+                selfWeightLoadCase,
+                WindPressureLoadCase,
+                climateSummerDeltaHLoadCase,
+                climateSummerDeltaTLoadCase1,
+                climateSummerDeltaPLoadCase1,
+                climateWinterDeltaHLoadCase,
+                climateWinterDeltaPLoadCase1,
+                climateWinterDeltaTLoadCase1,
+
+            };
+
+            StandardEN1990 standardEN1990 = new StandardEN1990();
+            StandardEN1990.ImposedLoadCategory category = StandardEN1990.ImposedLoadCategory.CategoryC;
+            StandardEN1990.LimitState limitState = StandardEN1990.LimitState.ServiceabilityCharacteristic;
+
+            // Act
+            List<CombinationEn> outList = CombinationEn.GenerateCombinations("combo", loadCaseList, standardEN1990, limitState, category);
+
+            // Assert
+            Assert.IsTrue(outList.Count() == 10);
+            foreach (CombinationEn combo in outList)
+            {
+                Console.WriteLine(combo.ToString());
+            }
+        }
+
+        [TestMethod]
+        public void ENGeneratorAGC_SLS2()
+        {
+            // Arrange
+            string loadCaseName1 = "Dead Load";
+            LoadCase selfWeightLoadCase = new LoadCase(loadCaseName1, LoadCase.LoadCaseTypes.SelfWeight);
+
+            string loadCaseName3 = "ClimateSummerDeltaH";
+            LoadCase climateSummerDeltaHLoadCase = new LoadCase(loadCaseName3, LoadCase.LoadCaseTypes.ClimateSummerDeltaH);
+            string loadCaseName4 = "ClimateSummerDeltaP";
+            LoadCase climateSummerDeltaPLoadCase1 = new LoadCase(loadCaseName4, LoadCase.LoadCaseTypes.ClimateSummerDeltaP);
+            string loadCaseName5 = "ClimateSummerDeltaT";
+            LoadCase climateSummerDeltaTLoadCase1 = new LoadCase(loadCaseName5, LoadCase.LoadCaseTypes.ClimateSummerDeltaT);
+            string loadCaseName6 = "ClimateWinterDeltaH";
+            LoadCase climateWinterDeltaHLoadCase = new LoadCase(loadCaseName6, LoadCase.LoadCaseTypes.ClimateWinterDeltaH);
+            string loadCaseName7 = "ClimateWinterDeltaP";
+            LoadCase climateWinterDeltaPLoadCase1 = new LoadCase(loadCaseName7, LoadCase.LoadCaseTypes.ClimateWinterDeltaP);
+            string loadCaseName8 = "ClimateWinterDeltaT";
+            LoadCase climateWinterDeltaTLoadCase1 = new LoadCase(loadCaseName8, LoadCase.LoadCaseTypes.ClimateWinterDeltaT);
+
+            string loadCaseName9 = "LiveLoad";
+            LoadCase liveLoadLoadCase1 = new LoadCase(loadCaseName9, LoadCase.LoadCaseTypes.LiveLoad);
+
+            List<LoadCase> loadCaseList = new List<LoadCase>
+            {
+                selfWeightLoadCase,
+                climateSummerDeltaHLoadCase,
+                climateSummerDeltaTLoadCase1,
+                climateSummerDeltaPLoadCase1,
+                climateWinterDeltaHLoadCase,
+                climateWinterDeltaPLoadCase1,
+                climateWinterDeltaTLoadCase1,
+                liveLoadLoadCase1,
+
+            };
+
+            StandardEN1990 standardEN1990 = new StandardEN1990();
+            StandardEN1990.ImposedLoadCategory category = StandardEN1990.ImposedLoadCategory.CategoryC;
+            StandardEN1990.LimitState limitState = StandardEN1990.LimitState.ServiceabilityCharacteristic;
+
+            // Act
+            List<CombinationEn> outList = CombinationEn.GenerateCombinations("combo", loadCaseList, standardEN1990, limitState, category);
+
+            // Assert
+            Assert.IsTrue(outList.Count() == 10);
+            foreach (CombinationEn combo in outList)
+            {
+                Console.WriteLine(combo.ToString());
+            }
+        }
+
+        [TestMethod]
         public void ASCEGeneratorLFRD1()
         {
             // Arrange
@@ -1875,9 +2080,9 @@ namespace ModelObjectTest
             LoadCase WindPressureLoadCase = new LoadCase(loadCaseName2, LoadCase.LoadCaseTypes.WindPressure);
             string loadCaseName3 = "Snow";
             LoadCase snowLoadCase = new LoadCase(loadCaseName3, LoadCase.LoadCaseTypes.Snow);
-            string loadCaseName7 = "LiveLoad2";
+            string loadCaseName7 = "LiveLoad1";
             LoadCase liveLoadLoadCase1 = new LoadCase(loadCaseName7, LoadCase.LoadCaseTypes.LiveLoad);
-            string loadCaseName8 = "LiveLoad3";
+            string loadCaseName8 = "LiveLoad2";
             LoadCase liveLoadLoadCase2 = new LoadCase(loadCaseName8, LoadCase.LoadCaseTypes.LiveLoad);
 
             List<LoadCase> loadCaseList = new List<LoadCase>
@@ -1908,11 +2113,11 @@ namespace ModelObjectTest
             LoadCase WindPressureLoadCase = new LoadCase(loadCaseName2, LoadCase.LoadCaseTypes.WindPressure);
             string loadCaseName3 = "Snow";
             LoadCase snowLoadCase = new LoadCase(loadCaseName3, LoadCase.LoadCaseTypes.Snow);
-            string loadCaseName7 = "LiveLoad2";
+            string loadCaseName7 = "LiveLoad1";
             LoadCase liveLoadLoadCase1 = new LoadCase(loadCaseName7, LoadCase.LoadCaseTypes.LiveLoad);
-            string loadCaseName8 = "LiveLoad3";
+            string loadCaseName8 = "LiveLoad2";
             LoadCase liveLoadLoadCase2 = new LoadCase(loadCaseName8, LoadCase.LoadCaseTypes.LiveLoad);
-            string loadCaseName9 = "selfWeight12";
+            string loadCaseName9 = "selfWeight2";
             LoadCase selfWeightLoadCase2 = new LoadCase(loadCaseName9, LoadCase.LoadCaseTypes.SelfWeight);
             string loadCaseName10 = "Earthquake";
             LoadCase earthquakeLoadCase = new LoadCase(loadCaseName10, LoadCase.LoadCaseTypes.Earthquake);
@@ -1935,6 +2140,84 @@ namespace ModelObjectTest
 
             // Assert
             Assert.IsTrue(outList.Count() == 12);
+        }
+
+        [TestMethod]
+        public void ASCEGeneratorLFRD3()
+        {
+            // Arrange
+            string loadCaseName1 = "selfWeight1";
+            LoadCase selfWeightLoadCase = new LoadCase(loadCaseName1, LoadCase.LoadCaseTypes.SelfWeight);
+            string loadCaseName2 = "selfWeight2";
+            LoadCase selfWeightLoadCase2 = new LoadCase(loadCaseName2, LoadCase.LoadCaseTypes.SelfWeight);
+            string loadCaseName3 = "Snow";
+            LoadCase snowLoadCase = new LoadCase(loadCaseName3, LoadCase.LoadCaseTypes.Snow);
+            string loadCaseName7 = "LiveLoad1";
+            LoadCase liveLoadLoadCase1 = new LoadCase(loadCaseName7, LoadCase.LoadCaseTypes.LiveLoad);
+            string loadCaseName8 = "LiveLoad2";
+            LoadCase liveLoadLoadCase2 = new LoadCase(loadCaseName8, LoadCase.LoadCaseTypes.LiveLoad);
+
+            List<LoadCase> loadCaseList = new List<LoadCase>
+            {
+                selfWeightLoadCase,
+                selfWeightLoadCase2,
+                snowLoadCase,
+                liveLoadLoadCase1,
+                liveLoadLoadCase2,
+            };
+
+            StandardASCE16 standardASCE16 = new StandardASCE16();
+
+            // Act
+            List<CombinationAsce> outList = CombinationAsce.GenerateCombinations("combo", loadCaseList, standardASCE16, StandardASCE16.LimitState.LFRD);
+
+            // Assert
+            Assert.IsTrue(outList.Count() == 8);
+        }
+
+        [TestMethod]
+        public void ASCEGeneratorLFRD4()
+        {
+            // Arrange
+            string loadCaseName1 = "selfWeight1";
+            LoadCase selfWeightLoadCase = new LoadCase(loadCaseName1, LoadCase.LoadCaseTypes.SelfWeight);
+            string loadCaseName2 = "WindPressure1";
+            LoadCase WindPressureLoadCase = new LoadCase(loadCaseName2, LoadCase.LoadCaseTypes.WindPressure);
+            string loadCaseName2_2 = "WindPressure2";
+            LoadCase WindPressureLoadCase2 = new LoadCase(loadCaseName2_2, LoadCase.LoadCaseTypes.WindPressure);
+            string loadCaseName2_3 = "WindSuction1";
+            LoadCase WindSuctionLoadCase = new LoadCase(loadCaseName2_3, LoadCase.LoadCaseTypes.WindSuction);
+            string loadCaseName3 = "Snow1";
+            LoadCase snowLoadCase = new LoadCase(loadCaseName3, LoadCase.LoadCaseTypes.Snow);
+            string loadCaseName7 = "LiveLoad1";
+            LoadCase liveLoadLoadCase1 = new LoadCase(loadCaseName7, LoadCase.LoadCaseTypes.LiveLoad);
+            string loadCaseName8 = "LiveLoad2";
+            LoadCase liveLoadLoadCase2 = new LoadCase(loadCaseName8, LoadCase.LoadCaseTypes.LiveLoad);
+            string loadCaseName9 = "selfWeight2";
+            LoadCase selfWeightLoadCase2 = new LoadCase(loadCaseName9, LoadCase.LoadCaseTypes.SelfWeight);
+            string loadCaseName10 = "Earthquake";
+            LoadCase earthquakeLoadCase = new LoadCase(loadCaseName10, LoadCase.LoadCaseTypes.Earthquake);
+
+            List<LoadCase> loadCaseList = new List<LoadCase>
+            {
+                selfWeightLoadCase,
+                selfWeightLoadCase2,
+                WindPressureLoadCase,
+                WindPressureLoadCase2,
+                WindSuctionLoadCase,
+                snowLoadCase,
+                liveLoadLoadCase1,
+                liveLoadLoadCase2,
+                earthquakeLoadCase,
+            };
+
+            StandardASCE16 standardASCE16 = new StandardASCE16();
+
+            // Act
+            List<CombinationAsce> outList = CombinationAsce.GenerateCombinations("combo", loadCaseList, standardASCE16, StandardASCE16.LimitState.LFRD);
+
+            // Assert
+            Assert.IsTrue(outList.Count() == 13);
         }
 
         [TestMethod]
@@ -2001,6 +2284,84 @@ namespace ModelObjectTest
 
             // Assert
             Assert.IsTrue(outList.Count() == 7);
+        }
+
+        [TestMethod]
+        public void ASCEGeneratorASD3()
+        {
+            // Arrange
+            string loadCaseName1 = "selfWeight1";
+            LoadCase selfWeightLoadCase = new LoadCase(loadCaseName1, LoadCase.LoadCaseTypes.SelfWeight);
+            string loadCaseName2 = "selfWeight2";
+            LoadCase selfWeightLoadCase2 = new LoadCase(loadCaseName2, LoadCase.LoadCaseTypes.SelfWeight);
+            string loadCaseName3 = "Snow";
+            LoadCase snowLoadCase = new LoadCase(loadCaseName3, LoadCase.LoadCaseTypes.Snow);
+            string loadCaseName7 = "LiveLoad1";
+            LoadCase liveLoadLoadCase1 = new LoadCase(loadCaseName7, LoadCase.LoadCaseTypes.LiveLoad);
+            string loadCaseName8 = "LiveLoad2";
+            LoadCase liveLoadLoadCase2 = new LoadCase(loadCaseName8, LoadCase.LoadCaseTypes.LiveLoad);
+
+            List<LoadCase> loadCaseList = new List<LoadCase>
+            {
+                selfWeightLoadCase,
+                selfWeightLoadCase2,
+                snowLoadCase,
+                liveLoadLoadCase1,
+                liveLoadLoadCase2,
+            };
+
+            StandardASCE16 standardASCE16 = new StandardASCE16();
+
+            // Act
+            List<CombinationAsce> outList = CombinationAsce.GenerateCombinations("combo", loadCaseList, standardASCE16, StandardASCE16.LimitState.ASD);
+
+            // Assert
+            Assert.IsTrue(outList.Count() == 7);
+        }
+
+        [TestMethod]
+        public void ASCEGeneratorASD4()
+        {
+            // Arrange
+            string loadCaseName1 = "selfWeight1";
+            LoadCase selfWeightLoadCase = new LoadCase(loadCaseName1, LoadCase.LoadCaseTypes.SelfWeight);
+            string loadCaseName2 = "WindPressure1";
+            LoadCase WindPressureLoadCase = new LoadCase(loadCaseName2, LoadCase.LoadCaseTypes.WindPressure);
+            string loadCaseName2_2 = "WindPressure2";
+            LoadCase WindPressureLoadCase2 = new LoadCase(loadCaseName2_2, LoadCase.LoadCaseTypes.WindPressure);
+            string loadCaseName2_3 = "WindSuction1";
+            LoadCase WindSuctionLoadCase = new LoadCase(loadCaseName2_3, LoadCase.LoadCaseTypes.WindSuction);
+            string loadCaseName3 = "Snow1";
+            LoadCase snowLoadCase = new LoadCase(loadCaseName3, LoadCase.LoadCaseTypes.Snow);
+            string loadCaseName7 = "LiveLoad1";
+            LoadCase liveLoadLoadCase1 = new LoadCase(loadCaseName7, LoadCase.LoadCaseTypes.LiveLoad);
+            string loadCaseName8 = "LiveLoad2";
+            LoadCase liveLoadLoadCase2 = new LoadCase(loadCaseName8, LoadCase.LoadCaseTypes.LiveLoad);
+            string loadCaseName9 = "selfWeight2";
+            LoadCase selfWeightLoadCase2 = new LoadCase(loadCaseName9, LoadCase.LoadCaseTypes.SelfWeight);
+            string loadCaseName10 = "Earthquake";
+            LoadCase earthquakeLoadCase = new LoadCase(loadCaseName10, LoadCase.LoadCaseTypes.Earthquake);
+
+            List<LoadCase> loadCaseList = new List<LoadCase>
+            {
+                selfWeightLoadCase,
+                selfWeightLoadCase2,
+                WindPressureLoadCase,
+                WindPressureLoadCase2,
+                WindSuctionLoadCase,
+                snowLoadCase,
+                liveLoadLoadCase1,
+                liveLoadLoadCase2,
+                earthquakeLoadCase,
+            };
+
+            StandardASCE16 standardASCE16 = new StandardASCE16();
+
+            // Act
+            List<CombinationAsce> outList = CombinationAsce.GenerateCombinations("combo", loadCaseList, standardASCE16, StandardASCE16.LimitState.ASD);
+
+            // Assert
+            Assert.IsTrue(outList.Count() == 15);
         }
     }
 }
