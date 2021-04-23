@@ -12,31 +12,40 @@ namespace GPC.Model.Combinations
 
         private StandardEN1990 _standardEN1990;
 
-        private StandardEN1990.LimitState _limitState;
+        private StandardEN1990.LimitState? _limitState;
 
-        private StandardEN1990.ULSStructuralGeotechicalCombinationSets _uLSCombinationSets;
+        private StandardEN1990.ULSStructuralGeotechicalCombinationSets? _uLSCombinationSets;
 
-        private StandardEN1990.ImposedLoadCategory _imposedLoadCategory;
+        private StandardEN1990.ImposedLoadCategory? _imposedLoadCategory;
 
 
 
-        public StandardEN1990.LimitState GetLimitState => _limitState;
-        public StandardEN1990.ULSStructuralGeotechicalCombinationSets GetCombinationSets => _uLSCombinationSets;
-        public StandardEN1990.ImposedLoadCategory GetImposedLoadCategory => _imposedLoadCategory;
+        public StandardEN1990.LimitState? GetLimitState => _limitState;
+        public StandardEN1990.ULSStructuralGeotechicalCombinationSets? GetCombinationSets => _uLSCombinationSets;
+        public StandardEN1990.ImposedLoadCategory? GetImposedLoadCategory => _imposedLoadCategory;
 
         #endregion
 
 
         #region PUBLIC CONSTRUCTOR
 
+        /// <summary>n
+        /// </summary>
+        /// <param name="name">The identifying name of combination</param>
+        public CombinationEn(string name)
+            : base(name)
+        {
+
+        }
+
+
         /// <summary>
         /// Create a combination with the normative StandardEN1990 set ad default. <paramref name="limitState"/> identify the limit state of the combination
         /// </summary>
         /// <param name="name">The identifying name of combination</param>
         /// <param name="limitState">The limit state of the combination</param>
-        ///<inheritdoc cref="Combination"/>
         public CombinationEn(string name, StandardEN1990.LimitState limitState)
-            : this(name, limitState, StandardEN1990.ULSStructuralGeotechicalCombinationSets.SetB, StandardEN1990.ImposedLoadCategory.CategoryA, null)
+            : base(name)
         {
             this._standardEN1990 = new StandardEN1990();
         }
@@ -48,27 +57,23 @@ namespace GPC.Model.Combinations
         /// <param name="name">The identifying name of combination</param>
         /// <param name="limitState">The limit state of the combination</param>
         /// <param name="standard">The annex of EN1990</param>
-        ///<inheritdoc cref="Combination"/>
         public CombinationEn(string name, StandardEN1990.LimitState limitState, StandardEN1990 standard)
-            : this(name, limitState, StandardEN1990.ULSStructuralGeotechicalCombinationSets.SetB, StandardEN1990.ImposedLoadCategory.CategoryA, standard)
+            : base(name)
         {
             this._limitState = limitState;
             this._standardEN1990 = standard;
         }
 
-        /// <summary>
-        /// Create a combination with the normative StandardEN1990.
-        /// </summary>
+
+
         /// <param name="name">The identifying name of combination</param>
         /// <param name="limitState">The limit state of the combination</param>
         /// <param name="uLSCombinationSets">The sets for structural and geotechnical ultimate limit states</param>
         /// <param name="category">The category of buildings for imposed loads</param>
-        ///<inheritdoc cref="Combination"/>
-        ///<inheritdoc cref="StandardEN1990"/>
         public CombinationEn(string name, StandardEN1990.LimitState limitState, StandardEN1990.ULSStructuralGeotechicalCombinationSets uLSCombinationSets, StandardEN1990.ImposedLoadCategory category)
             : this(name, limitState, uLSCombinationSets, category, null)
         {
-            this._standardEN1990 = new StandardEN1990();
+
         }
 
         /// <summary>
@@ -79,16 +84,15 @@ namespace GPC.Model.Combinations
         /// <param name="uLSCombinationSets">The sets for structural and geotechical ultimate limit states</param>
         /// <param name="category">The category of buildings for imposed loads</param>
         /// <param name="standard">The annex of EN1990</param>
-        ///<inheritdoc cref="Combination"/>
-        ///<inheritdoc cref="StandardEN1990"/>
         public CombinationEn(string name, StandardEN1990.LimitState limitState, StandardEN1990.ULSStructuralGeotechicalCombinationSets uLSCombinationSets, StandardEN1990.ImposedLoadCategory category, StandardEN1990 standard)
             : base(name)
         {
             this._standardEN1990 = standard;
             this._limitState = limitState;
-            this._uLSCombinationSets = uLSCombinationSets;
             this._imposedLoadCategory = category;
+            this._uLSCombinationSets = uLSCombinationSets;
         }
+
 
         public CombinationEn(SerializationInfo info, StreamingContext context)
             : base(info, context)
@@ -99,7 +103,10 @@ namespace GPC.Model.Combinations
         public CombinationEn(CombinationEn combinationEn)
             : base(combinationEn)
         {
+            this._standardEN1990 = combinationEn._standardEN1990;
             this._limitState = combinationEn._limitState;
+            this._imposedLoadCategory = combinationEn._imposedLoadCategory;
+            this._uLSCombinationSets = combinationEn._uLSCombinationSets;
         }
 
         #endregion
@@ -114,10 +121,10 @@ namespace GPC.Model.Combinations
         }
 
         public override bool IsUltimate() => (_limitState == StandardEN1990.LimitState.UltimateEquilibrium ||
-                                             _limitState == StandardEN1990.LimitState.UltimateFatigue ||
-                                             _limitState == StandardEN1990.LimitState.UltimateGeotechnical ||
-                                             _limitState == StandardEN1990.LimitState.UltimateStructural) ?
-                                             true : false;
+                                              _limitState == StandardEN1990.LimitState.UltimateFatigue ||
+                                              _limitState == StandardEN1990.LimitState.UltimateGeotechnical ||
+                                              _limitState == StandardEN1990.LimitState.UltimateStructural) ?
+                                              true : false;
 
         public override string ToString()
         {
@@ -142,6 +149,13 @@ namespace GPC.Model.Combinations
             return cloned;
         }
 
+        public override Combination Duplicate(string nameOverride)
+        {
+            var duplicated = (CombinationEn)Clone();
+            duplicated._name = nameOverride;
+
+            return duplicated;
+        }
 
 
         public override bool Equals(object obj)

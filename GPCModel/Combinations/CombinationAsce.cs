@@ -12,17 +12,25 @@ namespace GPC.Model.Combinations
 
         private StandardASCE16 _standardASCE16;
 
-        private StandardASCE16.LimitState _combinationType;
-
-        public StandardASCE16.LimitState GetCombinationType => _combinationType;
+        private StandardASCE16.LimitState? _combinationType;
 
         #endregion
+
+        public StandardASCE16.LimitState? GetCombinationType => _combinationType;
 
 
         #region PUBLIC CONSTRUCTOR
 
+
+        /// <param name="name">The identifying name of combination</param>
+        public CombinationAsce(string name)
+            : base(name)
+        {
+
+        }
+
         /// <summary>
-        /// Create a combination with the normative StandardASCE7-16 set ad default. <paramref name="combinationType"/> identify the limit state of the combination 
+        /// Create a combination. <paramref name="combinationType"/> identify the limit state of the combination 
         /// </summary>
         /// <param name="name">The identifying name of combination</param>
         /// <param name="combinationType">The limit state of the combination</param>
@@ -32,15 +40,6 @@ namespace GPC.Model.Combinations
             this._combinationType = combinationType;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="combination"></param>
-        public CombinationAsce(CombinationAsce combination)
-            : base(combination)
-        {
-            this._combinationType = combination._combinationType;
-        }
 
         /// <summary>
         /// Create a combination with the normative <paramref name="standard"/>.
@@ -53,6 +52,15 @@ namespace GPC.Model.Combinations
         {
             this._standardASCE16 = standard;
             this._combinationType = combination;
+        }
+
+
+        /// <param name="combination"></param>
+        public CombinationAsce(CombinationAsce combination)
+            : base(combination)
+        {
+            this._combinationType = combination._combinationType;
+            this._standardASCE16 = combination._standardASCE16;
         }
 
         public CombinationAsce(SerializationInfo info, StreamingContext context)
@@ -95,6 +103,15 @@ namespace GPC.Model.Combinations
 
             return cloned;
         }
+
+        public override Combination Duplicate(string nameOverride)
+        {
+            var duplicated = (CombinationAsce)Clone();
+            duplicated._name = nameOverride;
+
+            return duplicated;
+        }
+
 
         public override bool Equals(object obj)
         {

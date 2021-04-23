@@ -58,6 +58,12 @@ namespace GPC.Model.Combinations
         public abstract object Clone();
 
         /// <summary>
+        /// Duplicate the object, overriding the name with a new one
+        /// </summary>
+        /// <param name="nameOverride">Name overriding</param>
+        public abstract Combination Duplicate(string nameOverride);
+
+        /// <summary>
         /// Create a new empty <see cref="Combination"/> object. I.e. with the same properties except the <see cref="Combination.LoadCaseCoefficient"/> List that will be empty
         /// </summary>
         public abstract object CloneEmpty();
@@ -306,6 +312,7 @@ namespace GPC.Model.Combinations
 
         #endregion PUBLIC METHODS
 
+
         #region Equals - HashCode - Operators - Serialization - ToString
 
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
@@ -328,11 +335,6 @@ namespace GPC.Model.Combinations
             }
             return sb.ToString();
         }
-
-        #endregion
-
-
-        #region Equals - HashCode - Operators
 
         public override bool Equals(object obj)
         {
