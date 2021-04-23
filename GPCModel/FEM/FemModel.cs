@@ -75,7 +75,7 @@ namespace GPC.Model.FEM
         /// Collection of <see cref="FreedomCase"/> with unique name 
         /// </summary>
         protected UniqueNameCollection<FreedomCase> _freedomCases;
-
+        
         // COMBINATION
 
         /// <summary>
@@ -161,6 +161,8 @@ namespace GPC.Model.FEM
         #region Add Get Attributes
 
 
+        #region Properties
+
         /// <returns><see langword="true"/> if the property has been added. 
         /// <para><see langword="false"/> if a property with the same name is already present</para> 
         /// </returns>
@@ -220,34 +222,40 @@ namespace GPC.Model.FEM
             return _brickProperties.GetNames();
         }
 
+        #endregion
+
+        #region LoadCase / FredomCase
 
         /// <inheritdoc cref="UniqueNameCollection{T}.Add(T)"/>
-        protected virtual bool AddLoadCase(LoadCase loadCase)
+        public bool AddLoadCase(LoadCase loadCase)
         {
             return _loadCases.Add(loadCase);
         }
 
 
         /// <inheritdoc cref="UniqueNameCollection{T}.GetElementByName(string)"/>
-        public virtual LoadCase GetLoadCase(string name)
+        public LoadCase GetLoadCaseByName(string loadCaseName)
         {
-            return _loadCases.GetElementByName(name);
+            return _loadCases.GetElementByName(loadCaseName);
         }
 
 
         /// <inheritdoc cref="UniqueNameCollection{T}.Add(T)"/>
-        protected virtual bool AddFredomCase(FreedomCase freedomCase)
+        public bool AddFreedomCase(FreedomCase fredomCases)
         {
-            return _freedomCases.Add(freedomCase);
+            return _freedomCases.Add(fredomCases);
         }
 
 
         /// <inheritdoc cref="UniqueNameCollection{T}.GetElementByName(string)"/>
-        public virtual FreedomCase GetFredomCase(string name)
+        public FreedomCase GetFreedomCaseByName(string freedomCaseName)
         {
-            return _freedomCases.GetElementByName(name);
+            return _freedomCases.GetElementByName(freedomCaseName);
         }
 
+        #endregion
+
+        #region Combinations
 
         public virtual bool AddCombination(Combination combination)
         {
@@ -260,6 +268,9 @@ namespace GPC.Model.FEM
             return _combinations.AddRange(combinations);
         }
 
+        #endregion
+
+        #region Stages
 
         /// <summary>
         /// Add a stage to the stage list. The stage will empty (without elements and nodes)
@@ -316,12 +327,29 @@ namespace GPC.Model.FEM
             return _stages.Where(i => i.Id == stageId).FirstOrDefault().GetCombinations();
         }
 
+        #endregion
 
-        public void SetModelAcceleration(string loadcase, double a1, double a2, double a3)
+
+        /// <summary>Create the a ModelAccelerationAttribute using the loadcase with name equal to <paramref name="loadCaseName"/></summary>
+        /// <remarks>Before calling this method the add the loadcase by means of <see cref="FemModel.AddLoadCase(LoadCase)"/></remarks>
+        /// <exception cref="ArgumentException"></exception>
+        public ModelAccelerationAttribute AddModelAcceleration(string loadCaseName)
         {
-            var lc = _loadCases.GetElementByName(loadcase);
+            ModelAccelerationAttribute modelAttribute;
 
-            _modelAttributes.Add(new ModelAccelerationAttribute(lc, a1, a2, a3));
+            if (LoadCaseExist(loadCaseName))
+            {
+                modelAttribute = new ModelAccelerationAttribute(loadCaseName);
+            }
+            else
+            {
+                throw new ArgumentException();
+            }
+
+
+            _modelAttributes.Add(modelAttribute);
+
+            return modelAttribute;
         }
 
 
@@ -371,6 +399,19 @@ namespace GPC.Model.FEM
             finiteElement.SetProperty(property);
 
             AddNodes(finiteElement.Nodes);
+
+            foreach(var attribute in finiteElement.AttributesLoadCase)
+            {
+                if (!LoadCaseExist(attribute.LoadCaseName))
+                    throw new InvalidOperationException($"Loadcase {attribute.LoadCaseName} does not exist in the femModel");
+            }
+
+            foreach (var attribute in finiteElement.AttributesFreedomCase)
+            {
+                if (!FreedomCaseExist(attribute.FreedomCaseName))
+                    throw new InvalidOperationException($"Loadcase {attribute.FreedomCaseName} does not exist in the femModel");
+            }
+
 
             _elements.Add(finiteElement);
 
@@ -440,6 +481,18 @@ namespace GPC.Model.FEM
                 for (int i = 0; i < nodes.Length; i++)
                 {
                     indexes[i] = AddNode(nodes[i]);
+
+                    foreach (var attribute in nodes[i].AttributesLoadCase)
+                    {
+                        if (!LoadCaseExist((attribute as LoadCaseAttribute).LoadCaseName))
+                            throw new InvalidOperationException($"Loadcase {(attribute as LoadCaseAttribute).LoadCaseName} does not exist in the femModel");
+                    }
+
+                    foreach (var attribute in nodes[i].AttributesFreedomCase)
+                    {
+                        if (!FreedomCaseExist((attribute as FreedomCaseAttribute).FreedomCaseName))
+                            throw new InvalidOperationException($"Loadcase {(attribute as FreedomCaseAttribute).FreedomCaseName} does not exist in the femModel");
+                    }
                 }
 
                 return indexes;
@@ -692,6 +745,7 @@ namespace GPC.Model.FEM
         /// <param name="plateLoadMeshEntityMap">Map between <see cref="IAreaLoad"/> and <see cref="MeshFace"/>.Id</param>
         /// <param name="restrainMeshEntityMap">Map between IGeometryRestrain and <see cref="MeshVertex"/>.Id</param>
         /// <exception cref="KeyNotFoundException">If a <see cref="MeshVertex"/>.Id of <paramref name="restrainMeshEntityMap"/> is not found in the <paramref name="mesh"/> vertices ids</exception>
+        /// <remarks>The instance of <see cref="LoadCase"/> and <see cref="FreedomCase"/> will be replaced with the one in the <see cref="FemModel._loadCases"/> and <see cref="FemModel._freedomCases"/>  </remarks>
         public virtual int[] AddMesh(Mesh mesh, string platePropertyName, string brickPropertyName, 
                                     Dictionary<IPointLoad, int[]> vertexLoadMeshEntityMap, 
                                     Dictionary<ILineLoad, int[]> vertexLineLoadMeshEntityMap,
@@ -855,15 +909,25 @@ namespace GPC.Model.FEM
                     Dictionary<LinearSolver.DOF, double> stiffneses = geometryRestrain.GetStiffnesses();
                     Dictionary<LinearSolver.DOF, double> displacements = geometryRestrain.GetImposedDisplacement();
 
+
                     FreedomCase freedomCase;
-                    if (AddFredomCase(geometryRestrain.FreedomCase))
-                        freedomCase = geometryRestrain.FreedomCase;
-                    else 
-                        freedomCase = GetFredomCase(geometryRestrain.FreedomCase.Name); // se è già presente, mi prendo l'istanza di quello già presente
+                    if (LoadCaseExist(geometryRestrain.FreedomCase.Name))
+                    {
+                        freedomCase = GetFreedomCaseByName(geometryRestrain.FreedomCase.Name);
+                        if (!freedomCase.Equals(geometryRestrain.FreedomCase))
+                            throw new ArgumentException($"FreedomCase {geometryRestrain.FreedomCase.Name} is not equal to the one inside the FemModel");
+                    }
+                    else
+                    {
+                        if (AddFreedomCase(geometryRestrain.FreedomCase))
+                            freedomCase = geometryRestrain.FreedomCase;
+                        else
+                            throw new InvalidOperationException();
+                    }
 
 
-                    NodeRestrainAttribute nra = new NodeRestrainAttribute(freedomCase, geometryRestrain.CoordinateSystem);
-                    NodeStiffnessAttribute nsa = new NodeStiffnessAttribute(freedomCase, geometryRestrain.CoordinateSystem);
+                    NodeRestrainAttribute nra = new NodeRestrainAttribute(freedomCase.Name, geometryRestrain.CoordinateSystem);
+                    NodeStiffnessAttribute nsa = new NodeStiffnessAttribute(freedomCase.Name, geometryRestrain.CoordinateSystem);
 
                     // TODO:  gestire il fatto che uno spostamento imposto può essere applicato in un grado di libertà vincolato
                     foreach (var restrain in restrains)
@@ -910,10 +974,20 @@ namespace GPC.Model.FEM
                     var lc = (load as Load).LoadCase;
 
                     LoadCase loadCase;
-                    if (AddLoadCase(lc))
-                        loadCase = lc;
+                    if (LoadCaseExist(lc.Name))
+                    {
+                        loadCase = GetLoadCaseByName(lc.Name);
+                        if (!loadCase.Equals(lc))
+                            throw new ArgumentException($"LoadCase {lc.Name} is not equal to the one inside the FemModel");
+                    }
                     else
-                        loadCase = GetLoadCase(lc.Name); // se è già presente, mi prendo l'istanza di quello già presente
+                    {
+                        if (AddLoadCase(lc))
+                            loadCase = lc;
+                        else
+                            throw new InvalidOperationException();
+                    }
+
 
 
                     foreach (var index in indexes)
@@ -924,7 +998,7 @@ namespace GPC.Model.FEM
 
                         if (load is PointLoad pl)
                         {
-                            NodeForceAttribute nfa = new NodeForceAttribute(loadCase, pl.CoordinateSystem, pl.F1, pl.F2, pl.F3, pl.M1, pl.M2, pl.M3);
+                            NodeForceAttribute nfa = new NodeForceAttribute(loadCase.Name, pl.CoordinateSystem, pl.F1, pl.F2, pl.F3, pl.M1, pl.M2, pl.M3);
                             node.AddAttribute(nfa);
                         }
                         else
@@ -945,10 +1019,20 @@ namespace GPC.Model.FEM
                     var lc = (load as Load).LoadCase;
 
                     LoadCase loadCase;
-                    if (AddLoadCase(lc))
-                        loadCase = lc;
+                    if (LoadCaseExist(lc.Name))
+                    {
+                        loadCase = GetLoadCaseByName(lc.Name);
+                        if (!loadCase.Equals(lc))
+                            throw new ArgumentException($"LoadCase {lc.Name} is not equal to the one inside the FemModel");
+                    }
                     else
-                        loadCase = GetLoadCase(lc.Name); // se è già presente, mi prendo l'istanza di quello già presente
+                    {
+                        if (AddLoadCase(lc))
+                            loadCase = lc;
+                        else
+                            throw new InvalidOperationException();
+                    }
+
 
                     foreach (var index in indexes)
                     {
@@ -963,7 +1047,7 @@ namespace GPC.Model.FEM
                             // carico è F/L o FL/L
                             // carico puntuale è F/L*L/nnodi
                             var factor = lineLenght / indexes.Count();
-                            NodeForceAttribute nfa = new NodeForceAttribute(ll.LoadCase, ll.CoordinateSystem, 
+                            NodeForceAttribute nfa = new NodeForceAttribute(ll.LoadCase.Name, ll.CoordinateSystem, 
                                                                             ll.F1 * factor, ll.F2 * factor, ll.F3 * factor, ll.M1 * factor, ll.M2 * factor, ll.M3 * factor);
                             node.AddAttribute(nfa);
 
@@ -985,10 +1069,19 @@ namespace GPC.Model.FEM
                     var lc = (load as Load).LoadCase;
 
                     LoadCase loadCase;
-                    if (AddLoadCase(lc))
-                        loadCase = lc;
+                    if (LoadCaseExist(lc.Name))
+                    {
+                        loadCase = GetLoadCaseByName(lc.Name);
+                        if (!loadCase.Equals(lc))
+                            throw new ArgumentException($"LoadCase {lc.Name} is not equal to the one inside the FemModel");
+                    }
                     else
-                        loadCase = GetLoadCase(lc.Name); // se è già presente, mi prendo l'istanza di quello già presente
+                    {
+                        if (AddLoadCase(lc))
+                            loadCase = lc;
+                        else
+                            throw new InvalidOperationException();
+                    }
 
                     foreach (var index in indexes)
                     {
@@ -1002,12 +1095,12 @@ namespace GPC.Model.FEM
 
                         if (load is NormalAreaLoad pl)
                         {
-                            PlateNormalPressureAttribute pna = new PlateNormalPressureAttribute(pl.LoadCase, pl.Pressure);
+                            PlateNormalPressureAttribute pna = new PlateNormalPressureAttribute(pl.LoadCase.Name, pl.Pressure);
                             plate.AddLoadCaseAttribute(pna);
                         }
                         else if (load is AreaLoad gal)
                         {
-                            PlatePressureAttribute ppa = new PlatePressureAttribute(gal.LoadCase, gal.CoordinateSystem, gal.P1, gal.P2, gal.P3);
+                            PlatePressureAttribute ppa = new PlatePressureAttribute(gal.LoadCase.Name, gal.CoordinateSystem, gal.P1, gal.P2, gal.P3);
                             plate.AddLoadCaseAttribute(ppa);
                         }
                         else
@@ -1071,6 +1164,21 @@ namespace GPC.Model.FEM
         {
             _elements.Remove(id);
         }
+
+        #endregion
+
+        #region Checks
+
+        public bool LoadCaseExist(string loadCaseName)
+        {
+            return _loadCases.Contains(loadCaseName);
+        }
+
+        public bool FreedomCaseExist(string freedomCaseName)
+        {
+            return _freedomCases.Contains(freedomCaseName);
+        }
+
 
         #endregion
 

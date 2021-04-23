@@ -33,13 +33,19 @@ namespace GPC.Model.FEM.Attributes
         public CoordinateSystem CoordinateSystem => _coordinateSystem;
 
 
-        /// <param name="loadCase"></param>
+        internal ModelAccelerationAttribute(string loadCaseName)
+            : this(loadCaseName, null, 0, 0, 0)
+        {
+
+        }
+
+        /// <param name="loadCaseName"></param>
         /// <param name="coordinateSystem"></param>
         /// <param name="a1">Acceleration along the axis: <see cref="CoordinateSystem.V1"/> [L/T^2]</param>
         /// <param name="a2">Acceleration along the axis: <see cref="CoordinateSystem.V2"/> [L/T^2]</param>
         /// <param name="a3">Acceleration along the axis: <see cref="CoordinateSystem.V3"/> [L/T^2]</param>
-        public ModelAccelerationAttribute(LoadCase loadCase, CoordinateSystem coordinateSystem, double a1, double a2, double a3) 
-            : base(loadCase)
+        public ModelAccelerationAttribute(string loadCaseName, CoordinateSystem coordinateSystem, double a1, double a2, double a3) 
+            : base(loadCaseName)
         {
             _coordinateSystem = coordinateSystem ?? throw new ArgumentNullException();
 
@@ -49,18 +55,18 @@ namespace GPC.Model.FEM.Attributes
         }
 
 
-        /// <param name="loadCase"></param>
+        /// <param name="loadCaseName"></param>
         /// <param name="a1">Acceleration along the axis: <see cref="CoordinateSystem.V1"/> [L/T^2]</param>
         /// <param name="a2">Acceleration along the axis: <see cref="CoordinateSystem.V2"/> [L/T^2]</param>
         /// <param name="a3">Acceleration along the axis: <see cref="CoordinateSystem.V3"/> [L/T^2]</param>
         /// <remarks>This constructor set the <see cref="ModelAccelerationAttribute.CoordinateSystem"/> to <see cref="CoordinateSystem.Global"/> </remarks>
-        public ModelAccelerationAttribute(LoadCase loadCase, double a1, double a2, double a3) : this(loadCase, CoordinateSystem.Global, a1, a2, a3) { }
+        public ModelAccelerationAttribute(string loadCaseName, double a1, double a2, double a3) : this(loadCaseName, CoordinateSystem.Global, a1, a2, a3) { }
 
 
         public ModelAccelerationAttribute(ModelAccelerationAttribute loadCaseAttribute) 
-            : this(loadCaseAttribute.LoadCase, loadCaseAttribute._coordinateSystem, loadCaseAttribute._a1, loadCaseAttribute._a2, loadCaseAttribute._a3)
+            : this(loadCaseAttribute.LoadCaseName, loadCaseAttribute._coordinateSystem, loadCaseAttribute._a1, loadCaseAttribute._a2, loadCaseAttribute._a3)
         {
-            // costruttore di copia
+            
         }
 
         public override object Clone()

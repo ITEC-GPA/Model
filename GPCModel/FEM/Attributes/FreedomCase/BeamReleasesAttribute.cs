@@ -20,8 +20,8 @@ namespace GPC.Model.FEM.Attributes
         public int EndBeam => _indexEndBeam;
         public Beam.LocalDOF[] LocalDOFReleased => _localDOFs.ToArray();
 
-        public BeamReleasesAttribute(int indexEndBeam, HashSet<Beam.LocalDOF> releases, FreedomCase freedomCase, string name) 
-            : base(freedomCase, name)
+        public BeamReleasesAttribute(int indexEndBeam, HashSet<LocalDOF> releases, string freedomCaseName, string name) 
+            : base(freedomCaseName, name)
         {
             if (indexEndBeam != 1 && indexEndBeam != 2)
             {
@@ -32,6 +32,7 @@ namespace GPC.Model.FEM.Attributes
                 _localDOFs = releases;
             }
         }
+
         public override object Clone()
         {
             throw new NotImplementedException();

@@ -31,32 +31,32 @@ namespace GPC.Model.FEM.Attributes
         #endregion
 
 
-        public BeamDistribuitedLoadAttribute(LoadCase loadCase, double q1, double q2, double q3, CoordinateSystem coordinateSystem = null) 
-            : this(loadCase, q1, q2, q3, string.Empty, Guid.NewGuid(), coordinateSystem)
+        public BeamDistribuitedLoadAttribute(string loadCaseName, double q1, double q2, double q3, CoordinateSystem coordinateSystem = null) 
+            : this(loadCaseName, q1, q2, q3, string.Empty, Guid.NewGuid(), coordinateSystem)
         {
 
         }
 
-        public BeamDistribuitedLoadAttribute(LoadCase loadCase, double q1, double q2, double q3, string name, CoordinateSystem coordinateSystem = null)
-            : this(loadCase, q1, q2, q3, name, Guid.NewGuid(), coordinateSystem)
+        public BeamDistribuitedLoadAttribute(string loadCaseName, double q1, double q2, double q3, string name, CoordinateSystem coordinateSystem = null)
+            : this(loadCaseName, q1, q2, q3, name, Guid.NewGuid(), coordinateSystem)
         {
 
         }
 
-        public BeamDistribuitedLoadAttribute(LoadCase loadCase, Vector3d q, CoordinateSystem coordinateSystem = null)
-            : this(loadCase, q.X, q.Y, q.Z, string.Empty, Guid.NewGuid(), coordinateSystem)
+        public BeamDistribuitedLoadAttribute(string loadCaseName, Vector3d q, CoordinateSystem coordinateSystem = null)
+            : this(loadCaseName, q.X, q.Y, q.Z, string.Empty, Guid.NewGuid(), coordinateSystem)
         {
 
         }
 
-        public BeamDistribuitedLoadAttribute(LoadCase loadCase, Vector3d q, string name, CoordinateSystem coordinateSystem = null)
-            : this(loadCase, q.X, q.Y, q.Z, name, Guid.NewGuid(), coordinateSystem)
+        public BeamDistribuitedLoadAttribute(string loadCaseName, Vector3d q, string name, CoordinateSystem coordinateSystem = null)
+            : this(loadCaseName, q.X, q.Y, q.Z, name, Guid.NewGuid(), coordinateSystem)
         {
 
         }
 
-        public BeamDistribuitedLoadAttribute(LoadCase loadCase, double q1, double q2, double q3, string name, Guid guid, CoordinateSystem sys = null)
-            : base(loadCase, name, guid)
+        public BeamDistribuitedLoadAttribute(string loadCaseName, double q1, double q2, double q3, string name, Guid guid, CoordinateSystem sys = null)
+            : base(loadCaseName, name, guid)
         {
             _q1 = q1;
             _q2 = q2;
