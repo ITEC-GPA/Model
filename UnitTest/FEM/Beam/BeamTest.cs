@@ -136,7 +136,7 @@ namespace FemTest.Solver {
             NodeForceAttribute f = new NodeForceAttribute("lc", sys, 0.0, 0.0, 0.0, -1000.0, 0.0, 0.0);
 
             double MX = -1000;
-            NodeForceAttribute m = new NodeForceAttribute(lc, sys, 0.0, 0.0, 0.0, MX, 0.0, 0.0);
+            NodeForceAttribute m = new NodeForceAttribute("lc", sys, 0.0, 0.0, 0.0, MX, 0.0, 0.0);
 
             nds[1].AddAttribute(m);
 
@@ -180,12 +180,13 @@ namespace FemTest.Solver {
 
             LoadCase lc = new LoadCase("lc1");
             CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
-            NodeForceAttribute f = new NodeForceAttribute("lc", sys, 0.0, 10.0, 0.0, 0.0, 0.0, 0.0);
+            double FY = 10.0;
+            NodeForceAttribute f = new NodeForceAttribute("lc", sys, 0.0, FY, 0.0, 0.0, 0.0, 0.0);
 
             nds[1].AddAttribute(f);
 
             FreedomCase fc = new FreedomCase("fc");
-            NodeRestrainAttribute fix = new NodeRestrainAttribute(fc, sys);
+            NodeRestrainAttribute fix = new NodeRestrainAttribute("fc", sys);
             fix.AddExternalRestrain(DOF.DX);
             fix.AddExternalRestrain(DOF.DY);
             fix.AddExternalRestrain(DOF.DZ);
@@ -216,7 +217,9 @@ namespace FemTest.Solver {
 
             LoadCase lc = new LoadCase("lc1");
             CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
-            NodeForceAttribute f = new NodeForceAttribute("lc", sys, 10.0, 10.0, 0.0, 0.0, 0.0, 0.0);
+            double FX = 10;
+            double FY = 10;
+            NodeForceAttribute f = new NodeForceAttribute("lc", sys, FX, FY, 0.0, 0.0, 0.0, 0.0);
 
             nds[1].AddAttribute(f);
 
@@ -462,9 +465,9 @@ namespace FemTest.Solver {
                 Beam.LocalDOF.R2,
                 Beam.LocalDOF.R3
                 };
-            beams[0].AddRelease(1, hinge, "fc", "rel");
-            beams[0].AddRelease(2, hinge, "fc", "rel");
-            beams[1].AddRelease(1, hinge, "fc", "rel");
+            beams[0].AddEndRelease(1, hinge, "fc", "rel");
+            beams[0].AddEndRelease(2, hinge, "fc", "rel");
+            beams[1].AddEndRelease(1, hinge, "fc", "rel");
 
             LinearSolver fem = new LinearSolver(beams.ToArray());
 
@@ -501,7 +504,7 @@ namespace FemTest.Solver {
             beams[0].AddLoadCaseAttribute(q);
 
             FreedomCase fc = new FreedomCase("fc");
-            NodeRestrainAttribute fix = new NodeRestrainAttribute(fc, sys);
+            NodeRestrainAttribute fix = new NodeRestrainAttribute("fc", sys);
             fix.AddExternalRestrain(DOF.DX);
             fix.AddExternalRestrain(DOF.DY);
             fix.AddExternalRestrain(DOF.DZ);
@@ -624,11 +627,11 @@ namespace FemTest.Solver {
             double qx = 0; //random.Next(-1000, 1000);
             double qy = 1; //random.Next(-1000, 1000);
             double qz = 1;// random.Next(-1000, 1000);
-            BeamDistribuitedLoadAttribute q = new BeamDistribuitedLoadAttribute(lc, qx, qy, qz);
+            BeamDistribuitedLoadAttribute q = new BeamDistribuitedLoadAttribute("lc", qx, qy, qz);
             beams[0].AddLoadCaseAttribute(q);
 
             FreedomCase fc = new FreedomCase("fc");
-            NodeRestrainAttribute fix = new NodeRestrainAttribute(fc, sys);
+            NodeRestrainAttribute fix = new NodeRestrainAttribute("fc", sys);
             fix.AddExternalRestrain(LinearSolver.DOF.DX);
             fix.AddExternalRestrain(LinearSolver.DOF.DY);
             fix.AddExternalRestrain(LinearSolver.DOF.DZ);
@@ -672,11 +675,11 @@ namespace FemTest.Solver {
             double qx = 0; //random.Next(-1000, 1000);
             double qy = 1; //random.Next(-1000, 1000);
             double qz = 1;// random.Next(-1000, 1000);
-            BeamDistribuitedLoadAttribute q = new BeamDistribuitedLoadAttribute(lc, qx, qy, qz);
+            BeamDistribuitedLoadAttribute q = new BeamDistribuitedLoadAttribute("lc", qx, qy, qz);
             beams[0].AddLoadCaseAttribute(q);
 
             FreedomCase fc = new FreedomCase("fc");
-            NodeRestrainAttribute hinge = new NodeRestrainAttribute(fc, sys);
+            NodeRestrainAttribute hinge = new NodeRestrainAttribute("fc", sys);
             hinge.AddExternalRestrain(LinearSolver.DOF.DX);
             hinge.AddExternalRestrain(LinearSolver.DOF.DY);
             hinge.AddExternalRestrain(LinearSolver.DOF.DZ);

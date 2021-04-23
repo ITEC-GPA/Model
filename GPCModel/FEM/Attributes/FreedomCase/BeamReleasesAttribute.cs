@@ -20,7 +20,7 @@ namespace GPC.Model.FEM.Attributes
         public int EndBeam => _indexEndBeam;
         public Beam.LocalDOF[] LocalDOFReleased => _localDOFs.ToArray();
 
-        public BeamReleasesAttribute(int indexEndBeam, HashSet<LocalDOF> releases, string freedomCaseName, string name) 
+        public BeamReleasesAttribute(int indexEndBeam, HashSet<Beam.LocalDOF> releases, string freedomCaseName, string name) 
             : base(freedomCaseName, name)
         {
             if (indexEndBeam != 1 && indexEndBeam != 2)

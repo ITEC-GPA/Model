@@ -527,7 +527,7 @@ namespace GPC.Model.FEM.FiniteElements
             return fLocal;
         }
         
-        public void AddRelease(int indexEndBeam, BeamReleasesAttribute.LocalDOF[] dof, string freedomCaseName, string name)
+        public void AddEndRelease(int indexEndBeam, Beam.LocalDOF[] dof, string freedomCaseName, string name)
         {
             BeamReleasesAttribute release = new BeamReleasesAttribute(indexEndBeam, dof.ToHashSet(), freedomCaseName, name);
             _attributesFreedomCase.Add(release);
