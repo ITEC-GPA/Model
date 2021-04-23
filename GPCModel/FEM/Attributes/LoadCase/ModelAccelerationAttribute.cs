@@ -34,8 +34,9 @@ namespace GPC.Model.FEM.Attributes
         public CoordinateSystem CoordinateSystem { get; set;  }
 
 
+        /// <remarks>This constructor set the <see cref="ModelAccelerationAttribute.CoordinateSystem"/> to <see cref="CoordinateSystem.Global"/> </remarks>
         internal ModelAccelerationAttribute(string loadCaseName)
-            : this(loadCaseName, null, 0, 0, 0)
+            : this(loadCaseName, CoordinateSystem.Global, 0, 0, 0)
         {
 
         }

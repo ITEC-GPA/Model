@@ -145,6 +145,7 @@ namespace GPC.Model.FEM
 
             _analysisType = AnalysisTypes.Linear;
 
+            _modelAttributes = new List<IModelAttribute>();
         }
 
         
