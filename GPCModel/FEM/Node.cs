@@ -57,9 +57,6 @@ namespace GPC.Model.FEM
             _attributesFreedomCase = new List<INodeFreedomCaseAttribute>();
         }
 
-        /// <summary>
-        /// only for test purpose
-        /// </summary>
         public Node(double X, double Y, double Z, string label="") : this(new Point3d(X, Y, Z), label)
         {
 
