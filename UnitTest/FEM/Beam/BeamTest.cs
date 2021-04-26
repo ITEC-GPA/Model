@@ -12,7 +12,7 @@ using System.Collections.Generic;
 using static GPC.Model.FEM.Solver;
 using mnl = MathNet.Numerics.LinearAlgebra;
 
-namespace FemTest.Solver { 
+namespace FemTest.SolverTest { 
     [TestClass]
     public class BeamTest {
 
@@ -44,12 +44,12 @@ namespace FemTest.Solver {
 
             FreedomCase fc = new FreedomCase("fc");
             NodeRestrainAttribute fix = new NodeRestrainAttribute("fc", sys);
-            fix.AddExternalRestrain(LinearSolver.DOF.DX);
-            fix.AddExternalRestrain(LinearSolver.DOF.DY);
-            fix.AddExternalRestrain(LinearSolver.DOF.DZ);
-            fix.AddExternalRestrain(LinearSolver.DOF.RX);
-            fix.AddExternalRestrain(LinearSolver.DOF.RY);
-            fix.AddExternalRestrain(LinearSolver.DOF.RZ);
+            fix.AddExternalRestrain(Solver.DOF.DX);
+            fix.AddExternalRestrain(Solver.DOF.DY);
+            fix.AddExternalRestrain(Solver.DOF.DZ);
+            fix.AddExternalRestrain(Solver.DOF.RX);
+            fix.AddExternalRestrain(Solver.DOF.RY);
+            fix.AddExternalRestrain(Solver.DOF.RZ);
 
             nds[0].AddAttribute(fix);
 
@@ -366,6 +366,9 @@ namespace FemTest.Solver {
             Assert.AreEqual(MX, fem.GetBeamInternalForces(b, b.L)[Beam.InternalAction.T]);
         }
 
+        /// <summary>
+        /// 2 beams 1 node force
+        /// </summary>
         [TestMethod]
         public void SimplySupportedTest1()
         {
@@ -585,6 +588,7 @@ namespace FemTest.Solver {
             Assert.AreEqual(-qz * L, fem.GetBeamInternalForces(beams[0], 0.0)[Beam.InternalAction.V3], 0.0001); //Shear(x=0)
             Assert.AreEqual(0.0, fem.GetBeamInternalForces(beams[0], L)[Beam.InternalAction.V3], 0.0001); //Shear(x=L)
         }
+        
         /// <summary>
         /// Simply supported beam descretized with 2 elements and uniform load
         /// </summary>
@@ -593,7 +597,6 @@ namespace FemTest.Solver {
         {
             double E = 100.0;
             Section sec = new SectionRHS(100.0, 100.0, 49.99, 49.99, 49.99, 49.99, false, new SteelMaterial("m", E, 0.0, 355, 510, 7850), "sec");
-            double A = sec.Area;
             Console.WriteLine("A = " + sec.Area);
 
             double L = 1000.0;
@@ -607,17 +610,15 @@ namespace FemTest.Solver {
             beams.Add(new EulerBeam(new Node[] { nds[0], nds[1] }, sec));
             beams.Add(new EulerBeam(new Node[] { nds[1], nds[2] }, sec));
 
-            LoadCase lc = new LoadCase("lc1");
             CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
             Random random = new Random();
             double qx = 1; //random.Next(-1000, 1000);
             double qy = 2; //random.Next(-1000, 1000);
-            double qz = 3;// random.Next(-1000, 1000);
+            double qz = 3; //random.Next(-1000, 1000);
             BeamDistribuitedLoadAttribute q = new BeamDistribuitedLoadAttribute("lc", qx, qy, qz);
             beams[0].AddLoadCaseAttribute(q);
             beams[1].AddLoadCaseAttribute(q);
 
-            FreedomCase fc = new FreedomCase("fc");
             NodeRestrainAttribute hinge = new NodeRestrainAttribute("fc", sys);
             hinge.AddExternalRestrain(LinearSolver.DOF.DX);
             hinge.AddExternalRestrain(LinearSolver.DOF.DY);
@@ -645,6 +646,199 @@ namespace FemTest.Solver {
             Assert.AreEqual(5.0 / 384.0 * qz * Math.Pow(L, 4.0) / (E * sec.J22), fem.GetDisplacementGlobalCoordinates(nds[1], LinearSolver.DOF.DZ), 0.001); //displacement
             Assert.AreEqual(-qz * Math.Pow(L, 3.0) / (24.0 * E * sec.J22), fem.GetDisplacementGlobalCoordinates(nds[0], LinearSolver.DOF.RY), 0.001); //rotation
             Assert.AreEqual(qz * Math.Pow(L, 3.0) / (24.0 * E * sec.J22), fem.GetDisplacementGlobalCoordinates(nds[2], LinearSolver.DOF.RY), 0.001); //rotation
+        }
+
+        /// <summary>
+        /// Fixed beam 45 deg inclined descretized with 2 elements and uniform load
+        /// </summary>
+        [TestMethod]
+        public void FixFixTest2()
+        {
+            double E = 100.0;
+            Section sec = new SectionRHS(100.0, 100.0, 10, 10, 10, 10, false, new SteelMaterial("m", E, 0.0, 355, 510, 7850), "sec");
+
+            double L = 1000.0;
+
+            List<Node> nds = new List<Node>();
+            nds.Add(new Node(0, 0, 0));
+            nds.Add(new Node(L / 2.0, L / 2.0, 0));
+            nds.Add(new Node(L, L, 0));
+
+            List<EulerBeam> beams = new List<EulerBeam>();
+            beams.Add(new EulerBeam(new Node[] { nds[0], nds[1] }, sec));
+            beams.Add(new EulerBeam(new Node[] { nds[1], nds[2] }, sec));
+
+            CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
+            Random random = new Random();
+            double qx = 0; //random.Next(-1000, 1000);
+            double qy = 1; //random.Next(-1000, 1000);
+            double qz = 0; //random.Next(-1000, 1000);
+            BeamDistribuitedLoadAttribute q = new BeamDistribuitedLoadAttribute("lc", qx, qy, qz);
+            beams[0].AddLoadCaseAttribute(q);
+            beams[1].AddLoadCaseAttribute(q);
+
+            NodeRestrainAttribute fix = new NodeRestrainAttribute("fc", sys);
+            fix.AddExternalRestrain(Solver.DOF.DX);
+            fix.AddExternalRestrain(Solver.DOF.DY);
+            fix.AddExternalRestrain(Solver.DOF.DZ);
+            fix.AddExternalRestrain(Solver.DOF.RX);
+            fix.AddExternalRestrain(Solver.DOF.RY);
+            fix.AddExternalRestrain(Solver.DOF.RZ);
+
+            nds[0].AddAttribute(fix);
+            nds[2].AddAttribute(fix);
+
+            LinearSolver fem = new LinearSolver(beams.ToArray());
+
+            Assert.AreEqual(21.1721, fem.GetBeamDisplacementInLocalCoordinatesAtNode(beams[1], 0)[Beam.LocalDOF.U2], 1e-4); //displacement
+            Assert.AreEqual(21.1721, fem.GetBeamDisplacementInLocalCoordinates(beams[1], 0)[Beam.LocalDOF.U2], 1e-4); //displacement
+        }
+
+        /// <summary>
+        /// Fixed beam 45 deg inclined descretized with 1 elements and uniform load
+        /// </summary>
+        [TestMethod]
+        public void FixFixTest3()
+        {
+            double E = 100.0;
+            Section sec = new SectionRHS(100.0, 100.0, 10, 10, 10, 10, false, new SteelMaterial("m", E, 0.0, 355, 510, 7850), "sec");
+
+            double L = 1000.0;
+
+            List<Node> nds = new List<Node>();
+            nds.Add(new Node(0, 0, 0));;
+            nds.Add(new Node(L, L, 0));
+
+            List<EulerBeam> beams = new List<EulerBeam>();
+            beams.Add(new EulerBeam(new Node[] { nds[0], nds[1] }, sec));
+
+            CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
+            Random random = new Random();
+            double qx = 0; //random.Next(-1000, 1000);
+            double qy = 1; //random.Next(-1000, 1000);
+            double qz = 0; //random.Next(-1000, 1000);
+            BeamDistribuitedLoadAttribute q = new BeamDistribuitedLoadAttribute("lc", qx, qy, qz);
+            beams[0].AddLoadCaseAttribute(q);
+
+            NodeRestrainAttribute fix = new NodeRestrainAttribute("fc", sys);
+            fix.AddExternalRestrain(Solver.DOF.DX);
+            fix.AddExternalRestrain(Solver.DOF.DY);
+            fix.AddExternalRestrain(Solver.DOF.DZ);
+            fix.AddExternalRestrain(Solver.DOF.RX);
+            fix.AddExternalRestrain(Solver.DOF.RY);
+            fix.AddExternalRestrain(Solver.DOF.RZ);
+
+            nds[0].AddAttribute(fix);
+            nds[1].AddAttribute(fix);
+
+            LinearSolver fem = new LinearSolver(beams.ToArray());
+
+            Assert.AreEqual(0.0, fem.GetBeamDisplacementInLocalCoordinates(beams[0], 0.0)[Beam.LocalDOF.U2], 1e-4); //displacement
+            Assert.AreEqual(21.1721, fem.GetBeamDisplacementInLocalCoordinates(beams[0], beams[0].L / 2.0)[Beam.LocalDOF.U2], 1e-4); //displacement
+            Assert.AreEqual(0.0, fem.GetBeamDisplacementInLocalCoordinates(beams[0], beams[0].L)[Beam.LocalDOF.U2], 1e-4); //displacement
+        }
+
+        /// <summary>
+        /// Fixed beam 45 deg inclined descretized with 3 elements and uniform load
+        /// </summary>
+        [TestMethod]
+        public void FixFixTest4()
+        {
+            double E = 100.0;
+            Section sec = new SectionRHS(100.0, 100.0, 10, 10, 10, 10, false, new SteelMaterial("m", E, 0.0, 355, 510, 7850), "sec");
+
+            double L = 1000.0;
+
+            List<Node> nds = new List<Node>();
+            nds.Add(new Node(0, 0, 0));
+            nds.Add(new Node(L / 3.0, L / 3.0, 0));
+            nds.Add(new Node(L * 2.0 / 3.0, L * 2.0 / 3.0, 0));
+            nds.Add(new Node(L, L, 0));
+
+            List<EulerBeam> beams = new List<EulerBeam>();
+            beams.Add(new EulerBeam(new Node[] { nds[0], nds[1] }, sec));
+            beams.Add(new EulerBeam(new Node[] { nds[1], nds[2] }, sec));
+            beams.Add(new EulerBeam(new Node[] { nds[2], nds[3] }, sec));
+
+            CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
+            Random random = new Random();
+            double qx = 0; //random.Next(-1000, 1000);
+            double qy = 1; //random.Next(-1000, 1000);
+            double qz = 1; //random.Next(-1000, 1000);
+            BeamDistribuitedLoadAttribute q = new BeamDistribuitedLoadAttribute("lc", qx, qy, qz);
+            beams[0].AddLoadCaseAttribute(q);
+            beams[1].AddLoadCaseAttribute(q);
+            beams[2].AddLoadCaseAttribute(q);
+
+            NodeRestrainAttribute fix = new NodeRestrainAttribute("fc", sys);
+            fix.AddExternalRestrain(Solver.DOF.DX);
+            fix.AddExternalRestrain(Solver.DOF.DY);
+            fix.AddExternalRestrain(Solver.DOF.DZ);
+            fix.AddExternalRestrain(Solver.DOF.RX);
+            fix.AddExternalRestrain(Solver.DOF.RY);
+            fix.AddExternalRestrain(Solver.DOF.RZ);
+
+            nds[0].AddAttribute(fix);
+            nds[3].AddAttribute(fix);
+
+            LinearSolver fem = new LinearSolver(beams.ToArray());
+
+            Assert.AreEqual(21.1721, fem.GetBeamDisplacementInLocalCoordinates(beams[1], beams[0].L / 2.0)[Beam.LocalDOF.U2], 1e-4); //displacement
+            Assert.AreEqual(21.1721, fem.GetBeamDisplacementInLocalCoordinates(beams[1], beams[0].L / 2.0)[Beam.LocalDOF.U3], 1e-4); //displacement
+        }
+
+        /// <summary>
+        /// Fix-Hinge beam with 3 elements and uniform load
+        /// </summary>
+        [TestMethod]
+        public void FixHingeTest4()
+        {
+            double E = 100.0;
+            Section sec = new SectionRHS(100.0, 100.0, 10, 10, 10, 10, false, new SteelMaterial("m", E, 0.0, 355, 510, 7850), "sec");
+
+            double L = 1000.0;
+
+            List<Node> nds = new List<Node>();
+            nds.Add(new Node(0, 0, 0));
+            nds.Add(new Node(L / 3.0, .0, 0));
+            nds.Add(new Node(L * 2.0 / 3.0, 0, 0));
+            nds.Add(new Node(L, 0, 0));
+
+            List<EulerBeam> beams = new List<EulerBeam>();
+            beams.Add(new EulerBeam(new Node[] { nds[0], nds[1] }, sec));
+            beams.Add(new EulerBeam(new Node[] { nds[1], nds[2] }, sec));
+            beams.Add(new EulerBeam(new Node[] { nds[2], nds[3] }, sec));
+
+            CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
+            Random random = new Random();
+            double qx = 0; //random.Next(-1000, 1000);
+            double qy = 1; //random.Next(-1000, 1000);
+            double qz = 1; //random.Next(-1000, 1000);
+            BeamDistribuitedLoadAttribute q = new BeamDistribuitedLoadAttribute("lc", qx, qy, qz);
+            beams[0].AddLoadCaseAttribute(q);
+            beams[1].AddLoadCaseAttribute(q);
+            beams[2].AddLoadCaseAttribute(q);
+
+            NodeRestrainAttribute fix = new NodeRestrainAttribute("fc", sys);
+            fix.AddExternalRestrain(Solver.DOF.DX);
+            fix.AddExternalRestrain(Solver.DOF.DY);
+            fix.AddExternalRestrain(Solver.DOF.DZ);
+            fix.AddExternalRestrain(Solver.DOF.RX);
+            fix.AddExternalRestrain(Solver.DOF.RY);
+            fix.AddExternalRestrain(Solver.DOF.RZ);
+
+            NodeRestrainAttribute hinge = new NodeRestrainAttribute("fc", sys);
+            hinge.AddExternalRestrain(Solver.DOF.DX);
+            hinge.AddExternalRestrain(Solver.DOF.DY);
+            hinge.AddExternalRestrain(Solver.DOF.DZ);
+
+            nds[0].AddAttribute(fix);
+            nds[3].AddAttribute(hinge);
+
+            LinearSolver fem = new LinearSolver(beams.ToArray());
+
+            Assert.AreEqual(10.5860, fem.GetBeamDisplacementInLocalCoordinates(beams[1], beams[0].L / 2.0)[Beam.LocalDOF.U2], 1e-4); //displacement
+            Assert.AreEqual(10.5860, fem.GetBeamDisplacementInLocalCoordinates(beams[1], beams[0].L / 2.0)[Beam.LocalDOF.U3], 1e-4); //displacement
         }
 
         [TestMethod]
@@ -691,6 +885,9 @@ namespace FemTest.Solver {
             Assert.AreEqual(-1.0 / 24.0 * qy * L * L, fem.GetBeamInternalForces(beams[0], beams[0].L / 2.0, Beam.InternalAction.M3));
         }
 
+        /// <summary>
+        /// One beam - uniform loading
+        /// </summary>
         [TestMethod]
         public void SimplySupportedTest3()
         {
@@ -731,6 +928,7 @@ namespace FemTest.Solver {
             Assert.AreEqual(-qy * L / 2.0, fem.GetReaction(nds[0], LinearSolver.DOF.DY), 1e-2); //reaction
 
             Assert.AreEqual(-1.0 / 8.0 * qy * L * L, fem.GetBeamInternalForces(beams[0],beams[0].L/2.0)[Beam.InternalAction.M3],1e-6);
+             //displacement
 
             Assert.AreEqual(0.0, fem.GetBeamInternalForces(beams[0],0)[Beam.InternalAction.M3], 1e-6);
             Assert.AreEqual(0.0, fem.GetBeamInternalForces(beams[0],beams[0].L)[Beam.InternalAction.M3], 1e-6);

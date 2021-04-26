@@ -13,7 +13,7 @@ using GPC.Model.FEM.Properties;
 using GPC.Model.FEM.Attributes;
 using GPC.Model.LoadCases;
 
-namespace FemTest.Solver
+namespace FemTest.SolverTest
 {
     [TestClass]
     public class ElementTest
@@ -186,7 +186,7 @@ namespace FemTest.Solver
 
             double sigmaTopYY = -(F.M1 + F.M1) / (1.0 / 6.0 * 8.0 * (t * t)) + (F.F2 + F.F2) / (t * 8.0);
 
-            double[] e0GlobalDispl = fem.GetDisplacementsElementGlobalCoordinates(e0);
+            double[] e0GlobalDispl = fem.GetDisplacementsAtNodesOfElementInGlobalCoordinates(e0);
             e0.GetNodesResults(e0GlobalDispl,
                             out mnl.Matrix<double>[] globalPseudoDef, out mnl.Matrix<double>[] localPseudoDef,
                             out mnl.Matrix<double>[] globalForces, out mnl.Matrix<double>[] localForces,
@@ -194,7 +194,7 @@ namespace FemTest.Solver
                             out mnl.Matrix<double>[] globalEpsilon, out mnl.Matrix<double>[] localEpsilon);
             Assert.AreEqual(sigmaTopYY, globalStress[0][1,1], 0.001); //sigmaYY top face
 
-            double[] e1GlobalDispl = fem.GetDisplacementsElementGlobalCoordinates(e1);
+            double[] e1GlobalDispl = fem.GetDisplacementsAtNodesOfElementInGlobalCoordinates(e1);
             e1.GetNodesResults(e1GlobalDispl,
                             out globalPseudoDef, out localPseudoDef,
                             out globalForces, out localForces,
@@ -262,7 +262,7 @@ namespace FemTest.Solver
             double DZA = fem.GetDisplacementGlobalCoordinates(nodeA, LinearSolver.DOF.DZ);
             Assert.AreEqual(0.75597, DZA, 1e-4); //value from SAP
 
-            double[] e0GlobalDispl = fem.GetDisplacementsElementGlobalCoordinates(e0);
+            double[] e0GlobalDispl = fem.GetDisplacementsAtNodesOfElementInGlobalCoordinates(e0);
             /*e0.GetResults(e0GlobalDispl, out double[] localDispl,
                             out mnl.Matrix<double>[] globalPseudoDef, out mnl.Matrix<double>[] localPseudoDef,
                             out mnl.Matrix<double>[] globalForces, out mnl.Matrix<double>[] localForces,

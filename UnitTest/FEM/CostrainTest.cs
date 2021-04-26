@@ -13,7 +13,7 @@ using System.Collections.Generic;
 using System.Linq;
 using static GPC.Model.FEM.Solver;
 
-namespace FemTest.Solver { 
+namespace FemTest.SolverTest { 
     [TestClass]
     public class CostrainTest {
         [TestMethod]

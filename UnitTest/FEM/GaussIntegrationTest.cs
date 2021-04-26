@@ -6,7 +6,7 @@ using GPC.Utilities.Fem;
 using mnl = MathNet.Numerics.LinearAlgebra;
 using GPC.Model.FEM.FiniteElements;
 
-namespace FemTest.Solver
+namespace FemTest.SolverTest
 {
     [TestClass]
     public class GaussIntegrationTest

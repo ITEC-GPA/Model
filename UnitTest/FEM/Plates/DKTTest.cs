@@ -13,7 +13,7 @@ using GPC.Model.FEM.Properties;
 using GPC.Model.FEM.Attributes;
 using GPC.Model.LoadCases;
 
-namespace FemTest.Solver
+namespace FemTest.SolverTest
 {
     [TestClass]
     public class DKTTest
@@ -177,7 +177,7 @@ namespace FemTest.Solver
             double dz = fem.GetDisplacementGlobalCoordinates(nodeC, LinearSolver.DOF.DZ);
             Assert.AreEqual(0.24960, dz, 1e-6);
 
-            double[] displElement = fem.GetDisplacementsElementGlobalCoordinates(e0);
+            double[] displElement = fem.GetDisplacementsAtNodesOfElementInGlobalCoordinates(e0);
             e0.GetNodesResults(displElement, 
                             out mnl.Matrix<double>[] globalPseudoDef, out mnl.Matrix<double>[] localPseudoDef,
                             out mnl.Matrix<double>[] globalForces, out mnl.Matrix<double>[] localForces,

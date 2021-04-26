@@ -13,7 +13,7 @@ using GPC.Model.FEM.Properties;
 using GPC.Model.FEM.Attributes;
 using GPC.Model.LoadCases;
 
-namespace FemTest.Solver
+namespace FemTest.SolverTest
 {
     [TestClass]
     public class TestTri3TR3RDOF
@@ -74,7 +74,7 @@ namespace FemTest.Solver
             Assert.AreEqual(1.0, displacementNode, 0.001);*/
 
             Console.WriteLine("Element 1");
-            double[] elementGlobalDispl = fem.GetDisplacementsElementGlobalCoordinates(elements[1 - 1]);
+            double[] elementGlobalDispl = fem.GetDisplacementsAtNodesOfElementInGlobalCoordinates(elements[1 - 1]);
             elements[1 - 1].GetNodesResults(elementGlobalDispl, out double[] localDispl,
                             out mnl.Matrix<double>[] globalPseudoDef, out mnl.Matrix<double>[] localPseudoDef,
                             out mnl.Matrix<double>[] globalForces, out mnl.Matrix<double>[] localForces,
@@ -139,7 +139,7 @@ namespace FemTest.Solver
             Assert.AreEqual(1.0, displacementNode, 0.001);*/
 
             Console.WriteLine("Element 1");
-            double[] elementGlobalDispl = fem.GetDisplacementsElementGlobalCoordinates(elements[1 - 1]);
+            double[] elementGlobalDispl = fem.GetDisplacementsAtNodesOfElementInGlobalCoordinates(elements[1 - 1]);
             elements[1 - 1].GetNodesResults(elementGlobalDispl, out double[] localDispl,
                             out mnl.Matrix<double>[] globalPseudoDef, out mnl.Matrix<double>[] localPseudoDef,
                             out mnl.Matrix<double>[] globalForces, out mnl.Matrix<double>[] localForces,
@@ -222,7 +222,7 @@ namespace FemTest.Solver
             Assert.AreEqual(1.0, displacementNode, 0.01);
 
             Console.WriteLine("Element 1");
-            double[] elementGlobalDispl = fem.GetDisplacementsElementGlobalCoordinates(elements[1 - 1]);
+            double[] elementGlobalDispl = fem.GetDisplacementsAtNodesOfElementInGlobalCoordinates(elements[1 - 1]);
             elements[1 - 1].GetNodesResults(elementGlobalDispl, out double[] localDispl,
                             out mnl.Matrix<double>[] globalPseudoDef, out mnl.Matrix<double>[] localPseudoDef,
                             out mnl.Matrix<double>[] globalForces, out mnl.Matrix<double>[] localForces,

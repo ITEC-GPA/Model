@@ -7,7 +7,7 @@ using GPC.Model.FEM.FiniteElements;
 using GPC.Model.FEM.Properties;
 using GPC.Model.Materials;
 
-namespace FemTest.Solver
+namespace FemTest.SolverTest
 {
     [TestClass]
     public class Tetrahedron4Test

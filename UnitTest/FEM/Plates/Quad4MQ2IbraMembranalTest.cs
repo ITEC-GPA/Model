@@ -12,7 +12,7 @@ using GPC.Model.FEM.Properties;
 using GPC.Model.FEM.Attributes;
 using GPC.Model.LoadCases;
 
-namespace FemTest.Solver
+namespace FemTest.SolverTest
 {
     [TestClass]
     public class Quad4MQ2IbraMembranalTest
@@ -674,7 +674,7 @@ namespace FemTest.Solver
             Assert.AreEqual(0.3553, fem.GetDisplacementGlobalCoordinates(nds[17], LinearSolver.DOF.DY), 0.01);
 
             Console.WriteLine("stress");
-            double[] elGlobalDispl = fem.GetDisplacementsElementGlobalCoordinates(els[2-1]);
+            double[] elGlobalDispl = fem.GetDisplacementsAtNodesOfElementInGlobalCoordinates(els[2-1]);
             els[2-1].GetNodesResults(elGlobalDispl, out double[] localDispl,
                             out mnl.Matrix<double>[] globalPseudoDef, out mnl.Matrix<double>[] localPseudoDef,
                             out mnl.Matrix<double>[] globalForces, out mnl.Matrix<double>[] localForces,
@@ -1051,7 +1051,7 @@ namespace FemTest.Solver
 
             //check stress
             Console.WriteLine("stress");
-            double[] elGlobalDispl = fem.GetDisplacementsElementGlobalCoordinates(els[4]);
+            double[] elGlobalDispl = fem.GetDisplacementsAtNodesOfElementInGlobalCoordinates(els[4]);
             els[4].GetNodesResults(elGlobalDispl, out double[] localDispl,
                             out mnl.Matrix<double>[] globalPseudoDef, out mnl.Matrix<double>[] localPseudoDef,
                             out mnl.Matrix<double>[] globalForces, out mnl.Matrix<double>[] localForces,

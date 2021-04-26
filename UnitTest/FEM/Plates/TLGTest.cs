@@ -12,7 +12,7 @@ using GPC.Model.LoadCases;
 using System.Collections.Generic;
 using GPC.Model.FEM;
 
-namespace FemTest.Solver
+namespace FemTest.SolverTest
 {
     [TestClass]
     public class TripledLaminatedGlassTest1

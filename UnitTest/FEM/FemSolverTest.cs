@@ -13,7 +13,7 @@ using GPC.Model.FEM.Attributes;
 using GPC.Model.LoadCases;
 using GPC.Model.Sections;
 
-namespace FemTest.Solver
+namespace FemTest.SolverTest
 {
     [TestClass]
     public class GeneralTest

@@ -8,7 +8,7 @@ using GPC.Model.FEM.Properties;
 using GPC.Model.Materials;
 using System.Linq;
 
-namespace FemTest.Solver
+namespace FemTest.SolverTest
 {
     [TestClass]
     public class BrickTest

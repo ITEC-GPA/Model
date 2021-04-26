@@ -7,7 +7,7 @@ using GPC.Model.FEM;
 using GPC.Utilities.Fem;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace FemTest.Solver
+namespace FemTest.SolverTest
 {
     [TestClass]
     public class FemUtilitiesTest

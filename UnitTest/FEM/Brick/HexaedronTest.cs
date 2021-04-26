@@ -12,7 +12,7 @@ using GPC.Model.LoadCases;
 using GPC.Geometry;
 using GPC.Model.FreedomCases;
 
-namespace FemTest.Solver
+namespace FemTest.SolverTest
 {
     [TestClass]
     public class Hexaedron8Test

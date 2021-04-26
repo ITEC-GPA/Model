@@ -479,16 +479,6 @@ namespace GPC.Model.FEM.FiniteElements
                 }
             }
 
-            double N0(double x, double L)
-            {
-                return (L - x) / L;
-            }
-
-            double N1(double x, double L)
-            {
-                return x / L;
-            }
-
             var internalForcesNode1 = GetInternalNodalLocalForces(1, globalDisplacement);
             var internalForcesNode2 = GetInternalNodalLocalForces(2, globalDisplacement);
 
@@ -511,6 +501,80 @@ namespace GPC.Model.FEM.FiniteElements
         }
         #endregion
 
+        #region GetDisplacement
+        public Dictionary<LocalDOF, double> GetLocalDisplacementsAtNode(int indexNode, double[] globalDisplacementsNode)
+        {
+            mnl.Vector<double> localDisplacementsNodes = GetLocalDisplacementVector(globalDisplacementsNode);
+
+            Dictionary<LocalDOF, double> result = new Dictionary<LocalDOF, double>();
+            if (indexNode == 1 || indexNode == 0)
+            {
+                result.Add(LocalDOF.AxialU1, localDisplacementsNodes[0]);
+                result.Add(LocalDOF.U2, localDisplacementsNodes[1]);
+                result.Add(LocalDOF.U3, localDisplacementsNodes[2]);
+                result.Add(LocalDOF.TorsionR1, localDisplacementsNodes[3]);
+                result.Add(LocalDOF.R2, localDisplacementsNodes[4]);
+                result.Add(LocalDOF.R3, localDisplacementsNodes[5]);
+            } else if (indexNode == 2)
+            {
+                result.Add(LocalDOF.AxialU1, localDisplacementsNodes[6]);
+                result.Add(LocalDOF.U2, localDisplacementsNodes[7]);
+                result.Add(LocalDOF.U3, localDisplacementsNodes[8]);
+                result.Add(LocalDOF.TorsionR1, localDisplacementsNodes[9]);
+                result.Add(LocalDOF.R2, localDisplacementsNodes[10]);
+                result.Add(LocalDOF.R3, localDisplacementsNodes[11]);
+            } else
+            {
+                throw new IndexOutOfRangeException("indexNode beam = 1 or 2");
+            }
+                    
+            return result;
+        }
+
+        public Dictionary<LocalDOF, double> GetLocalDisplacements(double station, double[] globalDisplacementsNodes)
+        {
+            Dictionary<LocalDOF, double> displLocalNode1 = GetLocalDisplacementsAtNode(1, globalDisplacementsNodes);
+            Dictionary<LocalDOF, double> displLocalNode2 = GetLocalDisplacementsAtNode(2, globalDisplacementsNodes);
+
+            double E = _property.GetE();
+            double J11 = ((Section)_property).J11;
+            double J22 = ((Section)_property).J22;
+
+
+            //Post-processing only for beam:
+            double qx = 0;
+            double qy = 0;
+            double qz = 0;
+            for (int i = 0; i < _attributesLoadCase.Count; i++)
+            {
+                if (_attributesLoadCase[i].GetType() == typeof(BeamDistribuitedLoadAttribute))
+                {
+                    BeamDistribuitedLoadAttribute q = (BeamDistribuitedLoadAttribute)_attributesLoadCase[i];
+                    qx += q.Q1;
+                    qy += q.Q2;
+                    qz += q.Q3;
+                }
+            }
+
+            Dictionary<LocalDOF, double> displStation = new Dictionary<LocalDOF, double>();
+            for (int i = 0; i < displLocalNode1.Count; i++)
+            {
+                LocalDOF index = (LocalDOF)i;
+                displStation.Add(index, displLocalNode1[index] * N0(station, _length) + displLocalNode2[index] * N1(station, _length));
+
+                if (index == LocalDOF.U2) {
+                    displStation[index] = displStation[index] + DisplacementBeamFixFix(qy, station, _length, E, J22) + DisplacementImposedRotationFixFix(station, displLocalNode1[LocalDOF.R3], _length) - DisplacementImposedRotationFixFix(_length - station, displLocalNode2[LocalDOF.R3], _length);
+                }
+                if (index == LocalDOF.U3)
+                {
+                    displStation[index] = displStation[index] + DisplacementBeamFixFix(qz, station, _length, E, J11) - DisplacementImposedRotationFixFix(station, displLocalNode1[LocalDOF.R2], _length) + DisplacementImposedRotationFixFix(_length - station, displLocalNode2[LocalDOF.R2], _length);
+                }
+                //TODO: aggiungere rotazioni
+            }
+            return displStation;
+        }
+        #endregion
+
         #region EndRelease
         public void AddEndRelease(int indexEndBeam, Beam.LocalDOF[] dof, string freedomCaseName, string name)
         {
@@ -526,6 +590,28 @@ namespace GPC.Model.FEM.FiniteElements
         #endregion
 
         #region PostProcessorFunctions
+        /// <summary>
+        /// used for interpolation = calculation of a general value in a station
+        /// </summary>
+        /// <param name="x">distance from starting node</param>
+        /// <param name="L">length of the beam</param>
+        /// <returns></returns>
+        double N0(double x, double L)
+        {
+            return (L - x) / L;
+        }
+
+        /// <summary>
+        /// used for interpolation = calculation of a general value in a station
+        /// </summary>
+        /// <param name="x">distance from starting node</param>
+        /// <param name="L">length of the beam</param>
+        /// <returns></returns>
+        double N1(double x, double L)
+        {
+            return x / L;
+        }
+
         /// <summary>
         /// Return the Bending moment in a fix-fix beam with uniform load
         /// </summary>
@@ -589,7 +675,12 @@ namespace GPC.Model.FEM.FiniteElements
         /// <returns>displacement</returns>
         private double DisplacementBeamFixFix(double q, double x, double L, double E, double J)
         {
-            return q * x*x*x * Math.Pow(L - x,2.0) / (24.0 * E * J);
+            return q * x*x * Math.Pow(L - x,2.0) / (24.0 * E * J);
+        }
+
+        private double DisplacementImposedRotationFixFix(double x, double alpha, double L)
+        {
+            return alpha / (L*L) * (x*x*x + x * L * (L-2.0 *x));
         }
         #endregion
     }

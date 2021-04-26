@@ -597,7 +597,7 @@ namespace GPC.Model.FEM
             return ris;
         }*/
 
-        public double[] GetDisplacementsElementGlobalCoordinates(FiniteElement e)
+        public double[] GetDisplacementsAtNodesOfElementInGlobalCoordinates(FiniteElement e)
         {
             #region SelectGlobalDisplacementForElement
             var elements = Elements.Where(x => x == e);
@@ -638,10 +638,12 @@ namespace GPC.Model.FEM
         #endregion
 
         #region GetResultsBeam
+
+        #region forces
         //TODO: trasformare in classe Beam
         public Dictionary<Beam.InternalAction, double> GetBeamInternalForces(EulerBeam b, double station)
         {
-            var globalDispl = GetDisplacementsElementGlobalCoordinates(b);
+            var globalDispl = GetDisplacementsAtNodesOfElementInGlobalCoordinates(b);
             return b.GetInternalAction(station, globalDispl);
         }
 
@@ -659,7 +661,7 @@ namespace GPC.Model.FEM
             {
                 throw new ArgumentOutOfRangeException("Node I = 1 or J = 2?");
             }
-            var globalDispl = GetDisplacementsElementGlobalCoordinates(b);
+            var globalDispl = GetDisplacementsAtNodesOfElementInGlobalCoordinates(b);
             return b.GetInternalAction(station, globalDispl);
         }
 
@@ -674,6 +676,72 @@ namespace GPC.Model.FEM
         {
             return GetBeamInternalForces(b, station)[action];
         }
+        #endregion
+
+        #region displacements
+        //TODO: trasformare in classe Beam
+        public Dictionary<Beam.LocalDOF, double> GetBeamDisplacementInLocalCoordinatesAtNode(EulerBeam b, int indexNode)
+        {
+            var globalDisplNodes = GetDisplacementsAtNodesOfElementInGlobalCoordinates(b);
+
+            return b.GetLocalDisplacementsAtNode(indexNode, globalDisplNodes);
+        }
+
+        //TODO: trasformare in classe Beam
+        public Dictionary<Beam.LocalDOF, double> GetBeamDisplacementInLocalCoordinates(EulerBeam b, double station)
+        {
+            var globalDisplNodes = GetDisplacementsAtNodesOfElementInGlobalCoordinates(b);
+
+            return b.GetLocalDisplacements(station, globalDisplNodes);
+        }
+
+        //TODO: trasformare in classe Beam
+        public double GetBeamDisplacementInLocalCoordinates(EulerBeam b, double station, Beam.LocalDOF dof)
+        {
+            return GetBeamDisplacementInLocalCoordinates(b, station)[dof];
+        }
+
+        //TODO: trasformare in classe Beam
+        public Dictionary<Solver.DOF, double> GetBeamDisplacementInGlobalCoordinates(EulerBeam b, double station)
+        {
+            var localDispl = GetBeamDisplacementInLocalCoordinates(b, station);
+
+            mnl.Matrix<double> rotationMatrix = mnl.Matrix<double>.Build.Dense(3, 3);
+            for (int i = 0; i < 3; i++)
+            {
+                for (int j = 0; j < 3; j++)
+                {
+                    rotationMatrix[i, j] = b.DofGlobalToLocal[i, j];
+                }
+            }
+
+            //traslation
+            mnl.Vector<double> trasl = mnl.Vector<double>.Build.Dense(3);
+            trasl[0] = localDispl[Beam.LocalDOF.AxialU1];
+            trasl[1] = localDispl[Beam.LocalDOF.U2];
+            trasl[2] = localDispl[Beam.LocalDOF.U3];
+
+            //rotation
+            mnl.Vector<double> rot = mnl.Vector<double>.Build.Dense(3);
+            rot[0] = localDispl[Beam.LocalDOF.TorsionR1];
+            rot[1] = localDispl[Beam.LocalDOF.R2];
+            rot[2] = localDispl[Beam.LocalDOF.R3];
+
+            mnl.Vector<double> traslGlobal = rotationMatrix.Transpose() * trasl;
+            mnl.Vector<double> rotGlobal = rotationMatrix.Transpose() * rot;
+
+            Dictionary<DOF, double> globalResult = new Dictionary<DOF, double>();
+            globalResult.Add(Solver.DOF.DX, traslGlobal[0]);
+            globalResult.Add(Solver.DOF.DY, traslGlobal[1]);
+            globalResult.Add(Solver.DOF.DZ, traslGlobal[2]);
+
+            globalResult.Add(Solver.DOF.RX, rotGlobal[0]);
+            globalResult.Add(Solver.DOF.RY, rotGlobal[1]);
+            globalResult.Add(Solver.DOF.RZ, rotGlobal[2]);
+
+            return globalResult;
+        }
+        #endregion
         #endregion
 
         #region PrescribeDisplacement
