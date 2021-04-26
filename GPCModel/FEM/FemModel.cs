@@ -115,6 +115,10 @@ namespace GPC.Model.FEM
 
         public AnalysisTypes AnalysisType { get => _analysisType; set => _analysisType = value; }
 
+        public IEnumerable<Combination> Combinations => _combinations;
+
+        public IEnumerable<LoadCase> loadCases => _loadCases;
+
         #endregion
 
         #region Constructors

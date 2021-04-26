@@ -135,6 +135,7 @@
     <Compile Include="Glasses\Interlayer.cs" />
     <Compile Include="Elements\GlassSurface.cs" />
     <Compile Include="LoadCases\ILoadCase.cs" />
+    <Compile Include="Loads\SelfWeightLoad.cs" />
     <Compile Include="Restrains\GeometryRestrain.cs" />
     <Compile Include="Restrains\PointRestrain.cs" />
     <Compile Include="Restrains\LineRestrain.cs" />
