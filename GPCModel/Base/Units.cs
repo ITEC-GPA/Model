@@ -82,6 +82,17 @@ namespace GPC.Model
         }
 
         /// <summary>
+        /// Convert density from the given units to the default units
+        /// </summary>
+        /// <param name="density">The temperature to convert</param>
+        /// <param name="units">The source measure units</param>
+        /// <returns>The converted temperature</returns>
+        public static double ConvertDensityToDefault(this double density, UnitsSystem units)
+        {
+            return UnitsConvert.Convert(density, units.MassUnits, DefaultUnits.MassUnits, 1, units.LengthUnits, DefaultUnits.LengthUnits, -3);
+        }
+
+        /// <summary>
         /// Convert lengths from the default units to the given ones
         /// </summary>
         /// <param name="length">The length to convert</param>
@@ -134,6 +145,18 @@ namespace GPC.Model
         public static double ConvertTemperatureFromDefault(this double temperature, UnitsSystem units)
         {
             return UnitsConvert.Convert(temperature, DefaultUnits.TemperatureUnits, units.TemperatureUnits);
+        }
+
+
+        /// <summary>
+        /// Convert density from the default units to the given ones
+        /// </summary>
+        /// <param name="density">The density to convert</param>
+        /// <param name="units">The destination measure units</param>
+        /// <returns>The converted temperature</returns>
+        public static double ConvertDensityFromDefault(this double density, UnitsSystem units)
+        {
+            return UnitsConvert.Convert(density, DefaultUnits.MassUnits, units.MassUnits, 1, DefaultUnits.LengthUnits, units.LengthUnits, -3);
         }
     }
 }
