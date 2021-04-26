@@ -18,6 +18,10 @@ namespace GPC.Model.FEM.FiniteElements
         /// </summary>
         public mnl.Matrix<double> D => _d;
 
+        public bool IsTriangular => Nodes.Length == 6 ? true : false;
+
+        public bool IsQuadrangular => Nodes.Length == 8 ? true : false;
+
         public Brick(Node[] nodes) 
             : base(nodes)
         {
