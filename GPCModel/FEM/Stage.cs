@@ -53,6 +53,7 @@ namespace GPC.Model.FEM
 
         public int Id { get => _id; internal set => _id = value; }
 
+        public IEnumerable<Combination> Combinations => _combinations;
 
         #endregion 
 
@@ -399,7 +400,6 @@ namespace GPC.Model.FEM
 
         #endregion
 
-
         #region Interrogate
 
         /// <summary>
@@ -431,9 +431,6 @@ namespace GPC.Model.FEM
         }
 
         #endregion
-
-
-
 
         #region Interface, operators, hashcode
 
@@ -506,8 +503,6 @@ namespace GPC.Model.FEM
         }
 
         #endregion Interface, operators, hashcode
-
-
 
         #region Nested class
 
