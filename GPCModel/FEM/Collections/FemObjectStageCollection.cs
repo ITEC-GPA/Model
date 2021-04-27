@@ -159,6 +159,11 @@ namespace GPC.Model.FEM.Collections
             return _stageFiniteElementProperty.GetEnumerator();
         }
 
+        public IEnumerable<KeyValuePair<T, D>> GetEnumerable()
+        {
+            return _stageFiniteElementProperty;
+        }
+
 
         #endregion Public methods - Getter
 

@@ -378,7 +378,11 @@ namespace GPC.Model.FEM
             return femModel;
         }
 
-        public 
+
+        public IEnumerator<KeyValuePair<FiniteElement, Stage.StageFiniteElementProperty>> GetStageFiniteElementPropertiesEnumerator()
+        {
+            return _elements.GetEnumerator();
+        }
 
         #endregion
 

@@ -334,6 +334,11 @@ namespace GPC.Model.FEM
             return _stages.Where(i => i.Id == stageId).FirstOrDefault().GetCombinations();
         }
 
+        public virtual IEnumerator<KeyValuePair<FiniteElement, Stage.StageFiniteElementProperty>> GetStagePropertyEnumerator(int stageId)
+        {
+            return _stages.Where(i => i.Id == stageId).SingleOrDefault().GetStageFiniteElementPropertiesEnumerator();
+        }
+
 
         #endregion
 
