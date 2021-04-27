@@ -53,7 +53,7 @@ namespace GPC.Model.FEM
 
         public int Id { get => _id; internal set => _id = value; }
 
-        public IEnumerable<Combination> Combinations => _combinations;
+        internal IEnumerable<Combination> Combinations => _combinations;
 
         #endregion 
 
@@ -377,6 +377,8 @@ namespace GPC.Model.FEM
 
             return femModel;
         }
+
+        public 
 
         #endregion
 

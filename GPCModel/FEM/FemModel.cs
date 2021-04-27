@@ -294,7 +294,6 @@ namespace GPC.Model.FEM
             return stage;
         }
 
-
         /// <summary>
         /// Add a stage the to the stage list. This stage will the clone of stage with <see cref="Stage.Id"/> equal to <paramref name="stageId"/>"/>
         /// </summary>
@@ -325,15 +324,16 @@ namespace GPC.Model.FEM
             return stage;
         }
 
-        protected virtual Stage GetStageById(int stageId)
+        public virtual Stage GetStageById(int stageId)
         {
             return _stages.Where(i => i.Id == stageId).FirstOrDefault();
         }
 
-        protected virtual IEnumerable<Combination> GetStageCombinations(int stageId)
+        public virtual IEnumerable<Combination> GetStageCombinations(int stageId)
         {
             return _stages.Where(i => i.Id == stageId).FirstOrDefault().GetCombinations();
         }
+
 
         #endregion
 
