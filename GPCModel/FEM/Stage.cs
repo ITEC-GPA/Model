@@ -25,7 +25,7 @@ namespace GPC.Model.FEM
         /// List of elements active in this stage. Each element is mapped to a property override.
         /// </summary>
         /// <remarks>
-        /// <para>Each of this elements must be contained in the reference model: <see cref="_femModel"/></para>
+        /// <para>Each elements of this list must be contained in the reference model: <see cref="_femModel"/></para>
         /// <para>If an element is not in this list, it will be not active in this stage</para>
         /// <para>The id of the elements in this collection will be the same of the ones in the reference femModel</para>
         /// </remarks>
