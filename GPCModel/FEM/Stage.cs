@@ -186,7 +186,7 @@ namespace GPC.Model.FEM
                 sp.AddLoadCaseAttributes(element.AttributesLoadCase);
                 sp.AddFreedomCaseAttributes(element.AttributesFreedomCase);
 
-                _elements.Add(element);
+                _elements.Add(element, sp);
             }
         }
 
