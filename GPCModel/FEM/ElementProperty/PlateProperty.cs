@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Runtime.Serialization;
 using GPC.Model.Materials;
 
 namespace GPC.Model.FEM.Properties
 {
+    [DebuggerDisplay("{" + nameof(GetDebuggerDisplay) + "(),nq}")]
     public class PlateProperty : ElementProperty, IPlateProperty
     {
         #region Variables
@@ -111,6 +113,11 @@ namespace GPC.Model.FEM.Properties
             hashCode = hashCode * -17 + _membraneThickness.GetHashCode();
             hashCode = hashCode * -17 + EqualityComparer<Material>.Default.GetHashCode(_material);
             return hashCode;
+        }
+
+        private string GetDebuggerDisplay()
+        {
+            return $"PlateProperty: {_name}";
         }
     }
 }
