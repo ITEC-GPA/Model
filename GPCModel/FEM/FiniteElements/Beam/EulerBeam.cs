@@ -44,6 +44,7 @@ namespace GPC.Model.FEM.FiniteElements
             double L3 = L2 * L;
             //double angleSection = section.AngleX1;
 
+            #region localMatrix
             _kElementLocalCoord = mnl.Matrix<double>.Build.Dense(12, 12);
 
             _kElementLocalCoord[1 - 1, 1 - 1] = E * A / L;
@@ -83,9 +84,10 @@ namespace GPC.Model.FEM.FiniteElements
             _kElementLocalCoord[12 - 1, 6 - 1] = 2.0 * E * Jzz / L;
             _kElementLocalCoord[12 - 1, 8 - 1] = -6.0 * E * Jzz / L2;
             _kElementLocalCoord[12 - 1, 12 - 1] = 4.0 * E * Jzz / L;
+            #endregion
 
             #region ApplyReleases
-            foreach(BeamReleasesAttribute rel in _attributesFreedomCase)
+            foreach (BeamReleasesAttribute rel in _attributesFreedomCase)
             {
                 EndSide EndBeam = rel.EndBeam;
                 LocalDOF[] localDOFs = rel.LocalDOFReleased;
@@ -97,64 +99,240 @@ namespace GPC.Model.FEM.FiniteElements
                         switch (localDOFs[i])
                         {
                             case LocalDOF.AxialU1:
+                                #region
                                 _kElementLocalCoord[0, 0] = 0.0;
 
                                 _kElementLocalCoord[6, 0] = 0.0;
                                 _kElementLocalCoord[0, 6] = 0.0;
+                                #endregion
                                 break;
                             case LocalDOF.TorsionR1:
+                                #region
                                 _kElementLocalCoord[3, 3] = 0.0;
 
                                 _kElementLocalCoord[9, 3] = 0.0;
                                 _kElementLocalCoord[3, 9] = 0.0;
+                                #endregion
                                 break;
                             case LocalDOF.U2:
+                                #region
+                                #region
                                 _kElementLocalCoord[1, 1] = 0.0;
 
-                                _kElementLocalCoord[1, 5] = 0.0;
                                 _kElementLocalCoord[5, 1] = 0.0;
+                                _kElementLocalCoord[1, 5] = 0.0;
 
-                                _kElementLocalCoord[1, 7] = 0.0;
                                 _kElementLocalCoord[7, 1] = 0.0;
+                                _kElementLocalCoord[1, 7] = 0.0;
 
                                 _kElementLocalCoord[1, 11] = 0.0;
                                 _kElementLocalCoord[11, 1] = 0.0;
+                                #endregion
+
+                                #region
+                                _kElementLocalCoord[5, 5] = E * Jzz / L;
+
+                                _kElementLocalCoord[5, 1] = 0.0;
+                                _kElementLocalCoord[1, 5] = 0.0;
+
+                                _kElementLocalCoord[5, 7] = 0.0;
+                                _kElementLocalCoord[7, 5] = 0.0;
+
+                                _kElementLocalCoord[5, 11] = -E * Jzz / L;
+                                _kElementLocalCoord[11, 5] = -E * Jzz / L;
+                                #endregion
+
+                                #region
+                                _kElementLocalCoord[7, 7] = E * Jzz / L;
+
+                                _kElementLocalCoord[7, 1] = 0.0;
+                                _kElementLocalCoord[1, 1] = 0.0;
+
+                                _kElementLocalCoord[5, 7] = 0.0;
+                                _kElementLocalCoord[7, 5] = 0.0;
+
+                                _kElementLocalCoord[7, 11] = 0.0;
+                                _kElementLocalCoord[11, 11] = 0.0;
+                                #endregion
+
+                                #region
+                                _kElementLocalCoord[11, 11] = E * Jzz / L;
+
+                                _kElementLocalCoord[11, 7] = 0.0;
+                                _kElementLocalCoord[7, 11] = 0.0;
+
+                                _kElementLocalCoord[11, 5] = -E * Jzz / L;
+                                _kElementLocalCoord[5, 11] = -E * Jzz / L;
+
+                                _kElementLocalCoord[1, 11] = 0.0;
+                                _kElementLocalCoord[11, 1] = 0.0;
+                                #endregion
+                                #endregion
                                 break;
                             case LocalDOF.U3:
+                                #region
+                                #region
                                 _kElementLocalCoord[2, 2] = 0.0;
 
-                                _kElementLocalCoord[1, 4] = 0.0;
-                                _kElementLocalCoord[4, 1] = 0.0;
-
-                                _kElementLocalCoord[1, 8] = 0.0;
-                                _kElementLocalCoord[8, 1] = 0.0;
-
-                                _kElementLocalCoord[1, 10] = 0.0;
-                                _kElementLocalCoord[10, 1] = 0.0;
-                                break;
-                            case LocalDOF.R2:
-                                _kElementLocalCoord[4, 4] = 0.0;
-
-                                _kElementLocalCoord[2, 4] = 0.0;
                                 _kElementLocalCoord[4, 2] = 0.0;
+                                _kElementLocalCoord[2, 4] = 0.0;
+
+                                _kElementLocalCoord[8, 2] = 0.0;
+                                _kElementLocalCoord[2, 8] = 0.0;
+
+                                _kElementLocalCoord[10, 2] = 0.0;
+                                _kElementLocalCoord[2, 10] = 0.0;
+                                #endregion
+
+                                #region
+                                _kElementLocalCoord[4, 4] = E * Jyy / L;
+
+                                _kElementLocalCoord[4, 2] = 0.0;
+                                _kElementLocalCoord[2, 4] = 0.0;
+
+                                _kElementLocalCoord[4, 8] = 0.0;
+                                _kElementLocalCoord[8, 4] = 0.0;
+
+                                _kElementLocalCoord[4, 10] = -E * Jyy / L;
+                                _kElementLocalCoord[10, 4] = -E * Jyy / L;
+                                #endregion
+
+                                #region
+                                _kElementLocalCoord[8, 8] = 0.0;
+
+                                _kElementLocalCoord[8, 2] = 0.0;
+                                _kElementLocalCoord[2, 8] = 0.0;
 
                                 _kElementLocalCoord[8, 4] = 0.0;
                                 _kElementLocalCoord[4, 8] = 0.0;
 
+                                _kElementLocalCoord[8, 10] = 0.0;
+                                _kElementLocalCoord[10, 8] = 0.0;
+                                #endregion
+
+                                #region
+                                _kElementLocalCoord[10, 10] = E * Jyy / L;
+
+                                _kElementLocalCoord[10, 8] = 0.0;
+                                _kElementLocalCoord[8, 10] = 0.0;
+
+                                _kElementLocalCoord[10, 4] = -E * Jyy / L;
+                                _kElementLocalCoord[4, 10] = -E * Jyy / L;
+
+                                _kElementLocalCoord[2, 10] = 0.0;
+                                _kElementLocalCoord[10, 2] = 0.0;
+                                #endregion
+                                #endregion
+                                break;
+                            case LocalDOF.R2:
+                                #region
+                                #region
+                                _kElementLocalCoord[4, 4] = 0.0;
+
+                                _kElementLocalCoord[4, 2] = 0.0;
+                                _kElementLocalCoord[2, 4] = 0.0;
+
+                                _kElementLocalCoord[4, 8] = 0.0;
+                                _kElementLocalCoord[8, 4] = 0.0;
+
                                 _kElementLocalCoord[4, 10] = 0.0;
                                 _kElementLocalCoord[10, 4] = 0.0;
+                                #endregion
+
+                                #region
+                                _kElementLocalCoord[2, 2] = 3.0 * E * Jyy / L3;
+
+                                /*_kElementLocalCoord[2, 4] = 0.0;
+                                _kElementLocalCoord[4, 2] = 0.0;*/
+
+                                _kElementLocalCoord[2, 8] = -3.0 * E * Jyy / L3;
+                                _kElementLocalCoord[8, 2] = -3.0 * E * Jyy / L3;
+
+                                _kElementLocalCoord[2, 10] = -3.0 * E * Jyy / L2;
+                                _kElementLocalCoord[10, 2] = -3.0 * E * Jyy / L2;
+                                #endregion
+
+                                #region
+                                _kElementLocalCoord[8, 8] = 3.0 * E * Jyy / L3;
+
+                                /*_kElementLocalCoord[8, 2] = -3.0 * E * Jyy / L3;
+                                _kElementLocalCoord[2, 8] = -3.0 * E * Jyy / L3;*/
+
+                                /*_kElementLocalCoord[8, 4] = 0.0;
+                                _kElementLocalCoord[4, 8] = 0.0;*/
+
+                                _kElementLocalCoord[8, 10] = 3.0 * E * Jyy / L2;
+                                _kElementLocalCoord[10, 8] = 3.0 * E * Jyy / L2;
+                                #endregion
+
+                                #region
+                                _kElementLocalCoord[10, 10] = 3.0 * E * Jyy / L3;
+
+                                /*_kElementLocalCoord[10, 2] = -3.0 * E * Jyy / L2;
+                                _kElementLocalCoord[2, 10] = -3.0 * E * Jyy / L2;*/
+
+                                /*_kElementLocalCoord[10, 4] = 0.0;
+                                _kElementLocalCoord[4, 10] = 0.0;*/
+
+                                /*_kElementLocalCoord[10, 8] = 3.0 * E * Jyy / L2;
+                                _kElementLocalCoord[8, 10] = 3.0 * E * Jyy / L2;*/
+                                #endregion
+                                #endregion
                                 break;
                             case LocalDOF.R3:
+                                #region
+                                #region
                                 _kElementLocalCoord[5, 5] = 0.0;
 
-                                _kElementLocalCoord[7, 5] = 0.0;
-                                _kElementLocalCoord[5, 7] = 0.0;
-
-                                _kElementLocalCoord[11, 5] = 0.0;
-                                _kElementLocalCoord[5, 11] = 0.0;
-
-                                _kElementLocalCoord[1, 5] = 0.0;
                                 _kElementLocalCoord[5, 1] = 0.0;
+                                _kElementLocalCoord[5, 5] = 0.0;
+
+                                _kElementLocalCoord[5, 7] = 0.0;
+                                _kElementLocalCoord[7, 5] = 0.0;
+
+                                _kElementLocalCoord[5, 11] = 0.0;
+                                _kElementLocalCoord[11, 5] = 0.0;
+                                #endregion
+
+                                #region
+                                _kElementLocalCoord[1, 1] = 3.0 * E * Jzz / L3;
+
+                                /*_kElementLocalCoord[1, 5] = 0.0;
+                                _kElementLocalCoord[5, 1] = 0.0;*/
+
+                                _kElementLocalCoord[1, 7] = -3.0 * E * Jzz / L3;
+                                _kElementLocalCoord[7, 1] = -3.0 * E * Jzz / L3;
+
+                                _kElementLocalCoord[1, 11] = 3.0 * E * Jzz / L2;
+                                _kElementLocalCoord[11, 1] = 3.0 * E * Jzz / L2;
+                                #endregion
+
+                                #region
+                                _kElementLocalCoord[7, 7] = 3.0 * E * Jzz / L3;
+
+                                /*_kElementLocalCoord[7, 1] = -3.0 * E * Jzz / L3;
+                                _kElementLocalCoord[1, 7] = -3.0 * E * Jzz / L3;*/
+
+                                /*_kElementLocalCoord[7, 5] = 0.0;
+                                _kElementLocalCoord[5, 7] = 0.0;*/
+
+                                _kElementLocalCoord[7, 11] = -3.0 * E * Jzz / L2;
+                                _kElementLocalCoord[11, 7] = -3.0 * E * Jzz / L2;
+                                #endregion
+
+                                #region
+                                _kElementLocalCoord[11, 11] = 3.0 * E * Jzz / L2;
+
+                                /*_kElementLocalCoord[11, 1] = 3.0 * E * Jzz / L2;
+                                _kElementLocalCoord[1, 11] = 3.0 * E * Jzz / L2;*/
+
+                                /*_kElementLocalCoord[11, 5] = 0.0;
+                                _kElementLocalCoord[5, 11] = 0.0;*/
+
+                                /*_kElementLocalCoord[11, 7] = -3.0 * E * Jzz / L2;
+                                _kElementLocalCoord[7, 11] = -3.0 * E * Jzz / L2;*/
+                                #endregion
+                                #endregion
                                 break;
                         }
                     }
@@ -167,64 +345,240 @@ namespace GPC.Model.FEM.FiniteElements
                         switch (localDOFs[i])
                         {
                             case LocalDOF.AxialU1:
+                                #region
                                 _kElementLocalCoord[6, 6] = 0.0;
 
                                 _kElementLocalCoord[6, 0] = 0.0;
                                 _kElementLocalCoord[0, 6] = 0.0;
+                                #endregion
                                 break;
                             case LocalDOF.TorsionR1:
+                                #region
                                 _kElementLocalCoord[9, 9] = 0.0;
 
                                 _kElementLocalCoord[9, 3] = 0.0;
                                 _kElementLocalCoord[3, 9] = 0.0;
+                                #endregion
                                 break;
                             case LocalDOF.U2:
-                                _kElementLocalCoord[7, 7] = 0.0;
+                                #region
+                                #region
+                                _kElementLocalCoord[7, 7] = 0.0; 
 
-                                _kElementLocalCoord[7, 5] = 0.0;
-                                _kElementLocalCoord[5, 7] = 0.0;
+                                _kElementLocalCoord[5, 7] = 0.0; 
+                                _kElementLocalCoord[7, 5] = 0.0; 
 
+                                _kElementLocalCoord[7, 1] = 0.0; 
                                 _kElementLocalCoord[1, 7] = 0.0;
-                                _kElementLocalCoord[7, 1] = 0.0;
 
                                 _kElementLocalCoord[7, 11] = 0.0;
                                 _kElementLocalCoord[11, 7] = 0.0;
+                                #endregion
+
+                                #region
+                                _kElementLocalCoord[11, 11] = E * Jzz / L;
+
+                                _kElementLocalCoord[11, 7] = 0.0; 
+                                _kElementLocalCoord[7, 11] = 0.0;
+
+                                _kElementLocalCoord[11, 5] = -E * Jzz / L; 
+                                _kElementLocalCoord[5, 11] = -E * Jzz / L;
+
+                                _kElementLocalCoord[1, 11] = 0.0;
+                                _kElementLocalCoord[11, 1] = 0.0;
+                                #endregion
+
+                                #region
+                                _kElementLocalCoord[5, 5] = E * Jzz / L; 
+
+                                _kElementLocalCoord[5, 1] = 0.0; 
+                                _kElementLocalCoord[1, 5] = 0.0; 
+
+                                _kElementLocalCoord[5, 7] = 0.0; 
+                                _kElementLocalCoord[7, 5] = 0.0; 
+
+                                _kElementLocalCoord[5, 11] = -E * Jzz / L; 
+                                _kElementLocalCoord[11, 5] = -E * Jzz / L;
+                                #endregion
+
+                                #region
+                                _kElementLocalCoord[1, 1] = 0.0;
+
+                                _kElementLocalCoord[5, 1] = 0.0;
+                                _kElementLocalCoord[1, 5] = 0.0;
+
+                                _kElementLocalCoord[7, 1] = 0.0;
+                                _kElementLocalCoord[1, 7] = 0.0; 
+
+                                _kElementLocalCoord[1, 11] = 0.0; 
+                                _kElementLocalCoord[11, 1] = 0.0;
+                                #endregion
+                                #endregion
                                 break;
                             case LocalDOF.U3:
+                                #region
+                                #region
                                 _kElementLocalCoord[8, 8] = 0.0;
 
-                                _kElementLocalCoord[4, 8] = 0.0;
+                                _kElementLocalCoord[8, 2] = 0.0;
+                                _kElementLocalCoord[2, 8] = 0.0;
+
                                 _kElementLocalCoord[8, 4] = 0.0;
+                                _kElementLocalCoord[4, 8] = 0.0;
+
+                                _kElementLocalCoord[8, 10] = 0.0;
+                                _kElementLocalCoord[10, 8] = 0.0;
+                                #endregion
+
+                                #region
+                                _kElementLocalCoord[2, 2] = 0.0;
+
+                                _kElementLocalCoord[2, 4] = 0.0;
+                                _kElementLocalCoord[4, 2] = 0.0;
 
                                 _kElementLocalCoord[2, 8] = 0.0;
                                 _kElementLocalCoord[8, 2] = 0.0;
 
+                                _kElementLocalCoord[2, 10] = 0.0;
+                                _kElementLocalCoord[10, 2] = 0.0;
+                                #endregion
+
+                                #region
+                                _kElementLocalCoord[4, 4] = E * Jyy / L;
+
+                                _kElementLocalCoord[4, 2] = 0.0;
+                                _kElementLocalCoord[2, 4] = 0.0;
+
+                                _kElementLocalCoord[4, 8] = 0.0;
+                                _kElementLocalCoord[8, 4] = 0.0;
+
+                                _kElementLocalCoord[4, 10] = -E * Jyy / L;
+                                _kElementLocalCoord[10, 4] = -E * Jyy / L;
+                                #endregion
+
+                                #region
+                                _kElementLocalCoord[10, 10] = E * Jyy / L;
+
                                 _kElementLocalCoord[10, 8] = 0.0;
                                 _kElementLocalCoord[8, 10] = 0.0;
-                                break;
-                            case LocalDOF.R2:
-                                _kElementLocalCoord[10, 10] = 0.0;
 
-                                _kElementLocalCoord[8, 10] = 0.0;
-                                _kElementLocalCoord[10, 8] = 0.0;
-
-                                _kElementLocalCoord[4, 10] = 0.0;
-                                _kElementLocalCoord[10, 4] = 0.0;
+                                _kElementLocalCoord[10, 4] = -E * Jyy / L;
+                                _kElementLocalCoord[4, 10] = -E * Jyy / L;
 
                                 _kElementLocalCoord[2, 10] = 0.0;
                                 _kElementLocalCoord[10, 2] = 0.0;
+                                #endregion
+                                #endregion
+                                break;
+                            case LocalDOF.R2:
+                                #region
+                                #region
+                                _kElementLocalCoord[10, 10] = 0.0;
+
+                                _kElementLocalCoord[10, 2] = 0.0;
+                                _kElementLocalCoord[2, 10] = 0.0;
+
+                                _kElementLocalCoord[10, 4] = 0.0;
+                                _kElementLocalCoord[4, 10] = 0.0;
+
+                                _kElementLocalCoord[10, 8] = 0.0;
+                                _kElementLocalCoord[8, 10] = 0.0;
+                                #endregion
+
+                                #region
+                                _kElementLocalCoord[2, 2] = 3.0 * E * Jyy / L3;
+
+                                _kElementLocalCoord[4, 2] = -3.0 * E * Jyy / L2;
+                                _kElementLocalCoord[2, 4] = -3.0 * E * Jyy / L2;
+
+                                _kElementLocalCoord[4, 8] = -3.0 * E * Jyy / L3;
+                                _kElementLocalCoord[8, 4] = -3.0 * E * Jyy / L3;
+
+                                _kElementLocalCoord[4, 10] = 0.0;
+                                _kElementLocalCoord[10, 4] = 0.0;
+                                #endregion
+
+                                #region
+                                _kElementLocalCoord[4, 4] = 3.0 * E * Jyy / L2;
+
+                                _kElementLocalCoord[4, 2] = -3.0 * E * Jyy / L3;
+                                _kElementLocalCoord[2, 4] = -3.0 * E * Jyy / L3;
+
+                                _kElementLocalCoord[4, 8] = 3.0 * E * Jyy / L3;
+                                _kElementLocalCoord[8, 4] = 3.0 * E * Jyy / L3;
+
+                                _kElementLocalCoord[4, 10] = 0.0;
+                                _kElementLocalCoord[10, 10] = 0.0;
+                                #endregion
+
+                                #region
+                                _kElementLocalCoord[8, 8] = 3.0 * E * Jyy / L3;
+
+                                _kElementLocalCoord[8, 2] = -3.0 * E * Jyy / L3;
+                                _kElementLocalCoord[2, 8] = -3.0 * E * Jyy / L3;
+
+                                _kElementLocalCoord[8, 4] = 3.0 * E * Jyy / L2;
+                                _kElementLocalCoord[4, 8] = 3.0 * E * Jyy / L2;
+
+                                _kElementLocalCoord[8, 10] = 0.0;
+                                _kElementLocalCoord[10, 8] = 0.0;
+                                #endregion
+                                #endregion
                                 break;
                             case LocalDOF.R3:
+                                #region
+                                #region
+                                _kElementLocalCoord[1, 1] = 3.0 * E * Jzz / L3;
+
+                                _kElementLocalCoord[1, 5] = 3.0 * E * Jzz / L2;
+                                _kElementLocalCoord[5, 1] = 3.0 * E * Jzz / L2;
+
+                                _kElementLocalCoord[1, 7] = -3.0 * E * Jzz / L3;
+                                _kElementLocalCoord[7, 1] = -3.0 * E * Jzz / L3;
+
+                                _kElementLocalCoord[1, 11] = 0.0;
                                 _kElementLocalCoord[11, 11] = 0.0;
+                                #endregion
+
+                                #region
+                                _kElementLocalCoord[5, 5] = 3.0 * E * Jzz / L2;
+
+                                _kElementLocalCoord[5, 1] = 3.0 * E * Jzz / L3;
+                                _kElementLocalCoord[5, 5] = 3.0 * E * Jzz / L3;
+
+                                _kElementLocalCoord[5, 7] = -3.0 * E * Jzz / L3;
+                                _kElementLocalCoord[7, 5] = -3.0 * E * Jzz / L3;
+
+                                _kElementLocalCoord[5, 11] = 0.0;
+                                _kElementLocalCoord[11, 5] = 0.0;
+                                #endregion
+
+                                #region
+                                _kElementLocalCoord[7, 7] = 3.0 * E * Jzz / L3;
+
+                                _kElementLocalCoord[7, 1] = -3.0 * E * Jzz / L3;
+                                _kElementLocalCoord[1, 7] = -3.0 * E * Jzz / L3;
+
+                                _kElementLocalCoord[7, 5] = -3.0 * E * Jzz / L2;
+                                _kElementLocalCoord[5, 7] = -3.0 * E * Jzz / L2;
 
                                 _kElementLocalCoord[7, 11] = 0.0;
                                 _kElementLocalCoord[11, 7] = 0.0;
+                                #endregion
+
+                                #region
+                                _kElementLocalCoord[11, 11] = 0.0;
+
+                                _kElementLocalCoord[11, 1] = 0.0;
+                                _kElementLocalCoord[1, 11] = 0.0;
 
                                 _kElementLocalCoord[11, 5] = 0.0;
                                 _kElementLocalCoord[5, 11] = 0.0;
 
-                                _kElementLocalCoord[1, 11] = 0.0;
-                                _kElementLocalCoord[11, 1] = 0.0;
+                                _kElementLocalCoord[11, 7] = 0.0;
+                                _kElementLocalCoord[7, 11] = 0.0;
+                                #endregion
+                                #endregion
                                 break;
                         }
                     }
@@ -232,7 +586,7 @@ namespace GPC.Model.FEM.FiniteElements
             }
             #endregion
 
-            /*Console.WriteLine("kLocal");
+            /*Console.WriteLine("Half kLocal");
             FEMUtilities.WriteMatrix(_kElementLocalCoord, "F0");*/
 
             //applying symmetry
@@ -243,8 +597,8 @@ namespace GPC.Model.FEM.FiniteElements
                     _kElementLocalCoord[row, col] = _kElementLocalCoord[col, row];
                 }
             }
-            /*Console.WriteLine("kLocal");
-            FEMUtilities.WriteMatrix(_kElementLocalCoord, "F2");*/
+            Console.WriteLine("kLocal");
+            FEMUtilities.WriteMatrix(_kElementLocalCoord, "F2");
             #endregion
 
             #region transformationToGlobal
@@ -539,7 +893,6 @@ namespace GPC.Model.FEM.FiniteElements
             double E = _property.GetE();
             double J11 = ((Section)_property).J11;
             double J22 = ((Section)_property).J22;
-
 
             //Post-processing only for beam:
             double qx = 0;
