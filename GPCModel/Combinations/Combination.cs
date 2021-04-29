@@ -517,10 +517,5 @@ namespace GPC.Model.Combinations
         }
 
         #endregion
-
-        public static List<Combination> GenerateCombinations(string name, Standard standard, List<LoadCaseBase> loadCases)
-        {
-            return null;
-        }
     }
 }
