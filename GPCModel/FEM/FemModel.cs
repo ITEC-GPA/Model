@@ -109,7 +109,6 @@ namespace GPC.Model.FEM
 
         protected List<ResultPlateStress> _resultPlateStress;
 
-
         protected AnalysisTypes _analysisType;
 
         #endregion
