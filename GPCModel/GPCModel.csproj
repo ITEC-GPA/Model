@@ -72,6 +72,7 @@
     <Compile Include="Base\UniqueObjectCollection.cs" />
     <Compile Include="Base\UnitsSystem.cs" />
     <Compile Include="Base\Units.cs" />
+    <Compile Include="Combinations\CombinationsCollection.cs" />
     <Compile Include="Combinations\Standard.cs" />
     <Compile Include="Combinations\StandardASCE16.cs" />
     <Compile Include="Combinations\StandardEN1990.cs" />

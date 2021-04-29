@@ -1,4 +1,5 @@
-﻿using System;
+﻿using GPC.Model.LoadCases;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -244,5 +245,10 @@ namespace GPC.Model.Combinations
 
         #endregion
 
+
+        public override CombinationsCollection CreateCombinations<T>(LoadCaseBase[] loadCases, T options)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

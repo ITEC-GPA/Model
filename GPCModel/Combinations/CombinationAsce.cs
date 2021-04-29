@@ -4,22 +4,23 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
 
+#if riprogettare
 namespace GPC.Model.Combinations
 {
     public sealed class CombinationAsce : Combination, IEquatable<CombinationAsce>, ICloneable
     {
-        #region VARIABLES
+#region VARIABLES
 
         private StandardASCE16 _standardASCE16;
 
         private StandardASCE16.LimitStates? _combinationType;
 
-        #endregion
+#endregion
 
         public StandardASCE16.LimitStates? LimitState => _combinationType;
 
 
-        #region PUBLIC CONSTRUCTOR
+#region PUBLIC CONSTRUCTOR
 
 
         /// <param name="name">The identifying name of combination</param>
@@ -69,10 +70,10 @@ namespace GPC.Model.Combinations
             _combinationType = (StandardASCE16.LimitStates)info.GetValue("CombinationType", typeof(StandardASCE16.LimitStates));
         }
 
-        #endregion
+#endregion
 
 
-        #region PUBLIC OVERRIDE METHODS
+#region PUBLIC OVERRIDE METHODS
 
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
@@ -153,10 +154,10 @@ namespace GPC.Model.Combinations
             return !(obj1 == obj2);
         }
 
-        #endregion
+#endregion
 
 
-        #region PUBLIC METHOD  
+#region PUBLIC METHOD  
 
         /// <summary>
         /// Generate the combinations of design with the <paramref name="standardASCE16"/> normative
@@ -401,12 +402,12 @@ namespace GPC.Model.Combinations
                 throw new ArgumentException("Fail to generate");
         }
 
-        #endregion
+#endregion
 
 
-        #region PRIVATE METHOD
+#region PRIVATE METHOD
 
-        #region LFRD
+#region LFRD
 
         private static List<LoadCaseCoefficient> LFRDCombo1(List<LoadCase> loadCases, StandardASCE16 standardASCE16)
         {
@@ -822,10 +823,10 @@ namespace GPC.Model.Combinations
             return loadCaseCoefficientSList;
         }
 
-        #endregion
+#endregion
 
 
-        #region ASD
+#region ASD
 
         private static List<LoadCaseCoefficient> ASDCombo1(List<LoadCase> loadCases, StandardASCE16 standardASCE16)
         {
@@ -1288,10 +1289,11 @@ namespace GPC.Model.Combinations
 
 
 
-        #endregion
+#endregion
 
-        #endregion
+#endregion
 
 
     }
 }
+#endif

@@ -17,7 +17,6 @@ namespace GPC.Model.Combinations
 
         protected int LoadCaseCount => _coefficients.Count;
 
-
         #region PUBLIC CONSTRUCTOR
 
         protected Combination(string name, Guid guid)
@@ -310,7 +309,6 @@ namespace GPC.Model.Combinations
 
         #endregion PUBLIC METHODS
 
-
         #region Equals - HashCode - Operators - Serialization - ToString
 
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
@@ -384,13 +382,9 @@ namespace GPC.Model.Combinations
         
         #endregion Equals - HashCode - Operators - Serialization - ToString
 
-
-      
-
-
         #region Nested class
 
-        protected sealed class LoadCaseCoefficient : IComparable<LoadCaseCoefficient>, IEquatable<LoadCaseCoefficient>
+        public sealed class LoadCaseCoefficient : IComparable<LoadCaseCoefficient>, IEquatable<LoadCaseCoefficient>
         {
             private LoadCaseBase _loadcase;
             private double _coefficient;
@@ -481,7 +475,6 @@ namespace GPC.Model.Combinations
 
         #endregion Nested protected class
 
-
         #region Equality comprarer
 
         /// <summary>
@@ -524,5 +517,10 @@ namespace GPC.Model.Combinations
         }
 
         #endregion
+
+        public static List<Combination> GenerateCombinations(string name, Standard standard, List<LoadCaseBase> loadCases)
+        {
+            return null;
+        }
     }
 }
