@@ -6,12 +6,12 @@ using System.Linq;
 using System.Runtime.Serialization;
 using System.Text;
 using System.Threading.Tasks;
-#if never
+
 namespace GPC.Model.LoadCases
 {
     public class ClimateLoadCase : LoadCaseBase
     {
-#region Public Enums
+        #region Public Enums
 
         public enum Seasons
         {
@@ -27,18 +27,18 @@ namespace GPC.Model.LoadCases
             [Description("Climate delta T")] DeltaT
         }
 
-#endregion
+        #endregion
 
-#region Class Variables
+        #region Class Variables
 
         private readonly Seasons _season;
         private readonly ClimateTypes _climateType;
         private readonly double _manufactoring;
         private readonly double _installation;
 
-#endregion
+        #endregion
 
-#region Properties
+        #region Properties
 
         public Seasons Season => _season;
 
@@ -48,9 +48,9 @@ namespace GPC.Model.LoadCases
 
         public double Installation => _installation;
 
-#endregion
+        #endregion
 
-#region Constructors
+        #region Constructors
 
         public ClimateLoadCase(string name, Seasons season, ClimateTypes climateType, double manufactoring, double installation, Guid guid)
             : base (name, guid)
@@ -75,7 +75,7 @@ namespace GPC.Model.LoadCases
             _installation = info.GetDouble("Installation");
         }
 
-#endregion
+        #endregion
 
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
@@ -115,4 +115,3 @@ namespace GPC.Model.LoadCases
         }
     }
 }
-#endif
