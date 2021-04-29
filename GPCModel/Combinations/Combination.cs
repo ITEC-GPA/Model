@@ -11,7 +11,7 @@ namespace GPC.Model.Combinations
 {
     [Serializable]
     [DebuggerDisplay("{" + nameof(GetDebuggerDisplay) + "(),nq}")]
-    public abstract class Combination : ModelObject, ILoadCase, ICloneable
+    public class Combination : ModelObject, ILoadCase, ICloneable
     {
         protected List<LoadCaseCoefficient> _coefficients;
 
@@ -19,28 +19,28 @@ namespace GPC.Model.Combinations
 
         #region PUBLIC CONSTRUCTOR
 
-        protected Combination(string name, Guid guid)
+        public Combination(string name, Guid guid)
             : base(guid, name)
         {
             if (string.IsNullOrEmpty(name) || string.IsNullOrWhiteSpace(name))
                 throw new ArgumentException("Combination name cannot be empty");
 
-            this._name = name;
-            this._coefficients = new List<LoadCaseCoefficient>();
+            _name = name;
+            _coefficients = new List<LoadCaseCoefficient>();
         }
 
-        protected Combination(string name)
+        public Combination(string name)
             : this(name, Guid.NewGuid())
         {
         }
 
-        protected Combination(Combination combination)
+        public Combination(Combination combination)
             : this(combination._name, combination.Guid)
         {
             _coefficients = combination._coefficients.ToList(); //Shallow copy, i puntatori dei loadcase non cambiano
         }
 
-        protected Combination(SerializationInfo info, StreamingContext context)
+        public Combination(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
             _coefficients = (List<LoadCaseCoefficient>)info.GetValue("Coefficients", typeof(List<LoadCaseCoefficient>));
@@ -49,7 +49,7 @@ namespace GPC.Model.Combinations
         #endregion
 
         #region Abstract methods
-
+        /*
         public abstract bool IsUltimate();
 
         public abstract object Clone();
@@ -64,6 +64,12 @@ namespace GPC.Model.Combinations
         /// Create a new empty <see cref="Combination"/> object. I.e. with the same properties except the <see cref="Combination.LoadCaseCoefficient"/> List that will be empty
         /// </summary>
         public abstract object CloneEmpty();
+        */
+
+        public object Clone()
+        {
+            return null;
+        }
 
         #endregion Abstract methods
 
