@@ -242,12 +242,20 @@ namespace GPC.Model.FEM.Collections
 
         public override bool Equals(object obj)
         {
-            return base.Equals(obj);
+            return obj is FemObjectCollection<T> collection && _collection.ScrambledEquals(collection._collection);
         }
 
         public override int GetHashCode()
         {
-            return base.GetHashCode();
+            int hashCode = -23;
+            hashCode = hashCode * -17 + base.GetHashCode();
+
+            foreach (var element in _collection)
+            {
+                hashCode = hashCode + EqualityComparer<FEMObject>.Default.GetHashCode(element);
+            }
+
+            return hashCode;
         }
 
         public static bool operator ==(FemObjectCollection<T> obj1, FemObjectCollection<T> obj2)
