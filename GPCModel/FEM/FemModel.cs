@@ -203,14 +203,14 @@ namespace GPC.Model.FEM
 
 
         /// <inheritdoc cref="UniqueNameCollection{T}.GetElementByName(string)"/>
-        public virtual ElementProperty GetPlateProperty(string name)
+        public virtual PlateProperty GetPlateProperty(string name)
         {
             return _plateProperties.GetElementByName(name);
         }
 
 
         /// <inheritdoc cref="UniqueNameCollection{T}.GetElementByName(string)"/>
-        public virtual ElementProperty GetBrickProperty(string name)
+        public virtual BrickProperty GetBrickProperty(string name)
         {
             return _brickProperties.GetElementByName(name);
         }

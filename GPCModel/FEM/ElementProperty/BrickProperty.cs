@@ -1,8 +1,10 @@
 ﻿using GPC.Model.Materials;
 using System;
+using System.Diagnostics;
 
 namespace GPC.Model.FEM.Properties
 {
+    [DebuggerDisplay("{" + nameof(GetDebuggerDisplay) + "(),nq}")]
     public class BrickProperty : ElementProperty
     {
         protected Material _material;
@@ -37,6 +39,11 @@ namespace GPC.Model.FEM.Properties
         public override double GetShearModule()
         {
             return _material.GetShearModule();
+        }
+
+        private string GetDebuggerDisplay()
+        {
+            return $"BrickProperty: {_name}";
         }
     }
 }

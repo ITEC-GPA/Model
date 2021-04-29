@@ -13,11 +13,9 @@ namespace GPC.Model.Combinations
     [DebuggerDisplay("{" + nameof(GetDebuggerDisplay) + "(),nq}")]
     public abstract class Combination : ModelObject, ILoadCase, ICloneable
     {
-        #region VARIABLES
-
         protected List<LoadCaseCoefficient> _coefficients;
 
-        #endregion
+        protected int LoadCaseCount => _coefficients.Count;
 
 
         #region PUBLIC CONSTRUCTOR
@@ -336,6 +334,12 @@ namespace GPC.Model.Combinations
             return sb.ToString();
         }
 
+        private string GetDebuggerDisplay()
+        {
+            return $"{Name}: {ToString()}";
+        }
+
+
         public override bool Equals(object obj)
         {
             if (obj is null)
@@ -377,14 +381,11 @@ namespace GPC.Model.Combinations
             return !(obj1 == obj2);
         }
 
+        
         #endregion Equals - HashCode - Operators - Serialization - ToString
 
 
-        #region Nested protected class
-
-        
-
-        #endregion
+      
 
 
         #region Nested class
@@ -475,11 +476,6 @@ namespace GPC.Model.Combinations
             {
                 return !(obj1 == obj2);
             }
-        }
-
-        private string GetDebuggerDisplay()
-        {
-            return $"{Name}: {ToString()}";
         }
 
         #endregion Nested protected class
