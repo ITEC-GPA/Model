@@ -36,22 +36,22 @@ namespace GPC.Model.Loads
         /// <param name="shape"></param>
         /// <param name="loadCase"></param>
         /// <remarks><see cref="CoordinateSystem"/> set to Global</remarks>
-        public AreaLoad(double p1, double p2, double p3, Shape shape, LoadCase loadCase)
+        public AreaLoad(double p1, double p2, double p3, Shape shape, LoadCaseBase loadCase)
             : this(p1, p2, p3, shape, loadCase, CoordinateSystem.Global)
         {
 
         }
 
-        public AreaLoad(double p1, double p2, double p3, Shape shape, LoadCase loadCase, CoordinateSystem coordinateSystem)
+        public AreaLoad(double p1, double p2, double p3, Shape shape, LoadCaseBase loadCase, CoordinateSystem coordinateSystem)
             : base(loadCase, Guid.NewGuid())
         {
 
-            this._p1 = p1;
-            this._p2 = p2;
-            this._p3 = p3;
+            _p1 = p1;
+            _p2 = p2;
+            _p3 = p3;
 
-            this._shape = shape ?? throw new ArgumentNullException("Shape cannot be null");
-            this._coordinateSystem = coordinateSystem ?? throw new ArgumentNullException(nameof(coordinateSystem));
+            _shape = shape ?? throw new ArgumentNullException("Shape cannot be null");
+            _coordinateSystem = coordinateSystem ?? throw new ArgumentNullException(nameof(coordinateSystem));
         }
 
 

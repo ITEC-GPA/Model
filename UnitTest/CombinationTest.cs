@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using GPC.TestUtilities;
 using System.Linq;
 
+#if riprogettare
 namespace ModelObjectTest
 {
     [TestClass]
@@ -51,16 +52,16 @@ namespace ModelObjectTest
         public void CombinationTest2()
         {
             // Arrange
-            List<LoadCase> loadCases = new List<LoadCase>();
+            List<LoadCaseBase> loadCases = new List<LoadCaseBase>();
             List<double> coefficients = new List<double>();
 
-            loadCases.Add(new LoadCase("Snow", Guid.NewGuid()));
+            loadCases.Add(new LoadCaseBase("Snow", Guid.NewGuid()));
             coefficients.Add(2);
 
             loadCases.Add(new LoadCase("Live", LoadCase.LoadCaseTypes.LiveLoad, Guid.NewGuid()));
             coefficients.Add(1);
 
-            loadCases.Add(new LoadCase("SW", Guid.NewGuid()));
+            loadCases.Add(new LoadCaseBase("SW", Guid.NewGuid()));
             coefficients.Add(0.5);
 
             loadCases.Add(new LoadCase("SDL", LoadCase.LoadCaseTypes.SuperImposedDeadLoad, Guid.NewGuid()));
@@ -195,7 +196,7 @@ namespace ModelObjectTest
 
             Console.WriteLine(combinationName);
             Assert.IsTrue(combination[sdl] == 8, combinationName);
-            Assert.IsTrue(combination[new LoadCase("test")] == 0, combinationName);
+            Assert.IsTrue(combination[new LoadCaseBase("test")] == 0, combinationName);
             Assert.IsTrue(combination[new LoadCase("Zero", LoadCase.LoadCaseTypes.Earthquake)] == 0, combinationName);
             Assert.IsTrue(splitted[0].Contains("SW"), combinationName);
             Assert.IsFalse(splitted[0].Contains("Zero"), combinationName);
@@ -255,26 +256,26 @@ namespace ModelObjectTest
 
             // Assert / Act
 
-            Assert.IsTrue(combination.ContainsLoadCaseCoefficients(new[] { new KeyValuePair<LoadCase, double>(lc1, 1) } ));
-            Assert.IsTrue(combination.ContainsLoadCaseCoefficients(new List<(LoadCase, double)> { (lc1, 1) }));
+            Assert.IsTrue(combination.ContainsLoadCaseCoefficients(new[] { new KeyValuePair<LoadCaseBase, double>(lc1, 1) } ));
+            Assert.IsTrue(combination.ContainsLoadCaseCoefficients(new List<(LoadCaseBase, double)> { (lc1, 1) }));
 
-            Assert.IsFalse(combination.ContainsLoadCaseCoefficients(new[] { new KeyValuePair<LoadCase, double>(lc1, 2) } ));
-            Assert.IsFalse(combination.ContainsLoadCaseCoefficients(new List<(LoadCase, double)> { (lc1, 2) }));
-
-
-            Assert.IsTrue(combination.ContainsLoadCaseCoefficients(new[] { new KeyValuePair<LoadCase, double>(lc1, 1), 
-                                                                           new KeyValuePair<LoadCase, double>(lc2, 2) } ));
-
-            Assert.IsFalse(combination.ContainsLoadCaseCoefficients(new[] { new KeyValuePair<LoadCase, double>(lc1, 1),
-                                                                            new KeyValuePair<LoadCase, double>(lc2, 3) }));
+            Assert.IsFalse(combination.ContainsLoadCaseCoefficients(new[] { new KeyValuePair<LoadCaseBase, double>(lc1, 2) } ));
+            Assert.IsFalse(combination.ContainsLoadCaseCoefficients(new List<(LoadCaseBase, double)> { (lc1, 2) }));
 
 
-            Assert.IsTrue(combination.ContainsLoadCaseCoefficients(new[] { new KeyValuePair<LoadCase, double>(lc1, 1),
-                                                                           new KeyValuePair<LoadCase, double>(lc4, 4) }));
+            Assert.IsTrue(combination.ContainsLoadCaseCoefficients(new[] { new KeyValuePair<LoadCaseBase, double>(lc1, 1), 
+                                                                           new KeyValuePair<LoadCaseBase, double>(lc2, 2) } ));
 
-            Assert.IsFalse(combination.ContainsLoadCaseCoefficients(new[] { new KeyValuePair<LoadCase, double>(lc6, 1) }));
+            Assert.IsFalse(combination.ContainsLoadCaseCoefficients(new[] { new KeyValuePair<LoadCaseBase, double>(lc1, 1),
+                                                                            new KeyValuePair<LoadCaseBase, double>(lc2, 3) }));
 
-            Assert.IsFalse(combination.ContainsLoadCaseCoefficients(new KeyValuePair<LoadCase, double>[1]));
+
+            Assert.IsTrue(combination.ContainsLoadCaseCoefficients(new[] { new KeyValuePair<LoadCaseBase, double>(lc1, 1),
+                                                                           new KeyValuePair<LoadCaseBase, double>(lc4, 4) }));
+
+            Assert.IsFalse(combination.ContainsLoadCaseCoefficients(new[] { new KeyValuePair<LoadCaseBase, double>(lc6, 1) }));
+
+            Assert.IsFalse(combination.ContainsLoadCaseCoefficients(new KeyValuePair<LoadCaseBase, double>[1]));
 
 
         }
@@ -2366,3 +2367,4 @@ namespace ModelObjectTest
     }
 }
 
+#endif

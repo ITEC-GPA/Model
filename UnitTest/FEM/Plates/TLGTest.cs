@@ -72,7 +72,7 @@ namespace FemTest.SolverTest
             double niGlass = 0.23;
             Quad4TripleLaminatedGlass e0 = new Quad4TripleLaminatedGlass(nodesPlate1, G0, h0, h1, h2, EGlass, niGlass);
 
-            LoadCase lc = new LoadCase("lc");
+            LoadCaseBase lc = new LoadCaseBase("lc");
             CoordinateSystem csys = new CoordinateSystem(new Vector3d(0, 0, 0), new Vector3d(1, 0, 0), new Vector3d(0, 1, 0));
             PlatePressureAttribute p = new PlatePressureAttribute("lc", csys, 0, 0, 1);
 
@@ -355,7 +355,7 @@ namespace FemTest.SolverTest
             Quad4TripleLaminatedGlass e0 = new Quad4TripleLaminatedGlass(new Node[] { nodes[0], nodes[1], nodes[2], nodes[3] }, G0, h0, h1, h2, EGlass, niGlass);
             FiniteElement e1 = new Quad4Element(new Node[] { nodes[0], nodes[1], nodes[2], nodes[3] }, prop);
 
-            LoadCase loadCase = new LoadCase("myLoadCase");
+            LoadCaseBase loadCase = new LoadCaseBase("myLoadCase");
             FreedomCase freedomCase = new FreedomCase("freedomCase1");
             CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
 
@@ -476,7 +476,7 @@ namespace FemTest.SolverTest
             els2.Add(new Quad4Element(new Node[] { nodes[2], nodes[5], nodes[14], nodes[13] }, prop));
             els2.Add(new Quad4Element(new Node[] { nodes[5], nodes[1], nodes[15], nodes[14] }, prop));
 
-            LoadCase loadCase = new LoadCase("myLoadCase");
+            LoadCaseBase loadCase = new LoadCaseBase("myLoadCase");
             FreedomCase freedomCase = new FreedomCase("freedomCase1");
             CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
 
@@ -644,7 +644,7 @@ namespace FemTest.SolverTest
             els2.Add(new Quad4Element(new Node[] { nodes[2], nodes[5], nodes[14], nodes[13] }, prop));
             els2.Add(new Quad4Element(new Node[] { nodes[5], nodes[1], nodes[15], nodes[14] }, prop));*/
 
-            LoadCase loadCase = new LoadCase("myLoadCase");
+            LoadCaseBase loadCase = new LoadCaseBase("myLoadCase");
             FreedomCase freedomCase = new FreedomCase("freedomCase1");
             CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
 

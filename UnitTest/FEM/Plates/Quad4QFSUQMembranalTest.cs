@@ -235,7 +235,7 @@ namespace FemTest.SolverTest
             nds[4 - 1].AddAttribute(hinge);
             //nds[4 - 1].AddAttribute(dx);
 
-            LoadCase lc = new LoadCase("lc");
+            LoadCaseBase lc = new LoadCaseBase("lc");
             double q = 1.0;
             double F = 0.5 * q;
             double M = 0.0; // F * (0.5 * 0.5) / 2.0;
@@ -403,7 +403,7 @@ namespace FemTest.SolverTest
             nds[1 - 1].AddAttribute(hinge);
             nds[6-1].AddAttribute(hinge);  
 
-            LoadCase lc = new LoadCase("lc");
+            LoadCaseBase lc = new LoadCaseBase("lc");
             NodeForceAttribute F = new NodeForceAttribute("lc", sys, 0, 20.0, 0, 0, 0, 0);
             nds[4].AddAttribute(F);
             nds[9].AddAttribute(F);
@@ -486,7 +486,7 @@ namespace FemTest.SolverTest
             nds[6 - 1].AddAttribute(hinge);
             nds[11 - 1].AddAttribute(hinge);
 
-            LoadCase lc = new LoadCase("lc");
+            LoadCaseBase lc = new LoadCaseBase("lc");
             NodeForceAttribute F = new NodeForceAttribute("lc", sys, 0, 20.0, 0, 0, 0, 0);
             nds[4].AddAttribute(F);
             nds[9].AddAttribute(F);
@@ -587,7 +587,7 @@ namespace FemTest.SolverTest
             nds[19 - 1].AddAttribute(hinge);
             nds[10 - 1].AddAttribute(dx);
 
-            LoadCase lc = new LoadCase("lc");
+            LoadCaseBase lc = new LoadCaseBase("lc");
             NodeForceAttribute Fcent = new NodeForceAttribute("lc", sys, 0, 20.0, 0, 0, 0, 0);
             NodeForceAttribute Fext = new NodeForceAttribute("lc", sys, 0, 10.0, 0, 0, 0, 0);
             nds[9 - 1].AddAttribute(Fext);
@@ -682,7 +682,7 @@ namespace FemTest.SolverTest
             nds[1 - 1].AddAttribute(dy);
             nds[6 - 1].AddAttribute(hinge);
 
-            LoadCase lc = new LoadCase("lc");
+            LoadCaseBase lc = new LoadCaseBase("lc");
             NodeForceAttribute Fplus = new NodeForceAttribute("lc", sys, 1.0, 0.0, 0, 0, 0, 0);
             NodeForceAttribute Fminus = new NodeForceAttribute("lc", sys, -1.0, 0.0, 0, 0, 0, 0);
             nds[0].AddAttribute(Fplus);
@@ -769,7 +769,7 @@ namespace FemTest.SolverTest
             nds[1 - 1].AddAttribute(dy);
             nds[6 - 1].AddAttribute(hinge);
 
-            LoadCase lc = new LoadCase("lc");
+            LoadCaseBase lc = new LoadCaseBase("lc");
             NodeForceAttribute Mplus = new NodeForceAttribute("lc", sys, 0.0, 0.0, 0, 0, 0, 0.5);
             NodeForceAttribute Mminus = new NodeForceAttribute("lc", sys, 0.0, 0.0, 0, 0, 0, -0.5);
             nds[0].AddAttribute(Mplus);
@@ -863,7 +863,7 @@ namespace FemTest.SolverTest
             nds[0].AddAttribute(dy);
             nds[10].AddAttribute(hinge);
 
-            LoadCase lc = new LoadCase("lc");
+            LoadCaseBase lc = new LoadCaseBase("lc");
             NodeForceAttribute Fplus = new NodeForceAttribute("lc", sys, 1.0, 0.0, 0, 0, 0, 0);
             NodeForceAttribute Fminus = new NodeForceAttribute("lc", sys, -1.0, 0.0, 0, 0, 0, 0);
             nds[0].AddAttribute(Fplus);
@@ -965,7 +965,7 @@ namespace FemTest.SolverTest
             nds[0].AddAttribute(dy);
             nds[10].AddAttribute(hinge);
 
-            LoadCase lc = new LoadCase("lc");
+            LoadCaseBase lc = new LoadCaseBase("lc");
             NodeForceAttribute Mplus = new NodeForceAttribute("lc", sys, 0.0, 0.0, 0, 0, 0, 0.5);
             NodeForceAttribute Mminus = new NodeForceAttribute("lc", sys, 0.0, 0.0, 0, 0, 0, -0.5);
             nds[0].AddAttribute(Mplus);

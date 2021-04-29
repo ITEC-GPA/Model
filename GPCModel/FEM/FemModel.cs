@@ -65,9 +65,9 @@ namespace GPC.Model.FEM
         // LOADCASES
 
         /// <summary>
-        /// Collection of <see cref="LoadCase"/> with unique name 
+        /// Collection of <see cref="LoadCaseBase"/> with unique name 
         /// </summary>
-        protected UniqueNameCollection<LoadCase> _loadCases;
+        protected UniqueNameCollection<LoadCaseBase> _loadCases;
 
         // FREEDOM CASES 
 
@@ -117,7 +117,7 @@ namespace GPC.Model.FEM
 
         public IEnumerable<Combination> Combinations => _combinations;
 
-        public IEnumerable<LoadCase> loadCases => _loadCases;
+        public IEnumerable<LoadCaseBase> loadCases => _loadCases;
 
         #endregion
 
@@ -139,7 +139,7 @@ namespace GPC.Model.FEM
             _plateProperties = new UniqueNameCollection<PlateProperty>();
             _brickProperties = new UniqueNameCollection<BrickProperty>();
             
-            _loadCases = new UniqueNameCollection<LoadCase>();
+            _loadCases = new UniqueNameCollection<LoadCaseBase>();
             _freedomCases = new UniqueNameCollection<FreedomCase>();
             _combinations = new UniqueNameCollection<Combination>();
                         
@@ -233,14 +233,14 @@ namespace GPC.Model.FEM
         #region LoadCase / FredomCase
 
         /// <inheritdoc cref="UniqueNameCollection{T}.Add(T)"/>
-        public bool AddLoadCase(LoadCase loadCase)
+        public bool AddLoadCase(LoadCaseBase loadCase)
         {
             return _loadCases.Add(loadCase);
         }
 
 
         /// <inheritdoc cref="UniqueNameCollection{T}.GetElementByName(string)"/>
-        public LoadCase GetLoadCaseByName(string loadCaseName)
+        public LoadCaseBase GetLoadCaseByName(string loadCaseName)
         {
             return _loadCases.GetElementByName(loadCaseName);
         }
@@ -346,7 +346,7 @@ namespace GPC.Model.FEM
         #region ModelAttribute
 
         /// <summary>Create the a ModelAccelerationAttribute using the loadcase with name equal to <paramref name="loadCaseName"/></summary>
-        /// <remarks>Before calling this method, the loadCase must be Added by means of <see cref="FemModel.AddLoadCase(LoadCase)"/></remarks>
+        /// <remarks>Before calling this method, the loadCase must be Added by means of <see cref="FemModel.AddLoadCase(LoadCaseBase)"/></remarks>
         /// <exception cref="ArgumentException"></exception>
         public ModelAccelerationAttribute AddModelAcceleration(string loadCaseName)
         {
@@ -762,7 +762,7 @@ namespace GPC.Model.FEM
         /// <param name="plateLoadMeshEntityMap">Map between <see cref="IAreaLoad"/> and <see cref="MeshFace"/>.Id</param>
         /// <param name="restrainMeshEntityMap">Map between IGeometryRestrain and <see cref="MeshVertex"/>.Id</param>
         /// <exception cref="KeyNotFoundException">If a <see cref="MeshVertex"/>.Id of <paramref name="restrainMeshEntityMap"/> is not found in the <paramref name="mesh"/> vertices ids</exception>
-        /// <remarks>The instances of <see cref="LoadCase"/> and <see cref="FreedomCase"/> will be replaced with the one in the <see cref="FemModel._loadCases"/> and <see cref="FemModel._freedomCases"/>  </remarks>
+        /// <remarks>The instances of <see cref="LoadCaseBase"/> and <see cref="FreedomCase"/> will be replaced with the one in the <see cref="FemModel._loadCases"/> and <see cref="FemModel._freedomCases"/>  </remarks>
         public virtual int[] AddMesh(Mesh mesh, string platePropertyName, string brickPropertyName, 
                                     Dictionary<IPointLoad, int[]> vertexLoadMeshEntityMap, 
                                     Dictionary<ILineLoad, int[]> vertexLineLoadMeshEntityMap,
@@ -990,7 +990,7 @@ namespace GPC.Model.FEM
 
                     var lc = (load as Load).LoadCase;
 
-                    LoadCase loadCase;
+                    LoadCaseBase loadCase;
                     if (LoadCaseExist(lc.Name))
                     {
                         loadCase = GetLoadCaseByName(lc.Name);
@@ -1035,7 +1035,7 @@ namespace GPC.Model.FEM
 
                     var lc = (load as Load).LoadCase;
 
-                    LoadCase loadCase;
+                    LoadCaseBase loadCase;
                     if (LoadCaseExist(lc.Name))
                     {
                         loadCase = GetLoadCaseByName(lc.Name);
@@ -1085,7 +1085,7 @@ namespace GPC.Model.FEM
 
                     var lc = (load as Load).LoadCase;
 
-                    LoadCase loadCase;
+                    LoadCaseBase loadCase;
                     if (LoadCaseExist(lc.Name))
                     {
                         loadCase = GetLoadCaseByName(lc.Name);

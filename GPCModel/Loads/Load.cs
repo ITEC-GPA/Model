@@ -9,16 +9,16 @@ namespace GPC.Model.Loads
     [Serializable]
     public abstract class Load : ModelObject
     {
-        private LoadCase _loadCase;
+        private LoadCaseBase _loadCase;
 
-        public LoadCase LoadCase => _loadCase;
+        public LoadCaseBase LoadCase => _loadCase;
 
         protected Load(LoadCase loadCase)
             : this(loadCase, Guid.NewGuid())
         {
         }
 
-        protected Load(LoadCase loadCase, Guid guid)
+        protected Load(LoadCaseBase loadCase, Guid guid)
             : base(guid)
         {
             _loadCase = loadCase ?? throw new ArgumentNullException(nameof(loadCase));
@@ -48,7 +48,7 @@ namespace GPC.Model.Loads
             if (obj is null)
                 return false;
 
-            return obj is Load load && EqualityComparer<LoadCase>.Default.Equals(_loadCase, load._loadCase) &&
+            return obj is Load load && EqualityComparer<LoadCaseBase>.Default.Equals(_loadCase, load._loadCase) &&
                    base.Equals(obj);
         }
 
@@ -56,7 +56,7 @@ namespace GPC.Model.Loads
         {
             int hashCode = -23;
             hashCode = hashCode * -17 + base.GetHashCode();
-            hashCode = hashCode * -17 + EqualityComparer<LoadCase>.Default.GetHashCode(_loadCase);
+            hashCode = hashCode * -17 + EqualityComparer<LoadCaseBase>.Default.GetHashCode(_loadCase);
             return hashCode;
         }
 

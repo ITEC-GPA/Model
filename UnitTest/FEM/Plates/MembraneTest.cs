@@ -99,7 +99,7 @@ namespace FemTest.SolverTest
         [TestMethod]
         public void PlatePressureTest1()
         {
-            LoadCase loadCase = new LoadCase("myLoadCase", new Guid());
+            LoadCaseBase loadCase = new LoadCaseBase("myLoadCase", new Guid());
             FreedomCase freedomCase = new FreedomCase("freedomCase1");
 
             Material mat = new SteelMaterial("steel", 200000, 0.2, 355, 510, 7850);
@@ -440,7 +440,7 @@ namespace FemTest.SolverTest
             nds[2].AddAttribute(dZ);
             nds[3].AddAttribute(dZ);
 
-            LoadCase lc = new LoadCase("lc");
+            LoadCaseBase lc = new LoadCaseBase("lc");
             double px = 0.1;
             PlatePressureAttribute pressure = new PlatePressureAttribute("lc", sys, px, 0, 0);
             
