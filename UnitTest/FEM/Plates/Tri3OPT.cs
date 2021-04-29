@@ -128,7 +128,7 @@ namespace FemTest.SolverTest
             node8.AddAttribute(fix3);
             node9.AddAttribute(fix3);
 
-            LoadCase lc = new LoadCase("lc");
+            LoadCaseBase lc = new LoadCaseBase("lc");
             NodeForceAttribute fPlus = new NodeForceAttribute("lc", sys, 50.0, 0.0, 0.0, 0.0, 0.0, 0.0);
             NodeForceAttribute fMinus = new NodeForceAttribute("lc", sys, -50.0, 0.0, 0.0, 0.0, 0.0, 0.0);
             node9.AddAttribute(fMinus);
@@ -202,7 +202,7 @@ namespace FemTest.SolverTest
             node8.AddAttribute(fix2);
             node9.AddAttribute(fix2);
 
-            LoadCase lc = new LoadCase("lc");
+            LoadCaseBase lc = new LoadCaseBase("lc");
             NodeForceAttribute fCentral = new NodeForceAttribute("lc", sys, 0.0, 40.0 / 0.35601 * 100.0 * 2.0 / 4.0, 0.0, 0.0, 0.0, 0.0);
             NodeForceAttribute fLateral = new NodeForceAttribute("lc", sys, 0.0, 40.0 / 0.35601 * 100.0 * 1.0 / 4.0, 0.0, 0.0, 0.0, 0.0);
             node7.AddAttribute(fLateral);
@@ -299,7 +299,7 @@ namespace FemTest.SolverTest
 
             nodes.ForEach(x => x.AddAttribute(fix2));
 
-            LoadCase lc = new LoadCase("lc");
+            LoadCaseBase lc = new LoadCaseBase("lc");
             NodeForceAttribute fCentral = new NodeForceAttribute("lc", sys, 0.0, 40.0 * 2.0 / 8.0, 0.0, 0.0, 0.0, 0.0);
             NodeForceAttribute fLateral = new NodeForceAttribute("lc", sys, 0.0, 40.0 * 1.0 / 8.0, 0.0, 0.0, 0.0, 0.0);
 
@@ -427,7 +427,7 @@ namespace FemTest.SolverTest
 
             nodes.ForEach(node => node.AddAttribute(fix2));
 
-            LoadCase lc = new LoadCase("lc");
+            LoadCaseBase lc = new LoadCaseBase("lc");
             NodeForceAttribute fOriz = new NodeForceAttribute("lc", sys, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0);
 
             //nodes.ForEach(node => node.AddAttribute(fOriz));
@@ -536,7 +536,7 @@ namespace FemTest.SolverTest
 
             nodes.ForEach(node => node.AddAttribute(fix2));
 
-            LoadCase lc = new LoadCase("lc");
+            LoadCaseBase lc = new LoadCaseBase("lc");
             NodeForceAttribute f1 = new NodeForceAttribute("lc", sys, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0);
             NodeForceAttribute f05 = new NodeForceAttribute("lc", sys, 0.5, 0.0, 0.0, 0.0, 0.0, 0.0);
 
@@ -643,7 +643,7 @@ namespace FemTest.SolverTest
 
             nodes.ForEach(node => node.AddAttribute(fix2));
 
-            LoadCase lc = new LoadCase("lc");
+            LoadCaseBase lc = new LoadCaseBase("lc");
             NodeForceAttribute f1 = new NodeForceAttribute("lc", sys, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0);
 
             nodes[3 - 1].AddAttribute(f1);
@@ -707,7 +707,7 @@ namespace FemTest.SolverTest
 
             nodes.ForEach(node => node.AddAttribute(fix2));
 
-            LoadCase lc = new LoadCase("lc");
+            LoadCaseBase lc = new LoadCaseBase("lc");
             NodeForceAttribute f1 = new NodeForceAttribute("lc", sys, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0);
 
             nodes[3 - 1].AddAttribute(f1);

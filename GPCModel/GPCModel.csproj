@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
@@ -90,7 +90,6 @@
     <Compile Include="FEM\Attributes\LoadCase\ModelAccelerationAttribute.cs" />
     <Compile Include="FEM\Attributes\LoadCase\PlateAccelerationAttribute.cs" />
     <Compile Include="FEM\Attributes\LoadCase\PlatePressureAttribute.cs" />
-    <Compile Include="FEM\Collections\FemObjectBaseCollection.cs" />
     <Compile Include="FEM\Collections\FemObjectCollection.cs" />
     <Compile Include="FEM\Collections\FemObjectStageCollection.cs" />
     <Compile Include="FEM\Collections\FiniteElementStageCollection.cs" />
@@ -134,7 +133,9 @@
     <Compile Include="Glasses\DoubleInsulatingGlass.cs" />
     <Compile Include="Glasses\Interlayer.cs" />
     <Compile Include="Elements\GlassSurface.cs" />
+    <Compile Include="LoadCases\ClimateLoadCase.cs" />
     <Compile Include="LoadCases\ILoadCase.cs" />
+    <Compile Include="LoadCases\LoadCase.cs" />
     <Compile Include="Loads\SelfWeightLoad.cs" />
     <Compile Include="Restrains\GeometryRestrain.cs" />
     <Compile Include="Restrains\PointRestrain.cs" />
@@ -169,11 +170,8 @@
     <Compile Include="FEM\LinearSolver.cs" />
     <Compile Include="FEM\Solver.cs" />
     <Compile Include="FreedomCases\FreedomCase.cs" />
-    <Compile Include="LoadCases\ClimateHLoadCase.cs" />
     <Compile Include="LoadCases\IClimate.cs" />
-    <Compile Include="LoadCases\ClimatePLoadCase.cs" />
-    <Compile Include="LoadCases\ClimateTLoadCase.cs" />
-    <Compile Include="LoadCases\LoadCase.cs" />
+    <Compile Include="LoadCases\LoadCaseBase.cs" />
     <Compile Include="LoadCases\LoadCaseEn16612.cs" />
     <Compile Include="Loads\AreaLoad.cs" />
     <Compile Include="Loads\LineLoad.cs" />

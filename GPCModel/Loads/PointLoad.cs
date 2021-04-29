@@ -23,7 +23,6 @@ namespace GPC.Model.Loads
 
         #endregion
 
-
         #region Properties
 
         public double F1 => _f1;
@@ -39,10 +38,9 @@ namespace GPC.Model.Loads
 
         #endregion
 
-
         #region Public Constructors
 
-        public PointLoad(double f1, double f2, double f3, double m1, double m2, double m3, Point3d point, LoadCase loadCase, CoordinateSystem coordinateSystem) 
+        public PointLoad(double f1, double f2, double f3, double m1, double m2, double m3, Point3d point, LoadCaseBase loadCase, CoordinateSystem coordinateSystem) 
             : base(loadCase, Guid.NewGuid())
         {
             _f1 = f1;                                       
@@ -67,14 +65,14 @@ namespace GPC.Model.Loads
         /// <param name="point"></param>
         /// <param name="loadCase"></param>
         /// <remarks> <see cref="CoordinateSystem"/> set to Global </remarks>
-        public PointLoad(double f1, double f2, double f3, double m1, double m2, double m3, Point3d point, LoadCase loadCase)
+        public PointLoad(double f1, double f2, double f3, double m1, double m2, double m3, Point3d point, LoadCaseBase loadCase)
             : this(f1, f2, f3, m1, m2, m3, point, loadCase, CoordinateSystem.Global)
         {
 
         }
 
 
-        public PointLoad(Vector3d force, Vector3d moment, Point3d point, LoadCase loadCase, CoordinateSystem cSys)
+        public PointLoad(Vector3d force, Vector3d moment, Point3d point, LoadCaseBase loadCase, CoordinateSystem cSys)
             : this(force.X, force.Y, force.Z, moment.X, moment.Y, moment.Z, point, loadCase, cSys)
         {
             
@@ -99,7 +97,6 @@ namespace GPC.Model.Loads
         }
 
         #endregion
-
 
         #region Public Methods Specific
 

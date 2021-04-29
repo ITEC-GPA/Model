@@ -132,7 +132,7 @@ namespace FemTest.SolverTest
         public void Tri3DKTTest3()
         {
             //TODO: sistemare per calcolo tensioni
-            LoadCase loadCase = new LoadCase("myLoadCase", new Guid());
+            LoadCaseBase loadCase = new LoadCaseBase("myLoadCase", new Guid());
             FreedomCase freedomCase = new FreedomCase("freedomCase1");
 
             Material mat = new SteelMaterial("mat", 10000, 0.3, 355, 510, 7850);
@@ -345,7 +345,7 @@ namespace FemTest.SolverTest
             Plate e0 = new Quad4DK(nodesPlate1);
             e0.SetProperty(prop);
 
-            LoadCase loadCase = new LoadCase("myLoadCase", new Guid());
+            LoadCaseBase loadCase = new LoadCaseBase("myLoadCase", new Guid());
             FreedomCase freedomCase = new FreedomCase("freedomCase1");
             CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
             PlatePressureAttribute pressure = new PlatePressureAttribute("loadCase", sys, 0.0, 0.0, 1.0);

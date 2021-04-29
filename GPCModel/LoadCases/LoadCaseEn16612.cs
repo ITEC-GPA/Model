@@ -1,13 +1,13 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel;
 using System.Runtime.Serialization;
 
 namespace GPC.Model.LoadCases
 {
     /// <summary>
-    /// This class rapresent a <see cref="LoadCase"/> with the additional information required by the Standard EN 16612:2020
+    /// This class rapresent a <see cref="LoadCaseBase"/> with the additional information required by the Standard EN 16612:2020
     /// </summary>
+    [Serializable]
     public class LoadCaseEn16612 : LoadCase, ISerializable
     {
         #region PUBLIC ENUMS

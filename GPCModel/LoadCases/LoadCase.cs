@@ -1,6 +1,5 @@
 ﻿using GPC.Utilities.Converters;
 using System;
-using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Runtime.Serialization;
@@ -9,15 +8,14 @@ namespace GPC.Model.LoadCases
 {
     [Serializable]
     [DebuggerDisplay("{" + nameof(GetDebuggerDisplay) + "(),nq}")]
-    public class LoadCase : ModelObject, ISerializable, ILoadCase
+    public class LoadCase : LoadCaseBase
     {
         #region PUBLIC ENUMS
 
-        [Serializable]
         [TypeConverter(typeof(EnumDescriptionTypeConverter))]
         public enum LoadCaseTypes
         {
-            [Description("Self weigth")] SelfWeight,
+            [Description("Self weight")] SelfWeight,
             [Description("Superimposed dead load")] SuperImposedDeadLoad,
             [Description("Prestress")] Prestress,
             [Description("Live load")] LiveLoad,
@@ -27,60 +25,42 @@ namespace GPC.Model.LoadCases
             [Description("Maintenance")] Maintenance,
             [Description("Earthquake")] Earthquake,
             [Description("Temperature")] Temperature,
-            [Description("Climate Summer delta H")] ClimateSummerDeltaH,
-            [Description("Climate Summer delta P")] ClimateSummerDeltaP,
-            [Description("Climate Summer delta T")] ClimateSummerDeltaT,
-            [Description("Climate Winter delta H")] ClimateWinterDeltaH,
-            [Description("Climate Winter delta P")] ClimateWinterDeltaP,
-            [Description("Climate Winter delta T")] ClimateWinterDeltaT,
         }
 
         #endregion
 
         #region VARIABLES
 
-        private readonly LoadCaseTypes? _loadCaseType;
+        private readonly LoadCaseTypes _loadCaseType;
 
         #endregion 
 
-        public LoadCaseTypes? LoadCaseType => _loadCaseType;
+        public LoadCaseTypes LoadCaseType => _loadCaseType;
 
+        #region PUBLIC CONSTRUCTORS
 
-        #region PUBLIC CONSTRUCTOR
-
-        public LoadCase(string name, LoadCaseTypes? loadCaseType)
+        public LoadCase(string name, LoadCaseTypes loadCaseType)
             : this(name, loadCaseType, Guid.NewGuid())
         {
-            
+
         }
 
-        public LoadCase(string name, LoadCaseTypes? loadCaseType, Guid guid)
-            : base(guid, name)
+        public LoadCase(string name, LoadCaseTypes loadCaseType, Guid guid)
+            : base(name, guid)
         {
             if (String.IsNullOrEmpty(name) || string.IsNullOrWhiteSpace(name))
                 throw new ArgumentException("Loadcase name cannot be empty");
 
-            this._loadCaseType = loadCaseType;
-        }
-
-        public LoadCase(string name, Guid guid)
-            : this(name, null, guid)
-        {
-
-        }
-        public LoadCase(string name)
-            : this(name, null, Guid.NewGuid())
-        {
-
+            _loadCaseType = loadCaseType;
         }
 
         public LoadCase(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
-            _loadCaseType = (LoadCaseTypes?)info.GetValue("LoadCaseType", typeof(LoadCaseTypes?));
+            _loadCaseType = (LoadCaseTypes)info.GetValue("LoadCaseType", typeof(LoadCaseTypes));
         }
 
-        #endregion 
+        #endregion
 
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
@@ -88,18 +68,11 @@ namespace GPC.Model.LoadCases
             info.AddValue("LoadCaseType", _loadCaseType);
         }
 
-
         /// <returns><see langword="True"/> if <paramref name="obj"/> have the same <see cref="_loadCaseType"/> and <see cref="ModelObject.Name"/> of this object </returns>
         public override bool Equals(object obj)
-        {
-            if (obj is null)
-                return false;
-
-            if (ReferenceEquals(this, obj))
-                return true;
-
-            LoadCase objCasted = obj as LoadCase;
-            return !(objCasted is null) && _loadCaseType.Equals(objCasted._loadCaseType) && base.Equals(objCasted);
+        {            
+            LoadCase lc = (LoadCase)obj;
+            return base.Equals(obj) && _loadCaseType.Equals(lc._loadCaseType);
         }
 
         public override int GetHashCode()

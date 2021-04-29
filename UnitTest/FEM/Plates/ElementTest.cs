@@ -33,7 +33,7 @@ namespace FemTest.SolverTest
             Plate e0 = new Quad4Element(nodesPlate1);
             e0.SetProperty(prop);
 
-            LoadCase loadCase = new LoadCase("myLoadCase", new Guid());
+            LoadCaseBase loadCase = new LoadCaseBase("myLoadCase", new Guid());
             FreedomCase freedomCase = new FreedomCase("freedomCase1");
             CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
             PlatePressureAttribute pressure = new PlatePressureAttribute("loadCase", sys, 0.0, 0.0, 1.0);
@@ -132,7 +132,7 @@ namespace FemTest.SolverTest
         {
             //TODO: aggiornare per calcolo tensioni
 
-            LoadCase loadCase = new LoadCase("myLoadCase", new Guid());
+            LoadCaseBase loadCase = new LoadCaseBase("myLoadCase", new Guid());
             FreedomCase freedomCase = new FreedomCase("freedomCase1");
 
             Material mat = new SteelMaterial("mat", 10000, 0.0, 355, 510, 7850);
@@ -206,7 +206,7 @@ namespace FemTest.SolverTest
         [TestMethod]
         public void Tri3ElementTest2()
         {
-            LoadCase loadCase = new LoadCase("myLoadCase", new Guid());
+            LoadCaseBase loadCase = new LoadCaseBase("myLoadCase", new Guid());
             FreedomCase freedomCase = new FreedomCase("freedomCase1");
 
             Material mat = new SteelMaterial("mat", 10000, 0.0, 355, 510, 7850);
@@ -286,7 +286,7 @@ namespace FemTest.SolverTest
             FiniteElement e0 = new Quad4Element(nodesPlate1);
             e0.SetProperty(prop);
 
-            LoadCase loadCase = new LoadCase("myLoadCase");
+            LoadCaseBase loadCase = new LoadCaseBase("myLoadCase");
             FreedomCase freedomCase = new FreedomCase("freedomCase1");
             CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
 
@@ -329,7 +329,7 @@ namespace FemTest.SolverTest
             List<Quad4Element> els = new List<Quad4Element>();
             els.Add(new Quad4Element(new Node[] { nodes[1], nodes[2], nodes[3], nodes[4] }, prop));
 
-            LoadCase loadCase = new LoadCase("myLoadCase");
+            LoadCaseBase loadCase = new LoadCaseBase("myLoadCase");
             FreedomCase freedomCase = new FreedomCase("freedomCase1");
             CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
 
@@ -379,7 +379,7 @@ namespace FemTest.SolverTest
             els.Add(new Quad4Element(new Node[] { nodes[5], nodes[2], nodes[8], nodes[7] }, prop));
             els.Add(new Quad4Element(new Node[] { nodes[6], nodes[7], nodes[9], nodes[4] }, prop));
 
-            LoadCase loadCase = new LoadCase("myLoadCase");
+            LoadCaseBase loadCase = new LoadCaseBase("myLoadCase");
             FreedomCase freedomCase = new FreedomCase("freedomCase1");
             CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
 
@@ -439,7 +439,7 @@ namespace FemTest.SolverTest
             els.Add(new Quad4Element(new Node[] { nodes[2], nodes[5], nodes[14], nodes[13] }, prop));
             els.Add(new Quad4Element(new Node[] { nodes[5], nodes[1], nodes[15], nodes[14] }, prop));
 
-            LoadCase loadCase = new LoadCase("myLoadCase");
+            LoadCaseBase loadCase = new LoadCaseBase("myLoadCase");
             FreedomCase freedomCase = new FreedomCase("freedomCase1");
             CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
 
@@ -510,7 +510,7 @@ namespace FemTest.SolverTest
             els.Add(new Quad4Element(new Node[] { nodes[2], nodes[5], nodes[14], nodes[13] }, prop));
             els.Add(new Quad4Element(new Node[] { nodes[5], nodes[1], nodes[15], nodes[14] }, prop));
 
-            LoadCase loadCase = new LoadCase("myLoadCase");
+            LoadCaseBase loadCase = new LoadCaseBase("myLoadCase");
             FreedomCase freedomCase = new FreedomCase("freedomCase1");
             CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
 
