@@ -1,10 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using GPC.Model.LoadCases;
+using System;
 using System.ComponentModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using GPC.Model.LoadCases;
 
 namespace GPC.Model.Combinations
 {
@@ -57,7 +53,6 @@ namespace GPC.Model.Combinations
         }
 
         #endregion
-
 
         #region VARIABLES
 
@@ -231,7 +226,6 @@ namespace GPC.Model.Combinations
 
         #endregion
 
-
         #region PUBLIC CONSTRUCTOR
 
         public StandardEN1990()
@@ -315,7 +309,6 @@ namespace GPC.Model.Combinations
         }
 
         #endregion
-
 
         #region PUBLIC METHOD
 

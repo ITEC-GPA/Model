@@ -23,7 +23,6 @@ namespace GPC.Model.Loads
 
         #endregion
 
-
         #region Properties
 
         public double F1 => _f1;
@@ -38,7 +37,6 @@ namespace GPC.Model.Loads
         public CoordinateSystem CoordinateSystem => _coordinateSystem;
 
         #endregion
-
 
         #region Public Constructors
 
@@ -74,7 +72,7 @@ namespace GPC.Model.Loads
         }
 
 
-        public PointLoad(Vector3d force, Vector3d moment, Point3d point, LoadCase loadCase, CoordinateSystem cSys)
+        public PointLoad(Vector3d force, Vector3d moment, Point3d point, LoadCaseBase loadCase, CoordinateSystem cSys)
             : this(force.X, force.Y, force.Z, moment.X, moment.Y, moment.Z, point, loadCase, cSys)
         {
             
@@ -99,7 +97,6 @@ namespace GPC.Model.Loads
         }
 
         #endregion
-
 
         #region Public Methods Specific
 
