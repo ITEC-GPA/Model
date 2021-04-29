@@ -383,7 +383,6 @@ namespace GPC.Model.FEM
 
         #region Add Get Geometry
 
-
         #region FiniteElements
 
         /// <summary> Add a <paramref name="finiteElement"/> and its <see cref="Node"/> to the FemModel</summary>
@@ -454,7 +453,6 @@ namespace GPC.Model.FEM
         }
 
 
-
         /// <param name="index"></param>
         /// <returns></returns>
         /// <inheritdoc cref="FemObjectCollection{T}.GetElementById(int)"/>
@@ -487,7 +485,6 @@ namespace GPC.Model.FEM
 
 
         #endregion
-
 
         #region Nodes
 
@@ -557,7 +554,9 @@ namespace GPC.Model.FEM
                 throw new ArgumentNullException(nameof(costrain));
 
 
-            AddNodes(costrain);
+            AddNode(costrain.StartNode);
+            AddNodes(costrain.EndNodes);
+
 
             _costrains.Add(costrain);
         }
@@ -583,8 +582,22 @@ namespace GPC.Model.FEM
         }
 
 
-        #endregion
+        /// <param name="index"></param>
+        /// <inheritdoc cref="FemObjectCollection{T}.GetElementById(int)"/>
+        public virtual Costrain GetCostrain(int index)
+        {
+            return _costrains[index];
+        }
 
+
+        /// <inheritdoc cref="FemObjectCollection{T}.GetEnumerator()"/>
+        public virtual IEnumerator<Costrain> GetCostrainEnumerator()
+        {
+            return _costrains.GetEnumerator();
+        }
+
+
+        #endregion
 
         #region Mesh and shapes
 
@@ -1207,7 +1220,6 @@ namespace GPC.Model.FEM
 
 
         #endregion
-
 
         #endregion
 
