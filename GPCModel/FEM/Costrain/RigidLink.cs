@@ -21,15 +21,19 @@ namespace GPC.Model.FEM.Costrains
                 MultiPointsCostrain[] linksPoint = GetRigidLink(node1, nodes[i]);
                 links.AddRange(linksPoint);
             }
+
             _links = links.ToArray();
+
         }
 
         public RigidLink(Node node1, Node node2) : this(node1, new Node[] { node2 })
         {
+
         }
         #endregion
 
         #region PublicFunctions
+
         /// <summary>
         /// Ritorna le equazioni per rigid link tra 2 nodi
         /// </summary>

@@ -17,6 +17,7 @@ using GPC.Model.Restrains;
 using GPC.Model.Loads;
 using GPC.Model.Results;
 using GPC.Model.Combinations;
+using GPC.Model.FEM.Costrains;
 
 namespace GPC.Model.FEM
 {
@@ -49,6 +50,12 @@ namespace GPC.Model.FEM
         /// The elements on this collection does not have duplicate ID and can not be duplicate. (different element with different id)
         /// </summary>
         protected FemObjectCollection<FiniteElement> _elements;
+
+        /// <summary>
+        /// Collection of <see cref="Costrain"/>
+        /// The elements on this collection does not have duplicate ID and can not be duplicate. (different element with different id)
+        /// </summary>
+        protected FemObjectCollection<Costrain> _costrains;
 
         // PROPRIETà
 
@@ -134,6 +141,8 @@ namespace GPC.Model.FEM
         {
             _nodes = new FemObjectCollection<Node>();
             _elements = new FemObjectCollection<FiniteElement>();
+            _costrains = new FemObjectCollection<Costrain>();
+
             _stages = new List<Stage>();
 
             _plateProperties = new UniqueNameCollection<PlateProperty>();
@@ -468,12 +477,14 @@ namespace GPC.Model.FEM
             return _elements.Contains(finiteElement);
         }
 
+
         /// <returns>True if property with name: <paramref name="propertyName"/> is contained in the <see cref="FemModel._plateProperties"/> or <see cref="FemModel._brickProperties"/> collections </returns>
         /// <inheritdoc cref="UniqueNameCollection{T}.Contains(string)"/>
         public virtual bool ContainsProperty(string propertyName)
         {
             return _plateProperties.Contains(propertyName) || _brickProperties.Contains(propertyName);
         }
+
 
         #endregion
 
@@ -528,6 +539,47 @@ namespace GPC.Model.FEM
         public virtual IEnumerator<Node> GetNodesEnumerator()
         {
             return _nodes.GetEnumerator();
+        }
+
+
+        #endregion
+
+        #region Costrain
+
+        /// <summary> Add a <paramref name="costrain"/> and its <see cref="Node"/> to the FemModel</summary>
+        /// <param name="costrain"></param>
+        /// <remarks>This is a O(2n) Operation</remarks>
+        /// <inheritdoc cref="AddNode(Node)"/>
+        /// <inheritdoc cref="FemObjectCollection{T}.Add(T)"/>
+        public virtual void AddCostrain(Costrain costrain)
+        {
+            if (costrain is null)
+                throw new ArgumentNullException(nameof(costrain));
+
+
+            AddNodes(costrain);
+
+            _costrains.Add(costrain);
+        }
+
+        /// <summary> Add a <paramref name="costrains"/> and its <see cref="Node"/> to the FemModel</summary>
+        /// <param name="costrains"></param>
+        /// <remarks>This is a O(2n) Operation</remarks>
+        /// <inheritdoc cref="AddNode(Node)"/>
+        /// <inheritdoc cref="FemObjectCollection{T}.Add(T)"/>
+        public virtual void AddCostrains(IEnumerable<Costrain> costrains)
+        {
+            foreach(var costrain in costrains)
+            {
+                AddCostrain(costrain);
+            }
+        }
+
+        /// <returns>True if <paramref name="costrain"/> is contained in the <see cref="FemModel._costrains"/> collections </returns>
+        /// <inheritdoc cref="FemObjectCollection{T}.Contains(T)"/>
+        public virtual bool ContainsCostrains(Costrain costrain)
+        {
+            return _costrains.Contains(costrain);
         }
 
 
