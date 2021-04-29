@@ -393,7 +393,7 @@ namespace GPC.Model.Combinations
         /// <param name="limitState">The limit state of combinations</param>
         /// <param name="loadCase">The load case</param>
         /// <returns>The value of the coefficient</returns>
-        public double GetGammaPFavourable(ULSStructuralGeotechicalCombinationSets set, LimitStates limitState, LoadCase loadCase)
+        public double GetGammaPFavourable(ULSStructuralGeotechicalCombinationSets set, LimitStates limitState, LoadCaseBase loadCase)
         {
             if (limitState == LimitStates.UltimateEquilibrium)
             {
@@ -430,7 +430,7 @@ namespace GPC.Model.Combinations
         /// <param name="limitState">The limit state of combinations</param>
         /// <param name="loadCase">The load case</param>
         /// <returns>The value of the coefficient</returns>
-        public double GetGammaPUnfavourable(ULSStructuralGeotechicalCombinationSets set, LimitStates limitState, LoadCase loadCase)
+        public double GetGammaPUnfavourable(ULSStructuralGeotechicalCombinationSets set, LimitStates limitState, LoadCaseBase loadCase)
         {
             if (limitState == LimitStates.UltimateEquilibrium)
             {
@@ -482,10 +482,6 @@ namespace GPC.Model.Combinations
                     case LoadCase.LoadCaseTypes.Maintenance:
                     case LoadCase.LoadCaseTypes.Earthquake:
                     case LoadCase.LoadCaseTypes.Temperature:
-                    case LoadCase.LoadCaseTypes.ClimateSummerDeltaP:
-                    case LoadCase.LoadCaseTypes.ClimateSummerDeltaT:
-                    case LoadCase.LoadCaseTypes.ClimateWinterDeltaP:
-                    case LoadCase.LoadCaseTypes.ClimateWinterDeltaT:
                         return _gammaQUnfavourableSetA;
                     default:
                         throw new NotImplementedException("Not implemented coefficient for load case type");
@@ -504,10 +500,6 @@ namespace GPC.Model.Combinations
                         case LoadCase.LoadCaseTypes.Maintenance:
                         case LoadCase.LoadCaseTypes.Earthquake:
                         case LoadCase.LoadCaseTypes.Temperature:
-                        case LoadCase.LoadCaseTypes.ClimateSummerDeltaP:
-                        case LoadCase.LoadCaseTypes.ClimateSummerDeltaT:
-                        case LoadCase.LoadCaseTypes.ClimateWinterDeltaP:
-                        case LoadCase.LoadCaseTypes.ClimateWinterDeltaT:
                             return _gammaQUnfavourableSetB;
                         default:
                             throw new NotImplementedException("Not implemented coefficient for load case type");
@@ -524,10 +516,6 @@ namespace GPC.Model.Combinations
                         case LoadCase.LoadCaseTypes.Maintenance:
                         case LoadCase.LoadCaseTypes.Earthquake:
                         case LoadCase.LoadCaseTypes.Temperature:
-                        case LoadCase.LoadCaseTypes.ClimateSummerDeltaP:
-                        case LoadCase.LoadCaseTypes.ClimateSummerDeltaT:
-                        case LoadCase.LoadCaseTypes.ClimateWinterDeltaP:
-                        case LoadCase.LoadCaseTypes.ClimateWinterDeltaT:
                             return _gammaQUnfavourableSetC;
                         default:
                             throw new NotImplementedException("Not implemented coefficient for load case type");
@@ -551,10 +539,6 @@ namespace GPC.Model.Combinations
                     case LoadCase.LoadCaseTypes.Maintenance:
                     case LoadCase.LoadCaseTypes.Earthquake:
                     case LoadCase.LoadCaseTypes.Temperature:
-                    case LoadCase.LoadCaseTypes.ClimateSummerDeltaP:
-                    case LoadCase.LoadCaseTypes.ClimateSummerDeltaT:
-                    case LoadCase.LoadCaseTypes.ClimateWinterDeltaP:
-                    case LoadCase.LoadCaseTypes.ClimateWinterDeltaT:
                         return 1.0;
 
                     default:
@@ -587,10 +571,6 @@ namespace GPC.Model.Combinations
                     case LoadCase.LoadCaseTypes.Maintenance:
                     case LoadCase.LoadCaseTypes.Earthquake:
                     case LoadCase.LoadCaseTypes.Temperature:
-                    case LoadCase.LoadCaseTypes.ClimateSummerDeltaP:
-                    case LoadCase.LoadCaseTypes.ClimateSummerDeltaT:
-                    case LoadCase.LoadCaseTypes.ClimateWinterDeltaP:
-                    case LoadCase.LoadCaseTypes.ClimateWinterDeltaT:
                         return _gammaQFavourableSetA;
                     default:
                         throw new NotImplementedException("Not implemented coefficient for load case type");
@@ -609,10 +589,6 @@ namespace GPC.Model.Combinations
                         case LoadCase.LoadCaseTypes.Maintenance:
                         case LoadCase.LoadCaseTypes.Earthquake:
                         case LoadCase.LoadCaseTypes.Temperature:
-                        case LoadCase.LoadCaseTypes.ClimateSummerDeltaP:
-                        case LoadCase.LoadCaseTypes.ClimateSummerDeltaT:
-                        case LoadCase.LoadCaseTypes.ClimateWinterDeltaP:
-                        case LoadCase.LoadCaseTypes.ClimateWinterDeltaT:
                             return _gammaQFavourableSetB;
                         default:
                             throw new NotImplementedException("Not implemented coefficient for load case type");
@@ -629,10 +605,6 @@ namespace GPC.Model.Combinations
                         case LoadCase.LoadCaseTypes.Maintenance:
                         case LoadCase.LoadCaseTypes.Earthquake:
                         case LoadCase.LoadCaseTypes.Temperature:
-                        case LoadCase.LoadCaseTypes.ClimateSummerDeltaP:
-                        case LoadCase.LoadCaseTypes.ClimateSummerDeltaT:
-                        case LoadCase.LoadCaseTypes.ClimateWinterDeltaP:
-                        case LoadCase.LoadCaseTypes.ClimateWinterDeltaT:
                             return _gammaQFavourableSetC;
                         default:
                             throw new NotImplementedException("Not implemented coefficient for load case type");
@@ -660,68 +632,89 @@ namespace GPC.Model.Combinations
         /// <param name="loadCase">The load case</param>
         /// <param name="highAltitude">If true, set the snow load with high altitude</param>
         /// <returns>The value of the coefficient</returns>
-        public double GetPsi0(ImposedLoadCategories category, LoadCase loadCase, bool highAltitude = true)
+        public double GetPsi0(ImposedLoadCategories category, LoadCaseBase loadCase, bool highAltitude = true)
         {
-            var loadCaseType = loadCase.LoadCaseType;
+            if (loadCase is LoadCase lc)
+            {
+                var loadCaseType = lc.LoadCaseType;
 
-            if (loadCaseType == LoadCase.LoadCaseTypes.Snow)
-            {
-                if (highAltitude)
-                    return Psi0SnowHighAltitude;
-                else if (!highAltitude)
-                    return Psi0SnowLowAltitude;
+                if (loadCaseType == LoadCase.LoadCaseTypes.Snow)
+                {
+                    if (highAltitude)
+                        return Psi0SnowHighAltitude;
+                    else if (!highAltitude)
+                        return Psi0SnowLowAltitude;
+                    else
+                        throw new NotImplementedException("Failed to set coefficient psi0 for snow load");
+                }
+                else if (loadCaseType == LoadCase.LoadCaseTypes.LiveLoad || loadCaseType == LoadCase.LoadCaseTypes.Maintenance)
+                {
+                    switch (category)
+                    {
+                        case ImposedLoadCategories.CategoryA:
+                            return _psi0ImposedLoadCategoryA;
+                        case ImposedLoadCategories.CategoryB:
+                            return _psi0ImposedLoadCategoryB;
+                        case ImposedLoadCategories.CategoryC:
+                            return _psi0ImposedLoadCategoryC;
+                        case ImposedLoadCategories.CategoryD:
+                            return _psi0ImposedLoadCategoryD;
+                        case ImposedLoadCategories.CategoryE:
+                            return _psi0ImposedLoadCategoryE;
+                        case ImposedLoadCategories.CategoryF:
+                            return _psi0ImposedLoadCategoryF;
+                        case ImposedLoadCategories.CategoryG:
+                            return _psi0ImposedLoadCategoryG;
+                        case ImposedLoadCategories.CategoryH:
+                            return _psi0ImposedLoadCategoryH;
+                        default:
+                            throw new NotImplementedException("Failed to set coefficient psi0 for live load load or maintenance load");
+                    }
+                }
                 else
-                    throw new NotImplementedException("Failed to set coefficient psi0 for snow load");
-            }
-            else if (loadCaseType == LoadCase.LoadCaseTypes.LiveLoad || loadCaseType == LoadCase.LoadCaseTypes.Maintenance)
-            {
-                switch (category)
                 {
-                    case ImposedLoadCategories.CategoryA:
-                        return _psi0ImposedLoadCategoryA;
-                    case ImposedLoadCategories.CategoryB:
-                        return _psi0ImposedLoadCategoryB;
-                    case ImposedLoadCategories.CategoryC:
-                        return _psi0ImposedLoadCategoryC;
-                    case ImposedLoadCategories.CategoryD:
-                        return _psi0ImposedLoadCategoryD;
-                    case ImposedLoadCategories.CategoryE:
-                        return _psi0ImposedLoadCategoryE;
-                    case ImposedLoadCategories.CategoryF:
-                        return _psi0ImposedLoadCategoryF;
-                    case ImposedLoadCategories.CategoryG:
-                        return _psi0ImposedLoadCategoryG;
-                    case ImposedLoadCategories.CategoryH:
-                        return _psi0ImposedLoadCategoryH;
-                    default:
-                        throw new NotImplementedException("Failed to set coefficient psi0 for live load load or maintenance load");
+                    switch (loadCaseType)
+                    {
+                        case LoadCase.LoadCaseTypes.SelfWeight:
+                        case LoadCase.LoadCaseTypes.SuperImposedDeadLoad:
+                        case LoadCase.LoadCaseTypes.Earthquake:
+                            throw new ArgumentException("Don't exist coefficient for this load case type");
+                        case LoadCase.LoadCaseTypes.WindPressure:
+                        case LoadCase.LoadCaseTypes.WindSuction:
+                            return _psi0Wind;
+                        case LoadCase.LoadCaseTypes.Temperature:
+                            return _psi0Temperature;
+                        default:
+                            throw new NotImplementedException("Not implemented coefficient for load case type");
+                    }
                 }
             }
-            else 
+            else if (loadCase is ClimateLoadCase clc)
             {
-                switch (loadCaseType)
-                {
-                    case LoadCase.LoadCaseTypes.SelfWeight:
-                    case LoadCase.LoadCaseTypes.SuperImposedDeadLoad:
-                    case LoadCase.LoadCaseTypes.Earthquake: 
-                        throw new ArgumentException("Don't exist coefficient for this load case type");
-                    case LoadCase.LoadCaseTypes.ClimateSummerDeltaP:
-                        return _psi0ClimateSummerDeltaP;
-                    case LoadCase.LoadCaseTypes.ClimateSummerDeltaT:
-                        return _psi0ClimateSummerDeltaP;
-                    case LoadCase.LoadCaseTypes.ClimateWinterDeltaP:
-                        return _psi0ClimateWinterDeltaP;
-                    case LoadCase.LoadCaseTypes.ClimateWinterDeltaT:
-                        return _psi0ClimateWinterDeltaT;
-                    case LoadCase.LoadCaseTypes.WindPressure:
-                    case LoadCase.LoadCaseTypes.WindSuction:
-                        return _psi0Wind;
-                    case LoadCase.LoadCaseTypes.Temperature:
-                        return _psi0Temperature;
-                    default:
-                        throw new NotImplementedException("Not implemented coefficient for load case type");
-                }
-            }            
+                if (clc.Season == ClimateLoadCase.Seasons.Summer && clc.ClimateType == ClimateLoadCase.ClimateTypes.DeltaP)
+                    return _psi0ClimateSummerDeltaP;
+                else if (clc.Season == ClimateLoadCase.Seasons.Summer && clc.ClimateType == ClimateLoadCase.ClimateTypes.DeltaT)
+                    return _psi0ClimateSummerDeltaP;
+                else if (clc.Season == ClimateLoadCase.Seasons.Winter && clc.ClimateType == ClimateLoadCase.ClimateTypes.DeltaP)
+                    return _psi0ClimateWinterDeltaP;
+                else if (clc.Season == ClimateLoadCase.Seasons.Winter && clc.ClimateType == ClimateLoadCase.ClimateTypes.DeltaT)
+                    return _psi0ClimateWinterDeltaT;
+            }
+
+            throw new ArgumentException("Don't exist coefficient for this load case");
+        }
+
+        public double GetPsi0(ImposedLoadCategories category, ClimateLoadCase loadCase, bool highAltitude = true)
+        {
+            if (loadCase.Season == ClimateLoadCase.Seasons.Summer && loadCase.ClimateType == ClimateLoadCase.ClimateTypes.DeltaP)
+                return _psi0ClimateSummerDeltaP;
+            else if (loadCase.Season == ClimateLoadCase.Seasons.Summer && loadCase.ClimateType == ClimateLoadCase.ClimateTypes.DeltaT)
+                return _psi0ClimateSummerDeltaP;
+            else if (loadCase.Season == ClimateLoadCase.Seasons.Winter && loadCase.ClimateType == ClimateLoadCase.ClimateTypes.DeltaP)
+                return _psi0ClimateWinterDeltaP;
+            else if (loadCase.Season == ClimateLoadCase.Seasons.Winter && loadCase.ClimateType == ClimateLoadCase.ClimateTypes.DeltaT)
+                return _psi0ClimateWinterDeltaT;
+
         }
 
         /// <summary>
@@ -731,68 +724,77 @@ namespace GPC.Model.Combinations
         /// <param name="loadCase">The load case</param>
         /// <param name="highAltitude">If true, set the snow load with high altitude</param>        
         /// <returns>The value of the coefficient</returns>
-        public double GetPsi1(ImposedLoadCategories category, LoadCase loadCase, bool highAltitude = true)
+        public double GetPsi1(ImposedLoadCategories category, LoadCaseBase loadCase, bool highAltitude = true)
         {
-            var loadCaseType = loadCase.LoadCaseType;
+            if (loadCase is LoadCase lc)
+            {
+                var loadCaseType = lc.LoadCaseType;
 
-            if (loadCaseType == LoadCase.LoadCaseTypes.Snow)
-            {
-                if (highAltitude)
-                    return Psi1SnowHighAltitude;
-                else if (!highAltitude)
-                    return Psi1SnowLowAltitude;
+                if (loadCaseType == LoadCase.LoadCaseTypes.Snow)
+                {
+                    if (highAltitude)
+                        return Psi1SnowHighAltitude;
+                    else if (!highAltitude)
+                        return Psi1SnowLowAltitude;
+                    else
+                        throw new NotImplementedException("Failed to set coefficient psi0 for snow load");
+                }
+                else if (loadCaseType == LoadCase.LoadCaseTypes.LiveLoad || loadCaseType == LoadCase.LoadCaseTypes.Maintenance)
+                {
+                    switch (category)
+                    {
+                        case ImposedLoadCategories.CategoryA:
+                            return _psi1ImposedLoadCategoryA;
+                        case ImposedLoadCategories.CategoryB:
+                            return _psi1ImposedLoadCategoryB;
+                        case ImposedLoadCategories.CategoryC:
+                            return _psi1ImposedLoadCategoryC;
+                        case ImposedLoadCategories.CategoryD:
+                            return _psi1ImposedLoadCategoryD;
+                        case ImposedLoadCategories.CategoryE:
+                            return _psi1ImposedLoadCategoryE;
+                        case ImposedLoadCategories.CategoryF:
+                            return _psi1ImposedLoadCategoryF;
+                        case ImposedLoadCategories.CategoryG:
+                            return _psi1ImposedLoadCategoryG;
+                        case ImposedLoadCategories.CategoryH:
+                            return _psi1ImposedLoadCategoryH;
+                        default:
+                            throw new NotImplementedException("Failed to set coefficient psi0 for live load load or maintenance load");
+                    }
+                }
                 else
-                    throw new NotImplementedException("Failed to set coefficient psi0 for snow load");
-            }
-            else if (loadCaseType == LoadCase.LoadCaseTypes.LiveLoad || loadCaseType == LoadCase.LoadCaseTypes.Maintenance)
-            {
-                switch (category)
                 {
-                    case ImposedLoadCategories.CategoryA:
-                        return _psi1ImposedLoadCategoryA;
-                    case ImposedLoadCategories.CategoryB:
-                        return _psi1ImposedLoadCategoryB;
-                    case ImposedLoadCategories.CategoryC:
-                        return _psi1ImposedLoadCategoryC;
-                    case ImposedLoadCategories.CategoryD:
-                        return _psi1ImposedLoadCategoryD;
-                    case ImposedLoadCategories.CategoryE:
-                        return _psi1ImposedLoadCategoryE;
-                    case ImposedLoadCategories.CategoryF:
-                        return _psi1ImposedLoadCategoryF;
-                    case ImposedLoadCategories.CategoryG:
-                        return _psi1ImposedLoadCategoryG;
-                    case ImposedLoadCategories.CategoryH:
-                        return _psi1ImposedLoadCategoryH;
-                    default:
-                        throw new NotImplementedException("Failed to set coefficient psi0 for live load load or maintenance load");
+                    switch (loadCaseType)
+                    {
+                        case LoadCase.LoadCaseTypes.SelfWeight:
+                        case LoadCase.LoadCaseTypes.Earthquake:
+                        case LoadCase.LoadCaseTypes.SuperImposedDeadLoad:
+                            throw new ArgumentException("Don't exist coefficient for this load case type");
+                        case LoadCase.LoadCaseTypes.WindPressure:
+                        case LoadCase.LoadCaseTypes.WindSuction:
+                            return _psi1Wind;
+                        case LoadCase.LoadCaseTypes.Temperature:
+                            return _psi1Temperature;
+                        default:
+                            throw new NotImplementedException("Not implemented coefficient for load case type");
+                    }
                 }
             }
-            else
+            else if (loadCase is ClimateLoadCase clc)
             {
-                switch (loadCaseType)
-                {
-                    case LoadCase.LoadCaseTypes.SelfWeight:
-                    case LoadCase.LoadCaseTypes.ClimateSummerDeltaP:
-                        return _psi1ClimateSummerDeltaP;
-                    case LoadCase.LoadCaseTypes.ClimateSummerDeltaT:
-                        return _psi1ClimateSummerDeltaP;
-                    case LoadCase.LoadCaseTypes.ClimateWinterDeltaP:
-                        return _psi1ClimateWinterDeltaP;
-                    case LoadCase.LoadCaseTypes.ClimateWinterDeltaT:
-                        return _psi1ClimateWinterDeltaT;
-                    case LoadCase.LoadCaseTypes.Earthquake:
-                    case LoadCase.LoadCaseTypes.SuperImposedDeadLoad:
-                        throw new ArgumentException("Don't exist coefficient for this load case type");
-                    case LoadCase.LoadCaseTypes.WindPressure:
-                    case LoadCase.LoadCaseTypes.WindSuction:
-                        return _psi1Wind;
-                    case LoadCase.LoadCaseTypes.Temperature:
-                        return _psi1Temperature;
-                    default:
-                        throw new NotImplementedException("Not implemented coefficient for load case type");
-                }
+                if (clc.Season == ClimateLoadCase.Seasons.Summer && clc.ClimateType == ClimateLoadCase.ClimateTypes.DeltaP)
+                    return _psi1ClimateSummerDeltaP;
+                else if (clc.Season == ClimateLoadCase.Seasons.Summer && clc.ClimateType == ClimateLoadCase.ClimateTypes.DeltaT)
+                    return _psi1ClimateSummerDeltaP;
+                else if (clc.Season == ClimateLoadCase.Seasons.Winter && clc.ClimateType == ClimateLoadCase.ClimateTypes.DeltaP)
+                    return _psi1ClimateWinterDeltaP;
+                else if (clc.Season == ClimateLoadCase.Seasons.Winter && clc.ClimateType == ClimateLoadCase.ClimateTypes.DeltaT)
+                    return _psi1ClimateWinterDeltaT;
+
             }
+
+            throw new ArgumentException("Don't exist coefficient for this load case");
         }
 
         /// <summary>
@@ -802,68 +804,77 @@ namespace GPC.Model.Combinations
         /// <param name="loadCase">The load case</param>
         /// <param name="highAltitude">If true, set the snow load with high altitude</param>
         /// <returns>The value of the coefficient</returns>
-        public double GetPsi2(ImposedLoadCategories category, LoadCase loadCase, bool highAltitude = true)
+        public double GetPsi2(ImposedLoadCategories category, LoadCaseBase loadCase, bool highAltitude = true)
         {
-            var loadCaseType = loadCase.LoadCaseType;
+            if (loadCase is LoadCase lc)
+            {
+                var loadCaseType = lc.LoadCaseType;
 
-            if (loadCaseType == LoadCase.LoadCaseTypes.Snow)
-            {
-                if (highAltitude)
-                    return Psi2SnowHighAltitude;
-                else if (!highAltitude)
-                    return Psi2SnowLowAltitude;
+                if (loadCaseType == LoadCase.LoadCaseTypes.Snow)
+                {
+                    if (highAltitude)
+                        return Psi2SnowHighAltitude;
+                    else if (!highAltitude)
+                        return Psi2SnowLowAltitude;
+                    else
+                        throw new NotImplementedException("Failed to set coefficient psi0 for snow load");
+                }
+                else if (loadCaseType == LoadCase.LoadCaseTypes.LiveLoad || loadCaseType == LoadCase.LoadCaseTypes.Maintenance)
+                {
+                    switch (category)
+                    {
+                        case ImposedLoadCategories.CategoryA:
+                            return _psi2ImposedLoadCategoryA;
+                        case ImposedLoadCategories.CategoryB:
+                            return _psi2ImposedLoadCategoryB;
+                        case ImposedLoadCategories.CategoryC:
+                            return _psi2ImposedLoadCategoryC;
+                        case ImposedLoadCategories.CategoryD:
+                            return _psi2ImposedLoadCategoryD;
+                        case ImposedLoadCategories.CategoryE:
+                            return _psi2ImposedLoadCategoryE;
+                        case ImposedLoadCategories.CategoryF:
+                            return _psi2ImposedLoadCategoryF;
+                        case ImposedLoadCategories.CategoryG:
+                            return _psi2ImposedLoadCategoryG;
+                        case ImposedLoadCategories.CategoryH:
+                            return _psi2ImposedLoadCategoryH;
+                        default:
+                            throw new NotImplementedException("Failed to set coefficient psi0 for live load load or maintenance load");
+                    }
+                }
                 else
-                    throw new NotImplementedException("Failed to set coefficient psi0 for snow load");
-            }
-            else if (loadCaseType == LoadCase.LoadCaseTypes.LiveLoad || loadCaseType == LoadCase.LoadCaseTypes.Maintenance)
-            {
-                switch (category)
                 {
-                    case ImposedLoadCategories.CategoryA:
-                        return _psi2ImposedLoadCategoryA;
-                    case ImposedLoadCategories.CategoryB:
-                        return _psi2ImposedLoadCategoryB;
-                    case ImposedLoadCategories.CategoryC:
-                        return _psi2ImposedLoadCategoryC;
-                    case ImposedLoadCategories.CategoryD:
-                        return _psi2ImposedLoadCategoryD;
-                    case ImposedLoadCategories.CategoryE:
-                        return _psi2ImposedLoadCategoryE;
-                    case ImposedLoadCategories.CategoryF:
-                        return _psi2ImposedLoadCategoryF;
-                    case ImposedLoadCategories.CategoryG:
-                        return _psi2ImposedLoadCategoryG;
-                    case ImposedLoadCategories.CategoryH:
-                        return _psi2ImposedLoadCategoryH;
-                    default:
-                        throw new NotImplementedException("Failed to set coefficient psi0 for live load load or maintenance load");
+                    switch (loadCaseType)
+                    {
+                        case LoadCase.LoadCaseTypes.SelfWeight:
+                        case LoadCase.LoadCaseTypes.SuperImposedDeadLoad:
+                        case LoadCase.LoadCaseTypes.Earthquake:
+                            throw new ArgumentException("Don't exist coefficient for this load case type");
+                        case LoadCase.LoadCaseTypes.WindPressure:
+                        case LoadCase.LoadCaseTypes.WindSuction:
+                            return _psi2Wind;
+                        case LoadCase.LoadCaseTypes.Temperature:
+                            return _psi2Temperature;
+                        default:
+                            throw new NotImplementedException("Not implemented coefficient for load case type");
+                    }
                 }
             }
-            else
+            else if (loadCase is ClimateLoadCase clc)
             {
-                switch (loadCaseType)
-                {
-                    case LoadCase.LoadCaseTypes.SelfWeight:
-                    case LoadCase.LoadCaseTypes.SuperImposedDeadLoad:
-                    case LoadCase.LoadCaseTypes.Earthquake:
-                        throw new ArgumentException("Don't exist coefficient for this load case type");
-                    case LoadCase.LoadCaseTypes.ClimateSummerDeltaP:
-                        return _psi2ClimateSummerDeltaP;
-                    case LoadCase.LoadCaseTypes.ClimateSummerDeltaT:
-                        return _psi2ClimateSummerDeltaP;
-                    case LoadCase.LoadCaseTypes.ClimateWinterDeltaP:
-                        return _psi2ClimateWinterDeltaP;
-                    case LoadCase.LoadCaseTypes.ClimateWinterDeltaT:
-                        return _psi2ClimateWinterDeltaT;
-                    case LoadCase.LoadCaseTypes.WindPressure:
-                    case LoadCase.LoadCaseTypes.WindSuction:
-                        return _psi2Wind;
-                    case LoadCase.LoadCaseTypes.Temperature:
-                        return _psi2Temperature;
-                    default:
-                        throw new NotImplementedException("Not implemented coefficient for load case type");
-                }
+                if (clc.Season == ClimateLoadCase.Seasons.Summer && clc.ClimateType == ClimateLoadCase.ClimateTypes.DeltaP)
+                    return _psi2ClimateSummerDeltaP;
+                else if (clc.Season == ClimateLoadCase.Seasons.Summer && clc.ClimateType == ClimateLoadCase.ClimateTypes.DeltaT)
+                    return _psi2ClimateSummerDeltaP;
+                else if (clc.Season == ClimateLoadCase.Seasons.Winter && clc.ClimateType == ClimateLoadCase.ClimateTypes.DeltaP)
+                    return _psi2ClimateWinterDeltaP;
+                else if (clc.Season == ClimateLoadCase.Seasons.Winter && clc.ClimateType == ClimateLoadCase.ClimateTypes.DeltaT)
+                    return _psi2ClimateWinterDeltaT;
+
             }
+
+            throw new ArgumentException("Don't exist coefficient for this load case");
         }
 
         #endregion

@@ -42,7 +42,7 @@ namespace GPC.Model.Loads
         /// <param name="line"></param>
         /// <param name="loadCase"></param>
         /// <param name="coordinateSystem"></param>
-        public LineLoad(double f1, double f2, double f3, double m1, double m2, double m3, Line3d line, LoadCase loadCase, CoordinateSystem coordinateSystem) 
+        public LineLoad(double f1, double f2, double f3, double m1, double m2, double m3, Line3d line, LoadCaseBase loadCase, CoordinateSystem coordinateSystem) 
             : base(loadCase, Guid.NewGuid())
         {
             _f1 = f1;                                       
@@ -67,13 +67,13 @@ namespace GPC.Model.Loads
         /// <param name="line"></param>
         /// <param name="loadCase"></param>
         /// <remarks> <see cref="CoordinateSystem"/> set to Global </remarks>
-        public LineLoad(double f1, double f2, double f3, double m1, double m2, double m3, Line3d line, LoadCase loadCase)
+        public LineLoad(double f1, double f2, double f3, double m1, double m2, double m3, Line3d line, LoadCaseBase loadCase)
             : this(f1, f2, f3, m1, m2, m3, line, loadCase, CoordinateSystem.Global)
         {
 
         }
 
-        public LineLoad(Vector3d force, Vector3d moment, Line3d line, LoadCase loadCase, CoordinateSystem cSys)
+        public LineLoad(Vector3d force, Vector3d moment, Line3d line, LoadCaseBase loadCase, CoordinateSystem cSys)
             : this(force.X, force.Y, force.Z, moment.X, moment.Y, moment.Z, line, loadCase, cSys)
         {
             

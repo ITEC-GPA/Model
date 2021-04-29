@@ -39,9 +39,9 @@ namespace GPC.Model.Loads
         public SelfWeightLoad(LoadCase loadCase, Vector3d gravityVector, double acceleration) 
             : base(loadCase)
         {
-            if (loadCase.LoadCaseType != LoadCase.LoadCaseTypes.SelfWeight)
+            if (loadCase.LoadCaseType != LoadCases.LoadCase.LoadCaseTypes.SelfWeight)
             {
-                throw new ArgumentException($"LoadCaseType must be {LoadCase.LoadCaseTypes.SelfWeight}");
+                throw new ArgumentException($"LoadCaseType must be {LoadCases.LoadCase.LoadCaseTypes.SelfWeight}");
             }
 
             _gravityVector = gravityVector;

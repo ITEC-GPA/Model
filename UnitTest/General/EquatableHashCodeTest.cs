@@ -149,9 +149,9 @@ namespace GeneralTest
         [TestMethod]
         public void LoadTest1()
         {
-            var pl1 = new PointLoad(1, 2, 3, 4, 5, 6, Point3d.Origin, new LoadCase("lc1", null));
-            var pl2 = new PointLoad(1, 2, 3, 4, 5, 6, Point3d.Origin, new LoadCase("lc1", null));
-            var pl3 = new PointLoad(1, 2, 3, 4, 5, 6, Point3d.Origin, new LoadCase("lc3", null));
+            var pl1 = new PointLoad(1, 2, 3, 4, 5, 6, Point3d.Origin, new LoadCaseBase("lc1"));
+            var pl2 = new PointLoad(1, 2, 3, 4, 5, 6, Point3d.Origin, new LoadCaseBase("lc1"));
+            var pl3 = new PointLoad(1, 2, 3, 4, 5, 6, Point3d.Origin, new LoadCaseBase("lc3"));
 
             Assert.IsTrue(pl1.GetHashCode() == pl2.GetHashCode(), $"Obj1 {pl1.GetHashCode()} Obj2 {pl2.GetHashCode()}");
             Assert.IsTrue(pl1.GetHashCode() != pl3.GetHashCode(), $"Obj1 {pl1.GetHashCode()} Obj2 {pl3.GetHashCode()}");
@@ -159,7 +159,7 @@ namespace GeneralTest
 
 
 
-        [TestMethod]
+        /*[TestMethod]
         public void StageConstruction1()
         {
             Combination cmb1 = new CombinationEn("cmb1", StandardEN1990.LimitStates.UltimateEquilibrium);
@@ -177,7 +177,7 @@ namespace GeneralTest
 
             //Assert.AreEqual(stc1.GetHashCode(), stc2.GetHashCode());
             //Assert.AreEqual(stc1, stc2);
-        }
+        }*/
 
 
         [TestMethod]

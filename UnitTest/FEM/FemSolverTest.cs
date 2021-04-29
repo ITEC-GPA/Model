@@ -194,7 +194,7 @@ namespace FemTest.SolverTest
         [TestMethod]
         public void AddRestrainAndForceMatrixTest1()
         {
-            LoadCase loadCase = new LoadCase("myLoadCase", new Guid());
+            LoadCaseBase loadCase = new LoadCaseBase("myLoadCase", new Guid());
             FreedomCase freedomCase = new FreedomCase("freedomCase1");
 
             Material mat = new SteelMaterial("steel", 200000, 0.2, 355, 510, 7850);
@@ -275,7 +275,7 @@ namespace FemTest.SolverTest
         [TestMethod]
         public void AddRestrainAndForceMatrixTest2()
         {
-            LoadCase loadCase = new LoadCase("myLoadCase", new Guid());
+            LoadCaseBase loadCase = new LoadCaseBase("myLoadCase", new Guid());
             FreedomCase freedomCase = new FreedomCase("freedomCase1");
 
             Material mat = new SteelMaterial("steel", 200000, 0.2, 355, 510, 7850);
@@ -359,7 +359,7 @@ namespace FemTest.SolverTest
         [TestMethod]
         public void AssemblyMixedElement()
         {
-            LoadCase loadCase = new LoadCase("myLoadCase", new Guid());
+            LoadCaseBase loadCase = new LoadCaseBase("myLoadCase", new Guid());
             FreedomCase freedomCase = new FreedomCase("freedomCase1");
 
             Material mat = new SteelMaterial("steel", 1, 0.0, 355, 510, 7850);

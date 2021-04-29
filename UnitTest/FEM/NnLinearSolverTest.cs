@@ -37,7 +37,7 @@ namespace FemTest.SolverTest
             beams.Add(new EulerBeam(new Node[] { nds[0], nds[1] }, sec));
             beams.Add(new EulerBeam(new Node[] { nds[2], nds[1] }, sec));
 
-            LoadCase lc = new LoadCase("lc1");
+            LoadCaseBase lc = new LoadCaseBase("lc1");
             CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
             double F = -1000.0;
             NodeForceAttribute f = new NodeForceAttribute("lc", sys, 0, F, 0, 0, 0, 0);
