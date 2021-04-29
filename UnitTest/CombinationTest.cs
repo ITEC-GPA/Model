@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using GPC.TestUtilities;
 using System.Linq;
 
-#if riprogettare
 namespace ModelObjectTest
 {
     [TestClass]
@@ -32,8 +31,9 @@ namespace ModelObjectTest
             loadCases.Add(new LoadCase("SDL", LoadCase.LoadCaseTypes.SuperImposedDeadLoad, Guid.NewGuid()));
             coefficients.Add(4);
 
-            StandardEN1990.LimitStates limitState = StandardEN1990.LimitStates.UltimateEquilibrium;
-            CombinationEn combination = new CombinationEn("test", limitState);
+            //StandardEN1990.LimitStates limitState = StandardEN1990.LimitStates.UltimateEquilibrium; ?? Cosa serve ??
+            //CombinationEn combination = new CombinationEn("test", limitState);
+            Combination combination = new Combination("test");
 
             combination.AddLoadCaseCoefficients(loadCases, coefficients);
 
@@ -47,7 +47,7 @@ namespace ModelObjectTest
             Assert.IsTrue(splitted[0].Contains("SW"), combinationName);
             Assert.IsTrue(splitted[1].Contains("SDL"), combinationName);
         }
-
+#if _rivedere
         [TestMethod]
         public void CombinationTest2()
         {
@@ -2364,7 +2364,6 @@ namespace ModelObjectTest
             // Assert
             Assert.IsTrue(outList.Count() == 15);
         }
+#endif
     }
 }
-
-#endif
