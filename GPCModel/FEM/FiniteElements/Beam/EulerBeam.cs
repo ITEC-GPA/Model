@@ -130,7 +130,7 @@ namespace GPC.Model.FEM.FiniteElements
                                 #endregion
 
                                 #region
-                                _kElementLocalCoord[5, 5] = E * Jzz / L;
+                                _kElementLocalCoord[5, 5] = (_kElementLocalCoord[5, 5] == 0.0) ? 0.0 : E * Jzz / L;
 
                                 _kElementLocalCoord[5, 1] = 0.0;
                                 _kElementLocalCoord[1, 5] = 0.0;
@@ -138,12 +138,12 @@ namespace GPC.Model.FEM.FiniteElements
                                 _kElementLocalCoord[5, 7] = 0.0;
                                 _kElementLocalCoord[7, 5] = 0.0;
 
-                                _kElementLocalCoord[5, 11] = -E * Jzz / L;
-                                _kElementLocalCoord[11, 5] = -E * Jzz / L;
+                                _kElementLocalCoord[5, 11] = (_kElementLocalCoord[5, 11] == 0.0) ? 0.0 : -E * Jzz / L;
+                                _kElementLocalCoord[11, 5] = (_kElementLocalCoord[11, 5] == 0.0) ? 0.0 : -E * Jzz / L;
                                 #endregion
 
                                 #region
-                                _kElementLocalCoord[7, 7] = E * Jzz / L;
+                                _kElementLocalCoord[7, 7] = (_kElementLocalCoord[7, 7] == 0.0) ? 0.0 : E * Jzz / L;
 
                                 _kElementLocalCoord[7, 1] = 0.0;
                                 _kElementLocalCoord[1, 1] = 0.0;
@@ -156,13 +156,13 @@ namespace GPC.Model.FEM.FiniteElements
                                 #endregion
 
                                 #region
-                                _kElementLocalCoord[11, 11] = E * Jzz / L;
+                                _kElementLocalCoord[11, 11] = (_kElementLocalCoord[11, 11] == 0.0) ? 0.0 : E * Jzz / L;
 
                                 _kElementLocalCoord[11, 7] = 0.0;
                                 _kElementLocalCoord[7, 11] = 0.0;
 
-                                _kElementLocalCoord[11, 5] = -E * Jzz / L;
-                                _kElementLocalCoord[5, 11] = -E * Jzz / L;
+                                _kElementLocalCoord[11, 5] = (_kElementLocalCoord[11, 5] == 0.0) ? 0.0 : -E * Jzz / L;
+                                _kElementLocalCoord[5, 11] = (_kElementLocalCoord[5, 11] == 0.0) ? 0.0 : -E * Jzz / L;
 
                                 _kElementLocalCoord[1, 11] = 0.0;
                                 _kElementLocalCoord[11, 1] = 0.0;
@@ -185,7 +185,7 @@ namespace GPC.Model.FEM.FiniteElements
                                 #endregion
 
                                 #region
-                                _kElementLocalCoord[4, 4] = E * Jyy / L;
+                                _kElementLocalCoord[4, 4] = (_kElementLocalCoord[4, 4] == 0.0) ? 0.0 : E * Jyy / L;
 
                                 _kElementLocalCoord[4, 2] = 0.0;
                                 _kElementLocalCoord[2, 4] = 0.0;
@@ -193,8 +193,8 @@ namespace GPC.Model.FEM.FiniteElements
                                 _kElementLocalCoord[4, 8] = 0.0;
                                 _kElementLocalCoord[8, 4] = 0.0;
 
-                                _kElementLocalCoord[4, 10] = -E * Jyy / L;
-                                _kElementLocalCoord[10, 4] = -E * Jyy / L;
+                                _kElementLocalCoord[4, 10] = (_kElementLocalCoord[4, 10] == 0.0) ? 0.0 : -E * Jyy / L;
+                                _kElementLocalCoord[10, 4] = (_kElementLocalCoord[10, 4] == 0.0) ? 0.0 : -E * Jyy / L;
                                 #endregion
 
                                 #region
@@ -211,13 +211,13 @@ namespace GPC.Model.FEM.FiniteElements
                                 #endregion
 
                                 #region
-                                _kElementLocalCoord[10, 10] = E * Jyy / L;
+                                _kElementLocalCoord[10, 10] = (_kElementLocalCoord[10, 10] == 0.0) ? 0.0 : E * Jyy / L;
 
                                 _kElementLocalCoord[10, 8] = 0.0;
                                 _kElementLocalCoord[8, 10] = 0.0;
 
-                                _kElementLocalCoord[10, 4] = -E * Jyy / L;
-                                _kElementLocalCoord[4, 10] = -E * Jyy / L;
+                                _kElementLocalCoord[10, 4] = (_kElementLocalCoord[10, 4] == 0.0) ? 0.0 : -E * Jyy / L;
+                                _kElementLocalCoord[4, 10] = (_kElementLocalCoord[4, 10] == 0.0) ? 0.0 : -E * Jyy / L;
 
                                 _kElementLocalCoord[2, 10] = 0.0;
                                 _kElementLocalCoord[10, 2] = 0.0;
@@ -240,20 +240,20 @@ namespace GPC.Model.FEM.FiniteElements
                                 #endregion
 
                                 #region
-                                _kElementLocalCoord[2, 2] = 3.0 * E * Jyy / L3;
+                                _kElementLocalCoord[2, 2] = (_kElementLocalCoord[2,2] == 0.0) ? 0.0 : 3.0 * E * Jyy / L3;
 
                                 /*_kElementLocalCoord[2, 4] = 0.0;
                                 _kElementLocalCoord[4, 2] = 0.0;*/
 
-                                _kElementLocalCoord[2, 8] = -3.0 * E * Jyy / L3;
-                                _kElementLocalCoord[8, 2] = -3.0 * E * Jyy / L3;
+                                _kElementLocalCoord[2, 8] = (_kElementLocalCoord[2, 8] == 0.0) ? 0.0 : -3.0 * E * Jyy / L3;
+                                _kElementLocalCoord[8, 2] = (_kElementLocalCoord[8, 2] == 0.0) ? 0.0 : -3.0 * E * Jyy / L3;
 
-                                _kElementLocalCoord[2, 10] = -3.0 * E * Jyy / L2;
-                                _kElementLocalCoord[10, 2] = -3.0 * E * Jyy / L2;
+                                _kElementLocalCoord[2, 10] = (_kElementLocalCoord[2, 10] == 0.0) ? 0.0 : -3.0 * E * Jyy / L2;
+                                _kElementLocalCoord[10, 2] = (_kElementLocalCoord[10, 2] == 0.0) ? 0.0 : -3.0 * E * Jyy / L2;
                                 #endregion
 
                                 #region
-                                _kElementLocalCoord[8, 8] = 3.0 * E * Jyy / L3;
+                                _kElementLocalCoord[8, 8] = (_kElementLocalCoord[8, 8] == 0.0) ? 0.0 : 3.0 * E * Jyy / L3;
 
                                 /*_kElementLocalCoord[8, 2] = -3.0 * E * Jyy / L3;
                                 _kElementLocalCoord[2, 8] = -3.0 * E * Jyy / L3;*/
@@ -261,12 +261,12 @@ namespace GPC.Model.FEM.FiniteElements
                                 /*_kElementLocalCoord[8, 4] = 0.0;
                                 _kElementLocalCoord[4, 8] = 0.0;*/
 
-                                _kElementLocalCoord[8, 10] = 3.0 * E * Jyy / L2;
-                                _kElementLocalCoord[10, 8] = 3.0 * E * Jyy / L2;
+                                _kElementLocalCoord[8, 10] = (_kElementLocalCoord[8, 10] == 0.0) ? 0.0 : 3.0 * E * Jyy / L2;
+                                _kElementLocalCoord[10, 8] = (_kElementLocalCoord[10, 8] == 0.0) ? 0.0 : 3.0 * E * Jyy / L2;
                                 #endregion
 
                                 #region
-                                _kElementLocalCoord[10, 10] = 3.0 * E * Jyy / L3;
+                                _kElementLocalCoord[10, 10] = (_kElementLocalCoord[10, 10] == 0.0) ? 0.0 : 3.0 * E * Jyy / L3;
 
                                 /*_kElementLocalCoord[10, 2] = -3.0 * E * Jyy / L2;
                                 _kElementLocalCoord[2, 10] = -3.0 * E * Jyy / L2;*/
@@ -295,20 +295,20 @@ namespace GPC.Model.FEM.FiniteElements
                                 #endregion
 
                                 #region
-                                _kElementLocalCoord[1, 1] = 3.0 * E * Jzz / L3;
+                                _kElementLocalCoord[1, 1] = (_kElementLocalCoord[1, 1] == 0.0) ? 0.0 : 3.0 * E * Jzz / L3;
 
                                 /*_kElementLocalCoord[1, 5] = 0.0;
                                 _kElementLocalCoord[5, 1] = 0.0;*/
 
-                                _kElementLocalCoord[1, 7] = -3.0 * E * Jzz / L3;
-                                _kElementLocalCoord[7, 1] = -3.0 * E * Jzz / L3;
+                                _kElementLocalCoord[1, 7] = (_kElementLocalCoord[1, 7] == 0.0) ? 0.0 : -3.0 * E * Jzz / L3;
+                                _kElementLocalCoord[7, 1] = (_kElementLocalCoord[7, 1] == 0.0) ? 0.0 : -3.0 * E * Jzz / L3;
 
-                                _kElementLocalCoord[1, 11] = 3.0 * E * Jzz / L2;
-                                _kElementLocalCoord[11, 1] = 3.0 * E * Jzz / L2;
+                                _kElementLocalCoord[1, 11] = (_kElementLocalCoord[1, 11] == 0.0) ? 0.0 : 3.0 * E * Jzz / L2;
+                                _kElementLocalCoord[11, 1] = (_kElementLocalCoord[11, 1] == 0.0) ? 0.0 : 3.0 * E * Jzz / L2;
                                 #endregion
 
                                 #region
-                                _kElementLocalCoord[7, 7] = 3.0 * E * Jzz / L3;
+                                _kElementLocalCoord[7, 7] = (_kElementLocalCoord[7, 7] == 0.0) ? 0.0 : 3.0 * E * Jzz / L3;
 
                                 /*_kElementLocalCoord[7, 1] = -3.0 * E * Jzz / L3;
                                 _kElementLocalCoord[1, 7] = -3.0 * E * Jzz / L3;*/
@@ -316,12 +316,12 @@ namespace GPC.Model.FEM.FiniteElements
                                 /*_kElementLocalCoord[7, 5] = 0.0;
                                 _kElementLocalCoord[5, 7] = 0.0;*/
 
-                                _kElementLocalCoord[7, 11] = -3.0 * E * Jzz / L2;
-                                _kElementLocalCoord[11, 7] = -3.0 * E * Jzz / L2;
+                                _kElementLocalCoord[7, 11] = (_kElementLocalCoord[7, 11] == 0.0) ? 0.0 : -3.0 * E * Jzz / L2;
+                                _kElementLocalCoord[11, 7] = (_kElementLocalCoord[11, 7] == 0.0) ? 0.0 : -3.0 * E * Jzz / L2;
                                 #endregion
 
                                 #region
-                                _kElementLocalCoord[11, 11] = 3.0 * E * Jzz / L2;
+                                _kElementLocalCoord[11, 11] = (_kElementLocalCoord[11, 11] == 0.0) ? 0.0 : 3.0 * E * Jzz / L2;
 
                                 /*_kElementLocalCoord[11, 1] = 3.0 * E * Jzz / L2;
                                 _kElementLocalCoord[1, 11] = 3.0 * E * Jzz / L2;*/
@@ -376,20 +376,20 @@ namespace GPC.Model.FEM.FiniteElements
                                 #endregion
 
                                 #region
-                                _kElementLocalCoord[11, 11] = E * Jzz / L;
+                                _kElementLocalCoord[11, 11] = (_kElementLocalCoord[11, 11] == 0.0) ? 0.0 : E * Jzz / L;
 
                                 _kElementLocalCoord[11, 7] = 0.0; 
                                 _kElementLocalCoord[7, 11] = 0.0;
 
-                                _kElementLocalCoord[11, 5] = -E * Jzz / L; 
-                                _kElementLocalCoord[5, 11] = -E * Jzz / L;
+                                _kElementLocalCoord[11, 5] = (_kElementLocalCoord[11, 5] == 0.0) ? 0.0 : -E * Jzz / L; 
+                                _kElementLocalCoord[5, 11] = (_kElementLocalCoord[5, 11] == 0.0) ? 0.0 : -E * Jzz / L;
 
                                 _kElementLocalCoord[1, 11] = 0.0;
                                 _kElementLocalCoord[11, 1] = 0.0;
                                 #endregion
 
                                 #region
-                                _kElementLocalCoord[5, 5] = E * Jzz / L; 
+                                _kElementLocalCoord[5, 5] = (_kElementLocalCoord[5, 5] == 0.0) ? 0.0 : E * Jzz / L; 
 
                                 _kElementLocalCoord[5, 1] = 0.0; 
                                 _kElementLocalCoord[1, 5] = 0.0; 
@@ -397,8 +397,8 @@ namespace GPC.Model.FEM.FiniteElements
                                 _kElementLocalCoord[5, 7] = 0.0; 
                                 _kElementLocalCoord[7, 5] = 0.0; 
 
-                                _kElementLocalCoord[5, 11] = -E * Jzz / L; 
-                                _kElementLocalCoord[11, 5] = -E * Jzz / L;
+                                _kElementLocalCoord[5, 11] = (_kElementLocalCoord[5, 11] == 0.0) ? 0.0 : -E * Jzz / L; 
+                                _kElementLocalCoord[11, 5] = (_kElementLocalCoord[11, 5] == 0.0) ? 0.0 : -E * Jzz / L;
                                 #endregion
 
                                 #region
@@ -444,7 +444,7 @@ namespace GPC.Model.FEM.FiniteElements
                                 #endregion
 
                                 #region
-                                _kElementLocalCoord[4, 4] = E * Jyy / L;
+                                _kElementLocalCoord[4, 4] = (_kElementLocalCoord[4, 4] == 0.0) ? 0.0 : E * Jyy / L;
 
                                 _kElementLocalCoord[4, 2] = 0.0;
                                 _kElementLocalCoord[2, 4] = 0.0;
@@ -452,18 +452,18 @@ namespace GPC.Model.FEM.FiniteElements
                                 _kElementLocalCoord[4, 8] = 0.0;
                                 _kElementLocalCoord[8, 4] = 0.0;
 
-                                _kElementLocalCoord[4, 10] = -E * Jyy / L;
-                                _kElementLocalCoord[10, 4] = -E * Jyy / L;
+                                _kElementLocalCoord[4, 10] = (_kElementLocalCoord[4, 10] == 0.0) ? 0.0 : -E * Jyy / L;
+                                _kElementLocalCoord[10, 4] = (_kElementLocalCoord[10, 4] == 0.0) ? 0.0 : -E * Jyy / L;
                                 #endregion
 
                                 #region
-                                _kElementLocalCoord[10, 10] = E * Jyy / L;
+                                _kElementLocalCoord[10, 10] = (_kElementLocalCoord[10, 10] == 0.0) ? 0.0 : E * Jyy / L;
 
                                 _kElementLocalCoord[10, 8] = 0.0;
                                 _kElementLocalCoord[8, 10] = 0.0;
 
-                                _kElementLocalCoord[10, 4] = -E * Jyy / L;
-                                _kElementLocalCoord[4, 10] = -E * Jyy / L;
+                                _kElementLocalCoord[10, 4] = (_kElementLocalCoord[10, 4] == 0.0) ? 0.0 : -E * Jyy / L;
+                                _kElementLocalCoord[4, 10] = (_kElementLocalCoord[4, 10] == 0.0) ? 0.0 : -E * Jyy / L;
 
                                 _kElementLocalCoord[2, 10] = 0.0;
                                 _kElementLocalCoord[10, 2] = 0.0;
@@ -486,39 +486,39 @@ namespace GPC.Model.FEM.FiniteElements
                                 #endregion
 
                                 #region
-                                _kElementLocalCoord[2, 2] = 3.0 * E * Jyy / L3;
+                                _kElementLocalCoord[2, 2] = (_kElementLocalCoord[2, 2] == 0.0) ? 0.0 : 3.0 * E * Jyy / L3;
 
-                                _kElementLocalCoord[4, 2] = -3.0 * E * Jyy / L2;
-                                _kElementLocalCoord[2, 4] = -3.0 * E * Jyy / L2;
+                                _kElementLocalCoord[4, 2] = (_kElementLocalCoord[4, 2] == 0.0) ? 0.0 : -3.0 * E * Jyy / L2;
+                                _kElementLocalCoord[2, 4] = (_kElementLocalCoord[2, 4] == 0.0) ? 0.0 : -3.0 * E * Jyy / L2;
 
-                                _kElementLocalCoord[4, 8] = -3.0 * E * Jyy / L3;
-                                _kElementLocalCoord[8, 4] = -3.0 * E * Jyy / L3;
+                                _kElementLocalCoord[4, 8] = (_kElementLocalCoord[4, 8] == 0.0) ? 0.0 : -3.0 * E * Jyy / L3;
+                                _kElementLocalCoord[8, 4] = (_kElementLocalCoord[8, 4] == 0.0) ? 0.0 : -3.0 * E * Jyy / L3;
 
                                 _kElementLocalCoord[4, 10] = 0.0;
                                 _kElementLocalCoord[10, 4] = 0.0;
                                 #endregion
 
                                 #region
-                                _kElementLocalCoord[4, 4] = 3.0 * E * Jyy / L2;
+                                _kElementLocalCoord[4, 4] = (_kElementLocalCoord[4, 4] == 0.0) ? 0.0 : 3.0 * E * Jyy / L2;
 
-                                _kElementLocalCoord[4, 2] = -3.0 * E * Jyy / L3;
-                                _kElementLocalCoord[2, 4] = -3.0 * E * Jyy / L3;
+                                _kElementLocalCoord[4, 2] = (_kElementLocalCoord[4, 2] == 0.0) ? 0.0 : -3.0 * E * Jyy / L3;
+                                _kElementLocalCoord[2, 4] = (_kElementLocalCoord[2, 4] == 0.0) ? 0.0 : -3.0 * E * Jyy / L3;
 
-                                _kElementLocalCoord[4, 8] = 3.0 * E * Jyy / L3;
-                                _kElementLocalCoord[8, 4] = 3.0 * E * Jyy / L3;
+                                _kElementLocalCoord[4, 8] = (_kElementLocalCoord[4, 8] == 0.0) ? 0.0 : 3.0 * E * Jyy / L3;
+                                _kElementLocalCoord[8, 4] = (_kElementLocalCoord[8, 4] == 0.0) ? 0.0 : 3.0 * E * Jyy / L3;
 
                                 _kElementLocalCoord[4, 10] = 0.0;
                                 _kElementLocalCoord[10, 10] = 0.0;
                                 #endregion
 
                                 #region
-                                _kElementLocalCoord[8, 8] = 3.0 * E * Jyy / L3;
+                                _kElementLocalCoord[8, 8] = (_kElementLocalCoord[8, 8] == 0.0) ? 0.0 : 3.0 * E * Jyy / L3;
 
-                                _kElementLocalCoord[8, 2] = -3.0 * E * Jyy / L3;
-                                _kElementLocalCoord[2, 8] = -3.0 * E * Jyy / L3;
+                                _kElementLocalCoord[8, 2] = (_kElementLocalCoord[8, 2] == 0.0) ? 0.0 : -3.0 * E * Jyy / L3;
+                                _kElementLocalCoord[2, 8] = (_kElementLocalCoord[2, 8] == 0.0) ? 0.0 : -3.0 * E * Jyy / L3;
 
-                                _kElementLocalCoord[8, 4] = 3.0 * E * Jyy / L2;
-                                _kElementLocalCoord[4, 8] = 3.0 * E * Jyy / L2;
+                                _kElementLocalCoord[8, 4] = (_kElementLocalCoord[8, 4] == 0.0) ? 0.0 : 3.0 * E * Jyy / L2;
+                                _kElementLocalCoord[4, 8] = (_kElementLocalCoord[4, 8] == 0.0) ? 0.0 : 3.0 * E * Jyy / L2;
 
                                 _kElementLocalCoord[8, 10] = 0.0;
                                 _kElementLocalCoord[10, 8] = 0.0;
@@ -528,39 +528,39 @@ namespace GPC.Model.FEM.FiniteElements
                             case LocalDOF.R3:
                                 #region
                                 #region
-                                _kElementLocalCoord[1, 1] = 3.0 * E * Jzz / L3;
+                                _kElementLocalCoord[1, 1] = (_kElementLocalCoord[1, 1] == 0.0) ? 0.0 : 3.0 * E * Jzz / L3;
 
-                                _kElementLocalCoord[1, 5] = 3.0 * E * Jzz / L2;
-                                _kElementLocalCoord[5, 1] = 3.0 * E * Jzz / L2;
+                                _kElementLocalCoord[1, 5] = (_kElementLocalCoord[1, 5] == 0.0) ? 0.0 : 3.0 * E * Jzz / L2;
+                                _kElementLocalCoord[5, 1] = (_kElementLocalCoord[5, 1] == 0.0) ? 0.0 : 3.0 * E * Jzz / L2;
 
-                                _kElementLocalCoord[1, 7] = -3.0 * E * Jzz / L3;
-                                _kElementLocalCoord[7, 1] = -3.0 * E * Jzz / L3;
+                                _kElementLocalCoord[1, 7] = (_kElementLocalCoord[1, 7] == 0.0) ? 0.0 : -3.0 * E * Jzz / L3;
+                                _kElementLocalCoord[7, 1] = (_kElementLocalCoord[7, 1] == 0.0) ? 0.0 : -3.0 * E * Jzz / L3;
 
                                 _kElementLocalCoord[1, 11] = 0.0;
                                 _kElementLocalCoord[11, 11] = 0.0;
                                 #endregion
 
                                 #region
-                                _kElementLocalCoord[5, 5] = 3.0 * E * Jzz / L2;
+                                _kElementLocalCoord[5, 5] = (_kElementLocalCoord[5, 5] == 0.0) ? 0.0 : 3.0 * E * Jzz / L2;
 
-                                _kElementLocalCoord[5, 1] = 3.0 * E * Jzz / L3;
-                                _kElementLocalCoord[5, 5] = 3.0 * E * Jzz / L3;
+                                _kElementLocalCoord[5, 1] = (_kElementLocalCoord[5, 1] == 0.0) ? 0.0 : 3.0 * E * Jzz / L3;
+                                _kElementLocalCoord[1, 5] = (_kElementLocalCoord[1, 5] == 0.0) ? 0.0 : 3.0 * E * Jzz / L3;
 
-                                _kElementLocalCoord[5, 7] = -3.0 * E * Jzz / L3;
-                                _kElementLocalCoord[7, 5] = -3.0 * E * Jzz / L3;
+                                _kElementLocalCoord[5, 7] = (_kElementLocalCoord[5, 7] == 0.0) ? 0.0 : -3.0 * E * Jzz / L3;
+                                _kElementLocalCoord[7, 5] = (_kElementLocalCoord[7, 5] == 0.0) ? 0.0 : -3.0 * E * Jzz / L3;
 
                                 _kElementLocalCoord[5, 11] = 0.0;
                                 _kElementLocalCoord[11, 5] = 0.0;
                                 #endregion
 
                                 #region
-                                _kElementLocalCoord[7, 7] = 3.0 * E * Jzz / L3;
+                                _kElementLocalCoord[7, 7] = (_kElementLocalCoord[7, 7] == 0.0) ? 0.0 : 3.0 * E * Jzz / L3;
 
-                                _kElementLocalCoord[7, 1] = -3.0 * E * Jzz / L3;
-                                _kElementLocalCoord[1, 7] = -3.0 * E * Jzz / L3;
+                                _kElementLocalCoord[7, 1] = (_kElementLocalCoord[7, 1] == 0.0) ? 0.0 : -3.0 * E * Jzz / L3;
+                                _kElementLocalCoord[1, 7] = (_kElementLocalCoord[1, 7] == 0.0) ? 0.0 : -3.0 * E * Jzz / L3;
 
-                                _kElementLocalCoord[7, 5] = -3.0 * E * Jzz / L2;
-                                _kElementLocalCoord[5, 7] = -3.0 * E * Jzz / L2;
+                                _kElementLocalCoord[7, 5] = (_kElementLocalCoord[7, 5] == 0.0) ? 0.0 : -3.0 * E * Jzz / L2;
+                                _kElementLocalCoord[5, 7] = (_kElementLocalCoord[5, 7] == 0.0) ? 0.0 : -3.0 * E * Jzz / L2;
 
                                 _kElementLocalCoord[7, 11] = 0.0;
                                 _kElementLocalCoord[11, 7] = 0.0;
