@@ -1,4 +1,5 @@
-﻿using System;
+﻿using GPC.Utilities.Converters;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
@@ -13,6 +14,7 @@ namespace GPC.Model.LoadCases
         #region PUBLIC ENUMS
 
         [Serializable]
+        [TypeConverter(typeof(EnumDescriptionTypeConverter))]
         public enum LoadCaseTypes
         {
             [Description("Self weigth")] SelfWeight,
