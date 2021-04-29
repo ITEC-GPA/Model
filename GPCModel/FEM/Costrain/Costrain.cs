@@ -19,11 +19,15 @@ namespace GPC.Model.FEM.Costrains
         public Node StartNode => _startNode;
         public Node[] EndNodes => _endNodes;
 
-        public Node EndNode {
-            get {
-                if (_endNodes.Count() == 1) {
+        public Node EndNode
+        {
+            get
+            {
+                if (_endNodes.Count() == 1)
+                {
                     return _endNodes[0];
-                } else
+                }
+                else
                 {
                     throw new IndexOutOfRangeException("This link connect more than 1 node");
                 }
@@ -32,6 +36,7 @@ namespace GPC.Model.FEM.Costrains
 
         public MultiPointsCostrain[] Links => _links;
         #endregion
+
 
         public Costrain(Node nodo1, Node[] nodes, string name = "") : base(name) { }
     }
