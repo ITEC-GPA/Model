@@ -895,35 +895,169 @@ namespace GPC.Model.FEM.FiniteElements
             double J22 = ((Section)_property).J22;
 
             //Post-processing only for beam:
-            double qx = 0;
-            double qy = 0;
-            double qz = 0;
+            double q1 = 0;
+            double q2 = 0;
+            double q3 = 0;
             for (int i = 0; i < _attributesLoadCase.Count; i++)
             {
                 if (_attributesLoadCase[i].GetType() == typeof(BeamDistribuitedLoadAttribute))
                 {
                     BeamDistribuitedLoadAttribute q = (BeamDistribuitedLoadAttribute)_attributesLoadCase[i];
-                    qx += q.Q1;
-                    qy += q.Q2;
-                    qz += q.Q3;
+                    q1 += q.Q1;
+                    q2 += q.Q2;
+                    q3 += q.Q3;
                 }
             }
 
             Dictionary<LocalDOF, double> displStation = new Dictionary<LocalDOF, double>();
-            for (int i = 0; i < displLocalNode1.Count; i++)
-            {
-                LocalDOF index = (LocalDOF)i;
-                displStation.Add(index, displLocalNode1[index] * N0(station, _length) + displLocalNode2[index] * N1(station, _length));
-
-                if (index == LocalDOF.U2) {
-                    displStation[index] = displStation[index] + DisplacementBeamFixFix(qy, station, _length, E, J22) + DisplacementImposedRotationFixFix(station, displLocalNode1[LocalDOF.R3], _length) - DisplacementImposedRotationFixFix(_length - station, displLocalNode2[LocalDOF.R3], _length);
-                }
-                if (index == LocalDOF.U3)
+            #region BeamWithoutReleases
+            for (int i = 0; i < displLocalNode1.Count; i++) //loop on DOF
                 {
-                    displStation[index] = displStation[index] + DisplacementBeamFixFix(qz, station, _length, E, J11) - DisplacementImposedRotationFixFix(station, displLocalNode1[LocalDOF.R2], _length) + DisplacementImposedRotationFixFix(_length - station, displLocalNode2[LocalDOF.R2], _length);
+                    LocalDOF index = (LocalDOF)i;
+                    displStation.Add(index, displLocalNode1[index] * N0(station, _length) + displLocalNode2[index] * N1(station, _length)); //linear interpolation
+
+                    if (index == LocalDOF.U2)
+                    {
+                        displStation[index] = displStation[index] + DisplacementBeamFixFix(q2, station, _length, E, J22) + DisplacementImposedRotationFixFix(station, displLocalNode1[LocalDOF.R3], _length) - DisplacementImposedRotationFixFix(_length - station, displLocalNode2[LocalDOF.R3], _length);
+                    }
+                    if (index == LocalDOF.U3)
+                    {
+                        displStation[index] = displStation[index] + DisplacementBeamFixFix(q3, station, _length, E, J11) - DisplacementImposedRotationFixFix(station, displLocalNode1[LocalDOF.R2], _length) + DisplacementImposedRotationFixFix(_length - station, displLocalNode2[LocalDOF.R2], _length);
+                    }
+                    //TODO: aggiungere rotazioni
                 }
-                //TODO: aggiungere rotazioni
+            #endregion
+
+            BeamReleasesAttribute[] releases = _attributesFreedomCase.OfType<BeamReleasesAttribute>().ToArray();
+            #region AddEffectOfReleases
+            for (int j = 0; j < releases.Length; j++) //cycle over releases attributes
+            {
+                BeamReleasesAttribute release = releases[j];
+
+                var end = release.EndBeam;
+                var dofReleased = release.LocalDOFReleased;
+               
+                if (end == EndSide.End1)
+                {
+                    #region releaseAxial
+                    if (dofReleased.Contains(LocalDOF.AxialU1))
+                    {
+                        var index = LocalDOF.AxialU1;
+                        displStation[LocalDOF.AxialU1] = displLocalNode2[index];
+                    }
+                    #endregion
+
+                    #region releaseU2
+                    if (dofReleased.Contains(LocalDOF.U2))
+                    {
+                        double rotation = displLocalNode1[LocalDOF.R3];
+                        displStation[LocalDOF.U2] = -DisplacementFixAndImposedRotationAtEnd(_length - station, rotation, _length);
+                    }
+                    #endregion
+
+                    #region releaseU3
+                    if (dofReleased.Contains(LocalDOF.U3))
+                    {
+                        double rotation = displLocalNode1[LocalDOF.R2];
+                        displStation[LocalDOF.U3] = DisplacementFixAndImposedRotationAtEnd(_length - station, rotation, _length);
+                    }
+                    #endregion
+
+                    #region releaseTorsion
+                    #endregion
+
+                    #region releaseR2
+                    if (dofReleased.Contains(LocalDOF.R2))
+                    {
+                        double displacement = displLocalNode1[LocalDOF.U3];
+                        displStation[LocalDOF.U3] = DisplacementFixAndImposedDisplacementAtEnd(_length - station, displacement, _length);
+                    }
+                    #endregion
+
+                    #region releaseR3
+                    if (dofReleased.Contains(LocalDOF.R3))
+                    {
+                        double displacement = displLocalNode1[LocalDOF.U2];
+                        displStation[LocalDOF.U2] = DisplacementFixAndImposedDisplacementAtEnd(_length - station, displacement, _length);
+                    }
+                    #endregion
+
+                    #region releaseR2AndU3
+                    if (dofReleased.Contains(LocalDOF.U3) && dofReleased.Contains(LocalDOF.R2))
+                    {
+                        displStation[LocalDOF.U3] = 0.0;
+                    }
+                    #endregion
+
+                    #region releaseR3AndU2
+                    if (dofReleased.Contains(LocalDOF.U2) && dofReleased.Contains(LocalDOF.R3))
+                    {
+                        displStation[LocalDOF.U2] = 0.0;
+                    }
+                    #endregion
+                }
+
+                if (end == EndSide.End2)
+                {
+                    #region releaseAxial
+                    if (dofReleased.Contains(LocalDOF.AxialU1))
+                    {
+                        var index = LocalDOF.AxialU1;
+                        displStation[LocalDOF.AxialU1] = displLocalNode1[index];
+                    }
+                    #endregion
+
+                    #region releaseU2
+                    if (dofReleased.Contains(LocalDOF.U2))
+                    {
+                        double rotation = displLocalNode2[LocalDOF.R3];
+                        displStation[LocalDOF.U2] = DisplacementFixAndImposedRotationAtEnd(station, rotation, _length);
+                    }
+                    #endregion
+
+                    #region releaseU3
+                    if (dofReleased.Contains(LocalDOF.U3))
+                    {
+                        double rotation = displLocalNode2[LocalDOF.R2];
+                        displStation[LocalDOF.U3] = -DisplacementFixAndImposedRotationAtEnd(station, rotation, _length);
+                    }
+                    #endregion
+
+                    #region releaseTorsion
+                    #endregion
+
+                    #region releaseR2
+                    if (dofReleased.Contains(LocalDOF.R2))
+                    {
+                        double displacement = displLocalNode2[LocalDOF.U3];
+                        displStation[LocalDOF.U3] = DisplacementFixAndImposedDisplacementAtEnd(station, displacement, _length);
+                    }
+                    #endregion
+
+                    #region releaseR3
+                    if (dofReleased.Contains(LocalDOF.R3))
+                    {
+                        double displacement = displLocalNode2[LocalDOF.U2];
+                        displStation[LocalDOF.U2] = DisplacementFixAndImposedDisplacementAtEnd(station, displacement, _length);
+                    }
+                    #endregion
+
+                    #region releaseR2AndU3
+                    if (dofReleased.Contains(LocalDOF.U3) && dofReleased.Contains(LocalDOF.R2))
+                    {
+                        displStation[LocalDOF.U3] = 0.0;
+                    }
+                    #endregion
+
+                    #region releaseR3AndU2
+                    if (dofReleased.Contains(LocalDOF.U2) && dofReleased.Contains(LocalDOF.R3))
+                    {
+                        displStation[LocalDOF.U2] = 0.0;
+                    }
+                    #endregion
+                }
             }
+            #endregion
             return displStation;
         }
         #endregion
@@ -1034,6 +1168,16 @@ namespace GPC.Model.FEM.FiniteElements
         private double DisplacementImposedRotationFixFix(double x, double alpha, double L)
         {
             return alpha / (L*L) * (x*x*x + x * L * (L-2.0 *x));
+        }
+
+        private double DisplacementFixAndImposedRotationAtEnd(double x, double alpha, double L)
+        {
+            return alpha * L / 2.0 * Math.Pow(x / L,2.0);
+        }
+
+        private double DisplacementFixAndImposedDisplacementAtEnd(double x, double displacement, double L)
+        {
+            return displacement / 2.0 * x*x / Math.Pow(L,3.0) * (3.0 * L - x);
         }
         #endregion
     }
