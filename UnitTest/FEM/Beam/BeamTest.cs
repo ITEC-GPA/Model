@@ -553,11 +553,11 @@ namespace FemTest.SolverTest {
             List<Node> nds = new List<Node>();
             nds.Add(new Node(0, 0, 0));
             nds.Add(new Node(1000, 300, 0));
-            //nds.Add(new Node(2000, 0, 0));
+            nds.Add(new Node(2000, 0, 0));
 
             List<EulerBeam> beams = new List<EulerBeam>();
             beams.Add(new EulerBeam(new Node[] { nds[0], nds[1] }, sec));
-            //beams.Add(new EulerBeam(new Node[] { nds[2], nds[1] }, sec));
+            beams.Add(new EulerBeam(new Node[] { nds[1], nds[2] }, sec));
 
             CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
             double F = -100.0;
@@ -579,7 +579,7 @@ namespace FemTest.SolverTest {
             dz.AddExternalRestrain(Solver.DOF.RX);
 
             nds[0].AddAttribute(fix);
-            //nds[2].AddAttribute(fix);
+            nds[2].AddAttribute(fix);
 
             nds[1].AddAttribute(dz);
 
@@ -589,19 +589,148 @@ namespace FemTest.SolverTest {
                 Beam.LocalDOF.R3
                 };
 
-            beams[0].AddEndRelease(Beam.EndSide.End2, hinge, "fc", "rel");
             beams[0].AddEndRelease(Beam.EndSide.End1, hinge, "fc", "rel");
+            //beams[0].AddEndRelease(Beam.EndSide.End2, hinge, "fc", "rel");
+            
+            beams[1].AddEndRelease(Beam.EndSide.End1, hinge, "fc", "rel");
+            beams[1].AddEndRelease(Beam.EndSide.End2, hinge, "fc", "rel");
 
-            beams[0].BuildMatrix();
+            LinearSolver fem = new LinearSolver(beams.ToArray());
 
-            //beams[1].AddEndRelease(Beam.EndSide.End1, hinge, "fc", "rel");
+            //Assert.AreEqual(false, true);
+            Assert.AreEqual(-0.423666, fem.GetDisplacementGlobalCoordinates(nds[1], Solver.DOF.DY), 1e-4);
+            //TODO: la matrice deve risultare quella di una truss dopo aver inserito end release a entrambi lati -> scoprire perchè non risulta così   
+        }
+
+        [TestMethod]
+        public void DoubleEndReleaseTest1()
+        {
+            Section sec = new SectionCHS(100.0, 5.0, new SteelMaterial("m", 1000.0, 0.0, 355, 510, 7850), "sec");
+
+            double L = 2000.0;
+
+            List<Node> nds = new List<Node>();
+            nds.Add(new Node(0, 0, 0));
+            nds.Add(new Node(L / 3.0, 0, 0));
+            nds.Add(new Node(2.0 * L / 3.0, 0, 0));
+            nds.Add(new Node(3.0 * L / 3.0, 0, 0));
+
+            List<EulerBeam> beams = new List<EulerBeam>();
+            beams.Add(new EulerBeam(new Node[] { nds[0], nds[1] }, sec));
+            beams.Add(new EulerBeam(new Node[] { nds[1], nds[2] }, sec));
+            beams.Add(new EulerBeam(new Node[] { nds[2], nds[3] }, sec));
+
+            CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
+            double F = -100.0;
+            NodeForceAttribute f = new NodeForceAttribute("lc", sys, 0, F, 0, 0, 0, 0);
+
+            nds[1].AddAttribute(f);
+            nds[2].AddAttribute(f);
+
+            NodeRestrainAttribute fix = new NodeRestrainAttribute("fc", sys);
+            fix.AddExternalRestrain(Solver.DOF.DX);
+            fix.AddExternalRestrain(Solver.DOF.DY);
+            fix.AddExternalRestrain(Solver.DOF.DZ);
+            fix.AddExternalRestrain(Solver.DOF.RX);
+            fix.AddExternalRestrain(Solver.DOF.RY);
+            fix.AddExternalRestrain(Solver.DOF.RZ);
+
+            NodeRestrainAttribute dz = new NodeRestrainAttribute("fc", sys);
+            dz.AddExternalRestrain(Solver.DOF.DZ);
+            dz.AddExternalRestrain(Solver.DOF.RY);
+            dz.AddExternalRestrain(Solver.DOF.RX);
+
+            nds[0].AddAttribute(fix);
+            nds[3].AddAttribute(fix);
+
+            nds[1].AddAttribute(dz);
+            nds[2].AddAttribute(dz);
+
+            //add release
+            Beam.LocalDOF[] hinge = new Beam.LocalDOF[] {
+                Beam.LocalDOF.R2,
+                Beam.LocalDOF.R3
+                };
+
+            //beams[0].AddEndRelease(Beam.EndSide.End1, hinge, "fc", "rel");
+            //beams[0].AddEndRelease(Beam.EndSide.End2, hinge, "fc", "rel");
+            
+            beams[1].AddEndRelease(Beam.EndSide.End1, hinge, "fc", "rel");
+            beams[1].AddEndRelease(Beam.EndSide.End2, hinge, "fc", "rel");
+
+            //beams[2].AddEndRelease(Beam.EndSide.End1, hinge, "fc", "rel");
             //beams[1].AddEndRelease(Beam.EndSide.End2, hinge, "fc", "rel");
 
-            //LinearSolver fem = new LinearSolver(beams.ToArray());
+            LinearSolver fem = new LinearSolver(beams.ToArray());
 
-            Assert.AreEqual(false, true);
-            //Assert.AreEqual(-8.0497, fem.GetDisplacementGlobalCoordinates(nds[1], Solver.DOF.DY), 1e-4);
-            //TODO: la matrice deve risultare quella di una truss dopo aver inserito end release a entrambi lati -> scoprire perchè non risulta così   
+            Assert.AreEqual(-5.850634, fem.GetDisplacementGlobalCoordinates(nds[1], Solver.DOF.DY), 1e-4);
+            Assert.AreEqual(-5.850634, fem.GetDisplacementGlobalCoordinates(nds[2], Solver.DOF.DY), 1e-4);
+
+            Assert.AreEqual(100, fem.GetReaction(nds[0], Solver.DOF.DY), 1e-4);
+            Assert.AreEqual(100, fem.GetReaction(nds[3], Solver.DOF.DY), 1e-4);
+
+            Assert.AreEqual(66666.66, fem.GetReaction(nds[0], Solver.DOF.RZ), 1e-2);
+            Assert.AreEqual(-66666.66, fem.GetReaction(nds[3], Solver.DOF.RZ), 1e-2);
+        }
+
+        [TestMethod]
+        public void DoubleEndReleaseTest2()
+        {
+            Section sec = new SectionCHS(100.0, 5.0, new SteelMaterial("m", 1.0, 0.0, 355, 510, 7850), "sec");
+
+            List<Node> nds = new List<Node>();
+            nds.Add(new Node(0, 0, 0));
+            nds.Add(new Node(20.0, 0, 0));
+            nds.Add(new Node(10.0, 17.32, 0));
+            nds.Add(new Node(10.0, 5.7736, 10.0));
+
+            List<EulerBeam> beams = new List<EulerBeam>();
+            beams.Add(new EulerBeam(new Node[] { nds[0], nds[3] }, sec));
+            beams.Add(new EulerBeam(new Node[] { nds[1], nds[3] }, sec));
+            beams.Add(new EulerBeam(new Node[] { nds[2], nds[3] }, sec));
+
+            CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
+            double F = -100.0;
+            NodeForceAttribute f = new NodeForceAttribute("lc", sys, 0, 0, F, 0, 0, 0);
+
+            nds[3].AddAttribute(f);
+
+            NodeRestrainAttribute fix = new NodeRestrainAttribute("fc", sys);
+            fix.AddExternalRestrain(Solver.DOF.DX);
+            fix.AddExternalRestrain(Solver.DOF.DY);
+            fix.AddExternalRestrain(Solver.DOF.DZ);
+            fix.AddExternalRestrain(Solver.DOF.RX);
+            fix.AddExternalRestrain(Solver.DOF.RY);
+            fix.AddExternalRestrain(Solver.DOF.RZ);
+
+            nds[0].AddAttribute(fix);
+            nds[1].AddAttribute(fix);
+            nds[2].AddAttribute(fix);
+
+            //add release
+            Beam.LocalDOF[] hinge = new Beam.LocalDOF[] {
+                Beam.LocalDOF.R2,
+                Beam.LocalDOF.R3
+                };
+
+            beams[0].AddEndRelease(Beam.EndSide.End1, hinge, "fc", "rel");
+            beams[0].AddEndRelease(Beam.EndSide.End2, hinge, "fc", "rel");
+
+            beams[1].AddEndRelease(Beam.EndSide.End1, hinge, "fc", "rel");
+            beams[1].AddEndRelease(Beam.EndSide.End2, hinge, "fc", "rel");
+
+            beams[2].AddEndRelease(Beam.EndSide.End1, hinge, "fc", "rel");
+            beams[2].AddEndRelease(Beam.EndSide.End2, hinge, "fc", "rel");
+
+            LinearSolver fem = new LinearSolver(beams.ToArray());
+
+            Assert.AreEqual(0, fem.GetDisplacementGlobalCoordinates(nds[3], Solver.DOF.DX), 1e-4);
+            Assert.AreEqual(0, fem.GetDisplacementGlobalCoordinates(nds[3], Solver.DOF.DY), 1e-4);
+            Assert.AreEqual(-0.7961, fem.GetDisplacementGlobalCoordinates(nds[3], Solver.DOF.DZ), 1e-4);
+
+            Assert.AreEqual(33.33, fem.GetReaction(nds[0], Solver.DOF.DZ), 1e-2);
+            Assert.AreEqual(33.33, fem.GetReaction(nds[1], Solver.DOF.DZ), 1e-2);
+            Assert.AreEqual(33.33, fem.GetReaction(nds[2], Solver.DOF.DZ), 1e-2);
         }
 
         /// <summary>
@@ -1491,6 +1620,85 @@ namespace FemTest.SolverTest {
             Assert.AreEqual(33.953, fem.GetBeamDisplacementInLocalCoordinates(beams[1], 0.0, Beam.LocalDOF.U2), 1e-3);
             Assert.AreEqual(10.6103, fem.GetBeamDisplacementInLocalCoordinates(beams[1], beams[1].L / 2.0, Beam.LocalDOF.U2), 1e-3);
             Assert.AreEqual(0.0, fem.GetBeamDisplacementInLocalCoordinates(beams[1], beams[1].L, Beam.LocalDOF.U2), 1e-3);
+        }
+
+        [TestMethod]
+        public void EndReleaseTestRotationEnd1Inclined()
+        {
+            double E = 10.0;
+            double ni = 0;
+
+            Material mat = new SteelMaterial("m", E, ni, 355, 510, 7850);
+
+            double D = 1;
+            double t = D / 2;
+            Section sec = new SectionCHS(D, t, mat, "sec");
+
+            double L = 10;
+            List<Node> nds = new List<Node>();
+            nds.Add(new Node(0, 0, 0));
+            nds.Add(new Node(L, L, 0));
+            nds.Add(new Node(2.0 * L, 0, 0));
+
+            List<EulerBeam> beams = new List<EulerBeam>();
+            beams.Add(new EulerBeam(new Node[] { nds[0], nds[1] }, sec));
+            beams.Add(new EulerBeam(new Node[] { nds[1], nds[2] }, sec));
+
+            beams[0].AddEndRelease(Beam.EndSide.End1, new Beam.LocalDOF[] { Beam.LocalDOF.R2, Beam.LocalDOF.R3 }, "fc", "releaseName");
+            beams[0].AddEndRelease(Beam.EndSide.End2, new Beam.LocalDOF[] { Beam.LocalDOF.R2, Beam.LocalDOF.R3 }, "fc", "releaseName");
+
+            //beams[1].AddEndRelease(Beam.EndSide.End1, new Beam.LocalDOF[] { Beam.LocalDOF.R2, Beam.LocalDOF.R3 }, "fc", "releaseName");
+            beams[1].AddEndRelease(Beam.EndSide.End2, new Beam.LocalDOF[] { Beam.LocalDOF.R2, Beam.LocalDOF.R3 }, "fc", "releaseName");
+
+            CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
+
+            double F = 10.0;
+            NodeForceAttribute f = new NodeForceAttribute("lc", sys, 0, -F, 0.0*F, 0, 0, 0);
+            nds[1].AddAttribute(f);
+
+            NodeRestrainAttribute fix = new NodeRestrainAttribute("fc", sys);
+            fix.AddExternalRestrain(Solver.DOF.DX);
+            fix.AddExternalRestrain(Solver.DOF.DY);
+            fix.AddExternalRestrain(Solver.DOF.DZ);
+            fix.AddExternalRestrain(Solver.DOF.RX);
+            fix.AddExternalRestrain(Solver.DOF.RY);
+            fix.AddExternalRestrain(Solver.DOF.RZ);
+
+            nds[0].AddAttribute(fix);
+            nds[2].AddAttribute(fix);
+
+            LinearSolver fem = new LinearSolver(beams.ToArray());
+
+            /*Assert.AreEqual(33.953, fem.GetDisplacementGlobalCoordinates(nds[1], DOF.DY), 1e-3);
+            Assert.AreEqual(33.953, fem.GetDisplacementGlobalCoordinates(nds[1], DOF.DZ), 1e-3);
+
+            Assert.AreEqual(-5.0, fem.GetReaction(nds[0], DOF.DY), 1e-3);
+            Assert.AreEqual(-5.0, fem.GetReaction(nds[0], DOF.DZ), 1e-3);
+
+            Assert.AreEqual(50.0, fem.GetReaction(nds[0], DOF.RY), 1e-3);
+            Assert.AreEqual(-50.0, fem.GetReaction(nds[0], DOF.RZ), 1e-3);
+
+            Assert.AreEqual(-5.0, fem.GetReaction(nds[2], DOF.DY), 1e-3);
+            Assert.AreEqual(-5.0, fem.GetReaction(nds[2], DOF.DZ), 1e-3);
+
+            Assert.AreEqual(-50.0, fem.GetReaction(nds[2], DOF.RY), 1e-3);
+            Assert.AreEqual(50.0, fem.GetReaction(nds[2], DOF.RZ), 1e-3);
+
+            Assert.AreEqual(33.953, fem.GetBeamDisplacementInLocalCoordinates(beams[0], beams[0].L, Beam.LocalDOF.U3), 1e-3);
+            Assert.AreEqual(10.6103, fem.GetBeamDisplacementInLocalCoordinates(beams[0], beams[0].L / 2.0, Beam.LocalDOF.U3), 1e-3);
+            Assert.AreEqual(0.0, fem.GetBeamDisplacementInLocalCoordinates(beams[0], 0.0, Beam.LocalDOF.U3), 1e-3);
+
+            Assert.AreEqual(33.953, fem.GetBeamDisplacementInLocalCoordinates(beams[1], 0.0, Beam.LocalDOF.U3), 1e-3);
+            Assert.AreEqual(10.6103, fem.GetBeamDisplacementInLocalCoordinates(beams[1], beams[1].L / 2.0, Beam.LocalDOF.U3), 1e-3);
+            Assert.AreEqual(0.0, fem.GetBeamDisplacementInLocalCoordinates(beams[1], beams[1].L, Beam.LocalDOF.U3), 1e-3);
+
+            Assert.AreEqual(33.953, fem.GetBeamDisplacementInLocalCoordinates(beams[0], beams[0].L, Beam.LocalDOF.U2), 1e-3);
+            Assert.AreEqual(10.6103, fem.GetBeamDisplacementInLocalCoordinates(beams[0], beams[0].L / 2.0, Beam.LocalDOF.U2), 1e-3);
+            Assert.AreEqual(0.0, fem.GetBeamDisplacementInLocalCoordinates(beams[0], 0.0, Beam.LocalDOF.U2), 1e-3);
+
+            Assert.AreEqual(33.953, fem.GetBeamDisplacementInLocalCoordinates(beams[1], 0.0, Beam.LocalDOF.U2), 1e-3);
+            Assert.AreEqual(10.6103, fem.GetBeamDisplacementInLocalCoordinates(beams[1], beams[1].L / 2.0, Beam.LocalDOF.U2), 1e-3);
+            Assert.AreEqual(0.0, fem.GetBeamDisplacementInLocalCoordinates(beams[1], beams[1].L, Beam.LocalDOF.U2), 1e-3);*/
         }
 
         [TestMethod]

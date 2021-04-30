@@ -85,6 +85,19 @@ namespace GPC.Model.FEM.FiniteElements
             _kElementLocalCoord[12 - 1, 12 - 1] = 4.0 * E * Jzz / L;
             #endregion
 
+            /*Console.WriteLine("Half kLocal");
+            FEMUtilities.WriteMatrix(_kElementLocalCoord, "F0");*/
+
+            #region ApplySimmetry
+            for (int row = 0; row < _kElementLocalCoord.RowCount; row++)
+            {
+                for (int col = 0; col < _kElementLocalCoord.ColumnCount; col++)
+                {
+                    _kElementLocalCoord[row, col] = _kElementLocalCoord[col, row];
+                }
+            }
+            #endregion
+
             #region ApplyReleases
             foreach (BeamReleasesAttribute rel in _attributesFreedomCase)
             {
@@ -284,7 +297,7 @@ namespace GPC.Model.FEM.FiniteElements
                                 _kElementLocalCoord[5, 5] = 0.0;
 
                                 _kElementLocalCoord[5, 1] = 0.0;
-                                _kElementLocalCoord[5, 5] = 0.0;
+                                _kElementLocalCoord[1, 5] = 0.0;
 
                                 _kElementLocalCoord[5, 7] = 0.0;
                                 _kElementLocalCoord[7, 5] = 0.0;
@@ -583,19 +596,44 @@ namespace GPC.Model.FEM.FiniteElements
                     }
                 }
             }
-            #endregion
-
-            /*Console.WriteLine("Half kLocal");
-            FEMUtilities.WriteMatrix(_kElementLocalCoord, "F0");*/
-
-            //applying symmetry
-            for (int row = 0; row < _kElementLocalCoord.RowCount; row++)
+              
+            
+            #region Truss
+            #region duobleReleaseR2
+            double sumStiffnessR2 = 0.0;
+            for (int col = 0; col < _kElementLocalCoord.ColumnCount; col++)
+            {
+                sumStiffnessR2 += _kElementLocalCoord[4, col] + _kElementLocalCoord[10, col];
+            }
+            if (sumStiffnessR2 == 0.0)
             {
                 for (int col = 0; col < _kElementLocalCoord.ColumnCount; col++)
                 {
-                    _kElementLocalCoord[row, col] = _kElementLocalCoord[col, row];
+                    _kElementLocalCoord[2, col] = 0.0;
+                    _kElementLocalCoord[8, col] = 0.0;
                 }
             }
+            #endregion
+            
+            #region duobleReleaseR3
+            double sumStiffnessR3 = 0.0;
+            for (int col = 0; col < _kElementLocalCoord.ColumnCount; col++)
+            {
+                sumStiffnessR3 += _kElementLocalCoord[5, col] + _kElementLocalCoord[11, col];
+            }
+            if (sumStiffnessR3 == 0.0)
+            {
+                for (int col = 0; col < _kElementLocalCoord.ColumnCount; col++)
+                {
+                    _kElementLocalCoord[1, col] = 0.0;
+                    _kElementLocalCoord[7, col] = 0.0;
+                }
+            }
+            #endregion
+            #endregion
+
+            #endregion
+            
             Console.WriteLine("kLocal");
             FEMUtilities.WriteMatrix(_kElementLocalCoord, "F2");
             #endregion
