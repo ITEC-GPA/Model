@@ -14,12 +14,13 @@ namespace GPC.Model.Combinations
     public class Combination : ModelObject, ILoadCase, ICloneable
     {
         protected List<LoadCaseCoefficient> _coefficients;
+        protected Standard.CombinationsOptions _options;
 
         protected int LoadCaseCount => _coefficients.Count;
 
         #region PUBLIC CONSTRUCTOR
 
-        public Combination(string name, Guid guid)
+        public Combination(string name, Standard.CombinationsOptions options, Guid guid)
             : base(guid, name)
         {
             if (string.IsNullOrEmpty(name) || string.IsNullOrWhiteSpace(name))
@@ -27,6 +28,17 @@ namespace GPC.Model.Combinations
 
             _name = name;
             _coefficients = new List<LoadCaseCoefficient>();
+            _options = options;
+        }
+
+        public Combination(string name, Guid guid)
+            : this(name, null, guid)
+        {
+        }
+
+        public Combination(string name, Standard.CombinationsOptions options)
+            : this(name, options, Guid.NewGuid())
+        {
         }
 
         public Combination(string name)
