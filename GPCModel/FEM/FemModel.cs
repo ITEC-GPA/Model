@@ -17,6 +17,7 @@ using GPC.Model.Restrains;
 using GPC.Model.Loads;
 using GPC.Model.Results;
 using GPC.Model.Combinations;
+using GPC.Model.FEM.Costrains;
 
 namespace GPC.Model.FEM
 {
@@ -49,6 +50,12 @@ namespace GPC.Model.FEM
         /// The elements on this collection does not have duplicate ID and can not be duplicate. (different element with different id)
         /// </summary>
         protected FemObjectCollection<FiniteElement> _elements;
+
+        /// <summary>
+        /// Collection of <see cref="Costrain"/>
+        /// The elements on this collection does not have duplicate ID and can not be duplicate. (different element with different id)
+        /// </summary>
+        protected FemObjectCollection<Costrain> _costrains;
 
         // PROPRIETà
 
@@ -102,7 +109,6 @@ namespace GPC.Model.FEM
 
         protected List<ResultPlateStress> _resultPlateStress;
 
-
         protected AnalysisTypes _analysisType;
 
         #endregion
@@ -134,6 +140,8 @@ namespace GPC.Model.FEM
         {
             _nodes = new FemObjectCollection<Node>();
             _elements = new FemObjectCollection<FiniteElement>();
+            _costrains = new FemObjectCollection<Costrain>();
+
             _stages = new List<Stage>();
 
             _plateProperties = new UniqueNameCollection<PlateProperty>();
@@ -374,7 +382,6 @@ namespace GPC.Model.FEM
 
         #region Add Get Geometry
 
-
         #region FiniteElements
 
         /// <summary> Add a <paramref name="finiteElement"/> and its <see cref="Node"/> to the FemModel</summary>
@@ -445,7 +452,6 @@ namespace GPC.Model.FEM
         }
 
 
-
         /// <param name="index"></param>
         /// <returns></returns>
         /// <inheritdoc cref="FemObjectCollection{T}.GetElementById(int)"/>
@@ -468,6 +474,7 @@ namespace GPC.Model.FEM
             return _elements.Contains(finiteElement);
         }
 
+
         /// <returns>True if property with name: <paramref name="propertyName"/> is contained in the <see cref="FemModel._plateProperties"/> or <see cref="FemModel._brickProperties"/> collections </returns>
         /// <inheritdoc cref="UniqueNameCollection{T}.Contains(string)"/>
         public virtual bool ContainsProperty(string propertyName)
@@ -475,8 +482,8 @@ namespace GPC.Model.FEM
             return _plateProperties.Contains(propertyName) || _brickProperties.Contains(propertyName);
         }
 
-        #endregion
 
+        #endregion
 
         #region Nodes
 
@@ -533,6 +540,63 @@ namespace GPC.Model.FEM
 
         #endregion
 
+        #region Costrain
+
+        /// <summary> Add a <paramref name="costrain"/> and its <see cref="Node"/> to the FemModel</summary>
+        /// <param name="costrain"></param>
+        /// <remarks>This is a O(2n) Operation</remarks>
+        /// <inheritdoc cref="AddNode(Node)"/>
+        /// <inheritdoc cref="FemObjectCollection{T}.Add(T)"/>
+        public virtual void AddCostrain(Costrain costrain)
+        {
+            if (costrain is null)
+                throw new ArgumentNullException(nameof(costrain));
+
+
+            AddNode(costrain.StartNode);
+            AddNodes(costrain.EndNodes);
+
+
+            _costrains.Add(costrain);
+        }
+
+        /// <summary> Add a <paramref name="costrains"/> and its <see cref="Node"/> to the FemModel</summary>
+        /// <param name="costrains"></param>
+        /// <remarks>This is a O(2n) Operation</remarks>
+        /// <inheritdoc cref="AddNode(Node)"/>
+        /// <inheritdoc cref="FemObjectCollection{T}.Add(T)"/>
+        public virtual void AddCostrains(IEnumerable<Costrain> costrains)
+        {
+            foreach(var costrain in costrains)
+            {
+                AddCostrain(costrain);
+            }
+        }
+
+        /// <returns>True if <paramref name="costrain"/> is contained in the <see cref="FemModel._costrains"/> collections </returns>
+        /// <inheritdoc cref="FemObjectCollection{T}.Contains(T)"/>
+        public virtual bool ContainsCostrains(Costrain costrain)
+        {
+            return _costrains.Contains(costrain);
+        }
+
+
+        /// <param name="index"></param>
+        /// <inheritdoc cref="FemObjectCollection{T}.GetElementById(int)"/>
+        public virtual Costrain GetCostrain(int index)
+        {
+            return _costrains[index];
+        }
+
+
+        /// <inheritdoc cref="FemObjectCollection{T}.GetEnumerator()"/>
+        public virtual IEnumerator<Costrain> GetCostrainEnumerator()
+        {
+            return _costrains.GetEnumerator();
+        }
+
+
+        #endregion
 
         #region Mesh and shapes
 
@@ -1155,7 +1219,6 @@ namespace GPC.Model.FEM
 
 
         #endregion
-
 
         #endregion
 

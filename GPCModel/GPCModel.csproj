@@ -170,7 +170,6 @@
     <Compile Include="FEM\LinearSolver.cs" />
     <Compile Include="FEM\Solver.cs" />
     <Compile Include="FreedomCases\FreedomCase.cs" />
-    <Compile Include="LoadCases\IClimate.cs" />
     <Compile Include="LoadCases\LoadCaseBase.cs" />
     <Compile Include="LoadCases\LoadCaseEn16612.cs" />
     <Compile Include="Loads\AreaLoad.cs" />

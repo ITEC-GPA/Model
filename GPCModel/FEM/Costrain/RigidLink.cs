@@ -8,6 +8,7 @@ namespace GPC.Model.FEM.Costrains
     public class RigidLink : Costrain
     {
         #region constructor
+
         public RigidLink(Node node1, Node[] nodes) : base(node1, nodes)
         {
             _startNode = node1;
@@ -26,7 +27,10 @@ namespace GPC.Model.FEM.Costrains
 
         public RigidLink(Node node1, Node node2) : this(node1, new Node[] { node2 })
         {
+
         }
+
+
         #endregion
 
         #region PublicFunctions
