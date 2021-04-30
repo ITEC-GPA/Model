@@ -9,7 +9,7 @@ namespace GPC.Model.Combinations
 {
     public abstract class Standard
     {
-        public class CombinationsOptions
+        public abstract class CombinationsOptions
         {
         }
 
@@ -26,10 +26,11 @@ namespace GPC.Model.Combinations
         /// <summary>
         /// 
         /// </summary>
-        /// <typeparam name="T">The generation options type derived from GenerationOptions</typeparam>
+        /// <param name="name"></param>
         /// <param name="loadCases"></param>
         /// <param name="options"></param>
         /// <returns>The Combination collections</returns>
-        public abstract CombinationsCollection CreateCombinations<T>(LoadCaseBase[] loadCases, T options) where T : CombinationsOptions;
+        //public abstract CombinationsCollection CreateCombinations<T>(LoadCaseBase[] loadCases, T options) where T : CombinationsOptions;
+        public abstract CombinationsCollection CreateCombinations(string name, LoadCaseBase[] loadCases, CombinationsOptions options);
     }
 }

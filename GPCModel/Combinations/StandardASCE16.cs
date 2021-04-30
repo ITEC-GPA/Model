@@ -246,7 +246,7 @@ namespace GPC.Model.Combinations
         #endregion
 
 
-        public override CombinationsCollection CreateCombinations<T>(LoadCaseBase[] loadCases, T options)
+        public override CombinationsCollection CreateCombinations(string name, LoadCaseBase[] loadCases, CombinationsOptions options)
         {
             throw new NotImplementedException();
         }
