@@ -548,16 +548,16 @@ namespace FemTest.SolverTest {
         [TestMethod]
         public void ArcTest1()
         {
-            Section sec = new SectionCHS(10.0, 5.0, new SteelMaterial("m", 1000.0, 0.0, 355, 510, 7850), "sec");
+            Section sec = new SectionCHS(100.0, 5.0, new SteelMaterial("m", 1000.0, 0.0, 355, 510, 7850), "sec");
 
             List<Node> nds = new List<Node>();
             nds.Add(new Node(0, 0, 0));
             nds.Add(new Node(1000, 300, 0));
-            nds.Add(new Node(2000, 0, 0));
+            //nds.Add(new Node(2000, 0, 0));
 
             List<EulerBeam> beams = new List<EulerBeam>();
             beams.Add(new EulerBeam(new Node[] { nds[0], nds[1] }, sec));
-            beams.Add(new EulerBeam(new Node[] { nds[1], nds[2] }, sec));
+            //beams.Add(new EulerBeam(new Node[] { nds[2], nds[1] }, sec));
 
             CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
             double F = -100.0;
@@ -575,9 +575,11 @@ namespace FemTest.SolverTest {
 
             NodeRestrainAttribute dz = new NodeRestrainAttribute("fc", sys);
             dz.AddExternalRestrain(Solver.DOF.DZ);
+            dz.AddExternalRestrain(Solver.DOF.RY);
+            dz.AddExternalRestrain(Solver.DOF.RX);
 
             nds[0].AddAttribute(fix);
-            nds[2].AddAttribute(fix);
+            //nds[2].AddAttribute(fix);
 
             nds[1].AddAttribute(dz);
 
@@ -587,16 +589,19 @@ namespace FemTest.SolverTest {
                 Beam.LocalDOF.R3
                 };
 
-            beams[0].AddEndRelease(Beam.EndSide.End1, hinge, "fc", "rel");
             beams[0].AddEndRelease(Beam.EndSide.End2, hinge, "fc", "rel");
+            beams[0].AddEndRelease(Beam.EndSide.End1, hinge, "fc", "rel");
 
-            beams[1].AddEndRelease(Beam.EndSide.End2, hinge, "fc", "rel");
+            beams[0].BuildMatrix();
 
-            LinearSolver fem = new LinearSolver(beams.ToArray());
+            //beams[1].AddEndRelease(Beam.EndSide.End1, hinge, "fc", "rel");
+            //beams[1].AddEndRelease(Beam.EndSide.End2, hinge, "fc", "rel");
 
-            Assert.AreEqual(-8.0497, fem.GetDisplacementGlobalCoordinates(nds[1], LinearSolver.DOF.DY), 1e-2);
-            //TODO: capire perchè se beams[1] viene definita con nodes[2], nodes[1] allora risultato corretto e funziona.
-            //La matrice da risolvere non è identica. --> debuggare
+            //LinearSolver fem = new LinearSolver(beams.ToArray());
+
+            Assert.AreEqual(false, true);
+            //Assert.AreEqual(-8.0497, fem.GetDisplacementGlobalCoordinates(nds[1], Solver.DOF.DY), 1e-4);
+            //TODO: la matrice deve risultare quella di una truss dopo aver inserito end release a entrambi lati -> scoprire perchè non risulta così   
         }
 
         /// <summary>

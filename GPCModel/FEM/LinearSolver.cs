@@ -680,11 +680,11 @@ namespace GPC.Model.FEM
 
         #region displacements
         //TODO: trasformare in classe Beam
-        public Dictionary<Beam.LocalDOF, double> GetBeamDisplacementInLocalCoordinatesAtNode(EulerBeam b, int indexNode)
+        public Dictionary<Beam.LocalDOF, double> GetBeamDisplacementInLocalCoordinatesAtNode(EulerBeam b, Beam.EndSide endSide)
         {
             var globalDisplNodes = GetDisplacementsAtNodesOfElementInGlobalCoordinates(b);
 
-            return b.GetLocalDisplacementsAtNode(indexNode, globalDisplNodes);
+            return b.GetLocalDisplacementsAtNode(endSide, globalDisplNodes);
         }
 
         //TODO: trasformare in classe Beam
