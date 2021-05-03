@@ -1,4 +1,4 @@
-using GPC.Model.LoadCases;
+﻿using GPC.Model.LoadCases;
 using GPC.Utilities.Extensions;
 using System;
 using System.Collections.Generic;
@@ -47,7 +47,7 @@ namespace GPC.Model.Combinations
         }
 
         public Combination(Combination combination)
-            : this(combination._name, combination.Guid)
+            : this(combination._name, combination._options, combination.Guid)
         {
             _coefficients = combination._coefficients.ToList(); //Shallow copy, i puntatori dei loadcase non cambiano
         }
@@ -62,26 +62,33 @@ namespace GPC.Model.Combinations
         #endregion
 
         #region Abstract methods
-        /*
-        public abstract bool IsUltimate();
-
-        public abstract object Clone();
+        
 
         /// <summary>
         /// Duplicate the object, overriding the name with a new one
         /// </summary>
         /// <param name="nameOverride">Name overriding</param>
-        public abstract Combination Duplicate(string nameOverride);
+        /// 
+        public Combination Duplicate(string nameOverride)
+        {
+            var c = new Combination(this);
+            c._name = nameOverride;
+
+            return c;
+        }
 
         /// <summary>
         /// Create a new empty <see cref="Combination"/> object. I.e. with the same properties except the <see cref="Combination.LoadCaseCoefficient"/> List that will be empty
         /// </summary>
-        public abstract object CloneEmpty();
-        */
+        public object CloneEmpty()
+        {
+            return new Combination(this._name, this._options, this._guid) ;
+        }
+        
 
         public object Clone()
         {
-            return null;
+            return new Combination(this);
         }
 
         #endregion Abstract methods
