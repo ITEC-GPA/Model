@@ -38,5 +38,23 @@ namespace ModelObjectTest
             Assert.IsTrue(lc.Equals(lc1));
             Assert.IsFalse(lc.Equals(lc2));
         }
+
+
+
+        [TestMethod]
+        public void LoadCaseTest3()
+        {
+            LoadCase lc = new LoadCase("Snow", LoadCase.LoadCaseTypes.Snow);
+
+            LoadCase lc1 = new LoadCase("Snow", LoadCase.LoadCaseTypes.Snow);
+            LoadCase lc2 = new LoadCase("Wind", LoadCase.LoadCaseTypes.WindPressure);
+
+            ClimateLoadCase cls = new ClimateLoadCase("Cls", ClimateLoadCase.Seasons.Summer, ClimateLoadCase.ClimateTypes.DeltaH, 10, 20);
+
+            
+            Assert.IsTrue(lc.Equals(lc1));
+            Assert.IsFalse(lc.Equals(lc2));
+            Assert.IsFalse(lc.Equals(cls));
+        }
     }
 }

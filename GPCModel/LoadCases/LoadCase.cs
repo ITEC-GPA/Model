@@ -70,9 +70,10 @@ namespace GPC.Model.LoadCases
 
         /// <returns><see langword="True"/> if <paramref name="obj"/> have the same <see cref="_loadCaseType"/> and <see cref="ModelObject.Name"/> of this object </returns>
         public override bool Equals(object obj)
-        {            
-            LoadCase lc = (LoadCase)obj;
-            return base.Equals(obj) && _loadCaseType.Equals(lc._loadCaseType);
+        {
+            LoadCase lc = obj as LoadCase;
+
+            return lc != null && base.Equals(lc) && _loadCaseType.Equals(lc._loadCaseType);
         }
 
         public override int GetHashCode()
