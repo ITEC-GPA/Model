@@ -1,4 +1,4 @@
-﻿using GPC.Model.LoadCases;
+using GPC.Model.LoadCases;
 using GPC.Utilities.Extensions;
 using System;
 using System.Collections.Generic;
@@ -56,6 +56,7 @@ namespace GPC.Model.Combinations
             : base(info, context)
         {
             _coefficients = (List<LoadCaseCoefficient>)info.GetValue("Coefficients", typeof(List<LoadCaseCoefficient>));
+            _options = (Standard.CombinationsOptions)info.GetValue("Options", typeof(Standard.CombinationsOptions));
         }
 
         #endregion
@@ -333,6 +334,7 @@ namespace GPC.Model.Combinations
         {
             base.GetObjectData(info, context);
             info.AddValue("Coefficients", _coefficients);
+            info.AddValue("Options", _options);
         }
 
         public override string ToString()
@@ -371,14 +373,17 @@ namespace GPC.Model.Combinations
 
         public override int GetHashCode()
         {
-            var hashCode = 23;
-            hashCode = hashCode + base.GetHashCode();
-
-            foreach (var element in _coefficients)
+            unchecked
             {
-                hashCode = hashCode + EqualityComparer<LoadCaseCoefficient>.Default.GetHashCode(element);
+                var hashCode = 23;
+                hashCode = hashCode + base.GetHashCode();
+
+                foreach (var element in _coefficients)
+                {
+                    hashCode = hashCode + EqualityComparer<LoadCaseCoefficient>.Default.GetHashCode(element);
+                }
+                return hashCode; 
             }
-            return hashCode;
         }
 
         public static bool operator ==(Combination obj1, Combination obj2)
@@ -468,10 +473,13 @@ namespace GPC.Model.Combinations
 
             public override int GetHashCode()
             {
-                var hashCode = -23;
-                hashCode = hashCode * -17 + EqualityComparer<LoadCaseBase>.Default.GetHashCode(_loadcase);
-                hashCode = hashCode * -17 + _coefficient.GetHashCode();
-                return hashCode;
+                unchecked
+                {
+                    var hashCode = -23;
+                    hashCode = hashCode * -17 + EqualityComparer<LoadCaseBase>.Default.GetHashCode(_loadcase);
+                    hashCode = hashCode * -17 + _coefficient.GetHashCode();
+                    return hashCode; 
+                }
             }
 
             public static bool operator ==(LoadCaseCoefficient obj1, LoadCaseCoefficient obj2)
