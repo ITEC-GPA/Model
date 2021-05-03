@@ -274,22 +274,21 @@ namespace GPC.Model.Combinations
             }
 
             int idProg = 1;
+            CombinationCoefficientEqualityComparer equalityComparer = new CombinationCoefficientEqualityComparer();
+            HashSet<Combination> combinationsHashSet = new HashSet<Combination>(equalityComparer);
+            CombinationsCollection combinations = new CombinationsCollection();
 
             if (((ASCE16CombinationsOptions)options).LimitState == StandardASCE16.LimitStates.LFRD)
             {
-                CombinationsCollection combinations = new CombinationsCollection();
-
                 List<LoadCaseCoefficient> LFRDCombo1List = LFRDCombo1(loadCases.Cast<LoadCase>().ToList());
                 Combination combo1 = new Combination(name + $" {idProg}");
                 for (int j = 0; j < LFRDCombo1List.Count; j++)
                 {
                     combo1.AddLoadCaseCoefficient(LFRDCombo1List[j].LoadCase, LFRDCombo1List[j].Coefficient);
                 }
-                if (!CombinationCoefficientEqualityComparer.Equals(combinations, combo1))
-                {
-                    combinations.Add(combo1);
-                    idProg++;
-                }
+                combinationsHashSet.Add(combo1);
+                idProg++;
+
 
                 List<List<LoadCaseCoefficient>> LFRDCombo2List = LFRDCombo2(loadCases.Cast<LoadCase>().ToList());
                 for (int i = 0; i < LFRDCombo2List.Count; i++)
@@ -299,11 +298,8 @@ namespace GPC.Model.Combinations
                     {
                         combo2.AddLoadCaseCoefficient(LFRDCombo2List[i][j].LoadCase, LFRDCombo2List[i][j].Coefficient);
                     }
-                    if (!CombinationCoefficientEqualityComparer.Equals(combinations, combo2))
-                    {
-                        combinations.Add(combo2);
-                        idProg++;
-                    }
+                    combinationsHashSet.Add(combo2);
+                    idProg++;
                 }
 
                 List<List<LoadCaseCoefficient>> LFRDCombo3List = LFRDCombo3(loadCases.Cast<LoadCase>().ToList());
@@ -314,11 +310,8 @@ namespace GPC.Model.Combinations
                     {
                         combo3.AddLoadCaseCoefficient(LFRDCombo3List[i][j].LoadCase, LFRDCombo3List[i][j].Coefficient);
                     }
-                    if (!CombinationCoefficientEqualityComparer.Equals(combinations, combo3))
-                    {
-                        combinations.Add(combo3);
-                        idProg++;
-                    }
+                    combinationsHashSet.Add(combo3);
+                    idProg++;
                 }
 
                 List<List<LoadCaseCoefficient>> LFRDCombo4List = LFRDCombo4(loadCases.Cast<LoadCase>().ToList());
@@ -329,11 +322,8 @@ namespace GPC.Model.Combinations
                     {
                         combo4.AddLoadCaseCoefficient(LFRDCombo4List[i][j].LoadCase, LFRDCombo4List[i][j].Coefficient);
                     }
-                    if (!CombinationCoefficientEqualityComparer.Equals(combinations, combo4))
-                    {
-                        combinations.Add(combo4);
-                        idProg++;
-                    }
+                    combinationsHashSet.Add(combo4);
+                    idProg++;
                 }
 
                 List<List<LoadCaseCoefficient>> LFRDCombo5List = LFRDCombo5(loadCases.Cast<LoadCase>().ToList());
@@ -344,11 +334,8 @@ namespace GPC.Model.Combinations
                     {
                         combo5.AddLoadCaseCoefficient(LFRDCombo5List[i][j].LoadCase, LFRDCombo5List[i][j].Coefficient);
                     }
-                    if (!CombinationCoefficientEqualityComparer.Equals(combinations, combo5))
-                    {
-                        combinations.Add(combo5);
-                        idProg++;
-                    }
+                    combinationsHashSet.Add(combo5);
+                    idProg++;
                 }
 
                 List<LoadCaseCoefficient> LFRDCombo6List = LFRDCombo6(loadCases.Cast<LoadCase>().ToList());
@@ -357,11 +344,9 @@ namespace GPC.Model.Combinations
                 {
                     combo6.AddLoadCaseCoefficient(LFRDCombo6List[j].LoadCase, LFRDCombo6List[j].Coefficient);
                 }
-                if (!CombinationCoefficientEqualityComparer.Equals(combinations, combo6))
-                {
-                    combinations.Add(combo6);
-                    idProg++;
-                }
+
+                combinationsHashSet.Add(combo6);
+                idProg++;
 
                 List<LoadCaseCoefficient> LFRDCombo7List = LFRDCombo7(loadCases.Cast<LoadCase>().ToList());
                 Combination combo7 = new Combination(name + $" {idProg}");
@@ -369,30 +354,20 @@ namespace GPC.Model.Combinations
                 {
                     combo7.AddLoadCaseCoefficient(LFRDCombo7List[j].LoadCase, LFRDCombo7List[j].Coefficient);
                 }
-                if (!CombinationCoefficientEqualityComparer.Equals(combinations, combo7))
-                {
-                    combinations.Add(combo7);
-                    idProg++;
-                }
-
-                return combinations;
+                combinationsHashSet.Add(combo7);
+                idProg++;
             }
+
             else if (((ASCE16CombinationsOptions)options).LimitState == StandardASCE16.LimitStates.ASD)
             {
-                CombinationsCollection combinations = new CombinationsCollection();
-
                 List<LoadCaseCoefficient> ASDCombo1List = ASDCombo1(loadCases.Cast<LoadCase>().ToList());
                 Combination combo1 = new Combination(name + $" {idProg}");
                 for (int j = 0; j < ASDCombo1List.Count; j++)
                 {
                     combo1.AddLoadCaseCoefficient(ASDCombo1List[j].LoadCase, ASDCombo1List[j].Coefficient);
                 }
-                if (!CombinationCoefficientEqualityComparer.Equals(combinations, combo1))
-                {
-                    combinations.Add(combo1);
-                    idProg++;
-                }
-
+                combinationsHashSet.Add(combo1);
+                idProg++;
 
                 List<List<LoadCaseCoefficient>> ASDCombo2List = ASDCombo2(loadCases.Cast<LoadCase>().ToList());
                 for (int i = 0; i < ASDCombo2List.Count; i++)
@@ -402,11 +377,8 @@ namespace GPC.Model.Combinations
                     {
                         combo2.AddLoadCaseCoefficient(ASDCombo2List[i][j].LoadCase, ASDCombo2List[i][j].Coefficient);
                     }
-                    if (!CombinationCoefficientEqualityComparer.Equals(combinations, combo2))
-                    {
-                        combinations.Add(combo2);
-                        idProg++;
-                    }
+                    combinationsHashSet.Add(combo2);
+                    idProg++;
                 }
 
                 List<List<LoadCaseCoefficient>> ASDCombo3List = ASDCombo3(loadCases.Cast<LoadCase>().ToList());
@@ -417,11 +389,8 @@ namespace GPC.Model.Combinations
                     {
                         combo3.AddLoadCaseCoefficient(ASDCombo3List[i][j].LoadCase, ASDCombo3List[i][j].Coefficient);
                     }
-                    if (!CombinationCoefficientEqualityComparer.Equals(combinations, combo3))
-                    {
-                        combinations.Add(combo3);
-                        idProg++;
-                    }
+                    combinationsHashSet.Add(combo3);
+                    idProg++;
                 }
 
                 List<List<LoadCaseCoefficient>> ASDCombo4List = ASDCombo4(loadCases.Cast<LoadCase>().ToList());
@@ -432,11 +401,9 @@ namespace GPC.Model.Combinations
                     {
                         combo4.AddLoadCaseCoefficient(ASDCombo4List[i][j].LoadCase, ASDCombo4List[i][j].Coefficient);
                     }
-                    if (!CombinationCoefficientEqualityComparer.Equals(combinations, combo4))
-                    {
-                        combinations.Add(combo4);
-                        idProg++;
-                    }
+
+                    combinationsHashSet.Add(combo4);
+                    idProg++;
                 }
 
                 List<List<LoadCaseCoefficient>> ASDCombo5List = ASDCombo5(loadCases.Cast<LoadCase>().ToList());
@@ -447,11 +414,8 @@ namespace GPC.Model.Combinations
                     {
                         combo5.AddLoadCaseCoefficient(ASDCombo5List[i][j].LoadCase, ASDCombo5List[i][j].Coefficient);
                     }
-                    if (!CombinationCoefficientEqualityComparer.Equals(combinations, combo5))
-                    {
-                        combinations.Add(combo5);
-                        idProg++;
-                    }
+                    combinationsHashSet.Add(combo5);
+                    idProg++;
                 }
 
                 List<List<LoadCaseCoefficient>> ASDCombo6List = ASDCombo6(loadCases.Cast<LoadCase>().ToList());
@@ -462,11 +426,8 @@ namespace GPC.Model.Combinations
                     {
                         combo6.AddLoadCaseCoefficient(ASDCombo6List[i][j].LoadCase, ASDCombo6List[i][j].Coefficient);
                     }
-                    if (!CombinationCoefficientEqualityComparer.Equals(combinations, combo6))
-                    {
-                        combinations.Add(combo6);
-                        idProg++;
-                    }
+                    combinationsHashSet.Add(combo6);
+                    idProg++;
                 }
 
                 List<List<LoadCaseCoefficient>> ASDCombo7List = ASDCombo7(loadCases.Cast<LoadCase>().ToList());
@@ -477,11 +438,8 @@ namespace GPC.Model.Combinations
                     {
                         combo7.AddLoadCaseCoefficient(ASDCombo7List[i][j].LoadCase, ASDCombo7List[i][j].Coefficient);
                     }
-                    if (!CombinationCoefficientEqualityComparer.Equals(combinations, combo7))
-                    {
-                        combinations.Add(combo7);
-                        idProg++;
-                    }
+                    combinationsHashSet.Add(combo7);
+                    idProg++;
                 }
 
                 List<LoadCaseCoefficient> ASDCombo8List = ASDCombo8(loadCases.Cast<LoadCase>().ToList());
@@ -490,11 +448,8 @@ namespace GPC.Model.Combinations
                 {
                     combo8.AddLoadCaseCoefficient(ASDCombo8List[j].LoadCase, ASDCombo8List[j].Coefficient);
                 }
-                if (!CombinationCoefficientEqualityComparer.Equals(combinations, combo8))
-                {
-                    combinations.Add(combo8);
-                    idProg++;
-                }
+                combinationsHashSet.Add(combo8);
+                idProg++;
 
                 List<LoadCaseCoefficient> ASDCombo9List = ASDCombo9(loadCases.Cast<LoadCase>().ToList());
                 Combination combo9 = new Combination(name + $" {idProg}");
@@ -502,11 +457,8 @@ namespace GPC.Model.Combinations
                 {
                     combo9.AddLoadCaseCoefficient(ASDCombo9List[j].LoadCase, ASDCombo9List[j].Coefficient);
                 }
-                if (!CombinationCoefficientEqualityComparer.Equals(combinations, combo9))
-                {
-                    combinations.Add(combo9);
-                    idProg++;
-                }
+                combinationsHashSet.Add(combo9);
+                idProg++;
 
                 List<LoadCaseCoefficient> ASDCombo10List = ASDCombo10(loadCases.Cast<LoadCase>().ToList());
                 Combination combo10 = new Combination(name + $" {idProg}");
@@ -514,16 +466,16 @@ namespace GPC.Model.Combinations
                 {
                     combo10.AddLoadCaseCoefficient(ASDCombo10List[j].LoadCase, ASDCombo10List[j].Coefficient);
                 }
-                if (!CombinationCoefficientEqualityComparer.Equals(combinations, combo10))
-                {
-                    combinations.Add(combo10);
-                    idProg++;
-                }
-
-                return combinations;
+                combinationsHashSet.Add(combo10);
+                idProg++;
             }
+
             else
                 throw new ArgumentException("Fail to generate");
+
+            foreach (Combination comb in combinationsHashSet)
+                combinations.Add(comb);
+            return combinations;
         }
 
         #endregion

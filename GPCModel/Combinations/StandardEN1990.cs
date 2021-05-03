@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Runtime.Serialization;
+using static GPC.Model.Combinations.Combination;
 
 namespace GPC.Model.Combinations
 {
@@ -916,53 +917,63 @@ namespace GPC.Model.Combinations
         public override CombinationsCollection CreateCombinations(LoadCaseBase[] loadCases, CombinationsOptions options, string name = "cmb")
         {
             CombinationsCollection combinations = new CombinationsCollection();
-           
+            CombinationCoefficientEqualityComparer equalityComparer = new CombinationCoefficientEqualityComparer();
+            HashSet<Combination> combinationsHashSet = new HashSet<Combination>(equalityComparer);
+            int idProg = 1;
+
             List<List<Combination.LoadCaseCoefficient>> listFavourable = GetFavourableCombinations(loadCases, (En1990CombinationsOptions)options);
             for (int i = 0; i < listFavourable.Count(); i++)
             {
-                Combination combo = new Combination(name, options);
+                Combination combo = new Combination(name + $" {idProg}", options);
 
                 for (int j = 0; j < listFavourable[i].Count(); j++)
                 {
                     combo.AddLoadCaseCoefficient(listFavourable[i][j].LoadCase, listFavourable[i][j].Coefficient);
-                    combinations.Add(combo);
                 }
+                combinationsHashSet.Add(combo);
+                idProg++;
             }
 
             List<List<Combination.LoadCaseCoefficient>> listUnfavourable = GetUnfavourableCombinations(loadCases, (En1990CombinationsOptions)options);
             for (int i = 0; i < listUnfavourable.Count(); i++)
             {
-                Combination combo = new Combination(name, options);
+                Combination combo = new Combination(name + $" {idProg}", options);
 
                 for (int j = 0; j < listUnfavourable[i].Count(); j++)
                 {
                     combo.AddLoadCaseCoefficient(listUnfavourable[i][j].LoadCase, listUnfavourable[i][j].Coefficient);
-                    combinations.Add(combo);
                 }
+                combinationsHashSet.Add(combo);
+                idProg++;
             }
 
             List<List<Combination.LoadCaseCoefficient>> listFavourableBase = GetFavourableBasicCombinations(loadCases, (En1990CombinationsOptions)options);
             for (int i = 0; i < listFavourableBase.Count(); i++)
             {
-                Combination comboBaseFav = new Combination(name, options);
+                Combination comboBaseFav = new Combination(name + $" {idProg}", options);
                 for (int j = 0; j < listFavourableBase[i].Count(); j++)
                 {
                     comboBaseFav.AddLoadCaseCoefficient(listFavourableBase[i][j].LoadCase, listFavourableBase[i][j].Coefficient);
-                    combinations.Add(comboBaseFav);
                 }
+                combinationsHashSet.Add(comboBaseFav);
+                idProg++;
             }
 
             List<List<Combination.LoadCaseCoefficient>> listUnfavourableBase = GetUnfavourableBasicCombinations(loadCases, (En1990CombinationsOptions)options);
             for (int i = 0; i < listUnfavourableBase.Count(); i++)
             {
-                Combination comboBaseUnfav = new Combination(name, options);
+                Combination comboBaseUnfav = new Combination(name + $" {idProg}", options);
                 for (int j = 0; j < listUnfavourableBase[i].Count(); j++)
                 {
                     comboBaseUnfav.AddLoadCaseCoefficient(listUnfavourableBase[i][j].LoadCase, listUnfavourableBase[i][j].Coefficient);
-                    combinations.Add(comboBaseUnfav);
                 }
+                combinationsHashSet.Add(comboBaseUnfav);
+                idProg++;
             }
-            
+
+            foreach (Combination cmb in combinationsHashSet)
+                combinations.Add(cmb);
+
             return combinations;
         }
 
@@ -974,7 +985,6 @@ namespace GPC.Model.Combinations
         /// <param name="options">The generation options</param>
         /// <returns>The coefficient</returns>
         private double GetCoefficientFavourablePermanentActions(LoadCaseBase loadCase, En1990CombinationsOptions options)
-            //, StandardEN1990 standardEN1990, StandardEN1990.LimitStates limitState, StandardEN1990.ULSStructuralGeotechicalCombinationSets uLS)
         {
             if (loadCase is LoadCase lc)
             {
@@ -1218,8 +1228,20 @@ namespace GPC.Model.Combinations
                 // crea un load lead, cerca tutti i carichi dello stesso tipo e li coefficienta alla stessa maniera.
                 List<Combination.LoadCaseCoefficient> loadCaseCoefficientsBuffer = new List<Combination.LoadCaseCoefficient>();
                 
-                //LoadCase loadCaseLead = (LoadCase)loadCases[i];
-                //var lctype = loadCaseLead.LoadCaseType;
+                LoadCaseBase loadCaseLead = loadCases[i];
+                LoadCase.LoadCaseTypes lctypeBuffer1;
+                ClimateLoadCase.ClimateTypes lctypeBuffer2;
+
+                if (loadCaseLead is LoadCase loadcaseLeadAsLC)                
+                    lctypeBuffer1 = loadcaseLeadAsLC.LoadCaseType;
+
+                else if (loadCaseLead is ClimateLoadCase loadcaseLeadAsCL)                
+                    lctypeBuffer2 = loadcaseLeadAsCL.ClimateType;
+
+                else
+                    throw new ArgumentException("Not supported load type");
+
+                var lctype = lctypeBuffer1;
 
                 //if (!hash.Contains(lctype))
                 if ((loadCases[i] is LoadCase && !hash.Contains(((LoadCase)loadCases[i]).LoadCaseType)) || 
@@ -1392,25 +1414,25 @@ namespace GPC.Model.Combinations
 
                         #endregion
                     }
-                    /*
+                    
                     #region WIND LOAD
 
                     // gestione dei carichi secondari quando sono presenti sia windpressure che windsuction
-                    if ((loadCaseLead.LoadCaseType != LoadCase.LoadCaseTypes.WindPressure && loadCaseLead.LoadCaseType != LoadCase.LoadCaseTypes.WindSuction) && haveWindPressure == true && haveWindSuction == true)
+                    if ((loadCaseLead is LoadCase lcl && lcl.LoadCaseType != LoadCase.LoadCaseTypes.WindPressure && lcl.LoadCaseType != LoadCase.LoadCaseTypes.WindSuction) && haveWindPressure == true && haveWindSuction == true)
                     {
                         foreach (LoadCase loadCaseAccompanying in loadCases)
                         {
-                            if (loadCaseLead.LoadCaseType != LoadCase.LoadCaseTypes.WindPressure)
+                            if (lcl.LoadCaseType != LoadCase.LoadCaseTypes.WindPressure)
                             {
                                 if (loadCaseAccompanying.LoadCaseType == LoadCase.LoadCaseTypes.WindSuction)
                                 {
-                                    if (!loadCaseAccompanying.LoadCaseType.Equals(loadCaseLead.LoadCaseType))
+                                    if (!loadCaseAccompanying.LoadCaseType.Equals(lcl.LoadCaseType))
                                     {
                                         if (!hashAcc.Contains((LoadCase.LoadCaseTypes)loadCaseAccompanying.LoadCaseType))
                                         {
-                                            foreach (LoadCase lca in loadCases.Where(j => j.LoadCaseType == LoadCase.LoadCaseTypes.WindSuction))
+                                            foreach (LoadCase lca in loadCases.Where(j => j is LoadCase lcw && lcw.LoadCaseType == LoadCase.LoadCaseTypes.WindSuction))
                                             {
-                                                LoadCaseCoefficient loadCaseCoefficientAccompanying = new LoadCaseCoefficient(GetCoefficientAccompanyingVariableAction(lca, standardEN1990, limitState, uLS, category, highAltitude), lca);
+                                                LoadCaseCoefficient loadCaseCoefficientAccompanying = new LoadCaseCoefficient(GetCoefficientAccompanyingVariableAction(lca, options), lca);
                                                 loadCaseCoefficientsWindSuction.Add(loadCaseCoefficientAccompanying);
                                             }
                                             hashAcc.Add((LoadCase.LoadCaseTypes)loadCaseAccompanying.LoadCaseType);
@@ -1419,17 +1441,17 @@ namespace GPC.Model.Combinations
                                 }
                             }
 
-                            if (loadCaseLead.LoadCaseType != LoadCase.LoadCaseTypes.WindSuction)
+                            if (lcl.LoadCaseType != LoadCase.LoadCaseTypes.WindSuction)
                             {
                                 if (loadCaseAccompanying.LoadCaseType == LoadCase.LoadCaseTypes.WindPressure)
                                 {
-                                    if (!loadCaseAccompanying.LoadCaseType.Equals(loadCaseLead.LoadCaseType))
+                                    if (!loadCaseAccompanying.LoadCaseType.Equals(lcl.LoadCaseType))
                                     {
                                         if (!hashAcc.Contains((LoadCase.LoadCaseTypes)loadCaseAccompanying.LoadCaseType))
                                         {
-                                            foreach (LoadCase lca in loadCases.Where(j => j.LoadCaseType == LoadCase.LoadCaseTypes.WindPressure))
+                                            foreach (LoadCase lca in loadCases.Where(j => j is LoadCase lcw && lcw.LoadCaseType == LoadCase.LoadCaseTypes.WindPressure))
                                             {
-                                                LoadCaseCoefficient loadCaseCoefficientAccompanying = new LoadCaseCoefficient(GetCoefficientAccompanyingVariableAction(lca, standardEN1990, limitState, uLS, category, highAltitude), lca);
+                                                LoadCaseCoefficient loadCaseCoefficientAccompanying = new LoadCaseCoefficient(GetCoefficientAccompanyingVariableAction(lca, options), lca);
                                                 loadCaseCoefficientsWindPressure.Add(loadCaseCoefficientAccompanying);
                                             }
                                             hashAcc.Add((LoadCase.LoadCaseTypes)loadCaseAccompanying.LoadCaseType);
@@ -1446,17 +1468,17 @@ namespace GPC.Model.Combinations
                         // gestione carichi secondari windsuction
                         foreach (LoadCase loadCaseAccompanying in loadCases)
                         {
-                            if (loadCaseLead.LoadCaseType != LoadCase.LoadCaseTypes.WindPressure)
+                            if (loadCaseLead is LoadCase lcl2 && lcl2.LoadCaseType != LoadCase.LoadCaseTypes.WindPressure)
                             {
                                 if (loadCaseAccompanying.LoadCaseType == LoadCase.LoadCaseTypes.WindSuction)
                                 {
-                                    if (!loadCaseAccompanying.LoadCaseType.Equals(loadCaseLead.LoadCaseType))
+                                    if (!loadCaseAccompanying.LoadCaseType.Equals(lcl2.LoadCaseType))
                                     {
                                         if (!hashAcc.Contains((LoadCase.LoadCaseTypes)loadCaseAccompanying.LoadCaseType))
                                         {
-                                            foreach (LoadCase lca in loadCases.Where(j => j.LoadCaseType == LoadCase.LoadCaseTypes.WindSuction))
+                                            foreach (LoadCase lca in loadCases.Where(j => j is LoadCase lcw && lcw.LoadCaseType == LoadCase.LoadCaseTypes.WindSuction))
                                             {
-                                                LoadCaseCoefficient loadCaseCoefficientAccompanying = new LoadCaseCoefficient(GetCoefficientAccompanyingVariableAction(lca, standardEN1990, limitState, uLS, category, highAltitude), lca);
+                                                LoadCaseCoefficient loadCaseCoefficientAccompanying = new LoadCaseCoefficient(GetCoefficientAccompanyingVariableAction(lca, options), lca);
                                                 loadCaseCoefficientsWindSuction.Add(loadCaseCoefficientAccompanying);
                                             }
                                             hashAcc.Add((LoadCase.LoadCaseTypes)loadCaseAccompanying.LoadCaseType);
@@ -1469,17 +1491,17 @@ namespace GPC.Model.Combinations
                         // gestione carichi secondari windpressure
                         foreach (LoadCase loadCaseAccompanying in loadCases)
                         {
-                            if (loadCaseLead.LoadCaseType != LoadCase.LoadCaseTypes.WindSuction)
+                            if (loadCaseLead is LoadCase lcl2 && lcl2.LoadCaseType != LoadCase.LoadCaseTypes.WindSuction)
                             {
                                 if (loadCaseAccompanying.LoadCaseType == LoadCase.LoadCaseTypes.WindPressure)
                                 {
-                                    if (!loadCaseAccompanying.LoadCaseType.Equals(loadCaseLead.LoadCaseType))
+                                    if (!loadCaseAccompanying.LoadCaseType.Equals(lcl2.LoadCaseType))
                                     {
                                         if (!hashAcc.Contains((LoadCase.LoadCaseTypes)loadCaseAccompanying.LoadCaseType))
                                         {
-                                            foreach (LoadCase lca in loadCases.Where(j => j.LoadCaseType == LoadCase.LoadCaseTypes.WindPressure))
+                                            foreach (LoadCase lca in loadCases.Where(j => j is LoadCase lcw && lcw.LoadCaseType == LoadCase.LoadCaseTypes.WindPressure))
                                             {
-                                                LoadCaseCoefficient loadCaseCoefficientAccompanying = new LoadCaseCoefficient(GetCoefficientAccompanyingVariableAction(lca, standardEN1990, limitState, uLS, category, highAltitude), lca);
+                                                LoadCaseCoefficient loadCaseCoefficientAccompanying = new LoadCaseCoefficient(GetCoefficientAccompanyingVariableAction(lca, options), lca);
                                                 loadCaseCoefficientsWindPressure.Add(loadCaseCoefficientAccompanying);
                                             }
                                             hashAcc.Add((LoadCase.LoadCaseTypes)loadCaseAccompanying.LoadCaseType);
@@ -1497,26 +1519,26 @@ namespace GPC.Model.Combinations
                     // gestione dei carichi secondari quando sono presenti sia climateSummer che climateWinter
 
                     // gestione carichi secondari climateSummer
-                    foreach (LoadCase loadCaseAccompanying in loadCases)
+                    foreach (ClimateLoadCase loadCaseAccompanying in loadCases)
                     {
-                        if (loadCaseLead.LoadCaseType != LoadCase.LoadCaseTypes.ClimateWinterDeltaP && loadCaseLead.LoadCaseType != LoadCase.LoadCaseTypes.ClimateWinterDeltaT &&
-                            loadCaseLead.LoadCaseType != LoadCase.LoadCaseTypes.ClimateSummerDeltaP && loadCaseLead.LoadCaseType != LoadCase.LoadCaseTypes.ClimateSummerDeltaT)
+                        if (loadCaseLead is ClimateLoadCase climLeadLoadCase && climLeadLoadCase.ClimateType != ClimateLoadCase.ClimateTypes.DeltaP && climLeadLoadCase.ClimateType != ClimateLoadCase.ClimateTypes.DeltaT &&
+                            climLeadLoadCase.ClimateType != ClimateLoadCase.ClimateTypes.DeltaP && climLeadLoadCase.ClimateType != ClimateLoadCase.ClimateTypes.DeltaT)
                         {
-                            if (loadCaseAccompanying.LoadCaseType == LoadCase.LoadCaseTypes.ClimateSummerDeltaP || loadCaseAccompanying.LoadCaseType == LoadCase.LoadCaseTypes.ClimateSummerDeltaT)
+                            if (loadCaseAccompanying is ClimateLoadCase climAccomp && (climAccomp.ClimateType == ClimateLoadCase.ClimateTypes.DeltaP || climAccomp.ClimateType == ClimateLoadCase.ClimateTypes.DeltaT))
                             {
-                                if (!loadCaseAccompanying.LoadCaseType.Equals(loadCaseLead.LoadCaseType))
+                                if (!climAccomp.ClimateTypes.Equals(loadCaseLead.LoadCaseType))
                                 {
-                                    if (!hashAcc.Contains((LoadCase.LoadCaseTypes)loadCaseAccompanying.LoadCaseType))
+                                    if (!hashAcc.Contains((LoadCase.LoadCaseTypes)climAccomp.ClimateTypes))
                                     {
                                         foreach (LoadCase lca in loadCases.Where(j => j.LoadCaseType == LoadCase.LoadCaseTypes.ClimateSummerDeltaP))
                                         {
-                                            LoadCaseCoefficient loadCaseCoefficientAccompanying = new LoadCaseCoefficient(GetCoefficientAccompanyingVariableAction(lca, standardEN1990, limitState, uLS, category, highAltitude), lca);
+                                            LoadCaseCoefficient loadCaseCoefficientAccompanying = new LoadCaseCoefficient(GetCoefficientAccompanyingVariableAction(lca, options), lca);
                                             loadCaseCoefficientsSummer.Add(loadCaseCoefficientAccompanying);
                                         }
                                         hashAcc.Add(LoadCase.LoadCaseTypes.ClimateSummerDeltaP);
                                         foreach (LoadCase lca in loadCases.Where(j => j.LoadCaseType == LoadCase.LoadCaseTypes.ClimateSummerDeltaT))
                                         {
-                                            LoadCaseCoefficient loadCaseCoefficientAccompanying = new LoadCaseCoefficient(GetCoefficientAccompanyingVariableAction(lca, standardEN1990, limitState, uLS, category, highAltitude), lca);
+                                            LoadCaseCoefficient loadCaseCoefficientAccompanying = new LoadCaseCoefficient(GetCoefficientAccompanyingVariableAction(lca, options), lca);
                                             loadCaseCoefficientsSummer.Add(loadCaseCoefficientAccompanying);
                                         }
                                         hashAcc.Add(LoadCase.LoadCaseTypes.ClimateSummerDeltaT);
@@ -1991,8 +2013,7 @@ namespace GPC.Model.Combinations
                     }
 
                     #endregion
-
-                */
+                
                 }
             }
             
@@ -2083,7 +2104,7 @@ namespace GPC.Model.Combinations
             if (haveCLimateSummer == true && haveCLimateWinter == false)
             {
                 loadCaseCoefficientsBuffer2 = loadCaseCoefficientsBase.ToArray().ToList();
-                foreach (LoadCase loadCase in loadCases.Where(i => i is ClimateLoadCase clc
+                foreach (ClimateLoadCase loadCase in loadCases.Where(i => i is ClimateLoadCase clc
                                                    && clc.Season == ClimateLoadCase.Seasons.Summer
                                                    && clc.ClimateType == ClimateLoadCase.ClimateTypes.DeltaH))
 
@@ -2095,7 +2116,7 @@ namespace GPC.Model.Combinations
             if (haveCLimateSummer == false && haveCLimateWinter == true)
             {
                 loadCaseCoefficientsBuffer2 = loadCaseCoefficientsBase.ToArray().ToList();
-                foreach (LoadCase loadCase in loadCases.Where(i => i is ClimateLoadCase clc
+                foreach (ClimateLoadCase loadCase in loadCases.Where(i => i is ClimateLoadCase clc
                                                    && clc.Season == ClimateLoadCase.Seasons.Winter
                                                    && clc.ClimateType == ClimateLoadCase.ClimateTypes.DeltaH))
 
@@ -2109,14 +2130,14 @@ namespace GPC.Model.Combinations
                 loadCaseCoefficientsBuffer2 = loadCaseCoefficientsBase.ToArray().ToList();
                 loadCaseCoefficientsBuffer3 = loadCaseCoefficientsBase.ToArray().ToList();
 
-                foreach (LoadCase loadCase in loadCases.Where(i => i is ClimateLoadCase clc
+                foreach (ClimateLoadCase loadCase in loadCases.Where(i => i is ClimateLoadCase clc
                                                                    && clc.Season == ClimateLoadCase.Seasons.Winter
                                                                    && clc.ClimateType == ClimateLoadCase.ClimateTypes.DeltaH))
                 {
                     Combination.LoadCaseCoefficient lc = new Combination.LoadCaseCoefficient(GetCoefficientUnfavourablePermanentActions(loadCase, options), loadCase);
                     loadCaseCoefficientsBuffer3.Add(lc);
                 }
-                foreach (LoadCase loadCase in loadCases.Where(i => i is ClimateLoadCase clc
+                foreach (ClimateLoadCase loadCase in loadCases.Where(i => i is ClimateLoadCase clc
                                                    && clc.Season == ClimateLoadCase.Seasons.Summer
                                                    && clc.ClimateType == ClimateLoadCase.ClimateTypes.DeltaH))
 
