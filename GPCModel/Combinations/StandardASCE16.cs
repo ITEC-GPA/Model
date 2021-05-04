@@ -974,7 +974,6 @@ namespace GPC.Model.Combinations
         {
             // ASD combo 2 : D + L 
 
-            List<LoadCaseCoefficient> loadCaseCoefficientSListS = new List<LoadCaseCoefficient>();
             List<LoadCaseCoefficient> loadCaseCoefficientSListM = new List<LoadCaseCoefficient>();
             List<List<LoadCaseCoefficient>> outList = new List<List<LoadCaseCoefficient>>();
 

@@ -143,7 +143,6 @@ namespace ModelObjectTest
             loadCases.Add(new LoadCase("SDL", LoadCase.LoadCaseTypes.SuperImposedDeadLoad, Guid.NewGuid()));
             coefficients.Add(4);
 
-            En1990CombinationsOptions options = new En1990CombinationsOptions(StandardEN1990.LimitStates.UltimateEquilibrium);
             Combination combination = new Combination("test");
 
             combination.AddLoadCaseCoefficients(loadCases, coefficients);

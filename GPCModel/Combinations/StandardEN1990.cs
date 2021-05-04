@@ -388,9 +388,8 @@ namespace GPC.Model.Combinations
         /// </summary>
         /// <param name="set">The ULS combination set (if <paramref name="limitState"/> is an ultimate state limit</param>
         /// <param name="limitState">The limit state of combinations</param>
-        /// <param name="loadCase">The load case</param>
         /// <returns>The value of the coefficient</returns>
-        public double GetGammaPFavourable(ULSStructuralGeotechicalCombinationSets set, LimitStates limitState, LoadCaseBase loadCase)
+        public double GetGammaPFavourable(ULSStructuralGeotechicalCombinationSets set, LimitStates limitState)
         {
             if (limitState == LimitStates.UltimateEquilibrium)
             {
@@ -425,9 +424,8 @@ namespace GPC.Model.Combinations
         /// </summary>
         /// <param name="set">The ULS combination set (if <paramref name="limitState"/> is an ultimate state limit</param>
         /// <param name="limitState">The limit state of combinations</param>
-        /// <param name="loadCase">The load case</param>
         /// <returns>The value of the coefficient</returns>
-        public double GetGammaPUnfavourable(ULSStructuralGeotechicalCombinationSets set, LimitStates limitState, LoadCaseBase loadCase)
+        public double GetGammaPUnfavourable(ULSStructuralGeotechicalCombinationSets set, LimitStates limitState)
         {
             if (limitState == LimitStates.UltimateEquilibrium)
             {
@@ -1129,7 +1127,7 @@ namespace GPC.Model.Combinations
                 else if (loadCaseType == LoadCase.LoadCaseTypes.Earthquake)
                     return GetGammaGFavourable(options.ULS, options.LimitState);
                 else if (loadCaseType == LoadCase.LoadCaseTypes.Prestress)
-                    return GetGammaPFavourable(options.ULS, options.LimitState, loadCase);
+                    return GetGammaPFavourable(options.ULS, options.LimitState);
             }
             else if (loadCase is ClimateLoadCase clc)
             {
@@ -2148,7 +2146,7 @@ namespace GPC.Model.Combinations
                 else if (loadCaseType == LoadCase.LoadCaseTypes.Earthquake)
                     return GetGammaGUnfavourable(options.ULS, options.LimitState);
                 else if (loadCaseType == LoadCase.LoadCaseTypes.Prestress)
-                    return GetGammaPUnfavourable(options.ULS, options.LimitState, loadCase);
+                    return GetGammaPUnfavourable(options.ULS, options.LimitState);
             }
             else if (loadCase is ClimateLoadCase clc)
             {
