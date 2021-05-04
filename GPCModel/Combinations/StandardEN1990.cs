@@ -1051,8 +1051,11 @@ namespace GPC.Model.Combinations
                 {
                     combo.AddLoadCaseCoefficient(listFavourable[i][j].LoadCase, listFavourable[i][j].Coefficient);
                 }
-                combinationsHashSet.Add(combo);
-                idProg++;
+                if (!combinationsHashSet.Contains(combo))
+                {
+                    combinationsHashSet.Add(combo);
+                    idProg++;
+                }
             }
 
             List<List<LoadCaseCoefficient>> listUnfavourable = GetUnfavourableCombinations(loadCases, (En1990CombinationsOptions)options);
@@ -1064,8 +1067,11 @@ namespace GPC.Model.Combinations
                 {
                     combo.AddLoadCaseCoefficient(listUnfavourable[i][j].LoadCase, listUnfavourable[i][j].Coefficient);
                 }
-                combinationsHashSet.Add(combo);
-                idProg++;
+                if (!combinationsHashSet.Contains(combo))
+                {
+                    combinationsHashSet.Add(combo);
+                    idProg++;
+                }
             }
 
             List<List<LoadCaseCoefficient>> listFavourableBase = GetFavourableBasicCombinations(loadCases, (En1990CombinationsOptions)options);
@@ -1076,8 +1082,11 @@ namespace GPC.Model.Combinations
                 {
                     comboBaseFav.AddLoadCaseCoefficient(listFavourableBase[i][j].LoadCase, listFavourableBase[i][j].Coefficient);
                 }
-                combinationsHashSet.Add(comboBaseFav);
-                idProg++;
+                if (!combinationsHashSet.Contains(comboBaseFav))
+                {
+                    combinationsHashSet.Add(comboBaseFav);
+                    idProg++;
+                }
             }
 
             List<List<LoadCaseCoefficient>> listUnfavourableBase = GetUnfavourableBasicCombinations(loadCases, (En1990CombinationsOptions)options);
@@ -1088,8 +1097,11 @@ namespace GPC.Model.Combinations
                 {
                     comboBaseUnfav.AddLoadCaseCoefficient(listUnfavourableBase[i][j].LoadCase, listUnfavourableBase[i][j].Coefficient);
                 }
-                combinationsHashSet.Add(comboBaseUnfav);
-                idProg++;
+                if (!combinationsHashSet.Contains(comboBaseUnfav))
+                {
+                    combinationsHashSet.Add(comboBaseUnfav);
+                    idProg++;
+                }
             }
 
             foreach (Combination cmb in combinationsHashSet)
