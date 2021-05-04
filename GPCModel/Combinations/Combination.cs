@@ -11,60 +11,85 @@ namespace GPC.Model.Combinations
 {
     [Serializable]
     [DebuggerDisplay("{" + nameof(GetDebuggerDisplay) + "(),nq}")]
-    public abstract class Combination : ModelObject, ILoadCase, ICloneable
+    public class Combination : ModelObject, ILoadCase, ICloneable
     {
         protected List<LoadCaseCoefficient> _coefficients;
+        protected Standard.CombinationsOptions _options;
 
         public int LoadCaseCount => _coefficients.Count;
 
-
         #region PUBLIC CONSTRUCTOR
 
-        protected Combination(string name, Guid guid)
+        public Combination(string name, Standard.CombinationsOptions options, Guid guid)
             : base(guid, name)
         {
             if (string.IsNullOrEmpty(name) || string.IsNullOrWhiteSpace(name))
                 throw new ArgumentException("Combination name cannot be empty");
 
-            this._name = name;
-            this._coefficients = new List<LoadCaseCoefficient>();
+            _name = name;
+            _coefficients = new List<LoadCaseCoefficient>();
+            _options = options;
         }
 
-        protected Combination(string name)
+        public Combination(string name, Guid guid)
+            : this(name, null, guid)
+        {
+        }
+
+        public Combination(string name, Standard.CombinationsOptions options)
+            : this(name, options, Guid.NewGuid())
+        {
+        }
+
+        public Combination(string name)
             : this(name, Guid.NewGuid())
         {
         }
 
-        protected Combination(Combination combination)
-            : this(combination._name, combination.Guid)
+        public Combination(Combination combination)
+            : this(combination._name, combination._options, combination.Guid)
         {
             _coefficients = combination._coefficients.ToList(); //Shallow copy, i puntatori dei loadcase non cambiano
         }
 
-        protected Combination(SerializationInfo info, StreamingContext context)
+        public Combination(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
             _coefficients = (List<LoadCaseCoefficient>)info.GetValue("Coefficients", typeof(List<LoadCaseCoefficient>));
+            _options = (Standard.CombinationsOptions)info.GetValue("Options", typeof(Standard.CombinationsOptions));
         }
 
         #endregion
 
         #region Abstract methods
-
-        public abstract bool IsUltimate();
-
-        public abstract object Clone();
+        
 
         /// <summary>
         /// Duplicate the object, overriding the name with a new one
         /// </summary>
         /// <param name="nameOverride">Name overriding</param>
-        public abstract Combination Duplicate(string nameOverride);
+        /// 
+        public Combination Duplicate(string nameOverride)
+        {
+            var c = new Combination(this);
+            c._name = nameOverride;
+
+            return c;
+        }
 
         /// <summary>
         /// Create a new empty <see cref="Combination"/> object. I.e. with the same properties except the <see cref="Combination.LoadCaseCoefficient"/> List that will be empty
         /// </summary>
-        public abstract object CloneEmpty();
+        public object CloneEmpty()
+        {
+            return new Combination(this._name, this._options, this._guid) ;
+        }
+        
+
+        public object Clone()
+        {
+            return new Combination(this);
+        }
 
         #endregion Abstract methods
 
@@ -310,13 +335,13 @@ namespace GPC.Model.Combinations
 
         #endregion PUBLIC METHODS
 
-
         #region Equals - HashCode - Operators - Serialization - ToString
 
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             base.GetObjectData(info, context);
             info.AddValue("Coefficients", _coefficients);
+            info.AddValue("Options", _options);
         }
 
         public override string ToString()
@@ -355,14 +380,17 @@ namespace GPC.Model.Combinations
 
         public override int GetHashCode()
         {
-            var hashCode = 23;
-            hashCode = hashCode + base.GetHashCode();
-
-            foreach (var element in _coefficients)
+            unchecked
             {
-                hashCode = hashCode + EqualityComparer<LoadCaseCoefficient>.Default.GetHashCode(element);
+                var hashCode = 23;
+                hashCode = hashCode + base.GetHashCode();
+
+                foreach (var element in _coefficients)
+                {
+                    hashCode = hashCode + EqualityComparer<LoadCaseCoefficient>.Default.GetHashCode(element);
+                }
+                return hashCode; 
             }
-            return hashCode;
         }
 
         public static bool operator ==(Combination obj1, Combination obj2)
@@ -384,13 +412,9 @@ namespace GPC.Model.Combinations
         
         #endregion Equals - HashCode - Operators - Serialization - ToString
 
-
-      
-
-
         #region Nested class
 
-        protected sealed class LoadCaseCoefficient : IComparable<LoadCaseCoefficient>, IEquatable<LoadCaseCoefficient>
+        public sealed class LoadCaseCoefficient : IComparable<LoadCaseCoefficient>, IEquatable<LoadCaseCoefficient>
         {
             private LoadCaseBase _loadcase;
             private double _coefficient;
@@ -456,10 +480,13 @@ namespace GPC.Model.Combinations
 
             public override int GetHashCode()
             {
-                var hashCode = -23;
-                hashCode = hashCode * -17 + EqualityComparer<LoadCaseBase>.Default.GetHashCode(_loadcase);
-                hashCode = hashCode * -17 + _coefficient.GetHashCode();
-                return hashCode;
+                unchecked
+                {
+                    var hashCode = -23;
+                    hashCode = hashCode * -17 + EqualityComparer<LoadCaseBase>.Default.GetHashCode(_loadcase);
+                    hashCode = hashCode * -17 + _coefficient.GetHashCode();
+                    return hashCode; 
+                }
             }
 
             public static bool operator ==(LoadCaseCoefficient obj1, LoadCaseCoefficient obj2)
@@ -480,7 +507,6 @@ namespace GPC.Model.Combinations
         }
 
         #endregion Nested protected class
-
 
         #region Equality comprarer
 
