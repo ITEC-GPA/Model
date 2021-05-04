@@ -761,11 +761,11 @@ namespace GPC.Model.FEM
         /// <param name="plateLoadMeshEntityMap"></param>
         /// <param name="restrainMeshEntityMap"></param>
         /// <exception cref="ArgumentException">If list of argument does not match</exception>
-        public virtual List<int[]> AddMeshes(List<Mesh> meshes, List<string> platePropertyNames, List<string> brickPropertyName, List<Dictionary<IPointLoad, int[]>> vertexLoadMeshEntityMap,
+        public virtual List<(int[] nodesId, int[] platesId, int[] volumesId)> AddMeshes(List<Mesh> meshes, List<string> platePropertyNames, List<string> brickPropertyName, List<Dictionary<IPointLoad, int[]>> vertexLoadMeshEntityMap,
                                         List<Dictionary<ILineLoad, int[]>> vertexLineLoadMeshEntityMap,
                                         List<Dictionary<IAreaLoad, int[]>> plateLoadMeshEntityMap, List<Dictionary<GeometryRestrain, int[]>> restrainMeshEntityMap)
         {
-            List<int[]> elementsIndexes = new List<int[]>();
+            List<(int[] nodesId, int[] platesId, int[] volumesId)> elementsIndexes = new List<(int[] nodesId, int[] platesId, int[] volumesId)>();
 
             if (meshes is null)
                 throw new ArgumentNullException(nameof(meshes));
@@ -827,14 +827,15 @@ namespace GPC.Model.FEM
         /// <param name="restrainMeshEntityMap">Map between IGeometryRestrain and <see cref="MeshVertex"/>.Id</param>
         /// <exception cref="KeyNotFoundException">If a <see cref="MeshVertex"/>.Id of <paramref name="restrainMeshEntityMap"/> is not found in the <paramref name="mesh"/> vertices ids</exception>
         /// <remarks>The instances of <see cref="LoadCaseBase"/> and <see cref="FreedomCase"/> will be replaced with the one in the <see cref="FemModel._loadCases"/> and <see cref="FemModel._freedomCases"/>  </remarks>
-        public virtual int[] AddMesh(Mesh mesh, string platePropertyName, string brickPropertyName, 
-                                    Dictionary<IPointLoad, int[]> vertexLoadMeshEntityMap, 
-                                    Dictionary<ILineLoad, int[]> vertexLineLoadMeshEntityMap,
-                                    Dictionary<IAreaLoad, int[]> plateLoadMeshEntityMap, 
-                                    Dictionary<GeometryRestrain, int[]> restrainMeshEntityMap)
+        /// <returns>The element indexes</returns>
+        public virtual (int[] nodesId, int[] platesId, int[] volumesId) AddMesh(Mesh mesh, string platePropertyName, string brickPropertyName, 
+                                                                        Dictionary<IPointLoad, int[]> vertexLoadMeshEntityMap, 
+                                                                        Dictionary<ILineLoad, int[]> vertexLineLoadMeshEntityMap,
+                                                                        Dictionary<IAreaLoad, int[]> plateLoadMeshEntityMap, 
+                                                                        Dictionary<GeometryRestrain, int[]> restrainMeshEntityMap)
         {
+            (int[] nodesId, int[] platesId, int[] volumesId) elementIndexes = (new int[mesh.VerticesCount], new int[mesh.FacesCount], new int[mesh.VolumesCount]);
             
-            int[] elementIndexes = new int[mesh.FacesCount + mesh.VolumesCount];
 
             Dictionary<int, int> nodesNewIndexMap = new Dictionary<int, int>(); // Mappa tra indici dei nodi dentro _nodes e indici dei vertici della mesh nel caso esistano già dentro _nodes.
             Dictionary<int, int> platesNewIndexMap = new Dictionary<int, int>();
@@ -859,19 +860,28 @@ namespace GPC.Model.FEM
             }
 
 
-            // Aggiunge nodi alla collection di nodi
-            foreach (var vertex in mesh.Vertices)
-            {
-                var nodeIndex = _nodes.Add(new Node(vertex.Point));
 
-                if (nodeIndex != vertex.Id) // Se sono diversi vuol dire che esisteva già l'indice Vertex.iD e il vertice è stato aggiunto alla collection con un ID diverso.
+            // Aggiunge nodi alla collection di nodi
+            using (var enumerator = mesh.GetVerticesEnumerator())
+            {
+                for (int i = 0; i < mesh.VerticesCount; i++)
                 {
-                    nodesNewIndexMap[vertex.Id] = nodeIndex; // Mappa fra vecchio e nuovo
+                    enumerator.MoveNext();
+
+                    int nodeIndex = _nodes.Add(new Node(enumerator.Current.Point));
+
+                    if (nodeIndex != enumerator.Current.Id) // Se sono diversi vuol dire che esisteva già l'indice Vertex.iD e il vertice è stato aggiunto alla collection con un ID diverso.
+                    {
+                        nodesNewIndexMap[enumerator.Current.Id] = nodeIndex; // Mappa fra vecchio e nuovo
+
+                    }
+
+                    elementIndexes.nodesId[i] = nodeIndex;
                 }
             }
 
-
             // Aggiunge elementi FEM
+            // Aggiunge Faces
             var faces = mesh.Faces.ToArray();
             for (int i = 0; i < mesh.Faces.Count; i++)
             {
@@ -891,7 +901,7 @@ namespace GPC.Model.FEM
 
                         var plateIndex = _elements.Add(plate);
 
-                        elementIndexes[i] = plateIndex;
+                        elementIndexes.platesId[i] = plateIndex;
 
                         if (plateIndex != face.Id) // Se sono diversi vuol dire che esisteva già l'indice element .iD e la collection l'ha modificato
                             platesNewIndexMap[face.Id] = plateIndex;
@@ -908,7 +918,7 @@ namespace GPC.Model.FEM
 
                         var plateIndex = _elements.Add(plate);
 
-                        elementIndexes[i] = plateIndex;
+                        elementIndexes.platesId[i] = plateIndex;
 
                         if (plateIndex != face.Id) // Se sono diversi vuol dire che esisteva già l'indice element .iD e la collection l'ha modificato
                             platesNewIndexMap[face.Id] = plateIndex;
@@ -920,7 +930,8 @@ namespace GPC.Model.FEM
                 }
             }
 
-            int faceNumber = mesh.FacesCount;
+
+            // Aggiunge Volumes
             var volumes = mesh.Volumes.ToArray();
             for (int i = 0; i < mesh.Volumes.Count; i++)
             {
@@ -944,7 +955,7 @@ namespace GPC.Model.FEM
                         brick.SetProperty(bp);
 
                         var brickIndex = _elements.Add(brick);
-                        elementIndexes[i + faceNumber] = brickIndex;
+                        elementIndexes.volumesId[i] = brickIndex;
 
                         if (brickIndex != volume.Id) // Se sono diversi vuol dire che esisteva già l'indice element .iD e la collection l'ha modificato
                             brickNewIndexMap[volume.Id] = brickIndex;
@@ -967,7 +978,7 @@ namespace GPC.Model.FEM
                         brick.SetProperty(bp);
 
                         var brickIndex = _elements.Add(brick);
-                        elementIndexes[i + faceNumber] = brickIndex;
+                        elementIndexes.volumesId[i] = brickIndex;
 
                         if (brickIndex != volume.Id) // Se sono diversi vuol dire che esisteva già l'indice element .iD e la collection l'ha modificato
                             brickNewIndexMap[volume.Id] = brickIndex;
