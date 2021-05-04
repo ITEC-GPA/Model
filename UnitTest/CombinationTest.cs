@@ -13,6 +13,7 @@ namespace ModelObjectTest
     [TestClass]
     public class CombinationTest : UnitTestBase
     {
+        #region COMBINATION TEST
 
         [TestMethod]
         public void CombinationTest1()
@@ -319,66 +320,9 @@ namespace ModelObjectTest
             Assert.IsTrue(tuple3[0].coefficient == 2, tuple3[0].coefficient.ToString());
         }
 
-        [TestMethod]
-        public void EqualsHashCode()
-        {
-            // Arrange
+        #endregion
 
-            ASCE16CombinationsOptions options1 = new ASCE16CombinationsOptions(StandardASCE16.LimitStates.LFRD);
-            ASCE16CombinationsOptions options2 = new ASCE16CombinationsOptions(StandardASCE16.LimitStates.ASD);
-
-            Combination combination1 = new Combination("cmb1", options1);
-            Combination combination2 = new Combination("cmb1", options1);
-            Combination combination3 = new Combination("cmb1", options2);
-            Combination combination4 = new Combination("cmb1", options1);
-            Combination combination5 = new Combination("cmb1", options1);
-
-            var lc1 = new LoadCase("LC1", LoadCase.LoadCaseTypes.SelfWeight);
-            var lc2 = new LoadCase("LC2", LoadCase.LoadCaseTypes.SuperImposedDeadLoad);
-            var lc4 = new LoadCase("LC4", LoadCase.LoadCaseTypes.Maintenance);
-            var lc5 = new LoadCase("LC5", LoadCase.LoadCaseTypes.LiveLoad);
-            var lc6 = new LoadCase("LC6", LoadCase.LoadCaseTypes.Snow);
-
-            combination1.AddLoadCaseCoefficient(lc1, 1);
-            combination1.AddLoadCaseCoefficient(lc2, 2);
-            combination1.AddLoadCaseCoefficient(lc4, 4);
-            combination1.AddLoadCaseCoefficient(lc5, 5);
-
-            combination2.AddLoadCaseCoefficient(lc1, 1);
-            combination2.AddLoadCaseCoefficient(lc2, 2);
-            combination2.AddLoadCaseCoefficient(lc4, 4);
-            combination2.AddLoadCaseCoefficient(lc5, 5);
-
-            combination3.AddLoadCaseCoefficient(lc1, 1);
-            combination3.AddLoadCaseCoefficient(lc2, 2);
-            combination3.AddLoadCaseCoefficient(lc4, 4);
-            combination3.AddLoadCaseCoefficient(lc5, 5);
-
-            combination4.AddLoadCaseCoefficient(lc1, 1);
-            combination4.AddLoadCaseCoefficient(lc2, 2);
-            combination4.AddLoadCaseCoefficient(lc4, 4);
-            combination4.AddLoadCaseCoefficient(lc5, 5);
-            combination4.AddLoadCaseCoefficient(lc6, 5);
-
-            combination5.AddLoadCaseCoefficient(lc1, 1);
-            combination5.AddLoadCaseCoefficient(lc2, 2);
-            combination5.AddLoadCaseCoefficient(lc4, 4);
-            combination5.AddLoadCaseCoefficient(lc5, 5);
-
-            // Assert / Act
-            Assert.IsTrue(combination1.Equals(combination2));
-            Assert.IsTrue(combination1.GetHashCode().Equals(combination2.GetHashCode()));
-
-            Assert.IsFalse(combination1.Equals(combination3));
-            Assert.IsFalse(combination1.GetHashCode().Equals(combination3.GetHashCode()));
-
-            Assert.IsFalse(combination1.Equals(combination4));
-            Assert.IsFalse(combination1.GetHashCode().Equals(combination4.GetHashCode()));
-
-            Assert.IsFalse(combination1.Equals(combination5));
-            Assert.IsFalse(combination1.GetHashCode().Equals(combination5.GetHashCode()));
-
-        }
+        #region GENERATE COMBINATIONS EN1990
 
         [TestMethod]
         public void ENGeneratorUltimateStructural1()
@@ -401,25 +345,34 @@ namespace ModelObjectTest
                 prestressLoadCase
             };
 
-            En1990CombinationsOptions options = new En1990CombinationsOptions(StandardEN1990.LimitStates.UltimateStructural, ULSStructuralGeotechicalCombinationSets.SetC, ImposedLoadCategories.CategoryC, true);
+            En1990CombinationsOptions options = new En1990CombinationsOptions(StandardEN1990.LimitStates.UltimateStructural, ULSStructuralGeotechicalCombinationSets.SetC, ImposedLoadCategories.CategoryC, false);
             StandardEN1990 standardEN1990 = new StandardEN1990();
 
             // Act
             CombinationsCollection outList = standardEN1990.CreateCombinations(loadCaseList.ToArray(), options);
 
-            // Assert
+            Combination combination1 = new Combination("cmb 1", options);           
+            combination1.AddLoadCaseCoefficient(selfWeightLoadCase, 1.0);
+            combination1.AddLoadCaseCoefficient(prestressLoadCase, 1.0);
+            combination1.AddLoadCaseCoefficient(WindPressureLoadCase, 1.3);
+            combination1.AddLoadCaseCoefficient(snowLoadCase, 0.65);
 
-            Assert.IsTrue(outList.Count() == 3);
-            // Assert.IsTrue(Math.Abs(outList[0][selfWeightLoadCase] - 1.00) < 0.001);
-            // Assert.IsTrue(Math.Abs(outList[1][selfWeightLoadCase] - 1.00) < 0.001);
-            // Assert.IsTrue(Math.Abs(outList[2][selfWeightLoadCase] - 1.00) < 0.001);
-            // Assert.IsTrue(Math.Abs(outList[0][prestressLoadCase] - 1.00) < 0.001);
-            // Assert.IsTrue(Math.Abs(outList[1][prestressLoadCase] - 1.00) < 0.001);
-            // Assert.IsTrue(Math.Abs(outList[2][prestressLoadCase] - 1.00) < 0.001);
-            // Assert.IsTrue(Math.Abs(outList[0][WindPressureLoadCase] - 1.3) < 0.001);
-            // Assert.IsTrue(Math.Abs(outList[0][snowLoadCase] - 0.65) < 0.001);
-            // Assert.IsTrue(Math.Abs(outList[1][snowLoadCase] - 1.3) < 0.001);
-            // Assert.IsTrue(Math.Abs(outList[1][WindPressureLoadCase] - 0.78) < 0.001);            
+            Combination combination2 = new Combination("cmb 2", options);
+            combination2.AddLoadCaseCoefficient(selfWeightLoadCase, 1.0);
+            combination2.AddLoadCaseCoefficient(prestressLoadCase, 1.0);
+            combination2.AddLoadCaseCoefficient(WindPressureLoadCase, 0.78);
+            combination2.AddLoadCaseCoefficient(snowLoadCase, 1.3);
+
+            // Assert
+            Assert.IsTrue(outList.Count() == 3);            
+            Assert.IsTrue(outList.Contains(combination1));
+            Assert.IsTrue(outList.Contains(combination2));
+
+            foreach (Combination combination in outList)
+            {
+                string combinationName = combination.ToString();
+                Console.WriteLine(combinationName);
+            }
         }
 
         [TestMethod]
@@ -443,26 +396,34 @@ namespace ModelObjectTest
                 prestressLoadCase
             };
 
-            En1990CombinationsOptions options = new En1990CombinationsOptions(StandardEN1990.LimitStates.UltimateStructural, ULSStructuralGeotechicalCombinationSets.SetB,
-                                                                                ImposedLoadCategories.CategoryA, true);
+            En1990CombinationsOptions options = new En1990CombinationsOptions(StandardEN1990.LimitStates.UltimateStructural, ULSStructuralGeotechicalCombinationSets.SetB, ImposedLoadCategories.CategoryA, true);
             StandardEN1990 standardEN1990 = new StandardEN1990();
 
             // Act
             CombinationsCollection outList = standardEN1990.CreateCombinations(loadCaseList.ToArray(), options);
 
+            Combination combination1 = new Combination("cmb 3", options);
+            combination1.AddLoadCaseCoefficient(selfWeightLoadCase, 1.35);
+            combination1.AddLoadCaseCoefficient(prestressLoadCase, 1.35);
+            combination1.AddLoadCaseCoefficient(WindPressureLoadCase, 1.5);
+            combination1.AddLoadCaseCoefficient(snowLoadCase, 1.05);
+
+            Combination combination2 = new Combination("cmb 4", options);
+            combination2.AddLoadCaseCoefficient(selfWeightLoadCase, 1.35);
+            combination2.AddLoadCaseCoefficient(prestressLoadCase, 1.35);
+            combination2.AddLoadCaseCoefficient(WindPressureLoadCase, 0.90);
+            combination2.AddLoadCaseCoefficient(snowLoadCase, 1.5);
 
             // Assert
             Assert.IsTrue(outList.Count() == 6);
-            //Assert.IsTrue(Math.Abs(outList[0][selfWeightLoadCase] - 1.00) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[1][selfWeightLoadCase] - 1.00) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[2][selfWeightLoadCase] - 1.35) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[3][selfWeightLoadCase] - 1.35) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[4][selfWeightLoadCase] - 1.00) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[5][selfWeightLoadCase] - 1.35) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[0][WindPressureLoadCase] - 1.5) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[1][snowLoadCase] - 1.5) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[0][snowLoadCase] - 1.05) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[1][WindPressureLoadCase] - 0.90) < 0.001);
+            Assert.IsTrue(outList.Contains(combination1));
+            Assert.IsTrue(outList.Contains(combination2));
+
+            foreach (Combination combination in outList)
+            {
+                string combinationName = combination.ToString();
+                Console.WriteLine(combinationName);
+            }
         }
 
         [TestMethod]
@@ -486,28 +447,41 @@ namespace ModelObjectTest
                 liveLoadLoadCase
             };
 
-            En1990CombinationsOptions options = new En1990CombinationsOptions(StandardEN1990.LimitStates.UltimateStructural, ULSStructuralGeotechicalCombinationSets.SetC,
-                                                                    ImposedLoadCategories.CategoryE, false);
+            En1990CombinationsOptions options = new En1990CombinationsOptions(StandardEN1990.LimitStates.UltimateStructural, ULSStructuralGeotechicalCombinationSets.SetC, ImposedLoadCategories.CategoryE, false);
             StandardEN1990 standardEN1990 = new StandardEN1990();
 
             // Act
             CombinationsCollection outList = standardEN1990.CreateCombinations(loadCaseList.ToArray(), options);
 
+            Combination combination1 = new Combination("cmb 1", options);
+            combination1.AddLoadCaseCoefficient(selfWeightLoadCase, 1.00);
+            combination1.AddLoadCaseCoefficient(liveLoadLoadCase, 1.30);
+            combination1.AddLoadCaseCoefficient(WindPressureLoadCase, 0.78);
+            combination1.AddLoadCaseCoefficient(snowLoadCase, 0.65);
+
+            Combination combination2 = new Combination("cmb 2", options);
+            combination2.AddLoadCaseCoefficient(selfWeightLoadCase, 1.00);
+            combination2.AddLoadCaseCoefficient(liveLoadLoadCase, 0.65);
+            combination2.AddLoadCaseCoefficient(WindPressureLoadCase, 0.78);
+            combination2.AddLoadCaseCoefficient(snowLoadCase, 1.30);
+
+            Combination combination3 = new Combination("cmb 3", options);
+            combination2.AddLoadCaseCoefficient(selfWeightLoadCase, 1.00);
+            combination2.AddLoadCaseCoefficient(liveLoadLoadCase, 1.30);
+            combination2.AddLoadCaseCoefficient(WindPressureLoadCase, 0.78);
+            combination2.AddLoadCaseCoefficient(snowLoadCase, 0.65);
+
             // Assert
             Assert.IsTrue(outList.Count() == 4);
-            //Assert.IsTrue(Math.Abs(outList[0][selfWeightLoadCase] - 1.00) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[1][selfWeightLoadCase] - 1.00) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[2][selfWeightLoadCase] - 1.00) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[3][selfWeightLoadCase] - 1.00) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[0][liveLoadLoadCase] - 1.3) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[1][liveLoadLoadCase] - 1.3) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[2][liveLoadLoadCase] - 1.3) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[0][snowLoadCase] - 0.65) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[1][snowLoadCase] - 1.30) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[2][snowLoadCase] - 0.65) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[0][WindPressureLoadCase] - 1.30) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[1][WindPressureLoadCase] - 0.78) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[2][WindPressureLoadCase] - 0.78) < 0.001);
+            Assert.IsTrue(outList.Contains(combination1));
+            Assert.IsTrue(outList.Contains(combination2));
+            Assert.IsTrue(outList.Contains(combination3));
+
+            foreach (Combination combination in outList)
+            {
+                string combinationName = combination.ToString();
+                Console.WriteLine(combinationName);
+            }
         }
 
         [TestMethod]
@@ -525,31 +499,54 @@ namespace ModelObjectTest
 
             List<LoadCase> loadCaseList = new List<LoadCase>
             {
-                selfWeightLoadCase,
-                WindPressureLoadCase,
+                prestressLoadCase,
                 snowLoadCase,
-                prestressLoadCase
+                selfWeightLoadCase,
+                WindPressureLoadCase,    
             };
 
-            En1990CombinationsOptions options = new En1990CombinationsOptions(StandardEN1990.LimitStates.UltimateEquilibrium, ULSStructuralGeotechicalCombinationSets.SetC,
-                                                        ImposedLoadCategories.CategoryD, false);
+            En1990CombinationsOptions options = new En1990CombinationsOptions(StandardEN1990.LimitStates.UltimateEquilibrium, ULSStructuralGeotechicalCombinationSets.SetB, ImposedLoadCategories.CategoryD, false);
             StandardEN1990 standardEN1990 = new StandardEN1990();
 
             // Act
             CombinationsCollection outList = standardEN1990.CreateCombinations(loadCaseList.ToArray(), options);
 
+            Combination combination1 = new Combination("cmb 1", options);
+            combination1.AddLoadCaseCoefficient(selfWeightLoadCase, 0.90);
+            combination1.AddLoadCaseCoefficient(prestressLoadCase, 1.00);
+            combination1.AddLoadCaseCoefficient(WindPressureLoadCase, 1.50);
+            combination1.AddLoadCaseCoefficient(snowLoadCase, 1.05);
+
+            Combination combination2 = new Combination("cmb 2", options);
+            combination2.AddLoadCaseCoefficient(selfWeightLoadCase, 0.90);
+            combination2.AddLoadCaseCoefficient(prestressLoadCase, 1.00);
+            combination2.AddLoadCaseCoefficient(WindPressureLoadCase, 0.90);
+            combination2.AddLoadCaseCoefficient(snowLoadCase, 1.50);
+
+            Combination combination3 = new Combination("cmb 3", options);
+            combination3.AddLoadCaseCoefficient(selfWeightLoadCase, 1.10);
+            combination3.AddLoadCaseCoefficient(prestressLoadCase, 1.00);
+            combination3.AddLoadCaseCoefficient(WindPressureLoadCase, 1.50);
+            combination3.AddLoadCaseCoefficient(snowLoadCase, 1.05);
+
+            Combination combination4 = new Combination("cmb 4", options);
+            combination4.AddLoadCaseCoefficient(selfWeightLoadCase, 1.10);
+            combination4.AddLoadCaseCoefficient(prestressLoadCase, 1.00);
+            combination4.AddLoadCaseCoefficient(WindPressureLoadCase, 0.90);
+            combination4.AddLoadCaseCoefficient(snowLoadCase, 1.50);
+
             // Assert
             Assert.IsTrue(outList.Count() == 6);
-            //Assert.IsTrue(Math.Abs(outList[0][selfWeightLoadCase] - 0.90) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[1][selfWeightLoadCase] - 0.90) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[2][selfWeightLoadCase] - 1.10) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[3][selfWeightLoadCase] - 1.10) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[4][selfWeightLoadCase] - 0.90) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[5][selfWeightLoadCase] - 1.10) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[0][WindPressureLoadCase] - 1.5) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[1][snowLoadCase] - 1.5) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[0][snowLoadCase] - 1.05) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[1][WindPressureLoadCase] - 0.90) < 0.001);
+            Assert.IsTrue(outList.Contains(combination1));
+            Assert.IsTrue(outList.Contains(combination2));
+            Assert.IsTrue(outList.Contains(combination3));
+            Assert.IsTrue(outList.Contains(combination4));
+
+            foreach (Combination combination in outList)
+            {
+                string combinationName = combination.ToString();
+                Console.WriteLine(combinationName);
+            }
         }
 
         [TestMethod]
@@ -573,25 +570,48 @@ namespace ModelObjectTest
                 prestressLoadCase
             };
 
-            En1990CombinationsOptions options = new En1990CombinationsOptions(StandardEN1990.LimitStates.UltimateEquilibrium, ULSStructuralGeotechicalCombinationSets.SetC,
-                                            ImposedLoadCategories.CategoryA, false);
+            En1990CombinationsOptions options = new En1990CombinationsOptions(StandardEN1990.LimitStates.UltimateEquilibrium, ULSStructuralGeotechicalCombinationSets.SetC, ImposedLoadCategories.CategoryA, false);
             StandardEN1990 standardEN1990 = new StandardEN1990();
 
             // Act
             CombinationsCollection outList = standardEN1990.CreateCombinations(loadCaseList.ToArray(), options);
 
+            Combination combination1 = new Combination("cmb 1", options);
+            combination1.AddLoadCaseCoefficient(selfWeightLoadCase, 0.90);
+            combination1.AddLoadCaseCoefficient(prestressLoadCase, 1.00);
+            combination1.AddLoadCaseCoefficient(WindPressureLoadCase, 1.50);
+            combination1.AddLoadCaseCoefficient(snowLoadCase, 1.05);
+
+            Combination combination2 = new Combination("cmb 2", options);
+            combination2.AddLoadCaseCoefficient(selfWeightLoadCase, 0.90);
+            combination2.AddLoadCaseCoefficient(prestressLoadCase, 1.00);
+            combination2.AddLoadCaseCoefficient(WindPressureLoadCase, 0.90);
+            combination2.AddLoadCaseCoefficient(snowLoadCase, 1.50);
+
+            Combination combination3 = new Combination("cmb 3", options);
+            combination3.AddLoadCaseCoefficient(selfWeightLoadCase, 1.10);
+            combination3.AddLoadCaseCoefficient(prestressLoadCase, 1.00);
+            combination3.AddLoadCaseCoefficient(WindPressureLoadCase, 1.50);
+            combination3.AddLoadCaseCoefficient(snowLoadCase, 1.05);
+
+            Combination combination4 = new Combination("cmb 4", options);
+            combination4.AddLoadCaseCoefficient(selfWeightLoadCase, 1.10);
+            combination4.AddLoadCaseCoefficient(prestressLoadCase, 1.00);
+            combination4.AddLoadCaseCoefficient(WindPressureLoadCase, 0.90);
+            combination4.AddLoadCaseCoefficient(snowLoadCase, 1.50);
+
             // Assert
             Assert.IsTrue(outList.Count() == 6);
-            //Assert.IsTrue(Math.Abs(outList[0][selfWeightLoadCase] - 0.90) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[1][selfWeightLoadCase] - 0.90) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[2][selfWeightLoadCase] - 1.10) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[3][selfWeightLoadCase] - 1.10) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[4][selfWeightLoadCase] - 0.90) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[5][selfWeightLoadCase] - 1.10) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[0][WindPressureLoadCase] - 1.5) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[1][snowLoadCase] - 1.5) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[0][snowLoadCase] - 1.05) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[1][WindPressureLoadCase] - 0.90) < 0.001);
+            Assert.IsTrue(outList.Contains(combination1));
+            Assert.IsTrue(outList.Contains(combination2));
+            Assert.IsTrue(outList.Contains(combination3));
+            Assert.IsTrue(outList.Contains(combination4));
+
+            foreach (Combination combination in outList)
+            {
+                string combinationName = combination.ToString();
+                Console.WriteLine(combinationName);
+            }
         }
 
         [TestMethod]
@@ -615,25 +635,48 @@ namespace ModelObjectTest
                 prestressLoadCase
             };
 
-            En1990CombinationsOptions options = new En1990CombinationsOptions(StandardEN1990.LimitStates.UltimateEquilibrium, ULSStructuralGeotechicalCombinationSets.SetC,
-                                ImposedLoadCategories.CategoryD, true);
+            En1990CombinationsOptions options = new En1990CombinationsOptions(StandardEN1990.LimitStates.UltimateEquilibrium, ULSStructuralGeotechicalCombinationSets.SetC, ImposedLoadCategories.CategoryD, true);
             StandardEN1990 standardEN1990 = new StandardEN1990();
 
             // Act
             CombinationsCollection outList = standardEN1990.CreateCombinations(loadCaseList.ToArray(), options);
 
+            Combination combination1 = new Combination("cmb 1", options);
+            combination1.AddLoadCaseCoefficient(selfWeightLoadCase, 0.90);
+            combination1.AddLoadCaseCoefficient(prestressLoadCase, 1.00);
+            combination1.AddLoadCaseCoefficient(temperatureLoadCase, 1.50);
+            combination1.AddLoadCaseCoefficient(snowLoadCase, 1.05);
+
+            Combination combination2 = new Combination("cmb 2", options);
+            combination2.AddLoadCaseCoefficient(selfWeightLoadCase, 0.90);
+            combination2.AddLoadCaseCoefficient(prestressLoadCase, 1.00);
+            combination2.AddLoadCaseCoefficient(temperatureLoadCase, 0.90);
+            combination2.AddLoadCaseCoefficient(snowLoadCase, 1.50);
+
+            Combination combination3 = new Combination("cmb 3", options);
+            combination3.AddLoadCaseCoefficient(selfWeightLoadCase, 1.10);
+            combination3.AddLoadCaseCoefficient(prestressLoadCase, 1.00);
+            combination3.AddLoadCaseCoefficient(temperatureLoadCase, 1.50);
+            combination3.AddLoadCaseCoefficient(snowLoadCase, 1.05);
+
+            Combination combination4 = new Combination("cmb 4", options);
+            combination4.AddLoadCaseCoefficient(selfWeightLoadCase, 1.10);
+            combination4.AddLoadCaseCoefficient(prestressLoadCase, 1.00);
+            combination4.AddLoadCaseCoefficient(temperatureLoadCase, 0.90);
+            combination4.AddLoadCaseCoefficient(snowLoadCase, 1.50);
+
             // Assert
             Assert.IsTrue(outList.Count() == 6);
-            //Assert.IsTrue(Math.Abs(outList[0][selfWeightLoadCase] - 0.90) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[1][selfWeightLoadCase] - 0.90) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[2][selfWeightLoadCase] - 1.10) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[3][selfWeightLoadCase] - 1.10) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[4][selfWeightLoadCase] - 0.90) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[5][selfWeightLoadCase] - 1.10) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[0][temperatureLoadCase] - 1.5) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[1][snowLoadCase] - 1.5) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[0][snowLoadCase] - 1.05) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[1][temperatureLoadCase] - 0.9) < 0.001);
+            Assert.IsTrue(outList.Contains(combination1));
+            Assert.IsTrue(outList.Contains(combination2));
+            Assert.IsTrue(outList.Contains(combination3));
+            Assert.IsTrue(outList.Contains(combination4));
+
+            foreach (Combination combination in outList)
+            {
+                string combinationName = combination.ToString();
+                Console.WriteLine(combinationName);
+            }
         }
 
         [TestMethod]
@@ -657,25 +700,34 @@ namespace ModelObjectTest
                 prestressLoadCase
             };
 
-            En1990CombinationsOptions options = new En1990CombinationsOptions(StandardEN1990.LimitStates.UltimateFatigue, ULSStructuralGeotechicalCombinationSets.SetC,
-                    ImposedLoadCategories.CategoryG, true);
+            En1990CombinationsOptions options = new En1990CombinationsOptions(StandardEN1990.LimitStates.UltimateFatigue, ULSStructuralGeotechicalCombinationSets.SetC, ImposedLoadCategories.CategoryG, true);
             StandardEN1990 standardEN1990 = new StandardEN1990();
 
             // Act
             CombinationsCollection outList = standardEN1990.CreateCombinations(loadCaseList.ToArray(), options);
 
+            Combination combination1 = new Combination("cmb 1", options);
+            combination1.AddLoadCaseCoefficient(selfWeightLoadCase, 1.00);
+            combination1.AddLoadCaseCoefficient(prestressLoadCase, 1.00);
+            combination1.AddLoadCaseCoefficient(WindPressureLoadCase, 1.30);
+            combination1.AddLoadCaseCoefficient(snowLoadCase, 0.91);
+
+            Combination combination2 = new Combination("cmb 2", options);
+            combination2.AddLoadCaseCoefficient(selfWeightLoadCase, 1.00);
+            combination2.AddLoadCaseCoefficient(prestressLoadCase, 1.00);
+            combination2.AddLoadCaseCoefficient(WindPressureLoadCase, 0.78);
+            combination2.AddLoadCaseCoefficient(snowLoadCase, 1.30);
+
             // Assert
-            Assert.IsTrue(outList.Count() == 6);
-            //Assert.IsTrue(Math.Abs(outList[0][selfWeightLoadCase] - 1.00) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[1][selfWeightLoadCase] - 1.00) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[2][selfWeightLoadCase] - 1.35) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[3][selfWeightLoadCase] - 1.35) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[4][selfWeightLoadCase] - 1.00) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[5][selfWeightLoadCase] - 1.35) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[0][WindPressureLoadCase] - 1.5) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[1][snowLoadCase] - 1.5) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[0][snowLoadCase] - 1.05) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[1][WindPressureLoadCase] - 0.90) < 0.001);
+            Assert.IsTrue(outList.Count() == 3);
+            Assert.IsTrue(outList.Contains(combination1));
+            Assert.IsTrue(outList.Contains(combination2));
+
+            foreach (Combination combination in outList)
+            {
+                string combinationName = combination.ToString();
+                Console.WriteLine(combinationName);
+            }
         }
 
         [TestMethod]
@@ -705,18 +757,42 @@ namespace ModelObjectTest
             // Act
             CombinationsCollection outList = standardEN1990.CreateCombinations(loadCaseList.ToArray(), options);
 
+            Combination combination1 = new Combination("cmb 1", options);
+            combination1.AddLoadCaseCoefficient(selfWeightLoadCase, 1.00);
+            combination1.AddLoadCaseCoefficient(prestressLoadCase, 1.00);
+            combination1.AddLoadCaseCoefficient(WindPressureLoadCase, 1.50);
+            combination1.AddLoadCaseCoefficient(snowLoadCase, 1.05);
+
+            Combination combination2 = new Combination("cmb 2", options);
+            combination2.AddLoadCaseCoefficient(selfWeightLoadCase, 1.00);
+            combination2.AddLoadCaseCoefficient(prestressLoadCase, 1.00);
+            combination2.AddLoadCaseCoefficient(WindPressureLoadCase, 0.90);
+            combination2.AddLoadCaseCoefficient(snowLoadCase, 1.50);
+
+            Combination combination3 = new Combination("cmb 1", options);
+            combination3.AddLoadCaseCoefficient(selfWeightLoadCase, 1.30);
+            combination3.AddLoadCaseCoefficient(prestressLoadCase, 1.00);
+            combination3.AddLoadCaseCoefficient(WindPressureLoadCase, 1.50);
+            combination3.AddLoadCaseCoefficient(snowLoadCase, 1.05);
+
+            Combination combination4 = new Combination("cmb 2", options);
+            combination4.AddLoadCaseCoefficient(selfWeightLoadCase, 1.30);
+            combination4.AddLoadCaseCoefficient(prestressLoadCase, 1.00);
+            combination4.AddLoadCaseCoefficient(WindPressureLoadCase, 0.90);
+            combination4.AddLoadCaseCoefficient(snowLoadCase, 1.50);
+
             // Assert
             Assert.IsTrue(outList.Count() == 6);
-            //Assert.IsTrue(Math.Abs(outList[0][selfWeightLoadCase] - 1.00) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[1][selfWeightLoadCase] - 1.00) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[2][selfWeightLoadCase] - 1.35) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[3][selfWeightLoadCase] - 1.35) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[4][selfWeightLoadCase] - 1.00) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[5][selfWeightLoadCase] - 1.35) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[0][WindPressureLoadCase] - 1.5) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[1][snowLoadCase] - 1.5) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[0][snowLoadCase] - 1.05) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[1][WindPressureLoadCase] - 0.90) < 0.001);
+            Assert.IsTrue(outList.Contains(combination1));
+            Assert.IsTrue(outList.Contains(combination2));
+            Assert.IsTrue(outList.Contains(combination3));
+            Assert.IsTrue(outList.Contains(combination4));
+
+            foreach (Combination combination in outList)
+            {
+                string combinationName = combination.ToString();
+                Console.WriteLine(combinationName);
+            }
         }
 
         [TestMethod]
@@ -734,10 +810,10 @@ namespace ModelObjectTest
 
             List<LoadCase> loadCaseList = new List<LoadCase>
             {
-                selfWeightLoadCase,
                 WindPressureLoadCase,
+                prestressLoadCase,
+                selfWeightLoadCase,
                 snowLoadCase,
-                prestressLoadCase
             };
 
             En1990CombinationsOptions options = new En1990CombinationsOptions(StandardEN1990.LimitStates.UltimateFatigue, ImposedLoadCategories.CategoryG, true);
@@ -746,18 +822,42 @@ namespace ModelObjectTest
             // Act
             CombinationsCollection outList = standardEN1990.CreateCombinations(loadCaseList.ToArray(), options);
 
+            Combination combination1 = new Combination("cmb 1", options);
+            combination1.AddLoadCaseCoefficient(selfWeightLoadCase, 1.00);
+            combination1.AddLoadCaseCoefficient(prestressLoadCase, 1.00);
+            combination1.AddLoadCaseCoefficient(WindPressureLoadCase, 1.50);
+            combination1.AddLoadCaseCoefficient(snowLoadCase, 1.05);
+
+            Combination combination2 = new Combination("cmb 2", options);
+            combination2.AddLoadCaseCoefficient(selfWeightLoadCase, 1.00);
+            combination2.AddLoadCaseCoefficient(prestressLoadCase, 1.00);
+            combination2.AddLoadCaseCoefficient(WindPressureLoadCase, 0.90);
+            combination2.AddLoadCaseCoefficient(snowLoadCase, 1.50);
+
+            Combination combination3 = new Combination("cmb 3", options);
+            combination3.AddLoadCaseCoefficient(selfWeightLoadCase, 1.35);
+            combination3.AddLoadCaseCoefficient(prestressLoadCase, 1.00);
+            combination3.AddLoadCaseCoefficient(WindPressureLoadCase, 1.50);
+            combination3.AddLoadCaseCoefficient(snowLoadCase, 1.05);
+
+            Combination combination4 = new Combination("cmb 4", options);
+            combination4.AddLoadCaseCoefficient(selfWeightLoadCase, 1.35);
+            combination4.AddLoadCaseCoefficient(prestressLoadCase, 1.00);
+            combination4.AddLoadCaseCoefficient(WindPressureLoadCase, 0.90);
+            combination4.AddLoadCaseCoefficient(snowLoadCase, 1.50);
+
             // Assert
             Assert.IsTrue(outList.Count() == 6);
-            //Assert.IsTrue(Math.Abs(outList[0][selfWeightLoadCase] - 1.00) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[1][selfWeightLoadCase] - 1.00) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[2][selfWeightLoadCase] - 1.35) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[3][selfWeightLoadCase] - 1.35) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[4][selfWeightLoadCase] - 1.00) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[5][selfWeightLoadCase] - 1.35) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[0][WindPressureLoadCase] - 1.5) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[1][snowLoadCase] - 1.5) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[0][snowLoadCase] - 1.05) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[1][WindPressureLoadCase] - 0.90) < 0.001);
+            Assert.IsTrue(outList.Contains(combination1));
+            Assert.IsTrue(outList.Contains(combination2));
+            Assert.IsTrue(outList.Contains(combination3));
+            Assert.IsTrue(outList.Contains(combination4));
+
+            foreach (Combination combination in outList)
+            {
+                string combinationName = combination.ToString();
+                Console.WriteLine(combinationName);
+            }
         }
 
         [TestMethod]
@@ -781,27 +881,48 @@ namespace ModelObjectTest
                 WindPressureLoadCase2
             };
 
-            En1990CombinationsOptions options = new En1990CombinationsOptions(StandardEN1990.LimitStates.UltimateGeotechnical, ULSStructuralGeotechicalCombinationSets.SetB,
-                ImposedLoadCategories.CategoryF, true);
+            En1990CombinationsOptions options = new En1990CombinationsOptions(StandardEN1990.LimitStates.UltimateGeotechnical, ULSStructuralGeotechicalCombinationSets.SetB, ImposedLoadCategories.CategoryF, true);
             StandardEN1990 standardEN1990 = new StandardEN1990();
 
             // Act
             CombinationsCollection outList = standardEN1990.CreateCombinations(loadCaseList.ToArray(), options);
 
+            Combination combination1 = new Combination("cmb 1", options);
+            combination1.AddLoadCaseCoefficient(selfWeightLoadCase, 1.00);
+            combination1.AddLoadCaseCoefficient(WindPressureLoadCase2, 1.50);
+            combination1.AddLoadCaseCoefficient(WindPressureLoadCase, 1.50);
+            combination1.AddLoadCaseCoefficient(snowLoadCase, 1.05);
+
+            Combination combination2 = new Combination("cmb 2", options);
+            combination2.AddLoadCaseCoefficient(selfWeightLoadCase, 1.00);
+            combination2.AddLoadCaseCoefficient(WindPressureLoadCase2, 0.90);
+            combination2.AddLoadCaseCoefficient(WindPressureLoadCase, 0.90);
+            combination2.AddLoadCaseCoefficient(snowLoadCase, 1.50);
+
+            Combination combination3 = new Combination("cmb 3", options);
+            combination3.AddLoadCaseCoefficient(selfWeightLoadCase, 1.35);
+            combination3.AddLoadCaseCoefficient(WindPressureLoadCase2, 1.50);
+            combination3.AddLoadCaseCoefficient(WindPressureLoadCase, 1.50);
+            combination3.AddLoadCaseCoefficient(snowLoadCase, 1.05);
+
+            Combination combination4 = new Combination("cmb 4", options);
+            combination4.AddLoadCaseCoefficient(selfWeightLoadCase, 1.35);
+            combination4.AddLoadCaseCoefficient(WindPressureLoadCase2, 0.90);
+            combination4.AddLoadCaseCoefficient(WindPressureLoadCase, 0.90);
+            combination4.AddLoadCaseCoefficient(snowLoadCase, 1.50);
+
             // Assert
             Assert.IsTrue(outList.Count() == 6);
-            //Assert.IsTrue(Math.Abs(outList[0][selfWeightLoadCase] - 1.00) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[1][selfWeightLoadCase] - 1.00) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[2][selfWeightLoadCase] - 1.35) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[3][selfWeightLoadCase] - 1.35) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[4][selfWeightLoadCase] - 1.00) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[5][selfWeightLoadCase] - 1.35) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[0][WindPressureLoadCase] - 1.5) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[0][WindPressureLoadCase2] - 1.5) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[1][WindPressureLoadCase] - 0.90) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[1][WindPressureLoadCase2] - 0.90) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[0][snowLoadCase] - 0.75) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[1][snowLoadCase] - 1.5) < 0.001);
+            Assert.IsTrue(outList.Contains(combination1));
+            Assert.IsTrue(outList.Contains(combination2));
+            Assert.IsTrue(outList.Contains(combination3));
+            Assert.IsTrue(outList.Contains(combination4));
+
+            foreach (Combination combination in outList)
+            {
+                string combinationName = combination.ToString();
+                Console.WriteLine(combinationName);
+            }
         }
 
         [TestMethod]
@@ -825,25 +946,48 @@ namespace ModelObjectTest
                 prestressLoadCase
             };
 
-            En1990CombinationsOptions options = new En1990CombinationsOptions(StandardEN1990.LimitStates.UltimateGeotechnical, ULSStructuralGeotechicalCombinationSets.SetB,
-                ImposedLoadCategories.CategoryA, true);
+            En1990CombinationsOptions options = new En1990CombinationsOptions(StandardEN1990.LimitStates.UltimateGeotechnical, ULSStructuralGeotechicalCombinationSets.SetB, ImposedLoadCategories.CategoryA, true);
             StandardEN1990 standardEN1990 = new StandardEN1990();
 
             // Act
             CombinationsCollection outList = standardEN1990.CreateCombinations(loadCaseList.ToArray(), options);
 
+            Combination combination1 = new Combination("cmb 1", options);
+            combination1.AddLoadCaseCoefficient(selfWeightLoadCase, 1.00);
+            combination1.AddLoadCaseCoefficient(prestressLoadCase, 1.00);
+            combination1.AddLoadCaseCoefficient(WindPressureLoadCase, 1.50);
+            combination1.AddLoadCaseCoefficient(snowLoadCase, 1.05);
+
+            Combination combination2 = new Combination("cmb 2", options);
+            combination2.AddLoadCaseCoefficient(selfWeightLoadCase, 1.00);
+            combination2.AddLoadCaseCoefficient(prestressLoadCase, 1.00);
+            combination2.AddLoadCaseCoefficient(WindPressureLoadCase, 0.90);
+            combination2.AddLoadCaseCoefficient(snowLoadCase, 1.50);
+
+            Combination combination3 = new Combination("cmb 3", options);
+            combination3.AddLoadCaseCoefficient(selfWeightLoadCase, 1.35);
+            combination3.AddLoadCaseCoefficient(prestressLoadCase, 1.00);
+            combination3.AddLoadCaseCoefficient(WindPressureLoadCase, 1.50);
+            combination3.AddLoadCaseCoefficient(snowLoadCase, 1.05);
+
+            Combination combination4 = new Combination("cmb 4", options);
+            combination4.AddLoadCaseCoefficient(selfWeightLoadCase, 1.35);
+            combination4.AddLoadCaseCoefficient(prestressLoadCase, 1.00);
+            combination4.AddLoadCaseCoefficient(WindPressureLoadCase, 0.90);
+            combination4.AddLoadCaseCoefficient(snowLoadCase, 1.50);
+
             // Assert
             Assert.IsTrue(outList.Count() == 6);
-            //Assert.IsTrue(Math.Abs(outList[0][selfWeightLoadCase] - 1.00) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[1][selfWeightLoadCase] - 1.00) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[2][selfWeightLoadCase] - 1.35) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[3][selfWeightLoadCase] - 1.35) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[4][selfWeightLoadCase] - 1.00) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[5][selfWeightLoadCase] - 1.35) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[0][WindPressureLoadCase] - 1.5) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[1][snowLoadCase] - 1.5) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[0][snowLoadCase] - 1.05) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[1][WindPressureLoadCase] - 0.90) < 0.001);
+            Assert.IsTrue(outList.Contains(combination1));
+            Assert.IsTrue(outList.Contains(combination2));
+            Assert.IsTrue(outList.Contains(combination3));
+            Assert.IsTrue(outList.Contains(combination4));
+
+            foreach (Combination combination in outList)
+            {
+                string combinationName = combination.ToString();
+                Console.WriteLine(combinationName);
+            }
         }
 
         [TestMethod]
@@ -866,23 +1010,35 @@ namespace ModelObjectTest
                 snowLoadCase,
                 prestressLoadCase
             };
-
-            En1990CombinationsOptions options = new En1990CombinationsOptions(StandardEN1990.LimitStates.UltimateGeotechnical, ULSStructuralGeotechicalCombinationSets.SetC,
-    ImposedLoadCategories.CategoryF, false);
+            
+            En1990CombinationsOptions options = new En1990CombinationsOptions(StandardEN1990.LimitStates.UltimateGeotechnical, ULSStructuralGeotechicalCombinationSets.SetC, ImposedLoadCategories.CategoryF, false);
             StandardEN1990 standardEN1990 = new StandardEN1990();
 
             // Act
             CombinationsCollection outList = standardEN1990.CreateCombinations(loadCaseList.ToArray(), options);
 
+            Combination combination1 = new Combination("cmb 1", options);
+            combination1.AddLoadCaseCoefficient(superImposedDeadLoadLoadCase, 1.00);
+            combination1.AddLoadCaseCoefficient(prestressLoadCase, 1.00);
+            combination1.AddLoadCaseCoefficient(WindPressureLoadCase, 1.30);
+            combination1.AddLoadCaseCoefficient(snowLoadCase, 0.65);
+
+            Combination combination2 = new Combination("cmb 2", options);
+            combination2.AddLoadCaseCoefficient(superImposedDeadLoadLoadCase, 1.00);
+            combination2.AddLoadCaseCoefficient(prestressLoadCase, 1.00);
+            combination2.AddLoadCaseCoefficient(WindPressureLoadCase, 0.78);
+            combination2.AddLoadCaseCoefficient(snowLoadCase, 1.3);
+
             // Assert
             Assert.IsTrue(outList.Count() == 3);
-            //Assert.IsTrue(Math.Abs(outList[0][superImposedDeadLoadLoadCase] - 1.00) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[1][superImposedDeadLoadLoadCase] - 1.00) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[2][superImposedDeadLoadLoadCase] - 1.00) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[0][WindPressureLoadCase] - 1.3) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[0][snowLoadCase] - 0.65) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[1][snowLoadCase] - 1.3) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[1][WindPressureLoadCase] - 0.78) < 0.001);
+            Assert.IsTrue(outList.Contains(combination1));
+            Assert.IsTrue(outList.Contains(combination2));
+
+            foreach (Combination combination in outList)
+            {
+                string combinationName = combination.ToString();
+                Console.WriteLine(combinationName);
+            }
         }
 
         [TestMethod]
@@ -906,21 +1062,33 @@ namespace ModelObjectTest
                 snowLoadCase,
             };
 
-            En1990CombinationsOptions options = new En1990CombinationsOptions(StandardEN1990.LimitStates.ServiceabilityCharacteristic, ULSStructuralGeotechicalCombinationSets.SetC,
-ImposedLoadCategories.CategoryA, true);
+            En1990CombinationsOptions options = new En1990CombinationsOptions(StandardEN1990.LimitStates.ServiceabilityCharacteristic, ULSStructuralGeotechicalCombinationSets.SetC, ImposedLoadCategories.CategoryA, true);
             StandardEN1990 standardEN1990 = new StandardEN1990();
 
             // Act
             CombinationsCollection outList = standardEN1990.CreateCombinations(loadCaseList.ToArray(), options);
 
+            Combination combination1 = new Combination("cmb 1", options);
+            combination1.AddLoadCaseCoefficient(selfWeightLoadCase, 1.00);
+            combination1.AddLoadCaseCoefficient(prestressLoadCase, 1.00);
+            combination1.AddLoadCaseCoefficient(snowLoadCase, 0.70);
+
+            Combination combination2 = new Combination("cmb 2", options);
+            combination2.AddLoadCaseCoefficient(selfWeightLoadCase, 1.00);
+            combination2.AddLoadCaseCoefficient(prestressLoadCase, 1.00);
+            combination2.AddLoadCaseCoefficient(WindPressureLoadCase, 0.60);
+            combination2.AddLoadCaseCoefficient(snowLoadCase, 0.20);
+
             // Assert
             Assert.IsTrue(outList.Count() == 3);
-            //Assert.IsTrue(Math.Abs(outList[0][selfWeightLoadCase] - 1.00) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[1][selfWeightLoadCase] - 1.00) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[2][selfWeightLoadCase] - 1.00) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[0][snowLoadCase] - 0.70) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[1][WindPressureLoadCase] - 0.60) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[1][snowLoadCase] - 0.20) < 0.001);
+            Assert.IsTrue(outList.Contains(combination1));
+            Assert.IsTrue(outList.Contains(combination2));
+
+            foreach (Combination combination in outList)
+            {
+                string combinationName = combination.ToString();
+                Console.WriteLine(combinationName);
+            }
         }
 
         [TestMethod]
@@ -944,18 +1112,31 @@ ImposedLoadCategories.CategoryA, true);
                 prestressLoadCase
             };
 
-            En1990CombinationsOptions options = new En1990CombinationsOptions(StandardEN1990.LimitStates.ServiceabilityQuasiPermanent, ULSStructuralGeotechicalCombinationSets.SetC,
-ImposedLoadCategories.CategoryA, true);
+            En1990CombinationsOptions options = new En1990CombinationsOptions(StandardEN1990.LimitStates.ServiceabilityQuasiPermanent, ULSStructuralGeotechicalCombinationSets.SetC, ImposedLoadCategories.CategoryA, true);
             StandardEN1990 standardEN1990 = new StandardEN1990();
 
             // Act
             CombinationsCollection outList = standardEN1990.CreateCombinations(loadCaseList.ToArray(), options);
 
+            Combination combination1 = new Combination("cmb 1", options);
+            combination1.AddLoadCaseCoefficient(selfWeightLoadCase, 1.00);
+            combination1.AddLoadCaseCoefficient(prestressLoadCase, 1.00);
+            combination1.AddLoadCaseCoefficient(snowLoadCase, 0.20);
+
+            Combination combination2 = new Combination("cmb 2", options);
+            combination2.AddLoadCaseCoefficient(selfWeightLoadCase, 1.00);
+            combination2.AddLoadCaseCoefficient(prestressLoadCase, 1.00);
+
             // Assert
             Assert.IsTrue(outList.Count() == 2);
-            //Assert.IsTrue(Math.Abs(outList[0][selfWeightLoadCase] - 1.00) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[1][selfWeightLoadCase] - 1.00) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[0][snowLoadCase] - 0.20) < 0.001);
+            Assert.IsTrue(outList.Contains(combination1));
+            Assert.IsTrue(outList.Contains(combination2));
+
+            foreach (Combination combination in outList)
+            {
+                string combinationName = combination.ToString();
+                Console.WriteLine(combinationName);
+            }
         }
 
         [TestMethod]
@@ -979,8 +1160,7 @@ ImposedLoadCategories.CategoryA, true);
                 prestressLoadCase
             };
 
-            En1990CombinationsOptions options = new En1990CombinationsOptions(StandardEN1990.LimitStates.ServiceabilityFrequent, ULSStructuralGeotechicalCombinationSets.SetC,
-                ImposedLoadCategories.CategoryA, true);
+            En1990CombinationsOptions options = new En1990CombinationsOptions(StandardEN1990.LimitStates.ServiceabilityFrequent, ULSStructuralGeotechicalCombinationSets.SetC, ImposedLoadCategories.CategoryA, true);
             StandardEN1990 standardEN1990 = new StandardEN1990();
 
             CombinationContainsLoadCaseCoefficients();
@@ -993,15 +1173,27 @@ ImposedLoadCategories.CategoryA, true);
             // Act
             CombinationsCollection outList = standardEN1990.CreateCombinations(loadCaseList.ToArray(), options);
 
+            Combination combination1 = new Combination("cmb 1", options);
+            combination1.AddLoadCaseCoefficient(selfWeightLoadCase, 1.00);
+            combination1.AddLoadCaseCoefficient(prestressLoadCase, 1.00);
+            combination1.AddLoadCaseCoefficient(snowLoadCase, 0.50);
+            combination1.AddLoadCaseCoefficient(WindPressureLoadCase, 0.2);
+
+            Combination combination2 = new Combination("cmb 2", options);
+            combination2.AddLoadCaseCoefficient(selfWeightLoadCase, 1.00);
+            combination2.AddLoadCaseCoefficient(prestressLoadCase, 1.00);
+            combination2.AddLoadCaseCoefficient(snowLoadCase, 0.50);
+
             // Assert
             Assert.IsTrue(outList.Count() == 3);
-            //Assert.IsTrue(Math.Abs(outList[0][selfWeightLoadCase] - 1.00) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[1][selfWeightLoadCase] - 1.00) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[2][selfWeightLoadCase] - 1.00) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[0][WindPressureLoadCase] - 0.20) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[1][snowLoadCase] - 0.50) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[0][snowLoadCase] - 0.20) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[1][WindPressureLoadCase] - 0.00) < 0.001);
+            Assert.IsTrue(outList.Contains(combination1));
+            Assert.IsTrue(outList.Contains(combination2));
+
+            foreach (Combination combination in outList)
+            {
+                string combinationName = combination.ToString();
+                Console.WriteLine(combinationName);
+            }
         }
 
         [TestMethod]
@@ -1009,7 +1201,7 @@ ImposedLoadCategories.CategoryA, true);
         {
             // Arrange
             string loadCaseName1 = "selfWeight";
-            LoadCase selfWeightLoadCase = new LoadCase(loadCaseName1, LoadCase.LoadCaseTypes.SelfWeight);
+            LoadCase selfWeightLoadCase1 = new LoadCase(loadCaseName1, LoadCase.LoadCaseTypes.SelfWeight);
             string loadCaseName5 = "selfWeight2";
             LoadCase selfWeightLoadCase2 = new LoadCase(loadCaseName5, LoadCase.LoadCaseTypes.SelfWeight);
             string loadCaseName2 = "WindPressure1";
@@ -1028,7 +1220,7 @@ ImposedLoadCategories.CategoryA, true);
 
             List<LoadCase> loadCaseList = new List<LoadCase>
             {
-                selfWeightLoadCase,
+                selfWeightLoadCase1,
                 selfWeightLoadCase2,
                 WindPressureLoadCase1,
                 WindPressureLoadCase2,
@@ -1038,46 +1230,64 @@ ImposedLoadCategories.CategoryA, true);
                 snowLoadCase2
             };
 
-            En1990CombinationsOptions options = new En1990CombinationsOptions(StandardEN1990.LimitStates.UltimateStructural, ULSStructuralGeotechicalCombinationSets.SetB,
-                ImposedLoadCategories.CategoryA, true);
+            En1990CombinationsOptions options = new En1990CombinationsOptions(StandardEN1990.LimitStates.UltimateStructural, ULSStructuralGeotechicalCombinationSets.SetB, ImposedLoadCategories.CategoryA, true);
             StandardEN1990 standardEN1990 = new StandardEN1990();
 
             // Act
             CombinationsCollection outList = standardEN1990.CreateCombinations(loadCaseList.ToArray(), options);
 
+            Combination combination1 = new Combination("cmb 1", options);
+            combination1.AddLoadCaseCoefficient(selfWeightLoadCase1, 1.00);
+            combination1.AddLoadCaseCoefficient(selfWeightLoadCase1, 1.00);
+            combination1.AddLoadCaseCoefficient(WindPressureLoadCase1, 1.50);
+            combination1.AddLoadCaseCoefficient(WindPressureLoadCase2, 1.50);
+            combination1.AddLoadCaseCoefficient(WindPressureLoadCase3, 1.50);
+            combination1.AddLoadCaseCoefficient(WindPressureLoadCase4, 1.50);
+            combination1.AddLoadCaseCoefficient(snowLoadCase1, 1.05);
+            combination1.AddLoadCaseCoefficient(snowLoadCase2, 1.05);
+
+            Combination combination2 = new Combination("cmb 2", options);
+            combination2.AddLoadCaseCoefficient(selfWeightLoadCase1, 1.00);
+            combination2.AddLoadCaseCoefficient(selfWeightLoadCase1, 1.00);
+            combination2.AddLoadCaseCoefficient(WindPressureLoadCase1, 0.90);
+            combination2.AddLoadCaseCoefficient(WindPressureLoadCase2, 0.90);
+            combination2.AddLoadCaseCoefficient(WindPressureLoadCase3, 0.90);
+            combination2.AddLoadCaseCoefficient(WindPressureLoadCase4, 0.90);
+            combination2.AddLoadCaseCoefficient(snowLoadCase1, 1.50);
+            combination2.AddLoadCaseCoefficient(snowLoadCase2, 1.50);
+
+            Combination combination3 = new Combination("cmb 3", options);
+            combination3.AddLoadCaseCoefficient(selfWeightLoadCase1, 1.35);
+            combination3.AddLoadCaseCoefficient(selfWeightLoadCase1, 1.35);
+            combination3.AddLoadCaseCoefficient(WindPressureLoadCase1, 1.50);
+            combination3.AddLoadCaseCoefficient(WindPressureLoadCase2, 1.50);
+            combination3.AddLoadCaseCoefficient(WindPressureLoadCase3, 1.50);
+            combination3.AddLoadCaseCoefficient(WindPressureLoadCase4, 1.50);
+            combination3.AddLoadCaseCoefficient(snowLoadCase1, 1.05);
+            combination3.AddLoadCaseCoefficient(snowLoadCase2, 1.05);
+
+            Combination combination4 = new Combination("cmb 4", options);
+            combination4.AddLoadCaseCoefficient(selfWeightLoadCase1, 1.35);
+            combination4.AddLoadCaseCoefficient(selfWeightLoadCase1, 1.35);
+            combination4.AddLoadCaseCoefficient(WindPressureLoadCase1, 0.90);
+            combination4.AddLoadCaseCoefficient(WindPressureLoadCase2, 0.90);
+            combination4.AddLoadCaseCoefficient(WindPressureLoadCase3, 0.90);
+            combination4.AddLoadCaseCoefficient(WindPressureLoadCase4, 0.90);
+            combination4.AddLoadCaseCoefficient(snowLoadCase1, 1.50);
+            combination4.AddLoadCaseCoefficient(snowLoadCase2, 1.50);
 
             // Assert
             Assert.IsTrue(outList.Count() == 6);
-            //Assert.IsTrue(Math.Abs(outList[0][selfWeightLoadCase] - 1.00) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[1][selfWeightLoadCase] - 1.00) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[2][selfWeightLoadCase] - 1.35) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[3][selfWeightLoadCase] - 1.35) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[4][selfWeightLoadCase] - 1.00) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[5][selfWeightLoadCase] - 1.35) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[0][WindPressureLoadCase1] - 1.50) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[0][WindPressureLoadCase2] - 1.50) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[0][WindPressureLoadCase3] - 1.50) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[0][WindPressureLoadCase4] - 1.50) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[0][snowLoadCase1] - 1.05) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[0][snowLoadCase2] - 1.05) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[1][WindPressureLoadCase1] - 0.90) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[1][WindPressureLoadCase2] - 0.90) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[1][WindPressureLoadCase3] - 0.90) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[1][WindPressureLoadCase4] - 0.90) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[1][snowLoadCase1] - 1.50) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[1][snowLoadCase2] - 1.50) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[2][WindPressureLoadCase1] - 1.50) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[2][WindPressureLoadCase2] - 1.50) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[2][WindPressureLoadCase3] - 1.50) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[2][WindPressureLoadCase4] - 1.50) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[2][snowLoadCase1] - 1.05) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[2][snowLoadCase2] - 1.05) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[3][WindPressureLoadCase1] - 0.90) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[3][WindPressureLoadCase2] - 0.90) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[3][WindPressureLoadCase3] - 0.90) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[3][WindPressureLoadCase4] - 0.90) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[3][snowLoadCase1] - 1.50) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[3][snowLoadCase2] - 1.50) < 0.001);
+            Assert.IsTrue(outList.Contains(combination1));
+            Assert.IsTrue(outList.Contains(combination2));
+            Assert.IsTrue(outList.Contains(combination3));
+            Assert.IsTrue(outList.Contains(combination4));
+
+            foreach (Combination combination in outList)
+            {
+                string combinationName = combination.ToString();
+                Console.WriteLine(combinationName);
+            }
         }
 
         [TestMethod]
@@ -1085,7 +1295,7 @@ ImposedLoadCategories.CategoryA, true);
         {
             // Arrange
             string loadCaseName1 = "selfWeight";
-            LoadCase selfWeightLoadCase = new LoadCase(loadCaseName1, LoadCase.LoadCaseTypes.SelfWeight);
+            LoadCase selfWeightLoadCase1 = new LoadCase(loadCaseName1, LoadCase.LoadCaseTypes.SelfWeight);
             string loadCaseName5 = "selfWeight2";
             LoadCase selfWeightLoadCase2 = new LoadCase(loadCaseName5, LoadCase.LoadCaseTypes.SelfWeight);
             string loadCaseName2 = "WindPressure1";
@@ -1104,7 +1314,7 @@ ImposedLoadCategories.CategoryA, true);
 
             List<LoadCase> loadCaseList = new List<LoadCase>
             {
-                selfWeightLoadCase,
+                selfWeightLoadCase1,
                 selfWeightLoadCase2,
                 WindPressureLoadCase1,
                 WindPressureLoadCase2,
@@ -1114,65 +1324,86 @@ ImposedLoadCategories.CategoryA, true);
                 snowLoadCase2
             };
 
-            En1990CombinationsOptions options = new En1990CombinationsOptions(StandardEN1990.LimitStates.UltimateStructural, ULSStructuralGeotechicalCombinationSets.SetB,
-                ImposedLoadCategories.CategoryA, true);
+            En1990CombinationsOptions options = new En1990CombinationsOptions(StandardEN1990.LimitStates.UltimateStructural, ULSStructuralGeotechicalCombinationSets.SetB, ImposedLoadCategories.CategoryA, true);
             StandardEN1990 standardEN1990 = new StandardEN1990();
 
             // Act
             CombinationsCollection outList = standardEN1990.CreateCombinations(loadCaseList.ToArray(), options);
 
+            Combination combination1 = new Combination("cmb 1", options);
+            combination1.AddLoadCaseCoefficient(selfWeightLoadCase1, 1.00);
+            combination1.AddLoadCaseCoefficient(selfWeightLoadCase1, 1.00);
+            combination1.AddLoadCaseCoefficient(WindPressureLoadCase1, 1.50);
+            combination1.AddLoadCaseCoefficient(WindPressureLoadCase2, 1.50);
+            combination1.AddLoadCaseCoefficient(temperatureLoadCase3, 0.90);
+            combination1.AddLoadCaseCoefficient(temperatureLoadCase4, 0.90);
+            combination1.AddLoadCaseCoefficient(snowLoadCase1, 1.05);
+            combination1.AddLoadCaseCoefficient(snowLoadCase2, 1.05);
+
+            Combination combination2 = new Combination("cmb 2", options);
+            combination2.AddLoadCaseCoefficient(selfWeightLoadCase1, 1.00);
+            combination2.AddLoadCaseCoefficient(selfWeightLoadCase1, 1.00);
+            combination2.AddLoadCaseCoefficient(WindPressureLoadCase1, 0.90);
+            combination2.AddLoadCaseCoefficient(WindPressureLoadCase2, 0.90);
+            combination2.AddLoadCaseCoefficient(temperatureLoadCase3, 1.50);
+            combination2.AddLoadCaseCoefficient(temperatureLoadCase4, 1.50);
+            combination2.AddLoadCaseCoefficient(snowLoadCase1, 1.05);
+            combination2.AddLoadCaseCoefficient(snowLoadCase2, 1.05);
+
+            Combination combination3 = new Combination("cmb 3", options);
+            combination3.AddLoadCaseCoefficient(selfWeightLoadCase1, 1.35);
+            combination3.AddLoadCaseCoefficient(selfWeightLoadCase1, 1.35);
+            combination3.AddLoadCaseCoefficient(WindPressureLoadCase1, 0.90);
+            combination3.AddLoadCaseCoefficient(WindPressureLoadCase2, 0.90);
+            combination3.AddLoadCaseCoefficient(temperatureLoadCase3, 0.90);
+            combination3.AddLoadCaseCoefficient(temperatureLoadCase4, 0.90);
+            combination3.AddLoadCaseCoefficient(snowLoadCase1, 1.50);
+            combination3.AddLoadCaseCoefficient(snowLoadCase2, 1.50);
+
+            Combination combination4 = new Combination("cmb 4", options);
+            combination4.AddLoadCaseCoefficient(selfWeightLoadCase1, 1.00);
+            combination4.AddLoadCaseCoefficient(selfWeightLoadCase1, 1.00);
+            combination4.AddLoadCaseCoefficient(WindPressureLoadCase1, 1.50);
+            combination4.AddLoadCaseCoefficient(WindPressureLoadCase2, 1.50);
+            combination4.AddLoadCaseCoefficient(temperatureLoadCase3, 0.90);
+            combination4.AddLoadCaseCoefficient(temperatureLoadCase4, 0.90);
+            combination4.AddLoadCaseCoefficient(snowLoadCase1, 1.05);
+            combination4.AddLoadCaseCoefficient(snowLoadCase2, 1.05);
+
+            Combination combination5 = new Combination("cmb 5", options);
+            combination5.AddLoadCaseCoefficient(selfWeightLoadCase1, 1.00);
+            combination5.AddLoadCaseCoefficient(selfWeightLoadCase1, 1.00);
+            combination5.AddLoadCaseCoefficient(WindPressureLoadCase1, 0.90);
+            combination5.AddLoadCaseCoefficient(WindPressureLoadCase2, 0.90);
+            combination5.AddLoadCaseCoefficient(temperatureLoadCase3, 1.50);
+            combination5.AddLoadCaseCoefficient(temperatureLoadCase4, 1.50);
+            combination5.AddLoadCaseCoefficient(snowLoadCase1, 1.05);
+            combination5.AddLoadCaseCoefficient(snowLoadCase2, 1.05);
+
+            Combination combination6 = new Combination("cmb 6", options);
+            combination6.AddLoadCaseCoefficient(selfWeightLoadCase1, 1.35);
+            combination6.AddLoadCaseCoefficient(selfWeightLoadCase1, 1.35);
+            combination6.AddLoadCaseCoefficient(WindPressureLoadCase1, 0.90);
+            combination6.AddLoadCaseCoefficient(WindPressureLoadCase2, 0.90);
+            combination6.AddLoadCaseCoefficient(temperatureLoadCase3, 0.90);
+            combination6.AddLoadCaseCoefficient(temperatureLoadCase4, 0.90);
+            combination6.AddLoadCaseCoefficient(snowLoadCase1, 1.50);
+            combination6.AddLoadCaseCoefficient(snowLoadCase2, 1.50);
+
             // Assert
             Assert.IsTrue(outList.Count() == 8);
-            //Assert.IsTrue(Math.Abs(outList[0][selfWeightLoadCase] - 1.00) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[1][selfWeightLoadCase] - 1.00) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[2][selfWeightLoadCase] - 1.00) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[3][selfWeightLoadCase] - 1.35) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[4][selfWeightLoadCase] - 1.35) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[5][selfWeightLoadCase] - 1.35) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[6][selfWeightLoadCase] - 1.00) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[7][selfWeightLoadCase] - 1.35) < 0.001);
+            Assert.IsTrue(outList.Contains(combination1));
+            Assert.IsTrue(outList.Contains(combination2));
+            Assert.IsTrue(outList.Contains(combination3));
+            Assert.IsTrue(outList.Contains(combination4));
+            Assert.IsTrue(outList.Contains(combination5));
+            Assert.IsTrue(outList.Contains(combination6));
 
-            //Assert.IsTrue(Math.Abs(outList[0][WindPressureLoadCase1] - 1.50) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[0][WindPressureLoadCase2] - 1.50) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[0][temperatureLoadCase3] - 0.90) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[0][temperatureLoadCase4] - 0.90) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[0][snowLoadCase1] - 1.05) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[0][snowLoadCase2] - 1.05) < 0.001);
-
-            //Assert.IsTrue(Math.Abs(outList[1][temperatureLoadCase3] - 1.50) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[1][temperatureLoadCase4] - 1.50) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[1][WindPressureLoadCase1] - 0.90) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[1][WindPressureLoadCase2] - 0.90) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[1][snowLoadCase1] - 1.05) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[1][snowLoadCase2] - 1.05) < 0.001);
-
-            //Assert.IsTrue(Math.Abs(outList[2][snowLoadCase1] - 1.50) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[2][snowLoadCase2] - 1.50) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[2][WindPressureLoadCase1] - 0.90) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[2][WindPressureLoadCase2] - 0.90) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[2][temperatureLoadCase3] - 0.90) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[2][temperatureLoadCase4] - 0.90) < 0.001);
-
-            //Assert.IsTrue(Math.Abs(outList[3][WindPressureLoadCase1] - 1.50) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[3][WindPressureLoadCase2] - 1.50) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[3][temperatureLoadCase3] - 0.90) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[3][temperatureLoadCase4] - 0.90) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[3][snowLoadCase1] - 1.05) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[3][snowLoadCase2] - 1.05) < 0.001);
-
-            //Assert.IsTrue(Math.Abs(outList[4][temperatureLoadCase3] - 1.50) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[4][temperatureLoadCase4] - 1.50) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[4][WindPressureLoadCase1] - 0.90) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[4][WindPressureLoadCase2] - 0.90) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[4][snowLoadCase1] - 1.05) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[4][snowLoadCase2] - 1.05) < 0.001);
-
-            //Assert.IsTrue(Math.Abs(outList[5][snowLoadCase1] - 1.50) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[5][snowLoadCase2] - 1.50) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[5][WindPressureLoadCase1] - 0.90) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[5][WindPressureLoadCase2] - 0.90) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[5][temperatureLoadCase3] - 0.90) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[5][temperatureLoadCase4] - 0.90) < 0.001);
+            foreach (Combination combination in outList)
+            {
+                string combinationName = combination.ToString();
+                Console.WriteLine(combinationName);
+            }
         }
 
         [TestMethod]
@@ -1196,28 +1427,42 @@ ImposedLoadCategories.CategoryA, true);
                 windSuctionLoadCase1
             };
 
-            En1990CombinationsOptions options = new En1990CombinationsOptions(StandardEN1990.LimitStates.UltimateStructural, ULSStructuralGeotechicalCombinationSets.SetB,
-    ImposedLoadCategories.CategoryA, true);
+            En1990CombinationsOptions options = new En1990CombinationsOptions(StandardEN1990.LimitStates.UltimateStructural, ULSStructuralGeotechicalCombinationSets.SetB, ImposedLoadCategories.CategoryA, true);
             StandardEN1990 standardEN1990 = new StandardEN1990();
 
             // Act
             CombinationsCollection outList = standardEN1990.CreateCombinations(loadCaseList.ToArray(), options);
 
+            Combination combination1 = new Combination("cmb 1", options);
+            combination1.AddLoadCaseCoefficient(selfWeightLoadCase, 1.00);
+            combination1.AddLoadCaseCoefficient(windPressureLoadCase1, 1.50);
+            combination1.AddLoadCaseCoefficient(windPressureLoadCase2, 1.50);
+
+            Combination combination2 = new Combination("cmb 2", options);
+            combination2.AddLoadCaseCoefficient(selfWeightLoadCase, 1.00);
+            combination2.AddLoadCaseCoefficient(windSuctionLoadCase1, 1.50);
+
+            Combination combination3 = new Combination("cmb 3", options);
+            combination3.AddLoadCaseCoefficient(selfWeightLoadCase, 1.00);
+            combination3.AddLoadCaseCoefficient(windPressureLoadCase1, 1.50);
+            combination3.AddLoadCaseCoefficient(windPressureLoadCase2, 1.50);
+
+            Combination combination4 = new Combination("cmb 4", options);
+            combination4.AddLoadCaseCoefficient(selfWeightLoadCase, 1.00);
+            combination4.AddLoadCaseCoefficient(windSuctionLoadCase1, 1.50);          
+
             // Assert
             Assert.IsTrue(outList.Count() == 6);
-            //Assert.IsTrue(Math.Abs(outList[0][selfWeightLoadCase] - 1.00) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[1][selfWeightLoadCase] - 1.00) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[2][selfWeightLoadCase] - 1.35) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[3][selfWeightLoadCase] - 1.35) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[4][selfWeightLoadCase] - 1.00) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[5][selfWeightLoadCase] - 1.35) < 0.001);
+            Assert.IsTrue(outList.Contains(combination1));
+            Assert.IsTrue(outList.Contains(combination2));
+            Assert.IsTrue(outList.Contains(combination3));
+            Assert.IsTrue(outList.Contains(combination4));
 
-            //Assert.IsTrue(Math.Abs(outList[0][windPressureLoadCase1] - 1.50) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[0][windPressureLoadCase2] - 1.50) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[1][windSuctionLoadCase1] - 1.50) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[2][windPressureLoadCase1] - 1.50) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[2][windPressureLoadCase2] - 1.50) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[3][windSuctionLoadCase1] - 1.50) < 0.001);
+            foreach (Combination combination in outList)
+            {
+                string combinationName = combination.ToString();
+                Console.WriteLine(combinationName);
+            }
         }
 
         [TestMethod]
@@ -1254,106 +1499,137 @@ ImposedLoadCategories.CategoryA, true);
                 snowLoadCase2
             };
 
-            En1990CombinationsOptions options = new En1990CombinationsOptions(StandardEN1990.LimitStates.UltimateStructural, ULSStructuralGeotechicalCombinationSets.SetB,
-    ImposedLoadCategories.CategoryA, true);
+            En1990CombinationsOptions options = new En1990CombinationsOptions(StandardEN1990.LimitStates.UltimateStructural, ULSStructuralGeotechicalCombinationSets.SetB, ImposedLoadCategories.CategoryA, true);
             StandardEN1990 standardEN1990 = new StandardEN1990();
 
             // Act
             CombinationsCollection outList = standardEN1990.CreateCombinations(loadCaseList.ToArray(), options);
 
+            Combination combination1 = new Combination("cmb 1", options);
+            combination1.AddLoadCaseCoefficient(selfWeightLoadCase, 1.00);
+            combination1.AddLoadCaseCoefficient(windPressureLoadCase1, 1.50);
+            combination1.AddLoadCaseCoefficient(windPressureLoadCase2, 1.50);
+            combination1.AddLoadCaseCoefficient(temperatureLoadCase1, 0.90);
+            combination1.AddLoadCaseCoefficient(snowLoadCase1, 1.05);
+            combination1.AddLoadCaseCoefficient(snowLoadCase2, 1.05);
+
+            Combination combination2 = new Combination("cmb 2", options);
+            combination2.AddLoadCaseCoefficient(selfWeightLoadCase, 1.00);
+            combination2.AddLoadCaseCoefficient(windSuctionLoadCase1, 1.50);
+            combination2.AddLoadCaseCoefficient(windSuctionLoadCase2, 1.50);
+            combination2.AddLoadCaseCoefficient(temperatureLoadCase1, 0.90);
+            combination2.AddLoadCaseCoefficient(snowLoadCase1, 1.05);
+            combination2.AddLoadCaseCoefficient(snowLoadCase2, 1.05);
+
+            Combination combination3 = new Combination("cmb 3", options);
+            combination3.AddLoadCaseCoefficient(selfWeightLoadCase, 1.00);
+            combination3.AddLoadCaseCoefficient(windPressureLoadCase1, 0.90);
+            combination3.AddLoadCaseCoefficient(windPressureLoadCase2, 0.90);
+            combination3.AddLoadCaseCoefficient(temperatureLoadCase1, 1.50);
+            combination3.AddLoadCaseCoefficient(snowLoadCase1, 1.05);
+            combination3.AddLoadCaseCoefficient(snowLoadCase2, 1.05);
+
+            Combination combination4 = new Combination("cmb 4", options);
+            combination4.AddLoadCaseCoefficient(selfWeightLoadCase, 1.00);
+            combination4.AddLoadCaseCoefficient(windSuctionLoadCase1, 0.90);
+            combination4.AddLoadCaseCoefficient(windSuctionLoadCase2, 0.90);
+            combination4.AddLoadCaseCoefficient(temperatureLoadCase1, 1.50);
+            combination4.AddLoadCaseCoefficient(snowLoadCase1, 1.05);
+            combination4.AddLoadCaseCoefficient(snowLoadCase2, 1.05);
+
+            Combination combination5 = new Combination("cmb 5", options);
+            combination5.AddLoadCaseCoefficient(selfWeightLoadCase, 1.00);
+            combination5.AddLoadCaseCoefficient(windPressureLoadCase1, 0.90);
+            combination5.AddLoadCaseCoefficient(windPressureLoadCase2, 0.90);
+            combination5.AddLoadCaseCoefficient(temperatureLoadCase1, 0.90);
+            combination5.AddLoadCaseCoefficient(snowLoadCase1, 1.50);
+            combination5.AddLoadCaseCoefficient(snowLoadCase2, 1.50);
+
+            Combination combination6 = new Combination("cmb 6", options);
+            combination6.AddLoadCaseCoefficient(selfWeightLoadCase, 1.00);
+            combination6.AddLoadCaseCoefficient(windSuctionLoadCase1, 0.90);
+            combination6.AddLoadCaseCoefficient(windSuctionLoadCase2, 0.90);
+            combination6.AddLoadCaseCoefficient(temperatureLoadCase1, 0.90);
+            combination6.AddLoadCaseCoefficient(snowLoadCase1, 1.50);
+            combination6.AddLoadCaseCoefficient(snowLoadCase2, 1.50);
+
+            Combination combination7 = new Combination("cmb 7", options);
+            combination7.AddLoadCaseCoefficient(selfWeightLoadCase, 1.00);
+            combination7.AddLoadCaseCoefficient(windPressureLoadCase1, 1.50);
+            combination7.AddLoadCaseCoefficient(windPressureLoadCase2, 1.50);
+            combination7.AddLoadCaseCoefficient(temperatureLoadCase1, 0.90);
+            combination7.AddLoadCaseCoefficient(snowLoadCase1, 1.05);
+            combination7.AddLoadCaseCoefficient(snowLoadCase2, 1.05);
+
+            Combination combination8 = new Combination("cmb 8", options);
+            combination8.AddLoadCaseCoefficient(selfWeightLoadCase, 1.00);
+            combination8.AddLoadCaseCoefficient(windSuctionLoadCase1, 1.50);
+            combination8.AddLoadCaseCoefficient(windSuctionLoadCase2, 1.50);
+            combination8.AddLoadCaseCoefficient(temperatureLoadCase1, 0.90);
+            combination8.AddLoadCaseCoefficient(snowLoadCase1, 1.05);
+            combination8.AddLoadCaseCoefficient(snowLoadCase2, 1.05);
+
+            Combination combination9 = new Combination("cmb 9", options);
+            combination9.AddLoadCaseCoefficient(selfWeightLoadCase, 1.00);
+            combination9.AddLoadCaseCoefficient(windPressureLoadCase1, 0.90);
+            combination9.AddLoadCaseCoefficient(windPressureLoadCase2, 0.90);
+            combination9.AddLoadCaseCoefficient(temperatureLoadCase1, 1.50);
+            combination9.AddLoadCaseCoefficient(snowLoadCase1, 1.05);
+            combination9.AddLoadCaseCoefficient(snowLoadCase2, 1.05);
+
+            Combination combination10 = new Combination("cmb 10", options);
+            combination10.AddLoadCaseCoefficient(selfWeightLoadCase, 1.00);
+            combination10.AddLoadCaseCoefficient(windSuctionLoadCase1, 0.90);
+            combination10.AddLoadCaseCoefficient(windSuctionLoadCase2, 0.90);
+            combination10.AddLoadCaseCoefficient(temperatureLoadCase1, 1.50);
+            combination10.AddLoadCaseCoefficient(snowLoadCase1, 1.05);
+            combination10.AddLoadCaseCoefficient(snowLoadCase2, 1.05);
+
+            Combination combination11 = new Combination("cmb 11", options);
+            combination11.AddLoadCaseCoefficient(selfWeightLoadCase, 1.00);
+            combination11.AddLoadCaseCoefficient(windPressureLoadCase1, 0.90);
+            combination11.AddLoadCaseCoefficient(windPressureLoadCase2, 0.90);
+            combination11.AddLoadCaseCoefficient(temperatureLoadCase1, 0.90);
+            combination11.AddLoadCaseCoefficient(snowLoadCase1, 1.50);
+            combination11.AddLoadCaseCoefficient(snowLoadCase2, 1.50);
+
+            Combination combination12 = new Combination("cmb 12", options);
+            combination12.AddLoadCaseCoefficient(selfWeightLoadCase, 1.00);
+            combination12.AddLoadCaseCoefficient(windSuctionLoadCase1, 0.90);
+            combination12.AddLoadCaseCoefficient(windSuctionLoadCase2, 0.90);
+            combination12.AddLoadCaseCoefficient(temperatureLoadCase1, 0.90);
+            combination12.AddLoadCaseCoefficient(snowLoadCase1, 1.50);
+            combination12.AddLoadCaseCoefficient(snowLoadCase2, 1.50);
+
             // Assert
             Assert.IsTrue(outList.Count() == 14);
-            //Assert.IsTrue(Math.Abs(outList[0][selfWeightLoadCase] - 1.00) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[1][selfWeightLoadCase] - 1.00) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[2][selfWeightLoadCase] - 1.00) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[3][selfWeightLoadCase] - 1.00) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[4][selfWeightLoadCase] - 1.00) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[5][selfWeightLoadCase] - 1.00) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[6][selfWeightLoadCase] - 1.35) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[7][selfWeightLoadCase] - 1.35) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[8][selfWeightLoadCase] - 1.35) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[9][selfWeightLoadCase] - 1.35) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[10][selfWeightLoadCase] - 1.35) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[11][selfWeightLoadCase] - 1.35) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[12][selfWeightLoadCase] - 1.00) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[13][selfWeightLoadCase] - 1.35) < 0.001);
+            Assert.IsTrue(outList.Contains(combination1));
+            Assert.IsTrue(outList.Contains(combination2));
+            Assert.IsTrue(outList.Contains(combination3));
+            Assert.IsTrue(outList.Contains(combination4));
+            Assert.IsTrue(outList.Contains(combination5));
+            Assert.IsTrue(outList.Contains(combination6));
+            Assert.IsTrue(outList.Contains(combination7));
+            Assert.IsTrue(outList.Contains(combination8));
+            Assert.IsTrue(outList.Contains(combination9));
+            Assert.IsTrue(outList.Contains(combination10));
+            Assert.IsTrue(outList.Contains(combination11));
+            Assert.IsTrue(outList.Contains(combination12));
 
-            //Assert.IsTrue(Math.Abs(outList[0][windPressureLoadCase1] - 1.50) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[0][windPressureLoadCase2] - 1.50) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[0][temperatureLoadCase1] - 0.90) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[0][snowLoadCase1] - 1.05) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[0][snowLoadCase1] - 1.05) < 0.001);
-
-            //Assert.IsTrue(Math.Abs(outList[1][windSuctionLoadCase1] - 1.50) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[1][windSuctionLoadCase2] - 1.50) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[1][temperatureLoadCase1] - 0.90) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[1][snowLoadCase1] - 1.05) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[1][snowLoadCase1] - 1.05) < 0.001);
-
-            //Assert.IsTrue(Math.Abs(outList[2][temperatureLoadCase1] - 1.50) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[2][windPressureLoadCase1] - 0.90) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[2][windPressureLoadCase2] - 0.90) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[2][snowLoadCase1] - 1.05) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[2][snowLoadCase2] - 1.05) < 0.001);
-
-            //Assert.IsTrue(Math.Abs(outList[3][temperatureLoadCase1] - 1.50) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[3][windSuctionLoadCase1] - 0.90) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[3][windSuctionLoadCase2] - 0.90) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[3][snowLoadCase1] - 1.05) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[3][snowLoadCase2] - 1.05) < 0.001);
-
-            //Assert.IsTrue(Math.Abs(outList[4][snowLoadCase1] - 1.50) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[4][snowLoadCase2] - 1.50) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[4][windPressureLoadCase1] - 0.90) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[4][windPressureLoadCase2] - 0.90) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[4][temperatureLoadCase1] - 0.90) < 0.001);
-
-            //Assert.IsTrue(Math.Abs(outList[5][snowLoadCase1] - 1.50) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[5][snowLoadCase2] - 1.50) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[5][windSuctionLoadCase1] - 0.90) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[5][windSuctionLoadCase2] - 0.90) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[5][temperatureLoadCase1] - 0.90) < 0.001);
-
-            //Assert.IsTrue(Math.Abs(outList[6][windPressureLoadCase1] - 1.50) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[6][windPressureLoadCase2] - 1.50) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[6][temperatureLoadCase1] - 0.90) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[6][snowLoadCase1] - 1.05) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[6][snowLoadCase1] - 1.05) < 0.001);
-
-            //Assert.IsTrue(Math.Abs(outList[7][windSuctionLoadCase1] - 1.50) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[7][windSuctionLoadCase2] - 1.50) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[7][temperatureLoadCase1] - 0.90) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[7][snowLoadCase1] - 1.05) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[7][snowLoadCase1] - 1.05) < 0.001);
-
-            //Assert.IsTrue(Math.Abs(outList[8][temperatureLoadCase1] - 1.50) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[8][windPressureLoadCase1] - 0.90) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[8][windPressureLoadCase2] - 0.90) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[8][snowLoadCase1] - 1.05) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[8][snowLoadCase2] - 1.05) < 0.001);
-
-            //Assert.IsTrue(Math.Abs(outList[9][temperatureLoadCase1] - 1.50) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[9][windSuctionLoadCase1] - 0.90) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[9][windSuctionLoadCase2] - 0.90) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[9][snowLoadCase1] - 1.05) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[9][snowLoadCase2] - 1.05) < 0.001);
-
-            //Assert.IsTrue(Math.Abs(outList[10][snowLoadCase1] - 1.50) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[10][snowLoadCase2] - 1.50) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[10][windPressureLoadCase1] - 0.90) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[10][windPressureLoadCase2] - 0.90) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[10][temperatureLoadCase1] - 0.90) < 0.001);
-
-            //Assert.IsTrue(Math.Abs(outList[11][snowLoadCase1] - 1.50) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[11][snowLoadCase2] - 1.50) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[11][windSuctionLoadCase1] - 0.90) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[11][windSuctionLoadCase2] - 0.90) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[11][temperatureLoadCase1] - 0.90) < 0.001);
+            foreach (Combination combination in outList)
+            {
+                string combinationName = combination.ToString();
+                Console.WriteLine(combinationName);
+            }
 
         }
 
+        #endregion
+
+        #region COMBINATION GENERATIONS EN 16612
+
         [TestMethod]
-        public void ENGeneratorClimate1()
+        public void EN16612GeneratorClimate1()
         {
             // Arrange
             string loadCaseName1 = "selfWeight";
@@ -1407,7 +1683,7 @@ ImposedLoadCategories.CategoryA, true);
             //Assert.IsTrue(Math.Abs(outList[3][climateSummerDeltaPLoadCase2] - 1.50) < 0.001);
         }
         [TestMethod]
-        public void ENGeneratorClimate2()
+        public void EN16612GeneratorClimate2()
         {
             // Arrange
             string loadCaseName1 = "selfWeight";
@@ -1474,7 +1750,7 @@ ImposedLoadCategories.CategoryA, true);
         }
 
         [TestMethod]
-        public void ENGeneratorClimate3()
+        public void EN16612GeneratorClimate3()
         {
             // Arrange
             string loadCaseName1 = "selfWeight";
@@ -1559,7 +1835,7 @@ ImposedLoadCategories.CategoryA, true);
         }
 
         [TestMethod]
-        public void ENGeneratorClimate4()
+        public void EN16612GeneratorClimate4()
         {
             // Arrange
             string loadCaseName1 = "selfWeight";
@@ -1813,12 +2089,8 @@ ImposedLoadCategories.CategoryA, true);
             LoadCase WindPressureLoadCase = new LoadCase(loadCaseName2, LoadCase.LoadCaseTypes.WindPressure);
             string loadCaseName3 = "Snow";
             LoadCase snowLoadCase = new LoadCase(loadCaseName3, LoadCase.LoadCaseTypes.Snow);
-            string loadCaseName4 = "ClimateSummerDeltaH";
-            ClimateLoadCase climateSummerDeltaHLoadCase = new ClimateLoadCase(loadCaseName4, ClimateLoadCase.Seasons.Summer, ClimateLoadCase.ClimateTypes.DeltaH, 100, 100);
             string loadCaseName5 = "Seismic";
             LoadCase seismicLoadCase = new LoadCase(loadCaseName5, LoadCase.LoadCaseTypes.Earthquake);
-            string loadCaseName6 = "ClimateSummerDeltaP";
-            ClimateLoadCase climateSummerDeltaPLoadCase1 = new ClimateLoadCase(loadCaseName6, ClimateLoadCase.Seasons.Summer, ClimateLoadCase.ClimateTypes.DeltaP, 100, 100);
             string loadCaseName7 = "LiveLoad2";
             LoadCase liveLoadLoadCase1 = new LoadCase(loadCaseName7, LoadCase.LoadCaseTypes.LiveLoad);
             string loadCaseName8 = "LiveLoad3";
@@ -1829,22 +2101,20 @@ ImposedLoadCategories.CategoryA, true);
                 selfWeightLoadCase,
                 WindPressureLoadCase,
                 snowLoadCase,
-                climateSummerDeltaHLoadCase,
                 seismicLoadCase,
-                climateSummerDeltaPLoadCase1,
                 liveLoadLoadCase1,
                 liveLoadLoadCase2,
             };
 
             En1990CombinationsOptions options = new En1990CombinationsOptions(StandardEN1990.LimitStates.UltimateSeismic, ULSStructuralGeotechicalCombinationSets.SetC,
-                ImposedLoadCategories.CategoryC, false);
+                ImposedLoadCategories.CategoryC, true);
             StandardEN1990 standardEN1990 = new StandardEN1990();
 
             // Act
             CombinationsCollection outList = standardEN1990.CreateCombinations(loadCaseList.ToArray(), options);
 
             // Assert
-            Assert.IsTrue(outList.Count() == 4);
+            Assert.IsTrue(outList.Count() == 2);
             //Assert.IsTrue(Math.Abs(outList[0][selfWeightLoadCase] - 1.00) < 0.001);
             //Assert.IsTrue(Math.Abs(outList[1][selfWeightLoadCase] - 1.00) < 0.001);
             //Assert.IsTrue(Math.Abs(outList[2][selfWeightLoadCase] - 1.00) < 0.001);
@@ -1862,7 +2132,7 @@ ImposedLoadCategories.CategoryA, true);
         }
 
         [TestMethod]
-        public void ENGeneratorAGC_ULS1()
+        public void EN16612GeneratorAGC_ULS1()
         {
             // Arrange
             string loadCaseName1 = "Dead Load";
@@ -1912,7 +2182,7 @@ ImposedLoadCategories.CategoryA, true);
         }
 
         [TestMethod]
-        public void ENGeneratorAGC_ULS2()
+        public void EN16612GeneratorAGC_ULS2()
         {
             // Arrange
             string loadCaseName1 = "Dead Load";
@@ -1963,7 +2233,7 @@ ImposedLoadCategories.CategoryA, true);
         }
 
         [TestMethod]
-        public void ENGeneratorAGC_SLS1()
+        public void EN16612GeneratorAGC_SLS1()
         {
             // Arrange
             string loadCaseName1 = "Dead Load";
@@ -2013,7 +2283,7 @@ ImposedLoadCategories.CategoryA, true);
         }
 
         [TestMethod]
-        public void ENGeneratorAGC_SLS2()
+        public void EN16612GeneratorAGC_SLS2()
         {
             // Arrange
             string loadCaseName1 = "Dead Load";
@@ -2062,6 +2332,10 @@ ImposedLoadCategories.CategoryA, true);
                 Console.WriteLine(combo.ToString());
             }
         }
+
+        #endregion
+
+        #region ASCE16
 
         [TestMethod]
         public void ASCEGeneratorLFRD1()
@@ -2364,5 +2638,72 @@ ImposedLoadCategories.CategoryA, true);
             // Assert
             Assert.IsTrue(outList.Count() == 15);
         }
+
+        #endregion
+
+        #region GENERIC TEST
+
+        [TestMethod]
+        public void EqualsHashCode()
+        {
+            // Arrange
+
+            ASCE16CombinationsOptions options1 = new ASCE16CombinationsOptions(StandardASCE16.LimitStates.LFRD);
+            ASCE16CombinationsOptions options2 = new ASCE16CombinationsOptions(StandardASCE16.LimitStates.ASD);
+
+            Combination combination1 = new Combination("cmb1", options1);
+            Combination combination2 = new Combination("cmb1", options1);
+            Combination combination3 = new Combination("cmb1", options2);
+            Combination combination4 = new Combination("cmb1", options1);
+            Combination combination5 = new Combination("cmb1", options1);
+
+            var lc1 = new LoadCase("LC1", LoadCase.LoadCaseTypes.SelfWeight);
+            var lc2 = new LoadCase("LC2", LoadCase.LoadCaseTypes.SuperImposedDeadLoad);
+            var lc4 = new LoadCase("LC4", LoadCase.LoadCaseTypes.Maintenance);
+            var lc5 = new LoadCase("LC5", LoadCase.LoadCaseTypes.LiveLoad);
+            var lc6 = new LoadCase("LC6", LoadCase.LoadCaseTypes.Snow);
+
+            combination1.AddLoadCaseCoefficient(lc1, 1);
+            combination1.AddLoadCaseCoefficient(lc2, 2);
+            combination1.AddLoadCaseCoefficient(lc4, 4);
+            combination1.AddLoadCaseCoefficient(lc5, 5);
+
+            combination2.AddLoadCaseCoefficient(lc1, 1);
+            combination2.AddLoadCaseCoefficient(lc2, 2);
+            combination2.AddLoadCaseCoefficient(lc4, 4);
+            combination2.AddLoadCaseCoefficient(lc5, 5);
+
+            combination3.AddLoadCaseCoefficient(lc1, 1);
+            combination3.AddLoadCaseCoefficient(lc2, 2);
+            combination3.AddLoadCaseCoefficient(lc4, 4);
+            combination3.AddLoadCaseCoefficient(lc5, 5);
+
+            combination4.AddLoadCaseCoefficient(lc1, 1);
+            combination4.AddLoadCaseCoefficient(lc2, 2);
+            combination4.AddLoadCaseCoefficient(lc4, 4);
+            combination4.AddLoadCaseCoefficient(lc5, 5);
+            combination4.AddLoadCaseCoefficient(lc6, 5);
+
+            combination5.AddLoadCaseCoefficient(lc1, 1);
+            combination5.AddLoadCaseCoefficient(lc2, 2);
+            combination5.AddLoadCaseCoefficient(lc4, 4);
+            combination5.AddLoadCaseCoefficient(lc5, 5);
+
+            // Assert / Act
+            Assert.IsTrue(combination1.Equals(combination2));
+            Assert.IsTrue(combination1.GetHashCode().Equals(combination2.GetHashCode()));
+
+            Assert.IsFalse(combination1.Equals(combination3));
+            Assert.IsFalse(combination1.GetHashCode().Equals(combination3.GetHashCode()));
+
+            Assert.IsFalse(combination1.Equals(combination4));
+            Assert.IsFalse(combination1.GetHashCode().Equals(combination4.GetHashCode()));
+
+            Assert.IsFalse(combination1.Equals(combination5));
+            Assert.IsFalse(combination1.GetHashCode().Equals(combination5.GetHashCode()));
+
+        }
+
+        #endregion
     }
 }
