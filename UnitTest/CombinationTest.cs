@@ -2721,7 +2721,7 @@ namespace ModelObjectTest
             Combination combination2 = new Combination("cmb1", options1);
             Combination combination3 = new Combination("cmb1", options2);
             Combination combination4 = new Combination("cmb1", options1);
-            Combination combination5 = new Combination("cmb1", options1);
+            Combination combination5 = new Combination("cmb2", options1);
 
             var lc1 = new LoadCase("LC1", LoadCase.LoadCaseTypes.SelfWeight);
             var lc2 = new LoadCase("LC2", LoadCase.LoadCaseTypes.SuperImposedDeadLoad);

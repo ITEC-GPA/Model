@@ -902,9 +902,7 @@ namespace GPC.Model.Combinations
 
         #endregion
 
-        #region COMBINATIONS GENERATION
-
-        #region PUBLIC GENERATION METHODS
+        #region COMBINATIONS OPTIONS
 
         public class En1990CombinationsOptions : CombinationsOptions
         {
@@ -935,7 +933,38 @@ namespace GPC.Model.Combinations
                 Category = imposedLoadCategories;
                 HighAltitude = highAltitude;
             }
+
+            public override bool Equals(object obj)
+            {
+                if (obj is null)
+                    return false;
+
+                if (ReferenceEquals(this, obj))
+                    return true;
+
+                En1990CombinationsOptions objCasted = obj as En1990CombinationsOptions;
+
+                return !(objCasted is null) && objCasted.Category.Equals(Category) && objCasted.LimitState.Equals(LimitState) && objCasted.ULS.Equals(ULS) && objCasted.HighAltitude.Equals(HighAltitude);
+            }
+
+            public override int GetHashCode()
+            {
+                unchecked
+                {
+                    var hashCode = 23;
+                    hashCode = 17 * hashCode + LimitState.GetHashCode();
+                    hashCode = 17 * hashCode + Category.GetHashCode();
+                    hashCode = 17 * hashCode + ULS.GetHashCode();
+                    hashCode = 17 * hashCode + HighAltitude.GetHashCode();
+
+                    return hashCode;
+                }
+            }
         }
+
+        #endregion
+
+        #region PUBLIC GENERATION METHODS
 
         public override CombinationsCollection CreateCombinations(LoadCaseBase[] loadCases, CombinationsOptions options, string name = "cmb")
         {
@@ -1435,8 +1464,6 @@ namespace GPC.Model.Combinations
                         hash.Add(lc.LoadCaseType);
                     }
 
-
-                    #endregion
                     
                     List<LoadCaseCoefficient> loadCaseCoefficientsBuffer2 = new List<LoadCaseCoefficient>();
                     List<LoadCaseCoefficient> loadCaseCoefficientsBuffer3 = new List<LoadCaseCoefficient>();
@@ -1827,5 +1854,7 @@ namespace GPC.Model.Combinations
         }
 
         #endregion
+
+        
     }
 }

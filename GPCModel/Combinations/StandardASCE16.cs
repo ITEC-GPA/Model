@@ -258,6 +258,30 @@ namespace GPC.Model.Combinations
             {
                 LimitState = limitState;
             }
+
+            public override bool Equals(object obj)
+            {
+                if (obj is null)
+                    return false;
+
+                if (ReferenceEquals(this, obj))
+                    return true;
+
+                ASCE16CombinationsOptions objCasted = obj as ASCE16CombinationsOptions;
+
+                return !(objCasted is null) && objCasted.LimitState.Equals(LimitState);
+            }
+
+            public override int GetHashCode()
+            {
+                unchecked
+                {
+                    var hashCode = 23;
+                    hashCode = 17 * hashCode + LimitState.GetHashCode();
+
+                    return hashCode;
+                }
+            }
         }
 
         #endregion
