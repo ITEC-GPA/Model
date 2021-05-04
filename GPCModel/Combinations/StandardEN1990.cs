@@ -1,4 +1,4 @@
-﻿using GPC.Model.LoadCases;
+using GPC.Model.LoadCases;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -549,7 +549,64 @@ namespace GPC.Model.Combinations
             }
             else if (loadCase is ClimateLoadCase clc)
             {
-                // TODO:calcolare qui per climat load case
+                var loadCaseType = clc.ClimateType;
+
+                if (limitState == LimitStates.UltimateEquilibrium)
+                {
+                    switch (loadCaseType)
+                    {
+                        case ClimateLoadCase.ClimateTypes.DeltaP:
+                        case ClimateLoadCase.ClimateTypes.DeltaT:
+                            return _gammaQUnfavourableSetA;
+                        default:
+                            throw new NotImplementedException("Not implemented coefficient for load case type");
+                    }
+                }
+                else if (limitState == LimitStates.UltimateGeotechnical || limitState == LimitStates.UltimateFatigue || limitState == LimitStates.UltimateStructural)
+                {
+                    if (set == ULSStructuralGeotechicalCombinationSets.SetB)
+                    {
+                        switch (loadCaseType)
+                        {
+                            case ClimateLoadCase.ClimateTypes.DeltaP:
+                            case ClimateLoadCase.ClimateTypes.DeltaT:
+                                return _gammaQUnfavourableSetB;
+                            default:
+                                throw new NotImplementedException("Not implemented coefficient for load case type");
+                        }
+                    }
+                    else if (set == ULSStructuralGeotechicalCombinationSets.SetC)
+                    {
+                        switch (loadCaseType)
+                        {
+                            case ClimateLoadCase.ClimateTypes.DeltaP:
+                            case ClimateLoadCase.ClimateTypes.DeltaT:
+                                return _gammaQUnfavourableSetC;
+                            default:
+                                throw new NotImplementedException("Not implemented coefficient for load case type");
+                        }
+                    }
+                    else
+                        throw new NotImplementedException("Not implemented Annex");
+                }
+                else if (limitState == LimitStates.UltimateSeismic || limitState == LimitStates.UltimateAccidental)
+                {
+                    return 1.0;
+                }
+                else if (limitState == LimitStates.ServiceabilityCharacteristic || limitState == LimitStates.ServiceabilityFrequent || limitState == LimitStates.ServiceabilityQuasiPermanent)
+                {
+                    switch (loadCaseType)
+                    {
+                        case ClimateLoadCase.ClimateTypes.DeltaP:
+                        case ClimateLoadCase.ClimateTypes.DeltaT:
+                            return 1.0;
+
+                        default:
+                            throw new NotImplementedException("Not implemented coefficient for load case type");
+                    }
+                }
+                else
+                    throw new ArgumentException("Failed to set coefficient gamma favourable");
             }
 
             throw new ArgumentException("Unsupported load case type");
@@ -562,29 +619,13 @@ namespace GPC.Model.Combinations
         /// <param name="limitState">The limit state of combinations</param>
         /// <param name="loadCase">The load case</param>
         /// <returns>The value of the coefficient</returns>
-        public double GetGammaQFavourable(ULSStructuralGeotechicalCombinationSets set, LimitStates limitState, LoadCase loadCase)
+        public double GetGammaQFavourable(ULSStructuralGeotechicalCombinationSets set, LimitStates limitState, LoadCaseBase loadCase)
         {
-            var loadCaseType = loadCase.LoadCaseType;
+            if (loadCase is LoadCase lc)
+            {
+                var loadCaseType = lc.LoadCaseType;
 
-            if (limitState == LimitStates.UltimateEquilibrium)
-            {
-                switch (loadCaseType)
-                {
-                    case LoadCase.LoadCaseTypes.LiveLoad:
-                    case LoadCase.LoadCaseTypes.WindPressure:
-                    case LoadCase.LoadCaseTypes.WindSuction:
-                    case LoadCase.LoadCaseTypes.Snow:
-                    case LoadCase.LoadCaseTypes.Maintenance:
-                    case LoadCase.LoadCaseTypes.Earthquake:
-                    case LoadCase.LoadCaseTypes.Temperature:
-                        return _gammaQFavourableSetA;
-                    default:
-                        throw new NotImplementedException("Not implemented coefficient for load case type");
-                }
-            }
-            else if (limitState == LimitStates.UltimateGeotechnical || limitState == LimitStates.UltimateFatigue || limitState == LimitStates.UltimateStructural)
-            {
-                if (set == ULSStructuralGeotechicalCombinationSets.SetB)
+                if (limitState == LimitStates.UltimateEquilibrium)
                 {
                     switch (loadCaseType)
                     {
@@ -595,40 +636,120 @@ namespace GPC.Model.Combinations
                         case LoadCase.LoadCaseTypes.Maintenance:
                         case LoadCase.LoadCaseTypes.Earthquake:
                         case LoadCase.LoadCaseTypes.Temperature:
-                            return _gammaQFavourableSetB;
+                            return _gammaQFavourableSetA;
                         default:
                             throw new NotImplementedException("Not implemented coefficient for load case type");
                     }
                 }
-                else if (set == ULSStructuralGeotechicalCombinationSets.SetC)
+                else if (limitState == LimitStates.UltimateGeotechnical || limitState == LimitStates.UltimateFatigue || limitState == LimitStates.UltimateStructural)
+                {
+                    if (set == ULSStructuralGeotechicalCombinationSets.SetB)
+                    {
+                        switch (loadCaseType)
+                        {
+                            case LoadCase.LoadCaseTypes.LiveLoad:
+                            case LoadCase.LoadCaseTypes.WindPressure:
+                            case LoadCase.LoadCaseTypes.WindSuction:
+                            case LoadCase.LoadCaseTypes.Snow:
+                            case LoadCase.LoadCaseTypes.Maintenance:
+                            case LoadCase.LoadCaseTypes.Earthquake:
+                            case LoadCase.LoadCaseTypes.Temperature:
+                                return _gammaQFavourableSetB;
+                            default:
+                                throw new NotImplementedException("Not implemented coefficient for load case type");
+                        }
+                    }
+                    else if (set == ULSStructuralGeotechicalCombinationSets.SetC)
+                    {
+                        switch (loadCaseType)
+                        {
+                            case LoadCase.LoadCaseTypes.LiveLoad:
+                            case LoadCase.LoadCaseTypes.WindPressure:
+                            case LoadCase.LoadCaseTypes.WindSuction:
+                            case LoadCase.LoadCaseTypes.Snow:
+                            case LoadCase.LoadCaseTypes.Maintenance:
+                            case LoadCase.LoadCaseTypes.Earthquake:
+                            case LoadCase.LoadCaseTypes.Temperature:
+                                return _gammaQFavourableSetC;
+                            default:
+                                throw new NotImplementedException("Not implemented coefficient for load case type");
+                        }
+                    }
+                    else
+                        throw new NotImplementedException("Not implemented Annex");
+                }
+                else if (limitState == LimitStates.UltimateSeismic || limitState == LimitStates.UltimateAccidental)
+                {
+                    return 1.0;
+                }
+                else if (limitState == LimitStates.ServiceabilityQuasiPermanent || limitState == LimitStates.ServiceabilityCharacteristic || limitState == LimitStates.ServiceabilityFrequent)
+                {
+                    return 1.00;
+                }
+            }
+            else if (loadCase is ClimateLoadCase clc)
+            {
+                var loadCaseType = clc.ClimateType;
+
+                if (limitState == LimitStates.UltimateEquilibrium)
                 {
                     switch (loadCaseType)
                     {
-                        case LoadCase.LoadCaseTypes.LiveLoad:
-                        case LoadCase.LoadCaseTypes.WindPressure:
-                        case LoadCase.LoadCaseTypes.WindSuction:
-                        case LoadCase.LoadCaseTypes.Snow:
-                        case LoadCase.LoadCaseTypes.Maintenance:
-                        case LoadCase.LoadCaseTypes.Earthquake:
-                        case LoadCase.LoadCaseTypes.Temperature:
-                            return _gammaQFavourableSetC;
+                        case ClimateLoadCase.ClimateTypes.DeltaP:
+                        case ClimateLoadCase.ClimateTypes.DeltaT:
+                            return _gammaQFavourableSetA;
+                        default:
+                            throw new NotImplementedException("Not implemented coefficient for load case type");
+                    }
+                }
+                else if (limitState == LimitStates.UltimateGeotechnical || limitState == LimitStates.UltimateFatigue || limitState == LimitStates.UltimateStructural)
+                {
+                    if (set == ULSStructuralGeotechicalCombinationSets.SetB)
+                    {
+                        switch (loadCaseType)
+                        {
+                            case ClimateLoadCase.ClimateTypes.DeltaP:
+                            case ClimateLoadCase.ClimateTypes.DeltaT:
+                                return _gammaQFavourableSetB;
+                            default:
+                                throw new NotImplementedException("Not implemented coefficient for load case type");
+                        }
+                    }
+                    else if (set == ULSStructuralGeotechicalCombinationSets.SetC)
+                    {
+                        switch (loadCaseType)
+                        {
+                            case ClimateLoadCase.ClimateTypes.DeltaP:
+                            case ClimateLoadCase.ClimateTypes.DeltaT:
+                                return _gammaQFavourableSetC;
+                            default:
+                                throw new NotImplementedException("Not implemented coefficient for load case type");
+                        }
+                    }
+                    else
+                        throw new NotImplementedException("Not implemented Annex");
+                }
+                else if (limitState == LimitStates.UltimateSeismic || limitState == LimitStates.UltimateAccidental)
+                {
+                    return 1.0;
+                }
+                else if (limitState == LimitStates.ServiceabilityCharacteristic || limitState == LimitStates.ServiceabilityFrequent || limitState == LimitStates.ServiceabilityQuasiPermanent)
+                {
+                    switch (loadCaseType)
+                    {
+                        case ClimateLoadCase.ClimateTypes.DeltaP:
+                        case ClimateLoadCase.ClimateTypes.DeltaT:
+                            return 1.0;
+
                         default:
                             throw new NotImplementedException("Not implemented coefficient for load case type");
                     }
                 }
                 else
-                    throw new NotImplementedException("Not implemented Annex");
-            }
-            else if (limitState == LimitStates.UltimateSeismic || limitState == LimitStates.UltimateAccidental)
-            {
-                return 1.0;
-            }
-            else if (limitState == LimitStates.ServiceabilityQuasiPermanent || limitState == LimitStates.ServiceabilityCharacteristic || limitState == LimitStates.ServiceabilityFrequent)
-            {
-                return 1.00;
-            }
-            else
-                throw new ArgumentException("Not implemented coefficient for load case type");
+                    throw new ArgumentException("Failed to set coefficient gamma favourable");
+            }        
+            
+            throw new ArgumentException("Not implemented coefficient for load case type");
         }
 
         /// <summary>
