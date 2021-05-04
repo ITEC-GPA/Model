@@ -229,7 +229,7 @@ namespace ModelObjectTest
             Assert.IsTrue(combination.ContainsLoadCases(new List<LoadCase> { lc5, lc1 }));
             Assert.IsFalse(combination.ContainsLoadCases(new List<LoadCase> { lc6 }));
             Assert.IsFalse(combination.ContainsLoadCases(new List<LoadCase> { lc6, lc1 }));
-            Assert.IsTrue(combination.ContainsLoadCases(new List<LoadCase> ()));
+            Assert.IsTrue(combination.ContainsLoadCases(new List<LoadCase>()));
         }
 
         [TestMethod]
@@ -254,15 +254,15 @@ namespace ModelObjectTest
 
             // Assert / Act
 
-            Assert.IsTrue(combination.ContainsLoadCaseCoefficients(new[] { new KeyValuePair<LoadCaseBase, double>(lc1, 1) } ));
+            Assert.IsTrue(combination.ContainsLoadCaseCoefficients(new[] { new KeyValuePair<LoadCaseBase, double>(lc1, 1) }));
             Assert.IsTrue(combination.ContainsLoadCaseCoefficients(new List<(LoadCaseBase, double)> { (lc1, 1) }));
 
-            Assert.IsFalse(combination.ContainsLoadCaseCoefficients(new[] { new KeyValuePair<LoadCaseBase, double>(lc1, 2) } ));
+            Assert.IsFalse(combination.ContainsLoadCaseCoefficients(new[] { new KeyValuePair<LoadCaseBase, double>(lc1, 2) }));
             Assert.IsFalse(combination.ContainsLoadCaseCoefficients(new List<(LoadCaseBase, double)> { (lc1, 2) }));
 
 
-            Assert.IsTrue(combination.ContainsLoadCaseCoefficients(new[] { new KeyValuePair<LoadCaseBase, double>(lc1, 1), 
-                                                                           new KeyValuePair<LoadCaseBase, double>(lc2, 2) } ));
+            Assert.IsTrue(combination.ContainsLoadCaseCoefficients(new[] { new KeyValuePair<LoadCaseBase, double>(lc1, 1),
+                                                                           new KeyValuePair<LoadCaseBase, double>(lc2, 2) }));
 
             Assert.IsFalse(combination.ContainsLoadCaseCoefficients(new[] { new KeyValuePair<LoadCaseBase, double>(lc1, 1),
                                                                             new KeyValuePair<LoadCaseBase, double>(lc2, 3) }));
@@ -370,7 +370,7 @@ namespace ModelObjectTest
 
             Assert.IsFalse(combination1.Equals(combination3));
             Assert.IsFalse(combination1.GetHashCode().Equals(combination3.GetHashCode()));
-            
+
             Assert.IsFalse(combination1.Equals(combination4));
             Assert.IsFalse(combination1.GetHashCode().Equals(combination4.GetHashCode()));
 
@@ -400,26 +400,25 @@ namespace ModelObjectTest
                 prestressLoadCase
             };
 
-            En1990CombinationsOptions options = new En1990CombinationsOptions(StandardEN1990.LimitStates.UltimateStructural, StandardEN1990.ULSStructuralGeotechicalCombinationSets.SetC, StandardEN1990.ImposedLoadCategories.CategoryC, true);
+            En1990CombinationsOptions options = new En1990CombinationsOptions(StandardEN1990.LimitStates.UltimateStructural, ULSStructuralGeotechicalCombinationSets.SetC, ImposedLoadCategories.CategoryC, true);
             StandardEN1990 standardEN1990 = new StandardEN1990();
 
             // Act
             CombinationsCollection outList = standardEN1990.CreateCombinations(loadCaseList.ToArray(), options);
 
             // Assert
-            /*
+
             Assert.IsTrue(outList.Count() == 3);
-            Assert.IsTrue(Math.Abs(outList[0][selfWeightLoadCase] - 1.00) < 0.001);
-            Assert.IsTrue(Math.Abs(outList[1][selfWeightLoadCase] - 1.00) < 0.001);
-            Assert.IsTrue(Math.Abs(outList[2][selfWeightLoadCase] - 1.00) < 0.001);
-            Assert.IsTrue(Math.Abs(outList[0][prestressLoadCase] - 1.00) < 0.001);
-            Assert.IsTrue(Math.Abs(outList[1][prestressLoadCase] - 1.00) < 0.001);
-            Assert.IsTrue(Math.Abs(outList[2][prestressLoadCase] - 1.00) < 0.001);
-            Assert.IsTrue(Math.Abs(outList[0][WindPressureLoadCase] - 1.3) < 0.001);
-            Assert.IsTrue(Math.Abs(outList[0][snowLoadCase] - 0.65) < 0.001);
-            Assert.IsTrue(Math.Abs(outList[1][snowLoadCase] - 1.3) < 0.001);
-            Assert.IsTrue(Math.Abs(outList[1][WindPressureLoadCase] - 0.78) < 0.001);
-            */
+            // Assert.IsTrue(Math.Abs(outList[0][selfWeightLoadCase] - 1.00) < 0.001);
+            // Assert.IsTrue(Math.Abs(outList[1][selfWeightLoadCase] - 1.00) < 0.001);
+            // Assert.IsTrue(Math.Abs(outList[2][selfWeightLoadCase] - 1.00) < 0.001);
+            // Assert.IsTrue(Math.Abs(outList[0][prestressLoadCase] - 1.00) < 0.001);
+            // Assert.IsTrue(Math.Abs(outList[1][prestressLoadCase] - 1.00) < 0.001);
+            // Assert.IsTrue(Math.Abs(outList[2][prestressLoadCase] - 1.00) < 0.001);
+            // Assert.IsTrue(Math.Abs(outList[0][WindPressureLoadCase] - 1.3) < 0.001);
+            // Assert.IsTrue(Math.Abs(outList[0][snowLoadCase] - 0.65) < 0.001);
+            // Assert.IsTrue(Math.Abs(outList[1][snowLoadCase] - 1.3) < 0.001);
+            // Assert.IsTrue(Math.Abs(outList[1][WindPressureLoadCase] - 0.78) < 0.001);            
         }
 
         [TestMethod]
@@ -443,16 +442,16 @@ namespace ModelObjectTest
                 prestressLoadCase
             };
 
-            En1990CombinationsOptions options = new En1990CombinationsOptions(StandardEN1990.LimitStates.UltimateStructural, StandardEN1990.ULSStructuralGeotechicalCombinationSets.SetB, 
-                                                                                StandardEN1990.ImposedLoadCategories.CategoryA, true);
+            En1990CombinationsOptions options = new En1990CombinationsOptions(StandardEN1990.LimitStates.UltimateStructural, ULSStructuralGeotechicalCombinationSets.SetB,
+                                                                                ImposedLoadCategories.CategoryA, true);
             StandardEN1990 standardEN1990 = new StandardEN1990();
 
             // Act
             CombinationsCollection outList = standardEN1990.CreateCombinations(loadCaseList.ToArray(), options);
-           
+
 
             // Assert
-            //Assert.IsTrue(outList.Count() == 6);
+            Assert.IsTrue(outList.Count() == 6);
             //Assert.IsTrue(Math.Abs(outList[0][selfWeightLoadCase] - 1.00) < 0.001);
             //Assert.IsTrue(Math.Abs(outList[1][selfWeightLoadCase] - 1.00) < 0.001);
             //Assert.IsTrue(Math.Abs(outList[2][selfWeightLoadCase] - 1.35) < 0.001);
@@ -486,15 +485,15 @@ namespace ModelObjectTest
                 liveLoadLoadCase
             };
 
-            En1990CombinationsOptions options = new En1990CombinationsOptions(StandardEN1990.LimitStates.UltimateStructural, StandardEN1990.ULSStructuralGeotechicalCombinationSets.SetC,
-                                                                    StandardEN1990.ImposedLoadCategories.CategoryE, false);
+            En1990CombinationsOptions options = new En1990CombinationsOptions(StandardEN1990.LimitStates.UltimateStructural, ULSStructuralGeotechicalCombinationSets.SetC,
+                                                                    ImposedLoadCategories.CategoryE, false);
             StandardEN1990 standardEN1990 = new StandardEN1990();
 
             // Act
             CombinationsCollection outList = standardEN1990.CreateCombinations(loadCaseList.ToArray(), options);
 
             // Assert
-            //Assert.IsTrue(outList.Count() == 4);
+            Assert.IsTrue(outList.Count() == 4);
             //Assert.IsTrue(Math.Abs(outList[0][selfWeightLoadCase] - 1.00) < 0.001);
             //Assert.IsTrue(Math.Abs(outList[1][selfWeightLoadCase] - 1.00) < 0.001);
             //Assert.IsTrue(Math.Abs(outList[2][selfWeightLoadCase] - 1.00) < 0.001);
@@ -531,15 +530,15 @@ namespace ModelObjectTest
                 prestressLoadCase
             };
 
-            En1990CombinationsOptions options = new En1990CombinationsOptions(StandardEN1990.LimitStates.UltimateEquilibrium, StandardEN1990.ULSStructuralGeotechicalCombinationSets.SetC,
-                                                        StandardEN1990.ImposedLoadCategories.CategoryD, false);
+            En1990CombinationsOptions options = new En1990CombinationsOptions(StandardEN1990.LimitStates.UltimateEquilibrium, ULSStructuralGeotechicalCombinationSets.SetC,
+                                                        ImposedLoadCategories.CategoryD, false);
             StandardEN1990 standardEN1990 = new StandardEN1990();
 
             // Act
             CombinationsCollection outList = standardEN1990.CreateCombinations(loadCaseList.ToArray(), options);
 
             // Assert
-            //Assert.IsTrue(outList.Count() == 6);
+            Assert.IsTrue(outList.Count() == 6);
             //Assert.IsTrue(Math.Abs(outList[0][selfWeightLoadCase] - 0.90) < 0.001);
             //Assert.IsTrue(Math.Abs(outList[1][selfWeightLoadCase] - 0.90) < 0.001);
             //Assert.IsTrue(Math.Abs(outList[2][selfWeightLoadCase] - 1.10) < 0.001);
@@ -573,15 +572,15 @@ namespace ModelObjectTest
                 prestressLoadCase
             };
 
-            En1990CombinationsOptions options = new En1990CombinationsOptions(StandardEN1990.LimitStates.UltimateEquilibrium, StandardEN1990.ULSStructuralGeotechicalCombinationSets.SetC,
-                                            StandardEN1990.ImposedLoadCategories.CategoryA, false);
+            En1990CombinationsOptions options = new En1990CombinationsOptions(StandardEN1990.LimitStates.UltimateEquilibrium, ULSStructuralGeotechicalCombinationSets.SetC,
+                                            ImposedLoadCategories.CategoryA, false);
             StandardEN1990 standardEN1990 = new StandardEN1990();
 
             // Act
             CombinationsCollection outList = standardEN1990.CreateCombinations(loadCaseList.ToArray(), options);
 
             // Assert
-            //Assert.IsTrue(outList.Count() == 6);
+            Assert.IsTrue(outList.Count() == 6);
             //Assert.IsTrue(Math.Abs(outList[0][selfWeightLoadCase] - 0.90) < 0.001);
             //Assert.IsTrue(Math.Abs(outList[1][selfWeightLoadCase] - 0.90) < 0.001);
             //Assert.IsTrue(Math.Abs(outList[2][selfWeightLoadCase] - 1.10) < 0.001);
@@ -615,15 +614,15 @@ namespace ModelObjectTest
                 prestressLoadCase
             };
 
-            En1990CombinationsOptions options = new En1990CombinationsOptions(StandardEN1990.LimitStates.UltimateEquilibrium, StandardEN1990.ULSStructuralGeotechicalCombinationSets.SetC,
-                                StandardEN1990.ImposedLoadCategories.CategoryD, true);
+            En1990CombinationsOptions options = new En1990CombinationsOptions(StandardEN1990.LimitStates.UltimateEquilibrium, ULSStructuralGeotechicalCombinationSets.SetC,
+                                ImposedLoadCategories.CategoryD, true);
             StandardEN1990 standardEN1990 = new StandardEN1990();
 
             // Act
             CombinationsCollection outList = standardEN1990.CreateCombinations(loadCaseList.ToArray(), options);
 
             // Assert
-            //Assert.IsTrue(outList.Count() == 6);
+            Assert.IsTrue(outList.Count() == 6);
             //Assert.IsTrue(Math.Abs(outList[0][selfWeightLoadCase] - 0.90) < 0.001);
             //Assert.IsTrue(Math.Abs(outList[1][selfWeightLoadCase] - 0.90) < 0.001);
             //Assert.IsTrue(Math.Abs(outList[2][selfWeightLoadCase] - 1.10) < 0.001);
@@ -657,15 +656,15 @@ namespace ModelObjectTest
                 prestressLoadCase
             };
 
-            En1990CombinationsOptions options = new En1990CombinationsOptions(StandardEN1990.LimitStates.UltimateFatigue, StandardEN1990.ULSStructuralGeotechicalCombinationSets.SetC,
-                    StandardEN1990.ImposedLoadCategories.CategoryG, true);
+            En1990CombinationsOptions options = new En1990CombinationsOptions(StandardEN1990.LimitStates.UltimateFatigue, ULSStructuralGeotechicalCombinationSets.SetC,
+                    ImposedLoadCategories.CategoryG, true);
             StandardEN1990 standardEN1990 = new StandardEN1990();
 
             // Act
             CombinationsCollection outList = standardEN1990.CreateCombinations(loadCaseList.ToArray(), options);
 
             // Assert
-            //Assert.IsTrue(outList.Count() == 6);
+            Assert.IsTrue(outList.Count() == 6);
             //Assert.IsTrue(Math.Abs(outList[0][selfWeightLoadCase] - 1.00) < 0.001);
             //Assert.IsTrue(Math.Abs(outList[1][selfWeightLoadCase] - 1.00) < 0.001);
             //Assert.IsTrue(Math.Abs(outList[2][selfWeightLoadCase] - 1.35) < 0.001);
@@ -699,14 +698,14 @@ namespace ModelObjectTest
                 prestressLoadCase
             };
 
-            En1990CombinationsOptions options = new En1990CombinationsOptions(StandardEN1990.LimitStates.UltimateFatigue, StandardEN1990.ImposedLoadCategories.CategoryA, true);
+            En1990CombinationsOptions options = new En1990CombinationsOptions(StandardEN1990.LimitStates.UltimateFatigue, ImposedLoadCategories.CategoryA, true);
             StandardEN1990 standardEN1990 = new StandardEN1990();
 
             // Act
             CombinationsCollection outList = standardEN1990.CreateCombinations(loadCaseList.ToArray(), options);
 
             // Assert
-            //Assert.IsTrue(outList.Count() == 6);
+            Assert.IsTrue(outList.Count() == 6);
             //Assert.IsTrue(Math.Abs(outList[0][selfWeightLoadCase] - 1.00) < 0.001);
             //Assert.IsTrue(Math.Abs(outList[1][selfWeightLoadCase] - 1.00) < 0.001);
             //Assert.IsTrue(Math.Abs(outList[2][selfWeightLoadCase] - 1.35) < 0.001);
@@ -740,14 +739,14 @@ namespace ModelObjectTest
                 prestressLoadCase
             };
 
-            En1990CombinationsOptions options = new En1990CombinationsOptions(StandardEN1990.LimitStates.UltimateFatigue, StandardEN1990.ImposedLoadCategories.CategoryG, true);
+            En1990CombinationsOptions options = new En1990CombinationsOptions(StandardEN1990.LimitStates.UltimateFatigue, ImposedLoadCategories.CategoryG, true);
             StandardEN1990 standardEN1990 = new StandardEN1990();
 
             // Act
             CombinationsCollection outList = standardEN1990.CreateCombinations(loadCaseList.ToArray(), options);
 
             // Assert
-            //Assert.IsTrue(outList.Count() == 6);
+            Assert.IsTrue(outList.Count() == 6);
             //Assert.IsTrue(Math.Abs(outList[0][selfWeightLoadCase] - 1.00) < 0.001);
             //Assert.IsTrue(Math.Abs(outList[1][selfWeightLoadCase] - 1.00) < 0.001);
             //Assert.IsTrue(Math.Abs(outList[2][selfWeightLoadCase] - 1.35) < 0.001);
@@ -781,15 +780,15 @@ namespace ModelObjectTest
                 WindPressureLoadCase2
             };
 
-            En1990CombinationsOptions options = new En1990CombinationsOptions(StandardEN1990.LimitStates.UltimateGeotechnical, StandardEN1990.ULSStructuralGeotechicalCombinationSets.SetB, 
-                StandardEN1990.ImposedLoadCategories.CategoryF, true);
+            En1990CombinationsOptions options = new En1990CombinationsOptions(StandardEN1990.LimitStates.UltimateGeotechnical, ULSStructuralGeotechicalCombinationSets.SetB,
+                ImposedLoadCategories.CategoryF, true);
             StandardEN1990 standardEN1990 = new StandardEN1990();
 
             // Act
             CombinationsCollection outList = standardEN1990.CreateCombinations(loadCaseList.ToArray(), options);
 
             // Assert
-            //Assert.IsTrue(outList.Count() == 6);
+            Assert.IsTrue(outList.Count() == 6);
             //Assert.IsTrue(Math.Abs(outList[0][selfWeightLoadCase] - 1.00) < 0.001);
             //Assert.IsTrue(Math.Abs(outList[1][selfWeightLoadCase] - 1.00) < 0.001);
             //Assert.IsTrue(Math.Abs(outList[2][selfWeightLoadCase] - 1.35) < 0.001);
@@ -825,8 +824,8 @@ namespace ModelObjectTest
                 prestressLoadCase
             };
 
-            En1990CombinationsOptions options = new En1990CombinationsOptions(StandardEN1990.LimitStates.UltimateGeotechnical, StandardEN1990.ULSStructuralGeotechicalCombinationSets.SetB,
-                StandardEN1990.ImposedLoadCategories.CategoryA, true);
+            En1990CombinationsOptions options = new En1990CombinationsOptions(StandardEN1990.LimitStates.UltimateGeotechnical, ULSStructuralGeotechicalCombinationSets.SetB,
+                ImposedLoadCategories.CategoryA, true);
             StandardEN1990 standardEN1990 = new StandardEN1990();
 
             // Act
@@ -867,15 +866,15 @@ namespace ModelObjectTest
                 prestressLoadCase
             };
 
-            En1990CombinationsOptions options = new En1990CombinationsOptions(StandardEN1990.LimitStates.UltimateGeotechnical, StandardEN1990.ULSStructuralGeotechicalCombinationSets.SetC,
-    StandardEN1990.ImposedLoadCategories.CategoryF, false);
+            En1990CombinationsOptions options = new En1990CombinationsOptions(StandardEN1990.LimitStates.UltimateGeotechnical, ULSStructuralGeotechicalCombinationSets.SetC,
+    ImposedLoadCategories.CategoryF, false);
             StandardEN1990 standardEN1990 = new StandardEN1990();
 
             // Act
             CombinationsCollection outList = standardEN1990.CreateCombinations(loadCaseList.ToArray(), options);
 
             // Assert
-            //Assert.IsTrue(outList.Count() == 3);
+            Assert.IsTrue(outList.Count() == 3);
             //Assert.IsTrue(Math.Abs(outList[0][superImposedDeadLoadLoadCase] - 1.00) < 0.001);
             //Assert.IsTrue(Math.Abs(outList[1][superImposedDeadLoadLoadCase] - 1.00) < 0.001);
             //Assert.IsTrue(Math.Abs(outList[2][superImposedDeadLoadLoadCase] - 1.00) < 0.001);
@@ -906,15 +905,15 @@ namespace ModelObjectTest
                 snowLoadCase,
             };
 
-            En1990CombinationsOptions options = new En1990CombinationsOptions(StandardEN1990.LimitStates.ServiceabilityCharacteristic, StandardEN1990.ULSStructuralGeotechicalCombinationSets.SetC,
-StandardEN1990.ImposedLoadCategories.CategoryA, true);
+            En1990CombinationsOptions options = new En1990CombinationsOptions(StandardEN1990.LimitStates.ServiceabilityCharacteristic, ULSStructuralGeotechicalCombinationSets.SetC,
+ImposedLoadCategories.CategoryA, true);
             StandardEN1990 standardEN1990 = new StandardEN1990();
 
             // Act
             CombinationsCollection outList = standardEN1990.CreateCombinations(loadCaseList.ToArray(), options);
 
             // Assert
-            //Assert.IsTrue(outList.Count() == 3);
+            Assert.IsTrue(outList.Count() == 3);
             //Assert.IsTrue(Math.Abs(outList[0][selfWeightLoadCase] - 1.00) < 0.001);
             //Assert.IsTrue(Math.Abs(outList[1][selfWeightLoadCase] - 1.00) < 0.001);
             //Assert.IsTrue(Math.Abs(outList[2][selfWeightLoadCase] - 1.00) < 0.001);
@@ -944,15 +943,15 @@ StandardEN1990.ImposedLoadCategories.CategoryA, true);
                 prestressLoadCase
             };
 
-            En1990CombinationsOptions options = new En1990CombinationsOptions(StandardEN1990.LimitStates.ServiceabilityQuasiPermanent, StandardEN1990.ULSStructuralGeotechicalCombinationSets.SetC,
-StandardEN1990.ImposedLoadCategories.CategoryA, true);
+            En1990CombinationsOptions options = new En1990CombinationsOptions(StandardEN1990.LimitStates.ServiceabilityQuasiPermanent, ULSStructuralGeotechicalCombinationSets.SetC,
+ImposedLoadCategories.CategoryA, true);
             StandardEN1990 standardEN1990 = new StandardEN1990();
 
             // Act
             CombinationsCollection outList = standardEN1990.CreateCombinations(loadCaseList.ToArray(), options);
 
             // Assert
-            //Assert.IsTrue(outList.Count() == 2);
+            Assert.IsTrue(outList.Count() == 2);
             //Assert.IsTrue(Math.Abs(outList[0][selfWeightLoadCase] - 1.00) < 0.001);
             //Assert.IsTrue(Math.Abs(outList[1][selfWeightLoadCase] - 1.00) < 0.001);
             //Assert.IsTrue(Math.Abs(outList[0][snowLoadCase] - 0.20) < 0.001);
@@ -979,9 +978,16 @@ StandardEN1990.ImposedLoadCategories.CategoryA, true);
                 prestressLoadCase
             };
 
-            En1990CombinationsOptions options = new En1990CombinationsOptions(StandardEN1990.LimitStates.ServiceabilityFrequent, StandardEN1990.ULSStructuralGeotechicalCombinationSets.SetC,
-StandardEN1990.ImposedLoadCategories.CategoryA, true);
+            En1990CombinationsOptions options = new En1990CombinationsOptions(StandardEN1990.LimitStates.ServiceabilityFrequent, ULSStructuralGeotechicalCombinationSets.SetC,
+                ImposedLoadCategories.CategoryA, true);
             StandardEN1990 standardEN1990 = new StandardEN1990();
+
+            CombinationContainsLoadCaseCoefficients();
+            Combination expComb1 = new Combination("cmb1", options);
+            expComb1.AddLoadCaseCoefficient(selfWeightLoadCase, 1);
+            expComb1.AddLoadCaseCoefficient(WindPressureLoadCase, 0.2);
+            expComb1.AddLoadCaseCoefficient(snowLoadCase, 0.2);
+            expComb1.AddLoadCaseCoefficient(prestressLoadCase, 1);
 
             // Act
             CombinationsCollection outList = standardEN1990.CreateCombinations(loadCaseList.ToArray(), options);
@@ -1031,8 +1037,8 @@ StandardEN1990.ImposedLoadCategories.CategoryA, true);
                 snowLoadCase2
             };
 
-            En1990CombinationsOptions options = new En1990CombinationsOptions(StandardEN1990.LimitStates.UltimateStructural, StandardEN1990.ULSStructuralGeotechicalCombinationSets.SetB,
-                StandardEN1990.ImposedLoadCategories.CategoryA, true);
+            En1990CombinationsOptions options = new En1990CombinationsOptions(StandardEN1990.LimitStates.UltimateStructural, ULSStructuralGeotechicalCombinationSets.SetB,
+                ImposedLoadCategories.CategoryA, true);
             StandardEN1990 standardEN1990 = new StandardEN1990();
 
             // Act
@@ -1107,15 +1113,15 @@ StandardEN1990.ImposedLoadCategories.CategoryA, true);
                 snowLoadCase2
             };
 
-            En1990CombinationsOptions options = new En1990CombinationsOptions(StandardEN1990.LimitStates.UltimateStructural, StandardEN1990.ULSStructuralGeotechicalCombinationSets.SetB,
-                StandardEN1990.ImposedLoadCategories.CategoryA, true);
+            En1990CombinationsOptions options = new En1990CombinationsOptions(StandardEN1990.LimitStates.UltimateStructural, ULSStructuralGeotechicalCombinationSets.SetB,
+                ImposedLoadCategories.CategoryA, true);
             StandardEN1990 standardEN1990 = new StandardEN1990();
 
             // Act
             CombinationsCollection outList = standardEN1990.CreateCombinations(loadCaseList.ToArray(), options);
 
             // Assert
-            //Assert.IsTrue(outList.Count() == 8);
+            Assert.IsTrue(outList.Count() == 8);
             //Assert.IsTrue(Math.Abs(outList[0][selfWeightLoadCase] - 1.00) < 0.001);
             //Assert.IsTrue(Math.Abs(outList[1][selfWeightLoadCase] - 1.00) < 0.001);
             //Assert.IsTrue(Math.Abs(outList[2][selfWeightLoadCase] - 1.00) < 0.001);
@@ -1189,15 +1195,15 @@ StandardEN1990.ImposedLoadCategories.CategoryA, true);
                 windSuctionLoadCase1
             };
 
-            En1990CombinationsOptions options = new En1990CombinationsOptions(StandardEN1990.LimitStates.UltimateStructural, StandardEN1990.ULSStructuralGeotechicalCombinationSets.SetB,
-    StandardEN1990.ImposedLoadCategories.CategoryA, true);
+            En1990CombinationsOptions options = new En1990CombinationsOptions(StandardEN1990.LimitStates.UltimateStructural, ULSStructuralGeotechicalCombinationSets.SetB,
+    ImposedLoadCategories.CategoryA, true);
             StandardEN1990 standardEN1990 = new StandardEN1990();
 
             // Act
             CombinationsCollection outList = standardEN1990.CreateCombinations(loadCaseList.ToArray(), options);
 
             // Assert
-            //Assert.IsTrue(outList.Count() == 6);
+            Assert.IsTrue(outList.Count() == 6);
             //Assert.IsTrue(Math.Abs(outList[0][selfWeightLoadCase] - 1.00) < 0.001);
             //Assert.IsTrue(Math.Abs(outList[1][selfWeightLoadCase] - 1.00) < 0.001);
             //Assert.IsTrue(Math.Abs(outList[2][selfWeightLoadCase] - 1.35) < 0.001);
@@ -1247,15 +1253,15 @@ StandardEN1990.ImposedLoadCategories.CategoryA, true);
                 snowLoadCase2
             };
 
-            En1990CombinationsOptions options = new En1990CombinationsOptions(StandardEN1990.LimitStates.UltimateStructural, StandardEN1990.ULSStructuralGeotechicalCombinationSets.SetB,
-    StandardEN1990.ImposedLoadCategories.CategoryA, true);
+            En1990CombinationsOptions options = new En1990CombinationsOptions(StandardEN1990.LimitStates.UltimateStructural, ULSStructuralGeotechicalCombinationSets.SetB,
+    ImposedLoadCategories.CategoryA, true);
             StandardEN1990 standardEN1990 = new StandardEN1990();
 
             // Act
             CombinationsCollection outList = standardEN1990.CreateCombinations(loadCaseList.ToArray(), options);
 
             // Assert
-            //Assert.IsTrue(outList.Count() == 14);
+            Assert.IsTrue(outList.Count() == 14);
             //Assert.IsTrue(Math.Abs(outList[0][selfWeightLoadCase] - 1.00) < 0.001);
             //Assert.IsTrue(Math.Abs(outList[1][selfWeightLoadCase] - 1.00) < 0.001);
             //Assert.IsTrue(Math.Abs(outList[2][selfWeightLoadCase] - 1.00) < 0.001);
@@ -1366,15 +1372,15 @@ StandardEN1990.ImposedLoadCategories.CategoryA, true);
                 climateSummerDeltaPLoadCase2
             };
 
-            En1990CombinationsOptions options = new En1990CombinationsOptions(StandardEN1990.LimitStates.UltimateStructural, StandardEN1990.ULSStructuralGeotechicalCombinationSets.SetB,
-    StandardEN1990.ImposedLoadCategories.CategoryA, true);
+            En1990CombinationsOptions options = new En1990CombinationsOptions(StandardEN1990.LimitStates.UltimateStructural, ULSStructuralGeotechicalCombinationSets.SetB,
+                ImposedLoadCategories.CategoryA, true);
             StandardEN1990 standardEN1990 = new StandardEN1990();
 
             // Act
             CombinationsCollection outList = standardEN1990.CreateCombinations(loadCaseList.ToArray(), options);
 
             // Assert
-            //Assert.IsTrue(outList.Count() == 8);
+            Assert.IsTrue(outList.Count() == 8);
             //Assert.IsTrue(Math.Abs(outList[0][selfWeightLoadCase] - 1.00) < 0.001);
             //Assert.IsTrue(Math.Abs(outList[1][selfWeightLoadCase] - 1.00) < 0.001);
             //Assert.IsTrue(Math.Abs(outList[2][selfWeightLoadCase] - 1.35) < 0.001);
@@ -1423,15 +1429,15 @@ StandardEN1990.ImposedLoadCategories.CategoryA, true);
                 climateSummerDeltaPLoadCase3
             };
 
-            En1990CombinationsOptions options = new En1990CombinationsOptions(StandardEN1990.LimitStates.UltimateStructural, StandardEN1990.ULSStructuralGeotechicalCombinationSets.SetB,
-                StandardEN1990.ImposedLoadCategories.CategoryA, true);
+            En1990CombinationsOptions options = new En1990CombinationsOptions(StandardEN1990.LimitStates.UltimateStructural, ULSStructuralGeotechicalCombinationSets.SetB,
+                ImposedLoadCategories.CategoryA, true);
             StandardEN1990 standardEN1990 = new StandardEN1990();
 
             // Act
             CombinationsCollection outList = standardEN1990.CreateCombinations(loadCaseList.ToArray(), options);
 
             // Assert
-            //Assert.IsTrue(outList.Count() == 8);
+            Assert.IsTrue(outList.Count() == 8);
             //Assert.IsTrue(Math.Abs(outList[0][selfWeightLoadCase] - 1.00) < 0.001);
             //Assert.IsTrue(Math.Abs(outList[0][climateSummerDeltaHLoadCase1] - 1.00) < 0.001);
             //Assert.IsTrue(Math.Abs(outList[1][selfWeightLoadCase] - 1.00) < 0.001);
@@ -1496,15 +1502,15 @@ StandardEN1990.ImposedLoadCategories.CategoryA, true);
                 climateWinterDeltaPLoadCase2
             };
 
-            En1990CombinationsOptions options = new En1990CombinationsOptions(StandardEN1990.LimitStates.UltimateStructural, StandardEN1990.ULSStructuralGeotechicalCombinationSets.SetB,
-                StandardEN1990.ImposedLoadCategories.CategoryA, true);
+            En1990CombinationsOptions options = new En1990CombinationsOptions(StandardEN1990.LimitStates.UltimateStructural, ULSStructuralGeotechicalCombinationSets.SetB,
+                ImposedLoadCategories.CategoryA, true);
             StandardEN1990 standardEN1990 = new StandardEN1990();
 
             // Act
             CombinationsCollection outList = standardEN1990.CreateCombinations(loadCaseList.ToArray(), options);
 
             // Assert
-            //Assert.IsTrue(outList.Count() == 10);
+            Assert.IsTrue(outList.Count() == 10);
             //Assert.IsTrue(Math.Abs(outList[0][selfWeightLoadCase] - 1.00) < 0.001);
             //Assert.IsTrue(Math.Abs(outList[1][selfWeightLoadCase] - 1.00) < 0.001);
             //Assert.IsTrue(Math.Abs(outList[2][selfWeightLoadCase] - 1.00) < 0.001);
@@ -1574,7 +1580,7 @@ StandardEN1990.ImposedLoadCategories.CategoryA, true);
             LoadCase windLoadCase2 = new LoadCase(loadCaseName10, LoadCase.LoadCaseTypes.WindPressure);
 
             List<LoadCaseBase> loadCaseList = new List<LoadCaseBase>
-            { 
+            {
                 selfWeightLoadCase,
                 climateSummerDeltaTLoadCase1,
                 climateSummerDeltaHLoadCase1,
@@ -1587,15 +1593,15 @@ StandardEN1990.ImposedLoadCategories.CategoryA, true);
                 windLoadCase2
             };
 
-            En1990CombinationsOptions options = new En1990CombinationsOptions(StandardEN1990.LimitStates.UltimateStructural, StandardEN1990.ULSStructuralGeotechicalCombinationSets.SetB,
-    StandardEN1990.ImposedLoadCategories.CategoryA, true);
+            En1990CombinationsOptions options = new En1990CombinationsOptions(StandardEN1990.LimitStates.UltimateStructural, ULSStructuralGeotechicalCombinationSets.SetB,
+                ImposedLoadCategories.CategoryA, true);
             StandardEN1990 standardEN1990 = new StandardEN1990();
 
             // Act
             CombinationsCollection outList = standardEN1990.CreateCombinations(loadCaseList.ToArray(), options);
 
             // Assert
-            //Assert.IsTrue(outList.Count() == 16);
+            Assert.IsTrue(outList.Count() == 16);
             //Assert.IsTrue(Math.Abs(outList[0][selfWeightLoadCase] - 1.00) < 0.001);
             //Assert.IsTrue(Math.Abs(outList[1][selfWeightLoadCase] - 1.00) < 0.001);
             //Assert.IsTrue(Math.Abs(outList[2][selfWeightLoadCase] - 1.00) < 0.001);
@@ -1722,15 +1728,15 @@ StandardEN1990.ImposedLoadCategories.CategoryA, true);
                 liveLoadLoadCase
             };
 
-            En1990CombinationsOptions options = new En1990CombinationsOptions(StandardEN1990.LimitStates.UltimateSeismic, StandardEN1990.ULSStructuralGeotechicalCombinationSets.SetC,
-                StandardEN1990.ImposedLoadCategories.CategoryC, false);
+            En1990CombinationsOptions options = new En1990CombinationsOptions(StandardEN1990.LimitStates.UltimateSeismic, ULSStructuralGeotechicalCombinationSets.SetC,
+                ImposedLoadCategories.CategoryC, false);
             StandardEN1990 standardEN1990 = new StandardEN1990();
 
             // Act
             CombinationsCollection outList = standardEN1990.CreateCombinations(loadCaseList.ToArray(), options);
 
             // Assert
-            //Assert.IsTrue(outList.Count() == 2);
+            Assert.IsTrue(outList.Count() == 2);
             //Assert.IsTrue(Math.Abs(outList[0][selfWeightLoadCase] - 1.00) < 0.001);
             //Assert.IsTrue(Math.Abs(outList[1][selfWeightLoadCase] - 1.00) < 0.001);
             //Assert.IsTrue(Math.Abs(outList[0][prestressLoadCase] - 1.00) < 0.001);
@@ -1773,15 +1779,15 @@ StandardEN1990.ImposedLoadCategories.CategoryA, true);
                 liveLoadLoadCase3,
             };
 
-            En1990CombinationsOptions options = new En1990CombinationsOptions(StandardEN1990.LimitStates.UltimateSeismic, StandardEN1990.ULSStructuralGeotechicalCombinationSets.SetC,
-                StandardEN1990.ImposedLoadCategories.CategoryC, false);
+            En1990CombinationsOptions options = new En1990CombinationsOptions(StandardEN1990.LimitStates.UltimateSeismic, ULSStructuralGeotechicalCombinationSets.SetC,
+                ImposedLoadCategories.CategoryC, false);
             StandardEN1990 standardEN1990 = new StandardEN1990();
 
             // Act
             CombinationsCollection outList = standardEN1990.CreateCombinations(loadCaseList.ToArray(), options);
 
             // Assert
-            //Assert.IsTrue(outList.Count() == 2);
+            Assert.IsTrue(outList.Count() == 2);
             //Assert.IsTrue(Math.Abs(outList[0][selfWeightLoadCase] - 1.00) < 0.001);
             //Assert.IsTrue(Math.Abs(outList[1][selfWeightLoadCase] - 1.00) < 0.001);
             //Assert.IsTrue(Math.Abs(outList[0][prestressLoadCase] - 1.00) < 0.001);
@@ -1826,15 +1832,15 @@ StandardEN1990.ImposedLoadCategories.CategoryA, true);
                 liveLoadLoadCase2,
             };
 
-            En1990CombinationsOptions options = new En1990CombinationsOptions(StandardEN1990.LimitStates.UltimateSeismic, StandardEN1990.ULSStructuralGeotechicalCombinationSets.SetC,
-                StandardEN1990.ImposedLoadCategories.CategoryC, false);
+            En1990CombinationsOptions options = new En1990CombinationsOptions(StandardEN1990.LimitStates.UltimateSeismic, ULSStructuralGeotechicalCombinationSets.SetC,
+                ImposedLoadCategories.CategoryC, false);
             StandardEN1990 standardEN1990 = new StandardEN1990();
 
             // Act
             CombinationsCollection outList = standardEN1990.CreateCombinations(loadCaseList.ToArray(), options);
 
             // Assert
-            //Assert.IsTrue(outList.Count() == 4);
+            Assert.IsTrue(outList.Count() == 4);
             //Assert.IsTrue(Math.Abs(outList[0][selfWeightLoadCase] - 1.00) < 0.001);
             //Assert.IsTrue(Math.Abs(outList[1][selfWeightLoadCase] - 1.00) < 0.001);
             //Assert.IsTrue(Math.Abs(outList[2][selfWeightLoadCase] - 1.00) < 0.001);
@@ -1886,8 +1892,8 @@ StandardEN1990.ImposedLoadCategories.CategoryA, true);
 
             };
 
-            En1990CombinationsOptions options = new En1990CombinationsOptions(StandardEN1990.LimitStates.UltimateStructural, StandardEN1990.ULSStructuralGeotechicalCombinationSets.SetB,
-                StandardEN1990.ImposedLoadCategories.CategoryC, false);
+            En1990CombinationsOptions options = new En1990CombinationsOptions(StandardEN1990.LimitStates.UltimateStructural, ULSStructuralGeotechicalCombinationSets.SetB,
+                ImposedLoadCategories.CategoryC, false);
             StandardEN1990 standardEN1990 = new StandardEN1990();
 
             // Act
@@ -1895,7 +1901,7 @@ StandardEN1990.ImposedLoadCategories.CategoryA, true);
 
             // Assert
             Assert.IsTrue(outList.Count() == 22);
-            foreach(Combination combo in outList)
+            foreach (Combination combo in outList)
             {
                 Console.WriteLine(combo.ToString());
             }
@@ -1937,15 +1943,15 @@ StandardEN1990.ImposedLoadCategories.CategoryA, true);
 
             };
 
-            En1990CombinationsOptions options = new En1990CombinationsOptions(StandardEN1990.LimitStates.UltimateStructural, StandardEN1990.ULSStructuralGeotechicalCombinationSets.SetB,
-                StandardEN1990.ImposedLoadCategories.CategoryC, false);
+            En1990CombinationsOptions options = new En1990CombinationsOptions(StandardEN1990.LimitStates.UltimateStructural, ULSStructuralGeotechicalCombinationSets.SetB,
+                ImposedLoadCategories.CategoryC, false);
             StandardEN1990 standardEN1990 = new StandardEN1990();
 
             // Act
             CombinationsCollection outList = standardEN1990.CreateCombinations(loadCaseList.ToArray(), options);
 
             // Assert
-            Assert.IsTrue(outList.Count() == 22);
+            Assert.IsTrue(outList.Count() == 20);
             foreach (Combination combo in outList)
             {
                 Console.WriteLine(combo.ToString());
@@ -1987,8 +1993,8 @@ StandardEN1990.ImposedLoadCategories.CategoryA, true);
 
             };
 
-            En1990CombinationsOptions options = new En1990CombinationsOptions(StandardEN1990.LimitStates.ServiceabilityCharacteristic, StandardEN1990.ULSStructuralGeotechicalCombinationSets.SetB,
-                StandardEN1990.ImposedLoadCategories.CategoryC, false);
+            En1990CombinationsOptions options = new En1990CombinationsOptions(StandardEN1990.LimitStates.ServiceabilityCharacteristic, ULSStructuralGeotechicalCombinationSets.SetB,
+                ImposedLoadCategories.CategoryC, false);
             StandardEN1990 standardEN1990 = new StandardEN1990();
 
             // Act
@@ -2038,8 +2044,8 @@ StandardEN1990.ImposedLoadCategories.CategoryA, true);
 
             };
 
-            En1990CombinationsOptions options = new En1990CombinationsOptions(StandardEN1990.LimitStates.ServiceabilityCharacteristic, StandardEN1990.ULSStructuralGeotechicalCombinationSets.SetB,
-                StandardEN1990.ImposedLoadCategories.CategoryC, false);
+            En1990CombinationsOptions options = new En1990CombinationsOptions(StandardEN1990.LimitStates.ServiceabilityCharacteristic, ULSStructuralGeotechicalCombinationSets.SetB,
+                ImposedLoadCategories.CategoryC, false);
             StandardEN1990 standardEN1990 = new StandardEN1990();
 
             // Act
