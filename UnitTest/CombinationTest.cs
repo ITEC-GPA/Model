@@ -60,16 +60,18 @@ namespace ModelObjectTest
             List<LoadCaseBase> loadCases = new List<LoadCaseBase>();
             List<double> coefficients = new List<double>();
 
-            loadCases.Add(new LoadCaseBase("Snow"));
+            loadCases.Add(new LoadCase("Snow", LoadCase.LoadCaseTypes.Snow));
             coefficients.Add(2);
 
-            loadCases.Add(new LoadCase("Live", LoadCase.LoadCaseTypes.LiveLoad, Guid.NewGuid()));
+            loadCases.Add(new LoadCase("Live", LoadCase.LoadCaseTypes.LiveLoad));
             coefficients.Add(1);
 
-            loadCases.Add(new LoadCaseBase("SW", Guid.NewGuid()));
+            LoadCase lcSw = new LoadCase("SW", LoadCase.LoadCaseTypes.SelfWeight);
+            loadCases.Add(lcSw);
             coefficients.Add(0.5);
 
-            loadCases.Add(new LoadCase("SDL", LoadCase.LoadCaseTypes.SuperImposedDeadLoad, Guid.NewGuid()));
+            LoadCase lcSdl = new LoadCase("SDL", LoadCase.LoadCaseTypes.SuperImposedDeadLoad);
+            loadCases.Add(lcSdl);
             coefficients.Add(4);
 
             Combination combination = new Combination("test");
@@ -83,8 +85,11 @@ namespace ModelObjectTest
             var splitted = combinationName.Split(new string[] { "+" }, StringSplitOptions.None);
 
             Console.WriteLine(combinationName);
-            Assert.IsTrue(splitted[0].Contains("SDL"), combinationName);
-            Assert.IsTrue(splitted[3].Contains("SW"), combinationName);
+
+            Assert.IsTrue(combination.GetLoadCaseCoefficientsTuple().Where(i => i.loadcase == lcSw).Count() == 1);
+            Assert.IsTrue(combination.GetLoadCaseCoefficientsTuple().Where(i => i.loadcase == lcSw).SingleOrDefault().coefficient == 0.5);
+            Assert.IsTrue(combination.GetLoadCaseCoefficientsTuple().Where(i => i.loadcase == lcSdl).Count() == 1);
+            Assert.IsTrue(combination.GetLoadCaseCoefficientsTuple().Where(i => i.loadcase == lcSdl).SingleOrDefault().coefficient == 4);
         }
 
         [TestMethod]
@@ -100,7 +105,8 @@ namespace ModelObjectTest
             loadCases.Add(new LoadCase("Live", LoadCase.LoadCaseTypes.LiveLoad, Guid.NewGuid()));
             coefficients.Add(1);
 
-            loadCases.Add(new LoadCase("SW", LoadCase.LoadCaseTypes.SelfWeight, Guid.NewGuid()));
+            LoadCase lcSdl = new LoadCase("SW", LoadCase.LoadCaseTypes.SelfWeight, Guid.NewGuid());
+            loadCases.Add(lcSdl);
             coefficients.Add(0.5);
 
             LoadCase sdl = new LoadCase("SDL", LoadCase.LoadCaseTypes.SuperImposedDeadLoad, Guid.NewGuid());
@@ -117,11 +123,12 @@ namespace ModelObjectTest
             string combinationName = combination.ToString();
 
             // Assert
-            var splitted = combinationName.Split(new string[] { "+" }, StringSplitOptions.None);
-
             Console.WriteLine(combinationName);
-            Assert.IsTrue(combination[sdl] == 8, combinationName);
-            Assert.IsTrue(splitted[0].Contains("SW"), combinationName);
+
+            Assert.IsTrue(combination.GetLoadCaseCoefficientsTuple().Where(i => i.loadcase == sdl).Count() == 1);
+            Assert.IsTrue(combination.GetLoadCaseCoefficientsTuple().Where(i => i.loadcase == sdl).SingleOrDefault().coefficient == 8);
+            Assert.IsTrue(combination.GetLoadCaseCoefficientsTuple().Where(i => i.loadcase == lcSdl).Count() == 1);
+            Assert.IsTrue(combination.GetLoadCaseCoefficientsTuple().Where(i => i.loadcase == lcSdl).SingleOrDefault().coefficient == 0.5);
         }
 
         [TestMethod]
@@ -144,7 +151,7 @@ namespace ModelObjectTest
             loadCases.Add(sdl);
             coefficients.Add(4);
             loadCases.Add(new LoadCase("SDL", LoadCase.LoadCaseTypes.SuperImposedDeadLoad, Guid.NewGuid()));
-            coefficients.Add(4);
+            coefficients.Add(2);
 
             Combination combination = new Combination("test");
 
@@ -154,11 +161,10 @@ namespace ModelObjectTest
             string combinationName = combination.ToString();
 
             // Assert
-            var splitted = combinationName.Split(new string[] { "+" }, StringSplitOptions.None);
-
             Console.WriteLine(combinationName);
-            Assert.IsTrue(combination[sdl] == 8, combinationName);
-            Assert.IsTrue(splitted[0].Contains("SW"), combinationName);
+
+            Assert.IsTrue(combination.GetLoadCaseCoefficientsTuple().Where(i => i.loadcase == sdl).Count() == 1);
+            Assert.IsTrue(combination.GetLoadCaseCoefficientsTuple().Where(i => i.loadcase == sdl).SingleOrDefault().coefficient == 6);
         }
 
         [TestMethod]
@@ -194,14 +200,10 @@ namespace ModelObjectTest
             string combinationName = combination.ToString();
 
             // Assert
-            var splitted = combinationName.Split(new string[] { "+" }, StringSplitOptions.None);
-
             Console.WriteLine(combinationName);
             Assert.IsTrue(combination[sdl] == 8, combinationName);
             Assert.IsTrue(combination[new LoadCaseBase("test")] == 0, combinationName);
             Assert.IsTrue(combination[new LoadCase("Zero", LoadCase.LoadCaseTypes.Earthquake)] == 0, combinationName);
-            Assert.IsTrue(splitted[0].Contains("SW"), combinationName);
-            Assert.IsFalse(splitted[0].Contains("Zero"), combinationName);
         }
 
         [TestMethod]
@@ -308,10 +310,10 @@ namespace ModelObjectTest
             var tuple3 = combination.GetLoadCaseCoefficientsTuple(new List<LoadCase> { lc2, lc6 });
 
 
-            Assert.IsTrue(pair[0].Key == lc1, pair[0].Key.Name.ToString());
-            Assert.IsTrue(pair[1].Key == lc2, pair[1].Key.Name.ToString());
-            Assert.IsTrue(tuple[0].loadcase == lc1, tuple[0].loadcase.Name.ToString());
-            Assert.IsTrue(tuple[1].loadcase == lc2, tuple[1].loadcase.Name.ToString());
+            Assert.IsTrue(pair[2].Key == lc1, pair[0].Key.Name.ToString());
+            Assert.IsTrue(pair[3].Key == lc2, pair[1].Key.Name.ToString());
+            Assert.IsTrue(tuple[2].loadcase == lc1, tuple[0].loadcase.Name.ToString());
+            Assert.IsTrue(tuple[3].loadcase == lc2, tuple[1].loadcase.Name.ToString());
 
             Assert.IsTrue(tuple2.Length == 2, tuple2.Length.ToString());
             Assert.IsTrue(tuple2[0].coefficient == 1, tuple2[0].coefficient.ToString());
@@ -325,7 +327,7 @@ namespace ModelObjectTest
         #region GENERATE COMBINATIONS EN1990
 
         [TestMethod]
-        public void ENGeneratorUltimateStructural1()
+        public void EN1990GeneratorUltimateStructural1()
         {
             // Arrange
             string loadCaseName1 = "selfWeight";
@@ -376,7 +378,7 @@ namespace ModelObjectTest
         }
 
         [TestMethod]
-        public void ENGeneratorUltimateStructural2()
+        public void EN1990GeneratorUltimateStructural2()
         {
             // Arrange
             string loadCaseName1 = "selfWeight";
@@ -427,7 +429,7 @@ namespace ModelObjectTest
         }
 
         [TestMethod]
-        public void ENGeneratorUltimateStructural3()
+        public void EN1990GeneratorUltimateStructural3()
         {
             // Arrange
             string loadCaseName1 = "selfWeight";
@@ -485,7 +487,7 @@ namespace ModelObjectTest
         }
 
         [TestMethod]
-        public void ENGeneratorUltimateEquilibrium1()
+        public void EN1990GeneratorUltimateEquilibrium1()
         {
             // Arrange
             string loadCaseName1 = "selfWeight";
@@ -550,7 +552,7 @@ namespace ModelObjectTest
         }
 
         [TestMethod]
-        public void ENGeneratorUltimateEquilibrium2()
+        public void EN1990GeneratorUltimateEquilibrium2()
         {
             // Arrange
             string loadCaseName1 = "selfWeight";
@@ -615,7 +617,7 @@ namespace ModelObjectTest
         }
 
         [TestMethod]
-        public void ENGeneratorUltimateEquilibrium3()
+        public void EN1990GeneratorUltimateEquilibrium3()
         {
             // Arrange
             string loadCaseName1 = "selfWeight";
@@ -680,7 +682,7 @@ namespace ModelObjectTest
         }
 
         [TestMethod]
-        public void ENGeneratorUltimateFatigue1()
+        public void EN1990GeneratorUltimateFatigue1()
         {
             // Arrange
             string loadCaseName1 = "selfWeight";
@@ -731,7 +733,7 @@ namespace ModelObjectTest
         }
 
         [TestMethod]
-        public void ENGeneratorUltimateFatigue2()
+        public void EN1990GeneratorUltimateFatigue2()
         {
             // Arrange
             string loadCaseName1 = "selfWeight";
@@ -796,7 +798,7 @@ namespace ModelObjectTest
         }
 
         [TestMethod]
-        public void ENGeneratorUltimateFatigue3()
+        public void EN1990GeneratorUltimateFatigue3()
         {
             // Arrange
             string loadCaseName1 = "selfWeight";
@@ -861,7 +863,7 @@ namespace ModelObjectTest
         }
 
         [TestMethod]
-        public void ENGeneratorUltimateGeotechnical1()
+        public void EN1990GeneratorUltimateGeotechnical1()
         {
             // Arrange
             string loadCaseName1 = "selfWeight";
@@ -926,7 +928,7 @@ namespace ModelObjectTest
         }
 
         [TestMethod]
-        public void ENGeneratorUltimateGeotechnical2()
+        public void EN1990GeneratorUltimateGeotechnical2()
         {
             // Arrange
             string loadCaseName1 = "selfWeight";
@@ -991,7 +993,7 @@ namespace ModelObjectTest
         }
 
         [TestMethod]
-        public void ENGeneratorUltimateGeotechnical3()
+        public void EN1990GeneratorUltimateGeotechnical3()
         {
             // Arrange
             string loadCaseName1 = "SuperImposedDeadLoad";
@@ -1042,7 +1044,7 @@ namespace ModelObjectTest
         }
 
         [TestMethod]
-        public void ENGeneratorServiceabilityCharacteristic()
+        public void EN1990GeneratorServiceabilityCharacteristic()
         {
             // Arrange
             string loadCaseName1 = "selfWeight";
@@ -1092,7 +1094,7 @@ namespace ModelObjectTest
         }
 
         [TestMethod]
-        public void ENGeneratorServiceabilityQuasiPermanent()
+        public void EN1990GeneratorServiceabilityQuasiPermanent()
         {
             // Arrange
             string loadCaseName1 = "selfWeight";
@@ -1140,7 +1142,7 @@ namespace ModelObjectTest
         }
 
         [TestMethod]
-        public void ENGeneratorServiceabilityFrequent()
+        public void EN1990GeneratorServiceabilityFrequent()
         {
             // Arrange
             string loadCaseName1 = "selfWeight";
@@ -1197,7 +1199,7 @@ namespace ModelObjectTest
         }
 
         [TestMethod]
-        public void ENGeneratorMultyLoadCase()
+        public void EN1990GeneratorMultyLoadCase()
         {
             // Arrange
             string loadCaseName1 = "selfWeight";
@@ -1291,7 +1293,7 @@ namespace ModelObjectTest
         }
 
         [TestMethod]
-        public void ENGeneratorMultyLoadCase2()
+        public void EN1990GeneratorMultyLoadCase2()
         {
             // Arrange
             string loadCaseName1 = "selfWeight";
@@ -1407,7 +1409,7 @@ namespace ModelObjectTest
         }
 
         [TestMethod]
-        public void ENGeneratorWindPressureSuction1()
+        public void EN1990GeneratorWindPressureSuction1()
         {
             // Arrange
             string loadCaseName1 = "selfWeight";
@@ -1466,7 +1468,7 @@ namespace ModelObjectTest
         }
 
         [TestMethod]
-        public void ENGeneratorWindPressureSuction2()
+        public void EN1990GeneratorWindPressureSuction2()
         {
             // Arrange
             string loadCaseName1 = "selfWeight";
@@ -2369,6 +2371,14 @@ namespace ModelObjectTest
 
             // Assert
             Assert.IsTrue(outList.Count() == 11);
+
+            int count = 1;
+            foreach (Combination combination in outList)
+            {
+                string combinationName = combination.ToString();
+                Console.WriteLine($"Cmb { count } : { combinationName } ");
+                count++;
+            }
         }
 
         [TestMethod]
@@ -2409,6 +2419,14 @@ namespace ModelObjectTest
 
             // Assert
             Assert.IsTrue(outList.Count() == 12);
+
+            int count = 1;
+            foreach (Combination combination in outList)
+            {
+                string combinationName = combination.ToString();
+                Console.WriteLine($"Cmb { count } : { combinationName } ");
+                count++;
+            }
         }
 
         [TestMethod]
@@ -2443,6 +2461,14 @@ namespace ModelObjectTest
 
             // Assert
             Assert.IsTrue(outList.Count() == 8);
+
+            int count = 1;
+            foreach (Combination combination in outList)
+            {
+                string combinationName = combination.ToString();
+                Console.WriteLine($"Cmb { count } : { combinationName } ");
+                count++;
+            }
         }
 
         [TestMethod]
@@ -2488,7 +2514,15 @@ namespace ModelObjectTest
             CombinationsCollection outList = standardASCE16.CreateCombinations(loadCaseList.ToArray(), options);
 
             // Assert
-            Assert.IsTrue(outList.Count() == 13);
+            Assert.IsTrue(outList.Count() == 15);
+
+            int count = 1;
+            foreach (Combination combination in outList)
+            {
+                string combinationName = combination.ToString();
+                Console.WriteLine($"Cmb { count } : { combinationName } ");
+                count++;
+            }
         }
 
         [TestMethod]
@@ -2523,6 +2557,14 @@ namespace ModelObjectTest
 
             // Assert
             Assert.IsTrue(outList.Count() == 11);
+
+            int count = 1;
+            foreach (Combination combination in outList)
+            {
+                string combinationName = combination.ToString();
+                Console.WriteLine($"Cmb { count } : { combinationName } ");
+                count++;
+            }
         }
 
         [TestMethod]
@@ -2557,6 +2599,14 @@ namespace ModelObjectTest
 
             // Assert
             Assert.IsTrue(outList.Count() == 7);
+
+            int count = 1;
+            foreach (Combination combination in outList)
+            {
+                string combinationName = combination.ToString();
+                Console.WriteLine($"Cmb { count } : { combinationName } ");
+                count++;
+            }
         }
 
         [TestMethod]
@@ -2591,6 +2641,14 @@ namespace ModelObjectTest
 
             // Assert
             Assert.IsTrue(outList.Count() == 7);
+
+            int count = 1;
+            foreach (Combination combination in outList)
+            {
+                string combinationName = combination.ToString();
+                Console.WriteLine($"Cmb { count } : { combinationName } ");
+                count++;
+            }
         }
 
         [TestMethod]
@@ -2636,7 +2694,15 @@ namespace ModelObjectTest
             CombinationsCollection outList = standardASCE16.CreateCombinations(loadCaseList.ToArray(), options);
 
             // Assert
-            Assert.IsTrue(outList.Count() == 15);
+            Assert.IsTrue(outList.Count() == 13);
+
+            int count = 1;
+            foreach (Combination combination in outList)
+            {
+                string combinationName = combination.ToString();
+                Console.WriteLine($"Cmb { count } : { combinationName } ");
+                count++;
+            }
         }
 
         #endregion
