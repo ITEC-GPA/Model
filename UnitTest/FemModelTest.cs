@@ -131,9 +131,9 @@ namespace FemTest
             // Arrange   
             Polygon3d p1 = new Polygon3d()
             {
-                new Point3d(0,0,0),
-                new Point3d(1,0,0),
-                new Point3d(2,0,0)
+                new Point3d(0, 0, 0),
+                new Point3d(1, 10, 0),
+                new Point3d(2, 10, 0)
             };
 
             Mesh mesh = CreateSimpleMesh(10, 10, 3, 5, 2, 20);

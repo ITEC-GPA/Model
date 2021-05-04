@@ -21,20 +21,20 @@ namespace ModelObjectTest
             List<LoadCase> loadCases = new List<LoadCase>();
             List<double> coefficients = new List<double>();
 
-            loadCases.Add(new LoadCase("Snow", LoadCase.LoadCaseTypes.Snow, Guid.NewGuid()));
+            loadCases.Add(new LoadCase("Snow", LoadCase.LoadCaseTypes.Snow));
             coefficients.Add(2);
 
-            loadCases.Add(new LoadCase("Live", LoadCase.LoadCaseTypes.LiveLoad, Guid.NewGuid()));
+            loadCases.Add(new LoadCase("Live", LoadCase.LoadCaseTypes.LiveLoad));
             coefficients.Add(1);
 
-            loadCases.Add(new LoadCase("SW", LoadCase.LoadCaseTypes.SelfWeight, Guid.NewGuid()));
+            LoadCase lcSw = new LoadCase("SW", LoadCase.LoadCaseTypes.SelfWeight);
+            loadCases.Add(lcSw);
             coefficients.Add(3);
 
-            loadCases.Add(new LoadCase("SDL", LoadCase.LoadCaseTypes.SuperImposedDeadLoad, Guid.NewGuid()));
+            LoadCase lcSdl = new LoadCase("SDL", LoadCase.LoadCaseTypes.SuperImposedDeadLoad);
+            loadCases.Add(lcSdl);
             coefficients.Add(4);
 
-            //StandardEN1990.LimitStates limitState = StandardEN1990.LimitStates.UltimateEquilibrium; ?? Cosa serve ??
-            //CombinationEn combination = new CombinationEn(limitState);
             Combination combination = new Combination("test");
 
             combination.AddLoadCaseCoefficients(loadCases, coefficients);
@@ -43,11 +43,13 @@ namespace ModelObjectTest
             string combinationName = combination.ToString();
 
             // Assert
-            var splitted = combinationName.Split(new string[] { "+" }, StringSplitOptions.None);
 
             Console.WriteLine(combinationName);
-            Assert.IsTrue(splitted[0].Contains("SW"), combinationName);
-            Assert.IsTrue(splitted[1].Contains("SDL"), combinationName);
+
+            Assert.IsTrue(combination.GetLoadCaseCoefficientsTuple().Where(i => i.loadcase == lcSw).Count() == 1);
+            Assert.IsTrue(combination.GetLoadCaseCoefficientsTuple().Where(i => i.loadcase == lcSw).SingleOrDefault().coefficient == 3);
+            Assert.IsTrue(combination.GetLoadCaseCoefficientsTuple().Where(i => i.loadcase == lcSdl).Count() == 1);
+            Assert.IsTrue(combination.GetLoadCaseCoefficientsTuple().Where(i => i.loadcase == lcSdl).SingleOrDefault().coefficient == 4);
         }
 
         [TestMethod]
@@ -57,7 +59,7 @@ namespace ModelObjectTest
             List<LoadCaseBase> loadCases = new List<LoadCaseBase>();
             List<double> coefficients = new List<double>();
 
-            loadCases.Add(new LoadCaseBase("Snow", Guid.NewGuid()));
+            loadCases.Add(new LoadCaseBase("Snow"));
             coefficients.Add(2);
 
             loadCases.Add(new LoadCase("Live", LoadCase.LoadCaseTypes.LiveLoad, Guid.NewGuid()));
