@@ -1373,13 +1373,16 @@ ImposedLoadCategories.CategoryA, true);
 
             En1990CombinationsOptions options = new En1990CombinationsOptions(StandardEN1990.LimitStates.UltimateStructural, ULSStructuralGeotechicalCombinationSets.SetB,
                 ImposedLoadCategories.CategoryA, true);
-            StandardEN1990 standardEN1990 = new StandardEN1990();
+            StandardEN16612 standardEN16612 = new StandardEN16612();
 
             // Act
-            CombinationsCollection outList = standardEN1990.CreateCombinations(loadCaseList.ToArray(), options);
+            CombinationsCollection outList = standardEN16612.CreateCombinations(loadCaseList.ToArray(), options);
 
             // Assert
             Assert.IsTrue(outList.Count() == 8);
+
+
+
             //Assert.IsTrue(Math.Abs(outList[0][selfWeightLoadCase] - 1.00) < 0.001);
             //Assert.IsTrue(Math.Abs(outList[1][selfWeightLoadCase] - 1.00) < 0.001);
             //Assert.IsTrue(Math.Abs(outList[2][selfWeightLoadCase] - 1.35) < 0.001);
@@ -1430,10 +1433,10 @@ ImposedLoadCategories.CategoryA, true);
 
             En1990CombinationsOptions options = new En1990CombinationsOptions(StandardEN1990.LimitStates.UltimateStructural, ULSStructuralGeotechicalCombinationSets.SetB,
                 ImposedLoadCategories.CategoryA, true);
-            StandardEN1990 standardEN1990 = new StandardEN1990();
+            StandardEN16612 standardEN16612 = new StandardEN16612();
 
             // Act
-            CombinationsCollection outList = standardEN1990.CreateCombinations(loadCaseList.ToArray(), options);
+            CombinationsCollection outList = standardEN16612.CreateCombinations(loadCaseList.ToArray(), options);
 
             // Assert
             Assert.IsTrue(outList.Count() == 8);
@@ -1503,10 +1506,10 @@ ImposedLoadCategories.CategoryA, true);
 
             En1990CombinationsOptions options = new En1990CombinationsOptions(StandardEN1990.LimitStates.UltimateStructural, ULSStructuralGeotechicalCombinationSets.SetB,
                 ImposedLoadCategories.CategoryA, true);
-            StandardEN1990 standardEN1990 = new StandardEN1990();
+            StandardEN16612 standardEN16612 = new StandardEN16612();
 
             // Act
-            CombinationsCollection outList = standardEN1990.CreateCombinations(loadCaseList.ToArray(), options);
+            CombinationsCollection outList = standardEN16612.CreateCombinations(loadCaseList.ToArray(), options);
 
             // Assert
             Assert.IsTrue(outList.Count() == 10);
@@ -1594,10 +1597,10 @@ ImposedLoadCategories.CategoryA, true);
 
             En1990CombinationsOptions options = new En1990CombinationsOptions(StandardEN1990.LimitStates.UltimateStructural, ULSStructuralGeotechicalCombinationSets.SetB,
                 ImposedLoadCategories.CategoryA, true);
-            StandardEN1990 standardEN1990 = new StandardEN1990();
+            StandardEN16612 standardEN16612 = new StandardEN16612();
 
             // Act
-            CombinationsCollection outList = standardEN1990.CreateCombinations(loadCaseList.ToArray(), options);
+            CombinationsCollection outList = standardEN16612.CreateCombinations(loadCaseList.ToArray(), options);
 
             // Assert
             Assert.IsTrue(outList.Count() == 16);
@@ -1893,10 +1896,10 @@ ImposedLoadCategories.CategoryA, true);
 
             En1990CombinationsOptions options = new En1990CombinationsOptions(StandardEN1990.LimitStates.UltimateStructural, ULSStructuralGeotechicalCombinationSets.SetB,
                 ImposedLoadCategories.CategoryC, false);
-            StandardEN1990 standardEN1990 = new StandardEN1990();
+            StandardEN16612 standardEN16612 = new StandardEN16612();
 
             // Act
-            CombinationsCollection outList = standardEN1990.CreateCombinations(loadCaseList.ToArray(), options);
+            CombinationsCollection outList = standardEN16612.CreateCombinations(loadCaseList.ToArray(), options);
 
             // Assert
             Assert.IsTrue(outList.Count() == 22);
@@ -1944,13 +1947,13 @@ ImposedLoadCategories.CategoryA, true);
 
             En1990CombinationsOptions options = new En1990CombinationsOptions(StandardEN1990.LimitStates.UltimateStructural, ULSStructuralGeotechicalCombinationSets.SetB,
                 ImposedLoadCategories.CategoryC, false);
-            StandardEN1990 standardEN1990 = new StandardEN1990();
+            StandardEN16612 standardEN16612 = new StandardEN16612();
 
             // Act
-            CombinationsCollection outList = standardEN1990.CreateCombinations(loadCaseList.ToArray(), options);
+            CombinationsCollection outList = standardEN16612.CreateCombinations(loadCaseList.ToArray(), options);
 
             // Assert
-            Assert.IsTrue(outList.Count() == 20);
+            Assert.IsTrue(outList.Count() == 22);
             foreach (Combination combo in outList)
             {
                 Console.WriteLine(combo.ToString());
@@ -1994,10 +1997,10 @@ ImposedLoadCategories.CategoryA, true);
 
             En1990CombinationsOptions options = new En1990CombinationsOptions(StandardEN1990.LimitStates.ServiceabilityCharacteristic, ULSStructuralGeotechicalCombinationSets.SetB,
                 ImposedLoadCategories.CategoryC, false);
-            StandardEN1990 standardEN1990 = new StandardEN1990();
+            StandardEN16612 standardEN16612 = new StandardEN16612();
 
             // Act
-            CombinationsCollection outList = standardEN1990.CreateCombinations(loadCaseList.ToArray(), options);
+            CombinationsCollection outList = standardEN16612.CreateCombinations(loadCaseList.ToArray(), options);
 
             // Assert
             Assert.IsTrue(outList.Count() == 22);
@@ -2045,10 +2048,10 @@ ImposedLoadCategories.CategoryA, true);
 
             En1990CombinationsOptions options = new En1990CombinationsOptions(StandardEN1990.LimitStates.ServiceabilityCharacteristic, ULSStructuralGeotechicalCombinationSets.SetB,
                 ImposedLoadCategories.CategoryC, false);
-            StandardEN1990 standardEN1990 = new StandardEN1990();
+            StandardEN16612 standardEN16612 = new StandardEN16612();
 
             // Act
-            CombinationsCollection outList = standardEN1990.CreateCombinations(loadCaseList.ToArray(), options);
+            CombinationsCollection outList = standardEN16612.CreateCombinations(loadCaseList.ToArray(), options);
 
             // Assert
             Assert.IsTrue(outList.Count() == 22);
