@@ -866,7 +866,9 @@ namespace GPC.Model.FEM
             {
                 for (int i = 0; i < mesh.VerticesCount; i++)
                 {
-                    var nodeIndex = _nodes.Add(new Node(enumerator.Current.Point));
+                    enumerator.MoveNext();
+
+                    int nodeIndex = _nodes.Add(new Node(enumerator.Current.Point));
 
                     if (nodeIndex != enumerator.Current.Id) // Se sono diversi vuol dire che esisteva già l'indice Vertex.iD e il vertice è stato aggiunto alla collection con un ID diverso.
                     {
@@ -879,6 +881,7 @@ namespace GPC.Model.FEM
             }
 
             // Aggiunge elementi FEM
+            // Aggiunge Faces
             var faces = mesh.Faces.ToArray();
             for (int i = 0; i < mesh.Faces.Count; i++)
             {
@@ -927,7 +930,8 @@ namespace GPC.Model.FEM
                 }
             }
 
-            int faceNumber = mesh.FacesCount;
+
+            // Aggiunge Volumes
             var volumes = mesh.Volumes.ToArray();
             for (int i = 0; i < mesh.Volumes.Count; i++)
             {
@@ -951,7 +955,7 @@ namespace GPC.Model.FEM
                         brick.SetProperty(bp);
 
                         var brickIndex = _elements.Add(brick);
-                        elementIndexes.volumesId[i + faceNumber] = brickIndex;
+                        elementIndexes.volumesId[i] = brickIndex;
 
                         if (brickIndex != volume.Id) // Se sono diversi vuol dire che esisteva già l'indice element .iD e la collection l'ha modificato
                             brickNewIndexMap[volume.Id] = brickIndex;
@@ -974,7 +978,7 @@ namespace GPC.Model.FEM
                         brick.SetProperty(bp);
 
                         var brickIndex = _elements.Add(brick);
-                        elementIndexes.volumesId[i + faceNumber] = brickIndex;
+                        elementIndexes.volumesId[i] = brickIndex;
 
                         if (brickIndex != volume.Id) // Se sono diversi vuol dire che esisteva già l'indice element .iD e la collection l'ha modificato
                             brickNewIndexMap[volume.Id] = brickIndex;
