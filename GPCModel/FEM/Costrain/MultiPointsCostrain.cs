@@ -17,7 +17,7 @@ namespace GPC.Model.FEM.Costrains
     /// MultiPointCostrain Costrain1 = new MultiPointCostrain(equations);
     ///</example>
     /// </summary>
-    public class MultiPointsCostrain
+    public class MultiPointsCostrain : FEMObject
     {
         #region Variables
         Equation[] _equations;

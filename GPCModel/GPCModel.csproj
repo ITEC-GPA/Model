@@ -42,8 +42,8 @@
     <Reference Include="GMsh.Net, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\GMsh.Net.1.0.0.1\lib\net472\GMsh.Net.dll</HintPath>
     </Reference>
-    <Reference Include="GPCGeometry, Version=1.0.7.10, Culture=neutral, processorArchitecture=AMD64">
-      <HintPath>..\packages\GPCGeometry.1.0.7.10\lib\net472\GPCGeometry.dll</HintPath>
+    <Reference Include="GPCGeometry, Version=1.0.7.11, Culture=neutral, processorArchitecture=AMD64">
+      <HintPath>..\packages\GPCGeometry.1.0.7.11\lib\net472\GPCGeometry.dll</HintPath>
     </Reference>
     <Reference Include="GPCUtilities, Version=1.0.23.0, Culture=neutral, processorArchitecture=AMD64">
       <HintPath>..\packages\GPCUtilities.1.0.23\lib\net472\GPCUtilities.dll</HintPath>
@@ -91,7 +91,6 @@
     <Compile Include="FEM\Attributes\LoadCase\ModelAccelerationAttribute.cs" />
     <Compile Include="FEM\Attributes\LoadCase\PlateAccelerationAttribute.cs" />
     <Compile Include="FEM\Attributes\LoadCase\PlatePressureAttribute.cs" />
-    <Compile Include="FEM\Collections\FemObjectBaseCollection.cs" />
     <Compile Include="FEM\Collections\FemObjectCollection.cs" />
     <Compile Include="FEM\Collections\FemObjectStageCollection.cs" />
     <Compile Include="FEM\Collections\FiniteElementStageCollection.cs" />
@@ -172,7 +171,6 @@
     <Compile Include="FEM\LinearSolver.cs" />
     <Compile Include="FEM\Solver.cs" />
     <Compile Include="FreedomCases\FreedomCase.cs" />
-    <Compile Include="LoadCases\IClimate.cs" />
     <Compile Include="LoadCases\LoadCaseBase.cs" />
     <Compile Include="LoadCases\LoadCaseEn16612.cs" />
     <Compile Include="Loads\AreaLoad.cs" />

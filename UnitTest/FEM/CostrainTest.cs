@@ -44,14 +44,12 @@ namespace FemTest.SolverTest {
             List<EulerBeam> els = new List<EulerBeam>();
             els.Add(new EulerBeam(new Node[] { nds[0], nds[1] }, sec));;
 
-            LoadCaseBase lc = new LoadCaseBase("lc1");
             CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
             double FX = 1000;
             NodeForceAttribute f = new NodeForceAttribute("lc", sys, FX, 0.0, 0.0, 0.0, 0.0, 0.0);
 
             nds[2].AddAttribute(f);
 
-            FreedomCase fc = new FreedomCase("fc");
             NodeRestrainAttribute fix = new NodeRestrainAttribute("fc", sys);
             fix.AddExternalRestrain(DOF.DX);
             fix.AddExternalRestrain(DOF.DY);
@@ -68,8 +66,8 @@ namespace FemTest.SolverTest {
             LinearSolver fem1 = new LinearSolver(els.ToArray(), rigids1);
             LinearSolver fem2 = new LinearSolver(els.ToArray(), rigids2);
 
-            Assert.AreEqual(FX / (Math.PI * 100.0 * 100.0 / 4.0 * E) * (300), fem1.GetDisplacementGlobalCoordinates(nds[2], LinearSolver.DOF.DX), 1e-6);
-            Assert.AreEqual(FX / (Math.PI * 100.0 * 100.0 / 4.0 * E) * (300), fem2.GetDisplacementGlobalCoordinates(nds[2], LinearSolver.DOF.DX), 1e-6);
+            Assert.AreEqual(FX / (Math.PI * 100.0 * 100.0 / 4.0 * E) * (300), fem1.GetDisplacementGlobalCoordinates(nds[2], Solver.DOF.DX), 1e-6);
+            Assert.AreEqual(FX / (Math.PI * 100.0 * 100.0 / 4.0 * E) * (300), fem2.GetDisplacementGlobalCoordinates(nds[2], Solver.DOF.DX), 1e-6);
         }
 
         [TestMethod]

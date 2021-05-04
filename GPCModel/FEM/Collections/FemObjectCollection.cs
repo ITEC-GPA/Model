@@ -11,66 +11,171 @@ namespace GPC.Model.FEM.Collections
     /// <para>This collection does not contains elements with a duplicated ID</para>
     /// </summary>
     /// <typeparam name="T">A <see cref="FEMObject"/></typeparam>
-    public class FemObjectCollection<T> : FemObjectBaseCollection<T> where T : FEMObject
+    public class FemObjectCollection<T> : IEnumerable<T> where T : FEMObject
     {
-        // TODO: la classe FemObjectBaseCollection non serve più, toglierla e copiare tutto il contenuto qua
+
+        protected ICollection<T> _collection;
+
+        /// <summary>
+        /// Set di ID unici, l'indice d'ingresso non è garantito essere quello di uscita
+        /// </summary>
+        protected HashSet<int> _ids = new HashSet<int>();
+
+        protected int _maxId = 0;
+
+        public int Count => _collection.Count();
+
+
         public FemObjectCollection() : base()
         {
             _collection = new List<T>();
         }
 
 
+        #region Private method
+
+        /// <summary>
+        /// If the <paramref name="item"/>.Id already exist in the collection, its ID will be replaced with the collection maximum index + 1
+        /// </summary>
+        /// <returns>The Id of the item</returns>
+        /// <remarks>The item will be added without checking if already exist in <see cref="FemObjectCollection{T}._collection"/></remarks>
+        private int AddItem(T item)
+        {
+            // obj non presente
+            if (_ids.Contains(item.Id))
+            {
+                // id già presente
+                // cambio id e aggiungo obj
+
+                item.SetId(++_maxId); // Forzo id ad essere maggiore di zero
+
+                _collection.Add(item);
+                _ids.Add(item.Id);
+
+                return item.Id;
+            }
+            else
+            {
+                // id non presente
+                // aggiungo obj
+
+                if (item.Id == 0) // Forzo id ad essere maggiore di zero
+                    item.SetId(++_maxId);
+
+                _collection.Add(item);
+                _ids.Add(item.Id);
+
+                if (item.Id > _maxId)
+                    _maxId = item.Id;
+
+                return item.Id;
+            }
+        }
+
+        #endregion Private method
+
+
         #region Public method - Setter
 
 
-        /// <inheritdoc cref="FemObjectBaseCollection{T}.BaseAdd(T)"/>
+        /// <summary>
+        /// Add a FEMObject to the collection.
+        /// <para>Object will be added only if not already present</para>
+        /// <para>In any case, if the <paramref name="item"/> id already exist in the collection, its ID will be replaced with the collection maximum index + 1</para>
+        /// </summary>
+        /// <returns>The Id of the item</returns>
+        /// <exception cref="ArgumentNullException">If <paramref name="item"/> is null </exception>
+        /// <remarks>This is an O(n) operation</remarks>
         public virtual int Add(T item)
         {
-            return base.BaseAdd(item);
+            if (item is null)
+                throw new ArgumentNullException(item.ToString());
+
+            if (!_collection.Contains(item) || _collection.Count == 0)
+            {
+                return AddItem(item);
+            }
+            else
+            {
+                // obj già presente
+                if (_ids.Contains(item.Id))
+                {
+                    // id già presente
+                    // non aggiungo, ritorno id dell'elemento già presente
+
+                    return (_collection as List<T>).SingleOrDefault(i => i.Equals(item)).Id;
+                }
+                else
+                {
+                    // id non presente
+                    // ritorno id dell'elemento già presente
+                    return (_collection as List<T>).SingleOrDefault(i => i.Equals(item)).Id;
+                }
+            }
         }
 
 
-        /// <inheritdoc cref="FemObjectBaseCollection{T}.BaseSetItem(T)"/>
+        /// <summary>
+        /// Add a FEMObject to the collection.
+        /// <para>Object will be added in any case. Checks of duplicates not performed</para>
+        /// <para>In any case, if the <paramref name="item"/> id already exist in the collection, its ID will be replaced with the collection maximum index + 1</para>
+        /// </summary>
+        /// <returns>The Id of the item</returns>
+        /// <exception cref="ArgumentNullException">If <paramref name="item"/> is null</exception>
+        /// <remarks>This is an O(1) operation</remarks>
         public virtual int SetItem(T item)
         {
             if (item is null)
                 throw new ArgumentNullException(item.ToString());
 
-            return base.BaseSetItem(item);
+            return AddItem(item);
         }
 
-        /// <inheritdoc cref="FemObjectBaseCollection{T}.BaseSetItems(T[])"/>
-        public virtual int[] SetItem(T[] item)
-        {
-            if (item is null)
-                throw new ArgumentNullException(item.ToString());
 
-            return base.BaseSetItems(item);
-        }
 
 
         #endregion Public method - Setter
 
+
         #region Public method - Getter
 
-        /// <inheritdoc cref="FemObjectBaseCollection{T}.BaseGetElementById(int)"/>
+        /// <inheritdoc cref="FemObjectCollection{T}.GetElementById(int)"/>
         public virtual T this[int id]
         {
             get
             {
-                return base.BaseGetElementById(id);
+                return GetElementById(id);
             }
         }
 
 
-        /// <inheritdoc cref="FemObjectBaseCollection{T}.BaseGetElementById(int)"/>
+        /// <param name="id">The <see cref="Elements.Element.Id"/> of the FemObject</param>
+        /// <returns><typeparamref name="T"/> with id equal to <paramref name="id"/></returns>
+        /// <exception cref="KeyNotFoundException"> If collection does not contain a element with Id: <paramref name="id"/> </exception>
+        /// <remarks>This is an O(n) operation</remarks>
         public virtual T GetElementById(int id)
         {
-            return base.BaseGetElementById(id);
+            if (!_ids.Contains(id))
+                throw new KeyNotFoundException($"Collection does not contain a element with Id:{id}");
+
+            return _collection.SingleOrDefault(i => i.Id.Equals(id));
+        }
+
+
+        public virtual IEnumerator<T> GetEnumerator()
+        {
+            return _collection.GetEnumerator();
+        }
+
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return _collection.GetEnumerator();
         }
 
 
         #endregion Public method - Getter
+
 
         #region Public method - Check
 
@@ -87,27 +192,47 @@ namespace GPC.Model.FEM.Collections
 
         #region Public method - Edit
 
-        public override void Clear()
+        public void Clear()
         {
-            base.Clear();
+            _ids.Clear();
+            _collection.Clear();
         }
 
         /// <inheritdoc cref="ICollection.CopyTo(System.Array, int)"/>
-        public override void CopyTo(T[] array, int arrayIndex)
+        public void CopyTo(T[] array, int arrayIndex)
         {
-            base.CopyTo(array, arrayIndex);
+            _collection.CopyTo(array, arrayIndex);
+            
         }
 
-        /// <inheritdoc cref="FemObjectBaseCollection{T}.Remove(T)"/>
-        public override bool Remove(T item)
+        /// <inheritdoc cref="FemObjectCollection{T}.Remove(T)"/>
+        public bool Remove(T item)
         {
-            return base.Remove(item);
+            if (_collection.Remove(item))
+            {
+                _ids.Remove(item.Id);
+                return true;
+            }
+            else
+            {
+                return false;
+            }
         }
 
-        /// <inheritdoc cref="FemObjectBaseCollection{T}.Remove(int)"/>
-        public override bool Remove(int id)
+        /// <inheritdoc cref="FemObjectCollection{T}.Remove(int)"/>
+        public bool Remove(int id)
         {
-            return base.Remove(id);
+            int removed = (_collection as List<T>).RemoveAll(i => i.Id.Equals(id));
+
+            if (removed > 0)
+            {
+                _ids.Remove(id);
+                return true;
+            }
+            else
+            {
+                return false;
+            }
         }
 
 
@@ -117,12 +242,20 @@ namespace GPC.Model.FEM.Collections
 
         public override bool Equals(object obj)
         {
-            return base.Equals(obj);
+            return obj is FemObjectCollection<T> collection && _collection.ScrambledEquals(collection._collection);
         }
 
         public override int GetHashCode()
         {
-            return base.GetHashCode();
+            int hashCode = -23;
+            hashCode = hashCode * -17 + base.GetHashCode();
+
+            foreach (var element in _collection)
+            {
+                hashCode = hashCode + EqualityComparer<FEMObject>.Default.GetHashCode(element);
+            }
+
+            return hashCode;
         }
 
         public static bool operator ==(FemObjectCollection<T> obj1, FemObjectCollection<T> obj2)

@@ -7,17 +7,13 @@ namespace GPC.Model.FEM.Costrains
 {
     public class RigidLink : Costrain
     {
-        #region variables
-        private MultiPointsCostrain[] _links;
-        #endregion
-
-        #region properties
-        public MultiPointsCostrain[] Links => _links;
-        #endregion
-
         #region constructor
+
         public RigidLink(Node node1, Node[] nodes) : base(node1, nodes)
         {
+            _startNode = node1;
+            _endNodes = nodes;
+
             int nNodes = nodes.Count();
             _links = new MultiPointsCostrain[nNodes * 6];
             List<MultiPointsCostrain> links = new List<MultiPointsCostrain>();
@@ -31,7 +27,10 @@ namespace GPC.Model.FEM.Costrains
 
         public RigidLink(Node node1, Node node2) : this(node1, new Node[] { node2 })
         {
+
         }
+
+
         #endregion
 
         #region PublicFunctions

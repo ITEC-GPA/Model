@@ -509,7 +509,7 @@ namespace GPC.Model.FEM
             }
 #if DEBUG
             Console.WriteLine("kGlobal System + Restrains + Constrains:");
-            FEMUtilities.WriteMatrix(_KGlobalRestrains, "F3");
+            FEMUtilities.WriteMatrix(_KGlobalRestrains, "F5");
             Console.WriteLine("F (Restrain + Costrains):");
             FEMUtilities.WriteMatrix(_FRestrains, "F3");
 #endif
@@ -601,11 +601,7 @@ namespace GPC.Model.FEM
         {
             #region SelectGlobalDisplacementForElement
             var elements = Elements.Where(x => x == e);
-            if (elements.Count() > 1)
-            {
-                throw new Exception("More than 1 element selected");
-            }
-            else
+            if (elements.Count() == 1)
             {
                 FiniteElement element = elements.First();
                 int[] pos = new int[element.NrDOFActive * element.Nodes.Length];
@@ -633,6 +629,10 @@ namespace GPC.Model.FEM
                 //get results of element
                 //element.GetResults(globalDisplacementsNodesElement, out double[] localDisplacements, out mnl.Matrix<double>[] gloabalPseudoDeformation, out mnl.Matrix<double>[] localPseudoDeformation, out mnl.Matrix<double>[] globalForces, out mnl.Matrix<double>[] localForces, out mnl.Matrix<double>[] globalStress, out mnl.Matrix<double>[] localStress, out mnl.Matrix<double>[] globalEpsilon, out mnl.Matrix<double>[] localEpsilon);
                 #endregion
+            }
+            else
+            {
+                throw new Exception("More than 1 element selected");
             }
         }
         #endregion
@@ -680,11 +680,11 @@ namespace GPC.Model.FEM
 
         #region displacements
         //TODO: trasformare in classe Beam
-        public Dictionary<Beam.LocalDOF, double> GetBeamDisplacementInLocalCoordinatesAtNode(EulerBeam b, int indexNode)
+        public Dictionary<Beam.LocalDOF, double> GetBeamDisplacementInLocalCoordinatesAtNode(EulerBeam b, Beam.EndSide endSide)
         {
             var globalDisplNodes = GetDisplacementsAtNodesOfElementInGlobalCoordinates(b);
 
-            return b.GetLocalDisplacementsAtNode(indexNode, globalDisplNodes);
+            return b.GetLocalDisplacementsAtNode(endSide, globalDisplNodes);
         }
 
         //TODO: trasformare in classe Beam
@@ -740,6 +740,11 @@ namespace GPC.Model.FEM
             globalResult.Add(Solver.DOF.RZ, rotGlobal[2]);
 
             return globalResult;
+        }
+
+        public double GetBeamDisplacementInGlobalCoordinates(EulerBeam b, double station, Solver.DOF dof)
+        {
+            return GetBeamDisplacementInGlobalCoordinates(b, station)[dof];
         }
         #endregion
         #endregion

@@ -91,7 +91,8 @@ namespace GPC.Model.LoadCases
             if (ReferenceEquals(this, obj))
                 return true;
 
-            ClimateLoadCase clc = (ClimateLoadCase)obj;
+            ClimateLoadCase clc = obj as ClimateLoadCase;
+
             return !(clc is null)
                    && base.Equals(obj)
                    && _season == clc._season

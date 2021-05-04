@@ -16,7 +16,7 @@ namespace GPC.Model.Combinations
         protected List<LoadCaseCoefficient> _coefficients;
         protected Standard.CombinationsOptions _options;
 
-        protected int LoadCaseCount => _coefficients.Count;
+        public int LoadCaseCount => _coefficients.Count;
 
         #region PUBLIC CONSTRUCTOR
 
