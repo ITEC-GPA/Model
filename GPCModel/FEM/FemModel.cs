@@ -547,7 +547,7 @@ namespace GPC.Model.FEM
         /// <remarks>This is a O(2n) Operation</remarks>
         /// <inheritdoc cref="AddNode(Node)"/>
         /// <inheritdoc cref="FemObjectCollection{T}.Add(T)"/>
-        public virtual void AddCostrain(Costrain costrain)
+        public virtual int AddCostrain(Costrain costrain)
         {
             if (costrain is null)
                 throw new ArgumentNullException(nameof(costrain));
@@ -557,7 +557,7 @@ namespace GPC.Model.FEM
             AddNodes(costrain.EndNodes);
 
 
-            _costrains.Add(costrain);
+            return _costrains.Add(costrain);
         }
 
         /// <summary> Add a <paramref name="costrains"/> and its <see cref="Node"/> to the FemModel</summary>
