@@ -2923,12 +2923,14 @@ namespace ModelObjectTest
             
             Combination combination1 = new Combination("cmb1", options1);
             Combination combination2 = new Combination("cmb1", options1);
+            Combination combination3 = new Combination("cmb1", options1);
 
             var lc1 = new LoadCase("LC1", LoadCase.LoadCaseTypes.SelfWeight);
             var lc2 = new LoadCase("LC2", LoadCase.LoadCaseTypes.SuperImposedDeadLoad);
             var lc4 = new LoadCase("LC4", LoadCase.LoadCaseTypes.Maintenance);
             var lc5 = new LoadCase("LC5", LoadCase.LoadCaseTypes.LiveLoad);
             var lc6 = new LoadCase("LC6", LoadCase.LoadCaseTypes.Snow);
+            var lc62 = new LoadCase("LC6", LoadCase.LoadCaseTypes.Snow);
 
             combination1.AddLoadCaseCoefficient(lc1, 1);
             combination1.AddLoadCaseCoefficient(lc2, 2);
@@ -2940,16 +2942,30 @@ namespace ModelObjectTest
             combination2.AddLoadCaseCoefficient(lc2, 2);
             combination2.AddLoadCaseCoefficient(lc4, 4);
             combination2.AddLoadCaseCoefficient(lc5, 5);
-            combination2.AddLoadCaseCoefficient(lc6, 6);
+            combination2.AddLoadCaseCoefficient(lc62, 6);
+
+
+            combination3.AddLoadCaseCoefficient(lc1, 1);
+            combination3.AddLoadCaseCoefficient(lc2, 2);
+            combination3.AddLoadCaseCoefficient(lc4, 4);
+            combination3.AddLoadCaseCoefficient(lc5, 5);
+            combination3.AddLoadCaseCoefficient(lc62, 6);
 
             List<double> loadCaseCoeff1 = combination1.GetLoadCaseCoefficients(out List<LoadCaseBase> loadCase1);
-            List<double> loadCaseCoeff2 = combination2.GetLoadCaseCoefficients(out List<LoadCaseBase> loadCase2);            
+            List<double> loadCaseCoeff2 = combination2.GetLoadCaseCoefficients(out List<LoadCaseBase> loadCase2);
+
 
             // Assert / Act
+            Assert.IsTrue(loadCase1.Contains(lc1));
+
+            Assert.IsTrue(new List<Combination>() { combination1, combination2 }.Contains(combination3));
+
+
             Assert.IsTrue(combination1.Equals(combination2));
             Assert.IsTrue(combination1.GetHashCode().Equals(combination2.GetHashCode()));
-            Assert.IsTrue(loadCase1.Equals(loadCase2));
-            Assert.IsTrue(loadCaseCoeff1.Equals(loadCaseCoeff2));
+            Assert.IsTrue(combination1.GetHashCode().Equals(combination2.GetHashCode()));
+            Assert.IsTrue(loadCaseCoeff1.SequenceEqual(loadCaseCoeff2));
+            Assert.IsTrue(loadCase1.SequenceEqual(loadCase2));
         }
 
         #endregion
