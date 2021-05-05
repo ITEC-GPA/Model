@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using GPC.Model.Combinations;
 using GPC.Model.LoadCases;
@@ -2851,9 +2851,108 @@ namespace ModelObjectTest
 
             Assert.IsFalse(combination1.Equals(combination5));
             Assert.IsFalse(combination1.GetHashCode().Equals(combination5.GetHashCode()));
+        }
 
+        [TestMethod]
+        public void EqualsHashCode2()
+        {
+            // Arrange
+
+            En1990CombinationsOptions options1 = new En1990CombinationsOptions(StandardEN1990.LimitStates.UltimateGeotechnical, StandardEN1990.ULSStructuralGeotechicalCombinationSets.SetB, ImposedLoadCategories.CategoryA, false);
+            En1990CombinationsOptions options2 = new En1990CombinationsOptions(StandardEN1990.LimitStates.UltimateStructural, StandardEN1990.ULSStructuralGeotechicalCombinationSets.SetB, ImposedLoadCategories.CategoryA, false);
+
+            Combination combination1 = new Combination("cmb1", options1);
+            Combination combination2 = new Combination("cmb1", options1);
+            Combination combination3 = new Combination("cmb1", options2);
+            Combination combination4 = new Combination("cmb1", options1);
+            Combination combination5 = new Combination("cmb2", options1);
+
+            var lc1 = new LoadCase("LC1", LoadCase.LoadCaseTypes.SelfWeight);
+            var lc2 = new LoadCase("LC2", LoadCase.LoadCaseTypes.SuperImposedDeadLoad);
+            var lc4 = new LoadCase("LC4", LoadCase.LoadCaseTypes.Maintenance);
+            var lc5 = new LoadCase("LC5", LoadCase.LoadCaseTypes.LiveLoad);
+            var lc6 = new LoadCase("LC6", LoadCase.LoadCaseTypes.Snow);
+
+            combination1.AddLoadCaseCoefficient(lc1, 1);
+            combination1.AddLoadCaseCoefficient(lc2, 2);
+            combination1.AddLoadCaseCoefficient(lc4, 4);
+            combination1.AddLoadCaseCoefficient(lc5, 5);
+
+            combination2.AddLoadCaseCoefficient(lc1, 1);
+            combination2.AddLoadCaseCoefficient(lc2, 2);
+            combination2.AddLoadCaseCoefficient(lc4, 4);
+            combination2.AddLoadCaseCoefficient(lc5, 5);
+
+            combination3.AddLoadCaseCoefficient(lc1, 1);
+            combination3.AddLoadCaseCoefficient(lc2, 2);
+            combination3.AddLoadCaseCoefficient(lc4, 4);
+            combination3.AddLoadCaseCoefficient(lc5, 5);
+
+            combination4.AddLoadCaseCoefficient(lc1, 1);
+            combination4.AddLoadCaseCoefficient(lc2, 2);
+            combination4.AddLoadCaseCoefficient(lc4, 4);
+            combination4.AddLoadCaseCoefficient(lc5, 5);
+            combination4.AddLoadCaseCoefficient(lc6, 5);
+
+            combination5.AddLoadCaseCoefficient(lc1, 1);
+            combination5.AddLoadCaseCoefficient(lc2, 2);
+            combination5.AddLoadCaseCoefficient(lc4, 4);
+            combination5.AddLoadCaseCoefficient(lc5, 5);
+
+            // Assert / Act
+            Assert.IsTrue(combination1.Equals(combination2));
+            Assert.IsTrue(combination1.GetHashCode().Equals(combination2.GetHashCode()));
+
+            Assert.IsFalse(combination1.Equals(combination3));
+            Assert.IsFalse(combination1.GetHashCode().Equals(combination3.GetHashCode()));
+
+            Assert.IsFalse(combination1.Equals(combination4));
+            Assert.IsFalse(combination1.GetHashCode().Equals(combination4.GetHashCode()));
+
+            Assert.IsFalse(combination1.Equals(combination5));
+            Assert.IsFalse(combination1.GetHashCode().Equals(combination5.GetHashCode()));
+            
+        }
+
+        [TestMethod]
+        public void ScrambledEquals()
+        {
+            // Arrange
+
+            En1990CombinationsOptions options1 = new En1990CombinationsOptions(StandardEN1990.LimitStates.UltimateGeotechnical, StandardEN1990.ULSStructuralGeotechicalCombinationSets.SetB, ImposedLoadCategories.CategoryA, false);
+            
+            Combination combination1 = new Combination("cmb1", options1);
+            Combination combination2 = new Combination("cmb1", options1);
+
+            var lc1 = new LoadCase("LC1", LoadCase.LoadCaseTypes.SelfWeight);
+            var lc2 = new LoadCase("LC2", LoadCase.LoadCaseTypes.SuperImposedDeadLoad);
+            var lc4 = new LoadCase("LC4", LoadCase.LoadCaseTypes.Maintenance);
+            var lc5 = new LoadCase("LC5", LoadCase.LoadCaseTypes.LiveLoad);
+            var lc6 = new LoadCase("LC6", LoadCase.LoadCaseTypes.Snow);
+
+            combination1.AddLoadCaseCoefficient(lc1, 1);
+            combination1.AddLoadCaseCoefficient(lc2, 2);
+            combination1.AddLoadCaseCoefficient(lc4, 4);
+            combination1.AddLoadCaseCoefficient(lc5, 5);
+            combination1.AddLoadCaseCoefficient(lc6, 6);
+
+            combination2.AddLoadCaseCoefficient(lc1, 1);
+            combination2.AddLoadCaseCoefficient(lc2, 2);
+            combination2.AddLoadCaseCoefficient(lc4, 4);
+            combination2.AddLoadCaseCoefficient(lc5, 5);
+            combination2.AddLoadCaseCoefficient(lc6, 6);
+
+            List<double> loadCaseCoeff1 = combination1.GetLoadCaseCoefficients(out List<LoadCaseBase> loadCase1);
+            List<double> loadCaseCoeff2 = combination2.GetLoadCaseCoefficients(out List<LoadCaseBase> loadCase2);            
+
+            // Assert / Act
+            Assert.IsTrue(combination1.Equals(combination2));
+            Assert.IsTrue(combination1.GetHashCode().Equals(combination2.GetHashCode()));
+            Assert.IsTrue(loadCase1.Equals(loadCase2));
+            Assert.IsTrue(loadCaseCoeff1.Equals(loadCaseCoeff2));
         }
 
         #endregion
+
     }
 }
