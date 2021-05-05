@@ -1,4 +1,4 @@
-using GPC.Model.LoadCases;
+﻿using GPC.Model.LoadCases;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -523,12 +523,11 @@ namespace GPC.Model.Combinations
                     throw new ArgumentException("Load must be Variable");
             }
 
-            HashSet<LoadCase.LoadCaseTypes> hash = new HashSet<LoadCase.LoadCaseTypes>();
-            HashSet<(ClimateLoadCase.Seasons, ClimateLoadCase.ClimateTypes)> chash = new HashSet<(ClimateLoadCase.Seasons, ClimateLoadCase.ClimateTypes)>();
-
             for (int i = 0; i < loadCases.Count(); i++)
             {
                 List<LoadCaseCoefficient> loadCaseCoefficientsBuffer = new List<LoadCaseCoefficient>();
+                HashSet<LoadCase.LoadCaseTypes> hash = new HashSet<LoadCase.LoadCaseTypes>();
+                HashSet<(ClimateLoadCase.Seasons, ClimateLoadCase.ClimateTypes)> chash = new HashSet<(ClimateLoadCase.Seasons, ClimateLoadCase.ClimateTypes)>();
 
                 // crea un load lead, cerca tutti i carichi dello stesso tipo e li coefficienta alla stessa maniera.
                 LoadCaseBase loadCaseLead = loadCases[i];
@@ -546,6 +545,16 @@ namespace GPC.Model.Combinations
                             loadCaseCoefficientsBuffer.Add(loadCaseCoefficientLead);
                         }
                         hash.Add(lc.LoadCaseType);
+                    }
+
+                    else if (loadCases[i] is ClimateLoadCase clc)
+                    {
+                        foreach (ClimateLoadCase loadCase in loadCases.Where(j => j is ClimateLoadCase l && l.ClimateType == clc.ClimateType && l.Season == clc.Season))
+                        {
+                            LoadCaseCoefficient loadCaseCoefficientLead = new LoadCaseCoefficient(GetCoefficientLeadingVariableAction(loadCase, options), loadCase);
+                            loadCaseCoefficientsBuffer.Add(loadCaseCoefficientLead);
+                        }
+                        chash.Add((clc.Season, clc.ClimateType));
                     }
 
                     #region CHECK CLIMATE LOAD (se ci sono carichi che devono essere considerati lead insieme a loadCaseLead)
@@ -626,55 +635,57 @@ namespace GPC.Model.Combinations
                     {
                         #region NORMAL LOAD ADD
 
-                        if (loadCases[i] is LoadCase && loadCaseAccompanying is LoadCase)
+                        if (loadCases[i] is LoadCase loadCaseLead1 && loadCaseAccompanying is LoadCase loadCaseAc)
                         {
-                            if (!hashAcc.Contains(((LoadCase)loadCaseAccompanying).LoadCaseType))
+                            if (!hashAcc.Contains(loadCaseAc.LoadCaseType))
                             {
-                                if (!((LoadCase)loadCaseAccompanying).LoadCaseType.Equals(((LoadCase)loadCases[i]).LoadCaseType))
+                                if (!loadCaseAc.LoadCaseType.Equals(loadCaseLead1.LoadCaseType))
                                 {
-                                    var lcacctype = ((LoadCase)loadCaseAccompanying).LoadCaseType;
-                                    if (((LoadCase)loadCaseAccompanying).LoadCaseType != LoadCase.LoadCaseTypes.WindSuction &&
-                                        ((LoadCase)loadCaseAccompanying).LoadCaseType != LoadCase.LoadCaseTypes.WindPressure)
+                                    if (loadCaseAc.LoadCaseType != LoadCase.LoadCaseTypes.WindSuction && loadCaseAc.LoadCaseType != LoadCase.LoadCaseTypes.WindPressure)
                                     {
-                                        foreach (LoadCase lca in loadCases.Where(j => j is LoadCase tlc && tlc.LoadCaseType == lcacctype))
+                                        foreach (LoadCase lca in loadCases.Where(j => j is LoadCase tlc && tlc.LoadCaseType == loadCaseAc.LoadCaseType))
                                         {
-                                            LoadCaseCoefficient loadCaseCoefficientAccompanying = new
-                                                LoadCaseCoefficient(GetCoefficientAccompanyingVariableAction(lca, options), lca);
+                                            LoadCaseCoefficient loadCaseCoefficientAccompanying = new LoadCaseCoefficient(GetCoefficientAccompanyingVariableAction(lca, options), lca);
                                             loadCaseCoefficientsBuffer.Add(loadCaseCoefficientAccompanying);
                                         }
-                                        hashAcc.Add(lcacctype);
+                                        hashAcc.Add(loadCaseAc.LoadCaseType);
                                     }
                                 }
                             }
                         }
-                        else if (loadCases[i] is ClimateLoadCase && loadCaseAccompanying is ClimateLoadCase)
+                        else if (loadCases[i] is ClimateLoadCase loadCaseLead2 && loadCaseAccompanying is LoadCase loadCaseAccomp)
                         {
-                            if (!chashAcc.Contains((((ClimateLoadCase)loadCaseAccompanying).Season, ((ClimateLoadCase)loadCaseAccompanying).ClimateType)))
+                            if (!hashAcc.Contains(((LoadCase)loadCaseAccompanying).LoadCaseType))
                             {
-                                var lcaccseason = ((ClimateLoadCase)loadCaseAccompanying).Season;
-                                var lcacctype = ((ClimateLoadCase)loadCaseAccompanying).ClimateType;
-                                if (!((ClimateLoadCase)loadCaseAccompanying).Season.Equals(((ClimateLoadCase)loadCases[i]).Season) &&
-                                    !((ClimateLoadCase)loadCaseAccompanying).ClimateType.Equals(((ClimateLoadCase)loadCases[i]).ClimateType))
+                                if (loadCaseAccomp.LoadCaseType != LoadCase.LoadCaseTypes.WindSuction && loadCaseAccomp.LoadCaseType != LoadCase.LoadCaseTypes.WindPressure)
                                 {
-                                    if (!(((ClimateLoadCase)loadCaseAccompanying).Season == ClimateLoadCase.Seasons.Summer &&
-                                        ((ClimateLoadCase)loadCaseAccompanying).ClimateType == ClimateLoadCase.ClimateTypes.DeltaP) &&
-                                        !(((ClimateLoadCase)loadCaseAccompanying).Season == ClimateLoadCase.Seasons.Summer &&
-                                        ((ClimateLoadCase)loadCaseAccompanying).ClimateType == ClimateLoadCase.ClimateTypes.DeltaT) &&
-                                        !(((ClimateLoadCase)loadCaseAccompanying).Season == ClimateLoadCase.Seasons.Winter &&
-                                        ((ClimateLoadCase)loadCaseAccompanying).ClimateType == ClimateLoadCase.ClimateTypes.DeltaP))
+                                    foreach (LoadCase lca in loadCases.Where(j => j is LoadCase tlc && tlc.LoadCaseType == loadCaseAccomp.LoadCaseType))
                                     {
-                                        foreach (ClimateLoadCase lca in loadCases.Where(j => j is ClimateLoadCase clc
-                                                                                             && clc.Season == lcaccseason
-                                                                                             && clc.ClimateType == lcacctype))
-                                        {
-                                            LoadCaseCoefficient loadCaseCoefficientAccompanying =
-                                                new LoadCaseCoefficient(GetCoefficientAccompanyingVariableAction(lca, options), lca);
-                                            loadCaseCoefficientsBuffer.Add(loadCaseCoefficientAccompanying);
-                                        }
-                                        chashAcc.Add((lcaccseason, lcacctype));
+                                        LoadCaseCoefficient loadCaseCoefficientAccompanying = new LoadCaseCoefficient(GetCoefficientAccompanyingVariableAction(lca, options), lca);
+                                        loadCaseCoefficientsBuffer.Add(loadCaseCoefficientAccompanying);
                                     }
+                                    hashAcc.Add(loadCaseAccomp.LoadCaseType);
+                                }                                
+                            }
+                        }
+                        else if (loadCases[i] is ClimateLoadCase loadCaseLead3 && loadCaseAccompanying is ClimateLoadCase climateLoadCaseAcc1)
+                        {
+                            if (!chashAcc.Contains((climateLoadCaseAcc1.Season, climateLoadCaseAcc1.ClimateType)) && !chash.Contains((climateLoadCaseAcc1.Season, climateLoadCaseAcc1.ClimateType)))
+                            {
+                                if ((climateLoadCaseAcc1.Season.Equals(loadCaseLead3.Season) && !climateLoadCaseAcc1.ClimateType.Equals(loadCaseLead3.ClimateType)))
+                                {
+                                    foreach (ClimateLoadCase lca in loadCases.Where(j => j is ClimateLoadCase clc && clc.Season == climateLoadCaseAcc1.Season && clc.ClimateType == climateLoadCaseAcc1.ClimateType))
+                                    {
+                                        LoadCaseCoefficient loadCaseCoefficientAccompanying = new LoadCaseCoefficient(GetCoefficientAccompanyingVariableAction(lca, options), lca);
+                                        loadCaseCoefficientsBuffer.Add(loadCaseCoefficientAccompanying);
+                                    }
+                                    chashAcc.Add((climateLoadCaseAcc1.Season, climateLoadCaseAcc1.ClimateType));
                                 }
                             }
+                        }
+                        else if (loadCases[i] is LoadCase loadCaseLead4 && loadCaseAccompanying is ClimateLoadCase climateLoadCaseAcc2)
+                        {
+                            // viene gestito dopo
                         }
 
                         #endregion
@@ -754,44 +765,80 @@ namespace GPC.Model.Combinations
                         // gestione carichi secondari windsuction
                         foreach (LoadCaseBase loadCaseAccom in loadCases)
                         {
-                            if (loadCaseLead is LoadCase lcl2 && lcl2.LoadCaseType != LoadCase.LoadCaseTypes.WindPressure)
+                            if (loadCaseLead is LoadCase lcl2)
                             {
-                                if (loadCaseAccom is LoadCase loadCaseAccompanying && loadCaseAccompanying.LoadCaseType == LoadCase.LoadCaseTypes.WindSuction)
+                                if (lcl2.LoadCaseType != LoadCase.LoadCaseTypes.WindPressure)
                                 {
-                                    if (!loadCaseAccompanying.LoadCaseType.Equals(lcl2.LoadCaseType))
+                                    if (loadCaseAccom is LoadCase loadCaseAccompanying && loadCaseAccompanying.LoadCaseType == LoadCase.LoadCaseTypes.WindSuction)
                                     {
-                                        if (!hashAcc.Contains((LoadCase.LoadCaseTypes)loadCaseAccompanying.LoadCaseType))
+                                        if (!loadCaseAccompanying.LoadCaseType.Equals(lcl2.LoadCaseType))
                                         {
-                                            foreach (LoadCase lca in loadCases.Where(j => j is LoadCase lcw && lcw.LoadCaseType == LoadCase.LoadCaseTypes.WindSuction))
+                                            if (!hashAcc.Contains((LoadCase.LoadCaseTypes)loadCaseAccompanying.LoadCaseType))
                                             {
-                                                LoadCaseCoefficient loadCaseCoefficientAccompanying = new LoadCaseCoefficient(GetCoefficientAccompanyingVariableAction(lca, options), lca);
-                                                loadCaseCoefficientsWindSuction.Add(loadCaseCoefficientAccompanying);
+                                                foreach (LoadCase lca in loadCases.Where(j => j is LoadCase lcw && lcw.LoadCaseType == LoadCase.LoadCaseTypes.WindSuction))
+                                                {
+                                                    LoadCaseCoefficient loadCaseCoefficientAccompanying = new LoadCaseCoefficient(GetCoefficientAccompanyingVariableAction(lca, options), lca);
+                                                    loadCaseCoefficientsWindSuction.Add(loadCaseCoefficientAccompanying);
+                                                }
+                                                hashAcc.Add((LoadCase.LoadCaseTypes)loadCaseAccompanying.LoadCaseType);
                                             }
-                                            hashAcc.Add((LoadCase.LoadCaseTypes)loadCaseAccompanying.LoadCaseType);
                                         }
                                     }
                                 }
                             }
+                            if (loadCaseLead is ClimateLoadCase clld3)
+                            {
+                                if (loadCaseAccom is LoadCase loadCaseAccompanying && loadCaseAccompanying.LoadCaseType == LoadCase.LoadCaseTypes.WindSuction)
+                                {
+                                    if (!hashAcc.Contains((LoadCase.LoadCaseTypes)loadCaseAccompanying.LoadCaseType))
+                                    {
+                                        foreach (LoadCase lca in loadCases.Where(j => j is LoadCase lcw && lcw.LoadCaseType == LoadCase.LoadCaseTypes.WindSuction))
+                                        {
+                                            LoadCaseCoefficient loadCaseCoefficientAccompanying = new LoadCaseCoefficient(GetCoefficientAccompanyingVariableAction(lca, options), lca);
+                                            loadCaseCoefficientsWindSuction.Add(loadCaseCoefficientAccompanying);
+                                        }
+                                        hashAcc.Add((LoadCase.LoadCaseTypes)loadCaseAccompanying.LoadCaseType);
+                                    }
+                                }
+                            }                      
                         }
 
                         // gestione carichi secondari windpressure
                         foreach (LoadCaseBase loadCaseAccom in loadCases)
                         {
-                            if (loadCaseLead is LoadCase lcl2 && lcl2.LoadCaseType != LoadCase.LoadCaseTypes.WindSuction)
+                            if (loadCaseLead is LoadCase lcl2 )
+                            {
+                                if (lcl2.LoadCaseType != LoadCase.LoadCaseTypes.WindSuction)
+                                {
+                                    if (loadCaseAccom is LoadCase loadCaseAccompanying && loadCaseAccompanying.LoadCaseType == LoadCase.LoadCaseTypes.WindPressure)
+                                    {
+                                        if (!loadCaseAccompanying.LoadCaseType.Equals(lcl2.LoadCaseType))
+                                        {
+                                            if (!hashAcc.Contains((LoadCase.LoadCaseTypes)loadCaseAccompanying.LoadCaseType))
+                                            {
+                                                foreach (LoadCase lca in loadCases.Where(j => j is LoadCase lcw && lcw.LoadCaseType == LoadCase.LoadCaseTypes.WindPressure))
+                                                {
+                                                    LoadCaseCoefficient loadCaseCoefficientAccompanying = new LoadCaseCoefficient(GetCoefficientAccompanyingVariableAction(lca, options), lca);
+                                                    loadCaseCoefficientsWindPressure.Add(loadCaseCoefficientAccompanying);
+                                                }
+                                                hashAcc.Add((LoadCase.LoadCaseTypes)loadCaseAccompanying.LoadCaseType);
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                            if (loadCaseLead is ClimateLoadCase clld3)
                             {
                                 if (loadCaseAccom is LoadCase loadCaseAccompanying && loadCaseAccompanying.LoadCaseType == LoadCase.LoadCaseTypes.WindPressure)
                                 {
-                                    if (!loadCaseAccompanying.LoadCaseType.Equals(lcl2.LoadCaseType))
+                                    if (!hashAcc.Contains((LoadCase.LoadCaseTypes)loadCaseAccompanying.LoadCaseType))
                                     {
-                                        if (!hashAcc.Contains((LoadCase.LoadCaseTypes)loadCaseAccompanying.LoadCaseType))
+                                        foreach (LoadCase lca in loadCases.Where(j => j is LoadCase lcw && lcw.LoadCaseType == LoadCase.LoadCaseTypes.WindPressure))
                                         {
-                                            foreach (LoadCase lca in loadCases.Where(j => j is LoadCase lcw && lcw.LoadCaseType == LoadCase.LoadCaseTypes.WindPressure))
-                                            {
-                                                LoadCaseCoefficient loadCaseCoefficientAccompanying = new LoadCaseCoefficient(GetCoefficientAccompanyingVariableAction(lca, options), lca);
-                                                loadCaseCoefficientsWindPressure.Add(loadCaseCoefficientAccompanying);
-                                            }
-                                            hashAcc.Add((LoadCase.LoadCaseTypes)loadCaseAccompanying.LoadCaseType);
+                                            LoadCaseCoefficient loadCaseCoefficientAccompanying = new LoadCaseCoefficient(GetCoefficientAccompanyingVariableAction(lca, options), lca);
+                                            loadCaseCoefficientsWindPressure.Add(loadCaseCoefficientAccompanying);
                                         }
+                                        hashAcc.Add((LoadCase.LoadCaseTypes)loadCaseAccompanying.LoadCaseType);
                                     }
                                 }
                             }
