@@ -2984,6 +2984,7 @@ namespace ModelObjectTest
             var lc4 = new LoadCase("LC4", LoadCase.LoadCaseTypes.Maintenance);
             var lc5 = new LoadCase("LC5", LoadCase.LoadCaseTypes.LiveLoad);
             var lc6 = new LoadCase("LC6", LoadCase.LoadCaseTypes.Snow);
+            var lc62 = new LoadCase("LC6", LoadCase.LoadCaseTypes.Snow);
 
             combination1.AddLoadCaseCoefficient(lc1, 1);
             combination1.AddLoadCaseCoefficient(lc2, 2);
@@ -2995,7 +2996,7 @@ namespace ModelObjectTest
             combination2.AddLoadCaseCoefficient(lc2, 2);
             combination2.AddLoadCaseCoefficient(lc4, 4);
             combination2.AddLoadCaseCoefficient(lc5, 5);
-            combination2.AddLoadCaseCoefficient(lc6, 6);
+            combination2.AddLoadCaseCoefficient(lc62, 6);
 
             combination3.AddLoadCaseCoefficient(lc1, 1);
             combination3.AddLoadCaseCoefficient(lc2, 2);
