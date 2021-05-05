@@ -658,10 +658,18 @@ namespace GPC.Model.FEM.FiniteElements
                                 //TODO
                                 break;
                             case LocalDOF.U2:
-                                //TODO
+                                fLocal[2 - 1] = 0.0;
+                                fLocal[6 - 1] = -BendingFixAndBipendolumUniformLoad(_length - 0.0, q2, _length);
+
+                                fLocal[8 - 1] = ShearFixAndBipendolumUniformLoad(0.0, q2, _length);
+                                fLocal[12 - 1] = BendingFixAndBipendolumUniformLoad(0.0, q2, _length);
                                 break;
                             case LocalDOF.U3:
-                                //TODO
+                                fLocal[3 - 1] = 0.0;
+                                fLocal[5 - 1] = BendingFixAndBipendolumUniformLoad(_length - 0.0, q3, _length);
+
+                                fLocal[9 - 1] = ShearFixAndBipendolumUniformLoad(0.0, q3, _length);
+                                fLocal[11 - 1] = -BendingFixAndBipendolumUniformLoad(0.0, q3, _length);
                                 break;
                             case LocalDOF.R2:
                                 fLocal[3 - 1] = 3.0 / 8.0 * q3 * _length;
@@ -916,15 +924,17 @@ namespace GPC.Model.FEM.FiniteElements
                     LocalDOF index = (LocalDOF)i;
                     displStation.Add(index, displLocalNode1[index] * N0(station, _length) + displLocalNode2[index] * N1(station, _length)); //linear interpolation
                     
-                    /*if (index == LocalDOF.AxialU1)
+                    if (index == LocalDOF.AxialU1)
                     {
-                        //TODO: add effect of uniform load
-                    }*/
+                        double dq = (-1.0 / 4.0 * q1 * station * station + 1.0/4.0 * (2.0 * L * station - station * station) * q1) / (E * A); //from: integration of qL/2 * N0(x) + (-qL/2) * N1(x)
+                        displStation[index] = displStation[index] + dq;
+                    }
 
                     if (index == LocalDOF.U2)
                     {
                         displStation[index] = displStation[index] + DisplacementFixFixUniformLoad(q2, station, _length, E, J22) + DisplacementFixFixImposedRotation(station, displLocalNode1[LocalDOF.R3], _length) - DisplacementFixFixImposedRotation(_length - station, displLocalNode2[LocalDOF.R3], _length);
                     }
+
                     if (index == LocalDOF.U3)
                     {
                         displStation[index] = displStation[index] + DisplacementFixFixUniformLoad(q3, station, _length, E, J11) - DisplacementFixFixImposedRotation(station, displLocalNode1[LocalDOF.R2], _length) + DisplacementFixFixImposedRotation(_length - station, displLocalNode2[LocalDOF.R2], _length);
@@ -962,7 +972,8 @@ namespace GPC.Model.FEM.FiniteElements
                         double rotation2 = displLocalNode2[LocalDOF.R3];
                         double dr1 = DisplacementFixAndFreeWithImposedRotationAtFreeEnd(_length - station, rotation1, _length);
                         double dr2 = DisplacementFixAndBiPendulumImposedRotationAtFixEnd(_length - station, rotation2, _length);
-                        displStation[LocalDOF.U2] = displLocalNode2[LocalDOF.U2] - dr1 + dr2;
+                        double dq = DisplacementFixAndBipendolumUniformLoad(_length - station, q2, _length, E, J22);
+                        displStation[LocalDOF.U2] = displLocalNode2[LocalDOF.U2] - dr1 + dr2 + dq;
                     }
                     #endregion
 
@@ -973,7 +984,8 @@ namespace GPC.Model.FEM.FiniteElements
                         double rotation2 = displLocalNode2[LocalDOF.R2];
                         double dr1 = DisplacementFixAndFreeWithImposedRotationAtFreeEnd(_length - station, rotation1, _length);
                         double dr2 = DisplacementFixAndBiPendulumImposedRotationAtFixEnd(_length - station, rotation2, _length);
-                        displStation[LocalDOF.U3] = displLocalNode2[LocalDOF.U3] + dr1 - dr2;
+                        double dq = DisplacementFixAndBipendolumUniformLoad(_length - station, q3, _length, E, J11);
+                        displStation[LocalDOF.U3] = displLocalNode2[LocalDOF.U3] + dr1 - dr2 + dq;
                     }
                     #endregion
 
@@ -1310,6 +1322,21 @@ namespace GPC.Model.FEM.FiniteElements
         private static double DisplacementFixAndBiPendulumImposedRotationAtFixEnd(double x, double alpha, double L)
         {
             return alpha / L * x * (x - 2.0 * L) / 2.0;
+        }
+
+        private static double DisplacementFixAndBipendolumUniformLoad(double x, double q, double L, double E, double J)
+        {
+            return q / (24.0 * E * J) * x*x * Math.Pow(x - 2.0 * L, 2.0);
+        }
+
+        private static double BendingFixAndBipendolumUniformLoad(double x, double q, double L)
+        {
+            return -q / 6.0 * (2.0 * L*L - 6.0 * L * x + 3.0 *x*x);
+        }
+
+        private static double ShearFixAndBipendolumUniformLoad(double x, double q, double L)
+        {
+            return q * (L-x);
         }
         #endregion
     }
