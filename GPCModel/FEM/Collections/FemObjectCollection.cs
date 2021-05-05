@@ -166,6 +166,54 @@ namespace GPC.Model.FEM.Collections
             return _ids;
         }
 
+
+
+        /// <returns>A map between <typeparamref name="T"/> HashCode and the index of <typeparamref name="T"/> in the <see cref="_collection"/> </returns>
+        /// <remarks>This is an O(n) operation</remarks>
+        public virtual Dictionary<int, int> GetElementHashMap()
+        {
+            Dictionary<int, int> hashMap = new Dictionary<int, int>();
+            var list = (_collection as List<T>);
+            for (int i = 0; i < list.Count; i++)
+            {
+                hashMap[list[i].GetHashCode()] = i;
+            }
+
+            return hashMap;
+        }
+
+        /// <returns>A map between <typeparamref name="T"/>.Id  and the index of <typeparamref name="T"/> in the <see cref="_collection"/> </returns>
+        /// <remarks>This is an O(n) operation</remarks>
+        public virtual Dictionary<int, int> GetElementIdMap()
+        {
+            Dictionary<int, int> hashMap = new Dictionary<int, int>();
+
+            var list = (_collection as List<T>);
+
+            for (int i = 0; i < list.Count; i++)
+            {
+                hashMap[list[i].Id] = i;
+            }
+
+            return hashMap;
+        }
+
+
+        /// <summary>
+        /// Get the element by its position on the <see cref="_collection"/>
+        /// </summary>
+        /// <param name="index">The index of <typeparamref name="T"/> in the <see cref="_collection"/>
+        /// <para>This is different from the ID of <typeparamref name="T"/></para>
+        /// </param>
+        /// <returns><typeparamref name="T"/></returns>
+        /// <remarks>This method should be used along with <see cref="GetElementIdMap()"/>
+        /// <para>This is an O(1) operation</para></remarks>
+        public virtual T GetElementByIndex(int index)
+        {
+            return (_collection as List<T>)[index];
+        }
+
+
         public virtual IEnumerator<T> GetEnumerator()
         {
             return _collection.GetEnumerator();
