@@ -71,6 +71,66 @@ namespace GPC.Model.Combinations
         #region PUBLIC METHOD OVERRIDE
 
         /// <summary>
+        /// Get the coefficient psi 0 for buildings
+        /// </summary>
+        /// <param name="loadCase">The climate load case</param>
+        /// <returns>The value of the coefficient</returns>
+        public double GetPsi0(ClimateLoadCase loadCase)
+        {
+            if (loadCase.Season == ClimateLoadCase.Seasons.Summer && loadCase.ClimateType == ClimateLoadCase.ClimateTypes.DeltaP)
+                return _psi0ClimateSummerDeltaP;
+            else if (loadCase.Season == ClimateLoadCase.Seasons.Summer && loadCase.ClimateType == ClimateLoadCase.ClimateTypes.DeltaT)
+                return _psi0ClimateSummerDeltaP;
+            else if (loadCase.Season == ClimateLoadCase.Seasons.Winter && loadCase.ClimateType == ClimateLoadCase.ClimateTypes.DeltaP)
+                return _psi0ClimateWinterDeltaP;
+            else if (loadCase.Season == ClimateLoadCase.Seasons.Winter && loadCase.ClimateType == ClimateLoadCase.ClimateTypes.DeltaT)
+                return _psi0ClimateWinterDeltaT;
+            throw new ArgumentException("Don't exist coefficient for this load case");
+        }
+
+        /// <summary>
+        /// Get the coefficient psi 1 for buildings
+        /// </summary>
+        /// <param name="loadCase">The climate load case</param>
+        /// <returns>The value of the coefficient</returns>
+        public double GetPsi1(ClimateLoadCase loadCase)
+        {
+            if (loadCase.Season == ClimateLoadCase.Seasons.Summer && loadCase.ClimateType == ClimateLoadCase.ClimateTypes.DeltaP)
+                return _psi1ClimateSummerDeltaP;
+            else if (loadCase.Season == ClimateLoadCase.Seasons.Summer && loadCase.ClimateType == ClimateLoadCase.ClimateTypes.DeltaT)
+                return _psi1ClimateSummerDeltaP;
+            else if (loadCase.Season == ClimateLoadCase.Seasons.Winter && loadCase.ClimateType == ClimateLoadCase.ClimateTypes.DeltaP)
+                return _psi1ClimateWinterDeltaP;
+            else if (loadCase.Season == ClimateLoadCase.Seasons.Winter && loadCase.ClimateType == ClimateLoadCase.ClimateTypes.DeltaT)
+                return _psi1ClimateWinterDeltaT;
+
+            throw new ArgumentException("Don't exist coefficient for this load case");
+        }
+
+        /// <summary>
+        /// Get the coefficient psi 2 for buildings
+        /// </summary>
+        /// <param name="loadCase">The climate load case</param>
+        /// <returns>The value of the coefficient</returns>
+        public double GetPsi2(ClimateLoadCase loadCase)
+        {
+            if (loadCase.Season == ClimateLoadCase.Seasons.Summer && loadCase.ClimateType == ClimateLoadCase.ClimateTypes.DeltaP)
+                return _psi2ClimateSummerDeltaP;
+            else if (loadCase.Season == ClimateLoadCase.Seasons.Summer && loadCase.ClimateType == ClimateLoadCase.ClimateTypes.DeltaT)
+                return _psi2ClimateSummerDeltaP;
+            else if (loadCase.Season == ClimateLoadCase.Seasons.Winter && loadCase.ClimateType == ClimateLoadCase.ClimateTypes.DeltaP)
+                return _psi2ClimateWinterDeltaP;
+            else if (loadCase.Season == ClimateLoadCase.Seasons.Winter && loadCase.ClimateType == ClimateLoadCase.ClimateTypes.DeltaT)
+                return _psi2ClimateWinterDeltaT;
+
+            throw new ArgumentException("Don't exist coefficient for this load case");
+        }
+
+        #endregion
+
+        #region PROTECTED METHOD OVERRIDE
+
+        /// <summary>
         /// Generate all the combination for the variable loads
         /// </summary>
         /// <param name="loadCases">List of load cases</param>
@@ -873,65 +933,6 @@ namespace GPC.Model.Combinations
 
             return loadCaseCoefficients;
         }
-
-
-
-        /// <summary>
-        /// Get the coefficient psi 0 for buildings
-        /// </summary>
-        /// <param name="loadCase">The climate load case</param>
-        /// <returns>The value of the coefficient</returns>
-        public double GetPsi0(ClimateLoadCase loadCase)
-        {
-            if (loadCase.Season == ClimateLoadCase.Seasons.Summer && loadCase.ClimateType == ClimateLoadCase.ClimateTypes.DeltaP)
-                return _psi0ClimateSummerDeltaP;
-            else if (loadCase.Season == ClimateLoadCase.Seasons.Summer && loadCase.ClimateType == ClimateLoadCase.ClimateTypes.DeltaT)
-                return _psi0ClimateSummerDeltaP;
-            else if (loadCase.Season == ClimateLoadCase.Seasons.Winter && loadCase.ClimateType == ClimateLoadCase.ClimateTypes.DeltaP)
-                return _psi0ClimateWinterDeltaP;
-            else if (loadCase.Season == ClimateLoadCase.Seasons.Winter && loadCase.ClimateType == ClimateLoadCase.ClimateTypes.DeltaT)
-                return _psi0ClimateWinterDeltaT;
-            throw new ArgumentException("Don't exist coefficient for this load case");
-        }
-
-        /// <summary>
-        /// Get the coefficient psi 1 for buildings
-        /// </summary>
-        /// <param name="loadCase">The climate load case</param>
-        /// <returns>The value of the coefficient</returns>
-        public double GetPsi1(ClimateLoadCase loadCase)
-        {
-            if (loadCase.Season == ClimateLoadCase.Seasons.Summer && loadCase.ClimateType == ClimateLoadCase.ClimateTypes.DeltaP)
-                return _psi1ClimateSummerDeltaP;
-            else if (loadCase.Season == ClimateLoadCase.Seasons.Summer && loadCase.ClimateType == ClimateLoadCase.ClimateTypes.DeltaT)
-                return _psi1ClimateSummerDeltaP;
-            else if (loadCase.Season == ClimateLoadCase.Seasons.Winter && loadCase.ClimateType == ClimateLoadCase.ClimateTypes.DeltaP)
-                return _psi1ClimateWinterDeltaP;
-            else if (loadCase.Season == ClimateLoadCase.Seasons.Winter && loadCase.ClimateType == ClimateLoadCase.ClimateTypes.DeltaT)
-                return _psi1ClimateWinterDeltaT;
-
-            throw new ArgumentException("Don't exist coefficient for this load case");
-        }
-
-        /// <summary>
-        /// Get the coefficient psi 2 for buildings
-        /// </summary>
-        /// <param name="loadCase">The climate load case</param>
-        /// <returns>The value of the coefficient</returns>
-        public double GetPsi2(ClimateLoadCase loadCase)
-        {
-            if (loadCase.Season == ClimateLoadCase.Seasons.Summer && loadCase.ClimateType == ClimateLoadCase.ClimateTypes.DeltaP)
-                return _psi2ClimateSummerDeltaP;
-            else if (loadCase.Season == ClimateLoadCase.Seasons.Summer && loadCase.ClimateType == ClimateLoadCase.ClimateTypes.DeltaT)
-                return _psi2ClimateSummerDeltaP;
-            else if (loadCase.Season == ClimateLoadCase.Seasons.Winter && loadCase.ClimateType == ClimateLoadCase.ClimateTypes.DeltaP)
-                return _psi2ClimateWinterDeltaP;
-            else if (loadCase.Season == ClimateLoadCase.Seasons.Winter && loadCase.ClimateType == ClimateLoadCase.ClimateTypes.DeltaT)
-                return _psi2ClimateWinterDeltaT;
-
-            throw new ArgumentException("Don't exist coefficient for this load case");
-        }
-
 
         /// <summary>
         /// Return the coefficient of unfavourable permanent actions
