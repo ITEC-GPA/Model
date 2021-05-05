@@ -161,6 +161,10 @@ namespace GPC.Model.FEM.Collections
             return _collection.SingleOrDefault(i => i.Id.Equals(id));
         }
 
+        public virtual HashSet<int> GetIds()
+        {
+            return _ids;
+        }
 
         public virtual IEnumerator<T> GetEnumerator()
         {
