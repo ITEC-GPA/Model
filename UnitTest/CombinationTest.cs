@@ -2084,11 +2084,11 @@ namespace ModelObjectTest
             combination1.AddLoadCaseCoefficient(climateSummerDeltaPLoadCase3, 1.50);
 
             Combination combination2 = new Combination("cmb 2", options);
-            combination1.AddLoadCaseCoefficient(selfWeightLoadCase, 1.00);
-            combination1.AddLoadCaseCoefficient(climateSummerDeltaTLoadCase1, 1.50);
-            combination1.AddLoadCaseCoefficient(climateSummerDeltaPLoadCase1, 1.50);
-            combination1.AddLoadCaseCoefficient(climateSummerDeltaPLoadCase2, 1.50);
-            combination1.AddLoadCaseCoefficient(climateSummerDeltaPLoadCase3, 1.50);
+            combination2.AddLoadCaseCoefficient(selfWeightLoadCase, 1.00);
+            combination2.AddLoadCaseCoefficient(climateSummerDeltaTLoadCase1, 1.50);
+            combination2.AddLoadCaseCoefficient(climateSummerDeltaPLoadCase1, 1.50);
+            combination2.AddLoadCaseCoefficient(climateSummerDeltaPLoadCase2, 1.50);
+            combination2.AddLoadCaseCoefficient(climateSummerDeltaPLoadCase3, 1.50);
 
             Combination combination3 = new Combination("cmb 3", options);
             combination3.AddLoadCaseCoefficient(selfWeightLoadCase, 1.00);
@@ -2171,105 +2171,101 @@ namespace ModelObjectTest
             // Act
             CombinationsCollection outList = standardEN16612.CreateCombinations(loadCaseList.ToArray(), options);
 
+            List<Combination> listComb = new List<Combination>();
+            foreach (Combination combination in outList)
+            {
+                string combinationName = combination.ToString();
+                Console.WriteLine(combinationName);
+                listComb.Add(combination);
+            }
+
             // Assert
-            Assert.IsTrue(outList.Count() == 16);
-            //Assert.IsTrue(Math.Abs(outList[0][selfWeightLoadCase] - 1.00) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[1][selfWeightLoadCase] - 1.00) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[2][selfWeightLoadCase] - 1.00) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[3][selfWeightLoadCase] - 1.00) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[4][selfWeightLoadCase] - 1.00) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[5][selfWeightLoadCase] - 1.00) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[6][selfWeightLoadCase] - 1.35) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[7][selfWeightLoadCase] - 1.35) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[8][selfWeightLoadCase] - 1.35) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[9][selfWeightLoadCase] - 1.35) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[10][selfWeightLoadCase] - 1.35) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[11][selfWeightLoadCase] - 1.35) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[12][selfWeightLoadCase] - 1.00) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[13][selfWeightLoadCase] - 1.00) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[14][selfWeightLoadCase] - 1.35) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[15][selfWeightLoadCase] - 1.35) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[0][climateSummerDeltaHLoadCase1] - 1.00) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[4][climateSummerDeltaHLoadCase1] - 1.00) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[6][climateSummerDeltaHLoadCase1] - 1.35) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[10][climateSummerDeltaHLoadCase1] - 1.35) < 0.001);
+            Combination combination1 = new Combination("cmb 1", options);
+            combination1.AddLoadCaseCoefficient(selfWeightLoadCase, 1.00);
+            combination1.AddLoadCaseCoefficient(climateSummerDeltaHLoadCase1, 1.00);
+            combination1.AddLoadCaseCoefficient(climateSummerDeltaTLoadCase1, 1.50);
+            combination1.AddLoadCaseCoefficient(climateSummerDeltaPLoadCase1, 1.50);
+            combination1.AddLoadCaseCoefficient(climateSummerDeltaPLoadCase2, 1.50);
+            combination1.AddLoadCaseCoefficient(climateSummerDeltaPLoadCase3, 1.50);
+            combination1.AddLoadCaseCoefficient(windLoadCase1, 0.90);
+            combination1.AddLoadCaseCoefficient(windLoadCase2, 0.90);
 
-            //Assert.IsTrue(Math.Abs(outList[0][climateSummerDeltaTLoadCase1] - 1.50) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[0][climateSummerDeltaPLoadCase1] - 1.50) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[0][climateSummerDeltaPLoadCase2] - 1.50) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[0][climateSummerDeltaPLoadCase3] - 1.50) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[0][windLoadCase1] - 0.90) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[0][windLoadCase2] - 0.90) < 0.001);
+            Combination combination2 = new Combination("cmb 2", options);
+            combination2.AddLoadCaseCoefficient(selfWeightLoadCase, 1.00);
+            combination2.AddLoadCaseCoefficient(climateSummerDeltaTLoadCase1, 1.50);
+            combination2.AddLoadCaseCoefficient(climateSummerDeltaPLoadCase1, 1.50);
+            combination2.AddLoadCaseCoefficient(climateSummerDeltaPLoadCase2, 1.50);
+            combination2.AddLoadCaseCoefficient(climateSummerDeltaPLoadCase3, 1.50);
+            combination2.AddLoadCaseCoefficient(windLoadCase1, 0.90);
+            combination2.AddLoadCaseCoefficient(windLoadCase2, 0.90);
 
-            //Assert.IsTrue(Math.Abs(outList[1][climateSummerDeltaTLoadCase1] - 1.50) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[1][climateSummerDeltaPLoadCase1] - 1.50) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[1][climateSummerDeltaPLoadCase2] - 1.50) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[1][climateSummerDeltaPLoadCase3] - 1.50) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[1][windLoadCase1] - 0.90) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[1][windLoadCase2] - 0.90) < 0.001);
+            Combination combination3 = new Combination("cmb 3", options);
+            combination3.AddLoadCaseCoefficient(selfWeightLoadCase, 1.00);
+            combination3.AddLoadCaseCoefficient(climateWinterDeltaPLoadCase1, 1.50);
+            combination3.AddLoadCaseCoefficient(climateWinterDeltaPLoadCase2, 1.50);
+            combination3.AddLoadCaseCoefficient(windLoadCase1, 0.90);
+            combination3.AddLoadCaseCoefficient(windLoadCase2, 0.90);
 
-            //Assert.IsTrue(Math.Abs(outList[2][climateWinterDeltaPLoadCase1] - 1.50) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[2][climateWinterDeltaPLoadCase2] - 1.50) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[2][windLoadCase1] - 0.90) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[2][windLoadCase2] - 0.90) < 0.001);
+            Combination combination4 = new Combination("cmb 4", options);
+            combination4.AddLoadCaseCoefficient(selfWeightLoadCase, 1.00);
+            combination4.AddLoadCaseCoefficient(climateSummerDeltaHLoadCase1, 1.00);
+            combination4.AddLoadCaseCoefficient(windLoadCase1, 1.50);
+            combination4.AddLoadCaseCoefficient(windLoadCase2, 1.50);
 
-            //Assert.IsTrue(Math.Abs(outList[3][windLoadCase1] - 1.50) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[3][windLoadCase2] - 1.50) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[3][climateWinterDeltaPLoadCase1] - 0.45) < 0.001);            // valore da modificare quando cambieranno gli psi dei vetri
-            //Assert.IsTrue(Math.Abs(outList[3][climateWinterDeltaPLoadCase2] - 0.45) < 0.001);            // valore da modificare quando cambieranno gli psi dei vetri
+            Combination combination5 = new Combination("cmb 5", options);
+            combination5.AddLoadCaseCoefficient(selfWeightLoadCase, 1.00);
+            combination5.AddLoadCaseCoefficient(windLoadCase1, 1.50);
+            combination5.AddLoadCaseCoefficient(windLoadCase2, 1.50);
 
-            //Assert.IsTrue(Math.Abs(outList[4][windLoadCase1] - 1.50) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[4][windLoadCase2] - 1.50) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[4][climateSummerDeltaTLoadCase1] - 0.45) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[4][climateSummerDeltaPLoadCase1] - 0.45) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[4][climateSummerDeltaPLoadCase2] - 0.45) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[4][climateSummerDeltaPLoadCase3] - 0.45) < 0.001);
+            Combination combination6 = new Combination("cmb 6", options);
+            combination6.AddLoadCaseCoefficient(selfWeightLoadCase, 1.35);
+            combination6.AddLoadCaseCoefficient(climateSummerDeltaHLoadCase1, 1.35);
+            combination6.AddLoadCaseCoefficient(climateSummerDeltaTLoadCase1, 1.50);
+            combination6.AddLoadCaseCoefficient(climateSummerDeltaPLoadCase1, 1.50);
+            combination6.AddLoadCaseCoefficient(climateSummerDeltaPLoadCase2, 1.50);
+            combination6.AddLoadCaseCoefficient(climateSummerDeltaPLoadCase3, 1.50);
+            combination6.AddLoadCaseCoefficient(windLoadCase1, 0.90);
+            combination6.AddLoadCaseCoefficient(windLoadCase2, 0.90);
 
-            //Assert.IsTrue(Math.Abs(outList[5][windLoadCase1] - 1.50) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[5][windLoadCase2] - 1.50) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[5][climateSummerDeltaTLoadCase1] - 0.45) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[5][climateSummerDeltaPLoadCase1] - 0.45) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[5][climateSummerDeltaPLoadCase2] - 0.45) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[5][climateSummerDeltaPLoadCase3] - 0.45) < 0.001);
+            Combination combination7 = new Combination("cmb 7", options);
+            combination7.AddLoadCaseCoefficient(selfWeightLoadCase, 1.35);
+            combination7.AddLoadCaseCoefficient(climateSummerDeltaTLoadCase1, 1.50);
+            combination7.AddLoadCaseCoefficient(climateSummerDeltaPLoadCase1, 1.50);
+            combination7.AddLoadCaseCoefficient(climateSummerDeltaPLoadCase2, 1.50);
+            combination7.AddLoadCaseCoefficient(climateSummerDeltaPLoadCase3, 1.50);
+            combination7.AddLoadCaseCoefficient(windLoadCase1, 0.90);
+            combination7.AddLoadCaseCoefficient(windLoadCase2, 0.90);
 
-            //Assert.IsTrue(Math.Abs(outList[6][climateSummerDeltaTLoadCase1] - 1.50) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[6][climateSummerDeltaPLoadCase1] - 1.50) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[6][climateSummerDeltaPLoadCase2] - 1.50) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[6][climateSummerDeltaPLoadCase3] - 1.50) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[6][windLoadCase1] - 0.90) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[6][windLoadCase2] - 0.90) < 0.001);
+            Combination combination8 = new Combination("cmb 8", options);
+            combination8.AddLoadCaseCoefficient(selfWeightLoadCase, 1.35);
+            combination8.AddLoadCaseCoefficient(climateWinterDeltaPLoadCase1, 1.50);
+            combination8.AddLoadCaseCoefficient(climateWinterDeltaPLoadCase2, 1.50);
+            combination8.AddLoadCaseCoefficient(windLoadCase1, 0.90);
+            combination8.AddLoadCaseCoefficient(windLoadCase2, 0.90);
 
-            //Assert.IsTrue(Math.Abs(outList[7][climateSummerDeltaTLoadCase1] - 1.50) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[7][climateSummerDeltaPLoadCase1] - 1.50) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[7][climateSummerDeltaPLoadCase2] - 1.50) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[7][climateSummerDeltaPLoadCase3] - 1.50) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[7][windLoadCase1] - 0.90) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[7][windLoadCase2] - 0.90) < 0.001);
+            Combination combination9 = new Combination("cmb 9", options);
+            combination9.AddLoadCaseCoefficient(selfWeightLoadCase, 1.35);
+            combination9.AddLoadCaseCoefficient(climateSummerDeltaHLoadCase1, 1.35);
+            combination9.AddLoadCaseCoefficient(windLoadCase1, 1.50);
+            combination9.AddLoadCaseCoefficient(windLoadCase2, 1.50);
 
-            //Assert.IsTrue(Math.Abs(outList[8][climateWinterDeltaPLoadCase1] - 1.50) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[8][climateWinterDeltaPLoadCase2] - 1.50) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[8][windLoadCase1] - 0.90) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[8][windLoadCase2] - 0.90) < 0.001);
+            Combination combination10 = new Combination("cmb 10", options);
+            combination10.AddLoadCaseCoefficient(selfWeightLoadCase, 1.35);
+            combination10.AddLoadCaseCoefficient(windLoadCase1, 1.50);
+            combination10.AddLoadCaseCoefficient(windLoadCase2, 1.50);
 
-            //Assert.IsTrue(Math.Abs(outList[9][windLoadCase1] - 1.50) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[9][windLoadCase2] - 1.50) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[9][climateWinterDeltaPLoadCase1] - 0.45) < 0.001);            // valore da modificare quando cambieranno gli psi dei vetri
-            //Assert.IsTrue(Math.Abs(outList[9][climateWinterDeltaPLoadCase2] - 0.45) < 0.001);            // valore da modificare quando cambieranno gli psi dei vetri
-
-            //Assert.IsTrue(Math.Abs(outList[10][windLoadCase1] - 1.50) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[10][windLoadCase2] - 1.50) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[10][climateSummerDeltaTLoadCase1] - 0.45) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[10][climateSummerDeltaPLoadCase1] - 0.45) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[10][climateSummerDeltaPLoadCase2] - 0.45) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[10][climateSummerDeltaPLoadCase3] - 0.45) < 0.001);
-
-            //Assert.IsTrue(Math.Abs(outList[11][windLoadCase1] - 1.50) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[11][windLoadCase2] - 1.50) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[11][climateSummerDeltaTLoadCase1] - 0.45) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[11][climateSummerDeltaPLoadCase1] - 0.45) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[11][climateSummerDeltaPLoadCase2] - 0.45) < 0.001);
-            //Assert.IsTrue(Math.Abs(outList[11][climateSummerDeltaPLoadCase3] - 0.45) < 0.001);
-
+            // Assert
+            Assert.IsTrue(outList.Count() == 14);
+            CommonAssert(listComb[0], combination1);
+            CommonAssert(listComb[1], combination2);
+            CommonAssert(listComb[2], combination3);
+            CommonAssert(listComb[3], combination4);
+            CommonAssert(listComb[4], combination5);
+            CommonAssert(listComb[5], combination6);
+            CommonAssert(listComb[6], combination7);
+            CommonAssert(listComb[7], combination8);
+            CommonAssert(listComb[8], combination9);
+            CommonAssert(listComb[9], combination10);
         }
 
         [TestMethod]
