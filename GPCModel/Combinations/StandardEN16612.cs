@@ -863,13 +863,13 @@ namespace GPC.Model.Combinations
                                 {
                                     if (!hashAcc.Contains((LoadCase.LoadCaseTypes)climAccomp.ClimateType))
                                     {
-                                        foreach (LoadCase lca in loadCases.Where(j => j is ClimateLoadCase clct && clct.Season == ClimateLoadCase.Seasons.Summer && clct.ClimateType == ClimateLoadCase.ClimateTypes.DeltaP))
+                                        foreach (ClimateLoadCase lca in loadCases.Where(j => j is ClimateLoadCase clct && clct.Season == ClimateLoadCase.Seasons.Summer && clct.ClimateType == ClimateLoadCase.ClimateTypes.DeltaP))
                                         {
                                             LoadCaseCoefficient loadCaseCoefficientAccompanying = new LoadCaseCoefficient(GetCoefficientAccompanyingVariableAction(lca, options), lca);
                                             loadCaseCoefficientsSummer.Add(loadCaseCoefficientAccompanying);
                                         }
                                         hashAcc.Add((LoadCase.LoadCaseTypes)ClimateLoadCase.ClimateTypes.DeltaP);
-                                        foreach (LoadCase lca in loadCases.Where(j => j is ClimateLoadCase clct && clct.Season == ClimateLoadCase.Seasons.Summer && clct.ClimateType == ClimateLoadCase.ClimateTypes.DeltaT))
+                                        foreach (ClimateLoadCase lca in loadCases.Where(j => j is ClimateLoadCase clct && clct.Season == ClimateLoadCase.Seasons.Summer && clct.ClimateType == ClimateLoadCase.ClimateTypes.DeltaT))
                                         {
                                             LoadCaseCoefficient loadCaseCoefficientAccompanying = new LoadCaseCoefficient(GetCoefficientAccompanyingVariableAction(lca, options), lca);
                                             loadCaseCoefficientsSummer.Add(loadCaseCoefficientAccompanying);
@@ -879,33 +879,74 @@ namespace GPC.Model.Combinations
                                 }
                             }
                         }
+
+                        if (loadCaseLead is LoadCase leadLoadCase)
+                        {
+                            if (loadCaseAccompanying is ClimateLoadCase climAccomp && climAccomp.Season == ClimateLoadCase.Seasons.Winter &&
+                                (climAccomp.ClimateType == ClimateLoadCase.ClimateTypes.DeltaP || climAccomp.ClimateType == ClimateLoadCase.ClimateTypes.DeltaT))
+                            {
+                                if (!chashAcc.Contains((ClimateLoadCase.Seasons.Summer, climAccomp.ClimateType)))
+                                {
+                                    foreach (ClimateLoadCase lca in loadCases.Where(j => j is ClimateLoadCase clct && clct.Season == ClimateLoadCase.Seasons.Summer && clct.ClimateType == ClimateLoadCase.ClimateTypes.DeltaP))
+                                    {
+                                        LoadCaseCoefficient loadCaseCoefficientAccompanying = new LoadCaseCoefficient(GetCoefficientAccompanyingVariableAction(lca, options), lca);
+                                        loadCaseCoefficientsSummer.Add(loadCaseCoefficientAccompanying);
+                                    }
+                                    chashAcc.Add((ClimateLoadCase.Seasons.Summer, ClimateLoadCase.ClimateTypes.DeltaP));
+                                    foreach (ClimateLoadCase lca in loadCases.Where(j => j is ClimateLoadCase clct && clct.Season == ClimateLoadCase.Seasons.Summer && clct.ClimateType == ClimateLoadCase.ClimateTypes.DeltaT))
+                                    {
+                                        LoadCaseCoefficient loadCaseCoefficientAccompanying = new LoadCaseCoefficient(GetCoefficientAccompanyingVariableAction(lca, options), lca);
+                                        loadCaseCoefficientsSummer.Add(loadCaseCoefficientAccompanying);
+                                    }
+                                    chashAcc.Add((ClimateLoadCase.Seasons.Summer, ClimateLoadCase.ClimateTypes.DeltaT));
+                                }
+                            }
+                        }
                     }
 
                     // gestione carichi secondari climate winter
                     foreach (LoadCaseBase loadCaseAccompanying in loadCases)
                     {
-                        if (loadCaseLead is ClimateLoadCase clcLead && clcLead.ClimateType != ClimateLoadCase.ClimateTypes.DeltaP && clcLead.ClimateType != ClimateLoadCase.ClimateTypes.DeltaT)
+                        if (loadCaseLead is LoadCase leadLoadCase1)
                         {
                             if (loadCaseAccompanying is ClimateLoadCase clcAcc && clcAcc.Season == ClimateLoadCase.Seasons.Summer &&
                                 (clcAcc.ClimateType == ClimateLoadCase.ClimateTypes.DeltaP || clcAcc.ClimateType == ClimateLoadCase.ClimateTypes.DeltaT))
                             {
-                                if (!clcAcc.ClimateType.Equals(clcLead.ClimateType))
+                                if (!chashAcc.Contains((ClimateLoadCase.Seasons.Winter,clcAcc.ClimateType)))
                                 {
-                                    if (!hashAcc.Contains((LoadCase.LoadCaseTypes)clcAcc.ClimateType))
+                                    foreach (ClimateLoadCase lca in loadCases.Where(j => j is ClimateLoadCase clct && clct.Season == ClimateLoadCase.Seasons.Winter && clct.ClimateType == ClimateLoadCase.ClimateTypes.DeltaP))
                                     {
-                                        foreach (LoadCase lca in loadCases.Where(j => j is ClimateLoadCase clct && clct.Season == ClimateLoadCase.Seasons.Winter && clct.ClimateType == ClimateLoadCase.ClimateTypes.DeltaP))
-                                        {
-                                            LoadCaseCoefficient loadCaseCoefficientAccompanying = new LoadCaseCoefficient(GetCoefficientAccompanyingVariableAction(lca, options), lca);
-                                            loadCaseCoefficientsWinter.Add(loadCaseCoefficientAccompanying);
-                                        }
-                                        hashAcc.Add((LoadCase.LoadCaseTypes)ClimateLoadCase.ClimateTypes.DeltaP);
-                                        foreach (LoadCase lca in loadCases.Where(j => j is ClimateLoadCase clct && clct.Season == ClimateLoadCase.Seasons.Winter && clct.ClimateType == ClimateLoadCase.ClimateTypes.DeltaT))
-                                        {
-                                            LoadCaseCoefficient loadCaseCoefficientAccompanying = new LoadCaseCoefficient(GetCoefficientAccompanyingVariableAction(lca, options), lca);
-                                            loadCaseCoefficientsWinter.Add(loadCaseCoefficientAccompanying);
-                                        }
-                                        hashAcc.Add((LoadCase.LoadCaseTypes)ClimateLoadCase.ClimateTypes.DeltaT);
+                                        LoadCaseCoefficient loadCaseCoefficientAccompanying = new LoadCaseCoefficient(GetCoefficientAccompanyingVariableAction(lca, options), lca);
+                                        loadCaseCoefficientsWinter.Add(loadCaseCoefficientAccompanying);
                                     }
+                                    chashAcc.Add((ClimateLoadCase.Seasons.Winter, ClimateLoadCase.ClimateTypes.DeltaP));
+                                    foreach (ClimateLoadCase lca in loadCases.Where(j => j is ClimateLoadCase clct && clct.Season == ClimateLoadCase.Seasons.Winter && clct.ClimateType == ClimateLoadCase.ClimateTypes.DeltaT))
+                                    {
+                                        LoadCaseCoefficient loadCaseCoefficientAccompanying = new LoadCaseCoefficient(GetCoefficientAccompanyingVariableAction(lca, options), lca);
+                                        loadCaseCoefficientsWinter.Add(loadCaseCoefficientAccompanying);
+                                    }
+                                    chashAcc.Add((ClimateLoadCase.Seasons.Winter, ClimateLoadCase.ClimateTypes.DeltaT));
+                                }
+                            }
+
+
+                            if (loadCaseAccompanying is ClimateLoadCase clcAcc2 && clcAcc2.Season == ClimateLoadCase.Seasons.Summer &&
+                                (clcAcc2.ClimateType == ClimateLoadCase.ClimateTypes.DeltaP || clcAcc2.ClimateType == ClimateLoadCase.ClimateTypes.DeltaT))
+                            {
+                                if (!chashAcc.Contains((ClimateLoadCase.Seasons.Winter, clcAcc2.ClimateType)))
+                                {
+                                    foreach (LoadCase lca in loadCases.Where(j => j is ClimateLoadCase clct && clct.Season == ClimateLoadCase.Seasons.Winter && clct.ClimateType == ClimateLoadCase.ClimateTypes.DeltaP))
+                                    {
+                                        LoadCaseCoefficient loadCaseCoefficientAccompanying = new LoadCaseCoefficient(GetCoefficientAccompanyingVariableAction(lca, options), lca);
+                                        loadCaseCoefficientsWinter.Add(loadCaseCoefficientAccompanying);
+                                    }
+                                    chashAcc.Add((ClimateLoadCase.Seasons.Winter, ClimateLoadCase.ClimateTypes.DeltaP));
+                                    foreach (LoadCase lca in loadCases.Where(j => j is ClimateLoadCase clct && clct.Season == ClimateLoadCase.Seasons.Winter && clct.ClimateType == ClimateLoadCase.ClimateTypes.DeltaT))
+                                    {
+                                        LoadCaseCoefficient loadCaseCoefficientAccompanying = new LoadCaseCoefficient(GetCoefficientAccompanyingVariableAction(lca, options), lca);
+                                        loadCaseCoefficientsWinter.Add(loadCaseCoefficientAccompanying);
+                                    }
+                                    chashAcc.Add((ClimateLoadCase.Seasons.Winter, ClimateLoadCase.ClimateTypes.DeltaT));
                                 }
                             }
                         }

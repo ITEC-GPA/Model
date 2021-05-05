@@ -2179,7 +2179,6 @@ namespace ModelObjectTest
                 listComb.Add(combination);
             }
 
-            // Assert
             Combination combination1 = new Combination("cmb 1", options);
             combination1.AddLoadCaseCoefficient(selfWeightLoadCase, 1.00);
             combination1.AddLoadCaseCoefficient(climateSummerDeltaHLoadCase1, 1.00);
@@ -2255,7 +2254,7 @@ namespace ModelObjectTest
             combination10.AddLoadCaseCoefficient(windLoadCase2, 1.50);
 
             // Assert
-            Assert.IsTrue(outList.Count() == 14);
+            Assert.IsTrue(outList.Count() == 16);
             CommonAssert(listComb[0], combination1);
             CommonAssert(listComb[1], combination2);
             CommonAssert(listComb[2], combination3);
@@ -2309,11 +2308,12 @@ namespace ModelObjectTest
             // Act
             CombinationsCollection outList = standardEN16612.CreateCombinations(loadCaseList.ToArray(), options);
 
-            // Assert
-            Assert.IsTrue(outList.Count() == 22);
-            foreach (Combination combo in outList)
+            List<Combination> listComb = new List<Combination>();
+            foreach (Combination combination in outList)
             {
-                Console.WriteLine(combo.ToString());
+                string combinationName = combination.ToString();
+                Console.WriteLine(combinationName);
+                listComb.Add(combination);
             }
         }
 
@@ -2359,11 +2359,12 @@ namespace ModelObjectTest
             // Act
             CombinationsCollection outList = standardEN16612.CreateCombinations(loadCaseList.ToArray(), options);
 
-            // Assert
-            Assert.IsTrue(outList.Count() == 22);
-            foreach (Combination combo in outList)
+            List<Combination> listComb = new List<Combination>();
+            foreach (Combination combination in outList)
             {
-                Console.WriteLine(combo.ToString());
+                string combinationName = combination.ToString();
+                Console.WriteLine(combinationName);
+                listComb.Add(combination);
             }
         }
 
@@ -2408,11 +2409,12 @@ namespace ModelObjectTest
             // Act
             CombinationsCollection outList = standardEN16612.CreateCombinations(loadCaseList.ToArray(), options);
 
-            // Assert
-            Assert.IsTrue(outList.Count() == 22);
-            foreach (Combination combo in outList)
+            List<Combination> listComb = new List<Combination>();
+            foreach (Combination combination in outList)
             {
-                Console.WriteLine(combo.ToString());
+                string combinationName = combination.ToString();
+                Console.WriteLine(combinationName);
+                listComb.Add(combination);
             }
         }
 
@@ -2458,11 +2460,12 @@ namespace ModelObjectTest
             // Act
             CombinationsCollection outList = standardEN16612.CreateCombinations(loadCaseList.ToArray(), options);
 
-            // Assert
-            Assert.IsTrue(outList.Count() == 22);
-            foreach (Combination combo in outList)
+            List<Combination> listComb = new List<Combination>();
+            foreach (Combination combination in outList)
             {
-                Console.WriteLine(combo.ToString());
+                string combinationName = combination.ToString();
+                Console.WriteLine(combinationName);
+                listComb.Add(combination);
             }
         }
 
