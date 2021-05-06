@@ -833,6 +833,14 @@ namespace GPC.Model.Combinations
 
         #region PUBLIC GENERATION METHODS
 
+        /// <summary>
+        /// Generate all the combinations with the load cases in <paramref name="loadCasesInput"/> and the settings <paramref name="options"/>
+        /// </summary>
+        /// <param name="loadCasesInput">List of load cases</param>
+        /// <param name="options">The normative options</param>
+        /// <param name="name">The unique name of the combinations (default name is "cmb")</param>
+        /// <returns>A collection of combinations</returns>
+        /// <exception cref="ArgumentException"> If there are any  climate load in the <paramref name="loadCasesInput"/></exception>
         public override CombinationsCollection CreateCombinations(LoadCaseBase[] loadCasesInput, CombinationsOptions options, string name = "cmb")
         {
             List<LoadCase> loadCases = new List<LoadCase>();
@@ -926,7 +934,7 @@ namespace GPC.Model.Combinations
         /// Generate all the combination with favourable coefficients
         /// </summary>
         /// <param name="loadCases">List of load cases</param>
-        /// <param name="options">The genetation options</param>
+        /// <param name="options">The normative options</param>
         /// <returns>A list of load case coefficient</returns>
         protected virtual List<List<LoadCaseCoefficient>> GetFavourableCombinations(LoadCase[] loadCases, EN1990CombinationsOptions options)
         {
@@ -961,7 +969,7 @@ namespace GPC.Model.Combinations
         /// Generate all the combination with unfavourable coefficients
         /// </summary>
         /// <param name="loadCases">List of load cases</param>
-        /// <param name="options"></param>
+        /// <param name="options">The normative options</param>
         /// <returns>A list of load case coefficient</returns>
         protected virtual List<List<LoadCaseCoefficient>> GetUnfavourableCombinations(LoadCase[] loadCases, EN1990CombinationsOptions options)
         {
@@ -996,7 +1004,7 @@ namespace GPC.Model.Combinations
         /// Generate all the combination for permanent loads with favourable coefficients
         /// </summary>
         /// <param name="loadCases">List of load cases</param>
-        /// <param name="options">The generation options</param>
+        /// <param name="options">The normative options</param>
         /// <returns>A list of load case coefficient</returns>
         protected virtual List<List<LoadCaseCoefficient>> GetFavourableBasicCombinations(LoadCase[] loadCases, EN1990CombinationsOptions options)
         {
@@ -1041,7 +1049,7 @@ namespace GPC.Model.Combinations
         /// Generate all the combination for permanent loads with unfavourable coefficients
         /// </summary>
         /// <param name="loadCases">List of load cases</param>
-        /// <param name="options"></param>
+        /// <param name="options">The normative options</param>
         /// <returns>A list of load case coefficient</returns>
         protected virtual List<List<LoadCaseCoefficient>> GetUnfavourableBasicCombinations(LoadCase[] loadCases, EN1990CombinationsOptions options)
         {
@@ -1082,12 +1090,12 @@ namespace GPC.Model.Combinations
         }
 
         /// <summary>
-        /// Generate all the combination for the variable loads
+        /// Generate all the combination for the variable loads in <paramref name="loadCases"/> with the options <paramref name="options"/>
         /// </summary>
         /// <param name="loadCases">List of load cases</param>
         /// <param name="options">The combination generation options</param>
         /// <returns>A list of list of load case coefficient</returns>
-        /// <exception cref="ArgumentException"> If there are any permanent load case in the <paramref name="loadCases"/></exception>
+        /// <exception cref="ArgumentException"> If there are any permanent load case or climate load in the <paramref name="loadCases"/></exception>
         protected virtual List<List<LoadCaseCoefficient>> RandomizeVariableLoads(LoadCase[] loadCases, EN1990CombinationsOptions options)
         {
             List<List<LoadCaseCoefficient>> loadCaseCoefficients = new List<List<LoadCaseCoefficient>>();
@@ -1260,9 +1268,10 @@ namespace GPC.Model.Combinations
         /// <summary>
         /// Return the coefficient of unfavourable permanent actions
         /// </summary>
-        /// <param name="loadCase">The load cases (only SelfWeight, SuperImposedDeadLoad and Prestress)</param>
-        /// <param name="options"></param>
+        /// <param name="loadCase">The load cases (only permanent loads are accepted)</param>
+        /// <param name="options">The normative options</param>
         /// <returns>The coefficient</returns>
+        /// <exception cref="ArgumentException"> If don't exist the coefficient for the <paramref name="loadCase"/> with options <paramref name="options"/></exception>
         protected double GetCoefficientUnfavourablePermanentActions(LoadCase loadCase, EN1990CombinationsOptions options)
         {
             if (loadCase.LoadCaseType == LoadCase.LoadCaseTypes.SelfWeight || loadCase.LoadCaseType == LoadCase.LoadCaseTypes.SuperImposedDeadLoad)
@@ -1272,15 +1281,16 @@ namespace GPC.Model.Combinations
             else if (loadCase.LoadCaseType == LoadCase.LoadCaseTypes.Prestress)
                 return GetGammaPUnfavourable(options.ULS, options.LimitState);
 
-            throw new Exception("Failed to set coefficient favourable for permanent actions");
+            throw new ArgumentException("Failed to set coefficient favourable for permanent actions");
         }
 
         /// <summary>
         /// Return the coefficient of favourable permanent actions
         /// </summary>
-        /// <param name="loadCase">The load cases (only SelfWeight, SuperImposedDeadLoad and Prestress)</param>
-        /// <param name="options">The generation options</param>
+        /// <param name="loadCase">The load cases (only permanent loads are accepted)</param>
+        /// <param name="options">The normative options</param>
         /// <returns>The coefficient</returns>
+        /// <exception cref="ArgumentException"> If don't exist the coefficient for the <paramref name="loadCase"/> with options <paramref name="options"/></exception>
         protected double GetCoefficientFavourablePermanentActions(LoadCase loadCase, EN1990CombinationsOptions options)
         {
             if (loadCase.LoadCaseType == LoadCase.LoadCaseTypes.SelfWeight || loadCase.LoadCaseType == LoadCase.LoadCaseTypes.SuperImposedDeadLoad)
@@ -1290,15 +1300,16 @@ namespace GPC.Model.Combinations
             else if (loadCase.LoadCaseType == LoadCase.LoadCaseTypes.Prestress)
                 return GetGammaPFavourable(options.ULS, options.LimitState);
 
-            throw new Exception("Failed to set coefficient favourable for permanent actions");
+            throw new ArgumentException("Failed to set coefficient favourable for permanent actions");
         }
 
         /// <summary>
         /// Return the coefficient of leading variable actions
         /// </summary>
-        /// <param name="loadCase">The load cases (only variable load are accepted)MO</param>
-        /// <param name="options"></param>
+        /// <param name="loadCase">The load cases (only variable loads are accepted)MO</param>
+        /// <param name="options">The normative options</param>
         /// <returns>The coefficient</returns>
+        /// <exception cref="ArgumentException"> If don't exist the coefficient for the <paramref name="loadCase"/> with options <paramref name="options"/></exception>
         protected double GetCoefficientLeadingVariableAction(LoadCase loadCase, EN1990CombinationsOptions options)
         {
             double psi1;
@@ -1342,16 +1353,17 @@ namespace GPC.Model.Combinations
                 psi2 = GetPsi2(options.Category, loadCase, options.HighAltitude);
                 return gamma * psi2;
             }
-            else
-                throw new Exception("Failed to set the coefficient for leading variable actions");
+
+            throw new ArgumentException("Failed to set the coefficient for leading variable actions");
         }
 
         /// <summary>
         /// Return the coefficient of accompanying variable actions
         /// </summary>
-        /// <param name="loadCase">the load cases (only variable load are accepted)</param>
-        /// <param name="options"></param>
+        /// <param name="loadCase">The load cases (only variable loads are accepted)</param>
+        /// <param name="options">The normative options</param>
         /// <returns>The coefficient</returns>
+        /// <exception cref="ArgumentException"> If don't exist the coefficient for the <paramref name="loadCase"/> with options <paramref name="options"/></exception>
         protected double GetCoefficientAccompanyingVariableAction(LoadCase loadCase, EN1990CombinationsOptions options)
         {
             double psi0;
@@ -1389,8 +1401,8 @@ namespace GPC.Model.Combinations
                 psi2 = GetPsi2(options.Category, loadCase, options.HighAltitude);
                 return gammaQ * psi2;
             }
-            else
-                throw new Exception("Failed to set the coefficient for leading variable actions");
+
+            throw new ArgumentException("Failed to set the coefficient for leading variable actions");
         }
 
         #endregion

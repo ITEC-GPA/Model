@@ -285,6 +285,13 @@ namespace GPC.Model.Combinations
 
         #region PUBLIC GENERATION METHODS
 
+        /// <summary>
+        /// Generate all the combinations with the load cases in <paramref name="loadCases"/> and the settings <paramref name="coomboOptions"/>
+        /// </summary>
+        /// <param name="loadCases">List of load cases</param>
+        /// <param name="coomboOptions">The normative options (only EN16612 is supported)</param>
+        /// <param name="name">The unique name of the combinations (default name is "cmb")</param>
+        /// <returns>A collection of combinations</returns>
         public override CombinationsCollection CreateCombinations(LoadCaseBase[] loadCases, CombinationsOptions coomboOptions, string name = "cmb")
         {
             if (coomboOptions is EN16612CombinationsOptions options)
@@ -372,7 +379,7 @@ namespace GPC.Model.Combinations
         /// Generate all the combination with favourable coefficients
         /// </summary>
         /// <param name="loadCases">List of load cases</param>
-        /// <param name="options">The genetation options</param>
+        /// <param name="options">The normative options (only EN16612 is supported)</param>
         /// <returns>A list of load case coefficient</returns>
         protected List<List<LoadCaseCoefficient>> GetFavourableCombinations(LoadCaseBase[] loadCases, EN16612CombinationsOptions options)
         {
@@ -450,7 +457,7 @@ namespace GPC.Model.Combinations
         /// Generate all the combination with unfavourable coefficients
         /// </summary>
         /// <param name="loadCases">List of load cases</param>
-        /// <param name="options"></param>
+        /// <param name="options">The normative options (only EN16612 is supported)</param>
         /// <returns>A list of load case coefficient</returns>
         protected List<List<LoadCaseCoefficient>> GetUnfavourableCombinations(LoadCaseBase[] loadCases, EN16612CombinationsOptions options)
         {
@@ -530,7 +537,7 @@ namespace GPC.Model.Combinations
         /// Generate all the combination for permanent loads with favourable coefficients
         /// </summary>
         /// <param name="loadCases">List of load cases</param>
-        /// <param name="options">The generation options</param>
+        /// <param name="options">The normative options (only EN16612 is supported)</param>
         /// <returns>A list of load case coefficient</returns>
         protected List<List<LoadCaseCoefficient>> GetFavourableBasicCombinations(LoadCaseBase[] loadCases, EN16612CombinationsOptions options)
         {
@@ -636,7 +643,7 @@ namespace GPC.Model.Combinations
         /// Generate all the combination for permanent loads with unfavourable coefficients
         /// </summary>
         /// <param name="loadCases">List of load cases</param>
-        /// <param name="options"></param>
+        /// <param name="options">The normative options (only EN16612 is supported)</param>
         /// <returns>A list of load case coefficient</returns>
         protected List<List<LoadCaseCoefficient>> GetUnfavourableBasicCombinations(LoadCaseBase[] loadCases, EN16612CombinationsOptions options)
         {
@@ -745,7 +752,7 @@ namespace GPC.Model.Combinations
         /// Generate all the combination for the variable loads
         /// </summary>
         /// <param name="loadCases">List of load cases</param>
-        /// <param name="options">The combination generation options</param>
+        /// <param name="options">The normative options (only EN16612 is supported)</param>
         /// <returns>A list of list of load case coefficient</returns>
         /// <exception cref="ArgumentException"> If there are any permanent load case in the <paramref name="loadCases"/></exception>
         protected List<List<LoadCaseCoefficient>> RandomizeVariableLoads(LoadCaseBase[] loadCases, EN16612CombinationsOptions options)
@@ -1641,7 +1648,7 @@ namespace GPC.Model.Combinations
         /// Return the coefficient of unfavourable permanent actions
         /// </summary>
         /// <param name="climateLoadCase">The load cases (only climate Delta H is accepted)</param>
-        /// <param name="options">The normative options</param>
+        /// <param name="options">The normative options (only EN16612 is supported)</param>
         /// <returns>The coefficient</returns>
         protected double GetCoefficientUnfavourablePermanentActions(ClimateLoadCase climateLoadCase, EN1990CombinationsOptions options)
         {
@@ -1655,7 +1662,7 @@ namespace GPC.Model.Combinations
         /// Return the coefficient of favourable permanent actions
         /// </summary>
         /// <param name="climateLoadCase">The load cases (only climate Delta H is accepted)</param>
-        /// <param name="options">The normative options</param>
+        /// <param name="options">The normative options (only EN16612 is supported)</param>
         /// <returns>The coefficient</returns>
         protected double GetCoefficientFavourablePermanentActions(ClimateLoadCase climateLoadCase, EN1990CombinationsOptions options)
         {
@@ -1669,7 +1676,7 @@ namespace GPC.Model.Combinations
         /// Return the coefficient of leading variable actions
         /// </summary>
         /// <param name="climateLoadCase">The load cases (only climate variable load are accepted)</param>
-        /// <param name="options">The normative options</param>
+        /// <param name="options">The normative options (only EN16612 is supported)</param>
         /// <returns>The coefficient</returns>
         protected double GetCoefficientLeadingVariableAction(ClimateLoadCase climateLoadCase, EN1990CombinationsOptions options)
         {
@@ -1717,7 +1724,7 @@ namespace GPC.Model.Combinations
         /// Return the coefficient of accompanying variable actions
         /// </summary>
         /// <param name="climateLoadCase">the load cases (only climate variable load are accepted)</param>
-        /// <param name="options">The normative options</param>
+        /// <param name="options">The normative options (only EN16612 is supported)</param>
         /// <returns>The coefficient</returns>
         protected double GetCoefficientAccompanyingVariableAction(ClimateLoadCase climateLoadCase, EN1990CombinationsOptions options)
         {
