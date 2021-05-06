@@ -1634,10 +1634,92 @@ namespace GPC.Model.Combinations
                     #endregion
 
                 }
+        }
+
+        /// <summary>
+        /// Return a list of load case coefficients with all the load of type <paramref name="loadCaseLeadInput"/> in the array <paramref name="loadCases"/>
+        /// </summary>
+        /// <param name="loadCaseLeadInput">The load case lead (must exist in the <paramref name="loadCases"/>)</param>
+        /// <param name="loadCases">The array of load cases</param>
+        /// <param name="optionsInput">The normative options (only EN16612 is supported)</param>
+        /// <returns>A list of load case coefficients</returns>
+        protected List<LoadCaseCoefficient> AddLoadCaseLead(LoadCaseBase loadCaseLeadInput, LoadCaseBase[] loadCases, CombinationsOptions optionsInput)
+        {
+            if (optionsInput is EN16612CombinationsOptions options)
+            {
+                List<LoadCaseCoefficient> loadCaseCoefficientsBuffer = new List<LoadCaseCoefficient>();
+                if (loadCaseLeadInput is LoadCase lc)
+                {
+                    foreach (LoadCase loadCase in loadCases.Where(j => j is LoadCase l && l.LoadCaseType == lc.LoadCaseType))
+                    {
+                        LoadCaseCoefficient loadCaseCoefficientLead = new LoadCaseCoefficient(GetCoefficientLeadingVariableAction(loadCase, options), loadCase);
+                        loadCaseCoefficientsBuffer.Add(loadCaseCoefficientLead);
+                    }
+                }
+                else if (loadCaseLeadInput is ClimateLoadCase clc)
+                {
+                    foreach (ClimateLoadCase loadCase in loadCases.Where(j => j is ClimateLoadCase l && l.ClimateType == clc.ClimateType && l.Season == clc.Season))
+                    {
+                        LoadCaseCoefficient loadCaseCoefficientLead = new LoadCaseCoefficient(GetCoefficientLeadingVariableAction(loadCase, options), loadCase);
+                        loadCaseCoefficientsBuffer.Add(loadCaseCoefficientLead);
+                    }
+                }
+                return loadCaseCoefficientsBuffer;
             }
+            else
+                throw new ArgumentException("CombinationsOptions must be EN16612");
+        }
 
+        /// <summary>
+        /// Return a list of climate load case coefficients with all the load of type <paramref name="type"/> and season <paramref name="season"/> in the array <paramref name="loadCases"/> 
+        /// with the leading variable action coefficient
+        /// </summary>
+        /// <param name="season">The climate load case season</param>
+        /// <param name="type">The climate load case type</param>
+        /// <param name="loadCases">The array of load cases</param>
+        /// <param name="optionsInput">The normative options (only EN16612 is supported)</param>
+        /// <returns>A list of load case coefficients</returns>
+        protected List<LoadCaseCoefficient> AddLoadCaseLead(ClimateLoadCase.Seasons season, ClimateLoadCase.ClimateTypes type, LoadCaseBase[] loadCases, CombinationsOptions optionsInput)
+        {
+            if (optionsInput is EN16612CombinationsOptions options)
+            {
+                List<LoadCaseCoefficient> loadCaseCoefficientsBuffer = new List<LoadCaseCoefficient>();
 
-            return loadCaseCoefficients;
+                foreach (ClimateLoadCase loadCase in loadCases.Where(j => j is ClimateLoadCase l && l.ClimateType == type && l.Season == season))
+                {
+                    LoadCaseCoefficient loadCaseCoefficientLead = new LoadCaseCoefficient(GetCoefficientLeadingVariableAction(loadCase, options), loadCase);
+                    loadCaseCoefficientsBuffer.Add(loadCaseCoefficientLead);
+                }                
+                return loadCaseCoefficientsBuffer;
+            }
+            else
+                throw new ArgumentException("CombinationsOptions must be EN16612");
+        }
+
+        /// <summary>
+        /// Return a list of climate load case coefficients with all the load of type <paramref name="type"/> and season <paramref name="season"/> in the array <paramref name="loadCases"/> 
+        /// with the accompanying variable action coefficient
+        /// </summary>
+        /// <param name="season">The climate load case season</param>
+        /// <param name="type">The climate load case type</param>
+        /// <param name="loadCases">The array of load cases</param>
+        /// <param name="optionsInput">The normative options (only EN16612 is supported)</param>
+        /// <returns>A list of load case coefficients</returns>
+        protected List<LoadCaseCoefficient> AddLoadCaseAccompanying(ClimateLoadCase.Seasons season, ClimateLoadCase.ClimateTypes type, LoadCaseBase[] loadCases, CombinationsOptions optionsInput)
+        {
+            if (optionsInput is EN16612CombinationsOptions options)
+            {
+                List<LoadCaseCoefficient> loadCaseCoefficientsBuffer = new List<LoadCaseCoefficient>();
+
+                foreach (ClimateLoadCase loadCase in loadCases.Where(j => j is ClimateLoadCase l && l.ClimateType == type && l.Season == season))
+                {
+                    LoadCaseCoefficient loadCaseCoefficientLead = new LoadCaseCoefficient(GetCoefficientAccompanyingVariableAction(loadCase, options), loadCase);
+                    loadCaseCoefficientsBuffer.Add(loadCaseCoefficientLead);
+                }
+                return loadCaseCoefficientsBuffer;
+            }
+            else
+                throw new ArgumentException("CombinationsOptions must be EN16612");
         }
 
         #endregion
