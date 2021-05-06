@@ -1,4 +1,4 @@
-﻿using GPC.Model.LoadCases;
+using GPC.Model.LoadCases;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -68,7 +68,28 @@ namespace GPC.Model.Combinations
 
         #endregion
 
-        #region PUBLIC METHOD 
+        #region COMBINATIONS OPTIONS
+
+        public class EN16612CombinationsOptions : EN1990CombinationsOptions
+        {
+            public EN16612CombinationsOptions(LimitStates limitState, ULSStructuralGeotechicalCombinationSets uLS = ULSStructuralGeotechicalCombinationSets.SetB, ImposedLoadCategories imposedLoadCategories = ImposedLoadCategories.CategoryA, bool highAltitude = true)
+                : base(limitState, uLS, imposedLoadCategories, highAltitude)
+            {
+
+            }
+
+            public EN16612CombinationsOptions(LimitStates limitState)
+                : base(limitState)
+            {
+                ULS = ULSStructuralGeotechicalCombinationSets.SetB;
+                Category = ImposedLoadCategories.CategoryA;
+                HighAltitude = true;
+            }
+        }
+
+        #endregion
+
+        #region PUBLIC METHOD Gamma e Psi
 
         /// <summary>
         /// Get the coefficient gamma Q unfavourable 
@@ -258,27 +279,6 @@ namespace GPC.Model.Combinations
                 return _psi2ClimateWinterDeltaT;
 
             throw new ArgumentException("Don't exist coefficient for this load case");
-        }
-
-        #endregion
-
-        #region COMBINATIONS OPTIONS
-
-        public class EN16612CombinationsOptions : EN1990CombinationsOptions
-        {
-            public EN16612CombinationsOptions(LimitStates limitState, ULSStructuralGeotechicalCombinationSets uLS = ULSStructuralGeotechicalCombinationSets.SetB, ImposedLoadCategories imposedLoadCategories = ImposedLoadCategories.CategoryA, bool highAltitude = true)
-                :base(limitState, uLS, imposedLoadCategories, highAltitude)
-            {
-
-            }
-
-            public EN16612CombinationsOptions(LimitStates limitState)
-                : base(limitState)
-            {
-                ULS = ULSStructuralGeotechicalCombinationSets.SetB;
-                Category = ImposedLoadCategories.CategoryA;
-                HighAltitude = true;
-            }
         }
 
         #endregion
@@ -1647,7 +1647,7 @@ namespace GPC.Model.Combinations
         /// <summary>
         /// Return the coefficient of unfavourable permanent actions
         /// </summary>
-        /// <param name="climateLoadCase">The load cases (only climate Delta H is accepted)</param>
+        /// <param name="climateLoadCase">The load case (only climate Delta H is accepted)</param>
         /// <param name="options">The normative options (only EN16612 is supported)</param>
         /// <returns>The coefficient</returns>
         protected double GetCoefficientUnfavourablePermanentActions(ClimateLoadCase climateLoadCase, EN1990CombinationsOptions options)
@@ -1661,7 +1661,7 @@ namespace GPC.Model.Combinations
         /// <summary>
         /// Return the coefficient of favourable permanent actions
         /// </summary>
-        /// <param name="climateLoadCase">The load cases (only climate Delta H is accepted)</param>
+        /// <param name="climateLoadCase">The load case (only climate Delta H is accepted)</param>
         /// <param name="options">The normative options (only EN16612 is supported)</param>
         /// <returns>The coefficient</returns>
         protected double GetCoefficientFavourablePermanentActions(ClimateLoadCase climateLoadCase, EN1990CombinationsOptions options)
@@ -1675,7 +1675,7 @@ namespace GPC.Model.Combinations
         /// <summary>
         /// Return the coefficient of leading variable actions
         /// </summary>
-        /// <param name="climateLoadCase">The load cases (only climate variable load are accepted)</param>
+        /// <param name="climateLoadCase">The load case (only climate variable load are accepted)</param>
         /// <param name="options">The normative options (only EN16612 is supported)</param>
         /// <returns>The coefficient</returns>
         protected double GetCoefficientLeadingVariableAction(ClimateLoadCase climateLoadCase, EN1990CombinationsOptions options)
@@ -1723,7 +1723,7 @@ namespace GPC.Model.Combinations
         /// <summary>
         /// Return the coefficient of accompanying variable actions
         /// </summary>
-        /// <param name="climateLoadCase">the load cases (only climate variable load are accepted)</param>
+        /// <param name="climateLoadCase">the load case (only climate variable load are accepted)</param>
         /// <param name="options">The normative options (only EN16612 is supported)</param>
         /// <returns>The coefficient</returns>
         protected double GetCoefficientAccompanyingVariableAction(ClimateLoadCase climateLoadCase, EN1990CombinationsOptions options)
