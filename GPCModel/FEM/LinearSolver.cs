@@ -541,6 +541,7 @@ namespace GPC.Model.FEM
             double sumFY = 0.0;
             double sumFZ = 0.0;
 
+            Console.WriteLine();
             for (int i = 0; i < _reactions.Count; i++)
             {
                 Console.WriteLine("React." + legend[i] + " : \t " + _reactions[i].ToString("F3"));
