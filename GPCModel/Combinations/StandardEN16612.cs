@@ -1,4 +1,4 @@
-using GPC.Model.LoadCases;
+﻿using GPC.Model.LoadCases;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -374,7 +374,7 @@ namespace GPC.Model.Combinations
         /// <param name="loadCases">List of load cases</param>
         /// <param name="options">The genetation options</param>
         /// <returns>A list of load case coefficient</returns>
-        protected override List<List<LoadCaseCoefficient>> GetFavourableCombinations(LoadCaseBase[] loadCases, En1990CombinationsOptions options)
+        protected List<List<LoadCaseCoefficient>> GetFavourableCombinations(LoadCaseBase[] loadCases, EN16612CombinationsOptions options)
         {
             List<List<LoadCaseCoefficient>> loadCaseCoefficients = new List<List<LoadCaseCoefficient>>();
             List<List<LoadCaseCoefficient>> loadCaseCoefficientsBuffer = GetFavourableBasicCombinations(loadCases, options);
@@ -452,7 +452,7 @@ namespace GPC.Model.Combinations
         /// <param name="loadCases">List of load cases</param>
         /// <param name="options"></param>
         /// <returns>A list of load case coefficient</returns>
-        protected override List<List<LoadCaseCoefficient>> GetUnfavourableCombinations(LoadCaseBase[] loadCases, En1990CombinationsOptions options)
+        protected List<List<LoadCaseCoefficient>> GetUnfavourableCombinations(LoadCaseBase[] loadCases, EN16612CombinationsOptions options)
         {
             List<List<LoadCaseCoefficient>> loadCaseCoefficients = new List<List<LoadCaseCoefficient>>();
             List<List<LoadCaseCoefficient>> loadCaseCoefficientsBuffer = GetUnfavourableBasicCombinations(loadCases, options);
@@ -532,7 +532,7 @@ namespace GPC.Model.Combinations
         /// <param name="loadCases">List of load cases</param>
         /// <param name="options">The generation options</param>
         /// <returns>A list of load case coefficient</returns>
-        protected override List<List<LoadCaseCoefficient>> GetFavourableBasicCombinations(LoadCaseBase[] loadCases, En1990CombinationsOptions options)
+        protected List<List<LoadCaseCoefficient>> GetFavourableBasicCombinations(LoadCaseBase[] loadCases, EN16612CombinationsOptions options)
         {
             List<List<LoadCaseCoefficient>> outList = new List<List<LoadCaseCoefficient>>();
             List<LoadCaseCoefficient> loadCaseCoefficientsBase = new List<LoadCaseCoefficient>();
@@ -638,7 +638,7 @@ namespace GPC.Model.Combinations
         /// <param name="loadCases">List of load cases</param>
         /// <param name="options"></param>
         /// <returns>A list of load case coefficient</returns>
-        protected override List<List<LoadCaseCoefficient>> GetUnfavourableBasicCombinations(LoadCaseBase[] loadCases, En1990CombinationsOptions options)
+        protected List<List<LoadCaseCoefficient>> GetUnfavourableBasicCombinations(LoadCaseBase[] loadCases, EN16612CombinationsOptions options)
         {
             List<List<LoadCaseCoefficient>> outList = new List<List<LoadCaseCoefficient>>();
             List<LoadCaseCoefficient> loadCaseCoefficientsBase = new List<LoadCaseCoefficient>();
@@ -748,7 +748,7 @@ namespace GPC.Model.Combinations
         /// <param name="options">The combination generation options</param>
         /// <returns>A list of list of load case coefficient</returns>
         /// <exception cref="ArgumentException"> If there are any permanent load case in the <paramref name="loadCases"/></exception>
-        protected override List<List<LoadCaseCoefficient>> RandomizeVariableLoads(LoadCaseBase[] loadCases, En1990CombinationsOptions options)
+        protected List<List<LoadCaseCoefficient>> RandomizeVariableLoads(LoadCaseBase[] loadCases, EN16612CombinationsOptions options)
         {
             List<List<LoadCaseCoefficient>> loadCaseCoefficients = new List<List<LoadCaseCoefficient>>();
 
@@ -1633,30 +1633,20 @@ namespace GPC.Model.Combinations
             return loadCaseCoefficients;
         }
 
+        #endregion
+
+        #region COEFFICIENT
+
         /// <summary>
         /// Return the coefficient of unfavourable permanent actions
         /// </summary>
-        /// <param name="loadCase">The load cases (only SelfWeight, SuperImposedDeadLoad and Prestress)</param>
-        /// <param name="options"></param>
+        /// <param name="climateLoadCase">The load cases (only climate Delta H is accepted)</param>
+        /// <param name="options">The normative options</param>
         /// <returns>The coefficient</returns>
-        protected override double GetCoefficientUnfavourablePermanentActions(LoadCaseBase loadCase, En1990CombinationsOptions options)
+        protected double GetCoefficientUnfavourablePermanentActions(ClimateLoadCase climateLoadCase, EN1990CombinationsOptions options)
         {
-            if (loadCase is LoadCase lc)
-            {
-                var loadCaseType = lc.LoadCaseType;
-
-                if (loadCaseType == LoadCase.LoadCaseTypes.SelfWeight || loadCaseType == LoadCase.LoadCaseTypes.SuperImposedDeadLoad)
-                    return GetGammaGUnfavourable(options.ULS, options.LimitState);
-                else if (loadCaseType == LoadCase.LoadCaseTypes.Earthquake)
-                    return GetGammaGUnfavourable(options.ULS, options.LimitState);
-                else if (loadCaseType == LoadCase.LoadCaseTypes.Prestress)
-                    return GetGammaPUnfavourable(options.ULS, options.LimitState);
-            }
-            else if (loadCase is ClimateLoadCase clc)
-            {
-                if (clc.ClimateType == ClimateLoadCase.ClimateTypes.DeltaH)
-                    return GetGammaGUnfavourable(options.ULS, options.LimitState);
-            }
+            if (climateLoadCase.ClimateType == ClimateLoadCase.ClimateTypes.DeltaH)
+                return GetGammaGUnfavourable(options.ULS, options.LimitState);
 
             throw new Exception("Failed to set coefficient favourable for permanent actions");
         }
@@ -1664,74 +1654,59 @@ namespace GPC.Model.Combinations
         /// <summary>
         /// Return the coefficient of favourable permanent actions
         /// </summary>
-        /// <param name="loadCase">The load cases (only SelfWeight, SuperImposedDeadLoad and Prestress)</param>
-        /// <param name="options">The generation options</param>
+        /// <param name="climateLoadCase">The load cases (only climate Delta H is accepted)</param>
+        /// <param name="options">The normative options</param>
         /// <returns>The coefficient</returns>
-        protected override double GetCoefficientFavourablePermanentActions(LoadCaseBase loadCase, En1990CombinationsOptions options)
+        protected double GetCoefficientFavourablePermanentActions(ClimateLoadCase climateLoadCase, EN1990CombinationsOptions options)
         {
-            if (loadCase is LoadCase lc)
-            {
-                var loadCaseType = lc.LoadCaseType;
+            if (climateLoadCase.ClimateType == ClimateLoadCase.ClimateTypes.DeltaH)
+                return GetGammaGFavourable(options.ULS, options.LimitState);
 
-                if (loadCaseType == LoadCase.LoadCaseTypes.SelfWeight || loadCaseType == LoadCase.LoadCaseTypes.SuperImposedDeadLoad)
-                    return GetGammaGFavourable(options.ULS, options.LimitState);
-
-                else if (loadCaseType == LoadCase.LoadCaseTypes.Earthquake)
-                    return GetGammaGFavourable(options.ULS, options.LimitState);
-                else if (loadCaseType == LoadCase.LoadCaseTypes.Prestress)
-                    return GetGammaPFavourable(options.ULS, options.LimitState);
-            }
-            else if (loadCase is ClimateLoadCase clc)
-            {
-                if (clc.ClimateType == ClimateLoadCase.ClimateTypes.DeltaH)
-                    return GetGammaGFavourable(options.ULS, options.LimitState);
-
-            }
             throw new Exception("Failed to set coefficient favourable for permanent actions");
         }
 
         /// <summary>
         /// Return the coefficient of leading variable actions
         /// </summary>
-        /// <param name="loadCase">The load cases (only variable load are accepted)MO</param>
-        /// <param name="options"></param>
+        /// <param name="climateLoadCase">The load cases (only climate variable load are accepted)</param>
+        /// <param name="options">The normative options</param>
         /// <returns>The coefficient</returns>
-        protected override double GetCoefficientLeadingVariableAction(LoadCaseBase loadCase, En1990CombinationsOptions options)
+        protected double GetCoefficientLeadingVariableAction(ClimateLoadCase climateLoadCase, EN1990CombinationsOptions options)
         {
             if (options.LimitState == LimitStates.UltimateEquilibrium || options.LimitState == LimitStates.UltimateFatigue
                 || options.LimitState == LimitStates.UltimateGeotechnical || options.LimitState == LimitStates.UltimateStructural)
             {
-                double gamma = GetGammaQUnfavourable(options.ULS, options.LimitState, loadCase);
+                double gamma = GetGammaQUnfavourable(options.ULS, options.LimitState, climateLoadCase);
                 return gamma;
             }
             else if (options.LimitState == LimitStates.UltimateSeismic)
             {
-                double gammaQ = GetGammaQUnfavourable(options.ULS, options.LimitState, loadCase);
-                double psi2 = loadCase is LoadCase ? GetPsi2(options.Category, (LoadCase)loadCase, options.HighAltitude) : GetPsi2((ClimateLoadCase)loadCase);
+                double gammaQ = GetGammaQUnfavourable(options.ULS, options.LimitState, climateLoadCase);
+                double psi2 = GetPsi2(climateLoadCase);
                 return gammaQ * psi2;
             }
             else if (options.LimitState == LimitStates.UltimateAccidental)
             {
-                double gammaQ = GetGammaQUnfavourable(options.ULS, options.LimitState, loadCase);
-                double psi1 = loadCase is LoadCase ? GetPsi1(options.Category, (LoadCase)loadCase, options.HighAltitude) : GetPsi1((ClimateLoadCase)loadCase);
+                double gammaQ = GetGammaQUnfavourable(options.ULS, options.LimitState, climateLoadCase);
+                double psi1 = GetPsi1(climateLoadCase);
                 return gammaQ * psi1;
             }
             else if (options.LimitState == LimitStates.ServiceabilityCharacteristic)
             {
-                double gamma = GetGammaQUnfavourable(options.ULS, options.LimitState, loadCase);
-                double psi2 = loadCase is LoadCase ? GetPsi2(options.Category, (LoadCase)loadCase, options.HighAltitude) : GetPsi2((ClimateLoadCase)loadCase);
+                double gamma = GetGammaQUnfavourable(options.ULS, options.LimitState, climateLoadCase);
+                double psi2 = GetPsi2(climateLoadCase);
                 return gamma * psi2;
             }
             else if (options.LimitState == LimitStates.ServiceabilityFrequent)
             {
-                double gamma = GetGammaQUnfavourable(options.ULS, options.LimitState, loadCase);
-                double psi1 = loadCase is LoadCase ? GetPsi1(options.Category, (LoadCase)loadCase, options.HighAltitude) : GetPsi1((ClimateLoadCase)loadCase);
+                double gamma = GetGammaQUnfavourable(options.ULS, options.LimitState, climateLoadCase);
+                double psi1 = GetPsi1(climateLoadCase);
                 return gamma * psi1;
             }
             else if (options.LimitState == LimitStates.ServiceabilityQuasiPermanent)
             {
-                double gamma = GetGammaQUnfavourable(options.ULS, options.LimitState, loadCase);
-                double psi2 = loadCase is LoadCase ? GetPsi2(options.Category, (LoadCase)loadCase, options.HighAltitude) : GetPsi2((ClimateLoadCase)loadCase);
+                double gamma = GetGammaQUnfavourable(options.ULS, options.LimitState, climateLoadCase);
+                double psi2 = GetPsi2(climateLoadCase);
                 return gamma * psi2;
             }
             else
@@ -1741,46 +1716,45 @@ namespace GPC.Model.Combinations
         /// <summary>
         /// Return the coefficient of accompanying variable actions
         /// </summary>
-        /// <param name="loadCase">the load cases (only variable load are accepted)</param>
-        /// <param name="options"></param>
+        /// <param name="climateLoadCase">the load cases (only climate variable load are accepted)</param>
+        /// <param name="options">The normative options</param>
         /// <returns>The coefficient</returns>
-        protected override double GetCoefficientAccompanyingVariableAction(LoadCaseBase loadCase, En1990CombinationsOptions options)
+        protected double GetCoefficientAccompanyingVariableAction(ClimateLoadCase climateLoadCase, EN1990CombinationsOptions options)
         {
             if (options.LimitState == LimitStates.UltimateEquilibrium || options.LimitState == LimitStates.UltimateFatigue
                 || options.LimitState == LimitStates.UltimateGeotechnical || options.LimitState == LimitStates.UltimateStructural)
             {
-                double gammaQ = GetGammaQUnfavourable(options.ULS, options.LimitState, loadCase);
-                double psi0 = loadCase is LoadCase ? GetPsi0(options.Category, (LoadCase)loadCase, options.HighAltitude) : GetPsi0((ClimateLoadCase)loadCase);
+                double gammaQ = GetGammaQUnfavourable(options.ULS, options.LimitState, climateLoadCase);
+                double psi0 = GetPsi0(climateLoadCase);
                 return gammaQ * psi0;
             }
             else if (options.LimitState == LimitStates.ServiceabilityCharacteristic)
             {
-                double gammaQ = GetGammaQUnfavourable(options.ULS, options.LimitState, loadCase);
-                double psi0 = loadCase is LoadCase ? GetPsi0(options.Category, (LoadCase)loadCase, options.HighAltitude) : GetPsi0((ClimateLoadCase)loadCase);
+                double gammaQ = GetGammaQUnfavourable(options.ULS, options.LimitState, climateLoadCase);
+                double psi0 = GetPsi0(climateLoadCase);
                 return gammaQ * psi0;
             }
             else if (options.LimitState == LimitStates.UltimateSeismic)
             {
-                double gammaQ = GetGammaQUnfavourable(options.ULS, options.LimitState, loadCase);
-                double psi2 = loadCase is LoadCase ? GetPsi2(options.Category, (LoadCase)loadCase, options.HighAltitude) : GetPsi2((ClimateLoadCase)loadCase);
+                double gammaQ = GetGammaQUnfavourable(options.ULS, options.LimitState, climateLoadCase);
+                double psi2 = GetPsi2(climateLoadCase);
                 return gammaQ * psi2;
             }
             else if (options.LimitState == LimitStates.UltimateAccidental)
             {
-                double gammaQ = GetGammaQUnfavourable(options.ULS, options.LimitState, loadCase);
-                double psi2 = loadCase is LoadCase ? GetPsi2(options.Category, (LoadCase)loadCase, options.HighAltitude) : GetPsi2((ClimateLoadCase)loadCase);
+                double gammaQ = GetGammaQUnfavourable(options.ULS, options.LimitState, climateLoadCase);
+                double psi2 = GetPsi2(climateLoadCase);
                 return gammaQ * psi2;
             }
             else if (options.LimitState == LimitStates.ServiceabilityFrequent || options.LimitState == LimitStates.ServiceabilityQuasiPermanent)
             {
-                double gammaQ = GetGammaQUnfavourable(options.ULS, options.LimitState, loadCase);
-                double psi2 = loadCase is LoadCase ? GetPsi2(options.Category, (LoadCase)loadCase, options.HighAltitude) : GetPsi2((ClimateLoadCase)loadCase);
+                double gammaQ = GetGammaQUnfavourable(options.ULS, options.LimitState, climateLoadCase);
+                double psi2 = GetPsi2(climateLoadCase);
                 return gammaQ * psi2;
             }
             else
                 throw new Exception("Failed to set the coefficient for accompanying variable actions");
         }
-
 
         #endregion
     }
