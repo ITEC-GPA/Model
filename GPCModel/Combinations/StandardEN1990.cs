@@ -1,4 +1,4 @@
-﻿using GPC.Model.LoadCases;
+using GPC.Model.LoadCases;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -273,7 +273,69 @@ namespace GPC.Model.Combinations
 
         #endregion
 
-        #region PUBLIC METHOD
+        #region COMBINATIONS OPTIONS
+
+        public class EN1990CombinationsOptions : CombinationsOptions
+        {
+            public LimitStates LimitState { get; set; }
+
+            public ImposedLoadCategories Category { get; set; } = ImposedLoadCategories.CategoryA;
+
+            public ULSStructuralGeotechicalCombinationSets ULS { get; set; } = ULSStructuralGeotechicalCombinationSets.SetB;
+
+            public bool HighAltitude { get; set; } = true;
+
+            public EN1990CombinationsOptions(LimitStates limitState)
+            {
+                LimitState = limitState;
+            }
+
+            public EN1990CombinationsOptions(LimitStates limitState, ULSStructuralGeotechicalCombinationSets uLS = ULSStructuralGeotechicalCombinationSets.SetB, ImposedLoadCategories imposedLoadCategories = ImposedLoadCategories.CategoryA, bool highAltitude = true)
+            {
+                LimitState = limitState;
+                Category = imposedLoadCategories;
+                ULS = uLS;
+                HighAltitude = highAltitude;
+            }
+
+            public EN1990CombinationsOptions(LimitStates limitState, ImposedLoadCategories imposedLoadCategories = ImposedLoadCategories.CategoryA, bool highAltitude = true)
+            {
+                LimitState = limitState;
+                Category = imposedLoadCategories;
+                HighAltitude = highAltitude;
+            }
+
+            public override bool Equals(object obj)
+            {
+                if (obj is null)
+                    return false;
+
+                if (ReferenceEquals(this, obj))
+                    return true;
+
+                EN1990CombinationsOptions objCasted = obj as EN1990CombinationsOptions;
+
+                return !(objCasted is null) && objCasted.Category.Equals(Category) && objCasted.LimitState.Equals(LimitState) && objCasted.ULS.Equals(ULS) && objCasted.HighAltitude.Equals(HighAltitude);
+            }
+
+            public override int GetHashCode()
+            {
+                unchecked
+                {
+                    var hashCode = 23;
+                    hashCode = 17 * hashCode + LimitState.GetHashCode();
+                    hashCode = 17 * hashCode + Category.GetHashCode();
+                    hashCode = 17 * hashCode + ULS.GetHashCode();
+                    hashCode = 17 * hashCode + HighAltitude.GetHashCode();
+
+                    return hashCode;
+                }
+            }
+        }
+
+        #endregion
+
+        #region PUBLIC METHOD Gamma e Psi
 
         /// <summary>
         /// Get the coefficient gamma G unfavourable 
@@ -763,68 +825,6 @@ namespace GPC.Model.Combinations
                         return _psi2Temperature;
                     default:
                         throw new NotImplementedException("Not implemented coefficient for load case type");
-                }
-            }
-        }
-
-        #endregion
-
-        #region COMBINATIONS OPTIONS
-
-        public class EN1990CombinationsOptions : CombinationsOptions
-        {
-            public LimitStates LimitState { get; set; }
-
-            public ImposedLoadCategories Category { get; set; } = ImposedLoadCategories.CategoryA;
-
-            public ULSStructuralGeotechicalCombinationSets ULS { get; set; } = ULSStructuralGeotechicalCombinationSets.SetB;
-
-            public bool HighAltitude { get; set; } = true;
-
-            public EN1990CombinationsOptions(LimitStates limitState)
-            {
-                LimitState = limitState;
-            }
-
-            public EN1990CombinationsOptions(LimitStates limitState, ULSStructuralGeotechicalCombinationSets uLS = ULSStructuralGeotechicalCombinationSets.SetB, ImposedLoadCategories imposedLoadCategories = ImposedLoadCategories.CategoryA, bool highAltitude = true)
-            {
-                LimitState = limitState;
-                Category = imposedLoadCategories;
-                ULS = uLS;
-                HighAltitude = highAltitude;
-            }
-
-            public EN1990CombinationsOptions(LimitStates limitState, ImposedLoadCategories imposedLoadCategories = ImposedLoadCategories.CategoryA, bool highAltitude = true)
-            {
-                LimitState = limitState;
-                Category = imposedLoadCategories;
-                HighAltitude = highAltitude;
-            }
-
-            public override bool Equals(object obj)
-            {
-                if (obj is null)
-                    return false;
-
-                if (ReferenceEquals(this, obj))
-                    return true;
-
-                EN1990CombinationsOptions objCasted = obj as EN1990CombinationsOptions;
-
-                return !(objCasted is null) && objCasted.Category.Equals(Category) && objCasted.LimitState.Equals(LimitState) && objCasted.ULS.Equals(ULS) && objCasted.HighAltitude.Equals(HighAltitude);
-            }
-
-            public override int GetHashCode()
-            {
-                unchecked
-                {
-                    var hashCode = 23;
-                    hashCode = 17 * hashCode + LimitState.GetHashCode();
-                    hashCode = 17 * hashCode + Category.GetHashCode();
-                    hashCode = 17 * hashCode + ULS.GetHashCode();
-                    hashCode = 17 * hashCode + HighAltitude.GetHashCode();
-
-                    return hashCode;
                 }
             }
         }
