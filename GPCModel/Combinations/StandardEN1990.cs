@@ -1,4 +1,4 @@
-using GPC.Model.LoadCases;
+﻿using GPC.Model.LoadCases;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -1106,155 +1106,142 @@ namespace GPC.Model.Combinations
                 if ((loadCase is LoadCase lc && ( lc.LoadCaseType == LoadCase.LoadCaseTypes.SelfWeight || lc.LoadCaseType == LoadCase.LoadCaseTypes.SuperImposedDeadLoad || 
                     lc.LoadCaseType == LoadCase.LoadCaseTypes.Prestress || lc.LoadCaseType == LoadCase.LoadCaseTypes.Earthquake)))
                     throw new ArgumentException("Load case must be Variable");
-            }
-                      
-            HashSet<LoadCase.LoadCaseTypes> hash = new HashSet<LoadCase.LoadCaseTypes>();
+            }                    
 
             for (int i = 0; i < loadCases.Count(); i++)
-            {
+            {                
+                #region LIST, HASHSET E BOOL
+
+                HashSet <LoadCase.LoadCaseTypes> hash = new HashSet<LoadCase.LoadCaseTypes>();
                 List<LoadCaseCoefficient> loadCaseCoefficientsBuffer = new List<LoadCaseCoefficient>();
+                List<LoadCaseCoefficient> loadCaseCoefficientsBuffer2 = new List<LoadCaseCoefficient>();
+                List<LoadCaseCoefficient> loadCaseCoefficientsBuffer3 = new List<LoadCaseCoefficient>();
+                List<LoadCaseCoefficient> loadCaseCoefficientsWindPressure = new List<LoadCaseCoefficient>();
+                List<LoadCaseCoefficient> loadCaseCoefficientsWindSuction = new List<LoadCaseCoefficient>();
+                HashSet<LoadCase.LoadCaseTypes> hashAcc = new HashSet<LoadCase.LoadCaseTypes>();
+                bool haveWindPressure = false;
+                bool haveWindSuction = false;
+
+                #endregion
+
+                #region LEAD LOAD ADD
 
                 // crea un load lead, cerca tutti i carichi dello stesso tipo e li coefficienta alla stessa maniera.
                 LoadCase loadCaseLead = loadCases[i];
+                loadCaseCoefficientsBuffer = AddLoadCaseLead(loadCaseLead.LoadCaseType, loadCases, options);
+                hash.Add(loadCaseLead.LoadCaseType);
 
-                //if (!hash.Contains(lctype))
-                if (!hash.Contains(loadCaseLead.LoadCaseType)) 
+                #endregion
+
+                // aggiunge tutti i carichi secondari che non siano wind pressure o wind suction. quei due vanno trattati a parte
+                foreach (LoadCase loadCaseAccompanying in loadCases)
                 {
-                    foreach (LoadCase loadCase in loadCases.Where(j => j.LoadCaseType == loadCaseLead.LoadCaseType))
+                    #region NORMAL LOAD ADD
+
+                    if (!hashAcc.Contains(loadCaseAccompanying.LoadCaseType) && !loadCaseAccompanying.LoadCaseType.Equals(loadCaseLead.LoadCaseType))
                     {
-                        LoadCaseCoefficient loadCaseCoefficientLead = new LoadCaseCoefficient(GetCoefficientLeadingVariableAction(loadCase, options), loadCase);
-                        loadCaseCoefficientsBuffer.Add(loadCaseCoefficientLead);
-                    }
-                    hash.Add(loadCaseLead.LoadCaseType);                 
-
-                    List<LoadCaseCoefficient> loadCaseCoefficientsBuffer2 = new List<LoadCaseCoefficient>();
-                    List<LoadCaseCoefficient> loadCaseCoefficientsBuffer3 = new List<LoadCaseCoefficient>();
-                    List<LoadCaseCoefficient> loadCaseCoefficientsWindPressure = new List<LoadCaseCoefficient>();
-                    List<LoadCaseCoefficient> loadCaseCoefficientsWindSuction = new List<LoadCaseCoefficient>();
-                    HashSet<LoadCase.LoadCaseTypes> hashAcc = new HashSet<LoadCase.LoadCaseTypes>();                   
-                    bool haveWindPressure = false;
-                    bool haveWindSuction = false;
-
-                    // aggiunge tutti i carichi secondari che non siano wind pressure o wind suction o climatici. quei due vanno trattati a parte
-                    foreach (LoadCase loadCaseAccompanying in loadCases)
-                    {
-                        #region NORMAL LOAD ADD
-
-                        if (!hashAcc.Contains(loadCaseAccompanying.LoadCaseType))
+                        if (loadCaseAccompanying.LoadCaseType != LoadCase.LoadCaseTypes.WindSuction && loadCaseAccompanying.LoadCaseType != LoadCase.LoadCaseTypes.WindPressure)
                         {
-                            if (!loadCaseAccompanying.LoadCaseType.Equals(loadCaseLead.LoadCaseType))
-                            {
-                                if (loadCaseAccompanying.LoadCaseType != LoadCase.LoadCaseTypes.WindSuction && loadCaseAccompanying.LoadCaseType != LoadCase.LoadCaseTypes.WindPressure)
-                                {
-                                    foreach (LoadCase lca in loadCases.Where(j => j.LoadCaseType == loadCaseAccompanying.LoadCaseType))
-                                    {
-                                        LoadCaseCoefficient loadCaseCoefficientAccompanying = new LoadCaseCoefficient(GetCoefficientAccompanyingVariableAction(lca, options), lca);
-                                        loadCaseCoefficientsBuffer.Add(loadCaseCoefficientAccompanying);
-                                    }
-                                    hashAcc.Add(loadCaseAccompanying.LoadCaseType);
-                                }
-                            }
-                        }
-
-                        #endregion
-
-                        #region BOOL CHECK
-
-                        if (loadCaseAccompanying.LoadCaseType == LoadCase.LoadCaseTypes.WindPressure)
-                            haveWindPressure = true;
-                       
-                        if (loadCaseAccompanying.LoadCaseType == LoadCase.LoadCaseTypes.WindSuction)
-                            haveWindSuction = true;
-
-                        #endregion
-                    }
-
-                    #region WIND LOAD
-
-                    // gestione carichi secondari windsuction
-                    foreach (LoadCase loadCaseAccompanying in loadCases)
-                    {
-                        if (loadCaseLead.LoadCaseType != LoadCase.LoadCaseTypes.WindPressure && loadCaseAccompanying.LoadCaseType == LoadCase.LoadCaseTypes.WindSuction)
-                        {
-                            if (!loadCaseAccompanying.LoadCaseType.Equals(loadCaseLead.LoadCaseType) && !hashAcc.Contains((LoadCase.LoadCaseTypes)loadCaseAccompanying.LoadCaseType))
-                            {
-                                foreach (LoadCase lca in loadCases.Where(j => j is LoadCase lcw && lcw.LoadCaseType == LoadCase.LoadCaseTypes.WindSuction))
-                                {
-                                    LoadCaseCoefficient loadCaseCoefficientAccompanying = new LoadCaseCoefficient(GetCoefficientAccompanyingVariableAction(lca, options), lca);
-                                    loadCaseCoefficientsWindSuction.Add(loadCaseCoefficientAccompanying);
-                                }
-                                hashAcc.Add((LoadCase.LoadCaseTypes)loadCaseAccompanying.LoadCaseType);
-                            }
+                            loadCaseCoefficientsBuffer.AddRange(AddLoadCaseAccompanying(loadCaseAccompanying.LoadCaseType, loadCases, options));
+                            hashAcc.Add(loadCaseAccompanying.LoadCaseType);
                         }
                     }
-
-                    // gestione carichi secondari windpressure
-                    foreach (LoadCase loadCaseAccompanying in loadCases)
-                    {
-                        if (loadCaseLead.LoadCaseType != LoadCase.LoadCaseTypes.WindSuction && loadCaseAccompanying.LoadCaseType == LoadCase.LoadCaseTypes.WindPressure)
-                        {
-                            if (!loadCaseAccompanying.LoadCaseType.Equals(loadCaseLead.LoadCaseType) && !hashAcc.Contains((LoadCase.LoadCaseTypes)loadCaseAccompanying.LoadCaseType))
-                            {
-                                foreach (LoadCase lca in loadCases.Where(j => j is LoadCase lcw && lcw.LoadCaseType == LoadCase.LoadCaseTypes.WindPressure))
-                                {
-                                    LoadCaseCoefficient loadCaseCoefficientAccompanying = new LoadCaseCoefficient(GetCoefficientAccompanyingVariableAction(lca, options), lca);
-                                    loadCaseCoefficientsWindPressure.Add(loadCaseCoefficientAccompanying);
-                                }
-                                hashAcc.Add((LoadCase.LoadCaseTypes)loadCaseAccompanying.LoadCaseType);
-                            }
-                        }
-                    }                    
 
                     #endregion
 
-                    #region ASSEMBLY
+                    #region BOOL CHECK
 
-                    if (haveWindPressure == true && haveWindSuction == true)
+                    // controllo se sono presenti carichi WindPressure o WindSuction per l'assemblaggio finale delle liste
+                    if (loadCaseAccompanying.LoadCaseType == LoadCase.LoadCaseTypes.WindPressure)
+                        haveWindPressure = true;
+                    if (loadCaseAccompanying.LoadCaseType == LoadCase.LoadCaseTypes.WindSuction)
+                        haveWindSuction = true;
+
+                    #endregion
+                }
+
+                #region WIND LOAD ADD
+
+                // gestione carichi secondari windsuction
+                foreach (LoadCase loadCaseAccompanying in loadCases)
+                {
+                    if (loadCaseLead.LoadCaseType != LoadCase.LoadCaseTypes.WindPressure && loadCaseAccompanying.LoadCaseType == LoadCase.LoadCaseTypes.WindSuction)
                     {
-                        loadCaseCoefficientsBuffer2 = loadCaseCoefficientsBuffer.ToArray().ToList();
-                        loadCaseCoefficientsBuffer3 = loadCaseCoefficientsBuffer.ToArray().ToList();
-
-                        if (loadCaseCoefficientsWindPressure.Count() != 0)
+                        if (!loadCaseAccompanying.LoadCaseType.Equals(loadCaseLead.LoadCaseType) && !hashAcc.Contains(loadCaseAccompanying.LoadCaseType))
                         {
-                            loadCaseCoefficientsBuffer2.AddRange(loadCaseCoefficientsWindPressure);
-                            loadCaseCoefficients.Add(loadCaseCoefficientsBuffer2);
+                            loadCaseCoefficientsWindSuction.AddRange(AddLoadCaseAccompanying(LoadCase.LoadCaseTypes.WindSuction, loadCases, options));
+                            hashAcc.Add(loadCaseAccompanying.LoadCaseType);
                         }
-                        if (loadCaseCoefficientsWindSuction.Count() != 0)
-                        {
-                            loadCaseCoefficientsBuffer3.AddRange(loadCaseCoefficientsWindSuction);
-                            loadCaseCoefficients.Add(loadCaseCoefficientsBuffer3);
-                        }
-                        if (loadCaseCoefficientsWindSuction.Count() == 0 && loadCaseCoefficientsWindPressure.Count() == 0)                        
-                            loadCaseCoefficients.Add(loadCaseCoefficientsBuffer);                        
                     }
-                    else if (haveWindPressure == false && haveWindSuction == true)
+                }
+
+                // gestione carichi secondari windpressure
+                foreach (LoadCase loadCaseAccompanying in loadCases)
+                {
+                    if (loadCaseLead.LoadCaseType != LoadCase.LoadCaseTypes.WindSuction && loadCaseAccompanying.LoadCaseType == LoadCase.LoadCaseTypes.WindPressure)
                     {
-                        loadCaseCoefficientsBuffer2 = loadCaseCoefficientsBuffer.ToArray().ToList();
-
-                        if (loadCaseCoefficientsWindSuction.Count() != 0)
+                        if (!loadCaseAccompanying.LoadCaseType.Equals(loadCaseLead.LoadCaseType) && !hashAcc.Contains(loadCaseAccompanying.LoadCaseType))
                         {
-                            loadCaseCoefficientsBuffer2.AddRange(loadCaseCoefficientsWindSuction);
-                            loadCaseCoefficients.Add(loadCaseCoefficientsBuffer2);
+                            loadCaseCoefficientsWindPressure.AddRange(AddLoadCaseAccompanying(LoadCase.LoadCaseTypes.WindPressure, loadCases, options));
+                            hashAcc.Add(loadCaseAccompanying.LoadCaseType);
                         }
-                        if (loadCaseCoefficientsWindSuction.Count() == 0)                        
-                            loadCaseCoefficients.Add(loadCaseCoefficientsBuffer);                        
                     }
-                    else if (haveWindPressure == true && haveWindSuction == false)
+                }
+
+                #endregion
+
+                #region ASSEMBLY
+
+                if (haveWindPressure == true && haveWindSuction == true)
+                {
+                    loadCaseCoefficientsBuffer2 = loadCaseCoefficientsBuffer.ToArray().ToList();
+                    loadCaseCoefficientsBuffer3 = loadCaseCoefficientsBuffer.ToArray().ToList();
+
+                    if (loadCaseCoefficientsWindPressure.Count() != 0)
                     {
-                        loadCaseCoefficientsBuffer2 = loadCaseCoefficientsBuffer.ToArray().ToList();
-
-                        if (loadCaseCoefficientsWindPressure.Count() != 0)
-                        {
-                            loadCaseCoefficientsBuffer2.AddRange(loadCaseCoefficientsWindPressure);
-                            loadCaseCoefficients.Add(loadCaseCoefficientsBuffer2);
-                        }
-                        if (loadCaseCoefficientsWindPressure.Count() == 0)                        
-                            loadCaseCoefficients.Add(loadCaseCoefficientsBuffer);                        
+                        loadCaseCoefficientsBuffer2.AddRange(loadCaseCoefficientsWindPressure);
+                        loadCaseCoefficients.Add(loadCaseCoefficientsBuffer2);
                     }
-                    else                    
-                        loadCaseCoefficients.Add(loadCaseCoefficientsBuffer);                    
+                    if (loadCaseCoefficientsWindSuction.Count() != 0)
+                    {
+                        loadCaseCoefficientsBuffer3.AddRange(loadCaseCoefficientsWindSuction);
+                        loadCaseCoefficients.Add(loadCaseCoefficientsBuffer3);
+                    }
+                    if (loadCaseCoefficientsWindSuction.Count() == 0 && loadCaseCoefficientsWindPressure.Count() == 0)
+                        loadCaseCoefficients.Add(loadCaseCoefficientsBuffer);
+                }
+                else if (haveWindPressure == false && haveWindSuction == true)
+                {
+                    loadCaseCoefficientsBuffer2 = loadCaseCoefficientsBuffer.ToArray().ToList();
 
-                    #endregion                
+                    if (loadCaseCoefficientsWindSuction.Count() != 0)
+                    {
+                        loadCaseCoefficientsBuffer2.AddRange(loadCaseCoefficientsWindSuction);
+                        loadCaseCoefficients.Add(loadCaseCoefficientsBuffer2);
+                    }
+                    if (loadCaseCoefficientsWindSuction.Count() == 0)
+                        loadCaseCoefficients.Add(loadCaseCoefficientsBuffer);
+                }
+                else if (haveWindPressure == true && haveWindSuction == false)
+                {
+                    loadCaseCoefficientsBuffer2 = loadCaseCoefficientsBuffer.ToArray().ToList();
+
+                    if (loadCaseCoefficientsWindPressure.Count() != 0)
+                    {
+                        loadCaseCoefficientsBuffer2.AddRange(loadCaseCoefficientsWindPressure);
+                        loadCaseCoefficients.Add(loadCaseCoefficientsBuffer2);
+                    }
+                    if (loadCaseCoefficientsWindPressure.Count() == 0)
+                        loadCaseCoefficients.Add(loadCaseCoefficientsBuffer);
+                }
+                else
+                    loadCaseCoefficients.Add(loadCaseCoefficientsBuffer);
+
+                #endregion
+
+            }            
+
+            return loadCaseCoefficients;
         }
 
         /// <summary>
