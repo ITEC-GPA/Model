@@ -1,4 +1,4 @@
-using GPC.Model.LoadCases;
+﻿using GPC.Model.LoadCases;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -759,6 +759,8 @@ namespace GPC.Model.Combinations
         {
             List<List<LoadCaseCoefficient>> loadCaseCoefficients = new List<List<LoadCaseCoefficient>>();
 
+            #region VARIABLE LOAD CHECK
+
             // controllo che i carichi siano variabili
             foreach (LoadCaseBase loadCase in loadCases)
             {
@@ -768,872 +770,650 @@ namespace GPC.Model.Combinations
                     throw new ArgumentException("Load must be Variable");
             }
 
+            #endregion
+
             for (int i = 0; i < loadCases.Count(); i++)
             {
+                #region LIST, HASHSET E BOOL
+
                 List<LoadCaseCoefficient> loadCaseCoefficientsBuffer = new List<LoadCaseCoefficient>();
+                List<LoadCaseCoefficient> loadCaseCoefficientsBuffer2 = new List<LoadCaseCoefficient>();
+                List<LoadCaseCoefficient> loadCaseCoefficientsBuffer3 = new List<LoadCaseCoefficient>();
+                List<LoadCaseCoefficient> loadCaseCoefficientsBuffer4 = new List<LoadCaseCoefficient>();
+                List<LoadCaseCoefficient> loadCaseCoefficientsBuffer5 = new List<LoadCaseCoefficient>();
+                List<LoadCaseCoefficient> loadCaseCoefficientsSummer = new List<LoadCaseCoefficient>();
+                List<LoadCaseCoefficient> loadCaseCoefficientsWinter = new List<LoadCaseCoefficient>();
+                List<LoadCaseCoefficient> loadCaseCoefficientsWindPressure = new List<LoadCaseCoefficient>();
+                List<LoadCaseCoefficient> loadCaseCoefficientsWindSuction = new List<LoadCaseCoefficient>();
+
                 HashSet<LoadCase.LoadCaseTypes> hash = new HashSet<LoadCase.LoadCaseTypes>();
                 HashSet<(ClimateLoadCase.Seasons, ClimateLoadCase.ClimateTypes)> chash = new HashSet<(ClimateLoadCase.Seasons, ClimateLoadCase.ClimateTypes)>();
 
+                bool haveWindPressure = false;
+                bool haveWindSuction = false;
+                bool haveClimateSummer = false;
+                bool haveClimateWinter = false;
+
+                #endregion
+
+                #region LEAD LOAD ADD
+
                 // crea un load lead, cerca tutti i carichi dello stesso tipo e li coefficienta alla stessa maniera.
                 LoadCaseBase loadCaseLead = loadCases[i];
+                loadCaseCoefficientsBuffer = AddLoadCaseLead(loadCaseLead, loadCases, options);
 
-                //if (!hash.Contains(lctype))
-                if ((loadCases[i] is LoadCase && !hash.Contains(((LoadCase)loadCases[i]).LoadCaseType)) ||
-                    (loadCases[i] is ClimateLoadCase && !chash.Contains((((ClimateLoadCase)loadCases[i]).Season, ((ClimateLoadCase)loadCases[i]).ClimateType))))
+                if (loadCaseLead is LoadCase lc)
+                    hash.Add(lc.LoadCaseType);
+
+                if (loadCaseLead is ClimateLoadCase clc)
+                    chash.Add((clc.Season, clc.ClimateType));
+
+                #endregion
+
+                #region CHECK CLIMATE LOAD (se ci sono carichi che devono essere considerati lead insieme a loadCaseLead)
+
+                // i carichi climatici si massimizzano insieme
+                if (loadCaseLead is ClimateLoadCase loadCaseClimat)
                 {
-                    if (loadCases[i] is LoadCase lc)
+                    if (loadCaseClimat.Season == ClimateLoadCase.Seasons.Summer && loadCaseClimat.ClimateType == ClimateLoadCase.ClimateTypes.DeltaP)
                     {
-                        foreach (LoadCase loadCase in loadCases.Where(j => j is LoadCase l && l.LoadCaseType == lc.LoadCaseType))
-                        {
-                            LoadCaseCoefficient loadCaseCoefficientLead =
-                                new LoadCaseCoefficient(GetCoefficientLeadingVariableAction(loadCase, options), loadCase);
-                            loadCaseCoefficientsBuffer.Add(loadCaseCoefficientLead);
-                        }
-                        hash.Add(lc.LoadCaseType);
+                        loadCaseCoefficientsBuffer.AddRange(AddLoadCaseLead(ClimateLoadCase.Seasons.Summer, ClimateLoadCase.ClimateTypes.DeltaT, loadCases, options));
+                        chash.Add((ClimateLoadCase.Seasons.Summer, ClimateLoadCase.ClimateTypes.DeltaT));
                     }
-
-                    else if (loadCases[i] is ClimateLoadCase clc)
+                    if (loadCaseClimat.Season == ClimateLoadCase.Seasons.Summer && loadCaseClimat.ClimateType == ClimateLoadCase.ClimateTypes.DeltaT)
                     {
-                        foreach (ClimateLoadCase loadCase in loadCases.Where(j => j is ClimateLoadCase l && l.ClimateType == clc.ClimateType && l.Season == clc.Season))
-                        {
-                            LoadCaseCoefficient loadCaseCoefficientLead = new LoadCaseCoefficient(GetCoefficientLeadingVariableAction(loadCase, options), loadCase);
-                            loadCaseCoefficientsBuffer.Add(loadCaseCoefficientLead);
-                        }
-                        chash.Add((clc.Season, clc.ClimateType));
+                        loadCaseCoefficientsBuffer.AddRange(AddLoadCaseLead(ClimateLoadCase.Seasons.Summer, ClimateLoadCase.ClimateTypes.DeltaP, loadCases, options));
+                        chash.Add((ClimateLoadCase.Seasons.Summer, ClimateLoadCase.ClimateTypes.DeltaP));
                     }
-
-                    #region CHECK CLIMATE LOAD (se ci sono carichi che devono essere considerati lead insieme a loadCaseLead)
-
-                    if (loadCases[i] is ClimateLoadCase loadCaseClimat)
+                    if (loadCaseClimat.Season == ClimateLoadCase.Seasons.Winter && loadCaseClimat.ClimateType == ClimateLoadCase.ClimateTypes.DeltaT)
                     {
-                        if (loadCaseClimat.Season == ClimateLoadCase.Seasons.Summer && loadCaseClimat.ClimateType == ClimateLoadCase.ClimateTypes.DeltaP)
-                        {
-                            foreach (ClimateLoadCase climateLoadCase in loadCases.Where(j => j is ClimateLoadCase clc
-                                                                                             && clc.Season == ClimateLoadCase.Seasons.Summer
-                                                                                             && clc.ClimateType == ClimateLoadCase.ClimateTypes.DeltaT))
-                            {
-                                LoadCaseCoefficient loadCaseCoefficientLead =
-                                    new LoadCaseCoefficient(GetCoefficientLeadingVariableAction(climateLoadCase, options), climateLoadCase);
-                                loadCaseCoefficientsBuffer.Add(loadCaseCoefficientLead);
-                            }
-                            chash.Add((ClimateLoadCase.Seasons.Summer, ClimateLoadCase.ClimateTypes.DeltaT));
-                        }
-                        if (loadCaseClimat.Season == ClimateLoadCase.Seasons.Summer && loadCaseClimat.ClimateType == ClimateLoadCase.ClimateTypes.DeltaT)
-                        {
-                            foreach (ClimateLoadCase climateLoadCase in loadCases.Where(j => j is ClimateLoadCase clc
-                                                                                             && clc.Season == ClimateLoadCase.Seasons.Summer
-                                                                                             && clc.ClimateType == ClimateLoadCase.ClimateTypes.DeltaP))
-                            {
-                                LoadCaseCoefficient loadCaseCoefficientLead =
-                                    new LoadCaseCoefficient(GetCoefficientLeadingVariableAction(climateLoadCase, options), climateLoadCase);
-                                loadCaseCoefficientsBuffer.Add(loadCaseCoefficientLead);
-                            }
-                            chash.Add((ClimateLoadCase.Seasons.Summer, ClimateLoadCase.ClimateTypes.DeltaP));
-                        }
-                        if (loadCaseClimat.Season == ClimateLoadCase.Seasons.Winter && loadCaseClimat.ClimateType == ClimateLoadCase.ClimateTypes.DeltaT)
-                        {
-                            foreach (ClimateLoadCase climateLoadCase in loadCases.Where(j => j is ClimateLoadCase clc
-                                                                                             && clc.Season == ClimateLoadCase.Seasons.Winter
-                                                                                             && clc.ClimateType == ClimateLoadCase.ClimateTypes.DeltaP))
-                            {
-                                LoadCaseCoefficient loadCaseCoefficientLead =
-                                    new LoadCaseCoefficient(GetCoefficientLeadingVariableAction(climateLoadCase, options), climateLoadCase);
-                                loadCaseCoefficientsBuffer.Add(loadCaseCoefficientLead);
-                            }
-                            chash.Add((ClimateLoadCase.Seasons.Winter, ClimateLoadCase.ClimateTypes.DeltaP));
-                        }
-                        if (loadCaseClimat.Season == ClimateLoadCase.Seasons.Winter && loadCaseClimat.ClimateType == ClimateLoadCase.ClimateTypes.DeltaP)
-                        {
-                            foreach (ClimateLoadCase climateLoadCase in loadCases.Where(j => j is ClimateLoadCase clc
-                                                                                             && clc.Season == ClimateLoadCase.Seasons.Winter
-                                                                                             && clc.ClimateType == ClimateLoadCase.ClimateTypes.DeltaT))
-                            {
-                                LoadCaseCoefficient loadCaseCoefficientLead =
-                                    new LoadCaseCoefficient(GetCoefficientLeadingVariableAction(climateLoadCase, options), climateLoadCase);
-                                loadCaseCoefficientsBuffer.Add(loadCaseCoefficientLead);
-                            }
-                            chash.Add((ClimateLoadCase.Seasons.Winter, ClimateLoadCase.ClimateTypes.DeltaT));
-                        }
+                        loadCaseCoefficientsBuffer.AddRange(AddLoadCaseLead(ClimateLoadCase.Seasons.Winter, ClimateLoadCase.ClimateTypes.DeltaP, loadCases, options));
+                        chash.Add((ClimateLoadCase.Seasons.Winter, ClimateLoadCase.ClimateTypes.DeltaP));
+                    }
+                    if (loadCaseClimat.Season == ClimateLoadCase.Seasons.Winter && loadCaseClimat.ClimateType == ClimateLoadCase.ClimateTypes.DeltaP)
+                    {
+                        loadCaseCoefficientsBuffer.AddRange(AddLoadCaseLead(ClimateLoadCase.Seasons.Winter, ClimateLoadCase.ClimateTypes.DeltaT, loadCases, options));
+                        chash.Add((ClimateLoadCase.Seasons.Winter, ClimateLoadCase.ClimateTypes.DeltaT));
+                    }
+                }
 
+                #endregion
+
+                // aggiunge tutti i carichi secondari che non siano wind pressure o wind suction o climatici. quelli vanno trattati a parte
+                foreach (LoadCaseBase loadCaseAccompanying in loadCases)
+                {
+                    #region NORMAL LOAD ADD
+
+                    if (loadCaseLead is LoadCase loadCaseLead1 && loadCaseAccompanying is LoadCase loadCaseAc)
+                    {
+                        if (!hash.Contains(loadCaseAc.LoadCaseType) && !loadCaseAc.LoadCaseType.Equals(loadCaseLead1.LoadCaseType) &&
+                            loadCaseAc.LoadCaseType != LoadCase.LoadCaseTypes.WindSuction && loadCaseAc.LoadCaseType != LoadCase.LoadCaseTypes.WindPressure)
+                        {
+                            loadCaseCoefficientsBuffer.AddRange(AddLoadCaseAccompanying(loadCaseAc.LoadCaseType, loadCases, options));
+                            hash.Add(loadCaseAc.LoadCaseType);
+                        }
+                    }
+                    else if (loadCaseLead is ClimateLoadCase loadCaseLead2 && loadCaseAccompanying is LoadCase loadCaseAccomp)
+                    {
+                        if (!hash.Contains(loadCaseAccomp.LoadCaseType) &&
+                            loadCaseAccomp.LoadCaseType != LoadCase.LoadCaseTypes.WindSuction && loadCaseAccomp.LoadCaseType != LoadCase.LoadCaseTypes.WindPressure)
+                        {
+                            loadCaseCoefficientsBuffer.AddRange(AddLoadCaseAccompanying(loadCaseAccomp.LoadCaseType, loadCases, options));
+                            hash.Add(loadCaseAccomp.LoadCaseType);
+                        }
+                    }
+                    else if (loadCaseLead is ClimateLoadCase loadCaseLead3 && loadCaseAccompanying is ClimateLoadCase climateLoadCaseAcc1)
+                    {
+                        if (!chash.Contains((climateLoadCaseAcc1.Season, climateLoadCaseAcc1.ClimateType)) && !chash.Contains((climateLoadCaseAcc1.Season, climateLoadCaseAcc1.ClimateType)) &&
+                            (climateLoadCaseAcc1.Season.Equals(loadCaseLead3.Season) && !climateLoadCaseAcc1.ClimateType.Equals(loadCaseLead3.ClimateType)))
+                        {
+                            loadCaseCoefficientsBuffer.AddRange(AddLoadCaseAccompanying(climateLoadCaseAcc1.Season, climateLoadCaseAcc1.ClimateType, loadCases, options));
+                            chash.Add((climateLoadCaseAcc1.Season, climateLoadCaseAcc1.ClimateType));
+                        }
+                    }
+                    else if (loadCaseLead is LoadCase loadCaseLead4 && loadCaseAccompanying is ClimateLoadCase climateLoadCaseAcc2)
+                    {
+                        // viene gestito dopo
                     }
 
                     #endregion
 
-                    List<LoadCaseCoefficient> loadCaseCoefficientsBuffer2 = new List<LoadCaseCoefficient>();
-                    List<LoadCaseCoefficient> loadCaseCoefficientsBuffer3 = new List<LoadCaseCoefficient>();
-                    List<LoadCaseCoefficient> loadCaseCoefficientsBuffer4 = new List<LoadCaseCoefficient>();
-                    List<LoadCaseCoefficient> loadCaseCoefficientsBuffer5 = new List<LoadCaseCoefficient>();
-                    List<LoadCaseCoefficient> loadCaseCoefficientsSummer = new List<LoadCaseCoefficient>();
-                    List<LoadCaseCoefficient> loadCaseCoefficientsWinter = new List<LoadCaseCoefficient>();
-                    List<LoadCaseCoefficient> loadCaseCoefficientsWindPressure = new List<LoadCaseCoefficient>();
-                    List<LoadCaseCoefficient> loadCaseCoefficientsWindSuction = new List<LoadCaseCoefficient>();
-                    HashSet<LoadCase.LoadCaseTypes> hashAcc = new HashSet<LoadCase.LoadCaseTypes>();
-                    HashSet<(ClimateLoadCase.Seasons, ClimateLoadCase.ClimateTypes)> chashAcc = new HashSet<(ClimateLoadCase.Seasons, ClimateLoadCase.ClimateTypes)>();
-                    HashSet<LoadCase.LoadCaseTypes> hashtemp = new HashSet<LoadCase.LoadCaseTypes>();
-                    bool haveWindPressure = false;
-                    bool haveWindSuction = false;
-                    bool haveClimateSummer = false;
-                    bool haveClimateWinter = false;
+                    #region BOOL CHECK
 
-                    // aggiunge tutti i carichi secondari che non siano wind pressure o wind suction o climatici. quei due vanno trattati a parte
-                    foreach (LoadCaseBase loadCaseAccompanying in loadCases)
+                    // controllo se sono presenti carichi WindPressure o WindSuction o Climatici per l'assemblaggio finale delle liste
+                    if (loadCaseAccompanying is LoadCase lcaaa)
                     {
-                        #region NORMAL LOAD ADD
-
-                        if (loadCases[i] is LoadCase loadCaseLead1 && loadCaseAccompanying is LoadCase loadCaseAc)
-                        {
-                            if (!hashAcc.Contains(loadCaseAc.LoadCaseType))
-                            {
-                                if (!loadCaseAc.LoadCaseType.Equals(loadCaseLead1.LoadCaseType))
-                                {
-                                    if (loadCaseAc.LoadCaseType != LoadCase.LoadCaseTypes.WindSuction && loadCaseAc.LoadCaseType != LoadCase.LoadCaseTypes.WindPressure)
-                                    {
-                                        foreach (LoadCase lca in loadCases.Where(j => j is LoadCase tlc && tlc.LoadCaseType == loadCaseAc.LoadCaseType))
-                                        {
-                                            LoadCaseCoefficient loadCaseCoefficientAccompanying = new LoadCaseCoefficient(GetCoefficientAccompanyingVariableAction(lca, options), lca);
-                                            loadCaseCoefficientsBuffer.Add(loadCaseCoefficientAccompanying);
-                                        }
-                                        hashAcc.Add(loadCaseAc.LoadCaseType);
-                                    }
-                                }
-                            }
-                        }
-                        else if (loadCases[i] is ClimateLoadCase loadCaseLead2 && loadCaseAccompanying is LoadCase loadCaseAccomp)
-                        {
-                            if (!hashAcc.Contains(((LoadCase)loadCaseAccompanying).LoadCaseType))
-                            {
-                                if (loadCaseAccomp.LoadCaseType != LoadCase.LoadCaseTypes.WindSuction && loadCaseAccomp.LoadCaseType != LoadCase.LoadCaseTypes.WindPressure)
-                                {
-                                    foreach (LoadCase lca in loadCases.Where(j => j is LoadCase tlc && tlc.LoadCaseType == loadCaseAccomp.LoadCaseType))
-                                    {
-                                        LoadCaseCoefficient loadCaseCoefficientAccompanying = new LoadCaseCoefficient(GetCoefficientAccompanyingVariableAction(lca, options), lca);
-                                        loadCaseCoefficientsBuffer.Add(loadCaseCoefficientAccompanying);
-                                    }
-                                    hashAcc.Add(loadCaseAccomp.LoadCaseType);
-                                }                                
-                            }
-                        }
-                        else if (loadCases[i] is ClimateLoadCase loadCaseLead3 && loadCaseAccompanying is ClimateLoadCase climateLoadCaseAcc1)
-                        {
-                            if (!chashAcc.Contains((climateLoadCaseAcc1.Season, climateLoadCaseAcc1.ClimateType)) && !chash.Contains((climateLoadCaseAcc1.Season, climateLoadCaseAcc1.ClimateType)))
-                            {
-                                if ((climateLoadCaseAcc1.Season.Equals(loadCaseLead3.Season) && !climateLoadCaseAcc1.ClimateType.Equals(loadCaseLead3.ClimateType)))
-                                {
-                                    foreach (ClimateLoadCase lca in loadCases.Where(j => j is ClimateLoadCase clc && clc.Season == climateLoadCaseAcc1.Season && clc.ClimateType == climateLoadCaseAcc1.ClimateType))
-                                    {
-                                        LoadCaseCoefficient loadCaseCoefficientAccompanying = new LoadCaseCoefficient(GetCoefficientAccompanyingVariableAction(lca, options), lca);
-                                        loadCaseCoefficientsBuffer.Add(loadCaseCoefficientAccompanying);
-                                    }
-                                    chashAcc.Add((climateLoadCaseAcc1.Season, climateLoadCaseAcc1.ClimateType));
-                                }
-                            }
-                        }
-                        else if (loadCases[i] is LoadCase loadCaseLead4 && loadCaseAccompanying is ClimateLoadCase climateLoadCaseAcc2)
-                        {
-                            // viene gestito dopo
-                        }
-
-                        #endregion
-
-                        #region BOOL CHECK
-
-                        if (loadCaseAccompanying is LoadCase)
-                        {
-                            if (((LoadCase)loadCaseAccompanying).LoadCaseType == LoadCase.LoadCaseTypes.WindPressure)
-                                haveWindPressure = true;
-
-                            if (((LoadCase)loadCaseAccompanying).LoadCaseType == LoadCase.LoadCaseTypes.WindSuction)
-                                haveWindSuction = true;
-                        }
-                        else if (loadCaseAccompanying is ClimateLoadCase clc)
-                        {
-                            if (clc.Season == ClimateLoadCase.Seasons.Summer && (clc.ClimateType == ClimateLoadCase.ClimateTypes.DeltaP || clc.ClimateType == ClimateLoadCase.ClimateTypes.DeltaT))
-                                haveClimateSummer = true;
-
-                            if (clc.Season == ClimateLoadCase.Seasons.Winter && (clc.ClimateType == ClimateLoadCase.ClimateTypes.DeltaP || clc.ClimateType == ClimateLoadCase.ClimateTypes.DeltaT))
-                                haveClimateWinter = true;
-                        }
-
-                        #endregion
+                        if (lcaaa.LoadCaseType == LoadCase.LoadCaseTypes.WindPressure)
+                            haveWindPressure = true;
+                        if (lcaaa.LoadCaseType == LoadCase.LoadCaseTypes.WindSuction)
+                            haveWindSuction = true;
+                    }
+                    else if (loadCaseAccompanying is ClimateLoadCase clcac)
+                    {
+                        if (clcac.Season == ClimateLoadCase.Seasons.Summer && (clcac.ClimateType == ClimateLoadCase.ClimateTypes.DeltaP || clcac.ClimateType == ClimateLoadCase.ClimateTypes.DeltaT))
+                            haveClimateSummer = true;
+                        if (clcac.Season == ClimateLoadCase.Seasons.Winter && (clcac.ClimateType == ClimateLoadCase.ClimateTypes.DeltaP || clcac.ClimateType == ClimateLoadCase.ClimateTypes.DeltaT))
+                            haveClimateWinter = true;
                     }
 
-                    #region WIND LOAD
+                    #endregion
+                }
 
-                    // gestione dei carichi secondari quando sono presenti sia windpressure che windsuction
-                    if ((loadCaseLead is LoadCase lcl && lcl.LoadCaseType != LoadCase.LoadCaseTypes.WindPressure && lcl.LoadCaseType != LoadCase.LoadCaseTypes.WindSuction) && haveWindPressure == true && haveWindSuction == true)
+                #region WIND LOAD ADD
+                
+                if ((loadCaseLead is LoadCase lcl && lcl.LoadCaseType != LoadCase.LoadCaseTypes.WindPressure && lcl.LoadCaseType != LoadCase.LoadCaseTypes.WindSuction) ||
+                    (loadCaseLead is ClimateLoadCase _))
+                {
+                    foreach (LoadCaseBase loadCaseAccom in loadCases)
                     {
-                        foreach (LoadCaseBase loadCaseAccom in loadCases)
+                        if ((loadCaseLead is LoadCase lcl2 && lcl2.LoadCaseType != LoadCase.LoadCaseTypes.WindPressure &&
+                            loadCaseAccom is LoadCase loadCaseAccompanying3 && loadCaseAccompanying3.LoadCaseType == LoadCase.LoadCaseTypes.WindSuction) ||
+                            (loadCaseLead is ClimateLoadCase _ &&
+                            loadCaseAccom is LoadCase loadCaseAccompanying2 && loadCaseAccompanying2.LoadCaseType == LoadCase.LoadCaseTypes.WindSuction))
                         {
-                            if (lcl.LoadCaseType != LoadCase.LoadCaseTypes.WindPressure)
+                            if (!hash.Contains(LoadCase.LoadCaseTypes.WindSuction))
                             {
-                                if (loadCaseAccom is LoadCase loadCaseAccompanying && loadCaseAccompanying.LoadCaseType == LoadCase.LoadCaseTypes.WindSuction)
-                                {
-                                    if (!loadCaseAccompanying.LoadCaseType.Equals(lcl.LoadCaseType))
-                                    {
-                                        if (!hashAcc.Contains((LoadCase.LoadCaseTypes)loadCaseAccompanying.LoadCaseType))
-                                        {
-                                            foreach (LoadCase lca in loadCases.Where(j => j is LoadCase lcw && lcw.LoadCaseType == LoadCase.LoadCaseTypes.WindSuction))
-                                            {
-                                                LoadCaseCoefficient loadCaseCoefficientAccompanying = new LoadCaseCoefficient(GetCoefficientAccompanyingVariableAction(lca, options), lca);
-                                                loadCaseCoefficientsWindSuction.Add(loadCaseCoefficientAccompanying);
-                                            }
-                                            hashAcc.Add((LoadCase.LoadCaseTypes)loadCaseAccompanying.LoadCaseType);
-                                        }
-                                    }
-                                }
+                                loadCaseCoefficientsWindSuction.AddRange(AddLoadCaseAccompanying(LoadCase.LoadCaseTypes.WindSuction, loadCases, options));
+                                hash.Add(LoadCase.LoadCaseTypes.WindSuction);
                             }
-
-                            if (lcl.LoadCaseType != LoadCase.LoadCaseTypes.WindSuction)
-                            {
-                                if (loadCaseAccom is LoadCase loadCaseAccompanying && loadCaseAccompanying.LoadCaseType == LoadCase.LoadCaseTypes.WindPressure)
-                                {
-                                    if (!loadCaseAccompanying.LoadCaseType.Equals(lcl.LoadCaseType))
-                                    {
-                                        if (!hashAcc.Contains((LoadCase.LoadCaseTypes)loadCaseAccompanying.LoadCaseType))
-                                        {
-                                            foreach (LoadCase lca in loadCases.Where(j => j is LoadCase lcw && lcw.LoadCaseType == LoadCase.LoadCaseTypes.WindPressure))
-                                            {
-                                                LoadCaseCoefficient loadCaseCoefficientAccompanying = new LoadCaseCoefficient(GetCoefficientAccompanyingVariableAction(lca, options), lca);
-                                                loadCaseCoefficientsWindPressure.Add(loadCaseCoefficientAccompanying);
-                                            }
-                                            hashAcc.Add((LoadCase.LoadCaseTypes)loadCaseAccompanying.LoadCaseType);
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-
-
-                    if (haveWindPressure == false || haveWindSuction == false)
-                    {
-                        // gestione carichi secondari windsuction
-                        foreach (LoadCaseBase loadCaseAccom in loadCases)
-                        {
-                            if (loadCaseLead is LoadCase lcl2)
-                            {
-                                if (lcl2.LoadCaseType != LoadCase.LoadCaseTypes.WindPressure)
-                                {
-                                    if (loadCaseAccom is LoadCase loadCaseAccompanying && loadCaseAccompanying.LoadCaseType == LoadCase.LoadCaseTypes.WindSuction)
-                                    {
-                                        if (!loadCaseAccompanying.LoadCaseType.Equals(lcl2.LoadCaseType))
-                                        {
-                                            if (!hashAcc.Contains((LoadCase.LoadCaseTypes)loadCaseAccompanying.LoadCaseType))
-                                            {
-                                                foreach (LoadCase lca in loadCases.Where(j => j is LoadCase lcw && lcw.LoadCaseType == LoadCase.LoadCaseTypes.WindSuction))
-                                                {
-                                                    LoadCaseCoefficient loadCaseCoefficientAccompanying = new LoadCaseCoefficient(GetCoefficientAccompanyingVariableAction(lca, options), lca);
-                                                    loadCaseCoefficientsWindSuction.Add(loadCaseCoefficientAccompanying);
-                                                }
-                                                hashAcc.Add((LoadCase.LoadCaseTypes)loadCaseAccompanying.LoadCaseType);
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                            if (loadCaseLead is ClimateLoadCase clld3)
-                            {
-                                if (loadCaseAccom is LoadCase loadCaseAccompanying && loadCaseAccompanying.LoadCaseType == LoadCase.LoadCaseTypes.WindSuction)
-                                {
-                                    if (!hashAcc.Contains((LoadCase.LoadCaseTypes)loadCaseAccompanying.LoadCaseType))
-                                    {
-                                        foreach (LoadCase lca in loadCases.Where(j => j is LoadCase lcw && lcw.LoadCaseType == LoadCase.LoadCaseTypes.WindSuction))
-                                        {
-                                            LoadCaseCoefficient loadCaseCoefficientAccompanying = new LoadCaseCoefficient(GetCoefficientAccompanyingVariableAction(lca, options), lca);
-                                            loadCaseCoefficientsWindSuction.Add(loadCaseCoefficientAccompanying);
-                                        }
-                                        hashAcc.Add((LoadCase.LoadCaseTypes)loadCaseAccompanying.LoadCaseType);
-                                    }
-                                }
-                            }                      
                         }
 
                         // gestione carichi secondari windpressure
-                        foreach (LoadCaseBase loadCaseAccom in loadCases)
+                        if ((loadCaseLead is LoadCase lcl3 && lcl3.LoadCaseType != LoadCase.LoadCaseTypes.WindSuction &&
+                            loadCaseAccom is LoadCase loadCaseAccompanying4 && loadCaseAccompanying4.LoadCaseType == LoadCase.LoadCaseTypes.WindPressure) ||
+                            (loadCaseLead is ClimateLoadCase _ &&
+                            loadCaseAccom is LoadCase loadCaseAccompanying5 && loadCaseAccompanying5.LoadCaseType == LoadCase.LoadCaseTypes.WindPressure))
                         {
-                            if (loadCaseLead is LoadCase lcl2 )
+                            if (!hash.Contains(LoadCase.LoadCaseTypes.WindPressure))
                             {
-                                if (lcl2.LoadCaseType != LoadCase.LoadCaseTypes.WindSuction)
-                                {
-                                    if (loadCaseAccom is LoadCase loadCaseAccompanying && loadCaseAccompanying.LoadCaseType == LoadCase.LoadCaseTypes.WindPressure)
-                                    {
-                                        if (!loadCaseAccompanying.LoadCaseType.Equals(lcl2.LoadCaseType))
-                                        {
-                                            if (!hashAcc.Contains((LoadCase.LoadCaseTypes)loadCaseAccompanying.LoadCaseType))
-                                            {
-                                                foreach (LoadCase lca in loadCases.Where(j => j is LoadCase lcw && lcw.LoadCaseType == LoadCase.LoadCaseTypes.WindPressure))
-                                                {
-                                                    LoadCaseCoefficient loadCaseCoefficientAccompanying = new LoadCaseCoefficient(GetCoefficientAccompanyingVariableAction(lca, options), lca);
-                                                    loadCaseCoefficientsWindPressure.Add(loadCaseCoefficientAccompanying);
-                                                }
-                                                hashAcc.Add((LoadCase.LoadCaseTypes)loadCaseAccompanying.LoadCaseType);
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                            if (loadCaseLead is ClimateLoadCase clld3)
-                            {
-                                if (loadCaseAccom is LoadCase loadCaseAccompanying && loadCaseAccompanying.LoadCaseType == LoadCase.LoadCaseTypes.WindPressure)
-                                {
-                                    if (!hashAcc.Contains((LoadCase.LoadCaseTypes)loadCaseAccompanying.LoadCaseType))
-                                    {
-                                        foreach (LoadCase lca in loadCases.Where(j => j is LoadCase lcw && lcw.LoadCaseType == LoadCase.LoadCaseTypes.WindPressure))
-                                        {
-                                            LoadCaseCoefficient loadCaseCoefficientAccompanying = new LoadCaseCoefficient(GetCoefficientAccompanyingVariableAction(lca, options), lca);
-                                            loadCaseCoefficientsWindPressure.Add(loadCaseCoefficientAccompanying);
-                                        }
-                                        hashAcc.Add((LoadCase.LoadCaseTypes)loadCaseAccompanying.LoadCaseType);
-                                    }
-                                }
+                                loadCaseCoefficientsWindPressure.AddRange(AddLoadCaseAccompanying(LoadCase.LoadCaseTypes.WindPressure, loadCases, options));
+                                hash.Add(LoadCase.LoadCaseTypes.WindPressure);
                             }
                         }
                     }
+                }
+            
 
-                    #endregion
+                #endregion
 
-                    #region CLIMATE LOAD
+                #region CLIMATE LOAD ADD
 
-                    // gestione dei carichi secondari quando sono presenti sia climateSummer che climateWinter
+                // gestione dei carichi secondari quando sono presenti sia climateSummer che climateWinter
 
+                
+                foreach (LoadCaseBase loadCaseAccompanying in loadCases)
+                {
                     // gestione carichi secondari climateSummer
-                    foreach (LoadCaseBase loadCaseAccompanying in loadCases)
+                    if (loadCaseLead is LoadCase _ ||
+                        (loadCaseLead is ClimateLoadCase climLeadLoadCase && climLeadLoadCase.ClimateType != ClimateLoadCase.ClimateTypes.DeltaP && climLeadLoadCase.ClimateType != ClimateLoadCase.ClimateTypes.DeltaT))
                     {
-                        if (loadCaseLead is ClimateLoadCase climLeadLoadCase && climLeadLoadCase.ClimateType != ClimateLoadCase.ClimateTypes.DeltaP && climLeadLoadCase.ClimateType != ClimateLoadCase.ClimateTypes.DeltaT)
+                        if (loadCaseAccompanying is ClimateLoadCase climAccomp && climAccomp.Season == ClimateLoadCase.Seasons.Winter &&
+                            (climAccomp.ClimateType == ClimateLoadCase.ClimateTypes.DeltaP || climAccomp.ClimateType == ClimateLoadCase.ClimateTypes.DeltaT) &&
+                            !chash.Contains((ClimateLoadCase.Seasons.Summer, climAccomp.ClimateType)))
                         {
-                            if (loadCaseAccompanying is ClimateLoadCase climAccomp && climAccomp.Season == ClimateLoadCase.Seasons.Winter &&
-                                (climAccomp.ClimateType == ClimateLoadCase.ClimateTypes.DeltaP || climAccomp.ClimateType == ClimateLoadCase.ClimateTypes.DeltaT))
-                            {
-                                if (!climAccomp.ClimateType.Equals(climLeadLoadCase.ClimateType))
-                                {
-                                    if (!hashAcc.Contains((LoadCase.LoadCaseTypes)climAccomp.ClimateType))
-                                    {
-                                        foreach (ClimateLoadCase lca in loadCases.Where(j => j is ClimateLoadCase clct && clct.Season == ClimateLoadCase.Seasons.Summer && clct.ClimateType == ClimateLoadCase.ClimateTypes.DeltaP))
-                                        {
-                                            LoadCaseCoefficient loadCaseCoefficientAccompanying = new LoadCaseCoefficient(GetCoefficientAccompanyingVariableAction(lca, options), lca);
-                                            loadCaseCoefficientsSummer.Add(loadCaseCoefficientAccompanying);
-                                        }
-                                        hashAcc.Add((LoadCase.LoadCaseTypes)ClimateLoadCase.ClimateTypes.DeltaP);
-                                        foreach (ClimateLoadCase lca in loadCases.Where(j => j is ClimateLoadCase clct && clct.Season == ClimateLoadCase.Seasons.Summer && clct.ClimateType == ClimateLoadCase.ClimateTypes.DeltaT))
-                                        {
-                                            LoadCaseCoefficient loadCaseCoefficientAccompanying = new LoadCaseCoefficient(GetCoefficientAccompanyingVariableAction(lca, options), lca);
-                                            loadCaseCoefficientsSummer.Add(loadCaseCoefficientAccompanying);
-                                        }
-                                        hashAcc.Add((LoadCase.LoadCaseTypes)ClimateLoadCase.ClimateTypes.DeltaT);
-                                    }
-                                }
-                            }
-                        }
+                            loadCaseCoefficientsSummer.AddRange(AddLoadCaseAccompanying(ClimateLoadCase.Seasons.Summer, ClimateLoadCase.ClimateTypes.DeltaP, loadCases, options));
+                            chash.Add((ClimateLoadCase.Seasons.Summer, ClimateLoadCase.ClimateTypes.DeltaP));
 
-                        if (loadCaseLead is LoadCase leadLoadCase)
-                        {
-                            if (loadCaseAccompanying is ClimateLoadCase climAccomp && climAccomp.Season == ClimateLoadCase.Seasons.Winter &&
-                                (climAccomp.ClimateType == ClimateLoadCase.ClimateTypes.DeltaP || climAccomp.ClimateType == ClimateLoadCase.ClimateTypes.DeltaT))
-                            {
-                                if (!chashAcc.Contains((ClimateLoadCase.Seasons.Summer, climAccomp.ClimateType)))
-                                {
-                                    foreach (ClimateLoadCase lca in loadCases.Where(j => j is ClimateLoadCase clct && clct.Season == ClimateLoadCase.Seasons.Summer && clct.ClimateType == ClimateLoadCase.ClimateTypes.DeltaP))
-                                    {
-                                        LoadCaseCoefficient loadCaseCoefficientAccompanying = new LoadCaseCoefficient(GetCoefficientAccompanyingVariableAction(lca, options), lca);
-                                        loadCaseCoefficientsSummer.Add(loadCaseCoefficientAccompanying);
-                                    }
-                                    chashAcc.Add((ClimateLoadCase.Seasons.Summer, ClimateLoadCase.ClimateTypes.DeltaP));
-                                    foreach (ClimateLoadCase lca in loadCases.Where(j => j is ClimateLoadCase clct && clct.Season == ClimateLoadCase.Seasons.Summer && clct.ClimateType == ClimateLoadCase.ClimateTypes.DeltaT))
-                                    {
-                                        LoadCaseCoefficient loadCaseCoefficientAccompanying = new LoadCaseCoefficient(GetCoefficientAccompanyingVariableAction(lca, options), lca);
-                                        loadCaseCoefficientsSummer.Add(loadCaseCoefficientAccompanying);
-                                    }
-                                    chashAcc.Add((ClimateLoadCase.Seasons.Summer, ClimateLoadCase.ClimateTypes.DeltaT));
-                                }
-                            }
+                            loadCaseCoefficientsSummer.AddRange(AddLoadCaseAccompanying(ClimateLoadCase.Seasons.Summer, ClimateLoadCase.ClimateTypes.DeltaT, loadCases, options));
+                            chash.Add((ClimateLoadCase.Seasons.Summer, ClimateLoadCase.ClimateTypes.DeltaT));
                         }
                     }
 
                     // gestione carichi secondari climate winter
-                    foreach (LoadCaseBase loadCaseAccompanying in loadCases)
+                    if (loadCaseLead is LoadCase _ || 
+                        ( loadCaseLead is ClimateLoadCase climLeadLoadCase1 && climLeadLoadCase1.ClimateType != ClimateLoadCase.ClimateTypes.DeltaP && climLeadLoadCase1.ClimateType != ClimateLoadCase.ClimateTypes.DeltaT))
                     {
-                        if (loadCaseLead is LoadCase leadLoadCase1)
+                        if (loadCaseAccompanying is ClimateLoadCase clcAcc && clcAcc.Season == ClimateLoadCase.Seasons.Summer &&
+                            (clcAcc.ClimateType == ClimateLoadCase.ClimateTypes.DeltaP || clcAcc.ClimateType == ClimateLoadCase.ClimateTypes.DeltaT) &&
+                            !chash.Contains((ClimateLoadCase.Seasons.Winter, clcAcc.ClimateType)))
                         {
-                            if (loadCaseAccompanying is ClimateLoadCase clcAcc && clcAcc.Season == ClimateLoadCase.Seasons.Summer &&
-                                (clcAcc.ClimateType == ClimateLoadCase.ClimateTypes.DeltaP || clcAcc.ClimateType == ClimateLoadCase.ClimateTypes.DeltaT))
-                            {
-                                if (!chashAcc.Contains((ClimateLoadCase.Seasons.Winter,clcAcc.ClimateType)))
-                                {
-                                    foreach (ClimateLoadCase lca in loadCases.Where(j => j is ClimateLoadCase clct && clct.Season == ClimateLoadCase.Seasons.Winter && clct.ClimateType == ClimateLoadCase.ClimateTypes.DeltaP))
-                                    {
-                                        LoadCaseCoefficient loadCaseCoefficientAccompanying = new LoadCaseCoefficient(GetCoefficientAccompanyingVariableAction(lca, options), lca);
-                                        loadCaseCoefficientsWinter.Add(loadCaseCoefficientAccompanying);
-                                    }
-                                    chashAcc.Add((ClimateLoadCase.Seasons.Winter, ClimateLoadCase.ClimateTypes.DeltaP));
-                                    foreach (ClimateLoadCase lca in loadCases.Where(j => j is ClimateLoadCase clct && clct.Season == ClimateLoadCase.Seasons.Winter && clct.ClimateType == ClimateLoadCase.ClimateTypes.DeltaT))
-                                    {
-                                        LoadCaseCoefficient loadCaseCoefficientAccompanying = new LoadCaseCoefficient(GetCoefficientAccompanyingVariableAction(lca, options), lca);
-                                        loadCaseCoefficientsWinter.Add(loadCaseCoefficientAccompanying);
-                                    }
-                                    chashAcc.Add((ClimateLoadCase.Seasons.Winter, ClimateLoadCase.ClimateTypes.DeltaT));
-                                }
-                            }
-
-
-                            if (loadCaseAccompanying is ClimateLoadCase clcAcc2 && clcAcc2.Season == ClimateLoadCase.Seasons.Summer &&
-                                (clcAcc2.ClimateType == ClimateLoadCase.ClimateTypes.DeltaP || clcAcc2.ClimateType == ClimateLoadCase.ClimateTypes.DeltaT))
-                            {
-                                if (!chashAcc.Contains((ClimateLoadCase.Seasons.Winter, clcAcc2.ClimateType)))
-                                {
-                                    foreach (LoadCase lca in loadCases.Where(j => j is ClimateLoadCase clct && clct.Season == ClimateLoadCase.Seasons.Winter && clct.ClimateType == ClimateLoadCase.ClimateTypes.DeltaP))
-                                    {
-                                        LoadCaseCoefficient loadCaseCoefficientAccompanying = new LoadCaseCoefficient(GetCoefficientAccompanyingVariableAction(lca, options), lca);
-                                        loadCaseCoefficientsWinter.Add(loadCaseCoefficientAccompanying);
-                                    }
-                                    chashAcc.Add((ClimateLoadCase.Seasons.Winter, ClimateLoadCase.ClimateTypes.DeltaP));
-                                    foreach (LoadCase lca in loadCases.Where(j => j is ClimateLoadCase clct && clct.Season == ClimateLoadCase.Seasons.Winter && clct.ClimateType == ClimateLoadCase.ClimateTypes.DeltaT))
-                                    {
-                                        LoadCaseCoefficient loadCaseCoefficientAccompanying = new LoadCaseCoefficient(GetCoefficientAccompanyingVariableAction(lca, options), lca);
-                                        loadCaseCoefficientsWinter.Add(loadCaseCoefficientAccompanying);
-                                    }
-                                    chashAcc.Add((ClimateLoadCase.Seasons.Winter, ClimateLoadCase.ClimateTypes.DeltaT));
-                                }
-                            }
+                            loadCaseCoefficientsWinter.AddRange(AddLoadCaseAccompanying(ClimateLoadCase.Seasons.Winter, ClimateLoadCase.ClimateTypes.DeltaP, loadCases, options));
+                            chash.Add((ClimateLoadCase.Seasons.Winter, ClimateLoadCase.ClimateTypes.DeltaP));
+                            loadCaseCoefficientsWinter.AddRange(AddLoadCaseAccompanying(ClimateLoadCase.Seasons.Winter, ClimateLoadCase.ClimateTypes.DeltaT, loadCases, options));
+                            chash.Add((ClimateLoadCase.Seasons.Winter, ClimateLoadCase.ClimateTypes.DeltaT));
                         }
                     }
+                }  
 
+                #endregion
 
+                #region ASSEMBLY
 
-                    #endregion
+                // assembra le varie liste in base a quali carichi sono presenti
 
-                    #region ASSEMBLY
-
-                    if (haveWindPressure == true && haveWindSuction == true)
+                if (haveWindPressure == true && haveWindSuction == true)
+                {
+                    if (haveClimateSummer == true && haveClimateWinter == true)
                     {
-                        if (haveClimateSummer == true && haveClimateWinter == true)
+                        bool modWP = false;
+                        bool modW = false;
+                        bool modWS = false;
+                        bool modS = false;
+
+                        loadCaseCoefficientsBuffer2 = loadCaseCoefficientsBuffer.ToArray().ToList();
+                        loadCaseCoefficientsBuffer3 = loadCaseCoefficientsBuffer.ToArray().ToList();
+                        loadCaseCoefficientsBuffer4 = loadCaseCoefficientsBuffer.ToArray().ToList();
+                        loadCaseCoefficientsBuffer5 = loadCaseCoefficientsBuffer.ToArray().ToList();
+
+                        if (loadCaseCoefficientsWindPressure.Count() != 0)
                         {
-                            bool modWP = false;
-                            bool modW = false;
-                            bool modWS = false;
-                            bool modS = false;
-
-                            loadCaseCoefficientsBuffer2 = loadCaseCoefficientsBuffer.ToArray().ToList();
-                            loadCaseCoefficientsBuffer3 = loadCaseCoefficientsBuffer.ToArray().ToList();
-                            loadCaseCoefficientsBuffer4 = loadCaseCoefficientsBuffer.ToArray().ToList();
-                            loadCaseCoefficientsBuffer5 = loadCaseCoefficientsBuffer.ToArray().ToList();
-
-                            if (loadCaseCoefficientsWindPressure.Count() != 0)
-                            {
-                                loadCaseCoefficientsBuffer2.AddRange(loadCaseCoefficientsWindPressure);
-                                loadCaseCoefficientsBuffer3.AddRange(loadCaseCoefficientsWindPressure);
-                                modWP = true;
-                            }
-
-                            if (loadCaseCoefficientsWindSuction.Count() != 0)
-                            {
-                                loadCaseCoefficientsBuffer4.AddRange(loadCaseCoefficientsWindSuction);
-                                loadCaseCoefficientsBuffer5.AddRange(loadCaseCoefficientsWindSuction);
-                                modWS = true;
-                            }
-
-                            if (loadCaseCoefficientsSummer.Count() != 0)
-                            {
-                                loadCaseCoefficientsBuffer2.AddRange(loadCaseCoefficientsSummer);
-                                loadCaseCoefficientsBuffer5.AddRange(loadCaseCoefficientsSummer);
-                                modS = true;
-                            }
-
-                            if (loadCaseCoefficientsWinter.Count() != 0)
-                            {
-                                loadCaseCoefficientsBuffer3.AddRange(loadCaseCoefficientsWinter);
-                                loadCaseCoefficientsBuffer4.AddRange(loadCaseCoefficientsWinter);
-                                modW = true;
-                            }
-
-                            if (modWP && modS)
-                                loadCaseCoefficients.Add(loadCaseCoefficientsBuffer2);
-                            if (modWP && modW)
-                                loadCaseCoefficients.Add(loadCaseCoefficientsBuffer3);
-                            if (modWS && modW)
-                                loadCaseCoefficients.Add(loadCaseCoefficientsBuffer4);
-                            if (modWS && modS)
-                                loadCaseCoefficients.Add(loadCaseCoefficientsBuffer5);
-
-                            if ((modWS && modS == false) || (modWS == false && modS))
-                                loadCaseCoefficients.Add(loadCaseCoefficientsBuffer5);
-                            else if ((modWS && modW == false) || (modWS == false && modW))
-                                loadCaseCoefficients.Add(loadCaseCoefficientsBuffer4);
-                            else if ((modWP && modS == false) || (modWP == false && modS))
-                                loadCaseCoefficients.Add(loadCaseCoefficientsBuffer2);
-                            else if ((modWP && modW == false) || (modWP == false && modW))
-                                loadCaseCoefficients.Add(loadCaseCoefficientsBuffer3);
-                            else
-                                loadCaseCoefficients.Add(loadCaseCoefficientsBuffer);
+                            loadCaseCoefficientsBuffer2.AddRange(loadCaseCoefficientsWindPressure);
+                            loadCaseCoefficientsBuffer3.AddRange(loadCaseCoefficientsWindPressure);
+                            modWP = true;
                         }
-                        else if (haveClimateSummer == true && haveClimateWinter == false)
+
+                        if (loadCaseCoefficientsWindSuction.Count() != 0)
                         {
-                            bool modWP = false;
-                            bool modWS = false;
-                            bool modS = false;
-
-                            loadCaseCoefficientsBuffer2 = loadCaseCoefficientsBuffer.ToArray().ToList();
-                            loadCaseCoefficientsBuffer3 = loadCaseCoefficientsBuffer.ToArray().ToList();
-
-                            if (loadCaseCoefficientsWindPressure.Count() != 0)
-                            {
-                                loadCaseCoefficientsBuffer2.AddRange(loadCaseCoefficientsWindPressure);
-                                modWP = true;
-                            }
-                            if (loadCaseCoefficientsSummer.Count() != 0)
-                            {
-                                loadCaseCoefficientsBuffer2.AddRange(loadCaseCoefficientsSummer);
-                                loadCaseCoefficientsBuffer3.AddRange(loadCaseCoefficientsSummer);
-                                modS = true;
-                            }
-
-                            if (loadCaseCoefficientsWindSuction.Count() != 0)
-                            {
-                                loadCaseCoefficientsBuffer3.AddRange(loadCaseCoefficientsWindSuction);
-                                modWS = true;
-                            }
-
-                            if (modWP && modS)
-                                loadCaseCoefficients.Add(loadCaseCoefficientsBuffer2);
-                            if (modWS && modS)
-                                loadCaseCoefficients.Add(loadCaseCoefficientsBuffer3);
-                            else if (modWP == false && modS || modWP && modS == false)
-                                loadCaseCoefficients.Add(loadCaseCoefficientsBuffer2);
-                            else if ((modWS == false && modS) || (modWS && modS == false))
-                                loadCaseCoefficients.Add(loadCaseCoefficientsBuffer3);
-                            else
-                                loadCaseCoefficients.Add(loadCaseCoefficientsBuffer);
-
+                            loadCaseCoefficientsBuffer4.AddRange(loadCaseCoefficientsWindSuction);
+                            loadCaseCoefficientsBuffer5.AddRange(loadCaseCoefficientsWindSuction);
+                            modWS = true;
                         }
-                        else if (haveClimateSummer == false && haveClimateWinter == true)
+
+                        if (loadCaseCoefficientsSummer.Count() != 0)
                         {
-                            bool modWP = false;
-                            bool modWS = false;
-                            bool modW = false;
-
-                            loadCaseCoefficientsBuffer2 = loadCaseCoefficientsBuffer.ToArray().ToList();
-                            loadCaseCoefficientsBuffer3 = loadCaseCoefficientsBuffer.ToArray().ToList();
-
-                            if (loadCaseCoefficientsWindPressure.Count() != 0)
-                            {
-                                loadCaseCoefficientsBuffer2.AddRange(loadCaseCoefficientsWindPressure);
-                                modWP = true;
-                            }
-                            if (loadCaseCoefficientsWindSuction.Count() != 0)
-                            {
-                                loadCaseCoefficientsBuffer3.AddRange(loadCaseCoefficientsWindSuction);
-                                modWS = true;
-                            }
-                            if (loadCaseCoefficientsWinter.Count() != 0)
-                            {
-                                loadCaseCoefficientsBuffer2.AddRange(loadCaseCoefficientsWinter);
-                                loadCaseCoefficientsBuffer3.AddRange(loadCaseCoefficientsWinter);
-                                modW = true;
-                            }
-                            if (modWP && modW)
-                                loadCaseCoefficients.Add(loadCaseCoefficientsBuffer2);
-                            if (modWS && modW)
-                                loadCaseCoefficients.Add(loadCaseCoefficientsBuffer3);
-                            if (modWP == false && modW || modWP && modW == false)
-                                loadCaseCoefficients.Add(loadCaseCoefficientsBuffer2);
-                            else if ((modWS == false && modW) || (modWS && modW == false))
-                                loadCaseCoefficients.Add(loadCaseCoefficientsBuffer3);
-                            else
-                                loadCaseCoefficients.Add(loadCaseCoefficientsBuffer);
+                            loadCaseCoefficientsBuffer2.AddRange(loadCaseCoefficientsSummer);
+                            loadCaseCoefficientsBuffer5.AddRange(loadCaseCoefficientsSummer);
+                            modS = true;
                         }
+
+                        if (loadCaseCoefficientsWinter.Count() != 0)
+                        {
+                            loadCaseCoefficientsBuffer3.AddRange(loadCaseCoefficientsWinter);
+                            loadCaseCoefficientsBuffer4.AddRange(loadCaseCoefficientsWinter);
+                            modW = true;
+                        }
+
+                        if (modWP && modS)
+                            loadCaseCoefficients.Add(loadCaseCoefficientsBuffer2);
+                        if (modWP && modW)
+                            loadCaseCoefficients.Add(loadCaseCoefficientsBuffer3);
+                        if (modWS && modW)
+                            loadCaseCoefficients.Add(loadCaseCoefficientsBuffer4);
+                        if (modWS && modS)
+                            loadCaseCoefficients.Add(loadCaseCoefficientsBuffer5);
+
+                        if ((modWS && modS == false) || (modWS == false && modS))
+                            loadCaseCoefficients.Add(loadCaseCoefficientsBuffer5);
+                        else if ((modWS && modW == false) || (modWS == false && modW))
+                            loadCaseCoefficients.Add(loadCaseCoefficientsBuffer4);
+                        else if ((modWP && modS == false) || (modWP == false && modS))
+                            loadCaseCoefficients.Add(loadCaseCoefficientsBuffer2);
+                        else if ((modWP && modW == false) || (modWP == false && modW))
+                            loadCaseCoefficients.Add(loadCaseCoefficientsBuffer3);
                         else
-                        {
-                            loadCaseCoefficientsBuffer2 = loadCaseCoefficientsBuffer.ToArray().ToList();
-                            loadCaseCoefficientsBuffer3 = loadCaseCoefficientsBuffer.ToArray().ToList();
-
-                            if (loadCaseCoefficientsWindPressure.Count() != 0)
-                            {
-                                loadCaseCoefficientsBuffer2.AddRange(loadCaseCoefficientsWindPressure);
-                                loadCaseCoefficients.Add(loadCaseCoefficientsBuffer2);
-                            }
-                            if (loadCaseCoefficientsWindSuction.Count() != 0)
-                            {
-                                loadCaseCoefficientsBuffer3.AddRange(loadCaseCoefficientsWindSuction);
-                                loadCaseCoefficients.Add(loadCaseCoefficientsBuffer3);
-                            }
-                            if (loadCaseCoefficientsWindSuction.Count() == 0 && loadCaseCoefficientsWindPressure.Count() == 0)
-                            {
-                                loadCaseCoefficients.Add(loadCaseCoefficientsBuffer);
-                            }
-                        }
+                            loadCaseCoefficients.Add(loadCaseCoefficientsBuffer);
                     }
-                    else if (haveWindPressure == false && haveWindSuction == true)
+                    else if (haveClimateSummer == true && haveClimateWinter == false)
                     {
-                        if (haveClimateSummer == true && haveClimateWinter == true)
+                        bool modWP = false;
+                        bool modWS = false;
+                        bool modS = false;
+
+                        loadCaseCoefficientsBuffer2 = loadCaseCoefficientsBuffer.ToArray().ToList();
+                        loadCaseCoefficientsBuffer3 = loadCaseCoefficientsBuffer.ToArray().ToList();
+
+                        if (loadCaseCoefficientsWindPressure.Count() != 0)
                         {
-                            bool modS = false;
-                            bool modWS = false;
-                            bool modW = false;
-
-                            loadCaseCoefficientsBuffer4 = loadCaseCoefficientsBuffer.ToArray().ToList();
-                            loadCaseCoefficientsBuffer5 = loadCaseCoefficientsBuffer.ToArray().ToList();
-
-                            if (loadCaseCoefficientsWindSuction.Count() != 0)
-                            {
-                                loadCaseCoefficientsBuffer4.AddRange(loadCaseCoefficientsWindSuction);
-                                loadCaseCoefficientsBuffer5.AddRange(loadCaseCoefficientsWindSuction);
-                                modWS = true;
-                            }
-                            if (loadCaseCoefficientsWinter.Count() != 0)
-                            {
-                                loadCaseCoefficientsBuffer4.AddRange(loadCaseCoefficientsWinter);
-                                modW = true;
-                            }
-                            if (loadCaseCoefficientsSummer.Count() != 0)
-                            {
-                                loadCaseCoefficientsBuffer5.AddRange(loadCaseCoefficientsSummer);
-                                modS = true;
-                            }
-
-                            if (modWS && modW)
-                                loadCaseCoefficients.Add(loadCaseCoefficientsBuffer4);
-                            if (modWS && modW)
-                                loadCaseCoefficients.Add(loadCaseCoefficientsBuffer5);
-                            if (modW && modW)
-                            {
-                                loadCaseCoefficients.Add(loadCaseCoefficientsBuffer4);
-                                loadCaseCoefficients.Add(loadCaseCoefficientsBuffer5);
-                            }
-                            else if ((modWS == false && modW) || (modWS && modW == false))
-                                loadCaseCoefficients.Add(loadCaseCoefficientsBuffer4);
-                            else if ((modWS == false && modS) || (modWS && modS == false))
-                                loadCaseCoefficients.Add(loadCaseCoefficientsBuffer5);
-                            else
-                                loadCaseCoefficients.Add(loadCaseCoefficientsBuffer);
+                            loadCaseCoefficientsBuffer2.AddRange(loadCaseCoefficientsWindPressure);
+                            modWP = true;
                         }
-                        else if (haveClimateSummer == true && haveClimateWinter == false)
+                        if (loadCaseCoefficientsSummer.Count() != 0)
                         {
-                            bool modWS = false;
-                            bool modS = false;
-
-                            loadCaseCoefficientsBuffer2 = loadCaseCoefficientsBuffer.ToArray().ToList();
-
-                            if (loadCaseCoefficientsWindSuction.Count() != 0)
-                            {
-                                loadCaseCoefficientsBuffer2.AddRange(loadCaseCoefficientsWindSuction);
-                                modWS = true;
-                            }
-                            if (loadCaseCoefficientsSummer.Count() != 0)
-                            {
-                                loadCaseCoefficientsBuffer2.AddRange(loadCaseCoefficientsSummer);
-                                modS = true;
-                            }
-
-                            if (modWS && modS)
-                                loadCaseCoefficients.Add(loadCaseCoefficientsBuffer2);
-                            else if (!modWS || !modS)
-                                loadCaseCoefficients.Add(loadCaseCoefficientsBuffer2);
-                            else
-                                loadCaseCoefficients.Add(loadCaseCoefficientsBuffer);
-
+                            loadCaseCoefficientsBuffer2.AddRange(loadCaseCoefficientsSummer);
+                            loadCaseCoefficientsBuffer3.AddRange(loadCaseCoefficientsSummer);
+                            modS = true;
                         }
-                        else if (haveClimateSummer == false && haveClimateWinter == true)
+
+                        if (loadCaseCoefficientsWindSuction.Count() != 0)
                         {
-                            bool modWS = false;
-                            bool modW = false;
-
-                            loadCaseCoefficientsBuffer3 = loadCaseCoefficientsBuffer.ToArray().ToList();
-
-                            if (loadCaseCoefficientsWindSuction.Count() != 0)
-                            {
-                                loadCaseCoefficientsBuffer3.AddRange(loadCaseCoefficientsWindSuction);
-                                modWS = true;
-                            }
-                            if (loadCaseCoefficientsWinter.Count() != 0)
-                            {
-                                loadCaseCoefficientsBuffer3.AddRange(loadCaseCoefficientsWinter);
-                                modW = true;
-                            }
-
-                            if (modWS && modW)
-                                loadCaseCoefficients.Add(loadCaseCoefficientsBuffer3);
-                            else if (!modWS || !modW)
-                                loadCaseCoefficients.Add(loadCaseCoefficientsBuffer3);
-                            else
-                                loadCaseCoefficients.Add(loadCaseCoefficientsBuffer);
+                            loadCaseCoefficientsBuffer3.AddRange(loadCaseCoefficientsWindSuction);
+                            modWS = true;
                         }
+
+                        if (modWP && modS)
+                            loadCaseCoefficients.Add(loadCaseCoefficientsBuffer2);
+                        if (modWS && modS)
+                            loadCaseCoefficients.Add(loadCaseCoefficientsBuffer3);
+                        else if (modWP == false && modS || modWP && modS == false)
+                            loadCaseCoefficients.Add(loadCaseCoefficientsBuffer2);
+                        else if ((modWS == false && modS) || (modWS && modS == false))
+                            loadCaseCoefficients.Add(loadCaseCoefficientsBuffer3);
                         else
-                        {
-                            loadCaseCoefficientsBuffer2 = loadCaseCoefficientsBuffer.ToArray().ToList();
+                            loadCaseCoefficients.Add(loadCaseCoefficientsBuffer);
 
-                            if (loadCaseCoefficientsWindSuction.Count() != 0)
-                            {
-                                loadCaseCoefficientsBuffer2.AddRange(loadCaseCoefficientsWindSuction);
-                                loadCaseCoefficients.Add(loadCaseCoefficientsBuffer2);
-                            }
-                            if (loadCaseCoefficientsWindSuction.Count() == 0)
-                            {
-                                loadCaseCoefficients.Add(loadCaseCoefficientsBuffer);
-                            }
-                        }
                     }
-                    else if (haveWindPressure == true && haveWindSuction == false)
+                    else if (haveClimateSummer == false && haveClimateWinter == true)
                     {
-                        if (haveClimateSummer == true && haveClimateWinter == true)
+                        bool modWP = false;
+                        bool modWS = false;
+                        bool modW = false;
+
+                        loadCaseCoefficientsBuffer2 = loadCaseCoefficientsBuffer.ToArray().ToList();
+                        loadCaseCoefficientsBuffer3 = loadCaseCoefficientsBuffer.ToArray().ToList();
+
+                        if (loadCaseCoefficientsWindPressure.Count() != 0)
                         {
-                            bool modWP = false;
-                            bool modW = false;
-                            bool modS = false;
-
-                            loadCaseCoefficientsBuffer4 = loadCaseCoefficientsBuffer.ToArray().ToList();
-                            loadCaseCoefficientsBuffer5 = loadCaseCoefficientsBuffer.ToArray().ToList();
-
-                            if (loadCaseCoefficientsWindPressure.Count() != 0)
-                            {
-                                loadCaseCoefficientsBuffer4.AddRange(loadCaseCoefficientsWindPressure);
-                                loadCaseCoefficientsBuffer5.AddRange(loadCaseCoefficientsWindPressure);
-                                modWP = true;
-                            }
-                            if (loadCaseCoefficientsWinter.Count() != 0)
-                            {
-                                loadCaseCoefficientsBuffer4.AddRange(loadCaseCoefficientsWinter);
-                                modW = true;
-                            }
-                            if (loadCaseCoefficientsSummer.Count() != 0)
-                            {
-                                loadCaseCoefficientsBuffer5.AddRange(loadCaseCoefficientsSummer);
-                                modS = true;
-                            }
-
-                            if (modWP && modW)
-                                loadCaseCoefficients.Add(loadCaseCoefficientsBuffer4);
-                            if (modWP && modS)
-                                loadCaseCoefficients.Add(loadCaseCoefficientsBuffer5);
-                            if (modW && modS)
-                            {
-                                loadCaseCoefficients.Add(loadCaseCoefficientsBuffer4);
-                                loadCaseCoefficients.Add(loadCaseCoefficientsBuffer5);
-                            }
-                            else if ((modWP == false && modS) || (modWP && modS == false))
-                                loadCaseCoefficients.Add(loadCaseCoefficientsBuffer5);
-                            else if ((modWP == false && modW) || (modWP && modW == false))
-                                loadCaseCoefficients.Add(loadCaseCoefficientsBuffer4);
-                            else
-                                loadCaseCoefficients.Add(loadCaseCoefficientsBuffer);
-
+                            loadCaseCoefficientsBuffer2.AddRange(loadCaseCoefficientsWindPressure);
+                            modWP = true;
                         }
-                        else if (haveClimateSummer == true && haveClimateWinter == false)
+                        if (loadCaseCoefficientsWindSuction.Count() != 0)
                         {
-                            bool modWP = false;
-                            bool modS = false;
-                            loadCaseCoefficientsBuffer2 = loadCaseCoefficientsBuffer.ToArray().ToList();
-
-                            if (loadCaseCoefficientsWindPressure.Count() != 0)
-                            {
-                                loadCaseCoefficientsBuffer2.AddRange(loadCaseCoefficientsWindPressure);
-                                modWP = true;
-                            }
-                            if (loadCaseCoefficientsSummer.Count() != 0)
-                            {
-                                loadCaseCoefficientsBuffer2.AddRange(loadCaseCoefficientsSummer);
-                                modS = true;
-                            }
-
-                            if (modWP && modS)
-                                loadCaseCoefficients.Add(loadCaseCoefficientsBuffer2);
-                            else if (!modWP || !modS)
-                                loadCaseCoefficients.Add(loadCaseCoefficientsBuffer2);
-                            else
-                                loadCaseCoefficients.Add(loadCaseCoefficientsBuffer);
+                            loadCaseCoefficientsBuffer3.AddRange(loadCaseCoefficientsWindSuction);
+                            modWS = true;
                         }
-                        else if (haveClimateSummer == false && haveClimateWinter == true)
+                        if (loadCaseCoefficientsWinter.Count() != 0)
                         {
-                            bool modWP = false;
-                            bool modW = false;
-                            loadCaseCoefficientsBuffer3 = loadCaseCoefficientsBuffer.ToArray().ToList();
-
-                            if (loadCaseCoefficientsWindPressure.Count() != 0)
-                            {
-                                loadCaseCoefficientsBuffer3.AddRange(loadCaseCoefficientsWindPressure);
-                                modWP = true;
-                            }
-                            if (loadCaseCoefficientsWinter.Count() != 0)
-                            {
-                                loadCaseCoefficientsBuffer3.AddRange(loadCaseCoefficientsWinter);
-                                modW = true;
-                            }
-                            if (modWP && modW)
-                                loadCaseCoefficients.Add(loadCaseCoefficientsBuffer3);
-                            else if (!modWP || !modW)
-                                loadCaseCoefficients.Add(loadCaseCoefficientsBuffer3);
-                            else
-                                loadCaseCoefficients.Add(loadCaseCoefficientsBuffer);
+                            loadCaseCoefficientsBuffer2.AddRange(loadCaseCoefficientsWinter);
+                            loadCaseCoefficientsBuffer3.AddRange(loadCaseCoefficientsWinter);
+                            modW = true;
                         }
+                        if (modWP && modW)
+                            loadCaseCoefficients.Add(loadCaseCoefficientsBuffer2);
+                        if (modWS && modW)
+                            loadCaseCoefficients.Add(loadCaseCoefficientsBuffer3);
+                        if (modWP == false && modW || modWP && modW == false)
+                            loadCaseCoefficients.Add(loadCaseCoefficientsBuffer2);
+                        else if ((modWS == false && modW) || (modWS && modW == false))
+                            loadCaseCoefficients.Add(loadCaseCoefficientsBuffer3);
                         else
-                        {
-                            loadCaseCoefficientsBuffer2 = loadCaseCoefficientsBuffer.ToArray().ToList();
-
-                            if (loadCaseCoefficientsWindPressure.Count() != 0)
-                            {
-                                loadCaseCoefficientsBuffer2.AddRange(loadCaseCoefficientsWindPressure);
-                                loadCaseCoefficients.Add(loadCaseCoefficientsBuffer2);
-                            }
-                            if (loadCaseCoefficientsWindPressure.Count() == 0)
-                            {
-                                loadCaseCoefficients.Add(loadCaseCoefficientsBuffer);
-                            }
-                        }
+                            loadCaseCoefficients.Add(loadCaseCoefficientsBuffer);
                     }
                     else
                     {
-                        if (haveClimateSummer == true && haveClimateWinter == true)
-                        {
-                            loadCaseCoefficientsBuffer4 = loadCaseCoefficientsBuffer.ToArray().ToList();
-                            loadCaseCoefficientsBuffer5 = loadCaseCoefficientsBuffer.ToArray().ToList();
+                        loadCaseCoefficientsBuffer2 = loadCaseCoefficientsBuffer.ToArray().ToList();
+                        loadCaseCoefficientsBuffer3 = loadCaseCoefficientsBuffer.ToArray().ToList();
 
-                            if (loadCaseCoefficientsWinter.Count() != 0)
-                            {
-                                loadCaseCoefficientsBuffer4.AddRange(loadCaseCoefficientsWinter);
-                                loadCaseCoefficients.Add(loadCaseCoefficientsBuffer4);
-                            }
-                            if (loadCaseCoefficientsSummer.Count() != 0)
-                            {
-                                loadCaseCoefficientsBuffer5.AddRange(loadCaseCoefficientsSummer);
-                                loadCaseCoefficients.Add(loadCaseCoefficientsBuffer5);
-                            }
-                            if (loadCaseCoefficientsSummer.Count() == 0 && loadCaseCoefficientsWinter.Count() == 0)
-                                loadCaseCoefficients.Add(loadCaseCoefficientsBuffer);
-                        }
-                        else if (haveClimateSummer == true && haveClimateWinter == false)
+                        if (loadCaseCoefficientsWindPressure.Count() != 0)
                         {
-                            loadCaseCoefficientsBuffer2 = loadCaseCoefficientsBuffer.ToArray().ToList();
-
-                            if (loadCaseCoefficientsSummer.Count() != 0)
-                            {
-                                loadCaseCoefficientsBuffer2.AddRange(loadCaseCoefficientsSummer);
-                                loadCaseCoefficients.Add(loadCaseCoefficientsBuffer2);
-                            }
-                            if (loadCaseCoefficientsSummer.Count() == 0)
-                            {
-                                loadCaseCoefficients.Add(loadCaseCoefficientsBuffer);
-                            }
+                            loadCaseCoefficientsBuffer2.AddRange(loadCaseCoefficientsWindPressure);
+                            loadCaseCoefficients.Add(loadCaseCoefficientsBuffer2);
                         }
-                        else if (haveClimateSummer == false && haveClimateWinter == true)
+                        if (loadCaseCoefficientsWindSuction.Count() != 0)
                         {
-                            loadCaseCoefficientsBuffer3 = loadCaseCoefficientsBuffer.ToArray().ToList();
-                            if (loadCaseCoefficientsSummer.Count() != 0)
-                            {
-                                loadCaseCoefficientsBuffer3.AddRange(loadCaseCoefficientsWinter);
-                                loadCaseCoefficients.Add(loadCaseCoefficientsBuffer3);
-                            }
-                            if (loadCaseCoefficientsSummer.Count() != 0)
-                            {
-                                loadCaseCoefficients.Add(loadCaseCoefficientsBuffer);
-                            }
+                            loadCaseCoefficientsBuffer3.AddRange(loadCaseCoefficientsWindSuction);
+                            loadCaseCoefficients.Add(loadCaseCoefficientsBuffer3);
                         }
-                        else
+                        if (loadCaseCoefficientsWindSuction.Count() == 0 && loadCaseCoefficientsWindPressure.Count() == 0)
                         {
                             loadCaseCoefficients.Add(loadCaseCoefficientsBuffer);
                         }
                     }
-
-                    #endregion
-
                 }
+                else if (haveWindPressure == false && haveWindSuction == true)
+                {
+                    if (haveClimateSummer == true && haveClimateWinter == true)
+                    {
+                        bool modS = false;
+                        bool modWS = false;
+                        bool modW = false;
+
+                        loadCaseCoefficientsBuffer4 = loadCaseCoefficientsBuffer.ToArray().ToList();
+                        loadCaseCoefficientsBuffer5 = loadCaseCoefficientsBuffer.ToArray().ToList();
+
+                        if (loadCaseCoefficientsWindSuction.Count() != 0)
+                        {
+                            loadCaseCoefficientsBuffer4.AddRange(loadCaseCoefficientsWindSuction);
+                            loadCaseCoefficientsBuffer5.AddRange(loadCaseCoefficientsWindSuction);
+                            modWS = true;
+                        }
+                        if (loadCaseCoefficientsWinter.Count() != 0)
+                        {
+                            loadCaseCoefficientsBuffer4.AddRange(loadCaseCoefficientsWinter);
+                            modW = true;
+                        }
+                        if (loadCaseCoefficientsSummer.Count() != 0)
+                        {
+                            loadCaseCoefficientsBuffer5.AddRange(loadCaseCoefficientsSummer);
+                            modS = true;
+                        }
+
+                        if (modWS && modW)
+                            loadCaseCoefficients.Add(loadCaseCoefficientsBuffer4);
+                        if (modWS && modW)
+                            loadCaseCoefficients.Add(loadCaseCoefficientsBuffer5);
+                        if (modW && modW)
+                        {
+                            loadCaseCoefficients.Add(loadCaseCoefficientsBuffer4);
+                            loadCaseCoefficients.Add(loadCaseCoefficientsBuffer5);
+                        }
+                        else if ((modWS == false && modW) || (modWS && modW == false))
+                            loadCaseCoefficients.Add(loadCaseCoefficientsBuffer4);
+                        else if ((modWS == false && modS) || (modWS && modS == false))
+                            loadCaseCoefficients.Add(loadCaseCoefficientsBuffer5);
+                        else
+                            loadCaseCoefficients.Add(loadCaseCoefficientsBuffer);
+                    }
+                    else if (haveClimateSummer == true && haveClimateWinter == false)
+                    {
+                        bool modWS = false;
+                        bool modS = false;
+
+                        loadCaseCoefficientsBuffer2 = loadCaseCoefficientsBuffer.ToArray().ToList();
+
+                        if (loadCaseCoefficientsWindSuction.Count() != 0)
+                        {
+                            loadCaseCoefficientsBuffer2.AddRange(loadCaseCoefficientsWindSuction);
+                            modWS = true;
+                        }
+                        if (loadCaseCoefficientsSummer.Count() != 0)
+                        {
+                            loadCaseCoefficientsBuffer2.AddRange(loadCaseCoefficientsSummer);
+                            modS = true;
+                        }
+
+                        if (modWS && modS)
+                            loadCaseCoefficients.Add(loadCaseCoefficientsBuffer2);
+                        else if (!modWS || !modS)
+                            loadCaseCoefficients.Add(loadCaseCoefficientsBuffer2);
+                        else
+                            loadCaseCoefficients.Add(loadCaseCoefficientsBuffer);
+
+                    }
+                    else if (haveClimateSummer == false && haveClimateWinter == true)
+                    {
+                        bool modWS = false;
+                        bool modW = false;
+
+                        loadCaseCoefficientsBuffer3 = loadCaseCoefficientsBuffer.ToArray().ToList();
+
+                        if (loadCaseCoefficientsWindSuction.Count() != 0)
+                        {
+                            loadCaseCoefficientsBuffer3.AddRange(loadCaseCoefficientsWindSuction);
+                            modWS = true;
+                        }
+                        if (loadCaseCoefficientsWinter.Count() != 0)
+                        {
+                            loadCaseCoefficientsBuffer3.AddRange(loadCaseCoefficientsWinter);
+                            modW = true;
+                        }
+
+                        if (modWS && modW)
+                            loadCaseCoefficients.Add(loadCaseCoefficientsBuffer3);
+                        else if (!modWS || !modW)
+                            loadCaseCoefficients.Add(loadCaseCoefficientsBuffer3);
+                        else
+                            loadCaseCoefficients.Add(loadCaseCoefficientsBuffer);
+                    }
+                    else
+                    {
+                        loadCaseCoefficientsBuffer2 = loadCaseCoefficientsBuffer.ToArray().ToList();
+
+                        if (loadCaseCoefficientsWindSuction.Count() != 0)
+                        {
+                            loadCaseCoefficientsBuffer2.AddRange(loadCaseCoefficientsWindSuction);
+                            loadCaseCoefficients.Add(loadCaseCoefficientsBuffer2);
+                        }
+                        if (loadCaseCoefficientsWindSuction.Count() == 0)
+                        {
+                            loadCaseCoefficients.Add(loadCaseCoefficientsBuffer);
+                        }
+                    }
+                }
+                else if (haveWindPressure == true && haveWindSuction == false)
+                {
+                    if (haveClimateSummer == true && haveClimateWinter == true)
+                    {
+                        bool modWP = false;
+                        bool modW = false;
+                        bool modS = false;
+
+                        loadCaseCoefficientsBuffer4 = loadCaseCoefficientsBuffer.ToArray().ToList();
+                        loadCaseCoefficientsBuffer5 = loadCaseCoefficientsBuffer.ToArray().ToList();
+
+                        if (loadCaseCoefficientsWindPressure.Count() != 0)
+                        {
+                            loadCaseCoefficientsBuffer4.AddRange(loadCaseCoefficientsWindPressure);
+                            loadCaseCoefficientsBuffer5.AddRange(loadCaseCoefficientsWindPressure);
+                            modWP = true;
+                        }
+                        if (loadCaseCoefficientsWinter.Count() != 0)
+                        {
+                            loadCaseCoefficientsBuffer4.AddRange(loadCaseCoefficientsWinter);
+                            modW = true;
+                        }
+                        if (loadCaseCoefficientsSummer.Count() != 0)
+                        {
+                            loadCaseCoefficientsBuffer5.AddRange(loadCaseCoefficientsSummer);
+                            modS = true;
+                        }
+
+                        if (modWP && modW)
+                            loadCaseCoefficients.Add(loadCaseCoefficientsBuffer4);
+                        if (modWP && modS)
+                            loadCaseCoefficients.Add(loadCaseCoefficientsBuffer5);
+                        if (modW && modS)
+                        {
+                            loadCaseCoefficients.Add(loadCaseCoefficientsBuffer4);
+                            loadCaseCoefficients.Add(loadCaseCoefficientsBuffer5);
+                        }
+                        else if ((modWP == false && modS) || (modWP && modS == false))
+                            loadCaseCoefficients.Add(loadCaseCoefficientsBuffer5);
+                        else if ((modWP == false && modW) || (modWP && modW == false))
+                            loadCaseCoefficients.Add(loadCaseCoefficientsBuffer4);
+                        else
+                            loadCaseCoefficients.Add(loadCaseCoefficientsBuffer);
+
+                    }
+                    else if (haveClimateSummer == true && haveClimateWinter == false)
+                    {
+                        bool modWP = false;
+                        bool modS = false;
+                        loadCaseCoefficientsBuffer2 = loadCaseCoefficientsBuffer.ToArray().ToList();
+
+                        if (loadCaseCoefficientsWindPressure.Count() != 0)
+                        {
+                            loadCaseCoefficientsBuffer2.AddRange(loadCaseCoefficientsWindPressure);
+                            modWP = true;
+                        }
+                        if (loadCaseCoefficientsSummer.Count() != 0)
+                        {
+                            loadCaseCoefficientsBuffer2.AddRange(loadCaseCoefficientsSummer);
+                            modS = true;
+                        }
+
+                        if (modWP && modS)
+                            loadCaseCoefficients.Add(loadCaseCoefficientsBuffer2);
+                        else if (!modWP || !modS)
+                            loadCaseCoefficients.Add(loadCaseCoefficientsBuffer2);
+                        else
+                            loadCaseCoefficients.Add(loadCaseCoefficientsBuffer);
+                    }
+                    else if (haveClimateSummer == false && haveClimateWinter == true)
+                    {
+                        bool modWP = false;
+                        bool modW = false;
+                        loadCaseCoefficientsBuffer3 = loadCaseCoefficientsBuffer.ToArray().ToList();
+
+                        if (loadCaseCoefficientsWindPressure.Count() != 0)
+                        {
+                            loadCaseCoefficientsBuffer3.AddRange(loadCaseCoefficientsWindPressure);
+                            modWP = true;
+                        }
+                        if (loadCaseCoefficientsWinter.Count() != 0)
+                        {
+                            loadCaseCoefficientsBuffer3.AddRange(loadCaseCoefficientsWinter);
+                            modW = true;
+                        }
+                        if (modWP && modW)
+                            loadCaseCoefficients.Add(loadCaseCoefficientsBuffer3);
+                        else if (!modWP || !modW)
+                            loadCaseCoefficients.Add(loadCaseCoefficientsBuffer3);
+                        else
+                            loadCaseCoefficients.Add(loadCaseCoefficientsBuffer);
+                    }
+                    else
+                    {
+                        loadCaseCoefficientsBuffer2 = loadCaseCoefficientsBuffer.ToArray().ToList();
+
+                        if (loadCaseCoefficientsWindPressure.Count() != 0)
+                        {
+                            loadCaseCoefficientsBuffer2.AddRange(loadCaseCoefficientsWindPressure);
+                            loadCaseCoefficients.Add(loadCaseCoefficientsBuffer2);
+                        }
+                        if (loadCaseCoefficientsWindPressure.Count() == 0)
+                        {
+                            loadCaseCoefficients.Add(loadCaseCoefficientsBuffer);
+                        }
+                    }
+                }
+                else
+                {
+                    if (haveClimateSummer == true && haveClimateWinter == true)
+                    {
+                        loadCaseCoefficientsBuffer4 = loadCaseCoefficientsBuffer.ToArray().ToList();
+                        loadCaseCoefficientsBuffer5 = loadCaseCoefficientsBuffer.ToArray().ToList();
+
+                        if (loadCaseCoefficientsWinter.Count() != 0)
+                        {
+                            loadCaseCoefficientsBuffer4.AddRange(loadCaseCoefficientsWinter);
+                            loadCaseCoefficients.Add(loadCaseCoefficientsBuffer4);
+                        }
+                        if (loadCaseCoefficientsSummer.Count() != 0)
+                        {
+                            loadCaseCoefficientsBuffer5.AddRange(loadCaseCoefficientsSummer);
+                            loadCaseCoefficients.Add(loadCaseCoefficientsBuffer5);
+                        }
+                        if (loadCaseCoefficientsSummer.Count() == 0 && loadCaseCoefficientsWinter.Count() == 0)
+                            loadCaseCoefficients.Add(loadCaseCoefficientsBuffer);
+                    }
+                    else if (haveClimateSummer == true && haveClimateWinter == false)
+                    {
+                        loadCaseCoefficientsBuffer2 = loadCaseCoefficientsBuffer.ToArray().ToList();
+
+                        if (loadCaseCoefficientsSummer.Count() != 0)
+                        {
+                            loadCaseCoefficientsBuffer2.AddRange(loadCaseCoefficientsSummer);
+                            loadCaseCoefficients.Add(loadCaseCoefficientsBuffer2);
+                        }
+                        if (loadCaseCoefficientsSummer.Count() == 0)
+                        {
+                            loadCaseCoefficients.Add(loadCaseCoefficientsBuffer);
+                        }
+                    }
+                    else if (haveClimateSummer == false && haveClimateWinter == true)
+                    {
+                        loadCaseCoefficientsBuffer3 = loadCaseCoefficientsBuffer.ToArray().ToList();
+                        if (loadCaseCoefficientsSummer.Count() != 0)
+                        {
+                            loadCaseCoefficientsBuffer3.AddRange(loadCaseCoefficientsWinter);
+                            loadCaseCoefficients.Add(loadCaseCoefficientsBuffer3);
+                        }
+                        if (loadCaseCoefficientsSummer.Count() != 0)
+                        {
+                            loadCaseCoefficients.Add(loadCaseCoefficientsBuffer);
+                        }
+                    }
+                    else
+                    {
+                        loadCaseCoefficients.Add(loadCaseCoefficientsBuffer);
+                    }
+                }
+
+                #endregion
+
+            }
+
+            return loadCaseCoefficients;
         }
 
         /// <summary>
