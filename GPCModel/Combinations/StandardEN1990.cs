@@ -1128,7 +1128,7 @@ namespace GPC.Model.Combinations
 
                 // crea un load lead, cerca tutti i carichi dello stesso tipo e li coefficienta alla stessa maniera.
                 LoadCase loadCaseLead = loadCases[i];
-                loadCaseCoefficientsBuffer = AddLoadCaseLead(loadCaseLead.LoadCaseType, loadCases, options);
+                loadCaseCoefficientsBuffer = AddLoadCaseLead(loadCaseLead, loadCases, options);
                 hash.Add(loadCaseLead.LoadCaseType);
 
                 #endregion
@@ -1138,13 +1138,11 @@ namespace GPC.Model.Combinations
                 {
                     #region NORMAL LOAD ADD
 
-                    if (!hashAcc.Contains(loadCaseAccompanying.LoadCaseType) && !loadCaseAccompanying.LoadCaseType.Equals(loadCaseLead.LoadCaseType))
+                    if (!hashAcc.Contains(loadCaseAccompanying.LoadCaseType) && !loadCaseAccompanying.LoadCaseType.Equals(loadCaseLead.LoadCaseType) &&
+                        loadCaseAccompanying.LoadCaseType != LoadCase.LoadCaseTypes.WindSuction && loadCaseAccompanying.LoadCaseType != LoadCase.LoadCaseTypes.WindPressure)
                     {
-                        if (loadCaseAccompanying.LoadCaseType != LoadCase.LoadCaseTypes.WindSuction && loadCaseAccompanying.LoadCaseType != LoadCase.LoadCaseTypes.WindPressure)
-                        {
-                            loadCaseCoefficientsBuffer.AddRange(AddLoadCaseAccompanying(loadCaseAccompanying.LoadCaseType, loadCases, options));
-                            hashAcc.Add(loadCaseAccompanying.LoadCaseType);
-                        }
+                        loadCaseCoefficientsBuffer.AddRange(AddLoadCaseAccompanying(loadCaseAccompanying.LoadCaseType, loadCases, options));
+                        hashAcc.Add(loadCaseAccompanying.LoadCaseType);
                     }
 
                     #endregion
@@ -1165,26 +1163,22 @@ namespace GPC.Model.Combinations
                 // gestione carichi secondari windsuction
                 foreach (LoadCase loadCaseAccompanying in loadCases)
                 {
-                    if (loadCaseLead.LoadCaseType != LoadCase.LoadCaseTypes.WindPressure && loadCaseAccompanying.LoadCaseType == LoadCase.LoadCaseTypes.WindSuction)
+                    if (loadCaseLead.LoadCaseType != LoadCase.LoadCaseTypes.WindPressure && loadCaseAccompanying.LoadCaseType == LoadCase.LoadCaseTypes.WindSuction &&
+                        !loadCaseAccompanying.LoadCaseType.Equals(loadCaseLead.LoadCaseType) && !hashAcc.Contains(loadCaseAccompanying.LoadCaseType))
                     {
-                        if (!loadCaseAccompanying.LoadCaseType.Equals(loadCaseLead.LoadCaseType) && !hashAcc.Contains(loadCaseAccompanying.LoadCaseType))
-                        {
-                            loadCaseCoefficientsWindSuction.AddRange(AddLoadCaseAccompanying(LoadCase.LoadCaseTypes.WindSuction, loadCases, options));
-                            hashAcc.Add(loadCaseAccompanying.LoadCaseType);
-                        }
+                        loadCaseCoefficientsWindSuction.AddRange(AddLoadCaseAccompanying(LoadCase.LoadCaseTypes.WindSuction, loadCases, options));
+                        hashAcc.Add(loadCaseAccompanying.LoadCaseType);
                     }
                 }
 
                 // gestione carichi secondari windpressure
                 foreach (LoadCase loadCaseAccompanying in loadCases)
                 {
-                    if (loadCaseLead.LoadCaseType != LoadCase.LoadCaseTypes.WindSuction && loadCaseAccompanying.LoadCaseType == LoadCase.LoadCaseTypes.WindPressure)
+                    if (loadCaseLead.LoadCaseType != LoadCase.LoadCaseTypes.WindSuction && loadCaseAccompanying.LoadCaseType == LoadCase.LoadCaseTypes.WindPressure &&
+                        !loadCaseAccompanying.LoadCaseType.Equals(loadCaseLead.LoadCaseType) && !hashAcc.Contains(loadCaseAccompanying.LoadCaseType))
                     {
-                        if (!loadCaseAccompanying.LoadCaseType.Equals(loadCaseLead.LoadCaseType) && !hashAcc.Contains(loadCaseAccompanying.LoadCaseType))
-                        {
-                            loadCaseCoefficientsWindPressure.AddRange(AddLoadCaseAccompanying(LoadCase.LoadCaseTypes.WindPressure, loadCases, options));
-                            hashAcc.Add(loadCaseAccompanying.LoadCaseType);
-                        }
+                        loadCaseCoefficientsWindPressure.AddRange(AddLoadCaseAccompanying(LoadCase.LoadCaseTypes.WindPressure, loadCases, options));
+                        hashAcc.Add(loadCaseAccompanying.LoadCaseType);
                     }
                 }
 
@@ -1245,18 +1239,18 @@ namespace GPC.Model.Combinations
         }
 
         /// <summary>
-        /// Return a list of load case coefficients with all the load of type <paramref name="types"/> in the array <paramref name="loadCases"/> with the leading variable action coefficient
+        /// Return a list of load case coefficients with all the load of type <paramref name="loadCaseLeadInput"/> in the array <paramref name="loadCases"/> with the leading variable action coefficient
         /// </summary>
-        /// <param name="types">The load case lead (only EN1990 loads are supported)</param>
+        /// <param name="loadCaseLeadInput">The load case lead (only EN1990 loads are supported)</param>
         /// <param name="loadCases">The array of load cases</param>
         /// <param name="optionsInput">The normative options (only EN16612 is supported)</param>
         /// <returns>A list of load case coefficients</returns>
-        protected List<LoadCaseCoefficient> AddLoadCaseLead(LoadCase.LoadCaseTypes types, LoadCaseBase[] loadCases, CombinationsOptions optionsInput)
+        protected virtual List<LoadCaseCoefficient> AddLoadCaseLead(LoadCaseBase loadCaseLeadInput, LoadCaseBase[] loadCases, CombinationsOptions optionsInput)
         {
-            if (optionsInput is EN1990CombinationsOptions options)
+            if (optionsInput is EN1990CombinationsOptions options && loadCaseLeadInput is LoadCase loadCase1)
             {
                 List<LoadCaseCoefficient> loadCaseCoefficientsBuffer = new List<LoadCaseCoefficient>();
-                foreach (LoadCase loadCase in loadCases.Where(j => j is LoadCase lc && lc.LoadCaseType == types))
+                foreach (LoadCase loadCase in loadCases.Where(j => j is LoadCase lc && lc.LoadCaseType == loadCase1.LoadCaseType))
                 {
                     LoadCaseCoefficient loadCaseCoefficientLead = new LoadCaseCoefficient(GetCoefficientLeadingVariableAction(loadCase, options), loadCase);
                     loadCaseCoefficientsBuffer.Add(loadCaseCoefficientLead);
