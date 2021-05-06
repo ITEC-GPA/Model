@@ -36,22 +36,26 @@ namespace GPC.Model.FEM.Properties
 
 
         /// <summary>
-        /// Poisson fixed to 0.49. E becomes equal to 2.98*G
+        /// Poisson fixed to <see cref="FemOptions.InterlayerPoissonValue"/>. Elastic modulus is then 2(1+ni)G
         /// </summary>
         /// <returns>The elastic modulus</returns>
         public override double GetE()
         {
-            return 2.98 * GetShearModule();
+            var e = 2.0 * (1.0 + FemOptions.Instance.InterlayerPoissonValue) * GetShearModule();
+            return e > 0 ? e : FemOptions.Instance.ZeroElasticModulus;
         }
 
         /// <summary>
-        /// Poisson fixed to 0.49. E becomes equal to 2.98*G
+        /// Poisson fixed to <see cref="FemOptions.InterlayerPoissonValue"/>. E becomes equal to 2.98*G
         /// </summary>
         public override double GetNi()
         {
-            return 0.49;
+            return FemOptions.Instance.InterlayerPoissonValue;
         }
 
+
+        /// <returns>The shear modulus, calculated by means of <see cref="InterlayerMaterial.GetShearModule(double, double)"/></returns>
+        /// <remarks>Can return zero</remarks>
         public override double GetShearModule()
         {
             return (_material as InterlayerMaterial).GetShearModule(_loadDuration, _temperature);
