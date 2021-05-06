@@ -79,8 +79,8 @@ namespace GPC.Model.Glasses
                 throw new ArgumentException("MonolithicGlasses.Length - 1 != interlayers.Length");
             }
 
-            _monolithicGlasses = monolithicGlasses ?? throw new ArgumentException("Monolithic glasses cannot be null");
-            _interlayers = interlayers;
+            _monolithicGlasses = monolithicGlasses.Where(i => i == null).Count() > 0 ? throw new ArgumentNullException("Monolithic glasses cannot be null") : monolithicGlasses;
+            _interlayers = interlayers.Where(i => i == null).Count() > 0 ? throw new ArgumentNullException("Interlayers cannot be null") : interlayers; ;
         }
 
         public LaminatedGlass(SerializationInfo info, StreamingContext context)
