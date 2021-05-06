@@ -934,325 +934,356 @@ namespace GPC.Model.Combinations
         /// Generate all the combination with favourable coefficients
         /// </summary>
         /// <param name="loadCases">List of load cases</param>
-        /// <param name="options">The normative options</param>
+        /// <param name="optionsInput">The normative options</param>
         /// <returns>A list of load case coefficient</returns>
-        protected virtual List<List<LoadCaseCoefficient>> GetFavourableCombinations(LoadCase[] loadCases, EN1990CombinationsOptions options)
+        protected virtual List<List<LoadCaseCoefficient>> GetFavourableCombinations(LoadCaseBase[] loadCases, CombinationsOptions optionsInput)
         {
-            List<List<LoadCaseCoefficient>> loadCaseCoefficients = new List<List<LoadCaseCoefficient>>();
-            List<List<LoadCaseCoefficient>> loadCaseCoefficientsBuffer = GetFavourableBasicCombinations(loadCases, options);
-
-            List<LoadCase> list = new List<LoadCase>();
-            foreach (LoadCase loadCase in loadCases)
+            if (optionsInput is EN1990CombinationsOptions options)
             {
-                if (loadCase is LoadCase lc && (lc.LoadCaseType != LoadCase.LoadCaseTypes.Prestress && lc.LoadCaseType != LoadCase.LoadCaseTypes.SelfWeight &&
-                    lc.LoadCaseType != LoadCase.LoadCaseTypes.SuperImposedDeadLoad && lc.LoadCaseType != LoadCase.LoadCaseTypes.Earthquake))
-                    list.Add(loadCase);
-            }
+                List<List<LoadCaseCoefficient>> loadCaseCoefficients = new List<List<LoadCaseCoefficient>>();
+                List<List<LoadCaseCoefficient>> loadCaseCoefficientsBuffer = GetFavourableBasicCombinations(loadCases, options);
 
-            List<List<LoadCaseCoefficient>> randomList = RandomizeVariableLoads(list.ToArray(), options);
-
-            for (int i = 0; i < randomList.Count(); i++)
-            {
-                foreach (List<LoadCaseCoefficient> l in loadCaseCoefficientsBuffer)
+                List<LoadCase> list = new List<LoadCase>();
+                foreach (LoadCase loadCase in loadCases)
                 {
-                    List<LoadCaseCoefficient> tempList = new List<LoadCaseCoefficient>();
-                    tempList.AddRange(l);
-                    tempList.AddRange(randomList[i]);
-                    loadCaseCoefficients.Add(tempList);
+                    if (loadCase is LoadCase lc && (lc.LoadCaseType != LoadCase.LoadCaseTypes.Prestress && lc.LoadCaseType != LoadCase.LoadCaseTypes.SelfWeight &&
+                        lc.LoadCaseType != LoadCase.LoadCaseTypes.SuperImposedDeadLoad && lc.LoadCaseType != LoadCase.LoadCaseTypes.Earthquake))
+                        list.Add(loadCase);
                 }
-            }
 
-            return loadCaseCoefficients;
+                List<List<LoadCaseCoefficient>> randomList = RandomizeVariableLoads(list.ToArray(), options);
+
+                for (int i = 0; i < randomList.Count(); i++)
+                {
+                    foreach (List<LoadCaseCoefficient> l in loadCaseCoefficientsBuffer)
+                    {
+                        List<LoadCaseCoefficient> tempList = new List<LoadCaseCoefficient>();
+                        tempList.AddRange(l);
+                        tempList.AddRange(randomList[i]);
+                        loadCaseCoefficients.Add(tempList);
+                    }
+                }
+
+                return loadCaseCoefficients;
+            }
+            throw new ArgumentException("CombinationsOptions must be EN1990CombinationsOptions");
         }
 
         /// <summary>
         /// Generate all the combination with unfavourable coefficients
         /// </summary>
         /// <param name="loadCases">List of load cases</param>
-        /// <param name="options">The normative options</param>
+        /// <param name="optionsInput">The normative options</param>
         /// <returns>A list of load case coefficient</returns>
-        protected virtual List<List<LoadCaseCoefficient>> GetUnfavourableCombinations(LoadCase[] loadCases, EN1990CombinationsOptions options)
+        protected virtual List<List<LoadCaseCoefficient>> GetUnfavourableCombinations(LoadCaseBase[] loadCases, CombinationsOptions optionsInput)
         {
-            List<List<LoadCaseCoefficient>> loadCaseCoefficients = new List<List<LoadCaseCoefficient>>();
-            List<List<LoadCaseCoefficient>> loadCaseCoefficientsBuffer = GetUnfavourableBasicCombinations(loadCases, options);
-
-            List<LoadCase> list = new List<LoadCase>();
-            foreach (LoadCase loadCase in loadCases)
+            if (optionsInput is EN1990CombinationsOptions options)
             {
-                if (loadCase is LoadCase lc && (lc.LoadCaseType != LoadCase.LoadCaseTypes.Prestress && lc.LoadCaseType != LoadCase.LoadCaseTypes.SelfWeight &&
-                    lc.LoadCaseType != LoadCase.LoadCaseTypes.SuperImposedDeadLoad && lc.LoadCaseType != LoadCase.LoadCaseTypes.Earthquake))
-                    list.Add(loadCase);
-            }
+                List<List<LoadCaseCoefficient>> loadCaseCoefficients = new List<List<LoadCaseCoefficient>>();
+                List<List<LoadCaseCoefficient>> loadCaseCoefficientsBuffer = GetUnfavourableBasicCombinations(loadCases, options);
 
-            List<List<LoadCaseCoefficient>> randomList = RandomizeVariableLoads(list.ToArray(), options);
-
-            for (int i = 0; i < randomList.Count(); i++)
-            {
-                foreach (List<LoadCaseCoefficient> l in loadCaseCoefficientsBuffer)
+                List<LoadCase> list = new List<LoadCase>();
+                foreach (LoadCase loadCase in loadCases)
                 {
-                    List<LoadCaseCoefficient> tempList = new List<LoadCaseCoefficient>();
-                    tempList.AddRange(l);
-                    tempList.AddRange(randomList[i]);
-                    loadCaseCoefficients.Add(tempList);
+                    if (loadCase is LoadCase lc && (lc.LoadCaseType != LoadCase.LoadCaseTypes.Prestress && lc.LoadCaseType != LoadCase.LoadCaseTypes.SelfWeight &&
+                        lc.LoadCaseType != LoadCase.LoadCaseTypes.SuperImposedDeadLoad && lc.LoadCaseType != LoadCase.LoadCaseTypes.Earthquake))
+                        list.Add(loadCase);
                 }
-            }
 
-            return loadCaseCoefficients;
+                List<List<LoadCaseCoefficient>> randomList = RandomizeVariableLoads(list.ToArray(), options);
+
+                for (int i = 0; i < randomList.Count(); i++)
+                {
+                    foreach (List<LoadCaseCoefficient> l in loadCaseCoefficientsBuffer)
+                    {
+                        List<LoadCaseCoefficient> tempList = new List<LoadCaseCoefficient>();
+                        tempList.AddRange(l);
+                        tempList.AddRange(randomList[i]);
+                        loadCaseCoefficients.Add(tempList);
+                    }
+                }
+
+                return loadCaseCoefficients;
+            }
+            throw new ArgumentException("CombinationsOptions must be EN1990CombinationsOptions");
         }
 
         /// <summary>
         /// Generate all the combination for permanent loads with favourable coefficients
         /// </summary>
         /// <param name="loadCases">List of load cases</param>
-        /// <param name="options">The normative options</param>
+        /// <param name="optionsInput">The normative options</param>
         /// <returns>A list of load case coefficient</returns>
-        protected virtual List<List<LoadCaseCoefficient>> GetFavourableBasicCombinations(LoadCase[] loadCases, EN1990CombinationsOptions options)
+        protected virtual List<List<LoadCaseCoefficient>> GetFavourableBasicCombinations(LoadCaseBase[] loadCases, CombinationsOptions optionsInput)
         {
-            List<List<LoadCaseCoefficient>> outList = new List<List<LoadCaseCoefficient>>();
-            List<LoadCaseCoefficient> loadCaseCoefficientsBase = new List<LoadCaseCoefficient>();
+            if (optionsInput is EN1990CombinationsOptions options)
+            {
+                List<List<LoadCaseCoefficient>> outList = new List<List<LoadCaseCoefficient>>();
+                List<LoadCaseCoefficient> loadCaseCoefficientsBase = new List<LoadCaseCoefficient>();
 
 
-            // aggiungo i SelfWeight
-            foreach (LoadCase loadCase in loadCases.Where(x => x is LoadCase lc && lc.LoadCaseType == LoadCase.LoadCaseTypes.SelfWeight))
-            {
-                LoadCaseCoefficient lc = new LoadCaseCoefficient(GetCoefficientFavourablePermanentActions(loadCase, options), loadCase);
-                loadCaseCoefficientsBase.Add(lc);
-            }
-            // aggiungo i SuperImposedDeadLoad
-            foreach (LoadCase loadCase in loadCases.Where(x => x is LoadCase lc && lc.LoadCaseType == LoadCase.LoadCaseTypes.SuperImposedDeadLoad))
-            {
-                LoadCaseCoefficient lc = new LoadCaseCoefficient(GetCoefficientFavourablePermanentActions(loadCase, options), loadCase);
-                loadCaseCoefficientsBase.Add(lc);
-            }
-            // aggiunto i Prestress
-            foreach (LoadCase loadCase in loadCases.Where(x => x is LoadCase lc && lc.LoadCaseType == LoadCase.LoadCaseTypes.Prestress))
-            {
-                LoadCaseCoefficient lc = new LoadCaseCoefficient(GetCoefficientFavourablePermanentActions(loadCase, options), loadCase);
-                loadCaseCoefficientsBase.Add(lc);
-            }
-            // aggiunto il carico sismico se siamo in condizione sismica (come se fosse un permanente perchè non deve variare)
-            if (options.LimitState == LimitStates.UltimateSeismic)
-            {
-                foreach (LoadCase loadCase in loadCases.Where(x => x is LoadCase lc && lc.LoadCaseType == LoadCase.LoadCaseTypes.Earthquake))
+                // aggiungo i SelfWeight
+                foreach (LoadCase loadCase in loadCases.Where(x => x is LoadCase lc && lc.LoadCaseType == LoadCase.LoadCaseTypes.SelfWeight))
                 {
                     LoadCaseCoefficient lc = new LoadCaseCoefficient(GetCoefficientFavourablePermanentActions(loadCase, options), loadCase);
                     loadCaseCoefficientsBase.Add(lc);
                 }
-            }
-            
-            outList.Add(loadCaseCoefficientsBase);
+                // aggiungo i SuperImposedDeadLoad
+                foreach (LoadCase loadCase in loadCases.Where(x => x is LoadCase lc && lc.LoadCaseType == LoadCase.LoadCaseTypes.SuperImposedDeadLoad))
+                {
+                    LoadCaseCoefficient lc = new LoadCaseCoefficient(GetCoefficientFavourablePermanentActions(loadCase, options), loadCase);
+                    loadCaseCoefficientsBase.Add(lc);
+                }
+                // aggiunto i Prestress
+                foreach (LoadCase loadCase in loadCases.Where(x => x is LoadCase lc && lc.LoadCaseType == LoadCase.LoadCaseTypes.Prestress))
+                {
+                    LoadCaseCoefficient lc = new LoadCaseCoefficient(GetCoefficientFavourablePermanentActions(loadCase, options), loadCase);
+                    loadCaseCoefficientsBase.Add(lc);
+                }
+                // aggiunto il carico sismico se siamo in condizione sismica (come se fosse un permanente perchè non deve variare)
+                if (options.LimitState == LimitStates.UltimateSeismic)
+                {
+                    foreach (LoadCase loadCase in loadCases.Where(x => x is LoadCase lc && lc.LoadCaseType == LoadCase.LoadCaseTypes.Earthquake))
+                    {
+                        LoadCaseCoefficient lc = new LoadCaseCoefficient(GetCoefficientFavourablePermanentActions(loadCase, options), loadCase);
+                        loadCaseCoefficientsBase.Add(lc);
+                    }
+                }
 
-            return outList;
+                outList.Add(loadCaseCoefficientsBase);
+
+                return outList;
+            }
+            throw new ArgumentException("CombinationsOptions must be EN1990CombinationsOptions");
         }
 
         /// <summary>
         /// Generate all the combination for permanent loads with unfavourable coefficients
         /// </summary>
         /// <param name="loadCases">List of load cases</param>
-        /// <param name="options">The normative options</param>
+        /// <param name="optionsInput">The normative options</param>
         /// <returns>A list of load case coefficient</returns>
-        protected virtual List<List<LoadCaseCoefficient>> GetUnfavourableBasicCombinations(LoadCase[] loadCases, EN1990CombinationsOptions options)
+        protected virtual List<List<LoadCaseCoefficient>> GetUnfavourableBasicCombinations(LoadCaseBase[] loadCases, CombinationsOptions optionsInput)
         {
-            List<List<LoadCaseCoefficient>> outList = new List<List<LoadCaseCoefficient>>();
-            List<LoadCaseCoefficient> loadCaseCoefficientsBase = new List<LoadCaseCoefficient>();
+            if (optionsInput is EN1990CombinationsOptions options)
+            {
+                List<List<LoadCaseCoefficient>> outList = new List<List<LoadCaseCoefficient>>();
+                List<LoadCaseCoefficient> loadCaseCoefficientsBase = new List<LoadCaseCoefficient>();
 
-            // aggiungo i SelfWeight
-            foreach (LoadCase loadCase in loadCases.Where(i => i is LoadCase lc && lc.LoadCaseType == LoadCase.LoadCaseTypes.SelfWeight))
-            {
-                LoadCaseCoefficient lc = new LoadCaseCoefficient(GetCoefficientUnfavourablePermanentActions(loadCase, options), loadCase);
-                loadCaseCoefficientsBase.Add(lc);
-            }
-            // aggiungo i SuperImposedDeadLoad
-            foreach (LoadCase loadCase in loadCases.Where(i => i is LoadCase lc && lc.LoadCaseType == LoadCase.LoadCaseTypes.SuperImposedDeadLoad))
-            {
-                LoadCaseCoefficient lc = new LoadCaseCoefficient(GetCoefficientUnfavourablePermanentActions(loadCase, options), loadCase);
-                loadCaseCoefficientsBase.Add(lc);
-            }
-            // aggiunto i Prestress
-            foreach (LoadCase loadCase in loadCases.Where(i => i is LoadCase lc && lc.LoadCaseType == LoadCase.LoadCaseTypes.Prestress))
-            {
-                LoadCaseCoefficient lc = new LoadCaseCoefficient(GetCoefficientUnfavourablePermanentActions(loadCase, options), loadCase);
-                loadCaseCoefficientsBase.Add(lc);
-            }
-            // aggiunto il carico sismico se siamo in condizione sismica (come se fosse un permanente perchè non deve variare)
-            if (options.LimitState == StandardEN1990.LimitStates.UltimateSeismic)
-            {
-                foreach (LoadCase loadCase in loadCases.Where(i => i is LoadCase lc && lc.LoadCaseType == LoadCase.LoadCaseTypes.Earthquake))
+                // aggiungo i SelfWeight
+                foreach (LoadCase loadCase in loadCases.Where(i => i is LoadCase lc && lc.LoadCaseType == LoadCase.LoadCaseTypes.SelfWeight))
                 {
                     LoadCaseCoefficient lc = new LoadCaseCoefficient(GetCoefficientUnfavourablePermanentActions(loadCase, options), loadCase);
                     loadCaseCoefficientsBase.Add(lc);
                 }
+                // aggiungo i SuperImposedDeadLoad
+                foreach (LoadCase loadCase in loadCases.Where(i => i is LoadCase lc && lc.LoadCaseType == LoadCase.LoadCaseTypes.SuperImposedDeadLoad))
+                {
+                    LoadCaseCoefficient lc = new LoadCaseCoefficient(GetCoefficientUnfavourablePermanentActions(loadCase, options), loadCase);
+                    loadCaseCoefficientsBase.Add(lc);
+                }
+                // aggiunto i Prestress
+                foreach (LoadCase loadCase in loadCases.Where(i => i is LoadCase lc && lc.LoadCaseType == LoadCase.LoadCaseTypes.Prestress))
+                {
+                    LoadCaseCoefficient lc = new LoadCaseCoefficient(GetCoefficientUnfavourablePermanentActions(loadCase, options), loadCase);
+                    loadCaseCoefficientsBase.Add(lc);
+                }
+                // aggiunto il carico sismico se siamo in condizione sismica (come se fosse un permanente perchè non deve variare)
+                if (options.LimitState == StandardEN1990.LimitStates.UltimateSeismic)
+                {
+                    foreach (LoadCase loadCase in loadCases.Where(i => i is LoadCase lc && lc.LoadCaseType == LoadCase.LoadCaseTypes.Earthquake))
+                    {
+                        LoadCaseCoefficient lc = new LoadCaseCoefficient(GetCoefficientUnfavourablePermanentActions(loadCase, options), loadCase);
+                        loadCaseCoefficientsBase.Add(lc);
+                    }
+                }
+
+                outList.Add(loadCaseCoefficientsBase);
+
+                return outList;
             }
-
-            outList.Add(loadCaseCoefficientsBase);
-
-            return outList;
+            throw new ArgumentException("CombinationsOptions must be EN1990CombinationsOptions");
         }
 
         /// <summary>
-        /// Generate all the combination for the variable loads in <paramref name="loadCases"/> with the options <paramref name="options"/>
+        /// Generate all the combination for the variable loads in <paramref name="loadCasesInput"/> with the options <paramref name="optionsInput"/>
         /// </summary>
-        /// <param name="loadCases">List of load cases</param>
-        /// <param name="options">The combination generation options</param>
+        /// <param name="loadCasesInput">List of load cases</param>
+        /// <param name="optionsInput">The combination generation options</param>
         /// <returns>A list of list of load case coefficient</returns>
-        /// <exception cref="ArgumentException"> If there are any permanent load case or climate load in the <paramref name="loadCases"/></exception>
-        protected virtual List<List<LoadCaseCoefficient>> RandomizeVariableLoads(LoadCase[] loadCases, EN1990CombinationsOptions options)
+        /// <exception cref="ArgumentException"> If there are any permanent load case or climate load in the <paramref name="loadCasesInput"/></exception>
+        protected virtual List<List<LoadCaseCoefficient>> RandomizeVariableLoads(LoadCaseBase[] loadCasesInput, CombinationsOptions optionsInput)
         {
-            List<List<LoadCaseCoefficient>> loadCaseCoefficients = new List<List<LoadCaseCoefficient>>();
+            if (optionsInput is EN1990CombinationsOptions options)
+            {
+                List<List<LoadCaseCoefficient>> loadCaseCoefficients = new List<List<LoadCaseCoefficient>>();
+                List<LoadCase> loadCasesList = new List<LoadCase>();
 
-            // controllo che i carichi siano variabili
-            foreach (LoadCase loadCase in loadCases)
-            {               
-                if ((loadCase is LoadCase lc && ( lc.LoadCaseType == LoadCase.LoadCaseTypes.SelfWeight || lc.LoadCaseType == LoadCase.LoadCaseTypes.SuperImposedDeadLoad || 
-                    lc.LoadCaseType == LoadCase.LoadCaseTypes.Prestress || lc.LoadCaseType == LoadCase.LoadCaseTypes.Earthquake)))
-                    throw new ArgumentException("Load case must be Variable");
-            }                    
-
-            for (int i = 0; i < loadCases.Count(); i++)
-            {                
-                #region LIST, HASHSET E BOOL
-
-                HashSet <LoadCase.LoadCaseTypes> hash = new HashSet<LoadCase.LoadCaseTypes>();
-                List<LoadCaseCoefficient> loadCaseCoefficientsBuffer = new List<LoadCaseCoefficient>();
-                List<LoadCaseCoefficient> loadCaseCoefficientsBuffer2 = new List<LoadCaseCoefficient>();
-                List<LoadCaseCoefficient> loadCaseCoefficientsBuffer3 = new List<LoadCaseCoefficient>();
-                List<LoadCaseCoefficient> loadCaseCoefficientsWindPressure = new List<LoadCaseCoefficient>();
-                List<LoadCaseCoefficient> loadCaseCoefficientsWindSuction = new List<LoadCaseCoefficient>();
-                HashSet<LoadCase.LoadCaseTypes> hashAcc = new HashSet<LoadCase.LoadCaseTypes>();
-                bool haveWindPressure = false;
-                bool haveWindSuction = false;
-
-                #endregion
-
-                #region LEAD LOAD ADD
-
-                // crea un load lead, cerca tutti i carichi dello stesso tipo e li coefficienta alla stessa maniera.
-                LoadCase loadCaseLead = loadCases[i];
-                loadCaseCoefficientsBuffer = AddLoadCaseLead(loadCaseLead, loadCases, options);
-                hash.Add(loadCaseLead.LoadCaseType);
-
-                #endregion
-
-                // aggiunge tutti i carichi secondari che non siano wind pressure o wind suction. quei due vanno trattati a parte
-                foreach (LoadCase loadCaseAccompanying in loadCases)
+                // controllo che i carichi siano variabili
+                foreach (LoadCaseBase loadCase in loadCasesInput)
                 {
-                    #region NORMAL LOAD ADD
-
-                    if (!hashAcc.Contains(loadCaseAccompanying.LoadCaseType) && !loadCaseAccompanying.LoadCaseType.Equals(loadCaseLead.LoadCaseType) &&
-                        loadCaseAccompanying.LoadCaseType != LoadCase.LoadCaseTypes.WindSuction && loadCaseAccompanying.LoadCaseType != LoadCase.LoadCaseTypes.WindPressure)
+                    if (loadCase is LoadCase lc)
                     {
-                        loadCaseCoefficientsBuffer.AddRange(AddLoadCaseAccompanying(loadCaseAccompanying.LoadCaseType, loadCases, options));
-                        hashAcc.Add(loadCaseAccompanying.LoadCaseType);
+                        if (lc.LoadCaseType == LoadCase.LoadCaseTypes.SelfWeight || lc.LoadCaseType == LoadCase.LoadCaseTypes.SuperImposedDeadLoad ||
+                        lc.LoadCaseType == LoadCase.LoadCaseTypes.Prestress || lc.LoadCaseType == LoadCase.LoadCaseTypes.Earthquake)
+                            throw new ArgumentException("Load case must be Variable");
+                        else
+                            loadCasesList.Add(lc);
+                    }
+
+                    if (loadCase is ClimateLoadCase climateLoadCase)
+                        throw new ArgumentException("EN not support climate load: Load case must not be a climate load case");
+                }
+
+                LoadCase[] loadCases = loadCasesList.ToArray();
+
+                for (int i = 0; i < loadCases.Count(); i++)
+                {
+                    #region LIST, HASHSET E BOOL
+
+                    HashSet<LoadCase.LoadCaseTypes> hash = new HashSet<LoadCase.LoadCaseTypes>();
+                    List<LoadCaseCoefficient> loadCaseCoefficientsBuffer = new List<LoadCaseCoefficient>();
+                    List<LoadCaseCoefficient> loadCaseCoefficientsBuffer2 = new List<LoadCaseCoefficient>();
+                    List<LoadCaseCoefficient> loadCaseCoefficientsBuffer3 = new List<LoadCaseCoefficient>();
+                    List<LoadCaseCoefficient> loadCaseCoefficientsWindPressure = new List<LoadCaseCoefficient>();
+                    List<LoadCaseCoefficient> loadCaseCoefficientsWindSuction = new List<LoadCaseCoefficient>();
+                    HashSet<LoadCase.LoadCaseTypes> hashAcc = new HashSet<LoadCase.LoadCaseTypes>();
+                    bool haveWindPressure = false;
+                    bool haveWindSuction = false;
+
+                    #endregion
+
+                    #region LEAD LOAD ADD
+
+                    // crea un load lead, cerca tutti i carichi dello stesso tipo e li coefficienta alla stessa maniera.
+                    LoadCase loadCaseLead = loadCases[i];
+                    loadCaseCoefficientsBuffer = AddLoadCaseLead(loadCaseLead, loadCases, options);
+                    hash.Add(loadCaseLead.LoadCaseType);
+
+                    #endregion
+
+                    // aggiunge tutti i carichi secondari che non siano wind pressure o wind suction. quei due vanno trattati a parte
+                    foreach (LoadCase loadCaseAccompanying in loadCases)
+                    {
+                        #region NORMAL LOAD ADD
+
+                        if (!hashAcc.Contains(loadCaseAccompanying.LoadCaseType) && !loadCaseAccompanying.LoadCaseType.Equals(loadCaseLead.LoadCaseType) &&
+                            loadCaseAccompanying.LoadCaseType != LoadCase.LoadCaseTypes.WindSuction && loadCaseAccompanying.LoadCaseType != LoadCase.LoadCaseTypes.WindPressure)
+                        {
+                            loadCaseCoefficientsBuffer.AddRange(AddLoadCaseAccompanying(loadCaseAccompanying.LoadCaseType, loadCases, options));
+                            hashAcc.Add(loadCaseAccompanying.LoadCaseType);
+                        }
+
+                        #endregion
+
+                        #region BOOL CHECK
+
+                        // controllo se sono presenti carichi WindPressure o WindSuction per l'assemblaggio finale delle liste
+                        if (loadCaseAccompanying.LoadCaseType == LoadCase.LoadCaseTypes.WindPressure)
+                            haveWindPressure = true;
+                        if (loadCaseAccompanying.LoadCaseType == LoadCase.LoadCaseTypes.WindSuction)
+                            haveWindSuction = true;
+
+                        #endregion
+                    }
+
+                    #region WIND LOAD ADD
+
+                    // gestione carichi secondari windsuction
+                    foreach (LoadCase loadCaseAccompanying in loadCases)
+                    {
+                        if (loadCaseLead.LoadCaseType != LoadCase.LoadCaseTypes.WindPressure && loadCaseAccompanying.LoadCaseType == LoadCase.LoadCaseTypes.WindSuction &&
+                            !loadCaseAccompanying.LoadCaseType.Equals(loadCaseLead.LoadCaseType) && !hashAcc.Contains(loadCaseAccompanying.LoadCaseType))
+                        {
+                            loadCaseCoefficientsWindSuction.AddRange(AddLoadCaseAccompanying(LoadCase.LoadCaseTypes.WindSuction, loadCases, options));
+                            hashAcc.Add(loadCaseAccompanying.LoadCaseType);
+                        }
+                    }
+
+                    // gestione carichi secondari windpressure
+                    foreach (LoadCase loadCaseAccompanying in loadCases)
+                    {
+                        if (loadCaseLead.LoadCaseType != LoadCase.LoadCaseTypes.WindSuction && loadCaseAccompanying.LoadCaseType == LoadCase.LoadCaseTypes.WindPressure &&
+                            !loadCaseAccompanying.LoadCaseType.Equals(loadCaseLead.LoadCaseType) && !hashAcc.Contains(loadCaseAccompanying.LoadCaseType))
+                        {
+                            loadCaseCoefficientsWindPressure.AddRange(AddLoadCaseAccompanying(LoadCase.LoadCaseTypes.WindPressure, loadCases, options));
+                            hashAcc.Add(loadCaseAccompanying.LoadCaseType);
+                        }
                     }
 
                     #endregion
 
-                    #region BOOL CHECK
+                    #region ASSEMBLY
 
-                    // controllo se sono presenti carichi WindPressure o WindSuction per l'assemblaggio finale delle liste
-                    if (loadCaseAccompanying.LoadCaseType == LoadCase.LoadCaseTypes.WindPressure)
-                        haveWindPressure = true;
-                    if (loadCaseAccompanying.LoadCaseType == LoadCase.LoadCaseTypes.WindSuction)
-                        haveWindSuction = true;
+                    if (haveWindPressure == true && haveWindSuction == true)
+                    {
+                        loadCaseCoefficientsBuffer2 = loadCaseCoefficientsBuffer.ToArray().ToList();
+                        loadCaseCoefficientsBuffer3 = loadCaseCoefficientsBuffer.ToArray().ToList();
+
+                        if (loadCaseCoefficientsWindPressure.Count() != 0)
+                        {
+                            loadCaseCoefficientsBuffer2.AddRange(loadCaseCoefficientsWindPressure);
+                            loadCaseCoefficients.Add(loadCaseCoefficientsBuffer2);
+                        }
+                        if (loadCaseCoefficientsWindSuction.Count() != 0)
+                        {
+                            loadCaseCoefficientsBuffer3.AddRange(loadCaseCoefficientsWindSuction);
+                            loadCaseCoefficients.Add(loadCaseCoefficientsBuffer3);
+                        }
+                        if (loadCaseCoefficientsWindSuction.Count() == 0 && loadCaseCoefficientsWindPressure.Count() == 0)
+                            loadCaseCoefficients.Add(loadCaseCoefficientsBuffer);
+                    }
+                    else if (haveWindPressure == false && haveWindSuction == true)
+                    {
+                        loadCaseCoefficientsBuffer2 = loadCaseCoefficientsBuffer.ToArray().ToList();
+
+                        if (loadCaseCoefficientsWindSuction.Count() != 0)
+                        {
+                            loadCaseCoefficientsBuffer2.AddRange(loadCaseCoefficientsWindSuction);
+                            loadCaseCoefficients.Add(loadCaseCoefficientsBuffer2);
+                        }
+                        if (loadCaseCoefficientsWindSuction.Count() == 0)
+                            loadCaseCoefficients.Add(loadCaseCoefficientsBuffer);
+                    }
+                    else if (haveWindPressure == true && haveWindSuction == false)
+                    {
+                        loadCaseCoefficientsBuffer2 = loadCaseCoefficientsBuffer.ToArray().ToList();
+
+                        if (loadCaseCoefficientsWindPressure.Count() != 0)
+                        {
+                            loadCaseCoefficientsBuffer2.AddRange(loadCaseCoefficientsWindPressure);
+                            loadCaseCoefficients.Add(loadCaseCoefficientsBuffer2);
+                        }
+                        if (loadCaseCoefficientsWindPressure.Count() == 0)
+                            loadCaseCoefficients.Add(loadCaseCoefficientsBuffer);
+                    }
+                    else
+                        loadCaseCoefficients.Add(loadCaseCoefficientsBuffer);
 
                     #endregion
+
                 }
 
-                #region WIND LOAD ADD
-
-                // gestione carichi secondari windsuction
-                foreach (LoadCase loadCaseAccompanying in loadCases)
-                {
-                    if (loadCaseLead.LoadCaseType != LoadCase.LoadCaseTypes.WindPressure && loadCaseAccompanying.LoadCaseType == LoadCase.LoadCaseTypes.WindSuction &&
-                        !loadCaseAccompanying.LoadCaseType.Equals(loadCaseLead.LoadCaseType) && !hashAcc.Contains(loadCaseAccompanying.LoadCaseType))
-                    {
-                        loadCaseCoefficientsWindSuction.AddRange(AddLoadCaseAccompanying(LoadCase.LoadCaseTypes.WindSuction, loadCases, options));
-                        hashAcc.Add(loadCaseAccompanying.LoadCaseType);
-                    }
-                }
-
-                // gestione carichi secondari windpressure
-                foreach (LoadCase loadCaseAccompanying in loadCases)
-                {
-                    if (loadCaseLead.LoadCaseType != LoadCase.LoadCaseTypes.WindSuction && loadCaseAccompanying.LoadCaseType == LoadCase.LoadCaseTypes.WindPressure &&
-                        !loadCaseAccompanying.LoadCaseType.Equals(loadCaseLead.LoadCaseType) && !hashAcc.Contains(loadCaseAccompanying.LoadCaseType))
-                    {
-                        loadCaseCoefficientsWindPressure.AddRange(AddLoadCaseAccompanying(LoadCase.LoadCaseTypes.WindPressure, loadCases, options));
-                        hashAcc.Add(loadCaseAccompanying.LoadCaseType);
-                    }
-                }
-
-                #endregion
-
-                #region ASSEMBLY
-
-                if (haveWindPressure == true && haveWindSuction == true)
-                {
-                    loadCaseCoefficientsBuffer2 = loadCaseCoefficientsBuffer.ToArray().ToList();
-                    loadCaseCoefficientsBuffer3 = loadCaseCoefficientsBuffer.ToArray().ToList();
-
-                    if (loadCaseCoefficientsWindPressure.Count() != 0)
-                    {
-                        loadCaseCoefficientsBuffer2.AddRange(loadCaseCoefficientsWindPressure);
-                        loadCaseCoefficients.Add(loadCaseCoefficientsBuffer2);
-                    }
-                    if (loadCaseCoefficientsWindSuction.Count() != 0)
-                    {
-                        loadCaseCoefficientsBuffer3.AddRange(loadCaseCoefficientsWindSuction);
-                        loadCaseCoefficients.Add(loadCaseCoefficientsBuffer3);
-                    }
-                    if (loadCaseCoefficientsWindSuction.Count() == 0 && loadCaseCoefficientsWindPressure.Count() == 0)
-                        loadCaseCoefficients.Add(loadCaseCoefficientsBuffer);
-                }
-                else if (haveWindPressure == false && haveWindSuction == true)
-                {
-                    loadCaseCoefficientsBuffer2 = loadCaseCoefficientsBuffer.ToArray().ToList();
-
-                    if (loadCaseCoefficientsWindSuction.Count() != 0)
-                    {
-                        loadCaseCoefficientsBuffer2.AddRange(loadCaseCoefficientsWindSuction);
-                        loadCaseCoefficients.Add(loadCaseCoefficientsBuffer2);
-                    }
-                    if (loadCaseCoefficientsWindSuction.Count() == 0)
-                        loadCaseCoefficients.Add(loadCaseCoefficientsBuffer);
-                }
-                else if (haveWindPressure == true && haveWindSuction == false)
-                {
-                    loadCaseCoefficientsBuffer2 = loadCaseCoefficientsBuffer.ToArray().ToList();
-
-                    if (loadCaseCoefficientsWindPressure.Count() != 0)
-                    {
-                        loadCaseCoefficientsBuffer2.AddRange(loadCaseCoefficientsWindPressure);
-                        loadCaseCoefficients.Add(loadCaseCoefficientsBuffer2);
-                    }
-                    if (loadCaseCoefficientsWindPressure.Count() == 0)
-                        loadCaseCoefficients.Add(loadCaseCoefficientsBuffer);
-                }
-                else
-                    loadCaseCoefficients.Add(loadCaseCoefficientsBuffer);
-
-                #endregion
-
-            }            
-
-            return loadCaseCoefficients;
+                return loadCaseCoefficients;
+            }
+            throw new ArgumentException("CombinationsOptions must be EN1990CombinationsOptions");
         }
 
         /// <summary>
-        /// Return a list of load case coefficients with all the load of type <paramref name="loadCaseLeadInput"/> in the array <paramref name="loadCases"/> with the leading variable action coefficient
+        /// Return a list of load case coefficients with all the load of type <paramref name="loadCase"/> in the array <paramref name="loadCases"/> with the leading variable action coefficient
         /// </summary>
-        /// <param name="loadCaseLeadInput">The load case lead (only EN1990 loads are supported)</param>
+        /// <param name="loadCase">The load case lead (only EN1990 loads are supported)</param>
         /// <param name="loadCases">The array of load cases</param>
         /// <param name="optionsInput">The normative options (only EN16612 is supported)</param>
         /// <returns>A list of load case coefficients</returns>
-        protected virtual List<LoadCaseCoefficient> AddLoadCaseLead(LoadCaseBase loadCaseLeadInput, LoadCaseBase[] loadCases, CombinationsOptions optionsInput)
+        protected List<LoadCaseCoefficient> AddLoadCaseLead(LoadCase loadCase, LoadCaseBase[] loadCases, CombinationsOptions optionsInput)
         {
-            if (optionsInput is EN1990CombinationsOptions options && loadCaseLeadInput is LoadCase loadCase1)
+            if (optionsInput is EN1990CombinationsOptions options)
             {
                 List<LoadCaseCoefficient> loadCaseCoefficientsBuffer = new List<LoadCaseCoefficient>();
-                foreach (LoadCase loadCase in loadCases.Where(j => j is LoadCase lc && lc.LoadCaseType == loadCase1.LoadCaseType))
+                foreach (LoadCase loadCaseL in loadCases.Where(j => j is LoadCase lc && lc.LoadCaseType == loadCase.LoadCaseType))
                 {
-                    LoadCaseCoefficient loadCaseCoefficientLead = new LoadCaseCoefficient(GetCoefficientLeadingVariableAction(loadCase, options), loadCase);
+                    LoadCaseCoefficient loadCaseCoefficientLead = new LoadCaseCoefficient(GetCoefficientLeadingVariableAction(loadCaseL, options), loadCaseL);
                     loadCaseCoefficientsBuffer.Add(loadCaseCoefficientLead);
                 }
                 return loadCaseCoefficientsBuffer;
