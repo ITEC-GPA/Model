@@ -1255,10 +1255,52 @@ namespace GPC.Model.Combinations
                         loadCaseCoefficients.Add(loadCaseCoefficientsBuffer);                    
 
                     #endregion                
-                }
-            }            
+        }
 
-            return loadCaseCoefficients;
+        /// <summary>
+        /// Return a list of load case coefficients with all the load of type <paramref name="types"/> in the array <paramref name="loadCases"/> with the leading variable action coefficient
+        /// </summary>
+        /// <param name="types">The load case lead (only EN1990 loads are supported)</param>
+        /// <param name="loadCases">The array of load cases</param>
+        /// <param name="optionsInput">The normative options (only EN16612 is supported)</param>
+        /// <returns>A list of load case coefficients</returns>
+        protected List<LoadCaseCoefficient> AddLoadCaseLead(LoadCase.LoadCaseTypes types, LoadCaseBase[] loadCases, CombinationsOptions optionsInput)
+        {
+            if (optionsInput is EN1990CombinationsOptions options)
+            {
+                List<LoadCaseCoefficient> loadCaseCoefficientsBuffer = new List<LoadCaseCoefficient>();
+                foreach (LoadCase loadCase in loadCases.Where(j => j is LoadCase lc && lc.LoadCaseType == types))
+                {
+                    LoadCaseCoefficient loadCaseCoefficientLead = new LoadCaseCoefficient(GetCoefficientLeadingVariableAction(loadCase, options), loadCase);
+                    loadCaseCoefficientsBuffer.Add(loadCaseCoefficientLead);
+                }
+                return loadCaseCoefficientsBuffer;
+            }
+            else
+                throw new ArgumentException("Lead load must not be a climate load or CombinationsOptions must be EN1990");
+        }
+
+        /// <summary>
+        /// Return a list of load case coefficients with all the load of type <paramref name="types"/> in the array <paramref name="loadCases"/> with the accompanying variable action coefficient
+        /// </summary>
+        /// <param name="types">The load case lead type(only EN1990 loads are supported)</param>
+        /// <param name="loadCases">The array of load cases</param>
+        /// <param name="optionsInput">The normative options (only EN16612 is supported)</param>
+        /// <returns>A list of load case coefficients</returns>
+        protected List<LoadCaseCoefficient> AddLoadCaseAccompanying(LoadCase.LoadCaseTypes types, LoadCaseBase[] loadCases, CombinationsOptions optionsInput)
+        {
+            if (optionsInput is EN1990CombinationsOptions options)
+            {
+                List<LoadCaseCoefficient> loadCaseCoefficientsBuffer = new List<LoadCaseCoefficient>();
+                foreach (LoadCase loadCase in loadCases.Where(j => j is LoadCase lc && lc.LoadCaseType == types))
+                {
+                    LoadCaseCoefficient loadCaseCoefficientLead = new LoadCaseCoefficient(GetCoefficientAccompanyingVariableAction(loadCase, options), loadCase);
+                    loadCaseCoefficientsBuffer.Add(loadCaseCoefficientLead);
+                }
+                return loadCaseCoefficientsBuffer;
+            }
+            else
+                throw new ArgumentException("Lead load must not be a climate load or CombinationsOptions must be EN1990");
         }
 
         #endregion
