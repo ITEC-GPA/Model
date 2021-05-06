@@ -40,64 +40,11 @@ namespace GPC.Model.FEM.FiniteElements
             double Jt = section.Jt;
             _length = _nodesGlobal[0].Position.DistanceTo(_nodesGlobal[1].Position);
             double L = _length;
-            double L2 = L * L;
-            double L3 = L2 * L;
+            double L2 = _length * _length;
+            double L3 = _length * _length * _length;
 
-            #region localMatrix
-            _kElementLocalCoord = mnl.Matrix<double>.Build.Dense(12, 12);
-
-            _kElementLocalCoord[1 - 1, 1 - 1] = E * A / L;
-
-            _kElementLocalCoord[2 - 1, 2 - 1] = 12.0 * E * Jzz / L3;
-
-            _kElementLocalCoord[3 - 1, 3 - 1] = 12.0 * E * Jyy / L3;
-
-            _kElementLocalCoord[4 - 1, 4 - 1] = G * Jt / L;
-
-            _kElementLocalCoord[5 - 1, 3 - 1] = -6.0 * E * Jyy / L2;
-            _kElementLocalCoord[5 - 1, 5 - 1] = 4.0 * E * Jyy / L;
+            _kElementLocalCoord = GetStiffnessBeam(L, A, Jyy, Jzz, Jt, E, G);
             
-            _kElementLocalCoord[6 - 1, 2 - 1] = 6.0 * E * Jzz / L2;
-            _kElementLocalCoord[6 - 1, 6 - 1] = 4.0 * E * Jzz / L;
-
-            _kElementLocalCoord[7 - 1, 1 - 1] = -E * A / L;
-            _kElementLocalCoord[7 - 1, 7 - 1] = E * A / L;
-
-            _kElementLocalCoord[8 - 1, 2 - 1] = -12.0 * E * Jzz / L3;
-            _kElementLocalCoord[8 - 1, 6 - 1] = -6.0 * E * Jzz / L2;
-            _kElementLocalCoord[8 - 1, 8 - 1] = 12.0 * E * Jzz / L3;
-
-            _kElementLocalCoord[9 - 1, 3 - 1] = -12.0 * E * Jyy / L3;
-            _kElementLocalCoord[9 - 1, 5 - 1] = 6.0 * E * Jyy / L2;
-            _kElementLocalCoord[9 - 1, 9 - 1] = 12.0 * E * Jyy / L3;
-
-            _kElementLocalCoord[10 - 1, 4 - 1] = -G * Jt / L;
-            _kElementLocalCoord[10 - 1, 10 - 1] = G * Jt / L;
-
-            _kElementLocalCoord[11 - 1, 3 - 1] = -6.0 * E * Jyy / L2;
-            _kElementLocalCoord[11 - 1, 5 - 1] = 2.0 * E * Jyy / L;
-            _kElementLocalCoord[11 - 1, 9 - 1] = 6.0 * E * Jyy / L2;
-            _kElementLocalCoord[11 - 1, 11 - 1] = 4.0 * E * Jyy / L;
-
-            _kElementLocalCoord[12 - 1, 2 - 1] = 6.0 * E * Jzz / L2;
-            _kElementLocalCoord[12 - 1, 6 - 1] = 2.0 * E * Jzz / L;
-            _kElementLocalCoord[12 - 1, 8 - 1] = -6.0 * E * Jzz / L2;
-            _kElementLocalCoord[12 - 1, 12 - 1] = 4.0 * E * Jzz / L;
-            #endregion
-
-            /*Console.WriteLine("Half kLocal");
-            FEMUtilities.WriteMatrix(_kElementLocalCoord, "F0");*/
-
-            #region ApplySimmetry
-            for (int row = 0; row < _kElementLocalCoord.RowCount; row++)
-            {
-                for (int col = 0; col < _kElementLocalCoord.ColumnCount; col++)
-                {
-                    _kElementLocalCoord[row, col] = _kElementLocalCoord[col, row];
-                }
-            }
-            #endregion
-
             #region ApplyReleases
             foreach (BeamReleasesAttribute rel in _attributesFreedomCase)
             {
@@ -156,7 +103,7 @@ namespace GPC.Model.FEM.FiniteElements
                                 #endregion
 
                                 #region
-                                _kElementLocalCoord[7, 7] = (_kElementLocalCoord[7, 7] == 0.0) ? 0.0 : E * Jzz / L;
+                                _kElementLocalCoord[7, 7] = 0.0;
 
                                 _kElementLocalCoord[7, 11] = 0.0;
                                 _kElementLocalCoord[11, 7] = 0.0;
@@ -460,36 +407,55 @@ namespace GPC.Model.FEM.FiniteElements
                     }
                 }
             }
-            
-            #region ApplyReleaseToTruss
-            #region duobleReleaseR2
-            double sumStiffnessR2 = 0.0;
-            for (int col = 0; col < _kElementLocalCoord.ColumnCount; col++)
-            {
-                sumStiffnessR2 += _kElementLocalCoord[4, col] + _kElementLocalCoord[10, col];
-            }
-            if (sumStiffnessR2 == 0.0)
-            {
-                for (int col = 0; col < _kElementLocalCoord.ColumnCount; col++)
-                {
-                    _kElementLocalCoord[2, col] = 0.0;
-                    _kElementLocalCoord[8, col] = 0.0;
-                }
-            }
-            #endregion
-            
-            #region duobleReleaseR3
-            double sumStiffnessR3 = 0.0;
-            for (int col = 0; col < _kElementLocalCoord.ColumnCount; col++)
-            {
-                sumStiffnessR3 += _kElementLocalCoord[5, col] + _kElementLocalCoord[11, col];
-            }
-            if (sumStiffnessR3 == 0.0)
+
+            #region ShearU2AndRotationR3
+            /*if (IsReleasedU2AndR3() == true)
             {
                 for (int col = 0; col < _kElementLocalCoord.ColumnCount; col++)
                 {
                     _kElementLocalCoord[1, col] = 0.0;
                     _kElementLocalCoord[7, col] = 0.0;
+
+                    _kElementLocalCoord[5, col] = 0.0;
+                    _kElementLocalCoord[11, col] = 0.0;
+                }                
+            }*/
+            #endregion
+
+            
+            #region ShearU3AndRotationR2
+            /*if (IsReleasedU3AndR2() == true)
+            {
+                for (int col = 0; col < _kElementLocalCoord.ColumnCount; col++)
+                {
+                    _kElementLocalCoord[2, col] = 0.0;
+                    _kElementLocalCoord[8, col] = 0.0;
+
+                    _kElementLocalCoord[4, col] = 0.0;
+                    _kElementLocalCoord[10, col] = 0.0;
+                }
+            }*/
+            #endregion
+
+            #region ApplyReleaseToTruss
+            #region duobleReleaseR2
+            if (IsDoubleReleasedR2() == true)
+            {
+                for (int col = 0; col < _kElementLocalCoord.ColumnCount; col++)
+                {
+                    _kElementLocalCoord[3-1, col] = 0.0;
+                    _kElementLocalCoord[9-1, col] = 0.0;
+                }
+            }
+            #endregion
+            
+            #region duobleReleaseR3
+            if (IsDoubleReleasedR3() == true)
+            {
+                for (int col = 0; col < _kElementLocalCoord.ColumnCount; col++)
+                {
+                    _kElementLocalCoord[2-1, col] = 0.0;
+                    _kElementLocalCoord[8-1, col] = 0.0;
                 }
             }
             #endregion
@@ -703,10 +669,18 @@ namespace GPC.Model.FEM.FiniteElements
                                 //TODO
                                 break;
                             case LocalDOF.U2:
-                                //TODO
+                                fLocal[2 - 1] = ShearFixAndBipendolumUniformLoad(0.0, q2, _length);
+                                fLocal[6 - 1] = -BendingFixAndBipendolumUniformLoad(0.0, q2, _length);
+
+                                fLocal[8 - 1] = 0.0; 
+                                fLocal[12 - 1] = BendingFixAndBipendolumUniformLoad(_length, q2, _length);
                                 break;
                             case LocalDOF.U3:
-                                //TODO
+                                fLocal[3 - 1] = ShearFixAndBipendolumUniformLoad(0.0, q3, _length);
+                                fLocal[5 - 1] = BendingFixAndBipendolumUniformLoad(0.0, q3, _length);
+
+                                fLocal[9 - 1] = 0.0; 
+                                fLocal[11 - 1] = -BendingFixAndBipendolumUniformLoad(_length, q3, _length);
                                 break;
                             case LocalDOF.R2:
                                 fLocal[3 - 1] = 5.0 / 8.0 * q3 * _length;
@@ -1023,16 +997,16 @@ namespace GPC.Model.FEM.FiniteElements
                     #region releaseR2AndU3
                     if (dofReleased.Contains(LocalDOF.U3) && dofReleased.Contains(LocalDOF.R2))
                     {
-                        displStation[LocalDOF.U3] = 0.0;
-                        throw new NotImplementedException();
+                        double dr = (_length - station) * displLocalNode2[LocalDOF.R2];
+                        displStation[LocalDOF.U3] = displLocalNode2[LocalDOF.U3] + dr;
                     }
                     #endregion
 
                     #region releaseR3AndU2
                     if (dofReleased.Contains(LocalDOF.U2) && dofReleased.Contains(LocalDOF.R3))
                     {
-                        displStation[LocalDOF.U2] = 0.0;
-                        throw new NotImplementedException();
+                        double dr = (_length - station) * displLocalNode2[LocalDOF.R3];
+                        displStation[LocalDOF.U2] = displLocalNode2[LocalDOF.U2] + dr;
                     }
                     #endregion
                 }
@@ -1056,7 +1030,8 @@ namespace GPC.Model.FEM.FiniteElements
                         double rotation2 = displLocalNode2[LocalDOF.R3];
                         double dr2 = DisplacementFixAndFreeWithImposedRotationAtFreeEnd(station, rotation2, _length);
                         double dr1 = DisplacementFixAndBiPendulumImposedRotationAtFixEnd(station, rotation1, _length);
-                        displStation[LocalDOF.U2] = displLocalNode1[LocalDOF.U2] + dr2 - dr1;
+                        double dq = DisplacementFixAndBipendolumUniformLoad(station, q2, _length, E, J22);
+                        displStation[LocalDOF.U2] = displLocalNode1[LocalDOF.U2] + dr2 - dr1 + dq;
                     }
                     #endregion
 
@@ -1067,7 +1042,8 @@ namespace GPC.Model.FEM.FiniteElements
                         double rotation2 = displLocalNode2[LocalDOF.R2];
                         double dr2 = DisplacementFixAndFreeWithImposedRotationAtFreeEnd(station, rotation2, _length);
                         double dr1 = DisplacementFixAndBiPendulumImposedRotationAtFixEnd(station, rotation1, _length);
-                        displStation[LocalDOF.U3] = displLocalNode1[LocalDOF.U3] - dr2 + dr1;
+                        double dq = DisplacementFixAndBipendolumUniformLoad(station, q3, _length, E, J11);
+                        displStation[LocalDOF.U3] = displLocalNode1[LocalDOF.U3] - dr2 + dr1 + dq;
                     }
                     #endregion
 
@@ -1155,7 +1131,7 @@ namespace GPC.Model.FEM.FiniteElements
             bool ris = true;
             for (int col = 0; col < _kElementLocalCoord.ColumnCount; col++)
             {
-                if (_kElementLocalCoord[5, col] != 0.0 || _kElementLocalCoord[11, col] != 0.0)
+                if (_kElementLocalCoord[6-1, col] != 0.0 || _kElementLocalCoord[12-1, col] != 0.0)
                 {
                     return false;
                 }
@@ -1168,14 +1144,99 @@ namespace GPC.Model.FEM.FiniteElements
             bool ris = true;
             for (int col = 0; col < _kElementLocalCoord.ColumnCount; col++)
             {
-                if (_kElementLocalCoord[4,col] != 0.0 || _kElementLocalCoord[10, col] != 0.0)
+                if (_kElementLocalCoord[5-1,col] != 0.0 || _kElementLocalCoord[11-1, col] != 0.0)
                 {
                     return false;
                 }
             }
             return ris;
         }
+
+        public bool IsReleasedU2AndR3()
+        {
+            bool shearU2andRotationR3 = true;
+            for (int col = 0; col < _kElementLocalCoord.ColumnCount; col++)
+            {
+                if (_kElementLocalCoord[1, col] != 0 || _kElementLocalCoord[7, col] != 0)
+                {
+                    col = _kElementLocalCoord.ColumnCount;
+                    shearU2andRotationR3 = false;
+                }
+            }
+            return shearU2andRotationR3;
+        }
+
+        public bool IsReleasedU3AndR2()
+        {
+            bool shearU3andRotationR2 = true;
+            for (int col = 0; col < _kElementLocalCoord.ColumnCount; col++)
+            {
+                if (_kElementLocalCoord[2, col] != 0 || _kElementLocalCoord[8, col] != 0)
+                {
+                    col = _kElementLocalCoord.ColumnCount;
+                    shearU3andRotationR2 = false;
+                }
+            }
+            return shearU3andRotationR2;
+        }
         #endregion
+
+        private static mnl.Matrix<double> GetStiffnessBeam(double L, double A, double Jyy, double Jzz, double Jt, double E, double G)
+        {
+            mnl.Matrix<double> kLocal = mnl.Matrix<double>.Build.Dense(12, 12);
+            double L2 = L * L;
+            double L3 = L * L * L;
+
+            kLocal[1 - 1, 1 - 1] = E * A / L;
+
+            kLocal[2 - 1, 2 - 1] = 12.0 * E * Jzz / L3;
+
+            kLocal[3 - 1, 3 - 1] = 12.0 * E * Jyy / L3;
+
+            kLocal[4 - 1, 4 - 1] = G * Jt / L;
+
+            kLocal[5 - 1, 3 - 1] = -6.0 * E * Jyy / L2;
+            kLocal[5 - 1, 5 - 1] = 4.0 * E * Jyy / L;
+
+            kLocal[6 - 1, 2 - 1] = 6.0 * E * Jzz / L2;
+            kLocal[6 - 1, 6 - 1] = 4.0 * E * Jzz / L;
+
+            kLocal[7 - 1, 1 - 1] = -E * A / L;
+            kLocal[7 - 1, 7 - 1] = E * A / L;
+
+            kLocal[8 - 1, 2 - 1] = -12.0 * E * Jzz / L3;
+            kLocal[8 - 1, 6 - 1] = -6.0 * E * Jzz / L2;
+            kLocal[8 - 1, 8 - 1] = 12.0 * E * Jzz / L3;
+
+            kLocal[9 - 1, 3 - 1] = -12.0 * E * Jyy / L3;
+            kLocal[9 - 1, 5 - 1] = 6.0 * E * Jyy / L2;
+            kLocal[9 - 1, 9 - 1] = 12.0 * E * Jyy / L3;
+
+            kLocal[10 - 1, 4 - 1] = -G * Jt / L;
+            kLocal[10 - 1, 10 - 1] = G * Jt / L;
+
+            kLocal[11 - 1, 3 - 1] = -6.0 * E * Jyy / L2;
+            kLocal[11 - 1, 5 - 1] = 2.0 * E * Jyy / L;
+            kLocal[11 - 1, 9 - 1] = 6.0 * E * Jyy / L2;
+            kLocal[11 - 1, 11 - 1] = 4.0 * E * Jyy / L;
+
+            kLocal[12 - 1, 2 - 1] = 6.0 * E * Jzz / L2;
+            kLocal[12 - 1, 6 - 1] = 2.0 * E * Jzz / L;
+            kLocal[12 - 1, 8 - 1] = -6.0 * E * Jzz / L2;
+            kLocal[12 - 1, 12 - 1] = 4.0 * E * Jzz / L;
+
+            #region applySimmetry
+            for (int row = 0; row < kLocal.RowCount; row++)
+            {
+                for (int col = 0; col < kLocal.ColumnCount; col++)
+                {
+                    kLocal[row, col] = kLocal[col, row];
+                }
+            }
+            #endregion
+
+            return kLocal;
+        }
 
         #region PostProcessorFunctions
         /// <summary>
