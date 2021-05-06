@@ -840,40 +840,46 @@ namespace GPC.Model.Combinations
                 #endregion
 
                 // aggiunge tutti i carichi secondari che non siano wind pressure o wind suction o climatici. quelli vanno trattati a parte
-                foreach (LoadCaseBase loadCaseAccompanying in loadCases)
+                foreach (LoadCaseBase loadCaseAccomp in loadCases)
                 {
                     #region NORMAL LOAD ADD
 
-                    if (loadCaseLead is LoadCase loadCaseLead1 && loadCaseAccompanying is LoadCase loadCaseAc)
+                    if (loadCaseAccomp is LoadCase loadCaseAccompanying)
                     {
-                        if (!hash.Contains(loadCaseAc.LoadCaseType) && !loadCaseAc.LoadCaseType.Equals(loadCaseLead1.LoadCaseType) &&
-                            loadCaseAc.LoadCaseType != LoadCase.LoadCaseTypes.WindSuction && loadCaseAc.LoadCaseType != LoadCase.LoadCaseTypes.WindPressure)
+                        if (loadCaseLead is LoadCase loadCaseLead1)
                         {
-                            loadCaseCoefficientsBuffer.AddRange(AddLoadCaseAccompanying(loadCaseAc.LoadCaseType, loadCases, options));
-                            hash.Add(loadCaseAc.LoadCaseType);
+                            if (!hash.Contains(loadCaseAccompanying.LoadCaseType) && !loadCaseAccompanying.LoadCaseType.Equals(loadCaseLead1.LoadCaseType) &&
+                                loadCaseAccompanying.LoadCaseType != LoadCase.LoadCaseTypes.WindSuction && loadCaseAccompanying.LoadCaseType != LoadCase.LoadCaseTypes.WindPressure)
+                            {
+                                loadCaseCoefficientsBuffer.AddRange(AddLoadCaseAccompanying(loadCaseAccompanying.LoadCaseType, loadCases, options));
+                                hash.Add(loadCaseAccompanying.LoadCaseType);
+                            }
+                        }
+                        else if (loadCaseLead is ClimateLoadCase _)
+                        {
+                            if (!hash.Contains(loadCaseAccompanying.LoadCaseType) &&
+                                loadCaseAccompanying.LoadCaseType != LoadCase.LoadCaseTypes.WindSuction && loadCaseAccompanying.LoadCaseType != LoadCase.LoadCaseTypes.WindPressure)
+                            {
+                                loadCaseCoefficientsBuffer.AddRange(AddLoadCaseAccompanying(loadCaseAccompanying.LoadCaseType, loadCases, options));
+                                hash.Add(loadCaseAccompanying.LoadCaseType);
+                            }
                         }
                     }
-                    else if (loadCaseLead is ClimateLoadCase loadCaseLead2 && loadCaseAccompanying is LoadCase loadCaseAccomp)
+                    if (loadCaseAccomp is ClimateLoadCase climateLoadCaseAcc1)
                     {
-                        if (!hash.Contains(loadCaseAccomp.LoadCaseType) &&
-                            loadCaseAccomp.LoadCaseType != LoadCase.LoadCaseTypes.WindSuction && loadCaseAccomp.LoadCaseType != LoadCase.LoadCaseTypes.WindPressure)
+                        if (loadCaseLead is ClimateLoadCase loadCaseLead2 )
                         {
-                            loadCaseCoefficientsBuffer.AddRange(AddLoadCaseAccompanying(loadCaseAccomp.LoadCaseType, loadCases, options));
-                            hash.Add(loadCaseAccomp.LoadCaseType);
+                            if (!chash.Contains((climateLoadCaseAcc1.Season, climateLoadCaseAcc1.ClimateType)) && !chash.Contains((climateLoadCaseAcc1.Season, climateLoadCaseAcc1.ClimateType)) &&
+                                (climateLoadCaseAcc1.Season.Equals(loadCaseLead2.Season) && !climateLoadCaseAcc1.ClimateType.Equals(loadCaseLead2.ClimateType)))
+                            {
+                                loadCaseCoefficientsBuffer.AddRange(AddLoadCaseAccompanying(climateLoadCaseAcc1.Season, climateLoadCaseAcc1.ClimateType, loadCases, options));
+                                chash.Add((climateLoadCaseAcc1.Season, climateLoadCaseAcc1.ClimateType));
+                            }
                         }
-                    }
-                    else if (loadCaseLead is ClimateLoadCase loadCaseLead3 && loadCaseAccompanying is ClimateLoadCase climateLoadCaseAcc1)
-                    {
-                        if (!chash.Contains((climateLoadCaseAcc1.Season, climateLoadCaseAcc1.ClimateType)) && !chash.Contains((climateLoadCaseAcc1.Season, climateLoadCaseAcc1.ClimateType)) &&
-                            (climateLoadCaseAcc1.Season.Equals(loadCaseLead3.Season) && !climateLoadCaseAcc1.ClimateType.Equals(loadCaseLead3.ClimateType)))
+                        else if (loadCaseLead is LoadCase loadCaseLead4)
                         {
-                            loadCaseCoefficientsBuffer.AddRange(AddLoadCaseAccompanying(climateLoadCaseAcc1.Season, climateLoadCaseAcc1.ClimateType, loadCases, options));
-                            chash.Add((climateLoadCaseAcc1.Season, climateLoadCaseAcc1.ClimateType));
+                            // viene gestito dopo
                         }
-                    }
-                    else if (loadCaseLead is LoadCase loadCaseLead4 && loadCaseAccompanying is ClimateLoadCase climateLoadCaseAcc2)
-                    {
-                        // viene gestito dopo
                     }
 
                     #endregion
@@ -881,14 +887,14 @@ namespace GPC.Model.Combinations
                     #region BOOL CHECK
 
                     // controllo se sono presenti carichi WindPressure o WindSuction o Climatici per l'assemblaggio finale delle liste
-                    if (loadCaseAccompanying is LoadCase lcaaa)
+                    if (loadCaseAccomp is LoadCase lcaaa)
                     {
                         if (lcaaa.LoadCaseType == LoadCase.LoadCaseTypes.WindPressure)
                             haveWindPressure = true;
                         if (lcaaa.LoadCaseType == LoadCase.LoadCaseTypes.WindSuction)
                             haveWindSuction = true;
                     }
-                    else if (loadCaseAccompanying is ClimateLoadCase clcac)
+                    else if (loadCaseAccomp is ClimateLoadCase clcac)
                     {
                         if (clcac.Season == ClimateLoadCase.Seasons.Summer && (clcac.ClimateType == ClimateLoadCase.ClimateTypes.DeltaP || clcac.ClimateType == ClimateLoadCase.ClimateTypes.DeltaT))
                             haveClimateSummer = true;
@@ -901,34 +907,26 @@ namespace GPC.Model.Combinations
 
                 #region WIND LOAD ADD
                 
-                if ((loadCaseLead is LoadCase lcl && lcl.LoadCaseType != LoadCase.LoadCaseTypes.WindPressure && lcl.LoadCaseType != LoadCase.LoadCaseTypes.WindSuction) ||
+                if ((loadCaseLead is LoadCase lcl && 
+                    lcl.LoadCaseType != LoadCase.LoadCaseTypes.WindPressure && lcl.LoadCaseType != LoadCase.LoadCaseTypes.WindSuction) ||
                     (loadCaseLead is ClimateLoadCase _))
                 {
                     foreach (LoadCaseBase loadCaseAccom in loadCases)
                     {
-                        if ((loadCaseLead is LoadCase lcl2 && lcl2.LoadCaseType != LoadCase.LoadCaseTypes.WindPressure &&
-                            loadCaseAccom is LoadCase loadCaseAccompanying3 && loadCaseAccompanying3.LoadCaseType == LoadCase.LoadCaseTypes.WindSuction) ||
-                            (loadCaseLead is ClimateLoadCase _ &&
-                            loadCaseAccom is LoadCase loadCaseAccompanying2 && loadCaseAccompanying2.LoadCaseType == LoadCase.LoadCaseTypes.WindSuction))
+                        // gestione carichi secondari windsuction
+                        if (loadCaseAccom is LoadCase loadCaseAccompanying3 && loadCaseAccompanying3.LoadCaseType == LoadCase.LoadCaseTypes.WindSuction &&
+                            !hash.Contains(LoadCase.LoadCaseTypes.WindSuction))
                         {
-                            if (!hash.Contains(LoadCase.LoadCaseTypes.WindSuction))
-                            {
-                                loadCaseCoefficientsWindSuction.AddRange(AddLoadCaseAccompanying(LoadCase.LoadCaseTypes.WindSuction, loadCases, options));
-                                hash.Add(LoadCase.LoadCaseTypes.WindSuction);
-                            }
+                            loadCaseCoefficientsWindSuction.AddRange(AddLoadCaseAccompanying(LoadCase.LoadCaseTypes.WindSuction, loadCases, options));
+                            hash.Add(LoadCase.LoadCaseTypes.WindSuction);
                         }
 
                         // gestione carichi secondari windpressure
-                        if ((loadCaseLead is LoadCase lcl3 && lcl3.LoadCaseType != LoadCase.LoadCaseTypes.WindSuction &&
-                            loadCaseAccom is LoadCase loadCaseAccompanying4 && loadCaseAccompanying4.LoadCaseType == LoadCase.LoadCaseTypes.WindPressure) ||
-                            (loadCaseLead is ClimateLoadCase _ &&
-                            loadCaseAccom is LoadCase loadCaseAccompanying5 && loadCaseAccompanying5.LoadCaseType == LoadCase.LoadCaseTypes.WindPressure))
+                        if (loadCaseAccom is LoadCase loadCaseAccompanying4 && loadCaseAccompanying4.LoadCaseType == LoadCase.LoadCaseTypes.WindPressure &&
+                            !hash.Contains(LoadCase.LoadCaseTypes.WindPressure))
                         {
-                            if (!hash.Contains(LoadCase.LoadCaseTypes.WindPressure))
-                            {
-                                loadCaseCoefficientsWindPressure.AddRange(AddLoadCaseAccompanying(LoadCase.LoadCaseTypes.WindPressure, loadCases, options));
-                                hash.Add(LoadCase.LoadCaseTypes.WindPressure);
-                            }
+                            loadCaseCoefficientsWindPressure.AddRange(AddLoadCaseAccompanying(LoadCase.LoadCaseTypes.WindPressure, loadCases, options));
+                            hash.Add(LoadCase.LoadCaseTypes.WindPressure);
                         }
                     }
                 }
@@ -937,18 +935,15 @@ namespace GPC.Model.Combinations
                 #endregion
 
                 #region CLIMATE LOAD ADD
-
-                // gestione dei carichi secondari quando sono presenti sia climateSummer che climateWinter
-
-                
+               
                 foreach (LoadCaseBase loadCaseAccompanying in loadCases)
                 {
                     // gestione carichi secondari climateSummer
                     if (loadCaseLead is LoadCase _ ||
-                        (loadCaseLead is ClimateLoadCase climLeadLoadCase && climLeadLoadCase.ClimateType != ClimateLoadCase.ClimateTypes.DeltaP && climLeadLoadCase.ClimateType != ClimateLoadCase.ClimateTypes.DeltaT))
+                        (loadCaseLead is ClimateLoadCase climLeadLoadCase && 
+                        climLeadLoadCase.ClimateType != ClimateLoadCase.ClimateTypes.DeltaP && climLeadLoadCase.ClimateType != ClimateLoadCase.ClimateTypes.DeltaT))
                     {
-                        if (loadCaseAccompanying is ClimateLoadCase climAccomp && climAccomp.Season == ClimateLoadCase.Seasons.Winter &&
-                            (climAccomp.ClimateType == ClimateLoadCase.ClimateTypes.DeltaP || climAccomp.ClimateType == ClimateLoadCase.ClimateTypes.DeltaT) &&
+                        if (loadCaseAccompanying is ClimateLoadCase climAccomp && climAccomp.Season == ClimateLoadCase.Seasons.Winter &&                            
                             !chash.Contains((ClimateLoadCase.Seasons.Summer, climAccomp.ClimateType)))
                         {
                             loadCaseCoefficientsSummer.AddRange(AddLoadCaseAccompanying(ClimateLoadCase.Seasons.Summer, ClimateLoadCase.ClimateTypes.DeltaP, loadCases, options));
@@ -961,10 +956,10 @@ namespace GPC.Model.Combinations
 
                     // gestione carichi secondari climate winter
                     if (loadCaseLead is LoadCase _ || 
-                        ( loadCaseLead is ClimateLoadCase climLeadLoadCase1 && climLeadLoadCase1.ClimateType != ClimateLoadCase.ClimateTypes.DeltaP && climLeadLoadCase1.ClimateType != ClimateLoadCase.ClimateTypes.DeltaT))
+                        (loadCaseLead is ClimateLoadCase climLeadLoadCase1 && 
+                        climLeadLoadCase1.ClimateType != ClimateLoadCase.ClimateTypes.DeltaP && climLeadLoadCase1.ClimateType != ClimateLoadCase.ClimateTypes.DeltaT))
                     {
                         if (loadCaseAccompanying is ClimateLoadCase clcAcc && clcAcc.Season == ClimateLoadCase.Seasons.Summer &&
-                            (clcAcc.ClimateType == ClimateLoadCase.ClimateTypes.DeltaP || clcAcc.ClimateType == ClimateLoadCase.ClimateTypes.DeltaT) &&
                             !chash.Contains((ClimateLoadCase.Seasons.Winter, clcAcc.ClimateType)))
                         {
                             loadCaseCoefficientsWinter.AddRange(AddLoadCaseAccompanying(ClimateLoadCase.Seasons.Winter, ClimateLoadCase.ClimateTypes.DeltaP, loadCases, options));
@@ -1423,7 +1418,7 @@ namespace GPC.Model.Combinations
         /// <param name="loadCases">The array of load cases</param>
         /// <param name="optionsInput">The normative options (only EN16612 is supported)</param>
         /// <returns>A list of load case coefficients</returns>
-        protected List<LoadCaseCoefficient> AddLoadCaseLead(LoadCaseBase loadCaseLeadInput, LoadCaseBase[] loadCases, CombinationsOptions optionsInput)
+        protected override List<LoadCaseCoefficient> AddLoadCaseLead(LoadCaseBase loadCaseLeadInput, LoadCaseBase[] loadCases, CombinationsOptions optionsInput)
         {
             if (optionsInput is EN16612CombinationsOptions options)
             {
