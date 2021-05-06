@@ -425,6 +425,21 @@ namespace FemTest
             }
 
         }
+
+
+        [TestMethod]
+        public void FemModelTest9()
+        {
+
+            FemModel femModel = new FemModel();
+
+            int r1 = femModel.AddCostrain(new GPC.Model.FEM.Costrains.RigidLink(new Node(0, 0, 0), new Node(0, 0, 1)));
+            int r2 = femModel.AddCostrain(new GPC.Model.FEM.Costrains.RigidLink(new Node(0, 0, 1), new Node(0, 0, 2)));
+
+
+            int b = 1;
+
+        }
         #endregion
 
     }
