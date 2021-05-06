@@ -1,4 +1,4 @@
-﻿using GPC.Model.LoadCases;
+using GPC.Model.LoadCases;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -71,6 +71,140 @@ namespace GPC.Model.Combinations
         #region PUBLIC METHOD 
 
         /// <summary>
+        /// Get the coefficient gamma Q unfavourable 
+        /// </summary>
+        /// <param name="set">The ULS combination set (if <paramref name="limitState"/> is an ultimate state limit</param>
+        /// <param name="limitState">The limit state of combinations</param>
+        /// <param name="climateLoadCase">The load case</param>
+        /// <returns>The value of the coefficient</returns>
+        public double GetGammaQUnfavourable(ULSStructuralGeotechicalCombinationSets set, LimitStates limitState, ClimateLoadCase climateLoadCase)
+        {
+            if (limitState == LimitStates.UltimateEquilibrium)
+            {
+                switch (climateLoadCase.ClimateType)
+                {
+                    case ClimateLoadCase.ClimateTypes.DeltaP:
+                    case ClimateLoadCase.ClimateTypes.DeltaT:
+                        return GammaQUnfavourableSetA;
+                    default:
+                        throw new NotImplementedException("Not implemented coefficient for load case type");
+                }
+            }
+            else if (limitState == LimitStates.UltimateGeotechnical || limitState == LimitStates.UltimateFatigue || limitState == LimitStates.UltimateStructural)
+            {
+                if (set == ULSStructuralGeotechicalCombinationSets.SetB)
+                {
+                    switch (climateLoadCase.ClimateType)
+                    {
+                        case ClimateLoadCase.ClimateTypes.DeltaP:
+                        case ClimateLoadCase.ClimateTypes.DeltaT:
+                            return GammaQUnfavourableSetB;
+                        default:
+                            throw new NotImplementedException("Not implemented coefficient for load case type");
+                    }
+                }
+                else if (set == ULSStructuralGeotechicalCombinationSets.SetC)
+                {
+                    switch (climateLoadCase.ClimateType)
+                    {
+                        case ClimateLoadCase.ClimateTypes.DeltaP:
+                        case ClimateLoadCase.ClimateTypes.DeltaT:
+                            return GammaQUnfavourableSetC;
+                        default:
+                            throw new NotImplementedException("Not implemented coefficient for load case type");
+                    }
+                }
+                else
+                    throw new NotImplementedException("Not implemented Annex");
+            }
+            else if (limitState == LimitStates.UltimateSeismic || limitState == LimitStates.UltimateAccidental)
+            {
+                return 1.0;
+            }
+            else if (limitState == LimitStates.ServiceabilityCharacteristic || limitState == LimitStates.ServiceabilityFrequent || limitState == LimitStates.ServiceabilityQuasiPermanent)
+            {
+                switch (climateLoadCase.ClimateType)
+                {
+                    case ClimateLoadCase.ClimateTypes.DeltaP:
+                    case ClimateLoadCase.ClimateTypes.DeltaT:
+                        return 1.0;
+
+                    default:
+                        throw new NotImplementedException("Not implemented coefficient for load case type");
+                }
+            }
+            else
+                throw new ArgumentException("Failed to set coefficient gamma favourable");
+        }
+
+        /// <summary>
+        /// Get the coefficient gamma Q favourable 
+        /// </summary>
+        /// <param name="set">The ULS combination set (if <paramref name="limitState"/> is an ultimate state limit</param>
+        /// <param name="limitState">The limit state of combinations</param>
+        /// <param name="climateLoadCase">The load case</param>
+        /// <returns>The value of the coefficient</returns>
+        public double GetGammaQFavourable(ULSStructuralGeotechicalCombinationSets set, LimitStates limitState, ClimateLoadCase climateLoadCase)
+        {
+            if (limitState == LimitStates.UltimateEquilibrium)
+            {
+                switch (climateLoadCase.ClimateType)
+                {
+                    case ClimateLoadCase.ClimateTypes.DeltaP:
+                    case ClimateLoadCase.ClimateTypes.DeltaT:
+                        return GammaQFavourableSetA;
+                    default:
+                        throw new NotImplementedException("Not implemented coefficient for load case type");
+                }
+            }
+            else if (limitState == LimitStates.UltimateGeotechnical || limitState == LimitStates.UltimateFatigue || limitState == LimitStates.UltimateStructural)
+            {
+                if (set == ULSStructuralGeotechicalCombinationSets.SetB)
+                {
+                    switch (climateLoadCase.ClimateType)
+                    {
+                        case ClimateLoadCase.ClimateTypes.DeltaP:
+                        case ClimateLoadCase.ClimateTypes.DeltaT:
+                            return GammaQFavourableSetB;
+                        default:
+                            throw new NotImplementedException("Not implemented coefficient for load case type");
+                    }
+                }
+                else if (set == ULSStructuralGeotechicalCombinationSets.SetC)
+                {
+                    switch (climateLoadCase.ClimateType)
+                    {
+                        case ClimateLoadCase.ClimateTypes.DeltaP:
+                        case ClimateLoadCase.ClimateTypes.DeltaT:
+                            return GammaQFavourableSetC;
+                        default:
+                            throw new NotImplementedException("Not implemented coefficient for load case type");
+                    }
+                }
+                else
+                    throw new NotImplementedException("Not implemented Annex");
+            }
+            else if (limitState == LimitStates.UltimateSeismic || limitState == LimitStates.UltimateAccidental)
+            {
+                return 1.0;
+            }
+            else if (limitState == LimitStates.ServiceabilityCharacteristic || limitState == LimitStates.ServiceabilityFrequent || limitState == LimitStates.ServiceabilityQuasiPermanent)
+            {
+                switch (climateLoadCase.ClimateType)
+                {
+                    case ClimateLoadCase.ClimateTypes.DeltaP:
+                    case ClimateLoadCase.ClimateTypes.DeltaT:
+                        return 1.0;
+
+                    default:
+                        throw new NotImplementedException("Not implemented coefficient for load case type");
+                }
+            }
+            else
+                throw new ArgumentException("Failed to set coefficient gamma favourable");
+        }
+
+        /// <summary>
         /// Get the coefficient psi 0 for buildings
         /// </summary>
         /// <param name="loadCase">The climate load case</param>
@@ -124,6 +258,110 @@ namespace GPC.Model.Combinations
                 return _psi2ClimateWinterDeltaT;
 
             throw new ArgumentException("Don't exist coefficient for this load case");
+        }
+
+        #endregion
+
+        #region COMBINATIONS OPTIONS
+
+        public class EN16612CombinationsOptions : EN1990CombinationsOptions
+        {
+            public EN16612CombinationsOptions(LimitStates limitState, ULSStructuralGeotechicalCombinationSets uLS = ULSStructuralGeotechicalCombinationSets.SetB, ImposedLoadCategories imposedLoadCategories = ImposedLoadCategories.CategoryA, bool highAltitude = true)
+                :base(limitState, uLS, imposedLoadCategories, highAltitude)
+            {
+
+            }
+
+            public EN16612CombinationsOptions(LimitStates limitState)
+                : base(limitState)
+            {
+                ULS = ULSStructuralGeotechicalCombinationSets.SetB;
+                Category = ImposedLoadCategories.CategoryA;
+                HighAltitude = true;
+            }
+        }
+
+        #endregion
+
+        #region PUBLIC GENERATION METHODS
+
+        public override CombinationsCollection CreateCombinations(LoadCaseBase[] loadCases, CombinationsOptions coomboOptions, string name = "cmb")
+        {
+            if (coomboOptions is EN16612CombinationsOptions options)
+            {
+                CombinationsCollection combinations = new CombinationsCollection();
+                CombinationCoefficientEqualityComparer equalityComparer = new CombinationCoefficientEqualityComparer();
+                HashSet<Combination> combinationsHashSet = new HashSet<Combination>(equalityComparer);
+                int idProg = 1;
+
+                List<List<LoadCaseCoefficient>> listFavourable = GetFavourableCombinations(loadCases, options);
+                for (int i = 0; i < listFavourable.Count(); i++)
+                {
+                    Combination combo = new Combination(name + $" {idProg}", options);
+
+                    for (int j = 0; j < listFavourable[i].Count(); j++)
+                    {
+                        combo.AddLoadCaseCoefficient(listFavourable[i][j].LoadCase, listFavourable[i][j].Coefficient);
+                    }
+                    if (!combinationsHashSet.Contains(combo))
+                    {
+                        combinationsHashSet.Add(combo);
+                        idProg++;
+                    }
+                }
+
+                List<List<LoadCaseCoefficient>> listUnfavourable = GetUnfavourableCombinations(loadCases, options);
+                for (int i = 0; i < listUnfavourable.Count(); i++)
+                {
+                    Combination combo = new Combination(name + $" {idProg}", options);
+
+                    for (int j = 0; j < listUnfavourable[i].Count(); j++)
+                    {
+                        combo.AddLoadCaseCoefficient(listUnfavourable[i][j].LoadCase, listUnfavourable[i][j].Coefficient);
+                    }
+                    if (!combinationsHashSet.Contains(combo))
+                    {
+                        combinationsHashSet.Add(combo);
+                        idProg++;
+                    }
+                }
+
+                List<List<LoadCaseCoefficient>> listFavourableBase = GetFavourableBasicCombinations(loadCases, options);
+                for (int i = 0; i < listFavourableBase.Count(); i++)
+                {
+                    Combination comboBaseFav = new Combination(name + $" {idProg}", options);
+                    for (int j = 0; j < listFavourableBase[i].Count(); j++)
+                    {
+                        comboBaseFav.AddLoadCaseCoefficient(listFavourableBase[i][j].LoadCase, listFavourableBase[i][j].Coefficient);
+                    }
+                    if (!combinationsHashSet.Contains(comboBaseFav))
+                    {
+                        combinationsHashSet.Add(comboBaseFav);
+                        idProg++;
+                    }
+                }
+
+                List<List<LoadCaseCoefficient>> listUnfavourableBase = GetUnfavourableBasicCombinations(loadCases, options);
+                for (int i = 0; i < listUnfavourableBase.Count(); i++)
+                {
+                    Combination comboBaseUnfav = new Combination(name + $" {idProg}", options);
+                    for (int j = 0; j < listUnfavourableBase[i].Count(); j++)
+                    {
+                        comboBaseUnfav.AddLoadCaseCoefficient(listUnfavourableBase[i][j].LoadCase, listUnfavourableBase[i][j].Coefficient);
+                    }
+                    if (!combinationsHashSet.Contains(comboBaseUnfav))
+                    {
+                        combinationsHashSet.Add(comboBaseUnfav);
+                        idProg++;
+                    }
+                }
+                foreach (Combination cmb in combinationsHashSet)
+                    combinations.Add(cmb);
+
+                return combinations;
+            }
+            else
+                throw new ArgumentException("CombinationsOptions must be an istance of EN16612CombinationsOptions");
         }
 
         #endregion
