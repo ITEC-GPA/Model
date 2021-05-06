@@ -437,8 +437,6 @@ namespace FemTest
             int r2 = femModel.AddCostrain(new GPC.Model.FEM.Costrains.RigidLink(new Node(0, 0, 1), new Node(0, 0, 2)));
 
 
-            int b = 1;
-
         }
         #endregion
 

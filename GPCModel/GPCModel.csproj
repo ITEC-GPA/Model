@@ -105,6 +105,7 @@
     <Compile Include="FEM\ElementProperty\IPlateProperty.cs" />
     <Compile Include="FEM\ElementProperty\LaminatedGlassProperty.cs" />
     <Compile Include="FEM\ElementProperty\MonolithicGlassProperty.cs" />
+    <Compile Include="FEM\FemOptions.cs" />
     <Compile Include="FEM\FiniteElements\Beam.cs" />
     <Compile Include="FEM\FiniteElements\Brick\Hexaedron8.cs" />
     <Compile Include="FEM\FiniteElements\Beam\EulerBeam.cs" />
