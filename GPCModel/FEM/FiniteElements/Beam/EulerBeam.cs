@@ -847,8 +847,8 @@ namespace GPC.Model.FEM.FiniteElements
 
             var releases = GetEndReleases();
 
-            if (releases.Count() == 0)
-            {
+            /*if (releases.Count() == 0)
+            {*/
                 double Nx = internalForcesNode1[InternalAction.N] * N0(station, _length) + internalForcesNode2[InternalAction.N] * N1(station, _length);
                 double V2x = internalForcesNode1[InternalAction.V2] * N0(station, _length) + internalForcesNode2[InternalAction.V2] * N1(station, _length);
                 double V3x = internalForcesNode1[InternalAction.V3] * N0(station, _length) + internalForcesNode2[InternalAction.V3] * N1(station, _length);
@@ -863,11 +863,10 @@ namespace GPC.Model.FEM.FiniteElements
                 forces.Add(Beam.InternalAction.T, Tx);
                 forces.Add(Beam.InternalAction.M2, M2x - BendingBeamFixFixUniformLoad(qz, station, _length));
                 forces.Add(Beam.InternalAction.M3, M3x - BendingBeamFixFixUniformLoad(qy, station, _length));
-            } else
+            /*} else
             {
                 //TODO releases
-
-            }
+            }*/
 
             return forces;            
         }
@@ -1132,13 +1131,6 @@ namespace GPC.Model.FEM.FiniteElements
                     #endregion
                 }
             }
-
-            /*if (IsReleasedU2AndR3() == true)
-            {
-                var dr = -displLocalNode2[LocalDOF.R3] * (_length - station);
-                var dq = 0.0;
-                displStation[LocalDOF.U2] = displLocalNode2[LocalDOF.U2] + dr + dq;
-            }*/
 
             #region truss
             if (IsDoubleReleasedR3() == true)
