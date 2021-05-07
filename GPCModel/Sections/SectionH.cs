@@ -24,7 +24,7 @@ namespace GPC.Model.Sections
         Plate[] _plates = new Plate[5];
         #endregion
 
-        public SectionH(double hTot, double tw, double btop, double ttop, double bbottom, double tbottom, bool isWelded, Materials.Material material, string name) : base(material, name)
+        public SectionH(double hTot, double tw, double btop, double ttop, double bbottom, double tbottom, bool isWelded, Materials.Material material, string name) : base(material.GetIsotropicFemMaterial(), name)
         {
             _hTot = hTot;
             _tw = tw;

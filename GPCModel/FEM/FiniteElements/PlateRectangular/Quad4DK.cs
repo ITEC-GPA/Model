@@ -233,17 +233,12 @@ namespace GPC.Model.FEM.FiniteElements
             #endregion
 
             #region matrixD
-            double E = ((PlateProperty)_property).GetE();
-            double ni = ((PlateProperty)_property).GetNi();
-            double tb = ((PlateProperty)_property).BendingThickness;
+            
+            _d = (_property as PlateProperty).Material.GetPlaneStress();
 
-            _d = mnl.Matrix<double>.Build.Dense(3, 3);
-            _d[0, 0] = 1.0;
-            _d[0, 1] = ni;
-            _d[1, 0] = ni;
-            _d[1, 1] = 1.0;
-            _d[2, 2] = (1.0 - ni) / 2.0;
-            _d = E * Math.Pow(tb, 3.0) / (12.0 * (1.0 - ni * ni)) * _d; //flexural rigidity
+            _d = Math.Pow((_property as PlateProperty).BendingThickness, 3.0) * _d; 
+            
+            //flexural rigidity
             //Console.WriteLine("Db = " + _d.ToString());
             #endregion
 
