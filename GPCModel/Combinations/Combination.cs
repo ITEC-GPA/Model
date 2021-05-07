@@ -375,7 +375,7 @@ namespace GPC.Model.Combinations
 
             Combination objCasted = obj as Combination;
 
-            return !(objCasted is null) && _coefficients.ScrambledEquals(objCasted._coefficients) && base.Equals(objCasted);
+            return !(objCasted is null) && _coefficients.ScrambledEquals(objCasted._coefficients) && _options.Equals(objCasted._options) && base.Equals(objCasted);
         }
 
         public override int GetHashCode()
@@ -389,6 +389,9 @@ namespace GPC.Model.Combinations
                 {
                     hashCode = hashCode + EqualityComparer<LoadCaseCoefficient>.Default.GetHashCode(element);
                 }
+
+                hashCode = hashCode + _options.GetHashCode();
+
                 return hashCode; 
             }
         }

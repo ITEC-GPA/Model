@@ -75,6 +75,7 @@
     <Compile Include="Combinations\CombinationsCollection.cs" />
     <Compile Include="Combinations\Standard.cs" />
     <Compile Include="Combinations\StandardASCE16.cs" />
+    <Compile Include="Combinations\StandardEN16612.cs" />
     <Compile Include="Combinations\StandardEN1990.cs" />
     <Compile Include="Combinations\Combination.cs" />
     <Compile Include="Combinations\CombinationAsce.cs" />
