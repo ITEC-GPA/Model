@@ -44,372 +44,367 @@ namespace GPC.Model.FEM.FiniteElements
             double L3 = _length * _length * _length;
 
             _kElementLocalCoord = GetStiffnessBeam(L, A, Jyy, Jzz, Jt, E, G);
-            
+
             #region ApplyReleases
-            foreach (BeamReleasesAttribute rel in _attributesFreedomCase)
+            HashSet<Tuple<EndSide, LocalDOF>> releases = GetEndReleases();
+
+            for (int i = 0; i < releases.Count(); i++)
             {
-                EndSide EndBeam = rel.EndBeam;
-                LocalDOF[] localDOFs = rel.LocalDOFReleased;
+                EndSide EndBeam = releases.ElementAt(i).Item1;
+                LocalDOF localDOFs = releases.ElementAt(i).Item2;
 
                 if (EndBeam == EndSide.End1)
                 {
-                    for (int i = 0; i < localDOFs.Length; i++)
+                    switch (localDOFs)
                     {
-                        switch (localDOFs[i])
-                        {
-                            case LocalDOF.AxialU1:
-                                #region
-                                _kElementLocalCoord[0, 0] = 0.0;
+                        case LocalDOF.AxialU1:
+                            #region
+                            _kElementLocalCoord[0, 0] = 0.0;
 
-                                _kElementLocalCoord[6, 0] = 0.0;
-                                _kElementLocalCoord[0, 6] = 0.0;
+                            _kElementLocalCoord[6, 0] = 0.0;
+                            _kElementLocalCoord[0, 6] = 0.0;
 
-                                _kElementLocalCoord[6, 6] = 0.0;
-                                #endregion
-                                break;
-                            case LocalDOF.TorsionR1:
-                                #region
-                                _kElementLocalCoord[3, 3] = 0.0;
+                            _kElementLocalCoord[6, 6] = 0.0;
+                            #endregion
+                            break;
+                        case LocalDOF.TorsionR1:
+                            #region
+                            _kElementLocalCoord[3, 3] = 0.0;
 
-                                _kElementLocalCoord[9, 3] = 0.0;
-                                _kElementLocalCoord[3, 9] = 0.0;
+                            _kElementLocalCoord[9, 3] = 0.0;
+                            _kElementLocalCoord[3, 9] = 0.0;
 
-                                _kElementLocalCoord[9, 9] = 0.0;
-                                #endregion
-                                break;
-                            case LocalDOF.U2:
-                                #region
-                                #region
-                                _kElementLocalCoord[1, 1] = 0.0;
+                            _kElementLocalCoord[9, 9] = 0.0;
+                            #endregion
+                            break;
+                        case LocalDOF.U2:
+                            #region
+                            #region
+                            _kElementLocalCoord[1, 1] = 0.0;
 
-                                _kElementLocalCoord[1, 5] = 0.0;
-                                _kElementLocalCoord[5, 1] = 0.0;
+                            _kElementLocalCoord[1, 5] = 0.0;
+                            _kElementLocalCoord[5, 1] = 0.0;
 
-                                _kElementLocalCoord[1, 7] = 0.0;
-                                _kElementLocalCoord[7, 1] = 0.0;
+                            _kElementLocalCoord[1, 7] = 0.0;
+                            _kElementLocalCoord[7, 1] = 0.0;
 
-                                _kElementLocalCoord[1, 11] = 0.0;
-                                _kElementLocalCoord[11, 1] = 0.0;
-                                #endregion
+                            _kElementLocalCoord[1, 11] = 0.0;
+                            _kElementLocalCoord[11, 1] = 0.0;
+                            #endregion
 
-                                #region
-                                _kElementLocalCoord[5, 5] = (_kElementLocalCoord[5, 5] == 0.0) ? 0.0 : E * Jzz / L;
+                            #region
+                            _kElementLocalCoord[5, 5] = (_kElementLocalCoord[5, 5] == 0.0) ? 0.0 : E * Jzz / L;
 
-                                _kElementLocalCoord[5, 7] = 0.0;
-                                _kElementLocalCoord[7, 5] = 0.0;
+                            _kElementLocalCoord[5, 7] = 0.0;
+                            _kElementLocalCoord[7, 5] = 0.0;
 
-                                _kElementLocalCoord[5, 11] = (_kElementLocalCoord[5, 11] == 0.0) ? 0.0 : -E * Jzz / L;
-                                _kElementLocalCoord[11, 5] = (_kElementLocalCoord[11, 5] == 0.0) ? 0.0 : -E * Jzz / L;
-                                #endregion
+                            _kElementLocalCoord[5, 11] = (_kElementLocalCoord[5, 11] == 0.0) ? 0.0 : -E * Jzz / L;
+                            _kElementLocalCoord[11, 5] = (_kElementLocalCoord[11, 5] == 0.0) ? 0.0 : -E * Jzz / L;
+                            #endregion
 
-                                #region
-                                _kElementLocalCoord[7, 7] = 0.0;
+                            #region
+                            _kElementLocalCoord[7, 7] = 0.0;
 
-                                _kElementLocalCoord[7, 11] = 0.0;
-                                _kElementLocalCoord[11, 7] = 0.0;
-                                #endregion
+                            _kElementLocalCoord[7, 11] = 0.0;
+                            _kElementLocalCoord[11, 7] = 0.0;
+                            #endregion
 
-                                #region
-                                _kElementLocalCoord[11, 11] = (_kElementLocalCoord[11, 11] == 0.0) ? 0.0 : E * Jzz / L;
-                                #endregion
-                                #endregion
-                                break;
-                            case LocalDOF.U3:
-                                #region
-                                #region
-                                _kElementLocalCoord[2, 2] = 0.0;
+                            #region
+                            _kElementLocalCoord[11, 11] = (_kElementLocalCoord[11, 11] == 0.0) ? 0.0 : E * Jzz / L;
+                            #endregion
+                            #endregion
+                            break;
+                        case LocalDOF.U3:
+                            #region
+                            #region
+                            _kElementLocalCoord[2, 2] = 0.0;
 
-                                _kElementLocalCoord[2, 4] = 0.0;
-                                _kElementLocalCoord[4, 2] = 0.0;
+                            _kElementLocalCoord[2, 4] = 0.0;
+                            _kElementLocalCoord[4, 2] = 0.0;
 
-                                _kElementLocalCoord[2, 8] = 0.0;
-                                _kElementLocalCoord[8, 2] = 0.0;
+                            _kElementLocalCoord[2, 8] = 0.0;
+                            _kElementLocalCoord[8, 2] = 0.0;
 
-                                _kElementLocalCoord[2, 10] = 0.0;
-                                _kElementLocalCoord[10, 2] = 0.0;
-                                #endregion
+                            _kElementLocalCoord[2, 10] = 0.0;
+                            _kElementLocalCoord[10, 2] = 0.0;
+                            #endregion
 
-                                #region
-                                _kElementLocalCoord[4, 4] = (_kElementLocalCoord[4, 4] == 0.0) ? 0.0 : E * Jyy / L;
+                            #region
+                            _kElementLocalCoord[4, 4] = (_kElementLocalCoord[4, 4] == 0.0) ? 0.0 : E * Jyy / L;
 
-                                _kElementLocalCoord[4, 8] = 0.0;
-                                _kElementLocalCoord[8, 4] = 0.0;
+                            _kElementLocalCoord[4, 8] = 0.0;
+                            _kElementLocalCoord[8, 4] = 0.0;
 
-                                _kElementLocalCoord[4, 10] = (_kElementLocalCoord[4, 10] == 0.0) ? 0.0 : -E * Jyy / L;
-                                _kElementLocalCoord[10, 4] = (_kElementLocalCoord[10, 4] == 0.0) ? 0.0 : -E * Jyy / L;
-                                #endregion
+                            _kElementLocalCoord[4, 10] = (_kElementLocalCoord[4, 10] == 0.0) ? 0.0 : -E * Jyy / L;
+                            _kElementLocalCoord[10, 4] = (_kElementLocalCoord[10, 4] == 0.0) ? 0.0 : -E * Jyy / L;
+                            #endregion
 
-                                #region
-                                _kElementLocalCoord[8, 8] = 0.0;
+                            #region
+                            _kElementLocalCoord[8, 8] = 0.0;
 
-                                _kElementLocalCoord[8, 10] = 0.0;
-                                _kElementLocalCoord[10, 8] = 0.0;
-                                #endregion
+                            _kElementLocalCoord[8, 10] = 0.0;
+                            _kElementLocalCoord[10, 8] = 0.0;
+                            #endregion
 
-                                #region
-                                _kElementLocalCoord[10, 10] = (_kElementLocalCoord[10, 10] == 0.0) ? 0.0 : E * Jyy / L;
-                                #endregion
-                                #endregion
-                                break;
-                            case LocalDOF.R2:
-                                #region
-                                #region
-                                _kElementLocalCoord[4, 4] = 0.0;
+                            #region
+                            _kElementLocalCoord[10, 10] = (_kElementLocalCoord[10, 10] == 0.0) ? 0.0 : E * Jyy / L;
+                            #endregion
+                            #endregion
+                            break;
+                        case LocalDOF.R2:
+                            #region
+                            #region
+                            _kElementLocalCoord[4, 4] = 0.0;
 
-                                _kElementLocalCoord[4, 2] = 0.0;
-                                _kElementLocalCoord[2, 4] = 0.0;
+                            _kElementLocalCoord[4, 2] = 0.0;
+                            _kElementLocalCoord[2, 4] = 0.0;
 
-                                _kElementLocalCoord[4, 8] = 0.0;
-                                _kElementLocalCoord[8, 4] = 0.0;
+                            _kElementLocalCoord[4, 8] = 0.0;
+                            _kElementLocalCoord[8, 4] = 0.0;
 
-                                _kElementLocalCoord[4, 10] = 0.0;
-                                _kElementLocalCoord[10, 4] = 0.0;
-                                #endregion
+                            _kElementLocalCoord[4, 10] = 0.0;
+                            _kElementLocalCoord[10, 4] = 0.0;
+                            #endregion
 
-                                #region
-                                _kElementLocalCoord[2, 2] = (_kElementLocalCoord[2,2] == 0.0) ? 0.0 : 3.0 * E * Jyy / L3;
+                            #region
+                            _kElementLocalCoord[2, 2] = (_kElementLocalCoord[2, 2] == 0.0) ? 0.0 : 3.0 * E * Jyy / L3;
 
-                                _kElementLocalCoord[2, 8] = (_kElementLocalCoord[2, 8] == 0.0) ? 0.0 : -3.0 * E * Jyy / L3; 
-                                _kElementLocalCoord[8, 2] = (_kElementLocalCoord[8, 2] == 0.0) ? 0.0 : -3.0 * E * Jyy / L3; 
+                            _kElementLocalCoord[2, 8] = (_kElementLocalCoord[2, 8] == 0.0) ? 0.0 : -3.0 * E * Jyy / L3;
+                            _kElementLocalCoord[8, 2] = (_kElementLocalCoord[8, 2] == 0.0) ? 0.0 : -3.0 * E * Jyy / L3;
 
-                                _kElementLocalCoord[2, 10] = (_kElementLocalCoord[2, 10] == 0.0) ? 0.0 : -3.0 * E * Jyy / L2;
-                                _kElementLocalCoord[10, 2] = (_kElementLocalCoord[10, 2] == 0.0) ? 0.0 : -3.0 * E * Jyy / L2;
-                                #endregion
+                            _kElementLocalCoord[2, 10] = (_kElementLocalCoord[2, 10] == 0.0) ? 0.0 : -3.0 * E * Jyy / L2;
+                            _kElementLocalCoord[10, 2] = (_kElementLocalCoord[10, 2] == 0.0) ? 0.0 : -3.0 * E * Jyy / L2;
+                            #endregion
 
-                                #region
-                                _kElementLocalCoord[8, 8] = (_kElementLocalCoord[8, 8] == 0.0) ? 0.0 : 3.0 * E * Jyy / L3;
+                            #region
+                            _kElementLocalCoord[8, 8] = (_kElementLocalCoord[8, 8] == 0.0) ? 0.0 : 3.0 * E * Jyy / L3;
 
-                                _kElementLocalCoord[8, 10] = (_kElementLocalCoord[8, 10] == 0.0) ? 0.0 : 3.0 * E * Jyy / L2;
-                                _kElementLocalCoord[10, 8] = (_kElementLocalCoord[10, 8] == 0.0) ? 0.0 : 3.0 * E * Jyy / L2;
-                                #endregion
+                            _kElementLocalCoord[8, 10] = (_kElementLocalCoord[8, 10] == 0.0) ? 0.0 : 3.0 * E * Jyy / L2;
+                            _kElementLocalCoord[10, 8] = (_kElementLocalCoord[10, 8] == 0.0) ? 0.0 : 3.0 * E * Jyy / L2;
+                            #endregion
 
-                                #region
-                                _kElementLocalCoord[10, 10] = (_kElementLocalCoord[10, 10] == 0.0) ? 0.0 : 3.0 * E * Jyy / L;
-                                #endregion
-                                #endregion
-                                break;
-                            case LocalDOF.R3:
-                                #region
-                                #region
-                                _kElementLocalCoord[5, 5] = 0.0;
+                            #region
+                            _kElementLocalCoord[10, 10] = (_kElementLocalCoord[10, 10] == 0.0) ? 0.0 : 3.0 * E * Jyy / L;
+                            #endregion
+                            #endregion
+                            break;
+                        case LocalDOF.R3:
+                            #region
+                            #region
+                            _kElementLocalCoord[5, 5] = 0.0;
 
-                                _kElementLocalCoord[5, 1] = 0.0;
-                                _kElementLocalCoord[1, 5] = 0.0;
+                            _kElementLocalCoord[5, 1] = 0.0;
+                            _kElementLocalCoord[1, 5] = 0.0;
 
-                                _kElementLocalCoord[5, 7] = 0.0;
-                                _kElementLocalCoord[7, 5] = 0.0;
+                            _kElementLocalCoord[5, 7] = 0.0;
+                            _kElementLocalCoord[7, 5] = 0.0;
 
-                                _kElementLocalCoord[5, 11] = 0.0;
-                                _kElementLocalCoord[11, 5] = 0.0;
-                                #endregion
+                            _kElementLocalCoord[5, 11] = 0.0;
+                            _kElementLocalCoord[11, 5] = 0.0;
+                            #endregion
 
-                                #region
-                                _kElementLocalCoord[1, 1] = (_kElementLocalCoord[1, 1] == 0.0) ? 0.0 : 3.0 * E * Jzz / L3;
+                            #region
+                            _kElementLocalCoord[1, 1] = (_kElementLocalCoord[1, 1] == 0.0) ? 0.0 : 3.0 * E * Jzz / L3;
 
-                                _kElementLocalCoord[1, 7] = (_kElementLocalCoord[1, 7] == 0.0) ? 0.0 : -3.0 * E * Jzz / L3;
-                                _kElementLocalCoord[7, 1] = (_kElementLocalCoord[7, 1] == 0.0) ? 0.0 : -3.0 * E * Jzz / L3;
+                            _kElementLocalCoord[1, 7] = (_kElementLocalCoord[1, 7] == 0.0) ? 0.0 : -3.0 * E * Jzz / L3;
+                            _kElementLocalCoord[7, 1] = (_kElementLocalCoord[7, 1] == 0.0) ? 0.0 : -3.0 * E * Jzz / L3;
 
-                                _kElementLocalCoord[1, 11] = (_kElementLocalCoord[1, 11] == 0.0) ? 0.0 : 3.0 * E * Jzz / L2;
-                                _kElementLocalCoord[11, 1] = (_kElementLocalCoord[11, 1] == 0.0) ? 0.0 : 3.0 * E * Jzz / L2;
-                                #endregion
+                            _kElementLocalCoord[1, 11] = (_kElementLocalCoord[1, 11] == 0.0) ? 0.0 : 3.0 * E * Jzz / L2;
+                            _kElementLocalCoord[11, 1] = (_kElementLocalCoord[11, 1] == 0.0) ? 0.0 : 3.0 * E * Jzz / L2;
+                            #endregion
 
-                                #region
-                                _kElementLocalCoord[7, 7] = (_kElementLocalCoord[7, 7] == 0.0) ? 0.0 : 3.0 * E * Jzz / L3;
+                            #region
+                            _kElementLocalCoord[7, 7] = (_kElementLocalCoord[7, 7] == 0.0) ? 0.0 : 3.0 * E * Jzz / L3;
 
-                                _kElementLocalCoord[7, 11] = (_kElementLocalCoord[7, 11] == 0.0) ? 0.0 : -3.0 * E * Jzz / L2; 
-                                _kElementLocalCoord[11, 7] = (_kElementLocalCoord[11, 7] == 0.0) ? 0.0 : -3.0 * E * Jzz / L2; 
-                                #endregion
+                            _kElementLocalCoord[7, 11] = (_kElementLocalCoord[7, 11] == 0.0) ? 0.0 : -3.0 * E * Jzz / L2;
+                            _kElementLocalCoord[11, 7] = (_kElementLocalCoord[11, 7] == 0.0) ? 0.0 : -3.0 * E * Jzz / L2;
+                            #endregion
 
-                                #region
-                                _kElementLocalCoord[11, 11] = (_kElementLocalCoord[11, 11] == 0.0) ? 0.0 : 3.0 * E * Jzz / L;
-                                #endregion
-                                #endregion
-                                break;
-                        }
+                            #region
+                            _kElementLocalCoord[11, 11] = (_kElementLocalCoord[11, 11] == 0.0) ? 0.0 : 3.0 * E * Jzz / L;
+                            #endregion
+                            #endregion
+                            break;
                     }
                 }
-
-                if (EndBeam == EndSide.End2)
+                else if (EndBeam == EndSide.End2)
                 {
-                    for (int i = 0; i < localDOFs.Length; i++)
+                    switch (localDOFs)
                     {
-                        switch (localDOFs[i])
-                        {
-                            case LocalDOF.AxialU1:
-                                #region
-                                _kElementLocalCoord[6, 6] = 0.0;
+                        case LocalDOF.AxialU1:
+                            #region
+                            _kElementLocalCoord[6, 6] = 0.0;
 
-                                _kElementLocalCoord[6, 0] = 0.0;
-                                _kElementLocalCoord[0, 6] = 0.0;
+                            _kElementLocalCoord[6, 0] = 0.0;
+                            _kElementLocalCoord[0, 6] = 0.0;
 
-                                _kElementLocalCoord[0, 0] = 0.0;
-                                #endregion
-                                break;
-                            case LocalDOF.TorsionR1:
-                                #region
-                                _kElementLocalCoord[9, 9] = 0.0;
+                            _kElementLocalCoord[0, 0] = 0.0;
+                            #endregion
+                            break;
+                        case LocalDOF.TorsionR1:
+                            #region
+                            _kElementLocalCoord[9, 9] = 0.0;
 
-                                _kElementLocalCoord[9, 3] = 0.0;
-                                _kElementLocalCoord[3, 9] = 0.0;
+                            _kElementLocalCoord[9, 3] = 0.0;
+                            _kElementLocalCoord[3, 9] = 0.0;
 
-                                _kElementLocalCoord[3, 3] = 0.0;
-                                #endregion
-                                break;
-                            case LocalDOF.U2:
-                                #region
-                                #region
-                                _kElementLocalCoord[7, 7] = 0.0; 
+                            _kElementLocalCoord[3, 3] = 0.0;
+                            #endregion
+                            break;
+                        case LocalDOF.U2:
+                            #region
+                            #region
+                            _kElementLocalCoord[7, 7] = 0.0;
 
-                                _kElementLocalCoord[7, 5] = 0.0; 
-                                _kElementLocalCoord[5, 7] = 0.0; 
+                            _kElementLocalCoord[7, 5] = 0.0;
+                            _kElementLocalCoord[5, 7] = 0.0;
 
-                                _kElementLocalCoord[7, 1] = 0.0; 
-                                _kElementLocalCoord[1, 7] = 0.0;
+                            _kElementLocalCoord[7, 1] = 0.0;
+                            _kElementLocalCoord[1, 7] = 0.0;
 
-                                _kElementLocalCoord[7, 11] = 0.0;
-                                _kElementLocalCoord[11, 7] = 0.0;
-                                #endregion
+                            _kElementLocalCoord[7, 11] = 0.0;
+                            _kElementLocalCoord[11, 7] = 0.0;
+                            #endregion
 
-                                #region
-                                _kElementLocalCoord[11, 11] = (_kElementLocalCoord[11, 11] == 0.0) ? 0.0 : E * Jzz / L;
+                            #region
+                            _kElementLocalCoord[11, 11] = (_kElementLocalCoord[11, 11] == 0.0) ? 0.0 : E * Jzz / L;
 
-                                _kElementLocalCoord[11, 5] = (_kElementLocalCoord[11, 5] == 0.0) ? 0.0 : -E * Jzz / L; 
-                                _kElementLocalCoord[5, 11] = (_kElementLocalCoord[5, 11] == 0.0) ? 0.0 : -E * Jzz / L;
+                            _kElementLocalCoord[11, 5] = (_kElementLocalCoord[11, 5] == 0.0) ? 0.0 : -E * Jzz / L;
+                            _kElementLocalCoord[5, 11] = (_kElementLocalCoord[5, 11] == 0.0) ? 0.0 : -E * Jzz / L;
 
-                                _kElementLocalCoord[1, 11] = 0.0;
-                                _kElementLocalCoord[11, 1] = 0.0;
-                                #endregion
+                            _kElementLocalCoord[1, 11] = 0.0;
+                            _kElementLocalCoord[11, 1] = 0.0;
+                            #endregion
 
-                                #region
-                                _kElementLocalCoord[5, 5] = (_kElementLocalCoord[5, 5] == 0.0) ? 0.0 : E * Jzz / L; 
+                            #region
+                            _kElementLocalCoord[5, 5] = (_kElementLocalCoord[5, 5] == 0.0) ? 0.0 : E * Jzz / L;
 
-                                _kElementLocalCoord[5, 1] = 0.0; 
-                                _kElementLocalCoord[1, 5] = 0.0; 
-                                #endregion
+                            _kElementLocalCoord[5, 1] = 0.0;
+                            _kElementLocalCoord[1, 5] = 0.0;
+                            #endregion
 
-                                #region
-                                _kElementLocalCoord[1, 1] = 0.0;
-                                #endregion
-                                #endregion
-                                break;
-                            case LocalDOF.U3:
-                                #region
-                                #region
-                                _kElementLocalCoord[8, 8] = 0.0;
+                            #region
+                            _kElementLocalCoord[1, 1] = 0.0;
+                            #endregion
+                            #endregion
+                            break;
+                        case LocalDOF.U3:
+                            #region
+                            #region
+                            _kElementLocalCoord[8, 8] = 0.0;
 
-                                _kElementLocalCoord[8, 2] = 0.0;
-                                _kElementLocalCoord[2, 8] = 0.0;
+                            _kElementLocalCoord[8, 2] = 0.0;
+                            _kElementLocalCoord[2, 8] = 0.0;
 
-                                _kElementLocalCoord[8, 4] = 0.0;
-                                _kElementLocalCoord[4, 8] = 0.0;
+                            _kElementLocalCoord[8, 4] = 0.0;
+                            _kElementLocalCoord[4, 8] = 0.0;
 
-                                _kElementLocalCoord[8, 10] = 0.0;
-                                _kElementLocalCoord[10, 8] = 0.0;
-                                #endregion
+                            _kElementLocalCoord[8, 10] = 0.0;
+                            _kElementLocalCoord[10, 8] = 0.0;
+                            #endregion
 
-                                #region
-                                _kElementLocalCoord[2, 2] = 0.0;
+                            #region
+                            _kElementLocalCoord[2, 2] = 0.0;
 
-                                _kElementLocalCoord[2, 4] = 0.0;
-                                _kElementLocalCoord[4, 2] = 0.0;
+                            _kElementLocalCoord[2, 4] = 0.0;
+                            _kElementLocalCoord[4, 2] = 0.0;
 
-                                _kElementLocalCoord[2, 10] = 0.0;
-                                _kElementLocalCoord[10, 2] = 0.0;
-                                #endregion
+                            _kElementLocalCoord[2, 10] = 0.0;
+                            _kElementLocalCoord[10, 2] = 0.0;
+                            #endregion
 
-                                #region
-                                _kElementLocalCoord[4, 4] = (_kElementLocalCoord[4, 4] == 0.0) ? 0.0 : E * Jyy / L;
+                            #region
+                            _kElementLocalCoord[4, 4] = (_kElementLocalCoord[4, 4] == 0.0) ? 0.0 : E * Jyy / L;
 
-                                _kElementLocalCoord[4, 10] = (_kElementLocalCoord[4, 10] == 0.0) ? 0.0 : -E * Jyy / L;
-                                _kElementLocalCoord[10, 4] = (_kElementLocalCoord[10, 4] == 0.0) ? 0.0 : -E * Jyy / L;
-                                #endregion
+                            _kElementLocalCoord[4, 10] = (_kElementLocalCoord[4, 10] == 0.0) ? 0.0 : -E * Jyy / L;
+                            _kElementLocalCoord[10, 4] = (_kElementLocalCoord[10, 4] == 0.0) ? 0.0 : -E * Jyy / L;
+                            #endregion
 
-                                #region
-                                _kElementLocalCoord[10, 10] = (_kElementLocalCoord[10, 10] == 0.0) ? 0.0 : E * Jyy / L;
-                                #endregion
-                                #endregion
-                                break;
-                            case LocalDOF.R2:
-                                #region
-                                #region
-                                _kElementLocalCoord[10, 10] = 0.0;
+                            #region
+                            _kElementLocalCoord[10, 10] = (_kElementLocalCoord[10, 10] == 0.0) ? 0.0 : E * Jyy / L;
+                            #endregion
+                            #endregion
+                            break;
+                        case LocalDOF.R2:
+                            #region
+                            #region
+                            _kElementLocalCoord[10, 10] = 0.0;
 
-                                _kElementLocalCoord[10, 2] = 0.0;
-                                _kElementLocalCoord[2, 10] = 0.0;
+                            _kElementLocalCoord[10, 2] = 0.0;
+                            _kElementLocalCoord[2, 10] = 0.0;
 
-                                _kElementLocalCoord[10, 4] = 0.0;
-                                _kElementLocalCoord[4, 10] = 0.0;
+                            _kElementLocalCoord[10, 4] = 0.0;
+                            _kElementLocalCoord[4, 10] = 0.0;
 
-                                _kElementLocalCoord[10, 8] = 0.0;
-                                _kElementLocalCoord[8, 10] = 0.0;
-                                #endregion
+                            _kElementLocalCoord[10, 8] = 0.0;
+                            _kElementLocalCoord[8, 10] = 0.0;
+                            #endregion
 
-                                #region
-                                _kElementLocalCoord[2, 2] = (_kElementLocalCoord[2, 2] == 0.0) ? 0.0 : 3.0 * E * Jyy / L3;
+                            #region
+                            _kElementLocalCoord[2, 2] = (_kElementLocalCoord[2, 2] == 0.0) ? 0.0 : 3.0 * E * Jyy / L3;
 
-                                _kElementLocalCoord[2, 4] = (_kElementLocalCoord[4, 2] == 0.0) ? 0.0 : -3.0 * E * Jyy / L2;
-                                _kElementLocalCoord[4, 2] = (_kElementLocalCoord[2, 4] == 0.0) ? 0.0 : -3.0 * E * Jyy / L2;
+                            _kElementLocalCoord[2, 4] = (_kElementLocalCoord[4, 2] == 0.0) ? 0.0 : -3.0 * E * Jyy / L2;
+                            _kElementLocalCoord[4, 2] = (_kElementLocalCoord[2, 4] == 0.0) ? 0.0 : -3.0 * E * Jyy / L2;
 
-                                _kElementLocalCoord[2, 8] = (_kElementLocalCoord[4, 8] == 0.0) ? 0.0 : -3.0 * E * Jyy / L3;
-                                _kElementLocalCoord[8, 2] = (_kElementLocalCoord[8, 4] == 0.0) ? 0.0 : -3.0 * E * Jyy / L3;
-                                #endregion
+                            _kElementLocalCoord[2, 8] = (_kElementLocalCoord[4, 8] == 0.0) ? 0.0 : -3.0 * E * Jyy / L3;
+                            _kElementLocalCoord[8, 2] = (_kElementLocalCoord[8, 4] == 0.0) ? 0.0 : -3.0 * E * Jyy / L3;
+                            #endregion
 
-                                #region
-                                _kElementLocalCoord[4, 4] = (_kElementLocalCoord[4, 4] == 0.0) ? 0.0 : 3.0 * E * Jyy / L;
+                            #region
+                            _kElementLocalCoord[4, 4] = (_kElementLocalCoord[4, 4] == 0.0) ? 0.0 : 3.0 * E * Jyy / L;
 
-                                _kElementLocalCoord[4, 8] = (_kElementLocalCoord[4, 8] == 0.0) ? 0.0 : 3.0 * E * Jyy / L2;
-                                _kElementLocalCoord[8, 4] = (_kElementLocalCoord[8, 4] == 0.0) ? 0.0 : 3.0 * E * Jyy / L2;
-                                #endregion
+                            _kElementLocalCoord[4, 8] = (_kElementLocalCoord[4, 8] == 0.0) ? 0.0 : 3.0 * E * Jyy / L2;
+                            _kElementLocalCoord[8, 4] = (_kElementLocalCoord[8, 4] == 0.0) ? 0.0 : 3.0 * E * Jyy / L2;
+                            #endregion
 
-                                #region
-                                _kElementLocalCoord[8, 8] = (_kElementLocalCoord[8, 8] == 0.0) ? 0.0 : 3.0 * E * Jyy / L3;
-                                #endregion
-                                #endregion
-                                break;
-                            case LocalDOF.R3:
-                                #region
-                                #region
-                                _kElementLocalCoord[11, 11] = 0.0;
+                            #region
+                            _kElementLocalCoord[8, 8] = (_kElementLocalCoord[8, 8] == 0.0) ? 0.0 : 3.0 * E * Jyy / L3;
+                            #endregion
+                            #endregion
+                            break;
+                        case LocalDOF.R3:
+                            #region
+                            #region
+                            _kElementLocalCoord[11, 11] = 0.0;
 
-                                _kElementLocalCoord[11, 1] = 0.0;
-                                _kElementLocalCoord[1, 11] = 0.0;
+                            _kElementLocalCoord[11, 1] = 0.0;
+                            _kElementLocalCoord[1, 11] = 0.0;
 
-                                _kElementLocalCoord[11, 5] = 0.0;
-                                _kElementLocalCoord[5, 11] = 0.0;
+                            _kElementLocalCoord[11, 5] = 0.0;
+                            _kElementLocalCoord[5, 11] = 0.0;
 
-                                _kElementLocalCoord[11, 7] = 0.0;
-                                _kElementLocalCoord[7, 11] = 0.0;
-                                #endregion
+                            _kElementLocalCoord[11, 7] = 0.0;
+                            _kElementLocalCoord[7, 11] = 0.0;
+                            #endregion
 
-                                #region
-                                _kElementLocalCoord[1, 1] = (_kElementLocalCoord[1, 1] == 0.0) ? 0.0 : 3.0 * E * Jzz / L3;
+                            #region
+                            _kElementLocalCoord[1, 1] = (_kElementLocalCoord[1, 1] == 0.0) ? 0.0 : 3.0 * E * Jzz / L3;
 
-                                _kElementLocalCoord[1, 5] = (_kElementLocalCoord[1, 5] == 0.0) ? 0.0 : 3.0 * E * Jzz / L2;
-                                _kElementLocalCoord[5, 1] = (_kElementLocalCoord[5, 1] == 0.0) ? 0.0 : 3.0 * E * Jzz / L2;
+                            _kElementLocalCoord[1, 5] = (_kElementLocalCoord[1, 5] == 0.0) ? 0.0 : 3.0 * E * Jzz / L2;
+                            _kElementLocalCoord[5, 1] = (_kElementLocalCoord[5, 1] == 0.0) ? 0.0 : 3.0 * E * Jzz / L2;
 
-                                _kElementLocalCoord[1, 7] = (_kElementLocalCoord[1, 7] == 0.0) ? 0.0 : -3.0 * E * Jzz / L3;
-                                _kElementLocalCoord[7, 1] = (_kElementLocalCoord[7, 1] == 0.0) ? 0.0 : -3.0 * E * Jzz / L3;
-                                #endregion
+                            _kElementLocalCoord[1, 7] = (_kElementLocalCoord[1, 7] == 0.0) ? 0.0 : -3.0 * E * Jzz / L3;
+                            _kElementLocalCoord[7, 1] = (_kElementLocalCoord[7, 1] == 0.0) ? 0.0 : -3.0 * E * Jzz / L3;
+                            #endregion
 
-                                #region
-                                _kElementLocalCoord[5, 5] = (_kElementLocalCoord[5, 5] == 0.0) ? 0.0 : 3.0 * E * Jzz / L;
+                            #region
+                            _kElementLocalCoord[5, 5] = (_kElementLocalCoord[5, 5] == 0.0) ? 0.0 : 3.0 * E * Jzz / L;
 
-                                _kElementLocalCoord[5, 7] = (_kElementLocalCoord[5, 7] == 0.0) ? 0.0 : -3.0 * E * Jzz / L2;
-                                _kElementLocalCoord[7, 5] = (_kElementLocalCoord[7, 5] == 0.0) ? 0.0 : -3.0 * E * Jzz / L2;
-                                #endregion
+                            _kElementLocalCoord[5, 7] = (_kElementLocalCoord[5, 7] == 0.0) ? 0.0 : -3.0 * E * Jzz / L2;
+                            _kElementLocalCoord[7, 5] = (_kElementLocalCoord[7, 5] == 0.0) ? 0.0 : -3.0 * E * Jzz / L2;
+                            #endregion
 
-                                #region
-                                _kElementLocalCoord[7, 7] = (_kElementLocalCoord[7, 7] == 0.0) ? 0.0 : 3.0 * E * Jzz / L3;
-                                #endregion
-                                #endregion
-                                break;
-                        }
+                            #region
+                            _kElementLocalCoord[7, 7] = (_kElementLocalCoord[7, 7] == 0.0) ? 0.0 : 3.0 * E * Jzz / L3;
+                            #endregion
+                            #endregion
+                            break;
                     }
                 }
             }
 
             #region ShearU2AndRotationR3
-            /*if (IsReleasedU2AndR3() == true)
+            if (IsReleasedU3AndR2(EndSide.End1) || IsReleasedU3AndR2(EndSide.End2))
             {
                 for (int col = 0; col < _kElementLocalCoord.ColumnCount; col++)
                 {
@@ -418,13 +413,13 @@ namespace GPC.Model.FEM.FiniteElements
 
                     _kElementLocalCoord[5, col] = 0.0;
                     _kElementLocalCoord[11, col] = 0.0;
-                }                
-            }*/
+                }
+            }
             #endregion
 
-            
+
             #region ShearU3AndRotationR2
-            /*if (IsReleasedU3AndR2() == true)
+            if (IsReleasedU3AndR2(EndSide.End1) || IsReleasedU3AndR2(EndSide.End2))
             {
                 for (int col = 0; col < _kElementLocalCoord.ColumnCount; col++)
                 {
@@ -434,7 +429,7 @@ namespace GPC.Model.FEM.FiniteElements
                     _kElementLocalCoord[4, col] = 0.0;
                     _kElementLocalCoord[10, col] = 0.0;
                 }
-            }*/
+            }
             #endregion
 
             #region ApplyReleaseToTruss
@@ -448,7 +443,7 @@ namespace GPC.Model.FEM.FiniteElements
                 }
             }
             #endregion
-            
+
             #region duobleReleaseR3
             if (IsDoubleReleasedR3() == true)
             {
@@ -725,6 +720,38 @@ namespace GPC.Model.FEM.FiniteElements
             #endregion
             #endregion
 
+            #region releaseU2R3End1
+            if (IsReleasedU2AndR3(EndSide.End1)) {
+                fLocal[2 - 1] = 0.0;
+                fLocal[6 - 1] = 0.0;
+
+                fLocal[8 - 1] = q2 * _length;
+                fLocal[12 - 1] = -q2 * _length * _length / 2.0;
+            }
+            #endregion
+
+            #region releaseU2R3End2
+            if (IsReleasedU2AndR3(EndSide.End2))
+            {
+                fLocal[2 - 1] = q2 * _length;
+                fLocal[6 - 1] = q2 * _length * _length / 2.0;
+
+                fLocal[8 - 1] = 0.0;
+                fLocal[12 - 1] = 0.0;
+            }
+            #endregion
+
+            #region releaseU3R2End1
+            if (IsReleasedU3AndR2(EndSide.End2))
+            {
+                fLocal[3 - 1] = q3 * _length;
+                fLocal[5 - 1] = -q3 * _length * _length / 2.0;
+
+                fLocal[9 - 1] = 0.0;
+                fLocal[11 - 1] = 0.0;
+            }
+            #endregion
+
             #endregion
 
             return fLocal;
@@ -818,21 +845,29 @@ namespace GPC.Model.FEM.FiniteElements
             var internalForcesNode1 = GetInternalNodalLocalForces(Beam.EndSide.End1, globalDisplacement);
             var internalForcesNode2 = GetInternalNodalLocalForces(Beam.EndSide.End2, globalDisplacement);
 
-            double Nx = internalForcesNode1[InternalAction.N] * N0(station, _length) + internalForcesNode2[InternalAction.N] * N1(station, _length);
-            double V2x = internalForcesNode1[InternalAction.V2] * N0(station, _length) + internalForcesNode2[InternalAction.V2] * N1(station, _length);
-            double V3x = internalForcesNode1[InternalAction.V3] * N0(station, _length) + internalForcesNode2[InternalAction.V3] * N1(station, _length);
-            double Tx = internalForcesNode1[InternalAction.T] * N0(station, _length) + internalForcesNode2[InternalAction.T] * N1(station, _length);
-            double M2x = internalForcesNode1[InternalAction.M2] * N0(station, _length) + internalForcesNode2[InternalAction.M2] * N1(station, _length);
-            double M3x = internalForcesNode1[InternalAction.M3] * N0(station, _length) + internalForcesNode2[InternalAction.M3] * N1(station, _length);
+            var releases = GetEndReleases();
 
-            //TODO: if end relese?
-            forces.Add(Beam.InternalAction.N, Nx - AxialBeamFixFixUniformLoad(qx, station, _length));
-            forces.Add(Beam.InternalAction.V2, V2x - ShearBeamFixFixUniformLoad(qy, station, _length));
-            forces.Add(Beam.InternalAction.V3, V3x - ShearBeamFixFixUniformLoad(qz, station, _length));
+            if (releases.Count() == 0)
+            {
+                double Nx = internalForcesNode1[InternalAction.N] * N0(station, _length) + internalForcesNode2[InternalAction.N] * N1(station, _length);
+                double V2x = internalForcesNode1[InternalAction.V2] * N0(station, _length) + internalForcesNode2[InternalAction.V2] * N1(station, _length);
+                double V3x = internalForcesNode1[InternalAction.V3] * N0(station, _length) + internalForcesNode2[InternalAction.V3] * N1(station, _length);
+                double Tx = internalForcesNode1[InternalAction.T] * N0(station, _length) + internalForcesNode2[InternalAction.T] * N1(station, _length);
+                double M2x = internalForcesNode1[InternalAction.M2] * N0(station, _length) + internalForcesNode2[InternalAction.M2] * N1(station, _length);
+                double M3x = internalForcesNode1[InternalAction.M3] * N0(station, _length) + internalForcesNode2[InternalAction.M3] * N1(station, _length);
 
-            forces.Add(Beam.InternalAction.T, Tx);
-            forces.Add(Beam.InternalAction.M2, M2x - BendingBeamFixFixUniformLoad(qz, station, _length));
-            forces.Add(Beam.InternalAction.M3, M3x - BendingBeamFixFixUniformLoad(qy, station, _length));
+                forces.Add(Beam.InternalAction.N, Nx - AxialBeamFixFixUniformLoad(qx, station, _length));
+                forces.Add(Beam.InternalAction.V2, V2x - ShearBeamFixFixUniformLoad(qy, station, _length));
+                forces.Add(Beam.InternalAction.V3, V3x - ShearBeamFixFixUniformLoad(qz, station, _length));
+
+                forces.Add(Beam.InternalAction.T, Tx);
+                forces.Add(Beam.InternalAction.M2, M2x - BendingBeamFixFixUniformLoad(qz, station, _length));
+                forces.Add(Beam.InternalAction.M3, M3x - BendingBeamFixFixUniformLoad(qy, station, _length));
+            } else
+            {
+                //TODO releases
+
+            }
 
             return forces;            
         }
@@ -932,10 +967,9 @@ namespace GPC.Model.FEM.FiniteElements
                     #region releaseAxial
                     if (dofReleased.Contains(LocalDOF.AxialU1))
                     {
-                        var index = LocalDOF.AxialU1;
                         double x = _length - station;
                         double dq = q1 / (E * A) * (_length * x - x*x / 2.0);
-                        displStation[LocalDOF.AxialU1] = displLocalNode2[index] + dq;
+                        displStation[LocalDOF.AxialU1] = displLocalNode2[LocalDOF.AxialU1] + dq;
                     }
                     #endregion
 
@@ -998,15 +1032,17 @@ namespace GPC.Model.FEM.FiniteElements
                     if (dofReleased.Contains(LocalDOF.U3) && dofReleased.Contains(LocalDOF.R2))
                     {
                         double dr = (_length - station) * displLocalNode2[LocalDOF.R2];
-                        displStation[LocalDOF.U3] = displLocalNode2[LocalDOF.U3] + dr;
+                        double dq = DisplacementFixFreeUniformLoad(_length - station, _length, q3, E, J11);
+                        displStation[LocalDOF.U3] = displLocalNode2[LocalDOF.U3] + dr + dq;
                     }
                     #endregion
 
                     #region releaseR3AndU2
                     if (dofReleased.Contains(LocalDOF.U2) && dofReleased.Contains(LocalDOF.R3))
                     {
-                        double dr = (_length - station) * displLocalNode2[LocalDOF.R3];
-                        displStation[LocalDOF.U2] = displLocalNode2[LocalDOF.U2] + dr;
+                        double dr = -(_length - station) * displLocalNode2[LocalDOF.R3];
+                        double dq = DisplacementFixFreeUniformLoad(_length - station, _length, q2, E, J22);
+                        displStation[LocalDOF.U2] = displLocalNode2[LocalDOF.U2] + dr + dq;
                     }
                     #endregion
                 }
@@ -1080,32 +1116,43 @@ namespace GPC.Model.FEM.FiniteElements
                     #region releaseR2AndU3
                     if (dofReleased.Contains(LocalDOF.U3) && dofReleased.Contains(LocalDOF.R2))
                     {
-                        displStation[LocalDOF.U3] = 0.0;
-                        throw new NotImplementedException();
+                        double dr = -station * displLocalNode1[LocalDOF.R2];
+                        double dq = DisplacementFixFreeUniformLoad(station, _length, q3, E, J11);
+                        displStation[LocalDOF.U3] = displLocalNode1[LocalDOF.U3] + dr + dq;
                     }
                     #endregion
 
                     #region releaseR3AndU2
                     if (dofReleased.Contains(LocalDOF.U2) && dofReleased.Contains(LocalDOF.R3))
                     {
-                        displStation[LocalDOF.U2] = 0.0;
-                        throw new NotImplementedException();
+                        double dr = station * displLocalNode1[LocalDOF.R3];
+                        double dq = DisplacementFixFreeUniformLoad(station, _length, q2, E, J22);
+                        displStation[LocalDOF.U2] = displLocalNode1[LocalDOF.U2] + dr + dq;
                     }
                     #endregion
                 }
             }
 
+            /*if (IsReleasedU2AndR3() == true)
+            {
+                var dr = -displLocalNode2[LocalDOF.R3] * (_length - station);
+                var dq = 0.0;
+                displStation[LocalDOF.U2] = displLocalNode2[LocalDOF.U2] + dr + dq;
+            }*/
+
             #region truss
             if (IsDoubleReleasedR3() == true)
             {
                 //truss
-                displStation[LocalDOF.U2] = displLocalNode1[LocalDOF.U2] + DisplacementSimplySupportedUniformLoad(q2, station, _length, E, J22);
+                var dq = DisplacementSimplySupportedUniformLoad(q2, station, _length, E, J22);
+                displStation[LocalDOF.U2] = displLocalNode1[LocalDOF.U2] + dq;
             }
 
             if (IsDoubleReleasedR2() == true)
             {
                 //truss
-                displStation[LocalDOF.U3] = displLocalNode1[LocalDOF.U3] + DisplacementSimplySupportedUniformLoad(q3, station, _length, E, J11);
+                var dq = DisplacementSimplySupportedUniformLoad(q3, station, _length, E, J11);
+                displStation[LocalDOF.U3] = displLocalNode1[LocalDOF.U3] + dq;
             }
             #endregion
             #endregion
@@ -1126,58 +1173,100 @@ namespace GPC.Model.FEM.FiniteElements
             _attributesFreedomCase.Add(release);
         }
 
-        public bool IsDoubleReleasedR3()
+        public HashSet<Tuple<EndSide, LocalDOF>> GetEndReleases()
         {
-            bool ris = true;
-            for (int col = 0; col < _kElementLocalCoord.ColumnCount; col++)
+            HashSet<Tuple<EndSide, LocalDOF>> releases = new HashSet<Tuple<EndSide, LocalDOF>>();
+            foreach (BeamReleasesAttribute rel in _attributesFreedomCase)
             {
-                if (_kElementLocalCoord[6-1, col] != 0.0 || _kElementLocalCoord[12-1, col] != 0.0)
+                for (int i = 0; i < rel.LocalDOFReleased.Count(); i++)
                 {
-                    return false;
+                    releases.Add(new Tuple<EndSide, LocalDOF>(rel.EndBeam, rel.LocalDOFReleased[i]));
                 }
             }
-            return ris;
+            return releases;
+        }
+
+        public bool IsDoubleReleasedR3()
+        {
+            var searchRelese1 = new Tuple<EndSide, LocalDOF>(EndSide.End1, LocalDOF.R3);
+            var searchRelese2 = new Tuple<EndSide, LocalDOF>(EndSide.End2, LocalDOF.R3);
+
+            var releases = GetEndReleases();
+
+            if (releases.Contains(searchRelese1) && releases.Contains(searchRelese2))
+            {
+                return true;
+            } else
+            {
+                return false;
+            }
         }
 
         public bool IsDoubleReleasedR2()
         {
-            bool ris = true;
-            for (int col = 0; col < _kElementLocalCoord.ColumnCount; col++)
+            var searchRelese1 = new Tuple<EndSide, LocalDOF>(EndSide.End1, LocalDOF.R2);
+            var searchRelese2 = new Tuple<EndSide, LocalDOF>(EndSide.End2, LocalDOF.R2);
+
+            var releases = GetEndReleases();
+
+            if (releases.Contains(searchRelese1) && releases.Contains(searchRelese2))
             {
-                if (_kElementLocalCoord[5-1,col] != 0.0 || _kElementLocalCoord[11-1, col] != 0.0)
-                {
-                    return false;
-                }
+                return true;
+            } else
+            {
+                return false;
             }
-            return ris;
         }
 
-        public bool IsReleasedU2AndR3()
+        public bool IsReleasedU2AndR3(EndSide end)
         {
-            bool shearU2andRotationR3 = true;
-            for (int col = 0; col < _kElementLocalCoord.ColumnCount; col++)
+            Tuple<EndSide, LocalDOF> searchRelese1;
+            Tuple<EndSide, LocalDOF> searchRelese2;
+            if (end == EndSide.End1)
             {
-                if (_kElementLocalCoord[1, col] != 0 || _kElementLocalCoord[7, col] != 0)
-                {
-                    col = _kElementLocalCoord.ColumnCount;
-                    shearU2andRotationR3 = false;
-                }
+                searchRelese1 = new Tuple<EndSide, LocalDOF>(EndSide.End1, LocalDOF.U2);
+                searchRelese2 = new Tuple<EndSide, LocalDOF>(EndSide.End1, LocalDOF.R3);
+            } else
+            {
+                searchRelese1 = new Tuple<EndSide, LocalDOF>(EndSide.End2, LocalDOF.U2);
+                searchRelese2 = new Tuple<EndSide, LocalDOF>(EndSide.End2, LocalDOF.R3);
             }
-            return shearU2andRotationR3;
+            
+            var releases = GetEndReleases();
+
+            if ((releases.Contains(searchRelese1) == true && releases.Contains(searchRelese2)) == true)
+            {
+                return true;
+            } else
+            {
+                return false;
+            }
         }
 
-        public bool IsReleasedU3AndR2()
+        public bool IsReleasedU3AndR2(EndSide end)
         {
-            bool shearU3andRotationR2 = true;
-            for (int col = 0; col < _kElementLocalCoord.ColumnCount; col++)
+            Tuple<EndSide, LocalDOF> searchRelese1;
+            Tuple<EndSide, LocalDOF> searchRelese2;
+
+            if (end == EndSide.End1)
             {
-                if (_kElementLocalCoord[2, col] != 0 || _kElementLocalCoord[8, col] != 0)
-                {
-                    col = _kElementLocalCoord.ColumnCount;
-                    shearU3andRotationR2 = false;
-                }
+                searchRelese1 = new Tuple<EndSide, LocalDOF>(EndSide.End1, LocalDOF.U3);
+                searchRelese2 = new Tuple<EndSide, LocalDOF>(EndSide.End1, LocalDOF.R2);
             }
-            return shearU3andRotationR2;
+            else
+            {
+                searchRelese1 = new Tuple<EndSide, LocalDOF>(EndSide.End2, LocalDOF.U3);
+                searchRelese2 = new Tuple<EndSide, LocalDOF>(EndSide.End2, LocalDOF.R2);
+            }
+
+            var releases = GetEndReleases();
+            if ((releases.Contains(searchRelese1) == true && releases.Contains(searchRelese2)))
+            {
+                return true;
+            } else
+            {
+                return false;
+            }
         }
         #endregion
 
@@ -1398,6 +1487,11 @@ namespace GPC.Model.FEM.FiniteElements
         private static double ShearFixAndBipendolumUniformLoad(double x, double q, double L)
         {
             return q * (L-x);
+        }
+
+        private static double DisplacementFixFreeUniformLoad(double x, double L, double q, double E, double J)
+        {
+            return q * x * x / (24.0 * E * J) * (6.0 * L * L - 4.0 * L * x + x * x);
         }
         #endregion
     }
