@@ -1941,7 +1941,7 @@ namespace ModelObjectTest
             combination4.AddLoadCaseCoefficient(climateSummerDeltaPLoadCase2, 1.50);
 
             // Assert
-            Assert.IsTrue(outList.Count() == 8);
+            Assert.IsTrue(outList.Count() == 10);
             CommonAssert(listComb[0], combination1);
             CommonAssert(listComb[1], combination2);
             CommonAssert(listComb[2], combination3);
@@ -2021,7 +2021,7 @@ namespace ModelObjectTest
             combination4.AddLoadCaseCoefficient(climateSummerDeltaPLoadCase3, 1.50);
 
             // Assert
-            Assert.IsTrue(outList.Count() == 8);
+            Assert.IsTrue(outList.Count() == 10);
             CommonAssert(listComb[0], combination1);
             CommonAssert(listComb[1], combination2);
             CommonAssert(listComb[2], combination3);
@@ -2116,7 +2116,7 @@ namespace ModelObjectTest
             combination6.AddLoadCaseCoefficient(climateWinterDeltaPLoadCase2, 1.50);
 
             // Assert
-            Assert.IsTrue(outList.Count() == 10);
+            Assert.IsTrue(outList.Count() == 12);
             CommonAssert(listComb[0], combination1);
             CommonAssert(listComb[1], combination2);
             CommonAssert(listComb[2], combination3);
@@ -2284,7 +2284,7 @@ namespace ModelObjectTest
             combination12.AddLoadCaseCoefficient(climateSummerDeltaPLoadCase3, 0.45);
 
             // Assert
-            Assert.IsTrue(outList.Count() == 16);
+            Assert.IsTrue(outList.Count() == 20);
             CommonAssert(listComb[0], combination1);
             CommonAssert(listComb[1], combination2);
             CommonAssert(listComb[2], combination3);
@@ -2329,7 +2329,6 @@ namespace ModelObjectTest
                 climateWinterDeltaHLoadCase,
                 climateWinterDeltaPLoadCase1,
                 climateWinterDeltaTLoadCase1,
-
             };
 
             StandardEN16612.EN16612CombinationsOptions options = new StandardEN16612.EN16612CombinationsOptions(StandardEN1990.LimitStates.UltimateStructural, ULSStructuralGeotechicalCombinationSets.SetB, ImposedLoadCategories.CategoryC, false);
@@ -2345,6 +2344,9 @@ namespace ModelObjectTest
                 Console.WriteLine(combinationName);
                 listComb.Add(combination);
             }
+        
+            // Assert
+            Assert.IsTrue(outList.Count() == 30);
         }
 
         [TestMethod]
@@ -2396,6 +2398,9 @@ namespace ModelObjectTest
                 Console.WriteLine(combinationName);
                 listComb.Add(combination);
             }
+
+            // Assert
+            Assert.IsTrue(outList.Count() == 30);
         }
 
         [TestMethod]
@@ -2446,6 +2451,9 @@ namespace ModelObjectTest
                 Console.WriteLine(combinationName);
                 listComb.Add(combination);
             }
+
+            // Assert
+            Assert.IsTrue(outList.Count() == 10);
         }
 
         [TestMethod]
@@ -2497,6 +2505,9 @@ namespace ModelObjectTest
                 Console.WriteLine(combinationName);
                 listComb.Add(combination);
             }
+
+            // Assert
+            Assert.IsTrue(outList.Count() == 10);
         }
 
         #endregion
