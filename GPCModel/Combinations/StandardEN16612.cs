@@ -333,7 +333,37 @@ namespace GPC.Model.Combinations
                     }
                 }
 
-                List<List<LoadCaseCoefficient>> listFavourableBase = GetFavourableBasicCombinations(loadCases, options);
+                List<List<LoadCaseCoefficient>> listCrossClimate = GetcrossedCombinationsMaxClimate(loadCases, options);
+                for (int i = 0; i < listCrossClimate.Count(); i++)
+                {
+                    Combination comboBaseUnfav = new Combination(name + $" {idProg}", options);
+                    for (int j = 0; j < listCrossClimate[i].Count(); j++)
+                    {
+                        comboBaseUnfav.AddLoadCaseCoefficient(listCrossClimate[i][j].LoadCase, listCrossClimate[i][j].Coefficient);
+                    }
+                    if (!combinationsHashSet.Contains(comboBaseUnfav))
+                    {
+                        combinationsHashSet.Add(comboBaseUnfav);
+                        idProg++;
+                    }
+                }
+
+                List<List<LoadCaseCoefficient>> listCrossPerm = GetcrossedCombinationsMaxPermanent(loadCases, options);
+                for (int i = 0; i < listCrossPerm.Count(); i++)
+                {
+                    Combination comboBaseUnfav = new Combination(name + $" {idProg}", options);
+                    for (int j = 0; j < listCrossPerm[i].Count(); j++)
+                    {
+                        comboBaseUnfav.AddLoadCaseCoefficient(listCrossPerm[i][j].LoadCase, listCrossPerm[i][j].Coefficient);
+                    }
+                    if (!combinationsHashSet.Contains(comboBaseUnfav))
+                    {
+                        combinationsHashSet.Add(comboBaseUnfav);
+                        idProg++;
+                    }
+                }
+
+                List<List<LoadCaseCoefficient>> listFavourableBase = GetBasicCombinationsMinCoeff(loadCases, options);
                 for (int i = 0; i < listFavourableBase.Count(); i++)
                 {
                     Combination comboBaseFav = new Combination(name + $" {idProg}", options);
@@ -348,7 +378,7 @@ namespace GPC.Model.Combinations
                     }
                 }
 
-                List<List<LoadCaseCoefficient>> listUnfavourableBase = GetUnfavourableBasicCombinations(loadCases, options);
+                List<List<LoadCaseCoefficient>> listUnfavourableBase = GetBasicCombinationsMaxCoeff(loadCases, options);
                 for (int i = 0; i < listUnfavourableBase.Count(); i++)
                 {
                     Combination comboBaseUnfav = new Combination(name + $" {idProg}", options);
@@ -362,6 +392,7 @@ namespace GPC.Model.Combinations
                         idProg++;
                     }
                 }
+
                 foreach (Combination cmb in combinationsHashSet)
                     combinations.Add(cmb);
 
@@ -386,7 +417,7 @@ namespace GPC.Model.Combinations
             if (optionsInput is EN16612CombinationsOptions options)
             {
                 List<List<LoadCaseCoefficient>> loadCaseCoefficients = new List<List<LoadCaseCoefficient>>();
-                List<List<LoadCaseCoefficient>> loadCaseCoefficientsBuffer = GetFavourableBasicCombinations(loadCases, options);
+                List<List<LoadCaseCoefficient>> loadCaseCoefficientsBuffer = GetBasicCombinationsMinCoeff(loadCases, options);
 
                 List<LoadCaseBase> list = new List<LoadCaseBase>();
                 foreach (LoadCaseBase loadCase in loadCases)
@@ -652,12 +683,12 @@ namespace GPC.Model.Combinations
         }
 
         /// <summary>
-        /// Generate all the combination for permanent loads with unfavourable coefficients
+        /// Generate all the combination for permanent loads with unfavourable coefficients for all permanent actions (climate and normal loads)
         /// </summary>
         /// <param name="loadCases">List of load cases</param>
         /// <param name="optionsInput">The normative options (only EN16612 is supported)</param>
         /// <returns>A list of load case coefficient</returns>
-        protected override List<List<LoadCaseCoefficient>> GetUnfavourableBasicCombinations(LoadCaseBase[] loadCases, CombinationsOptions optionsInput)
+        protected override List<List<LoadCaseCoefficient>> GetBasicCombinationsMaxCoeff(LoadCaseBase[] loadCases, CombinationsOptions optionsInput)
         {
             if (optionsInput is EN16612CombinationsOptions options)
             {
@@ -764,6 +795,8 @@ namespace GPC.Model.Combinations
             throw new ArgumentException("CombinationsOptions must be EN16612CombinationsOptions");
         }
 
+
+
         /// <summary>
         /// Generate all the combination for the variable loads
         /// </summary>
@@ -821,13 +854,13 @@ namespace GPC.Model.Combinations
 
                     if (loadCaseLead is LoadCase lc)
                     {
-                        loadCaseCoefficientsBuffer = AddLoadCaseLead(lc, loadCases, options);
+                        loadCaseCoefficientsBuffer = AddLoadCaseLead(lc.LoadCaseType, loadCases, options);
                         hash.Add(lc.LoadCaseType);
                     }
 
                     else if (loadCaseLead is ClimateLoadCase clc)
                     {
-                        loadCaseCoefficientsBuffer = AddLoadCaseLead(clc, loadCases, options);
+                        loadCaseCoefficientsBuffer = AddLoadCaseLead(clc.Season, clc.ClimateType, loadCases, options);
                         chash.Add((clc.Season, clc.ClimateType));
                     }
 
@@ -1437,32 +1470,6 @@ namespace GPC.Model.Combinations
         }
 
         /// <summary>
-        /// Return a list of load case coefficients with all the load of type <paramref name="loadCaseLeadInput"/> in the array <paramref name="loadCases"/>
-        /// </summary>
-        /// <param name="loadCaseLeadInput">The load case lead (must exist in the <paramref name="loadCases"/>)</param>
-        /// <param name="loadCases">The array of load cases</param>
-        /// <param name="optionsInput">The normative options (only EN16612 is supported)</param>
-        /// <returns>A list of load case coefficients</returns>
-        protected List<LoadCaseCoefficient> AddLoadCaseLead(ClimateLoadCase loadCaseLeadInput, LoadCaseBase[] loadCases, CombinationsOptions optionsInput)
-        {
-            if (optionsInput is EN16612CombinationsOptions options)
-            {
-                List<LoadCaseCoefficient> loadCaseCoefficientsBuffer = new List<LoadCaseCoefficient>();
-                if (loadCaseLeadInput is ClimateLoadCase clc)
-                {
-                    foreach (ClimateLoadCase loadCase in loadCases.Where(j => j is ClimateLoadCase l && l.ClimateType == clc.ClimateType && l.Season == clc.Season))
-                    {
-                        LoadCaseCoefficient loadCaseCoefficientLead = new LoadCaseCoefficient(GetCoefficientLeadingVariableAction(loadCase, options), loadCase);
-                        loadCaseCoefficientsBuffer.Add(loadCaseCoefficientLead);
-                    }
-                }
-                return loadCaseCoefficientsBuffer;
-            }
-            else
-                throw new ArgumentException("CombinationsOptions must be EN16612");
-        }
-
-        /// <summary>
         /// Return a list of climate load case coefficients with all the load of type <paramref name="type"/> and season <paramref name="season"/> in the array <paramref name="loadCases"/> 
         /// with the leading variable action coefficient
         /// </summary>
@@ -1516,7 +1523,7 @@ namespace GPC.Model.Combinations
 
         #endregion
 
-        #region COEFFICIENT
+        #region COEFFICIENT FOR CLIMATE LOAD ACTIONS
 
         /// <summary>
         /// Return the coefficient of unfavourable permanent actions

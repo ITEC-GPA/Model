@@ -1,4 +1,4 @@
-using GPC.Model.LoadCases;
+﻿using GPC.Model.LoadCases;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
