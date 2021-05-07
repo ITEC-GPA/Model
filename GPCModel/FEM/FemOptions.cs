@@ -40,6 +40,11 @@ namespace GPC.Model.FEM
         /// </summary>
         public double ZeroElasticModulus { get; set; }
 
+        /// <summary>
+        /// Rapresent the value of the shear modulus to be used to replace zero in case numerical singularity must be avoided 
+        /// </summary>
+        public double ZeroShearModulus { get; set; }
+
 
         /// <summary>
         /// Rapresent the value of the poisson value used to define the <see cref="Properties.InterlayerBrickProperty"/> 
