@@ -1,5 +1,6 @@
 ﻿using GPC.Model.Glasses;
 using GPC.Model.Materials;
+using GPC.Model.FEM.Materials;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -20,7 +21,7 @@ namespace GPC.Model.FEM.Properties
 
         public double LoadDuration => _loadDuration;
 
-        public InterlayerBrickProperty(InterlayerMaterial material, double temperature, double loadDuration, string name) 
+        public InterlayerBrickProperty(FemMaterial material, double temperature, double loadDuration, string name) 
             : base(material, name)
         {
             this._temperature = temperature > 0 ? temperature : throw new ArgumentException("Temperature can not be lower or equal to zero");
@@ -34,32 +35,6 @@ namespace GPC.Model.FEM.Properties
             throw new NotImplementedException();
         }
 
-
-        /// <summary>
-        /// Poisson fixed to <see cref="FemOptions.InterlayerPoissonValue"/>. Elastic modulus is then 2(1+ni)G
-        /// </summary>
-        /// <returns>The elastic modulus</returns>
-        public override double GetE()
-        {
-            var e = 2.0 * (1.0 + FemOptions.Instance.InterlayerPoissonValue) * GetShearModule();
-            return e > 0 ? e : FemOptions.Instance.ZeroElasticModulus;
-        }
-
-        /// <summary>
-        /// Poisson fixed to <see cref="FemOptions.InterlayerPoissonValue"/>. E becomes equal to 2.98*G
-        /// </summary>
-        public override double GetNi()
-        {
-            return FemOptions.Instance.InterlayerPoissonValue;
-        }
-
-
-        /// <returns>The shear modulus, calculated by means of <see cref="InterlayerMaterial.GetShearModule(double, double)"/></returns>
-        /// <remarks>Can return zero</remarks>
-        public override double GetShearModule()
-        {
-            return (_material as InterlayerMaterial).GetShearModule(_loadDuration, _temperature);
-        }
 
 
         #region Equals - Hashcode - Operators

@@ -1,4 +1,5 @@
 ﻿using GPC.Geometry;
+using GPC.Model.FEM.Materials;
 using GPC.Model.Materials;
 using System;
 using System.Collections.Generic;
@@ -10,16 +11,15 @@ namespace GPC.Model.Sections
 {
     public class SectionShape : Section
     {
-        private class MultiMaterial : Material
+        private class MultiMaterial : IsotropicFemMaterial
         {
-            protected List<Material> _materials;
+            protected List<IsotropicFemMaterial> _materials;
 
-            public List<Material> Materials => _materials;
+            public List<IsotropicFemMaterial> Materials => _materials;
 
-            public MultiMaterial(Material[] materials)
-                : base(string.Empty, 1, 0.1, Guid.NewGuid())
+            public MultiMaterial(IsotropicFemMaterial[] materials) : base(1, 0.1, 0, 0)
             {
-                _materials = new List<Material>(materials);
+                _materials = new List<IsotropicFemMaterial>(materials);
             }
         }
 
@@ -28,7 +28,7 @@ namespace GPC.Model.Sections
         public List<Shape> Shapes => _shapes;
 
 
-        public SectionShape(Shape[] shapes, Material[] materials, string name)
+        public SectionShape(Shape[] shapes, IsotropicFemMaterial[] materials, string name)
             : base(materials, name)
         {
             _shapes = new List<Shape>(shapes);

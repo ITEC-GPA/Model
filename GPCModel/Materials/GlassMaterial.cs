@@ -1,4 +1,5 @@
-﻿using System;
+﻿using GPC.Model.FEM.Materials;
+using System;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
 
@@ -50,6 +51,17 @@ namespace GPC.Model.Materials
         #region Public method
 
         public abstract double GetGlassResistance(bool edgeResistance, double loadDuration);
+
+
+        public override IsotropicFemMaterial GetIsotropicFemMaterial()
+        {
+            return new IsotropicFemMaterial(E, Ni, AlfaThermalExpansion, Density);
+        }
+
+        public override OrthotropicFemMaterial GetOrthotropicFemMaterial()
+        {
+            return new OrthotropicFemMaterial(E, E, E, GetShearModule(), GetShearModule(), GetShearModule(), Ni, Ni, Ni, AlfaThermalExpansion, AlfaThermalExpansion, AlfaThermalExpansion, Density);
+        }
 
         #endregion
 

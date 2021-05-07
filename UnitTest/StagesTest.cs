@@ -86,8 +86,8 @@ namespace FemTest
         [TestMethod]
         public void StageTest1()
         {
-            PlateProperty p1 = new PlateProperty(new SteelMaterial("", 1, 0.1, 2, 3, 4), 1, 2, "P1");
-            PlateProperty p2 = new PlateProperty(new SteelMaterial("", 1, 0.1, 2, 3, 4), 10, 20, "P2");
+            PlateProperty p1 = new PlateProperty(new SteelMaterial("", 1, 0.1, 2, 3, 4).GetIsotropicFemMaterial(), 1, 2, "P1");
+            PlateProperty p2 = new PlateProperty(new SteelMaterial("", 1, 0.1, 2, 3, 4).GetIsotropicFemMaterial(), 10, 20, "P2");
 
             FemModel model = new FemModel();
             model.AddProperty(p1);
@@ -130,8 +130,8 @@ namespace FemTest
         [TestMethod]
         public void StageTest2()
         {
-            PlateProperty p1 = new PlateProperty(new SteelMaterial("", 1, 0.1, 2, 3, 4), 1, 2, "P1");
-            PlateProperty p2 = new PlateProperty(new SteelMaterial("", 1, 0.1, 2, 3, 4), 10, 20, "P2");
+            PlateProperty p1 = new PlateProperty(new SteelMaterial("", 1, 0.1, 2, 3, 4).GetIsotropicFemMaterial(), 1, 2, "P1");
+            PlateProperty p2 = new PlateProperty(new SteelMaterial("", 1, 0.1, 2, 3, 4).GetIsotropicFemMaterial(), 10, 20, "P2");
 
             FemModel model = new FemModel();
 

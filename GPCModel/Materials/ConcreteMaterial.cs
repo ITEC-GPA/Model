@@ -1,4 +1,5 @@
-﻿using GPC.Utilities.Attributes;
+﻿using GPC.Model.FEM.Materials;
+using GPC.Utilities.Attributes;
 using System;
 using System.Runtime.Serialization;
 
@@ -10,6 +11,8 @@ namespace GPC.Model.Materials
     {
         #region VARIABLES
         protected double _fck;
+
+        // Aggiungere i moduli elastici mancanti, dipende da normativa 
 
         #endregion VARIABLES
 
@@ -41,6 +44,7 @@ namespace GPC.Model.Materials
         public ConcreteMaterial(double elasticModulus, double poisson, double fck, double density, double alfaThermalExpansion, Guid guid)
             : this("", elasticModulus, poisson, fck, density, alfaThermalExpansion, guid)
         {
+
         }
 
         /// <summary>
@@ -53,6 +57,7 @@ namespace GPC.Model.Materials
         public ConcreteMaterial(double elasticModulus, double poisson, double fck, double density)
             : this(elasticModulus, poisson, fck, density, 0, Guid.NewGuid())
         {
+
         }
 
         /// <summary>
@@ -66,6 +71,7 @@ namespace GPC.Model.Materials
         public ConcreteMaterial(double elasticModulus, double poisson, double fck, double density, double alfaThermalExpansion)
             : this(elasticModulus, poisson, fck, density, alfaThermalExpansion, Guid.NewGuid())
         {
+
         }
 
         public ConcreteMaterial(SerializationInfo info, StreamingContext context) :
@@ -84,11 +90,16 @@ namespace GPC.Model.Materials
             info.AddValue("Fck", _fck);
         }
 
-        #endregion PUBLIC METHODS
+        public override IsotropicFemMaterial GetIsotropicFemMaterial()
+        {
+            return new IsotropicFemMaterial(E, Ni, AlfaThermalExpansion, Density);
+        }
 
-        //public ConcreteMaterial(double poisson, double fck) : this(0, poisson, fck, Guid.Empty, 0)
-        //{
-        //    // TODO calcolare modulo elastico da fck, dipende da normativa però
-        //}
+        public override OrthotropicFemMaterial GetOrthotropicFemMaterial()
+        {
+            return new OrthotropicFemMaterial(E, E, E, GetShearModule(), GetShearModule(), GetShearModule(), Ni, Ni, Ni, AlfaThermalExpansion, AlfaThermalExpansion, AlfaThermalExpansion, Density);
+        }
+
+        #endregion
     }
 }
