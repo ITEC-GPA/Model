@@ -48,6 +48,23 @@ namespace GPC.Model.FEM.Costrains
             return s;
         }
 
+        public override bool Equals(object obj)
+        {
+            return obj is MultiPointsCostrain costrain &&
+                   base.Equals(obj) &&
+                   EqualityComparer<Equation[]>.Default.Equals(_equations, costrain._equations) &&
+                   _constValue == costrain._constValue;
+        }
+
+        public override int GetHashCode()
+        {
+            int hashCode = -1066499299;
+            hashCode = hashCode * -1521134295 + base.GetHashCode();
+            hashCode = hashCode * -1521134295 + EqualityComparer<Equation[]>.Default.GetHashCode(_equations);
+            hashCode = hashCode * -1521134295 + _constValue.GetHashCode();
+            return hashCode;
+        }
+
         /// <summary>
         /// Costrain = Value * GDLNode
         /// </summary>
