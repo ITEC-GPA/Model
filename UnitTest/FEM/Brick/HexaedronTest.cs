@@ -32,7 +32,7 @@ namespace FemTest.SolverTest
 
             SteelMaterial mat = new SteelMaterial("mat", 1.0, 0.0, 355, 510, 7850.0);
 
-            BrickProperty brickProperty = new BrickProperty(mat, "propBrick");
+            BrickProperty brickProperty = new BrickProperty(mat.GetIsotropicFemMaterial(), "propBrick");
 
             Hexaedron e = new Hexaedron(nds.ToArray(), brickProperty);
             e.BuildMatrix();
@@ -65,7 +65,7 @@ namespace FemTest.SolverTest
 
             SteelMaterial mat = new SteelMaterial("mat", 1.0, 0.0, 355, 510, 7850.0);
 
-            BrickProperty brickProperty = new BrickProperty(mat, "proprBrick");
+            BrickProperty brickProperty = new BrickProperty(mat.GetIsotropicFemMaterial(), "proprBrick");
 
             Hexaedron e = new Hexaedron(nds.ToArray(), brickProperty);
 
@@ -113,7 +113,7 @@ namespace FemTest.SolverTest
 
             SteelMaterial mat = new SteelMaterial("mat", 1.0, 0.0, 355, 510, 7850.0);
 
-            BrickProperty brickProperty = new BrickProperty(mat, "proprBrick");
+            BrickProperty brickProperty = new BrickProperty(mat.GetIsotropicFemMaterial(), "proprBrick");
 
             Hexaedron e = new Hexaedron(nds.ToArray(), brickProperty);
 
@@ -158,7 +158,7 @@ namespace FemTest.SolverTest
 
             SteelMaterial mat = new SteelMaterial("mat", 1000.0, 0.0, 355, 510, 7850.0);
 
-            BrickProperty brickProperty = new BrickProperty(mat, "proprBrick");
+            BrickProperty brickProperty = new BrickProperty(mat.GetIsotropicFemMaterial(), "proprBrick");
 
             List<Hexaedron> els = new List<Hexaedron>();
             for (int i = 4; i < nds.Count; i=i+4)

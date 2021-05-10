@@ -29,7 +29,7 @@ namespace FemTest.SolverTest
             Material mat = new SteelMaterial("steel", E, ni, 355, 510, 7850);
 
             double thickness = 1.0 / 8.0;
-            PlateProperty prop = new PlateProperty(mat, thickness, thickness, "p");
+            PlateProperty prop = new PlateProperty(mat.GetIsotropicFemMaterial(), thickness, thickness, "p");
 
             Node[] nds = new Node[3];
             nds[0] = new Node(+0.00, +0.00, 0.0, "1");
@@ -81,7 +81,7 @@ namespace FemTest.SolverTest
             Material mat = new SteelMaterial("steel", E, ni, 355, 510, 7850);
 
             double thickness = 1.0;
-            PlateProperty prop = new PlateProperty(mat, thickness, thickness, "p");
+            PlateProperty prop = new PlateProperty(mat.GetIsotropicFemMaterial(), thickness, thickness, "p");
 
             Node node1 = new Node(0.0, 0.0, 0.0, "1");
             Node node2 = new Node(16.0, 0.0, 0.0, "2");
@@ -162,7 +162,7 @@ namespace FemTest.SolverTest
             Material mat = new SteelMaterial("steel", E, ni, 355, 510, 7850);
 
             double thickness = 1.0;
-            PlateProperty prop = new PlateProperty(mat, thickness, thickness, "p");
+            PlateProperty prop = new PlateProperty(mat.GetIsotropicFemMaterial(), thickness, thickness, "p");
 
             Node node1 = new Node(0.0, 0.0, 0.0, "1");
             Node node2 = new Node(0.0, 6.0, 0.0, "2");
@@ -244,7 +244,7 @@ namespace FemTest.SolverTest
             Material mat = new SteelMaterial("steel", E, ni, 355, 510, 7850);
 
             double thickness = 1.0;
-            PlateProperty prop = new PlateProperty(mat, thickness, thickness, "p");
+            PlateProperty prop = new PlateProperty(mat.GetIsotropicFemMaterial(), thickness, thickness, "p");
 
             List<Node> nodes = new List<Node>();
             nodes.Add(new Node(-1000.0, -1000.0, -1000.0, "NULL"));
@@ -394,7 +394,7 @@ namespace FemTest.SolverTest
             Material mat = new SteelMaterial("steel", E, ni, 355, 510, 7850);
 
             double thickness = 1.0;
-            PlateProperty prop = new PlateProperty(mat, thickness, thickness, "p");
+            PlateProperty prop = new PlateProperty(mat.GetIsotropicFemMaterial(), thickness, thickness, "p");
 
             List<Node> nodes = new List<Node>();
             nodes.Add(new Node(0.0, 0.0, 0.0));
@@ -497,7 +497,7 @@ namespace FemTest.SolverTest
             Material mat = new SteelMaterial("steel", E, ni, 355, 510, 7850);
 
             double thickness = 1.0;
-            PlateProperty prop = new PlateProperty(mat, thickness, thickness, "p");
+            PlateProperty prop = new PlateProperty(mat.GetIsotropicFemMaterial(), thickness, thickness, "p");
 
             List<Node> nodes = new List<Node>();
             nodes.Add(new Node(0.0, 0.0, 0.0));
@@ -614,7 +614,7 @@ namespace FemTest.SolverTest
             Material mat = new SteelMaterial("steel", E, ni, 355, 510, 7850);
 
             double thickness = 1.0;
-            PlateProperty prop = new PlateProperty(mat, thickness, thickness, "p");
+            PlateProperty prop = new PlateProperty(mat.GetIsotropicFemMaterial(), thickness, thickness, "p");
 
             List<Node> nodes = new List<Node>();
             nodes.Add(new Node(0.0, 0.0, 0.0));
@@ -678,7 +678,7 @@ namespace FemTest.SolverTest
             Material mat = new SteelMaterial("steel", E, ni, 355, 510, 7850);
 
             double thickness = 1.0;
-            PlateProperty prop = new PlateProperty(mat, thickness, thickness, "p");
+            PlateProperty prop = new PlateProperty(mat.GetIsotropicFemMaterial(), thickness, thickness, "p");
 
             List<Node> nodes = new List<Node>();
             nodes.Add(new Node(0.0, 0.0, 0.0));
@@ -689,17 +689,17 @@ namespace FemTest.SolverTest
             CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
 
             NodeRestrainAttribute fix = new NodeRestrainAttribute("fc", sys);
-            fix.AddExternalRestrain(LinearSolver.DOF.DX);
-            fix.AddExternalRestrain(LinearSolver.DOF.DY);
-            fix.AddExternalRestrain(LinearSolver.DOF.DZ);
-            fix.AddExternalRestrain(LinearSolver.DOF.RX);
-            fix.AddExternalRestrain(LinearSolver.DOF.RY);
-            fix.AddExternalRestrain(LinearSolver.DOF.RZ);
+            fix.AddExternalRestrain(Solver.DOF.DX);
+            fix.AddExternalRestrain(Solver.DOF.DY);
+            fix.AddExternalRestrain(Solver.DOF.DZ);
+            fix.AddExternalRestrain(Solver.DOF.RX);
+            fix.AddExternalRestrain(Solver.DOF.RY);
+            fix.AddExternalRestrain(Solver.DOF.RZ);
 
             NodeRestrainAttribute fix2 = new NodeRestrainAttribute("fc", sys);
-            fix2.AddExternalRestrain(LinearSolver.DOF.DZ);
-            fix2.AddExternalRestrain(LinearSolver.DOF.RX);
-            fix2.AddExternalRestrain(LinearSolver.DOF.RY);
+            fix2.AddExternalRestrain(Solver.DOF.DZ);
+            fix2.AddExternalRestrain(Solver.DOF.RX);
+            fix2.AddExternalRestrain(Solver.DOF.RY);
             //fix2.AddExternalRestrain(LinearSolver.DOF.RZ);
 
             nodes[1 - 1].AddAttribute(fix);

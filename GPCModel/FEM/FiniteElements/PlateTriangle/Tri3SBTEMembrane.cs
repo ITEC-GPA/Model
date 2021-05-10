@@ -5,6 +5,7 @@ using GPC.Model.FEM.Properties;
 using GPC.Model.FEM.Attributes;
 using mnl = MathNet.Numerics.LinearAlgebra;
 using System.Collections.Generic;
+using GPC.Model.FEM.Materials;
 
 namespace GPC.Model.FEM.FiniteElements
 {
@@ -49,16 +50,10 @@ namespace GPC.Model.FEM.FiniteElements
             _thickness = ((PlateProperty)_property).MembraneThickness;
 
             #region matrixD
-            double E = ((PlateProperty)_property).GetE();
-            double ni = ((PlateProperty)_property).GetNi();
+            /*double E = ((PlateProperty)_property).GetE();
+            double ni = ((PlateProperty)_property).GetNi();*/
 
-            _d = mnl.Matrix<double>.Build.Dense(3, 3);
-            _d[0, 0] = 1.0;
-            _d[0, 1] = ni;
-            _d[1, 0] = ni;
-            _d[1, 1] = 1.0;
-            _d[2, 2] = (1.0 - ni) / 2.0;
-            _d = E / (1.0 - ni * ni) * _d;
+            _d = ((PlateProperty)_property).Material.GetPlaneStress();
             //Console.WriteLine("D = " + _d.ToString());
             #endregion
 
@@ -384,8 +379,6 @@ namespace GPC.Model.FEM.FiniteElements
         /// <returns></returns>
         private mnl.Matrix<double> GetQ (double x, double y)
         {
-            double ni = ((PlateProperty)_property).GetNi();
-
             mnl.Matrix<double> Q = mnl.Matrix<double>.Build.Dense(3, 9);
             Q[1 - 1, 4 - 1] = 1.0;
             Q[1 - 1, 5 - 1] = y;

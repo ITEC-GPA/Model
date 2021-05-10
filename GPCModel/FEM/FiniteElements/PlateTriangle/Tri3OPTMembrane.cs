@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using GPC.Geometry;
+using GPC.Model.FEM.Materials;
 using GPC.Model.FEM.Properties;
 using mnl = MathNet.Numerics.LinearAlgebra;
 
@@ -56,16 +57,9 @@ namespace GPC.Model.FEM.FiniteElements
             _thickness = ((PlateProperty)_property).MembraneThickness;
 
             #region matrixD
-            double E = ((PlateProperty)_property).GetE();
-            double ni = ((PlateProperty)_property).GetNi();
+            double ni = ((IsotropicFemMaterial)((PlateProperty)_property).Material).Ni;
 
-            _d = mnl.Matrix<double>.Build.Dense(3, 3);
-            _d[0, 0] = 1.0;
-            _d[0, 1] = ni;
-            _d[1, 0] = ni;
-            _d[1, 1] = 1.0;
-            _d[2, 2] = (1.0 - ni) / 2.0;
-            _d = E / (1.0 - ni * ni) * _d;
+            _d = ((PlateProperty)_property).Material.GetPlaneStress();
             //Console.WriteLine("D = " + _d.ToString());
             #endregion
 

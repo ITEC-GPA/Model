@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using GPC.Geometry;
+using GPC.Model.FEM.Materials;
 using GPC.Model.FEM.Properties;
 using GPC.Utilities.Fem;
 using mnl = MathNet.Numerics.LinearAlgebra;
@@ -143,10 +144,12 @@ namespace GPC.Model.FEM.FiniteElements
             #endregion            
 
             #region matrixD
-            double E = ((PlateProperty)_property).GetE();
+            /*double E = ((PlateProperty)_property).GetE();
             double ni = ((PlateProperty)_property).GetNi();
+            
+            _d = Plate.DPlaneStress(E, ni);*/
 
-            _d = Plate.DPlaneStress(E, ni);
+            _d = ((PlateProperty)_property).Material.GetPlaneStress();
             #endregion
 
             #region stiffnessMatrixInLocalCoordinates

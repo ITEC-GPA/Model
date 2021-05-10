@@ -917,7 +917,7 @@ namespace GPC.Model.FEM.FiniteElements
             Dictionary<LocalDOF, double> displLocalNode1 = GetLocalDisplacementsAtNode(Beam.EndSide.End1, globalDisplacementsNodes);
             Dictionary<LocalDOF, double> displLocalNode2 = GetLocalDisplacementsAtNode(Beam.EndSide.End2, globalDisplacementsNodes);
 
-            double E = _property.GetE();
+            double E = ((Section)_property).Material.E;
             double J11 = ((Section)_property).J11;
             double J22 = ((Section)_property).J22;
 

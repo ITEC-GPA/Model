@@ -127,22 +127,5 @@ namespace GPC.Model.FEM.FiniteElements
 
         // GetNodalStress() => List<ResultPLateStress> [ngauspoint * 3facce]
 
-        /// <summary>
-        /// Matrice stato piano di tensione da materiale elastico lineare isotropo
-        /// </summary>
-        /// <param name="E"></param>
-        /// <param name="ni"></param>
-        /// <returns></returns>
-        public static mnl.Matrix<double> DPlaneStress(double E, double ni)
-        {
-            mnl.Matrix<double> D = mnl.Matrix<double>.Build.Dense(3, 3);
-            D[0, 0] = 1.0;
-            D[0, 1] = ni;
-            D[1, 0] = ni;
-            D[1, 1] = 1.0;
-            D[2, 2] = (1.0 - ni) / 2.0;
-            D = E / (1.0 - ni * ni) * D;
-            return D;
-        }
     }
 }

@@ -1,6 +1,7 @@
 ﻿using System;
 using GPC.Geometry;
 using GPC.Model.FEM.Attributes;
+using GPC.Model.FEM.Materials;
 using GPC.Model.FEM.Properties;
 using GPC.Utilities.Fem;
 using mnl = MathNet.Numerics.LinearAlgebra;
@@ -233,12 +234,13 @@ namespace GPC.Model.FEM.FiniteElements
             #endregion
 
             #region matrixD
+            double E = ((IsotropicFemMaterial)((PlateProperty)_property).Material).E;
+            double ni = ((IsotropicFemMaterial)((PlateProperty)_property).Material).Ni;
+            double tb = ((PlateProperty)_property).BendingThickness;
             
             _d = (_property as PlateProperty).Material.GetPlaneStress();
 
-            _d = Math.Pow((_property as PlateProperty).BendingThickness, 3.0) * _d; 
-            
-            //flexural rigidity
+            _d = E * Math.Pow(tb, 3.0) / (12.0 * (1.0 - ni * ni)) * _d; //flexural rigidity
             //Console.WriteLine("Db = " + _d.ToString());
             #endregion
 

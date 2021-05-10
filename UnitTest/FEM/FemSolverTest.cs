@@ -48,7 +48,7 @@ namespace FemTest.SolverTest
         public void AssemblyGlobalMatrixTest1()
         {
             Material mat = new SteelMaterial("steel", 200000, 0.2, 355, 510, 7850);
-            PlateProperty prop = new PlateProperty(mat, 0, 1, "p");
+            PlateProperty prop = new PlateProperty(mat.GetIsotropicFemMaterial(), 0, 1, "p");
 
             List<Node> nodesPlate1 = new List<Node>();
             nodesPlate1.Add(new Node(0.0, 0, 0, "1"));
@@ -111,7 +111,7 @@ namespace FemTest.SolverTest
             FreedomCase fc = new FreedomCase("freedomCase1");
 
             Material mat = new SteelMaterial("steel", 200000, 0.2, 355, 510, 7850);
-            PlateProperty prop = new PlateProperty(mat, 0, 1, "p");
+            PlateProperty prop = new PlateProperty(mat.GetIsotropicFemMaterial(), 0, 1, "p");
 
             CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
             NodeRestrainAttribute DXDYDZ = new NodeRestrainAttribute("fc", sys);
@@ -198,7 +198,7 @@ namespace FemTest.SolverTest
             FreedomCase freedomCase = new FreedomCase("freedomCase1");
 
             Material mat = new SteelMaterial("steel", 200000, 0.2, 355, 510, 7850);
-            PlateProperty prop = new PlateProperty(mat, 0, 1, "p");
+            PlateProperty prop = new PlateProperty(mat.GetIsotropicFemMaterial(), 0, 1, "p");
 
             CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
             NodeRestrainAttribute DXDYDZ = new NodeRestrainAttribute("freedomCase", sys);
@@ -279,7 +279,7 @@ namespace FemTest.SolverTest
             FreedomCase freedomCase = new FreedomCase("freedomCase1");
 
             Material mat = new SteelMaterial("steel", 200000, 0.2, 355, 510, 7850);
-            PlateProperty prop = new PlateProperty(mat, 0, 1, "p");
+            PlateProperty prop = new PlateProperty(mat.GetIsotropicFemMaterial(), 0, 1, "p");
 
             CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
             NodeRestrainAttribute DXDYDZ = new NodeRestrainAttribute("freedomCase", sys);
@@ -363,7 +363,7 @@ namespace FemTest.SolverTest
             FreedomCase freedomCase = new FreedomCase("freedomCase1");
 
             Material mat = new SteelMaterial("steel", 1, 0.0, 355, 510, 7850);
-            BrickProperty prop = new BrickProperty(mat, "p");
+            BrickProperty prop = new BrickProperty(mat.GetIsotropicFemMaterial(), "p");
             double d = 0.5;
             double t = d / 2.0;
             Section sec = new SectionCHS(d, t, mat, "p");
