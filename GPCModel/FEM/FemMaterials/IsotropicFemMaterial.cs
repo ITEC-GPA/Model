@@ -34,7 +34,7 @@ namespace GPC.Model.FEM.Materials
 
             _density = density < 0 ? throw new ArgumentException($"{nameof(density)} cannot be lower than zero") : density;
             
-            _g = E * 2.0 * (1.0 + ni);
+            _g = E / (2.0 * (1.0 + ni));
 
             if (_g < 0)
                 throw new ArgumentException($"Shear modulus cannot be lower than zero");
