@@ -907,6 +907,7 @@ namespace GPC.Model.FEM.FiniteElements
             double E = ((Section)_property).Material.E;
             double J11 = ((Section)_property).J11;
             double J22 = ((Section)_property).J22;
+            double A = ((Section)_property).Area;
 
             #region uniformLoad
             double q1 = 0;

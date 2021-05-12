@@ -363,7 +363,7 @@ namespace FemTest.SolverTest
         public void Quad4DKTTest4()
         {
             Material mat = new SteelMaterial("mat", 12, 0.0, 355, 510, 7850);
-            PlateProperty prop = new PlateProperty(mat, 1.0, 1.0, "p");
+            PlateProperty prop = new PlateProperty(mat.GetIsotropicFemMaterial(), 1.0, 1.0, "p");
 
             Node[] nodesPlate1 = new Node[4];
             nodesPlate1[0] = new Node(0.0, 0, 0, "1");

@@ -956,12 +956,6 @@ namespace GPC.Model.FEM
                     }
                     else
                     {
-                        var plate = new Plate(new Node[] { 
-                            _nodes[nodesNewIndexMap.ContainsKey(face.A) ? nodesNewIndexMap[face.A] : face.A],
-                            _nodes[nodesNewIndexMap.ContainsKey(face.B) ? nodesNewIndexMap[face.B] : face.B],
-                            _nodes[nodesNewIndexMap.ContainsKey(face.C) ? nodesNewIndexMap[face.C] : face.C]
-                        });
-
                         var plate = new Plate(new Node[] { _nodes[nodesNewIndexMap[face.A]],
                                                            _nodes[nodesNewIndexMap[face.B]],
                                                            _nodes[nodesNewIndexMap[face.C]]}
