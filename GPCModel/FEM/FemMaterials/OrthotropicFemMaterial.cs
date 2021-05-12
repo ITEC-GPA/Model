@@ -46,6 +46,16 @@ namespace GPC.Model.FEM.Materials
         public double Alpha3 => _alpha3;
 
 
+
+        /// <remarks>
+        /// If <paramref name="e1"/> is zero, it will be setted to <see cref="FemOptions.ZeroElasticModulus"/>
+        /// <para>If <paramref name="e2"/> is zero, it will be setted to <see cref="FemOptions.ZeroElasticModulus"/></para>
+        /// <para>If <paramref name="e3"/> is zero, it will be setted to <see cref="FemOptions.ZeroElasticModulus"/></para>  
+        /// If <paramref name="g12"/> is zero, it will be setted to <see cref="FemOptions.ZeroShearModulus"/>
+        /// <para>If <paramref name="g23"/> is zero, it will be setted to <see cref="FemOptions.ZeroShearModulus"/></para>
+        /// <para>If <paramref name="g31"/> is zero, it will be setted to <see cref="FemOptions.ZeroShearModulus"/></para>  
+        /// </remarks>
+        /// <exception cref="ArgumentException"></exception>
         internal OrthotropicFemMaterial(double e1, double e2, double e3, double ni12, double ni23, double ni31, double g12, double g23, double g31, double alpha1, double alpha2, double alpha3, double density)
             : base(string.Empty, density)
         {

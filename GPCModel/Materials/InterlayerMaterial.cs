@@ -117,6 +117,7 @@ namespace GPC.Model.Materials
         }
 
 
+        /// <returns>The <see cref="FEM.Materials.IsotropicFemMaterial"/> with shearModulus equals to the first one on the <see cref="_shearModulus"/> list </returns>
         public override FEM.Materials.IsotropicFemMaterial GetIsotropicFemMaterial()
         {
             var g = _shearModulus.First().TemperatureShearModules.First().ShearModule;
@@ -124,12 +125,14 @@ namespace GPC.Model.Materials
 
             e = e > FEM.FemOptions.Instance.ZeroElasticModulus ? e : FEM.FemOptions.Instance.ZeroElasticModulus;
 
-            double ni = e / 2.0 / g - 1.0;
+            double ni = (e - 2.0 * g) / (2.0 * g);
 
             return new FEM.Materials.IsotropicFemMaterial(e, ni, _alfaThermalExpansion, _density);
         }
 
 
+        /// <returns>The <see cref="FEM.Materials.IsotropicFemMaterial"/> with ShearModulus calculated from <paramref name="loadDuration"/>, <paramref name="temperature"/>. 
+        /// And ElasticModulus calculated from G, <paramref name="ni"/> </returns>
         public FEM.Materials.IsotropicFemMaterial GetIsotropicFemMaterial(double loadDuration, double temperature, double ni)
         {
             var g = GetShearModule(loadDuration, temperature);
@@ -139,6 +142,7 @@ namespace GPC.Model.Materials
         }
 
 
+        /// <returns>The <see cref="FEM.Materials.OrthotropicFemMaterial"/> with shearModulus equals to the first one on the <see cref="_shearModulus"/> list </returns>
         public override FEM.Materials.OrthotropicFemMaterial GetOrthotropicFemMaterial()
         {
             var g = _shearModulus.First().TemperatureShearModules.First().ShearModule;
@@ -148,6 +152,9 @@ namespace GPC.Model.Materials
             return new FEM.Materials.OrthotropicFemMaterial(e, e, e, ni, ni, ni, g, g, g, _alfaThermalExpansion, _alfaThermalExpansion, _alfaThermalExpansion, _density);
         }
 
+
+        /// <returns>The <see cref="FEM.Materials.OrthotropicFemMaterial"/> with ShearModulus calculated from <paramref name="loadDuration"/> and <paramref name="temperature"/>. 
+        /// And ElasticModulus calculated from G, <paramref name="ni"/>.</returns>
         public FEM.Materials.OrthotropicFemMaterial GetOrthotropicFemMaterial(double loadDuration, double temperature, double ni)
         {
             var g = GetShearModule(loadDuration, temperature);
@@ -156,6 +163,8 @@ namespace GPC.Model.Materials
             return new FEM.Materials.OrthotropicFemMaterial(e, e, e, ni, ni, ni, g, g, g, _alfaThermalExpansion, _alfaThermalExpansion, _alfaThermalExpansion, _density);
         }
 
+
+        /// <returns>The <see cref="FEM.Materials.OrthotropicFemMaterial"/> with ShearModulus calculated from <paramref name="loadDuration"/> and <paramref name="temperature"/> </returns>
         public FEM.Materials.OrthotropicFemMaterial GetOrthotropicFemMaterial(double loadDuration, double temperature, double e1, double e2, double e3, double ni12, double ni23, double ni31)
         {
             var g = GetShearModule(loadDuration, temperature);

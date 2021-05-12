@@ -29,8 +29,6 @@ namespace GPC.Model.FEM.FiniteElements
 
         public bool IsQuad => Nodes.Length == 4 ? true : false;
 
-        public new PlateProperty Property => (PlateProperty)_property;
-
 
         public Plate(Node[] nodes) : base(nodes)
         {

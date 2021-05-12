@@ -1,7 +1,6 @@
 ﻿using MathNet.Numerics.LinearAlgebra;
 using System;
 using System.Runtime.Serialization;
-using mnl = MathNet.Numerics.LinearAlgebra;
 
 namespace GPC.Model.FEM.Materials
 {
@@ -24,6 +23,13 @@ namespace GPC.Model.FEM.Materials
         public double Alpha => _alpha;
 
 
+        /// <param name="E"></param>
+        /// <param name="ni"></param>
+        /// <param name="alpha"></param>
+        /// <param name="density"></param>
+        /// <remarks>If <paramref name="E"/> is zero, it will be setted to <see cref="FemOptions.ZeroElasticModulus"/>
+        /// <para><see cref="G"/> is calculated from <paramref name="E"/> and <paramref name="ni"/></para></remarks>
+        /// <exception cref="ArgumentException"></exception>
         internal IsotropicFemMaterial(double E, double ni, double alpha, double density) : base(string.Empty, density)
         {
             _e = E < FemOptions.Instance.ZeroElasticModulus ? FemOptions.Instance.ZeroElasticModulus : E;
@@ -59,21 +65,17 @@ namespace GPC.Model.FEM.Materials
             return GetBrickD(_e,_ni);
         }
 
-        public double GetShearModule()
-        {
-            return GetShearModulus(E, Ni);
-        }
-
         #region Matematica
+
         /// <summary>
         /// Matrice stato piano di tensione da materiale elastico lineare isotropo
         /// </summary>
         /// <param name="E"></param>
         /// <param name="ni"></param>
         /// <returns></returns>
-        internal static mnl.Matrix<double> GetMatrixPlaneStress(double E, double ni)
+        internal static Matrix<double> GetMatrixPlaneStress(double E, double ni)
         {
-            mnl.Matrix<double> D = mnl.Matrix<double>.Build.Dense(3, 3);
+            Matrix<double> D = Matrix<double>.Build.Dense(3, 3);
             D[0, 0] = 1.0;
             D[0, 1] = ni;
             D[1, 0] = ni;
@@ -83,22 +85,17 @@ namespace GPC.Model.FEM.Materials
             return D;
         }
 
-        private static double GetShearModulus(double E, double ni)
-        {
-            return E / (2.0 * (1.0 + ni));
-        }
-
         /// <summary>
         /// reference eq. 11.10 - Finite element method by Rao
         /// </summary>
         /// <param name="E"></param>
         /// <param name="poisson"></param>
         /// <returns></returns>
-        internal static mnl.Matrix<double> GetBrickD(double E, double poisson)
+        internal static Matrix<double> GetBrickD(double E, double poisson)
         {
             double factor = E / ((1.0 + poisson) * (1.0 - 2.0 * poisson));
 
-            mnl.Matrix<double> d = mnl.Matrix<double>.Build.Dense(6, 6);
+            Matrix<double> d = Matrix<double>.Build.Dense(6, 6);
 
             d[0, 0] = 1.0 - poisson;
             d[0, 1] = poisson;
@@ -118,10 +115,9 @@ namespace GPC.Model.FEM.Materials
 
             d[5, 5] = (1.0 - 2.0 * poisson) / 2.0;
 
-            /*Console.WriteLine("D");
-            Util.WriteMatrix(factor * d);*/
             return factor * d;
         }
+
         #endregion
     }
 

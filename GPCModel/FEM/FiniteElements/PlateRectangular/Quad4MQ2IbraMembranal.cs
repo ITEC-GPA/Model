@@ -172,7 +172,7 @@ namespace GPC.Model.FEM.FiniteElements
             FEMUtilities.WriteMatrix(kSymmetric, "F3");
 
             //Matrix P ---> reference: eq. 38 of the Article 1990
-            double rho = 1.0 * ((IsotropicFemMaterial)((PlateProperty)_property).Material).GetShearModule();
+            double rho = 1.0 * ((IsotropicFemMaterial)((PlateProperty)_property).Material).G;
             
             Func<double, double, mnl.Matrix<double>> bTraspb = (double csi, double eta) => {
                 mnl.Matrix<double> bSigned = biVectorSigned(1, csi, eta);
