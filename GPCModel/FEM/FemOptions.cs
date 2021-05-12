@@ -63,11 +63,16 @@ namespace GPC.Model.FEM
                 else
                     throw new ArgumentOutOfRangeException("Interlayer poisson Value must be lower than 0.5 and higher than 0");
             }
-        } 
+        }
+
+
+        /// <summary>
+        /// Rapresent the value of the Elastic Modulus to be used to define the <see cref="Materials.OrthotropicFemMaterial"/> of the interlayer bricks. In order to avoid numerical singularity        /// 
+        /// </summary>
+        public double InterlayerBrickElasticModulus { get; set; }
+
 
         #endregion
-
-
 
 
         // Explicit static constructor to tell C# compiler not to mark type as beforefieldinit
@@ -79,7 +84,9 @@ namespace GPC.Model.FEM
         private FemOptions()
         {
             ZeroElasticModulus = 0.001;
+            ZeroShearModulus = 0.01;
             InterlayerPoissonValue = 0.49;
+            InterlayerBrickElasticModulus = 1e7;
         }
 
     }
