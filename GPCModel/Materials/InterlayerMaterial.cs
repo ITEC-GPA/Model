@@ -145,7 +145,7 @@ namespace GPC.Model.Materials
             var ni = FEM.FemOptions.Instance.InterlayerPoissonValue;
             var e = g * 2.0 * (1.0 + ni);
 
-            return new FEM.Materials.OrthotropicFemMaterial(e, e, e, g, g, g, ni, ni, ni, _alfaThermalExpansion, _alfaThermalExpansion, _alfaThermalExpansion, _density);
+            return new FEM.Materials.OrthotropicFemMaterial(e, e, e, ni, ni, ni, g, g, g, _alfaThermalExpansion, _alfaThermalExpansion, _alfaThermalExpansion, _density);
         }
 
         public FEM.Materials.OrthotropicFemMaterial GetOrthotropicFemMaterial(double loadDuration, double temperature, double ni)
@@ -153,14 +153,14 @@ namespace GPC.Model.Materials
             var g = GetShearModule(loadDuration, temperature);
             var e = g * 2.0 * (1.0 + ni);
 
-            return new FEM.Materials.OrthotropicFemMaterial(e, e, e, g, g, g, ni, ni, ni, _alfaThermalExpansion, _alfaThermalExpansion, _alfaThermalExpansion, _density);
+            return new FEM.Materials.OrthotropicFemMaterial(e, e, e, ni, ni, ni, g, g, g, _alfaThermalExpansion, _alfaThermalExpansion, _alfaThermalExpansion, _density);
         }
 
         public FEM.Materials.OrthotropicFemMaterial GetOrthotropicFemMaterial(double loadDuration, double temperature, double e1, double e2, double e3, double ni12, double ni23, double ni31)
         {
             var g = GetShearModule(loadDuration, temperature);
 
-            return new FEM.Materials.OrthotropicFemMaterial(e1, e2, e3, g, g, g, ni12, ni23, ni31, _alfaThermalExpansion, _alfaThermalExpansion, _alfaThermalExpansion, _density);
+            return new FEM.Materials.OrthotropicFemMaterial(e1, e2, e3, ni12, ni23, ni31, g, g, g, _alfaThermalExpansion, _alfaThermalExpansion, _alfaThermalExpansion, _density);
         }
 
 

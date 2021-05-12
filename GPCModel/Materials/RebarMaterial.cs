@@ -103,7 +103,7 @@ namespace GPC.Model.Materials
 
         public override OrthotropicFemMaterial GetOrthotropicFemMaterial()
         {
-            return new OrthotropicFemMaterial(E, E, E, GetShearModule(), GetShearModule(), GetShearModule(), Ni, Ni, Ni, AlfaThermalExpansion, AlfaThermalExpansion, AlfaThermalExpansion, Density);
+            return new OrthotropicFemMaterial(E, E, E, Ni, Ni, Ni, GetShearModule(), GetShearModule(), GetShearModule(), AlfaThermalExpansion, AlfaThermalExpansion, AlfaThermalExpansion, Density);
         }
 
         #endregion PUBLIC METHODS
