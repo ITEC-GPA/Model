@@ -22,7 +22,7 @@ namespace GPC.Model
             UnitsConvert.MassUnits.ton, UnitsConvert.PressureUnits.MPa, UnitsConvert.TemperatureUnits.C);
 
         public static UnitsSystem IPS = new UnitsSystem(UnitsConvert.LengthUnits.inch, UnitsConvert.ForceUnits.lbf, 
-            UnitsConvert.MassUnits.lb, UnitsConvert.PressureUnits.psi, UnitsConvert.TemperatureUnits.C);
+            UnitsConvert.MassUnits.lb, UnitsConvert.PressureUnits.psi, UnitsConvert.TemperatureUnits.F);
 
         public static readonly UnitsSystem DefaultUnits = Nmm;
 

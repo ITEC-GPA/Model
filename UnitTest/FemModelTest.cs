@@ -136,8 +136,14 @@ namespace FemTest
                 new Point3d(2, 10, 0)
             };
 
-            Mesh mesh = CreateSimpleMesh(10, 10, 3, 5, 2, 20);
-            Mesh mesh2 = CreateSimpleMesh(10, 10, 3, 5, 0, 0);
+            Stopwatch stopWatch = new Stopwatch();
+            stopWatch.Start();
+
+            //Mesh mesh = CreateSimpleMesh(10, 10, 3, 5, 2, 20);
+            //Mesh mesh2 = CreateSimpleMesh(10, 10, 3, 5, 0, 0);
+            Mesh mesh = CreateSimpleMesh(40, 40, 25, 60, 2, 0);
+            Debug.WriteLine($"Mesh vertices={mesh.VerticesCount}");
+            Debug.WriteLine(stopWatch.Elapsed, "Mesh created");
 
             GlassMaterial gm = new GlassMaterialAstm("", 1, 0.2, 3, 4, 5, 6, 0.008, 0.008, 9);
             PlateProperty pp = new PlateProperty(gm.GetIsotropicFemMaterial(), 1, 2, "p");
@@ -169,9 +175,14 @@ namespace FemTest
             FemModel femModel = new FemModel();
             femModel.AddProperty(pp);
             femModel.AddProperty(bp);
+
+            stopWatch.Restart();
             femModel.AddMesh(mesh, pp.Name, bp.Name, pointLoads, lineLoads, plateLoads, geometryRestrains);
+            Debug.WriteLine(stopWatch.Elapsed, "Mesh added");
 
+            stopWatch.Stop();
 
+            Debug.WriteLine("Finish");
             // Assert
         }
 

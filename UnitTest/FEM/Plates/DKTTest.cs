@@ -358,5 +358,34 @@ namespace FemTest.SolverTest
             Assert.AreEqual(0.5833, fem.F[14], 0.001);
             Assert.AreEqual(0.50, fem.F[20], 0.001);
         }
+
+        [TestMethod]
+        public void Quad4DKTTest4()
+        {
+            Material mat = new SteelMaterial("mat", 12, 0.0, 355, 510, 7850);
+            PlateProperty prop = new PlateProperty(mat, 1.0, 1.0, "p");
+
+            Node[] nodesPlate1 = new Node[4];
+            nodesPlate1[0] = new Node(0.0, 0, 0, "1");
+            nodesPlate1[1] = new Node(+2.0, 0, 0, "2");
+            nodesPlate1[2] = new Node(+2.0, +2, 0, "3");
+            nodesPlate1[3] = new Node(0.0, +2, 0, "4");
+
+            Plate e0 = new Quad4DK(nodesPlate1);
+            e0.SetProperty(prop);
+
+            LoadCaseBase loadCase = new LoadCaseBase("myLoadCase", new Guid());
+            FreedomCase freedomCase = new FreedomCase("freedomCase1");
+            CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
+            PlatePressureAttribute pressure = new PlatePressureAttribute("loadCase", sys, 0.0, 0.0, 1.0);
+            e0.AddLoadCaseAttribute(pressure);
+
+            LinearSolver fem = new LinearSolver(new FiniteElement[] { e0 });
+
+            Assert.AreEqual(1, fem.F[2], 0.001); //UX, UY, UZ
+            Assert.AreEqual(1, fem.F[8], 0.001);
+            Assert.AreEqual(1, fem.F[14], 0.001);
+            Assert.AreEqual(1, fem.F[20], 0.001);
+        }
     }
 }

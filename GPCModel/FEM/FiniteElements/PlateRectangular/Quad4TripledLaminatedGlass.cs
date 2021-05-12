@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using GPC.Geometry;
 using GPC.Model.FEM.Attributes;
 using GPC.Model.FEM.Materials;
@@ -70,7 +71,7 @@ namespace GPC.Model.FEM.FiniteElements
             DOF.Add(Solver.DOF.RY);
             DOF.Add(Solver.DOF.RZ);
 
-            _hc = (2.0 * h0 + h1 + h2) / 2.0; //eq. (14)
+            _hc = GetHc(h0, h1, h2); //(2.0 * h0 + h1 + h2) / 2.0; //eq. (14)
             _G0 = G0;
             _h0 = h0;
             _h1 = h1;
@@ -83,6 +84,20 @@ namespace GPC.Model.FEM.FiniteElements
         {
             //set local coordinate system
             _localNodes = Quad4Element.GetLocalNodes(_nodesGlobal, out _localCoordinateSystem);
+            Vector3d globalX = new Vector3d(1, 0, 0);
+            Vector3d globalY = new Vector3d(0, 1, 0);
+            Vector3d globalZ = new Vector3d(0, 0, 1);
+
+            if (_localCoordinateSystem.V1 != globalX || _localCoordinateSystem.V2 != globalY || _localCoordinateSystem.V3 != globalZ)
+            {
+                Console.WriteLine("Nodi coordinate globali:");
+                Console.WriteLine(_nodesGlobal[0].Position);
+                Console.WriteLine(_nodesGlobal[1].Position);
+                Console.WriteLine(_nodesGlobal[2].Position);
+                Console.WriteLine(_nodesGlobal[3].Position);
+                throw new NotImplementedException("Elemento finito al momento funzionante solo con assi locali coincidenti con assi globali");
+            }
+
             _lx = _localNodes[1].Position.X - _localNodes[0].Position.X;
             _ly = _localNodes[3].Position.Y - _localNodes[0].Position.Y;
 
@@ -188,11 +203,11 @@ namespace GPC.Model.FEM.FiniteElements
             #endregion
             _dofGlobalToLocal = dofGlobalToLocalTranspose.Transpose();*/
 
-            _dofGlobalToLocal = mnl.Matrix<double>.Build.DenseIdentity(24); //TODO: aggiornare
+                _dofGlobalToLocal = mnl.Matrix<double>.Build.DenseIdentity(24); //TODO: aggiornare
 
-            /*Console.WriteLine("dofGlobalToLocalTranspose.");
-             * FemUtilites.WriteMatrix(_dofGlobalToLocal);
-            }*/
+                /*Console.WriteLine("dofGlobalToLocalTranspose.");
+                    * FemUtilites.WriteMatrix(_dofGlobalToLocal);
+                }*/
 
             #endregion
 
@@ -229,12 +244,12 @@ namespace GPC.Model.FEM.FiniteElements
 
                 mnl.Matrix<double> Bs = GetBs(x, y);
 
-                #if DEBUG
+#if DEBUG
                 /*Console.WriteLine("csi = " + csi + " eta=" + eta);
                 Console.WriteLine("x = " + x + " y=" + y);
                 Console.WriteLine("Bs(x=" + x + ",y=" + y + ")");
                 Console.WriteLine(Bs);*/
-                #endif
+#endif
 
                 return Bs.Transpose() * _Ds * Bs;
             }
@@ -246,12 +261,12 @@ namespace GPC.Model.FEM.FiniteElements
 
                 mnl.Matrix<double> Bg = GetBg(x, y);
 
-                #if DEBUG
+#if DEBUG
                 /*Console.WriteLine("csi = " + csi + " eta=" + eta);
                 Console.WriteLine("x = " + x + " y=" + y);
                 Console.WriteLine("Bg(x=" + x + ",y=" + y + ")");
                 Console.WriteLine(Bg);*/
-                #endif
+#endif
 
                 return Bg.Transpose() * _Dg * Bg;
             }
@@ -335,14 +350,8 @@ namespace GPC.Model.FEM.FiniteElements
             mnl.Matrix<double> N = mnl.Matrix<double>.Build.Dense(3, 0);
             for (int indexNode = 1; indexNode <= 4; indexNode++)
             {
-                /*double x = _localNodes[indexNode - 1].Position.X;
-                double y = _localNodes[indexNode - 1].Position.Y;*/
                 mnl.Matrix<double> nNode = GetNiMatrix(indexNode, x, y, _lx, _ly);
-                #if DEBUG
-                /*Console.WriteLine("lx  " + _lx + " ly = " + _ly);
-                Console.WriteLine("N nodo  " + indexNode);
-                FEMUtilities.WriteMatrix(nNode);*/
-                #endif
+
                 N = N.Append(nNode);
             }
             return N;
@@ -357,14 +366,9 @@ namespace GPC.Model.FEM.FiniteElements
             mnl.Matrix<double> Bs = mnl.Matrix<double>.Build.Dense(4, 0);
             for (int indexNode = 1; indexNode <= 4; indexNode++)
             {
-                /*double x = _localNodes[indexNode - 1].Position.X;
-                double y = _localNodes[indexNode - 1].Position.Y;*/
+
                 mnl.Matrix<double> bsNode = GetBsi(indexNode, x, y, _lx, _ly);
-                #if DEBUG
-                /*Console.WriteLine("lx  " + _lx + " ly = " + _ly);
-                Console.WriteLine("Bs nodo  "+ indexNode);
-                FEMUtilities.WriteMatrix(bsNode);*/
-                #endif
+
                 Bs = Bs.Append(bsNode);
             }
             return Bs;
@@ -382,9 +386,9 @@ namespace GPC.Model.FEM.FiniteElements
             {
                 /*double x = _localNodes[indexNode - 1].Position.X;
                 double y = _localNodes[indexNode - 1].Position.Y;*/
-                #if DEBUG
+#if DEBUG
                 //Console.WriteLine("GetBg: x = " + x + " y = " + y);
-                #endif
+#endif
                 mnl.Matrix<double> bgNode = GetBgi(indexNode, x, y, _lx, _ly);
                 Bg = Bg.Append(bgNode);
             }
@@ -395,11 +399,70 @@ namespace GPC.Model.FEM.FiniteElements
         //TODO: Da ottimizzare/scrivere
         public void GetNodesResults(double[] globalDisplacementsNodes, out double[] localDisplacements, out mnl.Matrix<double>[] gloabalPseudoDeformation, out mnl.Matrix<double>[] localPseudoDeformation, out mnl.Matrix<double>[] globalForces, out mnl.Matrix<double>[] localForces, out mnl.Matrix<double>[] globalStress, out mnl.Matrix<double>[] localStress, out mnl.Matrix<double>[] globalEpsilon, out mnl.Matrix<double>[] localEpsilon)
         {
+            
             //TODO: "aggiornare";
             throw new NotImplementedException();
         }
 
+        /// <summary>
+        /// eq 33
+        /// </summary>
+        /// <param name="globalDisplacementsNodes"></param>
+        /// <param name="node"></param>
+        public mnl.Vector<double> GetPseudoStrainInterlayer(double[] globalDisplacementsNodes, Node node)
+        {
+            var displPoint = GetDisplacementsNode(node, globalDisplacementsNodes);
+            int indexNode = _nodesGlobal.ToList().IndexOf(node);
+
+            //eq. 33: pseudoStrainInterlayer = [deltaU, deltaV, dwdx , dwdy]
+            var Bs = GetBsi(indexNode + 1, _localNodes[indexNode].Position.X, _localNodes[indexNode].Position.Y, _lx, _ly);
+            var es = Bs * displPoint;
+
+            return es;
+        }
+
+        public mnl.Vector<double> GetPseudoStressInterlayer(mnl.Vector<double> pseudoStrain)
+        {
+            return _Ds * pseudoStrain;
+        }
+
+        /// <summary>
+        /// eq 44
+        /// </summary>
+        /// <param name="globalDisplacementsNodes"></param>
+        /// <param name="node"></param>
+        public mnl.Vector<double> GetPseudoStrainGlass(double[] globalDisplacementsNodes, Node node)
+        {
+            var displPoint = GetDisplacementsNode(node, globalDisplacementsNodes);
+            int indexNode = _nodesGlobal.ToList().IndexOf(node);
+
+            //eq. 44: pseudoStrainGlass = [ddeltaUdx, ddeltaVdy, ddeltaUdx + ddeltaUdy, -d2wdx2 , -d2wdy2, -2.0 * d2wdxdy]
+            var Bg = GetBgi(indexNode + 1, _localNodes[indexNode].Position.X, _localNodes[indexNode].Position.Y, _lx, _ly);
+            var eg = Bg * displPoint;
+
+            return eg;
+        }
+
+        public mnl.Vector<double> GetPseudoStressGlass(mnl.Vector<double> pseudoStrain)
+        {
+            return _Dg * pseudoStrain;
+        }
         #region PrivateInternalFunctions
+
+        private mnl.Vector<double> GetDisplacementsNode(Node node, double[] globalDisplacementsNodes)
+        {
+            mnl.Vector<double> displPoint = mnl.Vector<double>.Build.Dense(6);
+            int indexNode = _nodesGlobal.ToList().IndexOf(node);
+            
+            int start = indexNode * 6;
+            int counter = 0;
+            for (int i = start; i < start + 6; i++)
+            {
+                displPoint[counter] = globalDisplacementsNodes[i];
+                counter++;
+            }
+            return displPoint;
+        }
 
         #region ShapeFunction
         /// <summary>
@@ -412,12 +475,7 @@ namespace GPC.Model.FEM.FiniteElements
         /// <returns></returns>
         internal static Func<double, double, double> GetN(int indexNode, int indexDisplacement, double lx, double ly)
         {
-            Dictionary<int, (int, int)> indexes = new Dictionary<int, (int, int)>();
-            //eq. 59    i | a  b
-            indexes.Add(1, (1, 1));
-            indexes.Add(2, (2, 1));
-            indexes.Add(3, (2, 2));
-            indexes.Add(4, (1, 2));
+            Dictionary<int, (int, int)> indexes = GetIndices();
 
             int a = indexes[indexNode].Item1;
             int b = indexes[indexNode].Item2;
@@ -470,12 +528,7 @@ namespace GPC.Model.FEM.FiniteElements
         /// <returns></returns>
         internal static Func<double, double, double> GetdNdx(int indexNode, int indexDisplacement, double lx, double ly)
         {
-            Dictionary<int, (int, int)> indexes = new Dictionary<int, (int, int)>();
-            //eq. 59    i|  a  b
-            indexes.Add(1, (1, 1));
-            indexes.Add(2, (2, 1));
-            indexes.Add(3, (2, 2));
-            indexes.Add(4, (1, 2));
+            Dictionary<int, (int, int)> indexes = GetIndices();
 
             int a = indexes[indexNode].Item1;
             int b = indexes[indexNode].Item2;
@@ -528,12 +581,7 @@ namespace GPC.Model.FEM.FiniteElements
         /// <returns></returns>
         internal static Func<double, double, double> GetdNdy(int indexNode, int indexDisplacement, double lx, double ly)
         {
-            Dictionary<int, (int, int)> indexes = new Dictionary<int, (int, int)>();
-            //eq. 59    i|  a  b
-            indexes.Add(1, (1, 1));
-            indexes.Add(2, (2, 1));
-            indexes.Add(3, (2, 2));
-            indexes.Add(4, (1, 2));
+            Dictionary<int, (int, int)> indexes = GetIndices();
 
             int a = indexes[indexNode].Item1;
             int b = indexes[indexNode].Item2;
@@ -586,12 +634,7 @@ namespace GPC.Model.FEM.FiniteElements
         /// <returns></returns>
         internal static Func<double, double, double> GetdNdxdy(int indexNode, int indexDisplacement, double lx, double ly)
         {
-            Dictionary<int, (int, int)> indexes = new Dictionary<int, (int, int)>();
-            //eq. 59    i|  a  b
-            indexes.Add(1, (1, 1));
-            indexes.Add(2, (2, 1));
-            indexes.Add(3, (2, 2));
-            indexes.Add(4, (1, 2));
+            Dictionary<int, (int, int)> indexes = GetIndices();
 
             int a = indexes[indexNode].Item1;
             int b = indexes[indexNode].Item2;
@@ -628,12 +671,7 @@ namespace GPC.Model.FEM.FiniteElements
         /// <returns></returns>
         internal static Func<double, double, double> GetdNdx2(int indexNode, int indexDisplacement, double lx, double ly)
         {
-            Dictionary<int, (int, int)> indexes = new Dictionary<int, (int, int)>();
-            //eq. 59    i!  a  b
-            indexes.Add(1, (1, 1));
-            indexes.Add(2, (2, 1));
-            indexes.Add(3, (2, 2));
-            indexes.Add(4, (1, 2));
+            Dictionary<int, (int, int)> indexes = GetIndices();
 
             int a = indexes[indexNode].Item1;
             int b = indexes[indexNode].Item2;
@@ -670,12 +708,7 @@ namespace GPC.Model.FEM.FiniteElements
         /// <returns></returns>
         internal static Func<double, double, double> GetdNdy2(int indexNode, int indexDisplacement, double lx, double ly)
         {
-            Dictionary<int, (int, int)> indexes = new Dictionary<int, (int, int)>();
-            //eq. 59    i|  a  b
-            indexes.Add(1, (1, 1));
-            indexes.Add(2, (2, 1));
-            indexes.Add(3, (2, 2));
-            indexes.Add(4, (1, 2));
+            Dictionary<int, (int, int)> indexes = GetIndices();
 
             int a = indexes[indexNode].Item1;
             int b = indexes[indexNode].Item2;
@@ -701,7 +734,18 @@ namespace GPC.Model.FEM.FiniteElements
                 throw new ArgumentOutOfRangeException();
             }
         }
-        #endregion
+
+        private static Dictionary<int, (int, int)> GetIndices()
+        {
+            Dictionary<int, (int, int)> indexes = new Dictionary<int, (int, int)>();
+            //eq. 59    i|  a  b
+            indexes.Add(1, (1, 1));
+            indexes.Add(2, (2, 1));
+            indexes.Add(3, (2, 2));
+            indexes.Add(4, (1, 2));
+            return indexes;
+        }
+#endregion
 
         #region Hermite
         /// <summary>
@@ -792,7 +836,7 @@ namespace GPC.Model.FEM.FiniteElements
                 throw new ArgumentOutOfRangeException();
             }
         }
-        #endregion
+#endregion
 
         /// <summary>
         /// equation 54
@@ -914,7 +958,7 @@ namespace GPC.Model.FEM.FiniteElements
             /*#if DEBUG
             Console.WriteLine("Dg factor 1 = " + factor1);
             Console.WriteLine("Dg factor 2 = " + factor2);
-            #endif*/
+#endif*/
 
             for (int row = 0; row < 3; row++)
             {
@@ -935,10 +979,17 @@ namespace GPC.Model.FEM.FiniteElements
             return Dg;
         }
 
+        /// <summary>
+        /// eq. 14
+        /// </summary>
+        /// <param name="h0"></param>
+        /// <param name="h1"></param>
+        /// <param name="h2"></param>
+        /// <returns></returns>
         internal static double GetHc(double h0, double h1, double h2)
         {
             return (2.0 * h0 + h1 + h2) / 2.0;
         }
-        #endregion
+#endregion
     }
 }

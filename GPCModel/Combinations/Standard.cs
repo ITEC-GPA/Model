@@ -12,6 +12,11 @@ namespace GPC.Model.Combinations
     {
         public abstract class CombinationsOptions
         {
+
+            public override abstract bool Equals(object obj);
+
+            public override abstract int GetHashCode();
+
         }
 
         /// <summary>

@@ -75,6 +75,7 @@
     <Compile Include="Combinations\CombinationsCollection.cs" />
     <Compile Include="Combinations\Standard.cs" />
     <Compile Include="Combinations\StandardASCE16.cs" />
+    <Compile Include="Combinations\StandardEN16612.cs" />
     <Compile Include="Combinations\StandardEN1990.cs" />
     <Compile Include="Combinations\Combination.cs" />
     <Compile Include="Combinations\CombinationAsce.cs" />
@@ -227,5 +228,7 @@
       <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
     </PropertyGroup>
     <Error Condition="!Exists('..\packages\GMsh.Net.1.0.0.1\build\GMsh.Net.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\GMsh.Net.1.0.0.1\build\GMsh.Net.targets'))" />
+    <Error Condition="!Exists('..\packages\MathNet.Numerics.MKL.Win-x64.2.5.0\build\MathNet.Numerics.MKL.Win-x64.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\MathNet.Numerics.MKL.Win-x64.2.5.0\build\MathNet.Numerics.MKL.Win-x64.targets'))" />
   </Target>
+  <Import Project="..\packages\MathNet.Numerics.MKL.Win-x64.2.5.0\build\MathNet.Numerics.MKL.Win-x64.targets" Condition="Exists('..\packages\MathNet.Numerics.MKL.Win-x64.2.5.0\build\MathNet.Numerics.MKL.Win-x64.targets')" />
 </Project>
