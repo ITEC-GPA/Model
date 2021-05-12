@@ -225,6 +225,7 @@ namespace GPC.Model.FEM
             {
                 dimensionKSystemMatrix = dimensionKSystemMatrix + Nodes.ElementAt(i).NrActiveDof;
             }
+            Console.WriteLine("dimensione K = " + dimensionKSystemMatrix);
             #endregion
 
             _KGlobal = mnl.Matrix<double>.Build.Dense(dimensionKSystemMatrix, dimensionKSystemMatrix);
@@ -380,10 +381,12 @@ namespace GPC.Model.FEM
             }
             #endregion
 
-/*#if DEBUG
+            /*
+#if DEBUG
             Console.WriteLine("Vector F");
             _F.ToList().ForEach(x => Console.WriteLine(x));
-#endif*/
+#endif
+            */
             #endregion
 
             #region ApplyingRestrains
@@ -825,9 +828,9 @@ namespace GPC.Model.FEM
 #endregion
 #endregion
 
-#region PrivateFunction
+        #region PrivateFunction
 
-#region GetPosition
+        #region GetPosition
         /// <summary>
         /// Give the position of selected GDL from 0 to N where N is dimension of matrix KGloabl or the dimension of the vector of Forces or Displacments
         /// </summary>
@@ -929,6 +932,6 @@ namespace GPC.Model.FEM
         }
 #endregion
 
-#endregion
+        #endregion
     }
 }
