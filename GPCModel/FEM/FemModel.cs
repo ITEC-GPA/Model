@@ -853,13 +853,10 @@ namespace GPC.Model.FEM
                 plateProperty = (IPlateProperty)GetPlateProperty(platePropertyName);
             }
 
-
             if (mesh.Volumes.Count != 0)
             {
                 brickProperty = (BrickProperty)GetBrickProperty(brickPropertyName);
             }
-
-
 
             // Aggiunge nodi alla collection di nodi
             using (var enumerator = mesh.GetVerticesEnumerator())
@@ -891,11 +888,12 @@ namespace GPC.Model.FEM
 
                     if (face.IsQuad)
                     {
-                        var plate = new Plate(new Node[] { _nodes[nodesNewIndexMap.ContainsKey(face.A) ? nodesNewIndexMap[face.A] : face.A],
-                                                           _nodes[nodesNewIndexMap.ContainsKey(face.B) ? nodesNewIndexMap[face.B] : face.B],
-                                                           _nodes[nodesNewIndexMap.ContainsKey(face.C) ? nodesNewIndexMap[face.C] : face.C],
-                                                           _nodes[nodesNewIndexMap.ContainsKey(face.D) ? nodesNewIndexMap[face.D] : face.D]}
-                                                       );
+                        var plate = new Plate(new Node[] { 
+                            _nodes[nodesNewIndexMap.ContainsKey(face.A) ? nodesNewIndexMap[face.A] : face.A],
+                            _nodes[nodesNewIndexMap.ContainsKey(face.B) ? nodesNewIndexMap[face.B] : face.B],
+                            _nodes[nodesNewIndexMap.ContainsKey(face.C) ? nodesNewIndexMap[face.C] : face.C],
+                            _nodes[nodesNewIndexMap.ContainsKey(face.D) ? nodesNewIndexMap[face.D] : face.D]
+                        });
 
                         plate.SetProperty((ElementProperty)plateProperty);
 
@@ -908,11 +906,11 @@ namespace GPC.Model.FEM
                     }
                     else
                     {
-
-                        var plate = new Plate(new Node[] { _nodes[nodesNewIndexMap.ContainsKey(face.A) ? nodesNewIndexMap[face.A] : face.A],
-                                                           _nodes[nodesNewIndexMap.ContainsKey(face.B) ? nodesNewIndexMap[face.B] : face.B],
-                                                           _nodes[nodesNewIndexMap.ContainsKey(face.C) ? nodesNewIndexMap[face.C] : face.C]}
-                                                       );
+                        var plate = new Plate(new Node[] { 
+                            _nodes[nodesNewIndexMap.ContainsKey(face.A) ? nodesNewIndexMap[face.A] : face.A],
+                            _nodes[nodesNewIndexMap.ContainsKey(face.B) ? nodesNewIndexMap[face.B] : face.B],
+                            _nodes[nodesNewIndexMap.ContainsKey(face.C) ? nodesNewIndexMap[face.C] : face.C]
+                        });
 
                         plate.SetProperty((ElementProperty)plateProperty);
 
@@ -929,7 +927,6 @@ namespace GPC.Model.FEM
                     throw new NotImplementedException();
                 }
             }
-
 
             // Aggiunge Volumes
             var volumes = mesh.Volumes.ToArray();
@@ -1289,8 +1286,6 @@ namespace GPC.Model.FEM
 
         public override bool Equals(object obj)
         {
-
-
             throw new NotImplementedException();
             return obj is FemModel model &&
                    base.Equals(obj);
