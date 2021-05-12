@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using GPC.Geometry;
 using GPC.Model.Materials;
 using GPC.Model.FEM.Properties;
+using GPC.Model.FEM.Materials;
 using GPC.Model.Elements;
 
 namespace GPC.Model.Sections
@@ -16,11 +17,12 @@ namespace GPC.Model.Sections
         public struct ShapeMaterial
         {
             public Shape Shape { get; set; }
-            public Material Material { get; set; }
+            public IsotropicFemMaterial Material { get; set; }
         }
 
         #region Variables
-        protected Material _material;
+
+        protected IsotropicFemMaterial _material;
         protected double _area;
         protected double _j11;
         protected double _j22;
@@ -35,11 +37,12 @@ namespace GPC.Model.Sections
         protected Point2d _shearCenter;
         protected Point2d _centroid;
         protected double _angleX1;
+
         #endregion
 
         #region Properties
 
-        public Material Material
+        public IsotropicFemMaterial Material
         {
             get => _material;
             set => _material = value;
@@ -134,12 +137,12 @@ namespace GPC.Model.Sections
 
         #region Public Constructors
 
-        public Section(Material material, string name) : base(name)
+        public Section(IsotropicFemMaterial material, string name) : base(name)
         {
             _material = material;
         }
 
-        public Section(Material[] materials, string name) : base(name)
+        public Section(IsotropicFemMaterial[] materials, string name) : base(name)
         {
 
         }
@@ -218,29 +221,29 @@ namespace GPC.Model.Sections
             return sigmaN + sigmaMy + sigmaMz;
         }
 
-        public override double GetE()
+        public double GetE()
         {
             return _material.E;
         }
 
-        public override double GetNi()
+        public double GetNi()
         {
             return _material.Ni;
         }
 
-        public override double GetShearModule()
+        public double GetShearModule()
         {
-            return _material.GetShearModule();
+            return _material.G;
         }
 
-        public override double GetDensity()
+        public double GetDensity()
         {
             return _material.Density;
         }
 
-        public override double GetAlphaThermalExpansion()
+        public double GetAlphaThermalExpansion()
         {
-            return _material.AlfaThermalExpansion;
+            return _material.Alpha;
         }
         #endregion
     }

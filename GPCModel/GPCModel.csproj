@@ -106,6 +106,7 @@
     <Compile Include="FEM\ElementProperty\IPlateProperty.cs" />
     <Compile Include="FEM\ElementProperty\LaminatedGlassProperty.cs" />
     <Compile Include="FEM\ElementProperty\MonolithicGlassProperty.cs" />
+    <Compile Include="FEM\FemOptions.cs" />
     <Compile Include="FEM\FiniteElements\Beam.cs" />
     <Compile Include="FEM\FiniteElements\Brick\Hexaedron8.cs" />
     <Compile Include="FEM\FiniteElements\Beam\EulerBeam.cs" />
@@ -121,6 +122,9 @@
     <Compile Include="FEM\FiniteElements\PlateRectangular\Quad4Element.cs" />
     <Compile Include="FEM\FiniteElements\Brick\Tethraedron4.cs" />
     <Compile Include="FEM\GaussIntegration.cs" />
+    <Compile Include="FEM\FemMaterials\FemMaterial.cs" />
+    <Compile Include="FEM\FemMaterials\IsotropicFemMaterial.cs" />
+    <Compile Include="FEM\FemMaterials\OrthotropicFemMaterial.cs" />
     <Compile Include="FEM\NnLinearStaticSolver.cs" />
     <Compile Include="FEM\Stage.cs" />
     <Compile Include="FEM\FEMUtilities.cs" />

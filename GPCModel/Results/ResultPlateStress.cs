@@ -165,7 +165,7 @@ namespace GPC.Model.Results
         public void GetPrincipalStress(out double S11, out double S22, out double S33)
         {
             // double phi = 0.5 * Math.Atan( Math.Abs( (2*_sxy) / (_sxx + _syy )));         // The angle, Φ, is the angle in radians between the maximum normal stress and the local x-axis.
-            if (_sxz == 0 && _sxy == 0 && _szz == 0)
+            if (_sxz == 0 && _syz == 0 && _szz == 0)
             {
                 GetPrincipalStress(out S11, out S22);
                 S33 = 0;

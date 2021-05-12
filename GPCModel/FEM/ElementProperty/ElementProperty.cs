@@ -27,17 +27,6 @@ namespace GPC.Model.FEM.Properties
         #endregion
 
 
-        public abstract double GetE();
-
-        public abstract double GetNi();
-
-        public abstract double GetShearModule();
-
-        public abstract double GetDensity();
-
-        public abstract double GetAlphaThermalExpansion();
-
-
         #region Equals - Override - Operators
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
 
@@ -66,7 +55,7 @@ namespace GPC.Model.FEM.Properties
             if (ReferenceEquals(obj1, obj2))
                 return true;
 
-            if (ReferenceEquals(obj1, null) || ReferenceEquals(obj2, null))
+            if (obj1 is null || obj2 is null)
                 return false;
 
             return obj1.Equals(obj2);

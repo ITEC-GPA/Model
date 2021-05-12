@@ -11,6 +11,7 @@ using GPC.Model.FEM.Attributes;
 using GPC.Model.LoadCases;
 using System.Collections.Generic;
 using GPC.Model.FEM;
+using GPC.Model.FEM.Materials;
 
 namespace FemTest.SolverTest
 {
@@ -136,9 +137,6 @@ namespace FemTest.SolverTest
             double niGlass = 0.0;
             double G0 = EGlass / (2.0 * (1.0 + niGlass));
             double h0 = 0.00001;
-
-            Material mat = new SteelMaterial("mat", EGlass, niGlass, 355, 510, 7850);
-            PlateProperty prop = new PlateProperty(mat, h1 + h2 + h0, h1 + h2 + h0, "p");
 
             Quad4TripleLaminatedGlass e0 = new Quad4TripleLaminatedGlass(new Node[] { nodes[0], nodes[1], nodes[2], nodes[3] }, G0, h0, h1, h2, EGlass, niGlass);
             e0.BuildMatrix();
@@ -347,7 +345,7 @@ namespace FemTest.SolverTest
 
             Quad4TripleLaminatedGlass e0 = new Quad4TripleLaminatedGlass(new Node[] { nodes[0], nodes[1], nodes[2], nodes[3] }, G0, h0, h1, h2, EGlass, niGlass);
 
-            var C = Quad4Element.DPlaneStress(EGlass, niGlass);
+            var C = IsotropicFemMaterial.GetMatrixPlaneStress(EGlass, niGlass);
             var Dg = Quad4TripleLaminatedGlass.GetDg(h1, h2, C);
             FEMUtilities.WriteMatrix("Dg", Dg, "F5");
 
@@ -400,6 +398,9 @@ namespace FemTest.SolverTest
             double G0 = EGlass / (2.0 * (1.0 + niGlass));
             //double G0 = 1e-6;
             double h0 = 0.1;
+
+            Material mat = new SteelMaterial("mat", EGlass, niGlass, 355, 510, 7850);
+            PlateProperty prop = new PlateProperty(mat.GetIsotropicFemMaterial(), h1 + h2 + h0, h1 + h2 + h0, "p");
 
             Quad4TripleLaminatedGlass e0 = new Quad4TripleLaminatedGlass(new Node[] { nodes[0], nodes[1], nodes[2], nodes[3] }, G0, h0, h1, h2, EGlass, niGlass);
 
@@ -673,6 +674,9 @@ namespace FemTest.SolverTest
             double G0 = 0.5173;
             double niGlass = 0.23;
 
+            Material mat = new SteelMaterial("mat", EGlass, niGlass, 355, 510, 7850);
+            PlateProperty prop = new PlateProperty(mat.GetIsotropicFemMaterial(), hGlass + hInterlayer + hGlass, hGlass + hInterlayer + hGlass, "p");
+
             List<Node> nodes = new List<Node>();
             nodes.Add(new Node(-1e6, -1e6, -1e6));
             nodes.Add(new Node(330, -100, 0));
@@ -766,7 +770,7 @@ namespace FemTest.SolverTest
             double niGlass = 0.23;
 
             Material mat = new SteelMaterial("mat", EGlass, niGlass, 355, 510, 7850);
-            PlateProperty prop = new PlateProperty(mat, hGlass + hInterlayer + hGlass, hGlass + hInterlayer + hGlass, "p");
+            PlateProperty prop = new PlateProperty(mat.GetIsotropicFemMaterial(), hGlass + hInterlayer + hGlass, hGlass + hInterlayer + hGlass, "p");
 
             List<Node> nodes = new List<Node>();
             nodes.Add(new Node(-1e6, -1e6, -1e6));
@@ -920,7 +924,7 @@ namespace FemTest.SolverTest
             double niGlass = 0.23;
 
             Material mat = new SteelMaterial("mat", EGlass, niGlass, 355, 510, 7850);
-            PlateProperty prop = new PlateProperty(mat, hGlass + hInterlayer + hGlass, hGlass + hInterlayer + hGlass, "p");
+            PlateProperty prop = new PlateProperty(mat.GetIsotropicFemMaterial(), hGlass + hInterlayer + hGlass, hGlass + hInterlayer + hGlass, "p");
 
             List<Node> nodes = new List<Node>();
             nodes.Add(new Node(-1e6, -1e6, -1e6));

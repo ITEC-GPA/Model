@@ -130,7 +130,7 @@ namespace FemTest.SolverTest
 
             SteelMaterial mat = new SteelMaterial("mat", 96.0, 1.0 / 3.0, 355, 510, 7850.0);
 
-            BrickProperty brickProperty = new BrickProperty(mat, "propr");
+            BrickProperty brickProperty = new BrickProperty(mat.GetIsotropicFemMaterial(), "propr");
 
             Tethraedron4 e = new Tethraedron4(nds.ToArray(), brickProperty);
             e.BuildMatrix();

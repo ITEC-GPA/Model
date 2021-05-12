@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using GPC.Geometry;
 using GPC.Model.FEM.Attributes;
+using GPC.Model.FEM.Materials;
+using GPC.Model.FEM.Properties;
 using mnl = MathNet.Numerics.LinearAlgebra;
 
 namespace GPC.Model.FEM.FiniteElements
@@ -222,7 +224,7 @@ namespace GPC.Model.FEM.FiniteElements
             #endregion
 
             #region Dg - GLASS
-            mnl.Matrix<double> C = Plate.DPlaneStress(_EGlass,_niGlass);
+            mnl.Matrix<double> C = IsotropicFemMaterial.GetMatrixPlaneStress(_EGlass,_niGlass);
             _Dg = GetDg(_h1, _h2, C);
 
             #if DEBUG

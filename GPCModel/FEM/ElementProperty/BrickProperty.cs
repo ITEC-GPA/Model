@@ -1,4 +1,5 @@
 ﻿using GPC.Model.Materials;
+using GPC.Model.FEM.Materials;
 using System;
 using System.Diagnostics;
 
@@ -7,39 +8,18 @@ namespace GPC.Model.FEM.Properties
     [DebuggerDisplay("{" + nameof(GetDebuggerDisplay) + "(),nq}")]
     public class BrickProperty : ElementProperty
     {
-        protected Material _material;
 
-        public Material Material => _material;
+        protected FemMaterial _material;
 
-        public BrickProperty(Material material, string name) : base(name)
+        public FemMaterial Material => _material;
+
+
+        public BrickProperty(FemMaterial material, string name) : base(name)
         {
             _material = material ?? throw new ArgumentNullException("Material cannot be null");
         }
 
-        public override double GetAlphaThermalExpansion()
-        {
-            return _material.AlfaThermalExpansion;
-        }
 
-        public override double GetDensity()
-        {
-            return _material.Density;
-        }
-
-        public override double GetE()
-        {
-            return _material.E;
-        }
-
-        public override double GetNi()
-        {
-            return _material.Ni;
-        }
-
-        public override double GetShearModule()
-        {
-            return _material.GetShearModule();
-        }
 
         private string GetDebuggerDisplay()
         {

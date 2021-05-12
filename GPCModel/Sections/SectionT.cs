@@ -30,7 +30,7 @@ namespace GPC.Model.Sections
         public double yPlastic => _yPlastic;
         #endregion
 
-        public SectionT(double h, double b, double tw, double tf, Material material, string name) : base(material, name)
+        public SectionT(double h, double b, double tw, double tf, Material material, string name) : base(material.GetIsotropicFemMaterial(), name)
         {
             _h = h;
             _b = b;

@@ -47,9 +47,9 @@ namespace GPC.Model.FEM.FiniteElements
             // -> local axis coincide with global axis -> ref. Finite Element Method - by Rao
             _dofGlobalToLocal = mnl.Matrix<double>.Build.DenseDiagonal(4*2*3, 1.0);
 
-            double E = ((BrickProperty)_property).GetE();
-            double ni = ((BrickProperty)_property).GetNi();
-            _d = Brick.GetD(E, ni);
+            /*double E = ((BrickProperty)_property).GetE();
+            double ni = ((BrickProperty)_property).GetNi();*/
+            _d = ((BrickProperty)_property).Material.Get3DSolidStress();
 
             Func<double, double, double, mnl.Matrix<double>> kFunc = (double csi, double eta, double zeta) => {
                 mnl.Matrix<double> b = GetB(csi, eta, zeta);
