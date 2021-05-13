@@ -78,8 +78,6 @@
     <Compile Include="Combinations\StandardEN16612.cs" />
     <Compile Include="Combinations\StandardEN1990.cs" />
     <Compile Include="Combinations\Combination.cs" />
-    <Compile Include="Combinations\CombinationAsce.cs" />
-    <Compile Include="Combinations\CombinationEn.cs" />
     <Compile Include="Combinations\StandardUNIEN1990.cs" />
     <Compile Include="Elements\GhostElement.cs" />
     <Compile Include="FEM\Attributes\FreedomCase\BeamReleasesAttribute.cs" />
