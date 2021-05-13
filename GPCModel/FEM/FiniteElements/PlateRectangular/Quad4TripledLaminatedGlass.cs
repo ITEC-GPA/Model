@@ -13,6 +13,12 @@ namespace GPC.Model.FEM.FiniteElements
     /// </summary>
     public class Quad4TripleLaminatedGlass : Plate
     {
+        public enum Glass
+        {
+            Top,
+            Bottom
+        }
+
         #region variables
         double _hc;
         double _G0;
@@ -400,6 +406,17 @@ namespace GPC.Model.FEM.FiniteElements
             
             //TODO: "aggiornare";
             throw new NotImplementedException();
+        }
+
+        /// <summary>
+        /// eq 24
+        /// </summary>
+        /// <param name="node"></param>
+        public mnl.Vector<double> GetStrainGlass(Glass g, Node node, double[] globalDisplacementNodes)
+        {
+            var pseudoStrain = GetPseudoStrainGlass(globalDisplacementNodes, node);
+
+            return mnl.Vector<double>.Build.Dense(0);
         }
 
         /// <summary>
