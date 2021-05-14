@@ -103,21 +103,17 @@ namespace GPC.Model.FEM
 
 
         // RISULTATI
-        protected List<ResultNodeDisplacement> _resultNodeDisplacements;
 
-        protected List<ResultNodeForce> _resultNodeForce;
+        protected ModelObjectSet<ResultNodeDisplacement> _resultNodeDisplacements;
 
-        protected List<ResultPlateStress> _resultPlateStress;
+        protected ModelObjectSet<ResultPlateStress> _resultPlateStress;
+
 
         protected AnalysisTypes _analysisType;
 
         #endregion
 
         #region Properties
-
-        public List<ResultPlateStress> ResultPlateStresses => _resultPlateStress;
-        public List<ResultNodeDisplacement> ResultNodeDisplacement => _resultNodeDisplacements;
-        public List<ResultNodeForce> ResultNodeForce => _resultNodeForce;
 
         public AnalysisTypes AnalysisType { get => _analysisType; set => _analysisType = value; }
 
@@ -151,9 +147,8 @@ namespace GPC.Model.FEM
             _freedomCases = new UniqueNameCollection<FreedomCase>();
             _combinations = new UniqueNameCollection<Combination>();
                         
-            _resultPlateStress = new List<ResultPlateStress>();
-            _resultNodeForce = new List<ResultNodeForce>();
-            _resultNodeDisplacements = new List<ResultNodeDisplacement>();
+            _resultPlateStress = new ModelObjectSet<ResultPlateStress>();
+            _resultNodeDisplacements = new ModelObjectSet<ResultNodeDisplacement>();
 
             _analysisType = AnalysisTypes.Linear;
 
@@ -1319,6 +1314,16 @@ namespace GPC.Model.FEM
             return _freedomCases.Contains(freedomCaseName);
         }
 
+
+        #endregion
+
+
+        #region Solve
+
+        public virtual void Solve()
+        {
+            throw new NotImplementedException();
+        }
 
         #endregion
 

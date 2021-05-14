@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace GPC.Model.Base
+namespace GPC.Model
 {
     public class ModelObjectSet<T> : ModelObjectEnumerable<T>, ICollection<T> where T : ModelObject
     {
