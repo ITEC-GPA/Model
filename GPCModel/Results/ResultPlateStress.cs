@@ -16,22 +16,12 @@ namespace GPC.Model.Results
         /// <summary>
         /// Local Stresses
         /// </summary>
-        private double _sxx;
-        private double _syy;
-        private double _szz;
-        private double _sxy;
-        private double _sxz;
-        private double _syz;
-
-        ///// <summary>
-        ///// Global Stresses
-        ///// </summary>
-        //private double _sXX;
-        //private double _sYY;
-        //private double _sZZ;
-        //private double _sXY;
-        //private double _sXZ;
-        //private double _sYZ;
+        private readonly double _sxx;
+        private readonly double _syy;
+        private readonly double _szz;
+        private readonly double _sxy;
+        private readonly double _sxz;
+        private readonly double _syz;
 
         /// <summary>
         /// Principal Stresses
@@ -40,15 +30,14 @@ namespace GPC.Model.Results
         // questa variabile serve per sapere se gli stress principali sono stati calcolati, in modo da evitare di calcolari due volte. 
         // Confrotando i valori non è giusto perchè potrebbero essere zero. Lo svantaggio è che non so se sono stati calcolati con il metodo preciso o approssimato.
         private bool _principalStressCalculated; 
+
         private double _s11;
         private double _s22;
         private double _s33;
 
-        ///// <summary>
-        ///// Combined Stresses
-        ///// </summary>
-        //private double _sVM;
-        //private double _sTR;
+        
+        private bool _vonMisesStressCalculated; 
+        private double _vM;
 
         #endregion
 
@@ -66,7 +55,7 @@ namespace GPC.Model.Results
         {
             get
             {
-                if (_principalStressCalculated)
+                if (!_principalStressCalculated)
                     GetPrincipalStress(out _, out _, out _);
 
                 return _s11;
@@ -77,7 +66,7 @@ namespace GPC.Model.Results
         {
             get
             {
-                if (_principalStressCalculated)
+                if (!_principalStressCalculated)
                     GetPrincipalStress(out _, out _, out _);
 
                 return _s22;
@@ -88,16 +77,25 @@ namespace GPC.Model.Results
         {
             get
             {
-                if (_principalStressCalculated)
+                if (!_principalStressCalculated)
                     GetPrincipalStress(out _, out _, out _);
 
                 return _s33;
             }
         }
 
-        public new Plate Element => (Plate)_element;
+        public double SVM
+        {
+            get
+            {
+                if (!_vonMisesStressCalculated)
+                    _vM = GetVMStress();
 
-        public new ResultStressPoint ResultPoint => (ResultStressPoint)_resultPoint;
+                return _vM;
+            }
+        }
+        
+        
         #endregion
 
 
@@ -131,7 +129,7 @@ namespace GPC.Model.Results
         #endregion
 
 
-        #region Public Methods Specific
+        #region Public method - Stresses
 
 
         /// <summary>
@@ -139,7 +137,6 @@ namespace GPC.Model.Results
         /// <para>This method use an approximate solution.</para>
         /// <para>If <see cref="ResultPlateStress.Sxx"/>, <see cref="ResultPlateStress.Sxx"/>, <see cref="ResultPlateStress.Sxz"/> and <see cref="ResultPlateStress.Syz"/> are relavant then the 
         /// <seealso cref="ResultPlateStress.GetPrincipalStress(out double, out double, out double)"/> must be used</para>
-        /// 
         /// <para>If <see cref="ResultPlateStress.Sxz"/> and <see cref="ResultPlateStress.Syz"/> are 0. This method gives the exact solution</para>
         /// </summary>
         /// <param name="S11">Principal Stress S11</param>
@@ -150,10 +147,10 @@ namespace GPC.Model.Results
             S11 = ((_sxx + _syy) / 2.0) + Math.Sqrt((Math.Pow((_sxx - _syy), 2.0) / 4.0) + Math.Pow(_sxy, 2.0));
             S22 = ((_sxx + _syy) / 2.0) - Math.Sqrt((Math.Pow((_sxx - _syy), 2.0) / 4.0) + Math.Pow(_sxy, 2.0));
 
-            _principalStressCalculated = true;
             _s11 = S11;
             _s22 = S22;
             _s33 = 0;
+            _principalStressCalculated = true;
         }
 
         /// <summary>
@@ -164,7 +161,8 @@ namespace GPC.Model.Results
         /// <param name="S33">Principal Stress S33</param>
         public void GetPrincipalStress(out double S11, out double S22, out double S33)
         {
-            // double phi = 0.5 * Math.Atan( Math.Abs( (2*_sxy) / (_sxx + _syy )));         // The angle, Φ, is the angle in radians between the maximum normal stress and the local x-axis.
+            // double phi = 0.5 * Math.Atan( Math.Abs( (2*_sxy) / (_sxx + _syy )));         
+            // The angle, Φ, is the angle in radians between the maximum normal stress and the local x-axis.
             if (_sxz == 0 && _syz == 0 && _szz == 0)
             {
                 GetPrincipalStress(out S11, out S22);
@@ -190,26 +188,27 @@ namespace GPC.Model.Results
                 S33 = eigen.EigenValues[0].Real;
             }
 
-            _principalStressCalculated = true;
             _s11 = S11;
             _s22 = S22;
             _s33 = S33;
+            _principalStressCalculated = true;
         }
 
 
         /// <summary>
         /// Return the VonMises Stress
         /// </summary>
-        /// <param name="Svm"></param>
-        public void GetVMStress(out double Svm)
+        private double GetVMStress()
         {
-            GetPrincipalStress(out double _s11, out double _s22, out double _s33);
-            
-            if (_s33 == 0)
-                Svm = Math.Sqrt(Math.Pow((_s11), 2.0) + (Math.Pow((_s22), 2.0) - (_s22 * _s11)));
-            else
-                Svm = Math.Sqrt(0.5*( Math.Pow((_s11 - _s22), 2.0) + Math.Pow((_s22 - _s33), 2.0) + Math.Pow((_s33 - _s11), 2.0)));
+            double svm;
 
+            if (S33 == 0)
+                svm = Math.Sqrt(Math.Pow(S11, 2.0) + Math.Pow(S22, 2.0) - (S22 * S11) );
+            else
+                svm = Math.Sqrt(0.5*(Math.Pow(S11 - S22, 2.0) + Math.Pow(S22 - S33, 2.0) + Math.Pow(S33 - S11, 2.0)));
+
+            _vonMisesStressCalculated = true;
+            return svm;
         }
 
         /// <summary>
@@ -238,8 +237,39 @@ namespace GPC.Model.Results
 
 
 
+        #endregion
+
+        #region Public method - Get attributes
+
+
+        public Plate GetPlate()
+        {
+            return (Plate)Element;
+        }
+
+
+        public override int GetElementId()
+        {
+            return Element.Id;
+        }
+
+
+        public override int GetResultPointId()
+        {
+            return ResultPoint.Id;
+        }
+
+
+        #endregion
+
+
+
+        #region Equals, hashcode, operators
         public override bool Equals(object obj)
         {
+            if (obj is null)
+                return false;
+
             if (ReferenceEquals(this, obj))
                 return true;
 
@@ -248,6 +278,9 @@ namespace GPC.Model.Results
 
         public bool Equals(ResultPlateStress other)
         {
+            if (other is null)
+                return false;
+
             if (ReferenceEquals(this, other))
                 return true;
 
@@ -258,15 +291,18 @@ namespace GPC.Model.Results
 
         public override int GetHashCode()
         {
-            int hashCode = 23;
-            hashCode = hashCode * -17 + base.GetHashCode();
-            hashCode = hashCode * -17 + _sxx.GetHashCode();
-            hashCode = hashCode * -17 + _syy.GetHashCode();
-            hashCode = hashCode * -17 + _szz.GetHashCode();
-            hashCode = hashCode * -17 + _sxy.GetHashCode();
-            hashCode = hashCode * -17 + _sxz.GetHashCode();
-            hashCode = hashCode * -17 + _syz.GetHashCode();
-            return hashCode;
+            unchecked
+            {
+                int hashCode = 23;
+                hashCode = hashCode * -17 + base.GetHashCode();
+                hashCode = hashCode * -17 + _sxx.GetHashCode();
+                hashCode = hashCode * -17 + _syy.GetHashCode();
+                hashCode = hashCode * -17 + _szz.GetHashCode();
+                hashCode = hashCode * -17 + _sxy.GetHashCode();
+                hashCode = hashCode * -17 + _sxz.GetHashCode();
+                hashCode = hashCode * -17 + _syz.GetHashCode();
+                return hashCode;
+            }
         }
 
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
@@ -277,11 +313,11 @@ namespace GPC.Model.Results
 
         public static bool operator ==(ResultPlateStress obj1, ResultPlateStress obj2)
         {
-            if (ReferenceEquals(obj1, obj2))
-                return true;
-
             if (obj1 is null || obj2 is null)
                 return false;
+
+            if (ReferenceEquals(obj1, obj2))
+                return true;
 
             return obj1.Equals(obj2);
         }
@@ -292,8 +328,8 @@ namespace GPC.Model.Results
         }
 
 
-
-
         #endregion
+
+
     }
 }

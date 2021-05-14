@@ -16,20 +16,20 @@ namespace GPC.Model.Results
         #region Variables
 
         /// Local Forces
-        private double _fxx;
-        private double _fyy;
-        private double _fzz;
-        private double _fxy;
-        private double _fxz;
-        private double _fyz;
+        private readonly double _fxx;
+        private readonly double _fyy;
+        private readonly double _fzz;
+        private readonly double _fxy;
+        private readonly double _fxz;
+        private readonly double _fyz;
 
         /// Local Moments
-        private double _mxx;
-        private double _myy;
-        private double _mzz;
-        private double _mxy;
-        private double _mxz;
-        private double _myz;
+        private readonly double _mxx;
+        private readonly double _myy;
+        private readonly double _mzz;
+        private readonly double _mxy;
+        private readonly double _mxz;
+        private readonly double _myz;
 
         /// Global Forces
         
@@ -130,7 +130,7 @@ namespace GPC.Model.Results
         #endregion
 
 
-        #region Public methods
+        #region Public methods - Get forces
         public double[] GetPrincipalForces()
         {
             throw new NotImplementedException();
@@ -183,7 +183,25 @@ namespace GPC.Model.Results
         #endregion
 
 
-        #region Interface implementation
+        public Plate GetPlate()
+        {
+            return (Plate)Element;
+        }
+
+
+        public override int GetElementId()
+        {
+            return Element.Id;
+        }
+
+
+        public override int GetResultPointId()
+        {
+            return ResultPoint.Id;
+        }
+
+
+        #region Equals, hashcode, operators
 
         public bool Equals(ResultPlateForces other)
         {

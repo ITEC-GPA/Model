@@ -71,7 +71,7 @@ namespace ModelObjectTest
         {
             ResultPlateStress rps1 = new ResultPlateStress(new Plate(null), new LoadCaseBase("lc1"), new ResultStressPoint(1), CoordinateSystem.Global, 56.89, 40.32, -1.065, 0, 0);
 
-            rps1.GetVMStress(out double vm);
+            double vm = rps1.SVM;
 
             Assert.AreEqual(vm, 51.151, 1);
         }
@@ -84,7 +84,7 @@ namespace ModelObjectTest
 
             ResultPlateStress rps1 = new ResultPlateStress(new Plate(null), new LoadCaseBase("lc1"), new ResultStressPoint(1), CoordinateSystem.Global, 100, 200, 573, 400, 500);
 
-            rps1.GetVMStress(out double vm);
+            double vm = rps1.SVM;
 
             Assert.AreEqual(vm, 1498, 1);
         }

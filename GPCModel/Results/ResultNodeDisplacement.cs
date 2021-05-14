@@ -16,12 +16,12 @@ namespace GPC.Model.Results
     {
         #region Variables
 
-        private double _d1;                   
-        private double _d2;                   
-        private double _d3;                   
-        private double _r1;                  
-        private double _r2;                  
-        private double _r3;                  
+        private readonly double _d1;                   
+        private readonly double _d2;                   
+        private readonly double _d3;                   
+        private readonly double _r1;                  
+        private readonly double _r2;                  
+        private readonly double _r3;                  
 
         #endregion
 
@@ -34,15 +34,11 @@ namespace GPC.Model.Results
         public double R2 => _r2;
         public double R3 => _r3;
 
-        public new Node Element => (Node)_element;
         #endregion
 
 
         #region Public Constructors
 
-        /// <summary>
-        /// 
-        /// </summary>
         /// <param name="node">Node where these result are referred </param>
         /// <param name="Case">The case where these results are reffered </param>
         /// <param name="coordinateSystem">Coordinate system where these result are provided </param>
@@ -74,7 +70,7 @@ namespace GPC.Model.Results
         #endregion
 
 
-        #region Public Methods Specific
+        #region Public Methods - Get displacement
 
 
         /// <summary>
@@ -136,7 +132,28 @@ namespace GPC.Model.Results
         #endregion
 
 
-        #region Interface implementation
+
+        public Node GetNode()
+        {
+            return (Node)Element;
+        }
+
+
+        public override int GetElementId()
+        {
+            return Element.Id;
+        }
+
+
+        public override int GetResultPointId()
+        {
+            return ResultPoint.Id;
+        }
+
+
+
+
+        #region Equals, hashcode, operators
 
         public override bool Equals(object obj)
         {
@@ -160,15 +177,18 @@ namespace GPC.Model.Results
 
         public override int GetHashCode()
         {
-            int hashCode = 23;
-            hashCode = hashCode * -17 + base.GetHashCode();
-            hashCode = hashCode * -17 + _d1.GetHashCode();
-            hashCode = hashCode * -17 + _d2.GetHashCode();
-            hashCode = hashCode * -17 + _d3.GetHashCode();
-            hashCode = hashCode * -17 + _r1.GetHashCode();
-            hashCode = hashCode * -17 + _r2.GetHashCode();
-            hashCode = hashCode * -17 + _r3.GetHashCode();
-            return hashCode;
+            unchecked
+            {
+                int hashCode = 23;
+                hashCode = hashCode * -17 + base.GetHashCode();
+                hashCode = hashCode * -17 + _d1.GetHashCode();
+                hashCode = hashCode * -17 + _d2.GetHashCode();
+                hashCode = hashCode * -17 + _d3.GetHashCode();
+                hashCode = hashCode * -17 + _r1.GetHashCode();
+                hashCode = hashCode * -17 + _r2.GetHashCode();
+                hashCode = hashCode * -17 + _r3.GetHashCode();
+                return hashCode; 
+            }
         }
 
         public override void GetObjectData(SerializationInfo info, StreamingContext context)

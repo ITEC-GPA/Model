@@ -7,14 +7,14 @@ namespace GPC.Model.Results
     public abstract class ResultPoint : ModelObject, ISerializable
     {
 
-        private int _id;
+        private readonly int _id;
 
         public int Id => _id;
 
 
         protected ResultPoint(int id, string name) : base(Guid.NewGuid(), name)
         {
-            this._id = id;
+            _id = id;
         }
 
         protected ResultPoint(SerializationInfo info, StreamingContext context) 
@@ -37,10 +37,13 @@ namespace GPC.Model.Results
 
         public override int GetHashCode()
         {
-            int hashCode = -266076855;
-            hashCode = hashCode * -1521134295 + base.GetHashCode();
-            hashCode = hashCode * -1521134295 + _id.GetHashCode();
-            return hashCode;
+            unchecked
+            {
+                int hashCode = -266076855;
+                hashCode = hashCode * -1521134295 + base.GetHashCode();
+                hashCode = hashCode * -1521134295 + _id.GetHashCode();
+                return hashCode; 
+            }
         }
 
     }

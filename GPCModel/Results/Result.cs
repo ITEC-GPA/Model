@@ -35,9 +35,6 @@ namespace GPC.Model.Results
 
 
 
-        /// <summary>
-        /// 
-        /// </summary>
         /// <param name="element">Element where these result are referred </param>
         /// <param name="Case">The case where these results are reffered </param>
         /// <param name="resultPoint"></param>
@@ -48,7 +45,6 @@ namespace GPC.Model.Results
             _case = Case;
             _resultPoint = resultPoint;
             _coordinateSystem = coordinateSystem;
-
         }
 
         protected Result(SerializationInfo info, StreamingContext context) 
@@ -59,29 +55,41 @@ namespace GPC.Model.Results
 
         #endregion
 
+
+        public abstract int GetElementId();
+
+        public abstract int GetResultPointId();
+
+
+        #region Equals, hashcode, operators
+
         public override bool Equals(object obj)
         {
+            if (obj is null)
+                return false;
+
             if (ReferenceEquals(this, obj))
                 return true;
 
-            Result other = obj as Result;
-
-            return !(other is null) && _coordinateSystem == other._coordinateSystem &&
-                                        _element == other._element &&
-                                        _case == other._case &&
-                                        _resultPoint == other._resultPoint &&
-                                        _coordinateSystem == other._coordinateSystem && base.Equals(other);
+            // Coordinate system non messo nell'equals per scelta. Comparazione viene fatta solo su elemento, punto e loadcase
+            return (obj is Result other) && _element == other._element
+                                         && _case == other._case
+                                         && _resultPoint == other._resultPoint
+                                         && base.Equals(other);
         }
 
         public override int GetHashCode()
         {
-            int hashCode = -23;
-            hashCode = hashCode * -17 + base.GetHashCode();
-            hashCode = hashCode * -17 + EqualityComparer<CoordinateSystem>.Default.GetHashCode(_coordinateSystem);
-            hashCode = hashCode * -17 + EqualityComparer<Element>.Default.GetHashCode(_element);
-            hashCode = hashCode * -17 + EqualityComparer<ILoadCase>.Default.GetHashCode(_case);
-            hashCode = hashCode * -17 + EqualityComparer<ResultPoint>.Default.GetHashCode(_resultPoint);
-            return hashCode;
+            unchecked
+            {
+                // Coordinate system non messo nell'hashcode per scelta. Comparazione viene fatta solo su elemento, punto e loadcase
+                int hashCode = -23;
+                hashCode = hashCode * -17 + base.GetHashCode();
+                hashCode = hashCode * -17 + EqualityComparer<Element>.Default.GetHashCode(_element);
+                hashCode = hashCode * -17 + EqualityComparer<ILoadCase>.Default.GetHashCode(_case);
+                hashCode = hashCode * -17 + EqualityComparer<ResultPoint>.Default.GetHashCode(_resultPoint);
+                return hashCode;
+            }
         }
 
         public static bool operator ==(Result obj1, Result obj2)
@@ -99,6 +107,7 @@ namespace GPC.Model.Results
         public static bool operator !=(Result obj1, Result obj2)
         {
             return !(obj1 == obj2);
-        }
+        } 
+        #endregion
     }
 }

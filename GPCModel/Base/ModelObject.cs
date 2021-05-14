@@ -139,7 +139,7 @@ namespace GPC.Model
                 return false;
             }
 
-            /// <inheritdoc/>
+
             /// <remarks> Only <see cref="ModelObject.Name"/> is used as equality parameter </remarks>
             int IEqualityComparer<ModelObject>.GetHashCode(ModelObject obj)
             {

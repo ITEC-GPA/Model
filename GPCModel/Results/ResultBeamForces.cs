@@ -1,5 +1,6 @@
 ﻿using GPC.Geometry;
 using GPC.Model.Elements;
+using GPC.Model.FEM.FiniteElements;
 using GPC.Model.LoadCases;
 using System;
 
@@ -9,12 +10,12 @@ namespace GPC.Model.Results
     {
         #region Variables
 
-        protected double _N;
-        protected double _V1;
-        protected double _V2;
-        protected double _T;
-        protected double _M1;
-        protected double _M2;
+        protected readonly double _N;
+        protected readonly double _V1;
+        protected readonly double _V2;
+        protected readonly double _T;
+        protected readonly double _M1;
+        protected readonly double _M2;
 
         #endregion 
 
@@ -33,9 +34,7 @@ namespace GPC.Model.Results
 
         #region Public Constructors
 
-        /// <summary>
-        /// 
-        /// </summary>
+
         /// <param name="element">Element where these result are referred </param>
         /// <param name="Case">The case where these results are reffered </param>
         /// <param name="coordinateSystem">Coordinate system where these result are provided</param>
@@ -46,7 +45,7 @@ namespace GPC.Model.Results
         /// <param name="T"> torque moment </param>
         /// <param name="M1"> Bending moment around axis 1 (in plane 2, right hand rule) </param>
         /// <param name="M2"> Bending moment around axis 2 (in plane 1, right hand rule) </param>
-        public ResultBeamForces(Element element, ILoadCase Case, ResultBeamStation resultPoint, CoordinateSystem coordinateSystem, double N, double V1, double V2, double T, double M1, double M2)
+        public ResultBeamForces(Beam element, ILoadCase Case, ResultBeamStation resultPoint, CoordinateSystem coordinateSystem, double N, double V1, double V2, double T, double M1, double M2)
             : base(element, Case, resultPoint, coordinateSystem)
         {
             _N = N;
@@ -60,7 +59,7 @@ namespace GPC.Model.Results
         #endregion 
 
 
-        #region Public Methods
+        #region Public Methods - getforces
 
         /// <summary>
         /// Return the combined bending moment between M1 and M2
@@ -80,6 +79,22 @@ namespace GPC.Model.Results
             return Math.Sqrt(Math.Pow(V1, 2) + Math.Pow(V2, 2));
         }
 
-        #endregion 
+        #endregion
+
+
+        public Beam GetBeam()
+        {
+            return (Beam)Element;
+        }
+
+        public override int GetElementId()
+        {
+            return Element.Id;
+        }
+
+        public override int GetResultPointId()
+        {
+            return ResultPoint.Id;
+        }
     }
 }

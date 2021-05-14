@@ -12,14 +12,14 @@ namespace GPC.Model.Results
     [Serializable]
     public class ResultStressPoint : ResultPoint, ISerializable
     {
-        private Point2d _location;
+        private readonly Point2d _location;
 
         public Point2d Location => _location;
 
         public ResultStressPoint(int id, Point2d location) 
             : this(id, string.Empty)
         {
-            this._location = location;
+            _location = location;
         }
 
         public ResultStressPoint(int id, string name) 
@@ -50,10 +50,13 @@ namespace GPC.Model.Results
 
         public override int GetHashCode()
         {
-            int hashCode = 548696834;
-            hashCode = hashCode * -1521134295 + base.GetHashCode();
-            hashCode = hashCode * -1521134295 + EqualityComparer<Point2d>.Default.GetHashCode(_location);
-            return hashCode;
+            unchecked
+            {
+                int hashCode = 548696834;
+                hashCode = hashCode * -1521134295 + base.GetHashCode();
+                hashCode = hashCode * -1521134295 + EqualityComparer<Point2d>.Default.GetHashCode(_location);
+                return hashCode; 
+            }
         }
 
         public override void GetObjectData(SerializationInfo info, StreamingContext context)

@@ -16,12 +16,12 @@ namespace GPC.Model.Results
     {
         #region Variables
 
-        private double _f1;
-        private double _f2;
-        private double _f3;
-        private double _m1;
-        private double _m2;
-        private double _m3;
+        private readonly double _f1;
+        private readonly double _f2;
+        private readonly double _f3;
+        private readonly double _m1;
+        private readonly double _m2;
+        private readonly double _m3;
 
         #endregion
 
@@ -34,8 +34,6 @@ namespace GPC.Model.Results
         public double M1 => _m1;
         public double M2 => _m2;
         public double M3 => _m3;
-
-        public new Node Element => (Node)_element;
 
         #endregion
 
@@ -74,7 +72,7 @@ namespace GPC.Model.Results
         #endregion
 
 
-        #region Public Methods Specific
+        #region Public Methods - Get forces
 
         /// <summary>
         /// </summary>
@@ -115,8 +113,26 @@ namespace GPC.Model.Results
 
         #endregion
 
+        public Node GetNode()
+        {
+            return (Node)Element;
+        }
 
-        #region Interface implementation
+
+
+        public override int GetElementId()
+        {
+            return Element.Id;
+        }
+
+
+        public override int GetResultPointId()
+        {
+            return ResultPoint.Id;
+        }
+
+
+        #region Equals, hashcode, operators
 
         public override bool Equals(object obj)
         {
@@ -144,15 +160,18 @@ namespace GPC.Model.Results
 
         public override int GetHashCode()
         {
-            int hashCode = 23;
-            hashCode = hashCode * -17 + base.GetHashCode();
-            hashCode = hashCode * -17 + _f1.GetHashCode();
-            hashCode = hashCode * -17 + _f2.GetHashCode();
-            hashCode = hashCode * -17 + _f3.GetHashCode();
-            hashCode = hashCode * -17 + _m1.GetHashCode();
-            hashCode = hashCode * -17 + _m2.GetHashCode();
-            hashCode = hashCode * -17 + _m3.GetHashCode();
-            return hashCode;
+            unchecked
+            {
+                int hashCode = 23;
+                hashCode = hashCode * -17 + base.GetHashCode();
+                hashCode = hashCode * -17 + _f1.GetHashCode();
+                hashCode = hashCode * -17 + _f2.GetHashCode();
+                hashCode = hashCode * -17 + _f3.GetHashCode();
+                hashCode = hashCode * -17 + _m1.GetHashCode();
+                hashCode = hashCode * -17 + _m2.GetHashCode();
+                hashCode = hashCode * -17 + _m3.GetHashCode();
+                return hashCode; 
+            }
         }
 
         public static bool operator ==(ResultNodeForce obj1, ResultNodeForce obj2)

@@ -203,7 +203,7 @@
     <Compile Include="Results\ResultNodeDisplacement.cs" />
     <Compile Include="Results\ResultNodeForce.cs" />
     <Compile Include="Results\ResultPlateStress.cs" />
-    <Compile Include="Results\ResultsPoint.cs" />
+    <Compile Include="Results\ResultPoint.cs" />
     <Compile Include="Results\ResultStressPoint.cs" />
     <Compile Include="Sections\Concrete\ConcreteSectionShape.cs" />
     <Compile Include="Sections\Plate.cs" />
