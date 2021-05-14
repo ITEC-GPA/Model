@@ -881,9 +881,7 @@ namespace GPC.Model.FEM
                             out Dictionary<int, int> nodesNewIndexMap,
                             out Dictionary<int, int> platesNewIndexMap,
                             out Dictionary<int, int> brickNewIndexMap)
-        {
-            //(int[] nodesId, int[] platesId, int[] volumesId) elementIndexes = (new int[mesh.VerticesCount], new int[mesh.FacesCount], new int[mesh.VolumesCount]);
-            
+        {            
 
             nodesNewIndexMap = new Dictionary<int, int>(); // Mappa tra indici dei nodi dentro _nodes e indici dei vertici della mesh nel caso esistano già dentro _nodes.
             platesNewIndexMap = new Dictionary<int, int>();
@@ -916,14 +914,6 @@ namespace GPC.Model.FEM
                     int nodeIndex = _nodes.Add(new Node(enumerator.Current.Point));
 
                     nodesNewIndexMap[enumerator.Current.Id] = nodeIndex;
-
-                    //if (nodeIndex != enumerator.Current.Id) // Se sono diversi vuol dire che esisteva già l'indice Vertex.iD e il vertice è stato aggiunto alla collection con un ID diverso.
-                    //{
-                    //    nodesNewIndexMap[enumerator.Current.Id] = nodeIndex; // Mappa fra vecchio e nuovo
-                    //}
-
-
-                    //elementIndexes.nodesId[i] = nodeIndex;
                 }
             }
 
