@@ -66,9 +66,9 @@ namespace GeneralTest
             Action ac1 = new Action(FunctionToTest1);
             Action ac2 = new Action(FunctionToTest2);
 
-            var bb0 = MeasureTime.FunctionExecutionTime("List", 20, ac0, true); ;
-            var bb1 = MeasureTime.FunctionExecutionTime("NodesCollection", 20, ac1, true); ;
-            var bb2 = MeasureTime.FunctionExecutionTime("Dictionary", 20, ac2, true); ;
+            var bb0 = MeasureTime.FunctionExecutionTime(20, ac0, true, "List"); ;
+            var bb1 = MeasureTime.FunctionExecutionTime(20, ac1, true, "NodesCollection"); ;
+            var bb2 = MeasureTime.FunctionExecutionTime(20, ac2, true, "Dictionary"); ;
         }
     }
 }
