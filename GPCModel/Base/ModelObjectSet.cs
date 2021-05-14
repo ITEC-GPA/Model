@@ -1,11 +1,12 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
-using System;
+using System.Text;
+using System.Threading.Tasks;
 
-
-namespace GPC.Model
+namespace GPC.Model.Base
 {
-    public class UniqueObjectCollection<T> : ModelObjectEnumerable<T>, ICollection<T> where T : ModelObject
+    public class ModelObjectSet<T> : ModelObjectEnumerable<T>, ICollection<T> where T : ModelObject
     {
 
         public int Count => _collection.Count;
@@ -14,11 +15,21 @@ namespace GPC.Model
 
 
         /// <summary>
-        /// Build the collection with <see cref="List{T}"/>. Then <typeparamref name="T"/> can be a mutable object
+        /// Build the collection with <see cref="HashSet{T}"/> with default comparer of <typeparamref name="T"/>
         /// </summary>
-        public UniqueObjectCollection()
+        /// <remarks> <typeparamref name="T"/> must be an unmutable object</remarks>
+        public ModelObjectSet()
         {
-            _collection = new List<T>();
+            _collection = new HashSet<T>();
+        }
+
+        /// <summary>
+        /// Build the collection with <see cref="HashSet{T}"/> with a custom <paramref name="comparer"/>
+        /// </summary>
+        /// <remarks> <typeparamref name="T"/> must be an unmutable object</remarks>
+        public ModelObjectSet(IEqualityComparer<T> comparer)
+        {
+            _collection = new HashSet<T>(comparer);
         }
 
 
@@ -39,6 +50,7 @@ namespace GPC.Model
             return true;
         }
 
+
         /// <summary>
         /// Get the item inside the collection that is equal to <paramref name="item"/>
         /// </summary>
@@ -47,8 +59,23 @@ namespace GPC.Model
         /// <returns><see langword="True" /> if there is an element equal to <paramref name="item"/> in this collection </returns>
         public bool GetItem(T item, out T itemFound)
         {
-            itemFound = _collection.Where(i => i.Equals(item)).FirstOrDefault();
-            return itemFound == null ? false : true;
+            bool status = ((HashSet<T>)_collection).TryGetValue(item, out T found);
+
+            if (status)
+            {
+                itemFound = found;
+                return true;
+            }
+            else
+            {
+                itemFound = null;
+                return false;
+            }
+        }
+
+        void ICollection<T>.Add(T item)
+        {
+            this.Add(item);
         }
 
         public void Clear()
@@ -71,9 +98,5 @@ namespace GPC.Model
             return _collection.Remove(item);
         }
 
-        void ICollection<T>.Add(T item)
-        {
-            this.Add(item);
-        }
     }
 }
