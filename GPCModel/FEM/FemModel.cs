@@ -1184,13 +1184,22 @@ namespace GPC.Model.FEM
 
                         if (load is LineLoad ll)
                         {
-                            var l = ll.GetGeometry();
+                            // carico è F/L (FL/L nel caso di momento)
+                            // carico su nodo intermedio: F/L / (nnodi - 1)
+                            // carico su nodo estremità: F/L / (nnodi - 1) / 2.0
+                            // se per qualche motivo l'equals start/end non funziona, viene applicato più carico
 
-                            // carico è F/L o FL/L
-                            // carico puntuale è F/L*L/nnodi
-                            var factor = lineLenght / indexes.Count();
+                            var line = ll.GetGeometry();
+                            var factor = lineLenght / (indexes.Count() - 1);
+
+                            if (node.Equals(line.Start) || node.Equals(line.End))
+                            {
+                                factor = factor / 2.0;
+                            }
+
                             NodeForceAttribute nfa = new NodeForceAttribute(ll.LoadCase.Name, ll.CoordinateSystem, 
                                                                             ll.F1 * factor, ll.F2 * factor, ll.F3 * factor, ll.M1 * factor, ll.M2 * factor, ll.M3 * factor);
+
                             node.AddAttribute(nfa);
 
                         }

@@ -86,7 +86,7 @@ namespace GPC.Model.FEM
             ZeroElasticModulus = 0.001;
             ZeroShearModulus = 0.01;
             InterlayerPoissonValue = 0.49;
-            InterlayerBrickElasticModulus = 1e7;
+            InterlayerBrickElasticModulus = 1e9;
         }
 
     }
