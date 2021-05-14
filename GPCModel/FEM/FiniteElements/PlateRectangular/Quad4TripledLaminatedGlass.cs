@@ -15,6 +15,12 @@ namespace GPC.Model.FEM.FiniteElements
     /// </summary>
     public class Quad4TripleLaminatedGlass : Plate
     {
+        public enum Glass
+        {
+            Top,
+            Bottom
+        }
+
         #region variables
         double _hc;
         double _G0;
@@ -217,20 +223,11 @@ namespace GPC.Model.FEM.FiniteElements
 
             #region Ds - INTERLAYER
             _Ds = GetDs(_G0, _h0, _hc);
-            #if DEBUG
-            /*Console.WriteLine("Ds");
-            FEMUtilities.WriteMatrix(Ds);*/
-            #endif
             #endregion
 
             #region Dg - GLASS
             mnl.Matrix<double> C = IsotropicFemMaterial.GetMatrixPlaneStress(_EGlass,_niGlass);
             _Dg = GetDg(_h1, _h2, C);
-
-            #if DEBUG
-            /*Console.WriteLine("Dg");
-            FEMUtilities.WriteMatrix(_Dg);*/
-            #endif
             #endregion
             #endregion
 
@@ -244,13 +241,6 @@ namespace GPC.Model.FEM.FiniteElements
 
                 mnl.Matrix<double> Bs = GetBs(x, y);
 
-#if DEBUG
-                /*Console.WriteLine("csi = " + csi + " eta=" + eta);
-                Console.WriteLine("x = " + x + " y=" + y);
-                Console.WriteLine("Bs(x=" + x + ",y=" + y + ")");
-                Console.WriteLine(Bs);*/
-#endif
-
                 return Bs.Transpose() * _Ds * Bs;
             }
 
@@ -260,13 +250,6 @@ namespace GPC.Model.FEM.FiniteElements
                 double y = FEMUtilities.GetLocalCoordinate2D("y", csi, eta, Quad4Element.GetShapeFunction, _localNodes);
 
                 mnl.Matrix<double> Bg = GetBg(x, y);
-
-#if DEBUG
-                /*Console.WriteLine("csi = " + csi + " eta=" + eta);
-                Console.WriteLine("x = " + x + " y=" + y);
-                Console.WriteLine("Bg(x=" + x + ",y=" + y + ")");
-                Console.WriteLine(Bg);*/
-#endif
 
                 return Bg.Transpose() * _Dg * Bg;
             }
@@ -405,6 +388,19 @@ namespace GPC.Model.FEM.FiniteElements
         }
 
         /// <summary>
+        /// eq 24
+        /// </summary>
+        /// <param name="g"></param>
+        /// <param name="node"></param>
+        /// <param name="globalDisplacementNodes"></param>
+        public mnl.Vector<double> GetStrainGlass(Glass g, Node node, double[] globalDisplacementNodes)
+        {
+            var pseudoStrain = GetPseudoStrainGlass(globalDisplacementNodes, node);
+
+            return mnl.Vector<double>.Build.Dense(0);
+        }
+
+        /// <summary>
         /// eq 33
         /// </summary>
         /// <param name="globalDisplacementsNodes"></param>
@@ -447,6 +443,7 @@ namespace GPC.Model.FEM.FiniteElements
         {
             return _Dg * pseudoStrain;
         }
+        
         #region PrivateInternalFunctions
 
         private mnl.Vector<double> GetDisplacementsNode(Node node, double[] globalDisplacementsNodes)

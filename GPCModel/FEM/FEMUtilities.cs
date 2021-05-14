@@ -110,12 +110,12 @@ namespace GPC.Model.FEM
 
         #region 2D
         /// <summary>
-        /// Return J(x,y) = J(x,y,dNdCsi, dNdEta,nodes) with "nodes" and derivative of shape function assigned
+        /// Return J(csi,eta) = J(csi,eta,dNdCsi, dNdEta,nodes) with "nodes" and derivative of shape function assigned
         /// arg1 = dFdInput1; arg1 = dFdInput2, arg3 = nodes
         /// </summary>
         public static Func<double, double, mnl.Matrix<double>> J2D(Func<int, double, double, double> dFdInput1, Func<int, double, double, double> dFdInput2, Node[] nodes)
         {
-            return (double input1, double input2) => Jacob2D(input1, input2, dFdInput1, dFdInput2, nodes);
+            return (double csi, double eta) => Jacob2D(csi, eta, dFdInput1, dFdInput2, nodes);
         }
 
         /// <summary>

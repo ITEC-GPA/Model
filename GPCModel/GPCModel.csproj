@@ -110,6 +110,7 @@
     <Compile Include="FEM\FiniteElements\Brick\Hexaedron8.cs" />
     <Compile Include="FEM\FiniteElements\Beam\EulerBeam.cs" />
     <Compile Include="FEM\FiniteElements\PlateRectangular\Quad4TripledLaminatedGlass.cs" />
+    <Compile Include="FEM\FiniteElements\PlateRectangular\Quadrilateral4TripleLaminatedGlass.cs" />
     <Compile Include="FEM\FiniteElements\PlateTriangle\Tri3SBTEMembrane.cs" />
     <Compile Include="FEM\FiniteElements\PlateTriangle\Tri3TR3RDOFMembrane.cs" />
     <Compile Include="FEM\FiniteElements\PlateTriangle\Tri3SBTDRMembrane.cs" />
