@@ -1,4 +1,5 @@
-﻿using GPC.Utilities.Attributes;
+﻿using GPC.Model.FEM.Materials;
+using GPC.Utilities.Attributes;
 using System;
 using System.Runtime.Serialization;
 
@@ -36,6 +37,20 @@ namespace GPC.Model.Materials
         }
 
         #region PUBLIC METHODS
+
+        public override IsotropicFemMaterial GetIsotropicFemMaterial()
+        {
+            // da impostare il valore corretto di E e di NI
+            return new IsotropicFemMaterial(E, Ni, AlfaThermalExpansion, Density);
+        }
+
+        public override OrthotropicFemMaterial GetOrthotropicFemMaterial()
+        {
+            // da impostare il valore corretto di E e di NI e di G
+
+            return new OrthotropicFemMaterial(E, E, E, Ni, Ni, Ni, GetShearModule(), GetShearModule(), GetShearModule(), AlfaThermalExpansion, AlfaThermalExpansion, AlfaThermalExpansion, Density);
+        }
+
 
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {

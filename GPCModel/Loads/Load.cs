@@ -9,7 +9,7 @@ namespace GPC.Model.Loads
     [Serializable]
     public abstract class Load : ModelObject
     {
-        private LoadCaseBase _loadCase;
+        private readonly LoadCaseBase _loadCase;
 
         public LoadCaseBase LoadCase => _loadCase;
 

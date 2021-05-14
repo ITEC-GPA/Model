@@ -146,9 +146,9 @@ namespace FemTest
             Debug.WriteLine(stopWatch.Elapsed, "Mesh created");
 
             GlassMaterial gm = new GlassMaterialAstm("", 1, 0.2, 3, 4, 5, 6, 0.008, 0.008, 9);
-            PlateProperty pp = new PlateProperty(gm, 1, 2, "p");
+            PlateProperty pp = new PlateProperty(gm.GetIsotropicFemMaterial(), 1, 2, "p");
 
-            BrickProperty bp = new BrickProperty(gm, "bp1");
+            BrickProperty bp = new BrickProperty(gm.GetIsotropicFemMaterial(), "bp1");
 
             Dictionary<IPointLoad, int[]> pointLoads = new Dictionary<IPointLoad, int[]>();
             pointLoads.Add(new PointLoad(1, 2, 3, 4, 5, 6, Point3d.Origin, new LoadCaseBase("lc1")), new int[] { 1 });
@@ -205,9 +205,9 @@ namespace FemTest
 
 
             GlassMaterial gm = new GlassMaterialAstm("", 1, 0.2, 3, 4, 5, 6, 0.008, 0.008, 9);
-            PlateProperty pp = new PlateProperty(gm, 1, 2, "p");
+            PlateProperty pp = new PlateProperty(gm.GetIsotropicFemMaterial(), 1, 2, "p");
 
-            BrickProperty bp = new BrickProperty(gm, "bp1");
+            BrickProperty bp = new BrickProperty(gm.GetIsotropicFemMaterial(), "bp1");
 
             List<Load> loads = new List<Load>();
 
@@ -255,7 +255,7 @@ namespace FemTest
             Shape s1 = CreateSimpleShape(100, 200);
 
             GlassMaterial gm = new GlassMaterialAstm("gp1", 1, 0.2, 3, 4, 5, 6, 0.008, 0.008, 9);
-            MonolithicGlassProperty pp = new MonolithicGlassProperty(1, 2, gm, "gp1");
+            MonolithicGlassProperty pp = new MonolithicGlassProperty(1, 2, gm.GetIsotropicFemMaterial(), "mgp");
 
             Mesh.GenerateOptions meshOptions = new Mesh.GenerateOptions();
             meshOptions.MeshSize = 10;
@@ -299,7 +299,7 @@ namespace FemTest
             s2.Move(100, 0, 0);
             
             GlassMaterial gm = new GlassMaterialAstm("gp1", 1, 0.2, 3, 4, 5, 6, 0.008, 0.008, 9);
-            MonolithicGlassProperty pp = new MonolithicGlassProperty(1, 2, gm, "gp1");
+            MonolithicGlassProperty pp = new MonolithicGlassProperty(1, 2, gm.GetIsotropicFemMaterial(), "gp1");
 
             Mesh.GenerateOptions meshOptions = new Mesh.GenerateOptions();
             meshOptions.MeshSize = meshSize;
@@ -340,7 +340,7 @@ namespace FemTest
             Shape s1 = CreateSimpleShape(800, 1600);
 
             GlassMaterial gm = new GlassMaterialAstm("gp1", 1, 0.2, 3, 4, 5, 6, 0.008, 0.008, 9);
-            MonolithicGlassProperty pp = new MonolithicGlassProperty(1, 2, gm, "gp1");
+            MonolithicGlassProperty pp = new MonolithicGlassProperty(1, 2, gm.GetIsotropicFemMaterial(), "gp1");
 
             Mesh.GenerateOptions meshOptions = new Mesh.GenerateOptions();
             meshOptions.MeshSize = 50;
@@ -374,7 +374,7 @@ namespace FemTest
             Mesh mesh = CreateSimpleMesh(20, 30, 3, 4, 0, 0);
 
             GlassMaterial gm = new GlassMaterialAstm("gp1", 1, 0.2, 3, 4, 5, 6, 0.008, 0.008, 9);
-            MonolithicGlassProperty pp = new MonolithicGlassProperty(1, 2, gm, "gp1");
+            MonolithicGlassProperty pp = new MonolithicGlassProperty(1, 2, gm.GetIsotropicFemMaterial(), "gp1");
 
             FemModel femModel = new FemModel();
             femModel.AddProperty(pp);
@@ -405,7 +405,7 @@ namespace FemTest
             Shape s1 = CreateSimpleShape(800, 1600);
 
             GlassMaterial gm = new GlassMaterialAstm("gp1", 1, 0.2, 3, 4, 5, 6, 0.008, 0.008, 9);
-            MonolithicGlassProperty pp = new MonolithicGlassProperty(1, 2, gm, "gp1");
+            MonolithicGlassProperty pp = new MonolithicGlassProperty(1, 2, gm.GetIsotropicFemMaterial(), "gp1");
 
             Mesh.GenerateOptions meshOptions = new Mesh.GenerateOptions();
             meshOptions.MeshSize = 50;
@@ -434,6 +434,19 @@ namespace FemTest
             {
                 
             }
+
+        }
+
+
+        [TestMethod]
+        public void FemModelTest9()
+        {
+
+            FemModel femModel = new FemModel();
+
+            int r1 = femModel.AddCostrain(new GPC.Model.FEM.Costrains.RigidLink(new Node(0, 0, 0), new Node(0, 0, 1)));
+            int r2 = femModel.AddCostrain(new GPC.Model.FEM.Costrains.RigidLink(new Node(0, 0, 1), new Node(0, 0, 2)));
+
 
         }
         #endregion

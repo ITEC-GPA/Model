@@ -42,11 +42,11 @@
     <Reference Include="GMsh.Net, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\GMsh.Net.1.0.0.1\lib\net472\GMsh.Net.dll</HintPath>
     </Reference>
-    <Reference Include="GPCGeometry, Version=1.0.7.11, Culture=neutral, processorArchitecture=AMD64">
-      <HintPath>..\packages\GPCGeometry.1.0.7.11\lib\net472\GPCGeometry.dll</HintPath>
+    <Reference Include="GPCGeometry, Version=1.0.8.1, Culture=neutral, processorArchitecture=AMD64">
+      <HintPath>..\packages\GPCGeometry.1.0.8.1\lib\net472\GPCGeometry.dll</HintPath>
     </Reference>
-    <Reference Include="GPCUtilities, Version=1.0.23.0, Culture=neutral, processorArchitecture=AMD64">
-      <HintPath>..\packages\GPCUtilities.1.0.23\lib\net472\GPCUtilities.dll</HintPath>
+    <Reference Include="GPCUtilities, Version=1.0.26.1, Culture=neutral, processorArchitecture=AMD64">
+      <HintPath>..\packages\GPCUtilities.1.0.26.1\lib\net472\GPCUtilities.dll</HintPath>
     </Reference>
     <Reference Include="MathNet.Numerics, Version=4.15.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\MathNet.Numerics.4.15.0\lib\net461\MathNet.Numerics.dll</HintPath>
@@ -67,6 +67,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Base\ModelObjectSet.cs" />
     <Compile Include="Base\UniqueNameCollection.cs" />
     <Compile Include="Base\ModelObjectEnumerable.cs" />
     <Compile Include="Base\UniqueObjectCollection.cs" />
@@ -78,8 +79,6 @@
     <Compile Include="Combinations\StandardEN16612.cs" />
     <Compile Include="Combinations\StandardEN1990.cs" />
     <Compile Include="Combinations\Combination.cs" />
-    <Compile Include="Combinations\CombinationAsce.cs" />
-    <Compile Include="Combinations\CombinationEn.cs" />
     <Compile Include="Combinations\StandardUNIEN1990.cs" />
     <Compile Include="Elements\GhostElement.cs" />
     <Compile Include="FEM\Attributes\FreedomCase\BeamReleasesAttribute.cs" />
@@ -106,6 +105,7 @@
     <Compile Include="FEM\ElementProperty\IPlateProperty.cs" />
     <Compile Include="FEM\ElementProperty\LaminatedGlassProperty.cs" />
     <Compile Include="FEM\ElementProperty\MonolithicGlassProperty.cs" />
+    <Compile Include="FEM\FemOptions.cs" />
     <Compile Include="FEM\FiniteElements\Beam.cs" />
     <Compile Include="FEM\FiniteElements\Brick\Hexaedron8.cs" />
     <Compile Include="FEM\FiniteElements\Beam\EulerBeam.cs" />
@@ -122,6 +122,9 @@
     <Compile Include="FEM\FiniteElements\PlateRectangular\Quad4Element.cs" />
     <Compile Include="FEM\FiniteElements\Brick\Tethraedron4.cs" />
     <Compile Include="FEM\GaussIntegration.cs" />
+    <Compile Include="FEM\FemMaterials\FemMaterial.cs" />
+    <Compile Include="FEM\FemMaterials\IsotropicFemMaterial.cs" />
+    <Compile Include="FEM\FemMaterials\OrthotropicFemMaterial.cs" />
     <Compile Include="FEM\NnLinearStaticSolver.cs" />
     <Compile Include="FEM\Stage.cs" />
     <Compile Include="FEM\FEMUtilities.cs" />
@@ -216,6 +219,7 @@
     <Compile Include="Sections\SectionT.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="ClassDiagram1.cd" />
     <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

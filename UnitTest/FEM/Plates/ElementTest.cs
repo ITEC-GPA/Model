@@ -22,7 +22,7 @@ namespace FemTest.SolverTest
         public void Quad4Test1()
         {
             Material mat = new SteelMaterial("mat", 12, 0.0, 355, 510, 7850);
-            PlateProperty prop = new PlateProperty(mat, 1.0, 1.0, "p");
+            PlateProperty prop = new PlateProperty(mat.GetIsotropicFemMaterial(), 1.0, 1.0, "p");
 
             Node[] nodesPlate1 = new Node[4];
             nodesPlate1[0] = new Node(0.0, 0, 0, "1");
@@ -137,7 +137,7 @@ namespace FemTest.SolverTest
 
             Material mat = new SteelMaterial("mat", 10000, 0.0, 355, 510, 7850);
             double t = 1.0;
-            PlateProperty prop = new PlateProperty(mat, t, t, "p");
+            PlateProperty prop = new PlateProperty(mat.GetIsotropicFemMaterial(), t, t, "p");
 
             #region restrains
             CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
@@ -211,7 +211,7 @@ namespace FemTest.SolverTest
 
             Material mat = new SteelMaterial("mat", 10000, 0.0, 355, 510, 7850);
             double t = 1.0;
-            PlateProperty prop = new PlateProperty(mat, t, t, "p");
+            PlateProperty prop = new PlateProperty(mat.GetIsotropicFemMaterial(), t, t, "p");
 
             #region restrains
             CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
@@ -275,7 +275,7 @@ namespace FemTest.SolverTest
         public void Quad4Test2()
         {
             Material mat = new SteelMaterial("mat", 12, 0.0, 355, 510, 7850);
-            PlateProperty prop = new PlateProperty(mat, 1.0, 1.0, "p");
+            PlateProperty prop = new PlateProperty(mat.GetIsotropicFemMaterial(), 1.0, 1.0, "p");
 
             Node[] nodesPlate1 = new Node[4];
             nodesPlate1[0] = new Node(0.0, 0, 0, "1");
@@ -317,7 +317,7 @@ namespace FemTest.SolverTest
         public void Quad4Test3()
         {
             Material mat = new SteelMaterial("mat", 72000, 0.23, 355, 510, 7850);
-            PlateProperty prop = new PlateProperty(mat, 6.13, 6.13, "p");
+            PlateProperty prop = new PlateProperty(mat.GetIsotropicFemMaterial(), 6.13, 6.13, "p");
 
             List<Node> nodes = new List<Node>();
             nodes.Add(new Node(-1e6, -1e6, -1e6));
@@ -359,7 +359,7 @@ namespace FemTest.SolverTest
         public void Quad4Test4()
         {
             Material mat = new SteelMaterial("mat", 72000, 0.23, 355, 510, 7850);
-            PlateProperty prop = new PlateProperty(mat, 6.13, 6.13, "p");
+            PlateProperty prop = new PlateProperty(mat.GetIsotropicFemMaterial(), 6.13, 6.13, "p");
 
             List<Node> nodes = new List<Node>();
             nodes.Add(new Node(-1e6, -1e6, -1e6));
@@ -409,7 +409,7 @@ namespace FemTest.SolverTest
         public void Quad4Test5()
         {
             Material mat = new SteelMaterial("mat", 72000, 0.23, 355, 510, 7850);
-            PlateProperty prop = new PlateProperty(mat, 6.13, 6.13, "p");
+            PlateProperty prop = new PlateProperty(mat.GetIsotropicFemMaterial(), 6.13, 6.13, "p");
 
             List<Node> nodes = new List<Node>();
             nodes.Add(new Node(-1e6, -1e6, -1e6));
@@ -480,7 +480,7 @@ namespace FemTest.SolverTest
         {
             double t = 6.13;
             Material mat = new SteelMaterial("mat", 72000, 0.23, 355, 510, 7850);
-            PlateProperty prop = new PlateProperty(mat, t, t, "p");
+            PlateProperty prop = new PlateProperty(mat.GetIsotropicFemMaterial(), t, t, "p");
 
             List<Node> nodes = new List<Node>();
             nodes.Add(new Node(-1e6, -1e6, -1e6));

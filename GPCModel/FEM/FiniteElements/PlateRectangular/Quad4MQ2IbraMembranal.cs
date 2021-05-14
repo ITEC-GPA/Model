@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using GPC.Geometry;
+using GPC.Model.FEM.Materials;
 using GPC.Model.FEM.Properties;
 using GPC.Utilities.Fem;
 using mnl = MathNet.Numerics.LinearAlgebra;
@@ -145,10 +146,10 @@ namespace GPC.Model.FEM.FiniteElements
             #endregion            
 
             #region matrixD
-            double E = ((PlateProperty)_property).GetE();
-            double ni = ((PlateProperty)_property).GetNi();
+            /*double E = ((PlateProperty)_property).GetE();
+            double ni = ((PlateProperty)_property).GetNi();*/
 
-            _d = Plate.DPlaneStress(E, ni);
+            _d = ((IsotropicFemMaterial)((PlateProperty)_property).Material).GetPlaneStress();
             #endregion
 
             #region stiffnessMatrixInLocalCoordinates
@@ -171,8 +172,8 @@ namespace GPC.Model.FEM.FiniteElements
             FEMUtilities.WriteMatrix(kSymmetric, "F3");
 
             //Matrix P ---> reference: eq. 38 of the Article 1990
-            double rho = 1.0 * ((PlateProperty)_property).GetShearModule();
-
+            double rho = 1.0 * ((IsotropicFemMaterial)((PlateProperty)_property).Material).G;
+            
             Func<double, double, mnl.Matrix<double>> bTraspb = (double csi, double eta) => {
                 mnl.Matrix<double> bSigned = biVectorSigned(1, csi, eta);
                 bSigned = bSigned.Append(biVectorSigned(2, csi, eta));

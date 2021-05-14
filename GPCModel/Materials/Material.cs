@@ -52,8 +52,8 @@ namespace GPC.Model.Materials
         {
             _elasticModulus = elasticModulus < 0 ? throw new ArgumentException($"{nameof(elasticModulus)} cannot be lower than zero") : elasticModulus;
 
-            if (poisson > 1)
-                throw new ArgumentException($"{nameof(poisson)} cannot be greater than 1");
+            if (poisson > 0.5)
+                throw new ArgumentException($"{nameof(poisson)} cannot be greater than 0.5");
 
             _ni = poisson < 0 ? throw new ArgumentException($"Poisson cannot be lower than zero") : poisson;
 
@@ -83,6 +83,13 @@ namespace GPC.Model.Materials
         {
             return E / (2.0 * (1.0 + Ni));
         }
+
+
+        public abstract GPC.Model.FEM.Materials.IsotropicFemMaterial GetIsotropicFemMaterial();
+
+        public abstract GPC.Model.FEM.Materials.OrthotropicFemMaterial GetOrthotropicFemMaterial();
+
+
 
 
         #region Equals - HashCode - Operators

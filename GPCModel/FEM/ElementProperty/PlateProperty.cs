@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Runtime.Serialization;
 using GPC.Model.Materials;
+using GPC.Model.FEM.Materials;
 
 namespace GPC.Model.FEM.Properties
 {
@@ -10,7 +11,7 @@ namespace GPC.Model.FEM.Properties
     public class PlateProperty : ElementProperty, IPlateProperty
     {
         #region Variables
-        protected Material _material;
+        protected FemMaterial _material;
 
         protected double _bendingThickness;
 
@@ -24,7 +25,7 @@ namespace GPC.Model.FEM.Properties
 
         public double MembraneThickness => _membraneThickness;
 
-        public Material Material => _material;
+        public FemMaterial Material => _material;
 
         #endregion
 
@@ -36,7 +37,7 @@ namespace GPC.Model.FEM.Properties
         /// <param name="membraneThickness"> Membranal thickness</param>
         /// <param name="name"></param>
         /// </summary>
-        public PlateProperty(Material material, double bendingThickness, double membraneThickness, string name)
+        public PlateProperty(FemMaterial material, double bendingThickness, double membraneThickness, string name)
             : base(name)
         {
             _bendingThickness = bendingThickness;
@@ -55,34 +56,6 @@ namespace GPC.Model.FEM.Properties
 
 
         #endregion
-
-
-        public override double GetE()
-        {
-            return _material.E;
-        }
-
-        public override double GetNi()
-        {
-            return _material.Ni;
-        }
-
-        public override double GetShearModule()
-        {
-            return _material.GetShearModule();
-        }
-
-        public override double GetDensity()
-        {
-            return _material.Density;
-        }
-
-        public override double GetAlphaThermalExpansion()
-        {
-            return _material.AlfaThermalExpansion;
-        }
-
-
 
 
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
@@ -111,7 +84,7 @@ namespace GPC.Model.FEM.Properties
             hashCode = hashCode * -17 + base.GetHashCode();
             hashCode = hashCode * -17 + _bendingThickness.GetHashCode();
             hashCode = hashCode * -17 + _membraneThickness.GetHashCode();
-            hashCode = hashCode * -17 + EqualityComparer<Material>.Default.GetHashCode(_material);
+            hashCode = hashCode * -17 + EqualityComparer<FemMaterial>.Default.GetHashCode(_material);
             return hashCode;
         }
 

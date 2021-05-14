@@ -12,13 +12,13 @@ namespace GPC.Model.Loads
     [Serializable]
     public class AreaLoad : Load, IAreaLoad
     {
-        private double _p1;
-        private double _p2;
-        private double _p3;
+        private readonly double _p1;
+        private readonly double _p2;
+        private readonly double _p3;
 
-        private Shape _shape;
+        private readonly Shape _shape;
 
-        private CoordinateSystem _coordinateSystem;
+        private readonly CoordinateSystem _coordinateSystem;
 
         public double P1 => _p1;
         public double P2 => _p2;

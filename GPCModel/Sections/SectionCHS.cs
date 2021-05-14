@@ -9,6 +9,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 using GPC.Model.Materials;
+using GPC.Model.FEM.Materials;
 
 namespace GPC.Model.Sections
 {
@@ -29,7 +30,7 @@ namespace GPC.Model.Sections
         #endregion
 
         #region Public Constructors
-        public SectionCHS(double dext, double t, Material material, string name, bool isColdFormed = true) : base(material, name)
+        public SectionCHS(double dext, double t, Material material, string name, bool isColdFormed = true) : base(material.GetIsotropicFemMaterial(), name)
         {
             #region check_inputs
             if (t > dext/2.0)
@@ -79,7 +80,7 @@ namespace GPC.Model.Sections
         {
             _d = info.GetDouble("D");
             _t = info.GetDouble("T");
-            _material = (Material)info.GetValue("Material", typeof(Material));
+            _material = (IsotropicFemMaterial)info.GetValue("Material", typeof(IsotropicFemMaterial));
         }
 
         #endregion

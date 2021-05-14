@@ -34,6 +34,7 @@ namespace GPC.Model.Combinations
         public Combination(string name, Guid guid)
             : this(name, null, guid)
         {
+
         }
 
         public Combination(string name, Standard.CombinationsOptions options)
@@ -375,7 +376,13 @@ namespace GPC.Model.Combinations
 
             Combination objCasted = obj as Combination;
 
-            return !(objCasted is null) && _coefficients.ScrambledEquals(objCasted._coefficients) && _options.Equals(objCasted._options) && base.Equals(objCasted);
+            bool equalsOption;
+            if (_options is null)
+                equalsOption = objCasted._options == null;
+            else
+                equalsOption = _options.Equals(objCasted._options);
+
+            return !(objCasted is null) && _coefficients.ScrambledEquals(objCasted._coefficients) && equalsOption && base.Equals(objCasted);
         }
 
         public override int GetHashCode()
@@ -387,10 +394,11 @@ namespace GPC.Model.Combinations
 
                 foreach (var element in _coefficients)
                 {
-                    hashCode = hashCode + EqualityComparer<LoadCaseCoefficient>.Default.GetHashCode(element);
+                    hashCode = hashCode + 17 * EqualityComparer<LoadCaseCoefficient>.Default.GetHashCode(element);
                 }
 
-                hashCode = hashCode + _options.GetHashCode();
+                if (_options != null)
+                    hashCode = hashCode + 17 * _options.GetHashCode();
 
                 return hashCode; 
             }
@@ -419,8 +427,8 @@ namespace GPC.Model.Combinations
 
         public sealed class LoadCaseCoefficient : IComparable<LoadCaseCoefficient>, IEquatable<LoadCaseCoefficient>
         {
-            private LoadCaseBase _loadcase;
-            private double _coefficient;
+            private readonly LoadCaseBase _loadcase;
+            private readonly double _coefficient;
 
             public LoadCaseBase LoadCase => _loadcase;
             public double Coefficient => _coefficient;

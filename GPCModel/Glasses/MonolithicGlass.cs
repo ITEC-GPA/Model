@@ -15,9 +15,9 @@ namespace GPC.Model.Glasses
     {
         #region Variables
 
-        private GlassMaterial _material;
+        private readonly GlassMaterial _material;
 
-        private double _thickness;
+        private readonly double _thickness;
 
         #endregion
 

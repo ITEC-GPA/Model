@@ -73,9 +73,8 @@ namespace GPC.Model.Sections
         public Plate[] Plates { get => _plates; }
         #endregion
 
-        public SectionRHS(double h, double b, double tf_top, double tf_bottom, double tw1, double tw2, bool isHotFinished, Materials.Material material, string name) : base(material, name)
+        public SectionRHS(double h, double b, double tf_top, double tf_bottom, double tw1, double tw2, bool isHotFinished, Materials.Material material, string name) : base(material.GetIsotropicFemMaterial(), name)
         {
-            _material = material;
             _angleX1 = 0;
 
             _h = h;
@@ -106,7 +105,7 @@ namespace GPC.Model.Sections
 
             _plates = new Plate[4];
 
-            double fy = ((SteelMaterial)_material).Fyk;
+            double fy = ((SteelMaterial)material).Fyk;
             
             _plates[0] = new Plate(_tf_top, 0, _h - _tf_top / 2.0, _b, _h - _tf_top / 2.0, fy, Plate.TypePlate.inner);
             _plates[1] = new Plate(_tf_bottom, 0, _tf_bottom / 2.0, _b, _tf_bottom / 2.0, fy, Plate.TypePlate.inner);      
@@ -157,8 +156,8 @@ namespace GPC.Model.Sections
             {
                 if (_tw1 == _tw2) {
                     double hTSection = (_area / 2.0 - _plates[0].Area) / (_tw1 + _tw2);
-                    SectionT halfSectionTop = new SectionT(hTSection + _tf_top, _b, _tw1 + _tw2, _tf_top, _material, string.Empty);
-                    SectionT halfSectionBottom = new SectionT(_h - hTSection - _tf_top, _b, _tw1 + _tw2, _tf_bottom, _material, string.Empty);
+                    SectionT halfSectionTop = new SectionT(hTSection + _tf_top, _b, _tw1 + _tw2, _tf_top, material, string.Empty);
+                    SectionT halfSectionBottom = new SectionT(_h - hTSection - _tf_top, _b, _tw1 + _tw2, _tf_bottom, material, string.Empty);
                     _wpl22 = (_area / 2.0) * (halfSectionTop.Centroid.Y + halfSectionBottom.Centroid.Y);
                 } else
                 {
@@ -177,8 +176,8 @@ namespace GPC.Model.Sections
                 if (_tf_bottom == _tf_top)
                 {
                     double hTSection = (_area / 2.0 - ALeftface) / (_tf_top + _tf_bottom);
-                    SectionT halfSectionLeft = new SectionT(hTSection + _tw1, _h, _tf_top + _tf_bottom, _tw1, _material, string.Empty);
-                    SectionT halfSectionRigth = new SectionT(_b - hTSection - _tw1, _h, _tf_top + _tf_bottom, _tw2, _material, string.Empty);
+                    SectionT halfSectionLeft = new SectionT(hTSection + _tw1, _h, _tf_top + _tf_bottom, _tw1, material, string.Empty);
+                    SectionT halfSectionRigth = new SectionT(_b - hTSection - _tw1, _h, _tf_top + _tf_bottom, _tw2, material, string.Empty);
                     _wpl11 = (_area / 2.0) * (halfSectionLeft.Centroid.Y + halfSectionRigth.Centroid.Y);
                 }
                 else

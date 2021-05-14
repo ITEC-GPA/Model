@@ -2,6 +2,7 @@
 using System.Runtime.Serialization;
 using GPC.Model.Materials;
 using GPC.Model.Glasses;
+using GPC.Model.FEM.Materials;
 using System.Collections.Generic;
 
 namespace GPC.Model.FEM.Properties
@@ -10,18 +11,18 @@ namespace GPC.Model.FEM.Properties
     {
 
         public MonolithicGlassProperty(MonolithicGlass monolithicGlass, string name)
-            : this(monolithicGlass.Thickness, monolithicGlass.Thickness, monolithicGlass.Material, name)
+            : this(monolithicGlass.Thickness, monolithicGlass.Thickness, monolithicGlass.Material.GetIsotropicFemMaterial(), name)
         {
 
         }
 
-        public MonolithicGlassProperty(double thickness, GlassMaterial material, string name)
+        public MonolithicGlassProperty(double thickness, FemMaterial material, string name)
             : this(thickness, thickness, material, name)
         {
             
         }
 
-        public MonolithicGlassProperty(double tb, double tm, GlassMaterial material, string name) 
+        public MonolithicGlassProperty(double tb, double tm, FemMaterial material, string name) 
             : base(material, tb, tm, name)
         {
 

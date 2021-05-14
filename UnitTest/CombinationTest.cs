@@ -2944,6 +2944,42 @@ namespace ModelObjectTest
             Assert.IsFalse(combination1.GetHashCode().Equals(combination5.GetHashCode()));
         }
 
+
+        [TestMethod]
+        public void EqualsHashCode3()
+        {
+            // Arrange
+
+            ASCE16CombinationsOptions options1 = new ASCE16CombinationsOptions(StandardASCE16.LimitStates.LFRD);
+
+            Combination combination1 = new Combination("cmb1", options1);
+            Combination combination2 = new Combination("cmb1");
+
+            var lc1 = new LoadCase("LC1", LoadCase.LoadCaseTypes.SelfWeight);
+            var lc2 = new LoadCase("LC2", LoadCase.LoadCaseTypes.SuperImposedDeadLoad);
+            var lc4 = new LoadCase("LC4", LoadCase.LoadCaseTypes.Maintenance);
+            var lc5 = new LoadCase("LC5", LoadCase.LoadCaseTypes.LiveLoad);
+            var lc6 = new LoadCase("LC6", LoadCase.LoadCaseTypes.Snow);
+
+            combination1.AddLoadCaseCoefficient(lc1, 1);
+            combination1.AddLoadCaseCoefficient(lc2, 2);
+            combination1.AddLoadCaseCoefficient(lc4, 4);
+            combination1.AddLoadCaseCoefficient(lc5, 5);
+
+            combination2.AddLoadCaseCoefficient(lc1, 1);
+            combination2.AddLoadCaseCoefficient(lc2, 2);
+            combination2.AddLoadCaseCoefficient(lc4, 4);
+            combination2.AddLoadCaseCoefficient(lc5, 5);
+
+            // Assert / Act
+            Assert.IsFalse(combination1.Equals(combination2));
+            Assert.IsFalse(combination1.GetHashCode().Equals(combination2.GetHashCode()));
+
+            Assert.IsFalse(combination2.Equals(combination1));
+            Assert.IsFalse(combination2.GetHashCode().Equals(combination1.GetHashCode()));
+
+        }
+
         [TestMethod]
         public void EqualsHashCode2()
         {

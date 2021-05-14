@@ -54,31 +54,6 @@ namespace GPC.Model.FEM.Properties
             throw new NotImplementedException();
         }
 
-        public override double GetE()
-        {
-            return _glassMaterials.Select(i => i.E).Min();
-        }
-
-        public override double GetNi()
-        {
-            return _glassMaterials.Select(i => i.Ni).Min();
-        }
-
-        public override double GetShearModule()
-        {
-            return _glassMaterials.Select(i => i.GetShearModule()).Min();
-        }
-
-        public override double GetDensity()
-        {
-            return _glassMaterials.Select(i => i.Density).Min();
-        }
-
-        public override double GetAlphaThermalExpansion()
-        {
-            return _glassMaterials.Select(i => i.AlfaThermalExpansion).Min();
-        }
-
 
         public virtual List<double> GetInterlayerShearModule(double loadDuration, double temperature)
         {
