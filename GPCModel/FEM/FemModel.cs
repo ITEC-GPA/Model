@@ -1307,7 +1307,7 @@ namespace GPC.Model.FEM
 
         #endregion
 
-        #region Checks
+        #region Attribute Checks
 
         public bool LoadCaseExist(string loadCaseName)
         {

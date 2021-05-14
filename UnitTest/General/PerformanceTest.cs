@@ -70,5 +70,48 @@ namespace GeneralTest
             var bb1 = MeasureTime.FunctionExecutionTime(20, ac1, true, "NodesCollection"); ;
             var bb2 = MeasureTime.FunctionExecutionTime(20, ac2, true, "Dictionary"); ;
         }
+
+
+        [TestMethod]
+        public void CollectionCast()
+        {
+            ICollection<int> collection = new HashSet<int>();
+            HashSet<int> set = new HashSet<int>();
+
+            collection.Add(1);
+            collection.Add(2);
+            collection.Add(1);
+            collection.Add(4);
+            collection.Add(5);
+
+            set.Add(1);
+            set.Add(2);
+            set.Add(1);
+            set.Add(4);
+            set.Add(5);
+
+            Action action1 = new Action(() => 
+            {
+                (collection as HashSet<int>).TryGetValue(2, out int found);
+            });
+
+            Action action2 = new Action(() =>
+            {
+                set.TryGetValue(2, out int found);
+            });
+
+            Action action3 = new Action(() =>
+            {
+                ((HashSet<int>)collection).TryGetValue(2, out int found);
+            });
+
+
+            var cast1Time = MeasureTime.FunctionExecutionTime(100, action1, true, "CastAs"); ;
+            var cast2Time = MeasureTime.FunctionExecutionTime(100, action3, true, "CastParenthesis"); ;
+            var setTime = MeasureTime.FunctionExecutionTime(100, action2, true, "Set"); ;
+
+            Assert.IsTrue(cast1Time > setTime);
+            Assert.IsTrue(cast2Time < cast1Time);
+        }
     }
 }
