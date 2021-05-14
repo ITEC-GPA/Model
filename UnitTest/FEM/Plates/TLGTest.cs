@@ -804,6 +804,8 @@ namespace FemTest.SolverTest
             Assert.AreEqual(-0.3297, fem0.GetDisplacementGlobalCoordinates(nodes[63], Solver.DOF.DZ), 0.01); //Come soluzione kirchoff
             double hc = (2.0 * hInterlayer + hGlass1 + hGlass2) / 2.0;
             Assert.AreEqual(0.034, fem0.GetDisplacementGlobalCoordinates(nodes[1], Solver.DOF.RY) * hc, 0.01); //come soluzione kirchoff
+
+            //TODO: capire dof Torcente "Psi" con analogia a elemento di kirchoff
         }
 
         /// <summary>
@@ -28861,6 +28863,41 @@ namespace FemTest.SolverTest
             double DZTLG = fem.GetDisplacementGlobalCoordinates(nodes.Where(x => x.Position.X == 1000 && x.Position.Y == 250).First(), Solver.DOF.DZ);
             Console.WriteLine("displacement triple laminated glass = " + DZTLG);
             Assert.AreEqual(19.66, DZTLG, 0.01);
+        }
+
+        [TestMethod]
+        public void Quadrilateraltest1()
+        {
+            List<Node> nodes = new List<Node>();
+            nodes.Add(new Node(0, 0, 0));
+            nodes.Add(new Node(2, 0, 0));
+            nodes.Add(new Node(2, 2, 0));
+            nodes.Add(new Node(0, 2, 0));
+
+            double hGlass = 0.5;
+            double EGlass = 12.0;
+            double niGlass = 0.0;
+            
+            double G0 = EGlass / (2.0 * (1.0 + niGlass));
+            
+            double hInterlayer = 0.01;
+
+            Quad4TripleLaminatedGlass classic = new Quad4TripleLaminatedGlass(new Node[] { nodes[0], nodes[1], nodes[2], nodes[3] }, G0, hInterlayer, hGlass, hGlass, EGlass, niGlass);
+            Quadrilateral4TripleLaminatedGlass quadrilateral = new Quadrilateral4TripleLaminatedGlass(new Node[] { nodes[0], nodes[1], nodes[2], nodes[3] }, G0, hInterlayer, hGlass, hGlass, EGlass, niGlass);
+
+            classic.BuildMatrix();
+            FEMUtilities.WriteMatrix(classic.KElementGlobalCoord);
+
+            quadrilateral.BuildMatrix();
+            FEMUtilities.WriteMatrix(quadrilateral.KElementGlobalCoord);
+
+            for (int row = 0; row < classic.KElementGlobalCoord.RowCount; row++)
+            {
+                for (int col = 0; col < classic.KElementGlobalCoord.ColumnCount; col++)
+                {
+                    Assert.AreEqual(classic.KElementGlobalCoord[row, col], quadrilateral.KElementGlobalCoord[row, col]);
+                }
+            }
         }
     }
 }
