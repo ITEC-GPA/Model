@@ -13,9 +13,9 @@ namespace GPC.Model.Loads
     /// </summary>
     public class SelfWeightLoad : Load
     {
-        private double _acceleration;
+        private readonly double _acceleration;
 
-        private Vector3d _gravityVector;
+        private readonly Vector3d _gravityVector;
 
 
         /// <summary>

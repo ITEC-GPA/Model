@@ -48,7 +48,7 @@ namespace GPC.Model
         public bool GetItem(T item, out T itemFound)
         {
             itemFound = _collection.Where(i => i.Equals(item)).FirstOrDefault();
-            return itemFound == null ? false : true;
+            return itemFound != null;
         }
 
         public void Clear()

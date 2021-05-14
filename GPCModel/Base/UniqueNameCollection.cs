@@ -10,7 +10,7 @@ namespace GPC.Model
     /// <typeparam name="T"></typeparam>
     public class UniqueNameCollection<T> : ModelObjectEnumerable<T>, ICollection<T> where T : ModelObject
     {
-        private HashSet<string> _names;
+        private readonly HashSet<string> _names;
 
 
         public UniqueNameCollection()

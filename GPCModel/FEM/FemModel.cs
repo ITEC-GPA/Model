@@ -123,7 +123,7 @@ namespace GPC.Model.FEM
 
         public IEnumerable<Combination> Combinations => _combinations;
 
-        public IEnumerable<LoadCaseBase> loadCases => _loadCases;
+        public IEnumerable<LoadCaseBase> LoadCases => _loadCases;
 
         #endregion
 
@@ -195,12 +195,12 @@ namespace GPC.Model.FEM
                 _plateProperties.Add((PlateProperty)elementProperty);
                 return true;
             }
-            else if (elementProperty is BrickProperty)
+            else if (elementProperty is BrickProperty property)
             {
                 if (_brickProperties.Contains(elementProperty))
                     return false;
 
-                _brickProperties.Add((BrickProperty)elementProperty);
+                _brickProperties.Add(property);
                 return true;
             }
             else
@@ -310,7 +310,7 @@ namespace GPC.Model.FEM
         public virtual Stage AddStage(int stageId)
         {
             Stage stage = _stages.Where(i => i.Id == stageId).FirstOrDefault();
-            if (stage == default(Stage))
+            if (stage == default)
                 throw new ArgumentException($"Stage with Id:{stageId} does not exist");
 
             var stageCloned = new Stage(stage);

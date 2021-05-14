@@ -17,7 +17,7 @@ namespace GPC.Model.FEM
         private static int _maxId = 0;
         private int _id;
 
-        private UniqueNameCollection<Combination> _combinations;
+        private readonly UniqueNameCollection<Combination> _combinations;
 
         private FemModel.AnalysisTypes _analysisType;
 
@@ -29,7 +29,7 @@ namespace GPC.Model.FEM
         /// <para>If an element is not in this list, it will be not active in this stage</para>
         /// <para>The id of the elements in this collection will be the same of the ones in the reference femModel</para>
         /// </remarks>
-        private FiniteElementStageCollection<FiniteElement, StageFiniteElementProperty> _elements;
+        private readonly FiniteElementStageCollection<FiniteElement, StageFiniteElementProperty> _elements;
 
         /// <summary>
         /// List of node property override. 
@@ -38,9 +38,9 @@ namespace GPC.Model.FEM
         /// <para>This map contains only the nodes with a property override. Not all the nodes of the <see cref="Stage._elements"/></para> 
         /// <para>Each node in this list must be contained in the reference model: <see cref="_femModel"/></para>
         /// </remarks>
-        private NodeStageCollection<Node, StageProperty> _nodes;
+        private readonly NodeStageCollection<Node, StageProperty> _nodes;
 
-        private FemModel _femModel;
+        private readonly FemModel _femModel;
         
         private bool _morph;
 
@@ -438,7 +438,7 @@ namespace GPC.Model.FEM
 
         #endregion
 
-        #region Interface, operators, hashcode
+        #region Interface, operators, hashcode, equals
 
         public object Clone()
         {
@@ -468,7 +468,7 @@ namespace GPC.Model.FEM
 
         public override bool Equals(object obj)
         {
-            return Equals(obj as Stage);
+            return Equals((Stage)obj);
         }
 
         /// <summary>
@@ -477,19 +477,22 @@ namespace GPC.Model.FEM
         /// <returns></returns>
         public override int GetHashCode()
         {
-            int hashCode = -23;
-            hashCode = hashCode * -17 + base.GetHashCode();
-
-            foreach (var combo in _combinations)
+            unchecked
             {
-                hashCode = hashCode + EqualityComparer<Combination>.Default.GetHashCode(combo);
-            }
-            hashCode = hashCode + _elements.GetHashCode();
-            hashCode = hashCode + _nodes.GetHashCode();
-            hashCode = hashCode + _morph.GetHashCode();
-            hashCode = hashCode + _analysisType.GetHashCode();
+                int hashCode = -23;
+                hashCode = hashCode * -17 + base.GetHashCode();
 
-            return hashCode;
+                foreach (var combo in _combinations)
+                {
+                    hashCode = hashCode + EqualityComparer<Combination>.Default.GetHashCode(combo);
+                }
+                hashCode = hashCode + _elements.GetHashCode();
+                hashCode = hashCode + _nodes.GetHashCode();
+                hashCode = hashCode + _morph.GetHashCode();
+                hashCode = hashCode + _analysisType.GetHashCode();
+
+                return hashCode; 
+            }
         }
 
         public static bool operator ==(Stage obj1, Stage obj2)
@@ -514,8 +517,8 @@ namespace GPC.Model.FEM
 
         public class StageProperty : ICloneable
         {
-            private List<LoadCaseAttribute> _loadCaseAttributes;
-            private List<FreedomCaseAttribute> _freedomCaseAttributes;
+            private readonly List<LoadCaseAttribute> _loadCaseAttributes;
+            private readonly List<FreedomCaseAttribute> _freedomCaseAttributes;
 
             public List<LoadCaseAttribute> LoadCaseAttributes => _loadCaseAttributes;
             public List<FreedomCaseAttribute> FreedomCaseAttribute => _freedomCaseAttributes;
@@ -605,7 +608,7 @@ namespace GPC.Model.FEM
 
         public class StageFiniteElementProperty : StageProperty
         {
-            private string _propertyName;
+            private readonly string _propertyName;
 
             public string PropertyName => _propertyName;
 

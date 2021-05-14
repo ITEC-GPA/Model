@@ -10,7 +10,7 @@ namespace GPC.Model.Elements.Glasses
     {
         #region VARIABLES
 
-        private Shape _shape;
+        private readonly Shape _shape;
 
         #endregion
 
@@ -57,9 +57,8 @@ namespace GPC.Model.Elements.Glasses
             if (ReferenceEquals(this, obj))
                 return true;
 
-            GlassSurface gs = obj as GlassSurface;
 
-            return !(gs is null) && gs._shape.Equals(_shape) && base.Equals(gs);
+            return !((GlassSurface)obj is null) && ((GlassSurface)obj)._shape.Equals(_shape) && base.Equals((GlassSurface)obj);
         }
 
         public override int GetHashCode()

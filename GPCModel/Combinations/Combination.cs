@@ -427,8 +427,8 @@ namespace GPC.Model.Combinations
 
         public sealed class LoadCaseCoefficient : IComparable<LoadCaseCoefficient>, IEquatable<LoadCaseCoefficient>
         {
-            private LoadCaseBase _loadcase;
-            private double _coefficient;
+            private readonly LoadCaseBase _loadcase;
+            private readonly double _coefficient;
 
             public LoadCaseBase LoadCase => _loadcase;
             public double Coefficient => _coefficient;

@@ -118,7 +118,7 @@ namespace GPC.Model.FEM
             if (ReferenceEquals(this, obj))
                 return true;
 
-            Node node = obj as Node;
+            Node node = (Node)obj;
             return !(node is null) && _position.Equals(node._position)
                                    && _attributesFreedomCase.ScrambledEquals(node._attributesFreedomCase)
                                    && _attributesLoadCase.ScrambledEquals(node._attributesLoadCase)
@@ -127,20 +127,24 @@ namespace GPC.Model.FEM
 
         public override int GetHashCode()
         {
-            int hashCode = -689368791;
-            hashCode = hashCode * -1521134295 + base.GetHashCode();
-            hashCode = hashCode * -1521134295 + EqualityComparer<Point3d>.Default.GetHashCode(_position);
-
-            foreach (var element in _attributesLoadCase)
+            unchecked
             {
-                hashCode = hashCode + EqualityComparer<INodeLoadCaseAttribute>.Default.GetHashCode(element);
-            }
-            foreach (var element in _attributesFreedomCase)
-            {
-                hashCode = hashCode + EqualityComparer<INodeFreedomCaseAttribute>.Default.GetHashCode(element);
+                int hashCode = -689368791;
+                hashCode = hashCode * -1521134295 + base.GetHashCode();
+                hashCode = hashCode * -1521134295 + EqualityComparer<Point3d>.Default.GetHashCode(_position);
+
+                foreach (var element in _attributesLoadCase)
+                {
+                    hashCode = hashCode + 17 * EqualityComparer<INodeLoadCaseAttribute>.Default.GetHashCode(element);
+                }
+                foreach (var element in _attributesFreedomCase)
+                {
+                    hashCode = hashCode + 17 * EqualityComparer<INodeFreedomCaseAttribute>.Default.GetHashCode(element);
+                }
+
+                return hashCode;
             }
 
-            return hashCode;
         }
 
     }
