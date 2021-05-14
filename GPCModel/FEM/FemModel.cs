@@ -121,6 +121,10 @@ namespace GPC.Model.FEM
 
         public IEnumerable<LoadCaseBase> LoadCases => _loadCases;
 
+        public IEnumerable<ResultNodeDisplacement> ResultNodeDisplacements => _resultNodeDisplacements;
+        public IEnumerable<ResultPlateStress> ResultPlateStress => _resultPlateStress;
+
+
         #endregion
 
         #region Constructors
