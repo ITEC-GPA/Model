@@ -118,11 +118,10 @@ namespace GPC.Model.FEM
             if (ReferenceEquals(this, obj))
                 return true;
 
-            Node node = (Node)obj;
-            return !(node is null) && _position.Equals(node._position)
-                                   && _attributesFreedomCase.ScrambledEquals(node._attributesFreedomCase)
-                                   && _attributesLoadCase.ScrambledEquals(node._attributesLoadCase)
-                                   && base.Equals(node);
+            return (obj is Node node) && _position.Equals(node._position)
+                                      && _attributesFreedomCase.ScrambledEquals(node._attributesFreedomCase)
+                                      && _attributesLoadCase.ScrambledEquals(node._attributesLoadCase)
+                                      && base.Equals(node);
         }
 
         public override int GetHashCode()

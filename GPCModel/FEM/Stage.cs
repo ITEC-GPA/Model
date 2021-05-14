@@ -468,7 +468,7 @@ namespace GPC.Model.FEM
 
         public override bool Equals(object obj)
         {
-            return Equals((Stage)obj);
+            return Equals(obj as Stage);
         }
 
         /// <summary>

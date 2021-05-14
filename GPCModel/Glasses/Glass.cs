@@ -35,8 +35,7 @@ namespace GPC.Model.Glasses
             if (ReferenceEquals(this, obj))
                 return true;
 
-            Glass objCasted = (Glass)obj;
-            return !(objCasted is null) && base.Equals(objCasted);
+            return (obj is Glass glass) && base.Equals(glass);
         }
 
 

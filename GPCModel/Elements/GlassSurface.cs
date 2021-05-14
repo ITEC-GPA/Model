@@ -57,8 +57,7 @@ namespace GPC.Model.Elements.Glasses
             if (ReferenceEquals(this, obj))
                 return true;
 
-
-            return !((GlassSurface)obj is null) && ((GlassSurface)obj)._shape.Equals(_shape) && base.Equals((GlassSurface)obj);
+            return (obj is GlassSurface) && ((GlassSurface)obj)._shape.Equals(_shape) && base.Equals((GlassSurface)obj);
         }
 
         public override int GetHashCode()
