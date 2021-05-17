@@ -1329,7 +1329,6 @@ namespace GPC.Model.FEM
 
         #region Results
 
-
         /// <param name="id"></param>
         /// <remarks>This is a O(n) operation</remarks>
         public ResultNodeDisplacement GetNodeDisplacementResult(int id)

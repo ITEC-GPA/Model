@@ -1,9 +1,9 @@
-﻿using System;
-using GPC.Geometry;
-using System.Runtime.Serialization;
-using System.Collections.Generic;
-using GPC.Model.LoadCases;
+﻿using GPC.Geometry;
 using GPC.Model.Elements;
+using GPC.Model.LoadCases;
+using System;
+using System.Collections.Generic;
+using System.Runtime.Serialization;
 
 namespace GPC.Model.Results
 {

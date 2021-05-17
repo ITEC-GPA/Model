@@ -1,10 +1,10 @@
-﻿using System;
-using GPC.Model.LoadCases;
-using GPC.Geometry;
-using MathNet.Numerics.LinearAlgebra;
-using System.Runtime.Serialization;
+﻿using GPC.Geometry;
 using GPC.Model.Elements;
 using GPC.Model.FEM.FiniteElements;
+using GPC.Model.LoadCases;
+using MathNet.Numerics.LinearAlgebra;
+using System;
+using System.Runtime.Serialization;
 
 namespace GPC.Model.Results
 {
