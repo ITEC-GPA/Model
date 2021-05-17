@@ -247,9 +247,9 @@ namespace FemTest.SolverTest {
 
             Assert.AreEqual(1.0 / 3.0 * FY * L*L*L/(E*sec.J22), fem.GetDisplacementGlobalCoordinates(nds[1], Solver.DOF.DY), 1e-4);
 
-            Assert.AreEqual(-FY, fem.GetBeamInternalForces(b, 0)[Beam.InternalAction.V2]);
-            Assert.AreEqual(-FY, fem.GetBeamInternalForces(b, b.L/2.0)[Beam.InternalAction.V2]);
-            Assert.AreEqual(-FY, fem.GetBeamInternalForces(b, b.L)[Beam.InternalAction.V2]);
+            Assert.AreEqual(-FY, fem.GetBeamInternalForces(b, 0)[Beam.InternalAction.V2],1e-3);
+            Assert.AreEqual(-FY, fem.GetBeamInternalForces(b, b.L/2.0)[Beam.InternalAction.V2], 1e-3);
+            Assert.AreEqual(-FY, fem.GetBeamInternalForces(b, b.L)[Beam.InternalAction.V2],1e-3);
 
             Assert.AreEqual(FY * b.L, fem.GetBeamInternalForces(b, 0)[Beam.InternalAction.M3], 1e-3);
             Assert.AreEqual(FY * b.L / 2.0, fem.GetBeamInternalForces(b, b.L / 2.0)[Beam.InternalAction.M3], 1e-3);
@@ -289,17 +289,17 @@ namespace FemTest.SolverTest {
             Assert.AreEqual(67.9061/2, fem.GetDisplacementGlobalCoordinates(nds[1], Solver.DOF.DX), 1e-4);
             Assert.AreEqual(67.9061, fem.GetDisplacementGlobalCoordinates(nds[1], Solver.DOF.DY), 1e-4);
 
-            Assert.AreEqual(-FY, fem.GetBeamInternalForces(b, 0)[Beam.InternalAction.V2]);
-            Assert.AreEqual(-FY, fem.GetBeamInternalForces(b, b.L/2.0)[Beam.InternalAction.V2]);
-            Assert.AreEqual(-FY, fem.GetBeamInternalForces(b, b.L)[Beam.InternalAction.V2]);
+            Assert.AreEqual(-FY, fem.GetBeamInternalForces(b, 0)[Beam.InternalAction.V2],1e-3);
+            Assert.AreEqual(-FY, fem.GetBeamInternalForces(b, b.L/2.0)[Beam.InternalAction.V2],1e-3);
+            Assert.AreEqual(-FY, fem.GetBeamInternalForces(b, b.L)[Beam.InternalAction.V2],1e-3);
 
             Assert.AreEqual(FY * b.L, fem.GetBeamInternalForces(b, 0)[Beam.InternalAction.M3], 1e-3);
             Assert.AreEqual(FY * b.L/2.0, fem.GetBeamInternalForces(b, b.L / 2.0)[Beam.InternalAction.M3], 1e-3);
             Assert.AreEqual(0.0, fem.GetBeamInternalForces(b, b.L)[Beam.InternalAction.M3], 1e-3);
 
-            Assert.AreEqual(FX, fem.GetBeamInternalForces(b, 0)[Beam.InternalAction.V3]);
-            Assert.AreEqual(FX, fem.GetBeamInternalForces(b, b.L/2.0)[Beam.InternalAction.V3]);
-            Assert.AreEqual(FX, fem.GetBeamInternalForces(b, b.L)[Beam.InternalAction.V3]);
+            Assert.AreEqual(FX, fem.GetBeamInternalForces(b, 0)[Beam.InternalAction.V3],1e-3);
+            Assert.AreEqual(FX, fem.GetBeamInternalForces(b, b.L/2.0)[Beam.InternalAction.V3],1e-3);
+            Assert.AreEqual(FX, fem.GetBeamInternalForces(b, b.L)[Beam.InternalAction.V3],1e-3);
 
             Assert.AreEqual(-FX * b.L, fem.GetBeamInternalForces(b, 0)[Beam.InternalAction.M2], 1e-3);
             Assert.AreEqual(-FX * b.L/2.0, fem.GetBeamInternalForces(b, b.L / 2.0)[Beam.InternalAction.M2], 1e-3);
@@ -339,9 +339,9 @@ namespace FemTest.SolverTest {
             Assert.AreEqual(67.9061, fem.GetDisplacementGlobalCoordinates(nds[1], Solver.DOF.DX), 1e-4);
             Assert.AreEqual(2.0 * 67.9061, fem.GetDisplacementGlobalCoordinates(nds[1], Solver.DOF.DZ), 1e-4);
 
-            Assert.AreEqual(fx, fem.GetBeamInternalForces(b, 0.0, Beam.InternalAction.V2));
-            Assert.AreEqual(fx, fem.GetBeamInternalForces(b, b.L/2.0, Beam.InternalAction.V2));
-            Assert.AreEqual(fx, fem.GetBeamInternalForces(b, b.L, Beam.InternalAction.V2));
+            Assert.AreEqual(fx, fem.GetBeamInternalForces(b, 0.0, Beam.InternalAction.V2),1e-3);
+            Assert.AreEqual(fx, fem.GetBeamInternalForces(b, b.L/2.0, Beam.InternalAction.V2),1e-3);
+            Assert.AreEqual(fx, fem.GetBeamInternalForces(b, b.L, Beam.InternalAction.V2),1e-3);
 
             Assert.AreEqual(-fx * b.L, fem.GetBeamInternalForces(b, 0.0, Beam.InternalAction.M3), 1e-3);
             Assert.AreEqual(-fx * b.L/2.0, fem.GetBeamInternalForces(b, b.L / 2.0, Beam.InternalAction.M3), 1e-3);
@@ -433,7 +433,7 @@ namespace FemTest.SolverTest {
 
             Assert.AreEqual(-23.3427, fem.GetBeamDisplacementInLocalCoordinates(beams[0], beams[0].L/2.0, Beam.LocalDOF.U2), 1e-4);
 
-            Assert.AreEqual(0, fem.GetBeamInternalForces(beams[0], 0)[Beam.InternalAction.M3]);
+            Assert.AreEqual(0, fem.GetBeamInternalForces(beams[0], 0)[Beam.InternalAction.M3],1e-4);
             Assert.AreEqual(F * L / 4.0 / 2.0, fem.GetBeamInternalForces(beams[0], beams[0].L/2.0)[Beam.InternalAction.M3], 1e-4);
             Assert.AreEqual(F*L/4.0, fem.GetBeamInternalForces(beams[0], beams[0].L)[Beam.InternalAction.M3], 1e-6);
 

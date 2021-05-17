@@ -28870,13 +28870,18 @@ namespace FemTest.SolverTest
         }
 
         [TestMethod]
-        public void Quadrilateraltest1()
+        public void QuadrilateralTest1()
         {
             List<Node> nodes = new List<Node>();
-            nodes.Add(new Node(0, 0, 0));
-            nodes.Add(new Node(2, 0, 0));
-            nodes.Add(new Node(2, 2, 0));
-            nodes.Add(new Node(0, 2, 0));
+            nodes.Add(new Node(0, 0, 0)); //0
+            nodes.Add(new Node(3, 0, 0)); //1
+            nodes.Add(new Node(3, 2, 0)); //2
+            nodes.Add(new Node(0, 2, 0)); //3
+
+            nodes.Add(new Node(-1, -1, 0)); //4
+            nodes.Add(new Node(1, -1, 0)); //5
+            nodes.Add(new Node(1, 1, 0)); //6
+            nodes.Add(new Node(-1, 1, 0)); //7
 
             double hGlass = 0.5;
             double EGlass = 12.0;
@@ -28886,22 +28891,26 @@ namespace FemTest.SolverTest
             
             double hInterlayer = 0.01;
 
-            Quad4TripleLaminatedGlass classic = new Quad4TripleLaminatedGlass(new Node[] { nodes[0], nodes[1], nodes[2], nodes[3] }, G0, hInterlayer, hGlass, hGlass, EGlass, niGlass);
-            Quadrilateral4TripleLaminatedGlass quadrilateral = new Quadrilateral4TripleLaminatedGlass(new Node[] { nodes[0], nodes[1], nodes[2], nodes[3] }, G0, hInterlayer, hGlass, hGlass, EGlass, niGlass);
+            Quad4TripleLaminatedGlass naturalElement = new Quad4TripleLaminatedGlass(new Node[] { nodes[4], nodes[5], nodes[6], nodes[7] }, G0, hInterlayer, hGlass, hGlass, EGlass, niGlass);
+            Quad4TripleLaminatedGlass correct = new Quad4TripleLaminatedGlass(new Node[] { nodes[0], nodes[1], nodes[2], nodes[3] }, G0, hInterlayer, hGlass, hGlass, EGlass, niGlass);
+            Quad4TripleLaminatedGlass quadrilateral = new Quad4TripleLaminatedGlass(new Node[] { nodes[0], nodes[1], nodes[2], nodes[3] }, G0, hInterlayer, hGlass, hGlass, EGlass, niGlass, true);
 
-            classic.BuildMatrix();
-            FEMUtilities.WriteMatrix(classic.KElementGlobalCoord);
+            naturalElement.BuildMatrix();
+            //FEMUtilities.WriteMatrix("natural element", naturalElement.KElementLocalCoord);
+
+            correct.BuildMatrix();
+            FEMUtilities.WriteMatrix("correct element", correct.KElementLocalCoord);
 
             quadrilateral.BuildMatrix();
-            FEMUtilities.WriteMatrix(quadrilateral.KElementGlobalCoord);
+            FEMUtilities.WriteMatrix(quadrilateral.KElementLocalCoord);
 
-            for (int row = 0; row < classic.KElementGlobalCoord.RowCount; row++)
+            /*for (int row = 0; row < correct.KElementLocalCoord.RowCount; row++)
             {
-                for (int col = 0; col < classic.KElementGlobalCoord.ColumnCount; col++)
+                for (int col = 0; col < correct.KElementLocalCoord.ColumnCount; col++)
                 {
-                    Assert.AreEqual(classic.KElementGlobalCoord[row, col], quadrilateral.KElementGlobalCoord[row, col]);
+                    Assert.AreEqual(correct.KElementLocalCoord[row, col], quadrilateral.KElementLocalCoord[row, col]);
                 }
-            }
+            }*/
         }
     }
 }
