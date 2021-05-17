@@ -3,6 +3,13 @@ using System.Linq;
 
 namespace GPC.Model
 {
+
+    /// <summary>
+    /// Collection of unique <see cref="ModelObject"/>.
+    /// This class is a wrapper of <see cref="List{T}"/>
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <remarks>The collection is thread-safe</remarks>
     public class UniqueObjectCollection<T> : ModelObjectEnumerable<T>, ICollection<T> where T : ModelObject
     {
         public int Count => _collection.Count;

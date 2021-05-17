@@ -1,11 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
+using System;
 
 namespace GPC.Model
 {
+
+    /// <summary>
+    /// Collection of unique <see cref="ModelObject"/>
+    /// This class is a wrapper of <see cref="HashSet{T}"/>
+    /// </summary>
+    /// <typeparam name="T">The type of collection derived from <see cref="ModelObject"/> </typeparam>
+    /// <remarks>The collection is thread-safe</remarks>
     public class ModelObjectSet<T> : ModelObjectEnumerable<T>, ICollection<T> where T : ModelObject
     {
 

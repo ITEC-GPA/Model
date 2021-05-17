@@ -8,6 +8,7 @@ namespace GPC.Model
     /// Collection of <see cref="ModelObject"/> with unique name
     /// </summary>
     /// <typeparam name="T"></typeparam>
+    /// <remarks>The collection is thread-safe</remarks>
     public class UniqueNameCollection<T> : ModelObjectEnumerable<T>, ICollection<T> where T : ModelObject
     {
         private readonly HashSet<string> _names;
