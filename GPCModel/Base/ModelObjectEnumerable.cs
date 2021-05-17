@@ -3,7 +3,9 @@ using System.Collections.Generic;
 
 namespace GPC.Model
 {
-    public class ModelObjectEnumerable<T> : IEnumerable<T> where T : ModelObject
+
+    /// <remarks>The collection is thread-safe</remarks>
+    public abstract class ModelObjectEnumerable<T> : IEnumerable<T> where T : ModelObject
     {
 
         protected readonly object _locker = new object();
