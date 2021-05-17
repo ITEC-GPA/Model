@@ -11,8 +11,10 @@ namespace GPC.Model.FEM.Collections
     /// <para>This collection does not contains elements with a duplicated ID</para>
     /// </summary>
     /// <typeparam name="T">A <see cref="FEMObject"/></typeparam>
+    /// <remarks>The collection is thread-safe</remarks>
     public class FemObjectCollection<T> : IEnumerable<T> where T : FEMObject
     {
+        protected readonly object _locker = new object();
 
         protected ICollection<T> _collection;
 
@@ -25,12 +27,10 @@ namespace GPC.Model.FEM.Collections
 
         public int Count => _collection.Count();
 
-
         public FemObjectCollection() : base()
         {
             _collection = new List<T>();
         }
-
 
         #region Private method
 
@@ -41,42 +41,43 @@ namespace GPC.Model.FEM.Collections
         /// <remarks>The item will be added without checking if already exist in <see cref="FemObjectCollection{T}._collection"/></remarks>
         private int AddItem(T item)
         {
-            // obj non presente
-            if (_ids.Contains(item.Id))
+            lock (_locker)
             {
-                // id già presente
-                // cambio id e aggiungo obj
+                // obj non presente
+                if (_ids.Contains(item.Id))
+                {
+                    // id già presente
+                    // cambio id e aggiungo obj
 
-                item.SetId(++_maxId); // Forzo id ad essere maggiore di zero
+                    item.SetId(++_maxId); // Forzo id ad essere maggiore di zero
 
-                _collection.Add(item);
-                _ids.Add(item.Id);
+                    _collection.Add(item);
+                    _ids.Add(item.Id);
 
-                return item.Id;
-            }
-            else
-            {
-                // id non presente
-                // aggiungo obj
+                    return item.Id;
+                }
+                else
+                {
+                    // id non presente
+                    // aggiungo obj
 
-                if (item.Id == 0) // Forzo id ad essere maggiore di zero
-                    item.SetId(++_maxId);
+                    if (item.Id == 0) // Forzo id ad essere maggiore di zero
+                        item.SetId(++_maxId);
 
-                _collection.Add(item);
-                _ids.Add(item.Id);
+                    _collection.Add(item);
+                    _ids.Add(item.Id);
 
-                if (item.Id > _maxId)
-                    _maxId = item.Id;
+                    if (item.Id > _maxId)
+                        _maxId = item.Id;
 
-                return item.Id;
+                    return item.Id;
+                } 
             }
         }
 
         #endregion Private method
 
-
         #region Public method - Setter
-
 
         /// <summary>
         /// Add a FEMObject to the collection.
@@ -97,23 +98,25 @@ namespace GPC.Model.FEM.Collections
             }
             else
             {
-                // obj già presente
-                if (_ids.Contains(item.Id))
+                lock (_locker)
                 {
-                    // id già presente
-                    // non aggiungo, ritorno id dell'elemento già presente
+                    // obj già presente
+                    if (_ids.Contains(item.Id))
+                    {
+                        // id già presente
+                        // non aggiungo, ritorno id dell'elemento già presente
 
-                    return (_collection as List<T>).SingleOrDefault(i => i.Equals(item)).Id;
-                }
-                else
-                {
-                    // id non presente
-                    // ritorno id dell'elemento già presente
-                    return (_collection as List<T>).SingleOrDefault(i => i.Equals(item)).Id;
+                        return (_collection as List<T>).SingleOrDefault(i => i.Equals(item)).Id;
+                    }
+                    else
+                    {
+                        // id non presente
+                        // ritorno id dell'elemento già presente
+                        return (_collection as List<T>).SingleOrDefault(i => i.Equals(item)).Id;
+                    } 
                 }
             }
         }
-
 
         /// <summary>
         /// Add a FEMObject to the collection.
@@ -131,11 +134,7 @@ namespace GPC.Model.FEM.Collections
             return AddItem(item);
         }
 
-
-
-
         #endregion Public method - Setter
-
 
         #region Public method - Getter
 
@@ -148,7 +147,6 @@ namespace GPC.Model.FEM.Collections
             }
         }
 
-
         /// <param name="id">The <see cref="Elements.Element.Id"/> of the FemObject</param>
         /// <returns><typeparamref name="T"/> with id equal to <paramref name="id"/></returns>
         /// <exception cref="KeyNotFoundException"> If collection does not contain a element with Id: <paramref name="id"/> </exception>
@@ -158,7 +156,10 @@ namespace GPC.Model.FEM.Collections
             if (!_ids.Contains(id))
                 throw new KeyNotFoundException($"Collection does not contain a element with Id:{id}");
 
-            return _collection.SingleOrDefault(i => i.Id.Equals(id));
+            lock (_locker)
+            {
+                return _collection.SingleOrDefault(i => i.Id.Equals(id)); 
+            }
         }
 
         public virtual HashSet<int> GetIds()
@@ -166,38 +167,41 @@ namespace GPC.Model.FEM.Collections
             return _ids;
         }
 
-
-
         /// <returns>A map between <typeparamref name="T"/> HashCode and the index of <typeparamref name="T"/> in the <see cref="_collection"/> </returns>
         /// <remarks>This is an O(n) operation</remarks>
         public virtual Dictionary<int, int> GetElementHashMap()
         {
-            Dictionary<int, int> hashMap = new Dictionary<int, int>();
-            var list = (_collection as List<T>);
-            for (int i = 0; i < list.Count; i++)
+            lock (_locker)
             {
-                hashMap[list[i].GetHashCode()] = i;
-            }
+                Dictionary<int, int> hashMap = new Dictionary<int, int>();
+                var list = (_collection as List<T>);
+                for (int i = 0; i < list.Count; i++)
+                {
+                    hashMap[list[i].GetHashCode()] = i;
+                }
 
-            return hashMap;
+                return hashMap; 
+            }
         }
 
         /// <returns>A map between <typeparamref name="T"/>.Id  and the index of <typeparamref name="T"/> in the <see cref="_collection"/> </returns>
         /// <remarks>This is an O(n) operation</remarks>
         public virtual Dictionary<int, int> GetElementIdMap()
         {
-            Dictionary<int, int> hashMap = new Dictionary<int, int>();
-
-            var list = (_collection as List<T>);
-
-            for (int i = 0; i < list.Count; i++)
+            lock (_locker)
             {
-                hashMap[list[i].Id] = i;
+                Dictionary<int, int> hashMap = new Dictionary<int, int>();
+
+                var list = (_collection as List<T>);
+
+                for (int i = 0; i < list.Count; i++)
+                {
+                    hashMap[list[i].Id] = i;
+                }
+
+                return hashMap; 
             }
-
-            return hashMap;
         }
-
 
         /// <summary>
         /// Get the element by its position on the <see cref="_collection"/>
@@ -213,21 +217,17 @@ namespace GPC.Model.FEM.Collections
             return (_collection as List<T>)[index];
         }
 
-
         public virtual IEnumerator<T> GetEnumerator()
         {
             return _collection.GetEnumerator();
         }
-
 
         IEnumerator IEnumerable.GetEnumerator()
         {
             return _collection.GetEnumerator();
         }
 
-
         #endregion Public method - Getter
-
 
         #region Public method - Check
 
@@ -237,7 +237,10 @@ namespace GPC.Model.FEM.Collections
         /// <remarks>This is an O(n) operation</remarks>
         public virtual bool Contains(T item)
         {
-            return _collection.Contains(item);
+            lock (_locker)
+            {
+                return _collection.Contains(item); 
+            }
         }
 
         #endregion Public method - Check
@@ -246,47 +249,57 @@ namespace GPC.Model.FEM.Collections
 
         public void Clear()
         {
-            _ids.Clear();
-            _collection.Clear();
+            lock (_locker)
+            {
+                _ids.Clear();
+                _collection.Clear(); 
+            }
         }
 
         /// <inheritdoc cref="ICollection.CopyTo(System.Array, int)"/>
         public void CopyTo(T[] array, int arrayIndex)
         {
-            _collection.CopyTo(array, arrayIndex);
-            
+            lock (_locker)
+            {
+                _collection.CopyTo(array, arrayIndex);
+            }
         }
 
         /// <inheritdoc cref="FemObjectCollection{T}.Remove(T)"/>
         public bool Remove(T item)
         {
-            if (_collection.Remove(item))
+            lock (_locker)
             {
-                _ids.Remove(item.Id);
-                return true;
-            }
-            else
-            {
-                return false;
+                if (_collection.Remove(item))
+                {
+                    _ids.Remove(item.Id);
+                    return true;
+                }
+                else
+                {
+                    return false;
+                } 
             }
         }
 
         /// <inheritdoc cref="FemObjectCollection{T}.Remove(int)"/>
         public bool Remove(int id)
         {
-            int removed = (_collection as List<T>).RemoveAll(i => i.Id.Equals(id));
+            lock (_locker)
+            {
+                int removed = (_collection as List<T>).RemoveAll(i => i.Id.Equals(id));
 
-            if (removed > 0)
-            {
-                _ids.Remove(id);
-                return true;
-            }
-            else
-            {
-                return false;
+                if (removed > 0)
+                {
+                    _ids.Remove(id);
+                    return true;
+                }
+                else
+                {
+                    return false;
+                } 
             }
         }
-
 
         #endregion Public method - Edit
 
@@ -294,20 +307,29 @@ namespace GPC.Model.FEM.Collections
 
         public override bool Equals(object obj)
         {
-            return obj is FemObjectCollection<T> collection && _collection.ScrambledEquals(collection._collection);
+            lock (_locker)
+            {
+                return obj is FemObjectCollection<T> collection && _collection.ScrambledEquals(collection._collection); 
+            }
         }
 
         public override int GetHashCode()
         {
-            int hashCode = -23;
-            hashCode = hashCode * -17 + base.GetHashCode();
-
-            foreach (var element in _collection)
+            lock (_locker)
             {
-                hashCode = hashCode + EqualityComparer<FEMObject>.Default.GetHashCode(element);
-            }
+                unchecked
+                {
+                    int hashCode = -23;
+                    hashCode = hashCode * -17 + base.GetHashCode();
 
-            return hashCode;
+                    foreach (var element in _collection)
+                    {
+                        hashCode = hashCode + EqualityComparer<FEMObject>.Default.GetHashCode(element);
+                    }
+
+                    return hashCode;  
+                }
+            }
         }
 
         public static bool operator ==(FemObjectCollection<T> obj1, FemObjectCollection<T> obj2)
