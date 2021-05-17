@@ -5,13 +5,17 @@ using System.Linq;
 namespace GPC.Model
 {
     /// <summary>
-    /// Collection of <see cref="ModelObject"/> with unique name
+    /// Collection of <see cref="ModelObject"/> with unique name. This class use an <see cref="HashSet{T}"/>
     /// </summary>
     /// <typeparam name="T"></typeparam>
     /// <remarks>The collection is thread-safe</remarks>
     public class UniqueNameCollection<T> : ModelObjectEnumerable<T>, ICollection<T> where T : ModelObject
     {
         private readonly HashSet<string> _names;
+
+        public int Count => _collection.Count;
+
+        public bool IsReadOnly => _collection.IsReadOnly;
 
 
         public UniqueNameCollection()
@@ -20,9 +24,6 @@ namespace GPC.Model
             _names = new HashSet<string>();
         }
 
-        public int Count => _collection.Count;
-
-        public bool IsReadOnly => _collection.IsReadOnly;
 
         /// <inheritdoc cref="ModelObjectEnumerable{T}.Add(T)" />
         /// <returns>True if the element has been added

@@ -12,6 +12,7 @@ namespace GPC.Model.FEM.Collections
     {
         public NodeStageCollection() : base()
         {
+
         }
 
         /// <summary>

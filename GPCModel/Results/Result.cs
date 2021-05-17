@@ -12,13 +12,13 @@ namespace GPC.Model.Results
     {
         #region Variables
 
-        protected CoordinateSystem _coordinateSystem;
+        protected readonly CoordinateSystem _coordinateSystem;
 
-        protected Element _element;
+        protected readonly Element _element;
 
-        protected ILoadCase _case;
+        protected readonly ILoadCase _case;
 
-        protected ResultPoint _resultPoint;
+        protected readonly ResultPoint _resultPoint;
 
         #endregion
 
