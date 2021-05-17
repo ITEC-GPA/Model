@@ -1,11 +1,13 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
-using System;
 
 namespace GPC.Model
 {
     public class ModelObjectEnumerable<T> : IEnumerable<T> where T : ModelObject
     {
+
+        protected readonly object _locker = new object();
+
         protected ICollection<T> _collection;
 
         public ModelObjectEnumerable()
@@ -16,8 +18,11 @@ namespace GPC.Model
         /// <inheritdoc cref="ICollection{T}.Add(T)"/>
         public virtual bool Add(T item)
         {
-            _collection.Add(item);
-            return true;
+            lock (_locker)
+            {
+                _collection.Add(item);
+                return true; 
+            }
         }
 
         public IEnumerator<T> GetEnumerator()

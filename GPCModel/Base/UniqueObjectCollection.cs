@@ -1,17 +1,13 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using System;
-
 
 namespace GPC.Model
 {
     public class UniqueObjectCollection<T> : ModelObjectEnumerable<T>, ICollection<T> where T : ModelObject
     {
-
         public int Count => _collection.Count;
 
         public bool IsReadOnly => _collection.IsReadOnly;
-
 
         /// <summary>
         /// Build the collection with <see cref="List{T}"/>. Then <typeparamref name="T"/> can be a mutable object
@@ -21,7 +17,6 @@ namespace GPC.Model
             _collection = new List<T>();
         }
 
-
         /// <inheritdoc cref="ModelObjectEnumerable{T}.Add(T)" />
         /// <returns>True if the element has been added
         /// <para>False if the element has not been added there is already an equal element in the collection.</para>
@@ -30,13 +25,16 @@ namespace GPC.Model
         /// <para> To get the element in the collection use <see cref="GetItem(T, out T)"/> </para></remarks>
         public override bool Add(T item)
         {
-            if (!_collection.Contains(item))
+            lock (_locker)
             {
-                _collection.Add(item);
+                if (!_collection.Contains(item))
+                {
+                    _collection.Add(item);
+                    return true;
+                }
+
                 return true;
             }
-
-            return true;
         }
 
         /// <summary>
@@ -47,33 +45,51 @@ namespace GPC.Model
         /// <returns><see langword="True" /> if there is an element equal to <paramref name="item"/> in this collection </returns>
         public bool GetItem(T item, out T itemFound)
         {
-            itemFound = _collection.Where(i => i.Equals(item)).FirstOrDefault();
-            return itemFound != null;
+            lock (_locker)
+            {
+                itemFound = _collection.Where(i => i.Equals(item)).FirstOrDefault();
+                return itemFound != null;
+            }
         }
 
         public void Clear()
         {
-            _collection.Clear();
+            lock (_locker)
+            {
+                _collection.Clear();
+            }
         }
 
         public bool Contains(T item)
         {
-            return _collection.Contains(item);
+            lock (_locker)
+            {
+                return _collection.Contains(item);
+            }
         }
 
         public void CopyTo(T[] array, int arrayIndex)
         {
-            _collection.CopyTo(array, arrayIndex);
+            lock (_locker)
+            {
+                _collection.CopyTo(array, arrayIndex);
+            }
         }
 
         public bool Remove(T item)
         {
-            return _collection.Remove(item);
+            lock (_locker)
+            {
+                return _collection.Remove(item);
+            }
         }
 
         void ICollection<T>.Add(T item)
         {
-            this.Add(item);
+            lock (_locker)
+            {
+                this.Add(item);
+            }
         }
     }
 }
