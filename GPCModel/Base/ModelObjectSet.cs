@@ -1,11 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
+using System;
 
 namespace GPC.Model
 {
+
+    /// <summary>
+    /// Collection of unique <see cref="ModelObject"/>
+    /// This class is a wrapper of <see cref="HashSet{T}"/>
+    /// </summary>
+    /// <typeparam name="T">The type of collection derived from <see cref="ModelObject"/> </typeparam>
+    /// <remarks>The collection is thread-safe</remarks>
     public class ModelObjectSet<T> : ModelObjectEnumerable<T>, ICollection<T> where T : ModelObject
     {
 
@@ -41,13 +45,16 @@ namespace GPC.Model
         /// <para> To get the element in the collection use <see cref="GetItem(T, out T)"/> </para></remarks>
         public override bool Add(T item)
         {
-            if (!_collection.Contains(item))
+            lock (_locker)
             {
-                _collection.Add(item);
-                return true;
-            }
+                if (!_collection.Contains(item))
+                {
+                    _collection.Add(item);
+                    return true;
+                }
 
-            return true;
+                return true; 
+            }
         }
 
 
@@ -59,18 +66,22 @@ namespace GPC.Model
         /// <returns><see langword="True" /> if there is an element equal to <paramref name="item"/> in this collection </returns>
         public bool GetItem(T item, out T itemFound)
         {
-            bool status = ((HashSet<T>)_collection).TryGetValue(item, out T found);
+            lock (_locker)
+            {
+                bool status = ((HashSet<T>)_collection).TryGetValue(item, out T found);
 
-            if (status)
-            {
-                itemFound = found;
-                return true;
+                if (status)
+                {
+                    itemFound = found;
+                    return true;
+                }
+                else
+                {
+                    itemFound = null;
+                    return false;
+                }
             }
-            else
-            {
-                itemFound = null;
-                return false;
-            }
+
         }
 
         void ICollection<T>.Add(T item)
@@ -80,22 +91,34 @@ namespace GPC.Model
 
         public void Clear()
         {
-            _collection.Clear();
+            lock (_locker)
+            {
+                _collection.Clear(); 
+            }
         }
 
         public bool Contains(T item)
         {
-            return _collection.Contains(item);
+            lock (_locker)
+            {
+                return _collection.Contains(item); 
+            }
         }
 
         public void CopyTo(T[] array, int arrayIndex)
         {
-            _collection.CopyTo(array, arrayIndex);
+            lock (_locker)
+            {
+                _collection.CopyTo(array, arrayIndex);
+            }
         }
 
         public bool Remove(T item)
         {
-            return _collection.Remove(item);
+            lock (_locker)
+            {
+                return _collection.Remove(item);
+            }
         }
 
     }

@@ -1,9 +1,9 @@
-﻿using System;
-using GPC.Geometry;
-using System.Runtime.Serialization;
-using System.Collections.Generic;
-using GPC.Model.LoadCases;
+﻿using GPC.Geometry;
 using GPC.Model.Elements;
+using GPC.Model.LoadCases;
+using System;
+using System.Collections.Generic;
+using System.Runtime.Serialization;
 
 namespace GPC.Model.Results
 {
@@ -12,13 +12,13 @@ namespace GPC.Model.Results
     {
         #region Variables
 
-        protected CoordinateSystem _coordinateSystem;
+        protected readonly CoordinateSystem _coordinateSystem;
 
-        protected Element _element;
+        protected readonly Element _element;
 
-        protected ILoadCase _case;
+        protected readonly ILoadCase _case;
 
-        protected ResultPoint _resultPoint;
+        protected readonly ResultPoint _resultPoint;
 
         #endregion
 

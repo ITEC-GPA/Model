@@ -7,10 +7,12 @@ namespace GPC.Model.FEM.Collections
     /// Collection of <see cref="Node"/> associated to a <see cref="Stage.StageProperty"/>
     /// </summary>
     /// <remarks>This should be accessed only from the class <see cref="Stage"/> since it does not implement any check on the element duplicates</remarks>
+    /// <remarks>The collection is thread-safe</remarks>
     public class NodeStageCollection<T, D> : FemObjectStageCollection<Node, Stage.StageProperty>
     {
         public NodeStageCollection() : base()
         {
+
         }
 
         /// <summary>
