@@ -399,9 +399,6 @@ namespace FemTest.SolverTest
             //double G0 = 1e-6;
             double h0 = 0.1;
 
-            Material mat = new SteelMaterial("mat", EGlass, niGlass, 355, 510, 7850);
-            PlateProperty prop = new PlateProperty(mat.GetIsotropicFemMaterial(), h1 + h2 + h0, h1 + h2 + h0, "p");
-
             Quad4TripleLaminatedGlass e0 = new Quad4TripleLaminatedGlass(new Node[] { nodes[0], nodes[1], nodes[2], nodes[3] }, G0, h0, h1, h2, EGlass, niGlass);
 
             CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
@@ -425,14 +422,6 @@ namespace FemTest.SolverTest
             LinearSolver fem0 = new LinearSolver(new FiniteElement[] { e0 });
 
             Console.WriteLine("Tripled = " + fem0.GetDisplacementGlobalCoordinates(nodes[2], Solver.DOF.DZ));
-
-            var globalDispl = fem0.GetDisplacementsAtNodesOfElementInGlobalCoordinates(e0);
-   
-            var pseudoDefGlass = nodes.Select(node => e0.GetPseudoStrainGlass(globalDispl, node));
-            var pseudoDefInterlayer = nodes.Select(node => e0.GetPseudoStrainInterlayer(globalDispl, node));
-
-            var pseudoStressGlass = pseudoDefGlass.Select(def => e0.GetPseudoStressGlass(def));
-            var pseudoStressInterlayer = pseudoDefInterlayer.Select(def => e0.GetPseudoStressInterlayer(def));
         }
 
         /// <summary>
@@ -777,7 +766,10 @@ namespace FemTest.SolverTest
             CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
 
             PlatePressureAttribute p = new PlatePressureAttribute("lc", sys, 0, 0, -0.1);
-            els.ForEach(x => x.AddLoadCaseAttribute(p));
+            els.ForEach(pl => pl.AddLoadCaseAttribute(p));
+
+            /*NodeForceAttribute f = new NodeForceAttribute("lc", sys, 0, 0, 100, 0, 0, 0);
+            nodes.Where(nd => nd.Position.X == 5 && nd.Position.Y == 5).First().AddAttribute(f);*/
 
             NodeRestrainAttribute dz = new NodeRestrainAttribute("freedomCase", sys);
             dz.AddExternalRestrain(Solver.DOF.DZ);
@@ -787,7 +779,7 @@ namespace FemTest.SolverTest
             nodes.Where(nd => nd.Position.X == 10 && nd.Position.Y == 10).ToList().ForEach(nd => nd.AddAttribute(dz));
             nodes.Where(nd => nd.Position.X == 0 && nd.Position.Y == 10).ToList().ForEach(nd => nd.AddAttribute(dz));
 
-            NodeRestrainAttribute dx = new NodeRestrainAttribute("freedomCase", sys);
+            /*NodeRestrainAttribute dx = new NodeRestrainAttribute("freedomCase", sys);
             dx.AddExternalRestrain(Solver.DOF.DX);
 
             nodes.Where(nd => nd.Position.X == 5 && nd.Position.Y == 0).ToList().ForEach(nd => nd.AddAttribute(dx));
@@ -797,16 +789,36 @@ namespace FemTest.SolverTest
             dy.AddExternalRestrain(Solver.DOF.DY);
 
             nodes.Where(nd => nd.Position.X == 0 && nd.Position.Y == 5).ToList().ForEach(nd => nd.AddAttribute(dy));
-            nodes.Where(nd => nd.Position.X == 10 && nd.Position.Y == 5).ToList().ForEach(nd => nd.AddAttribute(dy));
+            nodes.Where(nd => nd.Position.X == 10 && nd.Position.Y == 5).ToList().ForEach(nd => nd.AddAttribute(dy));*/
 
             LinearSolver fem0 = new LinearSolver(els.ToArray());
 
             Console.WriteLine(fem0.GetDisplacementGlobalCoordinates(nodes[63], Solver.DOF.DZ));
             Assert.AreEqual(-0.3297, fem0.GetDisplacementGlobalCoordinates(nodes[63], Solver.DOF.DZ), 0.01); //Come soluzione kirchoff
             double hc = (2.0 * hInterlayer + hGlass1 + hGlass2) / 2.0;
-            Assert.AreEqual(0.034, fem0.GetDisplacementGlobalCoordinates(nodes[1], Solver.DOF.RY) * hc, 0.01); //come soluzione kirchoff
+            Assert.AreEqual(0.035, fem0.GetDisplacementGlobalCoordinates(nodes[1], Solver.DOF.RY) * hc, 0.001); //come soluzione kirchoff
 
             //TODO: capire dof Torcente "Psi" con analogia a elemento di kirchoff
+
+            var element = els[56];
+            var globalDispl = fem0.GetDisplacementsAtNodesOfElementInGlobalCoordinates(element);
+
+            double x = 0;
+            double y = 0;
+
+            var curvatures = element.GetCurvatures(x,y, globalDispl);
+
+            /*Assert.AreEqual(-0.0125, curvatures[0], 1e-3); //perchè differenza di segno?
+            Assert.AreEqual(-0.0125, curvatures[1], 1e-3); //perchè differenza di segno?*/
+            Assert.AreEqual(0.0, curvatures[2], 1e-3);
+
+            var epsilonTopGlassMiddleFace = element.GetStrainGlass(Quad4TripleLaminatedGlass.Glass.Top, Plate.Face.Middle,x,y, globalDispl);
+            var epsilonBottomGlassMiddleFace = element.GetStrainGlass(Quad4TripleLaminatedGlass.Glass.Bottom, Plate.Face.Middle, x,y, globalDispl);
+
+
+            var element2 = els[1];
+            var globalDispl2 = fem0.GetDisplacementsAtNodesOfElementInGlobalCoordinates(element2);
+            var curvatures2 = element2.GetCurvatures(x, y, globalDispl2);
         }
 
         /// <summary>
@@ -29142,10 +29154,10 @@ namespace FemTest.SolverTest
         public void QuadrilateralTest1()
         {
             List<Node> nodes = new List<Node>();
-            nodes.Add(new Node(1, 1, 0)); //0
-            nodes.Add(new Node(10, 1, 0)); //1
+            nodes.Add(new Node(5, 5, 0)); //0
+            nodes.Add(new Node(10, 5, 0)); //1
             nodes.Add(new Node(10, 20, 0)); //2
-            nodes.Add(new Node(1, 20, 0)); //3
+            nodes.Add(new Node(5, 20, 0)); //3
 
             nodes.Add(new Node(-1, -1, 0)); //4
             nodes.Add(new Node(1, -1, 0)); //5
@@ -29180,6 +29192,178 @@ namespace FemTest.SolverTest
                     Assert.AreEqual(correct.KElementLocalCoord[row, col], quadrilateral.KElementLocalCoord[row, col], 1e-6);
                 }
             }
+        }
+
+        [TestMethod]
+        //Rotated
+        public void QuadrilateralTest2()
+        {
+            List<Node> nodes = new List<Node>();
+            nodes.Add(new Node(0, 0, 0));
+            nodes.Add(new Node(2, 0, 0));
+            nodes.Add(new Node(2, 2, 0));
+            nodes.Add(new Node(0, 2, 0));
+
+            //20 deg
+            /*nodes.Add(new Node(0, 0, 0));
+            nodes.Add(new Node(1.8794, 0.68404, 0));
+            nodes.Add(new Node(1.1953, 2.56343, 0));
+            nodes.Add(new Node(-0.68404, 1.87939, 0));*/
+
+            //45 deg
+            nodes.Add(new Node(0, 0, 0));
+            nodes.Add(new Node(1.41421, 1.41421, 0));
+            nodes.Add(new Node(0, 2.82843, 0));
+            nodes.Add(new Node(-1.41421, 1.41421, 0));
+
+            double hGlass = 0.5;
+            double EGlass = 12.0;
+            double niGlass = 0.0;
+
+            double G0 = EGlass / (2.0 * (1.0 + niGlass));
+
+            double hInterlayer = 0.01;
+
+            //Quad4TripleLaminatedGlass naturalElement = new Quad4TripleLaminatedGlass(new Node[] { nodes[4], nodes[5], nodes[6], nodes[7] }, G0, hInterlayer, hGlass, hGlass, EGlass, niGlass);
+            Quad4TripleLaminatedGlass correct = new Quad4TripleLaminatedGlass(new Node[] { nodes[0], nodes[1], nodes[2], nodes[3] }, G0, hInterlayer, hGlass, hGlass, EGlass, niGlass, false);
+            Quad4TripleLaminatedGlass quadrilateral = new Quad4TripleLaminatedGlass(new Node[] { nodes[4], nodes[5], nodes[6], nodes[7] }, G0, hInterlayer, hGlass, hGlass, EGlass, niGlass, true);
+
+            //naturalElement.BuildMatrix();
+            //FEMUtilities.WriteMatrix("natural element", naturalElement.KElementLocalCoord);
+
+            correct.BuildMatrix();
+            FEMUtilities.WriteMatrix("correct element", correct.KElementLocalCoord);
+
+            quadrilateral.BuildMatrix();
+            FEMUtilities.WriteMatrix(quadrilateral.KElementLocalCoord);
+
+            /*for (int row = 0; row < correct.KElementLocalCoord.RowCount; row++)
+            {
+                for (int col = 0; col < correct.KElementLocalCoord.ColumnCount; col++)
+                {
+                    Assert.AreEqual(correct.KElementLocalCoord[row, col], quadrilateral.KElementLocalCoord[row, col], 1e-6);
+                }
+            }*/
+        }
+
+        [TestMethod]
+        //20 deg
+        public void QuadrilateralTest3()
+        {
+            double hGlass = 0.5;
+            double EGlass = 12.0;
+            double niGlass = 0.0;
+
+            double G0 = EGlass / (2.0 * (1.0 + niGlass));
+
+            double hInterlayer = 0.01;
+
+            List<Node> nodes = new List<Node>();
+            #region nodes
+            nodes.Add(new Node(0, 0, 0));
+            nodes.Add(new Node(2, 0, 0));
+            nodes.Add(new Node(2, 2, 0));
+            nodes.Add(new Node(0, 2, 0));
+
+            nodes.Add(new Node(0, 0, 0));
+            nodes.Add(new Node(1.8794, 0.68404, 0));
+            nodes.Add(new Node(1.1953, 2.56343, 0));
+            nodes.Add(new Node(-0.68404, 1.87939, 0));
+            #endregion
+
+            #region plates
+            List<Quad4TripleLaminatedGlass> els = new List<Quad4TripleLaminatedGlass>();
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[0], nodes[1], nodes[2], nodes[3] }, G0, hInterlayer, hGlass, hGlass, EGlass, niGlass, true));
+
+            List<Quad4TripleLaminatedGlass> els2 = new List<Quad4TripleLaminatedGlass>();
+            els2.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[4], nodes[5], nodes[6], nodes[7] }, G0, hInterlayer, hGlass, hGlass, EGlass, niGlass, true));
+            #endregion
+
+            CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
+
+            NodeForceAttribute f = new NodeForceAttribute("lc", sys, 0, 0, 5, 0, 0, 0);
+            nodes[1].AddAttribute(f);
+            nodes[2].AddAttribute(f);
+
+            nodes[5].AddAttribute(f);
+            nodes[6].AddAttribute(f);
+
+            NodeRestrainAttribute fix = new NodeRestrainAttribute("freedomCase", sys);
+            fix.AddExternalRestrain(Solver.DOF.DX);
+            fix.AddExternalRestrain(Solver.DOF.DY);
+            fix.AddExternalRestrain(Solver.DOF.DZ);
+            fix.AddExternalRestrain(Solver.DOF.RX);
+            fix.AddExternalRestrain(Solver.DOF.RY);
+            fix.AddExternalRestrain(Solver.DOF.RZ);
+
+            nodes[0].AddAttribute(fix);
+            nodes[3].AddAttribute(fix);
+
+            nodes[4].AddAttribute(fix);
+            nodes[7].AddAttribute(fix);
+
+            LinearSolver fem = new LinearSolver(els.ToArray());
+            LinearSolver fem2 = new LinearSolver(els2.ToArray());
+        }
+
+        [TestMethod]
+        //45 deg
+        public void QuadrilateralTest4()
+        {
+            double hGlass = 0.5;
+            double EGlass = 12.0;
+            double niGlass = 0.0;
+
+            double G0 = EGlass / (2.0 * (1.0 + niGlass));
+
+            double hInterlayer = 0.01;
+
+            List<Node> nodes = new List<Node>();
+            #region nodes
+            nodes.Add(new Node(0, 0, 0));
+            nodes.Add(new Node(2, 0, 0));
+            nodes.Add(new Node(2, 2, 0));
+            nodes.Add(new Node(0, 2, 0));
+
+            nodes.Add(new Node(0, 0, 0));
+            nodes.Add(new Node(1.41421, 1.41421, 0));
+            nodes.Add(new Node(0, 2.82843, 0));
+            nodes.Add(new Node(-1.41421, 1.41421, 0));
+            #endregion
+
+            #region plates
+            List<Quad4TripleLaminatedGlass> els = new List<Quad4TripleLaminatedGlass>();
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[0], nodes[1], nodes[2], nodes[3] }, G0, hInterlayer, hGlass, hGlass, EGlass, niGlass, false));
+
+            List<Quad4TripleLaminatedGlass> els2 = new List<Quad4TripleLaminatedGlass>();
+            els2.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[4], nodes[5], nodes[6], nodes[7] }, G0, hInterlayer, hGlass, hGlass, EGlass, niGlass, true));
+            #endregion
+
+            CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
+
+            NodeForceAttribute f = new NodeForceAttribute("lc", sys, 0, 0, 5, 0, 0, 0);
+            nodes[1].AddAttribute(f);
+            nodes[2].AddAttribute(f);
+
+            nodes[5].AddAttribute(f);
+            nodes[6].AddAttribute(f);
+
+            NodeRestrainAttribute fix = new NodeRestrainAttribute("freedomCase", sys);
+            fix.AddExternalRestrain(Solver.DOF.DX);
+            fix.AddExternalRestrain(Solver.DOF.DY);
+            fix.AddExternalRestrain(Solver.DOF.DZ);
+            fix.AddExternalRestrain(Solver.DOF.RX);
+            fix.AddExternalRestrain(Solver.DOF.RY);
+            fix.AddExternalRestrain(Solver.DOF.RZ);
+
+            nodes[0].AddAttribute(fix);
+            nodes[3].AddAttribute(fix);
+
+            nodes[4].AddAttribute(fix);
+            nodes[7].AddAttribute(fix);
+
+            LinearSolver fem = new LinearSolver(els.ToArray());
+            LinearSolver fem2 = new LinearSolver(els2.ToArray());
         }
     }
 }

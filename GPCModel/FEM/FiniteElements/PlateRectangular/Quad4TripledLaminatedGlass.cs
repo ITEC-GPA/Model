@@ -32,6 +32,7 @@ namespace GPC.Model.FEM.FiniteElements
 
         mnl.Matrix<double> _Dg;
         mnl.Matrix<double> _Ds;
+        mnl.Matrix<double> _PlaneStressGlassMatrix;
 
         mnl.Matrix<double> _kLayer;
         mnl.Matrix<double> _kGlass;
@@ -157,14 +158,14 @@ namespace GPC.Model.FEM.FiniteElements
             }
             else
             {
-                double minX = _nodesGlobal.ToList().Select(x => x.Position.X).Min();
-                double minY = _nodesGlobal.ToList().Select(x => x.Position.Y).Min();
-                double minZ = _nodesGlobal.ToList().Select(x => x.Position.Z).Min();
+                double X0 = _nodesGlobal[0].Position.X;
+                double Y0 = _nodesGlobal[0].Position.Y;
+                double Z0 = _nodesGlobal[0].Position.Z;
 
-                nodesFirstTransformed[0] = new Node(_nodesGlobal[0].Position.X - minX, _nodesGlobal[0].Position.Y - minY, _nodesGlobal[0].Position.Z - minZ);
-                nodesFirstTransformed[1] = new Node(_nodesGlobal[1].Position.X - minX, _nodesGlobal[1].Position.Y - minY, _nodesGlobal[1].Position.Z - minZ);
-                nodesFirstTransformed[2] = new Node(_nodesGlobal[2].Position.X - minX, _nodesGlobal[2].Position.Y - minY, _nodesGlobal[2].Position.Z - minZ);
-                nodesFirstTransformed[3] = new Node(_nodesGlobal[3].Position.X - minX, _nodesGlobal[3].Position.Y - minY, _nodesGlobal[3].Position.Z - minZ);
+                nodesFirstTransformed[0] = new Node(_nodesGlobal[0].Position.X - X0, _nodesGlobal[0].Position.Y - Y0, _nodesGlobal[0].Position.Z - Z0);
+                nodesFirstTransformed[1] = new Node(_nodesGlobal[1].Position.X - X0, _nodesGlobal[1].Position.Y - Y0, _nodesGlobal[1].Position.Z - Z0);
+                nodesFirstTransformed[2] = new Node(_nodesGlobal[2].Position.X - X0, _nodesGlobal[2].Position.Y - Y0, _nodesGlobal[2].Position.Z - Z0);
+                nodesFirstTransformed[3] = new Node(_nodesGlobal[3].Position.X - X0, _nodesGlobal[3].Position.Y - Y0, _nodesGlobal[3].Position.Z - Z0);
 
                 double XP1 = FEMUtilities.GetLocalCoordinate2D("x", -1, -1, Quad4Element.GetShapeFunction, nodesFirstTransformed);
                 double XP2 = FEMUtilities.GetLocalCoordinate2D("x", 1, -1, Quad4Element.GetShapeFunction, nodesFirstTransformed);
@@ -275,19 +276,19 @@ namespace GPC.Model.FEM.FiniteElements
 
 #endregion
 
-#region matricesD
+            #region matricesD
             /*double E = ((PlateProperty)_property).GetE();
             double ni = ((PlateProperty)_property).GetNi();*/
 
-#region Ds - INTERLAYER
+            #region Ds - INTERLAYER
             _Ds = GetDs(_G0, _h0, _hc);
-#endregion
+            #endregion
 
-#region Dg - GLASS
-            mnl.Matrix<double> C = IsotropicFemMaterial.GetMatrixPlaneStress(_EGlass,_niGlass);
-            _Dg = GetDg(_h1, _h2, C);
-#endregion
-#endregion
+            #region Dg - GLASS
+            _PlaneStressGlassMatrix = IsotropicFemMaterial.GetMatrixPlaneStress(_EGlass,_niGlass);
+            _Dg = GetDg(_h1, _h2, _PlaneStressGlassMatrix);
+            #endregion
+            #endregion
 
             //calculation of kelement using gauss quadrature
             _kElementLocalCoord = mnl.Matrix<double>.Build.Dense(24, 24);
@@ -323,7 +324,7 @@ namespace GPC.Model.FEM.FiniteElements
                 //usata solo per prova è possibile cancellarla al termine
                 double f(double input1, double input2)
                 {
-                    return 0.0 + 1.0 * Math.Pow(input1, 1.0) + 0.0 * Math.Pow(input2, 1.0);
+                    return 0.0 + 1.0 * Math.Pow(input1, 6.0) + 1.0 * Math.Pow(input2, 6.0);
                 }
 
                 if (_quadrilateral == true)
@@ -336,17 +337,17 @@ namespace GPC.Model.FEM.FiniteElements
 
                     /*Console.WriteLine("csi = " + csi + " eta = " + eta);
                     Console.WriteLine("x = " + x + " y = " + y);
-                    Console.WriteLine("X = " + X + " Y = " + Y);*/
+                    Console.WriteLine("X = " + X + " Y = " + Y);
+                    Console.WriteLine("detJ X to x = " + jacobXGlobalToXLocal(x, y).Determinant());*/
 
                     mnl.Matrix<double> Bg = GetBg(X, Y);
+
+                    return Bg.Transpose() * _Dg * Bg * jacobXGlobalToXLocal(x, y).Determinant();
 
                     /*mnl.Matrix<double> Bg = mnl.Matrix<double>.Build.Dense(1,1);
                     Bg[0,0] = f(X,Y);
 
-                    Console.WriteLine("detJ X to x = " + jacobXGlobalToXLocal(x, y).Determinant());*/
-
-                    return Bg.Transpose() * _Dg * Bg * jacobXGlobalToXLocal(x, y).Determinant();
-                    //return Bg * jacobXGlobalToXLocal(x, y).Determinant();
+                    return Bg * jacobXGlobalToXLocal(x, y).Determinant();*/
                 } else
                 {
                     double x = FEMUtilities.GetLocalCoordinate2D("x", csi, eta, Quad4Element.GetShapeFunction, _localNodes);
@@ -357,10 +358,10 @@ namespace GPC.Model.FEM.FiniteElements
                     return Bg.Transpose() * _Dg * Bg;
 
                     /*mnl.Matrix<double> Bg = mnl.Matrix<double>.Build.Dense(1, 1);
-                    Bg[0, 0] = f(x,y);*/
+                    Bg[0, 0] = f(x,y);
                     //Console.WriteLine("TLG classic f(x=" + x + ",y=" + y + ")=" + Bg[0, 0]);
 
-                    return Bg;
+                    return Bg;*/
                 }
             }
 
@@ -507,11 +508,83 @@ namespace GPC.Model.FEM.FiniteElements
         /// <param name="g"></param>
         /// <param name="node"></param>
         /// <param name="globalDisplacementNodes"></param>
-        public mnl.Vector<double> GetStrainGlass(Glass g, Node node, double[] globalDisplacementNodes)
+        /// <returns>epsilon_x, epslilon_y, tau_xy, kxx, kyy, kxy as vector of double</returns>
+        public mnl.Vector<double> GetStrainGlass(Glass g, Face face, double x, double y, double[] globalDisplacementNodes)
         {
-            var pseudoStrain = GetPseudoStrainGlass(globalDisplacementNodes, node);
+            var pseudoStrain = GetPseudoStrainGlass(x,y,globalDisplacementNodes);
+            var pseudoStress = GetPseudoStressGlass(pseudoStrain);
 
-            return mnl.Vector<double>.Build.Dense(0);
+            mnl.Vector<double> strains = mnl.Vector<double>.Build.Dense(6); //eq 24 epsilon_x, epslilon_y, tau_xy, kxx, kyy, kxy
+
+            double k;
+            double h;
+            if (g == Glass.Top)
+            {
+                k = 1;
+                h = _h1;
+            } else
+            {
+                k = 2;
+                h = _h2;
+            }
+            double strainsXX = Math.Pow(-1.0, k) * pseudoStress[0] / (_EGlass * h); //epsilon x
+            double strainsYY = Math.Pow(-1.0, k) * pseudoStress[1] / (_EGlass * h); //epsilon y
+            double strainsXY = Math.Pow(-1.0, k) * 2.0 * (1.0 + _niGlass) / (_EGlass * h) * pseudoStress[2]; //gamma_xy
+
+            var curvatures = GetCurvatures(x,y, globalDisplacementNodes);
+
+            if (face == Face.Top)
+            {
+                strainsXX =+ h / 2.0 * curvatures[0];
+                strainsYY =+ h / 2.0 * curvatures[1];
+                strainsXY =+ h / 2.0 * curvatures[2];
+            }
+            else if (face == Face.Bottom)
+            {
+                strainsXX =- h / 2.0 * curvatures[0];
+                strainsYY =- h / 2.0 * curvatures[1];
+                strainsXY =- h / 2.0 * curvatures[2];
+            }
+
+            strains[0] = strainsXX;
+            strains[1] = strainsYY;
+            strains[2] = strainsXY;
+
+            return strains;
+        }
+
+        /// <summary>
+        /// curvatures
+        /// </summary>
+        /// <param name="node"></param>
+        /// <param name="globalDisplacementNodes"></param>
+        /// <returns>kxx, kyy, kxy in vector of double</returns>
+        public mnl.Vector<double> GetCurvatures(double x, double y, double[] globalDisplacementNodes)
+        {
+            mnl.Vector<double> curvatures = mnl.Vector<double>.Build.Dense(3);
+
+            var pseudoStrain = GetPseudoStrainGlass(x,y,globalDisplacementNodes);
+
+            curvatures[0] = -pseudoStrain[3]; //kxx
+            curvatures[1] = -pseudoStrain[4]; //kyy
+            curvatures[2] = -pseudoStrain[5] / 2.0; //kxy
+
+            return curvatures;
+        }
+
+        /// <summary>
+        /// get stress in the middle surface of selected glass
+        /// </summary>
+        /// <param name="g"></param>
+        /// <param name="node"></param>
+        /// <param name="globalDisplacementNodes"></param>
+        /// <returns>sigma_xx, sigma_yy, tau_xy as vector of double</returns>
+        public mnl.Vector<double> GetStress(Glass g, Face face, double x, double y, double[] globalDisplacementNodes)
+        {
+            var strains = GetStrainGlass(g, face, x,y, globalDisplacementNodes);
+            var stress = _PlaneStressGlassMatrix * strains;
+
+            return stress;
         }
 
         /// <summary>
@@ -519,6 +592,7 @@ namespace GPC.Model.FEM.FiniteElements
         /// </summary>
         /// <param name="globalDisplacementsNodes"></param>
         /// <param name="node"></param>
+        /// <returns> pseudoStrainInterlayer = [deltaU, deltaV, dwdx , dwdy] as vector of double</returns>
         public mnl.Vector<double> GetPseudoStrainInterlayer(double[] globalDisplacementsNodes, Node node)
         {
             var displPoint = GetDisplacementsNode(node, globalDisplacementsNodes);
@@ -531,6 +605,11 @@ namespace GPC.Model.FEM.FiniteElements
             return es;
         }
 
+        /// <summary>
+        /// Ds * pseudostrain
+        /// </summary>
+        /// <param name="pseudoStrain"></param>
+        /// <returns></returns>
         public mnl.Vector<double> GetPseudoStressInterlayer(mnl.Vector<double> pseudoStrain)
         {
             return _Ds * pseudoStrain;
@@ -540,19 +619,20 @@ namespace GPC.Model.FEM.FiniteElements
         /// eq 44
         /// </summary>
         /// <param name="globalDisplacementsNodes"></param>
-        /// <param name="node"></param>
-        public mnl.Vector<double> GetPseudoStrainGlass(double[] globalDisplacementsNodes, Node node)
+        /// <returns>pseudoStrainGlass = [ddeltaUdx, ddeltaVdy, ddeltaUdx + ddeltaUdy, -d2wdx2 , -d2wdy2, -2.0 * d2wdxdy] as vector of double</returns>
+        public mnl.Vector<double> GetPseudoStrainGlass(double x, double y, double[] globalDisplacementsNodes)
         {
-            var displPoint = GetDisplacementsNode(node, globalDisplacementsNodes);
-            int indexNode = _nodesGlobal.ToList().IndexOf(node);
-
             //eq. 44: pseudoStrainGlass = [ddeltaUdx, ddeltaVdy, ddeltaUdx + ddeltaUdy, -d2wdx2 , -d2wdy2, -2.0 * d2wdxdy]
-            var Bg = GetBgi(indexNode + 1, _localNodes[indexNode].Position.X, _localNodes[indexNode].Position.Y);
-            var eg = Bg * displPoint;
-
+            var Bg = GetBg(x, y);
+            var eg = Bg * mnl.Vector<double>.Build.DenseOfArray(globalDisplacementsNodes);
             return eg;
         }
 
+        /// <summary>
+        /// Dg * pseudostrain
+        /// </summary>
+        /// <param name="pseudoStrain"></param>
+        /// <returns></returns>
         public mnl.Vector<double> GetPseudoStressGlass(mnl.Vector<double> pseudoStrain)
         {
             return _Dg * pseudoStrain;
@@ -560,6 +640,12 @@ namespace GPC.Model.FEM.FiniteElements
         
 #region PrivateInternalFunctions
 
+        /// <summary>
+        /// Select in globalDisplacementsNodes the displacement of the node
+        /// </summary>
+        /// <param name="node"></param>
+        /// <param name="globalDisplacementsNodes"></param>
+        /// <returns></returns>
         private mnl.Vector<double> GetDisplacementsNode(Node node, double[] globalDisplacementsNodes)
         {
             mnl.Vector<double> displPoint = mnl.Vector<double>.Build.Dense(6);
@@ -1060,6 +1146,13 @@ namespace GPC.Model.FEM.FiniteElements
             return bg;
         }
 
+        /// <summary>
+        /// Equation 32
+        /// </summary>
+        /// <param name="G0"></param>
+        /// <param name="h0"></param>
+        /// <param name="hc"></param>
+        /// <returns></returns>
         internal static mnl.Matrix<double> GetDs(double G0, double h0, double hc)
         {
             var Ds = mnl.Matrix<double>.Build.Dense(4, 4); //equation (32)
@@ -1080,6 +1173,13 @@ namespace GPC.Model.FEM.FiniteElements
             return Ds;
         }
 
+        /// <summary>
+        /// Equation 45
+        /// </summary>
+        /// <param name="h1"></param>
+        /// <param name="h2"></param>
+        /// <param name="C"></param>
+        /// <returns></returns>
         internal static mnl.Matrix<double> GetDg(double h1, double h2, mnl.Matrix<double> C)
         {
             var Dg = mnl.Matrix<double>.Build.Dense(6, 6); //equation (45)

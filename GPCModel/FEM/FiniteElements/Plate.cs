@@ -17,6 +17,13 @@ namespace GPC.Model.FEM.FiniteElements
     {
         // TODO: rendere abstract
 
+        public enum Face
+        {
+            Top,
+            Middle,
+            Bottom
+        }
+
         //contains Material information of the element
         protected mnl.Matrix<double> _d;
 
