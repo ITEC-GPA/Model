@@ -8,15 +8,16 @@ using GPC.Model.Materials;
 
 namespace GPC.Model.Sections
 {
-    public class SectionT : Section
+    public class SteelSectionT : SectionT
     {
         #region Variables
-
         protected double _h;
         protected double _tw;
         protected double _tf;
         protected double _b;
 
+        protected Plate[] _plates;
+        protected double _yPlastic;
         #endregion
 
         #region Properties
@@ -29,7 +30,7 @@ namespace GPC.Model.Sections
         public double yPlastic => _yPlastic;
         #endregion
 
-        public SectionT(double h, double b, double tw, double tf, Material material, string name) : base(material.GetIsotropicFemMaterial(), name)
+        public SteelSectionT(double h, double b, double tw, double tf, Material material, string name) : base(material.GetIsotropicFemMaterial(), name)
         {
             _h = h;
             _b = b;
@@ -96,7 +97,7 @@ namespace GPC.Model.Sections
             _shearCenter = new Point2d(_b / 2.0, _h - _tf /2.0);
         }
 
-        public  double MinSigma(double N, double M2, double M1)
+        public double MinSigma(double N, double M2, double M1)
         {
             double sigmaP1 = N / _area - M2 / _wel22Top + M1 / _wel11Left;
             double sigmaP2 = N / _area - M2 / _wel22Top - M1 /_wel11Right;

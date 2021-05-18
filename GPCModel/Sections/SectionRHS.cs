@@ -141,15 +141,15 @@ namespace GPC.Model.Sections
                 Plate plate = _plates[i];
                 Point2d centerPlate = _plates[i].Centroid;
 
-                _j11 = _j11 + plate.JzCentroid + plate.Area * Math.Pow(centerPlate.X - _centroid.X, 2.0);
-                _j22 = _j22 + plate.JyCentroid + plate.Area * Math.Pow(centerPlate.Y - _centroid.Y, 2.0);
+                _j11 = _jxx + plate.JzCentroid + plate.Area * Math.Pow(centerPlate.X - _centroid.X, 2.0);
+                _j22 = _jyy + plate.JyCentroid + plate.Area * Math.Pow(centerPlate.Y - _centroid.Y, 2.0);
 
             }
 
-            _wel22Top = _j22 / (_h  - _centroid.Y);
-            _wel22Bottom = _j22 / Math.Abs(_centroid.Y);
-            _wel11Left = _j11 / ( _centroid.X);
-            _wel11Right = _j11 / Math.Abs(_centroid.X - _b);
+            _wel22Top = _jyy / (_h  - _centroid.Y);
+            _wel22Bottom = _jyy / Math.Abs(_centroid.Y);
+            _wel11Left = _jxx / ( _centroid.X);
+            _wel11Right = _jxx / Math.Abs(_centroid.X - _b);
 
             _wpl22 = 0;
             if (_area/2.0 > _plates[0].Area) //plateTop
@@ -206,10 +206,10 @@ namespace GPC.Model.Sections
 
         public override double MinSigma(double N, double M2, double M1)
         {
-            double sigma1 = N / _area - M2 / J22 * (_h - _centroid.Y) + M1 / J11 * (_centroid.X);
-            double sigma2 = N / _area - M2 / J22 * (_h - _centroid.Y) - M1 / J11 * (_b - _centroid.X);
-            double sigma3 = N / _area + M2 / J22 * (_centroid.Y) + M1 / J11 * (_centroid.X);
-            double sigma4 = N / _area + M2 / J22 * (_centroid.Y) - M1 / J11 * (_b - _centroid.X);
+            double sigma1 = N / _area - M2 / Jyy * (_h - _centroid.Y) + M1 / Jxx * (_centroid.X);
+            double sigma2 = N / _area - M2 / Jyy * (_h - _centroid.Y) - M1 / Jxx * (_b - _centroid.X);
+            double sigma3 = N / _area + M2 / Jyy * (_centroid.Y) + M1 / Jxx * (_centroid.X);
+            double sigma4 = N / _area + M2 / Jyy * (_centroid.Y) - M1 / Jxx * (_b - _centroid.X);
 
             double sigmaMin = Math.Min(sigma1, sigma2);
             sigmaMin = Math.Min(sigmaMin, sigma3);

@@ -217,6 +217,12 @@
     <Compile Include="Sections\SectionRHS.cs" />
     <Compile Include="Sections\SectionShape.cs" />
     <Compile Include="Sections\SectionT.cs" />
+    <Compile Include="Sections\Steel\SteelSectionT.cs" />
+    <Compile Include="Sections\Steel\SteelSectionL.cs" />
+    <Compile Include="Sections\Steel\SteelSectionCHS.cs" />
+    <Compile Include="Sections\Steel\SteelSectionC.cs" />
+    <Compile Include="Sections\Steel\SteelSectionH.cs" />
+    <Compile Include="Sections\ThinWallSection.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="ClassDiagram1.cd" />

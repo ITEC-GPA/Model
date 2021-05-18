@@ -8,7 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace GPC.Model.Sections
-{
+{/*
     public class SectionShape : Section
     {
         private class MultiMaterial : IsotropicFemMaterial
@@ -45,5 +45,5 @@ namespace GPC.Model.Sections
             }
             return sm.ToArray();
         }
-    }
+    }*/
 }

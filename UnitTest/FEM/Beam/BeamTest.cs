@@ -148,7 +148,7 @@ namespace FemTest.SolverTest {
 
             LinearSolver fem = new LinearSolver(new FiniteElement[] { b });
 
-            Assert.AreEqual(MZ * L*L / (2.0 * E * sec.J22), fem.GetDisplacementGlobalCoordinates(nds[1], Solver.DOF.DY), 1e-4);
+            Assert.AreEqual(MZ * L*L / (2.0 * E * sec.Jyy), fem.GetDisplacementGlobalCoordinates(nds[1], Solver.DOF.DY), 1e-4);
 
             Assert.AreEqual(MZ, fem.GetBeamInternalForces(b, 0)[Beam.InternalAction.M3],1e-6);
             Assert.AreEqual(MZ, fem.GetBeamInternalForces(b, b.L/2.0)[Beam.InternalAction.M3], 1e-6);
@@ -201,7 +201,7 @@ namespace FemTest.SolverTest {
 
             LinearSolver fem = new LinearSolver(new FiniteElement[] { b });
 
-            Assert.AreEqual(1.0 / 2.0 * -MX * L*L / (E * sec.J22), fem.GetDisplacementGlobalCoordinates(nds[1], Solver.DOF.DZ), 1e-4);
+            Assert.AreEqual(1.0 / 2.0 * -MX * L*L / (E * sec.Jyy), fem.GetDisplacementGlobalCoordinates(nds[1], Solver.DOF.DZ), 1e-4);
 
             Assert.AreEqual(-MX, fem.GetBeamInternalForces(b, 0)[Beam.InternalAction.M2], 1e-6);
             Assert.AreEqual(-MX, fem.GetBeamInternalForces(b, b.L / 2.0)[Beam.InternalAction.M2], 1e-6);
@@ -245,7 +245,7 @@ namespace FemTest.SolverTest {
 
             LinearSolver fem = new LinearSolver(new FiniteElement[] { b });
 
-            Assert.AreEqual(1.0 / 3.0 * FY * L*L*L/(E*sec.J22), fem.GetDisplacementGlobalCoordinates(nds[1], Solver.DOF.DY), 1e-4);
+            Assert.AreEqual(1.0 / 3.0 * FY * L*L*L/(E*sec.Jyy), fem.GetDisplacementGlobalCoordinates(nds[1], Solver.DOF.DY), 1e-4);
 
             Assert.AreEqual(-FY, fem.GetBeamInternalForces(b, 0)[Beam.InternalAction.V2]);
             Assert.AreEqual(-FY, fem.GetBeamInternalForces(b, b.L/2.0)[Beam.InternalAction.V2]);
@@ -845,14 +845,14 @@ namespace FemTest.SolverTest {
             Assert.AreEqual(-qy * L, fem.GetReaction(nds[0], Solver.DOF.DY), 0.001); //Shear reaction
             Assert.AreEqual(-qy * L * L / 2.0, fem.GetReaction(nds[0], Solver.DOF.RZ), 0.001); //Bending Moment reaction
 
-            Assert.AreEqual(qy * Math.Pow(L, 4.0) / (8.0 * E * sec.J22), fem.GetDisplacementGlobalCoordinates(nds[1], Solver.DOF.DY), 0.001); //displacement
-            Assert.AreEqual(qy * Math.Pow(L, 3.0) / (6.0 * E * sec.J22), fem.GetDisplacementGlobalCoordinates(nds[1], Solver.DOF.RZ), 0.001); //rotation
+            Assert.AreEqual(qy * Math.Pow(L, 4.0) / (8.0 * E * sec.Jyy), fem.GetDisplacementGlobalCoordinates(nds[1], Solver.DOF.DY), 0.001); //displacement
+            Assert.AreEqual(qy * Math.Pow(L, 3.0) / (6.0 * E * sec.Jyy), fem.GetDisplacementGlobalCoordinates(nds[1], Solver.DOF.RZ), 0.001); //rotation
 
             Assert.AreEqual(-qz * L, fem.GetReaction(nds[0], Solver.DOF.DZ), 0.001); //Shear reaction
             Assert.AreEqual(qz * L * L / 2.0, fem.GetReaction(nds[0], Solver.DOF.RY), 0.001); //Bending Moment reaction
 
-            Assert.AreEqual(qz * Math.Pow(L, 4.0) / (8.0 * E * sec.J22), fem.GetDisplacementGlobalCoordinates(nds[1], Solver.DOF.DZ), 0.001); //displacement
-            Assert.AreEqual(-qz * Math.Pow(L, 3.0) / (6.0 * E * sec.J22), fem.GetDisplacementGlobalCoordinates(nds[1], Solver.DOF.RY), 0.001); //rotation
+            Assert.AreEqual(qz * Math.Pow(L, 4.0) / (8.0 * E * sec.Jyy), fem.GetDisplacementGlobalCoordinates(nds[1], Solver.DOF.DZ), 0.001); //displacement
+            Assert.AreEqual(-qz * Math.Pow(L, 3.0) / (6.0 * E * sec.Jyy), fem.GetDisplacementGlobalCoordinates(nds[1], Solver.DOF.RY), 0.001); //rotation
 
             Assert.AreEqual(1.0 / 2.0 * qy * L * L, fem.GetBeamInternalForces(beams[0], 0.0)[Beam.InternalAction.M3], 0.0001); //M(x=0)
             Assert.AreEqual(0.0, fem.GetBeamInternalForces(beams[0], L)[Beam.InternalAction.M3], 0.0001); //M(x=L)
@@ -915,15 +915,15 @@ namespace FemTest.SolverTest {
             Assert.AreEqual(-qy * L * L / 8.0, fem.GetBeamInternalForces(beams[0],beams[0].L)[Beam.InternalAction.M3], 1e-6); //Bending Moment
             Assert.AreEqual(-qy * L * L / 8.0, fem.GetBeamInternalForces(beams[1],0)[Beam.InternalAction.M3], 1e-6); //Bending Moment
 
-            Assert.AreEqual(5.0 / 384.0 * qy * Math.Pow(L, 4.0) / (E * sec.J22), fem.GetDisplacementGlobalCoordinates(nds[1], Solver.DOF.DY), 0.001); //displacement
-            Assert.AreEqual(qy * Math.Pow(L, 3.0) / (24.0 * E * sec.J22), fem.GetDisplacementGlobalCoordinates(nds[0], Solver.DOF.RZ), 0.001); //rotation
-            Assert.AreEqual(-qy * Math.Pow(L, 3.0) / (24.0 * E * sec.J22), fem.GetDisplacementGlobalCoordinates(nds[2], Solver.DOF.RZ), 0.001); //rotation
+            Assert.AreEqual(5.0 / 384.0 * qy * Math.Pow(L, 4.0) / (E * sec.Jyy), fem.GetDisplacementGlobalCoordinates(nds[1], Solver.DOF.DY), 0.001); //displacement
+            Assert.AreEqual(qy * Math.Pow(L, 3.0) / (24.0 * E * sec.Jyy), fem.GetDisplacementGlobalCoordinates(nds[0], Solver.DOF.RZ), 0.001); //rotation
+            Assert.AreEqual(-qy * Math.Pow(L, 3.0) / (24.0 * E * sec.Jyy), fem.GetDisplacementGlobalCoordinates(nds[2], Solver.DOF.RZ), 0.001); //rotation
 
             Assert.AreEqual(-qz * L / 2.0, fem.GetReaction(nds[0], Solver.DOF.DZ), 0.001); //Shear
 
-            Assert.AreEqual(5.0 / 384.0 * qz * Math.Pow(L, 4.0) / (E * sec.J22), fem.GetDisplacementGlobalCoordinates(nds[1], Solver.DOF.DZ), 0.001); //displacement
-            Assert.AreEqual(-qz * Math.Pow(L, 3.0) / (24.0 * E * sec.J22), fem.GetDisplacementGlobalCoordinates(nds[0], Solver.DOF.RY), 0.001); //rotation
-            Assert.AreEqual(qz * Math.Pow(L, 3.0) / (24.0 * E * sec.J22), fem.GetDisplacementGlobalCoordinates(nds[2], Solver.DOF.RY), 0.001); //rotation
+            Assert.AreEqual(5.0 / 384.0 * qz * Math.Pow(L, 4.0) / (E * sec.Jyy), fem.GetDisplacementGlobalCoordinates(nds[1], Solver.DOF.DZ), 0.001); //displacement
+            Assert.AreEqual(-qz * Math.Pow(L, 3.0) / (24.0 * E * sec.Jyy), fem.GetDisplacementGlobalCoordinates(nds[0], Solver.DOF.RY), 0.001); //rotation
+            Assert.AreEqual(qz * Math.Pow(L, 3.0) / (24.0 * E * sec.Jyy), fem.GetDisplacementGlobalCoordinates(nds[2], Solver.DOF.RY), 0.001); //rotation
         }
 
         /// <summary>

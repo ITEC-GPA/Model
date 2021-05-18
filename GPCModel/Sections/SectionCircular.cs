@@ -13,8 +13,9 @@ using GPC.Model.FEM.Materials;
 
 namespace GPC.Model.Sections
 {
+    /*
     public class SectionCircular : Section
-    {
+    {        
         #region Variables
         protected double _dext; /// Diameter external
         #endregion
@@ -72,5 +73,7 @@ namespace GPC.Model.Sections
             return new[] { new ShapeMaterial { Material = _material, Shape = shape } };
         }
         #endregion
+        
     }
+    */
 }

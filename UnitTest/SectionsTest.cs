@@ -37,8 +37,8 @@ namespace ModelObjectTest
             Assert.AreEqual(true, sec.IsDoubleSymmetric);
             Assert.AreEqual(true, sec.IsSymmetricAlongYLocalAxis);
             Assert.AreEqual(true, sec.IsSymmetricAlongZLocalAxis);
-            Assert.AreEqual(J22, sec.J11);
-            Assert.AreEqual(J22, sec.J22);
+            Assert.AreEqual(J22, sec.Jxx);
+            Assert.AreEqual(J22, sec.Jyy);
             Assert.AreEqual(Jt, sec.Jt);
             Assert.AreEqual(Jw, sec.Jw);
             Assert.AreEqual(shearCenter, sec.ShearCenter);
@@ -95,8 +95,8 @@ namespace ModelObjectTest
             Assert.AreEqual(sec.Centroid.Y, h / 2.0); //only with tftop = tfbottom && tw1 == tw2
             Assert.AreEqual(b - 2 * tw, sec.Bint);
             Assert.AreEqual(h - 2 * tf, sec.Hw);
-            Assert.AreEqual(J2, sec.J22);
-            Assert.AreEqual(J1, sec.J11);
+            Assert.AreEqual(J2, sec.Jyy);
+            Assert.AreEqual(J1, sec.Jxx);
             Assert.AreEqual(Wel2, sec.Wel22Min);
             Assert.AreEqual(Wel1, sec.Wel11Min);
             Assert.AreEqual(Wpl2, sec.Wpl22, 1);
@@ -129,8 +129,8 @@ namespace ModelObjectTest
             double JwLTBEAM = 872110 * 1e6;
 
             Assert.AreEqual(A, sec.Area);
-            Assert.AreEqual(Math.Abs(J2 / sec.J22) - 1, 0, 0.001);
-            Assert.AreEqual(Math.Abs(J1 / sec.J11) - 1, 0, 0.001);
+            Assert.AreEqual(Math.Abs(J2 / sec.Jyy) - 1, 0, 0.001);
+            Assert.AreEqual(Math.Abs(J1 / sec.Jxx) - 1, 0, 0.001);
             Assert.AreEqual(Math.Abs(Wel2 / sec.Wel22Min) - 1, 0, 0.001);
             Assert.AreEqual(Math.Abs(Wel1 / sec.Wel11Min) - 1, 0, 0.001);
             Assert.AreEqual(Math.Abs(Wpl2 / sec.Wpl22) - 1, 0, 0.001);
@@ -158,8 +158,8 @@ namespace ModelObjectTest
             double Jt = 16316666.66667; //Straus : 16316666.66667 | Sap: 15845817
 
             Assert.AreEqual(A, sec.Area);
-            Assert.AreEqual(Math.Abs(J2 / sec.J22) - 1, 0, 0.001);
-            Assert.AreEqual(Math.Abs(J1 / sec.J11) - 1, 0, 0.001);
+            Assert.AreEqual(Math.Abs(J2 / sec.Jyy) - 1, 0, 0.001);
+            Assert.AreEqual(Math.Abs(J1 / sec.Jxx) - 1, 0, 0.001);
             Assert.AreEqual(Math.Abs(Wel2 / sec.Wel22Min) - 1, 0, 0.001);
             Assert.AreEqual(Math.Abs(Wel1 / sec.Wel11Min) - 1, 0, 0.001);
             Assert.AreEqual(Math.Abs(Wpl2 / sec.Wpl22) - 1, 0, 0.001);
@@ -204,8 +204,8 @@ namespace ModelObjectTest
             double JwSAP = 1.465E+12;
 
             Assert.AreEqual(A, sec.Area);
-            Assert.AreEqual(Math.Abs(J2 / sec.J22) - 1, 0, 0.001);
-            Assert.AreEqual(Math.Abs(J1 / sec.J11) - 1, 0, 0.001);
+            Assert.AreEqual(Math.Abs(J2 / sec.Jyy) - 1, 0, 0.001);
+            Assert.AreEqual(Math.Abs(J1 / sec.Jxx) - 1, 0, 0.001);
             Assert.AreEqual(Math.Abs(Wel2 / sec.Wel22Min) - 1, 0, 0.001);
             Assert.AreEqual(Math.Abs(Wel1 / sec.Wel11Min) - 1, 0, 0.001);
             Assert.AreEqual(Math.Abs(Wpl2 / sec.Wpl22) - 1, 0, 0.001);
@@ -268,8 +268,8 @@ namespace ModelObjectTest
             double JwStraus = 1.64361e12;
 
             Assert.AreEqual(A, sec.Area);
-            Assert.AreEqual(Math.Abs(J2 / sec.J22) - 1, 0, 0.001);
-            Assert.AreEqual(Math.Abs(J1 / sec.J11) - 1, 0, 0.001);
+            Assert.AreEqual(Math.Abs(J2 / sec.Jyy) - 1, 0, 0.001);
+            Assert.AreEqual(Math.Abs(J1 / sec.Jxx) - 1, 0, 0.001);
             /*Assert.AreEqual(Math.Abs(Wel2 / sec.Wel22Min) - 1, 0, 0.001); --> SAP ERRATO
             Assert.AreEqual(Math.Abs(Wel1 / sec.Wel11Min) - 1, 0, 0.001); --> SAP ERRATO*/
             Assert.AreEqual(Jt / sec.Jt - 1.0, 0, 0.05);
