@@ -19,7 +19,7 @@ namespace GPC.Model.FEM
         private List<INodeLoadCaseAttribute> _attributesLoadCase;
         private List<INodeFreedomCaseAttribute> _attributesFreedomCase;
 
-        private ModelObjectSet<NodeResult> _results;
+        private readonly ModelObjectSet<NodeResult> _results;
 
         #endregion
 
@@ -48,6 +48,8 @@ namespace GPC.Model.FEM
 
         public List<INodeFreedomCaseAttribute> AttributesFreedomCase => _attributesFreedomCase;
         public List<INodeLoadCaseAttribute> AttributesLoadCase => _attributesLoadCase;
+        public ModelObjectSet<NodeResult> Result => _results;
+
         #endregion
 
         public Node(Point3d point, string name = "") : base(name)
@@ -96,6 +98,12 @@ namespace GPC.Model.FEM
         public void AddAttribute(INodeLoadCaseAttribute attribute)
         {
             _attributesLoadCase.Add(attribute);
+        }
+
+        public void AddResult(NodeResult result)
+        {
+            if (result != null)
+                _results.Add(result);
         }
 
         public Node Duplicate()

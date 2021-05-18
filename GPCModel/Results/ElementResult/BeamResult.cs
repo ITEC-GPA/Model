@@ -10,7 +10,7 @@ namespace GPC.Model.Results
     {
 
 
-        public BeamResult(ILoadCase Case, IEnumerable<IBeamResult> result, IEnumerable<StationResultLocation> points)
+        public BeamResult(ILoadCase Case, IEnumerable<IBeamResult> result, IEnumerable<ResultStation> points)
             : base(Case, null, (IEnumerable<ResultType>)result, points)
         {
 

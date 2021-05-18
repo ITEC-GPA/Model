@@ -11,7 +11,10 @@ using GPC.Model.FreedomCases;
 using GPC.Model.FEM;
 using GPC.Model.FEM.Properties;
 using GPC.Model.FEM.Attributes;
+using GPC.Model.FEM.Materials;
+using GPC.Model.FEM.FiniteElements;
 using GPC.Model.Restrains;
+using GPC.Model.Results;
 using System.Diagnostics;
 using System.Linq;
 using GPC.TestUtilities;
@@ -439,6 +442,7 @@ namespace FemTest
 
 
         [TestMethod]
+        [TestCategory("Missing Assert")]
         public void FemModelTest9()
         {
 
@@ -448,6 +452,32 @@ namespace FemTest
             int r2 = femModel.AddCostrain(new GPC.Model.FEM.Costrains.RigidLink(new Node(0, 0, 1), new Node(0, 0, 2)));
 
 
+        }
+
+
+        [TestMethod]
+        [TestCategory("Missing Assert")]
+        public void FemModelTest10()
+        {
+            FemModel femModel = new FemModel();
+
+            Plate plate = new Plate(new Node[] {    new Node(0, 0, 0),
+                                                    new Node(0, 1, 0),
+                                                    new Node(1, 1, 0),
+                                                    new Node(1, 0, 0)
+                                               } );
+
+            femModel.AddProperty(new PlateProperty(new IsotropicFemMaterial(10, 0.1, 0.1, 1), 10, 10, "P1"));
+
+            femModel.AddFiniteElement(plate, "P1");
+
+
+            IEnumerable<ResultStress> res = new List<ResultStress>() { new ResultStress(CoordinateSystem.Global, 1,2,3,4,5) };
+            IEnumerable<ResultLocationPoint> points = new List<ResultLocationPoint>() { new ResultLocationPoint(1, new Point2d(0, 1)) };
+
+            plate.AddResult(new PlateResult(new LoadCase("lc", LoadCase.LoadCaseTypes.SelfWeight), CoordinateSystem.Global, res, points));
+
+            Assert.IsTrue(((LoadCase)femModel.GetFiniteElement(1).Result.ToList()[0].Case).Name == "lc");
         }
         #endregion
 

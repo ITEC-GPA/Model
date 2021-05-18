@@ -36,7 +36,7 @@ namespace GPC.Model.FEM.FiniteElements
         protected Node[] _nodesGlobal;
 
 
-        protected ModelObjectSet<FiniteElementResult> _results;
+        protected readonly ModelObjectSet<FiniteElementResult> _results;
 
         #endregion
 
@@ -96,14 +96,12 @@ namespace GPC.Model.FEM.FiniteElements
         
         public List<LoadCaseAttribute> AttributesLoadCase => _attributesLoadCase;
         public List<FreedomCaseAttribute> AttributesFreedomCase => _attributesFreedomCase;
-        
+        public ModelObjectSet<FiniteElementResult> Result => _results;
+
         #endregion
 
         #region Constructor
 
-        /// <summary>
-        ///  
-        /// </summary>
         /// <param name="nodes">Nodes of the element</param>
         internal FiniteElement(Node[] nodes) : base()
         {
@@ -157,6 +155,12 @@ namespace GPC.Model.FEM.FiniteElements
         public void GetNodesResults(double[] globalDisplacementsNodes, out mnl.Matrix<double>[] gloabalPseudoDeformation, out mnl.Matrix<double>[] localPseudoDeformation, out mnl.Matrix<double>[] globalForces, out mnl.Matrix<double>[] localForces, out mnl.Matrix<double>[] globalStress, out mnl.Matrix<double>[] localStress, out mnl.Matrix<double>[] globalEpsilon, out mnl.Matrix<double>[] localEpsilon)
         {
             throw new Exception("ottimizzare questa funzione");
+        }
+
+        public void AddResult(FiniteElementResult result)
+        {
+            if (result != null)
+                _results.Add(result);
         }
 
         #region GetInternalForces
