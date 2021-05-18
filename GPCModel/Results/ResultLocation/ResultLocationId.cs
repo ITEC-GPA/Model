@@ -4,7 +4,7 @@ using System.Runtime.Serialization;
 namespace GPC.Model.Results
 {
     [Serializable]
-    public abstract class ResultLocationId : ModelObject, ISerializable
+    public class ResultLocationId : ModelObject, ISerializable
     {
 
         private readonly int _id;
@@ -12,12 +12,17 @@ namespace GPC.Model.Results
         public int Id => _id;
 
 
-        protected ResultLocationId(int id, string name) : base(Guid.NewGuid(), name)
+        public ResultLocationId(int id) : this(id, "")
+        {
+
+        }
+
+        public ResultLocationId(int id, string name) : base(Guid.NewGuid(), name)
         {
             _id = id;
         }
 
-        protected ResultLocationId(SerializationInfo info, StreamingContext context) 
+        public ResultLocationId(SerializationInfo info, StreamingContext context) 
             : base(info, context)
         {
             throw new NotImplementedException();
