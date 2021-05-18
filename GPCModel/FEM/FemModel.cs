@@ -1,23 +1,20 @@
-﻿using System;
+﻿using GPC.Geometry;
+using GPC.Geometry.Meshes;
+using GPC.Model.Combinations;
+using GPC.Model.FEM.Attributes;
+using GPC.Model.FEM.Collections;
+using GPC.Model.FEM.Costrains;
+using GPC.Model.FEM.FiniteElements;
+using GPC.Model.FEM.Properties;
+using GPC.Model.FreedomCases;
+using GPC.Model.LoadCases;
+using GPC.Model.Loads;
+using GPC.Model.Restrains;
+using GPC.Model.Results;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
-using System.Text;
-using System.Threading.Tasks;
-using GPC.Geometry;
-using GPC.Geometry.Meshes;
-using GPC.Model.Elements;
-using GPC.Model.FEM.FiniteElements;
-using GPC.Model.FEM.Attributes;
-using GPC.Model.FEM.Properties;
-using GPC.Model.FEM.Collections;
-using GPC.Model.FreedomCases;
-using GPC.Model.LoadCases;
-using GPC.Model.Restrains;
-using GPC.Model.Loads;
-using GPC.Model.Results;
-using GPC.Model.Combinations;
-using GPC.Model.FEM.Costrains;
 
 namespace GPC.Model.FEM
 {
@@ -120,6 +117,11 @@ namespace GPC.Model.FEM
         public IEnumerable<Combination> Combinations => _combinations;
 
         public IEnumerable<LoadCaseBase> LoadCases => _loadCases;
+
+        public IEnumerable<ResultNodeDisplacement> ResultNodeDisplacements => _resultNodeDisplacements;
+
+        public IEnumerable<ResultPlateStress> ResultPlateStress => _resultPlateStress;
+
 
         #endregion
 
@@ -1317,13 +1319,74 @@ namespace GPC.Model.FEM
 
         #endregion
 
-
         #region Solve
 
         public virtual void Solve()
         {
             throw new NotImplementedException();
         }
+
+        #endregion
+
+        #region Results
+
+        /// <param name="id"></param>
+        /// <remarks>This is a O(n) operation</remarks>
+        public ResultNodeDisplacement GetNodeDisplacementResult(int id)
+        {
+            return _resultNodeDisplacements.Where(i => i.Element.Id == id).FirstOrDefault();
+        }
+
+
+        /// <param name="node"></param>
+        /// <remarks>This is a O(n) operation</remarks>
+        public ResultNodeDisplacement GetNodeDisplacementResult(Node node)
+        {
+            return _resultNodeDisplacements.Where(i => i.Element == node).FirstOrDefault();
+        }
+
+        
+        /// <remarks>This is a O(n) operation</remarks>
+        public ResultPlateStress GetPlateStressResult(int id)
+        {
+            return _resultPlateStress.Where(i => i.Element.Id == id).FirstOrDefault();
+        }
+
+
+        /// <remarks>This is a O(n) operation</remarks>
+        public ResultPlateStress GetPlateStressResult(Node node)
+        {
+            return _resultPlateStress.Where(i => i.Element == node).FirstOrDefault();
+        }
+
+
+        /// <returns><see langword="null"/> if <paramref name="combination"/> is not contained in <see cref="Combinations"/> list </returns>
+        /// <remarks>This is a O(n) operation</remarks>
+        public IEnumerable<ResultNodeDisplacement> GetCombinationNodeDisplacementResult(Combination combination)
+        {
+
+            if (_combinations.Contains(combination))
+            {
+                return _resultNodeDisplacements.Where(i => (Combination)i.Case == combination);
+            }
+
+            return null;
+        }
+
+
+        /// <returns><see langword="null"/> if <paramref name="combination"/> is not contained in <see cref="Combinations"/> list </returns>
+        /// <remarks>This is a O(n) operation</remarks>
+        public IEnumerable<ResultPlateStress> GetCombinationPlateStressResult(Combination combination)
+        {
+
+            if (_combinations.Contains(combination))
+            {
+                return _resultPlateStress.Where(i => (Combination)i.Case == combination);
+            }
+
+            return null;
+        }
+
 
         #endregion
 

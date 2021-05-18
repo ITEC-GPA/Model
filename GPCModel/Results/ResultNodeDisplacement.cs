@@ -1,13 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using GPC.Model.LoadCases;
-using GPC.Geometry;
-using System.Runtime.Serialization;
+﻿using GPC.Geometry;
 using GPC.Model.Elements;
 using GPC.Model.FEM;
+using GPC.Model.LoadCases;
+using System;
+using System.Runtime.Serialization;
 
 namespace GPC.Model.Results
 {

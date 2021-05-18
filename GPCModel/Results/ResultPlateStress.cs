@@ -1,10 +1,10 @@
-﻿using System;
-using GPC.Model.LoadCases;
-using GPC.Geometry;
-using MathNet.Numerics.LinearAlgebra;
-using System.Runtime.Serialization;
+﻿using GPC.Geometry;
 using GPC.Model.Elements;
 using GPC.Model.FEM.FiniteElements;
+using GPC.Model.LoadCases;
+using MathNet.Numerics.LinearAlgebra;
+using System;
+using System.Runtime.Serialization;
 
 namespace GPC.Model.Results
 {
@@ -56,7 +56,7 @@ namespace GPC.Model.Results
             get
             {
                 if (!_principalStressCalculated)
-                    GetPrincipalStress(out _, out _, out _);
+                    CalculatePrincipalStressFullMethod();
 
                 return _s11;
             }
@@ -67,7 +67,7 @@ namespace GPC.Model.Results
             get
             {
                 if (!_principalStressCalculated)
-                    GetPrincipalStress(out _, out _, out _);
+                    CalculatePrincipalStressFullMethod();
 
                 return _s22;
             }
@@ -78,7 +78,7 @@ namespace GPC.Model.Results
             get
             {
                 if (!_principalStressCalculated)
-                    GetPrincipalStress(out _, out _, out _);
+                    CalculatePrincipalStressFullMethod();
 
                 return _s33;
             }
@@ -131,42 +131,32 @@ namespace GPC.Model.Results
 
         #region Public method - Stresses
 
-
         /// <summary>
-        /// Return the Principal stresses of the point.  
+        /// Calculate the Principal stresses
         /// <para>This method use an approximate solution.</para>
         /// <para>If <see cref="ResultPlateStress.Sxx"/>, <see cref="ResultPlateStress.Sxx"/>, <see cref="ResultPlateStress.Sxz"/> and <see cref="ResultPlateStress.Syz"/> are relavant then the 
-        /// <seealso cref="ResultPlateStress.GetPrincipalStress(out double, out double, out double)"/> must be used</para>
+        /// <seealso cref="CalculatePrincipalStressFullMethod"/> must be used</para>
         /// <para>If <see cref="ResultPlateStress.Sxz"/> and <see cref="ResultPlateStress.Syz"/> are 0. This method gives the exact solution</para>
         /// </summary>
-        /// <param name="S11">Principal Stress S11</param>
-        /// <param name="S22">Principal Stress S22</param>
-        public void GetPrincipalStress(out double S11, out double S22)
+        public void CalculatePrincipalStressSimplifiedMethod()
         {
-            // double phi = 0.5 * Math.Atan( Math.Abs( (2*_sxy) / (_sxx + _syy )));         // The angle, Φ, is the angle in radians between the maximum normal stress and the local x-axis.
-            S11 = ((_sxx + _syy) / 2.0) + Math.Sqrt((Math.Pow((_sxx - _syy), 2.0) / 4.0) + Math.Pow(_sxy, 2.0));
-            S22 = ((_sxx + _syy) / 2.0) - Math.Sqrt((Math.Pow((_sxx - _syy), 2.0) / 4.0) + Math.Pow(_sxy, 2.0));
-
-            _s11 = S11;
-            _s22 = S22;
+            _s11 = ((_sxx + _syy) / 2.0) + Math.Sqrt((Math.Pow((_sxx - _syy), 2.0) / 4.0) + Math.Pow(_sxy, 2.0));
+            _s22 = ((_sxx + _syy) / 2.0) - Math.Sqrt((Math.Pow((_sxx - _syy), 2.0) / 4.0) + Math.Pow(_sxy, 2.0));
             _s33 = 0;
+
             _principalStressCalculated = true;
         }
 
         /// <summary>
-        /// Return the Principal stresses of the point by means of an enginevalue evaluation
+        /// Calculated the principal stress by means of an enginevalue evaluation
         /// </summary>
-        /// <param name="S11">Principal Stress S11</param>
-        /// <param name="S22">Principal Stress S22</param>
-        /// <param name="S33">Principal Stress S33</param>
-        public void GetPrincipalStress(out double S11, out double S22, out double S33)
+        public void CalculatePrincipalStressFullMethod()
         {
-            // double phi = 0.5 * Math.Atan( Math.Abs( (2*_sxy) / (_sxx + _syy )));         
-            // The angle, Φ, is the angle in radians between the maximum normal stress and the local x-axis.
+
             if (_sxz == 0 && _syz == 0 && _szz == 0)
             {
-                GetPrincipalStress(out S11, out S22);
-                S33 = 0;
+                CalculatePrincipalStressSimplifiedMethod();
+                _s33 = 0;
             }
             else
             {
@@ -183,14 +173,11 @@ namespace GPC.Model.Results
 
                 MathNet.Numerics.LinearAlgebra.Factorization.Evd<double> eigen = m.Evd();
 
-                S11 = eigen.EigenValues[2].Real;
-                S22 = eigen.EigenValues[1].Real;
-                S33 = eigen.EigenValues[0].Real;
+                _s11 = eigen.EigenValues[2].Real;
+                _s22 = eigen.EigenValues[1].Real;
+                _s33 = eigen.EigenValues[0].Real;
             }
 
-            _s11 = S11;
-            _s22 = S22;
-            _s33 = S33;
             _principalStressCalculated = true;
         }
 

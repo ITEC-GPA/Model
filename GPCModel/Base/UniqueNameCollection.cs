@@ -1,16 +1,21 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
-using System;
 
 namespace GPC.Model
 {
     /// <summary>
-    /// Collection of <see cref="ModelObject"/> with unique name
+    /// Collection of <see cref="ModelObject"/> with unique name. This class use an <see cref="HashSet{T}"/>
     /// </summary>
     /// <typeparam name="T"></typeparam>
+    /// <remarks>The collection is thread-safe</remarks>
     public class UniqueNameCollection<T> : ModelObjectEnumerable<T>, ICollection<T> where T : ModelObject
     {
         private readonly HashSet<string> _names;
+
+        public int Count => _collection.Count;
+
+        public bool IsReadOnly => _collection.IsReadOnly;
 
 
         public UniqueNameCollection()
@@ -19,9 +24,6 @@ namespace GPC.Model
             _names = new HashSet<string>();
         }
 
-        public int Count => _collection.Count;
-
-        public bool IsReadOnly => _collection.IsReadOnly;
 
         /// <inheritdoc cref="ModelObjectEnumerable{T}.Add(T)" />
         /// <returns>True if the element has been added
@@ -36,12 +38,15 @@ namespace GPC.Model
             if (string.IsNullOrEmpty(item.Name) || string.IsNullOrWhiteSpace(item.Name))
                 throw new ArgumentNullException(nameof(item));
 
-            if (Contains(item)) // stesso nome
-                return false;
+            lock (_locker)
+            {
+                if (Contains(item)) // stesso nome
+                    return false;
 
-            _collection.Add(item);
-            _names.Add(item.Name);
-            return true;
+                _collection.Add(item);
+                _names.Add(item.Name);
+                return true; 
+            }
         }
 
         /// <inheritdoc cref="Add(T)"/>
@@ -75,47 +80,67 @@ namespace GPC.Model
             // l'add non fa aggiungere oggetti con nome duplicato.
             // se le istanze variano dopo che sono stati aggiunti e trova un duplicato va in eccezione
 
-
-            if (this.Contains(name))
-                return _collection.SingleOrDefault(i => i.Name == name);
-            else
-                throw new KeyNotFoundException($"Collection does not contain a element with name: {name}");
+            lock (_locker)
+            {
+                if (this.Contains(name))
+                    return _collection.SingleOrDefault(i => i.Name == name); 
+                else
+                    throw new KeyNotFoundException($"Collection does not contain a element with name: {name}");
+            }
         }
 
         /// <returns>A list of all element names of this collection</returns>
         public virtual List<string> GetNames()
         {
-            return _names.ToList();
+            lock (_locker)
+            {
+                return _names.ToList();
+            }
         }
 
         public void Clear()
         {
-            _collection.Clear();
-            _names.Clear();
+            lock (_locker)
+            {
+                _collection.Clear();
+                _names.Clear(); 
+            }
         }
 
         /// <inheritdoc cref="Contains(string)"/>
         public bool Contains(T item)
         {
-            return _collection.Contains(item);
+            lock (_locker)
+            {
+                return _collection.Contains(item);
+            }
         }
 
 
         /// <returns><see langword="True" /> if this collection contains an element with <see cref="ModelObject.Name"/> equals to <paramref name="name"/> </returns>
         public bool Contains(string name)
         {
-            return _names.Contains(name);
+            lock (_locker)
+            {
+                return _names.Contains(name);
+            }
         }
 
         /// <remarks>This is a O(1) operation</remarks>
         public bool Remove(T item)
         {
-            return _collection.Remove(item) && _names.Remove(item.Name) ;
+            lock (_locker)
+            {
+                return _collection.Remove(item) && _names.Remove(item.Name);
+            }
         }
 
         public bool Remove(string name)
         {
-            return _collection.Remove(GetElementByName(name)) && _names.Remove(name); ;
+            lock (_locker)
+            {
+                return _collection.Remove(GetElementByName(name)) && _names.Remove(name); ;
+            }
         }
 
 
@@ -128,37 +153,58 @@ namespace GPC.Model
 
         public bool IsSubsetOf(IEnumerable<T> other)
         {
-            return (_collection as HashSet<T>).IsSubsetOf(other);
+            lock (_locker)
+            {
+                return ((HashSet<T>)_collection).IsSubsetOf(other);
+            }
         }
 
         public bool IsSupersetOf(IEnumerable<T> other)
         {
-            return (_collection as HashSet<T>).IsSupersetOf(other);
+            lock (_locker)
+            {
+                return ((HashSet<T>)_collection).IsSupersetOf(other);
+            }
         }
 
         public bool IsProperSupersetOf(IEnumerable<T> other)
         {
-            return (_collection as HashSet<T>).IsProperSupersetOf(other);
+            lock (_locker)
+            {
+                return ((HashSet<T>)_collection).IsProperSupersetOf(other);
+            }
         }
 
         public bool IsProperSubsetOf(IEnumerable<T> other)
         {
-            return (_collection as HashSet<T>).IsProperSubsetOf(other);
+            lock (_locker)
+            {
+                return ((HashSet<T>)_collection).IsProperSubsetOf(other);
+            }
         }
 
         public bool Overlaps(IEnumerable<T> other)
         {
-            return (_collection as HashSet<T>).Overlaps(other);
+            lock (_locker)
+            {
+                return ((HashSet<T>)_collection).Overlaps(other);
+            }
         }
 
         public bool SetEquals(IEnumerable<T> other)
         {
-            return (_collection as HashSet<T>).SetEquals(other);
+            lock (_locker)
+            {
+                return ((HashSet<T>)_collection).SetEquals(other);
+            }
         }
 
         void ICollection<T>.CopyTo(T[] array, int arrayIndex)
         {
-            _collection.CopyTo(array, arrayIndex);
+            lock (_locker)
+            {
+                _collection.CopyTo(array, arrayIndex);
+            }
         }
     }
 }

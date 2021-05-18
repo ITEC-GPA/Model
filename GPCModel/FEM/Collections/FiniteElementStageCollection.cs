@@ -8,6 +8,7 @@ namespace GPC.Model.FEM.Collections
     /// Collection of <see cref="FiniteElement"/> associated to <see cref="Stage.StageFiniteElementProperty"/>
     /// </summary>
     /// <remarks>This should be accessed only from the class <see cref="Stage"/> since it does not implement any check on the element duplicates</remarks>
+    /// <remarks>The collection is thread-safe</remarks>
     public class FiniteElementStageCollection<T, D> : FemObjectStageCollection<FiniteElement, Stage.StageFiniteElementProperty>
     {
         public FiniteElementStageCollection() : base()
