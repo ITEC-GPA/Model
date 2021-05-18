@@ -438,12 +438,12 @@ namespace GPC.Model.FEM
         }
 
 
-        /// <param name="index"></param>
+        /// <param name="id"></param>
         /// <returns></returns>
         /// <inheritdoc cref="FemObjectCollection{T}.GetElementById(int)"/>
-        public virtual FiniteElement GetFiniteElement(int index)
+        public virtual FiniteElement GetFiniteElement(int id)
         {
-            return _elements[index];
+            return _elements[id];
         }
 
 
