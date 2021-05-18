@@ -208,13 +208,13 @@
     <Compile Include="Results\ResultTypes\ResultBeamForces.cs" />
     <Compile Include="Results\ResultTypes\IPlateResult.cs" />
     <Compile Include="Results\ResultTypes\ResultType.cs" />
-    <Compile Include="Results\ResultLocation\StationResultLocation.cs" />
+    <Compile Include="Results\ResultLocation\ResultStation.cs" />
     <Compile Include="Results\ResultTypes\ResultDisplacement.cs" />
     <Compile Include="Results\ElementResult\ElementResult.cs" />
     <Compile Include="Results\ResultLocation\ResultLocationId.cs" />
     <Compile Include="Results\ResultTypes\ResultPlateForces.cs" />
     <Compile Include="Results\ResultTypes\ResultStress.cs" />
-    <Compile Include="Results\ResultLocation\PointResultLocation.cs" />
+    <Compile Include="Results\ResultLocation\ResultLocationPoint.cs" />
     <Compile Include="Sections\Concrete\ConcreteSectionShape.cs" />
     <Compile Include="Sections\Plate.cs" />
     <Compile Include="Sections\Section.cs" />

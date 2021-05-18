@@ -5,7 +5,7 @@ namespace GPC.Model.Results
 {
 
     [Serializable]
-    public class StationResultLocation : ResultLocationId, ISerializable
+    public class ResultStation : ResultLocationId, ISerializable
     {
         private readonly double _distanceFromStartPoint;
         private readonly double _elementLenght;
@@ -19,7 +19,7 @@ namespace GPC.Model.Results
 
 
 
-        public StationResultLocation(int id, double distanceFromStartPoint, double elementLenght)
+        public ResultStation(int id, double distanceFromStartPoint, double elementLenght)
             : base(id, string.Empty)
         {
             _distanceFromStartPoint = distanceFromStartPoint > elementLenght ? throw new ArgumentException($"distanceFromStartPoint can not higher than elementLenght") : distanceFromStartPoint;
@@ -27,7 +27,7 @@ namespace GPC.Model.Results
         }
 
 
-        public StationResultLocation(SerializationInfo info, StreamingContext context)
+        public ResultStation(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
             throw new NotImplementedException();
@@ -35,7 +35,7 @@ namespace GPC.Model.Results
 
         public override bool Equals(object obj)
         {
-            return obj is StationResultLocation station &&
+            return obj is ResultStation station &&
                    base.Equals(obj) &&
                    _distanceFromStartPoint == station._distanceFromStartPoint && 
                    _elementLenght == station._elementLenght;
