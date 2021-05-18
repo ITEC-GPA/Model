@@ -117,11 +117,11 @@ namespace GPC.Model.Sections
             //check 5 points
             //traslation
             Point2d[] pts = new Point2d[5];
-            pts[0] = new Point2d(-Centroid.X, -Centroid.Y);
-            pts[1] = new Point2d(LHor - Centroid.X, -Centroid.Y);
-            pts[2] = new Point2d(LHor - Centroid.X, THor - Centroid.Y);
-            pts[3] = new Point2d(TVert - Centroid.X, LVert - Centroid.Y);
-            pts[4] = new Point2d(-Centroid.X, LVert - Centroid.Y);
+            pts[0] = new Point2d(-_centroid.X, -_centroid.Y);
+            pts[1] = new Point2d(LHor - _centroid.X, -_centroid.Y);
+            pts[2] = new Point2d(LHor - _centroid.X, THor - _centroid.Y);
+            pts[3] = new Point2d(TVert - _centroid.X, LVert - _centroid.Y);
+            pts[4] = new Point2d(-_centroid.X, LVert - _centroid.Y);
 
             //rotation
             minX = 0;

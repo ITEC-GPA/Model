@@ -10,91 +10,126 @@ namespace GPC.Model.Sections
 {
     public class SteelSectionT : SectionT
     {
-        #region Variables
-        protected double _h;
-        protected double _tw;
-        protected double _tf;
-        protected double _b;
+        public enum ProfileType
+        {
+            Rolled,
+            Welded,
+        }
 
-        protected Plate[] _plates;
-        protected double _yPlastic;
+        #region Variables
+
+        private double _r;                // raggio di curvatura o altezza di gola
+        private ProfileType _type;
+
+        private double _wel11Left;        //Wel calcolato per punto più a snistra
+        private double _wel22Top;         //Wel calcolato per punto superiore (+ alto)
+        private double _wel11Right;       //Wel calcolato per punto più a destra
+        private double _wel22Bottom;      //Wel calcolato per punto inferiore (+ basso)
+        private double _wpl11;
+        private double _wpl22;
+
         #endregion
+
 
         #region Properties
-        public double H => _h;
-        public double Hw => _h - _tf;
-        public double Tw => _tw;
-        public double Tf => _tf;
-        public double B => _b;
-        public Plate[] Plates => _plates;
-        public double yPlastic => _yPlastic;
+
+        public ProfileType Type => _type;
+
+        public double Wpl11 => _wpl11;
+
+        public double Wpl22 => _wpl22;
+
+        public double Wel11Min => Math.Min(_wel11Left, _wel11Right);
+
+        public double Wel22Min => Math.Min(_wel22Top, _wel22Bottom);
+
+        public double R => _r;
+
+        public bool IsRolled
+        {
+            get
+            {
+                if (Type == ProfileType.Rolled)
+                    return true;
+                else
+                    return false;
+            }
+        }
+
+        public bool IsWelded
+        {
+            get
+            {
+                if (Type == ProfileType.Welded)
+                    return true;
+                else
+                    return false;
+            }
+        }
+
         #endregion
 
-        public SteelSectionT(double h, double b, double tw, double tf, Material material, string name) : base(material.GetIsotropicFemMaterial(), name)
+
+        #region Public Constructors
+
+        public SteelSectionT(ProfileType type, double hw, double b, double tw, double tf, Material material, string name, double radius) 
+            : base(hw, b, tw, tf, material, name)
         {
-            _h = h;
-            _b = b;
-            _tw = tw;
-            _tf = tf;
+            if (Type == ProfileType.Rolled)
+                _r = radius;        // raggio di curvatura
 
-            double fy = ((SteelMaterial)material).Fyk;
+            else if (Type == ProfileType.Welded)
+                _r = radius;        // altezza di gola
+        }
 
-            IsSymmetricAlongZLocalAxis = true;
-            IsSymmetricAlongYLocalAxis = false;
+        #endregion
 
-            _plates = new Plate[3];
 
-            _plates[0] = new Plate(_tf, _b / 2.0, _h - _tf / 2.0, 0, _h - _tf / 2.0, fy, Plate.TypePlate.outer);
-            _plates[1] = new Plate(_tf, _b / 2.0, _h - _tf / 2.0, _b, _h - _tf / 2.0, fy, Plate.TypePlate.outer);
-            _plates[2] = new Plate(_tw, _b / 2.0, _h - _tf, _b / 2.0, 0, fy, Plate.TypePlate.outer);
+        #region Public method
 
-            _area = _plates[0].Area + _plates[1].Area + _plates[2].Area;
-
-            double Sy = 0;
-            for (int i = 0; i < _plates.Count(); i++)
-            {
-                Sy = Sy + _plates[i].Area * _plates[i].Centroid.Y;
-            }
-
-            _centroid = new Point2d(_b / 2, Sy / _area);
-
-            _j22 = 0;
-            _j11 = 0;
-            for (int i = 0; i < _plates.Count(); i++)
-            {
-                _j22 = _jyy + _plates[i].JyCentroid + _plates[i].Area * Math.Pow(_plates[i].Centroid.Y - _centroid.Y, 2.0);
-                _j11 = _jxx + _plates[i].JzCentroid + _plates[i].Area * Math.Pow(_plates[i].Centroid.X - _centroid.X, 2.0);
-            }
-
-            _wel22Top = _jyy / (_h - _centroid.Y);
-            _wel22Bottom = _jyy / (_centroid.Y);
-            _wel11Left = _jxx / (_centroid.X);
-            _wel11Right = _jxx / (_b - _centroid.X);
-
-            _wpl22 = 0;
+        public double CalculateWpl22()
+        {
             if (_area / 2.0 > _b * _tf)
             {
-                _yPlastic= _area / 2.0 / _tw;
-                SectionT halfSectionTop = new SectionT(_h - _yPlastic, _b, _tw, _tf, material, string.Empty);
-                _wpl22 = _area / 2.0 * (halfSectionTop.Centroid.Y + _yPlastic/2.0);
-            } else
+                double yPlastic = _area / 2.0 / _tw;
+                SectionT halfSectionTop = new SectionT(H - yPlastic, _b, _tw, _tf, _material, string.Empty);
+                return _area / 2.0 * (halfSectionTop.Centroid.Y + yPlastic / 2.0);
+            }
+            else
             {
                 double hTopPlastic = (_area / 2.0) / _b;
                 //can't use SectionT because infinite loop
-                double Aweb = _tw * (_h - _tf);
+                double Aweb = _tw * (H - _tf);
                 double Aflange = _b * (_tf - hTopPlastic);
-                double S = Aweb * ((_h - _tf) / 2.0 + hTopPlastic) + Aflange * hTopPlastic / 2.0;
-                _wpl22 = (_area / 2.0) * (hTopPlastic / 2.0 + S / (Aweb + Aflange));
-                _yPlastic = _h - hTopPlastic;
+                double S = Aweb * ((H - _tf) / 2.0 + hTopPlastic) + Aflange * hTopPlastic / 2.0;
+                return (_area / 2.0) * (hTopPlastic / 2.0 + S / (Aweb + Aflange));
             }
+        }
 
-            _wpl11 = 1.0 / 4.0 * _tf * Math.Pow(_b, 2.0) + 1.0 / 4.0 * (_h - _tf) * Math.Pow(_tw, 2.0);
+        public double CalculateWp11()
+        {
+            return 1.0 / 4.0 * _tf * Math.Pow(_b, 2.0) + 1.0 / 4.0 * (H - _tf) * Math.Pow(_tw, 2.0);
+        }
 
-            _jt = (_b * Math.Pow(_tf, 3.0) + (_h - _tf / 2.0) * Math.Pow(_tw, 3.0)) / 3.0;
 
-            _jw = Math.Pow(_b, 3.0) * Math.Pow(_tf, 3.0) / 144.0 + Math.Pow(_h - _tf / 2.0, 3.0) * Math.Pow(_tw, 3.0) / 36.0; //Bleich 1952, Picard and Beaulieu 1991
+        public double CalculateWel11Left()
+        {
+            return _jxx / (_centroid.X);
+        }
 
-            _shearCenter = new Point2d(_b / 2.0, _h - _tf /2.0);
+        public double CalculateWel11Right()
+        {
+            return _jxx / (_b - _centroid.X);
+        }
+
+        public double CalculateWel22Bottom()
+        {
+            return _jyy / (_centroid.Y);
+        }
+
+        public double CalculateWel22Top()
+        {
+            return _jyy / (H - _centroid.Y);
         }
 
         public double MinSigma(double N, double M2, double M1)
@@ -112,11 +147,13 @@ namespace GPC.Model.Sections
         public override string ToString()
         {
             string s = "T section: \n";
-            s = s + "Height = " + _h + " mm \n";
+            s = s + "Height = " + H + " mm \n";
             s = s + "Thickness Web = " + _tw + " mm \n";
             s = s + "Length Top = " + _b + " mm \n";
             s = s + "Thickness Top = " + _tf + " mm \n";
             return s;
         }
+
+        #endregion
     }
 }

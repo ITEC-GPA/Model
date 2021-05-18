@@ -19,6 +19,8 @@ namespace GPC.Model.Sections
 
         protected double _d; // Diameter external
         protected double _t; // Thickness
+        private double _wel;
+        private double _wpl;
 
         #endregion
 
@@ -49,6 +51,10 @@ namespace GPC.Model.Sections
         /// Is true if the section is symmetric along Z-axis
         /// </summary>
         public bool IsSymmetricAlongZLocalAxis = true;
+
+        public double Wel => _wel;
+
+        public double Wpl => _wpl;
 
         #endregion
 
@@ -82,6 +88,8 @@ namespace GPC.Model.Sections
         #endregion
 
 
+        #region Public method
+
         private void SetMechanicalProperties()
         {
             _area = CalculateArea();
@@ -93,13 +101,11 @@ namespace GPC.Model.Sections
             _shearCenter = CalculateCentroid();
         }
 
-
         public double CalculateArea()
         {
             return (Math.Pow(_d, 2.0) * Math.PI) / 4.0 - (Math.Pow(Dint, 2.0) * Math.PI) / 4.0;
         }
-
-
+                
         public double CalculateJ()
         {
             return Math.PI * (Math.Pow(_d, 4.0) - Math.Pow(Dint, 4.0)) / (64.0);
@@ -119,6 +125,18 @@ namespace GPC.Model.Sections
         {
             return new Point2d(_d / 2.0, _d / 2.0);
         }
+
+        public double CalculateWel()
+        {
+            return Math.PI * (Math.Pow(D, 4.0) - Math.Pow(Dint, 4.0)) / (32.0 * _d);
+        }
+
+        public double CalculateWpl()
+        {
+            return (Math.Pow(D, 3.0) - Math.Pow(Dint, 3.0)) / (6.0);
+        }
+        
+        #endregion
 
 
         #region Public override methods 

@@ -24,6 +24,24 @@ namespace GPC.Model.Sections
 
         #endregion
 
+
+        #region Enumerator
+
+        public enum FormedTypes
+        {
+            HotFinished,
+            ColdFormed,
+        }
+
+        public enum SectionTypes
+        {
+            Rolled,
+            Welded,
+        }
+
+        #endregion
+
+
         #region Variables
 
         protected Material _material;
@@ -38,6 +56,8 @@ namespace GPC.Model.Sections
         protected Point2d _shearCenter;
         protected Point2d _centroid;
         protected double _angleX1;
+        protected SectionTypes _sectionType;
+        protected FormedTypes _formedType;
 
         #endregion
 
@@ -109,6 +129,17 @@ namespace GPC.Model.Sections
         /// </summary>
         public double InertiaRadius2 => Math.Sqrt(Jyy / Area);
 
+        /// <summary>
+        /// The type of the section (rolled or welded)
+        /// </summary>
+        public SectionTypes SectionType => _sectionType;
+
+        /// <summary>
+        /// The type of the section (HotFinished or ColdFormed)
+        /// </summary>
+        public FormedTypes FormedType => _formedType;
+
+
         #endregion
 
 
@@ -134,7 +165,11 @@ namespace GPC.Model.Sections
         /// <param name="shearCenter">The shear center of the section</param>
         /// <param name="angle">The angle of rotation of the principal axis</param>
         /// <param name="name">The name of the section</param>
-        public Section(Material material, double area, double sx, double sy, double j11, double j22, double jt, double jw, Point2d centroid, Point3d shearCenter, double angle, string name) 
+        /// <param name="formed">The formed types (cold formed or hot finished) - only for steel section</param>
+        /// <param name="sectionType">The type of the section (Rolled or welded) - only for steel section</param>
+        /// <exception cref="ArgumentException">If the input data are not correct</exception>
+        public Section(Material material, double area, double sx, double sy, double j11, double j22, double jt, double jw, Point2d centroid, Point3d shearCenter, double angle, string name, 
+                        FormedTypes formed = FormedTypes.ColdFormed, SectionTypes sectionType = SectionTypes.Rolled) 
             : base(name)
         {
             _material = material;
@@ -144,7 +179,9 @@ namespace GPC.Model.Sections
             _jxx = j11 < 0 ? throw new ArgumentException($"Moment of Inertia J11 cannot be lower than zero") : j11; 
             _jyy = j22 < 0 ? throw new ArgumentException($"Moment of Inertia J22 cannot be lower than zero") : j22; 
             _jt = jt < 0 ? throw new ArgumentException($"Moment of Inertia Jt cannot be lower than zero") : jt; 
-            _jw = jw < 0 ? throw new ArgumentException($"Moment of Inertia Jw cannot be lower than zero") : jw; 
+            _jw = jw < 0 ? throw new ArgumentException($"Moment of Inertia Jw cannot be lower than zero") : jw;
+            _formedType = formed;
+            _sectionType = sectionType;
             _centroid = centroid;
             _shearCenter = shearCenter;
             _angleX1 = angle;
@@ -173,12 +210,6 @@ namespace GPC.Model.Sections
         {
             return null;
         }
-
-        #endregion
-
-
-        #region Public virtual geometry Methods
-
 
         #endregion
 

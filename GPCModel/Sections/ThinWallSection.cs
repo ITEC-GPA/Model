@@ -61,8 +61,6 @@ namespace GPC.Model.Sections
 
         #region Public abstract method
 
-        // public abstract double GetTotalHeight();
-
         public abstract double CalculateJw();
 
         public abstract double CalculateJt();
