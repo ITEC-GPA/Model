@@ -6,7 +6,7 @@ namespace GPC.Model
 
     /// <summary>
     /// Collection of unique <see cref="ModelObject"/>.
-    /// This class is a wrapper of <see cref="List{T}"/>
+    /// This class is a wrapper of <see cref="List{T}"/>. Then <typeparamref name="T"/> can be a mutable object.
     /// </summary>
     /// <typeparam name="T"></typeparam>
     /// <remarks>The collection is thread-safe</remarks>

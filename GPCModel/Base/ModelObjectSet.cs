@@ -6,7 +6,7 @@ namespace GPC.Model
 
     /// <summary>
     /// Collection of unique <see cref="ModelObject"/>
-    /// This class is a wrapper of <see cref="HashSet{T}"/>
+    /// This class is a wrapper of <see cref="HashSet{T}"/>. Then <typeparamref name="T"/> must be an unmutable object
     /// </summary>
     /// <typeparam name="T">The type of collection derived from <see cref="ModelObject"/> </typeparam>
     /// <remarks>The collection is thread-safe</remarks>
