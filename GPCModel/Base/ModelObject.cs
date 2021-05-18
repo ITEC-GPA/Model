@@ -7,13 +7,14 @@ namespace GPC.Model
     [Serializable]
     public abstract class ModelObject
     {
+
         #region Variables
 
         protected Guid _guid;
 
         protected string _name;
 
-        #endregion Variables
+        #endregion 
 
         #region Properties
 
@@ -21,7 +22,7 @@ namespace GPC.Model
 
         public string Name => _name; // Setter non disponibile in quanto il nome non deve essere una variabile mutabile in modo da poter avere la ModelObjectNameEqualityComparer
 
-        #endregion Properties
+        #endregion 
 
         #region Public Constructors
 
@@ -60,7 +61,7 @@ namespace GPC.Model
             _name = info.GetString("Name");
         }
 
-        #endregion Public Constructors
+        #endregion 
 
         /// <returns> <see langword="true"/> if <paramref name="guid"/> match the object <see cref="Guid"/> </returns>
         public bool CompareGuid(Guid guid)
@@ -109,7 +110,7 @@ namespace GPC.Model
             return !(obj1 == obj2);
         }
 
-        #endregion Equals - HashCode - Operators
+        #endregion
 
         #region CUSTOM EQUALITY COMPARER
 

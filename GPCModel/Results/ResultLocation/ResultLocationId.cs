@@ -4,7 +4,7 @@ using System.Runtime.Serialization;
 namespace GPC.Model.Results
 {
     [Serializable]
-    public abstract class ResultPoint : ModelObject, ISerializable
+    public abstract class ResultLocationId : ModelObject, ISerializable
     {
 
         private readonly int _id;
@@ -12,12 +12,12 @@ namespace GPC.Model.Results
         public int Id => _id;
 
 
-        protected ResultPoint(int id, string name) : base(Guid.NewGuid(), name)
+        protected ResultLocationId(int id, string name) : base(Guid.NewGuid(), name)
         {
             _id = id;
         }
 
-        protected ResultPoint(SerializationInfo info, StreamingContext context) 
+        protected ResultLocationId(SerializationInfo info, StreamingContext context) 
             : base(info, context)
         {
             throw new NotImplementedException();
@@ -32,7 +32,7 @@ namespace GPC.Model.Results
 
         public override bool Equals(object obj)
         {
-            return obj is ResultPoint point && base.Equals(obj) && _id == point._id;
+            return obj is ResultLocationId point && base.Equals(obj) && _id == point._id;
         }
 
         public override int GetHashCode()

@@ -4,6 +4,7 @@ using System;
 using GPC.Geometry;
 using GPC.Model.FEM.Properties;
 using GPC.Model.FEM.Attributes;
+using GPC.Model.Results;
 using mnl = MathNet.Numerics.LinearAlgebra;
 
 namespace GPC.Model.FEM.FiniteElements
@@ -14,6 +15,7 @@ namespace GPC.Model.FEM.FiniteElements
     public abstract class FiniteElement : FEMObject
     {
         #region Variables
+
         //define the local axis of the element
         protected CoordinateSystem _localCoordinateSystem;
         //contains the degree of fredom active foreach node in global coordinates
@@ -32,6 +34,9 @@ namespace GPC.Model.FEM.FiniteElements
 
         //contains the nodes in global coordinates
         protected Node[] _nodesGlobal;
+
+
+        protected ModelObjectSet<FiniteElementResult> _results;
 
         #endregion
 
@@ -91,9 +96,11 @@ namespace GPC.Model.FEM.FiniteElements
         
         public List<LoadCaseAttribute> AttributesLoadCase => _attributesLoadCase;
         public List<FreedomCaseAttribute> AttributesFreedomCase => _attributesFreedomCase;
+        
         #endregion
 
         #region Constructor
+
         /// <summary>
         ///  
         /// </summary>
@@ -104,7 +111,10 @@ namespace GPC.Model.FEM.FiniteElements
             _DOF = new SortedSet<Solver.DOF>();
             _attributesLoadCase = new List<LoadCaseAttribute>();
             _attributesFreedomCase = new List<FreedomCaseAttribute>();
+
+            _results = new ModelObjectSet<FiniteElementResult>(EqualityComparer<ElementResult>.Default); // comparer di ElementResult, usa solo il case come comparatore
         }
+
         #endregion
 
         #region PublicFunction

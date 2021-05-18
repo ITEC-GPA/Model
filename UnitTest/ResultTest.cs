@@ -1,13 +1,7 @@
 ﻿using GPC.Geometry;
-using GPC.Model.LoadCases;
-using GPC.Model.Loads;
 using GPC.Model.Results;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System;
-using System.IO;
-using GPC.Model.Elements;
-using GPC.Model.FEM.FiniteElements;
 using GPC.TestUtilities;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace ModelObjectTest
 {
@@ -15,11 +9,11 @@ namespace ModelObjectTest
     public class ResultTest : UnitTestBase
     {
         [TestMethod]
-        public void PrincipalStressTest1() 
+        public void PrincipalStressTest1()
         {
 
-            ResultPlateStress rps1 = new ResultPlateStress(new Plate(null), new LoadCaseBase("lc1"), new ResultStressPoint(1), CoordinateSystem.Global, -341, -895, 573, 777, -18); ;
-            
+            ResultStress rps1 = new ResultStress(CoordinateSystem.Global, -341, -895, 573, 777, -18); ;
+
             Assert.AreEqual(rps1.S11, 705, 1);
             Assert.AreEqual(rps1.S22, -524, 1);
             Assert.AreEqual(rps1.S33, -1417, 1);
@@ -29,7 +23,7 @@ namespace ModelObjectTest
         [TestMethod]
         public void PrincipalStressTest2()
         {
-            ResultPlateStress rps1 = new ResultPlateStress(new Plate(null), new LoadCaseBase("lc1"), new ResultStressPoint(1), CoordinateSystem.Global, 49.8, 49.9, 0.059, -3.66, 0.521);
+            ResultStress rps1 = new ResultStress(CoordinateSystem.Global, 49.8, 49.9, 0.059, -3.66, 0.521);
 
             Assert.AreEqual(rps1.S11, 49.838, 0.5);
             Assert.AreEqual(rps1.S22, 49.524, 0.5);
@@ -39,7 +33,7 @@ namespace ModelObjectTest
         [TestMethod]
         public void PrincipalStressTest3()
         {
-            ResultPlateStress rps1 = new ResultPlateStress(new Plate(null), new LoadCaseBase("lc1"), new ResultStressPoint(1), CoordinateSystem.Global, 0, 0, 573, 777, -18);
+            ResultStress rps1 = new ResultStress(CoordinateSystem.Global, 0, 0, 573, 777, -18);
 
             Assert.AreEqual(rps1.S11, 956, 1);
             Assert.AreEqual(rps1.S22, 17.1, 1);
@@ -49,7 +43,7 @@ namespace ModelObjectTest
         [TestMethod]
         public void PrincipalStressTest4()
         {
-            ResultPlateStress rps1 = new ResultPlateStress(new Plate(null), new LoadCaseBase("lc1"), new ResultStressPoint(1), CoordinateSystem.Global, 100, 200, 573, 0, 0);
+            ResultStress rps1 = new ResultStress(CoordinateSystem.Global, 100, 200, 573, 0, 0);
 
             Assert.AreEqual(rps1.S11, 725.1774, 1);
             Assert.AreEqual(rps1.S22, -425.1774, 1);
@@ -58,7 +52,7 @@ namespace ModelObjectTest
         [TestMethod]
         public void VonMisesStressTest1()
         {
-            ResultPlateStress rps1 = new ResultPlateStress(new Plate(null), new LoadCaseBase("lc1"), new ResultStressPoint(1), CoordinateSystem.Global, 56.89, 40.32, -1.065, 0, 0);
+            ResultStress rps1 = new ResultStress(CoordinateSystem.Global, 56.89, 40.32, -1.065, 0, 0);
 
             double vm = rps1.SVM;
 
@@ -71,21 +65,12 @@ namespace ModelObjectTest
         {
             // https://www.graniteng.com/mohr-3d?lang=en
 
-            ResultPlateStress rps1 = new ResultPlateStress(new Plate(null), new LoadCaseBase("lc1"), new ResultStressPoint(1), CoordinateSystem.Global, 100, 200, 573, 400, 500);
+            ResultStress rps1 = new ResultStress(CoordinateSystem.Global, 100, 200, 573, 400, 500);
 
             double vm = rps1.SVM;
 
             Assert.AreEqual(vm, 1498, 1);
         }
 
-        [TestMethod]
-        public void Element()
-        {
-            var p = new Plate(null);
-            ResultPlateStress rps1 = new ResultPlateStress(p, new LoadCaseBase("lc1"), new ResultStressPoint(1), CoordinateSystem.Global, 100, 200, 573, 400, 500);
-
-
-            Assert.AreEqual(p, rps1.Element);
-        }
     }
 }

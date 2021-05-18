@@ -10,32 +10,32 @@ namespace GPC.Model.Results
 {
 
     [Serializable]
-    public class ResultStressPoint : ResultPoint, ISerializable
+    public class PointResultLocation : ResultLocationId, ISerializable
     {
         private readonly Point2d _location;
 
         public Point2d Location => _location;
 
-        public ResultStressPoint(int id, Point2d location) 
+        public PointResultLocation(int id, Point2d location) 
             : this(id, string.Empty)
         {
             _location = location;
         }
 
-        public ResultStressPoint(int id, string name) 
+        public PointResultLocation(int id, string name) 
             : base(id, name)
         {
 
         }
 
-        public ResultStressPoint(int id)
+        public PointResultLocation(int id)
             : base(id, string.Empty)
         {
 
         }
 
 
-        public ResultStressPoint(SerializationInfo info, StreamingContext context) 
+        public PointResultLocation(SerializationInfo info, StreamingContext context) 
             : base(info, context)
         {
             throw new NotImplementedException();
@@ -43,7 +43,7 @@ namespace GPC.Model.Results
 
         public override bool Equals(object obj)
         {
-            return obj is ResultStressPoint point &&
+            return obj is PointResultLocation point &&
                    base.Equals(obj) &&
                    EqualityComparer<Point2d>.Default.Equals(_location, point._location);
         }

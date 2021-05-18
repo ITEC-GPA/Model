@@ -3,29 +3,31 @@ using System.Runtime.Serialization;
 
 namespace GPC.Model.Results
 {
+
     [Serializable]
-    public class ResultBeamStation : ResultPoint, ISerializable
+    public class StationResultLocation : ResultLocationId, ISerializable
     {
         private readonly double _distanceFromStartPoint;
-        private readonly double _beamLenght;
+        private readonly double _elementLenght;
 
 
-        public double BeamLenght => _beamLenght;
+        public double ElementLenght => _elementLenght;
+
         public double DistanceFromStartPoint => _distanceFromStartPoint;
 
-        public double ParametricDistance => _distanceFromStartPoint / _beamLenght;
+        public double ParametricDistance => _distanceFromStartPoint / _elementLenght;
 
 
 
-        public ResultBeamStation(int id, double distanceFromStartPoint, double beamLenght)
+        public StationResultLocation(int id, double distanceFromStartPoint, double elementLenght)
             : base(id, string.Empty)
         {
-            _distanceFromStartPoint = distanceFromStartPoint;
-            _beamLenght = beamLenght;
+            _distanceFromStartPoint = distanceFromStartPoint > elementLenght ? throw new ArgumentException($"distanceFromStartPoint can not higher than elementLenght") : distanceFromStartPoint;
+            _elementLenght = elementLenght == 0 ? throw new ArgumentException($"elementLenght can not be zero") : elementLenght;
         }
 
 
-        public ResultBeamStation(SerializationInfo info, StreamingContext context)
+        public StationResultLocation(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
             throw new NotImplementedException();
@@ -33,9 +35,10 @@ namespace GPC.Model.Results
 
         public override bool Equals(object obj)
         {
-            return obj is ResultBeamStation station &&
+            return obj is StationResultLocation station &&
                    base.Equals(obj) &&
-                   _distanceFromStartPoint == station._distanceFromStartPoint;
+                   _distanceFromStartPoint == station._distanceFromStartPoint && 
+                   _elementLenght == station._elementLenght;
         }
 
         public override int GetHashCode()
@@ -45,6 +48,7 @@ namespace GPC.Model.Results
                 int hashCode = 721521037;
                 hashCode = hashCode * -1521134295 + base.GetHashCode();
                 hashCode = hashCode * -1521134295 + _distanceFromStartPoint.GetHashCode();
+                hashCode = hashCode * -1521134295 + _elementLenght.GetHashCode();
                 return hashCode; 
             }
         }
