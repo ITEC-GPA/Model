@@ -17,7 +17,7 @@ namespace GPC.Model.FEM.FiniteElements
         //define the local axis of the element
         protected CoordinateSystem _localCoordinateSystem;
         //contains the degree of fredom active foreach node in global coordinates
-        protected SortedSet<LinearSolver.DOF> _DOF;
+        protected SortedSet<Solver.DOF> _DOF;
         
         //transformation matrix from local coordinates to global coordinates
         protected mnl.Matrix<double> _dofGlobalToLocal;
@@ -32,6 +32,8 @@ namespace GPC.Model.FEM.FiniteElements
 
         //contains the nodes in global coordinates
         protected Node[] _nodesGlobal;
+        //contains the nodes in global coordinates
+        protected Node[] _nodesLocal;
 
         #endregion
 
@@ -44,7 +46,7 @@ namespace GPC.Model.FEM.FiniteElements
         /// <summary>
         /// Contains the DOF active in the element
         /// </summary>
-        public SortedSet<LinearSolver.DOF> DOF => _DOF;
+        public SortedSet<Solver.DOF> DOF => _DOF;
 
         /// <summary>
         /// Contains Material for brick, thickness and material for plate, material + section for beam
@@ -73,6 +75,11 @@ namespace GPC.Model.FEM.FiniteElements
         /// Nodes of the element in global axis
         /// </summary>
         public Node[] Nodes => _nodesGlobal;
+
+        /// <summary>
+        /// Nodes of the element in local axis
+        /// </summary>
+        public Node[] LocalNodes => _nodesLocal;
 
         /// <summary>
         /// used for KeGlobal = DofGlobalToLocal^T [KeLocal] [DofGlobaltoLocal] or for UlocalCoord = DofGlobalToLocal UglobalCoord; NOTE: DofLocalToGlobal = DofGlobalToLocal^TRASPOSTE

@@ -646,7 +646,39 @@ namespace GPC.Model.FEM
                 throw new Exception("More than 1 element selected");
             }
         }
-#endregion
+        #endregion
+
+        #region GetResultTLG
+        public mnl.Vector<double> GetTLGStress(Quad4TripleLaminatedGlass element, Quad4TripleLaminatedGlass.Glass glass, Plate.Face face, int indexNode)
+        {
+            if (indexNode == 0)
+            {
+                throw new ArgumentOutOfRangeException("index node from 1 to 4");
+            }
+
+            double x = element.LocalNodes[indexNode - 1].Position.X;
+            double y = element.LocalNodes[indexNode - 1].Position.Y;
+
+            var globalDispl = GetDisplacementsAtNodesOfElementInGlobalCoordinates(element);
+
+            return element.GetStressGlass(glass, face, x, y, globalDispl);
+        }
+
+        public mnl.Vector<double> GetTLGStrain(Quad4TripleLaminatedGlass element, Quad4TripleLaminatedGlass.Glass glass, Plate.Face face, int indexNode)
+        {
+            if (indexNode == 0)
+            {
+                throw new ArgumentOutOfRangeException("index node from 1 to 4");
+            }
+
+            double x = element.LocalNodes[indexNode - 1].Position.X;
+            double y = element.LocalNodes[indexNode - 1].Position.Y;
+
+            var globalDispl = GetDisplacementsAtNodesOfElementInGlobalCoordinates(element);
+
+            return element.GetStrainGlass(glass, face, x, y, globalDispl);
+        }
+        #endregion
 
         #region GetResultsBeam
 

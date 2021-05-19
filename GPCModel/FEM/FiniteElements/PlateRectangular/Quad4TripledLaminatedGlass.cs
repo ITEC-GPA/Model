@@ -37,10 +37,6 @@ namespace GPC.Model.FEM.FiniteElements
         mnl.Matrix<double> _kLayer;
         mnl.Matrix<double> _kGlass;
 
-        Node[] _localNodes;
-        /*double _lx;
-        double _ly;*/
-
         double[] _length = new double[4];
         
         bool _quadrilateral;
@@ -97,11 +93,11 @@ namespace GPC.Model.FEM.FiniteElements
         {
             //set local coordinate system
             if (_quadrilateral == true) {
-                _localNodes = new Node[4];
-                _localNodes[0] = new Node(0.0, 0.0, 0);
-                _localNodes[1] = new Node(2.0, 0.0, 0);
-                _localNodes[2] = new Node(2.0, 2.0, 0);
-                _localNodes[3] = new Node(0.0, 2.0, 0);
+                _nodesLocal = new Node[4];
+                _nodesLocal[0] = new Node(0.0, 0.0, 0);
+                _nodesLocal[1] = new Node(2.0, 0.0, 0);
+                _nodesLocal[2] = new Node(2.0, 2.0, 0);
+                _nodesLocal[3] = new Node(0.0, 2.0, 0);
 
                 /*double x = 0;
                 double y = 0;
@@ -113,7 +109,7 @@ namespace GPC.Model.FEM.FiniteElements
 
             } else
             {
-                _localNodes = Quad4Element.GetLocalNodes(_nodesGlobal, out _localCoordinateSystem);
+                _nodesLocal = Quad4Element.GetLocalNodes(_nodesGlobal, out _localCoordinateSystem);
             }
             
             Vector3d globalX = new Vector3d(1, 0, 0);
@@ -133,8 +129,8 @@ namespace GPC.Model.FEM.FiniteElements
                     throw new NotImplementedException("Elemento finito al momento funzionante solo con assi locali coincidenti con assi globali");
                 }
 
-                _length[0] = _localNodes[1].Position.X - _localNodes[0].Position.X; //_lx = _localNodes[1].Position.X - _localNodes[0].Position.X;
-                _length[3] = _localNodes[3].Position.Y - _localNodes[0].Position.Y; //_ly = _localNodes[3].Position.Y - _localNodes[0].Position.Y;
+                _length[0] = _nodesLocal[1].Position.X - _nodesLocal[0].Position.X; //_lx = _localNodes[1].Position.X - _localNodes[0].Position.X;
+                _length[3] = _nodesLocal[3].Position.Y - _nodesLocal[0].Position.Y; //_ly = _localNodes[3].Position.Y - _localNodes[0].Position.Y;
 
                 #region ControlliGeometrici
                 if (_length[0] <= 0 || _length[3] <= 0 /*_lx <= 0 || _ly <= 0*/)
@@ -142,8 +138,8 @@ namespace GPC.Model.FEM.FiniteElements
                     throw new Exception("lx or ly <= 0!");
                 }
 
-                _length[2] = _localNodes[2].Position.X - _localNodes[3].Position.X; //lx2
-                _length[1] = _localNodes[2].Position.Y - _localNodes[1].Position.Y; //ly2
+                _length[2] = _nodesLocal[2].Position.X - _nodesLocal[3].Position.X; //lx2
+                _length[1] = _nodesLocal[2].Position.Y - _nodesLocal[1].Position.Y; //ly2
 
                 if (_length[0] != _length[2]) //lx2 != _lx
                 {
@@ -176,9 +172,6 @@ namespace GPC.Model.FEM.FiniteElements
                 double YP2 = FEMUtilities.GetLocalCoordinate2D("y", 1, -1, Quad4Element.GetShapeFunction, nodesFirstTransformed);
                 double YP3 = FEMUtilities.GetLocalCoordinate2D("y", 1, 1, Quad4Element.GetShapeFunction, nodesFirstTransformed);
                 double YP4 = FEMUtilities.GetLocalCoordinate2D("y", -1, 1, Quad4Element.GetShapeFunction, nodesFirstTransformed);
-
-                //_lx = XP2 - XP1; //o (DX^2 + DY^2)^0.5
-                //_ly = YP4 - YP1; //o (DX^2 + DY^2)^0.5
 
                 _length[0] = Math.Sqrt(Math.Pow(XP2 - XP1, 2.0) + Math.Pow(YP2 - YP1, 2.0));
                 _length[1] = Math.Sqrt(Math.Pow(XP3 - XP2, 2.0) + Math.Pow(YP3 - YP2, 2.0));
@@ -298,8 +291,8 @@ namespace GPC.Model.FEM.FiniteElements
             {
                 if (_quadrilateral == true)
                 {
-                    double x = FEMUtilities.GetLocalCoordinate2D("x", csi, eta, Quad4Element.GetShapeFunction, _localNodes);
-                    double y = FEMUtilities.GetLocalCoordinate2D("y", csi, eta, Quad4Element.GetShapeFunction, _localNodes);
+                    double x = FEMUtilities.GetLocalCoordinate2D("x", csi, eta, Quad4Element.GetShapeFunction, _nodesLocal);
+                    double y = FEMUtilities.GetLocalCoordinate2D("y", csi, eta, Quad4Element.GetShapeFunction, _nodesLocal);
 
                     double X = FEMUtilities.GetLocalCoordinate2D("x", x - 1.0, y - 1.0, Quad4Element.GetShapeFunction, nodesFirstTransformed);
                     double Y = FEMUtilities.GetLocalCoordinate2D("y", x - 1.0, y - 1.0, Quad4Element.GetShapeFunction, nodesFirstTransformed);
@@ -310,8 +303,8 @@ namespace GPC.Model.FEM.FiniteElements
                 }
                 else
                 {
-                    double x = FEMUtilities.GetLocalCoordinate2D("x", csi, eta, Quad4Element.GetShapeFunction, _localNodes);
-                    double y = FEMUtilities.GetLocalCoordinate2D("y", csi, eta, Quad4Element.GetShapeFunction, _localNodes);
+                    double x = FEMUtilities.GetLocalCoordinate2D("x", csi, eta, Quad4Element.GetShapeFunction, _nodesLocal);
+                    double y = FEMUtilities.GetLocalCoordinate2D("y", csi, eta, Quad4Element.GetShapeFunction, _nodesLocal);
 
                     mnl.Matrix<double> Bs = GetBs(x, y);
 
@@ -329,8 +322,8 @@ namespace GPC.Model.FEM.FiniteElements
 
                 if (_quadrilateral == true)
                 {
-                    double x = FEMUtilities.GetLocalCoordinate2D("x", csi, eta, Quad4Element.GetShapeFunction, _localNodes);
-                    double y = FEMUtilities.GetLocalCoordinate2D("y", csi, eta, Quad4Element.GetShapeFunction, _localNodes);
+                    double x = FEMUtilities.GetLocalCoordinate2D("x", csi, eta, Quad4Element.GetShapeFunction, _nodesLocal);
+                    double y = FEMUtilities.GetLocalCoordinate2D("y", csi, eta, Quad4Element.GetShapeFunction, _nodesLocal);
 
                     double X = FEMUtilities.GetLocalCoordinate2D("x", x - 1.0, y - 1.0, Quad4Element.GetShapeFunction, nodesFirstTransformed);
                     double Y = FEMUtilities.GetLocalCoordinate2D("y", x - 1.0, y - 1.0, Quad4Element.GetShapeFunction, nodesFirstTransformed);
@@ -350,8 +343,8 @@ namespace GPC.Model.FEM.FiniteElements
                     return Bg * jacobXGlobalToXLocal(x, y).Determinant();*/
                 } else
                 {
-                    double x = FEMUtilities.GetLocalCoordinate2D("x", csi, eta, Quad4Element.GetShapeFunction, _localNodes);
-                    double y = FEMUtilities.GetLocalCoordinate2D("y", csi, eta, Quad4Element.GetShapeFunction, _localNodes);
+                    double x = FEMUtilities.GetLocalCoordinate2D("x", csi, eta, Quad4Element.GetShapeFunction, _nodesLocal);
+                    double y = FEMUtilities.GetLocalCoordinate2D("y", csi, eta, Quad4Element.GetShapeFunction, _nodesLocal);
 
                     mnl.Matrix<double> Bg = GetBg(x, y);
 
@@ -365,7 +358,7 @@ namespace GPC.Model.FEM.FiniteElements
                 }
             }
 
-            Func<double, double, mnl.Matrix<double>> jacob = FEMUtilities.J2D(Quad4Element.GetdNdCsi, Quad4Element.GetdNdEta, _localNodes);
+            Func<double, double, mnl.Matrix<double>> jacob = FEMUtilities.J2D(Quad4Element.GetdNdCsi, Quad4Element.GetdNdEta, _nodesLocal);
 
             _kLayer = GaussIntegration.IntegrationQuadrilateral(fKLayer, jacob, 16);
             _kGlass = GaussIntegration.IntegrationQuadrilateral(fKGlass, jacob, 16); //16 è valore corretto
@@ -392,7 +385,7 @@ namespace GPC.Model.FEM.FiniteElements
                 if (iAttribute is PlatePressureAttribute)
                 {
                     PlatePressureAttribute attribute = (PlatePressureAttribute)iAttribute;
-                    //calcultation of pressures in local coordinate system of the element
+                    //calculation of pressures in local coordinate system of the element
                     Vector3d dirX = attribute.CoordinateSystem.V1;
                     dirX.Unitize();
                     Vector3d dirY = attribute.CoordinateSystem.V2;
@@ -418,13 +411,13 @@ namespace GPC.Model.FEM.FiniteElements
 
                     mnl.Matrix<double> NtTraspQ(double csi, double eta)
                     {
-                        double x = FEMUtilities.GetLocalCoordinate2D("x", csi, eta, Quad4Element.GetShapeFunction, _localNodes);
-                        double y = FEMUtilities.GetLocalCoordinate2D("y", csi, eta, Quad4Element.GetShapeFunction, _localNodes);
+                        double x = FEMUtilities.GetLocalCoordinate2D("x", csi, eta, Quad4Element.GetShapeFunction, _nodesLocal);
+                        double y = FEMUtilities.GetLocalCoordinate2D("y", csi, eta, Quad4Element.GetShapeFunction, _nodesLocal);
 
                         return GetNMatrix(x, y).Transpose() * q;
                     }
 
-                    var jacob = FEMUtilities.J2D(Quad4Element.GetdNdCsi, Quad4Element.GetdNdEta, _localNodes);
+                    var jacob = FEMUtilities.J2D(Quad4Element.GetdNdCsi, Quad4Element.GetdNdEta, _nodesLocal);
                     mnl.Matrix<double> f = GaussIntegration.IntegrationQuadrilateral(NtTraspQ, jacob, 9);
                     for (int i = 0; i < f.RowCount; i++)
                     {
@@ -514,17 +507,17 @@ namespace GPC.Model.FEM.FiniteElements
             var pseudoStrain = GetPseudoStrainGlass(x,y,globalDisplacementNodes);
             var pseudoStress = GetPseudoStressGlass(pseudoStrain);
 
-            mnl.Vector<double> strains = mnl.Vector<double>.Build.Dense(6); //eq 24 epsilon_x, epslilon_y, tau_xy, kxx, kyy, kxy
+            mnl.Vector<double> strains = mnl.Vector<double>.Build.Dense(3); //eq 24 epsilon_x, epslilon_y, gamma_xy
 
             double k;
             double h;
             if (g == Glass.Top)
             {
-                k = 1;
+                k = 2; //glass in +z
                 h = _h1;
             } else
             {
-                k = 2;
+                k = 1; //glass in -z
                 h = _h2;
             }
             double strainsXX = Math.Pow(-1.0, k) * pseudoStress[0] / (_EGlass * h); //epsilon x
@@ -535,15 +528,15 @@ namespace GPC.Model.FEM.FiniteElements
 
             if (face == Face.Top)
             {
-                strainsXX =+ h / 2.0 * curvatures[0];
-                strainsYY =+ h / 2.0 * curvatures[1];
-                strainsXY =+ h / 2.0 * curvatures[2];
+                strainsXX += + h / 2.0 * curvatures[0];
+                strainsYY += h / 2.0 * curvatures[1];
+                strainsXY += h / 2.0 * curvatures[2];
             }
             else if (face == Face.Bottom)
             {
-                strainsXX =- h / 2.0 * curvatures[0];
-                strainsYY =- h / 2.0 * curvatures[1];
-                strainsXY =- h / 2.0 * curvatures[2];
+                strainsXX -= h / 2.0 * curvatures[0];
+                strainsYY -= h / 2.0 * curvatures[1];
+                strainsXY -= h / 2.0 * curvatures[2];
             }
 
             strains[0] = strainsXX;
@@ -565,21 +558,21 @@ namespace GPC.Model.FEM.FiniteElements
 
             var pseudoStrain = GetPseudoStrainGlass(x,y,globalDisplacementNodes);
 
-            curvatures[0] = -pseudoStrain[3]; //kxx
-            curvatures[1] = -pseudoStrain[4]; //kyy
-            curvatures[2] = -pseudoStrain[5] / 2.0; //kxy
+            curvatures[0] = pseudoStrain[3]; //kxx
+            curvatures[1] = pseudoStrain[4]; //kyy
+            curvatures[2] = pseudoStrain[5]; //kxy
 
             return curvatures;
         }
 
         /// <summary>
-        /// get stress in the middle surface of selected glass
+        /// get stress in the selected glass
         /// </summary>
         /// <param name="g"></param>
         /// <param name="node"></param>
         /// <param name="globalDisplacementNodes"></param>
         /// <returns>sigma_xx, sigma_yy, tau_xy as vector of double</returns>
-        public mnl.Vector<double> GetStress(Glass g, Face face, double x, double y, double[] globalDisplacementNodes)
+        public mnl.Vector<double> GetStressGlass(Glass g, Face face, double x, double y, double[] globalDisplacementNodes)
         {
             var strains = GetStrainGlass(g, face, x,y, globalDisplacementNodes);
             var stress = _PlaneStressGlassMatrix * strains;
@@ -599,7 +592,7 @@ namespace GPC.Model.FEM.FiniteElements
             int indexNode = _nodesGlobal.ToList().IndexOf(node);
 
             //eq. 33: pseudoStrainInterlayer = [deltaU, deltaV, dwdx , dwdy]
-            var Bs = GetBsi(indexNode + 1, _localNodes[indexNode].Position.X, _localNodes[indexNode].Position.Y);
+            var Bs = GetBsi(indexNode + 1, _nodesLocal[indexNode].Position.X, _nodesLocal[indexNode].Position.Y);
             var es = Bs * displPoint;
 
             return es;
