@@ -28,6 +28,13 @@ namespace GPC.Model.Results
             throw new NotImplementedException();
         }
 
+
+        public override void GetObjectData(SerializationInfo info, StreamingContext context)
+        {
+            base.GetObjectData(info, context);
+            throw new NotImplementedException();
+        }
+
         public override bool Equals(object obj)
         {
             return obj is ResultLocationPoint point &&
@@ -46,10 +53,22 @@ namespace GPC.Model.Results
             }
         }
 
-        public override void GetObjectData(SerializationInfo info, StreamingContext context)
+        public static bool operator ==(ResultLocationPoint obj1, ResultLocationPoint obj2)
         {
-            base.GetObjectData(info, context);
-            throw new NotImplementedException();
+            if (obj1 is null)
+            {
+                return obj2 is null;
+            }
+
+            if (ReferenceEquals(obj1, obj2))
+                return true;
+
+            return obj1.Equals(obj2);
+        }
+
+        public static bool operator !=(ResultLocationPoint obj1, ResultLocationPoint obj2)
+        {
+            return !(obj1 == obj2);
         }
     }
 }

@@ -68,11 +68,13 @@ namespace GPC.Model.FEM
 
         public static bool operator ==(FEMObject obj1, FEMObject obj2)
         {
+            if (obj1 is null)
+            {
+                return obj2 is null;
+            }
+
             if (ReferenceEquals(obj1, obj2))
                 return true;
-
-            if (obj1 is null || obj2 is null)
-                return false;
 
             return obj1.Equals(obj2);
         }

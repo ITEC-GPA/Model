@@ -35,5 +35,23 @@ namespace GPC.Model.Results
         {
             return base.GetHashCode();
         }
+
+        public static bool operator ==(ResultLocationId obj1, ResultLocationId obj2)
+        {
+            if (obj1 is null)
+            {
+                return obj2 is null;
+            }
+
+            if (ReferenceEquals(obj1, obj2))
+                return true;
+
+            return obj1.Equals(obj2);
+        }
+
+        public static bool operator !=(ResultLocationId obj1, ResultLocationId obj2)
+        {
+            return !(obj1 == obj2);
+        }
     }
 }

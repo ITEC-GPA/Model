@@ -1323,7 +1323,7 @@ namespace GPC.Model.FEM
         /// <returns>The results related to <paramref name="combination"/></returns>
         public IEnumerable<FiniteElementResult> GetCombinationElementStressResults(Combination combination)
         {
-            return _elements.SelectMany(i => i.Results.Where(k => k.Case.Equals(combination) && k.Results.First() is ResultStress));
+            return _elements.SelectMany(i => i.Results.Where(k => k.Case.Equals(combination) && k.Results.Where(m => m != null).First() is ResultStress));
         }
 
 

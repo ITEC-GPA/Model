@@ -491,11 +491,13 @@ namespace FemTest
             IEnumerable<FiniteElementResult> stresses = femModel.GetCombinationElementStressResults(cmb);
             IEnumerable<NodeResult> displacements = femModel.GetCombinationNodeDisplacementResults(cmb);
 
+            // Plate
             Assert.IsTrue(femModel.GetFiniteElement(1).Results.ToList()[0].Case.Name == "cmb1");
             Assert.IsTrue((stresses.First().Results[2] as ResultStress).Sxx == 1);
 
+            // Nodo
             Assert.IsTrue(femModel.GetNode(1).Results.ToList()[0].Case.Name == "cmb1");
-            Assert.IsTrue((displacements.First().Results[2] as ResultDisplacement).D1 == 1);
+            Assert.IsTrue((displacements.First().Result as ResultDisplacement).D1 == 1);
 
         }
 

@@ -25,10 +25,10 @@ namespace GPC.Model.Results
             if (result.Count() != points.Count())
                 throw new ArgumentException("Lists lenght are different");
 
-            if (result.Select(i => i.GetType()).Distinct().Count() > 1)
+            if (result.Where(i => i != null).Select(i => i.GetType()).Distinct().Count() > 1)
                 throw new ArgumentException("Multiple result type");
 
-            if (points.Select(i => i.GetType()).Distinct().Count() > 1)
+            if (points.Where(i => i != null).Select(i => i.GetType()).Distinct().Count() > 1)
                 throw new ArgumentException("Multiple location point type");
 
 

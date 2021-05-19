@@ -97,8 +97,10 @@ namespace GPC.Model
 
         public static bool operator ==(ModelObject obj1, ModelObject obj2)
         {
-            if (obj1 is null || obj2 is null)
-                return false;
+            if (obj1 is null)
+            {
+                return obj2 is null;
+            }
 
             if (ReferenceEquals(obj1, obj2))
                 return true;

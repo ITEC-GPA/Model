@@ -92,6 +92,7 @@
     <Compile Include="FEM\Plates\ElementTest.cs" />
     <Compile Include="FEM\Plates\DKTTest.cs" />
     <Compile Include="FEM\FEMUtilitiesTest.cs" />
+    <Compile Include="General\OperatorsTest.cs" />
     <Compile Include="InterlayerMaterialTest.cs" />
     <Compile Include="ResultTest.cs" />
     <Compile Include="MaterialTest.cs" />
