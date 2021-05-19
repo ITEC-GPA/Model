@@ -57,24 +57,23 @@ namespace GPC.Model.Elements.Glasses
             if (ReferenceEquals(this, obj))
                 return true;
 
-            return (obj is GlassSurface) && ((GlassSurface)obj)._shape.Equals(_shape) && base.Equals((GlassSurface)obj);
+            return (obj is GlassSurface surface) && surface._shape.Equals(_shape) && base.Equals(surface);
         }
 
         public override int GetHashCode()
         {
-            int hashCode = -23;
-            hashCode = hashCode * -17 + base.GetHashCode();
+            int hashCode = -391 + base.GetHashCode();
             hashCode = hashCode * -17 + EqualityComparer<Shape>.Default.GetHashCode(_shape);
             return hashCode;
         }
 
         public static bool operator ==(GlassSurface obj1, GlassSurface obj2)
         {
-            if (ReferenceEquals(obj1, obj2))
-                return true;
-
             if (obj1 is null || obj2 is null)
                 return false;
+
+            if (ReferenceEquals(obj1, obj2))
+                return true;
 
             return obj1.Equals(obj2);
         }

@@ -47,11 +47,11 @@ namespace GPC.Model.FEM
 
         #region Properties
 
+        public int Id { get => _id; internal set => _id = value; }
+
         public FemModel.AnalysisTypes AnalysisType => _analysisType;
 
         public bool Morph => _morph;
-
-        public int Id { get => _id; internal set => _id = value; }
 
         internal IEnumerable<Combination> Combinations => _combinations;
 
