@@ -476,26 +476,26 @@ namespace FemTest
 
             femModel.AddFiniteElement(plate, "P1");
 
-            IEnumerable<ResultStress> res = new List<ResultStress>() { new ResultStress(CoordinateSystem.Global, 1,2,3,4,5) };
-            IEnumerable<ResultLocationPoint> points = new List<ResultLocationPoint>() { new ResultLocationPoint(1, new Point2d(0, 1)) };
+            IEnumerable<ResultStress> res = new List<ResultStress>() { null, null, new ResultStress(CoordinateSystem.Global, 1, 2, 3, 4, 5) };
+            IEnumerable<ResultLocationPoint> points = new List<ResultLocationPoint>() { null, null, new ResultLocationPoint(1, new Point2d(0, 1)) };
 
 
             var loadCase = new LoadCase("lc", LoadCase.LoadCaseTypes.SelfWeight);
             var cmb = new Combination("cmb1");
             cmb.AddLoadCaseCoefficient(loadCase, 1);
 
-            plate.AddResult(new PlateResult(cmb, CoordinateSystem.Global, res, points));
+            plate.AddResult(new PlateResult(cmb, CoordinateSystem.Global, res.ToArray(), points.ToArray()));
 
-            femModel.GetNode(1).AddResult(new NodeResult(cmb, CoordinateSystem.Global, new ResultDisplacement(1,2,3,4,5,6)));
+            femModel.GetNode(1).AddResult(new NodeResult(cmb, CoordinateSystem.Global, new ResultDisplacement(1, 2, 3, 4, 5, 6)));
 
             IEnumerable<FiniteElementResult> stresses = femModel.GetCombinationElementStressResults(cmb);
             IEnumerable<NodeResult> displacements = femModel.GetCombinationNodeDisplacementResults(cmb);
 
             Assert.IsTrue(femModel.GetFiniteElement(1).Results.ToList()[0].Case.Name == "cmb1");
-            Assert.IsTrue((stresses.First().Results.First() as ResultStress).Sxx == 1);
+            Assert.IsTrue((stresses.First().Results[2] as ResultStress).Sxx == 1);
 
             Assert.IsTrue(femModel.GetNode(1).Results.ToList()[0].Case.Name == "cmb1");
-            Assert.IsTrue((displacements.First().Result as ResultDisplacement).D1 == 1);
+            Assert.IsTrue((displacements.First().Results[2] as ResultDisplacement).D1 == 1);
 
         }
 

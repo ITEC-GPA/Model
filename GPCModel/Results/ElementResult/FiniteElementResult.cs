@@ -11,11 +11,11 @@ namespace GPC.Model.Results
     public abstract class FiniteElementResult : ElementResult, ISerializable
     {
 
-        private readonly IEnumerable<ResultType> _results;
-        private readonly IEnumerable<ResultLocationId> _points;
+        private readonly ResultType[] _results;
+        private readonly ResultLocationId[] _points;
 
-        public IEnumerable<ResultType> Results => _results;
-        public IEnumerable<ResultLocationId> Points => _points;
+        public ResultType[] Results => _results;
+        public ResultLocationId[] Points => _points;
 
 
         public FiniteElementResult(ILoadCase Case, CoordinateSystem coordinateSystem, IEnumerable<ResultType> result, IEnumerable<ResultLocationId> points)
@@ -32,8 +32,8 @@ namespace GPC.Model.Results
                 throw new ArgumentException("Multiple location point type");
 
 
-            _results = result;
-            _points = points;
+            _results = result.ToArray();
+            _points = points.ToArray();
         }
 
 

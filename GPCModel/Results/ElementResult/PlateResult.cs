@@ -1,6 +1,7 @@
 ﻿using GPC.Geometry;
 using GPC.Model.LoadCases;
 using System;
+using System.Linq;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
 
@@ -10,22 +11,33 @@ namespace GPC.Model.Results
     public sealed class PlateResult : FiniteElementResult, ISerializable, IEquatable<PlateResult>
     {
 
-        public PlateResult(ILoadCase Case, CoordinateSystem coordinateSystem, IEnumerable<IPlateResult> result, IEnumerable<ResultLocationId> points)
-            : base(Case, coordinateSystem, (IEnumerable<ResultType>)result, points)
+        /// <param name="Case"></param>
+        /// <param name="coordinateSystem"></param>
+        /// <param name="result">Lenght of this list should be 3n. Where n is the number of result on each face</param>
+        /// <param name="resultLocations">Lenght of this list should be 3n. Where n is the number of result on each face</param>
+        /// <remarks>Result order: Lower face (z-), Mid face, Upper face (z+)</remarks>
+        public PlateResult(ILoadCase Case, CoordinateSystem coordinateSystem, IPlateResult[] result, ResultLocationId[] resultLocations)
+            : base(Case, coordinateSystem, (IEnumerable<ResultType>)result, resultLocations)
         {
+            if (result.Count() % 3 != 0)
+                throw new ArgumentException("Result lenght should be 3n");
+
+            if (resultLocations.Count() % 3 != 0)
+                throw new ArgumentException("Result lenght should be 3n");
 
         }
-
 
         public override int GetHashCode()
         {
             return base.GetHashCode();
         }
 
+
         public override bool Equals(object obj)
         {
             return Equals((PlateResult)obj);
         }
+
 
         public bool Equals(PlateResult other)
         {
@@ -40,11 +52,11 @@ namespace GPC.Model.Results
 
         public static bool operator ==(PlateResult obj1, PlateResult obj2)
         {
-            if (ReferenceEquals(obj1, obj2))
-                return true;
-
             if (obj1 is null || obj2 is null)
                 return false;
+
+            if (ReferenceEquals(obj1, obj2))
+                return true;
 
             return obj1.Equals(obj2);
         }

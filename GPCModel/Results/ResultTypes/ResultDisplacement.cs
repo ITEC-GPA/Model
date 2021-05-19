@@ -1,16 +1,12 @@
 ﻿using GPC.Geometry;
-using GPC.Model.LoadCases;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace GPC.Model.Results
 {
     [Serializable]
-    public sealed class ResultDisplacement : ResultType, IEquatable<ResultDisplacement>, 
+    public sealed class ResultDisplacement : ResultType, IEquatable<ResultDisplacement>,
                                              ISerializable, INodeResult, IPlateResult, IBrickResult, IBeamResult
     {
 
@@ -166,6 +162,7 @@ namespace GPC.Model.Results
             return Equals(obj as ResultDisplacement);
         }
 
+
         public bool Equals(ResultDisplacement other)
         {
             return !(other is null) &&
@@ -173,6 +170,7 @@ namespace GPC.Model.Results
                     _r1 == other._r1 && _r2 == other._r2 && _r3 == other._r3 &&
                     base.Equals(other);
         }
+
 
         public override int GetHashCode()
         {
@@ -200,6 +198,7 @@ namespace GPC.Model.Results
 
             return obj1.Equals(obj2);
         }
+
 
         public static bool operator !=(ResultDisplacement obj1, ResultDisplacement obj2)
         {
