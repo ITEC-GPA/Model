@@ -45,7 +45,7 @@ namespace GPC.Model.Elements
         protected Element(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
-            _id = info.GetInt32("Id");
+
         }
 
 
