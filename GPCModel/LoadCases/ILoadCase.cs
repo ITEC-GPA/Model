@@ -12,5 +12,7 @@ namespace GPC.Model.LoadCases
     public interface ILoadCase
     {
 
+        string Name { get; }
+
     }
 }

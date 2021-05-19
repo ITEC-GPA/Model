@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using GPC.Model.FEM.Attributes;
 using GPC.Model.FEM.Properties;
+using GPC.Model.Results;
 using mnl = MathNet.Numerics.LinearAlgebra;
 
 namespace GPC.Model.FEM.FiniteElements
@@ -83,6 +84,10 @@ namespace GPC.Model.FEM.FiniteElements
             _attributesFreedomCase.Add((FreedomCaseAttribute)attribute);
         }
 
+        public void AddResult(PlateResult result)
+        {
+            base.AddResult(result);
+        }
 
         protected override mnl.Vector<double> BuildFLocalCoord()
         {

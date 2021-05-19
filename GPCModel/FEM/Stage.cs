@@ -12,10 +12,9 @@ using System.Runtime.Serialization;
 namespace GPC.Model.FEM
 {
     [Serializable]
-    public sealed class Stage : ModelObject, ISerializable, IEquatable<Stage>, ICloneable
+    public sealed class Stage : ModelObjectId, ISerializable, IEquatable<Stage>, ICloneable
     {
         private static int _maxId = 0;
-        private int _id;
 
         private readonly UniqueNameCollection<Combination> _combinations;
 
@@ -51,26 +50,24 @@ namespace GPC.Model.FEM
 
         public bool Morph => _morph;
 
-        public int Id { get => _id; internal set => _id = value; }
-
         internal IEnumerable<Combination> Combinations => _combinations;
 
         #endregion 
 
         internal Stage(string name, FemModel referenceFemModel, FemModel.AnalysisTypes analysisType, bool morph, UniqueNameCollection<Combination> combinations)
-            : base(name)
+            : base(++_maxId, name)
         {
             // Il costruttore è internal in modo che sia solamente la classe fem model a poter creare l'istanza di stage.
-            // 
-            this._analysisType = analysisType;
-            this._combinations = combinations ?? new UniqueNameCollection<Combination>();
-            this._morph = morph;
+            
+            _analysisType = analysisType;
+            _combinations = combinations ?? new UniqueNameCollection<Combination>();
+            _morph = morph;
 
-            this._elements = new FiniteElementStageCollection<FiniteElement, StageFiniteElementProperty>();
-            this._nodes = new NodeStageCollection<Node, StageProperty>();
+            _elements = new FiniteElementStageCollection<FiniteElement, StageFiniteElementProperty>();
+            _nodes = new NodeStageCollection<Node, StageProperty>();
 
-            this._femModel = referenceFemModel ?? throw new ArgumentNullException("Fem Model can't be null");
-            this._id = _maxId++;
+            _femModel = referenceFemModel ?? throw new ArgumentNullException("Fem Model can't be null");
+
         }
 
         internal Stage(string name, FemModel femModel, FemModel.AnalysisTypes analysisType)
@@ -81,13 +78,13 @@ namespace GPC.Model.FEM
 
         internal Stage(Stage stage)
         {
-            this._analysisType = stage._analysisType;
-            this._combinations = stage._combinations;
-            this._morph = stage._morph;
-            this._elements = stage._elements;
-            this._nodes = stage._nodes;
-            this._femModel = stage._femModel;
-            this._id = _maxId++;
+            _analysisType = stage._analysisType;
+            _combinations = stage._combinations;
+            _morph = stage._morph;
+            _elements = stage._elements;
+            _nodes = stage._nodes;
+            _femModel = stage._femModel;
+            _id = _maxId++;
         }
 
         internal Stage(SerializationInfo info, StreamingContext context)
@@ -448,7 +445,6 @@ namespace GPC.Model.FEM
         /// <summary>
         /// <see cref="Stage._femModel"/> is not used as comparative factor
         /// </summary>
-        /// <param name="sc"></param>
         /// <returns></returns>
         public bool Equals(Stage sc)
         {
@@ -474,7 +470,6 @@ namespace GPC.Model.FEM
         /// <summary>
         /// <see cref="Stage._femModel"/> is not used to calculate the hashcode
         /// </summary>
-        /// <returns></returns>
         public override int GetHashCode()
         {
             unchecked
@@ -484,12 +479,13 @@ namespace GPC.Model.FEM
 
                 foreach (var combo in _combinations)
                 {
-                    hashCode = hashCode + EqualityComparer<Combination>.Default.GetHashCode(combo);
+                    hashCode += 17 * EqualityComparer<Combination>.Default.GetHashCode(combo);
                 }
-                hashCode = hashCode + _elements.GetHashCode();
-                hashCode = hashCode + _nodes.GetHashCode();
-                hashCode = hashCode + _morph.GetHashCode();
-                hashCode = hashCode + _analysisType.GetHashCode();
+
+                hashCode = hashCode * -17 + _elements.GetHashCode();
+                hashCode = hashCode * -17 + _nodes.GetHashCode();
+                hashCode = hashCode * -17 + _morph.GetHashCode();
+                hashCode = hashCode * -17 + _analysisType.GetHashCode();
 
                 return hashCode; 
             }
@@ -497,11 +493,11 @@ namespace GPC.Model.FEM
 
         public static bool operator ==(Stage obj1, Stage obj2)
         {
-            if (ReferenceEquals(obj1, obj2))
-                return true;
-
             if (obj1 is null || obj2 is null)
                 return false;
+
+            if (ReferenceEquals(obj1, obj2))
+                return true;
 
             return obj1.Equals(obj2);
         }

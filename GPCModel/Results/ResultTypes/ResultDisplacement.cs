@@ -1,23 +1,23 @@
 ﻿using GPC.Geometry;
-using GPC.Model.Elements;
-using GPC.Model.FEM;
-using GPC.Model.LoadCases;
 using System;
+using System.Linq;
 using System.Runtime.Serialization;
 
 namespace GPC.Model.Results
 {
     [Serializable]
-    public sealed class ResultNodeDisplacement : Result, ISerializable, IEquatable<ResultNodeDisplacement>
+    public sealed class ResultDisplacement : ResultType, IEquatable<ResultDisplacement>,
+                                             ISerializable, INodeResult, IPlateResult, IBrickResult, IBeamResult
     {
+
         #region Variables
 
-        private readonly double _d1;                   
-        private readonly double _d2;                   
-        private readonly double _d3;                   
-        private readonly double _r1;                  
-        private readonly double _r2;                  
-        private readonly double _r3;                  
+        private readonly double _d1;
+        private readonly double _d2;
+        private readonly double _d3;
+        private readonly double _r1;
+        private readonly double _r2;
+        private readonly double _r3;
 
         #endregion
 
@@ -35,8 +35,6 @@ namespace GPC.Model.Results
 
         #region Public Constructors
 
-        /// <param name="node">Node where these result are referred </param>
-        /// <param name="Case">The case where these results are reffered </param>
         /// <param name="coordinateSystem">Coordinate system where these result are provided </param>
         /// <param name="d1">Displacement along <see cref="CoordinateSystem.V1"/> direction </param>
         /// <param name="d2">Displacement along <see cref="CoordinateSystem.V2"/> direction </param>
@@ -44,8 +42,8 @@ namespace GPC.Model.Results
         /// <param name="r1">Rotation around <see cref="CoordinateSystem.V1"/> direction </param>
         /// <param name="r2">Rotation around <see cref="CoordinateSystem.V2"/> direction </param>
         /// <param name="r3">Rotation around <see cref="CoordinateSystem.V3"/> direction </param>
-        public ResultNodeDisplacement(Node node, ILoadCase Case, CoordinateSystem coordinateSystem, double d1, double d2, double d3, double r1, double r2, double r3) 
-            : base(node, Case, null, coordinateSystem)
+        public ResultDisplacement(CoordinateSystem coordinateSystem, double d1, double d2, double d3, double r1, double r2, double r3)
+            : base(coordinateSystem)
         {
             _d1 = d1;
             _d2 = d2;
@@ -54,9 +52,28 @@ namespace GPC.Model.Results
             _r2 = r2;
             _r3 = r3;
         }
-        
 
-        public ResultNodeDisplacement(SerializationInfo info, StreamingContext context)
+
+        /// <param name="d1">Displacement along <see cref="CoordinateSystem.V1"/> direction </param>
+        /// <param name="d2">Displacement along <see cref="CoordinateSystem.V2"/> direction </param>
+        /// <param name="d3">Displacement along <see cref="CoordinateSystem.V3"/> direction </param>
+        /// <param name="r1">Rotation around <see cref="CoordinateSystem.V1"/> direction </param>
+        /// <param name="r2">Rotation around <see cref="CoordinateSystem.V2"/> direction </param>
+        /// <param name="r3">Rotation around <see cref="CoordinateSystem.V3"/> direction </param>
+        /// <remarks>Set the <see cref="CoordinateSystem"/> to <see cref="CoordinateSystem.Global"/></remarks>
+        public ResultDisplacement(double d1, double d2, double d3, double r1, double r2, double r3)
+            : base(CoordinateSystem.Global)
+        {
+            _d1 = d1;
+            _d2 = d2;
+            _d3 = d3;
+            _r1 = r1;
+            _r2 = r2;
+            _r3 = r3;
+        }
+
+
+        public ResultDisplacement(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
             throw new NotImplementedException();
@@ -128,48 +145,32 @@ namespace GPC.Model.Results
         #endregion
 
 
-
-        public Node GetNode()
+        public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
-            return (Node)Element;
+            throw new NotImplementedException();
         }
-
-
-        public override int GetElementId()
-        {
-            return Element.Id;
-        }
-
-
-        public override int GetResultPointId()
-        {
-            return ResultPoint.Id;
-        }
-
-
 
 
         #region Equals, hashcode, operators
+
 
         public override bool Equals(object obj)
         {
             if (ReferenceEquals(this, obj))
                 return true;
 
-            return Equals(obj as ResultNodeDisplacement);
+            return Equals(obj as ResultDisplacement);
         }
 
-        public bool Equals(ResultNodeDisplacement other)
+
+        public bool Equals(ResultDisplacement other)
         {
             return !(other is null) &&
-                    _d1 == other._d1 &&
-                    _d2 == other._d2 &&
-                    _d3 == other._d3 &&
-                    _r1 == other._r1 &&
-                    _r2 == other._r2 &&
-                    _r3 == other._r3 &&
+                    _d1 == other._d1 && _d2 == other._d2 && _d3 == other._d3 &&
+                    _r1 == other._r1 && _r2 == other._r2 && _r3 == other._r3 &&
                     base.Equals(other);
         }
+
 
         public override int GetHashCode()
         {
@@ -183,27 +184,25 @@ namespace GPC.Model.Results
                 hashCode = hashCode * -17 + _r1.GetHashCode();
                 hashCode = hashCode * -17 + _r2.GetHashCode();
                 hashCode = hashCode * -17 + _r3.GetHashCode();
-                return hashCode; 
+                return hashCode;
             }
         }
 
-        public override void GetObjectData(SerializationInfo info, StreamingContext context)
+        public static bool operator ==(ResultDisplacement obj1, ResultDisplacement obj2)
         {
-            throw new NotImplementedException();
-        }
+            if (obj1 is null)
+            {
+                return obj2 is null;
+            }
 
-        public static bool operator ==(ResultNodeDisplacement obj1, ResultNodeDisplacement obj2)
-        {
             if (ReferenceEquals(obj1, obj2))
                 return true;
-
-            if (obj1 is null || obj2 is null)
-                return false;
 
             return obj1.Equals(obj2);
         }
 
-        public static bool operator !=(ResultNodeDisplacement obj1, ResultNodeDisplacement obj2)
+
+        public static bool operator !=(ResultDisplacement obj1, ResultDisplacement obj2)
         {
             return !(obj1 == obj2);
         }

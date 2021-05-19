@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using GPC.Model.FEM.Attributes;
 using GPC.Model.FEM.Properties;
+using GPC.Model.Results;
 using mnl = MathNet.Numerics.LinearAlgebra;
 
 namespace GPC.Model.FEM.FiniteElements
@@ -51,6 +52,12 @@ namespace GPC.Model.FEM.FiniteElements
         }
 
         #region Result
+
+        public void AddResult(BrickResult result)
+        {
+            base.AddResult(result);
+        }
+
         //TODO: Da ottimizzare/scrivere
         /*public override void GetNodesResults(double[] globalDisplacementsNodes, out mnl.Matrix<double>[] gloabalPseudoDeformation, out mnl.Matrix<double>[] localPseudoDeformation, out mnl.Matrix<double>[] globalForces, out mnl.Matrix<double>[] localForces, out mnl.Matrix<double>[] globalStress, out mnl.Matrix<double>[] localStress, out mnl.Matrix<double>[] globalEpsilon, out mnl.Matrix<double>[] localEpsilon)
         {

@@ -7,14 +7,19 @@ using GPC.Geometry;
 using GPC.Model.Materials;
 using GPC.Model.Loads;
 using GPC.Model.LoadCases;
+using GPC.Model.Combinations;
 using GPC.Model.FreedomCases;
 using GPC.Model.FEM;
 using GPC.Model.FEM.Properties;
 using GPC.Model.FEM.Attributes;
+using GPC.Model.FEM.Materials;
+using GPC.Model.FEM.FiniteElements;
 using GPC.Model.Restrains;
+using GPC.Model.Results;
 using System.Diagnostics;
 using System.Linq;
 using GPC.TestUtilities;
+using GPC.Model.FEM.Collections;
 
 namespace FemTest
 {
@@ -209,10 +214,11 @@ namespace FemTest
 
             BrickProperty bp = new BrickProperty(gm.GetIsotropicFemMaterial(), "bp1");
 
-            List<Load> loads = new List<Load>();
-
-            loads.Add(new PointLoad(1, 2, 3, 4, 5, 6, Point3d.Origin, new LoadCaseBase("lc1")));
-            loads.Add(new LineLoad(1, 2, 3, 4, 5, 6, new Line3d(new Point3d(50, 50, 0), new Point3d(100, 100, 0)), new LoadCaseBase("lc2")));
+            List<Load> loads = new List<Load>
+            {
+                new PointLoad(1, 2, 3, 4, 5, 6, Point3d.Origin, new LoadCaseBase("lc1")),
+                new LineLoad(1, 2, 3, 4, 5, 6, new Line3d(new Point3d(50, 50, 0), new Point3d(100, 100, 0)), new LoadCaseBase("lc2"))
+            };
 
             List<GeometryRestrain> restrains = new List<GeometryRestrain>();
             restrains.Add(new PointRestrain(Point3d.Origin, new FreedomCase("fc1"), CoordinateSystem.Global, new List<DofRestrain> { new DofRestrain(LinearSolver.DOF.DX) }));
@@ -223,8 +229,11 @@ namespace FemTest
             FemModel femModel = new FemModel();
             femModel.AddProperty(pp);
             femModel.AddProperty(bp);
-            Mesh.GenerateOptions meshOptions = new Mesh.GenerateOptions();
-            meshOptions.MeshSize = 10;
+
+            Mesh.GenerateOptions meshOptions = new Mesh.GenerateOptions
+            {
+                MeshSize = 10
+            };
 
             femModel.AddShape(s, pp.Name, meshOptions, loads, restrains);
 
@@ -439,6 +448,7 @@ namespace FemTest
 
 
         [TestMethod]
+        [TestCategory("Missing Assert")]
         public void FemModelTest9()
         {
 
@@ -449,6 +459,49 @@ namespace FemTest
 
 
         }
+
+
+        [TestMethod]
+        public void FemModelTest10()
+        {
+            FemModel femModel = new FemModel();
+
+            Plate plate = new Plate(new Node[] {    new Node(0, 0, 0),
+                                                    new Node(0, 1, 0),
+                                                    new Node(1, 1, 0),
+                                                    new Node(1, 0, 0)
+                                               } );
+
+            femModel.AddProperty(new PlateProperty(new IsotropicFemMaterial(10, 0.1, 0.1, 1), 10, 10, "P1"));
+
+            femModel.AddFiniteElement(plate, "P1");
+
+            IEnumerable<ResultStress> res = new List<ResultStress>() { null, null, new ResultStress(CoordinateSystem.Global, 1, 2, 3, 4, 5) };
+            IEnumerable<ResultLocationPoint> points = new List<ResultLocationPoint>() { null, null, new ResultLocationPoint(1, new Point2d(0, 1)) };
+
+
+            var loadCase = new LoadCase("lc", LoadCase.LoadCaseTypes.SelfWeight);
+            var cmb = new Combination("cmb1");
+            cmb.AddLoadCaseCoefficient(loadCase, 1);
+
+            plate.AddResult(new PlateResult(cmb, CoordinateSystem.Global, res.ToArray(), points.ToArray()));
+
+            femModel.GetNode(1).AddResult(new NodeResult(cmb, CoordinateSystem.Global, new ResultDisplacement(1, 2, 3, 4, 5, 6)));
+
+            IEnumerable<FiniteElementResult> stresses = femModel.GetCombinationElementStressResults(cmb);
+            IEnumerable<NodeResult> displacements = femModel.GetCombinationNodeDisplacementResults(cmb);
+
+            // Plate
+            Assert.IsTrue(femModel.GetFiniteElement(1).Results.ToList()[0].Case.Name == "cmb1");
+            Assert.IsTrue((stresses.First().Results[2] as ResultStress).Sxx == 1);
+
+            // Nodo
+            Assert.IsTrue(femModel.GetNode(1).Results.ToList()[0].Case.Name == "cmb1");
+            Assert.IsTrue((displacements.First().Result as ResultDisplacement).D1 == 1);
+
+        }
+
+
         #endregion
 
     }

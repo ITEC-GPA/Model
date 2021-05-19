@@ -1,15 +1,18 @@
 ﻿using GPC.Geometry;
-using GPC.Model.Elements;
-using GPC.Model.FEM.FiniteElements;
 using GPC.Model.LoadCases;
 using MathNet.Numerics.LinearAlgebra;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Runtime.Serialization;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace GPC.Model.Results
 {
+
     [Serializable]
-    public sealed class ResultPlateStress : Result, IEquatable<ResultPlateStress>, ISerializable
+    public sealed class ResultStress : ResultType, IEquatable<ResultStress>, ISerializable, IPlateResult, IBrickResult
     {
         #region Variables
 
@@ -29,14 +32,14 @@ namespace GPC.Model.Results
 
         // questa variabile serve per sapere se gli stress principali sono stati calcolati, in modo da evitare di calcolari due volte. 
         // Confrotando i valori non è giusto perchè potrebbero essere zero. Lo svantaggio è che non so se sono stati calcolati con il metodo preciso o approssimato.
-        private bool _principalStressCalculated; 
+        private bool _principalStressCalculated;
 
         private double _s11;
         private double _s22;
         private double _s33;
 
-        
-        private bool _vonMisesStressCalculated; 
+
+        private bool _vonMisesStressCalculated;
         private double _vM;
 
         #endregion
@@ -94,28 +97,22 @@ namespace GPC.Model.Results
                 return _vM;
             }
         }
-        
-        
+
+
         #endregion
 
 
         #region Public Constructors
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="element">Element where these result are referred </param>
-        /// <param name="Case">The case where these results are reffered </param>
-        /// <param name="coordinateSystem">Coordinate system where these result are provided</param>
-        /// <param name="resultPoint">Stress point where these results are provided</param>
+        /// <param name="coordinateSystem"></param>
         /// <param name="sxx">Stress on <see cref="CoordinateSystem.V1"/> side of the plate along <see cref="CoordinateSystem.V1"/> direction</param>
         /// <param name="syy">Stress on <see cref="CoordinateSystem.V2"/> side of the plate along <see cref="CoordinateSystem.V2"/> direction</param>
         /// <param name="sxy">Stress on <see cref="CoordinateSystem.V1"/> side of the plate along <see cref="CoordinateSystem.V2"/> direction</param>
         /// <param name="sxz">Stress on <see cref="CoordinateSystem.V1"/> side of the plate along <see cref="CoordinateSystem.V3"/> direction</param>
         /// <param name="syz">Stress on <see cref="CoordinateSystem.V2"/> side of the plate along <see cref="CoordinateSystem.V3"/> direction</param>
         /// <remarks> _szz is set to zero by default </remarks>
-        public ResultPlateStress(Plate element, ILoadCase Case, ResultStressPoint resultPoint, CoordinateSystem coordinateSystem, double sxx, double syy, double sxy, double sxz, double syz) 
-            : base(element, Case, resultPoint, coordinateSystem)
+        public ResultStress(CoordinateSystem coordinateSystem, double sxx, double syy, double sxy, double sxz, double syz)
+            : base(coordinateSystem)
         {
             _sxx = sxx;
             _syy = syy;
@@ -134,9 +131,9 @@ namespace GPC.Model.Results
         /// <summary>
         /// Calculate the Principal stresses
         /// <para>This method use an approximate solution.</para>
-        /// <para>If <see cref="ResultPlateStress.Sxx"/>, <see cref="ResultPlateStress.Sxx"/>, <see cref="ResultPlateStress.Sxz"/> and <see cref="ResultPlateStress.Syz"/> are relavant then the 
+        /// <para>If <see cref="Sxx"/>, <see cref="Sxx"/>, <see cref="Sxz"/> and <see cref="Syz"/> are relavant then the 
         /// <seealso cref="CalculatePrincipalStressFullMethod"/> must be used</para>
-        /// <para>If <see cref="ResultPlateStress.Sxz"/> and <see cref="ResultPlateStress.Syz"/> are 0. This method gives the exact solution</para>
+        /// <para>If <see cref="Sxz"/> and <see cref="Syz"/> are 0. This method gives the exact solution</para>
         /// </summary>
         public void CalculatePrincipalStressSimplifiedMethod()
         {
@@ -190,9 +187,9 @@ namespace GPC.Model.Results
             double svm;
 
             if (S33 == 0)
-                svm = Math.Sqrt(Math.Pow(S11, 2.0) + Math.Pow(S22, 2.0) - (S22 * S11) );
+                svm = Math.Sqrt(Math.Pow(S11, 2.0) + Math.Pow(S22, 2.0) - (S22 * S11));
             else
-                svm = Math.Sqrt(0.5*(Math.Pow(S11 - S22, 2.0) + Math.Pow(S22 - S33, 2.0) + Math.Pow(S33 - S11, 2.0)));
+                svm = Math.Sqrt(0.5 * (Math.Pow(S11 - S22, 2.0) + Math.Pow(S22 - S33, 2.0) + Math.Pow(S33 - S11, 2.0)));
 
             _vonMisesStressCalculated = true;
             return svm;
@@ -204,7 +201,7 @@ namespace GPC.Model.Results
         /// <returns>Array of stress</returns>
         public double[] GetGlobalStress()
         {
-            Vector3d SigmaResult = new Vector3d(_sxx, _syy, 0 );
+            Vector3d SigmaResult = new Vector3d(_sxx, _syy, 0);
             Vector3d GlobalSigmaResult = _coordinateSystem.ToGlobal(SigmaResult);
 
             Vector3d TauResult = new Vector3d(0, 0, _sxy);
@@ -226,32 +223,9 @@ namespace GPC.Model.Results
 
         #endregion
 
-        #region Public method - Get attributes
-
-
-        public Plate GetPlate()
-        {
-            return (Plate)Element;
-        }
-
-
-        public override int GetElementId()
-        {
-            return Element.Id;
-        }
-
-
-        public override int GetResultPointId()
-        {
-            return ResultPoint.Id;
-        }
-
-
-        #endregion
-
-
 
         #region Equals, hashcode, operators
+
         public override bool Equals(object obj)
         {
             if (obj is null)
@@ -260,10 +234,10 @@ namespace GPC.Model.Results
             if (ReferenceEquals(this, obj))
                 return true;
 
-            return Equals(obj as ResultPlateStress);
+            return Equals(obj as ResultStress);
         }
 
-        public bool Equals(ResultPlateStress other)
+        public bool Equals(ResultStress other)
         {
             if (other is null)
                 return false;
@@ -273,7 +247,8 @@ namespace GPC.Model.Results
 
             return !(other is null) && _sxx == other._sxx && _syy == other._syy
                                     && _szz == other._szz && _sxy == other._sxy
-                                    && _sxz == other._sxz && _syz == other._syz && base.Equals(other);
+                                    && _sxz == other._sxz && _syz == other._syz 
+                                    && base.Equals(other);
         }
 
         public override int GetHashCode()
@@ -298,10 +273,12 @@ namespace GPC.Model.Results
             throw new NotSupportedException();
         }
 
-        public static bool operator ==(ResultPlateStress obj1, ResultPlateStress obj2)
+        public static bool operator ==(ResultStress obj1, ResultStress obj2)
         {
-            if (obj1 is null || obj2 is null)
-                return false;
+            if (obj1 is null)
+            {
+                return obj2 is null;
+            }
 
             if (ReferenceEquals(obj1, obj2))
                 return true;
@@ -309,14 +286,12 @@ namespace GPC.Model.Results
             return obj1.Equals(obj2);
         }
 
-        public static bool operator !=(ResultPlateStress obj1, ResultPlateStress obj2)
+        public static bool operator !=(ResultStress obj1, ResultStress obj2)
         {
             return !(obj1 == obj2);
         }
 
 
         #endregion
-
-
     }
 }

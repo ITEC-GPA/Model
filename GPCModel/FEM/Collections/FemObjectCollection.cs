@@ -147,7 +147,7 @@ namespace GPC.Model.FEM.Collections
             }
         }
 
-        /// <param name="id">The <see cref="Elements.Element.Id"/> of the FemObject</param>
+        /// <param name="id">The <see cref="ModelObjectId.Id"/> of the FemObject</param>
         /// <returns><typeparamref name="T"/> with id equal to <paramref name="id"/></returns>
         /// <exception cref="KeyNotFoundException"> If collection does not contain a element with Id: <paramref name="id"/> </exception>
         /// <remarks>This is an O(n) operation</remarks>

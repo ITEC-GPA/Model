@@ -8,22 +8,21 @@ using GPC.Utilities.Extensions;
 namespace GPC.Model.FEM
 {
     [Serializable]
-    public abstract class FEMObject : Element, ISerializable
+    public abstract class FEMObject : ModelObjectId, ISerializable
     {
-        /// <remarks>
-        /// Public setter not available, in the same assembly you can use <see cref="SetId(int)"/> otherwise you can not set the id of a <see cref="FEMObject"/>
-        /// </remarks>
-        /// <exception cref="NotSupportedException"></exception>
-        public override int Id { get => base.Id; set => throw new NotSupportedException($"Public setter not available, use method {nameof(SetId)}"); }
+        ///// <remarks>
+        ///// Public setter not available, in the same assembly you can use <see cref="SetId(int)"/> otherwise you can not set the id of a <see cref="FEMObject"/>
+        ///// </remarks>
+        ///// <exception cref="NotSupportedException"></exception>
+        //public override int Id { get => base.Id; internal set => throw new NotSupportedException($"Public setter not available, use method {nameof(SetId)}"); }
 
-        public FEMObject() 
-            : this(string.Empty)
+        public FEMObject()
         {
 
         }
 
         public FEMObject(string name) 
-            : base(Guid.NewGuid(), name)
+            : base(name)
         {
 
         }
@@ -69,11 +68,13 @@ namespace GPC.Model.FEM
 
         public static bool operator ==(FEMObject obj1, FEMObject obj2)
         {
+            if (obj1 is null)
+            {
+                return obj2 is null;
+            }
+
             if (ReferenceEquals(obj1, obj2))
                 return true;
-
-            if (obj1 is null || obj2 is null)
-                return false;
 
             return obj1.Equals(obj2);
         }
@@ -86,7 +87,7 @@ namespace GPC.Model.FEM
         #endregion
 
         /// <summary>
-        /// Custom Equality comparer that compare two <see cref="FEMObject"/> adding also the <see cref="Element.Id"/> as an equality parameter
+        /// Custom Equality comparer that compare two <see cref="FEMObject"/> adding also the <see cref="ModelObjectId.Id"/> as an equality parameter
         /// </summary>
         public class FemObjectWithIdComparer : IEqualityComparer<FEMObject>
         {
@@ -110,19 +111,22 @@ namespace GPC.Model.FEM
 
             public int GetHashCode(FEMObject obj)
             {
-                int hashCode = -23 * -17 + base.GetHashCode();
+                unchecked
+                {
+                    int hashCode = -391 + base.GetHashCode();
 
-                hashCode = hashCode + obj.GetHashCode();
+                    hashCode += obj.GetHashCode();
 
-                hashCode = hashCode + obj.Id.GetHashCode();
+                    hashCode += obj.Id.GetHashCode();
 
-                return hashCode;
+                    return hashCode; 
+                }
             }
         }
 
 
         /// <summary>
-        /// Custom equality comparer that compare two <see cref="FEMObject"/> using only the <see cref="Element.Id"/> as an equality parameter
+        /// Custom equality comparer that compare two <see cref="FEMObject"/> using only the <see cref="ModelObjectId.Id"/> as an equality parameter
         /// </summary>
         public class FemObjectOnlyIdComparer : IEqualityComparer<FEMObject>
         {
@@ -142,11 +146,14 @@ namespace GPC.Model.FEM
 
             public int GetHashCode(FEMObject obj)
             {
-                int hashCode = -23 * -17 + base.GetHashCode();
+                unchecked
+                {
+                    int hashCode = -23 * -17 + base.GetHashCode();
 
-                hashCode = hashCode + obj.Id.GetHashCode();
+                    hashCode = hashCode + obj.Id.GetHashCode();
 
-                return hashCode;
+                    return hashCode; 
+                }
             }
         }
     }

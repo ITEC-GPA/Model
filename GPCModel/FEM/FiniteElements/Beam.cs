@@ -1,5 +1,6 @@
 ﻿
 using GPC.Model.FEM.Attributes;
+using GPC.Model.Results;
 
 namespace GPC.Model.FEM.FiniteElements
 {
@@ -52,5 +53,12 @@ namespace GPC.Model.FEM.FiniteElements
         {
             _attributesFreedomCase.Add((FreedomCaseAttribute)attribute);
         }
+
+
+        public void AddResult(BeamResult result)
+        {
+            base.AddResult(result);
+        }
+
     }
 }
