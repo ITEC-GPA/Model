@@ -89,7 +89,7 @@ namespace GPC.Model.FEM
 
         // STAGE
 
-        protected List<Stage> _stages;
+        protected ModelObjectSet<Stage> _stages;
 
         // MODELATTRIBUTES
 
@@ -100,11 +100,6 @@ namespace GPC.Model.FEM
 
 
         // RISULTATI
-
-        protected ModelObjectSet<ResultNodeDisplacement> _resultNodeDisplacements;
-
-        protected ModelObjectSet<ResultPlateStress> _resultPlateStress;
-
 
         protected AnalysisTypes _analysisType;
 
@@ -117,10 +112,6 @@ namespace GPC.Model.FEM
         public IEnumerable<Combination> Combinations => _combinations;
 
         public IEnumerable<LoadCaseBase> LoadCases => _loadCases;
-
-        public IEnumerable<ResultNodeDisplacement> ResultNodeDisplacements => _resultNodeDisplacements;
-
-        public IEnumerable<ResultPlateStress> ResultPlateStress => _resultPlateStress;
 
 
         #endregion
@@ -140,7 +131,7 @@ namespace GPC.Model.FEM
             _elements = new FemObjectCollection<FiniteElement>();
             _costrains = new FemObjectCollection<Costrain>();
 
-            _stages = new List<Stage>();
+            _stages = new ModelObjectSet<Stage>(new ModelObjectId.ModelObjectIdEqualityComparer()); // solo id come equality comparer
 
             _plateProperties = new UniqueNameCollection<PlateProperty>();
             _brickProperties = new UniqueNameCollection<BrickProperty>();
@@ -148,9 +139,6 @@ namespace GPC.Model.FEM
             _loadCases = new UniqueNameCollection<LoadCaseBase>();
             _freedomCases = new UniqueNameCollection<FreedomCase>();
             _combinations = new UniqueNameCollection<Combination>();
-                        
-            _resultPlateStress = new ModelObjectSet<ResultPlateStress>();
-            _resultNodeDisplacements = new ModelObjectSet<ResultNodeDisplacement>();
 
             _analysisType = AnalysisTypes.Linear;
 
@@ -449,12 +437,12 @@ namespace GPC.Model.FEM
         }
 
 
-        /// <param name="index"></param>
+        /// <param name="id"></param>
         /// <returns></returns>
         /// <inheritdoc cref="FemObjectCollection{T}.GetElementById(int)"/>
-        public virtual FiniteElement GetFiniteElement(int index)
+        public virtual FiniteElement GetFiniteElement(int id)
         {
-            return _elements[index];
+            return _elements[id];
         }
 
 
@@ -1330,63 +1318,18 @@ namespace GPC.Model.FEM
 
         #region Results
 
-        /// <param name="id"></param>
-        /// <remarks>This is a O(n) operation</remarks>
-        public ResultNodeDisplacement GetNodeDisplacementResult(int id)
+        /// <returns>The results related to <paramref name="combination"/></returns>
+        public IEnumerable<ResultDisplacement> GetCombinationNodeDisplacementResult(Combination combination)
         {
-            return _resultNodeDisplacements.Where(i => i.Element.Id == id).FirstOrDefault();
+            return _nodes.SelectMany(i => i.Results.Where(j => j.Case.Equals(combination) && j.Result is ResultDisplacement)).Cast<ResultDisplacement>();
         }
 
 
-        /// <param name="node"></param>
-        /// <remarks>This is a O(n) operation</remarks>
-        public ResultNodeDisplacement GetNodeDisplacementResult(Node node)
+        /// <returns>The results related to <paramref name="combination"/></returns>
+        public IEnumerable<ResultStress> GetCombinationPlateStressResult(Combination combination)
         {
-            return _resultNodeDisplacements.Where(i => i.Element == node).FirstOrDefault();
+            return _elements.SelectMany(i => i.Results.Where(j => j.Case.Equals(combination) && j.Results.First() is ResultStress)).Cast<ResultStress>();
         }
-
-        
-        /// <remarks>This is a O(n) operation</remarks>
-        public ResultPlateStress GetPlateStressResult(int id)
-        {
-            return _resultPlateStress.Where(i => i.Element.Id == id).FirstOrDefault();
-        }
-
-
-        /// <remarks>This is a O(n) operation</remarks>
-        public ResultPlateStress GetPlateStressResult(Node node)
-        {
-            return _resultPlateStress.Where(i => i.Element == node).FirstOrDefault();
-        }
-
-
-        /// <returns><see langword="null"/> if <paramref name="combination"/> is not contained in <see cref="Combinations"/> list </returns>
-        /// <remarks>This is a O(n) operation</remarks>
-        public IEnumerable<ResultNodeDisplacement> GetCombinationNodeDisplacementResult(Combination combination)
-        {
-
-            if (_combinations.Contains(combination))
-            {
-                return _resultNodeDisplacements.Where(i => (Combination)i.Case == combination);
-            }
-
-            return null;
-        }
-
-
-        /// <returns><see langword="null"/> if <paramref name="combination"/> is not contained in <see cref="Combinations"/> list </returns>
-        /// <remarks>This is a O(n) operation</remarks>
-        public IEnumerable<ResultPlateStress> GetCombinationPlateStressResult(Combination combination)
-        {
-
-            if (_combinations.Contains(combination))
-            {
-                return _resultPlateStress.Where(i => (Combination)i.Case == combination);
-            }
-
-            return null;
-        }
-
 
         #endregion
 

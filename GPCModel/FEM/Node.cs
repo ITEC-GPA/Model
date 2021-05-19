@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using GPC.Geometry;
 using GPC.Model.FEM.Attributes;
 using GPC.Utilities.Extensions;
+using GPC.Model.Results;
 
 namespace GPC.Model.FEM
 {
@@ -12,15 +13,18 @@ namespace GPC.Model.FEM
     public class Node : FEMObject
     {
         #region Variables
+
         private Point3d _position;
 
         private List<INodeLoadCaseAttribute> _attributesLoadCase;
         private List<INodeFreedomCaseAttribute> _attributesFreedomCase;
 
+        private readonly ModelObjectSet<NodeResult> _results;
 
         #endregion
 
         #region Properties
+
         public Point3d Position => _position;
         /// <summary>
         /// Contains the degree of freedom active for the node
@@ -45,16 +49,20 @@ namespace GPC.Model.FEM
 
         public List<INodeFreedomCaseAttribute> AttributesFreedomCase => _attributesFreedomCase;
         public List<INodeLoadCaseAttribute> AttributesLoadCase => _attributesLoadCase;
+        public IEnumerable<NodeResult> Results => _results;
+
         #endregion
 
         public Node(Point3d point, string name = "") : base(name)
         {
             _position = point;
             
-            DOF = new SortedSet<LinearSolver.DOF>();
+            DOF = new SortedSet<Solver.DOF>();
             
             _attributesLoadCase = new List<INodeLoadCaseAttribute>();
             _attributesFreedomCase = new List<INodeFreedomCaseAttribute>();
+
+            _results = new ModelObjectSet<NodeResult>(EqualityComparer<ElementResult>.Default); // comparer di ElementResult, usa solo il case come comparatore
         }
 
         public Node(double X, double Y, double Z, string label="") : this(new Point3d(X, Y, Z), label)
@@ -91,6 +99,12 @@ namespace GPC.Model.FEM
         public void AddAttribute(INodeLoadCaseAttribute attribute)
         {
             _attributesLoadCase.Add(attribute);
+        }
+
+        public void AddResult(NodeResult result)
+        {
+            if (result != null)
+                _results.Add(result);
         }
 
         public Node Duplicate()

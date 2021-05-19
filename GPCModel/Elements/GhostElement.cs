@@ -1,9 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Runtime.Serialization;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace GPC.Model.Elements
 {
@@ -13,39 +9,40 @@ namespace GPC.Model.Elements
     /// </summary>
     internal class GhostElement : Element
     {
-        public GhostElement(int id)
+        public GhostElement(int id) : base(id)
         {
-            Id = id;
+
         }
 
-        public GhostElement(int id, string name)
+        public GhostElement(int id, string name) : base(id, name, Guid.NewGuid())
         {
-            Id = id;
-            this._name = name;
+
         }
 
 
         public GhostElement(Guid guid) : base(guid)
         {
+
         }
 
-        public GhostElement(Guid guid, string name, int id) : base(guid, name)
+        public GhostElement(Guid guid, string name, int id) : base(id, name, guid)
         {
-            Id = id;
+
         }
 
         public GhostElement(SerializationInfo info, StreamingContext context) : base(info, context)
         {
+
         }
 
         public override bool Equals(object obj)
         {
-            return obj is GhostElement element && base.Equals(obj);
+            return obj is GhostElement element && base.Equals(element);
         }
 
         public override int GetHashCode()
         {
-            return 624022166 + base.GetHashCode();
+            return base.GetHashCode();
         }
 
         public override void GetObjectData(SerializationInfo info, StreamingContext context)

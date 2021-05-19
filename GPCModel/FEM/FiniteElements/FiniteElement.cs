@@ -4,6 +4,7 @@ using System;
 using GPC.Geometry;
 using GPC.Model.FEM.Properties;
 using GPC.Model.FEM.Attributes;
+using GPC.Model.Results;
 using mnl = MathNet.Numerics.LinearAlgebra;
 
 namespace GPC.Model.FEM.FiniteElements
@@ -14,6 +15,7 @@ namespace GPC.Model.FEM.FiniteElements
     public abstract class FiniteElement : FEMObject
     {
         #region Variables
+
         //define the local axis of the element
         protected CoordinateSystem _localCoordinateSystem;
         //contains the degree of fredom active foreach node in global coordinates
@@ -32,6 +34,9 @@ namespace GPC.Model.FEM.FiniteElements
 
         //contains the nodes in global coordinates
         protected Node[] _nodesGlobal;
+
+
+        protected readonly ModelObjectSet<FiniteElementResult> _results;
 
         #endregion
 
@@ -91,12 +96,12 @@ namespace GPC.Model.FEM.FiniteElements
         
         public List<LoadCaseAttribute> AttributesLoadCase => _attributesLoadCase;
         public List<FreedomCaseAttribute> AttributesFreedomCase => _attributesFreedomCase;
+        public IEnumerable<FiniteElementResult> Results => _results;
+
         #endregion
 
         #region Constructor
-        /// <summary>
-        ///  
-        /// </summary>
+
         /// <param name="nodes">Nodes of the element</param>
         internal FiniteElement(Node[] nodes) : base()
         {
@@ -104,7 +109,10 @@ namespace GPC.Model.FEM.FiniteElements
             _DOF = new SortedSet<Solver.DOF>();
             _attributesLoadCase = new List<LoadCaseAttribute>();
             _attributesFreedomCase = new List<FreedomCaseAttribute>();
+
+            _results = new ModelObjectSet<FiniteElementResult>(EqualityComparer<ElementResult>.Default); // comparer di ElementResult, usa solo il case come comparatore
         }
+
         #endregion
 
         #region PublicFunction
@@ -147,6 +155,12 @@ namespace GPC.Model.FEM.FiniteElements
         public void GetNodesResults(double[] globalDisplacementsNodes, out mnl.Matrix<double>[] gloabalPseudoDeformation, out mnl.Matrix<double>[] localPseudoDeformation, out mnl.Matrix<double>[] globalForces, out mnl.Matrix<double>[] localForces, out mnl.Matrix<double>[] globalStress, out mnl.Matrix<double>[] localStress, out mnl.Matrix<double>[] globalEpsilon, out mnl.Matrix<double>[] localEpsilon)
         {
             throw new Exception("ottimizzare questa funzione");
+        }
+
+        public void AddResult(FiniteElementResult result)
+        {
+            if (result != null)
+                _results.Add(result);
         }
 
         #region GetInternalForces
@@ -195,7 +209,7 @@ namespace GPC.Model.FEM.FiniteElements
         /// <summary>
         /// 
         /// </summary>
-        /// <returns>An array of <see cref="FEMObject.Id"/>of the element Nodes</returns>
+        /// <returns>An array of <see cref="ModelObjectId.Id"/>of the element Nodes</returns>
         public int[] GetNodesID()
         {
             return Nodes.Select(i => i.Id).ToArray();
