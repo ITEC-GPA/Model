@@ -29,16 +29,16 @@ namespace GPC.Model.Elements.Glasses
             this._shape = shape;
         }
 
-        public GlassSurface(Shape shape, Guid guid)
-            : base(guid)
+        public GlassSurface(Shape shape, int id)
+            : this(shape, id, Guid.NewGuid())
         {
-            this._shape = shape;
+
         }
 
         public GlassSurface(Shape shape, int id, Guid guid)
-            : base(guid)
+            : base(id, guid)
         {
-            this._shape = shape;
+            _shape = shape;
         }
 
 

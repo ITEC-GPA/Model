@@ -30,6 +30,12 @@ namespace GPC.Model.Elements
 
         }
 
+        protected Element(int id, Guid guid)
+            : this(id, "", guid)
+        {
+
+        }
+
         protected Element(int id, string name, Guid guid)
             : base(id, name, guid)
         {
