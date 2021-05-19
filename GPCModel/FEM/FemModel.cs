@@ -276,10 +276,6 @@ namespace GPC.Model.FEM
         /// <summary>
         /// Add a stage to the stage list. The stage will empty (without elements and nodes)
         /// </summary>
-        /// <param name="name"></param>
-        /// <param name="analysisType"></param>
-        /// <param name="morph"></param>
-        /// <returns></returns>
         public virtual Stage AddStage(string name, AnalysisTypes analysisType, bool morph = false)
         {
             Stage stage = new Stage(name, this, analysisType, morph, null);
@@ -288,9 +284,8 @@ namespace GPC.Model.FEM
         }
 
         /// <summary>
-        /// Add a stage the to the stage list. This stage will the clone of stage with <see cref="Stage.Id"/> equal to <paramref name="stageId"/>"/>
+        /// Add a stage the to the stage list. This stage will the clone of stage with <see cref="ModelObjectId.Id"/> equal to <paramref name="stageId"/>"/>
         /// </summary>
-        /// <param name="stageId"></param>
         /// <exception cref="ArgumentException">If stage with id equals to <paramref name="stageId"/> does not exist</exception>
         public virtual Stage AddStage(int stageId)
         {

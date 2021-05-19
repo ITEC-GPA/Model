@@ -55,7 +55,7 @@ namespace GPC.Model.FEM
         #endregion 
 
         internal Stage(string name, FemModel referenceFemModel, FemModel.AnalysisTypes analysisType, bool morph, UniqueNameCollection<Combination> combinations)
-            : base(_maxId++, name)
+            : base(++_maxId, name)
         {
             // Il costruttore è internal in modo che sia solamente la classe fem model a poter creare l'istanza di stage.
             

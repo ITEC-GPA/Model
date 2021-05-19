@@ -1,7 +1,5 @@
 ﻿using GPC.Geometry;
-using GPC.Model.LoadCases;
 using System;
-using System.Collections.Generic;
 using System.Runtime.Serialization;
 
 namespace GPC.Model.Results
@@ -9,24 +7,17 @@ namespace GPC.Model.Results
     [Serializable]
     public abstract class ResultType : ModelObject, ISerializable
     {
-
         protected readonly CoordinateSystem _coordinateSystem;
-
 
         protected ResultType(CoordinateSystem coordinateSystem) : base()
         {
             _coordinateSystem = coordinateSystem ?? throw new ArgumentNullException(nameof(coordinateSystem));
         }
 
-
         protected ResultType(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
-
         }
-
-
-
 
         public override bool Equals(object obj)
         {
@@ -58,12 +49,9 @@ namespace GPC.Model.Results
             return obj1.Equals(obj2);
         }
 
-
         public static bool operator !=(ResultType obj1, ResultType obj2)
         {
             return !(obj1 == obj2);
         }
-
-
     }
 }

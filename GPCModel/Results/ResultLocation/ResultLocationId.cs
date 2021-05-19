@@ -8,10 +8,12 @@ namespace GPC.Model.Results
     {
         public ResultLocationId(int id) : this(id, "")
         {
+
         }
 
         public ResultLocationId(int id, string name) : base(id, name)
         {
+
         }
 
         public ResultLocationId(SerializationInfo info, StreamingContext context)
