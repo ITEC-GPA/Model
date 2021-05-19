@@ -93,33 +93,34 @@ namespace FemTest.SolverTest
             nodesPlate1[3].AddAttribute(fix);
 
             LinearSolver solver = new LinearSolver(new FiniteElement[] { e0 });
-        }
 
-        [TestMethod]
-        public void EquivalentNodalForceTest2()
-        {
-            Node[] nodesPlate1 = new Node[4];
-            nodesPlate1[0] = new Node(0.0, 0.0, 0, "1");
-            nodesPlate1[1] = new Node(2.0, 0.0, 0, "2");
-            nodesPlate1[2] = new Node(2.0, 4.0, 0, "3");
-            nodesPlate1[3] = new Node(0.0, 4.0, 0, "4");
+            Assert.AreEqual(0.0, solver.F[0], 1e-4);
+            Assert.AreEqual(0.0, solver.F[1], 1e-4);
+            Assert.AreEqual(1.0, solver.F[2], 1e-4);
+            Assert.AreEqual(1.0 / 3.0, solver.F[3], 1e-4);
+            Assert.AreEqual(-1.0 / 3.0, solver.F[4], 1e-4);
+            Assert.AreEqual(1.0 / 9.0, solver.F[5], 1e-4);
 
-            //general values §6 of article
-            double G0 = 0.5173;
-            double h0 = 0.38;
-            double h1 = 2.875;
-            double h2 = 2.875;
-            double EGlass = 72000.0;
-            double niGlass = 0.23;
-            Quad4TripleLaminatedGlass e0 = new Quad4TripleLaminatedGlass(nodesPlate1, G0, h0, h1, h2, EGlass, niGlass);
+            Assert.AreEqual(0.0, solver.F[6], 1e-4);
+            Assert.AreEqual(0.0, solver.F[7], 1e-4);
+            Assert.AreEqual(1.0, solver.F[8], 1e-4);
+            Assert.AreEqual(1.0 / 3.0, solver.F[9], 1e-4);
+            Assert.AreEqual(1.0 / 3.0, solver.F[10], 1e-4);
+            Assert.AreEqual(-1.0 / 9.0, solver.F[11], 1e-4);
 
-            LoadCaseBase lc = new LoadCaseBase("lc");
-            CoordinateSystem csys = new CoordinateSystem(new Vector3d(0, 0, 0), new Vector3d(1, 0, 0), new Vector3d(0, 1, 0));
-            PlatePressureAttribute p = new PlatePressureAttribute("lc", csys, 0, 0, 1);
+            Assert.AreEqual(0.0, solver.F[12], 1e-4);
+            Assert.AreEqual(0.0, solver.F[13], 1e-4);
+            Assert.AreEqual(1.0, solver.F[14], 1e-4);
+            Assert.AreEqual(-1.0 / 3.0, solver.F[15], 1e-4);
+            Assert.AreEqual(1.0 / 3.0, solver.F[16], 1e-4);
+            Assert.AreEqual(1.0 / 9.0, solver.F[17], 1e-4);
 
-            e0.AddLoadCaseAttribute(p);
-
-            LinearSolver solver = new LinearSolver(new FiniteElement[] { e0 });
+            Assert.AreEqual(0.0, solver.F[18], 1e-4);
+            Assert.AreEqual(0.0, solver.F[19], 1e-4);
+            Assert.AreEqual(1.0, solver.F[20], 1e-4);
+            Assert.AreEqual(-1.0 / 3.0, solver.F[21], 1e-4);
+            Assert.AreEqual(-1.0 / 3.0, solver.F[22], 1e-4);
+            Assert.AreEqual(-1.0 / 9.0, solver.F[23], 1e-4);
         }
 
         [TestMethod]
@@ -29663,13 +29664,14 @@ namespace FemTest.SolverTest
         }
 
         [TestMethod]
+        ///Traslation and stretch
         public void QuadrilateralTest1()
         {
             List<Node> nodes = new List<Node>();
-            nodes.Add(new Node(5, 5, 0)); //0
-            nodes.Add(new Node(10, 5, 0)); //1
-            nodes.Add(new Node(10, 20, 0)); //2
-            nodes.Add(new Node(5, 20, 0)); //3
+            nodes.Add(new Node(0, 0, 0)); //0
+            nodes.Add(new Node(5, 0, 0)); //1
+            nodes.Add(new Node(5, 10, 0)); //2
+            nodes.Add(new Node(0, 10, 0)); //3
 
             nodes.Add(new Node(-1, -1, 0)); //4
             nodes.Add(new Node(1, -1, 0)); //5
@@ -29777,10 +29779,35 @@ namespace FemTest.SolverTest
             nodes.Add(new Node(2, 2, 0));
             nodes.Add(new Node(0, 2, 0));
 
-            nodes.Add(new Node(0, 0, 0));
+            //0.1 deg
+            /*nodes.Add(new Node(0, 0, 0));
+            nodes.Add(new Node(2, 0.003491, 0));
+            nodes.Add(new Node(1.99651, 2.00349, 0));
+            nodes.Add(new Node(-0.003491, 2, 0));*/
+
+            //20 deg
+            /*nodes.Add(new Node(0, 0, 0));
             nodes.Add(new Node(1.8794, 0.68404, 0));
             nodes.Add(new Node(1.1953, 2.56343, 0));
-            nodes.Add(new Node(-0.68404, 1.87939, 0));
+            nodes.Add(new Node(-0.68404, 1.87939, 0));*/
+
+            //45 deg
+            /*nodes.Add(new Node(0, 0, 0));
+            nodes.Add(new Node(1.41421, 1.41421, 0));
+            nodes.Add(new Node(0, 2.82843, 0));
+            nodes.Add(new Node(-1.41421, 1.41421, 0));*/
+
+            //90 deg
+            /*nodes.Add(new Node(0, 0, 0));
+            nodes.Add(new Node(0, 2, 0));
+            nodes.Add(new Node(-2, 2, 0));
+            nodes.Add(new Node(-2, 0, 0));*/
+
+            //180 deg
+            nodes.Add(new Node(0, 0, 0));
+            nodes.Add(new Node(-2, 0, 0));
+            nodes.Add(new Node(-2, -2, 0));
+            nodes.Add(new Node(0, -2, 0));
             #endregion
 
             #region plates
@@ -29816,6 +29843,8 @@ namespace FemTest.SolverTest
 
             LinearSolver fem = new LinearSolver(els.ToArray());
             LinearSolver fem2 = new LinearSolver(els2.ToArray());
+
+            Assert.AreEqual(fem.GetDisplacementGlobalCoordinates(nodes[1], Solver.DOF.DZ), fem2.GetDisplacementGlobalCoordinates(nodes[5], Solver.DOF.DZ), 1e-3);
         }
 
         [TestMethod]

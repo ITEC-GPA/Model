@@ -444,7 +444,7 @@ namespace GPC.Model.FEM.FiniteElements
 
         #region PublicStaticFunction
         /// <summary>
-        /// out Local Node in counterclockwise, origin set in the first node of the element
+        /// out Local Node in counterclockwise, origin set in the first node of the element and x set from Origin(node1) to node2
         /// </summary>
         /// <returns></returns>
         public static Node[] GetLocalNodes(Node[] globalNodes, out CoordinateSystem cSys)
