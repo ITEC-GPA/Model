@@ -65,40 +65,5 @@ namespace GPC.Model.Results
         }
 
 
-
-
-        ///// <summary>
-        ///// Compare two <see cref="Result"/> using only <see cref="Result.Case"/> as equality parameter
-        ///// </summary>
-        //public class LoadCaseResultComparer<T> : IEqualityComparer<T> where T : Result
-        //{
-            
-        //    /// <returns> 
-        //    /// <para> true if both <paramref name="x"/> and <paramref name="y"/> are null </para>
-        //    /// </returns>
-        //    /// <remarks> Only <see cref="Result.Case"/> is used as equality parameter </remarks>
-        //    public bool Equals(T x, T y)
-        //    {
-        //        if (ReferenceEquals(x, y))
-        //            return true;
-
-        //        if (x == null && y == null)
-        //            return true;
-
-        //        if (x == null || y == null)
-        //            return false;
-
-        //        return x.Case.Equals(y.Case);
-        //    }
-
-
-        //    /// <remarks> Only <see cref="Result.Case"/> is used as equality parameter </remarks>
-        //    public int GetHashCode(T obj)
-        //    {
-        //        return 17 * obj.Case.GetHashCode();
-        //    }
-
-        //}
-
     }
 }

@@ -18,6 +18,7 @@ using GPC.Model.Results;
 using System.Diagnostics;
 using System.Linq;
 using GPC.TestUtilities;
+using GPC.Model.FEM.Collections;
 
 namespace FemTest
 {
@@ -477,8 +478,10 @@ namespace FemTest
 
             plate.AddResult(new PlateResult(new LoadCase("lc", LoadCase.LoadCaseTypes.SelfWeight), CoordinateSystem.Global, res, points));
 
-            Assert.IsTrue(((LoadCase)femModel.GetFiniteElement(1).Result.ToList()[0].Case).Name == "lc");
+            Assert.IsTrue(((LoadCase)femModel.GetFiniteElement(1).Results.ToList()[0].Case).Name == "lc");
         }
+
+
         #endregion
 
     }

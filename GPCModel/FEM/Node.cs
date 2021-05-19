@@ -24,6 +24,7 @@ namespace GPC.Model.FEM
         #endregion
 
         #region Properties
+
         public Point3d Position => _position;
         /// <summary>
         /// Contains the degree of freedom active for the node
@@ -48,7 +49,7 @@ namespace GPC.Model.FEM
 
         public List<INodeFreedomCaseAttribute> AttributesFreedomCase => _attributesFreedomCase;
         public List<INodeLoadCaseAttribute> AttributesLoadCase => _attributesLoadCase;
-        public ModelObjectSet<NodeResult> Result => _results;
+        public IEnumerable<NodeResult> Results => _results;
 
         #endregion
 

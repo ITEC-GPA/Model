@@ -114,7 +114,6 @@ namespace GPC.Model.FEM
         public IEnumerable<LoadCaseBase> LoadCases => _loadCases;
 
 
-
         #endregion
 
         #region Constructors
@@ -1317,6 +1316,22 @@ namespace GPC.Model.FEM
 
         #endregion
 
+        #region
+
+        /// <returns>The results related to <paramref name="combination"/></returns>
+        public IEnumerable<ResultDisplacement> GetCombinationNodeDisplacementResult(Combination combination)
+        {
+            return _nodes.SelectMany(i => i.Results.Where(j => j.Case.Equals(combination) && j.Result is ResultDisplacement)).Cast<ResultDisplacement>();
+        }
+
+
+        /// <returns>The results related to <paramref name="combination"/></returns>
+        public IEnumerable<ResultStress> GetCombinationPlateStressResult(Combination combination)
+        {
+            return _elements.SelectMany(i => i.Results.Where(j => j.Case.Equals(combination) && j.Results.First() is ResultStress)).Cast<ResultStress>();
+        }
+
+        #endregion
 
         #endregion
 

@@ -96,7 +96,7 @@ namespace GPC.Model.FEM.FiniteElements
         
         public List<LoadCaseAttribute> AttributesLoadCase => _attributesLoadCase;
         public List<FreedomCaseAttribute> AttributesFreedomCase => _attributesFreedomCase;
-        public ModelObjectSet<FiniteElementResult> Result => _results;
+        public IEnumerable<FiniteElementResult> Results => _results;
 
         #endregion
 

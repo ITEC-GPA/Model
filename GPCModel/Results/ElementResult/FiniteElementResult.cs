@@ -4,8 +4,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace GPC.Model.Results
 {
@@ -31,12 +29,11 @@ namespace GPC.Model.Results
                 throw new ArgumentException("Multiple result type");
 
             if (points.Select(i => i.GetType()).Distinct().Count() > 1)
-                throw new ArgumentException("Multiple result type");
+                throw new ArgumentException("Multiple location point type");
 
 
             _results = result;
             _points = points;
-
         }
 
 
