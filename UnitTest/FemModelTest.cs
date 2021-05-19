@@ -213,10 +213,11 @@ namespace FemTest
 
             BrickProperty bp = new BrickProperty(gm.GetIsotropicFemMaterial(), "bp1");
 
-            List<Load> loads = new List<Load>();
-
-            loads.Add(new PointLoad(1, 2, 3, 4, 5, 6, Point3d.Origin, new LoadCaseBase("lc1")));
-            loads.Add(new LineLoad(1, 2, 3, 4, 5, 6, new Line3d(new Point3d(50, 50, 0), new Point3d(100, 100, 0)), new LoadCaseBase("lc2")));
+            List<Load> loads = new List<Load>
+            {
+                new PointLoad(1, 2, 3, 4, 5, 6, Point3d.Origin, new LoadCaseBase("lc1")),
+                new LineLoad(1, 2, 3, 4, 5, 6, new Line3d(new Point3d(50, 50, 0), new Point3d(100, 100, 0)), new LoadCaseBase("lc2"))
+            };
 
             List<GeometryRestrain> restrains = new List<GeometryRestrain>();
             restrains.Add(new PointRestrain(Point3d.Origin, new FreedomCase("fc1"), CoordinateSystem.Global, new List<DofRestrain> { new DofRestrain(LinearSolver.DOF.DX) }));
@@ -227,8 +228,11 @@ namespace FemTest
             FemModel femModel = new FemModel();
             femModel.AddProperty(pp);
             femModel.AddProperty(bp);
-            Mesh.GenerateOptions meshOptions = new Mesh.GenerateOptions();
-            meshOptions.MeshSize = 10;
+
+            Mesh.GenerateOptions meshOptions = new Mesh.GenerateOptions
+            {
+                MeshSize = 10
+            };
 
             femModel.AddShape(s, pp.Name, meshOptions, loads, restrains);
 
