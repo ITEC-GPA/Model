@@ -6,6 +6,7 @@ using GPC.Model.FreedomCases;
 using GPC.Model.LoadCases;
 using GPC.Model.Materials;
 using GPC.Model.Sections;
+using GPC.Model.Sections.Steel;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Generic;
@@ -16,6 +17,7 @@ namespace FemTest.SolverTest {
     [TestClass]
     public class BeamTest {
 
+        /*
         /// <summary>
         /// Sforzo Assiale su trave incastro - libero - direzione +X
         /// </summary>
@@ -2889,7 +2891,7 @@ namespace FemTest.SolverTest {
             
             /*double F = 10.0;
             NodeForceAttribute f = new NodeForceAttribute("lc", sys, 0, F, F, 0, 0, 0);
-            nds[1].AddAttribute(f);*/
+            nds[1].AddAttribute(f);
 
             BeamDistribuitedLoadAttribute q = new BeamDistribuitedLoadAttribute("lc", 0.0, 1.0, 1.0);
 
@@ -2944,13 +2946,13 @@ namespace FemTest.SolverTest {
 
             /*beams[1].AddEndRelease(Beam.EndSide.End2, new Beam.LocalDOF[] {
                 Beam.LocalDOF.R2,
-                Beam.LocalDOF.R3 }, "fc", "releaseName");*/
+                Beam.LocalDOF.R3 }, "fc", "releaseName");
 
             CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
 
-            /*double F = 10.0;
+            double F = 10.0;
             NodeForceAttribute f = new NodeForceAttribute("lc", sys, 0, F, F, 0, 0, 0);
-            nds[1].AddAttribute(f);*/
+            nds[1].AddAttribute(f);
 
             BeamDistribuitedLoadAttribute q = new BeamDistribuitedLoadAttribute("lc", 0.0, 1.0, 1.0);
 
@@ -3006,13 +3008,13 @@ namespace FemTest.SolverTest {
 
             /*beams[1].AddEndRelease(Beam.EndSide.End2, new Beam.LocalDOF[] {
                 Beam.LocalDOF.R2,
-                Beam.LocalDOF.R3 }, "fc", "releaseName");*/
+                Beam.LocalDOF.R3 }, "fc", "releaseName");
 
             CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
 
-            /*double F = 10.0;
+            double F = 10.0;
             NodeForceAttribute f = new NodeForceAttribute("lc", sys, 0, F, F, 0, 0, 0);
-            nds[1].AddAttribute(f);*/
+            nds[1].AddAttribute(f);
 
             BeamDistribuitedLoadAttribute q = new BeamDistribuitedLoadAttribute("lc", 0.0, 1.0, 1.0);
 
@@ -3034,5 +3036,7 @@ namespace FemTest.SolverTest {
             Assert.AreEqual(3395.3054, fem.GetBeamDisplacementInGlobalCoordinates(beams[1], beams[1].L / 2.0, DOF.DY), 0.01);
             Assert.AreEqual(3395.3054, fem.GetBeamDisplacementInGlobalCoordinates(beams[1], beams[1].L / 2.0, DOF.DZ), 0.01);
         }
+            */
     }
+    
 }

@@ -17,8 +17,6 @@ namespace GPC.Model.Sections
         double _lVert;
         double _tVert;
 
-        double _jxy = 0;
-
         #endregion
 
 
@@ -31,8 +29,6 @@ namespace GPC.Model.Sections
         public double LVert => _lVert;
 
         public double TVert => _tVert;
-
-        public double Jxy => _jxy;
 
         #endregion
 
@@ -58,9 +54,24 @@ namespace GPC.Model.Sections
 
         #region Public method
 
+        public double CalculateWel11Min()
+        {
+            return Math.Min(CalculateWel11Left(), CalculateWel11Right());
+        }
+
+        public double CalculateWel22Min()
+        {
+            return Math.Min(CalculateWel22Bottom(), CalculateWel22Top());
+        }
+
+        public double CalculateJxy()
+        {
+            return 0;
+        }
+
         public double CalculateAngle()
         {
-            double angle = -1.0 / 2.0 * Math.Atan(2.0 * _jxy / (_jyy - _jxx));
+            double angle = -1.0 / 2.0 * Math.Atan(2.0 * CalculateJxy() / (_jyy - _jxx));
 
             if (_jyy < _jxx)            
                 angle = angle + Math.PI / 2.0;
@@ -70,13 +81,73 @@ namespace GPC.Model.Sections
 
         public double CalculateJ11()
         {
-            return (_jxx + _jyy) / 2.0 - 0.5 * Math.Sqrt(Math.Pow(_jxx - _jyy, 2.0) + 4.0 * _jxy * _jxy);
+            return (_jxx + _jyy) / 2.0 - 0.5 * Math.Sqrt(Math.Pow(_jxx - _jyy, 2.0) + 4.0 * CalculateJxy() * CalculateJxy());
         }
 
         public double CalculateJ22()
         {
-            return (_jxx + _jyy) / 2.0 + 0.5 * Math.Sqrt(Math.Pow(_jxx - _jyy, 2.0) + 4.0 * _jxy * _jxy);
+            return (_jxx + _jyy) / 2.0 + 0.5 * Math.Sqrt(Math.Pow(_jxx - _jyy, 2.0) + 4.0 * CalculateJxy() * CalculateJxy());
         }
+
+        public double CalculateWel11Left()
+        {
+            FivePointsCheck(out double minX, out double _, out double _, out double _);
+            return _jxx / Math.Abs(minX);
+        }
+
+        public double CalculateWel11Right()
+        {
+            FivePointsCheck(out double _, out double maxX, out double _, out double _);
+            return _jxx / Math.Abs(maxX);
+        }
+
+        public double CalculateWel22Bottom()
+        {
+            FivePointsCheck(out double _, out double _, out double minY, out double _);
+            return _jyy / Math.Abs(minY);
+        }
+
+        public double CalculateWel22Top()
+        {
+            FivePointsCheck(out double _, out double _, out double _, out double maxY);
+            return _jyy / Math.Abs(maxY);
+        }
+
+        private void FivePointsCheck(out double minX, out double maxX, out double minY, out double maxY)
+        {
+            //check 5 points
+            //traslation
+            Point2d[] pts = new Point2d[5];
+            pts[0] = new Point2d(-CalculateCentroid().X, -CalculateCentroid().Y);
+            pts[1] = new Point2d(LHor - CalculateCentroid().X, -CalculateCentroid().Y);
+            pts[2] = new Point2d(LHor - CalculateCentroid().X, THor - CalculateCentroid().Y);
+            pts[3] = new Point2d(TVert - CalculateCentroid().X, LVert - CalculateCentroid().Y);
+            pts[4] = new Point2d(-CalculateCentroid().X, LVert - CalculateCentroid().Y);
+
+            //rotation
+            minX = 0;
+            maxX = 0;
+            minY = 0;
+            maxY = 0;
+            for (int i = 0; i < 5; i++)
+            {
+                double x = pts[i].X;
+                double y = pts[i].Y;
+                double newX = x * Math.Cos(AngleX1) + y * Math.Sin(AngleX1);
+                double newY = -x * Math.Sin(AngleX1) + y * Math.Cos(AngleX1);
+                pts[i] = new Point2d(newX, newY);
+
+                minX = Math.Min(minX, pts[i].X);
+                maxX = Math.Max(maxX, pts[i].X);
+                minY = Math.Min(minY, pts[i].Y);
+                maxY = Math.Max(maxY, pts[i].Y);
+            }
+        }
+
+        #endregion
+
+
+        #region Public override method
 
         public override double CalculateJw()
         {

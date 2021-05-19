@@ -24,7 +24,7 @@ namespace GPC.Model.Sections
 
         #region Properties
 
-        public double Height => _h;
+        public double H => _h;
 
         public double LenghtBottomFlange => _bbottom;
 
@@ -36,11 +36,11 @@ namespace GPC.Model.Sections
 
         public double ThicknessWeb => _tw;
 
-        public double HeightWeb => _h - _ttop - _btop;
+        public double HeightWeb => H - ThicknessBottomFlange - ThicknessTopFlange;
 
-        public bool IsSymmetricAlongZLocalAxis => true;
+        public new bool IsSymmetricAlongZLocalAxis => true;
 
-        public bool IsSymmetricAlongYLocalAxis => _btop == _bbottom && _tbottom == _ttop;
+        public new bool IsSymmetricAlongYLocalAxis => _btop == _bbottom && _tbottom == _ttop;
 
         #endregion
 
@@ -70,6 +70,86 @@ namespace GPC.Model.Sections
 
         #endregion
 
+        public double CalculateWelyMin()
+        {
+            return Math.Min(CalculateWelyBottom(), CalculateWelyTop());
+        }
+
+        public double CalculateWelxMin()
+        {
+            return Math.Min(CalculateWelxBottom(), CalculateWelxTop());
+        }
+
+        public double CalculateWelyBottom()
+        {
+            return _jyy / (LenghtBottomFlange - DistanceXCentroidFromRight());
+        }
+
+        public double CalculateWelyTop()
+        {
+            return _jyy / (LenghtTopFlange - DistanceXCentroidFromRight());
+        }
+
+        public double CalculateWelxBottom()
+        {
+            return _jxx / DistanceYCentroidFromBottom();
+        }
+
+        public double CalculateWelxTop()
+        {
+            return _jxx / DistanceYCentroidFromTop();
+        }
+
+        private double DistanceYCentroidFromBottom()
+        {
+            return H - ThicknessTopFlange - HeightWeb / 2 + CalculateCentroid().Y;
+        }
+
+        public double DistanceYCentroidFromTop()
+        {
+            return H - DistanceYCentroidFromBottom();
+        }
+
+        private double DistanceXCentroidFromRight()
+        {
+            return Math.Max(LenghtBottomFlange, LenghtTopFlange)/2 + CalculateCentroid().X;
+        }
+
+        public double CalculateWply()
+        {
+            SectionT halfSectionTop = new SectionT(_btop / 2.0, H / 2.0, _ttop, _tw / 2.0, _material, string.Empty);
+            SectionT halfSectionBottom = new SectionT(_bbottom / 2.0, H / 2.0, _tbottom, _tw / 2.0, _material, string.Empty);
+            double dTop = _btop / 2.0 - halfSectionTop.DistanceYCentroidFromBottom();
+            double dBottom = _bbottom / 2.0 - halfSectionBottom.DistanceYCentroidFromBottom();
+            double d = (halfSectionTop.Area * dTop + halfSectionBottom.Area * dBottom) / (halfSectionBottom.Area + halfSectionTop.Area);
+            return 2.0 * d * _area / 2.0;
+        }
+
+        public double CalculateWplx()
+        {
+            if (_area / 2.0 > _btop * _ttop && _area / 2.0 > _bbottom * _tbottom)
+            {
+                double hw = (_area / 2.0 - _btop * _ttop) / _tw;
+                SectionT halfSectionTop = new SectionT(hw + _ttop, _btop, _tw, _ttop, _material, string.Empty);
+                SectionT halfSectionBottom = new SectionT(H - _ttop - hw, _bbottom, _tw, _tbottom, _material, string.Empty);
+                return _area / 2.0 * (halfSectionTop.DistanceYCentroidFromBottom() + halfSectionBottom.DistanceYCentroidFromBottom());
+            }
+            else if (_area / 2.0 <= _btop * _ttop)
+            {
+                double hHalf = _area / 2.0 / _btop;
+                SectionH halfSectionBottom = new SectionH(H - hHalf, _tw, _btop, _ttop - hHalf, _bbottom, _tbottom, _material, string.Empty);
+                return _area / 2.0 * (hHalf / 2.0 + (H - hHalf - halfSectionBottom.DistanceYCentroidFromBottom()));
+            }
+            else if (_area / 2.0 <= _bbottom * _tbottom)
+            {
+                double hHalf = _area / 2.0 / _bbottom;
+                SectionH halfSectionBottom = new SectionH(H - hHalf, _tw, _btop, _ttop, _bbottom, _tbottom - hHalf, _material, string.Empty);
+                return _area / 2.0 * (hHalf / 2.0 + halfSectionBottom.DistanceYCentroidFromBottom());
+            }
+            else            
+                throw new Exception("Cannot calculate Wpl : Plastic neutral axis in flanges...to be implemented");            
+        }
+
 
         #region Public override method
 
@@ -79,10 +159,10 @@ namespace GPC.Model.Sections
             double JFlTop = 1.0 / 12.0 * _ttop * Math.Pow(_btop, 3.0);
             double JFlBottom = 1.0 / 12.0 * _tbottom * Math.Pow(_bbottom, 3.0);
             double jz = JFlTop + JFlBottom + 1.0 / 12.0 * HeightWeb * Math.Pow(_tw, 3.0);
-            double zBottom = _centroid.Y - _tbottom / 2.0;
-            double zTop = _h - _ttop / 2.0 - _centroid.Y;
+            double zBottom = CalculateCentroid().Y - _tbottom / 2.0;
+            double zTop = _h - _ttop / 2.0 - CalculateCentroid().Y;
 
-            return new Point2d(_centroid.X, _centroid.Y - (zBottom * JFlBottom - zTop * JFlTop) / jz);
+            return new Point2d(CalculateCentroid().X, CalculateCentroid().Y - (zBottom * JFlBottom - zTop * JFlTop) / jz);
         }
 
         public override double CalculateJw()
@@ -98,14 +178,14 @@ namespace GPC.Model.Sections
 
         public override double CalculateJt()
         {
-            double dmed = Height - _tbottom / 2.0 - _ttop / 2.0;
+            double dmed = H - _tbottom / 2.0 - _ttop / 2.0;
             return (_btop * Math.Pow(_ttop, 3.0) + _bbottom * Math.Pow(_tbottom, 3.0) + dmed * Math.Pow(_tw, 3.0)) / 3.0;   //SSRC 1998 -> Straus use this formula with _hw instead of dmed
         }
 
         public override string ToString()
         {
             string s = "H section: \n";
-            s = s + "Height = " + Height.ToString() + " mm \n";
+            s = s + "Height = " + H.ToString() + " mm \n";
             s = s + "Thickness Web = " + _tw + " mm \n";
             s = s + "Length Bottom = " + _bbottom + " mm \n";
             s = s + "Thickness Bottom = " + _tbottom + " mm \n";

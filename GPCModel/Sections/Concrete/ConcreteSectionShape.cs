@@ -10,33 +10,33 @@ using GPC.Model.Materials;
 
 namespace GPC.Model.Sections
 {
-    public class ConcreteSectionShape : SectionShape
-    {
-        #region Variables
-        protected List<Rebar> _rebars;
-        protected ConcreteMaterial _concreteMat;
-        #endregion
+    //public class ConcreteSectionShape : SectionShape
+    //{
+    //    #region Variables
+    //    protected List<Rebar> _rebars;
+    //    protected ConcreteMaterial _concreteMat;
+    //    #endregion
 
-        #region Properties
-        public List<Rebar> Rebars { get => _rebars; set => _rebars = value; }
-        public ConcreteMaterial ConcreteMat { get => _concreteMat; set => _concreteMat = value; }
-        #endregion
+    //    #region Properties
+    //    public List<Rebar> Rebars { get => _rebars; set => _rebars = value; }
+    //    public ConcreteMaterial ConcreteMat { get => _concreteMat; set => _concreteMat = value; }
+    //    #endregion
 
-        #region Public 
-        public ConcreteSectionShape(Shape[] shapes, IsotropicFemMaterial[] materials, Rebar[] rebars, string name) : base (shapes, materials, name)
-        {
-            _rebars = new List<Rebar>(rebars);
-        }
+    //    #region Public 
+    //    public ConcreteSectionShape(Shape[] shapes, IsotropicFemMaterial[] materials, Rebar[] rebars, string name) : base (shapes, materials, name)
+    //    {
+    //        _rebars = new List<Rebar>(rebars);
+    //    }
 
-        #endregion
+    //    #endregion
 
-        #region Public Methods Specific
-        #endregion
+    //    #region Public Methods Specific
+    //    #endregion
 
-        #region Private Methods Specific
-        #endregion
+    //    #region Private Methods Specific
+    //    #endregion
 
-        #region Public Methods Override
-        #endregion
-    }
+    //    #region Public Methods Override
+    //    #endregion
+    //}
 }

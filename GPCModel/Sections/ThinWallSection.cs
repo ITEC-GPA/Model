@@ -20,6 +20,7 @@ namespace GPC.Model.Sections
 
         #endregion
 
+
         #region Properties
 
         internal ThinWall[] ThinWalls
@@ -72,8 +73,12 @@ namespace GPC.Model.Sections
 
         #region Public method
 
+        /// <summary>
+        /// Internal method to set the mechanical properties to the section
+        /// </summary>
         internal virtual void SetMechanicalProperties()
         {
+            _centroid = CalculateCentroid();
             _jxx = CalculateJxx();
             _jyy = CalculateJyy();
             _jw = CalculateJw();
@@ -84,6 +89,10 @@ namespace GPC.Model.Sections
             _area = CalculateArea();
         }
 
+        /// <summary>
+        /// Calculate the centroid point of the section in X-Y plane 
+        /// </summary>
+        /// <returns></returns>
         public virtual Point2d CalculateCentroid()
         {
             double xSum = 0;
@@ -99,30 +108,42 @@ namespace GPC.Model.Sections
             return new Point2d((xSum / area), (ySum / area));
         }
 
+        /// <summary>
+        /// Calculate the first moment of inertia respect the X-axis (the Y-axis for Eurocode)
+        /// </summary>
+        /// <returns></returns>
         public virtual double CalculateJxx()
         {
             double j = 0;
             Point2d centroid = CalculateCentroid();
             foreach (ThinWall tw in _thinWalls)
             {
-                j += tw.CalculateJx();
+                j += tw.CalculateJxRespectCentroid();
                 j += tw.CalculateArea() * Math.Pow((centroid.Y - tw.Centroid.Y), 2);
             }
             return j;
         }
 
+        /// <summary>
+        /// Calculate the first moment of inertia respect the Y-axis (the Z-axis for Eurocode)
+        /// </summary>
+        /// <returns></returns>
         public virtual double CalculateJyy()
         {
             double j = 0;
             Point2d centroid = CalculateCentroid();
             foreach (ThinWall tw in _thinWalls)
             {
-                j += tw.CalculateJy();
+                j += tw.CalculateJyRespectCentroid();
                 j += tw.CalculateArea() * Math.Pow((centroid.X - tw.Centroid.X), 2);
             }
             return j;
         }
-
+        
+        /// <summary>
+        /// Calculate the area of the section
+        /// </summary>
+        /// <returns>The value of the area</returns>
         public virtual double CalculateArea()
         {
             double area = 0;
@@ -132,6 +153,10 @@ namespace GPC.Model.Sections
             return area;
         }
 
+        /// <summary>
+        /// Calculate the first moment of area respect the X-axis (the Y-axis for Eurocode)
+        /// </summary>
+        /// <returns></returns>
         public virtual double CalculateSx()
         {
             double Sx = 0;
@@ -141,6 +166,10 @@ namespace GPC.Model.Sections
             return Sx;
         }
 
+        /// <summary>
+        /// Calculate the first moment of area respect the Y-axis (the Z-axis for Eurocode)
+        /// </summary>
+        /// <returns></returns>
         public virtual double CalculateSy()
         {
             double Sy = 0;
@@ -153,15 +182,15 @@ namespace GPC.Model.Sections
         #endregion
 
 
-        #region Nested classes
+        #region Nested classes ThinWall
 
         internal class ThinWall
         {
             #region Variables
 
-            private double _t;
-            private double _l;
-            private double _angle;
+            private readonly double _t;
+            private readonly double _l;
+            private readonly double _angle;
             private readonly Point2d _centroid;
 
             #endregion
@@ -201,7 +230,7 @@ namespace GPC.Model.Sections
             internal double L => _l;
 
             /// <summary>
-            /// The angle of rotation of the principal axis. Angle = 0 is the X-axis, 90° is the Y-axis
+            /// The angle of rotation of the principal axis. Angle = 0 is the Y-axis, 90° is the Z-axis
             /// </summary>
             internal double Angle => _angle;
 
@@ -231,10 +260,10 @@ namespace GPC.Model.Sections
             internal double CalculateJx()
             {
                 if (_angle == 0)
-                    return _l * Math.Pow(_t, 3) / 12;
+                    return CalculateJxRespectCentroid() + CalculateArea() * Math.Pow((Centroid.X), 2);
 
                 else if (_angle == Math.PI / 2)
-                    return _t * Math.Pow(_l, 3) / 12;
+                    return CalculateJxRespectCentroid() + CalculateArea() * Math.Pow((Centroid.X), 2);
 
                 else
                     throw new NotImplementedException("Not implemented angle");
@@ -247,10 +276,34 @@ namespace GPC.Model.Sections
             internal double CalculateJy()
             {
                 if (_angle == 0)
+                    return CalculateJyRespectCentroid() + CalculateArea() * Math.Pow((Centroid.Y), 2);
+
+                else if (_angle == Math.PI / 2)
+                    return CalculateJyRespectCentroid() + CalculateArea() * Math.Pow((Centroid.Y), 2);
+
+                else
+                    throw new NotImplementedException("Not implemented angle");
+            }
+
+            internal double CalculateJyRespectCentroid()
+            {
+                if (_angle == 0)
                     return _t * Math.Pow(_l, 3) / 12;
 
                 else if (_angle == Math.PI / 2)
                     return _l * Math.Pow(_t, 3) / 12;
+
+                else
+                    throw new NotImplementedException("Not implemented angle");
+            }
+
+            internal double CalculateJxRespectCentroid()
+            {
+                if (_angle == 0)
+                    return _l * Math.Pow(_t, 3) / 12;
+
+                else if (_angle == Math.PI / 2)
+                    return _t * Math.Pow(_l, 3) / 12;
 
                 else
                     throw new NotImplementedException("Not implemented angle");

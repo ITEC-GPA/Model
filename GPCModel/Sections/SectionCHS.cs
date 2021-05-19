@@ -7,7 +7,6 @@ using System.Runtime.InteropServices;
 using System.Runtime.Serialization;
 using System.Text;
 using System.Threading.Tasks;
-
 using GPC.Model.Materials;
 using GPC.Model.FEM.Materials;
 
@@ -19,8 +18,6 @@ namespace GPC.Model.Sections
 
         protected double _d; // Diameter external
         protected double _t; // Thickness
-        private double _wel;
-        private double _wpl;
 
         #endregion
 
@@ -45,16 +42,17 @@ namespace GPC.Model.Sections
         /// <summary>
         /// Is true if the section is symmetric along Y-axis
         /// </summary>
-        public bool IsSymmetricAlongYLocalAxis = true;
+        public new bool IsSymmetricAlongYLocalAxis = true;
 
         /// <summary>
         /// Is true if the section is symmetric along Z-axis
         /// </summary>
-        public bool IsSymmetricAlongZLocalAxis = true;
+        public new bool IsSymmetricAlongZLocalAxis = true;
 
-        public double Wel => _wel;
-
-        public double Wpl => _wpl;
+        /// <summary>
+        /// Is true if the section is symmetric along Z-axis and the Y-axis
+        /// </summary>
+        public new bool IsDoubleSymmetric = true;
 
         #endregion
 

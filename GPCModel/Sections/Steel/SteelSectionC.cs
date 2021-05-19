@@ -11,21 +11,20 @@ using System.Threading.Tasks;
 using GPC.Model.Materials;
 using GPC.Model.FEM.Materials;
 
-namespace GPC.Model.Sections
+namespace GPC.Model.Sections.Steel
 {
     public class SteelSectionC : SectionC
     {
         #region Variables
 
         private double _r;                // raggio di curvatura o altezza di gola
-        private SectionTypes _type;
 
         #endregion
 
 
         #region Properties
 
-        public SectionTypes Type => _type;
+        public SectionTypes Type => _sectionType;
 
         public double R => _r;
 
@@ -38,7 +37,8 @@ namespace GPC.Model.Sections
 
         #region Public Constructors
 
-        public SteelSectionC(double h, double tw, double lTop, double tTop, double lBottom, double tBottom, Material material, string name, SectionTypes type, double radius = 0)
+        public SteelSectionC(double h, double tw, double lTop, double tTop, double lBottom, double tBottom, SteelMaterial material, string name, 
+                            SectionTypes type = SectionTypes.Rolled, double radius = 0)
             : base(h, tw, lTop, tTop, lBottom, tBottom, material, name)
         {
             if (radius != 0)

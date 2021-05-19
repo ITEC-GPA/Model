@@ -12,7 +12,7 @@ namespace GPC.Model.Sections
     {
         #region Variables
 
-        protected double _hw;
+        protected double _h;
         protected double _tw;
         protected double _tf;
         protected double _b;
@@ -21,37 +21,121 @@ namespace GPC.Model.Sections
 
 
         #region Properties
-        public double Hw => _hw;
-        public double H => _hw + _tf;
+
+        public double H => _h;
+
+        public double Hw => _h - _tf;
+
         public double Tw => _tw;
+
         public double Tf => _tf;
+
         public double B => _b;
 
-        public bool IsSymmetricAlongZLocalAxis = true;
+        public new bool IsSymmetricAlongZLocalAxis = true;
 
-        public bool IsSymmetricAlongYLocalAxis = false;
+        public new bool IsSymmetricAlongYLocalAxis = false;
 
         #endregion
 
 
         #region Public Constructors
 
-        public SectionT(double hw, double b, double tw, double tf, Material material, string name) 
+        public SectionT(double h, double b, double tw, double tf, Material material, string name) 
             : base(material, name)
         {
             #region Check inputs
 
-            _hw = hw < 0 ? throw new ArgumentException($"Web lenght cannot be lower than zero") : hw;                   // spessore anima;
+            _h = h < 0 ? throw new ArgumentException($"Web lenght cannot be lower than zero") : h;                   // spessore anima;
             _b = b < 0 ? throw new ArgumentException($"Flange lenght cannot be lower than zero") : b;                   // spessore anima;
             _tw = tw < 0 ? throw new ArgumentException($"Web thickness cannot be lower than zero") : tw;                // spessore anima;
-            _tf = tf < 0 ? throw new ArgumentException($"Flange thickness cannot be lower than zero") : tw;             // spessore flangia;
+            _tf = tf < 0 ? throw new ArgumentException($"Flange thickness cannot be lower than zero") : tf;             // spessore flangia;
 
             #endregion
 
-            ThinWall web = new ThinWall(hw, tw, Math.PI / 2, new Point2d(0, 0));
-            ThinWall flange = new ThinWall(b, tf, 0, new Point2d(0, hw / 2 + tf / 2));
+            ThinWall web = new ThinWall(Hw, tw, Math.PI / 2, new Point2d(0, 0));
+            ThinWall flange = new ThinWall(b, tf, 0, new Point2d(0, Hw / 2 + tf / 2));
 
             ThinWalls = new ThinWall[] { web, flange };         
+        }
+
+        #endregion
+
+
+        #region Public method
+
+        public double CalculateWelyMin()
+        {
+            return Math.Min(CalculateWelyLeft(), CalculateWelyRight());
+        }
+
+        public double CalculateWelxMin()
+        {
+            return Math.Min(CalculateWelxBottom(), CalculateWelxTop());
+        }
+
+        public double CalculateWplx()
+        {
+            if (_area / 2.0 > _b * _tf)
+            {
+                double yPlastic = _area / 2.0 / _tw;
+                SectionT halfSectionTop = new SectionT(H - yPlastic, _b, _tw, _tf, _material, string.Empty);
+                return _area / 2.0 * (halfSectionTop.DistanceYCentroidFromBottom() + yPlastic / 2.0);
+            }
+            else
+            {
+                double hTopPlastic = (_area / 2.0) / _b;
+                //can't use SectionT because infinite loop
+                double Aweb = _tw * (H - _tf);
+                double Aflange = _b * (_tf - hTopPlastic);
+                double S = Aweb * ((H - _tf) / 2.0 + hTopPlastic) + Aflange * hTopPlastic / 2.0;
+                return (_area / 2.0) * (hTopPlastic / 2.0 + S / (Aweb + Aflange));
+            }
+        }
+
+        public double CalculateWply()
+        {
+            return 1.0 / 4.0 * _tf * Math.Pow(_b, 2.0) + 1.0 / 4.0 * (H - _tf) * Math.Pow(_tw, 2.0);
+        }
+
+        public double CalculateWelyLeft()
+        {
+            return _jyy / DistanceXCentroidFromRight();
+        }
+
+        public double CalculateWelyRight()
+        {
+            return _jyy / (_b - DistanceXCentroidFromRight());
+        }
+
+        public double CalculateWelxBottom()
+        {
+            return _jxx / DistanceYCentroidFromBottom();
+        }
+
+        public double CalculateWelxTop()
+        {
+            return _jxx / (H - DistanceYCentroidFromBottom());
+        }
+
+        public double DistanceYCentroidFromBottom()
+        {
+            return H - Tf - Hw / 2 + CalculateCentroid().Y;
+        }
+
+        public double DistanceYCentroidFromTop()
+        {
+            return Tf - Hw / 2 + CalculateCentroid().Y;
+        }
+
+        public double DistanceXCentroidFromRight()
+        {
+            return B/2 + CalculateCentroid().X;
+        }
+
+        public double DistanceXCentroidFromLeft()
+        {
+            return B / 2 - CalculateCentroid().X;
         }
 
         #endregion

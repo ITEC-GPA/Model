@@ -6,13 +6,13 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace GPC.Model.Sections
+namespace GPC.Model.Sections.Steel
 {
     public class SteelSectionRHS : SectionRHS
     {
         #region Varibles
 
-        private double _r;                // raggio di curvatura o altezza di gola
+        private readonly double _r;                // raggio di curvatura o altezza di gola
 
         #endregion
 
@@ -34,12 +34,13 @@ namespace GPC.Model.Sections
 
         #region Public Constructors
 
-        public SteelSectionRHS(double h, double b, double tf_top, double tf_bottom, double tw1, double tw2, Material material, string name, 
+        public SteelSectionRHS(double h, double b, double tf_top, double tf_bottom, double tw1, double tw2, SteelMaterial material, string name, double r = 0,
                             FormedTypes formed = FormedTypes.ColdFormed, SectionTypes sectionType = SectionTypes.Rolled) 
             : base(h, b, tf_top, tf_bottom, tw1, tw2, material, name)
         {
             _formedType = formed;
             _sectionType = sectionType;
+            _r = r;
         }
 
         #endregion

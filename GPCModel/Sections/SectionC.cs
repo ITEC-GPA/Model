@@ -13,19 +13,11 @@ namespace GPC.Model.Sections
         #region Variables
 
         protected double _h;
-        protected double _hw;
         protected double _tw;
         protected double _lengthBottom;
         protected double _tBottom;
         protected double _lengthTop;
         protected double _tTop;
-
-        private double _wel11Left;        //Wel calcolato per punto più a snistra
-        private double _wel22Top;         //Wel calcolato per punto superiore (+ alto)
-        private double _wel11Right;       //Wel calcolato per punto più a destra
-        private double _wel22Bottom;      //Wel calcolato per punto inferiore (+ basso)
-        private double _wpl11;
-        private double _wpl22;
 
         #endregion
 
@@ -34,7 +26,7 @@ namespace GPC.Model.Sections
 
         public double H => _h;
 
-        public double Hw => _hw;
+        public double Hw => _h - _tBottom - _tTop;
 
         public double Tw => _tw;
 
@@ -46,17 +38,9 @@ namespace GPC.Model.Sections
 
         public double ThicknessTop => _tTop;
 
-        public bool IsSymmetricAlongZLocalAxis => false;
+        public new bool IsSymmetricAlongZLocalAxis => false;
 
-        public bool IsSymmetricAlongYLocalAxis => _lengthBottom == _lengthTop && _tTop == _tBottom;
-
-        public double Wpl11 => _wpl11;
-
-        public double Wpl22 => _wpl22;
-
-        public double Wel11Min => Math.Min(_wel11Left, _wel11Right);
-
-        public double Wel22Min => Math.Min(_wel22Top, _wel22Bottom);
+        public new bool IsSymmetricAlongYLocalAxis => _lengthBottom == _lengthTop && _tTop == _tBottom;
 
         #endregion
 
@@ -66,7 +50,6 @@ namespace GPC.Model.Sections
         public SectionC(double h, double tw, double lTop, double tTop, double lBottom, double tBottom, Material material, string name) 
             : base(material, name)
         {
-            _hw = h - tBottom - tTop;
             _h = h < 0 ? throw new ArgumentException($"height cannot be lower than zero") : h; 
             _lengthTop = lTop < 0 ? throw new ArgumentException($"Top lenght cannot be lower than zero") : lTop; 
             _lengthBottom = lBottom < 0 ? throw new ArgumentException($"Bottom lenght cannot be lower than zero") : lBottom; 
@@ -74,11 +57,9 @@ namespace GPC.Model.Sections
             _tTop = tTop < 0 ? throw new ArgumentException($"Top thickness cannot be lower than zero") : tTop; 
             _tw = tw < 0 ? throw new ArgumentException($"Web thickness cannot be lower than zero") : tw; 
 
-            double fyk = ((SteelMaterial)material).Fyk;
-
             ThinWall web = new ThinWall(h, tw, Math.PI / 2, new Point2d(0, 0));
-            ThinWall flangeTop = new ThinWall(LTop, ThicknessTop, 0, new Point2d(0, Hw / 2 + ThicknessTop / 2));
-            ThinWall flangeBottom = new ThinWall(LBottom, ThicknessBottom, 0, new Point2d(0, -Hw / 2 - ThicknessBottom / 2));
+            ThinWall flangeTop = new ThinWall(LTop - Tw, ThicknessTop, 0, new Point2d(Tw / 2 + (LTop - Tw) / 2, Hw / 2 + ThicknessTop / 2));
+            ThinWall flangeBottom = new ThinWall(LBottom - Tw, ThicknessBottom, 0, new Point2d(Tw / 2 + (LBottom - Tw) / 2, -Hw / 2 - ThicknessBottom / 2));
 
             ThinWalls = new ThinWall[] { web, flangeBottom, flangeTop };
         }
@@ -87,6 +68,16 @@ namespace GPC.Model.Sections
 
 
         #region Public override method
+
+        public double CalculateWelyyMin()
+        {
+            return Math.Min(CalculateWelyyLeft(), CalculateWelyyRight());
+        }
+
+        public double CalculateWelxxMin()
+        {
+            return Math.Min(CalculateWelxxBottom(), CalculateWelxxTop());
+        }
 
         public override double CalculateJw()
         {
@@ -108,7 +99,7 @@ namespace GPC.Model.Sections
             double hf = _h - _tTop / 2.0 - _tBottom / 2.0;
             double length = _lengthBottom - _tw / 2.0;
             double tf = _tBottom;
-            return new Point2d(_tw / 2.0 - 3.0 * length * length * tf / (hf * _tw + 6.0 * length * tf), _centroid.Y);
+            return new Point2d(_tw / 2.0 - 3.0 * length * length * tf / (hf * _tw + 6.0 * length * tf), CalculateCentroid().Y);
         }
 
         public override string ToString()
@@ -123,27 +114,47 @@ namespace GPC.Model.Sections
             return s;
         }
 
-        public double CalculateWel11Left()
+        public double CalculateWelyyLeft()
         {
-            return _jxx / CalculateCentroid().X;
+            return _jyy / DistanceXCentroidFromLeft();
         }
 
-        public double CalculateWel11Right()
+        public double CalculateWelyyRight()
         {
-            return _jxx / Math.Max(_lengthBottom - CalculateCentroid().X, _lengthTop - CalculateCentroid().X);
+            return _jyy / DistanceXCentroidFromRight();
         }
 
-        public double CalculateWel22Top()
+        public double CalculateWelxxTop()
         {
-            return _jyy / CalculateCentroid().Y;
+            return _jxx / DistanceYCentroidFromTop();
         }
 
-        public double CalculateWel22Bottom()
+        public double CalculateWelxxBottom()
         {
-            return _jyy / (_h - CalculateCentroid().Y);
+            return _jxx / DistanceYCentroidFromBottom();
         }
 
-        public double CalculateWpl11()
+        public double DistanceYCentroidFromBottom()
+        {
+            return H / 2 + CalculateCentroid().Y;
+        }
+
+        public double DistanceYCentroidFromTop()
+        {
+            return H / 2 + CalculateCentroid().Y;
+        }
+
+        public double DistanceXCentroidFromRight()
+        {
+            return Math.Max(LTop, LBottom) - DistanceXCentroidFromLeft();
+        }
+        public double DistanceXCentroidFromLeft()
+        {
+            return Tw / 2 + CalculateCentroid().X;
+        }
+
+
+        public double CalculateWplyy()
         {
             if (IsSymmetricAlongYLocalAxis)
             {
@@ -151,7 +162,7 @@ namespace GPC.Model.Sections
                 {
                     double hDown = _area / 2.0 / (_tTop + _tBottom);
                     SectionT secTop = new SectionT(_lengthBottom - hDown, _h, _tBottom + _tTop, _tw, _material, string.Empty);
-                    return _area / 2.0 * (hDown / 2.0 + secTop.Centroid.Y);
+                    return _area / 2.0 * (hDown / 2.0 + secTop.DistanceYCentroidFromBottom());
                 }
                 else
                     throw new NotImplementedException("neutral axis in web not yet supported");
@@ -160,7 +171,7 @@ namespace GPC.Model.Sections
                 throw new NotImplementedException("Different lenght or thickness not yet supported");
         }
 
-        public double CalculateWpl2()
+        public double CalculateWplxx()
         {
             if (IsSymmetricAlongYLocalAxis)
             {
@@ -169,11 +180,10 @@ namespace GPC.Model.Sections
                     double hTop = _tTop + (_area / 2.0 - _tTop * _lengthTop) / _tw;
                     SectionT secTop = new SectionT(hTop, _lengthTop, _tw, _tTop, _material, string.Empty);
                     SectionT secBottom = new SectionT(_h - hTop, _lengthBottom, _tw, _tBottom, _material, string.Empty);
-                    return _area / 2.0 * (secTop.Centroid.Y + secBottom.Centroid.Y);
+                    return _area / 2.0 * (secTop.DistanceYCentroidFromTop() + secBottom.DistanceYCentroidFromBottom());
                 }
                 else
                     throw new NotImplementedException("neutral axis in flange not yet supported");
-
             }
             else
                 throw new NotImplementedException("Different lenght or thickness not yet supported");

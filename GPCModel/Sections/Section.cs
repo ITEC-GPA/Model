@@ -59,6 +59,10 @@ namespace GPC.Model.Sections
         protected SectionTypes _sectionType;
         protected FormedTypes _formedType;
 
+        public readonly bool _isSymmetricAlongXLocalAxis;
+        public readonly bool _isSymmetricAlongYLocalAxis;
+        public readonly bool _isDoubleSymmetric;
+
         #endregion
 
 
@@ -122,12 +126,12 @@ namespace GPC.Model.Sections
         /// <summary>
         /// The radius of gyration respect the X-axis
         /// </summary>
-        public double InertiaRadius1 => Math.Sqrt(Jxx / Area);
+        public double InertiaRadiusX => Math.Sqrt(Jxx / Area);
 
         /// <summary>
         /// The radius of gyration respect the Y-axis
         /// </summary>
-        public double InertiaRadius2 => Math.Sqrt(Jyy / Area);
+        public double InertiaRadiusY => Math.Sqrt(Jyy / Area);
 
         /// <summary>
         /// The type of the section (rolled or welded)
@@ -139,6 +143,21 @@ namespace GPC.Model.Sections
         /// </summary>
         public FormedTypes FormedType => _formedType;
 
+        /// <summary>
+        /// Is true if the section is symmetric along Y-axis
+        /// </summary>
+        public bool IsSymmetricAlongXLocalAxis => _isSymmetricAlongXLocalAxis;
+
+        /// <summary>
+        /// Is true if the section is symmetric along Z-axis
+        /// </summary>
+        public bool IsSymmetricAlongYLocalAxis => _isSymmetricAlongYLocalAxis;
+
+        /// <summary>
+        /// Is true if the section is symmetric along Z-axis and the Y-axis
+        /// </summary>
+        public bool IsDoubleSymmetric => _isDoubleSymmetric;
+        
 
         #endregion
 
@@ -239,6 +258,11 @@ namespace GPC.Model.Sections
         public virtual double GetAlphaThermalExpansion()
         { 
             return _material.AlfaThermalExpansion;
+        }
+
+        public IsotropicFemMaterial GetIsotropicFemMaterial()
+        {
+            return _material.GetIsotropicFemMaterial();
         }
 
         #endregion
