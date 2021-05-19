@@ -8,22 +8,21 @@ using GPC.Utilities.Extensions;
 namespace GPC.Model.FEM
 {
     [Serializable]
-    public abstract class FEMObject : Element, ISerializable
+    public abstract class FEMObject : ModelObjectId, ISerializable
     {
-        /// <remarks>
-        /// Public setter not available, in the same assembly you can use <see cref="SetId(int)"/> otherwise you can not set the id of a <see cref="FEMObject"/>
-        /// </remarks>
-        /// <exception cref="NotSupportedException"></exception>
-        public override int Id { get => base.Id; set => throw new NotSupportedException($"Public setter not available, use method {nameof(SetId)}"); }
+        ///// <remarks>
+        ///// Public setter not available, in the same assembly you can use <see cref="SetId(int)"/> otherwise you can not set the id of a <see cref="FEMObject"/>
+        ///// </remarks>
+        ///// <exception cref="NotSupportedException"></exception>
+        //public override int Id { get => base.Id; internal set => throw new NotSupportedException($"Public setter not available, use method {nameof(SetId)}"); }
 
-        public FEMObject() 
-            : this(string.Empty)
+        public FEMObject()
         {
 
         }
 
         public FEMObject(string name) 
-            : base(Guid.NewGuid(), name)
+            : base(name)
         {
 
         }

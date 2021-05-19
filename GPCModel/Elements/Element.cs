@@ -19,7 +19,7 @@ namespace GPC.Model.Elements
         }
 
         protected Element(int id)
-            : base(id)
+            : this(id, "", Guid.NewGuid())
         {
 
         }
@@ -30,8 +30,8 @@ namespace GPC.Model.Elements
 
         }
 
-        protected Element(Guid guid, string name)
-            : base(guid, name)
+        protected Element(int id, string name, Guid guid)
+            : base(id, name, guid)
         {
 
         }

@@ -209,7 +209,7 @@ namespace GPC.Model.FEM.FiniteElements
         /// <summary>
         /// 
         /// </summary>
-        /// <returns>An array of <see cref="FEMObject.Id"/>of the element Nodes</returns>
+        /// <returns>An array of <see cref="ModelObjectId.Id"/>of the element Nodes</returns>
         public int[] GetNodesID()
         {
             return Nodes.Select(i => i.Id).ToArray();

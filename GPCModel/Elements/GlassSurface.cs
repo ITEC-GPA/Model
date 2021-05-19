@@ -35,6 +35,12 @@ namespace GPC.Model.Elements.Glasses
             this._shape = shape;
         }
 
+        public GlassSurface(Shape shape, int id, Guid guid)
+            : base(guid)
+        {
+            this._shape = shape;
+        }
+
 
         public GlassSurface(SerializationInfo info, StreamingContext context)
             : base(info, context)

@@ -13,7 +13,10 @@ namespace GPC.Model
     {
         protected int _id;
 
-        public virtual int Id { get => _id; set { _id = value; } }
+        /// <summary>
+        /// Setter is available only internally. If needed, a derived class can expose the id setter by means of methods. A constructor with id attribute is available
+        /// </summary>
+        public virtual int Id { get => _id; internal set { _id = value; } }
 
         protected ModelObjectId()
         {
@@ -21,9 +24,9 @@ namespace GPC.Model
         }
 
         protected ModelObjectId(int id)
-            : base(Guid.NewGuid())
+            : this(id, "", Guid.NewGuid())
         {
-            _id = id;
+
         }
 
         protected ModelObjectId(Guid guid)
@@ -38,10 +41,10 @@ namespace GPC.Model
 
         }
 
-        protected ModelObjectId(Guid guid, string name)
+        protected ModelObjectId(int id, string name, Guid guid)
             : base(guid, name)
         {
-
+            _id = id;
         }
 
         protected ModelObjectId(SerializationInfo info, StreamingContext context)
