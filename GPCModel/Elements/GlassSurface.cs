@@ -1,8 +1,7 @@
 ﻿using GPC.Geometry;
 using System;
-using System.Runtime.Serialization;
 using System.Collections.Generic;
-using GPC.Model.Loads;
+using System.Runtime.Serialization;
 
 namespace GPC.Model.Elements.Glasses
 {
@@ -15,7 +14,7 @@ namespace GPC.Model.Elements.Glasses
         #endregion
 
         #region PROPERTIES
-                
+
         public Shape Shape => _shape;
 
 
@@ -26,7 +25,7 @@ namespace GPC.Model.Elements.Glasses
         public GlassSurface(Shape shape)
             : base(Guid.NewGuid())
         {
-            this._shape = shape;
+            _shape = shape;
         }
 
         public GlassSurface(Shape shape, int id)
@@ -51,7 +50,7 @@ namespace GPC.Model.Elements.Glasses
         #endregion
 
         #region Public methods
-                
+
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             base.GetObjectData(info, context);

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Runtime.Serialization;
 
 
@@ -18,36 +19,42 @@ namespace GPC.Model
         /// </summary>
         public virtual int Id { get => _id; internal set { _id = value; } }
 
-        protected ModelObjectId()
+        public ModelObjectId()
         {
 
         }
 
-        protected ModelObjectId(int id)
+        public ModelObjectId(int id)
             : this(id, "", Guid.NewGuid())
         {
 
         }
 
-        protected ModelObjectId(Guid guid)
+        public ModelObjectId(Guid guid)
             : base(guid)
         {
 
         }
 
-        protected ModelObjectId(string name)
+        public ModelObjectId(string name)
             : base(name)
         {
 
         }
 
-        protected ModelObjectId(int id, string name, Guid guid)
+        public ModelObjectId(int id, string name)
+            : this(id, name, Guid.NewGuid())
+        {
+
+        }
+
+        public ModelObjectId(int id, string name, Guid guid)
             : base(guid, name)
         {
             _id = id;
         }
 
-        protected ModelObjectId(SerializationInfo info, StreamingContext context)
+        public ModelObjectId(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
             _id = info.GetInt32("Id");
@@ -96,5 +103,44 @@ namespace GPC.Model
         {
             return !(obj1 == obj2);
         }
+
+
+        #region Custom equality comparer
+
+        /// <summary>
+        /// Compare two <see cref="ModelObjectId"/> using only <see cref="ModelObjectId.Id"/> as equality parameter
+        /// </summary>
+        public class ModelObjectIdEqualityComparer : IEqualityComparer<ModelObjectId>
+        {
+            /// <returns>
+            /// <para> true if both <paramref name="x"/> and <paramref name="y"/> are null </para>
+            /// </returns>
+            /// <remarks> Only <see cref="ModelObjectId.Id"/> is used as equality parameter </remarks>
+            bool IEqualityComparer<ModelObjectId>.Equals(ModelObjectId x, ModelObjectId y)
+            {
+                if (x == null && y == null)
+                    return true;
+
+                if (x == null || y == null)
+                    return false;
+
+                if (ReferenceEquals(x, y))
+                    return true;
+
+                if (x.Id.Equals(y.Id))
+                    return true;
+
+                return false;
+            }
+
+
+            /// <remarks> Only <see cref="ModelObjectId.Id"/> is used as equality parameter </remarks>
+            int IEqualityComparer<ModelObjectId>.GetHashCode(ModelObjectId obj)
+            {
+                return -17 * obj.Id.GetHashCode();
+            }
+        }
+
+        #endregion
     }
 }

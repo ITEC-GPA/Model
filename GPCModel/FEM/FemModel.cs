@@ -89,7 +89,7 @@ namespace GPC.Model.FEM
 
         // STAGE
 
-        protected List<Stage> _stages;
+        protected ModelObjectSet<Stage> _stages;
 
         // MODELATTRIBUTES
 
@@ -131,7 +131,7 @@ namespace GPC.Model.FEM
             _elements = new FemObjectCollection<FiniteElement>();
             _costrains = new FemObjectCollection<Costrain>();
 
-            _stages = new List<Stage>();
+            _stages = new ModelObjectSet<Stage>(new ModelObjectId.ModelObjectIdEqualityComparer()); // solo id come equality comparer
 
             _plateProperties = new UniqueNameCollection<PlateProperty>();
             _brickProperties = new UniqueNameCollection<BrickProperty>();
@@ -1316,7 +1316,7 @@ namespace GPC.Model.FEM
 
         #endregion
 
-        #region
+        #region Results
 
         /// <returns>The results related to <paramref name="combination"/></returns>
         public IEnumerable<ResultDisplacement> GetCombinationNodeDisplacementResult(Combination combination)
