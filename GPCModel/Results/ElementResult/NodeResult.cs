@@ -5,23 +5,17 @@ using System.Runtime.Serialization;
 
 namespace GPC.Model.Results
 {
-
     [Serializable]
     public class NodeResult : ElementResult, ISerializable, IEquatable<NodeResult>
     {
-
         private readonly INodeResult _result;
 
-
         public ResultType Result => (ResultType)_result;
-
 
         public NodeResult(ILoadCase Case, CoordinateSystem coordinateSystem, INodeResult result) : base(Case, coordinateSystem)
         {
             _result = result;
         }
-
-
 
         public override int GetHashCode()
         {
@@ -66,6 +60,5 @@ namespace GPC.Model.Results
         {
             return !(obj1 == obj2);
         }
-
     }
 }

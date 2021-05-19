@@ -511,9 +511,9 @@ namespace GPC.Model.FEM
 
 
         /// <inheritdoc cref="FemObjectCollection{T}.GetElementById(int)"/>
-        public virtual Node GetNode(int index)
+        public virtual Node GetNode(int id)
         {
-            return _nodes.GetElementById(index);
+            return _nodes.GetElementById(id);
         }
 
 
@@ -1319,17 +1319,18 @@ namespace GPC.Model.FEM
         #region Results
 
         /// <returns>The results related to <paramref name="combination"/></returns>
-        public IEnumerable<ResultDisplacement> GetCombinationNodeDisplacementResult(Combination combination)
+        public IEnumerable<NodeResult> GetCombinationNodeDisplacementResults(Combination combination)
         {
-            return _nodes.SelectMany(i => i.Results.Where(j => j.Case.Equals(combination) && j.Result is ResultDisplacement)).Cast<ResultDisplacement>();
+            return _nodes.SelectMany(i => i.Results.Where(j => j.Case.Equals(combination) && j.Result is ResultDisplacement));
         }
 
 
         /// <returns>The results related to <paramref name="combination"/></returns>
-        public IEnumerable<ResultStress> GetCombinationPlateStressResult(Combination combination)
+        public IEnumerable<FiniteElementResult> GetCombinationElementStressResults(Combination combination)
         {
-            return _elements.SelectMany(i => i.Results.Where(j => j.Case.Equals(combination) && j.Results.First() is ResultStress)).Cast<ResultStress>();
+            return _elements.SelectMany(i => i.Results.Where(k => k.Case.Equals(combination) && k.Results.First() is ResultStress));
         }
+
 
         #endregion
 
