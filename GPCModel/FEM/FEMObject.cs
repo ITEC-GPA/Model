@@ -86,7 +86,7 @@ namespace GPC.Model.FEM
         #endregion
 
         /// <summary>
-        /// Custom Equality comparer that compare two <see cref="FEMObject"/> adding also the <see cref="Element.Id"/> as an equality parameter
+        /// Custom Equality comparer that compare two <see cref="FEMObject"/> adding also the <see cref="ModelObjectId.Id"/> as an equality parameter
         /// </summary>
         public class FemObjectWithIdComparer : IEqualityComparer<FEMObject>
         {
@@ -110,19 +110,22 @@ namespace GPC.Model.FEM
 
             public int GetHashCode(FEMObject obj)
             {
-                int hashCode = -23 * -17 + base.GetHashCode();
+                unchecked
+                {
+                    int hashCode = -391 + base.GetHashCode();
 
-                hashCode = hashCode + obj.GetHashCode();
+                    hashCode += obj.GetHashCode();
 
-                hashCode = hashCode + obj.Id.GetHashCode();
+                    hashCode += obj.Id.GetHashCode();
 
-                return hashCode;
+                    return hashCode; 
+                }
             }
         }
 
 
         /// <summary>
-        /// Custom equality comparer that compare two <see cref="FEMObject"/> using only the <see cref="Element.Id"/> as an equality parameter
+        /// Custom equality comparer that compare two <see cref="FEMObject"/> using only the <see cref="ModelObjectId.Id"/> as an equality parameter
         /// </summary>
         public class FemObjectOnlyIdComparer : IEqualityComparer<FEMObject>
         {
@@ -142,11 +145,14 @@ namespace GPC.Model.FEM
 
             public int GetHashCode(FEMObject obj)
             {
-                int hashCode = -23 * -17 + base.GetHashCode();
+                unchecked
+                {
+                    int hashCode = -23 * -17 + base.GetHashCode();
 
-                hashCode = hashCode + obj.Id.GetHashCode();
+                    hashCode = hashCode + obj.Id.GetHashCode();
 
-                return hashCode;
+                    return hashCode; 
+                }
             }
         }
     }

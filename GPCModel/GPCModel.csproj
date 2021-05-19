@@ -67,6 +67,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Base\ModelObjectId.cs" />
     <Compile Include="Base\ModelObjectSet.cs" />
     <Compile Include="Base\UniqueNameCollection.cs" />
     <Compile Include="Base\ModelObjectEnumerable.cs" />

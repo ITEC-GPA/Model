@@ -88,19 +88,20 @@ namespace GPC.Model
         }
 
         public override int GetHashCode()
-        {
-            int hashCode = -23;
-            hashCode = hashCode * -17 + EqualityComparer<string>.Default.GetHashCode(_name);
-            return hashCode;
+        { 
+            unchecked
+            {
+                return -391 * EqualityComparer<string>.Default.GetHashCode(_name);
+            }
         }
 
         public static bool operator ==(ModelObject obj1, ModelObject obj2)
         {
-            if (ReferenceEquals(obj1, obj2))
-                return true;
-
             if (obj1 is null || obj2 is null)
                 return false;
+
+            if (ReferenceEquals(obj1, obj2))
+                return true;
 
             return obj1.Equals(obj2);
         }
@@ -125,14 +126,14 @@ namespace GPC.Model
             /// <remarks> Only <see cref="ModelObject.Name"/> is used as equality parameter </remarks>
             bool IEqualityComparer<ModelObject>.Equals(ModelObject x, ModelObject y)
             {
-                if (ReferenceEquals(x, y))
-                    return true;
-
                 if (x == null && y == null)
                     return true;
 
                 if (x == null || y == null)
                     return false;
+
+                if (ReferenceEquals(x, y))
+                    return true;
 
                 if (x.Name.Equals(y.Name))
                     return true;
@@ -144,7 +145,7 @@ namespace GPC.Model
             /// <remarks> Only <see cref="ModelObject.Name"/> is used as equality parameter </remarks>
             int IEqualityComparer<ModelObject>.GetHashCode(ModelObject obj)
             {
-                return 17 * obj.Name.GetHashCode();
+                return -17 * obj.Name.GetHashCode();
             }
         }
 
