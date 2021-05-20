@@ -16,7 +16,7 @@ namespace GPC.Model.Sections.Steel
     {
         #region Variables
 
-        private double _r;                // raggio di curvatura o altezza di gola
+        private readonly double _r;                // raggio di curvatura o altezza di gola
 
         #endregion
 
@@ -26,6 +26,8 @@ namespace GPC.Model.Sections.Steel
         public SectionTypes Type => _sectionType;
 
         public double R => _r;
+
+        public double D => H - ThicknessBottomFlange - ThicknessTopFlange - 2 * R;
 
         public bool IsRolled => Type == SectionTypes.Rolled;
 
@@ -111,21 +113,5 @@ namespace GPC.Model.Sections.Steel
             else
                 throw new NotImplementedException("Not Implemented type");
         }
-
-        //public virtual double MinSigma(double N, double M2, double M1)
-        //{
-        //    double sigmap1 = N /_area - M2 / _wel22Top + M1 / Jxx * _btop / 2.0;
-        //    double sigmap2 = N / _area - M2 / _wel22Top - M1 / Jxx * _btop / 2.0;
-        //    double sigmap3 = N / _area + M2 / _wel22Bottom + M1 / Jxx * _bbottom / 2.0;
-        //    double sigmap4 = N / _area + M2 / _wel22Bottom - M1 / Jxx * _bbottom / 2.0;
-
-        //    double sigmaMin = Math.Min(sigmap1, sigmap2);
-        //    sigmaMin = Math.Min(sigmaMin, sigmap3);
-        //    sigmaMin = Math.Min(sigmaMin, sigmap4);
-
-        //    return sigmaMin;
-        //}
-
-
     }
 }

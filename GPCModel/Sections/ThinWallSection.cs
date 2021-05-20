@@ -1,14 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
-using System.Text;
-using System.Threading.Tasks;
 using GPC.Geometry;
 using GPC.Model.Materials;
-using GPC.Model.FEM.Properties;
-using GPC.Model.FEM.Materials;
-using GPC.Model.Elements;
 
 namespace GPC.Model.Sections
 {
@@ -64,8 +58,6 @@ namespace GPC.Model.Sections
 
         public abstract double CalculateJw();
 
-        public abstract double CalculateJt();
-
         public abstract Point2d CalculateShearCenter();
 
         #endregion
@@ -106,6 +98,16 @@ namespace GPC.Model.Sections
                 area += tw.CalculateArea();
             }
             return new Point2d((xSum / area), (ySum / area));
+        }
+
+        public virtual double CalculateJt()
+        {
+            double jt = 0;
+            foreach (ThinWall tw in _thinWalls)
+            {
+                jt += tw.CalculateJt();
+            }
+            return jt;
         }
 
         /// <summary>
@@ -311,7 +313,7 @@ namespace GPC.Model.Sections
 
             internal virtual double CalculateJt()
             {
-                throw new NotImplementedException();
+                return L* Math.Pow(T, 3) / GetAlpha();
             }
 
             internal virtual double CalculateJw()
@@ -326,6 +328,11 @@ namespace GPC.Model.Sections
             internal virtual double CalculateJpolar()
             {
                 return CalculateJx() + CalculateJy();
+            }
+
+            internal double GetAlpha()
+            {
+                return 3 + 1.8 * T / L;
             }
 
             #endregion

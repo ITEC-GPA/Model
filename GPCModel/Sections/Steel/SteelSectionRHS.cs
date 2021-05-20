@@ -1,10 +1,4 @@
-﻿using GPC.Geometry;
-using GPC.Model.Materials;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using GPC.Model.Materials;
 
 namespace GPC.Model.Sections.Steel
 {

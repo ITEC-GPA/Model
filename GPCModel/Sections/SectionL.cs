@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using GPC.Geometry;
 using GPC.Model.Materials;
 
@@ -12,10 +8,10 @@ namespace GPC.Model.Sections
     {
         #region Variables
 
-        double _lHor;
-        double _tHor;
-        double _lVert;
-        double _tVert;
+        private readonly double _lHor;
+        private readonly double _tHor;
+        private readonly double _lVert;
+        private readonly double _tVert;
 
         #endregion
 
@@ -74,7 +70,7 @@ namespace GPC.Model.Sections
             double angle = -1.0 / 2.0 * Math.Atan(2.0 * CalculateJxy() / (_jyy - _jxx));
 
             if (_jyy < _jxx)            
-                angle = angle + Math.PI / 2.0;
+                angle += Math.PI / 2.0;
 
             return angle;
         }

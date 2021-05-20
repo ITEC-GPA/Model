@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using GPC.Geometry;
 using GPC.Model.Materials;
 
@@ -32,10 +28,6 @@ namespace GPC.Model.Sections
 
         public double B => _b;
 
-        public new bool IsSymmetricAlongZLocalAxis = true;
-
-        public new bool IsSymmetricAlongYLocalAxis = false;
-
         #endregion
 
 
@@ -52,6 +44,9 @@ namespace GPC.Model.Sections
             _tf = tf < 0 ? throw new ArgumentException($"Flange thickness cannot be lower than zero") : tf;             // spessore flangia;
 
             #endregion
+
+            _isSymmetricAlongYLocalAxis = true;
+            _isSymmetricAlongXLocalAxis = false;
 
             ThinWall web = new ThinWall(Hw, tw, Math.PI / 2, new Point2d(0, 0));
             ThinWall flange = new ThinWall(b, tf, 0, new Point2d(0, Hw / 2 + tf / 2));

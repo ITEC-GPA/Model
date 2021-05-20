@@ -1,9 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Runtime.Serialization;
-using System.Text;
-using System.Threading.Tasks;
 using GPC.Geometry;
 using GPC.Model.Materials;
 using GPC.Model.FEM.Properties;
@@ -59,9 +55,8 @@ namespace GPC.Model.Sections
         protected SectionTypes _sectionType;
         protected FormedTypes _formedType;
 
-        public readonly bool _isSymmetricAlongXLocalAxis;
-        public readonly bool _isSymmetricAlongYLocalAxis;
-        public readonly bool _isDoubleSymmetric;
+        protected bool _isSymmetricAlongXLocalAxis;
+        protected bool _isSymmetricAlongYLocalAxis;
 
         #endregion
 
@@ -156,8 +151,7 @@ namespace GPC.Model.Sections
         /// <summary>
         /// Is true if the section is symmetric along Z-axis and the Y-axis
         /// </summary>
-        public bool IsDoubleSymmetric => _isDoubleSymmetric;
-        
+        public bool IsDoubleSymmetric => (IsSymmetricAlongXLocalAxis && IsSymmetricAlongYLocalAxis);        
 
         #endregion
 

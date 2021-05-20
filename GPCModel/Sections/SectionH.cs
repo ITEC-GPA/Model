@@ -38,10 +38,6 @@ namespace GPC.Model.Sections
 
         public double HeightWeb => H - ThicknessBottomFlange - ThicknessTopFlange;
 
-        public new bool IsSymmetricAlongZLocalAxis => true;
-
-        public new bool IsSymmetricAlongYLocalAxis => _btop == _bbottom && _tbottom == _ttop;
-
         #endregion
 
 
@@ -60,6 +56,10 @@ namespace GPC.Model.Sections
             _tbottom = tbottom < 0 ? throw new ArgumentException($"Bottom flange thickness cannot be lower than zero") : tbottom;   // spessore piattabanda inferiore
 
             #endregion
+
+            if (_btop == _bbottom && _tbottom == _ttop)
+                _isSymmetricAlongXLocalAxis = true;
+            _isSymmetricAlongYLocalAxis = true;
 
             ThinWall web = new ThinWall(HeightWeb, tw, Math.PI / 2, new Point2d(0, 0));
             ThinWall flangeTop = new ThinWall(btop, ttop, 0, new Point2d(0, HeightWeb / 2 + ttop / 2));
@@ -119,9 +119,8 @@ namespace GPC.Model.Sections
         {
             SectionT halfSectionTop = new SectionT(_btop / 2.0, H / 2.0, _ttop, _tw / 2.0, _material, string.Empty);
             SectionT halfSectionBottom = new SectionT(_bbottom / 2.0, H / 2.0, _tbottom, _tw / 2.0, _material, string.Empty);
-            double dTop = _btop / 2.0 - halfSectionTop.DistanceYCentroidFromBottom();
-            double dBottom = _bbottom / 2.0 - halfSectionBottom.DistanceYCentroidFromBottom();
-            double d = (halfSectionTop.Area * dTop + halfSectionBottom.Area * dBottom) / (halfSectionBottom.Area + halfSectionTop.Area);
+            double d = (halfSectionTop.Area * (_btop / 2.0 - halfSectionTop.DistanceYCentroidFromBottom()) + halfSectionBottom.Area * (_bbottom / 2.0 - halfSectionBottom.DistanceYCentroidFromBottom())) / 
+                (halfSectionBottom.Area + halfSectionTop.Area);
             return 2.0 * d * _area / 2.0;
         }
 
@@ -147,7 +146,7 @@ namespace GPC.Model.Sections
                 return _area / 2.0 * (hHalf / 2.0 + halfSectionBottom.DistanceYCentroidFromBottom());
             }
             else            
-                throw new Exception("Cannot calculate Wpl : Plastic neutral axis in flanges...to be implemented");            
+                throw new NotImplementedException("Cannot calculate Wpl : Plastic neutral axis in flanges...to be implemented");            
         }
 
 
@@ -176,10 +175,11 @@ namespace GPC.Model.Sections
             return dmed * dmed * JFlBottom * JFlTop / jz;
         }
 
-        public override double CalculateJt()
+        public double CalculateJtSSRC1889()
         {
             double dmed = H - _tbottom / 2.0 - _ttop / 2.0;
-            return (_btop * Math.Pow(_ttop, 3.0) + _bbottom * Math.Pow(_tbottom, 3.0) + dmed * Math.Pow(_tw, 3.0)) / 3.0;   //SSRC 1998 -> Straus use this formula with _hw instead of dmed
+            return (_btop * Math.Pow(_ttop, 3.0) + _bbottom * Math.Pow(_tbottom, 3.0) + dmed * Math.Pow(_tw, 3.0)) / 3.0;
+            //SSRC 1998 dice che Jt corretto si calcola come 1/3 * l * t^3 ma l'anima va considerata maggiorata di metà delle due flange (non va corretto con il fattore alpha)
         }
 
         public override string ToString()

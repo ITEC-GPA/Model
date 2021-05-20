@@ -11,7 +11,7 @@ namespace GPC.Model.Sections.Steel
     {
         #region Variables 
 
-        private FormedTypes _profileType;
+        private readonly FormedTypes _profileType;
 
         #endregion
 

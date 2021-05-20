@@ -12,12 +12,12 @@ namespace GPC.Model.Sections
     {
         #region Varibles
 
-        double _h;
-        double _b;
-        double _tfTop;
-        double _tfBottom;
-        double _twL;
-        double _twR;
+        private readonly double _h;
+        private readonly double _b;
+        private readonly double _tfTop;
+        private readonly double _tfBottom;
+        private readonly double _twL;
+        private readonly double _twR;
 
         #endregion
 
@@ -40,10 +40,6 @@ namespace GPC.Model.Sections
 
         public double TWebRight => _twR;
 
-        public new bool IsSymmetricAlongZLocalAxis => _twL == _twR;
-
-        public new bool IsSymmetricAlongYLocalAxis => _tfBottom == _tfTop;
-
         #endregion
 
 
@@ -59,6 +55,11 @@ namespace GPC.Model.Sections
             _tfBottom = tf_bottom;
             _twL = tw1;
             _twR = tw2;
+
+            if (_tfBottom == _tfTop)
+                _isSymmetricAlongXLocalAxis = true;
+            if (_twL == _twR)
+                _isSymmetricAlongYLocalAxis = true;
 
             ThinWall webSx = new ThinWall(Hinternal, _twL, Math.PI / 2, new Point2d(-_b / 2 + _twL / 2, 0));
             ThinWall webDx = new ThinWall(Hinternal, _twR, Math.PI / 2, new Point2d(_b / 2 - _twR / 2, 0));
@@ -125,10 +126,9 @@ namespace GPC.Model.Sections
 
         public double CalculateWplyy()
         {
-
             if (_area / 2.0 > _twL * Hinternal +_tfTop * _twL + _tfBottom * _twL)
             {
-                if (IsSymmetricAlongYLocalAxis)
+                if (IsSymmetricAlongXLocalAxis)
                 {
                     SectionC halfSectionLeft = new SectionC(H, TWebRight, B/2, TTop, B/2, TBottom, _material, string.Empty);
                     SectionC halfSectionRigth = new SectionC(H, TWebLeft, B / 2, TTop, B / 2, TBottom, _material, string.Empty);
@@ -146,7 +146,7 @@ namespace GPC.Model.Sections
         {
             if (_area / 2.0 > (_twR * Hinternal)) //plateTop
             {
-                if (IsSymmetricAlongZLocalAxis)
+                if (IsSymmetricAlongYLocalAxis)
                 {
                     SectionC halfSectionTop = new SectionC(B, TTop, H / 2, _twR, H / 2, _twL, _material, string.Empty);
                     SectionC halfSectionBottom = new SectionC(B, TBottom, H / 2, _twR, H / 2, _twL, Material, string.Empty);
@@ -201,19 +201,6 @@ namespace GPC.Model.Sections
         }
 
         #endregion
-
-        //public double MinSigma(double N, double M2, double M1)
-        //{
-        //    double sigma1 = N / _area - M2 / Jyy * (_h - _centroid.Y) + M1 / Jxx * (_centroid.X);
-        //    double sigma2 = N / _area - M2 / Jyy * (_h - _centroid.Y) - M1 / Jxx * (_b - _centroid.X);
-        //    double sigma3 = N / _area + M2 / Jyy * (_centroid.Y) + M1 / Jxx * (_centroid.X);
-        //    double sigma4 = N / _area + M2 / Jyy * (_centroid.Y) - M1 / Jxx * (_b - _centroid.X);
-
-        //    double sigmaMin = Math.Min(sigma1, sigma2);
-        //    sigmaMin = Math.Min(sigmaMin, sigma3);
-        //    sigmaMin = Math.Min(sigmaMin, sigma4);
-        //    return sigmaMin;
-        //}
 
 
     }

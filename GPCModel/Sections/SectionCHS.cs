@@ -1,14 +1,7 @@
 ﻿using GPC.Geometry;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Linq.Expressions;
-using System.Runtime.InteropServices;
 using System.Runtime.Serialization;
-using System.Text;
-using System.Threading.Tasks;
 using GPC.Model.Materials;
-using GPC.Model.FEM.Materials;
 
 namespace GPC.Model.Sections
 {
@@ -39,21 +32,6 @@ namespace GPC.Model.Sections
         /// </summary>
         public double Dint => _d - (2 * _t);
 
-        /// <summary>
-        /// Is true if the section is symmetric along Y-axis
-        /// </summary>
-        public new bool IsSymmetricAlongYLocalAxis = true;
-
-        /// <summary>
-        /// Is true if the section is symmetric along Z-axis
-        /// </summary>
-        public new bool IsSymmetricAlongZLocalAxis = true;
-
-        /// <summary>
-        /// Is true if the section is symmetric along Z-axis and the Y-axis
-        /// </summary>
-        public new bool IsDoubleSymmetric = true;
-
         #endregion
 
 
@@ -71,6 +49,9 @@ namespace GPC.Model.Sections
             _t = t < 0 ? throw new ArgumentException($"Thickness cannot be lower than zero") : t;
 
             #endregion
+
+            _isSymmetricAlongYLocalAxis = true;
+            _isSymmetricAlongXLocalAxis = true;
 
             SetMechanicalProperties();
         }

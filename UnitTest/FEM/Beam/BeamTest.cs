@@ -13,11 +13,11 @@ using System.Collections.Generic;
 using static GPC.Model.FEM.Solver;
 using mnl = MathNet.Numerics.LinearAlgebra;
 
-namespace FemTest.SolverTest { 
+namespace FemTest.SolverTest
+{
     [TestClass]
-    public class BeamTest {
-
-        /*
+    public class BeamTest
+    {        
         /// <summary>
         /// Sforzo Assiale su trave incastro - libero - direzione +X
         /// </summary>
@@ -27,7 +27,7 @@ namespace FemTest.SolverTest {
             double E = 100000.0;
             double H = 1;
             double t = (H / 2.0)*0.999;
-            Section sec = new SectionRHS(H,H,t,t,t,t,true, new SteelMaterial("m", E, 0.0, 355, 510, 7850), "sec");
+            Section sec = new SectionRHS(H, H, t, t, t, t, new SteelMaterial("m", E, 0.0, 355, 510, 7850), "sec");
             double A = sec.Area;
 
             double L = 1000;
@@ -75,7 +75,7 @@ namespace FemTest.SolverTest {
             double E = 100000.0;
             double H = 1;
             double t = (H / 2.0) * 0.999;
-            Section sec = new SectionRHS(H, H, t, t, t, t, true, new SteelMaterial("m", E, 0.0, 355, 510, 7850), "sec");
+            Section sec = new SectionRHS(H, H, t, t, t, t, new SteelMaterial("m", E, 0.0, 355, 510, 7850), "sec");
             double A = sec.Area;
 
             double L = 1000;
@@ -121,7 +121,7 @@ namespace FemTest.SolverTest {
             double E = 100000.0;
             double H = 1;
             double t = (H / 2.0) * 0.999;
-            Section sec = new SectionRHS(H, H, t, t, t, t, true, new SteelMaterial("m", E, 0.0, 355, 510, 7850), "sec");
+            Section sec = new SectionRHS(H, H, t, t, t, t, new SteelMaterial("m", E, 0.0, 355, 510, 7850), "sec");
 
             double L = 1000;
             List<Node> nds = new List<Node>();
@@ -170,7 +170,7 @@ namespace FemTest.SolverTest {
             double E = 100000.0;
             double H = 1;
             double t = (H / 2.0) * 0.999;
-            Section sec = new SectionRHS(H, H, t, t, t, t, true, new SteelMaterial("m", E, 0.0, 355, 510, 7850), "sec");
+            Section sec = new SectionRHS(H, H, t, t, t, t, new SteelMaterial("m", E, 0.0, 355, 510, 7850), "sec");
             double A = sec.Area;
 
             double L = 1000;
@@ -219,7 +219,7 @@ namespace FemTest.SolverTest {
             double E = 100000.0;
             double H = 1;
             double t = (H / 2.0) * 0.999;
-            Section sec = new SectionRHS(H, H, t, t, t, t, true, new SteelMaterial("m", E, 0.0, 355, 510, 7850), "sec");
+            Section sec = new SectionRHS(H, H, t, t, t, t, new SteelMaterial("m", E, 0.0, 355, 510, 7850), "sec");
             double A = sec.Area;
 
             double L = 1000;
@@ -808,7 +808,7 @@ namespace FemTest.SolverTest {
         public void AppliedDistributedLoadTest1()
         {
             double E = 100000.0;
-            Section sec = new SectionRHS(100.0, 100.0, 49.99, 49.99, 49.99, 49.99, false, new SteelMaterial("m", E, 0.0, 355, 510, 7850), "sec");
+            Section sec = new SectionRHS(100.0, 100.0, 49.99, 49.99, 49.99, 49.99, new SteelMaterial("m", E, 0.0, 355, 510, 7850), "sec");
 
             double L = 1000.0;
 
@@ -876,7 +876,7 @@ namespace FemTest.SolverTest {
         public void SimplySupportedTest2()
         {
             double E = 100.0;
-            Section sec = new SectionRHS(100.0, 100.0, 49.99, 49.99, 49.99, 49.99, false, new SteelMaterial("m", E, 0.0, 355, 510, 7850), "sec");
+            Section sec = new SectionRHS(100.0, 100.0, 49.99, 49.99, 49.99, 49.99, new SteelMaterial("m", E, 0.0, 355, 510, 7850), "sec");
             Console.WriteLine("A = " + sec.Area);
 
             double L = 1000.0;
@@ -935,7 +935,7 @@ namespace FemTest.SolverTest {
         public void FixFixTest2()
         {
             double E = 100.0;
-            Section sec = new SectionRHS(100.0, 100.0, 10, 10, 10, 10, false, new SteelMaterial("m", E, 0.0, 355, 510, 7850), "sec");
+            Section sec = new SectionRHS(100.0, 100.0, 10, 10, 10, 10, new SteelMaterial("m", E, 0.0, 355, 510, 7850), "sec");
 
             double L = 1000.0;
 
@@ -981,7 +981,7 @@ namespace FemTest.SolverTest {
         public void FixFixTest3()
         {
             double E = 100.0;
-            Section sec = new SectionRHS(100.0, 100.0, 10, 10, 10, 10, false, new SteelMaterial("m", E, 0.0, 355, 510, 7850), "sec");
+            Section sec = new SectionRHS(100.0, 100.0, 10, 10, 10, 10, new SteelMaterial("m", E, 0.0, 355, 510, 7850), "sec");
 
             double L = 1000.0;
 
@@ -1025,7 +1025,7 @@ namespace FemTest.SolverTest {
         public void FixFixTest4()
         {
             double E = 100.0;
-            Section sec = new SectionRHS(100.0, 100.0, 10, 10, 10, 10, false, new SteelMaterial("m", E, 0.0, 355, 510, 7850), "sec");
+            Section sec = new SectionRHS(100.0, 100.0, 10, 10, 10, 10, new SteelMaterial("m", E, 0.0, 355, 510, 7850), "sec");
 
             double L = 1000.0;
 
@@ -1074,7 +1074,7 @@ namespace FemTest.SolverTest {
         public void FixHingeTest4()
         {
             double E = 100.0;
-            Section sec = new SectionRHS(100.0, 100.0, 10, 10, 10, 10, false, new SteelMaterial("m", E, 0.0, 355, 510, 7850), "sec");
+            Section sec = new SectionRHS(100.0, 100.0, 10, 10, 10, 10, new SteelMaterial("m", E, 0.0, 355, 510, 7850), "sec");
 
             double L = 1000.0;
 
@@ -1128,7 +1128,7 @@ namespace FemTest.SolverTest {
         public void FixFixTest1()
         {
             double E = 100.0;
-            Section sec = new SectionRHS(100.0, 100.0, 49.99, 49.99, 49.99, 49.99, false, new SteelMaterial("m", E, 0.0, 355, 510, 7850), "sec");
+            Section sec = new SectionRHS(100.0, 100.0, 49.99, 49.99, 49.99, 49.99, new SteelMaterial("m", E, 0.0, 355, 510, 7850), "sec");
 
             double L = 1000.0;
 
@@ -1175,7 +1175,7 @@ namespace FemTest.SolverTest {
         public void SimplySupportedTest3()
         {
             double E = 100.0;
-            Section sec = new SectionRHS(100.0, 100.0, 49.99, 49.99, 49.99, 49.99, false, new SteelMaterial("m", E, 0.0, 355, 510, 7850), "sec");
+            Section sec = new SectionRHS(100.0, 100.0, 49.99, 49.99, 49.99, 49.99, new SteelMaterial("m", E, 0.0, 355, 510, 7850), "sec");
 
             double L = 1000.0;
 
@@ -1228,7 +1228,7 @@ namespace FemTest.SolverTest {
             double B = 50;
             double tw = 5.0;
             double tf = 5.0;
-            Section sec = new SectionRHS(H, B, tf, tf, tw, tw, true, new SteelMaterial("m", E, 0.0, 355, 510, 7850), "sec");
+            Section sec = new SectionRHS(H, B, tf, tf, tw, tw, new SteelMaterial("m", E, 0.0, 355, 510, 7850), "sec");
 
             double L = 1000;
             List<Node> nds = new List<Node>();
@@ -1278,7 +1278,7 @@ namespace FemTest.SolverTest {
             double B = 50;
             double tw = 5.0;
             double tf = 5.0;
-            Section sec = new SectionRHS(H, B, tf, tf, tw, tw, true, new SteelMaterial("m", E, 0.0, 355, 510, 7850), "sec");
+            Section sec = new SectionRHS(H, B, tf, tf, tw, tw, new SteelMaterial("m", E, 0.0, 355, 510, 7850), "sec");
 
             double L = 1000;
             List<Node> nds = new List<Node>();
@@ -1329,7 +1329,7 @@ namespace FemTest.SolverTest {
             double B = 50;
             double tw = 5.0;
             double tf = 5.0;
-            Section sec = new SectionRHS(H, B, tf, tf, tw, tw, true, new SteelMaterial("m", E, 0.0, 355, 510, 7850), "sec");
+            Section sec = new SectionRHS(H, B, tf, tf, tw, tw, new SteelMaterial("m", E, 0.0, 355, 510, 7850), "sec");
 
             double L = 1000;
             List<Node> nds = new List<Node>();
@@ -1382,7 +1382,7 @@ namespace FemTest.SolverTest {
             double h = 2.0;
             double b = 1.0;
             double t = 0.2;
-            Section sec = new SectionRHS(h, b, t, t, t, t, true, mat, "rhsSec");
+            Section sec = new SectionRHS(h, b, t, t, t, t, mat, "rhsSec");
 
             double L = 10;
             List<Node> nds = new List<Node>();
@@ -1442,7 +1442,7 @@ namespace FemTest.SolverTest {
             double h = 2.0;
             double b = 1.0;
             double t = 0.2;
-            Section sec = new SectionRHS(h, b, t, t, t, t, true, mat, "rhsSec");
+            Section sec = new SectionRHS(h, b, t, t, t, t, mat, "rhsSec");
 
             double L = 10;
             List<Node> nds = new List<Node>();
@@ -1499,7 +1499,7 @@ namespace FemTest.SolverTest {
             double h = 2.0;
             double b = 1.0;
             double t = 0.2;
-            Section sec = new SectionRHS(h, b, t, t, t, t, true, mat, "rhsSec");
+            Section sec = new SectionRHS(h, b, t, t, t, t, mat, "rhsSec");
 
             double L = 10;
             List<Node> nds = new List<Node>();
@@ -2889,7 +2889,7 @@ namespace FemTest.SolverTest {
 
             CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
             
-            /*double F = 10.0;
+            double F = 10.0;
             NodeForceAttribute f = new NodeForceAttribute("lc", sys, 0, F, F, 0, 0, 0);
             nds[1].AddAttribute(f);
 
@@ -2944,7 +2944,7 @@ namespace FemTest.SolverTest {
                 Beam.LocalDOF.R2,
                 Beam.LocalDOF.R3 }, "fc", "releaseName");
 
-            /*beams[1].AddEndRelease(Beam.EndSide.End2, new Beam.LocalDOF[] {
+            beams[1].AddEndRelease(Beam.EndSide.End2, new Beam.LocalDOF[] {
                 Beam.LocalDOF.R2,
                 Beam.LocalDOF.R3 }, "fc", "releaseName");
 
@@ -3006,7 +3006,7 @@ namespace FemTest.SolverTest {
                 Beam.LocalDOF.R2,
                 Beam.LocalDOF.R3 }, "fc", "releaseName");
 
-            /*beams[1].AddEndRelease(Beam.EndSide.End2, new Beam.LocalDOF[] {
+            beams[1].AddEndRelease(Beam.EndSide.End2, new Beam.LocalDOF[] {
                 Beam.LocalDOF.R2,
                 Beam.LocalDOF.R3 }, "fc", "releaseName");
 
@@ -3035,8 +3035,7 @@ namespace FemTest.SolverTest {
 
             Assert.AreEqual(3395.3054, fem.GetBeamDisplacementInGlobalCoordinates(beams[1], beams[1].L / 2.0, DOF.DY), 0.01);
             Assert.AreEqual(3395.3054, fem.GetBeamDisplacementInGlobalCoordinates(beams[1], beams[1].L / 2.0, DOF.DZ), 0.01);
-        }
-            */
+        }            
+        
     }
-    
 }

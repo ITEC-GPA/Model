@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using GPC.Geometry;
 using GPC.Model.Materials;
 
@@ -38,10 +34,6 @@ namespace GPC.Model.Sections
 
         public double ThicknessTop => _tTop;
 
-        public new bool IsSymmetricAlongZLocalAxis => false;
-
-        public new bool IsSymmetricAlongYLocalAxis => _lengthBottom == _lengthTop && _tTop == _tBottom;
-
         #endregion
 
 
@@ -55,7 +47,11 @@ namespace GPC.Model.Sections
             _lengthBottom = lBottom < 0 ? throw new ArgumentException($"Bottom lenght cannot be lower than zero") : lBottom; 
             _tBottom = tBottom < 0 ? throw new ArgumentException($"Bottom thickness cannot be lower than zero") : tBottom; 
             _tTop = tTop < 0 ? throw new ArgumentException($"Top thickness cannot be lower than zero") : tTop; 
-            _tw = tw < 0 ? throw new ArgumentException($"Web thickness cannot be lower than zero") : tw; 
+            _tw = tw < 0 ? throw new ArgumentException($"Web thickness cannot be lower than zero") : tw;
+
+            if (_lengthBottom == _lengthTop && _tTop == _tBottom)
+                _isSymmetricAlongXLocalAxis = true;
+            _isSymmetricAlongYLocalAxis = false;
 
             ThinWall web = new ThinWall(h, tw, Math.PI / 2, new Point2d(0, 0));
             ThinWall flangeTop = new ThinWall(LTop - Tw, ThicknessTop, 0, new Point2d(Tw / 2 + (LTop - Tw) / 2, Hw / 2 + ThicknessTop / 2));
@@ -156,7 +152,7 @@ namespace GPC.Model.Sections
 
         public double CalculateWplyy()
         {
-            if (IsSymmetricAlongYLocalAxis)
+            if (IsSymmetricAlongXLocalAxis)
             {
                 if (_area / 2.0 > _h * _tw)
                 {
@@ -173,14 +169,14 @@ namespace GPC.Model.Sections
 
         public double CalculateWplxx()
         {
-            if (IsSymmetricAlongYLocalAxis)
+            if (IsSymmetricAlongXLocalAxis)
             {
                 if (_area / 2.0 > _tTop * _lengthTop)
                 {
                     double hTop = _tTop + (_area / 2.0 - _tTop * _lengthTop) / _tw;
                     SectionT secTop = new SectionT(hTop, _lengthTop, _tw, _tTop, _material, string.Empty);
                     SectionT secBottom = new SectionT(_h - hTop, _lengthBottom, _tw, _tBottom, _material, string.Empty);
-                    return _area / 2.0 * (secTop.DistanceYCentroidFromTop() + secBottom.DistanceYCentroidFromBottom());
+                    return _area / 2.0 * (secTop.DistanceYCentroidFromBottom() + secBottom.DistanceYCentroidFromBottom());
                 }
                 else
                     throw new NotImplementedException("neutral axis in flange not yet supported");
