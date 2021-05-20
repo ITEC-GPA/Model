@@ -610,7 +610,7 @@ namespace GPC.Model.FEM
 
         public double[] GetDisplacementsAtNodesOfElementInGlobalCoordinates(FiniteElement e)
         {
-#region SelectGlobalDisplacementForElement
+            #region SelectGlobalDisplacementForElement
             var elements = Elements.Where(x => x == e);
             if (elements.Count() == 1)
             {
@@ -639,7 +639,7 @@ namespace GPC.Model.FEM
                 return globalDisplacementsNodesElement;
                 //get results of element
                 //element.GetResults(globalDisplacementsNodesElement, out double[] localDisplacements, out mnl.Matrix<double>[] gloabalPseudoDeformation, out mnl.Matrix<double>[] localPseudoDeformation, out mnl.Matrix<double>[] globalForces, out mnl.Matrix<double>[] localForces, out mnl.Matrix<double>[] globalStress, out mnl.Matrix<double>[] localStress, out mnl.Matrix<double>[] globalEpsilon, out mnl.Matrix<double>[] localEpsilon);
-#endregion
+            #endregion
             }
             else
             {
@@ -649,7 +649,24 @@ namespace GPC.Model.FEM
         #endregion
 
         #region GetResultTLG
-        public mnl.Vector<double> GetTLGStress(Quad4TripleLaminatedGlass element, Quad4TripleLaminatedGlass.Glass glass, Plate.Face face, int indexNode)
+
+        #region Glass
+        public mnl.Vector<double> GetTLGGlassStrain(Quad4TripleLaminatedGlass element, Quad4TripleLaminatedGlass.Glass glass, Plate.Face face, int indexNode)
+        {
+            if (indexNode == 0)
+            {
+                throw new ArgumentOutOfRangeException("index node from 1 to 4");
+            }
+
+            double x = element.LocalNodes[indexNode - 1].Position.X;
+            double y = element.LocalNodes[indexNode - 1].Position.Y;
+
+            var globalDispl = GetDisplacementsAtNodesOfElementInGlobalCoordinates(element);
+
+            return element.GetStrainGlass(glass, face, x, y, globalDispl);
+        }
+
+        public mnl.Vector<double> GetTLGGlassStress(Quad4TripleLaminatedGlass element, Quad4TripleLaminatedGlass.Glass glass, Plate.Face face, int indexNode)
         {
             if (indexNode == 0)
             {
@@ -664,7 +681,7 @@ namespace GPC.Model.FEM
             return element.GetStressGlass(glass, face, x, y, globalDispl);
         }
 
-        public mnl.Vector<double> GetTLGStrain(Quad4TripleLaminatedGlass element, Quad4TripleLaminatedGlass.Glass glass, Plate.Face face, int indexNode)
+        public mnl.Vector<double> GetTLGGlassBending(Quad4TripleLaminatedGlass element, int indexNode)
         {
             if (indexNode == 0)
             {
@@ -676,8 +693,71 @@ namespace GPC.Model.FEM
 
             var globalDispl = GetDisplacementsAtNodesOfElementInGlobalCoordinates(element);
 
-            return element.GetStrainGlass(glass, face, x, y, globalDispl);
+            return element.GetGlassBending(x, y, globalDispl);
         }
+
+        public mnl.Vector<double> GetTLGGlassForces(Quad4TripleLaminatedGlass element, int indexNode)
+        {
+            if (indexNode == 0)
+            {
+                throw new ArgumentOutOfRangeException("index node from 1 to 4");
+            }
+
+            double x = element.LocalNodes[indexNode - 1].Position.X;
+            double y = element.LocalNodes[indexNode - 1].Position.Y;
+
+            var globalDispl = GetDisplacementsAtNodesOfElementInGlobalCoordinates(element);
+
+            return element.GetGlassForces(x, y, globalDispl);
+        }
+        #endregion
+
+        #region Interlayer
+        public mnl.Vector<double> GetTLGInterlayerStrain(Quad4TripleLaminatedGlass element, int indexNode)
+        {
+            if (indexNode == 0)
+            {
+                throw new ArgumentOutOfRangeException("index node from 1 to 4");
+            }
+
+            double x = element.LocalNodes[indexNode - 1].Position.X;
+            double y = element.LocalNodes[indexNode - 1].Position.Y;
+
+            var globalDispl = GetDisplacementsAtNodesOfElementInGlobalCoordinates(element);
+
+            return element.GetStrainInterlayer(x, y, globalDispl);
+        }
+
+        public mnl.Vector<double> GetTLGInterlayerStress(Quad4TripleLaminatedGlass element, int indexNode)
+        {
+            if (indexNode == 0)
+            {
+                throw new ArgumentOutOfRangeException("index node from 1 to 4");
+            }
+
+            double x = element.LocalNodes[indexNode - 1].Position.X;
+            double y = element.LocalNodes[indexNode - 1].Position.Y;
+
+            var globalDispl = GetDisplacementsAtNodesOfElementInGlobalCoordinates(element);
+
+            return element.GetStressInterlayer(x, y, globalDispl);
+        }
+
+        public mnl.Vector<double> GetTLGInterlayerBending(Quad4TripleLaminatedGlass element, int indexNode)
+        {
+            if (indexNode == 0)
+            {
+                throw new ArgumentOutOfRangeException("index node from 1 to 4");
+            }
+
+            double x = element.LocalNodes[indexNode - 1].Position.X;
+            double y = element.LocalNodes[indexNode - 1].Position.Y;
+
+            var globalDispl = GetDisplacementsAtNodesOfElementInGlobalCoordinates(element);
+
+            return element.GetBendingInterlayer(x, y, globalDispl);
+        }
+        #endregion
         #endregion
 
         #region GetResultsBeam

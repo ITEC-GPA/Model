@@ -247,29 +247,7 @@ namespace FemTest.SolverTest
             Assert.AreEqual(1.0, m[2, 20], 0.001);
         }
 
-        [TestMethod]
-        public void TestBs()
-        {
-            double lx = 2;
-            double ly = 2;
-            double x = 0;
-            double y = 0;
-            int indexNode = 1;
-            //FEMUtilities.WriteMatrix(Quad4TripleLaminatedGlass.GetBsi(indexNode, x, y, lx, ly));
-        }
-
-        [TestMethod]
-        public void TestBg()
-        {
-            double lx = 2;
-            double ly = 2;
-            double x = 0;
-            double y = 0;
-            int indexNode = 1;
-            //FEMUtilities.WriteMatrix(Quad4TripleLaminatedGlass.GetBgi(indexNode, x, y, lx, ly));
-        }
-
-        [TestMethod]
+        /*[TestMethod]
         public void TestKLayer()
         {
             List<Node> nodes = new List<Node>();
@@ -320,9 +298,9 @@ namespace FemTest.SolverTest
                 //Ks = Ks + kGauss;
             }
             //FEMUtilities.WriteMatrix("Ks = ", Ks, "F3");
-        }
+        }*/
 
-        [TestMethod]
+        /*[TestMethod]
         public void TestKGlass()
         {
             List<Node> nodes = new List<Node>();
@@ -377,7 +355,7 @@ namespace FemTest.SolverTest
                 //Kg = Kg + kGauss;
             }
             //FEMUtilities.WriteMatrix("Kg = ", Kg, "F5");
-        }
+        }*/
 
         /// <summary>
         /// Single plate +y
@@ -520,7 +498,7 @@ namespace FemTest.SolverTest
         }
 
         /// <summary>
-        /// Similitudine con Kirchoff
+        /// Similitudine con Kirchoff - piastra appoggiata su 4 lati con carico uniforme
         /// </summary>
         [TestMethod]
         public void KirchoffTest1()
@@ -796,7 +774,7 @@ namespace FemTest.SolverTest
             double x = 0;
             double y = 0;
 
-            var curvatures = element.GetCurvatures(x,y, globalDispl);
+            var curvatures = element.GetGlassCurvatures(x,y, globalDispl);
 
             Assert.AreEqual(-0.0125, curvatures[0], 1e-3);
             Assert.AreEqual(-0.0125, curvatures[1], 1e-3);
@@ -848,7 +826,7 @@ namespace FemTest.SolverTest
         }
 
         /// <summary>
-        /// Similitudine con Kirchoff
+        /// Similitudine con Kirchoff - - piastra appoggiata su 4 lati con carico concentrato in mezzeria
         /// </summary>
         [TestMethod]
         public void KirchoffTest2()
@@ -1114,22 +1092,22 @@ namespace FemTest.SolverTest
             var element = els[58]; //elemento di bordo
             
             #region glass top
-            var stressTopGlassTopFaceNode1 = fem0.GetTLGStress(element, Quad4TripleLaminatedGlass.Glass.Top, Plate.Face.Top, 1);
+            var stressTopGlassTopFaceNode1 = fem0.GetTLGGlassStress(element, Quad4TripleLaminatedGlass.Glass.Top, Plate.Face.Top, 1);
             /*Assert.AreEqual(132.77, stressTopGlassTopFaceNode1[0], 1e-2);
             Assert.AreEqual(6.60, stressTopGlassTopFaceNode1[1], 1e-2);
             Assert.AreEqual(-0.78, stressTopGlassTopFaceNode1[2], 1e-2);*/
 
-            var stressTopGlassTopFaceNode2 = fem0.GetTLGStress(element, Quad4TripleLaminatedGlass.Glass.Top, Plate.Face.Top, 2);
+            var stressTopGlassTopFaceNode2 = fem0.GetTLGGlassStress(element, Quad4TripleLaminatedGlass.Glass.Top, Plate.Face.Top, 2);
             /*Assert.AreEqual(132.77, stressTopGlassTopFaceNode2[0], 1e-2);
             Assert.AreEqual(6.60, stressTopGlassTopFaceNode2[1], 1e-2);
             Assert.AreEqual(-0.78, stressTopGlassTopFaceNode2[2], 1e-2);*/
 
-            var stressTopGlassTopFaceNode3 = fem0.GetTLGStress(element, Quad4TripleLaminatedGlass.Glass.Top, Plate.Face.Top, 3);
+            var stressTopGlassTopFaceNode3 = fem0.GetTLGGlassStress(element, Quad4TripleLaminatedGlass.Glass.Top, Plate.Face.Top, 3);
             /*Assert.AreEqual(132.77, stressTopGlassTopFaceNode3[0], 1e-2);
             Assert.AreEqual(6.60, stressTopGlassTopFaceNode3[1], 1e-2);
             Assert.AreEqual(-0.78, stressTopGlassTopFaceNode3[2], 1e-2);*/
 
-            var stressTopGlassTopFaceNode4 = fem0.GetTLGStress(element, Quad4TripleLaminatedGlass.Glass.Top, Plate.Face.Top, 4);
+            var stressTopGlassTopFaceNode4 = fem0.GetTLGGlassStress(element, Quad4TripleLaminatedGlass.Glass.Top, Plate.Face.Top, 4);
             /*Assert.AreEqual(132.77, stressTopGlassTopFaceNode4[0], 1e-2);
             Assert.AreEqual(6.60, stressTopGlassTopFaceNode4[1], 1e-2);
             Assert.AreEqual(-0.78, stressTopGlassTopFaceNode4[2], 1e-2);*/
@@ -1137,19 +1115,33 @@ namespace FemTest.SolverTest
         }
 
         /// <summary>
-        /// Similitudine con Kirchoff
+        /// Similitudine con Kirchoff - trave appoggiata con forza concentrata in mezzeria
         /// </summary>
         [TestMethod]
-        public void KirchoffTest3()
+        public void KirchoffBeamTest3()
         {
             double hGlass1 = 0.5;
             double hGlass2 = 0.5;
             double EGlass = 1000.0;
             double niGlass = 0.0;
 
-            double G0 = EGlass / (2.0 * (1.0 + niGlass));
+            double EInterlayer = 0.1;
+            double niInterlayer = 0.0;
+            double G0 = EInterlayer / (2.0 * (1.0 + niInterlayer));
 
-            double hInterlayer = 0.005;
+            double hInterlayer = 0.1;
+
+            double F = 4.0;
+            double L = 10.0;
+            double b = 1.0;
+            double h = hGlass1 + hGlass2 + hInterlayer;
+
+            double V = F / 2.0;
+            double M = F * L / 4.0;
+
+            double J = 1.0 / 12.0 * b * h * h * h;
+            double W = 1.0 / 6.0 * b * h * h;
+            double spost = F * L * L * L / (48.0 * EGlass * J);
 
             List<Node> nodes = new List<Node>();
             #region nodes
@@ -1241,7 +1233,7 @@ namespace FemTest.SolverTest
             #endregion
 
             List<Quad4TripleLaminatedGlass> els = new List<Quad4TripleLaminatedGlass>();
-            bool quadrilateral = true;
+            bool quadrilateral = false;
             #region els
             els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[45], nodes[46], nodes[24], nodes[23] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
             els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[49], nodes[50], nodes[26], nodes[25] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
@@ -1307,7 +1299,7 @@ namespace FemTest.SolverTest
 
             CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
 
-            NodeForceAttribute f = new NodeForceAttribute("lc", sys, 0, 0, 5, 0, 0, 0);
+            NodeForceAttribute f = new NodeForceAttribute("lc", sys, 0, 0, F/4.0, 0, 0, 0);
             nodes.Where(nd => nd.Position.X == 5).ToList().ForEach(x => x.AddAttribute(f));
 
             NodeRestrainAttribute dz = new NodeRestrainAttribute("freedomCase", sys);
@@ -1318,19 +1310,43 @@ namespace FemTest.SolverTest
            
             LinearSolver fem0 = new LinearSolver(els.ToArray());
 
-            Console.WriteLine(fem0.GetDisplacementGlobalCoordinates(nodes[63], Solver.DOF.DZ));
-            //Assert.AreEqual(5.134, fem0.GetDisplacementGlobalCoordinates(nodes[63], Solver.DOF.DZ), 0.01); //Come soluzione kirchoff
+            var dzTLG = fem0.GetDisplacementGlobalCoordinates(nodes[63], Solver.DOF.DZ);
+            Console.WriteLine("displ = " + dzTLG +" vs " + spost);
+//            Assert.AreEqual(1.0 , spost / dzTLG, 0.05); //Come soluzione kirchoff
 
             var element = els[29]; //elemento
 
             #region glass top
-            var stressTopGlassTopFaceNode1 = fem0.GetTLGStress(element, Quad4TripleLaminatedGlass.Glass.Top, Plate.Face.Top, 1);
+            double sigma = M / W;
+            var stressTopGlassTopFaceNode1 = fem0.GetTLGGlassStress(element, Quad4TripleLaminatedGlass.Glass.Top, Plate.Face.Top, 1);
+  
+            var stressTopGlassTopFaceNode2 = fem0.GetTLGGlassStress(element, Quad4TripleLaminatedGlass.Glass.Top, Plate.Face.Top, 2);
+//            Assert.AreEqual(1.0, sigma / stressTopGlassTopFaceNode2[0], 0.06);
 
-            var stressTopGlassTopFaceNode2 = fem0.GetTLGStress(element, Quad4TripleLaminatedGlass.Glass.Top, Plate.Face.Top, 2);
+            var stressTopGlassTopFaceNode3 = fem0.GetTLGGlassStress(element, Quad4TripleLaminatedGlass.Glass.Top, Plate.Face.Top, 3);
+//            Assert.AreEqual(1.0, sigma / stressTopGlassTopFaceNode3[0], 0.06);
 
-            var stressTopGlassTopFaceNode3 = fem0.GetTLGStress(element, Quad4TripleLaminatedGlass.Glass.Top, Plate.Face.Top, 3);
+            var stressTopGlassTopFaceNode4 = fem0.GetTLGGlassStress(element, Quad4TripleLaminatedGlass.Glass.Top, Plate.Face.Top, 4);
 
-            var stressTopGlassTopFaceNode4 = fem0.GetTLGStress(element, Quad4TripleLaminatedGlass.Glass.Top, Plate.Face.Top, 4);
+            var bendingGlass = fem0.GetTLGGlassBending(element, 2);
+            var forcesGlass = fem0.GetTLGGlassForces(element, 2);
+            var bendingInterlayer = fem0.GetTLGInterlayerBending(element, 2); //TODO: significato fisico/ingegneristico?
+            var bending = bendingGlass[0] + forcesGlass[0] * (hGlass1/2.0 + hGlass2/2.0 + hInterlayer);
+//            Assert.AreEqual(1.0, (M/b) / bending, 0.055);
+
+            element = els[45]; //elemento
+            bendingGlass = fem0.GetTLGGlassBending(element, 1);
+            forcesGlass = fem0.GetTLGGlassForces(element, 1);
+            bendingInterlayer = fem0.GetTLGInterlayerBending(element, 1); //TODO: significato fisico/ingegneristico?
+            var stressInterlayerNode1 = fem0.GetTLGInterlayerStress(element, 1);
+            var tau = 1.5 * V / (b * h);
+            FEMUtilities.WriteMatrix(stressInterlayerNode1);
+            Console.WriteLine("theoric = " + tau);
+            //Assert.AreEqual(1.0, tau / stressInterlayerNode1, 0.05);
+
+            //NOTE: elemento kirchoff funzionante, ritorna valori sballati per stress interlayer in quanto è tirato per i capelli e insorgono problemi numerici.
+            //lo stesso esempio ricalcolato con valori di G0 e hInterlayer "semi-reali" dopo confronto con modello a brick anche il valore dello stress nell'interlayer converge
+            //TODO: sistemare di conseguenza questo test
             #endregion
         }
 
@@ -6896,7 +6912,7 @@ namespace FemTest.SolverTest
             double hGlass2 = 2.875; //mm
             double hTot = hGlass1 + hGlass2 + hInterlayer;
 
-            double rhoEquivalent = 2.418 / 1000.0 / 1000.0; //kg/mm3
+            //double rhoEquivalent = 2.418 / 1000.0 / 1000.0; //kg/mm3
             
             double G0 = 0.5173;
             double niGlass = 0.23;
