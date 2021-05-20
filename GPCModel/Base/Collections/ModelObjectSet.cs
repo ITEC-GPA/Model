@@ -58,13 +58,28 @@ namespace GPC.Model
         }
 
 
+        /// <inheritdoc cref="Add(T)"/>
+        public virtual bool AddRange(IEnumerable<T> items)
+        {
+            if (items != null)
+            {
+                foreach (var item in items)
+                {
+                    if (!this.Add(item))
+                        return false;
+                }
+                return true;
+            }
+            return false;
+        }
+
         /// <summary>
         /// Get the item inside the collection that is equal to <paramref name="item"/>
         /// </summary>
         /// <param name="item"></param>
         /// <param name="itemFound"></param>
         /// <returns><see langword="True" /> if there is an element equal to <paramref name="item"/> in this collection </returns>
-        public bool GetItem(T item, out T itemFound)
+        public virtual bool GetItem(T item, out T itemFound)
         {
             lock (_locker)
             {
@@ -89,7 +104,7 @@ namespace GPC.Model
             this.Add(item);
         }
 
-        public void Clear()
+        public virtual void Clear()
         {
             lock (_locker)
             {
@@ -97,7 +112,7 @@ namespace GPC.Model
             }
         }
 
-        public bool Contains(T item)
+        public virtual bool Contains(T item)
         {
             lock (_locker)
             {
@@ -105,7 +120,7 @@ namespace GPC.Model
             }
         }
 
-        public void CopyTo(T[] array, int arrayIndex)
+        public virtual void CopyTo(T[] array, int arrayIndex)
         {
             lock (_locker)
             {
@@ -113,7 +128,7 @@ namespace GPC.Model
             }
         }
 
-        public bool Remove(T item)
+        public virtual bool Remove(T item)
         {
             lock (_locker)
             {

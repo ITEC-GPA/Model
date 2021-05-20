@@ -9,6 +9,8 @@ using System.Text;
 
 namespace GPC.Model.Combinations
 {
+
+    /// <remarks>This is a mutable object</remarks>
     [Serializable]
     [DebuggerDisplay("{" + nameof(GetDebuggerDisplay) + "(),nq}")]
     public class Combination : ModelObject, ILoadCase, ICloneable
@@ -374,31 +376,33 @@ namespace GPC.Model.Combinations
             if (ReferenceEquals(this, obj))
                 return true;
 
-            Combination objCasted = obj as Combination;
+            if (obj is Combination objCasted)
+            {
+                bool equalsOption;
+                if (_options is null)
+                    equalsOption = objCasted._options == null;
+                else
+                    equalsOption = _options.Equals(objCasted._options);
 
-            bool equalsOption;
-            if (_options is null)
-                equalsOption = objCasted._options == null;
-            else
-                equalsOption = _options.Equals(objCasted._options);
-
-            return !(objCasted is null) && _coefficients.ScrambledEquals(objCasted._coefficients) && equalsOption && base.Equals(objCasted);
+                return !(objCasted is null) && _coefficients.ScrambledEquals(objCasted._coefficients) && equalsOption && base.Equals(objCasted);
+            }
+            return false;
         }
 
         public override int GetHashCode()
         {
             unchecked
             {
-                var hashCode = 23;
-                hashCode = hashCode + base.GetHashCode();
+                var hashCode = -23;
+                hashCode += base.GetHashCode();
 
                 foreach (var element in _coefficients)
                 {
-                    hashCode = hashCode + 17 * EqualityComparer<LoadCaseCoefficient>.Default.GetHashCode(element);
+                    hashCode += -17 * EqualityComparer<LoadCaseCoefficient>.Default.GetHashCode(element);
                 }
 
                 if (_options != null)
-                    hashCode = hashCode + 17 * _options.GetHashCode();
+                    hashCode += -17 * _options.GetHashCode();
 
                 return hashCode; 
             }
@@ -406,11 +410,13 @@ namespace GPC.Model.Combinations
 
         public static bool operator ==(Combination obj1, Combination obj2)
         {
+            if (obj1 is null)
+            {
+                return obj2 is null;
+            }
+
             if (ReferenceEquals(obj1, obj2))
                 return true;
-
-            if (obj1 is null || obj2 is null)
-                return false;
 
             return obj1.Equals(obj2);
         }
@@ -484,9 +490,7 @@ namespace GPC.Model.Combinations
 
             public bool Equals(LoadCaseCoefficient other)
             {
-                return other != null &&
-                       EqualityComparer<LoadCaseBase>.Default.Equals(_loadcase, other._loadcase) &&
-                       _coefficient == other._coefficient;
+                return other != null && _loadcase.Equals(other._loadcase) && _coefficient.Equals(other._coefficient);
             }
 
             public override int GetHashCode()
@@ -494,7 +498,7 @@ namespace GPC.Model.Combinations
                 unchecked
                 {
                     var hashCode = -23;
-                    hashCode = hashCode * -17 + EqualityComparer<LoadCaseBase>.Default.GetHashCode(_loadcase);
+                    hashCode = hashCode * -17 + _loadcase.GetHashCode();
                     hashCode = hashCode * -17 + _coefficient.GetHashCode();
                     return hashCode; 
                 }
@@ -502,11 +506,13 @@ namespace GPC.Model.Combinations
 
             public static bool operator ==(LoadCaseCoefficient obj1, LoadCaseCoefficient obj2)
             {
+                if (obj1 is null)
+                {
+                    return obj2 is null;
+                }
+
                 if (ReferenceEquals(obj1, obj2))
                     return true;
-
-                if (obj1 is null || obj2 is null)
-                    return false;
 
                 return obj1.Equals(obj2);
             }
@@ -551,10 +557,10 @@ namespace GPC.Model.Combinations
             /// <remarks> Only <see cref="Combination._coefficients"/> are used as equality parameters </remarks>
             int IEqualityComparer<Combination>.GetHashCode(Combination obj)
             {
-                var hashCode = 23;
+                var hashCode = -23;
                 foreach (var element in obj._coefficients)
                 {
-                    hashCode = hashCode + EqualityComparer<LoadCaseCoefficient>.Default.GetHashCode(element);
+                    hashCode += EqualityComparer<LoadCaseCoefficient>.Default.GetHashCode(element);
                 }
                 return hashCode;
             }

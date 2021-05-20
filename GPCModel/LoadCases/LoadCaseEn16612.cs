@@ -62,8 +62,7 @@ namespace GPC.Model.LoadCases
             if (ReferenceEquals(this, obj))
                 return true;
 
-            LoadCaseEn16612 objCasted = obj as LoadCaseEn16612;
-            return !(objCasted is null) && _loadCaseEn16612Type.Equals(objCasted._loadCaseEn16612Type) && base.Equals(objCasted);
+            return (obj is LoadCaseEn16612 objCasted) && _loadCaseEn16612Type.Equals(objCasted._loadCaseEn16612Type) && base.Equals(objCasted);
         }
 
         public override int GetHashCode()
@@ -77,11 +76,13 @@ namespace GPC.Model.LoadCases
 
         public static bool operator ==(LoadCaseEn16612 obj1, LoadCaseEn16612 obj2)
         {
+            if (obj1 is null)
+            {
+                return obj2 is null;
+            }
+
             if (ReferenceEquals(obj1, obj2))
                 return true;
-
-            if (obj1 is null || obj2 is null)
-                return false;
 
             return obj1.Equals(obj2);
         }

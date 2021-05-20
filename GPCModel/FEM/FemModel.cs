@@ -87,9 +87,17 @@ namespace GPC.Model.FEM
         /// </summary>
         protected UniqueNameCollection<Combination> _combinations;
 
+
+        /// <summary>
+        /// Map between stageId and stage combinations
+        /// </summary>
+        protected Dictionary<int, HashSet<string>> _stageCombinationsMap;
+
+
+
         // STAGE
 
-        protected ModelObjectSet<Stage> _stages;
+        protected UniqueIdCollection<Stage> _stages;
 
         // MODELATTRIBUTES
 
@@ -131,7 +139,7 @@ namespace GPC.Model.FEM
             _elements = new FemObjectCollection<FiniteElement>();
             _costrains = new FemObjectCollection<Costrain>();
 
-            _stages = new ModelObjectSet<Stage>(new ModelObjectId.ModelObjectIdEqualityComparer()); // solo id come equality comparer
+            _stages = new UniqueIdCollection<Stage>(); // solo id come equality comparer
 
             _plateProperties = new UniqueNameCollection<PlateProperty>();
             _brickProperties = new UniqueNameCollection<BrickProperty>();
@@ -139,6 +147,8 @@ namespace GPC.Model.FEM
             _loadCases = new UniqueNameCollection<LoadCaseBase>();
             _freedomCases = new UniqueNameCollection<FreedomCase>();
             _combinations = new UniqueNameCollection<Combination>();
+
+            _stageCombinationsMap = new Dictionary<int, HashSet<string>>();
 
             _analysisType = AnalysisTypes.Linear;
 
@@ -159,7 +169,7 @@ namespace GPC.Model.FEM
         #region Add Get Attributes
 
 
-        #region Properties
+        #region Element Properties
 
         /// <returns><see langword="true"/> if the property has been added. 
         /// <para><see langword="false"/> if a property with the same name is already present</para> 
@@ -263,11 +273,23 @@ namespace GPC.Model.FEM
         }
 
 
-        public virtual bool AddCombinations(List<Combination> combinations)
+        public virtual bool AddCombinations(IEnumerable<Combination> combinations)
         {
             return _combinations.AddRange(combinations);
         }
 
+        internal bool AddStageCombinationMap(int stageId, string combinationName)
+        {
+            if (!_stageCombinationsMap.ContainsKey(stageId))
+                _stageCombinationsMap[stageId] = new HashSet<string>();
+
+            return _stageCombinationsMap[stageId].Add(combinationName);
+        }
+
+        internal bool RemoveStageCombinationMap(int stageId, string combinationName)
+        {
+            return _stageCombinationsMap[stageId].Remove(combinationName);
+        }
         #endregion
 
 
@@ -289,9 +311,7 @@ namespace GPC.Model.FEM
         /// <exception cref="ArgumentException">If stage with id equals to <paramref name="stageId"/> does not exist</exception>
         public virtual Stage AddStage(int stageId)
         {
-            Stage stage = _stages.Where(i => i.Id == stageId).FirstOrDefault();
-            if (stage == default)
-                throw new ArgumentException($"Stage with Id:{stageId} does not exist");
+            Stage stage = _stages.GetElementById(stageId);
 
             var stageCloned = new Stage(stage);
             _stages.Add(new Stage(stage));
@@ -314,18 +334,24 @@ namespace GPC.Model.FEM
 
         public virtual Stage GetStageById(int stageId)
         {
-            return _stages.Where(i => i.Id == stageId).FirstOrDefault();
+            return _stages.GetElementById(stageId);
+        }
+
+        public virtual bool ContainsStageId(int stageId)
+        {
+            return _stages.Contains(stageId);
         }
 
         public virtual IEnumerable<Combination> GetStageCombinations(int stageId)
         {
-            return _stages.Where(i => i.Id == stageId).FirstOrDefault().GetCombinations();
+            return _stages.GetElementById(stageId).GetCombinations();
         }
 
         public virtual IEnumerator<KeyValuePair<FiniteElement, Stage.StageFiniteElementProperty>> GetStagePropertyEnumerator(int stageId)
         {
-            return _stages.Where(i => i.Id == stageId).SingleOrDefault().GetStageFiniteElementPropertiesEnumerator();
+            return _stages.GetElementById(stageId).GetStageFiniteElementPropertiesEnumerator();
         }
+
 
 
         #endregion
@@ -1308,6 +1334,13 @@ namespace GPC.Model.FEM
         {
             throw new NotImplementedException();
         }
+
+
+        public virtual void SolveStaged()
+        {
+            throw new NotImplementedException();
+        }
+
 
         #endregion
 

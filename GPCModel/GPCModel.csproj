@@ -67,11 +67,13 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Base\Collections\UniqueIdCollection.cs" />
     <Compile Include="Base\ModelObjectId.cs" />
-    <Compile Include="Base\ModelObjectSet.cs" />
-    <Compile Include="Base\UniqueNameCollection.cs" />
-    <Compile Include="Base\ModelObjectEnumerable.cs" />
-    <Compile Include="Base\UniqueObjectCollection.cs" />
+    <Compile Include="Base\Collections\ModelObjectSet.cs" />
+    <Compile Include="Base\Collections\ModelObjectIdSet.cs" />
+    <Compile Include="Base\Collections\UniqueNameCollection.cs" />
+    <Compile Include="Base\Collections\ModelObjectEnumerable.cs" />
+    <Compile Include="Base\Collections\UniqueObjectCollection.cs" />
     <Compile Include="Base\UnitsSystem.cs" />
     <Compile Include="Base\Units.cs" />
     <Compile Include="Combinations\CombinationsCollection.cs" />

@@ -270,49 +270,31 @@ namespace GPC.Model.FEM
 
         }
 
-        ///// <summary>
-        ///// Add each node of the collection to the stage
-        ///// </summary>
-        ///// <returns></returns>
-        ///// <inheritdoc cref="FemObjectStageCollection{T, D}.SetItem(T, D)"/>
-        //internal void SetNodes(FemObjectCollection<Node> nodes)
-        //{
-        //    foreach (var node in nodes)
-        //    {
-        //        // TODO: controllare che nodo sia nel ref model
-
-        //        StageProperty sp = new StageProperty();
-        //        sp.AddLoadCaseAttributes(node.AttributesLoadCase.Cast<LoadCaseAttribute>().ToList());
-        //        sp.AddFreedomCaseAttributes(node.AttributesFreedomCase.Cast<FreedomCaseAttribute>().ToList());
-
-        //        _nodes.SetItem(node, sp);
-        //    }
-        //}
-
-        ///// <summary>
-        ///// Set the <paramref name="nodes"/> collection as the <see cref="Stage._nodes"/>
-        ///// </summary>
-        ///// <param name="nodes"></param>
-        //internal void SetNodes(NodeStageCollection<Node, StageProperty> nodes)
-        //{
-        //    if (nodes != null)
-        //        this._nodes = nodes;
-        //}
-
-
         #endregion
 
         #region Combination
 
-        public void AddCombination(Combination combination)
+        public bool AddCombination(Combination combination)
         {
             if (combination != null)
-                _combinations.Add(combination);
+            {
+                if (_combinations.Add(combination))
+                {
+                    return _femModel.AddStageCombinationMap(Id, combination.Name);
+                }
+            }
+            return false;
         }
 
-        public void AddCombinations(List<Combination> combinations)
+
+        public bool AddCombinations(IEnumerable<Combination> combinations)
         {
-            _combinations.AddRange(combinations);
+            foreach(var item in combinations)
+            {
+                if (!AddCombination(item))
+                    return false;
+            }
+            return true;
         }
 
         internal IEnumerable<Combination> GetCombinations()
@@ -320,6 +302,11 @@ namespace GPC.Model.FEM
             return _combinations.ToList();
         }
         
+        public bool RemoveCombination(string combinationName)
+        {
+            return _femModel.RemoveStageCombinationMap(Id, combinationName);
+        }
+
         #endregion
 
         #region StageProperties

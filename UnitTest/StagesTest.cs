@@ -170,5 +170,21 @@ namespace FemTest
             Assert.AreEqual(2, (m1.GetFiniteElement(5).Property as PlateProperty).MembraneThickness);
             Assert.AreEqual(20, (m2.GetFiniteElement(5).Property as PlateProperty).MembraneThickness, (m2.GetFiniteElement(5).Property as PlateProperty).MembraneThickness.ToString());
         }
+
+
+        [TestMethod]
+        public void StageTest3()
+        {
+
+            FemModel model = new FemModel();
+
+            var stage1 = model.AddStage("Stg1", FemModel.AnalysisTypes.Linear);
+            var stage2 = model.AddStage("Stg2", FemModel.AnalysisTypes.Linear);
+
+            Assert.IsTrue(model.ContainsStageId(stage1.Id));
+            Assert.IsTrue(model.ContainsStageId(stage2.Id));
+
+
+        }
     }
 }
