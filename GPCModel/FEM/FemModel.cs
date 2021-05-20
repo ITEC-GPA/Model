@@ -115,7 +115,7 @@ namespace GPC.Model.FEM
 
         #region Properties
 
-        public AnalysisTypes AnalysisType { get => _analysisType; set => _analysisType = value; }
+        public virtual AnalysisTypes AnalysisType { get => _analysisType; set => _analysisType = value; }
 
         public IEnumerable<Combination> Combinations => _combinations;
 
