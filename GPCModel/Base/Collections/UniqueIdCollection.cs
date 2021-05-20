@@ -91,7 +91,7 @@ namespace GPC.Model
             {
                 foreach (var item in ids)
                 {
-                    if (_ids.Contains(item))
+                    if (!_ids.Contains(item))
                         return false;
                 }
                 return true;

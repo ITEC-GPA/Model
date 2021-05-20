@@ -337,6 +337,11 @@ namespace GPC.Model.FEM
             return _stages.GetElementById(stageId);
         }
 
+        public virtual bool ContainsStageId(int stageId)
+        {
+            return _stages.Contains(stageId);
+        }
+
         public virtual IEnumerable<Combination> GetStageCombinations(int stageId)
         {
             return _stages.GetElementById(stageId).GetCombinations();
