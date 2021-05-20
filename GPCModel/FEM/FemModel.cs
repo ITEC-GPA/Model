@@ -91,7 +91,7 @@ namespace GPC.Model.FEM
         /// <summary>
         /// Map used to identify how a combination is splitted into different stage combinations.
         /// </summary>
-        protected Dictionary<string, (int[] stageIds, string[] stageCombinationsNames)> _stageCombinationsMap;
+        protected Dictionary<string, (List<int> stageIds, List<string> stageCombinationsNames)> _stageCombinationsMap;
 
 
         // STAGE
@@ -147,7 +147,7 @@ namespace GPC.Model.FEM
             _freedomCases = new UniqueNameCollection<FreedomCase>();
             _combinations = new UniqueNameCollection<Combination>();
 
-            _stageCombinationsMap = new Dictionary<string, (int[] stageIds, string[] stageCombinationsNames)>();
+            _stageCombinationsMap = new Dictionary<string, (List<int> stageIds, List<string> stageCombinationsNames)>();
                  
             _analysisType = AnalysisTypes.Linear;
 
@@ -286,6 +286,7 @@ namespace GPC.Model.FEM
         /// <para><see langword="False"/> if <paramref name="stageIds"/> lenght is differenet to <paramref name="stageCombinationsNames"/> lenght</para>
         /// <para><see langword="False"/> if <paramref name="stageIds"/> or <paramref name="stageCombinationsNames"/> are not contained the in the collections</para>
         /// </returns>
+        /// <remarks>If the <paramref name="combinationName"/> already exist, the <paramref name="stageIds"/> and <paramref name="stageCombinationsNames"/> will be merged </remarks>
         public virtual bool AddStageCombinationMap(string combinationName, IEnumerable<int> stageIds, IEnumerable<string> stageCombinationsNames)
         {
             if (!_combinations.Contains(combinationName))
@@ -296,15 +297,25 @@ namespace GPC.Model.FEM
 
             if (_stages.ContainsRange(stageIds) && _combinations.ContainsRange(stageCombinationsNames))
             {
-                _stageCombinationsMap[combinationName] = (stageIds.ToArray(), stageCombinationsNames.ToArray());
+                if (_stageCombinationsMap.ContainsKey(combinationName))
+                {
+                    _stageCombinationsMap[combinationName].stageIds.AddRange(stageIds);
+                    _stageCombinationsMap[combinationName].stageCombinationsNames.AddRange(stageCombinationsNames);
+                }
+
+                _stageCombinationsMap[combinationName] = (stageIds.ToList(), stageCombinationsNames.ToList());
 
                 return true;
             }
             return false;
         }
 
+        public virtual bool RemoveStageCombinationMap(string combinationName)
+        {
+            return _stageCombinationsMap.Remove(combinationName);
+        }
 
-        public virtual (int[] stageIds, string[] stageCombinationsNames) GetStageCombinationMap(string combinationName)
+        public virtual (List<int> stageIds, List<string> stageCombinationsNames) GetStageCombinationMap(string combinationName)
         {
             if (!_stageCombinationsMap.ContainsKey(combinationName))
                 throw new KeyNotFoundException(combinationName);
