@@ -274,20 +274,27 @@ namespace GPC.Model.FEM
 
         #region Combination
 
-        public void AddCombination(Combination combination)
+        public bool AddCombination(Combination combination)
         {
             if (combination != null)
             {
                 if (_combinations.Add(combination))
                 {
-                    _femModel.AddStageCombinationMap(Id, combination.Name);
+                    return _femModel.AddStageCombinationMap(Id, combination.Name);
                 }
             }
+            return false;
         }
 
-        public void AddCombinations(List<Combination> combinations)
+
+        public bool AddCombinations(IEnumerable<Combination> combinations)
         {
-            combinations.ForEach(i => AddCombination(i));
+            foreach(var item in combinations)
+            {
+                if (!AddCombination(item))
+                    return false;
+            }
+            return true;
         }
 
         internal IEnumerable<Combination> GetCombinations()
@@ -295,6 +302,11 @@ namespace GPC.Model.FEM
             return _combinations.ToList();
         }
         
+        public bool RemoveCombination(string combinationName)
+        {
+            return _femModel.RemoveStageCombinationMap(Id, combinationName);
+        }
+
         #endregion
 
         #region StageProperties

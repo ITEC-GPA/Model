@@ -273,7 +273,7 @@ namespace GPC.Model.FEM
         }
 
 
-        public virtual bool AddCombinations(List<Combination> combinations)
+        public virtual bool AddCombinations(IEnumerable<Combination> combinations)
         {
             return _combinations.AddRange(combinations);
         }
@@ -286,6 +286,10 @@ namespace GPC.Model.FEM
             return _stageCombinationsMap[stageId].Add(combinationName);
         }
 
+        internal bool RemoveStageCombinationMap(int stageId, string combinationName)
+        {
+            return _stageCombinationsMap[stageId].Remove(combinationName);
+        }
         #endregion
 
 
