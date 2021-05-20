@@ -89,9 +89,10 @@ namespace GPC.Model.FEM
 
 
         /// <summary>
-        /// Map used to identify how a combination is splitted into different stage combinations.
+        /// Map between stageId and stage combinations
         /// </summary>
-        protected Dictionary<string, (List<int> stageIds, List<string> stageCombinationsNames)> _stageCombinationsMap;
+        protected Dictionary<int, HashSet<string>> _stageCombinationsMap;
+
 
 
         // STAGE
@@ -147,8 +148,8 @@ namespace GPC.Model.FEM
             _freedomCases = new UniqueNameCollection<FreedomCase>();
             _combinations = new UniqueNameCollection<Combination>();
 
-            _stageCombinationsMap = new Dictionary<string, (List<int> stageIds, List<string> stageCombinationsNames)>();
-                 
+            _stageCombinationsMap = new Dictionary<int, HashSet<string>>();
+
             _analysisType = AnalysisTypes.Linear;
 
             _modelAttributes = new List<IModelAttribute>();
@@ -277,50 +278,12 @@ namespace GPC.Model.FEM
             return _combinations.AddRange(combinations);
         }
 
-
-        /// <summary>
-        /// Map used to identify how a combination is splitted into different stage combinations.
-        /// </summary>
-        /// <returns> 
-        /// <para><see langword="False"/> if <paramref name="combinationName"/> is not contained in the <see cref="Combinations"/> collection</para>
-        /// <para><see langword="False"/> if <paramref name="stageIds"/> lenght is differenet to <paramref name="stageCombinationsNames"/> lenght</para>
-        /// <para><see langword="False"/> if <paramref name="stageIds"/> or <paramref name="stageCombinationsNames"/> are not contained the in the collections</para>
-        /// </returns>
-        /// <remarks>If the <paramref name="combinationName"/> already exist, the <paramref name="stageIds"/> and <paramref name="stageCombinationsNames"/> will be merged </remarks>
-        public virtual bool AddStageCombinationMap(string combinationName, IEnumerable<int> stageIds, IEnumerable<string> stageCombinationsNames)
+        internal bool AddStageCombinationMap(int stageId, string combinationName)
         {
-            if (!_combinations.Contains(combinationName))
-                return false;
+            if (!_stageCombinationsMap.ContainsKey(stageId))
+                _stageCombinationsMap[stageId] = new HashSet<string>();
 
-            if (stageIds.Count() != stageCombinationsNames.Count())
-                return false;
-
-            if (_stages.ContainsRange(stageIds) && _combinations.ContainsRange(stageCombinationsNames))
-            {
-                if (_stageCombinationsMap.ContainsKey(combinationName))
-                {
-                    _stageCombinationsMap[combinationName].stageIds.AddRange(stageIds);
-                    _stageCombinationsMap[combinationName].stageCombinationsNames.AddRange(stageCombinationsNames);
-                }
-
-                _stageCombinationsMap[combinationName] = (stageIds.ToList(), stageCombinationsNames.ToList());
-
-                return true;
-            }
-            return false;
-        }
-
-        public virtual bool RemoveStageCombinationMap(string combinationName)
-        {
-            return _stageCombinationsMap.Remove(combinationName);
-        }
-
-        public virtual (List<int> stageIds, List<string> stageCombinationsNames) GetStageCombinationMap(string combinationName)
-        {
-            if (!_stageCombinationsMap.ContainsKey(combinationName))
-                throw new KeyNotFoundException(combinationName);
-
-            return _stageCombinationsMap[combinationName];
+            return _stageCombinationsMap[stageId].Add(combinationName);
         }
 
         #endregion
@@ -381,6 +344,7 @@ namespace GPC.Model.FEM
         {
             return _stages.Where(i => i.Id == stageId).SingleOrDefault().GetStageFiniteElementPropertiesEnumerator();
         }
+
 
 
         #endregion
@@ -1363,6 +1327,13 @@ namespace GPC.Model.FEM
         {
             throw new NotImplementedException();
         }
+
+
+        public virtual void SolveStaged()
+        {
+            throw new NotImplementedException();
+        }
+
 
         #endregion
 

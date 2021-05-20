@@ -270,36 +270,6 @@ namespace GPC.Model.FEM
 
         }
 
-        ///// <summary>
-        ///// Add each node of the collection to the stage
-        ///// </summary>
-        ///// <returns></returns>
-        ///// <inheritdoc cref="FemObjectStageCollection{T, D}.SetItem(T, D)"/>
-        //internal void SetNodes(FemObjectCollection<Node> nodes)
-        //{
-        //    foreach (var node in nodes)
-        //    {
-        //        // TODO: controllare che nodo sia nel ref model
-
-        //        StageProperty sp = new StageProperty();
-        //        sp.AddLoadCaseAttributes(node.AttributesLoadCase.Cast<LoadCaseAttribute>().ToList());
-        //        sp.AddFreedomCaseAttributes(node.AttributesFreedomCase.Cast<FreedomCaseAttribute>().ToList());
-
-        //        _nodes.SetItem(node, sp);
-        //    }
-        //}
-
-        ///// <summary>
-        ///// Set the <paramref name="nodes"/> collection as the <see cref="Stage._nodes"/>
-        ///// </summary>
-        ///// <param name="nodes"></param>
-        //internal void SetNodes(NodeStageCollection<Node, StageProperty> nodes)
-        //{
-        //    if (nodes != null)
-        //        this._nodes = nodes;
-        //}
-
-
         #endregion
 
         #region Combination
@@ -307,12 +277,17 @@ namespace GPC.Model.FEM
         public void AddCombination(Combination combination)
         {
             if (combination != null)
-                _combinations.Add(combination);
+            {
+                if (_combinations.Add(combination))
+                {
+                    _femModel.AddStageCombinationMap(Id, combination.Name);
+                }
+            }
         }
 
         public void AddCombinations(List<Combination> combinations)
         {
-            _combinations.AddRange(combinations);
+            combinations.ForEach(i => AddCombination(i));
         }
 
         internal IEnumerable<Combination> GetCombinations()
