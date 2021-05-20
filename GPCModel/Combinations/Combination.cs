@@ -9,6 +9,8 @@ using System.Text;
 
 namespace GPC.Model.Combinations
 {
+
+    /// <remarks>This is a mutable object</remarks>
     [Serializable]
     [DebuggerDisplay("{" + nameof(GetDebuggerDisplay) + "(),nq}")]
     public class Combination : ModelObject, ILoadCase, ICloneable
