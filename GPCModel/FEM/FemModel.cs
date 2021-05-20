@@ -87,9 +87,16 @@ namespace GPC.Model.FEM
         /// </summary>
         protected UniqueNameCollection<Combination> _combinations;
 
+
+        /// <summary>
+        /// Map used to identify how a combination is splitted into different stage combinations.
+        /// </summary>
+        protected Dictionary<string, (int[] stageIds, string[] stageCombinationsNames)> _stageCombinationsMap;
+
+
         // STAGE
 
-        protected ModelObjectSet<Stage> _stages;
+        protected UniqueIdCollection<Stage> _stages;
 
         // MODELATTRIBUTES
 
@@ -131,7 +138,7 @@ namespace GPC.Model.FEM
             _elements = new FemObjectCollection<FiniteElement>();
             _costrains = new FemObjectCollection<Costrain>();
 
-            _stages = new ModelObjectSet<Stage>(new ModelObjectId.ModelObjectIdEqualityComparer()); // solo id come equality comparer
+            _stages = new UniqueIdCollection<Stage>(); // solo id come equality comparer
 
             _plateProperties = new UniqueNameCollection<PlateProperty>();
             _brickProperties = new UniqueNameCollection<BrickProperty>();
@@ -140,6 +147,8 @@ namespace GPC.Model.FEM
             _freedomCases = new UniqueNameCollection<FreedomCase>();
             _combinations = new UniqueNameCollection<Combination>();
 
+            _stageCombinationsMap = new Dictionary<string, (int[] stageIds, string[] stageCombinationsNames)>();
+                 
             _analysisType = AnalysisTypes.Linear;
 
             _modelAttributes = new List<IModelAttribute>();
@@ -159,7 +168,7 @@ namespace GPC.Model.FEM
         #region Add Get Attributes
 
 
-        #region Properties
+        #region Element Properties
 
         /// <returns><see langword="true"/> if the property has been added. 
         /// <para><see langword="false"/> if a property with the same name is already present</para> 
@@ -266,6 +275,41 @@ namespace GPC.Model.FEM
         public virtual bool AddCombinations(List<Combination> combinations)
         {
             return _combinations.AddRange(combinations);
+        }
+
+
+        /// <summary>
+        /// Map used to identify how a combination is splitted into different stage combinations.
+        /// </summary>
+        /// <returns> 
+        /// <para><see langword="False"/> if <paramref name="combinationName"/> is not contained in the <see cref="Combinations"/> collection</para>
+        /// <para><see langword="False"/> if <paramref name="stageIds"/> lenght is differenet to <paramref name="stageCombinationsNames"/> lenght</para>
+        /// <para><see langword="False"/> if <paramref name="stageIds"/> or <paramref name="stageCombinationsNames"/> are not contained the in the collections</para>
+        /// </returns>
+        public virtual bool AddStageCombinationMap(string combinationName, IEnumerable<int> stageIds, IEnumerable<string> stageCombinationsNames)
+        {
+            if (!_combinations.Contains(combinationName))
+                return false;
+
+            if (stageIds.Count() != stageCombinationsNames.Count())
+                return false;
+
+            if (_stages.ContainsRange(stageIds) && _combinations.ContainsRange(stageCombinationsNames))
+            {
+                _stageCombinationsMap[combinationName] = (stageIds.ToArray(), stageCombinationsNames.ToArray());
+
+                return true;
+            }
+            return false;
+        }
+
+
+        public virtual (int[] stageIds, string[] stageCombinationsNames) GetStageCombinationMap(string combinationName)
+        {
+            if (!_stageCombinationsMap.ContainsKey(combinationName))
+                throw new KeyNotFoundException(combinationName);
+
+            return _stageCombinationsMap[combinationName];
         }
 
         #endregion
