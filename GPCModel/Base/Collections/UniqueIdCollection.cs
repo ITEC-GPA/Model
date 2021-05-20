@@ -60,12 +60,41 @@ namespace GPC.Model
             }
         }
 
+
+        /// <returns><see langword="True" /> if all the <paramref name="items"/> are contained into the collection </returns>
+        public bool ContainsRange(IEnumerable<T> items)
+        {
+            lock (_locker)
+            {
+                foreach(var item in items)
+                {
+                    if (_collection.Contains(item))
+                        return false;
+                }
+                return true;
+            }
+        }
+
         /// <returns><see langword="True" /> if this collection contains an element with <see cref="ModelObjectId.Id"/> equals to <paramref name="id"/> </returns>
         public bool Contains(int id)
         {
             lock (_locker)
             {
                 return _ids.Contains(id);
+            }
+        }
+
+        /// <returns><see langword="True" /> if all the <paramref name="ids"/> are contained into the collection </returns>
+        public bool ContainsRange(IEnumerable<int> ids)
+        {
+            lock (_locker)
+            {
+                foreach (var item in ids)
+                {
+                    if (_ids.Contains(item))
+                        return false;
+                }
+                return true;
             }
         }
 

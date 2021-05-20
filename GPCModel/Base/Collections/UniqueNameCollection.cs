@@ -116,6 +116,19 @@ namespace GPC.Model
             }
         }
 
+        /// <returns><see langword="True" /> if all the <paramref name="items"/> are contained into the collection </returns>
+        public bool ContainsRange(IEnumerable<T> items)
+        {
+            lock (_locker)
+            {
+                foreach (var item in items)
+                {
+                    if (_collection.Contains(item))
+                        return false;
+                }
+                return true;
+            }
+        }
 
         /// <returns><see langword="True" /> if this collection contains an element with <see cref="ModelObject.Name"/> equals to <paramref name="name"/> </returns>
         public bool Contains(string name)
@@ -123,6 +136,20 @@ namespace GPC.Model
             lock (_locker)
             {
                 return _names.Contains(name);
+            }
+        }
+
+        /// <returns><see langword="True" /> if all the <paramref name="names"/> are contained into the collection </returns>
+        public bool ContainsRange(IEnumerable<string> names)
+        {
+            lock (_locker)
+            {
+                foreach (var item in names)
+                {
+                    if (_names.Contains(item))
+                        return false;
+                }
+                return true;
             }
         }
 
