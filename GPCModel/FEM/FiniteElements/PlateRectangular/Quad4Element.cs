@@ -444,7 +444,7 @@ namespace GPC.Model.FEM.FiniteElements
 
         #region PublicStaticFunction
         /// <summary>
-        /// out Local Node in clockwise, origin set in the first node of the element
+        /// out Local Node in counterclockwise, origin set in the first node of the element and x set from Origin(node1) to node2
         /// </summary>
         /// <returns></returns>
         public static Node[] GetLocalNodes(Node[] globalNodes, out CoordinateSystem cSys)
@@ -488,17 +488,31 @@ namespace GPC.Model.FEM.FiniteElements
             localNodes[3] = new Node(v14.DotProduct(vecx), v14.DotProduct(vecy), v14.DotProduct(vecz), nodeL.Name); //GlobalNodes.ElementAt(4 - 1);
 
             //controllo che nodi siano in ordine, orario o antiorario ma non in ordine sparso
-            List<double> angles = localNodes.Select(p => Math.Atan(p.Position.Y / p.Position.X)).ToList();
+            //List<double> angles = localNodes.Select(p => Math.Atan(p.Position.Y / p.Position.X)).ToList();
+            List<double> angles = new List<double>();
+
+            for (int i = 0; i < localNodes.Length; i++)
+            {
+                var X = localNodes[i].Position.X;
+                var Y = localNodes[i].Position.Y;
+
+                double angle = Math.Atan(Y / X);
+                if (X < 0 && Y > 0)
+                {
+                    angle = Math.Atan(-X / Y) + Math.PI / 2.0;
+                }
+                angles.Add(angle);
+            }
+
             angles.RemoveAt(0); //primo nodo su se stesso -> NaN
             var anglesOrdered = angles.OrderBy(a => a).ToList();
-            for (int i = 0; i < angles.Count; i++)
+            for (int i = 0; i < angles.Count(); i++)
             {
-                if (angles[i] != anglesOrdered[i])
+                if (angles.ElementAt(i) != anglesOrdered[i])
                 {
                     Console.WriteLine("Points unordered:");
                     globalNodes.ToList().ForEach(p => Console.WriteLine(p));
                     throw new Exception("Points unordered! :");
-                    
                 }
             }
             

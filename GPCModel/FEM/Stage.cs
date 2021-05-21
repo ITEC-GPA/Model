@@ -304,6 +304,7 @@ namespace GPC.Model.FEM
         
         public bool RemoveCombination(string combinationName)
         {
+            _combinations.Remove(combinationName);
             return _femModel.RemoveStageCombinationMap(Id, combinationName);
         }
 

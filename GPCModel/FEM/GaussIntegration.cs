@@ -20,9 +20,9 @@ namespace GPC.Model.FEM
 
             mnl.Matrix<double> ris = gaussPoints[0].Weight * Jacob(csi, eta).Determinant() * GetM(csi, eta);
 
-            /*Console.WriteLine("M(csi="+csi+",eta="+eta+") = ");
-            Util.WriteMatrix(GetM(csi, eta), "F3");*/
-            //Console.WriteLine("detJ=" + Jacob(csi, eta).Determinant());
+            /*FEMUtilities.WriteMatrix("M(csi=" + csi + ",eta=" + eta + ") = ", GetM(csi, eta), "F3");
+            Console.WriteLine("detJ=" + Jacob(csi, eta).Determinant());
+            Console.WriteLine(gaussPoints[0].Weight + " * M * detJ");*/
             #endregion
             for (int i = 1; i < gaussPoints.Length; i++) //trhough the gauss points "variable i START FROM 1 NOT FROM 0!!!"
             {
