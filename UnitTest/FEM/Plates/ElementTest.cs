@@ -179,8 +179,8 @@ namespace FemTest.SolverTest
           
             LinearSolver fem = new LinearSolver(new FiniteElement[] { e0, e1 });
 
-            double DY = fem.GetDisplacementGlobalCoordinates(nodeC, LinearSolver.DOF.DY);
-            double DZ = fem.GetDisplacementGlobalCoordinates(nodeC, LinearSolver.DOF.DZ);
+            double DY = fem.GetNodeDisplacementGlobalCoordinates(nodeC, Solver.DOF.DY);
+            double DZ = fem.GetNodeDisplacementGlobalCoordinates(nodeC, Solver.DOF.DZ);
             Assert.AreEqual(0.0096, DZ, 1e-4);
             Assert.AreEqual(0.0002, DY, 1e-4);
 
@@ -257,9 +257,9 @@ namespace FemTest.SolverTest
             e1.AddLoadCaseAttribute(p);
             LinearSolver fem = new LinearSolver(new FiniteElement[] { e0, e1 });
 
-            double DZC = fem.GetDisplacementGlobalCoordinates(nodeC, LinearSolver.DOF.DZ);
+            double DZC = fem.GetNodeDisplacementGlobalCoordinates(nodeC, LinearSolver.DOF.DZ);
             Assert.AreEqual(0.97765, DZC, 1e-4); //value from SAP
-            double DZA = fem.GetDisplacementGlobalCoordinates(nodeA, LinearSolver.DOF.DZ);
+            double DZA = fem.GetNodeDisplacementGlobalCoordinates(nodeA, LinearSolver.DOF.DZ);
             Assert.AreEqual(0.75597, DZA, 1e-4); //value from SAP
 
             double[] e0GlobalDispl = fem.GetDisplacementsAtNodesOfElementInGlobalCoordinates(e0);
@@ -310,7 +310,7 @@ namespace FemTest.SolverTest
 
             LinearSolver fem = new LinearSolver(new FiniteElement[] { e0 });
 
-            Assert.AreEqual(0.667, fem.GetDisplacementGlobalCoordinates(nodesPlate1[2], LinearSolver.DOF.DZ), 0.001);
+            Assert.AreEqual(0.667, fem.GetNodeDisplacementGlobalCoordinates(nodesPlate1[2], LinearSolver.DOF.DZ), 0.001);
         }
 
         [TestMethod]
@@ -352,7 +352,7 @@ namespace FemTest.SolverTest
 
             LinearSolver fem = new LinearSolver(els.ToArray());
 
-            Assert.AreEqual(1.4196, fem.GetDisplacementGlobalCoordinates(nodes[3], LinearSolver.DOF.DZ), 0.001);
+            Assert.AreEqual(1.4196, fem.GetNodeDisplacementGlobalCoordinates(nodes[3], LinearSolver.DOF.DZ), 0.001);
         }
 
         [TestMethod]
@@ -402,7 +402,7 @@ namespace FemTest.SolverTest
 
             LinearSolver fem = new LinearSolver(els.ToArray());
 
-            Assert.AreEqual(1.4314, fem.GetDisplacementGlobalCoordinates(nodes.Where(x => x.Position.X == 15 && x.Position.Y == 0).First(), LinearSolver.DOF.DZ), 0.001);
+            Assert.AreEqual(1.4314, fem.GetNodeDisplacementGlobalCoordinates(nodes.Where(x => x.Position.X == 15 && x.Position.Y == 0).First(), LinearSolver.DOF.DZ), 0.001);
         }
 
         [TestMethod]
@@ -472,7 +472,7 @@ namespace FemTest.SolverTest
 
             LinearSolver fem = new LinearSolver(els.ToArray());
 
-            Assert.AreEqual(1.6686, fem.GetDisplacementGlobalCoordinates(nodes.Where(x => x.Position.X == 0 && x.Position.Y == 0).First(), LinearSolver.DOF.DZ), 0.001);
+            Assert.AreEqual(1.6686, fem.GetNodeDisplacementGlobalCoordinates(nodes.Where(x => x.Position.X == 0 && x.Position.Y == 0).First(), LinearSolver.DOF.DZ), 0.001);
         }
 
         [TestMethod]
@@ -543,7 +543,7 @@ namespace FemTest.SolverTest
 
             LinearSolver fem = new LinearSolver(els.ToArray());
 
-            Assert.AreEqual(0.2415, fem.GetDisplacementGlobalCoordinates(nodes.Where(x => x.Position.X == 0 && x.Position.Y == 0).First(), LinearSolver.DOF.DZ), 0.001);
+            Assert.AreEqual(0.2415, fem.GetNodeDisplacementGlobalCoordinates(nodes.Where(x => x.Position.X == 0 && x.Position.Y == 0).First(), LinearSolver.DOF.DZ), 0.001);
         }
     }
 }

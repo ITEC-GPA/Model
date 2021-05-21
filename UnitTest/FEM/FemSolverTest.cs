@@ -242,14 +242,14 @@ namespace FemTest.SolverTest
             elements.Add(new Tri3PlaneStress(nodesPlate2.ToArray(), prop));
 
             LinearSolver fem = new LinearSolver(elements.ToArray());
-            double Node4DX = fem.GetDisplacementGlobalCoordinates(nd4, LinearSolver.DOF.DX);
-            double Node4DY = fem.GetDisplacementGlobalCoordinates(nd4, LinearSolver.DOF.DY);
+            double Node4DX = fem.GetNodeDisplacementGlobalCoordinates(nd4, Solver.DOF.DX);
+            double Node4DY = fem.GetNodeDisplacementGlobalCoordinates(nd4, Solver.DOF.DY);
 
-            double Node3DX = fem.GetDisplacementGlobalCoordinates(nd3, LinearSolver.DOF.DX);
-            double Node3DY = fem.GetDisplacementGlobalCoordinates(nd3, LinearSolver.DOF.DY);
+            double Node3DX = fem.GetNodeDisplacementGlobalCoordinates(nd3, Solver.DOF.DX);
+            double Node3DY = fem.GetNodeDisplacementGlobalCoordinates(nd3, Solver.DOF.DY);
 
-            double Node3CopyDX = fem.GetDisplacementGlobalCoordinates(nd3copy, LinearSolver.DOF.DX);
-            double Node3CopyDY = fem.GetDisplacementGlobalCoordinates(nd3copy, LinearSolver.DOF.DY);
+            double Node3CopyDX = fem.GetNodeDisplacementGlobalCoordinates(nd3copy, Solver.DOF.DX);
+            double Node3CopyDY = fem.GetNodeDisplacementGlobalCoordinates(nd3copy, Solver.DOF.DY);
 
             /*Node 4 Displacement
             DX(mm) 0.009130
@@ -326,14 +326,14 @@ namespace FemTest.SolverTest
             elements.Add(new Tri3PlaneStress(nodesPlate2.ToArray(), prop));
 
             LinearSolver fem = new LinearSolver(elements.ToArray());
-            double Node4DX = fem.GetDisplacementGlobalCoordinates(nd4, LinearSolver.DOF.DX);
-            double Node4DY = fem.GetDisplacementGlobalCoordinates(nd4, LinearSolver.DOF.DY);
+            double Node4DX = fem.GetNodeDisplacementGlobalCoordinates(nd4, Solver.DOF.DX);
+            double Node4DY = fem.GetNodeDisplacementGlobalCoordinates(nd4, Solver.DOF.DY);
 
-            double Node3DX = fem.GetDisplacementGlobalCoordinates(nd3, LinearSolver.DOF.DX);
-            double Node3DY = fem.GetDisplacementGlobalCoordinates(nd3, LinearSolver.DOF.DY);
+            double Node3DX = fem.GetNodeDisplacementGlobalCoordinates(nd3, Solver.DOF.DX);
+            double Node3DY = fem.GetNodeDisplacementGlobalCoordinates(nd3, Solver.DOF.DY);
 
-            double Node3CopyDX = fem.GetDisplacementGlobalCoordinates(nd3copy, LinearSolver.DOF.DX);
-            double Node3CopyDY = fem.GetDisplacementGlobalCoordinates(nd3copy, LinearSolver.DOF.DY);
+            double Node3CopyDX = fem.GetNodeDisplacementGlobalCoordinates(nd3copy, Solver.DOF.DX);
+            double Node3CopyDY = fem.GetNodeDisplacementGlobalCoordinates(nd3copy, Solver.DOF.DY);
 
             /*Node 4 Displacement
             DX (mm)	0.009315	

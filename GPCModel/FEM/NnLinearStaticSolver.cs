@@ -47,9 +47,9 @@ namespace GPC.Model.FEM
                 {
                     Node node = inputElementsk[i].Nodes[j];
                     var originalPosNode = inputElementsk[i].Nodes[j].Position;
-                    double DX = femkm1.GetDisplacementGlobalCoordinates(node, DOF.DX);
-                    double DY = femkm1.GetDisplacementGlobalCoordinates(node, DOF.DY);
-                    double DZ = femkm1.GetDisplacementGlobalCoordinates(node, DOF.DZ);
+                    double DX = femkm1.GetNodeDisplacementGlobalCoordinates(node, DOF.DX);
+                    double DY = femkm1.GetNodeDisplacementGlobalCoordinates(node, DOF.DY);
+                    double DZ = femkm1.GetNodeDisplacementGlobalCoordinates(node, DOF.DZ);
                     
                     inputElementsk[i].Nodes[j].Position.Move(originalPosNode.X + DX, originalPosNode.Y + DY, originalPosNode.Z + DZ);
                 }
@@ -87,9 +87,9 @@ namespace GPC.Model.FEM
                         double DY = ukp1[posDY];
                         double DZ = ukp1[posDZ];*/
                         
-                        double DX = femk.GetDisplacementGlobalCoordinates(node, DOF.DX);
-                        double DY = femk.GetDisplacementGlobalCoordinates(node, DOF.DY);
-                        double DZ = femk.GetDisplacementGlobalCoordinates(node, DOF.DZ);
+                        double DX = femk.GetNodeDisplacementGlobalCoordinates(node, DOF.DX);
+                        double DY = femk.GetNodeDisplacementGlobalCoordinates(node, DOF.DY);
+                        double DZ = femk.GetNodeDisplacementGlobalCoordinates(node, DOF.DZ);
 
                         inputElementskp1[i].Nodes[j].Position.Move(originalPosNode.X + DX, originalPosNode.Y + DY, originalPosNode.Z + DZ);
                     }
