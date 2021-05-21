@@ -93,33 +93,34 @@ namespace FemTest.SolverTest
             nodesPlate1[3].AddAttribute(fix);
 
             LinearSolver solver = new LinearSolver(new FiniteElement[] { e0 });
-        }
 
-        [TestMethod]
-        public void EquivalentNodalForceTest2()
-        {
-            Node[] nodesPlate1 = new Node[4];
-            nodesPlate1[0] = new Node(0.0, 0.0, 0, "1");
-            nodesPlate1[1] = new Node(2.0, 0.0, 0, "2");
-            nodesPlate1[2] = new Node(2.0, 4.0, 0, "3");
-            nodesPlate1[3] = new Node(0.0, 4.0, 0, "4");
+            Assert.AreEqual(0.0, solver.F[0], 1e-4);
+            Assert.AreEqual(0.0, solver.F[1], 1e-4);
+            Assert.AreEqual(1.0, solver.F[2], 1e-4);
+            Assert.AreEqual(1.0 / 3.0, solver.F[3], 1e-4);
+            Assert.AreEqual(-1.0 / 3.0, solver.F[4], 1e-4);
+            Assert.AreEqual(1.0 / 9.0, solver.F[5], 1e-4);
 
-            //general values §6 of article
-            double G0 = 0.5173;
-            double h0 = 0.38;
-            double h1 = 2.875;
-            double h2 = 2.875;
-            double EGlass = 72000.0;
-            double niGlass = 0.23;
-            Quad4TripleLaminatedGlass e0 = new Quad4TripleLaminatedGlass(nodesPlate1, G0, h0, h1, h2, EGlass, niGlass);
+            Assert.AreEqual(0.0, solver.F[6], 1e-4);
+            Assert.AreEqual(0.0, solver.F[7], 1e-4);
+            Assert.AreEqual(1.0, solver.F[8], 1e-4);
+            Assert.AreEqual(1.0 / 3.0, solver.F[9], 1e-4);
+            Assert.AreEqual(1.0 / 3.0, solver.F[10], 1e-4);
+            Assert.AreEqual(-1.0 / 9.0, solver.F[11], 1e-4);
 
-            LoadCaseBase lc = new LoadCaseBase("lc");
-            CoordinateSystem csys = new CoordinateSystem(new Vector3d(0, 0, 0), new Vector3d(1, 0, 0), new Vector3d(0, 1, 0));
-            PlatePressureAttribute p = new PlatePressureAttribute("lc", csys, 0, 0, 1);
+            Assert.AreEqual(0.0, solver.F[12], 1e-4);
+            Assert.AreEqual(0.0, solver.F[13], 1e-4);
+            Assert.AreEqual(1.0, solver.F[14], 1e-4);
+            Assert.AreEqual(-1.0 / 3.0, solver.F[15], 1e-4);
+            Assert.AreEqual(1.0 / 3.0, solver.F[16], 1e-4);
+            Assert.AreEqual(1.0 / 9.0, solver.F[17], 1e-4);
 
-            e0.AddLoadCaseAttribute(p);
-
-            LinearSolver solver = new LinearSolver(new FiniteElement[] { e0 });
+            Assert.AreEqual(0.0, solver.F[18], 1e-4);
+            Assert.AreEqual(0.0, solver.F[19], 1e-4);
+            Assert.AreEqual(1.0, solver.F[20], 1e-4);
+            Assert.AreEqual(-1.0 / 3.0, solver.F[21], 1e-4);
+            Assert.AreEqual(-1.0 / 3.0, solver.F[22], 1e-4);
+            Assert.AreEqual(-1.0 / 9.0, solver.F[23], 1e-4);
         }
 
         [TestMethod]
@@ -246,29 +247,7 @@ namespace FemTest.SolverTest
             Assert.AreEqual(1.0, m[2, 20], 0.001);
         }
 
-        [TestMethod]
-        public void TestBs()
-        {
-            double lx = 2;
-            double ly = 2;
-            double x = 0;
-            double y = 0;
-            int indexNode = 1;
-            FEMUtilities.WriteMatrix(Quad4TripleLaminatedGlass.GetBsi(indexNode, x, y, lx, ly));
-        }
-
-        [TestMethod]
-        public void TestBg()
-        {
-            double lx = 2;
-            double ly = 2;
-            double x = 0;
-            double y = 0;
-            int indexNode = 1;
-            FEMUtilities.WriteMatrix(Quad4TripleLaminatedGlass.GetBgi(indexNode, x, y, lx, ly));
-        }
-
-        [TestMethod]
+        /*[TestMethod]
         public void TestKLayer()
         {
             List<Node> nodes = new List<Node>();
@@ -309,19 +288,19 @@ namespace FemTest.SolverTest
                 Console.WriteLine("weitgh=" + pts[i].Weight);
 
                 int indexNode = 1;
-                var Bs1 = Quad4TripleLaminatedGlass.GetBsi(indexNode, x, y, lx, ly);
-                FEMUtilities.WriteMatrix("BsNode1(x=" + x + ",y=" + y + ",lx=" + lx + ",ly=" + ly + ")", Bs1, "F3");
+                //var Bs1 = Quad4TripleLaminatedGlass.GetBsi(indexNode, x, y, lx, ly);
+                //FEMUtilities.WriteMatrix("BsNode1(x=" + x + ",y=" + y + ",lx=" + lx + ",ly=" + ly + ")", Bs1, "F3");
 
                 Console.WriteLine("weight * BsNode1(x=" + x + ",y=" + y + ",lx=" + lx + ",ly=" + ly + ")");
-                var kGauss = pts[i].Weight * Bs1.Transpose() * Ds * Bs1;
-                FEMUtilities.WriteMatrix(kGauss, "F3");
+                //var kGauss = pts[i].Weight * Bs1.Transpose() * Ds * Bs1;
+                //FEMUtilities.WriteMatrix(kGauss, "F3");
 
-                Ks = Ks + kGauss;
+                //Ks = Ks + kGauss;
             }
-            FEMUtilities.WriteMatrix("Ks = ", Ks, "F3");
-        }
+            //FEMUtilities.WriteMatrix("Ks = ", Ks, "F3");
+        }*/
 
-        [TestMethod]
+        /*[TestMethod]
         public void TestKGlass()
         {
             List<Node> nodes = new List<Node>();
@@ -364,19 +343,19 @@ namespace FemTest.SolverTest
                 Console.WriteLine("weitgh=" + pts[i].Weight);
 
                 int indexNode = 1;
-                var Bg1 = Quad4TripleLaminatedGlass.GetBgi(indexNode, x, y, lx, ly);
-                FEMUtilities.WriteMatrix("BgNode1(x=" + x + ",y=" + y + ",lx=" + lx + ",ly=" + ly + ")", Bg1, "F5");
+                //var Bg1 = Quad4TripleLaminatedGlass.GetBgi(indexNode, x, y, lx, ly);
+                //FEMUtilities.WriteMatrix("BgNode1(x=" + x + ",y=" + y + ",lx=" + lx + ",ly=" + ly + ")", Bg1, "F5");
 
                 //Console.WriteLine("weight * BgNode1(x=" + x + ",y=" + y + ",lx=" + lx + ",ly=" + ly + ")");
                 //FEMUtilities.WriteMatrix(pts[i].Weight * Bg1, "F3");
 
-                var kGauss = pts[i].Weight * Bg1.Transpose() * Dg * Bg1;
-                FEMUtilities.WriteMatrix("k = weigth * Bg^T * Dg * Bg", kGauss, "F3");
+                //var kGauss = pts[i].Weight * Bg1.Transpose() * Dg * Bg1;
+                //FEMUtilities.WriteMatrix("k = weigth * Bg^T * Dg * Bg", kGauss, "F3");
 
-                Kg = Kg + kGauss;
+                //Kg = Kg + kGauss;
             }
-            FEMUtilities.WriteMatrix("Kg = ", Kg, "F5");
-        }
+            //FEMUtilities.WriteMatrix("Kg = ", Kg, "F5");
+        }*/
 
         /// <summary>
         /// Single plate +y
@@ -398,9 +377,6 @@ namespace FemTest.SolverTest
             double G0 = EGlass / (2.0 * (1.0 + niGlass));
             //double G0 = 1e-6;
             double h0 = 0.1;
-
-            Material mat = new SteelMaterial("mat", EGlass, niGlass, 355, 510, 7850);
-            PlateProperty prop = new PlateProperty(mat.GetIsotropicFemMaterial(), h1 + h2 + h0, h1 + h2 + h0, "p");
 
             Quad4TripleLaminatedGlass e0 = new Quad4TripleLaminatedGlass(new Node[] { nodes[0], nodes[1], nodes[2], nodes[3] }, G0, h0, h1, h2, EGlass, niGlass);
 
@@ -425,14 +401,6 @@ namespace FemTest.SolverTest
             LinearSolver fem0 = new LinearSolver(new FiniteElement[] { e0 });
 
             Console.WriteLine("Tripled = " + fem0.GetDisplacementGlobalCoordinates(nodes[2], Solver.DOF.DZ));
-
-            var globalDispl = fem0.GetDisplacementsAtNodesOfElementInGlobalCoordinates(e0);
-   
-            var pseudoDefGlass = nodes.Select(node => e0.GetPseudoStrainGlass(globalDispl, node));
-            var pseudoDefInterlayer = nodes.Select(node => e0.GetPseudoStrainInterlayer(globalDispl, node));
-
-            var pseudoStressGlass = pseudoDefGlass.Select(def => e0.GetPseudoStressGlass(def));
-            var pseudoStressInterlayer = pseudoDefInterlayer.Select(def => e0.GetPseudoStressInterlayer(def));
         }
 
         /// <summary>
@@ -530,10 +498,10 @@ namespace FemTest.SolverTest
         }
 
         /// <summary>
-        /// Torque
+        /// Similitudine con Kirchoff - piastra appoggiata su 4 lati con carico uniforme
         /// </summary>
         [TestMethod]
-        public void Test4a()
+        public void KirchoffTest1()
         {
             double hGlass1 = 0.5;
             double hGlass2 = 0.5;
@@ -671,113 +639,117 @@ namespace FemTest.SolverTest
             #endregion
            
             List<Quad4TripleLaminatedGlass> els = new List<Quad4TripleLaminatedGlass>();
+            bool quadrilateral = false;
             #region els
-            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[111], nodes[112], nodes[4], nodes[121] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass));
-            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[1], nodes[5], nodes[15], nodes[14] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass));
-            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[5], nodes[6], nodes[16], nodes[15] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass));
-            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[6], nodes[7], nodes[17], nodes[16] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass));
-            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[7], nodes[8], nodes[18], nodes[17] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass));
-            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[8], nodes[9], nodes[19], nodes[18] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass));
-            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[9], nodes[10], nodes[20], nodes[19] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass));
-            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[10], nodes[11], nodes[21], nodes[20] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass));
-            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[11], nodes[12], nodes[22], nodes[21] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass));
-            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[12], nodes[13], nodes[23], nodes[22] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass));
-            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[13], nodes[3], nodes[24], nodes[23] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass));
-            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[14], nodes[15], nodes[26], nodes[25] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass));
-            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[15], nodes[16], nodes[27], nodes[26] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass));
-            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[16], nodes[17], nodes[28], nodes[27] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass));
-            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[17], nodes[18], nodes[29], nodes[28] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass));
-            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[18], nodes[19], nodes[30], nodes[29] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass));
-            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[19], nodes[20], nodes[31], nodes[30] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass));
-            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[20], nodes[21], nodes[32], nodes[31] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass));
-            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[21], nodes[22], nodes[33], nodes[32] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass));
-            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[22], nodes[23], nodes[34], nodes[33] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass));
-            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[23], nodes[24], nodes[35], nodes[34] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass));
-            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[25], nodes[26], nodes[37], nodes[36] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass));
-            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[26], nodes[27], nodes[38], nodes[37] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass));
-            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[27], nodes[28], nodes[39], nodes[38] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass));
-            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[28], nodes[29], nodes[40], nodes[39] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass));
-            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[29], nodes[30], nodes[41], nodes[40] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass));
-            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[30], nodes[31], nodes[42], nodes[41] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass));
-            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[31], nodes[32], nodes[43], nodes[42] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass));
-            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[32], nodes[33], nodes[44], nodes[43] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass));
-            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[33], nodes[34], nodes[45], nodes[44] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass));
-            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[34], nodes[35], nodes[46], nodes[45] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass));
-            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[36], nodes[37], nodes[48], nodes[47] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass));
-            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[37], nodes[38], nodes[49], nodes[48] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass));
-            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[38], nodes[39], nodes[50], nodes[49] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass));
-            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[39], nodes[40], nodes[51], nodes[50] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass));
-            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[40], nodes[41], nodes[52], nodes[51] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass));
-            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[41], nodes[42], nodes[53], nodes[52] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass));
-            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[42], nodes[43], nodes[54], nodes[53] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass));
-            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[43], nodes[44], nodes[55], nodes[54] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass));
-            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[44], nodes[45], nodes[56], nodes[55] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass));
-            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[45], nodes[46], nodes[57], nodes[56] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass));
-            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[47], nodes[48], nodes[59], nodes[58] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass));
-            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[48], nodes[49], nodes[60], nodes[59] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass));
-            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[49], nodes[50], nodes[61], nodes[60] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass));
-            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[50], nodes[51], nodes[62], nodes[61] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass));
-            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[51], nodes[52], nodes[63], nodes[62] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass));
-            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[52], nodes[53], nodes[64], nodes[63] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass));
-            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[53], nodes[54], nodes[65], nodes[64] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass));
-            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[54], nodes[55], nodes[66], nodes[65] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass));
-            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[55], nodes[56], nodes[67], nodes[66] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass));
-            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[56], nodes[57], nodes[68], nodes[67] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass));
-            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[58], nodes[59], nodes[70], nodes[69] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass));
-            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[59], nodes[60], nodes[71], nodes[70] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass));
-            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[60], nodes[61], nodes[72], nodes[71] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass));
-            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[61], nodes[62], nodes[73], nodes[72] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass));
-            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[62], nodes[63], nodes[74], nodes[73] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass));
-            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[63], nodes[64], nodes[75], nodes[74] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass));
-            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[64], nodes[65], nodes[76], nodes[75] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass));
-            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[65], nodes[66], nodes[77], nodes[76] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass));
-            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[66], nodes[67], nodes[78], nodes[77] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass));
-            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[67], nodes[68], nodes[79], nodes[78] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass));
-            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[69], nodes[70], nodes[81], nodes[80] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass));
-            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[70], nodes[71], nodes[82], nodes[81] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass));
-            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[71], nodes[72], nodes[83], nodes[82] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass));
-            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[72], nodes[73], nodes[84], nodes[83] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass));
-            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[73], nodes[74], nodes[85], nodes[84] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass));
-            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[74], nodes[75], nodes[86], nodes[85] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass));
-            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[75], nodes[76], nodes[87], nodes[86] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass));
-            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[76], nodes[77], nodes[88], nodes[87] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass));
-            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[77], nodes[78], nodes[89], nodes[88] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass));
-            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[78], nodes[79], nodes[90], nodes[89] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass));
-            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[80], nodes[81], nodes[92], nodes[91] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass));
-            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[81], nodes[82], nodes[93], nodes[92] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass));
-            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[82], nodes[83], nodes[94], nodes[93] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass));
-            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[83], nodes[84], nodes[95], nodes[94] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass));
-            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[84], nodes[85], nodes[96], nodes[95] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass));
-            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[85], nodes[86], nodes[97], nodes[96] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass));
-            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[86], nodes[87], nodes[98], nodes[97] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass));
-            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[87], nodes[88], nodes[99], nodes[98] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass));
-            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[88], nodes[89], nodes[100], nodes[99] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass));
-            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[89], nodes[90], nodes[101], nodes[100] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass));
-            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[91], nodes[92], nodes[103], nodes[102] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass));
-            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[92], nodes[93], nodes[104], nodes[103] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass));
-            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[93], nodes[94], nodes[105], nodes[104] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass));
-            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[94], nodes[95], nodes[106], nodes[105] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass));
-            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[95], nodes[96], nodes[107], nodes[106] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass));
-            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[96], nodes[97], nodes[108], nodes[107] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass));
-            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[97], nodes[98], nodes[109], nodes[108] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass));
-            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[98], nodes[99], nodes[110], nodes[109] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass));
-            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[99], nodes[100], nodes[111], nodes[110] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass));
-            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[100], nodes[101], nodes[112], nodes[111] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass));
-            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[102], nodes[103], nodes[113], nodes[2] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass));
-            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[103], nodes[104], nodes[114], nodes[113] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass));
-            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[104], nodes[105], nodes[115], nodes[114] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass));
-            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[105], nodes[106], nodes[116], nodes[115] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass));
-            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[106], nodes[107], nodes[117], nodes[116] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass));
-            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[107], nodes[108], nodes[118], nodes[117] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass));
-            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[108], nodes[109], nodes[119], nodes[118] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass));
-            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[109], nodes[110], nodes[120], nodes[119] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass));
-            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[110], nodes[111], nodes[121], nodes[120] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[111], nodes[112], nodes[4], nodes[121] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[1], nodes[5], nodes[15], nodes[14] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[5], nodes[6], nodes[16], nodes[15] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[6], nodes[7], nodes[17], nodes[16] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[7], nodes[8], nodes[18], nodes[17] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[8], nodes[9], nodes[19], nodes[18] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[9], nodes[10], nodes[20], nodes[19] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[10], nodes[11], nodes[21], nodes[20] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[11], nodes[12], nodes[22], nodes[21] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[12], nodes[13], nodes[23], nodes[22] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[13], nodes[3], nodes[24], nodes[23] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[14], nodes[15], nodes[26], nodes[25] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[15], nodes[16], nodes[27], nodes[26] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[16], nodes[17], nodes[28], nodes[27] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[17], nodes[18], nodes[29], nodes[28] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[18], nodes[19], nodes[30], nodes[29] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[19], nodes[20], nodes[31], nodes[30] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[20], nodes[21], nodes[32], nodes[31] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[21], nodes[22], nodes[33], nodes[32] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[22], nodes[23], nodes[34], nodes[33] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[23], nodes[24], nodes[35], nodes[34] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[25], nodes[26], nodes[37], nodes[36] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[26], nodes[27], nodes[38], nodes[37] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[27], nodes[28], nodes[39], nodes[38] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[28], nodes[29], nodes[40], nodes[39] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[29], nodes[30], nodes[41], nodes[40] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[30], nodes[31], nodes[42], nodes[41] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[31], nodes[32], nodes[43], nodes[42] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[32], nodes[33], nodes[44], nodes[43] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[33], nodes[34], nodes[45], nodes[44] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[34], nodes[35], nodes[46], nodes[45] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[36], nodes[37], nodes[48], nodes[47] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[37], nodes[38], nodes[49], nodes[48] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[38], nodes[39], nodes[50], nodes[49] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[39], nodes[40], nodes[51], nodes[50] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[40], nodes[41], nodes[52], nodes[51] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[41], nodes[42], nodes[53], nodes[52] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[42], nodes[43], nodes[54], nodes[53] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[43], nodes[44], nodes[55], nodes[54] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[44], nodes[45], nodes[56], nodes[55] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[45], nodes[46], nodes[57], nodes[56] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[47], nodes[48], nodes[59], nodes[58] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[48], nodes[49], nodes[60], nodes[59] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[49], nodes[50], nodes[61], nodes[60] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[50], nodes[51], nodes[62], nodes[61] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[51], nodes[52], nodes[63], nodes[62] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[52], nodes[53], nodes[64], nodes[63] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[53], nodes[54], nodes[65], nodes[64] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[54], nodes[55], nodes[66], nodes[65] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[55], nodes[56], nodes[67], nodes[66] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[56], nodes[57], nodes[68], nodes[67] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[58], nodes[59], nodes[70], nodes[69] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[59], nodes[60], nodes[71], nodes[70] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[60], nodes[61], nodes[72], nodes[71] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[61], nodes[62], nodes[73], nodes[72] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[62], nodes[63], nodes[74], nodes[73] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[63], nodes[64], nodes[75], nodes[74] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[64], nodes[65], nodes[76], nodes[75] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[65], nodes[66], nodes[77], nodes[76] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[66], nodes[67], nodes[78], nodes[77] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[67], nodes[68], nodes[79], nodes[78] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[69], nodes[70], nodes[81], nodes[80] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[70], nodes[71], nodes[82], nodes[81] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[71], nodes[72], nodes[83], nodes[82] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[72], nodes[73], nodes[84], nodes[83] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[73], nodes[74], nodes[85], nodes[84] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[74], nodes[75], nodes[86], nodes[85] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[75], nodes[76], nodes[87], nodes[86] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[76], nodes[77], nodes[88], nodes[87] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[77], nodes[78], nodes[89], nodes[88] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[78], nodes[79], nodes[90], nodes[89] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[80], nodes[81], nodes[92], nodes[91] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[81], nodes[82], nodes[93], nodes[92] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[82], nodes[83], nodes[94], nodes[93] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[83], nodes[84], nodes[95], nodes[94] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[84], nodes[85], nodes[96], nodes[95] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[85], nodes[86], nodes[97], nodes[96] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[86], nodes[87], nodes[98], nodes[97] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[87], nodes[88], nodes[99], nodes[98] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[88], nodes[89], nodes[100], nodes[99] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[89], nodes[90], nodes[101], nodes[100] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[91], nodes[92], nodes[103], nodes[102] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[92], nodes[93], nodes[104], nodes[103] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[93], nodes[94], nodes[105], nodes[104] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[94], nodes[95], nodes[106], nodes[105] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[95], nodes[96], nodes[107], nodes[106] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[96], nodes[97], nodes[108], nodes[107] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[97], nodes[98], nodes[109], nodes[108] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[98], nodes[99], nodes[110], nodes[109] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[99], nodes[100], nodes[111], nodes[110] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[100], nodes[101], nodes[112], nodes[111] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[102], nodes[103], nodes[113], nodes[2] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[103], nodes[104], nodes[114], nodes[113] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[104], nodes[105], nodes[115], nodes[114] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[105], nodes[106], nodes[116], nodes[115] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[106], nodes[107], nodes[117], nodes[116] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[107], nodes[108], nodes[118], nodes[117] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[108], nodes[109], nodes[119], nodes[118] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[109], nodes[110], nodes[120], nodes[119] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[110], nodes[111], nodes[121], nodes[120] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
             #endregion
 
             CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
 
             PlatePressureAttribute p = new PlatePressureAttribute("lc", sys, 0, 0, -0.1);
-            els.ForEach(x => x.AddLoadCaseAttribute(p));
+            els.ForEach(pl => pl.AddLoadCaseAttribute(p));
+
+            /*NodeForceAttribute f = new NodeForceAttribute("lc", sys, 0, 0, 100, 0, 0, 0);
+            nodes.Where(nd => nd.Position.X == 5 && nd.Position.Y == 5).First().AddAttribute(f);*/
 
             NodeRestrainAttribute dz = new NodeRestrainAttribute("freedomCase", sys);
             dz.AddExternalRestrain(Solver.DOF.DZ);
@@ -787,26 +759,1086 @@ namespace FemTest.SolverTest
             nodes.Where(nd => nd.Position.X == 10 && nd.Position.Y == 10).ToList().ForEach(nd => nd.AddAttribute(dz));
             nodes.Where(nd => nd.Position.X == 0 && nd.Position.Y == 10).ToList().ForEach(nd => nd.AddAttribute(dz));
 
-            NodeRestrainAttribute dx = new NodeRestrainAttribute("freedomCase", sys);
-            dx.AddExternalRestrain(Solver.DOF.DX);
-
-            nodes.Where(nd => nd.Position.X == 5 && nd.Position.Y == 0).ToList().ForEach(nd => nd.AddAttribute(dx));
-            nodes.Where(nd => nd.Position.X == 5 && nd.Position.Y == 10).ToList().ForEach(nd => nd.AddAttribute(dx));
-
-            NodeRestrainAttribute dy = new NodeRestrainAttribute("freedomCase", sys);
-            dy.AddExternalRestrain(Solver.DOF.DY);
-
-            nodes.Where(nd => nd.Position.X == 0 && nd.Position.Y == 5).ToList().ForEach(nd => nd.AddAttribute(dy));
-            nodes.Where(nd => nd.Position.X == 10 && nd.Position.Y == 5).ToList().ForEach(nd => nd.AddAttribute(dy));
-
             LinearSolver fem0 = new LinearSolver(els.ToArray());
 
             Console.WriteLine(fem0.GetDisplacementGlobalCoordinates(nodes[63], Solver.DOF.DZ));
             Assert.AreEqual(-0.3297, fem0.GetDisplacementGlobalCoordinates(nodes[63], Solver.DOF.DZ), 0.01); //Come soluzione kirchoff
             double hc = (2.0 * hInterlayer + hGlass1 + hGlass2) / 2.0;
-            Assert.AreEqual(0.034, fem0.GetDisplacementGlobalCoordinates(nodes[1], Solver.DOF.RY) * hc, 0.01); //come soluzione kirchoff
+            Assert.AreEqual(0.035, fem0.GetDisplacementGlobalCoordinates(nodes[1], Solver.DOF.RY) * hc, 0.001); //come soluzione kirchoff
 
             //TODO: capire dof Torcente "Psi" con analogia a elemento di kirchoff
+            
+            var element = els[56]; //elemento centrale
+            var globalDispl = fem0.GetDisplacementsAtNodesOfElementInGlobalCoordinates(element);
+
+            double x = 0;
+            double y = 0;
+
+            var curvatures = element.GetGlassCurvatures(x,y, globalDispl);
+
+            Assert.AreEqual(-0.0125, curvatures[0], 1e-3);
+            Assert.AreEqual(-0.0125, curvatures[1], 1e-3);
+            Assert.AreEqual(0.0, curvatures[2], 1e-3);
+
+            #region glass top
+            var epsilonTopGlassTopFace = element.GetStrainGlass(Quad4TripleLaminatedGlass.Glass.Top, Plate.Face.Top, x, y, globalDispl);
+            Assert.AreEqual(-0.0063, epsilonTopGlassTopFace[0], 1e-3);
+            Assert.AreEqual(-0.0063, epsilonTopGlassTopFace[1], 1e-3);
+            Assert.AreEqual(0.0, epsilonTopGlassTopFace[2], 1e-3);
+
+            var epsilonTopGlassMiddleFace = element.GetStrainGlass(Quad4TripleLaminatedGlass.Glass.Top, Plate.Face.Middle, x, y, globalDispl);
+            Assert.AreEqual(-0.00315, epsilonTopGlassMiddleFace[0], 1e-3);
+            Assert.AreEqual(-0.00315, epsilonTopGlassMiddleFace[1], 1e-3);
+            Assert.AreEqual(0.0, epsilonTopGlassMiddleFace[2], 1e-3);
+
+            var epsilonTopGlassBottomFace = element.GetStrainGlass(Quad4TripleLaminatedGlass.Glass.Top, Plate.Face.Bottom, x, y, globalDispl);
+            Assert.AreEqual(0.0, epsilonTopGlassBottomFace[0], 1e-3);
+            Assert.AreEqual(0.0, epsilonTopGlassBottomFace[1], 1e-3);
+            Assert.AreEqual(0.0, epsilonTopGlassBottomFace[2], 1e-3);
+
+            var stressTopGlassTopFace = element.GetStressGlass(Quad4TripleLaminatedGlass.Glass.Top, Plate.Face.Top, x, y, globalDispl);
+            Assert.AreEqual(-6.1955, stressTopGlassTopFace[0], 1e-3);
+            Assert.AreEqual(-6.1955, stressTopGlassTopFace[1], 1e-3);
+            Assert.AreEqual(0.0, stressTopGlassTopFace[2], 1e-3);
+            #endregion
+
+            #region glass bottom
+            var epsilonBottomGlassTopFace = element.GetStrainGlass(Quad4TripleLaminatedGlass.Glass.Bottom, Plate.Face.Top, x, y, globalDispl);
+            Assert.AreEqual(0.0, epsilonBottomGlassTopFace[0], 1e-3);
+            Assert.AreEqual(0.0, epsilonBottomGlassTopFace[1], 1e-3);
+            Assert.AreEqual(0.0, epsilonBottomGlassTopFace[2], 1e-3);
+
+            var epsilonBottomGlassMiddleFace = element.GetStrainGlass(Quad4TripleLaminatedGlass.Glass.Bottom, Plate.Face.Middle, x, y, globalDispl);
+            Assert.AreEqual(0.00315, epsilonBottomGlassMiddleFace[0], 1e-3);
+            Assert.AreEqual(0.00315, epsilonBottomGlassMiddleFace[1], 1e-3);
+            Assert.AreEqual(0.0, epsilonBottomGlassMiddleFace[2], 1e-3);
+
+            var epsilonBottomGlassBottomFace = element.GetStrainGlass(Quad4TripleLaminatedGlass.Glass.Bottom, Plate.Face.Bottom, x, y, globalDispl);
+            Assert.AreEqual(0.0063, epsilonBottomGlassBottomFace[0], 1e-3);
+            Assert.AreEqual(0.0063, epsilonBottomGlassBottomFace[1], 1e-3);
+            Assert.AreEqual(0.0, epsilonBottomGlassBottomFace[2], 1e-3);
+
+            var stressBottomGlassBottomFace = element.GetStressGlass(Quad4TripleLaminatedGlass.Glass.Bottom, Plate.Face.Bottom, x, y, globalDispl);
+            Assert.AreEqual(6.1955, stressBottomGlassBottomFace[0], 1e-3);
+            Assert.AreEqual(6.1955, stressBottomGlassBottomFace[1], 1e-3);
+            Assert.AreEqual(0.0, stressBottomGlassBottomFace[2], 1e-3);
+            #endregion
+        }
+
+        /// <summary>
+        /// Similitudine con Kirchoff - - piastra appoggiata su 4 lati con carico concentrato in mezzeria
+        /// </summary>
+        [TestMethod]
+        public void KirchoffTest2()
+        {
+            double hGlass1 = 0.5;
+            double hGlass2 = 0.5;
+            double EGlass = 1000.0;
+            double niGlass = 0.0;
+
+            double G0 = EGlass / (2.0 * (1.0 + niGlass));
+
+            double hInterlayer = 0.005;
+
+            List<Node> nodes = new List<Node>();
+            #region nodes
+            nodes.Add(new Node(-1e6, -1e6, -1e6));
+            nodes.Add(new Node(0, 0, 0));
+            nodes.Add(new Node(0, 10, 0));
+            nodes.Add(new Node(10, 0, 0));
+            nodes.Add(new Node(10, 10, 0));
+            nodes.Add(new Node(1, 0, 0));
+            nodes.Add(new Node(2, 0, 0));
+            nodes.Add(new Node(3, 0, 0));
+            nodes.Add(new Node(4, 0, 0));
+            nodes.Add(new Node(5, 0, 0));
+            nodes.Add(new Node(6, 0, 0));
+            nodes.Add(new Node(7, 0, 0));
+            nodes.Add(new Node(8, 0, 0));
+            nodes.Add(new Node(9, 0, 0));
+            nodes.Add(new Node(0, 1, 0));
+            nodes.Add(new Node(1, 1, 0));
+            nodes.Add(new Node(2, 1, 0));
+            nodes.Add(new Node(3, 1, 0));
+            nodes.Add(new Node(4, 1, 0));
+            nodes.Add(new Node(5, 1, 0));
+            nodes.Add(new Node(6, 1, 0));
+            nodes.Add(new Node(7, 1, 0));
+            nodes.Add(new Node(8, 1, 0));
+            nodes.Add(new Node(9, 1, 0));
+            nodes.Add(new Node(10, 1, 0));
+            nodes.Add(new Node(0, 2, 0));
+            nodes.Add(new Node(1, 2, 0));
+            nodes.Add(new Node(2, 2, 0));
+            nodes.Add(new Node(3, 2, 0));
+            nodes.Add(new Node(4, 2, 0));
+            nodes.Add(new Node(5, 2, 0));
+            nodes.Add(new Node(6, 2, 0));
+            nodes.Add(new Node(7, 2, 0));
+            nodes.Add(new Node(8, 2, 0));
+            nodes.Add(new Node(9, 2, 0));
+            nodes.Add(new Node(10, 2, 0));
+            nodes.Add(new Node(0, 3, 0));
+            nodes.Add(new Node(1, 3, 0));
+            nodes.Add(new Node(2, 3, 0));
+            nodes.Add(new Node(3, 3, 0));
+            nodes.Add(new Node(4, 3, 0));
+            nodes.Add(new Node(5, 3, 0));
+            nodes.Add(new Node(6, 3, 0));
+            nodes.Add(new Node(7, 3, 0));
+            nodes.Add(new Node(8, 3, 0));
+            nodes.Add(new Node(9, 3, 0));
+            nodes.Add(new Node(10, 3, 0));
+            nodes.Add(new Node(0, 4, 0));
+            nodes.Add(new Node(1, 4, 0));
+            nodes.Add(new Node(2, 4, 0));
+            nodes.Add(new Node(3, 4, 0));
+            nodes.Add(new Node(4, 4, 0));
+            nodes.Add(new Node(5, 4, 0));
+            nodes.Add(new Node(6, 4, 0));
+            nodes.Add(new Node(7, 4, 0));
+            nodes.Add(new Node(8, 4, 0));
+            nodes.Add(new Node(9, 4, 0));
+            nodes.Add(new Node(10, 4, 0));
+            nodes.Add(new Node(0, 5, 0));
+            nodes.Add(new Node(1, 5, 0));
+            nodes.Add(new Node(2, 5, 0));
+            nodes.Add(new Node(3, 5, 0));
+            nodes.Add(new Node(4, 5, 0));
+            nodes.Add(new Node(5, 5, 0));
+            nodes.Add(new Node(6, 5, 0));
+            nodes.Add(new Node(7, 5, 0));
+            nodes.Add(new Node(8, 5, 0));
+            nodes.Add(new Node(9, 5, 0));
+            nodes.Add(new Node(10, 5, 0));
+            nodes.Add(new Node(0, 6, 0));
+            nodes.Add(new Node(1, 6, 0));
+            nodes.Add(new Node(2, 6, 0));
+            nodes.Add(new Node(3, 6, 0));
+            nodes.Add(new Node(4, 6, 0));
+            nodes.Add(new Node(5, 6, 0));
+            nodes.Add(new Node(6, 6, 0));
+            nodes.Add(new Node(7, 6, 0));
+            nodes.Add(new Node(8, 6, 0));
+            nodes.Add(new Node(9, 6, 0));
+            nodes.Add(new Node(10, 6, 0));
+            nodes.Add(new Node(0, 7, 0));
+            nodes.Add(new Node(1, 7, 0));
+            nodes.Add(new Node(2, 7, 0));
+            nodes.Add(new Node(3, 7, 0));
+            nodes.Add(new Node(4, 7, 0));
+            nodes.Add(new Node(5, 7, 0));
+            nodes.Add(new Node(6, 7, 0));
+            nodes.Add(new Node(7, 7, 0));
+            nodes.Add(new Node(8, 7, 0));
+            nodes.Add(new Node(9, 7, 0));
+            nodes.Add(new Node(10, 7, 0));
+            nodes.Add(new Node(0, 8, 0));
+            nodes.Add(new Node(1, 8, 0));
+            nodes.Add(new Node(2, 8, 0));
+            nodes.Add(new Node(3, 8, 0));
+            nodes.Add(new Node(4, 8, 0));
+            nodes.Add(new Node(5, 8, 0));
+            nodes.Add(new Node(6, 8, 0));
+            nodes.Add(new Node(7, 8, 0));
+            nodes.Add(new Node(8, 8, 0));
+            nodes.Add(new Node(9, 8, 0));
+            nodes.Add(new Node(10, 8, 0));
+            nodes.Add(new Node(0, 9, 0));
+            nodes.Add(new Node(1, 9, 0));
+            nodes.Add(new Node(2, 9, 0));
+            nodes.Add(new Node(3, 9, 0));
+            nodes.Add(new Node(4, 9, 0));
+            nodes.Add(new Node(5, 9, 0));
+            nodes.Add(new Node(6, 9, 0));
+            nodes.Add(new Node(7, 9, 0));
+            nodes.Add(new Node(8, 9, 0));
+            nodes.Add(new Node(9, 9, 0));
+            nodes.Add(new Node(10, 9, 0));
+            nodes.Add(new Node(1, 10, 0));
+            nodes.Add(new Node(2, 10, 0));
+            nodes.Add(new Node(3, 10, 0));
+            nodes.Add(new Node(4, 10, 0));
+            nodes.Add(new Node(5, 10, 0));
+            nodes.Add(new Node(6, 10, 0));
+            nodes.Add(new Node(7, 10, 0));
+            nodes.Add(new Node(8, 10, 0));
+            nodes.Add(new Node(9, 10, 0));
+            #endregion
+
+            List<Quad4TripleLaminatedGlass> els = new List<Quad4TripleLaminatedGlass>();
+            bool quadrilateral = true;
+            #region els
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[111], nodes[112], nodes[4], nodes[121] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[1], nodes[5], nodes[15], nodes[14] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[5], nodes[6], nodes[16], nodes[15] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[6], nodes[7], nodes[17], nodes[16] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[7], nodes[8], nodes[18], nodes[17] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[8], nodes[9], nodes[19], nodes[18] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[9], nodes[10], nodes[20], nodes[19] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[10], nodes[11], nodes[21], nodes[20] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[11], nodes[12], nodes[22], nodes[21] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[12], nodes[13], nodes[23], nodes[22] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[13], nodes[3], nodes[24], nodes[23] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[14], nodes[15], nodes[26], nodes[25] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[15], nodes[16], nodes[27], nodes[26] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[16], nodes[17], nodes[28], nodes[27] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[17], nodes[18], nodes[29], nodes[28] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[18], nodes[19], nodes[30], nodes[29] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[19], nodes[20], nodes[31], nodes[30] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[20], nodes[21], nodes[32], nodes[31] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[21], nodes[22], nodes[33], nodes[32] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[22], nodes[23], nodes[34], nodes[33] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[23], nodes[24], nodes[35], nodes[34] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[25], nodes[26], nodes[37], nodes[36] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[26], nodes[27], nodes[38], nodes[37] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[27], nodes[28], nodes[39], nodes[38] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[28], nodes[29], nodes[40], nodes[39] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[29], nodes[30], nodes[41], nodes[40] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[30], nodes[31], nodes[42], nodes[41] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[31], nodes[32], nodes[43], nodes[42] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[32], nodes[33], nodes[44], nodes[43] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[33], nodes[34], nodes[45], nodes[44] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[34], nodes[35], nodes[46], nodes[45] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[36], nodes[37], nodes[48], nodes[47] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[37], nodes[38], nodes[49], nodes[48] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[38], nodes[39], nodes[50], nodes[49] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[39], nodes[40], nodes[51], nodes[50] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[40], nodes[41], nodes[52], nodes[51] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[41], nodes[42], nodes[53], nodes[52] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[42], nodes[43], nodes[54], nodes[53] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[43], nodes[44], nodes[55], nodes[54] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[44], nodes[45], nodes[56], nodes[55] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[45], nodes[46], nodes[57], nodes[56] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[47], nodes[48], nodes[59], nodes[58] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[48], nodes[49], nodes[60], nodes[59] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[49], nodes[50], nodes[61], nodes[60] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[50], nodes[51], nodes[62], nodes[61] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[51], nodes[52], nodes[63], nodes[62] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[52], nodes[53], nodes[64], nodes[63] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[53], nodes[54], nodes[65], nodes[64] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[54], nodes[55], nodes[66], nodes[65] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[55], nodes[56], nodes[67], nodes[66] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[56], nodes[57], nodes[68], nodes[67] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[58], nodes[59], nodes[70], nodes[69] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[59], nodes[60], nodes[71], nodes[70] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[60], nodes[61], nodes[72], nodes[71] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[61], nodes[62], nodes[73], nodes[72] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[62], nodes[63], nodes[74], nodes[73] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[63], nodes[64], nodes[75], nodes[74] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[64], nodes[65], nodes[76], nodes[75] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[65], nodes[66], nodes[77], nodes[76] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[66], nodes[67], nodes[78], nodes[77] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[67], nodes[68], nodes[79], nodes[78] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[69], nodes[70], nodes[81], nodes[80] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[70], nodes[71], nodes[82], nodes[81] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[71], nodes[72], nodes[83], nodes[82] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[72], nodes[73], nodes[84], nodes[83] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[73], nodes[74], nodes[85], nodes[84] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[74], nodes[75], nodes[86], nodes[85] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[75], nodes[76], nodes[87], nodes[86] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[76], nodes[77], nodes[88], nodes[87] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[77], nodes[78], nodes[89], nodes[88] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[78], nodes[79], nodes[90], nodes[89] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[80], nodes[81], nodes[92], nodes[91] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[81], nodes[82], nodes[93], nodes[92] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[82], nodes[83], nodes[94], nodes[93] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[83], nodes[84], nodes[95], nodes[94] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[84], nodes[85], nodes[96], nodes[95] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[85], nodes[86], nodes[97], nodes[96] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[86], nodes[87], nodes[98], nodes[97] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[87], nodes[88], nodes[99], nodes[98] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[88], nodes[89], nodes[100], nodes[99] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[89], nodes[90], nodes[101], nodes[100] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[91], nodes[92], nodes[103], nodes[102] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[92], nodes[93], nodes[104], nodes[103] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[93], nodes[94], nodes[105], nodes[104] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[94], nodes[95], nodes[106], nodes[105] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[95], nodes[96], nodes[107], nodes[106] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[96], nodes[97], nodes[108], nodes[107] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[97], nodes[98], nodes[109], nodes[108] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[98], nodes[99], nodes[110], nodes[109] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[99], nodes[100], nodes[111], nodes[110] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[100], nodes[101], nodes[112], nodes[111] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[102], nodes[103], nodes[113], nodes[2] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[103], nodes[104], nodes[114], nodes[113] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[104], nodes[105], nodes[115], nodes[114] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[105], nodes[106], nodes[116], nodes[115] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[106], nodes[107], nodes[117], nodes[116] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[107], nodes[108], nodes[118], nodes[117] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[108], nodes[109], nodes[119], nodes[118] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[109], nodes[110], nodes[120], nodes[119] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[110], nodes[111], nodes[121], nodes[120] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            #endregion
+
+            CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
+
+            NodeForceAttribute f = new NodeForceAttribute("lc", sys, 0, 0, 100, 0, 0, 0);
+            nodes.Where(nd => nd.Position.X == 5 && nd.Position.Y == 5).First().AddAttribute(f);
+
+            NodeRestrainAttribute dz = new NodeRestrainAttribute("freedomCase", sys);
+            dz.AddExternalRestrain(Solver.DOF.DZ);
+
+            nodes.Where(nd => nd.Position.X == 0 && nd.Position.Y == 0).ToList().ForEach(nd => nd.AddAttribute(dz));
+            nodes.Where(nd => nd.Position.X == 10 && nd.Position.Y == 0).ToList().ForEach(nd => nd.AddAttribute(dz));
+            nodes.Where(nd => nd.Position.X == 10 && nd.Position.Y == 10).ToList().ForEach(nd => nd.AddAttribute(dz));
+            nodes.Where(nd => nd.Position.X == 0 && nd.Position.Y == 10).ToList().ForEach(nd => nd.AddAttribute(dz));
+
+            LinearSolver fem0 = new LinearSolver(els.ToArray());
+
+            Console.WriteLine(fem0.GetDisplacementGlobalCoordinates(nodes[63], Solver.DOF.DZ));
+            Assert.AreEqual(5.134, fem0.GetDisplacementGlobalCoordinates(nodes[63], Solver.DOF.DZ), 0.01); //Come soluzione kirchoff
+
+            var element = els[58]; //elemento di bordo
+            
+            #region glass top
+            var stressTopGlassTopFaceNode1 = fem0.GetTLGGlassStress(element, Quad4TripleLaminatedGlass.Glass.Top, Plate.Face.Top, 1);
+            /*Assert.AreEqual(132.77, stressTopGlassTopFaceNode1[0], 1e-2);
+            Assert.AreEqual(6.60, stressTopGlassTopFaceNode1[1], 1e-2);
+            Assert.AreEqual(-0.78, stressTopGlassTopFaceNode1[2], 1e-2);*/
+
+            var stressTopGlassTopFaceNode2 = fem0.GetTLGGlassStress(element, Quad4TripleLaminatedGlass.Glass.Top, Plate.Face.Top, 2);
+            /*Assert.AreEqual(132.77, stressTopGlassTopFaceNode2[0], 1e-2);
+            Assert.AreEqual(6.60, stressTopGlassTopFaceNode2[1], 1e-2);
+            Assert.AreEqual(-0.78, stressTopGlassTopFaceNode2[2], 1e-2);*/
+
+            var stressTopGlassTopFaceNode3 = fem0.GetTLGGlassStress(element, Quad4TripleLaminatedGlass.Glass.Top, Plate.Face.Top, 3);
+            /*Assert.AreEqual(132.77, stressTopGlassTopFaceNode3[0], 1e-2);
+            Assert.AreEqual(6.60, stressTopGlassTopFaceNode3[1], 1e-2);
+            Assert.AreEqual(-0.78, stressTopGlassTopFaceNode3[2], 1e-2);*/
+
+            var stressTopGlassTopFaceNode4 = fem0.GetTLGGlassStress(element, Quad4TripleLaminatedGlass.Glass.Top, Plate.Face.Top, 4);
+            /*Assert.AreEqual(132.77, stressTopGlassTopFaceNode4[0], 1e-2);
+            Assert.AreEqual(6.60, stressTopGlassTopFaceNode4[1], 1e-2);
+            Assert.AreEqual(-0.78, stressTopGlassTopFaceNode4[2], 1e-2);*/
+            #endregion
+        }
+
+        /// <summary>
+        /// Similitudine con Kirchoff - trave appoggiata con forza concentrata in mezzeria
+        /// </summary>
+        [TestMethod]
+        public void KirchoffBeamTest3()
+        {
+            double hGlass1 = 0.5;
+            double hGlass2 = 0.5;
+            double EGlass = 1000.0;
+            double niGlass = 0.0;
+
+            double EInterlayer = EGlass;
+            double niInterlayer = niGlass;
+            double G0 = EInterlayer / (2.0 * (1.0 + niInterlayer));
+
+            double hInterlayer = 0.01;
+
+            double F = 4.0;
+            double L = 10.0;
+            double b = 1.0;
+            double h = hGlass1 + hGlass2 + hInterlayer;
+
+            double V = F / 2.0;
+            double M = F * L / 4.0;
+
+            double J = 1.0 / 12.0 * b * h * h * h;
+            double W = 1.0 / 6.0 * b * h * h;
+            double spost = F * L * L * L / (48.0 * EGlass * J);
+
+            List<Node> nodes = new List<Node>();
+            #region nodes
+            nodes.Add(new Node(-1e6, -1e6, -1e6));
+            nodes.Add(new Node(0, 4.5, 0));
+            nodes.Add(new Node(0.5, 4.5, 0));
+            nodes.Add(new Node(1, 4.5, 0));
+            nodes.Add(new Node(1.5, 4.5, 0));
+            nodes.Add(new Node(2, 4.5, 0));
+            nodes.Add(new Node(2.5, 4.5, 0));
+            nodes.Add(new Node(3, 4.5, 0));
+            nodes.Add(new Node(3.5, 4.5, 0));
+            nodes.Add(new Node(4, 4.5, 0));
+            nodes.Add(new Node(4.5, 4.5, 0));
+            nodes.Add(new Node(5, 4.5, 0));
+            nodes.Add(new Node(5.5, 4.5, 0));
+            nodes.Add(new Node(6, 4.5, 0));
+            nodes.Add(new Node(6.5, 4.5, 0));
+            nodes.Add(new Node(7, 4.5, 0));
+            nodes.Add(new Node(7.5, 4.5, 0));
+            nodes.Add(new Node(8, 4.5, 0));
+            nodes.Add(new Node(8.5, 4.5, 0));
+            nodes.Add(new Node(9, 4.5, 0));
+            nodes.Add(new Node(9.5, 4.5, 0));
+            nodes.Add(new Node(10, 4.5, 0));
+            nodes.Add(new Node(0, 5.5, 0));
+            nodes.Add(new Node(0.5, 5.5, 0));
+            nodes.Add(new Node(1, 5.5, 0));
+            nodes.Add(new Node(1.5, 5.5, 0));
+            nodes.Add(new Node(2, 5.5, 0));
+            nodes.Add(new Node(2.5, 5.5, 0));
+            nodes.Add(new Node(3, 5.5, 0));
+            nodes.Add(new Node(3.5, 5.5, 0));
+            nodes.Add(new Node(4, 5.5, 0));
+            nodes.Add(new Node(4.5, 5.5, 0));
+            nodes.Add(new Node(5, 5.5, 0));
+            nodes.Add(new Node(5.5, 5.5, 0));
+            nodes.Add(new Node(6, 5.5, 0));
+            nodes.Add(new Node(6.5, 5.5, 0));
+            nodes.Add(new Node(7, 5.5, 0));
+            nodes.Add(new Node(7.5, 5.5, 0));
+            nodes.Add(new Node(8, 5.5, 0));
+            nodes.Add(new Node(8.5, 5.5, 0));
+            nodes.Add(new Node(9, 5.5, 0));
+            nodes.Add(new Node(9.5, 5.5, 0));
+            nodes.Add(new Node(10, 5.5, 0));
+            nodes.Add(new Node(0.5, 4.83333, 0));
+            nodes.Add(new Node(1, 4.83333, 0));
+            nodes.Add(new Node(0.5, 5.16667, 0));
+            nodes.Add(new Node(1, 5.16667, 0));
+            nodes.Add(new Node(1.5, 4.83333, 0));
+            nodes.Add(new Node(2, 4.83333, 0));
+            nodes.Add(new Node(1.5, 5.16667, 0));
+            nodes.Add(new Node(2, 5.16667, 0));
+            nodes.Add(new Node(2.5, 4.83333, 0));
+            nodes.Add(new Node(3, 4.83333, 0));
+            nodes.Add(new Node(2.5, 5.16667, 0));
+            nodes.Add(new Node(3, 5.16667, 0));
+            nodes.Add(new Node(3.5, 4.83333, 0));
+            nodes.Add(new Node(4, 4.83333, 0));
+            nodes.Add(new Node(3.5, 5.16667, 0));
+            nodes.Add(new Node(4, 5.16667, 0));
+            nodes.Add(new Node(4.5, 4.83333, 0));
+            nodes.Add(new Node(5, 4.83333, 0));
+            nodes.Add(new Node(4.5, 5.16667, 0));
+            nodes.Add(new Node(5, 5.16667, 0));
+            nodes.Add(new Node(5.5, 4.83333, 0));
+            nodes.Add(new Node(6, 4.83333, 0));
+            nodes.Add(new Node(5.5, 5.16667, 0));
+            nodes.Add(new Node(6, 5.16667, 0));
+            nodes.Add(new Node(6.5, 4.83333, 0));
+            nodes.Add(new Node(7, 4.83333, 0));
+            nodes.Add(new Node(6.5, 5.16667, 0));
+            nodes.Add(new Node(7, 5.16667, 0));
+            nodes.Add(new Node(7.5, 4.83333, 0));
+            nodes.Add(new Node(8, 4.83333, 0));
+            nodes.Add(new Node(7.5, 5.16667, 0));
+            nodes.Add(new Node(8, 5.16667, 0));
+            nodes.Add(new Node(8.5, 4.83333, 0));
+            nodes.Add(new Node(9, 4.83333, 0));
+            nodes.Add(new Node(8.5, 5.16667, 0));
+            nodes.Add(new Node(9, 5.16667, 0));
+            nodes.Add(new Node(9.5, 4.83333, 0));
+            nodes.Add(new Node(10, 4.83333, 0));
+            nodes.Add(new Node(9.5, 5.16667, 0));
+            nodes.Add(new Node(10, 5.16667, 0));
+            nodes.Add(new Node(0, 4.83333, 0));
+            nodes.Add(new Node(0, 5.16667, 0));
+            #endregion
+
+            List<Quad4TripleLaminatedGlass> els = new List<Quad4TripleLaminatedGlass>();
+            bool quadrilateral = false;
+            #region els
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[45], nodes[46], nodes[24], nodes[23] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[49], nodes[50], nodes[26], nodes[25] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[53], nodes[54], nodes[28], nodes[27] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[57], nodes[58], nodes[30], nodes[29] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[61], nodes[62], nodes[32], nodes[31] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[65], nodes[66], nodes[34], nodes[33] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[69], nodes[70], nodes[36], nodes[35] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[73], nodes[74], nodes[38], nodes[37] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[77], nodes[78], nodes[40], nodes[39] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[81], nodes[82], nodes[42], nodes[41] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[84], nodes[45], nodes[23], nodes[22] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[46], nodes[49], nodes[25], nodes[24] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[50], nodes[53], nodes[27], nodes[26] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[54], nodes[57], nodes[29], nodes[28] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[58], nodes[61], nodes[31], nodes[30] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[62], nodes[65], nodes[33], nodes[32] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[66], nodes[69], nodes[35], nodes[34] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[70], nodes[73], nodes[37], nodes[36] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[74], nodes[77], nodes[39], nodes[38] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[78], nodes[81], nodes[41], nodes[40] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[2], nodes[3], nodes[44], nodes[43] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[43], nodes[44], nodes[46], nodes[45] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[4], nodes[5], nodes[48], nodes[47] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[47], nodes[48], nodes[50], nodes[49] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[6], nodes[7], nodes[52], nodes[51] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[51], nodes[52], nodes[54], nodes[53] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[8], nodes[9], nodes[56], nodes[55] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[55], nodes[56], nodes[58], nodes[57] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[10], nodes[11], nodes[60], nodes[59] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[59], nodes[60], nodes[62], nodes[61] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[12], nodes[13], nodes[64], nodes[63] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[63], nodes[64], nodes[66], nodes[65] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[14], nodes[15], nodes[68], nodes[67] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[67], nodes[68], nodes[70], nodes[69] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[16], nodes[17], nodes[72], nodes[71] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[71], nodes[72], nodes[74], nodes[73] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[18], nodes[19], nodes[76], nodes[75] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[75], nodes[76], nodes[78], nodes[77] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[20], nodes[21], nodes[80], nodes[79] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[79], nodes[80], nodes[82], nodes[81] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[1], nodes[2], nodes[43], nodes[83] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[83], nodes[43], nodes[45], nodes[84] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[3], nodes[4], nodes[47], nodes[44] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[44], nodes[47], nodes[49], nodes[46] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[5], nodes[6], nodes[51], nodes[48] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[48], nodes[51], nodes[53], nodes[50] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[7], nodes[8], nodes[55], nodes[52] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[52], nodes[55], nodes[57], nodes[54] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[9], nodes[10], nodes[59], nodes[56] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[56], nodes[59], nodes[61], nodes[58] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[11], nodes[12], nodes[63], nodes[60] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[60], nodes[63], nodes[65], nodes[62] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[13], nodes[14], nodes[67], nodes[64] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[64], nodes[67], nodes[69], nodes[66] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[15], nodes[16], nodes[71], nodes[68] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[68], nodes[71], nodes[73], nodes[70] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[17], nodes[18], nodes[75], nodes[72] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[72], nodes[75], nodes[77], nodes[74] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[19], nodes[20], nodes[79], nodes[76] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[76], nodes[79], nodes[81], nodes[78] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            #endregion
+
+            CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
+
+            NodeForceAttribute f = new NodeForceAttribute("lc", sys, 0, 0, F/4.0, 0, 0, 0);
+            nodes.Where(nd => nd.Position.X == 5).ToList().ForEach(x => x.AddAttribute(f));
+
+            NodeRestrainAttribute dz = new NodeRestrainAttribute("freedomCase", sys);
+            dz.AddExternalRestrain(Solver.DOF.DZ);
+
+            nodes.Where(nd => nd.Position.X == 0).ToList().ForEach(nd => nd.AddAttribute(dz));
+            nodes.Where(nd => nd.Position.X == 10).ToList().ForEach(nd => nd.AddAttribute(dz));
+           
+            LinearSolver fem0 = new LinearSolver(els.ToArray());
+
+            var dzTLG = fem0.GetDisplacementGlobalCoordinates(nodes[63], Solver.DOF.DZ);
+            Console.WriteLine("displ = " + dzTLG +" vs " + spost);
+//            Assert.AreEqual(1.0 , spost / dzTLG, 0.05); //Come soluzione kirchoff
+
+            var element = els[29]; //elemento
+
+            #region glass top
+            double sigma = M / W;
+            var stressTopGlassTopFaceNode1 = fem0.GetTLGGlassStress(element, Quad4TripleLaminatedGlass.Glass.Top, Plate.Face.Top, 1);
+  
+            var stressTopGlassTopFaceNode2 = fem0.GetTLGGlassStress(element, Quad4TripleLaminatedGlass.Glass.Top, Plate.Face.Top, 2);
+//            Assert.AreEqual(1.0, sigma / stressTopGlassTopFaceNode2[0], 0.06);
+
+            var stressTopGlassTopFaceNode3 = fem0.GetTLGGlassStress(element, Quad4TripleLaminatedGlass.Glass.Top, Plate.Face.Top, 3);
+//            Assert.AreEqual(1.0, sigma / stressTopGlassTopFaceNode3[0], 0.06);
+
+            var stressTopGlassTopFaceNode4 = fem0.GetTLGGlassStress(element, Quad4TripleLaminatedGlass.Glass.Top, Plate.Face.Top, 4);
+
+            var bendingGlass = fem0.GetTLGGlassBending(element, 2);
+            var forcesGlass = fem0.GetTLGGlassForces(element, 2);
+            var bendingInterlayer = fem0.GetTLGInterlayerBending(element, 2); //TODO: significato fisico/ingegneristico?
+            var bending = bendingGlass[0] + forcesGlass[0] * (hGlass1/2.0 + hGlass2/2.0 + hInterlayer);
+//            Assert.AreEqual(1.0, (M/b) / bending, 0.055);
+
+            element = els[45]; //elemento
+            bendingGlass = fem0.GetTLGGlassBending(element, 1);
+            forcesGlass = fem0.GetTLGGlassForces(element, 1);
+            bendingInterlayer = fem0.GetTLGInterlayerBending(element, 1); //TODO: significato fisico/ingegneristico?
+            var stressInterlayerNode1 = fem0.GetTLGInterlayerStress(element, 1);
+            var tau = 1.5 * V / (b * h);
+            FEMUtilities.WriteMatrix(stressInterlayerNode1);
+            Console.WriteLine("theoric = " + tau);
+            //Assert.AreEqual(1.0, tau / stressInterlayerNode1, 0.05);
+
+            //NOTE: elemento kirchoff funzionante, ritorna valori sballati per stress interlayer in quanto, la teoria del TLG è "tirata per i capelli" e insorgono problemi numerici.
+            //lo stesso esempio ricalcolato con valori di G0 e hInterlayer "semi-reali" dopo confronto con modello a brick anche il valore dello stress nell'interlayer converge. Vedi esempio sotto.
+            #endregion
+        }
+
+        /// <summary>
+        /// trave appoggiata con forza concentrata in mezzeria - caso con valori di G0, interlayer ecc semi-reali
+        /// confronto con caso a brick
+        /// </summary>
+        [TestMethod]
+        public void BeamTest3a()
+        {
+            double hGlass1 = 0.5;
+            double hGlass2 = 0.5;
+            double EGlass = 1000.0;
+            double niGlass = 0.0;
+
+            double EInterlayer = 0.1;
+            double niInterlayer = 0.0;
+            double G0 = EInterlayer / (2.0 * (1.0 + niInterlayer));
+
+            double hInterlayer = 0.1;
+
+            double F = 4.0;
+            double L = 10.0;
+            double b = 1.0;
+            double h = hGlass1 + hGlass2 + hInterlayer;
+
+            double V = F / 2.0;
+            double M = F * L / 4.0;
+
+            List<Node> nodes = new List<Node>();
+            #region nodes
+            nodes.Add(new Node(-1e6, -1e6, -1e6));
+            nodes.Add(new Node(0, 4.5, 0));
+            nodes.Add(new Node(0.5, 4.5, 0));
+            nodes.Add(new Node(1, 4.5, 0));
+            nodes.Add(new Node(1.5, 4.5, 0));
+            nodes.Add(new Node(2, 4.5, 0));
+            nodes.Add(new Node(2.5, 4.5, 0));
+            nodes.Add(new Node(3, 4.5, 0));
+            nodes.Add(new Node(3.5, 4.5, 0));
+            nodes.Add(new Node(4, 4.5, 0));
+            nodes.Add(new Node(4.5, 4.5, 0));
+            nodes.Add(new Node(5, 4.5, 0));
+            nodes.Add(new Node(5.5, 4.5, 0));
+            nodes.Add(new Node(6, 4.5, 0));
+            nodes.Add(new Node(6.5, 4.5, 0));
+            nodes.Add(new Node(7, 4.5, 0));
+            nodes.Add(new Node(7.5, 4.5, 0));
+            nodes.Add(new Node(8, 4.5, 0));
+            nodes.Add(new Node(8.5, 4.5, 0));
+            nodes.Add(new Node(9, 4.5, 0));
+            nodes.Add(new Node(9.5, 4.5, 0));
+            nodes.Add(new Node(10, 4.5, 0));
+            nodes.Add(new Node(0, 5.5, 0));
+            nodes.Add(new Node(0.5, 5.5, 0));
+            nodes.Add(new Node(1, 5.5, 0));
+            nodes.Add(new Node(1.5, 5.5, 0));
+            nodes.Add(new Node(2, 5.5, 0));
+            nodes.Add(new Node(2.5, 5.5, 0));
+            nodes.Add(new Node(3, 5.5, 0));
+            nodes.Add(new Node(3.5, 5.5, 0));
+            nodes.Add(new Node(4, 5.5, 0));
+            nodes.Add(new Node(4.5, 5.5, 0));
+            nodes.Add(new Node(5, 5.5, 0));
+            nodes.Add(new Node(5.5, 5.5, 0));
+            nodes.Add(new Node(6, 5.5, 0));
+            nodes.Add(new Node(6.5, 5.5, 0));
+            nodes.Add(new Node(7, 5.5, 0));
+            nodes.Add(new Node(7.5, 5.5, 0));
+            nodes.Add(new Node(8, 5.5, 0));
+            nodes.Add(new Node(8.5, 5.5, 0));
+            nodes.Add(new Node(9, 5.5, 0));
+            nodes.Add(new Node(9.5, 5.5, 0));
+            nodes.Add(new Node(10, 5.5, 0));
+            nodes.Add(new Node(0.5, 4.83333, 0));
+            nodes.Add(new Node(1, 4.83333, 0));
+            nodes.Add(new Node(0.5, 5.16667, 0));
+            nodes.Add(new Node(1, 5.16667, 0));
+            nodes.Add(new Node(1.5, 4.83333, 0));
+            nodes.Add(new Node(2, 4.83333, 0));
+            nodes.Add(new Node(1.5, 5.16667, 0));
+            nodes.Add(new Node(2, 5.16667, 0));
+            nodes.Add(new Node(2.5, 4.83333, 0));
+            nodes.Add(new Node(3, 4.83333, 0));
+            nodes.Add(new Node(2.5, 5.16667, 0));
+            nodes.Add(new Node(3, 5.16667, 0));
+            nodes.Add(new Node(3.5, 4.83333, 0));
+            nodes.Add(new Node(4, 4.83333, 0));
+            nodes.Add(new Node(3.5, 5.16667, 0));
+            nodes.Add(new Node(4, 5.16667, 0));
+            nodes.Add(new Node(4.5, 4.83333, 0));
+            nodes.Add(new Node(5, 4.83333, 0));
+            nodes.Add(new Node(4.5, 5.16667, 0));
+            nodes.Add(new Node(5, 5.16667, 0));
+            nodes.Add(new Node(5.5, 4.83333, 0));
+            nodes.Add(new Node(6, 4.83333, 0));
+            nodes.Add(new Node(5.5, 5.16667, 0));
+            nodes.Add(new Node(6, 5.16667, 0));
+            nodes.Add(new Node(6.5, 4.83333, 0));
+            nodes.Add(new Node(7, 4.83333, 0));
+            nodes.Add(new Node(6.5, 5.16667, 0));
+            nodes.Add(new Node(7, 5.16667, 0));
+            nodes.Add(new Node(7.5, 4.83333, 0));
+            nodes.Add(new Node(8, 4.83333, 0));
+            nodes.Add(new Node(7.5, 5.16667, 0));
+            nodes.Add(new Node(8, 5.16667, 0));
+            nodes.Add(new Node(8.5, 4.83333, 0));
+            nodes.Add(new Node(9, 4.83333, 0));
+            nodes.Add(new Node(8.5, 5.16667, 0));
+            nodes.Add(new Node(9, 5.16667, 0));
+            nodes.Add(new Node(9.5, 4.83333, 0));
+            nodes.Add(new Node(10, 4.83333, 0));
+            nodes.Add(new Node(9.5, 5.16667, 0));
+            nodes.Add(new Node(10, 5.16667, 0));
+            nodes.Add(new Node(0, 4.83333, 0));
+            nodes.Add(new Node(0, 5.16667, 0));
+            #endregion
+
+            List<Quad4TripleLaminatedGlass> els = new List<Quad4TripleLaminatedGlass>();
+            bool quadrilateral = false;
+            #region els
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[45], nodes[46], nodes[24], nodes[23] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[49], nodes[50], nodes[26], nodes[25] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[53], nodes[54], nodes[28], nodes[27] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[57], nodes[58], nodes[30], nodes[29] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[61], nodes[62], nodes[32], nodes[31] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[65], nodes[66], nodes[34], nodes[33] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[69], nodes[70], nodes[36], nodes[35] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[73], nodes[74], nodes[38], nodes[37] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[77], nodes[78], nodes[40], nodes[39] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[81], nodes[82], nodes[42], nodes[41] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[84], nodes[45], nodes[23], nodes[22] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[46], nodes[49], nodes[25], nodes[24] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[50], nodes[53], nodes[27], nodes[26] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[54], nodes[57], nodes[29], nodes[28] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[58], nodes[61], nodes[31], nodes[30] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[62], nodes[65], nodes[33], nodes[32] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[66], nodes[69], nodes[35], nodes[34] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[70], nodes[73], nodes[37], nodes[36] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[74], nodes[77], nodes[39], nodes[38] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[78], nodes[81], nodes[41], nodes[40] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[2], nodes[3], nodes[44], nodes[43] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[43], nodes[44], nodes[46], nodes[45] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[4], nodes[5], nodes[48], nodes[47] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[47], nodes[48], nodes[50], nodes[49] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[6], nodes[7], nodes[52], nodes[51] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[51], nodes[52], nodes[54], nodes[53] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[8], nodes[9], nodes[56], nodes[55] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[55], nodes[56], nodes[58], nodes[57] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[10], nodes[11], nodes[60], nodes[59] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[59], nodes[60], nodes[62], nodes[61] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[12], nodes[13], nodes[64], nodes[63] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[63], nodes[64], nodes[66], nodes[65] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[14], nodes[15], nodes[68], nodes[67] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[67], nodes[68], nodes[70], nodes[69] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[16], nodes[17], nodes[72], nodes[71] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[71], nodes[72], nodes[74], nodes[73] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[18], nodes[19], nodes[76], nodes[75] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[75], nodes[76], nodes[78], nodes[77] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[20], nodes[21], nodes[80], nodes[79] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[79], nodes[80], nodes[82], nodes[81] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[1], nodes[2], nodes[43], nodes[83] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[83], nodes[43], nodes[45], nodes[84] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[3], nodes[4], nodes[47], nodes[44] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[44], nodes[47], nodes[49], nodes[46] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[5], nodes[6], nodes[51], nodes[48] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[48], nodes[51], nodes[53], nodes[50] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[7], nodes[8], nodes[55], nodes[52] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[52], nodes[55], nodes[57], nodes[54] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[9], nodes[10], nodes[59], nodes[56] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[56], nodes[59], nodes[61], nodes[58] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[11], nodes[12], nodes[63], nodes[60] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[60], nodes[63], nodes[65], nodes[62] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[13], nodes[14], nodes[67], nodes[64] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[64], nodes[67], nodes[69], nodes[66] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[15], nodes[16], nodes[71], nodes[68] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[68], nodes[71], nodes[73], nodes[70] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[17], nodes[18], nodes[75], nodes[72] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[72], nodes[75], nodes[77], nodes[74] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[19], nodes[20], nodes[79], nodes[76] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[76], nodes[79], nodes[81], nodes[78] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
+            #endregion
+
+            CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
+
+            NodeForceAttribute f = new NodeForceAttribute("lc", sys, 0, 0, F / 4.0, 0, 0, 0);
+            nodes.Where(nd => nd.Position.X == 5).ToList().ForEach(x => x.AddAttribute(f));
+
+            NodeRestrainAttribute dz = new NodeRestrainAttribute("freedomCase", sys);
+            dz.AddExternalRestrain(Solver.DOF.DZ);
+
+            nodes.Where(nd => nd.Position.X == 0).ToList().ForEach(nd => nd.AddAttribute(dz));
+            nodes.Where(nd => nd.Position.X == 10).ToList().ForEach(nd => nd.AddAttribute(dz));
+
+            LinearSolver fem0 = new LinearSolver(els.ToArray());
+
+            var dzTLG = fem0.GetDisplacementGlobalCoordinates(nodes[63], Solver.DOF.DZ);
+            var spost = 3.70;
+            Console.WriteLine("displ = " + dzTLG + " vs " + spost);
+            Assert.AreEqual(1.0 , spost / dzTLG, 0.05); //Come soluzione kirchoff
+
+            var element = els[29]; //elemento
+
+            #region glass top
+            double sigma = 107;
+            var stressTopGlassTopFaceNode2 = fem0.GetTLGGlassStress(element, Quad4TripleLaminatedGlass.Glass.Top, Plate.Face.Top, 2);
+            Assert.AreEqual(1.0, sigma / stressTopGlassTopFaceNode2[0], 0.065);
+
+            var bendingGlass = fem0.GetTLGGlassBending(element, 2);
+            var forcesGlass = fem0.GetTLGGlassForces(element, 2);
+            var bendingInterlayer = fem0.GetTLGInterlayerBending(element, 2); //TODO: significato fisico/ingegneristico?
+            var bending = bendingGlass[0] + forcesGlass[0] * (hGlass1 / 2.0 + hGlass2 / 2.0 + hInterlayer);
+            Assert.AreEqual(1.0, (M/b) / bending, 0.01);
+
+            element = els[45]; //elemento
+            bendingGlass = fem0.GetTLGGlassBending(element, 1);
+            forcesGlass = fem0.GetTLGGlassForces(element, 1);
+            bendingInterlayer = fem0.GetTLGInterlayerBending(element, 1); //TODO: significato fisico/ingegneristico?
+            var stressInterlayerNode1 = fem0.GetTLGInterlayerStress(element, 1);
+            double tau = 0.259;
+            Assert.AreEqual(1.0, tau / stressInterlayerNode1[0], 0.055);
+            #endregion
+        }
+
+        /// <summary>
+        /// Rotated
+        /// Piastra kirchoff 10x10 semplicemente appoggiata nei nodi d'angolo con carico concentrato in mezzeria
+        /// </summary>
+        [TestMethod]
+        public void RotatedTest1()
+        {
+            double hGlass1 = 0.5;
+            double hGlass2 = 0.5;
+            double EGlass = 1000.0;
+            double niGlass = 0.0;
+
+            double G0 = EGlass / (2.0 * (1.0 + niGlass));
+
+            double hInterlayer = 0.005;
+
+            List<Node> nodes = new List<Node>();
+            #region nodes
+            nodes.Add(new Node(-1e6, -1e6, -1e6));
+            nodes.Add(new Node(0, 0, 0));
+            nodes.Add(new Node(-7.07107, 7.07107, 0));
+            nodes.Add(new Node(7.07107, 7.07107, 0));
+            nodes.Add(new Node(0, 14.1421, 0));
+            nodes.Add(new Node(0.707107, 0.707107, 0));
+            nodes.Add(new Node(1.41421, 1.41421, 0));
+            nodes.Add(new Node(2.12132, 2.12132, 0));
+            nodes.Add(new Node(2.82843, 2.82843, 0));
+            nodes.Add(new Node(3.53553, 3.53553, 0));
+            nodes.Add(new Node(4.24264, 4.24264, 0));
+            nodes.Add(new Node(4.94975, 4.94975, 0));
+            nodes.Add(new Node(5.65685, 5.65685, 0));
+            nodes.Add(new Node(6.36396, 6.36396, 0));
+            nodes.Add(new Node(-0.707107, 0.707107, 0));
+            nodes.Add(new Node(0, 1.41421, 0));
+            nodes.Add(new Node(0.707107, 2.12132, 0));
+            nodes.Add(new Node(1.41421, 2.82843, 0));
+            nodes.Add(new Node(2.12132, 3.53553, 0));
+            nodes.Add(new Node(2.82843, 4.24264, 0));
+            nodes.Add(new Node(3.53553, 4.94975, 0));
+            nodes.Add(new Node(4.24264, 5.65685, 0));
+            nodes.Add(new Node(4.94975, 6.36396, 0));
+            nodes.Add(new Node(5.65685, 7.07107, 0));
+            nodes.Add(new Node(6.36396, 7.77817, 0));
+            nodes.Add(new Node(-1.41421, 1.41421, 0));
+            nodes.Add(new Node(-0.707107, 2.12132, 0));
+            nodes.Add(new Node(0, 2.82843, 0));
+            nodes.Add(new Node(0.707107, 3.53553, 0));
+            nodes.Add(new Node(1.41421, 4.24264, 0));
+            nodes.Add(new Node(2.12132, 4.94975, 0));
+            nodes.Add(new Node(2.82843, 5.65685, 0));
+            nodes.Add(new Node(3.53553, 6.36396, 0));
+            nodes.Add(new Node(4.24264, 7.07107, 0));
+            nodes.Add(new Node(4.94975, 7.77817, 0));
+            nodes.Add(new Node(5.65685, 8.48528, 0));
+            nodes.Add(new Node(-2.12132, 2.12132, 0));
+            nodes.Add(new Node(-1.41421, 2.82843, 0));
+            nodes.Add(new Node(-0.707107, 3.53553, 0));
+            nodes.Add(new Node(0, 4.24264, 0));
+            nodes.Add(new Node(0.707107, 4.94975, 0));
+            nodes.Add(new Node(1.41421, 5.65685, 0));
+            nodes.Add(new Node(2.12132, 6.36396, 0));
+            nodes.Add(new Node(2.82843, 7.07107, 0));
+            nodes.Add(new Node(3.53553, 7.77817, 0));
+            nodes.Add(new Node(4.24264, 8.48528, 0));
+            nodes.Add(new Node(4.94975, 9.19239, 0));
+            nodes.Add(new Node(-2.82843, 2.82843, 0));
+            nodes.Add(new Node(-2.12132, 3.53553, 0));
+            nodes.Add(new Node(-1.41421, 4.24264, 0));
+            nodes.Add(new Node(-0.707107, 4.94975, 0));
+            nodes.Add(new Node(0, 5.65685, 0));
+            nodes.Add(new Node(0.707107, 6.36396, 0));
+            nodes.Add(new Node(1.41421, 7.07107, 0));
+            nodes.Add(new Node(2.12132, 7.77817, 0));
+            nodes.Add(new Node(2.82843, 8.48528, 0));
+            nodes.Add(new Node(3.53553, 9.19239, 0));
+            nodes.Add(new Node(4.24264, 9.89949, 0));
+            nodes.Add(new Node(-3.53553, 3.53553, 0));
+            nodes.Add(new Node(-2.82843, 4.24264, 0));
+            nodes.Add(new Node(-2.12132, 4.94975, 0));
+            nodes.Add(new Node(-1.41421, 5.65685, 0));
+            nodes.Add(new Node(-0.707107, 6.36396, 0));
+            nodes.Add(new Node(0, 7.07107, 0));
+            nodes.Add(new Node(0.707107, 7.77817, 0));
+            nodes.Add(new Node(1.41421, 8.48528, 0));
+            nodes.Add(new Node(2.12132, 9.19239, 0));
+            nodes.Add(new Node(2.82843, 9.89949, 0));
+            nodes.Add(new Node(3.53553, 10.6066, 0));
+            nodes.Add(new Node(-4.24264, 4.24264, 0));
+            nodes.Add(new Node(-3.53553, 4.94975, 0));
+            nodes.Add(new Node(-2.82843, 5.65685, 0));
+            nodes.Add(new Node(-2.12132, 6.36396, 0));
+            nodes.Add(new Node(-1.41421, 7.07107, 0));
+            nodes.Add(new Node(-0.707107, 7.77817, 0));
+            nodes.Add(new Node(0, 8.48528, 0));
+            nodes.Add(new Node(0.707107, 9.19239, 0));
+            nodes.Add(new Node(1.41421, 9.89949, 0));
+            nodes.Add(new Node(2.12132, 10.6066, 0));
+            nodes.Add(new Node(2.82843, 11.3137, 0));
+            nodes.Add(new Node(-4.94975, 4.94975, 0));
+            nodes.Add(new Node(-4.24264, 5.65685, 0));
+            nodes.Add(new Node(-3.53553, 6.36396, 0));
+            nodes.Add(new Node(-2.82843, 7.07107, 0));
+            nodes.Add(new Node(-2.12132, 7.77817, 0));
+            nodes.Add(new Node(-1.41421, 8.48528, 0));
+            nodes.Add(new Node(-0.707107, 9.19239, 0));
+            nodes.Add(new Node(0, 9.89949, 0));
+            nodes.Add(new Node(0.707107, 10.6066, 0));
+            nodes.Add(new Node(1.41421, 11.3137, 0));
+            nodes.Add(new Node(2.12132, 12.0208, 0));
+            nodes.Add(new Node(-5.65685, 5.65685, 0));
+            nodes.Add(new Node(-4.94975, 6.36396, 0));
+            nodes.Add(new Node(-4.24264, 7.07107, 0));
+            nodes.Add(new Node(-3.53553, 7.77817, 0));
+            nodes.Add(new Node(-2.82843, 8.48528, 0));
+            nodes.Add(new Node(-2.12132, 9.19239, 0));
+            nodes.Add(new Node(-1.41421, 9.89949, 0));
+            nodes.Add(new Node(-0.707107, 10.6066, 0));
+            nodes.Add(new Node(0, 11.3137, 0));
+            nodes.Add(new Node(0.707107, 12.0208, 0));
+            nodes.Add(new Node(1.41421, 12.7279, 0));
+            nodes.Add(new Node(-6.36396, 6.36396, 0));
+            nodes.Add(new Node(-5.65685, 7.07107, 0));
+            nodes.Add(new Node(-4.94975, 7.77817, 0));
+            nodes.Add(new Node(-4.24264, 8.48528, 0));
+            nodes.Add(new Node(-3.53553, 9.19239, 0));
+            nodes.Add(new Node(-2.82843, 9.89949, 0));
+            nodes.Add(new Node(-2.12132, 10.6066, 0));
+            nodes.Add(new Node(-1.41421, 11.3137, 0));
+            nodes.Add(new Node(-0.707107, 12.0208, 0));
+            nodes.Add(new Node(0, 12.7279, 0));
+            nodes.Add(new Node(0.707107, 13.435, 0));
+            nodes.Add(new Node(-6.36396, 7.77817, 0));
+            nodes.Add(new Node(-5.65685, 8.48528, 0));
+            nodes.Add(new Node(-4.94975, 9.19239, 0));
+            nodes.Add(new Node(-4.24264, 9.89949, 0));
+            nodes.Add(new Node(-3.53553, 10.6066, 0));
+            nodes.Add(new Node(-2.82843, 11.3137, 0));
+            nodes.Add(new Node(-2.12132, 12.0208, 0));
+            nodes.Add(new Node(-1.41421, 12.7279, 0));
+            nodes.Add(new Node(-0.707107, 13.435, 0));
+            #endregion
+
+            List<Quad4TripleLaminatedGlass> els = new List<Quad4TripleLaminatedGlass>();
+            bool flag = true;
+            #region els
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[111], nodes[112], nodes[4], nodes[121] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, flag));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[1], nodes[5], nodes[15], nodes[14] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, flag));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[5], nodes[6], nodes[16], nodes[15] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, flag));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[6], nodes[7], nodes[17], nodes[16] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, flag));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[7], nodes[8], nodes[18], nodes[17] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, flag));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[8], nodes[9], nodes[19], nodes[18] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, flag));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[9], nodes[10], nodes[20], nodes[19] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, flag));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[10], nodes[11], nodes[21], nodes[20] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, flag));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[11], nodes[12], nodes[22], nodes[21] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, flag));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[12], nodes[13], nodes[23], nodes[22] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, flag));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[13], nodes[3], nodes[24], nodes[23] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, flag));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[14], nodes[15], nodes[26], nodes[25] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, flag));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[15], nodes[16], nodes[27], nodes[26] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, flag));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[16], nodes[17], nodes[28], nodes[27] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, flag));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[17], nodes[18], nodes[29], nodes[28] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, flag));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[18], nodes[19], nodes[30], nodes[29] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, flag));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[19], nodes[20], nodes[31], nodes[30] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, flag));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[20], nodes[21], nodes[32], nodes[31] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, flag));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[21], nodes[22], nodes[33], nodes[32] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, flag));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[22], nodes[23], nodes[34], nodes[33] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, flag));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[23], nodes[24], nodes[35], nodes[34] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, flag));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[25], nodes[26], nodes[37], nodes[36] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, flag));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[26], nodes[27], nodes[38], nodes[37] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, flag));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[27], nodes[28], nodes[39], nodes[38] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, flag));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[28], nodes[29], nodes[40], nodes[39] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, flag));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[29], nodes[30], nodes[41], nodes[40] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, flag));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[30], nodes[31], nodes[42], nodes[41] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, flag));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[31], nodes[32], nodes[43], nodes[42] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, flag));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[32], nodes[33], nodes[44], nodes[43] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, flag));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[33], nodes[34], nodes[45], nodes[44] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, flag));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[34], nodes[35], nodes[46], nodes[45] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, flag));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[36], nodes[37], nodes[48], nodes[47] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, flag));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[37], nodes[38], nodes[49], nodes[48] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, flag));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[38], nodes[39], nodes[50], nodes[49] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, flag));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[39], nodes[40], nodes[51], nodes[50] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, flag));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[40], nodes[41], nodes[52], nodes[51] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, flag));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[41], nodes[42], nodes[53], nodes[52] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, flag));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[42], nodes[43], nodes[54], nodes[53] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, flag));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[43], nodes[44], nodes[55], nodes[54] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, flag));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[44], nodes[45], nodes[56], nodes[55] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, flag));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[45], nodes[46], nodes[57], nodes[56] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, flag));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[47], nodes[48], nodes[59], nodes[58] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, flag));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[48], nodes[49], nodes[60], nodes[59] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, flag));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[49], nodes[50], nodes[61], nodes[60] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, flag));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[50], nodes[51], nodes[62], nodes[61] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, flag));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[51], nodes[52], nodes[63], nodes[62] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, flag));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[52], nodes[53], nodes[64], nodes[63] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, flag));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[53], nodes[54], nodes[65], nodes[64] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, flag));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[54], nodes[55], nodes[66], nodes[65] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, flag));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[55], nodes[56], nodes[67], nodes[66] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, flag));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[56], nodes[57], nodes[68], nodes[67] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, flag));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[58], nodes[59], nodes[70], nodes[69] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, flag));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[59], nodes[60], nodes[71], nodes[70] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, flag));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[60], nodes[61], nodes[72], nodes[71] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, flag));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[61], nodes[62], nodes[73], nodes[72] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, flag));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[62], nodes[63], nodes[74], nodes[73] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, flag));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[63], nodes[64], nodes[75], nodes[74] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, flag));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[64], nodes[65], nodes[76], nodes[75] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, flag));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[65], nodes[66], nodes[77], nodes[76] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, flag));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[66], nodes[67], nodes[78], nodes[77] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, flag));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[67], nodes[68], nodes[79], nodes[78] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, flag));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[69], nodes[70], nodes[81], nodes[80] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, flag));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[70], nodes[71], nodes[82], nodes[81] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, flag));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[71], nodes[72], nodes[83], nodes[82] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, flag));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[72], nodes[73], nodes[84], nodes[83] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, flag));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[73], nodes[74], nodes[85], nodes[84] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, flag));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[74], nodes[75], nodes[86], nodes[85] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, flag));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[75], nodes[76], nodes[87], nodes[86] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, flag));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[76], nodes[77], nodes[88], nodes[87] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, flag));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[77], nodes[78], nodes[89], nodes[88] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, flag));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[78], nodes[79], nodes[90], nodes[89] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, flag));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[80], nodes[81], nodes[92], nodes[91] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, flag));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[81], nodes[82], nodes[93], nodes[92] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, flag));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[82], nodes[83], nodes[94], nodes[93] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, flag));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[83], nodes[84], nodes[95], nodes[94] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, flag));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[84], nodes[85], nodes[96], nodes[95] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, flag));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[85], nodes[86], nodes[97], nodes[96] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, flag));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[86], nodes[87], nodes[98], nodes[97] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, flag));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[87], nodes[88], nodes[99], nodes[98] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, flag));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[88], nodes[89], nodes[100], nodes[99] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, flag));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[89], nodes[90], nodes[101], nodes[100] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, flag));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[91], nodes[92], nodes[103], nodes[102] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, flag));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[92], nodes[93], nodes[104], nodes[103] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, flag));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[93], nodes[94], nodes[105], nodes[104] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, flag));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[94], nodes[95], nodes[106], nodes[105] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, flag));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[95], nodes[96], nodes[107], nodes[106] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, flag));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[96], nodes[97], nodes[108], nodes[107] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, flag));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[97], nodes[98], nodes[109], nodes[108] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, flag));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[98], nodes[99], nodes[110], nodes[109] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, flag));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[99], nodes[100], nodes[111], nodes[110] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, flag));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[100], nodes[101], nodes[112], nodes[111] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, flag));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[102], nodes[103], nodes[113], nodes[2] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, flag));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[103], nodes[104], nodes[114], nodes[113] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, flag));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[104], nodes[105], nodes[115], nodes[114] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, flag));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[105], nodes[106], nodes[116], nodes[115] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, flag));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[106], nodes[107], nodes[117], nodes[116] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, flag));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[107], nodes[108], nodes[118], nodes[117] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, flag));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[108], nodes[109], nodes[119], nodes[118] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, flag));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[109], nodes[110], nodes[120], nodes[119] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, flag));
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[110], nodes[111], nodes[121], nodes[120] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, flag));
+            #endregion
+
+            CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
+
+            NodeForceAttribute force = new NodeForceAttribute("lc", sys, 0, 0, 100.0, 0, 0, 0);
+            nodes.Where(nd => nd.Position.X == 0 && nd.Position.Y >= 7.07 && nd.Position.Y <= 7.1).ToList().ForEach(nd => nd.AddAttribute(force));
+
+            NodeRestrainAttribute dz = new NodeRestrainAttribute("freedomCase", sys);
+            dz.AddExternalRestrain(Solver.DOF.DZ);
+
+            double maxX = nodes.Select(x => x.Position.X).Max();
+            double maxY = nodes.Select(x => x.Position.Y).Max();
+
+            nodes.Where(nd => nd.Position.X >= -7.1 && nd.Position.X <= -7.0).First().AddAttribute(dz);
+            nodes.Where(nd => nd.Position.X == maxX).First().AddAttribute(dz);
+            nodes.Where(nd => nd.Position.X == 0 && nd.Position.Y == 0).First().AddAttribute(dz);
+            nodes.Where(nd => nd.Position.Y == maxY).First().AddAttribute(dz);                        
+
+            LinearSolver fem0 = new LinearSolver(els.ToArray());
+
+            double displ = 5.134; //Come da KirchoffTest2
+            double obtain = fem0.GetDisplacementGlobalCoordinates(nodes.Where(nd => nd.Position.X == 0 && nd.Position.Y >= 7.07 && nd.Position.Y <= 7.1).First(), Solver.DOF.DZ);
+
+            Assert.AreEqual(displ, obtain);
         }
 
         /// <summary>
@@ -6102,7 +7134,7 @@ namespace FemTest.SolverTest
             double hGlass2 = 2.875; //mm
             double hTot = hGlass1 + hGlass2 + hInterlayer;
 
-            double rhoEquivalent = 2.418 / 1000.0 / 1000.0; //kg/mm3
+            //double rhoEquivalent = 2.418 / 1000.0 / 1000.0; //kg/mm3
             
             double G0 = 0.5173;
             double niGlass = 0.23;
@@ -28870,13 +29902,19 @@ namespace FemTest.SolverTest
         }
 
         [TestMethod]
-        public void Quadrilateraltest1()
+        ///Traslation and stretch
+        public void QuadrilateralTest1()
         {
             List<Node> nodes = new List<Node>();
-            nodes.Add(new Node(0, 0, 0));
-            nodes.Add(new Node(2, 0, 0));
-            nodes.Add(new Node(2, 2, 0));
-            nodes.Add(new Node(0, 2, 0));
+            nodes.Add(new Node(0, 0, 0)); //0
+            nodes.Add(new Node(5, 0, 0)); //1
+            nodes.Add(new Node(5, 10, 0)); //2
+            nodes.Add(new Node(0, 10, 0)); //3
+
+            nodes.Add(new Node(-1, -1, 0)); //4
+            nodes.Add(new Node(1, -1, 0)); //5
+            nodes.Add(new Node(1, 1, 0)); //6
+            nodes.Add(new Node(-1, 1, 0)); //7
 
             double hGlass = 0.5;
             double EGlass = 12.0;
@@ -28886,22 +29924,227 @@ namespace FemTest.SolverTest
             
             double hInterlayer = 0.01;
 
-            Quad4TripleLaminatedGlass classic = new Quad4TripleLaminatedGlass(new Node[] { nodes[0], nodes[1], nodes[2], nodes[3] }, G0, hInterlayer, hGlass, hGlass, EGlass, niGlass);
-            Quadrilateral4TripleLaminatedGlass quadrilateral = new Quadrilateral4TripleLaminatedGlass(new Node[] { nodes[0], nodes[1], nodes[2], nodes[3] }, G0, hInterlayer, hGlass, hGlass, EGlass, niGlass);
+            //Quad4TripleLaminatedGlass naturalElement = new Quad4TripleLaminatedGlass(new Node[] { nodes[4], nodes[5], nodes[6], nodes[7] }, G0, hInterlayer, hGlass, hGlass, EGlass, niGlass);
+            Quad4TripleLaminatedGlass correct = new Quad4TripleLaminatedGlass(new Node[] { nodes[0], nodes[1], nodes[2], nodes[3] }, G0, hInterlayer, hGlass, hGlass, EGlass, niGlass, false);
+            Quad4TripleLaminatedGlass quadrilateral = new Quad4TripleLaminatedGlass(new Node[] { nodes[0], nodes[1], nodes[2], nodes[3] }, G0, hInterlayer, hGlass, hGlass, EGlass, niGlass, true);
 
-            classic.BuildMatrix();
-            FEMUtilities.WriteMatrix(classic.KElementGlobalCoord);
+            //naturalElement.BuildMatrix();
+            //FEMUtilities.WriteMatrix("natural element", naturalElement.KElementLocalCoord);
+
+            correct.BuildMatrix();
+            FEMUtilities.WriteMatrix("correct element", correct.KElementLocalCoord);
 
             quadrilateral.BuildMatrix();
-            FEMUtilities.WriteMatrix(quadrilateral.KElementGlobalCoord);
+            FEMUtilities.WriteMatrix(quadrilateral.KElementLocalCoord);
 
-            for (int row = 0; row < classic.KElementGlobalCoord.RowCount; row++)
+            for (int row = 0; row < correct.KElementLocalCoord.RowCount; row++)
             {
-                for (int col = 0; col < classic.KElementGlobalCoord.ColumnCount; col++)
+                for (int col = 0; col < correct.KElementLocalCoord.ColumnCount; col++)
                 {
-                    Assert.AreEqual(classic.KElementGlobalCoord[row, col], quadrilateral.KElementGlobalCoord[row, col]);
+                    Assert.AreEqual(correct.KElementLocalCoord[row, col], quadrilateral.KElementLocalCoord[row, col], 1e-6);
                 }
             }
+        }
+
+        [TestMethod]
+        //Single Plate with rotation. KMatrix?
+        public void QuadrilateralTest2()
+        {
+            List<Node> nodes = new List<Node>();
+            nodes.Add(new Node(0, 0, 0));
+            nodes.Add(new Node(2, 0, 0));
+            nodes.Add(new Node(2, 2, 0));
+            nodes.Add(new Node(0, 2, 0));
+
+            //20 deg
+            /*nodes.Add(new Node(0, 0, 0));
+            nodes.Add(new Node(1.8794, 0.68404, 0));
+            nodes.Add(new Node(1.1953, 2.56343, 0));
+            nodes.Add(new Node(-0.68404, 1.87939, 0));*/
+
+            //45 deg
+            nodes.Add(new Node(0, 0, 0));
+            nodes.Add(new Node(1.41421, 1.41421, 0));
+            nodes.Add(new Node(0, 2.82843, 0));
+            nodes.Add(new Node(-1.41421, 1.41421, 0));
+
+            double hGlass = 0.5;
+            double EGlass = 12.0;
+            double niGlass = 0.0;
+
+            double G0 = EGlass / (2.0 * (1.0 + niGlass));
+
+            double hInterlayer = 0.01;
+
+            //Quad4TripleLaminatedGlass naturalElement = new Quad4TripleLaminatedGlass(new Node[] { nodes[4], nodes[5], nodes[6], nodes[7] }, G0, hInterlayer, hGlass, hGlass, EGlass, niGlass);
+            Quad4TripleLaminatedGlass correct = new Quad4TripleLaminatedGlass(new Node[] { nodes[0], nodes[1], nodes[2], nodes[3] }, G0, hInterlayer, hGlass, hGlass, EGlass, niGlass, false);
+            Quad4TripleLaminatedGlass quadrilateral = new Quad4TripleLaminatedGlass(new Node[] { nodes[4], nodes[5], nodes[6], nodes[7] }, G0, hInterlayer, hGlass, hGlass, EGlass, niGlass, true);
+
+            //naturalElement.BuildMatrix();
+            //FEMUtilities.WriteMatrix("natural element", naturalElement.KElementLocalCoord);
+
+            correct.BuildMatrix();
+            FEMUtilities.WriteMatrix("correct element", correct.KElementLocalCoord);
+
+            quadrilateral.BuildMatrix();
+            FEMUtilities.WriteMatrix(quadrilateral.KElementLocalCoord);
+
+            /*for (int row = 0; row < correct.KElementLocalCoord.RowCount; row++)
+            {
+                for (int col = 0; col < correct.KElementLocalCoord.ColumnCount; col++)
+                {
+                    Assert.AreEqual(correct.KElementLocalCoord[row, col], quadrilateral.KElementLocalCoord[row, col], 1e-6);
+                }
+            }*/
+        }
+
+        [TestMethod]
+        //Rotazione plate dovrebbe dare lo stesso risultato
+        public void QuadrilateralTest3()
+        {
+            double hGlass = 0.5;
+            double EGlass = 12.0;
+            double niGlass = 0.0;
+
+            double G0 = EGlass / (2.0 * (1.0 + niGlass));
+
+            double hInterlayer = 0.01;
+
+            List<Node> nodes = new List<Node>();
+            #region nodes
+            nodes.Add(new Node(0, 0, 0));
+            nodes.Add(new Node(2, 0, 0));
+            nodes.Add(new Node(2, 2, 0));
+            nodes.Add(new Node(0, 2, 0));
+
+            //0.1 deg
+            /*nodes.Add(new Node(0, 0, 0));
+            nodes.Add(new Node(2, 0.003491, 0));
+            nodes.Add(new Node(1.99651, 2.00349, 0));
+            nodes.Add(new Node(-0.003491, 2, 0));*/
+
+            //20 deg
+            /*nodes.Add(new Node(0, 0, 0));
+            nodes.Add(new Node(1.8794, 0.68404, 0));
+            nodes.Add(new Node(1.1953, 2.56343, 0));
+            nodes.Add(new Node(-0.68404, 1.87939, 0));*/
+
+            //45 deg
+            /*nodes.Add(new Node(0, 0, 0));
+            nodes.Add(new Node(1.41421, 1.41421, 0));
+            nodes.Add(new Node(0, 2.82843, 0));
+            nodes.Add(new Node(-1.41421, 1.41421, 0));*/
+
+            //90 deg
+            /*nodes.Add(new Node(0, 0, 0));
+            nodes.Add(new Node(0, 2, 0));
+            nodes.Add(new Node(-2, 2, 0));
+            nodes.Add(new Node(-2, 0, 0));*/
+
+            //180 deg
+            nodes.Add(new Node(0, 0, 0));
+            nodes.Add(new Node(-2, 0, 0));
+            nodes.Add(new Node(-2, -2, 0));
+            nodes.Add(new Node(0, -2, 0));
+            #endregion
+
+            #region plates
+            List<Quad4TripleLaminatedGlass> els = new List<Quad4TripleLaminatedGlass>();
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[0], nodes[1], nodes[2], nodes[3] }, G0, hInterlayer, hGlass, hGlass, EGlass, niGlass, true));
+
+            List<Quad4TripleLaminatedGlass> els2 = new List<Quad4TripleLaminatedGlass>();
+            els2.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[4], nodes[5], nodes[6], nodes[7] }, G0, hInterlayer, hGlass, hGlass, EGlass, niGlass, true));
+            #endregion
+
+            CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
+
+            NodeForceAttribute f = new NodeForceAttribute("lc", sys, 0, 0, 5, 0, 0, 0);
+            nodes[1].AddAttribute(f);
+            nodes[2].AddAttribute(f);
+
+            nodes[5].AddAttribute(f);
+            nodes[6].AddAttribute(f);
+
+            NodeRestrainAttribute fix = new NodeRestrainAttribute("freedomCase", sys);
+            fix.AddExternalRestrain(Solver.DOF.DX);
+            fix.AddExternalRestrain(Solver.DOF.DY);
+            fix.AddExternalRestrain(Solver.DOF.DZ);
+            fix.AddExternalRestrain(Solver.DOF.RX);
+            fix.AddExternalRestrain(Solver.DOF.RY);
+            fix.AddExternalRestrain(Solver.DOF.RZ);
+
+            nodes[0].AddAttribute(fix);
+            nodes[3].AddAttribute(fix);
+
+            nodes[4].AddAttribute(fix);
+            nodes[7].AddAttribute(fix);
+
+            LinearSolver fem = new LinearSolver(els.ToArray());
+            LinearSolver fem2 = new LinearSolver(els2.ToArray());
+
+            Assert.AreEqual(fem.GetDisplacementGlobalCoordinates(nodes[1], Solver.DOF.DZ), fem2.GetDisplacementGlobalCoordinates(nodes[5], Solver.DOF.DZ), 1e-3);
+        }
+
+        [TestMethod]
+        //45 deg
+        public void QuadrilateralTest4()
+        {
+            double hGlass = 0.5;
+            double EGlass = 12.0;
+            double niGlass = 0.0;
+
+            double G0 = EGlass / (2.0 * (1.0 + niGlass));
+
+            double hInterlayer = 0.01;
+
+            List<Node> nodes = new List<Node>();
+            #region nodes
+            nodes.Add(new Node(0, 0, 0));
+            nodes.Add(new Node(2, 0, 0));
+            nodes.Add(new Node(2, 2, 0));
+            nodes.Add(new Node(0, 2, 0));
+
+            nodes.Add(new Node(0, 0, 0));
+            nodes.Add(new Node(1.41421, 1.41421, 0));
+            nodes.Add(new Node(0, 2.82843, 0));
+            nodes.Add(new Node(-1.41421, 1.41421, 0));
+            #endregion
+
+            #region plates
+            List<Quad4TripleLaminatedGlass> els = new List<Quad4TripleLaminatedGlass>();
+            els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[0], nodes[1], nodes[2], nodes[3] }, G0, hInterlayer, hGlass, hGlass, EGlass, niGlass, false));
+
+            List<Quad4TripleLaminatedGlass> els2 = new List<Quad4TripleLaminatedGlass>();
+            els2.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[4], nodes[5], nodes[6], nodes[7] }, G0, hInterlayer, hGlass, hGlass, EGlass, niGlass, true));
+            #endregion
+
+            CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
+
+            NodeForceAttribute f = new NodeForceAttribute("lc", sys, 0, 0, 5, 0, 0, 0);
+            nodes[1].AddAttribute(f);
+            nodes[2].AddAttribute(f);
+
+            nodes[5].AddAttribute(f);
+            nodes[6].AddAttribute(f);
+
+            NodeRestrainAttribute fix = new NodeRestrainAttribute("freedomCase", sys);
+            fix.AddExternalRestrain(Solver.DOF.DX);
+            fix.AddExternalRestrain(Solver.DOF.DY);
+            fix.AddExternalRestrain(Solver.DOF.DZ);
+            fix.AddExternalRestrain(Solver.DOF.RX);
+            fix.AddExternalRestrain(Solver.DOF.RY);
+            fix.AddExternalRestrain(Solver.DOF.RZ);
+
+            nodes[0].AddAttribute(fix);
+            nodes[3].AddAttribute(fix);
+
+            nodes[4].AddAttribute(fix);
+            nodes[7].AddAttribute(fix);
+
+            LinearSolver fem = new LinearSolver(els.ToArray());
+            LinearSolver fem2 = new LinearSolver(els2.ToArray());
+
+            Assert.AreEqual(fem.GetDisplacementGlobalCoordinates(nodes[1], Solver.DOF.DZ), fem2.GetDisplacementGlobalCoordinates(nodes[5], Solver.DOF.DZ));
         }
     }
 }
