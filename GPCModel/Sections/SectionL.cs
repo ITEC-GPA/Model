@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using GPC.Geometry;
 using GPC.Model.Materials;
 
@@ -69,7 +70,7 @@ namespace GPC.Model.Sections
         {
             double angle = -1.0 / 2.0 * Math.Atan(2.0 * CalculateJxy() / (_jyy - _jxx));
 
-            if (_jyy < _jxx)            
+            if (Jyy < Jxx)            
                 angle += Math.PI / 2.0;
 
             return angle;
@@ -77,36 +78,36 @@ namespace GPC.Model.Sections
 
         public double CalculateJ11()
         {
-            return (_jxx + _jyy) / 2.0 - 0.5 * Math.Sqrt(Math.Pow(_jxx - _jyy, 2.0) + 4.0 * CalculateJxy() * CalculateJxy());
+            return (Jxx + Jyy) / 2.0 - 0.5 * Math.Sqrt(Math.Pow(Jxx - Jyy, 2.0) + 4.0 * CalculateJxy() * CalculateJxy());
         }
 
         public double CalculateJ22()
         {
-            return (_jxx + _jyy) / 2.0 + 0.5 * Math.Sqrt(Math.Pow(_jxx - _jyy, 2.0) + 4.0 * CalculateJxy() * CalculateJxy());
+            return (Jxx + Jyy) / 2.0 + 0.5 * Math.Sqrt(Math.Pow(Jxx - Jyy, 2.0) + 4.0 * CalculateJxy() * CalculateJxy());
         }
 
         public double CalculateWel11Left()
         {
             FivePointsCheck(out double minX, out double _, out double _, out double _);
-            return _jxx / Math.Abs(minX);
+            return Jxx / Math.Abs(minX);
         }
 
         public double CalculateWel11Right()
         {
             FivePointsCheck(out double _, out double maxX, out double _, out double _);
-            return _jxx / Math.Abs(maxX);
+            return Jxx / Math.Abs(maxX);
         }
 
         public double CalculateWel22Bottom()
         {
             FivePointsCheck(out double _, out double _, out double minY, out double _);
-            return _jyy / Math.Abs(minY);
+            return Jyy / Math.Abs(minY);
         }
 
         public double CalculateWel22Top()
         {
             FivePointsCheck(out double _, out double _, out double _, out double maxY);
-            return _jyy / Math.Abs(maxY);
+            return Jyy / Math.Abs(maxY);
         }
 
         private void FivePointsCheck(out double minX, out double maxX, out double minY, out double maxY)
@@ -140,6 +141,58 @@ namespace GPC.Model.Sections
             }
         }
 
+        public override double CalculateJxx()
+        {
+            double jxx = 0;
+            for (int i = 0; i < ThinWalls.Count(); i++)
+            {
+                jxx += + DistanceXCentroidFromLeft() + ThinWalls[i].CalculateArea() * Math.Pow(ThinWalls[i].Centroid.X - _centroid.X, 2.0);
+            }
+            return jxx;
+        }
+
+        public double GetJyy()
+        {
+            double jyy = 0;
+            for (int i = 0; i < ThinWalls.Count(); i++)
+            {
+                jyy += ThinWalls[i].Centroid.Y + ThinWalls[i].CalculateArea() * Math.Pow(ThinWalls[i].Centroid.Y - _centroid.Y, 2.0);
+            }
+            return jyy;
+        }
+
+        public double GetJxy()
+        {
+            double jxy = 0;
+            for (int i = 0; i < ThinWalls.Count(); i++)
+            {
+                jxy += + 0.0 + ThinWalls[i].CalculateArea() * (ThinWalls[i].Centroid.X - _centroid.X) * (ThinWalls[i].Centroid.Y - _centroid.Y);
+            }
+            return jxy;
+        }
+
+        public double DistanceYCentroidFromBottom()
+        {
+            return THor / 2 + CalculateCentroid().Y;
+        }
+
+        public double DistanceYCentroidFromTop()
+        {
+            return LVert - THor / 2 - CalculateCentroid().Y;
+        }
+
+        public double DistanceXCentroidFromRight()
+        {
+            return LHor / 2 - CalculateCentroid().X;
+        }
+
+        public double DistanceXCentroidFromLeft()
+        {
+            return LHor / 2 + CalculateCentroid().X;
+        }
+
+
+
         #endregion
 
 
@@ -171,6 +224,13 @@ namespace GPC.Model.Sections
             return s;
         }
 
+        public override Point2d CalculateCentroid()
+        {
+            return  new Point2d(Sx / Area, Sy / Area);
+        }
+
         #endregion
     }
+
+
 }
