@@ -107,16 +107,17 @@ namespace GPC.Model.Results
         /// <param name="coordinateSystem"></param>
         /// <param name="sxx">Stress on <see cref="CoordinateSystem.V1"/> side of the plate along <see cref="CoordinateSystem.V1"/> direction</param>
         /// <param name="syy">Stress on <see cref="CoordinateSystem.V2"/> side of the plate along <see cref="CoordinateSystem.V2"/> direction</param>
+        /// <param name="szz">Stress on <see cref="CoordinateSystem.V2"/> side of the plate along <see cref="CoordinateSystem.V3"/> direction</param>
         /// <param name="sxy">Stress on <see cref="CoordinateSystem.V1"/> side of the plate along <see cref="CoordinateSystem.V2"/> direction</param>
         /// <param name="sxz">Stress on <see cref="CoordinateSystem.V1"/> side of the plate along <see cref="CoordinateSystem.V3"/> direction</param>
         /// <param name="syz">Stress on <see cref="CoordinateSystem.V2"/> side of the plate along <see cref="CoordinateSystem.V3"/> direction</param>
         /// <remarks> _szz is set to zero by default </remarks>
-        public ResultStress(CoordinateSystem coordinateSystem, double sxx, double syy, double sxy, double sxz, double syz)
+        public ResultStress(CoordinateSystem coordinateSystem, double sxx, double syy, double szz, double sxy, double sxz, double syz)
             : base(coordinateSystem)
         {
             _sxx = sxx;
             _syy = syy;
-            _szz = 0;
+            _szz = szz;
             _sxy = sxy;
             _sxz = sxz;
             _syz = syz;
@@ -135,7 +136,7 @@ namespace GPC.Model.Results
         /// <seealso cref="CalculatePrincipalStressFullMethod"/> must be used</para>
         /// <para>If <see cref="Sxz"/> and <see cref="Syz"/> are 0. This method gives the exact solution</para>
         /// </summary>
-        public void CalculatePrincipalStressSimplifiedMethod()
+        internal void CalculatePrincipalStressSimplifiedMethod()
         {
             _s11 = ((_sxx + _syy) / 2.0) + Math.Sqrt((Math.Pow((_sxx - _syy), 2.0) / 4.0) + Math.Pow(_sxy, 2.0));
             _s22 = ((_sxx + _syy) / 2.0) - Math.Sqrt((Math.Pow((_sxx - _syy), 2.0) / 4.0) + Math.Pow(_sxy, 2.0));
@@ -161,10 +162,13 @@ namespace GPC.Model.Results
                 m[0, 0] = _sxx;
                 m[1, 1] = _syy;
                 m[2, 2] = _szz;
+
                 m[0, 1] = _sxy;
                 m[1, 0] = _sxy;
+
                 m[0, 2] = _sxz;
                 m[2, 0] = _sxz;
+
                 m[1, 2] = _syz;
                 m[2, 1] = _syz;
 
@@ -217,6 +221,43 @@ namespace GPC.Model.Results
             globalstress[5] = GlobalTauResult.Z;
 
             return globalstress;
+        }
+
+
+        /// <returns>Return the stress tensor</returns>
+        public Matrix<double> GetTensor(bool toGlobal = false)
+        {
+            if (toGlobal)
+            {
+                Matrix<double> stress = Matrix<double>.Build.Sparse(3, 3);
+                stress[0, 0] = _sxx;
+                stress[0, 1] = _sxy;
+                stress[0, 2] = _sxz;
+                stress[1, 0] = _sxy;
+                stress[1, 1] = _syy;
+                stress[1, 2] = _syz;
+                stress[2, 0] = _sxz;
+                stress[2, 1] = _syz;
+                stress[2, 2] = _szz;
+
+                return _coordinateSystem.TrfMatrix.Resize(3, 3) * stress * _coordinateSystem.TrfMatrix.Resize(3, 3).Transpose();
+
+            }
+            else
+            {
+                Matrix<double> stress = Matrix<double>.Build.Sparse(3, 3);
+                stress[0, 0] = _sxx;
+                stress[0, 1] = _sxy;
+                stress[0, 2] = _sxz;
+                stress[1, 0] = _sxy;
+                stress[1, 1] = _syy;
+                stress[1, 2] = _syz;
+                stress[2, 0] = _sxz;
+                stress[2, 1] = _syz;
+                stress[2, 2] = _szz;
+
+                return stress;
+            }
         }
 
 
@@ -291,6 +332,104 @@ namespace GPC.Model.Results
             return !(obj1 == obj2);
         }
 
+        public static ResultStress operator +(ResultStress obj1, ResultStress obj2)
+        {
+            if (obj1._coordinateSystem.Equals(obj2._coordinateSystem))
+            {
+                double sxx = obj1._sxx + obj2._sxx;
+                double syy = obj1._syy + obj2._syy;
+                double szz = obj1._szz + obj2._szz;
+                double sxy = obj1._sxy + obj2._sxy;
+                double sxz = obj1._sxz + obj2._sxz;
+                double syz = obj1._syz + obj2._syz;
+
+                return new ResultStress(obj1._coordinateSystem, sxx, syy, szz, sxy, sxz, syz);
+            }
+            else
+            {
+                // TODO: rotazione stress, questo caso non è giusto
+                var obj1Global = obj1.GetTensor(true);
+
+                var obj2Global = obj2.GetTensor(true);
+
+                Matrix<double> sum = obj1Global + obj2Global;
+                //Console.WriteLine(obj1Global);
+                //Console.WriteLine(obj2Global);
+
+                //Console.WriteLine(sum);
+
+                var a = obj1._coordinateSystem.TrfMatrix.Resize(3, 3).Inverse() * sum * obj1._coordinateSystem.TrfMatrix.Resize(3, 3).Inverse().Transpose();
+
+
+                double sxx = a[0, 0];
+                double sxy = a[0, 1];
+                double sxz = a[0, 2];
+                double syy = a[1, 1];
+                double syz = a[1, 2];
+                double szz = a[2, 2];
+
+                //var obj2V1toObj1     = obj1._coordinateSystem.ToLocal(obj2._coordinateSystem.V1); // converto cs2.V1 nel sistema locale di obj1
+                //var obj2V2toObj1     = obj1._coordinateSystem.ToLocal(obj2._coordinateSystem.V2); // converto cs2.V2 nel sistema locale di obj1
+                //var obj2OrigintoObj1 = obj1._coordinateSystem.ToLocal(obj2._coordinateSystem.Origin); // converto origin di cs2 nel sistema locale di obj1
+
+                //var cs2 = new CoordinateSystem(obj2OrigintoObj1, obj2V1toObj1, obj2V2toObj1); // creo sistema di coordinate 
+
+                ////var c = cs2.TrfMatrix;
+                ////Console.WriteLine(c);
+                ////var c2 = cs2.TrfMatrix.Resize(3, 3);
+                ////Console.WriteLine(c2);
+
+
+                //Matrix<double> stressRotated = cs2.TrfMatrix.Resize(3,3) * obj2.GetTensor() * cs2.TrfMatrix.Resize(3, 3).Transpose();
+
+                //var sum = obj1.GetTensor() + stressRotated;
+
+                //double sxx = sum[0, 0];
+                //double sxy = sum[0, 1];
+                //double sxz = sum[0, 2];
+                //double syy = sum[1, 1];
+                //double syz = sum[1, 2];
+                //double szz = sum[2, 2];
+
+                return new ResultStress(obj1._coordinateSystem, sxx, syy, szz, sxy, sxz, syz);
+            }
+        }
+
+        public static ResultStress operator -(ResultStress obj1, ResultStress obj2)
+        {
+            if (obj1._coordinateSystem.Equals(obj2._coordinateSystem))
+            {
+                double sxx = obj1._sxx - obj2._sxx;
+                double syy = obj1._syy - obj2._syy;
+                double szz = obj1._szz - obj2._szz;
+                double sxy = obj1._sxy - obj2._sxy;
+                double sxz = obj1._sxz - obj2._sxz;
+                double syz = obj1._syz - obj2._syz;
+
+                return new ResultStress(obj1._coordinateSystem, sxx, syy, szz, sxy, sxz, syz);
+            }
+            else
+            {
+                // TODO: rotazione stress, questo caso non è giusto
+                var obj2V1toObj1 = obj1._coordinateSystem.ToLocal(obj2._coordinateSystem.V1);
+                var obj2V2toObj1 = obj1._coordinateSystem.ToLocal(obj2._coordinateSystem.V2);
+
+                var cs2 = new CoordinateSystem(obj1._coordinateSystem.Origin, obj2V1toObj1, obj2V2toObj1);
+
+                Matrix<double> stressRotated = cs2.TrfMatrix.Resize(3, 3) * obj2.GetTensor() * cs2.TrfMatrix.Resize(3, 3).Transpose();
+
+                var difference = obj1.GetTensor()  - stressRotated;
+
+                double sxx = difference[0, 0];
+                double sxy = difference[0, 1];
+                double sxz = difference[0, 2];
+                double syy = difference[1, 1];
+                double syz = difference[1, 2];
+                double szz = difference[2, 2];
+
+                return new ResultStress(obj1._coordinateSystem, sxx, syy, szz, sxy, sxz, syz);
+            }
+        }
 
         #endregion
     }
