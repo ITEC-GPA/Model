@@ -700,6 +700,7 @@ namespace ModelObjectTest
         }
 
         [TestMethod]
+        [TestCategory("Fail: Not implemented Test")]
         public void SectionL_Test1()
         {
             double h = 500;
@@ -716,6 +717,7 @@ namespace ModelObjectTest
         }
 
         [TestMethod]
+        [TestCategory("Fail: Not implemented Test")]
         public void SectionL_Test2()
         {
             double h = 40;
@@ -732,6 +734,7 @@ namespace ModelObjectTest
         }
 
         [TestMethod]
+        [TestCategory("Fail: Not implemented Test")]
         public void SectionL_Test3()
         {
             double h = 500;
