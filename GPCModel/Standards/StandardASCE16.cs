@@ -5,10 +5,10 @@ using System.Linq;
 using System.Runtime.Serialization;
 using System.Text;
 using System.Threading.Tasks;
-using static GPC.Model.Combinations.Combination;
-using static GPC.Model.Combinations.StandardASCE16;
+using GPC.Model.Combinations;
 
-namespace GPC.Model.Combinations
+
+namespace GPC.Model.Standards
 {
     /// <summary>
     /// This class collects all the coefficient of the ASCE7-16 Standard
@@ -298,13 +298,13 @@ namespace GPC.Model.Combinations
             }
 
             int idProg = 1;
-            CombinationCoefficientEqualityComparer equalityComparer = new CombinationCoefficientEqualityComparer();
+            Combination.CombinationCoefficientEqualityComparer equalityComparer = new Combination.CombinationCoefficientEqualityComparer();
             HashSet<Combination> combinationsHashSet = new HashSet<Combination>(equalityComparer);
             CombinationsCollection combinations = new CombinationsCollection();
 
             if (((ASCE16CombinationsOptions)options).LimitState == StandardASCE16.LimitStates.LFRD)
             {
-                List<LoadCaseCoefficient> LFRDCombo1List = LFRDCombo1(loadCases.Cast<LoadCase>().ToList());
+                List<Combination.LoadCaseCoefficient> LFRDCombo1List = LFRDCombo1(loadCases.Cast<LoadCase>().ToList());
                 Combination combo1 = new Combination(name + $" {idProg}");
                 for (int j = 0; j < LFRDCombo1List.Count; j++)
                 {
@@ -317,7 +317,7 @@ namespace GPC.Model.Combinations
                 }
 
 
-                List<List<LoadCaseCoefficient>> LFRDCombo2List = LFRDCombo2(loadCases.Cast<LoadCase>().ToList());
+                List<List<Combination.LoadCaseCoefficient>> LFRDCombo2List = LFRDCombo2(loadCases.Cast<LoadCase>().ToList());
                 for (int i = 0; i < LFRDCombo2List.Count; i++)
                 {
                     Combination combo2 = new Combination(name + $" {idProg}");
@@ -332,7 +332,7 @@ namespace GPC.Model.Combinations
                     }
                 }
 
-                List<List<LoadCaseCoefficient>> LFRDCombo3List = LFRDCombo3(loadCases.Cast<LoadCase>().ToList());
+                List<List<Combination.LoadCaseCoefficient>> LFRDCombo3List = LFRDCombo3(loadCases.Cast<LoadCase>().ToList());
                 for (int i = 0; i < LFRDCombo3List.Count; i++)
                 {
                     Combination combo3 = new Combination(name + $" {idProg}");
@@ -347,7 +347,7 @@ namespace GPC.Model.Combinations
                     }
                 }
 
-                List<List<LoadCaseCoefficient>> LFRDCombo4List = LFRDCombo4(loadCases.Cast<LoadCase>().ToList());
+                List<List<Combination.LoadCaseCoefficient>> LFRDCombo4List = LFRDCombo4(loadCases.Cast<LoadCase>().ToList());
                 for (int i = 0; i < LFRDCombo4List.Count; i++)
                 {
                     Combination combo4 = new Combination(name + $" {idProg}");
@@ -362,7 +362,7 @@ namespace GPC.Model.Combinations
                     }
                 }
 
-                List<List<LoadCaseCoefficient>> LFRDCombo5List = LFRDCombo5(loadCases.Cast<LoadCase>().ToList());
+                List<List<Combination.LoadCaseCoefficient>> LFRDCombo5List = LFRDCombo5(loadCases.Cast<LoadCase>().ToList());
                 for (int i = 0; i < LFRDCombo5List.Count; i++)
                 {
                     Combination combo5 = new Combination(name + $" {idProg}");
@@ -377,7 +377,7 @@ namespace GPC.Model.Combinations
                     }
                 }
 
-                List<LoadCaseCoefficient> LFRDCombo6List = LFRDCombo6(loadCases.Cast<LoadCase>().ToList());
+                List<Combination.LoadCaseCoefficient> LFRDCombo6List = LFRDCombo6(loadCases.Cast<LoadCase>().ToList());
                 Combination combo6 = new Combination(name + $" {idProg}");
                 for (int j = 0; j < LFRDCombo6List.Count; j++)
                 {
@@ -389,7 +389,7 @@ namespace GPC.Model.Combinations
                     idProg++;
                 }
 
-                List<LoadCaseCoefficient> LFRDCombo7List = LFRDCombo7(loadCases.Cast<LoadCase>().ToList());
+                List<Combination.LoadCaseCoefficient> LFRDCombo7List = LFRDCombo7(loadCases.Cast<LoadCase>().ToList());
                 Combination combo7 = new Combination(name + $" {idProg}");
                 for (int j = 0; j < LFRDCombo7List.Count; j++)
                 {
@@ -404,7 +404,7 @@ namespace GPC.Model.Combinations
 
             else if (((ASCE16CombinationsOptions)options).LimitState == StandardASCE16.LimitStates.ASD)
             {
-                List<LoadCaseCoefficient> ASDCombo1List = ASDCombo1(loadCases.Cast<LoadCase>().ToList());
+                List<Combination.LoadCaseCoefficient> ASDCombo1List = ASDCombo1(loadCases.Cast<LoadCase>().ToList());
                 Combination combo1 = new Combination(name + $" {idProg}");
                 for (int j = 0; j < ASDCombo1List.Count; j++)
                 {
@@ -416,7 +416,7 @@ namespace GPC.Model.Combinations
                     idProg++;
                 }
 
-                List<List<LoadCaseCoefficient>> ASDCombo2List = ASDCombo2(loadCases.Cast<LoadCase>().ToList());
+                List<List<Combination.LoadCaseCoefficient>> ASDCombo2List = ASDCombo2(loadCases.Cast<LoadCase>().ToList());
                 for (int i = 0; i < ASDCombo2List.Count; i++)
                 {
                     Combination combo2 = new Combination(name + $" {idProg}");
@@ -431,7 +431,7 @@ namespace GPC.Model.Combinations
                     }
                 }
 
-                List<List<LoadCaseCoefficient>> ASDCombo3List = ASDCombo3(loadCases.Cast<LoadCase>().ToList());
+                List<List<Combination.LoadCaseCoefficient>> ASDCombo3List = ASDCombo3(loadCases.Cast<LoadCase>().ToList());
                 for (int i = 0; i < ASDCombo3List.Count; i++)
                 {
                     Combination combo3 = new Combination(name + $" {idProg}");
@@ -446,7 +446,7 @@ namespace GPC.Model.Combinations
                     }
                 }
 
-                List<List<LoadCaseCoefficient>> ASDCombo4List = ASDCombo4(loadCases.Cast<LoadCase>().ToList());
+                List<List<Combination.LoadCaseCoefficient>> ASDCombo4List = ASDCombo4(loadCases.Cast<LoadCase>().ToList());
                 for (int i = 0; i < ASDCombo4List.Count; i++)
                 {
                     Combination combo4 = new Combination(name + $" {idProg}");
@@ -461,7 +461,7 @@ namespace GPC.Model.Combinations
                     }
                 }
 
-                List<List<LoadCaseCoefficient>> ASDCombo5List = ASDCombo5(loadCases.Cast<LoadCase>().ToList());
+                List<List<Combination.LoadCaseCoefficient>> ASDCombo5List = ASDCombo5(loadCases.Cast<LoadCase>().ToList());
                 for (int i = 0; i < ASDCombo5List.Count; i++)
                 {
                     Combination combo5 = new Combination(name + $" {idProg}");
@@ -476,7 +476,7 @@ namespace GPC.Model.Combinations
                     }
                 }
 
-                List<List<LoadCaseCoefficient>> ASDCombo6List = ASDCombo6(loadCases.Cast<LoadCase>().ToList());
+                List<List<Combination.LoadCaseCoefficient>> ASDCombo6List = ASDCombo6(loadCases.Cast<LoadCase>().ToList());
                 for (int i = 0; i < ASDCombo6List.Count; i++)
                 {
                     Combination combo6 = new Combination(name + $" {idProg}");
@@ -491,7 +491,7 @@ namespace GPC.Model.Combinations
                     }
                 }
 
-                List<List<LoadCaseCoefficient>> ASDCombo7List = ASDCombo7(loadCases.Cast<LoadCase>().ToList());
+                List<List<Combination.LoadCaseCoefficient>> ASDCombo7List = ASDCombo7(loadCases.Cast<LoadCase>().ToList());
                 for (int i = 0; i < ASDCombo7List.Count; i++)
                 {
                     Combination combo7 = new Combination(name + $" {idProg}");
@@ -506,7 +506,7 @@ namespace GPC.Model.Combinations
                     }
                 }
 
-                List<LoadCaseCoefficient> ASDCombo8List = ASDCombo8(loadCases.Cast<LoadCase>().ToList());
+                List<Combination.LoadCaseCoefficient> ASDCombo8List = ASDCombo8(loadCases.Cast<LoadCase>().ToList());
                 Combination combo8 = new Combination(name + $" {idProg}");
                 for (int j = 0; j < ASDCombo8List.Count; j++)
                 {
@@ -518,7 +518,7 @@ namespace GPC.Model.Combinations
                     idProg++;
                 }
 
-                List<LoadCaseCoefficient> ASDCombo9List = ASDCombo9(loadCases.Cast<LoadCase>().ToList());
+                List<Combination.LoadCaseCoefficient> ASDCombo9List = ASDCombo9(loadCases.Cast<LoadCase>().ToList());
                 Combination combo9 = new Combination(name + $" {idProg}");
                 for (int j = 0; j < ASDCombo9List.Count; j++)
                 {
@@ -530,7 +530,7 @@ namespace GPC.Model.Combinations
                     idProg++;
                 }
 
-                List<LoadCaseCoefficient> ASDCombo10List = ASDCombo10(loadCases.Cast<LoadCase>().ToList());
+                List<Combination.LoadCaseCoefficient> ASDCombo10List = ASDCombo10(loadCases.Cast<LoadCase>().ToList());
                 Combination combo10 = new Combination(name + $" {idProg}");
                 for (int j = 0; j < ASDCombo10List.Count; j++)
                 {
@@ -557,17 +557,17 @@ namespace GPC.Model.Combinations
 
         #region LFRD
 
-        private List<LoadCaseCoefficient> LFRDCombo1(List<LoadCase> loadCases)
+        private List<Combination.LoadCaseCoefficient> LFRDCombo1(List<LoadCase> loadCases)
         {
             // LFRD combo 1 : 1.4 D
 
-            List<LoadCaseCoefficient> loadCaseCoefficientSList = new List<LoadCaseCoefficient>();
+            List<Combination.LoadCaseCoefficient> loadCaseCoefficientSList = new List<Combination.LoadCaseCoefficient>();
 
             foreach (LoadCase l in loadCases)
             {
                 if (l.LoadCaseType == LoadCase.LoadCaseTypes.SelfWeight || l.LoadCaseType == LoadCase.LoadCaseTypes.SuperImposedDeadLoad)
                 {
-                    LoadCaseCoefficient loadCaseCoefficient = new LoadCaseCoefficient(Lfrd1PermCoef1, l);
+                    Combination.LoadCaseCoefficient loadCaseCoefficient = new Combination.LoadCaseCoefficient(Lfrd1PermCoef1, l);
                     loadCaseCoefficientSList.Add(loadCaseCoefficient);
                 }
             }
@@ -575,31 +575,31 @@ namespace GPC.Model.Combinations
             return loadCaseCoefficientSList;
         }
 
-        private List<List<LoadCaseCoefficient>> LFRDCombo2(List<LoadCase> loadCases)
+        private List<List<Combination.LoadCaseCoefficient>> LFRDCombo2(List<LoadCase> loadCases)
         {
             // LFRD combo 2 : 1.2 D + 1.6 L + 0.5 (Lr or S or R)
 
-            List<LoadCaseCoefficient> loadCaseCoefficientSListS = new List<LoadCaseCoefficient>();
-            List<LoadCaseCoefficient> loadCaseCoefficientSListM = new List<LoadCaseCoefficient>();
-            List<List<LoadCaseCoefficient>> outList = new List<List<LoadCaseCoefficient>>();
+            List<Combination.LoadCaseCoefficient> loadCaseCoefficientSListS = new List<Combination.LoadCaseCoefficient>();
+            List<Combination.LoadCaseCoefficient> loadCaseCoefficientSListM = new List<Combination.LoadCaseCoefficient>();
+            List<List<Combination.LoadCaseCoefficient>> outList = new List<List<Combination.LoadCaseCoefficient>>();
 
             foreach (LoadCase l in loadCases)
             {
                 if (l.LoadCaseType == LoadCase.LoadCaseTypes.SelfWeight || l.LoadCaseType == LoadCase.LoadCaseTypes.SuperImposedDeadLoad)
                 {
-                    LoadCaseCoefficient loadCaseCoefficient = new LoadCaseCoefficient(Lfrd2PermCoef1, l);
+                    Combination.LoadCaseCoefficient loadCaseCoefficient = new Combination.LoadCaseCoefficient(Lfrd2PermCoef1, l);
                     loadCaseCoefficientSListM.Add(loadCaseCoefficient);
                 }
 
                 if (l.LoadCaseType == LoadCase.LoadCaseTypes.LiveLoad)
                 {
-                    LoadCaseCoefficient loadCaseCoefficient = new LoadCaseCoefficient(Lfrd2VarCoef1, l);
+                    Combination.LoadCaseCoefficient loadCaseCoefficient = new Combination.LoadCaseCoefficient(Lfrd2VarCoef1, l);
                     loadCaseCoefficientSListM.Add(loadCaseCoefficient);
                 }
 
                 if (l.LoadCaseType == LoadCase.LoadCaseTypes.Maintenance)
                 {
-                    LoadCaseCoefficient loadCaseCoefficient = new LoadCaseCoefficient(Lfrd2VarCoef2, l);
+                    Combination.LoadCaseCoefficient loadCaseCoefficient = new Combination.LoadCaseCoefficient(Lfrd2VarCoef2, l);
                     loadCaseCoefficientSListM.Add(loadCaseCoefficient);
                 }
             }
@@ -609,19 +609,19 @@ namespace GPC.Model.Combinations
             {
                 if (l.LoadCaseType == LoadCase.LoadCaseTypes.SelfWeight || l.LoadCaseType == LoadCase.LoadCaseTypes.SuperImposedDeadLoad)
                 {
-                    LoadCaseCoefficient loadCaseCoefficient = new LoadCaseCoefficient(Lfrd2PermCoef1, l);
+                    Combination.LoadCaseCoefficient loadCaseCoefficient = new Combination.LoadCaseCoefficient(Lfrd2PermCoef1, l);
                     loadCaseCoefficientSListS.Add(loadCaseCoefficient);
                 }
 
                 if (l.LoadCaseType == LoadCase.LoadCaseTypes.LiveLoad)
                 {
-                    LoadCaseCoefficient loadCaseCoefficient = new LoadCaseCoefficient(Lfrd2VarCoef1, l);
+                    Combination.LoadCaseCoefficient loadCaseCoefficient = new Combination.LoadCaseCoefficient(Lfrd2VarCoef1, l);
                     loadCaseCoefficientSListS.Add(loadCaseCoefficient);
                 }
 
                 if (l.LoadCaseType == LoadCase.LoadCaseTypes.Snow)
                 {
-                    LoadCaseCoefficient loadCaseCoefficient = new LoadCaseCoefficient(Lfrd2VarCoef2, l);
+                    Combination.LoadCaseCoefficient loadCaseCoefficient = new Combination.LoadCaseCoefficient(Lfrd2VarCoef2, l);
                     loadCaseCoefficientSListS.Add(loadCaseCoefficient);
                 }
             }
@@ -630,33 +630,33 @@ namespace GPC.Model.Combinations
             return outList;
         }
 
-        private List<List<LoadCaseCoefficient>> LFRDCombo3(List<LoadCase> loadCases)
+        private List<List<Combination.LoadCaseCoefficient>> LFRDCombo3(List<LoadCase> loadCases)
         {
             // LFRD combo 3 : 1.2 D + 1.6 L + 0.5 (Lr or S)
 
-            List<LoadCaseCoefficient> loadCaseCoefficientSListLrL = new List<LoadCaseCoefficient>();
-            List<LoadCaseCoefficient> loadCaseCoefficientSListLrW = new List<LoadCaseCoefficient>();
-            List<LoadCaseCoefficient> loadCaseCoefficientSListSL = new List<LoadCaseCoefficient>();
-            List<LoadCaseCoefficient> loadCaseCoefficientSListSW = new List<LoadCaseCoefficient>();
-            List<List<LoadCaseCoefficient>> outList = new List<List<LoadCaseCoefficient>>();
+            List<Combination.LoadCaseCoefficient> loadCaseCoefficientSListLrL = new List<Combination.LoadCaseCoefficient>();
+            List<Combination.LoadCaseCoefficient> loadCaseCoefficientSListLrW = new List<Combination.LoadCaseCoefficient>();
+            List<Combination.LoadCaseCoefficient> loadCaseCoefficientSListSL = new List<Combination.LoadCaseCoefficient>();
+            List<Combination.LoadCaseCoefficient> loadCaseCoefficientSListSW = new List<Combination.LoadCaseCoefficient>();
+            List<List<Combination.LoadCaseCoefficient>> outList = new List<List<Combination.LoadCaseCoefficient>>();
 
             foreach (LoadCase l in loadCases)
             {
                 if (l.LoadCaseType == LoadCase.LoadCaseTypes.SelfWeight || l.LoadCaseType == LoadCase.LoadCaseTypes.SuperImposedDeadLoad)
                 {
-                    LoadCaseCoefficient loadCaseCoefficient = new LoadCaseCoefficient(Lfrd3PermCoef1, l);
+                    Combination.LoadCaseCoefficient loadCaseCoefficient = new Combination.LoadCaseCoefficient(Lfrd3PermCoef1, l);
                     loadCaseCoefficientSListLrL.Add(loadCaseCoefficient);
                 }
 
                 if (l.LoadCaseType == LoadCase.LoadCaseTypes.Maintenance)
                 {
-                    LoadCaseCoefficient loadCaseCoefficient = new LoadCaseCoefficient(Lfrd3VarCoef1, l);
+                    Combination.LoadCaseCoefficient loadCaseCoefficient = new Combination.LoadCaseCoefficient(Lfrd3VarCoef1, l);
                     loadCaseCoefficientSListLrL.Add(loadCaseCoefficient);
                 }
 
                 if (l.LoadCaseType == LoadCase.LoadCaseTypes.LiveLoad)
                 {
-                    LoadCaseCoefficient loadCaseCoefficient = new LoadCaseCoefficient(Lfrd3VarCoef2L, l);
+                    Combination.LoadCaseCoefficient loadCaseCoefficient = new Combination.LoadCaseCoefficient(Lfrd3VarCoef2L, l);
                     loadCaseCoefficientSListLrL.Add(loadCaseCoefficient);
                 }
             }
@@ -666,19 +666,19 @@ namespace GPC.Model.Combinations
             {
                 if (l.LoadCaseType == LoadCase.LoadCaseTypes.SelfWeight || l.LoadCaseType == LoadCase.LoadCaseTypes.SuperImposedDeadLoad)
                 {
-                    LoadCaseCoefficient loadCaseCoefficient = new LoadCaseCoefficient(Lfrd3PermCoef1, l);
+                    Combination.LoadCaseCoefficient loadCaseCoefficient = new Combination.LoadCaseCoefficient(Lfrd3PermCoef1, l);
                     loadCaseCoefficientSListLrW.Add(loadCaseCoefficient);
                 }
 
                 if (l.LoadCaseType == LoadCase.LoadCaseTypes.Maintenance)
                 {
-                    LoadCaseCoefficient loadCaseCoefficient = new LoadCaseCoefficient(Lfrd3VarCoef1, l);
+                    Combination.LoadCaseCoefficient loadCaseCoefficient = new Combination.LoadCaseCoefficient(Lfrd3VarCoef1, l);
                     loadCaseCoefficientSListLrW.Add(loadCaseCoefficient);
                 }
 
                 if (l.LoadCaseType == LoadCase.LoadCaseTypes.LiveLoad)
                 {
-                    LoadCaseCoefficient loadCaseCoefficient = new LoadCaseCoefficient(Lfrd3VarCoef2L, l);
+                    Combination.LoadCaseCoefficient loadCaseCoefficient = new Combination.LoadCaseCoefficient(Lfrd3VarCoef2L, l);
                     loadCaseCoefficientSListLrW.Add(loadCaseCoefficient);
                 }
             }
@@ -688,19 +688,19 @@ namespace GPC.Model.Combinations
             {
                 if (l.LoadCaseType == LoadCase.LoadCaseTypes.SelfWeight || l.LoadCaseType == LoadCase.LoadCaseTypes.SuperImposedDeadLoad)
                 {
-                    LoadCaseCoefficient loadCaseCoefficient = new LoadCaseCoefficient(Lfrd3PermCoef1, l);
+                    Combination.LoadCaseCoefficient loadCaseCoefficient = new Combination.LoadCaseCoefficient(Lfrd3PermCoef1, l);
                     loadCaseCoefficientSListSL.Add(loadCaseCoefficient);
                 }
 
                 if (l.LoadCaseType == LoadCase.LoadCaseTypes.Snow)
                 {
-                    LoadCaseCoefficient loadCaseCoefficient = new LoadCaseCoefficient(Lfrd3VarCoef1, l);
+                    Combination.LoadCaseCoefficient loadCaseCoefficient = new Combination.LoadCaseCoefficient(Lfrd3VarCoef1, l);
                     loadCaseCoefficientSListSL.Add(loadCaseCoefficient);
                 }
 
                 if (l.LoadCaseType == LoadCase.LoadCaseTypes.LiveLoad)
                 {
-                    LoadCaseCoefficient loadCaseCoefficient = new LoadCaseCoefficient(Lfrd3VarCoef2L, l);
+                    Combination.LoadCaseCoefficient loadCaseCoefficient = new Combination.LoadCaseCoefficient(Lfrd3VarCoef2L, l);
                     loadCaseCoefficientSListSL.Add(loadCaseCoefficient);
                 }
             }
@@ -710,19 +710,19 @@ namespace GPC.Model.Combinations
             {
                 if (l.LoadCaseType == LoadCase.LoadCaseTypes.SelfWeight || l.LoadCaseType == LoadCase.LoadCaseTypes.SuperImposedDeadLoad)
                 {
-                    LoadCaseCoefficient loadCaseCoefficient = new LoadCaseCoefficient(Lfrd3PermCoef1, l);
+                    Combination.LoadCaseCoefficient loadCaseCoefficient = new Combination.LoadCaseCoefficient(Lfrd3PermCoef1, l);
                     loadCaseCoefficientSListSW.Add(loadCaseCoefficient);
                 }
 
                 if (l.LoadCaseType == LoadCase.LoadCaseTypes.Snow)
                 {
-                    LoadCaseCoefficient loadCaseCoefficient = new LoadCaseCoefficient(Lfrd3VarCoef1, l);
+                    Combination.LoadCaseCoefficient loadCaseCoefficient = new Combination.LoadCaseCoefficient(Lfrd3VarCoef1, l);
                     loadCaseCoefficientSListSW.Add(loadCaseCoefficient);
                 }
 
                 if (l.LoadCaseType == LoadCase.LoadCaseTypes.LiveLoad)
                 {
-                    LoadCaseCoefficient loadCaseCoefficient = new LoadCaseCoefficient(Lfrd3VarCoef2L, l);
+                    Combination.LoadCaseCoefficient loadCaseCoefficient = new Combination.LoadCaseCoefficient(Lfrd3VarCoef2L, l);
                     loadCaseCoefficientSListSW.Add(loadCaseCoefficient);
                 }
             }
@@ -731,39 +731,39 @@ namespace GPC.Model.Combinations
             return outList;
         }
 
-        private List<List<LoadCaseCoefficient>> LFRDCombo4(List<LoadCase> loadCases)
+        private List<List<Combination.LoadCaseCoefficient>> LFRDCombo4(List<LoadCase> loadCases)
         {
             // LFRD combo 4 : 1.2 D + 1.0 W + L + 0.5 (Lr or S)
 
-            List<LoadCaseCoefficient> loadCaseCoefficientSListWpLr = new List<LoadCaseCoefficient>();
-            List<LoadCaseCoefficient> loadCaseCoefficientSListWsLr = new List<LoadCaseCoefficient>();
-            List<LoadCaseCoefficient> loadCaseCoefficientSListWpS = new List<LoadCaseCoefficient>();
-            List<LoadCaseCoefficient> loadCaseCoefficientSListWsS = new List<LoadCaseCoefficient>();
-            List<List<LoadCaseCoefficient>> outList = new List<List<LoadCaseCoefficient>>();
+            List<Combination.LoadCaseCoefficient> loadCaseCoefficientSListWpLr = new List<Combination.LoadCaseCoefficient>();
+            List<Combination.LoadCaseCoefficient> loadCaseCoefficientSListWsLr = new List<Combination.LoadCaseCoefficient>();
+            List<Combination.LoadCaseCoefficient> loadCaseCoefficientSListWpS = new List<Combination.LoadCaseCoefficient>();
+            List<Combination.LoadCaseCoefficient> loadCaseCoefficientSListWsS = new List<Combination.LoadCaseCoefficient>();
+            List<List<Combination.LoadCaseCoefficient>> outList = new List<List<Combination.LoadCaseCoefficient>>();
 
             foreach (LoadCase l in loadCases)
             {
                 if (l.LoadCaseType == LoadCase.LoadCaseTypes.SelfWeight || l.LoadCaseType == LoadCase.LoadCaseTypes.SuperImposedDeadLoad)
                 {
-                    LoadCaseCoefficient loadCaseCoefficient = new LoadCaseCoefficient(Lfrd4PermCoef1, l);
+                    Combination.LoadCaseCoefficient loadCaseCoefficient = new Combination.LoadCaseCoefficient(Lfrd4PermCoef1, l);
                     loadCaseCoefficientSListWpLr.Add(loadCaseCoefficient);
                 }
 
                 if (l.LoadCaseType == LoadCase.LoadCaseTypes.WindPressure)
                 {
-                    LoadCaseCoefficient loadCaseCoefficient = new LoadCaseCoefficient(Lfrd4VarCoef1, l);
+                    Combination.LoadCaseCoefficient loadCaseCoefficient = new Combination.LoadCaseCoefficient(Lfrd4VarCoef1, l);
                     loadCaseCoefficientSListWpLr.Add(loadCaseCoefficient);
                 }
 
                 if (l.LoadCaseType == LoadCase.LoadCaseTypes.LiveLoad)
                 {
-                    LoadCaseCoefficient loadCaseCoefficient = new LoadCaseCoefficient(Lfrd4VarCoef2, l);
+                    Combination.LoadCaseCoefficient loadCaseCoefficient = new Combination.LoadCaseCoefficient(Lfrd4VarCoef2, l);
                     loadCaseCoefficientSListWpLr.Add(loadCaseCoefficient);
                 }
 
                 if (l.LoadCaseType == LoadCase.LoadCaseTypes.Maintenance)
                 {
-                    LoadCaseCoefficient loadCaseCoefficient = new LoadCaseCoefficient(Lfrd4VarCoef2, l);
+                    Combination.LoadCaseCoefficient loadCaseCoefficient = new Combination.LoadCaseCoefficient(Lfrd4VarCoef2, l);
                     loadCaseCoefficientSListWpLr.Add(loadCaseCoefficient);
                 }
             }
@@ -773,25 +773,25 @@ namespace GPC.Model.Combinations
             {
                 if (l.LoadCaseType == LoadCase.LoadCaseTypes.SelfWeight || l.LoadCaseType == LoadCase.LoadCaseTypes.SuperImposedDeadLoad)
                 {
-                    LoadCaseCoefficient loadCaseCoefficient = new LoadCaseCoefficient(Lfrd4PermCoef1, l);
+                    Combination.LoadCaseCoefficient loadCaseCoefficient = new Combination.LoadCaseCoefficient(Lfrd4PermCoef1, l);
                     loadCaseCoefficientSListWsLr.Add(loadCaseCoefficient);
                 }
 
                 if (l.LoadCaseType == LoadCase.LoadCaseTypes.WindSuction)
                 {
-                    LoadCaseCoefficient loadCaseCoefficient = new LoadCaseCoefficient(Lfrd4VarCoef1, l);
+                    Combination.LoadCaseCoefficient loadCaseCoefficient = new Combination.LoadCaseCoefficient(Lfrd4VarCoef1, l);
                     loadCaseCoefficientSListWsLr.Add(loadCaseCoefficient);
                 }
 
                 if (l.LoadCaseType == LoadCase.LoadCaseTypes.LiveLoad)
                 {
-                    LoadCaseCoefficient loadCaseCoefficient = new LoadCaseCoefficient(Lfrd4VarCoef2, l);
+                    Combination.LoadCaseCoefficient loadCaseCoefficient = new Combination.LoadCaseCoefficient(Lfrd4VarCoef2, l);
                     loadCaseCoefficientSListWsLr.Add(loadCaseCoefficient);
                 }
 
                 if (l.LoadCaseType == LoadCase.LoadCaseTypes.Maintenance)
                 {
-                    LoadCaseCoefficient loadCaseCoefficient = new LoadCaseCoefficient(Lfrd4VarCoef2, l);
+                    Combination.LoadCaseCoefficient loadCaseCoefficient = new Combination.LoadCaseCoefficient(Lfrd4VarCoef2, l);
                     loadCaseCoefficientSListWsLr.Add(loadCaseCoefficient);
                 }
             }
@@ -801,25 +801,25 @@ namespace GPC.Model.Combinations
             {
                 if (l.LoadCaseType == LoadCase.LoadCaseTypes.SelfWeight || l.LoadCaseType == LoadCase.LoadCaseTypes.SuperImposedDeadLoad)
                 {
-                    LoadCaseCoefficient loadCaseCoefficient = new LoadCaseCoefficient(Lfrd4PermCoef1, l);
+                    Combination.LoadCaseCoefficient loadCaseCoefficient = new Combination.LoadCaseCoefficient(Lfrd4PermCoef1, l);
                     loadCaseCoefficientSListWpS.Add(loadCaseCoefficient);
                 }
 
                 if (l.LoadCaseType == LoadCase.LoadCaseTypes.WindPressure)
                 {
-                    LoadCaseCoefficient loadCaseCoefficient = new LoadCaseCoefficient(Lfrd4VarCoef1, l);
+                    Combination.LoadCaseCoefficient loadCaseCoefficient = new Combination.LoadCaseCoefficient(Lfrd4VarCoef1, l);
                     loadCaseCoefficientSListWpS.Add(loadCaseCoefficient);
                 }
 
                 if (l.LoadCaseType == LoadCase.LoadCaseTypes.LiveLoad)
                 {
-                    LoadCaseCoefficient loadCaseCoefficient = new LoadCaseCoefficient(Lfrd4VarCoef2, l);
+                    Combination.LoadCaseCoefficient loadCaseCoefficient = new Combination.LoadCaseCoefficient(Lfrd4VarCoef2, l);
                     loadCaseCoefficientSListWpS.Add(loadCaseCoefficient);
                 }
 
                 if (l.LoadCaseType == LoadCase.LoadCaseTypes.Snow)
                 {
-                    LoadCaseCoefficient loadCaseCoefficient = new LoadCaseCoefficient(Lfrd4VarCoef2, l);
+                    Combination.LoadCaseCoefficient loadCaseCoefficient = new Combination.LoadCaseCoefficient(Lfrd4VarCoef2, l);
                     loadCaseCoefficientSListWpS.Add(loadCaseCoefficient);
                 }
             }
@@ -829,25 +829,25 @@ namespace GPC.Model.Combinations
             {
                 if (l.LoadCaseType == LoadCase.LoadCaseTypes.SelfWeight || l.LoadCaseType == LoadCase.LoadCaseTypes.SuperImposedDeadLoad)
                 {
-                    LoadCaseCoefficient loadCaseCoefficient = new LoadCaseCoefficient(Lfrd4PermCoef1, l);
+                    Combination.LoadCaseCoefficient loadCaseCoefficient = new Combination.LoadCaseCoefficient(Lfrd4PermCoef1, l);
                     loadCaseCoefficientSListWsS.Add(loadCaseCoefficient);
                 }
 
                 if (l.LoadCaseType == LoadCase.LoadCaseTypes.WindSuction)
                 {
-                    LoadCaseCoefficient loadCaseCoefficient = new LoadCaseCoefficient(Lfrd4VarCoef1, l);
+                    Combination.LoadCaseCoefficient loadCaseCoefficient = new Combination.LoadCaseCoefficient(Lfrd4VarCoef1, l);
                     loadCaseCoefficientSListWsS.Add(loadCaseCoefficient);
                 }
 
                 if (l.LoadCaseType == LoadCase.LoadCaseTypes.LiveLoad)
                 {
-                    LoadCaseCoefficient loadCaseCoefficient = new LoadCaseCoefficient(Lfrd4VarCoef2, l);
+                    Combination.LoadCaseCoefficient loadCaseCoefficient = new Combination.LoadCaseCoefficient(Lfrd4VarCoef2, l);
                     loadCaseCoefficientSListWsS.Add(loadCaseCoefficient);
                 }
 
                 if (l.LoadCaseType == LoadCase.LoadCaseTypes.Snow)
                 {
-                    LoadCaseCoefficient loadCaseCoefficient = new LoadCaseCoefficient(Lfrd4VarCoef2, l);
+                    Combination.LoadCaseCoefficient loadCaseCoefficient = new Combination.LoadCaseCoefficient(Lfrd4VarCoef2, l);
                     loadCaseCoefficientSListWsS.Add(loadCaseCoefficient);
                 }
             }
@@ -856,25 +856,25 @@ namespace GPC.Model.Combinations
             return outList;
         }
 
-        private List<List<LoadCaseCoefficient>> LFRDCombo5(List<LoadCase> loadCases)
+        private List<List<Combination.LoadCaseCoefficient>> LFRDCombo5(List<LoadCase> loadCases)
         {
             // LFRD combo 4 : 1.2 D + 1.0 W + L + 0.5 (Lr or S)
 
-            List<LoadCaseCoefficient> loadCaseCoefficientSListWp = new List<LoadCaseCoefficient>();
-            List<LoadCaseCoefficient> loadCaseCoefficientSListWs = new List<LoadCaseCoefficient>();
-            List<List<LoadCaseCoefficient>> outList = new List<List<LoadCaseCoefficient>>();
+            List<Combination.LoadCaseCoefficient> loadCaseCoefficientSListWp = new List<Combination.LoadCaseCoefficient>();
+            List<Combination.LoadCaseCoefficient> loadCaseCoefficientSListWs = new List<Combination.LoadCaseCoefficient>();
+            List<List<Combination.LoadCaseCoefficient>> outList = new List<List<Combination.LoadCaseCoefficient>>();
 
             foreach (LoadCase l in loadCases)
             {
                 if (l.LoadCaseType == LoadCase.LoadCaseTypes.SelfWeight || l.LoadCaseType == LoadCase.LoadCaseTypes.SuperImposedDeadLoad)
                 {
-                    LoadCaseCoefficient loadCaseCoefficient = new LoadCaseCoefficient(Lfrd5PermCoef1, l);
+                    Combination.LoadCaseCoefficient loadCaseCoefficient = new Combination.LoadCaseCoefficient(Lfrd5PermCoef1, l);
                     loadCaseCoefficientSListWp.Add(loadCaseCoefficient);
                 }
 
                 if (l.LoadCaseType == LoadCase.LoadCaseTypes.WindPressure)
                 {
-                    LoadCaseCoefficient loadCaseCoefficient = new LoadCaseCoefficient(Lfrd5VarCoef1, l);
+                    Combination.LoadCaseCoefficient loadCaseCoefficient = new Combination.LoadCaseCoefficient(Lfrd5VarCoef1, l);
                     loadCaseCoefficientSListWp.Add(loadCaseCoefficient);
                 }
             }
@@ -884,13 +884,13 @@ namespace GPC.Model.Combinations
             {
                 if (l.LoadCaseType == LoadCase.LoadCaseTypes.SelfWeight || l.LoadCaseType == LoadCase.LoadCaseTypes.SuperImposedDeadLoad)
                 {
-                    LoadCaseCoefficient loadCaseCoefficient = new LoadCaseCoefficient(Lfrd5PermCoef1, l);
+                    Combination.LoadCaseCoefficient loadCaseCoefficient = new Combination.LoadCaseCoefficient(Lfrd5PermCoef1, l);
                     loadCaseCoefficientSListWs.Add(loadCaseCoefficient);
                 }
 
                 if (l.LoadCaseType == LoadCase.LoadCaseTypes.WindSuction)
                 {
-                    LoadCaseCoefficient loadCaseCoefficient = new LoadCaseCoefficient(Lfrd5VarCoef1, l);
+                    Combination.LoadCaseCoefficient loadCaseCoefficient = new Combination.LoadCaseCoefficient(Lfrd5VarCoef1, l);
                     loadCaseCoefficientSListWs.Add(loadCaseCoefficient);
                 }
             }
@@ -899,17 +899,17 @@ namespace GPC.Model.Combinations
             return outList;
         }
 
-        private List<LoadCaseCoefficient> LFRDCombo6(List<LoadCase> loadCases)
+        private List<Combination.LoadCaseCoefficient> LFRDCombo6(List<LoadCase> loadCases)
         {
             // LFRD combo 1 : 1.4 D
 
-            List<LoadCaseCoefficient> loadCaseCoefficientSList = new List<LoadCaseCoefficient>();
+            List<Combination.LoadCaseCoefficient> loadCaseCoefficientSList = new List<Combination.LoadCaseCoefficient>();
 
             foreach (LoadCase l in loadCases)
             {
                 if (l.LoadCaseType == LoadCase.LoadCaseTypes.SelfWeight || l.LoadCaseType == LoadCase.LoadCaseTypes.SuperImposedDeadLoad)
                 {
-                    LoadCaseCoefficient loadCaseCoefficient = new LoadCaseCoefficient(Lfrd6PermCoef1, l);
+                    Combination.LoadCaseCoefficient loadCaseCoefficient = new Combination.LoadCaseCoefficient(Lfrd6PermCoef1, l);
                     loadCaseCoefficientSList.Add(loadCaseCoefficient);
                 }
             }
@@ -918,7 +918,7 @@ namespace GPC.Model.Combinations
             {
                 if (l.LoadCaseType == LoadCase.LoadCaseTypes.Earthquake)
                 {
-                    LoadCaseCoefficient loadCaseCoefficient = new LoadCaseCoefficient(Lfrd6VarCoef1, l);
+                    Combination.LoadCaseCoefficient loadCaseCoefficient = new Combination.LoadCaseCoefficient(Lfrd6VarCoef1, l);
                     loadCaseCoefficientSList.Add(loadCaseCoefficient);
                 }
             }
@@ -927,7 +927,7 @@ namespace GPC.Model.Combinations
             {
                 if (l.LoadCaseType == LoadCase.LoadCaseTypes.LiveLoad)
                 {
-                    LoadCaseCoefficient loadCaseCoefficient = new LoadCaseCoefficient(Lfrd6VarCoef2, l);
+                    Combination.LoadCaseCoefficient loadCaseCoefficient = new Combination.LoadCaseCoefficient(Lfrd6VarCoef2, l);
                     loadCaseCoefficientSList.Add(loadCaseCoefficient);
                 }
             }
@@ -936,7 +936,7 @@ namespace GPC.Model.Combinations
             {
                 if (l.LoadCaseType == LoadCase.LoadCaseTypes.Snow)
                 {
-                    LoadCaseCoefficient loadCaseCoefficient = new LoadCaseCoefficient(Lfrd6VarCoef3, l);
+                    Combination.LoadCaseCoefficient loadCaseCoefficient = new Combination.LoadCaseCoefficient(Lfrd6VarCoef3, l);
                     loadCaseCoefficientSList.Add(loadCaseCoefficient);
                 }
             }
@@ -944,17 +944,17 @@ namespace GPC.Model.Combinations
             return loadCaseCoefficientSList;
         }
 
-        private List<LoadCaseCoefficient> LFRDCombo7(List<LoadCase> loadCases)
+        private List<Combination.LoadCaseCoefficient> LFRDCombo7(List<LoadCase> loadCases)
         {
             // LFRD combo 1 : 1.4 D
 
-            List<LoadCaseCoefficient> loadCaseCoefficientSList = new List<LoadCaseCoefficient>();
+            List<Combination.LoadCaseCoefficient> loadCaseCoefficientSList = new List<Combination.LoadCaseCoefficient>();
 
             foreach (LoadCase l in loadCases)
             {
                 if (l.LoadCaseType == LoadCase.LoadCaseTypes.SelfWeight || l.LoadCaseType == LoadCase.LoadCaseTypes.SuperImposedDeadLoad)
                 {
-                    LoadCaseCoefficient loadCaseCoefficient = new LoadCaseCoefficient(Lfrd7PermCoef1, l);
+                    Combination.LoadCaseCoefficient loadCaseCoefficient = new Combination.LoadCaseCoefficient(Lfrd7PermCoef1, l);
                     loadCaseCoefficientSList.Add(loadCaseCoefficient);
                 }
             }
@@ -963,7 +963,7 @@ namespace GPC.Model.Combinations
             {
                 if (l.LoadCaseType == LoadCase.LoadCaseTypes.Earthquake)
                 {
-                    LoadCaseCoefficient loadCaseCoefficient = new LoadCaseCoefficient(Lfrd7VarCoef1, l);
+                    Combination.LoadCaseCoefficient loadCaseCoefficient = new Combination.LoadCaseCoefficient(Lfrd7VarCoef1, l);
                     loadCaseCoefficientSList.Add(loadCaseCoefficient);
                 }
             }
@@ -976,17 +976,17 @@ namespace GPC.Model.Combinations
 
         #region ASD
 
-        private List<LoadCaseCoefficient> ASDCombo1(List<LoadCase> loadCases)
+        private List<Combination.LoadCaseCoefficient> ASDCombo1(List<LoadCase> loadCases)
         {
             // ASD combo 1 : D
 
-            List<LoadCaseCoefficient> loadCaseCoefficientSList = new List<LoadCaseCoefficient>();
+            List<Combination.LoadCaseCoefficient> loadCaseCoefficientSList = new List<Combination.LoadCaseCoefficient>();
 
             foreach (LoadCase l in loadCases)
             {
                 if (l.LoadCaseType == LoadCase.LoadCaseTypes.SelfWeight || l.LoadCaseType == LoadCase.LoadCaseTypes.SuperImposedDeadLoad)
                 {
-                    LoadCaseCoefficient loadCaseCoefficient = new LoadCaseCoefficient(Asd1PermCoef1, l);
+                    Combination.LoadCaseCoefficient loadCaseCoefficient = new Combination.LoadCaseCoefficient(Asd1PermCoef1, l);
                     loadCaseCoefficientSList.Add(loadCaseCoefficient);
                 }
             }
@@ -994,24 +994,24 @@ namespace GPC.Model.Combinations
             return loadCaseCoefficientSList;
         }
 
-        private List<List<LoadCaseCoefficient>> ASDCombo2(List<LoadCase> loadCases)
+        private List<List<Combination.LoadCaseCoefficient>> ASDCombo2(List<LoadCase> loadCases)
         {
             // ASD combo 2 : D + L 
 
-            List<LoadCaseCoefficient> loadCaseCoefficientSListM = new List<LoadCaseCoefficient>();
-            List<List<LoadCaseCoefficient>> outList = new List<List<LoadCaseCoefficient>>();
+            List<Combination.LoadCaseCoefficient> loadCaseCoefficientSListM = new List<Combination.LoadCaseCoefficient>();
+            List<List<Combination.LoadCaseCoefficient>> outList = new List<List<Combination.LoadCaseCoefficient>>();
 
             foreach (LoadCase l in loadCases)
             {
                 if (l.LoadCaseType == LoadCase.LoadCaseTypes.SelfWeight || l.LoadCaseType == LoadCase.LoadCaseTypes.SuperImposedDeadLoad)
                 {
-                    LoadCaseCoefficient loadCaseCoefficient = new LoadCaseCoefficient(Asd2PermCoef1, l);
+                    Combination.LoadCaseCoefficient loadCaseCoefficient = new Combination.LoadCaseCoefficient(Asd2PermCoef1, l);
                     loadCaseCoefficientSListM.Add(loadCaseCoefficient);
                 }
 
                 if (l.LoadCaseType == LoadCase.LoadCaseTypes.LiveLoad)
                 {
-                    LoadCaseCoefficient loadCaseCoefficient = new LoadCaseCoefficient(Asd2VarCoef1, l);
+                    Combination.LoadCaseCoefficient loadCaseCoefficient = new Combination.LoadCaseCoefficient(Asd2VarCoef1, l);
                     loadCaseCoefficientSListM.Add(loadCaseCoefficient);
                 }
             }
@@ -1020,25 +1020,25 @@ namespace GPC.Model.Combinations
             return outList;
         }
 
-        private List<List<LoadCaseCoefficient>> ASDCombo3(List<LoadCase> loadCases)
+        private List<List<Combination.LoadCaseCoefficient>> ASDCombo3(List<LoadCase> loadCases)
         {
             // ASD combo 3 : D + 0.75 L + 0.75 (Lr or S)
 
-            List<LoadCaseCoefficient> loadCaseCoefficientSListLr = new List<LoadCaseCoefficient>();
-            List<LoadCaseCoefficient> loadCaseCoefficientSListS = new List<LoadCaseCoefficient>();
-            List<List<LoadCaseCoefficient>> outList = new List<List<LoadCaseCoefficient>>();
+            List<Combination.LoadCaseCoefficient> loadCaseCoefficientSListLr = new List<Combination.LoadCaseCoefficient>();
+            List<Combination.LoadCaseCoefficient> loadCaseCoefficientSListS = new List<Combination.LoadCaseCoefficient>();
+            List<List<Combination.LoadCaseCoefficient>> outList = new List<List<Combination.LoadCaseCoefficient>>();
 
             foreach (LoadCase l in loadCases)
             {
                 if (l.LoadCaseType == LoadCase.LoadCaseTypes.SelfWeight || l.LoadCaseType == LoadCase.LoadCaseTypes.SuperImposedDeadLoad)
                 {
-                    LoadCaseCoefficient loadCaseCoefficient = new LoadCaseCoefficient(Asd3PermCoef1, l);
+                    Combination.LoadCaseCoefficient loadCaseCoefficient = new Combination.LoadCaseCoefficient(Asd3PermCoef1, l);
                     loadCaseCoefficientSListLr.Add(loadCaseCoefficient);
                 }
 
                 if (l.LoadCaseType == LoadCase.LoadCaseTypes.Maintenance)
                 {
-                    LoadCaseCoefficient loadCaseCoefficient = new LoadCaseCoefficient(Asd3VarCoef1, l);
+                    Combination.LoadCaseCoefficient loadCaseCoefficient = new Combination.LoadCaseCoefficient(Asd3VarCoef1, l);
                     loadCaseCoefficientSListLr.Add(loadCaseCoefficient);
                 }
             }
@@ -1048,13 +1048,13 @@ namespace GPC.Model.Combinations
             {
                 if (l.LoadCaseType == LoadCase.LoadCaseTypes.SelfWeight || l.LoadCaseType == LoadCase.LoadCaseTypes.SuperImposedDeadLoad)
                 {
-                    LoadCaseCoefficient loadCaseCoefficient = new LoadCaseCoefficient(Asd3PermCoef1, l);
+                    Combination.LoadCaseCoefficient loadCaseCoefficient = new Combination.LoadCaseCoefficient(Asd3PermCoef1, l);
                     loadCaseCoefficientSListS.Add(loadCaseCoefficient);
                 }
 
                 if (l.LoadCaseType == LoadCase.LoadCaseTypes.Snow)
                 {
-                    LoadCaseCoefficient loadCaseCoefficient = new LoadCaseCoefficient(Asd3VarCoef1, l);
+                    Combination.LoadCaseCoefficient loadCaseCoefficient = new Combination.LoadCaseCoefficient(Asd3VarCoef1, l);
                     loadCaseCoefficientSListS.Add(loadCaseCoefficient);
                 }
             }
@@ -1063,31 +1063,31 @@ namespace GPC.Model.Combinations
             return outList;
         }
 
-        private List<List<LoadCaseCoefficient>> ASDCombo4(List<LoadCase> loadCases)
+        private List<List<Combination.LoadCaseCoefficient>> ASDCombo4(List<LoadCase> loadCases)
         {
             // ASD combo 4 : D + 0.75 L + 0.75 (Lr or S)
 
-            List<LoadCaseCoefficient> loadCaseCoefficientSListLLr = new List<LoadCaseCoefficient>();
-            List<LoadCaseCoefficient> loadCaseCoefficientSListLS = new List<LoadCaseCoefficient>();
-            List<List<LoadCaseCoefficient>> outList = new List<List<LoadCaseCoefficient>>();
+            List<Combination.LoadCaseCoefficient> loadCaseCoefficientSListLLr = new List<Combination.LoadCaseCoefficient>();
+            List<Combination.LoadCaseCoefficient> loadCaseCoefficientSListLS = new List<Combination.LoadCaseCoefficient>();
+            List<List<Combination.LoadCaseCoefficient>> outList = new List<List<Combination.LoadCaseCoefficient>>();
 
             foreach (LoadCase l in loadCases)
             {
                 if (l.LoadCaseType == LoadCase.LoadCaseTypes.SelfWeight || l.LoadCaseType == LoadCase.LoadCaseTypes.SuperImposedDeadLoad)
                 {
-                    LoadCaseCoefficient loadCaseCoefficient = new LoadCaseCoefficient(Asd4PermCoef1, l);
+                    Combination.LoadCaseCoefficient loadCaseCoefficient = new Combination.LoadCaseCoefficient(Asd4PermCoef1, l);
                     loadCaseCoefficientSListLLr.Add(loadCaseCoefficient);
                 }
 
                 if (l.LoadCaseType == LoadCase.LoadCaseTypes.LiveLoad)
                 {
-                    LoadCaseCoefficient loadCaseCoefficient = new LoadCaseCoefficient(Asd4VarCoef1, l);
+                    Combination.LoadCaseCoefficient loadCaseCoefficient = new Combination.LoadCaseCoefficient(Asd4VarCoef1, l);
                     loadCaseCoefficientSListLLr.Add(loadCaseCoefficient);
                 }
 
                 if (l.LoadCaseType == LoadCase.LoadCaseTypes.Maintenance)
                 {
-                    LoadCaseCoefficient loadCaseCoefficient = new LoadCaseCoefficient(Asd4VarCoef2, l);
+                    Combination.LoadCaseCoefficient loadCaseCoefficient = new Combination.LoadCaseCoefficient(Asd4VarCoef2, l);
                     loadCaseCoefficientSListLLr.Add(loadCaseCoefficient);
                 }
             }
@@ -1097,19 +1097,19 @@ namespace GPC.Model.Combinations
             {
                 if (l.LoadCaseType == LoadCase.LoadCaseTypes.SelfWeight || l.LoadCaseType == LoadCase.LoadCaseTypes.SuperImposedDeadLoad)
                 {
-                    LoadCaseCoefficient loadCaseCoefficient = new LoadCaseCoefficient(Asd4PermCoef1, l);
+                    Combination.LoadCaseCoefficient loadCaseCoefficient = new Combination.LoadCaseCoefficient(Asd4PermCoef1, l);
                     loadCaseCoefficientSListLS.Add(loadCaseCoefficient);
                 }
 
                 if (l.LoadCaseType == LoadCase.LoadCaseTypes.LiveLoad)
                 {
-                    LoadCaseCoefficient loadCaseCoefficient = new LoadCaseCoefficient(Asd4VarCoef1, l);
+                    Combination.LoadCaseCoefficient loadCaseCoefficient = new Combination.LoadCaseCoefficient(Asd4VarCoef1, l);
                     loadCaseCoefficientSListLS.Add(loadCaseCoefficient);
                 }
 
                 if (l.LoadCaseType == LoadCase.LoadCaseTypes.Snow)
                 {
-                    LoadCaseCoefficient loadCaseCoefficient = new LoadCaseCoefficient(Asd4VarCoef2, l);
+                    Combination.LoadCaseCoefficient loadCaseCoefficient = new Combination.LoadCaseCoefficient(Asd4VarCoef2, l);
                     loadCaseCoefficientSListLS.Add(loadCaseCoefficient);
                 }
             }
@@ -1118,25 +1118,25 @@ namespace GPC.Model.Combinations
             return outList;
         }
 
-        private List<List<LoadCaseCoefficient>> ASDCombo5(List<LoadCase> loadCases)
+        private List<List<Combination.LoadCaseCoefficient>> ASDCombo5(List<LoadCase> loadCases)
         {
             // ASD combo 5 : 1 D + 0.6 W
 
-            List<LoadCaseCoefficient> loadCaseCoefficientSListWp = new List<LoadCaseCoefficient>();
-            List<LoadCaseCoefficient> loadCaseCoefficientSListWs = new List<LoadCaseCoefficient>();
-            List<List<LoadCaseCoefficient>> outList = new List<List<LoadCaseCoefficient>>();
+            List<Combination.LoadCaseCoefficient> loadCaseCoefficientSListWp = new List<Combination.LoadCaseCoefficient>();
+            List<Combination.LoadCaseCoefficient> loadCaseCoefficientSListWs = new List<Combination.LoadCaseCoefficient>();
+            List<List<Combination.LoadCaseCoefficient>> outList = new List<List<Combination.LoadCaseCoefficient>>();
 
             foreach (LoadCase l in loadCases)
             {
                 if (l.LoadCaseType == LoadCase.LoadCaseTypes.SelfWeight || l.LoadCaseType == LoadCase.LoadCaseTypes.SuperImposedDeadLoad)
                 {
-                    LoadCaseCoefficient loadCaseCoefficient = new LoadCaseCoefficient(Asd5PermCoef1, l);
+                    Combination.LoadCaseCoefficient loadCaseCoefficient = new Combination.LoadCaseCoefficient(Asd5PermCoef1, l);
                     loadCaseCoefficientSListWp.Add(loadCaseCoefficient);
                 }
 
                 if (l.LoadCaseType == LoadCase.LoadCaseTypes.WindPressure)
                 {
-                    LoadCaseCoefficient loadCaseCoefficient = new LoadCaseCoefficient(Asd5VarCoef1, l);
+                    Combination.LoadCaseCoefficient loadCaseCoefficient = new Combination.LoadCaseCoefficient(Asd5VarCoef1, l);
                     loadCaseCoefficientSListWp.Add(loadCaseCoefficient);
                 }
             }
@@ -1146,13 +1146,13 @@ namespace GPC.Model.Combinations
             {
                 if (l.LoadCaseType == LoadCase.LoadCaseTypes.SelfWeight || l.LoadCaseType == LoadCase.LoadCaseTypes.SuperImposedDeadLoad)
                 {
-                    LoadCaseCoefficient loadCaseCoefficient = new LoadCaseCoefficient(Lfrd5PermCoef1, l);
+                    Combination.LoadCaseCoefficient loadCaseCoefficient = new Combination.LoadCaseCoefficient(Lfrd5PermCoef1, l);
                     loadCaseCoefficientSListWs.Add(loadCaseCoefficient);
                 }
 
                 if (l.LoadCaseType == LoadCase.LoadCaseTypes.WindSuction)
                 {
-                    LoadCaseCoefficient loadCaseCoefficient = new LoadCaseCoefficient(Asd5VarCoef1, l);
+                    Combination.LoadCaseCoefficient loadCaseCoefficient = new Combination.LoadCaseCoefficient(Asd5VarCoef1, l);
                     loadCaseCoefficientSListWs.Add(loadCaseCoefficient);
                 }
             }
@@ -1161,39 +1161,39 @@ namespace GPC.Model.Combinations
             return outList;
         }
 
-        private List<List<LoadCaseCoefficient>> ASDCombo6(List<LoadCase> loadCases)
+        private List<List<Combination.LoadCaseCoefficient>> ASDCombo6(List<LoadCase> loadCases)
         {
             // ASD combo 6 : D + 0.75L + 0.75*0.6W + 0.75(Lr or S or R)
 
-            List<LoadCaseCoefficient> loadCaseCoefficientSListWpLr = new List<LoadCaseCoefficient>();
-            List<LoadCaseCoefficient> loadCaseCoefficientSListWpS = new List<LoadCaseCoefficient>();
-            List<LoadCaseCoefficient> loadCaseCoefficientSListWsLr = new List<LoadCaseCoefficient>();
-            List<LoadCaseCoefficient> loadCaseCoefficientSListWsS = new List<LoadCaseCoefficient>();
-            List<List<LoadCaseCoefficient>> outList = new List<List<LoadCaseCoefficient>>();
+            List<Combination.LoadCaseCoefficient> loadCaseCoefficientSListWpLr = new List<Combination.LoadCaseCoefficient>();
+            List<Combination.LoadCaseCoefficient> loadCaseCoefficientSListWpS = new List<Combination.LoadCaseCoefficient>();
+            List<Combination.LoadCaseCoefficient> loadCaseCoefficientSListWsLr = new List<Combination.LoadCaseCoefficient>();
+            List<Combination.LoadCaseCoefficient> loadCaseCoefficientSListWsS = new List<Combination.LoadCaseCoefficient>();
+            List<List<Combination.LoadCaseCoefficient>> outList = new List<List<Combination.LoadCaseCoefficient>>();
 
             foreach (LoadCase l in loadCases)
             {
                 if (l.LoadCaseType == LoadCase.LoadCaseTypes.SelfWeight || l.LoadCaseType == LoadCase.LoadCaseTypes.SuperImposedDeadLoad)
                 {
-                    LoadCaseCoefficient loadCaseCoefficient = new LoadCaseCoefficient(Asd6PermCoef1, l);
+                    Combination.LoadCaseCoefficient loadCaseCoefficient = new Combination.LoadCaseCoefficient(Asd6PermCoef1, l);
                     loadCaseCoefficientSListWpLr.Add(loadCaseCoefficient);
                 }
 
                 if (l.LoadCaseType == LoadCase.LoadCaseTypes.LiveLoad)
                 {
-                    LoadCaseCoefficient loadCaseCoefficient = new LoadCaseCoefficient(Asd6VarCoef1, l);
+                    Combination.LoadCaseCoefficient loadCaseCoefficient = new Combination.LoadCaseCoefficient(Asd6VarCoef1, l);
                     loadCaseCoefficientSListWpLr.Add(loadCaseCoefficient);
                 }
 
                 if (l.LoadCaseType == LoadCase.LoadCaseTypes.WindPressure)
                 {
-                    LoadCaseCoefficient loadCaseCoefficient = new LoadCaseCoefficient(Asd6VarCoef2, l);
+                    Combination.LoadCaseCoefficient loadCaseCoefficient = new Combination.LoadCaseCoefficient(Asd6VarCoef2, l);
                     loadCaseCoefficientSListWpLr.Add(loadCaseCoefficient);
                 }
 
                 if (l.LoadCaseType == LoadCase.LoadCaseTypes.Maintenance)
                 {
-                    LoadCaseCoefficient loadCaseCoefficient = new LoadCaseCoefficient(Asd6VarCoef3, l);
+                    Combination.LoadCaseCoefficient loadCaseCoefficient = new Combination.LoadCaseCoefficient(Asd6VarCoef3, l);
                     loadCaseCoefficientSListWpLr.Add(loadCaseCoefficient);
                 }
             }
@@ -1203,25 +1203,25 @@ namespace GPC.Model.Combinations
             {
                 if (l.LoadCaseType == LoadCase.LoadCaseTypes.SelfWeight || l.LoadCaseType == LoadCase.LoadCaseTypes.SuperImposedDeadLoad)
                 {
-                    LoadCaseCoefficient loadCaseCoefficient = new LoadCaseCoefficient(Asd6PermCoef1, l);
+                    Combination.LoadCaseCoefficient loadCaseCoefficient = new Combination.LoadCaseCoefficient(Asd6PermCoef1, l);
                     loadCaseCoefficientSListWsLr.Add(loadCaseCoefficient);
                 }
 
                 if (l.LoadCaseType == LoadCase.LoadCaseTypes.LiveLoad)
                 {
-                    LoadCaseCoefficient loadCaseCoefficient = new LoadCaseCoefficient(Asd6VarCoef1, l);
+                    Combination.LoadCaseCoefficient loadCaseCoefficient = new Combination.LoadCaseCoefficient(Asd6VarCoef1, l);
                     loadCaseCoefficientSListWsLr.Add(loadCaseCoefficient);
                 }
 
                 if (l.LoadCaseType == LoadCase.LoadCaseTypes.WindSuction)
                 {
-                    LoadCaseCoefficient loadCaseCoefficient = new LoadCaseCoefficient(Asd6VarCoef2, l);
+                    Combination.LoadCaseCoefficient loadCaseCoefficient = new Combination.LoadCaseCoefficient(Asd6VarCoef2, l);
                     loadCaseCoefficientSListWsLr.Add(loadCaseCoefficient);
                 }
 
                 if (l.LoadCaseType == LoadCase.LoadCaseTypes.Maintenance)
                 {
-                    LoadCaseCoefficient loadCaseCoefficient = new LoadCaseCoefficient(Asd6VarCoef3, l);
+                    Combination.LoadCaseCoefficient loadCaseCoefficient = new Combination.LoadCaseCoefficient(Asd6VarCoef3, l);
                     loadCaseCoefficientSListWsLr.Add(loadCaseCoefficient);
                 }
             }
@@ -1231,25 +1231,25 @@ namespace GPC.Model.Combinations
             {
                 if (l.LoadCaseType == LoadCase.LoadCaseTypes.SelfWeight || l.LoadCaseType == LoadCase.LoadCaseTypes.SuperImposedDeadLoad)
                 {
-                    LoadCaseCoefficient loadCaseCoefficient = new LoadCaseCoefficient(Asd6PermCoef1, l);
+                    Combination.LoadCaseCoefficient loadCaseCoefficient = new Combination.LoadCaseCoefficient(Asd6PermCoef1, l);
                     loadCaseCoefficientSListWpS.Add(loadCaseCoefficient);
                 }
 
                 if (l.LoadCaseType == LoadCase.LoadCaseTypes.LiveLoad)
                 {
-                    LoadCaseCoefficient loadCaseCoefficient = new LoadCaseCoefficient(Asd6VarCoef1, l);
+                    Combination.LoadCaseCoefficient loadCaseCoefficient = new Combination.LoadCaseCoefficient(Asd6VarCoef1, l);
                     loadCaseCoefficientSListWpS.Add(loadCaseCoefficient);
                 }
 
                 if (l.LoadCaseType == LoadCase.LoadCaseTypes.WindPressure)
                 {
-                    LoadCaseCoefficient loadCaseCoefficient = new LoadCaseCoefficient(Asd6VarCoef2, l);
+                    Combination.LoadCaseCoefficient loadCaseCoefficient = new Combination.LoadCaseCoefficient(Asd6VarCoef2, l);
                     loadCaseCoefficientSListWpS.Add(loadCaseCoefficient);
                 }
 
                 if (l.LoadCaseType == LoadCase.LoadCaseTypes.Snow)
                 {
-                    LoadCaseCoefficient loadCaseCoefficient = new LoadCaseCoefficient(Asd6VarCoef3, l);
+                    Combination.LoadCaseCoefficient loadCaseCoefficient = new Combination.LoadCaseCoefficient(Asd6VarCoef3, l);
                     loadCaseCoefficientSListWpS.Add(loadCaseCoefficient);
                 }
             }
@@ -1259,25 +1259,25 @@ namespace GPC.Model.Combinations
             {
                 if (l.LoadCaseType == LoadCase.LoadCaseTypes.SelfWeight || l.LoadCaseType == LoadCase.LoadCaseTypes.SuperImposedDeadLoad)
                 {
-                    LoadCaseCoefficient loadCaseCoefficient = new LoadCaseCoefficient(Asd6PermCoef1, l);
+                    Combination.LoadCaseCoefficient loadCaseCoefficient = new Combination.LoadCaseCoefficient(Asd6PermCoef1, l);
                     loadCaseCoefficientSListWsS.Add(loadCaseCoefficient);
                 }
 
                 if (l.LoadCaseType == LoadCase.LoadCaseTypes.LiveLoad)
                 {
-                    LoadCaseCoefficient loadCaseCoefficient = new LoadCaseCoefficient(Asd6VarCoef1, l);
+                    Combination.LoadCaseCoefficient loadCaseCoefficient = new Combination.LoadCaseCoefficient(Asd6VarCoef1, l);
                     loadCaseCoefficientSListWsS.Add(loadCaseCoefficient);
                 }
 
                 if (l.LoadCaseType == LoadCase.LoadCaseTypes.WindSuction)
                 {
-                    LoadCaseCoefficient loadCaseCoefficient = new LoadCaseCoefficient(Asd6VarCoef2, l);
+                    Combination.LoadCaseCoefficient loadCaseCoefficient = new Combination.LoadCaseCoefficient(Asd6VarCoef2, l);
                     loadCaseCoefficientSListWsS.Add(loadCaseCoefficient);
                 }
 
                 if (l.LoadCaseType == LoadCase.LoadCaseTypes.Snow)
                 {
-                    LoadCaseCoefficient loadCaseCoefficient = new LoadCaseCoefficient(Asd6VarCoef3, l);
+                    Combination.LoadCaseCoefficient loadCaseCoefficient = new Combination.LoadCaseCoefficient(Asd6VarCoef3, l);
                     loadCaseCoefficientSListWsS.Add(loadCaseCoefficient);
                 }
             }
@@ -1286,20 +1286,20 @@ namespace GPC.Model.Combinations
             return outList;
         }
 
-        private List<List<LoadCaseCoefficient>> ASDCombo7(List<LoadCase> loadCases)
+        private List<List<Combination.LoadCaseCoefficient>> ASDCombo7(List<LoadCase> loadCases)
         {
             // ASD combo 7 : 0.6 D + 0.6 W
 
-            List<LoadCaseCoefficient> loadCaseCoefficientSListWp = new List<LoadCaseCoefficient>();
-            List<LoadCaseCoefficient> loadCaseCoefficientSListWs = new List<LoadCaseCoefficient>();
+            List<Combination.LoadCaseCoefficient> loadCaseCoefficientSListWp = new List<Combination.LoadCaseCoefficient>();
+            List<Combination.LoadCaseCoefficient> loadCaseCoefficientSListWs = new List<Combination.LoadCaseCoefficient>();
 
-            List<List<LoadCaseCoefficient>> outList = new List<List<LoadCaseCoefficient>>();
+            List<List<Combination.LoadCaseCoefficient>> outList = new List<List<Combination.LoadCaseCoefficient>>();
 
             foreach (LoadCase l in loadCases)
             {
                 if (l.LoadCaseType == LoadCase.LoadCaseTypes.SelfWeight || l.LoadCaseType == LoadCase.LoadCaseTypes.SuperImposedDeadLoad)
                 {
-                    LoadCaseCoefficient loadCaseCoefficient = new LoadCaseCoefficient(Asd7PermCoef1, l);
+                    Combination.LoadCaseCoefficient loadCaseCoefficient = new Combination.LoadCaseCoefficient(Asd7PermCoef1, l);
                     loadCaseCoefficientSListWp.Add(loadCaseCoefficient);
                 }
             }
@@ -1308,7 +1308,7 @@ namespace GPC.Model.Combinations
             {
                 if (l.LoadCaseType == LoadCase.LoadCaseTypes.WindPressure)
                 {
-                    LoadCaseCoefficient loadCaseCoefficient = new LoadCaseCoefficient(Asd7VarCoef1, l);
+                    Combination.LoadCaseCoefficient loadCaseCoefficient = new Combination.LoadCaseCoefficient(Asd7VarCoef1, l);
                     loadCaseCoefficientSListWp.Add(loadCaseCoefficient);
                 }
             }
@@ -1318,7 +1318,7 @@ namespace GPC.Model.Combinations
             {
                 if (l.LoadCaseType == LoadCase.LoadCaseTypes.SelfWeight || l.LoadCaseType == LoadCase.LoadCaseTypes.SuperImposedDeadLoad)
                 {
-                    LoadCaseCoefficient loadCaseCoefficient = new LoadCaseCoefficient(Asd7PermCoef1, l);
+                    Combination.LoadCaseCoefficient loadCaseCoefficient = new Combination.LoadCaseCoefficient(Asd7PermCoef1, l);
                     loadCaseCoefficientSListWs.Add(loadCaseCoefficient);
                 }
             }
@@ -1327,7 +1327,7 @@ namespace GPC.Model.Combinations
             {
                 if (l.LoadCaseType == LoadCase.LoadCaseTypes.WindPressure)
                 {
-                    LoadCaseCoefficient loadCaseCoefficient = new LoadCaseCoefficient(Asd7VarCoef1, l);
+                    Combination.LoadCaseCoefficient loadCaseCoefficient = new Combination.LoadCaseCoefficient(Asd7VarCoef1, l);
                     loadCaseCoefficientSListWs.Add(loadCaseCoefficient);
                 }
             }
@@ -1336,17 +1336,17 @@ namespace GPC.Model.Combinations
             return outList;
         }
 
-        private List<LoadCaseCoefficient> ASDCombo8(List<LoadCase> loadCases)
+        private List<Combination.LoadCaseCoefficient> ASDCombo8(List<LoadCase> loadCases)
         {
             // ASD combo 8 : D + 0.7 Ev + 0.7 Eh
 
-            List<LoadCaseCoefficient> loadCaseCoefficientSList = new List<LoadCaseCoefficient>();
+            List<Combination.LoadCaseCoefficient> loadCaseCoefficientSList = new List<Combination.LoadCaseCoefficient>();
 
             foreach (LoadCase l in loadCases)
             {
                 if (l.LoadCaseType == LoadCase.LoadCaseTypes.SelfWeight || l.LoadCaseType == LoadCase.LoadCaseTypes.SuperImposedDeadLoad)
                 {
-                    LoadCaseCoefficient loadCaseCoefficient = new LoadCaseCoefficient(Asd8PermCoef1, l);
+                    Combination.LoadCaseCoefficient loadCaseCoefficient = new Combination.LoadCaseCoefficient(Asd8PermCoef1, l);
                     loadCaseCoefficientSList.Add(loadCaseCoefficient);
                 }
             }
@@ -1355,24 +1355,24 @@ namespace GPC.Model.Combinations
             {
                 if (l.LoadCaseType == LoadCase.LoadCaseTypes.Earthquake)
                 {
-                    LoadCaseCoefficient loadCaseCoefficient = new LoadCaseCoefficient(Asd8VarCoef1, l);
+                    Combination.LoadCaseCoefficient loadCaseCoefficient = new Combination.LoadCaseCoefficient(Asd8VarCoef1, l);
                     loadCaseCoefficientSList.Add(loadCaseCoefficient);
                 }
             }
             return loadCaseCoefficientSList;
         }
 
-        private List<LoadCaseCoefficient> ASDCombo9(List<LoadCase> loadCases)
+        private List<Combination.LoadCaseCoefficient> ASDCombo9(List<LoadCase> loadCases)
         {
             // ASD combo 9 : D + 0.525 Ev + 0.525 Eh + 0.75 L + 0.75 S
 
-            List<LoadCaseCoefficient> loadCaseCoefficientSList = new List<LoadCaseCoefficient>();
+            List<Combination.LoadCaseCoefficient> loadCaseCoefficientSList = new List<Combination.LoadCaseCoefficient>();
 
             foreach (LoadCase l in loadCases)
             {
                 if (l.LoadCaseType == LoadCase.LoadCaseTypes.SelfWeight || l.LoadCaseType == LoadCase.LoadCaseTypes.SuperImposedDeadLoad)
                 {
-                    LoadCaseCoefficient loadCaseCoefficient = new LoadCaseCoefficient(Asd9PermCoef1, l);
+                    Combination.LoadCaseCoefficient loadCaseCoefficient = new Combination.LoadCaseCoefficient(Asd9PermCoef1, l);
                     loadCaseCoefficientSList.Add(loadCaseCoefficient);
                 }
             }
@@ -1381,7 +1381,7 @@ namespace GPC.Model.Combinations
             {
                 if (l.LoadCaseType == LoadCase.LoadCaseTypes.Earthquake)
                 {
-                    LoadCaseCoefficient loadCaseCoefficient = new LoadCaseCoefficient(Asd9VarCoef1, l);
+                    Combination.LoadCaseCoefficient loadCaseCoefficient = new Combination.LoadCaseCoefficient(Asd9VarCoef1, l);
                     loadCaseCoefficientSList.Add(loadCaseCoefficient);
                 }
             }
@@ -1390,7 +1390,7 @@ namespace GPC.Model.Combinations
             {
                 if (l.LoadCaseType == LoadCase.LoadCaseTypes.LiveLoad)
                 {
-                    LoadCaseCoefficient loadCaseCoefficient = new LoadCaseCoefficient(Asd9VarCoef3, l);
+                    Combination.LoadCaseCoefficient loadCaseCoefficient = new Combination.LoadCaseCoefficient(Asd9VarCoef3, l);
                     loadCaseCoefficientSList.Add(loadCaseCoefficient);
                 }
             }
@@ -1399,7 +1399,7 @@ namespace GPC.Model.Combinations
             {
                 if (l.LoadCaseType == LoadCase.LoadCaseTypes.Snow)
                 {
-                    LoadCaseCoefficient loadCaseCoefficient = new LoadCaseCoefficient(Asd9VarCoef4, l);
+                    Combination.LoadCaseCoefficient loadCaseCoefficient = new Combination.LoadCaseCoefficient(Asd9VarCoef4, l);
                     loadCaseCoefficientSList.Add(loadCaseCoefficient);
                 }
             }
@@ -1407,17 +1407,17 @@ namespace GPC.Model.Combinations
             return loadCaseCoefficientSList;
         }
 
-        private List<LoadCaseCoefficient> ASDCombo10(List<LoadCase> loadCases)
+        private List<Combination.LoadCaseCoefficient> ASDCombo10(List<LoadCase> loadCases)
         {
             // ASD combo 10 : 0.6 D - 0.7 Ev + 0.7 Eh
 
-            List<LoadCaseCoefficient> loadCaseCoefficientSList = new List<LoadCaseCoefficient>();
+            List<Combination.LoadCaseCoefficient> loadCaseCoefficientSList = new List<Combination.LoadCaseCoefficient>();
 
             foreach (LoadCase l in loadCases)
             {
                 if (l.LoadCaseType == LoadCase.LoadCaseTypes.SelfWeight || l.LoadCaseType == LoadCase.LoadCaseTypes.SuperImposedDeadLoad)
                 {
-                    LoadCaseCoefficient loadCaseCoefficient = new LoadCaseCoefficient(Asd10PermCoef1, l);
+                    Combination.LoadCaseCoefficient loadCaseCoefficient = new Combination.LoadCaseCoefficient(Asd10PermCoef1, l);
                     loadCaseCoefficientSList.Add(loadCaseCoefficient);
                 }
             }
@@ -1426,7 +1426,7 @@ namespace GPC.Model.Combinations
             {
                 if (l.LoadCaseType == LoadCase.LoadCaseTypes.Earthquake)
                 {
-                    LoadCaseCoefficient loadCaseCoefficient = new LoadCaseCoefficient(Asd10VarCoef1, l);
+                    Combination.LoadCaseCoefficient loadCaseCoefficient = new Combination.LoadCaseCoefficient(Asd10VarCoef1, l);
                     loadCaseCoefficientSList.Add(loadCaseCoefficient);
                 }
             }

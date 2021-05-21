@@ -4,9 +4,9 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Runtime.Serialization;
-using static GPC.Model.Combinations.Combination;
+using GPC.Model.Combinations;
 
-namespace GPC.Model.Combinations
+namespace GPC.Model.Standards
 {
     /// <summary>
     /// This class collects all the coefficient of the Eurocode Standard
@@ -854,11 +854,11 @@ namespace GPC.Model.Combinations
             }
 
             CombinationsCollection combinations = new CombinationsCollection();
-            CombinationCoefficientEqualityComparer equalityComparer = new CombinationCoefficientEqualityComparer();
+            Combination.CombinationCoefficientEqualityComparer equalityComparer = new Combination.CombinationCoefficientEqualityComparer();
             HashSet<Combination> combinationsHashSet = new HashSet<Combination>(equalityComparer);
             int idProg = 1;
 
-            List<List<LoadCaseCoefficient>> listFavourable = GetFavourableCombinations(loadCases.ToArray(), (EN1990CombinationsOptions)options);
+            List<List<Combination.LoadCaseCoefficient>> listFavourable = GetFavourableCombinations(loadCases.ToArray(), (EN1990CombinationsOptions)options);
             for (int i = 0; i < listFavourable.Count(); i++)
             {
                 Combination combo = new Combination(name + $" {idProg}", options);
@@ -874,7 +874,7 @@ namespace GPC.Model.Combinations
                 }
             }
 
-            List<List<LoadCaseCoefficient>> listUnfavourable = GetUnfavourableCombinations(loadCases.ToArray(), (EN1990CombinationsOptions)options);
+            List<List<Combination.LoadCaseCoefficient>> listUnfavourable = GetUnfavourableCombinations(loadCases.ToArray(), (EN1990CombinationsOptions)options);
             for (int i = 0; i < listUnfavourable.Count(); i++)
             {
                 Combination combo = new Combination(name + $" {idProg}", options);
@@ -890,7 +890,7 @@ namespace GPC.Model.Combinations
                 }
             }
 
-            List<List<LoadCaseCoefficient>> listFavourableBase = GetBasicCombinationsMinCoeff(loadCases.ToArray(), (EN1990CombinationsOptions)options);
+            List<List<Combination.LoadCaseCoefficient>> listFavourableBase = GetBasicCombinationsMinCoeff(loadCases.ToArray(), (EN1990CombinationsOptions)options);
             for (int i = 0; i < listFavourableBase.Count(); i++)
             {
                 Combination comboBaseFav = new Combination(name + $" {idProg}", options);
@@ -905,7 +905,7 @@ namespace GPC.Model.Combinations
                 }
             }
 
-            List<List<LoadCaseCoefficient>> listUnfavourableBase = GetBasicCombinationsMaxCoeff(loadCases.ToArray(), (EN1990CombinationsOptions)options);
+            List<List<Combination.LoadCaseCoefficient>> listUnfavourableBase = GetBasicCombinationsMaxCoeff(loadCases.ToArray(), (EN1990CombinationsOptions)options);
             for (int i = 0; i < listUnfavourableBase.Count(); i++)
             {
                 Combination comboBaseUnfav = new Combination(name + $" {idProg}", options);
@@ -936,12 +936,12 @@ namespace GPC.Model.Combinations
         /// <param name="loadCases">List of load cases</param>
         /// <param name="optionsInput">The normative options</param>
         /// <returns>A list of load case coefficient</returns>
-        protected virtual List<List<LoadCaseCoefficient>> GetFavourableCombinations(LoadCaseBase[] loadCases, CombinationsOptions optionsInput)
+        protected virtual List<List<Combination.LoadCaseCoefficient>> GetFavourableCombinations(LoadCaseBase[] loadCases, CombinationsOptions optionsInput)
         {
             if (optionsInput is EN1990CombinationsOptions options)
             {
-                List<List<LoadCaseCoefficient>> loadCaseCoefficients = new List<List<LoadCaseCoefficient>>();
-                List<List<LoadCaseCoefficient>> loadCaseCoefficientsBuffer = GetBasicCombinationsMinCoeff(loadCases, options);
+                List<List<Combination.LoadCaseCoefficient>> loadCaseCoefficients = new List<List<Combination.LoadCaseCoefficient>>();
+                List<List<Combination.LoadCaseCoefficient>> loadCaseCoefficientsBuffer = GetBasicCombinationsMinCoeff(loadCases, options);
 
                 List<LoadCase> list = new List<LoadCase>();
                 foreach (LoadCase loadCase in loadCases)
@@ -951,13 +951,13 @@ namespace GPC.Model.Combinations
                         list.Add(loadCase);
                 }
 
-                List<List<LoadCaseCoefficient>> randomList = RandomizeVariableLoads(list.ToArray(), options);
+                List<List<Combination.LoadCaseCoefficient>> randomList = RandomizeVariableLoads(list.ToArray(), options);
 
                 for (int i = 0; i < randomList.Count(); i++)
                 {
-                    foreach (List<LoadCaseCoefficient> l in loadCaseCoefficientsBuffer)
+                    foreach (List<Combination.LoadCaseCoefficient> l in loadCaseCoefficientsBuffer)
                     {
-                        List<LoadCaseCoefficient> tempList = new List<LoadCaseCoefficient>();
+                        List<Combination.LoadCaseCoefficient> tempList = new List<Combination.LoadCaseCoefficient>();
                         tempList.AddRange(l);
                         tempList.AddRange(randomList[i]);
                         loadCaseCoefficients.Add(tempList);
@@ -975,12 +975,12 @@ namespace GPC.Model.Combinations
         /// <param name="loadCases">List of load cases</param>
         /// <param name="optionsInput">The normative options</param>
         /// <returns>A list of load case coefficient</returns>
-        protected virtual List<List<LoadCaseCoefficient>> GetUnfavourableCombinations(LoadCaseBase[] loadCases, CombinationsOptions optionsInput)
+        protected virtual List<List<Combination.LoadCaseCoefficient>> GetUnfavourableCombinations(LoadCaseBase[] loadCases, CombinationsOptions optionsInput)
         {
             if (optionsInput is EN1990CombinationsOptions options)
             {
-                List<List<LoadCaseCoefficient>> loadCaseCoefficients = new List<List<LoadCaseCoefficient>>();
-                List<List<LoadCaseCoefficient>> loadCaseCoefficientsBuffer = GetBasicCombinationsMaxCoeff(loadCases, options);
+                List<List<Combination.LoadCaseCoefficient>> loadCaseCoefficients = new List<List<Combination.LoadCaseCoefficient>>();
+                List<List<Combination.LoadCaseCoefficient>> loadCaseCoefficientsBuffer = GetBasicCombinationsMaxCoeff(loadCases, options);
 
                 List<LoadCase> list = new List<LoadCase>();
                 foreach (LoadCase loadCase in loadCases)
@@ -990,13 +990,13 @@ namespace GPC.Model.Combinations
                         list.Add(loadCase);
                 }
 
-                List<List<LoadCaseCoefficient>> randomList = RandomizeVariableLoads(list.ToArray(), options);
+                List<List<Combination.LoadCaseCoefficient>> randomList = RandomizeVariableLoads(list.ToArray(), options);
 
                 for (int i = 0; i < randomList.Count(); i++)
                 {
-                    foreach (List<LoadCaseCoefficient> l in loadCaseCoefficientsBuffer)
+                    foreach (List<Combination.LoadCaseCoefficient> l in loadCaseCoefficientsBuffer)
                     {
-                        List<LoadCaseCoefficient> tempList = new List<LoadCaseCoefficient>();
+                        List<Combination.LoadCaseCoefficient> tempList = new List<Combination.LoadCaseCoefficient>();
                         tempList.AddRange(l);
                         tempList.AddRange(randomList[i]);
                         loadCaseCoefficients.Add(tempList);
@@ -1014,30 +1014,30 @@ namespace GPC.Model.Combinations
         /// <param name="loadCases">List of load cases</param>
         /// <param name="optionsInput">The normative options</param>
         /// <returns>A list of load case coefficient</returns>
-        protected virtual List<List<LoadCaseCoefficient>> GetBasicCombinationsMinCoeff(LoadCaseBase[] loadCases, CombinationsOptions optionsInput)
+        protected virtual List<List<Combination.LoadCaseCoefficient>> GetBasicCombinationsMinCoeff(LoadCaseBase[] loadCases, CombinationsOptions optionsInput)
         {
             if (optionsInput is EN1990CombinationsOptions options)
             {
-                List<List<LoadCaseCoefficient>> outList = new List<List<LoadCaseCoefficient>>();
-                List<LoadCaseCoefficient> loadCaseCoefficientsBase = new List<LoadCaseCoefficient>();
+                List<List<Combination.LoadCaseCoefficient>> outList = new List<List<Combination.LoadCaseCoefficient>>();
+                List<Combination.LoadCaseCoefficient> loadCaseCoefficientsBase = new List<Combination.LoadCaseCoefficient>();
 
 
                 // aggiungo i SelfWeight
                 foreach (LoadCase loadCase in loadCases.Where(x => x is LoadCase lc && lc.LoadCaseType == LoadCase.LoadCaseTypes.SelfWeight))
                 {
-                    LoadCaseCoefficient lc = new LoadCaseCoefficient(GetCoefficientFavourablePermanentActions(loadCase, options), loadCase);
+                    Combination.LoadCaseCoefficient lc = new Combination.LoadCaseCoefficient(GetCoefficientFavourablePermanentActions(loadCase, options), loadCase);
                     loadCaseCoefficientsBase.Add(lc);
                 }
                 // aggiungo i SuperImposedDeadLoad
                 foreach (LoadCase loadCase in loadCases.Where(x => x is LoadCase lc && lc.LoadCaseType == LoadCase.LoadCaseTypes.SuperImposedDeadLoad))
                 {
-                    LoadCaseCoefficient lc = new LoadCaseCoefficient(GetCoefficientFavourablePermanentActions(loadCase, options), loadCase);
+                    Combination.LoadCaseCoefficient lc = new Combination.LoadCaseCoefficient(GetCoefficientFavourablePermanentActions(loadCase, options), loadCase);
                     loadCaseCoefficientsBase.Add(lc);
                 }
                 // aggiunto i Prestress
                 foreach (LoadCase loadCase in loadCases.Where(x => x is LoadCase lc && lc.LoadCaseType == LoadCase.LoadCaseTypes.Prestress))
                 {
-                    LoadCaseCoefficient lc = new LoadCaseCoefficient(GetCoefficientFavourablePermanentActions(loadCase, options), loadCase);
+                    Combination.LoadCaseCoefficient lc = new Combination.LoadCaseCoefficient(GetCoefficientFavourablePermanentActions(loadCase, options), loadCase);
                     loadCaseCoefficientsBase.Add(lc);
                 }
                 // aggiunto il carico sismico se siamo in condizione sismica (come se fosse un permanente perchè non deve variare)
@@ -1045,7 +1045,7 @@ namespace GPC.Model.Combinations
                 {
                     foreach (LoadCase loadCase in loadCases.Where(x => x is LoadCase lc && lc.LoadCaseType == LoadCase.LoadCaseTypes.Earthquake))
                     {
-                        LoadCaseCoefficient lc = new LoadCaseCoefficient(GetCoefficientFavourablePermanentActions(loadCase, options), loadCase);
+                        Combination.LoadCaseCoefficient lc = new Combination.LoadCaseCoefficient(GetCoefficientFavourablePermanentActions(loadCase, options), loadCase);
                         loadCaseCoefficientsBase.Add(lc);
                     }
                 }
@@ -1063,29 +1063,29 @@ namespace GPC.Model.Combinations
         /// <param name="loadCases">List of load cases</param>
         /// <param name="optionsInput">The normative options</param>
         /// <returns>A list of load case coefficient</returns>
-        protected virtual List<List<LoadCaseCoefficient>> GetBasicCombinationsMaxCoeff(LoadCaseBase[] loadCases, CombinationsOptions optionsInput)
+        protected virtual List<List<Combination.LoadCaseCoefficient>> GetBasicCombinationsMaxCoeff(LoadCaseBase[] loadCases, CombinationsOptions optionsInput)
         {
             if (optionsInput is EN1990CombinationsOptions options)
             {
-                List<List<LoadCaseCoefficient>> outList = new List<List<LoadCaseCoefficient>>();
-                List<LoadCaseCoefficient> loadCaseCoefficientsBase = new List<LoadCaseCoefficient>();
+                List<List<Combination.LoadCaseCoefficient>> outList = new List<List<Combination.LoadCaseCoefficient>>();
+                List<Combination.LoadCaseCoefficient> loadCaseCoefficientsBase = new List<Combination.LoadCaseCoefficient>();
 
                 // aggiungo i SelfWeight
                 foreach (LoadCase loadCase in loadCases.Where(i => i is LoadCase lc && lc.LoadCaseType == LoadCase.LoadCaseTypes.SelfWeight))
                 {
-                    LoadCaseCoefficient lc = new LoadCaseCoefficient(GetCoefficientUnfavourablePermanentActions(loadCase, options), loadCase);
+                    Combination.LoadCaseCoefficient lc = new Combination.LoadCaseCoefficient(GetCoefficientUnfavourablePermanentActions(loadCase, options), loadCase);
                     loadCaseCoefficientsBase.Add(lc);
                 }
                 // aggiungo i SuperImposedDeadLoad
                 foreach (LoadCase loadCase in loadCases.Where(i => i is LoadCase lc && lc.LoadCaseType == LoadCase.LoadCaseTypes.SuperImposedDeadLoad))
                 {
-                    LoadCaseCoefficient lc = new LoadCaseCoefficient(GetCoefficientUnfavourablePermanentActions(loadCase, options), loadCase);
+                    Combination.LoadCaseCoefficient lc = new Combination.LoadCaseCoefficient(GetCoefficientUnfavourablePermanentActions(loadCase, options), loadCase);
                     loadCaseCoefficientsBase.Add(lc);
                 }
                 // aggiunto i Prestress
                 foreach (LoadCase loadCase in loadCases.Where(i => i is LoadCase lc && lc.LoadCaseType == LoadCase.LoadCaseTypes.Prestress))
                 {
-                    LoadCaseCoefficient lc = new LoadCaseCoefficient(GetCoefficientUnfavourablePermanentActions(loadCase, options), loadCase);
+                    Combination.LoadCaseCoefficient lc = new Combination.LoadCaseCoefficient(GetCoefficientUnfavourablePermanentActions(loadCase, options), loadCase);
                     loadCaseCoefficientsBase.Add(lc);
                 }
                 // aggiunto il carico sismico se siamo in condizione sismica (come se fosse un permanente perchè non deve variare)
@@ -1093,7 +1093,7 @@ namespace GPC.Model.Combinations
                 {
                     foreach (LoadCase loadCase in loadCases.Where(i => i is LoadCase lc && lc.LoadCaseType == LoadCase.LoadCaseTypes.Earthquake))
                     {
-                        LoadCaseCoefficient lc = new LoadCaseCoefficient(GetCoefficientUnfavourablePermanentActions(loadCase, options), loadCase);
+                        Combination.LoadCaseCoefficient lc = new Combination.LoadCaseCoefficient(GetCoefficientUnfavourablePermanentActions(loadCase, options), loadCase);
                         loadCaseCoefficientsBase.Add(lc);
                     }
                 }
@@ -1112,11 +1112,11 @@ namespace GPC.Model.Combinations
         /// <param name="optionsInput">The combination generation options</param>
         /// <returns>A list of list of load case coefficient</returns>
         /// <exception cref="ArgumentException"> If there are any permanent load case or climate load in the <paramref name="loadCasesInput"/></exception>
-        protected virtual List<List<LoadCaseCoefficient>> RandomizeVariableLoads(LoadCaseBase[] loadCasesInput, CombinationsOptions optionsInput)
+        protected virtual List<List<Combination.LoadCaseCoefficient>> RandomizeVariableLoads(LoadCaseBase[] loadCasesInput, CombinationsOptions optionsInput)
         {
             if (optionsInput is EN1990CombinationsOptions options)
             {
-                List<List<LoadCaseCoefficient>> loadCaseCoefficients = new List<List<LoadCaseCoefficient>>();
+                List<List<Combination.LoadCaseCoefficient>> loadCaseCoefficients = new List<List<Combination.LoadCaseCoefficient>>();
                 List<LoadCase> loadCasesList = new List<LoadCase>();
 
                 // controllo che i carichi siano variabili
@@ -1142,11 +1142,11 @@ namespace GPC.Model.Combinations
                     #region LIST, HASHSET E BOOL
 
                     HashSet<LoadCase.LoadCaseTypes> hash = new HashSet<LoadCase.LoadCaseTypes>();
-                    List<LoadCaseCoefficient> loadCaseCoefficientsBuffer = new List<LoadCaseCoefficient>();
-                    List<LoadCaseCoefficient> loadCaseCoefficientsBuffer2 = new List<LoadCaseCoefficient>();
-                    List<LoadCaseCoefficient> loadCaseCoefficientsBuffer3 = new List<LoadCaseCoefficient>();
-                    List<LoadCaseCoefficient> loadCaseCoefficientsWindPressure = new List<LoadCaseCoefficient>();
-                    List<LoadCaseCoefficient> loadCaseCoefficientsWindSuction = new List<LoadCaseCoefficient>();
+                    List<Combination.LoadCaseCoefficient> loadCaseCoefficientsBuffer = new List<Combination.LoadCaseCoefficient>();
+                    List<Combination.LoadCaseCoefficient> loadCaseCoefficientsBuffer2 = new List<Combination.LoadCaseCoefficient>();
+                    List<Combination.LoadCaseCoefficient> loadCaseCoefficientsBuffer3 = new List<Combination.LoadCaseCoefficient>();
+                    List<Combination.LoadCaseCoefficient> loadCaseCoefficientsWindPressure = new List<Combination.LoadCaseCoefficient>();
+                    List<Combination.LoadCaseCoefficient> loadCaseCoefficientsWindSuction = new List<Combination.LoadCaseCoefficient>();
                     HashSet<LoadCase.LoadCaseTypes> hashAcc = new HashSet<LoadCase.LoadCaseTypes>();
                     bool haveWindPressure = false;
                     bool haveWindSuction = false;
@@ -1276,14 +1276,14 @@ namespace GPC.Model.Combinations
         /// <param name="loadCases">The array of load cases</param>
         /// <param name="optionsInput">The normative options (only EN16612 is supported)</param>
         /// <returns>A list of load case coefficients</returns>
-        protected List<LoadCaseCoefficient> AddLoadCaseLead(LoadCase.LoadCaseTypes types, LoadCaseBase[] loadCases, CombinationsOptions optionsInput)
+        protected List<Combination.LoadCaseCoefficient> AddLoadCaseLead(LoadCase.LoadCaseTypes types, LoadCaseBase[] loadCases, CombinationsOptions optionsInput)
         {
             if (optionsInput is EN1990CombinationsOptions options)
             {
-                List<LoadCaseCoefficient> loadCaseCoefficientsBuffer = new List<LoadCaseCoefficient>();
+                List<Combination.LoadCaseCoefficient> loadCaseCoefficientsBuffer = new List<Combination.LoadCaseCoefficient>();
                 foreach (LoadCase loadCaseL in loadCases.Where(j => j is LoadCase lc && lc.LoadCaseType == types))
                 {
-                    LoadCaseCoefficient loadCaseCoefficientLead = new LoadCaseCoefficient(GetCoefficientLeadingVariableAction(loadCaseL, options), loadCaseL);
+                    Combination.LoadCaseCoefficient loadCaseCoefficientLead = new Combination.LoadCaseCoefficient(GetCoefficientLeadingVariableAction(loadCaseL, options), loadCaseL);
                     loadCaseCoefficientsBuffer.Add(loadCaseCoefficientLead);
                 }
                 return loadCaseCoefficientsBuffer;
@@ -1299,14 +1299,14 @@ namespace GPC.Model.Combinations
         /// <param name="loadCases">The array of load cases</param>
         /// <param name="optionsInput">The normative options (only EN16612 is supported)</param>
         /// <returns>A list of load case coefficients</returns>
-        protected List<LoadCaseCoefficient> AddLoadCaseAccompanying(LoadCase.LoadCaseTypes types, LoadCaseBase[] loadCases, CombinationsOptions optionsInput)
+        protected List<Combination.LoadCaseCoefficient> AddLoadCaseAccompanying(LoadCase.LoadCaseTypes types, LoadCaseBase[] loadCases, CombinationsOptions optionsInput)
         {
             if (optionsInput is EN1990CombinationsOptions options)
             {
-                List<LoadCaseCoefficient> loadCaseCoefficientsBuffer = new List<LoadCaseCoefficient>();
+                List<Combination.LoadCaseCoefficient> loadCaseCoefficientsBuffer = new List<Combination.LoadCaseCoefficient>();
                 foreach (LoadCase loadCase in loadCases.Where(j => j is LoadCase lc && lc.LoadCaseType == types))
                 {
-                    LoadCaseCoefficient loadCaseCoefficientLead = new LoadCaseCoefficient(GetCoefficientAccompanyingVariableAction(loadCase, options), loadCase);
+                    Combination.LoadCaseCoefficient loadCaseCoefficientLead = new Combination.LoadCaseCoefficient(GetCoefficientAccompanyingVariableAction(loadCase, options), loadCase);
                     loadCaseCoefficientsBuffer.Add(loadCaseCoefficientLead);
                 }
                 return loadCaseCoefficientsBuffer;

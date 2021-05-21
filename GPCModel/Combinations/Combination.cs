@@ -16,13 +16,13 @@ namespace GPC.Model.Combinations
     public class Combination : ModelObject, ILoadCase, ICloneable
     {
         protected List<LoadCaseCoefficient> _coefficients;
-        protected Standard.CombinationsOptions _options;
+        protected Standards.Standard.CombinationsOptions _options;
 
         public int LoadCaseCount => _coefficients.Count;
 
         #region PUBLIC CONSTRUCTOR
 
-        public Combination(string name, Standard.CombinationsOptions options, Guid guid)
+        public Combination(string name, Standards.Standard.CombinationsOptions options, Guid guid)
             : base(guid, name)
         {
             if (string.IsNullOrEmpty(name) || string.IsNullOrWhiteSpace(name))
@@ -39,7 +39,7 @@ namespace GPC.Model.Combinations
 
         }
 
-        public Combination(string name, Standard.CombinationsOptions options)
+        public Combination(string name, Standards.Standard.CombinationsOptions options)
             : this(name, options, Guid.NewGuid())
         {
         }
@@ -59,7 +59,7 @@ namespace GPC.Model.Combinations
             : base(info, context)
         {
             _coefficients = (List<LoadCaseCoefficient>)info.GetValue("Coefficients", typeof(List<LoadCaseCoefficient>));
-            _options = (Standard.CombinationsOptions)info.GetValue("Options", typeof(Standard.CombinationsOptions));
+            _options = (Standards.Standard.CombinationsOptions)info.GetValue("Options", typeof(Standards.Standard.CombinationsOptions));
         }
 
         #endregion
@@ -81,7 +81,7 @@ namespace GPC.Model.Combinations
         }
 
         /// <summary>
-        /// Create a new empty <see cref="Combination"/> object. I.e. with the same properties except the <see cref="Combination.LoadCaseCoefficient"/> List that will be empty
+        /// Create a new empty <see cref="Combination"/> object. I.e. with the same properties except the <see cref="LoadCaseCoefficient"/> List that will be empty
         /// </summary>
         public object CloneEmpty()
         {
