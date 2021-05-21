@@ -15,6 +15,7 @@ using GPC.Model.Loads;
 using GPC.TestUtilities;
 using GPC.Model.FEM.Collections;
 using GPC.Model.Restrains;
+using GPC.Model.Results;
 
 namespace GeneralTest
 {
@@ -289,6 +290,19 @@ namespace GeneralTest
 
             Assert.IsFalse(dr1.Equals(dr2));
             Assert.IsTrue(dr1.Equals(dr3));
+        }
+
+
+        [TestMethod]
+        public void ResultStress1()
+        {
+
+            ResultStress rs1 = new ResultStress(CoordinateSystem.Global, 100, 200, 0, 573, 400, 500);
+            ResultStress rs2 = new ResultStress(CoordinateSystem.Global, 100, 200, 0, 573, 400, 500);
+
+            Assert.IsTrue(rs1.Equals(rs2));
+            Assert.IsTrue(rs1 == rs2);
+            Assert.IsFalse(rs1 != rs2);
         }
     }
 }

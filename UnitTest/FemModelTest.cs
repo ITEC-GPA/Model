@@ -476,7 +476,7 @@ namespace FemTest
 
             femModel.AddFiniteElement(plate, "P1");
 
-            IEnumerable<ResultStress> res = new List<ResultStress>() { null, null, new ResultStress(CoordinateSystem.Global, 1, 2, 3, 4, 5) };
+            IEnumerable<ResultStress> res = new List<ResultStress>() { null, null, new ResultStress(CoordinateSystem.Global, 1, 2, 0, 3, 4, 5) };
             IEnumerable<ResultLocationPoint> points = new List<ResultLocationPoint>() { null, null, new ResultLocationPoint(1, new Point2d(0, 1)) };
 
 
