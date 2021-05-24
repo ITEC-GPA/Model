@@ -335,6 +335,9 @@ namespace GPC.Model.Results
         /// <returns>The sum of the two stress tensor written in the <paramref name="obj1"/> <see cref="CoordinateSystem"/></returns>
         public static ResultStress operator +(ResultStress obj1, ResultStress obj2)
         {
+            if (obj1 is null || obj2 is null)
+                throw new ArgumentNullException();
+
             if (obj1._coordinateSystem.Equals(obj2._coordinateSystem))
             {
                 double sxx = obj1._sxx + obj2._sxx;
@@ -368,6 +371,9 @@ namespace GPC.Model.Results
 
         public static ResultStress operator -(ResultStress obj1, ResultStress obj2)
         {
+            if (obj1 is null || obj2 is null)
+                throw new ArgumentNullException();
+
             if (obj1._coordinateSystem.Equals(obj2._coordinateSystem))
             {
                 return new ResultStress(obj1._coordinateSystem, obj1._sxx - obj2._sxx, 
@@ -393,6 +399,9 @@ namespace GPC.Model.Results
         /// <returns>This will produce the multipltication of <paramref name="obj1"/> Tensor in global coordinate by <paramref name="matrix"/>. M * T * M^t</returns>
         public static ResultStress operator *(ResultStress obj1, Matrix<double> matrix)
         {
+            if (obj1 is null || matrix is null)
+                throw new ArgumentNullException();
+
             if (matrix.Rank() != 3)
             {
                 throw new NotSupportedException();
