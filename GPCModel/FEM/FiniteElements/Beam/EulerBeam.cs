@@ -4,7 +4,6 @@ using System.Linq;
 using GPC.Geometry;
 using GPC.Model.FEM.Attributes;
 using GPC.Model.FEM.Properties;
-using GPC.Model.FreedomCases;
 using GPC.Model.Sections;
 using mnl = MathNet.Numerics.LinearAlgebra;
 
@@ -951,28 +950,67 @@ namespace GPC.Model.FEM.FiniteElements
             Dictionary<LocalDOF, double> displStation = new Dictionary<LocalDOF, double>();
             #region BeamWithoutReleases
             for (int i = 0; i < displLocalNode1.Count; i++) //loop on DOF
-                {
-                    LocalDOF index = (LocalDOF)i;
-                    displStation.Add(index, displLocalNode1[index] * N0(station, _length) + displLocalNode2[index] * N1(station, _length)); //linear interpolation
+            {
+                LocalDOF index = (LocalDOF)i;
+                displStation.Add(index, displLocalNode1[index] * N0(station, _length) + displLocalNode2[index] * N1(station, _length)); //linear interpolation
                     
-                    if (index == LocalDOF.AxialU1)
-                    {
-                        double dq = (-1.0 / 4.0 * q1 * station * station + 1.0/4.0 * (2.0 * L * station - station * station) * q1) / (E * A); //from: integration of qL/2 * N0(x) + (-qL/2) * N1(x)
-                        displStation[index] = displStation[index] + dq;
-                    }
-
-                    if (index == LocalDOF.U2)
-                    {
-                        displStation[index] = displStation[index] + DisplacementFixFixUniformLoad(q2, station, _length, E, J22) + DisplacementFixFixImposedRotation(station, displLocalNode1[LocalDOF.R3], _length) - DisplacementFixFixImposedRotation(_length - station, displLocalNode2[LocalDOF.R3], _length);
-                    }
-
-                    if (index == LocalDOF.U3)
-                    {
-                        displStation[index] = displStation[index] + DisplacementFixFixUniformLoad(q3, station, _length, E, J11) - DisplacementFixFixImposedRotation(station, displLocalNode1[LocalDOF.R2], _length) + DisplacementFixFixImposedRotation(_length - station, displLocalNode2[LocalDOF.R2], _length);
-                    }
-
-                    //TODO: add calculation of rotations (x = station)
+                if (index == LocalDOF.AxialU1)
+                {
+                    double dq = (-1.0 / 4.0 * q1 * station * station + 1.0/4.0 * (2.0 * L * station - station * station) * q1) / (E * A); //from: integration of qL/2 * N0(x) + (-qL/2) * N1(x)
+                    displStation[index] = displStation[index] + dq;
                 }
+
+                if (index == LocalDOF.U2)
+                {
+                    var dq = DisplacementFixFixUniformLoad(q2, station, _length, E, J22);
+                    var dn1 = DisplacementFixFixImposedRotation(station, displLocalNode1[LocalDOF.R3], _length);
+                    var dn2 = DisplacementFixFixImposedRotation(_length - station, displLocalNode2[LocalDOF.R3], _length);
+                    displStation[index] = displStation[index] + dq + dn1 - dn2;
+                }
+
+                if (index == LocalDOF.U3)
+                {
+                    var dq = DisplacementFixFixUniformLoad(q3, station, _length, E, J11);
+                    var dn1 = DisplacementFixFixImposedRotation(station, displLocalNode1[LocalDOF.R2], _length);
+                    var dn2 = DisplacementFixFixImposedRotation(_length - station, displLocalNode2[LocalDOF.R2], _length);
+                    displStation[index] = displStation[index] + dq - dn1 + dn2;
+                }
+
+                if (index == LocalDOF.R3)
+                {
+                    var rotazioneNodo1 = displLocalNode1[LocalDOF.R3];
+                    var dr1 = RotationFixAndSimplySupportedWithImposedRotationAtEnd(station, rotazioneNodo1, _length);
+                    
+                    var rotazioneNodo2 = displLocalNode2[LocalDOF.R3];
+                    var dr2 = RotationFixAndSimplySupportedWithImposedRotationAtEnd(_length - station, rotazioneNodo2, _length);
+
+                    var spostNodo1 = displLocalNode1[LocalDOF.U2];
+                    var spostNodo2 = displLocalNode2[LocalDOF.U2];
+                    double delta = spostNodo2 - spostNodo1;
+                    var drDelta = RotationFixFixImposedDisplacement(station, _length, delta);
+
+                    var dq = RotationFixFixUniformLoad(q2, station, _length, E, J22);
+                    displStation[index] = dr1 + dr2 + drDelta + dq;
+                }
+
+                if (index == LocalDOF.R2)
+                {
+                    var rotazioneNodo1 = displLocalNode1[LocalDOF.R2];
+                    var dr1 = RotationFixAndSimplySupportedWithImposedRotationAtEnd(station, rotazioneNodo1, _length);
+
+                    var rotazioneNodo2 = displLocalNode2[LocalDOF.R2];
+                    var dr2 = RotationFixAndSimplySupportedWithImposedRotationAtEnd(_length - station, rotazioneNodo2, _length);
+
+                    var spostNodo1 = displLocalNode1[LocalDOF.U3];
+                    var spostNodo2 = displLocalNode2[LocalDOF.U3];
+                    double delta = spostNodo2 - spostNodo1;
+                    var drDelta = RotationFixFixImposedDisplacement(station, _length, delta);
+
+                    var dq = RotationFixFixUniformLoad(q3, station, _length, E, J11);
+
+                    displStation[index] = dr1 + dr2 - drDelta - dq;
+                }
+            }
             #endregion
 
             BeamReleasesAttribute[] releases = _attributesFreedomCase.OfType<BeamReleasesAttribute>().ToArray();
@@ -1435,9 +1473,23 @@ namespace GPC.Model.FEM.FiniteElements
         /// <param name="E">Elastic Modulus</param>
         /// <param name="J">Second moment area - Inertia</param>
         /// <returns>displacement</returns>
+        private static double RotationFixFixUniformLoad(double q, double x, double L, double E, double J)
+        {
+            return q * x * (L*L - 3.0 * L * x + 2.0 * x * x) / (12.0 * E *J);
+        }
+
+        /// <summary>
+        /// Return the displacement in a fix-fix beam with uniform load
+        /// </summary>
+        /// <param name="q">load [F/L]</param>
+        /// <param name="x">coordinate 0 to L</param>
+        /// <param name="L">Lenght of the beam</param>
+        /// <param name="E">Elastic Modulus</param>
+        /// <param name="J">Second moment area - Inertia</param>
+        /// <returns>displacement</returns>
         private static double DisplacementFixFixUniformLoad(double q, double x, double L, double E, double J)
         {
-            return q * x*x * Math.Pow(L - x,2.0) / (24.0 * E * J);
+            return q * x * x * Math.Pow(L - x, 2.0) / (24.0 * E * J);
         }
 
         /// <summary>
@@ -1477,10 +1529,17 @@ namespace GPC.Model.FEM.FiniteElements
             return displacement / 2.0 * x*x / Math.Pow(L,3.0) * (3.0 * L - x);
         }
 
+
         private static double DisplacementFixAndSimplySupportedWithImposedRotationAtEnd(double x, double angle, double L)
         {
             return angle * x / (L * L) * (L * L - x / 2.0 * (3.0 * L - x));
         }
+
+        private static double RotationFixAndSimplySupportedWithImposedRotationAtEnd(double x, double angle, double L)
+        {
+            return angle * (L*L - 4.0 * L * x + 3.0 * x * x) / (L * L);
+        }
+
 
         private static double DisplacementSimplySupportedUniformLoad(double q, double x, double L, double E, double J)
         {
@@ -1515,6 +1574,11 @@ namespace GPC.Model.FEM.FiniteElements
         private static double DisplacementFixFreeUniformLoad(double x, double L, double q, double E, double J)
         {
             return q * x * x / (24.0 * E * J) * (6.0 * L * L - 4.0 * L * x + x * x);
+        }
+
+        private static double RotationFixFixImposedDisplacement(double x, double L, double delta)
+        {
+            return 6.0 * delta / (L * L * L) * (L * x - x*x);
         }
         #endregion
     }
