@@ -1,6 +1,7 @@
 ﻿
 using GPC.Model.FEM.Attributes;
 using GPC.Model.Results;
+using System;
 
 namespace GPC.Model.FEM.FiniteElements
 {
@@ -59,6 +60,19 @@ namespace GPC.Model.FEM.FiniteElements
         {
             base.AddResult(result);
         }
+
+        public override void AddResult(FiniteElementResult result)
+        {
+            if (result is BeamResult)
+            {
+                base.AddResult(result);
+            }
+            else
+            {
+                throw new ArgumentException();
+            }
+        }
+
 
     }
 }
