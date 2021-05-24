@@ -473,7 +473,7 @@ namespace FemTest.SolverTest
 
             LinearSolver fem = new LinearSolver(els.ToArray());
 
-            Assert.AreEqual(0.3553, fem.GetDisplacementGlobalCoordinates(nds[4], LinearSolver.DOF.DY));
+            Assert.AreEqual(0.3553, fem.GetNodeDisplacementGlobalCoordinates(nds[4], LinearSolver.DOF.DY));
 
             //check stress
             /*Console.WriteLine("stress");
@@ -561,7 +561,7 @@ namespace FemTest.SolverTest
 
             LinearSolver fem = new LinearSolver(els.ToArray());
 
-            Assert.AreEqual(0.3553, fem.GetDisplacementGlobalCoordinates(nds[9], LinearSolver.DOF.DY));
+            Assert.AreEqual(0.3553, fem.GetNodeDisplacementGlobalCoordinates(nds[9], LinearSolver.DOF.DY));
 
             //check stress
             /*Console.WriteLine("stress");
@@ -671,7 +671,7 @@ namespace FemTest.SolverTest
 
             LinearSolver fem = new LinearSolver(els.ToArray());
 
-            Assert.AreEqual(0.3553, fem.GetDisplacementGlobalCoordinates(nds[17], LinearSolver.DOF.DY), 0.01);
+            Assert.AreEqual(0.3553, fem.GetNodeDisplacementGlobalCoordinates(nds[17], LinearSolver.DOF.DY), 0.01);
 
             Console.WriteLine("stress");
             double[] elGlobalDispl = fem.GetDisplacementsAtNodesOfElementInGlobalCoordinates(els[2-1]);
@@ -757,7 +757,7 @@ namespace FemTest.SolverTest
 
             LinearSolver fem = new LinearSolver(els.ToArray());
 
-            Assert.AreEqual(1.5, fem.GetDisplacementGlobalCoordinates(nds[10], LinearSolver.DOF.DY));
+            Assert.AreEqual(1.5, fem.GetNodeDisplacementGlobalCoordinates(nds[10], LinearSolver.DOF.DY));
 
             //Check force applied
 
@@ -843,7 +843,7 @@ namespace FemTest.SolverTest
 
             LinearSolver fem = new LinearSolver(els.ToArray());
 
-            Assert.AreEqual(1.5, fem.GetDisplacementGlobalCoordinates(nds[10], LinearSolver.DOF.DY));
+            Assert.AreEqual(1.5, fem.GetNodeDisplacementGlobalCoordinates(nds[10], LinearSolver.DOF.DY));
 
             //Check force applied
 
@@ -942,13 +942,13 @@ namespace FemTest.SolverTest
 
             LinearSolver fem = new LinearSolver(els.ToArray());
 
-            Assert.AreEqual(1.5, fem.GetDisplacementGlobalCoordinates(nds[16], LinearSolver.DOF.DY), 0.001);
-            Assert.AreEqual(0.3, fem.GetDisplacementGlobalCoordinates(nds[16], LinearSolver.DOF.DX), 0.001);
-            Assert.AreEqual(0.0, fem.GetDisplacementGlobalCoordinates(nds[16], LinearSolver.DOF.RZ), 0.001);
+            Assert.AreEqual(1.5, fem.GetNodeDisplacementGlobalCoordinates(nds[16], LinearSolver.DOF.DY), 0.001);
+            Assert.AreEqual(0.3, fem.GetNodeDisplacementGlobalCoordinates(nds[16], LinearSolver.DOF.DX), 0.001);
+            Assert.AreEqual(0.0, fem.GetNodeDisplacementGlobalCoordinates(nds[16], LinearSolver.DOF.RZ), 0.001);
 
-            Assert.AreEqual(1.5, fem.GetDisplacementGlobalCoordinates(nds[5], LinearSolver.DOF.DY), 0.001);
-            Assert.AreEqual(0.3, fem.GetDisplacementGlobalCoordinates(nds[5], LinearSolver.DOF.DX), 0.001);
-            Assert.AreEqual(0.0, fem.GetDisplacementGlobalCoordinates(nds[5], LinearSolver.DOF.RZ), 0.001);
+            Assert.AreEqual(1.5, fem.GetNodeDisplacementGlobalCoordinates(nds[5], LinearSolver.DOF.DY), 0.001);
+            Assert.AreEqual(0.3, fem.GetNodeDisplacementGlobalCoordinates(nds[5], LinearSolver.DOF.DX), 0.001);
+            Assert.AreEqual(0.0, fem.GetNodeDisplacementGlobalCoordinates(nds[5], LinearSolver.DOF.RZ), 0.001);
 
             //check stress
             /*Console.WriteLine("stress");
@@ -1045,9 +1045,9 @@ namespace FemTest.SolverTest
 
             LinearSolver fem = new LinearSolver(els.ToArray());
 
-            Assert.AreEqual(1.5, fem.GetDisplacementGlobalCoordinates(nds[16], LinearSolver.DOF.DY), 0.01);
-            Assert.AreEqual(0.3, fem.GetDisplacementGlobalCoordinates(nds[16], LinearSolver.DOF.DX), 0.01);
-            Assert.AreEqual(0.0, fem.GetDisplacementGlobalCoordinates(nds[16], LinearSolver.DOF.RZ), 0.01);
+            Assert.AreEqual(1.5, fem.GetNodeDisplacementGlobalCoordinates(nds[16], LinearSolver.DOF.DY), 0.01);
+            Assert.AreEqual(0.3, fem.GetNodeDisplacementGlobalCoordinates(nds[16], LinearSolver.DOF.DX), 0.01);
+            Assert.AreEqual(0.0, fem.GetNodeDisplacementGlobalCoordinates(nds[16], LinearSolver.DOF.RZ), 0.01);
 
             //check stress
             Console.WriteLine("stress");

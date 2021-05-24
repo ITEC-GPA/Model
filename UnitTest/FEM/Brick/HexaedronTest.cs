@@ -91,10 +91,10 @@ namespace FemTest.SolverTest
 
             LinearSolver fem = new LinearSolver(new FiniteElement[] { e });
 
-            Assert.AreEqual(1.0, fem.GetDisplacementGlobalCoordinates(nds[1], LinearSolver.DOF.DX), 0.000001);
-            Assert.AreEqual(1.0, fem.GetDisplacementGlobalCoordinates(nds[2], LinearSolver.DOF.DX), 0.000001);
-            Assert.AreEqual(1.0, fem.GetDisplacementGlobalCoordinates(nds[6], LinearSolver.DOF.DX), 0.000001);
-            Assert.AreEqual(1.0, fem.GetDisplacementGlobalCoordinates(nds[6], LinearSolver.DOF.DX), 0.000001);
+            Assert.AreEqual(1.0, fem.GetNodeDisplacementGlobalCoordinates(nds[1], LinearSolver.DOF.DX), 0.000001);
+            Assert.AreEqual(1.0, fem.GetNodeDisplacementGlobalCoordinates(nds[2], LinearSolver.DOF.DX), 0.000001);
+            Assert.AreEqual(1.0, fem.GetNodeDisplacementGlobalCoordinates(nds[6], LinearSolver.DOF.DX), 0.000001);
+            Assert.AreEqual(1.0, fem.GetNodeDisplacementGlobalCoordinates(nds[6], LinearSolver.DOF.DX), 0.000001);
         }
 
         [TestMethod]
@@ -139,7 +139,7 @@ namespace FemTest.SolverTest
 
             LinearSolver fem = new LinearSolver(new FiniteElement[] { e });
 
-            Console.WriteLine(fem.GetDisplacementGlobalCoordinates(nds[1], LinearSolver.DOF.DZ));
+            Console.WriteLine(fem.GetNodeDisplacementGlobalCoordinates(nds[1], LinearSolver.DOF.DZ));
         }
 
         [TestMethod]
@@ -198,7 +198,7 @@ namespace FemTest.SolverTest
 
             LinearSolver fem = new LinearSolver(els.ToArray()) ;
 
-            Assert.AreEqual(1.0, -0.1152 / fem.GetDisplacementGlobalCoordinates(nds[nds.Count-1], LinearSolver.DOF.DZ), 0.015);
+            Assert.AreEqual(1.0, -0.1152 / fem.GetNodeDisplacementGlobalCoordinates(nds[nds.Count-1], LinearSolver.DOF.DZ), 0.015);
         }
     }
 }

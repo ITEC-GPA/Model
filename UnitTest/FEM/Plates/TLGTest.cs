@@ -400,7 +400,7 @@ namespace FemTest.SolverTest
 
             LinearSolver fem0 = new LinearSolver(new FiniteElement[] { e0 });
 
-            Console.WriteLine("Tripled = " + fem0.GetDisplacementGlobalCoordinates(nodes[2], Solver.DOF.DZ));
+            Console.WriteLine("Tripled = " + fem0.GetNodeDisplacementGlobalCoordinates(nodes[2], Solver.DOF.DZ));
         }
 
         /// <summary>
@@ -445,7 +445,7 @@ namespace FemTest.SolverTest
 
             LinearSolver fem0 = new LinearSolver(new FiniteElement[] { e0 });
 
-            Console.WriteLine("Tripled = " + fem0.GetDisplacementGlobalCoordinates(nodes[1], Solver.DOF.DZ));
+            Console.WriteLine("Tripled = " + fem0.GetNodeDisplacementGlobalCoordinates(nodes[1], Solver.DOF.DZ));
         }
 
         /// <summary>
@@ -761,10 +761,10 @@ namespace FemTest.SolverTest
 
             LinearSolver fem0 = new LinearSolver(els.ToArray());
 
-            Console.WriteLine(fem0.GetDisplacementGlobalCoordinates(nodes[63], Solver.DOF.DZ));
-            Assert.AreEqual(-0.3297, fem0.GetDisplacementGlobalCoordinates(nodes[63], Solver.DOF.DZ), 0.01); //Come soluzione kirchoff
+            Console.WriteLine(fem0.GetNodeDisplacementGlobalCoordinates(nodes[63], Solver.DOF.DZ));
+            Assert.AreEqual(-0.3297, fem0.GetNodeDisplacementGlobalCoordinates(nodes[63], Solver.DOF.DZ), 0.01); //Come soluzione kirchoff
             double hc = (2.0 * hInterlayer + hGlass1 + hGlass2) / 2.0;
-            Assert.AreEqual(0.035, fem0.GetDisplacementGlobalCoordinates(nodes[1], Solver.DOF.RY) * hc, 0.001); //come soluzione kirchoff
+            Assert.AreEqual(0.035, fem0.GetNodeDisplacementGlobalCoordinates(nodes[1], Solver.DOF.RY) * hc, 0.001); //come soluzione kirchoff
 
             //TODO: capire dof Torcente "Psi" con analogia a elemento di kirchoff
             
@@ -1086,8 +1086,8 @@ namespace FemTest.SolverTest
 
             LinearSolver fem0 = new LinearSolver(els.ToArray());
 
-            Console.WriteLine(fem0.GetDisplacementGlobalCoordinates(nodes[63], Solver.DOF.DZ));
-            Assert.AreEqual(5.134, fem0.GetDisplacementGlobalCoordinates(nodes[63], Solver.DOF.DZ), 0.01); //Come soluzione kirchoff
+            Console.WriteLine(fem0.GetNodeDisplacementGlobalCoordinates(nodes[63], Solver.DOF.DZ));
+            Assert.AreEqual(5.134, fem0.GetNodeDisplacementGlobalCoordinates(nodes[63], Solver.DOF.DZ), 0.01); //Come soluzione kirchoff
 
             var element = els[58]; //elemento di bordo
             
@@ -1310,7 +1310,7 @@ namespace FemTest.SolverTest
            
             LinearSolver fem0 = new LinearSolver(els.ToArray());
 
-            var dzTLG = fem0.GetDisplacementGlobalCoordinates(nodes[63], Solver.DOF.DZ);
+            var dzTLG = fem0.GetNodeDisplacementGlobalCoordinates(nodes[63], Solver.DOF.DZ);
             Console.WriteLine("displ = " + dzTLG +" vs " + spost);
 //            Assert.AreEqual(1.0 , spost / dzTLG, 0.05); //Come soluzione kirchoff
 
@@ -1542,7 +1542,7 @@ namespace FemTest.SolverTest
 
             LinearSolver fem0 = new LinearSolver(els.ToArray());
 
-            var dzTLG = fem0.GetDisplacementGlobalCoordinates(nodes[63], Solver.DOF.DZ);
+            var dzTLG = fem0.GetNodeDisplacementGlobalCoordinates(nodes[63], Solver.DOF.DZ);
             var spost = 3.70;
             Console.WriteLine("displ = " + dzTLG + " vs " + spost);
             Assert.AreEqual(1.0 , spost / dzTLG, 0.05); //Come soluzione kirchoff
@@ -1836,7 +1836,7 @@ namespace FemTest.SolverTest
             LinearSolver fem0 = new LinearSolver(els.ToArray());
 
             double displ = 5.134; //Come da KirchoffTest2
-            double obtain = fem0.GetDisplacementGlobalCoordinates(nodes.Where(nd => nd.Position.X == 0 && nd.Position.Y >= 7.07 && nd.Position.Y <= 7.1).First(), Solver.DOF.DZ);
+            double obtain = fem0.GetNodeDisplacementGlobalCoordinates(nodes.Where(nd => nd.Position.X == 0 && nd.Position.Y >= 7.07 && nd.Position.Y <= 7.1).First(), Solver.DOF.DZ);
 
             Assert.AreEqual(displ, obtain);
         }
@@ -2074,7 +2074,7 @@ namespace FemTest.SolverTest
 
             LinearSolver fem = new LinearSolver(els.ToArray());
 
-            double DZTLG = fem.GetDisplacementGlobalCoordinates(nodes.Where(x => x.Position.X == 0 && x.Position.Y == 0).First(), Solver.DOF.DZ);
+            double DZTLG = fem.GetNodeDisplacementGlobalCoordinates(nodes.Where(x => x.Position.X == 0 && x.Position.Y == 0).First(), Solver.DOF.DZ);
             Console.WriteLine("displacement triple laminated glass = " + DZTLG);
 
             Assert.AreEqual(4.11, DZTLG, 0.01);
@@ -2225,9 +2225,9 @@ namespace FemTest.SolverTest
             LinearSolver fem = new LinearSolver(els.ToArray());
             //LinearSolver fem2 = new LinearSolver(els2.ToArray());
 
-            double DZTLG = fem.GetDisplacementGlobalCoordinates(nodes.Where(x => x.Position.X == 0 && x.Position.Y == 0).First(), LinearSolver.DOF.DZ);
+            double DZTLG = fem.GetNodeDisplacementGlobalCoordinates(nodes.Where(x => x.Position.X == 0 && x.Position.Y == 0).First(), LinearSolver.DOF.DZ);
             Console.WriteLine("displacement triple laminated glass = " + DZTLG);
-            /*double DZKirch = fem2.GetDisplacementGlobalCoordinates(nodes.Where(x => x.Position.X == 0 && x.Position.Y == 0).First(), LinearSolver.DOF.DZ);
+            /*double DZKirch = fem2.GetNodeDisplacementGlobalCoordinates(nodes.Where(x => x.Position.X == 0 && x.Position.Y == 0).First(), LinearSolver.DOF.DZ);
             Console.WriteLine("displacement kirchoff = " + DZKirch);*/
 
             Assert.AreEqual(3.839, DZTLG, 0.01);
@@ -2619,9 +2619,9 @@ namespace FemTest.SolverTest
 
             LinearSolver fem = new LinearSolver(els.ToArray());
 
-            double DZTLG = fem.GetDisplacementGlobalCoordinates(nodes.Where(x => x.Position.X == 0 && x.Position.Y == 0).First(), LinearSolver.DOF.DZ);
+            double DZTLG = fem.GetNodeDisplacementGlobalCoordinates(nodes.Where(x => x.Position.X == 0 && x.Position.Y == 0).First(), LinearSolver.DOF.DZ);
             Console.WriteLine("displacement triple laminated glass = " + DZTLG);
-            /*double DZKirch = fem2.GetDisplacementGlobalCoordinates(nodes.Where(x => x.Position.X == 0 && x.Position.Y == 0).First(), LinearSolver.DOF.DZ);
+            /*double DZKirch = fem2.GetNodeDisplacementGlobalCoordinates(nodes.Where(x => x.Position.X == 0 && x.Position.Y == 0).First(), LinearSolver.DOF.DZ);
             Console.WriteLine("displacement kirchoff = " + DZKirch);*/
 
             Assert.AreEqual(3.754, DZTLG, 0.01);
@@ -4035,7 +4035,7 @@ namespace FemTest.SolverTest
 
             LinearSolver fem = new LinearSolver(els.ToArray());
 
-            double DZTLG = fem.GetDisplacementGlobalCoordinates(nodes.Where(x => x.Position.X == 0 && x.Position.Y == 0).First(), Solver.DOF.DZ);
+            double DZTLG = fem.GetNodeDisplacementGlobalCoordinates(nodes.Where(x => x.Position.X == 0 && x.Position.Y == 0).First(), Solver.DOF.DZ);
             Console.WriteLine("displacement triple laminated glass = " + DZTLG);
 
             Assert.AreEqual(3.734, DZTLG, 0.01);
@@ -7115,7 +7115,7 @@ namespace FemTest.SolverTest
 
             LinearSolver fem = new LinearSolver(els.ToArray());
 
-            double DZTLG = fem.GetDisplacementGlobalCoordinates(nodes.Where(x => x.Position.X == 0 && x.Position.Y == 0).First(), Solver.DOF.DZ);
+            double DZTLG = fem.GetNodeDisplacementGlobalCoordinates(nodes.Where(x => x.Position.X == 0 && x.Position.Y == 0).First(), Solver.DOF.DZ);
             Console.WriteLine("displacement triple laminated glass = " + DZTLG);
 
             Assert.AreEqual(3.731, DZTLG, 0.01);
@@ -23117,7 +23117,7 @@ namespace FemTest.SolverTest
 
             LinearSolver fem = new LinearSolver(els.ToArray());
 
-            double DZTLG = fem.GetDisplacementGlobalCoordinates(nodes.Where(x => x.Position.X == 0 && x.Position.Y == 0).First(), Solver.DOF.DZ);
+            double DZTLG = fem.GetNodeDisplacementGlobalCoordinates(nodes.Where(x => x.Position.X == 0 && x.Position.Y == 0).First(), Solver.DOF.DZ);
             Console.WriteLine("displacement triple laminated glass = " + DZTLG);
 
             //Assert.AreEqual(2.76, DZTLG, 0.01);
@@ -24243,7 +24243,7 @@ namespace FemTest.SolverTest
 
             LinearSolver fem = new LinearSolver(els.ToArray());
 
-            double DZTLG = fem.GetDisplacementGlobalCoordinates(nodes.Where(x => x.Position.X == 0 && x.Position.Y == 0).First(), Solver.DOF.DZ);
+            double DZTLG = fem.GetNodeDisplacementGlobalCoordinates(nodes.Where(x => x.Position.X == 0 && x.Position.Y == 0).First(), Solver.DOF.DZ);
             Console.WriteLine("displacement triple laminated glass = " + DZTLG);
             Assert.AreEqual(40.03, DZTLG, 0.01);
         }
@@ -25371,7 +25371,7 @@ namespace FemTest.SolverTest
 
             LinearSolver fem = new LinearSolver(els.ToArray());
 
-            double DZTLG = fem.GetDisplacementGlobalCoordinates(nodes.Where(x => x.Position.X == 0 && x.Position.Y == 0).First(), Solver.DOF.DZ);
+            double DZTLG = fem.GetNodeDisplacementGlobalCoordinates(nodes.Where(x => x.Position.X == 0 && x.Position.Y == 0).First(), Solver.DOF.DZ);
             Console.WriteLine("displacement triple laminated glass = " + DZTLG);
             Assert.AreEqual(130.23, DZTLG, 0.01);
 
@@ -25379,9 +25379,9 @@ namespace FemTest.SolverTest
             /*for (int i = 1; i < nodes.Count; i++)
             {
                 Node node = nodes[i];
-                double dx = fem.GetDisplacementGlobalCoordinates(node, Solver.DOF.DX);
-                double dy = fem.GetDisplacementGlobalCoordinates(node, Solver.DOF.DY);
-                double dz = fem.GetDisplacementGlobalCoordinates(node, Solver.DOF.DZ);
+                double dx = fem.GetNodeDisplacementGlobalCoordinates(node, Solver.DOF.DX);
+                double dy = fem.GetNodeDisplacementGlobalCoordinates(node, Solver.DOF.DY);
+                double dz = fem.GetNodeDisplacementGlobalCoordinates(node, Solver.DOF.DZ);
 
                 double newX = node.Position.X + dx;
                 double newY = node.Position.Y + dy;
@@ -26525,7 +26525,7 @@ namespace FemTest.SolverTest
 
             LinearSolver fem = new LinearSolver(els.ToArray());
 
-            double DZTLG = fem.GetDisplacementGlobalCoordinates(nodes.Where(x => x.Position.X == 0 && x.Position.Y == 0).First(), Solver.DOF.DZ);
+            double DZTLG = fem.GetNodeDisplacementGlobalCoordinates(nodes.Where(x => x.Position.X == 0 && x.Position.Y == 0).First(), Solver.DOF.DZ);
             Console.WriteLine("displacement triple laminated glass = " + DZTLG);
             Assert.AreEqual(56.01, DZTLG, 0.01);
         }
@@ -29896,7 +29896,7 @@ namespace FemTest.SolverTest
 
             LinearSolver fem = new LinearSolver(els.ToArray());
 
-            double DZTLG = fem.GetDisplacementGlobalCoordinates(nodes.Where(x => x.Position.X == 1000 && x.Position.Y == 250).First(), Solver.DOF.DZ);
+            double DZTLG = fem.GetNodeDisplacementGlobalCoordinates(nodes.Where(x => x.Position.X == 1000 && x.Position.Y == 250).First(), Solver.DOF.DZ);
             Console.WriteLine("displacement triple laminated glass = " + DZTLG);
             Assert.AreEqual(19.66, DZTLG, 0.01);
         }
@@ -30082,7 +30082,7 @@ namespace FemTest.SolverTest
             LinearSolver fem = new LinearSolver(els.ToArray());
             LinearSolver fem2 = new LinearSolver(els2.ToArray());
 
-            Assert.AreEqual(fem.GetDisplacementGlobalCoordinates(nodes[1], Solver.DOF.DZ), fem2.GetDisplacementGlobalCoordinates(nodes[5], Solver.DOF.DZ), 1e-3);
+            Assert.AreEqual(fem.GetNodeDisplacementGlobalCoordinates(nodes[1], Solver.DOF.DZ), fem2.GetNodeDisplacementGlobalCoordinates(nodes[5], Solver.DOF.DZ), 1e-3);
         }
 
         [TestMethod]
@@ -30144,7 +30144,7 @@ namespace FemTest.SolverTest
             LinearSolver fem = new LinearSolver(els.ToArray());
             LinearSolver fem2 = new LinearSolver(els2.ToArray());
 
-            Assert.AreEqual(fem.GetDisplacementGlobalCoordinates(nodes[1], Solver.DOF.DZ), fem2.GetDisplacementGlobalCoordinates(nodes[5], Solver.DOF.DZ));
+            Assert.AreEqual(fem.GetNodeDisplacementGlobalCoordinates(nodes[1], Solver.DOF.DZ), fem2.GetNodeDisplacementGlobalCoordinates(nodes[5], Solver.DOF.DZ));
         }
     }
 }

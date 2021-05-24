@@ -148,7 +148,7 @@ namespace FemTest.SolverTest
 
             LinearSolver fem = new LinearSolver(elements.ToArray());
 
-            Assert.AreEqual(100.0, fem.GetDisplacementGlobalCoordinates(node8, LinearSolver.DOF.DY), 0.1);
+            Assert.AreEqual(100.0, fem.GetNodeDisplacementGlobalCoordinates(node8, LinearSolver.DOF.DY), 0.1);
         }
 
         /// <summary>
@@ -221,7 +221,7 @@ namespace FemTest.SolverTest
 
             LinearSolver fem = new LinearSolver(elements.ToArray());
 
-            Assert.AreEqual(91.03, fem.GetDisplacementGlobalCoordinates(node8, LinearSolver.DOF.DY), 0.1); //In article is 92.24
+            Assert.AreEqual(91.03, fem.GetNodeDisplacementGlobalCoordinates(node8, LinearSolver.DOF.DY), 0.1); //In article is 92.24
 
             double[] elementGlobalDispl = fem.GetDisplacementsAtNodesOfElementInGlobalCoordinates(elements[2]);
             elements[2].GetNodesResults(elementGlobalDispl, out double[] localDispl,
@@ -345,7 +345,7 @@ namespace FemTest.SolverTest
 
             LinearSolver fem = new LinearSolver(elements.ToArray());
                        
-            double displacementNodeC = fem.GetDisplacementGlobalCoordinates(nodes[5], LinearSolver.DOF.DY);
+            double displacementNodeC = fem.GetNodeDisplacementGlobalCoordinates(nodes[5], LinearSolver.DOF.DY);
             Console.WriteLine("DY node C = " + displacementNodeC);
             Console.WriteLine(displacementNodeC / 0.35601 + " vs 1.0");
             
@@ -445,7 +445,7 @@ namespace FemTest.SolverTest
 
             LinearSolver fem = new LinearSolver(elements.ToArray());
 
-            double displacementNode = fem.GetDisplacementGlobalCoordinates(nodes[1], LinearSolver.DOF.DX);
+            double displacementNode = fem.GetNodeDisplacementGlobalCoordinates(nodes[1], LinearSolver.DOF.DX);
             Console.WriteLine("DX node = " + displacementNode);
             //Assert.AreEqual(1.0, displacementNode, 0.001);
 
@@ -562,7 +562,7 @@ namespace FemTest.SolverTest
 
             LinearSolver fem = new LinearSolver(elements.ToArray());
 
-            double displacementNode = fem.GetDisplacementGlobalCoordinates(nodes[1], LinearSolver.DOF.DX);
+            double displacementNode = fem.GetNodeDisplacementGlobalCoordinates(nodes[1], LinearSolver.DOF.DX);
             Console.WriteLine("DX node = " + displacementNode);
             //Assert.AreEqual(1.0, displacementNode, 0.001);
 
@@ -653,7 +653,7 @@ namespace FemTest.SolverTest
 
             LinearSolver fem = new LinearSolver(elements.ToArray());
 
-            /*double displacementNode = fem.GetDisplacementGlobalCoordinates(nodes[1], LinearSolver.DOF.DX);
+            /*double displacementNode = fem.GetNodeDisplacementGlobalCoordinates(nodes[1], LinearSolver.DOF.DX);
             Console.WriteLine("DX node = " + displacementNode);
             Assert.AreEqual(1.0, displacementNode, 0.001);*/
 
@@ -717,7 +717,7 @@ namespace FemTest.SolverTest
 
             LinearSolver fem = new LinearSolver(elements.ToArray());
 
-            /*double displacementNode = fem.GetDisplacementGlobalCoordinates(nodes[1], LinearSolver.DOF.DX);
+            /*double displacementNode = fem.GetNodeDisplacementGlobalCoordinates(nodes[1], LinearSolver.DOF.DX);
             Console.WriteLine("DX node = " + displacementNode);
             Assert.AreEqual(1.0, displacementNode, 0.001);*/
 

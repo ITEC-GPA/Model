@@ -381,12 +381,12 @@ namespace GPC.Model.FEM
             }
             #endregion
 
-            /*
+            
 #if DEBUG
             Console.WriteLine("Vector F");
             _F.ToList().ForEach(x => Console.WriteLine(x));
 #endif
-            */
+            
             #endregion
 
             #region ApplyingRestrains
@@ -587,7 +587,7 @@ namespace GPC.Model.FEM
         /// <param name="node"></param>
         /// <param name="dof"></param>
         /// <returns></returns>
-        public double GetDisplacementGlobalCoordinates(Node node, DOF dof)
+        public double GetNodeDisplacementGlobalCoordinates(Node node, DOF dof)
         {
             int pos = GetPositionInKGlobal(node, dof);
             return _nodeGlobalDisplacements[pos];
@@ -805,6 +805,13 @@ namespace GPC.Model.FEM
         #region displacements
         //TODO: trasformare in classe Beam
         public Dictionary<Beam.LocalDOF, double> GetBeamDisplacementInLocalCoordinatesAtNode(EulerBeam b, Beam.EndSide endSide)
+        {
+            var globalDisplNodes = GetDisplacementsAtNodesOfElementInGlobalCoordinates(b);
+
+            return b.GetLocalDisplacementsAtNode(endSide, globalDisplNodes);
+        }
+
+        public Dictionary<Beam.LocalDOF, double> GetBeamDisplacementInLocalCoordinatesAtEnd(EulerBeam b, Beam.EndSide endSide)
         {
             var globalDisplNodes = GetDisplacementsAtNodesOfElementInGlobalCoordinates(b);
 

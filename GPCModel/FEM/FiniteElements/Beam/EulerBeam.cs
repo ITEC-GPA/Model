@@ -458,8 +458,8 @@ namespace GPC.Model.FEM.FiniteElements
 
             #endregion
             
-            Console.WriteLine("kLocal");
-            FEMUtilities.WriteMatrix(_kElementLocalCoord, "F2");
+            /*Console.WriteLine("kLocal");
+            FEMUtilities.WriteMatrix(_kElementLocalCoord, "F2");*/
             #endregion
 
             #region transformationToGlobal
@@ -537,8 +537,8 @@ namespace GPC.Model.FEM.FiniteElements
                 }
                 
             }
-            Console.WriteLine("localToGlobal");
-            FEMUtilities.WriteMatrix(_dofGlobalToLocal);
+            /*Console.WriteLine("localToGlobal");
+            FEMUtilities.WriteMatrix(_dofGlobalToLocal);*/
 
             Vector3d ux = new Vector3d(_dofGlobalToLocal[0, 0], _dofGlobalToLocal[0, 1], _dofGlobalToLocal[0, 2]);
             Vector3d uy = new Vector3d(_dofGlobalToLocal[1, 0], _dofGlobalToLocal[1, 1], _dofGlobalToLocal[1, 2]);
@@ -578,6 +578,7 @@ namespace GPC.Model.FEM.FiniteElements
                 }
             }
 
+            #region NoEndRelease
             #region axial
             fLocal[0] = q1 * _length / 2.0;
             fLocal[6] = q1 * _length / 2.0;
@@ -597,6 +598,7 @@ namespace GPC.Model.FEM.FiniteElements
 
             fLocal[4] = -q3 * _length * _length / 12.0;
             fLocal[10] = q3 * _length * _length / 12.0;
+            #endregion
             #endregion
 
             #region ApplyReleases
@@ -720,6 +722,8 @@ namespace GPC.Model.FEM.FiniteElements
             #endregion
             #endregion
 
+
+            #region End1
             #region releaseU2R3End1
             if (IsReleasedU2AndR3(EndSide.End1)) {
                 fLocal[2 - 1] = 0.0;
@@ -730,6 +734,19 @@ namespace GPC.Model.FEM.FiniteElements
             }
             #endregion
 
+            #region releaseU3R2End1
+            if (IsReleasedU3AndR2(EndSide.End1))
+            {
+                fLocal[3 - 1] = 0.0;
+                fLocal[5 - 1] = 0.0;
+
+                fLocal[9 - 1] = q3 * _length;
+                fLocal[11 - 1] = q3 * _length * _length / 2.0;
+            }
+            #endregion
+            #endregion
+
+            #region End2
             #region releaseU2R3End2
             if (IsReleasedU2AndR3(EndSide.End2))
             {
@@ -741,7 +758,7 @@ namespace GPC.Model.FEM.FiniteElements
             }
             #endregion
 
-            #region releaseU3R2End1
+            #region releaseU3R2End2
             if (IsReleasedU3AndR2(EndSide.End2))
             {
                 fLocal[3 - 1] = q3 * _length;
@@ -750,6 +767,7 @@ namespace GPC.Model.FEM.FiniteElements
                 fLocal[9 - 1] = 0.0;
                 fLocal[11 - 1] = 0.0;
             }
+            #endregion
             #endregion
 
             #endregion
@@ -873,6 +891,11 @@ namespace GPC.Model.FEM.FiniteElements
         #endregion
 
         #region GetDisplacement
+        public Dictionary<LocalDOF, double> GetLocalDisplacementsAtEnd(Beam.EndSide endSide, double[] globalDisplacementsNode)
+        {
+            return GetLocalDisplacementsAtNode(endSide, globalDisplacementsNode);
+        }
+
         public Dictionary<LocalDOF, double> GetLocalDisplacementsAtNode(Beam.EndSide endSide, double[] globalDisplacementsNode)
         {
             mnl.Vector<double> localDisplacementsNodes = GetLocalDisplacementVector(globalDisplacementsNode);
@@ -1033,6 +1056,8 @@ namespace GPC.Model.FEM.FiniteElements
                         double dr = (_length - station) * displLocalNode2[LocalDOF.R2];
                         double dq = DisplacementFixFreeUniformLoad(_length - station, _length, q3, E, J11);
                         displStation[LocalDOF.U3] = displLocalNode2[LocalDOF.U3] + dr + dq;
+
+                        displStation[LocalDOF.R2] = displLocalNode2[LocalDOF.R2];
                     }
                     #endregion
 
@@ -1042,6 +1067,8 @@ namespace GPC.Model.FEM.FiniteElements
                         double dr = -(_length - station) * displLocalNode2[LocalDOF.R3];
                         double dq = DisplacementFixFreeUniformLoad(_length - station, _length, q2, E, J22);
                         displStation[LocalDOF.U2] = displLocalNode2[LocalDOF.U2] + dr + dq;
+
+                        displStation[LocalDOF.R3] = displLocalNode2[LocalDOF.R3];
                     }
                     #endregion
                 }
@@ -1118,6 +1145,8 @@ namespace GPC.Model.FEM.FiniteElements
                         double dr = -station * displLocalNode1[LocalDOF.R2];
                         double dq = DisplacementFixFreeUniformLoad(station, _length, q3, E, J11);
                         displStation[LocalDOF.U3] = displLocalNode1[LocalDOF.U3] + dr + dq;
+
+                        displStation[LocalDOF.R2] = displLocalNode1[LocalDOF.R2];
                     }
                     #endregion
 
@@ -1127,6 +1156,8 @@ namespace GPC.Model.FEM.FiniteElements
                         double dr = station * displLocalNode1[LocalDOF.R3];
                         double dq = DisplacementFixFreeUniformLoad(station, _length, q2, E, J22);
                         displStation[LocalDOF.U2] = displLocalNode1[LocalDOF.U2] + dr + dq;
+
+                        displStation[LocalDOF.R3] = displLocalNode1[LocalDOF.R3];
                     }
                     #endregion
                 }
@@ -1137,14 +1168,14 @@ namespace GPC.Model.FEM.FiniteElements
             {
                 //truss
                 var dq = DisplacementSimplySupportedUniformLoad(q2, station, _length, E, J22);
-                displStation[LocalDOF.U2] = displLocalNode1[LocalDOF.U2] + dq;
+                displStation[LocalDOF.U2] = displLocalNode1[LocalDOF.U2] * N0(station, _length) + displLocalNode2[LocalDOF.U2] * N1(station, _length) + dq;
             }
 
             if (IsDoubleReleasedR2() == true)
             {
                 //truss
                 var dq = DisplacementSimplySupportedUniformLoad(q3, station, _length, E, J11);
-                displStation[LocalDOF.U3] = displLocalNode1[LocalDOF.U3] + dq;
+                displStation[LocalDOF.U3] = displLocalNode1[LocalDOF.U3] * N0(station, _length) + displLocalNode2[LocalDOF.U3] * N1(station, _length) + dq;
             }
             #endregion
             #endregion

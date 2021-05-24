@@ -174,7 +174,7 @@ namespace FemTest.SolverTest
         
             LinearSolver fem = new LinearSolver(new FiniteElement[] { e0, e1 });
 
-            double dz = fem.GetDisplacementGlobalCoordinates(nodeC, LinearSolver.DOF.DZ);
+            double dz = fem.GetNodeDisplacementGlobalCoordinates(nodeC, LinearSolver.DOF.DZ);
             Assert.AreEqual(0.24960, dz, 1e-6);
 
             double[] displElement = fem.GetDisplacementsAtNodesOfElementInGlobalCoordinates(e0);
