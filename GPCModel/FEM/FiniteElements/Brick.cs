@@ -58,6 +58,19 @@ namespace GPC.Model.FEM.FiniteElements
             base.AddResult(result);
         }
 
+        public override void AddResult(FiniteElementResult result)
+        {
+            if (result is BrickResult)
+            {
+                base.AddResult(result);
+            }
+            else
+            {
+                throw new ArgumentException();
+            }
+        }
+
+
         //TODO: Da ottimizzare/scrivere
         /*public override void GetNodesResults(double[] globalDisplacementsNodes, out mnl.Matrix<double>[] gloabalPseudoDeformation, out mnl.Matrix<double>[] localPseudoDeformation, out mnl.Matrix<double>[] globalForces, out mnl.Matrix<double>[] localForces, out mnl.Matrix<double>[] globalStress, out mnl.Matrix<double>[] localStress, out mnl.Matrix<double>[] globalEpsilon, out mnl.Matrix<double>[] localEpsilon)
         {
