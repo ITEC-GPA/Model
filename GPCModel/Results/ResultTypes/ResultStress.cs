@@ -340,14 +340,12 @@ namespace GPC.Model.Results
 
             if (obj1._coordinateSystem.Equals(obj2._coordinateSystem))
             {
-                double sxx = obj1._sxx + obj2._sxx;
-                double syy = obj1._syy + obj2._syy;
-                double szz = obj1._szz + obj2._szz;
-                double sxy = obj1._sxy + obj2._sxy;
-                double sxz = obj1._sxz + obj2._sxz;
-                double syz = obj1._syz + obj2._syz;
-
-                return new ResultStress(obj1._coordinateSystem, sxx, syy, szz, sxy, sxz, syz);
+                return new ResultStress(obj1._coordinateSystem, obj1._sxx + obj2._sxx,
+                                                                obj1._syy + obj2._syy,
+                                                                obj1._szz + obj2._szz,
+                                                                obj1._sxy + obj2._sxy,
+                                                                obj1._sxz + obj2._sxz,
+                                                                obj1._syz + obj2._syz);
             }
             else
             {
@@ -357,14 +355,7 @@ namespace GPC.Model.Results
 
                 var sumRotated = obj1._coordinateSystem.TrfMatrix.Resize(3, 3).Transpose() * (obj1.GetTensor(true) + obj2.GetTensor(true)) * obj1._coordinateSystem.TrfMatrix.Resize(3, 3);
 
-                double sxx = sumRotated[0, 0];
-                double sxy = sumRotated[0, 1];
-                double sxz = sumRotated[0, 2];
-                double syy = sumRotated[1, 1];
-                double syz = sumRotated[1, 2];
-                double szz = sumRotated[2, 2];
-
-                return new ResultStress(obj1._coordinateSystem, sxx, syy, szz, sxy, sxz, syz);
+                return new ResultStress(obj1._coordinateSystem, sumRotated[0, 0], sumRotated[1, 1], sumRotated[2, 2], sumRotated[0, 1], sumRotated[0, 2], sumRotated[1, 2]);
             }
         }
 
