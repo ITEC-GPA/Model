@@ -170,5 +170,53 @@ namespace ModelObjectTest
 
 
         }
+
+
+        [TestMethod]
+        public void StressTensorTest1()
+        {
+
+            Matrix<double> stress = Matrix<double>.Build.Sparse(3, 3);
+            stress[0, 0] = -100;
+
+            CoordinateSystem cs1 = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, -1, 0), new Point3d(1, 1, 0));
+            ResultStress rs1 = new ResultStress(cs1, stress[0, 0], stress[1, 1], stress[2, 2], stress[0, 1], stress[0, 2], stress[1, 2]);
+
+
+            var rs1Rotated = cs1.TrfMatrix.Resize(3, 3) * rs1.GetTensor() * cs1.TrfMatrix.Resize(3, 3).Transpose();
+
+            Console.WriteLine("RS1 ROTATED");
+            Console.WriteLine(rs1Rotated);
+
+            Assert.IsTrue(rs1.Sxx == stress[0, 0]);
+            Assert.AreEqual(-50, rs1Rotated[0, 0], 1E10, rs1Rotated[0, 0].ToString());
+            Assert.AreEqual(-50, rs1Rotated[1, 1], 1E10, rs1Rotated[1, 1].ToString());
+            Assert.AreEqual(50, rs1Rotated[1, 0], 1E10, rs1Rotated[1, 0].ToString());
+        }
+
+
+        [TestMethod]
+        public void StressTensorTest2()
+        {
+
+            Matrix<double> stress = Matrix<double>.Build.Sparse(3, 3);
+            stress[0, 0] = 100;
+
+            CoordinateSystem cs1 = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(-1, -1, 0), new Point3d(1, -1, 0));
+            ResultStress rs1 = new ResultStress(cs1, stress[0, 0], stress[1, 1], stress[2, 2], stress[0, 1], stress[0, 2], stress[1, 2]);
+
+
+            var rs1Rotated = cs1.TrfMatrix.Resize(3, 3) * rs1.GetTensor() * cs1.TrfMatrix.Resize(3, 3).Transpose();
+
+
+
+            Console.WriteLine("RS1 ROTATED");
+            Console.WriteLine(rs1Rotated);
+
+            Assert.IsTrue(rs1.Sxx == stress[0, 0]);
+            Assert.AreEqual(50, rs1Rotated[0, 0], 1E10, rs1Rotated[0, 0].ToString());
+            Assert.AreEqual(50, rs1Rotated[1, 1], 1E10, rs1Rotated[1, 1].ToString());
+            Assert.AreEqual(50, rs1Rotated[1, 0], 1E10, rs1Rotated[1, 0].ToString());
+        }
     }
 }
