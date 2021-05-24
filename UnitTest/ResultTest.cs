@@ -273,6 +273,36 @@ namespace ModelObjectTest
         //    Assert.AreEqual(19/2.0, sum.Sxx, 1e-5, sum.Sxx.ToString());
         //}
 
+
+
+        [TestMethod]
+        public void StressOperatorsMultiplicationTest1()
+        {
+
+            Matrix<double> stress = Matrix<double>.Build.Sparse(3, 3);
+            stress[0, 0] = -100;
+
+            CoordinateSystem cs1 = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, -1, 0), new Point3d(1, 1, 0));
+            ResultStress rs1 = new ResultStress(cs1, stress[0, 0], stress[1, 1], stress[2, 2], stress[0, 1], stress[0, 2], stress[1, 2]);
+
+
+            var rs1Rotated = cs1.TrfMatrix.Resize(3, 3) * rs1.GetTensor() * cs1.TrfMatrix.Resize(3, 3).Transpose();
+            var rs1Rotated2 = rs1.GetTensor() * cs1.TrfMatrix.Resize(3, 3);
+
+
+            Console.WriteLine("RS1 ROTATED");
+            Console.WriteLine(rs1Rotated);
+
+            Console.WriteLine("RS1 ROTATED");
+            Console.WriteLine(rs1Rotated2);
+
+            Assert.IsTrue(rs1.Sxx == stress[0, 0]);
+            Assert.AreEqual(-50, rs1Rotated[0, 0], 1E-10, rs1Rotated[0, 0].ToString());
+            Assert.AreEqual(-50, rs1Rotated[1, 1], 1E-10, rs1Rotated[1, 1].ToString());
+            Assert.AreEqual(50, rs1Rotated[1, 0], 1E-10, rs1Rotated[1, 0].ToString());
+
+        }
+
         [TestMethod]
         public void StressTensorTest1()
         {
