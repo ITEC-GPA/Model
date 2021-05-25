@@ -30,7 +30,7 @@ namespace GPC.Model.Results
 
         public (ResultType[] lowerFace, ResultType[] midFace, ResultType[] upperFace) GetFaceResults()
         {
-            List<ResultType[]> splitted = Results.Split(3);
+            List<ResultType[]> splitted = Results.Split(Results.Length / 3);
 
             return (splitted[0], splitted[1], splitted[2]);
         }
