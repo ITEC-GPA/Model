@@ -12,7 +12,7 @@ using GPC.Model.FEM.Materials;
 
 namespace GPC.Model.Sections.Steel
 {
-    public class SteelSectionH : SectionH
+    public class SteelSectionH : SectionH, ISteelSection
     {
         #region Variables
 

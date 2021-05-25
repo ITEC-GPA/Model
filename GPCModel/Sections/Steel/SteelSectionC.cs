@@ -2,7 +2,7 @@
 
 namespace GPC.Model.Sections.Steel
 {
-    public class SteelSectionC : SectionC
+    public class SteelSectionC : SectionC, ISteelSection
     {
         #region Variables
 

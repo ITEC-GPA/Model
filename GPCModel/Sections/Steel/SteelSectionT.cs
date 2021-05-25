@@ -2,7 +2,7 @@
 
 namespace GPC.Model.Sections.Steel
 {
-    public class SteelSectionT : SectionT
+    public class SteelSectionT : SectionT, ISteelSection
     {
         public enum ProfileType
         {
