@@ -1,5 +1,6 @@
 ﻿using GPC.Geometry;
 using GPC.Model.LoadCases;
+using GPC.Utilities.Extensions;
 using System;
 using System.Linq;
 using System.Collections.Generic;
@@ -26,6 +27,14 @@ namespace GPC.Model.Results
                 throw new ArgumentException("Result lenght should be 3n");
 
         }
+
+        public (ResultType[] lowerFace, ResultType[] midFace, ResultType[] upperFace) GetFaceResults()
+        {
+            List<ResultType[]> splitted = Results.Split(Results.Length / 3);
+
+            return (splitted[0], splitted[1], splitted[2]);
+        }
+
 
         public override int GetHashCode()
         {

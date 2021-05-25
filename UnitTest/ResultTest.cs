@@ -349,5 +349,42 @@ namespace ModelObjectTest
             Assert.AreEqual(50, rs1Rotated[1, 1], 1E-10, rs1Rotated[1, 1].ToString());
             Assert.AreEqual(50, rs1Rotated[1, 0], 1E-10, rs1Rotated[1, 0].ToString());
         }
+
+
+        [TestMethod]
+        public void DisplacementOperatorsMultiplicationTest1()
+        {
+
+            CoordinateSystem cs1 = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(-1, -1, 0), new Point3d(1, -1, 0));
+
+            ResultDisplacement rd = new ResultDisplacement(cs1, 1,2,3,4,5,6);
+
+            var rd1 = rd * 2;
+            var rd2 = rd * 3.0;
+
+            Assert.AreEqual(rd1.D2, rd.D2 * 2, 1E-10);
+            Assert.AreEqual(rd2.D2, rd.D2 * 3, 1E-10);
+        }
+
+
+        [TestMethod]
+        public void DisplacementOperatorsSumTest1()
+        {
+
+            CoordinateSystem cs1 = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(-1, -1, 0), new Point3d(1, -1, 0));
+            ResultDisplacement rd1 = new ResultDisplacement(cs1, 1, 2, 3, 4, 5, 6);
+
+            CoordinateSystem cs2 = new CoordinateSystem(new Point3d(0, 0, 0), new Vector3d(1, 1, 0), new Vector3d(-1, 1, 0));
+            ResultDisplacement rd2 = new ResultDisplacement(cs2, 1, 2, 3, 4, 5, 6);
+
+            var sum = rd1 + rd2;
+            
+            Console.WriteLine(sum.GetLocalDisplacementsTuple().displacements);
+            Console.WriteLine(sum.GetLocalDisplacementsTuple().rotations);
+
+            Assert.AreEqual(sum.D2, rd1.D2 - rd2.D2, 1E-10, sum.D2.ToString());
+            Assert.AreEqual(sum.D3, rd1.D3 * 2.0, 1E-10);
+
+        }
     }
 }
