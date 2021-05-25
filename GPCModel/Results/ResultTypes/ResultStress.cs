@@ -332,6 +332,7 @@ namespace GPC.Model.Results
             return !(obj1 == obj2);
         }
 
+        /// <returns>The sum of the two stress tensor written in the <paramref name="obj1"/> <see cref="CoordinateSystem"/></returns>
         public static ResultStress operator +(ResultStress obj1, ResultStress obj2)
         {
             if (obj1._coordinateSystem.Equals(obj2._coordinateSystem))
@@ -347,88 +348,59 @@ namespace GPC.Model.Results
             }
             else
             {
-                // TODO: rotazione stress, questo caso non è giusto
-                var obj1Global = obj1.GetTensor(true);
+                // prendo tensori rotati nel globale
+                // li sommo
+                // li ruoto nel sistema obj1
 
-                var obj2Global = obj2.GetTensor(true);
+                var sumRotated = obj1._coordinateSystem.TrfMatrix.Resize(3, 3).Transpose() * (obj1.GetTensor(true) + obj2.GetTensor(true)) * obj1._coordinateSystem.TrfMatrix.Resize(3, 3);
 
-                Matrix<double> sum = obj1Global + obj2Global;
-                //Console.WriteLine(obj1Global);
-                //Console.WriteLine(obj2Global);
-
-                //Console.WriteLine(sum);
-
-                var a = obj1._coordinateSystem.TrfMatrix.Resize(3, 3).Inverse() * sum * obj1._coordinateSystem.TrfMatrix.Resize(3, 3).Inverse().Transpose();
-
-
-                double sxx = a[0, 0];
-                double sxy = a[0, 1];
-                double sxz = a[0, 2];
-                double syy = a[1, 1];
-                double syz = a[1, 2];
-                double szz = a[2, 2];
-
-                //var obj2V1toObj1     = obj1._coordinateSystem.ToLocal(obj2._coordinateSystem.V1); // converto cs2.V1 nel sistema locale di obj1
-                //var obj2V2toObj1     = obj1._coordinateSystem.ToLocal(obj2._coordinateSystem.V2); // converto cs2.V2 nel sistema locale di obj1
-                //var obj2OrigintoObj1 = obj1._coordinateSystem.ToLocal(obj2._coordinateSystem.Origin); // converto origin di cs2 nel sistema locale di obj1
-
-                //var cs2 = new CoordinateSystem(obj2OrigintoObj1, obj2V1toObj1, obj2V2toObj1); // creo sistema di coordinate 
-
-                ////var c = cs2.TrfMatrix;
-                ////Console.WriteLine(c);
-                ////var c2 = cs2.TrfMatrix.Resize(3, 3);
-                ////Console.WriteLine(c2);
-
-
-                //Matrix<double> stressRotated = cs2.TrfMatrix.Resize(3,3) * obj2.GetTensor() * cs2.TrfMatrix.Resize(3, 3).Transpose();
-
-                //var sum = obj1.GetTensor() + stressRotated;
-
-                //double sxx = sum[0, 0];
-                //double sxy = sum[0, 1];
-                //double sxz = sum[0, 2];
-                //double syy = sum[1, 1];
-                //double syz = sum[1, 2];
-                //double szz = sum[2, 2];
+                double sxx = sumRotated[0, 0];
+                double sxy = sumRotated[0, 1];
+                double sxz = sumRotated[0, 2];
+                double syy = sumRotated[1, 1];
+                double syz = sumRotated[1, 2];
+                double szz = sumRotated[2, 2];
 
                 return new ResultStress(obj1._coordinateSystem, sxx, syy, szz, sxy, sxz, syz);
             }
         }
 
+
         public static ResultStress operator -(ResultStress obj1, ResultStress obj2)
         {
             if (obj1._coordinateSystem.Equals(obj2._coordinateSystem))
             {
-                double sxx = obj1._sxx - obj2._sxx;
-                double syy = obj1._syy - obj2._syy;
-                double szz = obj1._szz - obj2._szz;
-                double sxy = obj1._sxy - obj2._sxy;
-                double sxz = obj1._sxz - obj2._sxz;
-                double syz = obj1._syz - obj2._syz;
-
-                return new ResultStress(obj1._coordinateSystem, sxx, syy, szz, sxy, sxz, syz);
+                return new ResultStress(obj1._coordinateSystem, obj1._sxx - obj2._sxx, 
+                                                                obj1._syy - obj2._syy, 
+                                                                obj1._szz - obj2._szz, 
+                                                                obj1._sxy - obj2._sxy, 
+                                                                obj1._sxz - obj2._sxz,
+                                                                obj1._syz - obj2._syz);
             }
             else
             {
-                // TODO: rotazione stress, questo caso non è giusto
-                var obj2V1toObj1 = obj1._coordinateSystem.ToLocal(obj2._coordinateSystem.V1);
-                var obj2V2toObj1 = obj1._coordinateSystem.ToLocal(obj2._coordinateSystem.V2);
+                // prendo tensori rotati nel globale
+                // li sommo
+                // li ruoto nel sistema obj1
 
-                var cs2 = new CoordinateSystem(obj1._coordinateSystem.Origin, obj2V1toObj1, obj2V2toObj1);
+                var sumRotated = obj1._coordinateSystem.TrfMatrix.Resize(3, 3).Transpose() * (obj1.GetTensor(true) - obj2.GetTensor(true)) * obj1._coordinateSystem.TrfMatrix.Resize(3, 3);
 
-                Matrix<double> stressRotated = cs2.TrfMatrix.Resize(3, 3) * obj2.GetTensor() * cs2.TrfMatrix.Resize(3, 3).Transpose();
-
-                var difference = obj1.GetTensor()  - stressRotated;
-
-                double sxx = difference[0, 0];
-                double sxy = difference[0, 1];
-                double sxz = difference[0, 2];
-                double syy = difference[1, 1];
-                double syz = difference[1, 2];
-                double szz = difference[2, 2];
-
-                return new ResultStress(obj1._coordinateSystem, sxx, syy, szz, sxy, sxz, syz);
+                return new ResultStress(obj1._coordinateSystem, sumRotated[0, 0], sumRotated[1, 1], sumRotated[2, 2], sumRotated[0, 1], sumRotated[0, 2], sumRotated[1, 2]);
             }
+        }
+
+
+        /// <returns>This will produce the multipltication of <paramref name="obj1"/> Tensor in global coordinate by <paramref name="matrix"/>. M * T * M^t</returns>
+        public static ResultStress operator *(ResultStress obj1, Matrix<double> matrix)
+        {
+            if (matrix.Rank() != 3)
+            {
+                throw new NotSupportedException();
+            }
+
+            var rotated = matrix * obj1.GetTensor(true) * matrix.Transpose();
+
+            return new ResultStress(obj1._coordinateSystem, rotated[0, 0], rotated[1, 1], rotated[2, 2], rotated[0, 1], rotated[0, 2], rotated[1, 2]);
         }
 
         #endregion

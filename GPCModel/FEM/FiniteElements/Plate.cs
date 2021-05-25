@@ -96,6 +96,18 @@ namespace GPC.Model.FEM.FiniteElements
             base.AddResult(result);
         }
 
+        public override void AddResult(FiniteElementResult result)
+        {
+            if (result is PlateResult)
+            {
+                base.AddResult(result);
+            }
+            else
+            {
+                throw new ArgumentException();
+            }
+        }
+
         protected override mnl.Vector<double> BuildFLocalCoord()
         {
             throw new NotImplementedException();

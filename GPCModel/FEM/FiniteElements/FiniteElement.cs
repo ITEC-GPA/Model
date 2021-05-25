@@ -164,7 +164,7 @@ namespace GPC.Model.FEM.FiniteElements
             throw new Exception("ottimizzare questa funzione");
         }
 
-        public void AddResult(FiniteElementResult result)
+        public virtual void AddResult(FiniteElementResult result)
         {
             if (result != null)
                 _results.Add(result);
