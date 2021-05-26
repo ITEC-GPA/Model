@@ -37,8 +37,8 @@ namespace GPC.Model.FEM.FiniteElements
         mnl.Matrix<double> _kLayer;
         mnl.Matrix<double> _kGlass;
 
-        Node[] _nodesFirstTransformed; //come localnodes ma per prova trasformazione coordinate 
-        Node[] _nodesSecondTransformed;
+        /*Node[] _nodesFirstTransformed; //come localnodes ma per prova trasformazione coordinate 
+        Node[] _nodesSecondTransformed;*/
         Func<double, double, mnl.Matrix<double>> _jacobXGlobalToXLocal;
 
         double[] _length = new double[4];
@@ -81,7 +81,11 @@ namespace GPC.Model.FEM.FiniteElements
             //displacement w il local coordinate system can be in X,Y,Z in global local coordinate system
             DOF.Add(Solver.DOF.RX);
             DOF.Add(Solver.DOF.RY);
-            //DOF.Add(Solver.DOF.RZ);
+            DOF.Add(Solver.DOF.RZ);
+            //slippage
+            DOF.Add(Solver.DOF.DDX);
+            DOF.Add(Solver.DOF.DDY);
+            DOF.Add(Solver.DOF.DDZ);
 
             _hc = GetHc(h0, h1, h2); //(2.0 * h0 + h1 + h2) / 2.0; //eq. (14)
             _G0 = G0;
@@ -98,99 +102,29 @@ namespace GPC.Model.FEM.FiniteElements
         {
             //set local coordinate system
             _nodesLocal = Quad4Element.GetLocalNodes(_nodesGlobal, out _localCoordinateSystem);
-
-            if (_quadrilateral == true) {
-                _nodesSecondTransformed = new Node[4];
-                _nodesSecondTransformed[0] = new Node(0.0, 0.0, 0);
-                _nodesSecondTransformed[1] = new Node(2.0, 0.0, 0);
-                _nodesSecondTransformed[2] = new Node(2.0, 2.0, 0);
-                _nodesSecondTransformed[3] = new Node(0.0, 2.0, 0);
-
-                /*double x = 0;
-                double y = 0;
-                double X = FEMUtilities.GetLocalCoordinate2D("x", x, y, Quad4Element.GetShapeFunction, _nodesGlobal);
-                double Y = FEMUtilities.GetLocalCoordinate2D("y", x, y, Quad4Element.GetShapeFunction, _nodesGlobal);
-
-                Console.WriteLine("x=" + x + " y=" + y);
-                Console.WriteLine("goes to X=" + X + " Y=" + Y);*/
-
-            }
             
             Vector3d globalX = new Vector3d(1, 0, 0);
             Vector3d globalY = new Vector3d(0, 1, 0);
             Vector3d globalZ = new Vector3d(0, 0, 1);
 
-            if (_quadrilateral == false)
-            {
-                if (_localCoordinateSystem.V1 != globalX || _localCoordinateSystem.V2 != globalY || _localCoordinateSystem.V3 != globalZ)
-                {
-                    Console.WriteLine("Nodi coordinate globali:");
-                    Console.WriteLine(_nodesGlobal[0].Position);
-                    Console.WriteLine(_nodesGlobal[1].Position);
-                    Console.WriteLine(_nodesGlobal[2].Position);
-                    Console.WriteLine(_nodesGlobal[3].Position);
-                    throw new NotImplementedException("Elemento finito al momento funzionante solo con assi locali coincidenti con assi globali");
-                }
+            double X0 = _nodesGlobal[0].Position.X;
+            double Y0 = _nodesGlobal[0].Position.Y;
+            double Z0 = _nodesGlobal[0].Position.Z;
 
-                _length[0] = _nodesLocal[1].Position.X - _nodesLocal[0].Position.X; //_lx = _localNodes[1].Position.X - _localNodes[0].Position.X;
-                _length[3] = _nodesLocal[3].Position.Y - _nodesLocal[0].Position.Y; //_ly = _localNodes[3].Position.Y - _localNodes[0].Position.Y;
+            /*_nodesFirstTransformed = new Node[4];
+            _nodesFirstTransformed[0] = new Node(_nodesGlobal[0].Position.X - X0, _nodesGlobal[0].Position.Y - Y0, _nodesGlobal[0].Position.Z - Z0);
+            _nodesFirstTransformed[1] = new Node(_nodesGlobal[1].Position.X - X0, _nodesGlobal[1].Position.Y - Y0, _nodesGlobal[1].Position.Z - Z0);
+            _nodesFirstTransformed[2] = new Node(_nodesGlobal[2].Position.X - X0, _nodesGlobal[2].Position.Y - Y0, _nodesGlobal[2].Position.Z - Z0);
+            _nodesFirstTransformed[3] = new Node(_nodesGlobal[3].Position.X - X0, _nodesGlobal[3].Position.Y - Y0, _nodesGlobal[3].Position.Z - Z0);*/
 
-                #region ControlliGeometrici
-                if (_length[0] <= 0 || _length[3] <= 0 /*_lx <= 0 || _ly <= 0*/)
-                {
-                    throw new Exception("lx or ly <= 0!");
-                }
-
-                _length[2] = _nodesLocal[2].Position.X - _nodesLocal[3].Position.X; //lx2
-                _length[1] = _nodesLocal[2].Position.Y - _nodesLocal[1].Position.Y; //ly2
-
-                if (_length[0] != _length[2]) //lx2 != _lx
-                {
-                    throw new Exception("Elemento finito funziona per elementi non rettangolari?");
-                }
-
-                if (_length[1] != _length[3]) //ly2 != _ly
-                {
-                    throw new Exception("Elemento finito funziona per elementi non rettangolari?");
-                }
-                #endregion
-            }
-            else
-            {
-                double X0 = _nodesGlobal[0].Position.X;
-                double Y0 = _nodesGlobal[0].Position.Y;
-                double Z0 = _nodesGlobal[0].Position.Z;
-
-                _nodesFirstTransformed = new Node[4];
-                _nodesFirstTransformed[0] = new Node(_nodesGlobal[0].Position.X - X0, _nodesGlobal[0].Position.Y - Y0, _nodesGlobal[0].Position.Z - Z0);
-                _nodesFirstTransformed[1] = new Node(_nodesGlobal[1].Position.X - X0, _nodesGlobal[1].Position.Y - Y0, _nodesGlobal[1].Position.Z - Z0);
-                _nodesFirstTransformed[2] = new Node(_nodesGlobal[2].Position.X - X0, _nodesGlobal[2].Position.Y - Y0, _nodesGlobal[2].Position.Z - Z0);
-                _nodesFirstTransformed[3] = new Node(_nodesGlobal[3].Position.X - X0, _nodesGlobal[3].Position.Y - Y0, _nodesGlobal[3].Position.Z - Z0);
-
-                double XP1 = FEMUtilities.GetLocalCoordinate2D("x", -1, -1, Quad4Element.GetShapeFunction, _nodesFirstTransformed);
-                double XP2 = FEMUtilities.GetLocalCoordinate2D("x", 1, -1, Quad4Element.GetShapeFunction, _nodesFirstTransformed);
-                double XP3 = FEMUtilities.GetLocalCoordinate2D("x", 1, 1, Quad4Element.GetShapeFunction, _nodesFirstTransformed);
-                double XP4 = FEMUtilities.GetLocalCoordinate2D("x", -1, 1, Quad4Element.GetShapeFunction, _nodesFirstTransformed);
-
-                double YP1 = FEMUtilities.GetLocalCoordinate2D("y", -1, -1, Quad4Element.GetShapeFunction, _nodesFirstTransformed);
-                double YP2 = FEMUtilities.GetLocalCoordinate2D("y", 1, -1, Quad4Element.GetShapeFunction, _nodesFirstTransformed);
-                double YP3 = FEMUtilities.GetLocalCoordinate2D("y", 1, 1, Quad4Element.GetShapeFunction, _nodesFirstTransformed);
-                double YP4 = FEMUtilities.GetLocalCoordinate2D("y", -1, 1, Quad4Element.GetShapeFunction, _nodesFirstTransformed);
-
-                _length[0] = Math.Sqrt(Math.Pow(XP2 - XP1, 2.0) + Math.Pow(YP2 - YP1, 2.0));
-                _length[1] = Math.Sqrt(Math.Pow(XP3 - XP2, 2.0) + Math.Pow(YP3 - YP2, 2.0));
-                _length[2] = Math.Sqrt(Math.Pow(XP4 - XP3, 2.0) + Math.Pow(YP4 - YP3, 2.0));
-                _length[3] = Math.Sqrt(Math.Pow(XP1 - XP4, 2.0) + Math.Pow(YP1 - YP4, 2.0));
-            }
+            _length[0] = _nodesLocal[0].Position.DistanceTo(_nodesLocal[1].Position);
+            _length[1] = _nodesLocal[1].Position.DistanceTo(_nodesLocal[2].Position);
+            _length[2] = _nodesLocal[2].Position.DistanceTo(_nodesLocal[3].Position);
+            _length[3] = _nodesLocal[3].Position.DistanceTo(_nodesLocal[0].Position);
 
             //calculation of matrix for transformation from Local to Global coordinates
             #region TransformationMatrixLocalCoordinatesToGlobalCoordinates
-            //TODO: to be checked
             /*mnl.Matrix<double> dofGlobalToLocalTranspose = mnl.Matrix<double>.Build.Dense(24, 12);
-
-            Vector3d globalX = new Vector3d(1.0, 0.0, 0.0);
-            Vector3d globalY = new Vector3d(0.0, 1.0, 0.0);
-            Vector3d globalZ = new Vector3d(0.0, 0.0, 1.0);
 
             Vector3d localX = LocalCoordinateSystem.V1;
             Vector3d localY = LocalCoordinateSystem.V2;
@@ -274,9 +208,6 @@ namespace GPC.Model.FEM.FiniteElements
 #endregion
 
             #region matricesD
-            /*double E = ((PlateProperty)_property).GetE();
-            double ni = ((PlateProperty)_property).GetNi();*/
-
             #region Ds - INTERLAYER
             _Ds = GetDs(_G0, _h0, _hc);
             #endregion
@@ -290,98 +221,74 @@ namespace GPC.Model.FEM.FiniteElements
             //calculation of kelement using gauss quadrature
             _kElementLocalCoord = mnl.Matrix<double>.Build.Dense(20, 20);
 
-            _jacobXGlobalToXLocal = FEMUtilities.J2D(Quad4Element.GetdNdCsi, Quad4Element.GetdNdEta, _nodesFirstTransformed); //Transform X and Y in x and y
             mnl.Matrix<double> fKLayer(double csi, double eta)
             {
-                if (_quadrilateral == true)
-                {
-                    double x = FEMUtilities.GetLocalCoordinate2D("x", csi, eta, Quad4Element.GetShapeFunction, _nodesSecondTransformed);
-                    double y = FEMUtilities.GetLocalCoordinate2D("y", csi, eta, Quad4Element.GetShapeFunction, _nodesSecondTransformed);
+                mnl.Matrix<double> Bs = GetBs(csi, eta);
 
-                    double X = FEMUtilities.GetLocalCoordinate2D("x", x - 1.0, y - 1.0, Quad4Element.GetShapeFunction, _nodesFirstTransformed);
-                    double Y = FEMUtilities.GetLocalCoordinate2D("y", x - 1.0, y - 1.0, Quad4Element.GetShapeFunction, _nodesFirstTransformed);
-
-                    mnl.Matrix<double> Bs = GetBs(X, Y);
-
-                    return Bs.Transpose() * _Ds * Bs * _jacobXGlobalToXLocal(x, y).Determinant();
-                }
-                else
-                {
-                    /*double x = FEMUtilities.GetLocalCoordinate2D("x", csi, eta, Quad4Element.GetShapeFunction, _nodesLocal);
-                    double y = FEMUtilities.GetLocalCoordinate2D("y", csi, eta, Quad4Element.GetShapeFunction, _nodesLocal);*/
-
-                    mnl.Matrix<double> Bs = GetBs(csi, eta); // mnl.Matrix<double> Bs = GetBs(x, y);
-
-                    return Bs.Transpose() * _Ds * Bs;
-                }
+                return Bs.Transpose() * _Ds * Bs;
             }
 
             mnl.Matrix<double> fKGlass(double csi, double eta)
             {
-                //usata solo per prova è possibile cancellarla al termine
-                double f(double input1, double input2)
-                {
-                    return 1.0 + 0.0 * Math.Pow(input1, 1.0) + 0.0 * Math.Pow(input2, 1.0);
-                }
+                mnl.Matrix<double> Bg = GetBg(csi, eta);
 
-                if (_quadrilateral == true)
-                {
-                    double x = FEMUtilities.GetLocalCoordinate2D("x", csi, eta, Quad4Element.GetShapeFunction, _nodesSecondTransformed);
-                    double y = FEMUtilities.GetLocalCoordinate2D("y", csi, eta, Quad4Element.GetShapeFunction, _nodesSecondTransformed);
-
-                    double X = FEMUtilities.GetLocalCoordinate2D("x", x - 1.0, y - 1.0, Quad4Element.GetShapeFunction, _nodesFirstTransformed);
-                    double Y = FEMUtilities.GetLocalCoordinate2D("y", x - 1.0, y - 1.0, Quad4Element.GetShapeFunction, _nodesFirstTransformed);
-
-                    /*Console.WriteLine("csi = " + csi + " eta = " + eta);
-                    Console.WriteLine("x = " + x + " y = " + y);
-                    Console.WriteLine("X = " + X + " Y = " + Y);
-                    Console.WriteLine("detJ X to x = " + _jacobXGlobalToXLocal(x, y).Determinant());*/
-
-                    mnl.Matrix<double> Bg = GetBg(X, Y);
-
-                    return Bg.Transpose() * _Dg * Bg * _jacobXGlobalToXLocal(x, y).Determinant();
-
-                    /*mnl.Matrix<double> Bg = mnl.Matrix<double>.Build.Dense(1,1);
-                    Bg[0,0] = f(X,Y);
-                    Console.WriteLine("f(X,Y) = "+Bg[0, 0]);
-
-                    return Bg * jacobXGlobalToXLocal(x, y).Determinant();*/
-                } else
-                {
-                    /*double x = FEMUtilities.GetLocalCoordinate2D("x", csi, eta, Quad4Element.GetShapeFunction, _nodesLocal);
-                    double y = FEMUtilities.GetLocalCoordinate2D("y", csi, eta, Quad4Element.GetShapeFunction, _nodesLocal);*/
-
-                    mnl.Matrix<double> Bg = GetBg(csi, eta); //mnl.Matrix<double> Bg = GetBg(x, y);
-
-                    return Bg.Transpose() * _Dg * Bg;
-
-                    /*mnl.Matrix<double> Bg = mnl.Matrix<double>.Build.Dense(1, 1);
-                    Bg[0, 0] = f(x,y);*/
-                    //Console.WriteLine("TLG classic f(x=" + x + ",y=" + y + ")=" + Bg[0, 0]);
-
-                    //return Bg;
-                }
+                return Bg.Transpose() * _Dg * Bg; 
             }
 
-            Func<double, double, mnl.Matrix<double>> jacob;
-            if (_quadrilateral == false)
-            {
-                jacob = FEMUtilities.J2D(Quad4Element.GetdNdCsi, Quad4Element.GetdNdEta, _nodesLocal);
-            } else
-            {
-                jacob = FEMUtilities.J2D(Quad4Element.GetdNdCsi, Quad4Element.GetdNdEta, _nodesSecondTransformed);
-            }
-
+            Func<double, double, mnl.Matrix<double>> jacob = FEMUtilities.J2D(Quad4Element.GetdNdCsi, Quad4Element.GetdNdEta, _nodesLocal);
+            
             _kLayer = GaussIntegration.IntegrationQuadrilateral(fKLayer, jacob, 4); // 16 è valore corretto
             _kGlass = GaussIntegration.IntegrationQuadrilateral(fKGlass, jacob, 4); // 16 è valore corretto
 
-            _kElementLocalCoord = _kLayer + _kGlass;
+            mnl.Matrix<double> UnorderedKElementLocalCoord = _kLayer + _kGlass;
 
-            /*Console.WriteLine("length");
-            Console.WriteLine(_length[0]);
-            Console.WriteLine(_length[1]);
-            Console.WriteLine(_length[2]);
-            Console.WriteLine(_length[3]);*/
+            //riordino gradi di libertà per trasformazione in coordinate globali e assemblaggio
+            Solver.DOF[] dofNode = new Solver.DOF[5];
+            dofNode[0] = Solver.DOF.DDX;
+            dofNode[1] = Solver.DOF.DDY;
+            dofNode[2] = Solver.DOF.DZ;
+            dofNode[3] = Solver.DOF.RX;
+            dofNode[4] = Solver.DOF.RY;
+
+            Dictionary<Tuple<string, string>, Tuple<int, int>> originale = new Dictionary<Tuple<string, string>, Tuple<int, int>>();
+            for (int ni = 0; ni < _nodesLocal.Count(); ni++)
+            {
+                for (int nj = 0; nj < _nodesLocal.Count(); nj++)
+                {
+                    for (int i = 0; i < dofNode.Length; i++)
+                    {
+                        for (int j = 0; j < dofNode.Length; j++)
+                        {
+                            originale.Add(new Tuple<string, string>(ni + " " + dofNode[i].ToString(), nj + " " + dofNode[j].ToString()), new Tuple<int, int>(ni * 5 + i, nj * 5 + j));
+                        }
+                    }
+                }
+            }
+
+            Solver.DOF[] orderedDofNode = new Solver.DOF[5];
+            orderedDofNode[0] = Solver.DOF.DZ;
+            orderedDofNode[1] = Solver.DOF.RX;
+            orderedDofNode[2] = Solver.DOF.RY;
+            orderedDofNode[3] = Solver.DOF.DDX;
+            orderedDofNode[4] = Solver.DOF.DDY;
+
+            for (int ni = 0; ni < _nodesLocal.Count(); ni++)
+            {
+                for (int nj = 0; nj < _nodesLocal.Count(); nj++)
+                {
+                    for (int i = 0; i < orderedDofNode.Length; i++)
+                    {
+                        for (int j = 0; j < orderedDofNode.Length; j++)
+                        {
+                            var position = originale[new Tuple<string, string>(ni + " " + orderedDofNode[i].ToString(), nj + " " + orderedDofNode[j].ToString())];
+                            Console.WriteLine(ni + " " + orderedDofNode[i].ToString() +" " + nj + " " + orderedDofNode[j].ToString() + " -> "  + position.Item1 + "," +position.Item2);
+                            _kElementLocalCoord[ni * 5 + i, nj * 5 + j] = UnorderedKElementLocalCoord[position.Item1, position.Item2];
+                        }
+                    }
+                }
+            }
+
+            //_kElementLocalCoord = UnorderedKElementLocalCoord;
         }
 
         /// <summary>
@@ -391,6 +298,7 @@ namespace GPC.Model.FEM.FiniteElements
         /// <returns></returns>
         protected override mnl.Vector<double> BuildFLocalCoord()
         {
+            //TODO: sistemare in caso funzionamento K
             mnl.Vector<double> fLocalCoord = mnl.Vector<double>.Build.Dense(5 * Nodes.Length);
             foreach (IPlateLoadCaseAttribute iAttribute in _attributesLoadCase)
             {
@@ -423,22 +331,10 @@ namespace GPC.Model.FEM.FiniteElements
 
                     mnl.Matrix<double> NtTraspQ(double csi, double eta)
                     {
-                        if (_quadrilateral == false)
-                        {
-                            double x = FEMUtilities.GetLocalCoordinate2D("x", csi, eta, Quad4Element.GetShapeFunction, _nodesLocal);
-                            double y = FEMUtilities.GetLocalCoordinate2D("y", csi, eta, Quad4Element.GetShapeFunction, _nodesLocal);
+                        double x = FEMUtilities.GetLocalCoordinate2D("x", csi, eta, Quad4Element.GetShapeFunction, _nodesLocal);
+                        double y = FEMUtilities.GetLocalCoordinate2D("y", csi, eta, Quad4Element.GetShapeFunction, _nodesLocal);
 
-                            return GetNMatrix(x, y).Transpose() * q;
-                        } else
-                        {
-                            double x = FEMUtilities.GetLocalCoordinate2D("x", csi, eta, Quad4Element.GetShapeFunction, _nodesSecondTransformed);
-                            double y = FEMUtilities.GetLocalCoordinate2D("y", csi, eta, Quad4Element.GetShapeFunction, _nodesSecondTransformed);
-
-                            double X = FEMUtilities.GetLocalCoordinate2D("x", x - 1.0, y - 1.0, Quad4Element.GetShapeFunction, _nodesFirstTransformed);
-                            double Y = FEMUtilities.GetLocalCoordinate2D("y", x - 1.0, y - 1.0, Quad4Element.GetShapeFunction, _nodesFirstTransformed);
-
-                            return GetNMatrix(x, y).Transpose() * q * _jacobXGlobalToXLocal(x, y).Determinant();
-                        }                       
+                        return GetNMatrix(x, y).Transpose() * q;                                            
                     }
 
                     var jacob = FEMUtilities.J2D(Quad4Element.GetdNdCsi, Quad4Element.GetdNdEta, _nodesLocal);
@@ -453,9 +349,10 @@ namespace GPC.Model.FEM.FiniteElements
             return fLocalCoord;
         }
 
+        //TODO: cancellare non serve, questo elemento ha 2 matrici B, Bs e Bg
         public override mnl.Matrix<double> GetB(double csi, double eta)
         {
-            return mnl.Matrix<double>.Build.Dense(24, 24);
+            return mnl.Matrix<double>.Build.Dense(20, 20);
         }
 
         /// <summary>
