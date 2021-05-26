@@ -19,6 +19,7 @@ namespace GPC.Model.Restrains
 
         private List<DofRestrain> _restrains;
 
+
         public FreedomCase FreedomCase => _freedomCases;
         public CoordinateSystem CoordinateSystem => _coordinateSystem;
         public List<DofRestrain> Restrains => _restrains;
@@ -56,13 +57,10 @@ namespace GPC.Model.Restrains
         public Point3d GetCoordinateSystemOrigin() => _coordinateSystem.Origin;
 
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <returns>Dictionary of each restrained DOF where <see cref="DofRestrain.Restrained"/> is <c>true</c></returns>
-        public Dictionary<LinearSolver.DOF, bool> GetRestrains()
+        /// <returns>Dictionary of each restrained DOF where <see cref="DofRestrain.Restrained"/> is <see langword="true"/></returns>
+        public Dictionary<Solver.DOF, bool> GetRestrains()
         {
-            Dictionary<LinearSolver.DOF, bool> kvp = new Dictionary<LinearSolver.DOF, bool>();
+            Dictionary<Solver.DOF, bool> kvp = new Dictionary<Solver.DOF, bool>();
 
             for (int i = 0; i < _restrains.Count; i++)
             {
@@ -82,13 +80,11 @@ namespace GPC.Model.Restrains
             return kvp;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
+
         /// <returns>Dictionary of each restrained DOF where <see cref="DofRestrain.Stiffness"/> is != 0</returns>
-        public Dictionary<LinearSolver.DOF, double> GetStiffnesses()
+        public Dictionary<Solver.DOF, double> GetStiffnesses()
         {
-            Dictionary<LinearSolver.DOF, double> kvp = new Dictionary<LinearSolver.DOF, double>();
+            Dictionary<Solver.DOF, double> kvp = new Dictionary<Solver.DOF, double>();
 
             for (int i = 0; i < _restrains.Count; i++)
             {
@@ -101,13 +97,11 @@ namespace GPC.Model.Restrains
             return kvp;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
+
         /// <returns>Dictionary of each restrained DOF where <see cref="DofRestrain.ImposedDisplacement"/> is != 0</returns>
-        public Dictionary<LinearSolver.DOF, double> GetImposedDisplacement()
+        public Dictionary<Solver.DOF, double> GetImposedDisplacement()
         {
-            Dictionary<LinearSolver.DOF, double> kvp = new Dictionary<LinearSolver.DOF, double>();
+            Dictionary<Solver.DOF, double> kvp = new Dictionary<Solver.DOF, double>();
 
             for (int i = 0; i < _restrains.Count; i++)
             {
@@ -132,25 +126,29 @@ namespace GPC.Model.Restrains
 
         public override bool Equals(object obj)
         {
-            if (obj is null || !(obj is GeometryRestrain))
+            if (obj is null)
                 return false;
 
-            GeometryRestrain objCasted = obj as GeometryRestrain;
+            if (ReferenceEquals(this, obj))
+                return true;
 
-            return (objCasted != null) && _freedomCases.Equals(objCasted._freedomCases) && 
-                                            _coordinateSystem.Equals(objCasted._coordinateSystem) &&
-                                            _restrains.SequenceEqual(objCasted._restrains) &&
-                                            base.Equals(obj);
+            return (obj is GeometryRestrain objCasted) && _freedomCases.Equals(objCasted._freedomCases) &&
+                                                          _coordinateSystem.Equals(objCasted._coordinateSystem) &&
+                                                          _restrains.SequenceEqual(objCasted._restrains) &&
+                                                          base.Equals(objCasted);
         }
 
 
         public override int GetHashCode()
         {
-            int hashCode = -23;
-            hashCode = hashCode * -17 + EqualityComparer<FreedomCase>.Default.GetHashCode(_freedomCases);
-            hashCode = hashCode * -17 + EqualityComparer<CoordinateSystem>.Default.GetHashCode(_coordinateSystem);
-            hashCode = hashCode * -17 + EqualityComparer<List<DofRestrain>>.Default.GetHashCode(_restrains);
-            return hashCode;
+            unchecked
+            {
+                int hashCode = -23;
+                hashCode = hashCode * -17 + EqualityComparer<FreedomCase>.Default.GetHashCode(_freedomCases);
+                hashCode = hashCode * -17 + EqualityComparer<CoordinateSystem>.Default.GetHashCode(_coordinateSystem);
+                hashCode = hashCode * -17 + EqualityComparer<List<DofRestrain>>.Default.GetHashCode(_restrains);
+                return hashCode; 
+            }
         }
     }
 }
