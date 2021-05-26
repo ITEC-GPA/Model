@@ -945,10 +945,6 @@ namespace GPC.Model.FEM
                         var plateIndex = _elements.Add(plate);
                         platesNewIndexMap[face.Id] = plateIndex;
 
-                        //elementIndexes.platesId[i] = plateIndex;
-
-                        //if (plateIndex != face.Id) // Se sono diversi vuol dire che esisteva già l'indice element .iD e la collection l'ha modificato
-                        //    platesNewIndexMap[face.Id] = plateIndex;
                     }
                     else
                     {
@@ -962,10 +958,6 @@ namespace GPC.Model.FEM
                         var plateIndex = _elements.Add(plate);
                         platesNewIndexMap[face.Id] = plateIndex;
 
-                        //elementIndexes.platesId[i] = plateIndex;
-
-                        //if (plateIndex != face.Id) // Se sono diversi vuol dire che esisteva già l'indice element .iD e la collection l'ha modificato
-                        //    platesNewIndexMap[face.Id] = plateIndex;
                     }
                 }
                 else
@@ -999,10 +991,7 @@ namespace GPC.Model.FEM
 
                         var brickIndex = _elements.Add(brick);
                         brickNewIndexMap[volume.Id] = brickIndex;
-                        //elementIndexes.volumesId[i] = brickIndex;
 
-                        //if (brickIndex != volume.Id) // Se sono diversi vuol dire che esisteva già l'indice element .iD e la collection l'ha modificato
-                        //    brickNewIndexMap[volume.Id] = brickIndex;
                     }
                     else
                         throw new NotImplementedException();
@@ -1024,10 +1013,6 @@ namespace GPC.Model.FEM
                         var brickIndex = _elements.Add(brick);
                         brickNewIndexMap[volume.Id] = brickIndex;
 
-                        //elementIndexes.volumesId[i] = brickIndex;
-
-                        //if (brickIndex != volume.Id) // Se sono diversi vuol dire che esisteva già l'indice element .iD e la collection l'ha modificato
-                        //    brickNewIndexMap[volume.Id] = brickIndex;
                     }
                     else
                         throw new NotImplementedException();
@@ -1043,9 +1028,9 @@ namespace GPC.Model.FEM
                     GeometryRestrain geometryRestrain = kvp.Key;
                     int[] indexes = kvp.Value;
 
-                    Dictionary<LinearSolver.DOF, bool> restrains = geometryRestrain.GetRestrains();
-                    Dictionary<LinearSolver.DOF, double> stiffneses = geometryRestrain.GetStiffnesses();
-                    Dictionary<LinearSolver.DOF, double> displacements = geometryRestrain.GetImposedDisplacement();
+                    Dictionary<Solver.DOF, bool> restrains = geometryRestrain.GetRestrains();
+                    Dictionary<Solver.DOF, double> stiffneses = geometryRestrain.GetStiffnesses();
+                    Dictionary<Solver.DOF, double> displacements = geometryRestrain.GetImposedDisplacement();
 
 
                     FreedomCase freedomCase;
