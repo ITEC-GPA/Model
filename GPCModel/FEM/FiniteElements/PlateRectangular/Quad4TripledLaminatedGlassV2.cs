@@ -13,7 +13,7 @@ namespace GPC.Model.FEM.FiniteElements
     /// A plate finite element for modelling of tripled laminated glass and comparison with other computational method
     /// Ivanov, Velchev, Georgiev, Sadowki - 2015
     /// </summary>
-    public class Quad4TripleLaminatedGlass : Plate
+    public class Quad4TripleLaminatedGlassV2 : Plate
     {
         public enum Glass
         {
@@ -64,7 +64,7 @@ namespace GPC.Model.FEM.FiniteElements
         /// <param name="EGlass">Glass elastic modulus</param>
         /// <param name="niGlass">poisson glass</param>
         /// <param name="quadrilateral">if false, used formulation of arrticle, if true, try to use transformation of coordinates</param>
-        public Quad4TripleLaminatedGlass(Node[] nodes, double G0, double h0, double h1, double h2, double EGlass, double niGlass, bool quadrilateral = false) : base(nodes)
+        public Quad4TripleLaminatedGlassV2(Node[] nodes, double G0, double h0, double h1, double h2, double EGlass, double niGlass, bool quadrilateral = false) : base(nodes)
         {
             //eq. 51 -> lista dof locali
              /* deltaU = slippage between the glass layer in local x direction 
@@ -81,7 +81,7 @@ namespace GPC.Model.FEM.FiniteElements
             //displacement w il local coordinate system can be in X,Y,Z in global local coordinate system
             DOF.Add(Solver.DOF.RX);
             DOF.Add(Solver.DOF.RY);
-            DOF.Add(Solver.DOF.RZ);
+            //DOF.Add(Solver.DOF.RZ);
 
             _hc = GetHc(h0, h1, h2); //(2.0 * h0 + h1 + h2) / 2.0; //eq. (14)
             _G0 = G0;
@@ -265,7 +265,7 @@ namespace GPC.Model.FEM.FiniteElements
 #endregion
             _dofGlobalToLocal = dofGlobalToLocalTranspose.Transpose();*/
 
-            _dofGlobalToLocal = mnl.Matrix<double>.Build.DenseIdentity(24); //TODO: aggiornare
+            _dofGlobalToLocal = mnl.Matrix<double>.Build.DenseIdentity(20); //TODO: aggiornare
 
                 /*Console.WriteLine("dofGlobalToLocalTranspose.");
                     * FemUtilites.WriteMatrix(_dofGlobalToLocal);
@@ -288,7 +288,7 @@ namespace GPC.Model.FEM.FiniteElements
             #endregion
 
             //calculation of kelement using gauss quadrature
-            _kElementLocalCoord = mnl.Matrix<double>.Build.Dense(24, 24);
+            _kElementLocalCoord = mnl.Matrix<double>.Build.Dense(20, 20);
 
             _jacobXGlobalToXLocal = FEMUtilities.J2D(Quad4Element.GetdNdCsi, Quad4Element.GetdNdEta, _nodesFirstTransformed); //Transform X and Y in x and y
             mnl.Matrix<double> fKLayer(double csi, double eta)
@@ -307,10 +307,10 @@ namespace GPC.Model.FEM.FiniteElements
                 }
                 else
                 {
-                    double x = FEMUtilities.GetLocalCoordinate2D("x", csi, eta, Quad4Element.GetShapeFunction, _nodesLocal);
-                    double y = FEMUtilities.GetLocalCoordinate2D("y", csi, eta, Quad4Element.GetShapeFunction, _nodesLocal);
+                    /*double x = FEMUtilities.GetLocalCoordinate2D("x", csi, eta, Quad4Element.GetShapeFunction, _nodesLocal);
+                    double y = FEMUtilities.GetLocalCoordinate2D("y", csi, eta, Quad4Element.GetShapeFunction, _nodesLocal);*/
 
-                    mnl.Matrix<double> Bs = GetBs(x, y);
+                    mnl.Matrix<double> Bs = GetBs(csi, eta); // mnl.Matrix<double> Bs = GetBs(x, y);
 
                     return Bs.Transpose() * _Ds * Bs;
                 }
@@ -348,10 +348,10 @@ namespace GPC.Model.FEM.FiniteElements
                     return Bg * jacobXGlobalToXLocal(x, y).Determinant();*/
                 } else
                 {
-                    double x = FEMUtilities.GetLocalCoordinate2D("x", csi, eta, Quad4Element.GetShapeFunction, _nodesLocal);
-                    double y = FEMUtilities.GetLocalCoordinate2D("y", csi, eta, Quad4Element.GetShapeFunction, _nodesLocal);
+                    /*double x = FEMUtilities.GetLocalCoordinate2D("x", csi, eta, Quad4Element.GetShapeFunction, _nodesLocal);
+                    double y = FEMUtilities.GetLocalCoordinate2D("y", csi, eta, Quad4Element.GetShapeFunction, _nodesLocal);*/
 
-                    mnl.Matrix<double> Bg = GetBg(x, y);
+                    mnl.Matrix<double> Bg = GetBg(csi, eta); //mnl.Matrix<double> Bg = GetBg(x, y);
 
                     return Bg.Transpose() * _Dg * Bg;
 
@@ -372,8 +372,8 @@ namespace GPC.Model.FEM.FiniteElements
                 jacob = FEMUtilities.J2D(Quad4Element.GetdNdCsi, Quad4Element.GetdNdEta, _nodesSecondTransformed);
             }
 
-            _kLayer = GaussIntegration.IntegrationQuadrilateral(fKLayer, jacob, 16); // 16 è valore corretto
-            _kGlass = GaussIntegration.IntegrationQuadrilateral(fKGlass, jacob, 16); // 16 è valore corretto
+            _kLayer = GaussIntegration.IntegrationQuadrilateral(fKLayer, jacob, 4); // 16 è valore corretto
+            _kGlass = GaussIntegration.IntegrationQuadrilateral(fKGlass, jacob, 4); // 16 è valore corretto
 
             _kElementLocalCoord = _kLayer + _kGlass;
 
@@ -391,7 +391,7 @@ namespace GPC.Model.FEM.FiniteElements
         /// <returns></returns>
         protected override mnl.Vector<double> BuildFLocalCoord()
         {
-            mnl.Vector<double> fLocalCoord = mnl.Vector<double>.Build.Dense(6 * Nodes.Length);
+            mnl.Vector<double> fLocalCoord = mnl.Vector<double>.Build.Dense(5 * Nodes.Length);
             foreach (IPlateLoadCaseAttribute iAttribute in _attributesLoadCase)
             {
                 if (iAttribute is PlatePressureAttribute)
@@ -478,13 +478,13 @@ namespace GPC.Model.FEM.FiniteElements
         /// eq. 35 computed for all nodes
         /// </summary>
         /// <returns></returns>
-        internal mnl.Matrix<double> GetBs(double x, double y)
+        internal mnl.Matrix<double> GetBs(double csi, double eta)
         {
             mnl.Matrix<double> Bs = mnl.Matrix<double>.Build.Dense(4, 0);
             for (int indexNode = 1; indexNode <= 4; indexNode++)
             {
 
-                mnl.Matrix<double> bsNode = GetBsi(indexNode, x, y);
+                mnl.Matrix<double> bsNode = GetBsi(indexNode, csi, eta);
 
                 Bs = Bs.Append(bsNode);
             }
@@ -496,7 +496,7 @@ namespace GPC.Model.FEM.FiniteElements
         /// eq. 48 computed for all nodes
         /// </summary>
         /// <returns></returns>
-        internal mnl.Matrix<double> GetBg(double x, double y)
+        internal mnl.Matrix<double> GetBg(double csi, double eta)
         {
             mnl.Matrix<double> Bg = mnl.Matrix<double>.Build.Dense(6, 0);
             for (int indexNode = 1; indexNode <= 4; indexNode++)
@@ -504,7 +504,7 @@ namespace GPC.Model.FEM.FiniteElements
 #if DEBUG
                 //Console.WriteLine("GetBg: x = " + x + " y = " + y);
 #endif
-                mnl.Matrix<double> bgNode = GetBgi(indexNode, x, y);
+                mnl.Matrix<double> bgNode = GetBgi(indexNode, csi, eta);
                 Bg = Bg.Append(bgNode);
             }
             return Bg;
@@ -1183,14 +1183,56 @@ namespace GPC.Model.FEM.FiniteElements
         /// <param name="x"></param>
         /// <param name="y"></param>
         /// <returns></returns>
-        internal mnl.Matrix<double> GetBsi(int indexNode, double x, double y)
+        internal mnl.Matrix<double> GetBsi(int indexNode, double csi, double eta)
         {
-            mnl.Matrix<double> bs = mnl.Matrix<double>.Build.Dense(4, 6);
+            double x = FEMUtilities.GetLocalCoordinate2D("x", csi, eta, Utilities.Fem.LinearShapeFunctionQuad4.NaturalShapeFunction, _nodesLocal);
+            double y = FEMUtilities.GetLocalCoordinate2D("y", csi, eta, Utilities.Fem.LinearShapeFunctionQuad4.NaturalShapeFunction, _nodesLocal);
+
+            mnl.Matrix<double> bs = mnl.Matrix<double>.Build.Dense(4, 5);
             bs[0, 0] = GetN(indexNode, 1)(x, y);
 
             bs[1, 1] = GetN(indexNode, 2)(x, y);
 
-            bs[2, 2] = GetdNdx(indexNode, 3)(x, y);
+            Quad4DK el = new Quad4DK(_nodesGlobal);
+            el.SetProperty(new PlateProperty(new Materials.IsotropicFemMaterial(_EGlass, _niGlass, 0, 0), _h1, _h1, "")); //fake
+            el.BuildMatrix();
+
+            int index1 = 0, index2 = 0, index3 = 0;
+            switch (indexNode)
+            {
+                case 1:
+                    index1 = 1;
+                    index2 = 2;
+                    index3 = 3;
+                    break;
+                case 2:
+                    index1 = 4;
+                    index2 = 5;
+                    index3 = 6;
+                    break;
+                case 3:
+                    index1 = 7;
+                    index2 = 8;
+                    index3 = 9;
+                    break;
+                case 4:
+                    index1 = 10;
+                    index2 = 11;
+                    index3 = 12;
+                    break;
+            }
+
+            double c = -1.0;
+
+            bs[2, 2] = c * el.GetFunction(index1, "x")(csi, eta);
+            bs[2, 3] = c * el.GetFunction(index2, "x")(csi, eta);
+            bs[2, 4] = c * el.GetFunction(index3, "x")(csi, eta);
+
+            bs[3, 2] = c * el.GetFunction(index1, "y")(csi, eta);
+            bs[3, 3] = c * el.GetFunction(index2, "y")(csi, eta);
+            bs[3, 4] = c * el.GetFunction(index3, "y")(csi, eta);
+
+            /*bs[2, 2] = GetdNdx(indexNode, 3)(x, y);
             bs[2, 3] = GetdNdx(indexNode, 4)(x, y);
             bs[2, 4] = GetdNdx(indexNode, 5)(x, y);
             bs[2, 5] = GetdNdx(indexNode, 6)(x, y);
@@ -1198,7 +1240,7 @@ namespace GPC.Model.FEM.FiniteElements
             bs[3, 2] = GetdNdy(indexNode, 3)(x, y);
             bs[3, 3] = GetdNdy(indexNode, 4)(x, y);
             bs[3, 4] = GetdNdy(indexNode, 5)(x, y);
-            bs[3, 5] = GetdNdy(indexNode, 6)(x, y);
+            bs[3, 5] = GetdNdy(indexNode, 6)(x, y);*/
 
             return bs;
         }
@@ -1210,12 +1252,15 @@ namespace GPC.Model.FEM.FiniteElements
         /// <param name="x"></param>
         /// <param name="y"></param>
         /// <returns></returns>
-        internal mnl.Matrix<double> GetBgi(int indexNode, double x, double y)
+        internal mnl.Matrix<double> GetBgi(int indexNode, double csi, double eta)
         {
+            double x = FEMUtilities.GetLocalCoordinate2D("x", csi, eta, Utilities.Fem.LinearShapeFunctionQuad4.NaturalShapeFunction, _nodesLocal);
+            double y = FEMUtilities.GetLocalCoordinate2D("y", csi, eta, Utilities.Fem.LinearShapeFunctionQuad4.NaturalShapeFunction, _nodesLocal);
+
             double lx, ly;
             GetLxLy(indexNode, out lx, out ly);
 
-            mnl.Matrix<double> bg = mnl.Matrix<double>.Build.Dense(6, 6);
+            mnl.Matrix<double> bg = mnl.Matrix<double>.Build.Dense(6, 5);
             bg[0, 0] = GetdNdx(indexNode, 1)(x, y);
 
             bg[1, 1] = GetdNdy(indexNode, 2)(x, y);
@@ -1223,20 +1268,68 @@ namespace GPC.Model.FEM.FiniteElements
             bg[2, 0] = GetdNdy(indexNode, 1)(x, y);
             bg[2, 1] = GetdNdx(indexNode, 2)(x, y);
 
-            bg[3, 2] = -GetdNdx2(indexNode, 3)(x, y);
-            bg[3, 3] = -GetdNdx2(indexNode, 4)(x, y);
-            bg[3, 4] = -GetdNdx2(indexNode, 5)(x, y);
-            bg[3, 5] = -GetdNdx2(indexNode, 6)(x, y);
+            Quad4DK el = new Quad4DK(_nodesGlobal);
+            el.SetProperty(new PlateProperty(new Materials.IsotropicFemMaterial(_EGlass, _niGlass, 0, 0), _h1, _h1, "")); //fake
+            el.BuildMatrix();
 
-            bg[4, 2] = -GetdNdy2(indexNode, 3)(x, y);
-            bg[4, 3] = -GetdNdy2(indexNode, 4)(x, y);
-            bg[4, 4] = -GetdNdy2(indexNode, 5)(x, y);
-            bg[4, 5] = -GetdNdy2(indexNode, 6)(x, y);
+            var invJacob = el.GetInvJacobian(csi, eta);
 
-            bg[5, 2] = -2.0 * GetdNdxdy(indexNode, 3)(x, y);
-            bg[5, 3] = -2.0 * GetdNdxdy(indexNode, 4)(x, y);
-            bg[5, 4] = -2.0 * GetdNdxdy(indexNode, 5)(x, y);
-            bg[5, 5] = -2.0 * GetdNdxdy(indexNode, 6)(x, y);
+            Dictionary<string, double> getValues(int index)
+            {
+                var dH1xDCsi = el.GetFunction(index, "x", "csi");
+                var dH1xDEta = el.GetFunction(index, "x", "eta");
+
+                var dH1yDCsi = el.GetFunction(index, "y", "csi");
+                var dH1yDEta = el.GetFunction(index, "y", "eta");
+
+                var dH1xDx = invJacob[0, 0] * dH1xDCsi(csi, eta) + invJacob[0, 1] * dH1xDEta(csi, eta);
+                var dH1yDy = invJacob[1, 0] * dH1yDCsi(csi, eta) + invJacob[1, 1] * dH1yDEta(csi, eta);
+                var dH1xDyPlusdH1yDx = invJacob[0, 0] * dH1yDCsi(csi, eta) + invJacob[0, 1] * dH1yDEta(csi, eta) + invJacob[1, 1] * dH1xDEta(csi, eta);
+
+                Dictionary<string, double> output = new Dictionary<string, double>();
+                output.Add("dx", dH1xDx);
+                output.Add("dy", dH1yDy);
+                output.Add("dxdy", dH1xDyPlusdH1yDx);
+
+                return output;
+            }
+
+            int index1 = 0, index2 = 0, index3 = 0;
+            switch (indexNode)
+            {
+                case 1:
+                    index1 = 1;
+                    index2 = 2;
+                    index3 = 3;
+                    break;
+                case 2:
+                    index1 = 4;
+                    index2 = 5;
+                    index3 = 6;
+                    break;
+                case 3:
+                    index1 = 7;
+                    index2 = 8;
+                    index3 = 9;
+                    break;
+                case 4:
+                    index1 = 10;
+                    index2 = 11;
+                    index3 = 12;
+                    break;
+            }
+
+            bg[3, 2] = getValues(index1)["dx"];
+            bg[3, 3] = getValues(index2)["dx"];
+            bg[3, 4] = getValues(index3)["dx"];
+
+            bg[4, 2] = getValues(index1)["dy"];
+            bg[4, 3] = getValues(index2)["dy"];
+            bg[4, 4] = getValues(index3)["dy"];
+
+            bg[5, 2] = getValues(index1)["dxdy"];
+            bg[5, 3] = getValues(index2)["dxdy"];
+            bg[5, 4] = getValues(index3)["dxdy"];
 
             return bg;
         }

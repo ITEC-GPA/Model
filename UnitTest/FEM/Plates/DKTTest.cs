@@ -387,5 +387,49 @@ namespace FemTest.SolverTest
             Assert.AreEqual(1, fem.F[14], 0.001);
             Assert.AreEqual(1, fem.F[20], 0.001);
         }
+
+        [TestMethod]
+        public void Quad4DKTestRobert()
+        {
+            double E = 12;
+            double ni = 0.0;
+            double t = 1;
+            Material mat = new SteelMaterial("mat", E, ni, 355, 510, 7850);
+            PlateProperty prop = new PlateProperty(mat.GetIsotropicFemMaterial(), t, t, "p");
+
+            Node[] nodesPlate1 = new Node[4];
+            nodesPlate1[0] = new Node(0.0, 0, 0, "1");
+            nodesPlate1[1] = new Node(+2.0, 0, 0, "2");
+            nodesPlate1[2] = new Node(+2.0, +2, 0, "3");
+            nodesPlate1[3] = new Node(0.0, +2, 0, "4");
+
+            Plate e0 = new Quad4DK(nodesPlate1);
+            e0.SetProperty(prop);
+
+            e0.BuildMatrix();
+            FEMUtilities.WriteMatrix(e0.KElementGlobalCoord);
+        }
+
+        [TestMethod]
+        public void Quad4DKTestRobert2()
+        {
+            double E = 12;
+            double ni = 0.0;
+            double t = 0.6299;
+            Material mat = new SteelMaterial("mat", E, ni, 355, 510, 7850);
+            PlateProperty prop = new PlateProperty(mat.GetIsotropicFemMaterial(), t, t, "p");
+
+            Node[] nodesPlate1 = new Node[4];
+            nodesPlate1[0] = new Node(0.0, 0, 0, "1");
+            nodesPlate1[1] = new Node(+2.0, 0, 0, "2");
+            nodesPlate1[2] = new Node(+2.0, +2, 0, "3");
+            nodesPlate1[3] = new Node(0.0, +2, 0, "4");
+
+            Plate e0 = new Quad4DK(nodesPlate1);
+            e0.SetProperty(prop);
+
+            e0.BuildMatrix();
+            FEMUtilities.WriteMatrix(e0.KElementGlobalCoord);
+        }
     }
 }

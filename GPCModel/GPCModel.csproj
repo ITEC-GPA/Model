@@ -45,8 +45,8 @@
     <Reference Include="GPCGeometry, Version=1.0.8.5, Culture=neutral, processorArchitecture=AMD64">
       <HintPath>..\packages\GPCGeometry.1.0.8.5\lib\net472\GPCGeometry.dll</HintPath>
     </Reference>
-    <Reference Include="GPCUtilities, Version=1.0.27.0, Culture=neutral, processorArchitecture=AMD64">
-      <HintPath>..\packages\GPCUtilities.1.0.27\lib\net472\GPCUtilities.dll</HintPath>
+    <Reference Include="GPCUtilities, Version=1.0.26.1, Culture=neutral, processorArchitecture=AMD64">
+      <HintPath>..\packages\GPCUtilities.1.0.26.1\lib\net472\GPCUtilities.dll</HintPath>
     </Reference>
     <Reference Include="MathNet.Numerics, Version=4.15.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\MathNet.Numerics.4.15.0\lib\net461\MathNet.Numerics.dll</HintPath>
@@ -112,6 +112,7 @@
     <Compile Include="FEM\FiniteElements\Beam.cs" />
     <Compile Include="FEM\FiniteElements\Brick\Hexaedron8.cs" />
     <Compile Include="FEM\FiniteElements\Beam\EulerBeam.cs" />
+    <Compile Include="FEM\FiniteElements\PlateRectangular\Quad4TripledLaminatedGlassV2.cs" />
     <Compile Include="FEM\FiniteElements\PlateRectangular\Quad4TripledLaminatedGlass.cs" />
     <Compile Include="FEM\FiniteElements\PlateTriangle\Tri3SBTEMembrane.cs" />
     <Compile Include="FEM\FiniteElements\PlateTriangle\Tri3TR3RDOFMembrane.cs" />

@@ -383,8 +383,8 @@ namespace GPC.Model.FEM
 
             
 #if DEBUG
-            Console.WriteLine("Vector F");
-            _F.ToList().ForEach(x => Console.WriteLine(x));
+            /*Console.WriteLine("Vector F");
+            _F.ToList().ForEach(x => Console.WriteLine(x));*/
 #endif
             
             #endregion
