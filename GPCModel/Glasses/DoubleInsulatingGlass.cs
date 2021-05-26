@@ -78,6 +78,7 @@ namespace GPC.Model.Glasses
 
         #endregion
 
+        /// <remarks>Order of the glass panels is from external to internal</remarks>
         public IGlassPackage[][] GetGlassPackage()
         {
 
