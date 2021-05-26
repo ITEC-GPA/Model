@@ -19,15 +19,8 @@ namespace GPC.Model.Sections
 
         internal ThinWall[] ThinWalls
         {
-            get
-            {
-                return _thinWalls;
-            }
-            set
-            {
-                _thinWalls = value;
-                SetMechanicalProperties();
-            }
+            get => _thinWalls;
+            set { _thinWalls = value; SetMechanicalProperties(); }
         }
 
         #endregion

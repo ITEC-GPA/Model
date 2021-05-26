@@ -2,17 +2,21 @@
 using System;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
+using System.Linq;
 
 namespace GPC.Model.Results
 {
     [Serializable]
     public sealed class BeamResult : FiniteElementResult, ISerializable, IEquatable<BeamResult>
     {
-
+        public double Length => ((ResultStation)Points.First()).ElementLenght;     // TODO: va sistemato
 
         public BeamResult(ILoadCase Case, IEnumerable<IBeamResult> result, IEnumerable<ResultStation> points)
             : base(Case, null, (IEnumerable<ResultType>)result, points)
         {
+            if (points.Select(i => i.ElementLenght).Distinct().Count() > 1)
+                throw new ArgumentException("All Result Station must have the same length");
+            // errore
 
         }
 

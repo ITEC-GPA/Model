@@ -80,6 +80,7 @@
     <Compile Include="Sections\Steel\ISteelSection.cs" />
     <Compile Include="Standards\Standard.cs" />
     <Compile Include="Standards\StandardASCE16.cs" />
+    <Compile Include="Standards\StandardCopSuos2011.cs" />
     <Compile Include="Standards\StandardEN16612.cs" />
     <Compile Include="Standards\StandardEN1990.cs" />
     <Compile Include="Combinations\Combination.cs" />
