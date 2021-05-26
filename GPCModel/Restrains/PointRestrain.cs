@@ -60,7 +60,7 @@ namespace GPC.Model.Restrains
 
             foreach (var dof in (Solver.DOF[])Enum.GetValues(typeof(Solver.DOF)))
             {
-                restrains.Add(new DofRestrain(dof, true));
+                restrains.Add(new DofRestrain(dof));
             }
 
             return new PointRestrain(point, freedomCase, coordinateSystem, restrains);                
@@ -73,9 +73,9 @@ namespace GPC.Model.Restrains
         {
             return new PointRestrain(point, freedomCase, coordinateSystem, new List<DofRestrain>
                                                                         {
-                                                                            new DofRestrain(Solver.DOF.DX, true),
-                                                                            new DofRestrain(Solver.DOF.DY, true),
-                                                                            new DofRestrain(Solver.DOF.DZ, true)
+                                                                            new DofRestrain(Solver.DOF.DX),
+                                                                            new DofRestrain(Solver.DOF.DY),
+                                                                            new DofRestrain(Solver.DOF.DZ)
                                                                         }
             );
         }

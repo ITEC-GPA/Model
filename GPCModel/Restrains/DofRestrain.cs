@@ -1,11 +1,7 @@
-﻿using System;
+﻿using GPC.Model.FEM;
+using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Runtime.Serialization;
-using System.Text;
-using System.Threading.Tasks;
-using GPC.Geometry;
-using GPC.Model.FEM;
 
 namespace GPC.Model.Restrains
 {
@@ -13,66 +9,59 @@ namespace GPC.Model.Restrains
     /// External restrain or stiffness applied to a Dof
     /// </summary>
     [Serializable]
-    public class DofRestrain : ModelObject
+    public sealed class DofRestrain : ModelObject, IEquatable<DofRestrain>
     {
-        #region Variables
 
-        private Solver.DOF _dof;
+        private readonly Solver.DOF _dof;
         private bool _restrained;
         private double _imposedDisplacement;
         private double _stiffness;
 
-        #endregion
-
-        #region Properties
-
         public Solver.DOF Dof => _dof;
 
-        public bool Restrained => _restrained;
+        /// <summary>
+        /// <see langword="True"/> if the <see cref="_dof"/> is restrained. 
+        /// <see langword="False"/> if there is a stiffness or imposed displacement
+        /// </summary>
+        public bool IsRestrained => _restrained;
+
+        public bool HasStiffness => _stiffness != 0;
+
+        public bool HasImposedDisplacement => _imposedDisplacement != 0;
 
         public double Stiffness => _stiffness;
 
         public double ImposedDisplacement => _imposedDisplacement;
 
-        #endregion
 
         #region Constructors
 
+        /// <summary>
+        /// Set the <paramref name="dof"/> as restrained
+        /// </summary>
         public DofRestrain(Solver.DOF dof)
-            : this(dof, false, 0, 0, Guid.NewGuid(), string.Empty)
+            : this(dof, true, 0, 0)
         {
+
         }
 
-
         /// <summary>
-        /// 
+        /// Set the stiffness associated to <paramref name="dof"/>
         /// </summary>
-        /// <param name="dof"></param>
-        /// <param name="stiffness"></param>
-        /// <remarks>If <paramref name="stiffness"/> is different than 0 then <see cref="Restrained"/> is true</remarks>
+        /// <remarks>If <paramref name="stiffness"/> is equal to zero then <see cref="DofRestrain.IsRestrained"/> is true</remarks>
         public DofRestrain(Solver.DOF dof, double stiffness)
-            : this(dof, stiffness != 0 ? true : false, 0, stiffness, Guid.NewGuid(), string.Empty)
+            : this(dof, stiffness == 0, 0, stiffness)
         {
+
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="dof"></param>
-        /// <param name="restrained"></param>
-        public DofRestrain(Solver.DOF dof, bool restrained)
-            : this(dof, restrained, 0, 0, Guid.NewGuid(), string.Empty)
+        private DofRestrain(Solver.DOF dof, bool restrained, double imposedDisplacement, double stiffness)
+            : base(Guid.NewGuid(), "")
         {
-        }
-
-
-        private DofRestrain(Solver.DOF dof, bool restrained, double imposedDisplacement, double stiffness, Guid guid, string name) 
-            : base(guid, name)
-        {
-            _dof = dof; 
+            _dof = dof;
             _restrained = restrained;
             _imposedDisplacement = imposedDisplacement;
-            _stiffness = stiffness;
+            _stiffness = stiffness < 0 ? throw new ArgumentException($"Stiffness is lower than zero: {stiffness}") : stiffness;
         }
 
         public DofRestrain(SerializationInfo info, StreamingContext context)
@@ -88,19 +77,43 @@ namespace GPC.Model.Restrains
 
         #region Public methods
 
+        /// <summary>
+        /// Set the displacement value
+        /// </summary>
+        /// <remarks>If <paramref name="value"/> is not zero, <see cref="_restrained"/> will be set to <see langword="False"/></remarks>
         public void SetImposedDisplacement(double value)
         {
             _imposedDisplacement = value;
+
+            if (value != 0)
+                _restrained = false;
         }
 
+        /// <summary>
+        /// Set the restrain condition
+        /// </summary>
+        /// <remarks>If <paramref name="condition"/> is true, <see cref="_imposedDisplacement"/> and <see cref="_stiffness"/> will be set to zero </remarks>
         public void SetRestrain(bool condition)
         {
             _restrained = condition;
+
+            if (condition)
+            {
+                _imposedDisplacement = 0;
+                _stiffness = 0;
+            }
         }
 
+        /// <summary>
+        /// Set the stiffness value
+        /// </summary>
+        /// <remarks>If <paramref name="value"/> is not zero, <see cref="_restrained"/> will be set to <see langword="False"/></remarks>
         public void SetStiffness(double value)
         {
             _stiffness = value;
+
+            if (value != 0)
+                _restrained = false;
         }
 
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
@@ -114,31 +127,58 @@ namespace GPC.Model.Restrains
 
         #endregion
 
-        #region Overrides
+        #region Equals, hascode, operators
 
-        /// <summary>
-        /// Tells if a DofRestrain is equal to another
-        /// </summary>
-        public override bool Equals(object obj)
+        public bool Equals(DofRestrain other)
         {
-            if (obj is null || !base.Equals(obj) || !(obj is DofRestrain dr))
+            if (other is null)
                 return false;
-            else
-                return _dof == dr._dof && _restrained == dr._restrained && _stiffness == dr._stiffness && _imposedDisplacement == dr._imposedDisplacement;
+
+            if (ReferenceEquals(this, other))
+                return true;
+
+            return _dof.Equals(other.Dof) && _restrained.Equals(other.IsRestrained)
+                                          && _stiffness.Equals(other.Stiffness)
+                                          && _imposedDisplacement.Equals(other.ImposedDisplacement)
+                                          && base.Equals(other);
         }
 
-        /// <summary>
-        /// Calculate the hash code
-        /// </summary>
+        public override bool Equals(object obj)
+        {
+            if (obj is DofRestrain)
+                return Equals(obj);
+
+            return false;
+        }
+
         public override int GetHashCode()
         {
-            int hashCode = base.GetHashCode();
-            hashCode = hashCode * 19 + EqualityComparer<Solver.DOF>.Default.GetHashCode(_dof);
-            hashCode = hashCode * 19 + EqualityComparer<bool>.Default.GetHashCode(_restrained);
-            hashCode = hashCode * 19 + EqualityComparer<double>.Default.GetHashCode(_stiffness);
-            hashCode = hashCode * 19 + EqualityComparer<double>.Default.GetHashCode(_imposedDisplacement);
+            unchecked
+            {
+                int hashCode = -17 * base.GetHashCode();
+                hashCode = hashCode * -19 + EqualityComparer<Solver.DOF>.Default.GetHashCode(_dof);
+                hashCode = hashCode * -19 + EqualityComparer<bool>.Default.GetHashCode(_restrained);
+                hashCode = hashCode * -19 + EqualityComparer<double>.Default.GetHashCode(_stiffness);
+                hashCode = hashCode * -19 + EqualityComparer<double>.Default.GetHashCode(_imposedDisplacement);
 
-            return hashCode;
+                return hashCode;
+            }
+        }
+
+        public static bool operator ==(DofRestrain obj1, DofRestrain obj2)
+        {
+            if (obj1 is null)
+            {
+                return obj2 is null;
+            }
+
+            return obj1.Equals(obj2);
+        }
+
+
+        public static bool operator !=(DofRestrain obj1, DofRestrain obj2)
+        {
+            return !(obj1 == obj2);
         }
 
         #endregion

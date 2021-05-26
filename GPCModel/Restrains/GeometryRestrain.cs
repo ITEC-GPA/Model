@@ -57,14 +57,14 @@ namespace GPC.Model.Restrains
         public Point3d GetCoordinateSystemOrigin() => _coordinateSystem.Origin;
 
 
-        /// <returns>Dictionary of each restrained DOF where <see cref="DofRestrain.Restrained"/> is <see langword="true"/></returns>
+        /// <returns>Dictionary of each restrained DOF where <see cref="DofRestrain.IsRestrained"/> is <see langword="true"/></returns>
         public Dictionary<Solver.DOF, bool> GetRestrains()
         {
             Dictionary<Solver.DOF, bool> kvp = new Dictionary<Solver.DOF, bool>();
 
             for (int i = 0; i < _restrains.Count; i++)
             {
-                if (_restrains[i].Restrained)
+                if (_restrains[i].IsRestrained)
                 {
                     if (kvp.ContainsKey(_restrains[i].Dof))
                     {
@@ -72,7 +72,7 @@ namespace GPC.Model.Restrains
                     }
                     else
                     {
-                        kvp[_restrains[i].Dof] = _restrains[i].Restrained;
+                        kvp[_restrains[i].Dof] = _restrains[i].IsRestrained;
                     }
                 }
             }

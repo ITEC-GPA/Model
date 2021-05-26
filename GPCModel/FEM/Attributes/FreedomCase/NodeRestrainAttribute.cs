@@ -70,7 +70,8 @@ namespace GPC.Model.FEM.Attributes
             throw new NotImplementedException();
         }
 
-        public void AddExternalRestrain(LinearSolver.DOF dof)
+
+        public void AddExternalRestrain(Solver.DOF dof)
         {
             if (_restrains.Where(i => i.Dof == dof).Count() > 0)
             {
@@ -78,11 +79,11 @@ namespace GPC.Model.FEM.Attributes
             }
             else
             {
-                _restrains.Add(new DofRestrain(dof, true));
+                _restrains.Add(new DofRestrain(dof));
             }
         }
 
-        public void AddImposedDisplacement(LinearSolver.DOF dof, double displacement)
+        public void AddImposedDisplacement(Solver.DOF dof, double displacement)
         {
             if (_restrains.Where(i => i.Dof == dof).Count() > 0)
             {
