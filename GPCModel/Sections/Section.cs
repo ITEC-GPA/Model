@@ -48,6 +48,8 @@ namespace GPC.Model.Sections
         protected double _jw;
         protected double _sx;
         protected double _sy;
+        protected double _j11;
+        protected double _j22;
 
         protected Point2d _shearCenter;
         protected Point2d _centroid;
@@ -94,6 +96,16 @@ namespace GPC.Model.Sections
         public double Jyy => _jyy;
 
         /// <summary>
+        /// The first moment of inertia around the 1st principal axes
+        /// </summary>
+        public double J11 => _j11;
+
+        /// <summary>
+        /// The first moment of inertia around the 2nd principal axes
+        /// </summary>
+        public double J22 => _j22;
+
+        /// <summary>
         /// The first moment of area around the X-axis
         /// </summary>
         public double Sx => _sx;
@@ -121,12 +133,12 @@ namespace GPC.Model.Sections
         /// <summary>
         /// The radius of gyration respect the X-axis
         /// </summary>
-        public double InertiaRadiusX => Math.Sqrt(Jxx / Area);
+        public double InertiaRadiusX => Math.Sqrt(J11 / Area);
 
         /// <summary>
         /// The radius of gyration respect the Y-axis
         /// </summary>
-        public double InertiaRadiusY => Math.Sqrt(Jyy / Area);
+        public double InertiaRadiusY => Math.Sqrt(J22 / Area);
 
         /// <summary>
         /// The type of the section (rolled or welded)
@@ -181,6 +193,8 @@ namespace GPC.Model.Sections
         /// <param name="formed">The formed types (cold formed or hot finished) - only for steel section</param>
         /// <param name="sectionType">The type of the section (Rolled or welded) - only for steel section</param>
         /// <exception cref="ArgumentException">If the input data are not correct</exception>
+        /// <remarks>Axis convention: X-axes is the Y-axes for Eurocode and Y-axes is the Z-axes for Eurocode
+        /// If the X-axes is principal, the first moment of inertia is J11, If the Y-axes is principal, the first moment of inertia is J22</remarks>
         public Section(Material material, double area, double sx, double sy, double j11, double j22, double jt, double jw, Point2d centroid, Point3d shearCenter, double angle, string name, 
                         FormedTypes formed = FormedTypes.ColdFormed, SectionTypes sectionType = SectionTypes.Rolled) 
             : base(name)
@@ -207,8 +221,8 @@ namespace GPC.Model.Sections
             _jw = info.GetDouble("Jw");
             _sx = info.GetDouble("Sx");
             _sy = info.GetDouble("Sy");
-            _jxx = info.GetDouble("J11");
-            _jyy = info.GetDouble("J22");
+            _j11 = info.GetDouble("J11");
+            _j22 = info.GetDouble("J22");
             _centroid = (Point2d)info.GetValue("Centroid", typeof(Point2d));
             _shearCenter = (Point2d)info.GetValue("ShearCenter", typeof(Point2d));
             _angleX1 = info.GetDouble("AngleX1");
@@ -269,8 +283,8 @@ namespace GPC.Model.Sections
             info.AddValue("Area", _area);
             info.AddValue("Jt", _jt);
             info.AddValue("Jw", _jw);
-            info.AddValue("J11", _jxx);
-            info.AddValue("J22", _jyy);
+            info.AddValue("J11", _j11);
+            info.AddValue("J22", _j22);
             info.AddValue("Centroid", _centroid, typeof(Point2d));
             info.AddValue("ShearCenter", _shearCenter, typeof(Point2d));
             info.AddValue("AngleX1", _angleX1);

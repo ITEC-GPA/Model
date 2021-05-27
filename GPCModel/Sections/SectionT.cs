@@ -95,22 +95,22 @@ namespace GPC.Model.Sections
 
         public double CalculateWelyLeft()
         {
-            return _jyy / DistanceXCentroidFromRight();
+            return J22 / DistanceXCentroidFromRight();
         }
 
         public double CalculateWelyRight()
         {
-            return _jyy / (_b - DistanceXCentroidFromRight());
+            return J22 / (_b - DistanceXCentroidFromRight());
         }
 
         public double CalculateWelxBottom()
         {
-            return _jxx / DistanceYCentroidFromBottom();
+            return J11 / DistanceYCentroidFromBottom();
         }
 
         public double CalculateWelxTop()
         {
-            return _jxx / (H - DistanceYCentroidFromBottom());
+            return J11 / (H - DistanceYCentroidFromBottom());
         }
 
         public double DistanceYCentroidFromBottom()

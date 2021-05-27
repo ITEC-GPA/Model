@@ -76,12 +76,12 @@ namespace GPC.Model.Sections
             return angle;
         }
 
-        public double CalculateJ11()
+        public override double CalculateJ11()
         {
             return (Jxx + Jyy) / 2.0 - 0.5 * Math.Sqrt(Math.Pow(Jxx - Jyy, 2.0) + 4.0 * CalculateJxy() * CalculateJxy());
         }
 
-        public double CalculateJ22()
+        public override double CalculateJ22()
         {
             return (Jxx + Jyy) / 2.0 + 0.5 * Math.Sqrt(Math.Pow(Jxx - Jyy, 2.0) + 4.0 * CalculateJxy() * CalculateJxy());
         }
@@ -141,7 +141,7 @@ namespace GPC.Model.Sections
             }
         }
 
-        public override double CalculateJxx()
+        public double CalculateJxx()
         {
             double jxx = 0;
             for (int i = 0; i < ThinWalls.Count(); i++)

@@ -72,8 +72,8 @@ namespace GPC.Model.Sections
         private void SetMechanicalProperties()
         {
             _area = CalculateArea();
-            _jxx = CalculateJ();
-            _jyy = CalculateJ();
+            _j11 = CalculateJ();
+            _j22 = CalculateJ();
             _jt = CalculateJt();
             _jw = CalculateJw();
             _centroid = CalculateCentroid();

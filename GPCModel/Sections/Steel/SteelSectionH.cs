@@ -51,14 +51,14 @@ namespace GPC.Model.Sections.Steel
         #endregion
 
 
-        public override double CalculateJxx()
+        public override double CalculateJ11()
         {
-            return base.CalculateJxx();     //+ CalculateAdditionaJxx()
+            return base.CalculateJ11();     //+ CalculateAdditionaJxx()
         }
 
-        public override double CalculateJyy()
+        public override double CalculateJ22()
         {
-            return base.CalculateJyy();     //+ CalculateAdditionaJyy()
+            return base.CalculateJ22();     //+ CalculateAdditionaJyy()
         }
 
         private double CalculateAdditionaJxx()

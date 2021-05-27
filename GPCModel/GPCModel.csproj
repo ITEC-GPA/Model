@@ -84,6 +84,7 @@
     <Compile Include="Standards\StandardEN16612.cs" />
     <Compile Include="Standards\StandardEN1990.cs" />
     <Compile Include="Combinations\Combination.cs" />
+    <Compile Include="Standards\StandardEn1993p11.cs" />
     <Compile Include="Standards\StandardUNIEN1990.cs" />
     <Compile Include="Elements\GhostElement.cs" />
     <Compile Include="FEM\Attributes\FreedomCase\BeamReleasesAttribute.cs" />

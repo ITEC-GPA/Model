@@ -64,8 +64,8 @@ namespace GPC.Model.Sections
         internal virtual void SetMechanicalProperties()
         {
             _centroid = CalculateCentroid();
-            _jxx = CalculateJxx();
-            _jyy = CalculateJyy();
+            _j11 = CalculateJ11();
+            _j22 = CalculateJ22();
             _jw = CalculateJw();
             _jt = CalculateJt();
             _shearCenter = CalculateShearCenter();
@@ -107,7 +107,7 @@ namespace GPC.Model.Sections
         /// Calculate the first moment of inertia respect the X-axis (the Y-axis for Eurocode)
         /// </summary>
         /// <returns></returns>
-        public virtual double CalculateJxx()
+        public virtual double CalculateJ11()
         {
             double j = 0;
             Point2d centroid = CalculateCentroid();
@@ -123,7 +123,7 @@ namespace GPC.Model.Sections
         /// Calculate the first moment of inertia respect the Y-axis (the Z-axis for Eurocode)
         /// </summary>
         /// <returns></returns>
-        public virtual double CalculateJyy()
+        public virtual double CalculateJ22()
         {
             double j = 0;
             Point2d centroid = CalculateCentroid();

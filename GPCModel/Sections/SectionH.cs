@@ -82,22 +82,22 @@ namespace GPC.Model.Sections
 
         public double CalculateWelyBottom()
         {
-            return _jyy / (LenghtBottomFlange - DistanceXCentroidFromRight());
+            return J22 / (LenghtBottomFlange - DistanceXCentroidFromRight());
         }
 
         public double CalculateWelyTop()
         {
-            return _jyy / (LenghtTopFlange - DistanceXCentroidFromRight());
+            return J22 / (LenghtTopFlange - DistanceXCentroidFromRight());
         }
 
         public double CalculateWelxBottom()
         {
-            return _jxx / DistanceYCentroidFromBottom();
+            return J11 / DistanceYCentroidFromBottom();
         }
 
         public double CalculateWelxTop()
         {
-            return _jxx / DistanceYCentroidFromTop();
+            return J11 / DistanceYCentroidFromTop();
         }
 
         private double DistanceYCentroidFromBottom()
