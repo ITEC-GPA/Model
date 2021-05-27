@@ -312,12 +312,11 @@ namespace GPC.Model.FEM
                 throw new ArgumentException($"'{nameof(name)}' cannot be null or whitespace.", nameof(name));
 
             Group group = new Group(name);
-            
+
             if (_groups.Add(group))
-            {
                 return group;
-            }
-            return null;
+            else
+                return _groups.GetElementByName(name);
         }
         
         public bool SetGroup(IEnumerable<FEMObject> elements, string groupName)
@@ -1007,8 +1006,9 @@ namespace GPC.Model.FEM
             BrickProperty brickProperty = null;
 
             Group group = null;
+
             // Gruppi
-            if (!string.IsNullOrEmpty(groupName))
+            if (!string.IsNullOrEmpty(groupName) && !string.IsNullOrWhiteSpace(groupName))
                 group = AddGroup(groupName);
 
             // Aggiorno la lista proprietà

@@ -31,7 +31,7 @@ namespace GPC.Model.FEM.Collections
         {
             lock (_locker)
             {
-                if (_ids.Contains(item.Id))
+                if (item.Id == ModelObjectId.IDUNASSIGNED || _ids.Contains(item.Id))
                 {
                     item.Id = ++_maxId;
                 }
