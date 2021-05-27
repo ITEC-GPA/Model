@@ -49,6 +49,9 @@ namespace GPC.Model.FEM
             return _groups.Contains(group);
         }
 
+        /// <summary>
+        /// This is an internal method, since only the femModel class can add a group to the femObject
+        /// </summary>
         internal bool AddGroup(Group group)
         {
             if (group is null)
@@ -58,6 +61,9 @@ namespace GPC.Model.FEM
             return true;
         }
 
+        /// <summary>
+        /// This is an internal method, since only the femModel class can add a group to the femObject
+        /// </summary>
         internal bool AddGroupRange(IEnumerable<Group> groups)
         {
             if (groups is null)
@@ -74,6 +80,9 @@ namespace GPC.Model.FEM
         }
 
 
+        /// <summary>
+        /// This is an internal method, since only the femModel class can set the id of the femObject
+        /// </summary>
         internal void SetId(int id)
         {
             // teoricamente questo metodo non serve più. Al momento esiste solo per retrocompatibilità
