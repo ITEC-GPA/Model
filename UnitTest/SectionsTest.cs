@@ -195,10 +195,10 @@ namespace ModelObjectTest
             Assert.AreEqual(h - 2 * tf, sec.Hinternal);
             Assert.AreEqual(Math.Abs(Jy / sec.J22) - 1, 0, 0.001);
             Assert.AreEqual(Math.Abs(Jx / sec.J11) - 1, 0, 0.001);
-            Assert.AreEqual(Math.Abs(Wely / sec.CalculateWelyMin()) - 1, 0, 0.001);
-            Assert.AreEqual(Math.Abs(Welx / sec.CalculateWelxMin()) - 1, 0, 0.001);
-            Assert.AreEqual(Math.Abs(Wply / sec.CalculateWplyy()) - 1, 0, 0.001);
-            Assert.AreEqual(Math.Abs(Wplx / sec.CalculateWplxx()) - 1, 0, 0.001);
+            Assert.AreEqual(Math.Abs(Wely / sec.CalculateWel2()) - 1, 0, 0.001);
+            Assert.AreEqual(Math.Abs(Welx / sec.CalculateWel1()) - 1, 0, 0.001);
+            Assert.AreEqual(Math.Abs(Wply / sec.CalculateWpl2()) - 1, 0, 0.001);
+            Assert.AreEqual(Math.Abs(Wplx / sec.CalculateWpl1()) - 1, 0, 0.001);
             Assert.AreEqual(Math.Abs(Jt / sec.Jt) - 1.0, 0, 0.01);
         }
 
@@ -225,10 +225,10 @@ namespace ModelObjectTest
             Assert.AreEqual(h - 2 * tf, sec.Hinternal);
             Assert.AreEqual(Math.Abs(Jy / sec.J22) - 1, 0, 0.001);
             Assert.AreEqual(Math.Abs(Jx / sec.J11) - 1, 0, 0.001);
-            Assert.AreEqual(Math.Abs(Wely / sec.CalculateWelyMin()) - 1, 0, 0.001);
-            Assert.AreEqual(Math.Abs(Welx / sec.CalculateWelxMin()) - 1, 0, 0.001);
-            Assert.AreEqual(Math.Abs(Wply / sec.CalculateWplyy()) - 1, 0, 0.001);
-            Assert.AreEqual(Math.Abs(Wplx / sec.CalculateWplxx()) - 1, 0, 0.001);
+            Assert.AreEqual(Math.Abs(Wely / sec.CalculateWel2()) - 1, 0, 0.001);
+            Assert.AreEqual(Math.Abs(Welx / sec.CalculateWel1()) - 1, 0, 0.001);
+            Assert.AreEqual(Math.Abs(Wply / sec.CalculateWpl2()) - 1, 0, 0.001);
+            Assert.AreEqual(Math.Abs(Wplx / sec.CalculateWpl1()) - 1, 0, 0.001);
             Assert.AreEqual(Math.Abs(Jt / sec.Jt) - 1.0, 0, 0.01);
         }
 
@@ -255,10 +255,10 @@ namespace ModelObjectTest
             Assert.AreEqual(h - 2 * tf, sec.Hinternal);
             Assert.AreEqual(Math.Abs(Jy / sec.J22) - 1, 0, 0.001);
             Assert.AreEqual(Math.Abs(Jx / sec.J11) - 1, 0, 0.001);
-            Assert.AreEqual(Math.Abs(Wely / sec.CalculateWelyMin()) - 1, 0, 0.001);
-            Assert.AreEqual(Math.Abs(Welx / sec.CalculateWelxMin()) - 1, 0, 0.001);
-            Assert.AreEqual(Math.Abs(Wply / sec.CalculateWplyy()) - 1, 0, 0.001);
-            Assert.AreEqual(Math.Abs(Wplx / sec.CalculateWplxx()) - 1, 0, 0.001);
+            Assert.AreEqual(Math.Abs(Wely / sec.CalculateWel2()) - 1, 0, 0.001);
+            Assert.AreEqual(Math.Abs(Welx / sec.CalculateWel1()) - 1, 0, 0.001);
+            Assert.AreEqual(Math.Abs(Wply / sec.CalculateWpl2()) - 1, 0, 0.001);
+            Assert.AreEqual(Math.Abs(Wplx / sec.CalculateWpl1()) - 1, 0, 0.001);
             Assert.AreEqual(Math.Abs(Jt / sec.Jt) - 1.0, 0, 0.01);
         }
 
@@ -291,8 +291,8 @@ namespace ModelObjectTest
             Assert.AreEqual(Math.Abs(Jxx / sec.J11) - 1, 0, 0.001);
             Assert.AreEqual(Math.Abs(Wely / sec.CalculateWelyBottom()) - 1, 0, 0.001);
             Assert.AreEqual(Math.Abs(Welx / sec.CalculateWelxTop()) - 1, 0, 0.001);
-            Assert.AreEqual(Math.Abs(Wply / sec.CalculateWply()) - 1, 0, 0.001);
-            Assert.AreEqual(Math.Abs(Wplx / sec.CalculateWplx()) - 1, 0, 0.001);
+            Assert.AreEqual(Math.Abs(Wply / sec.CalculateWpl2()) - 1, 0, 0.001);
+            Assert.AreEqual(Math.Abs(Wplx / sec.CalculateWpl1()) - 1, 0, 0.001);
             Assert.AreEqual(JtSAP / sec.Jt - 1.0, 0, 0.005);
             Assert.AreEqual(JtStraus / sec.Jt - 1.0, 0, 0.05);
             Assert.AreEqual(JtCalc / sec.CalculateJtSSRC1889() - 1.0, 0, 0.001);
@@ -323,10 +323,10 @@ namespace ModelObjectTest
             Assert.AreEqual(A, sec.Area);
             Assert.AreEqual(Math.Abs(Jyy / sec.J22) - 1, 0, 0.001);
             Assert.AreEqual(Math.Abs(Jxx / sec.J11) - 1, 0, 0.001);
-            Assert.AreEqual(Math.Abs(WelxMin / sec.CalculateWelxMin()) - 1, 0, 0.001);
-            Assert.AreEqual(Math.Abs(WelyMin / sec.CalculateWelyMin()) - 1, 0, 0.001);
-            Assert.AreEqual(Math.Abs(Wply / sec.CalculateWply()) - 1, 0, 0.001);
-            Assert.AreEqual(Math.Abs(Wplx / sec.CalculateWplx()) - 1, 0, 0.001);
+            Assert.AreEqual(Math.Abs(WelxMin / sec.CalculateWel1()) - 1, 0, 0.001);
+            Assert.AreEqual(Math.Abs(WelyMin / sec.CalculateWel2()) - 1, 0, 0.001);
+            Assert.AreEqual(Math.Abs(Wply / sec.CalculateWpl2()) - 1, 0, 0.001);
+            Assert.AreEqual(Math.Abs(Wplx / sec.CalculateWpl1()) - 1, 0, 0.001);
             Assert.AreEqual(Jt / sec.CalculateJtSSRC1889() - 1.0, 0, 0.001);
             Assert.AreEqual(Jw / sec.Jw - 1, 0, 0.001);
         }
@@ -358,11 +358,11 @@ namespace ModelObjectTest
             Assert.AreEqual(A, sec.Area);
             Assert.AreEqual(Math.Abs(Jyy / sec.J22) - 1, 0, 0.001);
             Assert.AreEqual(Math.Abs(Jxx / sec.J11) - 1, 0, 0.001);
-            Assert.AreEqual(Math.Abs(WelxMin / sec.CalculateWelxMin()) - 1, 0, 0.001);
-            Assert.AreEqual(Math.Abs(WelyMin / sec.CalculateWelyMin()) - 1, 0, 0.001);
-            Assert.AreEqual(Math.Abs(Wply / sec.CalculateWply()) - 1, 0, 0.001);
-            Assert.AreEqual(Math.Abs(Wplx / sec.CalculateWplx()) - 1, 0, 0.015);
-            Assert.AreEqual(Math.Abs(Wplxsap / sec.CalculateWplx()) - 1, 0, 0.001);
+            Assert.AreEqual(Math.Abs(WelxMin / sec.CalculateWel1()) - 1, 0, 0.001);
+            Assert.AreEqual(Math.Abs(WelyMin / sec.CalculateWel2()) - 1, 0, 0.001);
+            Assert.AreEqual(Math.Abs(Wply / sec.CalculateWpl2()) - 1, 0, 0.001);
+            Assert.AreEqual(Math.Abs(Wplx / sec.CalculateWpl1()) - 1, 0, 0.015);
+            Assert.AreEqual(Math.Abs(Wplxsap / sec.CalculateWpl1()) - 1, 0, 0.001);
             Assert.AreEqual(Jt / sec.CalculateJtSSRC1889() - 1.0, 0, 0.001);
             Assert.AreEqual(jtStraus / sec.Jt - 1.0, 0, 0.001);
             Assert.AreEqual(jtSap / sec.Jt - 1.0, 0, 0.005);
@@ -396,11 +396,11 @@ namespace ModelObjectTest
             Assert.AreEqual(A, sec.Area);
             Assert.AreEqual(Math.Abs(Jyy / sec.J22) - 1, 0, 0.001);
             Assert.AreEqual(Math.Abs(Jxx / sec.J11) - 1, 0, 0.001);
-            Assert.AreEqual(Math.Abs(WelxMin / sec.CalculateWelxMin()) - 1, 0, 0.001);
-            Assert.AreEqual(Math.Abs(WelyMin / sec.CalculateWelyMin()) - 1, 0, 0.001);
-            Assert.AreEqual(Math.Abs(Wply / sec.CalculateWply()) - 1, 0, 0.001);
-            Assert.AreEqual(Math.Abs(Wplx / sec.CalculateWplx()) - 1, 0, 0.015);
-            Assert.AreEqual(Math.Abs(WplxSap / sec.CalculateWplx()) - 1, 0, 0.001);
+            Assert.AreEqual(Math.Abs(WelxMin / sec.CalculateWel1()) - 1, 0, 0.001);
+            Assert.AreEqual(Math.Abs(WelyMin / sec.CalculateWel2()) - 1, 0, 0.001);
+            Assert.AreEqual(Math.Abs(Wply / sec.CalculateWpl2()) - 1, 0, 0.001);
+            Assert.AreEqual(Math.Abs(Wplx / sec.CalculateWpl1()) - 1, 0, 0.015);
+            Assert.AreEqual(Math.Abs(WplxSap / sec.CalculateWpl1()) - 1, 0, 0.001);
             Assert.AreEqual(Jt / sec.CalculateJtSSRC1889() - 1.0, 0, 0.001);
             Assert.AreEqual(jtStraus / sec.CalculateJt() - 1.0, 0, 0.001);
             Assert.AreEqual(jtSap / sec.CalculateJt() - 1.0, 0, 0.005);
@@ -433,11 +433,11 @@ namespace ModelObjectTest
             Assert.AreEqual(A, sec.Area);
             Assert.AreEqual(Math.Abs(Jyy / sec.J22) - 1, 0, 0.001);
             Assert.AreEqual(Math.Abs(Jxx / sec.J11) - 1, 0, 0.001);
-            Assert.AreEqual(Math.Abs(WelxMin / sec.CalculateWelxMin()) - 1, 0, 0.001);
-            Assert.AreEqual(Math.Abs(WelyMin / sec.CalculateWelyMin()) - 1, 0, 0.001);
-            Assert.AreEqual(Math.Abs(Wply / sec.CalculateWply()) - 1, 0, 0.001);
-            Assert.AreEqual(Math.Abs(Wplx / sec.CalculateWplx()) - 1, 0, 0.015);
-            Assert.AreEqual(Math.Abs(WplxSap / sec.CalculateWplx()) - 1, 0, 0.001);
+            Assert.AreEqual(Math.Abs(WelxMin / sec.CalculateWel1()) - 1, 0, 0.001);
+            Assert.AreEqual(Math.Abs(WelyMin / sec.CalculateWel2()) - 1, 0, 0.001);
+            Assert.AreEqual(Math.Abs(Wply / sec.CalculateWpl2()) - 1, 0, 0.001);
+            Assert.AreEqual(Math.Abs(Wplx / sec.CalculateWpl1()) - 1, 0, 0.015);
+            Assert.AreEqual(Math.Abs(WplxSap / sec.CalculateWpl1()) - 1, 0, 0.001);
             Assert.AreEqual(JtSSRC / sec.CalculateJtSSRC1889() - 1.0, 0, 0.001);
             Assert.AreEqual(JtSap / sec.CalculateJt() - 1.0, 0, 0.005);
             Assert.AreEqual(Jw / sec.Jw - 1, 0, 0.001);
@@ -467,10 +467,10 @@ namespace ModelObjectTest
             Assert.AreEqual(A, sec.Area);
             Assert.AreEqual(Math.Abs(Jyy / sec.J22) - 1, 0, 0.001);
             Assert.AreEqual(Math.Abs(Jxx / sec.J11) - 1, 0, 0.001);
-            Assert.AreEqual(Math.Abs(WelxMin / sec.CalculateWelxMin()) - 1, 0, 0.001);
-            Assert.AreEqual(Math.Abs(WelyMin / sec.CalculateWelyMin()) - 1, 0, 0.001);
-            Assert.AreEqual(Math.Abs(Wply / sec.CalculateWply()) - 1, 0, 0.001);
-            Assert.AreEqual(Math.Abs(Wplx / sec.CalculateWplx()) - 1, 0, 0.001);
+            Assert.AreEqual(Math.Abs(WelxMin / sec.CalculateWel1()) - 1, 0, 0.001);
+            Assert.AreEqual(Math.Abs(WelyMin / sec.CalculateWel2()) - 1, 0, 0.001);
+            Assert.AreEqual(Math.Abs(Wply / sec.CalculateWpl2()) - 1, 0, 0.001);
+            Assert.AreEqual(Math.Abs(Wplx / sec.CalculateWpl1()) - 1, 0, 0.001);
             Assert.AreEqual(Jt / sec.CalculateJtSSRC1889() - 1.0, 0, 0.001);
             Assert.AreEqual(Jw / sec.Jw - 1, 0, 0.001);
         }
@@ -499,10 +499,10 @@ namespace ModelObjectTest
             Assert.AreEqual(A, sec.Area);
             Assert.AreEqual(Math.Abs(Jyy / sec.J22) - 1, 0, 0.001);
             Assert.AreEqual(Math.Abs(Jxx / sec.J11) - 1, 0, 0.001);
-            Assert.AreEqual(Math.Abs(WelxMin / sec.CalculateWelxMin()) - 1, 0, 0.001);
-            Assert.AreEqual(Math.Abs(WelyMin / sec.CalculateWelyMin()) - 1, 0, 0.001);
-            Assert.AreEqual(Math.Abs(Wply / sec.CalculateWply()) - 1, 0, 0.001);
-            Assert.AreEqual(Math.Abs(Wplx / sec.CalculateWplx()) - 1, 0, 0.001);
+            Assert.AreEqual(Math.Abs(WelxMin / sec.CalculateWel1()) - 1, 0, 0.001);
+            Assert.AreEqual(Math.Abs(WelyMin / sec.CalculateWel2()) - 1, 0, 0.001);
+            Assert.AreEqual(Math.Abs(Wply / sec.CalculateWpl2()) - 1, 0, 0.001);
+            Assert.AreEqual(Math.Abs(Wplx / sec.CalculateWpl1()) - 1, 0, 0.001);
             Assert.AreEqual(Jt / sec.CalculateJtSSRC1889() - 1.0, 0, 0.001);
             Assert.AreEqual(Jw / sec.Jw - 1, 0, 0.001);
         }
@@ -532,10 +532,10 @@ namespace ModelObjectTest
             Assert.AreEqual(Math.Abs(A/sec.Area) -1, 0, 0.0015);
             Assert.AreEqual(Math.Abs(Jyy / sec.J22) - 1, 0, 0.0015);
             Assert.AreEqual(Math.Abs(Jxx / sec.J11) - 1, 0, 0.0015);
-            Assert.AreEqual(Math.Abs(WelxMin / sec.CalculateWelxMin()) - 1, 0, 0.001);
-            Assert.AreEqual(Math.Abs(WelyMin / sec.CalculateWelyMin()) - 1, 0, 0.001);
-            Assert.AreEqual(Math.Abs(Wply / sec.CalculateWply()) - 1, 0, 0.001);
-            Assert.AreEqual(Math.Abs(Wplx / sec.CalculateWplx()) - 1, 0, 0.0015);
+            Assert.AreEqual(Math.Abs(WelxMin / sec.CalculateWel1()) - 1, 0, 0.001);
+            Assert.AreEqual(Math.Abs(WelyMin / sec.CalculateWel2()) - 1, 0, 0.001);
+            Assert.AreEqual(Math.Abs(Wply / sec.CalculateWpl2()) - 1, 0, 0.001);
+            Assert.AreEqual(Math.Abs(Wplx / sec.CalculateWpl1()) - 1, 0, 0.0015);
             Assert.AreEqual(Jt / sec.Jt - 1.0, 0, 0.16);
             Assert.AreEqual(jtSap / sec.Jt - 1.0, 0, 0.05);
             Assert.AreEqual(Jw / sec.Jw - 1, 0, 0.011);
@@ -566,10 +566,10 @@ namespace ModelObjectTest
             Assert.AreEqual(Math.Abs(A / sec.Area) - 1, 0, 0.0018);
             Assert.AreEqual(Math.Abs(Jyy / sec.J22) - 1, 0, 0.0015);
             Assert.AreEqual(Math.Abs(Jxx / sec.J11) - 1, 0, 0.0033);
-            Assert.AreEqual(Math.Abs(WelxMin / sec.CalculateWelxMin()) - 1, 0, 0.0035);
-            Assert.AreEqual(Math.Abs(WelyMin / sec.CalculateWelyMin()) - 1, 0, 0.0035);
-            Assert.AreEqual(Math.Abs(Wply / sec.CalculateWply()) - 1, 0, 0.0011);
-            Assert.AreEqual(Math.Abs(Wplx / sec.CalculateWplx()) - 1, 0, 0.0035);
+            Assert.AreEqual(Math.Abs(WelxMin / sec.CalculateWel1()) - 1, 0, 0.0035);
+            Assert.AreEqual(Math.Abs(WelyMin / sec.CalculateWel2()) - 1, 0, 0.0035);
+            Assert.AreEqual(Math.Abs(Wply / sec.CalculateWpl2()) - 1, 0, 0.0011);
+            Assert.AreEqual(Math.Abs(Wplx / sec.CalculateWpl1()) - 1, 0, 0.0035);
             Assert.AreEqual(Jt / sec.Jt - 1.0, 0, 0.12);
             Assert.AreEqual(jtSap / sec.Jt - 1.0, 0, 0.50);
             Assert.AreEqual(Jw / sec.Jw - 1, 0, 0.016);
@@ -611,14 +611,14 @@ namespace ModelObjectTest
             Assert.AreEqual(Math.Abs(Jxx / sec.J11) - 1, 0, 0.05);
             Assert.AreEqual(Math.Abs(JyySap / sec.J22) - 1, 0, 0.001);
             Assert.AreEqual(Math.Abs(JxxSap / sec.J11) - 1, 0, 0.03);
-            Assert.AreEqual(Math.Abs(WelxMin / sec.CalculateWelxMin()) - 1, 0, 0.05);
-            Assert.AreEqual(Math.Abs(WelyMin / sec.CalculateWelyMin()) - 1, 0, 0.05);
-            Assert.AreEqual(Math.Abs(WelxMinSap / sec.CalculateWelxMin()) - 1, 0, 0.015);
-            Assert.AreEqual(Math.Abs(WelyMinSap / sec.CalculateWelyMin()) - 1, 0, 0.015);
-            Assert.AreEqual(Math.Abs(Wply / sec.CalculateWply()) - 1, 0, 0.012);
-            Assert.AreEqual(Math.Abs(Wplx / sec.CalculateWplx()) - 1, 0, 0.05);
-            Assert.AreEqual(Math.Abs(WplySap / sec.CalculateWply()) - 1, 0, 0.001);
-            Assert.AreEqual(Math.Abs(WplxSap / sec.CalculateWplx()) - 1, 0, 0.015);
+            Assert.AreEqual(Math.Abs(WelxMin / sec.CalculateWel1()) - 1, 0, 0.05);
+            Assert.AreEqual(Math.Abs(WelyMin / sec.CalculateWel2()) - 1, 0, 0.05);
+            Assert.AreEqual(Math.Abs(WelxMinSap / sec.CalculateWel1()) - 1, 0, 0.015);
+            Assert.AreEqual(Math.Abs(WelyMinSap / sec.CalculateWel2()) - 1, 0, 0.015);
+            Assert.AreEqual(Math.Abs(Wply / sec.CalculateWpl2()) - 1, 0, 0.012);
+            Assert.AreEqual(Math.Abs(Wplx / sec.CalculateWpl1()) - 1, 0, 0.05);
+            Assert.AreEqual(Math.Abs(WplySap / sec.CalculateWpl2()) - 1, 0, 0.001);
+            Assert.AreEqual(Math.Abs(WplxSap / sec.CalculateWpl1()) - 1, 0, 0.015);
             Assert.AreEqual(Jt / sec.Jt - 1.0, 0, 0.35);
             Assert.AreEqual(jtSap / sec.Jt - 1.0, 0, 0.004);
             Assert.AreEqual(Jw / sec.Jw - 1, 0, 0.025);
@@ -645,10 +645,10 @@ namespace ModelObjectTest
             Assert.AreEqual(A, sec.Area);
             Assert.AreEqual(Math.Abs(Jyy / sec.J22) - 1, 0, 0.001);
             Assert.AreEqual(Math.Abs(Jxx / sec.J11) - 1, 0, 0.001);
-            Assert.AreEqual(Math.Abs(Wely / sec.CalculateWelyMin()) - 1, 0, 0.001);
-            Assert.AreEqual(Math.Abs(Welx / sec.CalculateWelxMin()) - 1, 0, 0.001);
-            Assert.AreEqual(Math.Abs(Wply / sec.CalculateWply()) - 1, 0, 0.001);
-            Assert.AreEqual(Math.Abs(Wplx / sec.CalculateWplx()) - 1, 0, 0.001);
+            Assert.AreEqual(Math.Abs(Wely / sec.CalculateWel2()) - 1, 0, 0.001);
+            Assert.AreEqual(Math.Abs(Welx / sec.CalculateWel1()) - 1, 0, 0.001);
+            Assert.AreEqual(Math.Abs(Wply / sec.CalculateWpl2()) - 1, 0, 0.001);
+            Assert.AreEqual(Math.Abs(Wplx / sec.CalculateWpl1()) - 1, 0, 0.001);
             Assert.AreEqual(Math.Abs(Jt / sec.Jt) - 1.0, 0, 0.03);
         }
 
@@ -691,10 +691,10 @@ namespace ModelObjectTest
             Assert.AreEqual(Math.Abs(A / sec.Area) - 1, 0, 0.001);
             Assert.AreEqual(Math.Abs(Jyy / sec.J22) - 1, 0, 0.001);
             Assert.AreEqual(Math.Abs(Jxx / sec.J11) - 1, 0, 0.001);
-            Assert.AreEqual(Math.Abs(Wely / sec.CalculateWelyyMin()) - 1, 0, 0.001);
-            Assert.AreEqual(Math.Abs(Welx / sec.CalculateWelxxMin()) - 1, 0, 0.001);
-            Assert.AreEqual(Math.Abs(Wply / sec.CalculateWplyy()) - 1, 0, 0.001);
-            Assert.AreEqual(Math.Abs(Wplx / sec.CalculateWplxx()) - 1, 0, 0.001);
+            Assert.AreEqual(Math.Abs(Wely / sec.CalculateWel2()) - 1, 0, 0.001);
+            Assert.AreEqual(Math.Abs(Welx / sec.CalculateWel1()) - 1, 0, 0.001);
+            Assert.AreEqual(Math.Abs(Wply / sec.CalculateWpl2()) - 1, 0, 0.001);
+            Assert.AreEqual(Math.Abs(Wplx / sec.CalculateWpl1()) - 1, 0, 0.001);
             Assert.AreEqual(Jt / sec.Jt - 1.0, 0, 0.03);
             Assert.AreEqual(JwSAP / sec.Jw - 1, 0, 0.07);
         }
@@ -712,8 +712,8 @@ namespace ModelObjectTest
             double Wel1 = 1.0 / 6.0 * h * tw*tw;
             double Wel2 = 1.0 / 6.0 * tw * h * h;
 
-            Assert.AreEqual(Math.Abs(Wel2 / sec.CalculateWel22Min()) - 1, 0, 0.001);
-            Assert.AreEqual(Math.Abs(Wel1 / sec.CalculateWel11Min()) - 1, 0, 0.001);
+            Assert.AreEqual(Math.Abs(Wel2 / sec.CalculateWel2()) - 1, 0, 0.001);
+            Assert.AreEqual(Math.Abs(Wel1 / sec.CalculateWel1()) - 1, 0, 0.001);
         }
 
         [TestMethod]
@@ -729,8 +729,8 @@ namespace ModelObjectTest
             double Wel1 = 1.0 / 6.0 * b * tb * tb;
             double Wel2 = 1.0 / 6.0 * tb * b * b;
 
-            Assert.AreEqual(Math.Abs(Wel2 / sec.CalculateWel22Min()) - 1, 0, 0.001);
-            Assert.AreEqual(Math.Abs(Wel1 / sec.CalculateWel11Min()) - 1, 0, 0.001);
+            Assert.AreEqual(Math.Abs(Wel2 / sec.CalculateWel2()) - 1, 0, 0.001);
+            Assert.AreEqual(Math.Abs(Wel1 / sec.CalculateWel1()) - 1, 0, 0.001);
         }
 
         [TestMethod]

@@ -65,12 +65,12 @@ namespace GPC.Model.Sections
 
         #region Public override method
 
-        public double CalculateWelyyMin()
+        public override double CalculateWel2()
         {
             return Math.Min(CalculateWelyyLeft(), CalculateWelyyRight());
         }
 
-        public double CalculateWelxxMin()
+        public override double CalculateWel1()
         {
             return Math.Min(CalculateWelxxBottom(), CalculateWelxxTop());
         }
@@ -150,7 +150,7 @@ namespace GPC.Model.Sections
         }
 
 
-        public double CalculateWplyy()
+        public override double CalculateWpl2()
         {
             if (IsSymmetricAlongXLocalAxis)
             {
@@ -167,7 +167,7 @@ namespace GPC.Model.Sections
                 throw new NotImplementedException("Different lenght or thickness not yet supported");
         }
 
-        public double CalculateWplxx()
+        public override double CalculateWpl1()
         {
             if (IsSymmetricAlongXLocalAxis)
             {

@@ -59,17 +59,17 @@ namespace GPC.Model.Sections
 
         #region Public method
 
-        public double CalculateWelyMin()
+        public override double CalculateWel2()
         {
             return Math.Min(CalculateWelyLeft(), CalculateWelyRight());
         }
 
-        public double CalculateWelxMin()
+        public override double CalculateWel1()
         {
             return Math.Min(CalculateWelxBottom(), CalculateWelxTop());
         }
 
-        public double CalculateWplx()
+        public override double CalculateWpl1()
         {
             if (_area / 2.0 > _b * _tf)
             {
@@ -88,7 +88,7 @@ namespace GPC.Model.Sections
             }
         }
 
-        public double CalculateWply()
+        public override double CalculateWpl2()
         {
             return 1.0 / 4.0 * _tf * Math.Pow(_b, 2.0) + 1.0 / 4.0 * (H - _tf) * Math.Pow(_tw, 2.0);
         }

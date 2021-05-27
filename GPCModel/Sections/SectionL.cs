@@ -51,12 +51,12 @@ namespace GPC.Model.Sections
 
         #region Public method
 
-        public double CalculateWel11Min()
+        public override double CalculateWel1()
         {
             return Math.Min(CalculateWel11Left(), CalculateWel11Right());
         }
 
-        public double CalculateWel22Min()
+        public override double CalculateWel2()
         {
             return Math.Min(CalculateWel22Bottom(), CalculateWel22Top());
         }
@@ -227,6 +227,16 @@ namespace GPC.Model.Sections
         public override Point2d CalculateCentroid()
         {
             return  new Point2d(Sx / Area, Sy / Area);
+        }
+
+        public override double CalculateWpl1()
+        {
+            throw new NotImplementedException();
+        }
+
+        public override double CalculateWpl2()
+        {
+            throw new NotImplementedException();
         }
 
         #endregion

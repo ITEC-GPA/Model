@@ -70,12 +70,12 @@ namespace GPC.Model.Sections
 
         #endregion
 
-        public double CalculateWelyMin()
+        public override double CalculateWel2()
         {
             return Math.Min(CalculateWelyBottom(), CalculateWelyTop());
         }
 
-        public double CalculateWelxMin()
+        public override double CalculateWel1()
         {
             return Math.Min(CalculateWelxBottom(), CalculateWelxTop());
         }
@@ -115,7 +115,7 @@ namespace GPC.Model.Sections
             return Math.Max(LenghtBottomFlange, LenghtTopFlange)/2 + CalculateCentroid().X;
         }
 
-        public double CalculateWply()
+        public override double CalculateWpl2()
         {
             SectionT halfSectionTop = new SectionT(_btop / 2.0, H / 2.0, _ttop, _tw / 2.0, _material, string.Empty);
             SectionT halfSectionBottom = new SectionT(_bbottom / 2.0, H / 2.0, _tbottom, _tw / 2.0, _material, string.Empty);
@@ -124,7 +124,7 @@ namespace GPC.Model.Sections
             return 2.0 * d * _area / 2.0;
         }
 
-        public double CalculateWplx()
+        public override double CalculateWpl1()
         {
             if (_area / 2.0 > _btop * _ttop && _area / 2.0 > _bbottom * _tbottom)
             {

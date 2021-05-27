@@ -74,12 +74,12 @@ namespace GPC.Model.Sections
 
         #region Public method
 
-        public double CalculateWelyMin()
+        public override double CalculateWel2()
         {
             return Math.Min(CalculateWelyLeft(), CalculateWelyRight());
         }
 
-        public double CalculateWelxMin()
+        public override double CalculateWel1()
         {
             return Math.Min(CalculateWelxBottom(), CalculateWelxTop());
         }
@@ -124,7 +124,7 @@ namespace GPC.Model.Sections
             return B / 2 - CalculateCentroid().X;
         }
 
-        public double CalculateWplyy()
+        public override double CalculateWpl2()
         {
             if (_area / 2.0 > _twL * Hinternal +_tfTop * _twL + _tfBottom * _twL)
             {
@@ -142,7 +142,7 @@ namespace GPC.Model.Sections
             
         }
 
-        public double CalculateWplxx()
+        public override double CalculateWpl1()
         {
             if (_area / 2.0 > (_twR * Hinternal)) //plateTop
             {

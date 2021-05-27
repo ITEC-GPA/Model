@@ -50,6 +50,10 @@ namespace GPC.Model.Sections
         protected double _sy;
         protected double _j11;
         protected double _j22;
+        protected double _wpl1;
+        protected double _wpl2;
+        protected double _wel1;
+        protected double _wel2;
 
         protected Point2d _shearCenter;
         protected Point2d _centroid;
@@ -114,6 +118,14 @@ namespace GPC.Model.Sections
         /// The first moment of area around the Y-axis
         /// </summary>
         public double Sy => _sy;
+
+        public double Wpl1 => _wpl1;
+
+        public double Wpl2 => _wpl2;
+
+        public double Wel1 => _wel1;
+
+        public double Wel2 => _wel2;
 
         /// <summary>
         /// The centroid of the section
