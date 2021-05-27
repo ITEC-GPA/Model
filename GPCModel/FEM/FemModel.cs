@@ -1310,7 +1310,7 @@ namespace GPC.Model.FEM
             return _freedomCases.Contains(freedomCaseName);
         }
 
-
+            
         #endregion
 
         #region Solve

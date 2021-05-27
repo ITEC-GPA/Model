@@ -1,0 +1,87 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
+using System.Runtime.Serialization;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace GPC.Model.FEM
+{
+    /// <summary>
+    /// This class to be used to group some <see cref="FEMObject"/> togethers.
+    /// </summary>
+    [DebuggerDisplay("{" + nameof(GetDebuggerDisplay) + "(),nq}")]
+    public sealed class Group : FEMObject, IEquatable<Group>
+    {
+        // eventuali opzioni
+
+        public Group(string name) : base(name)
+        {
+
+        }
+
+        public Group(SerializationInfo info, StreamingContext context)
+            : base(info, context)
+        {
+
+        }
+
+        public override void GetObjectData(SerializationInfo info, StreamingContext context)
+        {
+            base.GetObjectData(info, context);
+        }
+
+        public bool Equals(Group other)
+        {
+            if (other is null)
+                return false;
+
+            if (ReferenceEquals(this, other))
+                return true;
+
+            return base.Equals(other);
+        }
+
+        public override int GetHashCode()
+        {
+            return base.GetHashCode();
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (obj is Group)
+                return Equals((Group)obj);
+
+            return false;
+        }
+
+        public static bool operator ==(Group obj1, Group obj2)
+        {
+            if (obj1 is null)
+            {
+                return obj2 is null;
+            }
+
+            if (ReferenceEquals(obj1, obj2))
+                return true;
+
+            return obj1.Equals(obj2);
+        }
+
+        public static bool operator !=(Group obj1, Group obj2)
+        {
+            return !(obj1 == obj2);
+        }
+
+        private string GetDebuggerDisplay()
+        {
+            return ToString();
+        }
+
+        public override string ToString()
+        {
+            return $"{Id}-{Name}";
+        }
+    }
+}
