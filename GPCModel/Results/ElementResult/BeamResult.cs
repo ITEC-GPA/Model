@@ -11,7 +11,14 @@ namespace GPC.Model.Results
 
 
         public BeamResult(ILoadCase Case, IEnumerable<IBeamResult> result, IEnumerable<ResultStation> points)
-            : base(Case, null, (IEnumerable<ResultType>)result, points)
+            : this(Case, result, points, ModelObjectId.IDUNASSIGNED)
+        {
+
+        }
+
+
+        public BeamResult(ILoadCase Case, IEnumerable<IBeamResult> result, IEnumerable<ResultStation> points, int stageId)
+            : base(Case, null, (IEnumerable<ResultType>)result, points, stageId)
         {
 
         }
