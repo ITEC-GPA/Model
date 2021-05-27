@@ -30,7 +30,7 @@ namespace GPC.Model.Results
         /// <param name="Case">The case where these results are reffered </param>
         /// <param name="coordinateSystem">Coordinate system where these result are provided</param>
         public ElementResult(ILoadCase Case, CoordinateSystem coordinateSystem)
-            : this(Case, coordinateSystem, -1)
+            : this(Case, coordinateSystem, ModelObjectId.IDUNASSIGNED)
         {
 
         }

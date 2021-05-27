@@ -19,6 +19,12 @@ namespace GPC.Model.Results
 
 
         public FiniteElementResult(ILoadCase Case, CoordinateSystem coordinateSystem, IEnumerable<ResultType> result, IEnumerable<ResultLocationId> points)
+            : this(Case, coordinateSystem, result, points, ModelObjectId.IDUNASSIGNED)
+        {
+
+        }
+
+        public FiniteElementResult(ILoadCase Case, CoordinateSystem coordinateSystem, IEnumerable<ResultType> result, IEnumerable<ResultLocationId> points, int stageId)
             : base(Case, coordinateSystem)
         {
 
@@ -34,8 +40,9 @@ namespace GPC.Model.Results
 
             _results = result.ToArray();
             _points = points.ToArray();
-        }
 
+            _stageId = stageId;
+        }
 
     }
 }

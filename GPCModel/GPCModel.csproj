@@ -100,6 +100,7 @@
     <Compile Include="FEM\Collections\FemObjectCollection.cs" />
     <Compile Include="FEM\Collections\FemObjectStageCollection.cs" />
     <Compile Include="FEM\Collections\FiniteElementStageCollection.cs" />
+    <Compile Include="FEM\Collections\GroupCollection.cs" />
     <Compile Include="FEM\Collections\NodeStageCollection.cs" />
     <Compile Include="FEM\Costrain\RigidLink.cs" />
     <Compile Include="FEM\Costrain\MultiPointsCostrain.cs" />
@@ -130,6 +131,7 @@
     <Compile Include="FEM\FemMaterials\FemMaterial.cs" />
     <Compile Include="FEM\FemMaterials\IsotropicFemMaterial.cs" />
     <Compile Include="FEM\FemMaterials\OrthotropicFemMaterial.cs" />
+    <Compile Include="FEM\Group.cs" />
     <Compile Include="FEM\NnLinearStaticSolver.cs" />
     <Compile Include="FEM\Stage.cs" />
     <Compile Include="FEM\FEMUtilities.cs" />

@@ -12,7 +12,14 @@ namespace GPC.Model.Results
         public double Length => ((ResultStation)Points.First()).ElementLenght;     // TODO: va sistemato
 
         public BeamResult(ILoadCase Case, IEnumerable<IBeamResult> result, IEnumerable<ResultStation> points)
-            : base(Case, null, (IEnumerable<ResultType>)result, points)
+            : this(Case, result, points, ModelObjectId.IDUNASSIGNED)
+        {
+
+        }
+
+
+        public BeamResult(ILoadCase Case, IEnumerable<IBeamResult> result, IEnumerable<ResultStation> points, int stageId)
+            : base(Case, null, (IEnumerable<ResultType>)result, points, stageId)
         {
             if (points.Select(i => i.ElementLenght).Distinct().Count() > 1)
                 throw new ArgumentException("All Result Station must have the same length");

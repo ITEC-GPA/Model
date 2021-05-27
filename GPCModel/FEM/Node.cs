@@ -26,6 +26,7 @@ namespace GPC.Model.FEM
         #region Properties
 
         public Point3d Position => _position;
+
         /// <summary>
         /// Contains the degree of freedom active for the node
         /// </summary>
@@ -65,9 +66,20 @@ namespace GPC.Model.FEM
             _results = new ModelObjectSet<NodeResult>(EqualityComparer<ElementResult>.Default); // comparer di ElementResult, usa solo il case come comparatore
         }
 
-        public Node(double X, double Y, double Z, string label="") : this(new Point3d(X, Y, Z), label)
+
+
+        public Node(double X, double Y, double Z, string name = "") : this(new Point3d(X, Y, Z), name)
         {
 
+        }
+
+        /// <summary>
+        /// Internal constructor, that allows to add a group directly during construction to speedup femmodel build
+        /// </summary>
+        // Do not set this constructor to public
+        internal Node(Point3d point, Group group) : this(point, "")
+        {
+            _groups.Add(group);
         }
 
         /// <summary>
@@ -109,9 +121,12 @@ namespace GPC.Model.FEM
 
         public Node Duplicate()
         {
-            Node duplicate = new Node(new Point3d(Position.X, Position.Y, Position.Z), this.Name);
-            duplicate.DOF = this.DOF;
-            duplicate.SetId(this.Id);
+            Node duplicate = new Node(new Point3d(Position.X, Position.Y, Position.Z), this.Name)
+            {
+                DOF = DOF
+            };
+
+            duplicate.SetId(Id);
             
             foreach (INodeFreedomCaseAttribute attribute in _attributesFreedomCase)
             {
@@ -142,17 +157,17 @@ namespace GPC.Model.FEM
         {
             unchecked
             {
-                int hashCode = -689368791;
-                hashCode = hashCode * -1521134295 + base.GetHashCode();
-                hashCode = hashCode * -1521134295 + EqualityComparer<Point3d>.Default.GetHashCode(_position);
+                int hashCode = -23;
+                hashCode = hashCode * -17 + base.GetHashCode();
+                hashCode = hashCode * -17 + EqualityComparer<Point3d>.Default.GetHashCode(_position);
 
                 foreach (var element in _attributesLoadCase)
                 {
-                    hashCode = hashCode + 17 * EqualityComparer<INodeLoadCaseAttribute>.Default.GetHashCode(element);
+                    hashCode += -17 * EqualityComparer<INodeLoadCaseAttribute>.Default.GetHashCode(element);
                 }
                 foreach (var element in _attributesFreedomCase)
                 {
-                    hashCode = hashCode + 17 * EqualityComparer<INodeFreedomCaseAttribute>.Default.GetHashCode(element);
+                    hashCode += -17 * EqualityComparer<INodeFreedomCaseAttribute>.Default.GetHashCode(element);
                 }
 
                 return hashCode;
