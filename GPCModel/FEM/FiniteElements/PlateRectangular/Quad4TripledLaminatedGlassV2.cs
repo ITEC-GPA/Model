@@ -37,13 +37,9 @@ namespace GPC.Model.FEM.FiniteElements
         mnl.Matrix<double> _kLayer;
         mnl.Matrix<double> _kGlass;
 
-        /*Node[] _nodesFirstTransformed; //come localnodes ma per prova trasformazione coordinate 
-        Node[] _nodesSecondTransformed;*/
-        Func<double, double, mnl.Matrix<double>> _jacobXGlobalToXLocal;
+        mnl.Matrix<double> _kLocalUnordered;
 
         double[] _length = new double[4];
-        
-        bool _quadrilateral;
         #endregion
 
         #region properties
@@ -51,6 +47,8 @@ namespace GPC.Model.FEM.FiniteElements
         internal mnl.Matrix<double> Ds => _Ds;
         internal mnl.Matrix<double> KLayer => _kLayer;
         internal mnl.Matrix<double> KGlass => _kGlass;
+
+        internal mnl.Matrix<double> KLocalUnordered => _kLocalUnordered;
         #endregion
 
         /// <summary>
@@ -63,8 +61,7 @@ namespace GPC.Model.FEM.FiniteElements
         /// <param name="h2">Thickness of bottom glass</param>
         /// <param name="EGlass">Glass elastic modulus</param>
         /// <param name="niGlass">poisson glass</param>
-        /// <param name="quadrilateral">if false, used formulation of arrticle, if true, try to use transformation of coordinates</param>
-        public Quad4TripleLaminatedGlassV2(Node[] nodes, double G0, double h0, double h1, double h2, double EGlass, double niGlass, bool quadrilateral = false) : base(nodes)
+        public Quad4TripleLaminatedGlassV2(Node[] nodes, double G0, double h0, double h1, double h2, double EGlass, double niGlass) : base(nodes)
         {
             //eq. 51 -> lista dof locali
              /* deltaU = slippage between the glass layer in local x direction 
@@ -94,28 +91,20 @@ namespace GPC.Model.FEM.FiniteElements
             _h2 = h2;
             _EGlass = EGlass;
             _niGlass = niGlass;
-
-            _quadrilateral = quadrilateral;
         }
 
         public override void BuildMatrix()
         {
             //set local coordinate system
             _nodesLocal = Quad4Element.GetLocalNodes(_nodesGlobal, out _localCoordinateSystem);
-            
+
+            /*Console.WriteLine(_localCoordinateSystem.V1);
+            Console.WriteLine(_localCoordinateSystem.V2);
+            Console.WriteLine(_localCoordinateSystem.V3);*/
+
             Vector3d globalX = new Vector3d(1, 0, 0);
             Vector3d globalY = new Vector3d(0, 1, 0);
             Vector3d globalZ = new Vector3d(0, 0, 1);
-
-            double X0 = _nodesGlobal[0].Position.X;
-            double Y0 = _nodesGlobal[0].Position.Y;
-            double Z0 = _nodesGlobal[0].Position.Z;
-
-            /*_nodesFirstTransformed = new Node[4];
-            _nodesFirstTransformed[0] = new Node(_nodesGlobal[0].Position.X - X0, _nodesGlobal[0].Position.Y - Y0, _nodesGlobal[0].Position.Z - Z0);
-            _nodesFirstTransformed[1] = new Node(_nodesGlobal[1].Position.X - X0, _nodesGlobal[1].Position.Y - Y0, _nodesGlobal[1].Position.Z - Z0);
-            _nodesFirstTransformed[2] = new Node(_nodesGlobal[2].Position.X - X0, _nodesGlobal[2].Position.Y - Y0, _nodesGlobal[2].Position.Z - Z0);
-            _nodesFirstTransformed[3] = new Node(_nodesGlobal[3].Position.X - X0, _nodesGlobal[3].Position.Y - Y0, _nodesGlobal[3].Position.Z - Z0);*/
 
             _length[0] = _nodesLocal[0].Position.DistanceTo(_nodesLocal[1].Position);
             _length[1] = _nodesLocal[1].Position.DistanceTo(_nodesLocal[2].Position);
@@ -124,88 +113,49 @@ namespace GPC.Model.FEM.FiniteElements
 
             //calculation of matrix for transformation from Local to Global coordinates
             #region TransformationMatrixLocalCoordinatesToGlobalCoordinates
-            /*mnl.Matrix<double> dofGlobalToLocalTranspose = mnl.Matrix<double>.Build.Dense(24, 12);
+            mnl.Matrix<double> dofGlobalToLocalTranspose = mnl.Matrix<double>.Build.Dense(9*4, 5*4);
 
             Vector3d localX = LocalCoordinateSystem.V1;
             Vector3d localY = LocalCoordinateSystem.V2;
             Vector3d localZ = LocalCoordinateSystem.V3;
 
-#region localToGlobalNode1
-            //local node1 z-displacement in global coordinate
-            dofGlobalToLocalTranspose[0, 0] = localZ.DotProduct(globalX);
-            dofGlobalToLocalTranspose[1, 0] = localZ.DotProduct(globalY);
-            dofGlobalToLocalTranspose[2, 0] = localZ.DotProduct(globalZ);
+            int dimRow = 9;
+            int dimCol = 5;
+            for (int i = 0; i < _nodesLocal.Count(); i++)
+            {
+                #region localToGlobalNode
+                //local node1 z-displacement in global coordinate
+                dofGlobalToLocalTranspose[i * dimRow + 0, i * dimCol + 0] = localZ.DotProduct(globalX);
+                dofGlobalToLocalTranspose[i * dimRow + 1, i * dimCol + 0] = localZ.DotProduct(globalY);
+                dofGlobalToLocalTranspose[i * dimRow + 2, i * dimCol + 0] = localZ.DotProduct(globalZ);
 
-            //local node1 rx-rotation and ry in global coordinate
-            dofGlobalToLocalTranspose[3, 1] = localX.DotProduct(globalX);
-            dofGlobalToLocalTranspose[3, 2] = localY.DotProduct(globalX);
+                //local node1 rx-rotation and ry in global coordinate
+                dofGlobalToLocalTranspose[i * dimRow + 3, i * dimCol + 1] = localX.DotProduct(globalX);
+                dofGlobalToLocalTranspose[i * dimRow + 3, i * dimCol + 2] = localY.DotProduct(globalX);
 
-            dofGlobalToLocalTranspose[4, 1] = localX.DotProduct(globalY);
-            dofGlobalToLocalTranspose[4, 2] = localY.DotProduct(globalY);
+                dofGlobalToLocalTranspose[i * dimRow + 4, i * dimCol + 1] = localX.DotProduct(globalY);
+                dofGlobalToLocalTranspose[i * dimRow + 4, i * dimCol + 2] = localY.DotProduct(globalY);
 
-            dofGlobalToLocalTranspose[5, 1] = localX.DotProduct(globalZ);
-            dofGlobalToLocalTranspose[5, 2] = localY.DotProduct(globalZ);
-#endregion
+                dofGlobalToLocalTranspose[i * dimRow + 5, i * dimCol + 1] = localX.DotProduct(globalZ);
+                dofGlobalToLocalTranspose[i * dimRow + 5, i * dimCol + 2] = localY.DotProduct(globalZ);
 
-#region localToGlobalNode2
-            //local node2 z-displacement in global coordinate
-            dofGlobalToLocalTranspose[6, 3] = localZ.DotProduct(globalX);
-            dofGlobalToLocalTranspose[7, 3] = localZ.DotProduct(globalY);
-            dofGlobalToLocalTranspose[8, 3] = localZ.DotProduct(globalZ);
+                //local node1 slip-x and slip-y in global coordinate
+                dofGlobalToLocalTranspose[i * dimRow + 6, i * dimCol + 3] = localX.DotProduct(globalX);
+                dofGlobalToLocalTranspose[i * dimRow + 6, i * dimCol + 4] = localY.DotProduct(globalX);
 
-            //local node2 rx-rotation and ry in global coordinate
-            dofGlobalToLocalTranspose[9, 4] = localX.DotProduct(globalX);
-            dofGlobalToLocalTranspose[9, 5] = localY.DotProduct(globalX);
+                dofGlobalToLocalTranspose[i * dimRow + 7, i * dimCol + 3] = localX.DotProduct(globalY);
+                dofGlobalToLocalTranspose[i * dimRow + 7, i * dimCol + 4] = localY.DotProduct(globalY);
 
-            dofGlobalToLocalTranspose[10, 4] = localX.DotProduct(globalY);
-            dofGlobalToLocalTranspose[10, 5] = localY.DotProduct(globalY);
+                dofGlobalToLocalTranspose[i * dimRow + 8, i * dimCol + 3] = localX.DotProduct(globalZ);
+                dofGlobalToLocalTranspose[i * dimRow + 8, i * dimCol + 4] = localY.DotProduct(globalZ);
+            }
+            #endregion
+            
+            _dofGlobalToLocal = dofGlobalToLocalTranspose.Transpose();
 
-            dofGlobalToLocalTranspose[11, 4] = localX.DotProduct(globalZ);
-            dofGlobalToLocalTranspose[11, 5] = localY.DotProduct(globalZ);
-#endregion
-
-#region localToGlobalNode3
-            //local node3 z-displacement in global coordinate
-            dofGlobalToLocalTranspose[12, 6] = localZ.DotProduct(globalX);
-            dofGlobalToLocalTranspose[13, 6] = localZ.DotProduct(globalY);
-            dofGlobalToLocalTranspose[14, 6] = localZ.DotProduct(globalZ);
-
-            //local node3 rx-rotation and ry in global coordinate
-            dofGlobalToLocalTranspose[15, 7] = localX.DotProduct(globalX);
-            dofGlobalToLocalTranspose[15, 8] = localY.DotProduct(globalX);
-
-            dofGlobalToLocalTranspose[16, 7] = localX.DotProduct(globalY);
-            dofGlobalToLocalTranspose[16, 8] = localY.DotProduct(globalY);
-
-            dofGlobalToLocalTranspose[17, 7] = localX.DotProduct(globalZ);
-            dofGlobalToLocalTranspose[17, 8] = localY.DotProduct(globalZ);
-#endregion
-
-#region localToGlobalNode4
-            //local node3 z-displacement in global coordinate
-            dofGlobalToLocalTranspose[18, 9] = localZ.DotProduct(globalX);
-            dofGlobalToLocalTranspose[19, 9] = localZ.DotProduct(globalY);
-            dofGlobalToLocalTranspose[20, 9] = localZ.DotProduct(globalZ);
-
-            //local node3 rx-rotation and ry in global coordinate
-            dofGlobalToLocalTranspose[21, 10] = localX.DotProduct(globalX);
-            dofGlobalToLocalTranspose[21, 11] = localY.DotProduct(globalX);
-
-            dofGlobalToLocalTranspose[22, 10] = localX.DotProduct(globalY);
-            dofGlobalToLocalTranspose[22, 11] = localY.DotProduct(globalY);
-
-            dofGlobalToLocalTranspose[23, 10] = localX.DotProduct(globalZ);
-            dofGlobalToLocalTranspose[23, 11] = localY.DotProduct(globalZ);
-#endregion
-            _dofGlobalToLocal = dofGlobalToLocalTranspose.Transpose();*/
-
-            _dofGlobalToLocal = mnl.Matrix<double>.Build.DenseIdentity(20); //TODO: aggiornare
-
-                /*Console.WriteLine("dofGlobalToLocalTranspose.");
-                    * FemUtilites.WriteMatrix(_dofGlobalToLocal);
-                }*/
-
-#endregion
+            /*Console.WriteLine("dofGlobalToLocalTranspose:");
+            FEMUtilities.WriteMatrix(dofGlobalToLocalTranspose);*/
+            #endregion
 
             #region matricesD
             #region Ds - INTERLAYER
@@ -237,10 +187,10 @@ namespace GPC.Model.FEM.FiniteElements
 
             Func<double, double, mnl.Matrix<double>> jacob = FEMUtilities.J2D(Quad4Element.GetdNdCsi, Quad4Element.GetdNdEta, _nodesLocal);
             
-            _kLayer = GaussIntegration.IntegrationQuadrilateral(fKLayer, jacob, 4); // 16 è valore corretto
-            _kGlass = GaussIntegration.IntegrationQuadrilateral(fKGlass, jacob, 4); // 16 è valore corretto
+            _kLayer = GaussIntegration.IntegrationQuadrilateral(fKLayer, jacob, 4);
+            _kGlass = GaussIntegration.IntegrationQuadrilateral(fKGlass, jacob, 4);
 
-            mnl.Matrix<double> UnorderedKElementLocalCoord = _kLayer + _kGlass;
+            _kLocalUnordered = _kLayer + _kGlass;
 
             //riordino gradi di libertà per trasformazione in coordinate globali e assemblaggio
             Solver.DOF[] dofNode = new Solver.DOF[5];
@@ -281,14 +231,12 @@ namespace GPC.Model.FEM.FiniteElements
                         for (int j = 0; j < orderedDofNode.Length; j++)
                         {
                             var position = originale[new Tuple<string, string>(ni + " " + orderedDofNode[i].ToString(), nj + " " + orderedDofNode[j].ToString())];
-                            Console.WriteLine(ni + " " + orderedDofNode[i].ToString() +" " + nj + " " + orderedDofNode[j].ToString() + " -> "  + position.Item1 + "," +position.Item2);
-                            _kElementLocalCoord[ni * 5 + i, nj * 5 + j] = UnorderedKElementLocalCoord[position.Item1, position.Item2];
+                            //Console.WriteLine(ni + " " + orderedDofNode[i].ToString() +" " + nj + " " + orderedDofNode[j].ToString() + " -> "  + position.Item1 + "," +position.Item2);
+                            _kElementLocalCoord[ni * 5 + i, nj * 5 + j] = _kLocalUnordered[position.Item1, position.Item2];
                         }
                     }
                 }
             }
-
-            //_kElementLocalCoord = UnorderedKElementLocalCoord;
         }
 
         /// <summary>
@@ -386,7 +334,6 @@ namespace GPC.Model.FEM.FiniteElements
                 Bs = Bs.Append(bsNode);
             }
             return Bs;
-            //return GetBsi(1, x, y, _lx, _ly);//TODO: cancellare
         }
 
         /// <summary>
@@ -405,7 +352,6 @@ namespace GPC.Model.FEM.FiniteElements
                 Bg = Bg.Append(bgNode);
             }
             return Bg;
-            //return GetBgi(1, x, y, _lx, _ly);
         }
 
         //TODO: Da ottimizzare/scrivere
@@ -1091,7 +1037,7 @@ namespace GPC.Model.FEM.FiniteElements
             bs[1, 1] = GetN(indexNode, 2)(x, y);
 
             Quad4DK el = new Quad4DK(_nodesGlobal);
-            el.SetProperty(new PlateProperty(new Materials.IsotropicFemMaterial(_EGlass, _niGlass, 0, 0), _h1, _h1, "")); //fake
+            el.SetProperty(new PlateProperty(new Materials.IsotropicFemMaterial(_EGlass, _niGlass, 0, 0), _h1, _h1, "")); //TODO: fake
             el.BuildMatrix();
 
             int index1 = 0, index2 = 0, index3 = 0;
@@ -1119,15 +1065,13 @@ namespace GPC.Model.FEM.FiniteElements
                     break;
             }
 
-            double c = -1.0;
+            bs[2, 2] = -el.GetFunction(index1, "x")(csi, eta);
+            bs[2, 3] = -el.GetFunction(index2, "x")(csi, eta);
+            bs[2, 4] = -el.GetFunction(index3, "x")(csi, eta);
 
-            bs[2, 2] = c * el.GetFunction(index1, "x")(csi, eta);
-            bs[2, 3] = c * el.GetFunction(index2, "x")(csi, eta);
-            bs[2, 4] = c * el.GetFunction(index3, "x")(csi, eta);
-
-            bs[3, 2] = c * el.GetFunction(index1, "y")(csi, eta);
-            bs[3, 3] = c * el.GetFunction(index2, "y")(csi, eta);
-            bs[3, 4] = c * el.GetFunction(index3, "y")(csi, eta);
+            bs[3, 2] = -el.GetFunction(index1, "y")(csi, eta);
+            bs[3, 3] = -el.GetFunction(index2, "y")(csi, eta);
+            bs[3, 4] = -el.GetFunction(index3, "y")(csi, eta);
 
             /*bs[2, 2] = GetdNdx(indexNode, 3)(x, y);
             bs[2, 3] = GetdNdx(indexNode, 4)(x, y);

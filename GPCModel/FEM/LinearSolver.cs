@@ -317,7 +317,7 @@ namespace GPC.Model.FEM
                         dirZ.Unitize();
 
                         //Set in global coordinates
-                        double[] additionalForce = new double[6];
+                        double[] additionalForce = new double[dofs.Count];
                         additionalForce[0] = nodeForceAttribute.F1 * dirX.DotProduct(X) + nodeForceAttribute.F2 * dirY.DotProduct(X) + nodeForceAttribute.F3 * dirZ.DotProduct(X); //fX
                         additionalForce[1] = nodeForceAttribute.F1 * dirX.DotProduct(Y) + nodeForceAttribute.F2 * dirY.DotProduct(Y) + nodeForceAttribute.F3 * dirZ.DotProduct(Y); //fY
                         additionalForce[2] = nodeForceAttribute.F1 * dirX.DotProduct(Z) + nodeForceAttribute.F2 * dirY.DotProduct(Z) + nodeForceAttribute.F3 * dirZ.DotProduct(Z); //fZ
@@ -983,12 +983,17 @@ namespace GPC.Model.FEM
         private int GetPositionInKGlobal(Node node, DOF dof = 0)
         {
 #if TRUE
-            //TODO: riscrivere salvando dati in _position
             #region new
             var searchIndex = node.Position;
             if (_position.ContainsKey(searchIndex))
             {
-                return _position[searchIndex] + (int) dof;
+                if (node.DOF.Contains(dof))
+                {
+                    return _position[searchIndex] + (int)dof;
+                } else
+                {
+                    throw new ArgumentOutOfRangeException("Dof: " + dof.ToString() + "  not active in this node: " + node.ToString());
+                }
             } else
             {
                 int contatore = 0;
