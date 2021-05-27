@@ -956,15 +956,17 @@ namespace GPC.Model.FEM
         /// <param name="vertexLineLoadMeshEntityMap">Map between <see cref="ILineLoad"/> and <see cref="MeshVertex"/>.Id</param>
         /// <param name="plateLoadMeshEntityMap">Map between <see cref="IAreaLoad"/> and <see cref="MeshFace"/>.Id</param>
         /// <param name="restrainMeshEntityMap">Map between IGeometryRestrain and <see cref="MeshVertex"/>.Id</param>
+        /// <param name="groupName"></param>
         /// <exception cref="KeyNotFoundException">If a <see cref="MeshVertex"/>.Id of <paramref name="restrainMeshEntityMap"/> is not found in the <paramref name="mesh"/> vertices ids</exception>
         /// <remarks>The instances of <see cref="LoadCaseBase"/> and <see cref="FreedomCase"/> will be replaced with the one in the <see cref="FemModel._loadCases"/> and <see cref="FemModel._freedomCases"/>  </remarks>
         public virtual bool AddMesh(Mesh mesh, string platePropertyName, string brickPropertyName,
                             Dictionary<IPointLoad, int[]> vertexLoadMeshEntityMap,
                             Dictionary<ILineLoad, int[]> vertexLineLoadMeshEntityMap,
                             Dictionary<IAreaLoad, int[]> plateLoadMeshEntityMap,
-                            Dictionary<GeometryRestrain, int[]> restrainMeshEntityMap)
+                            Dictionary<GeometryRestrain, int[]> restrainMeshEntityMap,
+                            string groupName = "")
         {
-            return AddMesh(mesh, platePropertyName, brickPropertyName, vertexLoadMeshEntityMap, vertexLineLoadMeshEntityMap, plateLoadMeshEntityMap, restrainMeshEntityMap, out _, out _, out _);
+            return AddMesh(mesh, platePropertyName, brickPropertyName, vertexLoadMeshEntityMap, vertexLineLoadMeshEntityMap, plateLoadMeshEntityMap, restrainMeshEntityMap, out _, out _, out _, groupName);
         }
 
         /// <summary>
@@ -1464,16 +1466,33 @@ namespace GPC.Model.FEM
         #region Results
 
         /// <returns>The results related to <paramref name="combination"/></returns>
-        public IEnumerable<NodeResult> GetCombinationNodeDisplacementResults(Combination combination)
+        public IEnumerable<NodeResult> GetCombinationNodeDisplacementResults(Combination combination, string groupName = "")
         {
-            return _nodes.SelectMany(i => i.Results.Where(j => j.Case.Equals(combination) && j.Result is ResultDisplacement));
+
+            if (!string.IsNullOrEmpty(groupName))
+            {
+                var group = _groups.GetElementByName(groupName); 
+                return _nodes.SelectMany(i => i.Results.Where(j => i.ContainsGroup(group) && j.Case.Equals(combination) && j.Result is ResultDisplacement));
+            }
+            else
+            {
+                return _nodes.SelectMany(i => i.Results.Where(j => j.Case.Equals(combination) && j.Result is ResultDisplacement));
+            }
         }
 
 
         /// <returns>The results related to <paramref name="combination"/></returns>
-        public IEnumerable<FiniteElementResult> GetCombinationElementStressResults(Combination combination)
+        public IEnumerable<FiniteElementResult> GetCombinationElementStressResults(Combination combination, string groupName = "")
         {
-            return _elements.SelectMany(i => i.Results.Where(k => k.Case.Equals(combination) && k.Results.Where(m => m != null).First() is ResultStress));
+            if (!string.IsNullOrEmpty(groupName))
+            {
+                var group = _groups.GetElementByName(groupName);
+                return _elements.SelectMany(i => i.Results.Where(k => i.ContainsGroup(group) && k.Case.Equals(combination) && k.Results.Where(m => m != null).First() is ResultStress));
+            }
+            else
+            {
+                return _elements.SelectMany(i => i.Results.Where(k => k.Case.Equals(combination) && k.Results.Where(m => m != null).First() is ResultStress));
+            }
         }
 
 
