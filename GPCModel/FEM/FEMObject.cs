@@ -3,6 +3,7 @@ using System.Linq;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
 using GPC.Model.Elements;
+using GPC.Model.FEM.Collections;
 using GPC.Utilities.Extensions;
 
 namespace GPC.Model.FEM
@@ -11,12 +12,13 @@ namespace GPC.Model.FEM
     public abstract class FEMObject : ModelObjectId, ISerializable
     {
 
-        protected readonly HashSet<Group> _groups;
+        protected readonly UniqueNameCollection<Group> _groups; // non usiamo groupCollection in quanto l'id è già stato assegnato dal femModel.
+                                                                // Usiamo questa collection per avere contains con nome e perchè è thread-safe
 
 
         public FEMObject()
         {
-            _groups = new HashSet<Group>();
+            _groups = new UniqueNameCollection<Group>();
         }
 
         public FEMObject(string name) 
@@ -37,6 +39,16 @@ namespace GPC.Model.FEM
         }
 
 
+        public bool ContainsGroup(string groupName)
+        {
+            return _groups.Contains(groupName);
+        }
+        
+        public bool ContainsGroup(Group group)
+        {
+            return _groups.Contains(group);
+        }
+
         internal bool AddGroup(Group group)
         {
             if (group is null)
@@ -51,9 +63,16 @@ namespace GPC.Model.FEM
             if (groups is null)
                 return false;
 
-            _groups.UnionWith(groups);
+            _groups.AddRange(groups);
             return true;
         }
+
+
+        public Group[] GetGroups()
+        {
+            return _groups.ToArray();
+        }
+
 
         internal void SetId(int id)
         {

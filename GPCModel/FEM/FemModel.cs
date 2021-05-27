@@ -320,7 +320,6 @@ namespace GPC.Model.FEM
             return null;
         }
         
-
         public bool SetGroup(IEnumerable<FEMObject> elements, string groupName)
         {
             if (elements is null)
@@ -981,6 +980,7 @@ namespace GPC.Model.FEM
         /// <param name="nodesNewIndexMap">A map between the <see cref="MeshVertex"/>.Id of <paramref name="mesh"/> and the id of the same nodes in the femModel</param>
         /// <param name="platesNewIndexMap">A map between the <see cref="MeshFace"/>.Id of <paramref name="mesh"/> and the id of the same plate in the femModel</param>
         /// <param name="brickNewIndexMap">A map between the <see cref="MeshVolume"/>.Id of <paramref name="mesh"/> and the id of the same brick in the femModel</param>
+        /// <param name="groupName"></param>
         /// <exception cref="KeyNotFoundException">If a <see cref="MeshVertex"/>.Id of <paramref name="restrainMeshEntityMap"/> is not found in the <paramref name="mesh"/> vertices ids</exception>
         /// <remarks>The instances of <see cref="LoadCaseBase"/> and <see cref="FreedomCase"/> will be replaced with the one in the <see cref="FemModel._loadCases"/> and <see cref="FemModel._freedomCases"/>  </remarks>
         public virtual bool AddMesh(Mesh mesh, string platePropertyName, string brickPropertyName, 
@@ -990,7 +990,8 @@ namespace GPC.Model.FEM
                             Dictionary<GeometryRestrain, int[]> restrainMeshEntityMap,
                             out Dictionary<int, int> nodesNewIndexMap,
                             out Dictionary<int, int> platesNewIndexMap,
-                            out Dictionary<int, int> brickNewIndexMap)
+                            out Dictionary<int, int> brickNewIndexMap,
+                            string groupName = "")
         {            
 
             nodesNewIndexMap = new Dictionary<int, int>(); // Mappa tra indici dei nodi dentro _nodes e indici dei vertici della mesh nel caso esistano già dentro _nodes.
@@ -1002,6 +1003,11 @@ namespace GPC.Model.FEM
 
             IPlateProperty plateProperty = null;
             BrickProperty brickProperty = null;
+
+            Group group = null;
+            // Gruppi
+            if (!string.IsNullOrEmpty(groupName))
+                group = AddGroup(groupName);
 
             // Aggiorno la lista proprietà
             if (mesh.Faces.Count != 0)
@@ -1017,13 +1023,23 @@ namespace GPC.Model.FEM
             // Aggiunge nodi alla collection di nodi
             using (var enumerator = mesh.GetVerticesEnumerator())
             {
-                for (int i = 0; i < mesh.VerticesCount; i++)
+                if (group != null)
                 {
-                    enumerator.MoveNext();
+                    for (int i = 0; i < mesh.VerticesCount; i++)
+                    {
+                        enumerator.MoveNext();
+                        nodesNewIndexMap[enumerator.Current.Id] = _nodes.Add(new Node(enumerator.Current.Point, group));
 
-                    int nodeIndex = _nodes.Add(new Node(enumerator.Current.Point));
+                    }
+                }
+                else
+                {
+                    for (int i = 0; i < mesh.VerticesCount; i++)
+                    {
+                        enumerator.MoveNext();
+                        nodesNewIndexMap[enumerator.Current.Id] = _nodes.Add(new Node(enumerator.Current.Point));
 
-                    nodesNewIndexMap[enumerator.Current.Id] = nodeIndex;
+                    }
                 }
             }
 
@@ -1032,7 +1048,7 @@ namespace GPC.Model.FEM
             var faces = mesh.Faces.ToArray();
             for (int i = 0; i < mesh.Faces.Count; i++)
             {
-                if (plateProperty is IPlateProperty ipp)
+                if (plateProperty is IPlateProperty)
                 {
                     var face = faces[i];
 
@@ -1043,7 +1059,8 @@ namespace GPC.Model.FEM
                                                            _nodes[nodesNewIndexMap[face.C]],
                                                            _nodes[nodesNewIndexMap[face.D]]}
                                                        );
-
+                        if (group != null)
+                            plate.AddGroup(group);
                         plate.SetProperty((ElementProperty)plateProperty);
 
                         var plateIndex = _elements.Add(plate);
@@ -1056,7 +1073,8 @@ namespace GPC.Model.FEM
                                                            _nodes[nodesNewIndexMap[face.B]],
                                                            _nodes[nodesNewIndexMap[face.C]]}
                                                        );
-
+                        if (group != null)
+                            plate.AddGroup(group);
                         plate.SetProperty((ElementProperty)plateProperty);
 
                         var plateIndex = _elements.Add(plate);
@@ -1091,6 +1109,9 @@ namespace GPC.Model.FEM
                                                            _nodes[nodesNewIndexMap[volume.H]]}
                                                        );
 
+                        if (group != null)
+                            brick.AddGroup(group);
+
                         brick.SetProperty(bp);
 
                         var brickIndex = _elements.Add(brick);
@@ -1111,6 +1132,9 @@ namespace GPC.Model.FEM
                                                            _nodes[nodesNewIndexMap[volume.E]],
                                                            _nodes[nodesNewIndexMap[volume.F]]}
                                                        );
+
+                        if (group != null)
+                            brick.AddGroup(group);
 
                         brick.SetProperty(bp);
 

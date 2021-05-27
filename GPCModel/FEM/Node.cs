@@ -66,9 +66,20 @@ namespace GPC.Model.FEM
             _results = new ModelObjectSet<NodeResult>(EqualityComparer<ElementResult>.Default); // comparer di ElementResult, usa solo il case come comparatore
         }
 
-        public Node(double X, double Y, double Z, string label="") : this(new Point3d(X, Y, Z), label)
+
+
+        public Node(double X, double Y, double Z, string name = "") : this(new Point3d(X, Y, Z), name)
         {
 
+        }
+
+        /// <summary>
+        /// Internal constructor, that allows to add a group directly during construction to speedup femmodel build
+        /// </summary>
+        // Do not set this constructor to public
+        internal Node(Point3d point, Group group) : this(point, "")
+        {
+            _groups.Add(group);
         }
 
         /// <summary>
