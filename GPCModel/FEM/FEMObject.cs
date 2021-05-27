@@ -11,9 +11,12 @@ namespace GPC.Model.FEM
     public abstract class FEMObject : ModelObjectId, ISerializable
     {
 
+        protected readonly HashSet<Group> _groups;
+
+
         public FEMObject()
         {
-
+            _groups = new HashSet<Group>();
         }
 
         public FEMObject(string name) 
@@ -34,8 +37,27 @@ namespace GPC.Model.FEM
         }
 
 
+        internal bool AddGroup(Group group)
+        {
+            if (group is null)
+                return false;
+
+            _groups.Add(group); // torniamo vero anche se add torna falso, cioè alcuni elementi non aggiunti in quanto già presenti
+            return true;
+        }
+
+        internal bool AddGroupRange(IEnumerable<Group> groups)
+        {
+            if (groups is null)
+                return false;
+
+            _groups.UnionWith(groups);
+            return true;
+        }
+
         internal void SetId(int id)
         {
+            // teoricamente questo metodo non serve più. Al momento esiste solo per retrocompatibilità
             base.Id = id;
         }
 

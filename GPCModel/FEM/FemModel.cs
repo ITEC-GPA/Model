@@ -15,6 +15,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
+using System.Threading.Tasks;
 
 namespace GPC.Model.FEM
 {
@@ -123,11 +124,6 @@ namespace GPC.Model.FEM
 
         public virtual AnalysisTypes AnalysisType { get => _analysisType; set => _analysisType = value; }
 
-        public IEnumerable<Combination> Combinations => _combinations;
-
-        public IEnumerable<LoadCaseBase> LoadCases => _loadCases;
-
-
         #endregion
 
         #region Constructors
@@ -175,7 +171,6 @@ namespace GPC.Model.FEM
         #region Methods
 
         #region Add Get Attributes
-
 
         #region Element Properties
 
@@ -240,7 +235,6 @@ namespace GPC.Model.FEM
 
         #endregion
 
-
         #region LoadCase / FredomCase
 
         /// <inheritdoc cref="UniqueNameCollection{T}.Add(T)"/>
@@ -270,8 +264,12 @@ namespace GPC.Model.FEM
             return _freedomCases.GetElementByName(freedomCaseName);
         }
 
-        #endregion
+        public LoadCaseBase[] GetLoadCases()
+        {
+            return _loadCases.ToArray();
+        }
 
+        #endregion
 
         #region Combinations
 
@@ -298,8 +296,94 @@ namespace GPC.Model.FEM
         {
             return _stageCombinationsMap[stageId].Remove(combinationName);
         }
+
+        public Combination[] GetCombinations()
+        {
+            return _combinations.ToArray();
+        }
+
         #endregion
 
+        #region Groups
+        
+        public Group AddGroup(string name)
+        {
+            if (string.IsNullOrWhiteSpace(name) || string.IsNullOrEmpty(name))
+                throw new ArgumentException($"'{nameof(name)}' cannot be null or whitespace.", nameof(name));
+
+            Group group = new Group(name);
+            
+            if (_groups.Add(group))
+            {
+                return group;
+            }
+            return null;
+        }
+        
+
+        public bool SetGroup(IEnumerable<FEMObject> elements, string groupName)
+        {
+            if (elements is null)
+                throw new ArgumentNullException(nameof(elements));
+
+
+            if (string.IsNullOrEmpty(groupName) || string.IsNullOrEmpty(groupName))
+                throw new ArgumentException($"'{nameof(groupName)}' cannot be null or empty.", nameof(groupName));
+
+
+            var group = _groups.GetElementByName(groupName);
+
+            //Func<FEMObject, Group, bool> add = (obj, group) => obj.AddGroup(group);
+
+            foreach (FEMObject element in elements)
+            {
+                if (element is null)
+                    return false;
+
+                if (!element.AddGroup(group))
+                    return false;
+            }
+
+            return true;
+        }
+
+        public bool SetGroupRange(IEnumerable<FEMObject> elements, IEnumerable<string> groupNames)
+        {
+            if (elements is null)
+                throw new ArgumentNullException(nameof(elements));
+
+            if (groupNames is null)
+                throw new ArgumentNullException(nameof(groupNames));
+
+
+            foreach (var names in groupNames)
+            {
+                if (string.IsNullOrEmpty(names) || string.IsNullOrEmpty(names))
+                    throw new ArgumentException($"'{nameof(names)}' cannot be null or empty.", nameof(names));
+
+
+                Group group = _groups.GetElementByName(names);
+
+                foreach (FEMObject element in elements)
+                {
+                    if (element is null)
+                        return false;
+
+                    if (!element.AddGroup(group))
+                        return false;
+                }
+            }
+
+            return true;
+        }
+
+        public Group[] GetGroups()
+        {
+            return _groups.ToArray();
+        }
+
+
+        #endregion
 
         #region Stages
 
@@ -309,8 +393,11 @@ namespace GPC.Model.FEM
         public virtual Stage AddStage(string name, AnalysisTypes analysisType, bool morph = false)
         {
             Stage stage = new Stage(name, this, analysisType, morph, null);
-            _stages.Add(stage);
-            return stage;
+            if (_stages.Add(stage))
+            {
+                return stage;
+            }
+            return null;
         }
 
         /// <summary>
@@ -364,7 +451,6 @@ namespace GPC.Model.FEM
 
         #endregion
 
-
         #region ModelAttribute
 
         /// <summary>Create the a ModelAccelerationAttribute using the loadcase with name equal to <paramref name="loadCaseName"/></summary>
@@ -390,7 +476,6 @@ namespace GPC.Model.FEM
         } 
 
         #endregion
-
 
         #endregion
 
@@ -469,15 +554,21 @@ namespace GPC.Model.FEM
         /// <param name="id"></param>
         /// <returns></returns>
         /// <inheritdoc cref="FemObjectCollection{T}.GetElementById(int)"/>
-        public virtual FiniteElement GetFiniteElement(int id)
+        public FiniteElement GetFiniteElement(int id)
         {
             return _elements[id];
         }
 
 
-        public virtual IEnumerator<FiniteElement> GetElementsEnumerator()
+        public IEnumerator<FiniteElement> GetElementsEnumerator()
         {
             return _elements.GetEnumerator();
+        }
+
+
+        public FiniteElement[] GetElements()
+        {
+            return _elements.ToArray();
         }
 
 
@@ -549,6 +640,11 @@ namespace GPC.Model.FEM
         public virtual IEnumerator<Node> GetNodesEnumerator()
         {
             return _nodes.GetEnumerator();
+        }
+
+        public Node[] GetNodes()
+        {
+            return _nodes.ToArray();
         }
 
 
@@ -1318,7 +1414,11 @@ namespace GPC.Model.FEM
             return _freedomCases.Contains(freedomCaseName);
         }
 
-            
+        public bool GroupExist(string name)
+        {
+            return _groups.Contains(name);
+        }
+
         #endregion
 
         #region Solve
@@ -1356,8 +1456,6 @@ namespace GPC.Model.FEM
         #endregion
 
         #endregion
-
-
 
         #region Equals - HashCode - Operators
 

@@ -16,7 +16,8 @@ namespace GPC.Model.FEM
     {
         // eventuali opzioni
 
-        public Group(string name) : base(name)
+        // costruttore internal. Solo la classe fem model deve poter essere in grado di instaliazzare i gruppi
+        internal Group(string name) : base(name)
         {
 
         }
