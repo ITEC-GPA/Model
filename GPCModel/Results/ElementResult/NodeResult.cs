@@ -12,10 +12,21 @@ namespace GPC.Model.Results
 
         public ResultType Result => (ResultType)_result;
 
-        public NodeResult(ILoadCase Case, CoordinateSystem coordinateSystem, INodeResult result) : base(Case, coordinateSystem)
+
+        public NodeResult(ILoadCase Case, CoordinateSystem coordinateSystem, INodeResult result)
+            : this(Case, coordinateSystem, result, ModelObjectId.IDUNASSIGNED)
+        {
+
+        }
+
+        public NodeResult(ILoadCase Case, CoordinateSystem coordinateSystem, INodeResult result, int stageId)
+            : base(Case, coordinateSystem)
         {
             _result = result;
+            _stageId = stageId;
         }
+
+
 
         public override int GetHashCode()
         {
