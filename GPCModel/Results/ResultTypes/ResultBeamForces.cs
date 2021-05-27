@@ -39,7 +39,7 @@ namespace GPC.Model.Results
 
 
         /// <param name="N"> axial force </param>
-        /// <param name="V1"> shear along principal axis 1 </param>
+        /// <param name="V1"> shear along principal axis 1</param>
         /// <param name="V2"> shear along principal axis 2</param>
         /// <param name="T"> torque moment </param>
         /// <param name="M1"> Bending moment around axis 1 (in plane 2, right hand rule) </param>

@@ -22,7 +22,7 @@ namespace GPC.Model
 
         public ModelObjectId()
         {
-
+            _id = IDUNASSIGNED;
         }
 
         public ModelObjectId(int id)
@@ -34,13 +34,13 @@ namespace GPC.Model
         public ModelObjectId(Guid guid)
             : base(guid)
         {
-
+            _id = IDUNASSIGNED;
         }
 
         public ModelObjectId(string name)
             : base(name)
         {
-
+            _id = IDUNASSIGNED;
         }
 
         public ModelObjectId(int id, string name)

@@ -3,6 +3,7 @@ using System.Linq;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
 using GPC.Model.Elements;
+using GPC.Model.FEM.Collections;
 using GPC.Utilities.Extensions;
 
 namespace GPC.Model.FEM
@@ -11,9 +12,13 @@ namespace GPC.Model.FEM
     public abstract class FEMObject : ModelObjectId, ISerializable
     {
 
+        protected readonly UniqueNameCollection<Group> _groups; // non usiamo groupCollection in quanto l'id è già stato assegnato dal femModel.
+                                                                // Usiamo questa collection per avere contains con nome e perchè è thread-safe
+
+
         public FEMObject()
         {
-
+            _groups = new UniqueNameCollection<Group>();
         }
 
         public FEMObject(string name) 
@@ -34,8 +39,44 @@ namespace GPC.Model.FEM
         }
 
 
+        public bool ContainsGroup(string groupName)
+        {
+            return _groups.Contains(groupName);
+        }
+        
+        public bool ContainsGroup(Group group)
+        {
+            return _groups.Contains(group);
+        }
+
+        internal bool AddGroup(Group group)
+        {
+            if (group is null)
+                return false;
+
+            _groups.Add(group); // torniamo vero anche se add torna falso, cioè alcuni elementi non aggiunti in quanto già presenti
+            return true;
+        }
+
+        internal bool AddGroupRange(IEnumerable<Group> groups)
+        {
+            if (groups is null)
+                return false;
+
+            _groups.AddRange(groups);
+            return true;
+        }
+
+
+        public Group[] GetGroups()
+        {
+            return _groups.ToArray();
+        }
+
+
         internal void SetId(int id)
         {
+            // teoricamente questo metodo non serve più. Al momento esiste solo per retrocompatibilità
             base.Id = id;
         }
 
