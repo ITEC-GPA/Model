@@ -64,11 +64,6 @@ namespace GPC.Model
             return false;
         }
 
-        /// <inheritdoc cref="AddRange(IEnumerable{T})"/>
-        public virtual bool AddRange(T[] items)
-        {
-            return this.AddRange(items.ToList());
-        }
 
         /// <summary><inheritdoc cref="Enumerable.SingleOrDefault{TSource}(IEnumerable{TSource})"/></summary>
         /// <returns><inheritdoc cref="Enumerable.SingleOrDefault{TSource}(IEnumerable{TSource})"/></returns>

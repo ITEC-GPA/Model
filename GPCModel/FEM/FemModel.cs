@@ -93,6 +93,12 @@ namespace GPC.Model.FEM
         /// </summary>
         protected Dictionary<int, HashSet<string>> _stageCombinationsMap;
 
+        // GROUPS
+
+        /// <summary>
+        /// Collections of group
+        /// </summary>
+        protected GroupCollection _groups;
 
 
         // STAGE
@@ -147,6 +153,8 @@ namespace GPC.Model.FEM
             _loadCases = new UniqueNameCollection<LoadCaseBase>();
             _freedomCases = new UniqueNameCollection<FreedomCase>();
             _combinations = new UniqueNameCollection<Combination>();
+
+            _groups = new GroupCollection();
 
             _stageCombinationsMap = new Dictionary<int, HashSet<string>>();
 

@@ -50,10 +50,7 @@ namespace GPC.Model.FEM
 
         public override bool Equals(object obj)
         {
-            if (obj is Group)
-                return Equals((Group)obj);
-
-            return false;
+            return obj is Group group && Equals(group);
         }
 
         public static bool operator ==(Group obj1, Group obj2)
