@@ -44,7 +44,7 @@ namespace GPC.Model.FEM.Collections
             lock (_locker)
             {
                 // obj non presente
-                if (_ids.Contains(item.Id))
+                if (item.Id == ModelObjectId.IDUNASSIGNED || _ids.Contains(item.Id))
                 {
                     // id già presente
                     // cambio id e aggiungo obj
