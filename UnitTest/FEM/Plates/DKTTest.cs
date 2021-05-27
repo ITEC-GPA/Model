@@ -431,5 +431,196 @@ namespace FemTest.SolverTest
             e0.BuildMatrix();
             FEMUtilities.WriteMatrix(e0.KElementGlobalCoord);
         }
+
+        /// <summary>
+        /// piastra 12x20, piastra semplicemente appoggiata con forze concentrate. elementi rettangolari non quadrati
+        /// </summary>
+        [TestMethod]
+        public void QuadrilateralTestRobert5()
+        {
+            double h = 0.31498;
+            double E = 10000.0;
+            double ni = 0.0;
+
+            Material mat = new SteelMaterial("mat", E, ni, 355, 510, 7850);
+            PlateProperty prop = new PlateProperty(mat.GetIsotropicFemMaterial(), h, h, "p");
+
+            List<Node> nodes = new List<Node>();
+            #region nodes
+            nodes.Add(new Node(-1e6, -1e6, -1e6));
+            nodes.Add(new Node(0, 0, 0));
+            nodes.Add(new Node(0, 20, 0));
+            nodes.Add(new Node(12, 0, 0));
+            nodes.Add(new Node(12, 20, 0));
+            nodes.Add(new Node(2.5, 0, 0));
+            nodes.Add(new Node(4.7, 0, 0));
+            nodes.Add(new Node(6, 0, 0));
+            nodes.Add(new Node(8.7, 0, 0));
+            nodes.Add(new Node(10.5, 0, 0));
+            nodes.Add(new Node(0, 2.6, 0));
+            nodes.Add(new Node(2.5, 2.6, 0));
+            nodes.Add(new Node(4.7, 2.6, 0));
+            nodes.Add(new Node(6, 2.6, 0));
+            nodes.Add(new Node(8.7, 2.6, 0));
+            nodes.Add(new Node(10.5, 2.6, 0));
+            nodes.Add(new Node(12, 2.6, 0));
+            nodes.Add(new Node(0, 4.3, 0));
+            nodes.Add(new Node(2.5, 4.3, 0));
+            nodes.Add(new Node(4.7, 4.3, 0));
+            nodes.Add(new Node(6, 4.3, 0));
+            nodes.Add(new Node(8.7, 4.3, 0));
+            nodes.Add(new Node(10.5, 4.3, 0));
+            nodes.Add(new Node(12, 4.3, 0));
+            nodes.Add(new Node(0, 6, 0));
+            nodes.Add(new Node(2.5, 6, 0));
+            nodes.Add(new Node(4.7, 6, 0));
+            nodes.Add(new Node(6, 6, 0));
+            nodes.Add(new Node(8.7, 6, 0));
+            nodes.Add(new Node(10.5, 6, 0));
+            nodes.Add(new Node(12, 6, 0));
+            nodes.Add(new Node(0, 7.6, 0));
+            nodes.Add(new Node(2.5, 7.6, 0));
+            nodes.Add(new Node(4.7, 7.6, 0));
+            nodes.Add(new Node(6, 7.6, 0));
+            nodes.Add(new Node(8.7, 7.6, 0));
+            nodes.Add(new Node(10.5, 7.6, 0));
+            nodes.Add(new Node(12, 7.6, 0));
+            nodes.Add(new Node(0, 10, 0));
+            nodes.Add(new Node(2.5, 10, 0));
+            nodes.Add(new Node(4.7, 10, 0));
+            nodes.Add(new Node(6, 10, 0));
+            nodes.Add(new Node(8.7, 10, 0));
+            nodes.Add(new Node(10.5, 10, 0));
+            nodes.Add(new Node(12, 10, 0));
+            nodes.Add(new Node(0, 12.4, 0));
+            nodes.Add(new Node(2.5, 12.4, 0));
+            nodes.Add(new Node(4.7, 12.4, 0));
+            nodes.Add(new Node(6, 12.4, 0));
+            nodes.Add(new Node(8.7, 12.4, 0));
+            nodes.Add(new Node(10.5, 12.4, 0));
+            nodes.Add(new Node(12, 12.4, 0));
+            nodes.Add(new Node(0, 14.2, 0));
+            nodes.Add(new Node(2.5, 14.2, 0));
+            nodes.Add(new Node(4.7, 14.2, 0));
+            nodes.Add(new Node(6, 14.2, 0));
+            nodes.Add(new Node(8.7, 14.2, 0));
+            nodes.Add(new Node(10.5, 14.2, 0));
+            nodes.Add(new Node(12, 14.2, 0));
+            nodes.Add(new Node(0, 16, 0));
+            nodes.Add(new Node(2.5, 16, 0));
+            nodes.Add(new Node(4.7, 16, 0));
+            nodes.Add(new Node(6, 16, 0));
+            nodes.Add(new Node(8.7, 16, 0));
+            nodes.Add(new Node(10.5, 16, 0));
+            nodes.Add(new Node(12, 16, 0));
+            nodes.Add(new Node(0, 17.6, 0));
+            nodes.Add(new Node(2.5, 17.6, 0));
+            nodes.Add(new Node(4.7, 17.6, 0));
+            nodes.Add(new Node(6, 17.6, 0));
+            nodes.Add(new Node(8.7, 17.6, 0));
+            nodes.Add(new Node(10.5, 17.6, 0));
+            nodes.Add(new Node(12, 17.6, 0));
+            nodes.Add(new Node(2.5, 20, 0));
+            nodes.Add(new Node(4.7, 20, 0));
+            nodes.Add(new Node(6, 20, 0));
+            nodes.Add(new Node(8.7, 20, 0));
+            nodes.Add(new Node(10.5, 20, 0));
+            #endregion
+
+            #region plates
+            List<Quad4DK> els = new List<Quad4DK>();
+            els.Add(new Quad4DK(new Node[] { nodes[71], nodes[72], nodes[4], nodes[77] }));
+            els.Add(new Quad4DK(new Node[] { nodes[1], nodes[5], nodes[11], nodes[10] }));
+            els.Add(new Quad4DK(new Node[] { nodes[5], nodes[6], nodes[12], nodes[11] }));
+            els.Add(new Quad4DK(new Node[] { nodes[6], nodes[7], nodes[13], nodes[12] }));
+            els.Add(new Quad4DK(new Node[] { nodes[7], nodes[8], nodes[14], nodes[13] }));
+            els.Add(new Quad4DK(new Node[] { nodes[8], nodes[9], nodes[15], nodes[14] }));
+            els.Add(new Quad4DK(new Node[] { nodes[9], nodes[3], nodes[16], nodes[15] }));
+            els.Add(new Quad4DK(new Node[] { nodes[10], nodes[11], nodes[18], nodes[17] }));
+            els.Add(new Quad4DK(new Node[] { nodes[11], nodes[12], nodes[19], nodes[18] }));
+            els.Add(new Quad4DK(new Node[] { nodes[12], nodes[13], nodes[20], nodes[19] }));
+            els.Add(new Quad4DK(new Node[] { nodes[13], nodes[14], nodes[21], nodes[20] }));
+            els.Add(new Quad4DK(new Node[] { nodes[14], nodes[15], nodes[22], nodes[21] }));
+            els.Add(new Quad4DK(new Node[] { nodes[15], nodes[16], nodes[23], nodes[22] }));
+            els.Add(new Quad4DK(new Node[] { nodes[17], nodes[18], nodes[25], nodes[24] }));
+            els.Add(new Quad4DK(new Node[] { nodes[18], nodes[19], nodes[26], nodes[25] }));
+            els.Add(new Quad4DK(new Node[] { nodes[19], nodes[20], nodes[27], nodes[26] }));
+            els.Add(new Quad4DK(new Node[] { nodes[20], nodes[21], nodes[28], nodes[27] }));
+            els.Add(new Quad4DK(new Node[] { nodes[21], nodes[22], nodes[29], nodes[28] }));
+            els.Add(new Quad4DK(new Node[] { nodes[22], nodes[23], nodes[30], nodes[29] }));
+            els.Add(new Quad4DK(new Node[] { nodes[24], nodes[25], nodes[32], nodes[31] }));
+            els.Add(new Quad4DK(new Node[] { nodes[25], nodes[26], nodes[33], nodes[32] }));
+            els.Add(new Quad4DK(new Node[] { nodes[26], nodes[27], nodes[34], nodes[33] }));
+            els.Add(new Quad4DK(new Node[] { nodes[27], nodes[28], nodes[35], nodes[34] }));
+            els.Add(new Quad4DK(new Node[] { nodes[28], nodes[29], nodes[36], nodes[35] }));
+            els.Add(new Quad4DK(new Node[] { nodes[29], nodes[30], nodes[37], nodes[36] }));
+            els.Add(new Quad4DK(new Node[] { nodes[31], nodes[32], nodes[39], nodes[38] }));
+            els.Add(new Quad4DK(new Node[] { nodes[32], nodes[33], nodes[40], nodes[39] }));
+            els.Add(new Quad4DK(new Node[] { nodes[33], nodes[34], nodes[41], nodes[40] }));
+            els.Add(new Quad4DK(new Node[] { nodes[34], nodes[35], nodes[42], nodes[41] }));
+            els.Add(new Quad4DK(new Node[] { nodes[35], nodes[36], nodes[43], nodes[42] }));
+            els.Add(new Quad4DK(new Node[] { nodes[36], nodes[37], nodes[44], nodes[43] }));
+            els.Add(new Quad4DK(new Node[] { nodes[38], nodes[39], nodes[46], nodes[45] }));
+            els.Add(new Quad4DK(new Node[] { nodes[39], nodes[40], nodes[47], nodes[46] }));
+            els.Add(new Quad4DK(new Node[] { nodes[40], nodes[41], nodes[48], nodes[47] }));
+            els.Add(new Quad4DK(new Node[] { nodes[41], nodes[42], nodes[49], nodes[48] }));
+            els.Add(new Quad4DK(new Node[] { nodes[42], nodes[43], nodes[50], nodes[49] }));
+            els.Add(new Quad4DK(new Node[] { nodes[43], nodes[44], nodes[51], nodes[50] }));
+            els.Add(new Quad4DK(new Node[] { nodes[45], nodes[46], nodes[53], nodes[52] }));
+            els.Add(new Quad4DK(new Node[] { nodes[46], nodes[47], nodes[54], nodes[53] }));
+            els.Add(new Quad4DK(new Node[] { nodes[47], nodes[48], nodes[55], nodes[54] }));
+            els.Add(new Quad4DK(new Node[] { nodes[48], nodes[49], nodes[56], nodes[55] }));
+            els.Add(new Quad4DK(new Node[] { nodes[49], nodes[50], nodes[57], nodes[56] }));
+            els.Add(new Quad4DK(new Node[] { nodes[50], nodes[51], nodes[58], nodes[57] }));
+            els.Add(new Quad4DK(new Node[] { nodes[52], nodes[53], nodes[60], nodes[59] }));
+            els.Add(new Quad4DK(new Node[] { nodes[53], nodes[54], nodes[61], nodes[60] }));
+            els.Add(new Quad4DK(new Node[] { nodes[54], nodes[55], nodes[62], nodes[61] }));
+            els.Add(new Quad4DK(new Node[] { nodes[55], nodes[56], nodes[63], nodes[62] }));
+            els.Add(new Quad4DK(new Node[] { nodes[56], nodes[57], nodes[64], nodes[63] }));
+            els.Add(new Quad4DK(new Node[] { nodes[57], nodes[58], nodes[65], nodes[64] }));
+            els.Add(new Quad4DK(new Node[] { nodes[59], nodes[60], nodes[67], nodes[66] }));
+            els.Add(new Quad4DK(new Node[] { nodes[60], nodes[61], nodes[68], nodes[67] }));
+            els.Add(new Quad4DK(new Node[] { nodes[61], nodes[62], nodes[69], nodes[68] }));
+            els.Add(new Quad4DK(new Node[] { nodes[62], nodes[63], nodes[70], nodes[69] }));
+            els.Add(new Quad4DK(new Node[] { nodes[63], nodes[64], nodes[71], nodes[70] }));
+            els.Add(new Quad4DK(new Node[] { nodes[64], nodes[65], nodes[72], nodes[71] }));
+            els.Add(new Quad4DK(new Node[] { nodes[66], nodes[67], nodes[73], nodes[2] }));
+            els.Add(new Quad4DK(new Node[] { nodes[67], nodes[68], nodes[74], nodes[73] }));
+            els.Add(new Quad4DK(new Node[] { nodes[68], nodes[69], nodes[75], nodes[74] }));
+            els.Add(new Quad4DK(new Node[] { nodes[69], nodes[70], nodes[76], nodes[75] }));
+            els.Add(new Quad4DK(new Node[] { nodes[70], nodes[71], nodes[77], nodes[76] }));
+            #endregion
+            els.ForEach(x => x.SetProperty(prop));
+
+            CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
+
+            NodeForceAttribute f = new NodeForceAttribute("lc", sys, 0, 0, 100, 0, 0, 0);
+            nodes.Where(x => x.Position.X == 6.0 && x.Position.Y == 10.0).ToList().ForEach(x => x.AddAttribute(f));
+
+            NodeRestrainAttribute dz = new NodeRestrainAttribute("freedomCase", sys);
+            dz.AddExternalRestrain(Solver.DOF.DZ);
+
+            nodes[1].AddAttribute(dz);
+            nodes[3].AddAttribute(dz);
+            nodes[4].AddAttribute(dz);
+            nodes[2].AddAttribute(dz);
+
+            NodeRestrainAttribute fix = new NodeRestrainAttribute("freedomCase", sys);
+            fix.AddExternalRestrain(Solver.DOF.DX);
+            fix.AddExternalRestrain(Solver.DOF.DY);
+            //fix.AddExternalRestrain(Solver.DOF.DZ);
+
+            /*fix.AddExternalRestrain(Solver.DOF.RX);
+            fix.AddExternalRestrain(Solver.DOF.RY);*/
+            fix.AddExternalRestrain(Solver.DOF.RZ);
+
+            //fix.AddExternalRestrain(Solver.DOF.DDX);
+            //fix.AddExternalRestrain(Solver.DOF.DDY);
+            //fix.AddExternalRestrain(Solver.DOF.DDZ);
+
+            nodes.ForEach(x => x.AddAttribute(fix));
+
+            LinearSolver fem = new LinearSolver(els.ToArray());
+        }
     }
 }

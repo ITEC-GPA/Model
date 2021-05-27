@@ -187,8 +187,8 @@ namespace GPC.Model.FEM.FiniteElements
 
             Func<double, double, mnl.Matrix<double>> jacob = FEMUtilities.J2D(Quad4Element.GetdNdCsi, Quad4Element.GetdNdEta, _nodesLocal);
             
-            _kLayer = GaussIntegration.IntegrationQuadrilateral(fKLayer, jacob, 4);
-            _kGlass = GaussIntegration.IntegrationQuadrilateral(fKGlass, jacob, 4);
+            _kLayer = GaussIntegration.IntegrationQuadrilateral(fKLayer, jacob, 16);
+            _kGlass = GaussIntegration.IntegrationQuadrilateral(fKGlass, jacob, 16);
 
             _kLocalUnordered = _kLayer + _kGlass;
 
@@ -1102,12 +1102,12 @@ namespace GPC.Model.FEM.FiniteElements
             GetLxLy(indexNode, out lx, out ly);
 
             mnl.Matrix<double> bg = mnl.Matrix<double>.Build.Dense(6, 5);
-            bg[0, 0] = GetdNdx(indexNode, 1)(x, y);
+            bg[0, 0] = 1.0 * GetdNdx(indexNode, 1)(x, y);
 
-            bg[1, 1] = GetdNdy(indexNode, 2)(x, y);
+            bg[1, 1] = 1.0 * GetdNdy(indexNode, 2)(x, y);
 
-            bg[2, 0] = GetdNdy(indexNode, 1)(x, y);
-            bg[2, 1] = GetdNdx(indexNode, 2)(x, y);
+            bg[2, 0] = 1.0 * GetdNdy(indexNode, 1)(x, y);
+            bg[2, 1] = 1.0 * GetdNdx(indexNode, 2)(x, y);
 
             Quad4DK el = new Quad4DK(_nodesGlobal);
             el.SetProperty(new PlateProperty(new Materials.IsotropicFemMaterial(_EGlass, _niGlass, 0, 0), _h1, _h1, "")); //fake
