@@ -8,10 +8,11 @@ namespace GPC.Model
     /// <summary>
     /// This class add the attribute Id to the <see cref="ModelObject"/> base class
     /// </summary>
-
     [Serializable]
     public abstract class ModelObjectId : ModelObject, ISerializable
     {
+        public const int IDUNASSIGNED = -1;
+
         protected int _id;
 
         /// <summary>
