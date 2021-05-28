@@ -65,5 +65,6 @@ namespace GPC.Model.Results
         {
             return !(obj1 == obj2);
         }
+
     }
 }

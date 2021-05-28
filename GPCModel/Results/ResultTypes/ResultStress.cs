@@ -1,4 +1,4 @@
-﻿using GPC.Geometry;
+using GPC.Geometry;
 using GPC.Model.LoadCases;
 using MathNet.Numerics.LinearAlgebra;
 using System;
@@ -285,7 +285,14 @@ namespace GPC.Model.Results
             }
         }
 
+        public ResultStress ToCoordinateSystem(CoordinateSystem coordinateSystem)
+        {
+            var globalTensor = GetTensor(true);
 
+            var rotatedTensor = coordinateSystem.TrfMatrix.Resize(3, 3).Transpose() * (globalTensor) * coordinateSystem.TrfMatrix.Resize(3, 3);
+
+            return new ResultStress(coordinateSystem, rotatedTensor[0, 0], rotatedTensor[1, 1], rotatedTensor[2, 2], rotatedTensor[0, 1], rotatedTensor[0, 2], rotatedTensor[1, 2]);
+        }
 
         #endregion
 
@@ -345,6 +352,42 @@ namespace GPC.Model.Results
 
             return obj1.Equals(obj2);
         }
+
+        public ResultStress GetArithmeticMean(ResultStress[] values)
+        {
+            if (values.Select(i => i._coordinateSystem).Distinct().Count() > 0)
+            {
+                return new ResultStress(values[0]._coordinateSystem,
+                                        Utilities.Maths.Averages.ArithmeticMean(values.Select(i => i.Sxx).ToArray()), // TODO: rimuovere toarray e metter ienumer
+                                        Utilities.Maths.Averages.ArithmeticMean(values.Select(i => i.Syy).ToArray()),
+                                        Utilities.Maths.Averages.ArithmeticMean(values.Select(i => i.Szz).ToArray()),
+                                        Utilities.Maths.Averages.ArithmeticMean(values.Select(i => i.Sxy).ToArray()),
+                                        Utilities.Maths.Averages.ArithmeticMean(values.Select(i => i.Sxz).ToArray()),
+                                        Utilities.Maths.Averages.ArithmeticMean(values.Select(i => i.Syz).ToArray())
+                                        );                    
+            }
+            else
+            {
+
+                var rotated = new List<ResultStress>();
+                rotated[0] = values[0];
+
+                rotated.AddRange(values.Skip(1).Select(i => i.ToCoordinateSystem(values[0]._coordinateSystem)));                
+
+                return new ResultStress(values[0]._coordinateSystem,
+                                                Utilities.Maths.Averages.ArithmeticMean(rotated.Select(i => i.Sxx).ToArray()), // TODO: rimuovere toarray e metter ienumer
+                                                Utilities.Maths.Averages.ArithmeticMean(rotated.Select(i => i.Syy).ToArray()),
+                                                Utilities.Maths.Averages.ArithmeticMean(rotated.Select(i => i.Szz).ToArray()),
+                                                Utilities.Maths.Averages.ArithmeticMean(rotated.Select(i => i.Sxy).ToArray()),
+                                                Utilities.Maths.Averages.ArithmeticMean(rotated.Select(i => i.Sxz).ToArray()),
+                                                Utilities.Maths.Averages.ArithmeticMean(rotated.Select(i => i.Syz).ToArray())
+                                        );
+
+
+            }
+
+        }
+
 
         public static bool operator !=(ResultStress obj1, ResultStress obj2)
         {

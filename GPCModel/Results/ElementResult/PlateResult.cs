@@ -57,6 +57,41 @@ namespace GPC.Model.Results
         }
 
 
+        public (ResultType lowerFace, ResultType midFace, ResultType upperFace) GetMeanFaceResults()
+        {
+            List<ResultType[]> resultSplitted = Results.Split(Results.Length / 3);
+            List<ResultLocationId[]> pointSplitted = Points.Split(Results.Length / 3);
+
+            ResultType[] returnValues = new ResultType[3];
+
+            for (int i = 0; i < 3; i++)
+            {
+                if (pointSplitted[i].First() is ResultLocationPoint)
+                {
+                    throw new NotImplementedException("Mean value considering point coordinate to be implemented");
+                }
+                else if (pointSplitted[i].First() is ResultLocationId)
+                {
+                    if (resultSplitted[i].First() is ResultType)
+                    {
+                        returnValues[i] = ResultStress.GetArithmeticMean(resultSplitted[i]);
+                    }
+                    else
+                    {
+                        throw new NotImplementedException();
+                    }
+                }
+                else
+                {
+                    throw new NotImplementedException();
+                } 
+            }
+
+
+            return (returnValues[0], returnValues[1], returnValues[2]);
+        }
+
+
         public override int GetHashCode()
         {
             return base.GetHashCode();
