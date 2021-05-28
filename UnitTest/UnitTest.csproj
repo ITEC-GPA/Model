@@ -107,9 +107,10 @@
     <Compile Include="FemModelTest.cs" />
     <Compile Include="UnitsTest.cs" />
     <Compile Include="FemObjectCollectionsTest.cs" />
-    <Compile Include="StagesTest.cs" />
+    <Compile Include="FemModelStagesTest.cs" />
     <Compile Include="ModelObjectCollectionTest.cs" />
     <Compile Include="GlassTest.cs" />
+    <Compile Include="FemModelResultTest.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

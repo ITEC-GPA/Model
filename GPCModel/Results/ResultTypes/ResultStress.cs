@@ -353,7 +353,7 @@ namespace GPC.Model.Results
             return obj1.Equals(obj2);
         }
 
-        public ResultStress GetArithmeticMean(ResultStress[] values)
+        public static ResultStress GetArithmeticMean(ResultStress[] values)
         {
             if (values.Select(i => i._coordinateSystem).Distinct().Count() > 0)
             {

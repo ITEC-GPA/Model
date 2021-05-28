@@ -72,9 +72,9 @@ namespace GPC.Model.Results
                 }
                 else if (pointSplitted[i].First() is ResultLocationId)
                 {
-                    if (resultSplitted[i].First() is ResultType)
+                    if (resultSplitted[i].First() is ResultStress)
                     {
-                        returnValues[i] = ResultStress.GetArithmeticMean(resultSplitted[i]);
+                        returnValues[i] = ResultStress.GetArithmeticMean((ResultStress[])resultSplitted[i]);
                     }
                     else
                     {

@@ -215,66 +215,6 @@ namespace ModelObjectTest
         }
 
 
-        //[TestMethod]
-        //public void StressOperatorsSumTest5()
-        //{
-
-        //    Matrix<double> stress1 = Matrix<double>.Build.Sparse(3, 3);
-        //    stress1[0, 0] = 1;
-        //    stress1[0, 1] = -3 * Math.Sqrt(2);
-        //    stress1[0, 2] = Math.Sqrt(2);
-
-        //    stress1[1, 0] = -3 * Math.Sqrt(2);
-        //    stress1[1, 1] = 1/2.0;
-        //    stress1[1, 2] = -3/2.0;
-
-        //    stress1[2, 0] = Math.Sqrt(2);
-        //    stress1[2, 1] = -3 * Math.Sqrt(2);
-        //    stress1[2, 2] = 25/2.0;
-
-
-        //    CoordinateSystem cs1 = CoordinateSystem.Global;
-        //    cs1.Rotate(45.ToRadians(), 0, 0);
-
-        //    ResultStress rs1 = new ResultStress(cs1, stress1[0, 0], stress1[1, 1], stress1[2, 2], stress1[0, 1], stress1[0, 2], stress1[1, 2]);
-
-
-
-        //    Matrix<double> stress2 = Matrix<double>.Build.Sparse(3, 3);
-        //    stress2[0, 0] = 8;
-        //    stress2[0, 1] = 6 * Math.Sqrt(2);
-        //    stress2[0, 2] = 4;
-
-        //    stress2[1, 0] = 6 * Math.Sqrt(2);
-        //    stress2[1, 1] = 5;
-        //    stress2[1, 2] = 3 * Math.Sqrt(2);
-
-        //    stress2[2, 0] = 4;
-        //    stress2[2, 1] = 3 * Math.Sqrt(2);
-        //    stress2[2, 2] = 2;
-
-
-        //    CoordinateSystem cs2 = CoordinateSystem.Global;
-        //    cs2.Rotate(0, 45.ToRadians(), 0);
-
-        //    ResultStress rs2 = new ResultStress(cs2, stress2[0, 0], stress2[1, 1], stress2[2, 2], stress2[0, 1], stress2[0, 2], stress2[1, 2]);
-
-
-        //    Assert.AreEqual(1, rs1.GetTensor(true)[0, 0], 1e-5, rs1.GetTensor(true).ToString());
-        //    Assert.AreEqual(1/2.0, rs1.GetTensor(true)[1, 1], 1e-5, rs1.GetTensor(true).ToString());
-
-        //    Assert.AreEqual(8, rs2.GetTensor(true)[0, 0], 1e-5, rs2.GetTensor(true).ToString());
-        //    Assert.AreEqual(5, rs2.GetTensor(true)[1, 1], 1e-5, rs2.GetTensor(true).ToString());
-
-
-        //    var sum = rs1 + rs2;
-
-
-        //    Assert.AreEqual(19/2.0, sum.Sxx, 1e-5, sum.Sxx.ToString());
-        //}
-
-
-
         [TestMethod]
         public void StressOperatorsMultiplicationTest1()
         {
@@ -386,5 +326,23 @@ namespace ModelObjectTest
             Assert.AreEqual(sum.D3, rd1.D3 * 2.0, 1E-10);
 
         }
+
+
+        [TestMethod]
+        public void StressArithmeticMeanTest1()
+        {
+            ResultStress rs1 = new ResultStress(CoordinateSystem.Global, 100, 200, 0, 573, 400, 500);
+            ResultStress rs2 = new ResultStress(CoordinateSystem.Global, 100, 200, 0, 573, 400, 500);
+
+            var rs = ResultStress.GetArithmeticMean(new ResultStress[] { rs1, rs2 });
+
+            Assert.IsTrue(rs.Sxx == 100);
+            Assert.IsTrue(rs.Syy == 200);
+            Assert.IsTrue(rs.Szz == 0);
+            Assert.IsTrue(rs.Sxy == 573);
+            Assert.IsTrue(rs.Sxz == 400);
+            Assert.IsTrue(rs.Syz == 500);
+        }
+
     }
 }
