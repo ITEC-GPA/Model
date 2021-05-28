@@ -120,6 +120,7 @@ namespace GPC.Model
         /// <summary>
         /// Compare two <see cref="ModelObject"/> using only <see cref="ModelObject.Name"/> as equality parameter
         /// </summary>
+        [Serializable]
         public class ModelObjectNameEqualityComparer : IEqualityComparer<ModelObject>
         {
             /// <returns> <inheritdoc/>
