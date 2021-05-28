@@ -1,4 +1,4 @@
-﻿using GPC.Geometry;
+using GPC.Geometry;
 using GPC.Model.LoadCases;
 using MathNet.Numerics.LinearAlgebra;
 using System;
@@ -111,9 +111,10 @@ namespace GPC.Model.Results
         /// <param name="sxy">Stress on <see cref="CoordinateSystem.V1"/> side of the plate along <see cref="CoordinateSystem.V2"/> direction</param>
         /// <param name="sxz">Stress on <see cref="CoordinateSystem.V1"/> side of the plate along <see cref="CoordinateSystem.V3"/> direction</param>
         /// <param name="syz">Stress on <see cref="CoordinateSystem.V2"/> side of the plate along <see cref="CoordinateSystem.V3"/> direction</param>
+        /// <param name="name"></param>
         /// <remarks> _szz is set to zero by default </remarks>
-        public ResultStress(CoordinateSystem coordinateSystem, double sxx, double syy, double szz, double sxy, double sxz, double syz)
-            : base(coordinateSystem)
+        public ResultStress(CoordinateSystem coordinateSystem, double sxx, double syy, double szz, double sxy, double sxz, double syz, string name = "")
+            : base(coordinateSystem, name)
         {
             _sxx = sxx;
             _syy = syy;
@@ -121,6 +122,30 @@ namespace GPC.Model.Results
             _sxy = sxy;
             _sxz = sxz;
             _syz = syz;
+        }
+
+
+        public ResultStress(SerializationInfo info, StreamingContext context)
+            : base(info, context)
+        {
+            _sxx = (double)info.GetValue("Sxx", typeof(double));
+            _syy = (double)info.GetValue("Syy", typeof(double));
+            _szz = (double)info.GetValue("Szz", typeof(double));
+            _sxy = (double)info.GetValue("Sxy", typeof(double));
+            _sxz = (double)info.GetValue("Sxz", typeof(double));
+            _syz = (double)info.GetValue("Syz", typeof(double));
+        }
+
+
+        public override void GetObjectData(SerializationInfo info, StreamingContext context)
+        {
+            base.GetObjectData(info, context);
+            info.AddValue("Sxx", _sxx);
+            info.AddValue("Syy", _syy);
+            info.AddValue("Szz", _szz);
+            info.AddValue("Sxy", _sxy);
+            info.AddValue("Sxz", _sxz);
+            info.AddValue("Syz", _syz);
         }
 
 
@@ -260,7 +285,14 @@ namespace GPC.Model.Results
             }
         }
 
+        public ResultStress ToCoordinateSystem(CoordinateSystem coordinateSystem)
+        {
+            var globalTensor = GetTensor(true);
 
+            var rotatedTensor = coordinateSystem.TrfMatrix.Resize(3, 3).Transpose() * (globalTensor) * coordinateSystem.TrfMatrix.Resize(3, 3);
+
+            return new ResultStress(coordinateSystem, rotatedTensor[0, 0], rotatedTensor[1, 1], rotatedTensor[2, 2], rotatedTensor[0, 1], rotatedTensor[0, 2], rotatedTensor[1, 2]);
+        }
 
         #endregion
 
@@ -308,12 +340,6 @@ namespace GPC.Model.Results
             }
         }
 
-        public override void GetObjectData(SerializationInfo info, StreamingContext context)
-        {
-            base.GetObjectData(info, context);
-            throw new NotSupportedException();
-        }
-
         public static bool operator ==(ResultStress obj1, ResultStress obj2)
         {
             if (obj1 is null)
@@ -326,6 +352,42 @@ namespace GPC.Model.Results
 
             return obj1.Equals(obj2);
         }
+
+        public static ResultStress GetArithmeticMean(ResultStress[] values)
+        {
+            if (values.Select(i => i._coordinateSystem).Distinct().Count() > 0)
+            {
+                return new ResultStress(values[0]._coordinateSystem,
+                                        Utilities.Maths.Averages.ArithmeticMean(values.Select(i => i.Sxx).ToArray()), // TODO: rimuovere toarray e metter ienumer
+                                        Utilities.Maths.Averages.ArithmeticMean(values.Select(i => i.Syy).ToArray()),
+                                        Utilities.Maths.Averages.ArithmeticMean(values.Select(i => i.Szz).ToArray()),
+                                        Utilities.Maths.Averages.ArithmeticMean(values.Select(i => i.Sxy).ToArray()),
+                                        Utilities.Maths.Averages.ArithmeticMean(values.Select(i => i.Sxz).ToArray()),
+                                        Utilities.Maths.Averages.ArithmeticMean(values.Select(i => i.Syz).ToArray())
+                                        );                    
+            }
+            else
+            {
+
+                var rotated = new List<ResultStress>();
+                rotated[0] = values[0];
+
+                rotated.AddRange(values.Skip(1).Select(i => i.ToCoordinateSystem(values[0]._coordinateSystem)));                
+
+                return new ResultStress(values[0]._coordinateSystem,
+                                                Utilities.Maths.Averages.ArithmeticMean(rotated.Select(i => i.Sxx).ToArray()), // TODO: rimuovere toarray e metter ienumer
+                                                Utilities.Maths.Averages.ArithmeticMean(rotated.Select(i => i.Syy).ToArray()),
+                                                Utilities.Maths.Averages.ArithmeticMean(rotated.Select(i => i.Szz).ToArray()),
+                                                Utilities.Maths.Averages.ArithmeticMean(rotated.Select(i => i.Sxy).ToArray()),
+                                                Utilities.Maths.Averages.ArithmeticMean(rotated.Select(i => i.Sxz).ToArray()),
+                                                Utilities.Maths.Averages.ArithmeticMean(rotated.Select(i => i.Syz).ToArray())
+                                        );
+
+
+            }
+
+        }
+
 
         public static bool operator !=(ResultStress obj1, ResultStress obj2)
         {

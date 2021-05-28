@@ -113,6 +113,7 @@ namespace GPC.Model
         /// <summary>
         /// Compare two <see cref="ModelObjectId"/> using only <see cref="ModelObjectId.Id"/> as equality parameter
         /// </summary>
+        [Serializable]
         public class ModelObjectIdEqualityComparer : IEqualityComparer<ModelObjectId>
         {
             /// <returns>

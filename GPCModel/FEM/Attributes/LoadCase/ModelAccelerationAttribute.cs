@@ -12,7 +12,8 @@ namespace GPC.Model.FEM.Attributes
     /// <summary>
     /// Represent an acceleration attribute of the <see cref="FemModel"/>
     /// </summary>
-    public class ModelAccelerationAttribute : LoadCaseAttribute, IModelAttribute
+    [Serializable]
+    public class ModelAccelerationAttribute : LoadCaseAttribute, IModelAttribute, ISerializable
     {
         /// <summary>
         /// Value of the gravity accelaration [mm/s^2]
@@ -40,6 +41,27 @@ namespace GPC.Model.FEM.Attributes
         {
 
         }
+
+
+        internal ModelAccelerationAttribute(SerializationInfo info, StreamingContext context)
+            : base(info, context)
+        {
+            A1 = (double)info.GetValue("A1", typeof(double));
+            A2 = (double)info.GetValue("A2", typeof(double));
+            A3 = (double)info.GetValue("A3", typeof(double));
+            CoordinateSystem = (CoordinateSystem)info.GetValue("CoordinateSystem", typeof(CoordinateSystem));
+        }
+
+
+        public override void GetObjectData(SerializationInfo info, StreamingContext context)
+        {
+            base.GetObjectData(info, context);
+            info.AddValue("A1", A1);
+            info.AddValue("A2", A2);
+            info.AddValue("A3", A3);
+            info.AddValue("CoordinateSystem", CoordinateSystem);
+        }
+
 
         /// <param name="loadCaseName"></param>
         /// <param name="coordinateSystem"></param>

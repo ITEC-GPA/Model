@@ -20,7 +20,7 @@ namespace GPC.Model
 
         public Guid Guid => _guid;
 
-        public string Name => _name; // Setter non disponibile in quanto il nome non deve essere una variabile mutabile in modo da poter avere la ModelObjectNameEqualityComparer
+        public string Name => _name; // Setter non disponibile in quanto il nome deve essere una variabile non mutabile in modo da poter avere la ModelObjectNameEqualityComparer
 
         #endregion 
 
@@ -120,6 +120,7 @@ namespace GPC.Model
         /// <summary>
         /// Compare two <see cref="ModelObject"/> using only <see cref="ModelObject.Name"/> as equality parameter
         /// </summary>
+        [Serializable]
         public class ModelObjectNameEqualityComparer : IEqualityComparer<ModelObject>
         {
             /// <returns> <inheritdoc/>

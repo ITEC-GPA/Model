@@ -1528,7 +1528,7 @@ namespace GPC.Model.FEM
             info.AddValue("BrickProperties", _brickProperties);
             info.AddValue("LoadCaseBases", _loadCases);
             info.AddValue("FreedomCases", _freedomCases);
-            info.AddValue("StageCombinationsMap", _combinations);
+            info.AddValue("Combinations", _combinations);
             info.AddValue("StageCombinationsMap", _stageCombinationsMap);
             info.AddValue("Stages", _stages);
             info.AddValue("ModelAttributes", _modelAttributes);

@@ -10,6 +10,7 @@ using GPC.Model.Materials;
 
 namespace GPC.Model.Sections
 {
+    [Serializable]
     public class ConcreteSectionShape : SectionShape
     {
         #region Variables
