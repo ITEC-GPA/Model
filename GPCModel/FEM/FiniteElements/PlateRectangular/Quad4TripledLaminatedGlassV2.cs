@@ -248,7 +248,6 @@ namespace GPC.Model.FEM.FiniteElements
         /// <returns></returns>
         protected override mnl.Vector<double> BuildFLocalCoord()
         {
-            //TODO: sistemare in caso funzionamento K
             mnl.Vector<double> fLocalCoord = mnl.Vector<double>.Build.Dense(5 * Nodes.Length);
             foreach (IPlateLoadCaseAttribute iAttribute in _attributesLoadCase)
             {
