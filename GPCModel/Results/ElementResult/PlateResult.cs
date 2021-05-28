@@ -41,6 +41,13 @@ namespace GPC.Model.Results
 
         }
 
+        public PlateResult(SerializationInfo info, StreamingContext context)
+            : base(info, context)
+        {
+
+        }
+
+
         public (ResultType[] lowerFace, ResultType[] midFace, ResultType[] upperFace) GetFaceResults()
         {
             List<ResultType[]> splitted = Results.Split(Results.Length / 3);

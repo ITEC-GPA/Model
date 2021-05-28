@@ -47,6 +47,24 @@ namespace GPC.Model.Results
         }
 
 
+        public ElementResult(SerializationInfo info, StreamingContext context)
+            : base(info, context)
+        {
+            _case = (ILoadCase)info.GetValue("Case", typeof(ILoadCase));
+            _stageId = (int)info.GetValue("StageId", typeof(int));
+            _coordinateSystem = (CoordinateSystem)info.GetValue("CoordinateSystem", typeof(CoordinateSystem));
+        }
+
+
+        public override void GetObjectData(SerializationInfo info, StreamingContext context)
+        {
+            base.GetObjectData(info, context);
+            info.AddValue("Case", _case);
+            info.AddValue("StageId", _stageId);
+            info.AddValue("CoordinateSystem", _coordinateSystem);
+        }
+
+
         public override bool Equals(object obj)
         {
             if (obj is null)

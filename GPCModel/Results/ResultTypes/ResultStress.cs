@@ -124,6 +124,30 @@ namespace GPC.Model.Results
         }
 
 
+        public ResultStress(SerializationInfo info, StreamingContext context)
+            : base(info, context)
+        {
+            _sxx = (double)info.GetValue("Sxx", typeof(double));
+            _syy = (double)info.GetValue("Syy", typeof(double));
+            _szz = (double)info.GetValue("Szz", typeof(double));
+            _sxy = (double)info.GetValue("Sxy", typeof(double));
+            _sxz = (double)info.GetValue("Sxz", typeof(double));
+            _syz = (double)info.GetValue("Syz", typeof(double));
+        }
+
+
+        public override void GetObjectData(SerializationInfo info, StreamingContext context)
+        {
+            base.GetObjectData(info, context);
+            info.AddValue("Sxx", _sxx);
+            info.AddValue("Syy", _syy);
+            info.AddValue("Szz", _szz);
+            info.AddValue("Sxy", _sxy);
+            info.AddValue("Sxz", _sxz);
+            info.AddValue("Syz", _syz);
+        }
+
+
         #endregion
 
 
@@ -306,12 +330,6 @@ namespace GPC.Model.Results
                 hashCode = hashCode * -17 + _syz.GetHashCode();
                 return hashCode;
             }
-        }
-
-        public override void GetObjectData(SerializationInfo info, StreamingContext context)
-        {
-            base.GetObjectData(info, context);
-            throw new NotSupportedException();
         }
 
         public static bool operator ==(ResultStress obj1, ResultStress obj2)
