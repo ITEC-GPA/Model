@@ -38,8 +38,9 @@ namespace GPC.Model.Results
         /// <param name="Case">The case where these results are reffered </param>
         /// <param name="coordinateSystem">Coordinate system where these result are provided</param>
         /// <param name="stageId"></param>
-        public ElementResult(ILoadCase Case, CoordinateSystem coordinateSystem, int stageId)
-            : base()
+        /// <param name="name"></param>
+        public ElementResult(ILoadCase Case, CoordinateSystem coordinateSystem, int stageId, string name = "")
+            : base(name)
         {
             _case = Case ?? throw new ArgumentNullException(nameof(Case));
             _coordinateSystem = coordinateSystem ?? throw new ArgumentNullException(nameof(coordinateSystem));

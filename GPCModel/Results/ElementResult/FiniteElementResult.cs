@@ -24,8 +24,8 @@ namespace GPC.Model.Results
 
         }
 
-        public FiniteElementResult(ILoadCase Case, CoordinateSystem coordinateSystem, IEnumerable<ResultType> result, IEnumerable<ResultLocationId> points, int stageId)
-            : base(Case, coordinateSystem, stageId)
+        public FiniteElementResult(ILoadCase Case, CoordinateSystem coordinateSystem, IEnumerable<ResultType> result, IEnumerable<ResultLocationId> points, int stageId, string name = "")
+            : base(Case, coordinateSystem, stageId, name)
         {
 
             if (result.Count() != points.Count())

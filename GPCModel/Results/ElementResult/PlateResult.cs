@@ -29,9 +29,10 @@ namespace GPC.Model.Results
         /// <param name="result">Lenght of this list should be 3n. Where n is the number of result on each face</param>
         /// <param name="resultLocations">Lenght of this list should be 3n. Where n is the number of result on each face</param>
         /// <param name="stageId"></param>
+        /// <param name="name"></param>
         /// <remarks>Result order: Lower face (z-), Mid face, Upper face (z+)</remarks>
-        public PlateResult(ILoadCase Case, CoordinateSystem coordinateSystem, IPlateResult[] result, ResultLocationId[] resultLocations, int stageId)
-            : base(Case, coordinateSystem, (IEnumerable<ResultType>)result, resultLocations, stageId)
+        public PlateResult(ILoadCase Case, CoordinateSystem coordinateSystem, IPlateResult[] result, ResultLocationId[] resultLocations, int stageId, string name = "")
+            : base(Case, coordinateSystem, (IEnumerable<ResultType>)result, resultLocations, stageId, name)
         {
             if (result.Count() % 3 != 0)
                 throw new ArgumentException("Result lenght should be 3n");
