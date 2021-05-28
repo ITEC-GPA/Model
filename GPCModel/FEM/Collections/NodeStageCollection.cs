@@ -1,5 +1,7 @@
 ﻿using GPC.Model.FEM.Attributes;
+using System;
 using System.Linq;
+using System.Runtime.Serialization;
 
 namespace GPC.Model.FEM.Collections
 {
@@ -8,9 +10,16 @@ namespace GPC.Model.FEM.Collections
     /// </summary>
     /// <remarks>This should be accessed only from the class <see cref="Stage"/> since it does not implement any check on the element duplicates</remarks>
     /// <remarks>The collection is thread-safe</remarks>
-    public class NodeStageCollection<T, D> : FemObjectStageCollection<Node, Stage.StageProperty>
+    [Serializable]
+    public class NodeStageCollection<T, D> : FemObjectStageCollection<Node, Stage.StageProperty>, ISerializable
     {
         public NodeStageCollection() : base()
+        {
+
+        }
+
+        public NodeStageCollection(SerializationInfo info, StreamingContext context) 
+            : base(info, context)
         {
 
         }
@@ -46,6 +55,10 @@ namespace GPC.Model.FEM.Collections
             return base.SetStageProperty(item, stageProperty);
         }
 
+        public override void GetObjectData(SerializationInfo info, StreamingContext context)
+        {
+            base.GetObjectData(info, context);
+        }
 
         #region Equals - HashCode - Operators
 

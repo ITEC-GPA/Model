@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.Serialization;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -14,7 +15,8 @@ namespace GPC.Model
     /// <typeparam name="T"></typeparam>
     /// <remarks>The collection is thread-safe
     /// <para>Id of <typeparamref name="T"/> must be unmutable</para></remarks>
-    public class UniqueIdCollection<T> : ModelObjectIdSet<T>, ICollection<T> where T : ModelObjectId
+    [Serializable]
+    public class UniqueIdCollection<T> : ModelObjectIdSet<T>, ICollection<T> where T : ModelObjectId, ISerializable
     {
 
         /// <summary>
@@ -26,6 +28,13 @@ namespace GPC.Model
             : base(new ModelObjectId.ModelObjectIdEqualityComparer())
         {
             _ids = new HashSet<int>();
+        }
+
+
+        public UniqueIdCollection(SerializationInfo info, StreamingContext context)
+            : base(info, context)
+        {
+            _ids = (HashSet<int>)info.GetValue("Ids", typeof(HashSet<int>));
         }
 
         public override bool Add(T item)
@@ -138,6 +147,12 @@ namespace GPC.Model
         }
 
 
+
+        public override void GetObjectData(SerializationInfo info, StreamingContext context)
+        {
+            base.GetObjectData(info, context);
+            info.AddValue("Ids", _ids);
+        }
 
         #region Equals - hashcode - Operators
 

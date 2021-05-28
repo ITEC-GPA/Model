@@ -2,13 +2,14 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.Serialization;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace GPC.Model
 {
-
-    public class ModelObjectIdSet<T> : ModelObjectSet<T> where T : ModelObjectId
+    [Serializable]
+    public class ModelObjectIdSet<T> : ModelObjectSet<T> where T : ModelObjectId, ISerializable
     {
 
         public ModelObjectIdSet()
@@ -22,6 +23,17 @@ namespace GPC.Model
         }
 
 
+        public ModelObjectIdSet(SerializationInfo info, StreamingContext context) 
+            : base(info, context)
+        {
+
+        }
+
+
+        public override void GetObjectData(SerializationInfo info, StreamingContext context)
+        {
+            base.GetObjectData(info, context);
+        }
 
         #region Equals - hashcode - Operators
 

@@ -1,6 +1,8 @@
 ﻿using GPC.Utilities.Extensions;
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.Serialization;
 
 namespace GPC.Model
 {
@@ -11,7 +13,8 @@ namespace GPC.Model
     /// </summary>
     /// <typeparam name="T"></typeparam>
     /// <remarks>The collection is thread-safe</remarks>
-    public class UniqueObjectCollection<T> : ModelObjectEnumerable<T>, ICollection<T> where T : ModelObject
+    [Serializable]
+    public class UniqueObjectCollection<T> : ModelObjectEnumerable<T>, ICollection<T> where T : ModelObject, ISerializable
     {
         public int Count => _collection.Count;
 

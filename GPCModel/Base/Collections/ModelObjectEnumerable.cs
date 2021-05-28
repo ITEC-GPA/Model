@@ -1,11 +1,14 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.Runtime.Serialization;
 
 namespace GPC.Model
 {
 
     /// <remarks>The collection is thread-safe</remarks>
-    public abstract class ModelObjectEnumerable<T> : IEnumerable<T> where T : ModelObject
+    [Serializable]
+    public abstract class ModelObjectEnumerable<T> : IEnumerable<T> where T : ModelObject, ISerializable
     {
 
         protected readonly object _locker = new object();
@@ -15,6 +18,11 @@ namespace GPC.Model
         public ModelObjectEnumerable()
         {
             _collection = new List<T>();
+        }
+
+        public ModelObjectEnumerable(SerializationInfo info, StreamingContext context)
+        {
+            _collection = (ICollection<T>)info.GetValue("Collection", typeof(ICollection<T>));
         }
 
         /// <inheritdoc cref="ICollection{T}.Add(T)"/>
@@ -36,5 +44,11 @@ namespace GPC.Model
         {
             return ((IEnumerable)_collection).GetEnumerator();
         }
+
+        public virtual void GetObjectData(SerializationInfo info, StreamingContext context)
+        {
+            info.AddValue("Collection", _collection);
+        }
+
     }
 }

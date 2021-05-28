@@ -3,6 +3,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.Serialization;
 
 namespace GPC.Model.FEM.Collections
 {
@@ -12,7 +13,8 @@ namespace GPC.Model.FEM.Collections
     /// </summary>
     /// <typeparam name="T">A <see cref="FEMObject"/></typeparam>
     /// <remarks>The collection is thread-safe</remarks>
-    public class FemObjectCollection<T> : IEnumerable<T> where T : FEMObject
+    [Serializable]
+    public class FemObjectCollection<T> : IEnumerable<T> where T : FEMObject, ISerializable
     {
         protected readonly object _locker = new object();
 
@@ -31,6 +33,12 @@ namespace GPC.Model.FEM.Collections
         {
             _collection = new List<T>();
         }
+
+        public FemObjectCollection(SerializationInfo info, StreamingContext context)
+        {
+            _collection = (List<T>)info.GetValue("Collection", typeof(List<T>));
+        }
+
 
         #region Private method
 
@@ -304,6 +312,13 @@ namespace GPC.Model.FEM.Collections
         #endregion Public method - Edit
 
         #region Equals - HashCode - Operators
+
+
+        public virtual void GetObjectData(SerializationInfo info, StreamingContext context)
+        {
+            info.AddValue("Collection", _collection);
+        }
+
 
         public override bool Equals(object obj)
         {

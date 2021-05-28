@@ -7,7 +7,8 @@ using GPC.Model.FEM.Materials;
 
 namespace GPC.Model.FEM.Properties
 {
-    public sealed class InterlayerPlateProperty : PlateProperty, IGlassProperty, IPlateProperty, IEquatable<InterlayerPlateProperty>
+    [Serializable]
+    public sealed class InterlayerPlateProperty : PlateProperty, IGlassProperty, IPlateProperty, IEquatable<InterlayerPlateProperty>, ISerializable
     {
         private readonly double _temperature;
 
@@ -31,19 +32,23 @@ namespace GPC.Model.FEM.Properties
         }
 
 
-        public InterlayerPlateProperty(SerializationInfo info, StreamingContext context) 
-            : base(info, context)
+        public InterlayerPlateProperty(SerializationInfo info, StreamingContext context) : base(info, context)
         {
-            throw new NotImplementedException();
+            _temperature = (double)info.GetValue("Temperature", typeof(double));
+            _loadDuration = (double)info.GetValue("LoadDuration", typeof(double));
         }
+
+        public override void GetObjectData(SerializationInfo info, StreamingContext context)
+        {
+            base.GetObjectData(info, context);
+            info.AddValue("Temperature", _temperature);
+            info.AddValue("LoadDuration", _loadDuration);
+        }
+
 
 
         #region Equals - HashCode - Operators
 
-        public override void GetObjectData(SerializationInfo info, StreamingContext context)
-        {
-            throw new NotImplementedException();
-        }
 
         public bool Equals(InterlayerPlateProperty other)
         {

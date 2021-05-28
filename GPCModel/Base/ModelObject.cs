@@ -5,7 +5,7 @@ using System.Runtime.Serialization;
 namespace GPC.Model
 {
     [Serializable]
-    public abstract class ModelObject
+    public abstract class ModelObject : ISerializable
     {
 
         #region Variables

@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System;
 using GPC.Utilities.Extensions;
+using System.Runtime.Serialization;
 
 namespace GPC.Model
 {
@@ -11,7 +12,8 @@ namespace GPC.Model
     /// </summary>
     /// <typeparam name="T">The type of collection derived from <see cref="ModelObject"/> </typeparam>
     /// <remarks>The collection is thread-safe</remarks>
-    public class ModelObjectSet<T> : ModelObjectEnumerable<T>, ICollection<T> where T : ModelObject
+    [Serializable]
+    public class ModelObjectSet<T> : ModelObjectEnumerable<T>, ICollection<T> where T : ModelObject, ISerializable
     {
 
         public int Count => _collection.Count;
@@ -35,6 +37,13 @@ namespace GPC.Model
         public ModelObjectSet(IEqualityComparer<T> comparer)
         {
             _collection = new HashSet<T>(comparer);
+        }
+
+
+        public ModelObjectSet(SerializationInfo info, StreamingContext context)
+            : base(info, context)
+        {
+
         }
 
 

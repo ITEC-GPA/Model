@@ -4,6 +4,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
+using System.Runtime.Serialization;
 
 namespace GPC.Model.FEM.Collections
 {
@@ -14,7 +15,8 @@ namespace GPC.Model.FEM.Collections
     /// <typeparam name="T"></typeparam>
     /// <typeparam name="D"></typeparam>
     /// <remarks>The collection is thread-safe</remarks>
-    public abstract class FemObjectStageCollection<T, D>  where T : FEMObject where D : Stage.StageProperty
+    [Serializable]
+    public abstract class FemObjectStageCollection<T, D>  where T : FEMObject where D : Stage.StageProperty, ISerializable
     {
         protected readonly object _locker = new object();
 
@@ -28,6 +30,12 @@ namespace GPC.Model.FEM.Collections
         public FemObjectStageCollection()
         {
             _stageFiniteElementProperty = new List<KeyValuePair<T, D>>();
+        }
+
+
+        public FemObjectStageCollection(SerializationInfo info, StreamingContext context) 
+        {           
+            _stageFiniteElementProperty = (List<KeyValuePair<T, D>>)info.GetValue("StageFiniteElementProperty", typeof(List<KeyValuePair<T, D>>));
         }
 
 
@@ -207,6 +215,12 @@ namespace GPC.Model.FEM.Collections
         #endregion Public method - Edit
 
         #region Equals - hashcode - Operators
+
+        public virtual void GetObjectData(SerializationInfo info, StreamingContext context)
+        {
+            info.AddValue("StageFiniteElementProperty", _stageFiniteElementProperty);
+        }
+
 
         public override bool Equals(object obj)
         {

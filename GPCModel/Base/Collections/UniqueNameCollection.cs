@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.Serialization;
 
 namespace GPC.Model
 {
@@ -10,7 +11,8 @@ namespace GPC.Model
     /// </summary>
     /// <typeparam name="T"></typeparam>
     /// <remarks>The collection is thread-safe</remarks>
-    public class UniqueNameCollection<T> : ModelObjectEnumerable<T>, ICollection<T> where T : ModelObject
+    [Serializable]
+    public class UniqueNameCollection<T> : ModelObjectEnumerable<T>, ICollection<T> where T : ModelObject, ISerializable
     {
         private readonly HashSet<string> _names;
 
@@ -25,6 +27,12 @@ namespace GPC.Model
             _names = new HashSet<string>();
         }
 
+
+        public UniqueNameCollection(SerializationInfo info, StreamingContext context)
+            : base(info, context)
+        {
+            _names = (HashSet<string>)info.GetValue("Names", typeof(HashSet<string>));
+        }
 
         /// <inheritdoc cref="ModelObjectEnumerable{T}.Add(T)" />
         /// <returns>True if the element has been added
@@ -231,6 +239,11 @@ namespace GPC.Model
         }
 
 
+        public override void GetObjectData(SerializationInfo info, StreamingContext context)
+        {
+            base.GetObjectData(info, context);
+            info.AddValue("Names", _names);
+        }
 
 
         #region Equals - hashcode - Operators

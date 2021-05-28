@@ -1,6 +1,7 @@
 ﻿using GPC.Utilities.Extensions;
 using System;
 using System.Collections.Generic;
+using System.Runtime.Serialization;
 
 namespace GPC.Model.FEM.Collections
 {
@@ -11,7 +12,8 @@ namespace GPC.Model.FEM.Collections
     /// The collection is thread-safe
     /// <para>This class will set the <see cref="ModelObjectId.Id"/> automatically</para>
     /// </remarks>
-    public class GroupCollection : UniqueNameCollection<Group>
+    [Serializable]
+    public class GroupCollection : UniqueNameCollection<Group>, ISerializable
     {
 
         protected HashSet<int> _ids;
@@ -23,6 +25,11 @@ namespace GPC.Model.FEM.Collections
             _ids = new HashSet<int>();
         }
 
+
+        public GroupCollection(SerializationInfo info, StreamingContext context)
+        {
+            _ids = (HashSet<int>)info.GetValue("Ids", typeof(HashSet<int>));
+        }
 
         /// <summary>
         /// If the <paramref name="item"/>.Id already exist in the collection, its ID will be replaced with the collection maximum index + 1
@@ -64,6 +71,11 @@ namespace GPC.Model.FEM.Collections
             return false;
         }
 
+        public override void GetObjectData(SerializationInfo info, StreamingContext context)
+        {
+            base.GetObjectData(info, context);
+            info.AddValue("Ids", _ids);
+        }
 
         #region Equals - HashCode - Operators
 
