@@ -760,6 +760,136 @@ namespace GPC.Model.FEM
         #endregion
         #endregion
 
+        #region GetResultTLG2
+
+        private void TLG2GetCsiEta(int indexNode, out double csi, out double eta)
+        {
+            switch (indexNode)
+            {
+                case 1:
+                    csi = -1;
+                    eta = -1;
+                    break;
+                case 2:
+                    csi = 1;
+                    eta = -1;
+                    break;
+                case 3:
+                    csi = 1;
+                    eta = 1;
+                    break;
+                case 4:
+                    csi = -1;
+                    eta = 1;
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
+        }
+
+        #region Glass
+        public mnl.Vector<double> GetTLG2GlassStrain(Quad4TripleLaminatedGlassV2 element, Quad4TripleLaminatedGlassV2.Glass glass, Plate.Face face, int indexNode)
+        {
+            if (indexNode == 0)
+            {
+                throw new ArgumentOutOfRangeException("index node from 1 to 4");
+            }
+
+            TLG2GetCsiEta(indexNode, out double csi, out double eta);
+
+            var globalDispl = GetDisplacementsAtNodesOfElementInGlobalCoordinates(element);
+
+            return element.GetStrainGlass(glass, face, csi, eta, globalDispl);
+        }
+
+        public mnl.Vector<double> GetTLG2GlassStress(Quad4TripleLaminatedGlassV2 element, Quad4TripleLaminatedGlassV2.Glass glass, Plate.Face face, int indexNode)
+        {
+            if (indexNode == 0)
+            {
+                throw new ArgumentOutOfRangeException("index node from 1 to 4");
+            }
+
+            TLG2GetCsiEta(indexNode, out double csi, out double eta);
+
+            var globalDispl = GetDisplacementsAtNodesOfElementInGlobalCoordinates(element);
+
+            return element.GetStressGlass(glass, face, csi, eta, globalDispl);
+        }
+
+        public mnl.Vector<double> GetTLG2GlassBending(Quad4TripleLaminatedGlassV2 element, int indexNode)
+        {
+            if (indexNode == 0)
+            {
+                throw new ArgumentOutOfRangeException("index node from 1 to 4");
+            }
+
+            TLG2GetCsiEta(indexNode, out double csi, out double eta);
+
+            var globalDispl = GetDisplacementsAtNodesOfElementInGlobalCoordinates(element);
+
+            return element.GetGlassBending(csi, eta, globalDispl);
+        }
+
+        public mnl.Vector<double> GetTLG2GlassForces(Quad4TripleLaminatedGlassV2 element, int indexNode)
+        {
+            if (indexNode == 0)
+            {
+                throw new ArgumentOutOfRangeException("index node from 1 to 4");
+            }
+
+            TLG2GetCsiEta(indexNode, out double csi, out double eta);
+
+            var globalDispl = GetDisplacementsAtNodesOfElementInGlobalCoordinates(element);
+
+            return element.GetGlassForces(csi, eta, globalDispl);
+        }
+        #endregion
+
+        #region Interlayer
+        public mnl.Vector<double> GetTLG2InterlayerStrain(Quad4TripleLaminatedGlassV2 element, int indexNode)
+        {
+            if (indexNode == 0)
+            {
+                throw new ArgumentOutOfRangeException("index node from 1 to 4");
+            }
+
+            TLG2GetCsiEta(indexNode, out double csi, out double eta);
+
+            var globalDispl = GetDisplacementsAtNodesOfElementInGlobalCoordinates(element);
+
+            return element.GetStrainInterlayer(csi, eta, globalDispl);
+        }
+
+        public mnl.Vector<double> GetTLG2InterlayerStress(Quad4TripleLaminatedGlassV2 element, int indexNode)
+        {
+            if (indexNode == 0)
+            {
+                throw new ArgumentOutOfRangeException("index node from 1 to 4");
+            }
+
+            TLG2GetCsiEta(indexNode, out double csi, out double eta);
+
+            var globalDispl = GetDisplacementsAtNodesOfElementInGlobalCoordinates(element);
+
+            return element.GetStressInterlayer(csi, eta, globalDispl);
+        }
+
+        public mnl.Vector<double> GetTLG2InterlayerBending(Quad4TripleLaminatedGlassV2 element, int indexNode)
+        {
+            if (indexNode == 0)
+            {
+                throw new ArgumentOutOfRangeException("index node from 1 to 4");
+            }
+
+            TLG2GetCsiEta(indexNode, out double csi, out double eta);
+
+            var globalDispl = GetDisplacementsAtNodesOfElementInGlobalCoordinates(element);
+
+            return element.GetBendingInterlayer(csi, eta, globalDispl);
+        }
+        #endregion
+        #endregion
+
         #region GetResultsBeam
 
         #region forces

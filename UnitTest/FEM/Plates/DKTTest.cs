@@ -191,7 +191,9 @@ namespace FemTest.SolverTest
             Assert.AreEqual(-15.0, tauXY2, 0.01);
         }
 
-        
+        /// <summary>
+        /// Check K local with manual
+        /// </summary>
         [TestMethod]
         public void Quad4DKTTest1()
         {
@@ -249,6 +251,9 @@ namespace FemTest.SolverTest
             }
         }
 
+        /// <summary>
+        /// Check KGlobal with manual
+        /// </summary>
         [TestMethod]
         public void Quad4DKTTest2()
         {
@@ -360,6 +365,39 @@ namespace FemTest.SolverTest
         }
 
         [TestMethod]
+        public void Quad4DKTEquivalentNodesForcesTest1()
+        {
+            Material mat = new SteelMaterial("mat", 12, 0.0, 355, 510, 7850);
+            PlateProperty prop = new PlateProperty(mat.GetIsotropicFemMaterial(), 1.0, 1.0, "p");
+
+            Node[] nodesPlate1 = new Node[4];
+            nodesPlate1[0] = new Node(+0.0, +0.0, 0);
+            nodesPlate1[1] = new Node(+2.0, +0.0, 0);
+            nodesPlate1[2] = new Node(+0.1, +2.0, 0);
+            nodesPlate1[3] = new Node(+0.0, +2.0, 0);
+
+            Plate e0 = new Quad4DK(nodesPlate1);
+            e0.SetProperty(prop);
+
+            CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
+            PlatePressureAttribute pressure = new PlatePressureAttribute("loadCase", sys, 0.0, 0.0, 1.0);
+            e0.AddLoadCaseAttribute(pressure);
+
+            NodeRestrainAttribute fix = new NodeRestrainAttribute("freedomCase", sys);
+            fix.AddExternalRestrain(Solver.DOF.DX);
+            fix.AddExternalRestrain(Solver.DOF.DY);
+            fix.AddExternalRestrain(Solver.DOF.DZ);
+
+            fix.AddExternalRestrain(Solver.DOF.RX);
+            fix.AddExternalRestrain(Solver.DOF.RY);
+            fix.AddExternalRestrain(Solver.DOF.RZ);
+
+            nodesPlate1.ToList().ForEach(x => x.AddAttribute(fix));
+
+            LinearSolver fem = new LinearSolver(new FiniteElement[] { e0 });
+        }
+
+        [TestMethod]
         public void Quad4DKTTest4()
         {
             Material mat = new SteelMaterial("mat", 12, 0.0, 355, 510, 7850);
@@ -374,8 +412,6 @@ namespace FemTest.SolverTest
             Plate e0 = new Quad4DK(nodesPlate1);
             e0.SetProperty(prop);
 
-            LoadCaseBase loadCase = new LoadCaseBase("myLoadCase", new Guid());
-            FreedomCase freedomCase = new FreedomCase("freedomCase1");
             CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
             PlatePressureAttribute pressure = new PlatePressureAttribute("loadCase", sys, 0.0, 0.0, 1.0);
             e0.AddLoadCaseAttribute(pressure);

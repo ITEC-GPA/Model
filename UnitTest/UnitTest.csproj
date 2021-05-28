@@ -71,6 +71,7 @@
     <Reference Include="System.Runtime.Serialization" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="FEM\Plates\TLGV2Test.cs" />
     <Compile Include="FEM\Plates\TLGTest.cs" />
     <Compile Include="General\DescriptionAttributesTest.cs" />
     <Compile Include="FEM\CostrainTest.cs" />

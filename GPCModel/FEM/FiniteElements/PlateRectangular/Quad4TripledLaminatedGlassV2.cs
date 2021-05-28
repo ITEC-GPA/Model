@@ -192,6 +192,7 @@ namespace GPC.Model.FEM.FiniteElements
 
             _kLocalUnordered = _kLayer + _kGlass;
 
+            #region riordinoGDLPerAssemblaggio
             //riordino gradi di libertà per trasformazione in coordinate globali e assemblaggio
             Solver.DOF[] dofNode = new Solver.DOF[5];
             dofNode[0] = Solver.DOF.DDX;
@@ -200,7 +201,7 @@ namespace GPC.Model.FEM.FiniteElements
             dofNode[3] = Solver.DOF.RX;
             dofNode[4] = Solver.DOF.RY;
 
-            Dictionary<Tuple<string, string>, Tuple<int, int>> originale = new Dictionary<Tuple<string, string>, Tuple<int, int>>();
+            Dictionary<Tuple<string, string>, Tuple<int, int>> legenda = new Dictionary<Tuple<string, string>, Tuple<int, int>>();
             for (int ni = 0; ni < _nodesLocal.Count(); ni++)
             {
                 for (int nj = 0; nj < _nodesLocal.Count(); nj++)
@@ -209,7 +210,7 @@ namespace GPC.Model.FEM.FiniteElements
                     {
                         for (int j = 0; j < dofNode.Length; j++)
                         {
-                            originale.Add(new Tuple<string, string>(ni + " " + dofNode[i].ToString(), nj + " " + dofNode[j].ToString()), new Tuple<int, int>(ni * 5 + i, nj * 5 + j));
+                            legenda.Add(new Tuple<string, string>(ni + " " + dofNode[i].ToString(), nj + " " + dofNode[j].ToString()), new Tuple<int, int>(ni * 5 + i, nj * 5 + j));
                         }
                     }
                 }
@@ -230,13 +231,14 @@ namespace GPC.Model.FEM.FiniteElements
                     {
                         for (int j = 0; j < orderedDofNode.Length; j++)
                         {
-                            var position = originale[new Tuple<string, string>(ni + " " + orderedDofNode[i].ToString(), nj + " " + orderedDofNode[j].ToString())];
+                            var position = legenda[new Tuple<string, string>(ni + " " + orderedDofNode[i].ToString(), nj + " " + orderedDofNode[j].ToString())];
                             //Console.WriteLine(ni + " " + orderedDofNode[i].ToString() +" " + nj + " " + orderedDofNode[j].ToString() + " -> "  + position.Item1 + "," +position.Item2);
                             _kElementLocalCoord[ni * 5 + i, nj * 5 + j] = _kLocalUnordered[position.Item1, position.Item2];
                         }
                     }
                 }
             }
+            #endregion
         }
 
         /// <summary>
@@ -272,25 +274,44 @@ namespace GPC.Model.FEM.FiniteElements
                     double px = attribute.P1 * dirX.DotProduct(vecX) + attribute.P2 * dirY.DotProduct(vecX) + attribute.P3 * dirZ.DotProduct(vecX);
                     double py = attribute.P1 * dirX.DotProduct(vecY) + attribute.P2 * dirY.DotProduct(vecY) + attribute.P3 * dirZ.DotProduct(vecY);
                     double pz = attribute.P1 * dirX.DotProduct(vecZ) + attribute.P2 * dirY.DotProduct(vecZ) + attribute.P3 * dirZ.DotProduct(vecZ);
-                    mnl.Matrix<double> q = mnl.Matrix<double>.Build.Dense(3,1);
-                    q[0,0] = px;
-                    q[1,0] = py;
-                    q[2,0] = pz;
-
-                    mnl.Matrix<double> NtTraspQ(double csi, double eta)
-                    {
-                        double x = FEMUtilities.GetLocalCoordinate2D("x", csi, eta, Quad4Element.GetShapeFunction, _nodesLocal);
-                        double y = FEMUtilities.GetLocalCoordinate2D("y", csi, eta, Quad4Element.GetShapeFunction, _nodesLocal);
-
-                        return GetNMatrix(x, y).Transpose() * q;                                            
-                    }
 
                     var jacob = FEMUtilities.J2D(Quad4Element.GetdNdCsi, Quad4Element.GetdNdEta, _nodesLocal);
-                    mnl.Matrix<double> f = GaussIntegration.IntegrationQuadrilateral(NtTraspQ, jacob, 9);
-                    for (int i = 0; i < f.RowCount; i++)
+
+                    /*mnl.Matrix<double> q = mnl.Matrix<double>.Build.Dense(2,1);
+                    q[0,0] = px;
+                    q[1,0] = py;
+                    q[2,0] = pz;*/
+
+                    /*mnl.Matrix<double> NtTraspQ(double csi, double eta)
+                    {
+                        return GetNMatrix(csi, eta).Transpose() * q;                                            
+                    }
+                    
+                    mnl.Matrix<double> fTLG = GaussIntegration.IntegrationQuadrilateral(NtTraspQ, jacob, 9);*/
+
+                    #region DKT
+                    mnl.Matrix<double> Np(double csi, double eta)
+                    {
+                        var Ni = mnl.Matrix<double>.Build.Dense(4,1);
+                        Ni[0,0] = Quad4Element.GetShapeFunction(1, csi, eta);
+                        Ni[1,0] = Quad4Element.GetShapeFunction(2, csi, eta);
+                        Ni[2,0] = Quad4Element.GetShapeFunction(3, csi, eta);
+                        Ni[3,0] = Quad4Element.GetShapeFunction(4, csi, eta);
+
+                        return Ni * pz;
+                    }
+                    mnl.Matrix<double> fDKT = GaussIntegration.IntegrationQuadrilateral(Np, jacob, 9);
+                    #endregion
+
+                    /*for (int i = 0; i < f.RowCount; i++)
                     {
                         fLocalCoord[i] = f[i, 0];
-                    }
+                    }*/
+
+                    fLocalCoord[0] = fDKT[0, 0]; //node 1
+                    fLocalCoord[5] = fDKT[1, 0]; //node 2
+                    fLocalCoord[10] = fDKT[2, 0]; //node 3
+                    fLocalCoord[15] = fDKT[3, 0]; //node 4
                 }
             }
             
@@ -307,12 +328,12 @@ namespace GPC.Model.FEM.FiniteElements
         /// eq. 53 and 54 computed for all nodes
         /// </summary>
         /// <returns></returns>
-        internal mnl.Matrix<double> GetNMatrix(double x, double y)
+        internal mnl.Matrix<double> GetNMatrix(double csi, double eta)
         {
-            mnl.Matrix<double> N = mnl.Matrix<double>.Build.Dense(3, 0);
+            mnl.Matrix<double> N = mnl.Matrix<double>.Build.Dense(2, 0);
             for (int indexNode = 1; indexNode <= 4; indexNode++)
             {
-                mnl.Matrix<double> nNode = GetNiMatrix(indexNode, x, y);
+                mnl.Matrix<double> nNode = GetNiMatrix(indexNode, csi, eta);
 
                 N = N.Append(nNode);
             }
@@ -372,11 +393,11 @@ namespace GPC.Model.FEM.FiniteElements
         /// <param name="y"></param>
         /// <param name="globalDisplacementNodes"></param>
         /// <returns>kxx, kyy, kxy in vector of double</returns>
-        public mnl.Vector<double> GetGlassCurvatures(double x, double y, double[] globalDisplacementNodes)
+        public mnl.Vector<double> GetGlassCurvatures(double csi, double eta, double[] globalDisplacementNodes)
         {
             mnl.Vector<double> curvatures = mnl.Vector<double>.Build.Dense(3);
 
-            var pseudoStrain = GetPseudoStrainGlass(x, y, globalDisplacementNodes);
+            var pseudoStrain = GetPseudoStrainGlass(csi, eta, globalDisplacementNodes);
 
             curvatures[0] = pseudoStrain[3]; //kxx
             curvatures[1] = pseudoStrain[4]; //kyy
@@ -392,9 +413,9 @@ namespace GPC.Model.FEM.FiniteElements
         /// <param name="y"></param>
         /// <param name="globalDisplacementNodes"></param>
         /// <returns></returns>
-        public mnl.Vector<double> GetGlassBending(double x, double y, double[] globalDisplacementNodes)
+        public mnl.Vector<double> GetGlassBending(double csi, double eta, double[] globalDisplacementNodes)
         {
-            var pseudoStrain = GetPseudoStrainGlass(x, y, globalDisplacementNodes);
+            var pseudoStrain = GetPseudoStrainGlass(csi, eta, globalDisplacementNodes);
             var pseudoStress = GetPseudoStressGlass(pseudoStrain);
 
             mnl.Vector<double> bending = mnl.Vector<double>.Build.Dense(3);
@@ -406,9 +427,9 @@ namespace GPC.Model.FEM.FiniteElements
             return bending;
         }
 
-        public mnl.Vector<double> GetGlassForces(double x, double y, double[] globalDisplacementNodes)
+        public mnl.Vector<double> GetGlassForces(double csi, double eta, double[] globalDisplacementNodes)
         {
-            var pseudoStrain = GetPseudoStrainGlass(x, y, globalDisplacementNodes);
+            var pseudoStrain = GetPseudoStrainGlass(csi, eta, globalDisplacementNodes);
             var pseudoStress = GetPseudoStressGlass(pseudoStrain);
 
             mnl.Vector<double> forces = mnl.Vector<double>.Build.Dense(3);
@@ -423,15 +444,27 @@ namespace GPC.Model.FEM.FiniteElements
         /// <summary>
         /// eq 44
         /// </summary>
-        /// <param name="x"></param>
-        /// <param name="y"></param>
         /// <param name="globalDisplacementsNodes"></param>
         /// <returns>pseudoStrainGlass = [ddeltaUdx, ddeltaVdy, ddeltaUdx + ddeltaUdy, -d2wdx2 , -d2wdy2, -2.0 * d2wdxdy] as vector of double</returns>
-        public mnl.Vector<double> GetPseudoStrainGlass(double x, double y, double[] globalDisplacementsNodes)
+        public mnl.Vector<double> GetPseudoStrainGlass(double csi, double eta, double[] globalDisplacementsNodes)
         {
             //eq. 44: pseudoStrainGlass = [ddeltaUdx, ddeltaVdy, ddeltaUdx + ddeltaUdy, -d2wdx2 , -d2wdy2, -2.0 * d2wdxdy]
-            var Bg = GetBg(x, y);
-            var eg = Bg * mnl.Vector<double>.Build.DenseOfArray(globalDisplacementsNodes);
+            var Bg = GetBg(csi, eta);
+            var localDisplacement = _dofGlobalToLocal * mnl.Vector<double>.Build.DenseOfArray(globalDisplacementsNodes);
+
+            var localDisplacementReordered = mnl.Vector<double>.Build.Dense(20);
+
+            for (int i = 0; i < _nodesLocal.Count(); i++)
+            {
+                localDisplacementReordered[i * 5 + 0] = localDisplacement[i * 5 + 3];
+                localDisplacementReordered[i * 5 + 1] = localDisplacement[i * 5 + 4];
+
+                localDisplacementReordered[i * 5 + 2] = localDisplacement[i * 5 + 0];
+                localDisplacementReordered[i * 5 + 3] = localDisplacement[i * 5 + 1];
+                localDisplacementReordered[i * 5 + 4] = localDisplacement[i * 5 + 2];
+            }
+
+            var eg = Bg * localDisplacementReordered;
             return eg;
         }
 
@@ -454,9 +487,9 @@ namespace GPC.Model.FEM.FiniteElements
         /// <param name="y"></param>
         /// <param name="globalDisplacementNodes">displacement of the element</param>
         /// <returns>epsilon_x, epslilon_y, tau_xy, kxx, kyy, kxy as vector of double</returns>
-        public mnl.Vector<double> GetStrainGlass(Glass g, Face face, double x, double y, double[] globalDisplacementNodes)
+        public mnl.Vector<double> GetStrainGlass(Glass g, Face face, double csi, double eta, double[] globalDisplacementNodes)
         {
-            var pseudoStrain = GetPseudoStrainGlass(x,y,globalDisplacementNodes);
+            var pseudoStrain = GetPseudoStrainGlass(csi, eta, globalDisplacementNodes);
             var pseudoStress = GetPseudoStressGlass(pseudoStrain);
 
             mnl.Vector<double> strains = mnl.Vector<double>.Build.Dense(3); //eq 24 epsilon_x, epslilon_y, gamma_xy
@@ -476,7 +509,7 @@ namespace GPC.Model.FEM.FiniteElements
             double strainsYY = Math.Pow(-1.0, k) * pseudoStress[1] / (_EGlass * h); //epsilon y
             double strainsXY = Math.Pow(-1.0, k) * 2.0 * (1.0 + _niGlass) / (_EGlass * h) * pseudoStress[2]; //gamma_xy
 
-            var curvatures = GetGlassCurvatures(x,y, globalDisplacementNodes);
+            var curvatures = GetGlassCurvatures(csi, eta, globalDisplacementNodes);
 
             if (face == Face.Top)
             {
@@ -507,9 +540,9 @@ namespace GPC.Model.FEM.FiniteElements
         /// <param name="y"></param>
         /// <param name="globalDisplacementNodes"></param>
         /// <returns>sigma_xx, sigma_yy, tau_xy as vector of double</returns>
-        public mnl.Vector<double> GetStressGlass(Glass g, Face face, double x, double y, double[] globalDisplacementNodes)
+        public mnl.Vector<double> GetStressGlass(Glass g, Face face, double csi, double eta, double[] globalDisplacementNodes)
         {
-            var strains = GetStrainGlass(g, face, x,y, globalDisplacementNodes);
+            var strains = GetStrainGlass(g, face, csi, eta, globalDisplacementNodes);
             var stress = _PlaneStressGlassMatrix * strains;
 
             return stress;
@@ -524,11 +557,26 @@ namespace GPC.Model.FEM.FiniteElements
         /// <param name="x"></param>
         /// <param name="y"></param>
         /// <returns> pseudoStrainInterlayer = [deltaU, deltaV, dwdx , dwdy] as vector of double</returns>
-        public mnl.Vector<double> GetPseudoStrainInterlayer(double x, double y, double[] globalDisplacementsNodes)
+        public mnl.Vector<double> GetPseudoStrainInterlayer(double csi, double eta, double[] globalDisplacementsNodes)
         {
             //eq. 33: pseudoStrainInterlayer = [deltaU, deltaV, dwdx , dwdy]
-            var Bs = GetBs(x, y);
-            var es = Bs * mnl.Vector<double>.Build.DenseOfArray(globalDisplacementsNodes);
+            var Bs = GetBs(csi, eta);
+
+            var localDisplacement = _dofGlobalToLocal * mnl.Vector<double>.Build.DenseOfArray(globalDisplacementsNodes);
+
+            var localDisplacementReordered = mnl.Vector<double>.Build.Dense(5*4);
+
+            for (int i = 0; i < _nodesLocal.Count(); i++)
+            {
+                localDisplacementReordered[i * 5 + 0] = localDisplacement[i * 5 + 3];
+                localDisplacementReordered[i * 5 + 1] = localDisplacement[i * 5 + 4];
+
+                localDisplacementReordered[i * 5 + 2] = localDisplacement[i * 5 + 0];
+                localDisplacementReordered[i * 5 + 3] = localDisplacement[i * 5 + 1];
+                localDisplacementReordered[i * 5 + 4] = localDisplacement[i * 5 + 2];
+            }
+
+            var es = Bs * localDisplacementReordered;
 
             return es;
         }
@@ -550,9 +598,9 @@ namespace GPC.Model.FEM.FiniteElements
         /// <param name="y"></param>
         /// <param name="globalDisplacementNodes"></param>
         /// <returns>gamma_xz, gamma_yz</returns>
-        public mnl.Vector<double> GetStrainInterlayer(double x, double y, double[] globalDisplacementNodes)
+        public mnl.Vector<double> GetStrainInterlayer(double csi, double eta, double[] globalDisplacementNodes)
         {
-            var pseudoStrain = GetPseudoStrainInterlayer(x, y, globalDisplacementNodes);
+            var pseudoStrain = GetPseudoStrainInterlayer(csi, eta, globalDisplacementNodes);
 
             mnl.Vector<double> strain = mnl.Vector<double>.Build.Dense(2);
             strain[0] = 1.0 / _h0 * (pseudoStrain[0] + _hc * pseudoStrain[2]);
@@ -568,9 +616,9 @@ namespace GPC.Model.FEM.FiniteElements
         /// <param name="y"></param>
         /// <param name="globalDisplacementNodes"></param>
         /// <returns>tau_zx, tau_zy</returns>
-        public mnl.Vector<double> GetStressInterlayer(double x, double y, double[] globalDisplacementNodes)
+        public mnl.Vector<double> GetStressInterlayer(double csi, double eta, double[] globalDisplacementNodes)
         {
-            var pseudoStrain = GetPseudoStrainInterlayer(x, y, globalDisplacementNodes);
+            var pseudoStrain = GetPseudoStrainInterlayer(csi, eta, globalDisplacementNodes);
             var pseudoStress = GetPseudoStressInterlayer(pseudoStrain);
 
             mnl.Vector<double> stress = mnl.Vector<double>.Build.Dense(2);
@@ -580,9 +628,9 @@ namespace GPC.Model.FEM.FiniteElements
             return stress;
         }
 
-        public mnl.Vector<double> GetBendingInterlayer(double x, double y, double[] globalDisplacementNodes)
+        public mnl.Vector<double> GetBendingInterlayer(double csi, double eta, double[] globalDisplacementNodes)
         {
-            var pseudoStrain = GetPseudoStrainInterlayer(x, y, globalDisplacementNodes);
+            var pseudoStrain = GetPseudoStrainInterlayer(csi, eta, globalDisplacementNodes);
             var pseudoStress = GetPseudoStressInterlayer(pseudoStrain);
 
             mnl.Vector<double> bending = mnl.Vector<double>.Build.Dense(2);
@@ -650,21 +698,6 @@ namespace GPC.Model.FEM.FiniteElements
             else if ((indexDisplacement == 1 && indexNode == 4) || (indexDisplacement == 2 && indexNode == 4))
             {
                 return (double x, double y) => (lx - x) * y / (lx * ly);
-            } else if (indexDisplacement == 3)
-            {
-                return (double x, double y) => GetHermite(0, a, lx)(x) * GetHermite(0, b, ly)(y);
-            }
-            else if (indexDisplacement == 4)
-            {
-                return (double x, double y) => GetHermite(0, a, lx)(x) * GetHermite(1, b, ly)(y);
-            }
-            else if (indexDisplacement == 5)
-            {
-                return (double x, double y) => -GetHermite(1, a, lx)(x) * GetHermite(0, b, ly)(y);
-            }
-            else if (indexDisplacement == 6)
-            {
-                return (double x, double y) => GetHermite(1, a, lx)(x) * GetHermite(1, b, ly)(y);
             }
             else
             {
@@ -704,22 +737,6 @@ namespace GPC.Model.FEM.FiniteElements
             {
                 return (double x, double y) => -y / (lx * ly);
             }
-            else if (indexDisplacement == 3)
-            {
-                return (double x, double y) => GetFirstDerivHermite(0, a, lx)(x) * GetHermite(0, b, ly)(y);
-            }
-            else if (indexDisplacement == 4)
-            {
-                return (double x, double y) => GetFirstDerivHermite(0, a, lx)(x) * GetHermite(1, b, ly)(y);
-            }
-            else if (indexDisplacement == 5)
-            {
-                return (double x, double y) => -GetFirstDerivHermite(1, a, lx)(x) * GetHermite(0, b, ly)(y);
-            }
-            else if (indexDisplacement == 6)
-            {
-                return (double x, double y) => GetFirstDerivHermite(1, a, lx)(x) * GetHermite(1, b, ly)(y);
-            }
             else
             {
                 throw new ArgumentOutOfRangeException();
@@ -758,136 +775,6 @@ namespace GPC.Model.FEM.FiniteElements
             {
                 return (double x, double y) => (lx - x) / (lx * ly);
             }
-            else if (indexDisplacement == 3)
-            {
-                return (double x, double y) => GetHermite(0, a, lx)(x) * GetFirstDerivHermite(0, b, ly)(y);
-            }
-            else if (indexDisplacement == 4)
-            {
-                return (double x, double y) => GetHermite(0, a, lx)(x) * GetFirstDerivHermite(1, b, ly)(y);
-            }
-            else if (indexDisplacement == 5)
-            {
-                return (double x, double y) => -GetHermite(1, a, lx)(x) * GetFirstDerivHermite(0, b, ly)(y);
-            }
-            else if (indexDisplacement == 6)
-            {
-                return (double x, double y) => GetHermite(1, a, lx)(x) * GetFirstDerivHermite(1, b, ly)(y);
-            }
-            else
-            {
-                throw new ArgumentOutOfRangeException();
-            }
-        }
-
-        /// <summary>
-        /// Mixed derivative d^2/(dx dy) of shape function
-        /// </summary>
-        /// <param name="indexNode">1 to 4</param>
-        /// <param name="indexDisplacement">1 to 6</param>
-        /// <returns></returns>
-        internal Func<double, double, double> GetdNdxdy(int indexNode, int indexDisplacement)
-        {
-            Dictionary<int, (int, int)> indexes = GetIndices();
-
-            int a = indexes[indexNode].Item1;
-            int b = indexes[indexNode].Item2;
-
-            double lx, ly;
-            GetLxLy(indexNode, out lx, out ly);
-
-            if (indexDisplacement == 3)
-            {                 
-                return (double x, double y) => GetFirstDerivHermite(0, a, lx)(x) * GetFirstDerivHermite(0, b, ly)(y);
-            }
-            else if (indexDisplacement == 4)
-            {
-                return (double x, double y) => GetFirstDerivHermite(0, a, lx)(x) * GetFirstDerivHermite(1, b, ly)(y);
-            }
-            else if (indexDisplacement == 5)
-            {
-                return (double x, double y) => -GetFirstDerivHermite(1, a, lx)(x) * GetFirstDerivHermite(0, b, ly)(y);
-            }
-            else if (indexDisplacement == 6)
-            {
-                return (double x, double y) => GetFirstDerivHermite(1, a, lx)(x) * GetFirstDerivHermite(1, b, ly)(y);
-            }
-            else
-            {
-                throw new ArgumentOutOfRangeException();
-            }
-        }
-
-        /// <summary>
-        /// Second derivative of shape function along x local axis
-        /// </summary>
-        /// <param name="indexNode">1 to 4</param>
-        /// <param name="indexDisplacement">3 to 6</param>
-        /// <returns></returns>
-        internal Func<double, double, double> GetdNdx2(int indexNode, int indexDisplacement)
-        {
-            Dictionary<int, (int, int)> indexes = GetIndices();
-
-            int a = indexes[indexNode].Item1;
-            int b = indexes[indexNode].Item2;
-
-            double lx, ly;
-            GetLxLy(indexNode, out lx, out ly);
-
-            if (indexDisplacement == 3)
-            {
-                return (double x, double y) => GetSecondDerivHermite(0, a, lx)(x) * GetHermite(0, b, ly)(y);
-            }
-            else if (indexDisplacement == 4)
-            {
-                return (double x, double y) => GetSecondDerivHermite(0, a, lx)(x) * GetHermite(1, b, ly)(y);
-            }
-            else if (indexDisplacement == 5)
-            {
-                return (double x, double y) => -GetSecondDerivHermite(1, a, lx)(x) * GetHermite(0, b, ly)(y);
-            }
-            else if (indexDisplacement == 6)
-            {
-                return (double x, double y) => GetSecondDerivHermite(1, a, lx)(x) * GetHermite(1, b, ly)(y);
-            }
-            else
-            {
-                throw new ArgumentOutOfRangeException();
-            }
-        }
-
-        /// <summary>
-        /// Second derivative of shape function along y local axis
-        /// </summary>
-        /// <param name="indexNode">1 to 4</param>
-        /// <param name="indexDisplacement">1 to 6</param>
-        /// <returns></returns>
-        internal Func<double, double, double> GetdNdy2(int indexNode, int indexDisplacement)
-        {
-            Dictionary<int, (int, int)> indexes = GetIndices();
-
-            int a = indexes[indexNode].Item1;
-            int b = indexes[indexNode].Item2;
-
-            double lx, ly;
-            GetLxLy(indexNode, out lx, out ly);
-
-            if (indexDisplacement == 3)
-            {
-                return (double x, double y) => GetHermite(0, a, lx)(x) * GetSecondDerivHermite(0, b, ly)(y);
-            }
-            else if (indexDisplacement == 4)
-            {
-                return (double x, double y) => GetHermite(0, a, lx)(x) * GetSecondDerivHermite(1, b, ly)(y);
-            }
-            else if (indexDisplacement == 5)
-            {
-                return (double x, double y) => -GetHermite(1, a, lx)(x) * GetSecondDerivHermite(0, b, ly)(y);
-            }
-            else if (indexDisplacement == 6)
-            {
-                return (double x, double y) => GetHermite(1, a, lx)(x) * GetSecondDerivHermite(1, b, ly)(y);
-            }
             else
             {
                 throw new ArgumentOutOfRangeException();
@@ -906,97 +793,6 @@ namespace GPC.Model.FEM.FiniteElements
         }
 #endregion
 
-#region Hermite
-        /// <summary>
-        /// Hermite polynomial used in this element H_(i,j) defined in eqts. 57
-        /// </summary>
-        /// <param name="i">first index</param>
-        /// <param name="j">second index</param>
-        /// <param name="L">Length</param>
-        /// <returns></returns>
-        internal static Func<double, double> GetHermite(int i, int j, double L)
-        {
-            //equations (57)
-            if (i == 0 && j == 1)
-            {
-                return (double eta) => 1.0 - 3.0 * eta * eta / (L * L) + 2.0 * Math.Pow(eta, 3.0) / Math.Pow(L, 3.0);
-            } else if (i == 0 && j == 2)
-            {
-                return (double eta) => 3.0 * eta * eta / (L * L) - 2.0 * Math.Pow(eta, 3.0) / Math.Pow(L, 3.0);
-            } else if (i == 1 && j == 1) {
-                return (double eta) => eta - 2.0 * eta * eta / L + Math.Pow(eta, 3.0) / (L * L);
-            } else if (i == 1 && j == 2)
-            {
-                return (double eta) => -eta * eta / L + Math.Pow(eta, 3.0) / (L * L);
-            } else
-            {
-                throw new ArgumentOutOfRangeException();
-            }
-        }
-
-        /// <summary>
-        /// First order derivative of Hermite functions defined in GetHermite function
-        /// </summary>
-        /// <param name="i">first index</param>
-        /// <param name="j">second index</param>
-        /// <param name="L">Length</param>
-        /// <returns></returns>
-        internal static Func<double, double> GetFirstDerivHermite(int i, int j, double L)
-        {
-            if (i == 0 && j == 1)
-            {
-                return (double eta) => 6.0 * eta * (eta - L) / Math.Pow(L,3.0);
-            }
-            else if (i == 0 && j == 2)
-            {
-                return (double eta) => 6.0 * eta * (L - eta) / Math.Pow(L,3.0);
-            }
-            else if (i == 1 && j == 1)
-            {
-                return (double eta) => (L*L - 4.0 * L * eta + 3.0 * eta * eta) / (L*L);
-            }
-            else if (i == 1 && j == 2)
-            {
-                return (double eta) => eta * (3.0 * eta - 2.0 * L) / (L*L);
-            }
-            else
-            {
-                throw new ArgumentOutOfRangeException();
-            }
-        }
-
-        /// <summary>
-        /// Second order derivative of Hermite functions defined in GetHermite function
-        /// </summary>
-        /// <param name="i">first index</param>
-        /// <param name="j">second index</param>
-        /// <param name="L">Length</param>
-        /// <returns></returns>
-        internal static Func<double, double> GetSecondDerivHermite(int i, int j, double L)
-        {
-            if (i == 0 && j == 1)
-            {
-                return (double eta) => -6.0 * (L - 2.0 * eta) / Math.Pow(L, 3.0);
-            }
-            else if (i == 0 && j == 2)
-            {
-                return (double eta) => 6.0 * (L - 2.0 * eta) / Math.Pow(L, 3.0);
-            }
-            else if (i == 1 && j == 1)
-            {
-                return (double eta) => (6.0 * eta - 4.0 * L) / (L*L);
-            }
-            else if (i == 1 && j == 2)
-            {
-                return (double eta) => -2.0 * (L - 3.0 * eta) / (L*L);
-            }
-            else
-            {
-                throw new ArgumentOutOfRangeException();
-            }
-        }
-#endregion
-
         /// <summary>
         /// equation 54
         /// </summary>
@@ -1004,17 +800,18 @@ namespace GPC.Model.FEM.FiniteElements
         /// <param name="x"></param>
         /// <param name="y"></param>
         /// <returns></returns>
-        internal mnl.Matrix<double> GetNiMatrix(int indexNode, double x, double y)
+        internal mnl.Matrix<double> GetNiMatrix(int indexNode, double csi, double eta)
         {
-            mnl.Matrix<double> NiMatrix = mnl.Matrix<double>.Build.Dense(3, 6);
-            NiMatrix[0, 0] = GetN(indexNode, 1)(x, y);
+            mnl.Matrix<double> NiMatrix = mnl.Matrix<double>.Build.Dense(2, 2);
+            NiMatrix[0, 0] = GetN(indexNode, 1)(csi, eta);
 
-            NiMatrix[1, 1] = GetN(indexNode, 2)(x, y);
+            NiMatrix[1, 1] = GetN(indexNode, 2)(csi, eta);
 
-            NiMatrix[2, 2] = GetN(indexNode, 3)(x, y);
+            //TODO: per il calcolo del vettore noto occorre non avendo w bisogna fare con metodo "semplificato" stile elemento batoz per questa parte
+            /*NiMatrix[2, 2] = GetN(indexNode, 3)(x, y);
             NiMatrix[2, 3] = GetN(indexNode, 4)(x, y);
             NiMatrix[2, 4] = GetN(indexNode, 5)(x, y);
-            NiMatrix[2, 5] = GetN(indexNode, 6)(x, y);
+            NiMatrix[2, 5] = GetN(indexNode, 6)(x, y);*/
 
             return NiMatrix;
         }
