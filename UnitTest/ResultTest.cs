@@ -1,5 +1,6 @@
 ﻿using GPC.Geometry;
 using GPC.Model.Results;
+using GPC.Model.LoadCases;
 using GPC.TestUtilities;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using MathNet.Numerics.LinearAlgebra;
@@ -348,17 +349,39 @@ namespace ModelObjectTest
         [TestMethod]
         public void StressArithmeticMeanTest2()
         {
-            ResultStress rs1 = new ResultStress(CoordinateSystem.Global, 100, 200, -100, 573/2.0, 400, 500);
-            ResultStress rs2 = new ResultStress(CoordinateSystem.Global, 200, 300, 100, 573*2.0, 400, 500);
+            ResultStress rs1 = new ResultStress(CoordinateSystem.Global, 100, 200, -100, 1000, -1000, 500);
+            ResultStress rs2 = new ResultStress(CoordinateSystem.Global, 200, 300, 100, 2000, -2000, 500);
 
             var rs = ResultStress.GetArithmeticMean(new ResultStress[] { rs1, rs2 });
 
             Assert.IsTrue(rs.Sxx == 150);
             Assert.IsTrue(rs.Syy == 250);
             Assert.IsTrue(rs.Szz == 0);
-            Assert.IsTrue(rs.Sxy == 573);
-            Assert.IsTrue(rs.Sxz == 400);
+            Assert.IsTrue(rs.Sxy == 1500, rs.Sxy.ToString());
+            Assert.IsTrue(rs.Sxz == -1500);
             Assert.IsTrue(rs.Syz == 500);
+        }
+
+
+        [TestMethod]
+        public void StressArithmeticMeanTest3()
+        {
+            ResultStress rs1 = new ResultStress(CoordinateSystem.Global, 100, 200, -100, 1000, -1000, 500);
+            ResultStress rs2 = new ResultStress(CoordinateSystem.Global, 200, 300, 100, 2000, -2000, 500);
+
+            PlateResult pr = new PlateResult(new LoadCase("aa", LoadCase.LoadCaseTypes.SelfWeight), CoordinateSystem.Global, new ResultStress[] { rs1, rs1, rs2, rs2, rs2, rs2 }, 
+                             new ResultLocationId[] { new ResultLocationId(1), new ResultLocationId(1), new ResultLocationId(2), new ResultLocationId(2), new ResultLocationId(3), new ResultLocationId(3) });
+
+            var a = pr.GetMeanFaceResults();
+
+            //var rs = ResultStress.GetArithmeticMean(new ResultStress[] { rs1, rs2 });
+
+            //Assert.IsTrue(rs.Sxx == 150);
+            //Assert.IsTrue(rs.Syy == 250);
+            //Assert.IsTrue(rs.Szz == 0);
+            //Assert.IsTrue(rs.Sxy == 1500, rs.Sxy.ToString());
+            //Assert.IsTrue(rs.Sxz == -1500);
+            //Assert.IsTrue(rs.Syz == 500);
         }
     }
 }
