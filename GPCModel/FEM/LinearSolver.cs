@@ -788,7 +788,7 @@ namespace GPC.Model.FEM
         }
 
         #region Glass
-        public mnl.Vector<double> GetTLG2GlassStrain(Quad4TripleLaminatedGlassV2 element, Quad4TripleLaminatedGlassV2.Glass glass, Plate.Face face, int indexNode)
+        public mnl.Matrix<double> GetTLG2GlassStrain(Quad4TripleLaminatedGlassV2 element, Quad4TripleLaminatedGlassV2.Glass glass, Plate.Face face, int indexNode, CoordinateSystem newSys = null)
         {
             if (indexNode == 0)
             {
@@ -799,10 +799,10 @@ namespace GPC.Model.FEM
 
             var globalDispl = GetDisplacementsAtNodesOfElementInGlobalCoordinates(element);
 
-            return element.GetStrainGlass(glass, face, csi, eta, globalDispl);
+            return element.GetGlassStrains(glass, face, csi, eta, globalDispl, newSys);
         }
 
-        public mnl.Vector<double> GetTLG2GlassStress(Quad4TripleLaminatedGlassV2 element, Quad4TripleLaminatedGlassV2.Glass glass, Plate.Face face, int indexNode)
+        public mnl.Matrix<double> GetTLG2GlassStress(Quad4TripleLaminatedGlassV2 element, Quad4TripleLaminatedGlassV2.Glass glass, Plate.Face face, int indexNode, CoordinateSystem newSys = null)
         {
             if (indexNode == 0)
             {
@@ -813,10 +813,10 @@ namespace GPC.Model.FEM
 
             var globalDispl = GetDisplacementsAtNodesOfElementInGlobalCoordinates(element);
 
-            return element.GetStressGlass(glass, face, csi, eta, globalDispl);
+            return element.GetGlassStress(glass, face, csi, eta, globalDispl, newSys);
         }
 
-        public mnl.Vector<double> GetTLG2GlassBending(Quad4TripleLaminatedGlassV2 element, int indexNode)
+        public mnl.Matrix<double> GetTLG2GlassBending(Quad4TripleLaminatedGlassV2 element, int indexNode, CoordinateSystem newSys = null)
         {
             if (indexNode == 0)
             {
@@ -827,10 +827,10 @@ namespace GPC.Model.FEM
 
             var globalDispl = GetDisplacementsAtNodesOfElementInGlobalCoordinates(element);
 
-            return element.GetGlassBending(csi, eta, globalDispl);
+            return element.GetGlassBending(csi, eta, globalDispl, newSys);
         }
 
-        public mnl.Vector<double> GetTLG2GlassForces(Quad4TripleLaminatedGlassV2 element, int indexNode)
+        public mnl.Matrix<double> GetTLG2GlassForces(Quad4TripleLaminatedGlassV2 element, int indexNode, CoordinateSystem newSys = null)
         {
             if (indexNode == 0)
             {
@@ -841,12 +841,12 @@ namespace GPC.Model.FEM
 
             var globalDispl = GetDisplacementsAtNodesOfElementInGlobalCoordinates(element);
 
-            return element.GetGlassForces(csi, eta, globalDispl);
+            return element.GetGlassForces(csi, eta, globalDispl, newSys);
         }
         #endregion
 
         #region Interlayer
-        public mnl.Vector<double> GetTLG2InterlayerStrain(Quad4TripleLaminatedGlassV2 element, int indexNode)
+        public mnl.Matrix<double> GetTLG2InterlayerStrain(Quad4TripleLaminatedGlassV2 element, int indexNode, CoordinateSystem newSys = null)
         {
             if (indexNode == 0)
             {
@@ -857,10 +857,10 @@ namespace GPC.Model.FEM
 
             var globalDispl = GetDisplacementsAtNodesOfElementInGlobalCoordinates(element);
 
-            return element.GetStrainInterlayer(csi, eta, globalDispl);
+            return element.GetInterlayerStrains(csi, eta, globalDispl, newSys);
         }
 
-        public mnl.Vector<double> GetTLG2InterlayerStress(Quad4TripleLaminatedGlassV2 element, int indexNode)
+        public mnl.Matrix<double> GetTLG2InterlayerStress(Quad4TripleLaminatedGlassV2 element, int indexNode, CoordinateSystem newSys = null)
         {
             if (indexNode == 0)
             {
@@ -871,7 +871,7 @@ namespace GPC.Model.FEM
 
             var globalDispl = GetDisplacementsAtNodesOfElementInGlobalCoordinates(element);
 
-            return element.GetStressInterlayer(csi, eta, globalDispl);
+            return element.GetInterlayerStress(csi, eta, globalDispl, newSys);
         }
 
         public mnl.Vector<double> GetTLG2InterlayerBending(Quad4TripleLaminatedGlassV2 element, int indexNode)
@@ -885,7 +885,7 @@ namespace GPC.Model.FEM
 
             var globalDispl = GetDisplacementsAtNodesOfElementInGlobalCoordinates(element);
 
-            return element.GetBendingInterlayer(csi, eta, globalDispl);
+            return element.GetInterlayerLocalBending(csi, eta, globalDispl);
         }
         #endregion
         #endregion

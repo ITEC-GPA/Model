@@ -343,5 +343,81 @@ namespace GPC.Model.FEM
             return val;
         }
         #endregion
+
+        #region Tensor
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="oldSys"></param>
+        /// <param name="newSys">if null not rotation applid</param>
+        /// <returns></returns>
+        private static mnl.Matrix<double> GetRotationMatrix(CoordinateSystem oldSys, CoordinateSystem newSys = null)
+        {
+            //Tensor Rotation matrix
+            mnl.Matrix<double> rotation = mnl.Matrix<double>.Build.Dense(3, 3);
+
+            CoordinateSystem versorsLocalAxis = oldSys;
+            Vector3d xVersor = versorsLocalAxis.V1;
+            Vector3d yVersor = versorsLocalAxis.V2;
+            Vector3d zVersor = versorsLocalAxis.V3;
+
+            if (newSys == null)
+            {
+                rotation[0, 0] = 1.0;
+                rotation[0, 1] = 0.0;
+                rotation[0, 2] = 0.0;
+
+                rotation[1, 0] = 0.0;
+                rotation[1, 1] = 1.0;
+                rotation[1, 2] = 0.0;
+
+                rotation[2, 0] = 0.0;
+                rotation[2, 1] = 0.0;
+                rotation[2, 2] = 1.0;
+
+                /*
+                TO GLOBAL AXIS:
+                rotation[0, 0] = xVersor.X;
+                rotation[0, 1] = yVersor.X;
+                rotation[0, 2] = zVersor.X;
+
+                rotation[1, 0] = xVersor.Y;
+                rotation[1, 1] = yVersor.Y;
+                rotation[1, 2] = zVersor.Y;
+
+                rotation[2, 0] = xVersor.Z;
+                rotation[2, 1] = yVersor.Z;
+                rotation[2, 2] = zVersor.Z;*/
+            } else
+            {
+                //TODO: to be checked
+                rotation[0, 0] = xVersor.DotProduct(newSys.V1);
+                rotation[0, 1] = yVersor.DotProduct(newSys.V1);
+                rotation[0, 2] = zVersor.DotProduct(newSys.V1);
+
+                rotation[1, 0] = xVersor.DotProduct(newSys.V2);
+                rotation[1, 1] = yVersor.DotProduct(newSys.V2);
+                rotation[1, 2] = zVersor.DotProduct(newSys.V2);
+
+                rotation[2, 0] = xVersor.DotProduct(newSys.V3);
+                rotation[2, 1] = yVersor.DotProduct(newSys.V3);
+                rotation[2, 2] = zVersor.DotProduct(newSys.V3);
+            }
+            return rotation;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="tensor"></param>
+        /// <param name="localSystemAssociated"></param>
+        /// <returns></returns>
+        public static mnl.Matrix<double> RotateTensor(mnl.Matrix<double> tensor, CoordinateSystem localSystemAssociated, CoordinateSystem newSystem = null)
+        {
+            //Tensor Rotation matrix
+            mnl.Matrix<double> rotation = GetRotationMatrix(localSystemAssociated, newSystem);
+            return rotation * tensor * rotation.Transpose();
+        }
+        #endregion
     }
 }

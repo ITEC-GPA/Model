@@ -658,5 +658,94 @@ namespace FemTest.SolverTest
 
             LinearSolver fem = new LinearSolver(els.ToArray());
         }
+
+        /// <summary>
+        /// Batoz articolo
+        /// </summary>
+        [TestMethod]
+        public void PatchTest1()
+        {
+            double h = 1.0;
+            double E = 1000.0;
+            double ni = 0.0;
+
+            Material mat = new SteelMaterial("mat", E, ni, 355, 510, 7850);
+            PlateProperty prop = new PlateProperty(mat.GetIsotropicFemMaterial(), h, h, "p");
+
+            List<Node> nodes = new List<Node>();
+            #region nodes
+            nodes.Add(new Node(-1e6, -1e6, -1e6));
+            nodes.Add(new Node(0, 0, 0));
+            nodes.Add(new Node(40, 0, 0));
+            nodes.Add(new Node(0, 20, 0));
+            nodes.Add(new Node(40, 20, 0));
+            nodes.Add(new Node(29, 4, 0));
+            nodes.Add(new Node(29, 14, 0));
+            nodes.Add(new Node(5, 17.5, 0));
+            nodes.Add(new Node(20, 7, 0));
+            #endregion
+
+            #region plates
+            List<Quad4DK> els = new List<Quad4DK>();
+            els.Add(new Quad4DK(new Node[] { nodes[5], nodes[6], nodes[7], nodes[8] }));
+            els.Add(new Quad4DK(new Node[] { nodes[2], nodes[4], nodes[6], nodes[5] }));
+            els.Add(new Quad4DK(new Node[] { nodes[4], nodes[3], nodes[7], nodes[6] }));
+            els.Add(new Quad4DK(new Node[] { nodes[3], nodes[1], nodes[8], nodes[7] }));
+            els.Add(new Quad4DK(new Node[] { nodes[1], nodes[2], nodes[5], nodes[8] }));
+
+            #endregion
+            els.ForEach(x => x.SetProperty(prop));
+
+            CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
+
+            NodeForceAttribute f = new NodeForceAttribute("lc", sys, 0, 0, -2, 0, 0, 0);
+            nodes.Where(x => x.Position.X == 40.0 && x.Position.Y == 20.0).ToList().ForEach(x => x.AddAttribute(f));
+
+            NodeForceAttribute mxPlus = new NodeForceAttribute("lc", sys, 0, 0, 0, 20, 0, 0);
+ 
+            NodeForceAttribute mxMinus = new NodeForceAttribute("lc", sys, 0, 0, 0, -20, 0, 0);
+
+            NodeForceAttribute myPlus = new NodeForceAttribute("lc", sys, 0, 0, 0, 0, 10, 0);
+
+            NodeForceAttribute myMinus = new NodeForceAttribute("lc", sys, 0, 0, 0, 0, -10, 0);
+
+            nodes[1].AddAttribute(mxPlus);
+            nodes[1].AddAttribute(myMinus);
+
+            nodes[2].AddAttribute(mxPlus);
+            nodes[2].AddAttribute(myPlus);
+
+            nodes[3].AddAttribute(mxMinus);
+            nodes[3].AddAttribute(myMinus);
+
+            nodes[4].AddAttribute(mxMinus);
+            nodes[4].AddAttribute(myPlus);
+
+            NodeRestrainAttribute dz = new NodeRestrainAttribute("freedomCase", sys);
+            dz.AddExternalRestrain(Solver.DOF.DZ);
+
+            nodes[1].AddAttribute(dz);
+            nodes[2].AddAttribute(dz);
+            nodes[3].AddAttribute(dz);
+
+            NodeRestrainAttribute fix = new NodeRestrainAttribute("freedomCase", sys);
+            fix.AddExternalRestrain(Solver.DOF.DX);
+            fix.AddExternalRestrain(Solver.DOF.DY);
+            //fix.AddExternalRestrain(Solver.DOF.DZ);
+
+            /*fix.AddExternalRestrain(Solver.DOF.RX);
+            fix.AddExternalRestrain(Solver.DOF.RY);*/
+            fix.AddExternalRestrain(Solver.DOF.RZ);
+
+            //fix.AddExternalRestrain(Solver.DOF.DDX);
+            //fix.AddExternalRestrain(Solver.DOF.DDY);
+            //fix.AddExternalRestrain(Solver.DOF.DDZ);
+
+            nodes.ForEach(x => x.AddAttribute(fix));
+
+            LinearSolver fem = new LinearSolver(els.ToArray());
+
+            FEMUtilities.WriteMatrix(els[0].KElementLocalCoord);
+        }
     }
 }
