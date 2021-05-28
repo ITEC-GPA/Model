@@ -344,5 +344,21 @@ namespace ModelObjectTest
             Assert.IsTrue(rs.Syz == 500);
         }
 
+
+        [TestMethod]
+        public void StressArithmeticMeanTest2()
+        {
+            ResultStress rs1 = new ResultStress(CoordinateSystem.Global, 100, 200, -100, 573/2.0, 400, 500);
+            ResultStress rs2 = new ResultStress(CoordinateSystem.Global, 200, 300, 100, 573*2.0, 400, 500);
+
+            var rs = ResultStress.GetArithmeticMean(new ResultStress[] { rs1, rs2 });
+
+            Assert.IsTrue(rs.Sxx == 150);
+            Assert.IsTrue(rs.Syy == 250);
+            Assert.IsTrue(rs.Szz == 0);
+            Assert.IsTrue(rs.Sxy == 573);
+            Assert.IsTrue(rs.Sxz == 400);
+            Assert.IsTrue(rs.Syz == 500);
+        }
     }
 }
