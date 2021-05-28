@@ -10,12 +10,13 @@ using GPC.Model.Materials;
 
 namespace GPC.Model.Sections
 {
-    //public class ConcreteSectionShape : SectionShape
-    //{
-    //    #region Variables
-    //    protected List<Rebar> _rebars;
-    //    protected ConcreteMaterial _concreteMat;
-    //    #endregion
+    [Serializable]
+    public class ConcreteSectionShape : SectionShape
+    {
+        #region Variables
+        protected List<Rebar> _rebars;
+        protected ConcreteMaterial _concreteMat;
+        #endregion
 
     //    #region Properties
     //    public List<Rebar> Rebars { get => _rebars; set => _rebars = value; }

@@ -8,7 +8,8 @@ using GPC.Model.FEM.Materials;
 namespace GPC.Model.FEM.Properties
 {
     [DebuggerDisplay("{" + nameof(GetDebuggerDisplay) + "(),nq}")]
-    public class PlateProperty : ElementProperty, IPlateProperty
+    [Serializable]
+    public class PlateProperty : ElementProperty, IPlateProperty, ISerializable
     {
         #region Variables
         protected FemMaterial _material;
@@ -51,7 +52,7 @@ namespace GPC.Model.FEM.Properties
         {
             _bendingThickness = info.GetDouble("BendingThickness");
             _membraneThickness = info.GetDouble("MembranalThickness");
-            throw new NotImplementedException();
+            _material = (FemMaterial)info.GetValue("FemMaterial", typeof(FemMaterial));
         }
 
 
@@ -68,11 +69,13 @@ namespace GPC.Model.FEM.Properties
 
         public override bool Equals(object obj)
         {
+            if (obj is null)
+                return false;
+
             if (ReferenceEquals(this, obj))
                 return true;
 
-            PlateProperty objCasted = obj as PlateProperty;
-            return !(objCasted is null) && _bendingThickness == objCasted._bendingThickness &&
+            return (obj is PlateProperty objCasted) && _bendingThickness == objCasted._bendingThickness &&
                                            _membraneThickness == objCasted._membraneThickness &&
                                            _material == objCasted._material &&
                                            base.Equals(objCasted);
@@ -80,17 +83,38 @@ namespace GPC.Model.FEM.Properties
 
         public override int GetHashCode()
         {
-            int hashCode = 23;
-            hashCode = hashCode * -17 + base.GetHashCode();
-            hashCode = hashCode * -17 + _bendingThickness.GetHashCode();
-            hashCode = hashCode * -17 + _membraneThickness.GetHashCode();
-            hashCode = hashCode * -17 + EqualityComparer<FemMaterial>.Default.GetHashCode(_material);
-            return hashCode;
+            unchecked
+            {
+                int hashCode = 23;
+                hashCode = hashCode * -17 + base.GetHashCode();
+                hashCode = hashCode * -17 + _bendingThickness.GetHashCode();
+                hashCode = hashCode * -17 + _membraneThickness.GetHashCode();
+                hashCode = hashCode * -17 + EqualityComparer<FemMaterial>.Default.GetHashCode(_material);
+                return hashCode; 
+            }
         }
 
         private string GetDebuggerDisplay()
         {
             return $"PlateProperty: {_name}";
+        }
+
+        public static bool operator ==(PlateProperty obj1, PlateProperty obj2)
+        {
+            if (obj1 is null)
+            {
+                return obj2 is null;
+            }
+
+            if (ReferenceEquals(obj1, obj2))
+                return true;
+
+            return obj1.Equals(obj2);
+        }
+
+        public static bool operator !=(PlateProperty obj1, PlateProperty obj2)
+        {
+            return !(obj1 == obj2);
         }
     }
 }

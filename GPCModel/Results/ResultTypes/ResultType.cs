@@ -9,14 +9,24 @@ namespace GPC.Model.Results
     {
         protected readonly CoordinateSystem _coordinateSystem;
 
-        protected ResultType(CoordinateSystem coordinateSystem) : base()
+        protected ResultType(CoordinateSystem coordinateSystem, string name = "") : base(name)
         {
             _coordinateSystem = coordinateSystem ?? throw new ArgumentNullException(nameof(coordinateSystem));
         }
 
-        protected ResultType(SerializationInfo info, StreamingContext context)
+
+
+        public ResultType(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
+            _coordinateSystem = (CoordinateSystem)info.GetValue("CoordinateSystem", typeof(CoordinateSystem));
+        }
+
+
+        public override void GetObjectData(SerializationInfo info, StreamingContext context)
+        {
+            base.GetObjectData(info, context);
+            info.AddValue("CoordinateSystem", _coordinateSystem);
         }
 
         public override bool Equals(object obj)
@@ -55,5 +65,6 @@ namespace GPC.Model.Results
         {
             return !(obj1 == obj2);
         }
+
     }
 }

@@ -14,17 +14,17 @@ namespace GPC.Model.FEM
 
         protected readonly UniqueNameCollection<Group> _groups; // non usiamo groupCollection in quanto l'id è già stato assegnato dal femModel.
                                                                 // Usiamo questa collection per avere contains con nome e perchè è thread-safe
+        
 
-
-        public FEMObject()
+        public FEMObject() : this("")
         {
-            _groups = new UniqueNameCollection<Group>();
+
         }
 
         public FEMObject(string name) 
             : base(name)
         {
-
+            _groups = new UniqueNameCollection<Group>();
         }
 
         public FEMObject(SerializationInfo info, StreamingContext context) 
@@ -49,6 +49,9 @@ namespace GPC.Model.FEM
             return _groups.Contains(group);
         }
 
+        /// <summary>
+        /// This is an internal method, since only the femModel class can add a group to the femObject
+        /// </summary>
         internal bool AddGroup(Group group)
         {
             if (group is null)
@@ -58,6 +61,9 @@ namespace GPC.Model.FEM
             return true;
         }
 
+        /// <summary>
+        /// This is an internal method, since only the femModel class can add a group to the femObject
+        /// </summary>
         internal bool AddGroupRange(IEnumerable<Group> groups)
         {
             if (groups is null)
@@ -74,6 +80,9 @@ namespace GPC.Model.FEM
         }
 
 
+        /// <summary>
+        /// This is an internal method, since only the femModel class can set the id of the femObject
+        /// </summary>
         internal void SetId(int id)
         {
             // teoricamente questo metodo non serve più. Al momento esiste solo per retrocompatibilità

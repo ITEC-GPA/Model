@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 
 namespace GPC.Model
 {
+    [Serializable]
     public static class Units    
     {
         [Description("kNm")]

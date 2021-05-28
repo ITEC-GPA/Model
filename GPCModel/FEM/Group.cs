@@ -12,7 +12,7 @@ namespace GPC.Model.FEM
     /// This class to be used to group some <see cref="FEMObject"/> togethers.
     /// </summary>
     [DebuggerDisplay("{" + nameof(GetDebuggerDisplay) + "(),nq}")]
-    public sealed class Group : FEMObject, IEquatable<Group>
+    public sealed class Group : ModelObjectId, IEquatable<Group>
     {
         // eventuali opzioni
 

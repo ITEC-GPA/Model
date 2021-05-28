@@ -1,30 +1,13 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using GPC.TestUtilities;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Linq;
 using System.Reflection;
 
 namespace GeneralTest
 {
     [TestClass]
-    public class SerializationTest
+    public class SerializationTest : UnitTestBase
     {
-        [ClassInitialize]
-        public static void ClassInitialize(TestContext context)
-        {
-            // Nothing
-        }
-
-        [TestInitialize]
-        public void TestInitialize()
-        {
-            // Nothing
-        }
-
-        [TestCleanup]
-        public void CleanUp()
-        {
-            // Nothing
-        }
-
         /// <summary>
         /// Testa che tutte le classi nell'assembly siano abbiano l'attributo [Serializable]
         /// </summary>

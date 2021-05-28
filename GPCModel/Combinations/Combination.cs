@@ -13,7 +13,7 @@ namespace GPC.Model.Combinations
     /// <remarks>This is a mutable object</remarks>
     [Serializable]
     [DebuggerDisplay("{" + nameof(GetDebuggerDisplay) + "(),nq}")]
-    public class Combination : ModelObject, ILoadCase, ICloneable
+    public class Combination : ModelObject, ILoadCase, ICloneable, ISerializable
     {
         protected List<LoadCaseCoefficient> _coefficients;
         protected Standards.Standard.CombinationsOptions _options;

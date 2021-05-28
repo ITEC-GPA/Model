@@ -4,6 +4,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
+using System.Runtime.Serialization;
 
 namespace GPC.Model.FEM.Collections
 {
@@ -14,7 +15,8 @@ namespace GPC.Model.FEM.Collections
     /// <typeparam name="T"></typeparam>
     /// <typeparam name="D"></typeparam>
     /// <remarks>The collection is thread-safe</remarks>
-    public abstract class FemObjectStageCollection<T, D>  where T : FEMObject where D : Stage.StageProperty
+    [Serializable]
+    public abstract class FemObjectStageCollection<T, D>  where T : FEMObject where D : Stage.StageProperty, ISerializable
     {
         protected readonly object _locker = new object();
 
@@ -28,6 +30,12 @@ namespace GPC.Model.FEM.Collections
         public FemObjectStageCollection()
         {
             _stageFiniteElementProperty = new List<KeyValuePair<T, D>>();
+        }
+
+
+        public FemObjectStageCollection(SerializationInfo info, StreamingContext context) 
+        {           
+            _stageFiniteElementProperty = (List<KeyValuePair<T, D>>)info.GetValue("StageFiniteElementProperty", typeof(List<KeyValuePair<T, D>>));
         }
 
 
@@ -208,11 +216,19 @@ namespace GPC.Model.FEM.Collections
 
         #region Equals - hashcode - Operators
 
+        public virtual void GetObjectData(SerializationInfo info, StreamingContext context)
+        {
+            info.AddValue("StageFiniteElementProperty", _stageFiniteElementProperty);
+        }
+
+
         public override bool Equals(object obj)
         {
             lock (_locker)
             {
-                return obj is FemObjectStageCollection<T, D> collection && _stageFiniteElementProperty.ScrambledEquals(collection._stageFiniteElementProperty) && base.Equals(collection);
+                return obj is FemObjectStageCollection<T, D> collection 
+                                    && _stageFiniteElementProperty.ScrambledEquals(collection._stageFiniteElementProperty) 
+                                    && base.Equals(collection);
             }
         }
 
@@ -222,13 +238,12 @@ namespace GPC.Model.FEM.Collections
             {
                 unchecked
                 {
-                    int hashCode = -23;
-                    hashCode = hashCode * -17 + base.GetHashCode();
+                    int hashCode = -391 + base.GetHashCode();
 
                     foreach (var element in _stageFiniteElementProperty)
                     {
-                        hashCode = hashCode + EqualityComparer<FEMObject>.Default.GetHashCode(element.Key);
-                        hashCode = hashCode + EqualityComparer<Stage.StageProperty>.Default.GetHashCode(element.Value);
+                        hashCode += EqualityComparer<FEMObject>.Default.GetHashCode(element.Key);
+                        hashCode += EqualityComparer<Stage.StageProperty>.Default.GetHashCode(element.Value);
                     }
 
                     return hashCode;  
@@ -239,8 +254,13 @@ namespace GPC.Model.FEM.Collections
 
         public static bool operator ==(FemObjectStageCollection<T, D> obj1, FemObjectStageCollection<T, D> obj2)
         {
-            if (obj1 is null || obj2 is null)
-                return false;
+            if (obj1 is null)
+            {
+                return obj2 is null;
+            }
+
+            if (ReferenceEquals(obj1, obj2))
+                return true;
 
             return obj1.Equals(obj2);
         }

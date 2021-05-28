@@ -29,9 +29,10 @@ namespace GPC.Model.Results
         /// <param name="result">Lenght of this list should be 3n. Where n is the number of result on each face</param>
         /// <param name="resultLocations">Lenght of this list should be 3n. Where n is the number of result on each face</param>
         /// <param name="stageId"></param>
+        /// <param name="name"></param>
         /// <remarks>Result order: Lower face (z-), Mid face, Upper face (z+)</remarks>
-        public PlateResult(ILoadCase Case, CoordinateSystem coordinateSystem, IPlateResult[] result, ResultLocationId[] resultLocations, int stageId)
-            : base(Case, coordinateSystem, (IEnumerable<ResultType>)result, resultLocations, stageId)
+        public PlateResult(ILoadCase Case, CoordinateSystem coordinateSystem, IPlateResult[] result, ResultLocationId[] resultLocations, int stageId, string name = "")
+            : base(Case, coordinateSystem, (IEnumerable<ResultType>)result, resultLocations, stageId, name)
         {
             if (result.Count() % 3 != 0)
                 throw new ArgumentException("Result lenght should be 3n");
@@ -41,11 +42,53 @@ namespace GPC.Model.Results
 
         }
 
+        public PlateResult(SerializationInfo info, StreamingContext context)
+            : base(info, context)
+        {
+
+        }
+
+
         public (ResultType[] lowerFace, ResultType[] midFace, ResultType[] upperFace) GetFaceResults()
         {
             List<ResultType[]> splitted = Results.Split(Results.Length / 3);
 
             return (splitted[0], splitted[1], splitted[2]);
+        }
+
+
+        public (ResultType lowerFace, ResultType midFace, ResultType upperFace) GetMeanFaceResults()
+        {
+            List<ResultType[]> resultSplitted = Results.Split(Results.Length / 3);
+            List<ResultLocationId[]> pointSplitted = Points.Split(Results.Length / 3);
+
+            ResultType[] returnValues = new ResultType[3];
+
+            for (int i = 0; i < 3; i++)
+            {
+                if (pointSplitted[i].First() is ResultLocationPoint)
+                {
+                    throw new NotImplementedException("Mean value considering point coordinate to be implemented");
+                }
+                else if (pointSplitted[i].First() is ResultLocationId)
+                {
+                    if (resultSplitted[i].First() is ResultStress)
+                    {
+                        returnValues[i] = ResultStress.GetArithmeticMean((ResultStress[])resultSplitted[i]);
+                    }
+                    else
+                    {
+                        throw new NotImplementedException();
+                    }
+                }
+                else
+                {
+                    throw new NotImplementedException();
+                } 
+            }
+
+
+            return (returnValues[0], returnValues[1], returnValues[2]);
         }
 
 

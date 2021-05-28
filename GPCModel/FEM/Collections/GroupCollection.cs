@@ -1,5 +1,7 @@
-﻿using System;
+﻿using GPC.Utilities.Extensions;
+using System;
 using System.Collections.Generic;
+using System.Runtime.Serialization;
 
 namespace GPC.Model.FEM.Collections
 {
@@ -10,7 +12,8 @@ namespace GPC.Model.FEM.Collections
     /// The collection is thread-safe
     /// <para>This class will set the <see cref="ModelObjectId.Id"/> automatically</para>
     /// </remarks>
-    public class GroupCollection : UniqueNameCollection<Group>
+    [Serializable]
+    public class GroupCollection : UniqueNameCollection<Group>, ISerializable
     {
 
         protected HashSet<int> _ids;
@@ -23,6 +26,11 @@ namespace GPC.Model.FEM.Collections
         }
 
 
+        public GroupCollection(SerializationInfo info, StreamingContext context)
+        {
+            _ids = (HashSet<int>)info.GetValue("Ids", typeof(HashSet<int>));
+        }
+
         /// <summary>
         /// If the <paramref name="item"/>.Id already exist in the collection, its ID will be replaced with the collection maximum index + 1
         /// </summary>
@@ -31,7 +39,7 @@ namespace GPC.Model.FEM.Collections
         {
             lock (_locker)
             {
-                if (_ids.Contains(item.Id))
+                if (item.Id == ModelObjectId.IDUNASSIGNED || _ids.Contains(item.Id))
                 {
                     item.Id = ++_maxId;
                 }
@@ -63,6 +71,51 @@ namespace GPC.Model.FEM.Collections
             return false;
         }
 
+        public override void GetObjectData(SerializationInfo info, StreamingContext context)
+        {
+            base.GetObjectData(info, context);
+            info.AddValue("Ids", _ids);
+        }
 
+        #region Equals - HashCode - Operators
+
+        public override bool Equals(object obj)
+        {
+            lock (_locker)
+            {
+                return obj is GroupCollection collection && _collection.ScrambledEquals(collection._collection);
+            }
+        }
+
+
+        public override int GetHashCode()
+        {
+            lock (_locker)
+            {
+                return base.GetHashCode();
+            }
+        }
+
+
+        public static bool operator ==(GroupCollection obj1, GroupCollection obj2)
+        {
+            if (obj1 is null)
+            {
+                return obj2 is null;
+            }
+
+            if (ReferenceEquals(obj1, obj2))
+                return true;
+
+            return obj1.Equals(obj2);
+        }
+
+
+        public static bool operator !=(GroupCollection obj1, GroupCollection obj2)
+        {
+            return !(obj1 == obj2);
+        }
+
+        #endregion
     }
 }

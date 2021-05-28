@@ -9,7 +9,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 namespace FemTest
 {
     [TestClass]
-    public class StagesTest : UnitTestBase
+    public class FemModelStagesTest : UnitTestBase
     {
         private Mesh CreateSimpleMesh(int incrementX, int incrementY, int numberOfFaceX, int numberOfFaceY, int numberOfVolumeZ, int incrementZ = 0)
         {
