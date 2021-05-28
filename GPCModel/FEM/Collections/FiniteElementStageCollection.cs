@@ -54,5 +54,43 @@ namespace GPC.Model.FEM.Collections
             return base.SetStageProperty(item, stageFiniteElementProperty);
         }
 
+
+        #region Equals - HashCode - Operators
+
+        public override bool Equals(object obj)
+        {
+            lock (_locker)
+            {
+                return obj is FiniteElementStageCollection<T, D> collection && base.Equals(obj);
+            }
+        }
+
+        public override int GetHashCode()
+        {
+            lock (_locker)
+            {
+                return base.GetHashCode();
+            }
+        }
+
+        public static bool operator ==(FiniteElementStageCollection<T, D> obj1, FiniteElementStageCollection<T, D> obj2)
+        {
+            if (obj1 is null)
+            {
+                return obj2 is null;
+            }
+
+            if (ReferenceEquals(obj1, obj2))
+                return true;
+
+            return obj1.Equals(obj2);
+        }
+
+        public static bool operator !=(FiniteElementStageCollection<T, D> obj1, FiniteElementStageCollection<T, D> obj2)
+        {
+            return !(obj1 == obj2);
+        }
+
+        #endregion Equals - HashCode - Operators
     }
 }

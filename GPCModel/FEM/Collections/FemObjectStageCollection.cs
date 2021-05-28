@@ -212,7 +212,9 @@ namespace GPC.Model.FEM.Collections
         {
             lock (_locker)
             {
-                return obj is FemObjectStageCollection<T, D> collection && _stageFiniteElementProperty.ScrambledEquals(collection._stageFiniteElementProperty) && base.Equals(collection);
+                return obj is FemObjectStageCollection<T, D> collection 
+                                    && _stageFiniteElementProperty.ScrambledEquals(collection._stageFiniteElementProperty) 
+                                    && base.Equals(collection);
             }
         }
 
@@ -222,13 +224,12 @@ namespace GPC.Model.FEM.Collections
             {
                 unchecked
                 {
-                    int hashCode = -23;
-                    hashCode = hashCode * -17 + base.GetHashCode();
+                    int hashCode = -391 + base.GetHashCode();
 
                     foreach (var element in _stageFiniteElementProperty)
                     {
-                        hashCode = hashCode + EqualityComparer<FEMObject>.Default.GetHashCode(element.Key);
-                        hashCode = hashCode + EqualityComparer<Stage.StageProperty>.Default.GetHashCode(element.Value);
+                        hashCode += EqualityComparer<FEMObject>.Default.GetHashCode(element.Key);
+                        hashCode += EqualityComparer<Stage.StageProperty>.Default.GetHashCode(element.Value);
                     }
 
                     return hashCode;  
@@ -239,8 +240,13 @@ namespace GPC.Model.FEM.Collections
 
         public static bool operator ==(FemObjectStageCollection<T, D> obj1, FemObjectStageCollection<T, D> obj2)
         {
-            if (obj1 is null || obj2 is null)
-                return false;
+            if (obj1 is null)
+            {
+                return obj2 is null;
+            }
+
+            if (ReferenceEquals(obj1, obj2))
+                return true;
 
             return obj1.Equals(obj2);
         }

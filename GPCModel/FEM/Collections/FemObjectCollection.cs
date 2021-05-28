@@ -319,12 +319,11 @@ namespace GPC.Model.FEM.Collections
             {
                 unchecked
                 {
-                    int hashCode = -23;
-                    hashCode = hashCode * -17 + base.GetHashCode();
+                    int hashCode = -391 + base.GetHashCode();
 
                     foreach (var element in _collection)
                     {
-                        hashCode = hashCode + EqualityComparer<FEMObject>.Default.GetHashCode(element);
+                        hashCode += EqualityComparer<FEMObject>.Default.GetHashCode(element);
                     }
 
                     return hashCode;  
@@ -334,8 +333,13 @@ namespace GPC.Model.FEM.Collections
 
         public static bool operator ==(FemObjectCollection<T> obj1, FemObjectCollection<T> obj2)
         {
-            if (obj1 is null || obj2 is null)
-                return false;
+            if (obj1 is null)
+            {
+                return obj2 is null;
+            }
+
+            if (ReferenceEquals(obj1, obj2))
+                return true;
 
             return obj1.Equals(obj2);
         }

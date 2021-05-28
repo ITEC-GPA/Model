@@ -1,4 +1,5 @@
-﻿using System;
+﻿using GPC.Utilities.Extensions;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -135,5 +136,58 @@ namespace GPC.Model
                 return _collection.Remove(item) && _ids.Remove(item.Id);
             }
         }
+
+
+
+        #region Equals - hashcode - Operators
+
+        public override bool Equals(object obj)
+        {
+            lock (_locker)
+            {
+                return obj is UniqueIdCollection<T> collection && _collection.ScrambledEquals(collection._collection)
+                                                               && base.Equals(collection);
+            }
+        }
+
+        public override int GetHashCode()
+        {
+            lock (_locker)
+            {
+                unchecked
+                {
+                    int hashCode = -391 + base.GetHashCode();
+
+                    foreach (var element in _collection)
+                    {
+                        hashCode += element.GetHashCode();
+                    }
+
+                    return hashCode;
+                }
+            }
+        }
+
+
+        public static bool operator ==(UniqueIdCollection<T> obj1, UniqueIdCollection<T> obj2)
+        {
+            if (obj1 is null)
+            {
+                return obj2 is null;
+            }
+
+            if (ReferenceEquals(obj1, obj2))
+                return true;
+
+            return obj1.Equals(obj2);
+        }
+
+        public static bool operator !=(UniqueIdCollection<T> obj1, UniqueIdCollection<T> obj2)
+        {
+            return !(obj1 == obj2);
+        }
+
+        #endregion 
+
     }
 }

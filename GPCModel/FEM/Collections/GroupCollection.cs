@@ -1,4 +1,5 @@
-﻿using System;
+﻿using GPC.Utilities.Extensions;
+using System;
 using System.Collections.Generic;
 
 namespace GPC.Model.FEM.Collections
@@ -64,5 +65,45 @@ namespace GPC.Model.FEM.Collections
         }
 
 
+        #region Equals - HashCode - Operators
+
+        public override bool Equals(object obj)
+        {
+            lock (_locker)
+            {
+                return obj is GroupCollection collection && _collection.ScrambledEquals(collection._collection);
+            }
+        }
+
+
+        public override int GetHashCode()
+        {
+            lock (_locker)
+            {
+                return base.GetHashCode();
+            }
+        }
+
+
+        public static bool operator ==(GroupCollection obj1, GroupCollection obj2)
+        {
+            if (obj1 is null)
+            {
+                return obj2 is null;
+            }
+
+            if (ReferenceEquals(obj1, obj2))
+                return true;
+
+            return obj1.Equals(obj2);
+        }
+
+
+        public static bool operator !=(GroupCollection obj1, GroupCollection obj2)
+        {
+            return !(obj1 == obj2);
+        }
+
+        #endregion
     }
 }
