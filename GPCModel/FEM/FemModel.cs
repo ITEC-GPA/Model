@@ -163,7 +163,21 @@ namespace GPC.Model.FEM
         public FemModel(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
-            throw new NotImplementedException();
+            
+            _nodes = (FemObjectCollection<Node>)info.GetValue("Nodes", typeof(FemObjectCollection<Node>));
+            _elements = (FemObjectCollection<FiniteElement>)info.GetValue("Elements", typeof(FemObjectCollection<FiniteElement>));
+            _costrains = (FemObjectCollection<Costrain>)info.GetValue("Costrains", typeof(FemObjectCollection<Costrain>));
+
+            _plateProperties = (UniqueNameCollection<PlateProperty>)info.GetValue("PlateProperties", typeof(UniqueNameCollection<PlateProperty>));
+            _brickProperties = (UniqueNameCollection<BrickProperty>)info.GetValue("BrickProperties", typeof(UniqueNameCollection<BrickProperty>));
+            _loadCases = (UniqueNameCollection<LoadCaseBase>)info.GetValue("LoadCaseBases", typeof(UniqueNameCollection<LoadCaseBase>));
+            _freedomCases = (UniqueNameCollection<FreedomCase>)info.GetValue("FreedomCases", typeof(UniqueNameCollection<FreedomCase>));
+            _combinations = (UniqueNameCollection<Combination>)info.GetValue("Combinations", typeof(UniqueNameCollection<Combination>));
+            _stageCombinationsMap = (Dictionary<int, HashSet<string>>)info.GetValue("StageCombinationsMap", typeof(Dictionary<int, HashSet<string>>));
+            _groups = (GroupCollection)info.GetValue("Groups", typeof(GroupCollection));
+            _stages = (UniqueIdCollection<Stage>)info.GetValue("Stages", typeof(UniqueIdCollection<Stage>));
+            _modelAttributes = (List<IModelAttribute>)info.GetValue("ModelAttributes", typeof(List<IModelAttribute>));
+            _analysisType = (AnalysisTypes)info.GetValue("AnalysisTypes", typeof(AnalysisTypes));
         }
 
         #endregion
@@ -312,12 +326,11 @@ namespace GPC.Model.FEM
                 throw new ArgumentException($"'{nameof(name)}' cannot be null or whitespace.", nameof(name));
 
             Group group = new Group(name);
-            
+
             if (_groups.Add(group))
-            {
                 return group;
-            }
-            return null;
+            else
+                return _groups.GetElementByName(name);
         }
         
         public bool SetGroup(IEnumerable<FEMObject> elements, string groupName)
@@ -1007,8 +1020,9 @@ namespace GPC.Model.FEM
             BrickProperty brickProperty = null;
 
             Group group = null;
+
             // Gruppi
-            if (!string.IsNullOrEmpty(groupName))
+            if (!string.IsNullOrEmpty(groupName) && !string.IsNullOrWhiteSpace(groupName))
                 group = AddGroup(groupName);
 
             // Aggiorno la lista proprietà
@@ -1506,30 +1520,76 @@ namespace GPC.Model.FEM
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             base.GetObjectData(info, context);
-            throw new NotImplementedException();
+
+            info.AddValue("Nodes", _nodes);
+            info.AddValue("Elements", _elements);
+            info.AddValue("Costrains", _costrains);
+            info.AddValue("PlateProperties", _plateProperties);
+            info.AddValue("BrickProperties", _brickProperties);
+            info.AddValue("LoadCaseBases", _loadCases);
+            info.AddValue("FreedomCases", _freedomCases);
+            info.AddValue("StageCombinationsMap", _combinations);
+            info.AddValue("StageCombinationsMap", _stageCombinationsMap);
+            info.AddValue("Stages", _stages);
+            info.AddValue("ModelAttributes", _modelAttributes);
+            info.AddValue("AnalysisTypes", _analysisType);
+
+        }
+
+
+
+        public override int GetHashCode()
+        {
+            unchecked
+            {
+                int hashCode = -391 + base.GetHashCode();
+
+                hashCode = hashCode * -17 + _nodes.GetHashCode();
+                hashCode = hashCode * -17 + _elements.GetHashCode();
+                hashCode = hashCode * -17 + _costrains.GetHashCode();
+                hashCode = hashCode * -17 + _plateProperties.GetHashCode();
+                hashCode = hashCode * -17 + _brickProperties.GetHashCode();
+                hashCode = hashCode * -17 + _loadCases.GetHashCode();
+                hashCode = hashCode * -17 + _freedomCases.GetHashCode();
+                hashCode = hashCode * -17 + _combinations.GetHashCode();
+                hashCode = hashCode * -17 + _stageCombinationsMap.GetHashCode();
+                hashCode = hashCode * -17 + _groups.GetHashCode();
+                hashCode = hashCode * -17 + _stages.GetHashCode();
+                hashCode = hashCode * -17 + _modelAttributes.GetHashCode();
+                hashCode = hashCode * -17 + _analysisType.GetHashCode();
+
+                return hashCode;
+            }
         }
 
 
         public override bool Equals(object obj)
         {
-            throw new NotImplementedException();
-            return obj is FemModel model &&
-                   base.Equals(obj);
+            return obj is FemModel model && _nodes.Equals(model._nodes)
+                                         && _elements.Equals(model._elements)
+                                         && _costrains.Equals(model._costrains)
+                                         && _plateProperties.Equals(model._plateProperties)
+                                         && _brickProperties.Equals(model._brickProperties)
+                                         && _loadCases.Equals(model._loadCases)
+                                         && _freedomCases.Equals(model._freedomCases)
+                                         && _combinations.Equals(model._combinations)
+                                         && _stageCombinationsMap.Equals(model._stageCombinationsMap)
+                                         && _groups.Equals(model._groups)
+                                         && _stages.Equals(model._stages)
+                                         && _modelAttributes.Equals(model._modelAttributes)
+                                         && _analysisType.Equals(model._analysisType)
+                                         && base.Equals(obj);
         }
-
-
-        public override int GetHashCode()
-        {
-            int hashCode = -23;
-            throw new NotImplementedException();
-            return hashCode;
-        }
-
 
         public static bool operator ==(FemModel obj1, FemModel obj2)
         {
-            if (obj1 is null || obj2 is null)
-                return false;
+            if (obj1 is null)
+            {
+                return obj2 is null;
+            }
+
+            if (ReferenceEquals(obj1, obj2))
+                return true;
 
             return obj1.Equals(obj2);
         }

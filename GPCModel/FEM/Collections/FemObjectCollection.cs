@@ -3,6 +3,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.Serialization;
 
 namespace GPC.Model.FEM.Collections
 {
@@ -12,7 +13,8 @@ namespace GPC.Model.FEM.Collections
     /// </summary>
     /// <typeparam name="T">A <see cref="FEMObject"/></typeparam>
     /// <remarks>The collection is thread-safe</remarks>
-    public class FemObjectCollection<T> : IEnumerable<T> where T : FEMObject
+    [Serializable]
+    public class FemObjectCollection<T> : IEnumerable<T> where T : FEMObject, ISerializable
     {
         protected readonly object _locker = new object();
 
@@ -31,6 +33,12 @@ namespace GPC.Model.FEM.Collections
         {
             _collection = new List<T>();
         }
+
+        public FemObjectCollection(SerializationInfo info, StreamingContext context)
+        {
+            _collection = (List<T>)info.GetValue("Collection", typeof(List<T>));
+        }
+
 
         #region Private method
 
@@ -305,6 +313,13 @@ namespace GPC.Model.FEM.Collections
 
         #region Equals - HashCode - Operators
 
+
+        public virtual void GetObjectData(SerializationInfo info, StreamingContext context)
+        {
+            info.AddValue("Collection", _collection);
+        }
+
+
         public override bool Equals(object obj)
         {
             lock (_locker)
@@ -319,12 +334,11 @@ namespace GPC.Model.FEM.Collections
             {
                 unchecked
                 {
-                    int hashCode = -23;
-                    hashCode = hashCode * -17 + base.GetHashCode();
+                    int hashCode = -391 + base.GetHashCode();
 
                     foreach (var element in _collection)
                     {
-                        hashCode = hashCode + EqualityComparer<FEMObject>.Default.GetHashCode(element);
+                        hashCode += EqualityComparer<FEMObject>.Default.GetHashCode(element);
                     }
 
                     return hashCode;  
@@ -334,8 +348,13 @@ namespace GPC.Model.FEM.Collections
 
         public static bool operator ==(FemObjectCollection<T> obj1, FemObjectCollection<T> obj2)
         {
-            if (obj1 is null || obj2 is null)
-                return false;
+            if (obj1 is null)
+            {
+                return obj2 is null;
+            }
+
+            if (ReferenceEquals(obj1, obj2))
+                return true;
 
             return obj1.Equals(obj2);
         }

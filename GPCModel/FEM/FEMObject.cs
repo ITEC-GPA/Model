@@ -14,17 +14,17 @@ namespace GPC.Model.FEM
 
         protected readonly UniqueNameCollection<Group> _groups; // non usiamo groupCollection in quanto l'id è già stato assegnato dal femModel.
                                                                 // Usiamo questa collection per avere contains con nome e perchè è thread-safe
+        
 
-
-        public FEMObject()
+        public FEMObject() : this("")
         {
-            _groups = new UniqueNameCollection<Group>();
+
         }
 
         public FEMObject(string name) 
             : base(name)
         {
-
+            _groups = new UniqueNameCollection<Group>();
         }
 
         public FEMObject(SerializationInfo info, StreamingContext context) 

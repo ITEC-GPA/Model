@@ -499,7 +499,8 @@ namespace GPC.Model.FEM
 
         #region Nested class
 
-        public class StageProperty : ICloneable
+        [Serializable]
+        public class StageProperty : ICloneable, ISerializable
         {
             private readonly List<LoadCaseAttribute> _loadCaseAttributes;
             private readonly List<FreedomCaseAttribute> _freedomCaseAttributes;
@@ -528,6 +529,19 @@ namespace GPC.Model.FEM
                     _freedomCaseAttributes.Add((FreedomCaseAttribute)fc.Clone());
                 }
             }
+
+            public StageProperty(SerializationInfo info, StreamingContext context)
+            {
+                _loadCaseAttributes = (List<LoadCaseAttribute>)info.GetValue("LoadCaseAttribute", typeof(List<LoadCaseAttribute>));
+                _freedomCaseAttributes = (List<FreedomCaseAttribute>)info.GetValue("FreedomCaseAttribute", typeof(List<FreedomCaseAttribute>));
+            }
+
+            public virtual void GetObjectData(SerializationInfo info, StreamingContext context)
+            {
+                info.AddValue("LoadCaseAttribute", _loadCaseAttributes);
+                info.AddValue("FreedomCaseAttribute", _freedomCaseAttributes);
+            }
+
 
             public virtual StageProperty Merge(StageProperty stagePropertyToMerge)
             {
@@ -590,7 +604,8 @@ namespace GPC.Model.FEM
             }
         }
 
-        public class StageFiniteElementProperty : StageProperty
+        [Serializable]
+        public class StageFiniteElementProperty : StageProperty, ISerializable
         {
             private readonly string _propertyName;
 
@@ -606,6 +621,17 @@ namespace GPC.Model.FEM
             {
                 _propertyName = stageFiniteElementProperty._propertyName;
             }
+
+            public StageFiniteElementProperty(SerializationInfo info, StreamingContext context) : base(info, context)
+            {                
+                _propertyName = (string)info.GetValue("PropertyName", typeof(string));
+            }
+
+            public override void GetObjectData(SerializationInfo info, StreamingContext context)
+            {
+                info.AddValue("PropertyName", _propertyName);
+            }
+
 
             public StageFiniteElementProperty(FiniteElement element)
             {
@@ -651,8 +677,10 @@ namespace GPC.Model.FEM
 
                 return merged;
             }
-        } 
-        
+
+
+        }
+
         #endregion
     }
 }
