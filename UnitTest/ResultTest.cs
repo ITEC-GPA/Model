@@ -332,8 +332,8 @@ namespace ModelObjectTest
         [TestMethod]
         public void StressArithmeticMeanTest1()
         {
-            ResultStress rs1 = new ResultStress(CoordinateSystem.Global, 100, 200, 0, 573, 400, 500);
-            ResultStress rs2 = new ResultStress(CoordinateSystem.Global, 100, 200, 0, 573, 400, 500);
+            ResultStress rs1 = new ResultStress(CoordinateSystem.Global, 100, 200, 0, 573, 400, 500, "a");
+            ResultStress rs2 = new ResultStress(CoordinateSystem.Global, 100, 200, 0, 573, 400, 500, "a");
 
             var rs = ResultStress.GetArithmeticMean(new ResultStress[] { rs1, rs2 });
 
@@ -343,14 +343,16 @@ namespace ModelObjectTest
             Assert.IsTrue(rs.Sxy == 573);
             Assert.IsTrue(rs.Sxz == 400);
             Assert.IsTrue(rs.Syz == 500);
+            Assert.IsTrue(rs.Name == "a");
+
         }
 
 
         [TestMethod]
         public void StressArithmeticMeanTest2()
         {
-            ResultStress rs1 = new ResultStress(CoordinateSystem.Global, 100, 200, -100, 1000, -1000, 500);
-            ResultStress rs2 = new ResultStress(CoordinateSystem.Global, 200, 300, 100, 2000, -2000, 500);
+            ResultStress rs1 = new ResultStress(CoordinateSystem.Global, 100, 200, -100, 1000, -1000, 500, "rs1");
+            ResultStress rs2 = new ResultStress(CoordinateSystem.Global, 200, 300, 100, 2000, -2000, 500, "rs2");
 
             var rs = ResultStress.GetArithmeticMean(new ResultStress[] { rs1, rs2 });
 
@@ -360,6 +362,8 @@ namespace ModelObjectTest
             Assert.IsTrue(rs.Sxy == 1500, rs.Sxy.ToString());
             Assert.IsTrue(rs.Sxz == -1500);
             Assert.IsTrue(rs.Syz == 500);
+
+            Assert.IsTrue(rs.Name == "rs1 rs2");
         }
 
 
