@@ -301,8 +301,12 @@ namespace GPC.Model.FEM.FiniteElements
                 double csi = gaussPoints[i].Point.X;
                 double eta = gaussPoints[i].Point.Y;
                 mnl.Matrix<double> b = GetB(csi, eta);
-                //Console.WriteLine("b(csi="+csi+",eta="+eta+")" + b);
-                //Console.WriteLine("detJ("+csi.ToString("F2")+","+eta.ToString("F2")+")="+ getDetJ(csi, eta));
+
+                /*FEMUtilities.WriteMatrix("b(csi="+csi+",eta="+eta+")", b, "F3");
+                Console.WriteLine("detJ("+csi.ToString("F2")+","+eta.ToString("F2")+")="+ getDetJ(csi, eta));
+                Console.WriteLine();
+                Console.WriteLine();*/
+
                 mnl.Matrix<double> m = gaussPoints[i].Weight * b.Transpose() * _d * b * getDetJ(csi, eta);
                 _kElementLocalCoord = _kElementLocalCoord + m;
                 

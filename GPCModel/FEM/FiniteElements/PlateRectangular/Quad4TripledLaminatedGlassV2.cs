@@ -1019,7 +1019,7 @@ namespace GPC.Model.FEM.FiniteElements
 
                 var dH1xDx = invJacob[0, 0] * dH1xDCsi(csi, eta) + invJacob[0, 1] * dH1xDEta(csi, eta);
                 var dH1yDy = invJacob[1, 0] * dH1yDCsi(csi, eta) + invJacob[1, 1] * dH1yDEta(csi, eta);
-                var dH1xDyPlusdH1yDx = invJacob[0, 0] * dH1yDCsi(csi, eta) + invJacob[0, 1] * dH1yDEta(csi, eta) + invJacob[1, 1] * dH1xDEta(csi, eta);
+                var dH1xDyPlusdH1yDx = invJacob[0, 0] * dH1yDCsi(csi, eta) + invJacob[0, 1] * dH1yDEta(csi, eta) + invJacob[1,0] * dH1xDCsi(csi, eta) + invJacob[1, 1] * dH1xDEta(csi, eta);
 
                 Dictionary<string, double> output = new Dictionary<string, double>();
                 output.Add("dx", dH1xDx);
@@ -1091,7 +1091,7 @@ namespace GPC.Model.FEM.FiniteElements
             Ds[3, 1] = hc;
             Ds[3, 3] = hc * hc;
 
-            Ds = G0 / h0 * Ds;
+            Ds = G0 / Math.Pow(h0,2.0) * Ds; //Ds = G0 / h0 * Ds;
 
             return Ds;
         }

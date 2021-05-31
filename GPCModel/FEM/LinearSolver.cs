@@ -593,6 +593,18 @@ namespace GPC.Model.FEM
             return _nodeGlobalDisplacements[pos];
         }
 
+        public Dictionary<DOF, double> GetNodeDisplacementGlobalCoordinates(Node node)
+        {
+            Dictionary<DOF, double> displ = new Dictionary<DOF, double>();
+            foreach (DOF d in node.DOF)
+            {
+                int pos = GetPositionInKGlobal(node, d);
+                displ.Add(d, _nodeGlobalDisplacements[pos]);
+            }
+            
+            return displ;
+        }
+
         /*public double[] GetDisplacementGlobalCoordinates(string labelNode, DOF dof)
         {
             if (labelNode== "" || labelNode == null)

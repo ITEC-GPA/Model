@@ -743,8 +743,9 @@ namespace FemTest.SolverTest
 
             nodes.ForEach(x => x.AddAttribute(fix));
 
-            LinearSolver fem = new LinearSolver(els.ToArray());
+            //LinearSolver fem = new LinearSolver(els.ToArray());
 
+            els[0].BuildMatrix();
             FEMUtilities.WriteMatrix(els[0].KElementLocalCoord);
         }
     }

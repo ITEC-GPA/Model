@@ -30262,14 +30262,14 @@ namespace FemTest.SolverTest
         [TestMethod]
         public void QuadrilateralTestRobert4()
         {
-            double hGlass1 = 0.2;
-            double hGlass2 = 0.2;
+            double hGlass1 = 0.25;
+            double hGlass2 = 0.25;
             double EGlass = 10000.0;
             double niGlass = 0.0;
 
-            double G0 = 0; // 0.5;
+            double G0 = 10; // 0.5;
 
-            double hInterlayer = 0.05;
+            double hInterlayer = 0.01;
 
             List<Node> nodes = new List<Node>();
             #region nodes
@@ -30492,6 +30492,8 @@ namespace FemTest.SolverTest
             nodes[4].AddAttribute(dz);
             nodes[2].AddAttribute(dz);
 
+            LinearSolver fem = new LinearSolver(els.ToArray());
+
             NodeRestrainAttribute fix2 = new NodeRestrainAttribute("freedomCase", sys);
             fix2.AddExternalRestrain(Solver.DOF.DX);
             fix2.AddExternalRestrain(Solver.DOF.DY);
@@ -30508,43 +30510,41 @@ namespace FemTest.SolverTest
             nodes.ForEach(x => x.AddAttribute(fix2));
             
             LinearSolver fem2 = new LinearSolver(els2.ToArray());
+            
+            Node center = nodes.Where(x => x.Position.X == 6 && x.Position.Y == 10).First();
+            var fem2Center = fem2.GetNodeDisplacementGlobalCoordinates(center);
+            var femCenter = fem.GetNodeDisplacementGlobalCoordinates(center);
 
-            //LinearSolver fem = new LinearSolver(els.ToArray());
-
-            /*Node center = nodes.Where(x => x.Position.X == 10 && x.Position.Y == 10).First();
-            var fem2DZCenter = fem2.GetNodeDisplacementGlobalCoordinates(center, Solver.DOF.DZ);
-            var femDZCenter = fem.GetNodeDisplacementGlobalCoordinates(center, Solver.DOF.DZ);
-            Console.WriteLine(fem2DZCenter);
-            Console.WriteLine(femDZCenter);
-            Assert.AreEqual(1.0, fem2DZCenter / femDZCenter, 0.01);
+            var d = Solver.DOF.DZ;
+            Assert.AreEqual(1.0, fem2Center[d] / femCenter[d], 0.005, d + " no OK: " + fem2Center[d] + " " + femCenter[d]);
 
             Console.WriteLine();
-            var fem2SlipNode1X = fem2.GetNodeDisplacementGlobalCoordinates(nodes[1], Solver.DOF.DX);
+            var fem2SlipNode1X = fem2.GetNodeDisplacementGlobalCoordinates(nodes[1], Solver.DOF.DDX);
             var femSlipNode1X = fem.GetNodeDisplacementGlobalCoordinates(nodes[1], Solver.DOF.DX);
             Console.WriteLine(fem2SlipNode1X);
             Console.WriteLine(femSlipNode1X);
-            Assert.AreEqual(fem2SlipNode1X, femSlipNode1X, 1e-3);
+            Assert.AreEqual(fem2SlipNode1X, femSlipNode1X, 0.005);
 
             Console.WriteLine();
-            var fem2SlipNode1Y = fem2.GetNodeDisplacementGlobalCoordinates(nodes[1], Solver.DOF.DY);
+            var fem2SlipNode1Y = fem2.GetNodeDisplacementGlobalCoordinates(nodes[1], Solver.DOF.DDY);
             var femSlipNode1Y = fem.GetNodeDisplacementGlobalCoordinates(nodes[1], Solver.DOF.DY);
             Console.WriteLine(fem2SlipNode1Y);
             Console.WriteLine(femSlipNode1Y);
-            Assert.AreEqual(fem2SlipNode1Y, femSlipNode1Y, 1e-3);
+            Assert.AreEqual(fem2SlipNode1Y, femSlipNode1Y, 0.005);
 
             Console.WriteLine();
-            var fem2SlipNode5X = fem2.GetNodeDisplacementGlobalCoordinates(nodes[5], Solver.DOF.DY);
+            var fem2SlipNode5X = fem2.GetNodeDisplacementGlobalCoordinates(nodes[5], Solver.DOF.DDY);
             var femSlipNode5X = fem.GetNodeDisplacementGlobalCoordinates(nodes[5], Solver.DOF.DY);
             Console.WriteLine(fem2SlipNode5X);
             Console.WriteLine(femSlipNode5X);
             Assert.AreEqual(fem2SlipNode5X, femSlipNode5X, 1e-3);
 
             Console.WriteLine();
-            var fem2SlipNode5Y = fem2.GetNodeDisplacementGlobalCoordinates(nodes[5], Solver.DOF.DY);
+            var fem2SlipNode5Y = fem2.GetNodeDisplacementGlobalCoordinates(nodes[5], Solver.DOF.DDY);
             var femSlipNode5Y = fem.GetNodeDisplacementGlobalCoordinates(nodes[5], Solver.DOF.DY);
             Console.WriteLine(fem2SlipNode5Y);
             Console.WriteLine(femSlipNode5Y);
-            Assert.AreEqual(fem2SlipNode5Y, femSlipNode5Y, 1e-3);*/
+            Assert.AreEqual(fem2SlipNode5Y, femSlipNode5Y, 1e-3);
         }
 
         /// <summary>
@@ -30784,6 +30784,8 @@ namespace FemTest.SolverTest
             nodes[4].AddAttribute(dz);
             nodes[2].AddAttribute(dz);
 
+            LinearSolver fem = new LinearSolver(els.ToArray());
+
             NodeRestrainAttribute fix = new NodeRestrainAttribute("freedomCase", sys);
             fix.AddExternalRestrain(Solver.DOF.DX);
             fix.AddExternalRestrain(Solver.DOF.DY);
@@ -30797,12 +30799,10 @@ namespace FemTest.SolverTest
             //fix.AddExternalRestrain(Solver.DOF.DDY);
             fix.AddExternalRestrain(Solver.DOF.DDZ);
 
-            //nodes.ForEach(x => x.AddAttribute(fix));
+            nodes.ForEach(x => x.AddAttribute(fix));
 
-            //LinearSolver fem2 = new LinearSolver(els2.ToArray());
-
-            LinearSolver fem = new LinearSolver(els.ToArray());
-
+            LinearSolver fem2 = new LinearSolver(els2.ToArray());
+            
             /*Node center = nodes.Where(x => x.Position.X == 10 && x.Position.Y == 10).First();
             var fem2DZCenter = fem2.GetNodeDisplacementGlobalCoordinates(center, Solver.DOF.DZ);
             var femDZCenter = fem.GetNodeDisplacementGlobalCoordinates(center, Solver.DOF.DZ);
@@ -31734,18 +31734,16 @@ namespace FemTest.SolverTest
 
             LinearSolver fem = new LinearSolver(els.ToArray());
 
-            var el0 = fem.GetTLG2GlassBending(els[0], 1);
-            var el1 = fem.GetTLG2GlassBending(els[1], 1);
-            var el2 = fem.GetTLG2GlassBending(els[2], 1);
-            var el3 = fem.GetTLG2GlassBending(els[3], 1);
-            var el4 = fem.GetTLG2GlassBending(els[4], 1);
+            CoordinateSystem global = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
 
-            foreach(Node n in els[0].LocalNodes)
+            for (int i = 0; i < els.Count; i++)
             {
-                Console.WriteLine(n.Position);
+                var m = fem.GetTLG2GlassBending(els[i], 1, global);
+                Assert.AreEqual(1.0, m[0, 0], 1e-3);
+                Assert.AreEqual(1.0, m[1, 1], 1e-3);
+                Assert.AreEqual(1.0, m[1, 0], 1e-3);
+                Assert.AreEqual(1.0, m[0, 1], 1e-3);
             }
-
-            FEMUtilities.WriteMatrix(els[0].KLocalUnordered);
         }
     }
 }
