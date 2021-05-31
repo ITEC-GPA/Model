@@ -8,6 +8,6 @@ namespace GPC.Model.Sections.Steel
 {
     public interface ISteelSection
     {
-        // public Materials.Material Material => ((Section)ISteelSection).Material;       // TODO: sistemare
+        Materials.Material Material();
     }
 }

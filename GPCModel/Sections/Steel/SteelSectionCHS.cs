@@ -24,6 +24,12 @@ namespace GPC.Model.Sections.Steel
 
         public bool IsHotFinished => ProductionType == FormedTypes.HotFinished;
 
+        Material ISteelSection.Material()
+        {
+            return Material;
+        }
+
+
         #endregion
 
 
@@ -36,6 +42,6 @@ namespace GPC.Model.Sections.Steel
         }
 
         #endregion
-                
+
     }
 }

@@ -22,6 +22,12 @@ namespace GPC.Model.Sections.Steel
 
         public bool IsWelded => Type == SectionTypes.Welded;
 
+        Material ISteelSection.Material()
+        {
+            return Material;
+        }
+
+
         #endregion
 
 

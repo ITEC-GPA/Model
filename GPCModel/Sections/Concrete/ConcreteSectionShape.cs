@@ -11,7 +11,7 @@ using GPC.Model.Materials;
 namespace GPC.Model.Sections
 {
     [Serializable]
-    public class ConcreteSectionShape : SectionShape
+    public class ConcreteSectionShape //: SectionShape
     {
         #region Variables
         protected List<Rebar> _rebars;
@@ -39,5 +39,5 @@ namespace GPC.Model.Sections
 
     //    #region Public Methods Override
     //    #endregion
-    //}
+    }
 }

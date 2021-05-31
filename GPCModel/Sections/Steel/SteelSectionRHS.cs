@@ -23,6 +23,12 @@ namespace GPC.Model.Sections.Steel
 
         public bool IsColdFormed => FormedType == FormedTypes.ColdFormed;
 
+        Material ISteelSection.Material()
+        {
+            return Material;
+        }
+
+
         #endregion
 
 

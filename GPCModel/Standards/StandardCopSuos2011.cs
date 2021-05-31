@@ -18,8 +18,10 @@ namespace GPC.Model.Standards
         public enum LimitStates
         {
             UltimateEquilibrium,
-            UltimateStructural,            
+            UltimateStrength,            
             UltimateFatigue,            
+            UltimateIntegrityAndRobustness,            
+            UltimateFracture,
             Serviceability,           
         }
 
