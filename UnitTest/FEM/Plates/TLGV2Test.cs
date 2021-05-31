@@ -1346,7 +1346,7 @@ namespace FemTest.SolverTest
             var dzTLG = fem0.GetNodeDisplacementGlobalCoordinates(nodes[63], Solver.DOF.DZ);
             var spost = 3.70;
             Console.WriteLine("displ = " + dzTLG + " vs " + spost);
-            Assert.AreEqual(1.0 , spost / dzTLG, 0.05); //Come soluzione kirchoff
+                Assert.AreEqual(1.0 , spost / dzTLG, 0.05); //Come soluzione kirchoff
 
             var element = els[29]; //elemento
             Console.WriteLine("Plate 30:");
@@ -31656,12 +31656,14 @@ namespace FemTest.SolverTest
         [TestMethod]
         public void PatchTest1()
         {
-            double hGlass1 = 0.7937;
-            double hGlass2 = 0.7937;
+            //double hGlass1 = 0.5; //0.7937;
+            //double hGlass2 = 0.5; // 0.7937;
+            double hGlass1 = 0.5;
+            double hGlass2 = 0.5;
             double EGlass = 1000.0;
             double niGlass = 0.0;
             double hInterlayer = 0.01;
-            double G0 = 0.0 * EGlass / (2.0 * (1.0 + niGlass));
+            double G0 = 1.0 * EGlass / (2.0 * (1.0 + niGlass));
 
             List<Node> nodes = new List<Node>();
             #region nodes
@@ -31733,6 +31735,9 @@ namespace FemTest.SolverTest
             nodes.ForEach(x => x.AddAttribute(fix));
 
             LinearSolver fem = new LinearSolver(els.ToArray());
+
+            els[0].BuildMatrix();
+            FEMUtilities.WriteMatrix(els[0].KLocalUnordered);
 
             CoordinateSystem global = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
 
