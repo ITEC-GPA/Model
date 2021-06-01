@@ -1,5 +1,6 @@
 ﻿using GPC.Geometry;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
 
@@ -224,6 +225,29 @@ namespace GPC.Model.Results
                 return hashCode;
             }
         }
+
+        public static ResultDisplacement GetArithmeticMean(ResultDisplacement[] values)
+        {
+
+            if (values.Select(i => i._coordinateSystem).Distinct().Count() > 0)
+            {
+                return new ResultDisplacement(values[0]._coordinateSystem, 
+                                        Utilities.Maths.Averages.ArithmeticMean(values.Select(i => i.D1).ToArray()),
+                                        Utilities.Maths.Averages.ArithmeticMean(values.Select(i => i.D2).ToArray()),
+                                        Utilities.Maths.Averages.ArithmeticMean(values.Select(i => i.D3).ToArray()),
+                                        Utilities.Maths.Averages.ArithmeticMean(values.Select(i => i.R1).ToArray()),
+                                        Utilities.Maths.Averages.ArithmeticMean(values.Select(i => i.R2).ToArray()),
+                                        Utilities.Maths.Averages.ArithmeticMean(values.Select(i => i.R3).ToArray())
+                                        );
+            }
+            else
+            {
+                throw new NotImplementedException();
+
+            }
+
+        }
+
 
         public static bool operator ==(ResultDisplacement obj1, ResultDisplacement obj2)
         {
