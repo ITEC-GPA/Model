@@ -74,7 +74,7 @@ namespace GPC.Model.Results
                 {
                     if (resultSplitted[i].First() is ResultStress)
                     {
-                        returnValues[i] = ResultStress.GetArithmeticMean((ResultStress[])resultSplitted[i]);
+                        returnValues[i] = ResultStress.GetArithmeticMean(resultSplitted[i].Select(j => (ResultStress)j).ToArray());
                     }
                     else
                     {

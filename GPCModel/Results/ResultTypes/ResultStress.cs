@@ -355,6 +355,7 @@ namespace GPC.Model.Results
 
         public static ResultStress GetArithmeticMean(ResultStress[] values)
         {
+            
             if (values.Select(i => i._coordinateSystem).Distinct().Count() > 0)
             {
                 return new ResultStress(values[0]._coordinateSystem,
@@ -363,14 +364,17 @@ namespace GPC.Model.Results
                                         Utilities.Maths.Averages.ArithmeticMean(values.Select(i => i.Szz).ToArray()),
                                         Utilities.Maths.Averages.ArithmeticMean(values.Select(i => i.Sxy).ToArray()),
                                         Utilities.Maths.Averages.ArithmeticMean(values.Select(i => i.Sxz).ToArray()),
-                                        Utilities.Maths.Averages.ArithmeticMean(values.Select(i => i.Syz).ToArray())
-                                        );                    
+                                        Utilities.Maths.Averages.ArithmeticMean(values.Select(i => i.Syz).ToArray()),
+                                        string.Join(" ", values.Select(i => i.Name).ToHashSet().ToArray())
+                                        ) ;                    
             }
             else
             {
 
-                var rotated = new List<ResultStress>();
-                rotated[0] = values[0];
+                var rotated = new List<ResultStress>
+                {
+                    [0] = values[0]
+                };
 
                 rotated.AddRange(values.Skip(1).Select(i => i.ToCoordinateSystem(values[0]._coordinateSystem)));                
 
@@ -380,7 +384,8 @@ namespace GPC.Model.Results
                                                 Utilities.Maths.Averages.ArithmeticMean(rotated.Select(i => i.Szz).ToArray()),
                                                 Utilities.Maths.Averages.ArithmeticMean(rotated.Select(i => i.Sxy).ToArray()),
                                                 Utilities.Maths.Averages.ArithmeticMean(rotated.Select(i => i.Sxz).ToArray()),
-                                                Utilities.Maths.Averages.ArithmeticMean(rotated.Select(i => i.Syz).ToArray())
+                                                Utilities.Maths.Averages.ArithmeticMean(rotated.Select(i => i.Syz).ToArray()),
+                                                string.Join(" ", values.Select(i => i.Name).ToHashSet().ToArray())
                                         );
 
 
@@ -407,7 +412,9 @@ namespace GPC.Model.Results
                                                                 obj1._szz + obj2._szz,
                                                                 obj1._sxy + obj2._sxy,
                                                                 obj1._sxz + obj2._sxz,
-                                                                obj1._syz + obj2._syz);
+                                                                obj1._syz + obj2._syz,
+                                                                string.Join(" ", new string[] { obj1.Name, obj2.Name }.ToHashSet())
+                                                                );
             }
             else
             {
@@ -417,7 +424,15 @@ namespace GPC.Model.Results
 
                 var sumRotated = obj1._coordinateSystem.TrfMatrix.Resize(3, 3).Transpose() * (obj1.GetTensor(true) + obj2.GetTensor(true)) * obj1._coordinateSystem.TrfMatrix.Resize(3, 3);
 
-                return new ResultStress(obj1._coordinateSystem, sumRotated[0, 0], sumRotated[1, 1], sumRotated[2, 2], sumRotated[0, 1], sumRotated[0, 2], sumRotated[1, 2]);
+                return new ResultStress(obj1._coordinateSystem, 
+                                        sumRotated[0, 0], 
+                                        sumRotated[1, 1], 
+                                        sumRotated[2, 2], 
+                                        sumRotated[0, 1], 
+                                        sumRotated[0, 2], 
+                                        sumRotated[1, 2],
+                                        string.Join(" ", new string[] { obj1.Name, obj2.Name }.ToHashSet())
+                                        );
             }
         }
 
@@ -434,7 +449,9 @@ namespace GPC.Model.Results
                                                                 obj1._szz - obj2._szz, 
                                                                 obj1._sxy - obj2._sxy, 
                                                                 obj1._sxz - obj2._sxz,
-                                                                obj1._syz - obj2._syz);
+                                                                obj1._syz - obj2._syz,
+                                                                string.Join(" ", new string[] { obj1.Name, obj2.Name }.ToHashSet())
+                                                                );
             }
             else
             {
@@ -444,7 +461,15 @@ namespace GPC.Model.Results
 
                 var sumRotated = obj1._coordinateSystem.TrfMatrix.Resize(3, 3).Transpose() * (obj1.GetTensor(true) - obj2.GetTensor(true)) * obj1._coordinateSystem.TrfMatrix.Resize(3, 3);
 
-                return new ResultStress(obj1._coordinateSystem, sumRotated[0, 0], sumRotated[1, 1], sumRotated[2, 2], sumRotated[0, 1], sumRotated[0, 2], sumRotated[1, 2]);
+                return new ResultStress(obj1._coordinateSystem, 
+                                        sumRotated[0, 0], 
+                                        sumRotated[1, 1], 
+                                        sumRotated[2, 2], 
+                                        sumRotated[0, 1], 
+                                        sumRotated[0, 2], 
+                                        sumRotated[1, 2],
+                                        string.Join(" ", new string[] { obj1.Name, obj2.Name }.ToHashSet())
+                                        );
             }
         }
 
@@ -462,7 +487,7 @@ namespace GPC.Model.Results
 
             var rotated = matrix * obj1.GetTensor(true) * matrix.Transpose();
 
-            return new ResultStress(obj1._coordinateSystem, rotated[0, 0], rotated[1, 1], rotated[2, 2], rotated[0, 1], rotated[0, 2], rotated[1, 2]);
+            return new ResultStress(obj1._coordinateSystem, rotated[0, 0], rotated[1, 1], rotated[2, 2], rotated[0, 1], rotated[0, 2], rotated[1, 2], obj1.Name);
         }
 
         #endregion
