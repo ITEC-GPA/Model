@@ -38,6 +38,10 @@ namespace GPC.Model.Sections.Steel
             return Material;
         }
 
+        public double Height()
+        {
+            return H;
+        }
 
         #endregion
 
@@ -47,11 +51,7 @@ namespace GPC.Model.Sections.Steel
         public SteelSectionH(double hw, double tw, double btop, double ttop, double bbottom, double tbottom, SteelMaterial material, string name, SectionTypes type = SectionTypes.Rolled, double radius = 0)
             : base(hw, tw, btop, ttop, bbottom, tbottom, material, name)
         {
-            if (type == SectionTypes.Rolled)
-                _r = radius;        // raggio di curvatura
-
-            else if (type == SectionTypes.Welded)
-                _r = radius;        // altezza di gola
+            _r = radius;        // altezza di gola o raggio di curvatura
         }
 
         #endregion

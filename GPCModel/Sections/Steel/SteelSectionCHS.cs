@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace GPC.Model.Sections.Steel
 {
-    class SteelSectionCHS : SectionCHS, ISteelSection
+    public class SteelSectionCHS : SectionCHS, ISteelSection
     {
         #region Variables 
 
@@ -29,6 +29,10 @@ namespace GPC.Model.Sections.Steel
             return Material;
         }
 
+        public double Height()
+        {
+            return D;
+        }
 
         #endregion
 

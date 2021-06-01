@@ -28,6 +28,10 @@ namespace GPC.Model.Sections.Steel
             return Material;
         }
 
+        public double Height()
+        {
+            return H;
+        }
 
         #endregion
 

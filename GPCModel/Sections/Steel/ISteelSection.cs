@@ -9,5 +9,7 @@ namespace GPC.Model.Sections.Steel
     public interface ISteelSection
     {
         Materials.Material Material();
+
+        double Height();
     }
 }

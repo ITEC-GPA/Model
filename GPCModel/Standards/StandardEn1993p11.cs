@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace GPC.Model.Standards
 {
-    public class StandardEN1993p11 : Standard
+    public class StandardEN1993p11 : StandardEN1990
     {
         public StandardEN1993p11()
         {

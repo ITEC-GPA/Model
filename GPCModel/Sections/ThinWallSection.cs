@@ -72,7 +72,10 @@ namespace GPC.Model.Sections
             _sx = CalculateSx();
             _sy = CalculateSy();
             _area = CalculateArea();
-            
+            _wel1 = CalculateWel1();
+            _wel2 = CalculateWel2();
+            _wpl1 = CalculateWpl1();
+            _wpl2 = CalculateWpl2();
         }
 
         /// <summary>

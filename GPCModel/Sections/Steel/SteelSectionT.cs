@@ -32,6 +32,10 @@ namespace GPC.Model.Sections.Steel
             return Material;
         }
 
+        public double Height()
+        {
+            return H;
+        }
 
         #endregion
 
@@ -62,6 +66,8 @@ namespace GPC.Model.Sections.Steel
             s = s + "Thickness Top = " + _tf + " mm \n";
             return s;
         }
+
+
 
         #endregion
     }
