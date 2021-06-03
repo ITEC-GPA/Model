@@ -20,9 +20,11 @@ namespace GPC.Model.FEM
 
             mnl.Matrix<double> ris = gaussPoints[0].Weight * Jacob(csi, eta).Determinant() * GetM(csi, eta);
 
-            /*FEMUtilities.WriteMatrix("M(csi=" + csi + ",eta=" + eta + ") = ", GetM(csi, eta), "F3");
-            Console.WriteLine("detJ=" + Jacob(csi, eta).Determinant());
-            Console.WriteLine(gaussPoints[0].Weight + " * M * detJ");*/
+            //Console.WriteLine("csi=" + csi + ", eta=" + eta, "F3");
+            //FEMUtilities.WriteMatrix("M(csi=" + csi + ",eta=" + eta + ") = ", GetM(csi, eta), "F3");
+            //Console.WriteLine("detJ=" + Jacob(csi, eta).Determinant());
+            //Console.WriteLine(gaussPoints[0].Weight + " * M * detJ");
+            //FEMUtilities.WriteMatrix("partial ris(csi=" + csi + ",eta=" + eta + ") = ", gaussPoints[0].Weight * Jacob(csi, eta).Determinant() * GetM(csi, eta), "F3");
             #endregion
             for (int i = 1; i < gaussPoints.Length; i++) //trhough the gauss points "variable i START FROM 1 NOT FROM 0!!!"
             {
@@ -30,9 +32,11 @@ namespace GPC.Model.FEM
                 eta = gaussPoints[i].Point.Y;
                 ris = ris + gaussPoints[i].Weight * Jacob(csi, eta).Determinant() * GetM(csi, eta);
 
+                //Console.WriteLine("csi=" + csi + ", eta=" + eta, "F3");
                 /*Console.WriteLine("M(csi=" + csi + ",eta=" + eta + ") = ");
-                FEMUtilities.WriteMatrix(GetM(csi, eta), "F3");
-                Console.WriteLine("detJ=" + Jacob(csi, eta).Determinant());*/
+                FEMUtilities.WriteMatrix(GetM(csi, eta), "F3");*/
+                //Console.WriteLine("detJ=" + Jacob(csi, eta).Determinant());
+                //FEMUtilities.WriteMatrix("parial ris(csi=" + csi + ",eta=" + eta + ") = ", gaussPoints[i].Weight * Jacob(csi, eta).Determinant() * GetM(csi, eta), "F3");
             }
             return ris;
         }
