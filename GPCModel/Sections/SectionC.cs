@@ -53,9 +53,9 @@ namespace GPC.Model.Sections
                 _isSymmetricAlongXLocalAxis = true;
             _isSymmetricAlongYLocalAxis = false;
 
-            ThinWall web = new ThinWall(h, tw, Math.PI / 2, new Point2d(0, 0));
-            ThinWall flangeTop = new ThinWall(LTop - Tw, ThicknessTop, 0, new Point2d(Tw / 2 + (LTop - Tw) / 2, Hw / 2 + ThicknessTop / 2));
-            ThinWall flangeBottom = new ThinWall(LBottom - Tw, ThicknessBottom, 0, new Point2d(Tw / 2 + (LBottom - Tw) / 2, -Hw / 2 - ThicknessBottom / 2));
+            ThinWall web = new ThinWall(h, tw, Math.PI / 2, new Point2d(tw / 2, h / 2));
+            ThinWall flangeTop = new ThinWall(LTop - Tw, ThicknessTop, 0, new Point2d(Tw + (LTop - Tw) / 2, ThicknessBottom + Hw + ThicknessTop / 2));
+            ThinWall flangeBottom = new ThinWall(LBottom - Tw, ThicknessBottom, 0, new Point2d(Tw + (LBottom - Tw) / 2, ThicknessBottom / 2));
 
             ThinWalls = new ThinWall[] { web, flangeBottom, flangeTop };
         }
@@ -132,12 +132,12 @@ namespace GPC.Model.Sections
 
         public double DistanceYCentroidFromBottom()
         {
-            return H / 2 + CalculateCentroid().Y;
+            return CalculateCentroid().Y;
         }
 
         public double DistanceYCentroidFromTop()
         {
-            return H / 2 + CalculateCentroid().Y;
+            return H - CalculateCentroid().Y;
         }
 
         public double DistanceXCentroidFromRight()
@@ -146,7 +146,7 @@ namespace GPC.Model.Sections
         }
         public double DistanceXCentroidFromLeft()
         {
-            return Tw / 2 + CalculateCentroid().X;
+            return CalculateCentroid().X;
         }
 
 
@@ -156,12 +156,16 @@ namespace GPC.Model.Sections
             {
                 if (_area / 2.0 > _h * _tw)
                 {
-                    double hDown = _area / 2.0 / (_tTop + _tBottom);
+                    double hDown = Area / 2.0 / (_tTop + _tBottom);
                     SectionT secTop = new SectionT(_lengthBottom - hDown, _h, _tBottom + _tTop, _tw, _material, string.Empty);
-                    return _area / 2.0 * (hDown / 2.0 + secTop.DistanceYCentroidFromBottom());
+                    return Area / 2.0 * (hDown / 2.0 + secTop.DistanceYCentroidFromBottom());
                 }
                 else
-                    throw new NotImplementedException("neutral axis in web not yet supported");
+                {
+                    double tEff = Area / 2.0 / H;        // rettangolo alto H e spesso tEff
+                    SectionC sectionC = new SectionC(H, Tw - tEff, LTop, ThicknessTop, LBottom, ThicknessBottom, _material, string.Empty);
+                    return Area / 2.0 * (tEff / 2 + sectionC.DistanceXCentroidFromLeft());
+                }
             }
             else
                 throw new NotImplementedException("Different lenght or thickness not yet supported");

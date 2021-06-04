@@ -63,15 +63,17 @@ namespace GPC.Model.Sections
         /// </summary>
         internal virtual void SetMechanicalProperties()
         {
+            _area = CalculateArea();
+            _sx = CalculateSx();
+            _sy = CalculateSy();
             _centroid = CalculateCentroid();
+            _jxx = CalculateJxx();
+            _jyy = CalculateJyy();
             _j11 = CalculateJ11();
             _j22 = CalculateJ22();
             _jw = CalculateJw();
             _jt = CalculateJt();
             _shearCenter = CalculateShearCenter();
-            _sx = CalculateSx();
-            _sy = CalculateSy();
-            _area = CalculateArea();
             _wel1 = CalculateWel1();
             _wel2 = CalculateWel2();
             _wpl1 = CalculateWpl1();
@@ -114,11 +116,10 @@ namespace GPC.Model.Sections
         public virtual double CalculateJ11()
         {
             double j = 0;
-            Point2d centroid = CalculateCentroid();
             foreach (ThinWall tw in _thinWalls)
             {
                 j += tw.CalculateJxRespectCentroid();
-                j += tw.CalculateArea() * Math.Pow((centroid.Y - tw.Centroid.Y), 2);
+                j += tw.CalculateArea() * Math.Pow((Centroid.Y - tw.Centroid.Y), 2);
             }
             return j;
         }
@@ -130,11 +131,10 @@ namespace GPC.Model.Sections
         public virtual double CalculateJ22()
         {
             double j = 0;
-            Point2d centroid = CalculateCentroid();
             foreach (ThinWall tw in _thinWalls)
             {
                 j += tw.CalculateJyRespectCentroid();
-                j += tw.CalculateArea() * Math.Pow((centroid.X - tw.Centroid.X), 2);
+                j += tw.CalculateArea() * Math.Pow((Centroid.X - tw.Centroid.X), 2);
             }
             return j;
         }
@@ -147,7 +147,7 @@ namespace GPC.Model.Sections
         {
             double area = 0;
             foreach (ThinWall tw in _thinWalls)            
-                area += tw.CalculateArea();
+                area += tw.Area;
             
             return area;
         }
@@ -159,9 +159,8 @@ namespace GPC.Model.Sections
         public virtual double CalculateSx()
         {
             double Sx = 0;
-            for (int i = 0; i < _thinWalls.Count(); i++)
-                Sx = Sx + _thinWalls[i].CalculateArea() * _thinWalls[i].Centroid.X;
-
+            foreach (ThinWall tw in _thinWalls)
+                Sx += tw.Area * tw.Centroid.Y;
             return Sx;
         }
 
@@ -172,10 +171,19 @@ namespace GPC.Model.Sections
         public virtual double CalculateSy()
         {
             double Sy = 0;
-            for (int i = 0; i < _thinWalls.Count(); i++)
-                Sy = Sy + _thinWalls[i].CalculateArea() * _thinWalls[i].Centroid.Y;
-
+            foreach (ThinWall tw in _thinWalls)
+                Sy += tw.Area * tw.Centroid.X; 
             return Sy;
+        }
+
+        public virtual double CalculateJxx()
+        {
+            return CalculateJ11();
+        }
+
+        public virtual double CalculateJyy()
+        {
+            return CalculateJ22();
         }
 
         public abstract double CalculateWpl1();
@@ -242,6 +250,8 @@ namespace GPC.Model.Sections
             /// The centroid of the wall
             /// </summary>
             internal Point2d Centroid => _centroid;
+
+            public double Area => CalculateArea();
 
             #endregion
 

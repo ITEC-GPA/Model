@@ -1,4 +1,5 @@
-﻿using GPC.Model.Materials;
+﻿using GPC.Geometry;
+using GPC.Model.Materials;
 
 namespace GPC.Model.Sections.Steel
 {
@@ -27,15 +28,43 @@ namespace GPC.Model.Sections.Steel
 
         public bool IsWelded => Type == SectionTypes.Welded;
 
-        Material ISteelSection.Material()
-        {
-            return Material;
-        }
+        #region Interface
 
-        public double Height()
-        {
-            return H;
-        }
+        Material ISteelSection.Material => Material;
+
+        public double Height => H;
+
+        double ISteelSection.Area => Area;
+
+        double ISteelSection.InertiaRadiusY => InertiaRadiusY;
+
+        double ISteelSection.InertiaRadiusX => InertiaRadiusX;
+
+        Point2d ISteelSection.Centroid => Centroid;
+
+        double ISteelSection.J11 => J11;
+
+        double ISteelSection.J22 => J22;
+
+        double ISteelSection.Jxx => Jxx;
+
+        double ISteelSection.Jyy => Jyy;
+
+        double ISteelSection.Jt => Jt;
+
+        double ISteelSection.Jw => Jw;
+
+        double ISteelSection.Sx => Sx;
+
+        double ISteelSection.Wpl1 => Wpl1;
+
+        double ISteelSection.Wpl2 => Wpl2;
+
+        double ISteelSection.Wel1 => Wel1;
+
+        double ISteelSection.Wel2 => Wel2;
+
+        #endregion
 
         #endregion
 

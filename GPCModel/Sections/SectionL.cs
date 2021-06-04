@@ -38,10 +38,10 @@ namespace GPC.Model.Sections
             _lHor = lHor < 0 ? throw new ArgumentException($"Horizzontal plate lenght cannot be lower than zero") : lHor; 
             _tHor = tHor < 0 ? throw new ArgumentException($"Horizzontal plate thickness cannot be lower than zero") : tHor; 
             _lVert = lVert < 0 ? throw new ArgumentException($"Vertical plate lenght cannot be lower than zero") : lVert; 
-            _tVert = tVert < 0 ? throw new ArgumentException($"Vertical plate thickness cannot be lower than zero") : tVert; 
+            _tVert = tVert < 0 ? throw new ArgumentException($"Vertical plate thickness cannot be lower than zero") : tVert;
 
-            ThinWall thinWall1 = new ThinWall(lHor, tHor, 0, new Point2d(lHor / 2, 0));
-            ThinWall thinWall2 = new ThinWall(lVert, tVert, Math.PI / 2, new Point2d(0, lVert / 2));
+            ThinWall thinWall1 = new ThinWall(LHor, THor, 0, new Point2d(LHor / 2, THor / 2));
+            ThinWall thinWall2 = new ThinWall(LVert - THor, TVert, Math.PI / 2, new Point2d(TVert / 2, THor + (TVert - THor) / 2));
 
             ThinWalls = new ThinWall[] { thinWall1, thinWall2 };
         }
@@ -59,11 +59,6 @@ namespace GPC.Model.Sections
         public override double CalculateWel2()
         {
             return Math.Min(CalculateWel22Bottom(), CalculateWel22Top());
-        }
-
-        public double CalculateJxy()
-        {
-            return 0;
         }
 
         public double CalculateAngle()
@@ -115,11 +110,11 @@ namespace GPC.Model.Sections
             //check 5 points
             //traslation
             Point2d[] pts = new Point2d[5];
-            pts[0] = new Point2d(-CalculateCentroid().X, -CalculateCentroid().Y);
-            pts[1] = new Point2d(LHor - CalculateCentroid().X, -CalculateCentroid().Y);
-            pts[2] = new Point2d(LHor - CalculateCentroid().X, THor - CalculateCentroid().Y);
-            pts[3] = new Point2d(TVert - CalculateCentroid().X, LVert - CalculateCentroid().Y);
-            pts[4] = new Point2d(-CalculateCentroid().X, LVert - CalculateCentroid().Y);
+            pts[0] = new Point2d(-Centroid.X, -Centroid.Y);
+            pts[1] = new Point2d(LHor - Centroid.X, -Centroid.Y);
+            pts[2] = new Point2d(LHor - Centroid.X, THor - Centroid.Y);
+            pts[3] = new Point2d(TVert - Centroid.X, LVert - Centroid.Y);
+            pts[4] = new Point2d(-Centroid.X, LVert - Centroid.Y);
 
             //rotation
             minX = 0;
@@ -141,54 +136,48 @@ namespace GPC.Model.Sections
             }
         }
 
-        public double CalculateJxx()
+        public override double CalculateJxx()
         {
             double jxx = 0;
-            for (int i = 0; i < ThinWalls.Count(); i++)
-            {
-                jxx += + DistanceXCentroidFromLeft() + ThinWalls[i].CalculateArea() * Math.Pow(ThinWalls[i].Centroid.X - _centroid.X, 2.0);
-            }
+            for (int i = 0; i < ThinWalls.Count(); i++)            
+                jxx += + DistanceXCentroidFromLeft() + ThinWalls[i].Area * Math.Pow(ThinWalls[i].Centroid.X - Centroid.X, 2.0);            
             return jxx;
         }
 
-        public double GetJyy()
+        public override double CalculateJyy()
         {
             double jyy = 0;
-            for (int i = 0; i < ThinWalls.Count(); i++)
-            {
-                jyy += ThinWalls[i].Centroid.Y + ThinWalls[i].CalculateArea() * Math.Pow(ThinWalls[i].Centroid.Y - _centroid.Y, 2.0);
-            }
+            for (int i = 0; i < ThinWalls.Count(); i++)            
+                jyy += ThinWalls[i].Centroid.Y + ThinWalls[i].Area * Math.Pow(ThinWalls[i].Centroid.Y - Centroid.Y, 2.0);            
             return jyy;
         }
 
-        public double GetJxy()
+        public double CalculateJxy()
         {
             double jxy = 0;
-            for (int i = 0; i < ThinWalls.Count(); i++)
-            {
-                jxy += + 0.0 + ThinWalls[i].CalculateArea() * (ThinWalls[i].Centroid.X - _centroid.X) * (ThinWalls[i].Centroid.Y - _centroid.Y);
-            }
+            for (int i = 0; i < ThinWalls.Count(); i++)            
+                jxy += + 0.0 + ThinWalls[i].Area * (ThinWalls[i].Centroid.X - Centroid.X) * (ThinWalls[i].Centroid.Y - Centroid.Y);            
             return jxy;
         }
 
         public double DistanceYCentroidFromBottom()
         {
-            return THor / 2 + CalculateCentroid().Y;
+            return Centroid.Y;
         }
 
         public double DistanceYCentroidFromTop()
         {
-            return LVert - THor / 2 - CalculateCentroid().Y;
+            return LVert - Centroid.Y;
         }
 
         public double DistanceXCentroidFromRight()
         {
-            return LHor / 2 - CalculateCentroid().X;
+            return Centroid.X;
         }
 
         public double DistanceXCentroidFromLeft()
         {
-            return LHor / 2 + CalculateCentroid().X;
+            return LHor - Centroid.X;
         }
 
 
@@ -231,12 +220,12 @@ namespace GPC.Model.Sections
 
         public override double CalculateWpl1()
         {
-            throw new NotImplementedException();
+            return CalculateWel1();
         }
 
         public override double CalculateWpl2()
         {
-            throw new NotImplementedException();
+            return CalculateWel2();
         }
 
         #endregion

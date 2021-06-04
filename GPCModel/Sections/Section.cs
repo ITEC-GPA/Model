@@ -119,12 +119,24 @@ namespace GPC.Model.Sections
         /// </summary>
         public double Sy => _sy;
 
+        /// <summary>
+        /// The plastic modulus calculated respect the 1-principal axes
+        /// </summary>
         public double Wpl1 => _wpl1;
 
+        /// <summary>
+        /// The plastic modulus calculated respect the 2-principal axes
+        /// </summary>
         public double Wpl2 => _wpl2;
 
+        /// <summary>
+        /// The elastic modulus calculated respect the 1-principal axes
+        /// </summary>
         public double Wel1 => _wel1;
 
+        /// <summary>
+        /// The elastic modulus calculated respect the 2-principal axes
+        /// </summary>
         public double Wel2 => _wel2;
 
         /// <summary>

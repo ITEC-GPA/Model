@@ -48,8 +48,8 @@ namespace GPC.Model.Sections
             _isSymmetricAlongYLocalAxis = true;
             _isSymmetricAlongXLocalAxis = false;
 
-            ThinWall web = new ThinWall(Hw, tw, Math.PI / 2, new Point2d(0, 0));
-            ThinWall flange = new ThinWall(b, tf, 0, new Point2d(0, Hw / 2 + tf / 2));
+            ThinWall web = new ThinWall(Hw, tw, Math.PI / 2, new Point2d(B / 2, Hw / 2));
+            ThinWall flange = new ThinWall(b, tf, 0, new Point2d(B / 2, Hw + tf / 2));
 
             ThinWalls = new ThinWall[] { web, flange };         
         }
@@ -115,22 +115,22 @@ namespace GPC.Model.Sections
 
         public double DistanceYCentroidFromBottom()
         {
-            return H - Tf - Hw / 2 + CalculateCentroid().Y;
+            return CalculateCentroid().Y;
         }
 
         public double DistanceYCentroidFromTop()
         {
-            return Tf - Hw / 2 + CalculateCentroid().Y;
+            return H - CalculateCentroid().Y;
         }
 
         public double DistanceXCentroidFromRight()
         {
-            return B/2 + CalculateCentroid().X;
+            return B - CalculateCentroid().X;
         }
 
         public double DistanceXCentroidFromLeft()
         {
-            return B / 2 - CalculateCentroid().X;
+            return CalculateCentroid().X;
         }
 
         #endregion
