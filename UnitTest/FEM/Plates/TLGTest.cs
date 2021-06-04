@@ -967,7 +967,7 @@ namespace FemTest.SolverTest
             #endregion
 
             List<Quad4TripleLaminatedGlass> els = new List<Quad4TripleLaminatedGlass>();
-            bool quadrilateral = true;
+            bool quadrilateral = false;
             #region els
             els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[111], nodes[112], nodes[4], nodes[121] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));
             els.Add(new Quad4TripleLaminatedGlass(new Node[] { nodes[1], nodes[5], nodes[15], nodes[14] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, quadrilateral));

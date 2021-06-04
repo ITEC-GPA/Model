@@ -1123,8 +1123,8 @@ namespace GPC.Model.FEM.FiniteElements
             Ds[3, 1] = hc;
             Ds[3, 3] = hc * hc;
 
-            Ds = G0 / Math.Pow(h0,2.0) * Ds; 
-            //Ds = G0 / h0 * Ds;
+            //Ds = G0 / Math.Pow(h0,2.0) * Ds; 
+            Ds = G0 / h0 * Ds;
 
             return Ds;
         }

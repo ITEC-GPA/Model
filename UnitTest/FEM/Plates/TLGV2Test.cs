@@ -31644,6 +31644,17 @@ namespace FemTest.SolverTest
 
             LinearSolver fem = new LinearSolver(els.ToArray());
 
+            double minDZ = 1e6;
+            double maxDZ = -1e6;
+            for (int i = 1; i < nodes.Count; i++)
+            {
+                minDZ = Math.Min(minDZ, fem.GetNodeDisplacementGlobalCoordinates(nodes[i], Solver.DOF.DZ));
+                maxDZ = Math.Max(maxDZ, fem.GetNodeDisplacementGlobalCoordinates(nodes[i], Solver.DOF.DZ));
+            }
+
+            Console.WriteLine("min dz = " + minDZ);
+            Console.WriteLine("max dz = " + maxDZ);
+
             /*Node center = nodes.Where(x => x.Position.X == 6 && x.Position.Y == 10).First();
             var femDZCenter = fem.GetNodeDisplacementGlobalCoordinates(center, Solver.DOF.DZ);
             Console.WriteLine(femDZCenter);
