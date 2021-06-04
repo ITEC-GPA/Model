@@ -2077,6 +2077,9 @@ namespace FemTest.SolverTest
             double DZTLG = fem.GetNodeDisplacementGlobalCoordinates(nodes.Where(x => x.Position.X == 0 && x.Position.Y == 0).First(), Solver.DOF.DZ);
             Console.WriteLine("displacement triple laminated glass = " + DZTLG);
 
+            FEMUtilities.WriteMatrix(els[0].KLayer);
+            FEMUtilities.WriteMatrix(els[0].KGlass);
+
             Assert.AreEqual(4.11, DZTLG, 0.01);
         }
 
