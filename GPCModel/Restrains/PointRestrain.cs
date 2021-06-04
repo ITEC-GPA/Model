@@ -12,7 +12,7 @@ namespace GPC.Model.Restrains
     {
         #region Variables
 
-        private Point3d _point;
+        private readonly Point3d _point;
 
         #endregion
 
@@ -25,12 +25,6 @@ namespace GPC.Model.Restrains
 
         #region Constructors
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="point"></param>
-        /// <param name="freedomCase"></param>
-        /// <param name="restrains"></param>
         /// <remarks><see cref="GeometryRestrain.CoordinateSystem"/> set to Global</remarks>
         public PointRestrain(Point3d point, FreedomCase freedomCase, List<DofRestrain> restrains)
             : this(point, freedomCase, CoordinateSystem.Global, restrains, Guid.NewGuid(), string.Empty)
@@ -60,17 +54,13 @@ namespace GPC.Model.Restrains
         /// <summary>
         /// Set all the <see cref="Solver.DOF"/> to restrained for the given point and freedomcase
         /// </summary>
-        /// <param name="point"></param>
-        /// <param name="freedomCase"></param>
-        /// <param name="coordinateSystem"></param>
-        /// <returns></returns>
         public static PointRestrain GetAllFixed(Point3d point, FreedomCase freedomCase, CoordinateSystem coordinateSystem) 
         {
             List<DofRestrain> restrains = new List<DofRestrain>();
 
             foreach (var dof in (Solver.DOF[])Enum.GetValues(typeof(Solver.DOF)))
             {
-                restrains.Add(new DofRestrain(dof, true));
+                restrains.Add(new DofRestrain(dof));
             }
 
             return new PointRestrain(point, freedomCase, coordinateSystem, restrains);                
@@ -79,19 +69,15 @@ namespace GPC.Model.Restrains
         /// <summary>
         /// Set <see cref="Solver.DOF.DX"/>, <see cref="Solver.DOF.DY"/> and <see cref="Solver.DOF.DZ"/> to restrained for the given line and freedomcase
         /// </summary>
-        /// <param name="point"></param>
-        /// <param name="freedomCase"></param>
-        /// <param name="coordinateSystem"></param>
-        /// <returns></returns>
         public static PointRestrain GetAllDisplacementFixed(Point3d point, FreedomCase freedomCase, CoordinateSystem coordinateSystem)
         {
-            List<DofRestrain> restrains = new List<DofRestrain>();
-
-            restrains.Add(new DofRestrain(Solver.DOF.DX, true));
-            restrains.Add(new DofRestrain(Solver.DOF.DY, true));
-            restrains.Add(new DofRestrain(Solver.DOF.DZ, true));
-
-            return new PointRestrain(point, freedomCase, coordinateSystem, restrains);
+            return new PointRestrain(point, freedomCase, coordinateSystem, new List<DofRestrain>
+                                                                        {
+                                                                            new DofRestrain(Solver.DOF.DX),
+                                                                            new DofRestrain(Solver.DOF.DY),
+                                                                            new DofRestrain(Solver.DOF.DZ)
+                                                                        }
+            );
         }
 
         #endregion
@@ -106,6 +92,48 @@ namespace GPC.Model.Restrains
             info.AddValue("Point", _point);
         }
 
+
+        #endregion
+
+
+        #region Equals, hashcode, operators
+
+
+        public override bool Equals(object obj)
+        {
+            if (obj is null)
+                return false;
+
+            if (ReferenceEquals(this, obj))
+                return true;
+
+            return (obj is PointRestrain objCasted) && _point.Equals(objCasted.Point) && base.Equals(objCasted);
+        }
+
+
+        public override int GetHashCode()
+        {
+            unchecked
+            {
+                return -391 + _point.GetHashCode() * -17 + base.GetHashCode();
+            }
+        }
+
+        public static bool operator ==(PointRestrain obj1, PointRestrain obj2)
+        {
+            if (obj1 is null)
+            {
+                return obj2 is null;
+            }
+
+            return obj1.Equals(obj2);
+        }
+
+
+        public static bool operator !=(PointRestrain obj1, PointRestrain obj2)
+        {
+            return !(obj1 == obj2);
+        }
 
         #endregion
     }

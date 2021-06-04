@@ -1,6 +1,8 @@
-﻿using System;
+﻿using GPC.Utilities.Extensions;
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.Serialization;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -13,7 +15,8 @@ namespace GPC.Model
     /// <typeparam name="T"></typeparam>
     /// <remarks>The collection is thread-safe
     /// <para>Id of <typeparamref name="T"/> must be unmutable</para></remarks>
-    public class UniqueIdCollection<T> : ModelObjectIdSet<T>, ICollection<T> where T : ModelObjectId
+    [Serializable]
+    public class UniqueIdCollection<T> : ModelObjectIdSet<T>, ICollection<T> where T : ModelObjectId, ISerializable
     {
 
         /// <summary>
@@ -25,6 +28,13 @@ namespace GPC.Model
             : base(new ModelObjectId.ModelObjectIdEqualityComparer())
         {
             _ids = new HashSet<int>();
+        }
+
+
+        public UniqueIdCollection(SerializationInfo info, StreamingContext context)
+            : base(info, context)
+        {
+            _ids = (HashSet<int>)info.GetValue("Ids", typeof(HashSet<int>));
         }
 
         public override bool Add(T item)
@@ -135,5 +145,64 @@ namespace GPC.Model
                 return _collection.Remove(item) && _ids.Remove(item.Id);
             }
         }
+
+
+
+        public override void GetObjectData(SerializationInfo info, StreamingContext context)
+        {
+            base.GetObjectData(info, context);
+            info.AddValue("Ids", _ids);
+        }
+
+        #region Equals - hashcode - Operators
+
+        public override bool Equals(object obj)
+        {
+            lock (_locker)
+            {
+                return obj is UniqueIdCollection<T> collection && _collection.ScrambledEquals(collection._collection)
+                                                               && base.Equals(collection);
+            }
+        }
+
+        public override int GetHashCode()
+        {
+            lock (_locker)
+            {
+                unchecked
+                {
+                    int hashCode = -391 + base.GetHashCode();
+
+                    foreach (var element in _collection)
+                    {
+                        hashCode += element.GetHashCode();
+                    }
+
+                    return hashCode;
+                }
+            }
+        }
+
+
+        public static bool operator ==(UniqueIdCollection<T> obj1, UniqueIdCollection<T> obj2)
+        {
+            if (obj1 is null)
+            {
+                return obj2 is null;
+            }
+
+            if (ReferenceEquals(obj1, obj2))
+                return true;
+
+            return obj1.Equals(obj2);
+        }
+
+        public static bool operator !=(UniqueIdCollection<T> obj1, UniqueIdCollection<T> obj2)
+        {
+            return !(obj1 == obj2);
+        }
+
+        #endregion 
+
     }
 }

@@ -8,10 +8,11 @@ namespace GPC.Model
     /// <summary>
     /// This class add the attribute Id to the <see cref="ModelObject"/> base class
     /// </summary>
-
     [Serializable]
     public abstract class ModelObjectId : ModelObject, ISerializable
     {
+        public const int IDUNASSIGNED = -1;
+
         protected int _id;
 
         /// <summary>
@@ -21,7 +22,7 @@ namespace GPC.Model
 
         public ModelObjectId()
         {
-
+            _id = IDUNASSIGNED;
         }
 
         public ModelObjectId(int id)
@@ -33,13 +34,13 @@ namespace GPC.Model
         public ModelObjectId(Guid guid)
             : base(guid)
         {
-
+            _id = IDUNASSIGNED;
         }
 
         public ModelObjectId(string name)
             : base(name)
         {
-
+            _id = IDUNASSIGNED;
         }
 
         public ModelObjectId(int id, string name)
@@ -112,6 +113,7 @@ namespace GPC.Model
         /// <summary>
         /// Compare two <see cref="ModelObjectId"/> using only <see cref="ModelObjectId.Id"/> as equality parameter
         /// </summary>
+        [Serializable]
         public class ModelObjectIdEqualityComparer : IEqualityComparer<ModelObjectId>
         {
             /// <returns>

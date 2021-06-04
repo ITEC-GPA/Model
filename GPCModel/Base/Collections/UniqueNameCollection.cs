@@ -1,6 +1,8 @@
-﻿using System;
+﻿using GPC.Utilities.Extensions;
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.Serialization;
 
 namespace GPC.Model
 {
@@ -9,7 +11,8 @@ namespace GPC.Model
     /// </summary>
     /// <typeparam name="T"></typeparam>
     /// <remarks>The collection is thread-safe</remarks>
-    public class UniqueNameCollection<T> : ModelObjectEnumerable<T>, ICollection<T> where T : ModelObject
+    [Serializable]
+    public class UniqueNameCollection<T> : ModelObjectEnumerable<T>, ICollection<T> where T : ModelObject, ISerializable
     {
         private readonly HashSet<string> _names;
 
@@ -24,6 +27,12 @@ namespace GPC.Model
             _names = new HashSet<string>();
         }
 
+
+        public UniqueNameCollection(SerializationInfo info, StreamingContext context)
+            : base(info, context)
+        {
+            _names = (HashSet<string>)info.GetValue("Names", typeof(HashSet<string>));
+        }
 
         /// <inheritdoc cref="ModelObjectEnumerable{T}.Add(T)" />
         /// <returns>True if the element has been added
@@ -64,11 +73,6 @@ namespace GPC.Model
             return false;
         }
 
-        /// <inheritdoc cref="AddRange(IEnumerable{T})"/>
-        public virtual bool AddRange(T[] items)
-        {
-            return this.AddRange(items.ToList());
-        }
 
         /// <summary><inheritdoc cref="Enumerable.SingleOrDefault{TSource}(IEnumerable{TSource})"/></summary>
         /// <returns><inheritdoc cref="Enumerable.SingleOrDefault{TSource}(IEnumerable{TSource})"/></returns>
@@ -233,5 +237,63 @@ namespace GPC.Model
                 _collection.CopyTo(array, arrayIndex);
             }
         }
+
+
+        public override void GetObjectData(SerializationInfo info, StreamingContext context)
+        {
+            base.GetObjectData(info, context);
+            info.AddValue("Names", _names);
+        }
+
+
+        #region Equals - hashcode - Operators
+
+        public override bool Equals(object obj)
+        {
+            lock (_locker)
+            {
+                return obj is UniqueNameCollection<T> collection && _collection.ScrambledEquals(collection._collection)
+                                                                 && base.Equals(collection);
+            }
+        }
+
+        public override int GetHashCode()
+        {
+            lock (_locker)
+            {
+                unchecked
+                {
+                    int hashCode = -391 + base.GetHashCode();
+
+                    foreach (var element in _collection)
+                    {
+                        hashCode += element.GetHashCode();
+                    }
+
+                    return hashCode;
+                }
+            }
+        }
+
+
+        public static bool operator ==(UniqueNameCollection<T> obj1, UniqueNameCollection<T> obj2)
+        {
+            if (obj1 is null)
+            {
+                return obj2 is null;
+            }
+
+            if (ReferenceEquals(obj1, obj2))
+                return true;
+
+            return obj1.Equals(obj2);
+        }
+
+        public static bool operator !=(UniqueNameCollection<T> obj1, UniqueNameCollection<T> obj2)
+        {
+            return !(obj1 == obj2);
+        }
+
+        #endregion 
     }
 }

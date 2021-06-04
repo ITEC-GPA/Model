@@ -11,7 +11,13 @@ namespace GPC.Model.Results
     {
 
         public BrickResult(ILoadCase Case, CoordinateSystem coordinateSystem, IEnumerable<IBrickResult> result, IEnumerable<ResultLocationId> points)
-            : base(Case, coordinateSystem, (IEnumerable<ResultType>)result, points)
+            : this(Case, coordinateSystem, result, points, ModelObjectId.IDUNASSIGNED)
+        {
+
+        }
+
+        public BrickResult(ILoadCase Case, CoordinateSystem coordinateSystem, IEnumerable<IBrickResult> result, IEnumerable<ResultLocationId> points, int stageId)
+            : base(Case, coordinateSystem, (IEnumerable<ResultType>)result, points, stageId)
         {
 
         }

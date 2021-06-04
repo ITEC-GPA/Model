@@ -1,5 +1,6 @@
 ﻿using GPC.Geometry;
 using GPC.Model.Results;
+using GPC.Model.LoadCases;
 using GPC.TestUtilities;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using MathNet.Numerics.LinearAlgebra;
@@ -215,66 +216,6 @@ namespace ModelObjectTest
         }
 
 
-        //[TestMethod]
-        //public void StressOperatorsSumTest5()
-        //{
-
-        //    Matrix<double> stress1 = Matrix<double>.Build.Sparse(3, 3);
-        //    stress1[0, 0] = 1;
-        //    stress1[0, 1] = -3 * Math.Sqrt(2);
-        //    stress1[0, 2] = Math.Sqrt(2);
-
-        //    stress1[1, 0] = -3 * Math.Sqrt(2);
-        //    stress1[1, 1] = 1/2.0;
-        //    stress1[1, 2] = -3/2.0;
-
-        //    stress1[2, 0] = Math.Sqrt(2);
-        //    stress1[2, 1] = -3 * Math.Sqrt(2);
-        //    stress1[2, 2] = 25/2.0;
-
-
-        //    CoordinateSystem cs1 = CoordinateSystem.Global;
-        //    cs1.Rotate(45.ToRadians(), 0, 0);
-
-        //    ResultStress rs1 = new ResultStress(cs1, stress1[0, 0], stress1[1, 1], stress1[2, 2], stress1[0, 1], stress1[0, 2], stress1[1, 2]);
-
-
-
-        //    Matrix<double> stress2 = Matrix<double>.Build.Sparse(3, 3);
-        //    stress2[0, 0] = 8;
-        //    stress2[0, 1] = 6 * Math.Sqrt(2);
-        //    stress2[0, 2] = 4;
-
-        //    stress2[1, 0] = 6 * Math.Sqrt(2);
-        //    stress2[1, 1] = 5;
-        //    stress2[1, 2] = 3 * Math.Sqrt(2);
-
-        //    stress2[2, 0] = 4;
-        //    stress2[2, 1] = 3 * Math.Sqrt(2);
-        //    stress2[2, 2] = 2;
-
-
-        //    CoordinateSystem cs2 = CoordinateSystem.Global;
-        //    cs2.Rotate(0, 45.ToRadians(), 0);
-
-        //    ResultStress rs2 = new ResultStress(cs2, stress2[0, 0], stress2[1, 1], stress2[2, 2], stress2[0, 1], stress2[0, 2], stress2[1, 2]);
-
-
-        //    Assert.AreEqual(1, rs1.GetTensor(true)[0, 0], 1e-5, rs1.GetTensor(true).ToString());
-        //    Assert.AreEqual(1/2.0, rs1.GetTensor(true)[1, 1], 1e-5, rs1.GetTensor(true).ToString());
-
-        //    Assert.AreEqual(8, rs2.GetTensor(true)[0, 0], 1e-5, rs2.GetTensor(true).ToString());
-        //    Assert.AreEqual(5, rs2.GetTensor(true)[1, 1], 1e-5, rs2.GetTensor(true).ToString());
-
-
-        //    var sum = rs1 + rs2;
-
-
-        //    Assert.AreEqual(19/2.0, sum.Sxx, 1e-5, sum.Sxx.ToString());
-        //}
-
-
-
         [TestMethod]
         public void StressOperatorsMultiplicationTest1()
         {
@@ -348,6 +289,103 @@ namespace ModelObjectTest
             Assert.AreEqual(50, rs1Rotated[0, 0], 1E-10, rs1Rotated[0, 0].ToString());
             Assert.AreEqual(50, rs1Rotated[1, 1], 1E-10, rs1Rotated[1, 1].ToString());
             Assert.AreEqual(50, rs1Rotated[1, 0], 1E-10, rs1Rotated[1, 0].ToString());
+        }
+
+
+        [TestMethod]
+        public void DisplacementOperatorsMultiplicationTest1()
+        {
+
+            CoordinateSystem cs1 = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(-1, -1, 0), new Point3d(1, -1, 0));
+
+            ResultDisplacement rd = new ResultDisplacement(cs1, 1,2,3,4,5,6);
+
+            var rd1 = rd * 2;
+            var rd2 = rd * 3.0;
+
+            Assert.AreEqual(rd1.D2, rd.D2 * 2, 1E-10);
+            Assert.AreEqual(rd2.D2, rd.D2 * 3, 1E-10);
+        }
+
+
+        [TestMethod]
+        public void DisplacementOperatorsSumTest1()
+        {
+
+            CoordinateSystem cs1 = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(-1, -1, 0), new Point3d(1, -1, 0));
+            ResultDisplacement rd1 = new ResultDisplacement(cs1, 1, 2, 3, 4, 5, 6);
+
+            CoordinateSystem cs2 = new CoordinateSystem(new Point3d(0, 0, 0), new Vector3d(1, 1, 0), new Vector3d(-1, 1, 0));
+            ResultDisplacement rd2 = new ResultDisplacement(cs2, 1, 2, 3, 4, 5, 6);
+
+            var sum = rd1 + rd2;
+            
+            Console.WriteLine(sum.GetLocalDisplacementsTuple().displacements);
+            Console.WriteLine(sum.GetLocalDisplacementsTuple().rotations);
+
+            Assert.AreEqual(sum.D2, rd1.D2 - rd2.D2, 1E-10, sum.D2.ToString());
+            Assert.AreEqual(sum.D3, rd1.D3 * 2.0, 1E-10);
+
+        }
+
+
+        [TestMethod]
+        public void StressArithmeticMeanTest1()
+        {
+            ResultStress rs1 = new ResultStress(CoordinateSystem.Global, 100, 200, 0, 573, 400, 500, "a");
+            ResultStress rs2 = new ResultStress(CoordinateSystem.Global, 100, 200, 0, 573, 400, 500, "a");
+
+            var rs = ResultStress.GetArithmeticMean(new ResultStress[] { rs1, rs2 });
+
+            Assert.IsTrue(rs.Sxx == 100);
+            Assert.IsTrue(rs.Syy == 200);
+            Assert.IsTrue(rs.Szz == 0);
+            Assert.IsTrue(rs.Sxy == 573);
+            Assert.IsTrue(rs.Sxz == 400);
+            Assert.IsTrue(rs.Syz == 500);
+            Assert.IsTrue(rs.Name == "a");
+
+        }
+
+
+        [TestMethod]
+        public void StressArithmeticMeanTest2()
+        {
+            ResultStress rs1 = new ResultStress(CoordinateSystem.Global, 100, 200, -100, 1000, -1000, 500, "rs1");
+            ResultStress rs2 = new ResultStress(CoordinateSystem.Global, 200, 300, 100, 2000, -2000, 500, "rs2");
+
+            var rs = ResultStress.GetArithmeticMean(new ResultStress[] { rs1, rs2 });
+
+            Assert.IsTrue(rs.Sxx == 150);
+            Assert.IsTrue(rs.Syy == 250);
+            Assert.IsTrue(rs.Szz == 0);
+            Assert.IsTrue(rs.Sxy == 1500, rs.Sxy.ToString());
+            Assert.IsTrue(rs.Sxz == -1500);
+            Assert.IsTrue(rs.Syz == 500);
+
+            Assert.IsTrue(rs.Name == "rs1 rs2");
+        }
+
+
+        [TestMethod]
+        public void StressArithmeticMeanTest3()
+        {
+            ResultStress rs1 = new ResultStress(CoordinateSystem.Global, 100, 200, -100, 1000, -1000, 500);
+            ResultStress rs2 = new ResultStress(CoordinateSystem.Global, 200, 300, 100, 2000, -2000, 500);
+
+            PlateResult pr = new PlateResult(new LoadCase("aa", LoadCase.LoadCaseTypes.SelfWeight), CoordinateSystem.Global, new ResultStress[] { rs1, rs1, rs2, rs2, rs2, rs2 }, 
+                             new ResultLocationId[] { new ResultLocationId(1), new ResultLocationId(1), new ResultLocationId(2), new ResultLocationId(2), new ResultLocationId(3), new ResultLocationId(3) });
+
+            var a = pr.GetMeanFaceResults();
+
+            //var rs = ResultStress.GetArithmeticMean(new ResultStress[] { rs1, rs2 });
+
+            //Assert.IsTrue(rs.Sxx == 150);
+            //Assert.IsTrue(rs.Syy == 250);
+            //Assert.IsTrue(rs.Szz == 0);
+            //Assert.IsTrue(rs.Sxy == 1500, rs.Sxy.ToString());
+            //Assert.IsTrue(rs.Sxz == -1500);
+            //Assert.IsTrue(rs.Syz == 500);
         }
     }
 }

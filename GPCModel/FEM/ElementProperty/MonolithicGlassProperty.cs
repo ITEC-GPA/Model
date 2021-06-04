@@ -7,7 +7,8 @@ using System.Collections.Generic;
 
 namespace GPC.Model.FEM.Properties
 {
-    public sealed class MonolithicGlassProperty : PlateProperty, IGlassProperty, IPlateProperty, IEquatable<MonolithicGlassProperty>
+    [Serializable]
+    public sealed class MonolithicGlassProperty : PlateProperty, IGlassProperty, IPlateProperty, IEquatable<MonolithicGlassProperty>, ISerializable
     {
 
         public MonolithicGlassProperty(MonolithicGlass monolithicGlass, string name)
@@ -28,16 +29,12 @@ namespace GPC.Model.FEM.Properties
 
         }
 
-        public MonolithicGlassProperty(SerializationInfo info, StreamingContext context)
-            : base(info, context)
+        public MonolithicGlassProperty(SerializationInfo info, StreamingContext context) : base(info, context)
         {
 
         }
 
-        public override void GetObjectData(SerializationInfo info, StreamingContext context)
-        {
-            base.GetObjectData(info, context);
-        }
+
 
         public bool Equals(MonolithicGlassProperty other)
         {

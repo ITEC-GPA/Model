@@ -15,6 +15,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
+using System.Threading.Tasks;
 
 namespace GPC.Model.FEM
 {
@@ -93,6 +94,12 @@ namespace GPC.Model.FEM
         /// </summary>
         protected Dictionary<int, HashSet<string>> _stageCombinationsMap;
 
+        // GROUPS
+
+        /// <summary>
+        /// Collections of group
+        /// </summary>
+        protected GroupCollection _groups;
 
 
         // STAGE
@@ -116,11 +123,6 @@ namespace GPC.Model.FEM
         #region Properties
 
         public virtual AnalysisTypes AnalysisType { get => _analysisType; set => _analysisType = value; }
-
-        public IEnumerable<Combination> Combinations => _combinations;
-
-        public IEnumerable<LoadCaseBase> LoadCases => _loadCases;
-
 
         #endregion
 
@@ -148,6 +150,8 @@ namespace GPC.Model.FEM
             _freedomCases = new UniqueNameCollection<FreedomCase>();
             _combinations = new UniqueNameCollection<Combination>();
 
+            _groups = new GroupCollection();
+
             _stageCombinationsMap = new Dictionary<int, HashSet<string>>();
 
             _analysisType = AnalysisTypes.Linear;
@@ -159,7 +163,21 @@ namespace GPC.Model.FEM
         public FemModel(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
-            throw new NotImplementedException();
+            
+            _nodes = (FemObjectCollection<Node>)info.GetValue("Nodes", typeof(FemObjectCollection<Node>));
+            _elements = (FemObjectCollection<FiniteElement>)info.GetValue("Elements", typeof(FemObjectCollection<FiniteElement>));
+            _costrains = (FemObjectCollection<Costrain>)info.GetValue("Costrains", typeof(FemObjectCollection<Costrain>));
+
+            _plateProperties = (UniqueNameCollection<PlateProperty>)info.GetValue("PlateProperties", typeof(UniqueNameCollection<PlateProperty>));
+            _brickProperties = (UniqueNameCollection<BrickProperty>)info.GetValue("BrickProperties", typeof(UniqueNameCollection<BrickProperty>));
+            _loadCases = (UniqueNameCollection<LoadCaseBase>)info.GetValue("LoadCaseBases", typeof(UniqueNameCollection<LoadCaseBase>));
+            _freedomCases = (UniqueNameCollection<FreedomCase>)info.GetValue("FreedomCases", typeof(UniqueNameCollection<FreedomCase>));
+            _combinations = (UniqueNameCollection<Combination>)info.GetValue("Combinations", typeof(UniqueNameCollection<Combination>));
+            _stageCombinationsMap = (Dictionary<int, HashSet<string>>)info.GetValue("StageCombinationsMap", typeof(Dictionary<int, HashSet<string>>));
+            _groups = (GroupCollection)info.GetValue("Groups", typeof(GroupCollection));
+            _stages = (UniqueIdCollection<Stage>)info.GetValue("Stages", typeof(UniqueIdCollection<Stage>));
+            _modelAttributes = (List<IModelAttribute>)info.GetValue("ModelAttributes", typeof(List<IModelAttribute>));
+            _analysisType = (AnalysisTypes)info.GetValue("AnalysisTypes", typeof(AnalysisTypes));
         }
 
         #endregion
@@ -167,7 +185,6 @@ namespace GPC.Model.FEM
         #region Methods
 
         #region Add Get Attributes
-
 
         #region Element Properties
 
@@ -232,7 +249,6 @@ namespace GPC.Model.FEM
 
         #endregion
 
-
         #region LoadCase / FredomCase
 
         /// <inheritdoc cref="UniqueNameCollection{T}.Add(T)"/>
@@ -262,8 +278,12 @@ namespace GPC.Model.FEM
             return _freedomCases.GetElementByName(freedomCaseName);
         }
 
-        #endregion
+        public LoadCaseBase[] GetLoadCases()
+        {
+            return _loadCases.ToArray();
+        }
 
+        #endregion
 
         #region Combinations
 
@@ -290,8 +310,92 @@ namespace GPC.Model.FEM
         {
             return _stageCombinationsMap[stageId].Remove(combinationName);
         }
+
+        public Combination[] GetCombinations()
+        {
+            return _combinations.ToArray();
+        }
+
         #endregion
 
+        #region Groups
+        
+        public Group AddGroup(string name)
+        {
+            if (string.IsNullOrWhiteSpace(name) || string.IsNullOrEmpty(name))
+                throw new ArgumentException($"'{nameof(name)}' cannot be null or whitespace.", nameof(name));
+
+            Group group = new Group(name);
+
+            if (_groups.Add(group))
+                return group;
+            else
+                return _groups.GetElementByName(name);
+        }
+        
+        public bool SetGroup(IEnumerable<FEMObject> elements, string groupName)
+        {
+            if (elements is null)
+                throw new ArgumentNullException(nameof(elements));
+
+
+            if (string.IsNullOrEmpty(groupName) || string.IsNullOrEmpty(groupName))
+                throw new ArgumentException($"'{nameof(groupName)}' cannot be null or empty.", nameof(groupName));
+
+
+            var group = _groups.GetElementByName(groupName);
+
+            //Func<FEMObject, Group, bool> add = (obj, group) => obj.AddGroup(group);
+
+            foreach (FEMObject element in elements)
+            {
+                if (element is null)
+                    return false;
+
+                if (!element.AddGroup(group))
+                    return false;
+            }
+
+            return true;
+        }
+
+        public bool SetGroupRange(IEnumerable<FEMObject> elements, IEnumerable<string> groupNames)
+        {
+            if (elements is null)
+                throw new ArgumentNullException(nameof(elements));
+
+            if (groupNames is null)
+                throw new ArgumentNullException(nameof(groupNames));
+
+
+            foreach (var names in groupNames)
+            {
+                if (string.IsNullOrEmpty(names) || string.IsNullOrEmpty(names))
+                    throw new ArgumentException($"'{nameof(names)}' cannot be null or empty.", nameof(names));
+
+
+                Group group = _groups.GetElementByName(names);
+
+                foreach (FEMObject element in elements)
+                {
+                    if (element is null)
+                        return false;
+
+                    if (!element.AddGroup(group))
+                        return false;
+                }
+            }
+
+            return true;
+        }
+
+        public Group[] GetGroups()
+        {
+            return _groups.ToArray();
+        }
+
+
+        #endregion
 
         #region Stages
 
@@ -301,8 +405,11 @@ namespace GPC.Model.FEM
         public virtual Stage AddStage(string name, AnalysisTypes analysisType, bool morph = false)
         {
             Stage stage = new Stage(name, this, analysisType, morph, null);
-            _stages.Add(stage);
-            return stage;
+            if (_stages.Add(stage))
+            {
+                return stage;
+            }
+            return null;
         }
 
         /// <summary>
@@ -356,7 +463,6 @@ namespace GPC.Model.FEM
 
         #endregion
 
-
         #region ModelAttribute
 
         /// <summary>Create the a ModelAccelerationAttribute using the loadcase with name equal to <paramref name="loadCaseName"/></summary>
@@ -382,7 +488,6 @@ namespace GPC.Model.FEM
         } 
 
         #endregion
-
 
         #endregion
 
@@ -461,15 +566,21 @@ namespace GPC.Model.FEM
         /// <param name="id"></param>
         /// <returns></returns>
         /// <inheritdoc cref="FemObjectCollection{T}.GetElementById(int)"/>
-        public virtual FiniteElement GetFiniteElement(int id)
+        public FiniteElement GetFiniteElement(int id)
         {
             return _elements[id];
         }
 
 
-        public virtual IEnumerator<FiniteElement> GetElementsEnumerator()
+        public IEnumerator<FiniteElement> GetElementsEnumerator()
         {
             return _elements.GetEnumerator();
+        }
+
+
+        public FiniteElement[] GetElements()
+        {
+            return _elements.ToArray();
         }
 
 
@@ -541,6 +652,11 @@ namespace GPC.Model.FEM
         public virtual IEnumerator<Node> GetNodesEnumerator()
         {
             return _nodes.GetEnumerator();
+        }
+
+        public Node[] GetNodes()
+        {
+            return _nodes.ToArray();
         }
 
 
@@ -853,15 +969,17 @@ namespace GPC.Model.FEM
         /// <param name="vertexLineLoadMeshEntityMap">Map between <see cref="ILineLoad"/> and <see cref="MeshVertex"/>.Id</param>
         /// <param name="plateLoadMeshEntityMap">Map between <see cref="IAreaLoad"/> and <see cref="MeshFace"/>.Id</param>
         /// <param name="restrainMeshEntityMap">Map between IGeometryRestrain and <see cref="MeshVertex"/>.Id</param>
+        /// <param name="groupName"></param>
         /// <exception cref="KeyNotFoundException">If a <see cref="MeshVertex"/>.Id of <paramref name="restrainMeshEntityMap"/> is not found in the <paramref name="mesh"/> vertices ids</exception>
         /// <remarks>The instances of <see cref="LoadCaseBase"/> and <see cref="FreedomCase"/> will be replaced with the one in the <see cref="FemModel._loadCases"/> and <see cref="FemModel._freedomCases"/>  </remarks>
         public virtual bool AddMesh(Mesh mesh, string platePropertyName, string brickPropertyName,
                             Dictionary<IPointLoad, int[]> vertexLoadMeshEntityMap,
                             Dictionary<ILineLoad, int[]> vertexLineLoadMeshEntityMap,
                             Dictionary<IAreaLoad, int[]> plateLoadMeshEntityMap,
-                            Dictionary<GeometryRestrain, int[]> restrainMeshEntityMap)
+                            Dictionary<GeometryRestrain, int[]> restrainMeshEntityMap,
+                            string groupName = "")
         {
-            return AddMesh(mesh, platePropertyName, brickPropertyName, vertexLoadMeshEntityMap, vertexLineLoadMeshEntityMap, plateLoadMeshEntityMap, restrainMeshEntityMap, out _, out _, out _);
+            return AddMesh(mesh, platePropertyName, brickPropertyName, vertexLoadMeshEntityMap, vertexLineLoadMeshEntityMap, plateLoadMeshEntityMap, restrainMeshEntityMap, out _, out _, out _, groupName);
         }
 
         /// <summary>
@@ -877,6 +995,7 @@ namespace GPC.Model.FEM
         /// <param name="nodesNewIndexMap">A map between the <see cref="MeshVertex"/>.Id of <paramref name="mesh"/> and the id of the same nodes in the femModel</param>
         /// <param name="platesNewIndexMap">A map between the <see cref="MeshFace"/>.Id of <paramref name="mesh"/> and the id of the same plate in the femModel</param>
         /// <param name="brickNewIndexMap">A map between the <see cref="MeshVolume"/>.Id of <paramref name="mesh"/> and the id of the same brick in the femModel</param>
+        /// <param name="groupName"></param>
         /// <exception cref="KeyNotFoundException">If a <see cref="MeshVertex"/>.Id of <paramref name="restrainMeshEntityMap"/> is not found in the <paramref name="mesh"/> vertices ids</exception>
         /// <remarks>The instances of <see cref="LoadCaseBase"/> and <see cref="FreedomCase"/> will be replaced with the one in the <see cref="FemModel._loadCases"/> and <see cref="FemModel._freedomCases"/>  </remarks>
         public virtual bool AddMesh(Mesh mesh, string platePropertyName, string brickPropertyName, 
@@ -886,7 +1005,8 @@ namespace GPC.Model.FEM
                             Dictionary<GeometryRestrain, int[]> restrainMeshEntityMap,
                             out Dictionary<int, int> nodesNewIndexMap,
                             out Dictionary<int, int> platesNewIndexMap,
-                            out Dictionary<int, int> brickNewIndexMap)
+                            out Dictionary<int, int> brickNewIndexMap,
+                            string groupName = "")
         {            
 
             nodesNewIndexMap = new Dictionary<int, int>(); // Mappa tra indici dei nodi dentro _nodes e indici dei vertici della mesh nel caso esistano già dentro _nodes.
@@ -898,6 +1018,12 @@ namespace GPC.Model.FEM
 
             IPlateProperty plateProperty = null;
             BrickProperty brickProperty = null;
+
+            Group group = null;
+
+            // Gruppi
+            if (!string.IsNullOrEmpty(groupName) && !string.IsNullOrWhiteSpace(groupName))
+                group = AddGroup(groupName);
 
             // Aggiorno la lista proprietà
             if (mesh.Faces.Count != 0)
@@ -913,13 +1039,23 @@ namespace GPC.Model.FEM
             // Aggiunge nodi alla collection di nodi
             using (var enumerator = mesh.GetVerticesEnumerator())
             {
-                for (int i = 0; i < mesh.VerticesCount; i++)
+                if (group != null)
                 {
-                    enumerator.MoveNext();
+                    for (int i = 0; i < mesh.VerticesCount; i++)
+                    {
+                        enumerator.MoveNext();
+                        nodesNewIndexMap[enumerator.Current.Id] = _nodes.Add(new Node(enumerator.Current.Point, group));
 
-                    int nodeIndex = _nodes.Add(new Node(enumerator.Current.Point));
+                    }
+                }
+                else
+                {
+                    for (int i = 0; i < mesh.VerticesCount; i++)
+                    {
+                        enumerator.MoveNext();
+                        nodesNewIndexMap[enumerator.Current.Id] = _nodes.Add(new Node(enumerator.Current.Point));
 
-                    nodesNewIndexMap[enumerator.Current.Id] = nodeIndex;
+                    }
                 }
             }
 
@@ -928,7 +1064,7 @@ namespace GPC.Model.FEM
             var faces = mesh.Faces.ToArray();
             for (int i = 0; i < mesh.Faces.Count; i++)
             {
-                if (plateProperty is IPlateProperty ipp)
+                if (plateProperty is IPlateProperty)
                 {
                     var face = faces[i];
 
@@ -939,16 +1075,13 @@ namespace GPC.Model.FEM
                                                            _nodes[nodesNewIndexMap[face.C]],
                                                            _nodes[nodesNewIndexMap[face.D]]}
                                                        );
-
+                        if (group != null)
+                            plate.AddGroup(group);
                         plate.SetProperty((ElementProperty)plateProperty);
 
                         var plateIndex = _elements.Add(plate);
                         platesNewIndexMap[face.Id] = plateIndex;
 
-                        //elementIndexes.platesId[i] = plateIndex;
-
-                        //if (plateIndex != face.Id) // Se sono diversi vuol dire che esisteva già l'indice element .iD e la collection l'ha modificato
-                        //    platesNewIndexMap[face.Id] = plateIndex;
                     }
                     else
                     {
@@ -956,16 +1089,13 @@ namespace GPC.Model.FEM
                                                            _nodes[nodesNewIndexMap[face.B]],
                                                            _nodes[nodesNewIndexMap[face.C]]}
                                                        );
-
+                        if (group != null)
+                            plate.AddGroup(group);
                         plate.SetProperty((ElementProperty)plateProperty);
 
                         var plateIndex = _elements.Add(plate);
                         platesNewIndexMap[face.Id] = plateIndex;
 
-                        //elementIndexes.platesId[i] = plateIndex;
-
-                        //if (plateIndex != face.Id) // Se sono diversi vuol dire che esisteva già l'indice element .iD e la collection l'ha modificato
-                        //    platesNewIndexMap[face.Id] = plateIndex;
                     }
                 }
                 else
@@ -995,14 +1125,14 @@ namespace GPC.Model.FEM
                                                            _nodes[nodesNewIndexMap[volume.H]]}
                                                        );
 
+                        if (group != null)
+                            brick.AddGroup(group);
+
                         brick.SetProperty(bp);
 
                         var brickIndex = _elements.Add(brick);
                         brickNewIndexMap[volume.Id] = brickIndex;
-                        //elementIndexes.volumesId[i] = brickIndex;
 
-                        //if (brickIndex != volume.Id) // Se sono diversi vuol dire che esisteva già l'indice element .iD e la collection l'ha modificato
-                        //    brickNewIndexMap[volume.Id] = brickIndex;
                     }
                     else
                         throw new NotImplementedException();
@@ -1019,15 +1149,14 @@ namespace GPC.Model.FEM
                                                            _nodes[nodesNewIndexMap[volume.F]]}
                                                        );
 
+                        if (group != null)
+                            brick.AddGroup(group);
+
                         brick.SetProperty(bp);
 
                         var brickIndex = _elements.Add(brick);
                         brickNewIndexMap[volume.Id] = brickIndex;
 
-                        //elementIndexes.volumesId[i] = brickIndex;
-
-                        //if (brickIndex != volume.Id) // Se sono diversi vuol dire che esisteva già l'indice element .iD e la collection l'ha modificato
-                        //    brickNewIndexMap[volume.Id] = brickIndex;
                     }
                     else
                         throw new NotImplementedException();
@@ -1043,9 +1172,9 @@ namespace GPC.Model.FEM
                     GeometryRestrain geometryRestrain = kvp.Key;
                     int[] indexes = kvp.Value;
 
-                    Dictionary<LinearSolver.DOF, bool> restrains = geometryRestrain.GetRestrains();
-                    Dictionary<LinearSolver.DOF, double> stiffneses = geometryRestrain.GetStiffnesses();
-                    Dictionary<LinearSolver.DOF, double> displacements = geometryRestrain.GetImposedDisplacement();
+                    Dictionary<Solver.DOF, bool> restrains = geometryRestrain.GetRestrains();
+                    Dictionary<Solver.DOF, double> stiffneses = geometryRestrain.GetStiffnesses();
+                    Dictionary<Solver.DOF, double> displacements = geometryRestrain.GetImposedDisplacement();
 
 
                     FreedomCase freedomCase;
@@ -1325,6 +1454,10 @@ namespace GPC.Model.FEM
             return _freedomCases.Contains(freedomCaseName);
         }
 
+        public bool GroupExist(string name)
+        {
+            return _groups.Contains(name);
+        }
 
         #endregion
 
@@ -1347,24 +1480,39 @@ namespace GPC.Model.FEM
         #region Results
 
         /// <returns>The results related to <paramref name="combination"/></returns>
-        public IEnumerable<NodeResult> GetCombinationNodeDisplacementResults(Combination combination)
+        public IEnumerable<NodeResult> GetCombinationNodeDisplacementResults(Combination combination, string groupName = "")
         {
-            return _nodes.SelectMany(i => i.Results.Where(j => j.Case.Equals(combination) && j.Result is ResultDisplacement));
+
+            if (!string.IsNullOrEmpty(groupName))
+            {
+                var group = _groups.GetElementByName(groupName); 
+                return _nodes.SelectMany(i => i.Results.Where(j => i.ContainsGroup(group) && j.Case.Equals(combination) && j.Result is ResultDisplacement));
+            }
+            else
+            {
+                return _nodes.SelectMany(i => i.Results.Where(j => j.Case.Equals(combination) && j.Result is ResultDisplacement));
+            }
         }
 
 
         /// <returns>The results related to <paramref name="combination"/></returns>
-        public IEnumerable<FiniteElementResult> GetCombinationElementStressResults(Combination combination)
+        public IEnumerable<FiniteElementResult> GetCombinationElementStressResults(Combination combination, string groupName = "")
         {
-            return _elements.SelectMany(i => i.Results.Where(k => k.Case.Equals(combination) && k.Results.Where(m => m != null).First() is ResultStress));
+            if (!string.IsNullOrEmpty(groupName))
+            {
+                var group = _groups.GetElementByName(groupName);
+                return _elements.SelectMany(i => i.Results.Where(k => i.ContainsGroup(group) && k.Case.Equals(combination) && k.Results.Where(m => m != null).First() is ResultStress));
+            }
+            else
+            {
+                return _elements.SelectMany(i => i.Results.Where(k => k.Case.Equals(combination) && k.Results.Where(m => m != null).First() is ResultStress));
+            }
         }
 
 
         #endregion
 
         #endregion
-
-
 
         #region Equals - HashCode - Operators
 
@@ -1372,30 +1520,76 @@ namespace GPC.Model.FEM
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             base.GetObjectData(info, context);
-            throw new NotImplementedException();
+
+            info.AddValue("Nodes", _nodes);
+            info.AddValue("Elements", _elements);
+            info.AddValue("Costrains", _costrains);
+            info.AddValue("PlateProperties", _plateProperties);
+            info.AddValue("BrickProperties", _brickProperties);
+            info.AddValue("LoadCaseBases", _loadCases);
+            info.AddValue("FreedomCases", _freedomCases);
+            info.AddValue("Combinations", _combinations);
+            info.AddValue("StageCombinationsMap", _stageCombinationsMap);
+            info.AddValue("Stages", _stages);
+            info.AddValue("ModelAttributes", _modelAttributes);
+            info.AddValue("AnalysisTypes", _analysisType);
+
+        }
+
+
+
+        public override int GetHashCode()
+        {
+            unchecked
+            {
+                int hashCode = -391 + base.GetHashCode();
+
+                hashCode = hashCode * -17 + _nodes.GetHashCode();
+                hashCode = hashCode * -17 + _elements.GetHashCode();
+                hashCode = hashCode * -17 + _costrains.GetHashCode();
+                hashCode = hashCode * -17 + _plateProperties.GetHashCode();
+                hashCode = hashCode * -17 + _brickProperties.GetHashCode();
+                hashCode = hashCode * -17 + _loadCases.GetHashCode();
+                hashCode = hashCode * -17 + _freedomCases.GetHashCode();
+                hashCode = hashCode * -17 + _combinations.GetHashCode();
+                hashCode = hashCode * -17 + _stageCombinationsMap.GetHashCode();
+                hashCode = hashCode * -17 + _groups.GetHashCode();
+                hashCode = hashCode * -17 + _stages.GetHashCode();
+                hashCode = hashCode * -17 + _modelAttributes.GetHashCode();
+                hashCode = hashCode * -17 + _analysisType.GetHashCode();
+
+                return hashCode;
+            }
         }
 
 
         public override bool Equals(object obj)
         {
-            throw new NotImplementedException();
-            return obj is FemModel model &&
-                   base.Equals(obj);
+            return obj is FemModel model && _nodes.Equals(model._nodes)
+                                         && _elements.Equals(model._elements)
+                                         && _costrains.Equals(model._costrains)
+                                         && _plateProperties.Equals(model._plateProperties)
+                                         && _brickProperties.Equals(model._brickProperties)
+                                         && _loadCases.Equals(model._loadCases)
+                                         && _freedomCases.Equals(model._freedomCases)
+                                         && _combinations.Equals(model._combinations)
+                                         && _stageCombinationsMap.Equals(model._stageCombinationsMap)
+                                         && _groups.Equals(model._groups)
+                                         && _stages.Equals(model._stages)
+                                         && _modelAttributes.Equals(model._modelAttributes)
+                                         && _analysisType.Equals(model._analysisType)
+                                         && base.Equals(obj);
         }
-
-
-        public override int GetHashCode()
-        {
-            int hashCode = -23;
-            throw new NotImplementedException();
-            return hashCode;
-        }
-
 
         public static bool operator ==(FemModel obj1, FemModel obj2)
         {
-            if (obj1 is null || obj2 is null)
-                return false;
+            if (obj1 is null)
+            {
+                return obj2 is null;
+            }
+
+            if (ReferenceEquals(obj1, obj2))
+                return true;
 
             return obj1.Equals(obj2);
         }

@@ -285,7 +285,7 @@ namespace GeneralTest
         public void DofRestrainEqualsAndHashCode()
         {
             DofRestrain dr1 = new DofRestrain(Solver.DOF.DX, 0.5);
-            DofRestrain dr2 = new DofRestrain(Solver.DOF.DZ, true);
+            DofRestrain dr2 = new DofRestrain(Solver.DOF.DZ);
             DofRestrain dr3 = new DofRestrain(Solver.DOF.DX, 0.5);
 
             Assert.IsFalse(dr1.Equals(dr2));

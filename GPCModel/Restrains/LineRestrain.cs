@@ -11,7 +11,7 @@ namespace GPC.Model.Restrains
     {
         #region Variables
 
-        private Line3d _line;
+        private readonly Line3d _line;
 
         #endregion
 
@@ -24,12 +24,6 @@ namespace GPC.Model.Restrains
         #region Public Constructors
 
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="line"></param>
-        /// <param name="freedomCase"></param>
-        /// <param name="restrains"></param>
         /// <remarks><see cref="GeometryRestrain.CoordinateSystem"/> set to Global</remarks>
         public LineRestrain(Line3d line, FreedomCase freedomCase, List<DofRestrain> restrains)
             : this(line, freedomCase, CoordinateSystem.Global, restrains, Guid.NewGuid(), string.Empty)
@@ -52,17 +46,13 @@ namespace GPC.Model.Restrains
         /// <summary>
         /// Set all the <see cref="Solver.DOF"/> to restrained for the given line and freedomcase
         /// </summary>
-        /// <param name="line"></param>
-        /// <param name="freedomCase"></param>
-        /// <param name="coordinateSystem"></param>
-        /// <returns></returns>
         public static LineRestrain GetAllFixed(Line3d line, FreedomCase freedomCase, CoordinateSystem coordinateSystem)
         {
             List<DofRestrain> restrains = new List<DofRestrain>();
 
             foreach (var dof in (Solver.DOF[])Enum.GetValues(typeof(Solver.DOF)))
             {
-                restrains.Add(new DofRestrain(dof, true));
+                restrains.Add(new DofRestrain(dof));
             }
 
             return new LineRestrain(line, freedomCase, coordinateSystem, restrains);
@@ -71,19 +61,15 @@ namespace GPC.Model.Restrains
         /// <summary>
         /// Set <see cref="Solver.DOF.DX"/> <see cref="Solver.DOF.DX"/>, <see cref="Solver.DOF.DY"/> and <see cref="Solver.DOF.DZ"/> to restrained for the given line and freedomcase
         /// </summary>
-        /// <param name="line"></param>
-        /// <param name="freedomCase"></param>
-        /// <param name="coordinateSystem"></param>
-        /// <returns></returns>
         public static LineRestrain GetAllDisplacementFixed(Line3d line, FreedomCase freedomCase, CoordinateSystem coordinateSystem)
         {
-            List<DofRestrain> restrains = new List<DofRestrain>();
-
-            restrains.Add(new DofRestrain(Solver.DOF.DX, true));
-            restrains.Add(new DofRestrain(Solver.DOF.DY, true));
-            restrains.Add(new DofRestrain(Solver.DOF.DZ, true));
-
-            return new LineRestrain(line, freedomCase, coordinateSystem, restrains);
+            return new LineRestrain(line, freedomCase, coordinateSystem, new List<DofRestrain>
+                        {
+                            new DofRestrain(Solver.DOF.DX),
+                            new DofRestrain(Solver.DOF.DY),
+                            new DofRestrain(Solver.DOF.DZ)
+                        }
+            );
         }
 
         public LineRestrain(SerializationInfo info, StreamingContext context)
@@ -104,6 +90,48 @@ namespace GPC.Model.Restrains
             base.GetObjectData(info, context);
             info.AddValue("Line", _line);
         }
+
+
+
+        #region Equals, hashcode, operators
+
+
+        public override bool Equals(object obj)
+        {
+            if (obj is null)
+                return false;
+
+            if (ReferenceEquals(this, obj))
+                return true;
+
+            return (obj is LineRestrain objCasted) && _line.Equals(objCasted.Line) && base.Equals(objCasted);
+        }
+
+        public override int GetHashCode()
+        {
+            unchecked
+            {
+                return (-391 + base.GetHashCode()) * -17 + _line.GetHashCode();
+            }
+        }
+
+        public static bool operator ==(LineRestrain obj1, LineRestrain obj2)
+        {
+            if (obj1 is null)
+            {
+                return obj2 is null;
+            }
+
+            return obj1.Equals(obj2);
+        }
+
+
+        public static bool operator !=(LineRestrain obj1, LineRestrain obj2)
+        {
+            return !(obj1 == obj2);
+        }
+
+        #endregion
 
     }
 }

@@ -1,6 +1,6 @@
 ﻿using System;
+using System.Runtime.Serialization;
 using GPC.Model.FEM.FiniteElements;
-using static GPC.Model.FEM.Stage;
 
 namespace GPC.Model.FEM.Collections
 {
@@ -9,11 +9,22 @@ namespace GPC.Model.FEM.Collections
     /// </summary>
     /// <remarks>This should be accessed only from the class <see cref="Stage"/> since it does not implement any check on the element duplicates</remarks>
     /// <remarks>The collection is thread-safe</remarks>
-    public class FiniteElementStageCollection<T, D> : FemObjectStageCollection<FiniteElement, Stage.StageFiniteElementProperty>
+    [Serializable]
+    public class FiniteElementStageCollection<T, D> : FemObjectStageCollection<FiniteElement, Stage.StageFiniteElementProperty>, ISerializable
     {
-        public FiniteElementStageCollection() : base()
+
+        public FiniteElementStageCollection() 
+            : base()
         {
+
         }
+
+        public FiniteElementStageCollection(SerializationInfo info, StreamingContext context) 
+            : base(info, context)
+        {
+
+        }
+
 
 
         /// <inheritdoc cref="FemObjectStageCollection{T, D}.Add(T, D)"/>
@@ -36,7 +47,7 @@ namespace GPC.Model.FEM.Collections
             if (item is null)
                 throw new ArgumentNullException();
 
-            StageFiniteElementProperty sp = new StageFiniteElementProperty(item.Property.Name);
+            Stage.StageFiniteElementProperty sp = new Stage.StageFiniteElementProperty(item.Property.Name);
 
             sp.AddLoadCaseAttributes(item.AttributesLoadCase);
             sp.AddFreedomCaseAttributes(item.AttributesFreedomCase);
@@ -54,5 +65,44 @@ namespace GPC.Model.FEM.Collections
             return base.SetStageProperty(item, stageFiniteElementProperty);
         }
 
+
+
+        #region Equals - HashCode - Operators
+
+        public override bool Equals(object obj)
+        {
+            lock (_locker)
+            {
+                return obj is FiniteElementStageCollection<T, D> collection && base.Equals(obj);
+            }
+        }
+
+        public override int GetHashCode()
+        {
+            lock (_locker)
+            {
+                return base.GetHashCode();
+            }
+        }
+
+        public static bool operator ==(FiniteElementStageCollection<T, D> obj1, FiniteElementStageCollection<T, D> obj2)
+        {
+            if (obj1 is null)
+            {
+                return obj2 is null;
+            }
+
+            if (ReferenceEquals(obj1, obj2))
+                return true;
+
+            return obj1.Equals(obj2);
+        }
+
+        public static bool operator !=(FiniteElementStageCollection<T, D> obj1, FiniteElementStageCollection<T, D> obj2)
+        {
+            return !(obj1 == obj2);
+        }
+
+        #endregion Equals - HashCode - Operators
     }
 }

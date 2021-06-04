@@ -7,6 +7,7 @@ using GPC.Utilities.Units;
 
 namespace GPC.Model
 {
+    [Serializable]
     public class UnitsSystem
     {
         public UnitsConvert.LengthUnits LengthUnits { get; private set; }

@@ -19,7 +19,13 @@ namespace GPC.Model.Results
 
 
         public FiniteElementResult(ILoadCase Case, CoordinateSystem coordinateSystem, IEnumerable<ResultType> result, IEnumerable<ResultLocationId> points)
-            : base(Case, coordinateSystem)
+            : this(Case, coordinateSystem, result, points, ModelObjectId.IDUNASSIGNED)
+        {
+
+        }
+
+        public FiniteElementResult(ILoadCase Case, CoordinateSystem coordinateSystem, IEnumerable<ResultType> result, IEnumerable<ResultLocationId> points, int stageId, string name = "")
+            : base(Case, coordinateSystem, stageId, name)
         {
 
             if (result.Count() != points.Count())
@@ -36,6 +42,20 @@ namespace GPC.Model.Results
             _points = points.ToArray();
         }
 
+        public FiniteElementResult(SerializationInfo info, StreamingContext context)
+            : base(info, context)
+        {
+            _results = (ResultType[])info.GetValue("ResultType", typeof(ResultType[]));
+            _points = (ResultLocationId[])info.GetValue("ResultLocationId", typeof(ResultLocationId[]));
+        }
+
+
+        public override void GetObjectData(SerializationInfo info, StreamingContext context)
+        {
+            base.GetObjectData(info, context);
+            info.AddValue("ResultType", _results);
+            info.AddValue("ResultLocationId", _points);
+        }
 
     }
 }

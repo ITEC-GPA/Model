@@ -13,48 +13,53 @@ namespace GPC.Model.FEM.Properties
     [Serializable]
     public sealed class InterlayerBrickProperty : BrickProperty, IGlassProperty, IEquatable<InterlayerBrickProperty>, ISerializable
     {
-        private double _temperature;
+        private readonly double _temperature;
 
-        private double _loadDuration;
+        private readonly double _loadDuration;
 
         public double Temperature => _temperature;
 
         public double LoadDuration => _loadDuration;
 
+
         public InterlayerBrickProperty(FemMaterial material, double temperature, double loadDuration, string name) 
             : base(material, name)
         {
-            this._temperature = temperature > 0 ? temperature : throw new ArgumentException("Temperature can not be lower or equal to zero");
-            this._loadDuration = loadDuration > 0 ? loadDuration : throw new ArgumentException("Temperature can not be lower or equal to zero");
+            _temperature = temperature > 0 ? temperature : throw new ArgumentException("Temperature can not be lower or equal to zero");
+            _loadDuration = loadDuration > 0 ? loadDuration : throw new ArgumentException("Temperature can not be lower or equal to zero");
         }
 
+        public InterlayerBrickProperty(SerializationInfo info, StreamingContext context) : base (info, context)
+        {
+            _temperature = (double)info.GetValue("Temperature", typeof(double));
+            _loadDuration = (double)info.GetValue("LoadDuration", typeof(double));
+        }
 
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             base.GetObjectData(info, context);
-            throw new NotImplementedException();
+            info.AddValue("Temperature", _temperature);
+            info.AddValue("LoadDuration", _loadDuration);
         }
-
 
 
         #region Equals - Hashcode - Operators
 
         public bool Equals(InterlayerBrickProperty other)
         {
+            if (other is null)
+                return false;
+
             if (ReferenceEquals(this, other))
                 return true;
 
-            return !(other is null) && _temperature.Equals(other._temperature)
-                                    && _loadDuration.Equals(other._loadDuration) 
+            return  _temperature.Equals(other._temperature) && _loadDuration.Equals(other._loadDuration) 
                                     && base.Equals(other);
         }
 
         public override bool Equals(object obj)
         {
-            if (ReferenceEquals(this, obj))
-                return true;
-
-            return Equals(obj as InterlayerBrickProperty);
+            return obj is Group group && Equals(group);
         }
 
         public override int GetHashCode()
@@ -68,11 +73,13 @@ namespace GPC.Model.FEM.Properties
 
         public static bool operator ==(InterlayerBrickProperty obj1, InterlayerBrickProperty obj2)
         {
+            if (obj1 is null)
+            {
+                return obj2 is null;
+            }
+
             if (ReferenceEquals(obj1, obj2))
                 return true;
-
-            if (obj1 is null || obj2 is null)
-                return false;
 
             return obj1.Equals(obj2);
         }

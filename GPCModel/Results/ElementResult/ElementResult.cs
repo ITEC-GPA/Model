@@ -30,7 +30,7 @@ namespace GPC.Model.Results
         /// <param name="Case">The case where these results are reffered </param>
         /// <param name="coordinateSystem">Coordinate system where these result are provided</param>
         public ElementResult(ILoadCase Case, CoordinateSystem coordinateSystem)
-            : this(Case, coordinateSystem, -1)
+            : this(Case, coordinateSystem, ModelObjectId.IDUNASSIGNED)
         {
 
         }
@@ -38,12 +38,31 @@ namespace GPC.Model.Results
         /// <param name="Case">The case where these results are reffered </param>
         /// <param name="coordinateSystem">Coordinate system where these result are provided</param>
         /// <param name="stageId"></param>
-        public ElementResult(ILoadCase Case, CoordinateSystem coordinateSystem, int stageId)
-            : base()
+        /// <param name="name"></param>
+        public ElementResult(ILoadCase Case, CoordinateSystem coordinateSystem, int stageId, string name = "")
+            : base(name)
         {
             _case = Case ?? throw new ArgumentNullException(nameof(Case));
             _coordinateSystem = coordinateSystem ?? throw new ArgumentNullException(nameof(coordinateSystem));
             _stageId = stageId;
+        }
+
+
+        public ElementResult(SerializationInfo info, StreamingContext context)
+            : base(info, context)
+        {
+            _case = (ILoadCase)info.GetValue("Case", typeof(ILoadCase));
+            _stageId = (int)info.GetValue("StageId", typeof(int));
+            _coordinateSystem = (CoordinateSystem)info.GetValue("CoordinateSystem", typeof(CoordinateSystem));
+        }
+
+
+        public override void GetObjectData(SerializationInfo info, StreamingContext context)
+        {
+            base.GetObjectData(info, context);
+            info.AddValue("Case", _case);
+            info.AddValue("StageId", _stageId);
+            info.AddValue("CoordinateSystem", _coordinateSystem);
         }
 
 
