@@ -435,6 +435,7 @@ namespace FemTest.SolverTest
             nodes[2].AddAttribute(fNode);
 
             NodeRestrainAttribute fix = new NodeRestrainAttribute("freedomCase", sys);
+            fix.AddExternalRestrain(Solver.DOF.DX);
             fix.AddExternalRestrain(Solver.DOF.DY);
             fix.AddExternalRestrain(Solver.DOF.DZ);
             fix.AddExternalRestrain(Solver.DOF.RX);
@@ -447,6 +448,7 @@ namespace FemTest.SolverTest
             LinearSolver fem0 = new LinearSolver(new FiniteElement[] { e0 });
 
             Console.WriteLine("Tripled = " + fem0.GetNodeDisplacementGlobalCoordinates(nodes[1], Solver.DOF.DZ));
+            Assert.AreEqual(1.590, fem0.GetNodeDisplacementGlobalCoordinates(nodes[1], Solver.DOF.DZ), 1e-3);
         }
 
         /// <summary>
@@ -469,7 +471,7 @@ namespace FemTest.SolverTest
             double EGlass = 12.0;
             double niGlass = 0.0;
             //double G0 = 1e10;
-            double G0 = EGlass / (2.0 * (1.0 + niGlass));
+            double G0 = 0.0; // EGlass / (2.0 * (1.0 + niGlass));
             //double G0 = 1e-6;
             double h0 = 0.01;
 
@@ -485,12 +487,12 @@ namespace FemTest.SolverTest
             nodes[2].AddAttribute(fNode);
 
             NodeRestrainAttribute fix = new NodeRestrainAttribute("freedomCase", sys);
-            //fix.AddExternalRestrain(Solver.DOF.DX);
+            fix.AddExternalRestrain(Solver.DOF.DX);
             fix.AddExternalRestrain(Solver.DOF.DY);
-            //fix.AddExternalRestrain(Solver.DOF.DZ);
-            //fix.AddExternalRestrain(Solver.DOF.RX);
-            //fix.AddExternalRestrain(Solver.DOF.RY);
-            //fix.AddExternalRestrain(Solver.DOF.RZ);
+            fix.AddExternalRestrain(Solver.DOF.DZ);
+            fix.AddExternalRestrain(Solver.DOF.RX);
+            fix.AddExternalRestrain(Solver.DOF.RY);
+            fix.AddExternalRestrain(Solver.DOF.RZ);
 
             nodes[0].AddAttribute(fix);
             nodes[4].AddAttribute(fix);
