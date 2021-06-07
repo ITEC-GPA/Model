@@ -38,8 +38,6 @@ namespace GPC.Model.FEM.FiniteElements
         mnl.Matrix<double> _kGlass;
 
         mnl.Matrix<double> _kLocalUnordered;
-
-        double[] _length = new double[4];
         #endregion
 
         #region properties
@@ -105,11 +103,6 @@ namespace GPC.Model.FEM.FiniteElements
             Vector3d globalX = new Vector3d(1, 0, 0);
             Vector3d globalY = new Vector3d(0, 1, 0);
             Vector3d globalZ = new Vector3d(0, 0, 1);
-
-            _length[0] = _nodesLocal[0].Position.DistanceTo(_nodesLocal[1].Position);
-            _length[1] = _nodesLocal[1].Position.DistanceTo(_nodesLocal[2].Position);
-            _length[2] = _nodesLocal[2].Position.DistanceTo(_nodesLocal[3].Position);
-            _length[3] = _nodesLocal[3].Position.DistanceTo(_nodesLocal[0].Position);
 
             //calculation of matrix for transformation from Local to Global coordinates
             #region TransformationMatrixLocalCoordinatesToGlobalCoordinates
@@ -289,18 +282,6 @@ namespace GPC.Model.FEM.FiniteElements
 
                     var jacob = FEMUtilities.J2D(Quad4Element.GetdNdCsi, Quad4Element.GetdNdEta, _nodesLocal);
 
-                    /*mnl.Matrix<double> q = mnl.Matrix<double>.Build.Dense(2,1);
-                    q[0,0] = px;
-                    q[1,0] = py;
-                    q[2,0] = pz;*/
-
-                    /*mnl.Matrix<double> NtTraspQ(double csi, double eta)
-                    {
-                        return GetNMatrix(csi, eta).Transpose() * q;                                            
-                    }
-                    
-                    mnl.Matrix<double> fTLG = GaussIntegration.IntegrationQuadrilateral(NtTraspQ, jacob, 9);*/
-
                     #region DKT
                     mnl.Matrix<double> Np(double csi, double eta)
                     {
@@ -334,22 +315,6 @@ namespace GPC.Model.FEM.FiniteElements
         public override mnl.Matrix<double> GetB(double csi, double eta)
         {
             return mnl.Matrix<double>.Build.Dense(20, 20);
-        }
-
-        /// <summary>
-        /// eq. 53 and 54 computed for all nodes
-        /// </summary>
-        /// <returns></returns>
-        internal mnl.Matrix<double> GetNMatrix(double csi, double eta)
-        {
-            mnl.Matrix<double> N = mnl.Matrix<double>.Build.Dense(2, 0);
-            for (int indexNode = 1; indexNode <= 4; indexNode++)
-            {
-                mnl.Matrix<double> nNode = GetNiMatrix(indexNode, csi, eta);
-
-                N = N.Append(nNode);
-            }
-            return N;
         }
 
         /// <summary>
@@ -754,33 +719,12 @@ namespace GPC.Model.FEM.FiniteElements
 
         #region PrivateInternalFunctions
 
-        /// <summary>
-        /// Select in globalDisplacementsNodes the displacement of the node
-        /// </summary>
-        /// <param name="node"></param>
-        /// <param name="globalDisplacementsNodes"></param>
-        /// <returns></returns>
-        /*private mnl.Vector<double> GetDisplacementsNode(Node node, double[] globalDisplacementsNodes)
-        {
-            mnl.Vector<double> displPoint = mnl.Vector<double>.Build.Dense(6);
-            int indexNode = _nodesGlobal.ToList().IndexOf(node);
-            
-            int start = indexNode * 6;
-            int counter = 0;
-            for (int i = start; i < start + 6; i++)
-            {
-                displPoint[counter] = globalDisplacementsNodes[i];
-                counter++;
-            }
-            return displPoint;
-        }*/
-
 #region ShapeFunction
         /// <summary>
         /// Shape functions for this element
         /// </summary>
         /// <param name="indexNode">1 to 4</param>
-        /// <param name="indexDisplacement">1 to 6</param>
+        /// <param name="indexDisplacement">1 to 2</param>
         /// <returns></returns>
         internal Func<double, double, double> GetN(int indexNode, int indexDisplacement)
         {
@@ -789,113 +733,22 @@ namespace GPC.Model.FEM.FiniteElements
             int a = indexes[indexNode].Item1;
             int b = indexes[indexNode].Item2;
 
-            double lx, ly;
-            GetLxLy(indexNode, out lx, out ly);
-
             //equations (56 + equations (57)
             if ((indexDisplacement == 1 && indexNode == 1) || (indexDisplacement == 2 && indexNode == 1))
             {
-                //return (double x, double y) => (lx - x) * (ly - y) / (lx * ly);
                 return (double csi, double eta) => Quad4Element.GetShapeFunction(1, csi, eta);
             }
             else if ((indexDisplacement == 1 && indexNode == 2) || (indexDisplacement == 2 && indexNode == 2))
             {
-                //return (double x, double y) => x * (ly - y) / (lx * ly);
                 return (double csi, double eta) => Quad4Element.GetShapeFunction(2, csi, eta);
             }
             else if ((indexDisplacement == 1 && indexNode == 3) || (indexDisplacement == 2 && indexNode == 3))
             {
-                //return (double x, double y) => x * y / (lx * ly);
                 return (double csi, double eta) => Quad4Element.GetShapeFunction(3, csi, eta);
             }
             else if ((indexDisplacement == 1 && indexNode == 4) || (indexDisplacement == 2 && indexNode == 4))
             {
-                //return (double x, double y) => (lx - x) * y / (lx * ly);
                 return (double csi, double eta) => Quad4Element.GetShapeFunction(4, csi, eta);
-            }
-            else
-            {
-                throw new ArgumentOutOfRangeException();
-            }
-        }
-
-        /// <summary>
-        /// First derivative of shape function along x local axis
-        /// </summary>
-        /// <param name="indexNode">1 to 4</param>
-        /// <param name="indexDisplacement">1 to 6</param>
-        /// <returns></returns>
-        internal Func<double, double, double> GetdNdCsi(int indexNode, int indexDisplacement)
-        {
-            Dictionary<int, (int, int)> indexes = GetIndices();
-
-            int a = indexes[indexNode].Item1;
-            int b = indexes[indexNode].Item2;
-
-            double lx, ly;
-            GetLxLy(indexNode, out lx, out ly);
-
-            if ((indexDisplacement == 1 && indexNode == 1) || (indexDisplacement == 2 && indexNode == 1))
-            {
-                //return (double x, double y) => (y - ly) / (lx * ly);
-                return (double csi, double eta) => Quad4Element.GetdNdCsi(1, csi, eta);
-            }
-            else if ((indexDisplacement == 1 && indexNode == 2) || (indexDisplacement == 2 && indexNode == 2))
-            {
-                //return (double x, double y) => (ly - y) / (lx * ly);
-                return (double csi, double eta) => Quad4Element.GetdNdCsi(2, csi, eta);
-            }
-            else if ((indexDisplacement == 1 && indexNode == 3) || (indexDisplacement == 2 && indexNode == 3))
-            {
-                //return (double x, double y) => y / (lx * ly);
-                return (double csi, double eta) => Quad4Element.GetdNdCsi(3, csi, eta);
-            }
-            else if ((indexDisplacement == 1 && indexNode == 4) || (indexDisplacement == 2 && indexNode == 4))
-            {
-                //return (double x, double y) => -y / (lx * ly);
-                return (double csi, double eta) => Quad4Element.GetdNdCsi(4, csi, eta);
-            }
-            else
-            {
-                throw new ArgumentOutOfRangeException();
-            }
-        }
-
-        /// <summary>
-        /// First derivative of shape function along y local axis
-        /// </summary>
-        /// <param name="indexNode">1 to 4</param>
-        /// <param name="indexDisplacement">1 to 6</param>
-        /// <returns></returns>
-        internal Func<double, double, double> GetdNdEta(int indexNode, int indexDisplacement)
-        {
-            Dictionary<int, (int, int)> indexes = GetIndices();
-
-            int a = indexes[indexNode].Item1;
-            int b = indexes[indexNode].Item2;
-
-            double lx, ly;
-            GetLxLy(indexNode, out lx, out ly);
-
-            if ((indexDisplacement == 1 && indexNode == 1) || (indexDisplacement == 2 && indexNode == 1))
-            {
-                //return (double x, double y) => (x - lx) / (lx * ly);
-                return (double csi, double eta) => Quad4Element.GetdNdEta(1, csi, eta);
-            }
-            else if ((indexDisplacement == 1 && indexNode == 2) || (indexDisplacement == 2 && indexNode == 2))
-            {
-                //return (double x, double y) => -x / (lx * ly);
-                return (double csi, double eta) => Quad4Element.GetdNdEta(2, csi, eta);
-            }
-            else if ((indexDisplacement == 1 && indexNode == 3) || (indexDisplacement == 2 && indexNode == 3))
-            {
-                //return (double x, double y) => x / (lx * ly);
-                return (double csi, double eta) => Quad4Element.GetdNdEta(3, csi, eta);
-            }
-            else if ((indexDisplacement == 1 && indexNode == 4) || (indexDisplacement == 2 && indexNode == 4))
-            {
-                //return (double x, double y) => (lx - x) / (lx * ly);
-                return (double csi, double eta) => Quad4Element.GetdNdEta(4, csi, eta);
             }
             else
             {
@@ -914,29 +767,6 @@ namespace GPC.Model.FEM.FiniteElements
             return indexes;
         }
 #endregion
-
-        /// <summary>
-        /// equation 54
-        /// </summary>
-        /// <param name="indexNode"></param>
-        /// <param name="x"></param>
-        /// <param name="y"></param>
-        /// <returns></returns>
-        internal mnl.Matrix<double> GetNiMatrix(int indexNode, double csi, double eta)
-        {
-            mnl.Matrix<double> NiMatrix = mnl.Matrix<double>.Build.Dense(2, 2);
-            NiMatrix[0, 0] = GetN(indexNode, 1)(csi, eta);
-
-            NiMatrix[1, 1] = GetN(indexNode, 2)(csi, eta);
-
-            //TODO: per il calcolo del vettore noto occorre non avendo w bisogna fare con metodo "semplificato" stile elemento batoz per questa parte
-            /*NiMatrix[2, 2] = GetN(indexNode, 3)(x, y);
-            NiMatrix[2, 3] = GetN(indexNode, 4)(x, y);
-            NiMatrix[2, 4] = GetN(indexNode, 5)(x, y);
-            NiMatrix[2, 5] = GetN(indexNode, 6)(x, y);*/
-
-            return NiMatrix;
-        }
 
         /// <summary>
         /// equation 35 for a single node Bs = Ls * N with Ls derivative operator
@@ -1016,9 +846,6 @@ namespace GPC.Model.FEM.FiniteElements
         {
             /*double x = FEMUtilities.GetLocalCoordinate2D("x", csi, eta, Utilities.Fem.LinearShapeFunctionQuad4.NaturalShapeFunction, _nodesLocal);
             double y = FEMUtilities.GetLocalCoordinate2D("y", csi, eta, Utilities.Fem.LinearShapeFunctionQuad4.NaturalShapeFunction, _nodesLocal);*/
-
-            double lx, ly;
-            GetLxLy(indexNode, out lx, out ly);
 
             mnl.Matrix<double> bg = mnl.Matrix<double>.Build.Dense(6, 5);
 
@@ -1176,31 +1003,6 @@ namespace GPC.Model.FEM.FiniteElements
         internal static double GetHc(double h0, double h1, double h2)
         {
             return (2.0 * h0 + h1 + h2) / 2.0;
-        }
-
-        private void GetLxLy(int indexNode, out double lx, out double ly)
-        {
-            switch (indexNode)
-            {
-                case 1:
-                    lx = _length[0];
-                    ly = _length[3];
-                    break;
-                case 2:
-                    lx = _length[0];
-                    ly = _length[1];
-                    break;
-                case 3:
-                    lx = _length[2];
-                    ly = _length[1];
-                    break;
-                case 4:
-                    lx = _length[2];
-                    ly = _length[3];
-                    break;
-                default:
-                    throw new ArgumentOutOfRangeException("node 1 to 4");
-            }
         }
 #endregion
     }
