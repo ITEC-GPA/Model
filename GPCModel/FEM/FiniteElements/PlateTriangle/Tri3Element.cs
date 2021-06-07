@@ -381,7 +381,7 @@ namespace GPC.Model.FEM.FiniteElements
         /// According to article, order of nodes are ANTICLOCKWISE
         /// </summary>
         /// <returns></returns>
-        public static Node[] LocalNodes(Node[] globalNode, out CoordinateSystem cSys)
+        public static Node[] GetLocalNodes(Node[] globalNode, out CoordinateSystem cSys)
         {
             #region CalculationOfLocalCoordinates
             //Search for 3 local axis

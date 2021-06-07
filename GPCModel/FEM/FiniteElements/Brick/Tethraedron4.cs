@@ -30,7 +30,7 @@ namespace GPC.Model.FEM.FiniteElements
                 check.RemoveAt(0);
 
                 //Mi sposto nelle coordinate locali della faccia
-                Point3d[] localFaceNode = Tri3Element.LocalNodes(check.ToArray(), out CoordinateSystem sys).Select(x => x.Position).ToArray();
+                Point3d[] localFaceNode = Tri3Element.GetLocalNodes(check.ToArray(), out CoordinateSystem sys).Select(x => x.Position).ToArray();
 
                 if (Tri3Element.GetArea(localFaceNode) < 0)
                 {
