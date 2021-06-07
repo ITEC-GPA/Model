@@ -10,16 +10,16 @@ using GPC.Geometry;
 
 namespace GPC.Model.FEM.Attributes
 {
-    public class PlatePressureAttribute : LoadCaseAttribute, IPlateLoadCaseAttribute, IEquatable<PlatePressureAttribute>, ISerializable
+    public sealed class PlatePressureAttribute : LoadCaseAttribute, IPlateLoadCaseAttribute, IEquatable<PlatePressureAttribute>, ISerializable
     {
         #region variables
-        private double _p1;
+        private readonly double _p1;
 
-        private double _p2;
+        private readonly double _p2;
 
-        private double _p3;
+        private readonly double _p3;
 
-        private CoordinateSystem _coordinateSystem;
+        private readonly CoordinateSystem _coordinateSystem;
         #endregion
 
         #region properties
