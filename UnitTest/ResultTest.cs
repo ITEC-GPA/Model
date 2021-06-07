@@ -367,25 +367,26 @@ namespace ModelObjectTest
         }
 
 
+
         [TestMethod]
-        public void StressArithmeticMeanTest3()
+        public void DisplacementArithmeticMeanTest3()
         {
-            ResultStress rs1 = new ResultStress(CoordinateSystem.Global, 100, 200, -100, 1000, -1000, 500);
-            ResultStress rs2 = new ResultStress(CoordinateSystem.Global, 200, 300, 100, 2000, -2000, 500);
+            ResultDisplacement rd1 = new ResultDisplacement(CoordinateSystem.Global, 100, 200, -100, 1000, -1000, 500);
+            ResultDisplacement rd2 = new ResultDisplacement(CoordinateSystem.Global, 200, 300, 100, 2000, -2000, 500);
+            ResultDisplacement rd3 = new ResultDisplacement(CoordinateSystem.Global, 300, 300, 100, 2000, -2000, 500);
+            ResultDisplacement rd4 = new ResultDisplacement(CoordinateSystem.Global, 400, 300, 100, 2000, -2000, 500);
 
-            PlateResult pr = new PlateResult(new LoadCase("aa", LoadCase.LoadCaseTypes.SelfWeight), CoordinateSystem.Global, new ResultStress[] { rs1, rs1, rs2, rs2, rs2, rs2 }, 
-                             new ResultLocationId[] { new ResultLocationId(1), new ResultLocationId(1), new ResultLocationId(2), new ResultLocationId(2), new ResultLocationId(3), new ResultLocationId(3) });
+            var mean = ResultDisplacement.GetArithmeticMean(new ResultDisplacement[4] { rd1, rd2, rd3, rd4 });
+                       
+            Assert.IsTrue(mean.D3 == (rd1.D3 + rd2.D3 + rd3.D3 + rd4.D3) / 4.0);
+            Assert.IsTrue(mean.D1 == (rd1.D1 + rd2.D1 + rd3.D1 + rd4.D1) / 4.0);
+            Assert.IsTrue(mean.D2 == (rd1.D2 + rd2.D2 + rd3.D2 + rd4.D2) / 4.0);
 
-            var a = pr.GetMeanFaceResults();
+            Assert.IsTrue(mean.R3 == (rd1.R3 + rd2.R3 + rd3.R3 + rd4.R3) / 4.0);
+            Assert.IsTrue(mean.R1 == (rd1.R1 + rd2.R1 + rd3.R1 + rd4.R1) / 4.0);
+            Assert.IsTrue(mean.R2 == (rd1.R2 + rd2.R2 + rd3.R2 + rd4.R2) / 4.0);
 
-            //var rs = ResultStress.GetArithmeticMean(new ResultStress[] { rs1, rs2 });
 
-            //Assert.IsTrue(rs.Sxx == 150);
-            //Assert.IsTrue(rs.Syy == 250);
-            //Assert.IsTrue(rs.Szz == 0);
-            //Assert.IsTrue(rs.Sxy == 1500, rs.Sxy.ToString());
-            //Assert.IsTrue(rs.Sxz == -1500);
-            //Assert.IsTrue(rs.Syz == 500);
         }
     }
 }

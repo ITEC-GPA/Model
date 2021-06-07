@@ -8,7 +8,7 @@ namespace GPC.Model.FEM.Attributes
     [Serializable]
     public sealed class PlateNormalPressureAttribute : LoadCaseAttribute, IPlateLoadCaseAttribute, IEquatable<PlateNormalPressureAttribute>, ISerializable
     {
-        private double _pressure;
+        private readonly double _pressure;
 
         public double Pressure => _pressure;
 
