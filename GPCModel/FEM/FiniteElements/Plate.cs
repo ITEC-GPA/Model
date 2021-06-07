@@ -1,10 +1,12 @@
 ﻿using System;
+using System.Linq;
 using System.Collections.Generic;
 using System.Diagnostics;
 using GPC.Model.FEM.Attributes;
 using GPC.Model.FEM.Properties;
 using GPC.Model.Results;
 using mnl = MathNet.Numerics.LinearAlgebra;
+using GPC.Geometry;
 
 namespace GPC.Model.FEM.FiniteElements
 {
@@ -141,7 +143,23 @@ namespace GPC.Model.FEM.FiniteElements
             return $"Plate, Id: {Id}, PropertyName: {prop}";
         }
 
-
+        public double GetArea()
+        {
+            var pts = _nodesLocal.ToList().Select(x => x.Position).ToList();
+            if (IsQuad == true)
+            {   
+                double a1 = Tri3Element.GetArea(new Point3d[] { pts[0], pts[1], pts[2] });
+                double a2 = Tri3Element.GetArea(new Point3d[] { pts[0], pts[2], pts[3] });
+                return a1 + a2;
+            } else if (IsTriangle == true)
+            {
+                return Tri3Element.GetArea(new Point3d[] { pts[0], pts[1], pts[2] });
+            } else
+            {
+                throw new NotImplementedException("This plate have nr of nodes different than 3 or 4");
+            }
+        }
+        
 
         // GetNodalDisplacement()
 
