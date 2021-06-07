@@ -978,6 +978,7 @@ namespace GPC.Model.FEM.FiniteElements
 
                 if (index == LocalDOF.R3)
                 {
+                    #region displacement
                     var rotazioneNodo1 = displLocalNode1[LocalDOF.R3];
                     var dr1 = RotationFixAndSimplySupportedWithImposedRotationAtEnd(station, rotazioneNodo1, _length);
                     
@@ -991,6 +992,7 @@ namespace GPC.Model.FEM.FiniteElements
 
                     var dq = RotationFixFixUniformLoad(q2, station, _length, E, J22);
                     displStation[index] = dr1 + dr2 + drDelta + dq;
+                    #endregion
                 }
 
                 if (index == LocalDOF.R2)
@@ -1069,10 +1071,21 @@ namespace GPC.Model.FEM.FiniteElements
                     {
                         double displacement = displLocalNode2[LocalDOF.U3] - displLocalNode1[LocalDOF.U3];
                         double rotation = displLocalNode2[LocalDOF.R2];
+
+                        #region displacement
                         double dv = DisplacementFixAndSimplySupportedWithImposedDisplacementAtEndSimplySupported(_length - station, displacement, _length);
                         double dr = DisplacementFixAndSimplySupportedWithImposedRotationAtEnd(_length - station, rotation, _length);
                         double dq = DisplacementFixAndSimplySupportedUniformLoad(q3, _length - station, _length, E, J11);
                         displStation[LocalDOF.U3] = displLocalNode2[LocalDOF.U3] - dv + dr + dq;
+                        #endregion
+
+                        #region rotation
+                        var dDelta = RotationSimplySupportedAndBipendolumImposedDisplacementAtBipendolum(station, _length, displacement);
+                        var dRot = RotationFixSimplySupportedWithImposedRotationAtFixEnd(_length - station, _length, rotation);
+                        var dqRot = RotationSimplySupportedUniformLoad(q3, station, _length, E, J11);
+
+                        displStation[LocalDOF.R2] = -dDelta + dRot + dqRot;
+                        #endregion
                     }
                     #endregion
 
@@ -1081,10 +1094,20 @@ namespace GPC.Model.FEM.FiniteElements
                     {
                         double displacement = displLocalNode2[LocalDOF.U2] - displLocalNode1[LocalDOF.U2];
                         double rotation = displLocalNode2[LocalDOF.R3];
+
+                        #region displacement
                         double dv = DisplacementFixAndSimplySupportedWithImposedDisplacementAtEndSimplySupported(_length - station, displacement, _length);
                         double dr = DisplacementFixAndSimplySupportedWithImposedRotationAtEnd(_length - station, rotation, _length);
                         double dq = DisplacementFixAndSimplySupportedUniformLoad(q2, _length - station, _length, E, J22);
                         displStation[LocalDOF.U2] = displLocalNode2[LocalDOF.U2] - dv - dr + dq;
+                        #endregion
+
+                        #region rotation
+                        var dDelta = RotationSimplySupportedAndBipendolumImposedDisplacementAtBipendolum(station, _length, displacement);
+                        var dRot = RotationFixSimplySupportedWithImposedRotationAtFixEnd(_length - station, _length, rotation);
+                        var dqRot = RotationSimplySupportedUniformLoad(q2, station, _length, E, J22);
+                        displStation[LocalDOF.R3] = -dDelta + dRot + dqRot;
+                        #endregion
                     }
                     #endregion
 
@@ -1158,10 +1181,21 @@ namespace GPC.Model.FEM.FiniteElements
                     {
                         double displacement = displLocalNode2[LocalDOF.U3] - displLocalNode1[LocalDOF.U3];
                         double rotation = displLocalNode1[LocalDOF.R2];
+
+                        #region displacement
                         double dv = DisplacementFixAndSimplySupportedWithImposedDisplacementAtEndSimplySupported(station, displacement, _length);
                         double dr = DisplacementFixAndSimplySupportedWithImposedRotationAtEnd(station, rotation, _length);
                         double dq = DisplacementFixAndSimplySupportedUniformLoad(q3, station, _length, E, J11);
                         displStation[LocalDOF.U3] = displLocalNode1[LocalDOF.U3] + dv - dr + dq;
+                        #endregion
+
+                        #region rotation
+                        var dDelta = RotationSimplySupportedAndBipendolumImposedDisplacementAtBipendolum(station, _length, displacement);
+                        var dRot = RotationFixSimplySupportedWithImposedRotationAtFixEnd(_length - station, _length, rotation);
+                        var dqRot = RotationSimplySupportedUniformLoad(q3, station, _length, E, J11);
+
+                        displStation[LocalDOF.R2] = -dDelta + dRot + dqRot;
+                        #endregion
                     }
                     #endregion
 
@@ -1170,10 +1204,21 @@ namespace GPC.Model.FEM.FiniteElements
                     {
                         double displacement = displLocalNode2[LocalDOF.U2] - displLocalNode1[LocalDOF.U2];
                         double rotation = displLocalNode1[LocalDOF.R3];
+
+                        #region displacement
                         double dv = DisplacementFixAndSimplySupportedWithImposedDisplacementAtEndSimplySupported(station, displacement, _length);
                         double dr = DisplacementFixAndSimplySupportedWithImposedRotationAtEnd(station, rotation, _length);
                         double dq = DisplacementFixAndSimplySupportedUniformLoad(q2, station, _length, E, J22);
                         displStation[LocalDOF.U2] = displLocalNode1[LocalDOF.U2] + dv + dr + dq;
+                        #endregion
+
+                        #region rotation
+                        var dDelta = RotationSimplySupportedAndBipendolumImposedDisplacementAtBipendolum(station, _length, displacement);
+                        var dRot = RotationFixSimplySupportedWithImposedRotationAtFixEnd(_length - station, _length, rotation);
+                        var dqRot = RotationSimplySupportedUniformLoad(q2, station, _length, E, J22);
+
+                        displStation[LocalDOF.R3] = -dDelta + dRot + dqRot;
+                        #endregion
                     }
                     #endregion
 
@@ -1207,6 +1252,11 @@ namespace GPC.Model.FEM.FiniteElements
                 //truss
                 var dq = DisplacementSimplySupportedUniformLoad(q2, station, _length, E, J22);
                 displStation[LocalDOF.U2] = displLocalNode1[LocalDOF.U2] * N0(station, _length) + displLocalNode2[LocalDOF.U2] * N1(station, _length) + dq;
+
+                var displNode1 = displLocalNode1[LocalDOF.U2];
+                var displNode2 = displLocalNode2[LocalDOF.U2];
+                var delta = displNode2 - displNode1;
+                displStation[LocalDOF.R3] = delta / _length;
             }
 
             if (IsDoubleReleasedR2() == true)
@@ -1214,6 +1264,11 @@ namespace GPC.Model.FEM.FiniteElements
                 //truss
                 var dq = DisplacementSimplySupportedUniformLoad(q3, station, _length, E, J11);
                 displStation[LocalDOF.U3] = displLocalNode1[LocalDOF.U3] * N0(station, _length) + displLocalNode2[LocalDOF.U3] * N1(station, _length) + dq;
+
+                var displNode1 = displLocalNode1[LocalDOF.U3];
+                var displNode2 = displLocalNode2[LocalDOF.U3];
+                var delta = displNode2 - displNode1;
+                displStation[LocalDOF.R2] = delta / _length;
             }
             #endregion
             #endregion
@@ -1450,19 +1505,6 @@ namespace GPC.Model.FEM.FiniteElements
         {
             return q / 2.0 * (L - 2.0 * x);
         }
-        /// <summary>
-        /// Return the rotation in a fix-fix beam with uniform load
-        /// </summary>
-        /// <param name="q">load [F/L]</param>
-        /// <param name="x">coordinate 0 to L</param>
-        /// <param name="L">Lenght of the beam</param>
-        /// <param name="E">Elastic Modulus</param>
-        /// <param name="J">Second moment area - Inertia</param>
-        /// <returns>rotation</returns>
-        private static double RotationBeamFixFixUniformLoad(double q, double x, double L, double E, double J)
-        {
-            return -q * x /(12.0 * E * J) * (L*L - 3.0 * L * x + 2.0 * x*x);
-        }
 
         /// <summary>
         /// Return the displacement in a fix-fix beam with uniform load
@@ -1546,6 +1588,11 @@ namespace GPC.Model.FEM.FiniteElements
             return q * Math.Pow(L, 4.0) / (24.0 * E * J) * x / L * (1.0 - 2.0 * x * x / (L * L) + Math.Pow(x / L, 3.0));
         }
 
+        private static double RotationSimplySupportedUniformLoad(double q, double x, double L, double E, double J)
+        {
+            return q * (L*L*L - 6.0 * L * x *x + 4.0 * x*x*x) / (24.0 * E * J);
+        }
+
         private static double DisplacementFixAndSimplySupportedUniformLoad(double q, double x, double L, double E, double J)
         {
             return q / (48.0 * E * J) * x * x * (3.0 * L * L - 5.0 * L * x + 2.0 * x * x);
@@ -1579,6 +1626,16 @@ namespace GPC.Model.FEM.FiniteElements
         private static double RotationFixFixImposedDisplacement(double x, double L, double delta)
         {
             return 6.0 * delta / (L * L * L) * (L * x - x*x);
+        }
+
+        private static double RotationSimplySupportedAndBipendolumImposedDisplacementAtBipendolum(double x, double L, double delta)
+        {
+            return 3.0 / 2.0 * delta / (L * L * L) * (x * x - L*L);
+        }
+
+        private static double RotationFixSimplySupportedWithImposedRotationAtFixEnd(double x, double L, double angle)
+        {
+            return angle * (3.0 * x*x / (2.0 * L*L) - 3.0 * x / L + 1);
         }
         #endregion
     }
