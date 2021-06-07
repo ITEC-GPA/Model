@@ -31747,8 +31747,8 @@ namespace FemTest.SolverTest
             double hGlass2 = 0.5; // 0.7937;
             double EGlass = 1000.0;
             double niGlass = 0.0;
-            double hInterlayer = 0.01;
-            double G0 = 1.0 * EGlass / (2.0 * (1.0 + niGlass));
+            double hInterlayer = 0.001;
+            double G0 = EGlass / (2.0 * (1.0 + niGlass));
 
             List<Node> nodes = new List<Node>();
             #region nodes
