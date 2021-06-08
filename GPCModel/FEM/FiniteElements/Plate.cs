@@ -145,14 +145,18 @@ namespace GPC.Model.FEM.FiniteElements
 
         public double GetArea()
         {
-            var pts = _nodesLocal.ToList().Select(x => x.Position).ToList();
             if (IsQuad == true)
-            {   
+            {
+                var pts = Quad4Element.GetLocalNodes(_nodesGlobal, out CoordinateSystem sys).Select(x => x.Position).ToList();
+
                 double a1 = Tri3Element.GetArea(new Point3d[] { pts[0], pts[1], pts[2] });
                 double a2 = Tri3Element.GetArea(new Point3d[] { pts[0], pts[2], pts[3] });
                 return a1 + a2;
+
             } else if (IsTriangle == true)
             {
+                var pts = Tri3Element.GetLocalNodes(_nodesGlobal, out CoordinateSystem sys).Select(x => x.Position).ToList();
+
                 return Tri3Element.GetArea(new Point3d[] { pts[0], pts[1], pts[2] });
             } else
             {

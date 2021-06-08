@@ -545,5 +545,61 @@ namespace FemTest.SolverTest
 
             Assert.AreEqual(0.2415, fem.GetNodeDisplacementGlobalCoordinates(nodes.Where(x => x.Position.X == 0 && x.Position.Y == 0).First(), LinearSolver.DOF.DZ), 0.001);
         }
+
+        [TestMethod]
+        public void Quad4AreaTest1()
+        {
+            Node[] nodesPlate1 = new Node[4];
+            nodesPlate1[0] = new Node(0.0, 0.0, 0);
+            nodesPlate1[1] = new Node(1.0, 0.0, 0);
+            nodesPlate1[2] = new Node(1.0, 1.0, 0);
+            nodesPlate1[3] = new Node(0.0, 1.0, 0);
+
+            Plate e0 = new Quad4Element(nodesPlate1);
+
+            Assert.AreEqual(1.0, e0.GetArea());
+        }
+
+        [TestMethod]
+        public void Quad4AreaTest2()
+        {
+            Node[] nodesPlate1 = new Node[4];
+            nodesPlate1[0] = new Node(0.0, 0.0, 0);
+            nodesPlate1[1] = new Node(2.0, 0.0, 0);
+            nodesPlate1[2] = new Node(2.0, 1.0, 0);
+            nodesPlate1[3] = new Node(0.0, 1.0, 0);
+
+            Plate e0 = new Quad4Element(nodesPlate1);
+
+            Assert.AreEqual(2.0, e0.GetArea());
+        }
+
+        [TestMethod]
+        public void Quad4AreaTest3()
+        {
+            Node[] nodesPlate1 = new Node[4];
+            nodesPlate1[0] = new Node(0.0, 0.0, 0);
+            nodesPlate1[1] = new Node(1.0, 0.0, 0);
+            nodesPlate1[2] = new Node(2.0, 2.0, 0);
+            nodesPlate1[3] = new Node(1.0, 2.0, 0);
+
+            Plate e0 = new Quad4Element(nodesPlate1);
+
+            Assert.AreEqual(2.0, e0.GetArea());
+        }
+
+        [TestMethod]
+        public void Quad4AreaTest4()
+        {
+            Node[] nodesPlate1 = new Node[4];
+            nodesPlate1[0] = new Node(0.0, 0.0, 0);
+            nodesPlate1[1] = new Node(1.0, 2.0, 0);
+            nodesPlate1[2] = new Node(2.0, 2.0, 0);
+            nodesPlate1[3] = new Node(1.0, 0.0, 0);
+
+            Plate e0 = new Quad4Element(nodesPlate1);
+
+            Assert.AreEqual(2.0, e0.GetArea(), 1e-3);
+        }
     }
 }
