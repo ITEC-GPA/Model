@@ -10,13 +10,13 @@ namespace GPC.Model.FEM.Attributes
     public sealed class NodeForceAttribute : LoadCaseAttribute, INodeLoadCaseAttribute, IEquatable<NodeForceAttribute>, ISerializable
     {
         #region variables
-        private double _f1;
-        private double _f2;
-        private double _f3;
-        private double _m1;
-        private double _m2;
-        private double _m3;
-        private CoordinateSystem _coordinateSystem;
+        private readonly double _f1;
+        private readonly double _f2;
+        private readonly double _f3;
+        private readonly double _m1;
+        private readonly double _m2;
+        private readonly double _m3;
+        private readonly CoordinateSystem _coordinateSystem;
         #endregion
 
         #region Properties
