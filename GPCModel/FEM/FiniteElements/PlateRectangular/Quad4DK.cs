@@ -117,10 +117,7 @@ namespace GPC.Model.FEM.FiniteElements
             Console.WriteLine();
             */
             #endregion
-        }
 
-        public override void BuildMatrix()
-        {
             //set local coordinate system
             _localNodes = Quad4Element.GetLocalNodes(_nodesGlobal, out _localCoordinateSystem);
             Node node1 = _localNodes[0];
@@ -130,22 +127,22 @@ namespace GPC.Model.FEM.FiniteElements
 
             _x12 = node1.Position.X - node2.Position.X;
             _y12 = node1.Position.Y - node2.Position.Y;
-            
+
             _x21 = node2.Position.X - node1.Position.X;
             _y21 = node2.Position.Y - node1.Position.Y;
 
             _x23 = node2.Position.X - node3.Position.X;
             _y23 = node2.Position.Y - node3.Position.Y;
-            
+
             _x34 = node3.Position.X - node4.Position.X;
             _y34 = node3.Position.Y - node4.Position.Y;
-            
+
             _x32 = node3.Position.X - node2.Position.X;
             _y32 = node3.Position.Y - node2.Position.Y;
 
             _x41 = node4.Position.X - node1.Position.X;
             _y41 = node4.Position.Y - node1.Position.Y;
-           
+
             _x31 = node3.Position.X - node1.Position.X;
             _y31 = node3.Position.Y - node1.Position.Y;
 
@@ -187,7 +184,10 @@ namespace GPC.Model.FEM.FiniteElements
             _eCoeff.Add(6, (-1.0 / 2.0 * Math.Pow(_x23, 2.0) + 1.0 / 4.0 * Math.Pow(_y23, 2.0)) / Math.Pow(_l23, 2.0));
             _eCoeff.Add(7, (-1.0 / 2.0 * Math.Pow(_x34, 2.0) + 1.0 / 4.0 * Math.Pow(_y34, 2.0)) / Math.Pow(_l34, 2.0));
             _eCoeff.Add(8, (-1.0 / 2.0 * Math.Pow(_x41, 2.0) + 1.0 / 4.0 * Math.Pow(_y41, 2.0)) / Math.Pow(_l41, 2.0));
+        }
 
+        public override void BuildMatrix()
+        {
             //calculation of matrix for transformation from Local to Global coordinates
             #region TransformationMatrixLocalCoordinatesToGlobalCoordinates
             mnl.Matrix<double> dofGlobalToLocalTranspose = mnl.Matrix<double>.Build.Dense(24, 12);

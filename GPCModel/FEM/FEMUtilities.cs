@@ -411,6 +411,7 @@ namespace GPC.Model.FEM
         /// </summary>
         /// <param name="tensor"></param>
         /// <param name="localSystemAssociated"></param>
+        /// <param name="newSystem"></param>
         /// <returns></returns>
         public static mnl.Matrix<double> RotateTensor(mnl.Matrix<double> tensor, CoordinateSystem localSystemAssociated, CoordinateSystem newSystem = null)
         {

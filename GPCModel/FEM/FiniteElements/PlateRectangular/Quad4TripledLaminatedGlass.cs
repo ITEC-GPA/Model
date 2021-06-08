@@ -319,10 +319,10 @@ namespace GPC.Model.FEM.FiniteElements
             mnl.Matrix<double> fKGlass(double csi, double eta)
             {
                 //usata solo per prova è possibile cancellarla al termine
-                double f(double input1, double input2)
+                /*double f(double input1, double input2)
                 {
                     return 1.0 + 0.0 * Math.Pow(input1, 1.0) + 0.0 * Math.Pow(input2, 1.0);
-                }
+                }*/
 
                 if (_quadrilateral == true)
                 {
