@@ -627,7 +627,7 @@ namespace GPC.Model.FEM.FiniteElements
         /// <param name="dir">x or y</param>
         /// <param name="deriv">null for shaper function; csi or eta for dH(dir)dCsi or dH(dir)dy</param>
         /// <returns></returns>
-        public Func<double, double, double> GetFunction(int indexFunction, string dir, string deriv = "")
+        internal Func<double, double, double> GetFunction(int indexFunction, string dir, string deriv = "")
         {
             GetIndexes(out int[] indexes1, out int[] indexes2, out int[] indexes3);
 

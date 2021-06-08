@@ -193,25 +193,13 @@ namespace GPC.Model.FEM.FiniteElements
                 return Bg.Transpose() * _Dg * Bg; //equation 49
             }
 
-            //FEMUtilities.WriteMatrix("Bg(csi=-0.57, eta=-0.57", GetBg(-0.577350269189626, -0.577350269189626), "F4");
-            //FEMUtilities.WriteMatrix("Bs(csi=-0.57, eta=-0.57", GetBs(-0.577350269189626, -0.577350269189626));
-
-            //FEMUtilities.WriteMatrix("Bg(csi=-0.57, eta=0.57", GetBg(-0.577350269189626, 0.577350269189626), "F4");
-            //FEMUtilities.WriteMatrix("Bs(csi=0.57, eta=-0.57", GetBs(0.577350269189626, -0.577350269189626));
-
-            //FEMUtilities.WriteMatrix("Bg(csi=-0.57, eta=-0.57", GetBg(0.577350269189626, -0.577350269189626), "F4");
-            //FEMUtilities.WriteMatrix("Bs(csi=-0.57, eta=0.57", GetBs(-0.577350269189626, 0.577350269189626));
-
-            //FEMUtilities.WriteMatrix("Bg(csi=-0.57, eta=-0.57", GetBg(0.577350269189626, 0.577350269189626), "F4");
-            //FEMUtilities.WriteMatrix("Bs(csi=0.57, eta=0.57", GetBs(0.577350269189626, 0.577350269189626));
-
             Func<double, double, mnl.Matrix<double>> jacob = FEMUtilities.J2D(Tri3Element.GetdNdCsi, Tri3Element.GetdNdEta, _nodesLocal);
             
             _kLayer = GaussIntegration.IntegrationTriangular(fKLayer, jacob, 3);
             _kGlass = GaussIntegration.IntegrationTriangular(fKGlass, jacob, 3);
 
-            FEMUtilities.WriteMatrix("kLayer", _kLayer);
-            FEMUtilities.WriteMatrix("kGlass", _kGlass);
+            /*FEMUtilities.WriteMatrix("kLayer", _kLayer);
+            FEMUtilities.WriteMatrix("kGlass", _kGlass);*/
 
             _kLocalUnordered = _kLayer + _kGlass; //equation 28
 
@@ -265,8 +253,8 @@ namespace GPC.Model.FEM.FiniteElements
             }
             #endregion
 
-            FEMUtilities.WriteMatrix("kLocalUnordered = ", _kLocalUnordered);
-            FEMUtilities.WriteMatrix("kLocalOrdered = ", _kElementLocalCoord);
+            /*FEMUtilities.WriteMatrix("kLocalUnordered = ", _kLocalUnordered);
+            FEMUtilities.WriteMatrix("kLocalOrdered = ", _kElementLocalCoord);*/
         }
 
         /// <summary>
@@ -314,7 +302,7 @@ namespace GPC.Model.FEM.FiniteElements
                         
                         return Ni * pz;
                     }
-                    mnl.Matrix<double> fDKT = GaussIntegration.IntegrationQuadrilateral(Np, jacob, 3);
+                    mnl.Matrix<double> fDKT = GaussIntegration.IntegrationTriangular(Np, jacob, 3);
                     #endregion
 
                     /*for (int i = 0; i < f.RowCount; i++)
@@ -782,7 +770,7 @@ namespace GPC.Model.FEM.FiniteElements
         #endregion
 
         /// <summary>
-        /// equation 35 for a single node Bs = Ls * N with Ls derivative operator
+        /// equation 35 for a single node Bs = Ls * N
         /// </summary>
         /// <param name="indexNode"></param>
         /// <param name="csi"></param>
@@ -851,14 +839,15 @@ namespace GPC.Model.FEM.FiniteElements
             bg[2, 1] = dNdLocal[0];
 
             double doubleAreaElement = _x31 * _y12 - _x12 * _y31;
+            //Console.WriteLine("2A=" + doubleAreaElement);
 
             Dictionary<string, double> getValues(int index)
             {
-                var dH1xDCsi = _el.GetFunction(index, "x", "csi");
-                var dH1xDEta = _el.GetFunction(index, "x", "eta");
+                var dH1xDCsi = _el.GetShapeFunctionDerivative(index, "x", "csi"); //_el.GetFunction(index, "x", "csi");
+                var dH1xDEta = _el.GetShapeFunctionDerivative(index, "x", "eta"); //_el.GetFunction(index, "x", "eta");
 
-                var dH1yDCsi = _el.GetFunction(index, "y", "csi");
-                var dH1yDEta = _el.GetFunction(index, "y", "eta");
+                var dH1yDCsi = _el.GetShapeFunctionDerivative(index, "y", "csi"); //_el.GetFunction(index, "y", "csi");
+                var dH1yDEta = _el.GetShapeFunctionDerivative(index, "y", "eta"); //_el.GetFunction(index, "y", "eta");
 
                 var dH1xDx = 1.0 / (doubleAreaElement) * (_y31 * dH1xDCsi(csi, eta) + _y12 * dH1xDEta(csi, eta));
                 var dH1yDy = 1.0 / (doubleAreaElement) * (-_x31 * dH1yDCsi(csi, eta) - _x12 * dH1yDEta(csi, eta));

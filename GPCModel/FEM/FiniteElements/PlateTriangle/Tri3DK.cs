@@ -285,119 +285,48 @@ namespace GPC.Model.FEM.FiniteElements
 
         public override mnl.Matrix<double> GetB(double csi, double eta)
         {
-            //create vector of derivative of "new shape function"
-            #region formuleFornite
-            /*
-            double P4 = -6.0 * x23 / Math.Pow(l23, 2.0);
-            double P5 = -6.0 * x31 / Math.Pow(l31, 2.0);
-            double P6 = -6.0 * x12 / Math.Pow(l12, 2.0);
-
-            double q4 = 3.0 * x23 * y23 / Math.Pow(l23, 2.0);
-            double q5 = 3.0 * x31 * y31 / Math.Pow(l31, 2.0);
-            double q6 = 3.0 * x12 * y12 / Math.Pow(l12, 2.0);
-
-            double r4 = 3.0 * Math.Pow(y23, 2.0) / Math.Pow(l23, 2.0);
-            double r5 = 3.0 * Math.Pow(y31, 2.0) / Math.Pow(l31, 2.0);
-            double r6 = 3.0 * Math.Pow(y12, 2.0) / Math.Pow(l12, 2.0);
-
-            double t4 = -6.0 * y23 / Math.Pow(l23, 2.0);
-            double t5 = -6.0 * y31 / Math.Pow(l31, 2.0);
-            double t6 = -6.0 * y12 / Math.Pow(l12, 2.0);
-
-            mnl.Vector<double> hxCsi = mnl.Vector<double>.Build.Dense(9);
-            hxCsi[0] = P6 * (1.0 - 2.0 * csi) + (P5 - P6) * eta;
-            hxCsi[1] = q6 * (1.0 - 2.0 * csi) - (q5 + q6) * eta;
-            hxCsi[2] = -4.0 + 6.0 * (csi + eta) + r6 * (1.0 - 2.0 * csi) - eta * (r5 + r6);
-            hxCsi[3] = -P6 * (1.0 - 2.0 * csi) + eta * (P4 + P6);
-            hxCsi[4] = q6 * (1.0 - 2.0 * csi) - eta * (q6 - q4);
-            hxCsi[5] = -2.0 + 6.0 * csi + r6 * (1.0 - 2.0 * csi) + eta * (r4 - r6);
-            hxCsi[6] = -eta * (P5 + P4);
-            hxCsi[7] = eta * (q4 - q5);
-            hxCsi[8] = -eta * (r5 - r4);
-            Console.WriteLine("Hx,Csi(csi="+csi.ToString("F2")+" ,eta="+eta.ToString("F2")+") = " + hxCsi);
-
-            mnl.Vector<double> hyCsi = mnl.Vector<double>.Build.Dense(9);
-            hyCsi[0] = t6 * (1.0 - 2.0 * csi) + eta * (t5 - t6);
-            hyCsi[1] = 1.0 + r6 * (1.0 - 2.0 * csi) - eta * (r5 + r6);
-            hyCsi[2] = -q6 * (1.0 - 2.0 * csi) + eta * (q5 + q6); /// <<<<<------------ -eta instead of + eta
-            hyCsi[3] = -t6 * (1.0 - 2.0 * csi) + eta * (t4 + t6);
-            hyCsi[4] = -1.0 + r6 * (1.0 - 2.0 * csi) + eta * (r4 - r6); ///<-------------- -eta instead of + eta
-            hyCsi[5] = -q6 * (1.0 - 2.0 * csi) - eta * (q4 - q6); ///<---------- +eta instead of -eta
-            hyCsi[6] = -eta * (t4 + t5);
-            hyCsi[7] = eta * (r4 - r5);
-            hyCsi[8] = -eta * (q4 - q5);
-            Console.WriteLine("Hy,Csi(csi=" + csi.ToString("F2") + " ,eta=" + eta.ToString("F2") + ") = " + hyCsi);
-
-            mnl.Vector<double> hxEta = mnl.Vector<double>.Build.Dense(9);
-            hxEta[0] = -P5 * (1.0 - 2.0 * eta) - csi * (P6 - P5);
-            hxEta[1] = q5 * (1.0 - 2.0 * eta) - csi * (q5 + q6);
-            hxEta[2] = -4.0 + 6.0 * (csi + eta) + r5 * (1.0 - 2.0 * eta) - csi * (r5 + r6);
-            hxEta[3] = csi * (P4 + P6);
-            hxEta[4] = csi * (q4 - q6);
-            hxEta[5] = -csi * (r6 - r4);
-            hxEta[6] = P5 * (1.0 - 2.0 * eta) - csi * (P4 + P5);
-            hxEta[7] = q5 * (1.0 - 2.0 * eta) + csi * (q4 - q5);
-            hxEta[8] = -2.0 + 6.0 * eta + r5 * (1.0 - 2.0 * eta) + csi * (r4 - r5);
-            Console.WriteLine("Hx,Eta(csi=" + csi.ToString("F2") + " ,eta=" + eta.ToString("F2") + ") = " + hxEta);
-
-            mnl.Vector<double> hyEta = mnl.Vector<double>.Build.Dense(9);
-            hyEta[0] = -t5 * (1.0 - 2.0 * eta) - csi * (t6 - t5);
-            hyEta[1] = 1.0 + r5 * (1.0 - 2.0 * eta) - csi * (r5 + r6);
-            hyEta[2] = -q5 * (1.0 - 2.0 * eta) + csi * (q5 + q6);
-            hyEta[3] = csi * (t4 + t6);
-            hyEta[4] = csi * (r4 - r6);
-            hyEta[5] = -csi * (q4 - q6);
-            hyEta[6] = t5 * (1.0 - 2.0 * eta) - csi * (t4 + t5);
-            hyEta[7] = -1.0 + r5 * (1.0 - 2.0 * eta) + csi * (r4 - r5);
-            hyEta[8] = -q5 * (1.0 - 2.0 * eta) - csi * (q4 - q5);  ///<----------- + csi instead of - csi
-            Console.WriteLine("Hy,Eta(csi=" + csi.ToString("F2") + " ,eta=" + eta.ToString("F2") + ") = " + hyEta);
-            */
-
-            /*mnl.Vector<double> r0 = y31 * hxCsi + y12 * hxEta;
-            mnl.Vector<double> r1 = -x31 * hyCsi - x12 * hyEta;
-            mnl.Vector<double> r2 = -x31 * hxCsi - x12 * hxEta + y31 * hyCsi + y12 * hyEta;*/
-            #endregion
-
-            #region Derivatives
-            double a4 = -_x23 / Math.Pow(_l23, 2.0);
-            double a5 = -_x31 / Math.Pow(_l31, 2.0);
-            double a6 = -_x12 / Math.Pow(_l12, 2.0);
-            /*Console.WriteLine("a4 = " + a4);
-            Console.WriteLine("a5 = " + a5);
-            Console.WriteLine("a6 = " + a6);*/
-
-            double b4 = 3.0 / 4.0 * _x23 * _y23 / Math.Pow(_l23, 2.0);
-            double b5 = 3.0 / 4.0 * _x31 * _y31 / Math.Pow(_l31, 2.0);
-            double b6 = 3.0 / 4.0 * _x12 * _y12 / Math.Pow(_l12, 2.0);
-            /*Console.WriteLine("b4 = " + b4);
-            Console.WriteLine("b5 = " + b5);
-            Console.WriteLine("b6 = " + b6);*/
-
-            double c4 = (1.0 / 4.0 * Math.Pow(_x23, 2.0) - 1.0 / 2.0 * Math.Pow(_y23, 2.0)) / Math.Pow(_l23, 2.0);
-            double c5 = (1.0 / 4.0 * Math.Pow(_x31, 2.0) - 1.0 / 2.0 * Math.Pow(_y31, 2.0)) / Math.Pow(_l31, 2.0);
-            double c6 = (1.0 / 4.0 * Math.Pow(_x12, 2.0) - 1.0 / 2.0 * Math.Pow(_y12, 2.0)) / Math.Pow(_l12, 2.0);
-            /*Console.WriteLine("c4 = " + c4);
-            Console.WriteLine("c5 = " + c5);
-            Console.WriteLine("c6 = " + c6);*/
-
-            double d4 = -_y23 / Math.Pow(_l23, 2.0);
-            double d5 = -_y31 / Math.Pow(_l31, 2.0);
-            double d6 = -_y12 / Math.Pow(_l12, 2.0);
-            /*Console.WriteLine("d4 = " + d4);
-            Console.WriteLine("d5 = " + d5);
-            Console.WriteLine("d6 = " + d6);*/
-
-            double e4 = (1.0 / 4.0 * Math.Pow(_y23, 2.0) - 1.0 / 2.0 * Math.Pow(_x23, 2.0)) / Math.Pow(_l23, 2.0);
-            double e5 = (1.0 / 4.0 * Math.Pow(_y31, 2.0) - 1.0 / 2.0 * Math.Pow(_x31, 2.0)) / Math.Pow(_l31, 2.0);
-            double e6 = (1.0 / 4.0 * Math.Pow(_y12, 2.0) - 1.0 / 2.0 * Math.Pow(_x12, 2.0)) / Math.Pow(_l12, 2.0);
-            /*Console.WriteLine("e4 = " + e4);
-            Console.WriteLine("e5 = " + e5);
-            Console.WriteLine("e6 = " + e6);*/
-
             mnl.Vector<double> hxdCsi = mnl.Vector<double>.Build.Dense(9);
             mnl.Vector<double> hydCsi = mnl.Vector<double>.Build.Dense(9);
             mnl.Vector<double> hxdEta = mnl.Vector<double>.Build.Dense(9);
             mnl.Vector<double> hydEta = mnl.Vector<double>.Build.Dense(9);
+
+            #region Derivatives
+            /*
+            #region manualDerivatives
+            double a4 = -_x23 / Math.Pow(_l23, 2.0);
+            double a5 = -_x31 / Math.Pow(_l31, 2.0);
+            double a6 = -_x12 / Math.Pow(_l12, 2.0);
+            //Console.WriteLine("a4 = " + a4);
+            //Console.WriteLine("a5 = " + a5);
+            //Console.WriteLine("a6 = " + a6);
+
+            double b4 = 3.0 / 4.0 * _x23 * _y23 / Math.Pow(_l23, 2.0);
+            double b5 = 3.0 / 4.0 * _x31 * _y31 / Math.Pow(_l31, 2.0);
+            double b6 = 3.0 / 4.0 * _x12 * _y12 / Math.Pow(_l12, 2.0);
+            //Console.WriteLine("b4 = " + b4);
+            //Console.WriteLine("b5 = " + b5);
+            //Console.WriteLine("b6 = " + b6);
+
+            double c4 = (1.0 / 4.0 * Math.Pow(_x23, 2.0) - 1.0 / 2.0 * Math.Pow(_y23, 2.0)) / Math.Pow(_l23, 2.0);
+            double c5 = (1.0 / 4.0 * Math.Pow(_x31, 2.0) - 1.0 / 2.0 * Math.Pow(_y31, 2.0)) / Math.Pow(_l31, 2.0);
+            double c6 = (1.0 / 4.0 * Math.Pow(_x12, 2.0) - 1.0 / 2.0 * Math.Pow(_y12, 2.0)) / Math.Pow(_l12, 2.0);
+            //Console.WriteLine("c4 = " + c4);
+            //Console.WriteLine("c5 = " + c5);
+            //Console.WriteLine("c6 = " + c6);
+
+            double d4 = -_y23 / Math.Pow(_l23, 2.0);
+            double d5 = -_y31 / Math.Pow(_l31, 2.0);
+            double d6 = -_y12 / Math.Pow(_l12, 2.0);
+            //Console.WriteLine("d4 = " + d4);
+            //Console.WriteLine("d5 = " + d5);
+            //Console.WriteLine("d6 = " + d6);
+
+            double e4 = (1.0 / 4.0 * Math.Pow(_y23, 2.0) - 1.0 / 2.0 * Math.Pow(_x23, 2.0)) / Math.Pow(_l23, 2.0);
+            double e5 = (1.0 / 4.0 * Math.Pow(_y31, 2.0) - 1.0 / 2.0 * Math.Pow(_x31, 2.0)) / Math.Pow(_l31, 2.0);
+            double e6 = (1.0 / 4.0 * Math.Pow(_y12, 2.0) - 1.0 / 2.0 * Math.Pow(_x12, 2.0)) / Math.Pow(_l12, 2.0);
+            //Console.WriteLine("e4 = " + e4);
+            //Console.WriteLine("e5 = " + e5);
+            //Console.WriteLine("e6 = " + e6);
 
             hxdCsi[1 - 1] = 1.5 * (a6 * dNdCsi(6, csi, eta) - a5 * dNdCsi(5, csi, eta));
             hxdCsi[2 - 1] = b5 * dNdCsi(5, csi, eta) + b6 * dNdCsi(6, csi, eta);
@@ -452,6 +381,65 @@ namespace GPC.Model.FEM.FiniteElements
             hydEta[7 - 1] = 1.5 * (d5 * dNdEta(5, csi, eta) - d4 * dNdEta(4, csi, eta));
             hydEta[8 - 1] = -dNdEta(3, csi, eta) + e4 * dNdEta(4, csi, eta) + e5 * dNdEta(5, csi, eta);
             hydEta[9 - 1] = -b4 * dNdEta(4, csi, eta) - b5 * dNdEta(5, csi, eta);
+            #endregion
+            */
+
+            #region AppendixFormulas
+            //from appendix formulas
+            hxdCsi[1 - 1] = GetShapeFunctionDerivative(1, "x", "csi")(csi, eta);
+            hxdCsi[2 - 1] = GetShapeFunctionDerivative(2, "x", "csi")(csi, eta);
+            hxdCsi[3 - 1] = GetShapeFunctionDerivative(3, "x", "csi")(csi, eta);
+
+            hxdCsi[4 - 1] = GetShapeFunctionDerivative(4, "x", "csi")(csi, eta);
+            hxdCsi[5 - 1] = GetShapeFunctionDerivative(5, "x", "csi")(csi, eta);
+            hxdCsi[6 - 1] = GetShapeFunctionDerivative(6, "x", "csi")(csi, eta);
+
+            hxdCsi[7 - 1] = GetShapeFunctionDerivative(7, "x", "csi")(csi, eta);
+            hxdCsi[8 - 1] = GetShapeFunctionDerivative(8, "x", "csi")(csi, eta);
+            hxdCsi[9 - 1] = GetShapeFunctionDerivative(9, "x", "csi")(csi, eta);
+
+            //////////////////////////////////////////////////////////////////////////////////////////////////////
+
+            hxdEta[1 - 1] = GetShapeFunctionDerivative(1, "x", "eta")(csi, eta);
+            hxdEta[2 - 1] = GetShapeFunctionDerivative(2, "x", "eta")(csi, eta);
+            hxdEta[3 - 1] = GetShapeFunctionDerivative(3, "x", "eta")(csi, eta);
+
+            hxdEta[4 - 1] = GetShapeFunctionDerivative(4, "x", "eta")(csi, eta);
+            hxdEta[5 - 1] = GetShapeFunctionDerivative(5, "x", "eta")(csi, eta);
+            hxdEta[6 - 1] = GetShapeFunctionDerivative(6, "x", "eta")(csi, eta);
+
+            hxdEta[7 - 1] = GetShapeFunctionDerivative(7, "x", "eta")(csi, eta);
+            hxdEta[8 - 1] = GetShapeFunctionDerivative(8, "x", "eta")(csi, eta);
+            hxdEta[9 - 1] = GetShapeFunctionDerivative(9, "x", "eta")(csi, eta);
+
+            ///////////////////////////////////////////////////////////////////////////////////////////////////////
+
+            hydCsi[1 - 1] = GetShapeFunctionDerivative(1, "y", "csi")(csi, eta);
+            hydCsi[2 - 1] = GetShapeFunctionDerivative(2, "y", "csi")(csi, eta);
+            hydCsi[3 - 1] = GetShapeFunctionDerivative(3, "y", "csi")(csi, eta);
+
+            hydCsi[4 - 1] = GetShapeFunctionDerivative(4, "y", "csi")(csi, eta);
+            hydCsi[5 - 1] = GetShapeFunctionDerivative(5, "y", "csi")(csi, eta);
+            hydCsi[6 - 1] = GetShapeFunctionDerivative(6, "y", "csi")(csi, eta);
+
+            hydCsi[7 - 1] = GetShapeFunctionDerivative(7, "y", "csi")(csi, eta);
+            hydCsi[8 - 1] = GetShapeFunctionDerivative(8, "y", "csi")(csi, eta);
+            hydCsi[9 - 1] = GetShapeFunctionDerivative(9, "y", "csi")(csi, eta);
+
+            //////////////////////////////////////////////////////////////////////////////////////////////////////
+
+            hydEta[1 - 1] = GetShapeFunctionDerivative(1, "y", "eta")(csi, eta);
+            hydEta[2 - 1] = GetShapeFunctionDerivative(2, "y", "eta")(csi, eta);
+            hydEta[3 - 1] = GetShapeFunctionDerivative(3, "y", "eta")(csi, eta);
+
+            hydEta[4 - 1] = GetShapeFunctionDerivative(4, "y", "eta")(csi, eta);
+            hydEta[5 - 1] = GetShapeFunctionDerivative(5, "y", "eta")(csi, eta);
+            hydEta[6 - 1] = GetShapeFunctionDerivative(6, "y", "eta")(csi, eta);
+
+            hydEta[7 - 1] = GetShapeFunctionDerivative(7, "y", "eta")(csi, eta);
+            hydEta[8 - 1] = GetShapeFunctionDerivative(8, "y", "eta")(csi, eta);
+            hydEta[9 - 1] = GetShapeFunctionDerivative(9, "y", "eta")(csi, eta);
+            #endregion            
 
             mnl.Vector<double> r0 = _y31 * hxdCsi + _y12 * hxdEta;
             mnl.Vector<double> r1 = -_x31 * hydCsi - _x12 * hydEta;
@@ -463,76 +451,6 @@ namespace GPC.Model.FEM.FiniteElements
             //Console.WriteLine("B(csi=" + csi.ToString("F2") + " ,eta=" + eta.ToString("F2") + ") = " + b);
             return b;
         }
-
-        #region ShapeFunction
-        private double N1(double csi, double eta)
-        {
-            return 2.0 * (1.0 - csi - eta) * (0.5 - csi - eta);
-        }
-
-        private double N2(double csi, double eta)
-        {
-            return csi * (2.0 * csi - 1.0);
-        }
-        private double N3(double csi, double eta)
-        {
-            return eta * (2.0 * eta - 1.0);
-        }
-        private double N4(double csi, double eta)
-        {
-            return 4.0 * csi * eta;
-        }
-        private double N5(double csi, double eta)
-        {
-            return 4.0 * eta * (1.0 - csi - eta);
-        }
-        private double N6(double csi, double eta)
-        {
-            return 4.0 * csi * (1.0 - csi - eta);
-        }
-
-        private double dNdCsi(int index, double csi, double eta)
-        {
-            switch (index)
-            {
-                case 1:
-                    return 4.0 * (csi + eta - 3.0 / 4.0);
-                case 2:
-                    return 4.0 * csi - 1.0;
-                case 3:
-                    return 0.0;
-                case 4:
-                    return 4.0 * eta;
-                case 5:
-                    return -4.0 * eta;
-                case 6:
-                    return -4.0 * (2.0 * csi + eta - 1.0);
-                default:
-                    throw new Exception();
-            }
-        }
-
-        private double dNdEta(int index, double csi, double eta)
-        {
-            switch (index)
-            {
-                case 1:
-                    return 4.0 * (csi + eta - 3.0 / 4.0);
-                case 2:
-                    return 0.0;
-                case 3:
-                    return 4.0 * eta - 1.0;
-                case 4:
-                    return 4.0 * csi;
-                case 5:
-                    return -4.0 * (csi + 2.0 * eta - 1.0);
-                case 6:
-                    return -4.0 * csi;
-                default:
-                    throw new Exception();
-            }
-        }
-        #endregion
 
         //TODO: Da ottimizzare/scrivere
         public void GetNodesResults(double[] globalDisplacementsNodes, out double[] localDisplacements, out mnl.Matrix<double>[] globalPseudoDeformation, out mnl.Matrix<double>[] localPseudoDeformation, out mnl.Matrix<double>[] globalForces, out mnl.Matrix<double>[] localForces, out mnl.Matrix<double>[] globalStress, out mnl.Matrix<double>[] localStress, out mnl.Matrix<double>[] globalEpsilon, out mnl.Matrix<double>[] localEpsilon)
@@ -748,8 +666,12 @@ namespace GPC.Model.FEM.FiniteElements
         /// <param name="dir">x or y</param>
         /// <param name="deriv">null for shaper function; csi or eta for dH(dir)dCsi or dH(dir)dy</param>
         /// <returns></returns>
-        public Func<double, double, double> GetFunction(int indexFunction, string dir, string deriv = "")
+        internal Func<double, double, double> GetFunction(int indexFunction, string dir, string deriv = "")
         {
+            if (deriv != "")
+            {
+                throw new Exception();
+            }
             GetIndexes(out int[] indexes1, out int[] indexes2, out int[] indexes3);
 
             Func<double, double, double> F(int i)
@@ -905,6 +827,155 @@ namespace GPC.Model.FEM.FiniteElements
                 default:
                     throw new ArgumentOutOfRangeException();
             }
+        }
+
+        internal Func<double, double, double> GetShapeFunctionDerivative(int indexFunction, string dir, string deriv)
+        {
+            //derivative of "new shape function"
+            #region formuleFornite
+            
+            double P4 = -6.0 * _x23 / Math.Pow(_l23, 2.0);
+            double P5 = -6.0 * _x31 / Math.Pow(_l31, 2.0);
+            double P6 = -6.0 * _x12 / Math.Pow(_l12, 2.0);
+
+            double q4 = 3.0 * _x23 * _y23 / Math.Pow(_l23, 2.0);
+            double q5 = 3.0 * _x31 * _y31 / Math.Pow(_l31, 2.0);
+            double q6 = 3.0 * _x12 * _y12 / Math.Pow(_l12, 2.0);
+
+            double r4 = 3.0 * Math.Pow(_y23, 2.0) / Math.Pow(_l23, 2.0);
+            double r5 = 3.0 * Math.Pow(_y31, 2.0) / Math.Pow(_l31, 2.0);
+            double r6 = 3.0 * Math.Pow(_y12, 2.0) / Math.Pow(_l12, 2.0);
+
+            double t4 = -6.0 * _y23 / Math.Pow(_l23, 2.0);
+            double t5 = -6.0 * _y31 / Math.Pow(_l31, 2.0);
+            double t6 = -6.0 * _y12 / Math.Pow(_l12, 2.0);
+
+            if (dir.ToLower() == "x") {
+                if (deriv.ToLower() == "csi")
+                {
+                    //mnl.Vector<double> hxCsi = mnl.Vector<double>.Build.Dense(9);
+                    switch (indexFunction)
+                    {
+                        case 1:
+                            return (double csi, double eta) => P6 * (1.0 - 2.0 * csi) + (P5 - P6) * eta;
+                        case 2:
+                            return (double csi, double eta) => q6 * (1.0 - 2.0 * csi) - (q5 + q6) * eta;
+                        case 3:
+                            return (double csi, double eta) => -4.0 + 6.0 * (csi + eta) + r6 * (1.0 - 2.0 * csi) - eta * (r5 + r6);
+                        case 4:
+                            return (double csi, double eta) => -P6 * (1.0 - 2.0 * csi) + eta * (P4 + P6);
+                        case 5:
+                            return (double csi, double eta) => q6 * (1.0 - 2.0 * csi) - eta * (q6 - q4);
+                        case 6:
+                            return (double csi, double eta) => -2.0 + 6.0 * csi + r6 * (1.0 - 2.0 * csi) + eta * (r4 - r6);
+                        case 7:
+                            return (double csi, double eta) => -eta * (P5 + P4);
+                        case 8:
+                            return (double csi, double eta) => eta * (q4 - q5);
+                        case 9:
+                            return (double csi, double eta) => -eta * (r5 - r4);
+                        default:
+                            throw new ArgumentOutOfRangeException();
+                    }
+                    //Console.WriteLine("Hx,Csi(csi=" + csi.ToString("F2") + " ,eta=" + eta.ToString("F2") + ") = " + hxCsi);
+                } else if (deriv.ToLower() == "eta")
+                {
+                    //mnl.Vector<double> hxEta = mnl.Vector<double>.Build.Dense(9);
+                    switch (indexFunction)
+                    {
+                        case 1:
+                            return (double csi, double eta) => -P5 * (1.0 - 2.0 * eta) - csi * (P6 - P5);
+                        case 2:
+                            return (double csi, double eta) => q5 * (1.0 - 2.0 * eta) - csi * (q5 + q6);
+                        case 3:
+                            return (double csi, double eta) => -4.0 + 6.0 * (csi + eta) + r5 * (1.0 - 2.0 * eta) - csi * (r5 + r6);
+                        case 4:
+                            return (double csi, double eta) => csi * (P4 + P6);
+                        case 5:
+                            return (double csi, double eta) => csi * (q4 - q6);
+                        case 6:
+                            return (double csi, double eta) => -csi * (r6 - r4);
+                        case 7:
+                            return (double csi, double eta) => P5 * (1.0 - 2.0 * eta) - csi * (P4 + P5);
+                        case 8:
+                            return (double csi, double eta) => q5 * (1.0 - 2.0 * eta) + csi * (q4 - q5);
+                        case 9:
+                            return (double csi, double eta) => -2.0 + 6.0 * eta + r5 * (1.0 - 2.0 * eta) + csi * (r4 - r5);
+                        default:
+                            throw new ArgumentOutOfRangeException();
+                    }                  
+                    //Console.WriteLine("Hx,Eta(csi=" + csi.ToString("F2") + " ,eta=" + eta.ToString("F2") + ") = " + hxEta);
+                } else
+                {
+                    throw new ArgumentOutOfRangeException();
+                }
+            } else if (dir.ToLower() == "y")
+            {
+                if (deriv == "csi")
+                {
+                    //mnl.Vector<double> hyCsi = mnl.Vector<double>.Build.Dense(9);
+                    switch (indexFunction)
+                    {
+                        case 1:
+                            return (double csi, double eta) => t6 * (1.0 - 2.0 * csi) + eta * (t5 - t6);
+                        case 2:
+                            return (double csi, double eta) => 1.0 + r6 * (1.0 - 2.0 * csi) - eta * (r5 + r6);
+                        case 3:
+                            return (double csi, double eta) => -q6 * (1.0 - 2.0 * csi) + eta * (q5 + q6); // <<<<<------------ -eta instead of + eta
+                        case 4:
+                            return (double csi, double eta) => -t6 * (1.0 - 2.0 * csi) + eta * (t4 + t6);
+                        case 5:
+                            return (double csi, double eta) => -1.0 + r6 * (1.0 - 2.0 * csi) + eta * (r4 - r6); //<-------------- -eta instead of + eta
+                        case 6:
+                            return (double csi, double eta) => -q6 * (1.0 - 2.0 * csi) - eta * (q4 - q6); //<---------- +eta instead of -eta
+                        case 7:
+                            return (double csi, double eta) => -eta * (t4 + t5);
+                        case 8:
+                            return (double csi, double eta) => eta * (r4 - r5);
+                        case 9:
+                            return (double csi, double eta) => -eta * (q4 - q5);
+                        default:
+                            throw new ArgumentOutOfRangeException();
+                    }
+                    //Console.WriteLine("Hy,Csi(csi=" + csi.ToString("F2") + " ,eta=" + eta.ToString("F2") + ") = " + hyCsi);
+                } else if (deriv == "eta")
+                {
+                    //mnl.Vector<double> hyEta = mnl.Vector<double>.Build.Dense(9);
+                    switch (indexFunction)
+                    {
+                        case 1:
+                            return (double csi, double eta) => -t5 * (1.0 - 2.0 * eta) - csi * (t6 - t5);
+                        case 2:
+                            return (double csi, double eta) => 1.0 + r5 * (1.0 - 2.0 * eta) - csi * (r5 + r6);
+                        case 3:
+                            return (double csi, double eta) => -q5 * (1.0 - 2.0 * eta) + csi * (q5 + q6);
+                        case 4:
+                            return (double csi, double eta) => csi * (t4 + t6);
+                        case 5:
+                            return (double csi, double eta) => csi * (r4 - r6);
+                        case 6:
+                            return (double csi, double eta) => -csi * (q4 - q6);
+                        case 7:
+                            return (double csi, double eta) => t5 * (1.0 - 2.0 * eta) - csi * (t4 + t5);
+                        case 8:
+                            return (double csi, double eta) => -1.0 + r5 * (1.0 - 2.0 * eta) + csi * (r4 - r5);
+                        case 9:
+                            return (double csi, double eta) => -q5 * (1.0 - 2.0 * eta) - csi * (q4 - q5);  //<----------- + csi instead of - csi
+                        default:
+                            throw new ArgumentOutOfRangeException();
+                    }
+                    //Console.WriteLine("Hy,Eta(csi=" + csi.ToString("F2") + " ,eta=" + eta.ToString("F2") + ") = " + hyEta);
+                }
+                else
+                {
+                    throw new ArgumentOutOfRangeException();
+                }
+            }
+            else
+            {
+                throw new ArgumentOutOfRangeException();
+            }
+            #endregion
         }
     }
 }
