@@ -7,7 +7,6 @@ namespace GPC.Model.FEM.Attributes
     public abstract class Attribute : ModelObject, ISerializable, ICloneable
     {
 
-
         protected Attribute(Guid guid, string name) 
             : base(guid, name)
         {
@@ -17,6 +16,7 @@ namespace GPC.Model.FEM.Attributes
         protected Attribute(SerializationInfo info, StreamingContext context) 
             : base(info, context)
         {
+
         }
 
         public abstract object Clone();

@@ -5,8 +5,9 @@ using System.Runtime.Serialization;
 namespace GPC.Model
 {
     [Serializable]
-    public abstract class ModelObject
+    public abstract class ModelObject : ISerializable
     {
+
         #region Variables
 
         protected Guid _guid;
@@ -19,15 +20,12 @@ namespace GPC.Model
 
         public Guid Guid => _guid;
 
-        public string Name { get => _name; set { _name = value; } }
+        public string Name => _name; // Setter non disponibile in quanto il nome deve essere una variabile non mutabile in modo da poter avere la ModelObjectNameEqualityComparer
 
-        #endregion
+        #endregion 
 
         #region Public Constructors
 
-        /// <summary>
-        /// <param name="guid"> Object GUID</param>
-        /// </summary>
         public ModelObject()
         {
             _guid = Guid.NewGuid();
@@ -41,9 +39,6 @@ namespace GPC.Model
             _guid = guid;
         }
 
-        /// <summary>
-        /// <param name="guid"> Object GUID</param>
-        /// </summary>
         public ModelObject(string name)
         {
             _name = name;
@@ -68,7 +63,13 @@ namespace GPC.Model
 
         #endregion 
 
-        #region Public Methods Specific
+        /// <returns> <see langword="true"/> if <paramref name="guid"/> match the object <see cref="Guid"/> </returns>
+        public bool CompareGuid(Guid guid)
+        {
+            return _guid.Equals(guid);
+        }
+
+        #region Equals - HashCode - Operators
 
         public virtual void GetObjectData(SerializationInfo info, StreamingContext context)
         {
@@ -76,28 +77,33 @@ namespace GPC.Model
             info.AddValue("Name", _name);
         }
 
+
+        /// <returns><see langword="True"/> if <paramref name="obj"/> have the same <see cref="Name"/> of this object </returns>
         public override bool Equals(object obj)
         {
             if (obj is null || !(obj is ModelObject))
                 return false;
 
-            return  _name == (obj as ModelObject)._name;
+            return _name == (obj as ModelObject)._name;
         }
 
         public override int GetHashCode()
-        {
-            int hashCode = -23;
-            hashCode = hashCode * -17 + EqualityComparer<string>.Default.GetHashCode(_name);
-            return hashCode;
+        { 
+            unchecked
+            {
+                return -391 * EqualityComparer<string>.Default.GetHashCode(_name);
+            }
         }
 
         public static bool operator ==(ModelObject obj1, ModelObject obj2)
         {
+            if (obj1 is null)
+            {
+                return obj2 is null;
+            }
+
             if (ReferenceEquals(obj1, obj2))
                 return true;
-
-            if (obj1 is null || obj2 is null)
-                return false;
 
             return obj1.Equals(obj2);
         }
@@ -107,32 +113,30 @@ namespace GPC.Model
             return !(obj1 == obj2);
         }
 
-
         #endregion
-
 
         #region CUSTOM EQUALITY COMPARER
 
         /// <summary>
         /// Compare two <see cref="ModelObject"/> using only <see cref="ModelObject.Name"/> as equality parameter
         /// </summary>
-        public class ModelObjectNameEqualityComparer : IEqualityComparer<ModelObject> 
+        [Serializable]
+        public class ModelObjectNameEqualityComparer : IEqualityComparer<ModelObject>
         {
-
-            /// <returns> <inheritdoc/> 
-            /// <para> true if both <paramref name="x"/> and <paramref name="y"/> are null </para>  
+            /// <returns> <inheritdoc/>
+            /// <para> true if both <paramref name="x"/> and <paramref name="y"/> are null </para>
             /// </returns>
             /// <remarks> Only <see cref="ModelObject.Name"/> is used as equality parameter </remarks>
             bool IEqualityComparer<ModelObject>.Equals(ModelObject x, ModelObject y)
             {
-                if (ReferenceEquals(x, y))
-                    return true;
-
                 if (x == null && y == null)
                     return true;
 
                 if (x == null || y == null)
                     return false;
+
+                if (ReferenceEquals(x, y))
+                    return true;
 
                 if (x.Name.Equals(y.Name))
                     return true;
@@ -140,14 +144,14 @@ namespace GPC.Model
                 return false;
             }
 
-            /// <inheritdoc/>
+
             /// <remarks> Only <see cref="ModelObject.Name"/> is used as equality parameter </remarks>
             int IEqualityComparer<ModelObject>.GetHashCode(ModelObject obj)
             {
-                return 17 * obj.Name.GetHashCode();
+                return -17 * obj.Name.GetHashCode();
             }
         }
 
-        #endregion
+        #endregion CUSTOM EQUALITY COMPARER
     }
 }

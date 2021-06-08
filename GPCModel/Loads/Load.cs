@@ -9,12 +9,17 @@ namespace GPC.Model.Loads
     [Serializable]
     public abstract class Load : ModelObject
     {
-        private LoadCase _loadCase;
+        private readonly LoadCaseBase _loadCase;
 
-        public LoadCase LoadCase => _loadCase;
+        public LoadCaseBase LoadCase => _loadCase;
 
-        protected Load(LoadCase loadCase, Guid guid, string name)
-            : base(guid, name)
+        protected Load(LoadCase loadCase)
+            : this(loadCase, Guid.NewGuid())
+        {
+        }
+
+        protected Load(LoadCaseBase loadCase, Guid guid)
+            : base(guid)
         {
             _loadCase = loadCase ?? throw new ArgumentNullException(nameof(loadCase));
         }
@@ -25,17 +30,16 @@ namespace GPC.Model.Loads
             _loadCase = (LoadCase)info.GetValue("LoadCase", typeof(LoadCase));
         }
 
-
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             base.GetObjectData(info, context);
             info.AddValue("LoadCase", _loadCase);
         }
 
-
         public abstract GeometryBase GetGeometryBase();
 
-        #region Equals, HasCode and operators
+        #region Equals, HashCode and operators
+
         public override bool Equals(object obj)
         {
             if (ReferenceEquals(obj, this))
@@ -44,7 +48,7 @@ namespace GPC.Model.Loads
             if (obj is null)
                 return false;
 
-            return obj is Load load && EqualityComparer<LoadCase>.Default.Equals(_loadCase, load._loadCase) &&
+            return obj is Load load && EqualityComparer<LoadCaseBase>.Default.Equals(_loadCase, load._loadCase) &&
                    base.Equals(obj);
         }
 
@@ -52,7 +56,7 @@ namespace GPC.Model.Loads
         {
             int hashCode = -23;
             hashCode = hashCode * -17 + base.GetHashCode();
-            hashCode = hashCode * -17 + EqualityComparer<LoadCase>.Default.GetHashCode(_loadCase);
+            hashCode = hashCode * -17 + EqualityComparer<LoadCaseBase>.Default.GetHashCode(_loadCase);
             return hashCode;
         }
 
@@ -70,7 +74,8 @@ namespace GPC.Model.Loads
         public static bool operator !=(Load obj1, Load obj2)
         {
             return !(obj1 == obj2);
-        } 
-        #endregion
+        }
+
+        #endregion Equals, HashCode and operators
     }
 }

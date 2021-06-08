@@ -79,18 +79,18 @@ namespace FemTest
             NodeStageCollection<Node, Stage.StageProperty> nodes = new NodeStageCollection<Node, Stage.StageProperty>();
 
             Node n1 = new Node(Point3d.Origin, 1);          // A 1
-            Node n2 = new Node(Point3d.Origin, 2);
+            Node n2 = new Node(Point3d.Origin, 1);
 
-            Node n3 = new Node(new Point3d(0, 1, 2), 1);    // C 2
-            Node n5 = new Node(new Point3d(0, 1, 2), 1);
-            Node n6 = new Node(new Point3d(0, 1, 2), 5);
+            Node n3 = new Node(new Point3d(0, 1, 2), 2);    // C 2
+            Node n5 = new Node(new Point3d(0, 1, 2), 2);
+            Node n6 = new Node(new Point3d(0, 1, 2), 2);
 
-            Node n4 = new Node(new Point3d(0, 1, 3), 1);    // D 3
+            Node n4 = new Node(new Point3d(0, 1, 3), 3);    // D 3
 
             Stage.StageProperty sp1 = new Stage.StageProperty();
             Stage.StageProperty sp2 = new Stage.StageProperty();
-            sp1.AddLoadCaseAttribute(new NodeForceAttribute(new LoadCase("lc1"), null, 0, 1, 2, 3, 4, 5));
-            sp2.AddLoadCaseAttribute(new NodeForceAttribute(new LoadCase("lc2"), null, 0, 1, 2, 3, 4, 5));
+            sp1.AddLoadCaseAttribute(new NodeForceAttribute("lc1", null, 0, 1, 2, 3, 4, 5));
+            sp2.AddLoadCaseAttribute(new NodeForceAttribute("lc2", null, 0, 1, 2, 3, 4, 5));
 
 
             nodes.Add(n1, sp1);
@@ -102,15 +102,15 @@ namespace FemTest
 
             Assert.IsTrue(nodes.Count == 3);
 
-            Assert.IsTrue(nodes.GetStageProperty(1).LoadCaseAttributes[0].LoadCase.Name == "lc1");
-            Assert.IsTrue(nodes.GetStageProperty(1).LoadCaseAttributes[1].LoadCase.Name == "lc2");
+            Assert.IsTrue(nodes.GetStageProperty(1).LoadCaseAttributes[0].LoadCaseName == "lc1");
+            Assert.IsTrue(nodes.GetStageProperty(1).LoadCaseAttributes[1].LoadCaseName == "lc2");
 
-            Assert.IsTrue(nodes.GetStageProperty(2).LoadCaseAttributes[0].LoadCase.Name == "lc1");
-            Assert.IsTrue(nodes.GetStageProperty(2).LoadCaseAttributes[1].LoadCase.Name == "lc2");
+            Assert.IsTrue(nodes.GetStageProperty(2).LoadCaseAttributes[0].LoadCaseName == "lc1");
+            Assert.IsTrue(nodes.GetStageProperty(2).LoadCaseAttributes[1].LoadCaseName == "lc2");
             Assert.IsTrue(nodes.GetStageProperty(2).LoadCaseAttributes.Count == 3, nodes.GetStageProperty(2).LoadCaseAttributes.Count.ToString());
 
             Assert.IsTrue(nodes.GetStageProperty(3).LoadCaseAttributes.Count == 1, nodes.GetStageProperty(3).LoadCaseAttributes.Count.ToString());
-            Assert.IsTrue(nodes.GetStageProperty(3).LoadCaseAttributes[0].LoadCase.Name == "lc1");
+            Assert.IsTrue(nodes.GetStageProperty(3).LoadCaseAttributes[0].LoadCaseName == "lc1");
 
         }
 
@@ -125,8 +125,8 @@ namespace FemTest
 
             Stage.StageProperty sp1 = new Stage.StageProperty();
             Stage.StageProperty sp2 = new Stage.StageProperty();
-            sp1.AddLoadCaseAttribute(new NodeForceAttribute(new LoadCase("lc1"), null, 0, 1, 2, 3, 4, 5));
-            sp2.AddLoadCaseAttribute(new NodeForceAttribute(new LoadCase("lc2"), null, 0, 1, 2, 3, 4, 5));
+            sp1.AddLoadCaseAttribute(new NodeForceAttribute("lc1", null, 0, 1, 2, 3, 4, 5));
+            sp2.AddLoadCaseAttribute(new NodeForceAttribute("lc2", null, 0, 1, 2, 3, 4, 5));
 
 
             nodes.Add(n1, sp1);
@@ -139,8 +139,8 @@ namespace FemTest
             Assert.IsTrue(nodes.Count == 1);
 
             Assert.IsTrue(nodes.GetStageProperty(1).LoadCaseAttributes.Count == 2, nodes.GetStageProperty(1).LoadCaseAttributes.Count.ToString());
-            Assert.IsTrue(nodes.GetStageProperty(1).LoadCaseAttributes[0].LoadCase.Name == "lc1");
-            Assert.IsTrue(nodes.GetStageProperty(1).LoadCaseAttributes[1].LoadCase.Name == "lc2");
+            Assert.IsTrue(nodes.GetStageProperty(1).LoadCaseAttributes[0].LoadCaseName == "lc1");
+            Assert.IsTrue(nodes.GetStageProperty(1).LoadCaseAttributes[1].LoadCaseName == "lc2");
 
 
         }
@@ -154,16 +154,16 @@ namespace FemTest
             p1.SetId(1);
 
             Plate p2 = new Plate(new Node[] { new Node(new Point3d(0, 2, 2), 1), new Node(new Point3d(1, 2, 2), 2), new Node(new Point3d(2, 3, 2), 3), new Node(new Point3d(3, 4, 2), 4) });
-            p2.SetId(1);
+            p2.SetId(2);
 
             Plate p3 = new Plate(new Node[] { new Node(new Point3d(0, 1, 2), 1), new Node(new Point3d(1, 1, 2), 2), new Node(new Point3d(2, 1, 2), 3), new Node(new Point3d(3, 1, 2), 4) });
             p3.SetId(1);
 
 
-            Stage.StageFiniteElementProperty sp1 = new Stage.StageFiniteElementProperty(new PlateProperty(new SteelMaterial("m1", 1, 0.1, 1, 2, 0.1, 0), 1, 2, "p"));
-            Stage.StageFiniteElementProperty sp2 = new Stage.StageFiniteElementProperty(new PlateProperty(new SteelMaterial("m2", 1, 0.1, 1, 2, 0.1, 0), 1, 2, "p"));
-            sp1.AddLoadCaseAttribute(new NodeForceAttribute(new LoadCase("lc1"), null, 0, 1, 2, 3, 4, 5));
-            sp2.AddLoadCaseAttribute(new NodeForceAttribute(new LoadCase("lc2"), null, 0, 1, 2, 3, 4, 5));
+            Stage.StageFiniteElementProperty sp1 = new Stage.StageFiniteElementProperty("m1");
+            Stage.StageFiniteElementProperty sp2 = new Stage.StageFiniteElementProperty("m2");
+            sp1.AddLoadCaseAttribute(new NodeForceAttribute("lc1", null, 0, 1, 2, 3, 4, 5));
+            sp2.AddLoadCaseAttribute(new NodeForceAttribute("lc2", null, 0, 1, 2, 3, 4, 5));
 
             nodes.Add(p1, sp1);
             nodes.Add(p2, sp2);
@@ -172,8 +172,8 @@ namespace FemTest
             Assert.IsTrue(nodes.Count == 2);
 
             Assert.IsTrue(nodes.GetStageProperty(1).LoadCaseAttributes.Count == 2, nodes.GetStageProperty(1).LoadCaseAttributes.Count.ToString());
-            Assert.IsTrue(nodes.GetStageProperty(1).LoadCaseAttributes[0].LoadCase.Name == "lc1");
-            Assert.IsTrue(nodes.GetStageProperty(1).LoadCaseAttributes[1].LoadCase.Name == "lc2");
+            Assert.IsTrue(nodes.GetStageProperty(1).LoadCaseAttributes[0].LoadCaseName == "lc1");
+            Assert.IsTrue(nodes.GetStageProperty(1).LoadCaseAttributes[1].LoadCaseName == "lc2");
 
 
         }

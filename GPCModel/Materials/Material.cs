@@ -29,6 +29,7 @@ namespace GPC.Model.Materials
 
         /// <summary>
         /// </summary>
+        /// <param name="name"></param>
         /// <param name="elasticModulus"> Elastic Modulus [MPa]</param>
         /// <param name="poisson"> Poisson modulus </param>
         /// <param name="alfaThermalExpansion"> Thermal expansion constant</param>
@@ -40,17 +41,19 @@ namespace GPC.Model.Materials
 
         /// <summary>
         /// </summary>
+        /// <param name="name"></param>
         /// <param name="elasticModulus"> Elastic Modulus [MPa]</param>
         /// <param name="poisson"> Poisson modulus </param>
         /// <param name="alfaThermalExpansion"> Thermal expansion constant</param>
+        /// <param name="guid"></param>
         /// <param name="density"> Density [T/mm^3]</param>
         public Material(string name, double elasticModulus, double poisson, double density, double alfaThermalExpansion, Guid guid) 
             : base(guid, name)
         {
             _elasticModulus = elasticModulus < 0 ? throw new ArgumentException($"{nameof(elasticModulus)} cannot be lower than zero") : elasticModulus;
 
-            if (poisson > 1)
-                throw new ArgumentException($"{nameof(poisson)} cannot be greater than 1");
+            if (poisson > 0.5)
+                throw new ArgumentException($"{nameof(poisson)} cannot be greater than 0.5");
 
             _ni = poisson < 0 ? throw new ArgumentException($"Poisson cannot be lower than zero") : poisson;
 
@@ -64,10 +67,6 @@ namespace GPC.Model.Materials
         { 
         }
 
-        public Material(Guid guid) 
-            : this("", 0, 0, 0, 0, guid) 
-        { 
-        }
 
         protected Material(SerializationInfo info, StreamingContext context) 
             : base(info, context)
@@ -80,7 +79,20 @@ namespace GPC.Model.Materials
 
         #endregion 
 
-        #region PUBLIC METHODS
+        public virtual double GetShearModule()
+        {
+            return E / (2.0 * (1.0 + Ni));
+        }
+
+
+        public abstract GPC.Model.FEM.Materials.IsotropicFemMaterial GetIsotropicFemMaterial();
+
+        public abstract GPC.Model.FEM.Materials.OrthotropicFemMaterial GetOrthotropicFemMaterial();
+
+
+
+
+        #region Equals - HashCode - Operators
 
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {

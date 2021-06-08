@@ -1,32 +1,41 @@
-﻿
+﻿using GPC.Model.FEM.Materials;
 using System;
-using GPC.Model.Materials;
+using System.Diagnostics;
+using System.Runtime.Serialization;
 
 namespace GPC.Model.FEM.Properties
 {
-
-    public class BrickProperty : ElementProperty, IBrickProperty
+    [DebuggerDisplay("{" + nameof(GetDebuggerDisplay) + "(),nq}")]
+    [Serializable]
+    public class BrickProperty : ElementProperty, ISerializable
     {
-        
-        protected Material _material;
+
+        protected FemMaterial _material;
+
+        public FemMaterial Material => _material;
 
 
-        public BrickProperty(Material material, string name) : base(name, Guid.NewGuid())
+        public BrickProperty(FemMaterial material, string name) : base(name)
         {
-
-            _material = material ?? throw new ArgumentNullException("Brick property material cannot be null");
+            _material = material ?? throw new ArgumentNullException("Material cannot be null");
         }
 
-        public double GetE()
+        public BrickProperty(SerializationInfo info, StreamingContext context)
+            : base(info, context)
         {
-            return _material.E;
+            _material = (FemMaterial)info.GetValue("Material", typeof(FemMaterial));
         }
 
-        public double GetNi()
+
+        public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
-            return _material.Ni;
+            base.GetObjectData(info, context);
+            info.AddValue("Material", _material);
         }
 
+        private string GetDebuggerDisplay()
+        {
+            return $"BrickProperty: {_name}";
+        }
     }
-
 }

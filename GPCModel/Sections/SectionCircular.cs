@@ -9,6 +9,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 using GPC.Model.Materials;
+using GPC.Model.FEM.Materials;
 
 namespace GPC.Model.Sections
 {
@@ -23,7 +24,7 @@ namespace GPC.Model.Sections
         #endregion
 
         #region Public Constructors
-        public SectionCircular(double dext, double t, Material material, string name) : base(material, name)
+        public SectionCircular(double dext, double t, Material material, string name) : base(material.GetIsotropicFemMaterial(), name)
         {
             _dext = dext;
 
@@ -36,7 +37,7 @@ namespace GPC.Model.Sections
             : base(info, context)
         {
             _dext = info.GetDouble("Dext");
-            _material = (Material)info.GetValue("Material", typeof(Material));
+            _material = (IsotropicFemMaterial)info.GetValue("Material", typeof(IsotropicFemMaterial));
         }
 
         #endregion

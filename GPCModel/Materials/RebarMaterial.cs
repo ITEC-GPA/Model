@@ -1,4 +1,5 @@
-﻿using GPC.Utilities.Attributes;
+﻿using GPC.Model.FEM.Materials;
+using GPC.Utilities.Attributes;
 using System;
 using System.Runtime.Serialization;
 
@@ -18,6 +19,7 @@ namespace GPC.Model.Materials
         /// <param name="fy">Yielding stress</param>
         /// <param name="fu">Ultimate stress</param>
         /// <param name="epsilon0">Yielding strain</param>
+        /// <param name="density"></param>
         /// <param name="alfaThermalExpansion">Linear thermal expasion coefficient</param>
         /// <param name="guid">Guid of the material</param>
         public RebarMaterial(double elasticModulus, double poisson, double fy, double fu, double epsilon0, double density, double alfaThermalExpansion, Guid guid)
@@ -53,6 +55,7 @@ namespace GPC.Model.Materials
         /// <param name="fy">Yielding stress</param>
         /// <param name="fu">Ultimate stress</param>
         /// <param name="epsilon0">Yielding strain</param>
+        /// <param name="density"></param>
         public RebarMaterial(double elasticModulus, double poisson, double fy, double fu, double epsilon0, double density)
             : this(elasticModulus, poisson, fy, fu, epsilon0, density, 0, Guid.NewGuid())
         {
@@ -65,6 +68,7 @@ namespace GPC.Model.Materials
         /// <param name="poisson">Poissoins's Ratio</param>
         /// <param name="fy">Yielding stress</param>
         /// <param name="fu">Ultimate stress</param>
+        /// <param name="density"></param>
         public RebarMaterial(double elasticModulus, double poisson, double fy, double fu, double density)
             : this(elasticModulus, poisson, fy, fu, fy / elasticModulus, density, 0, Guid.NewGuid())
         {
@@ -90,6 +94,16 @@ namespace GPC.Model.Materials
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             base.GetObjectData(info, context);
+        }
+
+        public override IsotropicFemMaterial GetIsotropicFemMaterial()
+        {
+            return new IsotropicFemMaterial(E, Ni, AlfaThermalExpansion, Density);
+        }
+
+        public override OrthotropicFemMaterial GetOrthotropicFemMaterial()
+        {
+            return new OrthotropicFemMaterial(E, E, E, Ni, Ni, Ni, GetShearModule(), GetShearModule(), GetShearModule(), AlfaThermalExpansion, AlfaThermalExpansion, AlfaThermalExpansion, Density);
         }
 
         #endregion PUBLIC METHODS

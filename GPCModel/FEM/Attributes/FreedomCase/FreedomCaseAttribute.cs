@@ -7,26 +7,26 @@ namespace GPC.Model.FEM.Attributes
 {
     public abstract class FreedomCaseAttribute : Attribute, ISerializable
     {
-        private FreedomCase _freedomCase;
+        private string _freedomCaseName;
 
-        public FreedomCase FreedomCase => _freedomCase;
+        public string FreedomCaseName => _freedomCaseName;
 
-        public FreedomCaseAttribute(FreedomCase freedomCase)
-            : this(freedomCase, string.Empty, Guid.NewGuid())
+        public FreedomCaseAttribute(string freedomCaseName)
+            : this(freedomCaseName, string.Empty, Guid.NewGuid())
         {
 
         }
 
-        public FreedomCaseAttribute(FreedomCase freedomCase, string name)
-            : this(freedomCase, name, Guid.NewGuid())
+        public FreedomCaseAttribute(string freedomCaseName, string name)
+            : this(freedomCaseName, name, Guid.NewGuid())
         {
 
         }
 
-        public FreedomCaseAttribute(FreedomCase freedomCase, string name, Guid guid)
+        public FreedomCaseAttribute(string freedomCaseName, string name, Guid guid)
             : base(guid, name)
         {
-            _freedomCase = freedomCase ?? throw new ArgumentNullException(nameof(freedomCase));
+            _freedomCaseName = String.IsNullOrEmpty(freedomCaseName) || String.IsNullOrWhiteSpace(freedomCaseName) ? throw new ArgumentNullException() : freedomCaseName;
         }
         
 
@@ -34,7 +34,7 @@ namespace GPC.Model.FEM.Attributes
         public FreedomCaseAttribute(FreedomCaseAttribute freedomCaseAttribute)
             : base(freedomCaseAttribute.Guid, freedomCaseAttribute._name)
         {
-            _freedomCase = freedomCaseAttribute._freedomCase;
+            _freedomCaseName = freedomCaseAttribute._freedomCaseName;
         }
 
 
@@ -43,7 +43,7 @@ namespace GPC.Model.FEM.Attributes
         protected FreedomCaseAttribute(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
-            _freedomCase = (FreedomCase)info.GetValue("FreedomCase", typeof(FreedomCase));
+            _freedomCaseName = (string)info.GetValue("FreedomCase", typeof(string));
         }
 
 
@@ -56,20 +56,20 @@ namespace GPC.Model.FEM.Attributes
 
             FreedomCaseAttribute lca = obj as FreedomCaseAttribute;
 
-            return !(lca is null) && _freedomCase.Equals(lca._freedomCase) && base.Equals(lca);
+            return !(lca is null) && _freedomCaseName.Equals(lca._freedomCaseName) && base.Equals(lca);
         }
 
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             base.GetObjectData(info, context);
-            info.AddValue("FreedomCase", _freedomCase);
+            info.AddValue("FreedomCase", _freedomCaseName);
         }
 
         public override int GetHashCode()
         {
             int hashCode = 23;
             hashCode = hashCode * -17 + base.GetHashCode();
-            hashCode = hashCode * -17 + EqualityComparer<FreedomCase>.Default.GetHashCode(_freedomCase);
+            hashCode = hashCode * -17 + EqualityComparer<string>.Default.GetHashCode(_freedomCaseName);
             return hashCode;
         }
 

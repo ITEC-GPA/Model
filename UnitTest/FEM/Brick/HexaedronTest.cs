@@ -12,7 +12,7 @@ using GPC.Model.LoadCases;
 using GPC.Geometry;
 using GPC.Model.FreedomCases;
 
-namespace FemTest.Solver
+namespace FemTest.SolverTest
 {
     [TestClass]
     public class Hexaedron8Test
@@ -32,9 +32,9 @@ namespace FemTest.Solver
 
             SteelMaterial mat = new SteelMaterial("mat", 1.0, 0.0, 355, 510, 7850.0);
 
-            BrickProperty brickProperty = new BrickProperty(mat, "propBrick");
+            BrickProperty brickProperty = new BrickProperty(mat.GetIsotropicFemMaterial(), "propBrick");
 
-            Hexaedron e = new Hexaedron(nds.ToArray(), brickProperty, 1);
+            Hexaedron e = new Hexaedron(nds.ToArray(), brickProperty);
             e.BuildMatrix();
 
             Console.WriteLine("klocalMatrix");
@@ -65,13 +65,13 @@ namespace FemTest.Solver
 
             SteelMaterial mat = new SteelMaterial("mat", 1.0, 0.0, 355, 510, 7850.0);
 
-            BrickProperty brickProperty = new BrickProperty(mat, "proprBrick");
+            BrickProperty brickProperty = new BrickProperty(mat.GetIsotropicFemMaterial(), "proprBrick");
 
-            Hexaedron e = new Hexaedron(nds.ToArray(), brickProperty, 1);
+            Hexaedron e = new Hexaedron(nds.ToArray(), brickProperty);
 
-            LoadCase lc = new LoadCase("lc1");
+            LoadCaseBase lc = new LoadCaseBase("lc1");
             CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
-            NodeForceAttribute f = new NodeForceAttribute(lc, sys, 0.25, 0, 0.0, 0.0, 0.0, 0.0);
+            NodeForceAttribute f = new NodeForceAttribute("lc", sys, 0.25, 0, 0.0, 0.0, 0.0, 0.0);
 
             nds[1].AddAttribute(f);
             nds[2].AddAttribute(f);
@@ -79,7 +79,7 @@ namespace FemTest.Solver
             nds[6].AddAttribute(f);
 
             FreedomCase fc = new FreedomCase("fc");
-            NodeRestrainAttribute fix = new NodeRestrainAttribute(fc, sys);
+            NodeRestrainAttribute fix = new NodeRestrainAttribute("fc", sys);
             fix.AddExternalRestrain(LinearSolver.DOF.DX);
             fix.AddExternalRestrain(LinearSolver.DOF.DY);
             fix.AddExternalRestrain(LinearSolver.DOF.DZ);
@@ -91,10 +91,10 @@ namespace FemTest.Solver
 
             LinearSolver fem = new LinearSolver(new FiniteElement[] { e });
 
-            Assert.AreEqual(1.0, fem.GetDisplacementGlobalCoordinates(nds[1], LinearSolver.DOF.DX), 0.000001);
-            Assert.AreEqual(1.0, fem.GetDisplacementGlobalCoordinates(nds[2], LinearSolver.DOF.DX), 0.000001);
-            Assert.AreEqual(1.0, fem.GetDisplacementGlobalCoordinates(nds[6], LinearSolver.DOF.DX), 0.000001);
-            Assert.AreEqual(1.0, fem.GetDisplacementGlobalCoordinates(nds[6], LinearSolver.DOF.DX), 0.000001);
+            Assert.AreEqual(1.0, fem.GetNodeDisplacementGlobalCoordinates(nds[1], LinearSolver.DOF.DX), 0.000001);
+            Assert.AreEqual(1.0, fem.GetNodeDisplacementGlobalCoordinates(nds[2], LinearSolver.DOF.DX), 0.000001);
+            Assert.AreEqual(1.0, fem.GetNodeDisplacementGlobalCoordinates(nds[6], LinearSolver.DOF.DX), 0.000001);
+            Assert.AreEqual(1.0, fem.GetNodeDisplacementGlobalCoordinates(nds[6], LinearSolver.DOF.DX), 0.000001);
         }
 
         [TestMethod]
@@ -113,13 +113,13 @@ namespace FemTest.Solver
 
             SteelMaterial mat = new SteelMaterial("mat", 1.0, 0.0, 355, 510, 7850.0);
 
-            BrickProperty brickProperty = new BrickProperty(mat, "proprBrick");
+            BrickProperty brickProperty = new BrickProperty(mat.GetIsotropicFemMaterial(), "proprBrick");
 
-            Hexaedron e = new Hexaedron(nds.ToArray(), brickProperty, 1);
+            Hexaedron e = new Hexaedron(nds.ToArray(), brickProperty);
 
-            LoadCase lc = new LoadCase("lc1");
+            LoadCaseBase lc = new LoadCaseBase("lc1");
             CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
-            NodeForceAttribute f = new NodeForceAttribute(lc, sys, 0.0, 0.0, -0.25, 0.0, 0.0, 0.0);
+            NodeForceAttribute f = new NodeForceAttribute("lc", sys, 0.0, 0.0, -0.25, 0.0, 0.0, 0.0);
 
             nds[1].AddAttribute(f);
             nds[2].AddAttribute(f);
@@ -127,7 +127,7 @@ namespace FemTest.Solver
             nds[6].AddAttribute(f);
 
             FreedomCase fc = new FreedomCase("fc");
-            NodeRestrainAttribute fix = new NodeRestrainAttribute(fc, sys);
+            NodeRestrainAttribute fix = new NodeRestrainAttribute("fc", sys);
             fix.AddExternalRestrain(LinearSolver.DOF.DX);
             fix.AddExternalRestrain(LinearSolver.DOF.DY);
             fix.AddExternalRestrain(LinearSolver.DOF.DZ);
@@ -139,7 +139,7 @@ namespace FemTest.Solver
 
             LinearSolver fem = new LinearSolver(new FiniteElement[] { e });
 
-            Console.WriteLine(fem.GetDisplacementGlobalCoordinates(nds[1], LinearSolver.DOF.DZ));
+            Console.WriteLine(fem.GetNodeDisplacementGlobalCoordinates(nds[1], LinearSolver.DOF.DZ));
         }
 
         [TestMethod]
@@ -158,7 +158,7 @@ namespace FemTest.Solver
 
             SteelMaterial mat = new SteelMaterial("mat", 1000.0, 0.0, 355, 510, 7850.0);
 
-            BrickProperty brickProperty = new BrickProperty(mat, "proprBrick");
+            BrickProperty brickProperty = new BrickProperty(mat.GetIsotropicFemMaterial(), "proprBrick");
 
             List<Hexaedron> els = new List<Hexaedron>();
             for (int i = 4; i < nds.Count; i=i+4)
@@ -173,12 +173,12 @@ namespace FemTest.Solver
                 elementNodes.Add(nds[i + 2]);
                 elementNodes.Add(nds[i + 3]);
 
-                els.Add(new Hexaedron(elementNodes.ToArray(), brickProperty, 0));
+                els.Add(new Hexaedron(elementNodes.ToArray(), brickProperty));
             }
 
-            LoadCase lc = new LoadCase("lc1");
+            LoadCaseBase lc = new LoadCaseBase("lc1");
             CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
-            NodeForceAttribute f = new NodeForceAttribute(lc, sys, 0.0, 0.0, -0.25, 0.0, 0.0, 0.0);
+            NodeForceAttribute f = new NodeForceAttribute("lc", sys, 0.0, 0.0, -0.25, 0.0, 0.0, 0.0);
 
             nds[nds.Count - 1].AddAttribute(f);
             nds[nds.Count - 2].AddAttribute(f);
@@ -186,7 +186,7 @@ namespace FemTest.Solver
             nds[nds.Count - 4].AddAttribute(f);
 
             FreedomCase fc = new FreedomCase("fc");
-            NodeRestrainAttribute fix = new NodeRestrainAttribute(fc, sys);
+            NodeRestrainAttribute fix = new NodeRestrainAttribute("fc", sys);
             fix.AddExternalRestrain(LinearSolver.DOF.DX);
             fix.AddExternalRestrain(LinearSolver.DOF.DY);
             fix.AddExternalRestrain(LinearSolver.DOF.DZ);
@@ -198,7 +198,7 @@ namespace FemTest.Solver
 
             LinearSolver fem = new LinearSolver(els.ToArray()) ;
 
-            Assert.AreEqual(1.0, -0.1152 / fem.GetDisplacementGlobalCoordinates(nds[nds.Count-1], LinearSolver.DOF.DZ), 0.015);
+            Assert.AreEqual(1.0, -0.1152 / fem.GetNodeDisplacementGlobalCoordinates(nds[nds.Count-1], LinearSolver.DOF.DZ), 0.015);
         }
     }
 }

@@ -4,8 +4,9 @@ using System.Runtime.Serialization;
 namespace GPC.Model.FEM.Properties
 {
     [Serializable]
-    public abstract class ElementProperty : ModelObject
+    public abstract class ElementProperty : ModelObject, ISerializable
     {
+
         #region Public Constructors
 
         protected ElementProperty(string name)
@@ -14,11 +15,7 @@ namespace GPC.Model.FEM.Properties
 
         }
 
-        protected ElementProperty(string name, Guid guid)
-            : base(guid, name)
-        {
 
-        }
 
         protected ElementProperty(SerializationInfo info, StreamingContext context)
             : base(info, context)
@@ -26,36 +23,41 @@ namespace GPC.Model.FEM.Properties
 
         }
 
-        #endregion 
 
+        #endregion
+
+
+        #region Equals - Override - Operators
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
-
         {
             base.GetObjectData(info, context);
         }
 
         public override bool Equals(object obj)
         {
+            if (obj is null)
+                return false;
+
             if (ReferenceEquals(this, obj))
                 return true;
-            ElementProperty objCasted = obj as ElementProperty;
-            return !(objCasted is null) && base.Equals(objCasted);
+
+            return (obj is ElementProperty objCasted) && base.Equals(objCasted);
         }
 
         public override int GetHashCode()
         {
-            int hashCode = 23;
-            hashCode = hashCode * -17 + base.GetHashCode();
-            return hashCode;
+            return -391 * base.GetHashCode();
         }
 
         public static bool operator ==(ElementProperty obj1, ElementProperty obj2)
         {
+            if (obj1 is null)
+            {
+                return obj2 is null;
+            }
+
             if (ReferenceEquals(obj1, obj2))
                 return true;
-
-            if (ReferenceEquals(obj1, null) || ReferenceEquals(obj2, null))
-                return false;
 
             return obj1.Equals(obj2);
         }
@@ -64,5 +66,6 @@ namespace GPC.Model.FEM.Properties
         {
             return !(obj1 == obj2);
         }
+        #endregion
     }
 }

@@ -12,7 +12,7 @@ namespace GPC.Model.FEM.FiniteElements
     /// </summary>
     public class Tethraedron4 : Brick
     {
-        public Tethraedron4(Node[] globalNodes, BrickProperty brickProperty, int id) :base(globalNodes)
+        internal Tethraedron4(Node[] globalNodes, BrickProperty brickProperty) :base(globalNodes)
         {
             _DOF.Add(LinearSolver.DOF.DX);
             _DOF.Add(LinearSolver.DOF.DY);
@@ -20,7 +20,6 @@ namespace GPC.Model.FEM.FiniteElements
             //a displacement in Local coordinate plane (Dx, Dy) can be a DX, DY, DZ in Global space!
 
             SetProperty(brickProperty);
-            SetId(id);
 
             #region Controllo
             //Controllo che per ogni nodo I vengano visti gli altri 3 in senso antiorario.
@@ -31,7 +30,7 @@ namespace GPC.Model.FEM.FiniteElements
                 check.RemoveAt(0);
 
                 //Mi sposto nelle coordinate locali della faccia
-                Node[] localFaceNode = Tri3Element.LocalNodes(check.ToArray(), out CoordinateSystem sys);
+                Point3d[] localFaceNode = Tri3Element.GetLocalNodes(check.ToArray(), out CoordinateSystem sys).Select(x => x.Position).ToArray();
 
                 if (Tri3Element.GetArea(localFaceNode) < 0)
                 {
@@ -49,9 +48,9 @@ namespace GPC.Model.FEM.FiniteElements
             // -> local axis coincide with global axis -> ref. Finite Element Method - by Rao §11.2
             _dofGlobalToLocal = mnl.Matrix<double>.Build.DenseDiagonal(4*3, 1.0);
 
-            double E = ((BrickProperty)_property).GetE();
-            double ni = ((BrickProperty)_property).GetNi();
-            _d = Brick.GetD(E, ni);
+            /*double E = ((BrickProperty)_property).GetE();
+            double ni = ((BrickProperty)_property).GetNi();*/
+            _d = ((BrickProperty)_property).Material.Get3DSolidStress();
 
             mnl.Matrix<double> b = GetB();
             double volume = GetVolume(_nodesGlobal);
@@ -115,16 +114,11 @@ namespace GPC.Model.FEM.FiniteElements
         }
 
         #region Results
-        public override void GetNodesResults(double[] globalDisplacementsNodes, out double[] localDisplacements, out mnl.Matrix<double>[] gloabalPseudoDeformation, out mnl.Matrix<double>[] localPseudoDeformation, out mnl.Matrix<double>[] globalForces, out mnl.Matrix<double>[] localForces, out mnl.Matrix<double>[] globalStress, out mnl.Matrix<double>[] localStress, out mnl.Matrix<double>[] globalEpsilon, out mnl.Matrix<double>[] localEpsilon)
+        //TODO: Da ottimizzare/scrivere
+        /*public override void GetNodesResults(double[] globalDisplacementsNodes, out double[] localDisplacements, out mnl.Matrix<double>[] gloabalPseudoDeformation, out mnl.Matrix<double>[] localPseudoDeformation, out mnl.Matrix<double>[] globalForces, out mnl.Matrix<double>[] localForces, out mnl.Matrix<double>[] globalStress, out mnl.Matrix<double>[] localStress, out mnl.Matrix<double>[] globalEpsilon, out mnl.Matrix<double>[] localEpsilon)
         {
             base.GetNodesResults(globalDisplacementsNodes, out localDisplacements, out gloabalPseudoDeformation, out localPseudoDeformation, out globalForces, out localForces, out globalStress, out localStress, out globalEpsilon, out localEpsilon);
-        }
-
-
-        public override void GetResultPositionNaturalCoordinates(double csi, double eta, double zeta, double[] globalDisplacementsNodes, out double x, out double y, out double z, out double[] localDisplacements, out mnl.Matrix<double> gloabalPseudoDeformation, out mnl.Matrix<double> localPseudoDeformation, out mnl.Matrix<double> globalForces, out mnl.Matrix<double> localForces, out mnl.Matrix<double> globalStress, out mnl.Matrix<double> localStress, out mnl.Matrix<double> globalEpsilon, out mnl.Matrix<double> localEpsilon)
-        {
-            base.GetResultPositionNaturalCoordinates(csi, eta, zeta, globalDisplacementsNodes, out x, out y, out z, out localDisplacements, out gloabalPseudoDeformation, out localPseudoDeformation, out globalForces, out localForces, out globalStress, out localStress, out globalEpsilon, out localEpsilon);
-        }
+        }*/
         #endregion
 
         protected override mnl.Vector<double> BuildFLocalCoord()
@@ -135,7 +129,7 @@ namespace GPC.Model.FEM.FiniteElements
 
             //ripartire secondo V/4 ed eventualmente per pressioni su facce come A/3
 
-            return base.BuildFLocalCoord();
+            return mnl.Vector<double>.Build.Dense(4*3);
         }
 
         /// <summary>
@@ -209,8 +203,8 @@ namespace GPC.Model.FEM.FiniteElements
 
             var listNodes = nodeOrdered.ToList();
             listNodes.RemoveAt(0); //remove node
-            listNodes.ForEach(x => Console.WriteLine(x));
-            Console.WriteLine();
+            /*listNodes.ForEach(x => Console.WriteLine(x));
+            Console.WriteLine();*/
 
             mnl.Vector<double> a(Node n)
             {
@@ -277,7 +271,7 @@ namespace GPC.Model.FEM.FiniteElements
                 m = m.InsertRow(i, r);
                 i++;
             });
-            Console.WriteLine(m);
+            //Console.WriteLine(nameCoefficient + " = " + m);
 
             double factor;
             switch (nameCoefficient)

@@ -1,7 +1,7 @@
 ﻿using GPC.Utilities.Attributes;
 using System;
-using System.Linq;
 using System.Collections.Generic;
+using System.Linq;
 using System.Runtime.Serialization;
 
 namespace GPC.Model.Glasses
@@ -15,9 +15,9 @@ namespace GPC.Model.Glasses
     {
         #region Variables
 
-        private MonolithicGlass[] _monolithicGlasses;
+        private readonly MonolithicGlass[] _monolithicGlasses;
 
-        private Interlayer[] _interlayers;
+        private readonly Interlayer[] _interlayers;
 
         #endregion Variables
 
@@ -34,10 +34,11 @@ namespace GPC.Model.Glasses
         #region Public Constructors
 
         /// <summary>
-        /// Initialize the Laminated glass with empty arrays of monolithics and interlayers. 
+        /// Initialize the Laminated glass with empty arrays of monolithics and interlayers.
         /// Used in UI to create an empty laminated that the user will interactively define.
         /// </summary>
         /// <param name="name"></param>
+        /// <remarks>Order of the glass panels is from external to internal</remarks>
         public LaminatedGlass(string name)
             : base(Guid.NewGuid(), name)
         {
@@ -45,28 +46,29 @@ namespace GPC.Model.Glasses
             _interlayers = new Interlayer[0];
         }
 
-        /// <summary>
-        ///
-        /// </summary>
-        /// <param name="monolithicGlasses">Monolithic glasses composing the laminated panel</param>
+
+        /// <param name="name"></param>
+        /// <param name="monolithicGlasses">Monolithic glasses composing the laminated panel.</param>
         /// <param name="interlayers">Interlayers between monolithic glasses, number of interlayer must be equal to glass number - 1</param>
+        /// <remarks>Order of the glass panels is from external to internal</remarks>
         public LaminatedGlass(string name, MonolithicGlass[] monolithicGlasses, Interlayer[] interlayers)
             : this(name, monolithicGlasses, interlayers, Guid.NewGuid())
         {
+
         }
 
-        /// <summary>
-        ///
-        /// </summary>
+
+        /// <param name="name"></param>
         /// <param name="monolithicGlasses">Monolithic glasses composing the laminated panel</param>
         /// <param name="interlayers">Interlayers between monolithic glasses, number of interlayer must be equal to glass number - 1</param>
         /// <param name="guid">The guid of of the glass</param>
+        /// <remarks>Order of the glass panels is from external to internal</remarks>
         public LaminatedGlass(string name, MonolithicGlass[] monolithicGlasses, Interlayer[] interlayers, Guid guid)
             : base(guid, name)
-        {                
+        {
             if (monolithicGlasses.Length < 2)
                 throw new ArgumentException("Number of monolithic glasses should be greater than one");
-            
+
             if (interlayers == null || interlayers.Length == 0)
                 throw new ArgumentException("No interlayer provided");
 
@@ -76,8 +78,8 @@ namespace GPC.Model.Glasses
                 throw new ArgumentException("MonolithicGlasses.Length - 1 != interlayers.Length");
             }
 
-            _monolithicGlasses = monolithicGlasses ?? throw new ArgumentException("Monolithic glasses cannot be null");
-            _interlayers = interlayers;
+            _monolithicGlasses = monolithicGlasses.Where(i => i == null).Count() > 0 ? throw new ArgumentNullException("Monolithic glasses cannot be null") : monolithicGlasses;
+            _interlayers = interlayers.Where(i => i == null).Count() > 0 ? throw new ArgumentNullException("Interlayers cannot be null") : interlayers; ;
         }
 
         public LaminatedGlass(SerializationInfo info, StreamingContext context)
@@ -87,9 +89,37 @@ namespace GPC.Model.Glasses
             _interlayers = (Interlayer[])info.GetValue("Interlayers", typeof(Interlayer[]));
         }
 
-        #endregion Public Constructors
+        #endregion
 
-        #region PUBLIC METHODS
+        #region Public methods - Getter
+
+        /// <returns>Return an array of <see cref="MonolithicGlass"/> and <see cref="Interlayer"/> rapresenting the glass package composition</returns>
+        /// <remarks>The first layer is the first monolithic glass that has been added
+        /// <para>Order of the glass panels is from external to internal</para> </remarks>
+        public IGlassPackage[] GetGlassPackage()
+        {
+            IGlassPackage[] package = new IGlassPackage[_monolithicGlasses.Length + _interlayers.Length];
+
+            int index = 0;
+            for (int i = 0; i < _monolithicGlasses.Length + _interlayers.Length; i++)
+            {
+                if (i % 2 == 0)
+                {
+                    package[i] = _monolithicGlasses[index];
+                }
+                else
+                {
+                    package[i] = _interlayers[index];
+                    index++;
+                }
+            }
+
+            return package;
+        }
+
+        #endregion 
+
+        #region Equals - HashCode - Operators
 
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
@@ -100,12 +130,13 @@ namespace GPC.Model.Glasses
 
         public bool Equals(LaminatedGlass other)
         {
+            if (other is null)
+                return false;
+
             if (ReferenceEquals(this, other))
                 return true;
 
-            return !(other is null) && other._interlayers.SequenceEqual(_interlayers)
-                                    && other._monolithicGlasses.SequenceEqual(_monolithicGlasses) 
-                                    && base.Equals(other);
+            return other._interlayers.SequenceEqual(_interlayers) && other._monolithicGlasses.SequenceEqual(_monolithicGlasses) && base.Equals(other);
         }
 
         public override bool Equals(object obj)
@@ -115,11 +146,14 @@ namespace GPC.Model.Glasses
 
         public override int GetHashCode()
         {
-            int hashCode = -23;
-            hashCode = hashCode * -17 + base.GetHashCode();
-            hashCode = hashCode * -17 + EqualityComparer<MonolithicGlass[]>.Default.GetHashCode(_monolithicGlasses);
-            hashCode = hashCode * -17 + EqualityComparer<Interlayer[]>.Default.GetHashCode(_interlayers);
-            return hashCode;
+            unchecked
+            {
+                int hashCode = -23;
+                hashCode = hashCode * -17 + base.GetHashCode();
+                hashCode = hashCode * -17 + EqualityComparer<MonolithicGlass[]>.Default.GetHashCode(_monolithicGlasses);
+                hashCode = hashCode * -17 + EqualityComparer<Interlayer[]>.Default.GetHashCode(_interlayers);
+                return hashCode; 
+            }
         }
 
         public static bool operator ==(LaminatedGlass obj1, LaminatedGlass obj2)
@@ -132,11 +166,12 @@ namespace GPC.Model.Glasses
 
             return obj1.Equals(obj2);
         }
+
         public static bool operator !=(LaminatedGlass obj1, LaminatedGlass obj2)
         {
             return !(obj1 == obj2);
         }
 
-        #endregion PUBLIC METHODS
+        #endregion 
     }
 }

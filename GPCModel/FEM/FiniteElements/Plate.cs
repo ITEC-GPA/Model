@@ -1,14 +1,12 @@
 ﻿using System;
+using System.Linq;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using GPC.Model.Elements;
 using GPC.Model.FEM.Attributes;
 using GPC.Model.FEM.Properties;
-using MathNet.Numerics.LinearAlgebra;
+using GPC.Model.Results;
 using mnl = MathNet.Numerics.LinearAlgebra;
+using GPC.Geometry;
 
 namespace GPC.Model.FEM.FiniteElements
 {
@@ -20,11 +18,26 @@ namespace GPC.Model.FEM.FiniteElements
     [System.ComponentModel.Description("Verrà messa abstract una volta che il fem è stabile")]
     public class Plate : FiniteElement
     {
+        // TODO: rendere abstract
+
+        public enum Face
+        {
+            Top,
+            Middle,
+            Bottom
+        }
+
+        //contains Material information of the element
+        protected mnl.Matrix<double> _d;
+
+        /// <summary>
+        /// F,M = [D] * (epsilon, curvature...)
+        /// </summary>
+        public mnl.Matrix<double> D => _d;
+
         public bool IsTriangle => Nodes.Length == 3 ? true : false;
 
         public bool IsQuad => Nodes.Length == 4 ? true : false;
-
-        public new PlateProperty Property => (PlateProperty)_property;
 
 
         public Plate(Node[] nodes) : base(nodes)
@@ -63,6 +76,11 @@ namespace GPC.Model.FEM.FiniteElements
             return plate;
         }
 
+        public override FiniteElement Duplicate()
+        {
+            throw new NotImplementedException();
+        }
+
 
         public virtual void AddLoadCaseAttribute(IPlateLoadCaseAttribute attribute)
         {
@@ -75,6 +93,22 @@ namespace GPC.Model.FEM.FiniteElements
             _attributesFreedomCase.Add((FreedomCaseAttribute)attribute);
         }
 
+        public void AddResult(PlateResult result)
+        {
+            base.AddResult(result);
+        }
+
+        public override void AddResult(FiniteElementResult result)
+        {
+            if (result is PlateResult)
+            {
+                base.AddResult(result);
+            }
+            else
+            {
+                throw new ArgumentException();
+            }
+        }
 
         protected override mnl.Vector<double> BuildFLocalCoord()
         {
@@ -86,27 +120,50 @@ namespace GPC.Model.FEM.FiniteElements
             throw new NotImplementedException();
         }
 
-        public override mnl.Matrix<double> GetB(double csi = 0, double eta = 0, double zeta = 0)
+        /// <summary>
+        /// usually = B : derivative of ShapeFunctions, need for epsilon = [B] * q with q = node displacements vector
+        /// </summary>
+        /// <param name="csi">natural coordinate -1 to 1</param>
+        /// <param name="eta">natural coordinate -1 to 1</param>
+        /// <returns></returns>
+        public virtual mnl.Matrix<double> GetB(double csi = 0, double eta = 0)
         {
             throw new NotImplementedException();
         }
 
-        public override void GetNodesResults(double[] globalDisplacementsNodes, out double[] localDisplacements, out mnl.Matrix<double>[] gloabalPseudoDeformation, out mnl.Matrix<double>[] localPseudoDeformation, out mnl.Matrix<double>[] globalForces, out mnl.Matrix<double>[] localForces, out mnl.Matrix<double>[] globalStress, out mnl.Matrix<double>[] localStress, out mnl.Matrix<double>[] globalEpsilon, out mnl.Matrix<double>[] localEpsilon)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override void GetResultPositionNaturalCoordinates(double csi, double eta, double zeta, double[] globalDisplacementsNodes, out double x, out double y, out double z, out double[] localDisplacements, out Matrix<double> gloabalPseudoDeformation, out Matrix<double> localPseudoDeformation, out Matrix<double> globalForces, out Matrix<double> localForces, out Matrix<double> globalStress, out Matrix<double> localStress, out Matrix<double> globalEpsilon, out Matrix<double> localEpsilon)
+        //TODO: Da ottimizzare/scrivere
+        public new void GetNodesResults(double[] globalDisplacementsNodes, out mnl.Matrix<double>[] gloabalPseudoDeformation, out mnl.Matrix<double>[] localPseudoDeformation, out mnl.Matrix<double>[] globalForces, out mnl.Matrix<double>[] localForces, out mnl.Matrix<double>[] globalStress, out mnl.Matrix<double>[] localStress, out mnl.Matrix<double>[] globalEpsilon, out mnl.Matrix<double>[] localEpsilon)
         {
             throw new NotImplementedException();
         }
 
         private string GetDebuggerDisplay()
         {
-            return $"Plate, Id: {Id}, PropertyName: {Property.Name}";
+            var prop = Property != null ? Property.Name : String.Empty;
+            return $"Plate, Id: {Id}, PropertyName: {prop}";
         }
 
+        public double GetArea()
+        {
+            if (IsQuad == true)
+            {
+                var pts = Quad4Element.GetLocalNodes(_nodesGlobal, out CoordinateSystem sys).Select(x => x.Position).ToList();
 
+                double a1 = Tri3Element.GetArea(new Point3d[] { pts[0], pts[1], pts[2] });
+                double a2 = Tri3Element.GetArea(new Point3d[] { pts[0], pts[2], pts[3] });
+                return a1 + a2;
+
+            } else if (IsTriangle == true)
+            {
+                var pts = Tri3Element.GetLocalNodes(_nodesGlobal, out CoordinateSystem sys).Select(x => x.Position).ToList();
+
+                return Tri3Element.GetArea(new Point3d[] { pts[0], pts[1], pts[2] });
+            } else
+            {
+                throw new NotImplementedException("This plate have nr of nodes different than 3 or 4");
+            }
+        }
+        
 
         // GetNodalDisplacement()
 
@@ -114,23 +171,5 @@ namespace GPC.Model.FEM.FiniteElements
 
         // GetNodalStress() => List<ResultPLateStress> [ngauspoint * 3facce]
 
-        /// <summary>
-        /// Matrice stato piano di tensione da materiale elastico lineare isotropo
-        /// </summary>
-        /// <param name="E"></param>
-        /// <param name="ni"></param>
-        /// <returns></returns>
-        public static mnl.Matrix<double> DPlaneStress(double E, double ni)
-        {
-            //TODO: spostare da qui in un posto migliore
-            mnl.Matrix<double> D = mnl.Matrix<double>.Build.Dense(3, 3);
-            D[0, 0] = 1.0;
-            D[0, 1] = ni;
-            D[1, 0] = ni;
-            D[1, 1] = 1.0;
-            D[2, 2] = (1.0 - ni) / 2.0;
-            D = E / (1.0 - ni * ni) * D;
-            return D;
-        }
     }
 }

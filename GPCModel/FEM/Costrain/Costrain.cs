@@ -1,61 +1,77 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace GPC.Model.FEM.Costrain
+namespace GPC.Model.FEM.Costrains
 {
-    /// <summary>
-    /// Multipoints costrains is when as example: gdl_i = f(gdl_1, ... , gld_K, ... gdl_N) + const with K and N != i and const can be = 0
-    //  these are userful for rotated (not in Global Coordinates) restrains
-    /// </summary>
-    public class MultiPointCostrain
-    { 
-        Link[] _links;
-        double _constValue;
+    public abstract class Costrain : FEMObject
+    {
 
-        public Link[] Links => _links;
-        public double ConstValue => _constValue;
+        protected Node _startNode;
+        protected Node[] _endNodes;
 
-        public MultiPointCostrain(Link[] links, double constValue = 0)
+        protected MultiPointsCostrain[] _links;
+
+
+
+        public Node StartNode => _startNode;
+        public Node[] EndNodes => _endNodes;
+
+        public Node EndNode
         {
-            _links = links;
-            _constValue = constValue;
+            get
+            {
+                if (_endNodes.Count() == 1)
+                {
+                    return _endNodes[0];
+                }
+                else
+                {
+                    throw new IndexOutOfRangeException("This link connect more than 1 node");
+                }
+            }
         }
 
-        public override string ToString()
+        public MultiPointsCostrain[] Links => _links;
+
+
+        public Costrain(Node nodo1, Node[] nodes, string name = "") 
+            : base(name)
         {
-            string s = ""; // "Node " + _labelNodeMaster + " " + NodeMasterGDL + " = "; Not used in lagrangian formulation
-            for (int i = 0; i < _links.Length; i++)
-            {
-                s = s + _links[i].ToString();
-            }
-            s = s + " = " + _constValue;
-            return s;
+            _startNode = nodo1;
+            _endNodes = nodes;
         }
 
-        /// <summary>
-        /// Costrain = Value * GDLNode
-        /// </summary>
-        public struct Link
+        public override bool Equals(object obj)
         {
-            public string LabelNode;
-            public LinearSolver.DOF GdlNode;
-            public double Value;
+            return obj is Costrain costrain &&
+                   base.Equals(obj) &&
+                   EqualityComparer<Node>.Default.Equals(_startNode, costrain._startNode) &&
+                   _endNodes.SequenceEqual(costrain._endNodes) &&
+                   _links.SequenceEqual(costrain._links);
+        }
 
-            public Link(string labelNodeSlave, LinearSolver.DOF gdlNodeSlave, double val)
-            {
-                LabelNode = labelNodeSlave;
-                GdlNode = gdlNodeSlave;
-                Value = val;
-            }
 
-            public override string ToString()
+        public override int GetHashCode()
+        {
+            unchecked
             {
-                return Value + " * (Node" + LabelNode + " " + GdlNode + ") ";
+                int hashCode = -23;
+                hashCode = hashCode * -17 + base.GetHashCode();
+                hashCode = hashCode * -17 + EqualityComparer<Node>.Default.GetHashCode(_startNode);
+
+                foreach (var element in _endNodes)
+                {
+                    hashCode = hashCode * -17 + EqualityComparer<Node>.Default.GetHashCode(element);
+                }
+
+                foreach (var element in _links)
+                {
+                    hashCode = hashCode * -17 + EqualityComparer<MultiPointsCostrain>.Default.GetHashCode(element);
+                }
+
+                return hashCode; 
             }
         }
     }
 }
-

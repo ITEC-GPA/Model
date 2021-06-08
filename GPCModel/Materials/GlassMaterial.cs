@@ -1,4 +1,5 @@
-﻿using System;
+﻿using GPC.Model.FEM.Materials;
+using System;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
 
@@ -10,6 +11,7 @@ namespace GPC.Model.Materials
         /// <summary>
         /// 
         /// </summary>
+        /// <param name="name"></param>
         /// <param name="elasticModulus">Elastic modulus of the glass [MPa]</param>
         /// <param name="poisson">poisson ratio's of the glass</param>
         /// <param name="density">Density of the material [T/mm^3]</param>
@@ -29,6 +31,7 @@ namespace GPC.Model.Materials
         /// <summary>
         /// 
         /// </summary>
+        /// <param name="name"></param>
         /// <param name="elasticModulus">Elastic modulus of the glass [MPa]</param>
         /// <param name="poisson">poisson ratio's of the glass</param>
         /// <param name="density">Density of the material [T/mm^3]</param>
@@ -48,6 +51,17 @@ namespace GPC.Model.Materials
         #region Public method
 
         public abstract double GetGlassResistance(bool edgeResistance, double loadDuration);
+
+
+        public override IsotropicFemMaterial GetIsotropicFemMaterial()
+        {
+            return new IsotropicFemMaterial(E, Ni, AlfaThermalExpansion, Density);
+        }
+
+        public override OrthotropicFemMaterial GetOrthotropicFemMaterial()
+        {
+            return new OrthotropicFemMaterial(E, E, E, Ni, Ni, Ni, GetShearModule(), GetShearModule(), GetShearModule(), AlfaThermalExpansion, AlfaThermalExpansion, AlfaThermalExpansion, Density);
+        }
 
         #endregion
 

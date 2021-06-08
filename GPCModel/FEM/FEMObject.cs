@@ -3,29 +3,28 @@ using System.Linq;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
 using GPC.Model.Elements;
+using GPC.Model.FEM.Collections;
 using GPC.Utilities.Extensions;
 
 namespace GPC.Model.FEM
 {
     [Serializable]
-    public abstract class FEMObject : Element, ISerializable
+    public abstract class FEMObject : ModelObjectId, ISerializable
     {
-        /// <remarks>
-        /// Public setter not available, in the same assembly you can use <see cref="SetId(int)"/> otherwise you can not set the id of a <see cref="FEMObject"/>
-        /// </remarks>
-        /// <exception cref="NotSupportedException"></exception>
-        public override int Id { get => base.Id; set => throw new NotSupportedException($"Public setter not available, use method {nameof(SetId)}"); }
 
-        public FEMObject() 
-            : this(string.Empty)
+        protected readonly UniqueNameCollection<Group> _groups; // non usiamo groupCollection in quanto l'id è già stato assegnato dal femModel.
+                                                                // Usiamo questa collection per avere contains con nome e perchè è thread-safe
+        
+
+        public FEMObject() : this("")
         {
 
         }
 
         public FEMObject(string name) 
-            : base(Guid.NewGuid(), name)
+            : base(name)
         {
-
+            _groups = new UniqueNameCollection<Group>();
         }
 
         public FEMObject(SerializationInfo info, StreamingContext context) 
@@ -40,40 +39,84 @@ namespace GPC.Model.FEM
         }
 
 
+        public bool ContainsGroup(string groupName)
+        {
+            return _groups.Contains(groupName);
+        }
+        
+        public bool ContainsGroup(Group group)
+        {
+            return _groups.Contains(group);
+        }
+
+        /// <summary>
+        /// This is an internal method, since only the femModel class can add a group to the femObject
+        /// </summary>
+        internal bool AddGroup(Group group)
+        {
+            if (group is null)
+                return false;
+
+            _groups.Add(group); // torniamo vero anche se add torna falso, cioè alcuni elementi non aggiunti in quanto già presenti
+            return true;
+        }
+
+        /// <summary>
+        /// This is an internal method, since only the femModel class can add a group to the femObject
+        /// </summary>
+        internal bool AddGroupRange(IEnumerable<Group> groups)
+        {
+            if (groups is null)
+                return false;
+
+            _groups.AddRange(groups);
+            return true;
+        }
+
+
+        public Group[] GetGroups()
+        {
+            return _groups.ToArray();
+        }
+
+
+        /// <summary>
+        /// This is an internal method, since only the femModel class can set the id of the femObject
+        /// </summary>
         internal void SetId(int id)
         {
+            // teoricamente questo metodo non serve più. Al momento esiste solo per retrocompatibilità
             base.Id = id;
         }
 
         #region Equals, hascode, operators, 
 
-        /// <inheritdoc/>
         public override bool Equals(object obj)
         {
+            if (obj is null)
+                return false;
+
             if (ReferenceEquals(this, obj))
                 return true;
 
-            FEMObject objCasted = obj as FEMObject;
-
-            return !(objCasted is null) && base.Equals(objCasted);
+            return (obj is FEMObject objCasted) && base.Equals(objCasted);
         }
 
         public override int GetHashCode()
         {
-            int hashCode = -23;
-            hashCode = hashCode * -17 + base.GetHashCode();
-
-            return hashCode;
+            return -17 * base.GetHashCode();
         }
 
 
         public static bool operator ==(FEMObject obj1, FEMObject obj2)
         {
+            if (obj1 is null)
+            {
+                return obj2 is null;
+            }
+
             if (ReferenceEquals(obj1, obj2))
                 return true;
-
-            if (obj1 is null || obj2 is null)
-                return false;
 
             return obj1.Equals(obj2);
         }
@@ -86,7 +129,7 @@ namespace GPC.Model.FEM
         #endregion
 
         /// <summary>
-        /// Custom Equality comparer that compare two <see cref="FEMObject"/> adding also the <see cref="Element.Id"/> as an equality parameter
+        /// Custom Equality comparer that compare two <see cref="FEMObject"/> adding also the <see cref="ModelObjectId.Id"/> as an equality parameter
         /// </summary>
         public class FemObjectWithIdComparer : IEqualityComparer<FEMObject>
         {
@@ -110,19 +153,16 @@ namespace GPC.Model.FEM
 
             public int GetHashCode(FEMObject obj)
             {
-                int hashCode = -23 * -17 + base.GetHashCode();
-
-                hashCode = hashCode + obj.GetHashCode();
-
-                hashCode = hashCode + obj.Id.GetHashCode();
-
-                return hashCode;
+                unchecked
+                {
+                    return ((-391 + obj.Id.GetHashCode())* -17 + obj.GetHashCode()) * -17 + base.GetHashCode();
+                }
             }
         }
 
 
         /// <summary>
-        /// Custom equality comparer that compare two <see cref="FEMObject"/> using only the <see cref="Element.Id"/> as an equality parameter
+        /// Custom equality comparer that compare two <see cref="FEMObject"/> using only the <see cref="ModelObjectId.Id"/> as an equality parameter
         /// </summary>
         public class FemObjectOnlyIdComparer : IEqualityComparer<FEMObject>
         {
@@ -142,11 +182,10 @@ namespace GPC.Model.FEM
 
             public int GetHashCode(FEMObject obj)
             {
-                int hashCode = -23 * -17 + base.GetHashCode();
-
-                hashCode = hashCode + obj.Id.GetHashCode();
-
-                return hashCode;
+                unchecked
+                {
+                    return (-391 + obj.Id.GetHashCode()) * -17 + base.GetHashCode();
+                }
             }
         }
     }

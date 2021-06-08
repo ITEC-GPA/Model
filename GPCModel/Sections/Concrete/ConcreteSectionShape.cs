@@ -5,10 +5,12 @@ using System.Text;
 using System.Threading.Tasks;
 using GPC.Geometry;
 using GPC.Model.Elements;
+using GPC.Model.FEM.Materials;
 using GPC.Model.Materials;
 
 namespace GPC.Model.Sections
 {
+    [Serializable]
     public class ConcreteSectionShape : SectionShape
     {
         #region Variables
@@ -22,10 +24,11 @@ namespace GPC.Model.Sections
         #endregion
 
         #region Public 
-        public ConcreteSectionShape(Shape[] shapes, Material[] materials, Rebar[] rebars, string name) : base (shapes, materials, name)
+        public ConcreteSectionShape(Shape[] shapes, IsotropicFemMaterial[] materials, Rebar[] rebars, string name) : base (shapes, materials, name)
         {
             _rebars = new List<Rebar>(rebars);
         }
+
         #endregion
 
         #region Public Methods Specific

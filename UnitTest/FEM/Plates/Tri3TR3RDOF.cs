@@ -13,10 +13,10 @@ using GPC.Model.FEM.Properties;
 using GPC.Model.FEM.Attributes;
 using GPC.Model.LoadCases;
 
-namespace FemTest.Solver
+namespace FemTest.SolverTest
 {
     [TestClass]
-    public class FemSolverTestTri3TR3RDOF
+    public class TestTri3TR3RDOF
     {
         /// <summary>
         /// Easy example, not valid as test
@@ -29,7 +29,7 @@ namespace FemTest.Solver
             Material mat = new SteelMaterial("steel", E, ni, 355, 510, 7850);
 
             double thickness = 1.0;
-            PlateProperty prop = new PlateProperty(mat, thickness, thickness, "p");
+            PlateProperty prop = new PlateProperty(mat.GetIsotropicFemMaterial(), thickness, thickness, "p");
 
             List<Node> nodes = new List<Node>();
             nodes.Add(new Node(0.0, 0.0, 0.0));
@@ -39,7 +39,7 @@ namespace FemTest.Solver
             FreedomCase fc = new FreedomCase("fc1");
             CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
 
-            NodeRestrainAttribute fix = new NodeRestrainAttribute(fc, sys);
+            NodeRestrainAttribute fix = new NodeRestrainAttribute("fc", sys);
             fix.AddExternalRestrain(LinearSolver.DOF.DX);
             fix.AddExternalRestrain(LinearSolver.DOF.DY);
             fix.AddExternalRestrain(LinearSolver.DOF.DZ);
@@ -47,7 +47,7 @@ namespace FemTest.Solver
             fix.AddExternalRestrain(LinearSolver.DOF.RY);
             fix.AddExternalRestrain(LinearSolver.DOF.RZ);
 
-            NodeRestrainAttribute fix2 = new NodeRestrainAttribute(fc, sys);
+            NodeRestrainAttribute fix2 = new NodeRestrainAttribute("fc", sys);
             fix2.AddExternalRestrain(LinearSolver.DOF.DZ);
             fix2.AddExternalRestrain(LinearSolver.DOF.RX);
             fix2.AddExternalRestrain(LinearSolver.DOF.RY);
@@ -58,8 +58,8 @@ namespace FemTest.Solver
 
             nodes.ForEach(node => node.AddAttribute(fix2));
 
-            LoadCase lc = new LoadCase("lc");
-            NodeForceAttribute f1 = new NodeForceAttribute(lc, sys, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0);
+            LoadCaseBase lc = new LoadCaseBase("lc");
+            NodeForceAttribute f1 = new NodeForceAttribute("lc", sys, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0);
 
             nodes[3 - 1].AddAttribute(f1);
 
@@ -69,12 +69,12 @@ namespace FemTest.Solver
 
             LinearSolver fem = new LinearSolver(elements.ToArray());
 
-            /*double displacementNode = fem.GetDisplacementGlobalCoordinates(nodes[1], LinearSolver.DOF.DX);
+            /*double displacementNode = fem.GetNodeDisplacementGlobalCoordinates(nodes[1], LinearSolver.DOF.DX);
             Console.WriteLine("DX node = " + displacementNode);
             Assert.AreEqual(1.0, displacementNode, 0.001);*/
 
             Console.WriteLine("Element 1");
-            double[] elementGlobalDispl = fem.GetDisplacementsGlobalCoordinates(elements[1 - 1]);
+            double[] elementGlobalDispl = fem.GetDisplacementsAtNodesOfElementInGlobalCoordinates(elements[1 - 1]);
             elements[1 - 1].GetNodesResults(elementGlobalDispl, out double[] localDispl,
                             out mnl.Matrix<double>[] globalPseudoDef, out mnl.Matrix<double>[] localPseudoDef,
                             out mnl.Matrix<double>[] globalForces, out mnl.Matrix<double>[] localForces,
@@ -91,7 +91,7 @@ namespace FemTest.Solver
             Material mat = new SteelMaterial("steel", E, ni, 355, 510, 7850);
 
             double thickness = 1.0;
-            PlateProperty prop = new PlateProperty(mat, thickness, thickness, "p");
+            PlateProperty prop = new PlateProperty(mat.GetIsotropicFemMaterial(), thickness, thickness, "p");
 
             List<Node> nodes = new List<Node>();
             nodes.Add(new Node(0.0, 0.0, 0.0));
@@ -102,7 +102,7 @@ namespace FemTest.Solver
             FreedomCase fc = new FreedomCase("fc1");
             CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
 
-            NodeRestrainAttribute fix = new NodeRestrainAttribute(fc, sys);
+            NodeRestrainAttribute fix = new NodeRestrainAttribute("fc", sys);
             fix.AddExternalRestrain(LinearSolver.DOF.DX);
             fix.AddExternalRestrain(LinearSolver.DOF.DY);
             fix.AddExternalRestrain(LinearSolver.DOF.DZ);
@@ -110,7 +110,7 @@ namespace FemTest.Solver
             fix.AddExternalRestrain(LinearSolver.DOF.RY);
             fix.AddExternalRestrain(LinearSolver.DOF.RZ);
 
-            NodeRestrainAttribute fix2 = new NodeRestrainAttribute(fc, sys);
+            NodeRestrainAttribute fix2 = new NodeRestrainAttribute("fc", sys);
             fix2.AddExternalRestrain(LinearSolver.DOF.DZ);
             fix2.AddExternalRestrain(LinearSolver.DOF.RX);
             fix2.AddExternalRestrain(LinearSolver.DOF.RY);
@@ -121,8 +121,8 @@ namespace FemTest.Solver
 
             nodes.ForEach(node => node.AddAttribute(fix2));
 
-            LoadCase lc = new LoadCase("lc");
-            NodeForceAttribute f1 = new NodeForceAttribute(lc, sys, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0);
+            LoadCaseBase lc = new LoadCaseBase("lc");
+            NodeForceAttribute f1 = new NodeForceAttribute("lc", sys, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0);
 
             nodes[4 - 1].AddAttribute(f1);
             nodes[2 - 1].AddAttribute(f1);
@@ -134,12 +134,12 @@ namespace FemTest.Solver
 
             LinearSolver fem = new LinearSolver(elements.ToArray());
 
-            /*double displacementNode = fem.GetDisplacementGlobalCoordinates(nodes[1], LinearSolver.DOF.DX);
+            /*double displacementNode = fem.GetNodeDisplacementGlobalCoordinates(nodes[1], LinearSolver.DOF.DX);
             Console.WriteLine("DX node = " + displacementNode);
             Assert.AreEqual(1.0, displacementNode, 0.001);*/
 
             Console.WriteLine("Element 1");
-            double[] elementGlobalDispl = fem.GetDisplacementsGlobalCoordinates(elements[1 - 1]);
+            double[] elementGlobalDispl = fem.GetDisplacementsAtNodesOfElementInGlobalCoordinates(elements[1 - 1]);
             elements[1 - 1].GetNodesResults(elementGlobalDispl, out double[] localDispl,
                             out mnl.Matrix<double>[] globalPseudoDef, out mnl.Matrix<double>[] localPseudoDef,
                             out mnl.Matrix<double>[] globalForces, out mnl.Matrix<double>[] localForces,
@@ -159,7 +159,7 @@ namespace FemTest.Solver
             Material mat = new SteelMaterial("steel", E, ni, 355, 510, 7850);
 
             double thickness = 1.0;
-            PlateProperty prop = new PlateProperty(mat, thickness, thickness, "p");
+            PlateProperty prop = new PlateProperty(mat.GetIsotropicFemMaterial(), thickness, thickness, "p");
 
             List<Node> nodes = new List<Node>();
             nodes.Add(new Node(0.0, 1.0, 0.0));
@@ -175,7 +175,7 @@ namespace FemTest.Solver
             FreedomCase fc = new FreedomCase("fc1");
             CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
 
-            NodeRestrainAttribute fix = new NodeRestrainAttribute(fc, sys);
+            NodeRestrainAttribute fix = new NodeRestrainAttribute("fc", sys);
             fix.AddExternalRestrain(LinearSolver.DOF.DX);
             fix.AddExternalRestrain(LinearSolver.DOF.DY);
             fix.AddExternalRestrain(LinearSolver.DOF.DZ);
@@ -183,7 +183,7 @@ namespace FemTest.Solver
             fix.AddExternalRestrain(LinearSolver.DOF.RY);
             fix.AddExternalRestrain(LinearSolver.DOF.RZ);
 
-            NodeRestrainAttribute fix2 = new NodeRestrainAttribute(fc, sys);
+            NodeRestrainAttribute fix2 = new NodeRestrainAttribute("fc", sys);
             fix2.AddExternalRestrain(LinearSolver.DOF.DZ);
             fix2.AddExternalRestrain(LinearSolver.DOF.RX);
             fix2.AddExternalRestrain(LinearSolver.DOF.RY);
@@ -195,10 +195,10 @@ namespace FemTest.Solver
 
             nodes.ForEach(node => node.AddAttribute(fix2));
 
-            LoadCase lc = new LoadCase("lc");
-            NodeForceAttribute fTop = new NodeForceAttribute(lc, sys, 0.0, 0.0, 0.0, 0.0, 0.0, 0.25);
-            NodeForceAttribute fCenter = new NodeForceAttribute(lc, sys, 0.0, 0.0, 0.0, 0.0, 0.0, 0.5);
-            NodeForceAttribute fBottom = new NodeForceAttribute(lc, sys, 0.0, 0.0, 0.0, 0.0, 0.0, 0.25);
+            LoadCaseBase lc = new LoadCaseBase("lc");
+            NodeForceAttribute fTop = new NodeForceAttribute("lc", sys, 0.0, 0.0, 0.0, 0.0, 0.0, 0.25);
+            NodeForceAttribute fCenter = new NodeForceAttribute("lc", sys, 0.0, 0.0, 0.0, 0.0, 0.0, 0.5);
+            NodeForceAttribute fBottom = new NodeForceAttribute("lc", sys, 0.0, 0.0, 0.0, 0.0, 0.0, 0.25);
 
             nodes[4 - 1].AddAttribute(fTop);
             nodes[2 - 1].AddAttribute(fCenter);
@@ -217,12 +217,12 @@ namespace FemTest.Solver
 
             LinearSolver fem = new LinearSolver(elements.ToArray());
 
-            double displacementNode = fem.GetDisplacementGlobalCoordinates(nodes[2-1], LinearSolver.DOF.DY);
+            double displacementNode = fem.GetNodeDisplacementGlobalCoordinates(nodes[2-1], LinearSolver.DOF.DY);
             Console.WriteLine("DY node = " + displacementNode);
             Assert.AreEqual(1.0, displacementNode, 0.01);
 
             Console.WriteLine("Element 1");
-            double[] elementGlobalDispl = fem.GetDisplacementsGlobalCoordinates(elements[1 - 1]);
+            double[] elementGlobalDispl = fem.GetDisplacementsAtNodesOfElementInGlobalCoordinates(elements[1 - 1]);
             elements[1 - 1].GetNodesResults(elementGlobalDispl, out double[] localDispl,
                             out mnl.Matrix<double>[] globalPseudoDef, out mnl.Matrix<double>[] localPseudoDef,
                             out mnl.Matrix<double>[] globalForces, out mnl.Matrix<double>[] localForces,
@@ -310,8 +310,8 @@ namespace FemTest.Solver
 
             LinearSolver fem = new LinearSolver(elements.ToArray());
 
-            Console.WriteLine(fem.GetDisplacementGlobalCoordinates(node8, LinearSolver.DOF.DY) + " vs 100");
-            Assert.AreEqual(100.0, fem.GetDisplacementGlobalCoordinates(node8, LinearSolver.DOF.DY), 0.1);
+            Console.WriteLine(fem.GetNodeDisplacementGlobalCoordinates(node8, LinearSolver.DOF.DY) + " vs 100");
+            Assert.AreEqual(100.0, fem.GetNodeDisplacementGlobalCoordinates(node8, LinearSolver.DOF.DY), 0.1);
         }
 
         /// <summary>
@@ -384,7 +384,7 @@ namespace FemTest.Solver
 
             LinearSolver fem = new LinearSolver(elements.ToArray());
 
-            Assert.AreEqual(91.03, fem.GetDisplacementGlobalCoordinates(node8, LinearSolver.DOF.DY), 0.1); //In article is 92.24
+            Assert.AreEqual(91.03, fem.GetNodeDisplacementGlobalCoordinates(node8, LinearSolver.DOF.DY), 0.1); //In article is 92.24
 
             double[] elementGlobalDispl = fem.GetDisplacementsGlobalCoordinates(elements[2]);
             elements[2].GetNodesResults(elementGlobalDispl, out double[] localDispl,
@@ -508,7 +508,7 @@ namespace FemTest.Solver
 
             LinearSolver fem = new LinearSolver(elements.ToArray());
                        
-            double displacementNodeC = fem.GetDisplacementGlobalCoordinates(nodes[5], LinearSolver.DOF.DY);
+            double displacementNodeC = fem.GetNodeDisplacementGlobalCoordinates(nodes[5], LinearSolver.DOF.DY);
             Console.WriteLine("DY node C = " + displacementNodeC);
             Console.WriteLine(displacementNodeC / 0.35601 + " vs 1.0");
             
@@ -608,7 +608,7 @@ namespace FemTest.Solver
 
             LinearSolver fem = new LinearSolver(elements.ToArray());
 
-            double displacementNode = fem.GetDisplacementGlobalCoordinates(nodes[1], LinearSolver.DOF.DX);
+            double displacementNode = fem.GetNodeDisplacementGlobalCoordinates(nodes[1], LinearSolver.DOF.DX);
             Console.WriteLine("DX node = " + displacementNode);
             //Assert.AreEqual(1.0, displacementNode, 0.001);
 
@@ -724,7 +724,7 @@ namespace FemTest.Solver
 
             LinearSolver fem = new LinearSolver(elements.ToArray());
 
-            double displacementNode = fem.GetDisplacementGlobalCoordinates(nodes[1], LinearSolver.DOF.DX);
+            double displacementNode = fem.GetNodeDisplacementGlobalCoordinates(nodes[1], LinearSolver.DOF.DX);
             Console.WriteLine("DX node = " + displacementNode);
             //Assert.AreEqual(1.0, displacementNode, 0.001);
 

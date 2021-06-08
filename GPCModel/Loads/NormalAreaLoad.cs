@@ -9,7 +9,6 @@ namespace GPC.Model.Loads
     public class NormalAreaLoad : Load, IAreaLoad
     {
         private double _pressure;
-
         private Shape _shape;
 
         #region Properties
@@ -21,18 +20,13 @@ namespace GPC.Model.Loads
 
         #region Public constructors 
         
-        public NormalAreaLoad(double pressure, Shape shape, LoadCase loadCase)
-            : this(pressure, shape, loadCase, Guid.NewGuid(), string.Empty)
+        public NormalAreaLoad(double pressure, Shape shape, LoadCaseBase loadCase)
+            : base(loadCase, Guid.NewGuid())
         {
-
+            _pressure = pressure;
+            _shape = shape ?? throw new ArgumentNullException("Shape cannot be null");
         }
 
-        public NormalAreaLoad(double pressure, Shape shape, LoadCase loadCase, Guid guid, string name)
-            : base(loadCase, guid, name)
-        {
-            this._pressure = pressure;
-            this._shape = shape ?? throw new ArgumentNullException("Shape cannot be null");
-        }
 
         public NormalAreaLoad(SerializationInfo info, StreamingContext context)
             : base(info, context)

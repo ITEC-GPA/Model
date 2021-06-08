@@ -32,6 +32,20 @@ namespace UnitSystemTest
             Assert.IsTrue(kN == force);
         }
 
+
+        [TestMethod]
+        public void ConvertDensity()
+        {
+            double density = 200.0; // kg/m3
+
+            double D = density.ConvertDensityToDefault(Units.SI); // T/mm^3
+            Assert.AreEqual(D, density / 1000.0 / 1E9, 0.0000001, D.ToString());
+
+            double sI = D.ConvertDensityFromDefault(Units.SI);
+            Assert.AreEqual(sI, density, 0.0000001, sI.ToString());
+        }
+
+
         [TestMethod]
         public void EqualityTest()
         {

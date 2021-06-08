@@ -4,7 +4,7 @@ using System.Runtime.Serialization;
 
 namespace GPC.Model.Glasses
 {
-    public abstract class Glass : ModelObject
+    public abstract class Glass : ModelObject, IGlassPackage
     {
 
         protected Glass(Guid guid) 
@@ -35,8 +35,7 @@ namespace GPC.Model.Glasses
             if (ReferenceEquals(this, obj))
                 return true;
 
-            Glass objCasted = obj as Glass;
-            return !(objCasted is null) && base.Equals(objCasted);
+            return (obj is Glass glass) && base.Equals(glass);
         }
 
 

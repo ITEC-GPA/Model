@@ -3,6 +3,7 @@ using GPC.Model.FEM.Properties;
 using GPC.Geometry;
 using mnl = MathNet.Numerics.LinearAlgebra;
 using GPC.Model.FEM.Attributes;
+using GPC.Model.FEM.Materials;
 
 namespace GPC.Model.FEM.FiniteElements
 {
@@ -54,7 +55,7 @@ namespace GPC.Model.FEM.FiniteElements
         {
             #region calculationLocalAxisAndLocalCoordinates
             //Local axes calculater anticlockwise
-            Node[] localNodes = Tri3Element.LocalNodes(_nodesGlobal, out _localCoordinateSystem); 
+            Node[] localNodes = Tri3Element.GetLocalNodes(_nodesGlobal, out _localCoordinateSystem); 
             Node node1 = localNodes[0];
             Node node2 = localNodes[1];
             Node node3 = localNodes[2];
@@ -158,8 +159,9 @@ namespace GPC.Model.FEM.FiniteElements
             #endregion
 
             #region matrixD
-            double E = ((PlateProperty)_property).GetE();
-            double ni = ((PlateProperty)_property).GetNi();
+            double E = ((IsotropicFemMaterial)((PlateProperty)_property).Material).E;
+            double ni = ((IsotropicFemMaterial)((PlateProperty)_property).Material).Ni;
+
             double tb = ((PlateProperty)Property).BendingThickness;
 
             _d = mnl.Matrix<double>.Build.Dense(3, 3);
@@ -247,7 +249,7 @@ namespace GPC.Model.FEM.FiniteElements
             return _fLocalCoord;
         }
 
-        public override mnl.Matrix<double> GetB(double csi, double eta, double zeta = 0)
+        public override mnl.Matrix<double> GetB(double csi, double eta)
         {
             //create vector of derivative of "new shape function"
             #region formuleFornite
@@ -498,7 +500,8 @@ namespace GPC.Model.FEM.FiniteElements
         }
         #endregion
 
-        public override void GetNodesResults(double[] globalDisplacementsNodes, out double[] localDisplacements, out mnl.Matrix<double>[] globalPseudoDeformation, out mnl.Matrix<double>[] localPseudoDeformation, out mnl.Matrix<double>[] globalForces, out mnl.Matrix<double>[] localForces, out mnl.Matrix<double>[] globalStress, out mnl.Matrix<double>[] localStress, out mnl.Matrix<double>[] globalEpsilon, out mnl.Matrix<double>[] localEpsilon)
+        //TODO: Da ottimizzare/scrivere
+        public void GetNodesResults(double[] globalDisplacementsNodes, out double[] localDisplacements, out mnl.Matrix<double>[] globalPseudoDeformation, out mnl.Matrix<double>[] localPseudoDeformation, out mnl.Matrix<double>[] globalForces, out mnl.Matrix<double>[] localForces, out mnl.Matrix<double>[] globalStress, out mnl.Matrix<double>[] localStress, out mnl.Matrix<double>[] globalEpsilon, out mnl.Matrix<double>[] localEpsilon)
         {
             Console.WriteLine("Result element " + this.Name + " " + this.Id);
 
@@ -646,16 +649,8 @@ namespace GPC.Model.FEM.FiniteElements
             Console.WriteLine("stress global node 1 top (localz=t/2): " + globalStress[0]);
 
             //matrix for plane stress
-            double E = ((PlateProperty)_property).GetE();
-            double ni = ((PlateProperty)_property).GetNi();
 
-            mnl.Matrix<double> dPlaneStress = mnl.Matrix<double>.Build.Dense(3, 3);
-            dPlaneStress[0, 0] = 1.0;
-            dPlaneStress[0, 1] = ni;
-            dPlaneStress[1, 0] = ni;
-            dPlaneStress[1, 1] = 1.0;
-            dPlaneStress[2, 2] = (1.0 - ni) / 2.0;
-            dPlaneStress = E / (1.0 - ni * ni) * dPlaneStress;
+            mnl.Matrix<double> dPlaneStress = ((PlateProperty)_property).Material.GetPlaneStress();
 
             mnl.Matrix<double> dPlaneStressInv = dPlaneStress.Inverse();
 
@@ -679,7 +674,7 @@ namespace GPC.Model.FEM.FiniteElements
             };
 
             //get Shear in local nodes
-            ///NOT APPLICABLE -> Kirchoff -> No shear
+            //NOT APPLICABLE -> Kirchoff -> No shear
             /*double E = ((PlateProperty)_property).GetE();
             double ni = ((PlateProperty)_property).GetNi();
             double tb = ((PlateProperty)Property).BendingThickness;

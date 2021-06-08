@@ -5,36 +5,31 @@ using GPC.Model.FEM.FiniteElements;
 using GPC.Geometry;
 using mnl = MathNet.Numerics.LinearAlgebra;
 using GPC.Model.FEM.Attributes;
+using GPC.Model.FEM.Costrains;
+using MathNet.Numerics;
 
 namespace GPC.Model.FEM
 {
     public class LinearSolver : Solver
     {
         #region variables
-        public enum DOF
-        {
-            DX,   //0
-            DY,   //1
-            DZ,   //2
-            RX,   //3
-            RY,   //4
-            RZ,   //5
-        }
-
-        public static int MAXDOFPERNODE = Enum.GetNames(typeof(DOF)).Length;
-
         protected mnl.Matrix<double> _KGlobal;
         protected mnl.Matrix<double> _KGlobalRestrains;
         protected mnl.Vector<double> _F;
         protected mnl.Vector<double> _FRestrains;
-        protected HashSet<FEM.Costrain.MultiPointCostrain> _costrains;
-        protected mnl.Vector<double> _nodeGlobalDisplacement;
+        protected MultiPointsCostrain[] _multiPointCostrains;
+        protected mnl.Vector<double> _nodeGlobalDisplacements;
         protected mnl.Vector<double> _reactions;
+
+        protected Dictionary<Point3d, int> _position = new Dictionary<Point3d, int>();
         #endregion
 
         #region Properties
-        public mnl.Matrix<double> KGlobal => _KGlobalRestrains;
+        public mnl.Matrix<double> KGlobal => _KGlobal;
+        public mnl.Matrix<double> KGlobalRestrains => _KGlobalRestrains;
         public mnl.Vector<double> F => _F;
+        public mnl.Vector<double> FRestrains => _FRestrains;
+        public mnl.Vector<double> NodeGlobalDisplacements => _nodeGlobalDisplacements;
 
         /// <summary>
         /// Unique nodes in model
@@ -47,8 +42,23 @@ namespace GPC.Model.FEM
         public FiniteElement[] Elements { get; }
         #endregion
 
-        public LinearSolver(FiniteElement[] inputElements)
+        #region Constructor
+        public LinearSolver(FiniteElement[] inputElements) : this(inputElements, new Costrain[0], new MultiPointsCostrain[0])
         {
+        }
+
+        public LinearSolver(FiniteElement[] inputElements, MultiPointsCostrain[] multiPointsCostrains) : this(inputElements, new Costrain[0], multiPointsCostrains)
+        {
+        }
+
+        public LinearSolver(FiniteElement[] inputElements, Costrain[] costrains) : this(inputElements, costrains, new MultiPointsCostrain[0])
+        {
+        }
+
+        public LinearSolver(FiniteElement[] inputElements, Costrain[] costrains, MultiPointsCostrain[] multiPointCostrains)
+        {
+            Control.UseNativeMKL();
+
             #region NodeOfModel
             HashSet<Node> nodesModel = new HashSet<Node>();
             int iter = 0;
@@ -65,15 +75,11 @@ namespace GPC.Model.FEM
                     if (nodes.Count() > 1)
                     {
                         throw new Exception("Duplicate node!?");
-                    } else if (nodes.Count() == 1) //Node already used in another element.
+                    }
+                    else if (nodes.Count() == 1) //Node already used in another element.
                     {
                         Node oldNode = nodes.Single();
                         int ID = oldNode.Id; //tra i 2 ID da poter scegliere uso quello del nodo già usato
-                        
-                        if (node.Name != oldNode.Name) //if the nodes have different name --> generally shuld not happen
-                        {
-                            node.Name = node.Name + "+" + oldNode.Name;
-                        }
 
                         for (int k = 0; k < MAXDOFPERNODE; k++) //over degree of freedom
                         {
@@ -99,7 +105,7 @@ namespace GPC.Model.FEM
                                 if (node.AttributesFreedomCase.Contains(restrainAttribute) == false)
                                 {
                                     //Copy
-                                    node.AttributesFreedomCase.Add(new NodeRestrainAttribute(restrainAttribute.FreedomCase, restrainAttribute.CoordinateSystem, restrainAttribute.Restrains, restrainAttribute.Name, Guid.NewGuid()));
+                                    node.AttributesFreedomCase.Add(new NodeRestrainAttribute(restrainAttribute.FreedomCaseName, restrainAttribute.CoordinateSystem, restrainAttribute.Restrains, restrainAttribute.Name, Guid.NewGuid()));
                                 }
                             }
                         }
@@ -111,6 +117,7 @@ namespace GPC.Model.FEM
                     }
                     else
                     {
+                        //New Node
                         for (int k = 0; k < MAXDOFPERNODE; k++)
                         {
                             if (element.DOF.Contains((DOF)k) == true)
@@ -124,6 +131,64 @@ namespace GPC.Model.FEM
                     }
                 }
             }
+
+            //nodes due to Links
+            #region NewNodeFromCostrain
+            for (int i = 0; i < costrains.Length; i++)
+            {
+                if (costrains[i].GetType() == typeof(RigidLink))
+                {
+                    RigidLink rigidLink = (RigidLink)costrains[i];
+                    for (int k = 0; k < rigidLink.Links.Count(); k++)
+                    {
+                        MultiPointsCostrain mpcostrain = rigidLink.Links[k];
+
+                        for (int j = 0; j < mpcostrain.Equations.Length; j++)
+                        {
+                            Node node = mpcostrain.Equations[j].NodeSlave;
+                            var nodes = nodesModel.Where(n => n.Position.X == node.Position.X && n.Position.Y == node.Position.Y && n.Position.Z == node.Position.Z);
+                            if (nodes.Count() == 0)
+                            {
+                                //New node not used in elements
+                                //Activate DOF in order to have place in stiffness matrix and Fvector
+                                node.DOF.Add(DOF.DX);
+                                node.DOF.Add(DOF.DY);
+                                node.DOF.Add(DOF.DZ);
+                                node.DOF.Add(DOF.RX);
+                                node.DOF.Add(DOF.RY);
+                                node.DOF.Add(DOF.RZ);
+                                nodesModel.Add(node);
+                            }
+                        }
+                    }
+                }
+            }
+            #endregion
+
+            #region NewNodeFromMultiPointCostrain
+            for (int i = 0; i < multiPointCostrains.Length; i++)
+            { 
+                MultiPointsCostrain mpcostrain = multiPointCostrains[i];
+
+                for (int j = 0; j < mpcostrain.Equations.Length; j++)
+                {
+                    Node node = mpcostrain.Equations[j].NodeSlave;
+                    var nodes = nodesModel.Where(n => n.Position.X == node.Position.X && n.Position.Y == node.Position.Y && n.Position.Z == node.Position.Z);
+                    if (nodes.Count() == 0)
+                    {
+                        //New node not used in elements
+                        //Activate DOF in order to have place in stiffness matrix and Fvector
+                        node.DOF.Add(DOF.DX);
+                        node.DOF.Add(DOF.DY);
+                        node.DOF.Add(DOF.DZ);
+                        node.DOF.Add(DOF.RX);
+                        node.DOF.Add(DOF.RY);
+                        node.DOF.Add(DOF.RZ);
+                        nodesModel.Add(node);
+                    }
+                }
+            }
+            #endregion
             Nodes = nodesModel.ToArray();
             int nrNodes = Nodes.Length;
             #endregion
@@ -140,7 +205,8 @@ namespace GPC.Model.FEM
                     if (nodes.Count == 0 || nodes.Count > 1)
                     {
                         throw new Exception("Something wrong with nodes");
-                    } else
+                    }
+                    else
                     {
                         inputElements[i].Nodes[j] = nodes[0]; //set updated node
                     }
@@ -159,6 +225,7 @@ namespace GPC.Model.FEM
             {
                 dimensionKSystemMatrix = dimensionKSystemMatrix + Nodes.ElementAt(i).NrActiveDof;
             }
+            Console.WriteLine("dimensione K = " + dimensionKSystemMatrix);
             #endregion
 
             _KGlobal = mnl.Matrix<double>.Build.Dense(dimensionKSystemMatrix, dimensionKSystemMatrix);
@@ -172,8 +239,8 @@ namespace GPC.Model.FEM
                 //Stiffness Matrix of element in global coordinates, KElementGlobal = GlobalToLocal ^ T * [KeLocal] * [GlobalToLocal]
                 mnl.Matrix<double> KElementGlobalCoord = element.KElementGlobalCoord;
                 //Console.WriteLine("KElementGlobalCoord element " + el);
-                FEMUtilities.WriteMatrix(KElementGlobalCoord);
-                                
+                //FEMUtilities.WriteMatrix(KElementGlobalCoord);
+
                 for (int i = 0; i < element.Nodes.Count(); i++) //node i - over nodes of element
                 {
                     Node nodeI = element.Nodes[i];  //Node i
@@ -206,10 +273,10 @@ namespace GPC.Model.FEM
                     }
                 }
             }
-            #if DEBUG
-            Console.WriteLine("kGlobal System :");
-            FEMUtilities.WriteMatrix(_KGlobal);
-            #endif
+#if DEBUG
+            /*Console.WriteLine("kGlobal System :");
+            FEMUtilities.WriteMatrix(_KGlobal, "F3");*/
+#endif
             #endregion
 
             #region CalculationOfAppliedForcesF
@@ -227,10 +294,10 @@ namespace GPC.Model.FEM
             {
                 #region CreationLegendOfFvector
                 Nodes[i].DOF.ToList().ForEach(dof =>
-                    {
-                        legend.Add(GetPositionInKGlobal(Nodes[i], dof), Nodes[i].ToString() + " " + dof);
-                        legendDOF.Add(GetPositionInKGlobal(Nodes[i], dof), dof);
-                    }
+                {
+                    legend.Add(GetPositionInKGlobal(Nodes[i], dof), Nodes[i].ToString() + " " + dof);
+                    legendDOF.Add(GetPositionInKGlobal(Nodes[i], dof), dof);
+                }
                 );
                 #endregion
 
@@ -241,7 +308,7 @@ namespace GPC.Model.FEM
                     if (loadCaseAttribute is NodeForceAttribute)
                     {
                         NodeForceAttribute nodeForceAttribute = (NodeForceAttribute)loadCaseAttribute;
-                        
+
                         Vector3d dirX = nodeForceAttribute.CoordinateSystem.V1;
                         dirX.Unitize();
                         Vector3d dirY = nodeForceAttribute.CoordinateSystem.V2;
@@ -263,7 +330,8 @@ namespace GPC.Model.FEM
                         dofs.ForEach(
                             (stringDOF) => {
                                 DOF dof = (DOF)Enum.Parse(typeof(DOF), stringDOF);
-                                if (Nodes[i].DOF.Contains(dof) == true) {
+                                if (Nodes[i].DOF.Contains(dof) == true)
+                                {
                                     _F[GetPositionInKGlobal(Nodes[i], dof)] = _F[GetPositionInKGlobal(Nodes[i], dof)] + additionalForce[dofs.IndexOf(stringDOF)]; //modifico termine noto delle forze
                                 }
                             });
@@ -303,20 +371,22 @@ namespace GPC.Model.FEM
 
                             if (dof == nodeFound.DOF.ElementAt(k))
                             {
-                                val = FElementGlobalCoord[j * element.DOF.Count + l]; 
+                                val = FElementGlobalCoord[j * element.DOF.Count + l];
                             }
                         }
-                        
+
                         _F[pos] = _F[pos] + val; //modifico il vettore noto delle forze
                     }
                 }
             }
             #endregion
 
-            #if DEBUG
+            
+#if DEBUG
             Console.WriteLine("Vector F");
             _F.ToList().ForEach(x => Console.WriteLine(x));
-            #endif
+#endif
+            
             #endregion
 
             #region ApplyingRestrains
@@ -342,95 +412,149 @@ namespace GPC.Model.FEM
 
                         if (dirX.DotProduct(X) == 1.0 && dirY.DotProduct(Y) == 1.0) //Coord sys == Global Coord
                         {
-                            foreach(var restrain in restrainAttribute.Restrains)
+                            foreach (var restrain in restrainAttribute.Restrains)
                             {
                                 //PrescribeDisplacement(Nodes[i].Id, restrain.Dof, restrain.ImposedDisplacement);
                                 PrescribeDisplacement(Nodes[i], restrain.Dof, restrain.ImposedDisplacement);
                             }
 
-                        } else
+                        }
+                        else
                         {
                             throw new NotImplementedException();
                         }
-                        
+
                     }
                 }
             }
-            //Console.WriteLine("kGlobal System + Restrains: ");
-            //Util.WriteMatrix(_KGlobalRestrains);
-            //Console.WriteLine("Fmodified(Restrains):");
-            //Util.WriteMatrix(_FRestrains);
+/*#if DEBUG
+            Console.WriteLine("kGlobal System + Restrains: ");
+            FEMUtilities.WriteMatrix(_KGlobalRestrains, "F3");
+            Console.WriteLine("Fmodified(Restrains):");
+            FEMUtilities.WriteVector(_FRestrains);
+#endif*/
             #endregion
 
             #region ApplyingMultiPointCostrains
-            _costrains = new HashSet<FEM.Costrain.MultiPointCostrain>();
             //applying as example in node 1 : DX = DY (simply support with 45 degrees direction
-            FEM.Costrain.MultiPointCostrain.Link[] equations = new FEM.Costrain.MultiPointCostrain.Link[2];
-            equations[0] = new FEM.Costrain.MultiPointCostrain.Link("1", DOF.DX, 1.0);
-            equations[1] = new FEM.Costrain.MultiPointCostrain.Link("1", DOF.DY, 1.0);
-            FEM.Costrain.MultiPointCostrain Costrain1 = new FEM.Costrain.MultiPointCostrain(equations);
+
+            /* EXAMPLE:
+             * MultiPointCostrain.Link[] equations = new MultiPointCostrain.Link[2];
+             * equations[0] = new MultiPointCostrain.Link("1", DOF.DX, 1.0);
+             * equations[1] = new MultiPointCostrain.Link("1", DOF.DY, 1.0);
+             * MultiPointCostrain Costrain1 = new MultiPointCostrain(equations);*/
             //_costrains.Add(Costrain1);
 
             /* Use: Lagrange multiplier method 
              * rewrite constrains as : 1.0 * GdL NodeMaster + ValI * GdL NodeSlaveI + ... + ValN * GdL NodeSlaveN = const
              * and modify K matrix and F vector
              */
-            int nLagrangianMultiplier = _costrains.Count;
-            for (int i = 0; i < _costrains.Count; i++)
-            {
-                FEM.Costrain.MultiPointCostrain c = _costrains.ElementAt(i);
-                Console.WriteLine(c.ToString());
 
+            #region MultiPointCostrainDueToCostrainClass
+            HashSet<MultiPointsCostrain> multiPointCostrainsSet = new HashSet<MultiPointsCostrain>();
+            for (int i = 0; i < costrains.Length; i++)
+            {
+                if (costrains[i].GetType() == typeof(RigidLink))
+                {
+                    RigidLink rigidLink = (RigidLink)costrains[i];
+                    for (int j = 0; j < rigidLink.Links.Length; j++)
+                    {
+                        multiPointCostrainsSet.Add(rigidLink.Links[j]);
+                    }
+                }
+            }
+            #endregion
+
+            #region AddMultiPointCostrainDueToMultiPointManualAdded
+            for (int i = 0; i < multiPointCostrains.Count(); i++)
+            {
+                multiPointCostrainsSet.Add(multiPointCostrains[i]);
+            }
+            #endregion
+
+            _multiPointCostrains = multiPointCostrainsSet.ToArray();
+
+            //check if all multipointcostrain has been added
+            //if (_multiPointCostrains.Count() < multiPointCostrains.Length)
+
+            int nLagrangianMultiplier = _multiPointCostrains.Length;
+            for (int i = 0; i < _multiPointCostrains.Length; i++)
+            {
+                MultiPointsCostrain c = _multiPointCostrains[i]; //select equation constrain
+                
+                #if DEBUG
+                Console.WriteLine(c.ToString());
+                #endif
+
+                #region ModificaStiffnessMatrixPerInserimentoCostrain
                 mnl.Vector<double> voidVector = mnl.Vector<double>.Build.Dense(_KGlobalRestrains.RowCount);
                 _KGlobalRestrains = _KGlobalRestrains.InsertColumn(_KGlobalRestrains.ColumnCount, voidVector);
                 voidVector = mnl.Vector<double>.Build.Dense(_KGlobalRestrains.ColumnCount);
                 _KGlobalRestrains = _KGlobalRestrains.InsertRow(_KGlobalRestrains.RowCount, voidVector);
+                #endregion
 
+                #region AggiornamentoTermineNoto
                 //add a row to F vector and update it
-                _FRestrains.CopySubVectorTo(voidVector,0,0,_FRestrains.Count);
+                _FRestrains.CopySubVectorTo(voidVector, 0, 0, _FRestrains.Count);
                 _FRestrains = voidVector;
                 _FRestrains[_FRestrains.Count - 1] = c.ConstValue;
 
-                for (int j = 0; j < c.Links.Length; j++) {
+                /*_F.CopySubVectorTo(voidVector, 0, 0, _F.Count);
+                _F = voidVector;*/
+                #endregion
 
-                    string labelNodeSlave = c.Links[j].LabelNode;
-                    DOF gdlNodeSlave = c.Links[j].GdlNode;
+                #region AggiornamentoMatriceDiRigidezza
+                for (int j = 0; j < c.Equations.Length; j++)
+                {
+                    Node nodeSlave = c.Equations[j].NodeSlave;
+                    DOF gdlNodeSlave = c.Equations[j].GdlNode;
 
-                    int[] positionsGDLNodeSlave = GetPositionInKGlobal(labelNodeSlave, gdlNodeSlave);
-                    if (positionsGDLNodeSlave.Length > 1)
-                    {
-                        throw new Exception("More than 1 nodes not yet supported");
-                    }
-                    int positionGDLNodeSlave = positionsGDLNodeSlave[0];
-                    _KGlobalRestrains[positionGDLNodeSlave, _KGlobalRestrains.ColumnCount - 1] = c.Links[j].Value;
-                    _KGlobalRestrains[_KGlobalRestrains.RowCount - 1, positionGDLNodeSlave] = c.Links[j].Value;
+                    int positionGDLNodeSlave = GetPositionInKGlobal(nodeSlave, gdlNodeSlave);
+                    _KGlobalRestrains[positionGDLNodeSlave, _KGlobalRestrains.ColumnCount - 1] = c.Equations[j].Value;
+                    _KGlobalRestrains[_KGlobalRestrains.RowCount - 1, positionGDLNodeSlave] = c.Equations[j].Value;
                 }
+                #endregion
             }
+/*#if DEBUG
             Console.WriteLine("kGlobal System + Restrains + Constrains:");
-            FEMUtilities.WriteMatrix(_KGlobalRestrains, "F3");
-            //Console.WriteLine("Fmodified(Restrains + Constrains) = " + _FRestrains.ToString());
+            FEMUtilities.WriteMatrix(_KGlobalRestrains, "F5");
+            Console.WriteLine("F (Restrain + Costrains):");
+            FEMUtilities.WriteMatrix(_FRestrains, "F3");
+#endif*/
             #endregion
 
             #region SolveModel
             //Solve Matrix
-            _nodeGlobalDisplacement = _KGlobalRestrains.Solve(_FRestrains);
+            _nodeGlobalDisplacements = _KGlobalRestrains.Solve(_FRestrains);
             Console.WriteLine("Node displacements results:");
 
-            for (int i = 0; i < _nodeGlobalDisplacement.Count; i++)
+            for (int i = 0; i < _nodeGlobalDisplacements.Count; i++)
             {
-                Console.WriteLine("Displ. " + legend[i] + " : \t " + _nodeGlobalDisplacement[i].ToString("F3"));
+                if (i < legend.Count)
+                {
+                    Console.WriteLine("Displ. " + legend[i] + " : \t " + _nodeGlobalDisplacements[i].ToString("F3"));
+                }
+                else
+                {
+                    Console.WriteLine("Lagrangian Multiplicator: : \t " + _nodeGlobalDisplacements[i].ToString("F3"));
+                }
             }
             #endregion
 
             #region Reactions
-            _reactions = _KGlobal * _nodeGlobalDisplacement - _F; //Or Fmodified?
+            mnl.Vector<double> nodeGlobalDisplacementWithoutLagrangian = mnl.Vector<double>.Build.Dense(_nodeGlobalDisplacements.Count - nLagrangianMultiplier);
+            _nodeGlobalDisplacements.CopySubVectorTo(nodeGlobalDisplacementWithoutLagrangian, 0, 0, _nodeGlobalDisplacements.Count - nLagrangianMultiplier);
+            _reactions = _KGlobal * nodeGlobalDisplacementWithoutLagrangian - _F;
             double sumFX = 0.0;
             double sumFY = 0.0;
             double sumFZ = 0.0;
-            
+
+            Console.WriteLine();
             for (int i = 0; i < _reactions.Count; i++)
             {
+#if DEBUG
                 Console.WriteLine("React." + legend[i] + " : \t " + _reactions[i].ToString("F3"));
+#endif
                 if (legendDOF[i] == DOF.DX)
                 {
                     sumFX = sumFX + _reactions[i];
@@ -447,28 +571,29 @@ namespace GPC.Model.FEM
             Console.WriteLine("Sum of FX = " + sumFX);
             Console.WriteLine("Sum of FY = " + sumFY);
             Console.WriteLine("Sum of FZ = " + sumFZ);
-            #endregion
+#endregion
 
-            #region CalcResults
-            #endregion
+#region CalcResults
+#endregion
         }
+        #endregion
 
         #region PublicFuction
+
+        #region GetDisplacement
         /// <summary>
         /// Ritorna spostamento per un selezionato nodo e per un certp grado di libertà.
-        /// Per selezionare il nodo è usata la label in quanto l'index potrebbe essere stato modificato rispetto a fase di input...
-        /// (forse è meglio dare un errore in fase di costruzione e non cambiare index?)
         /// </summary>
         /// <param name="node"></param>
         /// <param name="dof"></param>
         /// <returns></returns>
-        public double GetDisplacementGlobalCoordinates(Node node, DOF dof)
+        public double GetNodeDisplacementGlobalCoordinates(Node node, DOF dof)
         {
             int pos = GetPositionInKGlobal(node, dof);
-            return _nodeGlobalDisplacement[pos];
+            return _nodeGlobalDisplacements[pos];
         }
 
-        public double[] GetDisplacementGlobalCoordinates(string labelNode, DOF dof)
+        /*public double[] GetDisplacementGlobalCoordinates(string labelNode, DOF dof)
         {
             if (labelNode== "" || labelNode == null)
             {
@@ -478,20 +603,16 @@ namespace GPC.Model.FEM
             double[] ris = new double[pos.Length];
             for (int i = 0; i < pos.Length; i++)
             {
-                ris[i] = _nodeGlobalDisplacement[pos[i]];
+                ris[i] = _nodeGlobalDisplacements[pos[i]];
             }
             return ris;
-        }
+        }*/
 
-        public double[] GetDisplacementsGlobalCoordinates(FiniteElement e)
+        public double[] GetDisplacementsAtNodesOfElementInGlobalCoordinates(FiniteElement e)
         {
             #region SelectGlobalDisplacementForElement
             var elements = Elements.Where(x => x == e);
-            if (elements.Count() > 1)
-            {
-                throw new Exception("More than 1 element selected");
-            }
-            else
+            if (elements.Count() == 1)
             {
                 FiniteElement element = elements.First();
                 int[] pos = new int[element.NrDOFActive * element.Nodes.Length];
@@ -511,26 +632,262 @@ namespace GPC.Model.FEM
                 double[] globalDisplacementsNodesElement = new double[element.NrDOFActive * element.Nodes.Length];
                 for (int j = 0; j < element.NrDOFActive * element.Nodes.Length; j++)
                 {
-                    globalDisplacementsNodesElement[j] = _nodeGlobalDisplacement[pos[j]];
+                    globalDisplacementsNodesElement[j] = _nodeGlobalDisplacements[pos[j]];
                     //Console.WriteLine("Element " + i + " Displacemente global coordintates DOF nr. " + j + " = " + globalDisplacementsNodesElement[j]);
                 }
 
                 return globalDisplacementsNodesElement;
                 //get results of element
                 //element.GetResults(globalDisplacementsNodesElement, out double[] localDisplacements, out mnl.Matrix<double>[] gloabalPseudoDeformation, out mnl.Matrix<double>[] localPseudoDeformation, out mnl.Matrix<double>[] globalForces, out mnl.Matrix<double>[] localForces, out mnl.Matrix<double>[] globalStress, out mnl.Matrix<double>[] localStress, out mnl.Matrix<double>[] globalEpsilon, out mnl.Matrix<double>[] localEpsilon);
-                #endregion
+            #endregion
+            }
+            else
+            {
+                throw new Exception("More than 1 element selected");
             }
         }
         #endregion
 
-        #region PrivateFunction
+        #region GetResultTLG
+
+        #region Glass
+        public mnl.Vector<double> GetTLGGlassStrain(Quad4TripleLaminatedGlass element, Quad4TripleLaminatedGlass.Glass glass, Plate.Face face, int indexNode)
+        {
+            if (indexNode == 0)
+            {
+                throw new ArgumentOutOfRangeException("index node from 1 to 4");
+            }
+
+            double x = element.LocalNodes[indexNode - 1].Position.X;
+            double y = element.LocalNodes[indexNode - 1].Position.Y;
+
+            var globalDispl = GetDisplacementsAtNodesOfElementInGlobalCoordinates(element);
+
+            return element.GetStrainGlass(glass, face, x, y, globalDispl);
+        }
+
+        public mnl.Vector<double> GetTLGGlassStress(Quad4TripleLaminatedGlass element, Quad4TripleLaminatedGlass.Glass glass, Plate.Face face, int indexNode)
+        {
+            if (indexNode == 0)
+            {
+                throw new ArgumentOutOfRangeException("index node from 1 to 4");
+            }
+
+            double x = element.LocalNodes[indexNode - 1].Position.X;
+            double y = element.LocalNodes[indexNode - 1].Position.Y;
+
+            var globalDispl = GetDisplacementsAtNodesOfElementInGlobalCoordinates(element);
+
+            return element.GetStressGlass(glass, face, x, y, globalDispl);
+        }
+
+        public mnl.Vector<double> GetTLGGlassBending(Quad4TripleLaminatedGlass element, int indexNode)
+        {
+            if (indexNode == 0)
+            {
+                throw new ArgumentOutOfRangeException("index node from 1 to 4");
+            }
+
+            double x = element.LocalNodes[indexNode - 1].Position.X;
+            double y = element.LocalNodes[indexNode - 1].Position.Y;
+
+            var globalDispl = GetDisplacementsAtNodesOfElementInGlobalCoordinates(element);
+
+            return element.GetGlassBending(x, y, globalDispl);
+        }
+
+        public mnl.Vector<double> GetTLGGlassForces(Quad4TripleLaminatedGlass element, int indexNode)
+        {
+            if (indexNode == 0)
+            {
+                throw new ArgumentOutOfRangeException("index node from 1 to 4");
+            }
+
+            double x = element.LocalNodes[indexNode - 1].Position.X;
+            double y = element.LocalNodes[indexNode - 1].Position.Y;
+
+            var globalDispl = GetDisplacementsAtNodesOfElementInGlobalCoordinates(element);
+
+            return element.GetGlassForces(x, y, globalDispl);
+        }
+        #endregion
+
+        #region Interlayer
+        public mnl.Vector<double> GetTLGInterlayerStrain(Quad4TripleLaminatedGlass element, int indexNode)
+        {
+            if (indexNode == 0)
+            {
+                throw new ArgumentOutOfRangeException("index node from 1 to 4");
+            }
+
+            double x = element.LocalNodes[indexNode - 1].Position.X;
+            double y = element.LocalNodes[indexNode - 1].Position.Y;
+
+            var globalDispl = GetDisplacementsAtNodesOfElementInGlobalCoordinates(element);
+
+            return element.GetStrainInterlayer(x, y, globalDispl);
+        }
+
+        public mnl.Vector<double> GetTLGInterlayerStress(Quad4TripleLaminatedGlass element, int indexNode)
+        {
+            if (indexNode == 0)
+            {
+                throw new ArgumentOutOfRangeException("index node from 1 to 4");
+            }
+
+            double x = element.LocalNodes[indexNode - 1].Position.X;
+            double y = element.LocalNodes[indexNode - 1].Position.Y;
+
+            var globalDispl = GetDisplacementsAtNodesOfElementInGlobalCoordinates(element);
+
+            return element.GetStressInterlayer(x, y, globalDispl);
+        }
+
+        public mnl.Vector<double> GetTLGInterlayerBending(Quad4TripleLaminatedGlass element, int indexNode)
+        {
+            if (indexNode == 0)
+            {
+                throw new ArgumentOutOfRangeException("index node from 1 to 4");
+            }
+
+            double x = element.LocalNodes[indexNode - 1].Position.X;
+            double y = element.LocalNodes[indexNode - 1].Position.Y;
+
+            var globalDispl = GetDisplacementsAtNodesOfElementInGlobalCoordinates(element);
+
+            return element.GetBendingInterlayer(x, y, globalDispl);
+        }
+        #endregion
+        #endregion
+
+        #region GetResultsBeam
+
+        #region forces
+        //TODO: trasformare in classe Beam
+        public Dictionary<Beam.InternalAction, double> GetBeamInternalForces(EulerBeam b, double station)
+        {
+            var globalDispl = GetDisplacementsAtNodesOfElementInGlobalCoordinates(b);
+            return b.GetInternalAction(station, globalDispl);
+        }
+
+        //TODO: trasformare in classe Beam
+        public Dictionary<Beam.InternalAction, double> GetBeamInternalForces(EulerBeam b, int indexNode)
+        {
+            double station;
+            if (indexNode == 1 || indexNode == 0)
+            {
+                station = 0.0;
+            } else if (indexNode == 2)
+            {
+                station = b.L;
+            } else
+            {
+                throw new ArgumentOutOfRangeException("Node I = 1 or J = 2?");
+            }
+            var globalDispl = GetDisplacementsAtNodesOfElementInGlobalCoordinates(b);
+            return b.GetInternalAction(station, globalDispl);
+        }
+
+        //TODO: trasformare in classe Beam
+        public double GetBeamInternalForces(EulerBeam b, int indexNode, Beam.InternalAction action)
+        {
+            return GetBeamInternalForces(b, indexNode)[action];
+        }
+
+        //TODO: trasformare in classe Beam
+        public double GetBeamInternalForces(EulerBeam b, double station, Beam.InternalAction action)
+        {
+            var internalForces = GetBeamInternalForces(b, station);
+            return internalForces[action];
+        }
+#endregion
+
+        #region displacements
+        //TODO: trasformare in classe Beam
+        public Dictionary<Beam.LocalDOF, double> GetBeamDisplacementInLocalCoordinatesAtNode(EulerBeam b, Beam.EndSide endSide)
+        {
+            var globalDisplNodes = GetDisplacementsAtNodesOfElementInGlobalCoordinates(b);
+
+            return b.GetLocalDisplacementsAtNode(endSide, globalDisplNodes);
+        }
+
+        public Dictionary<Beam.LocalDOF, double> GetBeamDisplacementInLocalCoordinatesAtEnd(EulerBeam b, Beam.EndSide endSide)
+        {
+            var globalDisplNodes = GetDisplacementsAtNodesOfElementInGlobalCoordinates(b);
+
+            return b.GetLocalDisplacementsAtNode(endSide, globalDisplNodes);
+        }
+
+        //TODO: trasformare in classe Beam
+        public Dictionary<Beam.LocalDOF, double> GetBeamDisplacementInLocalCoordinates(EulerBeam b, double station)
+        {
+            var globalDisplNodes = GetDisplacementsAtNodesOfElementInGlobalCoordinates(b);
+
+            return b.GetLocalDisplacements(station, globalDisplNodes);
+        }
+
+        //TODO: trasformare in classe Beam
+        public double GetBeamDisplacementInLocalCoordinates(EulerBeam b, double station, Beam.LocalDOF dof)
+        {
+            return GetBeamDisplacementInLocalCoordinates(b, station)[dof];
+        }
+
+        //TODO: trasformare in classe Beam
+        public Dictionary<Solver.DOF, double> GetBeamDisplacementInGlobalCoordinates(EulerBeam b, double station)
+        {
+            var localDispl = GetBeamDisplacementInLocalCoordinates(b, station);
+
+            mnl.Matrix<double> rotationMatrix = mnl.Matrix<double>.Build.Dense(3, 3);
+            for (int i = 0; i < 3; i++)
+            {
+                for (int j = 0; j < 3; j++)
+                {
+                    rotationMatrix[i, j] = b.DofGlobalToLocal[i, j];
+                }
+            }
+
+            //traslation
+            mnl.Vector<double> trasl = mnl.Vector<double>.Build.Dense(3);
+            trasl[0] = localDispl[Beam.LocalDOF.AxialU1];
+            trasl[1] = localDispl[Beam.LocalDOF.U2];
+            trasl[2] = localDispl[Beam.LocalDOF.U3];
+
+            //rotation
+            mnl.Vector<double> rot = mnl.Vector<double>.Build.Dense(3);
+            rot[0] = localDispl[Beam.LocalDOF.TorsionR1];
+            rot[1] = localDispl[Beam.LocalDOF.R2];
+            rot[2] = localDispl[Beam.LocalDOF.R3];
+
+            mnl.Vector<double> traslGlobal = rotationMatrix.Transpose() * trasl;
+            mnl.Vector<double> rotGlobal = rotationMatrix.Transpose() * rot;
+
+            Dictionary<DOF, double> globalResult = new Dictionary<DOF, double>();
+            globalResult.Add(Solver.DOF.DX, traslGlobal[0]);
+            globalResult.Add(Solver.DOF.DY, traslGlobal[1]);
+            globalResult.Add(Solver.DOF.DZ, traslGlobal[2]);
+
+            globalResult.Add(Solver.DOF.RX, rotGlobal[0]);
+            globalResult.Add(Solver.DOF.RY, rotGlobal[1]);
+            globalResult.Add(Solver.DOF.RZ, rotGlobal[2]);
+
+            return globalResult;
+        }
+
+        public double GetBeamDisplacementInGlobalCoordinates(EulerBeam b, double station, Solver.DOF dof)
+        {
+            return GetBeamDisplacementInGlobalCoordinates(b, station)[dof];
+        }
+#endregion
+#endregion
+
+#region PrescribeDisplacement
         /// <summary>
         /// Modifica la matrice K e il termine noto F per l'inserimento di un spostamento imposto nei nodi con label "labelNode", grado di libertà dof e con spostamento = value;
         /// </summary>
         /// <param name="labelNode"></param>
         /// <param name="dof"></param>
         /// <param name="val"></param>
-        private void PrescribeDisplacement(string labelNode, DOF dof, double val)
+        public void PrescribeDisplacement(string labelNode, DOF dof, double val)
         {
             int[] positions = GetPositionInKGlobal(labelNode, dof);
 
@@ -548,14 +905,13 @@ namespace GPC.Model.FEM
 
         }
 
-
         /// <summary>
         /// Modifica la matrice K e il termine noto F per l'inserimento di un spostamento imposto nel nodo node, grado di libertà dof e con spostamento = value;
         /// </summary>
-        /// <param name="index"></param>
+        /// <param name="node"></param>
         /// <param name="dof"></param>
         /// <param name="val"></param>
-        private void PrescribeDisplacement(Node node, DOF dof, double val)
+        public void PrescribeDisplacement(Node node, DOF dof, double val)
         {
             int position = GetPositionInKGlobal(node, dof);
 
@@ -568,12 +924,37 @@ namespace GPC.Model.FEM
             _KGlobalRestrains[position, position] = 1.0;
             _FRestrains[position] = val;
         }
+#endregion
 
+#region GetReactions
+        public double GetReaction(Node node, DOF dof)
+        {
+            int pos = GetPositionInKGlobal(node, dof);
+            return _reactions[pos];
+        }
+
+        public Dictionary<DOF, double> GetReaction(Node node)
+        {
+            Dictionary<DOF, double> results = new Dictionary<DOF, double>();
+            for (int i = 0; i < node.DOF.Count; i++)
+            {
+                DOF dof = node.DOF.ElementAt(i);
+                int pos = GetPositionInKGlobal(node, dof);
+                results.Add(dof, _reactions[pos]);
+            }
+            return results;
+        }
+#endregion
+#endregion
+
+        #region PrivateFunction
+
+        #region GetPosition
         /// <summary>
         /// Give the position of selected GDL from 0 to N where N is dimension of matrix KGloabl or the dimension of the vector of Forces or Displacments
         /// </summary>
         /// <param name="labelNode">Label of the node or nodes searched</param>
-        /// <param name="gdl">GDL searched</param>
+        /// <param name="dof">degree of freedom searched</param>
         /// <returns></returns>
         private int[] GetPositionInKGlobal(string labelNode, DOF dof = 0)
         {
@@ -596,17 +977,44 @@ namespace GPC.Model.FEM
         /// <summary>
         /// return the position in Gloab System Matrix of in F vector or Displacement vector usign geometric position of the node (after a general clear mesh, no double node in same place should exist)
         /// </summary>
-        /// <param name="IdNode">ID node</param>
+        /// <param name="node">ID node</param>
         /// <param name="dof">Searched dof</param>
         /// <returns></returns>
         private int GetPositionInKGlobal(Node node, DOF dof = 0)
         {
-            #region CounterForPreviousNodes
+#if TRUE
+            //TODO: riscrivere salvando dati in _position
+            #region new
+            var searchIndex = node.Position;
+            if (_position.ContainsKey(searchIndex))
+            {
+                return _position[searchIndex] + (int) dof;
+            } else
+            {
+                int contatore = 0;
+                for (int i = 0; i < Nodes.Length; i++)
+                {
+                    Point3d posCurrentNode = Nodes[i].Position;
+                    if (node.Position != posCurrentNode)
+                    {
+                        contatore = contatore + Nodes[i].DOF.Count;
+                    } else
+                    {
+                        _position.Add(node.Position, contatore);
+                        return contatore;
+                    }
+                }
+            }
+            #endregion
+            throw new Exception("never here");
+#endif
+            /*
+#region CounterForPreviousNodes
             int counter = 0;
             int posNode = -1;
             for (int i = 0; i < Nodes.Length; i++)
             {
-                if (Nodes.ElementAt(i).Position.X == node.Position.X && Nodes.ElementAt(i).Position.Y == node.Position.Y && Nodes.ElementAt(i).Position.Z == node.Position.Z)
+                if (Nodes[i].Position.X == node.Position.X && Nodes[i].Position.Y == node.Position.Y && Nodes[i].Position.Z == node.Position.Z)
                 {
                     posNode = i;
                     i = Nodes.Length; //exit from the cycle
@@ -616,9 +1024,10 @@ namespace GPC.Model.FEM
                     counter = counter + Nodes.ElementAt(i).NrActiveDof; //add the dof of previous nodes
                 }
             }
-            #endregion
-            #region CounterForDOFofCurrentNode
+#endregion
+#region CounterForDOFofCurrentNode
             int counter2 = 0;
+            bool found = false;
             for (int i = 0; i < Nodes[posNode].DOF.Count; i++)
             {
                 if (dof != Nodes[posNode].DOF.ElementAt(i))
@@ -627,13 +1036,21 @@ namespace GPC.Model.FEM
                 }
                 else
                 {
+                    found = true;
                     i = Nodes[posNode].DOF.Count; //exit from cycle
                 }
             }
-            return counter + counter2;
-            //return counter + (int)dof;
-            #endregion
+            if (found == true) {
+                return counter + counter2;
+            } else
+            {
+                throw new Exception(dof + " for node " + node.ToString() + " not found");
+            }
+#endregion
+            */
         }
-        #endregion       
+#endregion
+
+        #endregion
     }
 }

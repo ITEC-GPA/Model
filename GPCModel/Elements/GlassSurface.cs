@@ -1,8 +1,7 @@
 ﻿using GPC.Geometry;
 using System;
-using System.Runtime.Serialization;
 using System.Collections.Generic;
-using GPC.Model.Loads;
+using System.Runtime.Serialization;
 
 namespace GPC.Model.Elements.Glasses
 {
@@ -10,12 +9,12 @@ namespace GPC.Model.Elements.Glasses
     {
         #region VARIABLES
 
-        private Shape _shape;
+        private readonly Shape _shape;
 
         #endregion
 
         #region PROPERTIES
-                
+
         public Shape Shape => _shape;
 
 
@@ -26,13 +25,19 @@ namespace GPC.Model.Elements.Glasses
         public GlassSurface(Shape shape)
             : base(Guid.NewGuid())
         {
-            this._shape = shape;
+            _shape = shape;
         }
 
-        public GlassSurface(Shape shape, Guid guid)
-            : base(guid)
+        public GlassSurface(Shape shape, int id)
+            : this(shape, id, Guid.NewGuid())
         {
-            this._shape = shape;
+
+        }
+
+        public GlassSurface(Shape shape, int id, Guid guid)
+            : base(id, guid)
+        {
+            _shape = shape;
         }
 
 
@@ -45,7 +50,7 @@ namespace GPC.Model.Elements.Glasses
         #endregion
 
         #region Public methods
-                
+
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             base.GetObjectData(info, context);
@@ -57,26 +62,25 @@ namespace GPC.Model.Elements.Glasses
             if (ReferenceEquals(this, obj))
                 return true;
 
-            GlassSurface gs = obj as GlassSurface;
-
-            return !(gs is null) && gs._shape.Equals(_shape) && base.Equals(gs);
+            return (obj is GlassSurface surface) && surface._shape.Equals(_shape) && base.Equals(surface);
         }
 
         public override int GetHashCode()
         {
-            int hashCode = -23;
-            hashCode = hashCode * -17 + base.GetHashCode();
+            int hashCode = -391 + base.GetHashCode();
             hashCode = hashCode * -17 + EqualityComparer<Shape>.Default.GetHashCode(_shape);
             return hashCode;
         }
 
         public static bool operator ==(GlassSurface obj1, GlassSurface obj2)
         {
+            if (obj1 is null)
+            {
+                return obj2 is null;
+            }
+
             if (ReferenceEquals(obj1, obj2))
                 return true;
-
-            if (obj1 is null || obj2 is null)
-                return false;
 
             return obj1.Equals(obj2);
         }

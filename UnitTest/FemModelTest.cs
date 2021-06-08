@@ -7,14 +7,19 @@ using GPC.Geometry;
 using GPC.Model.Materials;
 using GPC.Model.Loads;
 using GPC.Model.LoadCases;
+using GPC.Model.Combinations;
 using GPC.Model.FreedomCases;
 using GPC.Model.FEM;
 using GPC.Model.FEM.Properties;
 using GPC.Model.FEM.Attributes;
+using GPC.Model.FEM.Materials;
+using GPC.Model.FEM.FiniteElements;
 using GPC.Model.Restrains;
+using GPC.Model.Results;
 using System.Diagnostics;
 using System.Linq;
 using GPC.TestUtilities;
+using GPC.Model.FEM.Collections;
 
 namespace FemTest
 {
@@ -131,32 +136,38 @@ namespace FemTest
             // Arrange   
             Polygon3d p1 = new Polygon3d()
             {
-                new Point3d(0,0,0),
-                new Point3d(1,0,0),
-                new Point3d(2,0,0)
+                new Point3d(0, 0, 0),
+                new Point3d(1, 10, 0),
+                new Point3d(2, 10, 0)
             };
 
-            Mesh mesh = CreateSimpleMesh(10, 10, 3, 5, 2, 20);
-            Mesh mesh2 = CreateSimpleMesh(10, 10, 3, 5, 0, 0);
+            Stopwatch stopWatch = new Stopwatch();
+            stopWatch.Start();
+
+            //Mesh mesh = CreateSimpleMesh(10, 10, 3, 5, 2, 20);
+            //Mesh mesh2 = CreateSimpleMesh(10, 10, 3, 5, 0, 0);
+            Mesh mesh = CreateSimpleMesh(40, 40, 25, 60, 2, 0);
+            Debug.WriteLine($"Mesh vertices={mesh.VerticesCount}");
+            Debug.WriteLine(stopWatch.Elapsed, "Mesh created");
 
             GlassMaterial gm = new GlassMaterialAstm("", 1, 0.2, 3, 4, 5, 6, 0.008, 0.008, 9);
-            PlateProperty pp = new PlateProperty(gm, 1, 2, "p");
+            PlateProperty pp = new PlateProperty(gm.GetIsotropicFemMaterial(), 1, 2, "p");
 
-            BrickProperty bp = new BrickProperty(gm, "bp1");
+            BrickProperty bp = new BrickProperty(gm.GetIsotropicFemMaterial(), "bp1");
 
             Dictionary<IPointLoad, int[]> pointLoads = new Dictionary<IPointLoad, int[]>();
-            pointLoads.Add(new PointLoad(1, 2, 3, 4, 5, 6, Point3d.Origin, new LoadCase("lc1", null)), new int[] { 1 });
-            pointLoads.Add(new PointLoad(1, 2, 3, 4, 5, 6, Point3d.Origin, new LoadCase("lc2", null)), new int[] { 2 });
-            pointLoads.Add(new PointLoad(1, 2, 3, 4, 5, 6, Point3d.Origin, new LoadCase("lc3", null)), new int[] { 3 });
+            pointLoads.Add(new PointLoad(1, 2, 3, 4, 5, 6, Point3d.Origin, new LoadCaseBase("lc1")), new int[] { 1 });
+            pointLoads.Add(new PointLoad(1, 2, 3, 4, 5, 6, Point3d.Origin, new LoadCaseBase("lc2")), new int[] { 2 });
+            pointLoads.Add(new PointLoad(1, 2, 3, 4, 5, 6, Point3d.Origin, new LoadCaseBase("lc3")), new int[] { 3 });
 
             Dictionary<ILineLoad, int[]> lineLoads = new Dictionary<ILineLoad, int[]>();
-            lineLoads.Add(new LineLoad(1, 2, 3, 4, 5, 6, new Line3d(Point3d.Origin, new Point3d(10, 20, 0)), new LoadCase("lc1", null)), new int[] { 1 });
+            lineLoads.Add(new LineLoad(1, 2, 3, 4, 5, 6, new Line3d(Point3d.Origin, new Point3d(10, 20, 0)), new LoadCaseBase("lc1")), new int[] { 1 });
 
 
             Dictionary<IAreaLoad, int[]> plateLoads = new Dictionary<IAreaLoad, int[]>();
-            plateLoads.Add(new AreaLoad(1, 2, 3, new Shape(p1), new LoadCase("lc1", null)), new int[] { 1 });
-            plateLoads.Add(new AreaLoad(1, 2, 3, new Shape(p1), new LoadCase("lc2", null)), new int[] { 2 });
-            plateLoads.Add(new AreaLoad(1, 2, 3, new Shape(p1), new LoadCase("lc3", null)), new int[] { 3 });
+            plateLoads.Add(new AreaLoad(1, 2, 3, new Shape(p1), new LoadCaseBase("lc1")), new int[] { 1 });
+            plateLoads.Add(new AreaLoad(1, 2, 3, new Shape(p1), new LoadCaseBase("lc2")), new int[] { 2 });
+            plateLoads.Add(new AreaLoad(1, 2, 3, new Shape(p1), new LoadCaseBase("lc3")), new int[] { 3 });
 
             Dictionary<GeometryRestrain, int[]> geometryRestrains = new Dictionary<GeometryRestrain, int[]>();
             
@@ -167,10 +178,16 @@ namespace FemTest
 
             // Act
             FemModel femModel = new FemModel();
+            femModel.AddProperty(pp);
+            femModel.AddProperty(bp);
 
-            femModel.AddMesh(mesh, pp, bp, pointLoads, lineLoads, plateLoads, geometryRestrains);
+            stopWatch.Restart();
+            femModel.AddMesh(mesh, pp.Name, bp.Name, pointLoads, lineLoads, plateLoads, geometryRestrains);
+            Debug.WriteLine(stopWatch.Elapsed, "Mesh added");
 
+            stopWatch.Stop();
 
+            Debug.WriteLine("Finish");
             // Assert
         }
 
@@ -193,14 +210,15 @@ namespace FemTest
 
 
             GlassMaterial gm = new GlassMaterialAstm("", 1, 0.2, 3, 4, 5, 6, 0.008, 0.008, 9);
-            PlateProperty pp = new PlateProperty(gm, 1, 2, "p");
+            PlateProperty pp = new PlateProperty(gm.GetIsotropicFemMaterial(), 1, 2, "p");
 
-            BrickProperty bp = new BrickProperty(gm, "bp1");
+            BrickProperty bp = new BrickProperty(gm.GetIsotropicFemMaterial(), "bp1");
 
-            List<Load> loads = new List<Load>();
-
-            loads.Add(new PointLoad(1, 2, 3, 4, 5, 6, Point3d.Origin, new LoadCase("lc1", null)));
-            loads.Add(new LineLoad(1, 2, 3, 4, 5, 6, new Line3d(new Point3d(50, 50, 0), new Point3d(100, 100, 0)), new LoadCase("lc2", null)));
+            List<Load> loads = new List<Load>
+            {
+                new PointLoad(1, 2, 3, 4, 5, 6, Point3d.Origin, new LoadCaseBase("lc1")),
+                new LineLoad(1, 2, 3, 4, 5, 6, new Line3d(new Point3d(50, 50, 0), new Point3d(100, 100, 0)), new LoadCaseBase("lc2"))
+            };
 
             List<GeometryRestrain> restrains = new List<GeometryRestrain>();
             restrains.Add(new PointRestrain(Point3d.Origin, new FreedomCase("fc1"), CoordinateSystem.Global, new List<DofRestrain> { new DofRestrain(LinearSolver.DOF.DX) }));
@@ -209,11 +227,15 @@ namespace FemTest
 
             // Act
             FemModel femModel = new FemModel();
+            femModel.AddProperty(pp);
+            femModel.AddProperty(bp);
 
-            Mesh.GenerateOptions meshOptions = new Mesh.GenerateOptions();
-            meshOptions.MeshSize = 10;
+            Mesh.GenerateOptions meshOptions = new Mesh.GenerateOptions
+            {
+                MeshSize = 10
+            };
 
-            femModel.AddShape(s, pp, meshOptions, loads, restrains);
+            femModel.AddShape(s, pp.Name, meshOptions, loads, restrains);
 
             var mesh = femModel.GetMesh();
 
@@ -242,15 +264,16 @@ namespace FemTest
             Shape s1 = CreateSimpleShape(100, 200);
 
             GlassMaterial gm = new GlassMaterialAstm("gp1", 1, 0.2, 3, 4, 5, 6, 0.008, 0.008, 9);
-            MonolithicGlassProperty pp = new MonolithicGlassProperty(1, 2, gm, "gp1");
+            MonolithicGlassProperty pp = new MonolithicGlassProperty(1, 2, gm.GetIsotropicFemMaterial(), "mgp");
 
             Mesh.GenerateOptions meshOptions = new Mesh.GenerateOptions();
             meshOptions.MeshSize = 10;
 
-            PointLoad p1 = new PointLoad(1, 2, 3, 4, 5, 6, new Point3d(35, 35, 0), new LoadCase("LC1", null));
-            LineLoad l1 = new LineLoad(1, 2, 3, 4, 5, 6, new Line3d(new Point3d(35, 150, 0), new Point3d(75, 100, 0)), new LoadCase("LC2", null));
+            PointLoad p1 = new PointLoad(1, 2, 3, 4, 5, 6, new Point3d(35, 35, 0), new LoadCaseBase("LC1"));
+            LineLoad l1 = new LineLoad(1, 2, 3, 4, 5, 6, new Line3d(new Point3d(35, 150, 0), new Point3d(75, 100, 0)), new LoadCaseBase("LC2"));
 
-            femModel.AddShape(s1, pp, meshOptions, new List<Load>() { p1, l1}, null);
+            femModel.AddProperty(pp);
+            femModel.AddShape(s1, pp.Name, meshOptions, new List<Load>() { p1, l1}, null);
 
 
             var mesh = femModel.GetMesh();
@@ -282,20 +305,21 @@ namespace FemTest
 
             Shape s1 = CreateSimpleShape(100, 200);
             Shape s2 = new Shape(s1);
-            s2.Pan(100, 0, 0);
-
+            s2.Move(100, 0, 0);
+            
             GlassMaterial gm = new GlassMaterialAstm("gp1", 1, 0.2, 3, 4, 5, 6, 0.008, 0.008, 9);
-            MonolithicGlassProperty pp = new MonolithicGlassProperty(1, 2, gm, "gp1");
+            MonolithicGlassProperty pp = new MonolithicGlassProperty(1, 2, gm.GetIsotropicFemMaterial(), "gp1");
 
             Mesh.GenerateOptions meshOptions = new Mesh.GenerateOptions();
             meshOptions.MeshSize = meshSize;
 
-            PointLoad p1 = new PointLoad(1, 2, 3, 4, 5, 6, new Point3d(35, 35, 0), new LoadCase("LC1", null));
-            LineLoad l1 = new LineLoad(1, 2, 3, 4, 5, 6, new Line3d(new Point3d(35, 150, 0), new Point3d(75, 100, 0)), new LoadCase("LC2", null));
+            PointLoad p1 = new PointLoad(1, 2, 3, 4, 5, 6, new Point3d(35, 35, 0), new LoadCaseBase("LC1"));
+            LineLoad l1 = new LineLoad(1, 2, 3, 4, 5, 6, new Line3d(new Point3d(35, 150, 0), new Point3d(75, 100, 0)), new LoadCaseBase("LC2"));
 
+            femModel.AddProperty(pp);
             //Act
-            femModel.AddShape(s1, pp, meshOptions, null, null);
-            femModel.AddShape(s2, pp, meshOptions, null, null);
+            femModel.AddShape(s1, pp.Name, meshOptions, null, null);
+            femModel.AddShape(s2, pp.Name, meshOptions, null, null);
 
             var mesh = femModel.GetMesh();
 
@@ -325,15 +349,16 @@ namespace FemTest
             Shape s1 = CreateSimpleShape(800, 1600);
 
             GlassMaterial gm = new GlassMaterialAstm("gp1", 1, 0.2, 3, 4, 5, 6, 0.008, 0.008, 9);
-            MonolithicGlassProperty pp = new MonolithicGlassProperty(1, 2, gm, "gp1");
+            MonolithicGlassProperty pp = new MonolithicGlassProperty(1, 2, gm.GetIsotropicFemMaterial(), "gp1");
 
             Mesh.GenerateOptions meshOptions = new Mesh.GenerateOptions();
             meshOptions.MeshSize = 50;
 
-            LineLoad l1 = new LineLoad(1, 2, 3, 4, 5, 6, new Line3d(new Point3d(0, 500, 0), new Point3d(800, 500, 0)), new LoadCase("LC2", null));
+            LineLoad l1 = new LineLoad(1, 2, 3, 4, 5, 6, new Line3d(new Point3d(0, 500, 0), new Point3d(800, 500, 0)), new LoadCaseBase("LC2"));
 
+            femModel.AddProperty(pp);
             //Act
-            femModel.AddShape(s1, pp, meshOptions, null, null);
+            femModel.AddShape(s1, pp.Name, meshOptions, null, null);
 
             var mesh = femModel.GetMesh();
 
@@ -358,10 +383,11 @@ namespace FemTest
             Mesh mesh = CreateSimpleMesh(20, 30, 3, 4, 0, 0);
 
             GlassMaterial gm = new GlassMaterialAstm("gp1", 1, 0.2, 3, 4, 5, 6, 0.008, 0.008, 9);
-            MonolithicGlassProperty pp = new MonolithicGlassProperty(1, 2, gm, "gp1");
+            MonolithicGlassProperty pp = new MonolithicGlassProperty(1, 2, gm.GetIsotropicFemMaterial(), "gp1");
 
             FemModel femModel = new FemModel();
-            femModel.AddMesh(mesh, pp, null, null, null, null, null);
+            femModel.AddProperty(pp);
+            femModel.AddMesh(mesh, pp.Name, null, null, null, null, null);
 
             Mesh mesh2 = femModel.GetMesh();
 
@@ -379,6 +405,83 @@ namespace FemTest
             Assert.IsTrue(mesh1.Equals(mesh2));
 
         }
+
+
+        [TestMethod]
+        public void FemModelTest8()
+        {
+
+            Shape s1 = CreateSimpleShape(800, 1600);
+
+            GlassMaterial gm = new GlassMaterialAstm("gp1", 1, 0.2, 3, 4, 5, 6, 0.008, 0.008, 9);
+            MonolithicGlassProperty pp = new MonolithicGlassProperty(1, 2, gm.GetIsotropicFemMaterial(), "gp1");
+
+            Mesh.GenerateOptions meshOptions = new Mesh.GenerateOptions();
+            meshOptions.MeshSize = 50;
+
+
+            FemModel femModel = new FemModel();
+            femModel.AddProperty(pp);
+            femModel.AddShape(s1, pp.Name, meshOptions, null, null);
+
+
+            Exception exception = null;
+            try
+            {
+                femModel.GetNode(0);
+            }
+            catch (KeyNotFoundException e)
+            {
+                exception = e;
+            }
+
+            if (exception == null)
+            {
+                Assert.Fail();
+            }
+            else
+            {
+                
+            }
+
+        }
+
+
+        [TestMethod]
+        [TestCategory("Missing Assert")]
+        public void FemModelTest9()
+        {
+
+            FemModel femModel = new FemModel();
+
+            int r1 = femModel.AddCostrain(new GPC.Model.FEM.Costrains.RigidLink(new Node(0, 0, 0), new Node(0, 0, 1)));
+            int r2 = femModel.AddCostrain(new GPC.Model.FEM.Costrains.RigidLink(new Node(0, 0, 1), new Node(0, 0, 2)));
+
+
+        }
+
+
+
+        [TestMethod]
+        public void FemModelTest12()
+        {
+            Mesh mesh = CreateSimpleMesh(20, 30, 3, 4, 0, 0);
+
+            GlassMaterial gm = new GlassMaterialAstm("gp1", 1, 0.2, 3, 4, 5, 6, 0.008, 0.008, 9);
+            MonolithicGlassProperty pp = new MonolithicGlassProperty(1, 2, gm.GetIsotropicFemMaterial(), "gp1");
+
+            FemModel femModel = new FemModel();
+            femModel.AddProperty(pp);
+            femModel.AddMesh(mesh, pp.Name, null, null, null, null, null, "gp1");
+
+            Mesh mesh2 = femModel.GetMesh();
+
+            Assert.IsTrue(mesh.Equals(mesh2));
+
+            Assert.IsTrue(femModel.GetElements().First().GetGroups().First().Name == "gp1");
+
+        }
+
         #endregion
 
     }

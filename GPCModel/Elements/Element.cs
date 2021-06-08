@@ -5,28 +5,23 @@ using System.Runtime.Serialization;
 namespace GPC.Model.Elements
 {
     /// <summary>
-    /// Element base abstract class that is the base for all the objects inside GPC environment.
+    /// This class rapresnet a base class for all the phisical element inside the gpc model library
     /// </summary>
 
     [Serializable]
-    public abstract class Element : ModelObject, ISerializable
+    public abstract class Element : ModelObjectId, ISerializable
     {
-
-        private int _id;
-
-        public virtual int Id { get => _id; set { _id = value; } }
-
-        #region Public Constructors
 
         protected Element() 
             : base(Guid.NewGuid())
         {
 
         }
+
         protected Element(int id)
-            : base(Guid.NewGuid())
+            : this(id, "", Guid.NewGuid())
         {
-            _id = id;
+
         }
 
         protected Element(Guid guid)
@@ -35,8 +30,14 @@ namespace GPC.Model.Elements
 
         }
 
-        protected Element(Guid guid, string name)
-            : base(guid, name)
+        protected Element(int id, Guid guid)
+            : this(id, "", guid)
+        {
+
+        }
+
+        protected Element(int id, string name, Guid guid)
+            : base(id, name, guid)
         {
 
         }
@@ -44,49 +45,28 @@ namespace GPC.Model.Elements
         protected Element(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
-            _id = info.GetInt32("Id");
-        }
 
-        #endregion
+        }
 
 
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             base.GetObjectData(info, context);
-            info.AddValue("Id", _id);
         }
 
-        /// <summary>
-        /// </summary>
-        /// <param name="obj"></param>
-        /// <returns></returns>
-        /// <remarks>Equality is not checked against <see cref="Element.Id"/> </remarks>
+        /// <inheritdoc cref="ModelObjectId.Equals(object)"/>
         public override bool Equals(object obj)
         {
-            if (ReferenceEquals(this, obj))
-                return true;
-
-            // ID non viene messo in equals in quanto non tutte le derivate devono ritornare true se gli id sono uguali. 
-            // Se ne deve occupare la derivata
-            Element objCasted = obj as Element;
-            return !(objCasted is null) && base.Equals(objCasted);
+            return base.Equals(obj);
         }
 
         public override int GetHashCode()
         {
-            int hashCode = 23;
-            hashCode = hashCode * -17 + base.GetHashCode();
-            return hashCode;
+            return base.GetHashCode();
         }
 
         public static bool operator ==(Element obj1, Element obj2)
         {
-            if (ReferenceEquals(obj1, obj2))
-                return true;
-
-            if (obj1 is null || obj2 is null)
-                return false;
-
             return obj1.Equals(obj2);
         }
 

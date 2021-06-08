@@ -25,7 +25,7 @@ namespace ModelObjectTest
             Vector3d moment = new Vector3d(0, 1, 0);
             Point3d point = new Point3d(0, 0, 1);
 
-            LoadCase LoadCase = new LoadCase("SelfWeight", loadCaseType: GPC.Model.LoadCases.LoadCase.LoadCaseType.SelfWeight);
+            LoadCase LoadCase = new LoadCase("SelfWeight", loadCaseType: GPC.Model.LoadCases.LoadCase.LoadCaseTypes.SelfWeight);
 
             PointLoad pl1 = new PointLoad(force, moment, point, LoadCase, CoordinateSystem1);
 
@@ -84,7 +84,7 @@ namespace ModelObjectTest
             Vector3d moment = new Vector3d(1, 0, 1);
             Point3d point = new Point3d(-2, 0, 1);
 
-            LoadCase LoadCase = new LoadCase("SelfWeight", loadCaseType: GPC.Model.LoadCases.LoadCase.LoadCaseType.SelfWeight);
+            LoadCase LoadCase = new LoadCase("SelfWeight", loadCaseType: GPC.Model.LoadCases.LoadCase.LoadCaseTypes.SelfWeight);
 
             PointLoad pl1 = new PointLoad(force, moment, point, LoadCase, CoordinateSystem1);
 
@@ -143,7 +143,7 @@ namespace ModelObjectTest
             Vector3d moment = new Vector3d(+1, -1, -1);
             Point3d point = new Point3d(-2, 2, 2);
 
-            LoadCase LoadCase = new LoadCase("SelfWeight", loadCaseType: GPC.Model.LoadCases.LoadCase.LoadCaseType.SelfWeight);
+            LoadCase LoadCase = new LoadCase("SelfWeight", loadCaseType: GPC.Model.LoadCases.LoadCase.LoadCaseTypes.SelfWeight);
 
             PointLoad pl1 = new PointLoad(force, moment, point, LoadCase, CoordinateSystem1);
 
@@ -204,7 +204,7 @@ namespace ModelObjectTest
             Point3d point1 = new Point3d(0, 0, 1);
             Line3d line = new Line3d(point1, point1);
 
-            LoadCase LoadCase = new LoadCase("SelfWeight", loadCaseType: GPC.Model.LoadCases.LoadCase.LoadCaseType.SelfWeight);
+            LoadCase LoadCase = new LoadCase("SelfWeight", loadCaseType: GPC.Model.LoadCases.LoadCase.LoadCaseTypes.SelfWeight);
 
             LineLoad ll1 = new LineLoad(force, moment, line, LoadCase, CoordinateSystem1);
 

@@ -15,9 +15,9 @@ namespace GPC.Model.Glasses
         #region Variables
 
         private IGlassPanel _glassPanelOuter;
-        private double _airThicknessOuter;
+        private AirChamber _airChamberOuter;
         private IGlassPanel _glassPanelCentral;
-        private double _airThicknessInner;
+        private AirChamber _airChamberInner;
         private IGlassPanel _glassPanelInner;
 
         #endregion
@@ -25,9 +25,9 @@ namespace GPC.Model.Glasses
         #region Properties
 
         public IGlassPanel GlassPanelOuter => _glassPanelOuter;
-        public double AirThicknessOuter => _airThicknessOuter;
+        public AirChamber AirChamberOuter => _airChamberOuter;
         public IGlassPanel GlassPanelCentral => _glassPanelCentral;
-        public double AirThicknessInner => _airThicknessInner;
+        public AirChamber AirChamberInner => _airChamberInner;
         public IGlassPanel GlassPanelInner => _glassPanelInner;
 
         #endregion
@@ -45,37 +45,41 @@ namespace GPC.Model.Glasses
             _glassPanelOuter = null;
             _glassPanelCentral = null;
             _glassPanelInner = null;
-            _airThicknessOuter = 0;
-            _airThicknessInner = 0;
+            _airChamberOuter = null;
+            _airChamberInner = null;
         }
 
-        /// <summary>
-        ///
-        /// </summary>
+
+        /// <param name="name"></param>
         /// <param name="glassPanelOuter">Outer glass panel</param>
         /// <param name="glassPanelInner">Inner glass panel</param>
         /// <param name="glassPanelCentral">Central glass panel</param>
-        /// <param name="airThicknessOuter">Outer air thickness</param>
-        /// <param name="airThicknessInner">Inner air thickness</param>
-        public TripleInsulatingGlass(string name, IGlassPanel glassPanelOuter, IGlassPanel glassPanelCentral, IGlassPanel glassPanelInner, double airThicknessOuter, double airThicknessInner)
-            : this(name, glassPanelOuter, glassPanelCentral, glassPanelInner, airThicknessOuter, airThicknessInner, Guid.NewGuid())
+        /// <param name="airChamberOuter">Outer air thickness</param>
+        /// <param name="airChamberInner">Inner air thickness</param>
+        public TripleInsulatingGlass(string name, IGlassPanel glassPanelOuter, IGlassPanel glassPanelCentral, IGlassPanel glassPanelInner, AirChamber airChamberOuter, AirChamber airChamberInner)
+            : this(name, glassPanelOuter, glassPanelCentral, glassPanelInner, airChamberOuter, airChamberInner, Guid.NewGuid())
         {
 
         }
 
-        public TripleInsulatingGlass(string name, IGlassPanel glassPanelOuter, IGlassPanel glassPanelCentral, IGlassPanel glassPanelInner, double airThicknessOuter, double airThicknessInner, Guid guid)
+        /// <param name="name"></param>
+        /// <param name="glassPanelOuter">Outer glass panel</param>
+        /// <param name="glassPanelInner">Inner glass panel</param>
+        /// <param name="glassPanelCentral">Central glass panel</param>
+        /// <param name="airChamberOuter">Outer air thickness</param>
+        /// <param name="airChamberInner">Inner air thickness</param>
+        /// <param name="guid"></param>
+        public TripleInsulatingGlass(string name, IGlassPanel glassPanelOuter, IGlassPanel glassPanelCentral, IGlassPanel glassPanelInner, AirChamber airChamberOuter, AirChamber airChamberInner, Guid guid)
             : base(guid, name)
         {
-            if (airThicknessOuter < 0.001 || airThicknessInner < 0.001)
-                throw new ArgumentOutOfRangeException("Air thickness can't be negative or zero");
-
             this._glassPanelOuter = glassPanelOuter ?? throw new ArgumentException("Outer Glass panel can't be null");
             this._glassPanelCentral = glassPanelCentral ?? throw new ArgumentException("Central Glass panel can't be null");
             this._glassPanelInner = glassPanelInner ?? throw new ArgumentException("Inner Glass panel can't be null");
 
-            this._airThicknessOuter = airThicknessOuter;
-            this._airThicknessInner = airThicknessInner;
+            this._airChamberInner = airChamberInner ?? throw new ArgumentException("Inner AirChamber panel can't be null");
+            this._airChamberOuter = airChamberOuter ?? throw new ArgumentException("Outer AirChamber panel can't be null");
         }
+
 
         public TripleInsulatingGlass(SerializationInfo info, StreamingContext context)
            : base(info, context)
@@ -83,11 +87,27 @@ namespace GPC.Model.Glasses
             _glassPanelOuter = (IGlassPanel)info.GetValue("GlassPanelOuter", typeof(IGlassPanel));
             _glassPanelCentral = (IGlassPanel)info.GetValue("GlassPanelCentral", typeof(IGlassPanel));
             _glassPanelInner = (IGlassPanel)info.GetValue("GlassPanelInner", typeof(IGlassPanel));
-            _airThicknessOuter = info.GetDouble("AirThicknessOuter");
-            _airThicknessInner = info.GetDouble("AirThicknessInner");
+            _airChamberInner = (AirChamber)info.GetValue("AirChamberInner", typeof(AirChamber));
+            _airChamberOuter = (AirChamber)info.GetValue("AirChamberOuter", typeof(AirChamber));
         }
 
         #endregion
+
+
+        /// <remarks>Order of the glass panels is from external to internal</remarks>
+        public IGlassPackage[][] GetGlassPackage()
+        {
+            IGlassPackage[][] package = new IGlassPackage[5][];
+
+            package[0] = _glassPanelOuter.GetGlassPackage();
+            package[1] = new[] { _airChamberOuter };
+            package[2] = _glassPanelCentral.GetGlassPackage();
+            package[3] = new[] { _airChamberInner };
+            package[4] = _glassPanelInner.GetGlassPackage();
+
+            return package;
+        }
+
 
         #region PUBLIC METHODS
 
@@ -97,8 +117,8 @@ namespace GPC.Model.Glasses
             info.AddValue("GlassPanelOuter", _glassPanelOuter);
             info.AddValue("GlassPanelCentral", _glassPanelCentral);
             info.AddValue("GlassPanelInner", _glassPanelInner);
-            info.AddValue("AirThicknessOuter", _airThicknessOuter);
-            info.AddValue("AirThicknessInner", _airThicknessInner);
+            info.AddValue("AirChamberInner", _airChamberInner);
+            info.AddValue("AirChamberOuter", _airChamberOuter);
         }
 
         public bool Equals(TripleInsulatingGlass other)
@@ -107,9 +127,9 @@ namespace GPC.Model.Glasses
                 return true;
 
             return !(other is null) && other._glassPanelOuter.Equals(_glassPanelOuter)
-                                    && other._airThicknessOuter.Equals(_airThicknessOuter)
+                                    && other._airChamberInner.Equals(_airChamberInner)
                                     && other._glassPanelCentral.Equals(_glassPanelCentral)
-                                    && other._airThicknessInner.Equals(_airThicknessInner)
+                                    && other._airChamberOuter.Equals(_airChamberOuter)
                                     && other._glassPanelInner.Equals(_glassPanelInner)
                                     && base.Equals(other);
         }
@@ -124,9 +144,9 @@ namespace GPC.Model.Glasses
             int hashCode = -23;
             hashCode = hashCode * -17 + base.GetHashCode();
             hashCode = hashCode * -17 + EqualityComparer<IGlassPanel>.Default.GetHashCode(_glassPanelOuter);
-            hashCode = hashCode * -17 + _airThicknessOuter.GetHashCode();
+            hashCode = hashCode * -17 + EqualityComparer<AirChamber>.Default.GetHashCode(_airChamberInner);
             hashCode = hashCode * -17 + EqualityComparer<IGlassPanel>.Default.GetHashCode(_glassPanelCentral);
-            hashCode = hashCode * -17 + _airThicknessInner.GetHashCode();
+            hashCode = hashCode * -17 + EqualityComparer<AirChamber>.Default.GetHashCode(_airChamberOuter);
             hashCode = hashCode * -17 + EqualityComparer<IGlassPanel>.Default.GetHashCode(_glassPanelInner);
             return hashCode;
         }

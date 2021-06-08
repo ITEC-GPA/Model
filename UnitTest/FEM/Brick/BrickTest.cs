@@ -7,8 +7,9 @@ using GPC.Model.FEM.FiniteElements;
 using GPC.Model.FEM.Properties;
 using GPC.Model.Materials;
 using System.Linq;
+using GPC.Model.FEM.Materials;
 
-namespace FemTest.Solver
+namespace FemTest.SolverTest
 {
     [TestClass]
     public class BrickTest
@@ -16,7 +17,7 @@ namespace FemTest.Solver
         [TestMethod]
         public void Dest1()
         {
-            mnl.Matrix<double> D = Brick.GetD(96, 1.0 / 3.0);
+            mnl.Matrix<double> D = IsotropicFemMaterial.GetBrickD(96, 1.0 / 3.0);
 
             mnl.Matrix<double> manual = mnl.Matrix<double>.Build.Dense(1, 6);
             mnl.Vector<double>[] rows = new mnl.Vector<double>[6];

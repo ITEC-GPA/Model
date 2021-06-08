@@ -34,7 +34,7 @@ namespace GPC.Model.Sections
         public Plate[] Plates => _plates;
         #endregion
 
-        public SectionL(double lHor, double tHor, double lVert, double tVert, Material material, string name) : base(material, name)
+        public SectionL(double lHor, double tHor, double lVert, double tVert, Material material, string name) : base(material.GetIsotropicFemMaterial(), name)
         {
             _lHor = lHor;
             _tHor = tHor;

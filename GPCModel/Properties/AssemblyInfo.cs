@@ -9,7 +9,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyDescription("Base elements library for GPC Engineering SpA applications")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("GPC Engineering SpA")]
-[assembly: AssemblyProduct("GPCGeometry")]
+[assembly: AssemblyProduct("GPCModel")]
 [assembly: AssemblyCopyright("Copyright ©  2020 by GPC Engineering SpA")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
@@ -32,8 +32,8 @@ using System.Runtime.InteropServices;
 // È possibile specificare tutti i valori oppure impostare valori predefiniti per i numeri relativi alla revisione e alla build
 // usando l'asterisco '*' come illustrato di seguito:
 // [assembly: AssemblyVersion("1.0.*")]
-[assembly: AssemblyVersion("0.0.12.0")]
-[assembly: AssemblyFileVersion("0.0.12.0")]
+[assembly: AssemblyVersion("0.0.13.18")]
+[assembly: AssemblyFileVersion("0.0.13.18")]
 
 
 [assembly: InternalsVisibleTo("UnitTest")]

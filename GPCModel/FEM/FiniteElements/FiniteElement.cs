@@ -2,9 +2,9 @@
 using System.Linq;
 using System;
 using GPC.Geometry;
-using GPC.Model.Elements;
 using GPC.Model.FEM.Properties;
 using GPC.Model.FEM.Attributes;
+using GPC.Model.Results;
 using mnl = MathNet.Numerics.LinearAlgebra;
 
 namespace GPC.Model.FEM.FiniteElements
@@ -15,27 +15,30 @@ namespace GPC.Model.FEM.FiniteElements
     public abstract class FiniteElement : FEMObject
     {
         #region Variables
+
         //define the local axis of the element
         protected CoordinateSystem _localCoordinateSystem;
         //contains the degree of fredom active foreach node in global coordinates
-        protected SortedSet<LinearSolver.DOF> _DOF;
+        protected SortedSet<Solver.DOF> _DOF;
         
         //transformation matrix from local coordinates to global coordinates
         protected mnl.Matrix<double> _dofGlobalToLocal;
         //local stiffness matrix of the element in local coordinates
         protected mnl.Matrix<double> _kElementLocalCoord;
-        //contains Material information of the element
-        protected mnl.Matrix<double> _d;
-        //contains informations about section, thickness, material etc of the element
-
-
+        
         protected List<LoadCaseAttribute> _attributesLoadCase;
         protected List<FreedomCaseAttribute> _attributesFreedomCase;
 
+        //contains informations about section, thickness, material etc of the element
         protected ElementProperty _property;
 
         //contains the nodes in global coordinates
         protected Node[] _nodesGlobal;
+        //contains the nodes in global coordinates
+        protected Node[] _nodesLocal;
+
+
+        protected readonly ModelObjectSet<FiniteElementResult> _results;
 
         #endregion
 
@@ -48,7 +51,7 @@ namespace GPC.Model.FEM.FiniteElements
         /// <summary>
         /// Contains the DOF active in the element
         /// </summary>
-        public SortedSet<LinearSolver.DOF> DOF => _DOF;
+        public SortedSet<Solver.DOF> DOF => _DOF;
 
         /// <summary>
         /// Contains Material for brick, thickness and material for plate, material + section for beam
@@ -65,7 +68,7 @@ namespace GPC.Model.FEM.FiniteElements
                 int counter = 0;
                 for (int i = 0; i < DOF.Count(); i++)
                 {
-                    if (DOF.Contains((LinearSolver.DOF)i) == true) {
+                    if (DOF.Contains((Solver.DOF)i) == true) {
                         counter++;
                     }
                 }
@@ -79,6 +82,11 @@ namespace GPC.Model.FEM.FiniteElements
         public Node[] Nodes => _nodesGlobal;
 
         /// <summary>
+        /// Nodes of the element in local axis
+        /// </summary>
+        public Node[] LocalNodes => _nodesLocal;
+
+        /// <summary>
         /// used for KeGlobal = DofGlobalToLocal^T [KeLocal] [DofGlobaltoLocal] or for UlocalCoord = DofGlobalToLocal UglobalCoord; NOTE: DofLocalToGlobal = DofGlobalToLocal^TRASPOSTE
         /// </summary>
         public mnl.Matrix<double> DofGlobalToLocal => _dofGlobalToLocal;
@@ -89,37 +97,27 @@ namespace GPC.Model.FEM.FiniteElements
         public virtual mnl.Matrix<double> KElementGlobalCoord => DofGlobalToLocal.Transpose() * KElementLocalCoord * DofGlobalToLocal;
 
         /// <summary>
-        /// usually = B : derivative of ShapeFunctions, need for epsilon = [B] * q with q = node displacements vector
-        /// </summary>
-        public abstract mnl.Matrix<double> GetB(double csi = 0, double eta = 0, double zeta = 0);
-
-        /// <summary>
-        /// F,M = [D] * (epsilon, curvature...)
-        /// </summary>
-        public mnl.Matrix<double> D => _d;
-
-        /// <summary>
         /// ke = int [B]^T [D] [B] dV (stiffness matrix in local coordinates)
         /// </summary>
         public mnl.Matrix<double> KElementLocalCoord => _kElementLocalCoord;
         
         public List<LoadCaseAttribute> AttributesLoadCase => _attributesLoadCase;
         public List<FreedomCaseAttribute> AttributesFreedomCase => _attributesFreedomCase;
+        public IEnumerable<FiniteElementResult> Results => _results;
 
         #endregion
 
         #region Constructor
 
-        /// <summary>
-        ///  
-        /// </summary>
         /// <param name="nodes">Nodes of the element</param>
         internal FiniteElement(Node[] nodes) : base()
         {
             _nodesGlobal = nodes;
-            _DOF = new SortedSet<LinearSolver.DOF>();
+            _DOF = new SortedSet<Solver.DOF>();
             _attributesLoadCase = new List<LoadCaseAttribute>();
             _attributesFreedomCase = new List<FreedomCaseAttribute>();
+
+            _results = new ModelObjectSet<FiniteElementResult>(EqualityComparer<ElementResult>.Default); // comparer di ElementResult, usa solo il case come comparatore
         }
 
         #endregion
@@ -134,9 +132,9 @@ namespace GPC.Model.FEM.FiniteElements
             _property = property;
         }
 
-
         public abstract FiniteElement Duplicate(ElementProperty property, List<LoadCaseAttribute> lcAttributes, List<FreedomCaseAttribute> fcAttributes);
 
+        public abstract FiniteElement Duplicate();
 
         /// <summary>
         /// Build Stiffness Matrix etc
@@ -156,34 +154,75 @@ namespace GPC.Model.FEM.FiniteElements
             return F;
         }
 
-        /// <summary>
+        /*/// <summary>
         /// Retrieve sigma, epsilon, N, M, etc in the element from displacement
         /// Top then bottom , then nr node. Example: stress[5] in element with 3 nodes with top and bottom: in equal to: 3 top, 2 bottom -> node 2 bottom
+        /// </summary>*/
+        //TODO: Da ottimizzare/scrivere
+        public void GetNodesResults(double[] globalDisplacementsNodes, out mnl.Matrix<double>[] gloabalPseudoDeformation, out mnl.Matrix<double>[] localPseudoDeformation, out mnl.Matrix<double>[] globalForces, out mnl.Matrix<double>[] localForces, out mnl.Matrix<double>[] globalStress, out mnl.Matrix<double>[] localStress, out mnl.Matrix<double>[] globalEpsilon, out mnl.Matrix<double>[] localEpsilon)
+        {
+            throw new Exception("ottimizzare questa funzione");
+        }
+
+        public virtual void AddResult(FiniteElementResult result)
+        {
+            if (result != null)
+                _results.Add(result);
+        }
+
+        #region GetInternalForces
+        /// <summary>
+        /// Return global internal force for the element
         /// </summary>
-        /// <param name="displacementsNodes"></param>
-        public abstract void GetNodesResults(double[] globalDisplacementsNodes, out double[] localDisplacements, out mnl.Matrix<double>[] gloabalPseudoDeformation, out mnl.Matrix<double>[] localPseudoDeformation, out mnl.Matrix<double>[] globalForces, out mnl.Matrix<double>[] localForces, out mnl.Matrix<double>[] globalStress, out mnl.Matrix<double>[] localStress, out mnl.Matrix<double>[] globalEpsilon, out mnl.Matrix<double>[] localEpsilon);
+        /// <param name="globalDisplacementsNodes"></param>
+        /// <returns>KglobalElement * displGlobal</returns>
+        public mnl.Vector<double> GetInternalGlobalForces(double[] globalDisplacementsNodes)
+        {
+            return KElementGlobalCoord * mnl.Vector<double>.Build.Dense(globalDisplacementsNodes);
+        }
 
-        public abstract void GetResultPositionNaturalCoordinates(double csi, double eta, double zeta, double[] globalDisplacementsNodes, out double x, out double y, out double z, out double[] localDisplacements, out mnl.Matrix<double> gloabalPseudoDeformation, out mnl.Matrix<double> localPseudoDeformation, out mnl.Matrix<double> globalForces, out mnl.Matrix<double> localForces, out mnl.Matrix<double> globalStress, out mnl.Matrix<double> localStress, out mnl.Matrix<double> globalEpsilon, out mnl.Matrix<double> localEpsilon);
+        /// <summary>
+        /// Return local internal force for the element
+        /// </summary>
+        /// <param name="localDisplacementsNodes"></param>
+        /// <returns>KglobalElement * displGlobal</returns>
+        public mnl.Vector<double> GetInternalNodalLocalForces(mnl.Vector<double> localDisplacementsNodes)
+        {
+            return _kElementLocalCoord * localDisplacementsNodes;
+        }
 
+        public mnl.Vector<double> GetInternalLocalForces(double[] localDisplacementsNodes)
+        {
+            return GetInternalNodalLocalForces(mnl.Vector<double>.Build.Dense(localDisplacementsNodes));
+        }       
+        #endregion
+
+        #region GetLocalDisplacement
         /// <summary>
         /// Get displacements in local coordinates of the element
         /// </summary>
-        /// <param name="displacementsNodes"></param>
         /// <returns></returns>
+        public mnl.Vector<double> GetLocalDisplacementVector(double[] globalDisplacementsNodes)
+        {
+            return (DofGlobalToLocal * mnl.Vector<double>.Build.Dense(globalDisplacementsNodes));
+        }
+
         public double[] GetLocalDisplacement(double[] globalDisplacementsNodes)
         {
-            return (DofGlobalToLocal * mnl.Vector<double>.Build.Dense(globalDisplacementsNodes)).ToArray();
+            return (GetLocalDisplacementVector(globalDisplacementsNodes)).ToArray();
         }
+        #endregion
 
         /// <summary>
         /// 
         /// </summary>
-        /// <returns>An array of <see cref="FEMObject.Id"/>of the element Nodes</returns>
+        /// <returns>An array of <see cref="ModelObjectId.Id"/>of the element Nodes</returns>
         public int[] GetNodesID()
         {
             return Nodes.Select(i => i.Id).ToArray();
         }
 
+        #region EqualsAndHashCode
         public override bool Equals(object obj)
         {
             return obj is FiniteElement element &&
@@ -194,17 +233,20 @@ namespace GPC.Model.FEM.FiniteElements
 
         public override int GetHashCode()
         {
-            int hashCode = 1596002646;
-            hashCode = hashCode * -1521134295 + base.GetHashCode();
-            hashCode = hashCode * -1521134295 + EqualityComparer<ElementProperty>.Default.GetHashCode(_property);
-
-            foreach (var node in _nodesGlobal)
+            unchecked
             {
-                hashCode = hashCode + EqualityComparer<Node>.Default.GetHashCode(node);
-            }
-            return hashCode;
-        }
+                int hashCode = 1596002646;
+                hashCode = hashCode * -1521134295 + base.GetHashCode();
+                hashCode = hashCode * -1521134295 + EqualityComparer<ElementProperty>.Default.GetHashCode(_property);
 
+                foreach (var node in _nodesGlobal)
+                {
+                    hashCode = hashCode * 17 + EqualityComparer<Node>.Default.GetHashCode(node);
+                }
+                return hashCode; 
+            }
+        }
+        #endregion
         #endregion
     }
 }

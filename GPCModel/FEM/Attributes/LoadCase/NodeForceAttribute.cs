@@ -10,13 +10,13 @@ namespace GPC.Model.FEM.Attributes
     public sealed class NodeForceAttribute : LoadCaseAttribute, INodeLoadCaseAttribute, IEquatable<NodeForceAttribute>, ISerializable
     {
         #region variables
-        private double _f1;
-        private double _f2;
-        private double _f3;
-        private double _m1;
-        private double _m2;
-        private double _m3;
-        private CoordinateSystem _coordinateSystem;
+        private readonly double _f1;
+        private readonly double _f2;
+        private readonly double _f3;
+        private readonly double _m1;
+        private readonly double _m2;
+        private readonly double _m3;
+        private readonly CoordinateSystem _coordinateSystem;
         #endregion
 
         #region Properties
@@ -29,14 +29,14 @@ namespace GPC.Model.FEM.Attributes
         public CoordinateSystem CoordinateSystem => _coordinateSystem;
         #endregion
 
-        public NodeForceAttribute(LoadCase loadCase, CoordinateSystem cSys, double f1, double f2, double f3, double m1, double m2, double m3)
-            : this (loadCase, cSys, f1, f2, f3, m1, m2, m3, string.Empty)
+        public NodeForceAttribute(string loadCaseName, CoordinateSystem cSys, double f1, double f2, double f3, double m1, double m2, double m3)
+            : this (loadCaseName, cSys, f1, f2, f3, m1, m2, m3, string.Empty)
         {
 
         }
 
-        public NodeForceAttribute(LoadCase loadCase, CoordinateSystem cSys, double f1, double f2, double f3, double m1, double m2, double m3, string name) 
-            : base(loadCase, name)
+        public NodeForceAttribute(string loadCaseName, CoordinateSystem cSys, double f1, double f2, double f3, double m1, double m2, double m3, string name) 
+            : base(loadCaseName, name)
         {
             _f1 = f1;
             _f2 = f2;

@@ -13,16 +13,16 @@ using GPC.Model.FEM.Properties;
 using GPC.Model.FEM.Attributes;
 using GPC.Model.LoadCases;
 
-namespace FemTest.Solver
+namespace FemTest.SolverTest
 {
     [TestClass]
-    public class FemSolverMembraneTest
+    public class MembraneTest
     {
         [TestMethod]
         public void Tri3PlaneStressKTest1()
         {
             Material mat = new SteelMaterial("steel", 200000.0, 0.2, 355, 510, 7850);
-            PlateProperty prop = new PlateProperty(mat, 0, 1, "p");
+            PlateProperty prop = new PlateProperty(mat.GetIsotropicFemMaterial(), 0, 1, "p");
 
             Node[] nds = new Node[3];
             nds[0] = new Node(0.0, 0, 0, "1");
@@ -66,7 +66,7 @@ namespace FemTest.Solver
         public void Tri3PlaneStressKTest2()
         {
             Material mat = new SteelMaterial("steel", 200000, 0.2, 355, 510, 7850);
-            PlateProperty prop = new PlateProperty(mat, 0, 1, "p");
+            PlateProperty prop = new PlateProperty(mat.GetIsotropicFemMaterial(), 0, 1, "p");
 
             Node[] nds = new Node[3];
             nds[0] = new Node(0.0, 0, 0, "1");
@@ -99,19 +99,19 @@ namespace FemTest.Solver
         [TestMethod]
         public void PlatePressureTest1()
         {
-            LoadCase loadCase = new LoadCase("myLoadCase", new Guid());
+            LoadCaseBase loadCase = new LoadCaseBase("myLoadCase", new Guid());
             FreedomCase freedomCase = new FreedomCase("freedomCase1");
 
             Material mat = new SteelMaterial("steel", 200000, 0.2, 355, 510, 7850);
-            PlateProperty prop = new PlateProperty(mat, 0, 1, "p");
+            PlateProperty prop = new PlateProperty(mat.GetIsotropicFemMaterial(), 0, 1, "p");
 
             CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
-            NodeRestrainAttribute DXDYDZ = new NodeRestrainAttribute(freedomCase, sys);
+            NodeRestrainAttribute DXDYDZ = new NodeRestrainAttribute("freedomCase", sys);
             DXDYDZ.AddExternalRestrain(LinearSolver.DOF.DX);
             DXDYDZ.AddExternalRestrain(LinearSolver.DOF.DY);
             DXDYDZ.AddExternalRestrain(LinearSolver.DOF.DZ);
 
-            NodeRestrainAttribute DZ = new NodeRestrainAttribute(freedomCase, sys);
+            NodeRestrainAttribute DZ = new NodeRestrainAttribute("freedomCase", sys);
             DZ.AddExternalRestrain(LinearSolver.DOF.DZ);
 
             //CoordinateSystem sys2 = new CoordinateSystem(new Point3d(1, 1, 0), new Point3d(2, 2, 0), new Point3d(0, 2, 0));
@@ -144,21 +144,21 @@ namespace FemTest.Solver
             List<FiniteElement> elements = new List<FiniteElement>();
             Plate e0 = new Tri3PlaneStress(nodesPlate1.ToArray(), prop);
         
-            PlatePressureAttribute p = new PlatePressureAttribute(loadCase, sys, -10.0, 0, 0);
+            PlatePressureAttribute p = new PlatePressureAttribute("loadCase", sys, -10.0, 0, 0);
             e0.AddLoadCaseAttribute(p);
 
             elements.Add(e0);
             elements.Add(new Tri3PlaneStress(nodesPlate2.ToArray(), prop));
 
             LinearSolver fem = new LinearSolver(elements.ToArray());
-            double Node4DX = fem.GetDisplacementGlobalCoordinates(nd4, LinearSolver.DOF.DX);
-            double Node4DY = fem.GetDisplacementGlobalCoordinates(nd4, LinearSolver.DOF.DY);
+            double Node4DX = fem.GetNodeDisplacementGlobalCoordinates(nd4, LinearSolver.DOF.DX);
+            double Node4DY = fem.GetNodeDisplacementGlobalCoordinates(nd4, LinearSolver.DOF.DY);
 
-            double Node3DX = fem.GetDisplacementGlobalCoordinates(nd3, LinearSolver.DOF.DX);
-            double Node3DY = fem.GetDisplacementGlobalCoordinates(nd3, LinearSolver.DOF.DY);
+            double Node3DX = fem.GetNodeDisplacementGlobalCoordinates(nd3, LinearSolver.DOF.DX);
+            double Node3DY = fem.GetNodeDisplacementGlobalCoordinates(nd3, LinearSolver.DOF.DY);
 
-            double Node3CopyDX = fem.GetDisplacementGlobalCoordinates(nd3copy, LinearSolver.DOF.DX);
-            double Node3CopyDY = fem.GetDisplacementGlobalCoordinates(nd3copy, LinearSolver.DOF.DY);
+            double Node3CopyDX = fem.GetNodeDisplacementGlobalCoordinates(nd3copy, LinearSolver.DOF.DX);
+            double Node3CopyDY = fem.GetNodeDisplacementGlobalCoordinates(nd3copy, LinearSolver.DOF.DY);
 
             /*Node 4 Displacement
             DX (mm)	-0.000002	
@@ -187,9 +187,8 @@ namespace FemTest.Solver
         [TestMethod]
         public void Quad4MembranalTest1()
         {
-            
             Material mat = new SteelMaterial("steel", 1.0, 0.0, 355, 510, 7850);
-            PlateProperty prop = new PlateProperty(mat, 0, 1, "p");
+            PlateProperty prop = new PlateProperty(mat.GetIsotropicFemMaterial(), 0, 1, "p");
 
             Node[] nds = new Node[4];
             nds[0] = new Node(-1.0, -1, 0, "1");
@@ -243,7 +242,7 @@ namespace FemTest.Solver
         public void Quad4MembranalTest2()
         {
             Material mat = new SteelMaterial("steel", 1.0, 0.0, 355, 510, 7850);
-            PlateProperty prop = new PlateProperty(mat, 0, 1, "p");
+            PlateProperty prop = new PlateProperty(mat.GetIsotropicFemMaterial(), 0, 1, "p");
 
             Node[] nds = new Node[4];
             nds[0] = new Node(+0.0, +0, 0, "1");
@@ -297,7 +296,7 @@ namespace FemTest.Solver
         public void Quad4MembranalTest3()
         {
             Material mat = new SteelMaterial("steel", 1.0, 0.0, 355, 510, 7850);
-            PlateProperty prop = new PlateProperty(mat, 0, 1, "p");
+            PlateProperty prop = new PlateProperty(mat.GetIsotropicFemMaterial(), 0, 1, "p");
 
             Node[] nds = new Node[4];
             nds[0] = new Node(+0.0, +0, 0, "1");
@@ -351,7 +350,7 @@ namespace FemTest.Solver
         public void Quad4MembranalTest4()
         {
             Material mat = new SteelMaterial("steel", 1.0, 0.0, 355, 510, 7850);
-            PlateProperty prop = new PlateProperty(mat, 0, 1, "p");
+            PlateProperty prop = new PlateProperty(mat.GetIsotropicFemMaterial(), 0, 1, "p");
 
             Node[] nds = new Node[4];
             nds[0] = new Node(-1.0, -1, 0, "1");
@@ -416,7 +415,7 @@ namespace FemTest.Solver
             Material mat = new SteelMaterial("steel", E, ni, 355, 510, 7850);
 
             double thickness = 1.0;
-            PlateProperty prop = new PlateProperty(mat, thickness, thickness, "p");
+            PlateProperty prop = new PlateProperty(mat.GetIsotropicFemMaterial(), thickness, thickness, "p");
 
             Node[] nds = new Node[4];
             nds[0] = new Node(0.0, 0, 0, "1");
@@ -427,12 +426,12 @@ namespace FemTest.Solver
             CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
 
             FreedomCase freedomCase = new FreedomCase("freedomcase");
-            NodeRestrainAttribute fix = new NodeRestrainAttribute(freedomCase, sys);
+            NodeRestrainAttribute fix = new NodeRestrainAttribute("freedomCase", sys);
             fix.AddExternalRestrain(LinearSolver.DOF.DX);
             fix.AddExternalRestrain(LinearSolver.DOF.DY);
             fix.AddExternalRestrain(LinearSolver.DOF.DZ);
 
-            NodeRestrainAttribute dZ = new NodeRestrainAttribute(freedomCase, sys);
+            NodeRestrainAttribute dZ = new NodeRestrainAttribute("freedomCase", sys);
             dZ.AddExternalRestrain(LinearSolver.DOF.DZ);
             
             nds[0].AddAttribute(fix);
@@ -440,9 +439,9 @@ namespace FemTest.Solver
             nds[2].AddAttribute(dZ);
             nds[3].AddAttribute(dZ);
 
-            LoadCase lc = new LoadCase("lc");
+            LoadCaseBase lc = new LoadCaseBase("lc");
             double px = 0.1;
-            PlatePressureAttribute pressure = new PlatePressureAttribute(lc, sys, px, 0, 0);
+            PlatePressureAttribute pressure = new PlatePressureAttribute("lc", sys, px, 0, 0);
             
             Quad4Membranal el = new Quad4Membranal(nds);
             el.SetProperty(prop);

@@ -20,9 +20,9 @@ namespace GPC.Model.FEM
 
             mnl.Matrix<double> ris = gaussPoints[0].Weight * Jacob(csi, eta).Determinant() * GetM(csi, eta);
 
-            /*Console.WriteLine("M(csi="+csi+",eta="+eta+") = ");
-            Util.WriteMatrix(GetM(csi, eta), "F3");*/
-            //Console.WriteLine("J=" + Jacob(csi, eta).Determinant());
+            /*FEMUtilities.WriteMatrix("M(csi=" + csi + ",eta=" + eta + ") = ", GetM(csi, eta), "F3");
+            Console.WriteLine("detJ=" + Jacob(csi, eta).Determinant());
+            Console.WriteLine(gaussPoints[0].Weight + " * M * detJ");*/
             #endregion
             for (int i = 1; i < gaussPoints.Length; i++) //trhough the gauss points "variable i START FROM 1 NOT FROM 0!!!"
             {
@@ -32,7 +32,7 @@ namespace GPC.Model.FEM
 
                 /*Console.WriteLine("M(csi=" + csi + ",eta=" + eta + ") = ");
                 Util.WriteMatrix(GetM(csi, eta), "F3");*/
-                //Console.WriteLine("J=" + Jacob(csi, eta).Determinant());
+                //Console.WriteLine("detJ=" + Jacob(csi, eta).Determinant());
             }
             return ris;
         }
@@ -85,17 +85,46 @@ namespace GPC.Model.FEM
                     pts[1] = new GaussPoint(0.0, 0.0, 0.0, 8.0 / 9.0);
                     pts[2] = new GaussPoint(+Math.Sqrt(3.0 / 5.0), 0.0, 0.0, 5.0 / 9.0);
                     break;
+                case 4:
+                    pts[0] = new GaussPoint(-Math.Sqrt(3.0 / 7.0 - 2.0 / 7.0 * Math.Sqrt(6.0 / 5.0)), 0.0, 0.0, (18.0 + Math.Sqrt(30.0)) / 36.0);
+                    pts[1] = new GaussPoint(+Math.Sqrt(3.0 / 7.0 - 2.0 / 7.0 * Math.Sqrt(6.0 / 5.0)), 0.0, 0.0, (18.0 + Math.Sqrt(30.0)) / 36.0);
+                    pts[2] = new GaussPoint(-Math.Sqrt(3.0 / 7.0 + 2.0 / 7.0 * Math.Sqrt(6.0 / 5.0)), 0.0, 0.0, (18.0 - Math.Sqrt(30.0)) / 36.0);
+                    pts[3] = new GaussPoint(+Math.Sqrt(3.0 / 7.0 + 2.0 / 7.0 * Math.Sqrt(6.0 / 5.0)), 0.0, 0.0, (18.0 - Math.Sqrt(30.0)) / 36.0);
+                    break;
                 default:
-                    throw new Exception("Actually nr of possible gauss points = 1, 2 or 3");
+                    throw new Exception("Actually nr of possible gauss points = 1, 2, 3 or 4");
             }
             return pts;
         }
         /// <summary>
-        /// Get position and weigth of gauss points for a rectangular domain
+        /// Get positions and weigths of gauss points for a rectangular 2D domain
         /// </summary>
-        /// <param name="points">nr of gauss points for integration</param>
+        /// <param name="nPoints">nr of gauss points for integration</param>
         /// <returns></returns>
         public static GaussPoint[] GetPointsRectangular(int nPoints)
+        {
+            int nOneDimension = (int)Math.Sqrt(nPoints);
+            var pointsOneDimension = GetPointsLinear(nOneDimension);
+
+            GaussPoint[] pts = new GaussPoint[nPoints];
+
+            int counter = 0;
+            for (int i = 0; i < nOneDimension; i++)
+            {
+                for (int j = 0; j < nOneDimension; j++)
+                {
+                    double csiNew = pointsOneDimension[i].Point.X;
+                    double etaNew = pointsOneDimension[j].Point.X;
+                    double zetaNew = 0;
+                    double weightNew = pointsOneDimension[i].Weight * pointsOneDimension[j].Weight;
+                    pts[counter++] = new GaussPoint(csiNew, etaNew, zetaNew, weightNew);
+                }
+            }
+
+            return pts;
+        }
+
+        /*public static GaussPoint[] GetPointsRectangular(int nPoints)
         {
             GaussPoint[] pts = new GaussPoint[nPoints];
                
@@ -107,6 +136,7 @@ namespace GPC.Model.FEM
                 case 4:
                     pts[0] = new GaussPoint(-1.0 / Math.Sqrt(3.0), -1.0 / Math.Sqrt(3.0), 0.0, 1.0);
                     pts[1] = new GaussPoint(+1.0 / Math.Sqrt(3.0), -1.0 / Math.Sqrt(3.0), 0.0, 1.0);
+
                     pts[2] = new GaussPoint(-1.0 / Math.Sqrt(3.0), +1.0 / Math.Sqrt(3.0), 0.0, 1.0);
                     pts[3] = new GaussPoint(+1.0 / Math.Sqrt(3.0), +1.0 / Math.Sqrt(3.0), 0.0, 1.0);
                     break;
@@ -114,9 +144,11 @@ namespace GPC.Model.FEM
                     pts[0] = new GaussPoint(-Math.Sqrt(3.0 / 5.0), -Math.Sqrt(3.0 / 5.0), 0.0, 25.0 / 81.0);
                     pts[1] = new GaussPoint(                  0.0, -Math.Sqrt(3.0 / 5.0), 0.0, 40.0 / 81.0);
                     pts[2] = new GaussPoint(+Math.Sqrt(3.0 / 5.0), -Math.Sqrt(3.0 / 5.0), 0.0, 25.0 / 81.0);
+
                     pts[3] = new GaussPoint(-Math.Sqrt(3.0 / 5.0),                   0.0, 0.0, 40.0 / 81.0);
-                    pts[4] = new GaussPoint(                    0,                   0.0, 0.0, 64.0 / 81.0);
+                    pts[4] = new GaussPoint(                  0.0,                   0.0, 0.0, 64.0 / 81.0);
                     pts[5] = new GaussPoint(+Math.Sqrt(3.0 / 5.0),                   0.0, 0.0, 40.0 / 81.0);
+
                     pts[6] = new GaussPoint(-Math.Sqrt(3.0 / 5.0), +Math.Sqrt(3.0 / 5.0), 0.0, 25.0 / 81.0);
                     pts[7] = new GaussPoint(                  0.0, +Math.Sqrt(3.0 / 5.0), 0.0, 40.0 / 81.0);
                     pts[8] = new GaussPoint(+Math.Sqrt(3.0 / 5.0), +Math.Sqrt(3.0 / 5.0), 0.0, 25.0 / 81.0);
@@ -125,12 +157,14 @@ namespace GPC.Model.FEM
                     throw new Exception("Actually nr of possible gauss points = 1, 4 or 9");
             }
             return pts;
-        }
+        }*/
+
+        
 
         /// <summary>
-        /// Get position and weigth of gauss points for a rectangular domain
+        /// Get positions and weigths of gauss points for a Hexaedron domain
         /// </summary>
-        /// <param name="points">nr of gauss points for integration</param>
+        /// <param name="nPoints">nr of gauss points for integration</param>
         /// <returns></returns>
         public static GaussPoint[] GetPointsHexaedron(int nPoints)
         {
@@ -169,9 +203,9 @@ namespace GPC.Model.FEM
         }
 
         /// <summary>
-        /// Get position and weigth of gauss points for a triangular domain
+        /// Get positions and weigths of gauss points for a triangular 2D domain
         /// </summary>
-        /// <param name="points">nr of gauss points for integration</param>
+        /// <param name="nPoints">nr of gauss points for integration</param>
         /// <returns></returns>
         public static GaussPoint[] GetPointsTriangular(int nPoints)
         {
@@ -213,6 +247,11 @@ namespace GPC.Model.FEM
             {
                 Point = new Point3d(csi, eta, zeta);
                 Weight = weight;
+            }
+
+            public override string ToString()
+            {
+                return "csi = " + Point.X + " eta=" + Point.Y + " zeta=" + Point.Z + " weight=" + Weight;
             }
         }
     }

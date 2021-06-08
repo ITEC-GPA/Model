@@ -6,11 +6,33 @@ using GPC.Utilities.Fem;
 using mnl = MathNet.Numerics.LinearAlgebra;
 using GPC.Model.FEM.FiniteElements;
 
-namespace FemTest.Solver
+namespace FemTest.SolverTest
 {
     [TestClass]
     public class GaussIntegrationTest
     {
+        /*[TestMethod]
+        public void Test1()
+        {
+            int nrpoints = 9;
+
+            var pts1 = GaussIntegration.GetPointsRectangular(nrpoints);
+            var pts2 = GaussIntegration.GetPointsRectangular2(nrpoints);
+
+            for (int i = 0; i < nrpoints; i++)
+            {
+                bool found = false;
+                for (int j = 0; j < nrpoints; j++)
+                {
+                    if (pts2[i].Point.X == pts1[j].Point.X && pts2[i].Point.Y == pts1[j].Point.Y && pts2[i].Point.Z == pts1[j].Point.Z && Math.Round(pts2[i].Weight,10) == Math.Round(pts1[j].Weight,10))
+                    {
+                        found = true;
+                    }
+                }
+                Assert.IsTrue(true == found);
+            }
+        }*/
+
         //costant 1 pt gauss
         [TestMethod]
         public void GaussIntegrationTest1()
@@ -215,7 +237,7 @@ namespace FemTest.Solver
             j = FEMUtilities.J2D(LinearShapeFunctionQuad4.DNdCsi, LinearShapeFunctionQuad4.DNdEta, nds);
 
             ris = GaussIntegration.IntegrationQuadrilateral(F, j, nrpoints);
-            Assert.AreEqual(1.0 * 1.0 * 1.0 / 2.0, ris[0, 0]);
+            Assert.AreEqual(1.0 * 1.0 * 1.0 / 2.0, ris[0, 0], 0.000000000001);
         }
 
         //linear 9 pt gauss
@@ -345,7 +367,7 @@ namespace FemTest.Solver
             j = FEMUtilities.J2D(LinearShapeFunctionQuad4.DNdCsi, LinearShapeFunctionQuad4.DNdEta, nds);
 
             ris = GaussIntegration.IntegrationQuadrilateral(F, j, nrpoints);
-            Assert.AreEqual(constant * (1.0 * 1.0 * 1.0) / 3.0 * 1.0, ris[0, 0]);
+            Assert.AreEqual(constant * (1.0 * 1.0 * 1.0) / 3.0 * 1.0, ris[0, 0],0.000000001);
         }
 
         //hesaedral 1 pt gauss - constant

@@ -10,55 +10,55 @@ using GPC.Geometry;
 
 namespace GPC.Model.FEM.Attributes
 {
-    public class PlatePressureAttribute : LoadCaseAttribute, IPlateLoadCaseAttribute, IEquatable<PlatePressureAttribute>, ISerializable
+    public sealed class PlatePressureAttribute : LoadCaseAttribute, IPlateLoadCaseAttribute, IEquatable<PlatePressureAttribute>, ISerializable
     {
         #region variables
-        private double _p1;
-                        
-        private double _p2;
-                        
-        private double _p3;
+        private readonly double _p1;
 
-        private CoordinateSystem _coordinateSystem;
+        private readonly double _p2;
+
+        private readonly double _p3;
+
+        private readonly CoordinateSystem _coordinateSystem;
         #endregion
 
         #region properties
         public double P1 => _p1;
-                          
+
         public double P2 => _p2;
-                          
+
         public double P3 => _p3;
         public CoordinateSystem CoordinateSystem => _coordinateSystem;
 
         #endregion
 
 
-        public PlatePressureAttribute(LoadCase loadCase, CoordinateSystem coordinateSystem, double p11, double p22, double p33) 
-            : this(loadCase, coordinateSystem, p11, p22, p33, string.Empty, Guid.NewGuid())
+        public PlatePressureAttribute(string loadCaseName, CoordinateSystem coordinateSystem, double p11, double p22, double p33)
+            : this(loadCaseName, coordinateSystem, p11, p22, p33, string.Empty, Guid.NewGuid())
         {
 
         }
 
-        public PlatePressureAttribute(LoadCase loadCase, CoordinateSystem coordinateSystem, double p11, double p22, double p33, string name)
-            : this(loadCase, coordinateSystem, p11, p22, p33, name, Guid.NewGuid())
+        public PlatePressureAttribute(string loadCaseName, CoordinateSystem coordinateSystem, double p11, double p22, double p33, string name)
+            : this(loadCaseName, coordinateSystem, p11, p22, p33, name, Guid.NewGuid())
         {
 
         }
 
-        public PlatePressureAttribute(LoadCase loadCase, CoordinateSystem coordinateSystem, Vector3d p)
-            : this(loadCase, coordinateSystem, p.X, p.Y, p.Z, string.Empty, Guid.NewGuid())
+        public PlatePressureAttribute(string loadCaseName, CoordinateSystem coordinateSystem, Vector3d p)
+            : this(loadCaseName, coordinateSystem, p.X, p.Y, p.Z, string.Empty, Guid.NewGuid())
         {
 
         }
 
-        public PlatePressureAttribute(LoadCase loadCase, CoordinateSystem coordinateSystem, Vector3d p, string name)
-            : this(loadCase, coordinateSystem, p.X, p.Y, p.Z, name, Guid.NewGuid())
+        public PlatePressureAttribute(string loadCaseName, CoordinateSystem coordinateSystem, Vector3d p, string name)
+            : this(loadCaseName, coordinateSystem, p.X, p.Y, p.Z, name, Guid.NewGuid())
         {
 
         }
 
-        public PlatePressureAttribute(LoadCase loadCase, CoordinateSystem sys, double p1, double p2, double p3, string name, Guid guid)
-            : base(loadCase, name, guid)
+        public PlatePressureAttribute(string loadCaseName, CoordinateSystem sys, double p1, double p2, double p3, string name, Guid guid)
+            : base(loadCaseName, name, guid)
         {
             _p1 = p1;
             _p2 = p2;
@@ -77,13 +77,13 @@ namespace GPC.Model.FEM.Attributes
         }
 
 
-        public PlatePressureAttribute(SerializationInfo info, StreamingContext context) 
+        public PlatePressureAttribute(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
             _p1 = info.GetDouble("p1");
             _p2 = info.GetDouble("p2");
             _p3 = info.GetDouble("p3");
-            _coordinateSystem = (CoordinateSystem) info.GetValue("sys", typeof(CoordinateSystem));
+            _coordinateSystem = (CoordinateSystem)info.GetValue("sys", typeof(CoordinateSystem));
         }
 
 
@@ -155,4 +155,6 @@ namespace GPC.Model.FEM.Attributes
 
         #endregion
     }
+
+
 }

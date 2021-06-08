@@ -12,13 +12,13 @@ namespace GPC.Model.Loads
     [Serializable]
     public class AreaLoad : Load, IAreaLoad
     {
-        private double _p1;
-        private double _p2;
-        private double _p3;
+        private readonly double _p1;
+        private readonly double _p2;
+        private readonly double _p3;
 
-        private Shape _shape;
+        private readonly Shape _shape;
 
-        private CoordinateSystem _coordinateSystem;
+        private readonly CoordinateSystem _coordinateSystem;
 
         public double P1 => _p1;
         public double P2 => _p2;
@@ -36,28 +36,24 @@ namespace GPC.Model.Loads
         /// <param name="shape"></param>
         /// <param name="loadCase"></param>
         /// <remarks><see cref="CoordinateSystem"/> set to Global</remarks>
-        public AreaLoad(double p1, double p2, double p3, Shape shape, LoadCase loadCase)
-            : this(p1, p2, p3, shape, loadCase, CoordinateSystem.Global, Guid.NewGuid(), string.Empty)
+        public AreaLoad(double p1, double p2, double p3, Shape shape, LoadCaseBase loadCase)
+            : this(p1, p2, p3, shape, loadCase, CoordinateSystem.Global)
         {
 
         }
 
-        public AreaLoad(double p1, double p2, double p3, Shape shape, LoadCase loadCase, CoordinateSystem coordinateSystem)
-            : this(p1, p2, p3, shape, loadCase, coordinateSystem, Guid.NewGuid(), string.Empty)
+        public AreaLoad(double p1, double p2, double p3, Shape shape, LoadCaseBase loadCase, CoordinateSystem coordinateSystem)
+            : base(loadCase, Guid.NewGuid())
         {
 
+            _p1 = p1;
+            _p2 = p2;
+            _p3 = p3;
+
+            _shape = shape ?? throw new ArgumentNullException("Shape cannot be null");
+            _coordinateSystem = coordinateSystem ?? throw new ArgumentNullException(nameof(coordinateSystem));
         }
 
-        public AreaLoad(double p1, double p2, double p3, Shape shape, LoadCase loadCase, CoordinateSystem coordinateSystem, Guid guid, string name)
-            : base(loadCase, guid, name)
-        {
-            this._p1 = p1;
-            this._p2 = p2;
-            this._p3 = p3;
-
-            this._shape = shape ?? throw new ArgumentNullException("Shape cannot be null");
-            this._coordinateSystem = coordinateSystem ?? throw new ArgumentNullException(nameof(coordinateSystem));
-        }
 
         public AreaLoad(SerializationInfo info, StreamingContext context) 
             : base(info, context)

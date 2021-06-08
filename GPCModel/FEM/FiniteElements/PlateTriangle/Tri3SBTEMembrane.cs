@@ -5,6 +5,7 @@ using GPC.Model.FEM.Properties;
 using GPC.Model.FEM.Attributes;
 using mnl = MathNet.Numerics.LinearAlgebra;
 using System.Collections.Generic;
+using GPC.Model.FEM.Materials;
 
 namespace GPC.Model.FEM.FiniteElements
 {
@@ -49,16 +50,10 @@ namespace GPC.Model.FEM.FiniteElements
             _thickness = ((PlateProperty)_property).MembraneThickness;
 
             #region matrixD
-            double E = ((PlateProperty)_property).GetE();
-            double ni = ((PlateProperty)_property).GetNi();
+            /*double E = ((PlateProperty)_property).GetE();
+            double ni = ((PlateProperty)_property).GetNi();*/
 
-            _d = mnl.Matrix<double>.Build.Dense(3, 3);
-            _d[0, 0] = 1.0;
-            _d[0, 1] = ni;
-            _d[1, 0] = ni;
-            _d[1, 1] = 1.0;
-            _d[2, 2] = (1.0 - ni) / 2.0;
-            _d = E / (1.0 - ni * ni) * _d;
+            _d = ((PlateProperty)_property).Material.GetPlaneStress();
             //Console.WriteLine("D = " + _d.ToString());
             #endregion
 
@@ -69,7 +64,7 @@ namespace GPC.Model.FEM.FiniteElements
             //calculation of matrix for transformation from Local to Global coordinates
             #region TransformationMatrixLocalCoordinatesToGlobalCoordinates
 
-            _localNodes = Tri3Element.LocalNodes(_nodesGlobal, out _localCoordinateSystem); //take global node and transform in local nodes
+            _localNodes = Tri3Element.GetLocalNodes(_nodesGlobal, out _localCoordinateSystem); //take global node and transform in local nodes
             Console.WriteLine("Element Local Nodes");
             _localNodes.ToList().ForEach(x => Console.WriteLine(x));
             
@@ -233,7 +228,7 @@ namespace GPC.Model.FEM.FiniteElements
             #endregion
         }
 
-        public override mnl.Matrix<double> GetB(double csi, double eta, double zeta = 0)
+        public override mnl.Matrix<double> GetB(double csi, double eta)
         {
             double x = N(1, csi, eta) * _localNodes[1 - 1].Position.X + N(2, csi, eta) * _localNodes[2 - 1].Position.X + N(3, csi, eta) * _localNodes[3 - 1].Position.X;
             double y = N(1, csi, eta) * _localNodes[1 - 1].Position.Y + N(2, csi, eta) * _localNodes[2 - 1].Position.Y + N(3, csi, eta) * _localNodes[3 - 1].Position.Y;
@@ -289,7 +284,8 @@ namespace GPC.Model.FEM.FiniteElements
             return _fLocalCoord;
         }
 
-        public override void GetNodesResults(double[] globalDisplacementsNodes, out double[] localDisplacements, out mnl.Matrix<double>[] globalPseudoDeformation, out mnl.Matrix<double>[] localPseudoDeformation, out mnl.Matrix<double>[] globalForces, out mnl.Matrix<double>[] localForces, out mnl.Matrix<double>[] globalStress, out mnl.Matrix<double>[] localStress, out mnl.Matrix<double>[] globalEpsilon, out mnl.Matrix<double>[] localEpsilon)
+        //TODO: Da ottimizzare/scrivere
+        public void GetNodesResults(double[] globalDisplacementsNodes, out double[] localDisplacements, out mnl.Matrix<double>[] globalPseudoDeformation, out mnl.Matrix<double>[] localPseudoDeformation, out mnl.Matrix<double>[] globalForces, out mnl.Matrix<double>[] localForces, out mnl.Matrix<double>[] globalStress, out mnl.Matrix<double>[] localStress, out mnl.Matrix<double>[] globalEpsilon, out mnl.Matrix<double>[] localEpsilon)
         {
             localDisplacements = GetLocalDisplacement(globalDisplacementsNodes);
             mnl.Vector<double> vecLocalDispl = mnl.Vector<double>.Build.Dense(localDisplacements);
@@ -300,10 +296,10 @@ namespace GPC.Model.FEM.FiniteElements
             #region CalculationOfStressAndDeformationsInLocalCoordinates
             mnl.Vector<double>[] epsilonLocal = new mnl.Vector<double>[] {
                 //epsilon_xx; epsilon_yy; epsilon_xy
-                GetB(_localNodes[0].Position.X, _localNodes[0].Position.Y, 0) * vecLocalDispl, //Node1
-                GetB(_localNodes[1].Position.X, _localNodes[1].Position.Y, 0) * vecLocalDispl, //Node2
-                GetB(_localNodes[2].Position.X, _localNodes[2].Position.Y, 0) * vecLocalDispl, //Node3
-                GetB(xG, yG, 0) * vecLocalDispl, //Centroid
+                GetB(_localNodes[0].Position.X, _localNodes[0].Position.Y) * vecLocalDispl, //Node1
+                GetB(_localNodes[1].Position.X, _localNodes[1].Position.Y) * vecLocalDispl, //Node2
+                GetB(_localNodes[2].Position.X, _localNodes[2].Position.Y) * vecLocalDispl, //Node3
+                GetB(xG, yG) * vecLocalDispl, //Centroid
             };
 
             mnl.Vector<double>[] stressLocal = epsilonLocal.Select(epsilonLoc => D * epsilonLoc).ToArray(); //sigma_xx; sigma_yy; tau_xy
@@ -383,8 +379,6 @@ namespace GPC.Model.FEM.FiniteElements
         /// <returns></returns>
         private mnl.Matrix<double> GetQ (double x, double y)
         {
-            double ni = ((PlateProperty)_property).GetNi();
-
             mnl.Matrix<double> Q = mnl.Matrix<double>.Build.Dense(3, 9);
             Q[1 - 1, 4 - 1] = 1.0;
             Q[1 - 1, 5 - 1] = y;
@@ -402,6 +396,7 @@ namespace GPC.Model.FEM.FiniteElements
         /// <summary>
         /// Shape functions
         /// </summary>
+        /// <param name="i">index from 1 to 3</param>
         /// <param name="csi"></param>
         /// <param name="eta"></param>
         /// <returns></returns>
