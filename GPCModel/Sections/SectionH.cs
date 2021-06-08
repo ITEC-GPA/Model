@@ -37,10 +37,6 @@ namespace GPC.Model.Sections
         public double ThicknessWeb => _tw;
 
         public double HeightWeb => H - ThicknessBottomFlange - ThicknessTopFlange;
-
-        public bool IsISection => IsISectionCheck();
-
-        public bool IsHSection => IsHSectionCheck();
         
         #endregion
 
@@ -151,20 +147,6 @@ namespace GPC.Model.Sections
             }
             else            
                 throw new NotImplementedException("Cannot calculate Wpl : Plastic neutral axis in flanges...to be implemented");            
-        }
-
-        private bool IsISectionCheck()
-        {
-            if ((2 * H) / (LenghtTopFlange + LenghtBottomFlange) > 1.2)
-                return true;
-            return false;
-        }
-
-        private bool IsHSectionCheck()
-        {
-            if (IsISectionCheck())
-                return false;
-            return true;
         }
 
 
