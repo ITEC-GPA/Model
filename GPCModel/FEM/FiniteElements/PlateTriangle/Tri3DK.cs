@@ -4,6 +4,8 @@ using GPC.Geometry;
 using mnl = MathNet.Numerics.LinearAlgebra;
 using GPC.Model.FEM.Attributes;
 using GPC.Model.FEM.Materials;
+using GPC.Utilities.Fem;
+using System.Collections.Generic;
 
 namespace GPC.Model.FEM.FiniteElements
 {
@@ -27,35 +29,33 @@ namespace GPC.Model.FEM.FiniteElements
         double _l23;
 
         double _areaElement;
+
+        Dictionary<int, double> _aCoeff;
+        Dictionary<int, double> _bCoeff;
+        Dictionary<int, double> _cCoeff;
+        Dictionary<int, double> _dCoeff;
+        Dictionary<int, double> _eCoeff;
         #endregion
 
         public Tri3DK(Node[] nodes) : base(nodes)
         {
-            DOF.Add(LinearSolver.DOF.DX);
-            DOF.Add(LinearSolver.DOF.DY);
-            DOF.Add(LinearSolver.DOF.DZ);
+            DOF.Add(Solver.DOF.DX);
+            DOF.Add(Solver.DOF.DY);
+            DOF.Add(Solver.DOF.DZ);
             //displacement out of local plane "w" in local coordinate system can be in X,Y,Z in global local coordinate system
-            DOF.Add(LinearSolver.DOF.RX);
-            DOF.Add(LinearSolver.DOF.RY);
-            DOF.Add(LinearSolver.DOF.RZ);
+            DOF.Add(Solver.DOF.RX);
+            DOF.Add(Solver.DOF.RY);
+            DOF.Add(Solver.DOF.RZ);
 
             //Global : 3 nodes x 6 (DX, DY, DZ, RX, RY, RZ) DOF each = matrix 18x18
             //Local  : 3 nodes x 3 (dZ+rX+rZ) DOF each = matrix 9x9
 
             //DofGlobalToLocal^T * kLocal * DofGlobalToLocal
             //   [18x9]             [9x9]     [9x18]
-        }
 
-        internal Tri3DK(Node[] nodes, PlateProperty property) : this(nodes)
-        {
-            SetProperty(property);
-        }
-
-        public override void BuildMatrix()
-        {
             #region calculationLocalAxisAndLocalCoordinates
             //Local axes calculater anticlockwise
-            Node[] localNodes = Tri3Element.LocalNodes(_nodesGlobal, out _localCoordinateSystem); 
+            Node[] localNodes = Tri3Element.GetLocalNodes(_nodesGlobal, out _localCoordinateSystem);
             Node node1 = localNodes[0];
             Node node2 = localNodes[1];
             Node node3 = localNodes[2];
@@ -78,8 +78,42 @@ namespace GPC.Model.FEM.FiniteElements
             _l23 = Math.Sqrt(_x23 * _x23 + _y23 * _y23);
 
             _areaElement = (_x31 * _y12 - _x12 * _y31) / 2.0;
-            #endregion
 
+            _aCoeff = new Dictionary<int, double>();
+            _bCoeff = new Dictionary<int, double>();
+            _cCoeff = new Dictionary<int, double>();
+            _dCoeff = new Dictionary<int, double>();
+            _eCoeff = new Dictionary<int, double>();
+
+            _aCoeff.Add(4, -_x23 / Math.Pow(_l23, 2.0));
+            _aCoeff.Add(5, -_x31 / Math.Pow(_l31, 2.0));
+            _aCoeff.Add(6, -_x12 / Math.Pow(_l12, 2.0));
+
+            _bCoeff.Add(4, 3.0 / 4.0 * _x23 * _y23 / Math.Pow(_l23, 2.0));
+            _bCoeff.Add(5, 3.0 / 4.0 * _x31 * _y31 / Math.Pow(_l31, 2.0));
+            _bCoeff.Add(6, 3.0 / 4.0 * _x12 * _y12 / Math.Pow(_l12, 2.0));
+
+            _cCoeff.Add(4, (1.0 / 4.0 * Math.Pow(_x23, 2.0) - 1.0 / 2.0 * Math.Pow(_y23, 2.0)) / Math.Pow(_l23, 2.0));
+            _cCoeff.Add(5, (1.0 / 4.0 * Math.Pow(_x31, 2.0) - 1.0 / 2.0 * Math.Pow(_y31, 2.0)) / Math.Pow(_l31, 2.0));
+            _cCoeff.Add(6, (1.0 / 4.0 * Math.Pow(_x12, 2.0) - 1.0 / 2.0 * Math.Pow(_y12, 2.0)) / Math.Pow(_l12, 2.0));
+
+            _dCoeff.Add(4, -_y23 / Math.Pow(_l23, 2.0));
+            _dCoeff.Add(5, -_y31 / Math.Pow(_l31, 2.0));
+            _dCoeff.Add(6, -_y12 / Math.Pow(_l12, 2.0));
+
+            _eCoeff.Add(4, (-1.0 / 2.0 * Math.Pow(_x23, 2.0) + 1.0 / 4.0 * Math.Pow(_y23, 2.0)) / Math.Pow(_l23, 2.0));
+            _eCoeff.Add(5, (-1.0 / 2.0 * Math.Pow(_x31, 2.0) + 1.0 / 4.0 * Math.Pow(_y31, 2.0)) / Math.Pow(_l31, 2.0));
+            _eCoeff.Add(6, (-1.0 / 2.0 * Math.Pow(_x12, 2.0) + 1.0 / 4.0 * Math.Pow(_y12, 2.0)) / Math.Pow(_l12, 2.0));
+            #endregion
+        }
+
+        internal Tri3DK(Node[] nodes, PlateProperty property) : this(nodes)
+        {
+            SetProperty(property);
+        }
+
+        public override void BuildMatrix()
+        {
             //calculation of matrix for transformation from Local to Global coordinates
             #region TransformationMatrixLocalCoordinatesToGlobalCoordinates
             _dofGlobalToLocal = mnl.Matrix<double>.Build.Dense(9, 18);
@@ -680,6 +714,197 @@ namespace GPC.Model.FEM.FiniteElements
             double tb = ((PlateProperty)Property).BendingThickness;
             double k = 5.0 / 6.0; //shear correction factor
             mnl.Matrix<double> Ds = E * tb * k / (2.0 * (1.0 + ni)) * mnl.Matrix<double>.Build.DenseIdentity(2);*/
+        }
+
+
+        /// <summary>
+        /// Description between eq. 27b and 28 of the article
+        /// </summary>
+        /// <param name="indexes1"></param>
+        /// <param name="indexes2"></param>
+        /// <param name="indexes3"></param>
+        private void GetIndexes(out int[] indexes1, out int[] indexes2, out int[] indexes3)
+        {
+            indexes1 = new int[3];
+            indexes1[0] = 1;
+            indexes1[1] = 2;
+            indexes1[2] = 3;
+
+            indexes2 = new int[3];
+            indexes2[0] = 5;
+            indexes2[1] = 6;
+            indexes2[2] = 4;
+
+            indexes3 = new int[3];
+            indexes3[0] = 6;
+            indexes3[1] = 4;
+            indexes3[2] = 5;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="indexFunction"></param>
+        /// <param name="dir">x or y</param>
+        /// <param name="deriv">null for shaper function; csi or eta for dH(dir)dCsi or dH(dir)dy</param>
+        /// <returns></returns>
+        public Func<double, double, double> GetFunction(int indexFunction, string dir, string deriv = "")
+        {
+            GetIndexes(out int[] indexes1, out int[] indexes2, out int[] indexes3);
+
+            Func<double, double, double> F(int i)
+            {
+                if (deriv == "")
+                {
+                    return (double csi, double eta) => QuadraticShapeFunctionsTri6.NaturalShapeFunction(i, csi, eta);
+                }
+                else if (deriv == "csi")
+                {
+                    return (double csi, double eta) => QuadraticShapeFunctionsTri6.DNdCsi(i, csi, eta);
+                }
+                else if (deriv == "eta")
+                {
+                    return (double csi, double eta) => QuadraticShapeFunctionsTri6.DNdEta(i, csi, eta);
+                }
+                else
+                {
+                    throw new ArgumentOutOfRangeException();
+                }
+            }
+
+            #region Hx
+            Func<double, double, double> H1x(int ind2, int ind3)
+            {
+                return (double csi, double eta) => 3.0 / 2.0 * (_aCoeff[ind3] * F(ind3)(csi, eta) - _aCoeff[ind2] * F(ind2)(csi, eta)); //H1x
+            }
+            Func<double, double, double> H2x(int ind2, int ind3)
+            {
+                return (double csi, double eta) => _bCoeff[ind3] * F(ind3)(csi, eta) + _bCoeff[ind2] * F(ind2)(csi, eta); //H2x
+            }
+            Func<double, double, double> H3x(int ind1, int ind2, int ind3)
+            {
+                return (double csi, double eta) => F(ind1)(csi, eta) - _cCoeff[ind3] * F(ind3)(csi, eta) - _cCoeff[ind2] * F(ind2)(csi, eta); //H3x
+            }
+            #endregion
+
+            #region Hy
+            Func<double, double, double> H1y(int ind2, int ind3)
+            {
+                return (double csi, double eta) => 3.0 / 2.0 * (_dCoeff[ind3] * F(ind3)(csi, eta) - _dCoeff[ind2] * F(ind2)(csi, eta)); //H1y
+            }
+            Func<double, double, double> H2y(int ind1, int ind2, int ind3)
+            {
+                return (double csi, double eta) => -F(ind1)(csi, eta) + _eCoeff[ind3] * F(ind3)(csi, eta) + _eCoeff[ind2] * F(ind2)(csi, eta); //H3x
+            }
+            Func<double, double, double> H3y(int ind2, int ind3)
+            {
+                return (double csi, double eta) => -_bCoeff[ind3] * F(ind3)(csi, eta) - _bCoeff[ind2] * F(ind2)(csi, eta); //H2x
+            }
+            #endregion
+
+            int index1;
+            int index2;
+            int index3;
+            switch (dir)
+            {
+                case "x":
+                    switch (indexFunction)
+                    {
+                        case 1:
+                            index2 = indexes2[0];
+                            index3 = indexes3[0];
+                            return H1x(index2, index3);
+                        case 2:
+                            index2 = indexes2[0];
+                            index3 = indexes3[0];
+                            return H2x(index2, index3);
+                        case 3:
+                            index1 = indexes1[0];
+                            index2 = indexes2[0];
+                            index3 = indexes3[0];
+                            return H3x(index1, index2, index3);
+
+                        case 4:
+                            index2 = indexes2[1];
+                            index3 = indexes3[1];
+                            return H1x(index2, index3);
+                        case 5:
+                            index2 = indexes2[1];
+                            index3 = indexes3[1];
+                            return H2x(index2, index3);
+                        case 6:
+                            index1 = indexes1[1];
+                            index2 = indexes2[1];
+                            index3 = indexes3[1];
+                            return H3x(index1, index2, index3);
+
+                        case 7:
+                            index2 = indexes2[2];
+                            index3 = indexes3[2];
+                            return H1x(index2, index3);
+                        case 8:
+                            index2 = indexes2[2];
+                            index3 = indexes3[2];
+                            return H2x(index2, index3);
+                        case 9:
+                            index1 = indexes1[2];
+                            index2 = indexes2[2];
+                            index3 = indexes3[2];
+                            return H3x(index1, index2, index3);
+
+                        default:
+                            throw new ArgumentOutOfRangeException();
+                    }
+                case "y":
+                    switch (indexFunction)
+                    {
+                        case 1:
+                            index2 = indexes2[0];
+                            index3 = indexes3[0];
+                            return H1y(index2, index3);
+                        case 2:
+                            index1 = indexes1[0];
+                            index2 = indexes2[0];
+                            index3 = indexes3[0];
+                            return H2y(index1, index2, index3);
+                        case 3:
+                            index2 = indexes2[0];
+                            index3 = indexes3[0];
+                            return H3y(index2, index3);
+
+                        case 4:
+                            index2 = indexes2[1];
+                            index3 = indexes3[1];
+                            return H1y(index2, index3);
+                        case 5:
+                            index1 = indexes1[1];
+                            index2 = indexes2[1];
+                            index3 = indexes3[1];
+                            return H2y(index1, index2, index3);
+                        case 6:
+                            index2 = indexes2[1];
+                            index3 = indexes3[1];
+                            return H3y(index2, index3);
+
+                        case 7:
+                            index2 = indexes2[2];
+                            index3 = indexes3[2];
+                            return H1y(index2, index3);
+                        case 8:
+                            index1 = indexes1[2];
+                            index2 = indexes2[2];
+                            index3 = indexes3[2];
+                            return H2y(index1, index2, index3);
+                        case 9:
+                            index2 = indexes2[2];
+                            index3 = indexes3[2];
+                            return H3y(index2, index3);
+                        default:
+                            throw new ArgumentOutOfRangeException();
+                    }
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
         }
     }
 }

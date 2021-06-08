@@ -50,8 +50,8 @@
     <Reference Include="GPCTestUtilities, Version=1.0.0.6, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\GPCTestUtilities.1.0.0.6\lib\net472\GPCTestUtilities.dll</HintPath>
     </Reference>
-    <Reference Include="GPCUtilities, Version=1.0.27.0, Culture=neutral, processorArchitecture=AMD64">
-      <HintPath>..\packages\GPCUtilities.1.0.27\lib\net472\GPCUtilities.dll</HintPath>
+    <Reference Include="GPCUtilities, Version=1.0.30.0, Culture=neutral, processorArchitecture=AMD64">
+      <HintPath>..\packages\GPCUtilities.1.0.30\lib\net472\GPCUtilities.dll</HintPath>
     </Reference>
     <Reference Include="MathNet.Numerics, Version=4.15.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\MathNet.Numerics.4.15.0\lib\net461\MathNet.Numerics.dll</HintPath>
@@ -71,8 +71,9 @@
     <Reference Include="System.Runtime.Serialization" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="FEM\Plates\TLGV2Test.cs" />
-    <Compile Include="FEM\Plates\TLGTest.cs" />
+    <Compile Include="FEM\Plates\Tri3TLGV2Test.cs" />
+    <Compile Include="FEM\Plates\Quad4TLGV2Test.cs" />
+    <Compile Include="FEM\Plates\Quad4TLGTest.cs" />
     <Compile Include="General\DescriptionAttributesTest.cs" />
     <Compile Include="FEM\CostrainTest.cs" />
     <Compile Include="FEM\Beam\BeamTest.cs" />

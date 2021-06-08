@@ -19,15 +19,15 @@ namespace GPC.Model.FEM.FiniteElements
 
         public Tri3Element(Node[] nodes) : base(nodes)
         {
-            DOF.Add(LinearSolver.DOF.DX);
-            DOF.Add(LinearSolver.DOF.DY);
-            DOF.Add(LinearSolver.DOF.DZ);
-            DOF.Add(LinearSolver.DOF.RX);
-            DOF.Add(LinearSolver.DOF.RY);
-            DOF.Add(LinearSolver.DOF.RZ);
+            DOF.Add(Solver.DOF.DX);
+            DOF.Add(Solver.DOF.DY);
+            DOF.Add(Solver.DOF.DZ);
+            DOF.Add(Solver.DOF.RX);
+            DOF.Add(Solver.DOF.RY);
+            DOF.Add(Solver.DOF.RZ);
 
             //kElementGlobal = 3 * 6 = 18x18
-            _membranal = new Tri3PlaneStress(nodes);
+            _membranal = new Tri3PlaneStress(nodes); //TODO: cambiare con elemento con Drilling of freedom
             _flexural = new Tri3DK(nodes);
         }
 
@@ -381,7 +381,7 @@ namespace GPC.Model.FEM.FiniteElements
         /// According to article, order of nodes are ANTICLOCKWISE
         /// </summary>
         /// <returns></returns>
-        public static Node[] LocalNodes(Node[] globalNode, out CoordinateSystem cSys)
+        public static Node[] GetLocalNodes(Node[] globalNode, out CoordinateSystem cSys)
         {
             #region CalculationOfLocalCoordinates
             //Search for 3 local axis
@@ -419,5 +419,22 @@ namespace GPC.Model.FEM.FiniteElements
             #endregion
             return localNodes;
         }
+
+        #region ShapeFunctions
+        public static double GetShapeFunction(int index, double csi, double eta)
+        {
+            return Utilities.Fem.LinearShapeFunctionsTri3.NaturalShapeFunction(index, csi, eta);
+        }
+
+        public static double GetdNdCsi(int index, double csi, double eta)
+        {
+            return Utilities.Fem.LinearShapeFunctionsTri3.DNdCsi(index);
+        }
+
+        public static double GetdNdEta(int index, double csi, double eta)
+        {
+            return Utilities.Fem.LinearShapeFunctionsTri3.DNdEta(index);
+        }
+        #endregion
     }
 }

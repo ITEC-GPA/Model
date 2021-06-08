@@ -16,7 +16,7 @@ using GPC.Model.FEM.Materials;
 namespace FemTest.SolverTest
 {
     [TestClass]
-    public class TripledLaminatedGlassTest
+    public class Quad4TripledLaminatedGlassTest
     {
         [TestMethod]
         public void TestSpatial1()

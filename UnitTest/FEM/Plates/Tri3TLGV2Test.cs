@@ -2,221 +2,51 @@
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using GPC.Model.FEM.FiniteElements;
-using mnl = MathNet.Numerics.LinearAlgebra;
 using GPC.Model.Materials;
-using GPC.Model.FreedomCases;
 using GPC.Geometry;
 using GPC.Model.FEM.Properties;
 using GPC.Model.FEM.Attributes;
-using GPC.Model.LoadCases;
 using System.Collections.Generic;
 using GPC.Model.FEM;
-using GPC.Model.FEM.Materials;
 
 namespace FemTest.SolverTest
 {
     [TestClass]
-    public class TripledLaminatedGlassV2
+    public class Tri3TripledLaminatedGlassV2
     {
-        [TestMethod]
-        public void TestSpatial1()
-        {
-            Node[] nodesPlate1 = new Node[4];
-            nodesPlate1[0] = new Node(-1.0, -1.0, 0, "1");
-            nodesPlate1[1] = new Node(1.0, -1.0, 0, "2");
-            nodesPlate1[2] = new Node(1.0, 1.0, 0, "3");
-            nodesPlate1[3] = new Node(-1.0, 1.0, 0, "4");
-
-            //general values §6 of article
-            double G0 = 0.5173;
-            double h0 = 0.38;
-            double h1 = 2.875;
-            double h2 = 2.875;
-            double EGlass = 72000.0;
-            double niGlass = 0.23;
-            FiniteElement e0 = new Quad4TripleLaminatedGlassV2(nodesPlate1, G0, h0, h1, h2, EGlass, niGlass);
-            e0.BuildMatrix();
-
-            Node[] nodesPlate2 = new Node[4];
-            nodesPlate2[0] = new Node(0.0, 0.0, 0, "1");
-            nodesPlate2[1] = new Node(2.0, 0.0, 0, "2");
-            nodesPlate2[2] = new Node(2.0, 2.0, 0, "3");
-            nodesPlate2[3] = new Node(0.0, 2.0, 0, "4");
-
-            FiniteElement e1 = new Quad4TripleLaminatedGlassV2(nodesPlate2, G0, h0, h1, h2, EGlass, niGlass);
-            e1.BuildMatrix();
-
-            for (int i = 0; i < e1.KElementGlobalCoord.RowCount; i++)
-            {
-                for (int j = 0; j < e1.KElementGlobalCoord.RowCount; j++)
-                {
-                    Assert.AreEqual(e0.KElementGlobalCoord[i,j], e1.KElementGlobalCoord[i, j]);
-                }
-            }
-        }
-
-        [TestMethod]
-        public void EquivalentNodalForce()
-        {
-            Node[] nodesPlate1 = new Node[4];
-            nodesPlate1[0] = new Node(0.0, 0.0, 0, "1");
-            nodesPlate1[1] = new Node(2.0, 0.0, 0, "2");
-            nodesPlate1[2] = new Node(0.1, 2.0, 0, "3");
-            nodesPlate1[3] = new Node(0.0, 2.0, 0, "4");
-
-            //general values §6 of article
-            double G0 = 0.5173;
-            double h0 = 0.38;
-            double h1 = 2.875;
-            double h2 = 2.875;
-            double EGlass = 72000.0;
-            double niGlass = 0.23;
-            Quad4TripleLaminatedGlassV2 e0 = new Quad4TripleLaminatedGlassV2(nodesPlate1, G0, h0, h1, h2, EGlass, niGlass);
-            
-            CoordinateSystem csys = new CoordinateSystem(new Vector3d(0, 0, 0), new Vector3d(1, 0, 0), new Vector3d(0, 1, 0));
-            PlatePressureAttribute p = new PlatePressureAttribute("lc", csys, 0, 0, 1);
-
-            e0.AddLoadCaseAttribute(p);
-
-            CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
-            NodeRestrainAttribute fix = new NodeRestrainAttribute("freedomCase", sys);
-            fix.AddExternalRestrain(Solver.DOF.DX);
-            fix.AddExternalRestrain(Solver.DOF.DY);
-            fix.AddExternalRestrain(Solver.DOF.DZ);
-
-            fix.AddExternalRestrain(Solver.DOF.RX);
-            fix.AddExternalRestrain(Solver.DOF.RY);
-            fix.AddExternalRestrain(Solver.DOF.RZ);
-
-            fix.AddExternalRestrain(Solver.DOF.DDX);
-            fix.AddExternalRestrain(Solver.DOF.DDY);
-            fix.AddExternalRestrain(Solver.DOF.DDZ);
-
-            nodesPlate1[0].AddAttribute(fix);
-            nodesPlate1[1].AddAttribute(fix);
-            nodesPlate1[2].AddAttribute(fix);
-            nodesPlate1[3].AddAttribute(fix);
-
-            LinearSolver solver = new LinearSolver(new FiniteElement[] { e0 });
-        }
-
-        [TestMethod]
-        public void TestDg()
-        {
-            List<Node> nodes = new List<Node>();
-            nodes.Add(new Node(0.0, 0.0, 0));
-            nodes.Add(new Node(1.0, 0.0, 0));
-            nodes.Add(new Node(1.0, 1.0, 0));
-            nodes.Add(new Node(0.0, 1.0, 0));
-
-            double h1 = 0.5;
-            double h2 = 0.5;
-            double EGlass = 12.0;
-            double niGlass = 0.0;
-            double G0 = EGlass / (2.0 * (1.0 + niGlass));
-            double h0 = 0.00001;
-
-            Quad4TripleLaminatedGlass e0 = new Quad4TripleLaminatedGlass(new Node[] { nodes[0], nodes[1], nodes[2], nodes[3] }, G0, h0, h1, h2, EGlass, niGlass);
-            e0.BuildMatrix();
-
-            mnl.Matrix<double> dgManual = mnl.Matrix<double>.Build.Dense(6, 6);
-            dgManual[0, 0] = 3.0;
-            dgManual[1, 1] = 3.0;
-            dgManual[2, 2] = 1.5;
-
-            dgManual[3, 3] = 0.25;
-            dgManual[4, 4] = 0.25;
-            dgManual[5, 5] = 0.125;
-
-            for (int r = 0; r < e0.Dg.RowCount; r++)
-            {
-                for (int c = 0; c < e0.Dg.ColumnCount; c++)
-                {
-                    Assert.AreEqual(dgManual[r,c], e0.Dg[r,c], 0.001);
-                }
-            }
-        }
-
-        [TestMethod]
-        public void TestDs()
-        {
-            List<Node> nodes = new List<Node>();
-            nodes.Add(new Node(0.0, 0.0, 0));
-            nodes.Add(new Node(1.0, 0.0, 0));
-            nodes.Add(new Node(1.0, 1.0, 0));
-            nodes.Add(new Node(0.0, 1.0, 0));
-
-            double h1 = 0.5;
-            double h2 = 0.5;
-            double EGlass = 12.0;
-            double niGlass = 0.0;
-            double G0 = EGlass / (2.0 * (1.0 + niGlass));
-            double h0 = 0.1;
-
-            Quad4TripleLaminatedGlass e0 = new Quad4TripleLaminatedGlass(new Node[] { nodes[0], nodes[1], nodes[2], nodes[3] }, G0, h0, h1, h2, EGlass, niGlass);
-            e0.BuildMatrix();
-
-            mnl.Matrix<double> dsManual = mnl.Matrix<double>.Build.Dense(4, 4);
-            dsManual[0, 0] = 60;
-            dsManual[0, 2] = 36;
-
-            dsManual[1, 1] = 60;
-            dsManual[1, 3] = 36;
-
-            dsManual[2, 0] = 36;
-            dsManual[2, 2] = 21.6;
-
-            dsManual[3, 1] = 36;
-            dsManual[3, 3] = 21.6;
-            
-            for (int r = 0; r < e0.Ds.RowCount; r++)
-            {
-                for (int c = 0; c < e0.Ds.ColumnCount; c++)
-                {
-                    Assert.AreEqual(dsManual[r, c], e0.Ds[r, c], 0.001);
-                }
-            }
-        }
-
         /// <summary>
-        /// Single plate +y and +x
+        /// triangolo equilatero
         /// </summary>
         [TestMethod]
         public void Test1()
         {
             List<Node> nodes = new List<Node>();
-            nodes.Add(new Node(-1.0, -1.0, 0));
-            nodes.Add(new Node(1.0, -1.0, 0));
-            nodes.Add(new Node(1.0, 1.0, 0));
-            nodes.Add(new Node(-1.0, 1.0, 0));
-
-            List<Node> nodes2 = new List<Node>();
-            nodes2.Add(new Node(-1.0, -1.0, 0));
-            nodes2.Add(new Node(1.0, -1.0, 0));
-            nodes2.Add(new Node(1.0, 1.0, 0));
-            nodes2.Add(new Node(-1.0, 1.0, 0));
+            nodes.Add(new Node(0.0, 0.0, 0));
+            nodes.Add(new Node(1.0, 0.0, 0));
+            nodes.Add(new Node(Math.Cos(60.0 * Math.PI / 180.0), Math.Sin(60.0 * Math.PI / 180.0), 0));
 
             double h1 = 0.5;
             double h2 = 0.5;
             double EGlass = 12.0;
-            double niGlass = 0.2;
+            double niGlass = 0.0;
             //double G0 = 1e10;
-            double G0 = EGlass / (2.0 * (1.0 + niGlass));
+            double G0 = 0.0 * EGlass / (2.0 * (1.0 + niGlass));
             //double G0 = 1e-6;
             double h0 = 0.1;
 
-            Quad4TripleLaminatedGlassV2 e0 = new Quad4TripleLaminatedGlassV2(new Node[] { nodes[0], nodes[1], nodes[2], nodes[3] }, G0, h0, h1, h2, EGlass, niGlass);
-            Quad4TripleLaminatedGlassV2 e1 = new Quad4TripleLaminatedGlassV2(new Node[] { nodes2[0], nodes2[1], nodes2[2], nodes2[3] }, G0, h0, h1, h2, EGlass, niGlass);
+            List<Tri3TripleLaminatedGlassV2> els = new List<Tri3TripleLaminatedGlassV2>();
+            els.Add(new Tri3TripleLaminatedGlassV2(new Node[] { nodes[0], nodes[1], nodes[2] }, G0, h0, h1, h2, EGlass, niGlass));
 
-            CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
+            els[0].BuildMatrix();
+
+            //FEMUtilities.WriteMatrix(els[0].KLocalUnordered);
+
+            /*CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
 
             NodeForceAttribute fNode = new NodeForceAttribute("loadCase", sys, 0, 0, 1.0, 0, 0, 0);
 
-            nodes[2].AddAttribute(fNode);
-            nodes[3].AddAttribute(fNode);
-
-            nodes2[1].AddAttribute(fNode);
-            nodes2[2].AddAttribute(fNode);
+            nodes[1].AddAttribute(fNode);
+            //nodes[3].AddAttribute(fNode);
 
             NodeRestrainAttribute fix = new NodeRestrainAttribute("freedomCase", sys);
             fix.AddExternalRestrain(Solver.DOF.DX);
@@ -225,20 +55,16 @@ namespace FemTest.SolverTest
             fix.AddExternalRestrain(Solver.DOF.RX);
             fix.AddExternalRestrain(Solver.DOF.RY);
             fix.AddExternalRestrain(Solver.DOF.RZ);
+            fix.AddExternalRestrain(Solver.DOF.DDX);
+            fix.AddExternalRestrain(Solver.DOF.DDY);
+            fix.AddExternalRestrain(Solver.DOF.DDZ);
 
             nodes[0].AddAttribute(fix);
-            nodes[1].AddAttribute(fix);
+            nodes[2].AddAttribute(fix);
 
-            nodes2[0].AddAttribute(fix);
-            nodes2[3].AddAttribute(fix);
+            LinearSolver fem0 = new LinearSolver(els.ToArray());
 
-            LinearSolver fem0 = new LinearSolver(new FiniteElement[] { e0 });
-            LinearSolver fem2 = new LinearSolver(new FiniteElement[] { e1 });
-
-            var spostFem0 = fem0.GetNodeDisplacementGlobalCoordinates(nodes[2], Solver.DOF.DZ);
-            var spostFem2 = fem2.GetNodeDisplacementGlobalCoordinates(nodes2[1], Solver.DOF.DZ);
-
-            Assert.AreEqual(spostFem0 , spostFem2);
+            var spostFem0 = fem0.GetNodeDisplacementGlobalCoordinates(nodes[2], Solver.DOF.DZ);*/
         }
 
         /// <summary>
@@ -31641,201 +31467,6 @@ namespace FemTest.SolverTest
             Assert.AreEqual(-0.417, femCenterBorder2[Solver.DOF.DDY], 1e-3);
             Assert.AreEqual(1.619, femCenterBorder2[Solver.DOF.RX], 1e-3);
             Assert.AreEqual(0.000, femCenterBorder2[Solver.DOF.RY], 1e-3);
-        }
-
-
-        /// <summary>
-        /// Batoz articolo - elemento unico
-        /// </summary>
-        [TestMethod]
-        public void PatchTest1()
-        {
-            double hGlass1 = 0.5; //0.7937;
-            double hGlass2 = 0.5; // 0.7937;
-            double EGlass = 1000.0;
-            double niGlass = 0.0;
-            double hInterlayer = 0.01;
-            double G0 = 1.0 * EGlass / (2.0 * (1.0 + niGlass));
-
-            List<Node> nodes = new List<Node>();
-            #region nodes
-            nodes.Add(new Node(-1e6, -1e6, -1e6));
-            nodes.Add(new Node(0, 0, 0));
-            nodes.Add(new Node(40, 0, 0));
-            nodes.Add(new Node(40, 20, 0));
-            nodes.Add(new Node(0, 20, 0));
-            #endregion
-
-            #region plates
-            List<Quad4TripleLaminatedGlassV2> els = new List<Quad4TripleLaminatedGlassV2>();
-            els.Add(new Quad4TripleLaminatedGlassV2(new Node[] { nodes[1], nodes[2], nodes[3], nodes[4] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass));
-            #endregion
-
-            CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
-
-            NodeForceAttribute f = new NodeForceAttribute("lc", sys, 0, 0, -2, 0, 0, 0);
-            nodes.Where(x => x.Position.X == 40.0 && x.Position.Y == 20.0).ToList().ForEach(x => x.AddAttribute(f));
-
-            NodeForceAttribute mxPlus = new NodeForceAttribute("lc", sys, 0, 0, 0, 20, 0, 0);
-
-            NodeForceAttribute mxMinus = new NodeForceAttribute("lc", sys, 0, 0, 0, -20, 0, 0);
-
-            NodeForceAttribute myPlus = new NodeForceAttribute("lc", sys, 0, 0, 0, 0, 10, 0);
-
-            NodeForceAttribute myMinus = new NodeForceAttribute("lc", sys, 0, 0, 0, 0, -10, 0);
-
-            nodes[1].AddAttribute(mxPlus);
-            nodes[1].AddAttribute(myMinus);
-
-            nodes[2].AddAttribute(mxPlus);
-            nodes[2].AddAttribute(myPlus);
-
-            nodes[3].AddAttribute(mxMinus);
-            nodes[3].AddAttribute(myPlus);
-
-            nodes[4].AddAttribute(mxMinus);
-            nodes[4].AddAttribute(myMinus);
-
-            NodeRestrainAttribute dz = new NodeRestrainAttribute("freedomCase", sys);
-            dz.AddExternalRestrain(Solver.DOF.DZ);
-
-            nodes[1].AddAttribute(dz);
-            nodes[2].AddAttribute(dz);
-            nodes[4].AddAttribute(dz);
-
-            NodeRestrainAttribute fix = new NodeRestrainAttribute("freedomCase", sys);
-            fix.AddExternalRestrain(Solver.DOF.DX);
-            fix.AddExternalRestrain(Solver.DOF.DY);
-            fix.AddExternalRestrain(Solver.DOF.RZ);
-            fix.AddExternalRestrain(Solver.DOF.DDZ);
-
-            nodes.ForEach(x => x.AddAttribute(fix));
-
-            LinearSolver fem = new LinearSolver(els.ToArray());
-
-            foreach (Node n in els[0].LocalNodes)
-            {
-                Console.WriteLine(n.Position);
-            }
-            /*els[0].BuildMatrix();
-            FEMUtilities.WriteMatrix(els[0].KLocalUnordered);*/
-
-            CoordinateSystem global = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
-
-            double hc = 0.5;
-            for (int i = 0; i < els.Count; i++)
-            {
-                var mInternal = fem.GetTLG2GlassBending(els[i], 1, global);
-                var fInternal = fem.GetTLG2GlassForces(els[i], 1, global);
-                //M = f * hc + m
-                Assert.AreEqual(1.0, fInternal[0, 0] * hc + mInternal[0, 0], 0.02);
-                Assert.AreEqual(1.0, fInternal[1, 1] * hc + mInternal[1, 1], 0.02);
-                Assert.AreEqual(1.0, fInternal[0, 1] * hc + mInternal[0, 1], 0.02);
-                Assert.AreEqual(1.0, fInternal[1, 0] * hc + mInternal[1, 0], 0.02);
-            }
-
-            Assert.AreEqual(1.0, -9.60 / fem.GetNodeDisplacementGlobalCoordinates(nodes[3], Solver.DOF.DZ), 0.035);
-        }
-
-        /// <summary>
-        /// Batoz articolo - elementi distorti
-        /// </summary>
-        [TestMethod]
-        public void PatchTest2()
-        {
-            double hGlass1 = 0.5; //0.7937;
-            double hGlass2 = 0.5; // 0.7937;
-            double EGlass = 1000.0;
-            double niGlass = 0.0;
-            double hInterlayer = 0.001;
-            double G0 = EGlass / (2.0 * (1.0 + niGlass));
-
-            List<Node> nodes = new List<Node>();
-            #region nodes
-            nodes.Add(new Node(-1e6, -1e6, -1e6));
-            nodes.Add(new Node(0, 0, 0));
-            nodes.Add(new Node(40, 0, 0));
-            nodes.Add(new Node(0, 20, 0));
-            nodes.Add(new Node(40, 20, 0));
-            nodes.Add(new Node(29, 4, 0));
-            nodes.Add(new Node(29, 14, 0));
-            nodes.Add(new Node(5, 17.5, 0));
-            nodes.Add(new Node(20, 7, 0));
-            #endregion
-
-            #region plates
-            List<Quad4TripleLaminatedGlassV2> els = new List<Quad4TripleLaminatedGlassV2>();
-            els.Add(new Quad4TripleLaminatedGlassV2(new Node[] { nodes[5], nodes[6], nodes[7], nodes[8] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass));
-            els.Add(new Quad4TripleLaminatedGlassV2(new Node[] { nodes[2], nodes[4], nodes[6], nodes[5] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass));
-            els.Add(new Quad4TripleLaminatedGlassV2(new Node[] { nodes[4], nodes[3], nodes[7], nodes[6] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass));
-            els.Add(new Quad4TripleLaminatedGlassV2(new Node[] { nodes[3], nodes[1], nodes[8], nodes[7] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass));
-            els.Add(new Quad4TripleLaminatedGlassV2(new Node[] { nodes[1], nodes[2], nodes[5], nodes[8] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass));
-            #endregion
-
-            CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
-
-            NodeForceAttribute f = new NodeForceAttribute("lc", sys, 0, 0, -2, 0, 0, 0);
-            nodes.Where(x => x.Position.X == 40.0 && x.Position.Y == 20.0).ToList().ForEach(x => x.AddAttribute(f));
-
-            NodeForceAttribute mxPlus = new NodeForceAttribute("lc", sys, 0, 0, 0, 20, 0, 0);
-
-            NodeForceAttribute mxMinus = new NodeForceAttribute("lc", sys, 0, 0, 0, -20, 0, 0);
-
-            NodeForceAttribute myPlus = new NodeForceAttribute("lc", sys, 0, 0, 0, 0, 10, 0);
-
-            NodeForceAttribute myMinus = new NodeForceAttribute("lc", sys, 0, 0, 0, 0, -10, 0);
-
-            nodes[1].AddAttribute(mxPlus);
-            nodes[1].AddAttribute(myMinus);
-
-            nodes[2].AddAttribute(mxPlus);
-            nodes[2].AddAttribute(myPlus);
-
-            nodes[3].AddAttribute(mxMinus);
-            nodes[3].AddAttribute(myMinus);
-
-            nodes[4].AddAttribute(mxMinus);
-            nodes[4].AddAttribute(myPlus);
-
-            NodeRestrainAttribute dz = new NodeRestrainAttribute("freedomCase", sys);
-            dz.AddExternalRestrain(Solver.DOF.DZ);
-
-            nodes[1].AddAttribute(dz);
-            nodes[2].AddAttribute(dz);
-            nodes[3].AddAttribute(dz);
-
-            NodeRestrainAttribute fix = new NodeRestrainAttribute("freedomCase", sys);
-            fix.AddExternalRestrain(Solver.DOF.DX);
-            fix.AddExternalRestrain(Solver.DOF.DY);
-            fix.AddExternalRestrain(Solver.DOF.RZ);
-            fix.AddExternalRestrain(Solver.DOF.DDZ);
-
-            nodes.ForEach(x => x.AddAttribute(fix));
-
-            LinearSolver fem = new LinearSolver(els.ToArray());
-
-            foreach(Node n in els[0].LocalNodes)
-            {
-                Console.WriteLine(n.Position);
-            }
-            els[0].BuildMatrix();
-            FEMUtilities.WriteMatrix(els[0].KLocalUnordered);
-
-            CoordinateSystem global = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
-
-            double hc = (hGlass1 + hGlass2 + 2.0 * hInterlayer) / 2.0;
-            for (int i = 0; i < els.Count; i++)
-            {
-                var mInternal = fem.GetTLG2GlassBending(els[i], 1, global);
-                var fInternal = fem.GetTLG2GlassForces(els[i], 1, global);
-                //M = f * hc + m
-                Assert.AreEqual(1.0, fInternal[0, 0] * hc + mInternal[0, 0], 0.01);
-                Assert.AreEqual(1.0, fInternal[1, 1] * hc + mInternal[1, 1], 0.01);
-                Assert.AreEqual(1.0, fInternal[1, 0] * hc + mInternal[1, 0], 0.01);
-                Assert.AreEqual(1.0, fInternal[0, 1] * hc + mInternal[0, 1], 0.01);
-            }
-            
-            Assert.AreEqual(1.0, -9.60 / fem.GetNodeDisplacementGlobalCoordinates(nodes.Where(x => x.Position.X == 40 && x.Position.Y == 20).First(), Solver.DOF.DZ), 0.01);
         }
     }
 }
