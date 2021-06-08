@@ -74,10 +74,16 @@ namespace GPC.Model.Sections
             _area = CalculateArea();
             _j11 = CalculateJ();
             _j22 = CalculateJ();
+            _jxx = CalculateJ();
+            _jyy = CalculateJ();
             _jt = CalculateJt();
             _jw = CalculateJw();
             _centroid = CalculateCentroid();
             _shearCenter = CalculateCentroid();
+            _wel1 = CalculateWel();
+            _wel2 = CalculateWel();
+            _wpl1 = CalculateWpl();
+            _wpl2 = CalculateWpl();
         }
 
         public double CalculateArea()

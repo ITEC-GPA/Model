@@ -157,12 +157,12 @@ namespace GPC.Model.Sections
         /// <summary>
         /// The radius of gyration respect the X-axis
         /// </summary>
-        public double InertiaRadiusX => Math.Sqrt(J11 / Area);
+        public double InertiaRadiusX => Math.Sqrt(J22 / Area);
 
         /// <summary>
         /// The radius of gyration respect the Y-axis
         /// </summary>
-        public double InertiaRadiusY => Math.Sqrt(J22 / Area);
+        public double InertiaRadiusY => Math.Sqrt(J11 / Area);
 
         /// <summary>
         /// The type of the section (rolled or welded)

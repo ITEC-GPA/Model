@@ -1450,7 +1450,7 @@ namespace FemTest.SolverTest
         public void FixFixTest2a()
         {
             double E = 100.0;
-            Section sec = new SectionRHS(100.0, 100.0, 10, 10, 10, 10, false, new SteelMaterial("m", E, 0.0, 355, 510, 7850), "sec");
+            Section sec = new SectionRHS(100.0, 100.0, 10, 10, 10, 10, new SteelMaterial("m", E, 0.0, 355, 510, 7850), "sec");
 
             double L = 2000.0;
 

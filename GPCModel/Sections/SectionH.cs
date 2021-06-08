@@ -155,7 +155,7 @@ namespace GPC.Model.Sections
 
         private bool IsISectionCheck()
         {
-            if (H / LenghtTopFlange < 1.5 && H / LenghtBottomFlange < 1.5)
+            if ((2 * H) / (LenghtTopFlange + LenghtBottomFlange) > 1.5)
                 return true;
             return false;
         }
