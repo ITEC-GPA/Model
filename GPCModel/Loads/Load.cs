@@ -7,8 +7,10 @@ using System.Runtime.Serialization;
 namespace GPC.Model.Loads
 {
     [Serializable]
-    public abstract class Load : ModelObject
+    public abstract class Load : ModelObjectId
     {
+        // Classe load e derivate deve rimanere immutabile 
+
         private readonly LoadCaseBase _loadCase;
 
         public LoadCaseBase LoadCase => _loadCase;
@@ -45,28 +47,27 @@ namespace GPC.Model.Loads
             if (ReferenceEquals(obj, this))
                 return true;
 
-            if (obj is null)
-                return false;
-
-            return obj is Load load && EqualityComparer<LoadCaseBase>.Default.Equals(_loadCase, load._loadCase) &&
-                   base.Equals(obj);
+            return obj is Load load && EqualityComparer<LoadCaseBase>.Default.Equals(_loadCase, load._loadCase) && base.Equals(obj);
         }
 
         public override int GetHashCode()
         {
-            int hashCode = -23;
-            hashCode = hashCode * -17 + base.GetHashCode();
+            int hashCode = -23 * -17 + base.GetHashCode();
             hashCode = hashCode * -17 + EqualityComparer<LoadCaseBase>.Default.GetHashCode(_loadCase);
+
             return hashCode;
         }
 
         public static bool operator ==(Load obj1, Load obj2)
         {
+
+            if (obj1 is null)
+            {
+                return obj2 is null;
+            }
+
             if (ReferenceEquals(obj1, obj2))
                 return true;
-
-            if (obj1 is null || obj2 is null)
-                return false;
 
             return obj1.Equals(obj2);
         }

@@ -8,8 +8,10 @@ namespace GPC.Model.Loads
     [Serializable]
     public class NormalAreaLoad : Load, IAreaLoad
     {
-        private double _pressure;
-        private Shape _shape;
+        // Classe load e derivate deve rimanere immutabile 
+
+        protected readonly double _pressure;
+        protected readonly Shape _shape;
 
         #region Properties
         public double Pressure => _pressure;

@@ -8,18 +8,20 @@ namespace GPC.Model.Loads
 {
     public class PointLoad : Load, IPointLoad
     {
+        // Classe load e derivate deve rimanere immutabile 
+
         #region Variables
 
-        private double _f1;
-        private double _f2;
-        private double _f3;
-        private double _m1;
-        private double _m2;
-        private double _m3;
+        protected readonly double _f1;
+        protected readonly double _f2;
+        protected readonly double _f3;
+        protected readonly double _m1;
+        protected readonly double _m2;
+        protected readonly double _m3;
 
-        private CoordinateSystem _coordinateSystem;
+        protected readonly CoordinateSystem _coordinateSystem;
 
-        private Point3d _point;
+        protected readonly Point3d _point;
 
         #endregion
 
@@ -53,17 +55,7 @@ namespace GPC.Model.Loads
             _point = point ?? throw new ArgumentNullException("Point cannot be null") ;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="f1"></param>
-        /// <param name="f2"></param>
-        /// <param name="f3"></param>
-        /// <param name="m1"></param>
-        /// <param name="m2"></param>
-        /// <param name="m3"></param>
-        /// <param name="point"></param>
-        /// <param name="loadCase"></param>
+
         /// <remarks> <see cref="CoordinateSystem"/> set to Global </remarks>
         public PointLoad(double f1, double f2, double f3, double m1, double m2, double m3, Point3d point, LoadCaseBase loadCase)
             : this(f1, f2, f3, m1, m2, m3, point, loadCase, CoordinateSystem.Global)
@@ -131,33 +123,32 @@ namespace GPC.Model.Loads
             Vector3d forceLocal = new Vector3d(PointForceLocal - OriginGlobal);
             Vector3d momentLocal = new Vector3d(PointMomentLocal - OriginGlobal);
 
-            double[] PointLoad = new double[6];
-            PointLoad[0] = forceLocal.X;
-            PointLoad[1] = forceLocal.Y;
-            PointLoad[2] = forceLocal.Z;
-            PointLoad[3] = momentLocal.X;
-            PointLoad[4] = momentLocal.Y;
-            PointLoad[5] = momentLocal.Z;
+            double[] pointLoad = new double[6];
+            pointLoad[0] = forceLocal.X;
+            pointLoad[1] = forceLocal.Y;
+            pointLoad[2] = forceLocal.Z;
+            pointLoad[3] = momentLocal.X;
+            pointLoad[4] = momentLocal.Y;
+            pointLoad[5] = momentLocal.Z;
 
-            return PointLoad;
+            return pointLoad;
         }
 
         /// <summary>
-        /// Change the PointLoad property moving from a local coordinate system to a global coordinate system
+        /// Return the PointLoad in a global coordinate system
         /// </summary>
-        public void ToGlobal()
+        public PointLoad ToGlobal()
         {
-            Vector3d forceLocal = new Vector3d(_f1, _f2, _f3);                              // 
-            Vector3d momentLocal = new Vector3d(_m1, _m2, _m3);                             // Cambia le proprietà del PointLoad passando da un sistema di riferimento globale
-                                                                                            // ad un sistema di rifarimento locale.
-            _point = _coordinateSystem.ToGlobal(_point);                                    // 
-            _f1 = _coordinateSystem.ToGlobal(forceLocal).X - _coordinateSystem.Origin.X;
-            _f2 = _coordinateSystem.ToGlobal(forceLocal).Y - _coordinateSystem.Origin.Y;
-            _f3 = _coordinateSystem.ToGlobal(forceLocal).Z - _coordinateSystem.Origin.Z;
-            _m1 = _coordinateSystem.ToGlobal(momentLocal).X - _coordinateSystem.Origin.X;
-            _m2 = _coordinateSystem.ToGlobal(momentLocal).Y - _coordinateSystem.Origin.Y;
-            _m3 = _coordinateSystem.ToGlobal(momentLocal).Z - _coordinateSystem.Origin.Z;
-            _coordinateSystem = CoordinateSystem.Global;
+            Vector3d forceLocal = new Vector3d(_f1, _f2, _f3);                              
+            Vector3d momentLocal = new Vector3d(_m1, _m2, _m3);        
+            
+            // Cambia le proprietà del PointLoad passando da un sistema di riferimento globale
+            // ad un sistema di rifarimento locale.
+
+            return new PointLoad(_coordinateSystem.ToGlobal(forceLocal), 
+                                 _coordinateSystem.ToGlobal(momentLocal), 
+                                 _coordinateSystem.ToGlobal(_point), 
+                                 LoadCase, CoordinateSystem.Global);
         }
 
         /// <summary>
@@ -177,15 +168,15 @@ namespace GPC.Model.Loads
             double mY = _coordinateSystem.ToGlobal(momentLocal).Y - _coordinateSystem.Origin.Y;
             double mZ = _coordinateSystem.ToGlobal(momentLocal).Z - _coordinateSystem.Origin.Z;
 
-            double[] PointLoad = new double[6];
-            PointLoad[0] = fX;
-            PointLoad[1] = fY;
-            PointLoad[2] = fZ;
-            PointLoad[3] = mX;
-            PointLoad[4] = mY;
-            PointLoad[5] = mZ;
+            double[] pointLoad = new double[6];
+            pointLoad[0] = fX;
+            pointLoad[1] = fY;
+            pointLoad[2] = fZ;
+            pointLoad[3] = mX;
+            pointLoad[4] = mY;
+            pointLoad[5] = mZ;
 
-            return PointLoad;
+            return pointLoad;
         }
 
         #endregion
