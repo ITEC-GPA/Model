@@ -16,7 +16,7 @@ using GPC.Model.FEM.Materials;
 namespace FemTest.SolverTest
 {
     [TestClass]
-    public class Quad4TripledLaminatedGlassV2
+    public class Quad4TripledLaminatedGlassV2Test
     {
         [TestMethod]
         public void TestSpatial1()
@@ -31836,6 +31836,232 @@ namespace FemTest.SolverTest
             }
             
             Assert.AreEqual(1.0, -9.60 / fem.GetNodeDisplacementGlobalCoordinates(nodes.Where(x => x.Position.X == 40 && x.Position.Y == 20).First(), Solver.DOF.DZ), 0.01);
+        }
+
+        /// <summary>
+        /// Test slippage Kg
+        /// </summary>
+        [TestMethod]
+        public void TestSlippageKg()
+        {
+            double hGlass1 = 0.5; //0.7937;
+            double hGlass2 = 0.5; // 0.7937;
+            double EGlass = 1000.0;
+            double niGlass = 0.0;
+            double hInterlayer = 0.001;
+            double G0 = 0.0 * EGlass / (2.0 * (1.0 + niGlass));
+            double hTot = hGlass1 + hGlass2;
+
+            PlateProperty p = new PlateProperty(new IsotropicFemMaterial(EGlass, niGlass, 0, 0), hTot, hTot, "");
+
+            List<Node> nodes = new List<Node>();
+            #region nodes
+            nodes.Add(new Node(0, 0, 0));
+            nodes.Add(new Node(1, 0, 0));
+            nodes.Add(new Node(1, 1, 0));
+            nodes.Add(new Node(0, 1, 0));
+            nodes.Add(new Node(2, 0, 0));
+            nodes.Add(new Node(2, 1, 0));
+            #endregion
+
+            #region plates
+            List<Quad4TripleLaminatedGlassV2> els = new List<Quad4TripleLaminatedGlassV2>();
+            els.Add(new Quad4TripleLaminatedGlassV2(new Node[] { nodes[0], nodes[1], nodes[2], nodes[3] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass));
+            els.Add(new Quad4TripleLaminatedGlassV2(new Node[] { nodes[1], nodes[4], nodes[5], nodes[2] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass));
+            #endregion
+
+            CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
+
+            NodeRestrainAttribute fix = new NodeRestrainAttribute("freedomCase", sys);
+            fix.AddExternalRestrain(Solver.DOF.DX);
+            fix.AddExternalRestrain(Solver.DOF.DY);
+            fix.AddExternalRestrain(Solver.DOF.RZ);
+            fix.AddExternalRestrain(Solver.DOF.DDZ);
+
+            NodeRestrainAttribute ddPlus = new NodeRestrainAttribute("freedomCase", sys);
+            ddPlus.AddImposedDisplacement(Solver.DOF.DDY, 1.0);
+
+            /*NodeRestrainAttribute ddMin = new NodeRestrainAttribute("freedomCase", sys);
+            ddMin.AddImposedDisplacement(Solver.DOF.DDX, -1.0);*/
+
+            NodeRestrainAttribute ddFix = new NodeRestrainAttribute("freedomCase", sys);
+            ddFix.AddExternalRestrain(Solver.DOF.DDX);
+            ddFix.AddExternalRestrain(Solver.DOF.DDY);
+
+            nodes[0].AddAttribute(ddPlus);
+            nodes[3].AddAttribute(ddPlus);
+
+            nodes[4].AddAttribute(ddFix);
+            nodes[5].AddAttribute(ddFix);
+
+            nodes.ForEach(x => x.AddAttribute(fix));
+
+            var fem = new LinearSolver(els.ToArray());
+
+            /*FEMUtilities.WriteMatrix(fem.KGlobalRestrains);
+            FEMUtilities.WriteMatrix(fem.FRestrains);*/
+
+            List<Node> nodes2 = new List<Node>();
+            #region nodes2
+            nodes2.Add(new Node(0, 0, 0));
+            nodes2.Add(new Node(1, 0, 0));
+            nodes2.Add(new Node(1, 1, 0));
+            nodes2.Add(new Node(0, 1, 0));
+            nodes2.Add(new Node(2, 0, 0));
+            nodes2.Add(new Node(2, 1, 0));
+            #endregion
+
+            List<Quad4Membranal> els2 = new List<Quad4Membranal>();
+            els2.Add(new Quad4Membranal(new Node[] { nodes2[0], nodes2[1], nodes2[2], nodes2[3] }, p));
+            els2.Add(new Quad4Membranal(new Node[] { nodes2[1], nodes2[4], nodes2[5], nodes2[2] }, p));
+
+            NodeRestrainAttribute fix2 = new NodeRestrainAttribute("freedomCase", sys);
+            fix2.AddExternalRestrain(Solver.DOF.DZ);
+
+            nodes2.ForEach(x => x.AddAttribute(fix2));
+
+            NodeRestrainAttribute d2 = new NodeRestrainAttribute("freedomCase", sys);
+            d2.AddExternalRestrain(Solver.DOF.DX);
+            d2.AddExternalRestrain(Solver.DOF.DY);
+
+            NodeRestrainAttribute dPlus = new NodeRestrainAttribute("freedomCase", sys);
+            dPlus.AddImposedDisplacement(Solver.DOF.DY, 1.0);
+
+            nodes2[0].AddAttribute(dPlus);
+            nodes2[3].AddAttribute(dPlus);
+
+            nodes2[4].AddAttribute(d2);
+            nodes2[5].AddAttribute(d2);
+
+            var fem2 = new LinearSolver(els2.ToArray());
+
+            Assert.AreEqual(fem.GetNodeDisplacementGlobalCoordinates(nodes[0], Solver.DOF.DDY), fem2.GetNodeDisplacementGlobalCoordinates(nodes2[0], Solver.DOF.DY), 1e-5);
+            Assert.AreEqual(fem.GetNodeDisplacementGlobalCoordinates(nodes[0], Solver.DOF.DDX), fem2.GetNodeDisplacementGlobalCoordinates(nodes2[0], Solver.DOF.DX), 1e-5);
+
+            Assert.AreEqual(fem.GetNodeDisplacementGlobalCoordinates(nodes[1], Solver.DOF.DDY), fem2.GetNodeDisplacementGlobalCoordinates(nodes2[1], Solver.DOF.DY), 1e-5);
+            Assert.AreEqual(fem.GetNodeDisplacementGlobalCoordinates(nodes[1], Solver.DOF.DDX), fem2.GetNodeDisplacementGlobalCoordinates(nodes2[1], Solver.DOF.DX), 1e-5);
+
+            Assert.AreEqual(fem.GetNodeDisplacementGlobalCoordinates(nodes[2], Solver.DOF.DDY), fem2.GetNodeDisplacementGlobalCoordinates(nodes2[2], Solver.DOF.DY), 1e-5);
+            Assert.AreEqual(fem.GetNodeDisplacementGlobalCoordinates(nodes[2], Solver.DOF.DDX), fem2.GetNodeDisplacementGlobalCoordinates(nodes2[2], Solver.DOF.DX), 1e-5);
+
+            Assert.AreEqual(fem.GetNodeDisplacementGlobalCoordinates(nodes[3], Solver.DOF.DDY), fem2.GetNodeDisplacementGlobalCoordinates(nodes2[3], Solver.DOF.DY), 1e-5);
+            Assert.AreEqual(fem.GetNodeDisplacementGlobalCoordinates(nodes[3], Solver.DOF.DDX), fem2.GetNodeDisplacementGlobalCoordinates(nodes2[3], Solver.DOF.DX), 1e-5);
+        }
+
+        /// <summary>
+        /// Test slippage Ks
+        /// </summary>
+        [TestMethod]
+        public void TestSlippageKs()
+        {
+            double hGlass1 = 0.001;
+            double hGlass2 = hGlass1;
+            double EGlass = 2.0;
+            double niGlass = 0.0;
+            double hInterlayer = 1;
+            double G0 = EGlass / (2.0 * (1.0 + niGlass));
+            double hTot = hGlass1 + hGlass2;
+
+            PlateProperty p = new PlateProperty(new IsotropicFemMaterial(EGlass, niGlass, 0, 0), hTot, hTot, "");
+
+            List<Node> nodes = new List<Node>();
+            #region nodes
+            nodes.Add(new Node(0, 0, 0));
+            nodes.Add(new Node(1, 0, 0));
+            nodes.Add(new Node(1, 1, 0));
+            nodes.Add(new Node(0, 1, 0));
+            nodes.Add(new Node(2, 0, 0));
+            nodes.Add(new Node(2, 1, 0));
+            #endregion
+
+            #region plates
+            List<Quad4TripleLaminatedGlassV2> els = new List<Quad4TripleLaminatedGlassV2>();
+            els.Add(new Quad4TripleLaminatedGlassV2(new Node[] { nodes[0], nodes[1], nodes[2], nodes[3] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass));
+            els.Add(new Quad4TripleLaminatedGlassV2(new Node[] { nodes[1], nodes[4], nodes[5], nodes[2] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass));
+            #endregion
+
+            CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
+
+            NodeRestrainAttribute fix = new NodeRestrainAttribute("freedomCase", sys);
+            fix.AddExternalRestrain(Solver.DOF.DX);
+            fix.AddExternalRestrain(Solver.DOF.DY);
+            fix.AddExternalRestrain(Solver.DOF.RZ);
+            fix.AddExternalRestrain(Solver.DOF.DDZ);
+
+            NodeRestrainAttribute ddPlus = new NodeRestrainAttribute("freedomCase", sys);
+            ddPlus.AddImposedDisplacement(Solver.DOF.DDY, 1.0);
+
+            /*NodeRestrainAttribute ddMin = new NodeRestrainAttribute("freedomCase", sys);
+            ddMin.AddImposedDisplacement(Solver.DOF.DDX, -1.0);*/
+
+            NodeRestrainAttribute ddFix = new NodeRestrainAttribute("freedomCase", sys);
+            ddFix.AddExternalRestrain(Solver.DOF.DDX);
+            ddFix.AddExternalRestrain(Solver.DOF.DDY);
+
+            nodes[0].AddAttribute(ddPlus);
+            nodes[3].AddAttribute(ddPlus);
+
+            nodes[4].AddAttribute(ddFix);
+            nodes[5].AddAttribute(ddFix);
+
+            nodes.ForEach(x => x.AddAttribute(fix));
+
+            //var fem = new LinearSolver(els.ToArray());
+
+            /*FEMUtilities.WriteMatrix(fem.KGlobalRestrains);
+            FEMUtilities.WriteMatrix(fem.FRestrains);*/
+
+            List<Node> nodes2 = new List<Node>();
+            #region nodes2
+            nodes2.Add(new Node(0, 0, 0));
+            nodes2.Add(new Node(1, 0, 0));
+            nodes2.Add(new Node(1, 1, 0));
+            nodes2.Add(new Node(0, 1, 0));
+            nodes2.Add(new Node(2, 0, 0));
+            nodes2.Add(new Node(2, 1, 0));
+            #endregion
+
+            List<Quad4Membranal> els2 = new List<Quad4Membranal>();
+            els2.Add(new Quad4Membranal(new Node[] { nodes2[0], nodes2[1], nodes2[2], nodes2[3] }, p));
+            els2.Add(new Quad4Membranal(new Node[] { nodes2[1], nodes2[4], nodes2[5], nodes2[2] }, p));
+
+            NodeRestrainAttribute fix2 = new NodeRestrainAttribute("freedomCase", sys);
+            fix2.AddExternalRestrain(Solver.DOF.DZ);
+
+            nodes2.ForEach(x => x.AddAttribute(fix2));
+
+            NodeRestrainAttribute d2 = new NodeRestrainAttribute("freedomCase", sys);
+            d2.AddExternalRestrain(Solver.DOF.DX);
+            d2.AddExternalRestrain(Solver.DOF.DY);
+
+            NodeRestrainAttribute dPlus = new NodeRestrainAttribute("freedomCase", sys);
+            dPlus.AddImposedDisplacement(Solver.DOF.DY, 1.0);
+
+            nodes2[0].AddAttribute(dPlus);
+            nodes2[3].AddAttribute(dPlus);
+
+            nodes2[4].AddAttribute(d2);
+            nodes2[5].AddAttribute(d2);
+
+            //var fem2 = new LinearSolver(els2.ToArray());
+
+            /*Assert.AreEqual(fem.GetNodeDisplacementGlobalCoordinates(nodes[0], Solver.DOF.DDY), fem2.GetNodeDisplacementGlobalCoordinates(nodes2[0], Solver.DOF.DY), 1e-5);
+            Assert.AreEqual(fem.GetNodeDisplacementGlobalCoordinates(nodes[0], Solver.DOF.DDX), fem2.GetNodeDisplacementGlobalCoordinates(nodes2[0], Solver.DOF.DX), 1e-5);
+
+            Assert.AreEqual(fem.GetNodeDisplacementGlobalCoordinates(nodes[1], Solver.DOF.DDY), fem2.GetNodeDisplacementGlobalCoordinates(nodes2[1], Solver.DOF.DY), 1e-5);
+            Assert.AreEqual(fem.GetNodeDisplacementGlobalCoordinates(nodes[1], Solver.DOF.DDX), fem2.GetNodeDisplacementGlobalCoordinates(nodes2[1], Solver.DOF.DX), 1e-5);
+
+            Assert.AreEqual(fem.GetNodeDisplacementGlobalCoordinates(nodes[2], Solver.DOF.DDY), fem2.GetNodeDisplacementGlobalCoordinates(nodes2[2], Solver.DOF.DY), 1e-5);
+            Assert.AreEqual(fem.GetNodeDisplacementGlobalCoordinates(nodes[2], Solver.DOF.DDX), fem2.GetNodeDisplacementGlobalCoordinates(nodes2[2], Solver.DOF.DX), 1e-5);
+
+            Assert.AreEqual(fem.GetNodeDisplacementGlobalCoordinates(nodes[3], Solver.DOF.DDY), fem2.GetNodeDisplacementGlobalCoordinates(nodes2[3], Solver.DOF.DY), 1e-5);
+            Assert.AreEqual(fem.GetNodeDisplacementGlobalCoordinates(nodes[3], Solver.DOF.DDX), fem2.GetNodeDisplacementGlobalCoordinates(nodes2[3], Solver.DOF.DX), 1e-5);*/
+
+            els[0].BuildMatrix();
+
+            FEMUtilities.WriteMatrix("KGlass = ", els[0].KGlass);
+            FEMUtilities.WriteMatrix("Klayer = ", els[0].KLayer, "F5");
+            FEMUtilities.WriteMatrix("Ds = ", els[0].Ds);
         }
     }
 }

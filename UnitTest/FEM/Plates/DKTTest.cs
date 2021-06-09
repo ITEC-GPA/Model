@@ -61,12 +61,64 @@ namespace FemTest.SolverTest
             {
                 for (int c = 0; c < e0.KElementLocalCoord.ColumnCount; c++)
                 {
-                    Assert.AreEqual(e0.KElementLocalCoord[r, c] - SAPkMatrix[r, c], 0.0, 0.01);
+                    Assert.AreEqual(e0.KElementLocalCoord[r, c] - SAPkMatrix[r, c], 0.0, 0.01, "k[" + r + "," + c +"]" );
                     //Console.Write(e0.KElementLocalCoord[r,c].ToString("F2") + " ");    
                 }
                 //Console.WriteLine();
             }
             
+        }
+
+        [TestMethod]
+        public void Tri3DKTTest1a()
+        {
+            Material mat = new SteelMaterial("mat", 12, 0.0, 355, 510, 7850);
+            PlateProperty prop = new PlateProperty(mat.GetIsotropicFemMaterial(), 1.0, 1.0, "p");
+
+            Node[] nodesPlate1 = new Node[3];
+            nodesPlate1[0] = new Node(0.0, 0, 0, "1");
+            nodesPlate1[1] = new Node(10.0, 0, 0, "2");
+            nodesPlate1[2] = new Node(10.0 * Math.Cos(60.0 * Math.PI / 180), 10.0 * Math.Sin(60.0 * Math.PI / 180), 0, "3");
+
+            FiniteElement e0 = new Tri3DK(nodesPlate1);
+            e0.SetProperty(prop);
+
+            e0.BuildMatrix();
+
+            FEMUtilities.WriteMatrix(e0.KElementLocalCoord);
+
+            mnl.Matrix<double> SAPkMatrix = mnl.Matrix<double>.Build.Dense(0, 9);
+
+            mnl.Vector<double> r0 = mnl.Vector<double>.Build.Dense(new double[] { 0.08, 0.13, -0.22, -0.04, 0.1, -0.21, -0.04, 0.13, -0.19 });
+            mnl.Vector<double> r1 = mnl.Vector<double>.Build.Dense(new double[] { 0.13, 1.09, -0.09, 0.1, 0.4, 0.1, -0.23, 0.48, -0.15 });
+            mnl.Vector<double> r2 = mnl.Vector<double>.Build.Dense(new double[] { -0.22, -0.09, 1.2, 0.21, -0.1, 0.51, 0.02, 0.05, 0.43 });
+            mnl.Vector<double> r3 = mnl.Vector<double>.Build.Dense(new double[] { -0.04, 0.1, 0.21, 0.08, 0.13, 0.22, -0.04, 0.13, 0.19 });
+            mnl.Vector<double> r4 = mnl.Vector<double>.Build.Dense(new double[] { 0.1, 0.4, -0.1, 0.13, 1.09, 0.09, -0.23, 0.48, 0.15 });
+            mnl.Vector<double> r5 = mnl.Vector<double>.Build.Dense(new double[] { -0.21, 0.1, 0.51, 0.22, 0.09, 1.2, -0.02, -0.05, 0.43 });
+            mnl.Vector<double> r6 = mnl.Vector<double>.Build.Dense(new double[] { -0.04, -0.23, 0.02, -0.04, -0.23, -0.02, 0.08, -0.26, 0 });
+            mnl.Vector<double> r7 = mnl.Vector<double>.Build.Dense(new double[] { 0.13, 0.48, 0.05, 0.13, 0.48, -0.05, -0.26, 1.25, 0 });
+            mnl.Vector<double> r8 = mnl.Vector<double>.Build.Dense(new double[] { -0.19, -0.15, 0.43, 0.19, 0.15, 0.43, 0, 0, 1.04 });
+
+            SAPkMatrix = SAPkMatrix.InsertRow(0, r0);
+            SAPkMatrix = SAPkMatrix.InsertRow(1, r1);
+            SAPkMatrix = SAPkMatrix.InsertRow(2, r2);
+            SAPkMatrix = SAPkMatrix.InsertRow(3, r3);
+            SAPkMatrix = SAPkMatrix.InsertRow(4, r4);
+            SAPkMatrix = SAPkMatrix.InsertRow(5, r5);
+            SAPkMatrix = SAPkMatrix.InsertRow(6, r6);
+            SAPkMatrix = SAPkMatrix.InsertRow(7, r7);
+            SAPkMatrix = SAPkMatrix.InsertRow(8, r8);
+
+            Console.WriteLine("Element local stiffness matrix");
+            for (int r = 0; r < e0.KElementLocalCoord.RowCount; r++)
+            {
+                for (int c = 0; c < e0.KElementLocalCoord.ColumnCount; c++)
+                {
+                    Assert.AreEqual(e0.KElementLocalCoord[r, c] - SAPkMatrix[r, c], 0.0, 0.01, "k[" + r + "," + c + "]");
+                    //Console.Write(e0.KElementLocalCoord[r,c].ToString("F2") + " ");    
+                }
+                //Console.WriteLine();
+            }
         }
 
         [TestMethod]

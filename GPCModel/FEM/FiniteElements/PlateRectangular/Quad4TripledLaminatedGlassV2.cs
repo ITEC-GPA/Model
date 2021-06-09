@@ -182,6 +182,11 @@ namespace GPC.Model.FEM.FiniteElements
                 return Bg.Transpose() * _Dg * Bg; //equation 49
             }
 
+            /*FEMUtilities.WriteMatrix("Bs(csi=-1, eta=-1)", GetBs(-1, -1));
+            FEMUtilities.WriteMatrix("Bs(csi=1, eta=-1)", GetBs(1, -1));
+            FEMUtilities.WriteMatrix("Bs(csi=1, eta=1)", GetBs(1, 1));
+            FEMUtilities.WriteMatrix("Bs(csi=-1, eta=1)", GetBs(-1, 1));*/
+
             //FEMUtilities.WriteMatrix("Bg(csi=-0.57, eta=-0.57", GetBg(-0.577350269189626, -0.577350269189626), "F4");
             //FEMUtilities.WriteMatrix("Bs(csi=-0.57, eta=-0.57", GetBs(-0.577350269189626, -0.577350269189626));
 
@@ -195,7 +200,7 @@ namespace GPC.Model.FEM.FiniteElements
             //FEMUtilities.WriteMatrix("Bs(csi=0.57, eta=0.57", GetBs(0.577350269189626, 0.577350269189626));
 
             Func<double, double, mnl.Matrix<double>> jacob = FEMUtilities.J2D(Quad4Element.GetdNdCsi, Quad4Element.GetdNdEta, _nodesLocal);
-            
+
             _kLayer = GaussIntegration.IntegrationQuadrilateral(fKLayer, jacob, 4);
             _kGlass = GaussIntegration.IntegrationQuadrilateral(fKGlass, jacob, 4);
 

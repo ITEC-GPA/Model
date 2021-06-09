@@ -12,7 +12,7 @@ namespace GPC.Model.FEM.FiniteElements
     /// A plate finite element for modelling of tripled laminated glass and comparison with other computational method
     /// Ivanov, Velchev, Georgiev, Sadowki - 2015
     /// </summary>
-    public class Tri3TripleLaminatedGlassV2 : Plate
+    public class Tri3TripledLaminatedGlassV2 : Plate
     {
         public enum Glass
         {
@@ -65,7 +65,7 @@ namespace GPC.Model.FEM.FiniteElements
         /// <param name="h2">Thickness of bottom glass</param>
         /// <param name="EGlass">Glass elastic modulus</param>
         /// <param name="niGlass">poisson glass</param>
-        public Tri3TripleLaminatedGlassV2(Node[] nodes, double G0, double h0, double h1, double h2, double EGlass, double niGlass) : base(nodes)
+        public Tri3TripledLaminatedGlassV2(Node[] nodes, double G0, double h0, double h1, double h2, double EGlass, double niGlass) : base(nodes)
         {
             //eq. 51 -> lista dof locali
              /* deltaU = slippage between the glass layer in local x direction 
@@ -197,6 +197,14 @@ namespace GPC.Model.FEM.FiniteElements
             
             _kLayer = GaussIntegration.IntegrationTriangular(fKLayer, jacob, 3);
             _kGlass = GaussIntegration.IntegrationTriangular(fKGlass, jacob, 3);
+
+            Console.WriteLine(_nodesLocal[0].Position);
+            Console.WriteLine(_nodesLocal[1].Position);
+            Console.WriteLine(_nodesLocal[2].Position);
+
+            FEMUtilities.WriteMatrix("Bs(0,0)", GetBs(0, 0));
+            FEMUtilities.WriteMatrix("Bs(1,0)", GetBs(1, 0));
+            FEMUtilities.WriteMatrix("Bs(0,1)", GetBs(0, 1));
 
             /*FEMUtilities.WriteMatrix("kLayer", _kLayer);
             FEMUtilities.WriteMatrix("kGlass", _kGlass);*/
@@ -739,18 +747,34 @@ namespace GPC.Model.FEM.FiniteElements
             int a = indexes[indexNode].Item1;
             int b = indexes[indexNode].Item2;
 
+            int indexTri3;
+            switch (indexNode)
+            {
+                case 1:
+                    indexTri3 = 3;
+                    break;
+                case 2:
+                    indexTri3 = 1;
+                    break;
+                case 3:
+                    indexTri3 = 2;
+                    break;
+                default:
+                    throw new IndexOutOfRangeException();
+            }
+
             //equations (56 + equations (57)
             if ((indexDisplacement == 1 && indexNode == 1) || (indexDisplacement == 2 && indexNode == 1))
             {
-                return (double csi, double eta) => Tri3Element.GetShapeFunction(1, csi, eta);
+                return (double csi, double eta) => Tri3Element.GetShapeFunction(indexTri3, csi, eta);
             }
             else if ((indexDisplacement == 1 && indexNode == 2) || (indexDisplacement == 2 && indexNode == 2))
             {
-                return (double csi, double eta) => Tri3Element.GetShapeFunction(2, csi, eta);
+                return (double csi, double eta) => Tri3Element.GetShapeFunction(indexTri3, csi, eta);
             }
             else if ((indexDisplacement == 1 && indexNode == 3) || (indexDisplacement == 2 && indexNode == 3))
             {
-                return (double csi, double eta) => Tri3Element.GetShapeFunction(3, csi, eta);
+                return (double csi, double eta) => Tri3Element.GetShapeFunction(indexTri3, csi, eta);
             }
             else
             {
@@ -779,9 +803,12 @@ namespace GPC.Model.FEM.FiniteElements
         internal mnl.Matrix<double> GetBsi(int indexNode, double csi, double eta)
         {
             mnl.Matrix<double> bs = mnl.Matrix<double>.Build.Dense(4, 5);
+
             bs[0, 0] = GetN(indexNode, 1)(csi, eta);
+            Console.WriteLine("N" + indexNode + "(" + csi + "," + eta + ")=" + GetN(indexNode, 1)(csi, eta));
 
             bs[1, 1] = GetN(indexNode, 2)(csi, eta);
+            Console.WriteLine("N" + indexNode + "(" + csi + "," + eta + ")=" + GetN(indexNode, 2)(csi, eta));
 
             int index1 = 0, index2 = 0, index3 = 0;
             switch (indexNode)
@@ -825,7 +852,7 @@ namespace GPC.Model.FEM.FiniteElements
         {
             mnl.Matrix<double> bg = mnl.Matrix<double>.Build.Dense(6, 5);
 
-            var jacob = FEMUtilities.J2D(Quad4Element.GetdNdCsi, Tri3Element.GetdNdEta, _nodesLocal);
+            var jacob = FEMUtilities.J2D(Tri3Element.GetdNdCsi, Tri3Element.GetdNdEta, _nodesLocal);
             var dNdCsi = FEMUtilities.FFirstFix<int, double, double, double>(indexNode, Tri3Element.GetdNdCsi);
             var dNdEta = FEMUtilities.FFirstFix<int, double, double, double>(indexNode, Tri3Element.GetdNdEta);
 

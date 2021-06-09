@@ -1,6 +1,7 @@
 ﻿using GPC.Geometry;
 using GPC.Model.FEM.Attributes;
 using GPC.Model.FEM.Properties;
+using GPC.Utilities.Fem;
 using mnl = MathNet.Numerics.LinearAlgebra;
 
 namespace GPC.Model.FEM.FiniteElements
@@ -423,17 +424,17 @@ namespace GPC.Model.FEM.FiniteElements
         #region ShapeFunctions
         public static double GetShapeFunction(int index, double csi, double eta)
         {
-            return Utilities.Fem.LinearShapeFunctionsTri3.NaturalShapeFunction(index, csi, eta);
+            return LinearShapeFunctionsTri3.NaturalShapeFunction(index, csi, eta);
         }
 
         public static double GetdNdCsi(int index, double csi, double eta)
         {
-            return Utilities.Fem.LinearShapeFunctionsTri3.DNdCsi(index);
+            return LinearShapeFunctionsTri3.DNdCsi(index);
         }
 
         public static double GetdNdEta(int index, double csi, double eta)
         {
-            return Utilities.Fem.LinearShapeFunctionsTri3.DNdEta(index);
+            return LinearShapeFunctionsTri3.DNdEta(index);
         }
         #endregion
     }
