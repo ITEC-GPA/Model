@@ -140,14 +140,14 @@ namespace GPC.Model.Loads
         public PointLoad ToGlobal()
         {
             Vector3d forceLocal = new Vector3d(_f1, _f2, _f3);                              
-            Vector3d momentLocal = new Vector3d(_m1, _m2, _m3);        
-            
-            // Cambia le proprietà del PointLoad passando da un sistema di riferimento globale
-            // ad un sistema di rifarimento locale.
+            Vector3d momentLocal = new Vector3d(_m1, _m2, _m3);
 
-            return new PointLoad(_coordinateSystem.ToGlobal(forceLocal), 
-                                 _coordinateSystem.ToGlobal(momentLocal), 
-                                 _coordinateSystem.ToGlobal(_point), 
+            // Cambia le proprietà del PointLoad passando da un sistema di riferimento globale
+            // ad un sistema di rifarimento locale.                         
+
+            return new PointLoad(_coordinateSystem.ToGlobal(forceLocal) - _coordinateSystem.Origin,
+                                 _coordinateSystem.ToGlobal(momentLocal) - _coordinateSystem.Origin,
+                                 _coordinateSystem.ToGlobal(_point),
                                  LoadCase, CoordinateSystem.Global);
         }
 
