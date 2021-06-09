@@ -8,6 +8,8 @@ namespace GPC.Model.Loads
 {
     public class LineLoad : Load, ILineLoad
     {
+        // Classe load e derivate deve rimanere immutabile 
+
         protected readonly double _f1;                 // sono forze per unità di lunghezza ( F / L )
         protected readonly double _f2;
         protected readonly double _f3;

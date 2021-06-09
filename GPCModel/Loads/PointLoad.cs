@@ -8,18 +8,20 @@ namespace GPC.Model.Loads
 {
     public class PointLoad : Load, IPointLoad
     {
+        // Classe load e derivate deve rimanere immutabile 
+
         #region Variables
 
-        private double _f1;
-        private double _f2;
-        private double _f3;
-        private double _m1;
-        private double _m2;
-        private double _m3;
+        protected readonly double _f1;
+        protected readonly double _f2;
+        protected readonly double _f3;
+        protected readonly double _m1;
+        protected readonly double _m2;
+        protected readonly double _m3;
 
-        private CoordinateSystem _coordinateSystem;
+        protected readonly CoordinateSystem _coordinateSystem;
 
-        private Point3d _point;
+        protected readonly Point3d _point;
 
         #endregion
 
