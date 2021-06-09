@@ -85,9 +85,9 @@ namespace GPC.Model.Materials
         }
 
 
-        public abstract GPC.Model.FEM.Materials.IsotropicFemMaterial GetIsotropicFemMaterial();
+        public abstract FEM.Materials.IsotropicFemMaterial GetIsotropicFemMaterial();
 
-        public abstract GPC.Model.FEM.Materials.OrthotropicFemMaterial GetOrthotropicFemMaterial();
+        public abstract FEM.Materials.OrthotropicFemMaterial GetOrthotropicFemMaterial();
 
 
 
