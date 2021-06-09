@@ -609,6 +609,20 @@ namespace GPC.Model.FEM
         protected virtual int AddNode(Node node)
         {
             // non fa la copia, cosi i riferimenti ai nodi dentro agli elementi finiti rimangono 
+
+            foreach (var attribute in node.AttributesLoadCase)
+            {
+                if (!LoadCaseExist((attribute as LoadCaseAttribute).LoadCaseName))
+                    throw new InvalidOperationException($"Loadcase {(attribute as LoadCaseAttribute).LoadCaseName} does not exist in the femModel");
+            }
+
+            foreach (var attribute in node.AttributesFreedomCase)
+            {
+                if (!FreedomCaseExist((attribute as FreedomCaseAttribute).FreedomCaseName))
+                    throw new InvalidOperationException($"Loadcase {(attribute as FreedomCaseAttribute).FreedomCaseName} does not exist in the femModel");
+            }
+
+
             return _nodes.Add(node); // l'Add lancia un ArgumentNullException se gli si passa null
         }
 
