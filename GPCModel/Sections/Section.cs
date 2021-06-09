@@ -220,7 +220,7 @@ namespace GPC.Model.Sections
         /// <remarks>Axis convention: X-axes is the Y-axes for Eurocode and Y-axes is the Z-axes for Eurocode
         /// If the X-axes is principal, the first moment of inertia is J11, If the Y-axes is principal, the first moment of inertia is J22</remarks>
         public Section(Material material, double area, double sx, double sy, double j11, double j22, double jt, double jw, Point2d centroid, Point3d shearCenter, double angle, string name, 
-                        FormedTypes formed = FormedTypes.ColdFormed, SectionTypes sectionType = SectionTypes.Rolled) 
+                        FormedTypes formed = FormedTypes.HotFinished, SectionTypes sectionType = SectionTypes.Rolled) 
             : base(name)
         {
             _material = material;

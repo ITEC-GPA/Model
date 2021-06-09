@@ -625,6 +625,30 @@ namespace ModelObjectTest
         }
 
         [TestMethod]
+        public void SectionHSymmetric_Test6()
+        {
+            double h = 549;         // sezione da catalogo ArcelorMittal pagina 80/81 UB533x210x138
+            double tw = 14.7;
+            double bt = 214;
+            double bb = 214;
+            double tt = 23.6;
+            double tb = 23.6;
+            SteelSectionH sec = new SteelSectionH(h, tw, bt, tt, bb, tb, new SteelMaterial("steel", 210000, 0.3, 355, 510, 7850), string.Empty);
+
+            double A = 17477;          // calcolato con foglio excel marco
+            double Jxx = 8.52 * 1e8;
+            double Jyy = 3.87 * 1e7;
+            double raggioInerziaX = 47.05;
+            double raggioInerziaY = 220.83;
+
+            Assert.AreEqual(Math.Abs(A / sec.Area) - 1, 0, 0.001);
+            Assert.AreEqual(Math.Abs(Jyy / sec.J22) - 1, 0, 0.001);
+            Assert.AreEqual(Math.Abs(Jxx / sec.J11) - 1, 0, 0.001);
+            Assert.AreEqual(Math.Abs(raggioInerziaX / sec.InertiaRadiusX) - 1, 0, 0.001);
+            Assert.AreEqual(Math.Abs(raggioInerziaY / sec.InertiaRadiusY) - 1, 0, 0.001);
+        }
+
+        [TestMethod]
         public void SectionT_Test()
         {
             double h = 400;
