@@ -1,4 +1,4 @@
-using GPC.Geometry;
+﻿using GPC.Geometry;
 using GPC.Model.LoadCases;
 using System;
 using System.Collections.Generic;
@@ -7,7 +7,7 @@ using System.Runtime.Serialization;
 namespace GPC.Model.Loads
 {
     [Serializable]
-    public abstract class Load : ModelObject
+    public abstract class Load : ModelObjectId
     {
         // Classe load e derivate deve rimanere immutabile 
 
