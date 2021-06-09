@@ -8,16 +8,18 @@ namespace GPC.Model.Loads
 {
     public class LineLoad : Load, ILineLoad
     {
-        private double _f1;                 // sono forze per unità di lunghezza ( F / L )
-        private double _f2;
-        private double _f3;
-        private double _m1;                 // sono momenti per unità di lunghezza ( F / L )
-        private double _m2;
-        private double _m3;
+        // Classe load e derivate deve rimanere immutabile 
 
-        private CoordinateSystem _coordinateSystem;
+        protected readonly double _f1;                 // sono forze per unità di lunghezza ( F / L )
+        protected readonly double _f2;
+        protected readonly double _f3;
+        protected readonly double _m1;                 // sono momenti per unità di lunghezza ( F / L )
+        protected readonly double _m2;
+        protected readonly double _m3;
 
-        private Line3d _line;
+        protected readonly CoordinateSystem _coordinateSystem;
+
+        protected readonly Line3d _line;
 
         public double F1 => _f1;
         public double F2 => _f2;
@@ -140,21 +142,20 @@ namespace GPC.Model.Loads
         }
 
         /// <summary>
-        /// Change the PointLoad property moving from a local coordinate system to a global coordinate system
+        /// Return the lineload in a global coordinate system
         /// </summary>
-        public void ToGlobal()
+        public LineLoad ToGlobal()
         {
-            Vector3d forceLocal = new Vector3d(_f1, _f2, _f3);                             // 
-            Vector3d momentLocal = new Vector3d(_m1, _m2, _m3);                            // Cambia le proprietà del PointLoad passando da un sistema di riferimento globale
-                                                                                           // ad un sistema di rifarimento locale.
-            _line = _coordinateSystem.ToGlobal(_line);                                      // 
-            _f1 = _coordinateSystem.ToGlobal(forceLocal).X - _coordinateSystem.Origin.X;
-            _f2 = _coordinateSystem.ToGlobal(forceLocal).Y - _coordinateSystem.Origin.Y;
-            _f3 = _coordinateSystem.ToGlobal(forceLocal).Z - _coordinateSystem.Origin.Z;
-            _m1 = _coordinateSystem.ToGlobal(momentLocal).X - _coordinateSystem.Origin.X;
-            _m2 = _coordinateSystem.ToGlobal(momentLocal).Y - _coordinateSystem.Origin.Y;
-            _m3 = _coordinateSystem.ToGlobal(momentLocal).Z - _coordinateSystem.Origin.Z;
-            _coordinateSystem = CoordinateSystem.Global;
+            Vector3d forceLocal = new Vector3d(_f1, _f2, _f3);        
+            Vector3d momentLocal = new Vector3d(_m1, _m2, _m3); 
+
+            // Cambia le proprietà del PointLoad passando da un sistema di riferimento globale
+            // ad un sistema di rifarimento locale.
+
+            return new LineLoad(_coordinateSystem.ToGlobal(forceLocal) - _coordinateSystem.Origin,
+                                _coordinateSystem.ToGlobal(momentLocal) - _coordinateSystem.Origin,
+                                _coordinateSystem.ToGlobal(_line),
+                                LoadCase, CoordinateSystem.Global);
         }
 
         /// <summary>

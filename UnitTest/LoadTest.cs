@@ -38,22 +38,22 @@ namespace ModelObjectTest
 
             PointLoad pl2 = new PointLoad(expForce, expMoment, expPoint, LoadCase, CoordinateSystem.Global);
 
-            pl1.ToGlobal();
+            var pl1Global = pl1.ToGlobal();
 
             double[] GlobalForces = pl1.GetGlobalForces();
 
             double[] LocalForces = pl2.GetLocalForces(CoordinateSystem1);
 
             // Assert
-            Assert.IsTrue((Math.Abs(pl1.F1 - expl1.F1)) < 0.001);
-            Assert.IsTrue((Math.Abs(pl1.F2 - expl1.F2)) < 0.001);
-            Assert.IsTrue((Math.Abs(pl1.F3 - expl1.F3)) < 0.001);
-            Assert.IsTrue((Math.Abs(pl1.M1 - expl1.M1)) < 0.001);
-            Assert.IsTrue((Math.Abs(pl1.M2 - expl1.M2)) < 0.001);
-            Assert.IsTrue((Math.Abs(pl1.M3 - expl1.M3)) < 0.001);
-            Assert.IsTrue(Math.Abs(pl1.Point.X - expPoint.X) < 0.001);
-            Assert.IsTrue(Math.Abs(pl1.Point.Y - expPoint.Y) < 0.001);
-            Assert.IsTrue(Math.Abs(pl1.Point.Z - expPoint.Z) < 0.001);
+            Assert.IsTrue((Math.Abs(pl1Global.F1 - expl1.F1)) < 0.001);
+            Assert.IsTrue((Math.Abs(pl1Global.F2 - expl1.F2)) < 0.001);
+            Assert.IsTrue((Math.Abs(pl1Global.F3 - expl1.F3)) < 0.001);
+            Assert.IsTrue((Math.Abs(pl1Global.M1 - expl1.M1)) < 0.001);
+            Assert.IsTrue((Math.Abs(pl1Global.M2 - expl1.M2)) < 0.001);
+            Assert.IsTrue((Math.Abs(pl1Global.M3 - expl1.M3)) < 0.001);
+            Assert.IsTrue(Math.Abs(pl1Global.Point.X - expPoint.X) < 0.001);
+            Assert.IsTrue(Math.Abs(pl1Global.Point.Y - expPoint.Y) < 0.001);
+            Assert.IsTrue(Math.Abs(pl1Global.Point.Z - expPoint.Z) < 0.001);
             
             Assert.IsTrue((Math.Abs(GlobalForces[0] - expForce.X) < 0.001));
             Assert.IsTrue((Math.Abs(GlobalForces[1] - expForce.Y) < 0.001));
@@ -97,22 +97,22 @@ namespace ModelObjectTest
 
             PointLoad pl2 = new PointLoad(expForce, expMoment, expPoint, LoadCase, CoordinateSystem.Global);
 
-            pl1.ToGlobal();
+            var pl1Global = pl1.ToGlobal();
 
             double[] GlobalForces = pl1.GetGlobalForces();
 
             double[] LocalForces = pl2.GetLocalForces(CoordinateSystem1);
 
             // Assert
-            Assert.IsTrue((Math.Abs(pl1.F1 - expl1.F1)) < 0.001);
-            Assert.IsTrue((Math.Abs(pl1.F2 - expl1.F2)) < 0.001);
-            Assert.IsTrue((Math.Abs(pl1.F3 - expl1.F3)) < 0.001);
-            Assert.IsTrue((Math.Abs(pl1.M1 - expl1.M1)) < 0.001);
-            Assert.IsTrue((Math.Abs(pl1.M2 - expl1.M2)) < 0.001);
-            Assert.IsTrue((Math.Abs(pl1.M3 - expl1.M3)) < 0.001);
-            Assert.IsTrue(Math.Abs(pl1.Point.X - expPoint.X) < 0.001);
-            Assert.IsTrue(Math.Abs(pl1.Point.Y - expPoint.Y) < 0.001);
-            Assert.IsTrue(Math.Abs(pl1.Point.Z - expPoint.Z) < 0.001);
+            Assert.IsTrue((Math.Abs(pl1Global.F1 - expl1.F1)) < 0.001);
+            Assert.IsTrue((Math.Abs(pl1Global.F2 - expl1.F2)) < 0.001);
+            Assert.IsTrue((Math.Abs(pl1Global.F3 - expl1.F3)) < 0.001);
+            Assert.IsTrue((Math.Abs(pl1Global.M1 - expl1.M1)) < 0.001);
+            Assert.IsTrue((Math.Abs(pl1Global.M2 - expl1.M2)) < 0.001);
+            Assert.IsTrue((Math.Abs(pl1Global.M3 - expl1.M3)) < 0.001);
+            Assert.IsTrue(Math.Abs(pl1Global.Point.X - expPoint.X) < 0.001);
+            Assert.IsTrue(Math.Abs(pl1Global.Point.Y - expPoint.Y) < 0.001);
+            Assert.IsTrue(Math.Abs(pl1Global.Point.Z - expPoint.Z) < 0.001);
             
             Assert.IsTrue((Math.Abs(GlobalForces[0] - expForce.X) < 0.001));
             Assert.IsTrue((Math.Abs(GlobalForces[1] - expForce.Y) < 0.001));
@@ -156,22 +156,22 @@ namespace ModelObjectTest
 
             PointLoad pl2 = new PointLoad(expForce, expMoment, expPoint, LoadCase, CoordinateSystem.Global);
 
-            pl1.ToGlobal();
+            var pl1Global = pl1.ToGlobal();
 
             double[] GlobalForces = pl1.GetGlobalForces();
 
             double[] LocalForces = pl2.GetLocalForces(CoordinateSystem1);
 
             // Assert
-            Assert.IsTrue((Math.Abs(pl1.F1 - expl1.F1)) < 0.001);
-            Assert.IsTrue((Math.Abs(pl1.F2 - expl1.F2)) < 0.001);
-            Assert.IsTrue((Math.Abs(pl1.F3 - expl1.F3)) < 0.001);
-            Assert.IsTrue((Math.Abs(pl1.M1 - expl1.M1)) < 0.001);
-            Assert.IsTrue((Math.Abs(pl1.M2 - expl1.M2)) < 0.001);
-            Assert.IsTrue((Math.Abs(pl1.M3 - expl1.M3)) < 0.001);
-            Assert.IsTrue(Math.Abs(pl1.Point.X - expPoint.X) < 0.001);
-            Assert.IsTrue(Math.Abs(pl1.Point.Y - expPoint.Y) < 0.001);
-            Assert.IsTrue(Math.Abs(pl1.Point.Z - expPoint.Z) < 0.001);
+            Assert.IsTrue((Math.Abs(pl1Global.F1 - expl1.F1)) < 0.001);
+            Assert.IsTrue((Math.Abs(pl1Global.F2 - expl1.F2)) < 0.001);
+            Assert.IsTrue((Math.Abs(pl1Global.F3 - expl1.F3)) < 0.001);
+            Assert.IsTrue((Math.Abs(pl1Global.M1 - expl1.M1)) < 0.001);
+            Assert.IsTrue((Math.Abs(pl1Global.M2 - expl1.M2)) < 0.001);
+            Assert.IsTrue((Math.Abs(pl1Global.M3 - expl1.M3)) < 0.001);
+            Assert.IsTrue(Math.Abs(pl1Global.Point.X - expPoint.X) < 0.001);
+            Assert.IsTrue(Math.Abs(pl1Global.Point.Y - expPoint.Y) < 0.001);
+            Assert.IsTrue(Math.Abs(pl1Global.Point.Z - expPoint.Z) < 0.001);
 
             Assert.IsTrue((Math.Abs(GlobalForces[0] - expForce.X) < 0.001));
             Assert.IsTrue((Math.Abs(GlobalForces[1] - expForce.Y) < 0.001));
@@ -217,22 +217,22 @@ namespace ModelObjectTest
 
             PointLoad pl2 = new PointLoad(expForce, expMoment, expPoint, LoadCase, CoordinateSystem.Global);
 
-            ll1.ToGlobal();
+            var ll1Global = ll1.ToGlobal();
 
             double[] GlobalForces = ll1.GetGlobalForces();
 
             double[] LocalForces = pl2.GetLocalForces(CoordinateSystem1);
 
             // Assert
-            Assert.IsTrue((Math.Abs(ll1.F1 - expl1.F1)) < 0.001);
-            Assert.IsTrue((Math.Abs(ll1.F2 - expl1.F2)) < 0.001);
-            Assert.IsTrue((Math.Abs(ll1.F3 - expl1.F3)) < 0.001);
-            Assert.IsTrue((Math.Abs(ll1.M1 - expl1.M1)) < 0.001);
-            Assert.IsTrue((Math.Abs(ll1.M2 - expl1.M2)) < 0.001);
-            Assert.IsTrue((Math.Abs(ll1.M3 - expl1.M3)) < 0.001);
-            Assert.IsTrue(Math.Abs(ll1.Line.Start.X - expPoint.X) < 0.001);
-            Assert.IsTrue(Math.Abs(ll1.Line.Start.Y - expPoint.Y) < 0.001);
-            Assert.IsTrue(Math.Abs(ll1.Line.Start.Z - expPoint.Z) < 0.001);
+            Assert.IsTrue((Math.Abs(ll1Global.F1 - expl1.F1)) < 0.001, ll1Global.F1.ToString());
+            Assert.IsTrue((Math.Abs(ll1Global.F2 - expl1.F2)) < 0.001);
+            Assert.IsTrue((Math.Abs(ll1Global.F3 - expl1.F3)) < 0.001);
+            Assert.IsTrue((Math.Abs(ll1Global.M1 - expl1.M1)) < 0.001);
+            Assert.IsTrue((Math.Abs(ll1Global.M2 - expl1.M2)) < 0.001);
+            Assert.IsTrue((Math.Abs(ll1Global.M3 - expl1.M3)) < 0.001);
+            Assert.IsTrue(Math.Abs(ll1Global.Line.Start.X - expPoint.X) < 0.001);
+            Assert.IsTrue(Math.Abs(ll1Global.Line.Start.Y - expPoint.Y) < 0.001);
+            Assert.IsTrue(Math.Abs(ll1Global.Line.Start.Z - expPoint.Z) < 0.001);
 
             Assert.IsTrue((Math.Abs(GlobalForces[0] - expForce.X) < 0.001));
             Assert.IsTrue((Math.Abs(GlobalForces[1] - expForce.Y) < 0.001));
