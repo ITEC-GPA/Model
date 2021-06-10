@@ -191,8 +191,8 @@ namespace ModelObjectTest
             double Jt = 23328000;
 
             Assert.AreEqual(A, sec.Area);
-            Assert.AreEqual(b - 2 * tw, sec.Binternal);
-            Assert.AreEqual(h - 2 * tf, sec.Hinternal);
+            Assert.AreEqual(b - 2 * tw, sec.BaseInternal);
+            Assert.AreEqual(h - 2 * tf, sec.Heightinternal);
             Assert.AreEqual(Math.Abs(Jy / sec.J22) - 1, 0, 0.001);
             Assert.AreEqual(Math.Abs(Jx / sec.J11) - 1, 0, 0.001);
             Assert.AreEqual(Math.Abs(Wely / sec.CalculateWel2()) - 1, 0, 0.001);
@@ -221,8 +221,8 @@ namespace ModelObjectTest
             double Jt = 189338275.9;
 
             Assert.AreEqual(A, sec.Area);
-            Assert.AreEqual(b - 2 * tw, sec.Binternal);
-            Assert.AreEqual(h - 2 * tf, sec.Hinternal);
+            Assert.AreEqual(b - 2 * tw, sec.BaseInternal);
+            Assert.AreEqual(h - 2 * tf, sec.Heightinternal);
             Assert.AreEqual(Math.Abs(Jy / sec.J22) - 1, 0, 0.001);
             Assert.AreEqual(Math.Abs(Jx / sec.J11) - 1, 0, 0.001);
             Assert.AreEqual(Math.Abs(Wely / sec.CalculateWel2()) - 1, 0, 0.001);
@@ -251,8 +251,8 @@ namespace ModelObjectTest
             double Jt = 347236875;
 
             Assert.AreEqual(A, sec.Area);
-            Assert.AreEqual(b - 2 * tw, sec.Binternal);
-            Assert.AreEqual(h - 2 * tf, sec.Hinternal);
+            Assert.AreEqual(b - 2 * tw, sec.BaseInternal);
+            Assert.AreEqual(h - 2 * tf, sec.Heightinternal);
             Assert.AreEqual(Math.Abs(Jy / sec.J22) - 1, 0, 0.001);
             Assert.AreEqual(Math.Abs(Jx / sec.J11) - 1, 0, 0.001);
             Assert.AreEqual(Math.Abs(Wely / sec.CalculateWel2()) - 1, 0, 0.001);

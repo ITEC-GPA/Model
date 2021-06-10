@@ -8,7 +8,7 @@ namespace GPC.Model.Sections.Steel
     {
         #region Variables
 
-        private double _r;                // raggio di curvatura o altezza di gola
+        private readonly double _r;                // raggio di curvatura o altezza di gola
 
         #endregion
 
@@ -27,7 +27,7 @@ namespace GPC.Model.Sections.Steel
 
         Material ISteelSection.Material => Material;
 
-        public double Height => LVert;
+        public double Height => LengthVert;
 
         double ISteelSection.Area => Area;
 
@@ -69,11 +69,8 @@ namespace GPC.Model.Sections.Steel
         public SteelSectionL(double lHor, double tHor, double lVert, double tVert, SteelMaterial material, string name, SectionTypes sectionTypes = SectionTypes.Rolled, double radius = 0) 
             : base(lHor, tHor, lVert, tVert, material, name)
         {
-            if (sectionTypes == SectionTypes.Rolled)
-                _r = radius;        // raggio di curvatura
-
-            else if (sectionTypes == SectionTypes.Welded)
-                _r = radius;        // altezza di gola
+            _sectionType = sectionTypes;
+            _r = radius;        // raggio di curvatura o altezza di gola
         }
 
         #endregion

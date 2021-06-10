@@ -18,15 +18,15 @@ namespace GPC.Model.Sections
 
         #region Properties
 
-        public double H => _h;
+        public double Height => _h;
 
-        public double Hw => _h - _tf;
+        public double HeightWeb => _h - _tf;
 
-        public double Tw => _tw;
+        public double ThicknessWeb => _tw;
 
-        public double Tf => _tf;
+        public double ThicknessFlange => _tf;
 
-        public double B => _b;
+        public double LenghtFlange => _b;
 
         #endregion
 
@@ -48,8 +48,8 @@ namespace GPC.Model.Sections
             _isSymmetricAlongYLocalAxis = true;
             _isSymmetricAlongXLocalAxis = false;
 
-            ThinWall web = new ThinWall(Hw, tw, Math.PI / 2, new Point2d(B / 2, Hw / 2));
-            ThinWall flange = new ThinWall(b, tf, 0, new Point2d(B / 2, Hw + tf / 2));
+            ThinWall web = new ThinWall(HeightWeb, tw, Math.PI / 2, new Point2d(LenghtFlange / 2, HeightWeb / 2));
+            ThinWall flange = new ThinWall(b, tf, 0, new Point2d(LenghtFlange / 2, HeightWeb + tf / 2));
 
             ThinWalls = new ThinWall[] { web, flange };         
         }
@@ -74,23 +74,23 @@ namespace GPC.Model.Sections
             if (_area / 2.0 > _b * _tf)
             {
                 double yPlastic = _area / 2.0 / _tw;
-                SectionT halfSectionTop = new SectionT(H - yPlastic, _b, _tw, _tf, _material, string.Empty);
+                SectionT halfSectionTop = new SectionT(Height - yPlastic, _b, _tw, _tf, _material, string.Empty);
                 return _area / 2.0 * (halfSectionTop.DistanceYCentroidFromBottom() + yPlastic / 2.0);
             }
             else
             {
                 double hTopPlastic = (_area / 2.0) / _b;
                 //can't use SectionT because infinite loop
-                double Aweb = _tw * (H - _tf);
+                double Aweb = _tw * (Height - _tf);
                 double Aflange = _b * (_tf - hTopPlastic);
-                double S = Aweb * ((H - _tf) / 2.0 + hTopPlastic) + Aflange * hTopPlastic / 2.0;
+                double S = Aweb * ((Height - _tf) / 2.0 + hTopPlastic) + Aflange * hTopPlastic / 2.0;
                 return (_area / 2.0) * (hTopPlastic / 2.0 + S / (Aweb + Aflange));
             }
         }
 
         public override double CalculateWpl2()
         {
-            return 1.0 / 4.0 * _tf * Math.Pow(_b, 2.0) + 1.0 / 4.0 * (H - _tf) * Math.Pow(_tw, 2.0);
+            return 1.0 / 4.0 * _tf * Math.Pow(_b, 2.0) + 1.0 / 4.0 * (Height - _tf) * Math.Pow(_tw, 2.0);
         }
 
         public double CalculateWelyLeft()
@@ -110,7 +110,7 @@ namespace GPC.Model.Sections
 
         public double CalculateWelxTop()
         {
-            return J11 / (H - DistanceYCentroidFromBottom());
+            return J11 / (Height - DistanceYCentroidFromBottom());
         }
 
         public double DistanceYCentroidFromBottom()
@@ -120,12 +120,12 @@ namespace GPC.Model.Sections
 
         public double DistanceYCentroidFromTop()
         {
-            return H - CalculateCentroid().Y;
+            return Height - CalculateCentroid().Y;
         }
 
         public double DistanceXCentroidFromRight()
         {
-            return B - CalculateCentroid().X;
+            return LenghtFlange - CalculateCentroid().X;
         }
 
         public double DistanceXCentroidFromLeft()
@@ -140,23 +140,23 @@ namespace GPC.Model.Sections
 
         public override Point2d CalculateShearCenter()
         {
-            return new Point2d(_b / 2.0, H - _tf / 2.0);
+            return new Point2d(_b / 2.0, Height - _tf / 2.0);
         }
 
         public override double CalculateJw()
         {
-            return Math.Pow(_b, 3.0) * Math.Pow(_tf, 3.0) / 144.0 + Math.Pow(H - _tf / 2.0, 3.0) * Math.Pow(_tw, 3.0) / 36.0; //Bleich 1952, Picard and Beaulieu 1991
+            return Math.Pow(_b, 3.0) * Math.Pow(_tf, 3.0) / 144.0 + Math.Pow(Height - _tf / 2.0, 3.0) * Math.Pow(_tw, 3.0) / 36.0; //Bleich 1952, Picard and Beaulieu 1991
         }
 
         public override double CalculateJt()
         {            
-            return (_b * Math.Pow(_tf, 3.0) + (H - _tf / 2.0) * Math.Pow(_tw, 3.0)) / 3.0;
+            return (_b * Math.Pow(_tf, 3.0) + (Height - _tf / 2.0) * Math.Pow(_tw, 3.0)) / 3.0;
         }
 
         public override string ToString()
         {
             string s = "T section: \n";
-            s = s + "Height = " + H + " mm \n";
+            s = s + "Height = " + Height + " mm \n";
             s = s + "Thickness Web = " + _tw + " mm \n";
             s = s + "Length Top = " + _b + " mm \n";
             s = s + "Thickness Top = " + _tf + " mm \n";

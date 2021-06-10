@@ -19,13 +19,13 @@ namespace GPC.Model.Sections
 
         #region Properties
 
-        public double LHor => _lHor;
+        public double LengthHor => _lHor;
 
-        public double THor => _tHor;
+        public double ThicknessHor => _tHor;
 
-        public double LVert => _lVert;
+        public double LengthVert => _lVert;
 
-        public double TVert => _tVert;
+        public double ThicknessVert => _tVert;
 
         #endregion
 
@@ -40,8 +40,8 @@ namespace GPC.Model.Sections
             _lVert = lVert < 0 ? throw new ArgumentException($"Vertical plate lenght cannot be lower than zero") : lVert; 
             _tVert = tVert < 0 ? throw new ArgumentException($"Vertical plate thickness cannot be lower than zero") : tVert;
 
-            ThinWall thinWall1 = new ThinWall(LHor, THor, 0, new Point2d(LHor / 2, THor / 2));
-            ThinWall thinWall2 = new ThinWall(LVert - THor, TVert, Math.PI / 2, new Point2d(TVert / 2, THor + (TVert - THor) / 2));
+            ThinWall thinWall1 = new ThinWall(LengthHor, ThicknessHor, 0, new Point2d(LengthHor / 2, ThicknessHor / 2));
+            ThinWall thinWall2 = new ThinWall(LengthVert - ThicknessHor, ThicknessVert, Math.PI / 2, new Point2d(ThicknessVert / 2, ThicknessHor + (ThicknessVert - ThicknessHor) / 2));
 
             ThinWalls = new ThinWall[] { thinWall1, thinWall2 };
         }
@@ -111,10 +111,10 @@ namespace GPC.Model.Sections
             //traslation
             Point2d[] pts = new Point2d[5];
             pts[0] = new Point2d(-Centroid.X, -Centroid.Y);
-            pts[1] = new Point2d(LHor - Centroid.X, -Centroid.Y);
-            pts[2] = new Point2d(LHor - Centroid.X, THor - Centroid.Y);
-            pts[3] = new Point2d(TVert - Centroid.X, LVert - Centroid.Y);
-            pts[4] = new Point2d(-Centroid.X, LVert - Centroid.Y);
+            pts[1] = new Point2d(LengthHor - Centroid.X, -Centroid.Y);
+            pts[2] = new Point2d(LengthHor - Centroid.X, ThicknessHor - Centroid.Y);
+            pts[3] = new Point2d(ThicknessVert - Centroid.X, LengthVert - Centroid.Y);
+            pts[4] = new Point2d(-Centroid.X, LengthVert - Centroid.Y);
 
             //rotation
             minX = 0;
@@ -167,7 +167,7 @@ namespace GPC.Model.Sections
 
         public double DistanceYCentroidFromTop()
         {
-            return LVert - Centroid.Y;
+            return LengthVert - Centroid.Y;
         }
 
         public double DistanceXCentroidFromRight()
@@ -177,7 +177,7 @@ namespace GPC.Model.Sections
 
         public double DistanceXCentroidFromLeft()
         {
-            return LHor - Centroid.X;
+            return LengthHor - Centroid.X;
         }
 
 

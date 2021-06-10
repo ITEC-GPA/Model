@@ -20,17 +20,17 @@ namespace GPC.Model.Sections
 
         #region Properties
 
-        public double H => _h;
+        public double Height => _h;
 
-        public double Hw => _h - _tBottom - _tTop;
+        public double HeightWeb => _h - _tBottom - _tTop;
 
-        public double Tw => _tw;
+        public double ThicknessWeb => _tw;
 
-        public double LBottom => _lengthBottom;
+        public double LengthBottom => _lengthBottom;
 
         public double ThicknessBottom => _tBottom;
 
-        public double LTop => _lengthTop;
+        public double LengthTop => _lengthTop;
 
         public double ThicknessTop => _tTop;
 
@@ -54,8 +54,8 @@ namespace GPC.Model.Sections
             _isSymmetricAlongYLocalAxis = false;
 
             ThinWall web = new ThinWall(h, tw, Math.PI / 2, new Point2d(tw / 2, h / 2));
-            ThinWall flangeTop = new ThinWall(LTop - Tw, ThicknessTop, 0, new Point2d(Tw + (LTop - Tw) / 2, ThicknessBottom + Hw + ThicknessTop / 2));
-            ThinWall flangeBottom = new ThinWall(LBottom - Tw, ThicknessBottom, 0, new Point2d(Tw + (LBottom - Tw) / 2, ThicknessBottom / 2));
+            ThinWall flangeTop = new ThinWall(LengthTop - ThicknessWeb, ThicknessTop, 0, new Point2d(ThicknessWeb + (LengthTop - ThicknessWeb) / 2, ThicknessBottom + HeightWeb + ThicknessTop / 2));
+            ThinWall flangeBottom = new ThinWall(LengthBottom - ThicknessWeb, ThicknessBottom, 0, new Point2d(ThicknessWeb + (LengthBottom - ThicknessWeb) / 2, ThicknessBottom / 2));
 
             ThinWalls = new ThinWall[] { web, flangeBottom, flangeTop };
         }
@@ -80,7 +80,7 @@ namespace GPC.Model.Sections
             //CNR DT 208/2001
             double hf = _h - _tTop / 2.0 - _tBottom / 2.0;
             double length = _lengthBottom - _tw / 2.0;
-            return hf * hf * Math.Pow(length, 3.0) * _tBottom / 12.0 * (2.0 * hf * _tw + 3.0 * length * _tBottom) / (hf * Tw + 6.0 * length * _tBottom);
+            return hf * hf * Math.Pow(length, 3.0) * _tBottom / 12.0 * (2.0 * hf * _tw + 3.0 * length * _tBottom) / (hf * ThicknessWeb + 6.0 * length * _tBottom);
         }
 
         public override double CalculateJt()
@@ -137,12 +137,12 @@ namespace GPC.Model.Sections
 
         public double DistanceYCentroidFromTop()
         {
-            return H - CalculateCentroid().Y;
+            return Height - CalculateCentroid().Y;
         }
 
         public double DistanceXCentroidFromRight()
         {
-            return Math.Max(LTop, LBottom) - DistanceXCentroidFromLeft();
+            return Math.Max(LengthTop, LengthBottom) - DistanceXCentroidFromLeft();
         }
         public double DistanceXCentroidFromLeft()
         {
@@ -162,8 +162,8 @@ namespace GPC.Model.Sections
                 }
                 else
                 {
-                    double tEff = Area / 2.0 / H;        // rettangolo alto H e spesso tEff
-                    SectionC sectionC = new SectionC(H, Tw - tEff, LTop, ThicknessTop, LBottom, ThicknessBottom, _material, string.Empty);
+                    double tEff = Area / 2.0 / Height;        // rettangolo alto H e spesso tEff
+                    SectionC sectionC = new SectionC(Height, ThicknessWeb - tEff, LengthTop, ThicknessTop, LengthBottom, ThicknessBottom, _material, string.Empty);
                     return Area / 2.0 * (tEff / 2 + sectionC.DistanceXCentroidFromLeft());
                 }
             }

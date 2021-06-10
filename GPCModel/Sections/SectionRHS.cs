@@ -24,21 +24,21 @@ namespace GPC.Model.Sections
 
         #region Properties
 
-        public double B => _b;
+        public double Base => _b;
 
-        public double Binternal => _b - _twL - _twR;
+        public double BaseInternal => _b - _twL - _twR;
 
-        public double H => _h;
+        public double Height => _h;
 
-        public double Hinternal => _h - _tfBottom - _tfTop;
+        public double Heightinternal => _h - _tfBottom - _tfTop;
 
-        public double TTop => _tfTop;
+        public double ThicknessTop => _tfTop;
 
-        public double TBottom => _tfBottom;
+        public double ThicknessBottom => _tfBottom;
 
-        public double TWebLeft => _twL;
+        public double ThicknessWebLeft => _twL;
 
-        public double TWebRight => _twR;
+        public double ThicknessWebRight => _twR;
 
         #endregion
 
@@ -61,10 +61,10 @@ namespace GPC.Model.Sections
             if (_twL == _twR)
                 _isSymmetricAlongYLocalAxis = true;
 
-            ThinWall webSx = new ThinWall(Hinternal, _twL, Math.PI / 2, new Point2d(_twL / 2, Hinternal / 2 + _tfBottom));
-            ThinWall webDx = new ThinWall(Hinternal, _twR, Math.PI / 2, new Point2d(B - _twR / 2, Hinternal / 2 + _tfBottom));
-            ThinWall flangeTop = new ThinWall(B, _tfTop, 0, new Point2d(B / 2, _tfBottom + Hinternal + _tfTop / 2));
-            ThinWall flangeBottom = new ThinWall(B, _tfBottom, 0, new Point2d(B / 2, _tfBottom / 2));
+            ThinWall webSx = new ThinWall(Heightinternal, _twL, Math.PI / 2, new Point2d(_twL / 2, Heightinternal / 2 + _tfBottom));
+            ThinWall webDx = new ThinWall(Heightinternal, _twR, Math.PI / 2, new Point2d(Base - _twR / 2, Heightinternal / 2 + _tfBottom));
+            ThinWall flangeTop = new ThinWall(Base, _tfTop, 0, new Point2d(Base / 2, _tfBottom + Heightinternal + _tfTop / 2));
+            ThinWall flangeBottom = new ThinWall(Base, _tfBottom, 0, new Point2d(Base / 2, _tfBottom / 2));
 
             ThinWalls = new ThinWall[] { webSx, webDx, flangeBottom, flangeTop };
         }
@@ -101,7 +101,7 @@ namespace GPC.Model.Sections
 
         public double CalculateWelxTop()
         {
-            return J11 / (H - DistanceYCentroidFromBottom());
+            return J11 / (Height - DistanceYCentroidFromBottom());
         }
 
         public double DistanceYCentroidFromBottom()
@@ -111,7 +111,7 @@ namespace GPC.Model.Sections
 
         public double DistanceYCentroidFromTop()
         {
-            return H + CalculateCentroid().Y;
+            return Height + CalculateCentroid().Y;
         }
 
         public double DistanceXCentroidFromRight()
@@ -121,17 +121,17 @@ namespace GPC.Model.Sections
 
         public double DistanceXCentroidFromLeft()
         {
-            return B - CalculateCentroid().X;
+            return Base - CalculateCentroid().X;
         }
 
         public override double CalculateWpl2()
         {
-            if (_area / 2.0 > _twL * Hinternal +_tfTop * _twL + _tfBottom * _twL)
+            if (_area / 2.0 > _twL * Heightinternal +_tfTop * _twL + _tfBottom * _twL)
             {
                 if (IsSymmetricAlongYLocalAxis)
                 {
-                    SectionC halfSectionLeft = new SectionC(H, TWebLeft, B/2, TTop, B/2, TBottom, _material, string.Empty);
-                    SectionC halfSectionRigth = new SectionC(H, TWebRight, B / 2, TTop, B / 2, TBottom, _material, string.Empty);
+                    SectionC halfSectionLeft = new SectionC(Height, ThicknessWebLeft, Base/2, ThicknessTop, Base/2, ThicknessBottom, _material, string.Empty);
+                    SectionC halfSectionRigth = new SectionC(Height, ThicknessWebRight, Base / 2, ThicknessTop, Base / 2, ThicknessBottom, _material, string.Empty);
                     return (_area / 2.0) * (halfSectionLeft.DistanceXCentroidFromRight() + halfSectionRigth.DistanceXCentroidFromRight());
                 }
                 else
@@ -144,12 +144,12 @@ namespace GPC.Model.Sections
 
         public override double CalculateWpl1()
         {
-            if (_area / 2.0 > (_twR * Hinternal)) //plateTop
+            if (_area / 2.0 > (_twR * Heightinternal)) //plateTop
             {
                 if (IsSymmetricAlongXLocalAxis)
                 {
-                    SectionC halfSectionTop = new SectionC(B, TTop, H / 2, _twR, H / 2, _twL, _material, string.Empty);
-                    SectionC halfSectionBottom = new SectionC(B, TBottom, H / 2, _twL, H / 2, _twR, Material, string.Empty);
+                    SectionC halfSectionTop = new SectionC(Base, ThicknessTop, Height / 2, _twR, Height / 2, _twL, _material, string.Empty);
+                    SectionC halfSectionBottom = new SectionC(Base, ThicknessBottom, Height / 2, _twL, Height / 2, _twR, Material, string.Empty);
                     return (_area / 2.0) * (halfSectionTop.DistanceXCentroidFromRight() + halfSectionBottom.DistanceXCentroidFromRight());
                 }
                 else

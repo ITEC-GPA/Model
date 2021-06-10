@@ -17,7 +17,7 @@ namespace GPC.Model.Sections
 
         #region Properties
 
-        public double Dext => _dext;
+        public double Diameter => _dext;
 
         #endregion
 

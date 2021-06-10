@@ -29,7 +29,7 @@ namespace GPC.Model.Sections.Steel
 
         Material ISteelSection.Material => Material;
 
-        public double Height => D;
+        public double Height => Diameter;
 
         double ISteelSection.Area => Area;
 

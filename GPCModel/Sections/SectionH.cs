@@ -24,7 +24,7 @@ namespace GPC.Model.Sections
 
         #region Properties
 
-        public double H => _h;
+        public double Height => _h;
 
         public double LenghtBottomFlange => _bbottom;
 
@@ -36,7 +36,7 @@ namespace GPC.Model.Sections
 
         public double ThicknessWeb => _tw;
 
-        public double HeightWeb => H - ThicknessBottomFlange - ThicknessTopFlange;
+        public double HeightWeb => Height - ThicknessBottomFlange - ThicknessTopFlange;
         
         #endregion
 
@@ -107,7 +107,7 @@ namespace GPC.Model.Sections
 
         public double DistanceYCentroidFromTop()
         {
-            return H - DistanceYCentroidFromBottom();
+            return Height - DistanceYCentroidFromBottom();
         }
 
         private double DistanceXCentroidFromRight()
@@ -117,8 +117,8 @@ namespace GPC.Model.Sections
 
         public override double CalculateWpl2()
         {
-            SectionT halfSectionTop = new SectionT(_btop / 2.0, H / 2.0, _ttop, _tw / 2.0, _material, string.Empty);
-            SectionT halfSectionBottom = new SectionT(_bbottom / 2.0, H / 2.0, _tbottom, _tw / 2.0, _material, string.Empty);
+            SectionT halfSectionTop = new SectionT(_btop / 2.0, Height / 2.0, _ttop, _tw / 2.0, _material, string.Empty);
+            SectionT halfSectionBottom = new SectionT(_bbottom / 2.0, Height / 2.0, _tbottom, _tw / 2.0, _material, string.Empty);
             double d = (halfSectionTop.Area * (_btop / 2.0 - halfSectionTop.DistanceYCentroidFromBottom()) + halfSectionBottom.Area * (_bbottom / 2.0 - halfSectionBottom.DistanceYCentroidFromBottom())) / 
                 (halfSectionBottom.Area + halfSectionTop.Area);
             return 2.0 * d * _area / 2.0;
@@ -130,19 +130,19 @@ namespace GPC.Model.Sections
             {
                 double hw = (_area / 2.0 - _btop * _ttop) / _tw;
                 SectionT halfSectionTop = new SectionT(hw + _ttop, _btop, _tw, _ttop, _material, string.Empty);
-                SectionT halfSectionBottom = new SectionT(H - _ttop - hw, _bbottom, _tw, _tbottom, _material, string.Empty);
+                SectionT halfSectionBottom = new SectionT(Height - _ttop - hw, _bbottom, _tw, _tbottom, _material, string.Empty);
                 return _area / 2.0 * (halfSectionTop.DistanceYCentroidFromBottom() + halfSectionBottom.DistanceYCentroidFromBottom());
             }
             else if (_area / 2.0 <= _btop * _ttop)
             {
                 double hHalf = _area / 2.0 / _btop;
-                SectionH halfSectionBottom = new SectionH(H - hHalf, _tw, _btop, _ttop - hHalf, _bbottom, _tbottom, _material, string.Empty);
-                return _area / 2.0 * (hHalf / 2.0 + (H - hHalf - halfSectionBottom.DistanceYCentroidFromBottom()));
+                SectionH halfSectionBottom = new SectionH(Height - hHalf, _tw, _btop, _ttop - hHalf, _bbottom, _tbottom, _material, string.Empty);
+                return _area / 2.0 * (hHalf / 2.0 + (Height - hHalf - halfSectionBottom.DistanceYCentroidFromBottom()));
             }
             else if (_area / 2.0 <= _bbottom * _tbottom)
             {
                 double hHalf = _area / 2.0 / _bbottom;
-                SectionH halfSectionBottom = new SectionH(H - hHalf, _tw, _btop, _ttop, _bbottom, _tbottom - hHalf, _material, string.Empty);
+                SectionH halfSectionBottom = new SectionH(Height - hHalf, _tw, _btop, _ttop, _bbottom, _tbottom - hHalf, _material, string.Empty);
                 return _area / 2.0 * (hHalf / 2.0 + halfSectionBottom.DistanceYCentroidFromBottom());
             }
             else            
@@ -177,7 +177,7 @@ namespace GPC.Model.Sections
 
         public double CalculateJtSSRC1889()
         {
-            double dmed = H - _tbottom / 2.0 - _ttop / 2.0;
+            double dmed = Height - _tbottom / 2.0 - _ttop / 2.0;
             return (_btop * Math.Pow(_ttop, 3.0) + _bbottom * Math.Pow(_tbottom, 3.0) + dmed * Math.Pow(_tw, 3.0)) / 3.0;
             //SSRC 1998 dice che Jt corretto si calcola come 1/3 * l * t^3 ma l'anima va considerata maggiorata di metà delle due flange (non va corretto con il fattore alpha)
         }
@@ -185,7 +185,7 @@ namespace GPC.Model.Sections
         public override string ToString()
         {
             string s = "H section: \n";
-            s = s + "Height = " + H.ToString() + " mm \n";
+            s = s + "Height = " + Height.ToString() + " mm \n";
             s = s + "Thickness Web = " + _tw + " mm \n";
             s = s + "Length Bottom = " + _bbottom + " mm \n";
             s = s + "Thickness Bottom = " + _tbottom + " mm \n";

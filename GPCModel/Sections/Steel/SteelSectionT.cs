@@ -13,7 +13,7 @@ namespace GPC.Model.Sections.Steel
 
         #region Variables
 
-        private double _r;                // raggio di curvatura o altezza di gola
+        private readonly double _r;                // raggio di curvatura o altezza di gola
 
         #endregion
 
@@ -32,7 +32,7 @@ namespace GPC.Model.Sections.Steel
 
         Material ISteelSection.Material => Material;
 
-        public double Height => H;
+        double ISteelSection.Height => Height;
 
         double ISteelSection.Area => Area;
 
@@ -74,11 +74,8 @@ namespace GPC.Model.Sections.Steel
         public SteelSectionT(SectionTypes type, double hw, double b, double tw, double tf, SteelMaterial material, string name, double radius) 
             : base(hw, b, tw, tf, material, name)
         {
-            if (type == SectionTypes.Rolled)
-                _r = radius;        // raggio di curvatura
-
-            else if (type == SectionTypes.Welded)
-                _r = radius;        // altezza di gola
+            _sectionType = type;
+            _r = radius;        // raggio di curvatura o altezza di gola
         }
 
         #endregion
@@ -89,7 +86,7 @@ namespace GPC.Model.Sections.Steel
         public override string ToString()
         {
             string s = "T section: \n";
-            s = s + "Height = " + H + " mm \n";
+            s = s + "Height = " + base.Height + " mm \n";
             s = s + "Thickness Web = " + _tw + " mm \n";
             s = s + "Length Top = " + _b + " mm \n";
             s = s + "Thickness Top = " + _tf + " mm \n";

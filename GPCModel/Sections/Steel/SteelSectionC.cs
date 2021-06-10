@@ -26,7 +26,7 @@ namespace GPC.Model.Sections.Steel
 
         Material ISteelSection.Material => Material;
 
-        public double Height => H;
+        double ISteelSection.Height => Height;
 
         double ISteelSection.Area => Area;
 
@@ -69,14 +69,8 @@ namespace GPC.Model.Sections.Steel
                             SectionTypes type = SectionTypes.Rolled, double radius = 0)
             : base(h, tw, lTop, tTop, lBottom, tBottom, material, name)
         {
-            if (radius != 0)
-            {
-                if (type == SectionTypes.Rolled)
-                    _r = radius;        // raggio di curvatura
-
-                else if (type == SectionTypes.Welded)
-                    _r = radius;        // altezza di gola
-            }
+            _sectionType = type;
+            _r = radius;        // raggio di curvatura o altezza di gola
         }
 
         #endregion

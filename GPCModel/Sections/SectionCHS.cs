@@ -20,17 +20,17 @@ namespace GPC.Model.Sections
         /// <summary>
         /// The external diameter of CHS
         /// </summary>
-        public double D => _d;
+        public double Diameter => _d;
 
         /// <summary>
         /// The Thickness of the section
         /// </summary>
-        public double T => _t;
+        public double Thickness => _t;
 
         /// <summary>
         /// The internal diameter of CHS
         /// </summary>
-        public double Dint => _d - (2 * _t);
+        public double DiameterInternal => _d - (2 * _t);
 
         #endregion
 
@@ -88,17 +88,17 @@ namespace GPC.Model.Sections
 
         public double CalculateArea()
         {
-            return (Math.Pow(_d, 2.0) * Math.PI) / 4.0 - (Math.Pow(Dint, 2.0) * Math.PI) / 4.0;
+            return (Math.Pow(_d, 2.0) * Math.PI) / 4.0 - (Math.Pow(DiameterInternal, 2.0) * Math.PI) / 4.0;
         }
                 
         public double CalculateJ()
         {
-            return Math.PI * (Math.Pow(_d, 4.0) - Math.Pow(Dint, 4.0)) / (64.0);
+            return Math.PI * (Math.Pow(_d, 4.0) - Math.Pow(DiameterInternal, 4.0)) / (64.0);
         }
 
         public double CalculateJt()
         {
-            return Math.PI * (Math.Pow(_d, 4.0) - Math.Pow(Dint, 4.0)) / (32.0);
+            return Math.PI * (Math.Pow(_d, 4.0) - Math.Pow(DiameterInternal, 4.0)) / (32.0);
         }
 
         public double CalculateJw()
@@ -113,12 +113,12 @@ namespace GPC.Model.Sections
 
         public double CalculateWel()
         {
-            return Math.PI * (Math.Pow(D, 4.0) - Math.Pow(Dint, 4.0)) / (32.0 * _d);
+            return Math.PI * (Math.Pow(Diameter, 4.0) - Math.Pow(DiameterInternal, 4.0)) / (32.0 * _d);
         }
 
         public double CalculateWpl()
         {
-            return (Math.Pow(D, 3.0) - Math.Pow(Dint, 3.0)) / (6.0);
+            return (Math.Pow(Diameter, 3.0) - Math.Pow(DiameterInternal, 3.0)) / (6.0);
         }
         
         #endregion
@@ -140,7 +140,7 @@ namespace GPC.Model.Sections
             Polygon2d hole =null;
             Polygon2d fill = new Polygon2d();
 
-            if (Math.Abs(Dint) > 1)
+            if (Math.Abs(DiameterInternal) > 1)
             {
                 hole = new Polygon2d();
             }       
@@ -151,7 +151,7 @@ namespace GPC.Model.Sections
 
                 if (hole != null)
                 {
-                    hole.Add(new Point2d(0.5 * Dint * Math.Cos(teta), 0.5 * Dint * Math.Sin(teta)));
+                    hole.Add(new Point2d(0.5 * DiameterInternal * Math.Cos(teta), 0.5 * DiameterInternal * Math.Sin(teta)));
                 }
             }
 

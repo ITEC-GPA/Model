@@ -27,7 +27,7 @@ namespace GPC.Model.Sections.Steel
 
         public double R => _r;
 
-        public double D => H - ThicknessBottomFlange - ThicknessTopFlange - 2 * R;
+        public double D => base.Height - ThicknessBottomFlange - ThicknessTopFlange - 2 * R;
 
         public bool IsRolled => Type == SectionTypes.Rolled;
 
@@ -37,7 +37,7 @@ namespace GPC.Model.Sections.Steel
 
         Material ISteelSection.Material => Material;
 
-        public double Height => H;
+        double ISteelSection.Height => Height;
 
         double ISteelSection.Area => Area;
 
