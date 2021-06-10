@@ -12,21 +12,21 @@ namespace GPC.Model.FEM.Materials
     public class OrthotropicFemMaterial : FemMaterial
     {
 
-        protected double _e1;
-        protected double _e2;
-        protected double _e3;
+        protected readonly double _e1;
+        protected readonly double _e2;
+        protected readonly double _e3;
 
-        protected double _ni12;
-        protected double _ni23;
-        protected double _ni31;
+        protected readonly double _ni12;
+        protected readonly double _ni23;
+        protected readonly double _ni31;
 
-        protected double _g12;
-        protected double _g23;
-        protected double _g31;
+        protected readonly double _g12;
+        protected readonly double _g23;
+        protected readonly double _g31;
 
-        protected double _alpha1;
-        protected double _alpha2;
-        protected double _alpha3;
+        protected readonly double _alpha1;
+        protected readonly double _alpha2;
+        protected readonly double _alpha3;
 
 
         public double E1 => _e1;
@@ -56,7 +56,7 @@ namespace GPC.Model.FEM.Materials
         /// <para>If <paramref name="g31"/> is zero, it will be setted to <see cref="FemOptions.ZeroShearModulus"/></para>  
         /// </remarks>
         /// <exception cref="ArgumentException"></exception>
-        internal OrthotropicFemMaterial(double e1, double e2, double e3, double ni12, double ni23, double ni31, double g12, double g23, double g31, double alpha1, double alpha2, double alpha3, double density)
+        public OrthotropicFemMaterial(double e1, double e2, double e3, double ni12, double ni23, double ni31, double g12, double g23, double g31, double alpha1, double alpha2, double alpha3, double density)
             : base(string.Empty, density)
         {
             _e1 = e1 < FemOptions.Instance.ZeroElasticModulus ? FemOptions.Instance.ZeroElasticModulus : e1;
@@ -75,11 +75,11 @@ namespace GPC.Model.FEM.Materials
             _alpha2 = alpha2 < 0 ? throw new ArgumentException($"Linear thermal expansion coefficient cannot be lower than zero") : alpha2;
             _alpha3 = alpha3 < 0 ? throw new ArgumentException($"Linear thermal expansion coefficient cannot be lower than zero") : alpha3;
 
-            _density = density < 0 ? throw new ArgumentException($"{nameof(density)} cannot be lower than zero") : density;
         }
 
 
-        internal OrthotropicFemMaterial(SerializationInfo info, StreamingContext context) : base(info, context)
+        public OrthotropicFemMaterial(SerializationInfo info, StreamingContext context) 
+            : base(info, context)
         {
             throw new NotImplementedException();
         }
