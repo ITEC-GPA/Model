@@ -198,13 +198,13 @@ namespace GPC.Model.FEM.FiniteElements
             _kLayer = GaussIntegration.IntegrationTriangular(fKLayer, jacob, 3);
             _kGlass = GaussIntegration.IntegrationTriangular(fKGlass, jacob, 3);
 
-            Console.WriteLine(_nodesLocal[0].Position);
+            /*Console.WriteLine(_nodesLocal[0].Position);
             Console.WriteLine(_nodesLocal[1].Position);
-            Console.WriteLine(_nodesLocal[2].Position);
+            Console.WriteLine(_nodesLocal[2].Position);*/
 
-            FEMUtilities.WriteMatrix("Bs(0,0)", GetBs(0, 0));
+            /*FEMUtilities.WriteMatrix("Bs(0,0)", GetBs(0, 0));
             FEMUtilities.WriteMatrix("Bs(1,0)", GetBs(1, 0));
-            FEMUtilities.WriteMatrix("Bs(0,1)", GetBs(0, 1));
+            FEMUtilities.WriteMatrix("Bs(0,1)", GetBs(0, 1));*/
 
             /*FEMUtilities.WriteMatrix("kLayer", _kLayer);
             FEMUtilities.WriteMatrix("kGlass", _kGlass);*/
@@ -443,7 +443,7 @@ namespace GPC.Model.FEM.FiniteElements
             var Bg = GetBg(csi, eta);
             var localDisplacement = _dofGlobalToLocal * mnl.Vector<double>.Build.DenseOfArray(globalDisplacementsNodes);
 
-            var localDisplacementReordered = mnl.Vector<double>.Build.Dense(20);
+            var localDisplacementReordered = mnl.Vector<double>.Build.Dense(3 * 5);
 
             for (int i = 0; i < _nodesLocal.Count(); i++)
             {
@@ -625,7 +625,7 @@ namespace GPC.Model.FEM.FiniteElements
 
             var localDisplacement = _dofGlobalToLocal * mnl.Vector<double>.Build.DenseOfArray(globalDisplacementsNodes);
 
-            var localDisplacementReordered = mnl.Vector<double>.Build.Dense(5*4);
+            var localDisplacementReordered = mnl.Vector<double>.Build.Dense(5*3);
 
             for (int i = 0; i < _nodesLocal.Count(); i++)
             {
@@ -805,10 +805,10 @@ namespace GPC.Model.FEM.FiniteElements
             mnl.Matrix<double> bs = mnl.Matrix<double>.Build.Dense(4, 5);
 
             bs[0, 0] = GetN(indexNode, 1)(csi, eta);
-            Console.WriteLine("N" + indexNode + "(" + csi + "," + eta + ")=" + GetN(indexNode, 1)(csi, eta));
+            //Console.WriteLine("N" + indexNode + "(" + csi + "," + eta + ")=" + GetN(indexNode, 1)(csi, eta));
 
             bs[1, 1] = GetN(indexNode, 2)(csi, eta);
-            Console.WriteLine("N" + indexNode + "(" + csi + "," + eta + ")=" + GetN(indexNode, 2)(csi, eta));
+            //Console.WriteLine("N" + indexNode + "(" + csi + "," + eta + ")=" + GetN(indexNode, 2)(csi, eta));
 
             int index1 = 0, index2 = 0, index3 = 0;
             switch (indexNode)

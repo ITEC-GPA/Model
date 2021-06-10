@@ -486,6 +486,11 @@ namespace FemTest.SolverTest
             els.Add(new Quad4TripleLaminatedGlassV2(new Node[] { nodes[110], nodes[111], nodes[121], nodes[120] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass));
             #endregion
 
+            foreach (Node n in els[1].Nodes)
+            {
+                Console.WriteLine("el 1: " + n.Position);
+            }
+
             CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
 
             PlatePressureAttribute p = new PlatePressureAttribute("lc", sys, 0, 0, -0.1);
@@ -529,7 +534,8 @@ namespace FemTest.SolverTest
 
             Assert.AreEqual(3.8197/180.0 * Math.PI, fem0.GetNodeDisplacementGlobalCoordinates(nodoAngolo, Solver.DOF.RY), 0.001); //come soluzione kirchoff
             Assert.AreEqual(0.034, fem0.GetNodeDisplacementGlobalCoordinates(nodoAngolo, Solver.DOF.RY) * hc, 0.001); //come soluzione kirchoff
-            
+            Assert.AreEqual(0.034, fem0.GetNodeDisplacementGlobalCoordinates(nodoAngolo, Solver.DOF.DDX), 0.001); //come soluzione kirchoff
+
             var element = els[56]; //elemento centrale
             foreach(Node n in element.Nodes)
             {
@@ -876,7 +882,7 @@ namespace FemTest.SolverTest
             }
             
             #region glass top
-            var stressTopGlassTopFaceNode1 = fem0.GetTLG2GlassStress(element, Quad4TripleLaminatedGlassV2.Glass.Top, Plate.Face.Top, 1);
+            var stressTopGlassTopFaceNode1 = fem0.GetQuad4TLG2GlassStress(element, Quad4TripleLaminatedGlassV2.Glass.Top, Plate.Face.Top, 1);
             Assert.AreEqual(1.0, 66.8659 / stressTopGlassTopFaceNode1[0,0], 0.11);
             Assert.AreEqual(1.0, 133.7741 / stressTopGlassTopFaceNode1[1,1], 0.06);
             //Assert.AreEqual(1.0, -2.724 / stressTopGlassTopFaceNode1[1,0], 0.01);
@@ -1106,19 +1112,19 @@ namespace FemTest.SolverTest
 
             #region glass top
             double sigma = M / W;
-            var stressTopGlassTopFaceNode1 = fem0.GetTLG2GlassStress(element, Quad4TripleLaminatedGlassV2.Glass.Top, Plate.Face.Top, 1);
+            var stressTopGlassTopFaceNode1 = fem0.GetQuad4TLG2GlassStress(element, Quad4TripleLaminatedGlassV2.Glass.Top, Plate.Face.Top, 1);
   
-            var stressTopGlassTopFaceNode2 = fem0.GetTLG2GlassStress(element, Quad4TripleLaminatedGlassV2.Glass.Top, Plate.Face.Top, 2);
+            var stressTopGlassTopFaceNode2 = fem0.GetQuad4TLG2GlassStress(element, Quad4TripleLaminatedGlassV2.Glass.Top, Plate.Face.Top, 2);
             Assert.AreEqual(1.0, sigma / stressTopGlassTopFaceNode2[0,0], 0.05);
 
-            var stressTopGlassTopFaceNode3 = fem0.GetTLG2GlassStress(element, Quad4TripleLaminatedGlassV2.Glass.Top, Plate.Face.Top, 3);
+            var stressTopGlassTopFaceNode3 = fem0.GetQuad4TLG2GlassStress(element, Quad4TripleLaminatedGlassV2.Glass.Top, Plate.Face.Top, 3);
             Assert.AreEqual(1.0, sigma / stressTopGlassTopFaceNode3[0,0], 0.05);
 
-            var stressTopGlassTopFaceNode4 = fem0.GetTLG2GlassStress(element, Quad4TripleLaminatedGlassV2.Glass.Top, Plate.Face.Top, 4);
+            var stressTopGlassTopFaceNode4 = fem0.GetQuad4TLG2GlassStress(element, Quad4TripleLaminatedGlassV2.Glass.Top, Plate.Face.Top, 4);
 
-            var bendingGlass = fem0.GetTLG2GlassBending(element, 2);
-            var forcesGlass = fem0.GetTLG2GlassForces(element, 2);
-            var bendingInterlayer = fem0.GetTLG2InterlayerBending(element, 2);
+            var bendingGlass = fem0.GetQuad4TLG2GlassBending(element, 2);
+            var forcesGlass = fem0.GetQuad4TLG2GlassForces(element, 2);
+            var bendingInterlayer = fem0.GetQuad4TLG2InterlayerBending(element, 2);
             var bending = bendingGlass[0,0] + forcesGlass[0,0] * (hGlass1/2.0 + hGlass2/2.0 + hInterlayer);
             Assert.AreEqual(1.0, (M/b) / bending, 0.051);
 
@@ -1128,10 +1134,10 @@ namespace FemTest.SolverTest
             {
                 Console.WriteLine(n.Position);
             }
-            bendingGlass = fem0.GetTLG2GlassBending(element, 1);
-            forcesGlass = fem0.GetTLG2GlassForces(element, 1);
-            bendingInterlayer = fem0.GetTLG2InterlayerBending(element, 1);
-            var stressInterlayerNode1 = fem0.GetTLG2InterlayerStress(element, 1);
+            bendingGlass = fem0.GetQuad4TLG2GlassBending(element, 1);
+            forcesGlass = fem0.GetQuad4TLG2GlassForces(element, 1);
+            bendingInterlayer = fem0.GetQuad4TLG2InterlayerBending(element, 1);
+            var stressInterlayerNode1 = fem0.GetQuad4TLG2InterlayerStress(element, 1);
             var tau = 1.5 * V / (b * h);
             FEMUtilities.WriteMatrix(stressInterlayerNode1);
             Console.WriteLine("theoric = " + tau);
@@ -1363,12 +1369,12 @@ namespace FemTest.SolverTest
 
             #region glass top
             double sigma = 108;
-            var stressTopGlassTopFaceNode2 = fem0.GetTLG2GlassStress(element, Quad4TripleLaminatedGlassV2.Glass.Top, Plate.Face.Top, 2);
+            var stressTopGlassTopFaceNode2 = fem0.GetQuad4TLG2GlassStress(element, Quad4TripleLaminatedGlassV2.Glass.Top, Plate.Face.Top, 2);
             Assert.AreEqual(1.0, sigma / stressTopGlassTopFaceNode2[0,0], 0.055);
 
-            var bendingGlass = fem0.GetTLG2GlassBending(element, 2);
-            var forcesGlass = fem0.GetTLG2GlassForces(element, 2);
-            var bendingInterlayer = fem0.GetTLG2InterlayerBending(element, 2);
+            var bendingGlass = fem0.GetQuad4TLG2GlassBending(element, 2);
+            var forcesGlass = fem0.GetQuad4TLG2GlassForces(element, 2);
+            var bendingInterlayer = fem0.GetQuad4TLG2InterlayerBending(element, 2);
             var bending = bendingGlass[0,0] + forcesGlass[0,0] * (hGlass1 / 2.0 + hGlass2 / 2.0 + hInterlayer);
             Assert.AreEqual(1.0, (M/b) / bending, 0.01);
 
@@ -1378,10 +1384,10 @@ namespace FemTest.SolverTest
             {
                 Console.WriteLine(n.Position);
             }
-            bendingGlass = fem0.GetTLG2GlassBending(element, 1);
-            forcesGlass = fem0.GetTLG2GlassForces(element, 1);
-            bendingInterlayer = fem0.GetTLG2InterlayerBending(element, 1); //TODO: significato fisico/ingegneristico?
-            var stressInterlayerNode1 = fem0.GetTLG2InterlayerStress(element, 1);
+            bendingGlass = fem0.GetQuad4TLG2GlassBending(element, 1);
+            forcesGlass = fem0.GetQuad4TLG2GlassForces(element, 1);
+            bendingInterlayer = fem0.GetQuad4TLG2InterlayerBending(element, 1); //TODO: significato fisico/ingegneristico?
+            var stressInterlayerNode1 = fem0.GetQuad4TLG2InterlayerStress(element, 1);
             double tau = 0.259;
             Assert.AreEqual(1.0, tau / stressInterlayerNode1[0,2], 0.055);
             #endregion
@@ -1681,12 +1687,12 @@ namespace FemTest.SolverTest
 
             var globalSys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
 
-            var stressLocal = fem0.GetTLG2GlassStress(element, Quad4TripleLaminatedGlassV2.Glass.Bottom, Plate.Face.Bottom, 1);
+            var stressLocal = fem0.GetQuad4TLG2GlassStress(element, Quad4TripleLaminatedGlassV2.Glass.Bottom, Plate.Face.Bottom, 1);
             Assert.AreEqual(1.0, -120.6195 / stressLocal[0, 0], 0.05);
             Assert.AreEqual(1.0, -18.0638 / stressLocal[1, 1], 0.35);
             Assert.AreEqual(1.0, 3.8605 / stressLocal[0, 1], 0.08);
 
-            var stressGlobal = fem0.GetTLG2GlassStress(element, Quad4TripleLaminatedGlassV2.Glass.Bottom, Plate.Face.Bottom, 1, globalSys);
+            var stressGlobal = fem0.GetQuad4TLG2GlassStress(element, Quad4TripleLaminatedGlassV2.Glass.Bottom, Plate.Face.Bottom, 1, globalSys);
             Assert.AreEqual(1.0, -73.2021 / stressGlobal[0, 0], 0.05);
             Assert.AreEqual(1.0, -65.4812 / stressGlobal[1, 1], 0.05);
             Assert.AreEqual(1.0, -51.2778 / stressGlobal[0, 1], 0.06);
@@ -1696,7 +1702,7 @@ namespace FemTest.SolverTest
         /// Cantilever along y
         /// </summary>
         [TestMethod]
-        public void Test2()
+        public void CantileverY()
         {
             #region nodes
             List<Node> nodes = new List<Node>();
@@ -1785,7 +1791,7 @@ namespace FemTest.SolverTest
         /// Cantilever along x
         /// </summary>
         [TestMethod]
-        public void Test3()
+        public void CantileverX()
         {
             #region Nodes
             List<Node> nodes = new List<Node>();
@@ -31643,7 +31649,6 @@ namespace FemTest.SolverTest
             Assert.AreEqual(0.000, femCenterBorder2[Solver.DOF.RY], 1e-3);
         }
 
-
         /// <summary>
         /// Batoz articolo - elemento unico
         /// </summary>
@@ -31725,8 +31730,8 @@ namespace FemTest.SolverTest
             double hc = 0.5;
             for (int i = 0; i < els.Count; i++)
             {
-                var mInternal = fem.GetTLG2GlassBending(els[i], 1, global);
-                var fInternal = fem.GetTLG2GlassForces(els[i], 1, global);
+                var mInternal = fem.GetQuad4TLG2GlassBending(els[i], 1, global);
+                var fInternal = fem.GetQuad4TLG2GlassForces(els[i], 1, global);
                 //M = f * hc + m
                 Assert.AreEqual(1.0, fInternal[0, 0] * hc + mInternal[0, 0], 0.02);
                 Assert.AreEqual(1.0, fInternal[1, 1] * hc + mInternal[1, 1], 0.02);
@@ -31826,8 +31831,8 @@ namespace FemTest.SolverTest
             double hc = (hGlass1 + hGlass2 + 2.0 * hInterlayer) / 2.0;
             for (int i = 0; i < els.Count; i++)
             {
-                var mInternal = fem.GetTLG2GlassBending(els[i], 1, global);
-                var fInternal = fem.GetTLG2GlassForces(els[i], 1, global);
+                var mInternal = fem.GetQuad4TLG2GlassBending(els[i], 1, global);
+                var fInternal = fem.GetQuad4TLG2GlassForces(els[i], 1, global);
                 //M = f * hc + m
                 Assert.AreEqual(1.0, fInternal[0, 0] * hc + mInternal[0, 0], 0.01);
                 Assert.AreEqual(1.0, fInternal[1, 1] * hc + mInternal[1, 1], 0.01);
@@ -32062,6 +32067,41 @@ namespace FemTest.SolverTest
             FEMUtilities.WriteMatrix("KGlass = ", els[0].KGlass);
             FEMUtilities.WriteMatrix("Klayer = ", els[0].KLayer, "F5");
             FEMUtilities.WriteMatrix("Ds = ", els[0].Ds);
+        }
+
+        /// <summary>
+        /// triangoli, Z positiva e Z negative. Diiferenze nei DDX e DDY
+        /// </summary>
+        [TestMethod]
+        public void ZAxisTest1()
+        {
+            List<Node> nodes = new List<Node>();
+            nodes.Add(new Node(0.0, 0.0, 0));
+            nodes.Add(new Node(1.0, 0.0, 0));
+            nodes.Add(new Node(1.0, 1.0, 0));
+            nodes.Add(new Node(0.0, 1.0, 0));
+
+            double hTot = 1.0; //Jtot = 1/12 * 1 * (h1^3 + h2^3) = 2/12 * 1 * (hi^3) 
+            double jTot = 1.0 / 12.0 * Math.Pow(hTot, 3.0);
+            double h1 = Math.Pow(6.0 * jTot, 1.0 / 3.0);
+            double h2 = Math.Pow(6.0 * jTot, 1.0 / 3.0);
+            double EGlass = 12.0;
+            double niGlass = 0.0;
+
+            double G0 = 3.0;
+            double h0 = 0.01;
+
+            PlateProperty p = new PlateProperty(new IsotropicFemMaterial(EGlass, niGlass, 0, 0), hTot, hTot, "");
+
+            List<FiniteElement> els = new List<FiniteElement>();
+            els.Add(new Quad4TripleLaminatedGlassV2(new Node[] { nodes[0], nodes[1], nodes[2], nodes[3] }, G0, h0, h1, h2, EGlass, niGlass));
+            els.Add(new Quad4TripleLaminatedGlassV2(new Node[] { nodes[0], nodes[3], nodes[2], nodes[1] }, G0, h0, h1, h2, EGlass, niGlass));
+
+            els[0].BuildMatrix();
+            els[1].BuildMatrix();
+
+            FEMUtilities.WriteMatrix(els[0].KElementGlobalCoord);
+            FEMUtilities.WriteMatrix(els[1].KElementGlobalCoord);
         }
     }
 }
