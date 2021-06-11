@@ -847,7 +847,7 @@ namespace GPC.Model.FEM
 
         /// <summary>
         /// 
-        /// </summary>
+        /// </summary> 
         /// <param name="shapes"></param>
         /// <param name="options"></param>
         /// <param name="platePropertyNames"></param>

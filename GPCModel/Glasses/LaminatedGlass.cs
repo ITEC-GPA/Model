@@ -140,9 +140,10 @@ namespace GPC.Model.Glasses
             return _monolithicGlasses.Select(i => i.Thickness * i.Material.Density).Sum() + _interlayers.Select(i => i.Thickness * i.Material.Density).Sum();
         }
 
-        public double GetTotalThickness()
+        /// <inheritdoc cref="IGlassPanel.GetDensity()"/>
+        public double GetDensity()
         {
-            return _monolithicGlasses.Select(i => i.Thickness).Sum() + _interlayers.Select(i => i.Thickness).Sum(); ;
+            return GetSelfWeightPerUnitArea() / TotalThickness;
         }
 
         #endregion 

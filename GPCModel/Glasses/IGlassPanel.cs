@@ -3,10 +3,8 @@ namespace GPC.Model.Glasses
 {
     public interface IGlassPanel
     {
-        double TotalThickness { get; }
-
         /// <returns>Total thickness of the glass package included interlayer</returns>
-        double GetTotalThickness();
+        double TotalThickness { get; }
 
         /// <returns>The mininum Elastic modulus of the glass panels</returns>
         double GetElasticModulus();
@@ -16,6 +14,10 @@ namespace GPC.Model.Glasses
 
         /// <returns>The self weight per unit area</returns>
         double GetSelfWeightPerUnitArea();
+
+        /// <returns>The equivalent density</returns>
+        double GetDensity();
+
 
         IGlassPackage[] GetGlassPackage();
     }

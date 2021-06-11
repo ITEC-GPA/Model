@@ -99,9 +99,10 @@ namespace GPC.Model.Glasses
             return _thickness * _material.Density;
         }
 
-        public double GetTotalThickness()
+        /// <inheritdoc cref="IGlassPanel.GetDensity()"/>
+        public double GetDensity()
         {
-            return _thickness;
+            return _material.Density;
         }
 
         #region Equals - HashCode - Operators
