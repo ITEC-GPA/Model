@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using GPC.Geometry;
 using GPC.Model.FEM.Attributes;
 using GPC.Model.FEM.Materials;
@@ -41,6 +42,17 @@ namespace GPC.Model.FEM.FiniteElements
         double _y42;
 
         Node[] _localNodes;
+
+        double _l12;
+        double _l23;
+        double _l34;
+        double _l41;
+
+        Dictionary<int, double> _aCoeff;
+        Dictionary<int, double> _bCoeff;
+        Dictionary<int, double> _cCoeff;
+        Dictionary<int, double> _dCoeff;
+        Dictionary<int, double> _eCoeff;
         #endregion
 
         public Quad4DK(Node[] nodes) : base(nodes)
@@ -105,10 +117,7 @@ namespace GPC.Model.FEM.FiniteElements
             Console.WriteLine();
             */
             #endregion
-        }
 
-        public override void BuildMatrix()
-        {
             //set local coordinate system
             _localNodes = Quad4Element.GetLocalNodes(_nodesGlobal, out _localCoordinateSystem);
             Node node1 = _localNodes[0];
@@ -118,28 +127,67 @@ namespace GPC.Model.FEM.FiniteElements
 
             _x12 = node1.Position.X - node2.Position.X;
             _y12 = node1.Position.Y - node2.Position.Y;
-            
+
             _x21 = node2.Position.X - node1.Position.X;
             _y21 = node2.Position.Y - node1.Position.Y;
 
             _x23 = node2.Position.X - node3.Position.X;
             _y23 = node2.Position.Y - node3.Position.Y;
-            
+
             _x34 = node3.Position.X - node4.Position.X;
             _y34 = node3.Position.Y - node4.Position.Y;
-            
+
             _x32 = node3.Position.X - node2.Position.X;
             _y32 = node3.Position.Y - node2.Position.Y;
 
             _x41 = node4.Position.X - node1.Position.X;
             _y41 = node4.Position.Y - node1.Position.Y;
-           
+
             _x31 = node3.Position.X - node1.Position.X;
             _y31 = node3.Position.Y - node1.Position.Y;
 
             _x42 = node4.Position.X - node2.Position.X;
             _y42 = node4.Position.Y - node2.Position.Y;
 
+            _l12 = Math.Sqrt(_x12 * _x12 + _y12 * _y12);
+            _l23 = Math.Sqrt(_x23 * _x23 + _y23 * _y23);
+            _l34 = Math.Sqrt(_x34 * _x34 + _y34 * _y34);
+            _l41 = Math.Sqrt(_x41 * _x41 + _y41 * _y41);
+
+            _aCoeff = new Dictionary<int, double>();
+            _bCoeff = new Dictionary<int, double>();
+            _cCoeff = new Dictionary<int, double>();
+            _dCoeff = new Dictionary<int, double>();
+            _eCoeff = new Dictionary<int, double>();
+
+            _aCoeff.Add(5, -_x12 / Math.Pow(_l12, 2.0));
+            _aCoeff.Add(6, -_x23 / Math.Pow(_l23, 2.0));
+            _aCoeff.Add(7, -_x34 / Math.Pow(_l34, 2.0));
+            _aCoeff.Add(8, -_x41 / Math.Pow(_l41, 2.0));
+
+            _bCoeff.Add(5, 3.0 / 4.0 * _x12 * _y12 / Math.Pow(_l12, 2.0));
+            _bCoeff.Add(6, 3.0 / 4.0 * _x23 * _y23 / Math.Pow(_l23, 2.0));
+            _bCoeff.Add(7, 3.0 / 4.0 * _x34 * _y34 / Math.Pow(_l34, 2.0));
+            _bCoeff.Add(8, 3.0 / 4.0 * _x41 * _y41 / Math.Pow(_l41, 2.0));
+
+            _cCoeff.Add(5, (1.0 / 4.0 * Math.Pow(_x12, 2.0) - 1.0 / 2.0 * Math.Pow(_y12, 2.0)) / Math.Pow(_l12, 2.0));
+            _cCoeff.Add(6, (1.0 / 4.0 * Math.Pow(_x23, 2.0) - 1.0 / 2.0 * Math.Pow(_y23, 2.0)) / Math.Pow(_l23, 2.0));
+            _cCoeff.Add(7, (1.0 / 4.0 * Math.Pow(_x34, 2.0) - 1.0 / 2.0 * Math.Pow(_y34, 2.0)) / Math.Pow(_l34, 2.0));
+            _cCoeff.Add(8, (1.0 / 4.0 * Math.Pow(_x41, 2.0) - 1.0 / 2.0 * Math.Pow(_y41, 2.0)) / Math.Pow(_l41, 2.0));
+
+            _dCoeff.Add(5, -_y12 / Math.Pow(_l12, 2.0));
+            _dCoeff.Add(6, -_y23 / Math.Pow(_l23, 2.0));
+            _dCoeff.Add(7, -_y34 / Math.Pow(_l34, 2.0));
+            _dCoeff.Add(8, -_y41 / Math.Pow(_l41, 2.0));
+
+            _eCoeff.Add(5, (-1.0 / 2.0 * Math.Pow(_x12, 2.0) + 1.0 / 4.0 * Math.Pow(_y12, 2.0)) / Math.Pow(_l12, 2.0));
+            _eCoeff.Add(6, (-1.0 / 2.0 * Math.Pow(_x23, 2.0) + 1.0 / 4.0 * Math.Pow(_y23, 2.0)) / Math.Pow(_l23, 2.0));
+            _eCoeff.Add(7, (-1.0 / 2.0 * Math.Pow(_x34, 2.0) + 1.0 / 4.0 * Math.Pow(_y34, 2.0)) / Math.Pow(_l34, 2.0));
+            _eCoeff.Add(8, (-1.0 / 2.0 * Math.Pow(_x41, 2.0) + 1.0 / 4.0 * Math.Pow(_y41, 2.0)) / Math.Pow(_l41, 2.0));
+        }
+
+        public override void BuildMatrix()
+        {
             //calculation of matrix for transformation from Local to Global coordinates
             #region TransformationMatrixLocalCoordinatesToGlobalCoordinates
             mnl.Matrix<double> dofGlobalToLocalTranspose = mnl.Matrix<double>.Build.Dense(24, 12);
@@ -234,8 +282,8 @@ namespace GPC.Model.FEM.FiniteElements
             #endregion
 
             #region matrixD
-            double E = ((IsotropicFemMaterial)((PlateProperty)_property).Material).E;
-            double ni = ((IsotropicFemMaterial)((PlateProperty)_property).Material).Ni;
+            /*double E = ((IsotropicFemMaterial)((PlateProperty)_property).Material).E;
+            double ni = ((IsotropicFemMaterial)((PlateProperty)_property).Material).Ni;*/
             double tb = ((PlateProperty)_property).BendingThickness;
             
             _d = (_property as PlateProperty).Material.GetPlaneStress();
@@ -253,8 +301,12 @@ namespace GPC.Model.FEM.FiniteElements
                 double csi = gaussPoints[i].Point.X;
                 double eta = gaussPoints[i].Point.Y;
                 mnl.Matrix<double> b = GetB(csi, eta);
-                //Console.WriteLine("b(csi="+csi+",eta="+eta+")" + b);
+
+                /*FEMUtilities.WriteMatrix("b(csi="+csi+",eta="+eta+")", b, "F3");
                 Console.WriteLine("detJ("+csi.ToString("F2")+","+eta.ToString("F2")+")="+ getDetJ(csi, eta));
+                Console.WriteLine();
+                Console.WriteLine();*/
+
                 mnl.Matrix<double> m = gaussPoints[i].Weight * b.Transpose() * _d * b * getDetJ(csi, eta);
                 _kElementLocalCoord = _kElementLocalCoord + m;
                 
@@ -332,19 +384,32 @@ namespace GPC.Model.FEM.FiniteElements
             return _fLocalCoord;
         }
 
-        public override mnl.Matrix<double> GetB(double csi, double eta)
+        public mnl.Matrix<double> GetInvJacobian(double csi, double eta)
         {
-            double l12 = Math.Sqrt(_x12 * _x12 + _y12 * _y12);
-            double l23 = Math.Sqrt(_x23 * _x23 + _y23 * _y23);
-            double l34 = Math.Sqrt(_x34 * _x34 + _y34 * _y34);
-            double l41 = Math.Sqrt(_x41 * _x41 + _y41 * _y41);
-
             double detJ = getDetJ(csi, eta);
 
             double j11 = 1.0 / detJ * 1.0 / 4.0 * (_y32 + _y41 + csi * (_y12 + _y34));
             double j12 = -1.0 / detJ * 1.0 / 4.0 * (_y21 + _y34 + eta * (_y12 + _y34)); //to be inverted?
             double j21 = -1.0 / detJ * 1.0 / 4.0 * (_x32 + _x41 + csi * (_x12 + _x34)); //to be inverted?
             double j22 = 1.0 / detJ * 1.0 / 4.0 * (_x21 + _x34 + eta * (_x12 + _x34));
+
+            mnl.Matrix<double> invJacob = mnl.Matrix<double>.Build.Dense(2, 2);
+            invJacob[0, 0] = j11;
+            invJacob[0, 1] = j12;
+            invJacob[1, 0] = j21;
+            invJacob[1, 1] = j22;
+
+            return invJacob;
+        }
+
+        public override mnl.Matrix<double> GetB(double csi, double eta)
+        {
+            var invJacob = GetInvJacobian(csi, eta);
+
+            double j11 = invJacob[0, 0];
+            double j12 = invJacob[0, 1];
+            double j21 = invJacob[1, 0];
+            double j22 = invJacob[1, 1];
 
             /*Console.WriteLine("j11 = " + j11);
             Console.WriteLine("j12 = " + j12);
@@ -356,30 +421,30 @@ namespace GPC.Model.FEM.FiniteElements
             mnl.Vector<double> hxEta = mnl.Vector<double>.Build.Dense(12, 1);
             mnl.Vector<double> hyEta = mnl.Vector<double>.Build.Dense(12, 1);
 
-            double a5 = - _x12 / Math.Pow(l12, 2.0);
-            double a6 = - _x23 / Math.Pow(l23, 2.0);
-            double a7 = - _x34 / Math.Pow(l34, 2.0);
-            double a8 = - _x41 / Math.Pow(l41, 2.0);
+            double a5 = - _x12 / Math.Pow(_l12, 2.0);
+            double a6 = - _x23 / Math.Pow(_l23, 2.0);
+            double a7 = - _x34 / Math.Pow(_l34, 2.0);
+            double a8 = - _x41 / Math.Pow(_l41, 2.0);
 
-            double b5 = 3.0 / 4.0 * _x12 * _y12 / Math.Pow(l12, 2.0);
-            double b6 = 3.0 / 4.0 * _x23 * _y23 / Math.Pow(l23, 2.0);
-            double b7 = 3.0 / 4.0 * _x34 * _y34 / Math.Pow(l34, 2.0);
-            double b8 = 3.0 / 4.0 * _x41 * _y41 / Math.Pow(l41, 2.0);
+            double b5 = 3.0 / 4.0 * _x12 * _y12 / Math.Pow(_l12, 2.0);
+            double b6 = 3.0 / 4.0 * _x23 * _y23 / Math.Pow(_l23, 2.0);
+            double b7 = 3.0 / 4.0 * _x34 * _y34 / Math.Pow(_l34, 2.0);
+            double b8 = 3.0 / 4.0 * _x41 * _y41 / Math.Pow(_l41, 2.0);
 
-            double c5 = (1.0 / 4.0 * Math.Pow(_x12, 2.0) - 1.0 / 2.0 * Math.Pow(_y12, 2.0)) / Math.Pow(l12, 2.0);
-            double c6 = (1.0 / 4.0 * Math.Pow(_x23, 2.0) - 1.0 / 2.0 * Math.Pow(_y23, 2.0)) / Math.Pow(l23, 2.0);
-            double c7 = (1.0 / 4.0 * Math.Pow(_x34, 2.0) - 1.0 / 2.0 * Math.Pow(_y34, 2.0)) / Math.Pow(l34, 2.0);
-            double c8 = (1.0 / 4.0 * Math.Pow(_x41, 2.0) - 1.0 / 2.0 * Math.Pow(_y41, 2.0)) / Math.Pow(l41, 2.0);
+            double c5 = (1.0 / 4.0 * Math.Pow(_x12, 2.0) - 1.0 / 2.0 * Math.Pow(_y12, 2.0)) / Math.Pow(_l12, 2.0);
+            double c6 = (1.0 / 4.0 * Math.Pow(_x23, 2.0) - 1.0 / 2.0 * Math.Pow(_y23, 2.0)) / Math.Pow(_l23, 2.0);
+            double c7 = (1.0 / 4.0 * Math.Pow(_x34, 2.0) - 1.0 / 2.0 * Math.Pow(_y34, 2.0)) / Math.Pow(_l34, 2.0);
+            double c8 = (1.0 / 4.0 * Math.Pow(_x41, 2.0) - 1.0 / 2.0 * Math.Pow(_y41, 2.0)) / Math.Pow(_l41, 2.0);
 
-            double d5 = -_y12 / Math.Pow(l12, 2.0);
-            double d6 = -_y23 / Math.Pow(l23, 2.0);
-            double d7 = -_y34 / Math.Pow(l34, 2.0);
-            double d8 = -_y41 / Math.Pow(l41, 2.0);
+            double d5 = -_y12 / Math.Pow(_l12, 2.0);
+            double d6 = -_y23 / Math.Pow(_l23, 2.0);
+            double d7 = -_y34 / Math.Pow(_l34, 2.0);
+            double d8 = -_y41 / Math.Pow(_l41, 2.0);
 
-            double e5 = (-1.0 / 2.0 * Math.Pow(_x12, 2.0) + 1.0 / 4.0 * Math.Pow(_y12, 2.0)) / Math.Pow(l12, 2.0);
-            double e6 = (-1.0 / 2.0 * Math.Pow(_x23, 2.0) + 1.0 / 4.0 * Math.Pow(_y23, 2.0)) / Math.Pow(l23, 2.0);
-            double e7 = (-1.0 / 2.0 * Math.Pow(_x34, 2.0) + 1.0 / 4.0 * Math.Pow(_y34, 2.0)) / Math.Pow(l34, 2.0);
-            double e8 = (-1.0 / 2.0 * Math.Pow(_x41, 2.0) + 1.0 / 4.0 * Math.Pow(_y41, 2.0)) / Math.Pow(l41, 2.0);
+            double e5 = (-1.0 / 2.0 * Math.Pow(_x12, 2.0) + 1.0 / 4.0 * Math.Pow(_y12, 2.0)) / Math.Pow(_l12, 2.0);
+            double e6 = (-1.0 / 2.0 * Math.Pow(_x23, 2.0) + 1.0 / 4.0 * Math.Pow(_y23, 2.0)) / Math.Pow(_l23, 2.0);
+            double e7 = (-1.0 / 2.0 * Math.Pow(_x34, 2.0) + 1.0 / 4.0 * Math.Pow(_y34, 2.0)) / Math.Pow(_l34, 2.0);
+            double e8 = (-1.0 / 2.0 * Math.Pow(_x41, 2.0) + 1.0 / 4.0 * Math.Pow(_y41, 2.0)) / Math.Pow(_l41, 2.0);
 
             #region DebugCoefficient
             /*
@@ -516,7 +581,7 @@ namespace GPC.Model.FEM.FiniteElements
             return b;
         }
 
-        private double getDetJ(double csi, double eta)
+        public double getDetJ(double csi, double eta)
         {
             return 1.0 / 8.0 * (_y42 * _x31 - _y31 * _x42) + csi / 8.0 * (_y34 * _x21 - _y21 * _x34) + eta / 8.0 * (_y41 * _x32 - _y32 * _x41);
         }
@@ -526,6 +591,224 @@ namespace GPC.Model.FEM.FiniteElements
         {
             //TODO: "aggiornare";
             throw new NotImplementedException();
+        }
+
+        /// <summary>
+        /// Descrition between eq. 11 and 12 of the article
+        /// </summary>
+        /// <param name="indexes1"></param>
+        /// <param name="indexes2"></param>
+        /// <param name="indexes3"></param>
+        private void GetIndexes(out int[] indexes1, out int[] indexes2, out int[] indexes3)
+        {
+            indexes1 = new int[4];
+            indexes1[0] = 1;
+            indexes1[1] = 2;
+            indexes1[2] = 3;
+            indexes1[3] = 4;
+
+            indexes2 = new int[4];
+            indexes2[0] = 8;
+            indexes2[1] = 5;
+            indexes2[2] = 6;
+            indexes2[3] = 7;
+
+            indexes3 = new int[4];
+            indexes3[0] = 5;
+            indexes3[1] = 6;
+            indexes3[2] = 7;
+            indexes3[3] = 8;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="indexFunction"></param>
+        /// <param name="dir">x or y</param>
+        /// <param name="deriv">null for shaper function; csi or eta for dH(dir)dCsi or dH(dir)dy</param>
+        /// <returns></returns>
+        internal Func<double, double, double> GetFunction(int indexFunction, string dir, string deriv = "")
+        {
+            GetIndexes(out int[] indexes1, out int[] indexes2, out int[] indexes3);
+
+            Func<double, double, double> F(int i)
+            {
+                if (deriv == "")
+                {
+                    return (double csi, double eta) => QuadraticShapeFunctionQuad8.NaturalShapeFunction(i, csi, eta);
+                } else if (deriv == "csi")
+                {
+                    return (double csi, double eta) => QuadraticShapeFunctionQuad8.DNdCsi(i, csi, eta);
+                } else if (deriv == "eta")
+                {
+                    return (double csi, double eta) => QuadraticShapeFunctionQuad8.DNdEta(i, csi, eta);
+                } else
+                {
+                    throw new ArgumentOutOfRangeException();
+                }
+            }
+
+            #region Hx
+            Func<double, double, double> H1x(int ind2, int ind3)
+            {
+                return (double csi, double eta) => 3.0 / 2.0 * (_aCoeff[ind3] * F(ind3)(csi, eta) - _aCoeff[ind2] * F(ind2)(csi, eta)); //H1x
+            }
+            Func<double, double, double> H2x(int ind2, int ind3)
+            {
+                return (double csi, double eta) => _bCoeff[ind3] * F(ind3)(csi, eta) + _bCoeff[ind2] * F(ind2)(csi, eta); //H2x
+            }
+            Func<double, double, double> H3x(int ind1, int ind2, int ind3)
+            {
+                return (double csi, double eta) => F(ind1)(csi, eta) - _cCoeff[ind3] * F(ind3)(csi, eta) - _cCoeff[ind2] * F(ind2)(csi, eta); //H3x
+            }
+            #endregion
+
+            #region Hy
+            Func<double, double, double> H1y(int ind2, int ind3)
+            {
+                return (double csi, double eta) => 3.0 / 2.0 * (_dCoeff[ind3] * F(ind3)(csi, eta) - _dCoeff[ind2] * F(ind2)(csi, eta)); //H1y
+            }
+            Func<double, double, double> H2y(int ind1, int ind2, int ind3)
+            {
+                return (double csi, double eta) => -F(ind1)(csi, eta) + _eCoeff[ind3] * F(ind3)(csi, eta) + _eCoeff[ind2] * F(ind2)(csi, eta); //H3x
+            }
+            Func<double, double, double> H3y(int ind2, int ind3)
+            {
+                return (double csi, double eta) => -_bCoeff[ind3] * F(ind3)(csi, eta) - _bCoeff[ind2] * F(ind2)(csi, eta); //H2x
+            }
+            #endregion
+
+            int index1;
+            int index2;
+            int index3;
+            switch (dir)
+            {
+                case "x":
+                    switch (indexFunction)
+                    {
+                        case 1:
+                            index2 = indexes2[0];
+                            index3 = indexes3[0];
+                            return H1x(index2, index3);
+                        case 2:
+                            index2 = indexes2[0];
+                            index3 = indexes3[0];
+                            return H2x(index2, index3);
+                        case 3:
+                            index1 = indexes1[0];
+                            index2 = indexes2[0];
+                            index3 = indexes3[0];
+                            return H3x(index1, index2, index3);
+
+                        case 4:
+                            index2 = indexes2[1];
+                            index3 = indexes3[1];
+                            return H1x(index2, index3);
+                        case 5:
+                            index2 = indexes2[1];
+                            index3 = indexes3[1];
+                            return H2x(index2, index3);
+                        case 6:
+                            index1 = indexes1[1];
+                            index2 = indexes2[1];
+                            index3 = indexes3[1];
+                            return H3x(index1, index2, index3);  
+
+                        case 7:
+                            index2 = indexes2[2];
+                            index3 = indexes3[2];
+                            return H1x(index2, index3);
+                        case 8:
+                            index2 = indexes2[2];
+                            index3 = indexes3[2];
+                            return H2x(index2, index3);
+                        case 9:
+                            index1 = indexes1[2];
+                            index2 = indexes2[2];
+                            index3 = indexes3[2];
+                            return H3x(index1, index2, index3);
+
+                        case 10:
+                            index2 = indexes2[3];
+                            index3 = indexes3[3];
+                            return H1x(index2, index3);
+                        case 11:
+                            index2 = indexes2[3];
+                            index3 = indexes3[3];
+                            return H2x(index2, index3);
+                        case 12:
+                            index1 = indexes1[3];
+                            index2 = indexes2[3];
+                            index3 = indexes3[3];
+                            return H3x(index1, index2, index3);
+                        default:
+                            throw new ArgumentOutOfRangeException();
+                    }
+                case "y":
+                    switch (indexFunction)
+                    {
+                        case 1:
+                            index2 = indexes2[0];
+                            index3 = indexes3[0];
+                            return H1y(index2, index3);
+                        case 2:
+                            index1 = indexes1[0];
+                            index2 = indexes2[0];
+                            index3 = indexes3[0];
+                            return H2y(index1, index2, index3);
+                        case 3:
+                            
+                            index2 = indexes2[0];
+                            index3 = indexes3[0];
+                            return H3y(index2, index3);
+
+                        case 4:
+                            index2 = indexes2[1];
+                            index3 = indexes3[1];
+                            return H1y(index2, index3);
+                        case 5:
+                            index1 = indexes1[1];
+                            index2 = indexes2[1];
+                            index3 = indexes3[1];
+                            return H2y(index1, index2, index3);
+                        case 6:
+                            index2 = indexes2[1];
+                            index3 = indexes3[1];
+                            return H3y(index2, index3);
+
+                        case 7:
+                            index2 = indexes2[2];
+                            index3 = indexes3[2];
+                            return H1y(index2, index3);
+                        case 8:
+                            index1 = indexes1[2];
+                            index2 = indexes2[2];
+                            index3 = indexes3[2];
+                            return H2y(index1, index2, index3);
+                        case 9:
+                            index2 = indexes2[2];
+                            index3 = indexes3[2];
+                            return H3y(index2, index3);
+
+                        case 10:
+                            index2 = indexes2[3];
+                            index3 = indexes3[3];
+                            return H1y(index2, index3);
+                        case 11:
+                            index1 = indexes1[3];
+                            index2 = indexes2[3];
+                            index3 = indexes3[3];
+                            return H2y(index1, index2, index3);
+                        case 12:                            
+                            index2 = indexes2[3];
+                            index3 = indexes3[3];
+                            return H3y(index2, index3);
+                        default:
+                            throw new ArgumentOutOfRangeException();
+                    }
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
         }
     }
 }
