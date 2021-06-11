@@ -505,14 +505,7 @@ namespace FemTest.SolverTest
             NodeRestrainAttribute fix = new NodeRestrainAttribute("freedomCase", sys);
             fix.AddExternalRestrain(Solver.DOF.DX);
             fix.AddExternalRestrain(Solver.DOF.DY);
-            //fix.AddExternalRestrain(Solver.DOF.DZ);
-
-            //fix.AddExternalRestrain(Solver.DOF.RX);
-            //fix.AddExternalRestrain(Solver.DOF.RY);
             fix.AddExternalRestrain(Solver.DOF.RZ);
-
-            //fix.AddExternalRestrain(Solver.DOF.DDX);
-            //fix.AddExternalRestrain(Solver.DOF.DDY);
             fix.AddExternalRestrain(Solver.DOF.DDZ);
 
             nodes.ForEach(n => n.AddAttribute(fix));
@@ -1341,14 +1334,7 @@ namespace FemTest.SolverTest
             NodeRestrainAttribute fix = new NodeRestrainAttribute("freedomCase", sys);
             fix.AddExternalRestrain(Solver.DOF.DX);
             fix.AddExternalRestrain(Solver.DOF.DY);
-            //fix.AddExternalRestrain(Solver.DOF.DZ);
-
-            //fix.AddExternalRestrain(Solver.DOF.RX);
-            //fix.AddExternalRestrain(Solver.DOF.RY);
             fix.AddExternalRestrain(Solver.DOF.RZ);
-
-            //fix.AddExternalRestrain(Solver.DOF.DDX);
-            //fix.AddExternalRestrain(Solver.DOF.DDY);
             fix.AddExternalRestrain(Solver.DOF.DDZ);
 
             nodes.ForEach(x => x.AddAttribute(fix));
@@ -1358,7 +1344,7 @@ namespace FemTest.SolverTest
             var dzTLG = fem0.GetNodeDisplacementGlobalCoordinates(nodes[63], Solver.DOF.DZ);
             var spost = 3.70;
             Console.WriteLine("displ = " + dzTLG + " vs " + spost);
-                Assert.AreEqual(1.0 , spost / dzTLG, 0.05); //Come soluzione kirchoff
+            Assert.AreEqual(1.0 , spost / dzTLG, 0.05); //Come soluzione kirchoff
 
             var element = els[29]; //elemento
             Console.WriteLine("Plate 30:");
@@ -32070,7 +32056,8 @@ namespace FemTest.SolverTest
         }
 
         /// <summary>
-        /// triangoli, Z positiva e Z negative. Diiferenze nei DDX e DDY
+        /// Z positiva e Z negative. Diiferenze nei DDX e DDY
+        /// OK per differenza di segno in DDX e DDY
         /// </summary>
         [TestMethod]
         public void ZAxisTest1()
@@ -32081,27 +32068,119 @@ namespace FemTest.SolverTest
             nodes.Add(new Node(1.0, 1.0, 0));
             nodes.Add(new Node(0.0, 1.0, 0));
 
-            double hTot = 1.0; //Jtot = 1/12 * 1 * (h1^3 + h2^3) = 2/12 * 1 * (hi^3) 
-            double jTot = 1.0 / 12.0 * Math.Pow(hTot, 3.0);
-            double h1 = Math.Pow(6.0 * jTot, 1.0 / 3.0);
-            double h2 = Math.Pow(6.0 * jTot, 1.0 / 3.0);
+            double h1 = 0.5;
+            double h2 = 0.5;
             double EGlass = 12.0;
             double niGlass = 0.0;
 
-            double G0 = 3.0;
+            double G0 = EGlass / (2.0 * (1.0 + niGlass));
             double h0 = 0.01;
 
-            PlateProperty p = new PlateProperty(new IsotropicFemMaterial(EGlass, niGlass, 0, 0), hTot, hTot, "");
+            PlateProperty p = new PlateProperty(new IsotropicFemMaterial(EGlass, niGlass, 0, 0), h1+h2+h0, h1+h2+h0, "");
 
+            CoordinateSystem sys = new CoordinateSystem(new Point3d(0,0,0), new Point3d(1,0,0), new Point3d(0,1,0));
+            NodeForceAttribute f = new NodeForceAttribute("lc", sys, 0, 0, 1, 0, 0, 0);
+
+            nodes[1].AddAttribute(f);
+            nodes[2].AddAttribute(f);
+
+            NodeRestrainAttribute fix = new NodeRestrainAttribute("fc",sys);
+            fix.AddExternalRestrain(Solver.DOF.DX);
+            fix.AddExternalRestrain(Solver.DOF.DY);
+            fix.AddExternalRestrain(Solver.DOF.DZ);
+            fix.AddExternalRestrain(Solver.DOF.RX);
+            fix.AddExternalRestrain(Solver.DOF.RY);
+            fix.AddExternalRestrain(Solver.DOF.RZ);
+            fix.AddExternalRestrain(Solver.DOF.DDX);
+            fix.AddExternalRestrain(Solver.DOF.DDY);
+            fix.AddExternalRestrain(Solver.DOF.DDZ);
+
+            nodes[0].AddAttribute(fix);
+            nodes[3].AddAttribute(fix);
+
+            NodeRestrainAttribute fix2 = new NodeRestrainAttribute("fc", sys);
+            fix2.AddExternalRestrain(Solver.DOF.DX);
+            fix2.AddExternalRestrain(Solver.DOF.DY);
+            fix2.AddExternalRestrain(Solver.DOF.RZ);
+            fix2.AddExternalRestrain(Solver.DOF.DDZ);
+
+            nodes.ForEach(x => x.AddAttribute(fix2));
+
+            #region +Z
             List<FiniteElement> els = new List<FiniteElement>();
             els.Add(new Quad4TripleLaminatedGlassV2(new Node[] { nodes[0], nodes[1], nodes[2], nodes[3] }, G0, h0, h1, h2, EGlass, niGlass));
-            els.Add(new Quad4TripleLaminatedGlassV2(new Node[] { nodes[0], nodes[3], nodes[2], nodes[1] }, G0, h0, h1, h2, EGlass, niGlass));
+            LinearSolver fem1 = new LinearSolver(els.ToArray());
 
-            els[0].BuildMatrix();
-            els[1].BuildMatrix();
+            List<FiniteElement> els2 = new List<FiniteElement>();
+            els2.Add(new Quad4TripleLaminatedGlassV2(new Node[] { nodes[1], nodes[2], nodes[3], nodes[0] }, G0, h0, h1, h2, EGlass, niGlass));
+            LinearSolver fem2 = new LinearSolver(els2.ToArray());
 
-            FEMUtilities.WriteMatrix(els[0].KElementGlobalCoord);
-            FEMUtilities.WriteMatrix(els[1].KElementGlobalCoord);
+            List<FiniteElement> els3 = new List<FiniteElement>();
+            els3.Add(new Quad4TripleLaminatedGlassV2(new Node[] { nodes[2], nodes[3], nodes[0], nodes[1] }, G0, h0, h1, h2, EGlass, niGlass));
+            LinearSolver fem3 = new LinearSolver(els3.ToArray());
+
+            List<FiniteElement> els4 = new List<FiniteElement>();
+            els4.Add(new Quad4TripleLaminatedGlassV2(new Node[] { nodes[3], nodes[0], nodes[1], nodes[2] }, G0, h0, h1, h2, EGlass, niGlass));
+            LinearSolver fem4 = new LinearSolver(els3.ToArray());
+
+            for (int i = 0; i < nodes.Count; i++)
+            {
+                var dFem1 = fem1.GetNodeDisplacementGlobalCoordinates(nodes[i]);
+                var dFem2 = fem2.GetNodeDisplacementGlobalCoordinates(nodes[i]);
+                var dFem3 = fem3.GetNodeDisplacementGlobalCoordinates(nodes[i]);
+                var dFem4 = fem4.GetNodeDisplacementGlobalCoordinates(nodes[i]);
+
+                Assert.AreEqual(dFem1[Solver.DOF.DDX], dFem2[Solver.DOF.DDX], 1e-4);
+                Assert.AreEqual(dFem2[Solver.DOF.DDX], dFem3[Solver.DOF.DDX], 1e-4);
+                Assert.AreEqual(dFem3[Solver.DOF.DDX], dFem4[Solver.DOF.DDX], 1e-4);
+
+                Assert.AreEqual(dFem1[Solver.DOF.DZ], dFem2[Solver.DOF.DZ], 1e-4);
+                Assert.AreEqual(dFem2[Solver.DOF.DZ], dFem3[Solver.DOF.DZ], 1e-4);
+                Assert.AreEqual(dFem3[Solver.DOF.DZ], dFem4[Solver.DOF.DZ], 1e-4);
+
+                Assert.AreEqual(dFem1[Solver.DOF.RY], dFem2[Solver.DOF.RY], 1e-4);
+                Assert.AreEqual(dFem2[Solver.DOF.RY], dFem3[Solver.DOF.RY], 1e-4);
+                Assert.AreEqual(dFem3[Solver.DOF.RY], dFem4[Solver.DOF.RY], 1e-4);
+            }
+            #endregion
+
+            #region -Z
+            List<FiniteElement> els5 = new List<FiniteElement>();
+            els5.Add(new Quad4TripleLaminatedGlassV2(new Node[] { nodes[0], nodes[3], nodes[2], nodes[1] }, G0, h0, h1, h2, EGlass, niGlass));
+            LinearSolver fem5 = new LinearSolver(els5.ToArray());
+
+            List<FiniteElement> els6 = new List<FiniteElement>();
+            els6.Add(new Quad4TripleLaminatedGlassV2(new Node[] { nodes[3], nodes[2], nodes[1], nodes[0] }, G0, h0, h1, h2, EGlass, niGlass));
+            LinearSolver fem6 = new LinearSolver(els6.ToArray());
+
+            List<FiniteElement> els7 = new List<FiniteElement>();
+            els7.Add(new Quad4TripleLaminatedGlassV2(new Node[] { nodes[2], nodes[1], nodes[0], nodes[3] }, G0, h0, h1, h2, EGlass, niGlass));
+            LinearSolver fem7 = new LinearSolver(els7.ToArray());
+
+            List<FiniteElement> els8 = new List<FiniteElement>();
+            els8.Add(new Quad4TripleLaminatedGlassV2(new Node[] { nodes[1], nodes[0], nodes[3], nodes[2] }, G0, h0, h1, h2, EGlass, niGlass));
+            LinearSolver fem8 = new LinearSolver(els8.ToArray());
+
+            for (int i = 0; i < nodes.Count; i++)
+            {
+                var dFem5 = fem5.GetNodeDisplacementGlobalCoordinates(nodes[i]);
+                var dFem6 = fem6.GetNodeDisplacementGlobalCoordinates(nodes[i]);
+                var dFem7 = fem7.GetNodeDisplacementGlobalCoordinates(nodes[i]);
+                var dFem8 = fem8.GetNodeDisplacementGlobalCoordinates(nodes[i]);
+
+                Assert.AreEqual(dFem5[Solver.DOF.DDX], dFem6[Solver.DOF.DDX], 1e-4);
+                Assert.AreEqual(dFem6[Solver.DOF.DDX], dFem7[Solver.DOF.DDX], 1e-4);
+                Assert.AreEqual(dFem7[Solver.DOF.DDX], dFem8[Solver.DOF.DDX], 1e-4);
+
+                Assert.AreEqual(dFem5[Solver.DOF.DZ], dFem6[Solver.DOF.DZ], 1e-4);
+                Assert.AreEqual(dFem6[Solver.DOF.DZ], dFem7[Solver.DOF.DZ], 1e-4);
+                Assert.AreEqual(dFem7[Solver.DOF.DZ], dFem8[Solver.DOF.DZ], 1e-4);
+
+                Assert.AreEqual(dFem5[Solver.DOF.RY], dFem6[Solver.DOF.RY], 1e-4);
+                Assert.AreEqual(dFem6[Solver.DOF.RY], dFem7[Solver.DOF.RY], 1e-4);
+                Assert.AreEqual(dFem7[Solver.DOF.RY], dFem8[Solver.DOF.RY], 1e-4);
+            }
+            #endregion
         }
     }
 }
