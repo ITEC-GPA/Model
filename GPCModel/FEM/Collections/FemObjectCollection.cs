@@ -4,6 +4,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
+using System.Threading.Tasks;
 
 namespace GPC.Model.FEM.Collections
 {
@@ -89,18 +90,43 @@ namespace GPC.Model.FEM.Collections
 
         /// <summary>
         /// Add a FEMObject to the collection.
+        /// <para>Object will be added in any case. Checks of duplicates not performed</para>
+        /// <para>In any case, if the <paramref name="item"/> id already exist in the collection, its ID will be replaced with the collection maximum index + 1</para>
+        /// </summary>
+        /// <returns>The Id of the item</returns>
+        /// <exception cref="ArgumentNullException">If <paramref name="item"/> is null</exception>
+        /// <remarks>This is an O(1) operation</remarks>
+        public virtual int Add(T item)
+        {
+            if (item is null)
+                throw new ArgumentNullException(item.ToString());
+
+            return AddItem(item);
+        }
+
+        /// <summary>
+        /// Add a FEMObject to the collection.
         /// <para>Object will be added only if not already present</para>
         /// <para>In any case, if the <paramref name="item"/> id already exist in the collection, its ID will be replaced with the collection maximum index + 1</para>
         /// </summary>
         /// <returns>The Id of the item</returns>
         /// <exception cref="ArgumentNullException">If <paramref name="item"/> is null </exception>
         /// <remarks>This is an O(n) operation</remarks>
-        public virtual int Add(T item)
+        public virtual int AddUnique(T item)
         {
             if (item is null)
                 throw new ArgumentNullException(item.ToString());
 
-            if (!_collection.Contains(item) || _collection.Count == 0)
+            if (_collection.Count == 0)
+                return AddItem(item);
+
+            int id = Search(item); 
+            if (id == 0)
+                return AddItem(item);
+            return id;
+
+            /*
+            if (Contains(item) == 0 || _collection.Count == 0)
             {
                 return AddItem(item);
             }
@@ -108,38 +134,29 @@ namespace GPC.Model.FEM.Collections
             {
                 lock (_locker)
                 {
-                    // obj già presente
-                    if (_ids.Contains(item.Id))
-                    {
-                        // id già presente
-                        // non aggiungo, ritorno id dell'elemento già presente
+                    //// obj già presente
+                    //if (_ids.Contains(item.Id))
+                    //{
+                    //    // id già presente
+                    //    // non aggiungo, ritorno id dell'elemento già presente
 
-                        return (_collection as List<T>).SingleOrDefault(i => i.Equals(item)).Id;
-                    }
-                    else
-                    {
-                        // id non presente
-                        // ritorno id dell'elemento già presente
-                        return (_collection as List<T>).SingleOrDefault(i => i.Equals(item)).Id;
-                    } 
+                    //    return (_collection as List<T>).SingleOrDefault(i => i.Equals(item)).Id;
+                    //}
+                    //else
+                    //{
+                    //    // id non presente
+                    //    // ritorno id dell'elemento già presente
+                    //    return (_collection as List<T>).SingleOrDefault(i => i.Equals(item)).Id;
+                    //} 
+                    return (_collection as List<T>).SingleOrDefault(i => i.Equals(item)).Id;
                 }
             }
+            */
         }
 
-        /// <summary>
-        /// Add a FEMObject to the collection.
-        /// <para>Object will be added in any case. Checks of duplicates not performed</para>
-        /// <para>In any case, if the <paramref name="item"/> id already exist in the collection, its ID will be replaced with the collection maximum index + 1</para>
-        /// </summary>
-        /// <returns>The Id of the item</returns>
-        /// <exception cref="ArgumentNullException">If <paramref name="item"/> is null</exception>
-        /// <remarks>This is an O(1) operation</remarks>
-        public virtual int SetItem(T item)
+        public virtual Task<int> AddUniqueAsync(T item)
         {
-            if (item is null)
-                throw new ArgumentNullException(item.ToString());
-
-            return AddItem(item);
+            return Task.FromResult(AddUnique(item));
         }
 
         #endregion Public method - Setter
@@ -212,6 +229,23 @@ namespace GPC.Model.FEM.Collections
         }
 
         /// <summary>
+        /// Async versione of <see cref="GetElementIdMap"/>
+        /// </summary>
+        public virtual Task<Dictionary<int, int>> GetElementIdMapAsync()
+        {
+            Dictionary<int, int> hashMap = new Dictionary<int, int>();
+
+            var list = (_collection as List<T>);
+
+            for (int i = 0; i < list.Count; i++)
+            {
+                hashMap[list[i].Id] = i;
+            }
+
+            return Task.FromResult(hashMap);
+        }
+
+        /// <summary>
         /// Get the element by its position on the <see cref="_collection"/>
         /// </summary>
         /// <param name="index">The index of <typeparamref name="T"/> in the <see cref="_collection"/>
@@ -243,12 +277,49 @@ namespace GPC.Model.FEM.Collections
         /// Check if <paramref name="item"/> is contained in the collection
         /// </summary>
         /// <remarks>This is an O(n) operation</remarks>
-        public virtual bool Contains(T item)
+        /// <returns>0 if not contained or the item Id</returns>
+        public virtual int Contains(T item)
         {
             lock (_locker)
             {
-                return _collection.Contains(item); 
+                return _collection.Contains(item) ? 1 : 0;                 
             }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="item"></param>
+        /// <returns>the index of the element</returns>
+        protected virtual int Search(T item)
+        {
+            T found = null;
+            
+            Parallel.ForEach(_collection, (i, state) =>
+            {
+                if (i.Equals(item))
+                {
+                    found = i;
+                    state.Stop();
+                }
+            });
+            
+            /*
+            int count = _collection.Count;
+            T[] arr = new T[count];
+            _collection.CopyTo(arr, 0);
+
+            T found = null;
+            Parallel.For(0, count, (i, state) =>
+            {
+                if (arr[i].Equals(item))
+                {
+                    found = arr[i];
+                    state.Stop();
+                }
+            });
+            */
+            return found != null ? found.Id : 0;
         }
 
         #endregion Public method - Check
