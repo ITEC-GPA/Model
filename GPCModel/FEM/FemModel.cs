@@ -761,10 +761,15 @@ namespace GPC.Model.FEM
                 {
                     if (load is LineLoad ll)
                         embeddedGeometries.Add(ll.GetGeometry());
+
                     else if (load is PointLoad pl)
                         embeddedGeometries.Add(pl.GetGeometry());
-                    else if (load is AreaLoad || load is NormalAreaLoad)
-                        throw new NotImplementedException($"Load type: {load.GetType()} not implemented");
+
+                    else if (load is AreaLoad al)
+                        embeddedGeometries.Add(al.GetGeometry());
+
+                    else if (load is NormalAreaLoad nal)
+                        embeddedGeometries.Add(nal.GetGeometry());
                     else
                         throw new NotSupportedException($"Load type: {load.GetType()} not supported");
                 }
@@ -789,7 +794,7 @@ namespace GPC.Model.FEM
             }
 
             // Genera la mesh
-
+            var a = embeddedGeometries.ToArray();
             bool status = Mesh.Generate(new List<Shape> { shape }, 
                                         new Dictionary<Shape, GeometryBase[]>() { [shape] = embeddedGeometries.ToArray() }, 
                                         options, 
@@ -824,9 +829,10 @@ namespace GPC.Model.FEM
                         if (generateMeshStatus.EmbeddedGeometriesVertexMap[meshes.First()].ContainsKey(ll.GetGeometry()))
                             vertexLineLoadMeshEntityMap[ll] = generateMeshStatus.EmbeddedGeometriesVertexMap[meshes.First()][ll.GetGeometry()];
                     }
-                    else if (load is IAreaLoad)
+                    else if (load is IAreaLoad al)
                     {
-                        throw new NotSupportedException($"Load type: {load.GetType()} not supported");
+                        if (generateMeshStatus.EmbeddedGeometriesVertexMap[meshes.First()].ContainsKey(al.GetGeometry()))
+                            plateLoadMeshEntityMap[al] = generateMeshStatus.EmbeddedGeometriesVertexMap[meshes.First()][al.GetGeometry()];
                     }
                     else
                         throw new NotSupportedException($"Load type: {load.GetType()} not supported");
