@@ -2779,7 +2779,7 @@ namespace FemTest.SolverTest
         /// piastra 12x20, piastra semplicemente appoggiata con forze concentrate. elementi distorti
         /// </summary>
         [TestMethod]
-        public void QuadrilateralTestRobert6()
+        public void PiastralTestRobert6()
         {
             double hGlass1 = 0.25;
             double hGlass2 = 0.25;
@@ -3021,37 +3021,37 @@ namespace FemTest.SolverTest
 
             Node center = nodes.Where(x => x.Position.X == 6 && x.Position.Y == 10).First();
             var femDZCenter = fem.GetNodeDisplacementGlobalCoordinates(center, Solver.DOF.DZ);
-            Assert.AreEqual(1.0, 14.209 / femDZCenter, 0.01);
+            Assert.AreEqual(1.0, 14.195 / femDZCenter, 0.001);
 
             Node angle = nodes.Where(x => x.Position.X == 0 && x.Position.Y == 0).First();
             var femAngle = fem.GetNodeDisplacementGlobalCoordinates(angle);
-            Assert.AreEqual(1.0, -0.133 / femAngle[Solver.DOF.DDX], 0.15);
-            Assert.AreEqual(1.0, -0.496 / femAngle[Solver.DOF.DDY], 0.15);
-            Assert.AreEqual(1.0, 2.092 / femAngle[Solver.DOF.RX], 0.15);
-            Assert.AreEqual(1.0, -0.68 / femAngle[Solver.DOF.RY], 0.15);
+            Assert.AreEqual(-0.121, femAngle[Solver.DOF.DDX], 0.001);
+            Assert.AreEqual(-0.482, femAngle[Solver.DOF.DDY], 0.001);
+            Assert.AreEqual(2.049, femAngle[Solver.DOF.RX], 0.001);
+            Assert.AreEqual(-0.649, femAngle[Solver.DOF.RY], 0.001);
 
             Node centerBorder1 = nodes.Where(x => x.Position.X == 0 && x.Position.Y == 10).First();
             var femCenterBorder1 = fem.GetNodeDisplacementGlobalCoordinates(centerBorder1);
-            Assert.AreEqual(1.0, 13.136 / femCenterBorder1[Solver.DOF.DZ], 0.15);
-            Assert.AreEqual(1.0, -0.009 / femCenterBorder1[Solver.DOF.DDX], 0.15);
-            Assert.AreEqual(-0.001, femCenterBorder1[Solver.DOF.DDY], 0.01);
-            Assert.AreEqual(0.002, femCenterBorder1[Solver.DOF.RX], 0.03);
-            Assert.AreEqual(-0.045, femCenterBorder1[Solver.DOF.RY], 0.01);
+            Assert.AreEqual(13.177, femCenterBorder1[Solver.DOF.DZ], 0.001);
+            Assert.AreEqual(-0.010, femCenterBorder1[Solver.DOF.DDX], 0.03);
+            Assert.AreEqual(-0.005, femCenterBorder1[Solver.DOF.DDY], 0.001);
+            Assert.AreEqual(0.020, femCenterBorder1[Solver.DOF.RX], 0.001);
+            Assert.AreEqual(-0.046, femCenterBorder1[Solver.DOF.RY], 0.001);
 
             Node centerBorder2 = nodes.Where(x => x.Position.X == 6 && x.Position.Y == 0).First();
             var femCenterBorder2 = fem.GetNodeDisplacementGlobalCoordinates(centerBorder2);
-            Assert.AreEqual(1.0, 2.245 / femCenterBorder2[Solver.DOF.DZ], 0.2);
-            Assert.AreEqual(-0.001, femCenterBorder2[Solver.DOF.DDX], 0.01);
-            Assert.AreEqual(-0.416, femCenterBorder2[Solver.DOF.DDY], 0.01);
-            Assert.AreEqual(1.603, femCenterBorder2[Solver.DOF.RX], 0.05);
-            Assert.AreEqual(-0.006, femCenterBorder2[Solver.DOF.RY], 0.01);
+            Assert.AreEqual(1.0, 2.223 / femCenterBorder2[Solver.DOF.DZ], 0.01);
+            Assert.AreEqual(-0.004, femCenterBorder2[Solver.DOF.DDX], 0.01);
+            Assert.AreEqual(-0.419, femCenterBorder2[Solver.DOF.DDY], 0.01);
+            Assert.AreEqual(1.631, femCenterBorder2[Solver.DOF.RX], 0.01);
+            Assert.AreEqual(-0.01, femCenterBorder2[Solver.DOF.RY], 0.01);
         }
 
         /// <summary>
         /// piastra 12x20, piastra semplicemente appoggiata con forze concentrate. elementi distorti. Mesh raffinata
         /// </summary>
         [TestMethod]
-        public void QuadrilateralTestRobert6a()
+        public void PiastraTestRobert6a()
         {
             double hGlass1 = 0.25;
             double hGlass2 = 0.25;
@@ -3860,30 +3860,30 @@ namespace FemTest.SolverTest
 
             Node center = nodes.Where(x => x.Position.X == 6 && x.Position.Y == 10).First();
             var femDZCenter = fem.GetNodeDisplacementGlobalCoordinates(center, Solver.DOF.DZ);
-            Assert.AreEqual(1.0, 14.389 / femDZCenter, 0.01);
+            Assert.AreEqual(14.396, femDZCenter, 0.001);
 
             Node angle = nodes.Where(x => x.Position.X == 0 && x.Position.Y == 0).First();
             var femAngle = fem.GetNodeDisplacementGlobalCoordinates(angle);
-            Assert.AreEqual(-0.135, femAngle[Solver.DOF.DDX], 0.05);
-            Assert.AreEqual(-0.502, femAngle[Solver.DOF.DDY], 0.05);
-            Assert.AreEqual(2.184, femAngle[Solver.DOF.RX], 0.05);
-            Assert.AreEqual(-0.752, femAngle[Solver.DOF.RY], 0.05);
+            Assert.AreEqual(-0.128, femAngle[Solver.DOF.DDX], 0.001);
+            Assert.AreEqual(-0.496, femAngle[Solver.DOF.DDY], 0.001);
+            Assert.AreEqual(2.159, femAngle[Solver.DOF.RX], 0.001);
+            Assert.AreEqual(-0.732, femAngle[Solver.DOF.RY], 0.001);
 
             Node centerBorder1 = nodes.Where(x => x.Position.X == 0 && x.Position.Y == 10).First();
             var femCenterBorder1 = fem.GetNodeDisplacementGlobalCoordinates(centerBorder1);
-            Assert.AreEqual(13.354, femCenterBorder1[Solver.DOF.DZ], 0.05);
-            Assert.AreEqual(-0.007, femCenterBorder1[Solver.DOF.DDX], 0.05);
-            Assert.AreEqual(0.000, femCenterBorder1[Solver.DOF.DDY], 0.05);
-            Assert.AreEqual(0.001, femCenterBorder1[Solver.DOF.RX], 0.05);
-            Assert.AreEqual(-0.035, femCenterBorder1[Solver.DOF.RY], 0.05);
+            Assert.AreEqual(13.364, femCenterBorder1[Solver.DOF.DZ], 0.001);
+            Assert.AreEqual(-0.007, femCenterBorder1[Solver.DOF.DDX], 0.001);
+            Assert.AreEqual(-0.002, femCenterBorder1[Solver.DOF.DDY], 0.001);
+            Assert.AreEqual(0.007, femCenterBorder1[Solver.DOF.RX], 0.001);
+            Assert.AreEqual(-0.036, femCenterBorder1[Solver.DOF.RY], 0.001);
 
             Node centerBorder2 = nodes.Where(x => x.Position.X == 6 && x.Position.Y == 0).First();
             var femCenterBorder2 = fem.GetNodeDisplacementGlobalCoordinates(centerBorder2);
-            Assert.AreEqual(2.376, femCenterBorder2[Solver.DOF.DZ], 0.05);
-            Assert.AreEqual(0.000, femCenterBorder2[Solver.DOF.DDX], 0.05);
-            Assert.AreEqual(-0.417, femCenterBorder2[Solver.DOF.DDY], 0.05);
-            Assert.AreEqual(1.619, femCenterBorder2[Solver.DOF.RX], 0.05);
-            Assert.AreEqual(0.000, femCenterBorder2[Solver.DOF.RY], 0.05);
+            Assert.AreEqual(2.370, femCenterBorder2[Solver.DOF.DZ], 0.001);
+            Assert.AreEqual(-0.002, femCenterBorder2[Solver.DOF.DDX], 0.001);
+            Assert.AreEqual(-0.418, femCenterBorder2[Solver.DOF.DDY], 0.001);
+            Assert.AreEqual(1.624, femCenterBorder2[Solver.DOF.RX], 0.001);
+            Assert.AreEqual(-0.003, femCenterBorder2[Solver.DOF.RY], 0.001);
         }
     }
 }

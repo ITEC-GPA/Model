@@ -118,33 +118,46 @@ namespace GPC.Model.FEM.FiniteElements
 
             int dimRow = 9;
             int dimCol = 5;
+
+            double xX = localX.DotProduct(globalX);
+            double xY = localX.DotProduct(globalY);
+            double xZ = localX.DotProduct(globalZ);
+
+            double yX = localY.DotProduct(globalX);
+            double yY = localY.DotProduct(globalY);
+            double yZ = localY.DotProduct(globalZ);
+
+            double zX = localZ.DotProduct(globalX);
+            double zY = localZ.DotProduct(globalY);
+            double zZ = localZ.DotProduct(globalZ);
+
             for (int i = 0; i < _nodesLocal.Count(); i++)
             {
                 #region localToGlobalNode
                 //local node1 z-displacement in global coordinate
-                dofGlobalToLocalTranspose[i * dimRow + 0, i * dimCol + 0] = localZ.DotProduct(globalX);
-                dofGlobalToLocalTranspose[i * dimRow + 1, i * dimCol + 0] = localZ.DotProduct(globalY);
-                dofGlobalToLocalTranspose[i * dimRow + 2, i * dimCol + 0] = localZ.DotProduct(globalZ);
+                dofGlobalToLocalTranspose[i * dimRow + 0, i * dimCol + 0] = zX;
+                dofGlobalToLocalTranspose[i * dimRow + 1, i * dimCol + 0] = zY;
+                dofGlobalToLocalTranspose[i * dimRow + 2, i * dimCol + 0] = zZ;
 
                 //local node1 rx-rotation and ry in global coordinate
-                dofGlobalToLocalTranspose[i * dimRow + 3, i * dimCol + 1] = localX.DotProduct(globalX);
-                dofGlobalToLocalTranspose[i * dimRow + 3, i * dimCol + 2] = localY.DotProduct(globalX);
+                dofGlobalToLocalTranspose[i * dimRow + 3, i * dimCol + 1] = xX;
+                dofGlobalToLocalTranspose[i * dimRow + 3, i * dimCol + 2] = yX;
 
-                dofGlobalToLocalTranspose[i * dimRow + 4, i * dimCol + 1] = localX.DotProduct(globalY);
-                dofGlobalToLocalTranspose[i * dimRow + 4, i * dimCol + 2] = localY.DotProduct(globalY);
+                dofGlobalToLocalTranspose[i * dimRow + 4, i * dimCol + 1] = xY;
+                dofGlobalToLocalTranspose[i * dimRow + 4, i * dimCol + 2] = yY;
 
-                dofGlobalToLocalTranspose[i * dimRow + 5, i * dimCol + 1] = localX.DotProduct(globalZ);
-                dofGlobalToLocalTranspose[i * dimRow + 5, i * dimCol + 2] = localY.DotProduct(globalZ);
+                dofGlobalToLocalTranspose[i * dimRow + 5, i * dimCol + 1] = xZ;
+                dofGlobalToLocalTranspose[i * dimRow + 5, i * dimCol + 2] = yZ;
 
                 //local node1 slip-x and slip-y in global coordinate
-                dofGlobalToLocalTranspose[i * dimRow + 6, i * dimCol + 3] = localX.DotProduct(globalX);
-                dofGlobalToLocalTranspose[i * dimRow + 6, i * dimCol + 4] = localY.DotProduct(globalX);
+                dofGlobalToLocalTranspose[i * dimRow + 6, i * dimCol + 3] = xX;
+                dofGlobalToLocalTranspose[i * dimRow + 6, i * dimCol + 4] = yX;
 
-                dofGlobalToLocalTranspose[i * dimRow + 7, i * dimCol + 3] = localX.DotProduct(globalY);
-                dofGlobalToLocalTranspose[i * dimRow + 7, i * dimCol + 4] = localY.DotProduct(globalY);
+                dofGlobalToLocalTranspose[i * dimRow + 7, i * dimCol + 3] = xY;
+                dofGlobalToLocalTranspose[i * dimRow + 7, i * dimCol + 4] = yY;
 
-                dofGlobalToLocalTranspose[i * dimRow + 8, i * dimCol + 3] = localX.DotProduct(globalZ);
-                dofGlobalToLocalTranspose[i * dimRow + 8, i * dimCol + 4] = localY.DotProduct(globalZ);
+                dofGlobalToLocalTranspose[i * dimRow + 8, i * dimCol + 3] = xZ;
+                dofGlobalToLocalTranspose[i * dimRow + 8, i * dimCol + 4] = yZ;
             }
             #endregion
             

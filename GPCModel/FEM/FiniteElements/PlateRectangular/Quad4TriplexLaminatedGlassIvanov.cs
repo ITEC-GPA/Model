@@ -561,7 +561,7 @@ namespace GPC.Model.FEM.FiniteElements
         /// <param name="node"></param>
         /// <param name="globalDisplacementsNodes"></param>
         /// <returns></returns>
-        private mnl.Vector<double> GetDisplacementsNode(Node node, double[] globalDisplacementsNodes)
+        /*private mnl.Vector<double> GetDisplacementsNode(Node node, double[] globalDisplacementsNodes)
         {
             mnl.Vector<double> displPoint = mnl.Vector<double>.Build.Dense(6);
             int indexNode = _nodesGlobal.ToList().IndexOf(node);
@@ -574,9 +574,9 @@ namespace GPC.Model.FEM.FiniteElements
                 counter++;
             }
             return displPoint;
-        }
+        }*/
 
-#region ShapeFunction
+        #region ShapeFunction
         /// <summary>
         /// Shape functions for this element
         /// </summary>
@@ -863,9 +863,9 @@ namespace GPC.Model.FEM.FiniteElements
             indexes.Add(4, (1, 2));
             return indexes;
         }
-#endregion
+        #endregion
 
-#region Hermite
+        #region Hermite
         /// <summary>
         /// Hermite polynomial used in this element H_(i,j) defined in eqts. 57
         /// </summary>
@@ -954,7 +954,7 @@ namespace GPC.Model.FEM.FiniteElements
                 throw new ArgumentOutOfRangeException();
             }
         }
-#endregion
+        #endregion
 
         /// <summary>
         /// equation 54
