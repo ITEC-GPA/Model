@@ -72,8 +72,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="FEM\Plates\Tri3TLGV2Test.cs" />
-    <Compile Include="FEM\Plates\Quad4TLGV2Test.cs" />
-    <Compile Include="FEM\Plates\Quad4TLGTest.cs" />
+    <Compile Include="FEM\Plates\Quad4TLGVTest.cs" />
+    <Compile Include="FEM\Plates\Quad4TLGIvanovTest.cs" />
     <Compile Include="General\DescriptionAttributesTest.cs" />
     <Compile Include="FEM\CostrainTest.cs" />
     <Compile Include="FEM\Beam\BeamTest.cs" />

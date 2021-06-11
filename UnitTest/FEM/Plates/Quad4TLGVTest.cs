@@ -30108,7 +30108,7 @@ namespace FemTest.SolverTest
 
             #region plates
             List<Quad4TriplexLaminatedGlassIvanov> els = new List<Quad4TriplexLaminatedGlassIvanov>();
-            els.Add(new Quad4TriplexLaminatedGlassIvanov(new Node[] { nodes[0], nodes[1], nodes[2], nodes[3] }, G0, hInterlayer, hGlass, hGlass, EGlass, niGlass, false));
+            els.Add(new Quad4TriplexLaminatedGlassIvanov(new Node[] { nodes[0], nodes[1], nodes[2], nodes[3] }, G0, hInterlayer, hGlass, hGlass, EGlass, niGlass));
 
             List<Quad4TriplexLaminatedGlass> els2 = new List<Quad4TriplexLaminatedGlass>();
             els2.Add(new Quad4TriplexLaminatedGlass(new Node[] { nodes[0], nodes[1], nodes[2], nodes[3] }, G0, hInterlayer, hGlass, hGlass, EGlass, niGlass));
@@ -30204,16 +30204,16 @@ namespace FemTest.SolverTest
 
             #region plates
             List<Quad4TriplexLaminatedGlassIvanov> els = new List<Quad4TriplexLaminatedGlassIvanov>();
-            els.Add(new Quad4TriplexLaminatedGlassIvanov(new Node[] { nodes[1], nodes[3], nodes[4], nodes[2] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, false));
-            els.Add(new Quad4TriplexLaminatedGlassIvanov(new Node[] { nodes[3], nodes[5], nodes[6], nodes[4] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, false));
-            els.Add(new Quad4TriplexLaminatedGlassIvanov(new Node[] { nodes[5], nodes[7], nodes[8], nodes[6] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, false));
-            els.Add(new Quad4TriplexLaminatedGlassIvanov(new Node[] { nodes[7], nodes[9], nodes[10], nodes[8] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, false));
-            els.Add(new Quad4TriplexLaminatedGlassIvanov(new Node[] { nodes[9], nodes[11], nodes[12], nodes[10] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, false));
-            els.Add(new Quad4TriplexLaminatedGlassIvanov(new Node[] { nodes[11], nodes[13], nodes[14], nodes[12] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, false));
-            els.Add(new Quad4TriplexLaminatedGlassIvanov(new Node[] { nodes[13], nodes[15], nodes[16], nodes[14] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, false));
-            els.Add(new Quad4TriplexLaminatedGlassIvanov(new Node[] { nodes[15], nodes[17], nodes[18], nodes[16] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, false));
-            els.Add(new Quad4TriplexLaminatedGlassIvanov(new Node[] { nodes[17], nodes[19], nodes[20], nodes[18] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, false));
-            els.Add(new Quad4TriplexLaminatedGlassIvanov(new Node[] { nodes[19], nodes[21], nodes[22], nodes[20] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass, false));
+            els.Add(new Quad4TriplexLaminatedGlassIvanov(new Node[] { nodes[1], nodes[3], nodes[4], nodes[2] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass));
+            els.Add(new Quad4TriplexLaminatedGlassIvanov(new Node[] { nodes[3], nodes[5], nodes[6], nodes[4] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass));
+            els.Add(new Quad4TriplexLaminatedGlassIvanov(new Node[] { nodes[5], nodes[7], nodes[8], nodes[6] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass));
+            els.Add(new Quad4TriplexLaminatedGlassIvanov(new Node[] { nodes[7], nodes[9], nodes[10], nodes[8] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass));
+            els.Add(new Quad4TriplexLaminatedGlassIvanov(new Node[] { nodes[9], nodes[11], nodes[12], nodes[10] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass));
+            els.Add(new Quad4TriplexLaminatedGlassIvanov(new Node[] { nodes[11], nodes[13], nodes[14], nodes[12] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass));
+            els.Add(new Quad4TriplexLaminatedGlassIvanov(new Node[] { nodes[13], nodes[15], nodes[16], nodes[14] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass));
+            els.Add(new Quad4TriplexLaminatedGlassIvanov(new Node[] { nodes[15], nodes[17], nodes[18], nodes[16] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass));
+            els.Add(new Quad4TriplexLaminatedGlassIvanov(new Node[] { nodes[17], nodes[19], nodes[20], nodes[18] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass));
+            els.Add(new Quad4TriplexLaminatedGlassIvanov(new Node[] { nodes[19], nodes[21], nodes[22], nodes[20] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass));
 
             List<Quad4TriplexLaminatedGlass> els2 = new List<Quad4TriplexLaminatedGlass>();
             els2.Add(new Quad4TriplexLaminatedGlass(new Node[] { nodes[1], nodes[3], nodes[4], nodes[2] }, G0, hInterlayer, hGlass1, hGlass2, EGlass, niGlass));
