@@ -171,9 +171,7 @@ namespace GPC.Model.FEM
                 }
 
                 return hashCode;
-            }
-
+            }            
         }
-
     }
 }

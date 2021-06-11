@@ -181,10 +181,21 @@ namespace GPC.Model.FEM.Collections
             if (!_ids.Contains(id))
                 throw new KeyNotFoundException($"Collection does not contain a element with Id:{id}");
 
-            lock (_locker)
+            /*lock (_locker)
             {
                 return _collection.SingleOrDefault(i => i.Id.Equals(id)); 
-            }
+            }*/
+            T found = null;
+
+            Parallel.ForEach(_collection, (i, state) =>
+            {
+                if (i.Id == id)
+                {
+                    found = i;
+                    state.Stop();
+                }
+            });
+            return found;
         }
 
         public virtual HashSet<int> GetIds()
