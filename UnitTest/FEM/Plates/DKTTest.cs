@@ -19,7 +19,7 @@ namespace FemTest.SolverTest
     public class DKTTest
     {
         [TestMethod]
-        public void Tri3DKTTest1()
+        public void Tri3DKTKTest1()
         {
             Material mat = new SteelMaterial("mat", 12, 0.0, 355, 510, 7850);
             PlateProperty prop = new PlateProperty(mat.GetIsotropicFemMaterial(), 1.0, 1.0, "p");
@@ -61,16 +61,14 @@ namespace FemTest.SolverTest
             {
                 for (int c = 0; c < e0.KElementLocalCoord.ColumnCount; c++)
                 {
-                    Assert.AreEqual(e0.KElementLocalCoord[r, c] - SAPkMatrix[r, c], 0.0, 0.01, "k[" + r + "," + c +"]" );
-                    //Console.Write(e0.KElementLocalCoord[r,c].ToString("F2") + " ");    
+                    Assert.AreEqual(e0.KElementLocalCoord[r, c] - SAPkMatrix[r, c], 0.0, 0.01, "k[" + r + "," + c +"]" );   
                 }
-                //Console.WriteLine();
             }
             
         }
 
         [TestMethod]
-        public void Tri3DKTTest1a()
+        public void Tri3DKTKTest1a()
         {
             Material mat = new SteelMaterial("mat", 12, 0.0, 355, 510, 7850);
             PlateProperty prop = new PlateProperty(mat.GetIsotropicFemMaterial(), 1.0, 1.0, "p");
@@ -114,15 +112,13 @@ namespace FemTest.SolverTest
             {
                 for (int c = 0; c < e0.KElementLocalCoord.ColumnCount; c++)
                 {
-                    Assert.AreEqual(e0.KElementLocalCoord[r, c] - SAPkMatrix[r, c], 0.0, 0.01, "k[" + r + "," + c + "]");
-                    //Console.Write(e0.KElementLocalCoord[r,c].ToString("F2") + " ");    
+                    Assert.AreEqual(e0.KElementLocalCoord[r, c] - SAPkMatrix[r, c], 0.0, 0.01, "k[" + r + "," + c + "]");    
                 }
-                //Console.WriteLine();
             }
         }
 
         [TestMethod]
-        public void Tri3DKTTest2()
+        public void Tri3DKTKTest2()
         {
             Material mat = new SteelMaterial("mat", 12, 0.0, 355, 510, 7850);
             PlateProperty prop = new PlateProperty(mat.GetIsotropicFemMaterial(), 1.0, 1.0, "p");
@@ -170,9 +166,7 @@ namespace FemTest.SolverTest
                 for (int c = 0; c < fem.KGlobal.ColumnCount; c++)
                 {
                     Assert.AreEqual(fem.KGlobal[r, c] - SAPkMatrix[r, c], 0.0, 0.01, "error in position " + r +" "+ c);
-                    //Console.Write(fem.KGlobal[r, c].ToString("F2") + " ");
                 }
-                //Console.WriteLine();
             }
         }
 
@@ -181,27 +175,23 @@ namespace FemTest.SolverTest
         /// international journal for numerical methods in engineering, vol. 15 - 1771-1812 -> pg. 1797
         /// </summary>
         [TestMethod]
-        public void Tri3DKTTest3()
+        public void Tri3DKTPatchTest1a()
         {
-            //TODO: sistemare per calcolo tensioni
-            LoadCaseBase loadCase = new LoadCaseBase("myLoadCase", new Guid());
-            FreedomCase freedomCase = new FreedomCase("freedomCase1");
-
             Material mat = new SteelMaterial("mat", 10000, 0.3, 355, 510, 7850);
             PlateProperty prop = new PlateProperty(mat.GetIsotropicFemMaterial(), 1.0, 1.0, "p");
 
             #region restrains
             CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
             NodeRestrainAttribute fixDXDYDZRZ = new NodeRestrainAttribute("freedomCase", sys);
-            fixDXDYDZRZ.AddExternalRestrain(LinearSolver.DOF.DX);
-            fixDXDYDZRZ.AddExternalRestrain(LinearSolver.DOF.DY);
-            fixDXDYDZRZ.AddExternalRestrain(LinearSolver.DOF.DZ);
-            fixDXDYDZRZ.AddExternalRestrain(LinearSolver.DOF.RZ);
+            fixDXDYDZRZ.AddExternalRestrain(Solver.DOF.DX);
+            fixDXDYDZRZ.AddExternalRestrain(Solver.DOF.DY);
+            fixDXDYDZRZ.AddExternalRestrain(Solver.DOF.DZ);
+            fixDXDYDZRZ.AddExternalRestrain(Solver.DOF.RZ);
 
             NodeRestrainAttribute fixDXDYRZ = new NodeRestrainAttribute("freedomCase", sys);
-            fixDXDYRZ.AddExternalRestrain(LinearSolver.DOF.DX);
-            fixDXDYRZ.AddExternalRestrain(LinearSolver.DOF.DY);
-            fixDXDYRZ.AddExternalRestrain(LinearSolver.DOF.RZ);
+            fixDXDYRZ.AddExternalRestrain(Solver.DOF.DX);
+            fixDXDYRZ.AddExternalRestrain(Solver.DOF.DY);
+            fixDXDYRZ.AddExternalRestrain(Solver.DOF.RZ);
             #endregion
 
             #region nodalforces
@@ -218,29 +208,42 @@ namespace FemTest.SolverTest
             Node nodeD = new Node(8.0, 0, 0, "D");
             nodeD.AddAttribute(fixDXDYDZRZ);
 
-            FiniteElement e0 = new Tri3DK(new Node[] { nodeA, nodeB, nodeC });
-            e0.SetProperty(prop);
-          
-            FiniteElement e1 = new Tri3DK(new Node[] { nodeB, nodeD, nodeC });
-            e1.SetProperty(prop);
-        
-            LinearSolver fem = new LinearSolver(new FiniteElement[] { e0, e1 });
+            List<Tri3DK> els = new List<Tri3DK>();
+            els.Add(new Tri3DK(new Node[] { nodeA, nodeB, nodeC }));
+            els.Add(new Tri3DK(new Node[] { nodeB, nodeD, nodeC }));
+            els.ForEach(x =>  x.SetProperty(prop));
 
-            double dz = fem.GetNodeDisplacementGlobalCoordinates(nodeC, LinearSolver.DOF.DZ);
+            LinearSolver fem = new LinearSolver(els.ToArray());
+
+            double dz = fem.GetNodeDisplacementGlobalCoordinates(nodeC, Solver.DOF.DZ);
             Assert.AreEqual(0.24960, dz, 1e-6);
 
-            double[] displElement = fem.GetDisplacementsAtNodesOfElementInGlobalCoordinates(e0);
-            e0.GetNodesResults(displElement, 
-                            out mnl.Matrix<double>[] globalPseudoDef, out mnl.Matrix<double>[] localPseudoDef,
-                            out mnl.Matrix<double>[] globalForces, out mnl.Matrix<double>[] localForces,
-                            out mnl.Matrix<double>[] globalStress, out mnl.Matrix<double>[] localStress,
-                            out mnl.Matrix<double>[] globalEpsilon, out mnl.Matrix<double>[] localEpsilon);
+            for (int i = 0; i < els.Count; i++)
+            {
+                for (int j = 1; j <= els[i].Nodes.Count(); j++)
+                {
+                    var curvatures = fem.GetDKTCurvatures(els[i], j, sys);
+                    var bending = fem.GetDKTBending(els[i], j, sys);
+                    var strain = fem.GetDKTStrains(els[i], j, Plate.Face.Top, sys);
+                    var stress = fem.GetDKTStress(els[i], j, Plate.Face.Top, sys);
 
-            double tauXY1 = globalStress[0][1, 0]; //node 1
-            double tauXY2 = globalStress[0][0, 1]; //node 1
+                    Assert.AreEqual(0.0, curvatures[0, 0], 1e-4);
+                    Assert.AreEqual(0.0, curvatures[1, 1], 1e-4);
+                    Assert.AreEqual(-0.0078, curvatures[0, 1], 1e-4);
 
-            Assert.AreEqual(-15.0, tauXY1, 0.01);
-            Assert.AreEqual(-15.0, tauXY2, 0.01);
+                    Assert.AreEqual(0.0, bending[0, 0], 1e-4);
+                    Assert.AreEqual(0.0, bending[1, 1], 1e-4);
+                    Assert.AreEqual(-2.5, bending[0, 1], 1e-4);
+
+                    Assert.AreEqual(0.0, strain[0, 0], 1e-4);
+                    Assert.AreEqual(0.0, strain[1, 1], 1e-4);
+                    Assert.AreEqual(-0.0039, strain[0, 1], 1e-6);
+
+                    Assert.AreEqual(0.0, stress[0, 0], 1e-4);
+                    Assert.AreEqual(0.0, stress[1, 1], 1e-4);
+                    Assert.AreEqual(-15.0, stress[0, 1], 1e-6);
+                }
+            }
         }
 
         /// <summary>
@@ -696,26 +699,20 @@ namespace FemTest.SolverTest
             NodeRestrainAttribute fix = new NodeRestrainAttribute("freedomCase", sys);
             fix.AddExternalRestrain(Solver.DOF.DX);
             fix.AddExternalRestrain(Solver.DOF.DY);
-            //fix.AddExternalRestrain(Solver.DOF.DZ);
-
-            /*fix.AddExternalRestrain(Solver.DOF.RX);
-            fix.AddExternalRestrain(Solver.DOF.RY);*/
             fix.AddExternalRestrain(Solver.DOF.RZ);
-
-            //fix.AddExternalRestrain(Solver.DOF.DDX);
-            //fix.AddExternalRestrain(Solver.DOF.DDY);
-            //fix.AddExternalRestrain(Solver.DOF.DDZ);
 
             nodes.ForEach(x => x.AddAttribute(fix));
 
-            LinearSolver fem = new LinearSolver(els.ToArray());
+            LinearSolver fem = new LinearSolver(els.ToArray()); 
+
+            //TODO: aggiungere Assert, spostamenti, rotazioni, curvature, tensioni
         }
 
         /// <summary>
         /// Batoz articolo
         /// </summary>
         [TestMethod]
-        public void PatchTest1()
+        public void Quad4DKTPatchTest1()
         {
             double h = 1.0;
             double E = 1000.0;
@@ -783,15 +780,7 @@ namespace FemTest.SolverTest
             NodeRestrainAttribute fix = new NodeRestrainAttribute("freedomCase", sys);
             fix.AddExternalRestrain(Solver.DOF.DX);
             fix.AddExternalRestrain(Solver.DOF.DY);
-            //fix.AddExternalRestrain(Solver.DOF.DZ);
-
-            /*fix.AddExternalRestrain(Solver.DOF.RX);
-            fix.AddExternalRestrain(Solver.DOF.RY);*/
             fix.AddExternalRestrain(Solver.DOF.RZ);
-
-            //fix.AddExternalRestrain(Solver.DOF.DDX);
-            //fix.AddExternalRestrain(Solver.DOF.DDY);
-            //fix.AddExternalRestrain(Solver.DOF.DDZ);
 
             nodes.ForEach(x => x.AddAttribute(fix));
 
@@ -799,6 +788,8 @@ namespace FemTest.SolverTest
 
             els[0].BuildMatrix();
             FEMUtilities.WriteMatrix(els[0].KElementLocalCoord);
+
+            //Assert momenti, spostamenti ecc
         }
     }
 }

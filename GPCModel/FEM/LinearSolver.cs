@@ -660,6 +660,64 @@ namespace GPC.Model.FEM
         }
         #endregion
 
+        #region GetResultDKT
+        private void DKTGetCsiEta(int indexNode, out double csi, out double eta)
+        {
+            if (indexNode == 1)
+            {
+                csi = 0.0;
+                eta = 0.0;
+            } else if (indexNode == 2)
+            {
+                csi = 1.0;
+                eta = 0.0;
+            } else if (indexNode == 3)
+            {
+                csi = 0.0;
+                eta = 1.0;
+            } else
+            {
+                throw new ArgumentOutOfRangeException();
+            }                   
+        }
+
+        public mnl.Matrix<double> GetDKTCurvatures(Tri3DK element, int indexNode, CoordinateSystem newSys = null)
+        {
+            var globalDispl = GetDisplacementsAtNodesOfElementInGlobalCoordinates(element);
+
+            DKTGetCsiEta(indexNode, out double csi, out double eta);
+
+            return element.GetCurvatures(csi, eta, globalDispl, newSys);
+        }
+
+        public mnl.Matrix<double> GetDKTBending(Tri3DK element, int indexNode, CoordinateSystem newSys = null)
+        {
+            var globalDispl = GetDisplacementsAtNodesOfElementInGlobalCoordinates(element);
+
+            DKTGetCsiEta(indexNode, out double csi, out double eta);
+
+            return element.GetBending(csi, eta, globalDispl, newSys);
+        }
+
+        public mnl.Matrix<double> GetDKTStrains(Tri3DK element, int indexNode, Plate.Face face, CoordinateSystem newSys = null)
+        {
+            var globalDispl = GetDisplacementsAtNodesOfElementInGlobalCoordinates(element);
+
+            DKTGetCsiEta(indexNode, out double csi, out double eta);
+
+            return element.GetStrains(face, csi, eta, globalDispl, newSys);
+        }
+
+        public mnl.Matrix<double> GetDKTStress(Tri3DK element, int indexNode, Plate.Face face, CoordinateSystem newSys = null)
+        {
+            var globalDispl = GetDisplacementsAtNodesOfElementInGlobalCoordinates(element);
+
+            DKTGetCsiEta(indexNode, out double csi, out double eta);
+
+            return element.GetStress(face, csi, eta, globalDispl, newSys);
+        }
+        #endregion
+
         #region GetResultTLG
 
         #region Glass

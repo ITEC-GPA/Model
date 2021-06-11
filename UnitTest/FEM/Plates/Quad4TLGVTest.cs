@@ -1372,7 +1372,7 @@ namespace FemTest.SolverTest
             }
             bendingGlass = fem0.GetQuad4TLG2GlassBending(element, 1);
             forcesGlass = fem0.GetQuad4TLG2GlassForces(element, 1);
-            bendingInterlayer = fem0.GetQuad4TLG2InterlayerBending(element, 1); //TODO: significato fisico/ingegneristico?
+            bendingInterlayer = fem0.GetQuad4TLG2InterlayerBending(element, 1);
             var stressInterlayerNode1 = fem0.GetQuad4TLG2InterlayerStress(element, 1);
             double tau = 0.259;
             Assert.AreEqual(1.0, tau / stressInterlayerNode1[0,2], 0.055);

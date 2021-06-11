@@ -555,12 +555,7 @@ namespace GPC.Model.FEM.FiniteElements
 
         #region PrivateInternalFunctions
 
-        /// <summary>
-        /// Select in globalDisplacementsNodes the displacement of the node
-        /// </summary>
-        /// <param name="node"></param>
-        /// <param name="globalDisplacementsNodes"></param>
-        /// <returns></returns>
+        // Select in globalDisplacementsNodes the displacement of the node
         /*private mnl.Vector<double> GetDisplacementsNode(Node node, double[] globalDisplacementsNodes)
         {
             mnl.Vector<double> displPoint = mnl.Vector<double>.Build.Dense(6);
