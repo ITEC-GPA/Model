@@ -645,65 +645,7 @@ namespace GPC.Model.FEM
         }
         #endregion
 
-        #region GetResultDKT
-        private void DKTGetCsiEta(int indexNode, out double csi, out double eta)
-        {
-            if (indexNode == 1)
-            {
-                csi = 0.0;
-                eta = 0.0;
-            } else if (indexNode == 2)
-            {
-                csi = 1.0;
-                eta = 0.0;
-            } else if (indexNode == 3)
-            {
-                csi = 0.0;
-                eta = 1.0;
-            } else
-            {
-                throw new ArgumentOutOfRangeException();
-            }                   
-        }
-
-        public mnl.Matrix<double> GetDKTCurvatures(Tri3DK element, int indexNode, CoordinateSystem newSys = null)
-        {
-            var globalDispl = GetDisplacementsAtNodesOfElementInGlobalCoordinates(element);
-
-            DKTGetCsiEta(indexNode, out double csi, out double eta);
-
-            return element.GetCurvatures(csi, eta, globalDispl, newSys);
-        }
-
-        public mnl.Matrix<double> GetDKTBending(Tri3DK element, int indexNode, CoordinateSystem newSys = null)
-        {
-            var globalDispl = GetDisplacementsAtNodesOfElementInGlobalCoordinates(element);
-
-            DKTGetCsiEta(indexNode, out double csi, out double eta);
-
-            return element.GetBending(csi, eta, globalDispl, newSys);
-        }
-
-        public mnl.Matrix<double> GetDKTStrains(Tri3DK element, int indexNode, Plate.Face face, CoordinateSystem newSys = null)
-        {
-            var globalDispl = GetDisplacementsAtNodesOfElementInGlobalCoordinates(element);
-
-            DKTGetCsiEta(indexNode, out double csi, out double eta);
-
-            return element.GetStrains(face, csi, eta, globalDispl, newSys);
-        }
-
-        public mnl.Matrix<double> GetDKTStress(Tri3DK element, int indexNode, Plate.Face face, CoordinateSystem newSys = null)
-        {
-            var globalDispl = GetDisplacementsAtNodesOfElementInGlobalCoordinates(element);
-
-            DKTGetCsiEta(indexNode, out double csi, out double eta);
-
-            return element.GetStress(face, csi, eta, globalDispl, newSys);
-        }
-        #endregion
-
-        #region GetResultDKQ
+        #region GetResultDK
         private void DKQGetCsiEta(int indexNode, out double csi, out double eta)
         {
             if (indexNode == 1)
@@ -732,38 +674,89 @@ namespace GPC.Model.FEM
             }
         }
 
-        public mnl.Matrix<double> GetDKQCurvatures(Quad4DK element, int indexNode, CoordinateSystem newSys = null)
+        private void DKTGetCsiEta(int indexNode, out double csi, out double eta)
+        {
+            if (indexNode == 1)
+            {
+                csi = 0.0;
+                eta = 0.0;
+            } else if (indexNode == 2)
+            {
+                csi = 1.0;
+                eta = 0.0;
+            } else if (indexNode == 3)
+            {
+                csi = 0.0;
+                eta = 1.0;
+            } else
+            {
+                throw new ArgumentOutOfRangeException();
+            }                   
+        }
+
+        public mnl.Matrix<double> GetDKCurvatures(DK element, int indexNode, CoordinateSystem newSys = null)
         {
             var globalDispl = GetDisplacementsAtNodesOfElementInGlobalCoordinates(element);
 
-            DKQGetCsiEta(indexNode, out double csi, out double eta);
+            double csi, eta;
+            if (element.Nodes.Count() == 3)
+            {
+                DKTGetCsiEta(indexNode, out csi, out eta);
+            } else
+            {
+                DKQGetCsiEta(indexNode, out csi, out eta);
+            }
 
             return element.GetCurvatures(csi, eta, globalDispl, newSys);
         }
 
-        public mnl.Matrix<double> GetDKQBending(Quad4DK element, int indexNode, CoordinateSystem newSys = null)
+        public mnl.Matrix<double> GetDKBending(DK element, int indexNode, CoordinateSystem newSys = null)
         {
             var globalDispl = GetDisplacementsAtNodesOfElementInGlobalCoordinates(element);
 
-            DKQGetCsiEta(indexNode, out double csi, out double eta);
+            double csi, eta;
+            if (element.Nodes.Count() == 3)
+            {
+                DKTGetCsiEta(indexNode, out csi, out eta);
+            }
+            else
+            {
+                DKQGetCsiEta(indexNode, out csi, out eta);
+            }
 
             return element.GetBending(csi, eta, globalDispl, newSys);
         }
 
-        public mnl.Matrix<double> GetDKQStrains(Quad4DK element, int indexNode, Plate.Face face, CoordinateSystem newSys = null)
+        public mnl.Matrix<double> GetDKStrains(DK element, int indexNode, Plate.Face face, CoordinateSystem newSys = null)
         {
             var globalDispl = GetDisplacementsAtNodesOfElementInGlobalCoordinates(element);
 
-            DKQGetCsiEta(indexNode, out double csi, out double eta);
+            double csi, eta;
+            if (element.Nodes.Count() == 3)
+            {
+                DKTGetCsiEta(indexNode, out csi, out eta);
+            }
+            else
+            {
+                DKQGetCsiEta(indexNode, out csi, out eta);
+            }
 
             return element.GetStrains(face, csi, eta, globalDispl, newSys);
         }
 
-        public mnl.Matrix<double> GetDKQStress(Quad4DK element, int indexNode, Plate.Face face, CoordinateSystem newSys = null)
+        public mnl.Matrix<double> GetDKStress(DK element, int indexNode, Plate.Face face, CoordinateSystem newSys = null)
         {
             var globalDispl = GetDisplacementsAtNodesOfElementInGlobalCoordinates(element);
 
-            DKQGetCsiEta(indexNode, out double csi, out double eta);
+            double csi, eta;
+            if (element.Nodes.Count() == 3)
+            {
+                DKTGetCsiEta(indexNode, out csi, out eta);
+            }
+            else
+            {
+                DKQGetCsiEta(indexNode, out csi, out eta);
+            }
 
             return element.GetStress(face, csi, eta, globalDispl, newSys);
         }

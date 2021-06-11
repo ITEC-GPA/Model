@@ -113,6 +113,7 @@
     <Compile Include="FEM\FiniteElements\Beam.cs" />
     <Compile Include="FEM\FiniteElements\Brick\Hexaedron8.cs" />
     <Compile Include="FEM\FiniteElements\Beam\EulerBeam.cs" />
+    <Compile Include="FEM\FiniteElements\DK.cs" />
     <Compile Include="FEM\FiniteElements\PlateTriangle\Tri3TriplexLaminatedGlass.cs" />
     <Compile Include="FEM\FiniteElements\PlateRectangular\Quad4TriplexLaminatedGlass.cs" />
     <Compile Include="FEM\FiniteElements\PlateRectangular\Quad4TriplexLaminatedGlassIvanov.cs" />

@@ -222,10 +222,10 @@ namespace FemTest.SolverTest
             {
                 for (int j = 1; j <= els[i].Nodes.Count(); j++)
                 {
-                    var curvatures = fem.GetDKTCurvatures(els[i], j, sys);
-                    var bending = fem.GetDKTBending(els[i], j, sys);
-                    var strain = fem.GetDKTStrains(els[i], j, Plate.Face.Top, sys);
-                    var stress = fem.GetDKTStress(els[i], j, Plate.Face.Top, sys);
+                    var curvatures = fem.GetDKCurvatures(els[i], j, sys);
+                    var bending = fem.GetDKBending(els[i], j, sys);
+                    var strain = fem.GetDKStrains(els[i], j, Plate.Face.Top, sys);
+                    var stress = fem.GetDKStress(els[i], j, Plate.Face.Top, sys);
 
                     Assert.AreEqual(0.0, curvatures[0, 0], 1e-4);
                     Assert.AreEqual(0.0, curvatures[1, 1], 1e-4);
@@ -786,7 +786,7 @@ namespace FemTest.SolverTest
 
             LinearSolver fem = new LinearSolver(els.ToArray());
 
-            var bending = fem.GetDKQBending(els[0], 1, sys);
+            var bending = fem.GetDKBending(els[0], 1, sys);
         }
     }
 }
