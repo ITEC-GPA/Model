@@ -605,21 +605,6 @@ namespace GPC.Model.FEM
             return displ;
         }
 
-        /*public double[] GetDisplacementGlobalCoordinates(string labelNode, DOF dof)
-        {
-            if (labelNode== "" || labelNode == null)
-            {
-                throw new Exception("Select a node with a name!");
-            }
-            int[] pos = GetPositionInKGlobal(labelNode, dof);
-            double[] ris = new double[pos.Length];
-            for (int i = 0; i < pos.Length; i++)
-            {
-                ris[i] = _nodeGlobalDisplacements[pos[i]];
-            }
-            return ris;
-        }*/
-
         public double[] GetDisplacementsAtNodesOfElementInGlobalCoordinates(FiniteElement e)
         {
             #region SelectGlobalDisplacementForElement
@@ -713,6 +698,72 @@ namespace GPC.Model.FEM
             var globalDispl = GetDisplacementsAtNodesOfElementInGlobalCoordinates(element);
 
             DKTGetCsiEta(indexNode, out double csi, out double eta);
+
+            return element.GetStress(face, csi, eta, globalDispl, newSys);
+        }
+        #endregion
+
+        #region GetResultDKQ
+        private void DKQGetCsiEta(int indexNode, out double csi, out double eta)
+        {
+            if (indexNode == 1)
+            {
+                csi = -1.0;
+                eta = -1.0;
+            }
+            else if (indexNode == 2)
+            {
+                csi = 1.0;
+                eta = -1.0;
+            }
+            else if (indexNode == 3)
+            {
+                csi = 1.0;
+                eta = 1.0;
+            }
+            else if (indexNode == 4)
+            {
+                csi = -1.0;
+                eta = 1.0;
+            }
+            else
+            {
+                throw new ArgumentOutOfRangeException();
+            }
+        }
+
+        public mnl.Matrix<double> GetDKQCurvatures(Quad4DK element, int indexNode, CoordinateSystem newSys = null)
+        {
+            var globalDispl = GetDisplacementsAtNodesOfElementInGlobalCoordinates(element);
+
+            DKQGetCsiEta(indexNode, out double csi, out double eta);
+
+            return element.GetCurvatures(csi, eta, globalDispl, newSys);
+        }
+
+        public mnl.Matrix<double> GetDKQBending(Quad4DK element, int indexNode, CoordinateSystem newSys = null)
+        {
+            var globalDispl = GetDisplacementsAtNodesOfElementInGlobalCoordinates(element);
+
+            DKQGetCsiEta(indexNode, out double csi, out double eta);
+
+            return element.GetBending(csi, eta, globalDispl, newSys);
+        }
+
+        public mnl.Matrix<double> GetDKQStrains(Quad4DK element, int indexNode, Plate.Face face, CoordinateSystem newSys = null)
+        {
+            var globalDispl = GetDisplacementsAtNodesOfElementInGlobalCoordinates(element);
+
+            DKQGetCsiEta(indexNode, out double csi, out double eta);
+
+            return element.GetStrains(face, csi, eta, globalDispl, newSys);
+        }
+
+        public mnl.Matrix<double> GetDKQStress(Quad4DK element, int indexNode, Plate.Face face, CoordinateSystem newSys = null)
+        {
+            var globalDispl = GetDisplacementsAtNodesOfElementInGlobalCoordinates(element);
+
+            DKQGetCsiEta(indexNode, out double csi, out double eta);
 
             return element.GetStress(face, csi, eta, globalDispl, newSys);
         }
@@ -1206,7 +1257,7 @@ namespace GPC.Model.FEM
 #endregion
 #endregion
 
-#region PrescribeDisplacement
+        #region PrescribeDisplacement
         /// <summary>
         /// Modifica la matrice K e il termine noto F per l'inserimento di un spostamento imposto nei nodi con label "labelNode", grado di libertà dof e con spostamento = value;
         /// </summary>
@@ -1250,9 +1301,9 @@ namespace GPC.Model.FEM
             _KGlobalRestrains[position, position] = 1.0;
             _FRestrains[position] = val;
         }
-#endregion
+        #endregion
 
-#region GetReactions
+        #region GetReactions
         public double GetReaction(Node node, DOF dof)
         {
             int pos = GetPositionInKGlobal(node, dof);
@@ -1270,8 +1321,8 @@ namespace GPC.Model.FEM
             }
             return results;
         }
-#endregion
-#endregion
+        #endregion
+        #endregion
 
         #region PrivateFunction
 

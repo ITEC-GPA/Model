@@ -16,10 +16,10 @@ using GPC.Model.LoadCases;
 namespace FemTest.SolverTest
 {
     [TestClass]
-    public class DKTTest
+    public class DKTest
     {
         [TestMethod]
-        public void Tri3DKTKTest1()
+        public void Tri3DKKTest1()
         {
             Material mat = new SteelMaterial("mat", 12, 0.0, 355, 510, 7850);
             PlateProperty prop = new PlateProperty(mat.GetIsotropicFemMaterial(), 1.0, 1.0, "p");
@@ -68,7 +68,7 @@ namespace FemTest.SolverTest
         }
 
         [TestMethod]
-        public void Tri3DKTKTest1a()
+        public void Tri3DKKTest1a()
         {
             Material mat = new SteelMaterial("mat", 12, 0.0, 355, 510, 7850);
             PlateProperty prop = new PlateProperty(mat.GetIsotropicFemMaterial(), 1.0, 1.0, "p");
@@ -118,7 +118,7 @@ namespace FemTest.SolverTest
         }
 
         [TestMethod]
-        public void Tri3DKTKTest2()
+        public void Tri3DKKTest2()
         {
             Material mat = new SteelMaterial("mat", 12, 0.0, 355, 510, 7850);
             PlateProperty prop = new PlateProperty(mat.GetIsotropicFemMaterial(), 1.0, 1.0, "p");
@@ -175,7 +175,7 @@ namespace FemTest.SolverTest
         /// international journal for numerical methods in engineering, vol. 15 - 1771-1812 -> pg. 1797
         /// </summary>
         [TestMethod]
-        public void Tri3DKTPatchTest1a()
+        public void Tri3DKPatchTest1a()
         {
             Material mat = new SteelMaterial("mat", 10000, 0.3, 355, 510, 7850);
             PlateProperty prop = new PlateProperty(mat.GetIsotropicFemMaterial(), 1.0, 1.0, "p");
@@ -250,7 +250,7 @@ namespace FemTest.SolverTest
         /// Check K local with manual
         /// </summary>
         [TestMethod]
-        public void Quad4DKTTest1()
+        public void Quad4DKKTest1()
         {
             Material mat = new SteelMaterial("mat", 12, 0.0, 355, 510, 7850);
             PlateProperty prop = new PlateProperty(mat.GetIsotropicFemMaterial(), 1.0, 1.0, "p");
@@ -310,7 +310,7 @@ namespace FemTest.SolverTest
         /// Check KGlobal with manual
         /// </summary>
         [TestMethod]
-        public void Quad4DKTTest2()
+        public void Quad4DKKTest2()
         {
             Material mat = new SteelMaterial("mat", 12, 0.0, 355, 510, 7850);
             PlateProperty prop = new PlateProperty(mat.GetIsotropicFemMaterial(), 1.0, 1.0, "p");
@@ -391,7 +391,7 @@ namespace FemTest.SolverTest
         }
 
         [TestMethod]
-        public void Quad4DKTTest3()
+        public void Quad4DKTest1()
         {
             Material mat = new SteelMaterial("mat", 12, 0.0, 355, 510, 7850);
             PlateProperty prop = new PlateProperty(mat.GetIsotropicFemMaterial(), 1.0, 1.0, "p");
@@ -405,8 +405,6 @@ namespace FemTest.SolverTest
             Plate e0 = new Quad4DK(nodesPlate1);
             e0.SetProperty(prop);
 
-            LoadCaseBase loadCase = new LoadCaseBase("myLoadCase", new Guid());
-            FreedomCase freedomCase = new FreedomCase("freedomCase1");
             CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
             PlatePressureAttribute pressure = new PlatePressureAttribute("loadCase", sys, 0.0, 0.0, 1.0);
             e0.AddLoadCaseAttribute(pressure);
@@ -450,10 +448,12 @@ namespace FemTest.SolverTest
             nodesPlate1.ToList().ForEach(x => x.AddAttribute(fix));
 
             LinearSolver fem = new LinearSolver(new FiniteElement[] { e0 });
+
+            //TODO: aggiungere assert
         }
 
         [TestMethod]
-        public void Quad4DKTTest4()
+        public void Quad4DKEquivalentNodesForcesTest2()
         {
             Material mat = new SteelMaterial("mat", 12, 0.0, 355, 510, 7850);
             PlateProperty prop = new PlateProperty(mat.GetIsotropicFemMaterial(), 1.0, 1.0, "p");
@@ -712,7 +712,7 @@ namespace FemTest.SolverTest
         /// Batoz articolo
         /// </summary>
         [TestMethod]
-        public void Quad4DKTPatchTest1()
+        public void Quad4DKPatchTest1()
         {
             double h = 1.0;
             double E = 1000.0;
@@ -784,12 +784,9 @@ namespace FemTest.SolverTest
 
             nodes.ForEach(x => x.AddAttribute(fix));
 
-            //LinearSolver fem = new LinearSolver(els.ToArray());
+            LinearSolver fem = new LinearSolver(els.ToArray());
 
-            els[0].BuildMatrix();
-            FEMUtilities.WriteMatrix(els[0].KElementLocalCoord);
-
-            //Assert momenti, spostamenti ecc
+            var bending = fem.GetDKQBending(els[0], 1, sys);
         }
     }
 }

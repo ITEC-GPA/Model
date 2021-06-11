@@ -105,18 +105,10 @@ namespace GPC.Model.FEM.FiniteElements
             _eCoeff.Add(5, (-1.0 / 2.0 * Math.Pow(_x31, 2.0) + 1.0 / 4.0 * Math.Pow(_y31, 2.0)) / Math.Pow(_l31, 2.0));
             _eCoeff.Add(6, (-1.0 / 2.0 * Math.Pow(_x12, 2.0) + 1.0 / 4.0 * Math.Pow(_y12, 2.0)) / Math.Pow(_l12, 2.0));
             #endregion
-        }
 
-        internal Tri3DK(Node[] nodes, PlateProperty property) : this(nodes)
-        {
-            SetProperty(property);
-        }
-
-        public override void BuildMatrix()
-        {
             //calculation of matrix for transformation from Local to Global coordinates
             #region TransformationMatrixLocalCoordinatesToGlobalCoordinates
-            mnl.Matrix<double> dofGlobalToLocalTranspose = mnl.Matrix<double>.Build.Dense(6*3, 3*3);
+            mnl.Matrix<double> dofGlobalToLocalTranspose = mnl.Matrix<double>.Build.Dense(6 * 3, 3 * 3);
 
             Vector3d globalX = new Vector3d(1.0, 0.0, 0.0);
             Vector3d globalY = new Vector3d(0.0, 1.0, 0.0);
@@ -139,7 +131,7 @@ namespace GPC.Model.FEM.FiniteElements
             double zZ = localZ.DotProduct(globalZ);
 
             int dimRow = 6; //DX,DY,DZ,RX,RY,RZ
-            int dimCol = 3; //node 1,2,3
+            int dimCol = 3; //dz, rx, ry
             for (int i = 0; i < _nodesLocal.Length; i++)
             {
                 //local node1 z-displacement in global coordinate
@@ -157,12 +149,20 @@ namespace GPC.Model.FEM.FiniteElements
                 dofGlobalToLocalTranspose[i * dimRow + 5, i * dimCol + 1] = xZ;
                 dofGlobalToLocalTranspose[i * dimRow + 5, i * dimCol + 2] = yZ;
             }
-            
+
             _dofGlobalToLocal = dofGlobalToLocalTranspose.Transpose();
 
-            FEMUtilities.WriteMatrix("dofGlobalToLocalTranspose.", _dofGlobalToLocal);
+            //FEMUtilities.WriteMatrix("dofGlobalToLocalTranspose.", _dofGlobalToLocal);
             #endregion
+        }
 
+        internal Tri3DK(Node[] nodes, PlateProperty property) : this(nodes)
+        {
+            SetProperty(property);
+        }
+
+        public override void BuildMatrix()
+        {
             #region matrixD
             var planeStressMatrix = ((IsotropicFemMaterial)((PlateProperty)_property).Material).GetPlaneStress();
             double tb = ((PlateProperty)Property).BendingThickness;
