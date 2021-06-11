@@ -27,13 +27,13 @@ namespace FemTest
             Node n2 = new Node(Point3d.Origin, 2);
             Node n3 = new Node(new Point3d(0, 1, 2), 1);
 
-            cnode.Add(n1);
-            cnode.Add(n2);
-            cnode.Add(n3);
+            cnode.AddUnique(n1);
+            cnode.AddUnique(n2);
+            cnode.AddUnique(n3);
 
             Assert.IsTrue(cnode.Count == 2, cnode.Count.ToString());
 
-            Assert.IsTrue(cnode.Contains(n3));
+            Assert.IsTrue(cnode.Contains(n3) != 0);
 
             Assert.IsTrue(cnode.GetElementById(1).Id == 1);
             Assert.IsTrue(cnode.GetElementById(2).Id == 2);
@@ -58,9 +58,9 @@ namespace FemTest
             Plate p3 = new Plate(new Node[] { new Node(new Point3d(0, 1, 2), 1), new Node(new Point3d(1, 1, 2), 2), new Node(new Point3d(2, 1, 2), 3), new Node(new Point3d(3, 1, 2), 4) });
             p3.SetId(1);
 
-            cfe.Add(p1);
-            cfe.Add(p2);
-            cfe.Add(p3);
+            cfe.AddUnique(p1);
+            cfe.AddUnique(p2);
+            cfe.AddUnique(p3);
 
             Assert.IsTrue(cfe.Count == 2, cfe.Count.ToString());
 
@@ -93,12 +93,12 @@ namespace FemTest
             sp2.AddLoadCaseAttribute(new NodeForceAttribute("lc2", null, 0, 1, 2, 3, 4, 5));
 
 
-            nodes.Add(n1, sp1);
-            nodes.Add(n2, sp2);
-            nodes.Add(n3, sp1);
-            nodes.Add(n4, sp1);
-            nodes.Add(n5, sp2);
-            nodes.Add(n6, sp2);
+            nodes.AddUnique(n1, sp1);
+            nodes.AddUnique(n2, sp2);
+            nodes.AddUnique(n3, sp1);
+            nodes.AddUnique(n4, sp1);
+            nodes.AddUnique(n5, sp2);
+            nodes.AddUnique(n6, sp2);
 
             Assert.IsTrue(nodes.Count == 3);
 
@@ -129,8 +129,8 @@ namespace FemTest
             sp2.AddLoadCaseAttribute(new NodeForceAttribute("lc2", null, 0, 1, 2, 3, 4, 5));
 
 
-            nodes.Add(n1, sp1);
-            nodes.Add(n2, sp2);
+            nodes.AddUnique(n1, sp1);
+            nodes.AddUnique(n2, sp2);
 
             Assert.IsTrue(sp1.LoadCaseAttributes.Count == 1, sp1.LoadCaseAttributes.Count.ToString());
             Assert.IsTrue(sp2.LoadCaseAttributes.Count == 1, sp2.LoadCaseAttributes.Count.ToString());
@@ -165,9 +165,9 @@ namespace FemTest
             sp1.AddLoadCaseAttribute(new NodeForceAttribute("lc1", null, 0, 1, 2, 3, 4, 5));
             sp2.AddLoadCaseAttribute(new NodeForceAttribute("lc2", null, 0, 1, 2, 3, 4, 5));
 
-            nodes.Add(p1, sp1);
-            nodes.Add(p2, sp2);
-            nodes.Add(p3, sp2);
+            nodes.AddUnique(p1, sp1);
+            nodes.AddUnique(p2, sp2);
+            nodes.AddUnique(p3, sp2);
 
             Assert.IsTrue(nodes.Count == 2);
 

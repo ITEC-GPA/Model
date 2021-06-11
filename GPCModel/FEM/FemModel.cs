@@ -548,7 +548,7 @@ namespace GPC.Model.FEM
             }
 
 
-            _elements.Add(finiteElement);
+            _elements.AddUnique(finiteElement);
 
         }
 
@@ -588,7 +588,7 @@ namespace GPC.Model.FEM
         /// <inheritdoc cref="FemObjectCollection{T}.Contains(T)"/>
         public virtual bool ContainsFiniteElement(FiniteElement finiteElement)
         {
-            return _elements.Contains(finiteElement);
+            return _elements.Contains(finiteElement) != 0;
         }
 
 
@@ -605,15 +605,15 @@ namespace GPC.Model.FEM
         #region Nodes
 
 
-        /// <inheritdoc cref="FemObjectCollection{T}.Add(T)"/>
+        /// <inheritdoc cref="FemObjectCollection{T}.AddUnique(T)"/>
         protected virtual int AddNode(Node node)
         {
             // non fa la copia, cosi i riferimenti ai nodi dentro agli elementi finiti rimangono 
-            return _nodes.Add(node); // l'Add lancia un ArgumentNullException se gli si passa null
+            return _nodes.AddUnique(node); // l'Add lancia un ArgumentNullException se gli si passa null
         }
 
 
-        /// <inheritdoc cref="FemObjectCollection{T}.Add(T)"/>
+        /// <inheritdoc cref="FemObjectCollection{T}.AddUnique(T)"/>
         protected virtual int[] AddNodes(Node[] nodes)
         {
             if (nodes != null)
@@ -668,7 +668,7 @@ namespace GPC.Model.FEM
         /// <param name="costrain"></param>
         /// <remarks>This is a O(2n) Operation</remarks>
         /// <inheritdoc cref="AddNode(Node)"/>
-        /// <inheritdoc cref="FemObjectCollection{T}.Add(T)"/>
+        /// <inheritdoc cref="FemObjectCollection{T}.AddUnique(T)"/>
         public virtual int AddCostrain(Costrain costrain)
         {
             if (costrain is null)
@@ -679,14 +679,14 @@ namespace GPC.Model.FEM
             AddNodes(costrain.EndNodes);
 
 
-            return _costrains.Add(costrain);
+            return _costrains.AddUnique(costrain);
         }
 
         /// <summary> Add a <paramref name="costrains"/> and its <see cref="Node"/> to the FemModel</summary>
         /// <param name="costrains"></param>
         /// <remarks>This is a O(2n) Operation</remarks>
         /// <inheritdoc cref="AddNode(Node)"/>
-        /// <inheritdoc cref="FemObjectCollection{T}.Add(T)"/>
+        /// <inheritdoc cref="FemObjectCollection{T}.AddUnique(T)"/>
         public virtual void AddCostrains(IEnumerable<Costrain> costrains)
         {
             foreach(var costrain in costrains)
@@ -699,7 +699,7 @@ namespace GPC.Model.FEM
         /// <inheritdoc cref="FemObjectCollection{T}.Contains(T)"/>
         public virtual bool ContainsCostrains(Costrain costrain)
         {
-            return _costrains.Contains(costrain);
+            return _costrains.Contains(costrain) != 0;
         }
 
 
@@ -1007,12 +1007,7 @@ namespace GPC.Model.FEM
                             out Dictionary<int, int> platesNewIndexMap,
                             out Dictionary<int, int> brickNewIndexMap,
                             string groupName = "")
-        {            
-
-            nodesNewIndexMap = new Dictionary<int, int>(); // Mappa tra indici dei nodi dentro _nodes e indici dei vertici della mesh nel caso esistano già dentro _nodes.
-            platesNewIndexMap = new Dictionary<int, int>();
-            brickNewIndexMap = new Dictionary<int, int>();
-
+        {
             if (mesh is null)
                 throw new ArgumentNullException(nameof(mesh));
 
@@ -1036,6 +1031,8 @@ namespace GPC.Model.FEM
                 brickProperty = (BrickProperty)GetBrickProperty(brickPropertyName);
             }
 
+            Dictionary<int, int> nodesMap = new Dictionary<int, int>(); // Mappa tra indici dei nodi dentro _nodes e indici dei vertici della mesh nel caso esistano già dentro _nodes.
+
             // Aggiunge nodi alla collection di nodi
             using (var enumerator = mesh.GetVerticesEnumerator())
             {
@@ -1044,7 +1041,7 @@ namespace GPC.Model.FEM
                     for (int i = 0; i < mesh.VerticesCount; i++)
                     {
                         enumerator.MoveNext();
-                        nodesNewIndexMap[enumerator.Current.Id] = _nodes.Add(new Node(enumerator.Current.Point, group));
+                        nodesMap[enumerator.Current.Id] = _nodes.AddUnique(new Node(enumerator.Current.Point, group));
 
                     }
                 }
@@ -1053,7 +1050,7 @@ namespace GPC.Model.FEM
                     for (int i = 0; i < mesh.VerticesCount; i++)
                     {
                         enumerator.MoveNext();
-                        nodesNewIndexMap[enumerator.Current.Id] = _nodes.Add(new Node(enumerator.Current.Point));
+                        nodesMap[enumerator.Current.Id] = _nodes.AddUnique(new Node(enumerator.Current.Point));
 
                     }
                 }
@@ -1061,108 +1058,119 @@ namespace GPC.Model.FEM
 
             // Aggiunge elementi FEM
             // Aggiunge Faces
-            var faces = mesh.Faces.ToArray();
-            for (int i = 0; i < mesh.Faces.Count; i++)
+            Dictionary<int, int> platesMap = new Dictionary<int, int>();
+            Action addFaces = new Action(() =>
             {
-                if (plateProperty is IPlateProperty)
+                var faces = mesh.Faces.ToArray();
+                for (int i = 0; i < mesh.Faces.Count; i++)
                 {
-                    var face = faces[i];
-
-                    if (face.IsQuad)
+                    if (plateProperty is IPlateProperty)
                     {
-                        var plate = new Plate(new Node[] { _nodes[nodesNewIndexMap[face.A]],
-                                                           _nodes[nodesNewIndexMap[face.B]],
-                                                           _nodes[nodesNewIndexMap[face.C]],
-                                                           _nodes[nodesNewIndexMap[face.D]]}
-                                                       );
-                        if (group != null)
-                            plate.AddGroup(group);
-                        plate.SetProperty((ElementProperty)plateProperty);
+                        var face = faces[i];
 
-                        var plateIndex = _elements.Add(plate);
-                        platesNewIndexMap[face.Id] = plateIndex;
+                        if (face.IsQuad)
+                        {
+                            var plate = new Plate(new Node[] {
+                                _nodes[nodesMap[face.A]],
+                                _nodes[nodesMap[face.B]],
+                                _nodes[nodesMap[face.C]],
+                                _nodes[nodesMap[face.D]]
+                            });
+                            if (group != null)
+                                plate.AddGroup(group);
+                            plate.SetProperty((ElementProperty)plateProperty);
 
+                            var plateIndex = _elements.Add(plate);
+                            platesMap[face.Id] = plateIndex;
+
+                        }
+                        else
+                        {
+                            var plate = new Plate(new Node[] {
+                                _nodes[nodesMap[face.A]],
+                                _nodes[nodesMap[face.B]],
+                                _nodes[nodesMap[face.C]]
+                            });
+                            if (group != null)
+                                plate.AddGroup(group);
+                            plate.SetProperty((ElementProperty)plateProperty);
+
+                            var plateIndex = _elements.Add(plate);
+                            platesMap[face.Id] = plateIndex;
+
+                        }
                     }
                     else
                     {
-                        var plate = new Plate(new Node[] { _nodes[nodesNewIndexMap[face.A]],
-                                                           _nodes[nodesNewIndexMap[face.B]],
-                                                           _nodes[nodesNewIndexMap[face.C]]}
-                                                       );
-                        if (group != null)
-                            plate.AddGroup(group);
-                        plate.SetProperty((ElementProperty)plateProperty);
-
-                        var plateIndex = _elements.Add(plate);
-                        platesNewIndexMap[face.Id] = plateIndex;
-
+                        throw new NotImplementedException();
                     }
                 }
-                else
-                {
-                    throw new NotImplementedException();
-                }
-            }
+            });
 
             // Aggiunge Volumes
-            var volumes = mesh.Volumes.ToArray();
-            for (int i = 0; i < mesh.Volumes.Count; i++)
+            Dictionary<int, int> brickMap = new Dictionary<int, int>();
+            Action addVolumes = new Action(() =>
             {
-                var volume = volumes[i];
-
-                if (volume.IsQuadrangular)
+                var volumes = mesh.Volumes.ToArray();
+                for (int i = 0; i < mesh.Volumes.Count; i++)
                 {
-                    if (brickProperty is BrickProperty bp)
+                    var volume = volumes[i];
+
+                    if (volume.IsQuadrangular)
                     {
+                        if (brickProperty is BrickProperty bp)
+                        {
+                            var brick = new Brick(new Node[] {
+                                _nodes[nodesMap[volume.A]],
+                                _nodes[nodesMap[volume.B]],
+                                _nodes[nodesMap[volume.C]],
+                                _nodes[nodesMap[volume.D]],
+                                _nodes[nodesMap[volume.E]],
+                                _nodes[nodesMap[volume.F]],
+                                _nodes[nodesMap[volume.G]],
+                                _nodes[nodesMap[volume.H]]
+                            });
 
-                        var brick = new Brick(new Node[] { _nodes[nodesNewIndexMap[volume.A]],
-                                                           _nodes[nodesNewIndexMap[volume.B]],
-                                                           _nodes[nodesNewIndexMap[volume.C]],
-                                                           _nodes[nodesNewIndexMap[volume.D]],
-                                                           _nodes[nodesNewIndexMap[volume.E]],
-                                                           _nodes[nodesNewIndexMap[volume.F]],
-                                                           _nodes[nodesNewIndexMap[volume.G]],
-                                                           _nodes[nodesNewIndexMap[volume.H]]}
-                                                       );
+                            if (group != null)
+                                brick.AddGroup(group);
 
-                        if (group != null)
-                            brick.AddGroup(group);
+                            brick.SetProperty(bp);
 
-                        brick.SetProperty(bp);
-
-                        var brickIndex = _elements.Add(brick);
-                        brickNewIndexMap[volume.Id] = brickIndex;
-
+                            var brickIndex = _elements.Add(brick);
+                            brickMap[volume.Id] = brickIndex;
+                        }
+                        else
+                            throw new NotImplementedException();
                     }
                     else
-                        throw new NotImplementedException();
-                }
-                else
-                {
-                    if (brickProperty is BrickProperty bp)
                     {
-                        var brick = new Brick(new Node[] { _nodes[nodesNewIndexMap[volume.A]],
-                                                           _nodes[nodesNewIndexMap[volume.B]],
-                                                           _nodes[nodesNewIndexMap[volume.C]],
-                                                           _nodes[nodesNewIndexMap[volume.D]],
-                                                           _nodes[nodesNewIndexMap[volume.E]],
-                                                           _nodes[nodesNewIndexMap[volume.F]]}
-                                                       );
+                        if (brickProperty is BrickProperty bp)
+                        {
+                            var brick = new Brick(new Node[] {
+                                _nodes[nodesMap[volume.A]],
+                                _nodes[nodesMap[volume.B]],
+                                _nodes[nodesMap[volume.C]],
+                                _nodes[nodesMap[volume.D]],
+                                _nodes[nodesMap[volume.E]],
+                                _nodes[nodesMap[volume.F]]
+                            });
 
-                        if (group != null)
-                            brick.AddGroup(group);
+                            if (group != null)
+                                brick.AddGroup(group);
 
-                        brick.SetProperty(bp);
+                            brick.SetProperty(bp);
 
-                        var brickIndex = _elements.Add(brick);
-                        brickNewIndexMap[volume.Id] = brickIndex;
+                            var brickIndex = _elements.Add(brick);
+                            brickMap[volume.Id] = brickIndex;
 
+                        }
+                        else
+                            throw new NotImplementedException();
                     }
-                    else
-                        throw new NotImplementedException();
                 }
-            }
+            });
 
+            Parallel.Invoke(addFaces, addVolumes);
 
             // Gestione restrain 
             if (restrainMeshEntityMap != null)
@@ -1192,7 +1200,6 @@ namespace GPC.Model.FEM
                             throw new InvalidOperationException();
                     }
 
-
                     NodeRestrainAttribute nra = new NodeRestrainAttribute(freedomCase.Name, geometryRestrain.CoordinateSystem);
                     NodeStiffnessAttribute nsa = new NodeStiffnessAttribute(freedomCase.Name, geometryRestrain.CoordinateSystem);
 
@@ -1216,7 +1223,7 @@ namespace GPC.Model.FEM
 
                     foreach (var index in indexes)
                     {
-                        int nodeId = nodesNewIndexMap.ContainsKey(index) ? nodesNewIndexMap[index] : index;
+                        int nodeId = nodesMap.ContainsKey(index) ? nodesMap[index] : index;
 
                         Node node = _nodes.GetElementById(nodeId); // se non trova l'indice viene lanciata una keynotfoundException
 
@@ -1259,7 +1266,7 @@ namespace GPC.Model.FEM
 
                     foreach (var index in indexes)
                     {
-                        int nodeId = nodesNewIndexMap.ContainsKey(index) ? nodesNewIndexMap[index] : index;
+                        int nodeId = nodesMap.ContainsKey(index) ? nodesMap[index] : index;
 
                         Node node = _nodes.GetElementById(nodeId); // se non trova l'indice viene lanciata una keynotfoundException
 
@@ -1303,7 +1310,7 @@ namespace GPC.Model.FEM
 
                     foreach (var index in indexes)
                     {
-                        int nodeId = nodesNewIndexMap.ContainsKey(index) ? nodesNewIndexMap[index] : index;
+                        int nodeId = nodesMap.ContainsKey(index) ? nodesMap[index] : index;
 
                         Node node = _nodes.GetElementById(nodeId); // se non trova l'indice viene lanciata una keynotfoundException
 
@@ -1361,7 +1368,7 @@ namespace GPC.Model.FEM
 
                     foreach (var index in indexes)
                     {
-                        int plateId = platesNewIndexMap.ContainsKey(index) ? platesNewIndexMap[index] : index;
+                        int plateId = platesMap.ContainsKey(index) ? platesMap[index] : index;
 
                         FiniteElement finiteElement = _elements.GetElementById(plateId); // se non trova l'indice viene lanciata una keynotfoundException
 
@@ -1387,6 +1394,9 @@ namespace GPC.Model.FEM
 
             }
 
+            nodesNewIndexMap = nodesMap;
+            platesNewIndexMap = platesMap;
+            brickNewIndexMap = brickMap;
 
             return true;
         }

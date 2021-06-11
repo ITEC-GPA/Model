@@ -67,10 +67,19 @@ namespace GPC.Model.FEM.Collections
 
         #region Public methods - Add / Set
 
+        /// <exception cref="ArgumentNullException">If <paramref name="item"/> is null</exception>
+        /// <remarks>This is an O(1) operation</remarks>
+        public virtual void Add(T item, D stageFiniteElementProperty)
+        {
+            if (stageFiniteElementProperty is null || item is null)
+                throw new ArgumentNullException();
+
+            _stageFiniteElementProperty.Add(new KeyValuePair<T, D>(item, stageFiniteElementProperty));
+        }
 
         /// <inheritdoc cref = "FemObjectStageCollection{T, D}.AddStageFiniteElementProperty(T, D)" />
         /// <exception cref="ArgumentNullException"></exception>
-        public virtual void Add(T item, D stageFiniteElementProperty)
+        public virtual void AddUnique(T item, D stageFiniteElementProperty)
         {
             if (stageFiniteElementProperty is null || item is null)
                 throw new ArgumentNullException();

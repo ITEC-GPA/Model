@@ -262,18 +262,18 @@ namespace GeneralTest
             Node n3 = new Node(new Point3d(0, 1, 2), 2);
             Node n4 = new Node(new Point3d(2, 1, 2), 2);
 
-            cnode1.Add(n1);
-            cnode1.Add(n2);
-            cnode1.Add(n3);
+            cnode1.AddUnique(n1);
+            cnode1.AddUnique(n2);
+            cnode1.AddUnique(n3);
 
-            cnode2.Add(n3);
-            cnode2.Add(n1);
-            cnode2.Add(n2);
+            cnode2.AddUnique(n3);
+            cnode2.AddUnique(n1);
+            cnode2.AddUnique(n2);
 
-            cnode3.Add(n1);
-            cnode3.Add(n4);
-            cnode3.Add(n2);
-            cnode3.Add(n3);
+            cnode3.AddUnique(n1);
+            cnode3.AddUnique(n4);
+            cnode3.AddUnique(n2);
+            cnode3.AddUnique(n3);
 
             Assert.AreEqual(cnode1, cnode2);
             Assert.AreEqual(cnode1.GetHashCode(), cnode1.GetHashCode());
