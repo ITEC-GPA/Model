@@ -13,7 +13,7 @@ namespace GPC.Model.FEM.FiniteElements
     /// A plate finite element for modelling of tripled laminated glass and comparison with other computational method
     /// Ivanov, Velchev, Georgiev, Sadowki - 2015
     /// </summary>
-    public class Quad4TripleLaminatedGlass : Plate
+    public class Quad4TriplexLaminatedGlassIvanov : Plate
     {
         public enum Glass
         {
@@ -64,7 +64,7 @@ namespace GPC.Model.FEM.FiniteElements
         /// <param name="EGlass">Glass elastic modulus</param>
         /// <param name="niGlass">poisson glass</param>
         /// <param name="quadrilateral">if false, used formulation of arrticle, if true, try to use transformation of coordinates</param>
-        public Quad4TripleLaminatedGlass(Node[] nodes, double G0, double h0, double h1, double h2, double EGlass, double niGlass, bool quadrilateral = false) : base(nodes)
+        public Quad4TriplexLaminatedGlassIvanov(Node[] nodes, double G0, double h0, double h1, double h2, double EGlass, double niGlass, bool quadrilateral = false) : base(nodes)
         {
             //eq. 51 -> lista dof locali
              /* deltaU = slippage between the glass layer in local x direction 
