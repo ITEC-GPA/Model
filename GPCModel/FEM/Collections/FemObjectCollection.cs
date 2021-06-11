@@ -287,10 +287,10 @@ namespace GPC.Model.FEM.Collections
         }
 
         /// <summary>
-        /// 
+        /// Find a elementi in the collection and return his Id
         /// </summary>
         /// <param name="item"></param>
-        /// <returns>the index of the element</returns>
+        /// <returns>The Id of the element. 0 if not exists</returns>
         protected virtual int Search(T item)
         {
             T found = null;
@@ -304,21 +304,6 @@ namespace GPC.Model.FEM.Collections
                 }
             });
             
-            /*
-            int count = _collection.Count;
-            T[] arr = new T[count];
-            _collection.CopyTo(arr, 0);
-
-            T found = null;
-            Parallel.For(0, count, (i, state) =>
-            {
-                if (arr[i].Equals(item))
-                {
-                    found = arr[i];
-                    state.Stop();
-                }
-            });
-            */
             return found != null ? found.Id : 0;
         }
 
