@@ -120,29 +120,13 @@ namespace GPC.Model.FEM.FiniteElements
             throw new NotImplementedException();
         }
 
-        /// <summary>
-        /// usually = B : derivative of ShapeFunctions, need for epsilon = [B] * q with q = node displacements vector
-        /// </summary>
-        /// <param name="csi">natural coordinate -1 to 1</param>
-        /// <param name="eta">natural coordinate -1 to 1</param>
-        /// <returns></returns>
-        public virtual mnl.Matrix<double> GetB(double csi = 0, double eta = 0)
-        {
-            throw new NotImplementedException();
-        }
-
-        //TODO: Da ottimizzare/scrivere
-        public new void GetNodesResults(double[] globalDisplacementsNodes, out mnl.Matrix<double>[] gloabalPseudoDeformation, out mnl.Matrix<double>[] localPseudoDeformation, out mnl.Matrix<double>[] globalForces, out mnl.Matrix<double>[] localForces, out mnl.Matrix<double>[] globalStress, out mnl.Matrix<double>[] localStress, out mnl.Matrix<double>[] globalEpsilon, out mnl.Matrix<double>[] localEpsilon)
-        {
-            throw new NotImplementedException();
-        }
-
         private string GetDebuggerDisplay()
         {
             var prop = Property != null ? Property.Name : String.Empty;
             return $"Plate, Id: {Id}, PropertyName: {prop}";
         }
 
+        //TODO: ottimizzare
         public double GetArea()
         {
             if (IsQuad == true)
@@ -163,7 +147,6 @@ namespace GPC.Model.FEM.FiniteElements
                 throw new NotImplementedException("This plate have nr of nodes different than 3 or 4");
             }
         }
-        
 
         // GetNodalDisplacement()
 

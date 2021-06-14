@@ -317,7 +317,7 @@ namespace GPC.Model.FEM
                         dirZ.Unitize();
 
                         //Set in global coordinates
-                        double[] additionalForce = new double[6];
+                        double[] additionalForce = new double[dofs.Count];
                         additionalForce[0] = nodeForceAttribute.F1 * dirX.DotProduct(X) + nodeForceAttribute.F2 * dirY.DotProduct(X) + nodeForceAttribute.F3 * dirZ.DotProduct(X); //fX
                         additionalForce[1] = nodeForceAttribute.F1 * dirX.DotProduct(Y) + nodeForceAttribute.F2 * dirY.DotProduct(Y) + nodeForceAttribute.F3 * dirZ.DotProduct(Y); //fY
                         additionalForce[2] = nodeForceAttribute.F1 * dirX.DotProduct(Z) + nodeForceAttribute.F2 * dirY.DotProduct(Z) + nodeForceAttribute.F3 * dirZ.DotProduct(Z); //fZ
@@ -383,8 +383,8 @@ namespace GPC.Model.FEM
 
             
 #if DEBUG
-            Console.WriteLine("Vector F");
-            _F.ToList().ForEach(x => Console.WriteLine(x));
+            /*Console.WriteLine("Vector F");
+            _F.ToList().ForEach(x => Console.WriteLine(x));*/
 #endif
             
             #endregion
@@ -593,20 +593,17 @@ namespace GPC.Model.FEM
             return _nodeGlobalDisplacements[pos];
         }
 
-        /*public double[] GetDisplacementGlobalCoordinates(string labelNode, DOF dof)
+        public Dictionary<DOF, double> GetNodeDisplacementGlobalCoordinates(Node node)
         {
-            if (labelNode== "" || labelNode == null)
+            Dictionary<DOF, double> displ = new Dictionary<DOF, double>();
+            foreach (DOF d in node.DOF)
             {
-                throw new Exception("Select a node with a name!");
+                int pos = GetPositionInKGlobal(node, d);
+                displ.Add(d, _nodeGlobalDisplacements[pos]);
             }
-            int[] pos = GetPositionInKGlobal(labelNode, dof);
-            double[] ris = new double[pos.Length];
-            for (int i = 0; i < pos.Length; i++)
-            {
-                ris[i] = _nodeGlobalDisplacements[pos[i]];
-            }
-            return ris;
-        }*/
+            
+            return displ;
+        }
 
         public double[] GetDisplacementsAtNodesOfElementInGlobalCoordinates(FiniteElement e)
         {
@@ -648,10 +645,127 @@ namespace GPC.Model.FEM
         }
         #endregion
 
+        #region GetResultDK
+        private void DKQGetCsiEta(int indexNode, out double csi, out double eta)
+        {
+            if (indexNode == 1)
+            {
+                csi = -1.0;
+                eta = -1.0;
+            }
+            else if (indexNode == 2)
+            {
+                csi = 1.0;
+                eta = -1.0;
+            }
+            else if (indexNode == 3)
+            {
+                csi = 1.0;
+                eta = 1.0;
+            }
+            else if (indexNode == 4)
+            {
+                csi = -1.0;
+                eta = 1.0;
+            }
+            else
+            {
+                throw new ArgumentOutOfRangeException();
+            }
+        }
+
+        private void DKTGetCsiEta(int indexNode, out double csi, out double eta)
+        {
+            if (indexNode == 1)
+            {
+                csi = 0.0;
+                eta = 0.0;
+            } else if (indexNode == 2)
+            {
+                csi = 1.0;
+                eta = 0.0;
+            } else if (indexNode == 3)
+            {
+                csi = 0.0;
+                eta = 1.0;
+            } else
+            {
+                throw new ArgumentOutOfRangeException();
+            }                   
+        }
+
+        public mnl.Matrix<double> GetDKCurvatures(DK element, int indexNode, CoordinateSystem newSys = null)
+        {
+            var globalDispl = GetDisplacementsAtNodesOfElementInGlobalCoordinates(element);
+
+            double csi, eta;
+            if (element.Nodes.Count() == 3)
+            {
+                DKTGetCsiEta(indexNode, out csi, out eta);
+            } else
+            {
+                DKQGetCsiEta(indexNode, out csi, out eta);
+            }
+
+            return element.GetCurvatures(csi, eta, globalDispl, newSys);
+        }
+
+        public mnl.Matrix<double> GetDKBending(DK element, int indexNode, CoordinateSystem newSys = null)
+        {
+            var globalDispl = GetDisplacementsAtNodesOfElementInGlobalCoordinates(element);
+
+            double csi, eta;
+            if (element.Nodes.Count() == 3)
+            {
+                DKTGetCsiEta(indexNode, out csi, out eta);
+            }
+            else
+            {
+                DKQGetCsiEta(indexNode, out csi, out eta);
+            }
+
+            return element.GetBending(csi, eta, globalDispl, newSys);
+        }
+
+        public mnl.Matrix<double> GetDKStrains(DK element, int indexNode, Plate.Face face, CoordinateSystem newSys = null)
+        {
+            var globalDispl = GetDisplacementsAtNodesOfElementInGlobalCoordinates(element);
+
+            double csi, eta;
+            if (element.Nodes.Count() == 3)
+            {
+                DKTGetCsiEta(indexNode, out csi, out eta);
+            }
+            else
+            {
+                DKQGetCsiEta(indexNode, out csi, out eta);
+            }
+
+            return element.GetStrains(face, csi, eta, globalDispl, newSys);
+        }
+
+        public mnl.Matrix<double> GetDKStress(DK element, int indexNode, Plate.Face face, CoordinateSystem newSys = null)
+        {
+            var globalDispl = GetDisplacementsAtNodesOfElementInGlobalCoordinates(element);
+
+            double csi, eta;
+            if (element.Nodes.Count() == 3)
+            {
+                DKTGetCsiEta(indexNode, out csi, out eta);
+            }
+            else
+            {
+                DKQGetCsiEta(indexNode, out csi, out eta);
+            }
+
+            return element.GetStress(face, csi, eta, globalDispl, newSys);
+        }
+        #endregion
+
         #region GetResultTLG
 
         #region Glass
-        public mnl.Vector<double> GetTLGGlassStrain(Quad4TripleLaminatedGlass element, Quad4TripleLaminatedGlass.Glass glass, Plate.Face face, int indexNode)
+        public mnl.Vector<double> GetTLGGlassStrain(Quad4TriplexLaminatedGlassIvanov element, Quad4TriplexLaminatedGlassIvanov.Glass glass, Plate.Face face, int indexNode)
         {
             if (indexNode == 0)
             {
@@ -666,7 +780,7 @@ namespace GPC.Model.FEM
             return element.GetStrainGlass(glass, face, x, y, globalDispl);
         }
 
-        public mnl.Vector<double> GetTLGGlassStress(Quad4TripleLaminatedGlass element, Quad4TripleLaminatedGlass.Glass glass, Plate.Face face, int indexNode)
+        public mnl.Vector<double> GetTLGGlassStress(Quad4TriplexLaminatedGlassIvanov element, Quad4TriplexLaminatedGlassIvanov.Glass glass, Plate.Face face, int indexNode)
         {
             if (indexNode == 0)
             {
@@ -681,7 +795,7 @@ namespace GPC.Model.FEM
             return element.GetStressGlass(glass, face, x, y, globalDispl);
         }
 
-        public mnl.Vector<double> GetTLGGlassBending(Quad4TripleLaminatedGlass element, int indexNode)
+        public mnl.Vector<double> GetTLGGlassBending(Quad4TriplexLaminatedGlassIvanov element, int indexNode)
         {
             if (indexNode == 0)
             {
@@ -696,7 +810,7 @@ namespace GPC.Model.FEM
             return element.GetGlassBending(x, y, globalDispl);
         }
 
-        public mnl.Vector<double> GetTLGGlassForces(Quad4TripleLaminatedGlass element, int indexNode)
+        public mnl.Vector<double> GetTLGGlassForces(Quad4TriplexLaminatedGlassIvanov element, int indexNode)
         {
             if (indexNode == 0)
             {
@@ -713,7 +827,7 @@ namespace GPC.Model.FEM
         #endregion
 
         #region Interlayer
-        public mnl.Vector<double> GetTLGInterlayerStrain(Quad4TripleLaminatedGlass element, int indexNode)
+        public mnl.Vector<double> GetTLGInterlayerStrain(Quad4TriplexLaminatedGlassIvanov element, int indexNode)
         {
             if (indexNode == 0)
             {
@@ -728,7 +842,7 @@ namespace GPC.Model.FEM
             return element.GetStrainInterlayer(x, y, globalDispl);
         }
 
-        public mnl.Vector<double> GetTLGInterlayerStress(Quad4TripleLaminatedGlass element, int indexNode)
+        public mnl.Vector<double> GetTLGInterlayerStress(Quad4TriplexLaminatedGlassIvanov element, int indexNode)
         {
             if (indexNode == 0)
             {
@@ -743,7 +857,7 @@ namespace GPC.Model.FEM
             return element.GetStressInterlayer(x, y, globalDispl);
         }
 
-        public mnl.Vector<double> GetTLGInterlayerBending(Quad4TripleLaminatedGlass element, int indexNode)
+        public mnl.Vector<double> GetTLGInterlayerBending(Quad4TriplexLaminatedGlassIvanov element, int indexNode)
         {
             if (indexNode == 0)
             {
@@ -756,6 +870,262 @@ namespace GPC.Model.FEM
             var globalDispl = GetDisplacementsAtNodesOfElementInGlobalCoordinates(element);
 
             return element.GetBendingInterlayer(x, y, globalDispl);
+        }
+        #endregion
+        #endregion
+
+        #region GetResultQuad4TLG2
+
+        private void Quad4TLG2GetCsiEta(int indexNode, out double csi, out double eta)
+        {
+            switch (indexNode)
+            {
+                case 1:
+                    csi = -1;
+                    eta = -1;
+                    break;
+                case 2:
+                    csi = 1;
+                    eta = -1;
+                    break;
+                case 3:
+                    csi = 1;
+                    eta = 1;
+                    break;
+                case 4:
+                    csi = -1;
+                    eta = 1;
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
+        }
+
+        #region Glass
+        public mnl.Matrix<double> GetQuad4TLG2GlassStrain(Quad4TriplexLaminatedGlass element, Quad4TriplexLaminatedGlass.Glass glass, Plate.Face face, int indexNode, CoordinateSystem newSys = null)
+        {
+            if (indexNode == 0)
+            {
+                throw new ArgumentOutOfRangeException("index node from 1 to 4");
+            }
+
+            Quad4TLG2GetCsiEta(indexNode, out double csi, out double eta);
+
+            var globalDispl = GetDisplacementsAtNodesOfElementInGlobalCoordinates(element);
+
+            return element.GetGlassStrains(glass, face, csi, eta, globalDispl, newSys);
+        }
+
+        public mnl.Matrix<double> GetQuad4TLG2GlassStress(Quad4TriplexLaminatedGlass element, Quad4TriplexLaminatedGlass.Glass glass, Plate.Face face, int indexNode, CoordinateSystem newSys = null)
+        {
+            if (indexNode == 0)
+            {
+                throw new ArgumentOutOfRangeException("index node from 1 to 4");
+            }
+
+            Quad4TLG2GetCsiEta(indexNode, out double csi, out double eta);
+
+            var globalDispl = GetDisplacementsAtNodesOfElementInGlobalCoordinates(element);
+
+            return element.GetGlassStress(glass, face, csi, eta, globalDispl, newSys);
+        }
+
+        public mnl.Matrix<double> GetQuad4TLG2GlassBending(Quad4TriplexLaminatedGlass element, int indexNode, CoordinateSystem newSys = null)
+        {
+            if (indexNode == 0)
+            {
+                throw new ArgumentOutOfRangeException("index node from 1 to 4");
+            }
+
+            Quad4TLG2GetCsiEta(indexNode, out double csi, out double eta);
+
+            var globalDispl = GetDisplacementsAtNodesOfElementInGlobalCoordinates(element);
+
+            return element.GetGlassBending(csi, eta, globalDispl, newSys);
+        }
+
+        public mnl.Matrix<double> GetQuad4TLG2GlassForces(Quad4TriplexLaminatedGlass element, int indexNode, CoordinateSystem newSys = null)
+        {
+            if (indexNode == 0)
+            {
+                throw new ArgumentOutOfRangeException("index node from 1 to 4");
+            }
+
+            Quad4TLG2GetCsiEta(indexNode, out double csi, out double eta);
+
+            var globalDispl = GetDisplacementsAtNodesOfElementInGlobalCoordinates(element);
+
+            return element.GetGlassForces(csi, eta, globalDispl, newSys);
+        }
+        #endregion
+
+        #region Interlayer
+        public mnl.Matrix<double> GetQuad4TLG2InterlayerStrain(Quad4TriplexLaminatedGlass element, int indexNode, CoordinateSystem newSys = null)
+        {
+            if (indexNode == 0)
+            {
+                throw new ArgumentOutOfRangeException("index node from 1 to 4");
+            }
+
+            Quad4TLG2GetCsiEta(indexNode, out double csi, out double eta);
+
+            var globalDispl = GetDisplacementsAtNodesOfElementInGlobalCoordinates(element);
+
+            return element.GetInterlayerStrains(csi, eta, globalDispl, newSys);
+        }
+
+        public mnl.Matrix<double> GetQuad4TLG2InterlayerStress(Quad4TriplexLaminatedGlass element, int indexNode, CoordinateSystem newSys = null)
+        {
+            if (indexNode == 0)
+            {
+                throw new ArgumentOutOfRangeException("index node from 1 to 4");
+            }
+
+            Quad4TLG2GetCsiEta(indexNode, out double csi, out double eta);
+
+            var globalDispl = GetDisplacementsAtNodesOfElementInGlobalCoordinates(element);
+
+            return element.GetInterlayerStress(csi, eta, globalDispl, newSys);
+        }
+
+        public mnl.Vector<double> GetQuad4TLG2InterlayerBending(Quad4TriplexLaminatedGlass element, int indexNode)
+        {
+            if (indexNode == 0)
+            {
+                throw new ArgumentOutOfRangeException("index node from 1 to 4");
+            }
+
+            Quad4TLG2GetCsiEta(indexNode, out double csi, out double eta);
+
+            var globalDispl = GetDisplacementsAtNodesOfElementInGlobalCoordinates(element);
+
+            return element.GetInterlayerLocalBending(csi, eta, globalDispl);
+        }
+        #endregion
+        #endregion
+
+        #region GetResultTri3TLG2
+
+        private void Tri3TLG2GetCsiEta(int indexNode, out double csi, out double eta)
+        {
+            switch (indexNode)
+            {
+                case 1:
+                    csi = 0;
+                    eta = 0;
+                    break;
+                case 2:
+                    csi = 1;
+                    eta = 0;
+                    break;
+                case 3:
+                    csi = 0;
+                    eta = 1;
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
+        }
+
+        #region Glass
+        public mnl.Matrix<double> GetTri3TLG2GlassStrain(Tri3TriplexLaminatedGlass element, Tri3TriplexLaminatedGlass.Glass glass, Plate.Face face, int indexNode, CoordinateSystem newSys = null)
+        {
+            if (indexNode == 0)
+            {
+                throw new ArgumentOutOfRangeException("index node from 1 to 4");
+            }
+
+            Tri3TLG2GetCsiEta(indexNode, out double csi, out double eta);
+
+            var globalDispl = GetDisplacementsAtNodesOfElementInGlobalCoordinates(element);
+
+            return element.GetGlassStrains(glass, face, csi, eta, globalDispl, newSys);
+        }
+
+        public mnl.Matrix<double> GetTri3TLG2GlassStress(Tri3TriplexLaminatedGlass element, Tri3TriplexLaminatedGlass.Glass glass, Plate.Face face, int indexNode, CoordinateSystem newSys = null)
+        {
+            if (indexNode == 0)
+            {
+                throw new ArgumentOutOfRangeException("index node from 1 to 4");
+            }
+
+            Tri3TLG2GetCsiEta(indexNode, out double csi, out double eta);
+
+            var globalDispl = GetDisplacementsAtNodesOfElementInGlobalCoordinates(element);
+
+            return element.GetGlassStress(glass, face, csi, eta, globalDispl, newSys);
+        }
+
+        public mnl.Matrix<double> GetTri3TLG2GlassBending(Tri3TriplexLaminatedGlass element, int indexNode, CoordinateSystem newSys = null)
+        {
+            if (indexNode == 0)
+            {
+                throw new ArgumentOutOfRangeException("index node from 1 to 4");
+            }
+
+            Tri3TLG2GetCsiEta(indexNode, out double csi, out double eta);
+
+            var globalDispl = GetDisplacementsAtNodesOfElementInGlobalCoordinates(element);
+
+            return element.GetGlassBending(csi, eta, globalDispl, newSys);
+        }
+
+        public mnl.Matrix<double> GetTri3TLG2GlassForces(Tri3TriplexLaminatedGlass element, int indexNode, CoordinateSystem newSys = null)
+        {
+            if (indexNode == 0)
+            {
+                throw new ArgumentOutOfRangeException("index node from 1 to 4");
+            }
+
+            Tri3TLG2GetCsiEta(indexNode, out double csi, out double eta);
+
+            var globalDispl = GetDisplacementsAtNodesOfElementInGlobalCoordinates(element);
+
+            return element.GetGlassForces(csi, eta, globalDispl, newSys);
+        }
+        #endregion
+
+        #region Interlayer
+        public mnl.Matrix<double> GetTri3TLG2InterlayerStrain(Tri3TriplexLaminatedGlass element, int indexNode, CoordinateSystem newSys = null)
+        {
+            if (indexNode == 0)
+            {
+                throw new ArgumentOutOfRangeException("index node from 1 to 4");
+            }
+
+            Tri3TLG2GetCsiEta(indexNode, out double csi, out double eta);
+
+            var globalDispl = GetDisplacementsAtNodesOfElementInGlobalCoordinates(element);
+
+            return element.GetInterlayerStrains(csi, eta, globalDispl, newSys);
+        }
+
+        public mnl.Matrix<double> GetTri3TLG2InterlayerStress(Tri3TriplexLaminatedGlass element, int indexNode, CoordinateSystem newSys = null)
+        {
+            if (indexNode == 0)
+            {
+                throw new ArgumentOutOfRangeException("index node from 1 to 4");
+            }
+
+            Tri3TLG2GetCsiEta(indexNode, out double csi, out double eta);
+
+            var globalDispl = GetDisplacementsAtNodesOfElementInGlobalCoordinates(element);
+
+            return element.GetInterlayerStress(csi, eta, globalDispl, newSys);
+        }
+
+        public mnl.Vector<double> GetTri3TLG2InterlayerBending(Tri3TriplexLaminatedGlass element, int indexNode)
+        {
+            if (indexNode == 0)
+            {
+                throw new ArgumentOutOfRangeException("index node from 1 to 4");
+            }
+
+            Tri3TLG2GetCsiEta(indexNode, out double csi, out double eta);
+
+            var globalDispl = GetDisplacementsAtNodesOfElementInGlobalCoordinates(element);
+
+            return element.GetInterlayerLocalBending(csi, eta, globalDispl);
         }
         #endregion
         #endregion
@@ -880,7 +1250,7 @@ namespace GPC.Model.FEM
 #endregion
 #endregion
 
-#region PrescribeDisplacement
+        #region PrescribeDisplacement
         /// <summary>
         /// Modifica la matrice K e il termine noto F per l'inserimento di un spostamento imposto nei nodi con label "labelNode", grado di libertà dof e con spostamento = value;
         /// </summary>
@@ -924,9 +1294,9 @@ namespace GPC.Model.FEM
             _KGlobalRestrains[position, position] = 1.0;
             _FRestrains[position] = val;
         }
-#endregion
+        #endregion
 
-#region GetReactions
+        #region GetReactions
         public double GetReaction(Node node, DOF dof)
         {
             int pos = GetPositionInKGlobal(node, dof);
@@ -944,8 +1314,8 @@ namespace GPC.Model.FEM
             }
             return results;
         }
-#endregion
-#endregion
+        #endregion
+        #endregion
 
         #region PrivateFunction
 
@@ -983,12 +1353,17 @@ namespace GPC.Model.FEM
         private int GetPositionInKGlobal(Node node, DOF dof = 0)
         {
 #if TRUE
-            //TODO: riscrivere salvando dati in _position
             #region new
             var searchIndex = node.Position;
             if (_position.ContainsKey(searchIndex))
             {
-                return _position[searchIndex] + (int) dof;
+                if (node.DOF.Contains(dof))
+                {
+                    return _position[searchIndex] + (int)dof;
+                } else
+                {
+                    throw new ArgumentOutOfRangeException("Dof: " + dof.ToString() + "  not active in this node: " + node.ToString());
+                }
             } else
             {
                 int contatore = 0;
