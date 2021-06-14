@@ -224,6 +224,7 @@ namespace FemTest
             List<GeometryRestrain> restrains = new List<GeometryRestrain>();
             restrains.Add(new PointRestrain(Point3d.Origin, new FreedomCase("fc1"), CoordinateSystem.Global, new List<DofRestrain> { new DofRestrain(LinearSolver.DOF.DX) }));
             restrains.Add(new PointRestrain(Point3d.Origin, new FreedomCase("fc2"), CoordinateSystem.Global, new List<DofRestrain> { new DofRestrain(LinearSolver.DOF.DX) }));
+            //restrains.Add(new LineRestrain(new Line3d(new Point3d(0, 0, 0), new Point3d(1, 0, 0)), new FreedomCase("fc2"), CoordinateSystem.Global, new List<DofRestrain> { new DofRestrain(LinearSolver.DOF.DX) }));
 
 
             // Act
@@ -251,6 +252,15 @@ namespace FemTest
                 {
                     ExportMesh(mesh);
                     Assert.Fail(vertex1.Point.DistanceTo(vertex2.Point).ToString());
+                }
+            }
+
+            foreach(var element in femModel.GetElements())
+            {
+                if (element is Plate plate)
+                {
+                    if (plate.AttributesLoadCase.Count != 1)
+                        Assert.Fail($"Plate{plate.Id}");
                 }
             }
 
