@@ -45,16 +45,16 @@ namespace GPC.Model.Sections
 
         #region Public Constructors
 
-        public SectionRHS(double h, double b, double tf_top, double tf_bottom, double tw1, double tw2, Material material, string name) 
+        public SectionRHS(double height, double width, double thicknessTopFlange, double thicknessBottomFlange, double thicknessWebLeft, double thickenssWebRight, Material material, string name) 
             : base(material, name)
         {
             _angleX1 = 0;
-            _h = h;
-            _b = b;
-            _tfTop = tf_top;
-            _tfBottom = tf_bottom;
-            _twL = tw1;
-            _twR = tw2;
+            _h = height;
+            _b = width;
+            _tfTop = thicknessTopFlange;
+            _tfBottom = thicknessBottomFlange;
+            _twL = thicknessWebLeft;
+            _twR = thickenssWebRight;
 
             if (_tfBottom == _tfTop)
                 _isSymmetricAlongXLocalAxis = true;
