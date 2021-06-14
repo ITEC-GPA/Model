@@ -228,7 +228,7 @@ namespace GPC.Model.FEM.FiniteElements
             #endregion
         }
 
-        public override mnl.Matrix<double> GetB(double csi, double eta)
+        public mnl.Matrix<double> GetB(double csi, double eta)
         {
             double x = N(1, csi, eta) * _localNodes[1 - 1].Position.X + N(2, csi, eta) * _localNodes[2 - 1].Position.X + N(3, csi, eta) * _localNodes[3 - 1].Position.X;
             double y = N(1, csi, eta) * _localNodes[1 - 1].Position.Y + N(2, csi, eta) * _localNodes[2 - 1].Position.Y + N(3, csi, eta) * _localNodes[3 - 1].Position.Y;
