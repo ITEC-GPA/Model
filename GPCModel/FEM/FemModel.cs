@@ -766,10 +766,21 @@ namespace GPC.Model.FEM
                         embeddedGeometries.Add(pl.GetGeometry());
 
                     else if (load is AreaLoad al)
-                        embeddedGeometries.Add(al.GetGeometry());
+                    {
+                        Shape geometry = al.GetGeometry();
+
+                        if (geometry != shape)
+                            embeddedGeometries.Add(al.GetGeometry());
+                    }
 
                     else if (load is NormalAreaLoad nal)
-                        embeddedGeometries.Add(nal.GetGeometry());
+                    {
+                        Shape geometry = nal.GetGeometry();
+
+                        if (geometry != shape)
+                            embeddedGeometries.Add(nal.GetGeometry());
+
+                    }
                     else
                         throw new NotSupportedException($"Load type: {load.GetType()} not supported");
                 }
@@ -794,9 +805,10 @@ namespace GPC.Model.FEM
             }
 
             // Genera la mesh
-            var a = embeddedGeometries.ToArray();
+            var a = new Dictionary<Shape, GeometryBase[]>() { [shape] = embeddedGeometries.ToArray() };
+
             bool status = Mesh.Generate(new List<Shape> { shape }, 
-                                        new Dictionary<Shape, GeometryBase[]>() { [shape] = embeddedGeometries.ToArray() }, 
+                                        a, 
                                         options, 
                                         out List<Mesh> meshes, out Mesh.GenerateMeshStatus generateMeshStatus);
 
