@@ -9,7 +9,7 @@ using GPC.Model.FEM.Costrains;
 
 namespace GPC.Model.FEM
 {
-    public class NnLinearStaticSolver : Solver
+    public class NonLinearStaticSolver : Solver
     {
         #region variables
 
@@ -19,12 +19,12 @@ namespace GPC.Model.FEM
         
         #endregion
 
-        public NnLinearStaticSolver(FiniteElement[] inputElements) : this(inputElements, new MultiPointsCostrain[0])
+        public NonLinearStaticSolver(FiniteElement[] inputElements) : this(inputElements, new MultiPointsCostrain[0])
         {
 
         }
 
-        public NnLinearStaticSolver(FiniteElement[] inputElements, MultiPointsCostrain[] costrains)
+        public NonLinearStaticSolver(FiniteElement[] inputElements, MultiPointsCostrain[] costrains)
         {
             int nrElements = inputElements.Length;
 

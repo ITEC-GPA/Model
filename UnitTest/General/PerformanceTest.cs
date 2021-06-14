@@ -6,6 +6,7 @@ using GPC.Model.FEM;
 using GPC.Utilities.Time;
 using System.Collections.Generic;
 using GPC.TestUtilities;
+using System.Diagnostics;
 
 namespace GeneralTest
 {
@@ -32,7 +33,7 @@ namespace GeneralTest
 
             for (int i = 0; i < amountOfNodes; i++)
             {
-                nodesCollection.Add(new Node(10.0, 20, 30, string.Empty, indexArray[i]));
+                nodesCollection.AddUnique(new Node(10.0 + 10 * i, 20 + 15 * i, 30 + 5 * i, string.Empty, indexArray[i]));
             }
         }
 
@@ -112,6 +113,43 @@ namespace GeneralTest
 
             Assert.IsTrue(cast1Time > setTime);
             Assert.IsTrue(cast2Time < cast1Time);
+        }
+
+        [TestMethod]
+        public void AddUnique()
+        {
+            int amountOfNodes = 10000;
+            FemObjectCollection<Node> nodesCollection = new FemObjectCollection<Node>();
+
+            Stopwatch stopWatch = new Stopwatch();
+            stopWatch.Start();
+            for (int i = 0; i < amountOfNodes; i++)
+            {
+                //nodesCollection.AddUnique(new Node(10.0 + 10 * i, 20 + 15 * i, 30 + 5 * i, string.Empty));
+                nodesCollection.Add(new Node(10.0 + 10 * i, 20 + 15 * i, 30 + 5 * i, string.Empty));
+            }
+            stopWatch.Stop();
+            Debug.WriteLine(stopWatch.ElapsedMilliseconds, "R1");
+            // Aggiunta elementi alla collection vuota senza test aumento drastico da 6.5s a 30-40ms
+
+            int id = 0;
+            /*
+            stopWatch.Restart();
+            int i1 = 10001;
+            id = nodesCollection.Add(new Node(10.0 + 10 * i1, 20 + 15 * i1, 30 + 5 * i1, string.Empty));
+            stopWatch.Stop();
+            Debug.WriteLine(stopWatch.ElapsedMilliseconds, $"Id = {id}");
+            */
+
+            stopWatch.Restart();
+            for (int i = amountOfNodes; i > 0; i--)
+            {
+                id = nodesCollection.AddUnique(new Node(10.0 + 10 * i, 20 + 15 * i, 30 + 5 * i, string.Empty));
+            }
+            stopWatch.Stop();
+            Debug.WriteLine(stopWatch.ElapsedMilliseconds, $"Id = {id}");
+            // Riaggiunta degli elementi già esistenti a partire dall'ultimo al primo prestazioni discrete 2.5s (prima erano 20s)
+
         }
     }
 }

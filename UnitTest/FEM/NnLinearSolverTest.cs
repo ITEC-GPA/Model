@@ -65,7 +65,7 @@ namespace FemTest.SolverTest
             beams[0].AddEndRelease(2, hinge, "fc", "rel");
             beams[1].AddEndRelease(1, hinge, "fc", "rel");
 
-            NnLinearStaticSolver fem = new NnLinearStaticSolver(beams.ToArray());
+            NonLinearStaticSolver fem = new NonLinearStaticSolver(beams.ToArray());
 
             //Assert.AreEqual(-662.13331, fem.GetDisplacementGlobalCoordinates(nds[1], LinearSolver.DOF.DY), 1e-2);
             Assert.AreEqual(true, false); //non funziona
