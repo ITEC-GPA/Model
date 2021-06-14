@@ -16,10 +16,10 @@ using GPC.Model.LoadCases;
 namespace FemTest.SolverTest
 {
     [TestClass]
-    public class DKTTest
+    public class DKTest
     {
         [TestMethod]
-        public void Tri3DKTTest1()
+        public void Tri3DKKTest1()
         {
             Material mat = new SteelMaterial("mat", 12, 0.0, 355, 510, 7850);
             PlateProperty prop = new PlateProperty(mat.GetIsotropicFemMaterial(), 1.0, 1.0, "p");
@@ -61,16 +61,64 @@ namespace FemTest.SolverTest
             {
                 for (int c = 0; c < e0.KElementLocalCoord.ColumnCount; c++)
                 {
-                    Assert.AreEqual(e0.KElementLocalCoord[r, c] - SAPkMatrix[r, c], 0.0, 0.01);
-                    //Console.Write(e0.KElementLocalCoord[r,c].ToString("F2") + " ");    
+                    Assert.AreEqual(e0.KElementLocalCoord[r, c] - SAPkMatrix[r, c], 0.0, 0.01, "k[" + r + "," + c +"]" );   
                 }
-                //Console.WriteLine();
             }
             
         }
 
         [TestMethod]
-        public void Tri3DKTTest2()
+        public void Tri3DKKTest1a()
+        {
+            Material mat = new SteelMaterial("mat", 12, 0.0, 355, 510, 7850);
+            PlateProperty prop = new PlateProperty(mat.GetIsotropicFemMaterial(), 1.0, 1.0, "p");
+
+            Node[] nodesPlate1 = new Node[3];
+            nodesPlate1[0] = new Node(0.0, 0, 0, "1");
+            nodesPlate1[1] = new Node(10.0, 0, 0, "2");
+            nodesPlate1[2] = new Node(10.0 * Math.Cos(60.0 * Math.PI / 180), 10.0 * Math.Sin(60.0 * Math.PI / 180), 0, "3");
+
+            FiniteElement e0 = new Tri3DK(nodesPlate1);
+            e0.SetProperty(prop);
+
+            e0.BuildMatrix();
+
+            FEMUtilities.WriteMatrix(e0.KElementLocalCoord);
+
+            mnl.Matrix<double> SAPkMatrix = mnl.Matrix<double>.Build.Dense(0, 9);
+
+            mnl.Vector<double> r0 = mnl.Vector<double>.Build.Dense(new double[] { 0.08, 0.13, -0.22, -0.04, 0.1, -0.21, -0.04, 0.13, -0.19 });
+            mnl.Vector<double> r1 = mnl.Vector<double>.Build.Dense(new double[] { 0.13, 1.09, -0.09, 0.1, 0.4, 0.1, -0.23, 0.48, -0.15 });
+            mnl.Vector<double> r2 = mnl.Vector<double>.Build.Dense(new double[] { -0.22, -0.09, 1.2, 0.21, -0.1, 0.51, 0.02, 0.05, 0.43 });
+            mnl.Vector<double> r3 = mnl.Vector<double>.Build.Dense(new double[] { -0.04, 0.1, 0.21, 0.08, 0.13, 0.22, -0.04, 0.13, 0.19 });
+            mnl.Vector<double> r4 = mnl.Vector<double>.Build.Dense(new double[] { 0.1, 0.4, -0.1, 0.13, 1.09, 0.09, -0.23, 0.48, 0.15 });
+            mnl.Vector<double> r5 = mnl.Vector<double>.Build.Dense(new double[] { -0.21, 0.1, 0.51, 0.22, 0.09, 1.2, -0.02, -0.05, 0.43 });
+            mnl.Vector<double> r6 = mnl.Vector<double>.Build.Dense(new double[] { -0.04, -0.23, 0.02, -0.04, -0.23, -0.02, 0.08, -0.26, 0 });
+            mnl.Vector<double> r7 = mnl.Vector<double>.Build.Dense(new double[] { 0.13, 0.48, 0.05, 0.13, 0.48, -0.05, -0.26, 1.25, 0 });
+            mnl.Vector<double> r8 = mnl.Vector<double>.Build.Dense(new double[] { -0.19, -0.15, 0.43, 0.19, 0.15, 0.43, 0, 0, 1.04 });
+
+            SAPkMatrix = SAPkMatrix.InsertRow(0, r0);
+            SAPkMatrix = SAPkMatrix.InsertRow(1, r1);
+            SAPkMatrix = SAPkMatrix.InsertRow(2, r2);
+            SAPkMatrix = SAPkMatrix.InsertRow(3, r3);
+            SAPkMatrix = SAPkMatrix.InsertRow(4, r4);
+            SAPkMatrix = SAPkMatrix.InsertRow(5, r5);
+            SAPkMatrix = SAPkMatrix.InsertRow(6, r6);
+            SAPkMatrix = SAPkMatrix.InsertRow(7, r7);
+            SAPkMatrix = SAPkMatrix.InsertRow(8, r8);
+
+            Console.WriteLine("Element local stiffness matrix");
+            for (int r = 0; r < e0.KElementLocalCoord.RowCount; r++)
+            {
+                for (int c = 0; c < e0.KElementLocalCoord.ColumnCount; c++)
+                {
+                    Assert.AreEqual(e0.KElementLocalCoord[r, c] - SAPkMatrix[r, c], 0.0, 0.01, "k[" + r + "," + c + "]");    
+                }
+            }
+        }
+
+        [TestMethod]
+        public void Tri3DKKTest2()
         {
             Material mat = new SteelMaterial("mat", 12, 0.0, 355, 510, 7850);
             PlateProperty prop = new PlateProperty(mat.GetIsotropicFemMaterial(), 1.0, 1.0, "p");
@@ -118,9 +166,7 @@ namespace FemTest.SolverTest
                 for (int c = 0; c < fem.KGlobal.ColumnCount; c++)
                 {
                     Assert.AreEqual(fem.KGlobal[r, c] - SAPkMatrix[r, c], 0.0, 0.01, "error in position " + r +" "+ c);
-                    //Console.Write(fem.KGlobal[r, c].ToString("F2") + " ");
                 }
-                //Console.WriteLine();
             }
         }
 
@@ -129,27 +175,23 @@ namespace FemTest.SolverTest
         /// international journal for numerical methods in engineering, vol. 15 - 1771-1812 -> pg. 1797
         /// </summary>
         [TestMethod]
-        public void Tri3DKTTest3()
+        public void Tri3DKPatchTest1a()
         {
-            //TODO: sistemare per calcolo tensioni
-            LoadCaseBase loadCase = new LoadCaseBase("myLoadCase", new Guid());
-            FreedomCase freedomCase = new FreedomCase("freedomCase1");
-
             Material mat = new SteelMaterial("mat", 10000, 0.3, 355, 510, 7850);
             PlateProperty prop = new PlateProperty(mat.GetIsotropicFemMaterial(), 1.0, 1.0, "p");
 
             #region restrains
             CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
             NodeRestrainAttribute fixDXDYDZRZ = new NodeRestrainAttribute("freedomCase", sys);
-            fixDXDYDZRZ.AddExternalRestrain(LinearSolver.DOF.DX);
-            fixDXDYDZRZ.AddExternalRestrain(LinearSolver.DOF.DY);
-            fixDXDYDZRZ.AddExternalRestrain(LinearSolver.DOF.DZ);
-            fixDXDYDZRZ.AddExternalRestrain(LinearSolver.DOF.RZ);
+            fixDXDYDZRZ.AddExternalRestrain(Solver.DOF.DX);
+            fixDXDYDZRZ.AddExternalRestrain(Solver.DOF.DY);
+            fixDXDYDZRZ.AddExternalRestrain(Solver.DOF.DZ);
+            fixDXDYDZRZ.AddExternalRestrain(Solver.DOF.RZ);
 
             NodeRestrainAttribute fixDXDYRZ = new NodeRestrainAttribute("freedomCase", sys);
-            fixDXDYRZ.AddExternalRestrain(LinearSolver.DOF.DX);
-            fixDXDYRZ.AddExternalRestrain(LinearSolver.DOF.DY);
-            fixDXDYRZ.AddExternalRestrain(LinearSolver.DOF.RZ);
+            fixDXDYRZ.AddExternalRestrain(Solver.DOF.DX);
+            fixDXDYRZ.AddExternalRestrain(Solver.DOF.DY);
+            fixDXDYRZ.AddExternalRestrain(Solver.DOF.RZ);
             #endregion
 
             #region nodalforces
@@ -166,34 +208,49 @@ namespace FemTest.SolverTest
             Node nodeD = new Node(8.0, 0, 0, "D");
             nodeD.AddAttribute(fixDXDYDZRZ);
 
-            FiniteElement e0 = new Tri3DK(new Node[] { nodeA, nodeB, nodeC });
-            e0.SetProperty(prop);
-          
-            FiniteElement e1 = new Tri3DK(new Node[] { nodeB, nodeD, nodeC });
-            e1.SetProperty(prop);
-        
-            LinearSolver fem = new LinearSolver(new FiniteElement[] { e0, e1 });
+            List<Tri3DK> els = new List<Tri3DK>();
+            els.Add(new Tri3DK(new Node[] { nodeA, nodeB, nodeC }));
+            els.Add(new Tri3DK(new Node[] { nodeB, nodeD, nodeC }));
+            els.ForEach(x =>  x.SetProperty(prop));
 
-            double dz = fem.GetNodeDisplacementGlobalCoordinates(nodeC, LinearSolver.DOF.DZ);
+            LinearSolver fem = new LinearSolver(els.ToArray());
+
+            double dz = fem.GetNodeDisplacementGlobalCoordinates(nodeC, Solver.DOF.DZ);
             Assert.AreEqual(0.24960, dz, 1e-6);
 
-            double[] displElement = fem.GetDisplacementsAtNodesOfElementInGlobalCoordinates(e0);
-            e0.GetNodesResults(displElement, 
-                            out mnl.Matrix<double>[] globalPseudoDef, out mnl.Matrix<double>[] localPseudoDef,
-                            out mnl.Matrix<double>[] globalForces, out mnl.Matrix<double>[] localForces,
-                            out mnl.Matrix<double>[] globalStress, out mnl.Matrix<double>[] localStress,
-                            out mnl.Matrix<double>[] globalEpsilon, out mnl.Matrix<double>[] localEpsilon);
+            for (int i = 0; i < els.Count; i++)
+            {
+                for (int j = 1; j <= els[i].Nodes.Count(); j++)
+                {
+                    var curvatures = fem.GetDKCurvatures(els[i], j, sys);
+                    var bending = fem.GetDKBending(els[i], j, sys);
+                    var strain = fem.GetDKStrains(els[i], j, Plate.Face.Top, sys);
+                    var stress = fem.GetDKStress(els[i], j, Plate.Face.Top, sys);
 
-            double tauXY1 = globalStress[0][1, 0]; //node 1
-            double tauXY2 = globalStress[0][0, 1]; //node 1
+                    Assert.AreEqual(0.0, curvatures[0, 0], 1e-4);
+                    Assert.AreEqual(0.0, curvatures[1, 1], 1e-4);
+                    Assert.AreEqual(-0.0078, curvatures[0, 1], 1e-4);
 
-            Assert.AreEqual(-15.0, tauXY1, 0.01);
-            Assert.AreEqual(-15.0, tauXY2, 0.01);
+                    Assert.AreEqual(0.0, bending[0, 0], 1e-4);
+                    Assert.AreEqual(0.0, bending[1, 1], 1e-4);
+                    Assert.AreEqual(-2.5, bending[0, 1], 1e-4);
+
+                    Assert.AreEqual(0.0, strain[0, 0], 1e-4);
+                    Assert.AreEqual(0.0, strain[1, 1], 1e-4);
+                    Assert.AreEqual(-0.0039, strain[0, 1], 1e-6);
+
+                    Assert.AreEqual(0.0, stress[0, 0], 1e-4);
+                    Assert.AreEqual(0.0, stress[1, 1], 1e-4);
+                    Assert.AreEqual(-15.0, stress[0, 1], 1e-6);
+                }
+            }
         }
 
-        
+        /// <summary>
+        /// Check K local with manual
+        /// </summary>
         [TestMethod]
-        public void Quad4DKTTest1()
+        public void Quad4DKKTest1()
         {
             Material mat = new SteelMaterial("mat", 12, 0.0, 355, 510, 7850);
             PlateProperty prop = new PlateProperty(mat.GetIsotropicFemMaterial(), 1.0, 1.0, "p");
@@ -249,8 +306,11 @@ namespace FemTest.SolverTest
             }
         }
 
+        /// <summary>
+        /// Check KGlobal with manual
+        /// </summary>
         [TestMethod]
-        public void Quad4DKTTest2()
+        public void Quad4DKKTest2()
         {
             Material mat = new SteelMaterial("mat", 12, 0.0, 355, 510, 7850);
             PlateProperty prop = new PlateProperty(mat.GetIsotropicFemMaterial(), 1.0, 1.0, "p");
@@ -331,7 +391,7 @@ namespace FemTest.SolverTest
         }
 
         [TestMethod]
-        public void Quad4DKTTest3()
+        public void Quad4DKTest1()
         {
             Material mat = new SteelMaterial("mat", 12, 0.0, 355, 510, 7850);
             PlateProperty prop = new PlateProperty(mat.GetIsotropicFemMaterial(), 1.0, 1.0, "p");
@@ -345,8 +405,6 @@ namespace FemTest.SolverTest
             Plate e0 = new Quad4DK(nodesPlate1);
             e0.SetProperty(prop);
 
-            LoadCaseBase loadCase = new LoadCaseBase("myLoadCase", new Guid());
-            FreedomCase freedomCase = new FreedomCase("freedomCase1");
             CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
             PlatePressureAttribute pressure = new PlatePressureAttribute("loadCase", sys, 0.0, 0.0, 1.0);
             e0.AddLoadCaseAttribute(pressure);
@@ -360,7 +418,42 @@ namespace FemTest.SolverTest
         }
 
         [TestMethod]
-        public void Quad4DKTTest4()
+        public void Quad4DKTEquivalentNodesForcesTest1()
+        {
+            Material mat = new SteelMaterial("mat", 12, 0.0, 355, 510, 7850);
+            PlateProperty prop = new PlateProperty(mat.GetIsotropicFemMaterial(), 1.0, 1.0, "p");
+
+            Node[] nodesPlate1 = new Node[4];
+            nodesPlate1[0] = new Node(+0.0, +0.0, 0);
+            nodesPlate1[1] = new Node(+2.0, +0.0, 0);
+            nodesPlate1[2] = new Node(+0.1, +2.0, 0);
+            nodesPlate1[3] = new Node(+0.0, +2.0, 0);
+
+            Plate e0 = new Quad4DK(nodesPlate1);
+            e0.SetProperty(prop);
+
+            CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
+            PlatePressureAttribute pressure = new PlatePressureAttribute("loadCase", sys, 0.0, 0.0, 1.0);
+            e0.AddLoadCaseAttribute(pressure);
+
+            NodeRestrainAttribute fix = new NodeRestrainAttribute("freedomCase", sys);
+            fix.AddExternalRestrain(Solver.DOF.DX);
+            fix.AddExternalRestrain(Solver.DOF.DY);
+            fix.AddExternalRestrain(Solver.DOF.DZ);
+
+            fix.AddExternalRestrain(Solver.DOF.RX);
+            fix.AddExternalRestrain(Solver.DOF.RY);
+            fix.AddExternalRestrain(Solver.DOF.RZ);
+
+            nodesPlate1.ToList().ForEach(x => x.AddAttribute(fix));
+
+            LinearSolver fem = new LinearSolver(new FiniteElement[] { e0 });
+
+            //TODO: aggiungere assert
+        }
+
+        [TestMethod]
+        public void Quad4DKEquivalentNodesForcesTest2()
         {
             Material mat = new SteelMaterial("mat", 12, 0.0, 355, 510, 7850);
             PlateProperty prop = new PlateProperty(mat.GetIsotropicFemMaterial(), 1.0, 1.0, "p");
@@ -374,8 +467,6 @@ namespace FemTest.SolverTest
             Plate e0 = new Quad4DK(nodesPlate1);
             e0.SetProperty(prop);
 
-            LoadCaseBase loadCase = new LoadCaseBase("myLoadCase", new Guid());
-            FreedomCase freedomCase = new FreedomCase("freedomCase1");
             CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
             PlatePressureAttribute pressure = new PlatePressureAttribute("loadCase", sys, 0.0, 0.0, 1.0);
             e0.AddLoadCaseAttribute(pressure);
@@ -386,6 +477,316 @@ namespace FemTest.SolverTest
             Assert.AreEqual(1, fem.F[8], 0.001);
             Assert.AreEqual(1, fem.F[14], 0.001);
             Assert.AreEqual(1, fem.F[20], 0.001);
+        }
+
+        [TestMethod]
+        public void Quad4DKTestRobert()
+        {
+            double E = 12;
+            double ni = 0.0;
+            double t = 1;
+            Material mat = new SteelMaterial("mat", E, ni, 355, 510, 7850);
+            PlateProperty prop = new PlateProperty(mat.GetIsotropicFemMaterial(), t, t, "p");
+
+            Node[] nodesPlate1 = new Node[4];
+            nodesPlate1[0] = new Node(0.0, 0, 0, "1");
+            nodesPlate1[1] = new Node(+2.0, 0, 0, "2");
+            nodesPlate1[2] = new Node(+2.0, +2, 0, "3");
+            nodesPlate1[3] = new Node(0.0, +2, 0, "4");
+
+            Plate e0 = new Quad4DK(nodesPlate1);
+            e0.SetProperty(prop);
+
+            e0.BuildMatrix();
+            FEMUtilities.WriteMatrix(e0.KElementGlobalCoord);
+        }
+
+        [TestMethod]
+        public void Quad4DKTestRobert2()
+        {
+            double E = 12;
+            double ni = 0.0;
+            double t = 0.6299;
+            Material mat = new SteelMaterial("mat", E, ni, 355, 510, 7850);
+            PlateProperty prop = new PlateProperty(mat.GetIsotropicFemMaterial(), t, t, "p");
+
+            Node[] nodesPlate1 = new Node[4];
+            nodesPlate1[0] = new Node(0.0, 0, 0, "1");
+            nodesPlate1[1] = new Node(+2.0, 0, 0, "2");
+            nodesPlate1[2] = new Node(+2.0, +2, 0, "3");
+            nodesPlate1[3] = new Node(0.0, +2, 0, "4");
+
+            Plate e0 = new Quad4DK(nodesPlate1);
+            e0.SetProperty(prop);
+
+            e0.BuildMatrix();
+            FEMUtilities.WriteMatrix(e0.KElementGlobalCoord);
+        }
+
+        /// <summary>
+        /// piastra 12x20, piastra semplicemente appoggiata con forze concentrate. elementi rettangolari non quadrati
+        /// </summary>
+        [TestMethod]
+        public void QuadrilateralTestRobert5()
+        {
+            double h = 0.31498;
+            double E = 10000.0;
+            double ni = 0.0;
+
+            Material mat = new SteelMaterial("mat", E, ni, 355, 510, 7850);
+            PlateProperty prop = new PlateProperty(mat.GetIsotropicFemMaterial(), h, h, "p");
+
+            List<Node> nodes = new List<Node>();
+            #region nodes
+            nodes.Add(new Node(-1e6, -1e6, -1e6));
+            nodes.Add(new Node(0, 0, 0));
+            nodes.Add(new Node(0, 20, 0));
+            nodes.Add(new Node(12, 0, 0));
+            nodes.Add(new Node(12, 20, 0));
+            nodes.Add(new Node(2.5, 0, 0));
+            nodes.Add(new Node(4.7, 0, 0));
+            nodes.Add(new Node(6, 0, 0));
+            nodes.Add(new Node(8.7, 0, 0));
+            nodes.Add(new Node(10.5, 0, 0));
+            nodes.Add(new Node(0, 2.6, 0));
+            nodes.Add(new Node(2.5, 2.6, 0));
+            nodes.Add(new Node(4.7, 2.6, 0));
+            nodes.Add(new Node(6, 2.6, 0));
+            nodes.Add(new Node(8.7, 2.6, 0));
+            nodes.Add(new Node(10.5, 2.6, 0));
+            nodes.Add(new Node(12, 2.6, 0));
+            nodes.Add(new Node(0, 4.3, 0));
+            nodes.Add(new Node(2.5, 4.3, 0));
+            nodes.Add(new Node(4.7, 4.3, 0));
+            nodes.Add(new Node(6, 4.3, 0));
+            nodes.Add(new Node(8.7, 4.3, 0));
+            nodes.Add(new Node(10.5, 4.3, 0));
+            nodes.Add(new Node(12, 4.3, 0));
+            nodes.Add(new Node(0, 6, 0));
+            nodes.Add(new Node(2.5, 6, 0));
+            nodes.Add(new Node(4.7, 6, 0));
+            nodes.Add(new Node(6, 6, 0));
+            nodes.Add(new Node(8.7, 6, 0));
+            nodes.Add(new Node(10.5, 6, 0));
+            nodes.Add(new Node(12, 6, 0));
+            nodes.Add(new Node(0, 7.6, 0));
+            nodes.Add(new Node(2.5, 7.6, 0));
+            nodes.Add(new Node(4.7, 7.6, 0));
+            nodes.Add(new Node(6, 7.6, 0));
+            nodes.Add(new Node(8.7, 7.6, 0));
+            nodes.Add(new Node(10.5, 7.6, 0));
+            nodes.Add(new Node(12, 7.6, 0));
+            nodes.Add(new Node(0, 10, 0));
+            nodes.Add(new Node(2.5, 10, 0));
+            nodes.Add(new Node(4.7, 10, 0));
+            nodes.Add(new Node(6, 10, 0));
+            nodes.Add(new Node(8.7, 10, 0));
+            nodes.Add(new Node(10.5, 10, 0));
+            nodes.Add(new Node(12, 10, 0));
+            nodes.Add(new Node(0, 12.4, 0));
+            nodes.Add(new Node(2.5, 12.4, 0));
+            nodes.Add(new Node(4.7, 12.4, 0));
+            nodes.Add(new Node(6, 12.4, 0));
+            nodes.Add(new Node(8.7, 12.4, 0));
+            nodes.Add(new Node(10.5, 12.4, 0));
+            nodes.Add(new Node(12, 12.4, 0));
+            nodes.Add(new Node(0, 14.2, 0));
+            nodes.Add(new Node(2.5, 14.2, 0));
+            nodes.Add(new Node(4.7, 14.2, 0));
+            nodes.Add(new Node(6, 14.2, 0));
+            nodes.Add(new Node(8.7, 14.2, 0));
+            nodes.Add(new Node(10.5, 14.2, 0));
+            nodes.Add(new Node(12, 14.2, 0));
+            nodes.Add(new Node(0, 16, 0));
+            nodes.Add(new Node(2.5, 16, 0));
+            nodes.Add(new Node(4.7, 16, 0));
+            nodes.Add(new Node(6, 16, 0));
+            nodes.Add(new Node(8.7, 16, 0));
+            nodes.Add(new Node(10.5, 16, 0));
+            nodes.Add(new Node(12, 16, 0));
+            nodes.Add(new Node(0, 17.6, 0));
+            nodes.Add(new Node(2.5, 17.6, 0));
+            nodes.Add(new Node(4.7, 17.6, 0));
+            nodes.Add(new Node(6, 17.6, 0));
+            nodes.Add(new Node(8.7, 17.6, 0));
+            nodes.Add(new Node(10.5, 17.6, 0));
+            nodes.Add(new Node(12, 17.6, 0));
+            nodes.Add(new Node(2.5, 20, 0));
+            nodes.Add(new Node(4.7, 20, 0));
+            nodes.Add(new Node(6, 20, 0));
+            nodes.Add(new Node(8.7, 20, 0));
+            nodes.Add(new Node(10.5, 20, 0));
+            #endregion
+
+            #region plates
+            List<Quad4DK> els = new List<Quad4DK>();
+            els.Add(new Quad4DK(new Node[] { nodes[71], nodes[72], nodes[4], nodes[77] }));
+            els.Add(new Quad4DK(new Node[] { nodes[1], nodes[5], nodes[11], nodes[10] }));
+            els.Add(new Quad4DK(new Node[] { nodes[5], nodes[6], nodes[12], nodes[11] }));
+            els.Add(new Quad4DK(new Node[] { nodes[6], nodes[7], nodes[13], nodes[12] }));
+            els.Add(new Quad4DK(new Node[] { nodes[7], nodes[8], nodes[14], nodes[13] }));
+            els.Add(new Quad4DK(new Node[] { nodes[8], nodes[9], nodes[15], nodes[14] }));
+            els.Add(new Quad4DK(new Node[] { nodes[9], nodes[3], nodes[16], nodes[15] }));
+            els.Add(new Quad4DK(new Node[] { nodes[10], nodes[11], nodes[18], nodes[17] }));
+            els.Add(new Quad4DK(new Node[] { nodes[11], nodes[12], nodes[19], nodes[18] }));
+            els.Add(new Quad4DK(new Node[] { nodes[12], nodes[13], nodes[20], nodes[19] }));
+            els.Add(new Quad4DK(new Node[] { nodes[13], nodes[14], nodes[21], nodes[20] }));
+            els.Add(new Quad4DK(new Node[] { nodes[14], nodes[15], nodes[22], nodes[21] }));
+            els.Add(new Quad4DK(new Node[] { nodes[15], nodes[16], nodes[23], nodes[22] }));
+            els.Add(new Quad4DK(new Node[] { nodes[17], nodes[18], nodes[25], nodes[24] }));
+            els.Add(new Quad4DK(new Node[] { nodes[18], nodes[19], nodes[26], nodes[25] }));
+            els.Add(new Quad4DK(new Node[] { nodes[19], nodes[20], nodes[27], nodes[26] }));
+            els.Add(new Quad4DK(new Node[] { nodes[20], nodes[21], nodes[28], nodes[27] }));
+            els.Add(new Quad4DK(new Node[] { nodes[21], nodes[22], nodes[29], nodes[28] }));
+            els.Add(new Quad4DK(new Node[] { nodes[22], nodes[23], nodes[30], nodes[29] }));
+            els.Add(new Quad4DK(new Node[] { nodes[24], nodes[25], nodes[32], nodes[31] }));
+            els.Add(new Quad4DK(new Node[] { nodes[25], nodes[26], nodes[33], nodes[32] }));
+            els.Add(new Quad4DK(new Node[] { nodes[26], nodes[27], nodes[34], nodes[33] }));
+            els.Add(new Quad4DK(new Node[] { nodes[27], nodes[28], nodes[35], nodes[34] }));
+            els.Add(new Quad4DK(new Node[] { nodes[28], nodes[29], nodes[36], nodes[35] }));
+            els.Add(new Quad4DK(new Node[] { nodes[29], nodes[30], nodes[37], nodes[36] }));
+            els.Add(new Quad4DK(new Node[] { nodes[31], nodes[32], nodes[39], nodes[38] }));
+            els.Add(new Quad4DK(new Node[] { nodes[32], nodes[33], nodes[40], nodes[39] }));
+            els.Add(new Quad4DK(new Node[] { nodes[33], nodes[34], nodes[41], nodes[40] }));
+            els.Add(new Quad4DK(new Node[] { nodes[34], nodes[35], nodes[42], nodes[41] }));
+            els.Add(new Quad4DK(new Node[] { nodes[35], nodes[36], nodes[43], nodes[42] }));
+            els.Add(new Quad4DK(new Node[] { nodes[36], nodes[37], nodes[44], nodes[43] }));
+            els.Add(new Quad4DK(new Node[] { nodes[38], nodes[39], nodes[46], nodes[45] }));
+            els.Add(new Quad4DK(new Node[] { nodes[39], nodes[40], nodes[47], nodes[46] }));
+            els.Add(new Quad4DK(new Node[] { nodes[40], nodes[41], nodes[48], nodes[47] }));
+            els.Add(new Quad4DK(new Node[] { nodes[41], nodes[42], nodes[49], nodes[48] }));
+            els.Add(new Quad4DK(new Node[] { nodes[42], nodes[43], nodes[50], nodes[49] }));
+            els.Add(new Quad4DK(new Node[] { nodes[43], nodes[44], nodes[51], nodes[50] }));
+            els.Add(new Quad4DK(new Node[] { nodes[45], nodes[46], nodes[53], nodes[52] }));
+            els.Add(new Quad4DK(new Node[] { nodes[46], nodes[47], nodes[54], nodes[53] }));
+            els.Add(new Quad4DK(new Node[] { nodes[47], nodes[48], nodes[55], nodes[54] }));
+            els.Add(new Quad4DK(new Node[] { nodes[48], nodes[49], nodes[56], nodes[55] }));
+            els.Add(new Quad4DK(new Node[] { nodes[49], nodes[50], nodes[57], nodes[56] }));
+            els.Add(new Quad4DK(new Node[] { nodes[50], nodes[51], nodes[58], nodes[57] }));
+            els.Add(new Quad4DK(new Node[] { nodes[52], nodes[53], nodes[60], nodes[59] }));
+            els.Add(new Quad4DK(new Node[] { nodes[53], nodes[54], nodes[61], nodes[60] }));
+            els.Add(new Quad4DK(new Node[] { nodes[54], nodes[55], nodes[62], nodes[61] }));
+            els.Add(new Quad4DK(new Node[] { nodes[55], nodes[56], nodes[63], nodes[62] }));
+            els.Add(new Quad4DK(new Node[] { nodes[56], nodes[57], nodes[64], nodes[63] }));
+            els.Add(new Quad4DK(new Node[] { nodes[57], nodes[58], nodes[65], nodes[64] }));
+            els.Add(new Quad4DK(new Node[] { nodes[59], nodes[60], nodes[67], nodes[66] }));
+            els.Add(new Quad4DK(new Node[] { nodes[60], nodes[61], nodes[68], nodes[67] }));
+            els.Add(new Quad4DK(new Node[] { nodes[61], nodes[62], nodes[69], nodes[68] }));
+            els.Add(new Quad4DK(new Node[] { nodes[62], nodes[63], nodes[70], nodes[69] }));
+            els.Add(new Quad4DK(new Node[] { nodes[63], nodes[64], nodes[71], nodes[70] }));
+            els.Add(new Quad4DK(new Node[] { nodes[64], nodes[65], nodes[72], nodes[71] }));
+            els.Add(new Quad4DK(new Node[] { nodes[66], nodes[67], nodes[73], nodes[2] }));
+            els.Add(new Quad4DK(new Node[] { nodes[67], nodes[68], nodes[74], nodes[73] }));
+            els.Add(new Quad4DK(new Node[] { nodes[68], nodes[69], nodes[75], nodes[74] }));
+            els.Add(new Quad4DK(new Node[] { nodes[69], nodes[70], nodes[76], nodes[75] }));
+            els.Add(new Quad4DK(new Node[] { nodes[70], nodes[71], nodes[77], nodes[76] }));
+            #endregion
+            els.ForEach(x => x.SetProperty(prop));
+
+            CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
+
+            NodeForceAttribute f = new NodeForceAttribute("lc", sys, 0, 0, 100, 0, 0, 0);
+            nodes.Where(x => x.Position.X == 6.0 && x.Position.Y == 10.0).ToList().ForEach(x => x.AddAttribute(f));
+
+            NodeRestrainAttribute dz = new NodeRestrainAttribute("freedomCase", sys);
+            dz.AddExternalRestrain(Solver.DOF.DZ);
+
+            nodes[1].AddAttribute(dz);
+            nodes[3].AddAttribute(dz);
+            nodes[4].AddAttribute(dz);
+            nodes[2].AddAttribute(dz);
+
+            NodeRestrainAttribute fix = new NodeRestrainAttribute("freedomCase", sys);
+            fix.AddExternalRestrain(Solver.DOF.DX);
+            fix.AddExternalRestrain(Solver.DOF.DY);
+            fix.AddExternalRestrain(Solver.DOF.RZ);
+
+            nodes.ForEach(x => x.AddAttribute(fix));
+
+            LinearSolver fem = new LinearSolver(els.ToArray()); 
+
+            //TODO: aggiungere Assert, spostamenti, rotazioni, curvature, tensioni
+        }
+
+        /// <summary>
+        /// Batoz articolo
+        /// </summary>
+        [TestMethod]
+        public void Quad4DKPatchTest1()
+        {
+            double h = 1.0;
+            double E = 1000.0;
+            double ni = 0.0;
+
+            Material mat = new SteelMaterial("mat", E, ni, 355, 510, 7850);
+            PlateProperty prop = new PlateProperty(mat.GetIsotropicFemMaterial(), h, h, "p");
+
+            List<Node> nodes = new List<Node>();
+            #region nodes
+            nodes.Add(new Node(-1e6, -1e6, -1e6));
+            nodes.Add(new Node(0, 0, 0));
+            nodes.Add(new Node(40, 0, 0));
+            nodes.Add(new Node(0, 20, 0));
+            nodes.Add(new Node(40, 20, 0));
+            nodes.Add(new Node(29, 4, 0));
+            nodes.Add(new Node(29, 14, 0));
+            nodes.Add(new Node(5, 17.5, 0));
+            nodes.Add(new Node(20, 7, 0));
+            #endregion
+
+            #region plates
+            List<Quad4DK> els = new List<Quad4DK>();
+            els.Add(new Quad4DK(new Node[] { nodes[5], nodes[6], nodes[7], nodes[8] }));
+            els.Add(new Quad4DK(new Node[] { nodes[2], nodes[4], nodes[6], nodes[5] }));
+            els.Add(new Quad4DK(new Node[] { nodes[4], nodes[3], nodes[7], nodes[6] }));
+            els.Add(new Quad4DK(new Node[] { nodes[3], nodes[1], nodes[8], nodes[7] }));
+            els.Add(new Quad4DK(new Node[] { nodes[1], nodes[2], nodes[5], nodes[8] }));
+
+            #endregion
+            els.ForEach(x => x.SetProperty(prop));
+
+            CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
+
+            NodeForceAttribute f = new NodeForceAttribute("lc", sys, 0, 0, -2, 0, 0, 0);
+            nodes.Where(x => x.Position.X == 40.0 && x.Position.Y == 20.0).ToList().ForEach(x => x.AddAttribute(f));
+
+            NodeForceAttribute mxPlus = new NodeForceAttribute("lc", sys, 0, 0, 0, 20, 0, 0);
+ 
+            NodeForceAttribute mxMinus = new NodeForceAttribute("lc", sys, 0, 0, 0, -20, 0, 0);
+
+            NodeForceAttribute myPlus = new NodeForceAttribute("lc", sys, 0, 0, 0, 0, 10, 0);
+
+            NodeForceAttribute myMinus = new NodeForceAttribute("lc", sys, 0, 0, 0, 0, -10, 0);
+
+            nodes[1].AddAttribute(mxPlus);
+            nodes[1].AddAttribute(myMinus);
+
+            nodes[2].AddAttribute(mxPlus);
+            nodes[2].AddAttribute(myPlus);
+
+            nodes[3].AddAttribute(mxMinus);
+            nodes[3].AddAttribute(myMinus);
+
+            nodes[4].AddAttribute(mxMinus);
+            nodes[4].AddAttribute(myPlus);
+
+            NodeRestrainAttribute dz = new NodeRestrainAttribute("freedomCase", sys);
+            dz.AddExternalRestrain(Solver.DOF.DZ);
+
+            nodes[1].AddAttribute(dz);
+            nodes[2].AddAttribute(dz);
+            nodes[3].AddAttribute(dz);
+
+            NodeRestrainAttribute fix = new NodeRestrainAttribute("freedomCase", sys);
+            fix.AddExternalRestrain(Solver.DOF.DX);
+            fix.AddExternalRestrain(Solver.DOF.DY);
+            fix.AddExternalRestrain(Solver.DOF.RZ);
+
+            nodes.ForEach(x => x.AddAttribute(fix));
+
+            LinearSolver fem = new LinearSolver(els.ToArray());
+
+            var bending = fem.GetDKBending(els[0], 1, sys);
         }
     }
 }

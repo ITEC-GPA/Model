@@ -12,6 +12,9 @@ namespace GPC.Model.FEM
             RX,   //3
             RY,   //4
             RZ,   //5
+            DDX,   //0
+            DDY,   //1
+            DDZ,   //2
         }
 
         public static int MAXDOFPERNODE = Enum.GetNames(typeof(DOF)).Length;
