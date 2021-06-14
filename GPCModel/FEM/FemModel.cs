@@ -805,10 +805,8 @@ namespace GPC.Model.FEM
             }
 
             // Genera la mesh
-            var a = new Dictionary<Shape, GeometryBase[]>() { [shape] = embeddedGeometries.ToArray() };
-
-            bool status = Mesh.Generate(new List<Shape> { shape }, 
-                                        a, 
+            bool status = Mesh.Generate(new List<Shape> { shape },
+                                        new Dictionary<Shape, GeometryBase[]>() { [shape] = embeddedGeometries.ToArray() }, 
                                         options, 
                                         out List<Mesh> meshes, out Mesh.GenerateMeshStatus generateMeshStatus);
 
@@ -845,6 +843,8 @@ namespace GPC.Model.FEM
                     {
                         if (generateMeshStatus.EmbeddedGeometriesVertexMap[meshes.First()].ContainsKey(al.GetGeometry()))
                             plateLoadMeshEntityMap[al] = generateMeshStatus.EmbeddedGeometriesVertexMap[meshes.First()][al.GetGeometry()];
+                        else if (al.GetGeometry() == shape)
+                            plateLoadMeshEntityMap[al] = meshes[0].Faces.GetIds().ToArray();
                     }
                     else
                         throw new NotSupportedException($"Load type: {load.GetType()} not supported");
@@ -859,7 +859,7 @@ namespace GPC.Model.FEM
                 }
             }
 
-            AddMesh(meshes.First(), platePropertyName, null, vertexLoadMeshEntityMap, vertexLineLoadMeshEntityMap, null, restrainMeshEntityMap, out _, out _, out _);
+            AddMesh(meshes.First(), platePropertyName, null, vertexLoadMeshEntityMap, vertexLineLoadMeshEntityMap, plateLoadMeshEntityMap, restrainMeshEntityMap, out _, out _, out _);
         }
 
 
