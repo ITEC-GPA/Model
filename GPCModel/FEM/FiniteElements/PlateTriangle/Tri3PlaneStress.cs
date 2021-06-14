@@ -156,7 +156,7 @@ namespace GPC.Model.FEM.FiniteElements
             #endregion
         }
 
-        public override mnl.Matrix<double> GetB(double csi = 0, double eta = 0)
+        public mnl.Matrix<double> GetB(double csi = 0, double eta = 0)
         {
             return _b; //constant in the element
         }

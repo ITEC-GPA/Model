@@ -159,7 +159,7 @@ namespace GPC.Model.FEM.FiniteElements
             #endregion
         }
 
-        public override mnl.Matrix<double> GetB(double csi, double eta)
+        public mnl.Matrix<double> GetB(double csi, double eta)
         {
             /*
              * THESIS - DEVELOPMENT OF MEMBRANE, PLATE AND SHELL ELEMENTS IN JAVA

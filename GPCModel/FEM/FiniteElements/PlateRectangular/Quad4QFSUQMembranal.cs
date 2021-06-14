@@ -184,7 +184,7 @@ namespace GPC.Model.FEM.FiniteElements
             #endregion
         }
 
-        public override mnl.Matrix<double> GetB(double csi, double eta)
+        public mnl.Matrix<double> GetB(double csi, double eta)
         {
             return BMatrix(csi, eta, _localNodes);
         }

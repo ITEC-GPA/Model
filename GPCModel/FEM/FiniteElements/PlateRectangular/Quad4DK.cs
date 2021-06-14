@@ -332,7 +332,7 @@ namespace GPC.Model.FEM.FiniteElements
             return invJacob;
         }
 
-        public override mnl.Matrix<double> GetB(double csi, double eta)
+        protected override mnl.Matrix<double> GetB(double csi, double eta)
         {
             var invJacob = GetInvJacobian(csi, eta);
 
