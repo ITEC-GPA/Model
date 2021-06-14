@@ -44,31 +44,33 @@ namespace GPC.Model.Restrains
         }
 
         /// <summary>
-        /// Set all the <see cref="Solver.DOF"/> to restrained for the given line and freedomcase
+        /// Set all the <see cref="Solver.DOF.DX"/>, <see cref="Solver.DOF.DY"/>, <see cref="Solver.DOF.DZ"/> and <see cref="Solver.DOF.RX"/>, <see cref="Solver.DOF.RY"/> and <see cref="Solver.DOF.RZ"/> to restrained for the given line and freedomcase
         /// </summary>
         public static LineRestrain GetAllFixed(Line3d line, FreedomCase freedomCase, CoordinateSystem coordinateSystem)
         {
-            List<DofRestrain> restrains = new List<DofRestrain>();
-
-            foreach (var dof in (Solver.DOF[])Enum.GetValues(typeof(Solver.DOF)))
-            {
-                restrains.Add(new DofRestrain(dof));
-            }
-
-            return new LineRestrain(line, freedomCase, coordinateSystem, restrains);
+            return new LineRestrain(line, freedomCase, coordinateSystem, new List<DofRestrain>
+                                                                        {
+                                                                            new DofRestrain(Solver.DOF.DX),
+                                                                            new DofRestrain(Solver.DOF.DY),
+                                                                            new DofRestrain(Solver.DOF.DZ),
+                                                                            new DofRestrain(Solver.DOF.RZ),
+                                                                            new DofRestrain(Solver.DOF.RZ),
+                                                                            new DofRestrain(Solver.DOF.RZ)
+                                                                        }
+            );
         }
 
         /// <summary>
-        /// Set <see cref="Solver.DOF.DX"/> <see cref="Solver.DOF.DX"/>, <see cref="Solver.DOF.DY"/> and <see cref="Solver.DOF.DZ"/> to restrained for the given line and freedomcase
+        /// Set <see cref="Solver.DOF.DX"/>, <see cref="Solver.DOF.DY"/> and <see cref="Solver.DOF.DZ"/> to restrained for the given line and freedomcase
         /// </summary>
         public static LineRestrain GetAllDisplacementFixed(Line3d line, FreedomCase freedomCase, CoordinateSystem coordinateSystem)
         {
             return new LineRestrain(line, freedomCase, coordinateSystem, new List<DofRestrain>
-                        {
-                            new DofRestrain(Solver.DOF.DX),
-                            new DofRestrain(Solver.DOF.DY),
-                            new DofRestrain(Solver.DOF.DZ)
-                        }
+                                                                            {
+                                                                                new DofRestrain(Solver.DOF.DX),
+                                                                                new DofRestrain(Solver.DOF.DY),
+                                                                                new DofRestrain(Solver.DOF.DZ)
+                                                                            }
             );
         }
 
