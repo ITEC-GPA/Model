@@ -56,14 +56,16 @@ namespace GPC.Model.Restrains
         /// </summary>
         public static PointRestrain GetAllFixed(Point3d point, FreedomCase freedomCase, CoordinateSystem coordinateSystem) 
         {
-            List<DofRestrain> restrains = new List<DofRestrain>();
 
-            foreach (var dof in (Solver.DOF[])Enum.GetValues(typeof(Solver.DOF)))
-            {
-                restrains.Add(new DofRestrain(dof));
-            }
-
-            return new PointRestrain(point, freedomCase, coordinateSystem, restrains);                
+            return new PointRestrain(point, freedomCase, coordinateSystem, new List<DofRestrain>
+                                                                        {
+                                                                            new DofRestrain(Solver.DOF.DX),
+                                                                            new DofRestrain(Solver.DOF.DY),
+                                                                            new DofRestrain(Solver.DOF.DZ),
+                                                                            new DofRestrain(Solver.DOF.RX),
+                                                                            new DofRestrain(Solver.DOF.RY),
+                                                                            new DofRestrain(Solver.DOF.RZ)
+                                                                        });        
         }
 
         /// <summary>
