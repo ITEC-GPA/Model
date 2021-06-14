@@ -131,12 +131,6 @@ namespace GPC.Model.FEM.FiniteElements
             throw new NotImplementedException();
         }
 
-        //TODO: Da ottimizzare/scrivere
-        public new void GetNodesResults(double[] globalDisplacementsNodes, out mnl.Matrix<double>[] gloabalPseudoDeformation, out mnl.Matrix<double>[] localPseudoDeformation, out mnl.Matrix<double>[] globalForces, out mnl.Matrix<double>[] localForces, out mnl.Matrix<double>[] globalStress, out mnl.Matrix<double>[] localStress, out mnl.Matrix<double>[] globalEpsilon, out mnl.Matrix<double>[] localEpsilon)
-        {
-            throw new NotImplementedException();
-        }
-
         private string GetDebuggerDisplay()
         {
             var prop = Property != null ? Property.Name : String.Empty;
@@ -163,7 +157,6 @@ namespace GPC.Model.FEM.FiniteElements
                 throw new NotImplementedException("This plate have nr of nodes different than 3 or 4");
             }
         }
-        
 
         // GetNodalDisplacement()
 

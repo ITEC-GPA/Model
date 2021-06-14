@@ -154,16 +154,6 @@ namespace GPC.Model.FEM.FiniteElements
             return F;
         }
 
-        /*/// <summary>
-        /// Retrieve sigma, epsilon, N, M, etc in the element from displacement
-        /// Top then bottom , then nr node. Example: stress[5] in element with 3 nodes with top and bottom: in equal to: 3 top, 2 bottom -> node 2 bottom
-        /// </summary>*/
-        //TODO: Da ottimizzare/scrivere
-        public void GetNodesResults(double[] globalDisplacementsNodes, out mnl.Matrix<double>[] gloabalPseudoDeformation, out mnl.Matrix<double>[] localPseudoDeformation, out mnl.Matrix<double>[] globalForces, out mnl.Matrix<double>[] localForces, out mnl.Matrix<double>[] globalStress, out mnl.Matrix<double>[] localStress, out mnl.Matrix<double>[] globalEpsilon, out mnl.Matrix<double>[] localEpsilon)
-        {
-            throw new Exception("ottimizzare questa funzione");
-        }
-
         public virtual void AddResult(FiniteElementResult result)
         {
             if (result != null)

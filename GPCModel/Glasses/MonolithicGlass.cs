@@ -80,6 +80,31 @@ namespace GPC.Model.Glasses
         }
 
 
+        /// <inheritdoc cref="IGlassPanel.GetElasticModulus()"/>
+        public double GetElasticModulus()
+        {
+            return _material.E;
+        }
+
+        /// <inheritdoc cref="IGlassPanel.GetPoissonRatios()"/>
+        public double GetPoissonRatios()
+        {
+            return _material.Ni;
+        }
+
+        /// <inheritdoc cref="IGlassPanel.GetSelfWeightPerUnitArea()"/>
+        public double GetSelfWeightPerUnitArea()
+        {
+            // mm * T/mm3 => T / mm2
+            return _thickness * _material.Density;
+        }
+
+        /// <inheritdoc cref="IGlassPanel.GetDensity()"/>
+        public double GetDensity()
+        {
+            return _material.Density;
+        }
+
         #region Equals - HashCode - Operators
 
         public override void GetObjectData(SerializationInfo info, StreamingContext context)

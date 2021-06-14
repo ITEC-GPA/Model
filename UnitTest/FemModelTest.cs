@@ -219,7 +219,8 @@ namespace FemTest
             List<Load> loads = new List<Load>
             {
                 new PointLoad(1, 2, 3, 4, 5, 6, Point3d.Origin, new LoadCaseBase("lc1")),
-                new LineLoad(1, 2, 3, 4, 5, 6, new Line3d(new Point3d(50, 50, 0), new Point3d(100, 100, 0)), new LoadCaseBase("lc2"))
+                new LineLoad(1, 2, 3, 4, 5, 6, new Line3d(new Point3d(50, 50, 0), new Point3d(100, 100, 0)), new LoadCaseBase("lc2")),
+                new NormalAreaLoad(1, s, new LoadCaseBase("lc3"))
             };
 
             List<GeometryRestrain> restrains = new List<GeometryRestrain>();

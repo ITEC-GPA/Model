@@ -121,6 +121,31 @@ namespace GPC.Model.Glasses
             return package;
         }
 
+
+        /// <inheritdoc cref="IGlassPanel.GetElasticModulus()"/>
+        public double GetElasticModulus()
+        {
+            return _monolithicGlasses.Select(i => i.Material.E).Min();
+        }
+
+        /// <inheritdoc cref="IGlassPanel.GetPoissonRatios()"/>
+        public double GetPoissonRatios()
+        {
+            return _monolithicGlasses.Select(i => i.Material.Ni).Min();
+        }
+
+        /// <inheritdoc cref="IGlassPanel.GetSelfWeightPerUnitArea()"/>
+        public double GetSelfWeightPerUnitArea()
+        {
+            return _monolithicGlasses.Select(i => i.Thickness * i.Material.Density).Sum() + _interlayers.Select(i => i.Thickness * i.Material.Density).Sum();
+        }
+
+        /// <inheritdoc cref="IGlassPanel.GetDensity()"/>
+        public double GetDensity()
+        {
+            return GetSelfWeightPerUnitArea() / TotalThickness;
+        }
+
         #endregion 
 
         #region Equals - HashCode - Operators

@@ -82,9 +82,7 @@ namespace GPC.Model.Materials
 
         #region PUBLIC CONSTRUCTORS
 
-        /// <summary>
-        /// 
-        /// </summary>
+
         /// <param name="name"></param>
         /// <param name="elasticModulus">Elastic modulus of the glass [MPa]</param>
         /// <param name="poisson">poisson ratio's of the glass</param>
@@ -102,9 +100,27 @@ namespace GPC.Model.Materials
             // TODO: ke factors
         }
 
-        /// <summary>
-        ///
-        /// </summary>
+        /// <param name="name"></param>
+        /// <param name="elasticModulus">Elastic modulus of the glass [MPa]</param>
+        /// <param name="poisson">poisson ratio's of the glass</param>
+        /// <param name="fgk">Characeristic value of bending strength of annealed glass [MPa]</param>
+        /// <param name="glassType"></param>
+        /// <param name="surfaceTreatment"></param>
+        /// <param name="prestressType"></param>
+        /// <param name="manufactoringProcess"></param>
+        /// <param name="density">Density of the material [T/mm^3]</param>
+        /// <param name="alfaThermalExpansion">Alfa linear thermal expansion coefficient</param>
+        public GlassMaterialEn16612(string name, double elasticModulus, double poisson, double fgk, double density, double alfaThermalExpansion, 
+                                    GlassTypes glassType = GlassTypes.FloatGlass, 
+                                    SurfaceTreatments surfaceTreatment = SurfaceTreatments.AsProduced, 
+                                    PrestressTypes prestressType = PrestressTypes.Annealed,
+                                    ManufactoringProcesses manufactoringProcess = ManufactoringProcesses.HorizontalToughening)
+
+            : this(name, elasticModulus, poisson, fgk, glassType, surfaceTreatment, prestressType, manufactoringProcess, density, alfaThermalExpansion, Guid.NewGuid())
+        {
+
+        }
+
         /// <param name="name"></param>
         /// <param name="elasticModulus">Elastic modulus of the glass [MPa]</param>
         /// <param name="poisson">poisson ratio's of the glass</param>
@@ -144,9 +160,7 @@ namespace GPC.Model.Materials
 
         #region Public method override 
 
-        /// <summary>
-        /// 
-        /// </summary>
+
         /// <param name="edgeResistance">if true give the resistance on edge</param>
         /// <param name="loadDuration">load duration [seconds]</param>
         /// <returns>The glass resistance according to NCSEA §3.5</returns>
