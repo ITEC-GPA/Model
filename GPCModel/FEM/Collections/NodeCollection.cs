@@ -9,26 +9,22 @@ namespace GPC.Model.FEM.Collections
 {
     public class NodeCollection : IEnumerable<Node>
     {
-        protected readonly List<Node> _list;
-        protected int _lastId;
-
         protected class PositionComparer : IComparer<Node>
         {
             public int Compare(Node x, Node y)
             {
-                //if (x.Position.X != y.Position.X)
                 if (Math.Abs(x.Position.X - y.Position.X) > 0.001)
                     return x.Position.X < y.Position.X ? -1 : 1;
-                //if (x.Position.Y != y.Position.Y)
                 if (Math.Abs(x.Position.Y - y.Position.Y) > 0.001)
                     return x.Position.Y < y.Position.Y ? -1 : 1;
-                //if (x.Position.Z != y.Position.Z)
                 if (Math.Abs(x.Position.Z - y.Position.Z) > 0.001)
                     return x.Position.Z < y.Position.Z ? -1 : 1;
                 return 0;
             }
         }
 
+        protected readonly List<Node> _list;
+        protected int _lastId;
         protected static PositionComparer _positionComparer = new PositionComparer();
 
         /// <summary>
@@ -238,15 +234,7 @@ namespace GPC.Model.FEM.Collections
         /// <returns>True id success</returns>
         public bool RemoveById(int id)
         {
-            int pos = -1;
-            Parallel.For(0, _list.Count, (i, state) =>
-            {
-                if (_list[i].Id == id)
-                {
-                    pos = i;
-                    state.Stop();
-                }
-            });
+            int pos = GetIndexById(id);
             if (pos >= 0)
             {
                 _list.RemoveAt(pos);

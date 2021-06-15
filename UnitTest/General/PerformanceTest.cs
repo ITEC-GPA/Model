@@ -330,7 +330,7 @@ namespace GeneralTest
             }
             stopWatch.Stop();
             Debug.WriteLine(stopWatch.ElapsedMilliseconds, "Elapsed time");
-
+            // Tempo per modificare e riordinare 10000 nodi 2.0-2.5s
         }
     }
 }
