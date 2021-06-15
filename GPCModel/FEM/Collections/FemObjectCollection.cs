@@ -383,7 +383,7 @@ namespace GPC.Model.FEM.Collections
 
         public virtual void GetObjectData(SerializationInfo info, StreamingContext context)
         {
-            info.AddValue("Collection", _collection);
+            info.AddValue("Collection", _collection, typeof(List<T>));
         }
 
 
