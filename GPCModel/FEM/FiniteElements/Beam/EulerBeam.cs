@@ -34,8 +34,8 @@ namespace GPC.Model.FEM.FiniteElements
             double E = section.Material.E;
             double G = E / (2.0 * (1.0 + section.Material.Ni));
             double A = section.Area;
-            double Jzz = section.J22;
-            double Jyy = section.J11;
+            double Jzz = section.Jyy;
+            double Jyy = section.Jxx;
             double Jt = section.Jt;
             _length = _nodesGlobal[0].Position.DistanceTo(_nodesGlobal[1].Position);
             double L = _length;
@@ -927,8 +927,8 @@ namespace GPC.Model.FEM.FiniteElements
             Dictionary<LocalDOF, double> displLocalNode2 = GetLocalDisplacementsAtNode(Beam.EndSide.End2, globalDisplacementsNodes);
 
             double E = ((Section)_property).Material.E;
-            double J11 = ((Section)_property).J11;
-            double J22 = ((Section)_property).J22;
+            double J11 = ((Section)_property).Jxx;
+            double J22 = ((Section)_property).Jyy;
             double A = ((Section)_property).Area;
 
             #region uniformLoad

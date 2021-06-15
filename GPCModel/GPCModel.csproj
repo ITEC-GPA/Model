@@ -77,12 +77,15 @@
     <Compile Include="Base\UnitsSystem.cs" />
     <Compile Include="Base\Units.cs" />
     <Compile Include="Combinations\CombinationsCollection.cs" />
-    <Compile Include="Combinations\Standard.cs" />
-    <Compile Include="Combinations\StandardASCE16.cs" />
-    <Compile Include="Combinations\StandardEN16612.cs" />
-    <Compile Include="Combinations\StandardEN1990.cs" />
+    <Compile Include="Sections\Steel\ISteelSection.cs" />
+    <Compile Include="Standards\Standard.cs" />
+    <Compile Include="Standards\StandardASCE16.cs" />
+    <Compile Include="Standards\StandardCopSuos2011.cs" />
+    <Compile Include="Standards\StandardEN16612.cs" />
+    <Compile Include="Standards\StandardEN1990.cs" />
     <Compile Include="Combinations\Combination.cs" />
-    <Compile Include="Combinations\StandardUNIEN1990.cs" />
+    <Compile Include="Standards\StandardEn1993p11.cs" />
+    <Compile Include="Standards\StandardUNIEN1990.cs" />
     <Compile Include="Elements\GhostElement.cs" />
     <Compile Include="FEM\Attributes\FreedomCase\BeamReleasesAttribute.cs" />
     <Compile Include="FEM\Attributes\IBeamFreedomCaseAttribute.cs" />
@@ -223,7 +226,6 @@
     <Compile Include="Results\ResultTypes\ResultStress.cs" />
     <Compile Include="Results\ResultLocation\ResultLocationPoint.cs" />
     <Compile Include="Sections\Concrete\ConcreteSectionShape.cs" />
-    <Compile Include="Sections\Plate.cs" />
     <Compile Include="Sections\Section.cs" />
     <Compile Include="Sections\SectionC.cs" />
     <Compile Include="Sections\SectionCHS.cs" />
@@ -233,6 +235,13 @@
     <Compile Include="Sections\SectionRHS.cs" />
     <Compile Include="Sections\SectionShape.cs" />
     <Compile Include="Sections\SectionT.cs" />
+    <Compile Include="Sections\Steel\SteelSectionRHS.cs" />
+    <Compile Include="Sections\Steel\SteelSectionT.cs" />
+    <Compile Include="Sections\Steel\SteelSectionL.cs" />
+    <Compile Include="Sections\Steel\SteelSectionCHS.cs" />
+    <Compile Include="Sections\Steel\SteelSectionC.cs" />
+    <Compile Include="Sections\Steel\SteelSectionH.cs" />
+    <Compile Include="Sections\ThinWallSection.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

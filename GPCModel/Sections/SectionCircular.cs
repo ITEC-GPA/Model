@@ -1,51 +1,56 @@
 ﻿using GPC.Geometry;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Linq.Expressions;
-using System.Runtime.InteropServices;
 using System.Runtime.Serialization;
-using System.Text;
-using System.Threading.Tasks;
-
 using GPC.Model.Materials;
-using GPC.Model.FEM.Materials;
 
 namespace GPC.Model.Sections
 {
+    
     public class SectionCircular : Section
-    {
+    {        
         #region Variables
+
         protected double _dext; /// Diameter external
+
         #endregion
+
 
         #region Properties
-        public double Dext => _dext;
+
+        public double Diameter => _dext;
+
         #endregion
 
+
         #region Public Constructors
-        public SectionCircular(double dext, double t, Material material, string name) : base(material.GetIsotropicFemMaterial(), name)
+
+        public SectionCircular(double dext, Material material, string name) 
+            : base(material, name)
         {
             _dext = dext;
-
-            _area = (Math.Pow(_dext, 2.0) * Math.PI) / 4.0;
-            _wpl11 = wpl();
-            _wpl22 = _wpl11;
+            _area = CalculateArea();
         }
 
         public SectionCircular(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
             _dext = info.GetDouble("Dext");
-            _material = (IsotropicFemMaterial)info.GetValue("Material", typeof(IsotropicFemMaterial));
+            _material = (Material)info.GetValue("Material", typeof(Material));
         }
 
         #endregion
 
+
         #region Public Methods Specific
-        public double wpl()
+
+        public double CalculateWpl()
         {
             return Math.Pow(_dext, 3.0) / 6.0;
+        }
+
+        public double CalculateArea()
+        {
+            return (Math.Pow(_dext, 2.0) * Math.PI) / 4.0;
         }
 
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
@@ -71,6 +76,8 @@ namespace GPC.Model.Sections
 
             return new[] { new ShapeMaterial { Material = _material, Shape = shape } };
         }
+
         #endregion
-    }
+        
+    }    
 }
