@@ -53,8 +53,8 @@ namespace GPC.Model.Restrains
                                                                             new DofRestrain(Solver.DOF.DX),
                                                                             new DofRestrain(Solver.DOF.DY),
                                                                             new DofRestrain(Solver.DOF.DZ),
-                                                                            new DofRestrain(Solver.DOF.RZ),
-                                                                            new DofRestrain(Solver.DOF.RZ),
+                                                                            new DofRestrain(Solver.DOF.RX),
+                                                                            new DofRestrain(Solver.DOF.RY),
                                                                             new DofRestrain(Solver.DOF.RZ)
                                                                         }
             );

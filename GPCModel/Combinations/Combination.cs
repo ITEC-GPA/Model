@@ -269,9 +269,17 @@ namespace GPC.Model.Combinations
 
         #region Checks
 
-        /// <summary>
-        ///
-        /// </summary>
+        /// <param name="loadCase"></param>
+        /// <returns><see langword="True"/> if all the elements of <paramref name="loadCase"/> are contained in this combination</returns>
+        /// <exception cref="ArgumentNullException"></exception>
+        public virtual bool ContainsLoadCase(LoadCaseBase loadCase)
+        {
+            if (loadCase is null)
+                throw new ArgumentNullException();
+
+            return _coefficients.Select(i => i.LoadCase).Contains(loadCase);
+        }
+
         /// <param name="loadCases"></param>
         /// <returns><see langword="True"/> if all the elements of <paramref name="loadCases"/> are contained in this combination</returns>
         /// <exception cref="ArgumentNullException"></exception>
