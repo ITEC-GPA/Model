@@ -71,8 +71,8 @@ namespace GPC.Model.Sections.Steel
 
         #region Public Constructors
 
-        public SteelSectionT(SectionTypes type, double hw, double b, double tw, double tf, SteelMaterial material, string name, double radius) 
-            : base(hw, b, tw, tf, material, name)
+        public SteelSectionT(double height, double flangeLength, double thicknessWeb, double thicknessFlange, SteelMaterial material, string name, double radius = 0, SectionTypes type = SectionTypes.Rolled) 
+            : base(height, flangeLength, thicknessWeb, thicknessFlange, material, name)
         {
             _sectionType = type;
             _r = radius;        // raggio di curvatura o altezza di gola

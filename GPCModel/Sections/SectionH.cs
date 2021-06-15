@@ -43,17 +43,17 @@ namespace GPC.Model.Sections
 
         #region Public Constructors
 
-        public SectionH(double h, double tw, double btop, double ttop, double bbottom, double tbottom, Material material, string name)
+        public SectionH(double height, double thicknessWeb, double topFlangeLength, double topFlangeThickness, double bottomFlangeLength, double bottomFlangeThickness, Material material, string name)
             : base(material, name)
         {
             #region Check inputs
 
-            _h = h < 0 ? throw new ArgumentException($"Web lenght cannot be lower than zero") : h;                               // altezza anima
-            _tw = tw < 0 ? throw new ArgumentException($"Web thickness cannot be lower than zero") : tw;                            // spessore anima
-            _btop = btop < 0 ? throw new ArgumentException($"Top flange lenght cannot be lower than zero") : btop;                  // larghezza piattabanda superiore
-            _bbottom = bbottom < 0 ? throw new ArgumentException($"Bottom flange lenght cannot be lower than zero") : bbottom;      // larghezza piattabanda inferiore
-            _ttop = ttop < 0 ? throw new ArgumentException($"Top flange thickness cannot be lower than zero") : ttop;               // spessore piattabanda superiore
-            _tbottom = tbottom < 0 ? throw new ArgumentException($"Bottom flange thickness cannot be lower than zero") : tbottom;   // spessore piattabanda inferiore
+            _h = height < 0 ? throw new ArgumentException($"Web lenght cannot be lower than zero") : height;                               // altezza anima
+            _tw = thicknessWeb < 0 ? throw new ArgumentException($"Web thickness cannot be lower than zero") : thicknessWeb;                            // spessore anima
+            _btop = topFlangeLength < 0 ? throw new ArgumentException($"Top flange lenght cannot be lower than zero") : topFlangeLength;                  // larghezza piattabanda superiore
+            _bbottom = bottomFlangeLength < 0 ? throw new ArgumentException($"Bottom flange lenght cannot be lower than zero") : bottomFlangeLength;      // larghezza piattabanda inferiore
+            _ttop = topFlangeThickness < 0 ? throw new ArgumentException($"Top flange thickness cannot be lower than zero") : topFlangeThickness;               // spessore piattabanda superiore
+            _tbottom = bottomFlangeThickness < 0 ? throw new ArgumentException($"Bottom flange thickness cannot be lower than zero") : bottomFlangeThickness;   // spessore piattabanda inferiore
 
             #endregion
 
@@ -61,9 +61,9 @@ namespace GPC.Model.Sections
                 _isSymmetricAlongXLocalAxis = true;
             _isSymmetricAlongYLocalAxis = true;
 
-            ThinWall web = new ThinWall(HeightWeb, tw, Math.PI / 2, new Point2d(Math.Max(LenghtTopFlange, LenghtBottomFlange) / 2, ThicknessBottomFlange + HeightWeb / 2));
-            ThinWall flangeTop = new ThinWall(btop, ttop, 0, new Point2d(Math.Max(LenghtTopFlange, LenghtBottomFlange) / 2, tbottom + HeightWeb + ttop / 2));
-            ThinWall flangeBottom = new ThinWall(bbottom, tbottom, 0, new Point2d(Math.Max(LenghtTopFlange, LenghtBottomFlange) / 2, tbottom / 2));
+            ThinWall web = new ThinWall(HeightWeb, thicknessWeb, Math.PI / 2, new Point2d(Math.Max(LenghtTopFlange, LenghtBottomFlange) / 2, ThicknessBottomFlange + HeightWeb / 2));
+            ThinWall flangeTop = new ThinWall(topFlangeLength, topFlangeThickness, 0, new Point2d(Math.Max(LenghtTopFlange, LenghtBottomFlange) / 2, bottomFlangeThickness + HeightWeb + topFlangeThickness / 2));
+            ThinWall flangeBottom = new ThinWall(bottomFlangeLength, bottomFlangeThickness, 0, new Point2d(Math.Max(LenghtTopFlange, LenghtBottomFlange) / 2, bottomFlangeThickness / 2));
 
             ThinWalls = new ThinWall[3] { web , flangeBottom, flangeTop };
         }

@@ -1351,7 +1351,7 @@ namespace GPC.Model.FEM
 
                             if (node.Equals(line.Start) || node.Equals(line.End))
                             {
-                                factor = factor / 2.0;
+                                factor /= 2.0;
                             }
 
                             NodeForceAttribute nfa = new NodeForceAttribute(ll.LoadCase.Name, ll.CoordinateSystem, 

@@ -33,23 +33,23 @@ namespace GPC.Model.Sections
 
         #region Public Constructors
 
-        public SectionT(double h, double b, double tw, double tf, Material material, string name) 
+        public SectionT(double height, double flangeLength, double thicknessWeb, double thicknessFlange, Material material, string name) 
             : base(material, name)
         {
             #region Check inputs
 
-            _h = h < 0 ? throw new ArgumentException($"Web lenght cannot be lower than zero") : h;                   // spessore anima;
-            _b = b < 0 ? throw new ArgumentException($"Flange lenght cannot be lower than zero") : b;                   // spessore anima;
-            _tw = tw < 0 ? throw new ArgumentException($"Web thickness cannot be lower than zero") : tw;                // spessore anima;
-            _tf = tf < 0 ? throw new ArgumentException($"Flange thickness cannot be lower than zero") : tf;             // spessore flangia;
+            _h = height < 0 ? throw new ArgumentException($"Web lenght cannot be lower than zero") : height;                   // spessore anima;
+            _b = flangeLength < 0 ? throw new ArgumentException($"Flange lenght cannot be lower than zero") : flangeLength;                   // spessore anima;
+            _tw = thicknessWeb < 0 ? throw new ArgumentException($"Web thickness cannot be lower than zero") : thicknessWeb;                // spessore anima;
+            _tf = thicknessFlange < 0 ? throw new ArgumentException($"Flange thickness cannot be lower than zero") : thicknessFlange;             // spessore flangia;
 
             #endregion
 
             _isSymmetricAlongYLocalAxis = true;
             _isSymmetricAlongXLocalAxis = false;
 
-            ThinWall web = new ThinWall(HeightWeb, tw, Math.PI / 2, new Point2d(LenghtFlange / 2, HeightWeb / 2));
-            ThinWall flange = new ThinWall(b, tf, 0, new Point2d(LenghtFlange / 2, HeightWeb + tf / 2));
+            ThinWall web = new ThinWall(HeightWeb, thicknessWeb, Math.PI / 2, new Point2d(LenghtFlange / 2, HeightWeb / 2));
+            ThinWall flange = new ThinWall(flangeLength, thicknessFlange, 0, new Point2d(LenghtFlange / 2, HeightWeb + thicknessFlange / 2));
 
             ThinWalls = new ThinWall[] { web, flange };         
         }
