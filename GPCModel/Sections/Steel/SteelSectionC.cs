@@ -66,7 +66,7 @@ namespace GPC.Model.Sections.Steel
         #region Public Constructors
 
         public SteelSectionC(double h, double tw, double lTop, double tTop, double lBottom, double tBottom, SteelMaterial material, string name, 
-                            SectionTypes type = SectionTypes.Rolled, double radius = 0)
+                            SectionTypes type = SectionTypes.Rolled, FormedTypes formedType = FormedTypes.ColdFormed, double radius = 0)
             : base(h, tw, lTop, tTop, lBottom, tBottom, material, name)
         {
             _sectionType = type;

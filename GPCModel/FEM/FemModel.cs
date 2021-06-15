@@ -257,6 +257,10 @@ namespace GPC.Model.FEM
             return _loadCases.Add(loadCase);
         }
 
+        public bool AddLoadCases(IEnumerable<LoadCaseBase> loadCaseBases)
+        {
+            return _loadCases.AddRange(loadCaseBases);
+        }
 
         /// <inheritdoc cref="UniqueNameCollection{T}.GetElementByName(string)"/>
         public LoadCaseBase GetLoadCaseByName(string loadCaseName)
