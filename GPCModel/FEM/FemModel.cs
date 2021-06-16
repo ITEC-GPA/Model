@@ -41,7 +41,8 @@ namespace GPC.Model.FEM
         /// Collection of <see cref="Node"/>
         /// The nodes on this collection does not have duplicate ID and can not be duplicate. (different point with different id)
         /// </summary>
-        protected FemObjectCollection<Node> _nodes;
+        //protected FemObjectCollection<Node> _nodes;
+        protected NodeCollection _nodes;
 
         /// <summary>
         /// Collection of <see cref="FiniteElement"/>
@@ -137,7 +138,7 @@ namespace GPC.Model.FEM
         public FemModel(string name) 
             : base(name)
         {
-            _nodes = new FemObjectCollection<Node>();
+            _nodes = new NodeCollection(); //new FemObjectCollection<Node>();
             _elements = new FemObjectCollection<FiniteElement>();
             _costrains = new FemObjectCollection<Costrain>();
 
@@ -163,8 +164,9 @@ namespace GPC.Model.FEM
         public FemModel(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
-            
-            _nodes = (FemObjectCollection<Node>)info.GetValue("Nodes", typeof(FemObjectCollection<Node>));
+
+            //_nodes = (FemObjectCollection<Node>)info.GetValue("Nodes", typeof(FemObjectCollection<Node>));
+            _nodes = (NodeCollection)info.GetValue("Nodes", typeof(NodeCollection));
             _elements = (FemObjectCollection<FiniteElement>)info.GetValue("Elements", typeof(FemObjectCollection<FiniteElement>));
             _costrains = (FemObjectCollection<Costrain>)info.GetValue("Costrains", typeof(FemObjectCollection<Costrain>));
 
@@ -1561,18 +1563,19 @@ namespace GPC.Model.FEM
         {
             base.GetObjectData(info, context);
 
-            info.AddValue("Nodes", _nodes);
-            info.AddValue("Elements", _elements);
-            info.AddValue("Costrains", _costrains);
-            info.AddValue("PlateProperties", _plateProperties);
-            info.AddValue("BrickProperties", _brickProperties);
-            info.AddValue("LoadCaseBases", _loadCases);
-            info.AddValue("FreedomCases", _freedomCases);
-            info.AddValue("Combinations", _combinations);
-            info.AddValue("StageCombinationsMap", _stageCombinationsMap);
-            info.AddValue("Stages", _stages);
-            info.AddValue("ModelAttributes", _modelAttributes);
-            info.AddValue("AnalysisTypes", _analysisType);
+            //info.AddValue("Nodes", _nodes, typeof(FemObjectCollection<Node>));
+            info.AddValue("Nodes", _nodes, typeof(NodeCollection));
+            info.AddValue("Elements", _elements, typeof(FemObjectCollection<FiniteElement>));
+            info.AddValue("Costrains", _costrains, typeof(FemObjectCollection<Costrain>));
+            info.AddValue("PlateProperties", _plateProperties, typeof(UniqueNameCollection<PlateProperty>));
+            info.AddValue("BrickProperties", _brickProperties, typeof(UniqueNameCollection<BrickProperty>));
+            info.AddValue("LoadCaseBases", _loadCases, typeof(UniqueNameCollection<LoadCaseBase>));
+            info.AddValue("FreedomCases", _freedomCases, typeof(UniqueNameCollection<FreedomCase>));
+            info.AddValue("Combinations", _combinations, typeof(UniqueNameCollection<Combination>));
+            info.AddValue("StageCombinationsMap", _stageCombinationsMap, typeof(Dictionary<int, HashSet<string>>));
+            info.AddValue("Stages", _stages, typeof(UniqueIdCollection<Stage>));
+            info.AddValue("ModelAttributes", _modelAttributes, typeof(List<IModelAttribute>));
+            info.AddValue("AnalysisTypes", _analysisType, typeof(AnalysisTypes));
 
         }
 
