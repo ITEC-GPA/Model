@@ -8,6 +8,15 @@ using System.Threading.Tasks;
 
 namespace GPC.Model.FEM.Collections
 {
+    /// <remarks>
+    /// Nota bene: la classe non è sicura perchè se i nodi passati alla collection per reference variano da fuori della collection,
+    /// la lista interna non viene riordinata causando probabili problemi nella finzione di ricerca
+    /// Le possibili soluzioni sono:
+    /// - Rendere la proprietà Position (su cui è basato l'ordinamento) immutabile. Questo può essere fatto nascondento l'oggetto Point3d 
+    ///   e fornendo un accesso diverso alla posizione del nodo che non consenta di modificarne il valore
+    /// - Implementare l'interfaccia INotifyPropertyChanged nella classe Point3d in modo che in caso di modifica, essa venga notificata
+    ///   alla collection che provveda eventualmente a riordinare la lista interna.
+    /// </remarks>
     [Serializable]
     public class NodeCollection : IEnumerable<Node>, ISerializable
     {
