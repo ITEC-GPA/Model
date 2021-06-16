@@ -25,6 +25,7 @@ namespace GPC.Model.FEM.Collections
             }
         }
 
+        protected readonly object _locker = new object();
         protected readonly List<Node> _collection;
         protected int _lastId;
         protected static PositionComparer _positionComparer = new PositionComparer();
@@ -34,7 +35,7 @@ namespace GPC.Model.FEM.Collections
         /// </summary>
         /// <param name="id">The Id of the item to retrieve</param>
         /// <returns>The node foud or null if it not exists</returns>
-        public Node this[int id] => GetById(id)?.Duplicate();
+        public Node this[int id] => GetById(id);
 
         public int Count => _collection.Count;
 
@@ -130,10 +131,13 @@ namespace GPC.Model.FEM.Collections
         /// </summary>
         public void Sort()
         {
-            Node[] nodes = _collection.ToArray();
-            Array.Sort(nodes, _positionComparer);
-            _collection.Clear();
-            _collection.AddRange(nodes);
+            lock (_locker)
+            {
+                Node[] nodes = _collection.ToArray();
+                Array.Sort(nodes, _positionComparer);
+                _collection.Clear();
+                _collection.AddRange(nodes);
+            }
         }
 
         /// <summary>
@@ -141,7 +145,10 @@ namespace GPC.Model.FEM.Collections
         /// </summary>
         public void Clear()
         {
-            _collection.Clear();
+            lock (_locker)
+            {
+                _collection.Clear();
+            }
         }
 
         /// <summary>
@@ -151,7 +158,10 @@ namespace GPC.Model.FEM.Collections
         /// <param name="arrayIndex">The 0 based index where to start the copy</param>
         public void CopyTo(Node[] array, int arrayIndex)
         {
-            _collection.CopyTo(array, arrayIndex);
+            lock (_locker)
+            {
+                _collection.CopyTo(array, arrayIndex);
+            }
         }
 
         /// <summary>
@@ -161,8 +171,11 @@ namespace GPC.Model.FEM.Collections
         /// <returns>The index of the node or -1 if not exist</returns>
         public int IndexOf(Node item)
         {
-            int pos = _collection.BinarySearch(item, _positionComparer);
-            return pos >= 0 ? pos : -1;
+            lock (_locker)
+            {
+                int pos = _collection.BinarySearch(item, _positionComparer);
+                return pos >= 0 ? pos : -1;
+            }
         }
 
         /// <summary>
@@ -172,18 +185,21 @@ namespace GPC.Model.FEM.Collections
         /// <returns>The node Id</returns>
         public int Add(Node item)
         {
-            int pos = _collection.BinarySearch(item, _positionComparer);
-            if (pos < 0) // New not existing item
+            lock (_locker)
             {
-                item.Id = _lastId++;
+                int pos = _collection.BinarySearch(item, _positionComparer);
+                if (pos < 0) // New not existing item
+                {
+                    item.Id = _lastId++;
 
-                if (pos == -_collection.Count - 1)
-                    _collection.Add(item); // Append to the end of the collection
-                else
-                    _collection.Insert(-pos - 1, item); // Insert inside to keep the collection ordered
-                return item.Id;
+                    if (pos == -_collection.Count - 1)
+                        _collection.Add(item); // Append to the end of the collection
+                    else
+                        _collection.Insert(-pos - 1, item); // Insert inside to keep the collection ordered
+                    return item.Id;
+                }
+                return _collection[pos].Id;
             }
-            return _collection[pos].Id;
         }
 
         /// <summary>
@@ -202,23 +218,26 @@ namespace GPC.Model.FEM.Collections
         /// <summary>
         /// Update the given node and return his new index position
         /// </summary>
-        /// <param name="item">The node to update</param>
+        /// <param name="node">The node to update</param>
         /// <returns></returns>
-        public int Update(Node item)
+        public int Update(Node node)
         {
-            int oldPos = GetIndexById(item.Id);
-            _collection.RemoveAt(oldPos);
-            int newPos = _collection.BinarySearch(item, _positionComparer);
-            if (newPos == -_collection.Count - 1)
+            lock (_locker)
             {
-                _collection.Add(item); // Append to the end of the collection
-                return -newPos - 1;
+                int oldPos = GetIndexById(node.Id);
+                _collection.RemoveAt(oldPos);
+                int newPos = _collection.BinarySearch(node, _positionComparer);
+                if (newPos == -_collection.Count - 1)
+                {
+                    _collection.Add(node); // Append to the end of the collection
+                    return -newPos - 1;
+                }
+                else
+                {
+                    _collection.Insert(-newPos - 1, node); // Insert inside to keep the collection ordered           
+                    return newPos + 1;
+                }
             }
-            else
-            {
-                _collection.Insert(-newPos - 1, item); // Insert inside to keep the collection ordered           
-                return newPos + 1;
-            }            
         }
 
         /// <summary>
@@ -228,13 +247,16 @@ namespace GPC.Model.FEM.Collections
         /// <returns>True id success</returns>
         public bool Remove(Node item)
         {
-            int pos = _collection.BinarySearch(item, _positionComparer);
-            if (pos >= 0)
+            lock (_locker)
             {
-                _collection.RemoveAt(pos);
-                return true;
+                int pos = _collection.BinarySearch(item, _positionComparer);
+                if (pos >= 0)
+                {
+                    _collection.RemoveAt(pos);
+                    return true;
+                }
+                return false;
             }
-            return false;
         }
 
         /// <summary>
@@ -243,7 +265,10 @@ namespace GPC.Model.FEM.Collections
         /// <param name="index">The index of the node to remove</param>
         public void RemoveAt(int index)
         {
-            _collection.RemoveAt(index);
+            lock (_locker)
+            {
+                _collection.RemoveAt(index);
+            }
         }
 
         /// <summary>
@@ -253,13 +278,16 @@ namespace GPC.Model.FEM.Collections
         /// <returns>True id success</returns>
         public bool RemoveById(int id)
         {
-            int pos = GetIndexById(id);
-            if (pos >= 0)
+            lock (_locker)
             {
-                _collection.RemoveAt(pos);
-                return true;
+                int pos = GetIndexById(id);
+                if (pos >= 0)
+                {
+                    _collection.RemoveAt(pos);
+                    return true;
+                }
+                return false;
             }
-            return false;
         }
 
         public IEnumerator<Node> GetEnumerator()
@@ -270,6 +298,16 @@ namespace GPC.Model.FEM.Collections
         IEnumerator IEnumerable.GetEnumerator()
         {
             return _collection.GetEnumerator();
+        }
+
+        public int AddUnique(Node node)
+        {
+            return Add(node);
+        }
+
+        public Node GetElementById(int id)
+        {
+            return GetById(id);
         }
     }
 }
