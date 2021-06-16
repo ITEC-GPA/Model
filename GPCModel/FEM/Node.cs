@@ -14,11 +14,9 @@ namespace GPC.Model.FEM
     {
         #region Variables
 
-        private Point3d _position;
-
-        private List<INodeLoadCaseAttribute> _attributesLoadCase;
-        private List<INodeFreedomCaseAttribute> _attributesFreedomCase;
-
+        private readonly Point3d _position;
+        private readonly List<INodeLoadCaseAttribute> _attributesLoadCase;
+        private readonly List<INodeFreedomCaseAttribute> _attributesFreedomCase;
         private readonly ModelObjectSet<NodeResult> _results;
 
         #endregion
