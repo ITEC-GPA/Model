@@ -284,13 +284,13 @@ namespace GeneralTest
             nodesCollection.Add(new Node(10, 20, 30, string.Empty));
             nodesCollection.Add(new Node(15, 25, 35, string.Empty));
 
-            Node changedNode = nodesCollection[1];
+            Node changedNode = nodesCollection[1].Duplicate();
             changedNode.Position.Move(1, 1, 1);
             int index = nodesCollection.Update(changedNode);
 
             Debug.WriteLine(index, "First move index");
 
-            changedNode = nodesCollection[1];
+            changedNode = nodesCollection[1].Duplicate();
             changedNode.Position.Move(9, 9, 9);
             index = nodesCollection.Update(changedNode);
 
@@ -320,7 +320,10 @@ namespace GeneralTest
             for (int i = 0; i < amountOfNodes; i++)
             {
                 int k = rnd.Next(50, 100);
-                Node node = nodesCollection[ids[i]];
+                Node node = nodesCollection[ids[i]].Duplicate();
+
+                node.Position.Move(1, 1, 1);
+
                 double dx = rnd.NextDouble() * k;
                 double dy = rnd.NextDouble() * k;
                 double dz = rnd.NextDouble() * k;
