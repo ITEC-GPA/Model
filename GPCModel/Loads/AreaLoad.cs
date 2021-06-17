@@ -27,9 +27,7 @@ namespace GPC.Model.Loads
         public Shape Shape => _shape;
         public CoordinateSystem CoordinateSystem => _coordinateSystem;
 
-        /// <summary>
-        /// 
-        /// </summary>
+
         /// <param name="p1"></param>
         /// <param name="p2"></param>
         /// <param name="p3"></param>
@@ -88,14 +86,17 @@ namespace GPC.Model.Loads
 
         public override int GetHashCode()
         {
-            int hashCode = -23;
-            hashCode = hashCode * -17 + base.GetHashCode();
-            hashCode = hashCode * -17 + _p1.GetHashCode();
-            hashCode = hashCode * -17 + _p2.GetHashCode();
-            hashCode = hashCode * -17 + _p3.GetHashCode();
-            hashCode = hashCode * -17 + EqualityComparer<CoordinateSystem>.Default.GetHashCode(_coordinateSystem);
-            hashCode = hashCode * -17 + EqualityComparer<Shape>.Default.GetHashCode(_shape);
-            return hashCode;
+            unchecked
+            {
+                int hashCode = -23;
+                hashCode = hashCode * -17 + base.GetHashCode();
+                hashCode = hashCode * -17 + _p1.GetHashCode();
+                hashCode = hashCode * -17 + _p2.GetHashCode();
+                hashCode = hashCode * -17 + _p3.GetHashCode();
+                hashCode = hashCode * -17 + EqualityComparer<CoordinateSystem>.Default.GetHashCode(_coordinateSystem);
+                hashCode = hashCode * -17 + EqualityComparer<Shape>.Default.GetHashCode(_shape);
+                return hashCode; 
+            }
         }
 
         public static bool operator ==(AreaLoad obj1, AreaLoad obj2)
