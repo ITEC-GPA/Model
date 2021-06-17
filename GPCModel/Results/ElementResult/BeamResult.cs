@@ -27,6 +27,13 @@ namespace GPC.Model.Results
 
         }
 
+        public BeamResult(ILoadCase Case, IEnumerable<IBeamResult> result, IEnumerable<ResultStation> points, int stageId, GPC.Geometry.CoordinateSystem coordinateSystem)
+            : base(Case, coordinateSystem, (IEnumerable<ResultType>)result, points, stageId)
+        {
+            if (points.Select(i => i.ElementLenght).Distinct().Count() > 1)
+                throw new ArgumentException("All Result Station must have the same length");
+        }
+
 
         public override int GetHashCode()
         {
