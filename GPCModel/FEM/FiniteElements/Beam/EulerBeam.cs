@@ -14,7 +14,7 @@ namespace GPC.Model.FEM.FiniteElements
     /// </summary>
     public class EulerBeam : Beam
     {
-        public EulerBeam(Node[] nodes, Section section, double axisAngleRadians = 0.0) : base(nodes)
+        public EulerBeam(Node[] nodes, double axisAngleRadians = 0.0) : base(nodes)     // Section section
         {
             _DOF.Add(Solver.DOF.DX);
             _DOF.Add(Solver.DOF.DY);
@@ -24,7 +24,6 @@ namespace GPC.Model.FEM.FiniteElements
             _DOF.Add(Solver.DOF.RZ);
 
             _axisAngleRadians = axisAngleRadians; //rotazione rispetto asse 1-X
-            SetProperty(section);
         }
 
         public override void BuildMatrix()
@@ -34,8 +33,8 @@ namespace GPC.Model.FEM.FiniteElements
             double E = section.Material.E;
             double G = E / (2.0 * (1.0 + section.Material.Ni));
             double A = section.Area;
-            double Jzz = section.Jyy;
-            double Jyy = section.Jxx;
+            double Jzz = section.J22;
+            double Jyy = section.J11;
             double Jt = section.Jt;
             _length = _nodesGlobal[0].Position.DistanceTo(_nodesGlobal[1].Position);
             double L = _length;
@@ -781,7 +780,8 @@ namespace GPC.Model.FEM.FiniteElements
             Node[] duplicatedNodes = _nodesGlobal.Select(node => node.Duplicate()).ToArray();
 
             //duplicate beam
-            EulerBeam duplicatedBeam = new EulerBeam(duplicatedNodes, (Section) property, _axisAngleRadians);
+            EulerBeam duplicatedBeam = new EulerBeam(duplicatedNodes, _axisAngleRadians);
+            duplicatedBeam.SetProperty(property);
             duplicatedBeam.SetId(this.Id);
 
             foreach (FreedomCaseAttribute attribute in fcAttributes)

@@ -17,7 +17,9 @@ namespace FemTest.SolverTest
 {
     [TestClass]
     public class BeamTest
-    {        
+    {
+        
+
         /// <summary>
         /// Sforzo Assiale su trave incastro - libero - direzione +X
         /// </summary>
@@ -35,7 +37,8 @@ namespace FemTest.SolverTest
             nds.Add(new Node(0, 0, 0));
             nds.Add(new Node(L, 0, 0));
 
-            EulerBeam b = new EulerBeam(nds.ToArray(), sec);
+            EulerBeam b = new EulerBeam(nds.ToArray());
+            b.SetProperty(sec);
 
             LoadCaseBase lc = new LoadCaseBase("lc1");
             CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
@@ -82,7 +85,8 @@ namespace FemTest.SolverTest
             nds.Add(new Node(0, 0, 0));
             nds.Add(new Node(L, 0, 0));
 
-            EulerBeam b = new EulerBeam(nds.ToArray(), sec);
+            EulerBeam b = new EulerBeam(nds.ToArray());
+            b.SetProperty(sec);
 
             CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
             double qx = 1;
@@ -129,7 +133,8 @@ namespace FemTest.SolverTest
             nds.Add(new Node(0, 0, 0));
             nds.Add(new Node(L, 0, 0));
 
-            EulerBeam b = new EulerBeam(nds.ToArray(), sec);
+            EulerBeam b = new EulerBeam(nds.ToArray());
+            b.SetProperty(sec);
 
             CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
             double FX = 0.0;
@@ -186,7 +191,8 @@ namespace FemTest.SolverTest
             nds.Add(new Node(0, 0, 0));
             nds.Add(new Node(0, -L, 0));
 
-            EulerBeam b = new EulerBeam(nds.ToArray(), sec);
+            EulerBeam b = new EulerBeam(nds.ToArray());
+            b.SetProperty(sec);
 
             CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
     
@@ -234,7 +240,8 @@ namespace FemTest.SolverTest
             nds.Add(new Node(0, 0, 0));
             nds.Add(new Node(L, 0, 0));
 
-            EulerBeam b = new EulerBeam(nds.ToArray(), sec);
+            EulerBeam b = new EulerBeam(nds.ToArray());
+            b.SetProperty(sec);
 
             CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
             double FY = 10.0;
@@ -279,7 +286,8 @@ namespace FemTest.SolverTest
             nds.Add(new Node(0, 0, 0));
             nds.Add(new Node(0, 0, 1000.0));
 
-            EulerBeam b = new EulerBeam(nds.ToArray(), sec);
+            EulerBeam b = new EulerBeam(nds.ToArray());
+            b.SetProperty(sec);
 
             CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
             double FX = 10/2.0;
@@ -337,7 +345,8 @@ namespace FemTest.SolverTest
             nds.Add(new Node(0, 0, 0));
             nds.Add(new Node(0, 1000.0, 0));
 
-            EulerBeam b = new EulerBeam(nds.ToArray(), sec);
+            EulerBeam b = new EulerBeam(nds.ToArray());
+            b.SetProperty(sec);
 
             CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
             double fx = 10;
@@ -389,7 +398,8 @@ namespace FemTest.SolverTest
             nds.Add(new Node(0, 0, 0));
             nds.Add(new Node(1000, 0, 0));
 
-            EulerBeam b = new EulerBeam(nds.ToArray(), sec);
+            EulerBeam b = new EulerBeam(nds.ToArray());
+            b.SetProperty(sec);
 
             LoadCaseBase lc = new LoadCaseBase("lc1");
             CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
@@ -439,8 +449,12 @@ namespace FemTest.SolverTest
             nds.Add(new Node(L, 0, 0));
 
             List<EulerBeam> beams = new List<EulerBeam>();
-            beams.Add(new EulerBeam(new Node[] { nds[0], nds[1] }, sec));
-            beams.Add(new EulerBeam(new Node[] { nds[1], nds[2] }, sec));
+            EulerBeam b1 = new EulerBeam(new Node[] { nds[0], nds[1] });
+            b1.SetProperty(sec);
+            EulerBeam b2 = new EulerBeam(new Node[] { nds[1], nds[2] });
+            b2.SetProperty(sec);
+            beams.Add(b1);
+            beams.Add(b2);
 
             CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
             double F = 1.0;
@@ -498,8 +512,12 @@ namespace FemTest.SolverTest
             nds.Add(new Node(1000, 1000, 0));
 
             List<EulerBeam> beams = new List<EulerBeam>();
-            beams.Add(new EulerBeam(new Node[] { nds[0], nds[1] }, sec));
-            beams.Add(new EulerBeam(new Node[] { nds[1], nds[2] }, sec));
+            EulerBeam b1 = new EulerBeam(new Node[] { nds[0], nds[1] });
+            b1.SetProperty(sec);
+            EulerBeam b2 = new EulerBeam(new Node[] { nds[1], nds[2] });
+            b2.SetProperty(sec);
+            beams.Add(b1);
+            beams.Add(b2);
 
             CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
             double F = 10.0;
@@ -599,8 +617,12 @@ namespace FemTest.SolverTest
             nds.Add(new Node(1000, 1000, 0));
 
             List<EulerBeam> beams = new List<EulerBeam>();
-            beams.Add(new EulerBeam(new Node[] { nds[0], nds[1] }, sec));
-            beams.Add(new EulerBeam(new Node[] { nds[1], nds[2] }, sec));
+            EulerBeam b1 = new EulerBeam(new Node[] { nds[0], nds[1] });
+            b1.SetProperty(sec);
+            EulerBeam b2 = new EulerBeam(new Node[] { nds[1], nds[2] });
+            b2.SetProperty(sec);
+            beams.Add(b1);
+            beams.Add(b2);
 
             CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
             double F = 10.0;
@@ -707,8 +729,12 @@ namespace FemTest.SolverTest
 
             List<EulerBeam> beams = new List<EulerBeam>();
             double angle = 90.0 * Math.PI / 180.0;
-            beams.Add(new EulerBeam(new Node[] { nds[0], nds[1] }, sec, angle));
-            beams.Add(new EulerBeam(new Node[] { nds[1], nds[2] }, sec, angle));
+            EulerBeam b1 = new EulerBeam(new Node[] { nds[0], nds[1] }, angle);
+            b1.SetProperty(sec);
+            EulerBeam b2 = new EulerBeam(new Node[] { nds[1], nds[2] }, angle);
+            b2.SetProperty(sec);
+            beams.Add(b1);
+            beams.Add(b2);
 
             CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
             double F = 10.0;
@@ -790,8 +816,12 @@ namespace FemTest.SolverTest
 
             List<EulerBeam> beams = new List<EulerBeam>();
             double angle = 90.0 * Math.PI / 180.0;
-            beams.Add(new EulerBeam(new Node[] { nds[0], nds[1] }, sec, angle));
-            beams.Add(new EulerBeam(new Node[] { nds[1], nds[2] }, sec, angle));
+            EulerBeam b1 = new EulerBeam(new Node[] { nds[0], nds[1] }, angle);
+            b1.SetProperty(sec);
+            EulerBeam b2 = new EulerBeam(new Node[] { nds[1], nds[2] }, angle);
+            b2.SetProperty(sec);
+            beams.Add(b1);
+            beams.Add(b2);
 
             CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
             double F = 10.0;
@@ -880,8 +910,12 @@ namespace FemTest.SolverTest
             nds.Add(new Node(2000, 0, 0));
 
             List<EulerBeam> beams = new List<EulerBeam>();
-            beams.Add(new EulerBeam(new Node[] { nds[0], nds[1] }, sec));
-            beams.Add(new EulerBeam(new Node[] { nds[1], nds[2] }, sec));
+            EulerBeam b1 = new EulerBeam(new Node[] { nds[0], nds[1] });
+            b1.SetProperty(sec);
+            EulerBeam b2 = new EulerBeam(new Node[] { nds[1], nds[2] });
+            b2.SetProperty(sec);
+            beams.Add(b1);
+            beams.Add(b2);
 
             CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
             double F = -100.0;
@@ -958,8 +992,12 @@ namespace FemTest.SolverTest
             nds.Add(new Node(2000, 0, 0));
 
             List<EulerBeam> beams = new List<EulerBeam>();
-            beams.Add(new EulerBeam(new Node[] { nds[0], nds[1] }, sec));
-            beams.Add(new EulerBeam(new Node[] { nds[1], nds[2] }, sec));
+            EulerBeam b1 = new EulerBeam(new Node[] { nds[0], nds[1] });
+            b1.SetProperty(sec);
+            EulerBeam b2 = new EulerBeam(new Node[] { nds[1], nds[2] });
+            b2.SetProperty(sec);
+            beams.Add(b1);
+            beams.Add(b2);
 
             CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
             double F = -100.0;
@@ -1040,9 +1078,15 @@ namespace FemTest.SolverTest
             nds.Add(new Node(3.0 * L / 3.0, 0, 0));
 
             List<EulerBeam> beams = new List<EulerBeam>();
-            beams.Add(new EulerBeam(new Node[] { nds[0], nds[1] }, sec));
-            beams.Add(new EulerBeam(new Node[] { nds[1], nds[2] }, sec));
-            beams.Add(new EulerBeam(new Node[] { nds[2], nds[3] }, sec));
+            EulerBeam b1 = new EulerBeam(new Node[] { nds[0], nds[1] });
+            b1.SetProperty(sec);
+            EulerBeam b2 = new EulerBeam(new Node[] { nds[1], nds[2] });
+            b2.SetProperty(sec);
+            EulerBeam b3 = new EulerBeam(new Node[] { nds[2], nds[3] });
+            b3.SetProperty(sec);
+            beams.Add(b1);
+            beams.Add(b2);
+            beams.Add(b3);
 
             CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
             double F = -100.0;
@@ -1128,9 +1172,15 @@ namespace FemTest.SolverTest
             nds.Add(new Node(3.0 * L / 3.0, 0, 0));
 
             List<EulerBeam> beams = new List<EulerBeam>();
-            beams.Add(new EulerBeam(new Node[] { nds[0], nds[1] }, sec));
-            beams.Add(new EulerBeam(new Node[] { nds[1], nds[2] }, sec));
-            beams.Add(new EulerBeam(new Node[] { nds[2], nds[3] }, sec));
+            EulerBeam b1 = new EulerBeam(new Node[] { nds[0], nds[1] });
+            b1.SetProperty(sec);
+            EulerBeam b2 = new EulerBeam(new Node[] { nds[1], nds[2] });
+            b2.SetProperty(sec);
+            EulerBeam b3 = new EulerBeam(new Node[] { nds[2], nds[3] });
+            b3.SetProperty(sec);
+            beams.Add(b1);
+            beams.Add(b2);
+            beams.Add(b3);
 
             CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
 
@@ -1204,9 +1254,15 @@ namespace FemTest.SolverTest
             nds.Add(new Node(10.0, 5.7736, 10.0));
 
             List<EulerBeam> beams = new List<EulerBeam>();
-            beams.Add(new EulerBeam(new Node[] { nds[0], nds[3] }, sec));
-            beams.Add(new EulerBeam(new Node[] { nds[1], nds[3] }, sec));
-            beams.Add(new EulerBeam(new Node[] { nds[2], nds[3] }, sec));
+            EulerBeam b1 = new EulerBeam(new Node[] { nds[0], nds[1] });
+            b1.SetProperty(sec);
+            EulerBeam b2 = new EulerBeam(new Node[] { nds[1], nds[2] });
+            b2.SetProperty(sec);
+            EulerBeam b3 = new EulerBeam(new Node[] { nds[2], nds[3] });
+            b3.SetProperty(sec);
+            beams.Add(b1);
+            beams.Add(b2);
+            beams.Add(b3);
 
             CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
             double F = -100.0;
@@ -1270,7 +1326,9 @@ namespace FemTest.SolverTest
             nds.Add(new Node(L, 0, 0));
 
             List<EulerBeam> beams = new List<EulerBeam>();
-            beams.Add(new EulerBeam(new Node[] { nds[0], nds[1] }, sec));
+            EulerBeam b1 = new EulerBeam(new Node[] { nds[0], nds[1] });
+            b1.SetProperty(sec);
+            beams.Add(b1);
 
             LoadCaseBase lc = new LoadCaseBase("lc1");
             CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
@@ -1344,8 +1402,12 @@ namespace FemTest.SolverTest
             nds.Add(new Node(2.0 * L/2.0, 0, 0));
 
             List<EulerBeam> beams = new List<EulerBeam>();
-            beams.Add(new EulerBeam(new Node[] { nds[0], nds[1] }, sec));
-            beams.Add(new EulerBeam(new Node[] { nds[1], nds[2] }, sec));
+            EulerBeam b1 = new EulerBeam(new Node[] { nds[0], nds[1] });
+            b1.SetProperty(sec);
+            EulerBeam b2 = new EulerBeam(new Node[] { nds[1], nds[2] });
+            b2.SetProperty(sec);
+            beams.Add(b1);
+            beams.Add(b2);
 
             CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
             double qx = 1;
@@ -1411,8 +1473,12 @@ namespace FemTest.SolverTest
             nds.Add(new Node(L, L, 0));
 
             List<EulerBeam> beams = new List<EulerBeam>();
-            beams.Add(new EulerBeam(new Node[] { nds[0], nds[1] }, sec));
-            beams.Add(new EulerBeam(new Node[] { nds[1], nds[2] }, sec));
+            EulerBeam b1 = new EulerBeam(new Node[] { nds[0], nds[1] });
+            b1.SetProperty(sec);
+            EulerBeam b2 = new EulerBeam(new Node[] { nds[1], nds[2] });
+            b2.SetProperty(sec);
+            beams.Add(b1);
+            beams.Add(b2);
 
             CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
             Random random = new Random();
@@ -1460,8 +1526,12 @@ namespace FemTest.SolverTest
             nds.Add(new Node(L, 0, 0));
 
             List<EulerBeam> beams = new List<EulerBeam>();
-            beams.Add(new EulerBeam(new Node[] { nds[0], nds[1] }, sec));
-            beams.Add(new EulerBeam(new Node[] { nds[1], nds[2] }, sec));
+            EulerBeam b1 = new EulerBeam(new Node[] { nds[0], nds[1] });
+            b1.SetProperty(sec);
+            EulerBeam b2 = new EulerBeam(new Node[] { nds[1], nds[2] });
+            b2.SetProperty(sec);
+            beams.Add(b1);
+            beams.Add(b2);
 
             CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
             Random random = new Random();
@@ -1508,7 +1578,9 @@ namespace FemTest.SolverTest
             nds.Add(new Node(L, L, 0));
 
             List<EulerBeam> beams = new List<EulerBeam>();
-            beams.Add(new EulerBeam(new Node[] { nds[0], nds[1] }, sec));
+            EulerBeam b1 = new EulerBeam(new Node[] { nds[0], nds[1] });
+            b1.SetProperty(sec);
+            beams.Add(b1);
 
             CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
             Random random = new Random();
@@ -1554,9 +1626,15 @@ namespace FemTest.SolverTest
             nds.Add(new Node(L, L, 0));
 
             List<EulerBeam> beams = new List<EulerBeam>();
-            beams.Add(new EulerBeam(new Node[] { nds[0], nds[1] }, sec));
-            beams.Add(new EulerBeam(new Node[] { nds[1], nds[2] }, sec));
-            beams.Add(new EulerBeam(new Node[] { nds[2], nds[3] }, sec));
+            EulerBeam b1 = new EulerBeam(new Node[] { nds[0], nds[1] });
+            b1.SetProperty(sec);
+            EulerBeam b2 = new EulerBeam(new Node[] { nds[1], nds[2] });
+            b2.SetProperty(sec);
+            EulerBeam b3 = new EulerBeam(new Node[] { nds[2], nds[3] });
+            b3.SetProperty(sec);
+            beams.Add(b1);
+            beams.Add(b2);
+            beams.Add(b3);
 
             CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
             Random random = new Random();
@@ -1603,9 +1681,15 @@ namespace FemTest.SolverTest
             nds.Add(new Node(L, 0, 0));
 
             List<EulerBeam> beams = new List<EulerBeam>();
-            beams.Add(new EulerBeam(new Node[] { nds[0], nds[1] }, sec));
-            beams.Add(new EulerBeam(new Node[] { nds[1], nds[2] }, sec));
-            beams.Add(new EulerBeam(new Node[] { nds[2], nds[3] }, sec));
+            EulerBeam b1 = new EulerBeam(new Node[] { nds[0], nds[1] });
+            b1.SetProperty(sec);
+            EulerBeam b2 = new EulerBeam(new Node[] { nds[1], nds[2] });
+            b2.SetProperty(sec);
+            EulerBeam b3 = new EulerBeam(new Node[] { nds[2], nds[3] });
+            b3.SetProperty(sec);
+            beams.Add(b1);
+            beams.Add(b2);
+            beams.Add(b3);
 
             CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
             Random random = new Random();
@@ -1655,7 +1739,10 @@ namespace FemTest.SolverTest
             nds.Add(new Node(L, 0, 0));
 
             List<EulerBeam> beams = new List<EulerBeam>();
-            beams.Add(new EulerBeam(new Node[] { nds[0], nds[1] }, sec));
+            EulerBeam b1 = new EulerBeam(new Node[] { nds[0], nds[1] });
+            b1.SetProperty(sec);
+            beams.Add(b1);
+
             CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
             Random random = new Random();
             double qx = 0; //random.Next(-1000, 1000);
@@ -1701,7 +1788,9 @@ namespace FemTest.SolverTest
             nds.Add(new Node(L, 0, 0));
 
             List<EulerBeam> beams = new List<EulerBeam>();
-            beams.Add(new EulerBeam(new Node[] { nds[0], nds[1] }, sec));
+            EulerBeam b1 = new EulerBeam(new Node[] { nds[0], nds[1] });
+            b1.SetProperty(sec);
+            beams.Add(b1);
 
             LoadCaseBase lc = new LoadCaseBase("lc1");
             CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
@@ -1753,7 +1842,8 @@ namespace FemTest.SolverTest
             nds.Add(new Node(L, 0, 0));
 
             double rotationRad = 25.0 * Math.PI / 180.0;
-            EulerBeam b = new EulerBeam(nds.ToArray(), sec, rotationRad);
+            EulerBeam b = new EulerBeam(nds.ToArray(), rotationRad);
+            b.SetProperty(sec);
 
             CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
             double FX = 0.0;
@@ -1806,7 +1896,8 @@ namespace FemTest.SolverTest
             nds.Add(new Node(0, L, 0));
 
             double rotationRad = 35.0 * Math.PI / 180.0;
-            EulerBeam b = new EulerBeam(nds.ToArray(), sec, rotationRad);
+            EulerBeam b = new EulerBeam(nds.ToArray(), rotationRad);
+            b.SetProperty(sec);
 
             CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
             double FX = 0.0;
@@ -1860,7 +1951,8 @@ namespace FemTest.SolverTest
             nds.Add(new Node(0, 0, L));
 
             double rotationRad = 25.0 * Math.PI / 180.0;
-            EulerBeam b = new EulerBeam(nds.ToArray(), sec, rotationRad);
+            EulerBeam b = new EulerBeam(nds.ToArray(), rotationRad);
+            b.SetProperty(sec);
 
             CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
             double FX = 0.0;
@@ -1917,8 +2009,12 @@ namespace FemTest.SolverTest
             nds.Add(new Node(2.0 * L, 0, 0));
 
             List<EulerBeam> beams = new List<EulerBeam>();
-            beams.Add(new EulerBeam(new Node[] { nds[0], nds[1] }, sec));
-            beams.Add(new EulerBeam(new Node[] { nds[1], nds[2] }, sec));
+            EulerBeam b1 = new EulerBeam(new Node[] { nds[0], nds[1] });
+            b1.SetProperty(sec);
+            EulerBeam b2 = new EulerBeam(new Node[] { nds[1], nds[2] });
+            b2.SetProperty(sec);
+            beams.Add(b1);
+            beams.Add(b2);
 
             beams[1].AddEndRelease(Beam.EndSide.End1, new Beam.LocalDOF[] { Beam.LocalDOF.AxialU1 }, "fc", "releaseName");
 
@@ -1977,8 +2073,12 @@ namespace FemTest.SolverTest
             nds.Add(new Node(2.0 * L, 0, 0));
 
             List<EulerBeam> beams = new List<EulerBeam>();
-            beams.Add(new EulerBeam(new Node[] { nds[0], nds[1] }, sec));
-            beams.Add(new EulerBeam(new Node[] { nds[1], nds[2] }, sec));
+            EulerBeam b1 = new EulerBeam(new Node[] { nds[0], nds[1] });
+            b1.SetProperty(sec);
+            EulerBeam b2 = new EulerBeam(new Node[] { nds[1], nds[2] });
+            b2.SetProperty(sec);
+            beams.Add(b1);
+            beams.Add(b2);
 
             beams[0].AddEndRelease(Beam.EndSide.End2, new Beam.LocalDOF[] { Beam.LocalDOF.AxialU1 }, "fc", "releaseName");
 
@@ -2035,9 +2135,15 @@ namespace FemTest.SolverTest
             nds.Add(new Node(3.0 * L, 0, 0));
 
             List<EulerBeam> beams = new List<EulerBeam>();
-            beams.Add(new EulerBeam(new Node[] { nds[0], nds[1] }, sec));
-            beams.Add(new EulerBeam(new Node[] { nds[1], nds[2] }, sec));
-            beams.Add(new EulerBeam(new Node[] { nds[2], nds[3] }, sec));
+            EulerBeam b1 = new EulerBeam(new Node[] { nds[0], nds[1] });
+            b1.SetProperty(sec);
+            EulerBeam b2 = new EulerBeam(new Node[] { nds[1], nds[2] });
+            b2.SetProperty(sec);
+            EulerBeam b3 = new EulerBeam(new Node[] { nds[2], nds[3] });
+            b3.SetProperty(sec);
+            beams.Add(b1);
+            beams.Add(b2);
+            beams.Add(b3);
 
             beams[1].AddEndRelease(Beam.EndSide.End1, new Beam.LocalDOF[] { Beam.LocalDOF.AxialU1 }, "fc", "releaseName");
 
@@ -2106,9 +2212,15 @@ namespace FemTest.SolverTest
             nds.Add(new Node(3.0 * L, 0, 0));
 
             List<EulerBeam> beams = new List<EulerBeam>();
-            beams.Add(new EulerBeam(new Node[] { nds[0], nds[1] }, sec));
-            beams.Add(new EulerBeam(new Node[] { nds[1], nds[2] }, sec));
-            beams.Add(new EulerBeam(new Node[] { nds[2], nds[3] }, sec));
+            EulerBeam b1 = new EulerBeam(new Node[] { nds[0], nds[1] });
+            b1.SetProperty(sec);
+            EulerBeam b2 = new EulerBeam(new Node[] { nds[1], nds[2] });
+            b2.SetProperty(sec);
+            EulerBeam b3 = new EulerBeam(new Node[] { nds[2], nds[3] });
+            b3.SetProperty(sec);
+            beams.Add(b1);
+            beams.Add(b2);
+            beams.Add(b3);
 
             CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
 
@@ -2172,9 +2284,15 @@ namespace FemTest.SolverTest
             nds.Add(new Node(3.0 * L, 0, 0));
 
             List<EulerBeam> beams = new List<EulerBeam>();
-            beams.Add(new EulerBeam(new Node[] { nds[0], nds[1] }, sec));
-            beams.Add(new EulerBeam(new Node[] { nds[1], nds[2] }, sec));
-            beams.Add(new EulerBeam(new Node[] { nds[2], nds[3] }, sec));
+            EulerBeam b1 = new EulerBeam(new Node[] { nds[0], nds[1] });
+            b1.SetProperty(sec);
+            EulerBeam b2 = new EulerBeam(new Node[] { nds[1], nds[2] });
+            b2.SetProperty(sec);
+            EulerBeam b3 = new EulerBeam(new Node[] { nds[2], nds[3] });
+            b3.SetProperty(sec);
+            beams.Add(b1);
+            beams.Add(b2);
+            beams.Add(b3);
 
             beams[1].AddEndRelease(Beam.EndSide.End1, new Beam.LocalDOF[] { Beam.LocalDOF.AxialU1 }, "fc", "releaseName");
 
@@ -2238,9 +2356,15 @@ namespace FemTest.SolverTest
             nds.Add(new Node(3.0 * L, 0, 0));
 
             List<EulerBeam> beams = new List<EulerBeam>();
-            beams.Add(new EulerBeam(new Node[] { nds[0], nds[1] }, sec));
-            beams.Add(new EulerBeam(new Node[] { nds[1], nds[2] }, sec));
-            beams.Add(new EulerBeam(new Node[] { nds[2], nds[3] }, sec));
+            EulerBeam b1 = new EulerBeam(new Node[] { nds[0], nds[1] });
+            b1.SetProperty(sec);
+            EulerBeam b2 = new EulerBeam(new Node[] { nds[1], nds[2] });
+            b2.SetProperty(sec);
+            EulerBeam b3 = new EulerBeam(new Node[] { nds[2], nds[3] });
+            b3.SetProperty(sec);
+            beams.Add(b1);
+            beams.Add(b2);
+            beams.Add(b3);
 
             beams[1].AddEndRelease(Beam.EndSide.End2, new Beam.LocalDOF[] { Beam.LocalDOF.AxialU1 }, "fc", "releaseName");
 
@@ -2304,9 +2428,15 @@ namespace FemTest.SolverTest
             nds.Add(new Node(3.0 * L, 0, 0));
 
             List<EulerBeam> beams = new List<EulerBeam>();
-            beams.Add(new EulerBeam(new Node[] { nds[0], nds[1] }, sec));
-            beams.Add(new EulerBeam(new Node[] { nds[1], nds[2] }, sec));
-            beams.Add(new EulerBeam(new Node[] { nds[2], nds[3] }, sec));
+            EulerBeam b1 = new EulerBeam(new Node[] { nds[0], nds[1] });
+            b1.SetProperty(sec);
+            EulerBeam b2 = new EulerBeam(new Node[] { nds[1], nds[2] });
+            b2.SetProperty(sec);
+            EulerBeam b3 = new EulerBeam(new Node[] { nds[2], nds[3] });
+            b3.SetProperty(sec);
+            beams.Add(b1);
+            beams.Add(b2);
+            beams.Add(b3);
 
             beams[1].AddEndRelease(Beam.EndSide.End1, new Beam.LocalDOF[] { Beam.LocalDOF.TorsionR1 }, "fc", "releaseName");
 
@@ -2371,9 +2501,15 @@ namespace FemTest.SolverTest
             nds.Add(new Node(3.0 * L, 0, 0));
 
             List<EulerBeam> beams = new List<EulerBeam>();
-            beams.Add(new EulerBeam(new Node[] { nds[0], nds[1] }, sec));
-            beams.Add(new EulerBeam(new Node[] { nds[1], nds[2] }, sec));
-            beams.Add(new EulerBeam(new Node[] { nds[2], nds[3] }, sec));
+            EulerBeam b1 = new EulerBeam(new Node[] { nds[0], nds[1] });
+            b1.SetProperty(sec);
+            EulerBeam b2 = new EulerBeam(new Node[] { nds[1], nds[2] });
+            b2.SetProperty(sec);
+            EulerBeam b3 = new EulerBeam(new Node[] { nds[2], nds[3] });
+            b3.SetProperty(sec);
+            beams.Add(b1);
+            beams.Add(b2);
+            beams.Add(b3);
 
             beams[1].AddEndRelease(Beam.EndSide.End2, new Beam.LocalDOF[] { Beam.LocalDOF.TorsionR1 }, "fc", "releaseName");
 
@@ -2437,8 +2573,12 @@ namespace FemTest.SolverTest
             nds.Add(new Node(2.0 * L, 0, 0));
 
             List<EulerBeam> beams = new List<EulerBeam>();
-            beams.Add(new EulerBeam(new Node[] { nds[0], nds[1] }, sec));
-            beams.Add(new EulerBeam(new Node[] { nds[1], nds[2] }, sec));
+            EulerBeam b1 = new EulerBeam(new Node[] { nds[0], nds[1] });
+            b1.SetProperty(sec);
+            EulerBeam b2 = new EulerBeam(new Node[] { nds[1], nds[2] });
+            b2.SetProperty(sec);
+            beams.Add(b1);
+            beams.Add(b2);
 
             beams[1].AddEndRelease(Beam.EndSide.End1, new Beam.LocalDOF[] { Beam.LocalDOF.U2, Beam.LocalDOF.U3}, "fc", "releaseName");
 
@@ -2505,9 +2645,15 @@ namespace FemTest.SolverTest
             nds.Add(new Node(3.0 * L, 0, 0));
 
             List<EulerBeam> beams = new List<EulerBeam>();
-            beams.Add(new EulerBeam(new Node[] { nds[0], nds[1] }, sec));
-            beams.Add(new EulerBeam(new Node[] { nds[1], nds[2] }, sec));
-            beams.Add(new EulerBeam(new Node[] { nds[2], nds[3] }, sec));
+            EulerBeam b1 = new EulerBeam(new Node[] { nds[0], nds[1] });
+            b1.SetProperty(sec);
+            EulerBeam b2 = new EulerBeam(new Node[] { nds[1], nds[2] });
+            b2.SetProperty(sec);
+            EulerBeam b3 = new EulerBeam(new Node[] { nds[2], nds[3] });
+            b3.SetProperty(sec);
+            beams.Add(b1);
+            beams.Add(b2);
+            beams.Add(b3);
 
             beams[1].AddEndRelease(Beam.EndSide.End1, new Beam.LocalDOF[] { Beam.LocalDOF.U2, Beam.LocalDOF.U3 }, "fc", "releaseName");
 
@@ -2560,9 +2706,15 @@ namespace FemTest.SolverTest
             nds.Add(new Node(3.0 * L, 0, 0));
 
             List<EulerBeam> beams = new List<EulerBeam>();
-            beams.Add(new EulerBeam(new Node[] { nds[0], nds[1] }, sec));
-            beams.Add(new EulerBeam(new Node[] { nds[1], nds[2] }, sec));
-            beams.Add(new EulerBeam(new Node[] { nds[2], nds[3] }, sec));
+            EulerBeam b1 = new EulerBeam(new Node[] { nds[0], nds[1] });
+            b1.SetProperty(sec);
+            EulerBeam b2 = new EulerBeam(new Node[] { nds[1], nds[2] });
+            b2.SetProperty(sec);
+            EulerBeam b3 = new EulerBeam(new Node[] { nds[2], nds[3] });
+            b3.SetProperty(sec);
+            beams.Add(b1);
+            beams.Add(b2);
+            beams.Add(b3);
 
             beams[1].AddEndRelease(Beam.EndSide.End2, new Beam.LocalDOF[] { Beam.LocalDOF.U2, Beam.LocalDOF.U3 }, "fc", "releaseName");
 
@@ -2615,9 +2767,15 @@ namespace FemTest.SolverTest
             nds.Add(new Node(3.0 * L, 0, 0));
 
             List<EulerBeam> beams = new List<EulerBeam>();
-            beams.Add(new EulerBeam(new Node[] { nds[0], nds[1] }, sec));
-            beams.Add(new EulerBeam(new Node[] { nds[1], nds[2] }, sec));
-            beams.Add(new EulerBeam(new Node[] { nds[2], nds[3] }, sec));
+            EulerBeam b1 = new EulerBeam(new Node[] { nds[0], nds[1] });
+            b1.SetProperty(sec);
+            EulerBeam b2 = new EulerBeam(new Node[] { nds[1], nds[2] });
+            b2.SetProperty(sec);
+            EulerBeam b3 = new EulerBeam(new Node[] { nds[2], nds[3] });
+            b3.SetProperty(sec);
+            beams.Add(b1);
+            beams.Add(b2);
+            beams.Add(b3);
 
             beams[1].AddEndRelease(Beam.EndSide.End1, new Beam.LocalDOF[] { Beam.LocalDOF.U2, Beam.LocalDOF.U3 }, "fc", "releaseName");
 
@@ -2673,8 +2831,12 @@ namespace FemTest.SolverTest
             nds.Add(new Node(2.0 * L, 0, 0));
 
             List<EulerBeam> beams = new List<EulerBeam>();
-            beams.Add(new EulerBeam(new Node[] { nds[0], nds[1] }, sec));
-            beams.Add(new EulerBeam(new Node[] { nds[1], nds[2] }, sec));
+            EulerBeam b1 = new EulerBeam(new Node[] { nds[0], nds[1] });
+            b1.SetProperty(sec);
+            EulerBeam b2 = new EulerBeam(new Node[] { nds[1], nds[2] });
+            b2.SetProperty(sec);
+            beams.Add(b1);
+            beams.Add(b2);
 
             beams[0].AddEndRelease(Beam.EndSide.End2, new Beam.LocalDOF[] { Beam.LocalDOF.U2, Beam.LocalDOF.U3 }, "fc", "releaseName");
 
@@ -2741,9 +2903,15 @@ namespace FemTest.SolverTest
             nds.Add(new Node(3.0 * L, 0, 0));
 
             List<EulerBeam> beams = new List<EulerBeam>();
-            beams.Add(new EulerBeam(new Node[] { nds[0], nds[1] }, sec));
-            beams.Add(new EulerBeam(new Node[] { nds[1], nds[2] }, sec));
-            beams.Add(new EulerBeam(new Node[] { nds[2], nds[3] }, sec));
+            EulerBeam b1 = new EulerBeam(new Node[] { nds[0], nds[1] });
+            b1.SetProperty(sec);
+            EulerBeam b2 = new EulerBeam(new Node[] { nds[1], nds[2] });
+            b2.SetProperty(sec);
+            EulerBeam b3 = new EulerBeam(new Node[] { nds[2], nds[3] });
+            b3.SetProperty(sec);
+            beams.Add(b1);
+            beams.Add(b2);
+            beams.Add(b3);
 
             beams[1].AddEndRelease(Beam.EndSide.End2, new Beam.LocalDOF[] { Beam.LocalDOF.U2, Beam.LocalDOF.U3 }, "fc", "releaseName");
 
@@ -2799,8 +2967,12 @@ namespace FemTest.SolverTest
             nds.Add(new Node(2.0 * L, 0, 0));
 
             List<EulerBeam> beams = new List<EulerBeam>();
-            beams.Add(new EulerBeam(new Node[] { nds[0], nds[1] }, sec));
-            beams.Add(new EulerBeam(new Node[] { nds[1], nds[2] }, sec));
+            EulerBeam b1 = new EulerBeam(new Node[] { nds[0], nds[1] });
+            b1.SetProperty(sec);
+            EulerBeam b2 = new EulerBeam(new Node[] { nds[1], nds[2] });
+            b2.SetProperty(sec);
+            beams.Add(b1);
+            beams.Add(b2);
 
             beams[1].AddEndRelease(Beam.EndSide.End1, new Beam.LocalDOF[] { Beam.LocalDOF.R2, Beam.LocalDOF.R3 }, "fc", "releaseName");
 
@@ -2874,8 +3046,12 @@ namespace FemTest.SolverTest
             nds.Add(new Node(0.0, 2.0 * L, 0));
 
             List<EulerBeam> beams = new List<EulerBeam>();
-            beams.Add(new EulerBeam(new Node[] { nds[0], nds[1] }, sec));
-            beams.Add(new EulerBeam(new Node[] { nds[1], nds[2] }, sec));
+            EulerBeam b1 = new EulerBeam(new Node[] { nds[0], nds[1] });
+            b1.SetProperty(sec);
+            EulerBeam b2 = new EulerBeam(new Node[] { nds[1], nds[2] });
+            b2.SetProperty(sec);
+            beams.Add(b1);
+            beams.Add(b2);
 
             beams[0].AddEndRelease(Beam.EndSide.End1, new Beam.LocalDOF[] { Beam.LocalDOF.R2, Beam.LocalDOF.R3 }, "fc", "releaseName");
             //beams[0].AddEndRelease(Beam.EndSide.End2, new Beam.LocalDOF[] { Beam.LocalDOF.R2, Beam.LocalDOF.R3 }, "fc", "releaseName");
@@ -2954,8 +3130,12 @@ namespace FemTest.SolverTest
             nds.Add(new Node(2.0 * L, 0, 0));
 
             List<EulerBeam> beams = new List<EulerBeam>();
-            beams.Add(new EulerBeam(new Node[] { nds[0], nds[1] }, sec));
-            beams.Add(new EulerBeam(new Node[] { nds[1], nds[2] }, sec));
+            EulerBeam b1 = new EulerBeam(new Node[] { nds[0], nds[1] });
+            b1.SetProperty(sec);
+            EulerBeam b2 = new EulerBeam(new Node[] { nds[1], nds[2] });
+            b2.SetProperty(sec);
+            beams.Add(b1);
+            beams.Add(b2);
 
             beams[0].AddEndRelease(Beam.EndSide.End2, new Beam.LocalDOF[] { Beam.LocalDOF.R2, Beam.LocalDOF.R3 }, "fc", "releaseName");
 
@@ -3029,8 +3209,12 @@ namespace FemTest.SolverTest
             nds.Add(new Node(0.0, 2.0 * L, 0));
 
             List<EulerBeam> beams = new List<EulerBeam>();
-            beams.Add(new EulerBeam(new Node[] { nds[0], nds[1] }, sec));
-            beams.Add(new EulerBeam(new Node[] { nds[1], nds[2] }, sec));
+            EulerBeam b1 = new EulerBeam(new Node[] { nds[0], nds[1] });
+            b1.SetProperty(sec);
+            EulerBeam b2 = new EulerBeam(new Node[] { nds[1], nds[2] });
+            b2.SetProperty(sec);
+            beams.Add(b1);
+            beams.Add(b2);
 
             //beams[0].AddEndRelease(Beam.EndSide.End1, new Beam.LocalDOF[] { Beam.LocalDOF.R2, Beam.LocalDOF.R3 }, "fc", "releaseName");
             //beams[0].AddEndRelease(Beam.EndSide.End2, new Beam.LocalDOF[] { Beam.LocalDOF.R2, Beam.LocalDOF.R3 }, "fc", "releaseName");
@@ -3110,9 +3294,15 @@ namespace FemTest.SolverTest
             nds.Add(new Node(3.0 * L, 0, 0));
 
             List<EulerBeam> beams = new List<EulerBeam>();
-            beams.Add(new EulerBeam(new Node[] { nds[0], nds[1] }, sec));
-            beams.Add(new EulerBeam(new Node[] { nds[1], nds[2] }, sec));
-            beams.Add(new EulerBeam(new Node[] { nds[2], nds[3] }, sec));
+            EulerBeam b1 = new EulerBeam(new Node[] { nds[0], nds[1] });
+            b1.SetProperty(sec);
+            EulerBeam b2 = new EulerBeam(new Node[] { nds[1], nds[2] });
+            b2.SetProperty(sec);
+            EulerBeam b3 = new EulerBeam(new Node[] { nds[2], nds[3] });
+            b3.SetProperty(sec);
+            beams.Add(b1);
+            beams.Add(b2);
+            beams.Add(b3);
 
             beams[1].AddEndRelease(Beam.EndSide.End1, new Beam.LocalDOF[] {
                 Beam.LocalDOF.U2,
@@ -3183,9 +3373,15 @@ namespace FemTest.SolverTest
             nds.Add(new Node(3.0 * L, 0, 0));
 
             List<EulerBeam> beams = new List<EulerBeam>();
-            beams.Add(new EulerBeam(new Node[] { nds[0], nds[1] }, sec));
-            beams.Add(new EulerBeam(new Node[] { nds[1], nds[2] }, sec));
-            beams.Add(new EulerBeam(new Node[] { nds[2], nds[3] }, sec));
+            EulerBeam b1 = new EulerBeam(new Node[] { nds[0], nds[1] });
+            b1.SetProperty(sec);
+            EulerBeam b2 = new EulerBeam(new Node[] { nds[1], nds[2] });
+            b2.SetProperty(sec);
+            EulerBeam b3 = new EulerBeam(new Node[] { nds[2], nds[3] });
+            b3.SetProperty(sec);
+            beams.Add(b1);
+            beams.Add(b2);
+            beams.Add(b3);
 
             beams[1].AddEndRelease(Beam.EndSide.End2, new Beam.LocalDOF[] {
                 Beam.LocalDOF.U2,
@@ -3256,9 +3452,15 @@ namespace FemTest.SolverTest
             nds.Add(new Node(3.0 * L, 0, 0));
 
             List<EulerBeam> beams = new List<EulerBeam>();
-            beams.Add(new EulerBeam(new Node[] { nds[0], nds[1] }, sec));
-            beams.Add(new EulerBeam(new Node[] { nds[1], nds[2] }, sec));
-            beams.Add(new EulerBeam(new Node[] { nds[2], nds[3] }, sec));
+            EulerBeam b1 = new EulerBeam(new Node[] { nds[0], nds[1] });
+            b1.SetProperty(sec);
+            EulerBeam b2 = new EulerBeam(new Node[] { nds[1], nds[2] });
+            b2.SetProperty(sec);
+            EulerBeam b3 = new EulerBeam(new Node[] { nds[2], nds[3] });
+            b3.SetProperty(sec);
+            beams.Add(b1);
+            beams.Add(b2);
+            beams.Add(b3);
 
             beams[1].AddEndRelease(Beam.EndSide.End1, new Beam.LocalDOF[] {
                 Beam.LocalDOF.U2,
@@ -3327,9 +3529,15 @@ namespace FemTest.SolverTest
             nds.Add(new Node(3.0 * L, 0, 0));
 
             List<EulerBeam> beams = new List<EulerBeam>();
-            beams.Add(new EulerBeam(new Node[] { nds[0], nds[1] }, sec));
-            beams.Add(new EulerBeam(new Node[] { nds[1], nds[2] }, sec));
-            beams.Add(new EulerBeam(new Node[] { nds[2], nds[3] }, sec));
+            EulerBeam b1 = new EulerBeam(new Node[] { nds[0], nds[1] });
+            b1.SetProperty(sec);
+            EulerBeam b2 = new EulerBeam(new Node[] { nds[1], nds[2] });
+            b2.SetProperty(sec);
+            EulerBeam b3 = new EulerBeam(new Node[] { nds[2], nds[3] });
+            b3.SetProperty(sec);
+            beams.Add(b1);
+            beams.Add(b2);
+            beams.Add(b3);
 
             beams[1].AddEndRelease(Beam.EndSide.End2, new Beam.LocalDOF[] {
                 Beam.LocalDOF.U2,
@@ -3401,9 +3609,15 @@ namespace FemTest.SolverTest
             nds.Add(new Node(3.0 * L, 0, 0));
 
             List<EulerBeam> beams = new List<EulerBeam>();
-            beams.Add(new EulerBeam(new Node[] { nds[0], nds[1] }, sec));
-            beams.Add(new EulerBeam(new Node[] { nds[1], nds[2] }, sec));
-            beams.Add(new EulerBeam(new Node[] { nds[2], nds[3] }, sec));
+            EulerBeam b1 = new EulerBeam(new Node[] { nds[0], nds[1] });
+            b1.SetProperty(sec);
+            EulerBeam b2 = new EulerBeam(new Node[] { nds[1], nds[2] });
+            b2.SetProperty(sec);
+            EulerBeam b3 = new EulerBeam(new Node[] { nds[2], nds[3] });
+            b3.SetProperty(sec);
+            beams.Add(b1);
+            beams.Add(b2);
+            beams.Add(b3);
 
             beams[1].AddEndRelease(Beam.EndSide.End1, new Beam.LocalDOF[] {
                 Beam.LocalDOF.R2,
@@ -3462,9 +3676,15 @@ namespace FemTest.SolverTest
             nds.Add(new Node(3.0 * L, 0, 0));
 
             List<EulerBeam> beams = new List<EulerBeam>();
-            beams.Add(new EulerBeam(new Node[] { nds[0], nds[1] }, sec));
-            beams.Add(new EulerBeam(new Node[] { nds[1], nds[2] }, sec));
-            beams.Add(new EulerBeam(new Node[] { nds[2], nds[3] }, sec));
+            EulerBeam b1 = new EulerBeam(new Node[] { nds[0], nds[1] });
+            b1.SetProperty(sec);
+            EulerBeam b2 = new EulerBeam(new Node[] { nds[1], nds[2] });
+            b2.SetProperty(sec);
+            EulerBeam b3 = new EulerBeam(new Node[] { nds[2], nds[3] });
+            b3.SetProperty(sec);
+            beams.Add(b1);
+            beams.Add(b2);
+            beams.Add(b3);
 
             beams[1].AddEndRelease(Beam.EndSide.End1, new Beam.LocalDOF[] {
                 Beam.LocalDOF.R2,
@@ -3524,9 +3744,15 @@ namespace FemTest.SolverTest
             nds.Add(new Node(3.0 * L, 0, 0));
 
             List<EulerBeam> beams = new List<EulerBeam>();
-            beams.Add(new EulerBeam(new Node[] { nds[0], nds[1] }, sec));
-            beams.Add(new EulerBeam(new Node[] { nds[1], nds[2] }, sec));
-            beams.Add(new EulerBeam(new Node[] { nds[2], nds[3] }, sec));
+            EulerBeam b1 = new EulerBeam(new Node[] { nds[0], nds[1] });
+            b1.SetProperty(sec);
+            EulerBeam b2 = new EulerBeam(new Node[] { nds[1], nds[2] });
+            b2.SetProperty(sec);
+            EulerBeam b3 = new EulerBeam(new Node[] { nds[2], nds[3] });
+            b3.SetProperty(sec);
+            beams.Add(b1);
+            beams.Add(b2);
+            beams.Add(b3);
 
             beams[1].AddEndRelease(Beam.EndSide.End2, new Beam.LocalDOF[] {
                 Beam.LocalDOF.R2,
@@ -3587,10 +3813,18 @@ namespace FemTest.SolverTest
             nds.Add(new Node(4.0 * L, 0, 0));
 
             List<EulerBeam> beams = new List<EulerBeam>();
-            beams.Add(new EulerBeam(new Node[] { nds[0], nds[1] }, sec));
-            beams.Add(new EulerBeam(new Node[] { nds[1], nds[2] }, sec));
-            beams.Add(new EulerBeam(new Node[] { nds[2], nds[3] }, sec));
-            beams.Add(new EulerBeam(new Node[] { nds[3], nds[4] }, sec));
+            EulerBeam b1 = new EulerBeam(new Node[] { nds[0], nds[1] });
+            b1.SetProperty(sec);
+            EulerBeam b2 = new EulerBeam(new Node[] { nds[1], nds[2] });
+            b2.SetProperty(sec);
+            EulerBeam b3 = new EulerBeam(new Node[] { nds[2], nds[3] });
+            b3.SetProperty(sec);
+            EulerBeam b4 = new EulerBeam(new Node[] { nds[3], nds[4] });
+            b4.SetProperty(sec);
+            beams.Add(b1);
+            beams.Add(b2);
+            beams.Add(b3);
+            beams.Add(b4);
 
             beams[2].AddEndRelease(Beam.EndSide.End1, new Beam.LocalDOF[] {
                 Beam.LocalDOF.U2,
@@ -3599,9 +3833,9 @@ namespace FemTest.SolverTest
                 Beam.LocalDOF.U3,
                 Beam.LocalDOF.R2}, "fc", "releaseName");
 
-            /*beams[1].AddEndRelease(Beam.EndSide.End2, new Beam.LocalDOF[] {
-                Beam.LocalDOF.R2,
-                Beam.LocalDOF.R3 }, "fc", "releaseName");*/
+            // /*beams[1].AddEndRelease(Beam.EndSide.End2, new Beam.LocalDOF[] {
+            //     Beam.LocalDOF.R2,
+            //     Beam.LocalDOF.R3 }, "fc", "releaseName");
 
             CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
 
@@ -3611,9 +3845,9 @@ namespace FemTest.SolverTest
             nds[2].AddAttribute(f);
             nds[3].AddAttribute(f);
 
-            /*BeamDistribuitedLoadAttribute q = new BeamDistribuitedLoadAttribute("lc", 0.0, 1.0, 1.0);
+            // /*BeamDistribuitedLoadAttribute q = new BeamDistribuitedLoadAttribute("lc", 0.0, 1.0, 1.0);
 
-            beams[1].AddLoadCaseAttribute(q);*/
+            // beams[1].AddLoadCaseAttribute(q);
 
             NodeRestrainAttribute fix = new NodeRestrainAttribute("fc", sys);
             fix.AddExternalRestrain(Solver.DOF.DX);
@@ -3668,11 +3902,17 @@ namespace FemTest.SolverTest
             nds.Add(new Node(L / 3.0, 0, 0));
             nds.Add(new Node(2.0 * L / 3.0, 0, 0));
             nds.Add(new Node(3.0 * L / 3.0, 0, 0));
-            
+
             List<EulerBeam> beams = new List<EulerBeam>();
-            beams.Add(new EulerBeam(new Node[] { nds[0], nds[1] }, sec));
-            beams.Add(new EulerBeam(new Node[] { nds[1], nds[2] }, sec));
-            beams.Add(new EulerBeam(new Node[] { nds[2], nds[3] }, sec));
+            EulerBeam b1 = new EulerBeam(new Node[] { nds[0], nds[1] });
+            b1.SetProperty(sec);
+            EulerBeam b2 = new EulerBeam(new Node[] { nds[1], nds[2] });
+            b2.SetProperty(sec);
+            EulerBeam b3 = new EulerBeam(new Node[] { nds[2], nds[3] });
+            b3.SetProperty(sec);
+            beams.Add(b1);
+            beams.Add(b2);
+            beams.Add(b3);
 
             CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
 
@@ -3726,9 +3966,15 @@ namespace FemTest.SolverTest
             nds.Add(new Node(3.0 * L / 3.0, 0, 0));
 
             List<EulerBeam> beams = new List<EulerBeam>();
-            beams.Add(new EulerBeam(new Node[] { nds[0], nds[1] }, sec));
-            beams.Add(new EulerBeam(new Node[] { nds[1], nds[2] }, sec));
-            beams.Add(new EulerBeam(new Node[] { nds[2], nds[3] }, sec));
+            EulerBeam b1 = new EulerBeam(new Node[] { nds[0], nds[1] });
+            b1.SetProperty(sec);
+            EulerBeam b2 = new EulerBeam(new Node[] { nds[1], nds[2] });
+            b2.SetProperty(sec);
+            EulerBeam b3 = new EulerBeam(new Node[] { nds[2], nds[3] });
+            b3.SetProperty(sec);
+            beams.Add(b1);
+            beams.Add(b2);
+            beams.Add(b3);
 
             CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
 
@@ -3750,12 +3996,12 @@ namespace FemTest.SolverTest
 
             LinearSolver fem = new LinearSolver(beams.ToArray());
 
-            /*Assert.AreEqual(43.3878, fem.GetBeamDisplacementInGlobalCoordinates(beams[1], 0.0, DOF.DY), 1e-4);
-            Assert.AreEqual(66.5608, fem.GetBeamDisplacementInGlobalCoordinates(beams[1], beams[1].L / 2.0, DOF.DY), 1e-4);
-            Assert.AreEqual(63.1095, fem.GetBeamDisplacementInGlobalCoordinates(beams[1], beams[1].L, DOF.DY), 1e-4);
-
-            Assert.AreEqual(10.1697 * Math.PI / 180.0, fem.GetBeamDisplacementInGlobalCoordinates(beams[1], 0.0, DOF.RZ), 1e-4);
-            Assert.AreEqual(7.2318 * Math.PI / 180.0, fem.GetBeamDisplacementInGlobalCoordinates(beams[1], beams[1].L * 1 / 3.0, DOF.RZ), 1e-4);*/
+            // Assert.AreEqual(43.3878, fem.GetBeamDisplacementInGlobalCoordinates(beams[1], 0.0, DOF.DY), 1e-4);
+            // Assert.AreEqual(66.5608, fem.GetBeamDisplacementInGlobalCoordinates(beams[1], beams[1].L / 2.0, DOF.DY), 1e-4);
+            // Assert.AreEqual(63.1095, fem.GetBeamDisplacementInGlobalCoordinates(beams[1], beams[1].L, DOF.DY), 1e-4);
+            // 
+            // Assert.AreEqual(10.1697 * Math.PI / 180.0, fem.GetBeamDisplacementInGlobalCoordinates(beams[1], 0.0, DOF.RZ), 1e-4);
+            // Assert.AreEqual(7.2318 * Math.PI / 180.0, fem.GetBeamDisplacementInGlobalCoordinates(beams[1], beams[1].L * 1 / 3.0, DOF.RZ), 1e-4);
             Assert.AreEqual(4.5764 * Math.PI / 180.0, fem.GetBeamDisplacementInGlobalCoordinates(beams[1], beams[1].L / 2.0, DOF.RZ), 1e-4);
             Assert.AreEqual(-8.1358 * Math.PI / 180.0, fem.GetBeamDisplacementInGlobalCoordinates(beams[1], beams[1].L, DOF.RZ), 1e-4);
 
@@ -3788,9 +4034,15 @@ namespace FemTest.SolverTest
             nds.Add(new Node(3.0 * L / 3.0, 0, 0));
 
             List<EulerBeam> beams = new List<EulerBeam>();
-            beams.Add(new EulerBeam(new Node[] { nds[0], nds[1] }, sec));
-            beams.Add(new EulerBeam(new Node[] { nds[1], nds[2] }, sec));
-            beams.Add(new EulerBeam(new Node[] { nds[2], nds[3] }, sec));
+            EulerBeam b1 = new EulerBeam(new Node[] { nds[0], nds[1] });
+            b1.SetProperty(sec);
+            EulerBeam b2 = new EulerBeam(new Node[] { nds[1], nds[2] });
+            b2.SetProperty(sec);
+            EulerBeam b3 = new EulerBeam(new Node[] { nds[2], nds[3] });
+            b3.SetProperty(sec);
+            beams.Add(b1);
+            beams.Add(b2);
+            beams.Add(b3);
 
             CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
 
@@ -3824,5 +4076,6 @@ namespace FemTest.SolverTest
             Assert.AreEqual(0.0 * Math.PI / 180.0, fem.GetBeamDisplacementInGlobalCoordinates(beams[1], beams[1].L / 2.0, DOF.RY), 1e-4);
             Assert.AreEqual(2.4407 * Math.PI / 180.0, fem.GetBeamDisplacementInGlobalCoordinates(beams[1], beams[1].L, DOF.RY), 1e-4);
         }
+            
     }
 }
