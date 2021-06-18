@@ -537,7 +537,7 @@ namespace GPC.Model.FEM
 
             ElementProperty property;
 
-            if (finiteElement is EulerBeam)
+            if (finiteElement is Beam)
             {
                 property = GetBeamProperty(propertyName);
 
