@@ -1,20 +1,18 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 using System.Runtime.Serialization;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace GPC.Model.FEM.Collections
 {
     /// <remarks>
     /// Nota bene: la classe non è sicura perchè se i nodi passati alla collection per reference variano da fuori della collection,
-    /// la lista interna non viene riordinata causando probabili problemi nella finzione di ricerca
+    /// la lista interna non viene riordinata causando probabili problemi nella funzione di ricerca
     /// Le possibili soluzioni sono:
     /// - Rendere la proprietà Position (su cui è basato l'ordinamento) immutabile. Questo può essere fatto nascondento l'oggetto Point3d 
-    ///   e fornendo un accesso diverso alla posizione del nodo che non consenta di modificarne il valore
-    /// - Implementare l'interfaccia INotifyPropertyChanged nella classe Point3d in modo che in caso di modifica, essa venga notificata
+    ///   e fornendo un accesso diverso alla posizione del nodo che non consenta di modificarne il valore.
+    /// - Implementare l'interfaccia INotifyPropertyChanged nella classe Point3d in modo che, in caso di modifica, essa venga notificata
     ///   alla collection che provveda eventualmente a riordinare la lista interna.
     /// </remarks>
     [Serializable]
@@ -37,6 +35,7 @@ namespace GPC.Model.FEM.Collections
         protected readonly object _locker = new object();
         protected readonly List<Node> _collection;
         protected int _lastId;
+        protected bool _autoSort;
         protected static PositionComparer _positionComparer = new PositionComparer();
 
         /// <summary>
@@ -48,10 +47,22 @@ namespace GPC.Model.FEM.Collections
 
         public int Count => _collection.Count;
 
+        public bool AutoSort
+        {
+            get => _autoSort;
+            set
+            {
+                if (_autoSort == false && value == true) // Force sorting when the AutoSort is activated
+                    Sort();
+                _autoSort = value;
+            }
+        }
+
         public NodeCollection()
         {
             _collection = new List<Node>();
             _lastId = 1;
+            _autoSort = true;
         }
 
         public NodeCollection(SerializationInfo info, StreamingContext context)
@@ -61,6 +72,7 @@ namespace GPC.Model.FEM.Collections
 
             _collection = (List<Node>)info.GetValue("Collection", typeof(List<Node>));
             _lastId = info.GetInt32("LastId");
+            _autoSort = info.GetBoolean("AutoSort");
         }
 
         public void GetObjectData(SerializationInfo info, StreamingContext context)
@@ -69,6 +81,7 @@ namespace GPC.Model.FEM.Collections
                 throw new ArgumentNullException("info can't be null");
             info.AddValue("Collection", _collection, typeof(List<Node>));
             info.AddValue("LastId", _lastId);
+            info.AddValue("AutoSort", _autoSort);
         }
 
         /// <summary>
@@ -190,24 +203,54 @@ namespace GPC.Model.FEM.Collections
         /// <summary>
         /// Adds a new node and returns the new Id. If the node already exists return his Id
         /// </summary>
-        /// <param name="item">The node to add</param>
+        /// <param name="node">The node to add</param>
         /// <returns>The node Id</returns>
-        public int Add(Node item)
+        public int Add(Node node)
         {
             lock (_locker)
             {
-                int pos = _collection.BinarySearch(item, _positionComparer);
+                if (AutoSort == false) // When a new node is added force AutoSort enabled
+                    AutoSort = true;
+
+                int pos = _collection.BinarySearch(node, _positionComparer);
                 if (pos < 0) // New not existing item
                 {
-                    item.Id = _lastId++;
+                    node.Id = _lastId++;
 
                     if (pos == -_collection.Count - 1)
-                        _collection.Add(item); // Append to the end of the collection
+                        _collection.Add(node); // Append to the end of the collection
                     else
-                        _collection.Insert(-pos - 1, item); // Insert inside to keep the collection ordered
-                    return item.Id;
+                        _collection.Insert(-pos - 1, node); // Insert inside to keep the collection ordered
+
+                    node.PropertyChanged += OnNodeChanged;
+
+                    return node.Id;
                 }
                 return _collection[pos].Id;
+            }
+        }
+
+        private void OnNodeChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+        {
+            if (!_autoSort)
+                return;
+            if (sender is Node node)
+            {
+                bool needToMove = false;
+                int currPos = _collection.IndexOf(node);
+                if (currPos > 0 && _positionComparer.Compare(_collection[currPos - 1], node) >= 0)
+                    needToMove = true;
+                if (currPos < _collection.Count - 1 && _positionComparer.Compare(_collection[currPos + 1], node) <= 0)
+                    needToMove = true;
+                if (needToMove)
+                {
+                    _collection.RemoveAt(currPos);
+                    int newPos = _collection.BinarySearch(node, _positionComparer);
+                    if (newPos == -_collection.Count - 1)
+                        _collection.Add(node); // Append to the end of the collection
+                    else
+                        _collection.Insert(-newPos - 1, node); // Insert inside to keep the collection ordered           
+                }
             }
         }
 
@@ -229,7 +272,7 @@ namespace GPC.Model.FEM.Collections
         /// </summary>
         /// <param name="node">The node to update</param>
         /// <returns></returns>
-        public int Update(Node node)
+        /*public int Update(Node node)
         {
             lock (_locker)
             {
@@ -247,7 +290,7 @@ namespace GPC.Model.FEM.Collections
                     return newPos + 1;
                 }
             }
-        }
+        }*/
 
         /// <summary>
         /// Remove the given node from the collection
