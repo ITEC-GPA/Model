@@ -257,22 +257,33 @@ namespace GPC.Model.FEM.Collections
         /// <summary>
         /// Replace a node with another and reposition it basing on its value
         /// </summary>
-        /// <param name="oldItem">The node to replace</param>
-        /// <param name="newItem">The new node</param>
+        /// <param name="id">The id of the node to replace</param>
+        /// <param name="node">The new node</param>
         /// <returns>The new node index</returns>
-        public int Replace(Node oldItem, Node newItem)
+        public int Replace(int id, Node node)
         {
-            if (oldItem.Id != newItem.Id)
-                return -1;
-            return 0;
+            int i = GetIndexById(id);
+            _collection.RemoveAt(i);
+            int newPos = _collection.BinarySearch(node, _positionComparer);
+            node.Id = id;
+            if (newPos == -_collection.Count - 1)
+            {
+                _collection.Add(node); // Append to the end of the collection
+                return _collection.Count - 1;
+            }
+            else
+            {
+                _collection.Insert(-newPos - 1, node); // Insert inside to keep the collection ordered
+                return -newPos - 1;
+            }
         }
 
-        /// <summary>
+        /*/// <summary>
         /// Update the given node and return his new index position
         /// </summary>
         /// <param name="node">The node to update</param>
         /// <returns></returns>
-        /*public int Update(Node node)
+        public int Update(Node node)
         {
             lock (_locker)
             {
@@ -295,13 +306,13 @@ namespace GPC.Model.FEM.Collections
         /// <summary>
         /// Remove the given node from the collection
         /// </summary>
-        /// <param name="item">The node to remove</param>
+        /// <param name="node">The node to remove</param>
         /// <returns>True id success</returns>
-        public bool Remove(Node item)
+        public bool Remove(Node node)
         {
             lock (_locker)
             {
-                int pos = _collection.BinarySearch(item, _positionComparer);
+                int pos = _collection.BinarySearch(node, _positionComparer);
                 if (pos >= 0)
                 {
                     _collection.RemoveAt(pos);
