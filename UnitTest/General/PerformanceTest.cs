@@ -283,7 +283,7 @@ namespace GeneralTest
             NodeCollection nodesCollection = new NodeCollection();
             nodesCollection.Add(new Node(10, 20, 30, string.Empty));
             nodesCollection.Add(new Node(15, 25, 35, string.Empty));
-
+            /*
             Node changedNode = nodesCollection[1].Duplicate();
             changedNode.Position.Move(1, 1, 1);
             int index = nodesCollection.Update(changedNode);
@@ -294,7 +294,17 @@ namespace GeneralTest
             changedNode.Position.Move(9, 9, 9);
             index = nodesCollection.Update(changedNode);
 
-            Debug.WriteLine(index, "Second move insex");
+            Debug.WriteLine(index, "Second move index");
+            */
+            // Con questa modifica non deve variare la posizione nella collection
+            nodesCollection[1].Position += new GPC.Geometry.Vector3d(1, 1, 1);
+            int pos = nodesCollection.IndexOf(nodesCollection[1]);
+            Assert.IsTrue(pos == 0);
+
+            // Con questa modifica il nodo deve essere spostato alla fine della collection
+            nodesCollection[1].Position += new GPC.Geometry.Vector3d(9, 9, 9);
+            pos = nodesCollection.IndexOf(nodesCollection[1]);
+            Assert.IsTrue(pos == 1);
         }
 
         [TestMethod]
@@ -319,21 +329,35 @@ namespace GeneralTest
             stopWatch.Start();
             for (int i = 0; i < amountOfNodes; i++)
             {
+                //Node node = nodesCollection[ids[i]].Duplicate();
                 int k = rnd.Next(50, 100);
-                Node node = nodesCollection[ids[i]].Duplicate();
-
-                node.Position.Move(1, 1, 1);
-
                 double dx = rnd.NextDouble() * k;
                 double dy = rnd.NextDouble() * k;
                 double dz = rnd.NextDouble() * k;
-                node.Position.Move(dx, dy, dz);
+                //node.Position.Move(dx, dy, dz);
+                //nodesCollection.Update(node);
 
-                nodesCollection.Update(node);
+                nodesCollection[ids[i]].Position += new GPC.Geometry.Vector3d(dx, dy, dz);
             }
             stopWatch.Stop();
             Debug.WriteLine(stopWatch.ElapsedMilliseconds, "Elapsed time");
-            // Tempo per modificare e riordinare 10000 nodi 2.0-2.5s
+            // Con versione senza notifica: Tempo per modificare e riordinare 10000 nodi 2.0-2.5s
+            // Con versione con notifica: Tempo 11-12s (lento)
+
+            nodesCollection.AutoSort = false;
+            stopWatch.Restart();
+            for (int i = 0; i < amountOfNodes; i++)
+            {
+                int k = rnd.Next(50, 100);
+                double dx = rnd.NextDouble() * k;
+                double dy = rnd.NextDouble() * k;
+                double dz = rnd.NextDouble() * k;
+                nodesCollection[ids[i]].Position += new GPC.Geometry.Vector3d(dx, dy, dz);
+            }
+            nodesCollection.AutoSort = true;
+            stopWatch.Stop();
+            Debug.WriteLine(stopWatch.ElapsedMilliseconds, "Elapsed time");
+            // Con Autosort disabilitato e riordinamento finale riordinamento 10000 punti ~1s
         }
     }
 }
