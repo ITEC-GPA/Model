@@ -11,6 +11,7 @@ using GPC.Model.FEM.Attributes;
 using GPC.Model.FEM.Properties;
 using GPC.Model.Materials;
 using System.Collections.Generic;
+using System.Diagnostics;
 
 namespace FemTest
 {
@@ -58,9 +59,19 @@ namespace FemTest
             Plate p3 = new Plate(new Node[] { new Node(new Point3d(0, 1, 2), 1), new Node(new Point3d(1, 1, 2), 2), new Node(new Point3d(2, 1, 2), 3), new Node(new Point3d(3, 1, 2), 4) });
             p3.SetId(1);
 
+            Stopwatch stopWatch = new Stopwatch();
+            stopWatch.Start();
+
             cfe.AddUnique(p1);
             cfe.AddUnique(p2);
             cfe.AddUnique(p3);
+
+            stopWatch.Stop();
+            Debug.WriteLine(stopWatch.ElapsedMilliseconds, "Elapsed time");
+            // Con compare della collection 59ms
+            // Con comparer con for parallelo 35ms
+
+
 
             Assert.IsTrue(cfe.Count == 2, cfe.Count.ToString());
 

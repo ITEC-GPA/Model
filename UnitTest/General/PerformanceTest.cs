@@ -8,6 +8,8 @@ using System.Collections.Generic;
 using GPC.TestUtilities;
 using System.Diagnostics;
 using System.Linq;
+using GPC.Model.FEM.FiniteElements;
+using GPC.Geometry;
 
 namespace GeneralTest
 {
@@ -358,6 +360,82 @@ namespace GeneralTest
             stopWatch.Stop();
             Debug.WriteLine(stopWatch.ElapsedMilliseconds, "Elapsed time");
             // Con Autosort disabilitato e riordinamento finale riordinamento 10000 punti ~1s
+        }
+
+        [TestMethod]
+        public void FemObjectCollectionTest1()
+        {
+            FemObjectCollection<FiniteElement> cfe = new FemObjectCollection<FiniteElement>();
+
+            Random rnd = new Random();
+            Stopwatch stopWatch = new Stopwatch();
+            stopWatch.Start();
+
+            int amountOfPlates = 200;
+            for (int i = 0; i < amountOfPlates; i++)
+            {
+                Node[] nodes = new Node[4];
+
+                // Riempie con punti random
+                for (int j = 0; j < 4; j++)
+                {
+                    int k = rnd.Next(1000, 5000);
+                    double x = rnd.NextDouble() * k;
+                    double y = rnd.NextDouble() * k;
+                    double z = rnd.NextDouble() * k;
+                    nodes[j] = new Node(x, y, z);
+                    nodes[j].SetId(j + 1 + 4 * i);
+                }
+
+                Plate plate = new Plate(nodes);
+                plate.SetId(i + 1);
+                cfe.AddUnique(plate);
+            }
+
+            stopWatch.Stop();
+            Debug.WriteLine(stopWatch.ElapsedMilliseconds, "Elapsed time");
+            // Con compare della collection 350-360ms
+            // Con comparer con for parallelo 90-100ms
+            
+            Assert.IsTrue(cfe.Count == amountOfPlates, cfe.Count.ToString());
+        }
+
+        [TestMethod]
+        public void FemObjectCollectionTest2()
+        {
+            FiniteElementCollection cfe = new FiniteElementCollection();
+
+            Random rnd = new Random();
+            Stopwatch stopWatch = new Stopwatch();
+            stopWatch.Start();
+
+            int amountOfPlates = 200;
+            for (int i = 0; i < amountOfPlates; i++)
+            {
+                Node[] nodes = new Node[4];
+
+                // Riempie con punti random
+                for (int j = 0; j < 4; j++)
+                {
+                    int k = rnd.Next(1000, 5000);
+                    double x = rnd.NextDouble() * k;
+                    double y = rnd.NextDouble() * k;
+                    double z = rnd.NextDouble() * k;
+                    nodes[j] = new Node(x, y, z);
+                    nodes[j].SetId(j + 1 + 4 * i);
+                }
+
+                Plate plate = new Plate(nodes);
+                plate.SetId(i + 1);
+                cfe.AddUnique(plate);
+            }
+
+            stopWatch.Stop();
+            Debug.WriteLine(stopWatch.ElapsedMilliseconds, "Elapsed time");
+            // Con compare della collection 350-360ms
+            // Con comparer con for parallelo 90-100ms
+
+            Assert.IsTrue(cfe.Count == amountOfPlates, cfe.Count.ToString());
         }
     }
 }
