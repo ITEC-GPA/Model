@@ -1397,7 +1397,7 @@ namespace GPC.Model.FEM
                                     factor /= 2.0;
                                 }
 
-                                NodeForceAttribute nfa = new NodeForceAttribute(ll.LoadCase.Name, ll.CoordinateSystem,
+                                NodeForceAttribute nfa = new NodeForceAttribute(ll.LoadCase.Name, ll.CoordinateSystem, 
                                                                             ll.F1 * factor, ll.F2 * factor, ll.F3 * factor, ll.M1 * factor, ll.M2 * factor, ll.M3 * factor);
 
                                 node.AddAttribute(nfa);
