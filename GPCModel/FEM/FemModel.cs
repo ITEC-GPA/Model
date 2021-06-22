@@ -49,6 +49,7 @@ namespace GPC.Model.FEM
         /// The elements on this collection does not have duplicate ID and can not be duplicate. (different element with different id)
         /// </summary>
         protected FemObjectCollection<FiniteElement> _elements;
+        //protected FiniteElementCollection _elements;
 
         /// <summary>
         /// Collection of <see cref="Costrain"/>
@@ -139,7 +140,7 @@ namespace GPC.Model.FEM
             : base(name)
         {
             _nodes = new NodeCollection(); //new FemObjectCollection<Node>();
-            _elements = new FemObjectCollection<FiniteElement>();
+            _elements = /*new FiniteElementCollection(); /*/ new FemObjectCollection<FiniteElement>();
             _costrains = new FemObjectCollection<Costrain>();
 
             _stages = new UniqueIdCollection<Stage>(); // solo id come equality comparer
@@ -168,6 +169,7 @@ namespace GPC.Model.FEM
             //_nodes = (FemObjectCollection<Node>)info.GetValue("Nodes", typeof(FemObjectCollection<Node>));
             _nodes = (NodeCollection)info.GetValue("Nodes", typeof(NodeCollection));
             _elements = (FemObjectCollection<FiniteElement>)info.GetValue("Elements", typeof(FemObjectCollection<FiniteElement>));
+            //_elements = (FiniteElementCollection)info.GetValue("Elements", typeof(FiniteElementCollection));
             _costrains = (FemObjectCollection<Costrain>)info.GetValue("Costrains", typeof(FemObjectCollection<Costrain>));
 
             _plateProperties = (UniqueNameCollection<PlateProperty>)info.GetValue("PlateProperties", typeof(UniqueNameCollection<PlateProperty>));
@@ -596,6 +598,7 @@ namespace GPC.Model.FEM
         public virtual bool ContainsFiniteElement(FiniteElement finiteElement)
         {
             return _elements.Contains(finiteElement) != 0;
+            //return _elements.Contains(finiteElement);
         }
 
 
@@ -1480,6 +1483,7 @@ namespace GPC.Model.FEM
         public void RemoveElement(int id)
         {
             _elements.Remove(id);
+            //_elements.RemoveById(id);
         }
 
         #endregion
@@ -1565,7 +1569,8 @@ namespace GPC.Model.FEM
 
             //info.AddValue("Nodes", _nodes, typeof(FemObjectCollection<Node>));
             info.AddValue("Nodes", _nodes, typeof(NodeCollection));
-            info.AddValue("Elements", _elements, typeof(FemObjectCollection<FiniteElement>));
+            //info.AddValue("Elements", _elements, typeof(FemObjectCollection<FiniteElement>));
+            info.AddValue("Elements", _elements, typeof(FiniteElementCollection));
             info.AddValue("Costrains", _costrains, typeof(FemObjectCollection<Costrain>));
             info.AddValue("PlateProperties", _plateProperties, typeof(UniqueNameCollection<PlateProperty>));
             info.AddValue("BrickProperties", _brickProperties, typeof(UniqueNameCollection<BrickProperty>));
