@@ -25,10 +25,10 @@ namespace GPC.Model.FEM
     {
         public enum AnalysisTypes
         {
-            Linear, 
+            Linear,
             NonLinear,
             Modal,
-            Buckling, 
+            Buckling,
             LinearDynamic
         }
 
@@ -88,7 +88,7 @@ namespace GPC.Model.FEM
         /// Collection of <see cref="FreedomCase"/> with unique name 
         /// </summary>
         protected UniqueNameCollection<FreedomCase> _freedomCases;
-        
+
         // COMBINATION
 
         /// <summary>
@@ -139,10 +139,10 @@ namespace GPC.Model.FEM
         public FemModel()
             : this(string.Empty)
         {
-            
+
         }
 
-        public FemModel(string name) 
+        public FemModel(string name)
             : base(name)
         {
             _nodes = new NodeCollection(); //new FemObjectCollection<Node>();
@@ -154,7 +154,7 @@ namespace GPC.Model.FEM
             _beamProperties = new UniqueNameCollection<Section>();
             _plateProperties = new UniqueNameCollection<PlateProperty>();
             _brickProperties = new UniqueNameCollection<BrickProperty>();
-            
+
             _loadCases = new UniqueNameCollection<LoadCaseBase>();
             _freedomCases = new UniqueNameCollection<FreedomCase>();
             _combinations = new UniqueNameCollection<Combination>();
@@ -168,7 +168,7 @@ namespace GPC.Model.FEM
             _modelAttributes = new List<IModelAttribute>();
         }
 
-        
+
         public FemModel(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
@@ -209,7 +209,7 @@ namespace GPC.Model.FEM
                 throw new ArgumentNullException(nameof(elementProperty));
             }
 
-            if(elementProperty is Section)
+            if (elementProperty is Section)
             {
                 if (_beamProperties.Contains(elementProperty))
                     return false;
@@ -352,7 +352,7 @@ namespace GPC.Model.FEM
         #endregion
 
         #region Groups
-        
+
         public Group AddGroup(string name)
         {
             if (string.IsNullOrWhiteSpace(name) || string.IsNullOrEmpty(name))
@@ -365,7 +365,7 @@ namespace GPC.Model.FEM
             else
                 return _groups.GetElementByName(name);
         }
-        
+
         public bool SetGroup(IEnumerable<FEMObject> elements, string groupName)
         {
             if (elements is null)
@@ -518,7 +518,7 @@ namespace GPC.Model.FEM
             _modelAttributes.Add(modelAttribute);
 
             return modelAttribute;
-        } 
+        }
 
         #endregion
 
@@ -576,7 +576,7 @@ namespace GPC.Model.FEM
 
             AddNodes(finiteElement.Nodes);
 
-            foreach(var attribute in finiteElement.AttributesLoadCase)
+            foreach (var attribute in finiteElement.AttributesLoadCase)
             {
                 if (!LoadCaseExist(attribute.LoadCaseName))
                     throw new InvalidOperationException($"Loadcase {attribute.LoadCaseName} does not exist in the femModel");
@@ -745,7 +745,7 @@ namespace GPC.Model.FEM
         /// <inheritdoc cref="FemObjectCollection{T}.AddUnique(T)"/>
         public virtual void AddCostrains(IEnumerable<Costrain> costrains)
         {
-            foreach(var costrain in costrains)
+            foreach (var costrain in costrains)
             {
                 AddCostrain(costrain);
             }
@@ -848,8 +848,8 @@ namespace GPC.Model.FEM
 
             // Genera la mesh
             bool status = Mesh.Generate(new List<Shape> { shape },
-                                        new Dictionary<Shape, GeometryBase[]>() { [shape] = embeddedGeometries.ToArray() }, 
-                                        options, 
+                                        new Dictionary<Shape, GeometryBase[]>() { [shape] = embeddedGeometries.ToArray() },
+                                        options,
                                         out List<Mesh> meshes, out Mesh.GenerateMeshStatus generateMeshStatus);
 
             if (!status)
@@ -1047,10 +1047,10 @@ namespace GPC.Model.FEM
         /// <exception cref="KeyNotFoundException">If a <see cref="MeshVertex"/>.Id of <paramref name="restrainMeshEntityMap"/> is not found in the <paramref name="mesh"/> vertices ids</exception>
         /// <remarks>The instances of <see cref="LoadCaseBase"/> and <see cref="FreedomCase"/> will be replaced with the one in the <see cref="FemModel._loadCases"/> and <see cref="FemModel._freedomCases"/>  </remarks>
         public virtual bool AddMesh(Mesh mesh, string platePropertyName, string brickPropertyName, Dictionary<IPointLoad, int[]> vertexLoadMeshEntityMap,
-            Dictionary<ILineLoad, int[]> vertexLineLoadMeshEntityMap, Dictionary<IAreaLoad, int[]> plateLoadMeshEntityMap, 
+            Dictionary<ILineLoad, int[]> vertexLineLoadMeshEntityMap, Dictionary<IAreaLoad, int[]> plateLoadMeshEntityMap,
             Dictionary<GeometryRestrain, int[]> restrainMeshEntityMap, string groupName = "")
         {
-            return AddMesh(mesh, platePropertyName, brickPropertyName, vertexLoadMeshEntityMap, vertexLineLoadMeshEntityMap, plateLoadMeshEntityMap, 
+            return AddMesh(mesh, platePropertyName, brickPropertyName, vertexLoadMeshEntityMap, vertexLineLoadMeshEntityMap, plateLoadMeshEntityMap,
                 restrainMeshEntityMap, out _, out _, out _, groupName);
         }
 
@@ -1070,9 +1070,9 @@ namespace GPC.Model.FEM
         /// <param name="groupName"></param>
         /// <exception cref="KeyNotFoundException">If a <see cref="MeshVertex"/>.Id of <paramref name="restrainMeshEntityMap"/> is not found in the <paramref name="mesh"/> vertices ids</exception>
         /// <remarks>The instances of <see cref="LoadCaseBase"/> and <see cref="FreedomCase"/> will be replaced with the one in the <see cref="FemModel._loadCases"/> and <see cref="FemModel._freedomCases"/>  </remarks>
-        public virtual bool AddMesh(Mesh mesh, string platePropertyName, string brickPropertyName,  Dictionary<IPointLoad, int[]> vertexLoadMeshEntityMap, 
-            Dictionary<ILineLoad, int[]> vertexLineLoadMeshEntityMap, Dictionary<IAreaLoad, int[]> plateLoadMeshEntityMap,  
-            Dictionary<GeometryRestrain, int[]> restrainMeshEntityMap, out Dictionary<int, int> nodesNewIndexMap, out Dictionary<int, int> platesNewIndexMap, 
+        public virtual bool AddMesh(Mesh mesh, string platePropertyName, string brickPropertyName, Dictionary<IPointLoad, int[]> vertexLoadMeshEntityMap,
+            Dictionary<ILineLoad, int[]> vertexLineLoadMeshEntityMap, Dictionary<IAreaLoad, int[]> plateLoadMeshEntityMap,
+            Dictionary<GeometryRestrain, int[]> restrainMeshEntityMap, out Dictionary<int, int> nodesNewIndexMap, out Dictionary<int, int> platesNewIndexMap,
             out Dictionary<int, int> brickNewIndexMap, string groupName = "")
         {
             if (mesh is null)
@@ -1384,19 +1384,22 @@ namespace GPC.Model.FEM
 
                             if (load is LineLoad ll)
                             {
-                                factor /= 2.0;
-                            }
+                                // carico è F/L (FL/L nel caso di momento)
+                                // carico su nodo intermedio: F/L / (nnodi - 1)
+                                // carico su nodo estremità: F/L / (nnodi - 1) / 2.0
+                                // se per qualche motivo l'equals start/end non funziona, viene applicato più carico
 
                                 var line = ll.GetGeometry();
                                 var factor = lineLenght / (indexes.Count() - 1);
 
                                 if (node.Equals(line.Start) || node.Equals(line.End))
                                 {
-                                    factor = factor / 2.0;
+                                    factor /= 2.0;
                                 }
 
-                                NodeForceAttribute nfa = new NodeForceAttribute(ll.LoadCase.Name, ll.CoordinateSystem, 
-                                    ll.F1 * factor, ll.F2 * factor, ll.F3 * factor, ll.M1 * factor, ll.M2 * factor, ll.M3 * factor);
+                                NodeForceAttribute nfa = new NodeForceAttribute(ll.LoadCase.Name, ll.CoordinateSystem,
+                                                                            ll.F1 * factor, ll.F2 * factor, ll.F3 * factor, ll.M1 * factor, ll.M2 * factor, ll.M3 * factor);
+
                                 node.AddAttribute(nfa);
                             }
                             else
@@ -1406,7 +1409,7 @@ namespace GPC.Model.FEM
                 });
             }
 
-            Action[] actions = new Action[2 + (setRestraits != null ? 1 : 0) + (addVertexLoads != null ? 1 : 0) + (addLineLoad != null ? 1: 0)];
+            Action[] actions = new Action[2 + (setRestraits != null ? 1 : 0) + (addVertexLoads != null ? 1 : 0) + (addLineLoad != null ? 1 : 0)];
             int ai = 0;
             actions[ai++] = addFaces;
             actions[ai++] = addVolumes;
@@ -1450,7 +1453,7 @@ namespace GPC.Model.FEM
 
                         FiniteElement finiteElement = _elements.GetElementById(plateId); // se non trova l'indice viene lanciata una keynotfoundException
 
-                        
+
                         if (!(finiteElement is Plate plate))
                             throw new ArgumentException($"Element with id: {plateId} {index} is not a plate");
 
@@ -1478,7 +1481,7 @@ namespace GPC.Model.FEM
             return true;
         }
 
-        
+
 
         public virtual Mesh GetMesh()
         {
@@ -1573,7 +1576,7 @@ namespace GPC.Model.FEM
 
             if (!string.IsNullOrEmpty(groupName))
             {
-                var group = _groups.GetElementByName(groupName); 
+                var group = _groups.GetElementByName(groupName);
                 return _nodes.SelectMany(i => i.Results.Where(j => i.ContainsGroup(group) && j.Case.Equals(combination) && j.Result is ResultDisplacement));
             }
             else
