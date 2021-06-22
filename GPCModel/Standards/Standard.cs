@@ -5,8 +5,9 @@ using System.Linq;
 using System.Runtime.Serialization;
 using System.Text;
 using System.Threading.Tasks;
+using GPC.Model.Combinations;
 
-namespace GPC.Model.Combinations
+namespace GPC.Model.Standards
 {
     public abstract class Standard
     {

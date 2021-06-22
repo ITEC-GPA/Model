@@ -55,6 +55,24 @@ namespace GPC.Model.Results
             _M2 = M2;
         }
 
+        /// <param name="N"> axial force </param>
+        /// <param name="V1"> shear along principal axis 1</param>
+        /// <param name="V2"> shear along principal axis 2</param>
+        /// <param name="T"> torque moment </param>
+        /// <param name="M1"> Bending moment around axis 1 (in plane 2, right hand rule) </param>
+        /// <param name="M2"> Bending moment around axis 2 (in plane 1, right hand rule) </param>
+        /// <param name="coordinateSystem">The beam coordinateSystem</param>
+        public ResultBeamForces(double N, double V1, double V2, double T, double M1, double M2, CoordinateSystem coordinateSystem)
+            : base(coordinateSystem)
+        {
+            _N = N;
+            _V1 = V1;
+            _V2 = V2;
+            _T = T;
+            _M1 = M1;
+            _M2 = M2;
+        }
+
         #endregion 
 
 

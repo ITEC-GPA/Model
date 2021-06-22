@@ -14,7 +14,7 @@ namespace GPC.Model.FEM.FiniteElements
     /// </summary>
     public class EulerBeam : Beam
     {
-        public EulerBeam(Node[] nodes, Section section, double axisAngleRadians = 0.0) : base(nodes)
+        public EulerBeam(Node[] nodes, double axisAngleRadians = 0.0) : base(nodes)     // Section section
         {
             _DOF.Add(Solver.DOF.DX);
             _DOF.Add(Solver.DOF.DY);
@@ -24,7 +24,6 @@ namespace GPC.Model.FEM.FiniteElements
             _DOF.Add(Solver.DOF.RZ);
 
             _axisAngleRadians = axisAngleRadians; //rotazione rispetto asse 1-X
-            SetProperty(section);
         }
 
         public override void BuildMatrix()
@@ -781,7 +780,8 @@ namespace GPC.Model.FEM.FiniteElements
             Node[] duplicatedNodes = _nodesGlobal.Select(node => node.Duplicate()).ToArray();
 
             //duplicate beam
-            EulerBeam duplicatedBeam = new EulerBeam(duplicatedNodes, (Section) property, _axisAngleRadians);
+            EulerBeam duplicatedBeam = new EulerBeam(duplicatedNodes, _axisAngleRadians);
+            duplicatedBeam.SetProperty(property);
             duplicatedBeam.SetId(this.Id);
 
             foreach (FreedomCaseAttribute attribute in fcAttributes)
@@ -927,8 +927,8 @@ namespace GPC.Model.FEM.FiniteElements
             Dictionary<LocalDOF, double> displLocalNode2 = GetLocalDisplacementsAtNode(Beam.EndSide.End2, globalDisplacementsNodes);
 
             double E = ((Section)_property).Material.E;
-            double J11 = ((Section)_property).J11;
-            double J22 = ((Section)_property).J22;
+            double J11 = ((Section)_property).Jxx;
+            double J22 = ((Section)_property).Jyy;
             double A = ((Section)_property).Area;
 
             #region uniformLoad

@@ -339,12 +339,6 @@ namespace GPC.Model.FEM.FiniteElements
             return fLocalCoord;
         }
 
-        //TODO: cancellare non serve, questo elemento ha 2 matrici B, Bs e Bg
-        public override mnl.Matrix<double> GetB(double csi, double eta)
-        {
-            return mnl.Matrix<double>.Build.Dense(20, 20);
-        }
-
         /// <summary>
         /// eq. 35 computed for all nodes
         /// </summary>
