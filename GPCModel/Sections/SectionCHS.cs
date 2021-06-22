@@ -1,78 +1,59 @@
 ﻿using GPC.Geometry;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Linq.Expressions;
-using System.Runtime.InteropServices;
 using System.Runtime.Serialization;
-using System.Text;
-using System.Threading.Tasks;
-
 using GPC.Model.Materials;
-using GPC.Model.FEM.Materials;
 
 namespace GPC.Model.Sections
 {
     public class SectionCHS : Section
     {
         #region Variables
-        protected double _d; /// Diameter external
-        protected double _t; /// Thickness
-        protected double _dint;
-        protected bool _isHotFinished;
+
+        protected double _d; // Diameter external
+        protected double _t; // Thickness
+
         #endregion
+
 
         #region Properties
-        public double D => _d;
-        public double T => _t;
-        public bool IsColdFormed { get => !_isHotFinished; set { _isHotFinished = !value; } }
-        public bool IsHotFinished { get => _isHotFinished; set { _isHotFinished = value; } }
+
+        /// <summary>
+        /// The external diameter of CHS
+        /// </summary>
+        public double Diameter => _d;
+
+        /// <summary>
+        /// The Thickness of the section
+        /// </summary>
+        public double Thickness => _t;
+
+        /// <summary>
+        /// The internal diameter of CHS
+        /// </summary>
+        public double DiameterInternal => _d - (2 * _t);
+
         #endregion
 
+
         #region Public Constructors
-        public SectionCHS(double dext, double t, Material material, string name, bool isColdFormed = true) : base(material.GetIsotropicFemMaterial(), name)
+
+        public SectionCHS(double dext, double t, Material material, string name) 
+            : base(material, name)
         {
-            #region check_inputs
-            if (t > dext/2.0)
-            {
-                dext = 0;
-                t = 0;
-                return;
-            }
-            if (t < 0 || dext < 0)
-            {
-                dext = 0;
-                t = 0;
-                return;
-            }
+            #region Check inputs
+
+            if (t > dext / 2.0)
+                throw new ArgumentException($"Diameter cannot be lower than 2 * thickness ");       
+
+            _d = dext < 0 ? throw new ArgumentException($"Diameter cannot be lower than zero") : dext;
+            _t = t < 0 ? throw new ArgumentException($"Thickness cannot be lower than zero") : t;
+
             #endregion
 
-            _d = dext;
-            _t = t;
-            _dint = _d - 2.0 * t;
+            _isSymmetricAlongYLocalAxis = true;
+            _isSymmetricAlongXLocalAxis = true;
 
-            _area = (Math.Pow(_d, 2.0) * Math.PI) / 4.0 - (Math.Pow(_dint, 2.0) * Math.PI) / 4.0;
-
-            _j22 = Math.PI * (Math.Pow(_d, 4.0) - Math.Pow(_dint, 4.0)) / (64.0);
-            _j11 = _j22;
-
-            _jt = Math.PI * (Math.Pow(_d, 4.0) - Math.Pow(_dint, 4.0)) / (32.0);
-            _jw = 0;
-
-            _wel22Top = Math.PI * (Math.Pow(_d, 4.0) - Math.Pow(_dint, 4.0)) / (32.0 * _d);
-            _wel22Bottom = _wel22Top;
-            _wel11Left = _wel22Top;
-            _wel11Right = _wel22Top;
-
-            _wpl11 = (Math.Pow(_d, 3.0) - Math.Pow(_dint, 3.0)) / (6.0);
-            _wpl22 = _wpl11;
-
-            _centroid = new Point2d(_d / 2.0, _d / 2.0);
-            _shearCenter = _centroid;
-
-            IsSymmetricAlongYLocalAxis = true;
-            IsSymmetricAlongZLocalAxis = true;
-            IsColdFormed = isColdFormed;
+            SetMechanicalProperties();
         }
 
         public SectionCHS(SerializationInfo info, StreamingContext context)
@@ -80,20 +61,70 @@ namespace GPC.Model.Sections
         {
             _d = info.GetDouble("D");
             _t = info.GetDouble("T");
-            _material = (IsotropicFemMaterial)info.GetValue("Material", typeof(IsotropicFemMaterial));
+            _material = (Material)info.GetValue("Material", typeof(Material));
         }
 
         #endregion
 
-        #region Public Methods Specific
-        public override double MinSigma(double NEd, double M2, double M1)
-        {
-            double sigmaN = NEd / _area;
-            double M = Math.Sqrt(M1 * M1 + M2 * M2);
-            double sigmaM = -M / Wel22Min;
 
-            return sigmaN + sigmaM;
+        #region Public method
+
+        private void SetMechanicalProperties()
+        {
+            _area = CalculateArea();
+            _j11 = CalculateJ();
+            _j22 = CalculateJ();
+            _jxx = CalculateJ();
+            _jyy = CalculateJ();
+            _jt = CalculateJt();
+            _jw = CalculateJw();
+            _centroid = CalculateCentroid();
+            _shearCenter = CalculateCentroid();
+            _wel1 = CalculateWel();
+            _wel2 = CalculateWel();
+            _wpl1 = CalculateWpl();
+            _wpl2 = CalculateWpl();
         }
+
+        public double CalculateArea()
+        {
+            return (Math.Pow(_d, 2.0) * Math.PI) / 4.0 - (Math.Pow(DiameterInternal, 2.0) * Math.PI) / 4.0;
+        }
+                
+        public double CalculateJ()
+        {
+            return Math.PI * (Math.Pow(_d, 4.0) - Math.Pow(DiameterInternal, 4.0)) / (64.0);
+        }
+
+        public double CalculateJt()
+        {
+            return Math.PI * (Math.Pow(_d, 4.0) - Math.Pow(DiameterInternal, 4.0)) / (32.0);
+        }
+
+        public double CalculateJw()
+        {
+            return 0;
+        }
+
+        public Point2d CalculateCentroid()
+        {
+            return new Point2d(_d / 2.0, _d / 2.0);
+        }
+
+        public double CalculateWel()
+        {
+            return Math.PI * (Math.Pow(Diameter, 4.0) - Math.Pow(DiameterInternal, 4.0)) / (32.0 * _d);
+        }
+
+        public double CalculateWpl()
+        {
+            return (Math.Pow(Diameter, 3.0) - Math.Pow(DiameterInternal, 3.0)) / (6.0);
+        }
+        
+        #endregion
+
+
+        #region Public override methods 
 
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
@@ -109,7 +140,7 @@ namespace GPC.Model.Sections
             Polygon2d hole =null;
             Polygon2d fill = new Polygon2d();
 
-            if (Math.Abs(_dint) > 1)
+            if (Math.Abs(DiameterInternal) > 1)
             {
                 hole = new Polygon2d();
             }       
@@ -120,7 +151,7 @@ namespace GPC.Model.Sections
 
                 if (hole != null)
                 {
-                    hole.Add(new Point2d(0.5 * _dint * Math.Cos(teta), 0.5 * _dint * Math.Sin(teta)));
+                    hole.Add(new Point2d(0.5 * DiameterInternal * Math.Cos(teta), 0.5 * DiameterInternal * Math.Sin(teta)));
                 }
             }
 
@@ -128,7 +159,6 @@ namespace GPC.Model.Sections
 
             return new[] { new ShapeMaterial { Material = _material, Shape = shape } };
         }
-        #endregion
 
         public override string ToString()
         {
@@ -137,5 +167,7 @@ namespace GPC.Model.Sections
             s = s + "t = " + _t + " mm \n";
             return s;
         }
+
+        #endregion
     }
 }

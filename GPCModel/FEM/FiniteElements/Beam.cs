@@ -43,7 +43,11 @@ namespace GPC.Model.FEM.FiniteElements
         public double AxisAngleRad => _axisAngleRadians;
         #endregion
 
-        public Beam(Node[] nodes) : base(nodes) { }
+        public Beam(Node[] nodes) 
+            : base(nodes) 
+        {
+            _length = nodes[0].Position.DistanceTo(nodes[1].Position);
+        }
 
         public virtual void AddLoadCaseAttribute(IBeamLoadCaseAttribute attribute)
         {
