@@ -34,8 +34,12 @@ namespace FemTest.SolverTest
             nds.Add(new Node(2000, 0, 0));
 
             List<EulerBeam> beams = new List<EulerBeam>();
-            beams.Add(new EulerBeam(new Node[] { nds[0], nds[1] }, sec));
-            beams.Add(new EulerBeam(new Node[] { nds[2], nds[1] }, sec));
+            EulerBeam eulerBeam1 = new EulerBeam(new Node[] { nds[0], nds[1] });
+            eulerBeam1.SetProperty(sec);
+            EulerBeam eulerBeam2 = new EulerBeam(new Node[] { nds[2], nds[3] });
+            eulerBeam2.SetProperty(sec);
+            beams.Add(eulerBeam1);
+            beams.Add(eulerBeam2);
 
             LoadCaseBase lc = new LoadCaseBase("lc1");
             CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));

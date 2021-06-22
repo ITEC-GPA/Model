@@ -1,9 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Runtime.Serialization;
-using System.Text;
-using System.Threading.Tasks;
 using GPC.Geometry;
 using GPC.Model.Materials;
 using GPC.Model.FEM.Properties;
@@ -14,137 +10,232 @@ namespace GPC.Model.Sections
 {
     public class Section : ElementProperty
     {
+        #region Struct
+
         public struct ShapeMaterial
         {
             public Shape Shape { get; set; }
-            public IsotropicFemMaterial Material { get; set; }
+            public Material Material { get; set; }
         }
+
+        #endregion
+
+
+        #region Enumerator
+
+        public enum FormedTypes
+        {
+            HotFinished,
+            ColdFormed,
+        }
+
+        public enum SectionTypes
+        {
+            Rolled,
+            Welded,
+        }
+
+        #endregion
+
 
         #region Variables
 
-        protected IsotropicFemMaterial _material;
+        protected Material _material;
         protected double _area;
-        protected double _j11;
-        protected double _j22;
-        protected double _wpl11;
-        protected double _wpl22;
-        protected double _wel11Left; //Wel calcolato per punto più a snistra
-        protected double _wel22Top; //Wel calcolato per punto superiore (+ alto)
-        protected double _wel11Right; //Wel calcolato per punto più a destra
-        protected double _wel22Bottom; //Wel calcolato per punto inferiore (+ basso)
+        protected double _jxx;
+        protected double _jyy;
         protected double _jt;
         protected double _jw;
+        protected double _sx;
+        protected double _sy;
+        protected double _j11;
+        protected double _j22;
+        protected double _wpl1;
+        protected double _wpl2;
+        protected double _wel1;
+        protected double _wel2;
+
         protected Point2d _shearCenter;
         protected Point2d _centroid;
         protected double _angleX1;
+        protected SectionTypes _sectionType;
+        protected FormedTypes _formedType;
+
+        protected bool _isSymmetricAlongXLocalAxis;
+        protected bool _isSymmetricAlongYLocalAxis;
 
         #endregion
+
 
         #region Properties
 
-        public IsotropicFemMaterial Material
-        {
-            get => _material;
-            set => _material = value;
-        }
+        /// <summary>
+        /// The <see cref="Materials"/> of the section 
+        /// </summary>
+        public Material Material => _material;        
 
-        public double Area
-        {
-            get => _area;
-            set => _area = value;
-        }
-        public double Jt
-        {
-            get => _jt;
-            set => _jt = value;
-        }
-        public double Jw
-        {
-            get => _jw;
-            set => _jw = value;
-        }
+        /// <summary>
+        /// The area of the section
+        /// </summary>
+        public double Area => _area;
 
-        public double J11
-        {
-            get => _j11;
-            set => _j11 = value;
-        }
+        /// <summary>
+        /// 
+        /// </summary>
+        public double Jt => _jt;
 
-        public double J22
-        {
-            get => _j22;
-            set => _j22 = value;
-        }
+        /// <summary>
+        /// 
+        /// </summary>
+        public double Jw => _jw;
 
-        public double Wpl11
-        {
-            get => _wpl11;
-            set => _wpl11 = value;
-        }
+        /// <summary>
+        /// The first moment of inertia around the X-axis
+        /// </summary>
+        public double Jxx => _jxx;
 
-        public double Wpl22
-        {
-            get => _wpl22;
-            set => _wpl22 = value;
-        }
+        /// <summary>
+        /// The first moment of inertia around the Y-axis
+        /// </summary>
+        public double Jyy => _jyy;
 
-        public double Wel11Min
-        {
-            get => Math.Min(_wel11Left, _wel11Right);
-            
-        }
+        /// <summary>
+        /// The first moment of inertia around the 1st principal axes
+        /// </summary>
+        public double J11 => _j11;
 
-        public double Wel22Min
-        {
-            get => Math.Min(_wel22Top, _wel22Bottom);
-            
-        }
+        /// <summary>
+        /// The first moment of inertia around the 2nd principal axes
+        /// </summary>
+        public double J22 => _j22;
 
-        public Point2d Centroid
-        {
-            get => _centroid;
-            set => _centroid = value;
-        }
+        /// <summary>
+        /// The first moment of area around the X-axis
+        /// </summary>
+        public double Sx => _sx;
 
-        public Point2d ShearCenter
-        {
-            get => _shearCenter;
-            set => _shearCenter = value;
-        }
+        /// <summary>
+        /// The first moment of area around the Y-axis
+        /// </summary>
+        public double Sy => _sy;
 
-        public double AngleX1
-        {
-            get => _angleX1;
-            set => _angleX1 = value;
-        }
+        /// <summary>
+        /// The plastic modulus calculated respect the 1-principal axes
+        /// </summary>
+        public double Wpl1 => _wpl1;
 
-        public double InertiaRadius1 => Math.Sqrt(J11 / Area);
-        public double InertiaRadius2 => Math.Sqrt(J22 / Area);
+        /// <summary>
+        /// The plastic modulus calculated respect the 2-principal axes
+        /// </summary>
+        public double Wpl2 => _wpl2;
 
-        public bool IsSymmetricAlongYLocalAxis { get; set; }
-        public bool IsSymmetricAlongZLocalAxis { get; set; }
-        public bool IsDoubleSymmetric {
-            get
-            {
-                if (IsSymmetricAlongZLocalAxis && IsSymmetricAlongYLocalAxis) {
-                    return true;
-                } else {
-                    return false;
-                }
-            }
-        }
+        /// <summary>
+        /// The elastic modulus calculated respect the 1-principal axes
+        /// </summary>
+        public double Wel1 => _wel1;
+
+        /// <summary>
+        /// The elastic modulus calculated respect the 2-principal axes
+        /// </summary>
+        public double Wel2 => _wel2;
+
+        /// <summary>
+        /// The centroid of the section
+        /// </summary>
+        public Point2d Centroid => _centroid;
+
+        /// <summary>
+        /// The shear center of the section
+        /// </summary>
+        public Point2d ShearCenter => _shearCenter;
+
+        /// <summary>
+        /// The angle of rotation of the principal axis
+        /// </summary>
+        public double AngleX1 => _angleX1;
+
+        /// <summary>
+        /// The radius of gyration respect the X-axis
+        /// </summary>
+        public double InertiaRadiusX => Math.Sqrt(J22 / Area);
+
+        /// <summary>
+        /// The radius of gyration respect the Y-axis
+        /// </summary>
+        public double InertiaRadiusY => Math.Sqrt(J11 / Area);
+
+        /// <summary>
+        /// The type of the section (rolled or welded)
+        /// </summary>
+        public SectionTypes SectionType => _sectionType;
+
+        /// <summary>
+        /// The type of the section (HotFinished or ColdFormed)
+        /// </summary>
+        public FormedTypes FormedType => _formedType;
+
+        /// <summary>
+        /// Is true if the section is symmetric along Y-axis
+        /// </summary>
+        public bool IsSymmetricAlongXLocalAxis => _isSymmetricAlongXLocalAxis;
+
+        /// <summary>
+        /// Is true if the section is symmetric along Z-axis
+        /// </summary>
+        public bool IsSymmetricAlongYLocalAxis => _isSymmetricAlongYLocalAxis;
+
+        /// <summary>
+        /// Is true if the section is symmetric along Z-axis and the Y-axis
+        /// </summary>
+        public bool IsDoubleSymmetric => (IsSymmetricAlongXLocalAxis && IsSymmetricAlongYLocalAxis);        
+
         #endregion
+
 
         #region Public Constructors
 
-        public Section(IsotropicFemMaterial material, string name) : base(name)
+        protected Section(Material material, string name) : base(name)
         {
             _material = material;
         }
 
-        public Section(IsotropicFemMaterial[] materials, string name) : base(name)
+        /// <summary>
+        /// The default constructor of generic section
+        /// </summary>
+        /// <param name="material">The <see cref="Materials"/> of the section </param>
+        /// <param name="area">The area</param>
+        /// <param name="sx">The first moment of area around the X-axis</param>
+        /// <param name="sy">The first moment of area around the Y-axis</param>
+        /// <param name="j11">The moment of inertia around the first principal axis</param>
+        /// <param name="j22">The moment of inertia around the second principal axis</param>
+        /// <param name="jt"></param>
+        /// <param name="jw"></param>
+        /// <param name="centroid">The centroid of the section</param>
+        /// <param name="shearCenter">The shear center of the section</param>
+        /// <param name="angle">The angle of rotation of the principal axis</param>
+        /// <param name="name">The name of the section</param>
+        /// <param name="formed">The formed types (cold formed or hot finished) - only for steel section</param>
+        /// <param name="sectionType">The type of the section (Rolled or welded) - only for steel section</param>
+        /// <exception cref="ArgumentException">If the input data are not correct</exception>
+        /// <remarks>Axis convention: X-axes is the Y-axes for Eurocode and Y-axes is the Z-axes for Eurocode
+        /// If the X-axes is principal, the first moment of inertia is J11, If the Y-axes is principal, the first moment of inertia is J22</remarks>
+        public Section(Material material, double area, double sx, double sy, double j11, double j22, double jt, double jw, Point2d centroid, Point3d shearCenter, double angle, string name, 
+                        FormedTypes formed = FormedTypes.HotFinished, SectionTypes sectionType = SectionTypes.Rolled) 
+            : base(name)
         {
-
+            _material = material;
+            _area = area < 0 ? throw new ArgumentException($"Area cannot be lower than zero") : area;
+            _sx = sx < 0 ? throw new ArgumentException($"Moment of Area J11 cannot be lower than zero") : sx;
+            _sy = sy < 0 ? throw new ArgumentException($"Moment of Area J11 cannot be lower than zero") : sy;
+            _jxx = j11 < 0 ? throw new ArgumentException($"Moment of Inertia J11 cannot be lower than zero") : j11; 
+            _jyy = j22 < 0 ? throw new ArgumentException($"Moment of Inertia J22 cannot be lower than zero") : j22; 
+            _jt = jt < 0 ? throw new ArgumentException($"Moment of Inertia Jt cannot be lower than zero") : jt; 
+            _jw = jw < 0 ? throw new ArgumentException($"Moment of Inertia Jw cannot be lower than zero") : jw;
+            _formedType = formed;
+            _sectionType = sectionType;
+            _centroid = centroid;
+            _shearCenter = shearCenter;
+            _angleX1 = angle;
         }
 
         public Section(SerializationInfo info, StreamingContext context) : base(info, context)
@@ -152,34 +243,65 @@ namespace GPC.Model.Sections
             _area = info.GetDouble("Area");
             _jt = info.GetDouble("Jt");
             _jw = info.GetDouble("Jw");
+            _sx = info.GetDouble("Sx");
+            _sy = info.GetDouble("Sy");
             _j11 = info.GetDouble("J11");
             _j22 = info.GetDouble("J22");
             _centroid = (Point2d)info.GetValue("Centroid", typeof(Point2d));
             _shearCenter = (Point2d)info.GetValue("ShearCenter", typeof(Point2d));
             _angleX1 = info.GetDouble("AngleX1");
         }
+
         #endregion
+
 
         #region Public Methods Specific
-        public double GetWel11(double d)
-        {
-            /*ShapeMaterial[] shapes = GetShapes();
-            for (int i = 0; i < shapes.Count(); i++)
-            {
-                var s = shapes[i].Shape.Fill;
-            }
-            return 0;*/
-            return J11 / d;
-        }
 
-        public double GetWel22(double d)
+        public virtual ShapeMaterial[] GetShapes()
         {
-            return J22/d;
+            return null;
         }
 
         #endregion
 
-        #region Virtual Methods
+
+        #region Public virtual material method
+
+        public virtual double GetE()
+        {
+            return _material.E;
+        }
+
+        public virtual double GetNi()
+        {
+            return _material.Ni;
+        }
+
+        public virtual double GetShearModule()
+        {
+            return _material.GetShearModule();
+        }
+
+        public virtual double GetDensity()
+        {
+            return _material.Density;
+        }
+
+        public virtual double GetAlphaThermalExpansion()
+        { 
+            return _material.AlfaThermalExpansion;
+        }
+
+        public IsotropicFemMaterial GetIsotropicFemMaterial()
+        {
+            return _material.GetIsotropicFemMaterial();
+        }
+
+        #endregion
+
+
+        #region Public override method
+
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             info.AddValue("Area", _area);
@@ -192,59 +314,7 @@ namespace GPC.Model.Sections
             info.AddValue("AngleX1", _angleX1);
         }
 
-        public virtual ShapeMaterial[] GetShapes()
-        {
-            return null;
-        }
-
-        public virtual double MinSigma(double N, double M2, double M1)
-        {
-            double sigmaN = N / _area;
-            double sigmaMy;
-            if (M2 > 0) { 
-                sigmaMy = - M2 / _wel22Top;
-            } else
-            {
-                sigmaMy = M2 / _wel22Bottom;
-            }
-
-            double sigmaMz;
-            if (M1 > 0)
-            {
-                sigmaMz = -M1 / _wel11Left;
-            }
-            else
-            {
-                sigmaMz = M1 / _wel11Right;
-            }
-
-            return sigmaN + sigmaMy + sigmaMz;
-        }
-
-        public double GetE()
-        {
-            return _material.E;
-        }
-
-        public double GetNi()
-        {
-            return _material.Ni;
-        }
-
-        public double GetShearModule()
-        {
-            return _material.G;
-        }
-
-        public double GetDensity()
-        {
-            return _material.Density;
-        }
-
-        public double GetAlphaThermalExpansion()
-        {
-            return _material.Alpha;
-        }
         #endregion
+
     }
 }

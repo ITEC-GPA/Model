@@ -11,6 +11,7 @@ using GPC.Model.LoadCases;
 using GPC.Model.Loads;
 using GPC.Model.Restrains;
 using GPC.Model.Results;
+using GPC.Model.Sections;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -58,6 +59,11 @@ namespace GPC.Model.FEM
         protected FemObjectCollection<Costrain> _costrains;
 
         // PROPRIETà
+
+        /// <summary>
+        /// Collection of <see cref="Section"/> with unique name 
+        /// </summary>
+        protected UniqueNameCollection<Section> _beamProperties;
 
         /// <summary>
         /// Collection of <see cref="PlateProperty"/> with unique name 
@@ -145,6 +151,7 @@ namespace GPC.Model.FEM
 
             _stages = new UniqueIdCollection<Stage>(); // solo id come equality comparer
 
+            _beamProperties = new UniqueNameCollection<Section>();
             _plateProperties = new UniqueNameCollection<PlateProperty>();
             _brickProperties = new UniqueNameCollection<BrickProperty>();
             
@@ -202,6 +209,14 @@ namespace GPC.Model.FEM
                 throw new ArgumentNullException(nameof(elementProperty));
             }
 
+            if(elementProperty is Section)
+            {
+                if (_beamProperties.Contains(elementProperty))
+                    return false;
+
+                _beamProperties.Add((Section)elementProperty);
+                return true;
+            }
 
             if (elementProperty is IPlateProperty)
             {
@@ -232,6 +247,11 @@ namespace GPC.Model.FEM
             return _plateProperties.GetElementByName(name);
         }
 
+        /// <inheritdoc cref="UniqueNameCollection{T}.GetElementByName(string)"/>
+        public virtual Section GetBeamProperty(string name)
+        {
+            return _beamProperties.GetElementByName(name);
+        }
 
         /// <inheritdoc cref="UniqueNameCollection{T}.GetElementByName(string)"/>
         public virtual BrickProperty GetBrickProperty(string name)
@@ -266,6 +286,10 @@ namespace GPC.Model.FEM
             return success;
         }
 
+        public bool AddLoadCases(IEnumerable<LoadCaseBase> loadCaseBases)
+        {
+            return _loadCases.AddRange(loadCaseBases);
+        }
 
         /// <inheritdoc cref="UniqueNameCollection{T}.GetElementByName(string)"/>
         public LoadCaseBase GetLoadCaseByName(string loadCaseName)
@@ -521,7 +545,15 @@ namespace GPC.Model.FEM
 
 
             ElementProperty property;
-            if (finiteElement is Plate)
+
+            if (finiteElement is Beam)
+            {
+                property = GetBeamProperty(propertyName);
+
+                if (property is null)
+                    throw new ArgumentOutOfRangeException($"The property list does not contain {propertyName}");
+            }
+            else if (finiteElement is Plate)
             {
                 property = GetPlateProperty(propertyName);
 
@@ -776,10 +808,21 @@ namespace GPC.Model.FEM
                         embeddedGeometries.Add(pl.GetGeometry());
 
                     else if (load is AreaLoad al)
-                        embeddedGeometries.Add(al.GetGeometry());
+                    {
+                        Shape geometry = al.GetGeometry();
+
+                        if (geometry != shape)
+                            embeddedGeometries.Add(al.GetGeometry());
+                    }
 
                     else if (load is NormalAreaLoad nal)
-                        embeddedGeometries.Add(nal.GetGeometry());
+                    {
+                        Shape geometry = nal.GetGeometry();
+
+                        if (geometry != shape)
+                            embeddedGeometries.Add(nal.GetGeometry());
+
+                    }
                     else
                         throw new NotSupportedException($"Load type: {load.GetType()} not supported");
                 }
@@ -804,8 +847,7 @@ namespace GPC.Model.FEM
             }
 
             // Genera la mesh
-            var a = embeddedGeometries.ToArray();
-            bool status = Mesh.Generate(new List<Shape> { shape }, 
+            bool status = Mesh.Generate(new List<Shape> { shape },
                                         new Dictionary<Shape, GeometryBase[]>() { [shape] = embeddedGeometries.ToArray() }, 
                                         options, 
                                         out List<Mesh> meshes, out Mesh.GenerateMeshStatus generateMeshStatus);
@@ -843,6 +885,8 @@ namespace GPC.Model.FEM
                     {
                         if (generateMeshStatus.EmbeddedGeometriesVertexMap[meshes.First()].ContainsKey(al.GetGeometry()))
                             plateLoadMeshEntityMap[al] = generateMeshStatus.EmbeddedGeometriesVertexMap[meshes.First()][al.GetGeometry()];
+                        else if (al.GetGeometry() == shape)
+                            plateLoadMeshEntityMap[al] = meshes[0].Faces.GetIds().ToArray();
                     }
                     else
                         throw new NotSupportedException($"Load type: {load.GetType()} not supported");
@@ -857,7 +901,7 @@ namespace GPC.Model.FEM
                 }
             }
 
-            AddMesh(meshes.First(), platePropertyName, null, vertexLoadMeshEntityMap, vertexLineLoadMeshEntityMap, null, restrainMeshEntityMap, out _, out _, out _);
+            AddMesh(meshes.First(), platePropertyName, null, vertexLoadMeshEntityMap, vertexLineLoadMeshEntityMap, plateLoadMeshEntityMap, restrainMeshEntityMap, out _, out _, out _);
         }
 
 
@@ -1350,11 +1394,12 @@ namespace GPC.Model.FEM
 
                                 if (node.Equals(line.Start) || node.Equals(line.End))
                                 {
-                                    factor = factor / 2.0;
+                                    factor /= 2.0;
                                 }
 
                                 NodeForceAttribute nfa = new NodeForceAttribute(ll.LoadCase.Name, ll.CoordinateSystem, 
-                                    ll.F1 * factor, ll.F2 * factor, ll.F3 * factor, ll.M1 * factor, ll.M2 * factor, ll.M3 * factor);
+                                                                            ll.F1 * factor, ll.F2 * factor, ll.F3 * factor, ll.M1 * factor, ll.M2 * factor, ll.M3 * factor);
+
                                 node.AddAttribute(nfa);
                             }
                             else

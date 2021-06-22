@@ -11,6 +11,8 @@ namespace GPC.Model.FEM.FiniteElements
         {
         }
 
+        protected abstract mnl.Matrix<double> GetB(double csi, double eta);
+
         #region Results
         /// <summary>
         /// 

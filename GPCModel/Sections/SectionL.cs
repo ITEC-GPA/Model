@@ -1,103 +1,132 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using GPC.Geometry;
 using GPC.Model.Materials;
 
 namespace GPC.Model.Sections
 {
-    public class SectionL : Section
+    public class SectionL : ThinWallSection
     {
         #region Variables
-        double _lHor;
-        double _tHor;
-        double _lVert;
-        double _tVert;
-        Plate[] _plates;
 
-        double _jyy = 0;
-        double _jxx = 0;
-        double _jxy = 0;
+        private readonly double _lHor;
+        private readonly double _tHor;
+        private readonly double _lVert;
+        private readonly double _tVert;
+
         #endregion
+
 
         #region Properties
-        public double LHor => _lHor;
-        public double THor => _tHor;
-        public double LVert => _lVert;
-        public double TVert => _tVert;
 
-        public double Jxx => _jxx;
-        public double Jxy => _jxy;
-        public double Jyy => _jyy;
-        public Plate[] Plates => _plates;
+        public double LengthHor => _lHor;
+
+        public double ThicknessHor => _tHor;
+
+        public double LengthVert => _lVert;
+
+        public double ThicknessVert => _tVert;
+
         #endregion
 
-        public SectionL(double lHor, double tHor, double lVert, double tVert, Material material, string name) : base(material.GetIsotropicFemMaterial(), name)
+
+        #region Constructor
+
+        public SectionL(double lHor, double tHor, double lVert, double tVert, Material material, string name) 
+            : base(material, name)
         {
-            _lHor = lHor;
-            _tHor = tHor;
-            _lVert = lVert;
-            _tVert = tVert;
-            double fy = ((SteelMaterial)material).Fyk;
+            _lHor = lHor < 0 ? throw new ArgumentException($"Horizzontal plate lenght cannot be lower than zero") : lHor; 
+            _tHor = tHor < 0 ? throw new ArgumentException($"Horizzontal plate thickness cannot be lower than zero") : tHor; 
+            _lVert = lVert < 0 ? throw new ArgumentException($"Vertical plate lenght cannot be lower than zero") : lVert; 
+            _tVert = tVert < 0 ? throw new ArgumentException($"Vertical plate thickness cannot be lower than zero") : tVert;
 
-            _plates = new Plate[2];
-            _plates[0] = new Plate(tHor, _tVert, _tHor/2.0, _lHor, _tHor/2.0, fy, Plate.TypePlate.outer);
-            _plates[1] = new Plate(tVert, _tVert / 2.0, 0, _tVert / 2.0, _lVert, fy, Plate.TypePlate.outer);
+            ThinWall thinWall1 = new ThinWall(LengthHor, ThicknessHor, 0, new Point2d(LengthHor / 2, ThicknessHor / 2));
+            ThinWall thinWall2 = new ThinWall(LengthVert - ThicknessHor, ThicknessVert, Math.PI / 2, new Point2d(ThicknessVert / 2, ThicknessHor + (ThicknessVert - ThicknessHor) / 2));
 
-            _area = _plates[0].Area + _plates[1].Area;
+            ThinWalls = new ThinWall[] { thinWall1, thinWall2 };
+        }
 
-            double Sy = 0;
-            double Sx = 0;
-            for (int i = 0; i < _plates.Count(); i++)
-            {
-                Sx = Sx + _plates[i].Area * _plates[i].Centroid.X;
-                Sy = Sy + _plates[i].Area * _plates[i].Centroid.Y;
-            }
+        #endregion
 
-            _centroid = new Point2d(Sx / _area, Sy / _area);
-                        
-            for (int i = 0; i < _plates.Count(); i++)
-            {
-                _jyy = _jyy + _plates[i].JyCentroid + _plates[i].Area * Math.Pow(_plates[i].Centroid.Y - _centroid.Y, 2.0);
-                _jxx = _jxx + _plates[i].JzCentroid + _plates[i].Area * Math.Pow(_plates[i].Centroid.X - _centroid.X, 2.0);
-                _jxy = _jxy + 0.0 + _plates[i].Area * (_plates[i].Centroid.X - _centroid.X) * (_plates[i].Centroid.Y - _centroid.Y);
-            }
-            _j11 = (_jxx + _jyy) / 2.0 - 0.5 * Math.Sqrt(Math.Pow(_jxx - _jyy,2.0) + 4.0 * _jxy * _jxy);
-            _j22 = (_jxx + _jyy) / 2.0 + 0.5 * Math.Sqrt(Math.Pow(_jxx - _jyy,2.0) + 4.0 * _jxy * _jxy);
-            _angleX1 = - 1.0 / 2.0 * Math.Atan(2.0 * _jxy / (_jyy - _jxx));
-            
-            if (_jyy < _jxx) { 
- 
-                _angleX1 = _angleX1 + Math.PI / 2.0;
-            }            
 
-            _jt = 1.0 / 3.0 * (_lHor - _tVert / 2.0) * Math.Pow(_tHor, 3.0) + 1.0 / 3.0 * (_lVert - _tHor / 2.0) * Math.Pow(_tVert, 3.0);
-            _jw = (Math.Pow(_lHor - _tVert / 2.0, 3.0) * Math.Pow(_tHor, 3.0) + Math.Pow(_lVert - _tHor / 2.0, 3.0) * Math.Pow(_tVert, 3.0)) / 36.0; //CNR DT 208/2011
+        #region Public method
 
-            _shearCenter = new Point2d(_tHor / 2.0, _tVert / 2.0);
+        public override double CalculateWel1()
+        {
+            return Math.Min(CalculateWel11Left(), CalculateWel11Right());
+        }
 
+        public override double CalculateWel2()
+        {
+            return Math.Min(CalculateWel22Bottom(), CalculateWel22Top());
+        }
+
+        public double CalculateAngle()
+        {
+            double angle = -1.0 / 2.0 * Math.Atan(2.0 * CalculateJxy() / (_jyy - _jxx));
+
+            if (Jyy < Jxx)            
+                angle += Math.PI / 2.0;
+
+            return angle;
+        }
+
+        public override double CalculateJ11()
+        {
+            return (Jxx + Jyy) / 2.0 - 0.5 * Math.Sqrt(Math.Pow(Jxx - Jyy, 2.0) + 4.0 * CalculateJxy() * CalculateJxy());
+        }
+
+        public override double CalculateJ22()
+        {
+            return (Jxx + Jyy) / 2.0 + 0.5 * Math.Sqrt(Math.Pow(Jxx - Jyy, 2.0) + 4.0 * CalculateJxy() * CalculateJxy());
+        }
+
+        public double CalculateWel11Left()
+        {
+            FivePointsCheck(out double minX, out double _, out double _, out double _);
+            return Jxx / Math.Abs(minX);
+        }
+
+        public double CalculateWel11Right()
+        {
+            FivePointsCheck(out double _, out double maxX, out double _, out double _);
+            return Jxx / Math.Abs(maxX);
+        }
+
+        public double CalculateWel22Bottom()
+        {
+            FivePointsCheck(out double _, out double _, out double minY, out double _);
+            return Jyy / Math.Abs(minY);
+        }
+
+        public double CalculateWel22Top()
+        {
+            FivePointsCheck(out double _, out double _, out double _, out double maxY);
+            return Jyy / Math.Abs(maxY);
+        }
+
+        private void FivePointsCheck(out double minX, out double maxX, out double minY, out double maxY)
+        {
             //check 5 points
             //traslation
             Point2d[] pts = new Point2d[5];
-            pts[0] = new Point2d(- _centroid.X, - _centroid.Y);
-            pts[1] = new Point2d(LHor - _centroid.X, - _centroid.Y);
-            pts[2] = new Point2d(LHor - _centroid.X, _tHor -_centroid.Y);
-            pts[3] = new Point2d(_tVert - _centroid.X, _lVert - _centroid.Y);
-            pts[4] = new Point2d(- _centroid.X, _lVert - _centroid.Y);
+            pts[0] = new Point2d(-Centroid.X, -Centroid.Y);
+            pts[1] = new Point2d(LengthHor - Centroid.X, -Centroid.Y);
+            pts[2] = new Point2d(LengthHor - Centroid.X, ThicknessHor - Centroid.Y);
+            pts[3] = new Point2d(ThicknessVert - Centroid.X, LengthVert - Centroid.Y);
+            pts[4] = new Point2d(-Centroid.X, LengthVert - Centroid.Y);
 
             //rotation
-            double minX = 0;
-            double maxX = 0;
-            double minY = 0;
-            double maxY = 0;
+            minX = 0;
+            maxX = 0;
+            minY = 0;
+            maxY = 0;
             for (int i = 0; i < 5; i++)
             {
                 double x = pts[i].X;
                 double y = pts[i].Y;
-                double newX = x * Math.Cos(_angleX1) + y * Math.Sin(_angleX1);
-                double newY = - x * Math.Sin(_angleX1) + y * Math.Cos(_angleX1);
+                double newX = x * Math.Cos(AngleX1) + y * Math.Sin(AngleX1);
+                double newY = -x * Math.Sin(AngleX1) + y * Math.Cos(AngleX1);
                 pts[i] = new Point2d(newX, newY);
 
                 minX = Math.Min(minX, pts[i].X);
@@ -105,15 +134,72 @@ namespace GPC.Model.Sections
                 minY = Math.Min(minY, pts[i].Y);
                 maxY = Math.Max(maxY, pts[i].Y);
             }
+        }
 
-            _wel11Left = _j11 / Math.Abs(minX);
-            _wel11Right = _j11 / Math.Abs(maxX);
-            _wel22Top = _j22 / Math.Abs(maxY);
-            _wel22Bottom = _j22 / Math.Abs(minY);
+        public override double CalculateJxx()
+        {
+            double jxx = 0;
+            for (int i = 0; i < ThinWalls.Count(); i++)            
+                jxx += + DistanceXCentroidFromLeft() + ThinWalls[i].Area * Math.Pow(ThinWalls[i].Centroid.X - Centroid.X, 2.0);            
+            return jxx;
+        }
 
-            //Assumed as elastic
-            _wpl11 = Math.Min(_wel11Left, _wel11Right);
-            _wpl22 = Math.Min(_wel22Bottom, _wel22Top);
+        public override double CalculateJyy()
+        {
+            double jyy = 0;
+            for (int i = 0; i < ThinWalls.Count(); i++)            
+                jyy += ThinWalls[i].Centroid.Y + ThinWalls[i].Area * Math.Pow(ThinWalls[i].Centroid.Y - Centroid.Y, 2.0);            
+            return jyy;
+        }
+
+        public double CalculateJxy()
+        {
+            double jxy = 0;
+            for (int i = 0; i < ThinWalls.Count(); i++)            
+                jxy += + 0.0 + ThinWalls[i].Area * (ThinWalls[i].Centroid.X - Centroid.X) * (ThinWalls[i].Centroid.Y - Centroid.Y);            
+            return jxy;
+        }
+
+        public double DistanceYCentroidFromBottom()
+        {
+            return Centroid.Y;
+        }
+
+        public double DistanceYCentroidFromTop()
+        {
+            return LengthVert - Centroid.Y;
+        }
+
+        public double DistanceXCentroidFromRight()
+        {
+            return Centroid.X;
+        }
+
+        public double DistanceXCentroidFromLeft()
+        {
+            return LengthHor - Centroid.X;
+        }
+
+
+
+        #endregion
+
+
+        #region Public override method
+
+        public override double CalculateJw()
+        {
+            return (Math.Pow(_lHor - _tVert / 2.0, 3.0) * Math.Pow(_tHor, 3.0) + Math.Pow(_lVert - _tHor / 2.0, 3.0) * Math.Pow(_tVert, 3.0)) / 36.0; //CNR DT 208/2011
+        }
+
+        public override double CalculateJt()
+        {
+            return 1.0 / 3.0 * (_lHor - _tVert / 2.0) * Math.Pow(_tHor, 3.0) + 1.0 / 3.0 * (_lVert - _tHor / 2.0) * Math.Pow(_tVert, 3.0);
+        }
+
+        public override Point2d CalculateShearCenter()
+        {
+            return new Point2d(_tHor / 2.0, _tVert / 2.0);
         }
 
         public override string ToString()
@@ -126,5 +212,24 @@ namespace GPC.Model.Sections
             
             return s;
         }
+
+        public override Point2d CalculateCentroid()
+        {
+            return  new Point2d(Sx / Area, Sy / Area);
+        }
+
+        public override double CalculateWpl1()
+        {
+            return CalculateWel1();
+        }
+
+        public override double CalculateWpl2()
+        {
+            return CalculateWel2();
+        }
+
+        #endregion
     }
+
+
 }

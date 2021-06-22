@@ -254,12 +254,6 @@ namespace GPC.Model.FEM.FiniteElements
             return fLocalCoord;
         }
 
-        //TODO: cancellare
-        public override mnl.Matrix<double> GetB(double csi, double eta)
-        {
-            return mnl.Matrix<double>.Build.Dense(24, 24);
-        }
-
         /// <summary>
         /// eq. 53 and 54 computed for all nodes
         /// </summary>

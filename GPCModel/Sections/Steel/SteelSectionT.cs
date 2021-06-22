@@ -1,0 +1,102 @@
+﻿using GPC.Geometry;
+using GPC.Model.Materials;
+
+namespace GPC.Model.Sections.Steel
+{
+    public class SteelSectionT : SectionT, ISteelSection
+    {
+        public enum ProfileType
+        {
+            Rolled,
+            Welded,
+        }
+
+        #region Variables
+
+        private readonly double _r;                // raggio di curvatura o altezza di gola
+
+        #endregion
+
+
+        #region Properties
+
+        public SectionTypes Type => _sectionType;
+
+        public double R => _r;
+
+        public bool IsRolled => Type == SectionTypes.Rolled;
+
+        public bool IsWelded => Type == SectionTypes.Welded;
+
+        #region Interface
+
+        Material ISteelSection.Material => Material;
+
+        double ISteelSection.Height => Height;
+
+        double ISteelSection.Area => Area;
+
+        double ISteelSection.InertiaRadiusY => InertiaRadiusY;
+
+        double ISteelSection.InertiaRadiusX => InertiaRadiusX;
+
+        Point2d ISteelSection.Centroid => Centroid;
+
+        double ISteelSection.J11 => J11;
+
+        double ISteelSection.J22 => J22;
+
+        double ISteelSection.Jxx => Jxx;
+
+        double ISteelSection.Jyy => Jyy;
+
+        double ISteelSection.Jt => Jt;
+
+        double ISteelSection.Jw => Jw;
+
+        double ISteelSection.Sx => Sx;
+
+        double ISteelSection.Wpl1 => Wpl1;
+
+        double ISteelSection.Wpl2 => Wpl2;
+
+        double ISteelSection.Wel1 => Wel1;
+
+        double ISteelSection.Wel2 => Wel2;
+
+        #endregion
+
+        #endregion
+
+
+        #region Public Constructors
+
+        public SteelSectionT(double height, double flangeLength, double thicknessWeb, double thicknessFlange, SteelMaterial material, string name, 
+            double radius = 0, FormedTypes formedType = FormedTypes.HotFinished, SectionTypes sectionType = SectionTypes.Rolled) 
+            : base(height, flangeLength, thicknessWeb, thicknessFlange, material, name)
+        {
+            _sectionType = sectionType;
+            _formedType = formedType;
+            _r = radius;        // raggio di curvatura o altezza di gola
+        }
+
+        #endregion
+
+
+        #region Public override method
+
+        public override string ToString()
+        {
+            string s = "T section: \n";
+            s = s + "Height = " + base.Height + " mm \n";
+            s = s + "Thickness Web = " + _tw + " mm \n";
+            s = s + "Length Top = " + _b + " mm \n";
+            s = s + "Thickness Top = " + _tf + " mm \n";
+            return s;
+        }
+
+
+
+        #endregion
+    }
+}

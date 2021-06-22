@@ -223,7 +223,7 @@ namespace GPC.Model.FEM.FiniteElements
             return _fLocalCoord;
         }
 
-        public override mnl.Matrix<double> GetB(double csi, double eta)
+        protected override mnl.Matrix<double> GetB(double csi, double eta)
         {
             mnl.Vector<double> hxdCsi = mnl.Vector<double>.Build.Dense(9);
             mnl.Vector<double> hydCsi = mnl.Vector<double>.Build.Dense(9);

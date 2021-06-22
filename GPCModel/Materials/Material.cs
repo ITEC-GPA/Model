@@ -5,7 +5,7 @@ using System.Runtime.Serialization;
 namespace GPC.Model.Materials
 {
     [Serializable]
-    public abstract class Material : ModelObject
+    public class Material : ModelObject
     {
         #region VARIABLES
 
@@ -85,9 +85,15 @@ namespace GPC.Model.Materials
         }
 
 
-        public abstract FEM.Materials.IsotropicFemMaterial GetIsotropicFemMaterial();
+        public virtual FEM.Materials.IsotropicFemMaterial GetIsotropicFemMaterial()
+        {
+            throw new NotImplementedException("");
+        }
 
-        public abstract FEM.Materials.OrthotropicFemMaterial GetOrthotropicFemMaterial();
+        public virtual FEM.Materials.OrthotropicFemMaterial GetOrthotropicFemMaterial()
+        {
+            throw new NotImplementedException("");
+        }
 
 
 
