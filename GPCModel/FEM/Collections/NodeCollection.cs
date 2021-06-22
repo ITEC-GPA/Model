@@ -16,7 +16,7 @@ namespace GPC.Model.FEM.Collections
     ///   alla collection che provveda eventualmente a riordinare la lista interna.
     /// </remarks>
     [Serializable]
-    public class NodeCollection : IEnumerable<Node>, ISerializable
+    public class NodeCollection : SortedCollection<Node> // IEnumerable<Node>, ISerializable
     {
         protected class PositionComparer : IComparer<Node>
         {
@@ -32,6 +32,11 @@ namespace GPC.Model.FEM.Collections
             }
         }
 
+        protected static PositionComparer _positionComparer = new PositionComparer();
+
+        public override IComparer<Node> Comparer => _positionComparer;
+
+#if _moved
         protected readonly object _locker = new object();
         protected readonly List<Node> _collection;
         protected int _lastId;
@@ -372,5 +377,6 @@ namespace GPC.Model.FEM.Collections
         {
             return GetById(id);
         }
+#endif
     }
 }
