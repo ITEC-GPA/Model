@@ -293,7 +293,18 @@ namespace GPC.Model.FEM.Collections
         {
             lock (_locker)
             {
-                return _collection.Contains(item) ? 1 : 0;                 
+                //return _collection.Contains(item) ? 1 : 0;                 
+                int found = 0;
+                List<T> list = _collection as List<T>;
+                Parallel.For(0, _collection.Count, (i, state) =>
+                {
+                    if (list[i].Equals(item))
+                    {
+                        found = 1;
+                        state.Stop();
+                    }
+                });
+                return found;
             }
         }
 
