@@ -117,18 +117,7 @@ namespace GPC.Model
         {
             lock (_locker)
             {
-                //return _collection.Contains(item);
-                bool found = false;
-                List<T> list = _collection as List<T>;
-                Parallel.For(0, _collection.Count, (i, state) =>
-                {
-                    if (list[i].Equals(item))
-                    {
-                        found = true;
-                        state.Stop();
-                    }
-                });
-                return found;
+                return _collection.Contains(item);
             }
         }
 
