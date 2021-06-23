@@ -1103,23 +1103,13 @@ namespace GPC.Model.FEM
             // Aggiunge nodi alla collection di nodi
             using (var enumerator = mesh.GetVerticesEnumerator())
             {
-                if (group != null)
+                for (int i = 0; i < mesh.VerticesCount; i++)
                 {
-                    for (int i = 0; i < mesh.VerticesCount; i++)
-                    {
-                        enumerator.MoveNext();
+                    enumerator.MoveNext();
+                    if (group != null)
                         nodesMap[enumerator.Current.Id] = _nodes.AddUnique(new Node(enumerator.Current.Point, group));
-
-                    }
-                }
-                else
-                {
-                    for (int i = 0; i < mesh.VerticesCount; i++)
-                    {
-                        enumerator.MoveNext();
+                    else
                         nodesMap[enumerator.Current.Id] = _nodes.AddUnique(new Node(enumerator.Current.Point));
-
-                    }
                 }
             }
 
@@ -1447,8 +1437,10 @@ namespace GPC.Model.FEM
                             throw new InvalidOperationException();
                     }
 
-                    foreach (var index in indexes)
+                    //foreach (var index in indexes)
+                    for (int i = 0; i < indexes.Length; i++)
                     {
+                        int index = indexes[i];
                         int plateId = platesMap.ContainsKey(index) ? platesMap[index] : index;
 
                         FiniteElement finiteElement = _elements.GetElementById(plateId); // se non trova l'indice viene lanciata una keynotfoundException
