@@ -635,10 +635,10 @@ namespace GPC.Model.FEM
 
 
         /// <returns>True if property with name: <paramref name="propertyName"/> is contained in the <see cref="FemModel._plateProperties"/> or <see cref="FemModel._brickProperties"/> collections </returns>
-        /// <inheritdoc cref="UniqueNameCollection{T}.Contains(string)"/>
+        /// <inheritdoc cref="UniqueNameCollection{T}.ContainsName(string)"/>
         public virtual bool ContainsProperty(string propertyName)
         {
-            return _plateProperties.Contains(propertyName) || _brickProperties.Contains(propertyName);
+            return _plateProperties.ContainsName(propertyName) || _brickProperties.ContainsName(propertyName);
         }
 
 
@@ -1537,17 +1537,17 @@ namespace GPC.Model.FEM
 
         public bool LoadCaseExist(string loadCaseName)
         {
-            return _loadCases.Contains(loadCaseName);
+            return _loadCases.ContainsName(loadCaseName);
         }
 
         public bool FreedomCaseExist(string freedomCaseName)
         {
-            return _freedomCases.Contains(freedomCaseName);
+            return _freedomCases.ContainsName(freedomCaseName);
         }
 
         public bool GroupExist(string name)
         {
-            return _groups.Contains(name);
+            return _groups.ContainsName(name);
         }
 
         #endregion
