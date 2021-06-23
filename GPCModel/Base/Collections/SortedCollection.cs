@@ -314,7 +314,7 @@ namespace GPC.Model
 
         public IEnumerator<T> GetEnumerator()
         {
-            return GetEnumerator();
+            return _collection.GetEnumerator();
         }
 
         IEnumerator IEnumerable.GetEnumerator()
