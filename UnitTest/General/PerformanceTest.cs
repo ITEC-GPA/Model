@@ -236,7 +236,7 @@ namespace GeneralTest
                 nodesCollection.Add(new Node(points[i].x, points[i].y, points[i].z, string.Empty));
             }
             stopWatch.Stop();
-            Debug.WriteLine(stopWatch.ElapsedMilliseconds, "R1");
+            Debug.WriteLine(stopWatch.ElapsedMilliseconds, "Prima copia");
             // Aggiunta elementi alla collection vuota con nuovo algoritmo di test "contains": ~50ms
 
             // Prova a reinserire gli stessi nodi ma in ordine casuale
@@ -248,7 +248,7 @@ namespace GeneralTest
                 id = nodesCollection.Add(new Node(points[n].x, points[n].y, points[n].z, string.Empty));
             }
             stopWatch.Stop();
-            Debug.WriteLine(stopWatch.ElapsedMilliseconds, "Elapsed");
+            Debug.WriteLine(stopWatch.ElapsedMilliseconds, "Reinserimento dei nodi");
             // Il risultato resta ~ 20ms
 
             // Il numero di elementi non dovrebbe variare
@@ -272,7 +272,7 @@ namespace GeneralTest
                 id = nodesCollection.Add(new Node(points[i].x, points[i].y, points[i].z, string.Empty));
             }
             stopWatch.Stop();
-            Debug.WriteLine(stopWatch.ElapsedMilliseconds, "Elapsed");
+            Debug.WriteLine(stopWatch.ElapsedMilliseconds, "Aggiunta nuovi nomi");
             // Risultato ~60ms
 
             // Il numero di elementi iniziale dovrebbe radoppiare
