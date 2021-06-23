@@ -7,10 +7,10 @@ using System.Runtime.Serialization;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace GPC.Model.FEM.Collections
+namespace GPC.Model
 {
     [Serializable]
-    public abstract class SortedCollection<T> : IEnumerable<T>, ISerializable where T : FEMObject, INotifyPropertyChanged 
+    public abstract class SortedCollection<T> : IEnumerable<T>, ISerializable where T : ModelObjectId, INotifyPropertyChanged 
     {
         protected readonly object _locker = new object();
         protected readonly List<T> _collection;
