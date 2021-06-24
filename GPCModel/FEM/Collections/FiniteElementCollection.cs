@@ -37,5 +37,28 @@ namespace GPC.Model.FEM.Collections
         protected static NodesComparer _positionComparer = new NodesComparer();
 
         public override IComparer<FiniteElement> Comparer => _positionComparer;
+
+        /// <summary>
+        /// Add an finite element to the collection calling the <see cref="SortedCollection{T}.Add(T)"/> method.
+        /// Provided only for compability with the previous class <see cref="FemObjectCollection{T}"/>
+        /// </summary>
+        /// <param name="element">The finite element to add</param>
+        /// <returns>The Id of the added element</returns>
+        public int AddUnique(FiniteElement element)
+        {
+            return Add(element);
+        }
+
+        /// <summary>
+        /// Get a finite element by his id calling the <see cref="SortedCollection{T}.GetById(int)"/> method.
+        /// Provided only for compability with the previous class <see cref="FemObjectCollection{T}"/>
+        /// </summary>
+        /// <param name="id">The id of the finite element to retrieve</param>
+        /// <returns>The finite element</returns>
+        public FiniteElement GetElementById(int id)
+        {
+            return GetById(id);
+        }
+
     }
 }
