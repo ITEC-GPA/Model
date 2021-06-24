@@ -49,8 +49,8 @@ namespace GPC.Model.FEM
         /// Collection of <see cref="FiniteElement"/>
         /// The elements on this collection does not have duplicate ID and can not be duplicate. (different element with different id)
         /// </summary>
-        protected FemObjectCollection<FiniteElement> _elements;
-        //protected FiniteElementCollection _elements;
+        //protected FemObjectCollection<FiniteElement> _elements;
+        protected FiniteElementCollection _elements;
 
         /// <summary>
         /// Collection of <see cref="Costrain"/>
@@ -146,7 +146,7 @@ namespace GPC.Model.FEM
             : base(name)
         {
             _nodes = new NodeCollection(); //new FemObjectCollection<Node>();
-            _elements = /*new FiniteElementCollection(); /*/ new FemObjectCollection<FiniteElement>();
+            _elements = new FiniteElementCollection(); // new FemObjectCollection<FiniteElement>();
             _costrains = new FemObjectCollection<Costrain>();
 
             _stages = new UniqueIdCollection<Stage>(); // solo id come equality comparer
@@ -175,8 +175,8 @@ namespace GPC.Model.FEM
 
             //_nodes = (FemObjectCollection<Node>)info.GetValue("Nodes", typeof(FemObjectCollection<Node>));
             _nodes = (NodeCollection)info.GetValue("Nodes", typeof(NodeCollection));
-            _elements = (FemObjectCollection<FiniteElement>)info.GetValue("Elements", typeof(FemObjectCollection<FiniteElement>));
-            //_elements = (FiniteElementCollection)info.GetValue("Elements", typeof(FiniteElementCollection));
+            //_elements = (FemObjectCollection<FiniteElement>)info.GetValue("Elements", typeof(FemObjectCollection<FiniteElement>));
+            _elements = (FiniteElementCollection)info.GetValue("Elements", typeof(FiniteElementCollection));
             _costrains = (FemObjectCollection<Costrain>)info.GetValue("Costrains", typeof(FemObjectCollection<Costrain>));
 
             _plateProperties = (UniqueNameCollection<PlateProperty>)info.GetValue("PlateProperties", typeof(UniqueNameCollection<PlateProperty>));
@@ -465,7 +465,9 @@ namespace GPC.Model.FEM
         {
             Stage stage = new Stage(name, this, analysisType, false, _combinations);
 
-            stage.SetFiniteElements(_elements);
+            FiniteElement[] elements = new FiniteElement[_elements.Count];
+            _elements.CopyTo(elements, 0);
+            stage.SetFiniteElements(elements);
 
             _stages.Add(stage);
 
@@ -629,8 +631,8 @@ namespace GPC.Model.FEM
         /// <inheritdoc cref="FemObjectCollection{T}.Contains(T)"/>
         public virtual bool ContainsFiniteElement(FiniteElement finiteElement)
         {
-            return _elements.Contains(finiteElement) != 0;
-            //return _elements.Contains(finiteElement);
+            //return _elements.Contains(finiteElement) != 0;
+            return _elements.Contains(finiteElement);
         }
 
 
@@ -665,7 +667,7 @@ namespace GPC.Model.FEM
             }
 
 
-            return _nodes.AddUnique(node); // l'Add lancia un ArgumentNullException se gli si passa null
+            return _nodes.Add(node); // l'Add lancia un ArgumentNullException se gli si passa null
         }
 
 
@@ -701,7 +703,7 @@ namespace GPC.Model.FEM
         /// <inheritdoc cref="FemObjectCollection{T}.GetElementById(int)"/>
         public virtual Node GetNode(int id)
         {
-            return _nodes.GetElementById(id);
+            return _nodes.GetById(id);
         }
 
 
@@ -1107,9 +1109,9 @@ namespace GPC.Model.FEM
                 {
                     enumerator.MoveNext();
                     if (group != null)
-                        nodesMap[enumerator.Current.Id] = _nodes.AddUnique(new Node(enumerator.Current.Point, group));
+                        nodesMap[enumerator.Current.Id] = _nodes.Add(new Node(enumerator.Current.Point, group));
                     else
-                        nodesMap[enumerator.Current.Id] = _nodes.AddUnique(new Node(enumerator.Current.Point));
+                        nodesMap[enumerator.Current.Id] = _nodes.Add(new Node(enumerator.Current.Point));
                 }
             }
 
@@ -1276,7 +1278,7 @@ namespace GPC.Model.FEM
                         {
                             int nodeId = nodesMap.ContainsKey(indexes[i]) ? nodesMap[indexes[i]] : indexes[i];
 
-                            Node node = _nodes.GetElementById(nodeId); // se non trova l'indice viene lanciata una keynotfoundException
+                            Node node = _nodes.GetById(nodeId); // se non trova l'indice viene lanciata una keynotfoundException
 
                             if (nra.Restrains.Count > 0)
                                 node.AddAttribute(nra);
@@ -1322,7 +1324,7 @@ namespace GPC.Model.FEM
                         {
                             int nodeId = nodesMap.ContainsKey(indexes[i]) ? nodesMap[indexes[i]] : indexes[i];
 
-                            Node node = _nodes.GetElementById(nodeId); // se non trova l'indice viene lanciata una keynotfoundException
+                            Node node = _nodes.GetById(nodeId); // se non trova l'indice viene lanciata una keynotfoundException
 
                             if (load is PointLoad pl)
                             {
@@ -1370,7 +1372,7 @@ namespace GPC.Model.FEM
                         {
                             int nodeId = nodesMap.ContainsKey(indexes[i]) ? nodesMap[indexes[i]] : indexes[i];
 
-                            Node node = _nodes.GetElementById(nodeId); // se non trova l'indice viene lanciata una keynotfoundException
+                            Node node = _nodes.GetById(nodeId); // se non trova l'indice viene lanciata una keynotfoundException
 
                             if (load is LineLoad ll)
                             {
@@ -1519,8 +1521,8 @@ namespace GPC.Model.FEM
         /// <inheritdoc cref="FemObjectCollection{T}.Remove(int)"/>
         public void RemoveElement(int id)
         {
-            _elements.Remove(id);
-            //_elements.RemoveById(id);
+            //_elements.Remove(id);
+            _elements.RemoveById(id);
         }
 
         #endregion
