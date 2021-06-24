@@ -11,13 +11,11 @@ namespace GPC.Model.FEM.Materials
 
         public double Density => _density;
 
-
         protected FemMaterial(string name, double density) 
             : base(name)
         {
             _density = density < 0 ? throw new ArgumentException($"{nameof(density)} cannot be lower than zero") : density;
         }
-
 
         protected FemMaterial(SerializationInfo info, StreamingContext context) 
             : base(info, context)
@@ -28,7 +26,6 @@ namespace GPC.Model.FEM.Materials
         public abstract Matrix<double> GetPlaneStress();
 
         public abstract Matrix<double> Get3DSolidStress();
-
 
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
