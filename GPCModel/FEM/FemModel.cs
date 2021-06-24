@@ -260,6 +260,12 @@ namespace GPC.Model.FEM
         }
 
         /// <inheritdoc cref="UniqueNameCollection{T}.GetNames()"/>
+        public List<string> GetBeamPropertyNames()
+        {
+            return _beamProperties.GetNames();
+        }
+
+        /// <inheritdoc cref="UniqueNameCollection{T}.GetNames()"/>
         public List<string> GetPlatePropertyNames()
         {
             return _plateProperties.GetNames();

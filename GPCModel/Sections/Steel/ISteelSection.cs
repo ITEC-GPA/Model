@@ -8,6 +8,7 @@ namespace GPC.Model.Sections.Steel
 {
     public interface ISteelSection
     {
+        string Name { get; }
         Materials.Material Material { get; }
         double Height { get; }
         double Area { get; }

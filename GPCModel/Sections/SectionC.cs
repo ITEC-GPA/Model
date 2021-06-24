@@ -39,21 +39,21 @@ namespace GPC.Model.Sections
 
         #region Public Constructors
 
-        public SectionC(double h, double tw, double lTop, double tTop, double lBottom, double tBottom, Material material, string name) 
+        public SectionC(double height, double thicknessWeb, double lengthTop, double thicknessTop, double lengthBottom, double thicknessBottom, Material material, string name) 
             : base(material, name)
         {
-            _h = h < 0 ? throw new ArgumentException($"height cannot be lower than zero") : h; 
-            _lengthTop = lTop < 0 ? throw new ArgumentException($"Top lenght cannot be lower than zero") : lTop; 
-            _lengthBottom = lBottom < 0 ? throw new ArgumentException($"Bottom lenght cannot be lower than zero") : lBottom; 
-            _tBottom = tBottom < 0 ? throw new ArgumentException($"Bottom thickness cannot be lower than zero") : tBottom; 
-            _tTop = tTop < 0 ? throw new ArgumentException($"Top thickness cannot be lower than zero") : tTop; 
-            _tw = tw < 0 ? throw new ArgumentException($"Web thickness cannot be lower than zero") : tw;
+            _h = height < 0 ? throw new ArgumentException($"height cannot be lower than zero") : height; 
+            _lengthTop = lengthTop < 0 ? throw new ArgumentException($"Top lenght cannot be lower than zero") : lengthTop; 
+            _lengthBottom = lengthBottom < 0 ? throw new ArgumentException($"Bottom lenght cannot be lower than zero") : lengthBottom; 
+            _tBottom = thicknessBottom < 0 ? throw new ArgumentException($"Bottom thickness cannot be lower than zero") : thicknessBottom; 
+            _tTop = thicknessTop < 0 ? throw new ArgumentException($"Top thickness cannot be lower than zero") : thicknessTop; 
+            _tw = thicknessWeb < 0 ? throw new ArgumentException($"Web thickness cannot be lower than zero") : thicknessWeb;
 
             if (_lengthBottom == _lengthTop && _tTop == _tBottom)
                 _isSymmetricAlongXLocalAxis = true;
             _isSymmetricAlongYLocalAxis = false;
 
-            ThinWall web = new ThinWall(h, tw, Math.PI / 2, new Point2d(tw / 2, h / 2));
+            ThinWall web = new ThinWall(height, thicknessWeb, Math.PI / 2, new Point2d(thicknessWeb / 2, height / 2));
             ThinWall flangeTop = new ThinWall(LengthTop - ThicknessWeb, ThicknessTop, 0, new Point2d(ThicknessWeb + (LengthTop - ThicknessWeb) / 2, ThicknessBottom + HeightWeb + ThicknessTop / 2));
             ThinWall flangeBottom = new ThinWall(LengthBottom - ThicknessWeb, ThicknessBottom, 0, new Point2d(ThicknessWeb + (LengthBottom - ThicknessWeb) / 2, ThicknessBottom / 2));
 
