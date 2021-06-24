@@ -67,9 +67,9 @@ namespace GPC.Model.Sections.Steel
 
         #region Public Constructors
 
-        public SteelSectionRHS(double h, double b, double tf_top, double tf_bottom, double tw1, double tw2, SteelMaterial material, string name, double r = 0,
+        public SteelSectionRHS(double height, double width, double thicknessTopFlange, double thicknessBottomFlange, double thicknessWebLeft, double thickenssWebRight, SteelMaterial material, string name, double r = 0,
                             FormedTypes formed = FormedTypes.ColdFormed, SectionTypes sectionType = SectionTypes.Rolled) 
-            : base(h, b, tf_top, tf_bottom, tw1, tw2, material, name)
+            : base(height, width, thicknessTopFlange, thicknessBottomFlange, thicknessWebLeft, thickenssWebRight, material, name)
         {
             _formedType = formed;
             _sectionType = sectionType;

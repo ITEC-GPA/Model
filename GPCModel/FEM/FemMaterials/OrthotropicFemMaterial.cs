@@ -8,10 +8,8 @@ using System.Threading.Tasks;
 
 namespace GPC.Model.FEM.Materials
 {
-
     public class OrthotropicFemMaterial : FemMaterial
     {
-
         protected readonly double _e1;
         protected readonly double _e2;
         protected readonly double _e3;
@@ -30,22 +28,28 @@ namespace GPC.Model.FEM.Materials
 
 
         public double E1 => _e1;
+
         public double E2 => _e2;
+
         public double E3 => _e3;
 
         public double Ni12 => _ni12;
+
         public double Ni23 => _ni23;
+
         public double Ni31 => _ni31;
 
         public double G12 => _g12;
+
         public double G23 => _g23;
+
         public double G31 => _g31;
 
         public double Alpha1 => _alpha1;
+
         public double Alpha2 => _alpha2;
+
         public double Alpha3 => _alpha3;
-
-
 
         /// <remarks>
         /// If <paramref name="e1"/> is zero, it will be setted to <see cref="FemOptions.ZeroElasticModulus"/>
@@ -74,28 +78,22 @@ namespace GPC.Model.FEM.Materials
             _alpha1 = alpha1 < 0 ? throw new ArgumentException($"Linear thermal expansion coefficient cannot be lower than zero") : alpha1;
             _alpha2 = alpha2 < 0 ? throw new ArgumentException($"Linear thermal expansion coefficient cannot be lower than zero") : alpha2;
             _alpha3 = alpha3 < 0 ? throw new ArgumentException($"Linear thermal expansion coefficient cannot be lower than zero") : alpha3;
-
         }
             
-
         public OrthotropicFemMaterial(SerializationInfo info, StreamingContext context) 
             : base(info, context)
         {
             throw new NotImplementedException();
         }
 
-
         public override Matrix<double> GetPlaneStress()
         {
             throw new NotImplementedException();
         }
 
-
         public override Matrix<double> Get3DSolidStress()
         {
             throw new NotImplementedException();
         }
-
     }
-
 }

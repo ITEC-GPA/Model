@@ -42,8 +42,8 @@
     <Reference Include="GMsh.Net, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\GMsh.Net.1.0.0.1\lib\net472\GMsh.Net.dll</HintPath>
     </Reference>
-    <Reference Include="GPCGeometry, Version=1.0.8.8, Culture=neutral, processorArchitecture=AMD64">
-      <HintPath>..\packages\GPCGeometry.1.0.8.8\lib\net472\GPCGeometry.dll</HintPath>
+    <Reference Include="GPCGeometry, Version=1.0.8.11, Culture=neutral, processorArchitecture=AMD64">
+      <HintPath>..\packages\GPCGeometry.1.0.8.11\lib\net472\GPCGeometry.dll</HintPath>
     </Reference>
     <Reference Include="GPCUtilities, Version=1.0.30.0, Culture=neutral, processorArchitecture=AMD64">
       <HintPath>..\packages\GPCUtilities.1.0.30\lib\net472\GPCUtilities.dll</HintPath>
@@ -101,7 +101,10 @@
     <Compile Include="FEM\Collections\FemObjectStageCollection.cs" />
     <Compile Include="FEM\Collections\FiniteElementStageCollection.cs" />
     <Compile Include="FEM\Collections\GroupCollection.cs" />
+    <Compile Include="FEM\Collections\NodeCollection.cs" />
     <Compile Include="FEM\Collections\NodeStageCollection.cs" />
+    <Compile Include="FEM\Collections\FiniteElementCollection.cs" />
+    <Compile Include="Base\Collections\SortedCollection.cs" />
     <Compile Include="FEM\Costrain\RigidLink.cs" />
     <Compile Include="FEM\Costrain\MultiPointsCostrain.cs" />
     <Compile Include="FEM\ElementProperty\BrickProperty.cs" />
@@ -135,7 +138,7 @@
     <Compile Include="FEM\FemMaterials\IsotropicFemMaterial.cs" />
     <Compile Include="FEM\FemMaterials\OrthotropicFemMaterial.cs" />
     <Compile Include="FEM\Group.cs" />
-    <Compile Include="FEM\NnLinearStaticSolver.cs" />
+    <Compile Include="FEM\NonLinearStaticSolver.cs" />
     <Compile Include="FEM\Stage.cs" />
     <Compile Include="FEM\FEMUtilities.cs" />
     <Compile Include="Glasses\AirChamber.cs" />

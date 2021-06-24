@@ -142,13 +142,13 @@ namespace FemTest
             };
 
             Stopwatch stopWatch = new Stopwatch();
-            stopWatch.Start();
+            //stopWatch.Start();
 
             //Mesh mesh = CreateSimpleMesh(10, 10, 3, 5, 2, 20);
             //Mesh mesh2 = CreateSimpleMesh(10, 10, 3, 5, 0, 0);
             Mesh mesh = CreateSimpleMesh(40, 40, 25, 60, 2, 0);
             Debug.WriteLine($"Mesh vertices={mesh.VerticesCount}");
-            Debug.WriteLine(stopWatch.Elapsed, "Mesh created");
+            //Debug.WriteLine(stopWatch.Elapsed, "Mesh created");
 
             GlassMaterial gm = new GlassMaterialAstm("", 1, 0.2, 3, 4, 5, 6, 0.008, 0.008, 9);
             PlateProperty pp = new PlateProperty(gm.GetIsotropicFemMaterial(), 1, 2, "p");
@@ -181,14 +181,16 @@ namespace FemTest
             femModel.AddProperty(pp);
             femModel.AddProperty(bp);
 
-            stopWatch.Restart();
+            //stopWatch.Restart();
+            stopWatch.Start();
             femModel.AddMesh(mesh, pp.Name, bp.Name, pointLoads, lineLoads, plateLoads, geometryRestrains);
-            Debug.WriteLine(stopWatch.Elapsed, "Mesh added");
-
             stopWatch.Stop();
+            Debug.WriteLine(stopWatch.ElapsedMilliseconds, "Mesh added");
 
+            
+            // Starting optimization from about 1600 ms
             Debug.WriteLine("Finish");
-            // Assert
+            Assert.IsTrue(stopWatch.ElapsedMilliseconds < 800, "Too slow");
         }
 
 
@@ -462,13 +464,18 @@ namespace FemTest
         [TestCategory("Missing Assert")]
         public void FemModelTest9()
         {
-
             FemModel femModel = new FemModel();
 
+            Stopwatch stopWatch = new Stopwatch();
+            stopWatch.Start();
             int r1 = femModel.AddCostrain(new GPC.Model.FEM.Costrains.RigidLink(new Node(0, 0, 0), new Node(0, 0, 1)));
+            stopWatch.Stop();
+            Debug.WriteLine(stopWatch.ElapsedMilliseconds, "R1");
+
+            stopWatch.Restart();
             int r2 = femModel.AddCostrain(new GPC.Model.FEM.Costrains.RigidLink(new Node(0, 0, 1), new Node(0, 0, 2)));
-
-
+            stopWatch.Stop();
+            Debug.WriteLine(stopWatch.ElapsedMilliseconds, "R2");
         }
 
 

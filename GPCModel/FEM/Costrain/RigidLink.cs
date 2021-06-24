@@ -30,10 +30,10 @@ namespace GPC.Model.FEM.Costrains
 
         }
 
-
         #endregion
 
         #region PublicFunctions
+
         /// <summary>
         /// Ritorna le equazioni per rigid link tra 2 nodi
         /// </summary>

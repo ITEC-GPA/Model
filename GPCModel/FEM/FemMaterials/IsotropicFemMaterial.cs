@@ -7,18 +7,18 @@ namespace GPC.Model.FEM.Materials
 
     public class IsotropicFemMaterial : FemMaterial
     {
-
         protected readonly double _e;
         protected readonly double _ni;
         protected readonly double _g;
         protected readonly double _alpha;
 
-
         public double E => _e;
-        public double G => _g;
-        public double Ni => _ni;
-        public double Alpha => _alpha;
 
+        public double G => _g;
+
+        public double Ni => _ni;
+
+        public double Alpha => _alpha;
 
         /// <param name="E"></param>
         /// <param name="ni"></param>
@@ -40,9 +40,7 @@ namespace GPC.Model.FEM.Materials
 
             if (_g < 0)
                 throw new ArgumentException($"Shear modulus cannot be lower than zero");
-
         }
-
 
         public IsotropicFemMaterial(SerializationInfo info, StreamingContext context) 
             : base(info, context)
@@ -128,5 +126,4 @@ namespace GPC.Model.FEM.Materials
 
         #endregion
     }
-
 }

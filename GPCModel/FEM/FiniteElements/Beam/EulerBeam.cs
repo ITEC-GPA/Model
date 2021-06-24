@@ -26,6 +26,19 @@ namespace GPC.Model.FEM.FiniteElements
             _axisAngleRadians = axisAngleRadians; //rotazione rispetto asse 1-X
         }
 
+        public EulerBeam(Node[] nodes, string name, double axisAngleRadians = 0.0) : base(nodes)     // Section section
+        {
+            _DOF.Add(Solver.DOF.DX);
+            _DOF.Add(Solver.DOF.DY);
+            _DOF.Add(Solver.DOF.DZ);
+            _DOF.Add(Solver.DOF.RX);
+            _DOF.Add(Solver.DOF.RY);
+            _DOF.Add(Solver.DOF.RZ);
+
+            _name = name;
+            _axisAngleRadians = axisAngleRadians; //rotazione rispetto asse 1-X
+        }
+
         public override void BuildMatrix()
         {
             #region localStiffnessMatrix

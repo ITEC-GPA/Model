@@ -72,8 +72,8 @@ namespace GPC.Model.Sections.Steel
 
         #region Public Constructors
 
-        public SteelSectionCHS(double diameter, double t, SteelMaterial material, string name, FormedTypes type = FormedTypes.ColdFormed)
-            : base(diameter, t, material, name)
+        public SteelSectionCHS(double diameter, double thickness, SteelMaterial material, string name, FormedTypes type = FormedTypes.ColdFormed)
+            : base(diameter, thickness, material, name)
         {
             _profileType = type;
         }
