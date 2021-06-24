@@ -23,18 +23,18 @@ namespace GPC.Model.FEM
     [Serializable]
     public class FemModel : ModelObject, ISerializable
     {
-
         public enum AnalysisTypes
         {
-            Linear, 
+            Linear,
             NonLinear,
             Modal,
-            Buckling, 
+            Buckling,
             LinearDynamic
         }
 
-
         #region Variables
+
+        protected readonly object _locker = new object();
 
         // ELEMENTI
 
@@ -42,13 +42,15 @@ namespace GPC.Model.FEM
         /// Collection of <see cref="Node"/>
         /// The nodes on this collection does not have duplicate ID and can not be duplicate. (different point with different id)
         /// </summary>
-        protected FemObjectCollection<Node> _nodes;
+        //protected FemObjectCollection<Node> _nodes;
+        protected NodeCollection _nodes;
 
         /// <summary>
         /// Collection of <see cref="FiniteElement"/>
         /// The elements on this collection does not have duplicate ID and can not be duplicate. (different element with different id)
         /// </summary>
-        protected FemObjectCollection<FiniteElement> _elements;
+        //protected FemObjectCollection<FiniteElement> _elements;
+        protected FiniteElementCollection _elements;
 
         /// <summary>
         /// Collection of <see cref="Costrain"/>
@@ -86,7 +88,7 @@ namespace GPC.Model.FEM
         /// Collection of <see cref="FreedomCase"/> with unique name 
         /// </summary>
         protected UniqueNameCollection<FreedomCase> _freedomCases;
-        
+
         // COMBINATION
 
         /// <summary>
@@ -137,14 +139,14 @@ namespace GPC.Model.FEM
         public FemModel()
             : this(string.Empty)
         {
-            
+
         }
 
-        public FemModel(string name) 
+        public FemModel(string name)
             : base(name)
         {
-            _nodes = new FemObjectCollection<Node>();
-            _elements = new FemObjectCollection<FiniteElement>();
+            _nodes = new NodeCollection(); //new FemObjectCollection<Node>();
+            _elements = new FiniteElementCollection(); // new FemObjectCollection<FiniteElement>();
             _costrains = new FemObjectCollection<Costrain>();
 
             _stages = new UniqueIdCollection<Stage>(); // solo id come equality comparer
@@ -152,7 +154,7 @@ namespace GPC.Model.FEM
             _beamProperties = new UniqueNameCollection<Section>();
             _plateProperties = new UniqueNameCollection<PlateProperty>();
             _brickProperties = new UniqueNameCollection<BrickProperty>();
-            
+
             _loadCases = new UniqueNameCollection<LoadCaseBase>();
             _freedomCases = new UniqueNameCollection<FreedomCase>();
             _combinations = new UniqueNameCollection<Combination>();
@@ -166,13 +168,15 @@ namespace GPC.Model.FEM
             _modelAttributes = new List<IModelAttribute>();
         }
 
-        
+
         public FemModel(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
-            
-            _nodes = (FemObjectCollection<Node>)info.GetValue("Nodes", typeof(FemObjectCollection<Node>));
-            _elements = (FemObjectCollection<FiniteElement>)info.GetValue("Elements", typeof(FemObjectCollection<FiniteElement>));
+
+            //_nodes = (FemObjectCollection<Node>)info.GetValue("Nodes", typeof(FemObjectCollection<Node>));
+            _nodes = (NodeCollection)info.GetValue("Nodes", typeof(NodeCollection));
+            //_elements = (FemObjectCollection<FiniteElement>)info.GetValue("Elements", typeof(FemObjectCollection<FiniteElement>));
+            _elements = (FiniteElementCollection)info.GetValue("Elements", typeof(FiniteElementCollection));
             _costrains = (FemObjectCollection<Costrain>)info.GetValue("Costrains", typeof(FemObjectCollection<Costrain>));
 
             _plateProperties = (UniqueNameCollection<PlateProperty>)info.GetValue("PlateProperties", typeof(UniqueNameCollection<PlateProperty>));
@@ -205,7 +209,7 @@ namespace GPC.Model.FEM
                 throw new ArgumentNullException(nameof(elementProperty));
             }
 
-            if(elementProperty is Section)
+            if (elementProperty is Section)
             {
                 if (_beamProperties.Contains(elementProperty))
                     return false;
@@ -274,7 +278,12 @@ namespace GPC.Model.FEM
         /// <inheritdoc cref="UniqueNameCollection{T}.Add(T)"/>
         public bool AddLoadCase(LoadCaseBase loadCase)
         {
-            return _loadCases.Add(loadCase);
+            bool success;
+            lock (_locker)
+            {
+                success = _loadCases.Add(loadCase);
+            }
+            return success;
         }
 
         public bool AddLoadCases(IEnumerable<LoadCaseBase> loadCaseBases)
@@ -343,7 +352,7 @@ namespace GPC.Model.FEM
         #endregion
 
         #region Groups
-        
+
         public Group AddGroup(string name)
         {
             if (string.IsNullOrWhiteSpace(name) || string.IsNullOrEmpty(name))
@@ -356,7 +365,7 @@ namespace GPC.Model.FEM
             else
                 return _groups.GetElementByName(name);
         }
-        
+
         public bool SetGroup(IEnumerable<FEMObject> elements, string groupName)
         {
             if (elements is null)
@@ -456,7 +465,9 @@ namespace GPC.Model.FEM
         {
             Stage stage = new Stage(name, this, analysisType, false, _combinations);
 
-            stage.SetFiniteElements(_elements);
+            FiniteElement[] elements = new FiniteElement[_elements.Count];
+            _elements.CopyTo(elements, 0);
+            stage.SetFiniteElements(elements);
 
             _stages.Add(stage);
 
@@ -509,7 +520,7 @@ namespace GPC.Model.FEM
             _modelAttributes.Add(modelAttribute);
 
             return modelAttribute;
-        } 
+        }
 
         #endregion
 
@@ -567,7 +578,7 @@ namespace GPC.Model.FEM
 
             AddNodes(finiteElement.Nodes);
 
-            foreach(var attribute in finiteElement.AttributesLoadCase)
+            foreach (var attribute in finiteElement.AttributesLoadCase)
             {
                 if (!LoadCaseExist(attribute.LoadCaseName))
                     throw new InvalidOperationException($"Loadcase {attribute.LoadCaseName} does not exist in the femModel");
@@ -580,7 +591,7 @@ namespace GPC.Model.FEM
             }
 
 
-            _elements.Add(finiteElement);
+            _elements.AddUnique(finiteElement);
 
         }
 
@@ -620,15 +631,16 @@ namespace GPC.Model.FEM
         /// <inheritdoc cref="FemObjectCollection{T}.Contains(T)"/>
         public virtual bool ContainsFiniteElement(FiniteElement finiteElement)
         {
+            //return _elements.Contains(finiteElement) != 0;
             return _elements.Contains(finiteElement);
         }
 
 
         /// <returns>True if property with name: <paramref name="propertyName"/> is contained in the <see cref="FemModel._plateProperties"/> or <see cref="FemModel._brickProperties"/> collections </returns>
-        /// <inheritdoc cref="UniqueNameCollection{T}.Contains(string)"/>
+        /// <inheritdoc cref="UniqueNameCollection{T}.ContainsName(string)"/>
         public virtual bool ContainsProperty(string propertyName)
         {
-            return _plateProperties.Contains(propertyName) || _brickProperties.Contains(propertyName);
+            return _plateProperties.ContainsName(propertyName) || _brickProperties.ContainsName(propertyName);
         }
 
 
@@ -637,7 +649,7 @@ namespace GPC.Model.FEM
         #region Nodes
 
 
-        /// <inheritdoc cref="FemObjectCollection{T}.Add(T)"/>
+        /// <inheritdoc cref="FemObjectCollection{T}.AddUnique(T)"/>
         protected virtual int AddNode(Node node)
         {
             // non fa la copia, cosi i riferimenti ai nodi dentro agli elementi finiti rimangono 
@@ -659,7 +671,7 @@ namespace GPC.Model.FEM
         }
 
 
-        /// <inheritdoc cref="FemObjectCollection{T}.Add(T)"/>
+        /// <inheritdoc cref="FemObjectCollection{T}.AddUnique(T)"/>
         protected virtual int[] AddNodes(Node[] nodes)
         {
             if (nodes != null)
@@ -691,7 +703,7 @@ namespace GPC.Model.FEM
         /// <inheritdoc cref="FemObjectCollection{T}.GetElementById(int)"/>
         public virtual Node GetNode(int id)
         {
-            return _nodes.GetElementById(id);
+            return _nodes.GetById(id);
         }
 
 
@@ -714,7 +726,7 @@ namespace GPC.Model.FEM
         /// <param name="costrain"></param>
         /// <remarks>This is a O(2n) Operation</remarks>
         /// <inheritdoc cref="AddNode(Node)"/>
-        /// <inheritdoc cref="FemObjectCollection{T}.Add(T)"/>
+        /// <inheritdoc cref="FemObjectCollection{T}.AddUnique(T)"/>
         public virtual int AddCostrain(Costrain costrain)
         {
             if (costrain is null)
@@ -725,17 +737,17 @@ namespace GPC.Model.FEM
             AddNodes(costrain.EndNodes);
 
 
-            return _costrains.Add(costrain);
+            return _costrains.AddUnique(costrain);
         }
 
         /// <summary> Add a <paramref name="costrains"/> and its <see cref="Node"/> to the FemModel</summary>
         /// <param name="costrains"></param>
         /// <remarks>This is a O(2n) Operation</remarks>
         /// <inheritdoc cref="AddNode(Node)"/>
-        /// <inheritdoc cref="FemObjectCollection{T}.Add(T)"/>
+        /// <inheritdoc cref="FemObjectCollection{T}.AddUnique(T)"/>
         public virtual void AddCostrains(IEnumerable<Costrain> costrains)
         {
-            foreach(var costrain in costrains)
+            foreach (var costrain in costrains)
             {
                 AddCostrain(costrain);
             }
@@ -745,7 +757,7 @@ namespace GPC.Model.FEM
         /// <inheritdoc cref="FemObjectCollection{T}.Contains(T)"/>
         public virtual bool ContainsCostrains(Costrain costrain)
         {
-            return _costrains.Contains(costrain);
+            return _costrains.Contains(costrain) != 0;
         }
 
 
@@ -838,8 +850,8 @@ namespace GPC.Model.FEM
 
             // Genera la mesh
             bool status = Mesh.Generate(new List<Shape> { shape },
-                                        new Dictionary<Shape, GeometryBase[]>() { [shape] = embeddedGeometries.ToArray() }, 
-                                        options, 
+                                        new Dictionary<Shape, GeometryBase[]>() { [shape] = embeddedGeometries.ToArray() },
+                                        options,
                                         out List<Mesh> meshes, out Mesh.GenerateMeshStatus generateMeshStatus);
 
             if (!status)
@@ -1036,14 +1048,12 @@ namespace GPC.Model.FEM
         /// <param name="groupName"></param>
         /// <exception cref="KeyNotFoundException">If a <see cref="MeshVertex"/>.Id of <paramref name="restrainMeshEntityMap"/> is not found in the <paramref name="mesh"/> vertices ids</exception>
         /// <remarks>The instances of <see cref="LoadCaseBase"/> and <see cref="FreedomCase"/> will be replaced with the one in the <see cref="FemModel._loadCases"/> and <see cref="FemModel._freedomCases"/>  </remarks>
-        public virtual bool AddMesh(Mesh mesh, string platePropertyName, string brickPropertyName,
-                            Dictionary<IPointLoad, int[]> vertexLoadMeshEntityMap,
-                            Dictionary<ILineLoad, int[]> vertexLineLoadMeshEntityMap,
-                            Dictionary<IAreaLoad, int[]> plateLoadMeshEntityMap,
-                            Dictionary<GeometryRestrain, int[]> restrainMeshEntityMap,
-                            string groupName = "")
+        public virtual bool AddMesh(Mesh mesh, string platePropertyName, string brickPropertyName, Dictionary<IPointLoad, int[]> vertexLoadMeshEntityMap,
+            Dictionary<ILineLoad, int[]> vertexLineLoadMeshEntityMap, Dictionary<IAreaLoad, int[]> plateLoadMeshEntityMap,
+            Dictionary<GeometryRestrain, int[]> restrainMeshEntityMap, string groupName = "")
         {
-            return AddMesh(mesh, platePropertyName, brickPropertyName, vertexLoadMeshEntityMap, vertexLineLoadMeshEntityMap, plateLoadMeshEntityMap, restrainMeshEntityMap, out _, out _, out _, groupName);
+            return AddMesh(mesh, platePropertyName, brickPropertyName, vertexLoadMeshEntityMap, vertexLineLoadMeshEntityMap, plateLoadMeshEntityMap,
+                restrainMeshEntityMap, out _, out _, out _, groupName);
         }
 
         /// <summary>
@@ -1062,21 +1072,11 @@ namespace GPC.Model.FEM
         /// <param name="groupName"></param>
         /// <exception cref="KeyNotFoundException">If a <see cref="MeshVertex"/>.Id of <paramref name="restrainMeshEntityMap"/> is not found in the <paramref name="mesh"/> vertices ids</exception>
         /// <remarks>The instances of <see cref="LoadCaseBase"/> and <see cref="FreedomCase"/> will be replaced with the one in the <see cref="FemModel._loadCases"/> and <see cref="FemModel._freedomCases"/>  </remarks>
-        public virtual bool AddMesh(Mesh mesh, string platePropertyName, string brickPropertyName, 
-                            Dictionary<IPointLoad, int[]> vertexLoadMeshEntityMap, 
-                            Dictionary<ILineLoad, int[]> vertexLineLoadMeshEntityMap,
-                            Dictionary<IAreaLoad, int[]> plateLoadMeshEntityMap, 
-                            Dictionary<GeometryRestrain, int[]> restrainMeshEntityMap,
-                            out Dictionary<int, int> nodesNewIndexMap,
-                            out Dictionary<int, int> platesNewIndexMap,
-                            out Dictionary<int, int> brickNewIndexMap,
-                            string groupName = "")
-        {            
-
-            nodesNewIndexMap = new Dictionary<int, int>(); // Mappa tra indici dei nodi dentro _nodes e indici dei vertici della mesh nel caso esistano già dentro _nodes.
-            platesNewIndexMap = new Dictionary<int, int>();
-            brickNewIndexMap = new Dictionary<int, int>();
-
+        public virtual bool AddMesh(Mesh mesh, string platePropertyName, string brickPropertyName, Dictionary<IPointLoad, int[]> vertexLoadMeshEntityMap,
+            Dictionary<ILineLoad, int[]> vertexLineLoadMeshEntityMap, Dictionary<IAreaLoad, int[]> plateLoadMeshEntityMap,
+            Dictionary<GeometryRestrain, int[]> restrainMeshEntityMap, out Dictionary<int, int> nodesNewIndexMap, out Dictionary<int, int> platesNewIndexMap,
+            out Dictionary<int, int> brickNewIndexMap, string groupName = "")
+        {
             if (mesh is null)
                 throw new ArgumentNullException(nameof(mesh));
 
@@ -1100,303 +1100,319 @@ namespace GPC.Model.FEM
                 brickProperty = (BrickProperty)GetBrickProperty(brickPropertyName);
             }
 
+            Dictionary<int, int> nodesMap = new Dictionary<int, int>(); // Mappa tra indici dei nodi dentro _nodes e indici dei vertici della mesh nel caso esistano già dentro _nodes.
+
             // Aggiunge nodi alla collection di nodi
             using (var enumerator = mesh.GetVerticesEnumerator())
             {
-                if (group != null)
+                for (int i = 0; i < mesh.VerticesCount; i++)
                 {
-                    for (int i = 0; i < mesh.VerticesCount; i++)
-                    {
-                        enumerator.MoveNext();
-                        nodesNewIndexMap[enumerator.Current.Id] = _nodes.Add(new Node(enumerator.Current.Point, group));
-
-                    }
-                }
-                else
-                {
-                    for (int i = 0; i < mesh.VerticesCount; i++)
-                    {
-                        enumerator.MoveNext();
-                        nodesNewIndexMap[enumerator.Current.Id] = _nodes.Add(new Node(enumerator.Current.Point));
-
-                    }
+                    enumerator.MoveNext();
+                    if (group != null)
+                        nodesMap[enumerator.Current.Id] = _nodes.Add(new Node(enumerator.Current.Point, group));
+                    else
+                        nodesMap[enumerator.Current.Id] = _nodes.Add(new Node(enumerator.Current.Point));
                 }
             }
 
             // Aggiunge elementi FEM
             // Aggiunge Faces
+            Dictionary<int, int> platesMap = new Dictionary<int, int>();
             var faces = mesh.Faces.ToArray();
-            for (int i = 0; i < mesh.Faces.Count; i++)
+            Action addFaces = new Action(() =>
             {
-                if (plateProperty is IPlateProperty)
+                for (int i = 0; i < mesh.Faces.Count; i++)
                 {
-                    var face = faces[i];
-
-                    if (face.IsQuad)
+                    if (plateProperty is IPlateProperty)
                     {
-                        var plate = new Plate(new Node[] { _nodes[nodesNewIndexMap[face.A]],
-                                                           _nodes[nodesNewIndexMap[face.B]],
-                                                           _nodes[nodesNewIndexMap[face.C]],
-                                                           _nodes[nodesNewIndexMap[face.D]]}
-                                                       );
-                        if (group != null)
-                            plate.AddGroup(group);
-                        plate.SetProperty((ElementProperty)plateProperty);
+                        if (faces[i].IsQuad)
+                        {
+                            var plate = new Plate(new Node[] {
+                                _nodes[nodesMap[faces[i].A]],
+                                _nodes[nodesMap[faces[i].B]],
+                                _nodes[nodesMap[faces[i].C]],
+                                _nodes[nodesMap[faces[i].D]]
+                            });
+                            if (group != null)
+                                plate.AddGroup(group);
+                            plate.SetProperty((ElementProperty)plateProperty);
 
-                        var plateIndex = _elements.Add(plate);
-                        platesNewIndexMap[face.Id] = plateIndex;
+                            var plateIndex = _elements.Add(plate);
+                            platesMap[faces[i].Id] = plateIndex;
+                        }
+                        else
+                        {
+                            var plate = new Plate(new Node[] {
+                                _nodes[nodesMap[faces[i].A]],
+                                _nodes[nodesMap[faces[i].B]],
+                                _nodes[nodesMap[faces[i].C]]
+                            });
+                            if (group != null)
+                                plate.AddGroup(group);
+                            plate.SetProperty((ElementProperty)plateProperty);
 
+                            var plateIndex = _elements.Add(plate);
+                            platesMap[faces[i].Id] = plateIndex;
+                        }
                     }
                     else
                     {
-                        var plate = new Plate(new Node[] { _nodes[nodesNewIndexMap[face.A]],
-                                                           _nodes[nodesNewIndexMap[face.B]],
-                                                           _nodes[nodesNewIndexMap[face.C]]}
-                                                       );
-                        if (group != null)
-                            plate.AddGroup(group);
-                        plate.SetProperty((ElementProperty)plateProperty);
-
-                        var plateIndex = _elements.Add(plate);
-                        platesNewIndexMap[face.Id] = plateIndex;
-
+                        throw new NotImplementedException();
                     }
                 }
-                else
-                {
-                    throw new NotImplementedException();
-                }
-            }
+            });
 
             // Aggiunge Volumes
+            Dictionary<int, int> brickMap = new Dictionary<int, int>();
             var volumes = mesh.Volumes.ToArray();
-            for (int i = 0; i < mesh.Volumes.Count; i++)
+            Action addVolumes = new Action(() =>
             {
-                var volume = volumes[i];
-
-                if (volume.IsQuadrangular)
+                for (int i = 0; i < mesh.Volumes.Count; i++)
                 {
-                    if (brickProperty is BrickProperty bp)
+                    if (volumes[i].IsQuadrangular)
                     {
+                        if (brickProperty is BrickProperty bp)
+                        {
+                            var brick = new Brick(new Node[] {
+                                _nodes[nodesMap[volumes[i].A]],
+                                _nodes[nodesMap[volumes[i].B]],
+                                _nodes[nodesMap[volumes[i].C]],
+                                _nodes[nodesMap[volumes[i].D]],
+                                _nodes[nodesMap[volumes[i].E]],
+                                _nodes[nodesMap[volumes[i].F]],
+                                _nodes[nodesMap[volumes[i].G]],
+                                _nodes[nodesMap[volumes[i].H]]
+                            });
 
-                        var brick = new Brick(new Node[] { _nodes[nodesNewIndexMap[volume.A]],
-                                                           _nodes[nodesNewIndexMap[volume.B]],
-                                                           _nodes[nodesNewIndexMap[volume.C]],
-                                                           _nodes[nodesNewIndexMap[volume.D]],
-                                                           _nodes[nodesNewIndexMap[volume.E]],
-                                                           _nodes[nodesNewIndexMap[volume.F]],
-                                                           _nodes[nodesNewIndexMap[volume.G]],
-                                                           _nodes[nodesNewIndexMap[volume.H]]}
-                                                       );
+                            if (group != null)
+                                brick.AddGroup(group);
 
-                        if (group != null)
-                            brick.AddGroup(group);
+                            brick.SetProperty(bp);
 
-                        brick.SetProperty(bp);
-
-                        var brickIndex = _elements.Add(brick);
-                        brickNewIndexMap[volume.Id] = brickIndex;
-
+                            var brickIndex = _elements.Add(brick);
+                            brickMap[volumes[i].Id] = brickIndex;
+                        }
+                        else
+                            throw new NotImplementedException();
                     }
                     else
-                        throw new NotImplementedException();
-                }
-                else
-                {
-                    if (brickProperty is BrickProperty bp)
                     {
-                        var brick = new Brick(new Node[] { _nodes[nodesNewIndexMap[volume.A]],
-                                                           _nodes[nodesNewIndexMap[volume.B]],
-                                                           _nodes[nodesNewIndexMap[volume.C]],
-                                                           _nodes[nodesNewIndexMap[volume.D]],
-                                                           _nodes[nodesNewIndexMap[volume.E]],
-                                                           _nodes[nodesNewIndexMap[volume.F]]}
-                                                       );
+                        if (brickProperty is BrickProperty bp)
+                        {
+                            var brick = new Brick(new Node[] {
+                                _nodes[nodesMap[volumes[i].A]],
+                                _nodes[nodesMap[volumes[i].B]],
+                                _nodes[nodesMap[volumes[i].C]],
+                                _nodes[nodesMap[volumes[i].D]],
+                                _nodes[nodesMap[volumes[i].E]],
+                                _nodes[nodesMap[volumes[i].F]]
+                            });
 
-                        if (group != null)
-                            brick.AddGroup(group);
+                            if (group != null)
+                                brick.AddGroup(group);
 
-                        brick.SetProperty(bp);
+                            brick.SetProperty(bp);
 
-                        var brickIndex = _elements.Add(brick);
-                        brickNewIndexMap[volume.Id] = brickIndex;
+                            var brickIndex = _elements.Add(brick);
+                            brickMap[volumes[i].Id] = brickIndex;
 
+                        }
+                        else
+                            throw new NotImplementedException();
                     }
-                    else
-                        throw new NotImplementedException();
                 }
-            }
-
+            });
 
             // Gestione restrain 
+            Action setRestraits = null;
             if (restrainMeshEntityMap != null)
             {
-                foreach (var kvp in restrainMeshEntityMap)
+                setRestraits = new Action(() =>
                 {
-                    GeometryRestrain geometryRestrain = kvp.Key;
-                    int[] indexes = kvp.Value;
-
-                    Dictionary<Solver.DOF, bool> restrains = geometryRestrain.GetRestrains();
-                    Dictionary<Solver.DOF, double> stiffneses = geometryRestrain.GetStiffnesses();
-                    Dictionary<Solver.DOF, double> displacements = geometryRestrain.GetImposedDisplacement();
-
-
-                    FreedomCase freedomCase;
-                    if (FreedomCaseExist(geometryRestrain.FreedomCase.Name))
+                    foreach (var kvp in restrainMeshEntityMap)
                     {
-                        freedomCase = GetFreedomCaseByName(geometryRestrain.FreedomCase.Name);
-                        if (!freedomCase.Equals(geometryRestrain.FreedomCase))
-                            throw new ArgumentException($"FreedomCase {geometryRestrain.FreedomCase.Name} is not equal to the one inside the FemModel");
-                    }
-                    else
-                    {
-                        if (AddFreedomCase(geometryRestrain.FreedomCase))
-                            freedomCase = geometryRestrain.FreedomCase;
+                        GeometryRestrain geometryRestrain = kvp.Key;
+                        int[] indexes = kvp.Value;
+
+                        Dictionary<Solver.DOF, bool> restrains = geometryRestrain.GetRestrains();
+                        Dictionary<Solver.DOF, double> stiffneses = geometryRestrain.GetStiffnesses();
+                        Dictionary<Solver.DOF, double> displacements = geometryRestrain.GetImposedDisplacement();
+
+                        FreedomCase freedomCase;
+                        if (FreedomCaseExist(geometryRestrain.FreedomCase.Name))
+                        {
+                            freedomCase = GetFreedomCaseByName(geometryRestrain.FreedomCase.Name);
+                            if (!freedomCase.Equals(geometryRestrain.FreedomCase))
+                                throw new ArgumentException($"FreedomCase {geometryRestrain.FreedomCase.Name} is not equal to the one inside the FemModel");
+                        }
                         else
-                            throw new InvalidOperationException();
+                        {
+                            if (AddFreedomCase(geometryRestrain.FreedomCase))
+                                freedomCase = geometryRestrain.FreedomCase;
+                            else
+                                throw new InvalidOperationException();
+                        }
+
+                        NodeRestrainAttribute nra = new NodeRestrainAttribute(freedomCase.Name, geometryRestrain.CoordinateSystem);
+                        NodeStiffnessAttribute nsa = new NodeStiffnessAttribute(freedomCase.Name, geometryRestrain.CoordinateSystem);
+
+                        // TODO:  gestire il fatto che uno spostamento imposto può essere applicato in un grado di libertà vincolato
+                        foreach (var restrain in restrains)
+                        {
+                            if (restrain.Value)
+                                nra.AddExternalRestrain(restrain.Key);
+                        }
+
+                        foreach (var displacement in displacements)
+                        {
+                            nra.AddImposedDisplacement(displacement.Key, displacement.Value);
+                        }
+
+                        foreach (var stiffness in stiffneses)
+                        {
+                            nsa.AddStiffness(stiffness.Key, stiffness.Value);
+                        }
+
+                        //foreach (var index in indexes)
+                        for (int i = 0; i < indexes.Length; i++)
+                        {
+                            int nodeId = nodesMap.ContainsKey(indexes[i]) ? nodesMap[indexes[i]] : indexes[i];
+
+                            Node node = _nodes.GetById(nodeId); // se non trova l'indice viene lanciata una keynotfoundException
+
+                            if (nra.Restrains.Count > 0)
+                                node.AddAttribute(nra);
+
+                            if (nsa.Stiffnesses.Count > 0)
+                                node.AddAttribute(nsa);
+
+                        }
                     }
-
-
-                    NodeRestrainAttribute nra = new NodeRestrainAttribute(freedomCase.Name, geometryRestrain.CoordinateSystem);
-                    NodeStiffnessAttribute nsa = new NodeStiffnessAttribute(freedomCase.Name, geometryRestrain.CoordinateSystem);
-
-                    // TODO:  gestire il fatto che uno spostamento imposto può essere applicato in un grado di libertà vincolato
-                    foreach (var restrain in restrains)
-                    {
-                        if (restrain.Value)
-                            nra.AddExternalRestrain(restrain.Key);
-                    }
-
-                    foreach (var displacement in displacements)
-                    {
-                        nra.AddImposedDisplacement(displacement.Key, displacement.Value);
-                    }
-
-                    foreach (var stiffness in stiffneses)
-                    {
-                        nsa.AddStiffness(stiffness.Key, stiffness.Value);
-                    }
-
-
-                    foreach (var index in indexes)
-                    {
-                        int nodeId = nodesNewIndexMap.ContainsKey(index) ? nodesNewIndexMap[index] : index;
-
-                        Node node = _nodes.GetElementById(nodeId); // se non trova l'indice viene lanciata una keynotfoundException
-
-                        if (nra.Restrains.Count > 0)
-                            node.AddAttribute(nra);
-
-                        if (nsa.Stiffnesses.Count > 0)
-                            node.AddAttribute(nsa);
-
-                    }
-                }
+                });
             }
 
             // Gestione carichi
+            Action addVertexLoads = null;
             if (vertexLoadMeshEntityMap != null)
             {
-                foreach (var kvp in vertexLoadMeshEntityMap)
+                addVertexLoads = new Action(() =>
                 {
-                    IPointLoad load = kvp.Key;
-                    int[] indexes = kvp.Value;
-
-                    var lc = (load as Load).LoadCase;
-
-                    LoadCaseBase loadCase;
-                    if (LoadCaseExist(lc.Name))
+                    foreach (var kvp in vertexLoadMeshEntityMap)
                     {
-                        loadCase = GetLoadCaseByName(lc.Name);
-                        if (!loadCase.Equals(lc))
-                            throw new ArgumentException($"LoadCase {lc.Name} is not equal to the one inside the FemModel");
-                    }
-                    else
-                    {
-                        if (AddLoadCase(lc))
-                            loadCase = lc;
-                        else
-                            throw new InvalidOperationException();
-                    }
+                        IPointLoad load = kvp.Key;
+                        int[] indexes = kvp.Value;
 
+                        var lc = (load as Load).LoadCase;
 
-
-                    foreach (var index in indexes)
-                    {
-                        int nodeId = nodesNewIndexMap.ContainsKey(index) ? nodesNewIndexMap[index] : index;
-
-                        Node node = _nodes.GetElementById(nodeId); // se non trova l'indice viene lanciata una keynotfoundException
-
-                        if (load is PointLoad pl)
+                        LoadCaseBase loadCase;
+                        if (LoadCaseExist(lc.Name))
                         {
-                            NodeForceAttribute nfa = new NodeForceAttribute(loadCase.Name, pl.CoordinateSystem, pl.F1, pl.F2, pl.F3, pl.M1, pl.M2, pl.M3);
-                            node.AddAttribute(nfa);
+                            loadCase = GetLoadCaseByName(lc.Name);
+                            if (!loadCase.Equals(lc))
+                                throw new ArgumentException($"LoadCase {lc.Name} is not equal to the one inside the FemModel");
                         }
                         else
-                            throw new NotImplementedException();
+                        {
+                            if (AddLoadCase(lc))
+                                loadCase = lc;
+                            else
+                                throw new InvalidOperationException();
+                        }
+
+                        //foreach (var index in indexes)
+                        for (int i = 0; i < indexes.Length; i++)
+                        {
+                            int nodeId = nodesMap.ContainsKey(indexes[i]) ? nodesMap[indexes[i]] : indexes[i];
+
+                            Node node = _nodes.GetById(nodeId); // se non trova l'indice viene lanciata una keynotfoundException
+
+                            if (load is PointLoad pl)
+                            {
+                                NodeForceAttribute nfa = new NodeForceAttribute(loadCase.Name, pl.CoordinateSystem, pl.F1, pl.F2, pl.F3, pl.M1, pl.M2, pl.M3);
+                                node.AddAttribute(nfa);
+                            }
+                            else
+                                throw new NotImplementedException();
+                        }
                     }
-                }
+                });
             }
 
             // Gestione carichi
+            Action addLineLoad = null;
             if (vertexLineLoadMeshEntityMap != null)
             {
-                foreach (var kvp in vertexLineLoadMeshEntityMap)
+                addLineLoad = new Action(() =>
                 {
-                    ILineLoad load = kvp.Key;
-                    int[] indexes = kvp.Value;
-                    var lineLenght = load.GetGeometry().GetLength();
-
-                    var lc = (load as Load).LoadCase;
-
-                    LoadCaseBase loadCase;
-                    if (LoadCaseExist(lc.Name))
+                    foreach (var kvp in vertexLineLoadMeshEntityMap)
                     {
-                        loadCase = GetLoadCaseByName(lc.Name);
-                        if (!loadCase.Equals(lc))
-                            throw new ArgumentException($"LoadCase {lc.Name} is not equal to the one inside the FemModel");
-                    }
-                    else
-                    {
-                        if (AddLoadCase(lc))
-                            loadCase = lc;
-                        else
-                            throw new InvalidOperationException();
-                    }
+                        ILineLoad load = kvp.Key;
+                        int[] indexes = kvp.Value;
+                        var lineLenght = load.GetGeometry().GetLength();
 
+                        var lc = (load as Load).LoadCase;
 
-                    foreach (var index in indexes)
-                    {
-                        int nodeId = nodesNewIndexMap.ContainsKey(index) ? nodesNewIndexMap[index] : index;
-
-                        Node node = _nodes.GetElementById(nodeId); // se non trova l'indice viene lanciata una keynotfoundException
-
-                        if (load is LineLoad ll)
+                        LoadCaseBase loadCase;
+                        if (LoadCaseExist(lc.Name))
                         {
-                            // carico è F/L (FL/L nel caso di momento)
-                            // carico su nodo intermedio: F/L / (nnodi - 1)
-                            // carico su nodo estremità: F/L / (nnodi - 1) / 2.0
-                            // se per qualche motivo l'equals start/end non funziona, viene applicato più carico
-
-                            var line = ll.GetGeometry();
-                            var factor = lineLenght / (indexes.Count() - 1);
-
-                            if (node.Equals(line.Start) || node.Equals(line.End))
-                            {
-                                factor /= 2.0;
-                            }
-
-                            NodeForceAttribute nfa = new NodeForceAttribute(ll.LoadCase.Name, ll.CoordinateSystem, 
-                                                                            ll.F1 * factor, ll.F2 * factor, ll.F3 * factor, ll.M1 * factor, ll.M2 * factor, ll.M3 * factor);
-
-                            node.AddAttribute(nfa);
-
+                            loadCase = GetLoadCaseByName(lc.Name);
+                            if (!loadCase.Equals(lc))
+                                throw new ArgumentException($"LoadCase {lc.Name} is not equal to the one inside the FemModel");
                         }
                         else
-                            throw new NotImplementedException();
+                        {
+                            if (AddLoadCase(lc))
+                                loadCase = lc;
+                            else
+                                throw new InvalidOperationException();
+                        }
+
+                        //foreach (var index in indexes)
+                        for (int i = 0; i < indexes.Length; i++)
+                        {
+                            int nodeId = nodesMap.ContainsKey(indexes[i]) ? nodesMap[indexes[i]] : indexes[i];
+
+                            Node node = _nodes.GetById(nodeId); // se non trova l'indice viene lanciata una keynotfoundException
+
+                            if (load is LineLoad ll)
+                            {
+                                // carico è F/L (FL/L nel caso di momento)
+                                // carico su nodo intermedio: F/L / (nnodi - 1)
+                                // carico su nodo estremità: F/L / (nnodi - 1) / 2.0
+                                // se per qualche motivo l'equals start/end non funziona, viene applicato più carico
+
+                                var line = ll.GetGeometry();
+                                var factor = lineLenght / (indexes.Count() - 1);
+
+                                if (node.Equals(line.Start) || node.Equals(line.End))
+                                {
+                                    factor /= 2.0;
+                                }
+
+                                NodeForceAttribute nfa = new NodeForceAttribute(ll.LoadCase.Name, ll.CoordinateSystem, 
+                                                                            ll.F1 * factor, ll.F2 * factor, ll.F3 * factor, ll.M1 * factor, ll.M2 * factor, ll.M3 * factor);
+
+                                node.AddAttribute(nfa);
+                            }
+                            else
+                                throw new NotImplementedException();
+                        }
                     }
-                }
+                });
             }
+
+            Action[] actions = new Action[2 + (setRestraits != null ? 1 : 0) + (addVertexLoads != null ? 1 : 0) + (addLineLoad != null ? 1 : 0)];
+            int ai = 0;
+            actions[ai++] = addFaces;
+            actions[ai++] = addVolumes;
+            if (setRestraits != null)
+                actions[ai++] = setRestraits;
+            if (addVertexLoads != null)
+                actions[ai++] = addVertexLoads;
+            if (addLineLoad != null)
+                actions[ai++] = addLineLoad;
+
+            Parallel.Invoke(actions);
 
             // Gestione carichi
             if (plateLoadMeshEntityMap != null)
@@ -1423,13 +1439,15 @@ namespace GPC.Model.FEM
                             throw new InvalidOperationException();
                     }
 
-                    foreach (var index in indexes)
+                    //foreach (var index in indexes)
+                    for (int i = 0; i < indexes.Length; i++)
                     {
-                        int plateId = platesNewIndexMap.ContainsKey(index) ? platesNewIndexMap[index] : index;
+                        int index = indexes[i];
+                        int plateId = platesMap.ContainsKey(index) ? platesMap[index] : index;
 
                         FiniteElement finiteElement = _elements.GetElementById(plateId); // se non trova l'indice viene lanciata una keynotfoundException
 
-                        
+
                         if (!(finiteElement is Plate plate))
                             throw new ArgumentException($"Element with id: {plateId} {index} is not a plate");
 
@@ -1448,14 +1466,16 @@ namespace GPC.Model.FEM
 
                     }
                 }
-
             }
 
+            nodesNewIndexMap = nodesMap;
+            platesNewIndexMap = platesMap;
+            brickNewIndexMap = brickMap;
 
             return true;
         }
 
-        
+
 
         public virtual Mesh GetMesh()
         {
@@ -1501,7 +1521,8 @@ namespace GPC.Model.FEM
         /// <inheritdoc cref="FemObjectCollection{T}.Remove(int)"/>
         public void RemoveElement(int id)
         {
-            _elements.Remove(id);
+            //_elements.Remove(id);
+            _elements.RemoveById(id);
         }
 
         #endregion
@@ -1510,17 +1531,17 @@ namespace GPC.Model.FEM
 
         public bool LoadCaseExist(string loadCaseName)
         {
-            return _loadCases.Contains(loadCaseName);
+            return _loadCases.ContainsName(loadCaseName);
         }
 
         public bool FreedomCaseExist(string freedomCaseName)
         {
-            return _freedomCases.Contains(freedomCaseName);
+            return _freedomCases.ContainsName(freedomCaseName);
         }
 
         public bool GroupExist(string name)
         {
-            return _groups.Contains(name);
+            return _groups.ContainsName(name);
         }
 
         #endregion
@@ -1549,7 +1570,7 @@ namespace GPC.Model.FEM
 
             if (!string.IsNullOrEmpty(groupName))
             {
-                var group = _groups.GetElementByName(groupName); 
+                var group = _groups.GetElementByName(groupName);
                 return _nodes.SelectMany(i => i.Results.Where(j => i.ContainsGroup(group) && j.Case.Equals(combination) && j.Result is ResultDisplacement));
             }
             else
@@ -1585,18 +1606,20 @@ namespace GPC.Model.FEM
         {
             base.GetObjectData(info, context);
 
-            info.AddValue("Nodes", _nodes);
-            info.AddValue("Elements", _elements);
-            info.AddValue("Costrains", _costrains);
-            info.AddValue("PlateProperties", _plateProperties);
-            info.AddValue("BrickProperties", _brickProperties);
-            info.AddValue("LoadCaseBases", _loadCases);
-            info.AddValue("FreedomCases", _freedomCases);
-            info.AddValue("Combinations", _combinations);
-            info.AddValue("StageCombinationsMap", _stageCombinationsMap);
-            info.AddValue("Stages", _stages);
-            info.AddValue("ModelAttributes", _modelAttributes);
-            info.AddValue("AnalysisTypes", _analysisType);
+            //info.AddValue("Nodes", _nodes, typeof(FemObjectCollection<Node>));
+            info.AddValue("Nodes", _nodes, typeof(NodeCollection));
+            //info.AddValue("Elements", _elements, typeof(FemObjectCollection<FiniteElement>));
+            info.AddValue("Elements", _elements, typeof(FiniteElementCollection));
+            info.AddValue("Costrains", _costrains, typeof(FemObjectCollection<Costrain>));
+            info.AddValue("PlateProperties", _plateProperties, typeof(UniqueNameCollection<PlateProperty>));
+            info.AddValue("BrickProperties", _brickProperties, typeof(UniqueNameCollection<BrickProperty>));
+            info.AddValue("LoadCaseBases", _loadCases, typeof(UniqueNameCollection<LoadCaseBase>));
+            info.AddValue("FreedomCases", _freedomCases, typeof(UniqueNameCollection<FreedomCase>));
+            info.AddValue("Combinations", _combinations, typeof(UniqueNameCollection<Combination>));
+            info.AddValue("StageCombinationsMap", _stageCombinationsMap, typeof(Dictionary<int, HashSet<string>>));
+            info.AddValue("Stages", _stages, typeof(UniqueIdCollection<Stage>));
+            info.AddValue("ModelAttributes", _modelAttributes, typeof(List<IModelAttribute>));
+            info.AddValue("AnalysisTypes", _analysisType, typeof(AnalysisTypes));
 
         }
 

@@ -41,7 +41,7 @@ namespace GPC.Model.FEM
 
         public bool ContainsGroup(string groupName)
         {
-            return _groups.Contains(groupName);
+            return _groups.ContainsName(groupName);
         }
         
         public bool ContainsGroup(Group group)

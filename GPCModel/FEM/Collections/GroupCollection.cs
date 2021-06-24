@@ -15,7 +15,6 @@ namespace GPC.Model.FEM.Collections
     [Serializable]
     public class GroupCollection : UniqueNameCollection<Group>, ISerializable
     {
-
         protected HashSet<int> _ids;
 
         protected int _maxId = 0;
@@ -24,7 +23,6 @@ namespace GPC.Model.FEM.Collections
         {
             _ids = new HashSet<int>();
         }
-
 
         public GroupCollection(SerializationInfo info, StreamingContext context)
         {
@@ -74,7 +72,7 @@ namespace GPC.Model.FEM.Collections
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             base.GetObjectData(info, context);
-            info.AddValue("Ids", _ids);
+            info.AddValue("Ids", _ids, typeof(HashSet<int>));
         }
 
         #region Equals - HashCode - Operators

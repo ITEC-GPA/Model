@@ -6,13 +6,14 @@ using GPC.Model.FEM.Properties;
 using GPC.Model.FEM.Attributes;
 using GPC.Model.Results;
 using mnl = MathNet.Numerics.LinearAlgebra;
+using System.ComponentModel;
 
 namespace GPC.Model.FEM.FiniteElements
 {
     /// <summary>
     /// Each finite element should derive from this
     /// </summary>
-    public abstract class FiniteElement : FEMObject
+    public abstract class FiniteElement : FEMObject, INotifyPropertyChanged
     {
         #region Variables
 
@@ -34,11 +35,12 @@ namespace GPC.Model.FEM.FiniteElements
 
         //contains the nodes in global coordinates
         protected Node[] _nodesGlobal;
-        //contains the nodes in global coordinates
+        //contains the nodes in local coordinates
         protected Node[] _nodesLocal;
 
-
         protected readonly ModelObjectSet<FiniteElementResult> _results;
+
+        public event PropertyChangedEventHandler PropertyChanged;
 
         #endregion
 
@@ -123,6 +125,11 @@ namespace GPC.Model.FEM.FiniteElements
         #endregion
 
         #region PublicFunction
+
+        protected void OnPropertyChanged(string propertyName)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
 
         internal virtual void SetProperty(ElementProperty property)
         {

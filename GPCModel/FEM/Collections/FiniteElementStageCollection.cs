@@ -27,13 +27,13 @@ namespace GPC.Model.FEM.Collections
 
 
 
-        /// <inheritdoc cref="FemObjectStageCollection{T, D}.Add(T, D)"/>
-        public override void Add(FiniteElement item, Stage.StageFiniteElementProperty stageFiniteElementProperty)
+        /// <inheritdoc cref="FemObjectStageCollection{T, D}.AddUnique(T, D)"/>
+        public override void AddUnique(FiniteElement item, Stage.StageFiniteElementProperty stageFiniteElementProperty)
         {
             if (stageFiniteElementProperty is null || item is null)
                 throw new ArgumentNullException();
 
-            base.Add(item, stageFiniteElementProperty);
+            base.AddUnique(item, stageFiniteElementProperty);
         }
 
 
@@ -41,7 +41,7 @@ namespace GPC.Model.FEM.Collections
         /// The <see cref="FiniteElement.AttributesLoadCase"/> and <see cref="FiniteElement.AttributesFreedomCase"/> 
         /// will be copied to the <see cref="Stage.StageFiniteElementProperty"/> associated the <paramref name="item"/>
         /// </summary>
-        /// <inheritdoc cref="FemObjectStageCollection{T, D}.Add(T, D)"/>
+        /// <inheritdoc cref="FemObjectStageCollection{T, D}.AddUnique(T, D)"/>
         public void Add(FiniteElement item)
         {
             if (item is null)
@@ -52,7 +52,7 @@ namespace GPC.Model.FEM.Collections
             sp.AddLoadCaseAttributes(item.AttributesLoadCase);
             sp.AddFreedomCaseAttributes(item.AttributesFreedomCase);
 
-            base.Add(item, sp);
+            base.AddUnique(item, sp);
         }
 
 

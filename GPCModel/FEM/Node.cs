@@ -4,28 +4,43 @@ using GPC.Geometry;
 using GPC.Model.FEM.Attributes;
 using GPC.Utilities.Extensions;
 using GPC.Model.Results;
+using System.ComponentModel;
 
 namespace GPC.Model.FEM
 {
     /// <summary>
     /// Rapresent a Node of a <see cref="FiniteElements.FiniteElement"/>
     /// </summary>
-    public class Node : FEMObject
+    public class Node : FEMObject, INotifyPropertyChanged
     {
         #region Variables
 
         private Point3d _position;
-
-        private List<INodeLoadCaseAttribute> _attributesLoadCase;
-        private List<INodeFreedomCaseAttribute> _attributesFreedomCase;
-
+        private readonly List<INodeLoadCaseAttribute> _attributesLoadCase;
+        private readonly List<INodeFreedomCaseAttribute> _attributesFreedomCase;
         private readonly ModelObjectSet<NodeResult> _results;
+
+        public event PropertyChangedEventHandler PropertyChanged;
 
         #endregion
 
         #region Properties
 
-        public Point3d Position => _position;
+        /// <summary>
+        /// A copy of the node position. The changes on the returned point will not affect the node because this is a copy
+        /// </summary>
+        public Point3d Position
+        {
+            get => _position.Clone() as Point3d;
+            set
+            {
+                if (!_position.Equals(value))
+                {
+                    _position = value;
+                    OnPropertyChanged(nameof(Position));
+                }
+            }
+        }
 
         /// <summary>
         /// Contains the degree of freedom active for the node
@@ -54,7 +69,8 @@ namespace GPC.Model.FEM
 
         #endregion
 
-        public Node(Point3d point, string name = "") : base(name)
+        public Node(Point3d point, string name = "") 
+            : base(name)
         {
             _position = point;
             
@@ -66,18 +82,17 @@ namespace GPC.Model.FEM
             _results = new ModelObjectSet<NodeResult>(EqualityComparer<ElementResult>.Default); // comparer di ElementResult, usa solo il case come comparatore
         }
 
-
-
-        public Node(double X, double Y, double Z, string name = "") : this(new Point3d(X, Y, Z), name)
+        public Node(double X, double Y, double Z, string name = "") 
+            : this(new Point3d(X, Y, Z), name)
         {
-
         }
 
         /// <summary>
         /// Internal constructor, that allows to add a group directly during construction to speedup femmodel build
         /// </summary>
         // Do not set this constructor to public
-        internal Node(Point3d point, Group group) : this(point, "")
+        internal Node(Point3d point, Group group) 
+            : this(point, "")
         {
             _groups.Add(group);
         }
@@ -85,7 +100,8 @@ namespace GPC.Model.FEM
         /// <summary>
         /// only for test purpose
         /// </summary>
-        internal Node(Point3d point, int id) : this(point)
+        internal Node(Point3d point, int id) 
+            : this(point)
         {
             SetId(id);
         }
@@ -93,9 +109,15 @@ namespace GPC.Model.FEM
         /// <summary>
         /// only for test purpose
         /// </summary>
-        internal Node(double X, double Y, double Z, string name, int id) : this(new Point3d(X, Y, Z), name)
+        internal Node(double X, double Y, double Z, string name, int id) 
+            : this(new Point3d(X, Y, Z), name)
         {
             SetId(id);
+        }
+
+        protected void OnPropertyChanged(string propertyName)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 
         public override string ToString()
@@ -171,9 +193,7 @@ namespace GPC.Model.FEM
                 }
 
                 return hashCode;
-            }
-
+            }            
         }
-
     }
 }
