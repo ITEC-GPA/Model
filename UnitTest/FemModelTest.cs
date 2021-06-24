@@ -429,32 +429,26 @@ namespace FemTest
             GlassMaterial gm = new GlassMaterialAstm("gp1", 1, 0.2, 3, 4, 5, 6, 0.008, 0.008, 9);
             MonolithicGlassProperty pp = new MonolithicGlassProperty(1, 2, gm.GetIsotropicFemMaterial(), "gp1");
 
-            Mesh.GenerateOptions meshOptions = new Mesh.GenerateOptions();
-            meshOptions.MeshSize = 50;
+            Mesh.GenerateOptions meshOptions = new Mesh.GenerateOptions
+            {
+                MeshSize = 50
+            };
 
 
             FemModel femModel = new FemModel();
             femModel.AddProperty(pp);
             femModel.AddShape(s1, pp.Name, meshOptions, null, null);
 
+            Node node = femModel.GetNode(0);
 
-            Exception exception = null;
-            try
+            if (node != null)
             {
-                femModel.GetNode(0);
-            }
-            catch (KeyNotFoundException e)
-            {
-                exception = e;
-            }
-
-            if (exception == null)
-            {
+                Console.WriteLine(node.Id);
                 Assert.Fail();
             }
             else
             {
-                
+                // ok
             }
 
         }
