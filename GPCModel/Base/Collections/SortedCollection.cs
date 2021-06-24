@@ -72,7 +72,6 @@ namespace GPC.Model
         /// Get the node index by his id
         /// </summary>
         /// <param name="id">The node Id</param>
-        /// <returns></returns>
         public int GetIndexById(int id)
         {
             int pos = -1;
