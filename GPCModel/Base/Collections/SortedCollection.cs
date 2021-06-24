@@ -321,15 +321,5 @@ namespace GPC.Model
         {
             return _collection.GetEnumerator();
         }
-
-        public int AddUnique(T item)
-        {
-            return Add(item);
-        }
-
-        public T GetElementById(int id)
-        {
-            return GetById(id);
-        }
     }
 }
