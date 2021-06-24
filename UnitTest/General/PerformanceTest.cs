@@ -16,7 +16,6 @@ namespace GeneralTest
     [TestClass]
     public class PerformanceTest : UnitTestBase
     {
-
         private int[] indexArray;
 
         private void FunctionToTest0()
@@ -427,13 +426,11 @@ namespace GeneralTest
 
                 Plate plate = new Plate(nodes);
                 plate.SetId(i + 1);
-                cfe.AddUnique(plate);
+                cfe.Add(plate);
             }
 
             stopWatch.Stop();
             Debug.WriteLine(stopWatch.ElapsedMilliseconds, "Elapsed time");
-            // Con compare della collection 350-360ms
-            // Con comparer con for parallelo 90-100ms
 
             Assert.IsTrue(cfe.Count == amountOfPlates, cfe.Count.ToString());
         }
