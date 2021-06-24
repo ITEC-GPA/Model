@@ -211,13 +211,13 @@ namespace GPC.Model.FEM
 
         /// <inheritdoc cref="FemObjectCollection{T}.AddUnique(T)"/>
         /// <exception cref="ArgumentException">If <see cref="FiniteElement"/> in <paramref name="elements"/> is not contained in the reference femModel</exception>
-        public void SetFiniteElements(FemObjectCollection<FiniteElement> elements)
+        public void SetFiniteElements(FiniteElement[] elements)
         {
-            foreach (var element in elements)
+            for (int i = 0; i < elements.Length; i++)
             {
-                if (CanBeAdded(element, out Exception exception))
+                if (CanBeAdded(elements[i], out Exception exception))
                 {
-                    _elements.Add(element);
+                    _elements.Add(elements[i]);
                 }
                 else
                     throw exception;
