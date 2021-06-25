@@ -126,7 +126,7 @@ namespace GPC.Model.Sections
 
         public override double CalculateWpl1()
         {
-            if (_area / 2.0 > _btop * _ttop && _area / 2.0 > _bbottom * _tbottom)
+            if (_area / 2.0 >= _btop * _ttop && _area / 2.0 >= _bbottom * _tbottom)
             {
                 double hw = (_area / 2.0 - _btop * _ttop) / _tw;
                 SectionT halfSectionTop = new SectionT(hw + _ttop, _btop, _tw, _ttop, _material, string.Empty);

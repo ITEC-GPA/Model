@@ -154,7 +154,7 @@ namespace GPC.Model.Sections
         {
             if (IsSymmetricAlongXLocalAxis)
             {
-                if (_area / 2.0 > _h * _tw)
+                if (_area / 2.0 >= _h * _tw)
                 {
                     double hDown = Area / 2.0 / (_tTop + _tBottom);
                     SectionT secTop = new SectionT(_lengthBottom - hDown, _h, _tBottom + _tTop, _tw, _material, string.Empty);
@@ -175,7 +175,7 @@ namespace GPC.Model.Sections
         {
             if (IsSymmetricAlongXLocalAxis)
             {
-                if (_area / 2.0 > _tTop * _lengthTop)
+                if (_area / 2.0 >= _tTop * _lengthTop)
                 {
                     double hTop = _tTop + (_area / 2.0 - _tTop * _lengthTop) / _tw;
                     SectionT secTop = new SectionT(hTop, _lengthTop, _tw, _tTop, _material, string.Empty);

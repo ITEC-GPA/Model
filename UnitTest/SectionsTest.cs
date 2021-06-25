@@ -263,6 +263,26 @@ namespace ModelObjectTest
         }
 
         [TestMethod]
+        public void SectionRHS_Test4()
+        {
+            double h = 150;
+            double b = 125;
+            double tf = 12.5;
+            double tw = 12.5;
+            SteelSectionRHS sec = new SteelSectionRHS(h, b, tf, tf, tw, tw, new SteelMaterial("steel", 200000, 0.3, 355, 510, 7850), string.Empty);
+
+            double A = 6250;
+            double Jx = 18880208.33;
+            double Jy = 13997395.83;
+
+            Assert.AreEqual(A, sec.Area);
+            Assert.AreEqual(b - 2 * tw, sec.BaseInternal);
+            Assert.AreEqual(h - 2 * tf, sec.Heightinternal);
+            Assert.AreEqual(Math.Abs(Jy / sec.J22) - 1, 0, 0.001);
+            Assert.AreEqual(Math.Abs(Jx / sec.J11) - 1, 0, 0.001);
+        }
+
+        [TestMethod]
         public void SectionHAsymmetric_Test1()
         {
             double h = 400;

@@ -126,7 +126,7 @@ namespace GPC.Model.Sections
 
         public override double CalculateWpl2()
         {
-            if (_area / 2.0 > _twL * Heightinternal +_tfTop * _twL + _tfBottom * _twL)
+            if (_area / 2.0 >= _twL * Heightinternal +_tfTop * _twL + _tfBottom * _twL)
             {
                 if (IsSymmetricAlongYLocalAxis)
                 {
@@ -144,7 +144,7 @@ namespace GPC.Model.Sections
 
         public override double CalculateWpl1()
         {
-            if (_area / 2.0 > (_twR * Heightinternal)) //plateTop
+            if (_area / 2.0 >= (_twR * Heightinternal)) //plateTop
             {
                 if (IsSymmetricAlongXLocalAxis)
                 {
