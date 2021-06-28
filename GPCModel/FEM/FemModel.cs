@@ -1,4 +1,4 @@
-﻿using GPC.Geometry;
+using GPC.Geometry;
 using GPC.Geometry.Meshes;
 using GPC.Model.Combinations;
 using GPC.Model.FEM.Attributes;
@@ -1157,8 +1157,7 @@ namespace GPC.Model.FEM
                                 plate.AddGroup(group);
                             plate.SetProperty((ElementProperty)plateProperty);
 
-                            var plateIndex = _elements.Add(plate);
-                            platesMap[faces[i].Id] = plateIndex;
+                            platesMap[faces[i].Id] = _elements.Add(plate);
                         }
                     }
                     else
@@ -1448,14 +1447,14 @@ namespace GPC.Model.FEM
                     //foreach (var index in indexes)
                     for (int i = 0; i < indexes.Length; i++)
                     {
-                        int index = indexes[i];
-                        int plateId = platesMap.ContainsKey(index) ? platesMap[index] : index;
+                        int plateId = platesMap.ContainsKey(indexes[i]) ? platesMap[indexes[i]] : indexes[i];
 
                         FiniteElement finiteElement = _elements.GetElementById(plateId); // se non trova l'indice viene lanciata una keynotfoundException
 
 
                         if (!(finiteElement is Plate plate))
-                            throw new ArgumentException($"Element with id: {plateId} {index} is not a plate");
+                            throw new ArgumentException($"Element with id: {plateId} {indexes[i]} is not a plate");
+
 
                         if (load is NormalAreaLoad pl)
                         {
