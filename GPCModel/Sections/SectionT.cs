@@ -71,7 +71,7 @@ namespace GPC.Model.Sections
 
         public override double CalculateWpl1()
         {
-            if (_area / 2.0 > _b * _tf)
+            if (_area / 2.0 >= _b * _tf)
             {
                 double yPlastic = _area / 2.0 / _tw;
                 SectionT halfSectionTop = new SectionT(Height - yPlastic, _b, _tw, _tf, _material, string.Empty);

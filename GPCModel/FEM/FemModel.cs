@@ -614,7 +614,7 @@ namespace GPC.Model.FEM
 
         /// <param name="id"></param>
         /// <returns></returns>
-        /// <inheritdoc cref="FemObjectCollection{T}.GetElementById(int)"/>
+        /// <inheritdoc cref="SortedCollection{T}.GetById(int)"/>
         public FiniteElement GetFiniteElement(int id)
         {
             return _elements[id];
@@ -655,7 +655,7 @@ namespace GPC.Model.FEM
         #region Nodes
 
 
-        /// <inheritdoc cref="FemObjectCollection{T}.AddUnique(T)"/>
+        /// <inheritdoc cref="SortedCollection{T}.Add(T)"/>
         protected virtual int AddNode(Node node)
         {
             // non fa la copia, cosi i riferimenti ai nodi dentro agli elementi finiti rimangono 
@@ -677,7 +677,7 @@ namespace GPC.Model.FEM
         }
 
 
-        /// <inheritdoc cref="FemObjectCollection{T}.AddUnique(T)"/>
+        /// <inheritdoc cref="AddNode(Node)"/>
         protected virtual int[] AddNodes(Node[] nodes)
         {
             if (nodes != null)
@@ -706,7 +706,7 @@ namespace GPC.Model.FEM
         }
 
 
-        /// <inheritdoc cref="FemObjectCollection{T}.GetElementById(int)"/>
+        /// <inheritdoc cref="SortedCollection{T}.GetById(int)"/>
         public virtual Node GetNode(int id)
         {
             return _nodes.GetById(id);
