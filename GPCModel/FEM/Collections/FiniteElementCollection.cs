@@ -9,34 +9,6 @@ namespace GPC.Model.FEM.Collections
 {
     public class FiniteElementCollection : HashCollection<FiniteElement>
     {
-        protected class NodesComparer : IComparer<FiniteElement>
-        {
-            public int Compare(FiniteElement x, FiniteElement y)
-            {
-                int sx = GetNodesSignature(x.Nodes);
-                int dx = GetNodesSignature(y.Nodes);
-                if (sx < dx)
-                    return -1;
-                else if(sx > dx)
-                    return 1;
-                else
-                    return 0;
-            }
-
-            public int GetNodesSignature(Node[] nodes)
-            {
-                int s = 3;
-                for (int i = 0; i < nodes.Length; i++)
-                {
-                    s = s * 7 + nodes[i].Id.GetHashCode();
-                }
-                return s;
-            }
-        }
-
-        protected static NodesComparer _positionComparer = new NodesComparer();
-
-        //public override IComparer<FiniteElement> Comparer => _positionComparer;
 
         /// <summary>
         /// Add an finite element to the collection calling the <see cref="SortedCollection{T}.Add(T)"/> method.
