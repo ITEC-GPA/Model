@@ -38,15 +38,16 @@ namespace GPC.Model.LoadCases
             if (ReferenceEquals(this, obj))
                 return true;
 
-            LoadCaseBase objCasted = obj as LoadCaseBase;
-            return !(objCasted is null) && base.Equals(objCasted);
+            return (obj is LoadCaseBase objCasted) && base.Equals(objCasted);
         }
 
         public override int GetHashCode()
         {
-            int hashCode = 23;
-            hashCode = hashCode * -17 + base.GetHashCode();
-            return hashCode;
+            unchecked
+            {
+                int hashCode = -391 + base.GetHashCode();
+                return hashCode; 
+            }
         }
 
         public static bool operator ==(LoadCaseBase obj1, LoadCaseBase obj2)

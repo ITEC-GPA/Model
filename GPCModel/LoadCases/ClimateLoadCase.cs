@@ -103,13 +103,16 @@ namespace GPC.Model.LoadCases
 
         public override int GetHashCode()
         {
-            int hashCode = 23;
-            hashCode = hashCode * -17 + base.GetHashCode();
-            hashCode = hashCode * -17 + _season.GetHashCode();
-            hashCode = hashCode * -17 + _climateType.GetHashCode();
-            hashCode = hashCode * -17 + _manufactoring.GetHashCode();
-            hashCode = hashCode * -17 + _installation.GetHashCode();
-            return hashCode;
+            unchecked
+            {
+                int hashCode = 23;
+                hashCode = hashCode * -17 + base.GetHashCode();
+                hashCode = hashCode * -17 + _season.GetHashCode();
+                hashCode = hashCode * -17 + _climateType.GetHashCode();
+                hashCode = hashCode * -17 + _manufactoring.GetHashCode();
+                hashCode = hashCode * -17 + _installation.GetHashCode();
+                return hashCode; 
+            }
         }
     }
 }
