@@ -13,8 +13,8 @@ namespace GPC.Model.FEM.Collections
         {
             public int Compare(FiniteElement x, FiniteElement y)
             {
-                int sx = GetNodesSigneture(x.Nodes);
-                int dx = GetNodesSigneture(y.Nodes);
+                int sx = GetNodesSignature(x.Nodes);
+                int dx = GetNodesSignature(y.Nodes);
                 if (sx < dx)
                     return -1;
                 else if(sx > dx)
@@ -23,7 +23,7 @@ namespace GPC.Model.FEM.Collections
                     return 0;
             }
 
-            public int GetNodesSigneture(Node[] nodes)
+            public int GetNodesSignature(Node[] nodes)
             {
                 int s = 3;
                 for (int i = 0; i < nodes.Length; i++)

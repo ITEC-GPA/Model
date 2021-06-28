@@ -196,6 +196,7 @@ namespace GPC.Model
                     AutoSort = true;
 
                 int pos = _collection.BinarySearch(item, Comparer);
+
                 if (pos < 0) // New not existing item
                 {
                     item.Id = _lastId++;
