@@ -434,5 +434,50 @@ namespace GeneralTest
 
             Assert.IsTrue(cfe.Count == amountOfPlates, cfe.Count.ToString());
         }
+
+
+        [TestMethod]
+        public void FemObjectCollectionTest3()
+        {
+            FiniteElementCollection cfe = new FiniteElementCollection();
+
+            Random rnd = new Random();
+            Stopwatch stopWatch = new Stopwatch();
+            stopWatch.Start();
+
+            int amountOfPlates = 200;
+            for (int i = 0; i < amountOfPlates; i++)
+            {
+                Node[] nodes = new Node[4];
+
+                // Riempie con punti random
+                for (int j = 0; j < 4; j++)
+                {
+                    int k = rnd.Next(1000, 5000);
+                    double x = rnd.NextDouble() * k;
+                    double y = rnd.NextDouble() * k;
+                    double z = rnd.NextDouble() * k;
+                    nodes[j] = new Node(x, y, z);
+                    nodes[j].SetId(j + 1 + 4 * i);
+                }
+
+                Plate plate = new Plate(nodes);
+                plate.SetId(i + 1);
+                cfe.Add(plate);
+            }
+
+            stopWatch.Stop();
+            Debug.WriteLine(stopWatch.Elapsed, "Elapsed time");
+
+            Assert.IsTrue(cfe.Count == amountOfPlates, cfe.Count.ToString());
+
+            stopWatch.Restart();
+
+            var plate1 = (Plate)cfe.GetByIndex(0);
+            plate1.SetProperty(new GPC.Model.FEM.Properties.PlateProperty(new GPC.Model.FEM.Materials.IsotropicFemMaterial(1, 0.1, 0, 1), 1, 1, ""));
+
+            stopWatch.Stop();
+            Debug.WriteLine(stopWatch.Elapsed, "Elapsed time");
+        }
     }
 }

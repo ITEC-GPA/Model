@@ -526,6 +526,44 @@ namespace FemTest
             }
 
         }
+
+        [TestMethod]
+        public void FemModelTest11()
+        {
+            //Arrange
+            FemModel femModel = new FemModel();
+
+            Shape s1 = CreateSimpleShape(320, 800);
+
+            GlassMaterial gm = new GlassMaterialAstm("gp1", 1, 0.2, 3, 4, 5, 6, 0.008, 0.008, 9);
+            MonolithicGlassProperty pp = new MonolithicGlassProperty(1, 2, gm.GetIsotropicFemMaterial(), "gp1");
+
+            Mesh.GenerateOptions meshOptions = new Mesh.GenerateOptions
+            {
+                MeshSize = 16
+            };
+
+            NormalAreaLoad l1 = new NormalAreaLoad(1, s1, new LoadCaseBase("LC2"));
+
+            femModel.AddProperty(pp);
+
+            //Act
+            femModel.AddShape(s1, pp.Name, meshOptions, new List<Load>() { l1 }, null);
+
+            MeshExport.ExportToMshFormatv2(base.GetFilePathInOutputFolder("exp", "msh"), new List<Mesh>() { femModel.GetMesh() });
+
+
+            Assert.IsTrue(femModel.GetElements().Length == (800*320)/(16*16), $"Count:{femModel.GetElements().Length} Expected:{(800 * 320) / (16 * 16)} ");
+
+            foreach (var element in femModel.GetElements())
+            {
+                Assert.IsTrue(element.AttributesLoadCase.Count == 1, $"Id:{element.Id} {element.AttributesLoadCase.Count}" );
+                Assert.IsTrue(element.AttributesLoadCase[0].LoadCaseName == "LC2");
+                Assert.IsTrue(element.AttributesLoadCase[0].GetType() == typeof(PlateNormalPressureAttribute));
+            }
+            
+        }
+
         #endregion
 
     }

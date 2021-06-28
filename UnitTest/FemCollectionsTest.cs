@@ -188,5 +188,73 @@ namespace FemTest
 
 
         }
+
+
+        [TestMethod]
+        public void FiniteElementCollectionTest1()
+        {
+            FiniteElementCollection fec = new FiniteElementCollection();
+
+            Plate p1 = new Plate(new Node[] {   new Node(192, 192, 0, string.Empty, 902), 
+                                                new Node(192, 208, 0, string.Empty, 941), 
+                                                new Node(208, 192, 0, string.Empty, 845), 
+                                                new Node(208, 208, 0, string.Empty, 890) 
+                                            });
+
+
+            Plate p2 = new Plate(new Node[] {   new Node(208.0202415096, 352.0079137900, 0, string.Empty, 912), 
+                                                new Node(208.0811887820, 367.9810163216, 0, string.Empty, 874), 
+                                                new Node(224.0043348824, 351.9855939276, 0, string.Empty, 826), 
+                                                new Node(224.0245050942, 367.9364075938, 0, string.Empty, 876)
+                                            });
+                        
+
+            var ip1 = fec.Add(p1);
+            var ip2 = fec.Add(p2);
+
+            Console.WriteLine(ip1);
+            Console.WriteLine(ip2);
+
+            Assert.IsTrue(ip1 != ip2);
+
+
+        }
+
+
+        [TestMethod]
+        public void FiniteElementCollectionTest2()
+        {
+            FiniteElementCollection fec = new FiniteElementCollection();
+
+            Plate p1 = new Plate(new Node[] {   new Node(80, 192, 0, string.Empty, 653),
+                                                new Node(96, 192, 0, string.Empty, 712),
+                                                new Node(96, 208, 0, string.Empty, 679),
+                                                new Node(80, 208, 0, string.Empty, 546)
+                                            });
+
+
+            Plate p3 = new Plate(new Node[] {   new Node(32, 688, 0, string.Empty, 277),
+                                                new Node(48, 688, 0, string.Empty, 436),
+                                                new Node(48, 704, 0, string.Empty, 321),
+                                                new Node(32, 704, 0, string.Empty, 246)
+                                            });
+
+
+            Plate p2 = new Plate(new Node[] {   new Node(288, 256, 0, string.Empty, 335),
+                                                new Node(304, 256, 0, string.Empty, 195),
+                                                new Node(304, 272, 0, string.Empty, 270),
+                                                new Node(288, 272, 0, string.Empty, 360)
+                                            });
+
+            var ip1 = fec.Add(p1);
+            var ip2 = fec.Add(p2);
+
+            Console.WriteLine(ip1);
+            Console.WriteLine(ip2);
+
+            Assert.IsTrue(ip1 != ip2);
+
+
+        }
     }
 }
