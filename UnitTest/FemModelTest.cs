@@ -494,6 +494,38 @@ namespace FemTest
 
         }
 
+
+        [TestMethod]
+        public void FemModelTest10()
+        {
+            //Arrange
+            FemModel femModel = new FemModel();
+
+            Shape s1 = CreateSimpleShape(800, 1600);
+
+            GlassMaterial gm = new GlassMaterialAstm("gp1", 1, 0.2, 3, 4, 5, 6, 0.008, 0.008, 9);
+            MonolithicGlassProperty pp = new MonolithicGlassProperty(1, 2, gm.GetIsotropicFemMaterial(), "gp1");
+
+            Mesh.GenerateOptions meshOptions = new Mesh.GenerateOptions
+            {
+                MeshSize = 50
+            };
+
+            NormalAreaLoad l1 = new NormalAreaLoad(1, s1, new LoadCaseBase("LC2"));
+
+            femModel.AddProperty(pp);
+
+            //Act
+            femModel.AddShape(s1, pp.Name, meshOptions, new List<Load>() { l1 }, null);
+
+            foreach(var element in femModel.GetElements())
+            {
+                Assert.IsTrue(element.AttributesLoadCase.Count == 1, element.AttributesLoadCase.Count.ToString()) ;
+                Assert.IsTrue(element.AttributesLoadCase[0].LoadCaseName == "LC2");
+                Assert.IsTrue(element.AttributesLoadCase[0].GetType() == typeof(PlateNormalPressureAttribute));
+            }
+
+        }
         #endregion
 
     }
