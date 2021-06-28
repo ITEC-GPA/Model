@@ -16,7 +16,7 @@ using System.Diagnostics;
 namespace FemTest
 {
     [TestClass]
-    public class FemObjectCollectionsTest : UnitTestBase
+    public class FemCollectionsTest : UnitTestBase
     {
 
         [TestMethod]
