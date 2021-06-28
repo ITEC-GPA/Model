@@ -1,4 +1,4 @@
-﻿using GPC.Model.FEM.FiniteElements;
+using GPC.Model.FEM.FiniteElements;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace GPC.Model.FEM.Collections
 {
-    public class FiniteElementCollection : SortedCollection<FiniteElement>
+    public class FiniteElementCollection : HashCollection<FiniteElement>
     {
         protected class NodesComparer : IComparer<FiniteElement>
         {
@@ -36,7 +36,7 @@ namespace GPC.Model.FEM.Collections
 
         protected static NodesComparer _positionComparer = new NodesComparer();
 
-        public override IComparer<FiniteElement> Comparer => _positionComparer;
+        //public override IComparer<FiniteElement> Comparer => _positionComparer;
 
         /// <summary>
         /// Add an finite element to the collection calling the <see cref="SortedCollection{T}.Add(T)"/> method.
@@ -60,5 +60,19 @@ namespace GPC.Model.FEM.Collections
             return GetById(id);
         }
 
+        protected override int GetItemHashCode(FiniteElement item)
+        {
+            unchecked
+            {
+                int hash = 23;
+
+                for (int i = 0; i < item.Nodes.Length; i++)
+                {
+                    hash = hash * 17 + item.Nodes[i].GetHashCode();
+                }
+
+                return hash; 
+            }
+        }
     }
 }
