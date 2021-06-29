@@ -9,7 +9,8 @@ using System.Threading.Tasks;
 
 namespace GPC.Model
 {
-    public abstract class HashCollection<T> : IEnumerable<T> where T : ModelObjectId, INotifyPropertyChanged
+    [Serializable]
+    public abstract class HashCollection<T> : IEnumerable<T>, ISerializable where T : ModelObjectId, INotifyPropertyChanged
     {
         protected readonly object _locker = new object();
 
@@ -31,6 +32,24 @@ namespace GPC.Model
             _collection = new List<T>();
             _hashMap = new Dictionary<int, List<int>>();
             _lastId = 1;
+        }
+
+        public HashCollection(SerializationInfo info, StreamingContext context)
+        {
+            if (info == null)
+                throw new ArgumentNullException("info can't be null");
+            _collection = (List<T>)info.GetValue("Collection", typeof(List<T>));
+            _hashMap = (Dictionary<int, List<int>>)info.GetValue("HashMap", typeof(Dictionary<int, List<int>>));
+            _lastId = info.GetInt32("LastId");
+        }
+
+        public void GetObjectData(SerializationInfo info, StreamingContext context)
+        {
+            if (info == null)
+                throw new ArgumentNullException("info can't be null");
+            info.AddValue("Collection", _collection, typeof(List<T>));
+            info.AddValue("HashMap", _hashMap, typeof(Dictionary<int, List<int>>));
+            info.AddValue("LastId", _lastId);
         }
 
         protected abstract int GetItemHashCode(T item);
