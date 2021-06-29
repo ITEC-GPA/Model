@@ -69,7 +69,7 @@ namespace GPC.Model
             {
                 for (int i = 0; i < values.Count; i++)
                 {
-                    if (_collection[i].Equals(item))
+                    if (_collection[values[i]].Equals(item))
                         return values[i]; // Returns the index of the item
                 }
             }
@@ -114,7 +114,7 @@ namespace GPC.Model
             {
                 for (int i = 0; i < values.Count; i++)
                 {
-                    if (_collection[i].Equals(item))
+                    if (_collection[values[i]].Equals(item))
                         return true;
                 }
             }
@@ -197,7 +197,7 @@ namespace GPC.Model
                 {
                     for (int i = 0; i < indexes.Count; i++)
                     {
-                        if (_collection[i].Equals(item))
+                        if (_collection[indexes[i]].Equals(item))
                         {
                             return _collection[i].Id;
                         }
