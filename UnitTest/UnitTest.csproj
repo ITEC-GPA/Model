@@ -108,7 +108,7 @@
     <Compile Include="General\PerformanceTest.cs" />
     <Compile Include="FemModelTest.cs" />
     <Compile Include="UnitsTest.cs" />
-    <Compile Include="FemObjectCollectionsTest.cs" />
+    <Compile Include="FemCollectionsTest.cs" />
     <Compile Include="FemModelStagesTest.cs" />
     <Compile Include="ModelObjectCollectionTest.cs" />
     <Compile Include="GlassTest.cs" />
