@@ -52,7 +52,7 @@ namespace GPC.Model
                 if (_collection[mid].Id < id)
                     first = mid + 1;
                 else
-                    first = mid - 1;
+                    last = mid - 1;
             }
 
             return -1;
@@ -308,6 +308,7 @@ namespace GPC.Model
                     _collection.RemoveAt(pos);
                     return true;
                 }
+
                 return false;
             }
         }
@@ -321,6 +322,5 @@ namespace GPC.Model
         {
             return _collection.GetEnumerator();
         }
-
     }
 }
