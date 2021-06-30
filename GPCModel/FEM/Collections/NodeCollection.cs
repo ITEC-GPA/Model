@@ -23,6 +23,16 @@ namespace GPC.Model.FEM.Collections
             }
         }
 
+        public NodeCollection()
+            :base()
+        {
+        }
+
+        public NodeCollection(SerializationInfo info, StreamingContext context)
+            :base (info, context)
+        { 
+        }
+
         protected static PositionComparer _positionComparer = new PositionComparer();
 
         public override IComparer<Node> Comparer => _positionComparer;
