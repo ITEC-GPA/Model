@@ -78,6 +78,7 @@
     <Compile Include="Base\UnitsSystem.cs" />
     <Compile Include="Base\Units.cs" />
     <Compile Include="Combinations\CombinationsCollection.cs" />
+    <Compile Include="FEM\Collections\IFEMObjectStageCollection.cs" />
     <Compile Include="Sections\Steel\ISteelSection.cs" />
     <Compile Include="Standards\Standard.cs" />
     <Compile Include="Standards\StandardASCE16.cs" />

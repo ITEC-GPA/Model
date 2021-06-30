@@ -37,7 +37,7 @@ namespace GPC.Model.FEM
         /// <para>This map contains only the nodes with a property override. Not all the nodes of the <see cref="Stage._elements"/></para> 
         /// <para>Each node in this list must be contained in the reference model: <see cref="_femModel"/></para>
         /// </remarks>
-        private readonly NodeStageCollection<Node, StageProperty> _nodes;
+        private readonly NodeStageCollection<StageProperty> _nodes;
 
         private readonly FemModel _femModel;
         
@@ -64,7 +64,7 @@ namespace GPC.Model.FEM
             _morph = morph;
 
             _elements = new FiniteElementStageCollection<FiniteElement, StageFiniteElementProperty>();
-            _nodes = new NodeStageCollection<Node, StageProperty>();
+            _nodes = new NodeStageCollection<StageProperty>();
 
             _femModel = referenceFemModel ?? throw new ArgumentNullException("Fem Model can't be null");
 
