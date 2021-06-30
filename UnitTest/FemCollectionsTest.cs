@@ -87,7 +87,7 @@ namespace FemTest
         [TestMethod]
         public void FemObjectStageCollectionTest1()
         {
-            NodeStageCollection<Node, Stage.StageProperty> nodes = new NodeStageCollection<Node, Stage.StageProperty>();
+            NodeStageCollection<Stage.StageProperty> nodes = new NodeStageCollection<Stage.StageProperty>();
 
             Node n1 = new Node(Point3d.Origin, 1);          // A 1
             Node n2 = new Node(Point3d.Origin, 1);
@@ -129,7 +129,7 @@ namespace FemTest
         [TestMethod]
         public void FemObjectStageCollectionTest2()
         {
-            NodeStageCollection<Node, Stage.StageProperty> nodes = new NodeStageCollection<Node, Stage.StageProperty>();
+            NodeStageCollection<Stage.StageProperty> nodes = new NodeStageCollection<Stage.StageProperty>();
 
             Node n1 = new Node(Point3d.Origin, 1);          // A 1
             Node n2 = new Node(Point3d.Origin, 2);
