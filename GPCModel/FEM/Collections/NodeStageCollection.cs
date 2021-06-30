@@ -11,10 +11,9 @@ namespace GPC.Model.FEM.Collections
     /// <remarks>This should be accessed only from the class <see cref="Stage"/> since it does not implement any check on the element duplicates</remarks>
     /// <remarks>The collection is thread-safe</remarks>
     [Serializable]
-    public class NodeStageCollection<D> : NodeCollection, IFEMObjectStageCollection<Node, D>, ISerializable where D : Stage.StageProperty, ISerializable
+    public class NodeStageCollection<T, D> : FemObjectStageCollection<Node, Stage.StageProperty>, ISerializable
     {
-        public NodeStageCollection() 
-            : base()
+        public NodeStageCollection() : base()
         {
 
         }
@@ -25,8 +24,7 @@ namespace GPC.Model.FEM.Collections
 
         }
 
-
-        /*/// <summary>
+        /// <summary>
         /// The <see cref="Node.AttributesLoadCase"/> and <see cref="Node.AttributesFreedomCase"/>
         /// will be copied to the <see cref="Stage.StageProperty"/> associated the <paramref name="item"/>
         /// </summary>
@@ -37,42 +35,24 @@ namespace GPC.Model.FEM.Collections
             sfep.AddLoadCaseAttributes(item.AttributesLoadCase.Cast<LoadCaseAttribute>().ToList());
             sfep.AddFreedomCaseAttributes(item.AttributesFreedomCase.Cast<FreedomCaseAttribute>().ToList());
 
-            //base.AddUnique(item, sfep);
-        }*/
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="node"></param>
-        /// <param name="stageFiniteElementProperty"></param>
-        public void Add(Node node, D stageFiniteElementProperty)
-        {
-            var sfep = new Stage.StageProperty();
-            sfep.AddLoadCaseAttributes(node.AttributesLoadCase.Cast<LoadCaseAttribute>().ToList());
-            sfep.AddFreedomCaseAttributes(node.AttributesFreedomCase.Cast<FreedomCaseAttribute>().ToList());
-
-            base.Add(node);
+            base.AddUnique(item, sfep);
         }
 
+
         /// <inheritdoc cref = "FemObjectStageCollection{T, D}.AddUnique(T, D)" />
-        public /*override */void AddUnique(Node item, Stage.StageProperty stageProperty)
+        public override void AddUnique(Node item, Stage.StageProperty stageProperty)
         {
-            /*if (stageProperty is null || item is null)
+            if (stageProperty is null || item is null)
                 throw new System.ArgumentNullException();
 
-            base.AddUnique(item, stageProperty);*/
+            base.AddUnique(item, stageProperty);
         }
 
 
         /// <inheritdoc cref="FemObjectStageCollection{T, D}.SetStageProperty(T, D)"/>
-        /*public override bool SetStageProperty(Node item, Stage.StageProperty stageProperty)
+        public override bool SetStageProperty(Node item, Stage.StageProperty stageProperty)
         {
             return base.SetStageProperty(item, stageProperty);
-        }*/
-
-        public D GetStageProperty(int elementID)
-        {
-            return null;
         }
 
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
@@ -86,7 +66,7 @@ namespace GPC.Model.FEM.Collections
         {
             lock (_locker)
             {
-                return obj is NodeStageCollection<D> collection && base.Equals(obj);
+                return obj is NodeStageCollection<T, D> collection && base.Equals(obj);
             }
         }
 
@@ -100,7 +80,7 @@ namespace GPC.Model.FEM.Collections
         }
 
 
-        public static bool operator ==(NodeStageCollection<D> obj1, NodeStageCollection<D> obj2)
+        public static bool operator ==(NodeStageCollection<T, D> obj1, NodeStageCollection<T, D> obj2)
         {
             if (obj1 is null)
             {
@@ -114,7 +94,7 @@ namespace GPC.Model.FEM.Collections
         }
 
 
-        public static bool operator !=(NodeStageCollection<D> obj1, NodeStageCollection<D> obj2)
+        public static bool operator !=(NodeStageCollection<T, D> obj1, NodeStageCollection<T, D> obj2)
         {
             return !(obj1 == obj2);
         }

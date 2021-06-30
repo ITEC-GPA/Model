@@ -59,7 +59,7 @@ namespace GPC.Model
             _autoSort = info.GetBoolean("AutoSort");
         }
 
-        public virtual void GetObjectData(SerializationInfo info, StreamingContext context)
+        public void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             if (info == null)
                 throw new ArgumentNullException("info can't be null");
