@@ -15,6 +15,7 @@ namespace GPC.Model.Sections.Steel
         double InertiaRadiusY { get; }
         double InertiaRadiusX { get; }
         GPC.Geometry.Point2d Centroid { get; }
+        GPC.Geometry.Point2d ShearCenter { get; }
         double J11 { get; }
         double J22 { get; }
         double Jxx { get; }

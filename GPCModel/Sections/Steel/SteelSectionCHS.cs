@@ -41,6 +41,8 @@ namespace GPC.Model.Sections.Steel
 
         Point2d ISteelSection.Centroid => Centroid;
 
+        Point2d ISteelSection.ShearCenter => ShearCenter;
+
         double ISteelSection.J11 => J11;
 
         double ISteelSection.J22 => J22;
