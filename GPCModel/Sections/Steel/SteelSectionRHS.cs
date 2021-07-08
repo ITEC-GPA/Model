@@ -16,6 +16,9 @@ namespace GPC.Model.Sections.Steel
 
         #region Properties
 
+        public SectionTypes SectionType => _sectionType;
+        public FormedTypes FormedType => _formedType;
+
         public double R => _r;
 
         public bool IsRolled => _sectionType == SectionTypes.Rolled;

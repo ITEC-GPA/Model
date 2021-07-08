@@ -12,8 +12,6 @@ namespace GPC.Model.Sections.Steel
     {
         #region Variables 
 
-        private readonly FormedTypes _profileType;
-
         protected readonly SectionTypes _sectionType;
         protected readonly FormedTypes _formedType;
         #endregion
@@ -21,11 +19,12 @@ namespace GPC.Model.Sections.Steel
 
         #region Properties
 
-        public FormedTypes ProductionType => _profileType;
+        public SectionTypes SectionType => _sectionType;
+        public FormedTypes FormedType => _formedType;
 
-        public bool IsColdFormed => ProductionType == FormedTypes.ColdFormed;
+        public bool IsColdFormed => _formedType == FormedTypes.ColdFormed;
 
-        public bool IsHotFinished => ProductionType == FormedTypes.HotFinished;
+        public bool IsHotFinished => _formedType == FormedTypes.HotFinished;
 
         public SteelMaterial SteelMaterial => (SteelMaterial)_material;
 
@@ -40,7 +39,7 @@ namespace GPC.Model.Sections.Steel
         public SteelSectionCHS(double diameter, double thickness, SteelMaterial material, string name, FormedTypes type = FormedTypes.ColdFormed)
             : base(diameter, thickness, material, name)
         {
-            _profileType = type;
+            _formedType = type;
         }
 
         #endregion

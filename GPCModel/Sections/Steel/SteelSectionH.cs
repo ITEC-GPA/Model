@@ -20,12 +20,14 @@ namespace GPC.Model.Sections.Steel
 
         protected readonly SectionTypes _sectionType;
         protected readonly FormedTypes _formedType;
+
         #endregion
 
 
         #region Properties
 
         public SectionTypes SectionType => _sectionType;
+        public FormedTypes FormedType => _formedType;
 
         public double R => _r;
 

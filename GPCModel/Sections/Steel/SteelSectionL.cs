@@ -17,13 +17,14 @@ namespace GPC.Model.Sections.Steel
 
         #region Properties
 
-        public SectionTypes Type => _sectionType;
+        public SectionTypes SectionType => _sectionType;
+        public FormedTypes FormedType => _formedType;
 
         public double R => _r;
 
-        public bool IsRolled => Type == SectionTypes.Rolled;
+        public bool IsRolled => _sectionType == SectionTypes.Rolled;
 
-        public bool IsWelded => Type == SectionTypes.Welded;
+        public bool IsWelded => _sectionType == SectionTypes.Welded;
 
         public double Height => LengthVert;
 
