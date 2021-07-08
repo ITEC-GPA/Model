@@ -37,7 +37,7 @@ namespace GPC.Model.Sections
             : base(material, name)
         {
             // TODO: implementare
-            throw new NotImplementedException();
+            // throw new NotImplementedException();
         }
 
         internal ThinWallSection(SerializationInfo info, StreamingContext context) : base(info, context)
