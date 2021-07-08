@@ -25,15 +25,15 @@ namespace GPC.Model.Sections.Steel
 
         #region Properties
 
-        public SectionTypes Type => _sectionType;
+        public SectionTypes SectionType => _sectionType;
 
         public double R => _r;
 
         public double D => Height - ThicknessBottomFlange - ThicknessTopFlange - 2.0 * R;
 
-        public bool IsRolled => Type == SectionTypes.Rolled;
+        public bool IsRolled => _sectionType == SectionTypes.Rolled;
 
-        public bool IsWelded => Type == SectionTypes.Welded;
+        public bool IsWelded => _sectionType == SectionTypes.Welded;
 
         public SteelMaterial SteelMaterial => (SteelMaterial)_material;
 

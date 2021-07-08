@@ -65,8 +65,6 @@ namespace GPC.Model.Sections
         internal virtual void SetMechanicalProperties()
         {
             _area = CalculateArea();
-            _sx = CalculateSx();
-            _sy = CalculateSy();
             _centroid = CalculateCentroid();
             _jxx = CalculateJxx();
             _jyy = CalculateJyy();
@@ -151,30 +149,6 @@ namespace GPC.Model.Sections
                 area += tw.Area;
             
             return area;
-        }
-
-        /// <summary>
-        /// Calculate the first moment of area respect the X-axis (the Y-axis for Eurocode)
-        /// </summary>
-        /// <returns></returns>
-        public virtual double CalculateSx()
-        {
-            double Sx = 0;
-            foreach (ThinWall tw in _thinWalls)
-                Sx += tw.Area * tw.Centroid.Y;
-            return Sx;
-        }
-
-        /// <summary>
-        /// Calculate the first moment of area respect the Y-axis (the Z-axis for Eurocode)
-        /// </summary>
-        /// <returns></returns>
-        public virtual double CalculateSy()
-        {
-            double Sy = 0;
-            foreach (ThinWall tw in _thinWalls)
-                Sy += tw.Area * tw.Centroid.X; 
-            return Sy;
         }
 
         public virtual double CalculateJxx()

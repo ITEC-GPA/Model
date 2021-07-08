@@ -213,20 +213,16 @@ namespace GPC.Model.Sections
             return s;
         }
 
-        public override Point2d CalculateCentroid()
-        {
-            return  new Point2d(Sx / Area, Sy / Area);
-        }
-
         public override double CalculateWpl1()
         {
-            return CalculateWel1();
+            throw new NotImplementedException();
         }
 
         public override double CalculateWpl2()
         {
-            return CalculateWel2();
+            throw new NotImplementedException();
         }
+
 
         #endregion
     }

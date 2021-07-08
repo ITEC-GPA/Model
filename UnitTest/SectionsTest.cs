@@ -32,8 +32,8 @@ namespace ModelObjectTest
             Assert.AreEqual(0, sec.AngleX1);
             Assert.AreEqual(A, sec.Area);
             Assert.AreEqual(centroid, sec.Centroid);
-            Assert.AreEqual(i, sec.InertiaRadiusX);
-            Assert.AreEqual(i, sec.InertiaRadiusY);
+            Assert.AreEqual(i, sec.R22);
+            Assert.AreEqual(i, sec.R11);
             Assert.AreEqual(true, sec.IsDoubleSymmetric);
             Assert.AreEqual(true, sec.IsSymmetricAlongYLocalAxis);
             Assert.AreEqual(true, sec.IsSymmetricAlongXLocalAxis);
@@ -66,8 +66,8 @@ namespace ModelObjectTest
             Assert.AreEqual(0, sec.AngleX1);   
             Assert.AreEqual(centroid, sec.Centroid);
             Assert.AreEqual(Math.Abs(A / sec.Area) - 1, 0, 0.001);
-            Assert.AreEqual(Math.Abs(i / sec.InertiaRadiusX) - 1, 0, 0.001);
-            Assert.AreEqual(Math.Abs(i / sec.InertiaRadiusY) - 1, 0, 0.001);
+            Assert.AreEqual(Math.Abs(i / sec.R22) - 1, 0, 0.001);
+            Assert.AreEqual(Math.Abs(i / sec.R11) - 1, 0, 0.001);
             Assert.IsTrue(sec.IsDoubleSymmetric);
             Assert.IsTrue(sec.IsSymmetricAlongYLocalAxis);
             Assert.IsTrue(sec.IsSymmetricAlongXLocalAxis);
@@ -100,8 +100,8 @@ namespace ModelObjectTest
             Assert.AreEqual(0, sec.AngleX1);
             Assert.AreEqual(centroid, sec.Centroid);
             Assert.AreEqual(Math.Abs(A / sec.Area) - 1, 0, 0.001);
-            Assert.AreEqual(Math.Abs(i / sec.InertiaRadiusX) - 1, 0, 0.001);
-            Assert.AreEqual(Math.Abs(i / sec.InertiaRadiusY) - 1, 0, 0.001);
+            Assert.AreEqual(Math.Abs(i / sec.R22) - 1, 0, 0.001);
+            Assert.AreEqual(Math.Abs(i / sec.R11) - 1, 0, 0.001);
             Assert.IsTrue(sec.IsDoubleSymmetric);
             Assert.IsTrue(sec.IsSymmetricAlongYLocalAxis);
             Assert.IsTrue(sec.IsSymmetricAlongXLocalAxis);
@@ -134,8 +134,8 @@ namespace ModelObjectTest
             Assert.AreEqual(0, sec.AngleX1);
             Assert.AreEqual(centroid, sec.Centroid);
             Assert.AreEqual(Math.Abs(A / sec.Area) - 1, 0, 0.001);
-            Assert.AreEqual(Math.Abs(i / sec.InertiaRadiusX) - 1, 0, 0.001);
-            Assert.AreEqual(Math.Abs(i / sec.InertiaRadiusY) - 1, 0, 0.001);
+            Assert.AreEqual(Math.Abs(i / sec.R22) - 1, 0, 0.001);
+            Assert.AreEqual(Math.Abs(i / sec.R11) - 1, 0, 0.001);
             Assert.IsTrue(sec.IsDoubleSymmetric);
             Assert.IsTrue(sec.IsSymmetricAlongYLocalAxis);
             Assert.IsTrue(sec.IsSymmetricAlongXLocalAxis);
@@ -664,8 +664,8 @@ namespace ModelObjectTest
             Assert.AreEqual(Math.Abs(A / sec.Area) - 1, 0, 0.001);
             Assert.AreEqual(Math.Abs(Jyy / sec.J22) - 1, 0, 0.001);
             Assert.AreEqual(Math.Abs(Jxx / sec.J11) - 1, 0, 0.001);
-            Assert.AreEqual(Math.Abs(raggioInerziaX / sec.InertiaRadiusX) - 1, 0, 0.001);
-            Assert.AreEqual(Math.Abs(raggioInerziaY / sec.InertiaRadiusY) - 1, 0, 0.001);
+            Assert.AreEqual(Math.Abs(raggioInerziaX / sec.R22) - 1, 0, 0.001);
+            Assert.AreEqual(Math.Abs(raggioInerziaY / sec.R11) - 1, 0, 0.001);
         }
 
         [TestMethod]
