@@ -36,7 +36,8 @@ namespace GPC.Model.Sections
         internal ThinWallSection(Material material, string name)
             : base(material, name)
         {
-
+            // TODO: implementare
+            throw new NotImplementedException();
         }
 
         internal ThinWallSection(SerializationInfo info, StreamingContext context) : base(info, context)
@@ -223,7 +224,7 @@ namespace GPC.Model.Sections
                 _t = thickness < 0 ? throw new ArgumentException($"Thickness cannot be lower than zero") : thickness;
                 _l = lenght < 0 ? throw new ArgumentException($"Lenght cannot be lower than zero") : lenght;
                 _angle = angle;
-                _centroid = centroid;
+                _centroid = centroid ?? throw new ArgumentNullException(nameof(centroid));
             }
 
             #endregion
@@ -276,7 +277,7 @@ namespace GPC.Model.Sections
                 if (_angle == 0)
                     return CalculateJxRespectCentroid() + CalculateArea() * Math.Pow((Centroid.X), 2);
 
-                else if (_angle == Math.PI / 2)
+                else if (_angle == Math.PI / 2.0)
                     return CalculateJxRespectCentroid() + CalculateArea() * Math.Pow((Centroid.X), 2);
 
                 else
@@ -292,7 +293,7 @@ namespace GPC.Model.Sections
                 if (_angle == 0)
                     return CalculateJyRespectCentroid() + CalculateArea() * Math.Pow((Centroid.Y), 2);
 
-                else if (_angle == Math.PI / 2)
+                else if (_angle == Math.PI / 2.0)
                     return CalculateJyRespectCentroid() + CalculateArea() * Math.Pow((Centroid.Y), 2);
 
                 else
@@ -302,10 +303,10 @@ namespace GPC.Model.Sections
             internal double CalculateJyRespectCentroid()
             {
                 if (_angle == 0)
-                    return _t * Math.Pow(_l, 3) / 12;
+                    return _t * Math.Pow(_l, 3) / 12.0;
 
                 else if (_angle == Math.PI / 2)
-                    return _l * Math.Pow(_t, 3) / 12;
+                    return _l * Math.Pow(_t, 3) / 12.0;
 
                 else
                     throw new NotImplementedException("Not implemented angle");
@@ -314,10 +315,10 @@ namespace GPC.Model.Sections
             internal double CalculateJxRespectCentroid()
             {
                 if (_angle == 0)
-                    return _l * Math.Pow(_t, 3) / 12;
+                    return _l * Math.Pow(_t, 3) / 12.0;
 
                 else if (_angle == Math.PI / 2)
-                    return _t * Math.Pow(_l, 3) / 12;
+                    return _t * Math.Pow(_l, 3) / 12.0;
 
                 else
                     throw new NotImplementedException("Not implemented angle");

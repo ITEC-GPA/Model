@@ -58,8 +58,6 @@ namespace GPC.Model.Sections
         protected Point2d _shearCenter;
         protected Point2d _centroid;
         protected double _angleX1;
-        protected SectionTypes _sectionType;
-        protected FormedTypes _formedType;
 
         protected bool _isSymmetricAlongXLocalAxis;
         protected bool _isSymmetricAlongYLocalAxis;
@@ -165,16 +163,6 @@ namespace GPC.Model.Sections
         public double InertiaRadiusY => Math.Sqrt(J11 / Area);
 
         /// <summary>
-        /// The type of the section (rolled or welded)
-        /// </summary>
-        public SectionTypes SectionType => _sectionType;
-
-        /// <summary>
-        /// The type of the section (HotFinished or ColdFormed)
-        /// </summary>
-        public FormedTypes FormedType => _formedType;
-
-        /// <summary>
         /// Is true if the section is symmetric along Y-axis
         /// </summary>
         public bool IsSymmetricAlongXLocalAxis => _isSymmetricAlongXLocalAxis;
@@ -214,13 +202,10 @@ namespace GPC.Model.Sections
         /// <param name="shearCenter">The shear center of the section</param>
         /// <param name="angle">The angle of rotation of the principal axis</param>
         /// <param name="name">The name of the section</param>
-        /// <param name="formed">The formed types (cold formed or hot finished) - only for steel section</param>
-        /// <param name="sectionType">The type of the section (Rolled or welded) - only for steel section</param>
         /// <exception cref="ArgumentException">If the input data are not correct</exception>
         /// <remarks>Axis convention: X-axes is the Y-axes for Eurocode and Y-axes is the Z-axes for Eurocode
         /// If the X-axes is principal, the first moment of inertia is J11, If the Y-axes is principal, the first moment of inertia is J22</remarks>
-        public Section(Material material, double area, double sx, double sy, double j11, double j22, double jt, double jw, Point2d centroid, Point3d shearCenter, double angle, string name, 
-                        FormedTypes formed = FormedTypes.HotFinished, SectionTypes sectionType = SectionTypes.Rolled) 
+        public Section(Material material, double area, double sx, double sy, double j11, double j22, double jt, double jw, Point2d centroid, Point3d shearCenter, double angle, string name) 
             : base(name)
         {
             _material = material;
@@ -231,8 +216,6 @@ namespace GPC.Model.Sections
             _jyy = j22 < 0 ? throw new ArgumentException($"Moment of Inertia J22 cannot be lower than zero") : j22; 
             _jt = jt < 0 ? throw new ArgumentException($"Moment of Inertia Jt cannot be lower than zero") : jt; 
             _jw = jw < 0 ? throw new ArgumentException($"Moment of Inertia Jw cannot be lower than zero") : jw;
-            _formedType = formed;
-            _sectionType = sectionType;
             _centroid = centroid;
             _shearCenter = shearCenter;
             _angleX1 = angle;

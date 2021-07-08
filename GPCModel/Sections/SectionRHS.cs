@@ -45,7 +45,8 @@ namespace GPC.Model.Sections
 
         #region Public Constructors
 
-        public SectionRHS(double height, double width, double thicknessTopFlange, double thicknessBottomFlange, double thicknessWebLeft, double thickenssWebRight, Material material, string name) 
+        public SectionRHS(double height, double width, double thicknessTopFlange, double thicknessBottomFlange, 
+                            double thicknessWebLeft, double thickenssWebRight, Material material, string name) 
             : base(material, name)
         {
             _angleX1 = 0;

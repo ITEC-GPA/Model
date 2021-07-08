@@ -5,18 +5,15 @@ namespace GPC.Model.Sections.Steel
 {
     public class SteelSectionT : SectionT, ISteelSection
     {
-        public enum ProfileType
-        {
-            Rolled,
-            Welded,
-        }
 
         #region Variables
 
         private readonly double _r;                // raggio di curvatura o altezza di gola
 
-        #endregion
+        protected readonly SectionTypes _sectionType;
+        protected readonly FormedTypes _formedType;
 
+        #endregion
 
         #region Properties
 
@@ -28,45 +25,7 @@ namespace GPC.Model.Sections.Steel
 
         public bool IsWelded => Type == SectionTypes.Welded;
 
-        #region Interface
-
-        Material ISteelSection.Material => Material;
-
-        double ISteelSection.Height => Height;
-
-        double ISteelSection.Area => Area;
-
-        double ISteelSection.InertiaRadiusY => InertiaRadiusY;
-
-        double ISteelSection.InertiaRadiusX => InertiaRadiusX;
-
-        Point2d ISteelSection.Centroid => Centroid;
-
-        Point2d ISteelSection.ShearCenter => ShearCenter;
-
-        double ISteelSection.J11 => J11;
-
-        double ISteelSection.J22 => J22;
-
-        double ISteelSection.Jxx => Jxx;
-
-        double ISteelSection.Jyy => Jyy;
-
-        double ISteelSection.Jt => Jt;
-
-        double ISteelSection.Jw => Jw;
-
-        double ISteelSection.Sx => Sx;
-
-        double ISteelSection.Wpl1 => Wpl1;
-
-        double ISteelSection.Wpl2 => Wpl2;
-
-        double ISteelSection.Wel1 => Wel1;
-
-        double ISteelSection.Wel2 => Wel2;
-
-        #endregion
+        public SteelMaterial SteelMaterial => (SteelMaterial)_material;
 
         #endregion
 

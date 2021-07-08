@@ -8,10 +8,10 @@ namespace GPC.Model.Sections
     {
         #region Variables
 
-        protected double _h;
-        protected double _tw;
-        protected double _tf;
-        protected double _b;
+        protected readonly double _h;
+        protected readonly double _tw;
+        protected readonly double _tf;
+        protected readonly double _b;
 
         #endregion
 

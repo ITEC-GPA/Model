@@ -9,8 +9,8 @@ namespace GPC.Model.Sections
     {
         #region Variables
 
-        protected double _d; // Diameter external
-        protected double _t; // Thickness
+        protected readonly double _d; // Diameter external
+        protected readonly double _t; // Thickness
 
         #endregion
 

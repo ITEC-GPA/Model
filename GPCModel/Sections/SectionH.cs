@@ -12,12 +12,12 @@ namespace GPC.Model.Sections
     {     
         #region Variables
 
-        protected double _h;
-        protected double _tw;
-        protected double _ttop;
-        protected double _tbottom;
-        protected double _btop;
-        protected double _bbottom;
+        protected readonly double _h;
+        protected readonly double _tw;
+        protected readonly double _ttop;
+        protected readonly double _tbottom;
+        protected readonly double _btop;
+        protected readonly double _bbottom;
 
         #endregion
 
@@ -43,7 +43,8 @@ namespace GPC.Model.Sections
 
         #region Public Constructors
 
-        public SectionH(double height, double thicknessWeb, double topFlangeLength, double topFlangeThickness, double bottomFlangeLength, double bottomFlangeThickness, Material material, string name)
+        public SectionH(double height, double thicknessWeb, double topFlangeLength, double topFlangeThickness, double bottomFlangeLength, 
+                        double bottomFlangeThickness, Material material, string name)
             : base(material, name)
         {
             #region Check inputs
@@ -61,9 +62,9 @@ namespace GPC.Model.Sections
                 _isSymmetricAlongXLocalAxis = true;
             _isSymmetricAlongYLocalAxis = true;
 
-            ThinWall web = new ThinWall(HeightWeb, thicknessWeb, Math.PI / 2, new Point2d(Math.Max(LenghtTopFlange, LenghtBottomFlange) / 2, ThicknessBottomFlange + HeightWeb / 2));
-            ThinWall flangeTop = new ThinWall(topFlangeLength, topFlangeThickness, 0, new Point2d(Math.Max(LenghtTopFlange, LenghtBottomFlange) / 2, bottomFlangeThickness + HeightWeb + topFlangeThickness / 2));
-            ThinWall flangeBottom = new ThinWall(bottomFlangeLength, bottomFlangeThickness, 0, new Point2d(Math.Max(LenghtTopFlange, LenghtBottomFlange) / 2, bottomFlangeThickness / 2));
+            ThinWall web = new ThinWall(HeightWeb, thicknessWeb, Math.PI / 2, new Point2d(Math.Max(LenghtTopFlange, LenghtBottomFlange) / 2.0, ThicknessBottomFlange + HeightWeb / 2.0));
+            ThinWall flangeTop = new ThinWall(topFlangeLength, topFlangeThickness, 0, new Point2d(Math.Max(LenghtTopFlange, LenghtBottomFlange) / 2.0, bottomFlangeThickness + HeightWeb + topFlangeThickness / 2.0));
+            ThinWall flangeBottom = new ThinWall(bottomFlangeLength, bottomFlangeThickness, 0, new Point2d(Math.Max(LenghtTopFlange, LenghtBottomFlange) / 2.0, bottomFlangeThickness / 2.0));
 
             ThinWalls = new ThinWall[3] { web , flangeBottom, flangeTop };
         }

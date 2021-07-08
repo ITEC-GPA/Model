@@ -18,6 +18,8 @@ namespace GPC.Model.Sections.Steel
 
         private readonly double _r;                // raggio di curvatura o altezza di gola
 
+        protected readonly SectionTypes _sectionType;
+        protected readonly FormedTypes _formedType;
         #endregion
 
 
@@ -27,62 +29,27 @@ namespace GPC.Model.Sections.Steel
 
         public double R => _r;
 
-        public double D => base.Height - ThicknessBottomFlange - ThicknessTopFlange - 2 * R;
+        public double D => Height - ThicknessBottomFlange - ThicknessTopFlange - 2.0 * R;
 
         public bool IsRolled => Type == SectionTypes.Rolled;
 
         public bool IsWelded => Type == SectionTypes.Welded;
 
-        #region Interface
-
-        Material ISteelSection.Material => Material;
-
-        double ISteelSection.Height => Height;
-
-        double ISteelSection.Area => Area;
-
-        double ISteelSection.InertiaRadiusY => InertiaRadiusY;
-
-        double ISteelSection.InertiaRadiusX => InertiaRadiusX;
-
-        Point2d ISteelSection.Centroid => Centroid;
-
-        Point2d ISteelSection.ShearCenter => ShearCenter;
-
-        double ISteelSection.J11 => J11;
-
-        double ISteelSection.J22 => J22;
-
-        double ISteelSection.Jxx => Jxx;
-
-        double ISteelSection.Jyy => Jyy;
-
-        double ISteelSection.Jt => Jt;
-
-        double ISteelSection.Jw => Jw;
-
-        double ISteelSection.Sx => Sx;
-
-        double ISteelSection.Wpl1 => Wpl1;
-
-        double ISteelSection.Wpl2 => Wpl2;
-
-        double ISteelSection.Wel1 => Wel1;
-
-        double ISteelSection.Wel2 => Wel2;
-
-        #endregion
+        public SteelMaterial SteelMaterial => (SteelMaterial)_material;
 
         #endregion
 
 
         #region Public Constructors
 
-        public SteelSectionH(double height, double thicknessWeb, double topFlangeLength, double topFlangeThickness, double bottomFlangeLength, double bottomFlangeThickness, SteelMaterial material, string name, SectionTypes type = SectionTypes.Rolled, 
-                             FormedTypes formedType = FormedTypes.HotFinished, double radius = 0)
+        public SteelSectionH(double height, double thicknessWeb, double topFlangeLength, double topFlangeThickness, 
+                              double bottomFlangeLength, double bottomFlangeThickness, SteelMaterial material, 
+                              string name, SectionTypes type = SectionTypes.Rolled, 
+                              FormedTypes formedType = FormedTypes.HotFinished, 
+                              double radius = 0)
             : base(height, thicknessWeb, topFlangeLength, topFlangeThickness, bottomFlangeLength, bottomFlangeThickness, material, name)
         {
-            _r = radius;        // altezza di gola o raggio di curvatura
+            _r = radius < 0.0 ? 0 : radius;        // altezza di gola o raggio di curvatura
             _sectionType = type;
             _formedType = formedType;
         }
@@ -102,57 +69,45 @@ namespace GPC.Model.Sections.Steel
 
         private double CalculateAdditionaJxx()
         {
-            double toAdd = 0;
             Point2d centroid = CalculateCentroid();
 
             if (IsWelded)
             {
-                double area = CalculateAdditionalArea();
-                double inertia = Math.Pow((1.41 * _r), 4) / 24;
-                toAdd = inertia + area * (HeightWeb - centroid.Y - _r);
+                return Math.Pow((1.41 * _r), 4) / 24.0 + CalculateAdditionalArea() * (HeightWeb - centroid.Y - _r);
             }
             else if (IsRolled)
             {
-
+                return 0;
             }
             else
                 throw new NotImplementedException("Not Implemented type");
-
-            return toAdd;
         }
 
         private double CalculateAdditionaJyy()
         {
-            double toAdd = 0;
-
             if (IsWelded)
             {
-                double area = CalculateAdditionalArea();
-                double inertia = Math.Pow((1.41 * _r), 4) / 24;
-                toAdd = inertia + 4 * area * (HeightWeb / 2);
+                return Math.Pow((1.41 * _r), 4) / 24.0 + 4 * CalculateAdditionalArea() * (HeightWeb / 2);
             }
             else if (IsRolled)
             {
-
+                return 0;
             }
             else
                 throw new NotImplementedException("Not Implemented type");
-
-            return toAdd;
         }
 
         private double CalculateAdditionalArea()
         {
             if (IsWelded)            
-                return Math.Pow((1.41 * _r), 2) / 2;
+                return Math.Pow((1.41 * _r), 2) / 2.0;
             
             else if (IsRolled)            
-                return Math.Pow(_r, 2) - Math.Pow(_r, 2) * Math.PI / 4;
+                return Math.Pow(_r, 2) - Math.Pow(_r, 2) * Math.PI / 4.0;
             
             else
                 throw new NotImplementedException("Not Implemented type");
         }
-
 
     }
 }
