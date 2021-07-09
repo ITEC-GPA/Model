@@ -50,6 +50,17 @@ namespace GPC.Model
         }
 
         /// <summary>
+        /// Convert moment from the given units to the default units
+        /// </summary>
+        /// <param name="moment">The moment to convert</param>
+        /// <param name="units">The source measure units</param>
+        /// <returns>The converted moment</returns>
+        public static double ConverMomentToDefault(this double moment, UnitsSystem units)
+        {
+            return UnitsConvert.Convert(moment, units.ForceUnits, DefaultUnits.ForceUnits, 1, units.LengthUnits, DefaultUnits.LengthUnits, 1);
+        }
+
+        /// <summary>
         /// Convert masses from the given units to the default units
         /// </summary>
         /// <param name="mass">The mass to convert</param>
@@ -113,6 +124,17 @@ namespace GPC.Model
         public static double ConvertForceFromDefault(this double force, UnitsSystem units)
         {
             return UnitsConvert.Convert(force, DefaultUnits.ForceUnits, units.ForceUnits, 1);
+        }
+
+        /// <summary>
+        /// Convert moment from the default units to the given ones
+        /// </summary>
+        /// <param name="moment">The moment to convert</param>
+        /// <param name="units">The destination measure units</param>
+        /// <returns>The converted moment</returns>
+        public static double ConverMomentFromDefault(this double moment, UnitsSystem units)
+        {
+            return UnitsConvert.Convert(moment, DefaultUnits.ForceUnits, units.ForceUnits, 1, DefaultUnits.LengthUnits, units.LengthUnits, 1);
         }
 
         /// <summary>
