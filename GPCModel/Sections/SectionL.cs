@@ -215,12 +215,12 @@ namespace GPC.Model.Sections
 
         public override double CalculateWpl1()
         {
-            throw new NotImplementedException();
+            return CalculateWel1();     // TODO: implementare SectionL
         }
 
         public override double CalculateWpl2()
         {
-            throw new NotImplementedException();
+            return CalculateWel2();
         }
 
 
