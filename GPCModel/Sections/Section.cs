@@ -5,6 +5,7 @@ using GPC.Model.Materials;
 using GPC.Model.FEM.Properties;
 using GPC.Model.FEM.Materials;
 using GPC.Model.Elements;
+using System.Linq;
 
 namespace GPC.Model.Sections
 {
@@ -260,6 +261,52 @@ namespace GPC.Model.Sections
         public IsotropicFemMaterial GetIsotropicFemMaterial()
         {
             return _material.GetIsotropicFemMaterial();
+        }
+
+        public virtual double GetMinSigma(double N, double M1, double M2)
+        {
+            double sigmap1 = N / Area - M1 / Wel1 + M2 / Wel2;
+            double sigmap2 = N / Area - M1 / Wel1 - M2 / Wel2;
+            double sigmap3 = N / Area + M1 / Wel1 + M2 / Wel2;
+            double sigmap4 = N / Area + M1 / Wel1 - M2 / Wel2;
+
+            return GetMax(new double[] { sigmap1, sigmap2, sigmap3, sigmap4 });
+        }
+
+        public virtual double GetMaxSigma(double N, double M1, double M2)
+        {
+            double sigmap1 = N / Area - M1 / Wel1 + M2 / Wel2;
+            double sigmap2 = N / Area - M1 / Wel1 - M2 / Wel2;
+            double sigmap3 = N / Area + M1 / Wel1 + M2 / Wel2;
+            double sigmap4 = N / Area + M1 / Wel1 - M2 / Wel2;
+
+            return GetMax(new double[] { sigmap1, sigmap2, sigmap3, sigmap4 });
+        }
+
+        private double GetMax(double[] array)
+        {
+            double startValue = array.First();
+
+            for (int i = 0; i < array.Count(); i++)
+            {
+                if (array[i] > startValue)
+                    startValue = array[i];
+            }
+
+            return startValue;
+        }
+
+        private double GetMin(double[] array)
+        {
+            double startValue = array.First();
+
+            for (int i = 0; i < array.Count(); i++)
+            {
+                if (array[i] < startValue)
+                    startValue = array[i];
+            }
+
+            return startValue;
         }
 
         #endregion

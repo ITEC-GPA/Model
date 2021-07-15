@@ -14,12 +14,14 @@ namespace GPC.Model.Sections.Steel
 
         protected readonly SectionTypes _sectionType;
         protected readonly FormedTypes _formedType;
+
         #endregion
 
 
         #region Properties
 
         public SectionTypes SectionType => _sectionType;
+
         public FormedTypes FormedType => _formedType;
 
         public bool IsColdFormed => _formedType == FormedTypes.ColdFormed;
@@ -29,7 +31,6 @@ namespace GPC.Model.Sections.Steel
         public SteelMaterial SteelMaterial => (SteelMaterial)_material;
 
         public double Height => Diameter;
-
 
         #endregion
 
