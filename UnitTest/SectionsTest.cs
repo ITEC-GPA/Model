@@ -664,8 +664,70 @@ namespace ModelObjectTest
             Assert.AreEqual(Math.Abs(A / sec.Area) - 1, 0, 0.001);
             Assert.AreEqual(Math.Abs(Jyy / sec.J22) - 1, 0, 0.001);
             Assert.AreEqual(Math.Abs(Jxx / sec.J11) - 1, 0, 0.001);
-            Assert.AreEqual(Math.Abs(raggioInerziaX / sec.R22) - 1, 0, 0.001);
-            Assert.AreEqual(Math.Abs(raggioInerziaY / sec.R11) - 1, 0, 0.001);
+            Assert.AreEqual(Math.Abs(raggioInerziaX / sec.R11) - 1, 0, 0.001);
+            Assert.AreEqual(Math.Abs(raggioInerziaY / sec.R22) - 1, 0, 0.001);
+        }
+
+        [TestMethod]
+        public void SectionHSymmetric_Sigma1()
+        {
+            double h = 304.8;         
+            double tw = 6.35;
+            double bt = 127;
+            double bb = 127;
+            double tt = 9.652;
+            double tb = 9.652;
+            SteelSectionH sec = new SteelSectionH(h, tw, bt, tt, bb, tb, new SteelMaterial("steel", 210000, 0.3, 355, 510, 7850), string.Empty);
+
+            double sigmaMax = sec.GetMaxSigma(0, 10656502.7, 0);
+            double sigmaMin = sec.GetMinSigma(0, 10656502.7, 0);
+            double expSigmaMax = 24.71;
+            double expSigmaMin = -27.71;
+
+            Assert.IsTrue(Math.Abs(sigmaMax - expSigmaMax) / sigmaMax < 0.001);
+            Assert.IsTrue(Math.Abs(sigmaMin - expSigmaMin) / sigmaMin < 0.001);
+        }
+
+        [TestMethod]
+        public void SectionCHS_Sigma1()
+        {
+            double d = 300;         
+            double t = 8;
+
+            SteelSectionCHS sec = new SteelSectionCHS(d, t, new SteelMaterial("steel", 210000, 0.3, 355, 510, 7850), string.Empty);
+
+            double sigmaMax = sec.GetMaxSigma(0, 11129770.82, 0);
+            double sigmaMin = sec.GetMinSigma(0, 11129770.82, 0);
+            double expSigmaMax = 21.328;
+            double expSigmaMin = -21.328;
+
+            Assert.IsTrue(Math.Abs(sigmaMax - expSigmaMax) / sigmaMax < 0.001);
+            Assert.IsTrue(Math.Abs(sigmaMin - expSigmaMin) / sigmaMin < 0.001);
+        }
+
+        [TestMethod]
+        public void SectionRHS_Sigma1()
+        {
+            double h = 300;
+            double b = 200;
+            double t = 8;
+
+            SteelSectionRHS sec = new SteelSectionRHS(h, b, t, t, t, t, new SteelMaterial("steel", 210000, 0.3, 355, 510, 7850), string.Empty);
+
+            double sigmaMax1 = sec.GetMaxSigma(15000, 894116.79, 0);
+            double sigmaMin1 = sec.GetMinSigma(15000, 894116.79, 0);
+            double expSigmaMax1 = 3.295;
+            double expSigmaMin1 = 0.579;
+
+            double sigmaMax2 = sec.GetMaxSigma(6250, 1005881.39, 0);
+            double sigmaMin2 = sec.GetMinSigma(6250, 1005881.39, 0);
+            double expSigmaMax2 = 2.335;
+            double expSigmaMin2 = -0.721;
+
+            Assert.IsTrue(Math.Abs(sigmaMax1 - expSigmaMax1) / sigmaMax1 < 0.001);
+            Assert.IsTrue(Math.Abs(sigmaMin1 - expSigmaMin1) / sigmaMin1 < 0.001);
+            Assert.IsTrue(Math.Abs(sigmaMax2 - expSigmaMax2) / sigmaMax2 < 0.001);
+            Assert.IsTrue(Math.Abs(sigmaMin2 - expSigmaMin2) / sigmaMin2 < 0.001);
         }
 
         [TestMethod]

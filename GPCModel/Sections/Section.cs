@@ -270,7 +270,7 @@ namespace GPC.Model.Sections
             double sigmap3 = N / Area + M1 / Wel1 + M2 / Wel2;
             double sigmap4 = N / Area + M1 / Wel1 - M2 / Wel2;
 
-            return GetMax(new double[] { sigmap1, sigmap2, sigmap3, sigmap4 });
+            return GetMin(new double[] { sigmap1, sigmap2, sigmap3, sigmap4 });
         }
 
         public virtual double GetMaxSigma(double N, double M1, double M2)
