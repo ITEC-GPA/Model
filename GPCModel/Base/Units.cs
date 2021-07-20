@@ -27,6 +27,8 @@ namespace GPC.Model
 
         public static readonly UnitsSystem DefaultUnits = Nmm;
 
+        #region To default
+
         /// <summary>
         /// Convert lengths from the given units to the default units
         /// </summary>
@@ -105,6 +107,17 @@ namespace GPC.Model
         }
 
         /// <summary>
+        /// Convert stresses from the given units to the default units
+        /// </summary>
+        /// <param name="stress">The stress to convert</param>
+        /// <param name="units">The source measure units</param>
+        /// <returns>The converted stress</returns>
+        public static double ConverStressToDefault(this double stress, UnitsSystem units)
+        {
+            return UnitsConvert.Convert(stress, units.ForceUnits, DefaultUnits.ForceUnits, 1, units.LengthUnits, DefaultUnits.LengthUnits, -2);
+        }
+
+        /// <summary>
         /// Convert masses from the given units to the default units
         /// </summary>
         /// <param name="mass">The mass to convert</param>
@@ -147,6 +160,10 @@ namespace GPC.Model
         {
             return UnitsConvert.Convert(density, units.MassUnits, DefaultUnits.MassUnits, 1, units.LengthUnits, DefaultUnits.LengthUnits, -3);
         }
+
+        #endregion
+
+        #region From default
 
         /// <summary>
         /// Convert lengths from the default units to the given ones
@@ -226,6 +243,17 @@ namespace GPC.Model
         }
 
         /// <summary>
+        /// Convert stresses from the default units to the given ones
+        /// </summary>
+        /// <param name="stress">The stress to convert</param>
+        /// <param name="units">The destination measure units</param>
+        /// <returns>The converted stress</returns>
+        public static double ConverStressFromDefault(this double stress, UnitsSystem units)
+        {
+            return UnitsConvert.Convert(stress, DefaultUnits.ForceUnits, units.ForceUnits, 1, DefaultUnits.LengthUnits, units.LengthUnits, -2);
+        }
+
+        /// <summary>
         /// Convert masses from the default units to the given ones
         /// </summary>
         /// <param name="mass">The mass to convert</param>
@@ -258,7 +286,6 @@ namespace GPC.Model
             return UnitsConvert.Convert(temperature, DefaultUnits.TemperatureUnits, units.TemperatureUnits);
         }
 
-
         /// <summary>
         /// Convert density from the default units to the given ones
         /// </summary>
@@ -269,5 +296,7 @@ namespace GPC.Model
         {
             return UnitsConvert.Convert(density, DefaultUnits.MassUnits, units.MassUnits, 1, DefaultUnits.LengthUnits, units.LengthUnits, -3);
         }
+
+        #endregion
     }
 }
