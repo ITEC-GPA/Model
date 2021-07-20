@@ -39,6 +39,39 @@ namespace GPC.Model
         }
 
         /// <summary>
+        /// Convert areas from the given units to the default units
+        /// </summary>
+        /// <param name="area">The area to convert</param>
+        /// <param name="units">The source measure units</param>
+        /// <returns>The converted area</returns>
+        public static double ConvertAreaToDefault(this double area, UnitsSystem units)
+        {
+            return UnitsConvert.Convert(area, units.LengthUnits, DefaultUnits.LengthUnits, 2);
+        }
+
+        /// <summary>
+        /// Convert section modulus from the given units to the default units
+        /// </summary>
+        /// <param name="modulus">The section modulus to convert</param>
+        /// <param name="units">The source measure units</param>
+        /// <returns>The converted section modulus</returns>
+        public static double ConvertSectionModulusToDefault(this double modulus, UnitsSystem units)
+        {
+            return UnitsConvert.Convert(modulus, units.LengthUnits, DefaultUnits.LengthUnits, 3);
+        }
+
+        /// <summary>
+        /// Convert moment of inertia from the given units to the default units
+        /// </summary>
+        /// <param name="modulus">The moment of inertia to convert</param>
+        /// <param name="units">The source measure units</param>
+        /// <returns>The converted moment of inertia</returns>
+        public static double ConvertMomentOfIntertiaToDefault(this double modulus, UnitsSystem units)
+        {
+            return UnitsConvert.Convert(modulus, units.LengthUnits, DefaultUnits.LengthUnits, 4);
+        }
+
+        /// <summary>
         /// Convert forces from the given units to the default units
         /// </summary>
         /// <param name="force">The force to convert</param>
@@ -113,6 +146,39 @@ namespace GPC.Model
         public static double ConvertLengthFromDefault(this double length, UnitsSystem units)
         {
             return UnitsConvert.Convert(length, DefaultUnits.LengthUnits, units.LengthUnits, 1);
+        }
+
+        /// <summary>
+        /// Convert areas from the default units to the given ones
+        /// </summary>
+        /// <param name="area">The area to convert</param>
+        /// <param name="units">The destination measure units</param>
+        /// <returns>The converted area</returns>
+        public static double ConvertAreaFromDefault(this double area, UnitsSystem units)
+        {
+            return UnitsConvert.Convert(area, DefaultUnits.LengthUnits, units.LengthUnits, 2);
+        }
+
+        /// <summary>
+        /// Convert section modulus from the default units to the given ones
+        /// </summary>
+        /// <param name="modulus">The section modulus to convert</param>
+        /// <param name="units">The destination measure units</param>
+        /// <returns>The converted section modulus</returns>
+        public static double ConvertSectionModulusFromDefault(this double modulus, UnitsSystem units)
+        {
+            return UnitsConvert.Convert(modulus, DefaultUnits.LengthUnits, units.LengthUnits, 3);
+        }
+
+        /// <summary>
+        /// Convert moment of intertia from the default units to the given ones
+        /// </summary>
+        /// <param name="inertia">The moment of intertia to convert</param>
+        /// <param name="units">The destination measure units</param>
+        /// <returns>The converted moment of intertia</returns>
+        public static double ConvertMomentOfInertiaFromDefault(this double inertia, UnitsSystem units)
+        {
+            return UnitsConvert.Convert(inertia, DefaultUnits.LengthUnits, units.LengthUnits, 4);
         }
 
         /// <summary>
