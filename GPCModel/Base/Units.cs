@@ -72,6 +72,17 @@ namespace GPC.Model
         }
 
         /// <summary>
+        /// Convert warping costant from the given units to the default units
+        /// </summary>
+        /// <param name="warpingCostant">The moment of warping costant</param>
+        /// <param name="units">The source measure units</param>
+        /// <returns>The converted warping costant</returns>
+        public static double ConvertWarpingCostantToDefault(this double warpingCostant, UnitsSystem units)
+        {
+            return UnitsConvert.Convert(warpingCostant, units.LengthUnits, DefaultUnits.LengthUnits, 6);
+        }
+
+        /// <summary>
         /// Convert forces from the given units to the default units
         /// </summary>
         /// <param name="force">The force to convert</param>
@@ -179,6 +190,17 @@ namespace GPC.Model
         public static double ConvertMomentOfInertiaFromDefault(this double inertia, UnitsSystem units)
         {
             return UnitsConvert.Convert(inertia, DefaultUnits.LengthUnits, units.LengthUnits, 4);
+        }
+
+        /// <summary>
+        /// Convert warping costant from the default units to the given ones
+        /// </summary>
+        /// <param name="warpingCostant">The warping costant to convert</param>
+        /// <param name="units">The destination measure units</param>
+        /// <returns>The converted warping costant</returns>
+        public static double ConvertWarpingCostantFromDefault(this double warpingCostant, UnitsSystem units)
+        {
+            return UnitsConvert.Convert(warpingCostant, DefaultUnits.LengthUnits, units.LengthUnits, 6);
         }
 
         /// <summary>
