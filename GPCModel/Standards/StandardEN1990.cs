@@ -12,7 +12,7 @@ namespace GPC.Model.Standards
     /// This class collects all the coefficient of the Eurocode Standard
     /// </summary>
     /// <remarks>Reference: EN 1990:2002/A1:2005</remarks>
-    public class StandardEN1990 : Standard
+    public class StandardEN1990 : Standard, Standard.ICombinationsGenerator
     {
         #region PUBLIC ENUMS
 
@@ -837,11 +837,11 @@ namespace GPC.Model.Standards
         /// Generate all the combinations with the load cases in <paramref name="loadCasesInput"/> and the settings <paramref name="options"/>
         /// </summary>
         /// <param name="loadCasesInput">List of load cases</param>
-        /// <param name="options">The normative options</param>
-        /// <param name="name">The unique name of the combinations (default name is "cmb")</param>
+        /// <param name="options">The standard options</param>
+        /// <param name="prefix">The common prefix for each combination in the collection (default name is "cmb")</param>
         /// <returns>A collection of combinations</returns>
         /// <exception cref="ArgumentException"> If there are any  climate load in the <paramref name="loadCasesInput"/></exception>
-        public override CombinationsCollection CreateCombinations(LoadCaseBase[] loadCasesInput, CombinationsOptions options, string name = "cmb")
+        public virtual CombinationsCollection CreateCombinations(LoadCaseBase[] loadCasesInput, CombinationsOptions options, string prefix = "cmb")
         {
             List<LoadCase> loadCases = new List<LoadCase>();
             foreach (LoadCaseBase loadCase in loadCasesInput)
@@ -861,7 +861,7 @@ namespace GPC.Model.Standards
             List<List<Combination.LoadCaseCoefficient>> listFavourable = GetFavourableCombinations(loadCases.ToArray(), (EN1990CombinationsOptions)options);
             for (int i = 0; i < listFavourable.Count(); i++)
             {
-                Combination combo = new Combination(name + $" {idProg}", options);
+                Combination combo = new Combination(prefix + $" {idProg}", options);
 
                 for (int j = 0; j < listFavourable[i].Count(); j++)
                 {
@@ -877,7 +877,7 @@ namespace GPC.Model.Standards
             List<List<Combination.LoadCaseCoefficient>> listUnfavourable = GetUnfavourableCombinations(loadCases.ToArray(), (EN1990CombinationsOptions)options);
             for (int i = 0; i < listUnfavourable.Count(); i++)
             {
-                Combination combo = new Combination(name + $" {idProg}", options);
+                Combination combo = new Combination(prefix + $" {idProg}", options);
 
                 for (int j = 0; j < listUnfavourable[i].Count(); j++)
                 {
@@ -893,7 +893,7 @@ namespace GPC.Model.Standards
             List<List<Combination.LoadCaseCoefficient>> listFavourableBase = GetBasicCombinationsMinCoeff(loadCases.ToArray(), (EN1990CombinationsOptions)options);
             for (int i = 0; i < listFavourableBase.Count(); i++)
             {
-                Combination comboBaseFav = new Combination(name + $" {idProg}", options);
+                Combination comboBaseFav = new Combination(prefix + $" {idProg}", options);
                 for (int j = 0; j < listFavourableBase[i].Count(); j++)
                 {
                     comboBaseFav.AddLoadCaseCoefficient(listFavourableBase[i][j].LoadCase, listFavourableBase[i][j].Coefficient);
@@ -908,7 +908,7 @@ namespace GPC.Model.Standards
             List<List<Combination.LoadCaseCoefficient>> listUnfavourableBase = GetBasicCombinationsMaxCoeff(loadCases.ToArray(), (EN1990CombinationsOptions)options);
             for (int i = 0; i < listUnfavourableBase.Count(); i++)
             {
-                Combination comboBaseUnfav = new Combination(name + $" {idProg}", options);
+                Combination comboBaseUnfav = new Combination(prefix + $" {idProg}", options);
                 for (int j = 0; j < listUnfavourableBase[i].Count(); j++)
                 {
                     comboBaseUnfav.AddLoadCaseCoefficient(listUnfavourableBase[i][j].LoadCase, listUnfavourableBase[i][j].Coefficient);
@@ -1460,7 +1460,6 @@ namespace GPC.Model.Standards
         }
 
         #endregion
-
-        
+                
     }
 }

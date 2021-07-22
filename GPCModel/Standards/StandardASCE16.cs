@@ -14,7 +14,7 @@ namespace GPC.Model.Standards
     /// This class collects all the coefficient of the ASCE7-16 Standard
     /// </summary>
     /// <remarks>Reference: ASCE7-16</remarks>
-    public class StandardASCE16 : Standard
+    public class StandardASCE16 : Standard, Standard.ICombinationsGenerator
     {
         #region PUBLIC ENUMS        
 
@@ -290,7 +290,7 @@ namespace GPC.Model.Standards
 
         #region PUBLIC METHOD
 
-        public override CombinationsCollection CreateCombinations(LoadCaseBase[] loadCases, CombinationsOptions options, string name = "cmb")
+        public CombinationsCollection CreateCombinations(LoadCaseBase[] loadCases, CombinationsOptions options, string name = "cmb")
         {
             if (loadCases.Any(i => i is ClimateLoadCase))
             {
