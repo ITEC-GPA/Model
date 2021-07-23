@@ -254,32 +254,32 @@ namespace GPC.Model.Sections
             }
 
             /// <summary>
-            /// Calculate the first moment of inertia of the wall respect the X-axis passing throw the centroid of the <see cref="ThinWallSection"/>
+            /// Calculate the first moment of inertia of the wall respect the X-axis passing throw the <paramref name="point"/>
             /// </summary>
             /// <returns></returns>
-            internal double CalculateJx(Point2d sectionCentroid)
+            internal double CalculateJx(Point2d point)
             {
                 if (_angle == 0)
-                    return CalculateJx() + CalculateArea() * Math.Pow((sectionCentroid.X), 2);
+                    return CalculateJx() + CalculateArea() * Math.Pow((point.X), 2);
 
                 else if (_angle == Math.PI / 2.0)
-                    return CalculateJx() + CalculateArea() * Math.Pow((sectionCentroid.X), 2);
+                    return CalculateJx() + CalculateArea() * Math.Pow((point.X), 2);
 
                 else
                     throw new NotImplementedException("Not implemented angle");
             }
 
             /// <summary>
-            /// Calculate the first moment of inertia of the wall respect the Y-axis passing throw the centroid of the <see cref="ThinWallSection"/>
+            /// Calculate the first moment of inertia of the wall respect the Y-axis passing throw the <paramref name="point"/>
             /// </summary>
             /// <returns></returns>
-            internal double CalculateJy(Point2d sectionCentroid)
+            internal double CalculateJy(Point2d point)
             {
                 if (_angle == 0)
-                    return CalculateJy() + CalculateArea() * Math.Pow((sectionCentroid.Y), 2);
+                    return CalculateJy() + CalculateArea() * Math.Pow((point.Y), 2);
 
                 else if (_angle == Math.PI / 2.0)
-                    return CalculateJy() + CalculateArea() * Math.Pow((sectionCentroid.Y), 2);
+                    return CalculateJy() + CalculateArea() * Math.Pow((point.Y), 2);
 
                 else
                     throw new NotImplementedException("Not implemented angle");
