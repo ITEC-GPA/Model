@@ -32,16 +32,19 @@ namespace GPC.Model.Sections
 
         #region Constructor
 
-        public SectionL(double lHor, double tHor, double lVert, double tVert, Material material, string name) 
+        public SectionL(double lHor, double tHor, double lVert, double tVert, Material material, string name)
             : base(material, name)
         {
-            _lHor = lHor < 0 ? throw new ArgumentException($"Horizzontal plate lenght cannot be lower than zero") : lHor; 
-            _tHor = tHor < 0 ? throw new ArgumentException($"Horizzontal plate thickness cannot be lower than zero") : tHor; 
-            _lVert = lVert < 0 ? throw new ArgumentException($"Vertical plate lenght cannot be lower than zero") : lVert; 
+            _lHor = lHor < 0 ? throw new ArgumentException($"Horizzontal plate lenght cannot be lower than zero") : lHor;
+            _tHor = tHor < 0 ? throw new ArgumentException($"Horizzontal plate thickness cannot be lower than zero") : tHor;
+            _lVert = lVert < 0 ? throw new ArgumentException($"Vertical plate lenght cannot be lower than zero") : lVert;
             _tVert = tVert < 0 ? throw new ArgumentException($"Vertical plate thickness cannot be lower than zero") : tVert;
 
-            ThinWall thinWall1 = new ThinWall(LengthHor, ThicknessHor, 0, new Point2d(LengthHor / 2, ThicknessHor / 2));
-            ThinWall thinWall2 = new ThinWall(LengthVert - ThicknessHor, ThicknessVert, Math.PI / 2, new Point2d(ThicknessVert / 2, ThicknessHor + (ThicknessVert - ThicknessHor) / 2));
+            ThinWall thinWall1 = new ThinWall(LengthHor, ThicknessHor, 0);
+            ThinWall thinWall2 = new ThinWall(LengthVert - ThicknessHor, ThicknessVert, Math.PI / 2);
+
+            Points = new Point2d[] { new Point2d(LengthHor / 2, ThicknessHor / 2),
+                    new Point2d(ThicknessVert / 2, ThicknessHor + (ThicknessVert - ThicknessHor) / 2)};
 
             ThinWalls = new ThinWall[] { thinWall1, thinWall2 };
         }
@@ -65,7 +68,7 @@ namespace GPC.Model.Sections
         {
             double angle = -1.0 / 2.0 * Math.Atan(2.0 * CalculateJxy() / (_jyy - _jxx));
 
-            if (Jyy < Jxx)            
+            if (Jyy < Jxx)
                 angle += Math.PI / 2.0;
 
             return angle;
@@ -139,24 +142,24 @@ namespace GPC.Model.Sections
         public override double CalculateJxx()
         {
             double jxx = 0;
-            for (int i = 0; i < ThinWalls.Count(); i++)            
-                jxx += + DistanceXCentroidFromLeft() + ThinWalls[i].Area * Math.Pow(ThinWalls[i].Centroid.X - Centroid.X, 2.0);            
+            for (int i = 0; i < ThinWalls.Count(); i++)
+                jxx += +DistanceXCentroidFromLeft() + ThinWalls[i].Area * Math.Pow(Points[i].X - Centroid.X, 2.0);
             return jxx;
         }
 
         public override double CalculateJyy()
         {
             double jyy = 0;
-            for (int i = 0; i < ThinWalls.Count(); i++)            
-                jyy += ThinWalls[i].Centroid.Y + ThinWalls[i].Area * Math.Pow(ThinWalls[i].Centroid.Y - Centroid.Y, 2.0);            
+            for (int i = 0; i < ThinWalls.Count(); i++)
+                jyy += Points[i].Y + ThinWalls[i].Area * Math.Pow(Points[i].Y - Centroid.Y, 2.0);
             return jyy;
         }
 
         public double CalculateJxy()
         {
             double jxy = 0;
-            for (int i = 0; i < ThinWalls.Count(); i++)            
-                jxy += + 0.0 + ThinWalls[i].Area * (ThinWalls[i].Centroid.X - Centroid.X) * (ThinWalls[i].Centroid.Y - Centroid.Y);            
+            for (int i = 0; i < ThinWalls.Count(); i++)
+                jxy += +0.0 + ThinWalls[i].Area * (Points[i].X - Centroid.X) * (Points[i].Y - Centroid.Y);
             return jxy;
         }
 
@@ -209,7 +212,7 @@ namespace GPC.Model.Sections
             s = s + "thickeness vertical = " + _tVert + " mm \n";
             s = s + "Length Bottom = " + _lHor + " mm \n";
             s = s + "Thickness Bottom = " + _tHor + " mm \n";
-            
+
             return s;
         }
 

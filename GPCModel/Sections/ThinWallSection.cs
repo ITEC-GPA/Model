@@ -11,11 +11,18 @@ namespace GPC.Model.Sections
         #region Variables
 
         private ThinWall[] _thinWalls;
+        private Point2d[] _points;
 
         #endregion
 
 
         #region Properties
+
+        internal Point2d[] Points
+        {
+            get => _points;
+            set { _points = value; }
+        }
 
         internal ThinWall[] ThinWalls
         {
@@ -43,6 +50,7 @@ namespace GPC.Model.Sections
         internal ThinWallSection(SerializationInfo info, StreamingContext context) : base(info, context)
         {
             _thinWalls = (ThinWall[])info.GetValue("ThinWall", typeof(ThinWall));
+            _points = (Point2d[])info.GetValue("ThinWall", typeof(Point2d));
         }
 
         #endregion
@@ -89,22 +97,25 @@ namespace GPC.Model.Sections
             double ySum = 0;
             double area = 0;
 
-            foreach (ThinWall tw in _thinWalls)
+            for(int i = 0; i < _thinWalls.Length; i++)
             {
-                xSum += tw.CalculateArea() * tw.Centroid.X;
-                ySum += tw.CalculateArea() * tw.Centroid.Y;
-                area += tw.CalculateArea();
+                xSum += _thinWalls[i].Area * _points[i].X;
+                ySum += _thinWalls[i].Area * _points[i].Y;
+                area += _thinWalls[i].Area;
             }
+
             return new Point2d((xSum / area), (ySum / area));
         }
 
         public virtual double CalculateJt()
         {
             double jt = 0;
-            foreach (ThinWall tw in _thinWalls)
+
+            for(int i = 0; i < _thinWalls.Length; i++)
             {
-                jt += tw.CalculateJt();
+                jt += _thinWalls[i].CalculateJt();
             }
+
             return jt;
         }
 
@@ -115,11 +126,13 @@ namespace GPC.Model.Sections
         public virtual double CalculateJ11()
         {
             double j = 0;
-            foreach (ThinWall tw in _thinWalls)
+
+            for (int i = 0; i < _thinWalls.Length; i++)
             {
-                j += tw.CalculateJxRespectCentroid();
-                j += tw.CalculateArea() * Math.Pow((Centroid.Y - tw.Centroid.Y), 2);
+                j += _thinWalls[i].CalculateJx();
+                j += _thinWalls[i].Area * Math.Pow((Centroid.Y - _points[i].Y), 2);
             }
+
             return j;
         }
 
@@ -130,11 +143,13 @@ namespace GPC.Model.Sections
         public virtual double CalculateJ22()
         {
             double j = 0;
-            foreach (ThinWall tw in _thinWalls)
+
+            for (int i = 0; i < _thinWalls.Length; i++)
             {
-                j += tw.CalculateJyRespectCentroid();
-                j += tw.CalculateArea() * Math.Pow((Centroid.X - tw.Centroid.X), 2);
+                j += _thinWalls[i].CalculateJy();
+                j += _thinWalls[i].Area * Math.Pow((Centroid.X - _points[i].X), 2);
             }
+
             return j;
         }
         
@@ -145,8 +160,9 @@ namespace GPC.Model.Sections
         public virtual double CalculateArea()
         {
             double area = 0;
-            foreach (ThinWall tw in _thinWalls)            
-                area += tw.Area;
+
+            for(int i = 0; i < _thinWalls.Length; i++)
+                area += _thinWalls[i].Area;
             
             return area;
         }
@@ -178,7 +194,6 @@ namespace GPC.Model.Sections
             private readonly double _t;
             private readonly double _l;
             private readonly double _angle;
-            private readonly Point2d _centroid;
 
             #endregion
 
@@ -186,19 +201,17 @@ namespace GPC.Model.Sections
             #region Protected constructor
 
             /// <summary>
-            /// The default constructor of generic ThinWallSection
+            /// The default constructor of generic ThinWall
             /// </summary>
-            /// <param name="lenght"></param>
-            /// <param name="thickness"></param>
-            /// <param name="angle"></param>
-            /// <param name="centroid"></param>
-            internal ThinWall(double lenght, double thickness, double angle, Point2d centroid)
+            /// <param name="length">The length of the ThinWall</param>
+            /// <param name="thickness">The thickness of the ThinWall</param>
+            /// <param name="angle">The angle of the ThinWall. 0 is orizontal, Math.PI / 2.0 is vertical</param>
+            internal ThinWall(double length, double thickness, double angle)
                 : base()
             {
                 _t = thickness < 0 ? throw new ArgumentException($"Thickness cannot be lower than zero") : thickness;
-                _l = lenght < 0 ? throw new ArgumentException($"Lenght cannot be lower than zero") : lenght;
+                _l = length < 0 ? throw new ArgumentException($"Lenght cannot be lower than zero") : length;
                 _angle = angle;
-                _centroid = centroid ?? throw new ArgumentNullException(nameof(centroid));
             }
 
             #endregion
@@ -222,10 +235,8 @@ namespace GPC.Model.Sections
             internal double Angle => _angle;
 
             /// <summary>
-            /// The centroid of the wall
+            /// The area og the thin wal
             /// </summary>
-            internal Point2d Centroid => _centroid;
-
             public double Area => CalculateArea();
 
             #endregion
@@ -243,38 +254,38 @@ namespace GPC.Model.Sections
             }
 
             /// <summary>
-            /// Calculate the first moment of inertia of the wall respect the X-axis passing throw the centroid
+            /// Calculate the first moment of inertia of the wall respect the X-axis passing throw the centroid of the <see cref="ThinWallSection"/>
             /// </summary>
             /// <returns></returns>
-            internal double CalculateJx()
+            internal double CalculateJx(Point2d sectionCentroid)
             {
                 if (_angle == 0)
-                    return CalculateJxRespectCentroid() + CalculateArea() * Math.Pow((Centroid.X), 2);
+                    return CalculateJx() + CalculateArea() * Math.Pow((sectionCentroid.X), 2);
 
                 else if (_angle == Math.PI / 2.0)
-                    return CalculateJxRespectCentroid() + CalculateArea() * Math.Pow((Centroid.X), 2);
+                    return CalculateJx() + CalculateArea() * Math.Pow((sectionCentroid.X), 2);
 
                 else
                     throw new NotImplementedException("Not implemented angle");
             }
 
             /// <summary>
-            /// Calculate the first moment of inertia of the wall respect the Y-axis passing throw the centroid
+            /// Calculate the first moment of inertia of the wall respect the Y-axis passing throw the centroid of the <see cref="ThinWallSection"/>
             /// </summary>
             /// <returns></returns>
-            internal double CalculateJy()
+            internal double CalculateJy(Point2d sectionCentroid)
             {
                 if (_angle == 0)
-                    return CalculateJyRespectCentroid() + CalculateArea() * Math.Pow((Centroid.Y), 2);
+                    return CalculateJy() + CalculateArea() * Math.Pow((sectionCentroid.Y), 2);
 
                 else if (_angle == Math.PI / 2.0)
-                    return CalculateJyRespectCentroid() + CalculateArea() * Math.Pow((Centroid.Y), 2);
+                    return CalculateJy() + CalculateArea() * Math.Pow((sectionCentroid.Y), 2);
 
                 else
                     throw new NotImplementedException("Not implemented angle");
             }
 
-            internal double CalculateJyRespectCentroid()
+            internal double CalculateJy()
             {
                 if (_angle == 0)
                     return _t * Math.Pow(_l, 3) / 12.0;
@@ -286,7 +297,7 @@ namespace GPC.Model.Sections
                     throw new NotImplementedException("Not implemented angle");
             }
 
-            internal double CalculateJxRespectCentroid()
+            internal double CalculateJx()
             {
                 if (_angle == 0)
                     return _l * Math.Pow(_t, 3) / 12.0;

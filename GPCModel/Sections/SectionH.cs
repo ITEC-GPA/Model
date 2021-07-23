@@ -62,11 +62,15 @@ namespace GPC.Model.Sections
                 _isSymmetricAlongXLocalAxis = true;
             _isSymmetricAlongYLocalAxis = true;
 
-            ThinWall web = new ThinWall(HeightWeb, thicknessWeb, Math.PI / 2, new Point2d(Math.Max(LenghtTopFlange, LenghtBottomFlange) / 2.0, ThicknessBottomFlange + HeightWeb / 2.0));
-            ThinWall flangeTop = new ThinWall(topFlangeLength, topFlangeThickness, 0, new Point2d(Math.Max(LenghtTopFlange, LenghtBottomFlange) / 2.0, bottomFlangeThickness + HeightWeb + topFlangeThickness / 2.0));
-            ThinWall flangeBottom = new ThinWall(bottomFlangeLength, bottomFlangeThickness, 0, new Point2d(Math.Max(LenghtTopFlange, LenghtBottomFlange) / 2.0, bottomFlangeThickness / 2.0));
+            ThinWall web = new ThinWall(HeightWeb, thicknessWeb, Math.PI / 2);
+            ThinWall flangeTop = new ThinWall(topFlangeLength, topFlangeThickness, 0);
+            ThinWall flangeBottom = new ThinWall(bottomFlangeLength, bottomFlangeThickness, 0);
 
-            ThinWalls = new ThinWall[3] { web , flangeBottom, flangeTop };
+            Points = new Point2d[3] { new Point2d(Math.Max(LenghtTopFlange, LenghtBottomFlange) / 2.0, ThicknessBottomFlange + HeightWeb / 2.0),
+                                    new Point2d(Math.Max(LenghtTopFlange, LenghtBottomFlange) / 2.0, bottomFlangeThickness + HeightWeb + topFlangeThickness / 2.0),
+                                    new Point2d(Math.Max(LenghtTopFlange, LenghtBottomFlange) / 2.0, bottomFlangeThickness / 2.0)};
+
+            ThinWalls = new ThinWall[3] { web , flangeTop, flangeBottom };
         }
 
         #endregion

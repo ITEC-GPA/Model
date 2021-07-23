@@ -41,6 +41,7 @@ namespace GPC.Model.Sections.Steel
             : base(lHor, tHor, lVert, tVert, material, name)
         {
             _sectionType = sectionTypes;
+            _formedType = formedType;
             _r = radius < 0 ? 0 : radius;        // raggio di curvatura o altezza di gola
         }
 
