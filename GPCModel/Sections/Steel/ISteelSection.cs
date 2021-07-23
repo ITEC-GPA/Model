@@ -42,6 +42,13 @@ namespace GPC.Model.Sections.Steel
         double Wel2 { get; }
 
         Section.SectionTypes SectionType {get; }
+
         Section.FormedTypes FormedType { get; }
+
+        bool IsSymmetricAlongXLocalAxis { get; }
+
+        bool IsSymmetricAlongYLocalAxis { get; }
+
+        bool IsDoubleSymmetric { get; }
     }
 }
