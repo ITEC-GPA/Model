@@ -1,4 +1,4 @@
-﻿using GPC.Geometry;
+using GPC.Geometry;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -54,6 +54,8 @@ namespace GPC.Model.Sections.Steel
             _r = radius < 0.0 ? 0 : radius;        // altezza di gola o raggio di curvatura
             _sectionType = type;
             _formedType = formedType;
+
+            SetMechanicalProperties();
         }
 
         #endregion
@@ -61,25 +63,27 @@ namespace GPC.Model.Sections.Steel
 
         public override double CalculateJ11()
         {
-            return base.CalculateJ11();     //+ CalculateAdditionaJxx()
+            return base.CalculateJ11() + CalculateAdditionaJxx();
         }
 
         public override double CalculateJ22()
         {
-            return base.CalculateJ22();     //+ CalculateAdditionaJyy()
+            return base.CalculateJ22() + CalculateAdditionaJyy();
         }
 
         private double CalculateAdditionaJxx()
         {
-            Point2d centroid = CalculateCentroid();
-
             if (IsWelded)
             {
-                return Math.Pow((1.41 * _r), 4) / 24.0 + CalculateAdditionalArea() * (HeightWeb - centroid.Y - _r);
+                return 4 * (Math.Pow((1.41 * _r), 4) / 24.0) +
+                    CalculateAdditionalArea() / 2 * Math.Pow(Height - Centroid.Y - ThicknessTopFlange - R / 4.0, 2) +
+                    CalculateAdditionalArea() / 2 * Math.Pow(Centroid.Y - ThicknessBottomFlange - R / 4.0, 2);
             }
             else if (IsRolled)
             {
-                return 0;
+                return 4.0 * ((1.0 / 3.0) * Math.Pow(_r, 4.0) - (Math.PI / 16.0) * Math.Pow(_r, 4.0)) +
+                    CalculateAdditionalArea() / 2 * Math.Pow(Height - Centroid.Y - ThicknessTopFlange - R / 4.0, 2) +
+                    CalculateAdditionalArea() / 2 * Math.Pow(Centroid.Y - ThicknessBottomFlange - R / 4.0, 2);
             }
             else
                 throw new NotImplementedException("Not Implemented type");
@@ -89,11 +93,11 @@ namespace GPC.Model.Sections.Steel
         {
             if (IsWelded)
             {
-                return Math.Pow((1.41 * _r), 4) / 24.0 + 4 * CalculateAdditionalArea() * (HeightWeb / 2);
+                return 4 * (Math.Pow((1.41 * R), 4) / 24.0) +  CalculateAdditionalArea() * Math.Pow(ThicknessWeb / 2, 2);
             }
             else if (IsRolled)
             {
-                return 0;
+                return 4.0 * ((1.0 / 3.0) * Math.Pow(R, 4.0) - (Math.PI / 16.0) * Math.Pow(R, 4.0)) + CalculateAdditionalArea() * Math.Pow(ThicknessWeb / 2.0, 2);
             }
             else
                 throw new NotImplementedException("Not Implemented type");
@@ -101,14 +105,19 @@ namespace GPC.Model.Sections.Steel
 
         private double CalculateAdditionalArea()
         {
-            if (IsWelded)            
-                return Math.Pow((1.41 * _r), 2) / 2.0;
-            
+            if (IsWelded)
+                return Math.Pow((1.41 * R), 2) / 2.0;
+
             else if (IsRolled)            
-                return Math.Pow(_r, 2) - Math.Pow(_r, 2) * Math.PI / 4.0;
-            
+                return 4 * (Math.Pow(R, 2) - Math.Pow(R, 2) * Math.PI / 4.0);            
+
             else
                 throw new NotImplementedException("Not Implemented type");
+        }
+
+        public override double CalculateArea()
+        {
+            return base.CalculateArea() + CalculateAdditionalArea();
         }
 
     }

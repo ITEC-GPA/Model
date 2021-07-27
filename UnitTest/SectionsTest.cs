@@ -669,6 +669,33 @@ namespace ModelObjectTest
         }
 
         [TestMethod]
+        public void SectionHSymmetric_Test7()
+        {
+            double h = 290.0;         // HEA300
+            double tw = 8.5;
+            double bt = 300.0;
+            double bb = 300.0;
+            double tt = 14.0;
+            double tb = 14.0;
+            double r = 27.0;
+
+            SteelSectionH sec = new SteelSectionH(h, tw, bt, tt, bb, tb, new SteelMaterial("steel", 210000, 0.3, 355, 510, 7850), 
+                string.Empty, Section.SectionTypes.Rolled, Section.FormedTypes.HotFinished, r);
+
+            double A = 11253;          
+            double Jxx = 182630000;
+            double Jyy = 63100000;
+            double raggioInerziaX = 74.9;
+            double raggioInerziaY = 127.4;
+
+            Assert.AreEqual(Math.Abs(A / sec.Area) - 1, 0, 0.005);
+            Assert.AreEqual(Math.Abs(Jyy / sec.J22) - 1, 0, 0.005);
+            Assert.AreEqual(Math.Abs(Jxx / sec.J11) - 1, 0, 0.005);
+            Assert.AreEqual(Math.Abs(raggioInerziaX / sec.R11) - 1, 0, 0.005);
+            Assert.AreEqual(Math.Abs(raggioInerziaY / sec.R22) - 1, 0, 0.005);
+        }
+
+        [TestMethod]
         public void SectionHSymmetric_Sigma1()
         {
             double h = 304.8;         
@@ -850,8 +877,8 @@ namespace ModelObjectTest
             SteelSectionL sec = new SteelSectionL(b, tb, h, tw, new SteelMaterial("steel", 200000, 0.3, 355, 510, 7850), string.Empty);
 
             double A = 56800;
-            double J1 = 517472668.5153;
-            double J2 = 1951689772.799;
+            double J2 = 517472668.5153;
+            double J1 = 1951689772.799;
             //double Wel1 = 2368295.77;
             //double Wel2 = 5465136.457;
 
@@ -862,12 +889,80 @@ namespace ModelObjectTest
             double JwStraus = 1.64361e12;
 
             Assert.AreEqual(A, sec.Area);
-            Assert.AreEqual(Math.Abs(J2 / sec.Jyy) - 1, 0, 0.001);
-            Assert.AreEqual(Math.Abs(J1 / sec.Jxx) - 1, 0, 0.001);
+            Assert.AreEqual(Math.Abs(J2 / sec.J22) - 1, 0, 0.001);
+            Assert.AreEqual(Math.Abs(J1 / sec.J11) - 1, 0, 0.001);
             /*Assert.AreEqual(Math.Abs(Wel2 / sec.Wel22Min) - 1, 0, 0.001); --> SAP ERRATO
             Assert.AreEqual(Math.Abs(Wel1 / sec.Wel11Min) - 1, 0, 0.001); --> SAP ERRATO*/
             Assert.AreEqual(Jt / sec.Jt - 1.0, 0, 0.05);
             Assert.AreEqual(JwStraus / sec.Jw - 1, 0, 0.06);
+        }
+
+        [TestMethod]
+        public void SectionL_Test4()
+        {
+            double h = 200;
+            double tw = 10;
+            double b = 200;
+            double tb = 10;
+            SteelSectionL sec = new SteelSectionL(b, tb, h, tw, new SteelMaterial("steel", 200000, 0.3, 355, 510, 7850), string.Empty);
+
+            double A = 3900;
+            double jxx = 15476090;
+            double jyy = 15476090;
+            double j11 = 24732500;
+            double j22 = 6219600;
+            double r2 = 79.6;
+            double r1 = 39.9;
+            double angle = Math.PI / 4;
+
+            Assert.AreEqual(A, sec.Area);
+            Assert.AreEqual(angle, sec.AngleX1);
+            Assert.AreEqual(Math.Abs(jxx / sec.Jxx) - 1, 0, 0.001);
+            Assert.AreEqual(Math.Abs(jyy / sec.Jyy) - 1, 0, 0.001);
+            Assert.AreEqual(Math.Abs(j11 / sec.J11) - 1, 0, 0.001);
+            Assert.AreEqual(Math.Abs(j22 / sec.J22) - 1, 0, 0.001);
+            Assert.AreEqual(Math.Abs(r1 / sec.R11) - 1, 0, 0.001);
+            Assert.AreEqual(Math.Abs(r2 / sec.R22) - 1, 0, 0.001);
+        }
+
+        [TestMethod]
+        public void SectionL_Test5()
+        {
+            double h = 200;
+            double tw = 10;
+            double b = 200;
+            double tb = 20;
+            SteelSectionL sec = new SteelSectionL(b, tb, h, tw, new SteelMaterial("steel", 200000, 0.3, 355, 510, 7850), string.Empty);
+
+            double A = 5800;
+            double jyy = 24551782;
+            double jxx = 17407126;
+            double j11 = 24732500;
+            double j22 = 6219600;
+
+            Assert.AreEqual(A, sec.Area);
+            Assert.AreEqual(Math.Abs(jxx / sec.Jxx) - 1, 0, 0.001);
+            Assert.AreEqual(Math.Abs(jyy / sec.Jyy) - 1, 0, 0.001);
+            Assert.AreEqual(Math.Abs(j11 / sec.J11) - 1, 0, 0.001);
+            Assert.AreEqual(Math.Abs(j22 / sec.J22) - 1, 0, 0.001);
+        }
+
+        [TestMethod]
+        public void SectionL_Test6()
+        {
+            double h = 20.01;
+            double tw = 0.1;
+            double b = 200;
+            double tb = 20;
+            SteelSectionL sec = new SteelSectionL(b, tb, h, tw, new SteelMaterial("steel", 200000, 0.3, 355, 510, 7850), string.Empty);
+
+            double A = 4000.01;
+            double jyy = 133334.3;
+            double jxx = 13333433;
+
+            Assert.AreEqual(Math.Abs(A/ sec.Area) -1, 0, 0.001);
+            Assert.AreEqual(Math.Abs(jxx / sec.Jxx) - 1, 0, 0.001);
+            Assert.AreEqual(Math.Abs(jyy / sec.Jyy) - 1, 0, 0.001);
         }
     }
 }
