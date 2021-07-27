@@ -39,6 +39,11 @@ namespace GPC.Model.Standards
         private readonly double _alphaLTImperfectionFactorForCurveC;
         private readonly double _alphaLTImperfectionFactorForCurveD;
 
+        private readonly double _betaForLateralTorsionalBuckling;
+        private readonly double _lambdaLT0ForLateralTorsionalBuckling;
+
+
+
 
         public double GammaM0 => _gammaM0;
 
@@ -68,6 +73,9 @@ namespace GPC.Model.Standards
 
         public double AlphaLTImperfectionFactorForCurveD => _alphaLTImperfectionFactorForCurveD;
 
+        public double BetaForLateralTorsionalBuckling => _betaForLateralTorsionalBuckling;
+
+        public double LambdaLT0ForLateralTorsionalBuckling => _lambdaLT0ForLateralTorsionalBuckling;
 
         #endregion
 
@@ -90,6 +98,9 @@ namespace GPC.Model.Standards
             _alphaLTImperfectionFactorForCurveB = 0.34;
             _alphaLTImperfectionFactorForCurveC = 0.49;
             _alphaLTImperfectionFactorForCurveD = 0.76;
+
+            _betaForLateralTorsionalBuckling = 1.0;
+            _lambdaLT0ForLateralTorsionalBuckling = 0.2;
         }
 
 
