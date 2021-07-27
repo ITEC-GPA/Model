@@ -85,6 +85,7 @@ namespace GPC.Model.Sections
             _wel2 = CalculateWel2();
             _wpl1 = CalculateWpl1();
             _wpl2 = CalculateWpl2();
+            _angleX1 = CalculateAngle();
         }
 
         /// <summary>
@@ -105,6 +106,11 @@ namespace GPC.Model.Sections
             }
 
             return new Point2d((xSum / area), (ySum / area));
+        }
+
+        public virtual double CalculateAngle()
+        {
+            return 0.0;
         }
 
         public virtual double CalculateJt()
@@ -260,10 +266,10 @@ namespace GPC.Model.Sections
             internal double CalculateJx(Point2d point)
             {
                 if (_angle == 0)
-                    return CalculateJx() + CalculateArea() * Math.Pow((point.X), 2);
+                    return CalculateJx() + CalculateArea() * Math.Pow((point.Y), 2);
 
                 else if (_angle == Math.PI / 2.0)
-                    return CalculateJx() + CalculateArea() * Math.Pow((point.X), 2);
+                    return CalculateJx() + CalculateArea() * Math.Pow((point.Y), 2);
 
                 else
                     throw new NotImplementedException("Not implemented angle");
@@ -276,10 +282,10 @@ namespace GPC.Model.Sections
             internal double CalculateJy(Point2d point)
             {
                 if (_angle == 0)
-                    return CalculateJy() + CalculateArea() * Math.Pow((point.Y), 2);
+                    return CalculateJy() + CalculateArea() * Math.Pow((point.X), 2);
 
                 else if (_angle == Math.PI / 2.0)
-                    return CalculateJy() + CalculateArea() * Math.Pow((point.Y), 2);
+                    return CalculateJy() + CalculateArea() * Math.Pow((point.X), 2);
 
                 else
                     throw new NotImplementedException("Not implemented angle");
