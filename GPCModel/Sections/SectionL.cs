@@ -44,7 +44,7 @@ namespace GPC.Model.Sections
             ThinWall thinWall2 = new ThinWall(LengthVert - ThicknessHor, ThicknessVert, Math.PI / 2);
 
             Points = new Point2d[] { new Point2d(LengthHor / 2, ThicknessHor / 2),
-                    new Point2d(ThicknessVert / 2, ThicknessHor + (ThicknessVert - ThicknessHor) / 2)};
+                    new Point2d(ThicknessVert / 2, ThicknessHor + (LengthVert - ThicknessHor) / 2)};
 
             ThinWalls = new ThinWall[] { thinWall1, thinWall2 };
         }
@@ -64,9 +64,9 @@ namespace GPC.Model.Sections
             return Math.Min(CalculateWel22Bottom(), CalculateWel22Top());
         }
 
-        public double CalculateAngle()
+        public override double CalculateAngle()
         {
-            double angle = -1.0 / 2.0 * Math.Atan(2.0 * CalculateJxy() / (_jyy - _jxx));
+            double angle = -1.0 / 2.0 * Math.Atan(2.0 * CalculateJxy() / (Jyy - Jxx));
 
             if (Jyy < Jxx)
                 angle += Math.PI / 2.0;
@@ -76,12 +76,12 @@ namespace GPC.Model.Sections
 
         public override double CalculateJ11()
         {
-            return (Jxx + Jyy) / 2.0 - 0.5 * Math.Sqrt(Math.Pow(Jxx - Jyy, 2.0) + 4.0 * CalculateJxy() * CalculateJxy());
+            return (Jxx + Jyy) / 2.0 + 0.5 * Math.Sqrt(Math.Pow(Jxx - Jyy, 2.0) + 4.0 * Math.Pow(CalculateJxy(), 2));
         }
 
         public override double CalculateJ22()
         {
-            return (Jxx + Jyy) / 2.0 + 0.5 * Math.Sqrt(Math.Pow(Jxx - Jyy, 2.0) + 4.0 * CalculateJxy() * CalculateJxy());
+            return (Jxx + Jyy) / 2.0 - 0.5 * Math.Sqrt(Math.Pow(Jxx - Jyy, 2.0) + 4.0 * Math.Pow(CalculateJxy(), 2));
         }
 
         public double CalculateWel11Left()
@@ -142,24 +142,31 @@ namespace GPC.Model.Sections
         public override double CalculateJxx()
         {
             double jxx = 0;
-            for (int i = 0; i < ThinWalls.Count(); i++)
-                jxx += +DistanceXCentroidFromLeft() + ThinWalls[i].Area * Math.Pow(Points[i].X - Centroid.X, 2.0);
+            for (int i = 0; i < ThinWalls.Length; i++)
+            {
+                jxx += ThinWalls[i].CalculateJx(Points[i]);
+            }
             return jxx;
+
+            // double a = LengthHor * Math.Pow(LengthVert, 3);
+            // double b = (LengthHor - ThicknessVert) * Math.Pow(LengthVert - ThicknessHor, 3);
+            // double c = Area * Math.Pow(LengthVert - Centroid.Y, 2);
+            // return (1.0 / 3.0) * (LengthHor * Math.Pow(LengthVert, 3) - (LengthHor - ThicknessVert) * Math.Pow(LengthVert - ThicknessHor, 3)) - 
+            //     Area * Math.Pow(LengthVert - Centroid.Y, 2);
         }
 
         public override double CalculateJyy()
         {
-            double jyy = 0;
-            for (int i = 0; i < ThinWalls.Count(); i++)
-                jyy += Points[i].Y + ThinWalls[i].Area * Math.Pow(Points[i].Y - Centroid.Y, 2.0);
-            return jyy;
+            return (1.0 / 3.0) * (LengthVert * Math.Pow(LengthHor, 3) - (LengthVert - ThicknessHor) * Math.Pow(LengthHor - ThicknessVert, 3)) -
+                Area * Math.Pow(LengthHor - Centroid.X, 2);
         }
 
         public double CalculateJxy()
         {
             double jxy = 0;
-            for (int i = 0; i < ThinWalls.Count(); i++)
-                jxy += +0.0 + ThinWalls[i].Area * (Points[i].X - Centroid.X) * (Points[i].Y - Centroid.Y);
+            for (int i = 0; i < ThinWalls.Count(); i++)            
+                jxy += +0.0 + ThinWalls[i].Area * (Centroid.X - Points[i].X) * (Centroid.Y - Points[i].Y);
+            
             return jxy;
         }
 
@@ -226,6 +233,14 @@ namespace GPC.Model.Sections
             return CalculateWel2();
         }
 
+        public override Point2d CalculateCentroid()
+        {
+            double xc = (Math.Pow(LengthHor, 2) + LengthVert * ThicknessHor - Math.Pow(ThicknessHor, 2)) /
+                (2 * (LengthHor + LengthVert - ThicknessHor));
+            double yc = (Math.Pow(LengthVert, 2) + LengthHor * ThicknessVert - Math.Pow(ThicknessVert, 2)) /
+                (2 * (LengthVert + LengthHor - ThicknessVert));
+            return new Point2d(xc, yc);
+        }
 
         #endregion
     }

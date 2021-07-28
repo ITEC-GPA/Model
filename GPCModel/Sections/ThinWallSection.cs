@@ -133,12 +133,9 @@ namespace GPC.Model.Sections
         {
             double j = 0;
 
-            for (int i = 0; i < _thinWalls.Length; i++)
-            {
-                j += _thinWalls[i].CalculateJx();
-                j += _thinWalls[i].Area * Math.Pow((Centroid.Y - _points[i].Y), 2);
-            }
-
+            for (int i = 0; i < _thinWalls.Length; i++)            
+                j += _thinWalls[i].CalculateJx() + _thinWalls[i].Area * Math.Pow((Centroid.Y - _points[i].Y), 2);
+                       
             return j;
         }
 
@@ -150,12 +147,9 @@ namespace GPC.Model.Sections
         {
             double j = 0;
 
-            for (int i = 0; i < _thinWalls.Length; i++)
-            {
-                j += _thinWalls[i].CalculateJy();
-                j += _thinWalls[i].Area * Math.Pow((Centroid.X - _points[i].X), 2);
-            }
-
+            for (int i = 0; i < _thinWalls.Length; i++)            
+                j += _thinWalls[i].CalculateJy() + _thinWalls[i].Area * Math.Pow((Centroid.X - _points[i].X), 2);
+            
             return j;
         }
         
