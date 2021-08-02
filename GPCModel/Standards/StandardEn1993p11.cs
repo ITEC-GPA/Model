@@ -21,28 +21,26 @@ namespace GPC.Model.Standards
 
         #region VARIABLES
 
-        private readonly double _gammaM0;
-        private readonly double _gammaM1;
-        private readonly double _gammaM2;
+        protected double _gammaM0;
+        protected double _gammaM1;
+        protected double _gammaM2;
 
-        private readonly double _nShearBucklingLowGradeOfSteel;
-        private readonly double _nShearBucklingHighGradeOfSteel;
+        protected double _nShearBucklingLowGradeOfSteel;
+        protected double _nShearBucklingHighGradeOfSteel;
 
-        private readonly double _alphaImperfectionFactorForCurveA0;
-        private readonly double _alphaImperfectionFactorForCurveA;
-        private readonly double _alphaImperfectionFactorForCurveB;
-        private readonly double _alphaImperfectionFactorForCurveC;
-        private readonly double _alphaImperfectionFactorForCurveD;
+        protected double _alphaImperfectionFactorForCurveA0;
+        protected double _alphaImperfectionFactorForCurveA;
+        protected double _alphaImperfectionFactorForCurveB;
+        protected double _alphaImperfectionFactorForCurveC;
+        protected double _alphaImperfectionFactorForCurveD;
 
-        private readonly double _alphaLTImperfectionFactorForCurveA;
-        private readonly double _alphaLTImperfectionFactorForCurveB;
-        private readonly double _alphaLTImperfectionFactorForCurveC;
-        private readonly double _alphaLTImperfectionFactorForCurveD;
+        protected double _alphaLTImperfectionFactorForCurveA;
+        protected double _alphaLTImperfectionFactorForCurveB;
+        protected double _alphaLTImperfectionFactorForCurveC;
+        protected double _alphaLTImperfectionFactorForCurveD;
 
-        private readonly double _betaForLateralTorsionalBuckling;
-        private readonly double _lambdaLT0ForLateralTorsionalBuckling;
-
-
+        protected double _betaForLateralTorsionalBuckling;
+        protected double _lambdaLT0ForLateralTorsionalBuckling;
 
 
         public double GammaM0 => _gammaM0;
@@ -102,9 +100,6 @@ namespace GPC.Model.Standards
             _betaForLateralTorsionalBuckling = 1.0;
             _lambdaLT0ForLateralTorsionalBuckling = 0.2;
         }
-
-
-
 
     }
 }

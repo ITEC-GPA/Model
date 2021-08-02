@@ -8,7 +8,7 @@ using GPC.Model.Combinations;
 
 namespace GPC.Model.Standards
 {
-    class StandardEN16612 : StandardEN1990, Standard.ICombinationsGenerator
+    public class StandardEN16612 : StandardEN1990, Standard.ICombinationsGenerator
     {
         #region PUBLIC ENUMS
 
