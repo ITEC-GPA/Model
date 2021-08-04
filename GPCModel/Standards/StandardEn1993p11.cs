@@ -41,6 +41,8 @@ namespace GPC.Model.Standards
 
         protected double _betaForLateralTorsionalBuckling;
         protected double _lambdaLT0ForLateralTorsionalBuckling;
+        protected double _betaForLateralTorsionalBucklingMod;
+        protected double _lambdaLT0ForLateralTorsionalBucklingMod;
 
 
         public double GammaM0 => _gammaM0;
@@ -75,6 +77,10 @@ namespace GPC.Model.Standards
 
         public double LambdaLT0ForLateralTorsionalBuckling => _lambdaLT0ForLateralTorsionalBuckling;
 
+        public double BetaForLateralTorsionalBucklingMod => _betaForLateralTorsionalBucklingMod;
+
+        public double LambdaLT0ForLateralTorsionalBucklingMod => _lambdaLT0ForLateralTorsionalBucklingMod;
+
         #endregion
 
         public StandardEN1993p11()
@@ -99,6 +105,8 @@ namespace GPC.Model.Standards
 
             _betaForLateralTorsionalBuckling = 1.0;
             _lambdaLT0ForLateralTorsionalBuckling = 0.2;
+            _betaForLateralTorsionalBucklingMod = 0.75;
+            _lambdaLT0ForLateralTorsionalBucklingMod = 0.40;
         }
 
     }
