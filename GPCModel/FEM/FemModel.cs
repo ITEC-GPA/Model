@@ -515,7 +515,19 @@ namespace GPC.Model.FEM
 
             if (LoadCaseExist(loadCaseName))
             {
-                modelAttribute = new ModelAccelerationAttribute(loadCaseName);
+
+                IEnumerable<IModelAttribute> buffer = _modelAttributes.Where(i => (i is ModelAccelerationAttribute))
+                                                        .Where(i => ((ModelAccelerationAttribute)i).LoadCaseName == loadCaseName).DefaultIfEmpty();
+                                
+                if (buffer.Count() > 0)
+                {
+                    modelAttribute = (ModelAccelerationAttribute)buffer.First();
+                }
+                else
+                {
+                    modelAttribute = new ModelAccelerationAttribute(loadCaseName);
+                }
+
             }
             else
             {
@@ -527,6 +539,32 @@ namespace GPC.Model.FEM
 
             return modelAttribute;
         }
+
+
+        /// <param name="loadCaseName"></param>
+        /// <returns></returns>
+        public ModelAccelerationAttribute GetModelAccelerationAttribute(string loadCaseName)
+        {
+
+            IEnumerable<IModelAttribute> buffer = _modelAttributes.Where(i => (i is ModelAccelerationAttribute))
+                                                           .Where(i => ((ModelAccelerationAttribute)i).LoadCaseName == loadCaseName).DefaultIfEmpty();
+
+            if (buffer.Count() > 0)
+            {
+               return (ModelAccelerationAttribute)buffer.First();
+            }
+            else
+            {
+                return null;
+            }
+        }
+
+
+        public IModelAttribute[] GetModelAttributes()
+        {
+            return _modelAttributes.ToArray(); 
+        }
+
 
         #endregion
 

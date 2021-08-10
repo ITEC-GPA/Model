@@ -126,7 +126,7 @@ namespace GPC.Model
         /// <remarks>This is a O(n) operation</remarks>
         public virtual T GetElementById(int id)
         {
-            // l'add non fa aggiungere oggetti con nome duplicato.
+            // l'add non fa aggiungere oggetti con id duplicato.
             // se le istanze variano dopo che sono stati aggiunti e trova un duplicato va in eccezione
 
             lock (_locker)
