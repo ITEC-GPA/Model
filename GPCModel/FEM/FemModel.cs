@@ -322,9 +322,19 @@ namespace GPC.Model.FEM
             return _loadCases.ToArray();
         }
 
+        public string[] GetLoadCaseNames()
+        {
+            return _loadCases.GetNames().ToArray();
+        }
+
         public FreedomCase[] GetFreedomCases()
         {
             return _freedomCases.ToArray();
+        }
+
+        public string[] GetFreedomCaseNames()
+        {
+            return _freedomCases.GetNames().ToArray();
         }
 
 
