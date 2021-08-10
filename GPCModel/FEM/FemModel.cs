@@ -322,6 +322,12 @@ namespace GPC.Model.FEM
             return _loadCases.ToArray();
         }
 
+        public FreedomCase[] GetFreedomCases()
+        {
+            return _freedomCases.ToArray();
+        }
+
+
         #endregion
 
         #region Combinations
@@ -506,26 +512,31 @@ namespace GPC.Model.FEM
 
         #region ModelAttribute
 
-        /// <summary>Create the a ModelAccelerationAttribute using the loadcase with name equal to <paramref name="loadCaseName"/></summary>
-        /// <remarks>Before calling this method, the loadCase must be Added by means of <see cref="FemModel.AddLoadCase(LoadCaseBase)"/></remarks>
+        /// <summary>Create the a ModelGravityAttribute using the loadcase with name equal to <paramref name="loadCaseName"/></summary>
+        /// <remarks>Before calling this method, the loadCase must be added by means of <see cref="FemModel.AddLoadCase(LoadCaseBase)"/></remarks>
         /// <exception cref="ArgumentException"></exception>
-        public ModelAccelerationAttribute AddModelAcceleration(string loadCaseName)
+        public ModelGravityAttribute AddModelGravityAttribute(string loadCaseName)
         {
-            ModelAccelerationAttribute modelAttribute;
 
             if (LoadCaseExist(loadCaseName))
             {
 
-                IEnumerable<IModelAttribute> buffer = _modelAttributes.Where(i => (i is ModelAccelerationAttribute))
-                                                        .Where(i => ((ModelAccelerationAttribute)i).LoadCaseName == loadCaseName).DefaultIfEmpty();
-                                
-                if (buffer.Count() > 0)
+                IModelAttribute modelAttribute = _modelAttributes.Where(i => ((LoadCaseAttribute)i).LoadCaseName == loadCaseName)
+                                                                 .DefaultIfEmpty().FirstOrDefault();
+
+
+                if (modelAttribute is null)
                 {
-                    modelAttribute = (ModelAccelerationAttribute)buffer.First();
+                    return new ModelGravityAttribute(loadCaseName);
                 }
                 else
                 {
-                    modelAttribute = new ModelAccelerationAttribute(loadCaseName);
+                    if (modelAttribute is ModelGravityAttribute)
+                        return (ModelGravityAttribute)modelAttribute;
+                    else 
+                    {
+                        throw new ArgumentException();
+                    }
                 }
 
             }
@@ -533,11 +544,75 @@ namespace GPC.Model.FEM
             {
                 throw new ArgumentException();
             }
+        }
 
 
-            _modelAttributes.Add(modelAttribute);
+        /// <param name="loadCaseName"></param>
+        /// <exception cref="KeyNotFoundException"></exception>
+        /// <exception cref="ArgumentException"></exception>
+        public ModelGravityAttribute GetModelGravityAttribute(string loadCaseName)
+        {
 
-            return modelAttribute;
+            if (LoadCaseExist(loadCaseName))
+            {
+
+                IModelAttribute modelAttribute = _modelAttributes.Where(i => ((LoadCaseAttribute)i).LoadCaseName == loadCaseName)
+                                                                 .DefaultIfEmpty().FirstOrDefault();
+
+                if (modelAttribute is null)
+                {
+                    throw new KeyNotFoundException();
+                }
+                else
+                {
+                    if (modelAttribute is ModelGravityAttribute)
+                        return (ModelGravityAttribute)modelAttribute;
+                    else
+                    {
+                        throw new ArgumentException();
+                    }
+                }
+            }
+            else
+            {
+                throw new ArgumentException();
+            }
+
+        }
+
+
+
+        /// <summary>Create the a ModelAccelerationAttribute using the loadcase with name equal to <paramref name="loadCaseName"/></summary>
+        /// <remarks>Before calling this method, the loadCase must be Added by means of <see cref="FemModel.AddLoadCase(LoadCaseBase)"/></remarks>
+        /// <exception cref="ArgumentException"></exception>
+        public ModelAccelerationAttribute AddModelAcceleration(string loadCaseName)
+        {
+            if (LoadCaseExist(loadCaseName))
+            {
+
+                IModelAttribute modelAttribute = _modelAttributes.Where(i => ((LoadCaseAttribute)i).LoadCaseName == loadCaseName)
+                                                                 .DefaultIfEmpty().FirstOrDefault();
+
+
+                if (modelAttribute is null)
+                {
+                    return new ModelAccelerationAttribute(loadCaseName);
+                }
+                else
+                {
+                    if (modelAttribute is ModelGravityAttribute)
+                        return (ModelAccelerationAttribute)modelAttribute;
+                    else
+                    {
+                        throw new ArgumentException();
+                    }
+                }
+
+            }
+            else
+            {
+                throw new ArgumentException();
+            }
         }
 
 
@@ -546,16 +621,29 @@ namespace GPC.Model.FEM
         public ModelAccelerationAttribute GetModelAccelerationAttribute(string loadCaseName)
         {
 
-            IEnumerable<IModelAttribute> buffer = _modelAttributes.Where(i => (i is ModelAccelerationAttribute))
-                                                           .Where(i => ((ModelAccelerationAttribute)i).LoadCaseName == loadCaseName).DefaultIfEmpty();
-
-            if (buffer.Count() > 0)
+            if (LoadCaseExist(loadCaseName))
             {
-               return (ModelAccelerationAttribute)buffer.First();
+
+                IModelAttribute modelAttribute = _modelAttributes.Where(i => ((LoadCaseAttribute)i).LoadCaseName == loadCaseName)
+                                                                 .DefaultIfEmpty().FirstOrDefault();
+
+                if (modelAttribute is null)
+                {
+                    throw new KeyNotFoundException();
+                }
+                else
+                {
+                    if (modelAttribute is ModelAccelerationAttribute)
+                        return (ModelAccelerationAttribute)modelAttribute;
+                    else
+                    {
+                        throw new ArgumentException();
+                    }
+                }
             }
             else
             {
-                return null;
+                throw new ArgumentException();
             }
         }
 
@@ -810,6 +898,11 @@ namespace GPC.Model.FEM
         public virtual Costrain GetCostrain(int index)
         {
             return _costrains[index];
+        }
+
+        public virtual Costrain[] GetCostrains()
+        {
+            return _costrains.ToArray();
         }
 
 
