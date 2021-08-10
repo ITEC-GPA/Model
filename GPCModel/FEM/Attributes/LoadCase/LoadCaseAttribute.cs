@@ -8,7 +8,7 @@ namespace GPC.Model.FEM.Attributes
     [Serializable]
     public abstract class LoadCaseAttribute : Attribute, ISerializable
     {
-        private string _loadCaseName;
+        private readonly string _loadCaseName;
 
         public string LoadCaseName => _loadCaseName;
 
@@ -27,7 +27,7 @@ namespace GPC.Model.FEM.Attributes
         public LoadCaseAttribute(string loadCaseName, string name, Guid guid) 
             : base(guid, name)
         {
-            _loadCaseName = String.IsNullOrEmpty(loadCaseName) || String.IsNullOrWhiteSpace(loadCaseName) ? throw new ArgumentNullException() : loadCaseName;
+            _loadCaseName = string.IsNullOrEmpty(loadCaseName) || string.IsNullOrWhiteSpace(loadCaseName) ? throw new ArgumentNullException() : loadCaseName;
         }
 
         public LoadCaseAttribute(LoadCaseAttribute loadCaseAttribute)
