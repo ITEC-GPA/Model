@@ -486,12 +486,18 @@ namespace GPC.Model.FEM
             return stage;
         }
 
-        public virtual Stage GetStageById(int stageId)
+        public Stage[] GetStages()
+        {
+            return _stages.ToArray();
+        }
+
+
+        public Stage GetStageById(int stageId)
         {
             return _stages.GetElementById(stageId);
         }
 
-        public virtual bool ContainsStageId(int stageId)
+        public bool ContainsStageId(int stageId)
         {
             return _stages.Contains(stageId);
         }
