@@ -17,7 +17,7 @@ namespace GPC.Model.Loads
 
         protected readonly double _acceleration;
 
-        protected readonly Vector3d _gravityVector;
+        protected Vector3d _gravityVector;
 
 
         /// <summary>
@@ -31,14 +31,10 @@ namespace GPC.Model.Loads
         public double Acceleration => _acceleration;
 
 
-        /// <summary>
-        /// 
-        /// </summary>
         /// <param name="loadCase"></param>
-        /// <param name="gravityVector"></param>
         /// <param name="acceleration"></param>
         /// <remarks>The <see cref="LoadCase.LoadCaseType"/> of <paramref name="loadCase"/> must be <see cref="LoadCase.LoadCaseTypes.SelfWeight"/></remarks>
-        public SelfWeightLoad(LoadCase loadCase, Vector3d gravityVector, double acceleration) 
+        public SelfWeightLoad(LoadCase loadCase, double acceleration) 
             : base(loadCase)
         {
             if (loadCase.LoadCaseType != LoadCases.LoadCase.LoadCaseTypes.SelfWeight)
@@ -46,7 +42,7 @@ namespace GPC.Model.Loads
                 throw new ArgumentException($"LoadCaseType must be {LoadCases.LoadCase.LoadCaseTypes.SelfWeight}");
             }
 
-            _gravityVector = gravityVector;
+            _gravityVector = CoordinateSystem.Global.V3;
             _gravityVector.Unitize();
             _acceleration = acceleration;
         }
@@ -57,7 +53,19 @@ namespace GPC.Model.Loads
             return null;
         }
 
+        public void SetGravityAxisToX()
+        {
+            _gravityVector = CoordinateSystem.Global.V1;
+        }
 
+        public void SetGravityAxisToY()
+        {
+            _gravityVector = CoordinateSystem.Global.V2;
+        }
+        public void SetGravityAxisToZ()
+        {
+            _gravityVector = CoordinateSystem.Global.V3;
+        }
 
         #region Equals, HashCode and operators
 
@@ -93,7 +101,6 @@ namespace GPC.Model.Loads
 
             return obj1.Equals(obj2);
         }
-
 
         public static bool operator !=(SelfWeightLoad obj1, SelfWeightLoad obj2)
         {
