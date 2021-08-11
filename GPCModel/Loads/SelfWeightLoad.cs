@@ -32,7 +32,7 @@ namespace GPC.Model.Loads
 
 
         /// <param name="loadCase"></param>
-        /// <param name="acceleration"></param>
+        /// <param name="acceleration">A positive acceleration means acceleration along the positive axis</param>
         /// <remarks>The <see cref="LoadCase.LoadCaseType"/> of <paramref name="loadCase"/> must be <see cref="LoadCase.LoadCaseTypes.SelfWeight"/></remarks>
         public SelfWeightLoad(LoadCase loadCase, double acceleration) 
             : base(loadCase)
@@ -42,8 +42,8 @@ namespace GPC.Model.Loads
                 throw new ArgumentException($"LoadCaseType must be {LoadCases.LoadCase.LoadCaseTypes.SelfWeight}");
             }
 
-            _gravityVector = CoordinateSystem.Global.V3;
-            _gravityVector.Unitize();
+            _gravityVector = CoordinateSystem.Global.V3; // di default è Z
+            
             _acceleration = acceleration;
         }
 

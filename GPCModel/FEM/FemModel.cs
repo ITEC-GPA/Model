@@ -543,7 +543,9 @@ namespace GPC.Model.FEM
 
                 if (modelAttribute is null)
                 {
-                    return new ModelGravityAttribute(loadCaseName);
+                    var ma = new ModelGravityAttribute(loadCaseName);
+                    _modelAttributes.Add(ma);
+                    return ma;
                 }
                 else
                 {
@@ -612,7 +614,9 @@ namespace GPC.Model.FEM
 
                 if (modelAttribute is null)
                 {
-                    return new ModelAccelerationAttribute(loadCaseName);
+                    var ma = new ModelAccelerationAttribute(loadCaseName);
+                    _modelAttributes.Add(ma);
+                    return ma;
                 }
                 else
                 {
