@@ -18,13 +18,14 @@ namespace GPC.Model.Glasses
         private readonly AirChamber _airChamber;
         private readonly IGlassPanel _glassPanelInner;
 
-        #endregion 
+        #endregion
 
         #region Properties
 
         public IGlassPanel GlassPanelOuter => _glassPanelOuter;
         public AirChamber AirChamber => _airChamber;
         public IGlassPanel GlassPanelInner => _glassPanelInner;
+        public double TotalThickness => _glassPanelOuter.TotalThickness + _airChamber.Thickness + _glassPanelInner.TotalThickness;
 
         #endregion 
 
@@ -121,12 +122,15 @@ namespace GPC.Model.Glasses
 
         public override int GetHashCode()
         {
-            int hashCode = 23;
-            hashCode = hashCode * -17 + base.GetHashCode();
-            hashCode = hashCode * -17 + EqualityComparer<IGlassPanel>.Default.GetHashCode(_glassPanelOuter);
-            hashCode = hashCode * -17 + EqualityComparer<AirChamber>.Default.GetHashCode(_airChamber);
-            hashCode = hashCode * -17 + EqualityComparer<IGlassPanel>.Default.GetHashCode(_glassPanelInner);
-            return hashCode;
+            unchecked
+            {
+                int hashCode = 23;
+                hashCode = hashCode * -17 + base.GetHashCode();
+                hashCode = hashCode * -17 + EqualityComparer<IGlassPanel>.Default.GetHashCode(_glassPanelOuter);
+                hashCode = hashCode * -17 + EqualityComparer<AirChamber>.Default.GetHashCode(_airChamber);
+                hashCode = hashCode * -17 + EqualityComparer<IGlassPanel>.Default.GetHashCode(_glassPanelInner);
+                return hashCode; 
+            }
         }
 
         public static bool operator ==(DoubleInsulatingGlass obj1, DoubleInsulatingGlass obj2)

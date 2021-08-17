@@ -33,9 +33,7 @@ namespace GPC.Model.Glasses
 
         #region Constructors
 
-        /// <summary>
-        ///
-        /// </summary>
+
         /// <param name="name"></param>
         /// <param name="thickness">The minimum thickness of the panel (the one used for calculation)</param>
         /// <param name="glassMaterial"></param>
@@ -45,9 +43,7 @@ namespace GPC.Model.Glasses
 
         }
 
-        /// <summary>
-        ///
-        /// </summary>
+
         /// <param name="name"></param>
         /// <param name="guid">The guid of the glass</param>
         /// <param name="thickness">The minimum thickness of the panel (the one used for calculation)</param>
@@ -134,11 +130,14 @@ namespace GPC.Model.Glasses
 
         public override int GetHashCode()
         {
-            int hashCode = -23;
-            hashCode = hashCode * -17 + base.GetHashCode();
-            hashCode = hashCode * -17 + EqualityComparer<GlassMaterial>.Default.GetHashCode(_material);
-            hashCode = hashCode * -17 + _thickness.GetHashCode();
-            return hashCode;
+            unchecked
+            {
+                int hashCode = -23;
+                hashCode = hashCode * -17 + base.GetHashCode();
+                hashCode = hashCode * -17 + EqualityComparer<GlassMaterial>.Default.GetHashCode(_material);
+                hashCode = hashCode * -17 + _thickness.GetHashCode();
+                return hashCode; 
+            }
         }
 
         public static bool operator ==(MonolithicGlass obj1, MonolithicGlass obj2)

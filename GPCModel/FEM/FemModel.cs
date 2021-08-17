@@ -634,7 +634,7 @@ namespace GPC.Model.FEM
                 throw new ArgumentException();
             }
         }
-
+        
 
         /// <param name="loadCaseName"></param>
         /// <returns></returns>

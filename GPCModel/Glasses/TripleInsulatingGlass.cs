@@ -30,6 +30,10 @@ namespace GPC.Model.Glasses
         public AirChamber AirChamberInner => _airChamberInner;
         public IGlassPanel GlassPanelInner => _glassPanelInner;
 
+        public double TotalThickness => _glassPanelOuter.TotalThickness + _airChamberOuter.Thickness + _glassPanelCentral.TotalThickness 
+                                        + _airChamberInner.Thickness + _glassPanelInner.TotalThickness;
+
+
         #endregion
 
         #region Public constructor
@@ -56,7 +60,8 @@ namespace GPC.Model.Glasses
         /// <param name="glassPanelCentral">Central glass panel</param>
         /// <param name="airChamberOuter">Outer air thickness</param>
         /// <param name="airChamberInner">Inner air thickness</param>
-        public TripleInsulatingGlass(string name, IGlassPanel glassPanelOuter, IGlassPanel glassPanelCentral, IGlassPanel glassPanelInner, AirChamber airChamberOuter, AirChamber airChamberInner)
+        public TripleInsulatingGlass(string name, IGlassPanel glassPanelOuter, IGlassPanel glassPanelCentral, 
+                                                  IGlassPanel glassPanelInner, AirChamber airChamberOuter, AirChamber airChamberInner)
             : this(name, glassPanelOuter, glassPanelCentral, glassPanelInner, airChamberOuter, airChamberInner, Guid.NewGuid())
         {
 
@@ -69,7 +74,8 @@ namespace GPC.Model.Glasses
         /// <param name="airChamberOuter">Outer air thickness</param>
         /// <param name="airChamberInner">Inner air thickness</param>
         /// <param name="guid"></param>
-        public TripleInsulatingGlass(string name, IGlassPanel glassPanelOuter, IGlassPanel glassPanelCentral, IGlassPanel glassPanelInner, AirChamber airChamberOuter, AirChamber airChamberInner, Guid guid)
+        public TripleInsulatingGlass(string name, IGlassPanel glassPanelOuter, IGlassPanel glassPanelCentral, IGlassPanel glassPanelInner, 
+                                                  AirChamber airChamberOuter, AirChamber airChamberInner, Guid guid)
             : base(guid, name)
         {
             this._glassPanelOuter = glassPanelOuter ?? throw new ArgumentException("Outer Glass panel can't be null");
@@ -141,14 +147,17 @@ namespace GPC.Model.Glasses
 
         public override int GetHashCode()
         {
-            int hashCode = -23;
-            hashCode = hashCode * -17 + base.GetHashCode();
-            hashCode = hashCode * -17 + EqualityComparer<IGlassPanel>.Default.GetHashCode(_glassPanelOuter);
-            hashCode = hashCode * -17 + EqualityComparer<AirChamber>.Default.GetHashCode(_airChamberInner);
-            hashCode = hashCode * -17 + EqualityComparer<IGlassPanel>.Default.GetHashCode(_glassPanelCentral);
-            hashCode = hashCode * -17 + EqualityComparer<AirChamber>.Default.GetHashCode(_airChamberOuter);
-            hashCode = hashCode * -17 + EqualityComparer<IGlassPanel>.Default.GetHashCode(_glassPanelInner);
-            return hashCode;
+            unchecked
+            {
+                int hashCode = -23;
+                hashCode = hashCode * -17 + base.GetHashCode();
+                hashCode = hashCode * -17 + EqualityComparer<IGlassPanel>.Default.GetHashCode(_glassPanelOuter);
+                hashCode = hashCode * -17 + EqualityComparer<AirChamber>.Default.GetHashCode(_airChamberInner);
+                hashCode = hashCode * -17 + EqualityComparer<IGlassPanel>.Default.GetHashCode(_glassPanelCentral);
+                hashCode = hashCode * -17 + EqualityComparer<AirChamber>.Default.GetHashCode(_airChamberOuter);
+                hashCode = hashCode * -17 + EqualityComparer<IGlassPanel>.Default.GetHashCode(_glassPanelInner);
+                return hashCode; 
+            }
         }
 
         public static bool operator ==(TripleInsulatingGlass obj1, TripleInsulatingGlass obj2)
