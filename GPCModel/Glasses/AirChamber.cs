@@ -5,13 +5,14 @@ namespace GPC.Model.Glasses
 {
     public sealed class AirChamber : ModelObject, IGlassPackage, IEquatable<AirChamber>
     {
-        private double _thickness;
+        private readonly double _thickness;
 
         public double Thickness => _thickness;
 
         public AirChamber(string name, double thickness)
             : this(name, thickness, Guid.NewGuid())
         {
+
         }
 
         public AirChamber(string name, double thickness, Guid guid) : base(guid, name)

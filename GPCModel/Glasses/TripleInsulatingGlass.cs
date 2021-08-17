@@ -14,11 +14,11 @@ namespace GPC.Model.Glasses
     {
         #region Variables
 
-        private IGlassPanel _glassPanelOuter;
-        private AirChamber _airChamberOuter;
-        private IGlassPanel _glassPanelCentral;
-        private AirChamber _airChamberInner;
-        private IGlassPanel _glassPanelInner;
+        private readonly IGlassPanel _glassPanelOuter;
+        private readonly AirChamber _airChamberOuter;
+        private readonly IGlassPanel _glassPanelCentral;
+        private readonly AirChamber _airChamberInner;
+        private readonly IGlassPanel _glassPanelInner;
 
         #endregion
 

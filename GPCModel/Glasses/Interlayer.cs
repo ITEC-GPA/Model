@@ -15,9 +15,9 @@ namespace GPC.Model.Glasses
     {
         #region VARIABLES
 
-        private double _thickness;
+        private readonly double _thickness;
 
-        private InterlayerMaterial _interlayerMaterial;
+        private readonly InterlayerMaterial _interlayerMaterial;
 
         #endregion
 
