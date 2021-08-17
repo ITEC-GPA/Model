@@ -50,7 +50,7 @@ namespace GPC.Model.Glasses
         /// <param name="glassPanelInner">Inner glass panel</param>
         /// <param name="airChamber">air gap</param>
         public DoubleInsulatingGlass(string name, IGlassPanel glassPanelOuter, IGlassPanel glassPanelInner, AirChamber airChamber)
-            : this(name, glassPanelOuter, glassPanelOuter, airChamber, Guid.NewGuid())
+            : this(name, glassPanelOuter, glassPanelInner, airChamber, Guid.NewGuid())
         {
 
         }
