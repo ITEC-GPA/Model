@@ -35,6 +35,7 @@ namespace GPC.Model.Loads
 
         public CoordinateSystem CoordinateSystem => _coordinateSystem;
 
+        #region Costruttori
 
         /// <param name="f1">Unit measure [F/L]</param>
         /// <param name="f2">Unit measure [F/L]</param>
@@ -45,17 +46,18 @@ namespace GPC.Model.Loads
         /// <param name="line"></param>
         /// <param name="loadCase"></param>
         /// <param name="coordinateSystem"></param>
-        public LineLoad(double f1, double f2, double f3, double m1, double m2, double m3, Line3d line, LoadCaseBase loadCase, CoordinateSystem coordinateSystem) 
+        public LineLoad(double f1, double f2, double f3, double m1, double m2, double m3,
+                        Line3d line, LoadCaseBase loadCase, CoordinateSystem coordinateSystem)
             : base(loadCase, Guid.NewGuid())
         {
-            _f1 = f1;                                       
+            _f1 = f1;
             _f2 = f2;
             _f3 = f3;
             _m1 = m1;
             _m2 = m2;
             _m3 = m3;
             _coordinateSystem = coordinateSystem ?? throw new ArgumentNullException("Coordinate system cannot be null");
-            _line = line ?? throw new ArgumentNullException("Line cannot be null") ;
+            _line = line ?? throw new ArgumentNullException("Line cannot be null");
         }
 
 
@@ -78,7 +80,8 @@ namespace GPC.Model.Loads
             : this(force.X, force.Y, force.Z, moment.X, moment.Y, moment.Z, line, loadCase, cSys)
         {
 
-        }
+        } 
+        #endregion
 
         public Line3d GetGeometry() => _line;
 
@@ -112,17 +115,45 @@ namespace GPC.Model.Loads
             info.AddValue("Line3d", _line);
         }
 
+        /// <returns>The total local load vector in the local system. i.e. _f1 * lenght , _f2 * lenght, _f3 * lenght</returns>
+        public (Vector3d force, Vector3d moment) GetLocalLoadVector()
+        {
+            double line = _line.GetLength();
+            return (new Vector3d(_f1 * line, _f2 * line, _f3 * line), new Vector3d(_m1 * line, _m2 * line, _m3 * line));
+        }
+
+
+        /// <returns>The total global load vector in the local system. i.e. _f1 * lenght , _f2 * lenght, _f3 * lenght</returns>
+        public (Vector3d force, Vector3d moment) GetGlobalLoadVector()
+        {
+            if (_coordinateSystem == CoordinateSystem.Global)
+                return GetLocalLoadVector();
+            else
+            {
+                return (_coordinateSystem.ToGlobal(GetLocalLoadVector().force), _coordinateSystem.ToGlobal(GetLocalLoadVector().moment));
+            }
+        }
+
+        /// <inheritdoc cref="GetLocalForces(CoordinateSystem)"/>
+        public double[] GetLocalForces()
+        {
+            return GetLocalForces(_coordinateSystem);
+        }
+
         /// <summary>
-        /// Return an array with forces and moments in global coordinate system 
+        /// Return an array with forces and moments in local coordinate system 
         /// </summary>
         /// <param name="cSys"></param>
         /// <returns>The array [fx, fy, fz, mx, my, mz]</returns>
         public double[] GetLocalForces(CoordinateSystem cSys)
         {
-            Point3d forceGlobal = new Point3d(_f1, _f2, _f3);           // 
-            Point3d momentglobal = new Point3d(_m1, _m2, _m3);          // Crea un array di double in le 3 componenti di forza e di momento
-                                                                        // nelle 3 direzioni del sistema di coordinate locali.
-            Point3d PointForceLocal = cSys.ToLocal(forceGlobal);        // 
+            // Crea un array di double in le 3 componenti di forza e di momento
+            // nelle 3 direzioni del sistema di coordinate locali.
+
+            Point3d forceGlobal = new Point3d(_f1, _f2, _f3);           
+            Point3d momentglobal = new Point3d(_m1, _m2, _m3);          
+                                                                        
+            Point3d PointForceLocal = cSys.ToLocal(forceGlobal);        
             Point3d PointMomentLocal = cSys.ToLocal(momentglobal);
 
             Point3d OriginGlobal = cSys.ToLocal(CoordinateSystem.Global.Origin);
@@ -130,15 +161,15 @@ namespace GPC.Model.Loads
             Vector3d forceLocal = new Vector3d(PointForceLocal - OriginGlobal);
             Vector3d momentLocal = new Vector3d(PointMomentLocal - OriginGlobal);
 
-            double[] PointLoad = new double[6];
-            PointLoad[0] = forceLocal.X;
-            PointLoad[1] = forceLocal.Y;
-            PointLoad[2] = forceLocal.Z;
-            PointLoad[3] = momentLocal.X;
-            PointLoad[4] = momentLocal.Y;
-            PointLoad[5] = momentLocal.Z;
+            double[] pointLoad = new double[6];
+            pointLoad[0] = forceLocal.X;
+            pointLoad[1] = forceLocal.Y;
+            pointLoad[2] = forceLocal.Z;
+            pointLoad[3] = momentLocal.X;
+            pointLoad[4] = momentLocal.Y;
+            pointLoad[5] = momentLocal.Z;
 
-            return PointLoad;
+            return pointLoad;
         }
 
         /// <summary>

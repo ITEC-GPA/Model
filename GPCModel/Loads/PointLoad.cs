@@ -70,11 +70,6 @@ namespace GPC.Model.Loads
             
         }
 
-        public Point3d GetGeometry() => _point;
-
-        public override GeometryBase GetGeometryBase() => GetGeometry();
-
-
         public PointLoad(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
@@ -88,21 +83,35 @@ namespace GPC.Model.Loads
             _point = (Point3d)info.GetValue("Point", typeof(Point3d));
         }
 
+
+
         #endregion
 
         #region Public Methods Specific
 
-        public override void GetObjectData(SerializationInfo info, StreamingContext context)
+        public Point3d GetGeometry() => _point;
+
+        public override GeometryBase GetGeometryBase() => GetGeometry();
+
+
+
+
+        /// <returns>The total local load vector in the local system. i.e. _f1 , _f2 , _f3 </returns>
+        public (Vector3d force, Vector3d moment) GetLocalLoadVector()
         {
-            base.GetObjectData(info, context);
-            info.AddValue("F1", _f1);
-            info.AddValue("F2", _f2);
-            info.AddValue("F3", _f3);
-            info.AddValue("M1", _m1);
-            info.AddValue("M2", _m2);
-            info.AddValue("M3", _m3);
-            info.AddValue("CoordinateSystem", _coordinateSystem);
-            info.AddValue("Point", _point);
+            return (new Vector3d(_f1, _f2, _f3), new Vector3d(_m1, _m2, _m3));
+        }
+
+
+        /// <returns>The total global load vector in the local system. i.e. _f1  , _f2 , _f3 </returns>
+        public (Vector3d force, Vector3d moment) GetGlobalLoadVector()
+        {
+            if (_coordinateSystem == CoordinateSystem.Global)
+                return GetLocalLoadVector();
+            else
+            {
+                return (_coordinateSystem.ToGlobal(GetLocalLoadVector().force), _coordinateSystem.ToGlobal(GetLocalLoadVector().moment));
+            }
         }
 
         /// <summary>
@@ -112,10 +121,14 @@ namespace GPC.Model.Loads
         /// <returns>The array [fx, fy, fz, mx, my, mz]</returns>
         public double[] GetLocalForces(CoordinateSystem cSys)
         {
-            Point3d forceGlobal = new Point3d(_f1, _f2, _f3);                               // 
-            Point3d momentglobal = new Point3d(_m1, _m2, _m3);                              // Crea un array di double in le 3 componenti di forza e di momento
-                                                                                            // nelle 3 direzioni del sistema di coordinate locali.
-            Point3d PointForceLocal = cSys.ToLocal(forceGlobal);                            // 
+
+            // Crea un array di double in le 3 componenti di forza e di momento
+            // nelle 3 direzioni del sistema di coordinate locali.
+
+            Point3d forceGlobal = new Point3d(_f1, _f2, _f3);                               
+            Point3d momentglobal = new Point3d(_m1, _m2, _m3);                              
+                                                                                            
+            Point3d PointForceLocal = cSys.ToLocal(forceGlobal);                            
             Point3d PointMomentLocal = cSys.ToLocal(momentglobal);
 
             Point3d OriginGlobal = cSys.ToLocal(CoordinateSystem.Global.Origin);
@@ -233,6 +246,22 @@ namespace GPC.Model.Loads
         {
             return !(obj1 == obj2);
         }
+
+
+
+        public override void GetObjectData(SerializationInfo info, StreamingContext context)
+        {
+            base.GetObjectData(info, context);
+            info.AddValue("F1", _f1);
+            info.AddValue("F2", _f2);
+            info.AddValue("F3", _f3);
+            info.AddValue("M1", _m1);
+            info.AddValue("M2", _m2);
+            info.AddValue("M3", _m3);
+            info.AddValue("CoordinateSystem", _coordinateSystem);
+            info.AddValue("Point", _point);
+        }
+
         #endregion
     }
 }

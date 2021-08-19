@@ -49,6 +49,26 @@ namespace GPC.Model.Loads
         public Shape GetGeometry() => _shape;
         public override GeometryBase GetGeometryBase() => GetGeometry();
 
+
+        /// <returns>The total load vector in the local system. i.e. _p1 * area, _p2 * area, _p3 * area</returns>
+        public Vector3d GetLocalLoadVector()
+        {
+            return new Vector3d(0, 0, _pressure * _shape.GetArea());
+        }
+
+        /// <returns>The total global load vector in the local system. i.e. _p1 * area, _p2 * area, _p3 * area</returns>
+        public Vector3d GetGlobalLoadVector()
+        {
+            if (_shape.GetCoordinateSystem() == CoordinateSystem.Global)
+                return GetLocalLoadVector();
+            else
+            {
+                return _shape.GetCoordinateSystem().ToGlobal(GetLocalLoadVector());
+            }
+        }
+
+
+
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             base.GetObjectData(info, context);
