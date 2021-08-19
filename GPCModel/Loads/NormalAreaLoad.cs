@@ -1,4 +1,4 @@
-using GPC.Geometry;
+﻿using GPC.Geometry;
 using GPC.Model.LoadCases;
 using System;
 using System.Collections.Generic;

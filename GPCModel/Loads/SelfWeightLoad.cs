@@ -33,7 +33,7 @@ namespace GPC.Model.Loads
 
         /// <param name="loadCase"></param>
         /// <param name="acceleration">A positive acceleration means acceleration along the positive axis</param>
-        /// <remarks>The <see cref="LoadCase.LoadCaseType"/> of <paramref name="loadCase"/> must be <see cref="LoadCase.LoadCaseTypes.SelfWeight"/></remarks>
+        /// <remarks>The <see cref="LoadCase.LoadCaseType"/> of <paramref name="loadCase"/> must be <see cref="LoadCase.LoadCaseTypes.SelfWeight"/>. Default vector is global.Z</remarks>
         public SelfWeightLoad(LoadCase loadCase, double acceleration) 
             : base(loadCase)
         {
@@ -74,30 +74,31 @@ namespace GPC.Model.Loads
             if (ReferenceEquals(obj, this))
                 return true;
 
-            if (obj is null)
-                return false;
-
-            var objCasted = obj as SelfWeightLoad;
-
-            return objCasted != null && _acceleration.Equals(objCasted._acceleration) && _gravityVector.Equals(objCasted._gravityVector) && base.Equals(objCasted);
+            return (obj is SelfWeightLoad objCasted) && _acceleration.Equals(objCasted._acceleration)
+                                                     && _gravityVector.Equals(objCasted._gravityVector) && base.Equals(objCasted);
         }
 
         public override int GetHashCode()
         {
-            int hashCode = -23;
-            hashCode = hashCode * -17 + base.GetHashCode();
-            hashCode = hashCode * -17 + _acceleration.GetHashCode();
-            hashCode = hashCode * -17 + EqualityComparer<Vector3d>.Default.GetHashCode(_gravityVector);
-            return hashCode;
+            unchecked
+            {
+                int hashCode = -23;
+                hashCode = hashCode * -17 + base.GetHashCode();
+                hashCode = hashCode * -17 + _acceleration.GetHashCode();
+                hashCode = hashCode * -17 + EqualityComparer<Vector3d>.Default.GetHashCode(_gravityVector);
+                return hashCode; 
+            }
         }
 
         public static bool operator ==(SelfWeightLoad obj1, SelfWeightLoad obj2)
         {
+            if (obj1 is null)
+            {
+                return obj2 is null;
+            }
+
             if (ReferenceEquals(obj1, obj2))
                 return true;
-
-            if (obj1 is null || obj2 is null)
-                return false;
 
             return obj1.Equals(obj2);
         }

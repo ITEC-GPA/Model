@@ -6,7 +6,7 @@ using System.Runtime.Serialization;
 
 namespace GPC.Model.Loads
 {
-    public class PointLoad : Load, IPointLoad
+    public class PointLoad : Load, IPointLoad, IConvertibleLoad
     {
         // Classe load e derivate deve rimanere immutabile 
 
@@ -196,10 +196,123 @@ namespace GPC.Model.Loads
             return pointLoad;
         }
 
+
+        /// <inheritdoc cref="IConvertibleLoad.ConvertToAreaLoad(Plane, double)"/>
+        /// <remarks>Moments will be lost</remarks>
+        public AreaLoad ConvertToAreaLoad(Plane referencePlane, double width)
+        {
+            Point3d point = (Point3d)_point.Clone();
+
+            CoordinateSystem referenceCoordinateSystem = referencePlane.GetCoordinateSystem();
+
+            Vector3d normalVector = referencePlane.Normal;
+            normalVector.Unitize();
+
+            var pointGlobal = CoordinateSystem.ToGlobal(point);
+
+            Vector3d movementVector1 = referenceCoordinateSystem.V1;
+            movementVector1.Unitize();
+            movementVector1 *= width;
+            movementVector1 /= 2.0;
+
+            Vector3d movementVector2 = referenceCoordinateSystem.V2;
+            movementVector2.Unitize();
+            movementVector2 *= width;
+            movementVector2 /= 2.0;
+
+            Point3d p1 = pointGlobal.CloneAndMove(movementVector1);
+            movementVector1.Reverse();
+            Point3d p2 = pointGlobal.CloneAndMove(movementVector1);
+            Point3d p3 = pointGlobal.CloneAndMove(movementVector2);
+            movementVector2.Reverse();
+            Point3d p4 = pointGlobal.CloneAndMove(movementVector2);
+
+            var loadPerimeterGlobal = new Polygon3d()
+                                    {
+                                        p1,
+                                        p2,
+                                        p3,
+                                        p4
+                                    };
+
+            if (!loadPerimeterGlobal.IsRightHandOrdered())
+            {
+                loadPerimeterGlobal.Reverse();
+            }
+
+            var loadPerimeterReference = referenceCoordinateSystem.ToLocal(loadPerimeterGlobal);
+
+            Shape loadShape = new Shape(loadPerimeterReference); // TODO: tagliare con bordo esterno shape nel caso sbordi
+            double loadArea = loadShape.GetArea();
+
+            Vector3d loadVector = new Vector3d(F1, F2, F3);
+            var loadVectorGlobal = _coordinateSystem.ToGlobal(loadVector);
+            var loadVectorReference = referenceCoordinateSystem.ToLocal(loadVectorGlobal);
+
+            return new AreaLoad(loadVectorReference.X / loadArea,
+                                loadVectorReference.Y / loadArea,
+                                loadVectorReference.Z / loadArea,
+                                loadShape,
+                                LoadCase);
+        }
+
+        public NormalAreaLoad ConvertToNormalAreaLoad(Plane referencePlane, double width)
+        {
+            Point3d point = (Point3d)_point.Clone();
+
+            CoordinateSystem referenceCoordinateSystem = referencePlane.GetCoordinateSystem();
+
+            Vector3d normalVector = referencePlane.Normal;
+            normalVector.Unitize();
+
+            var pointGlobal = CoordinateSystem.ToGlobal(point);
+
+            Vector3d movementVector1 = referenceCoordinateSystem.V1;
+            movementVector1.Unitize();
+            movementVector1 *= width;
+            movementVector1 /= 2.0;
+
+            Vector3d movementVector2 = referenceCoordinateSystem.V2;
+            movementVector2.Unitize();
+            movementVector2 *= width;
+            movementVector2 /= 2.0;
+
+            Point3d p1 = pointGlobal.CloneAndMove(movementVector1);
+            movementVector1.Reverse();
+            Point3d p2 = pointGlobal.CloneAndMove(movementVector1);
+            Point3d p3 = pointGlobal.CloneAndMove(movementVector2);
+            movementVector2.Reverse();
+            Point3d p4 = pointGlobal.CloneAndMove(movementVector2);
+
+            var loadPerimeterGlobal = new Polygon3d()
+                                    {
+                                        p1,
+                                        p2,
+                                        p3,
+                                        p4
+                                    };
+
+            if (!loadPerimeterGlobal.IsRightHandOrdered())
+            {
+                loadPerimeterGlobal.Reverse();
+            }
+
+            var loadPerimeterReference = referenceCoordinateSystem.ToLocal(loadPerimeterGlobal);
+
+            Shape loadShape = new Shape(loadPerimeterReference); // TODO: tagliare con bordo esterno shape nel caso sbordi
+            double loadArea = loadShape.GetArea();
+
+            Vector3d loadVector = new Vector3d(F1, F2, F3);
+            var loadVectorGlobal = _coordinateSystem.ToGlobal(loadVector);
+            var loadVectorReference = referenceCoordinateSystem.ToLocal(loadVectorGlobal);
+
+            return new NormalAreaLoad(loadVectorReference.Z / loadArea, loadShape, LoadCase);
+        }
+
         #endregion
 
         #region Equals, HasCode and operators
-        
+
         public override bool Equals(object obj)
         {
             if (ReferenceEquals(obj, this))
@@ -261,6 +374,7 @@ namespace GPC.Model.Loads
             info.AddValue("CoordinateSystem", _coordinateSystem);
             info.AddValue("Point", _point);
         }
+
 
         #endregion
     }

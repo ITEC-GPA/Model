@@ -6,7 +6,7 @@ using System.Runtime.Serialization;
 
 namespace GPC.Model.Loads
 {
-    public class LineLoad : Load, ILineLoad
+    public class LineLoad : Load, ILineLoad, IConvertibleLoad
     {
         // Classe load e derivate deve rimanere immutabile 
 
@@ -114,6 +114,124 @@ namespace GPC.Model.Loads
             info.AddValue("CoordinateSystem", _coordinateSystem);
             info.AddValue("Line3d", _line);
         }
+
+
+        #region Convert to area load
+
+        /// <inheritdoc cref="IConvertibleLoad.ConvertToAreaLoad(Plane, double)"/>
+        /// <remarks>Moments will be lost</remarks>
+        public AreaLoad ConvertToAreaLoad(Plane referencePlane, double width)
+        {
+
+            Line3d line = (Line3d)_line.Clone();
+            double lineLenght = _line.GetLength();
+
+            CoordinateSystem referenceCoordinateSystem = referencePlane.GetCoordinateSystem();
+
+            Vector3d normalVector = referencePlane.Normal;
+            normalVector.Unitize();
+
+            var lineGlobal = CoordinateSystem.ToGlobal(line);
+
+            Vector3d lineVector = new Vector3d(lineGlobal.Start, lineGlobal.End); // converto linea nel globale
+            Vector3d movementVector = normalVector.CrossProduct(lineVector); // calcolo il vettore spostamento come prodottovettore tra la normale del piano di rif e la linea
+
+            movementVector.Unitize();
+            movementVector *= width;
+            movementVector /= 2.0;
+
+            Point3d p1 = lineGlobal.Start.CloneAndMove(movementVector);
+            Point3d p2 = lineGlobal.End.CloneAndMove(movementVector);
+            movementVector.Reverse();
+            Point3d p3 = lineGlobal.End.CloneAndMove(movementVector);
+            Point3d p4 = lineGlobal.Start.CloneAndMove(movementVector);
+
+            var loadPerimeterGlobal = new Polygon3d()
+                                    {
+                                        p1,
+                                        p2,
+                                        p3,
+                                        p4
+                                    };
+
+            if (!loadPerimeterGlobal.IsRightHandOrdered())
+            {
+                loadPerimeterGlobal.Reverse();
+            }
+
+            var loadPerimeterReference = referenceCoordinateSystem.ToLocal(loadPerimeterGlobal);
+
+            Shape loadShape = new Shape(loadPerimeterReference); // TODO: tagliare con bordo esterno shape nel caso sbordi
+            double loadArea = loadShape.GetArea();
+
+            Vector3d loadVector = new Vector3d(F1, F2, F3);
+            var loadVectorGlobal = _coordinateSystem.ToGlobal(loadVector);
+            var loadVectorReference = referenceCoordinateSystem.ToLocal(loadVectorGlobal);
+
+            return new AreaLoad(loadVectorReference.X * lineLenght / loadArea,
+                                loadVectorReference.Y * lineLenght / loadArea,
+                                loadVectorReference.Z * lineLenght / loadArea,
+                                loadShape,
+                                LoadCase);
+        }
+
+
+        /// <inheritdoc cref="IConvertibleLoad.ConvertToAreaLoad(Plane, double)"/>
+        /// <remarks>Moments will be lost. Only the force normal part will be keepeed</remarks>
+        public NormalAreaLoad ConvertToNormalAreaLoad(Plane referencePlane, double width)
+        {
+
+            Line3d line = (Line3d)_line.Clone();
+            double lineLenght = _line.GetLength();
+
+            CoordinateSystem referenceCoordinateSystem = referencePlane.GetCoordinateSystem();
+
+            Vector3d normalVector = referencePlane.Normal;
+            normalVector.Unitize();
+
+            var lineGlobal = CoordinateSystem.ToGlobal(line);
+
+            Vector3d lineVector = new Vector3d(lineGlobal.Start, lineGlobal.End); // converto linea nel globale
+            Vector3d movementVector = normalVector.CrossProduct(lineVector); // calcolo il vettore spostamento come prodottovettore tra la normale del piano di rif e la linea
+
+            movementVector.Unitize();
+            movementVector *= width;
+            movementVector /= 2.0;
+
+            Point3d p1 = lineGlobal.Start.CloneAndMove(movementVector);
+            Point3d p2 = lineGlobal.End.CloneAndMove(movementVector);
+            movementVector.Reverse();
+            Point3d p3 = lineGlobal.End.CloneAndMove(movementVector);
+            Point3d p4 = lineGlobal.Start.CloneAndMove(movementVector);
+
+            var loadPerimeterGlobal = new Polygon3d()
+                                    {
+                                        p1,
+                                        p2,
+                                        p3,
+                                        p4
+                                    };
+
+            if (!loadPerimeterGlobal.IsRightHandOrdered())
+            {
+                loadPerimeterGlobal.Reverse();
+            }
+
+            var loadPerimeterReference = referenceCoordinateSystem.ToLocal(loadPerimeterGlobal);
+
+            Shape loadShape = new Shape(loadPerimeterReference); // TODO: tagliare con bordo esterno shape nel caso sbordi
+            double loadArea = loadShape.GetArea();
+
+            Vector3d loadVector = new Vector3d(F1, F2, F3);
+            var loadVectorGlobal = _coordinateSystem.ToGlobal(loadVector);
+            var loadVectorReference = referenceCoordinateSystem.ToLocal(loadVectorGlobal);
+
+            return new NormalAreaLoad(loadVectorReference.Z * lineLenght / loadArea, loadShape, LoadCase);
+
+        }
+
+        #endregion
+
 
         /// <returns>The total local load vector in the local system. i.e. _f1 * lenght , _f2 * lenght, _f3 * lenght</returns>
         public (Vector3d force, Vector3d moment) GetLocalLoadVector()
