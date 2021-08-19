@@ -15,7 +15,7 @@ namespace GPC.Model.Loads
 
         public LoadCaseBase LoadCase => _loadCase;
 
-        protected Load(LoadCase loadCase)
+        protected Load(LoadCaseBase loadCase)
             : this(loadCase, Guid.NewGuid())
         {
         }
