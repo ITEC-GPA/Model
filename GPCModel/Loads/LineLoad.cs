@@ -120,7 +120,7 @@ namespace GPC.Model.Loads
 
         /// <inheritdoc cref="IConvertibleLoad.ConvertToAreaLoad(Plane, double)"/>
         /// <remarks>Moments will be lost</remarks>
-        public AreaLoad ConvertToAreaLoad(Plane referencePlane, double width)
+        public virtual AreaLoad ConvertToAreaLoad(Plane referencePlane, double width)
         {
 
             Line3d line = (Line3d)_line.Clone();
@@ -178,7 +178,7 @@ namespace GPC.Model.Loads
 
         /// <inheritdoc cref="IConvertibleLoad.ConvertToAreaLoad(Plane, double)"/>
         /// <remarks>Moments will be lost. Only the force normal part will be keepeed</remarks>
-        public NormalAreaLoad ConvertToNormalAreaLoad(Plane referencePlane, double width)
+        public virtual NormalAreaLoad ConvertToNormalAreaLoad(Plane referencePlane, double width)
         {
 
             Line3d line = (Line3d)_line.Clone();

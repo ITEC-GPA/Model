@@ -199,7 +199,7 @@ namespace GPC.Model.Loads
 
         /// <inheritdoc cref="IConvertibleLoad.ConvertToAreaLoad(Plane, double)"/>
         /// <remarks>Moments will be lost</remarks>
-        public AreaLoad ConvertToAreaLoad(Plane referencePlane, double width)
+        public virtual AreaLoad ConvertToAreaLoad(Plane referencePlane, double width)
         {
             Point3d point = (Point3d)_point.Clone();
 
@@ -256,7 +256,7 @@ namespace GPC.Model.Loads
                                 LoadCase);
         }
 
-        public NormalAreaLoad ConvertToNormalAreaLoad(Plane referencePlane, double width)
+        public virtual NormalAreaLoad ConvertToNormalAreaLoad(Plane referencePlane, double width)
         {
             Point3d point = (Point3d)_point.Clone();
 
