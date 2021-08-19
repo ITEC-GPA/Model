@@ -13,11 +13,15 @@ namespace GPC.Model.Loads
 
         protected readonly double _pressure;
         protected readonly Shape _shape;
+        private readonly CoordinateSystem _coordinateSystem;
 
         #region Properties
+
         public double Pressure => _pressure;
 
         public Shape Shape => _shape;
+
+        public CoordinateSystem CoordinateSystem => _coordinateSystem;
 
         #endregion
 
@@ -28,6 +32,7 @@ namespace GPC.Model.Loads
         {
             _pressure = pressure;
             _shape = shape ?? throw new ArgumentNullException("Shape cannot be null");
+            _coordinateSystem = shape.GetCoordinateSystem();
         }
 
 
@@ -36,6 +41,7 @@ namespace GPC.Model.Loads
         {
             _pressure = info.GetDouble("Pressure");
             _shape = (Shape)info.GetValue("Shape", typeof(Shape));
+            _coordinateSystem = (CoordinateSystem)info.GetValue("CoordinateSystem", typeof(CoordinateSystem));
         }
 
         #endregion
@@ -48,6 +54,7 @@ namespace GPC.Model.Loads
             base.GetObjectData(info, context);
             info.AddValue("Pressure", _pressure);
             info.AddValue("Shape", _shape);
+            info.AddValue("CoordinateSystem", _coordinateSystem);
         }
 
 

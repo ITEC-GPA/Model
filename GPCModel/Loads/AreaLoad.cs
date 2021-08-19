@@ -1,4 +1,4 @@
-﻿using GPC.Geometry;
+using GPC.Geometry;
 using GPC.Model.LoadCases;
 using System;
 using System.Collections.Generic;
@@ -35,21 +35,14 @@ namespace GPC.Model.Loads
         /// <param name="loadCase"></param>
         /// <remarks><see cref="CoordinateSystem"/> set to Global</remarks>
         public AreaLoad(double p1, double p2, double p3, Shape shape, LoadCaseBase loadCase)
-            : this(p1, p2, p3, shape, loadCase, CoordinateSystem.Global)
-        {
-
-        }
-
-        public AreaLoad(double p1, double p2, double p3, Shape shape, LoadCaseBase loadCase, CoordinateSystem coordinateSystem)
             : base(loadCase, Guid.NewGuid())
         {
-
             _p1 = p1;
             _p2 = p2;
             _p3 = p3;
 
             _shape = shape ?? throw new ArgumentNullException("Shape cannot be null");
-            _coordinateSystem = coordinateSystem ?? throw new ArgumentNullException(nameof(coordinateSystem));
+            _coordinateSystem = shape.GetCoordinateSystem();
         }
 
 
