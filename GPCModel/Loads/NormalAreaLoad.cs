@@ -1,6 +1,7 @@
-﻿using GPC.Geometry;
+using GPC.Geometry;
 using GPC.Model.LoadCases;
 using System;
+using System.Collections.Generic;
 using System.Runtime.Serialization;
 
 namespace GPC.Model.Loads
@@ -48,5 +49,51 @@ namespace GPC.Model.Loads
             info.AddValue("Pressure", _pressure);
             info.AddValue("Shape", _shape);
         }
+
+
+
+        #region Equals, HasCode and operators
+
+        public override bool Equals(object obj)
+        {
+            if (ReferenceEquals(obj, this))
+                return true;
+
+            return (obj is NormalAreaLoad objCasted) && _shape.Equals(objCasted._shape) 
+                                                     && _pressure.Equals(objCasted._pressure)
+                                                     && base.Equals(objCasted);
+        }
+
+        public override int GetHashCode()
+        {
+            unchecked
+            {
+                int hashCode = -23;
+                hashCode = hashCode * -17 + base.GetHashCode();
+                hashCode = hashCode * -17 + _pressure.GetHashCode();
+                hashCode = hashCode * -17 + EqualityComparer<Shape>.Default.GetHashCode(_shape);
+                return hashCode;
+            }
+        }
+
+        public static bool operator ==(NormalAreaLoad obj1, NormalAreaLoad obj2)
+        {
+            if (obj1 is null)
+            {
+                return obj2 is null;
+            }
+
+            if (ReferenceEquals(obj1, obj2))
+                return true;
+
+            return obj1.Equals(obj2);
+        }
+
+        public static bool operator !=(NormalAreaLoad obj1, NormalAreaLoad obj2)
+        {
+            return !(obj1 == obj2);
+        }
+
+        #endregion
     }
 }

@@ -157,10 +157,14 @@ namespace GPC.Model.Loads
         /// <returns>The array [fx, fy, fz, mx, my, mz]</returns>
         public double[] GetGlobalForces()
         {
-            Vector3d forceLocal = new Vector3d(_f1, _f2, _f3);                                   // 
-            Vector3d momentLocal = new Vector3d(_m1, _m2, _m3);                                   // Crea un array di double in le 3 componenti di forza e di momento
-                                                                                                  // nelle 3 direzioni del sistema di coordinate globali.
-                                                                                                  // Point3d point = _coordinateSystem.ToGlobal(_point);                                  // 
+            // 
+            // Crea un array di double in le 3 componenti di forza e di momento
+            // nelle 3 direzioni del sistema di coordinate globali.
+            // Point3d point = _coordinateSystem.ToGlobal(_point);             
+
+            Vector3d forceLocal = new Vector3d(_f1, _f2, _f3);                                   
+            Vector3d momentLocal = new Vector3d(_m1, _m2, _m3);                                  
+                                                                                                 
             double fX = _coordinateSystem.ToGlobal(forceLocal).X - _coordinateSystem.Origin.X;
             double fY = _coordinateSystem.ToGlobal(forceLocal).Y - _coordinateSystem.Origin.Y;
             double fZ = _coordinateSystem.ToGlobal(forceLocal).Z - _coordinateSystem.Origin.Z;
@@ -188,38 +192,39 @@ namespace GPC.Model.Loads
             if (ReferenceEquals(obj, this))
                 return true;
 
-            if (obj is null)
-                return false;
-                
-            var objCasted = obj as PointLoad;
-
-            return objCasted != null && _point.Equals(objCasted._point) && _coordinateSystem.Equals(objCasted._coordinateSystem)
-                                                                        && _f1.Equals(objCasted._f1) && _f2.Equals(objCasted._f2) && _f3.Equals(objCasted._f3)
-                                                                        && _m1.Equals(objCasted._m1) && _m2.Equals(objCasted._m2) && _m3.Equals(objCasted._m3) && base.Equals(objCasted);
+            return (obj is PointLoad objCasted) && _point.Equals(objCasted._point) && _coordinateSystem.Equals(objCasted._coordinateSystem)
+                                                && _f1.Equals(objCasted._f1) && _f2.Equals(objCasted._f2) && _f3.Equals(objCasted._f3)
+                                                && _m1.Equals(objCasted._m1) && _m2.Equals(objCasted._m2) && _m3.Equals(objCasted._m3)
+                                                && base.Equals(objCasted);
         }
 
         public override int GetHashCode()
         {
-            int hashCode = -23;
-            hashCode = hashCode * -17 + base.GetHashCode();
-            hashCode = hashCode * -17 + _f1.GetHashCode();
-            hashCode = hashCode * -17 + _f2.GetHashCode();
-            hashCode = hashCode * -17 + _f3.GetHashCode();
-            hashCode = hashCode * -17 + _m1.GetHashCode();
-            hashCode = hashCode * -17 + _m2.GetHashCode();
-            hashCode = hashCode * -17 + _m3.GetHashCode();
-            hashCode = hashCode * -17 + EqualityComparer<CoordinateSystem>.Default.GetHashCode(_coordinateSystem);
-            hashCode = hashCode * -17 + EqualityComparer<Point3d>.Default.GetHashCode(_point);
-            return hashCode;
+            unchecked
+            {
+                int hashCode = -23;
+                hashCode = hashCode * -17 + base.GetHashCode();
+                hashCode = hashCode * -17 + _f1.GetHashCode();
+                hashCode = hashCode * -17 + _f2.GetHashCode();
+                hashCode = hashCode * -17 + _f3.GetHashCode();
+                hashCode = hashCode * -17 + _m1.GetHashCode();
+                hashCode = hashCode * -17 + _m2.GetHashCode();
+                hashCode = hashCode * -17 + _m3.GetHashCode();
+                hashCode = hashCode * -17 + EqualityComparer<CoordinateSystem>.Default.GetHashCode(_coordinateSystem);
+                hashCode = hashCode * -17 + EqualityComparer<Point3d>.Default.GetHashCode(_point);
+                return hashCode; 
+            }
         }
 
         public static bool operator ==(PointLoad obj1, PointLoad obj2)
         {
+            if (obj1 is null)
+            {
+                return obj2 is null;
+            }
+
             if (ReferenceEquals(obj1, obj2))
                 return true;
-
-            if (obj1 is null || obj2 is null)
-                return false;
 
             return obj1.Equals(obj2);
         }

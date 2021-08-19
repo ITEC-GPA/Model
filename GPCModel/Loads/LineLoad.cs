@@ -1,4 +1,4 @@
-﻿using GPC.Geometry;
+using GPC.Geometry;
 using GPC.Model.LoadCases;
 using System;
 using System.Collections.Generic;
@@ -10,10 +10,13 @@ namespace GPC.Model.Loads
     {
         // Classe load e derivate deve rimanere immutabile 
 
-        protected readonly double _f1;                 // sono forze per unità di lunghezza ( F / L )
+        // sono forze per unità di lunghezza ( F / L )
+        protected readonly double _f1;                 
         protected readonly double _f2;
         protected readonly double _f3;
-        protected readonly double _m1;                 // sono momenti per unità di lunghezza ( F / L )
+
+        // sono momenti per unità di lunghezza ( F * L / L )
+        protected readonly double _m1;                
         protected readonly double _m2;
         protected readonly double _m3;
 
@@ -32,9 +35,7 @@ namespace GPC.Model.Loads
 
         public CoordinateSystem CoordinateSystem => _coordinateSystem;
 
-        /// <summary>
-        /// 
-        /// </summary>
+
         /// <param name="f1">Unit measure [F/L]</param>
         /// <param name="f2">Unit measure [F/L]</param>
         /// <param name="f3">Unit measure [F/L]</param>
@@ -57,9 +58,7 @@ namespace GPC.Model.Loads
             _line = line ?? throw new ArgumentNullException("Line cannot be null") ;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
+
         /// <param name="f1">Unit measure [F/L]</param>
         /// <param name="f2">Unit measure [F/L]</param>
         /// <param name="f3">Unit measure [F/L]</param>
@@ -78,10 +77,11 @@ namespace GPC.Model.Loads
         public LineLoad(Vector3d force, Vector3d moment, Line3d line, LoadCaseBase loadCase, CoordinateSystem cSys)
             : this(force.X, force.Y, force.Z, moment.X, moment.Y, moment.Z, line, loadCase, cSys)
         {
-            
+
         }
 
         public Line3d GetGeometry() => _line;
+
         public override GeometryBase GetGeometryBase() => GetGeometry();
 
 
@@ -119,14 +119,14 @@ namespace GPC.Model.Loads
         /// <returns>The array [fx, fy, fz, mx, my, mz]</returns>
         public double[] GetLocalForces(CoordinateSystem cSys)
         {
-            Point3d forceGlobal = new Point3d(_f1, _f2, _f3);                               // 
-            Point3d momentglobal = new Point3d(_m1, _m2, _m3);                              // Crea un array di double in le 3 componenti di forza e di momento
-                                                                                            // nelle 3 direzioni del sistema di coordinate locali.
-            Point3d PointForceLocal = cSys.ToLocal(forceGlobal);                            // 
+            Point3d forceGlobal = new Point3d(_f1, _f2, _f3);           // 
+            Point3d momentglobal = new Point3d(_m1, _m2, _m3);          // Crea un array di double in le 3 componenti di forza e di momento
+                                                                        // nelle 3 direzioni del sistema di coordinate locali.
+            Point3d PointForceLocal = cSys.ToLocal(forceGlobal);        // 
             Point3d PointMomentLocal = cSys.ToLocal(momentglobal);
 
             Point3d OriginGlobal = cSys.ToLocal(CoordinateSystem.Global.Origin);
-        
+
             Vector3d forceLocal = new Vector3d(PointForceLocal - OriginGlobal);
             Vector3d momentLocal = new Vector3d(PointMomentLocal - OriginGlobal);
 
@@ -146,10 +146,10 @@ namespace GPC.Model.Loads
         /// </summary>
         public LineLoad ToGlobal()
         {
-            Vector3d forceLocal = new Vector3d(_f1, _f2, _f3);        
-            Vector3d momentLocal = new Vector3d(_m1, _m2, _m3); 
+            Vector3d forceLocal = new Vector3d(_f1, _f2, _f3);
+            Vector3d momentLocal = new Vector3d(_m1, _m2, _m3);
 
-            // Cambia le proprietà del PointLoad passando da un sistema di riferimento globale
+            // Cambia le proprietà del LineLoad passando da un sistema di riferimento globale
             // ad un sistema di rifarimento locale.
 
             return new LineLoad(_coordinateSystem.ToGlobal(forceLocal) - _coordinateSystem.Origin,
@@ -164,10 +164,13 @@ namespace GPC.Model.Loads
         /// <returns>The array [fx, fy, fz, mx, my, mz]</returns>
         public double[] GetGlobalForces()
         {
-            Vector3d forceLocal = new Vector3d(_f1, _f2, _f3);                                      // 
-            Vector3d momentLocal = new Vector3d(_m1, _m2, _m3);                                     // Crea un array di double in le 3 componenti di forza e di momento
-                                                                                                    // nelle 3 direzioni del sistema di coordinate globali.
-                                                                                                    // Point3d point = _coordinateSystem.ToGlobal(_point);                                  // 
+            // Crea un array di double in le 3 componenti di forza e di momento nelle 3 direzioni del sistema di coordinate globali
+            // Point3d point = _coordinateSystem.ToGlobal(_point);
+
+            Vector3d forceLocal = new Vector3d(_f1, _f2, _f3);
+            Vector3d momentLocal = new Vector3d(_m1, _m2, _m3);
+
+
             double fX = _coordinateSystem.ToGlobal(forceLocal).X - _coordinateSystem.Origin.X;
             double fY = _coordinateSystem.ToGlobal(forceLocal).Y - _coordinateSystem.Origin.Y;
             double fZ = _coordinateSystem.ToGlobal(forceLocal).Z - _coordinateSystem.Origin.Z;
@@ -187,8 +190,6 @@ namespace GPC.Model.Loads
         }
 
 
-
-
         #region Equals, HasCode and operators
 
         public override bool Equals(object obj)
@@ -196,38 +197,38 @@ namespace GPC.Model.Loads
             if (ReferenceEquals(obj, this))
                 return true;
 
-            if (obj is null)
-                return false;
-
-            var objCasted = obj as LineLoad;
-
-            return objCasted != null && _line.Equals(objCasted._line) && _coordinateSystem.Equals(objCasted._coordinateSystem)
-                                                                      && _f1.Equals(objCasted._f1) && _f2.Equals(objCasted._f2) && _f3.Equals(objCasted._f3)
-                                                                      && _m1.Equals(objCasted._m1) && _m2.Equals(objCasted._m2) && _m3.Equals(objCasted._m3) && base.Equals(objCasted);
+            return (obj is LineLoad objCasted) && _line.Equals(objCasted._line) && _coordinateSystem.Equals(objCasted._coordinateSystem)
+                                               && _f1.Equals(objCasted._f1) && _f2.Equals(objCasted._f2) && _f3.Equals(objCasted._f3)
+                                               && _m1.Equals(objCasted._m1) && _m2.Equals(objCasted._m2) && _m3.Equals(objCasted._m3) && base.Equals(objCasted);
         }
 
         public override int GetHashCode()
         {
-            int hashCode = -23;
-            hashCode = hashCode * -17 + base.GetHashCode();
-            hashCode = hashCode * -17 + _f1.GetHashCode();
-            hashCode = hashCode * -17 + _f2.GetHashCode();
-            hashCode = hashCode * -17 + _f3.GetHashCode();
-            hashCode = hashCode * -17 + _m1.GetHashCode();
-            hashCode = hashCode * -17 + _m2.GetHashCode();
-            hashCode = hashCode * -17 + _m3.GetHashCode();
-            hashCode = hashCode * -17 + EqualityComparer<CoordinateSystem>.Default.GetHashCode(_coordinateSystem);
-            hashCode = hashCode * -17 + EqualityComparer<Line3d>.Default.GetHashCode(_line);
-            return hashCode;
+            unchecked
+            {
+                int hashCode = -23;
+                hashCode = hashCode * -17 + base.GetHashCode();
+                hashCode = hashCode * -17 + _f1.GetHashCode();
+                hashCode = hashCode * -17 + _f2.GetHashCode();
+                hashCode = hashCode * -17 + _f3.GetHashCode();
+                hashCode = hashCode * -17 + _m1.GetHashCode();
+                hashCode = hashCode * -17 + _m2.GetHashCode();
+                hashCode = hashCode * -17 + _m3.GetHashCode();
+                hashCode = hashCode * -17 + EqualityComparer<CoordinateSystem>.Default.GetHashCode(_coordinateSystem);
+                hashCode = hashCode * -17 + EqualityComparer<Line3d>.Default.GetHashCode(_line);
+                return hashCode;
+            }
         }
 
         public static bool operator ==(LineLoad obj1, LineLoad obj2)
         {
+            if (obj1 is null)
+            {
+                return obj2 is null;
+            }
+
             if (ReferenceEquals(obj1, obj2))
                 return true;
-
-            if (obj1 is null || obj2 is null)
-                return false;
 
             return obj1.Equals(obj2);
         }
