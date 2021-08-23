@@ -56,6 +56,15 @@ namespace GPC.Model.Loads
         public override GeometryBase GetGeometryBase() => GetGeometry();
 
 
+        /// <summary>
+        /// Convert this load into a normal area loads.
+        /// </summary>
+        /// <remarks>The not normal portion will be lost</remarks>
+        public NormalAreaLoad ConvertToNormalAreaLoad()
+        {
+            return new NormalAreaLoad(_p3, _shape, LoadCase);
+        }
+
 
         /// <returns>The total load vector in the local system. i.e. _p1 * area, _p2 * area, _p3 * area</returns>
         public Vector3d GetLocalLoadVector()
@@ -89,13 +98,9 @@ namespace GPC.Model.Loads
             if (ReferenceEquals(obj, this))
                 return true;
 
-            if (obj is null)
-                return false;
-
-            var objCasted = obj as AreaLoad;
-
-            return objCasted != null && _shape.Equals(objCasted._shape) && _coordinateSystem.Equals(objCasted._coordinateSystem)
-                                                                        && _p1.Equals(objCasted._p1) && _p2.Equals(objCasted._p2) && _p3.Equals(objCasted._p3) && base.Equals(objCasted);
+            return (obj is AreaLoad objCasted) && _shape.Equals(objCasted._shape) && _coordinateSystem.Equals(objCasted._coordinateSystem)
+                                               && _p1.Equals(objCasted._p1) && _p2.Equals(objCasted._p2) && _p3.Equals(objCasted._p3) 
+                                               && base.Equals(objCasted);
         }
 
         public override int GetHashCode()

@@ -52,10 +52,13 @@ namespace GPC.Model.Loads
 
         public override int GetHashCode()
         {
-            int hashCode = -23 * -17 + base.GetHashCode();
-            hashCode = hashCode * -17 + EqualityComparer<LoadCaseBase>.Default.GetHashCode(_loadCase);
+            unchecked
+            {
+                int hashCode = -23 * -17 + base.GetHashCode();
+                hashCode = hashCode * -17 + EqualityComparer<LoadCaseBase>.Default.GetHashCode(_loadCase);
 
-            return hashCode;
+                return hashCode; 
+            }
         }
 
         public static bool operator ==(Load obj1, Load obj2)
