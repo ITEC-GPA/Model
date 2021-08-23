@@ -17,13 +17,18 @@ namespace GPC.Model.Loads
 
         protected readonly double _acceleration;
 
-        protected Vector3d _gravityVector;
+        protected Vector3d _gravityAxis;
 
 
         /// <summary>
         /// Get the unitized gravity vector
         /// </summary>
-        public Vector3d GravityVector => _gravityVector;
+        public Vector3d GravityAxis => _gravityAxis;
+
+        /// <summary>
+        /// Get the gravity vector, i.e the gravity axis * acceleration 
+        /// </summary>
+        public Vector3d GravityVector => _gravityAxis * _acceleration;
 
         /// <summary>
         /// Get the gravity acceleration value
@@ -42,7 +47,7 @@ namespace GPC.Model.Loads
                 throw new ArgumentException($"LoadCaseType must be {LoadCases.LoadCase.LoadCaseTypes.SelfWeight}");
             }
 
-            _gravityVector = CoordinateSystem.Global.V3; // di default è Z
+            _gravityAxis = CoordinateSystem.Global.V3; // di default è Z
             
             _acceleration = acceleration;
         }
@@ -55,16 +60,16 @@ namespace GPC.Model.Loads
 
         public void SetGravityAxisToX()
         {
-            _gravityVector = CoordinateSystem.Global.V1;
+            _gravityAxis = CoordinateSystem.Global.V1;
         }
 
         public void SetGravityAxisToY()
         {
-            _gravityVector = CoordinateSystem.Global.V2;
+            _gravityAxis = CoordinateSystem.Global.V2;
         }
         public void SetGravityAxisToZ()
         {
-            _gravityVector = CoordinateSystem.Global.V3;
+            _gravityAxis = CoordinateSystem.Global.V3;
         }
 
         #region Equals, HashCode and operators
@@ -75,7 +80,7 @@ namespace GPC.Model.Loads
                 return true;
 
             return (obj is SelfWeightLoad objCasted) && _acceleration.Equals(objCasted._acceleration)
-                                                     && _gravityVector.Equals(objCasted._gravityVector) && base.Equals(objCasted);
+                                                     && _gravityAxis.Equals(objCasted._gravityAxis) && base.Equals(objCasted);
         }
 
         public override int GetHashCode()
@@ -85,7 +90,7 @@ namespace GPC.Model.Loads
                 int hashCode = -23;
                 hashCode = hashCode * -17 + base.GetHashCode();
                 hashCode = hashCode * -17 + _acceleration.GetHashCode();
-                hashCode = hashCode * -17 + EqualityComparer<Vector3d>.Default.GetHashCode(_gravityVector);
+                hashCode = hashCode * -17 + EqualityComparer<Vector3d>.Default.GetHashCode(_gravityAxis);
                 return hashCode; 
             }
         }
