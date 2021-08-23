@@ -120,11 +120,13 @@ namespace GPC.Model.Loads
 
         public static bool operator ==(AreaLoad obj1, AreaLoad obj2)
         {
+            if (obj1 is null)
+            {
+                return obj2 is null;
+            }
+
             if (ReferenceEquals(obj1, obj2))
                 return true;
-
-            if (obj1 is null || obj2 is null)
-                return false;
 
             return obj1.Equals(obj2);
         }
