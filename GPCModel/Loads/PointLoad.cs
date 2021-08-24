@@ -220,12 +220,13 @@ namespace GPC.Model.Loads
             movementVector2 *= width;
             movementVector2 /= 2.0;
 
-            Point3d p1 = pointGlobal.CloneAndMove(movementVector1);
+            Point3d p1 = pointGlobal.CloneAndMove(movementVector1 + movementVector2);
             movementVector1.Reverse();
-            Point3d p2 = pointGlobal.CloneAndMove(movementVector1);
-            Point3d p3 = pointGlobal.CloneAndMove(movementVector2);
+            Point3d p2 = pointGlobal.CloneAndMove(movementVector1 + movementVector2);
             movementVector2.Reverse();
-            Point3d p4 = pointGlobal.CloneAndMove(movementVector2);
+            Point3d p3 = pointGlobal.CloneAndMove(movementVector2 + movementVector1);
+            movementVector1.Reverse();
+            Point3d p4 = pointGlobal.CloneAndMove(movementVector2 + movementVector1);
 
             var loadPerimeterGlobal = new Polygon3d()
                                     {
@@ -277,12 +278,13 @@ namespace GPC.Model.Loads
             movementVector2 *= width;
             movementVector2 /= 2.0;
 
-            Point3d p1 = pointGlobal.CloneAndMove(movementVector1);
+            Point3d p1 = pointGlobal.CloneAndMove(movementVector1 + movementVector2);
             movementVector1.Reverse();
-            Point3d p2 = pointGlobal.CloneAndMove(movementVector1);
-            Point3d p3 = pointGlobal.CloneAndMove(movementVector2);
+            Point3d p2 = pointGlobal.CloneAndMove(movementVector1 + movementVector2);
             movementVector2.Reverse();
-            Point3d p4 = pointGlobal.CloneAndMove(movementVector2);
+            Point3d p3 = pointGlobal.CloneAndMove(movementVector2 + movementVector1);
+            movementVector1.Reverse();
+            Point3d p4 = pointGlobal.CloneAndMove(movementVector2 + movementVector1);
 
             var loadPerimeterGlobal = new Polygon3d()
                                     {

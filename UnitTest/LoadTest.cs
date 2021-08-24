@@ -302,7 +302,8 @@ namespace ModelObjectTest
             Assert.AreEqual(-1.0932 * line.GetLength(), localAreaVector.Y, 0.2);
             Assert.AreEqual(+3.4358 * line.GetLength(), localAreaVector.Z, 0.2);
 
-            Assert.AreEqual(ll.GetLocalLoadVector().force.Length, areaLoad.GetLocalLoadVector().Length, 0.001, $"{ll.GetLocalLoadVector().force.Length} {areaLoad.GetLocalLoadVector().Length}");
+            Assert.AreEqual(ll.GetLocalLoadVector().force.Length, areaLoad.GetLocalLoadVector().Length, 0.001, 
+                $"{ll.GetLocalLoadVector().force.Length} {areaLoad.GetLocalLoadVector().Length}");
 
         }
 
@@ -359,8 +360,48 @@ namespace ModelObjectTest
             Assert.AreEqual(0, localAreaVector.Y, 0.0001);
             Assert.AreEqual(+3.4358 * line.GetLength(), localAreaVector.Z, 0.2);
 
-            Assert.AreEqual(ll.GetLocalLoadVector().force.Length, areaLoad.GetLocalLoadVector().Length, 0.001, $"{ll.GetLocalLoadVector().force.Length} {areaLoad.GetLocalLoadVector().Length}");
+            Assert.AreEqual(ll.GetLocalLoadVector().force.Length, areaLoad.GetLocalLoadVector().Length, 0.001, 
+                $"{ll.GetLocalLoadVector().force.Length} {areaLoad.GetLocalLoadVector().Length}");
 
         }
+
+
+
+        [TestMethod]
+        public void PointLoadConvert1()
+        {
+            Vector3d v = new Vector3d(0, 1, 2);
+            v /= 2;
+
+            Console.WriteLine(v);
+
+
+            // PointLoad nel sistema locale
+            Vector3d force = new Vector3d(1, 2, 3);             // sono forze e momenti per unità di lunghezza
+            Vector3d moment = new Vector3d(4, 5, 6);
+
+            LoadCase loadCase = new LoadCase("SelfWeight", loadCaseType: GPC.Model.LoadCases.LoadCase.LoadCaseTypes.SelfWeight);
+
+            PointLoad load = new PointLoad(force, moment, new Point3d(500, 500, 0), loadCase, CoordinateSystem.Global);
+
+            Plane referencePlane = new Plane(new Point3d(0, 0, 0),
+                                             new Vector3d(1, 0, 0),
+                                             new Vector3d(0, 1, 0));
+
+            var areaLoad = load.ConvertToNormalAreaLoad(referencePlane, 3);
+
+            var borders = areaLoad.Shape.Fill.Explode();
+
+            // Assert
+            Assert.AreEqual(3, borders[0].GetLength(), 0.01);
+            Assert.AreEqual(3, borders[1].GetLength(), 0.01);
+            Assert.AreEqual(3, borders[2].GetLength(), 0.01);
+            Assert.AreEqual(3, borders[3].GetLength(), 0.01);
+
+            Assert.AreEqual(load.F3 / (3 * 3), areaLoad.Pressure, 0.01);
+
+        }
+
+
     }
 }
