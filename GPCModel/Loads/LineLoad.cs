@@ -31,6 +31,9 @@ namespace GPC.Model.Loads
         public double M2 => _m2;
         public double M3 => _m3;
 
+        /// <summary>
+        /// Line in the global reference system
+        /// </summary>
         public Line3d Line => _line;
 
         public CoordinateSystem CoordinateSystem => _coordinateSystem;
@@ -43,9 +46,9 @@ namespace GPC.Model.Loads
         /// <param name="m1">Unit measure [FL/L]</param>
         /// <param name="m2">Unit measure [FL/L]</param>
         /// <param name="m3">Unit measure [FL/L]</param>
-        /// <param name="line"></param>
+        /// <param name="line">In the global reference system</param>
         /// <param name="loadCase"></param>
-        /// <param name="coordinateSystem"></param>
+        /// <param name="coordinateSystem">Orientation of the load</param>
         public LineLoad(double f1, double f2, double f3, double m1, double m2, double m3,
                         Line3d line, LoadCaseBase loadCase, CoordinateSystem coordinateSystem)
             : base(loadCase, Guid.NewGuid())
@@ -67,7 +70,7 @@ namespace GPC.Model.Loads
         /// <param name="m1">Unit measure [FL/L]</param>
         /// <param name="m2">Unit measure [FL/L]</param>
         /// <param name="m3">Unit measure [FL/L]</param>
-        /// <param name="line"></param>
+        /// <param name="line">In the global reference system</param>
         /// <param name="loadCase"></param>
         /// <remarks> <see cref="CoordinateSystem"/> set to Global </remarks>
         public LineLoad(double f1, double f2, double f3, double m1, double m2, double m3, Line3d line, LoadCaseBase loadCase)
@@ -76,8 +79,14 @@ namespace GPC.Model.Loads
 
         }
 
-        public LineLoad(Vector3d force, Vector3d moment, Line3d line, LoadCaseBase loadCase, CoordinateSystem cSys)
-            : this(force.X, force.Y, force.Z, moment.X, moment.Y, moment.Z, line, loadCase, cSys)
+
+        /// <param name="force"></param>
+        /// <param name="moment"></param>
+        /// <param name="line">In the global reference system</param>
+        /// <param name="loadCase"></param>
+        /// <param name="coordinateSystem">Orientation of the load</param>
+        public LineLoad(Vector3d force, Vector3d moment, Line3d line, LoadCaseBase loadCase, CoordinateSystem coordinateSystem)
+            : this(force.X, force.Y, force.Z, moment.X, moment.Y, moment.Z, line, loadCase, coordinateSystem)
         {
 
         } 
