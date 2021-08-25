@@ -44,6 +44,7 @@ namespace ModelObjectTest
 
             double[] LocalForces = pl2.GetLocalForces(CoordinateSystem1);
 
+
             // Assert
             Assert.IsTrue((Math.Abs(pl1Global.F1 - expl1.F1)) < 0.001);
             Assert.IsTrue((Math.Abs(pl1Global.F2 - expl1.F2)) < 0.001);
@@ -188,6 +189,44 @@ namespace ModelObjectTest
             Assert.IsTrue((Math.Abs(LocalForces[5] - moment.Z) < 0.001));
 
         }
+
+        [TestMethod]
+        public void PointLoad4()
+        {
+
+            LoadCase loadCase = new LoadCase("SelfWeight", loadCaseType: GPC.Model.LoadCases.LoadCase.LoadCaseTypes.SelfWeight);
+
+            // sistema di riferimento locale
+            Point3d origin = new Point3d(1, 1, 1);
+            Vector3d asseX = new Vector3d(1, 0, 0);
+            Vector3d asseY = new Vector3d(0, 1, 0);
+            CoordinateSystem coordinateSystem = new CoordinateSystem(origin, asseX, asseY, "CS");
+
+            // PointLoad nel sistema locale
+            Vector3d force = new Vector3d(1, 0, 0);
+            Vector3d moment = new Vector3d(0, 0, 0);
+
+
+            Point3d point = new Point3d(1, 1, 1);
+            PointLoad pl1 = new PointLoad(force, moment, point, loadCase, coordinateSystem);
+
+
+            PointLoad pl1Global = pl1.ToGlobal();
+
+
+            Console.WriteLine(pl1.GetGlobalLoadVector().force);
+            Console.WriteLine(pl1Global.GetGlobalLoadVector().force);
+
+
+            // Assert
+            Assert.IsTrue((Math.Abs(pl1Global.F1 - pl1.F1)) < 0.001);
+            Assert.IsTrue((Math.Abs(pl1Global.F2 - pl1.F2)) < 0.001);
+            Assert.IsTrue((Math.Abs(pl1Global.F3 - pl1.F3)) < 0.001);
+            Assert.IsTrue((Math.Abs(pl1Global.M1 - pl1.M1)) < 0.001);
+            Assert.IsTrue((Math.Abs(pl1Global.M2 - pl1.M2)) < 0.001);
+            Assert.IsTrue((Math.Abs(pl1Global.M3 - pl1.M3)) < 0.001);
+        }
+
 
         [TestMethod]
         public void LineLoad1()
@@ -401,43 +440,6 @@ namespace ModelObjectTest
             Assert.AreEqual(ll.GetLocalLoadVector().force.Length, areaLoad.GetLocalLoadVector().Length, 0.001,
                 $"{ll.GetLocalLoadVector().force.Length} {areaLoad.GetLocalLoadVector().Length}");
 
-        }
-
-
-        [TestMethod]
-        public void aa()
-        {
-
-            // Test fatti con rhino 
-
-            // Arrange
-            Vector3d v1 = new Vector3d(0, 0, 1);
-            v1.Unitize();
-
-            Vector3d v1Expected = new Vector3d(0, 0, 1);
-
-
-            Plane referencePlane = new Plane(new Point3d(1, 1, 1),
-                                             new Vector3d(1, 0, 0),
-                                             new Vector3d(0, 1, 0));
-
-            CoordinateSystem cs = referencePlane.GetCoordinateSystem();
-
-            // Act
-            Vector3d v1Local = cs.ToLocal(v1);
-
-            // Assert
-            Console.WriteLine(cs.Origin);
-            Console.WriteLine(cs.V1);
-            Console.WriteLine(cs.V2);
-            Console.WriteLine(cs.V3);
-
-            Console.WriteLine(v1Local);
-
-            Console.WriteLine(v1Local.Length);
-            Console.WriteLine(v1Expected.Length);
-
-            Assert.AreEqual(1, v1Local.DotProduct(v1Expected), 0.01, $"Global: {v1} Local: {v1Local} Dot: {v1Local.DotProduct(v1).ToString()}");
         }
 
 
