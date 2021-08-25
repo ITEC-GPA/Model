@@ -39,6 +39,9 @@ namespace GPC.Model.Loads
         /// </summary>
         public Point3d Point => _point;
 
+        /// <summary>
+        /// Reference system of the load
+        /// </summary>
         public CoordinateSystem CoordinateSystem => _coordinateSystem;
 
         #endregion
@@ -54,7 +57,7 @@ namespace GPC.Model.Loads
         /// <param name="m3"></param>
         /// <param name="point">In the global reference system</param>
         /// <param name="loadCase"></param>
-        /// <param name="coordinateSystem"></param>
+        /// <param name="coordinateSystem">Reference system of the load</param>
         public PointLoad(double f1, double f2, double f3, double m1, double m2, double m3, Point3d point, LoadCaseBase loadCase, CoordinateSystem coordinateSystem) 
             : base(loadCase, Guid.NewGuid())
         {
@@ -89,9 +92,9 @@ namespace GPC.Model.Loads
         /// <param name="moment"></param>
         /// <param name="point">In the global reference system</param>
         /// <param name="loadCase"></param>
-        /// <param name="cSys"></param>
-        public PointLoad(Vector3d force, Vector3d moment, Point3d point, LoadCaseBase loadCase, CoordinateSystem cSys)
-            : this(force.X, force.Y, force.Z, moment.X, moment.Y, moment.Z, point, loadCase, cSys)
+        /// <param name="coordinateSystem">Reference system of the load</param>
+        public PointLoad(Vector3d force, Vector3d moment, Point3d point, LoadCaseBase loadCase, CoordinateSystem coordinateSystem)
+            : this(force.X, force.Y, force.Z, moment.X, moment.Y, moment.Z, point, loadCase, coordinateSystem)
         {
             
         }
@@ -118,8 +121,6 @@ namespace GPC.Model.Loads
         public Point3d GetGeometry() => _point;
 
         public override GeometryBase GetGeometryBase() => GetGeometry();
-
-
 
 
         /// <returns>The total local load vector in the local system. i.e. _f1 , _f2 , _f3 </returns>
@@ -178,8 +179,9 @@ namespace GPC.Model.Loads
 
             return new PointLoad(_coordinateSystem.ToGlobal(forceLocal),
                                  _coordinateSystem.ToGlobal(momentLocal),
-                                 _coordinateSystem.ToGlobal(_point),
-                                 LoadCase, CoordinateSystem.Global);
+                                 _point,
+                                 LoadCase, 
+                                 CoordinateSystem.Global);
         }
 
 
@@ -190,18 +192,13 @@ namespace GPC.Model.Loads
         public PointLoad ToLocal(CoordinateSystem cSys)
         {
 
-            Vector3d forceGlobal = new Vector3d(_f1, _f2, _f3);
-            Vector3d momentglobal = new Vector3d(_m1, _m2, _m3);
-
-
-            Vector3d forceLocal = cSys.ToLocal(_coordinateSystem.ToGlobal(forceGlobal));
-            Vector3d momentLocal = cSys.ToLocal(_coordinateSystem.ToGlobal(momentglobal));
-            Point3d pointLocal = cSys.ToLocal(_coordinateSystem.ToGlobal(_point));
+            Vector3d forceLocal = cSys.ToLocal(_coordinateSystem.ToGlobal(new Vector3d(_f1, _f2, _f3)));
+            Vector3d momentLocal = cSys.ToLocal(_coordinateSystem.ToGlobal(new Vector3d(_m1, _m2, _m3)));
 
 
             return new PointLoad(forceLocal,
                                  momentLocal,
-                                 pointLocal,
+                                 _point,
                                  LoadCase,
                                  cSys);
         }
@@ -213,7 +210,7 @@ namespace GPC.Model.Loads
         /// <returns>The array [fx, fy, fz, mx, my, mz]</returns>
         public double[] GetGlobalForces()
         {
-            // 
+            
             // Crea un array di double in le 3 componenti di forza e di momento
             // nelle 3 direzioni del sistema di coordinate globali.
             // Point3d point = _coordinateSystem.ToGlobal(_point);             
@@ -241,7 +238,7 @@ namespace GPC.Model.Loads
 
 
         /// <inheritdoc cref="IConvertibleLoad.ConvertToAreaLoad(Plane, double)"/>
-        /// <remarks>Moments will be lost</remarks>
+        /// <remarks>Moments will be lost. Reference system of the load is the global system</remarks>
         public virtual AreaLoad ConvertToAreaLoad(Plane referencePlane, double width)
         {
             Point3d point = (Point3d)_point.Clone();
@@ -250,8 +247,6 @@ namespace GPC.Model.Loads
 
             Vector3d normalVector = referencePlane.Normal;
             normalVector.Unitize();
-
-            var pointGlobal = CoordinateSystem.ToGlobal(point);
 
             Vector3d movementVector1 = referenceCoordinateSystem.V1;
             movementVector1.Unitize();
@@ -263,13 +258,13 @@ namespace GPC.Model.Loads
             movementVector2 *= width;
             movementVector2 /= 2.0;
 
-            Point3d p1 = pointGlobal.CloneAndMove(movementVector1 + movementVector2);
+            Point3d p1 = point.CloneAndMove(movementVector1 + movementVector2);
             movementVector1.Reverse();
-            Point3d p2 = pointGlobal.CloneAndMove(movementVector1 + movementVector2);
+            Point3d p2 = point.CloneAndMove(movementVector1 + movementVector2);
             movementVector2.Reverse();
-            Point3d p3 = pointGlobal.CloneAndMove(movementVector2 + movementVector1);
+            Point3d p3 = point.CloneAndMove(movementVector2 + movementVector1);
             movementVector1.Reverse();
-            Point3d p4 = pointGlobal.CloneAndMove(movementVector2 + movementVector1);
+            Point3d p4 = point.CloneAndMove(movementVector2 + movementVector1);
 
             var loadPerimeterGlobal = new Polygon3d()
                                     {
@@ -286,18 +281,22 @@ namespace GPC.Model.Loads
 
             var loadPerimeterReference = referenceCoordinateSystem.ToLocal(loadPerimeterGlobal);
 
+            // devo convertire il carico dal sistema _coordinateSystem
+            // al sistema del referencePlane
+
             Shape loadShape = new Shape(loadPerimeterReference); // TODO: tagliare con bordo esterno shape nel caso sbordi
             double loadArea = loadShape.GetArea();
 
             Vector3d loadVector = new Vector3d(F1, F2, F3);
-            var loadVectorGlobal = _coordinateSystem.ToGlobal(loadVector);
-            var loadVectorReference = referenceCoordinateSystem.ToLocal(loadVectorGlobal);
+            var loadVectorGlobal = _coordinateSystem.ToGlobal(loadVector); // da locale a globale
 
-            return new AreaLoad(loadVectorReference.X / loadArea,
-                                loadVectorReference.Y / loadArea,
-                                loadVectorReference.Z / loadArea,
+
+            return new AreaLoad(loadVectorGlobal.X / loadArea,
+                                loadVectorGlobal.Y / loadArea,
+                                loadVectorGlobal.Z / loadArea,
                                 loadShape,
-                                LoadCase);
+                                LoadCase, 
+                                CoordinateSystem.Global);
         }
 
         public virtual NormalAreaLoad ConvertToNormalAreaLoad(Plane referencePlane, double width)
