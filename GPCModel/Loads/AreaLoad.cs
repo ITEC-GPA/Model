@@ -24,17 +24,25 @@ namespace GPC.Model.Loads
         public double P2 => _p2;
         public double P3 => _p3;
 
+        /// <summary>
+        /// In the global reference system
+        /// </summary>
         public Shape Shape => _shape;
+
+        /// <summary>
+        /// reference system of the load
+        /// </summary>
         public CoordinateSystem CoordinateSystem => _coordinateSystem;
 
 
         /// <param name="p1"></param>
         /// <param name="p2"></param>
         /// <param name="p3"></param>
-        /// <param name="shape"></param>
+        /// <param name="shape">In the global reference system</param>
         /// <param name="loadCase"></param>
-        /// <remarks><see cref="CoordinateSystem"/> set to Global</remarks>
-        public AreaLoad(double p1, double p2, double p3, Shape shape, LoadCaseBase loadCase)
+        /// <param name="coordinateSystem">Reference system of the load</param>
+        /// <remarks><see cref="CoordinateSystem"/> set to <see cref="Shape.GetCoordinateSystem()"/></remarks>
+        public AreaLoad(double p1, double p2, double p3, Shape shape, LoadCaseBase loadCase, CoordinateSystem coordinateSystem)
             : base(loadCase, Guid.NewGuid())
         {
             _p1 = p1;
@@ -42,7 +50,19 @@ namespace GPC.Model.Loads
             _p3 = p3;
 
             _shape = shape ?? throw new ArgumentNullException("Shape cannot be null");
-            _coordinateSystem = shape.GetCoordinateSystem();
+            _coordinateSystem = coordinateSystem;
+        }
+
+        /// <param name="p1"></param>
+        /// <param name="p2"></param>
+        /// <param name="p3"></param>
+        /// <param name="shape">In the global reference system</param>
+        /// <param name="loadCase"></param>
+        /// <remarks><see cref="CoordinateSystem"/> set to <see cref="Shape.GetCoordinateSystem()"/></remarks>
+        public AreaLoad(double p1, double p2, double p3, Shape shape, LoadCaseBase loadCase)
+            : this(p1, p2, p3, shape, loadCase, CoordinateSystem.Global)
+        {
+
         }
 
 
@@ -62,7 +82,9 @@ namespace GPC.Model.Loads
         /// <remarks>The not normal portion will be lost</remarks>
         public NormalAreaLoad ConvertToNormalAreaLoad()
         {
-            return new NormalAreaLoad(_p3, _shape, LoadCase);
+            var globalLoad = this.GetGlobalLoadVector();
+
+            return new NormalAreaLoad(_shape.GetCoordinateSystem().ToLocal(globalLoad).Z, _shape, LoadCase);
         }
 
 
