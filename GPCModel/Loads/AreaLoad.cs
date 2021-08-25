@@ -120,7 +120,8 @@ namespace GPC.Model.Loads
             if (ReferenceEquals(obj, this))
                 return true;
 
-            return (obj is AreaLoad objCasted) && _shape.Equals(objCasted._shape) && _coordinateSystem.Equals(objCasted._coordinateSystem)
+            return (obj is AreaLoad objCasted) && _shape.Equals(objCasted._shape) 
+                                               && _coordinateSystem.Equals(objCasted._coordinateSystem)
                                                && _p1.Equals(objCasted._p1) && _p2.Equals(objCasted._p2) && _p3.Equals(objCasted._p3) 
                                                && base.Equals(objCasted);
         }

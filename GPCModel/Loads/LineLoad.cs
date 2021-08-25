@@ -128,7 +128,7 @@ namespace GPC.Model.Loads
         #region Convert to area load
 
         /// <inheritdoc cref="IConvertibleLoad.ConvertToAreaLoad(Plane, double)"/>
-        /// <remarks>Moments will be lost</remarks>
+        /// <remarks>Moments will be lost. Reference system of the load is the global system</remarks>
         public virtual AreaLoad ConvertToAreaLoad(Plane referencePlane, double width)
         {
 
@@ -140,20 +140,20 @@ namespace GPC.Model.Loads
             Vector3d normalVector = referencePlane.Normal;
             normalVector.Unitize();
 
-            var lineGlobal = CoordinateSystem.ToGlobal(line);
+            //var lineGlobal = CoordinateSystem.ToGlobal(line);
 
-            Vector3d lineVector = new Vector3d(lineGlobal.Start, lineGlobal.End); // converto linea nel globale
+            Vector3d lineVector = new Vector3d(line.Start, line.End); 
             Vector3d movementVector = normalVector.CrossProduct(lineVector); // calcolo il vettore spostamento come prodottovettore tra la normale del piano di rif e la linea
 
             movementVector.Unitize();
             movementVector *= width;
             movementVector /= 2.0;
 
-            Point3d p1 = lineGlobal.Start.CloneAndMove(movementVector);
-            Point3d p2 = lineGlobal.End.CloneAndMove(movementVector);
+            Point3d p1 = line.Start.CloneAndMove(movementVector);
+            Point3d p2 = line.End.CloneAndMove(movementVector);
             movementVector.Reverse();
-            Point3d p3 = lineGlobal.End.CloneAndMove(movementVector);
-            Point3d p4 = lineGlobal.Start.CloneAndMove(movementVector);
+            Point3d p3 = line.End.CloneAndMove(movementVector);
+            Point3d p4 = line.Start.CloneAndMove(movementVector);
 
             var loadPerimeterGlobal = new Polygon3d()
                                     {
@@ -168,20 +168,24 @@ namespace GPC.Model.Loads
                 loadPerimeterGlobal.Reverse();
             }
 
-            var loadPerimeterReference = referenceCoordinateSystem.ToLocal(loadPerimeterGlobal);
+            // creo shape con coordinate nel globale
+            Shape loadShape = new Shape(loadPerimeterGlobal); // TODO: tagliare con bordo esterno shape nel caso sbordi
 
-            Shape loadShape = new Shape(loadPerimeterReference); // TODO: tagliare con bordo esterno shape nel caso sbordi
+                        
+            // devo convertire il carico dal sistema _coordinateSystem
+            // al sistema globale
+
+            Vector3d loadVector = new Vector3d(F1, F2, F3); // carico nel _coordinateSystem            
+            var loadVectorGlobal = _coordinateSystem.ToGlobal(loadVector); // da locale a globale
+
             double loadArea = loadShape.GetArea();
 
-            Vector3d loadVector = new Vector3d(F1, F2, F3);
-            var loadVectorGlobal = _coordinateSystem.ToGlobal(loadVector);
-            var loadVectorReference = referenceCoordinateSystem.ToLocal(loadVectorGlobal);
-
-            return new AreaLoad(loadVectorReference.X * lineLenght / loadArea,
-                                loadVectorReference.Y * lineLenght / loadArea,
-                                loadVectorReference.Z * lineLenght / loadArea,
+            return new AreaLoad(loadVectorGlobal.X * lineLenght / loadArea,
+                                loadVectorGlobal.Y * lineLenght / loadArea,
+                                loadVectorGlobal.Z * lineLenght / loadArea,
                                 loadShape,
-                                LoadCase);
+                                LoadCase, 
+                                CoordinateSystem.Global);
         }
 
 
@@ -198,20 +202,20 @@ namespace GPC.Model.Loads
             Vector3d normalVector = referencePlane.Normal;
             normalVector.Unitize();
 
-            var lineGlobal = CoordinateSystem.ToGlobal(line);
+            //var lineGlobal = CoordinateSystem.ToGlobal(line);
 
-            Vector3d lineVector = new Vector3d(lineGlobal.Start, lineGlobal.End); // converto linea nel globale
+            Vector3d lineVector = new Vector3d(line.Start, line.End); // converto linea nel globale
             Vector3d movementVector = normalVector.CrossProduct(lineVector); // calcolo il vettore spostamento come prodottovettore tra la normale del piano di rif e la linea
 
             movementVector.Unitize();
             movementVector *= width;
             movementVector /= 2.0;
 
-            Point3d p1 = lineGlobal.Start.CloneAndMove(movementVector);
-            Point3d p2 = lineGlobal.End.CloneAndMove(movementVector);
+            Point3d p1 = line.Start.CloneAndMove(movementVector);
+            Point3d p2 = line.End.CloneAndMove(movementVector);
             movementVector.Reverse();
-            Point3d p3 = lineGlobal.End.CloneAndMove(movementVector);
-            Point3d p4 = lineGlobal.Start.CloneAndMove(movementVector);
+            Point3d p3 = line.End.CloneAndMove(movementVector);
+            Point3d p4 = line.Start.CloneAndMove(movementVector);
 
             var loadPerimeterGlobal = new Polygon3d()
                                     {
@@ -305,16 +309,34 @@ namespace GPC.Model.Loads
         /// </summary>
         public LineLoad ToGlobal()
         {
-            Vector3d forceLocal = new Vector3d(_f1, _f2, _f3);
-            Vector3d momentLocal = new Vector3d(_m1, _m2, _m3);
-
             // Cambia le proprietà del LineLoad passando da un sistema di riferimento globale
             // ad un sistema di rifarimento locale.
 
-            return new LineLoad((Point3d)_coordinateSystem.ToGlobal(forceLocal) - _coordinateSystem.Origin,
-                                (Point3d)_coordinateSystem.ToGlobal(momentLocal) - _coordinateSystem.Origin,
-                                _coordinateSystem.ToGlobal(_line),
-                                LoadCase, CoordinateSystem.Global);
+
+            return new LineLoad(_coordinateSystem.ToGlobal(new Vector3d(_f1, _f2, _f3)),
+                                _coordinateSystem.ToGlobal(new Vector3d(_m1, _m2, _m3)),
+                                _line,
+                                LoadCase, 
+                                CoordinateSystem.Global);
+        }
+
+
+        /// <summary>
+        /// Return the lineload in a local coordinate system
+        /// </summary>
+        public LineLoad ToLocal(CoordinateSystem cSys)
+        {
+
+            Vector3d forceLocal = cSys.ToLocal(_coordinateSystem.ToGlobal(new Vector3d(_f1, _f2, _f3)));
+            Vector3d momentLocal = cSys.ToLocal(_coordinateSystem.ToGlobal(new Vector3d(_m1, _m2, _m3)));
+            // Line3d lineLocal = cSys.ToLocal(_coordinateSystem.ToGlobal(_line)); la linea non va cambiata dato che sempre riferita al globale
+
+
+            return new LineLoad(forceLocal,
+                                 momentLocal,
+                                 _line,
+                                 LoadCase,
+                                 cSys);
         }
 
         /// <summary>
