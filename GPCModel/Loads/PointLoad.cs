@@ -158,8 +158,8 @@ namespace GPC.Model.Loads
             // Cambia le proprietà del PointLoad passando da un sistema di riferimento globale
             // ad un sistema di rifarimento locale.                         
 
-            return new PointLoad(_coordinateSystem.ToGlobal(forceLocal) - _coordinateSystem.Origin,
-                                 _coordinateSystem.ToGlobal(momentLocal) - _coordinateSystem.Origin,
+            return new PointLoad((Point3d)_coordinateSystem.ToGlobal(forceLocal) - _coordinateSystem.Origin,
+                                 (Point3d)_coordinateSystem.ToGlobal(momentLocal) - _coordinateSystem.Origin,
                                  _coordinateSystem.ToGlobal(_point),
                                  LoadCase, CoordinateSystem.Global);
         }

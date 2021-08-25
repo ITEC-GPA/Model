@@ -290,6 +290,7 @@ namespace GPC.Model.Loads
             return pointLoad;
         }
 
+
         /// <summary>
         /// Return the lineload in a global coordinate system
         /// </summary>
@@ -301,8 +302,8 @@ namespace GPC.Model.Loads
             // Cambia le proprietà del LineLoad passando da un sistema di riferimento globale
             // ad un sistema di rifarimento locale.
 
-            return new LineLoad(_coordinateSystem.ToGlobal(forceLocal) - _coordinateSystem.Origin,
-                                _coordinateSystem.ToGlobal(momentLocal) - _coordinateSystem.Origin,
+            return new LineLoad((Point3d)_coordinateSystem.ToGlobal(forceLocal) - _coordinateSystem.Origin,
+                                (Point3d)_coordinateSystem.ToGlobal(momentLocal) - _coordinateSystem.Origin,
                                 _coordinateSystem.ToGlobal(_line),
                                 LoadCase, CoordinateSystem.Global);
         }

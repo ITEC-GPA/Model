@@ -18,7 +18,7 @@ namespace ModelObjectTest
             Point3d Origin = new Point3d(2, 0, 0);
             Point3d AsseX = new Point3d(2, 2, 0);
             Point3d AsseY = new Point3d(2, 0, 2);
-            CoordinateSystem CoordinateSystem1 = new CoordinateSystem(Origin, AsseX, AsseY, "CS", new Guid());
+            CoordinateSystem CoordinateSystem1 = new CoordinateSystem(Origin, AsseX, AsseY, "CS");
 
             // PointLoad nel sistema locale
             Vector3d force = new Vector3d(1, 0, 0);
@@ -365,17 +365,85 @@ namespace ModelObjectTest
 
         }
 
+        [TestMethod]
+        public void LineLoadConvert3()
+        {
+
+            // linea nel locale
+            Line3d line = new Line3d(new Point3d(0, 0, 0), new Point3d(1000, 0, 0));
+
+
+            // PointLoad nel sistema locale
+            Vector3d force = new Vector3d(0,0,1);             // sono forze e momenti per unità di lunghezza
+            Vector3d moment = new Vector3d(0,0,0);
+
+            LoadCase LoadCase = new LoadCase("SelfWeight", loadCaseType: GPC.Model.LoadCases.LoadCase.LoadCaseTypes.SelfWeight);
+
+            LineLoad ll = new LineLoad(force, moment, line, LoadCase, CoordinateSystem.Global);
+
+
+            Plane referencePlane = new Plane(new Point3d(1, 1, 1),
+                                             new Vector3d(1, 0, 0),
+                                             new Vector3d(0, 1, 0));
+            var areaLoad = ll.ConvertToAreaLoad(referencePlane, 10);
+
+            var borders = areaLoad.Shape.Fill.Explode();
+
+            // Assert
+            Assert.AreEqual(1000, borders[0].GetLength(), 0.01);
+            Assert.AreEqual(10,   borders[1].GetLength(), 0.01);
+            Assert.AreEqual(1000, borders[2].GetLength(), 0.01);
+            Assert.AreEqual(10,   borders[3].GetLength(), 0.01);
+
+            var localAreaVector = areaLoad.GetLocalLoadVector();
+            Assert.AreEqual(force.Z * line.GetLength() / (1000 * 10), localAreaVector.Z, 0.2);
+
+            Assert.AreEqual(ll.GetLocalLoadVector().force.Length, areaLoad.GetLocalLoadVector().Length, 0.001,
+                $"{ll.GetLocalLoadVector().force.Length} {areaLoad.GetLocalLoadVector().Length}");
+
+        }
+
+
+        [TestMethod]
+        public void aa()
+        {
+
+            // Test fatti con rhino 
+
+            // Arrange
+            Vector3d v1 = new Vector3d(0, 0, 1);
+            v1.Unitize();
+
+            Vector3d v1Expected = new Vector3d(0, 0, 1);
+
+
+            Plane referencePlane = new Plane(new Point3d(1, 1, 1),
+                                             new Vector3d(1, 0, 0),
+                                             new Vector3d(0, 1, 0));
+
+            CoordinateSystem cs = referencePlane.GetCoordinateSystem();
+
+            // Act
+            Vector3d v1Local = cs.ToLocal(v1);
+
+            // Assert
+            Console.WriteLine(cs.Origin);
+            Console.WriteLine(cs.V1);
+            Console.WriteLine(cs.V2);
+            Console.WriteLine(cs.V3);
+
+            Console.WriteLine(v1Local);
+
+            Console.WriteLine(v1Local.Length);
+            Console.WriteLine(v1Expected.Length);
+
+            Assert.AreEqual(1, v1Local.DotProduct(v1Expected), 0.01, $"Global: {v1} Local: {v1Local} Dot: {v1Local.DotProduct(v1).ToString()}");
+        }
 
 
         [TestMethod]
         public void PointLoadConvert1()
         {
-            Vector3d v = new Vector3d(0, 1, 2);
-            v /= 2;
-
-            Console.WriteLine(v);
-
-
             // PointLoad nel sistema locale
             Vector3d force = new Vector3d(1, 2, 3);             // sono forze e momenti per unità di lunghezza
             Vector3d moment = new Vector3d(4, 5, 6);
