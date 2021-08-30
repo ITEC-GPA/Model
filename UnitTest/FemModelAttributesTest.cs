@@ -16,7 +16,6 @@ namespace FemTest
     {
 
         [TestMethod]
-        [TestCategory("Missing Assert")]
         public void FemAttributeTest1()
         {
 
@@ -28,8 +27,9 @@ namespace FemTest
 
             Assert.IsTrue(gp.AttributesLoadCase.Count == 1);
 
-            Assert.IsTrue(gp.AttributesLoadCase.ContainsName("lc2"));
-            Assert.IsFalse(gp.AttributesLoadCase.ContainsName("lc1"));
+            Assert.IsTrue(gp.AttributesLoadCase.ContainsCaseName("lc1"));
+            Assert.IsTrue(gp.AttributesLoadCase.GetElementByCaseName("lc1").Name == "lc2");
+            Assert.IsFalse(gp.AttributesLoadCase.GetElementByCaseName("lc1").Name == "lc1");
 
 
         }

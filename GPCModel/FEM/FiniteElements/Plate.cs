@@ -84,13 +84,13 @@ namespace GPC.Model.FEM.FiniteElements
 
         public virtual void AddLoadCaseAttribute(IPlateLoadCaseAttribute attribute)
         {
-            AddLoadCaseAttribute((LoadCaseAttribute)attribute);
+            _attributesLoadCase.Add((LoadCaseAttribute)attribute);
         }
 
 
         public virtual void AddFreedomCaseAttribute(IPlateFreedomCaseAttribute attribute)
         {
-            AddFreedomCaseAttribute((FreedomCaseAttribute)attribute);
+            _attributesFreedomCase.Add((FreedomCaseAttribute)attribute);
         }
 
         public void AddResult(PlateResult result)

@@ -50,15 +50,16 @@ namespace GPC.Model.FEM.FiniteElements
         }
 
 
+
         public virtual void AddLoadCaseAttribute(IBeamLoadCaseAttribute attribute)
         {
-            AddLoadCaseAttribute((LoadCaseAttribute)attribute);
+            _attributesLoadCase.Add((LoadCaseAttribute)attribute);
         }
 
 
         public virtual void AddFreedomCaseAttribute(IBeamFreedomCaseAttribute attribute)
         {
-            AddFreedomCaseAttribute((FreedomCaseAttribute)attribute);
+            _attributesFreedomCase.Add((FreedomCaseAttribute)attribute);
         }
 
 

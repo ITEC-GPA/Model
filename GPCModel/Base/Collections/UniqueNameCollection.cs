@@ -29,13 +29,6 @@ namespace GPC.Model
         }
 
 
-        public UniqueNameCollection(EqualityComparer<T> comparer)
-        {
-            _collection = new HashSet<T>(comparer);
-            _names = new HashSet<string>();
-        }
-
-
         public UniqueNameCollection(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {

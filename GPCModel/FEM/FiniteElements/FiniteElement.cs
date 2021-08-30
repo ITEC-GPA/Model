@@ -7,6 +7,7 @@ using GPC.Model.FEM.Attributes;
 using GPC.Model.Results;
 using mnl = MathNet.Numerics.LinearAlgebra;
 using System.ComponentModel;
+using GPC.Model.FEM.Collections;
 
 namespace GPC.Model.FEM.FiniteElements
 {
@@ -27,8 +28,8 @@ namespace GPC.Model.FEM.FiniteElements
         //local stiffness matrix of the element in local coordinates
         protected mnl.Matrix<double> _kElementLocalCoord;
         
-        protected UniqueNameCollection<LoadCaseAttribute> _attributesLoadCase;
-        protected UniqueNameCollection<FreedomCaseAttribute> _attributesFreedomCase;
+        protected AttributesCollection<LoadCaseAttribute> _attributesLoadCase;
+        protected AttributesCollection<FreedomCaseAttribute> _attributesFreedomCase;
 
         //contains informations about section, thickness, material etc of the element
         protected ElementProperty _property;
@@ -103,8 +104,8 @@ namespace GPC.Model.FEM.FiniteElements
         /// </summary>
         public mnl.Matrix<double> KElementLocalCoord => _kElementLocalCoord;
         
-        public UniqueNameCollection<LoadCaseAttribute> AttributesLoadCase => _attributesLoadCase;
-        public UniqueNameCollection<FreedomCaseAttribute> AttributesFreedomCase => _attributesFreedomCase;
+        public AttributesCollection<LoadCaseAttribute> AttributesLoadCase => _attributesLoadCase;
+        public AttributesCollection<FreedomCaseAttribute> AttributesFreedomCase => _attributesFreedomCase;
         public IEnumerable<FiniteElementResult> Results => _results;
 
         #endregion
@@ -116,8 +117,8 @@ namespace GPC.Model.FEM.FiniteElements
         {
             _nodesGlobal = nodes;
             _DOF = new SortedSet<Solver.DOF>();
-            _attributesLoadCase = new UniqueNameCollection<LoadCaseAttribute>(new LoadCaseAttributeEqualityComparer());
-            _attributesFreedomCase = new UniqueNameCollection<FreedomCaseAttribute>(new FreedomCaseAttributeEqualityComparer());
+            _attributesLoadCase = new AttributesCollection<LoadCaseAttribute>();
+            _attributesFreedomCase = new AttributesCollection<FreedomCaseAttribute>();
 
             _results = new ModelObjectSet<FiniteElementResult>(EqualityComparer<ElementResult>.Default); // comparer di ElementResult, usa solo il case come comparatore
         }
@@ -139,46 +140,16 @@ namespace GPC.Model.FEM.FiniteElements
             _property = property;
         }
 
-        /// <summary>
-        /// If an attribute, with the same loadcase name, already exist in the <see cref="_attributesLoadCase"/> it will be replaced with <paramref name="attribute"/>.
-        /// </summary>
-        protected void AddLoadCaseAttribute(LoadCaseAttribute attribute)
-        {
-            if (!_attributesLoadCase.Add(attribute))
-            {
-                _attributesLoadCase.Remove(attribute.LoadCaseName);
-                _attributesLoadCase.Add(attribute);
-            }
-            else
-            {
-                _attributesLoadCase.Add(attribute);
-            }            
-        }
-
-        /// <summary>
-        /// If an attribute, with the same freedom name, already exist in the <see cref="_attributesFreedomCase"/> it will be replaced with <paramref name="attribute"/>.
-        /// </summary>
-        protected void AddFreedomCaseAttribute(FreedomCaseAttribute attribute)
-        {
-            if (!_attributesFreedomCase.Add(attribute))
-            {
-                _attributesFreedomCase.Remove(attribute.FreedomCaseName);
-                _attributesFreedomCase.Add(attribute);
-            }
-            else
-            {
-                _attributesFreedomCase.Add(attribute);
-            }
-        }
 
         public LoadCaseAttribute GetLoadCaseAttribute(string loadCaseName)
         {
-            return _attributesLoadCase.GetElementByName(loadCaseName);
+            return (LoadCaseAttribute)_attributesLoadCase.GetElementByCaseName(loadCaseName);
         }
 
-        public FreedomCaseAttribute GetFreedomCaseAttribute(string freedomCaseAttribute)
+
+        public FreedomCaseAttribute GetFreedomCaseAttribute(string freedomCaseName)
         {
-            return _attributesFreedomCase.GetElementByName(freedomCaseAttribute);
+            return (FreedomCaseAttribute)_attributesFreedomCase.GetElementByCaseName(freedomCaseName);
         }
 
 

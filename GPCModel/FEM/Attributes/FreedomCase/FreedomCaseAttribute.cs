@@ -7,9 +7,8 @@ namespace GPC.Model.FEM.Attributes
 {
     public abstract class FreedomCaseAttribute : Attribute, ISerializable
     {
-        private string _freedomCaseName;
+        public string FreedomCaseName => _caseName;
 
-        public string FreedomCaseName => _freedomCaseName;
 
         public FreedomCaseAttribute(string freedomCaseName)
             : this(freedomCaseName, string.Empty, Guid.NewGuid())
@@ -24,29 +23,25 @@ namespace GPC.Model.FEM.Attributes
         }
 
         public FreedomCaseAttribute(string freedomCaseName, string name, Guid guid)
-            : base(guid, name)
+            : base(freedomCaseName, name, guid)
         {
-            _freedomCaseName = string.IsNullOrEmpty(freedomCaseName) || string.IsNullOrWhiteSpace(freedomCaseName) ? throw new ArgumentNullException() : freedomCaseName;
+            
         }
         
 
-
         public FreedomCaseAttribute(FreedomCaseAttribute freedomCaseAttribute)
-            : base(freedomCaseAttribute.Guid, freedomCaseAttribute._name)
+            : base(freedomCaseAttribute.FreedomCaseName, freedomCaseAttribute.Name, freedomCaseAttribute.Guid)
         {
-            _freedomCaseName = freedomCaseAttribute._freedomCaseName;
-        }
 
+        }
 
 
 
         protected FreedomCaseAttribute(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
-            _freedomCaseName = (string)info.GetValue("FreedomCase", typeof(string));
+
         }
-
-
 
 
         public override bool Equals(object obj)
@@ -54,13 +49,13 @@ namespace GPC.Model.FEM.Attributes
             if (ReferenceEquals(this, obj))
                 return true;
 
-            return (obj is FreedomCaseAttribute objCasted) && _freedomCaseName.Equals(objCasted._freedomCaseName) && base.Equals(objCasted);
+            return (obj is FreedomCaseAttribute objCasted) && base.Equals(objCasted);
         }
+
 
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             base.GetObjectData(info, context);
-            info.AddValue("FreedomCase", _freedomCaseName);
         }
 
         public override int GetHashCode()
@@ -69,7 +64,6 @@ namespace GPC.Model.FEM.Attributes
             {
                 int hashCode = 23;
                 hashCode = hashCode * -17 + base.GetHashCode();
-                hashCode = hashCode * -17 + EqualityComparer<string>.Default.GetHashCode(_freedomCaseName);
                 return hashCode; 
             }
         }
