@@ -110,8 +110,8 @@ namespace GPC.Model.FEM
             {
                 StageFiniteElementProperty sp = new StageFiniteElementProperty(element.Property.Name);
 
-                sp.AddLoadCaseAttributes(element.AttributesLoadCase);
-                sp.AddFreedomCaseAttributes(element.AttributesFreedomCase);
+                sp.AddLoadCaseAttributes(element.AttributesLoadCase.ToList());
+                sp.AddFreedomCaseAttributes(element.AttributesFreedomCase.ToList());
 
                 _elements.AddUnique(element, sp);
 
@@ -138,8 +138,8 @@ namespace GPC.Model.FEM
             {
                 StageFiniteElementProperty sp = new StageFiniteElementProperty(propertyName);
 
-                sp.AddLoadCaseAttributes(element.AttributesLoadCase);
-                sp.AddFreedomCaseAttributes(element.AttributesFreedomCase);
+                sp.AddLoadCaseAttributes(element.AttributesLoadCase.ToList());
+                sp.AddFreedomCaseAttributes(element.AttributesFreedomCase.ToList());
 
                 _elements.AddUnique(element, sp);
 
@@ -180,8 +180,8 @@ namespace GPC.Model.FEM
 
                 StageFiniteElementProperty sp = new StageFiniteElementProperty(propertyName);
 
-                sp.AddLoadCaseAttributes(element.AttributesLoadCase);
-                sp.AddFreedomCaseAttributes(element.AttributesFreedomCase);
+                sp.AddLoadCaseAttributes(element.AttributesLoadCase.ToList());
+                sp.AddFreedomCaseAttributes(element.AttributesFreedomCase.ToList());
 
                 _elements.AddUnique(element, sp);
             }
@@ -637,8 +637,8 @@ namespace GPC.Model.FEM
             {
                 this._propertyName = element.Property.Name;
 
-                this.AddLoadCaseAttributes(element.AttributesLoadCase);
-                this.AddFreedomCaseAttributes(element.AttributesFreedomCase);
+                this.AddLoadCaseAttributes(element.AttributesLoadCase.ToList());
+                this.AddFreedomCaseAttributes(element.AttributesFreedomCase.ToList());
             }
 
 

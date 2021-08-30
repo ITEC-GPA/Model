@@ -66,6 +66,7 @@ namespace GPC.Model
             }
         }
 
+
         /// <inheritdoc cref="Add(T)"/>
         public virtual bool AddRange(IEnumerable<T> items)
         {

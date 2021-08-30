@@ -521,8 +521,8 @@ namespace FemTest
             foreach(var element in femModel.GetElements())
             {
                 Assert.IsTrue(element.AttributesLoadCase.Count == 1, element.AttributesLoadCase.Count.ToString()) ;
-                Assert.IsTrue(element.AttributesLoadCase[0].LoadCaseName == "LC2");
-                Assert.IsTrue(element.AttributesLoadCase[0].GetType() == typeof(PlateNormalPressureAttribute));
+                Assert.IsTrue(element.AttributesLoadCase.FirstOrDefault().LoadCaseName == "LC2");
+                Assert.IsTrue(element.AttributesLoadCase.FirstOrDefault().GetType() == typeof(PlateNormalPressureAttribute));
             }
 
         }
@@ -558,8 +558,8 @@ namespace FemTest
             foreach (var element in femModel.GetElements())
             {
                 Assert.IsTrue(element.AttributesLoadCase.Count == 1, $"Id:{element.Id} {element.AttributesLoadCase.Count}" );
-                Assert.IsTrue(element.AttributesLoadCase[0].LoadCaseName == "LC2");
-                Assert.IsTrue(element.AttributesLoadCase[0].GetType() == typeof(PlateNormalPressureAttribute));
+                Assert.IsTrue(element.AttributesLoadCase.FirstOrDefault().LoadCaseName == "LC2");
+                Assert.IsTrue(element.AttributesLoadCase.FirstOrDefault().GetType() == typeof(PlateNormalPressureAttribute));
             }
             
         }

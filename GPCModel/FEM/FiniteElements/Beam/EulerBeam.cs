@@ -571,14 +571,14 @@ namespace GPC.Model.FEM.FiniteElements
             double q1 = 0;
             double q2 = 0;
             double q3 = 0;
-            for (int i = 0; i < _attributesLoadCase.Count; i++)
+
+            foreach(var attribute in _attributesLoadCase)
             {
-                if (_attributesLoadCase[i].GetType() == typeof(BeamDistribuitedLoadAttribute))
+                if (attribute is BeamDistribuitedLoadAttribute bdla)
                 {
-                    BeamDistribuitedLoadAttribute q = (BeamDistribuitedLoadAttribute)_attributesLoadCase[i];
-                    q1 += q.Q1;
-                    q2 += q.Q2;
-                    q3 += q.Q3;
+                    q1 += bdla.Q1;
+                    q2 += bdla.Q2;
+                    q3 += bdla.Q3;
                 }
                 else
                 {
@@ -810,7 +810,7 @@ namespace GPC.Model.FEM.FiniteElements
 
         public override FiniteElement Duplicate()
         {
-            return Duplicate(_property, _attributesLoadCase, _attributesFreedomCase);
+            return Duplicate(_property, _attributesLoadCase.ToList(), _attributesFreedomCase.ToList());
         }
         #endregion
 
@@ -861,14 +861,21 @@ namespace GPC.Model.FEM.FiniteElements
             double qx = 0;
             double qy = 0;
             double qz = 0;
-            for (int i = 0; i < _attributesLoadCase.Count; i++)
+
+            foreach (var attribute in _attributesLoadCase)
             {
-                if (_attributesLoadCase[i].GetType() == typeof(BeamDistribuitedLoadAttribute))
+                if (attribute is BeamDistribuitedLoadAttribute bdla)
                 {
-                    BeamDistribuitedLoadAttribute q = (BeamDistribuitedLoadAttribute)_attributesLoadCase[i];
-                    qx += q.Q1;
-                    qy += q.Q2;
-                    qz += q.Q3;
+                    qx += bdla.Q1;
+                    qy += bdla.Q2;
+                    qz += bdla.Q3;
+                }
+                else
+                {
+                    //TODO: gestione coordinate system
+                    qx = 0;
+                    qy = 0;
+                    qz = 0;
                 }
             }
 
@@ -948,14 +955,14 @@ namespace GPC.Model.FEM.FiniteElements
             double q1 = 0;
             double q2 = 0;
             double q3 = 0;
-            for (int i = 0; i < _attributesLoadCase.Count; i++)
+
+            foreach (var attribute in _attributesLoadCase)
             {
-                if (_attributesLoadCase[i].GetType() == typeof(BeamDistribuitedLoadAttribute))
+                if (attribute is BeamDistribuitedLoadAttribute bdla)
                 {
-                    BeamDistribuitedLoadAttribute q = (BeamDistribuitedLoadAttribute)_attributesLoadCase[i];
-                    q1 += q.Q1;
-                    q2 += q.Q2;
-                    q3 += q.Q3;
+                    q1 += bdla.Q1;
+                    q2 += bdla.Q2;
+                    q3 += bdla.Q3;
                 }
             }
             #endregion

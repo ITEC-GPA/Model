@@ -49,14 +49,16 @@ namespace GPC.Model.FEM.FiniteElements
             _length = nodes[0].Position.DistanceTo(nodes[1].Position);
         }
 
+
         public virtual void AddLoadCaseAttribute(IBeamLoadCaseAttribute attribute)
         {
-            _attributesLoadCase.Add((LoadCaseAttribute)attribute);
+            AddLoadCaseAttribute((LoadCaseAttribute)attribute);
         }
+
 
         public virtual void AddFreedomCaseAttribute(IBeamFreedomCaseAttribute attribute)
         {
-            _attributesFreedomCase.Add((FreedomCaseAttribute)attribute);
+            AddFreedomCaseAttribute((FreedomCaseAttribute)attribute);
         }
 
 

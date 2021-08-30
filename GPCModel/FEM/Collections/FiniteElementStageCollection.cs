@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Runtime.Serialization;
 using GPC.Model.FEM.FiniteElements;
 
@@ -49,8 +50,8 @@ namespace GPC.Model.FEM.Collections
 
             Stage.StageFiniteElementProperty sp = new Stage.StageFiniteElementProperty(item.Property.Name);
 
-            sp.AddLoadCaseAttributes(item.AttributesLoadCase);
-            sp.AddFreedomCaseAttributes(item.AttributesFreedomCase);
+            sp.AddLoadCaseAttributes(item.AttributesLoadCase.ToList());
+            sp.AddFreedomCaseAttributes(item.AttributesFreedomCase.ToList());
 
             base.AddUnique(item, sp);
         }
