@@ -18,8 +18,8 @@ namespace GPC.Model.FEM.Attributes
 
         }
 
-        public LoadCaseAttribute(string loadCaseName, string name) 
-            : this(loadCaseName, name, Guid.NewGuid())
+        public LoadCaseAttribute(string loadCaseName, string attributeName) 
+            : this(loadCaseName, attributeName, Guid.NewGuid())
         {
 
         }
@@ -49,9 +49,7 @@ namespace GPC.Model.FEM.Attributes
             if (ReferenceEquals(this, obj))
                 return true;
 
-            LoadCaseAttribute lca = obj as LoadCaseAttribute;
-
-            return !(obj is null) && _loadCaseName.Equals(lca._loadCaseName) && base.Equals(obj);
+            return (obj is LoadCaseAttribute objCasted) && _loadCaseName.Equals(objCasted._loadCaseName) && base.Equals(objCasted);
         }
 
 
@@ -64,10 +62,13 @@ namespace GPC.Model.FEM.Attributes
 
         public override int GetHashCode()
         {
-            int hashCode = -23;
-            hashCode = hashCode * -17 + base.GetHashCode();
-            hashCode = hashCode * -17 + EqualityComparer<string>.Default.GetHashCode(_loadCaseName);
-            return hashCode;
+            unchecked
+            {
+                int hashCode = -23;
+                hashCode = hashCode * -17 + base.GetHashCode();
+                hashCode = hashCode * -17 + EqualityComparer<string>.Default.GetHashCode(_loadCaseName);
+                return hashCode; 
+            }
         }
 
 
@@ -75,11 +76,13 @@ namespace GPC.Model.FEM.Attributes
         #region Override Operator
         public static bool operator ==(LoadCaseAttribute obj1, LoadCaseAttribute obj2)
         {
+            if (obj1 is null)
+            {
+                return obj2 is null;
+            }
+
             if (ReferenceEquals(obj1, obj2))
                 return true;
-
-            if (obj1 is null || obj2 is null)
-                return false;
 
             return obj1.Equals(obj2);
         }

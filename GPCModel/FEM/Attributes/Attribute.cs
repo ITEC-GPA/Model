@@ -6,6 +6,11 @@ namespace GPC.Model.FEM.Attributes
     [Serializable]
     public abstract class Attribute : ModelObject, ISerializable, ICloneable
     {
+        protected Attribute(string name)
+            : base(name)
+        {
+
+        }
 
         protected Attribute(Guid guid, string name) 
             : base(guid, name)
@@ -39,6 +44,7 @@ namespace GPC.Model.FEM.Attributes
 
 
         #region Override Operator
+
         public static bool operator ==(Attribute obj1, Attribute obj2)
         {
             if (ReferenceEquals(obj1, obj2))
@@ -54,6 +60,7 @@ namespace GPC.Model.FEM.Attributes
         {
             return !(obj1 == obj2);
         } 
+
         #endregion
     }
 }

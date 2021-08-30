@@ -26,7 +26,7 @@ namespace GPC.Model.FEM.Attributes
         public FreedomCaseAttribute(string freedomCaseName, string name, Guid guid)
             : base(guid, name)
         {
-            _freedomCaseName = String.IsNullOrEmpty(freedomCaseName) || String.IsNullOrWhiteSpace(freedomCaseName) ? throw new ArgumentNullException() : freedomCaseName;
+            _freedomCaseName = string.IsNullOrEmpty(freedomCaseName) || string.IsNullOrWhiteSpace(freedomCaseName) ? throw new ArgumentNullException() : freedomCaseName;
         }
         
 
@@ -54,9 +54,7 @@ namespace GPC.Model.FEM.Attributes
             if (ReferenceEquals(this, obj))
                 return true;
 
-            FreedomCaseAttribute lca = obj as FreedomCaseAttribute;
-
-            return !(lca is null) && _freedomCaseName.Equals(lca._freedomCaseName) && base.Equals(lca);
+            return (obj is FreedomCaseAttribute objCasted) && _freedomCaseName.Equals(objCasted._freedomCaseName) && base.Equals(objCasted);
         }
 
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
@@ -67,21 +65,26 @@ namespace GPC.Model.FEM.Attributes
 
         public override int GetHashCode()
         {
-            int hashCode = 23;
-            hashCode = hashCode * -17 + base.GetHashCode();
-            hashCode = hashCode * -17 + EqualityComparer<string>.Default.GetHashCode(_freedomCaseName);
-            return hashCode;
+            unchecked
+            {
+                int hashCode = 23;
+                hashCode = hashCode * -17 + base.GetHashCode();
+                hashCode = hashCode * -17 + EqualityComparer<string>.Default.GetHashCode(_freedomCaseName);
+                return hashCode; 
+            }
         }
 
         #region Override Operator
 
         public static bool operator ==(FreedomCaseAttribute obj1, FreedomCaseAttribute obj2)
         {
+            if (obj1 is null)
+            {
+                return obj2 is null;
+            }
+
             if (ReferenceEquals(obj1, obj2))
                 return true;
-
-            if (obj1 is null || obj2 is null)
-                return false;
 
             return obj1.Equals(obj2);
         }

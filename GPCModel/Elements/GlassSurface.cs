@@ -76,9 +76,12 @@ namespace GPC.Model.Elements.Glasses
 
         public override int GetHashCode()
         {
-            int hashCode = -391 + base.GetHashCode();
-            hashCode = hashCode * -17 + EqualityComparer<Shape>.Default.GetHashCode(_shape);
-            return hashCode;
+            unchecked
+            {
+                int hashCode = -391 + base.GetHashCode();
+                hashCode = hashCode * -17 + EqualityComparer<Shape>.Default.GetHashCode(_shape);
+                return hashCode; 
+            }
         }
 
         public static bool operator ==(GlassSurface obj1, GlassSurface obj2)
