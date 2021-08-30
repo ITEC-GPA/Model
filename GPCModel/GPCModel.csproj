@@ -78,6 +78,8 @@
     <Compile Include="Base\UnitsSystem.cs" />
     <Compile Include="Base\Units.cs" />
     <Compile Include="Combinations\CombinationsCollection.cs" />
+    <Compile Include="FEM\Attributes\FreedomCase\FreedomCaseAttributeEqualityComparer.cs" />
+    <Compile Include="FEM\Attributes\LoadCase\LoadCaseAttributeEqualityComparer.cs" />
     <Compile Include="FEM\Attributes\LoadCase\ModelGravityAttribute.cs" />
     <Compile Include="Loads\IConvertibleLoad.cs" />
     <Compile Include="Sections\Steel\ISteelSection.cs" />
