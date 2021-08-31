@@ -80,7 +80,7 @@ namespace GPC.Model.Loads
         /// Convert this load into a normal area loads.
         /// </summary>
         /// <remarks>The not normal portion will be lost</remarks>
-        public NormalAreaLoad ConvertToNormalAreaLoad()
+        public virtual NormalAreaLoad ConvertToNormalAreaLoad()
         {
             var globalLoad = this.GetGlobalLoadVector();
 
