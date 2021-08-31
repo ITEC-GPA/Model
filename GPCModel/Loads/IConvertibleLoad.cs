@@ -7,7 +7,7 @@ using GPC.Geometry;
 
 namespace GPC.Model.Loads
 {
-    interface IConvertibleLoad
+    public interface IConvertibleLoad
     {
 
         /// <summary>
