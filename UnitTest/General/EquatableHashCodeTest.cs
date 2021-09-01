@@ -7,6 +7,7 @@ using GPC.Geometry;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using GPC.Model.FEM.Properties;
 using System;
+using System.Linq;
 using System.IO;
 using GPC.Model.FEM;
 using GPC.Model.Combinations;
