@@ -16,12 +16,92 @@ using GPC.TestUtilities;
 using GPC.Model.FEM.Collections;
 using GPC.Model.Restrains;
 using GPC.Model.Results;
+using GPC.Geometry.Meshes;
 
 namespace GeneralTest
 {
     [TestClass]
     public class EquatableHashCodeTest : UnitTestBase
     {
+
+
+        private Mesh CreateSimpleMesh(int incrementX, int incrementY, int numberOfFaceX, int numberOfFaceY, int numberOfVolumeZ, int incrementZ = 0)
+        {
+            Mesh mesh = new Mesh();
+
+            double[] xIncrement = new double[numberOfFaceX + 1];
+            double[] yIncrement = new double[numberOfFaceY + 1];
+            double[] zIncrement = new double[numberOfVolumeZ + 1];
+
+
+            for (int i = 0; i < numberOfFaceX; i++)
+            {
+                if (i == 0)
+                {
+                    xIncrement[i] = 0;
+                    xIncrement[i + 1] = incrementX;
+                }
+                else
+                    xIncrement[i + 1] = xIncrement[i] + incrementX;
+
+
+                mesh.AddFaceMesh(new[] {
+                    new MeshVertex(new Point3d(xIncrement[i],                0,     0)),
+                    new MeshVertex(new Point3d(xIncrement[i + 1],            0,     0)),
+                    new MeshVertex(new Point3d(xIncrement[i + 1],   incrementY,     0)),
+                    new MeshVertex(new Point3d(xIncrement[i],       incrementY,     0))
+                });
+
+
+                for (int j = 0; j < numberOfFaceY; j++)
+                {
+                    if (j == 0)
+                    {
+                        yIncrement[j] = 0;
+                        yIncrement[j + 1] = incrementY;
+                    }
+                    else
+                    {
+                        yIncrement[j + 1] = yIncrement[j] + incrementY;
+
+                        mesh.AddFaceMesh(new[] {
+                            new MeshVertex(new Point3d(xIncrement[i],       yIncrement[j],              0)),
+                            new MeshVertex(new Point3d(xIncrement[i + 1],   yIncrement[j],              0)),
+                            new MeshVertex(new Point3d(xIncrement[i + 1],   yIncrement[j + 1],          0)),
+                            new MeshVertex(new Point3d(xIncrement[i],       yIncrement[j + 1],          0))
+                        });
+                    }
+
+                    for (int z = 0; z < numberOfVolumeZ; z++)
+                    {
+                        if (z == 0)
+                        {
+                            zIncrement[z] = 0;
+                            zIncrement[z + 1] = incrementZ;
+                        }
+                        else
+                        {
+                            zIncrement[z + 1] = zIncrement[z] + incrementZ;
+                            mesh.AddVolumeMesh(new[] {
+                                new MeshVertex(new Point3d(xIncrement[i],       yIncrement[j],         zIncrement[z])   ),
+                                new MeshVertex(new Point3d(xIncrement[i + 1],   yIncrement[j],         zIncrement[z])   ),
+                                new MeshVertex(new Point3d(xIncrement[i + 1],   yIncrement[j + 1],     zIncrement[z])   ),
+                                new MeshVertex(new Point3d(xIncrement[i],       yIncrement[j + 1],     zIncrement[z])   ),
+                                new MeshVertex(new Point3d(xIncrement[i],       yIncrement[j + 1],     zIncrement[z + 1])),
+                                new MeshVertex(new Point3d(xIncrement[i],       yIncrement[j + 1],     zIncrement[z + 1])),
+                                new MeshVertex(new Point3d(xIncrement[i],       yIncrement[j + 1],     zIncrement[z + 1])),
+                                new MeshVertex(new Point3d(xIncrement[i],       yIncrement[j + 1],     zIncrement[z + 1]))
+                            });
+                        }
+                    }
+                }
+
+            }
+
+            return mesh;
+        }
+
+
 
         [TestMethod]
         public void Test1()
@@ -303,6 +383,56 @@ namespace GeneralTest
             Assert.IsTrue(rs1.Equals(rs2));
             Assert.IsTrue(rs1 == rs2);
             Assert.IsFalse(rs1 != rs2);
+        }
+
+
+        [TestMethod]
+        public void Mesh()
+        {
+            Mesh mesh1 = CreateSimpleMesh(20, 30, 3, 4, 0, 0);
+            Mesh mesh2 = CreateSimpleMesh(20, 30, 3, 4, 0, 0);
+
+            Assert.IsTrue(mesh1.Equals(mesh2));
+
+        }
+
+        [TestMethod]
+        [TestCategory("Mesh")]
+        public void Mesh2()
+        {
+            Mesh mesh = CreateSimpleMesh(20, 30, 3, 4, 0, 0);
+
+            GlassMaterial gm = new GlassMaterialAstm("gp1", 1, 0.2, 3, 4, 5, 6, 0.008, 0.008, 9);
+            MonolithicGlassProperty pp = new MonolithicGlassProperty(1, 2, gm.GetIsotropicFemMaterial(), "gp1");
+
+            FemModel femModel = new FemModel();
+            femModel.AddProperty(pp);
+            femModel.AddMesh(mesh, pp.Name, null, null, null, null, null);
+
+            Mesh mesh2 = femModel.GetMesh();
+
+            Assert.IsTrue(mesh.Equals(mesh2));
+        }
+
+
+        [TestMethod]
+        public void Mesh3()
+        {
+            Mesh mesh = CreateSimpleMesh(20, 30, 3, 4, 0, 0);
+
+            GlassMaterial gm = new GlassMaterialAstm("gp1", 1, 0.2, 3, 4, 5, 6, 0.008, 0.008, 9);
+            MonolithicGlassProperty pp = new MonolithicGlassProperty(1, 2, gm.GetIsotropicFemMaterial(), "gp1");
+
+            FemModel femModel = new FemModel();
+            femModel.AddProperty(pp);
+            femModel.AddMesh(mesh, pp.Name, null, null, null, null, null, "gp1");
+
+            Mesh mesh2 = femModel.GetMesh();
+
+            Assert.IsTrue(mesh.Equals(mesh2));
+
+            Assert.IsTrue(femModel.GetElements().First().GetGroups().First().Name == "gp1");
+
         }
     }
 }
