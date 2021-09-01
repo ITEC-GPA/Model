@@ -9,20 +9,14 @@ using System.Threading.Tasks;
 
 namespace GPC.Model
 {
-
-
-    public class HashCollection<T> : IEnumerable<T> where T : ModelObjectId, INotifyPropertyChanged
+    [Serializable]
+    public abstract class HashCollection<T> : IEnumerable<T>, ISerializable where T : ModelObjectId, INotifyPropertyChanged
     {
-
         protected readonly object _locker = new object();
 
-        protected readonly List<T> _collection;
+        protected readonly List<T> _collection; // Questa lista è ordinata per Id
         protected readonly Dictionary<int, List<int>> _hashMap;
-
         protected int _lastId;
-
-        protected bool _autoSort;
-
 
         /// <summary>
         /// Get an item by his id
@@ -31,67 +25,71 @@ namespace GPC.Model
         /// <returns>The node foud or null if it not exists</returns>
         public T this[int id] => GetById(id);
 
-
         public int Count => _collection.Count;
-
-
-        public bool AutoUpdateHashes
-        {
-            get => _autoSort;
-            set
-            {
-                if (_autoSort == false && value == true) // Force sorting when the AutoSort is activated
-                    UpdateHashes();
-                _autoSort = value;
-            }
-        }
 
         public HashCollection()
         {
             _collection = new List<T>();
             _hashMap = new Dictionary<int, List<int>>();
             _lastId = 1;
-            _autoSort = true;
         }
 
-        protected virtual int GetItemHashCode(T item)
+        public HashCollection(SerializationInfo info, StreamingContext context)
         {
-            return item.GetHashCode();
+            if (info == null)
+                throw new ArgumentNullException("info can't be null");
+            _collection = (List<T>)info.GetValue("Collection", typeof(List<T>));
+            _hashMap = (Dictionary<int, List<int>>)info.GetValue("HashMap", typeof(Dictionary<int, List<int>>));
+            _lastId = info.GetInt32("LastId");
         }
+
+        public void GetObjectData(SerializationInfo info, StreamingContext context)
+        {
+            if (info == null)
+                throw new ArgumentNullException("info can't be null");
+            info.AddValue("Collection", _collection, typeof(List<T>));
+            info.AddValue("HashMap", _hashMap, typeof(Dictionary<int, List<int>>));
+            info.AddValue("LastId", _lastId);
+        }
+
+        protected abstract int GetItemHashCode(T item);
 
 
         /// <summary>
-        /// Get the node index by his id
+        /// Get the item index by his id. Since the list is ID ordered, implements the non-recursive binary search algorithm.
         /// </summary>
-        /// <param name="id">The node Id</param>
+        /// <param name="id">The item index or -1 if not found</param>
         public int GetIndexById(int id)
         {
-            int pos = -1;
-            Parallel.For(0, _collection.Count, (i, state) =>
+            int first = 0;
+            int last = _collection.Count - 1;
+            while (first <= last)
             {
-                if (_collection[i].Id == id)
-                {
-                    pos = i;
-                    state.Stop();
-                }
-            });
-            return pos;
+                int mid = (first + last) / 2;
+                if (_collection[mid].Id == id)
+                    return mid;
+                if (_collection[mid].Id < id)
+                    first = mid + 1;
+                else
+                    last = mid - 1;
+            }
+
+            return -1;
         }
 
         /// <summary>
         /// Search an item by his value (the id is not considered).
         /// </summary>
         /// <param name="item">The item to search</param>
-        /// <returns>The index of the item if found, or a negative value if the item does not exist</returns>
+        /// <returns>The index of the item if found, or -1 if the item does not exist</returns>
         protected int GetIndexByValue(T item)
         {
-
             if (_hashMap.TryGetValue(GetItemHashCode(item), out List<int> values))
             {
                 for (int i = 0; i < values.Count; i++)
                 {
-                    if (_collection[i].Equals(item))
-                        return i;
+                    if (_collection[values[i]].Equals(item))
+                        return values[i]; // Returns the index of the item
                 }
             }
 
@@ -135,13 +133,12 @@ namespace GPC.Model
             {
                 for (int i = 0; i < values.Count; i++)
                 {
-                    if (_collection[i].Equals(item))
+                    if (_collection[values[i]].Equals(item))
                         return true;
                 }
             }
 
             return false;
-
         }
 
         /// <summary>
@@ -151,7 +148,7 @@ namespace GPC.Model
         {
             lock (_locker)
             {
-
+                _hashMap.Clear();
                 for(int i = 0; i < _collection.Count(); i++)
                 {
                     var hash = GetItemHashCode(_collection[i]);
@@ -200,22 +197,7 @@ namespace GPC.Model
         /// <returns>The index of the node or -1 if not exist</returns>
         public int IndexOf(T item)
         {
-            lock (_locker)
-            {
-
-                if (_hashMap.TryGetValue(GetItemHashCode(item), out List<int> values))
-                {
-                    for (int i = 0; i < values.Count; i++)
-                    {
-                        if (_collection[i].Equals(item))
-                        {
-                            return i;
-                        }
-                    }
-                }
-
-                return -1;
-            }
+            return GetIndexByValue(item);
         }
 
         /// <summary>
@@ -227,36 +209,30 @@ namespace GPC.Model
         {
             lock (_locker)
             {
-
                 var hash = GetItemHashCode(item);
 
+                bool hashAlreadyExisting = false;
                 if (_hashMap.TryGetValue(hash, out List<int> indexes))
                 {
                     for (int i = 0; i < indexes.Count; i++)
                     {
-                        if (_collection[i].Equals(item))
+                        if (_collection[indexes[i]].Equals(item))
                         {
                             return _collection[i].Id;
                         }
                     }
 
-                    // se arriva qua, vuol dire che hashcode esiste già ma l'elemento no. 
-                    // Quindi viene aggiunto 
-
-                    item.Id = _lastId++;
-                    item.PropertyChanged += OnItemChanged;
-                    _collection.Add(item);
-
-                    _hashMap[hash].Add(_collection.Count - 1);
-
-                    return item.Id;
+                    hashAlreadyExisting = true;
                 }
 
                 item.Id = _lastId++;
                 item.PropertyChanged += OnItemChanged;
                 _collection.Add(item);
 
-                _hashMap.Add(hash, new List<int>() { _collection.Count - 1 });
+                if (!hashAlreadyExisting)
+                    _hashMap.Add(hash, new List<int>() { _collection.Count - 1 });
+                else
+                    _hashMap[hash].Add(_collection.Count - 1);
 
                 return item.Id;
             }
@@ -264,36 +240,11 @@ namespace GPC.Model
 
         private void OnItemChanged(object sender, PropertyChangedEventArgs e)
         {
-            if (!_autoSort)
-                return;
-
             if (sender is T item)
             {
                 // qua si può ottimizzare andando ad aggiornare solo hash relativi alla modifica.
                 // per ora aggiorniamo tutto
                 UpdateHashes();
-
-
-                //var hash = GetItemHashCode(item);
-
-                //if (_hashMap.TryGetValue(hash, out List<int> values))
-                //{
-                //    for (int i = 0; i < values.Count; i++)
-                //    {
-                //        if (_collection[i].Equals(item))
-                //        {
-                //            return; // se gli indici collegati all'hash precedentemente salvato sono 
-                //        }
-                //    }
-                //    UpdateHashes();
-
-                //}
-                //else
-                //{
-                //    // hash non esiste, facciamo update
-                //    UpdateHashes();
-                //}
-
             }
         }
 
@@ -305,7 +256,6 @@ namespace GPC.Model
         /// <returns>The new item index</returns>
         public int Replace(int id, T item)
         {
-
             lock (_locker)
             {
                 int i = GetIndexById(id);
@@ -314,7 +264,6 @@ namespace GPC.Model
 
                 return GetIndexById(Add(item)); 
             }
-
         }
 
         /// <summary>
@@ -326,18 +275,18 @@ namespace GPC.Model
         {
             lock (_locker)
             {
-                if (_hashMap.TryGetValue(GetItemHashCode(item), out List<int> values))
-                {
-                    for (int i = 0; i < values.Count; i++)
-                    {
-                        if (_collection[i].Equals(item))
-                        {                            
-                            return _collection.Remove(item);
-                        }
-                    }
-                }
+                int hash = GetItemHashCode(item);
+                if (!_hashMap.ContainsKey(hash))
+                    return false;
+
+                int i = _collection.IndexOf(item);
+
+                if (_hashMap[hash].Count > 1)
+                    _hashMap[hash].Remove(i);
+                else
+                    _hashMap.Remove(hash);
+                return _collection.Remove(item);
             }
-            return false;
         }
 
         /// <summary>
@@ -348,12 +297,17 @@ namespace GPC.Model
         {
             lock (_locker)
             {
+                int hash = GetItemHashCode(_collection[index]);
+                if (_hashMap[hash].Count > 1)
+                    _hashMap[hash].Remove(index);
+                else
+                    _hashMap.Remove(hash);
                 _collection.RemoveAt(index);
             }
         }
 
         /// <summary>
-        /// Remove an item by his id
+        /// Remove an item by its id
         /// </summary>
         /// <param name="id">The id of the item to remove</param>
         /// <returns>True id success</returns>
@@ -364,9 +318,16 @@ namespace GPC.Model
                 int pos = GetIndexById(id);
                 if (pos >= 0)
                 {
+                    int hash = GetItemHashCode(_collection[pos]);
+                    if (_hashMap[hash].Count > 1)
+                        _hashMap[hash].Remove(pos);
+                    else
+                        _hashMap.Remove(hash);
+
                     _collection.RemoveAt(pos);
                     return true;
                 }
+
                 return false;
             }
         }
@@ -380,6 +341,5 @@ namespace GPC.Model
         {
             return _collection.GetEnumerator();
         }
-
     }
 }

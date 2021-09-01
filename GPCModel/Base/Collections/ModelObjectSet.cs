@@ -48,10 +48,10 @@ namespace GPC.Model
 
 
         /// <inheritdoc cref="ModelObjectEnumerable{T}.Add(T)" />
-        /// <returns>True if the element has been added
-        /// <para>False if the element has not been added there is already an equal element in the collection.</para>
+        /// <returns><see langword="True"/> if the element has been added
+        /// <para><see langword="False"/> if the element has not been added since there is already an equal element in the collection.</para>
         /// </returns>
-        /// <remarks>This is a O(n) operation
+        /// <remarks>This is a O(1) operation
         /// <para> To get the element in the collection use <see cref="GetItem(T, out T)"/> </para></remarks>
         public override bool Add(T item)
         {
@@ -63,7 +63,7 @@ namespace GPC.Model
                     return true;
                 }
 
-                return true; 
+                return false; 
             }
         }
 

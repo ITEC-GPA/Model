@@ -27,6 +27,8 @@ namespace GPC.Model
 
         public static readonly UnitsSystem DefaultUnits = Nmm;
 
+        #region To default
+
         /// <summary>
         /// Convert lengths from the given units to the default units
         /// </summary>
@@ -39,6 +41,50 @@ namespace GPC.Model
         }
 
         /// <summary>
+        /// Convert areas from the given units to the default units
+        /// </summary>
+        /// <param name="area">The area to convert</param>
+        /// <param name="units">The source measure units</param>
+        /// <returns>The converted area</returns>
+        public static double ConvertAreaToDefault(this double area, UnitsSystem units)
+        {
+            return UnitsConvert.Convert(area, units.LengthUnits, DefaultUnits.LengthUnits, 2);
+        }
+
+        /// <summary>
+        /// Convert section modulus from the given units to the default units
+        /// </summary>
+        /// <param name="modulus">The section modulus to convert</param>
+        /// <param name="units">The source measure units</param>
+        /// <returns>The converted section modulus</returns>
+        public static double ConvertSectionModulusToDefault(this double modulus, UnitsSystem units)
+        {
+            return UnitsConvert.Convert(modulus, units.LengthUnits, DefaultUnits.LengthUnits, 3);
+        }
+
+        /// <summary>
+        /// Convert moment of inertia from the given units to the default units
+        /// </summary>
+        /// <param name="modulus">The moment of inertia to convert</param>
+        /// <param name="units">The source measure units</param>
+        /// <returns>The converted moment of inertia</returns>
+        public static double ConvertMomentOfIntertiaToDefault(this double modulus, UnitsSystem units)
+        {
+            return UnitsConvert.Convert(modulus, units.LengthUnits, DefaultUnits.LengthUnits, 4);
+        }
+
+        /// <summary>
+        /// Convert warping costant from the given units to the default units
+        /// </summary>
+        /// <param name="warpingCostant">The moment of warping costant</param>
+        /// <param name="units">The source measure units</param>
+        /// <returns>The converted warping costant</returns>
+        public static double ConvertWarpingCostantToDefault(this double warpingCostant, UnitsSystem units)
+        {
+            return UnitsConvert.Convert(warpingCostant, units.LengthUnits, DefaultUnits.LengthUnits, 6);
+        }
+
+        /// <summary>
         /// Convert forces from the given units to the default units
         /// </summary>
         /// <param name="force">The force to convert</param>
@@ -47,6 +93,28 @@ namespace GPC.Model
         public static double ConvertForceToDefault(this double force, UnitsSystem units)
         {
             return UnitsConvert.Convert(force, units.ForceUnits, DefaultUnits.ForceUnits, 1);
+        }
+
+        /// <summary>
+        /// Convert moment from the given units to the default units
+        /// </summary>
+        /// <param name="moment">The moment to convert</param>
+        /// <param name="units">The source measure units</param>
+        /// <returns>The converted moment</returns>
+        public static double ConverMomentToDefault(this double moment, UnitsSystem units)
+        {
+            return UnitsConvert.Convert(moment, units.ForceUnits, DefaultUnits.ForceUnits, 1, units.LengthUnits, DefaultUnits.LengthUnits, 1);
+        }
+
+        /// <summary>
+        /// Convert stresses from the given units to the default units
+        /// </summary>
+        /// <param name="stress">The stress to convert</param>
+        /// <param name="units">The source measure units</param>
+        /// <returns>The converted stress</returns>
+        public static double ConverStressToDefault(this double stress, UnitsSystem units)
+        {
+            return UnitsConvert.Convert(stress, units.ForceUnits, DefaultUnits.ForceUnits, 1, units.LengthUnits, DefaultUnits.LengthUnits, -2);
         }
 
         /// <summary>
@@ -93,6 +161,10 @@ namespace GPC.Model
             return UnitsConvert.Convert(density, units.MassUnits, DefaultUnits.MassUnits, 1, units.LengthUnits, DefaultUnits.LengthUnits, -3);
         }
 
+        #endregion
+
+        #region From default
+
         /// <summary>
         /// Convert lengths from the default units to the given ones
         /// </summary>
@@ -105,6 +177,50 @@ namespace GPC.Model
         }
 
         /// <summary>
+        /// Convert areas from the default units to the given ones
+        /// </summary>
+        /// <param name="area">The area to convert</param>
+        /// <param name="units">The destination measure units</param>
+        /// <returns>The converted area</returns>
+        public static double ConvertAreaFromDefault(this double area, UnitsSystem units)
+        {
+            return UnitsConvert.Convert(area, DefaultUnits.LengthUnits, units.LengthUnits, 2);
+        }
+
+        /// <summary>
+        /// Convert section modulus from the default units to the given ones
+        /// </summary>
+        /// <param name="modulus">The section modulus to convert</param>
+        /// <param name="units">The destination measure units</param>
+        /// <returns>The converted section modulus</returns>
+        public static double ConvertSectionModulusFromDefault(this double modulus, UnitsSystem units)
+        {
+            return UnitsConvert.Convert(modulus, DefaultUnits.LengthUnits, units.LengthUnits, 3);
+        }
+
+        /// <summary>
+        /// Convert moment of intertia from the default units to the given ones
+        /// </summary>
+        /// <param name="inertia">The moment of intertia to convert</param>
+        /// <param name="units">The destination measure units</param>
+        /// <returns>The converted moment of intertia</returns>
+        public static double ConvertMomentOfInertiaFromDefault(this double inertia, UnitsSystem units)
+        {
+            return UnitsConvert.Convert(inertia, DefaultUnits.LengthUnits, units.LengthUnits, 4);
+        }
+
+        /// <summary>
+        /// Convert warping costant from the default units to the given ones
+        /// </summary>
+        /// <param name="warpingCostant">The warping costant to convert</param>
+        /// <param name="units">The destination measure units</param>
+        /// <returns>The converted warping costant</returns>
+        public static double ConvertWarpingCostantFromDefault(this double warpingCostant, UnitsSystem units)
+        {
+            return UnitsConvert.Convert(warpingCostant, DefaultUnits.LengthUnits, units.LengthUnits, 6);
+        }
+
+        /// <summary>
         /// Convert forces from the default units to the given ones
         /// </summary>
         /// <param name="force">The force to convert</param>
@@ -113,6 +229,28 @@ namespace GPC.Model
         public static double ConvertForceFromDefault(this double force, UnitsSystem units)
         {
             return UnitsConvert.Convert(force, DefaultUnits.ForceUnits, units.ForceUnits, 1);
+        }
+
+        /// <summary>
+        /// Convert moment from the default units to the given ones
+        /// </summary>
+        /// <param name="moment">The moment to convert</param>
+        /// <param name="units">The destination measure units</param>
+        /// <returns>The converted moment</returns>
+        public static double ConverMomentFromDefault(this double moment, UnitsSystem units)
+        {
+            return UnitsConvert.Convert(moment, DefaultUnits.ForceUnits, units.ForceUnits, 1, DefaultUnits.LengthUnits, units.LengthUnits, 1);
+        }
+
+        /// <summary>
+        /// Convert stresses from the default units to the given ones
+        /// </summary>
+        /// <param name="stress">The stress to convert</param>
+        /// <param name="units">The destination measure units</param>
+        /// <returns>The converted stress</returns>
+        public static double ConverStressFromDefault(this double stress, UnitsSystem units)
+        {
+            return UnitsConvert.Convert(stress, DefaultUnits.ForceUnits, units.ForceUnits, 1, DefaultUnits.LengthUnits, units.LengthUnits, -2);
         }
 
         /// <summary>
@@ -148,7 +286,6 @@ namespace GPC.Model
             return UnitsConvert.Convert(temperature, DefaultUnits.TemperatureUnits, units.TemperatureUnits);
         }
 
-
         /// <summary>
         /// Convert density from the default units to the given ones
         /// </summary>
@@ -159,5 +296,7 @@ namespace GPC.Model
         {
             return UnitsConvert.Convert(density, DefaultUnits.MassUnits, units.MassUnits, 1, DefaultUnits.LengthUnits, units.LengthUnits, -3);
         }
+
+        #endregion
     }
 }

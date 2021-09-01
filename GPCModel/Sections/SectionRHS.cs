@@ -45,7 +45,8 @@ namespace GPC.Model.Sections
 
         #region Public Constructors
 
-        public SectionRHS(double height, double width, double thicknessTopFlange, double thicknessBottomFlange, double thicknessWebLeft, double thickenssWebRight, Material material, string name) 
+        public SectionRHS(double height, double width, double thicknessTopFlange, double thicknessBottomFlange, 
+                            double thicknessWebLeft, double thickenssWebRight, Material material, string name) 
             : base(material, name)
         {
             _angleX1 = 0;
@@ -61,10 +62,15 @@ namespace GPC.Model.Sections
             if (_twL == _twR)
                 _isSymmetricAlongYLocalAxis = true;
 
-            ThinWall webSx = new ThinWall(Heightinternal, _twL, Math.PI / 2, new Point2d(_twL / 2, Heightinternal / 2 + _tfBottom));
-            ThinWall webDx = new ThinWall(Heightinternal, _twR, Math.PI / 2, new Point2d(Base - _twR / 2, Heightinternal / 2 + _tfBottom));
-            ThinWall flangeTop = new ThinWall(Base, _tfTop, 0, new Point2d(Base / 2, _tfBottom + Heightinternal + _tfTop / 2));
-            ThinWall flangeBottom = new ThinWall(Base, _tfBottom, 0, new Point2d(Base / 2, _tfBottom / 2));
+            ThinWall webSx = new ThinWall(Heightinternal, _twL, Math.PI / 2);
+            ThinWall webDx = new ThinWall(Heightinternal, _twR, Math.PI / 2);
+            ThinWall flangeTop = new ThinWall(Base, _tfTop, 0);
+            ThinWall flangeBottom = new ThinWall(Base, _tfBottom, 0);
+
+            Points = new Point2d[] { new Point2d(_twL / 2, Heightinternal / 2 + _tfBottom), 
+                new Point2d(Base - _twR / 2, Heightinternal / 2 + _tfBottom), 
+                new Point2d(Base / 2, _tfBottom + Heightinternal + _tfTop / 2), 
+                new Point2d(Base / 2, _tfBottom / 2) };
 
             ThinWalls = new ThinWall[] { webSx, webDx, flangeBottom, flangeTop };
         }

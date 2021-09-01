@@ -15,9 +15,9 @@ namespace GPC.Model.Glasses
     {
         #region VARIABLES
 
-        private double _thickness;
+        private readonly double _thickness;
 
-        private InterlayerMaterial _interlayerMaterial;
+        private readonly InterlayerMaterial _interlayerMaterial;
 
         #endregion
 
@@ -59,7 +59,7 @@ namespace GPC.Model.Glasses
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             base.GetObjectData(info, context);
-            info.AddValue("InterlayerMaterial", _interlayerMaterial);
+            info.AddValue("InterlayerMaterial", _interlayerMaterial, typeof(InterlayerMaterial));
             info.AddValue("Thickness", _thickness);
         }
 
@@ -80,11 +80,14 @@ namespace GPC.Model.Glasses
 
         public override int GetHashCode()
         {
-            int hashCode = 23;
-            hashCode = hashCode * -17 + base.GetHashCode();
-            hashCode = hashCode * -17 + _thickness.GetHashCode();
-            hashCode = hashCode * -17 + EqualityComparer<InterlayerMaterial>.Default.GetHashCode(_interlayerMaterial);
-            return hashCode;
+            unchecked
+            {
+                int hashCode = 23;
+                hashCode = hashCode * -17 + base.GetHashCode();
+                hashCode = hashCode * -17 + _thickness.GetHashCode();
+                hashCode = hashCode * -17 + EqualityComparer<InterlayerMaterial>.Default.GetHashCode(_interlayerMaterial);
+                return hashCode; 
+            }
         }
 
         public static bool operator ==(Interlayer obj1, Interlayer obj2)

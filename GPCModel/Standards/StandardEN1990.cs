@@ -12,7 +12,7 @@ namespace GPC.Model.Standards
     /// This class collects all the coefficient of the Eurocode Standard
     /// </summary>
     /// <remarks>Reference: EN 1990:2002/A1:2005</remarks>
-    public class StandardEN1990 : Standard
+    public class StandardEN1990 : Standard, Standard.ICombinationsGenerator
     {
         #region PUBLIC ENUMS
 
@@ -61,74 +61,74 @@ namespace GPC.Model.Standards
         #region VARIABLES
 
         // Gamma G
-        private double _gammaGFavourableSetA;
-        private double _gammaGUnfavourableSetA;
-        private double _gammaGFavourableSetB;
-        private double _gammaGUnfavourableSetB;
-        private double _gammaGFavourableSetC;
-        private double _gammaGUnfavourableSetC;
+        private readonly double _gammaGFavourableSetA;
+        private readonly double _gammaGUnfavourableSetA;
+        private readonly double _gammaGFavourableSetB;
+        private readonly double _gammaGUnfavourableSetB;
+        private readonly double _gammaGFavourableSetC;
+        private readonly double _gammaGUnfavourableSetC;
 
         // Gamma Q
-        private double _gammaQFavourableSetA;
-        private double _gammaQUnfavourableSetA;
-        private double _gammaQFavourableSetB;
-        private double _gammaQUnfavourableSetB;
-        private double _gammaQFavourableSetC;
-        private double _gammaQUnfavourableSetC;
+        private readonly double _gammaQFavourableSetA;
+        private readonly double _gammaQUnfavourableSetA;
+        private readonly double _gammaQFavourableSetB;
+        private readonly double _gammaQUnfavourableSetB;
+        private readonly double _gammaQFavourableSetC;
+        private readonly double _gammaQUnfavourableSetC;
 
         // Gamma P
-        private double _gammaPFavourableSetA;
-        private double _gammaPUnfavourableSetA;
-        private double _gammaPFavourableSetB;
-        private double _gammaPUnfavourableSetB;
-        private double _gammaPFavourableSetC;
-        private double _gammaPUnfavourableSetC;
+        private readonly double _gammaPFavourableSetA;
+        private readonly double _gammaPUnfavourableSetA;
+        private readonly double _gammaPFavourableSetB;
+        private readonly double _gammaPUnfavourableSetB;
+        private readonly double _gammaPFavourableSetC;
+        private readonly double _gammaPUnfavourableSetC;
 
         // Imposed Load Psi
-        private double _psi0ImposedLoadCategoryA;
-        private double _psi0ImposedLoadCategoryB;
-        private double _psi0ImposedLoadCategoryC;
-        private double _psi0ImposedLoadCategoryD;
-        private double _psi0ImposedLoadCategoryE;
-        private double _psi0ImposedLoadCategoryF;
-        private double _psi0ImposedLoadCategoryG;
-        private double _psi0ImposedLoadCategoryH;
+        private readonly double _psi0ImposedLoadCategoryA;
+        private readonly double _psi0ImposedLoadCategoryB;
+        private readonly double _psi0ImposedLoadCategoryC;
+        private readonly double _psi0ImposedLoadCategoryD;
+        private readonly double _psi0ImposedLoadCategoryE;
+        private readonly double _psi0ImposedLoadCategoryF;
+        private readonly double _psi0ImposedLoadCategoryG;
+        private readonly double _psi0ImposedLoadCategoryH;
 
-        private double _psi1ImposedLoadCategoryA;
-        private double _psi1ImposedLoadCategoryB;
-        private double _psi1ImposedLoadCategoryC;
-        private double _psi1ImposedLoadCategoryD;
-        private double _psi1ImposedLoadCategoryE;
-        private double _psi1ImposedLoadCategoryF;
-        private double _psi1ImposedLoadCategoryG;
-        private double _psi1ImposedLoadCategoryH;
+        private readonly double _psi1ImposedLoadCategoryA;
+        private readonly double _psi1ImposedLoadCategoryB;
+        private readonly double _psi1ImposedLoadCategoryC;
+        private readonly double _psi1ImposedLoadCategoryD;
+        private readonly double _psi1ImposedLoadCategoryE;
+        private readonly double _psi1ImposedLoadCategoryF;
+        private readonly double _psi1ImposedLoadCategoryG;
+        private readonly double _psi1ImposedLoadCategoryH;
 
-        private double _psi2ImposedLoadCategoryA;
-        private double _psi2ImposedLoadCategoryB;
-        private double _psi2ImposedLoadCategoryC;
-        private double _psi2ImposedLoadCategoryD;
-        private double _psi2ImposedLoadCategoryE;
-        private double _psi2ImposedLoadCategoryF;
-        private double _psi2ImposedLoadCategoryG;
-        private double _psi2ImposedLoadCategoryH;
+        private readonly double _psi2ImposedLoadCategoryA;
+        private readonly double _psi2ImposedLoadCategoryB;
+        private readonly double _psi2ImposedLoadCategoryC;
+        private readonly double _psi2ImposedLoadCategoryD;
+        private readonly double _psi2ImposedLoadCategoryE;
+        private readonly double _psi2ImposedLoadCategoryF;
+        private readonly double _psi2ImposedLoadCategoryG;
+        private readonly double _psi2ImposedLoadCategoryH;
 
         // Snow Psi
-        private double _psi0SnowHighAltitude;
-        private double _psi0SnowLowAltitude;
-        private double _psi1SnowHighAltitude;
-        private double _psi1SnowLowAltitude;
-        private double _psi2SnowHighAltitude;
-        private double _psi2SnowLowAltitude;
+        private readonly double _psi0SnowHighAltitude;
+        private readonly double _psi0SnowLowAltitude;
+        private readonly double _psi1SnowHighAltitude;
+        private readonly double _psi1SnowLowAltitude;
+        private readonly double _psi2SnowHighAltitude;
+        private readonly double _psi2SnowLowAltitude;
 
         // Wind Psi
-        private double _psi0Wind;
-        private double _psi1Wind;
-        private double _psi2Wind;
+        private readonly double _psi0Wind;
+        private readonly double _psi1Wind;
+        private readonly double _psi2Wind;
 
         // Temperature psi
-        private double _psi0Temperature;
-        private double _psi1Temperature;
-        private double _psi2Temperature;
+        private readonly double _psi0Temperature;
+        private readonly double _psi1Temperature;
+        private readonly double _psi2Temperature;
 
 
         // Gamma G
@@ -837,11 +837,11 @@ namespace GPC.Model.Standards
         /// Generate all the combinations with the load cases in <paramref name="loadCasesInput"/> and the settings <paramref name="options"/>
         /// </summary>
         /// <param name="loadCasesInput">List of load cases</param>
-        /// <param name="options">The normative options</param>
-        /// <param name="name">The unique name of the combinations (default name is "cmb")</param>
+        /// <param name="options">The standard options</param>
+        /// <param name="prefix">The common prefix for each combination in the collection (default name is "cmb")</param>
         /// <returns>A collection of combinations</returns>
         /// <exception cref="ArgumentException"> If there are any  climate load in the <paramref name="loadCasesInput"/></exception>
-        public override CombinationsCollection CreateCombinations(LoadCaseBase[] loadCasesInput, CombinationsOptions options, string name = "cmb")
+        public virtual CombinationsCollection CreateCombinations(LoadCaseBase[] loadCasesInput, CombinationsOptions options, string prefix = "cmb")
         {
             List<LoadCase> loadCases = new List<LoadCase>();
             foreach (LoadCaseBase loadCase in loadCasesInput)
@@ -861,7 +861,7 @@ namespace GPC.Model.Standards
             List<List<Combination.LoadCaseCoefficient>> listFavourable = GetFavourableCombinations(loadCases.ToArray(), (EN1990CombinationsOptions)options);
             for (int i = 0; i < listFavourable.Count(); i++)
             {
-                Combination combo = new Combination(name + $" {idProg}", options);
+                Combination combo = new Combination(prefix + $" {idProg}", options);
 
                 for (int j = 0; j < listFavourable[i].Count(); j++)
                 {
@@ -877,7 +877,7 @@ namespace GPC.Model.Standards
             List<List<Combination.LoadCaseCoefficient>> listUnfavourable = GetUnfavourableCombinations(loadCases.ToArray(), (EN1990CombinationsOptions)options);
             for (int i = 0; i < listUnfavourable.Count(); i++)
             {
-                Combination combo = new Combination(name + $" {idProg}", options);
+                Combination combo = new Combination(prefix + $" {idProg}", options);
 
                 for (int j = 0; j < listUnfavourable[i].Count(); j++)
                 {
@@ -893,7 +893,7 @@ namespace GPC.Model.Standards
             List<List<Combination.LoadCaseCoefficient>> listFavourableBase = GetBasicCombinationsMinCoeff(loadCases.ToArray(), (EN1990CombinationsOptions)options);
             for (int i = 0; i < listFavourableBase.Count(); i++)
             {
-                Combination comboBaseFav = new Combination(name + $" {idProg}", options);
+                Combination comboBaseFav = new Combination(prefix + $" {idProg}", options);
                 for (int j = 0; j < listFavourableBase[i].Count(); j++)
                 {
                     comboBaseFav.AddLoadCaseCoefficient(listFavourableBase[i][j].LoadCase, listFavourableBase[i][j].Coefficient);
@@ -908,7 +908,7 @@ namespace GPC.Model.Standards
             List<List<Combination.LoadCaseCoefficient>> listUnfavourableBase = GetBasicCombinationsMaxCoeff(loadCases.ToArray(), (EN1990CombinationsOptions)options);
             for (int i = 0; i < listUnfavourableBase.Count(); i++)
             {
-                Combination comboBaseUnfav = new Combination(name + $" {idProg}", options);
+                Combination comboBaseUnfav = new Combination(prefix + $" {idProg}", options);
                 for (int j = 0; j < listUnfavourableBase[i].Count(); j++)
                 {
                     comboBaseUnfav.AddLoadCaseCoefficient(listUnfavourableBase[i][j].LoadCase, listUnfavourableBase[i][j].Coefficient);
@@ -1460,7 +1460,6 @@ namespace GPC.Model.Standards
         }
 
         #endregion
-
-        
+                
     }
 }

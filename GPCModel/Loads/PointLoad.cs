@@ -6,7 +6,7 @@ using System.Runtime.Serialization;
 
 namespace GPC.Model.Loads
 {
-    public class PointLoad : Load, IPointLoad
+    public class PointLoad : Load, IPointLoad, IConvertibleLoad
     {
         // Classe load e derivate deve rimanere immutabile 
 
@@ -34,14 +34,30 @@ namespace GPC.Model.Loads
         public double M2 => _m2;
         public double M3 => _m3;
 
+        /// <summary>
+        /// Point in the global reference system
+        /// </summary>
         public Point3d Point => _point;
 
+        /// <summary>
+        /// Reference system of the load
+        /// </summary>
         public CoordinateSystem CoordinateSystem => _coordinateSystem;
 
         #endregion
 
         #region Public Constructors
 
+
+        /// <param name="f1"></param>
+        /// <param name="f2"></param>
+        /// <param name="f3"></param>
+        /// <param name="m1"></param>
+        /// <param name="m2"></param>
+        /// <param name="m3"></param>
+        /// <param name="point">In the global reference system</param>
+        /// <param name="loadCase"></param>
+        /// <param name="coordinateSystem">Reference system of the load</param>
         public PointLoad(double f1, double f2, double f3, double m1, double m2, double m3, Point3d point, LoadCaseBase loadCase, CoordinateSystem coordinateSystem) 
             : base(loadCase, Guid.NewGuid())
         {
@@ -56,6 +72,14 @@ namespace GPC.Model.Loads
         }
 
 
+        /// <param name="f1"></param>
+        /// <param name="f2"></param>
+        /// <param name="f3"></param>
+        /// <param name="m1"></param>
+        /// <param name="m2"></param>
+        /// <param name="m3"></param>
+        /// <param name="point">In the global reference system</param>
+        /// <param name="loadCase"></param>
         /// <remarks> <see cref="CoordinateSystem"/> set to Global </remarks>
         public PointLoad(double f1, double f2, double f3, double m1, double m2, double m3, Point3d point, LoadCaseBase loadCase)
             : this(f1, f2, f3, m1, m2, m3, point, loadCase, CoordinateSystem.Global)
@@ -64,16 +88,16 @@ namespace GPC.Model.Loads
         }
 
 
-        public PointLoad(Vector3d force, Vector3d moment, Point3d point, LoadCaseBase loadCase, CoordinateSystem cSys)
-            : this(force.X, force.Y, force.Z, moment.X, moment.Y, moment.Z, point, loadCase, cSys)
+        /// <param name="force"></param>
+        /// <param name="moment"></param>
+        /// <param name="point">In the global reference system</param>
+        /// <param name="loadCase"></param>
+        /// <param name="coordinateSystem">Reference system of the load</param>
+        public PointLoad(Vector3d force, Vector3d moment, Point3d point, LoadCaseBase loadCase, CoordinateSystem coordinateSystem)
+            : this(force.X, force.Y, force.Z, moment.X, moment.Y, moment.Z, point, loadCase, coordinateSystem)
         {
             
         }
-
-        public Point3d GetGeometry() => _point;
-
-        public override GeometryBase GetGeometryBase() => GetGeometry();
-
 
         public PointLoad(SerializationInfo info, StreamingContext context)
             : base(info, context)
@@ -88,48 +112,56 @@ namespace GPC.Model.Loads
             _point = (Point3d)info.GetValue("Point", typeof(Point3d));
         }
 
+
+
         #endregion
 
         #region Public Methods Specific
 
-        public override void GetObjectData(SerializationInfo info, StreamingContext context)
+        public Point3d GetGeometry() => _point;
+
+        public override GeometryBase GetGeometryBase() => GetGeometry();
+
+
+        /// <returns>The total local load vector in the local system. i.e. _f1 , _f2 , _f3 </returns>
+        public (Vector3d force, Vector3d moment) GetLocalLoadVector()
         {
-            base.GetObjectData(info, context);
-            info.AddValue("F1", _f1);
-            info.AddValue("F2", _f2);
-            info.AddValue("F3", _f3);
-            info.AddValue("M1", _m1);
-            info.AddValue("M2", _m2);
-            info.AddValue("M3", _m3);
-            info.AddValue("CoordinateSystem", _coordinateSystem);
-            info.AddValue("Point", _point);
+            return (new Vector3d(_f1, _f2, _f3), new Vector3d(_m1, _m2, _m3));
+        }
+
+
+        /// <returns>The total global load vector in the local system. i.e. _f1  , _f2 , _f3 </returns>
+        public (Vector3d force, Vector3d moment) GetGlobalLoadVector()
+        {
+            if (_coordinateSystem == CoordinateSystem.Global)
+                return GetLocalLoadVector();
+            else
+            {
+                return (_coordinateSystem.ToGlobal(GetLocalLoadVector().force), _coordinateSystem.ToGlobal(GetLocalLoadVector().moment));
+            }
         }
 
         /// <summary>
-        /// Return an array with forces and moments in global coordinate system 
+        /// Return an array with forces and moments in local coordinate system <paramref name="cSys"/>
         /// </summary>
         /// <param name="cSys"></param>
         /// <returns>The array [fx, fy, fz, mx, my, mz]</returns>
         public double[] GetLocalForces(CoordinateSystem cSys)
         {
-            Point3d forceGlobal = new Point3d(_f1, _f2, _f3);                               // 
-            Point3d momentglobal = new Point3d(_m1, _m2, _m3);                              // Crea un array di double in le 3 componenti di forza e di momento
-                                                                                            // nelle 3 direzioni del sistema di coordinate locali.
-            Point3d PointForceLocal = cSys.ToLocal(forceGlobal);                            // 
-            Point3d PointMomentLocal = cSys.ToLocal(momentglobal);
 
-            Point3d OriginGlobal = cSys.ToLocal(CoordinateSystem.Global.Origin);
-        
-            Vector3d forceLocal = new Vector3d(PointForceLocal - OriginGlobal);
-            Vector3d momentLocal = new Vector3d(PointMomentLocal - OriginGlobal);
+            // Crea un array di double in le 3 componenti di forza e di momento
+            // nelle 3 direzioni del sistema di coordinate locali.
+
+            PointLoad local = this.ToLocal(cSys);
+
 
             double[] pointLoad = new double[6];
-            pointLoad[0] = forceLocal.X;
-            pointLoad[1] = forceLocal.Y;
-            pointLoad[2] = forceLocal.Z;
-            pointLoad[3] = momentLocal.X;
-            pointLoad[4] = momentLocal.Y;
-            pointLoad[5] = momentLocal.Z;
+            pointLoad[0] = local.F1;
+            pointLoad[1] = local.F2;
+            pointLoad[2] = local.F3;
+            pointLoad[3] = local.M1;
+            pointLoad[4] = local.M2;
+            pointLoad[5] = local.M3;
 
             return pointLoad;
         }
@@ -145,11 +177,32 @@ namespace GPC.Model.Loads
             // Cambia le proprietà del PointLoad passando da un sistema di riferimento globale
             // ad un sistema di rifarimento locale.                         
 
-            return new PointLoad(_coordinateSystem.ToGlobal(forceLocal) - _coordinateSystem.Origin,
-                                 _coordinateSystem.ToGlobal(momentLocal) - _coordinateSystem.Origin,
-                                 _coordinateSystem.ToGlobal(_point),
-                                 LoadCase, CoordinateSystem.Global);
+            return new PointLoad(_coordinateSystem.ToGlobal(forceLocal),
+                                 _coordinateSystem.ToGlobal(momentLocal),
+                                 _point,
+                                 LoadCase, 
+                                 CoordinateSystem.Global);
         }
+
+
+
+        /// <summary>
+        /// Return the PointLoad in a local coordinate system
+        /// </summary>
+        public PointLoad ToLocal(CoordinateSystem cSys)
+        {
+
+            Vector3d forceLocal = cSys.ToLocal(_coordinateSystem.ToGlobal(new Vector3d(_f1, _f2, _f3)));
+            Vector3d momentLocal = cSys.ToLocal(_coordinateSystem.ToGlobal(new Vector3d(_m1, _m2, _m3)));
+
+
+            return new PointLoad(forceLocal,
+                                 momentLocal,
+                                 _point,
+                                 LoadCase,
+                                 cSys);
+        }
+
 
         /// <summary>
         /// Return an array with forces and moments in global coordinate system 
@@ -157,16 +210,20 @@ namespace GPC.Model.Loads
         /// <returns>The array [fx, fy, fz, mx, my, mz]</returns>
         public double[] GetGlobalForces()
         {
-            Vector3d forceLocal = new Vector3d(_f1, _f2, _f3);                                   // 
-            Vector3d momentLocal = new Vector3d(_m1, _m2, _m3);                                   // Crea un array di double in le 3 componenti di forza e di momento
-                                                                                                  // nelle 3 direzioni del sistema di coordinate globali.
-                                                                                                  // Point3d point = _coordinateSystem.ToGlobal(_point);                                  // 
-            double fX = _coordinateSystem.ToGlobal(forceLocal).X - _coordinateSystem.Origin.X;
-            double fY = _coordinateSystem.ToGlobal(forceLocal).Y - _coordinateSystem.Origin.Y;
-            double fZ = _coordinateSystem.ToGlobal(forceLocal).Z - _coordinateSystem.Origin.Z;
-            double mX = _coordinateSystem.ToGlobal(momentLocal).X - _coordinateSystem.Origin.X;
-            double mY = _coordinateSystem.ToGlobal(momentLocal).Y - _coordinateSystem.Origin.Y;
-            double mZ = _coordinateSystem.ToGlobal(momentLocal).Z - _coordinateSystem.Origin.Z;
+            
+            // Crea un array di double in le 3 componenti di forza e di momento
+            // nelle 3 direzioni del sistema di coordinate globali.
+            // Point3d point = _coordinateSystem.ToGlobal(_point);             
+
+            Vector3d forceLocal = new Vector3d(_f1, _f2, _f3);                                   
+            Vector3d momentLocal = new Vector3d(_m1, _m2, _m3);                                  
+                                                                                                 
+            double fX = _coordinateSystem.ToGlobal(forceLocal).X;
+            double fY = _coordinateSystem.ToGlobal(forceLocal).Y;
+            double fZ = _coordinateSystem.ToGlobal(forceLocal).Z;
+            double mX = _coordinateSystem.ToGlobal(momentLocal).X;
+            double mY = _coordinateSystem.ToGlobal(momentLocal).Y;
+            double mZ = _coordinateSystem.ToGlobal(momentLocal).Z;
 
             double[] pointLoad = new double[6];
             pointLoad[0] = fX;
@@ -179,47 +236,165 @@ namespace GPC.Model.Loads
             return pointLoad;
         }
 
+
+        /// <inheritdoc cref="IConvertibleLoad.ConvertToAreaLoad(Plane, double)"/>
+        /// <remarks>Moments will be lost. Reference system of the load is the global system</remarks>
+        public virtual AreaLoad ConvertToAreaLoad(Plane referencePlane, double width)
+        {
+            Point3d point = (Point3d)_point.Clone();
+
+            CoordinateSystem referenceCoordinateSystem = referencePlane.GetCoordinateSystem();
+
+            Vector3d normalVector = referencePlane.Normal;
+            normalVector.Unitize();
+
+            Vector3d movementVector1 = referenceCoordinateSystem.V1;
+            movementVector1.Unitize();
+            movementVector1 *= width;
+            movementVector1 /= 2.0;
+
+            Vector3d movementVector2 = referenceCoordinateSystem.V2;
+            movementVector2.Unitize();
+            movementVector2 *= width;
+            movementVector2 /= 2.0;
+
+            Point3d p1 = point.CloneAndMove(movementVector1 + movementVector2);
+            movementVector1.Reverse();
+            Point3d p2 = point.CloneAndMove(movementVector1 + movementVector2);
+            movementVector2.Reverse();
+            Point3d p3 = point.CloneAndMove(movementVector2 + movementVector1);
+            movementVector1.Reverse();
+            Point3d p4 = point.CloneAndMove(movementVector2 + movementVector1);
+
+            var loadPerimeterGlobal = new Polygon3d()
+                                    {
+                                        p1,
+                                        p2,
+                                        p3,
+                                        p4
+                                    };
+
+            if (!loadPerimeterGlobal.IsRightHandOrdered())
+            {
+                loadPerimeterGlobal.Reverse();
+            }
+
+            var loadPerimeterReference = referenceCoordinateSystem.ToLocal(loadPerimeterGlobal);
+
+            // devo convertire il carico dal sistema _coordinateSystem
+            // al sistema del referencePlane
+
+            Shape loadShape = new Shape(loadPerimeterReference); // TODO: tagliare con bordo esterno shape nel caso sbordi
+            double loadArea = loadShape.GetArea();
+
+            Vector3d loadVector = new Vector3d(F1, F2, F3);
+            var loadVectorGlobal = _coordinateSystem.ToGlobal(loadVector); // da locale a globale
+
+
+            return new AreaLoad(loadVectorGlobal.X / loadArea,
+                                loadVectorGlobal.Y / loadArea,
+                                loadVectorGlobal.Z / loadArea,
+                                loadShape,
+                                LoadCase, 
+                                CoordinateSystem.Global);
+        }
+
+        public virtual NormalAreaLoad ConvertToNormalAreaLoad(Plane referencePlane, double width)
+        {
+            Point3d point = (Point3d)_point.Clone();
+
+            CoordinateSystem referenceCoordinateSystem = referencePlane.GetCoordinateSystem();
+
+            Vector3d normalVector = referencePlane.Normal;
+            normalVector.Unitize();
+
+            var pointGlobal = CoordinateSystem.ToGlobal(point);
+
+            Vector3d movementVector1 = referenceCoordinateSystem.V1;
+            movementVector1.Unitize();
+            movementVector1 *= width;
+            movementVector1 /= 2.0;
+
+            Vector3d movementVector2 = referenceCoordinateSystem.V2;
+            movementVector2.Unitize();
+            movementVector2 *= width;
+            movementVector2 /= 2.0;
+
+            Point3d p1 = pointGlobal.CloneAndMove(movementVector1 + movementVector2);
+            movementVector1.Reverse();
+            Point3d p2 = pointGlobal.CloneAndMove(movementVector1 + movementVector2);
+            movementVector2.Reverse();
+            Point3d p3 = pointGlobal.CloneAndMove(movementVector2 + movementVector1);
+            movementVector1.Reverse();
+            Point3d p4 = pointGlobal.CloneAndMove(movementVector2 + movementVector1);
+
+            var loadPerimeterGlobal = new Polygon3d()
+                                    {
+                                        p1,
+                                        p2,
+                                        p3,
+                                        p4
+                                    };
+
+            if (!loadPerimeterGlobal.IsRightHandOrdered())
+            {
+                loadPerimeterGlobal.Reverse();
+            }
+
+            var loadPerimeterReference = referenceCoordinateSystem.ToLocal(loadPerimeterGlobal);
+
+            Shape loadShape = new Shape(loadPerimeterReference); // TODO: tagliare con bordo esterno shape nel caso sbordi
+            double loadArea = loadShape.GetArea();
+
+            Vector3d loadVector = new Vector3d(F1, F2, F3);
+            var loadVectorGlobal = _coordinateSystem.ToGlobal(loadVector);
+            var loadVectorReference = referenceCoordinateSystem.ToLocal(loadVectorGlobal);
+
+            return new NormalAreaLoad(loadVectorReference.Z / loadArea, loadShape, LoadCase);
+        }
+
         #endregion
 
         #region Equals, HasCode and operators
-        
+
         public override bool Equals(object obj)
         {
             if (ReferenceEquals(obj, this))
                 return true;
 
-            if (obj is null)
-                return false;
-                
-            var objCasted = obj as PointLoad;
-
-            return objCasted != null && _point.Equals(objCasted._point) && _coordinateSystem.Equals(objCasted._coordinateSystem)
-                                                                        && _f1.Equals(objCasted._f1) && _f2.Equals(objCasted._f2) && _f3.Equals(objCasted._f3)
-                                                                        && _m1.Equals(objCasted._m1) && _m2.Equals(objCasted._m2) && _m3.Equals(objCasted._m3) && base.Equals(objCasted);
+            return (obj is PointLoad objCasted) && _point.Equals(objCasted._point) && _coordinateSystem.Equals(objCasted._coordinateSystem)
+                                                && _f1.Equals(objCasted._f1) && _f2.Equals(objCasted._f2) && _f3.Equals(objCasted._f3)
+                                                && _m1.Equals(objCasted._m1) && _m2.Equals(objCasted._m2) && _m3.Equals(objCasted._m3)
+                                                && base.Equals(objCasted);
         }
 
         public override int GetHashCode()
         {
-            int hashCode = -23;
-            hashCode = hashCode * -17 + base.GetHashCode();
-            hashCode = hashCode * -17 + _f1.GetHashCode();
-            hashCode = hashCode * -17 + _f2.GetHashCode();
-            hashCode = hashCode * -17 + _f3.GetHashCode();
-            hashCode = hashCode * -17 + _m1.GetHashCode();
-            hashCode = hashCode * -17 + _m2.GetHashCode();
-            hashCode = hashCode * -17 + _m3.GetHashCode();
-            hashCode = hashCode * -17 + EqualityComparer<CoordinateSystem>.Default.GetHashCode(_coordinateSystem);
-            hashCode = hashCode * -17 + EqualityComparer<Point3d>.Default.GetHashCode(_point);
-            return hashCode;
+            unchecked
+            {
+                int hashCode = -23;
+                hashCode = hashCode * -17 + base.GetHashCode();
+                hashCode = hashCode * -17 + _f1.GetHashCode();
+                hashCode = hashCode * -17 + _f2.GetHashCode();
+                hashCode = hashCode * -17 + _f3.GetHashCode();
+                hashCode = hashCode * -17 + _m1.GetHashCode();
+                hashCode = hashCode * -17 + _m2.GetHashCode();
+                hashCode = hashCode * -17 + _m3.GetHashCode();
+                hashCode = hashCode * -17 + EqualityComparer<CoordinateSystem>.Default.GetHashCode(_coordinateSystem);
+                hashCode = hashCode * -17 + EqualityComparer<Point3d>.Default.GetHashCode(_point);
+                return hashCode; 
+            }
         }
 
         public static bool operator ==(PointLoad obj1, PointLoad obj2)
         {
+            if (obj1 is null)
+            {
+                return obj2 is null;
+            }
+
             if (ReferenceEquals(obj1, obj2))
                 return true;
-
-            if (obj1 is null || obj2 is null)
-                return false;
 
             return obj1.Equals(obj2);
         }
@@ -228,6 +403,23 @@ namespace GPC.Model.Loads
         {
             return !(obj1 == obj2);
         }
+
+
+
+        public override void GetObjectData(SerializationInfo info, StreamingContext context)
+        {
+            base.GetObjectData(info, context);
+            info.AddValue("F1", _f1);
+            info.AddValue("F2", _f2);
+            info.AddValue("F3", _f3);
+            info.AddValue("M1", _m1);
+            info.AddValue("M2", _m2);
+            info.AddValue("M3", _m3);
+            info.AddValue("CoordinateSystem", _coordinateSystem);
+            info.AddValue("Point", _point);
+        }
+
+
         #endregion
     }
 }

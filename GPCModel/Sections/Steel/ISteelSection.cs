@@ -1,30 +1,54 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using GPC.Model.Materials;
+
 
 namespace GPC.Model.Sections.Steel
 {
     public interface ISteelSection
     {
         string Name { get; }
-        Materials.Material Material { get; }
+
+        SteelMaterial SteelMaterial { get; }
+
         double Height { get; }
+
         double Area { get; }
-        double InertiaRadiusY { get; }
-        double InertiaRadiusX { get; }
-        GPC.Geometry.Point2d Centroid { get; }
+
+        double R11 { get; }
+
+        double R22 { get; }
+
+        Geometry.Point2d Centroid { get; }
+
+        Geometry.Point2d ShearCenter { get; }
+
         double J11 { get; }
+
         double J22 { get; }
+
         double Jxx { get; }
+
         double Jyy { get; }
+
         double Jt { get; }
+
         double Jw { get; }
-        double Sx { get; }
+
         double Wpl1 { get; }
+
         double Wpl2 { get; }
+
         double Wel1 { get; }
+
         double Wel2 { get; }
+
+        Section.SectionTypes SectionType {get; }
+
+        Section.FormedTypes FormedType { get; }
+
+        bool IsSymmetricAlongXLocalAxis { get; }
+
+        bool IsSymmetricAlongYLocalAxis { get; }
+
+        bool IsDoubleSymmetric { get; }
     }
 }

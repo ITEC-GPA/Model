@@ -8,10 +8,10 @@ namespace GPC.Model.Sections
     {
         #region Variables
 
-        protected double _h;
-        protected double _tw;
-        protected double _tf;
-        protected double _b;
+        protected readonly double _h;
+        protected readonly double _tw;
+        protected readonly double _tf;
+        protected readonly double _b;
 
         #endregion
 
@@ -48,8 +48,11 @@ namespace GPC.Model.Sections
             _isSymmetricAlongYLocalAxis = true;
             _isSymmetricAlongXLocalAxis = false;
 
-            ThinWall web = new ThinWall(HeightWeb, thicknessWeb, Math.PI / 2, new Point2d(LenghtFlange / 2, HeightWeb / 2));
-            ThinWall flange = new ThinWall(flangeLength, thicknessFlange, 0, new Point2d(LenghtFlange / 2, HeightWeb + thicknessFlange / 2));
+            ThinWall web = new ThinWall(HeightWeb, thicknessWeb, Math.PI / 2);
+            ThinWall flange = new ThinWall(flangeLength, thicknessFlange, 0);
+
+            Points = new Point2d[] { new Point2d(LenghtFlange / 2, HeightWeb / 2) ,
+                new Point2d(LenghtFlange / 2, HeightWeb + thicknessFlange / 2)};
 
             ThinWalls = new ThinWall[] { web, flange };         
         }

@@ -71,7 +71,7 @@ namespace GPC.Model
         /// <summary>
         /// Get the node index by his id
         /// </summary>
-        /// <param name="id">The node Id</param>
+        /// <param name="id">The node index</param>
         public int GetIndexById(int id)
         {
             int pos = -1;
@@ -87,7 +87,7 @@ namespace GPC.Model
         }
 
         /// <summary>
-        /// Search an item by his value (the id is not considered).
+        /// Search an item by its  value (the id is not considered). It uses the binary search algorithm of the <see cref="List{T}"/> class
         /// </summary>
         /// <param name="item">The item to search</param>
         /// <returns>The index of the item if found, or a negative value if the item does not exist</returns>
@@ -294,7 +294,7 @@ namespace GPC.Model
         }
 
         /// <summary>
-        /// Remove an item by his id
+        /// Remove an item by its id
         /// </summary>
         /// <param name="id">The id of the item to remove</param>
         /// <returns>True id success</returns>

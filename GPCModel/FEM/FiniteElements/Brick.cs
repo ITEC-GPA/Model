@@ -70,6 +70,16 @@ namespace GPC.Model.FEM.FiniteElements
             }
         }
 
+        public virtual void AddLoadCaseAttribute(IBrickLoadCaseAttribute attribute)
+        {
+            _attributesLoadCase.Add((LoadCaseAttribute)attribute);
+        }
+
+        //public virtual void AddFreedomCaseAttribute(Ibri attribute)
+        //{
+        //    AddFreedomCaseAttribute(attribute);
+        //}
+
 
         //TODO: Da ottimizzare/scrivere
         /*public override void GetNodesResults(double[] globalDisplacementsNodes, out mnl.Matrix<double>[] gloabalPseudoDeformation, out mnl.Matrix<double>[] localPseudoDeformation, out mnl.Matrix<double>[] globalForces, out mnl.Matrix<double>[] localForces, out mnl.Matrix<double>[] globalStress, out mnl.Matrix<double>[] localStress, out mnl.Matrix<double>[] globalEpsilon, out mnl.Matrix<double>[] localEpsilon)

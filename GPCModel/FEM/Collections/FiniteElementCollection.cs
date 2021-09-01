@@ -32,6 +32,11 @@ namespace GPC.Model.FEM.Collections
             return GetById(id);
         }
 
+        /// <summary>
+        /// Calculate the element hash code based on the Ids of its nodes
+        /// </summary>
+        /// <param name="item"></param>
+        /// <returns></returns>
         protected override int GetItemHashCode(FiniteElement item)
         {
             unchecked
@@ -40,7 +45,7 @@ namespace GPC.Model.FEM.Collections
 
                 for (int i = 0; i < item.Nodes.Length; i++)
                 {
-                    hash = hash * 17 + item.Nodes[i].GetHashCode();
+                    hash = hash * 17 + item.Nodes[i].Id;
                 }
 
                 return hash; 

@@ -10,7 +10,7 @@ namespace GPC.Model.Sections
     {        
         #region Variables
 
-        protected double _dext; /// Diameter external
+        protected readonly double _dext; /// Diameter external
 
         #endregion
 

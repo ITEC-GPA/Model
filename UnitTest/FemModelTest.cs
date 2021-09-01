@@ -131,6 +131,7 @@ namespace FemTest
           
         [TestMethod]
         [TestCategory("Missing Assert")]
+        [TestCategory("Performance")]        
         public void FemModelTest1()
         {
             // Arrange   
@@ -195,7 +196,8 @@ namespace FemTest
 
 
         [TestMethod]
-        public void FemModelTest2()
+        [TestCategory("Mesh")]
+        public void Mesh1()
         {
             // Arrange
 
@@ -269,7 +271,8 @@ namespace FemTest
         }
 
         [TestMethod]
-        public void FemModelTest3()
+        [TestCategory("Mesh")]
+        public void Mesh2()
         {
             double maximumEdgeLenght = 20;
             FemModel femModel = new FemModel();
@@ -308,7 +311,8 @@ namespace FemTest
 
 
         [TestMethod]
-        public void FemModelTest4()
+        [TestCategory("Mesh")]
+        public void Mesh3()
         {
             double meshSize = 100;
             double maximumEdgeLenght = meshSize*1.2;
@@ -352,7 +356,8 @@ namespace FemTest
 
 
         [TestMethod]
-        public void FemModelTest5()
+        [TestCategory("Mesh")]
+        public void Mesh4()
         {
             double maximumEdgeLenght = 55;
 
@@ -390,38 +395,12 @@ namespace FemTest
         }
 
 
-        [TestMethod]
-        public void FemModelTest6()
-        {
-            Mesh mesh = CreateSimpleMesh(20, 30, 3, 4, 0, 0);
 
-            GlassMaterial gm = new GlassMaterialAstm("gp1", 1, 0.2, 3, 4, 5, 6, 0.008, 0.008, 9);
-            MonolithicGlassProperty pp = new MonolithicGlassProperty(1, 2, gm.GetIsotropicFemMaterial(), "gp1");
-
-            FemModel femModel = new FemModel();
-            femModel.AddProperty(pp);
-            femModel.AddMesh(mesh, pp.Name, null, null, null, null, null);
-
-            Mesh mesh2 = femModel.GetMesh();
-
-            Assert.IsTrue(mesh.Equals(mesh2));
-
-        }
 
 
         [TestMethod]
-        public void FemModelTest7()
-        {
-            Mesh mesh1 = CreateSimpleMesh(20, 30, 3, 4, 0, 0);
-            Mesh mesh2 = CreateSimpleMesh(20, 30, 3, 4, 0, 0);
-
-            Assert.IsTrue(mesh1.Equals(mesh2));
-
-        }
-
-
-        [TestMethod]
-        public void FemModelTest8()
+        [TestCategory("Elements")]
+        public void Elements1()
         {
 
             Shape s1 = CreateSimpleShape(800, 1600);
@@ -456,7 +435,8 @@ namespace FemTest
 
         [TestMethod]
         [TestCategory("Missing Assert")]
-        public void FemModelTest9()
+        [TestCategory("Constrain")]
+        public void Constrain1()
         {
             FemModel femModel = new FemModel();
 
@@ -474,29 +454,10 @@ namespace FemTest
 
 
 
-        [TestMethod]
-        public void FemModelTest12()
-        {
-            Mesh mesh = CreateSimpleMesh(20, 30, 3, 4, 0, 0);
-
-            GlassMaterial gm = new GlassMaterialAstm("gp1", 1, 0.2, 3, 4, 5, 6, 0.008, 0.008, 9);
-            MonolithicGlassProperty pp = new MonolithicGlassProperty(1, 2, gm.GetIsotropicFemMaterial(), "gp1");
-
-            FemModel femModel = new FemModel();
-            femModel.AddProperty(pp);
-            femModel.AddMesh(mesh, pp.Name, null, null, null, null, null, "gp1");
-
-            Mesh mesh2 = femModel.GetMesh();
-
-            Assert.IsTrue(mesh.Equals(mesh2));
-
-            Assert.IsTrue(femModel.GetElements().First().GetGroups().First().Name == "gp1");
-
-        }
-
 
         [TestMethod]
-        public void FemModelTest10()
+        [TestCategory("Attributes")]
+        public void Attributes1()
         {
             //Arrange
             FemModel femModel = new FemModel();
@@ -521,14 +482,15 @@ namespace FemTest
             foreach(var element in femModel.GetElements())
             {
                 Assert.IsTrue(element.AttributesLoadCase.Count == 1, element.AttributesLoadCase.Count.ToString()) ;
-                Assert.IsTrue(element.AttributesLoadCase[0].LoadCaseName == "LC2");
-                Assert.IsTrue(element.AttributesLoadCase[0].GetType() == typeof(PlateNormalPressureAttribute));
+                Assert.IsTrue(element.AttributesLoadCase.FirstOrDefault().LoadCaseName == "LC2");
+                Assert.IsTrue(element.AttributesLoadCase.FirstOrDefault().GetType() == typeof(PlateNormalPressureAttribute));
             }
 
         }
 
         [TestMethod]
-        public void FemModelTest11()
+        [TestCategory("Attributes")]
+        public void Attributes2()
         {
             //Arrange
             FemModel femModel = new FemModel();
@@ -558,8 +520,8 @@ namespace FemTest
             foreach (var element in femModel.GetElements())
             {
                 Assert.IsTrue(element.AttributesLoadCase.Count == 1, $"Id:{element.Id} {element.AttributesLoadCase.Count}" );
-                Assert.IsTrue(element.AttributesLoadCase[0].LoadCaseName == "LC2");
-                Assert.IsTrue(element.AttributesLoadCase[0].GetType() == typeof(PlateNormalPressureAttribute));
+                Assert.IsTrue(element.AttributesLoadCase.FirstOrDefault().LoadCaseName == "LC2");
+                Assert.IsTrue(element.AttributesLoadCase.FirstOrDefault().GetType() == typeof(PlateNormalPressureAttribute));
             }
             
         }

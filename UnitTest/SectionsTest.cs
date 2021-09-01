@@ -32,8 +32,8 @@ namespace ModelObjectTest
             Assert.AreEqual(0, sec.AngleX1);
             Assert.AreEqual(A, sec.Area);
             Assert.AreEqual(centroid, sec.Centroid);
-            Assert.AreEqual(i, sec.InertiaRadiusX);
-            Assert.AreEqual(i, sec.InertiaRadiusY);
+            Assert.AreEqual(i, sec.R22);
+            Assert.AreEqual(i, sec.R11);
             Assert.AreEqual(true, sec.IsDoubleSymmetric);
             Assert.AreEqual(true, sec.IsSymmetricAlongYLocalAxis);
             Assert.AreEqual(true, sec.IsSymmetricAlongXLocalAxis);
@@ -66,8 +66,8 @@ namespace ModelObjectTest
             Assert.AreEqual(0, sec.AngleX1);   
             Assert.AreEqual(centroid, sec.Centroid);
             Assert.AreEqual(Math.Abs(A / sec.Area) - 1, 0, 0.001);
-            Assert.AreEqual(Math.Abs(i / sec.InertiaRadiusX) - 1, 0, 0.001);
-            Assert.AreEqual(Math.Abs(i / sec.InertiaRadiusY) - 1, 0, 0.001);
+            Assert.AreEqual(Math.Abs(i / sec.R22) - 1, 0, 0.001);
+            Assert.AreEqual(Math.Abs(i / sec.R11) - 1, 0, 0.001);
             Assert.IsTrue(sec.IsDoubleSymmetric);
             Assert.IsTrue(sec.IsSymmetricAlongYLocalAxis);
             Assert.IsTrue(sec.IsSymmetricAlongXLocalAxis);
@@ -100,8 +100,8 @@ namespace ModelObjectTest
             Assert.AreEqual(0, sec.AngleX1);
             Assert.AreEqual(centroid, sec.Centroid);
             Assert.AreEqual(Math.Abs(A / sec.Area) - 1, 0, 0.001);
-            Assert.AreEqual(Math.Abs(i / sec.InertiaRadiusX) - 1, 0, 0.001);
-            Assert.AreEqual(Math.Abs(i / sec.InertiaRadiusY) - 1, 0, 0.001);
+            Assert.AreEqual(Math.Abs(i / sec.R22) - 1, 0, 0.001);
+            Assert.AreEqual(Math.Abs(i / sec.R11) - 1, 0, 0.001);
             Assert.IsTrue(sec.IsDoubleSymmetric);
             Assert.IsTrue(sec.IsSymmetricAlongYLocalAxis);
             Assert.IsTrue(sec.IsSymmetricAlongXLocalAxis);
@@ -134,8 +134,8 @@ namespace ModelObjectTest
             Assert.AreEqual(0, sec.AngleX1);
             Assert.AreEqual(centroid, sec.Centroid);
             Assert.AreEqual(Math.Abs(A / sec.Area) - 1, 0, 0.001);
-            Assert.AreEqual(Math.Abs(i / sec.InertiaRadiusX) - 1, 0, 0.001);
-            Assert.AreEqual(Math.Abs(i / sec.InertiaRadiusY) - 1, 0, 0.001);
+            Assert.AreEqual(Math.Abs(i / sec.R22) - 1, 0, 0.001);
+            Assert.AreEqual(Math.Abs(i / sec.R11) - 1, 0, 0.001);
             Assert.IsTrue(sec.IsDoubleSymmetric);
             Assert.IsTrue(sec.IsSymmetricAlongYLocalAxis);
             Assert.IsTrue(sec.IsSymmetricAlongXLocalAxis);
@@ -275,7 +275,7 @@ namespace ModelObjectTest
             double Jx = 18880208.33;
             double Jy = 13997395.83;
 
-            Assert.AreEqual(A, sec.Area);
+            Assert.AreEqual(A, sec.Area, 0.001);
             Assert.AreEqual(b - 2 * tw, sec.BaseInternal);
             Assert.AreEqual(h - 2 * tf, sec.Heightinternal);
             Assert.AreEqual(Math.Abs(Jy / sec.J22) - 1, 0, 0.001);
@@ -291,9 +291,10 @@ namespace ModelObjectTest
             double bb = 300;
             double tt = 10;
             double tb = 25;
-            SteelSectionH sec = new SteelSectionH(h, tw, bt, tt, bb, tb, new SteelMaterial("steel", 200000, 0.3, 355, 510, 7850), string.Empty);
+            double radius = 5;
+            SteelSectionH sec = new SteelSectionH(h, tw, bt, tt, bb, tb, new SteelMaterial("steel", 200000, 0.3, 355, 510, 7850), string.Empty, Section.SectionTypes.Welded, Section.FormedTypes.HotFinished, radius);
 
-            double A = 13880;
+            double A = 13880 + 4 * Math.Pow((1.41 * radius), 2) / 2.0;
             double Jxx = 3.193 * 1e8;
             double Jyy = 62969227;
             double Welx = 1178986;
@@ -306,13 +307,13 @@ namespace ModelObjectTest
             //double JwSAP = 1.317 * 1e12; //ERRATO
             double JwLTBEAM = 872110 * 1e6;
 
-            Assert.AreEqual(A, sec.Area);
-            Assert.AreEqual(Math.Abs(Jyy / sec.J22) - 1, 0, 0.001);
-            Assert.AreEqual(Math.Abs(Jxx / sec.J11) - 1, 0, 0.001);
+            Assert.AreEqual(A, sec.Area, 0.001);
+            Assert.AreEqual(Math.Abs(Jyy / sec.J22) - 1, 0, 0.015);
+            Assert.AreEqual(Math.Abs(Jxx / sec.J11) - 1, 0, 0.015);
             Assert.AreEqual(Math.Abs(Wely / sec.CalculateWelyBottom()) - 1, 0, 0.001);
-            Assert.AreEqual(Math.Abs(Welx / sec.CalculateWelxTop()) - 1, 0, 0.001);
-            Assert.AreEqual(Math.Abs(Wply / sec.CalculateWpl2()) - 1, 0, 0.001);
-            Assert.AreEqual(Math.Abs(Wplx / sec.CalculateWpl1()) - 1, 0, 0.001);
+            Assert.AreEqual(Math.Abs(Welx / sec.CalculateWelxTop()) - 1, 0, 0.012);
+            Assert.AreEqual(Math.Abs(Wply / sec.CalculateWpl2()) - 1, 0, 0.008);
+            Assert.AreEqual(Math.Abs(Wplx / sec.CalculateWpl1()) - 1, 0, 0.015);
             Assert.AreEqual(JtSAP / sec.Jt - 1.0, 0, 0.005);
             Assert.AreEqual(JtStraus / sec.Jt - 1.0, 0, 0.05);
             Assert.AreEqual(JtCalc / sec.CalculateJtSSRC1889() - 1.0, 0, 0.001);
@@ -328,25 +329,26 @@ namespace ModelObjectTest
             double bb = 400;
             double tt = 15;
             double tb = 25;
-            SteelSectionH sec = new SteelSectionH(h, tw, bt, tt, bb, tb, new SteelMaterial("steel", 200000, 0.3, 355, 510, 7850), string.Empty);
+            double radius = 5;
+            SteelSectionH sec = new SteelSectionH(h, tw, bt, tt, bb, tb, new SteelMaterial("steel", 200000, 0.3, 355, 510, 7850), string.Empty, Section.SectionTypes.Welded, Section.FormedTypes.HotFinished, radius);
 
-            double A = 20940;
+            double A = 20940 + 4 * Math.Pow((1.41 * radius), 2) / 2.0;
             double Jxx = 868212376.6714;
             double Jyy = 167197666.6667;
-            double WelxMin = 2802779;
-            double WelyMin = 835988;
+            double Welx = 2802779;
+            double Wely = 835988;
             double Wplx = 3694171;
             double Wply = 1360040;
             double Jt = 2859873;
             double Jw = 6.205 * 1e12;
 
-            Assert.AreEqual(A, sec.Area);
-            Assert.AreEqual(Math.Abs(Jyy / sec.J22) - 1, 0, 0.001);
-            Assert.AreEqual(Math.Abs(Jxx / sec.J11) - 1, 0, 0.001);
-            Assert.AreEqual(Math.Abs(WelxMin / sec.CalculateWel1()) - 1, 0, 0.001);
-            Assert.AreEqual(Math.Abs(WelyMin / sec.CalculateWel2()) - 1, 0, 0.001);
-            Assert.AreEqual(Math.Abs(Wply / sec.CalculateWpl2()) - 1, 0, 0.001);
-            Assert.AreEqual(Math.Abs(Wplx / sec.CalculateWpl1()) - 1, 0, 0.001);
+            Assert.AreEqual(A, sec.Area, 0.001);
+            Assert.AreEqual(Math.Abs(Jyy / sec.J22) - 1, 0, 0.015);
+            Assert.AreEqual(Math.Abs(Jxx / sec.J11) - 1, 0, 0.015);
+            Assert.AreEqual(Math.Abs(Wely / sec.CalculateWelyBottom()) - 1, 0, 0.001);
+            Assert.AreEqual(Math.Abs(Welx / sec.CalculateWelxTop()) - 1, 0, 0.012);
+            Assert.AreEqual(Math.Abs(Wply / sec.CalculateWpl2()) - 1, 0, 0.008);
+            Assert.AreEqual(Math.Abs(Wplx / sec.CalculateWpl1()) - 1, 0, 0.015);
             Assert.AreEqual(Jt / sec.CalculateJtSSRC1889() - 1.0, 0, 0.001);
             Assert.AreEqual(Jw / sec.Jw - 1, 0, 0.001);
         }
@@ -360,9 +362,10 @@ namespace ModelObjectTest
             double bb = 500;
             double tt = 10;
             double tb = 40;
-            SteelSectionH sec = new SteelSectionH(h, tw, bt, tt, bb, tb, new SteelMaterial("steel", 200000, 0.3, 355, 510, 7850), string.Empty);
+            double radius = 5;
+            SteelSectionH sec = new SteelSectionH(h, tw, bt, tt, bb, tb, new SteelMaterial("steel", 200000, 0.3, 355, 510, 7850), string.Empty, Section.SectionTypes.Welded, Section.FormedTypes.HotFinished, radius);
 
-            double A = 28400;
+            double A = 28400 + 4 * Math.Pow((1.41 * radius), 2) / 2.0;
             double Jxx = 828928638;
             double Jyy = 439238667;
             double WelxMin = 2162952;
@@ -375,14 +378,14 @@ namespace ModelObjectTest
             double jtStraus= 10534103.36714;
             double Jw = 4816472960152;
 
-            Assert.AreEqual(A, sec.Area);
-            Assert.AreEqual(Math.Abs(Jyy / sec.J22) - 1, 0, 0.001);
-            Assert.AreEqual(Math.Abs(Jxx / sec.J11) - 1, 0, 0.001);
-            Assert.AreEqual(Math.Abs(WelxMin / sec.CalculateWel1()) - 1, 0, 0.001);
-            Assert.AreEqual(Math.Abs(WelyMin / sec.CalculateWel2()) - 1, 0, 0.001);
-            Assert.AreEqual(Math.Abs(Wply / sec.CalculateWpl2()) - 1, 0, 0.001);
-            Assert.AreEqual(Math.Abs(Wplx / sec.CalculateWpl1()) - 1, 0, 0.015);
-            Assert.AreEqual(Math.Abs(Wplxsap / sec.CalculateWpl1()) - 1, 0, 0.001);
+            Assert.AreEqual(A, sec.Area, 0.001);
+            Assert.AreEqual(Math.Abs(Jyy / sec.J22) - 1, 0, 0.015);
+            Assert.AreEqual(Math.Abs(Jxx / sec.J11) - 1, 0, 0.015);
+            Assert.AreEqual(Math.Abs(WelyMin / sec.CalculateWelyBottom()) - 1, 0, 0.001);
+            Assert.AreEqual(Math.Abs(WelxMin / sec.CalculateWelxTop()) - 1, 0, 0.012);
+            Assert.AreEqual(Math.Abs(Wply / sec.CalculateWpl2()) - 1, 0, 0.008);
+            Assert.AreEqual(Math.Abs(Wplx / sec.CalculateWpl1()) - 1, 0, 0.018);
+            Assert.AreEqual(Math.Abs(Wplxsap / sec.CalculateWpl1()) - 1, 0, 0.007);
             Assert.AreEqual(Jt / sec.CalculateJtSSRC1889() - 1.0, 0, 0.001);
             Assert.AreEqual(jtStraus / sec.Jt - 1.0, 0, 0.001);
             Assert.AreEqual(jtSap / sec.Jt - 1.0, 0, 0.005);
@@ -398,9 +401,10 @@ namespace ModelObjectTest
             double bb = 300;
             double tt = 40;
             double tb = 10;
-            SteelSectionH sec = new SteelSectionH(h, tw, bt, tt, bb, tb, new SteelMaterial("steel", 200000, 0.3, 355, 510, 7850), string.Empty);
+            double radius = 5;
+            SteelSectionH sec = new SteelSectionH(h, tw, bt, tt, bb, tb, new SteelMaterial("steel", 200000, 0.3, 355, 510, 7850), string.Empty, Section.SectionTypes.Welded, Section.FormedTypes.HotFinished, radius);
 
-            double A = 28400;
+            double A = 28400 + 4 * Math.Pow((1.41 * radius), 2) / 2.0;
             double Jxx = 828928638;
             double Jyy = 439238667;
             double WelxMin = 2162952;
@@ -413,14 +417,14 @@ namespace ModelObjectTest
             double jtStraus = 10534103.36714;
             double Jw = 4816472960152;
 
-            Assert.AreEqual(A, sec.Area);
-            Assert.AreEqual(Math.Abs(Jyy / sec.J22) - 1, 0, 0.001);
-            Assert.AreEqual(Math.Abs(Jxx / sec.J11) - 1, 0, 0.001);
-            Assert.AreEqual(Math.Abs(WelxMin / sec.CalculateWel1()) - 1, 0, 0.001);
-            Assert.AreEqual(Math.Abs(WelyMin / sec.CalculateWel2()) - 1, 0, 0.001);
-            Assert.AreEqual(Math.Abs(Wply / sec.CalculateWpl2()) - 1, 0, 0.001);
-            Assert.AreEqual(Math.Abs(Wplx / sec.CalculateWpl1()) - 1, 0, 0.015);
-            Assert.AreEqual(Math.Abs(WplxSap / sec.CalculateWpl1()) - 1, 0, 0.001);
+            Assert.AreEqual(A, sec.Area, 0.001);
+            Assert.AreEqual(Math.Abs(Jyy / sec.J22) - 1, 0, 0.015);
+            Assert.AreEqual(Math.Abs(Jxx / sec.J11) - 1, 0, 0.015);
+            Assert.AreEqual(Math.Abs(WelyMin / sec.Wel2) - 1, 0, 0.01);
+            Assert.AreEqual(Math.Abs(WelxMin / sec.Wel1) - 1, 0, 0.012);
+            Assert.AreEqual(Math.Abs(Wply / sec.CalculateWpl2()) - 1, 0, 0.008);
+            Assert.AreEqual(Math.Abs(Wplx / sec.CalculateWpl1()) - 1, 0, 0.018);
+            Assert.AreEqual(Math.Abs(WplxSap / sec.CalculateWpl1()) - 1, 0, 0.007);
             Assert.AreEqual(Jt / sec.CalculateJtSSRC1889() - 1.0, 0, 0.001);
             Assert.AreEqual(jtStraus / sec.CalculateJt() - 1.0, 0, 0.001);
             Assert.AreEqual(jtSap / sec.CalculateJt() - 1.0, 0, 0.005);
@@ -436,9 +440,10 @@ namespace ModelObjectTest
             double bb = 500;
             double tt = 15;
             double tb = 40;
-            SteelSectionH sec = new SteelSectionH(h, tw, bt, tt, bb, tb, new SteelMaterial("steel", 200000, 0.3, 355, 510, 7850), string.Empty);
+            double radius = 5;
+            SteelSectionH sec = new SteelSectionH(h, tw, bt, tt, bb, tb, new SteelMaterial("steel", 200000, 0.3, 355, 510, 7850), string.Empty, Section.SectionTypes.Welded, Section.FormedTypes.HotFinished, radius);
 
-            double A = 28640;
+            double A = 28640 + 4 * Math.Pow((1.41 * radius), 2) / 2.0;
             double Jxx = 608058102;
             double Jyy = 450474267;
             double WelxMin = 2070723;
@@ -450,14 +455,14 @@ namespace ModelObjectTest
             double JtSap = 10650301;
             double Jw = 4332121588807;
 
-            Assert.AreEqual(A, sec.Area);
-            Assert.AreEqual(Math.Abs(Jyy / sec.J22) - 1, 0, 0.001);
-            Assert.AreEqual(Math.Abs(Jxx / sec.J11) - 1, 0, 0.001);
-            Assert.AreEqual(Math.Abs(WelxMin / sec.CalculateWel1()) - 1, 0, 0.001);
-            Assert.AreEqual(Math.Abs(WelyMin / sec.CalculateWel2()) - 1, 0, 0.001);
-            Assert.AreEqual(Math.Abs(Wply / sec.CalculateWpl2()) - 1, 0, 0.001);
-            Assert.AreEqual(Math.Abs(Wplx / sec.CalculateWpl1()) - 1, 0, 0.015);
-            Assert.AreEqual(Math.Abs(WplxSap / sec.CalculateWpl1()) - 1, 0, 0.001);
+            Assert.AreEqual(A, sec.Area, 0.001);
+            Assert.AreEqual(Math.Abs(Jyy / sec.J22) - 1, 0, 0.015);
+            Assert.AreEqual(Math.Abs(Jxx / sec.J11) - 1, 0, 0.015);
+            Assert.AreEqual(Math.Abs(WelyMin / sec.CalculateWelyBottom()) - 1, 0, 0.001);
+            Assert.AreEqual(Math.Abs(WelxMin / sec.CalculateWelxTop()) - 1, 0, 0.012);
+            Assert.AreEqual(Math.Abs(Wply / sec.CalculateWpl2()) - 1, 0, 0.008);
+            Assert.AreEqual(Math.Abs(Wplx / sec.CalculateWpl1()) - 1, 0, 0.0185);
+            Assert.AreEqual(Math.Abs(WplxSap / sec.CalculateWpl1()) - 1, 0, 0.0065);
             Assert.AreEqual(JtSSRC / sec.CalculateJtSSRC1889() - 1.0, 0, 0.001);
             Assert.AreEqual(JtSap / sec.CalculateJt() - 1.0, 0, 0.005);
             Assert.AreEqual(Jw / sec.Jw - 1, 0, 0.001);
@@ -484,7 +489,7 @@ namespace ModelObjectTest
             double Jt = 4678667;
             double Jw = 9.375 * 1e12;
 
-            Assert.AreEqual(A, sec.Area);
+            Assert.AreEqual(A, sec.Area, 0.001);
             Assert.AreEqual(Math.Abs(Jyy / sec.J22) - 1, 0, 0.001);
             Assert.AreEqual(Math.Abs(Jxx / sec.J11) - 1, 0, 0.001);
             Assert.AreEqual(Math.Abs(WelxMin / sec.CalculateWel1()) - 1, 0, 0.001);
@@ -516,7 +521,7 @@ namespace ModelObjectTest
             double Jt = 4080300;
             double Jw = 1.008 * 1e13;
 
-            Assert.AreEqual(A, sec.Area);
+            Assert.AreEqual(A, sec.Area, 0.001);
             Assert.AreEqual(Math.Abs(Jyy / sec.J22) - 1, 0, 0.001);
             Assert.AreEqual(Math.Abs(Jxx / sec.J11) - 1, 0, 0.001);
             Assert.AreEqual(Math.Abs(WelxMin / sec.CalculateWel1()) - 1, 0, 0.001);
@@ -536,7 +541,9 @@ namespace ModelObjectTest
             double bb = 476;
             double tt = 140;
             double tb = 140;
-            SteelSectionH sec = new SteelSectionH(h, tw, bt, tt, bb, tb, new SteelMaterial("steel", 200000, 0.3, 355, 510, 7850), string.Empty);
+            double r = 15;
+            SteelSectionH sec = new SteelSectionH(h, tw, bt, tt, bb, tb, new SteelMaterial("steel", 200000, 0.3, 355, 510, 7850), string.Empty,
+                Section.SectionTypes.Rolled, Section.FormedTypes.HotFinished, r);
 
             double A = 165470;
             double Jxx = 7549500000;
@@ -546,7 +553,7 @@ namespace ModelObjectTest
             double Wplx = 33260000;
             double Wply = 16670000;
             double jtSap = 7.95 * 1e8;
-            double Jt = 955200000;
+            double Jt = 944000000;  // da catalogo
             double Jw = 133120000000000;
 
             Assert.AreEqual(Math.Abs(A/sec.Area) -1, 0, 0.0015);
@@ -556,8 +563,8 @@ namespace ModelObjectTest
             Assert.AreEqual(Math.Abs(WelyMin / sec.CalculateWel2()) - 1, 0, 0.001);
             Assert.AreEqual(Math.Abs(Wply / sec.CalculateWpl2()) - 1, 0, 0.001);
             Assert.AreEqual(Math.Abs(Wplx / sec.CalculateWpl1()) - 1, 0, 0.0015);
-            Assert.AreEqual(Jt / sec.Jt - 1.0, 0, 0.16);
-            Assert.AreEqual(jtSap / sec.Jt - 1.0, 0, 0.05);
+            Assert.AreEqual(Jt / sec.Jt - 1.0, 0, 0.005);
+            Assert.AreEqual(jtSap / sec.Jt - 1.0, 0, 0.17);
             Assert.AreEqual(Jw / sec.Jw - 1, 0, 0.011);
         }
 
@@ -604,7 +611,9 @@ namespace ModelObjectTest
             double bb = 170;
             double tt = 12.7;
             double tb = 12.7;
-            SteelSectionH sec = new SteelSectionH(h, tw, bt, tt, bb, tb, new SteelMaterial("steel", 200000, 0.3, 355, 510, 7850), string.Empty);
+            double radius = 18;
+            SteelSectionH sec = new SteelSectionH(h, tw, bt, tt, bb, tb, new SteelMaterial("steel", 200000, 0.3, 355, 510, 7850), 
+                string.Empty, Section.SectionTypes.Rolled, Section.FormedTypes.HotFinished, radius);
 
             double A = 7270;          // da catalogo (tiene in conto anche i raggi)
             double Jxx = 162600000;
@@ -615,7 +624,7 @@ namespace ModelObjectTest
             double Wply = 191000;
             double Jt = 374400;
             double Jw = 313500000000;
-
+            // non considera i raggi
             double ASap = 7026.8;
             double JxxSap = 1.592 * 1e8;
             double JyySap = 10413630;
@@ -626,22 +635,22 @@ namespace ModelObjectTest
             double jtSap = 278151;
 
             Assert.AreEqual(Math.Abs(A / sec.Area) - 1, 0, 0.05);
-            Assert.AreEqual(Math.Abs(ASap / sec.Area) - 1, 0, 0.005);
+            Assert.AreEqual(Math.Abs(ASap / sec.Area) - 1, 0, 0.035);
             Assert.AreEqual(Math.Abs(Jyy / sec.J22) - 1, 0, 0.005);
             Assert.AreEqual(Math.Abs(Jxx / sec.J11) - 1, 0, 0.05);
-            Assert.AreEqual(Math.Abs(JyySap / sec.J22) - 1, 0, 0.001);
+            Assert.AreEqual(Math.Abs(JyySap / sec.J22) - 1, 0, 0.006);
             Assert.AreEqual(Math.Abs(JxxSap / sec.J11) - 1, 0, 0.03);
-            Assert.AreEqual(Math.Abs(WelxMin / sec.CalculateWel1()) - 1, 0, 0.05);
-            Assert.AreEqual(Math.Abs(WelyMin / sec.CalculateWel2()) - 1, 0, 0.05);
-            Assert.AreEqual(Math.Abs(WelxMinSap / sec.CalculateWel1()) - 1, 0, 0.015);
-            Assert.AreEqual(Math.Abs(WelyMinSap / sec.CalculateWel2()) - 1, 0, 0.015);
-            Assert.AreEqual(Math.Abs(Wply / sec.CalculateWpl2()) - 1, 0, 0.012);
-            Assert.AreEqual(Math.Abs(Wplx / sec.CalculateWpl1()) - 1, 0, 0.05);
-            Assert.AreEqual(Math.Abs(WplySap / sec.CalculateWpl2()) - 1, 0, 0.001);
-            Assert.AreEqual(Math.Abs(WplxSap / sec.CalculateWpl1()) - 1, 0, 0.015);
-            Assert.AreEqual(Jt / sec.Jt - 1.0, 0, 0.35);
-            Assert.AreEqual(jtSap / sec.Jt - 1.0, 0, 0.004);
-            Assert.AreEqual(Jw / sec.Jw - 1, 0, 0.025);
+            Assert.AreEqual(Math.Abs(WelxMin / sec.Wel1) - 1, 0, 0.01);
+            Assert.AreEqual(Math.Abs(WelyMin / sec.Wel2) - 1, 0, 0.01);
+            Assert.AreEqual(Math.Abs(WelxMinSap / sec.Wel1) - 1, 0, 0.032);
+            Assert.AreEqual(Math.Abs(WelyMinSap / sec.Wel2) - 1, 0, 0.015);
+            Assert.AreEqual(Math.Abs(Wply / sec.Wpl2) - 1, 0, 0.028);
+            Assert.AreEqual(Math.Abs(Wplx / sec.Wpl1) - 1, 0, 0.01);
+            Assert.AreEqual(Math.Abs(WplySap / sec.Wpl2) - 1, 0, 0.038);
+            Assert.AreEqual(Math.Abs(WplxSap / sec.Wpl1) - 1, 0, 0.024);
+            Assert.AreEqual(Math.Abs(Jt / sec.Jt) - 1.0, 0, 0.35);
+            Assert.AreEqual(Math.Abs(jtSap / sec.Jt - 1.0), 0, 0.3);
+            Assert.AreEqual(Math.Abs(Jw / sec.Jw) - 1, 0, 0.025);
         }
 
         [TestMethod]
@@ -664,8 +673,124 @@ namespace ModelObjectTest
             Assert.AreEqual(Math.Abs(A / sec.Area) - 1, 0, 0.001);
             Assert.AreEqual(Math.Abs(Jyy / sec.J22) - 1, 0, 0.001);
             Assert.AreEqual(Math.Abs(Jxx / sec.J11) - 1, 0, 0.001);
-            Assert.AreEqual(Math.Abs(raggioInerziaX / sec.InertiaRadiusX) - 1, 0, 0.001);
-            Assert.AreEqual(Math.Abs(raggioInerziaY / sec.InertiaRadiusY) - 1, 0, 0.001);
+            Assert.AreEqual(Math.Abs(raggioInerziaX / sec.R11) - 1, 0, 0.001);
+            Assert.AreEqual(Math.Abs(raggioInerziaY / sec.R22) - 1, 0, 0.001);
+        }
+
+        [TestMethod]
+        public void SectionHSymmetric_Test7()
+        {
+            double h = 290.0;         // HEA300
+            double tw = 8.5;
+            double bt = 300.0;
+            double bb = 300.0;
+            double tt = 14.0;
+            double tb = 14.0;
+            double r = 27.0;
+
+            SteelSectionH sec = new SteelSectionH(h, tw, bt, tt, bb, tb, new SteelMaterial("steel", 210000, 0.3, 355, 510, 7850), 
+                string.Empty, Section.SectionTypes.Rolled, Section.FormedTypes.HotFinished, r);
+
+            double A = 11253;          
+            double Jxx = 182630000;
+            double Jyy = 63100000;
+            double raggioInerziaX = 74.9;
+            double raggioInerziaY = 127.4;
+
+            Assert.AreEqual(Math.Abs(A / sec.Area) - 1, 0, 0.005);
+            Assert.AreEqual(Math.Abs(Jyy / sec.J22) - 1, 0, 0.005);
+            Assert.AreEqual(Math.Abs(Jxx / sec.J11) - 1, 0, 0.005);
+            Assert.AreEqual(Math.Abs(raggioInerziaX / sec.R11) - 1, 0, 0.005);
+            Assert.AreEqual(Math.Abs(raggioInerziaY / sec.R22) - 1, 0, 0.005);
+        }
+
+        [TestMethod]
+        public void SectionHSymmetric_Test8()
+        {
+            double h = 300.0;
+            double width = 150.0;
+            double flangeThickness = 10.7;
+            double webThickness = 7.1;
+            double r = 15.0;
+
+            SteelSectionH sec = new SteelSectionH(h, webThickness, width, flangeThickness, width, flangeThickness, new SteelMaterial("steel", 210000, 0.3, 355, 510, 7850),
+                string.Empty, Section.SectionTypes.Rolled, Section.FormedTypes.HotFinished, r);
+
+            double Jxx = 83560000;
+            double Jyy = 6038000;
+            double Jt = 201000;
+            double Jw = 125934100000;
+            double Wel1 = 557100;
+            double Wpl1 = 628400;
+
+            Assert.AreEqual(Math.Abs(Jyy / sec.J22) - 1, 0, 0.005);
+            Assert.AreEqual(Math.Abs(Jxx / sec.J11) - 1, 0, 0.005);
+            Assert.AreEqual(Math.Abs(Jt / sec.Jt) - 1, 0, 0.01);
+            Assert.AreEqual(Math.Abs(Jw / sec.Jw) - 1, 0, 0.005);
+            Assert.AreEqual(Math.Abs(Wel1 / sec.Wel1) - 1, 0, 0.005);
+            Assert.AreEqual(Math.Abs(Wpl1 / sec.Wpl1) - 1, 0, 0.0075);
+        }
+
+        [TestMethod]
+        public void SectionHSymmetric_Sigma1()
+        {
+            double h = 304.8;         
+            double tw = 6.35;
+            double bt = 127;
+            double bb = 127;
+            double tt = 9.652;
+            double tb = 9.652;
+            SteelSectionH sec = new SteelSectionH(h, tw, bt, tt, bb, tb, new SteelMaterial("steel", 210000, 0.3, 355, 510, 7850), string.Empty);
+
+            double sigmaMax = sec.GetMaxSigma(0, 10656502.7, 0);
+            double sigmaMin = sec.GetMinSigma(0, 10656502.7, 0);
+            double expSigmaMax = 24.71;
+            double expSigmaMin = -27.71;
+
+            Assert.IsTrue(Math.Abs(sigmaMax - expSigmaMax) / sigmaMax < 0.001);
+            Assert.IsTrue(Math.Abs(sigmaMin - expSigmaMin) / sigmaMin < 0.001);
+        }
+
+        [TestMethod]
+        public void SectionCHS_Sigma1()
+        {
+            double d = 300;         
+            double t = 8;
+
+            SteelSectionCHS sec = new SteelSectionCHS(d, t, new SteelMaterial("steel", 210000, 0.3, 355, 510, 7850), string.Empty);
+
+            double sigmaMax = sec.GetMaxSigma(0, 11129770.82, 0);
+            double sigmaMin = sec.GetMinSigma(0, 11129770.82, 0);
+            double expSigmaMax = 21.328;
+            double expSigmaMin = -21.328;
+
+            Assert.IsTrue(Math.Abs(sigmaMax - expSigmaMax) / sigmaMax < 0.001);
+            Assert.IsTrue(Math.Abs(sigmaMin - expSigmaMin) / sigmaMin < 0.001);
+        }
+
+        [TestMethod]
+        public void SectionRHS_Sigma1()
+        {
+            double h = 300;
+            double b = 200;
+            double t = 8;
+
+            SteelSectionRHS sec = new SteelSectionRHS(h, b, t, t, t, t, new SteelMaterial("steel", 210000, 0.3, 355, 510, 7850), string.Empty);
+
+            double sigmaMax1 = sec.GetMaxSigma(15000, 894116.79, 0);
+            double sigmaMin1 = sec.GetMinSigma(15000, 894116.79, 0);
+            double expSigmaMax1 = 3.295;
+            double expSigmaMin1 = 0.579;
+
+            double sigmaMax2 = sec.GetMaxSigma(6250, 1005881.39, 0);
+            double sigmaMin2 = sec.GetMinSigma(6250, 1005881.39, 0);
+            double expSigmaMax2 = 2.335;
+            double expSigmaMin2 = -0.721;
+
+            Assert.IsTrue(Math.Abs(sigmaMax1 - expSigmaMax1) / sigmaMax1 < 0.001);
+            Assert.IsTrue(Math.Abs(sigmaMin1 - expSigmaMin1) / sigmaMin1 < 0.001);
+            Assert.IsTrue(Math.Abs(sigmaMax2 - expSigmaMax2) / sigmaMax2 < 0.001);
+            Assert.IsTrue(Math.Abs(sigmaMin2 - expSigmaMin2) / sigmaMin2 < 0.001);
         }
 
         [TestMethod]
@@ -744,6 +869,36 @@ namespace ModelObjectTest
         }
 
         [TestMethod]
+        public void SectionC_Test2()
+        {
+            // UPN 300 ArcelorMittal
+            double h = 300.0;
+            double width = 100.0;
+            double flangeThickness = 16.0;
+            double webThickness = 10.0;
+            double radius1 = 16.0;
+            double radius2 = 8.0;
+            SectionC sec = new SteelSectionC(h, webThickness, width, flangeThickness, width, flangeThickness, new SteelMaterial("steel", 200000, 0.3, 355, 510, 7850), 
+                string.Empty, Section.SectionTypes.Rolled, Section.FormedTypes.HotFinished, radius1, radius2);
+
+            double A = 5880;
+            double Jyy = 4950000;   // noi non consideriamo l'inclinazione
+            double Jxx = 80300000;
+            double Welx = 535000;
+            double Wplx = 632000;
+            double Jt = 374000;
+            double Jw = 69100000000;
+
+            Assert.AreEqual(Math.Abs(A / sec.Area - 1), 0, 0.02);
+            Assert.AreEqual(Math.Abs(Jyy / sec.J22 - 1), 0, 0.11);
+            Assert.AreEqual(Math.Abs(Jxx / sec.J11 - 1), 0, 0.03);
+            Assert.AreEqual(Math.Abs(Welx / sec.Wel1) - 1, 0, 0.035);
+            Assert.AreEqual(Math.Abs(Wplx / sec.Wpl1) - 1, 0, 0.02);
+            Assert.AreEqual(Jt / sec.Jt - 1.0, 0, 0.057);
+            Assert.AreEqual(Jw / sec.Jw - 1, 0, 0.14);
+        }
+
+        [TestMethod]
         [TestCategory("Fail: Not implemented Test")]
         public void SectionL_Test1()
         {
@@ -788,8 +943,8 @@ namespace ModelObjectTest
             SteelSectionL sec = new SteelSectionL(b, tb, h, tw, new SteelMaterial("steel", 200000, 0.3, 355, 510, 7850), string.Empty);
 
             double A = 56800;
-            double J1 = 517472668.5153;
-            double J2 = 1951689772.799;
+            double J2 = 517472668.5153;
+            double J1 = 1951689772.799;
             //double Wel1 = 2368295.77;
             //double Wel2 = 5465136.457;
 
@@ -800,12 +955,83 @@ namespace ModelObjectTest
             double JwStraus = 1.64361e12;
 
             Assert.AreEqual(A, sec.Area);
-            Assert.AreEqual(Math.Abs(J2 / sec.Jyy) - 1, 0, 0.001);
-            Assert.AreEqual(Math.Abs(J1 / sec.Jxx) - 1, 0, 0.001);
+            Assert.AreEqual(Math.Abs(J2 / sec.J22) - 1, 0, 0.001);
+            Assert.AreEqual(Math.Abs(J1 / sec.J11) - 1, 0, 0.001);
             /*Assert.AreEqual(Math.Abs(Wel2 / sec.Wel22Min) - 1, 0, 0.001); --> SAP ERRATO
             Assert.AreEqual(Math.Abs(Wel1 / sec.Wel11Min) - 1, 0, 0.001); --> SAP ERRATO*/
             Assert.AreEqual(Jt / sec.Jt - 1.0, 0, 0.05);
             Assert.AreEqual(JwStraus / sec.Jw - 1, 0, 0.06);
+        }
+
+        [TestMethod]
+        [TestCategory("Fail: Not implemented Test")]
+        public void SectionL_Test4()
+        {
+            double h = 200;
+            double tw = 10;
+            double b = 200;
+            double tb = 10;
+            SteelSectionL sec = new SteelSectionL(b, tb, h, tw, new SteelMaterial("steel", 200000, 0.3, 355, 510, 7850), string.Empty);
+
+            double A = 3900;
+            double jxx = 15476090;
+            double jyy = 15476090;
+            double j11 = 24732500;
+            double j22 = 6219600;
+            double r2 = 79.6;
+            double r1 = 39.9;
+            double angle = Math.PI / 4;
+
+            Assert.AreEqual(A, sec.Area);
+            Assert.AreEqual(angle, sec.AngleX1);
+            Assert.AreEqual(Math.Abs(jxx / sec.Jxx) - 1, 0, 0.001);
+            Assert.AreEqual(Math.Abs(jyy / sec.Jyy) - 1, 0, 0.001);
+            Assert.AreEqual(Math.Abs(j11 / sec.J11) - 1, 0, 0.001);
+            Assert.AreEqual(Math.Abs(j22 / sec.J22) - 1, 0, 0.001);
+            Assert.AreEqual(Math.Abs(r1 / sec.R11) - 1, 0, 0.001);
+            Assert.AreEqual(Math.Abs(r2 / sec.R22) - 1, 0, 0.001);
+        }
+
+        [TestMethod]
+        [TestCategory("Fail: Not implemented Test")]
+        public void SectionL_Test5()
+        {
+            double h = 200;
+            double tw = 10;
+            double b = 200;
+            double tb = 20;
+            SteelSectionL sec = new SteelSectionL(b, tb, h, tw, new SteelMaterial("steel", 200000, 0.3, 355, 510, 7850), string.Empty);
+
+            double A = 5800;
+            double jyy = 24551782;
+            double jxx = 17407126;
+            double j11 = 24732500;
+            double j22 = 6219600;
+
+            Assert.AreEqual(A, sec.Area);
+            Assert.AreEqual(Math.Abs(jxx / sec.Jxx) - 1, 0, 0.001);
+            Assert.AreEqual(Math.Abs(jyy / sec.Jyy) - 1, 0, 0.001);
+            Assert.AreEqual(Math.Abs(j11 / sec.J11) - 1, 0, 0.001);
+            Assert.AreEqual(Math.Abs(j22 / sec.J22) - 1, 0, 0.001);
+        }
+
+        [TestMethod]
+        [TestCategory("Fail: Not implemented Test")]
+        public void SectionL_Test6()
+        {
+            double h = 20.01;
+            double tw = 0.1;
+            double b = 200;
+            double tb = 20;
+            SteelSectionL sec = new SteelSectionL(b, tb, h, tw, new SteelMaterial("steel", 200000, 0.3, 355, 510, 7850), string.Empty);
+
+            double A = 4000.01;
+            double jyy = 133334.3;
+            double jxx = 13333433;
+
+            Assert.AreEqual(Math.Abs(A/ sec.Area) -1, 0, 0.001);
+            Assert.AreEqual(Math.Abs(jxx / sec.Jxx) - 1, 0, 0.001);
+            Assert.AreEqual(Math.Abs(jyy / sec.Jyy) - 1, 0, 0.001);
         }
     }
 }

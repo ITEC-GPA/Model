@@ -8,9 +8,7 @@ namespace GPC.Model.FEM.Attributes
     [Serializable]
     public abstract class LoadCaseAttribute : Attribute, ISerializable
     {
-        private string _loadCaseName;
-
-        public string LoadCaseName => _loadCaseName;
+        public string LoadCaseName => _caseName;
 
         public LoadCaseAttribute(string loadCaseName)
             : this(loadCaseName, string.Empty, Guid.NewGuid())
@@ -18,22 +16,22 @@ namespace GPC.Model.FEM.Attributes
 
         }
 
-        public LoadCaseAttribute(string loadCaseName, string name) 
-            : this(loadCaseName, name, Guid.NewGuid())
+        public LoadCaseAttribute(string loadCaseName, string attributeName) 
+            : this(loadCaseName, attributeName, Guid.NewGuid())
         {
 
         }
 
         public LoadCaseAttribute(string loadCaseName, string name, Guid guid) 
-            : base(guid, name)
+            : base(loadCaseName, name, guid)
         {
-            _loadCaseName = String.IsNullOrEmpty(loadCaseName) || String.IsNullOrWhiteSpace(loadCaseName) ? throw new ArgumentNullException() : loadCaseName;
+
         }
 
         public LoadCaseAttribute(LoadCaseAttribute loadCaseAttribute)
-            : base(loadCaseAttribute.Guid, loadCaseAttribute.Name)
+            : base(loadCaseAttribute.LoadCaseName, loadCaseAttribute.Name, loadCaseAttribute.Guid)
         {
-            _loadCaseName = loadCaseAttribute.LoadCaseName;
+
         }
 
 
@@ -41,7 +39,7 @@ namespace GPC.Model.FEM.Attributes
         protected LoadCaseAttribute(SerializationInfo info, StreamingContext context) 
             : base(info, context)
         {
-            _loadCaseName = (string)info.GetValue("LoadCaseName", typeof(string));
+            
         }
 
         public override bool Equals(object obj)
@@ -49,25 +47,24 @@ namespace GPC.Model.FEM.Attributes
             if (ReferenceEquals(this, obj))
                 return true;
 
-            LoadCaseAttribute lca = obj as LoadCaseAttribute;
-
-            return !(obj is null) && _loadCaseName.Equals(lca._loadCaseName) && base.Equals(obj);
+            return (obj is LoadCaseAttribute objCasted) && base.Equals(objCasted);
         }
 
 
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             base.GetObjectData(info, context);
-            info.AddValue("LoadCaseName", _loadCaseName);
         }
 
 
         public override int GetHashCode()
         {
-            int hashCode = -23;
-            hashCode = hashCode * -17 + base.GetHashCode();
-            hashCode = hashCode * -17 + EqualityComparer<string>.Default.GetHashCode(_loadCaseName);
-            return hashCode;
+            unchecked
+            {
+                int hashCode = -23;
+                hashCode = hashCode * -17 + base.GetHashCode();
+                return hashCode; 
+            }
         }
 
 
@@ -75,11 +72,13 @@ namespace GPC.Model.FEM.Attributes
         #region Override Operator
         public static bool operator ==(LoadCaseAttribute obj1, LoadCaseAttribute obj2)
         {
+            if (obj1 is null)
+            {
+                return obj2 is null;
+            }
+
             if (ReferenceEquals(obj1, obj2))
                 return true;
-
-            if (obj1 is null || obj2 is null)
-                return false;
 
             return obj1.Equals(obj2);
         }

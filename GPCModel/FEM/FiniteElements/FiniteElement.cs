@@ -7,6 +7,7 @@ using GPC.Model.FEM.Attributes;
 using GPC.Model.Results;
 using mnl = MathNet.Numerics.LinearAlgebra;
 using System.ComponentModel;
+using GPC.Model.FEM.Collections;
 
 namespace GPC.Model.FEM.FiniteElements
 {
@@ -27,8 +28,8 @@ namespace GPC.Model.FEM.FiniteElements
         //local stiffness matrix of the element in local coordinates
         protected mnl.Matrix<double> _kElementLocalCoord;
         
-        protected List<LoadCaseAttribute> _attributesLoadCase;
-        protected List<FreedomCaseAttribute> _attributesFreedomCase;
+        protected AttributesCollection<LoadCaseAttribute> _attributesLoadCase;
+        protected AttributesCollection<FreedomCaseAttribute> _attributesFreedomCase;
 
         //contains informations about section, thickness, material etc of the element
         protected ElementProperty _property;
@@ -103,8 +104,8 @@ namespace GPC.Model.FEM.FiniteElements
         /// </summary>
         public mnl.Matrix<double> KElementLocalCoord => _kElementLocalCoord;
         
-        public List<LoadCaseAttribute> AttributesLoadCase => _attributesLoadCase;
-        public List<FreedomCaseAttribute> AttributesFreedomCase => _attributesFreedomCase;
+        public AttributesCollection<LoadCaseAttribute> AttributesLoadCase => _attributesLoadCase;
+        public AttributesCollection<FreedomCaseAttribute> AttributesFreedomCase => _attributesFreedomCase;
         public IEnumerable<FiniteElementResult> Results => _results;
 
         #endregion
@@ -116,8 +117,8 @@ namespace GPC.Model.FEM.FiniteElements
         {
             _nodesGlobal = nodes;
             _DOF = new SortedSet<Solver.DOF>();
-            _attributesLoadCase = new List<LoadCaseAttribute>();
-            _attributesFreedomCase = new List<FreedomCaseAttribute>();
+            _attributesLoadCase = new AttributesCollection<LoadCaseAttribute>();
+            _attributesFreedomCase = new AttributesCollection<FreedomCaseAttribute>();
 
             _results = new ModelObjectSet<FiniteElementResult>(EqualityComparer<ElementResult>.Default); // comparer di ElementResult, usa solo il case come comparatore
         }
@@ -138,6 +139,19 @@ namespace GPC.Model.FEM.FiniteElements
 
             _property = property;
         }
+
+
+        public LoadCaseAttribute GetLoadCaseAttribute(string loadCaseName)
+        {
+            return (LoadCaseAttribute)_attributesLoadCase.GetElementByCaseName(loadCaseName);
+        }
+
+
+        public FreedomCaseAttribute GetFreedomCaseAttribute(string freedomCaseName)
+        {
+            return (FreedomCaseAttribute)_attributesFreedomCase.GetElementByCaseName(freedomCaseName);
+        }
+
 
         public abstract FiniteElement Duplicate(ElementProperty property, List<LoadCaseAttribute> lcAttributes, List<FreedomCaseAttribute> fcAttributes);
 

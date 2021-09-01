@@ -8,12 +8,12 @@ namespace GPC.Model.Sections
     {
         #region Variables
 
-        protected double _h;
-        protected double _tw;
-        protected double _lengthBottom;
-        protected double _tBottom;
-        protected double _lengthTop;
-        protected double _tTop;
+        protected readonly double _h;
+        protected readonly double _tw;
+        protected readonly double _lengthBottom;
+        protected readonly double _tBottom;
+        protected readonly double _lengthTop;
+        protected readonly double _tTop;
 
         #endregion
 
@@ -53,9 +53,13 @@ namespace GPC.Model.Sections
                 _isSymmetricAlongXLocalAxis = true;
             _isSymmetricAlongYLocalAxis = false;
 
-            ThinWall web = new ThinWall(height, thicknessWeb, Math.PI / 2, new Point2d(thicknessWeb / 2, height / 2));
-            ThinWall flangeTop = new ThinWall(LengthTop - ThicknessWeb, ThicknessTop, 0, new Point2d(ThicknessWeb + (LengthTop - ThicknessWeb) / 2, ThicknessBottom + HeightWeb + ThicknessTop / 2));
-            ThinWall flangeBottom = new ThinWall(LengthBottom - ThicknessWeb, ThicknessBottom, 0, new Point2d(ThicknessWeb + (LengthBottom - ThicknessWeb) / 2, ThicknessBottom / 2));
+            ThinWall web = new ThinWall(height, thicknessWeb, Math.PI / 2);
+            ThinWall flangeTop = new ThinWall(LengthTop - ThicknessWeb, ThicknessTop, 0);
+            ThinWall flangeBottom = new ThinWall(LengthBottom - ThicknessWeb, ThicknessBottom, 0);
+
+            Points = new Point2d[] { new Point2d(thicknessWeb / 2, height / 2),
+                new Point2d(ThicknessWeb + (LengthTop - ThicknessWeb) / 2, ThicknessBottom + HeightWeb + ThicknessTop / 2),
+                new Point2d(ThicknessWeb + (LengthBottom - ThicknessWeb) / 2, ThicknessBottom / 2)};
 
             ThinWalls = new ThinWall[] { web, flangeBottom, flangeTop };
         }

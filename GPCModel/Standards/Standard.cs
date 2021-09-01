@@ -20,15 +20,17 @@ namespace GPC.Model.Standards
 
         }
 
-        /// <summary>
-        /// Get all the combinations of the loadCaseBase <paramref name="loadCases"/> with the options of generation <paramref name="options"/>
-        /// </summary>
-        /// <param name="name">The name of the collection of combinations</param>
-        /// <param name="loadCases">The array of load case base to combine</param>
-        /// <param name="options">The options of combinations parameter</param>
-        /// <returns>The Combination collections</returns>
-        public abstract CombinationsCollection CreateCombinations(LoadCaseBase[] loadCases, CombinationsOptions options, string name = "cmb");
 
-
+        public interface ICombinationsGenerator
+        {
+            /// <summary>
+            /// Get all the combinations of the loadCaseBase <paramref name="loadCases"/> with the options of generation <paramref name="options"/>
+            /// </summary>
+            /// <param name="prefix">The common prefix for each combination in the collection</param>
+            /// <param name="loadCases">The array of load case base to combine</param>
+            /// <param name="options">The options of combinations parameter</param>
+            /// <returns>The Combination collections</returns>
+            CombinationsCollection CreateCombinations(LoadCaseBase[] loadCases, CombinationsOptions options, string prefix = "cmb");
+        }
     }
 }

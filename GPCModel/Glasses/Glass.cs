@@ -41,9 +41,10 @@ namespace GPC.Model.Glasses
 
         public override int GetHashCode()
         {
-            int hashCode = 23;
-            hashCode = hashCode * -17 + base.GetHashCode();
-            return hashCode;
+            unchecked
+            {
+                return -391 * base.GetHashCode(); 
+            }
         }
 
         public static bool operator ==(Glass obj1, Glass obj2)

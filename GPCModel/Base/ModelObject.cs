@@ -81,10 +81,10 @@ namespace GPC.Model
         /// <returns><see langword="True"/> if <paramref name="obj"/> have the same <see cref="Name"/> of this object </returns>
         public override bool Equals(object obj)
         {
-            if (obj is null || !(obj is ModelObject))
+            if (obj is null)
                 return false;
 
-            return _name == (obj as ModelObject)._name;
+            return (obj is ModelObject objCasted) && objCasted._name == _name;
         }
 
         public override int GetHashCode()
