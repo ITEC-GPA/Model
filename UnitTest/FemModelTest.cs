@@ -197,7 +197,7 @@ namespace FemTest
 
         [TestMethod]
         [TestCategory("Mesh")]
-        public void Mesh1()
+        public void AddShape1()
         {
             // Arrange
 
@@ -272,7 +272,7 @@ namespace FemTest
 
         [TestMethod]
         [TestCategory("Mesh")]
-        public void Mesh2()
+        public void AddShape2()
         {
             double maximumEdgeLenght = 20;
             FemModel femModel = new FemModel();
@@ -312,7 +312,7 @@ namespace FemTest
 
         [TestMethod]
         [TestCategory("Mesh")]
-        public void Mesh3()
+        public void AddShape3()
         {
             double meshSize = 100;
             double maximumEdgeLenght = meshSize*1.2;
@@ -357,7 +357,7 @@ namespace FemTest
 
         [TestMethod]
         [TestCategory("Mesh")]
-        public void Mesh4()
+        public void AddShape4()
         {
             double maximumEdgeLenght = 55;
 
@@ -397,7 +397,7 @@ namespace FemTest
 
         [TestMethod]
         [TestCategory("Mesh")]
-        public void Mesh5()
+        public void AddShape5()
         {
 
             double majorSide = 2000;
@@ -467,8 +467,85 @@ namespace FemTest
 
         }
 
+        [TestMethod]
+        [TestCategory("Mesh")]
+        public void AddShape6()
+        {
+
+            double majorSide = 2000;
+            double minorSide = 1000;
+            double loadHeight1 = 800;
+            double loadHeight2 = 1200;
+            double loadHeight3 = 1500;
+
+            // Arrange
+            FemModel femModel = new FemModel();
+
+            Shape s1 = CreateSimpleShape(minorSide, majorSide);
+
+            GlassMaterial gm = new GlassMaterialAstm("gp1", 1, 0.2, 3, 4, 5, 6, 0.008, 0.008, 9);
+            MonolithicGlassProperty pp = new MonolithicGlassProperty(1, 2, gm.GetIsotropicFemMaterial(), "gp1");
+            femModel.AddProperty(pp);
+
+            Mesh.GenerateOptions meshOptions = new Mesh.GenerateOptions
+            {
+                MeshSize = 40
+            };
+
+            // Load
+            LoadCase lcPressure = new LoadCase("Wind1", GPC.Model.LoadCases.LoadCase.LoadCaseTypes.WindPressure);
+
+            Shape loadShape1 = new Shape(new Polygon3d() { new Point3d(0, loadHeight1, 0),
+                                                           new Point3d(minorSide, loadHeight1, 0),
+                                                           new Point3d(minorSide, loadHeight2, 0),
+                                                           new Point3d(0, loadHeight2, 0) });
+
+            Shape loadShape2 = new Shape(new Polygon3d() { new Point3d(0, loadHeight1, 0),
+                                                           new Point3d(minorSide, loadHeight1, 0),
+                                                           new Point3d(minorSide, loadHeight3, 0),
+                                                           new Point3d(0, loadHeight3, 0) });
 
 
+            NormalAreaLoad punctualLoadWp1 = new NormalAreaLoad(-1, loadShape1, lcPressure);
+            NormalAreaLoad punctualLoadWp2 = new NormalAreaLoad(-10 / 1000.0, loadShape2, lcPressure);
+
+            // Act
+            femModel.AddShape(s1, pp.Name, meshOptions, new List<Load>() { punctualLoadWp1, punctualLoadWp2 }, null);
+
+
+            // Assert
+            var plates = femModel.GetElements();
+
+            Console.WriteLine($"Elements with attribute {plates.Where(i => i.AttributesLoadCase.Count() > 0).ToList().Count()}");
+
+            Assert.IsTrue(plates.Where(i => i.AttributesLoadCase.Count() > 0).ToList().Count() > 0);
+
+            Mesh loadMesh = new Mesh();
+
+            bool failTest = false;
+            foreach (var plate in femModel.GetElements())
+            {
+                if (plate.AttributesLoadCase.Count > 0)
+                {
+                    loadMesh.AddFaceMesh(plate.Nodes.Select(i => i.Position).ToArray());
+
+                    foreach (var node in plate.Nodes)
+                    {
+                        if (!loadShape2.IsPointInside(node.Position))
+                        {
+                            Console.WriteLine(plate.Id);
+                            failTest = true;
+                        }
+                    }
+                }
+            }
+
+            ExportMesh(loadMesh);
+
+            if (failTest)
+                Assert.Fail();
+
+        }
 
         [TestMethod]
         [TestCategory("Elements")]
@@ -504,7 +581,6 @@ namespace FemTest
 
         }
 
-
         [TestMethod]
         [TestCategory("Missing Assert")]
         [TestCategory("Constrain")]
@@ -523,9 +599,6 @@ namespace FemTest
             stopWatch.Stop();
             Debug.WriteLine(stopWatch.ElapsedMilliseconds, "R2");
         }
-
-
-
 
         [TestMethod]
         [TestCategory("Attributes")]
@@ -597,6 +670,7 @@ namespace FemTest
             }
             
         }
+
 
         #endregion
 
