@@ -1229,10 +1229,15 @@ namespace GPC.Model.FEM
         /// <param name="groupName"></param>
         /// <exception cref="KeyNotFoundException">If a <see cref="MeshVertex"/>.Id of <paramref name="restrainMeshEntityMap"/> is not found in the <paramref name="mesh"/> vertices ids</exception>
         /// <remarks>The instances of <see cref="LoadCaseBase"/> and <see cref="FreedomCase"/> will be replaced with the one in the <see cref="FemModel._loadCases"/> and <see cref="FemModel._freedomCases"/>  </remarks>
-        public virtual bool AddMesh(Mesh mesh, string platePropertyName, string brickPropertyName, Dictionary<IPointLoad, int[]> vertexLoadMeshEntityMap,
-            Dictionary<ILineLoad, int[]> vertexLineLoadMeshEntityMap, Dictionary<IAreaLoad, int[]> plateLoadMeshEntityMap,
-            Dictionary<GeometryRestrain, int[]> restrainMeshEntityMap, out Dictionary<int, int> nodesNewIndexMap, out Dictionary<int, int> platesNewIndexMap,
-            out Dictionary<int, int> brickNewIndexMap, string groupName = "")
+        public virtual bool AddMesh(Mesh mesh, string platePropertyName, string brickPropertyName, 
+                                    Dictionary<IPointLoad, int[]> vertexLoadMeshEntityMap,
+                                    Dictionary<ILineLoad, int[]> vertexLineLoadMeshEntityMap, 
+                                    Dictionary<IAreaLoad, int[]> plateLoadMeshEntityMap,
+                                    Dictionary<GeometryRestrain, int[]> restrainMeshEntityMap, 
+                                    out Dictionary<int, int> nodesNewIndexMap, 
+                                    out Dictionary<int, int> platesNewIndexMap,
+                                    out Dictionary<int, int> brickNewIndexMap, 
+                                    string groupName = "")
         {
             if (mesh is null)
                 throw new ArgumentNullException(nameof(mesh));
