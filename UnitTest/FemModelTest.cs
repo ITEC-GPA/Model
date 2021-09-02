@@ -395,6 +395,78 @@ namespace FemTest
         }
 
 
+        [TestMethod]
+        [TestCategory("Mesh")]
+        public void Mesh5()
+        {
+
+            double majorSide = 2000;
+            double minorSide = 1000;
+            double loadHeight = 500;
+            double loadWidth = 300 / 2.0;
+
+            // Arrange
+            FemModel femModel = new FemModel();
+
+            Shape s1 = CreateSimpleShape(minorSide, majorSide);
+
+            GlassMaterial gm = new GlassMaterialAstm("gp1", 1, 0.2, 3, 4, 5, 6, 0.008, 0.008, 9);
+            MonolithicGlassProperty pp = new MonolithicGlassProperty(1, 2, gm.GetIsotropicFemMaterial(), "gp1");
+            femModel.AddProperty(pp);
+
+            Mesh.GenerateOptions meshOptions = new Mesh.GenerateOptions
+            {
+                MeshSize = 40
+            };
+
+            // Load
+            LoadCase lcPressure = new LoadCase("Wind", GPC.Model.LoadCases.LoadCase.LoadCaseTypes.WindPressure);
+
+            LineLoad load1 = new LineLoad(0, 0, 1, 0, 0, 0,
+                                          new Line3d(new Point3d(0, loadHeight + loadWidth, 0), new Point3d(minorSide, loadHeight + loadWidth, 0)),
+                                          lcPressure);
+
+            var areaLoad = load1.ConvertToNormalAreaLoad(s1.GetPlane(), loadWidth * 2.0);
+
+
+            // Act
+            femModel.AddShape(s1, pp.Name, meshOptions, new List<Load>() { areaLoad }, null);
+
+
+            // Assert
+            var plates = femModel.GetElements();
+            
+            Console.WriteLine($"Elements with attribute {plates.Where(i => i.AttributesLoadCase.Count() > 0).ToList().Count()}" );
+
+            Assert.IsTrue(plates.Where(i => i.AttributesLoadCase.Count() > 0).ToList().Count() > 0);
+
+            Mesh loadMesh = new Mesh();
+
+            bool failTest = false;
+            foreach (var plate in femModel.GetElements())
+            {
+                if (plate.AttributesLoadCase.Count > 0)
+                {
+                    loadMesh.AddFaceMesh(plate.Nodes.Select(i => i.Position).ToArray());
+
+                    foreach(var node in plate.Nodes)
+                    {
+                        if (!areaLoad.Shape.IsPointInside(node.Position))
+                        {
+                            Console.WriteLine(plate.Id);
+                            failTest = true;
+                        }
+                    }
+                }
+            }
+
+            ExportMesh(loadMesh);
+
+            if (failTest)
+                Assert.Fail();
+
+        }
+
 
 
 
