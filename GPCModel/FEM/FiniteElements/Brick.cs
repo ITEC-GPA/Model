@@ -70,6 +70,12 @@ namespace GPC.Model.FEM.FiniteElements
             }
         }
 
+
+        public virtual bool AddLoadCaseAttribute(IBrickLoadCaseAttribute attribute, out bool replaced)
+        {
+            return _attributesLoadCase.Add((LoadCaseAttribute)attribute, out replaced);
+        }
+
         public virtual bool AddLoadCaseAttribute(IBrickLoadCaseAttribute attribute)
         {
             return _attributesLoadCase.Add((LoadCaseAttribute)attribute);

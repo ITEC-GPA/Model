@@ -218,12 +218,11 @@ namespace GPC.Model.FEM.FiniteElements
             return f;
         }
 
-        public override void AddLoadCaseAttribute(IPlateLoadCaseAttribute attribute)
+        public override bool AddLoadCaseAttribute(IPlateLoadCaseAttribute attribute)
         {
             //the attribute will add to the 2 finite element, Membrane and Discrete Kirchoff (DK). The attribute will have its impact in each finite element.
             //The nodal forces will be added
-            _membranal.AddLoadCaseAttribute(attribute);
-            _flexural.AddLoadCaseAttribute(attribute);
+            return _membranal.AddLoadCaseAttribute(attribute) && _flexural.AddLoadCaseAttribute(attribute);
         }
 
         //TODO: Da ottimizzare/scrivere

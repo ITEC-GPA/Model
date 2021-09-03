@@ -5,6 +5,7 @@ using GPC.Model.FEM.Attributes;
 using GPC.Utilities.Extensions;
 using GPC.Model.Results;
 using System.ComponentModel;
+using GPC.Model.FEM.Collections;
 
 namespace GPC.Model.FEM
 {
@@ -16,8 +17,8 @@ namespace GPC.Model.FEM
         #region Variables
 
         private Point3d _position;
-        private readonly List<INodeLoadCaseAttribute> _attributesLoadCase;
-        private readonly List<INodeFreedomCaseAttribute> _attributesFreedomCase;
+        private readonly AttributesCollection<LoadCaseAttribute> _attributesLoadCase;
+        private readonly AttributesCollection<FreedomCaseAttribute> _attributesFreedomCase;
         private readonly ModelObjectSet<NodeResult> _results;
 
         public event PropertyChangedEventHandler PropertyChanged;
@@ -63,8 +64,8 @@ namespace GPC.Model.FEM
             }
         }
 
-        public List<INodeFreedomCaseAttribute> AttributesFreedomCase => _attributesFreedomCase;
-        public List<INodeLoadCaseAttribute> AttributesLoadCase => _attributesLoadCase;
+        public AttributesCollection<FreedomCaseAttribute> AttributesFreedomCase => _attributesFreedomCase;
+        public AttributesCollection<LoadCaseAttribute> AttributesLoadCase => _attributesLoadCase;
         public IEnumerable<NodeResult> Results => _results;
 
         #endregion
@@ -76,8 +77,8 @@ namespace GPC.Model.FEM
             
             DOF = new SortedSet<Solver.DOF>();
             
-            _attributesLoadCase = new List<INodeLoadCaseAttribute>();
-            _attributesFreedomCase = new List<INodeFreedomCaseAttribute>();
+            _attributesLoadCase = new AttributesCollection<LoadCaseAttribute>();
+            _attributesFreedomCase = new AttributesCollection<FreedomCaseAttribute>();
 
             _results = new ModelObjectSet<NodeResult>(EqualityComparer<ElementResult>.Default); // comparer di ElementResult, usa solo il case come comparatore
         }
@@ -125,14 +126,25 @@ namespace GPC.Model.FEM
             return "ID = " + Id + " Name = " + Name + "  X=" + Position.X + " Y=" + Position.Y + " Z=" + Position.Z;
         }
 
-        public void AddAttribute(INodeFreedomCaseAttribute attribute)
+
+        public virtual bool AddAttribute(INodeFreedomCaseAttribute attribute, out bool replace)
         {
-            _attributesFreedomCase.Add(attribute);
+            return _attributesFreedomCase.Add((FreedomCaseAttribute)attribute, out replace);
         }
 
-        public void AddAttribute(INodeLoadCaseAttribute attribute)
+        public virtual bool AddAttribute(INodeFreedomCaseAttribute attribute)
         {
-            _attributesLoadCase.Add(attribute);
+            return _attributesFreedomCase.Add((FreedomCaseAttribute)attribute);
+        }
+
+        public virtual bool AddAttribute(INodeLoadCaseAttribute attribute, out bool replace)
+        {
+            return _attributesLoadCase.Add((LoadCaseAttribute)attribute, out replace);
+        }
+
+        public virtual bool AddAttribute(INodeLoadCaseAttribute attribute)
+        {
+            return _attributesLoadCase.Add((LoadCaseAttribute)attribute);
         }
 
         public void AddResult(NodeResult result)
@@ -185,11 +197,11 @@ namespace GPC.Model.FEM
 
                 foreach (var element in _attributesLoadCase)
                 {
-                    hashCode += -17 * EqualityComparer<INodeLoadCaseAttribute>.Default.GetHashCode(element);
+                    hashCode += -17 * EqualityComparer<LoadCaseAttribute>.Default.GetHashCode(element);
                 }
                 foreach (var element in _attributesFreedomCase)
                 {
-                    hashCode += -17 * EqualityComparer<INodeFreedomCaseAttribute>.Default.GetHashCode(element);
+                    hashCode += -17 * EqualityComparer<FreedomCaseAttribute>.Default.GetHashCode(element);
                 }
 
                 return hashCode;
