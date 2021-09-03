@@ -1128,14 +1128,31 @@ namespace GPC.Model.FEM
                 restrainNodeIdMapBuffer[restrains[index]] = restrainMeshEntityMap[restrains[index]].Select(i => nodesNewIndexMap[i]).ToArray();
             });
 
-            var task1 = Task.Run(() => Parallel.ForEach(Enumerable.Range(0, loads.Count()), actionLoad));
-            var task2 = Task.Run(() => Parallel.ForEach(Enumerable.Range(0, restrains.Count()), actionRestrain));
+            List<Task> tasks = new List<Task>();
 
-            Task.WhenAll(task1, task2);
+            if (loads != null)
+            {
+                tasks.Add(Task.Run(() => Parallel.ForEach(Enumerable.Range(0, loads.Count()), actionLoad)));
+            }
+            if (restrains != null)
+            {
+                tasks.Add(Task.Run(() => Parallel.ForEach(Enumerable.Range(0, restrains.Count()), actionRestrain)));
+            }
 
-            loadNodeIdMap = loadNodeIdMapBuffer;
-            loadPlateIdMap = loadNodeIdMapBuffer;
-            restrainNodeIdMap = restrainNodeIdMapBuffer;
+            Task.WhenAll(tasks);
+
+            loadNodeIdMap = null;
+            loadPlateIdMap = null;
+            restrainNodeIdMap = null;
+            if (loads != null)
+            {
+                loadNodeIdMap = loadNodeIdMapBuffer;
+                loadPlateIdMap = loadNodeIdMapBuffer;
+            }
+            if (restrains != null)
+            {
+                restrainNodeIdMap = restrainNodeIdMapBuffer;
+            }
 
         }
 
