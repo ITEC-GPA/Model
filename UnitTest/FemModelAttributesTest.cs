@@ -31,7 +31,7 @@ namespace FemTest
             Assert.IsTrue(gp.AttributesLoadCase.GetElementByCaseName("lc1").Name == "lc2");
             Assert.IsFalse(gp.AttributesLoadCase.GetElementByCaseName("lc1").Name == "lc1");
 
-
+            
         }
 
 
