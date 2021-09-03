@@ -123,7 +123,7 @@ namespace GPC.Model.FEM
 
         public override string ToString()
         {
-            return "ID = " + Id + " Name = " + Name + "  X=" + Position.X + " Y=" + Position.Y + " Z=" + Position.Z;
+            return $"ID={Id}; Name={Name}; X={Position.X}; Y={Position.Y}; Z={Position.Z}";
         }
 
 
