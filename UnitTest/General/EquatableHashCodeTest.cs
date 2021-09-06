@@ -105,7 +105,7 @@ namespace GeneralTest
 
 
         [TestMethod]
-        public void Test1()
+        public void GlassProperty1()
         {
             GlassMaterialEn16612 gm = new GlassMaterialEn16612("test", 10, 0.2, 30, GlassMaterialEn16612.GlassTypes.DrawnSheetGlass, GlassMaterialEn16612.SurfaceTreatments.AsProduced, GlassMaterialEn16612.PrestressTypes.Annealed, GlassMaterialEn16612.ManufactoringProcesses.HorizontalToughening, 20, 30);
             MonolithicGlass mg = new MonolithicGlass("test", 10, gm);
@@ -119,7 +119,7 @@ namespace GeneralTest
         }
 
         [TestMethod]
-        public void Test2()
+        public void GlassProperty2()
         {
             GlassMaterialEn16612 gm = new GlassMaterialEn16612("test", 10, 0.2, 30, GlassMaterialEn16612.GlassTypes.DrawnSheetGlass, GlassMaterialEn16612.SurfaceTreatments.AsProduced, GlassMaterialEn16612.PrestressTypes.Annealed, GlassMaterialEn16612.ManufactoringProcesses.HorizontalToughening, 20, 30);
 
@@ -137,7 +137,7 @@ namespace GeneralTest
         }
 
         [TestMethod]
-        public void Test3()
+        public void GlassProperty3()
         {
             GlassMaterialEn16612 gm1 = new GlassMaterialEn16612("test", 10, 0.2, 30, GlassMaterialEn16612.GlassTypes.DrawnSheetGlass, GlassMaterialEn16612.SurfaceTreatments.AsProduced, GlassMaterialEn16612.PrestressTypes.Annealed, GlassMaterialEn16612.ManufactoringProcesses.HorizontalToughening, 20, 30);
             GlassMaterialEn16612 gm2 = new GlassMaterialEn16612("test", 10, 0.2, 30, GlassMaterialEn16612.GlassTypes.DrawnSheetGlass, GlassMaterialEn16612.SurfaceTreatments.AsProduced, GlassMaterialEn16612.PrestressTypes.Annealed, GlassMaterialEn16612.ManufactoringProcesses.HorizontalToughening, 20, 30);
@@ -384,6 +384,24 @@ namespace GeneralTest
             Assert.IsTrue(rs1.Equals(rs2));
             Assert.IsTrue(rs1 == rs2);
             Assert.IsFalse(rs1 != rs2);
+        }
+
+        [TestMethod]
+        public void ResultNode1()
+        {
+            LoadCase lc1 = new LoadCase("lc", GPC.Model.LoadCases.LoadCase.LoadCaseTypes.SelfWeight);
+            LoadCase lc2 = new LoadCase("lc", GPC.Model.LoadCases.LoadCase.LoadCaseTypes.SelfWeight);
+
+            ResultDisplacement rd1 = new ResultDisplacement(0, 1, 2, 3, 0, 0);
+            ResultDisplacement rd2 = new ResultDisplacement(0, 1, 2, 3, 0, 0);
+
+            NodeResult nr1 = new NodeResult(lc1, CoordinateSystem.Global, rd1);
+            NodeResult nr2 = new NodeResult(lc2, CoordinateSystem.Global, rd2);
+
+            Assert.IsTrue(lc1.Equals(lc2));
+            Assert.IsTrue(rd1.Equals(rd2));
+            Assert.IsTrue(nr1.Equals(nr2));
+
         }
 
 

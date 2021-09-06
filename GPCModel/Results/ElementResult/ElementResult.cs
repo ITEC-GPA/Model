@@ -68,14 +68,11 @@ namespace GPC.Model.Results
 
         public override bool Equals(object obj)
         {
-            if (obj is null)
-                return false;
-
             if (ReferenceEquals(this, obj))
                 return true;
 
             // Coordinate system non messo nell'equals per scelta. Comparazione viene fatta solo su loadcase
-            return (obj is ElementResult other) && _case == other._case && base.Equals(other);
+            return (obj is ElementResult other) && _case.Equals(other._case) && base.Equals(other);
         }
 
 
