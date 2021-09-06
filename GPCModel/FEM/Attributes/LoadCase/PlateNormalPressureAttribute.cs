@@ -67,10 +67,13 @@ namespace GPC.Model.FEM.Attributes
 
         public override int GetHashCode()
         {
-            int hashCode = 23;
-            hashCode = hashCode * -17 + base.GetHashCode();
-            hashCode = hashCode * -17 + _pressure.GetHashCode();
-            return hashCode;
+            unchecked
+            {
+                int hashCode = 23;
+                hashCode = hashCode * -17 + base.GetHashCode();
+                hashCode = hashCode * -17 + _pressure.GetHashCode();
+                return hashCode; 
+            }
         }
 
         public override object Clone()

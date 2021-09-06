@@ -1,10 +1,12 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace GPC.Model.FEM.Attributes
 {
 
 
     /// <returns>Two <see cref="Attribute"/> are <see langword="true"/> if <see cref="Attribute.CaseName"/> are equals</returns>
+    [Serializable]
     public class AttributeEqualityComparer : EqualityComparer<Attribute>
     {
 

@@ -4,7 +4,7 @@ using System.Runtime.Serialization;
 
 namespace GPC.Model.FEM.Materials
 {
-
+    [Serializable]
     public class IsotropicFemMaterial : FemMaterial
     {
         protected readonly double _e;
@@ -54,10 +54,10 @@ namespace GPC.Model.FEM.Materials
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             base.GetObjectData(info, context);
-            info.AddValue("E", _e);
-            info.AddValue("Ni", _ni);
-            info.AddValue("G", _g);
-            info.AddValue("Alfa", _alpha);
+            info.AddValue("E", _e, typeof(double));
+            info.AddValue("Ni", _ni, typeof(double));
+            info.AddValue("G", _g, typeof(double));
+            info.AddValue("Alfa", _alpha, typeof(double));
         }
 
         public override Matrix<double> GetPlaneStress()

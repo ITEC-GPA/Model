@@ -7,6 +7,7 @@ using GPC.Model.FEM.Properties;
 using GPC.Model.Results;
 using mnl = MathNet.Numerics.LinearAlgebra;
 using GPC.Geometry;
+using System.Runtime.Serialization;
 
 namespace GPC.Model.FEM.FiniteElements
 {
@@ -16,7 +17,8 @@ namespace GPC.Model.FEM.FiniteElements
     /// </summary>
     [DebuggerDisplay("{" + nameof(GetDebuggerDisplay) + "(),nq}")]
     [System.ComponentModel.Description("Verrà messa abstract una volta che il fem è stabile")]
-    public class Plate : FiniteElement
+    [Serializable]
+    public class Plate : FiniteElement, ISerializable
     {
         // TODO: rendere abstract
 
@@ -43,6 +45,11 @@ namespace GPC.Model.FEM.FiniteElements
         public Plate(Node[] nodes) : base(nodes)
         {
 
+        }
+
+        public Plate(SerializationInfo info, StreamingContext context)
+            : base(info, context)
+        {
         }
 
         public override FiniteElement Duplicate(ElementProperty property, List<LoadCaseAttribute> lcAttributes, List<FreedomCaseAttribute> fdAttributes)
@@ -154,6 +161,11 @@ namespace GPC.Model.FEM.FiniteElements
             {
                 throw new NotImplementedException("This plate have nr of nodes different than 3 or 4");
             }
+        }
+
+        public override void GetObjectData(SerializationInfo info, StreamingContext context)
+        {
+            base.GetObjectData(info, context);
         }
 
         // GetNodalDisplacement()

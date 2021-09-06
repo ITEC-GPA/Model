@@ -8,12 +8,14 @@ using GPC.Model.Results;
 using mnl = MathNet.Numerics.LinearAlgebra;
 using System.ComponentModel;
 using GPC.Model.FEM.Collections;
+using System.Runtime.Serialization;
 
 namespace GPC.Model.FEM.FiniteElements
 {
     /// <summary>
     /// Each finite element should derive from this
     /// </summary>
+    [Serializable]
     public abstract class FiniteElement : FEMObject, INotifyPropertyChanged
     {
         #region Variables
@@ -122,6 +124,18 @@ namespace GPC.Model.FEM.FiniteElements
 
             _results = new ModelObjectSet<FiniteElementResult>(EqualityComparer<ElementResult>.Default); // comparer di ElementResult, usa solo il case come comparatore
         }
+
+        public FiniteElement(SerializationInfo info, StreamingContext context)
+            : base(info, context)
+        {
+            _results = (ModelObjectSet<FiniteElementResult>)info.GetValue("Result", typeof(ModelObjectSet<FiniteElementResult>));
+            _nodesGlobal = (Node[])info.GetValue("NodesGlobal", typeof(Node[]));
+            _nodesLocal = (Node[])info.GetValue("NodesLocal", typeof(Node[]));
+            _property = (ElementProperty)info.GetValue("Property", typeof(ElementProperty));
+            _attributesLoadCase = (AttributesCollection<LoadCaseAttribute>)info.GetValue("AttributesLoadCase", typeof(AttributesCollection<LoadCaseAttribute>));
+            _attributesFreedomCase = (AttributesCollection<FreedomCaseAttribute>)info.GetValue("AttributesFreedomCase", typeof(AttributesCollection<FreedomCaseAttribute>));
+        }
+
 
         #endregion
 
@@ -234,6 +248,7 @@ namespace GPC.Model.FEM.FiniteElements
         }
 
         #region EqualsAndHashCode
+
         public override bool Equals(object obj)
         {
             return obj is FiniteElement element &&
@@ -257,6 +272,21 @@ namespace GPC.Model.FEM.FiniteElements
                 return hashCode; 
             }
         }
+
+        public override void GetObjectData(SerializationInfo info, StreamingContext context)
+        {
+            base.GetObjectData(info, context);
+            info.AddValue("Result", _results, typeof(ModelObjectSet<FiniteElementResult>));
+            info.AddValue("NodesGlobal", _nodesGlobal, typeof(Node[]));
+            info.AddValue("NodesLocal", _nodesLocal, typeof(Node[]));
+            info.AddValue("Property", _property, typeof(ElementProperty));
+
+            info.AddValue("AttributesLoadCase", _attributesLoadCase, typeof(AttributesCollection<LoadCaseAttribute>));
+            info.AddValue("AttributesFreedomCase", _attributesFreedomCase, typeof(AttributesCollection<FreedomCaseAttribute>));
+
+        }
+
+
         #endregion
         #endregion
     }

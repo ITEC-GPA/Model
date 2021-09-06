@@ -439,7 +439,8 @@ namespace GPC.Model.Combinations
 
         #region Nested class
 
-        public sealed class LoadCaseCoefficient : IComparable<LoadCaseCoefficient>, IEquatable<LoadCaseCoefficient>
+        [Serializable]
+        public sealed class LoadCaseCoefficient : IComparable<LoadCaseCoefficient>, IEquatable<LoadCaseCoefficient>, ISerializable
         {
             private readonly LoadCaseBase _loadcase;
             private readonly double _coefficient;
@@ -452,6 +453,21 @@ namespace GPC.Model.Combinations
                 _loadcase = loadCase;
                 _coefficient = coefficient;
             }
+
+
+            public LoadCaseCoefficient(SerializationInfo info, StreamingContext context)
+            {
+                _loadcase = (LoadCaseBase)info.GetValue("Loadcase", typeof(LoadCaseBase));
+                _coefficient = (double)info.GetValue("Coefficient", typeof(double));
+            }
+
+
+            public void GetObjectData(SerializationInfo info, StreamingContext context)
+            {
+                info.AddValue("Loadcase", _loadcase);
+                info.AddValue("Coefficient", _coefficient);
+            }
+
 
             public override string ToString() => $"{String.Format("{0:0.0##}", Coefficient)}*{LoadCase.Name}";
 
@@ -511,6 +527,7 @@ namespace GPC.Model.Combinations
                     return hashCode; 
                 }
             }
+
 
             public static bool operator ==(LoadCaseCoefficient obj1, LoadCaseCoefficient obj2)
             {

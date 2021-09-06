@@ -46,6 +46,10 @@ namespace GPC.Model
 
         }
 
+        public override void GetObjectData(SerializationInfo info, StreamingContext context)
+        {
+            base.GetObjectData(info, context);
+        }
 
         /// <inheritdoc cref="ModelObjectEnumerable{T}.Add(T)" />
         /// <returns><see langword="True"/> if the element has been added

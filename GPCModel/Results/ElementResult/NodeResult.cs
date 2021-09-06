@@ -26,6 +26,17 @@ namespace GPC.Model.Results
             _stageId = stageId;
         }
 
+        public NodeResult(SerializationInfo info, StreamingContext context)
+            : base(info, context)
+        {
+            _result = (INodeResult)info.GetValue("Result", typeof(INodeResult));
+        }
+
+        public override void GetObjectData(SerializationInfo info, StreamingContext context)
+        {
+            base.GetObjectData(info, context);
+            info.AddValue("Result", _result, typeof(INodeResult));
+        }
 
 
         public override int GetHashCode()
@@ -39,6 +50,8 @@ namespace GPC.Model.Results
                 return hashCode;
             }
         }
+
+
 
         public override bool Equals(object obj)
         {
@@ -55,6 +68,7 @@ namespace GPC.Model.Results
 
             return _result.Equals(other.Result) && base.Equals(other);
         }
+
 
         public static bool operator ==(NodeResult obj1, NodeResult obj2)
         {

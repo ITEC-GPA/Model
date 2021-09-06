@@ -110,13 +110,16 @@ namespace GPC.Model.FEM.Attributes
 
         public override int GetHashCode()
         {
-            int hashCode = 23;
-            hashCode = hashCode * -17 + base.GetHashCode();
-            hashCode = hashCode * -17 + _p1.GetHashCode();
-            hashCode = hashCode * -17 + _p2.GetHashCode();
-            hashCode = hashCode * -17 + _p3.GetHashCode();
-            hashCode = hashCode * -17 + _coordinateSystem.GetHashCode();
-            return hashCode;
+            unchecked
+            {
+                int hashCode = 23;
+                hashCode = hashCode * -17 + base.GetHashCode();
+                hashCode = hashCode * -17 + _p1.GetHashCode();
+                hashCode = hashCode * -17 + _p2.GetHashCode();
+                hashCode = hashCode * -17 + _p3.GetHashCode();
+                hashCode = hashCode * -17 + _coordinateSystem.GetHashCode();
+                return hashCode; 
+            }
         }
 
 

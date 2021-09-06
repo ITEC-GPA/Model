@@ -5,6 +5,7 @@ using MathNet.Numerics.LinearAlgebra;
 namespace GPC.Model.FEM.Materials
 {
 
+    [Serializable]
     public abstract class FemMaterial : ModelObject
     {
         protected readonly double _density;
@@ -17,7 +18,7 @@ namespace GPC.Model.FEM.Materials
             _density = density < 0 ? throw new ArgumentException($"{nameof(density)} cannot be lower than zero") : density;
         }
 
-        protected FemMaterial(SerializationInfo info, StreamingContext context) 
+        public FemMaterial(SerializationInfo info, StreamingContext context) 
             : base(info, context)
         {
             _density = info.GetDouble("Density");
@@ -30,7 +31,7 @@ namespace GPC.Model.FEM.Materials
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             base.GetObjectData(info, context);
-            info.AddValue("Density", _density);
+            info.AddValue("Density", _density, typeof(double));
         }
     }
 }

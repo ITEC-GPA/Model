@@ -8,6 +8,7 @@ using GPC.Model.FEM.Attributes;
 
 namespace GPC.Model.FEM.Collections
 {
+    [Serializable]
     public class AttributesCollection<T> : ModelObjectSet<T> where T : Attributes.Attribute
     {
 
@@ -16,6 +17,17 @@ namespace GPC.Model.FEM.Collections
             _collection = new HashSet<T>(new AttributeEqualityComparer());
         }
 
+
+        public AttributesCollection(SerializationInfo info, StreamingContext context)
+            : base(info, context)
+        {
+
+        }
+
+        public override void GetObjectData(SerializationInfo info, StreamingContext context)
+        {
+            base.GetObjectData(info, context);
+        }
 
         /// <returns>True if the element has been added
         /// <para>False if the element has not been added.</para>

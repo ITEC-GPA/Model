@@ -73,8 +73,8 @@ namespace GPC.Model
 
         public virtual void GetObjectData(SerializationInfo info, StreamingContext context)
         {
-            info.AddValue("Guid", _guid);
-            info.AddValue("Name", _name);
+            info.AddValue("Guid", _guid, typeof(Guid));
+            info.AddValue("Name", _name, typeof(string));
         }
 
 

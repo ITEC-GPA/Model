@@ -6,12 +6,14 @@ using GPC.Utilities.Extensions;
 using GPC.Model.Results;
 using System.ComponentModel;
 using GPC.Model.FEM.Collections;
+using System.Runtime.Serialization;
 
 namespace GPC.Model.FEM
 {
     /// <summary>
     /// Rapresent a Node of a <see cref="FiniteElements.FiniteElement"/>
     /// </summary>
+    [Serializable]
     public class Node : FEMObject, INotifyPropertyChanged
     {
         #region Variables
@@ -116,6 +118,12 @@ namespace GPC.Model.FEM
             SetId(id);
         }
 
+        public Node(SerializationInfo info, StreamingContext context)
+        {
+            _position = (Point3d)info.GetValue("Position", typeof(Point3d));
+            _results = (ModelObjectSet<NodeResult>)info.GetValue("Result", typeof(ModelObjectSet<NodeResult>));
+        }
+
         protected void OnPropertyChanged(string propertyName)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
@@ -173,6 +181,14 @@ namespace GPC.Model.FEM
             return duplicate;
         }
 
+        public override void GetObjectData(SerializationInfo info, StreamingContext context)
+        {
+            base.GetObjectData(info, context);
+
+            info.AddValue("Position", _position, typeof(Point3d));
+            info.AddValue("Result", _results, typeof(ModelObjectSet<NodeResult>));
+        }
+
         public override bool Equals(object obj)
         {
             if (obj is null)
@@ -207,5 +223,6 @@ namespace GPC.Model.FEM
                 return hashCode;
             }            
         }
+
     }
 }
