@@ -401,7 +401,30 @@ namespace GeneralTest
             Assert.IsTrue(lc1.Equals(lc2));
             Assert.IsTrue(rd1.Equals(rd2));
             Assert.IsTrue(nr1.Equals(nr2));
+        }
 
+
+        [TestMethod]
+        public void ResultNode2()
+        {
+            LoadCase lc1 = new LoadCase("lc", GPC.Model.LoadCases.LoadCase.LoadCaseTypes.SelfWeight);
+            LoadCase lc2 = new LoadCase("lc", GPC.Model.LoadCases.LoadCase.LoadCaseTypes.SelfWeight);
+
+            Combination cmb1 = new Combination("cmb1");
+            cmb1.AddLoadCaseCoefficient(lc1, 1);
+            Combination cmb2 = new Combination("cmb1");
+            cmb2.AddLoadCaseCoefficient(lc2, 1);
+
+            ResultDisplacement rd1 = new ResultDisplacement(0, 1, 2, 3, 0, 0);
+            ResultDisplacement rd2 = new ResultDisplacement(0, 1, 2, 3, 0, 0);
+
+            NodeResult nr1 = new NodeResult(cmb1, CoordinateSystem.Global, rd1);
+            NodeResult nr2 = new NodeResult(cmb2, CoordinateSystem.Global, rd2);
+
+            Assert.IsTrue(lc1.Equals(lc2));
+            Assert.IsTrue(cmb1.Equals(cmb2));
+            Assert.IsTrue(rd1.Equals(rd2));
+            Assert.IsTrue(nr1.Equals(nr2));
         }
 
 

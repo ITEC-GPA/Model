@@ -197,7 +197,7 @@ namespace GPC.Model.Results
             if (ReferenceEquals(this, obj))
                 return true;
 
-            return Equals(obj as ResultDisplacement);
+            return Equals((ResultDisplacement)obj);
         }
 
 
