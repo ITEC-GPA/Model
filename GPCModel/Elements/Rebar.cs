@@ -17,57 +17,59 @@ namespace GPC.Model.Elements
         public const double PRESTRESSED_LIMIT = 0.0000001;
 
         #region Variables
+
         protected double _diameter;
-        protected double _effectiveArea;
-        protected Point2d _startPoint;
-        protected Point2d _endPoint;
         protected RebarMaterial _material;
         protected Point2d _position;
-        private static int SerializationVersion = 1;
         protected double _epsilonP;
         protected double _tensionP;
-        protected bool _isPrestressed;
+
+        private static int SerializationVersion = 1;
+
         #endregion
 
         #region Properties
+
         public double Diameter => _diameter;
-        public double EffectiveArea => _effectiveArea;
-        public Point2d StartPoint => _startPoint;
-        public Point2d EndPoint => _endPoint;
+
+        public double EffectiveArea => CalculateEffectiveArea();
+
         public Point2d Position => _position;
+
         public RebarMaterial Material => _material;
+
         public double EpsilonP => _epsilonP;
+
         public double TensionP => _tensionP;
-        public bool IsPrestressed => _isPrestressed;
+
+        public bool IsPrestressed => _tensionP > 0.0;
+
         #endregion
 
         #region Public Constructors
-        public Rebar(double diameter, double effectiveArea, Point2d startPoint, Point2d endPoint, Point2d position, RebarMaterial material, Guid guid, double epsilonP, double tensionP) :
-            base(guid)
+
+        public Rebar(double diameter, Point2d position, RebarMaterial material, double epsilonP, double tensionP, Guid guid)
+            : base(guid)
         {
-            _diameter = diameter;
-            _effectiveArea = effectiveArea;
-            _startPoint = new Point2d(startPoint);
-            _endPoint = new Point2d(endPoint);
-            _position = new Point2d(position);
+            _diameter = diameter;            
+            _position = position;
             _material = material;
             _epsilonP = epsilonP;
             _tensionP = tensionP;
-
-            _isPrestressed = false;
-            if (_tensionP > 0)
-            {
-                _isPrestressed = true;
-            }
         }
 
-        public Rebar(double diameter, double effectiveArea, Point2d startPoint, Point2d endPoint, Point2d position, RebarMaterial material, Guid guid) :
-             this(diameter, effectiveArea, startPoint, endPoint, position, material, guid, 0.0, 0.0)
+        public Rebar(double diameter, Point2d position, RebarMaterial material, double epsilonP, double tensionP)
+            : this(diameter, position, material, epsilonP, tensionP, new Guid())
         {
         }
 
-        public Rebar(double diameter, double effectiveArea, Point2d position, RebarMaterial material) :
-            this(diameter, effectiveArea, new Point2d(0, 0), new Point2d(0, 0), position, material, Guid.NewGuid())
+        public Rebar(double diameter, Point2d position, RebarMaterial material, Guid guid) :
+             this(diameter, position, material, 0.0, 0.0, guid)
+        {
+        }
+
+        public Rebar(double diameter, Point2d position, RebarMaterial material) :
+            this(diameter, position, material, Guid.NewGuid())
         {
         }
 
@@ -75,10 +77,7 @@ namespace GPC.Model.Elements
             base(info, context)
         {
             SerializationVersion = info.GetInt32("SerializationVersion");
-            _diameter = info.GetDouble("Diameter");
-            _effectiveArea = info.GetDouble("EffectiveArea");
-            _startPoint = (Point2d)info.GetValue("StartPoint", typeof(Point2d));
-            _endPoint = (Point2d)info.GetValue("EndPoint", typeof(Point2d));
+            _diameter = info.GetDouble("Diameter");            
             _position = (Point2d)info.GetValue("Position", typeof(Point2d));
             _material = (RebarMaterial)info.GetValue("Material", typeof(RebarMaterial));
             _epsilonP = info.GetDouble("EpsilonP");
@@ -87,50 +86,50 @@ namespace GPC.Model.Elements
 
         #endregion
 
-        #region Public Methods Override
-        #endregion
 
         #region Public Methods Specific
+
         public void ChangeDiameter(double newDiamter)
         {
             _diameter = newDiamter;
         }
+
         public void ChangeMaterial(RebarMaterial newMaterial)
         {
             _material = newMaterial;
         }
+
         public void AddPrestress(double tensionP)
         {
             _tensionP = tensionP;
         }
+
         #endregion
 
         #region Private Methods Specific
+
+        protected double CalculateEffectiveArea()
+		{
+            return Diameter * Diameter * Math.PI / 4;
+		}
+
         #endregion
 
 
         #region FIELD_SERIALIZATION
+
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             base.GetObjectData(info, context);
             info.AddValue("SerializationVersion", SerializationVersion);
             info.AddValue("Diameter", _diameter);
-            info.AddValue("EffectiveArea", _effectiveArea);
-            info.AddValue("StartPoint", _startPoint);
-            info.AddValue("EndPoint", _endPoint);
             info.AddValue("Position", _position);
             info.AddValue("Material", _material);
             info.AddValue("EpsilonP", _epsilonP);
             info.AddValue("TensionP", _tensionP);
         }
+
         #endregion 
-
-        #region FIELD_VARIABLES
-
-        //private double _x;
-        //private double _y;
-
-        #endregion
     }
 
     public class Rebars : IEnumerable<Rebar>
@@ -158,12 +157,20 @@ namespace GPC.Model.Elements
 
         public int Count => _bars.Count;
 
+        public double TotalArea => _bars.Select(i => i.EffectiveArea).Distinct().Sum();
+
         public Rebar this[int index] => _bars[index];
 
-        public void AddRebar(double diameter, double effectiveArea, Point2d startPoint, Point2d endPoint, Point2d position, RebarMaterial material, Guid guid)
+        public void AddRebar(double diameter, Point2d position, RebarMaterial material, Guid guid)
         {
-            _bars.Add(new Rebar(diameter, effectiveArea, startPoint, endPoint, position, material, guid));
+            _bars.Add(new Rebar(diameter, position, material, guid));
         }
+
+        public void AddRebar(double diameter, Point2d position, RebarMaterial material)
+        {
+            _bars.Add(new Rebar(diameter, position, material));
+        }
+
         public void AddRebar(Rebar rebar)
         {
             _bars.Add(rebar);

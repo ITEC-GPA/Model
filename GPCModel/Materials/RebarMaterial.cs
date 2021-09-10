@@ -12,7 +12,7 @@ namespace GPC.Model.Materials
         #region CONSTRUCTORS
 
         /// <summary>
-        ///
+        /// Default rebar material constructor
         /// </summary>
         /// <param name="elasticModulus">Steel elastic modulus</param>
         /// <param name="poisson">Poissoins's Ratio</param>
