@@ -164,14 +164,19 @@ namespace GPC.Model.Sections
         /// <summary>
         /// Is true if the section is symmetric along Z-axis and the Y-axis
         /// </summary>
-        public bool IsDoubleSymmetric => (IsSymmetricAlongXLocalAxis && IsSymmetricAlongYLocalAxis);        
+        public bool IsDoubleSymmetric => (IsSymmetricAlongXLocalAxis && IsSymmetricAlongYLocalAxis);
 
         #endregion
 
 
         #region Public Constructors
 
-        protected Section(Material material, string name) : base(name)
+        protected Section(string name)
+            : base(name)
+        { }
+
+        protected Section(Material material, string name) 
+            : base(name)
         {
             _material = material;
         }
