@@ -60,6 +60,17 @@ namespace GPC.Model.Materials
 
         }
 
+		/// <summary>
+		///
+		/// </summary>
+		/// <param name="name"></param>
+		/// <param name="fck">Concrete compression resistance reference value (28 days)</param>
+		protected ConcreteMaterial(string name, double fck)
+            :base(name)
+        {
+
+        }
+
         /// <summary>
         ///
         /// </summary>

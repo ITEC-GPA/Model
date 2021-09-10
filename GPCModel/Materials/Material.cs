@@ -67,6 +67,12 @@ namespace GPC.Model.Materials
         { 
         }
 
+        public Material(string name)
+			: base(new Guid(), name)
+		{
+            
+		}
+
 
         protected Material(SerializationInfo info, StreamingContext context) 
             : base(info, context)
