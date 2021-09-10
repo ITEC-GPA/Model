@@ -2,6 +2,7 @@
 using System;
 using System.Runtime.Serialization;
 using GPC.Model.Materials;
+using System.Linq;
 
 namespace GPC.Model.Sections
 {
@@ -10,31 +11,40 @@ namespace GPC.Model.Sections
     {        
         #region Variables
 
-        protected readonly double _dext; /// Diameter external
+        protected readonly double _diameter;
 
         #endregion
 
 
         #region Properties
 
-        public double Diameter => _dext;
+        /// <summary>
+        /// The external diameter
+        /// </summary>
+        public double Diameter => _diameter;
 
         #endregion
 
 
         #region Public Constructors
 
-        public SectionCircular(double dext, Material material, string name) 
+        /// <summary>
+        /// The default constructor
+        /// </summary>
+        /// <param name="diameter">The diameter</param>
+        /// <param name="material">The material</param>
+        /// <param name="name">The section name</param>
+        public SectionCircular(double diameter, Material material, string name) 
             : base(material, name)
         {
-            _dext = dext;
+            _diameter = diameter;
             _area = CalculateArea();
         }
 
         public SectionCircular(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
-            _dext = info.GetDouble("Dext");
+            _diameter = info.GetDouble("Dext");
             _material = (Material)info.GetValue("Material", typeof(Material));
         }
 
@@ -43,20 +53,15 @@ namespace GPC.Model.Sections
 
         #region Public Methods Specific
 
-        public double CalculateWpl()
-        {
-            return Math.Pow(_dext, 3.0) / 6.0;
-        }
-
         public double CalculateArea()
         {
-            return (Math.Pow(_dext, 2.0) * Math.PI) / 4.0;
+            return (Math.Pow(_diameter, 2.0) * Math.PI) / 4.0;
         }
 
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             base.GetObjectData(info, context);
-            info.AddValue("Dext", _dext);
+            info.AddValue("Dext", _diameter);
             info.AddValue("Material", _material);
         }
 
@@ -69,7 +74,7 @@ namespace GPC.Model.Sections
             for (int i = 0; i < divisions; i++)
             {
                 double teta = i * 2 * Math.PI / divisions;
-                fill.Add(new Point2d(0.5 * _dext * Math.Cos(teta), 0.5 * _dext * Math.Sin(teta)));
+                fill.Add(new Point2d(0.5 * _diameter * Math.Cos(teta), 0.5 * _diameter * Math.Sin(teta)));
             }
 
             Shape shape = new Shape(fill, hole != null ? new[] { hole } : null);
@@ -77,7 +82,28 @@ namespace GPC.Model.Sections
             return new[] { new ShapeMaterial { Material = _material, Shape = shape } };
         }
 
+        public Polygon3d ConvertCircleToPolygon(double radius, int edge)
+        {
+            if (edge < 2)
+                throw new ArgumentException($"{edge} must be at least 3");
+
+            Point3d[] vertices = new Point3d[edge];
+            double teta = 2.0 * Math.PI / edge;
+
+            for (int i = 0; i < edge; i++)
+            {
+                vertices[i] = new Point3d(radius * Math.Cos(teta * i), radius * Math.Sin(teta * i), 0.0);
+            }
+
+            return new Polygon3d(vertices.ToArray());
+        }
+
+        public Polygon3d ConvertCircleToPolygon(int edge = 32)
+        {
+            return ConvertCircleToPolygon(_diameter / 2.0, edge);
+        }
+
         #endregion
-        
+
     }    
 }

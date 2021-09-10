@@ -90,6 +90,7 @@
     <Compile Include="Sections\SectionRectangular.cs" />
     <Compile Include="Sections\ShapeEx.cs" />
     <Compile Include="Sections\Steel\ISteelSection.cs" />
+    <Compile Include="Sections\Steel\SteelSectionCircular.cs" />
     <Compile Include="Standards\Standard.cs" />
     <Compile Include="Standards\StandardACI318.cs" />
     <Compile Include="Standards\StandardASCE16.cs" />

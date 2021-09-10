@@ -1033,5 +1033,27 @@ namespace ModelObjectTest
             Assert.AreEqual(Math.Abs(jxx / sec.Jxx) - 1, 0, 0.001);
             Assert.AreEqual(Math.Abs(jyy / sec.Jyy) - 1, 0, 0.001);
         }
+
+        [TestMethod]
+        public void SectionCircularTest1()
+		{
+            double diameter = 100;
+            int division1 = 32;
+            int division2 = 64;
+
+            SectionCircular  sectionCircular = new SectionCircular(diameter, new SteelMaterial("steel", 200000, 0.3, 355, 510, 7850), string.Empty);
+            Polygon3d poly1 = sectionCircular.ConvertCircleToPolygon(division1);
+            Polygon3d poly2 = sectionCircular.ConvertCircleToPolygon(division2);
+
+            double circleArea = diameter * diameter * Math.PI / 4;
+            double polyArea1 = poly1.GetSignedArea();
+            double polyArea2 = poly2.GetSignedArea();
+
+            double error1 = Math.Abs(circleArea - polyArea1) * 100 / circleArea;
+            double error2 = Math.Abs(circleArea - polyArea2) * 100 / circleArea;
+
+            Assert.IsTrue(error1 < 1.0, $"{error1} %");
+            Assert.IsTrue(error2 < 0.2, $"{error2} %");
+        }
     }
 }
