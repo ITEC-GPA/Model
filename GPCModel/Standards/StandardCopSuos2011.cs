@@ -30,10 +30,11 @@ namespace GPC.Model.Standards
 
         #region VARIABLES
 
-        private double _gammaM1;
-        private double _gammaM2;
+        private readonly double _gammaM1;
+        private readonly double _gammaM2;
 
         public double GammaM1 => _gammaM1;
+
         public double GammaM2 => _gammaM2;
 
         #endregion

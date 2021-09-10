@@ -18,18 +18,18 @@ namespace GPC.Model.Standards
         #region VARIABLES
 
         // Climate psi
-        private double _psi0ClimateSummerDeltaP;
-        private double _psi0ClimateSummerDeltaT;
-        private double _psi0ClimateWinterDeltaP;
-        private double _psi0ClimateWinterDeltaT;
-        private double _psi1ClimateSummerDeltaP;
-        private double _psi1ClimateSummerDeltaT;
-        private double _psi1ClimateWinterDeltaP;
-        private double _psi1ClimateWinterDeltaT;
-        private double _psi2ClimateSummerDeltaP;
-        private double _psi2ClimateSummerDeltaT;
-        private double _psi2ClimateWinterDeltaP;
-        private double _psi2ClimateWinterDeltaT;                
+        private readonly double _psi0ClimateSummerDeltaP;
+        private readonly double _psi0ClimateSummerDeltaT;
+        private readonly double _psi0ClimateWinterDeltaP;
+        private readonly double _psi0ClimateWinterDeltaT;
+        private readonly double _psi1ClimateSummerDeltaP;
+        private readonly double _psi1ClimateSummerDeltaT;
+        private readonly double _psi1ClimateWinterDeltaP;
+        private readonly double _psi1ClimateWinterDeltaT;
+        private readonly double _psi2ClimateSummerDeltaP;
+        private readonly double _psi2ClimateSummerDeltaT;
+        private readonly double _psi2ClimateWinterDeltaP;
+        private readonly double _psi2ClimateWinterDeltaT;                
 
         // Climate Psi
         public double Psi0ClimateSummerDeltaP => _psi0ClimateSummerDeltaP;
