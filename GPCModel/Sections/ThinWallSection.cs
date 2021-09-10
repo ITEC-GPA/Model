@@ -178,8 +178,11 @@ namespace GPC.Model.Sections
         }
 
         public abstract double CalculateWpl1();
+
         public abstract double CalculateWpl2();
+
         public abstract double CalculateWel1();
+
         public abstract double CalculateWel2();
 
         #endregion
