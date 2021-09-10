@@ -250,7 +250,6 @@
     <Compile Include="Sections\SectionH.cs" />
     <Compile Include="Sections\SectionL.cs" />
     <Compile Include="Sections\SectionRHS.cs" />
-    <Compile Include="Sections\ConcreteSection.cs" />
     <Compile Include="Sections\SectionT.cs" />
     <Compile Include="Sections\Steel\SteelSectionRHS.cs" />
     <Compile Include="Sections\Steel\SteelSectionT.cs" />

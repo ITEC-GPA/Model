@@ -10,20 +10,10 @@ namespace GPC.Model.Materials
     [UI(Description = "Concrete EN1992-1-1", Group = "Materials", Kind = "Material")]
     public class ConcreteMaterialEN1992 : ConcreteMaterial
     {
-		#region ENUMERATOR
-
-        public enum StressStrainDiagram
-		{
-            ParabolaRectangle,
-            Bilinear,
-            StressBlock,
-        }
-
-        #endregion
-
         #region VARIABLES
 
         protected StandardEn1992p11 _standard;
+        protected ConcreteMaterialEN1992Options _concreteOptions;
 
         protected double _fckCube;
         protected double _fctk05;
@@ -60,6 +50,11 @@ namespace GPC.Model.Materials
         /// Standard EN1992 or a relative national annex
         /// </summary>
         public StandardEn1992p11 Standard => _standard;
+
+        /// <summary>
+        /// The option <see cref="ConcreteMaterialEN1992Options"/> 
+        /// </summary>
+        public ConcreteMaterialEN1992Options ConcreteOptions => _concreteOptions;
 
         /// <summary>
         /// characteristic cubic strength
@@ -181,18 +176,20 @@ namespace GPC.Model.Materials
         /// <param name="name"></param>
         /// <param name="fck">Concrete compression resistance reference value (28 days)</param>
         /// <param name="standard">Standard EN1992 or a relative national annex</param>
-        public ConcreteMaterialEN1992(string name, double fck, StandardEn1992p11 standard)
+        /// <param name="options">The options for defining concrete </param>
+        public ConcreteMaterialEN1992(string name, double fck, StandardEn1992p11 standard, ConcreteMaterialEN1992Options options)
             : base(name, fck)
         {
             _standard = standard;
+            _concreteOptions = options;
             SetProperties();
         }
 
-        public ConcreteMaterialEN1992(string name, double fck)
-            : this(name, fck, new StandardEn1992p11())
-		{
+        public ConcreteMaterialEN1992(string name, double fck, ConcreteMaterialEN1992Options options)
+            : this(name, fck, new StandardEn1992p11(), options)
+        {
 
-		}
+        }
 
         public ConcreteMaterialEN1992(SerializationInfo info, StreamingContext context) :
             base(info, context)
@@ -225,20 +222,112 @@ namespace GPC.Model.Materials
 
         #region PUBLIC METHODS
 
-		#endregion
+        public double CalculateSigmaC(ConcreteMaterialEN1992Options.StressStrainDiagrams diagram, double epsilonC)
+        {
+            if (diagram == ConcreteMaterialEN1992Options.StressStrainDiagrams.ParabolaRectangle)
+            {
+                if (epsilonC >= EpsilonC2)
+                    return Fcd;
+                else				
+                    return Fcd * (1 - Math.Pow(1 - epsilonC / EpsilonC2, N));				
+            }
+            else if (diagram == ConcreteMaterialEN1992Options.StressStrainDiagrams.Bilinear)
+            {
+                if (epsilonC >= (1 - Lambda) * EpsilonCu3)
+                    return Fcd;
+                else                                    
+                    return 0.0;                
+            }
+            else if (diagram == ConcreteMaterialEN1992Options.StressStrainDiagrams.StressBlock)
+            {
+                if (epsilonC >= EpsilonC2)
+                    return Fcd;
+                else
+                    return Fcd * epsilonC / EpsilonC2;
+            }
+            else
+                throw new ArgumentException("");
+        }
 
-		#region PROTECTED METHODS
+        public virtual double CalculateEcm(int days, ConcreteMaterialEN1992Options.TypeOfCements typeOfCement)
+        {
+            return Math.Pow(CalculateFcm(days, typeOfCement) / CalculateFcm(), 0.3) * ECm;
+        }
+
+        public virtual double CalculateFcm(int days, ConcreteMaterialEN1992Options.TypeOfCements typeOfCement)
+        {
+            return Fcm * CalculateBetaCC(days, typeOfCement);
+        }
+
+        public virtual double CalculateFctm(int days, ConcreteMaterialEN1992Options.TypeOfCements typeOfCement)
+        {
+            double betaCC = CalculateBetaCC(days, typeOfCement);
+            double alpha;
+            if (days < 28)
+                alpha = 1.0;
+            else
+                alpha = 2.0 / 3.0;
+
+            return Math.Pow(betaCC, alpha) * Fctm;
+        }
+
+        public virtual double CalculateBetaCC(int days, ConcreteMaterialEN1992Options.TypeOfCements typeOfCement)
+        {
+            double s;
+            if (typeOfCement == ConcreteMaterialEN1992Options.TypeOfCements.ClassR)
+                s = 0.20;
+            else if (typeOfCement == ConcreteMaterialEN1992Options.TypeOfCements.ClassN)
+                s = 0.25;
+            else //if (typeOfCement == TypeOfCement.ClassS)
+                s = 0.38;
+
+            return Math.Pow(Math.E, (s * (1 - Math.Pow(28 / days, 0.5))));
+        }
+
+        public virtual double CalculateResistanceConfined(double sigma2, out double epsilonCC, out double epsilonCuC, 
+            ConcreteMaterialEN1992Options.StressStrainDiagrams diagram)
+		{
+            double fckc;
+            if (sigma2 <= 0.05 * Fck)
+                fckc = Fck * (1.0 + 5.0 * sigma2 / Fck);
+            else
+                fckc = Fck * (1.125 + 2.5 * sigma2 / Fck);
+
+            if (diagram == ConcreteMaterialEN1992Options.StressStrainDiagrams.ParabolaRectangle)
+            {
+                epsilonCC = EpsilonC2 * Math.Pow(fckc / Fck, 2.0);
+                epsilonCuC = epsilonCC + 0.2 * sigma2 / Fck;
+            }
+            else if (diagram == ConcreteMaterialEN1992Options.StressStrainDiagrams.Bilinear)
+			{
+                epsilonCC = EpsilonC3 * Math.Pow(fckc / Fck, 2.0);
+                epsilonCuC = epsilonCC + 0.2 * sigma2 / Fck;
+            }
+            else
+			{
+                epsilonCC = EpsilonC2 * Math.Pow(fckc / Fck, 2.0);
+                epsilonCuC = epsilonCC + 0.2 * sigma2 / Fck;
+
+                //TODO: implementare questo caso
+            }
+
+            return fckc;
+        }
+
+        #endregion
+
+        #region PROTECTED METHODS
 
         protected virtual void SetProperties()
-		{
+        {
             _fckCube = CalculateFckCube();
             _fcm = CalculateFcm();
             _fctm = CalculateFctm();
-			_fctk05 = CalculateFctk05();
+            _fctk05 = CalculateFctk05();
             _fctk95 = CalculateFctk95();
             _eCm = CalculateEcm();
             _eCd = CalculateEcd();
-            
+
             _fcd = CalculateFcd();
             _fctd = CalculateFctd();
             _fcdAccidental = CalculateFcdAcc();
@@ -255,12 +344,15 @@ namespace GPC.Model.Materials
             _eta = CalculateEta();
 
             _ni = 0.2;
+            _niCracked = 0.0;
+
+            _alfaThermalExpansion = 0.00001;    // 10 * 10^(-6)
         }
 
         protected virtual double CalculateFckCube()
-		{
-            switch(_fck)
-			{
+        {
+            switch (_fck)
+            {
                 case (8):
                     return 10;
                 case (12):
@@ -294,16 +386,16 @@ namespace GPC.Model.Materials
                 case (100):
                     return 115;
                 default:
-                    return 1.0 / 0.83 * _fck;                    
+                    return 1.0 / 0.83 * _fck;
             }
-		}
+        }
 
         protected virtual double CalculateFcm()
-		{
+        {
             return _fck + 8;
-		}
+        }
 
-        protected virtual double CalculateFctm() 
+        protected virtual double CalculateFctm()
         {
             if (_fck <= 50)
                 return 0.30 * Math.Pow(_fck, 2.0 / 3.0);
@@ -312,19 +404,14 @@ namespace GPC.Model.Materials
         }
 
         protected virtual double CalculateFctk05()
-		{
+        {
             return 0.7 * _fctm;
-		}
+        }
 
         protected virtual double CalculateFctk95()
-		{
+        {
             return 1.30 * _fctm;
-		}
-
-        protected virtual double CalculateEcm()
-		{
-            return 22.0 * Math.Pow(_fcm / 10.0, 0.30);
-		}
+        }
 
         protected virtual double CalculateEpsilonC1()
         {
@@ -362,7 +449,7 @@ namespace GPC.Model.Materials
         }
 
         protected virtual double CalculateEpsilonC2()
-		{
+        {
             if (_fck <= 50)
                 return 2.0;
             else
@@ -394,7 +481,7 @@ namespace GPC.Model.Materials
         }
 
         protected virtual double CalculateN()
-		{
+        {
             if (_fck <= 50)
                 return 2.0;
             else
@@ -402,15 +489,15 @@ namespace GPC.Model.Materials
         }
 
         protected virtual double CalculateLambda()
-		{
+        {
             if (_fck <= 50.0)
                 return 0.8;
             else
                 return 0.8 - (_fck - 50.0) / 400;
-		}
+        }
 
         protected virtual double CalculateEta()
-		{
+        {
             if (_fck <= 50.0)
                 return 1.0;
             else
@@ -418,14 +505,14 @@ namespace GPC.Model.Materials
         }
 
         protected virtual double CalculateFcd()
-		{
+        {
             return Standard.AlphaCC * Fck / Standard.GammaC;
-		}
+        }
 
         protected virtual double CalculateFctd()
-		{
+        {
             return Standard.AlphaCT * _fctk05 / Standard.GammaC;
-		}
+        }
 
         protected virtual double CalculateFcdAcc()
         {
@@ -438,10 +525,49 @@ namespace GPC.Model.Materials
         }
 
         protected virtual double CalculateEcd()
-		{
+        {
             return ECeff / Standard.GammaCE;
-		}
+        }
+
+        protected virtual double CalculateEcm()
+        {
+            return 22.0 * Math.Pow(Fcm / 10.0, 0.30);
+        }
 
         #endregion
+    }
+
+    public class ConcreteMaterialEN1992Options
+    {
+		#region ENUMERATOR
+
+		public enum StressStrainDiagrams
+        {
+            ParabolaRectangle,
+            Bilinear,
+            StressBlock,
+        }
+
+        public enum TypeOfCements
+        {
+            ClassR,
+            ClassN,
+            ClassS,
+        }
+
+        #endregion
+
+        protected StressStrainDiagrams _stressStrainDiagram;
+        protected TypeOfCements _typeOfCement;
+
+		public StressStrainDiagrams StressStrainDiagram => _stressStrainDiagram;
+
+        public TypeOfCements TypeOfCement => _typeOfCement;
+
+        public ConcreteMaterialEN1992Options(StressStrainDiagrams stressStrainDiagram, TypeOfCements typeOfCement)
+        {
+            _stressStrainDiagram = stressStrainDiagram;
+            _typeOfCement = typeOfCement;
+        }
     }
 }
