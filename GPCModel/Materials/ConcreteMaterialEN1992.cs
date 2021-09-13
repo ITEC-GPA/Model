@@ -57,6 +57,11 @@ namespace GPC.Model.Materials
         public ConcreteMaterialEN1992Options ConcreteOptions => _concreteOptions;
 
         /// <summary>
+        /// The stress-strain relationship
+        /// </summary>
+        public ConcreteMaterialEN1992Options.StressStrainDiagrams StressStrainDiagram => _concreteOptions.StressStrainDiagram;
+
+        /// <summary>
         /// characteristic cubic strength
         /// </summary>
         public double FckCube => _fckCube;

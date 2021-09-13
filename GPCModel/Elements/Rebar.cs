@@ -115,7 +115,6 @@ namespace GPC.Model.Elements
 
         #endregion
 
-
         #region FIELD_SERIALIZATION
 
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
