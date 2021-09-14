@@ -9,7 +9,7 @@ namespace GPC.Model.Materials
     [UI(Description = "Steel", Group = "Materials", Kind = "Material")]
     public class SteelMaterial : Material
     {
-        #region VARIABLES
+        #region Variables
 
         protected double _fyk;
         protected double _fu;
@@ -17,17 +17,17 @@ namespace GPC.Model.Materials
 
         #endregion 
 
-        #region PROPERTIES
+        #region Properties
 
-        public double Fyk { get => _fyk; set { _fyk = value; } }
+        public double Fyk => _fyk;
 
-        public double Fu { get => _fu; set { _fu = value; } }
+        public double Fu => _fu;
 
-        public double Epsilon0 { get => _epsilon0; set { _epsilon0 = value; } }
+        public double Epsilon0 => _epsilon0; 
 
         #endregion
 
-        #region CONSTRUCTORS
+        #region Constructor
 
         /// <summary>
         ///
@@ -47,9 +47,9 @@ namespace GPC.Model.Materials
             if (elasticModulus == 0)
                 throw new ArgumentException($"{nameof(elasticModulus)} cannot be equal to zero");
 
-            this._fu = fu <= 0 ? throw new ArgumentException($"{nameof(fu)} cannot be zero or lower") : fu ;
-            this._fyk = fyk <= 0 ? throw new ArgumentException($"{nameof(fyk)} cannot be zero or lower") : fyk;
-            this._epsilon0 = epsilon0 <= 0 ? throw new ArgumentException($"{nameof(epsilon0)} cannot be zero or lower") : epsilon0;
+            _fu = fu <= 0 ? throw new ArgumentException($"{nameof(fu)} cannot be zero or lower") : fu ;
+            _fyk = fyk <= 0 ? throw new ArgumentException($"{nameof(fyk)} cannot be zero or lower") : fyk;
+            _epsilon0 = epsilon0 <= 0 ? throw new ArgumentException($"{nameof(epsilon0)} cannot be zero or lower") : epsilon0;
         }
 
         /// <summary>
@@ -93,7 +93,7 @@ namespace GPC.Model.Materials
 
         #endregion
 
-        #region PUBLIC METHODS
+        #region Public Methods
 
         public override IsotropicFemMaterial GetIsotropicFemMaterial()
         {
