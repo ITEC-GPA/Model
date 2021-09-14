@@ -899,24 +899,28 @@ namespace ModelObjectTest
         }
 
         [TestMethod]
-        [TestCategory("Fail: Not implemented Test")]
         public void SectionL_Test1()
         {
-            double h = 500;
-            double tw = 40;
-            double b = 40.01;
-            double tb = 40;
+            double h = 250;
+            double tw = 25;
+            double b = 250;
+            double tb = 15;
             SteelSectionL sec = new SteelSectionL(b, tb, h, tw, new SteelMaterial("steel", 200000, 0.3, 355, 510, 7850), string.Empty);
 
-            double Wel1 = 1.0 / 6.0 * h * tw*tw;
-            double Wel2 = 1.0 / 6.0 * tw * h * h;
+            double A = 9625;
+            double jxx = 62872568;
+            double jyy = 48806903;
+            double Wpl1 = 378291.7;
+            double Wpl2 = 252012.17;
 
-            Assert.AreEqual(Math.Abs(Wel2 / sec.CalculateWel2()) - 1, 0, 0.001);
-            Assert.AreEqual(Math.Abs(Wel1 / sec.CalculateWel1()) - 1, 0, 0.001);
+            Assert.AreEqual(A, sec.Area);
+            Assert.AreEqual(Math.Abs(jxx / sec.Jxx) - 1, 0, 0.001);
+            Assert.AreEqual(Math.Abs(jyy / sec.Jyy) - 1, 0, 0.001);
+            Assert.AreEqual(Math.Abs(Wpl1 / sec.Wpl1) - 1, 0, 0.015);
+            Assert.AreEqual(Math.Abs(Wpl2 / sec.Wpl2) - 1, 0, 0.015);
         }
 
         [TestMethod]
-        [TestCategory("Fail: Not implemented Test")]
         public void SectionL_Test2()
         {
             double h = 40;
@@ -928,12 +932,11 @@ namespace ModelObjectTest
             double Wel1 = 1.0 / 6.0 * b * tb * tb;
             double Wel2 = 1.0 / 6.0 * tb * b * b;
 
-            Assert.AreEqual(Math.Abs(Wel2 / sec.CalculateWel2()) - 1, 0, 0.001);
-            Assert.AreEqual(Math.Abs(Wel1 / sec.CalculateWel1()) - 1, 0, 0.001);
+            Assert.AreEqual(Math.Abs(Wel2 / sec.Wel2) - 1, 0, 0.001);
+            Assert.AreEqual(Math.Abs(Wel1 / sec.Wel1) - 1, 0, 0.001);
         }
 
         [TestMethod]
-        [TestCategory("Fail: Not implemented Test")]
         public void SectionL_Test3()
         {
             double h = 500;
@@ -964,7 +967,6 @@ namespace ModelObjectTest
         }
 
         [TestMethod]
-        [TestCategory("Fail: Not implemented Test")]
         public void SectionL_Test4()
         {
             double h = 200;
@@ -981,6 +983,8 @@ namespace ModelObjectTest
             double r2 = 79.6;
             double r1 = 39.9;
             double angle = Math.PI / 4;
+            double Wpl1 = 106992.1926364234;
+            double Wpl2 = 106992.1926364234;
 
             Assert.AreEqual(A, sec.Area);
             Assert.AreEqual(angle, sec.AngleX1);
@@ -990,10 +994,11 @@ namespace ModelObjectTest
             Assert.AreEqual(Math.Abs(j22 / sec.J22) - 1, 0, 0.001);
             Assert.AreEqual(Math.Abs(r1 / sec.R11) - 1, 0, 0.001);
             Assert.AreEqual(Math.Abs(r2 / sec.R22) - 1, 0, 0.001);
+            Assert.AreEqual(Math.Abs(Wpl1 / sec.Wpl1) - 1, 0, 0.015);
+            Assert.AreEqual(Math.Abs(Wpl2 / sec.Wpl2) - 1, 0, 0.015);
         }
 
         [TestMethod]
-        [TestCategory("Fail: Not implemented Test")]
         public void SectionL_Test5()
         {
             double h = 200;
@@ -1005,33 +1010,54 @@ namespace ModelObjectTest
             double A = 5800;
             double jyy = 24551782;
             double jxx = 17407126;
-            double j11 = 24732500;
-            double j22 = 6219600;
+            double j11 = 33301743.312114567;
+            double j22 = 8657164.733862447;
+            double angle = 36.57378 * Math.PI / 180.0;
 
             Assert.AreEqual(A, sec.Area);
             Assert.AreEqual(Math.Abs(jxx / sec.Jxx) - 1, 0, 0.001);
             Assert.AreEqual(Math.Abs(jyy / sec.Jyy) - 1, 0, 0.001);
             Assert.AreEqual(Math.Abs(j11 / sec.J11) - 1, 0, 0.001);
             Assert.AreEqual(Math.Abs(j22 / sec.J22) - 1, 0, 0.001);
+            Assert.AreEqual(Math.Abs(angle / sec.AngleX1) - 1, 0, 0.001);
         }
 
         [TestMethod]
-        [TestCategory("Fail: Not implemented Test")]
         public void SectionL_Test6()
         {
-            double h = 20.01;
+            double h = 20.1;
             double tw = 0.1;
             double b = 200;
             double tb = 20;
             SteelSectionL sec = new SteelSectionL(b, tb, h, tw, new SteelMaterial("steel", 200000, 0.3, 355, 510, 7850), string.Empty);
 
             double A = 4000.01;
-            double jyy = 133334.3;
-            double jxx = 13333433;
+            double jxx = 133334.34;
+            double jyy = 13333433.23;
 
             Assert.AreEqual(Math.Abs(A/ sec.Area) -1, 0, 0.001);
             Assert.AreEqual(Math.Abs(jxx / sec.Jxx) - 1, 0, 0.001);
             Assert.AreEqual(Math.Abs(jyy / sec.Jyy) - 1, 0, 0.001);
+        }
+
+        [TestMethod]
+        public void SectionL_Test7()
+        {
+            double h = 500;
+            double tw = 40;
+            double b = 500;
+            double tb = 40;
+            SteelSectionL sec = new SteelSectionL(b, tb, h, tw, new SteelMaterial("steel", 200000, 0.3, 355, 510, 7850), string.Empty);
+
+            double A = 38400;
+            double J2 = 375037668.5153;
+            double J1 = 1477129772.799;
+            double teta = Math.PI / 4.0;
+
+            Assert.AreEqual(A, sec.Area);
+            Assert.AreEqual(Math.Abs(J2 / sec.J22) - 1, 0, 0.001);
+            Assert.AreEqual(Math.Abs(J1 / sec.J11) - 1, 0, 0.001);
+            Assert.AreEqual(Math.Abs(teta / sec.AngleX1) - 1, 0, 0.001);
         }
 
         [TestMethod]

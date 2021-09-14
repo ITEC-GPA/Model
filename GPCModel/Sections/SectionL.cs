@@ -56,12 +56,12 @@ namespace GPC.Model.Sections
 
         public override double CalculateWel1()
         {
-            return Math.Min(CalculateWel11Left(), CalculateWel11Right());
+            return Math.Min(CalculateWel11Bottom(), CalculateWel11Top());
         }
 
         public override double CalculateWel2()
         {
-            return Math.Min(CalculateWel22Bottom(), CalculateWel22Top());
+            return Math.Min(CalculateWel22Left(), CalculateWel22Right());
         }
 
         public override double CalculateAngle()
@@ -84,28 +84,28 @@ namespace GPC.Model.Sections
             return (Jxx + Jyy) / 2.0 - 0.5 * Math.Sqrt(Math.Pow(Jxx - Jyy, 2.0) + 4.0 * Math.Pow(CalculateJxy(), 2));
         }
 
-        public double CalculateWel11Left()
+        public double CalculateWel22Left()
         {
             FivePointsCheck(out double minX, out double _, out double _, out double _);
-            return Jxx / Math.Abs(minX);
+            return Jyy / Math.Abs(minX);
         }
 
-        public double CalculateWel11Right()
+        public double CalculateWel22Right()
         {
             FivePointsCheck(out double _, out double maxX, out double _, out double _);
-            return Jxx / Math.Abs(maxX);
+            return Jyy / Math.Abs(maxX);
         }
 
-        public double CalculateWel22Bottom()
+        public double CalculateWel11Bottom()
         {
             FivePointsCheck(out double _, out double _, out double minY, out double _);
-            return Jyy / Math.Abs(minY);
+            return Jxx / Math.Abs(minY);
         }
 
-        public double CalculateWel22Top()
+        public double CalculateWel11Top()
         {
             FivePointsCheck(out double _, out double _, out double _, out double maxY);
-            return Jyy / Math.Abs(maxY);
+            return Jxx / Math.Abs(maxY);
         }
 
         private void FivePointsCheck(out double minX, out double maxX, out double minY, out double maxY)
@@ -141,18 +141,8 @@ namespace GPC.Model.Sections
 
         public override double CalculateJxx()
         {
-            double jxx = 0;
-            for (int i = 0; i < ThinWalls.Length; i++)
-            {
-                jxx += ThinWalls[i].CalculateJx(Points[i]);
-            }
-            return jxx;
-
-            // double a = LengthHor * Math.Pow(LengthVert, 3);
-            // double b = (LengthHor - ThicknessVert) * Math.Pow(LengthVert - ThicknessHor, 3);
-            // double c = Area * Math.Pow(LengthVert - Centroid.Y, 2);
-            // return (1.0 / 3.0) * (LengthHor * Math.Pow(LengthVert, 3) - (LengthHor - ThicknessVert) * Math.Pow(LengthVert - ThicknessHor, 3)) - 
-            //     Area * Math.Pow(LengthVert - Centroid.Y, 2);
+            return (1.0 / 3.0) * (LengthHor * Math.Pow(LengthVert, 3) - (LengthHor - ThicknessVert) * Math.Pow(LengthVert - ThicknessHor, 3)) - 
+                Area * Math.Pow(LengthVert - Centroid.Y, 2);
         }
 
         public override double CalculateJyy()
@@ -235,10 +225,8 @@ namespace GPC.Model.Sections
 
         public override Point2d CalculateCentroid()
         {
-            double xc = (Math.Pow(LengthHor, 2) + LengthVert * ThicknessHor - Math.Pow(ThicknessHor, 2)) /
-                (2 * (LengthHor + LengthVert - ThicknessHor));
-            double yc = (Math.Pow(LengthVert, 2) + LengthHor * ThicknessVert - Math.Pow(ThicknessVert, 2)) /
-                (2 * (LengthVert + LengthHor - ThicknessVert));
+            double xc = ((Points[0].X * ThinWalls[0].Area) + (Points[1].X * ThinWalls[1].Area)) / Area;
+            double yc = ((Points[0].Y * ThinWalls[0].Area) + (Points[1].Y * ThinWalls[1].Area)) / Area;
             return new Point2d(xc, yc);
         }
 
