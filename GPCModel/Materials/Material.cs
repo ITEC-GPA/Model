@@ -18,7 +18,7 @@ namespace GPC.Model.Materials
 
         #region PROPERTIES
 
-        public double E => _elasticModulus;
+        public virtual double E => _elasticModulus;
         public double Ni => _ni;
         public double AlfaThermalExpansion => _alfaThermalExpansion;
         public double Density => _density;
