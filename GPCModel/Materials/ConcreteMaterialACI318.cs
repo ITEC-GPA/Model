@@ -9,13 +9,13 @@ namespace GPC.Model.Materials
 {
 	public class ConcreteMaterialACI318 : ConcreteMaterial
 	{
-        #region VARIABLES
+        #region Variables
 
         protected StandardACI318 _standard;
 
-        #endregion VARIABLES
+        #endregion 
 
-        #region PROPERTIES
+        #region Properties
 
         public StandardACI318 Standard => _standard;
 
@@ -27,6 +27,7 @@ namespace GPC.Model.Materials
             if (fck < 17.0)
                 throw new ArgumentException("fc' less than the minimum fc' permitted. See §19.2.1.1");
 
+            _standard = standard ?? throw new ArgumentNullException(nameof(standard));
 			SetProperties();
 		}
 
@@ -36,11 +37,11 @@ namespace GPC.Model.Materials
 
 		}
 
-        #region PUBLIC METHODS
+        #region Public Methods
 
         #endregion
 
-        #region PROTECTED METHODS
+        #region Protected Methods
 
         protected virtual void SetProperties()
         {
