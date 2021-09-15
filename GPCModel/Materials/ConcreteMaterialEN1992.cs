@@ -1,8 +1,9 @@
-﻿using GPC.Model.FEM.Materials;
+﻿using System;
+using System.Runtime.Serialization;
+using GPC.Model.FEM.Materials;
 using GPC.Model.Standards;
 using GPC.Utilities.Attributes;
-using System;
-using System.Runtime.Serialization;
+using GPC.Utilities.Maths;
 
 namespace GPC.Model.Materials
 {
@@ -50,8 +51,14 @@ namespace GPC.Model.Materials
         /// </summary>
         public StandardEn1992p11 Standard => _standard;
 
+        /// <summary>
+        /// Compressive strain in the concrete at the peak stress fc
+        /// </summary>
         public double EpsilonY => _epsilonY;
 
+        /// <summary>
+        /// Ultimate compressive strain in the concrete
+        /// </summary>
         public double EpsilonU => _epsilonU;
 
         /// <summary>
@@ -137,7 +144,7 @@ namespace GPC.Model.Materials
         /// Default constructor
         /// </summary>
         /// <param name="name">The name of the material</param>
-        /// <param name="fck">Concrete compression resistance reference value (28 days)</param>
+        /// <param name="fck">Characteristic compressive cylinder strength of concrete at 28 days</param>
         /// <param name="ni">Poisson's ratio</param>
         /// <param name="niCracked">Poisson's ratio in cracked concrete</param>
         /// <param name="alphaT">Linear thermal expasion coefficient</param>
@@ -181,7 +188,7 @@ namespace GPC.Model.Materials
         /// 
         /// </summary>
         /// <param name="name">The name of the material</param>
-        /// <param name="fck">Concrete compression resistance reference value (28 days)</param>
+        /// <param name="fck">Characteristic compressive cylinder strength of concrete at 28 days</param>
         /// <param name="ni">Poisson's ratio</param>
         /// <param name="niCracked">Poisson's ratio in cracked concrete</param>
         /// <param name="alphaT">Linear thermal expasion coefficient</param>
@@ -200,7 +207,7 @@ namespace GPC.Model.Materials
         /// 
         /// </summary>
         /// <param name="name">The name of the material</param>
-        /// <param name="fck">Concrete compression resistance reference value (28 days)</param>
+        /// <param name="fck">Characteristic compressive cylinder strength of concrete at 28 days</param>
         /// <param name="standard">Standard EN1992 or a relative national annex</param>
         /// <param name="stressStrainDiagram">The stress-strain diagram type</param>
         /// <remarks>Value: ni = 0.2, niCracked = 0.0; alfaThermalExpansion = 1e-6; density = 0.0025 T/mm^3; type of cements = classN</remarks>
@@ -213,7 +220,7 @@ namespace GPC.Model.Materials
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="fck">Concrete compression resistance reference value (28 days)</param>
+        /// <param name="fck">Characteristic compressive cylinder strength of concrete at 28 days</param>
         /// <param name="stressStrainDiagram">The stress-strain diagram type</param>
         /// <remarks>Value: ni = 0.2, niCracked = 0.0; alfaThermalExpansion = 1e-6; density = 0.0025 T/mm^3; standard = StandardEn1992p11; type of cements = classN</remarks>
         public ConcreteMaterialEN1992(double fck, StressStrainDiagrams stressStrainDiagram)
@@ -225,7 +232,7 @@ namespace GPC.Model.Materials
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="fck">Concrete compression resistance reference value (28 days)</param>
+        /// <param name="fck">Characteristic compressive cylinder strength of concrete at 28 days</param>
         /// <remarks>Value: ni = 0.2, niCracked = 0.0; alfaThermalExpansion = 1e-6; density = 0.0025 T/mm^3; 
         /// standard = StandardEn1992p11; StressStrainDiagrams = StressBlock; type of cements = classN</remarks>
         public ConcreteMaterialEN1992(double fck)
@@ -297,19 +304,13 @@ namespace GPC.Model.Materials
             return Math.Pow(betaCC, alpha) * Fctm;
         }
 
-        public virtual double CalculateBetaCC(int days)
-        {
-            double s;
-            if (TypeOfCement == TypeOfCements.ClassR)
-                s = 0.20;
-            else if (TypeOfCement == TypeOfCements.ClassN)
-                s = 0.25;
-            else //if (typeOfCement == TypeOfCement.ClassS)
-                s = 0.38;
-
-            return Math.Pow(Math.E, (s * (1 - Math.Pow(28 / days, 0.5))));
-        }
-
+        /// <summary>
+        /// Calculate increased characteristic strength and strains of confined concrete 
+        /// </summary>
+        /// <param name="sigma2">The effective lateral compressive stress at the ULS due to confinement</param>
+        /// <param name="epsilonCC">New compressive strain in the concrete at the peak stress fc</param>
+        /// <param name="epsilonCuC">New ultimate compressive strain in the concrete</param>
+        /// <returns>Thw new characteristic compressive cylinder strength of concrete at 28 days</returns>
         public virtual double CalculateConfinedConcreteResistance(double sigma2, out double epsilonCC, out double epsilonCuC)
         {
             double fckc;
@@ -339,18 +340,18 @@ namespace GPC.Model.Materials
             return fckc;
         }
 
-		/// <summary>
-		/// Calculate the creep deformation at infinite time
-		/// </summary>
-		/// <param name="sigmaC">The compressive stress</param>
-		/// <param name="RH">The relative humidity %</param>
-		/// <param name="AreaC"></param>
-		/// <param name="u"></param>
-		/// <param name="T0"></param>
-		/// <param name="deltaTemperature"></param>
-		/// <param name="deltaDaysTemperature"></param>
-		/// <returns></returns>
-		public virtual double CalculateEpsilonCCInfiniteTime(double sigmaC, double RH, double AreaC, double u, double T0 = 7, double deltaTemperature = 0, double deltaDaysTemperature = 0)
+        /// <summary>
+        /// Calculate the creep deformation at infinite time
+        /// </summary>
+        /// <param name="sigmaC">The costant compressive stress</param>
+        /// <param name="RH">The relative humidity %</param>
+        /// <param name="AreaC">The area of concrete</param>
+        /// <param name="u">The perimeter of that part of the cross section which is exposed to drying</param>
+        /// <param name="T0">The age of concrete at loading in days</param>
+        /// <param name="deltaTemperature">The delta temperature in °C during the time period. Default value = 0</param>
+        /// <param name="deltaDaysTemperature">is the number of days where a temperature <paramref name="deltaTemperature"/> prevails. Default value = 0</param>
+        /// <returns></returns>
+        public virtual double CalculateEpsilonCCInfiniteTime(double sigmaC, double RH, double AreaC, double u, double T0 = 7, double deltaTemperature = 0, double deltaDaysTemperature = 0)
         {
             if (deltaTemperature != 0)
             {
@@ -392,6 +393,13 @@ namespace GPC.Model.Materials
                 return phi * Math.Pow(Math.E, 1.5 * (sigmaC / Fck - 0.45));
         }
 
+        /// <summary>
+        /// Calculate the total shrinkage strain
+        /// </summary>
+        /// <param name="RH">The relative humidity %</param>
+        /// <param name="AreaC">The area of concrete</param>
+        /// <param name="u">The perimeter of that part of the cross section which is exposed to drying</param>
+        /// <returns></returns>
         public virtual double CalculateEpsilonCSInfiniteTime(double RH, double AreaC, double u)
 		{
             double alphads1;
@@ -427,11 +435,11 @@ namespace GPC.Model.Materials
             if (h0 <= 100)
                 kh = 100;
             else if (h0 <= 200 && h0 > 100)
-                GPC.Utilities.Maths.Interpolation.GetLinearInterpolation(100, 200, 1.0, 0.85, kh);
+                Interpolation.GetLinearInterpolation(100, 200, 1.0, 0.85, kh);
             else if (h0 <= 300 && h0 > 200)
-                GPC.Utilities.Maths.Interpolation.GetLinearInterpolation(200, 300, 0.85, 0.75, kh);
+                Interpolation.GetLinearInterpolation(200, 300, 0.85, 0.75, kh);
             else if (h0 <= 500 && h0 > 300)
-                GPC.Utilities.Maths.Interpolation.GetLinearInterpolation(300, 500, 0.75, 0.70, kh);
+                Interpolation.GetLinearInterpolation(300, 500, 0.75, 0.70, kh);
             else
                 kh = 0.70;
 
@@ -620,6 +628,19 @@ namespace GPC.Model.Materials
         protected virtual double CalculateEcm()
         {
             return 22.0 * Math.Pow(Fcm / 10.0, 0.30);
+        }
+
+        protected virtual double CalculateBetaCC(int days)
+        {
+            double s;
+            if (TypeOfCement == TypeOfCements.ClassR)
+                s = 0.20;
+            else if (TypeOfCement == TypeOfCements.ClassN)
+                s = 0.25;
+            else //if (typeOfCement == TypeOfCement.ClassS)
+                s = 0.38;
+
+            return Math.Pow(Math.E, (s * (1 - Math.Pow(28 / days, 0.5))));
         }
 
         #endregion

@@ -17,7 +17,7 @@ namespace GPC.Model.Materials
 
         #region Properties
 
-        public double Fck => _fck; 
+        public double Fck => _fck;
 
         #endregion
 
@@ -30,7 +30,7 @@ namespace GPC.Model.Materials
         /// <param name="elasticModulus">Elastic secant modulus</param>
         /// <param name="poisson">Poissoins's Ratio</param>
         /// <param name="fck">Concrete compression resistance reference value (28 days)</param>
-        /// <param name="density"></param>
+        /// <param name="density">Density of concrete</param>
         /// <param name="guid">Guid of the material</param>
         /// <param name="alfaThermalExpansion">Linear thermal expasion coefficient</param>
         public ConcreteMaterial(string name, double elasticModulus, double poisson, double fck, double density, double alfaThermalExpansion, Guid guid)
@@ -45,19 +45,20 @@ namespace GPC.Model.Materials
         /// <param name="elasticModulus">Elastic secant modulus</param>
         /// <param name="poisson">Poissoins's Ratio</param>
         /// <param name="fck">Concrete compression resistance reference value (28 days)</param>
-        /// <param name="density"></param>
-        public ConcreteMaterial(double elasticModulus, double poisson, double fck, double density = 2500.0)
-            : this("", elasticModulus, poisson, fck, density, 0, Guid.NewGuid())
+        /// <param name="density">Density of concrete. Default value = 0.0025 T/mm^2</param>
+        /// <remarks>alfaThermalExpansion = 1e-6</remarks>
+        public ConcreteMaterial(double elasticModulus, double poisson, double fck, double density = 0.0025)
+            : this("", elasticModulus, poisson, fck, density, 1e-6, Guid.NewGuid())
         {
 
         }
 
-		/// <summary>
-		///
-		/// </summary>
-		/// <param name="name"></param>
-		/// <param name="fck">Concrete compression resistance reference value (28 days)</param>
-		protected ConcreteMaterial(string name, double fck)
+        /// <summary>
+        ///
+        /// </summary>
+        /// <param name="name"></param>
+        /// <param name="fck">Concrete compression resistance reference value (28 days)</param>        
+        protected ConcreteMaterial(string name, double fck)
             :base(name)
         {
             _fck = fck;

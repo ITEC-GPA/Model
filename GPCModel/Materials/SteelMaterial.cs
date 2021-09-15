@@ -23,14 +23,14 @@ namespace GPC.Model.Materials
 
         public double Fu => _fu;
 
-        public double Epsilon0 => _epsilon0; 
+        public double Epsilon0 => _epsilon0;
 
         #endregion
 
         #region Constructor
 
         /// <summary>
-        ///
+        /// Default SteelMaterial constructor
         /// </summary>
         /// <param name="name"></param>
         /// <param name="elasticModulus">Steel elastic modulus</param>
@@ -53,7 +53,7 @@ namespace GPC.Model.Materials
         }
 
         /// <summary>
-        /// Guid setted to empty, alfaThermalExpansion setted to 0
+        /// 
         /// </summary>
         /// <param name="name"></param>
         /// <param name="elasticModulus">Steel elastic modulus</param>
@@ -62,6 +62,7 @@ namespace GPC.Model.Materials
         /// <param name="fu">Ultimate stress</param>
         /// <param name="epsilon0">Yielding strain</param>
         /// <param name="density"></param>
+        /// <remarks>Guid setted to new guid, alfaThermalExpansion setted to 0</remarks>
         public SteelMaterial(string name, double elasticModulus, double poisson, double fy, double fu, double epsilon0, double density)
             : this(name, elasticModulus, poisson, fy, fu, epsilon0, density, 0, Guid.NewGuid())
         {
@@ -69,7 +70,7 @@ namespace GPC.Model.Materials
         }
 
         /// <summary>
-        /// Guid setted to empty, alfaThermalExpansion setted to 0. Epsilon0 equal to fy / E
+        /// 
         /// </summary>
         /// <param name="name"></param>
         /// <param name="elasticModulus">Steel elastic modulus</param>
@@ -77,6 +78,7 @@ namespace GPC.Model.Materials
         /// <param name="fy">Yielding stress</param>
         /// <param name="fu">Ultimate stress</param>
         /// <param name="density"></param>
+        /// <remarks>Guid setted to empty, alfaThermalExpansion setted to 0. Epsilon0 equal to fy / E</remarks>
         public SteelMaterial(string name, double elasticModulus, double poisson, double fy, double fu, double density)
             : this(name, elasticModulus, poisson, fy, fu, fy / elasticModulus, density, 0, Guid.NewGuid())
         {
