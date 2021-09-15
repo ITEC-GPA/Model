@@ -82,7 +82,7 @@ namespace GPC.Model.Sections
             return new[] { new ShapeMaterial { Material = _material, Shape = shape } };
         }
 
-        public Polygon3d ConvertCircleToPolygon(double radius, int edge)
+        private Polygon3d ConvertCircleToPolygon(double radius, int edge)
         {
             if (edge < 2)
                 throw new ArgumentException($"{edge} must be at least 3");

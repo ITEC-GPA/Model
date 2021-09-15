@@ -162,7 +162,7 @@ namespace GPC.Model.Elements
 
         public void AddRebar(double diameter, Point2d position, RebarMaterial material, Guid guid)
         {
-            _bars.Add(new Rebar(diameter, position, material, guid));
+            _bars.Add(new Rebar(diameter, position, material, 0.0, 0.0, guid));
         }
 
         public void AddRebar(double diameter, Point2d position, RebarMaterial material)
