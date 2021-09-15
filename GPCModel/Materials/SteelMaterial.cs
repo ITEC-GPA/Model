@@ -19,10 +19,19 @@ namespace GPC.Model.Materials
 
         #region Properties
 
+        /// <summary>
+        /// Characteristic yield strength
+        /// </summary>
         public double Fyk => _fyk;
 
+        /// <summary>
+        /// Ultimate strength
+        /// </summary>
         public double Fu => _fu;
 
+        /// <summary>
+        /// Yielding strain
+        /// </summary>
         public double Epsilon0 => _epsilon0;
 
         #endregion
@@ -38,7 +47,7 @@ namespace GPC.Model.Materials
         /// <param name="fyk">Yielding stress</param>
         /// <param name="fu">Ultimate stress</param>
         /// <param name="epsilon0">Yielding strain</param>
-        /// <param name="density"></param>
+        /// <param name="density">Density of material</param>
         /// <param name="alfaThermalExpansion">Linear thermal expasion coefficient</param>
         /// <param name="guid">Guid of the material</param>
         public SteelMaterial(string name, double elasticModulus, double poisson, double fyk, double fu, double epsilon0, double density, double alfaThermalExpansion, Guid guid)
@@ -61,7 +70,7 @@ namespace GPC.Model.Materials
         /// <param name="fy">Yielding stress</param>
         /// <param name="fu">Ultimate stress</param>
         /// <param name="epsilon0">Yielding strain</param>
-        /// <param name="density"></param>
+        /// <param name="density">Density of material</param>
         /// <remarks>Guid setted to new guid, alfaThermalExpansion setted to 0</remarks>
         public SteelMaterial(string name, double elasticModulus, double poisson, double fy, double fu, double epsilon0, double density)
             : this(name, elasticModulus, poisson, fy, fu, epsilon0, density, 0, Guid.NewGuid())
@@ -77,7 +86,7 @@ namespace GPC.Model.Materials
         /// <param name="poisson">Poissoins's Ratio</param>
         /// <param name="fy">Yielding stress</param>
         /// <param name="fu">Ultimate stress</param>
-        /// <param name="density"></param>
+        /// <param name="density">Density of material</param>
         /// <remarks>Guid setted to empty, alfaThermalExpansion setted to 0. Epsilon0 equal to fy / E</remarks>
         public SteelMaterial(string name, double elasticModulus, double poisson, double fy, double fu, double density)
             : this(name, elasticModulus, poisson, fy, fu, fy / elasticModulus, density, 0, Guid.NewGuid())

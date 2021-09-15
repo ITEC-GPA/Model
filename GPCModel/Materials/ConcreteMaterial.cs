@@ -24,7 +24,7 @@ namespace GPC.Model.Materials
         #region Constructor
 
         /// <summary>
-        ///
+        /// Default constructor
         /// </summary>
         /// <param name="name"></param>
         /// <param name="elasticModulus">Elastic secant modulus</param>
