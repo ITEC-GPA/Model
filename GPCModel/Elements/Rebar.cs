@@ -58,18 +58,13 @@ namespace GPC.Model.Elements
             _tensionP = tensionP;
         }
 
-        public Rebar(double diameter, Point2d position, RebarMaterial material, double epsilonP, double tensionP)
+        public Rebar(double diameter, Point2d position, RebarMaterial material, double epsilonP = 0.0, double tensionP = 0.0)
             : this(diameter, position, material, epsilonP, tensionP, new Guid())
         {
         }
 
-        public Rebar(double diameter, Point2d position, RebarMaterial material, Guid guid) :
-             this(diameter, position, material, 0.0, 0.0, guid)
-        {
-        }
-
         public Rebar(double diameter, Point2d position, RebarMaterial material) :
-            this(diameter, position, material, Guid.NewGuid())
+            this(diameter, position, material, 0.0, 0.0, new Guid())
         {
         }
 
@@ -115,7 +110,7 @@ namespace GPC.Model.Elements
 
         #endregion
 
-        #region FIELD_SERIALIZATION
+        #region Field Serialization
 
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
@@ -138,6 +133,11 @@ namespace GPC.Model.Elements
         public Rebars()
         {
             _bars = new List<Rebar>();
+        }
+
+        public Rebars(List<Rebar> rebars)
+        {
+            _bars = new List<Rebar>(rebars);
         }
 
         #region IEnumerable
