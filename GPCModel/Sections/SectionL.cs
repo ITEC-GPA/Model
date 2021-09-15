@@ -56,12 +56,14 @@ namespace GPC.Model.Sections
 
         public override double CalculateWel1()
         {
-            return Math.Min(CalculateWel11Bottom(), CalculateWel11Top());
+            CalculateWel(out double Wel11Top, out double Wel11Bottom, out double _, out double _);
+            return Math.Min(Wel11Bottom, Wel11Top);
         }
 
         public override double CalculateWel2()
         {
-            return Math.Min(CalculateWel22Left(), CalculateWel22Right());
+            CalculateWel(out double _, out double _, out double Wel22Left, out double Wel22Right);
+            return Math.Min(Wel22Left, Wel22Right);
         }
 
         public override double CalculateAngle()
@@ -83,29 +85,14 @@ namespace GPC.Model.Sections
         {
             return (Jxx + Jyy) / 2.0 - 0.5 * Math.Sqrt(Math.Pow(Jxx - Jyy, 2.0) + 4.0 * Math.Pow(CalculateJxy(), 2));
         }
-
-        public double CalculateWel22Left()
-        {
-            FivePointsCheck(out double minX, out double _, out double _, out double _);
-            return Jyy / Math.Abs(minX);
-        }
-
-        public double CalculateWel22Right()
-        {
-            FivePointsCheck(out double _, out double maxX, out double _, out double _);
-            return Jyy / Math.Abs(maxX);
-        }
-
-        public double CalculateWel11Bottom()
-        {
-            FivePointsCheck(out double _, out double _, out double minY, out double _);
-            return Jxx / Math.Abs(minY);
-        }
-
-        public double CalculateWel11Top()
-        {
-            FivePointsCheck(out double _, out double _, out double _, out double maxY);
-            return Jxx / Math.Abs(maxY);
+               
+        private void CalculateWel(out double Wel11Top, out double Wel11Bottom, out double Wel22Left, out double Wel22Right)
+		{
+            FivePointsCheck(out double minX, out double maxX, out double minY, out double maxY);
+            Wel11Top = Jxx / Math.Abs(maxY);
+            Wel11Bottom = Jxx / Math.Abs(minY);
+            Wel22Left = Jyy / Math.Abs(minX);
+            Wel22Right = Jyy / Math.Abs(maxX);
         }
 
         private void FivePointsCheck(out double minX, out double maxX, out double minY, out double maxY)
@@ -159,28 +146,6 @@ namespace GPC.Model.Sections
             
             return jxy;
         }
-
-        public double DistanceYCentroidFromBottom()
-        {
-            return Centroid.Y;
-        }
-
-        public double DistanceYCentroidFromTop()
-        {
-            return LengthVert - Centroid.Y;
-        }
-
-        public double DistanceXCentroidFromRight()
-        {
-            return Centroid.X;
-        }
-
-        public double DistanceXCentroidFromLeft()
-        {
-            return LengthHor - Centroid.X;
-        }
-
-
 
         #endregion
 
