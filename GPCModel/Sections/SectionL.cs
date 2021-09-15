@@ -19,32 +19,41 @@ namespace GPC.Model.Sections
 
         #region Properties
 
-        public double LengthHor => _lHor;
+        public double HorizontalLegLength => _lHor;
 
-        public double ThicknessHor => _tHor;
+        public double HorizontalLegThickness => _tHor;
 
-        public double LengthVert => _lVert;
+        public double VerticalLegLength => _lVert;
 
-        public double ThicknessVert => _tVert;
+        public double VerticalLegThickness => _tVert;
 
         #endregion
 
 
         #region Constructor
 
-        public SectionL(double lHor, double tHor, double lVert, double tVert, Material material, string name)
+        /// <summary>
+        /// Default constructor
+        /// </summary>
+        /// <param name="horizontalLegLength">The horizontal leg length</param>
+        /// <param name="horizontalLegThickness">The horizontal leg thickness</param>
+        /// <param name="verticalLegLength">The vertical leg length</param>
+        /// <param name="verticalLegThickness">The vertical leg thickness</param>
+        /// <param name="material">Material of the section</param>
+        /// <param name="name">Name of the section</param>
+        public SectionL(double horizontalLegLength, double horizontalLegThickness, double verticalLegLength, double verticalLegThickness, Material material, string name)
             : base(material, name)
         {
-            _lHor = lHor < 0 ? throw new ArgumentException($"Horizzontal plate lenght cannot be lower than zero") : lHor;
-            _tHor = tHor < 0 ? throw new ArgumentException($"Horizzontal plate thickness cannot be lower than zero") : tHor;
-            _lVert = lVert < 0 ? throw new ArgumentException($"Vertical plate lenght cannot be lower than zero") : lVert;
-            _tVert = tVert < 0 ? throw new ArgumentException($"Vertical plate thickness cannot be lower than zero") : tVert;
+            _lHor = horizontalLegLength < 0 ? throw new ArgumentException($"Horizzontal plate lenght cannot be lower than zero") : horizontalLegLength;
+            _tHor = horizontalLegThickness < 0 ? throw new ArgumentException($"Horizzontal plate thickness cannot be lower than zero") : horizontalLegThickness;
+            _lVert = verticalLegLength < 0 ? throw new ArgumentException($"Vertical plate lenght cannot be lower than zero") : verticalLegLength;
+            _tVert = verticalLegThickness < 0 ? throw new ArgumentException($"Vertical plate thickness cannot be lower than zero") : verticalLegThickness;
 
-            ThinWall thinWall1 = new ThinWall(LengthHor, ThicknessHor, 0);
-            ThinWall thinWall2 = new ThinWall(LengthVert - ThicknessHor, ThicknessVert, Math.PI / 2);
+            ThinWall thinWall1 = new ThinWall(HorizontalLegLength, HorizontalLegThickness, 0);
+            ThinWall thinWall2 = new ThinWall(VerticalLegLength - HorizontalLegThickness, VerticalLegThickness, Math.PI / 2);
 
-            Points = new Point2d[] { new Point2d(LengthHor / 2, ThicknessHor / 2),
-                    new Point2d(ThicknessVert / 2, ThicknessHor + (LengthVert - ThicknessHor) / 2)};
+            Points = new Point2d[] { new Point2d(HorizontalLegLength / 2, HorizontalLegThickness / 2),
+                    new Point2d(VerticalLegThickness / 2, HorizontalLegThickness + (VerticalLegLength - HorizontalLegThickness) / 2)};
 
             ThinWalls = new ThinWall[] { thinWall1, thinWall2 };
         }
@@ -101,10 +110,10 @@ namespace GPC.Model.Sections
             //traslation
             Point2d[] pts = new Point2d[5];
             pts[0] = new Point2d(-Centroid.X, -Centroid.Y);
-            pts[1] = new Point2d(LengthHor - Centroid.X, -Centroid.Y);
-            pts[2] = new Point2d(LengthHor - Centroid.X, ThicknessHor - Centroid.Y);
-            pts[3] = new Point2d(ThicknessVert - Centroid.X, LengthVert - Centroid.Y);
-            pts[4] = new Point2d(-Centroid.X, LengthVert - Centroid.Y);
+            pts[1] = new Point2d(HorizontalLegLength - Centroid.X, -Centroid.Y);
+            pts[2] = new Point2d(HorizontalLegLength - Centroid.X, HorizontalLegThickness - Centroid.Y);
+            pts[3] = new Point2d(VerticalLegThickness - Centroid.X, VerticalLegLength - Centroid.Y);
+            pts[4] = new Point2d(-Centroid.X, VerticalLegLength - Centroid.Y);
 
             //rotation
             minX = 0;
@@ -128,14 +137,14 @@ namespace GPC.Model.Sections
 
         public override double CalculateJxx()
         {
-            return (1.0 / 3.0) * (LengthHor * Math.Pow(LengthVert, 3) - (LengthHor - ThicknessVert) * Math.Pow(LengthVert - ThicknessHor, 3)) - 
-                Area * Math.Pow(LengthVert - Centroid.Y, 2);
+            return (1.0 / 3.0) * (HorizontalLegLength * Math.Pow(VerticalLegLength, 3) - (HorizontalLegLength - VerticalLegThickness) * Math.Pow(VerticalLegLength - HorizontalLegThickness, 3)) - 
+                Area * Math.Pow(VerticalLegLength - Centroid.Y, 2);
         }
 
         public override double CalculateJyy()
         {
-            return (1.0 / 3.0) * (LengthVert * Math.Pow(LengthHor, 3) - (LengthVert - ThicknessHor) * Math.Pow(LengthHor - ThicknessVert, 3)) -
-                Area * Math.Pow(LengthHor - Centroid.X, 2);
+            return (1.0 / 3.0) * (VerticalLegLength * Math.Pow(HorizontalLegLength, 3) - (VerticalLegLength - HorizontalLegThickness) * Math.Pow(HorizontalLegLength - VerticalLegThickness, 3)) -
+                Area * Math.Pow(HorizontalLegLength - Centroid.X, 2);
         }
 
         public double CalculateJxy()

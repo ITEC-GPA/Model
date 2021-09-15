@@ -26,7 +26,7 @@ namespace GPC.Model.Sections.Steel
 
         public bool IsWelded => _sectionType == SectionTypes.Welded;
 
-        public double Height => LengthVert;
+        public double Height => VerticalLegLength;
 
         public SteelMaterial SteelMaterial => (SteelMaterial)_material;
 
