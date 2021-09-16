@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace GPC.Model.Sections.Rebar
 {
-	public class RebarCircularSection : SectionCircular
+	public class RebarCircularSection : SectionCircular, IRebarSection
 	{
         // public const double PRESTRESSED_LIMIT = 0.0000001;
 
@@ -27,20 +27,22 @@ namespace GPC.Model.Sections.Rebar
 
         public bool IsPrestressed => _tensionP > 0.0;
 
-        #endregion
+		public RebarMaterial RebarMaterial => (RebarMaterial)_material;
 
-        #region Public Constructors
+		#endregion
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="name">The name of section</param>
-        /// <param name="diameter">Th diameter</param>
-        /// <param name="rebarMaterial">The material</param>
-        /// <param name="epsilonP"></param>
-        /// <param name="tensionP"></param>
-        /// <param name="id">The unique id</param>
-        public RebarCircularSection(string name, double diameter, RebarMaterial rebarMaterial, 
+		#region Public Constructors
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="name">The name of section</param>
+		/// <param name="diameter">Th diameter</param>
+		/// <param name="rebarMaterial">The material</param>
+		/// <param name="epsilonP"></param>
+		/// <param name="tensionP"></param>
+		/// <param name="id">The unique id</param>
+		public RebarCircularSection(string name, double diameter, RebarMaterial rebarMaterial, 
             double epsilonP = 0.0, double tensionP = 0.0, int id = IDUNASSIGNED)
             : base(diameter, rebarMaterial, name)
         {

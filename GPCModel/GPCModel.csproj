@@ -88,6 +88,7 @@
     <Compile Include="Sections\Concrete\ConcreteSectionRectangular.cs" />
     <Compile Include="Sections\Concrete\IConcreteSection.cs" />
     <Compile Include="Sections\Concrete\ReinforcedConcreteSection.cs" />
+    <Compile Include="Sections\Rebar\IRebarSection.cs" />
     <Compile Include="Sections\Rebar\RebarCircularSection.cs" />
     <Compile Include="Sections\SectionRectangular.cs" />
     <Compile Include="Sections\ShapeEx.cs" />
