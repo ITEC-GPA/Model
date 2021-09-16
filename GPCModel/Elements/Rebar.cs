@@ -47,7 +47,7 @@ namespace GPC.Model.Elements
 
         #region Public Constructors
 
-        public Rebar(IRebarSection section, Point3d startPosition, Point3d endPosition, double epsilonP, double tensionP, Guid guid)
+        public Rebar(IRebarSection section, Point3d startPosition, Point3d endPosition, double epsilonP, double tensionP, int id, Guid guid)
             : base(guid)    
         {
             _rebarSection = section;
@@ -55,15 +55,21 @@ namespace GPC.Model.Elements
             _endPosition = endPosition;
             _epsilonP = epsilonP;
             _tensionP = tensionP;
+            _id = id;
         }
 
-        public Rebar(IRebarSection section, Point3d startPosition, Point3d endPosition, double epsilonP = 0.0, double tensionP = 0.0)
-            : this(section, startPosition, endPosition, epsilonP, tensionP, new Guid())
+        public Rebar(IRebarSection section, Point3d startPosition, Point3d endPosition, double epsilonP = 0.0, double tensionP = 0.0, int id = IDUNASSIGNED)
+            : this(section, startPosition, endPosition, epsilonP, tensionP, id, new Guid())
+        {
+        }
+
+        public Rebar(IRebarSection section, Point3d startPosition, Point3d endPosition, int id = IDUNASSIGNED, double epsilonP = 0.0, double tensionP = 0.0)
+            : this(section, startPosition, endPosition, epsilonP, tensionP, id, new Guid())
         {
         }
 
         public Rebar(IRebarSection section, Point2d position) 
-            : this(section, position, position)
+            : this(section, position, position, 0.0, 0.0, IDUNASSIGNED)
         {
         }
 
