@@ -63,6 +63,27 @@ namespace GPC.Model.Sections
 
         #region Public method
 
+        internal override void SetMechanicalProperties()
+        {
+            _area = CalculateArea();
+            _centroid = CalculateCentroid();
+            _jxx = CalculateJxx();
+            _jyy = CalculateJyy();
+            _j11 = CalculateJ11();
+            _j22 = CalculateJ22();
+            _jw = CalculateJw();
+            _jt = CalculateJt();
+            _shearCenter = CalculateShearCenter();
+
+            CalculateWel(out double Wel11Top, out double Wel11Bottom, out double Wel22Left, out double Wel22Right);
+
+            _wel1 = Math.Min(Wel11Bottom, Wel11Top);
+            _wel2 = Math.Min(Wel22Left, Wel22Right);
+            _wpl1 = CalculateWpl1();
+            _wpl2 = CalculateWpl2();
+            _angleX1 = CalculateAngle();
+        }
+
         public override double CalculateWel1()
         {
             CalculateWel(out double Wel11Top, out double Wel11Bottom, out double _, out double _);
@@ -147,15 +168,6 @@ namespace GPC.Model.Sections
                 Area * Math.Pow(HorizontalLegLength - Centroid.X, 2);
         }
 
-        public double CalculateJxy()
-        {
-            double jxy = 0;
-            for (int i = 0; i < ThinWalls.Count(); i++)            
-                jxy += +0.0 + ThinWalls[i].Area * (Centroid.X - Points[i].X) * (Centroid.Y - Points[i].Y);
-            
-            return jxy;
-        }
-
         #endregion
 
 
@@ -189,12 +201,12 @@ namespace GPC.Model.Sections
 
         public override double CalculateWpl1()
         {
-            return CalculateWel1();     // TODO: implementare SectionL
+            return _wel1;
         }
 
         public override double CalculateWpl2()
         {
-            return CalculateWel2();
+            return _wel2;
         }
 
         public override Point2d CalculateCentroid()
