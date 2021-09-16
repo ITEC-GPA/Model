@@ -109,7 +109,7 @@ namespace GPC.Model.Materials
         /// <summary>
         /// Secant modulus of elasticity value between sigmac = 0 and 0,4fcm (Ecm)
         /// </summary>
-        public override double E => CalculateEcm();
+        public override double E => _elasticModulus;
 
         /// <summary>
         /// Modulus of elasticity value for ultimate limit state calculations
@@ -119,7 +119,7 @@ namespace GPC.Model.Materials
         /// <summary>
         /// Tangent modulus of elasticity
         /// </summary>
-        public double Ec => 1.05 * CalculateEcm();
+        public double Ec => 1.05 * E;
 
         /// <summary>
         /// Poisson’s ratio for cracked concrete
@@ -152,6 +152,7 @@ namespace GPC.Model.Materials
         /// <param name="standard">Standard EN1992 or a relative national annex</param>
         /// <param name="stressStrainDiagram">The stress-strain diagram type</param>
         /// <param name="typeOfCement">The type of cement. See §3.4.1</param>
+        /// <remarks>Elastic modulus is automatically calculated according to EN1992 §3 (Ecm)</remarks>
         public ConcreteMaterialEN1992(string name, double fck, double ni, double niCracked, double alphaT, double density,
             StandardEn1992p11 standard, StressStrainDiagrams stressStrainDiagram, TypeOfCements typeOfCement)
             : base(name, fck)
@@ -179,9 +180,54 @@ namespace GPC.Model.Materials
             if (_elasticModulus < 0)
                 throw new ArgumentException($"{nameof(_elasticModulus)} must be > 0");
 
-            SetEpsilonU();
-            SetEpsilonY();
-            SetFcd();
+            CalculateEpsilonU();
+            CalculateEpsilonY();
+            CalculateFcd();
+        }
+
+		/// <summary>
+		/// Default constructor
+		/// </summary>
+		/// <param name="name">The name of the material</param>
+		/// <param name="fck">Characteristic compressive cylinder strength of concrete at 28 days</param>
+		/// <param name="elasticModulus"></param>
+		/// <param name="ni">Poisson's ratio</param>
+		/// <param name="niCracked">Poisson's ratio in cracked concrete</param>
+		/// <param name="alphaT">Linear thermal expasion coefficient</param>
+		/// <param name="density">The density of concrete</param>
+		/// <param name="standard">Standard EN1992 or a relative national annex</param>
+		/// <param name="stressStrainDiagram">The stress-strain diagram type</param>
+		/// <param name="typeOfCement">The type of cement. See §3.4.1</param>
+		public ConcreteMaterialEN1992(string name, double fck, double elasticModulus, double ni, double niCracked, double alphaT, double density,
+            StandardEn1992p11 standard, StressStrainDiagrams stressStrainDiagram, TypeOfCements typeOfCement)
+            : base(name, fck)
+        {
+            if (fck < 0.0)
+                throw new ArgumentException($"{nameof(fck)} must be > 0");
+
+            _ni = ni < 0 ? throw new ArgumentException($"{nameof(ni)} cannot be zero or lower") : ni;
+            if (ni > 0.5)
+                throw new ArgumentException($"{nameof(ni)} must be < 0.5");
+
+            _niCracked = niCracked < 0 ? throw new ArgumentException($"{nameof(niCracked)} cannot be zero or lower") : niCracked;
+            if (niCracked > 0.5)
+                throw new ArgumentException($"{nameof(niCracked)} must be < 0.5");
+
+            _density = density <= 0 ? throw new ArgumentException($"{nameof(density)} cannot be zero or lower") : density;
+
+            _standard = standard;
+            _alfaThermalExpansion = alphaT;
+
+            _stressStrainDiagram = stressStrainDiagram;
+            _typeOfCement = typeOfCement;
+
+            _elasticModulus = elasticModulus;
+            if (_elasticModulus < 0)
+                throw new ArgumentException($"{nameof(_elasticModulus)} must be > 0");
+
+            CalculateEpsilonU();
+            CalculateEpsilonY();
+            CalculateFcd();
         }
 
         /// <summary>
@@ -455,7 +501,7 @@ namespace GPC.Model.Materials
 
         #region Protected Methods
 
-        protected virtual void SetEpsilonY()
+        protected virtual void CalculateEpsilonY()
 		{
             if (StressStrainDiagram == StressStrainDiagrams.ParabolaRectangle)
             {
@@ -486,7 +532,7 @@ namespace GPC.Model.Materials
                 throw new ArgumentException();
 		}
 
-        protected virtual void SetEpsilonU()
+        protected virtual void CalculateEpsilonU()
         {
             if (StressStrainDiagram == StressStrainDiagrams.ParabolaRectangle)
             {
@@ -513,7 +559,7 @@ namespace GPC.Model.Materials
                 throw new ArgumentException();
         }
 
-        protected virtual void SetFcd()
+        protected virtual void CalculateFcd()
 		{
             if (StressStrainDiagram == StressStrainDiagrams.StressBlock)
             {
@@ -532,41 +578,6 @@ namespace GPC.Model.Materials
 		}
 
 
-
-        protected virtual double CalculateEpsilonC1()
-        {
-            if (_fck <= 50)
-            {
-                if (_fck <= 12.0)
-                    return 1.8;
-                else if (_fck <= 16.0)
-                    return 1.9;
-                else if (_fck <= 20.0)
-                    return 2.0;
-                else if (_fck <= 25.0)
-                    return 2.1;
-                else if (_fck <= 30.0)
-                    return 2.2;
-                else if (_fck <= 35.0)
-                    return 2.25;
-                else if (_fck <= 40.0)
-                    return 2.3;
-                else if (_fck <= 45.0)
-                    return 2.4;
-                else // if (_fck <= 50.0)
-                    return 2.45;
-            }
-            else
-                return 2.0 + 0.085 * Math.Pow(_fck - 50.0, 0.53);
-        }
-
-        protected virtual double CalculateEpsilonCu1()
-        {
-            if (_fck <= 50)
-                return 3.5 / 10.0;
-            else
-                return (2.6 + 35.0 * Math.Pow(((90.0 - _fck) / 100.0), 4)) / 10.0;
-        }
 
         protected virtual double CalculateFckCube()
         {
