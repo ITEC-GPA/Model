@@ -32,7 +32,7 @@ namespace ModelObjectTest
             Assert.AreEqual(steelDeserialized.AlfaThermalExpansion, steel.AlfaThermalExpansion, "Alfa expansion diverso");
             Assert.AreEqual(steelDeserialized.Density, steel.Density, "Density diverso");
             Assert.AreEqual(steelDeserialized.E, steel.E, "E diverso");
-            Assert.AreEqual(steelDeserialized.Epsilon0, steel.Epsilon0, "epsiolon0 diverso");
+            Assert.AreEqual(steelDeserialized.EpsilonU, steel.EpsilonU, "EpsiolonU diverso");
             Assert.AreEqual(steelDeserialized.Fu, steel.Fu, "Fu diverso");
             Assert.AreEqual(steelDeserialized.Fyk, steel.Fyk, "Fyk diverso");
             Assert.AreEqual(steelDeserialized.Ni, steel.Ni, "Ni diverso");
