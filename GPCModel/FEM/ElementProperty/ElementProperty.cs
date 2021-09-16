@@ -4,18 +4,22 @@ using System.Runtime.Serialization;
 namespace GPC.Model.FEM.Properties
 {
     [Serializable]
-    public abstract class ElementProperty : ModelObject, ISerializable
+    public abstract class ElementProperty : ModelObjectId, ISerializable
     {
 
         #region Public Constructors
 
-        protected ElementProperty(string name)
-            : base(Guid.NewGuid(), name)
+        protected ElementProperty(string name, int id)
+            : base(id, name, Guid.NewGuid())
         {
 
         }
 
+        protected ElementProperty(string name)
+            : base(name)
+        {
 
+        }
 
         protected ElementProperty(SerializationInfo info, StreamingContext context)
             : base(info, context)
