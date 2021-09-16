@@ -19,32 +19,41 @@ namespace GPC.Model.Sections
 
         #region Properties
 
-        public double LengthHor => _lHor;
+        public double HorizontalLegLength => _lHor;
 
-        public double ThicknessHor => _tHor;
+        public double HorizontalLegThickness => _tHor;
 
-        public double LengthVert => _lVert;
+        public double VerticalLegLength => _lVert;
 
-        public double ThicknessVert => _tVert;
+        public double VerticalLegThickness => _tVert;
 
         #endregion
 
 
         #region Constructor
 
-        public SectionL(double lHor, double tHor, double lVert, double tVert, Material material, string name)
+        /// <summary>
+        /// Default constructor
+        /// </summary>
+        /// <param name="horizontalLegLength">The horizontal leg length</param>
+        /// <param name="horizontalLegThickness">The horizontal leg thickness</param>
+        /// <param name="verticalLegLength">The vertical leg length</param>
+        /// <param name="verticalLegThickness">The vertical leg thickness</param>
+        /// <param name="material">Material of the section</param>
+        /// <param name="name">Name of the section</param>
+        public SectionL(double horizontalLegLength, double horizontalLegThickness, double verticalLegLength, double verticalLegThickness, Material material, string name)
             : base(material, name)
         {
-            _lHor = lHor < 0 ? throw new ArgumentException($"Horizzontal plate lenght cannot be lower than zero") : lHor;
-            _tHor = tHor < 0 ? throw new ArgumentException($"Horizzontal plate thickness cannot be lower than zero") : tHor;
-            _lVert = lVert < 0 ? throw new ArgumentException($"Vertical plate lenght cannot be lower than zero") : lVert;
-            _tVert = tVert < 0 ? throw new ArgumentException($"Vertical plate thickness cannot be lower than zero") : tVert;
+            _lHor = horizontalLegLength < 0 ? throw new ArgumentException($"Horizzontal plate lenght cannot be lower than zero") : horizontalLegLength;
+            _tHor = horizontalLegThickness < 0 ? throw new ArgumentException($"Horizzontal plate thickness cannot be lower than zero") : horizontalLegThickness;
+            _lVert = verticalLegLength < 0 ? throw new ArgumentException($"Vertical plate lenght cannot be lower than zero") : verticalLegLength;
+            _tVert = verticalLegThickness < 0 ? throw new ArgumentException($"Vertical plate thickness cannot be lower than zero") : verticalLegThickness;
 
-            ThinWall thinWall1 = new ThinWall(LengthHor, ThicknessHor, 0);
-            ThinWall thinWall2 = new ThinWall(LengthVert - ThicknessHor, ThicknessVert, Math.PI / 2);
+            ThinWall thinWall1 = new ThinWall(HorizontalLegLength, HorizontalLegThickness, 0);
+            ThinWall thinWall2 = new ThinWall(VerticalLegLength - HorizontalLegThickness, VerticalLegThickness, Math.PI / 2);
 
-            Points = new Point2d[] { new Point2d(LengthHor / 2, ThicknessHor / 2),
-                    new Point2d(ThicknessVert / 2, ThicknessHor + (LengthVert - ThicknessHor) / 2)};
+            Points = new Point2d[] { new Point2d(HorizontalLegLength / 2, HorizontalLegThickness / 2),
+                    new Point2d(VerticalLegThickness / 2, HorizontalLegThickness + (VerticalLegLength - HorizontalLegThickness) / 2)};
 
             ThinWalls = new ThinWall[] { thinWall1, thinWall2 };
         }
@@ -54,14 +63,37 @@ namespace GPC.Model.Sections
 
         #region Public method
 
+        internal override void SetMechanicalProperties()
+        {
+            _area = CalculateArea();
+            _centroid = CalculateCentroid();
+            _jxx = CalculateJxx();
+            _jyy = CalculateJyy();
+            _j11 = CalculateJ11();
+            _j22 = CalculateJ22();
+            _jw = CalculateJw();
+            _jt = CalculateJt();
+            _shearCenter = CalculateShearCenter();
+
+            CalculateWel(out double Wel11Top, out double Wel11Bottom, out double Wel22Left, out double Wel22Right);
+
+            _wel1 = Math.Min(Wel11Bottom, Wel11Top);
+            _wel2 = Math.Min(Wel22Left, Wel22Right);
+            _wpl1 = CalculateWpl1();
+            _wpl2 = CalculateWpl2();
+            _angleX1 = CalculateAngle();
+        }
+
         public override double CalculateWel1()
         {
-            return Math.Min(CalculateWel11Bottom(), CalculateWel11Top());
+            CalculateWel(out double Wel11Top, out double Wel11Bottom, out double _, out double _);
+            return Math.Min(Wel11Bottom, Wel11Top);
         }
 
         public override double CalculateWel2()
         {
-            return Math.Min(CalculateWel22Left(), CalculateWel22Right());
+            CalculateWel(out double _, out double _, out double Wel22Left, out double Wel22Right);
+            return Math.Min(Wel22Left, Wel22Right);
         }
 
         public override double CalculateAngle()
@@ -83,29 +115,14 @@ namespace GPC.Model.Sections
         {
             return (Jxx + Jyy) / 2.0 - 0.5 * Math.Sqrt(Math.Pow(Jxx - Jyy, 2.0) + 4.0 * Math.Pow(CalculateJxy(), 2));
         }
-
-        public double CalculateWel22Left()
-        {
-            FivePointsCheck(out double minX, out double _, out double _, out double _);
-            return Jyy / Math.Abs(minX);
-        }
-
-        public double CalculateWel22Right()
-        {
-            FivePointsCheck(out double _, out double maxX, out double _, out double _);
-            return Jyy / Math.Abs(maxX);
-        }
-
-        public double CalculateWel11Bottom()
-        {
-            FivePointsCheck(out double _, out double _, out double minY, out double _);
-            return Jxx / Math.Abs(minY);
-        }
-
-        public double CalculateWel11Top()
-        {
-            FivePointsCheck(out double _, out double _, out double _, out double maxY);
-            return Jxx / Math.Abs(maxY);
+               
+        private void CalculateWel(out double Wel11Top, out double Wel11Bottom, out double Wel22Left, out double Wel22Right)
+		{
+            FivePointsCheck(out double minX, out double maxX, out double minY, out double maxY);
+            Wel11Top = Jxx / Math.Abs(maxY);
+            Wel11Bottom = Jxx / Math.Abs(minY);
+            Wel22Left = Jyy / Math.Abs(minX);
+            Wel22Right = Jyy / Math.Abs(maxX);
         }
 
         private void FivePointsCheck(out double minX, out double maxX, out double minY, out double maxY)
@@ -114,10 +131,10 @@ namespace GPC.Model.Sections
             //traslation
             Point2d[] pts = new Point2d[5];
             pts[0] = new Point2d(-Centroid.X, -Centroid.Y);
-            pts[1] = new Point2d(LengthHor - Centroid.X, -Centroid.Y);
-            pts[2] = new Point2d(LengthHor - Centroid.X, ThicknessHor - Centroid.Y);
-            pts[3] = new Point2d(ThicknessVert - Centroid.X, LengthVert - Centroid.Y);
-            pts[4] = new Point2d(-Centroid.X, LengthVert - Centroid.Y);
+            pts[1] = new Point2d(HorizontalLegLength - Centroid.X, -Centroid.Y);
+            pts[2] = new Point2d(HorizontalLegLength - Centroid.X, HorizontalLegThickness - Centroid.Y);
+            pts[3] = new Point2d(VerticalLegThickness - Centroid.X, VerticalLegLength - Centroid.Y);
+            pts[4] = new Point2d(-Centroid.X, VerticalLegLength - Centroid.Y);
 
             //rotation
             minX = 0;
@@ -141,46 +158,15 @@ namespace GPC.Model.Sections
 
         public override double CalculateJxx()
         {
-            return (1.0 / 3.0) * (LengthHor * Math.Pow(LengthVert, 3) - (LengthHor - ThicknessVert) * Math.Pow(LengthVert - ThicknessHor, 3)) - 
-                Area * Math.Pow(LengthVert - Centroid.Y, 2);
+            return (1.0 / 3.0) * (HorizontalLegLength * Math.Pow(VerticalLegLength, 3) - (HorizontalLegLength - VerticalLegThickness) * Math.Pow(VerticalLegLength - HorizontalLegThickness, 3)) - 
+                Area * Math.Pow(VerticalLegLength - Centroid.Y, 2);
         }
 
         public override double CalculateJyy()
         {
-            return (1.0 / 3.0) * (LengthVert * Math.Pow(LengthHor, 3) - (LengthVert - ThicknessHor) * Math.Pow(LengthHor - ThicknessVert, 3)) -
-                Area * Math.Pow(LengthHor - Centroid.X, 2);
+            return (1.0 / 3.0) * (VerticalLegLength * Math.Pow(HorizontalLegLength, 3) - (VerticalLegLength - HorizontalLegThickness) * Math.Pow(HorizontalLegLength - VerticalLegThickness, 3)) -
+                Area * Math.Pow(HorizontalLegLength - Centroid.X, 2);
         }
-
-        public double CalculateJxy()
-        {
-            double jxy = 0;
-            for (int i = 0; i < ThinWalls.Count(); i++)            
-                jxy += +0.0 + ThinWalls[i].Area * (Centroid.X - Points[i].X) * (Centroid.Y - Points[i].Y);
-            
-            return jxy;
-        }
-
-        public double DistanceYCentroidFromBottom()
-        {
-            return Centroid.Y;
-        }
-
-        public double DistanceYCentroidFromTop()
-        {
-            return LengthVert - Centroid.Y;
-        }
-
-        public double DistanceXCentroidFromRight()
-        {
-            return Centroid.X;
-        }
-
-        public double DistanceXCentroidFromLeft()
-        {
-            return LengthHor - Centroid.X;
-        }
-
-
 
         #endregion
 
@@ -215,12 +201,12 @@ namespace GPC.Model.Sections
 
         public override double CalculateWpl1()
         {
-            return CalculateWel1();     // TODO: implementare SectionL
+            return _wel1;
         }
 
         public override double CalculateWpl2()
         {
-            return CalculateWel2();
+            return _wel2;
         }
 
         public override Point2d CalculateCentroid()

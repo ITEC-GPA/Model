@@ -1087,67 +1087,26 @@ namespace ModelObjectTest
             Assert.AreEqual(Math.Abs(teta / sec.AngleX1) - 1, 0, 0.001);
         }
 
-		#endregion
+  //      [TestMethod]
+  //      public void SectionCircularTest1()
+		//{
+  //          double diameter = 100;
+  //          int division1 = 32;
+  //          int division2 = 64;
 
-		#region Section Circular
+  //          SectionCircular  sectionCircular = new SectionCircular(diameter, new SteelMaterial("steel", 200000, 0.3, 355, 510, 7850), string.Empty);
+  //          Polygon3d poly1 = sectionCircular.ConvertCircleToPolygon(division1);
+  //          Polygon3d poly2 = sectionCircular.ConvertCircleToPolygon(division2);
 
-		[TestMethod]
-        public void SectionCircularTest1()
-		{
-            double diameter = 100;
-            int division1 = 32;
-            int division2 = 64;
+  //          double circleArea = diameter * diameter * Math.PI / 4;
+  //          double polyArea1 = poly1.GetSignedArea();
+  //          double polyArea2 = poly2.GetSignedArea();
 
-            SectionCircular  sectionCircular = new SectionCircular(diameter, SteelMaterial.S355, string.Empty);
-            Polygon3d poly1 = sectionCircular.ConvertCircleToPolygon(division1);
-            Polygon3d poly2 = sectionCircular.ConvertCircleToPolygon(division2);
+  //          double error1 = Math.Abs(circleArea - polyArea1) * 100 / circleArea;
+  //          double error2 = Math.Abs(circleArea - polyArea2) * 100 / circleArea;
 
-            double circleArea = diameter * diameter * Math.PI / 4;
-            double polyArea1 = poly1.GetSignedArea();
-            double polyArea2 = poly2.GetSignedArea();
-
-            double error1 = Math.Abs(circleArea - polyArea1) * 100 / circleArea;
-            double error2 = Math.Abs(circleArea - polyArea2) * 100 / circleArea;
-
-            Assert.IsTrue(error1 < 1.0, $"{error1} %");
-            Assert.IsTrue(error2 < 0.2, $"{error2} %");
-        }
-
-        #endregion
-
-        #region Section Generic
-
-        [TestMethod]
-        public void SectionGenericTest1()
-        {
-            // Section
-            //      ____________
-            //     /            \
-            //    /              \
-            //   /                \
-            //  /                  \
-            // /____________________\
-            // 
-            // base maggiore / base minore, angolo 60°
-
-            //double baseMaggiore = 500.0;
-            //double altezza = 300.0;
-            //double angleDeg = 60.0;  // gradi
-            //double thickness = 10.0;
-
-            //double angle = Math.PI * angleDeg / 180.0;
-            //double baseMinore = baseMaggiore - altezza * Math.Cos(angle) * 2.0;
-            //double latPow2 = Math.Pow(altezza * Math.Cos(angle), 2) + Math.Pow(altezza, 2);
-            //double lunghezzaLati = Math.Sqrt(latPow2);
-
-            //ThinWall baseMaggioreTW = new ThinWall(baseMaggiore, thickness, 0);
-            //ThinWall baseMinoreTW = new ThinWall(baseMinore, thickness, 0);
-            //ThinWall latoSinistroTW = new ThinWall(lunghezzaLati, thickness, Math.PI * angleDeg / 180.0);
-            //ThinWall latodestroTW = new ThinWall(lunghezzaLati, thickness, Math.PI + Math.PI * angleDeg / 180.0);
-
-
-        }
-
-        #endregion
+  //          Assert.IsTrue(error1 < 1.0, $"{error1} %");
+  //          Assert.IsTrue(error2 < 0.2, $"{error2} %");
+  //      }
     }
 }

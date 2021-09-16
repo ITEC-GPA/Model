@@ -134,7 +134,7 @@ namespace GPC.Model.Sections
             double j = 0;
 
             for (int i = 0; i < _thinWalls.Length; i++)            
-                j += _thinWalls[i].CalculateJx() + _thinWalls[i].Area * Math.Pow((Centroid.Y - _points[i].Y), 2);
+                j += _thinWalls[i].CalculateJx(Centroid.Y - _points[i].Y);
                        
             return j;
         }
@@ -148,7 +148,7 @@ namespace GPC.Model.Sections
             double j = 0;
 
             for (int i = 0; i < _thinWalls.Length; i++)            
-                j += _thinWalls[i].CalculateJy() + _thinWalls[i].Area * Math.Pow((Centroid.X - _points[i].X), 2);
+                j += _thinWalls[i].CalculateJy(Centroid.X - _points[i].X);
             
             return j;
         }
@@ -169,12 +169,32 @@ namespace GPC.Model.Sections
 
         public virtual double CalculateJxx()
         {
-            return CalculateJ11();
+            double j = 0;
+
+            for (int i = 0; i < _thinWalls.Length; i++)
+                j += _thinWalls[i].CalculateJx(Centroid.Y - _points[i].Y);
+
+            return j;
         }
 
         public virtual double CalculateJyy()
         {
-            return CalculateJ22();
+            double j = 0;
+
+            for (int i = 0; i < _thinWalls.Length; i++)
+                j += _thinWalls[i].CalculateJy(Centroid.X - _points[i].X);
+
+            return j;
+        }
+
+        public virtual double CalculateJxy()
+		{
+            double j = 0;
+
+            for (int i = 0; i < _thinWalls.Length; i++)
+                j += _thinWalls[i].CalculateJxy(Centroid.X - _points[i].X, Centroid.Y - _points[i].Y);
+
+            return j;
         }
 
         public abstract double CalculateWpl1();
@@ -262,14 +282,7 @@ namespace GPC.Model.Sections
             /// <returns></returns>
             internal double CalculateJx(Point2d point)
             {
-                if (_angle == 0)
-                    return CalculateJx() + CalculateArea() * Math.Pow((point.Y), 2);
-
-                else if (_angle == Math.PI / 2.0)
-                    return CalculateJx() + CalculateArea() * Math.Pow((point.Y), 2);
-
-                else
-                    throw new NotImplementedException("Not implemented angle");
+                return CalculateJx() + CalculateArea() * Math.Pow((point.Y), 2);
             }
 
             /// <summary>
@@ -278,14 +291,41 @@ namespace GPC.Model.Sections
             /// <returns></returns>
             internal double CalculateJy(Point2d point)
             {
-                if (_angle == 0)
-                    return CalculateJy() + CalculateArea() * Math.Pow((point.X), 2);
+                return CalculateJy() + CalculateArea() * Math.Pow((point.X), 2);
+            }
 
-                else if (_angle == Math.PI / 2.0)
-                    return CalculateJy() + CalculateArea() * Math.Pow((point.X), 2);
+            internal double CalculateJx(double distance)
+            {
+                return CalculateJx() + CalculateArea() * Math.Pow(distance, 2);
+            }
 
-                else
-                    throw new NotImplementedException("Not implemented angle");
+            internal double CalculateJy(double distance)
+            {
+                return CalculateJy() + CalculateArea() * Math.Pow(distance, 2);
+            }
+
+            internal double CalculateJxy()
+			{
+                double Jx = _t * Math.Pow(_l, 3) / 12.0;
+                double Jy = _l * Math.Pow(_t, 3) / 12.0;
+
+                return (Jx - Jy) / 2.0 * Math.Sin(2.0 * _angle);
+            }
+
+            internal double CalculateJxy(Point2d point)
+            {
+                double Jx = _t * Math.Pow(_l, 3) / 12.0;
+                double Jy = _l * Math.Pow(_t, 3) / 12.0;
+
+                return (Jx - Jy) / 2.0 * Math.Sin(2.0 * _angle) + point.X * point.Y * Area;
+            }
+
+            internal double CalculateJxy(double distanceX, double distanceY)
+            {
+                double Jx = _t * Math.Pow(_l, 3) / 12.0;
+                double Jy = _l * Math.Pow(_t, 3) / 12.0;
+
+                return (Jx - Jy) / 2.0 * Math.Sin(2.0 * _angle) + distanceX * distanceY * Area;
             }
 
             internal double CalculateJy()
@@ -297,7 +337,12 @@ namespace GPC.Model.Sections
                     return _l * Math.Pow(_t, 3) / 12.0;
 
                 else
-                    throw new NotImplementedException("Not implemented angle");
+				{
+                    double Jx = _t * Math.Pow(_l, 3) / 12.0;
+                    double Jy = _l * Math.Pow(_t, 3) / 12.0;
+
+                    return (Jx + Jy) / 2.0 - (Jx - Jy) / 2.0 * Math.Cos(2.0 * _angle);
+                }
             }
 
             internal double CalculateJx()
@@ -309,7 +354,12 @@ namespace GPC.Model.Sections
                     return _t * Math.Pow(_l, 3) / 12.0;
 
                 else
-                    throw new NotImplementedException("Not implemented angle");
+                {
+                    double Jx = _t * Math.Pow(_l, 3) / 12.0;
+                    double Jy = _l * Math.Pow(_t, 3) / 12.0;
+
+                    return (Jx + Jy) / 2.0 + (Jx - Jy) / 2.0 * Math.Cos(2.0 * _angle);
+                }
             }
 
             internal virtual double CalculateJt()
