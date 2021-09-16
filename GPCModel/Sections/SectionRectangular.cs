@@ -42,11 +42,18 @@ namespace GPC.Model.Sections
 		/// <param name="width">The width of the section</param>
 		/// <param name="material">The material of the section</param>
 		/// <param name="name">The name of the section</param>
-		public SectionRectangular(double height, double width, Material material, string name = "")
-			:base(material, name)
+		/// <param name="id">The unique id</param>
+		public SectionRectangular(double height, double width, Material material, string name = "", int id = IDUNASSIGNED)
+			: base(material, name)
 		{
 			_height = height;
 			_width = width;
+			_id = id;
+		}
+
+		public SectionRectangular(SectionRectangular section, int id = IDUNASSIGNED)
+			: this(section.Height, section.Width, section.Material, section.Name, id)
+		{
 		}
 
 		public SectionRectangular(SerializationInfo info, StreamingContext context) 
