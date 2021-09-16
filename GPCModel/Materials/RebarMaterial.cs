@@ -9,22 +9,30 @@ namespace GPC.Model.Materials
     [UI(Description = "Rebar", Group = "Materials", Kind = "Material")]
     public class RebarMaterial : SteelMaterial
     {
-		#region Constructor
+        public static RebarMaterial B450C => new RebarMaterial("B450C", StressStrainDiagrams.ElastoPlastic, 
+            20000, 0.28, 450, 510, 0.075, 0.007850, 12 * 1e-6, new Guid());
 
-		/// <summary>
-		/// Default rebar material constructor
-		/// </summary>
-		/// <param name="name">Name of material</param>
-		/// <param name="elasticModulus">Steel elastic modulus</param>
-		/// <param name="poisson">Poissoins's Ratio</param>
-		/// <param name="fy">Yielding stress</param>
-		/// <param name="fu">Ultimate stress</param>
-		/// <param name="epsilon0">Yielding strain</param>
-		/// <param name="density"></param>
-		/// <param name="alfaThermalExpansion">Linear thermal expasion coefficient</param>
-		/// <param name="guid">Guid of the material</param>
-		public RebarMaterial(string name,double elasticModulus, double poisson, double fy, double fu, double epsilon0, double density, double alfaThermalExpansion, Guid guid)
-            : base(name, elasticModulus, poisson, fy, fu, epsilon0, density, alfaThermalExpansion, guid)
+        public static RebarMaterial B450CHardening => new RebarMaterial("B450C-Hardening", StressStrainDiagrams.ElastoPlasticWithLinearHardening, 
+            20000, 0.28, 450, 510, 0.075, 0.007850, 12 * 1e-6, new Guid());
+
+        #region Constructor
+
+        /// <summary>
+        /// Default rebar material constructor
+        /// </summary>
+        /// <param name="name">Name of material</param>
+        /// <param name="stressStrainDiagram">The stress-strain relationship</param>
+        /// <param name="elasticModulus">Steel elastic modulus</param>
+        /// <param name="poisson">Poissoins's Ratio</param>
+        /// <param name="fy">Yielding stress</param>
+        /// <param name="fu">Ultimate stress</param>
+        /// <param name="epsilonU">Ultimate strain</param>
+        /// <param name="density"></param>
+        /// <param name="alfaThermalExpansion">Linear thermal expasion coefficient</param>
+        /// <param name="guid">Guid of the material</param>
+        public RebarMaterial(string name, StressStrainDiagrams stressStrainDiagram, double elasticModulus, double poisson, 
+            double fy, double fu, double epsilonU, double density, double alfaThermalExpansion, Guid guid)
+            : base(name, stressStrainDiagram, elasticModulus, poisson, fy, fu, epsilonU, density, alfaThermalExpansion, guid)
         {
             if (fu == 0)
             {
@@ -42,9 +50,9 @@ namespace GPC.Model.Materials
             {
                 throw new ArgumentException($"{nameof(poisson)} cannot be zero");
             }
-            if (epsilon0 == 0)
+            if (epsilonU == 0)
             {
-                throw new ArgumentException($"{nameof(epsilon0)} cannot be zero");
+                throw new ArgumentException($"{nameof(epsilonU)} cannot be zero");
             }
         }
 
@@ -52,57 +60,25 @@ namespace GPC.Model.Materials
         /// 
         /// </summary>
         /// <param name="elasticModulus">Steel elastic modulus</param>
-        /// <param name="poisson">Poissoins's Ratio</param>
         /// <param name="fy">Yielding stress</param>
         /// <param name="fu">Ultimate stress</param>
-        /// <param name="epsilon0">Yielding strain</param>
+        /// <param name="poisson">Poissoins's Ratio</param>
         /// <param name="density"></param>
         /// <param name="alfaThermalExpansion">Linear thermal expasion coefficient</param>
-        /// <param name="guid">Guid of the material</param>
-        /// <remarks>Name is empty</remarks>
-        public RebarMaterial(double elasticModulus, double poisson, double fy, double fu, double epsilon0, double density, double alfaThermalExpansion, Guid guid)
-            : this("", elasticModulus, poisson, fy, fu, epsilon0, density, alfaThermalExpansion, guid)
+        /// <remarks>Name is empty. StressStrainDiagram is set to ElastoPlastic</remarks>
+        public RebarMaterial(double elasticModulus, double fy, double fu, double poisson = 0.28, double density = 0.007850, double alfaThermalExpansion = 12 * 1e-6)
+            : this("", StressStrainDiagrams.ElastoPlastic, elasticModulus, poisson, fy, fu, 0.075, density, alfaThermalExpansion, new Guid())
         {
         }
 
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="elasticModulus">Steel elastic modulus</param>
-        /// <param name="poisson">Poissoins's Ratio</param>
-        /// <param name="fy">Yielding stress</param>
-        /// <param name="fu">Ultimate stress</param>
-        /// <param name="epsilon0">Yielding strain</param>
-        /// <param name="density">The density of material. Default value = 0.007850 T/mm^2</param>
-        /// <remarks>Guid setted to empty, alfaThermalExpansion setted to 0</remarks>
-        public RebarMaterial(double elasticModulus, double poisson, double fy, double fu, double epsilon0, double density = 0.007850)
-            : this(elasticModulus, poisson, fy, fu, epsilon0, density, 0, Guid.NewGuid())
-        {
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="elasticModulus">Steel elastic modulus</param>
-        /// <param name="poisson">Poissoins's Ratio</param>
-        /// <param name="fy">Yielding stress</param>
-        /// <param name="fu">Ultimate stress</param>
-        /// <param name="density">The density of material. Default value = 0.007850 T/mm^2</param>
-        /// <remarks>Guid setted to new guid, alfaThermalExpansion setted to 0. Epsilon0 equal to fy / E</remarks>
-        public RebarMaterial(double elasticModulus, double poisson, double fy, double fu, double density = 0.007850)
-            : this(elasticModulus, poisson, fy, fu, fy / elasticModulus, density, 0, Guid.NewGuid())
-        {
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="fy">Yielding stress</param>
-        /// <param name="fu">Ultimate stress</param>
-        /// <remarks>Guid setted to new guid, alfaThermalExpansion setted to 0. Epsilon0 equal to fy / E
-        /// E = 200GPa, ni = 0.28</remarks>
-        public RebarMaterial(double fy, double fu)
-            : this(200000000, 0.28, fy, fu, 0.00785)
+        /// <param name="fyk">Yielding stress</param>        
+        /// <remarks>Guid setted to new guid. StressStrainDiagram is set to ElastoPlastic. alfaThermalExpansion setted to 0. Epsilon0 equal to fy / E
+        /// E = 200GPa, ni = 0.28. Epsilon U is set as 0.075 and fu is set as fyk</remarks>
+        public RebarMaterial(double fyk)
+            : this(200000, fyk, fyk)
 		{
 		}
 
