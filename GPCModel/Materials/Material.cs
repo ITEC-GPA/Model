@@ -67,7 +67,7 @@ namespace GPC.Model.Materials
         { 
         }
 
-        public Material(string name)
+        protected Material(string name)
 			: base(new Guid(), name)
 		{
             
