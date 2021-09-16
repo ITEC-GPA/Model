@@ -11,7 +11,7 @@ namespace GPC.Model.Sections
     {        
         #region Variables
 
-        protected readonly double _diameter;
+        protected double _diameter;
 
         #endregion
 
@@ -41,10 +41,24 @@ namespace GPC.Model.Sections
             _area = CalculateArea();
         }
 
+        protected SectionCircular(double diameter, Material material, string name, int id)
+            : base(material, name)
+        {
+            _diameter = diameter;
+            _area = CalculateArea();
+            _id = id;
+        }
+
+        public SectionCircular(SectionCircular sectionCircular)
+            : this(sectionCircular.Diameter, sectionCircular.Material, sectionCircular.Name, sectionCircular.Id)
+        {
+
+        }
+
         public SectionCircular(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
-            _diameter = info.GetDouble("Dext");
+            _diameter = info.GetDouble("Diameter");
             _material = (Material)info.GetValue("Material", typeof(Material));
         }
 
@@ -61,7 +75,7 @@ namespace GPC.Model.Sections
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             base.GetObjectData(info, context);
-            info.AddValue("Dext", _diameter);
+            info.AddValue("Diameter", _diameter);
             info.AddValue("Material", _material);
         }
 
