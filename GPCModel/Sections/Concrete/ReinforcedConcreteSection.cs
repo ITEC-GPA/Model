@@ -1,4 +1,5 @@
-﻿using GPC.Model.Elements;
+using GPC.Model.Elements;
+using GPC.Model.Materials;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace GPC.Model.Sections.Concrete
 {
-	public class ReinforcedConcreteSection : Section
+	public class ReinforcedConcreteSection : Section, IConcreteSection
 	{
 		#region Variables
 
@@ -22,6 +23,10 @@ namespace GPC.Model.Sections.Concrete
 		public ShapeEx Shape => _shapeEx;
 
 		public Rebars Rebars => _rebars;
+
+		public ConcreteMaterial ConcreteMaterial => (ConcreteMaterial)_material;
+
+		public double Height => Math.Abs(_shapeEx.GetBoundingBox().Max.Y - _shapeEx.GetBoundingBox().Min.Y);
 
 		#endregion
 

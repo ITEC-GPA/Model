@@ -1,4 +1,4 @@
-﻿using GPC.Geometry;
+using GPC.Geometry;
 using GPC.Model.Elements;
 using GPC.Model.Materials;
 using System;
@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace GPC.Model.Sections.Concrete
 {
-	public class ConcreteSectionCircular : SectionCircular
+	public class ConcreteSectionCircular : SectionCircular, IConcreteSection
 	{
 		#region Variables
 
@@ -20,6 +20,10 @@ namespace GPC.Model.Sections.Concrete
 		#region Properties
 
 		public Rebars Rebars => _rebars;
+
+		public ConcreteMaterial ConcreteMaterial => (ConcreteMaterial)_material;
+
+		public double Height => Diameter;
 
 		#endregion
 

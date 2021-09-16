@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
@@ -9,10 +9,10 @@ using GPC.Model.Elements;
 using GPC.Model.FEM.Materials;
 using GPC.Model.Materials;
 
-namespace GPC.Model.Sections
+namespace GPC.Model.Sections.Concrete
 {
 	[Serializable]
-	public class ConcreteSectionRectangular : SectionRectangular
+	public class ConcreteSectionRectangular : SectionRectangular, IConcreteSection
 	{
 		#region Variables
 
@@ -23,6 +23,8 @@ namespace GPC.Model.Sections
 		#region Properties
 
 		public Rebars Rebars => _rebars;
+
+		public ConcreteMaterial ConcreteMaterial => (ConcreteMaterial)_material;
 
 		#endregion
 
