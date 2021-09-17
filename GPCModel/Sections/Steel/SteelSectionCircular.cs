@@ -14,31 +14,14 @@ namespace GPC.Model.Sections.Steel
 		{
 		}
 
-		public double CalculateWpl()
+		public SteelSectionCircular(SectionCircular sectionCircular)
+			:base(sectionCircular)
 		{
-			return Math.Pow(_diameter, 3.0) / 6.0;
+			if (sectionCircular.Material is SteelMaterial)
+			{ }
+			else
+				throw new ArgumentException("Material must be SteelMaterial");
 		}
 
-		public double CalculateJ()
-		{
-			return Math.Pow(_diameter, 4.0) / 64.0;
-		}
-
-		public double CalculateJp()
-		{
-			return Math.Pow(_diameter, 4.0) / 32.0;
-		}
-
-		public double CalculateJw()
-		{
-			return 0.0;
-			//TODO: implementare
-		}
-
-		public double CalculateJt()
-		{
-			return 0.0;
-			//TODO: implementare
-		}
 	}
 }

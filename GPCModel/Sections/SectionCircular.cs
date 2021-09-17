@@ -52,7 +52,6 @@ namespace GPC.Model.Sections
             : base(material, name)
         {
             _diameter = diameter;
-            _area = CalculateArea();
             _id = id;
             _isSymmetricAlongXLocalAxis = true;
             _isSymmetricAlongYLocalAxis = true;
@@ -149,12 +148,17 @@ namespace GPC.Model.Sections
 
         protected double CalculateJ()
         {
-            return Math.PI * Math.Pow(Diameter, 4.0) / (64.0);
+            return Math.PI * Math.Pow(Diameter, 4.0) / 64.0;
+        }
+
+        public double CalculateJp()
+        {
+            return Math.PI * Math.Pow(Diameter, 4.0) / 32.0;
         }
 
         protected double CalculateJt()
         {
-            return Math.PI * Math.Pow(Diameter, 4.0) / (32.0);
+            return Math.PI * Math.Pow(Diameter, 4.0) / 32.0;
         }
 
         protected double CalculateJw()

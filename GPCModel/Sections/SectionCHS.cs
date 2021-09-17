@@ -88,17 +88,17 @@ namespace GPC.Model.Sections
 
         protected double CalculateArea()
         {
-            return (Math.Pow(_d, 2.0) * Math.PI) / 4.0 - (Math.Pow(DiameterInternal, 2.0) * Math.PI) / 4.0;
+            return (Math.Pow(Diameter, 2.0) * Math.PI) / 4.0 - (Math.Pow(DiameterInternal, 2.0) * Math.PI) / 4.0;
         }
 
         protected double CalculateJ()
         {
-            return Math.PI * (Math.Pow(_d, 4.0) - Math.Pow(DiameterInternal, 4.0)) / (64.0);
+            return Math.PI * (Math.Pow(Diameter, 4.0) - Math.Pow(DiameterInternal, 4.0)) / (64.0);
         }
 
         protected double CalculateJt()
         {
-            return Math.PI * (Math.Pow(_d, 4.0) - Math.Pow(DiameterInternal, 4.0)) / (32.0);
+            return Math.PI * (Math.Pow(Diameter, 4.0) - Math.Pow(DiameterInternal, 4.0)) / (32.0);
         }
 
         protected double CalculateJw()
@@ -108,7 +108,7 @@ namespace GPC.Model.Sections
 
         protected Point2d CalculateCentroid()
         {
-            return new Point2d(_d / 2.0, _d / 2.0);
+            return new Point2d(Diameter / 2.0, Diameter / 2.0);
         }
 
         protected double CalculateWel()
@@ -147,7 +147,7 @@ namespace GPC.Model.Sections
             for (int i = 0; i < divisions; i++)
             {
                 double teta = i * 2 * Math.PI / divisions;
-                fill.Add(new Point2d(0.5 * _d * Math.Cos(teta), 0.5 * _d * Math.Sin(teta)));
+                fill.Add(new Point2d(0.5 * Diameter * Math.Cos(teta), 0.5 * _d * Math.Sin(teta)));
 
                 if (hole != null)
                 {
