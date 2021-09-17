@@ -48,8 +48,6 @@ namespace GPC.Model.Sections.Concrete
 
 		#region Public Methods Override
 
-
-
 		#endregion
 	}
 }

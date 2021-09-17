@@ -52,7 +52,7 @@ namespace GPC.Model.Sections
 			_width = width;
             _angleX1 = angle;
 			_id = id;
-            if (_angleX1 == 0)
+            if (_angleX1 == 0 || _angleX1 == Math.PI / 2.0)
             {
                 _isSymmetricAlongYLocalAxis = true;
                 _isSymmetricAlongYLocalAxis = true;

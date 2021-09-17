@@ -36,6 +36,17 @@ namespace GPC.Model.Sections.Concrete
 			_rebars = rebars;
 		}
 
+		public ConcreteSectionRectangular(SectionRectangular section, Elements.Rebar[] rebars)
+			: base(section)
+		{
+			_rebars = rebars;
+
+			if (section.Material is ConcreteMaterial)
+			{ }
+			else
+				throw new ArgumentException("Material must be a ConcreteMaterial");
+		}
+
 		#endregion
 
 
