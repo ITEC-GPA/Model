@@ -34,27 +34,16 @@ namespace GPC.Model.Sections
         /// <param name="diameter">The diameter</param>
         /// <param name="material">The material</param>
         /// <param name="name">The section name</param>
-        public SectionCircular(double diameter, Material material, string name) 
-            : base(material, name)
-        {
-            _diameter = diameter;
-            _area = CalculateArea();
-        }
-
-		/// <summary>
-		/// The default constructor
-		/// </summary>
-		/// <param name="diameter">The diameter</param>
-		/// <param name="material">The material</param>
-		/// <param name="name">The section name</param>
-		/// <param name="id">The unique id</param>
-		protected SectionCircular(double diameter, Material material, string name, int id)
+        /// <param name="id">The unique id</param>
+        public SectionCircular(double diameter, Material material, string name, int id = IDUNASSIGNED)
             : base(material, name)
         {
             _diameter = diameter;
             _id = id;
             _isSymmetricAlongXLocalAxis = true;
             _isSymmetricAlongYLocalAxis = true;
+
+            SetMechanicalProperties();
         }
 
         public SectionCircular(SectionCircular sectionCircular)

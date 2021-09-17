@@ -1146,6 +1146,60 @@ namespace ModelObjectTest
 
         #endregion
 
+        #region Section Circular
+
+        [TestMethod]
+        public void SectionCircularTest1()
+        {
+            double d = 500;
+            ConcreteSectionCircular section = new ConcreteSectionCircular(d, ConcreteMaterialEN1992.C40_50, new Rebar[] { }, "Section");
+
+            double A = 196349.54;
+            double jxx = 3.068 * 1e9;
+            double jyy = 3.068 * 1e9;
+            double Wel1 = 12271846;
+            double Wel2 = 12271846;
+            double Wpl1 = 20833333;
+            double Wpl2 = 20833333;
+            double Jt = 6.136 * 1e9;
+
+            Assert.AreEqual(Math.Abs(A / section.Area) - 1, 0, 0.001);
+            Assert.AreEqual(Math.Abs(jxx / section.Jxx) - 1, 0, 0.001);
+            Assert.AreEqual(Math.Abs(jyy / section.Jyy) - 1, 0, 0.001);
+            Assert.AreEqual(Math.Abs(Wel1 / section.Wel1) - 1, 0, 0.001);
+            Assert.AreEqual(Math.Abs(Wel2 / section.Wel2) - 1, 0, 0.001);
+            Assert.AreEqual(Math.Abs(Wpl1 / section.Wpl1) - 1, 0, 0.001);
+            Assert.AreEqual(Math.Abs(Wpl2 / section.Wpl2) - 1, 0, 0.001);
+            Assert.AreEqual(Math.Abs(Jt / section.Jt) - 1, 0, 0.001);
+        }
+
+        [TestMethod]
+        public void SectionCircularTest2()
+        {
+            double d = 400;
+            ConcreteSectionCircular section = new ConcreteSectionCircular(d, ConcreteMaterialEN1992.C40_50, new Rebar[] { }, "Section");
+
+            double A = 125663.71;
+            double jxx = 1.257 * 1e9;
+            double jyy = 1.257 * 1e9;
+            double Wel1 = 6283185;
+            double Wel2 = 6283185;
+            double Wpl1 = 10666666;
+            double Wpl2 = 10666666;
+            double Jt = 2.513 * 1e9;
+
+            Assert.AreEqual(Math.Abs(A / section.Area) - 1, 0, 0.001);
+            Assert.AreEqual(Math.Abs(jxx / section.Jxx) - 1, 0, 0.001);
+            Assert.AreEqual(Math.Abs(jyy / section.Jyy) - 1, 0, 0.001);
+            Assert.AreEqual(Math.Abs(Wel1 / section.Wel1) - 1, 0, 0.001);
+            Assert.AreEqual(Math.Abs(Wel2 / section.Wel2) - 1, 0, 0.001);
+            Assert.AreEqual(Math.Abs(Wpl1 / section.Wpl1) - 1, 0, 0.001);
+            Assert.AreEqual(Math.Abs(Wpl2 / section.Wpl2) - 1, 0, 0.001);
+            Assert.AreEqual(Math.Abs(Jt / section.Jt) - 1, 0, 0.001);
+        }
+
+        #endregion
+
         //      [TestMethod]
         //      public void SectionCircularTest1()
         //{
