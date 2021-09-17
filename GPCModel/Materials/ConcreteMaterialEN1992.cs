@@ -74,12 +74,12 @@ namespace GPC.Model.Materials
         /// <summary>
         /// Characteristic tensile strength 0.05%
         /// </summary>
-        public double Fctk05 => 0.7 * CalculateFctm();
+        public double Fctk05 => 0.7 * Fctm;
 
         /// <summary>
         /// Characteristic tensile strength 0.95%
         /// </summary>
-        public double Fctk95 => 1.30 * CalculateFctm();
+        public double Fctk95 => 1.30 * Fctm;
 
         /// <summary>
         /// Mean compressive strength at 28 days
@@ -231,6 +231,53 @@ namespace GPC.Model.Materials
         }
 
         /// <summary>
+        /// Default constructor
+        /// </summary>
+        /// <param name="name">The name of the material</param>
+        /// <param name="fck">Characteristic compressive cylinder strength of concrete at 28 days</param>
+        /// <param name="elasticModulus"></param>
+        /// <param name="epsilony">Yielding strain</param>
+        /// <param name="epsilonU">Ultimate strain</param>
+        /// <param name="ni">Poisson's ratio</param>
+        /// <param name="niCracked">Poisson's ratio in cracked concrete</param>
+        /// <param name="alphaT">Linear thermal expasion coefficient</param>
+        /// <param name="density">The density of concrete</param>
+        /// <param name="standard">Standard EN1992 or a relative national annex</param>
+        /// <param name="stressStrainDiagram">The stress-strain diagram type</param>
+        /// <param name="typeOfCement">The type of cement. See §3.4.1</param>
+        public ConcreteMaterialEN1992(string name, double fck, double elasticModulus, double epsilony, double epsilonU, double ni, double niCracked, double alphaT, double density,
+            StandardEn1992p11 standard, StressStrainDiagrams stressStrainDiagram, TypeOfCements typeOfCement)
+            : base(name, fck)
+        {
+            if (fck < 0.0)
+                throw new ArgumentException($"{nameof(fck)} must be > 0");
+
+            _ni = ni < 0 ? throw new ArgumentException($"{nameof(ni)} cannot be zero or lower") : ni;
+            if (ni > 0.5)
+                throw new ArgumentException($"{nameof(ni)} must be < 0.5");
+
+            _niCracked = niCracked < 0 ? throw new ArgumentException($"{nameof(niCracked)} cannot be zero or lower") : niCracked;
+            if (niCracked > 0.5)
+                throw new ArgumentException($"{nameof(niCracked)} must be < 0.5");
+
+            _density = density <= 0 ? throw new ArgumentException($"{nameof(density)} cannot be zero or lower") : density;
+
+            _standard = standard;
+            _alfaThermalExpansion = alphaT;
+
+            _stressStrainDiagram = stressStrainDiagram;
+            _typeOfCement = typeOfCement;
+
+            _elasticModulus = elasticModulus;
+            if (_elasticModulus < 0)
+                throw new ArgumentException($"{nameof(_elasticModulus)} must be > 0");
+
+            _epsilonY = epsilony;
+            _epsilonU = epsilonU;
+            CalculateFcd();
+        }
+
+        /// <summary>
         /// 
         /// </summary>
         /// <param name="name">The name of the material</param>
@@ -269,20 +316,8 @@ namespace GPC.Model.Materials
         /// <param name="fck">Characteristic compressive cylinder strength of concrete at 28 days</param>
         /// <param name="stressStrainDiagram">The stress-strain diagram type</param>
         /// <remarks>Value: ni = 0.2, niCracked = 0.0; alfaThermalExpansion = 1e-6; density = 0.0025 T/mm^3; standard = StandardEn1992p11; type of cements = classN</remarks>
-        public ConcreteMaterialEN1992(double fck, StressStrainDiagrams stressStrainDiagram)
+        public ConcreteMaterialEN1992(double fck, StressStrainDiagrams stressStrainDiagram = StressStrainDiagrams.StressBlock)
             : this("", fck, 0.2, 0.0, 1e-6, 0.0025, new StandardEn1992p11(), stressStrainDiagram, TypeOfCements.ClassN)
-        {
-
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="fck">Characteristic compressive cylinder strength of concrete at 28 days</param>
-        /// <remarks>Value: ni = 0.2, niCracked = 0.0; alfaThermalExpansion = 1e-6; density = 0.0025 T/mm^3; 
-        /// standard = StandardEn1992p11; StressStrainDiagrams = StressBlock; type of cements = classN</remarks>
-        public ConcreteMaterialEN1992(double fck)
-            : this("", fck, 0.2, 0.0, 1e-6, 0.0025, new StandardEn1992p11(), StressStrainDiagrams.StressBlock, TypeOfCements.ClassN)
         {
 
         }
