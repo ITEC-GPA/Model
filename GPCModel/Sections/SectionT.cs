@@ -57,6 +57,10 @@ namespace GPC.Model.Sections
             ThinWalls = new ThinWall[] { web, flange };         
         }
 
+        public SectionT(SectionT sectionT)
+            :this(sectionT.Height, sectionT.LenghtFlange, sectionT.ThicknessWeb, sectionT.ThicknessFlange, sectionT.Material, sectionT.Name)
+        { }
+
         #endregion
 
 
