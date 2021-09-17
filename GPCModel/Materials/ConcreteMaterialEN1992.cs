@@ -11,6 +11,18 @@ namespace GPC.Model.Materials
     [UI(Description = "Concrete EN1992-1-1", Group = "Materials", Kind = "Material")]
     public class ConcreteMaterialEN1992 : ConcreteMaterial
     {
+        public static ConcreteMaterialEN1992 C25_30 => new ConcreteMaterialEN1992("C25/30", 25, new StandardEn1992p11(), StressStrainDiagrams.StressBlock);
+        public static ConcreteMaterialEN1992 C30_37 => new ConcreteMaterialEN1992("C30/37", 30, new StandardEn1992p11(), StressStrainDiagrams.StressBlock);
+        public static ConcreteMaterialEN1992 C35_45 => new ConcreteMaterialEN1992("C35/45", 35, new StandardEn1992p11(), StressStrainDiagrams.StressBlock);
+        public static ConcreteMaterialEN1992 C40_50 => new ConcreteMaterialEN1992("C40/50", 40, new StandardEn1992p11(), StressStrainDiagrams.StressBlock);
+        public static ConcreteMaterialEN1992 C45_55 => new ConcreteMaterialEN1992("C45/55", 45, new StandardEn1992p11(), StressStrainDiagrams.StressBlock);
+        public static ConcreteMaterialEN1992 C50_60 => new ConcreteMaterialEN1992("C50/60", 50, new StandardEn1992p11(), StressStrainDiagrams.StressBlock);
+        public static ConcreteMaterialEN1992 C55_67 => new ConcreteMaterialEN1992("C55/67", 55, new StandardEn1992p11(), StressStrainDiagrams.StressBlock);
+        public static ConcreteMaterialEN1992 C60_75 => new ConcreteMaterialEN1992("C60/75", 60, new StandardEn1992p11(), StressStrainDiagrams.StressBlock);
+        public static ConcreteMaterialEN1992 C70_85 => new ConcreteMaterialEN1992("C70/85", 70, new StandardEn1992p11(), StressStrainDiagrams.StressBlock);
+        public static ConcreteMaterialEN1992 C80_95 => new ConcreteMaterialEN1992("C80/90", 80, new StandardEn1992p11(), StressStrainDiagrams.StressBlock);
+        public static ConcreteMaterialEN1992 C90_105 => new ConcreteMaterialEN1992("C90/105", 90, new StandardEn1992p11(), StressStrainDiagrams.StressBlock);
+
         #region Enumerator
 
         public enum StressStrainDiagrams
