@@ -1,4 +1,4 @@
-﻿using GPC.Geometry;
+using GPC.Geometry;
 using System;
 using System.Runtime.Serialization;
 using GPC.Model.Materials;
@@ -19,7 +19,7 @@ namespace GPC.Model.Sections
         #region Properties
 
         /// <summary>
-        /// The external diameter
+        /// The diameter
         /// </summary>
         public double Diameter => _diameter;
 
@@ -41,12 +41,21 @@ namespace GPC.Model.Sections
             _area = CalculateArea();
         }
 
-        protected SectionCircular(double diameter, Material material, string name, int id)
+		/// <summary>
+		/// The default constructor
+		/// </summary>
+		/// <param name="diameter">The diameter</param>
+		/// <param name="material">The material</param>
+		/// <param name="name">The section name</param>
+		/// <param name="id">The unique id</param>
+		protected SectionCircular(double diameter, Material material, string name, int id)
             : base(material, name)
         {
             _diameter = diameter;
             _area = CalculateArea();
             _id = id;
+            _isSymmetricAlongXLocalAxis = true;
+            _isSymmetricAlongYLocalAxis = true;
         }
 
         public SectionCircular(SectionCircular sectionCircular)
@@ -66,11 +75,6 @@ namespace GPC.Model.Sections
 
 
         #region Public Methods Specific
-
-        public double CalculateArea()
-        {
-            return (Math.Pow(_diameter, 2.0) * Math.PI) / 4.0;
-        }
 
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
@@ -112,12 +116,67 @@ namespace GPC.Model.Sections
             return new Polygon3d(vertices.ToArray());
         }
 
-        public Polygon3d ConvertCircleToPolygon(int edge = 32)
+        internal Polygon3d ConvertCircleToPolygon(int edge = 32)
         {
             return ConvertCircleToPolygon(_diameter / 2.0, edge);
         }
 
         #endregion
 
-    }    
+        #region Public method
+
+        protected void SetMechanicalProperties()
+        {
+            _area = CalculateArea();
+            _j11 = CalculateJ();
+            _j22 = CalculateJ();
+            _jxx = CalculateJ();
+            _jyy = CalculateJ();
+            _jt = CalculateJt();
+            _jw = CalculateJw();
+            _centroid = CalculateCentroid();
+            _shearCenter = CalculateCentroid();
+            _wel1 = CalculateWel();
+            _wel2 = CalculateWel();
+            _wpl1 = CalculateWpl();
+            _wpl2 = CalculateWpl();
+        }
+
+        protected double CalculateArea()
+        {
+            return Math.Pow(Diameter, 2.0) * Math.PI / 4.0;
+        }
+
+        protected double CalculateJ()
+        {
+            return Math.PI * Math.Pow(Diameter, 4.0) / (64.0);
+        }
+
+        protected double CalculateJt()
+        {
+            return Math.PI * Math.Pow(Diameter, 4.0) / (32.0);
+        }
+
+        protected double CalculateJw()
+        {
+            return 0;
+        }
+
+        protected Point2d CalculateCentroid()
+        {
+            return new Point2d(Diameter / 2.0, Diameter / 2.0);
+        }
+
+        protected double CalculateWel()
+        {
+            return Math.PI * Math.Pow(Diameter, 4.0)  / (32.0 * Diameter);
+        }
+
+        protected double CalculateWpl()
+        {
+            return Math.Pow(Diameter, 3.0) / 6.0;
+        }
+
+        #endregion
+    }
 }
