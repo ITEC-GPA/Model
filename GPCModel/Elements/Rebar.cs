@@ -68,8 +68,8 @@ namespace GPC.Model.Elements
         {
         }
 
-        public Rebar(IRebarSection section, Point2d position) 
-            : this(section, position, position, 0.0, 0.0, IDUNASSIGNED)
+        public Rebar(IRebarSection section, Point2d position, int id = IDUNASSIGNED) 
+            : this(section, position, position, 0.0, 0.0, id)
         {
         }
 
