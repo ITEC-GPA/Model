@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using GPC.Model.Sections;
 using GPC.Model.Materials;
@@ -790,6 +790,48 @@ namespace ModelObjectTest
         }
 
         [TestMethod]
+        public void SectionHSymmetric_OutPutPoints()
+        {
+            double h = 300.0;
+            double width = 150.0;
+            double flangeThickness = 20;
+            double webThickness = 10;
+            double r = 15.0;
+
+            SteelSectionH sec = new SteelSectionH(h, webThickness, width, flangeThickness, width, flangeThickness, new SteelMaterial("steel", 210000, 0.3, 355, 510, 7850),
+                string.Empty, Section.SectionTypes.Rolled, Section.FormedTypes.HotFinished, r);
+
+			Point2d[] points =  sec.GetSectionPoints();
+            List<Point2d> list = new List<Point2d>();
+            double item = 1;
+            foreach (Point2d p in points)
+            {
+                list.Add(p);
+                Console.WriteLine($"Point {item}: {p.X}, {p.Y}");
+                item++;
+            }
+
+            List<Point2d> expPoints = new List<Point2d>()
+            {
+                new Point2d(0,0),
+                new Point2d(150,0),
+                new Point2d(150,20),
+                new Point2d(0,20),
+                new Point2d(0,300),
+                new Point2d(150,300),
+                new Point2d(150,280),
+                new Point2d(0,280),
+                new Point2d(70,280),
+                new Point2d(80,280),
+                new Point2d(70,20),
+                new Point2d(80,20),
+            };
+
+            foreach (Point2d pt in expPoints)
+                Assert.IsTrue(list.Contains(pt));
+        }
+
+        [TestMethod]
         public void SectionHSymmetric_Sigma1()
         {
             double h = 304.8;         
@@ -1149,7 +1191,29 @@ namespace ModelObjectTest
         #region Section Circular
 
         [TestMethod]
-        public void SectionCircularTest1()
+        public void SectionCircularSubdivision1()
+        {
+            double diameter = 100;
+            int division1 = 32;
+            int division2 = 64;
+
+            SectionCircular sectionCircular = new SectionCircular(diameter, new SteelMaterial("steel", 200000, 0.3, 355, 510, 7850), string.Empty);
+            Polygon3d poly1 = sectionCircular.ConvertCircleToPolygon(division1);
+            Polygon3d poly2 = sectionCircular.ConvertCircleToPolygon(division2);
+
+            double circleArea = diameter * diameter * Math.PI / 4;
+            double polyArea1 = poly1.GetSignedArea();
+            double polyArea2 = poly2.GetSignedArea();
+
+            double error1 = Math.Abs(circleArea - polyArea1) * 100 / circleArea;
+            double error2 = Math.Abs(circleArea - polyArea2) * 100 / circleArea;
+
+            Assert.IsTrue(error1 < 1.0, $"{error1} %");
+            Assert.IsTrue(error2 < 0.2, $"{error2} %");
+        }
+
+        [TestMethod]
+        public void SectionCircularSubdivision2()
         {
             double d = 500;
             ConcreteSectionCircular section = new ConcreteSectionCircular(d, ConcreteMaterialEN1992.C40_50, new Rebar[] { }, "Section");

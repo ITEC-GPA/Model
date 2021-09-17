@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
 using GPC.Geometry;
@@ -204,6 +205,28 @@ namespace GPC.Model.Sections
 
         protected abstract double CalculateWel2();
 
+        public Point2d[] GetSectionPoints()
+        {
+            Point2d[] points = new Point2d[ThinWalls.Length * 4];
+
+            for (int i = 0; i < ThinWalls.Length; i++)
+            {
+                points[i * 4] = new Point2d(Points[i].X + ThinWalls[i].L / 2.0 * Math.Cos(ThinWalls[i].Angle) + ThinWalls[i].T / 2.0 * Math.Sin(ThinWalls[i].Angle),
+                    Points[i].Y + ThinWalls[i].L / 2.0 * Math.Sin(ThinWalls[i].Angle) + ThinWalls[i].T / 2.0 * Math.Cos(ThinWalls[i].Angle));
+
+                points[i * 4 + 1] = new Point2d(Points[i].X + ThinWalls[i].L / 2.0 * Math.Cos(ThinWalls[i].Angle) - ThinWalls[i].T / 2.0 * Math.Sin(ThinWalls[i].Angle),
+                    Points[i].Y + ThinWalls[i].L / 2.0 * Math.Sin(ThinWalls[i].Angle) - ThinWalls[i].T / 2.0 * Math.Cos(ThinWalls[i].Angle));
+
+                points[i * 4 + 2] = new Point2d(Points[i].X - ThinWalls[i].L / 2.0 * Math.Cos(ThinWalls[i].Angle) + ThinWalls[i].T / 2.0 * Math.Sin(ThinWalls[i].Angle),
+                        Points[i].Y - ThinWalls[i].L / 2.0 * Math.Sin(ThinWalls[i].Angle) + ThinWalls[i].T / 2.0 * Math.Cos(ThinWalls[i].Angle));
+
+                points[i * 4 + 3] = new Point2d(Points[i].X - ThinWalls[i].L / 2.0 * Math.Cos(ThinWalls[i].Angle) - ThinWalls[i].T / 2.0 * Math.Sin(ThinWalls[i].Angle),
+                        Points[i].Y - ThinWalls[i].L / 2.0 * Math.Sin(ThinWalls[i].Angle) - ThinWalls[i].T / 2.0 * Math.Cos(ThinWalls[i].Angle));
+            }
+
+            return points;
+        }
+
         #endregion
 
 
@@ -329,10 +352,10 @@ namespace GPC.Model.Sections
 
             internal double CalculateJy()
             {
-                if (_angle == 0)
+                if (Math.Abs(_angle) < GeometryBase.GetDefaultAngularTolerance() || Math.Abs(_angle - Math.PI) < GeometryBase.GetDefaultAngularTolerance())
                     return _t * Math.Pow(_l, 3) / 12.0;
 
-                else if (_angle == Math.PI / 2)
+                else if (Math.Abs( _angle - Math.PI / 2) < GeometryBase.GetDefaultAngularTolerance())
                     return _l * Math.Pow(_t, 3) / 12.0;
 
                 else
@@ -346,10 +369,10 @@ namespace GPC.Model.Sections
 
             internal double CalculateJx()
             {
-                if (_angle == 0)
+                if (Math.Abs(_angle) < GeometryBase.GetDefaultAngularTolerance() || Math.Abs(_angle - Math.PI) < GeometryBase.GetDefaultAngularTolerance())
                     return _l * Math.Pow(_t, 3) / 12.0;
 
-                else if (_angle == Math.PI / 2)
+                else if (Math.Abs(_angle - Math.PI / 2) < GeometryBase.GetDefaultAngularTolerance())
                     return _t * Math.Pow(_l, 3) / 12.0;
 
                 else
