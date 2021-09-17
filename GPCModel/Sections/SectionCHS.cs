@@ -69,7 +69,7 @@ namespace GPC.Model.Sections
 
         #region Public method
 
-        private void SetMechanicalProperties()
+        protected void SetMechanicalProperties()
         {
             _area = CalculateArea();
             _j11 = CalculateJ();
@@ -86,37 +86,37 @@ namespace GPC.Model.Sections
             _wpl2 = CalculateWpl();
         }
 
-        public double CalculateArea()
+        protected double CalculateArea()
         {
             return (Math.Pow(_d, 2.0) * Math.PI) / 4.0 - (Math.Pow(DiameterInternal, 2.0) * Math.PI) / 4.0;
         }
-                
-        public double CalculateJ()
+
+        protected double CalculateJ()
         {
             return Math.PI * (Math.Pow(_d, 4.0) - Math.Pow(DiameterInternal, 4.0)) / (64.0);
         }
 
-        public double CalculateJt()
+        protected double CalculateJt()
         {
             return Math.PI * (Math.Pow(_d, 4.0) - Math.Pow(DiameterInternal, 4.0)) / (32.0);
         }
 
-        public double CalculateJw()
+        protected double CalculateJw()
         {
             return 0;
         }
 
-        public Point2d CalculateCentroid()
+        protected Point2d CalculateCentroid()
         {
             return new Point2d(_d / 2.0, _d / 2.0);
         }
 
-        public double CalculateWel()
+        protected double CalculateWel()
         {
             return Math.PI * (Math.Pow(Diameter, 4.0) - Math.Pow(DiameterInternal, 4.0)) / (32.0 * _d);
         }
 
-        public double CalculateWpl()
+        protected double CalculateWpl()
         {
             return (Math.Pow(Diameter, 3.0) - Math.Pow(DiameterInternal, 3.0)) / (6.0);
         }

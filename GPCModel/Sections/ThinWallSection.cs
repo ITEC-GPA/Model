@@ -57,9 +57,9 @@ namespace GPC.Model.Sections
 
         #region Public abstract method
 
-        public abstract double CalculateJw();
+        protected abstract double CalculateJw();
 
-        public abstract Point2d CalculateShearCenter();
+        protected abstract Point2d CalculateShearCenter();
 
         #endregion
 
@@ -69,7 +69,7 @@ namespace GPC.Model.Sections
         /// <summary>
         /// Internal method to set the mechanical properties to the section
         /// </summary>
-        internal virtual void SetMechanicalProperties()
+        protected virtual void SetMechanicalProperties()
         {
             _area = CalculateArea();
             _centroid = CalculateCentroid();
@@ -91,7 +91,7 @@ namespace GPC.Model.Sections
         /// Calculate the centroid point of the section in X-Y plane 
         /// </summary>
         /// <returns></returns>
-        public virtual Point2d CalculateCentroid()
+        protected virtual Point2d CalculateCentroid()
         {
             double xSum = 0;
             double ySum = 0;
@@ -107,12 +107,12 @@ namespace GPC.Model.Sections
             return new Point2d((xSum / area), (ySum / area));
         }
 
-        public virtual double CalculateAngle()
+        protected virtual double CalculateAngle()
         {
             return 0.0;
         }
 
-        public virtual double CalculateJt()
+        protected virtual double CalculateJt()
         {
             double jt = 0;
 
@@ -128,7 +128,7 @@ namespace GPC.Model.Sections
         /// Calculate the first moment of inertia respect the X-axis (the Y-axis for Eurocode)
         /// </summary>
         /// <returns></returns>
-        public virtual double CalculateJ11()
+        protected virtual double CalculateJ11()
         {
             double j = 0;
 
@@ -142,7 +142,7 @@ namespace GPC.Model.Sections
         /// Calculate the first moment of inertia respect the Y-axis (the Z-axis for Eurocode)
         /// </summary>
         /// <returns></returns>
-        public virtual double CalculateJ22()
+        protected virtual double CalculateJ22()
         {
             double j = 0;
 
@@ -151,12 +151,12 @@ namespace GPC.Model.Sections
             
             return j;
         }
-        
+
         /// <summary>
         /// Calculate the area of the section
         /// </summary>
         /// <returns>The value of the area</returns>
-        public virtual double CalculateArea()
+        protected virtual double CalculateArea()
         {
             double area = 0;
 
@@ -166,7 +166,7 @@ namespace GPC.Model.Sections
             return area;
         }
 
-        public virtual double CalculateJxx()
+        protected virtual double CalculateJxx()
         {
             double j = 0;
 
@@ -176,7 +176,7 @@ namespace GPC.Model.Sections
             return j;
         }
 
-        public virtual double CalculateJyy()
+        protected virtual double CalculateJyy()
         {
             double j = 0;
 
@@ -186,7 +186,7 @@ namespace GPC.Model.Sections
             return j;
         }
 
-        public virtual double CalculateJxy()
+        protected virtual double CalculateJxy()
 		{
             double j = 0;
 
@@ -196,13 +196,13 @@ namespace GPC.Model.Sections
             return j;
         }
 
-        public abstract double CalculateWpl1();
+        protected abstract double CalculateWpl1();
 
-        public abstract double CalculateWpl2();
+        protected abstract double CalculateWpl2();
 
-        public abstract double CalculateWel1();
+        protected abstract double CalculateWel1();
 
-        public abstract double CalculateWel2();
+        protected abstract double CalculateWel2();
 
         #endregion
 

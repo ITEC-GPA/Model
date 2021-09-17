@@ -63,7 +63,7 @@ namespace GPC.Model.Sections
 
         #region Public method
 
-        internal override void SetMechanicalProperties()
+        protected override void SetMechanicalProperties()
         {
             _area = CalculateArea();
             _centroid = CalculateCentroid();
@@ -84,19 +84,19 @@ namespace GPC.Model.Sections
             _angleX1 = CalculateAngle();
         }
 
-        public override double CalculateWel1()
+        protected override double CalculateWel1()
         {
             CalculateWel(out double Wel11Top, out double Wel11Bottom, out double _, out double _);
             return Math.Min(Wel11Bottom, Wel11Top);
         }
 
-        public override double CalculateWel2()
+        protected override double CalculateWel2()
         {
             CalculateWel(out double _, out double _, out double Wel22Left, out double Wel22Right);
             return Math.Min(Wel22Left, Wel22Right);
         }
 
-        public override double CalculateAngle()
+        protected override double CalculateAngle()
         {
             double angle = -1.0 / 2.0 * Math.Atan(2.0 * CalculateJxy() / (Jyy - Jxx));
 
@@ -106,12 +106,12 @@ namespace GPC.Model.Sections
             return angle;
         }
 
-        public override double CalculateJ11()
+        protected override double CalculateJ11()
         {
             return (Jxx + Jyy) / 2.0 + 0.5 * Math.Sqrt(Math.Pow(Jxx - Jyy, 2.0) + 4.0 * Math.Pow(CalculateJxy(), 2));
         }
 
-        public override double CalculateJ22()
+        protected override double CalculateJ22()
         {
             return (Jxx + Jyy) / 2.0 - 0.5 * Math.Sqrt(Math.Pow(Jxx - Jyy, 2.0) + 4.0 * Math.Pow(CalculateJxy(), 2));
         }
@@ -156,13 +156,13 @@ namespace GPC.Model.Sections
             }
         }
 
-        public override double CalculateJxx()
+        protected override double CalculateJxx()
         {
             return (1.0 / 3.0) * (HorizontalLegLength * Math.Pow(VerticalLegLength, 3) - (HorizontalLegLength - VerticalLegThickness) * Math.Pow(VerticalLegLength - HorizontalLegThickness, 3)) - 
                 Area * Math.Pow(VerticalLegLength - Centroid.Y, 2);
         }
 
-        public override double CalculateJyy()
+        protected override double CalculateJyy()
         {
             return (1.0 / 3.0) * (VerticalLegLength * Math.Pow(HorizontalLegLength, 3) - (VerticalLegLength - HorizontalLegThickness) * Math.Pow(HorizontalLegLength - VerticalLegThickness, 3)) -
                 Area * Math.Pow(HorizontalLegLength - Centroid.X, 2);
@@ -173,17 +173,17 @@ namespace GPC.Model.Sections
 
         #region Public override method
 
-        public override double CalculateJw()
+        protected override double CalculateJw()
         {
             return (Math.Pow(_lHor - _tVert / 2.0, 3.0) * Math.Pow(_tHor, 3.0) + Math.Pow(_lVert - _tHor / 2.0, 3.0) * Math.Pow(_tVert, 3.0)) / 36.0; //CNR DT 208/2011
         }
 
-        public override double CalculateJt()
+        protected override double CalculateJt()
         {
             return 1.0 / 3.0 * (_lHor - _tVert / 2.0) * Math.Pow(_tHor, 3.0) + 1.0 / 3.0 * (_lVert - _tHor / 2.0) * Math.Pow(_tVert, 3.0);
         }
 
-        public override Point2d CalculateShearCenter()
+        protected override Point2d CalculateShearCenter()
         {
             return new Point2d(_tHor / 2.0, _tVert / 2.0);
         }
@@ -199,17 +199,17 @@ namespace GPC.Model.Sections
             return s;
         }
 
-        public override double CalculateWpl1()
+        protected override double CalculateWpl1()
         {
             return _wel1;
         }
 
-        public override double CalculateWpl2()
+        protected override double CalculateWpl2()
         {
             return _wel2;
         }
 
-        public override Point2d CalculateCentroid()
+        protected override Point2d CalculateCentroid()
         {
             double xc = ((Points[0].X * ThinWalls[0].Area) + (Points[1].X * ThinWalls[1].Area)) / Area;
             double yc = ((Points[0].Y * ThinWalls[0].Area) + (Points[1].Y * ThinWalls[1].Area)) / Area;

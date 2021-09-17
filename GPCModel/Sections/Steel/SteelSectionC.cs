@@ -55,12 +55,12 @@ namespace GPC.Model.Sections.Steel
 
         #endregion
 
-        public override double CalculateArea()
+        protected override double CalculateArea()
         {
             return base.CalculateArea() + CalculateAdditionalArea();
         }
 
-        private double CalculateAdditionalArea()
+        protected double CalculateAdditionalArea()
         {
             if (IsWelded)
                 return 2 * Math.Pow((1.41 * R1), 2) / 2.0 -
@@ -74,12 +74,12 @@ namespace GPC.Model.Sections.Steel
                 throw new NotImplementedException("Not Implemented type");
         }
 
-        public override double CalculateJ11()
+        protected override double CalculateJ11()
         {
             return base.CalculateJ11() + CalculateAdditionaJxx();
         }
 
-        public override double CalculateJ22()
+        protected override double CalculateJ22()
         {
             return base.CalculateJ22() + CalculateAdditionaJyy();
         }
@@ -118,7 +118,7 @@ namespace GPC.Model.Sections.Steel
                 throw new NotImplementedException("Not Implemented type");
         }
 
-        public override Point2d CalculateCentroid()
+        protected override Point2d CalculateCentroid()
         {
             double xSum = 0;
             double ySum = 0;

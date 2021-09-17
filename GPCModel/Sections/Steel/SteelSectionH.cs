@@ -62,12 +62,12 @@ namespace GPC.Model.Sections.Steel
         #endregion
 
 
-        public override double CalculateJ11()
+        protected override double CalculateJ11()
         {
             return base.CalculateJ11() + CalculateAdditionaJxx();
         }
 
-        public override double CalculateJ22()
+        protected override double CalculateJ22()
         {
             return base.CalculateJ22() + CalculateAdditionaJyy();
         }
@@ -116,12 +116,12 @@ namespace GPC.Model.Sections.Steel
                 throw new NotImplementedException("Not Implemented type");
         }
 
-        public override double CalculateArea()
+        protected override double CalculateArea()
         {
             return base.CalculateArea() + CalculateAdditionalArea();
         }
 
-        public override double CalculateJt()
+        protected override double CalculateJt()
         {
             if (IsRolled)
             {

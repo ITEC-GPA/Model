@@ -62,17 +62,17 @@ namespace GPC.Model.Sections
 
         #region Public method
 
-        public override double CalculateWel2()
+        protected override double CalculateWel2()
         {
             return Math.Min(CalculateWelyLeft(), CalculateWelyRight());
         }
 
-        public override double CalculateWel1()
+        protected override double CalculateWel1()
         {
             return Math.Min(CalculateWelxBottom(), CalculateWelxTop());
         }
 
-        public override double CalculateWpl1()
+        protected override double CalculateWpl1()
         {
             if (_area / 2.0 >= _b * _tf)
             {
@@ -91,7 +91,7 @@ namespace GPC.Model.Sections
             }
         }
 
-        public override double CalculateWpl2()
+        protected override double CalculateWpl2()
         {
             return 1.0 / 4.0 * _tf * Math.Pow(_b, 2.0) + 1.0 / 4.0 * (Height - _tf) * Math.Pow(_tw, 2.0);
         }
@@ -141,17 +141,17 @@ namespace GPC.Model.Sections
 
         #region Public override method
 
-        public override Point2d CalculateShearCenter()
+        protected override Point2d CalculateShearCenter()
         {
             return new Point2d(_b / 2.0, Height - _tf / 2.0);
         }
 
-        public override double CalculateJw()
+        protected override double CalculateJw()
         {
             return Math.Pow(_b, 3.0) * Math.Pow(_tf, 3.0) / 144.0 + Math.Pow(Height - _tf / 2.0, 3.0) * Math.Pow(_tw, 3.0) / 36.0; //Bleich 1952, Picard and Beaulieu 1991
         }
 
-        public override double CalculateJt()
+        protected override double CalculateJt()
         {            
             return (_b * Math.Pow(_tf, 3.0) + (Height - _tf / 2.0) * Math.Pow(_tw, 3.0)) / 3.0;
         }

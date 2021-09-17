@@ -75,37 +75,37 @@ namespace GPC.Model.Sections
 
         #endregion
 
-        public override double CalculateWel2()
+        protected override double CalculateWel2()
         {
             return Math.Min(CalculateWelyBottom(), CalculateWelyTop());
         }
 
-        public override double CalculateWel1()
+        protected override double CalculateWel1()
         {
             return Math.Min(CalculateWelxBottom(), CalculateWelxTop());
         }
 
-        public double CalculateWelyBottom()
+        protected double CalculateWelyBottom()
         {
             return J22 / (LenghtBottomFlange - DistanceXCentroidFromRight());
         }
 
-        public double CalculateWelyTop()
+        protected double CalculateWelyTop()
         {
             return J22 / (LenghtTopFlange - DistanceXCentroidFromRight());
         }
 
-        public double CalculateWelxBottom()
+        protected double CalculateWelxBottom()
         {
             return J11 / DistanceYCentroidFromBottom();
         }
 
-        public double CalculateWelxTop()
+        protected double CalculateWelxTop()
         {
             return J11 / DistanceYCentroidFromTop();
         }
 
-        private double DistanceYCentroidFromBottom()
+        public double DistanceYCentroidFromBottom()
         {
             return CalculateCentroid().Y;
         }
@@ -115,12 +115,12 @@ namespace GPC.Model.Sections
             return Height - DistanceYCentroidFromBottom();
         }
 
-        private double DistanceXCentroidFromRight()
+        public double DistanceXCentroidFromRight()
         {
             return CalculateCentroid().X;
         }
 
-        public override double CalculateWpl2()
+        protected override double CalculateWpl2()
         {
             SectionT halfSectionTop = new SectionT(LenghtTopFlange / 2.0, Height / 2.0, ThicknessTopFlange, 
                 ThicknessWeb / 2.0, Material, string.Empty);
@@ -134,7 +134,7 @@ namespace GPC.Model.Sections
             return 2.0 * d * _area / 2.0;
         }
 
-        public override double CalculateWpl1()
+        protected override double CalculateWpl1()
         {
             if (_area / 2.0 >= LenghtTopFlange * ThicknessTopFlange && _area / 2.0 >= LenghtBottomFlange * ThicknessBottomFlange)
             {
@@ -172,7 +172,7 @@ namespace GPC.Model.Sections
 
         #region Public override method
 
-        public override Point2d CalculateShearCenter()
+        protected override Point2d CalculateShearCenter()
         {
             //CNR DT208_2011 --> to be checked
             double JFlTop = 1.0 / 12.0 * ThicknessTopFlange * Math.Pow(LenghtTopFlange, 3.0);
@@ -184,7 +184,7 @@ namespace GPC.Model.Sections
             return new Point2d(CalculateCentroid().X, CalculateCentroid().Y - (zBottom * JFlBottom - zTop * JFlTop) / jz);
         }
 
-        public override double CalculateJw()
+        protected override double CalculateJw()
         {
             double dmed = _h - ThicknessBottomFlange / 2.0 - ThicknessTopFlange / 2.0;
             double JFlTop = 1.0 / 12.0 * ThicknessTopFlange * Math.Pow(LenghtTopFlange, 3.0);

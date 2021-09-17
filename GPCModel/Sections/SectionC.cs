@@ -69,17 +69,17 @@ namespace GPC.Model.Sections
 
         #region Public override method
 
-        public override double CalculateWel2()
+        protected override double CalculateWel2()
         {
             return Math.Min(CalculateWelyyLeft(), CalculateWelyyRight());
         }
 
-        public override double CalculateWel1()
+        protected override double CalculateWel1()
         {
             return Math.Min(CalculateWelxxBottom(), CalculateWelxxTop());
         }
 
-        public override double CalculateJw()
+        protected override double CalculateJw()
         {
             //CNR DT 208/2001
             double hf = _h - _tTop / 2.0 - _tBottom / 2.0;
@@ -87,19 +87,58 @@ namespace GPC.Model.Sections
             return hf * hf * Math.Pow(length, 3.0) * _tBottom / 12.0 * (2.0 * hf * _tw + 3.0 * length * _tBottom) / (hf * ThicknessWeb + 6.0 * length * _tBottom);
         }
 
-        public override double CalculateJt()
+        protected override double CalculateJt()
         {
             return 1.0 / 3.0 * (_lengthTop - _tw / 2.0) * Math.Pow(_tTop, 3.0) + 1.0 / 3.0 * (_h - _tTop / 2.0 - _tBottom / 2.0) * 
                 Math.Pow(_tw, 3.0) + 1.0 / 3.0 * (_lengthBottom - _tw / 2.0) * Math.Pow(_tBottom, 3.0);
         }
 
-        public override Point2d CalculateShearCenter()
+        protected override Point2d CalculateShearCenter()
         {
             //CNR DT 208/2001
             double hf = _h - _tTop / 2.0 - _tBottom / 2.0;
             double length = _lengthBottom - _tw / 2.0;
             double tf = _tBottom;
             return new Point2d(_tw / 2.0 - 3.0 * length * length * tf / (hf * _tw + 6.0 * length * tf), CalculateCentroid().Y);
+        }
+
+        protected override double CalculateWpl2()
+        {
+            if (IsSymmetricAlongXLocalAxis)
+            {
+                if (_area / 2.0 >= _h * _tw)
+                {
+                    double hDown = Area / 2.0 / (_tTop + _tBottom);
+                    SectionT secTop = new SectionT(_lengthBottom - hDown, _h, _tBottom + _tTop, _tw, _material, string.Empty);
+                    return Area / 2.0 * (hDown / 2.0 + secTop.DistanceYCentroidFromBottom());
+                }
+                else
+                {
+                    double tEff = Area / 2.0 / Height;        // rettangolo alto H e spesso tEff
+                    SectionC sectionC = new SectionC(Height, ThicknessWeb - tEff, LengthTop, ThicknessTop, LengthBottom, ThicknessBottom, _material, string.Empty);
+                    return Area / 2.0 * (tEff / 2 + sectionC.DistanceXCentroidFromLeft());
+                }
+            }
+            else
+                throw new NotImplementedException("Different lenght or thickness not yet supported");
+        }
+
+        protected override double CalculateWpl1()
+        {
+            if (IsSymmetricAlongXLocalAxis)
+            {
+                if (_area / 2.0 >= _tTop * _lengthTop)
+                {
+                    double hTop = _tTop + (_area / 2.0 - _tTop * _lengthTop) / _tw;
+                    SectionT secTop = new SectionT(hTop, _lengthTop, _tw, _tTop, _material, string.Empty);
+                    SectionT secBottom = new SectionT(_h - hTop, _lengthBottom, _tw, _tBottom, _material, string.Empty);
+                    return _area / 2.0 * (secTop.DistanceYCentroidFromBottom() + secBottom.DistanceYCentroidFromBottom());
+                }
+                else
+                    throw new NotImplementedException("neutral axis in flange not yet supported");
+            }
+            else
+                throw new NotImplementedException("Different lenght or thickness not yet supported");
         }
 
         public override string ToString()
@@ -148,49 +187,10 @@ namespace GPC.Model.Sections
         {
             return Math.Max(LengthTop, LengthBottom) - DistanceXCentroidFromLeft();
         }
+
         public double DistanceXCentroidFromLeft()
         {
             return CalculateCentroid().X;
-        }
-
-
-        public override double CalculateWpl2()
-        {
-            if (IsSymmetricAlongXLocalAxis)
-            {
-                if (_area / 2.0 >= _h * _tw)
-                {
-                    double hDown = Area / 2.0 / (_tTop + _tBottom);
-                    SectionT secTop = new SectionT(_lengthBottom - hDown, _h, _tBottom + _tTop, _tw, _material, string.Empty);
-                    return Area / 2.0 * (hDown / 2.0 + secTop.DistanceYCentroidFromBottom());
-                }
-                else
-                {
-                    double tEff = Area / 2.0 / Height;        // rettangolo alto H e spesso tEff
-                    SectionC sectionC = new SectionC(Height, ThicknessWeb - tEff, LengthTop, ThicknessTop, LengthBottom, ThicknessBottom, _material, string.Empty);
-                    return Area / 2.0 * (tEff / 2 + sectionC.DistanceXCentroidFromLeft());
-                }
-            }
-            else
-                throw new NotImplementedException("Different lenght or thickness not yet supported");
-        }
-
-        public override double CalculateWpl1()
-        {
-            if (IsSymmetricAlongXLocalAxis)
-            {
-                if (_area / 2.0 >= _tTop * _lengthTop)
-                {
-                    double hTop = _tTop + (_area / 2.0 - _tTop * _lengthTop) / _tw;
-                    SectionT secTop = new SectionT(hTop, _lengthTop, _tw, _tTop, _material, string.Empty);
-                    SectionT secBottom = new SectionT(_h - hTop, _lengthBottom, _tw, _tBottom, _material, string.Empty);
-                    return _area / 2.0 * (secTop.DistanceYCentroidFromBottom() + secBottom.DistanceYCentroidFromBottom());
-                }
-                else
-                    throw new NotImplementedException("neutral axis in flange not yet supported");
-            }
-            else
-                throw new NotImplementedException("Different lenght or thickness not yet supported");
         }
 
         #endregion

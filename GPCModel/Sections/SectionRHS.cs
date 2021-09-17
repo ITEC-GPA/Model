@@ -80,16 +80,6 @@ namespace GPC.Model.Sections
 
         #region Public method
 
-        public override double CalculateWel2()
-        {
-            return Math.Min(CalculateWelyLeft(), CalculateWelyRight());
-        }
-
-        public override double CalculateWel1()
-        {
-            return Math.Min(CalculateWelxBottom(), CalculateWelxTop());
-        }
-
         public double CalculateWelyLeft()
         {
             return J22 / DistanceXCentroidFromRight();
@@ -130,25 +120,53 @@ namespace GPC.Model.Sections
             return Base - CalculateCentroid().X;
         }
 
-        public override double CalculateWpl2()
+        #endregion
+
+
+        #region Public override method
+
+        protected override Point2d CalculateShearCenter()
         {
-            if (_area / 2.0 >= _twL * Heightinternal +_tfTop * _twL + _tfBottom * _twL)
+            if (_tfBottom == _tfTop && _twL == _twR)
+                return _centroid;
+            else
+                throw new Exception("Section RHS with different thickness not yet implemented");            
+        }
+
+        protected override double CalculateJw()
+        {
+            return 0;
+        }
+
+        protected override double CalculateJt()
+        {
+            double Amed = (_h - (_tfTop / 2.0) - (_tfBottom / 2.0)) * (_b - (_twL / 2.0) - (_twR / 2.0));
+            double LmedTop = _b - _twL / 2.0 - _twR / 2.0;
+            double LmedBottom = LmedTop;
+            double LmedWeb1 = _h - _tfTop / 2.0 - _tfBottom / 2.0;
+            double LmedWeb2 = LmedWeb1;
+            return  4.0 * Amed * Amed / (LmedBottom / _tfBottom + LmedTop / _tfTop + LmedWeb1 / _twL + LmedWeb2 / _twR);
+        }
+
+        protected override double CalculateWpl2()
+        {
+            if (_area / 2.0 >= _twL * Heightinternal + _tfTop * _twL + _tfBottom * _twL)
             {
                 if (IsSymmetricAlongYLocalAxis)
                 {
-                    SectionC halfSectionLeft = new SectionC(Height, ThicknessWebLeft, Base/2, ThicknessTop, Base/2, ThicknessBottom, _material, string.Empty);
+                    SectionC halfSectionLeft = new SectionC(Height, ThicknessWebLeft, Base / 2, ThicknessTop, Base / 2, ThicknessBottom, _material, string.Empty);
                     SectionC halfSectionRigth = new SectionC(Height, ThicknessWebRight, Base / 2, ThicknessTop, Base / 2, ThicknessBottom, _material, string.Empty);
                     return (_area / 2.0) * (halfSectionLeft.DistanceXCentroidFromRight() + halfSectionRigth.DistanceXCentroidFromRight());
                 }
                 else
                     throw new Exception("different thickness not yet supported");
             }
-            else            
+            else
                 throw new Exception("not yet supported");
-            
+
         }
 
-        public override double CalculateWpl1()
+        protected override double CalculateWpl1()
         {
             if (_area / 2.0 >= (_twR * Heightinternal)) //plateTop
             {
@@ -161,38 +179,20 @@ namespace GPC.Model.Sections
                 else
                     throw new Exception("different thickness not yet supported");
             }
-            else            
-                throw new Exception("not yet supported");            
-        }
-
-        #endregion
-
-
-        #region Public override method
-
-        public override Point2d CalculateShearCenter()
-        {
-            if (_tfBottom == _tfTop && _twL == _twR)
-                return _centroid;
             else
-                throw new Exception("Section RHS with different thickness not yet implemented");            
+                throw new Exception("not yet supported");
         }
 
-        public override double CalculateJw()
+        protected override double CalculateWel2()
         {
-            return 0;
+            return Math.Min(CalculateWelyLeft(), CalculateWelyRight());
         }
 
-        public override double CalculateJt()
+        protected override double CalculateWel1()
         {
-            double Amed = (_h - (_tfTop / 2.0) - (_tfBottom / 2.0)) * (_b - (_twL / 2.0) - (_twR / 2.0));
-            double LmedTop = _b - _twL / 2.0 - _twR / 2.0;
-            double LmedBottom = LmedTop;
-            double LmedWeb1 = _h - _tfTop / 2.0 - _tfBottom / 2.0;
-            double LmedWeb2 = LmedWeb1;
-            return  4.0 * Amed * Amed / (LmedBottom / _tfBottom + LmedTop / _tfTop + LmedWeb1 / _twL + LmedWeb2 / _twR);
+            return Math.Min(CalculateWelxBottom(), CalculateWelxTop());
         }
-        
+
         public override string ToString()
         {
             string s = "RHS section: \n";
