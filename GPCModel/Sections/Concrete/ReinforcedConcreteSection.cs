@@ -13,7 +13,7 @@ namespace GPC.Model.Sections.Concrete
 		#region Variables
 
 		protected ShapeEx _shapeEx;
-		protected Rebars _rebars;
+		protected Elements.Rebar[] _rebars;
 
 		#endregion
 
@@ -22,7 +22,7 @@ namespace GPC.Model.Sections.Concrete
 
 		public ShapeEx Shape => _shapeEx;
 
-		public Rebars Rebars => _rebars;
+		public Elements.Rebar[] Rebars => _rebars;
 
 		public ConcreteMaterial ConcreteMaterial => (ConcreteMaterial)_material;
 
@@ -33,7 +33,7 @@ namespace GPC.Model.Sections.Concrete
 
 		#region Public Constructors
 
-		public ReinforcedConcreteSection(ShapeEx shapeEx, Rebars rebars, string name = "")
+		public ReinforcedConcreteSection(ShapeEx shapeEx, Elements.Rebar[] rebars, string name = "")
 			: base(name)
 		{
 			_shapeEx = shapeEx;
