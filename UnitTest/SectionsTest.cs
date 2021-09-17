@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using GPC.Model.Sections;
 using GPC.Model.Materials;
@@ -7,6 +7,7 @@ using GPC.TestUtilities;
 using GPC.Model.Sections.Steel;
 using GPC.Model.Sections.Concrete;
 using GPC.Model.Elements;
+using System.Collections.Generic;
 
 namespace ModelObjectTest
 {
@@ -1264,26 +1265,52 @@ namespace ModelObjectTest
 
         #endregion
 
-        //      [TestMethod]
-        //      public void SectionCircularTest1()
-        //{
-        //          double diameter = 100;
-        //          int division1 = 32;
-        //          int division2 = 64;
+        #region Section Generic
 
-        //          SectionCircular  sectionCircular = new SectionCircular(diameter, new SteelMaterial("steel", 200000, 0.3, 355, 510, 7850), string.Empty);
-        //          Polygon3d poly1 = sectionCircular.ConvertCircleToPolygon(division1);
-        //          Polygon3d poly2 = sectionCircular.ConvertCircleToPolygon(division2);
+        [TestMethod]
+        public void SectionGenericTest1()
+        {
+            // Section
+            //      ____________
+            //     /            \
+            //    /              \
+            //   /                \
+            //  /                  \
+            // /____________________\
+            // 
+            // 4 points
+            double height = 400;
+            double baseMaj = 400;
+            double[] thickness = new double[] { 20, 10, 20, 10 };
 
-        //          double circleArea = diameter * diameter * Math.PI / 4;
-        //          double polyArea1 = poly1.GetSignedArea();
-        //          double polyArea2 = poly2.GetSignedArea();
+            Point2d[] vertices = new Point2d[]
+            {
+                new Point2d(0,0),
+                new Point2d(baseMaj,0),
+                new Point2d(baseMaj,height),
+                new Point2d(0,height)
+            };
 
-        //          double error1 = Math.Abs(circleArea - polyArea1) * 100 / circleArea;
-        //          double error2 = Math.Abs(circleArea - polyArea2) * 100 / circleArea;
+            Line2d[] lines = new Line2d[]
+            {
+                new Line2d(vertices[0], vertices[1]),
+                new Line2d(vertices[1], vertices[2]),
+                new Line2d(vertices[2], vertices[3]),
+                new Line2d(vertices[3], vertices[0])
+            };
 
-        //          Assert.IsTrue(error1 < 1.0, $"{error1} %");
-        //          Assert.IsTrue(error2 < 0.2, $"{error2} %");
-        //      }
+            SteelSectionGeneric sectionGeneric = new SteelSectionGeneric(lines, thickness, SteelMaterial.S355, "");
+
+            SteelSectionRHS steelSectionRHS = new SteelSectionRHS(height + thickness[0] / 2 + thickness[2] / 2, 
+                baseMaj + thickness[1] / 2 + thickness[3] / 2, 
+                thickness[2], thickness[0], thickness[3], thickness[1], SteelMaterial.S355, "");
+
+            Assert.IsTrue(Math.Abs(sectionGeneric.Area - steelSectionRHS.Area) / steelSectionRHS.Area * 100 < 1);
+            Assert.IsTrue(Math.Abs(sectionGeneric.J11 - steelSectionRHS.J11) / steelSectionRHS.J11 * 100 < 1);
+            Assert.IsTrue(Math.Abs(sectionGeneric.J22 - steelSectionRHS.J22) / steelSectionRHS.J22 * 100 < 1);
+            Assert.IsTrue(Math.Abs(sectionGeneric.AngleX1 - steelSectionRHS.AngleX1) < 1);
+        }
+
+        #endregion
     }
 }
