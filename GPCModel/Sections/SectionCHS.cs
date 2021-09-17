@@ -56,6 +56,12 @@ namespace GPC.Model.Sections
             SetMechanicalProperties();
         }
 
+        public SectionCHS(SectionCHS section)
+            :this(section.Diameter, (section.Diameter - section.DiameterInternal) / 2.0, section.Material, section.Name)
+		{
+
+		}
+
         public SectionCHS(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {

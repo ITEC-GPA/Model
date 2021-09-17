@@ -43,6 +43,18 @@ namespace GPC.Model.Sections.Steel
             _formedType = type;
         }
 
+        public SteelSectionCHS(SectionCHS section, FormedTypes type = FormedTypes.ColdFormed)
+            :this(section.Diameter, section.Thickness, (SteelMaterial)section.Material, section.Name, type)
+        {
+
+        }
+
+        public SteelSectionCHS(SteelSectionCHS section)
+            : this(section.Diameter, section.Thickness, (SteelMaterial)section.Material, section.Name, section.FormedType)
+        {
+
+        }
+
         #endregion
 
     }
