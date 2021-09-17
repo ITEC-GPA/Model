@@ -242,7 +242,8 @@ namespace GPC.Model.Sections
 
         protected virtual double CalculateJw()
         {
-            throw new NotImplementedException();
+            return 0;
+            //TODO: implementare
         }
 
         /// <summary>

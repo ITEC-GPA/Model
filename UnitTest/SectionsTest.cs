@@ -5,7 +5,8 @@ using GPC.Model.Materials;
 using GPC.Geometry;
 using GPC.TestUtilities;
 using GPC.Model.Sections.Steel;
-using static GPC.Model.Sections.ThinWallSection;
+using GPC.Model.Sections.Concrete;
+using GPC.Model.Elements;
 
 namespace ModelObjectTest
 {
@@ -1087,28 +1088,84 @@ namespace ModelObjectTest
             Assert.AreEqual(Math.Abs(teta / sec.AngleX1) - 1, 0, 0.001);
         }
 
-		#endregion
+        #endregion
 
-		//      [TestMethod]
-		//      public void SectionCircularTest1()
-		//{
-		//          double diameter = 100;
-		//          int division1 = 32;
-		//          int division2 = 64;
+        #region Section Rectangular
 
-		//          SectionCircular  sectionCircular = new SectionCircular(diameter, new SteelMaterial("steel", 200000, 0.3, 355, 510, 7850), string.Empty);
-		//          Polygon3d poly1 = sectionCircular.ConvertCircleToPolygon(division1);
-		//          Polygon3d poly2 = sectionCircular.ConvertCircleToPolygon(division2);
+        [TestMethod]
+        public void SectionRectangularTest1()
+        {
+            double h = 500;
+            double b = 300;
+            ConcreteSectionRectangular section = new ConcreteSectionRectangular(h, b, ConcreteMaterialEN1992.C40_50, new Rebar[] { }, "Section");
 
-		//          double circleArea = diameter * diameter * Math.PI / 4;
-		//          double polyArea1 = poly1.GetSignedArea();
-		//          double polyArea2 = poly2.GetSignedArea();
+            double A = 150000;
+            double jxx = 3.125 * 1e9;
+            double jyy = 1.125 * 1e9;
+            double Wel1 = 12500000;
+            double Wel2 = 7500000;
+            double Wpl1 = 18750000;
+            double Wpl2 = 11250000;
+            double Jt = 2.817 * 1e9;
 
-		//          double error1 = Math.Abs(circleArea - polyArea1) * 100 / circleArea;
-		//          double error2 = Math.Abs(circleArea - polyArea2) * 100 / circleArea;
+            Assert.AreEqual(Math.Abs(A / section.Area) - 1, 0, 0.001);
+            Assert.AreEqual(Math.Abs(jxx / section.Jxx) - 1, 0, 0.001);
+            Assert.AreEqual(Math.Abs(jyy / section.Jyy) - 1, 0, 0.001);
+            Assert.AreEqual(Math.Abs(Wel1 / section.Wel1) - 1, 0, 0.001);
+            Assert.AreEqual(Math.Abs(Wel2 / section.Wel2) - 1, 0, 0.001);
+            Assert.AreEqual(Math.Abs(Wpl1 / section.Wpl1) - 1, 0, 0.001);
+            Assert.AreEqual(Math.Abs(Wpl2 / section.Wpl2) - 1, 0, 0.001);
+            Assert.AreEqual(Math.Abs(Jt / section.Jt) - 1, 0, 0.001);
+        }
 
-		//          Assert.IsTrue(error1 < 1.0, $"{error1} %");
-		//          Assert.IsTrue(error2 < 0.2, $"{error2} %");
-		//      }
-	}
+        [TestMethod]
+        public void SectionRectangularTest2()
+        {
+            double h = 600;
+            double b = 350;
+            ConcreteSectionRectangular section = new ConcreteSectionRectangular(h, b, ConcreteMaterialEN1992.C40_50, new Rebar[] { }, "Section");
+
+            double A = 210000;
+            double jxx = 6.300 * 1e9;
+            double jyy = 2.144 * 1e9;
+            double Wel1 = 21000000;
+            double Wel2 = 12250000;
+            double Wpl1 = 31500000;
+            double Wpl2 = 18375000;
+            double Jt = 5.45 * 1e9;
+
+            Assert.AreEqual(Math.Abs(A / section.Area) - 1, 0, 0.001);
+            Assert.AreEqual(Math.Abs(jxx / section.Jxx) - 1, 0, 0.001);
+            Assert.AreEqual(Math.Abs(jyy / section.Jyy) - 1, 0, 0.001);
+            Assert.AreEqual(Math.Abs(Wel1 / section.Wel1) - 1, 0, 0.001);
+            Assert.AreEqual(Math.Abs(Wel2 / section.Wel2) - 1, 0, 0.001);
+            Assert.AreEqual(Math.Abs(Wpl1 / section.Wpl1) - 1, 0, 0.001);
+            Assert.AreEqual(Math.Abs(Wpl2 / section.Wpl2) - 1, 0, 0.001);
+            Assert.AreEqual(Math.Abs(Jt / section.Jt) - 1, 0, 0.001);
+        }
+
+        #endregion
+
+        //      [TestMethod]
+        //      public void SectionCircularTest1()
+        //{
+        //          double diameter = 100;
+        //          int division1 = 32;
+        //          int division2 = 64;
+
+        //          SectionCircular  sectionCircular = new SectionCircular(diameter, new SteelMaterial("steel", 200000, 0.3, 355, 510, 7850), string.Empty);
+        //          Polygon3d poly1 = sectionCircular.ConvertCircleToPolygon(division1);
+        //          Polygon3d poly2 = sectionCircular.ConvertCircleToPolygon(division2);
+
+        //          double circleArea = diameter * diameter * Math.PI / 4;
+        //          double polyArea1 = poly1.GetSignedArea();
+        //          double polyArea2 = poly2.GetSignedArea();
+
+        //          double error1 = Math.Abs(circleArea - polyArea1) * 100 / circleArea;
+        //          double error2 = Math.Abs(circleArea - polyArea2) * 100 / circleArea;
+
+        //          Assert.IsTrue(error1 < 1.0, $"{error1} %");
+        //          Assert.IsTrue(error2 < 0.2, $"{error2} %");
+        //      }
+    }
 }
