@@ -189,7 +189,7 @@ namespace GPC.Model.Materials
             _typeOfCement = typeOfCement;
 
             _elasticModulus = CalculateEcm();
-            if (_elasticModulus < 0)
+            if (_elasticModulus <= 0)
                 throw new ArgumentException($"{nameof(_elasticModulus)} must be > 0");
 
             CalculateEpsilonU();
@@ -624,53 +624,51 @@ namespace GPC.Model.Materials
             }
 		}
 
-
-
         protected virtual double CalculateFckCube()
         {
-            switch (_fck)
+            switch (Fck)
             {
-                case (8):
+                case (8.0):
                     return 10;
-                case (12):
+                case (12.0):
                     return 15;
-                case (16):
+                case (16.0):
                     return 20;
-                case (20):
+                case (20.0):
                     return 25;
-                case (25):
+                case (25.0):
                     return 30;
-                case (30):
+                case (30.0):
                     return 37;
-                case (35):
+                case (35.0):
                     return 45;
-                case (40):
+                case (40.0):
                     return 50;
-                case (45):
+                case (45.0):
                     return 55;
-                case (50):
+                case (50.0):
                     return 60;
-                case (55):
+                case (55.0):
                     return 67;
-                case (60):
+                case (60.0):
                     return 75;
-                case (70):
+                case (70.0):
                     return 85;
-                case (80):
+                case (80.0):
                     return 95;
-                case (90):
+                case (90.0):
                     return 105;
-                case (100):
+                case (100.0):
                     return 115;
                 default:
-                    return 1.0 / 0.83 * _fck;
+                    return 1.0 / 0.83 * Fck;
             }
         }
 
         protected virtual double CalculateFctm()
         {
-            if (_fck <= 50)
-                return 0.30 * Math.Pow(_fck, 2.0 / 3.0);
+            if (_fck <= 50.0)
+                return 0.30 * Math.Pow(Fck, 2.0 / 3.0);
             else
                 return 2.12 * Math.Log(1 + (Fcm / 10.0));
         }

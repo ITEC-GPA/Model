@@ -9,11 +9,7 @@ namespace GPC.Model.Materials
     [UI(Description = "Rebar", Group = "Materials", Kind = "Material")]
     public class RebarMaterial : SteelMaterial
     {
-        public static RebarMaterial B450C => new RebarMaterial("B450C", StressStrainDiagrams.ElastoPlastic, 
-            20000, 0.28, 450, 510, 0.075, 0.007850, 12 * 1e-6, new Guid());
-
-        public static RebarMaterial B450CHardening => new RebarMaterial("B450C-Hardening", StressStrainDiagrams.ElastoPlasticWithLinearHardening, 
-            20000, 0.28, 450, 510, 0.075, 0.007850, 12 * 1e-6, new Guid());
+        public static RebarMaterial B450C => new RebarMaterial("B450C", 20000, 0.28, 450, 510, 0.075, 0.007850, 12 * 1e-6, new Guid());
 
         #region Constructor
 
@@ -21,7 +17,6 @@ namespace GPC.Model.Materials
         /// Default rebar material constructor
         /// </summary>
         /// <param name="name">Name of material</param>
-        /// <param name="stressStrainDiagram">The stress-strain relationship</param>
         /// <param name="elasticModulus">Steel elastic modulus</param>
         /// <param name="poisson">Poissoins's Ratio</param>
         /// <param name="fy">Yielding stress</param>
@@ -30,30 +25,31 @@ namespace GPC.Model.Materials
         /// <param name="density"></param>
         /// <param name="alfaThermalExpansion">Linear thermal expasion coefficient</param>
         /// <param name="guid">Guid of the material</param>
-        public RebarMaterial(string name, StressStrainDiagrams stressStrainDiagram, double elasticModulus, double poisson, 
+        public RebarMaterial(string name, double elasticModulus, double poisson, 
             double fy, double fu, double epsilonU, double density, double alfaThermalExpansion, Guid guid)
-            : base(name, stressStrainDiagram, elasticModulus, poisson, fy, fu, epsilonU, density, alfaThermalExpansion, guid)
+            : base(name, elasticModulus, poisson, fy, fu, epsilonU, density, alfaThermalExpansion, guid)
         {
-            if (fu == 0)
-            {
+            if (fu == 0)            
                 throw new ArgumentException($"{nameof(fu)} cannot be zero");
-            }
-            if (fy == 0)
-            {
+            
+            if (fy == 0)            
                 throw new ArgumentException($"{nameof(fy)} cannot be zero");
-            }
-            if (elasticModulus == 0)
-            {
+            
+            if (elasticModulus == 0)            
                 throw new ArgumentException($"{nameof(elasticModulus)} cannot be zero");
-            }
-            if (poisson == 0)
-            {
+                        
+            if (poisson == 0)            
                 throw new ArgumentException($"{nameof(poisson)} cannot be zero");
-            }
-            if (epsilonU == 0)
-            {
-                throw new ArgumentException($"{nameof(epsilonU)} cannot be zero");
-            }
+            
+            if (poisson > 0.5)            
+                throw new ArgumentException($"{nameof(poisson)} cannot be major than 0.5");
+
+			if (epsilonU == 0)
+				throw new ArgumentException($"{nameof(epsilonU)} cannot be zero");
+
+            if (density <= 0)
+                throw new ArgumentException($"{nameof(density)} cannot be minor than zero");
+
         }
 
         /// <summary>
@@ -65,9 +61,9 @@ namespace GPC.Model.Materials
         /// <param name="poisson">Poissoins's Ratio</param>
         /// <param name="density"></param>
         /// <param name="alfaThermalExpansion">Linear thermal expasion coefficient</param>
-        /// <remarks>Name is empty. StressStrainDiagram is set to ElastoPlastic</remarks>
+        /// <remarks>Name is empty</remarks>
         public RebarMaterial(double elasticModulus, double fy, double fu, double poisson = 0.28, double density = 0.007850, double alfaThermalExpansion = 12 * 1e-6)
-            : this("", StressStrainDiagrams.ElastoPlastic, elasticModulus, poisson, fy, fu, 0.075, density, alfaThermalExpansion, new Guid())
+            : this("", elasticModulus, poisson, fy, fu, 0.075, density, alfaThermalExpansion, new Guid())
         {
         }
 
@@ -89,7 +85,7 @@ namespace GPC.Model.Materials
 
         #endregion 
 
-        #region Public Methods
+        #region Public override Methods
 
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {

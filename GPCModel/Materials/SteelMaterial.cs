@@ -12,34 +12,23 @@ namespace GPC.Model.Materials
         /// <summary>
         /// Default Steel S235 according to EN1993
         /// </summary>
-        public static SteelMaterial S235 => new SteelMaterial("S235", StressStrainDiagrams.ElastoPlastic, 210000, 0.3, 235, 360, 0.05, 0.007850, 12 * 1e-6, new Guid());
+        public static SteelMaterial S235 => new SteelMaterial("S235", 210000, 0.3, 235, 360, 0.05, 0.007850, 12 * 1e-6, new Guid());
 
         /// <summary>
         /// Default Steel S275 according to EN1993
         /// </summary>
-        public static SteelMaterial S275 => new SteelMaterial("S275", StressStrainDiagrams.ElastoPlastic, 210000, 0.3, 275, 430, 0.05, 0.007850, 12 * 1e-6, new Guid());
+        public static SteelMaterial S275 => new SteelMaterial("S275", 210000, 0.3, 275, 430, 0.05, 0.007850, 12 * 1e-6, new Guid());
 
         /// <summary>
         /// Default Steel S355 according to EN1993
         /// </summary>
-        public static SteelMaterial S355 => new SteelMaterial("S355", StressStrainDiagrams.ElastoPlastic, 210000, 0.3, 355, 510, 0.05, 0.007850, 12 * 1e-6, new Guid());
-
-        #region Enumerator
-
-        public enum StressStrainDiagrams
-        {
-            ElastoPlastic,
-            ElastoPlasticWithLinearHardening,
-        }
-
-        #endregion
+        public static SteelMaterial S355 => new SteelMaterial("S355", 210000, 0.3, 355, 510, 0.05, 0.007850, 12 * 1e-6, new Guid());
 
         #region Variables
 
         protected double _fyk;
         protected double _fu;
         protected double _epsilonU;
-        protected StressStrainDiagrams _stressStrainDiagrams;
 
         #endregion 
 
@@ -66,9 +55,9 @@ namespace GPC.Model.Materials
         public double EpsilonU => _epsilonU;
 
         /// <summary>
-        /// The stress-strain relationship
+        /// Strain hardening modulus
         /// </summary>
-        public StressStrainDiagrams StressStrainDiagram => _stressStrainDiagrams;
+        public double Et => GetEt();
 
         #endregion
 
@@ -85,7 +74,7 @@ namespace GPC.Model.Materials
         /// <param name="density">Density of material</param>
         /// <param name="alfaThermalExpansion">Linear thermal expasion coefficient</param>        
         public SteelMaterial(string name, double elasticModulus, double poisson, double fyk, double fu, double density, double alfaThermalExpansion)
-            : this(name, StressStrainDiagrams.ElastoPlastic, elasticModulus, poisson, fyk, fu, 0.05, density, alfaThermalExpansion, new Guid())
+            : this(name, elasticModulus, poisson, fyk, fu, 0.05, density, alfaThermalExpansion, new Guid())
         {
             if (elasticModulus == 0)
                 throw new ArgumentException($"{nameof(elasticModulus)} cannot be equal to zero");
@@ -105,7 +94,7 @@ namespace GPC.Model.Materials
         /// <param name="density">Density of material</param>
         /// <remarks>Guid setted to new guid, alfaThermalExpansion setted to 12 * 1e-6</remarks>
         public SteelMaterial(string name, double elasticModulus, double poisson, double fyk, double fu, double density)
-            : this(name, StressStrainDiagrams.ElastoPlastic, elasticModulus, poisson, fyk, fu, 0.05, density, 12 * 1e-6, Guid.NewGuid())
+            : this(name, elasticModulus, poisson, fyk, fu, 0.05, density, 12 * 1e-6, Guid.NewGuid())
         {
 
         }
@@ -119,7 +108,7 @@ namespace GPC.Model.Materials
         /// <param name="density">Density of material</param>
         /// <remarks>Guid setted to empty, alfaThermalExpansion setted to 12 * 1e-6. Epsilon0 equal to fy / E</remarks>
         public SteelMaterial(string name, double fyk, double fu, double density = 0.007850)
-            : this(name, StressStrainDiagrams.ElastoPlastic, 210000.0, 0.30, fyk, fu, 0.05, density, 0, Guid.NewGuid())
+            : this(name, 210000.0, 0.30, fyk, fu, 0.05, density, 0, Guid.NewGuid())
         {
 
         }
@@ -128,7 +117,6 @@ namespace GPC.Model.Materials
         /// Protected steelMaterial constructor 
         /// </summary>
         /// <param name="name"></param>
-        /// <param name="stressStrainDiagrams">The stress Strain Diagrams</param>
         /// <param name="elasticModulus">Steel elastic modulus</param>
         /// <param name="poisson">Poissoins's Ratio</param>
         /// <param name="fyk">Yielding stress</param>
@@ -137,7 +125,7 @@ namespace GPC.Model.Materials
         /// <param name="density">Density of material</param>
         /// <param name="alfaThermalExpansion">Linear thermal expasion coefficient</param>
         /// <param name="guid">Guid of the material</param>
-        protected SteelMaterial(string name, StressStrainDiagrams stressStrainDiagrams, double elasticModulus, double poisson, double fyk, 
+        protected SteelMaterial(string name, double elasticModulus, double poisson, double fyk, 
             double fu, double epsilonU, double density, double alfaThermalExpansion, Guid guid)
             : base(name, elasticModulus, poisson, density, alfaThermalExpansion, guid)
         {
@@ -147,7 +135,6 @@ namespace GPC.Model.Materials
             _fu = fu <= 0 ? throw new ArgumentException($"{nameof(fu)} cannot be zero or lower") : fu;
             _fyk = fyk <= 0 ? throw new ArgumentException($"{nameof(fyk)} cannot be zero or lower") : fyk;
 
-            _stressStrainDiagrams = stressStrainDiagrams;
             _epsilonU = epsilonU;
         }
 
@@ -182,5 +169,17 @@ namespace GPC.Model.Materials
         }
 
         #endregion 
-    }
+
+        #region Protected Methods
+
+        protected double GetEt()
+		{
+            if (Math.Abs(Fu - Fyk) < Geometry.GeometryBase.GetDefaultTolerance())
+                return 0.0;
+            else
+                return (Fu - Fyk) / (EpsilonU - EpsilonY);
+		}
+
+		#endregion
+	}
 }

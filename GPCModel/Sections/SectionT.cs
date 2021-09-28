@@ -120,22 +120,22 @@ namespace GPC.Model.Sections
             return J11 / (Height - DistanceYCentroidFromBottom());
         }
 
-        protected virtual double DistanceYCentroidFromBottom()
+        internal virtual double DistanceYCentroidFromBottom()
         {
             return CalculateCentroid().Y;
         }
 
-        protected virtual double DistanceYCentroidFromTop()
+        internal virtual double DistanceYCentroidFromTop()
         {
             return Height - CalculateCentroid().Y;
         }
 
-        protected virtual double DistanceXCentroidFromRight()
+        internal virtual double DistanceXCentroidFromRight()
         {
             return LenghtFlange - CalculateCentroid().X;
         }
 
-        protected virtual double DistanceXCentroidFromLeft()
+        internal virtual double DistanceXCentroidFromLeft()
         {
             return CalculateCentroid().X;
         }
