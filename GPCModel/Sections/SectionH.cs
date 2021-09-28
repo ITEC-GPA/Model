@@ -75,47 +75,18 @@ namespace GPC.Model.Sections
 
         #endregion
 
-        protected override double CalculateWel2()
-        {
-            return Math.Min(CalculateWelyBottom(), CalculateWelyTop());
-        }
 
-        protected override double CalculateWel1()
-        {
-            return Math.Min(CalculateWelxBottom(), CalculateWelxTop());
-        }
-
-        protected double CalculateWelyBottom()
-        {
-            return J22 / (LenghtBottomFlange - DistanceXCentroidFromRight());
-        }
-
-        protected double CalculateWelyTop()
-        {
-            return J22 / (LenghtTopFlange - DistanceXCentroidFromRight());
-        }
-
-        protected double CalculateWelxBottom()
-        {
-            return J11 / DistanceYCentroidFromBottom();
-        }
-
-        protected double CalculateWelxTop()
-        {
-            return J11 / DistanceYCentroidFromTop();
-        }
-
-        public double DistanceYCentroidFromBottom()
+        public virtual double DistanceYCentroidFromBottom()
         {
             return CalculateCentroid().Y;
         }
 
-        public double DistanceYCentroidFromTop()
+        public virtual double DistanceYCentroidFromTop()
         {
             return Height - DistanceYCentroidFromBottom();
         }
 
-        public double DistanceXCentroidFromRight()
+        public virtual double DistanceXCentroidFromRight()
         {
             return CalculateCentroid().X;
         }
@@ -167,6 +138,36 @@ namespace GPC.Model.Sections
             }
             else            
                 throw new NotImplementedException("Cannot calculate Wpl : Plastic neutral axis in flanges...to be implemented");            
+        }
+
+        protected override double CalculateWel2()
+        {
+            return Math.Min(CalculateWelyBottom(), CalculateWelyTop());
+        }
+
+        protected override double CalculateWel1()
+        {
+            return Math.Min(CalculateWelxBottom(), CalculateWelxTop());
+        }
+
+        protected virtual double CalculateWelyBottom()
+        {
+            return J22 / (LenghtBottomFlange - DistanceXCentroidFromRight());
+        }
+
+        protected virtual double CalculateWelyTop()
+        {
+            return J22 / (LenghtTopFlange - DistanceXCentroidFromRight());
+        }
+
+        protected virtual double CalculateWelxBottom()
+        {
+            return J11 / DistanceYCentroidFromBottom();
+        }
+
+        protected virtual double CalculateWelxTop()
+        {
+            return J11 / DistanceYCentroidFromTop();
         }
 
 

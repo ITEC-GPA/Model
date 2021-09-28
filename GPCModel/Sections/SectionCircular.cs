@@ -11,7 +11,7 @@ namespace GPC.Model.Sections
     {        
         #region Variables
 
-        protected double _diameter;
+        protected readonly double _diameter;
 
         #endregion
 
@@ -111,7 +111,7 @@ namespace GPC.Model.Sections
 
         #endregion
 
-        #region Public method
+        #region Protected method
 
         protected void SetMechanicalProperties()
         {
@@ -140,7 +140,7 @@ namespace GPC.Model.Sections
             return Math.PI * Math.Pow(Diameter, 4.0) / 64.0;
         }
 
-        public double CalculateJp()
+        protected double CalculateJp()
         {
             return Math.PI * Math.Pow(Diameter, 4.0) / 32.0;
         }

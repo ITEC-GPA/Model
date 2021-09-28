@@ -141,6 +141,46 @@ namespace GPC.Model.Sections
                 throw new NotImplementedException("Different lenght or thickness not yet supported");
         }
 
+        protected virtual double CalculateWelyyLeft()
+        {
+            return J22 / DistanceXCentroidFromLeft();
+        }
+
+        protected virtual double CalculateWelyyRight()
+        {
+            return J22 / DistanceXCentroidFromRight();
+        }
+
+        protected virtual double CalculateWelxxTop()
+        {
+            return J11 / DistanceYCentroidFromTop();
+        }
+
+        protected virtual double CalculateWelxxBottom()
+        {
+            return J11 / DistanceYCentroidFromBottom();
+        }
+
+        public virtual double DistanceYCentroidFromBottom()
+        {
+            return CalculateCentroid().Y;
+        }
+
+        public virtual double DistanceYCentroidFromTop()
+        {
+            return Height - CalculateCentroid().Y;
+        }
+
+        public virtual double DistanceXCentroidFromRight()
+        {
+            return Math.Max(LengthTop, LengthBottom) - DistanceXCentroidFromLeft();
+        }
+
+        public virtual double DistanceXCentroidFromLeft()
+        {
+            return CalculateCentroid().X;
+        }
+
         public override string ToString()
         {
             string s = "C section: \n";
@@ -151,46 +191,6 @@ namespace GPC.Model.Sections
             s = s + "Length Top = " + _lengthTop + " mm \n";
             s = s + "Thickness Top = " + _tTop + " mm \n";
             return s;
-        }
-
-        public double CalculateWelyyLeft()
-        {
-            return J22 / DistanceXCentroidFromLeft();
-        }
-
-        public double CalculateWelyyRight()
-        {
-            return J22 / DistanceXCentroidFromRight();
-        }
-
-        public double CalculateWelxxTop()
-        {
-            return J11 / DistanceYCentroidFromTop();
-        }
-
-        public double CalculateWelxxBottom()
-        {
-            return J11 / DistanceYCentroidFromBottom();
-        }
-
-        public double DistanceYCentroidFromBottom()
-        {
-            return CalculateCentroid().Y;
-        }
-
-        public double DistanceYCentroidFromTop()
-        {
-            return Height - CalculateCentroid().Y;
-        }
-
-        public double DistanceXCentroidFromRight()
-        {
-            return Math.Max(LengthTop, LengthBottom) - DistanceXCentroidFromLeft();
-        }
-
-        public double DistanceXCentroidFromLeft()
-        {
-            return CalculateCentroid().X;
         }
 
         #endregion

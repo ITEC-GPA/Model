@@ -80,26 +80,6 @@ namespace GPC.Model.Sections
 
         #region Public method
 
-        public double CalculateWelyLeft()
-        {
-            return J22 / DistanceXCentroidFromRight();
-        }
-
-        public double CalculateWelyRight()
-        {
-            return J22 / (_b - DistanceXCentroidFromRight());
-        }
-
-        public double CalculateWelxBottom()
-        {
-            return J11 / DistanceYCentroidFromBottom();
-        }
-
-        public double CalculateWelxTop()
-        {
-            return J11 / (Height - DistanceYCentroidFromBottom());
-        }
-
         public double DistanceYCentroidFromBottom()
         {
             return CalculateCentroid().Y;
@@ -204,6 +184,26 @@ namespace GPC.Model.Sections
             s = s + "Length Top = " + _b + " mm \n";
             s = s + "Thickness Top = " + _tfTop + " mm \n";
             return s;
+        }
+
+        protected virtual double CalculateWelyLeft()
+        {
+            return J22 / DistanceXCentroidFromRight();
+        }
+
+        protected virtual double CalculateWelyRight()
+        {
+            return J22 / (_b - DistanceXCentroidFromRight());
+        }
+
+        protected virtual double CalculateWelxBottom()
+        {
+            return J11 / DistanceYCentroidFromBottom();
+        }
+
+        protected virtual double CalculateWelxTop()
+        {
+            return J11 / (Height - DistanceYCentroidFromBottom());
         }
 
         #endregion

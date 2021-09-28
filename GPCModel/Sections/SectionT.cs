@@ -100,42 +100,42 @@ namespace GPC.Model.Sections
             return 1.0 / 4.0 * _tf * Math.Pow(_b, 2.0) + 1.0 / 4.0 * (Height - _tf) * Math.Pow(_tw, 2.0);
         }
 
-        public double CalculateWelyLeft()
+        protected virtual double CalculateWelyLeft()
         {
             return J22 / DistanceXCentroidFromRight();
         }
 
-        public double CalculateWelyRight()
+        protected virtual double CalculateWelyRight()
         {
             return J22 / (_b - DistanceXCentroidFromRight());
         }
 
-        public double CalculateWelxBottom()
+        protected virtual double CalculateWelxBottom()
         {
             return J11 / DistanceYCentroidFromBottom();
         }
 
-        public double CalculateWelxTop()
+        protected virtual double CalculateWelxTop()
         {
             return J11 / (Height - DistanceYCentroidFromBottom());
         }
 
-        public double DistanceYCentroidFromBottom()
+        protected virtual double DistanceYCentroidFromBottom()
         {
             return CalculateCentroid().Y;
         }
 
-        public double DistanceYCentroidFromTop()
+        protected virtual double DistanceYCentroidFromTop()
         {
             return Height - CalculateCentroid().Y;
         }
 
-        public double DistanceXCentroidFromRight()
+        protected virtual double DistanceXCentroidFromRight()
         {
             return LenghtFlange - CalculateCentroid().X;
         }
 
-        public double DistanceXCentroidFromLeft()
+        protected virtual double DistanceXCentroidFromLeft()
         {
             return CalculateCentroid().X;
         }
