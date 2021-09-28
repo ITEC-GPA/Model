@@ -22,6 +22,8 @@ namespace GPC.Model.Materials
 
 		public StandardEn1992p11 Standard => _standard;
 
+		public double Fyd => Fyk / Standard.GammaS;
+
 		#endregion
 
 
@@ -102,6 +104,19 @@ namespace GPC.Model.Materials
 		}
 
 		#endregion
+
+		public override double CalculateSigma(double epsilon)
+		{
+			if (epsilon <= EpsilonY)
+				return epsilon * Fyd / EpsilonY;
+			else
+			{
+				if (Et == 0)
+					return Fyd;
+				else
+					return Fyd + (epsilon - EpsilonY) * Et;
+			}
+		}
 
 	}
 }
