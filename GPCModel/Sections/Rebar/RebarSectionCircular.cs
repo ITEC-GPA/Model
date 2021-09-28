@@ -8,9 +8,8 @@ using System.Threading.Tasks;
 
 namespace GPC.Model.Sections.Rebar
 {
-	public class RebarCircularSection : SectionCircular, IRebarSection
+	public class RebarSectionCircular : SectionCircular, IRebarSection
 	{
-
         #region Properties
 
 		public RebarMaterial RebarMaterial => (RebarMaterial)_material;
@@ -26,46 +25,26 @@ namespace GPC.Model.Sections.Rebar
 		/// <param name="diameter">Th diameter</param>
 		/// <param name="rebarMaterial">The material</param>
 		/// <param name="id">The unique id</param>
-		public RebarCircularSection(string name, double diameter, RebarMaterial rebarMaterial, int id = IDUNASSIGNED)
+		public RebarSectionCircular(string name, double diameter, RebarMaterial rebarMaterial, int id = IDUNASSIGNED)
             : base(diameter, rebarMaterial, name)
         {
             _id = id;
         }
 
-        public RebarCircularSection(SectionCircular sectionCircular)
+        public RebarSectionCircular(SectionCircular sectionCircular)
             : base(sectionCircular)
         {         
         }
 
-        public RebarCircularSection(double diameter, RebarMaterial material) 
+        public RebarSectionCircular(double diameter, RebarMaterial material) 
             : this("", diameter, material)
         {
         }
 
-        public RebarCircularSection(SerializationInfo info, StreamingContext context) 
+        public RebarSectionCircular(SerializationInfo info, StreamingContext context) 
             : base(info, context)
         {
         }
-
-        #endregion
-
-
-        #region Public Methods Specific
-
-        public void ChangeDiameter(double newDiamter)
-        {
-            _diameter = newDiamter;
-        }
-
-        public void ChangeMaterial(RebarMaterial newMaterial)
-        {
-            _material = newMaterial;
-        }
-
-        #endregion
-
-        #region Private Methods Specific
-
 
         #endregion
 

@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
@@ -91,8 +91,8 @@
     <Compile Include="Sections\Concrete\IConcreteSection.cs" />
     <Compile Include="Sections\Concrete\ReinforcedConcreteSection.cs" />
     <Compile Include="Sections\Rebar\IRebarSection.cs" />
-    <Compile Include="Sections\Rebar\RebarRectangularSection.cs" />
-    <Compile Include="Sections\Rebar\RebarCircularSection.cs" />
+    <Compile Include="Sections\Rebar\RebarSectionRectangular.cs" />
+    <Compile Include="Sections\Rebar\RebarSectionCircular.cs" />
     <Compile Include="Sections\SectionRectangular.cs" />
     <Compile Include="Sections\ShapeEx.cs" />
     <Compile Include="Sections\Steel\ISteelSection.cs" />

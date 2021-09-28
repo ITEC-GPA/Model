@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace GPC.Model.Sections.Rebar
 {
-	public class RebarRectangularSection : SectionRectangular, IRebarSection
+	public class RebarSectionRectangular : SectionRectangular, IRebarSection
 	{
         #region Properties
 
@@ -26,19 +26,19 @@ namespace GPC.Model.Sections.Rebar
 		/// <param name="width"></param>
 		/// <param name="rebarMaterial">The material</param>
 		/// <param name="id">The unique id</param>
-		public RebarRectangularSection(string name, double height, double width, RebarMaterial rebarMaterial, int id = IDUNASSIGNED)
+		public RebarSectionRectangular(string name, double height, double width, RebarMaterial rebarMaterial, int id = IDUNASSIGNED)
             : base(height, width, rebarMaterial, name)
         {
             _id = id;
         }
 
-        public RebarRectangularSection(SectionRectangular section, int id = IDUNASSIGNED)
+        public RebarSectionRectangular(SectionRectangular section, int id = IDUNASSIGNED)
             : base(section)
         {
             _id = id;
         }
 
-        public RebarRectangularSection(SerializationInfo info, StreamingContext context) 
+        public RebarSectionRectangular(SerializationInfo info, StreamingContext context) 
             : base(info, context)
         {
         }
