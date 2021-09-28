@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.Serialization;
 using System.Text;
 using System.Threading.Tasks;
 using GPC.Geometry;
@@ -36,5 +37,23 @@ namespace GPC.Model.Sections
 			: this(shape, material, Geometry.GeometryBase.GetDefaultAngularTolerance())
 		{
 		}
+
+		public ShapeEx(SerializationInfo info, StreamingContext context) :
+			base(info, context)
+		{
+			_material = (Material)info.GetValue("Material", typeof(Material));
+		}
+
+
+
+		#region Field Serialization
+
+		public override void GetObjectData(SerializationInfo info, StreamingContext context)
+		{
+			base.GetObjectData(info, context);
+			info.AddValue("Material", _material);
+		}
+
+		#endregion
 	}
 }
