@@ -50,22 +50,5 @@ namespace GPC.Model.Sections.Concrete
 		#endregion
 
 
-
-		#region Public Methods Specific
-
-		#endregion
-
-
-
-		#region Private Methods Specific
-
-		#endregion
-
-
-
-		#region Public Methods Override			
-
-		#endregion
-
 	}
 }

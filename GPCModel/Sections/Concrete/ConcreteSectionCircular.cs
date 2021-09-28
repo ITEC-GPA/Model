@@ -23,8 +23,6 @@ namespace GPC.Model.Sections.Concrete
 
 		public ConcreteMaterial ConcreteMaterial => (ConcreteMaterial)_material;
 
-		public double Height => Diameter;
-
 		#endregion
 
 		#region Public Constructors
@@ -37,18 +35,6 @@ namespace GPC.Model.Sections.Concrete
 
 		#endregion
 
-
-		#region Public Methods Specific
-
-		#endregion
-
-		#region Private Methods Specific
-
-		#endregion
-
-		#region Public Methods Override
-
-		#endregion
 	}
 }
 

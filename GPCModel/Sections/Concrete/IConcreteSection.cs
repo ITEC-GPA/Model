@@ -1,4 +1,4 @@
-﻿using GPC.Model.Materials;
+using GPC.Model.Materials;
 
 
 namespace GPC.Model.Sections.Concrete
@@ -8,8 +8,6 @@ namespace GPC.Model.Sections.Concrete
         string Name { get; }
 
         ConcreteMaterial ConcreteMaterial { get; }
-
-        double Height { get; }
 
         double Area { get; }
 

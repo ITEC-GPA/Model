@@ -21,8 +21,6 @@ namespace GPC.Model.Sections.Concrete
 
 		public ConcreteMaterial ConcreteMaterial => (ConcreteMaterial)_material;
 
-		public double Height => Diameter;
-
 		#endregion
 
 		#region Public Constructors
@@ -38,25 +36,11 @@ namespace GPC.Model.Sections.Concrete
 		{
 			_rebars = rebars;
 
-			if (sectionCHS.Material is ConcreteMaterial)
-			{ }
-			else
+			if (sectionCHS.Material.GetType() != ConcreteMaterial.GetType())
 				throw new ArgumentException("Material must be a ConcreteMaterial");
 		}
 
 		#endregion
 
-
-		#region Public Methods Specific
-
-		#endregion
-
-		#region Private Methods Specific
-
-		#endregion
-
-		#region Public Methods Override
-
-		#endregion
 	}
 }

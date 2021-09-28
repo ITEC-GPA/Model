@@ -26,8 +26,6 @@ namespace GPC.Model.Sections.Concrete
 
 		public ConcreteMaterial ConcreteMaterial => (ConcreteMaterial)_material;
 
-		public double Height => Math.Abs(_shapeEx.GetBoundingBox().Max.Y - _shapeEx.GetBoundingBox().Min.Y);
-
 		#endregion
 
 
