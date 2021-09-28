@@ -9,8 +9,6 @@ namespace GPC.Model.Materials
     [UI(Description = "Rebar", Group = "Materials", Kind = "Material")]
     public class RebarMaterial : SteelMaterial
     {
-        public static RebarMaterial B450C => new RebarMaterial("B450C", 20000, 0.28, 450, 510, 0.075, 0.007850, 12 * 1e-6, new Guid());
-
         #region Constructor
 
         /// <summary>

@@ -84,6 +84,7 @@
     <Compile Include="Loads\IConvertibleLoad.cs" />
     <Compile Include="Materials\ConcreteMaterialACI318.cs" />
     <Compile Include="Materials\ConcreteMaterialEN1992.cs" />
+    <Compile Include="Materials\RebarMaterialEN1992.cs" />
     <Compile Include="Sections\Concrete\ConcreteSectionCHS.cs" />
     <Compile Include="Sections\Concrete\ConcreteSectionCircular.cs" />
     <Compile Include="Sections\Concrete\ConcreteSectionRectangular.cs" />
