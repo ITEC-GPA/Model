@@ -11,13 +11,13 @@ namespace GPC.Model.Sections.Concrete
 	{
 		#region Variables
 
-		protected Elements.Rebar[] _rebars;
+		protected ReinforcedConcreteRebar[] _rebars;
 
 		#endregion
 
 		#region Properties
 
-		public Elements.Rebar[] Rebars => _rebars;
+		public ReinforcedConcreteRebar[] Rebars => _rebars;
 
 		public ConcreteMaterial ConcreteMaterial => (ConcreteMaterial)_material;
 
@@ -25,20 +25,18 @@ namespace GPC.Model.Sections.Concrete
 
 		#region Public Constructors
 
-		public ConcreteSectionT(double height, double flangeLength, double thicknessWeb, double thicknessFlange, ConcreteMaterial material, Elements.Rebar[] rebars, string name = "")
+		public ConcreteSectionT(double height, double flangeLength, double thicknessWeb, double thicknessFlange, ConcreteMaterial material, ReinforcedConcreteRebar[] rebars, string name = "")
 			: base(height, flangeLength, thicknessWeb, thicknessFlange, material, name)
 		{
 			_rebars = rebars;
 		}
 
-		public ConcreteSectionT(SectionT section, Elements.Rebar[] rebars)
+		public ConcreteSectionT(SectionT section, ReinforcedConcreteRebar[] rebars)
 			: base(section)
 		{
 			_rebars = rebars;
 
-			if (section.Material is ConcreteMaterial)
-			{ }
-			else
+			if (section.Material.GetType() != ConcreteMaterial.GetType())
 				throw new ArgumentException("Material must be a ConcreteMaterial");
 		}
 

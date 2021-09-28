@@ -1140,7 +1140,7 @@ namespace ModelObjectTest
         {
             double h = 500;
             double b = 300;
-            ConcreteSectionRectangular section = new ConcreteSectionRectangular(h, b, ConcreteMaterialEN1992.C40_50, new Rebar[] { }, "Section");
+            ConcreteSectionRectangular section = new ConcreteSectionRectangular(h, b, ConcreteMaterialEN1992.C40_50, new ReinforcedConcreteRebar[] { }, "Section");
 
             double A = 150000;
             double jxx = 3.125 * 1e9;
@@ -1166,7 +1166,7 @@ namespace ModelObjectTest
         {
             double h = 600;
             double b = 350;
-            ConcreteSectionRectangular section = new ConcreteSectionRectangular(h, b, ConcreteMaterialEN1992.C40_50, new Rebar[] { }, "Section");
+            ConcreteSectionRectangular section = new ConcreteSectionRectangular(h, b, ConcreteMaterialEN1992.C40_50, new ReinforcedConcreteRebar[] { }, "Section");
 
             double A = 210000;
             double jxx = 6.300 * 1e9;
@@ -1217,7 +1217,7 @@ namespace ModelObjectTest
         public void SectionCircularSubdivision2()
         {
             double d = 500;
-            ConcreteSectionCircular section = new ConcreteSectionCircular(d, ConcreteMaterialEN1992.C40_50, new Rebar[] { }, "Section");
+            ConcreteSectionCircular section = new ConcreteSectionCircular(d, ConcreteMaterialEN1992.C40_50, new ReinforcedConcreteRebar[] { }, "Section");
 
             double A = 196349.54;
             double jxx = 3.068 * 1e9;
@@ -1242,7 +1242,7 @@ namespace ModelObjectTest
         public void SectionCircularTest2()
         {
             double d = 400;
-            ConcreteSectionCircular section = new ConcreteSectionCircular(d, ConcreteMaterialEN1992.C40_50, new Rebar[] { }, "Section");
+            ConcreteSectionCircular section = new ConcreteSectionCircular(d, ConcreteMaterialEN1992.C40_50, new ReinforcedConcreteRebar[] { }, "Section");
 
             double A = 125663.71;
             double jxx = 1.257 * 1e9;

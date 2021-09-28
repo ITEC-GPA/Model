@@ -14,7 +14,7 @@ namespace GPC.Model.Sections.Concrete
 		#region Variables
 
 		protected readonly IRebarSection _rebarSection;
-		protected readonly Point2d _position;
+		protected readonly Point3d _position;
 		protected readonly double _epsilonP;
 
 		#endregion
@@ -27,7 +27,7 @@ namespace GPC.Model.Sections.Concrete
 
 		public IRebarSection RebarSection => _rebarSection;
 
-		public Point2d Position => _position;
+		public Point3d Position => _position;
 
 		public double EpsilonP => _epsilonP;
 
@@ -35,7 +35,7 @@ namespace GPC.Model.Sections.Concrete
 
 		#region Public Constructors
 
-		public ReinforcedConcreteRebar(IRebarSection section, Point2d position, double epsilonP, int id, Guid guid)
+		public ReinforcedConcreteRebar(IRebarSection section, Point3d position, double epsilonP, int id, Guid guid)
 			: base(guid)
 		{
 			_rebarSection = section;
@@ -44,13 +44,13 @@ namespace GPC.Model.Sections.Concrete
 			_id = id;
 		}
 
-		public ReinforcedConcreteRebar(IRebarSection section, Point2d position, double epsilonP, int id)
+		public ReinforcedConcreteRebar(IRebarSection section, Point3d position, double epsilonP, int id)
 			: this(section, position, epsilonP, id, new Guid())
 		{
 
 		}
 
-		public ReinforcedConcreteRebar(IRebarSection section, Point2d position, int id = IDUNASSIGNED, double epsilonP = 0.0)
+		public ReinforcedConcreteRebar(IRebarSection section, Point3d position, int id = IDUNASSIGNED, double epsilonP = 0.0)
 			: this(section, position, epsilonP, id, new Guid())
 		{
 

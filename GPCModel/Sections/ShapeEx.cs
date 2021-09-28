@@ -21,10 +21,20 @@ namespace GPC.Model.Sections
 			_material = material;
 		}
 
+		public ShapeEx(Polygon3d fill, Material material, Polygon3d[] holes = null, ShapeEx[] childs = null)
+			: this(fill, material, holes, childs, Geometry.GeometryBase.GetDefaultAngularTolerance())
+		{
+		}
+
 		public ShapeEx(Shape shape, Material material, double tolerance = 0.0001) 
 			: base(shape, tolerance)
 		{
 			_material = material;
+		}
+
+		public ShapeEx(Shape shape, Material material)
+			: this(shape, material, Geometry.GeometryBase.GetDefaultAngularTolerance())
+		{
 		}
 	}
 }

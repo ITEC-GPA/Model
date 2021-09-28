@@ -11,13 +11,13 @@ namespace GPC.Model.Sections.Concrete
 	{
 		#region Variables
 
-		protected Elements.Rebar[] _rebars;
+		protected ReinforcedConcreteRebar[] _rebars;
 
 		#endregion
 
 		#region Properties
 
-		public Elements.Rebar[] Rebars => _rebars;
+		public ReinforcedConcreteRebar[] Rebars => _rebars;
 
 		public ConcreteMaterial ConcreteMaterial => (ConcreteMaterial)_material;
 
@@ -25,13 +25,13 @@ namespace GPC.Model.Sections.Concrete
 
 		#region Public Constructors
 
-		public ConcreteSectionCHS(double diameter, double thickness, ConcreteMaterial material, Elements.Rebar[] rebars, string name = "")
+		public ConcreteSectionCHS(double diameter, double thickness, ConcreteMaterial material, ReinforcedConcreteRebar[] rebars, string name = "")
 			: base(diameter, thickness, material, name)
 		{
 			_rebars = rebars;
 		}
 
-		public ConcreteSectionCHS(SectionCHS sectionCHS, Elements.Rebar[] rebars)
+		public ConcreteSectionCHS(SectionCHS sectionCHS, ReinforcedConcreteRebar[] rebars)
 			: base(sectionCHS)
 		{
 			_rebars = rebars;

@@ -1,4 +1,4 @@
-using GPC.Model.Materials;
+﻿using GPC.Model.Materials;
 
 
 namespace GPC.Model.Sections.Concrete
@@ -44,5 +44,7 @@ namespace GPC.Model.Sections.Concrete
         bool IsSymmetricAlongYLocalAxis { get; }
 
         bool IsDoubleSymmetric { get; }
+
+        ReinforcedConcreteRebar[] Rebars { get; }
     }
 }
