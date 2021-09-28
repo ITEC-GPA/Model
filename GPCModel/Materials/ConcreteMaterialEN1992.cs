@@ -44,11 +44,7 @@ namespace GPC.Model.Materials
         #region Variables
 
         protected readonly StandardEn1992p11 _standard;
-
-        protected double _epsilonY;
-        protected double _epsilonU;
-        protected double _fcd;
-
+                
         protected readonly double _niCracked;
 
         protected readonly StressStrainDiagrams _stressStrainDiagram;
@@ -62,16 +58,6 @@ namespace GPC.Model.Materials
         /// Standard EN1992 or a relative national annex
         /// </summary>
         public StandardEn1992p11 Standard => _standard;
-
-        /// <summary>
-        /// Compressive strain in the concrete at the peak stress fc
-        /// </summary>
-        public double EpsilonY => _epsilonY;
-
-        /// <summary>
-        /// Ultimate compressive strain in the concrete
-        /// </summary>
-        public double EpsilonU => _epsilonU;
 
         /// <summary>
         /// characteristic cubic strength
@@ -101,7 +87,7 @@ namespace GPC.Model.Materials
         /// <summary>
         /// Design compressive strength for persistent design
         /// </summary>
-        public double Fcd => _fcd;
+        public double Fcd => CalculateFcd();
 
         /// <summary>
         /// Design compressive strength for accidental design
@@ -194,7 +180,6 @@ namespace GPC.Model.Materials
 
             CalculateEpsilonU();
             CalculateEpsilonY();
-            CalculateFcd();
         }
 
 		/// <summary>
@@ -239,7 +224,6 @@ namespace GPC.Model.Materials
 
             CalculateEpsilonU();
             CalculateEpsilonY();
-            CalculateFcd();
         }
 
         /// <summary>
@@ -348,7 +332,7 @@ namespace GPC.Model.Materials
 
         #region Public Methods
 
-        public virtual double CalculateSigmaC(double epsilonC)
+        public override double CalculateSigmaC(double epsilonC)
         {
             if (StressStrainDiagram == StressStrainDiagrams.ParabolaRectangle)
             {
@@ -606,7 +590,7 @@ namespace GPC.Model.Materials
                 throw new ArgumentException();
         }
 
-        protected virtual void CalculateFcd()
+        protected virtual double CalculateFcd()
 		{
             if (StressStrainDiagram == StressStrainDiagrams.StressBlock)
             {
@@ -616,11 +600,11 @@ namespace GPC.Model.Materials
                 else
                     eta = 1.0 - (_fck - 50.0) / 200;
 
-                _fcd = eta * Standard.AlphaCC * Fck / Standard.GammaC;
+                return eta * Standard.AlphaCC * Fck / Standard.GammaC;
             }
             else
             {
-                _fcd = Standard.AlphaCC * Fck / Standard.GammaC;
+                return Standard.AlphaCC * Fck / Standard.GammaC;
             }
 		}
 

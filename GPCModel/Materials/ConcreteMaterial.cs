@@ -12,13 +12,27 @@ namespace GPC.Model.Materials
         #region Variables
 
         protected double _fck;
+        protected double _epsilonY;
+        protected double _epsilonU;
 
         #endregion
 
         #region Properties
 
+        /// <summary>
+        /// Characteristic compressive cylinder strength of concrete at 28 days
+        /// </summary>
         public double Fck => _fck;
 
+        /// <summary>
+        /// Compressive strain in the concrete at the peak stress fc
+        /// </summary>
+        public double EpsilonY => _epsilonY;
+
+        /// <summary>
+        /// Ultimate compressive strain in the concrete
+        /// </summary>
+        public double EpsilonU => _epsilonU;
         #endregion
 
         #region Constructor
@@ -89,6 +103,12 @@ namespace GPC.Model.Materials
         {
             return new OrthotropicFemMaterial(E, E, E, Ni, Ni, Ni, GetShearModule(), GetShearModule(), GetShearModule(), AlfaThermalExpansion, AlfaThermalExpansion, AlfaThermalExpansion, Density);
         }
+
+        #endregion
+
+        #region Abstract Methods
+
+        public abstract double CalculateSigmaC(double epsilonC);
 
         #endregion
     }

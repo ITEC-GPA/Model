@@ -52,7 +52,12 @@ namespace GPC.Model.Materials
 		{
             return 4700 * Math.Sqrt(_fck);
 		}
-        
-        #endregion
-    }
+
+		public override double CalculateSigmaC(double epsilonC)
+		{
+			throw new NotImplementedException();
+		}
+
+		#endregion
+	}
 }
