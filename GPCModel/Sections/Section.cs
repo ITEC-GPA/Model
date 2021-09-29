@@ -45,6 +45,7 @@ namespace GPC.Model.Sections
         protected double _area;
         protected double _jxx;
         protected double _jyy;
+        protected double _jxy;
         protected double _jt;
         protected double _jw;
         protected double _j11;
@@ -95,6 +96,11 @@ namespace GPC.Model.Sections
         /// The first moment of inertia around the Y-axis
         /// </summary>
         public double Jyy => _jyy;
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public double Jxy => _jxy;
 
         /// <summary>
         /// The first moment of inertia around the 1st principal axes

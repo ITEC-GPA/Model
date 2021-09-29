@@ -120,6 +120,7 @@ namespace GPC.Model.Sections
             _j22 = CalculateJ();
             _jxx = CalculateJ();
             _jyy = CalculateJ();
+            _jxy = _jxx + _jyy;
             _jt = CalculateJt();
             _jw = CalculateJw();
             _centroid = CalculateCentroid();

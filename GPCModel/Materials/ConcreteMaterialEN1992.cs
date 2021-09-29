@@ -11,17 +11,17 @@ namespace GPC.Model.Materials
     [UI(Description = "Concrete EN1992-1-1", Group = "Materials", Kind = "Material")]
     public class ConcreteMaterialEN1992 : ConcreteMaterial
     {
-        public static ConcreteMaterialEN1992 C25_30 => new ConcreteMaterialEN1992("C25/30", 25, new StandardEn1992p11(), StressStrainDiagrams.StressBlock);
-        public static ConcreteMaterialEN1992 C30_37 => new ConcreteMaterialEN1992("C30/37", 30, new StandardEn1992p11(), StressStrainDiagrams.StressBlock);
-        public static ConcreteMaterialEN1992 C35_45 => new ConcreteMaterialEN1992("C35/45", 35, new StandardEn1992p11(), StressStrainDiagrams.StressBlock);
-        public static ConcreteMaterialEN1992 C40_50 => new ConcreteMaterialEN1992("C40/50", 40, new StandardEn1992p11(), StressStrainDiagrams.StressBlock);
-        public static ConcreteMaterialEN1992 C45_55 => new ConcreteMaterialEN1992("C45/55", 45, new StandardEn1992p11(), StressStrainDiagrams.StressBlock);
-        public static ConcreteMaterialEN1992 C50_60 => new ConcreteMaterialEN1992("C50/60", 50, new StandardEn1992p11(), StressStrainDiagrams.StressBlock);
-        public static ConcreteMaterialEN1992 C55_67 => new ConcreteMaterialEN1992("C55/67", 55, new StandardEn1992p11(), StressStrainDiagrams.StressBlock);
-        public static ConcreteMaterialEN1992 C60_75 => new ConcreteMaterialEN1992("C60/75", 60, new StandardEn1992p11(), StressStrainDiagrams.StressBlock);
-        public static ConcreteMaterialEN1992 C70_85 => new ConcreteMaterialEN1992("C70/85", 70, new StandardEn1992p11(), StressStrainDiagrams.StressBlock);
-        public static ConcreteMaterialEN1992 C80_95 => new ConcreteMaterialEN1992("C80/90", 80, new StandardEn1992p11(), StressStrainDiagrams.StressBlock);
-        public static ConcreteMaterialEN1992 C90_105 => new ConcreteMaterialEN1992("C90/105", 90, new StandardEn1992p11(), StressStrainDiagrams.StressBlock);
+        public static ConcreteMaterialEN1992 C25_30 => new ConcreteMaterialEN1992("C25/30", 25, new StandardEN1992p11(), StressStrainDiagrams.StressBlock);
+        public static ConcreteMaterialEN1992 C30_37 => new ConcreteMaterialEN1992("C30/37", 30, new StandardEN1992p11(), StressStrainDiagrams.StressBlock);
+        public static ConcreteMaterialEN1992 C35_45 => new ConcreteMaterialEN1992("C35/45", 35, new StandardEN1992p11(), StressStrainDiagrams.StressBlock);
+        public static ConcreteMaterialEN1992 C40_50 => new ConcreteMaterialEN1992("C40/50", 40, new StandardEN1992p11(), StressStrainDiagrams.StressBlock);
+        public static ConcreteMaterialEN1992 C45_55 => new ConcreteMaterialEN1992("C45/55", 45, new StandardEN1992p11(), StressStrainDiagrams.StressBlock);
+        public static ConcreteMaterialEN1992 C50_60 => new ConcreteMaterialEN1992("C50/60", 50, new StandardEN1992p11(), StressStrainDiagrams.StressBlock);
+        public static ConcreteMaterialEN1992 C55_67 => new ConcreteMaterialEN1992("C55/67", 55, new StandardEN1992p11(), StressStrainDiagrams.StressBlock);
+        public static ConcreteMaterialEN1992 C60_75 => new ConcreteMaterialEN1992("C60/75", 60, new StandardEN1992p11(), StressStrainDiagrams.StressBlock);
+        public static ConcreteMaterialEN1992 C70_85 => new ConcreteMaterialEN1992("C70/85", 70, new StandardEN1992p11(), StressStrainDiagrams.StressBlock);
+        public static ConcreteMaterialEN1992 C80_95 => new ConcreteMaterialEN1992("C80/90", 80, new StandardEN1992p11(), StressStrainDiagrams.StressBlock);
+        public static ConcreteMaterialEN1992 C90_105 => new ConcreteMaterialEN1992("C90/105", 90, new StandardEN1992p11(), StressStrainDiagrams.StressBlock);
 
         #region Enumerator
 
@@ -43,7 +43,7 @@ namespace GPC.Model.Materials
 
         #region Variables
 
-        protected readonly StandardEn1992p11 _standard;
+        protected readonly StandardEN1992p11 _standard;
                 
         protected readonly double _niCracked;
 
@@ -57,7 +57,7 @@ namespace GPC.Model.Materials
         /// <summary>
         /// Standard EN1992 or a relative national annex
         /// </summary>
-        public StandardEn1992p11 Standard => _standard;
+        public StandardEN1992p11 Standard => _standard;
 
         /// <summary>
         /// characteristic cubic strength
@@ -152,7 +152,7 @@ namespace GPC.Model.Materials
         /// <param name="typeOfCement">The type of cement. See §3.4.1</param>
         /// <remarks>Elastic modulus is automatically calculated according to EN1992 §3 (Ecm)</remarks>
         public ConcreteMaterialEN1992(string name, double fck, double ni, double niCracked, double alphaT, double density,
-            StandardEn1992p11 standard, StressStrainDiagrams stressStrainDiagram, TypeOfCements typeOfCement)
+            StandardEN1992p11 standard, StressStrainDiagrams stressStrainDiagram, TypeOfCements typeOfCement)
             : base(name, fck)
         {
             if (fck < 0.0)
@@ -196,7 +196,7 @@ namespace GPC.Model.Materials
 		/// <param name="stressStrainDiagram">The stress-strain diagram type</param>
 		/// <param name="typeOfCement">The type of cement. See §3.4.1</param>
 		public ConcreteMaterialEN1992(string name, double fck, double elasticModulus, double ni, double niCracked, double alphaT, double density,
-            StandardEn1992p11 standard, StressStrainDiagrams stressStrainDiagram, TypeOfCements typeOfCement)
+            StandardEN1992p11 standard, StressStrainDiagrams stressStrainDiagram, TypeOfCements typeOfCement)
             : base(name, fck)
         {
             if (fck < 0.0)
@@ -242,7 +242,7 @@ namespace GPC.Model.Materials
         /// <param name="stressStrainDiagram">The stress-strain diagram type</param>
         /// <param name="typeOfCement">The type of cement. See §3.4.1</param>
         public ConcreteMaterialEN1992(string name, double fck, double elasticModulus, double epsilony, double epsilonU, double ni, double niCracked, double alphaT, double density,
-            StandardEn1992p11 standard, StressStrainDiagrams stressStrainDiagram, TypeOfCements typeOfCement)
+            StandardEN1992p11 standard, StressStrainDiagrams stressStrainDiagram, TypeOfCements typeOfCement)
             : base(name, fck)
         {
             if (fck < 0.0)
@@ -286,7 +286,7 @@ namespace GPC.Model.Materials
         /// <param name="stressStrainDiagram">The stress-strain diagram type</param>
         /// <remarks>Type of cements is ClassN</remarks>
         public ConcreteMaterialEN1992(string name, double fck, double ni, double niCracked, double alphaT, double density,
-            StandardEn1992p11 standard, StressStrainDiagrams stressStrainDiagram)
+            StandardEN1992p11 standard, StressStrainDiagrams stressStrainDiagram)
             : this(name, fck, ni, niCracked, alphaT, density, standard, stressStrainDiagram, TypeOfCements.ClassN)
         {
 
@@ -300,7 +300,7 @@ namespace GPC.Model.Materials
         /// <param name="standard">Standard EN1992 or a relative national annex</param>
         /// <param name="stressStrainDiagram">The stress-strain diagram type</param>
         /// <remarks>Value: ni = 0.2, niCracked = 0.0; alfaThermalExpansion = 1e-6; density = 0.0025 T/mm^3; type of cements = classN</remarks>
-        public ConcreteMaterialEN1992(string name, double fck, StandardEn1992p11 standard, StressStrainDiagrams stressStrainDiagram)
+        public ConcreteMaterialEN1992(string name, double fck, StandardEN1992p11 standard, StressStrainDiagrams stressStrainDiagram)
             : this(name, fck, 0.2, 0.0, 1e-6, 0.0025, standard, stressStrainDiagram, TypeOfCements.ClassN)
         {
 
@@ -313,7 +313,7 @@ namespace GPC.Model.Materials
         /// <param name="stressStrainDiagram">The stress-strain diagram type</param>
         /// <remarks>Value: ni = 0.2, niCracked = 0.0; alfaThermalExpansion = 1e-6; density = 0.0025 T/mm^3; standard = StandardEn1992p11; type of cements = classN</remarks>
         public ConcreteMaterialEN1992(double fck, StressStrainDiagrams stressStrainDiagram = StressStrainDiagrams.StressBlock)
-            : this("", fck, 0.2, 0.0, 1e-6, 0.0025, new StandardEn1992p11(), stressStrainDiagram, TypeOfCements.ClassN)
+            : this("", fck, 0.2, 0.0, 1e-6, 0.0025, new StandardEN1992p11(), stressStrainDiagram, TypeOfCements.ClassN)
         {
 
         }
@@ -667,7 +667,7 @@ namespace GPC.Model.Materials
 
         protected virtual double CalculateEcm()
         {
-            return 22.0 * Math.Pow(Fcm / 10.0, 0.30);
+            return 22.0 * Math.Pow(Fcm / 10.0, 0.30) * 1000;
         }
 
         protected virtual double CalculateBetaCC(int days)

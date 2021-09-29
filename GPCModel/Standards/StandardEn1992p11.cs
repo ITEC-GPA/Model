@@ -8,13 +8,14 @@ using System.Threading.Tasks;
 
 namespace GPC.Model.Standards
 {
-    public class StandardEn1992p11 : Standard
+    public class StandardEN1992p11 : Standard
     {
-        #region VARIABLES
+        #region Variables
 
         private readonly double _gammaC;
         private readonly double _gammaCAccidental;
         private readonly double _gammaCE;
+
         private readonly double _gammaS;
         private readonly double _gammaSAccidental;
         private readonly double _gammaSPrestress;
@@ -75,7 +76,7 @@ namespace GPC.Model.Standards
 
 
 
-        public StandardEn1992p11()
+        public StandardEN1992p11()
 		{
 			_gammaC = 1.5;
             _gammaCAccidental = 1.2;

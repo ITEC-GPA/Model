@@ -12,5 +12,11 @@ namespace GPC.Model.Sections.Rebar
         double Area { get; }
         
         int Id { get; }
+
+        double Jxx { get; }
+
+        double Jyy { get; }
+
+        double Jxy { get; }
     }
 }
