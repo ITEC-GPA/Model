@@ -1312,5 +1312,91 @@ namespace ModelObjectTest
         }
 
         #endregion
+
+        #region Concrete Section
+
+        [TestMethod]
+        public void RCSection1()
+        {
+            double rebarDiameter = 18;
+
+            // sezione rettangolare 300x500
+            Shape shape = new Shape(new Polygon3d(new Point3d[] {   new Point3d(0, 0, 0), 
+                                                                    new Point3d(300, 0, 0), 
+                                                                    new Point3d(300, 500, 0), 
+                                                                    new Point3d(0, 500, 0), }));
+
+            ShapeEx shapeEx = new ShapeEx(shape, ConcreteMaterialEN1992.C25_30);
+            GPC.Model.Sections.Rebar.RebarSectionCircular rebar = new GPC.Model.Sections.Rebar.RebarSectionCircular(rebarDiameter, RebarMaterialEN1992.B450C);
+
+            ReinforcedConcreteRebar[] rebars = new ReinforcedConcreteRebar[] {  };
+
+            //ReinforcedConcreteRebar[] rebars = new ReinforcedConcreteRebar[] {  new ReinforcedConcreteRebar(rebar, new Point3d(50,50,0)),
+            //                                                                    new ReinforcedConcreteRebar(rebar, new Point3d(250, 50, 0)),
+            //                                                                    new ReinforcedConcreteRebar(rebar, new Point3d(250,450,0)),
+            //                                                                    new ReinforcedConcreteRebar(rebar, new Point3d(50,450,0))};
+            ReinforcedConcreteSection section = new ReinforcedConcreteSection(shapeEx, rebars);
+
+            //valori calcolati con VCASLU
+            Assert.IsTrue(Math.Abs(section.J11 - 3125000000) / section.J11 * 100 < 1);
+            Assert.IsTrue(Math.Abs(section.J22 - 1125000000) / section.J22 * 100 < 1);
+            Assert.IsTrue(Math.Abs(section.AngleX1) < 0.001);
+        }
+
+        [TestMethod]
+        public void RCSection2()
+        {
+            double rebarDiameter = 18;
+
+            // sezion a T tovescia 
+            Shape shape = new Shape(new Polygon3d(new Point3d[] {   new Point3d(0, 0, 0),
+                                                                    new Point3d(500, 0, 0),
+                                                                    new Point3d(500, 500, 0),
+                                                                    new Point3d(400, 500, 0),
+                                                                    new Point3d(400, 1000, 0),
+                                                                    new Point3d(100, 1000, 0),
+                                                                    new Point3d(100, 500, 0),
+                                                                    new Point3d(0, 500, 0), }));
+
+            ShapeEx shapeEx = new ShapeEx(shape, ConcreteMaterialEN1992.C25_30);
+            GPC.Model.Sections.Rebar.RebarSectionCircular rebar = new GPC.Model.Sections.Rebar.RebarSectionCircular(rebarDiameter, RebarMaterialEN1992.B450C);
+
+            ReinforcedConcreteRebar[] rebars = new ReinforcedConcreteRebar[] { };
+
+            //ReinforcedConcreteRebar[] rebars = new ReinforcedConcreteRebar[] {  new ReinforcedConcreteRebar(rebar, new Point3d(50,50,0)),
+            //                                                                    new ReinforcedConcreteRebar(rebar, new Point3d(250, 50, 0)),
+            //                                                                    new ReinforcedConcreteRebar(rebar, new Point3d(250,450,0)),
+            //                                                                    new ReinforcedConcreteRebar(rebar, new Point3d(50,450,0))};
+            ReinforcedConcreteSection section = new ReinforcedConcreteSection(shapeEx, rebars);
+
+            //valori calcolati con VCASLU
+            Assert.IsTrue(Math.Abs(section.J11 - 31770833333) / section.J11 * 100 < 1);
+            Assert.IsTrue(Math.Abs(section.J22 - 6333333333) / section.J22 * 100 < 1);
+            Assert.IsTrue(Math.Abs(section.AngleX1) < 0.001);
+        }
+
+        [TestMethod]
+        public void RCSection3()
+        {
+            // sezion generica a 4 punti
+            Shape shape = new Shape(new Polygon3d(new Point3d[] {   new Point3d(0, 0, 0),
+                                                                    new Point3d(500, 100, 0),
+                                                                    new Point3d(400, 300, 0),
+                                                                    new Point3d(100, 200, 0) }));
+
+            ShapeEx shapeEx = new ShapeEx(shape, ConcreteMaterialEN1992.C25_30);     
+            ReinforcedConcreteRebar[] rebars = new ReinforcedConcreteRebar[] { };
+
+            ReinforcedConcreteSection section = new ReinforcedConcreteSection(shapeEx, rebars);
+
+            //valori calcolati con VCASLU
+            Assert.IsTrue(Math.Abs(section.Jxx - 330208333) / section.Jxx * 100 < 1);
+            Assert.IsTrue(Math.Abs(section.Jyy - 1127777778) / section.Jyy * 100 < 1);
+            Assert.IsTrue(Math.Abs(section.J11 - 1211051091) / section.J11 * 100 < 1);
+            Assert.IsTrue(Math.Abs(section.J22 - 246935021) / section.J22 * 100 < 1);
+            Assert.IsTrue(Math.Abs(section.AngleX1 - 0.29827677) < 0.001);
+        }
+
+        #endregion
     }
 }

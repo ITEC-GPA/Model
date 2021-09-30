@@ -35,23 +35,24 @@ namespace GPC.Model.Sections.Concrete
 
 		#region Public Constructors
 
-		public ReinforcedConcreteRebar(IRebarSection section, Point3d position, double epsilonP, int id, Guid guid)
-			: base(guid)
+		public ReinforcedConcreteRebar(IRebarSection section, Point3d position, double epsilonP, int id, string name, Guid guid)
+			: base(id, name, guid)
 		{
-			_rebarSection = section;
-			_position = position;
-			_epsilonP = epsilonP;
-			_id = id;
+			_rebarSection = section ?? throw new ArgumentNullException(nameof(section));
+			_position = position ?? throw new ArgumentNullException(nameof(position));
+			if (epsilonP < 0.0)
+				throw new ArgumentException("EpsilonP cannot be lower than 0");
+			_epsilonP = epsilonP;			
 		}
 
-		public ReinforcedConcreteRebar(IRebarSection section, Point3d position, double epsilonP, int id)
-			: this(section, position, epsilonP, id, new Guid())
+		public ReinforcedConcreteRebar(IRebarSection section, Point3d position, double epsilonP, int id, string name = "")
+			: this(section, position, epsilonP, id, name, new Guid())
 		{
 
 		}
 
 		public ReinforcedConcreteRebar(IRebarSection section, Point3d position, int id = IDUNASSIGNED, double epsilonP = 0.0)
-			: this(section, position, epsilonP, id, new Guid())
+			: this(section, position, epsilonP, id, "", new Guid())
 		{
 
 		}
