@@ -10,29 +10,25 @@ namespace GPC.Model.Materials
 	public class ConcreteMaterialACI318 : ConcreteMaterial
 	{
         #region Variables
-
-        protected StandardACI318 _standard;
-
+                
         #endregion 
 
         #region Properties
-
-        public StandardACI318 Standard => _standard;
+               
 
 		#endregion
 
-		public ConcreteMaterialACI318(string name, double fck, StandardACI318 standard)
+		public ConcreteMaterialACI318(string name, double fck)
 			: base(name, fck)
 		{
             if (fck < 17.0)
                 throw new ArgumentException("fc' less than the minimum fc' permitted. See §19.2.1.1");
 
-            _standard = standard ?? throw new ArgumentNullException(nameof(standard));
 			SetProperties();
 		}
 
-        public ConcreteMaterialACI318(string name, double fck)
-            : this(name, fck, new StandardACI318())
+        public ConcreteMaterialACI318(double fck)
+            : this("", fck)
 		{
 
 		}
@@ -51,11 +47,6 @@ namespace GPC.Model.Materials
         protected virtual double CalculateEc()
 		{
             return 4700 * Math.Sqrt(_fck);
-		}
-
-		public override double CalculateSigmaC(double epsilonC)
-		{
-			throw new NotImplementedException();
 		}
 
 		#endregion

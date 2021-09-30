@@ -11,17 +11,17 @@ namespace GPC.Model.Materials
     [UI(Description = "Concrete EN1992-1-1", Group = "Materials", Kind = "Material")]
     public class ConcreteMaterialEN1992 : ConcreteMaterial
     {
-        public static ConcreteMaterialEN1992 C25_30 => new ConcreteMaterialEN1992("C25/30", 25, new StandardEN1992p11(), StressStrainDiagrams.StressBlock);
-        public static ConcreteMaterialEN1992 C30_37 => new ConcreteMaterialEN1992("C30/37", 30, new StandardEN1992p11(), StressStrainDiagrams.StressBlock);
-        public static ConcreteMaterialEN1992 C35_45 => new ConcreteMaterialEN1992("C35/45", 35, new StandardEN1992p11(), StressStrainDiagrams.StressBlock);
-        public static ConcreteMaterialEN1992 C40_50 => new ConcreteMaterialEN1992("C40/50", 40, new StandardEN1992p11(), StressStrainDiagrams.StressBlock);
-        public static ConcreteMaterialEN1992 C45_55 => new ConcreteMaterialEN1992("C45/55", 45, new StandardEN1992p11(), StressStrainDiagrams.StressBlock);
-        public static ConcreteMaterialEN1992 C50_60 => new ConcreteMaterialEN1992("C50/60", 50, new StandardEN1992p11(), StressStrainDiagrams.StressBlock);
-        public static ConcreteMaterialEN1992 C55_67 => new ConcreteMaterialEN1992("C55/67", 55, new StandardEN1992p11(), StressStrainDiagrams.StressBlock);
-        public static ConcreteMaterialEN1992 C60_75 => new ConcreteMaterialEN1992("C60/75", 60, new StandardEN1992p11(), StressStrainDiagrams.StressBlock);
-        public static ConcreteMaterialEN1992 C70_85 => new ConcreteMaterialEN1992("C70/85", 70, new StandardEN1992p11(), StressStrainDiagrams.StressBlock);
-        public static ConcreteMaterialEN1992 C80_95 => new ConcreteMaterialEN1992("C80/90", 80, new StandardEN1992p11(), StressStrainDiagrams.StressBlock);
-        public static ConcreteMaterialEN1992 C90_105 => new ConcreteMaterialEN1992("C90/105", 90, new StandardEN1992p11(), StressStrainDiagrams.StressBlock);
+        public static ConcreteMaterialEN1992 C25_30 => new ConcreteMaterialEN1992("C25/30", 25, StressStrainDiagrams.StressBlock);
+        public static ConcreteMaterialEN1992 C30_37 => new ConcreteMaterialEN1992("C30/37", 30, StressStrainDiagrams.StressBlock);
+        public static ConcreteMaterialEN1992 C35_45 => new ConcreteMaterialEN1992("C35/45", 35, StressStrainDiagrams.StressBlock);
+        public static ConcreteMaterialEN1992 C40_50 => new ConcreteMaterialEN1992("C40/50", 40, StressStrainDiagrams.StressBlock);
+        public static ConcreteMaterialEN1992 C45_55 => new ConcreteMaterialEN1992("C45/55", 45, StressStrainDiagrams.StressBlock);
+        public static ConcreteMaterialEN1992 C50_60 => new ConcreteMaterialEN1992("C50/60", 50, StressStrainDiagrams.StressBlock);
+        public static ConcreteMaterialEN1992 C55_67 => new ConcreteMaterialEN1992("C55/67", 55, StressStrainDiagrams.StressBlock);
+        public static ConcreteMaterialEN1992 C60_75 => new ConcreteMaterialEN1992("C60/75", 60, StressStrainDiagrams.StressBlock);
+        public static ConcreteMaterialEN1992 C70_85 => new ConcreteMaterialEN1992("C70/85", 70, StressStrainDiagrams.StressBlock);
+        public static ConcreteMaterialEN1992 C80_95 => new ConcreteMaterialEN1992("C80/90", 80, StressStrainDiagrams.StressBlock);
+        public static ConcreteMaterialEN1992 C90_105 => new ConcreteMaterialEN1992("C90/105", 90, StressStrainDiagrams.StressBlock);
 
         #region Enumerator
 
@@ -42,8 +42,6 @@ namespace GPC.Model.Materials
         #endregion
 
         #region Variables
-
-        protected readonly StandardEN1992p11 _standard;
                 
         protected readonly double _niCracked;
 
@@ -53,11 +51,6 @@ namespace GPC.Model.Materials
         #endregion
 
         #region Properties
-
-        /// <summary>
-        /// Standard EN1992 or a relative national annex
-        /// </summary>
-        public StandardEN1992p11 Standard => _standard;
 
         /// <summary>
         /// characteristic cubic strength
@@ -84,35 +77,35 @@ namespace GPC.Model.Materials
         /// </summary>
         public double Fcm => Fck + 8;
 
-        /// <summary>
-        /// Design compressive strength for persistent design
-        /// </summary>
-        public double Fcd => CalculateFcd();
+        ///// <summary>
+        ///// Design compressive strength for persistent design
+        ///// </summary>
+        //public double Fcd => CalculateFcd();
 
-        /// <summary>
-        /// Design compressive strength for accidental design
-        /// </summary>
-        public double FcdAccidental => Standard.AlphaCC * Fck / Standard.GammaCAccidental;
+        ///// <summary>
+        ///// Design compressive strength for accidental design
+        ///// </summary>
+        //public double FcdAccidental => Standard.AlphaCC * Fck / Standard.GammaCAccidental;
 
-        /// <summary>
-        /// Design tensile strength for persistent design
-        /// </summary>
-        public double Fctd => Standard.AlphaCT * Fctk05 / Standard.GammaC;
+        ///// <summary>
+        ///// Design tensile strength for persistent design
+        ///// </summary>
+        //public double Fctd => Standard.AlphaCT * Fctk05 / Standard.GammaC;
 
-        /// <summary>
-        /// Design tensile strength for accidental design
-        /// </summary>
-        public double FctdAccidental => Standard.AlphaCT * Fctk05 / Standard.GammaCAccidental;
+        ///// <summary>
+        ///// Design tensile strength for accidental design
+        ///// </summary>
+        //public double FctdAccidental => Standard.AlphaCT * Fctk05 / Standard.GammaCAccidental;
 
-        /// <summary>
-        /// Secant modulus of elasticity value between sigmac = 0 and 0,4fcm (Ecm)
-        /// </summary>
-        public override double E => _elasticModulus;
+        ///// <summary>
+        ///// Secant modulus of elasticity value between sigmac = 0 and 0,4fcm (Ecm)
+        ///// </summary>
+        //public override double E => _elasticModulus;
 
-        /// <summary>
-        /// Modulus of elasticity value for ultimate limit state calculations
-        /// </summary>
-        public double ECd => E / Standard.GammaCE;
+        ///// <summary>
+        ///// Modulus of elasticity value for ultimate limit state calculations
+        ///// </summary>
+        //public double ECd => E / Standard.GammaCE;
 
         /// <summary>
         /// Tangent modulus of elasticity
@@ -146,13 +139,12 @@ namespace GPC.Model.Materials
         /// <param name="ni">Poisson's ratio</param>
         /// <param name="niCracked">Poisson's ratio in cracked concrete</param>
         /// <param name="alphaT">Linear thermal expasion coefficient</param>
-        /// <param name="density">The density of concrete</param>
-        /// <param name="standard">Standard EN1992 or a relative national annex</param>
+        /// <param name="density">The density of concrete</param>        
         /// <param name="stressStrainDiagram">The stress-strain diagram type</param>
         /// <param name="typeOfCement">The type of cement. See §3.4.1</param>
         /// <remarks>Elastic modulus is automatically calculated according to EN1992 §3 (Ecm)</remarks>
         public ConcreteMaterialEN1992(string name, double fck, double ni, double niCracked, double alphaT, double density,
-            StandardEN1992p11 standard, StressStrainDiagrams stressStrainDiagram, TypeOfCements typeOfCement)
+            StressStrainDiagrams stressStrainDiagram, TypeOfCements typeOfCement)
             : base(name, fck)
         {
             if (fck < 0.0)
@@ -167,8 +159,7 @@ namespace GPC.Model.Materials
                 throw new ArgumentException($"{nameof(niCracked)} must be < 0.5");
 
             _density = density <= 0 ? throw new ArgumentException($"{nameof(density)} cannot be zero or lower") : density;
-
-            _standard = standard;                        
+                
             _alfaThermalExpansion = alphaT;            
 
             _stressStrainDiagram = stressStrainDiagram;
@@ -192,11 +183,10 @@ namespace GPC.Model.Materials
 		/// <param name="niCracked">Poisson's ratio in cracked concrete</param>
 		/// <param name="alphaT">Linear thermal expasion coefficient</param>
 		/// <param name="density">The density of concrete</param>
-		/// <param name="standard">Standard EN1992 or a relative national annex</param>
 		/// <param name="stressStrainDiagram">The stress-strain diagram type</param>
 		/// <param name="typeOfCement">The type of cement. See §3.4.1</param>
 		public ConcreteMaterialEN1992(string name, double fck, double elasticModulus, double ni, double niCracked, double alphaT, double density,
-            StandardEN1992p11 standard, StressStrainDiagrams stressStrainDiagram, TypeOfCements typeOfCement)
+            StressStrainDiagrams stressStrainDiagram, TypeOfCements typeOfCement)
             : base(name, fck)
         {
             if (fck < 0.0)
@@ -211,8 +201,7 @@ namespace GPC.Model.Materials
                 throw new ArgumentException($"{nameof(niCracked)} must be < 0.5");
 
             _density = density <= 0 ? throw new ArgumentException($"{nameof(density)} cannot be zero or lower") : density;
-
-            _standard = standard;
+                        
             _alfaThermalExpansion = alphaT;
 
             _stressStrainDiagram = stressStrainDiagram;
@@ -238,11 +227,10 @@ namespace GPC.Model.Materials
         /// <param name="niCracked">Poisson's ratio in cracked concrete</param>
         /// <param name="alphaT">Linear thermal expasion coefficient</param>
         /// <param name="density">The density of concrete</param>
-        /// <param name="standard">Standard EN1992 or a relative national annex</param>
         /// <param name="stressStrainDiagram">The stress-strain diagram type</param>
         /// <param name="typeOfCement">The type of cement. See §3.4.1</param>
         public ConcreteMaterialEN1992(string name, double fck, double elasticModulus, double epsilony, double epsilonU, double ni, double niCracked, double alphaT, double density,
-            StandardEN1992p11 standard, StressStrainDiagrams stressStrainDiagram, TypeOfCements typeOfCement)
+            StressStrainDiagrams stressStrainDiagram, TypeOfCements typeOfCement)
             : base(name, fck)
         {
             if (fck < 0.0)
@@ -257,8 +245,7 @@ namespace GPC.Model.Materials
                 throw new ArgumentException($"{nameof(niCracked)} must be < 0.5");
 
             _density = density <= 0 ? throw new ArgumentException($"{nameof(density)} cannot be zero or lower") : density;
-
-            _standard = standard;
+                        
             _alfaThermalExpansion = alphaT;
 
             _stressStrainDiagram = stressStrainDiagram;
@@ -269,8 +256,7 @@ namespace GPC.Model.Materials
                 throw new ArgumentException($"{nameof(_elasticModulus)} must be > 0");
 
             _epsilonY = epsilony;
-            _epsilonU = epsilonU;
-            CalculateFcd();
+            _epsilonU = epsilonU;            
         }
 
         /// <summary>
@@ -281,13 +267,12 @@ namespace GPC.Model.Materials
         /// <param name="ni">Poisson's ratio</param>
         /// <param name="niCracked">Poisson's ratio in cracked concrete</param>
         /// <param name="alphaT">Linear thermal expasion coefficient</param>
-        /// <param name="density">The density of concrete</param>
-        /// <param name="standard">Standard EN1992 or a relative national annex</param>
+        /// <param name="density">The density of concrete</param>        
         /// <param name="stressStrainDiagram">The stress-strain diagram type</param>
         /// <remarks>Type of cements is ClassN</remarks>
         public ConcreteMaterialEN1992(string name, double fck, double ni, double niCracked, double alphaT, double density,
-            StandardEN1992p11 standard, StressStrainDiagrams stressStrainDiagram)
-            : this(name, fck, ni, niCracked, alphaT, density, standard, stressStrainDiagram, TypeOfCements.ClassN)
+            StressStrainDiagrams stressStrainDiagram)
+            : this(name, fck, ni, niCracked, alphaT, density, stressStrainDiagram, TypeOfCements.ClassN)
         {
 
         }
@@ -297,11 +282,10 @@ namespace GPC.Model.Materials
         /// </summary>
         /// <param name="name">The name of the material</param>
         /// <param name="fck">Characteristic compressive cylinder strength of concrete at 28 days</param>
-        /// <param name="standard">Standard EN1992 or a relative national annex</param>
         /// <param name="stressStrainDiagram">The stress-strain diagram type</param>
         /// <remarks>Value: ni = 0.2, niCracked = 0.0; alfaThermalExpansion = 1e-6; density = 0.0025 T/mm^3; type of cements = classN</remarks>
-        public ConcreteMaterialEN1992(string name, double fck, StandardEN1992p11 standard, StressStrainDiagrams stressStrainDiagram)
-            : this(name, fck, 0.2, 0.0, 1e-6, 0.0025, standard, stressStrainDiagram, TypeOfCements.ClassN)
+        public ConcreteMaterialEN1992(string name, double fck, StressStrainDiagrams stressStrainDiagram)
+            : this(name, fck, 0.2, 0.0, 1e-6, 0.0025, stressStrainDiagram, TypeOfCements.ClassN)
         {
 
         }
@@ -313,7 +297,7 @@ namespace GPC.Model.Materials
         /// <param name="stressStrainDiagram">The stress-strain diagram type</param>
         /// <remarks>Value: ni = 0.2, niCracked = 0.0; alfaThermalExpansion = 1e-6; density = 0.0025 T/mm^3; standard = StandardEn1992p11; type of cements = classN</remarks>
         public ConcreteMaterialEN1992(double fck, StressStrainDiagrams stressStrainDiagram = StressStrainDiagrams.StressBlock)
-            : this("", fck, 0.2, 0.0, 1e-6, 0.0025, new StandardEN1992p11(), stressStrainDiagram, TypeOfCements.ClassN)
+            : this("", fck, 0.2, 0.0, 1e-6, 0.0025, stressStrainDiagram, TypeOfCements.ClassN)
         {
 
         }
@@ -332,32 +316,32 @@ namespace GPC.Model.Materials
 
         #region Public Methods
 
-        public override double CalculateSigmaC(double epsilonC)
-        {
-            if (StressStrainDiagram == StressStrainDiagrams.ParabolaRectangle)
-            {
-                if (epsilonC >= EpsilonY)
-                    return Fcd;
-                else
-                    return Fcd * (1 - Math.Pow(1 - epsilonC / EpsilonY, CalculateN()));
-            }
-            else if (StressStrainDiagram == StressStrainDiagrams.Bilinear)
-            {
-                if (epsilonC >= EpsilonY)
-                    return Fcd;
-                else
-                    return 0.0;
-            }
-            else if (StressStrainDiagram == StressStrainDiagrams.StressBlock)
-            {
-                if (epsilonC >= EpsilonY)
-                    return Fcd;
-                else
-                    return Fcd * epsilonC / EpsilonY;
-            }
-            else
-                throw new ArgumentException("");
-        }
+        //public override double CalculateSigmaC(double epsilonC)
+        //{
+        //    if (StressStrainDiagram == StressStrainDiagrams.ParabolaRectangle)
+        //    {
+        //        if (epsilonC >= EpsilonY)
+        //            return Fcd;
+        //        else
+        //            return Fcd * (1 - Math.Pow(1 - epsilonC / EpsilonY, CalculateN()));
+        //    }
+        //    else if (StressStrainDiagram == StressStrainDiagrams.Bilinear)
+        //    {
+        //        if (epsilonC >= EpsilonY)
+        //            return Fcd;
+        //        else
+        //            return 0.0;
+        //    }
+        //    else if (StressStrainDiagram == StressStrainDiagrams.StressBlock)
+        //    {
+        //        if (epsilonC >= EpsilonY)
+        //            return Fcd;
+        //        else
+        //            return Fcd * epsilonC / EpsilonY;
+        //    }
+        //    else
+        //        throw new ArgumentException("");
+        //}
 
         public virtual double CalculateEcm(int days)
         {
@@ -590,23 +574,23 @@ namespace GPC.Model.Materials
                 throw new ArgumentException();
         }
 
-        protected virtual double CalculateFcd()
-		{
-            if (StressStrainDiagram == StressStrainDiagrams.StressBlock)
-            {
-                double eta;
-                if (_fck <= 50.0)
-                    eta = 1.0;
-                else
-                    eta = 1.0 - (_fck - 50.0) / 200;
+  //      protected virtual double CalculateFcd()
+		//{
+  //          if (StressStrainDiagram == StressStrainDiagrams.StressBlock)
+  //          {
+  //              double eta;
+  //              if (_fck <= 50.0)
+  //                  eta = 1.0;
+  //              else
+  //                  eta = 1.0 - (_fck - 50.0) / 200;
 
-                return eta * Standard.AlphaCC * Fck / Standard.GammaC;
-            }
-            else
-            {
-                return Standard.AlphaCC * Fck / Standard.GammaC;
-            }
-		}
+  //              return eta * Standard.AlphaCC * Fck / Standard.GammaC;
+  //          }
+  //          else
+  //          {
+  //              return Standard.AlphaCC * Fck / Standard.GammaC;
+  //          }
+		//}
 
         protected virtual double CalculateFckCube()
         {

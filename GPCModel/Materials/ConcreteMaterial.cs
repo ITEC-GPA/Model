@@ -108,7 +108,7 @@ namespace GPC.Model.Materials
 
         #region Abstract Methods
 
-        public abstract double CalculateSigmaC(double epsilonC);
+        //public abstract double CalculateSigmaC(double epsilonC);
 
         #endregion
     }
