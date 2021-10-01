@@ -9,6 +9,22 @@ namespace GPC.Model.Materials
     [UI(Description = "Steel", Group = "Materials", Kind = "Material")]
     public class SteelMaterial : Material
     {
+
+        /// <summary>
+        /// Default Steel S235 according to EN1993
+        /// </summary>
+        public static SteelMaterial S235 => new SteelMaterial("S235", 210000, 0.3, 235, 360, 0.05, 0.007850, 12 * 1e-6, new Guid());
+
+        /// <summary>
+        /// Default Steel S275 according to EN1993
+        /// </summary>
+        public static SteelMaterial S275 => new SteelMaterial("S275", 210000, 0.3, 275, 430, 0.05, 0.007850, 12 * 1e-6, new Guid());
+
+        /// <summary>
+        /// Default Steel S355 according to EN1993
+        /// </summary>
+        public static SteelMaterial S355 => new SteelMaterial("S355", 210000, 0.3, 355, 510, 0.05, 0.007850, 12 * 1e-6, new Guid());
+
         #region Variables
 
         protected double _fyk;
