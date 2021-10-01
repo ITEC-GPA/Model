@@ -18,6 +18,18 @@ namespace GPC.Model.Sections.Concrete
 		protected readonly ShapeEx _shapeEx;
 		protected readonly ReinforcedConcreteRebar[] _rebars;
 		
+		protected double _areaHomogenized;
+		protected double _jxxHomogenized;
+		protected double _jyyHomogenized;
+		protected double _jxyHomogenized;
+		protected double _jtHomogenized;
+		protected double _jwHomogenized;
+		protected double _j11Homogenized;
+		protected double _j22Homogenized;
+
+		protected double _angleX1Homogenized;
+		protected Point2d _centroidHomogenized;
+
 		#endregion
 
 
@@ -28,7 +40,57 @@ namespace GPC.Model.Sections.Concrete
 		public ReinforcedConcreteRebar[] Rebars => _rebars;
 
 		public ConcreteMaterial ConcreteMaterial => (ConcreteMaterial)_material;
-				
+
+		/// <summary>
+		/// The area of the section homogenized 
+		/// </summary>
+		public double AreaHomogenized => _areaHomogenized;
+
+		/// <summary>
+		/// The first moment of inertia around the X-axis homogenized 
+		/// </summary>
+		public double JxxHomogenized => _jxxHomogenized;
+
+		/// <summary>
+		/// The first moment of inertia around the Y-axis homogenized 
+		/// </summary>
+		public double JyyHomogenized => _jyyHomogenized;
+
+		/// <summary>
+		/// 
+		/// </summary>
+		public double JxyHomogenized => _jxyHomogenized;
+
+		/// <summary>
+		/// 
+		/// </summary>
+		public double JtHomogenized => _jtHomogenized;
+
+		/// <summary>
+		/// 
+		/// </summary>
+		public double JwHomogenized => _jwHomogenized;
+
+		/// <summary>
+		/// The first moment of inertia around the 1st principal axes
+		/// </summary>
+		public double J11Homogenized => _j11Homogenized;
+
+		/// <summary>
+		/// The first moment of inertia around the 2nd principal axes homogenized 
+		/// </summary>
+		public double J22Homogenized => _j22Homogenized;
+
+		/// <summary>
+		/// The centroid of the section homogenized 
+		/// </summary>
+		public Point2d CentroidHomogenized =>_centroidHomogenized;
+
+		/// <summary>
+		/// The angle of rotation of the principal axis of the section homogenized 
+		/// </summary>
+		public double AngleX1Homogenized => _angleX1Homogenized;
+
 		#endregion
 
 
@@ -294,16 +356,28 @@ namespace GPC.Model.Sections.Concrete
 			_area = CalculateArea();
 			Mesh mesh = GenerateMesh();
 
-			CalculateStaticMoments(mesh, out double Sx, out double Sy);
-			_centroid = CalculateCentroid(Sx, Sy);
+			CalculateStaticMoments(mesh, out double Sx, out double Sy, out double AreaHomogenized, out double SxHomogenized, out double SyHomogenized);
+			_areaHomogenized = AreaHomogenized;
+			_centroid = CalculateCentroid(Sx, Sy, Area);
+			_centroidHomogenized = CalculateCentroid(SxHomogenized, SyHomogenized, AreaHomogenized);
 
-			CalculateInertiaMoments(mesh, _centroid, out double Jxx, out double Jyy, out double Jxy, out double Jp);
+			CalculateInertiaMoments(mesh, _centroid, out double Jxx, out double Jyy, out double Jxy, out double Jp,
+				out double JxxHomogenized, out double JyyHomogenized, out double JxyHomogenized, out double JpHomogenized);
 			_jxx = Jxx;
 			_jyy = Jyy;
 			_jxy = Jxy;
-			_angleX1 = CalculateAngle();
-			_j11 = CalculateJ11();
-			_j22 = CalculateJ22();
+			_jxxHomogenized = JxxHomogenized;
+			_jyyHomogenized = JyyHomogenized;
+			_jxyHomogenized = JxyHomogenized;
+
+			_angleX1 = CalculateAngle(Jxx, Jyy, Jxy);
+			_j11 = CalculateJ11(Jxx, Jyy, Jxy);
+			_j22 = CalculateJ22(Jxx, Jyy, Jxy);
+
+			_angleX1Homogenized = CalculateAngle(JxxHomogenized, JyyHomogenized, JxyHomogenized);
+			_j11Homogenized = CalculateJ11(JxxHomogenized, JyyHomogenized, JxyHomogenized);
+			_j22Homogenized = CalculateJ22(JxxHomogenized, JyyHomogenized, JxyHomogenized);
+
 			//_jw = CalculateJw();
 			//_jt = CalculateJt();
 			//_shearCenter = CalculateShearCenter();
@@ -311,7 +385,7 @@ namespace GPC.Model.Sections.Concrete
 			//_wel2 = CalculateWel2();
 			//_wpl1 = CalculateWpl1();
 			//_wpl2 = CalculateWpl2();
-			
+
 		}
 
 		protected double CalculateArea()
@@ -319,12 +393,12 @@ namespace GPC.Model.Sections.Concrete
 			return Shape.GetArea();
 		}
 
-		protected Point2d CalculateCentroid(double Sx, double Sy)
+		protected Point2d CalculateCentroid(double Sx, double Sy, double area)
 		{		
-			return new Point2d(Sy / Area, Sx / Area);
+			return new Point2d(Sy / area, Sx / area);
 		}
 
-		protected void CalculateStaticMoments(Mesh mesh, out double Sx, out double Sy)
+		protected void CalculateStaticMoments(Mesh mesh, out double Sx, out double Sy, out double AreaHomog, out double SxHomogenized, out double SyHomogenized)
 		{
 			Sx = 0;
 			Sy = 0;
@@ -337,9 +411,21 @@ namespace GPC.Model.Sections.Concrete
 				Sx += area * centroid.Y;
 				Sy += area * centroid.X;
 			}
+
+			AreaHomog = Area;
+			SxHomogenized = Sx;
+			SyHomogenized = Sy;
+
+			for (int i = 0; i < Rebars.Count(); i++)
+			{
+				AreaHomog += (CalculateN(Rebars[i]) - 1) * Rebars[i].Area;
+				SxHomogenized += (CalculateN(Rebars[i]) - 1) * Rebars[i].Area * Rebars[i].Position.Y;
+				SyHomogenized += (CalculateN(Rebars[i]) - 1) * Rebars[i].Area * Rebars[i].Position.X;
+			}
 		}
 
-		protected void CalculateInertiaMoments(Mesh mesh, Point3d centroid, out double Jxx, out double Jyy, out double Jxy, out double Jp)
+		protected void CalculateInertiaMoments(Mesh mesh, Point3d centroid, out double Jxx, out double Jyy, out double Jxy, out double Jp, 
+			out double JxxHomogenized, out double JyyHomogenized, out double JxyHomogenized, out double JpHomogenized)
 		{
 			Jxx = 0;
 			Jyy = 0;
@@ -356,9 +442,26 @@ namespace GPC.Model.Sections.Concrete
 			}
 
 			Jp = Jxx + Jyy;
+
+			JxxHomogenized = Jxx;
+			JyyHomogenized = Jyy;
+			JxyHomogenized = Jxy;
+			JpHomogenized = Jp;
+
+			for (int i = 0; i < Rebars.Count(); i++)
+			{
+				JxxHomogenized += (CalculateN(Rebars[i]) - 1) * (Rebars[i].RebarSection.Jxx + Rebars[i].Area * 
+					(Math.Pow((Rebars[i].Position.Y - centroid.Y), 2)));
+				JyyHomogenized += (CalculateN(Rebars[i]) - 1) * (Rebars[i].RebarSection.Jyy + Rebars[i].Area * 
+					(Math.Pow((Rebars[i].Position.X - centroid.X), 2)));
+				JxyHomogenized += (CalculateN(Rebars[i]) - 1) * (Rebars[i].RebarSection.Jxy + Rebars[i].Area * 
+					(Rebars[i].Position.X - centroid.X) * (Rebars[i].Position.Y - centroid.Y));
+			}
+
+			JpHomogenized = JxxHomogenized + JyyHomogenized;
 		}
 
-		protected double CalculateAngle()
+		protected double CalculateAngle(double Jxx, double Jyy, double Jxy)
 		{
 			double angle = -1.0 / 2.0 * Math.Atan2(2.0 * Jxy , (Jyy - Jxx));
 
@@ -368,15 +471,18 @@ namespace GPC.Model.Sections.Concrete
 			if (Math.Abs(angle - Math.PI) < GeometryBase.GetDefaultAngularTolerance())
 				return 0.0;
 
+			if (Math.Abs(angle) < GeometryBase.GetDefaultAngularTolerance())
+				return 0.0;
+
 			return angle;
 		}
 
-		protected double CalculateJ11()
+		protected double CalculateJ11(double Jxx, double Jyy, double Jxy)
 		{
 			return (Jxx + Jyy) / 2.0 + 0.5 * Math.Sqrt(Math.Pow(Jxx - Jyy, 2.0) + 4.0 * Math.Pow(Jxy, 2));
 		}
 
-		protected double CalculateJ22()
+		protected double CalculateJ22(double Jxx, double Jyy, double Jxy)
 		{
 			return (Jxx + Jyy) / 2.0 - 0.5 * Math.Sqrt(Math.Pow(Jxx - Jyy, 2.0) + 4.0 * Math.Pow(Jxy, 2));
 		}
@@ -391,7 +497,7 @@ namespace GPC.Model.Sections.Concrete
 			if (size == -1)
 			{
 				BoundingBox3d bBox = Shape.GetBoundingBox();
-				size = Math.Min(bBox.Size.X, bBox.Size.Y) / 25.0;
+				size = Math.Min(bBox.Size.X, bBox.Size.Y) / 20.0;
 			}
 
 			Mesh.GenerateOptions generateOptions = new Mesh.GenerateOptions()
@@ -407,6 +513,12 @@ namespace GPC.Model.Sections.Concrete
 			Mesh.Generate(new Shape[] { Shape }, generateOptions, out List<Mesh> meshes, out Mesh.GenerateMeshStatus _);
 
 			return meshes[0];
+		}
+
+		protected virtual double CalculateN(ReinforcedConcreteRebar rebar)
+		{
+			//return rebar.RebarMaterial.E / Material.E;
+			return 15.0;
 		}
 
 		//TODO: implementare metodi di calcolo della sezione
