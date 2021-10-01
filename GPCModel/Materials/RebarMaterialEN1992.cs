@@ -10,21 +10,7 @@ namespace GPC.Model.Materials
 {
 	public class RebarMaterialEN1992 : RebarMaterial
 	{
-		public static RebarMaterialEN1992 B450C => new RebarMaterialEN1992(new StandardEN1992p11(), "B450C", 200000, 0.28, 450, 510, 0.075, 0.007850, 12 * 1e-6, new Guid());
-
-		#region Variables
-
-		protected StandardEN1992p11 _standard;
-
-		#endregion
-
-		#region Properties
-
-		public StandardEN1992p11 Standard => _standard;
-
-		public double Fyd => Fyk / Standard.GammaS;
-
-		#endregion
+		public static RebarMaterialEN1992 B450C => new RebarMaterialEN1992("B450C", 200000, 0.28, 450, 510, 0.075, 0.007850, 12 * 1e-6, new Guid());
 
 
 		/// <summary>
@@ -40,11 +26,11 @@ namespace GPC.Model.Materials
 		/// <param name="density"></param>
 		/// <param name="alfaThermalExpansion">Linear thermal expasion coefficient</param>
 		/// <param name="guid">Guid of the material</param>
-		public RebarMaterialEN1992(StandardEN1992p11 standard, string name, double elasticModulus, double poisson,
+		public RebarMaterialEN1992(string name, double elasticModulus, double poisson,
             double fy, double fu, double epsilonU, double density, double alfaThermalExpansion, Guid guid)
             : base(name, elasticModulus, poisson, fy, fu, epsilonU, density, alfaThermalExpansion, guid)
 		{
-			_standard = standard;
+
 		}
 
 		/// <summary>
@@ -58,8 +44,8 @@ namespace GPC.Model.Materials
 		/// <param name="density"></param>
 		/// <param name="alfaThermalExpansion">Linear thermal expasion coefficient</param>
 		/// <remarks>Name is empty</remarks>
-		public RebarMaterialEN1992(StandardEN1992p11 standard, double elasticModulus, double fy, double fu, double poisson = 0.28, double density = 0.007850, double alfaThermalExpansion = 12 * 1e-6)
-			: this(standard, "", elasticModulus, poisson, fy, fu, 0.075, density, alfaThermalExpansion, new Guid())
+		public RebarMaterialEN1992(double elasticModulus, double fy, double fu, double poisson = 0.28, double density = 0.007850, double alfaThermalExpansion = 12 * 1e-6)
+			: this("", elasticModulus, poisson, fy, fu, 0.075, density, alfaThermalExpansion, new Guid())
 		{
 		}
 
@@ -70,20 +56,8 @@ namespace GPC.Model.Materials
 		/// <param name="fyk">Yielding stress</param>        
 		/// <remarks>Guid setted to new guid. StressStrainDiagram is set to ElastoPlastic. alfaThermalExpansion setted to 0. Epsilon0 equal to fy / E
 		/// E = 200GPa, ni = 0.28. Epsilon U is set as 0.075 and fu is set as fyk</remarks>
-		public RebarMaterialEN1992(StandardEN1992p11 standard, double fyk)
-			: this(standard, 200000, fyk, fyk)
-		{
-		}
-
-		/// <summary>
-		/// 
-		/// </summary>
-		/// <param name="fyk">Yielding stress</param>        
-		/// <remarks>Guid setted to new guid. StressStrainDiagram is set to ElastoPlastic. alfaThermalExpansion setted to 0. Epsilon0 equal to fy / E
-		/// E = 200GPa, ni = 0.28. Epsilon U is set as 0.075 and fu is set as fyk.
-		/// Standard set is Standard EN 1992-1-1</remarks>
 		public RebarMaterialEN1992(double fyk)
-			: this(new StandardEN1992p11(), 200000, fyk, fyk)
+			: this(200000, fyk, fyk)
 		{
 		}
 
@@ -100,23 +74,22 @@ namespace GPC.Model.Materials
 		public override void GetObjectData(SerializationInfo info, StreamingContext context)
 		{
 			base.GetObjectData(info, context);
-			info.AddValue("Standard", _standard);
 		}
 
 		#endregion
 
-		public override double CalculateSigma(double epsilon)
-		{
-			if (epsilon <= EpsilonY)
-				return epsilon * Fyd / EpsilonY;
-			else
-			{
-				if (Et == 0)
-					return Fyd;
-				else
-					return Fyd + (epsilon - EpsilonY) * Et;
-			}
-		}
+		//public override double CalculateSigma(double epsilon)
+		//{
+		//	if (epsilon <= EpsilonY)
+		//		return epsilon * Fyd / EpsilonY;
+		//	else
+		//	{
+		//		if (Et == 0)
+		//			return Fyd;
+		//		else
+		//			return Fyd + (epsilon - EpsilonY) * Et;
+		//	}
+		//}
 
 	}
 }

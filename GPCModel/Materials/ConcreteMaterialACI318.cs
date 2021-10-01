@@ -9,14 +9,6 @@ namespace GPC.Model.Materials
 {
 	public class ConcreteMaterialACI318 : ConcreteMaterial
 	{
-        #region Variables
-                
-        #endregion 
-
-        #region Properties
-               
-
-		#endregion
 
 		public ConcreteMaterialACI318(string name, double fck)
 			: base(name, fck)
