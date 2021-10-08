@@ -9,7 +9,7 @@ using System.Runtime.Serialization;
 namespace GPC.Model.Results
 {
     [Serializable]
-    public sealed class PlateResult : FiniteElementResult, ISerializable, IEquatable<PlateResult>
+    public sealed class PlateResult : FiniteElementResult, ISerializable, IEquatable<PlateResult>, IElementResult
     {
 
         /// <param name="Case"></param>

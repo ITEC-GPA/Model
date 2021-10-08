@@ -1,4 +1,4 @@
-﻿using GPC.Geometry;
+using GPC.Geometry;
 using GPC.Model.Elements;
 using GPC.Model.FEM.FiniteElements;
 using GPC.Model.LoadCases;

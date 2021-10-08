@@ -316,33 +316,6 @@ namespace GPC.Model.Materials
 
         #region Public Methods
 
-        //public override double CalculateSigmaC(double epsilonC)
-        //{
-        //    if (StressStrainDiagram == StressStrainDiagrams.ParabolaRectangle)
-        //    {
-        //        if (epsilonC >= EpsilonY)
-        //            return Fcd;
-        //        else
-        //            return Fcd * (1 - Math.Pow(1 - epsilonC / EpsilonY, CalculateN()));
-        //    }
-        //    else if (StressStrainDiagram == StressStrainDiagrams.Bilinear)
-        //    {
-        //        if (epsilonC >= EpsilonY)
-        //            return Fcd;
-        //        else
-        //            return 0.0;
-        //    }
-        //    else if (StressStrainDiagram == StressStrainDiagrams.StressBlock)
-        //    {
-        //        if (epsilonC >= EpsilonY)
-        //            return Fcd;
-        //        else
-        //            return Fcd * epsilonC / EpsilonY;
-        //    }
-        //    else
-        //        throw new ArgumentException("");
-        //}
-
         public virtual double CalculateEcm(int days)
         {
             return Math.Pow(CalculateFcm(days) / Fcm, 0.3) * E;
@@ -574,24 +547,6 @@ namespace GPC.Model.Materials
                 throw new ArgumentException();
         }
 
-  //      protected virtual double CalculateFcd()
-		//{
-  //          if (StressStrainDiagram == StressStrainDiagrams.StressBlock)
-  //          {
-  //              double eta;
-  //              if (_fck <= 50.0)
-  //                  eta = 1.0;
-  //              else
-  //                  eta = 1.0 - (_fck - 50.0) / 200;
-
-  //              return eta * Standard.AlphaCC * Fck / Standard.GammaC;
-  //          }
-  //          else
-  //          {
-  //              return Standard.AlphaCC * Fck / Standard.GammaC;
-  //          }
-		//}
-
         protected virtual double CalculateFckCube()
         {
             switch (Fck)
@@ -641,7 +596,7 @@ namespace GPC.Model.Materials
                 return 2.12 * Math.Log(1 + (Fcm / 10.0));
         }
 
-        protected virtual double CalculateN()
+        public virtual double CalculateN()
         {
             if (_fck <= 50)
                 return 2.0;

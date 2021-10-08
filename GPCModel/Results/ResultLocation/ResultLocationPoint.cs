@@ -10,7 +10,7 @@ namespace GPC.Model.Results
 {
 
     [Serializable]
-    public class ResultLocationPoint : ResultLocationId, ISerializable
+    public class ResultLocationPoint : ResultLocationId, ISerializable, IResultLocation
     {
         private readonly Point2d _location;
 

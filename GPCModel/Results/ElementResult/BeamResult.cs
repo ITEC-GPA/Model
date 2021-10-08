@@ -7,7 +7,7 @@ using System.Linq;
 namespace GPC.Model.Results
 {
     [Serializable]
-    public sealed class BeamResult : FiniteElementResult, ISerializable, IEquatable<BeamResult>
+    public sealed class BeamResult : FiniteElementResult, ISerializable, IEquatable<BeamResult>, IElementResult
     {
         public double Length => ((ResultStation)Points.First()).ElementLenght;     // TODO: va sistemato
 
