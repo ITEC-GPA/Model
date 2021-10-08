@@ -353,30 +353,30 @@ namespace GPC.Model.Sections.Concrete
 		/// </summary>
 		public virtual void SetMechanicalProperties()
 		{
-			_area = CalculateArea();
-			Mesh mesh = GenerateMesh();
+			//_area = CalculateArea();
+			//Mesh mesh = GenerateMesh();
 
-			CalculateStaticMoments(mesh, out double Sx, out double Sy, out double AreaHomogenized, out double SxHomogenized, out double SyHomogenized);
-			_areaHomogenized = AreaHomogenized;
-			_centroid = CalculateCentroid(Sx, Sy, Area);
-			_centroidHomogenized = CalculateCentroid(SxHomogenized, SyHomogenized, AreaHomogenized);
+			//CalculateStaticMoments(mesh, out double Sx, out double Sy, out double AreaHomogenized, out double SxHomogenized, out double SyHomogenized);
+			//_areaHomogenized = AreaHomogenized;
+			//_centroid = CalculateCentroid(Sx, Sy, Area);
+			//_centroidHomogenized = CalculateCentroid(SxHomogenized, SyHomogenized, AreaHomogenized);
 
-			CalculateInertiaMoments(mesh, _centroid, out double Jxx, out double Jyy, out double Jxy, out double Jp,
-				out double JxxHomogenized, out double JyyHomogenized, out double JxyHomogenized, out double JpHomogenized);
-			_jxx = Jxx;
-			_jyy = Jyy;
-			_jxy = Jxy;
-			_jxxHomogenized = JxxHomogenized;
-			_jyyHomogenized = JyyHomogenized;
-			_jxyHomogenized = JxyHomogenized;
+			//CalculateInertiaMoments(mesh, _centroid, out double Jxx, out double Jyy, out double Jxy, out double Jp,
+			//	out double JxxHomogenized, out double JyyHomogenized, out double JxyHomogenized, out double JpHomogenized);
+			//_jxx = Jxx;
+			//_jyy = Jyy;
+			//_jxy = Jxy;
+			//_jxxHomogenized = JxxHomogenized;
+			//_jyyHomogenized = JyyHomogenized;
+			//_jxyHomogenized = JxyHomogenized;
 
-			_angleX1 = CalculateAngle(Jxx, Jyy, Jxy);
-			_j11 = CalculateJ11(Jxx, Jyy, Jxy);
-			_j22 = CalculateJ22(Jxx, Jyy, Jxy);
+			//_angleX1 = CalculateAngle(Jxx, Jyy, Jxy);
+			//_j11 = CalculateJ11(Jxx, Jyy, Jxy);
+			//_j22 = CalculateJ22(Jxx, Jyy, Jxy);
 
-			_angleX1Homogenized = CalculateAngle(JxxHomogenized, JyyHomogenized, JxyHomogenized);
-			_j11Homogenized = CalculateJ11(JxxHomogenized, JyyHomogenized, JxyHomogenized);
-			_j22Homogenized = CalculateJ22(JxxHomogenized, JyyHomogenized, JxyHomogenized);
+			//_angleX1Homogenized = CalculateAngle(JxxHomogenized, JyyHomogenized, JxyHomogenized);
+			//_j11Homogenized = CalculateJ11(JxxHomogenized, JyyHomogenized, JxyHomogenized);
+			//_j22Homogenized = CalculateJ22(JxxHomogenized, JyyHomogenized, JxyHomogenized);
 
 			//_jw = CalculateJw();
 			//_jt = CalculateJt();
@@ -388,152 +388,214 @@ namespace GPC.Model.Sections.Concrete
 
 		}
 
-		protected double CalculateArea()
-		{
-			return Shape.GetArea();
-		}
+		//protected double CalculateArea()
+		//{
+		//	return Shape.GetArea();
+		//}
 
-		protected Point2d CalculateCentroid(double Sx, double Sy, double area)
-		{		
-			return new Point2d(Sy / area, Sx / area);
-		}
+		//protected Point2d CalculateCentroid(double Sx, double Sy, double area)
+		//{		
+		//	return new Point2d(Sy / area, Sx / area);
+		//}
 
-		protected void CalculateStaticMoments(Mesh mesh, out double Sx, out double Sy, out double AreaHomog, out double SxHomogenized, out double SyHomogenized)
-		{
-			double [] SxArray = new double[mesh.FacesCount];
-			double[] SyArray = new double[mesh.FacesCount];
+		//protected void CalculateStaticMoments(Mesh mesh, out double Sx, out double Sy, out double AreaHomog, out double SxHomogenized, out double SyHomogenized)
+		//{
+		//	double [] SxArray = new double[mesh.FacesCount];
+		//	double[] SyArray = new double[mesh.FacesCount];
 
-			Parallel.For(0, mesh.FacesCount, (i) =>
-			{
-				double area = mesh.GetFaceArea(mesh.Faces[i + 1]);
-				Point3d centroid = mesh.GetFaceCentroid(mesh.Faces[i + 1]);
+		//	Parallel.For(0, mesh.FacesCount, (i) =>
+		//	{
+		//		double area = mesh.GetFaceArea(mesh.Faces[i + 1]);
+		//		Point3d centroid = mesh.GetFaceCentroid(mesh.Faces[i + 1]);
 
-				SxArray[i] = area * centroid.Y;
-				SyArray[i] += area * centroid.X;
-			});
+		//		SxArray[i] = area * centroid.Y;
+		//		SyArray[i] += area * centroid.X;
+		//	});
 
-			Sx = SxArray.Sum();
-			Sy = SyArray.Sum();			
+		//	Sx = SxArray.Sum();
+		//	Sy = SyArray.Sum();			
 
-			double[] AreaHomogArray = new double[Rebars.Count()];
-			double[] SxHomogenizedArray = new double[Rebars.Count()];
-			double[] SyHomogenizedArray = new double[Rebars.Count()];
+		//	double[] AreaHomogArray = new double[Rebars.Count()];
+		//	double[] SxHomogenizedArray = new double[Rebars.Count()];
+		//	double[] SyHomogenizedArray = new double[Rebars.Count()];
 
-			Parallel.For(0, Rebars.Count(), (i) =>
-			{
-				AreaHomogArray[i] += (CalculateN(Rebars[i]) - 1) * Rebars[i].Area;
-				SxHomogenizedArray[i] += (CalculateN(Rebars[i]) - 1) * Rebars[i].Area * Rebars[i].Position.Y;
-				SyHomogenizedArray[i] += (CalculateN(Rebars[i]) - 1) * Rebars[i].Area * Rebars[i].Position.X;
-			});
+		//	Parallel.For(0, Rebars.Count(), (i) =>
+		//	{
+		//		AreaHomogArray[i] += (CalculateN(Rebars[i]) - 1) * Rebars[i].Area;
+		//		SxHomogenizedArray[i] += (CalculateN(Rebars[i]) - 1) * Rebars[i].Area * Rebars[i].Position.Y;
+		//		SyHomogenizedArray[i] += (CalculateN(Rebars[i]) - 1) * Rebars[i].Area * Rebars[i].Position.X;
+		//	});
 
-			AreaHomog = Area + AreaHomogArray.Sum();
-			SxHomogenized = Sx + SxHomogenizedArray.Sum();
-			SyHomogenized = Sy + SyHomogenizedArray.Sum();
-		}
+		//	AreaHomog = Area + AreaHomogArray.Sum();
+		//	SxHomogenized = Sx + SxHomogenizedArray.Sum();
+		//	SyHomogenized = Sy + SyHomogenizedArray.Sum();
+		//}
 
-		protected void CalculateInertiaMoments(Mesh mesh, Point3d centroid, out double Jxx, out double Jyy, out double Jxy, out double Jp, 
-			out double JxxHomogenized, out double JyyHomogenized, out double JxyHomogenized, out double JpHomogenized)
-		{
-			double[] JxxArray = new double[mesh.FacesCount];
-			double[] JyyArray = new double[mesh.FacesCount];
-			double[] JxyArray = new double[mesh.FacesCount];
+		//protected void CalculateInertiaMoments(Mesh mesh, Point3d centroid, double teta, out double Jxx, out double Jyy, out double Jxy, out double Jp, 
+		//	out double JxxHomogenized, out double JyyHomogenized, out double JxyHomogenized, out double JpHomogenized)
+		//{
+		//	double[] JxxArray = new double[mesh.FacesCount];
+		//	double[] JyyArray = new double[mesh.FacesCount];
+		//	double[] JxyArray = new double[mesh.FacesCount];
 
-			Parallel.For(0, mesh.FacesCount, (i) =>
-			{
-				double area = mesh.GetFaceArea(mesh.Faces[i + 1]);
-				Point3d faceCentroid = mesh.GetFaceCentroid(mesh.Faces[i + 1]);
+		//	Parallel.For(0, mesh.FacesCount, (i) =>
+		//	{
+		//		double area = mesh.GetFaceArea(mesh.Faces[i + 1]);
+		//		Point3d faceCentroid = mesh.GetFaceCentroid(mesh.Faces[i + 1]);
 
-				JxxArray[i] = area * Math.Pow(faceCentroid.Y - centroid.Y, 2);
-				JyyArray[i] = area * Math.Pow(faceCentroid.X - centroid.X, 2);
-				JxyArray[i] = area * (faceCentroid.Y - centroid.Y) * (faceCentroid.X - centroid.X);
-			});
+		//		JxxArray[i] = area * Math.Pow(faceCentroid.Y - centroid.Y, 2);
+		//		JyyArray[i] = area * Math.Pow(faceCentroid.X - centroid.X, 2);
+		//		JxyArray[i] = area * (faceCentroid.Y - centroid.Y) * (faceCentroid.X - centroid.X);
+		//	});
 
-			Jxx = JxxArray.Sum();
-			Jyy = JyyArray.Sum();
-			Jxy = JxyArray.Sum();
-			Jp = Jxx + Jyy;
+		//	Jxx = JxxArray.Sum();
+		//	Jyy = JyyArray.Sum();
+		//	Jxy = JxyArray.Sum();
+		//	Jp = Jxx + Jyy;
 
-			double[] JxxRebarArray = new double[mesh.FacesCount];
-			double[] JyyRebarArray = new double[mesh.FacesCount];
-			double[] JxyRebarArray = new double[mesh.FacesCount];
+		//	double[] JxxRebarArray = new double[mesh.FacesCount];
+		//	double[] JyyRebarArray = new double[mesh.FacesCount];
+		//	double[] JxyRebarArray = new double[mesh.FacesCount];
 
-			Parallel.For(0, Rebars.Count(), (i) =>
-			{
-				JxxRebarArray[i] = (CalculateN(Rebars[i]) - 1) * (Rebars[i].RebarSection.Jxx + Rebars[i].Area *
-					(Math.Pow((Rebars[i].Position.Y - centroid.Y), 2)));
-				JyyRebarArray[i] = (CalculateN(Rebars[i]) - 1) * (Rebars[i].RebarSection.Jyy + Rebars[i].Area *
-					(Math.Pow((Rebars[i].Position.X - centroid.X), 2)));
-				JxyRebarArray[i] = (CalculateN(Rebars[i]) - 1) * (Rebars[i].RebarSection.Jxy + Rebars[i].Area *
-					(Rebars[i].Position.X - centroid.X) * (Rebars[i].Position.Y - centroid.Y));
-			});
+		//	Parallel.For(0, Rebars.Count(), (i) =>
+		//	{
+		//		JxxRebarArray[i] = (CalculateN(Rebars[i]) - 1) * (Rebars[i].RebarSection.Jxx + Rebars[i].Area *
+		//			(Math.Pow((Rebars[i].Position.Y - centroid.Y), 2)));
+		//		JyyRebarArray[i] = (CalculateN(Rebars[i]) - 1) * (Rebars[i].RebarSection.Jyy + Rebars[i].Area *
+		//			(Math.Pow((Rebars[i].Position.X - centroid.X), 2)));
+		//		JxyRebarArray[i] = (CalculateN(Rebars[i]) - 1) * (Rebars[i].RebarSection.Jxy + Rebars[i].Area *
+		//			(Rebars[i].Position.X - centroid.X) * (Rebars[i].Position.Y - centroid.Y));
+		//	});
 
-			JxxHomogenized = Jxx + JxxRebarArray.Sum();
-			JyyHomogenized = Jyy + JxxRebarArray.Sum();
-			JxyHomogenized = Jxy + JxxRebarArray.Sum();
-			JpHomogenized = JxxHomogenized + JyyHomogenized;
-		}
+		//	JxxHomogenized = Jxx + JxxRebarArray.Sum();
+		//	JyyHomogenized = Jyy + JxxRebarArray.Sum();
+		//	JxyHomogenized = Jxy + JxxRebarArray.Sum();
+		//	JpHomogenized = JxxHomogenized + JyyHomogenized;
+		//}
 
-		protected double CalculateAngle(double Jxx, double Jyy, double Jxy)
-		{
-			double angle = -1.0 / 2.0 * Math.Atan2(2.0 * Jxy , (Jyy - Jxx));
+		//protected double CalculateAngle(double Jxx, double Jyy, double Jxy)
+		//{
+		//	double angle = -1.0 / 2.0 * Math.Atan2(2.0 * Jxy , (Jyy - Jxx));
 
-			if (Jyy < Jxx)
-				angle += Math.PI / 2.0;
+		//	if (Jyy < Jxx)
+		//		angle += Math.PI / 2.0;
 
-			if (Math.Abs(angle - Math.PI) < GeometryBase.GetDefaultAngularTolerance())
-				return 0.0;
+		//	if (Math.Abs(angle - Math.PI) < GeometryBase.GetDefaultAngularTolerance())
+		//		return 0.0;
 
-			if (Math.Abs(angle) < GeometryBase.GetDefaultAngularTolerance())
-				return 0.0;
+		//	if (Math.Abs(angle) < GeometryBase.GetDefaultAngularTolerance())
+		//		return 0.0;
 
-			return angle;
-		}
+		//	return angle;
+		//}
 
-		protected double CalculateJ11(double Jxx, double Jyy, double Jxy)
-		{
-			return (Jxx + Jyy) / 2.0 + 0.5 * Math.Sqrt(Math.Pow(Jxx - Jyy, 2.0) + 4.0 * Math.Pow(Jxy, 2));
-		}
+		//protected double CalculateJ11(double Jxx, double Jyy, double Jxy)
+		//{
+		//	return (Jxx + Jyy) / 2.0 + 0.5 * Math.Sqrt(Math.Pow(Jxx - Jyy, 2.0) + 4.0 * Math.Pow(Jxy, 2));
+		//}
 
-		protected double CalculateJ22(double Jxx, double Jyy, double Jxy)
-		{
-			return (Jxx + Jyy) / 2.0 - 0.5 * Math.Sqrt(Math.Pow(Jxx - Jyy, 2.0) + 4.0 * Math.Pow(Jxy, 2));
-		}
+		//protected double CalculateJ22(double Jxx, double Jyy, double Jxy)
+		//{
+		//	return (Jxx + Jyy) / 2.0 - 0.5 * Math.Sqrt(Math.Pow(Jxx - Jyy, 2.0) + 4.0 * Math.Pow(Jxy, 2));
+		//}
 
-		/// <summary>
-		/// Generate the mesh of the section. If <paramref name="size"/> not set, size is set as the default value of the minimum of the bounding box size divided by 25.
-		/// </summary>
-		/// <param name="size">The mesh size</param>
-		/// <returns></returns>
-		protected Mesh GenerateMesh(double size = -1)
-		{
-			if (size == -1)
-			{
-				BoundingBox3d bBox = Shape.GetBoundingBox();
-				size = Math.Min(bBox.Size.X, bBox.Size.Y) / 20.0;
-			}
+		///// <summary>
+		///// Generate the mesh of the section. If <paramref name="size"/> not set, size is set as the default value of the minimum of the bounding box size divided by 25.
+		///// </summary>
+		///// <param name="size">The mesh size</param>
+		///// <returns></returns>
+		//protected Mesh GenerateMesh(double size = -1)
+		//{
+		//	if (size == -1)
+		//	{
+		//		BoundingBox3d bBox = Shape.GetBoundingBox();
+		//		size = Math.Min(bBox.Size.X, bBox.Size.Y) / 5.0;
+		//	}
 
-			Mesh.GenerateOptions generateOptions = new Mesh.GenerateOptions()
-			{
-				Algorithm = Mesh.GenerateOptions.MeshAlgorithm.FrontalDelaunayForQuads,
-				Recombine = true,
-				RecombinationAlgorithm = Mesh.GenerateOptions.RecombinationMeshAlgorithm.SimpleFullQuad,
-				UseGlobalProgressID = true,
+		//	Mesh.GenerateOptions generateOptions = new Mesh.GenerateOptions()
+		//	{
+		//		Algorithm = Mesh.GenerateOptions.MeshAlgorithm.FrontalDelaunayForQuads,
+		//		Recombine = true,
+		//		RecombinationAlgorithm = Mesh.GenerateOptions.RecombinationMeshAlgorithm.SimpleFullQuad,
+		//		UseGlobalProgressID = true,
 
-				MeshSize = size,
-			};
+		//		MeshSize = size,
+		//	};
 
-			Mesh.Generate(new Shape[] { Shape }, generateOptions, out List<Mesh> meshes, out Mesh.GenerateMeshStatus _);
+		//	Mesh.Generate(new Shape[] { Shape }, generateOptions, out List<Mesh> meshes, out Mesh.GenerateMeshStatus _);
 
-			return meshes[0];
-		}
+		//	return meshes[0];
+		//}
 
-		protected virtual double CalculateN(ReinforcedConcreteRebar rebar)
-		{
-			//return rebar.RebarMaterial.E / Material.E;
-			return 15.0;
-		}
+		//protected virtual double CalculateN(ReinforcedConcreteRebar rebar)
+		//{
+		//	//return rebar.RebarMaterial.E / Material.E;
+		//	return 15.0;
+		//}
 
-		//TODO: implementare metodi di calcolo della sezione
+		////TODO: implementare metodi di calcolo della sezione
 
+		//protected Point2d CalculateRotaTraslatedPoint(Point2d point, Point2d centroid, double teta)
+		//{
+		//	Point2d newPoint = point;
+		//	newPoint.Rotate(new Point2d(0, 0), teta);
+		//	newPoint.MoveTo(newPoint.X + centroid.X, newPoint.Y + centroid.Y);
+		//	return newPoint;
+		//}
+
+		//protected virtual void CalculateIntegralIntertiaConcrete(Point2d p1, Point2d p2, Point2d p3, Point3d centroid, double teta, out double Jxx, out double Jyy, out double Jxy)
+		//{
+		//	double Jxx = 0.0;
+		//	double resultantJyy = 0.0;
+		//	double resultantJxy = 0.0;
+
+		//	double[] weight = new double[] { -0.56250, 0.52083333333333, 0.52083333333333, 0.52083333333333 };
+
+		//	double area = 0.5 * ((p3.Y + p1.Y) * (p3.X - p1.X) - (p3.Y + p2.Y) * (p3.X - p2.X) - (p2.Y + p1.Y) * (p2.X - p1.X));
+
+		//	// primo punto semplice
+		//	Point2d point1NC = new Point2d(p1.X + (p2.X - p1.X) / 3 + (p3.X - p1.X) / 3, p1.Y + (p2.Y - p1.Y) / 3 + (p3.Y - p1.Y) / 3);
+		//	Point2d RTPoint1 = CalculateRotaTraslatedPoint(point1NC, centroid, teta);			
+		//	double point1ValueJxx = Math.Pow(RTPoint1.Y, 2);
+		//	double point1ValueJyy = Math.Pow(RTPoint1.X, 2);
+		//	double point1ValueJxy = RTPoint1.X * RTPoint1.Y;
+
+		//	Jxx += point1ValueJxx * (weight[0]);
+		//	resultantJyy += point1ValueJyy * (weight[0]);
+		//	resultantJxy += point1ValueJxy * (weight[0]);
+
+		//	// secondo punto semplice
+		//	Point2d point2NC = new Point2d(p1.X + (p2.X - p1.X) / 5 + (p3.X - p1.X) / 5, p1.Y + (p2.Y - p1.Y) / 5 + (p3.Y - p1.Y) / 5);
+		//	Point2d RTPoint2 = CalculateRotaTraslatedPoint(point2NC, centroid, teta);
+		//	double point2ValueJxx = Math.Pow(RTPoint2.Y, 2);
+		//	double point2ValueJyy = Math.Pow(RTPoint2.X, 2);
+		//	double point2ValueJxy = RTPoint2.X * RTPoint2.Y;
+
+		//	Jxx += point2ValueJxx * (weight[1]);
+		//	resultantJyy += point2ValueJyy * (weight[1]);
+		//	resultantJxy += point2ValueJxy * (weight[1]);
+
+		//	// terzo punto semplice
+		//	Point2d point3NC = new Point2d(p1.X + 3 * (p2.X - p1.X) / 5 + (p3.X - p1.X) / 5, p1.Y + 3 * (p2.Y - p1.Y) / 5 + (p3.Y - p1.Y) / 5);
+		//	Point2d RTPoint3 = CalculateRotaTraslatedPoint(point3NC, centroid, teta);
+		//	double point3ValueJxx = Math.Pow(RTPoint3.Y, 2);
+		//	double point3ValueJyy = Math.Pow(RTPoint3.X, 2);
+		//	double point3ValueJxy = RTPoint3.X * RTPoint3.Y;
+
+		//	Jxx += point3ValueJxx * (weight[2]);
+		//	resultantJyy += point3ValueJyy * (weight[2]);
+		//	resultantJxy += point3ValueJxy * (weight[2]);
+
+		//	// quarto punto semplice
+		//	Point2d point4NC = new Point2d(p1.X + (p2.X - p1.X) / 5 + 3 * (p3.X - p1.X) / 5, p1.Y + (p2.Y - p1.Y) / 5 + 3 * (p3.Y - p1.Y) / 5);
+		//	Point2d RTPoint4 = CalculateRotaTraslatedPoint(point4NC, centroid, teta);
+		//	double point4ValueJxx = Math.Pow(RTPoint4.Y, 2);
+		//	double point4ValueJyy = Math.Pow(RTPoint4.X, 2);
+		//	double point4ValueJxy = RTPoint4.X * RTPoint4.Y;
+
+		//	Jxx += point4ValueJxx * (weight[2]);
+		//	resultantJyy += point4ValueJyy * (weight[2]);
+		//	resultantJxy += point4ValueJxy * (weight[2]);
+		//}
 	}
 }
