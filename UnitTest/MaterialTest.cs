@@ -216,7 +216,7 @@ namespace ModelObjectTest
 
             double sigmaC3 = 10;
             double epsilonCC3 = concrete.CalculateEpsilonCCInfiniteTime(sigmaC3, 70, 1000000, 2000, 7, 20, 7);
-            Assert.IsTrue(Math.Abs(epsilonCC3 - 0.730) < 0.01);
+            Assert.IsTrue(Math.Abs(epsilonCC3 - 0.000730) < 0.01);
         }
     }
 }
