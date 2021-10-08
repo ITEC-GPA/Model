@@ -400,64 +400,76 @@ namespace GPC.Model.Sections.Concrete
 
 		protected void CalculateStaticMoments(Mesh mesh, out double Sx, out double Sy, out double AreaHomog, out double SxHomogenized, out double SyHomogenized)
 		{
-			Sx = 0;
-			Sy = 0;
+			double [] SxArray = new double[mesh.FacesCount];
+			double[] SyArray = new double[mesh.FacesCount];
 
-			for (int i = 0; i < mesh.FacesCount; i++)
+			Parallel.For(0, mesh.FacesCount, (i) =>
 			{
 				double area = mesh.GetFaceArea(mesh.Faces[i + 1]);
 				Point3d centroid = mesh.GetFaceCentroid(mesh.Faces[i + 1]);
 
-				Sx += area * centroid.Y;
-				Sy += area * centroid.X;
-			}
+				SxArray[i] = area * centroid.Y;
+				SyArray[i] += area * centroid.X;
+			});
 
-			AreaHomog = Area;
-			SxHomogenized = Sx;
-			SyHomogenized = Sy;
+			Sx = SxArray.Sum();
+			Sy = SyArray.Sum();			
 
-			for (int i = 0; i < Rebars.Count(); i++)
+			double[] AreaHomogArray = new double[Rebars.Count()];
+			double[] SxHomogenizedArray = new double[Rebars.Count()];
+			double[] SyHomogenizedArray = new double[Rebars.Count()];
+
+			Parallel.For(0, Rebars.Count(), (i) =>
 			{
-				AreaHomog += (CalculateN(Rebars[i]) - 1) * Rebars[i].Area;
-				SxHomogenized += (CalculateN(Rebars[i]) - 1) * Rebars[i].Area * Rebars[i].Position.Y;
-				SyHomogenized += (CalculateN(Rebars[i]) - 1) * Rebars[i].Area * Rebars[i].Position.X;
-			}
+				AreaHomogArray[i] += (CalculateN(Rebars[i]) - 1) * Rebars[i].Area;
+				SxHomogenizedArray[i] += (CalculateN(Rebars[i]) - 1) * Rebars[i].Area * Rebars[i].Position.Y;
+				SyHomogenizedArray[i] += (CalculateN(Rebars[i]) - 1) * Rebars[i].Area * Rebars[i].Position.X;
+			});
+
+			AreaHomog = Area + AreaHomogArray.Sum();
+			SxHomogenized = Sx + SxHomogenizedArray.Sum();
+			SyHomogenized = Sy + SyHomogenizedArray.Sum();
 		}
 
 		protected void CalculateInertiaMoments(Mesh mesh, Point3d centroid, out double Jxx, out double Jyy, out double Jxy, out double Jp, 
 			out double JxxHomogenized, out double JyyHomogenized, out double JxyHomogenized, out double JpHomogenized)
 		{
-			Jxx = 0;
-			Jyy = 0;
-			Jxy = 0;
+			double[] JxxArray = new double[mesh.FacesCount];
+			double[] JyyArray = new double[mesh.FacesCount];
+			double[] JxyArray = new double[mesh.FacesCount];
 
-			for (int i = 0; i < mesh.FacesCount; i++)
+			Parallel.For(0, mesh.FacesCount, (i) =>
 			{
 				double area = mesh.GetFaceArea(mesh.Faces[i + 1]);
 				Point3d faceCentroid = mesh.GetFaceCentroid(mesh.Faces[i + 1]);
 
-				Jxx += area * Math.Pow(faceCentroid.Y - centroid.Y, 2);
-				Jyy += area * Math.Pow(faceCentroid.X - centroid.X, 2);
-				Jxy += area * (faceCentroid.Y - centroid.Y) * (faceCentroid.X - centroid.X);
-			}
+				JxxArray[i] = area * Math.Pow(faceCentroid.Y - centroid.Y, 2);
+				JyyArray[i] = area * Math.Pow(faceCentroid.X - centroid.X, 2);
+				JxyArray[i] = area * (faceCentroid.Y - centroid.Y) * (faceCentroid.X - centroid.X);
+			});
 
+			Jxx = JxxArray.Sum();
+			Jyy = JyyArray.Sum();
+			Jxy = JxyArray.Sum();
 			Jp = Jxx + Jyy;
 
-			JxxHomogenized = Jxx;
-			JyyHomogenized = Jyy;
-			JxyHomogenized = Jxy;
-			JpHomogenized = Jp;
+			double[] JxxRebarArray = new double[mesh.FacesCount];
+			double[] JyyRebarArray = new double[mesh.FacesCount];
+			double[] JxyRebarArray = new double[mesh.FacesCount];
 
-			for (int i = 0; i < Rebars.Count(); i++)
+			Parallel.For(0, Rebars.Count(), (i) =>
 			{
-				JxxHomogenized += (CalculateN(Rebars[i]) - 1) * (Rebars[i].RebarSection.Jxx + Rebars[i].Area * 
+				JxxRebarArray[i] = (CalculateN(Rebars[i]) - 1) * (Rebars[i].RebarSection.Jxx + Rebars[i].Area *
 					(Math.Pow((Rebars[i].Position.Y - centroid.Y), 2)));
-				JyyHomogenized += (CalculateN(Rebars[i]) - 1) * (Rebars[i].RebarSection.Jyy + Rebars[i].Area * 
+				JyyRebarArray[i] = (CalculateN(Rebars[i]) - 1) * (Rebars[i].RebarSection.Jyy + Rebars[i].Area *
 					(Math.Pow((Rebars[i].Position.X - centroid.X), 2)));
-				JxyHomogenized += (CalculateN(Rebars[i]) - 1) * (Rebars[i].RebarSection.Jxy + Rebars[i].Area * 
+				JxyRebarArray[i] = (CalculateN(Rebars[i]) - 1) * (Rebars[i].RebarSection.Jxy + Rebars[i].Area *
 					(Rebars[i].Position.X - centroid.X) * (Rebars[i].Position.Y - centroid.Y));
-			}
+			});
 
+			JxxHomogenized = Jxx + JxxRebarArray.Sum();
+			JyyHomogenized = Jyy + JxxRebarArray.Sum();
+			JxyHomogenized = Jxy + JxxRebarArray.Sum();
 			JpHomogenized = JxxHomogenized + JyyHomogenized;
 		}
 
