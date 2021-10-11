@@ -1319,6 +1319,7 @@ namespace ModelObjectTest
         public void RCSection1()
         {
             double rebarDiameter = 18;
+            double n = 15;
 
             // sezione rettangolare 300x500
             Shape shape = new Shape(new Polygon3d(new Point3d[] {   new Point3d(0, 0, 0), 
@@ -1334,23 +1335,23 @@ namespace ModelObjectTest
                                                                                 new ReinforcedConcreteRebar(rebar, new Point3d(250,450,0)),
                                                                                 new ReinforcedConcreteRebar(rebar, new Point3d(50,450,0))};
             ReinforcedConcreteSection section = new ReinforcedConcreteSection(shapeEx, rebars);
+            section.GetHomogeneizedMechanicalProperties(n, out double areaH, out double _, out double _, out Point3d _,
+                out double _, out double _, out double _, out double _, out double J11H, out double J22H, out double angleX);
 
             //valori calcolati con VCASLU
             Assert.IsTrue(Math.Abs(section.Area - 150000) / section.Area * 100 < 1);
             Assert.IsTrue(Math.Abs(section.J11 - 3125000000) / section.J11 * 100 < 1);
             Assert.IsTrue(Math.Abs(section.J22 - 1125000000) / section.J22 * 100 < 1);
             Assert.IsTrue(Math.Abs(section.AngleX1) < 0.001);
-            Assert.IsTrue(Math.Abs(section.AreaHomogenized - 165240) / section.AreaHomogenized * 100 < 1);
-            Assert.IsTrue(Math.Abs(section.J11Homogenized - 3734600000) / section.J11Homogenized * 100 < 1);
-            Assert.IsTrue(Math.Abs(section.J22Homogenized - 1277400000) / section.J22Homogenized * 100 < 1);
-            Assert.IsTrue(Math.Abs(section.AngleX1Homogenized) < 0.001);
+            Assert.IsTrue(Math.Abs(areaH - 165240) / areaH * 100 < 1);
+            Assert.IsTrue(Math.Abs(J11H - 3693960000) / J11H * 100 < 1);
+            Assert.IsTrue(Math.Abs(J22H - 1267240000) / J22H * 100 < 1);
+            Assert.IsTrue(Math.Abs(angleX) < 0.001);
         }
 
         [TestMethod]
         public void RCSection2()
         {
-            double rebarDiameter = 18;
-
             // sezion a T tovescia 
             Shape shape = new Shape(new Polygon3d(new Point3d[] {   new Point3d(0, 0, 0),
                                                                     new Point3d(500, 0, 0),
@@ -1362,14 +1363,8 @@ namespace ModelObjectTest
                                                                     new Point3d(0, 500, 0), }));
 
             ShapeEx shapeEx = new ShapeEx(shape, ConcreteMaterialEN1992.C25_30);
-            GPC.Model.Sections.Rebar.RebarSectionCircular rebar = new GPC.Model.Sections.Rebar.RebarSectionCircular(rebarDiameter, RebarMaterial.B450C);
-
             ReinforcedConcreteRebar[] rebars = new ReinforcedConcreteRebar[] { };
 
-            //ReinforcedConcreteRebar[] rebars = new ReinforcedConcreteRebar[] {  new ReinforcedConcreteRebar(rebar, new Point3d(50,50,0)),
-            //                                                                    new ReinforcedConcreteRebar(rebar, new Point3d(250, 50, 0)),
-            //                                                                    new ReinforcedConcreteRebar(rebar, new Point3d(250,450,0)),
-            //                                                                    new ReinforcedConcreteRebar(rebar, new Point3d(50,450,0))};
             ReinforcedConcreteSection section = new ReinforcedConcreteSection(shapeEx, rebars);
 
             //valori calcolati con VCASLU
@@ -1397,13 +1392,14 @@ namespace ModelObjectTest
             Assert.IsTrue(Math.Abs(section.Jyy - 1127777778) / section.Jyy * 100 < 1);
             Assert.IsTrue(Math.Abs(section.J11 - 1211051091) / section.J11 * 100 < 1);
             Assert.IsTrue(Math.Abs(section.J22 - 246935021) / section.J22 * 100 < 1);
-            Assert.IsTrue(Math.Abs(section.AngleX1 - 0.29827677) < 0.001);
+            Assert.IsTrue(Math.Abs(section.AngleX1 - (-0.29827677)) < 0.001);
         }
 
         [TestMethod]
         public void RCSection4()
         {
             double rebarDiameter = 18;
+            double n = 15;
 
             Shape shape = new Shape(new Polygon3d(new Point3d[] {   new Point3d(0, 0, 0),
                                                                     new Point3d(300, 0, 0),
@@ -1418,11 +1414,47 @@ namespace ModelObjectTest
                                                                                 new ReinforcedConcreteRebar(rebar, new Point3d(200, 50,0)),
                                                                                 new ReinforcedConcreteRebar(rebar, new Point3d(250, 50,0))};
             ReinforcedConcreteSection section = new ReinforcedConcreteSection(shapeEx, rebars);
+			section.GetHomogeneizedMechanicalProperties(n, out double _, out double _, out double _, out Point3d _,
+            out double _, out double _, out double _, out _, out double J11H, out double J22H, out double angleX);
 
             //valori calcolati con VCASLU
-            Assert.IsTrue(Math.Abs(section.J11Homogenized - 3678379906) / section.J11Homogenized * 100 < 1);
-            Assert.IsTrue(Math.Abs(section.J22Homogenized - 1220250000) / section.J22Homogenized * 100 < 1);
-            Assert.IsTrue(Math.Abs(section.AngleX1Homogenized) < 0.001);
+            Assert.IsTrue(Math.Abs(section.J11 - 3125000000) / section.J11 * 100 < 1);
+            Assert.IsTrue(Math.Abs(section.J22 - 1125000000) / section.J22 * 100 < 1);
+            Assert.IsTrue(Math.Abs(J11H - 3644680436) / J11H * 100 < 1);
+            Assert.IsTrue(Math.Abs(J22H - 1213900000) / J22H * 100 < 1);
+            Assert.IsTrue(Math.Abs(angleX) < 0.001);
+        }
+
+        [TestMethod]
+        public void RCSection5()
+        {
+            double rebarDiameter = 26;
+            double n = 15;
+
+            Shape shape = new Shape(new Polygon3d(new Point3d[] {   new Point3d(0, 0, 0),
+                                                                    new Point3d(300, 0, 0),
+                                                                    new Point3d(300, 500, 0),
+                                                                    new Point3d(0, 500, 0), }));
+
+            ShapeEx shapeEx = new ShapeEx(shape, ConcreteMaterialEN1992.C25_30);
+            GPC.Model.Sections.Rebar.RebarSectionCircular rebar = new GPC.Model.Sections.Rebar.RebarSectionCircular(rebarDiameter, RebarMaterial.B450C);
+
+            ReinforcedConcreteRebar[] rebars = new ReinforcedConcreteRebar[] {  new ReinforcedConcreteRebar(rebar, new Point3d(50,50,0)),
+                                                                                new ReinforcedConcreteRebar(rebar, new Point3d(100, 50, 0)),
+                                                                                new ReinforcedConcreteRebar(rebar, new Point3d(200, 50,0)),
+                                                                                new ReinforcedConcreteRebar(rebar, new Point3d(250, 50,0)),
+                                                                                new ReinforcedConcreteRebar(rebar, new Point3d(50,50,0)),
+                                                                                new ReinforcedConcreteRebar(rebar, new Point3d(100, 50, 0)),
+                                                                                new ReinforcedConcreteRebar(rebar, new Point3d(200, 50,0)),
+                                                                                new ReinforcedConcreteRebar(rebar, new Point3d(250, 50,0))};
+            ReinforcedConcreteSection section = new ReinforcedConcreteSection(shapeEx, rebars);
+            section.GetHomogeneizedMechanicalProperties(n, out double _, out double _, out double _, out Point3d _,
+            out double _, out double _, out double _, out double _, out double J11H, out double J22H, out double angleX);
+
+            //valori calcolati con VCASLU
+            Assert.IsTrue(Math.Abs(J11H - 4828483043) / J11H * 100 < 1);
+            Assert.IsTrue(Math.Abs(J22H - 1496700000) / J22H * 100 < 1);
+            Assert.IsTrue(Math.Abs(angleX) < 0.001);
         }
 
         #endregion
