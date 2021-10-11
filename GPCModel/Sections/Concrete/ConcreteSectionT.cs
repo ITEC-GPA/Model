@@ -1,4 +1,5 @@
-﻿using GPC.Model.Materials;
+﻿using GPC.Geometry;
+using GPC.Model.Materials;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -21,6 +22,8 @@ namespace GPC.Model.Sections.Concrete
 
 		public ConcreteMaterial ConcreteMaterial => (ConcreteMaterial)_material;
 
+		public Shape Shape => throw new NotImplementedException();
+
 		#endregion
 
 		#region Public Constructors
@@ -38,6 +41,36 @@ namespace GPC.Model.Sections.Concrete
 
 			if (section.Material.GetType() != ConcreteMaterial.GetType())
 				throw new ArgumentException("Material must be a ConcreteMaterial");
+		}
+
+		public double GetHomogenizedArea(double n)
+		{
+			throw new NotImplementedException();
+		}
+
+		public double GetHomogenizedArea()
+		{
+			throw new NotImplementedException();
+		}
+
+		public double GetHomogeneizedJ11(double n)
+		{
+			throw new NotImplementedException();
+		}
+
+		public double GetHomogeneizedJ22()
+		{
+			throw new NotImplementedException();
+		}
+
+		public double GetHomogeneizedJ11()
+		{
+			throw new NotImplementedException();
+		}
+
+		public double GetHomogeneizedJ22(double n)
+		{
+			throw new NotImplementedException();
 		}
 
 		#endregion

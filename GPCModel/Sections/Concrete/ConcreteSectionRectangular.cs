@@ -26,6 +26,8 @@ namespace GPC.Model.Sections.Concrete
 
 		public ConcreteMaterial ConcreteMaterial => (ConcreteMaterial)_material;
 
+		public Shape Shape => GetShape();
+
 		#endregion
 
 		#region Public Constructors
@@ -43,6 +45,41 @@ namespace GPC.Model.Sections.Concrete
 
 			if (section.Material.GetType() != ConcreteMaterial.GetType())
 				throw new ArgumentException("Material must be a ConcreteMaterial");
+		}
+
+		public double GetHomogenizedArea(double n)
+		{
+			throw new NotImplementedException();
+		}
+
+		public double GetHomogenizedArea()
+		{
+			throw new NotImplementedException();
+		}
+
+		public double GetHomogeneizedJ11(double n)
+		{
+			throw new NotImplementedException();
+		}
+
+		public double GetHomogeneizedJ22()
+		{
+			throw new NotImplementedException();
+		}
+
+		public Shape GetShape()
+		{
+			return new Shape(new Polygon3d(new Point3d[] { new Point3d(0, 0, 0), new Point3d(Width, 0, 0), new Point3d(Width, Height, 0), new Point3d(0, Height, 0) }));
+		}
+
+		public double GetHomogeneizedJ11()
+		{
+			throw new NotImplementedException();
+		}
+
+		public double GetHomogeneizedJ22(double n)
+		{
+			throw new NotImplementedException();
 		}
 
 		#endregion

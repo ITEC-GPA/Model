@@ -23,6 +23,8 @@ namespace GPC.Model.Sections.Concrete
 
 		public ConcreteMaterial ConcreteMaterial => (ConcreteMaterial)_material;
 
+		public Shape Shape => GetShape();
+
 		#endregion
 
 		#region Public Constructors
@@ -31,6 +33,42 @@ namespace GPC.Model.Sections.Concrete
 			: base(diameter, material, name)
 		{
 			_rebars = rebars;
+		}
+
+		public double GetHomogenizedArea(double n)
+		{
+			throw new NotImplementedException();
+		}
+
+		public double GetHomogenizedArea()
+		{
+			throw new NotImplementedException();
+		}
+
+		public double GetHomogeneizedJ11(double n)
+		{
+			throw new NotImplementedException();
+		}
+
+		public double GetHomogeneizedJ22()
+		{
+			throw new NotImplementedException();
+		}
+
+		private Shape GetShape()
+		{
+			Polygon3d poly = ConvertCircleToPolygon();
+			return new Shape(poly);
+		}
+
+		public double GetHomogeneizedJ11()
+		{
+			throw new NotImplementedException();
+		}
+
+		public double GetHomogeneizedJ22(double n)
+		{
+			throw new NotImplementedException();
 		}
 
 		#endregion

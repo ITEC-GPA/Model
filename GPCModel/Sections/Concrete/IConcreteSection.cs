@@ -1,4 +1,5 @@
-﻿using GPC.Model.Materials;
+﻿using GPC.Geometry;
+using GPC.Model.Materials;
 
 
 namespace GPC.Model.Sections.Concrete
@@ -6,6 +7,8 @@ namespace GPC.Model.Sections.Concrete
     public interface IConcreteSection
     {
         string Name { get; }
+
+        Shape Shape { get; }
 
         ConcreteMaterial ConcreteMaterial { get; }
 
@@ -27,10 +30,6 @@ namespace GPC.Model.Sections.Concrete
 
         double Jyy { get; }
 
-        double Jt { get; }
-
-        double Jw { get; }
-
         double Wpl1 { get; }
 
         double Wpl2 { get; }
@@ -46,5 +45,18 @@ namespace GPC.Model.Sections.Concrete
         bool IsDoubleSymmetric { get; }
 
         ReinforcedConcreteRebar[] Rebars { get; }
+
+        double GetHomogenizedArea(double n);
+
+        double GetHomogenizedArea();
+
+        double GetHomogeneizedJ11();
+
+        double GetHomogeneizedJ11(double n);
+
+        double GetHomogeneizedJ22();
+
+        double GetHomogeneizedJ22(double n);
+
     }
 }
