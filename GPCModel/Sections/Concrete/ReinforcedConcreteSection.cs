@@ -30,9 +30,9 @@ namespace GPC.Model.Sections.Concrete
 
 		public ConcreteMaterial ConcreteMaterial => (ConcreteMaterial)_material;
 
-		Shape IConcreteSection.Shape => _shapeEx;
+		public Mesh Mesh => _mesh;
 
-
+		Shape IConcreteSection.Shape => _shapeEx;	
 
 		#endregion
 
@@ -84,35 +84,6 @@ namespace GPC.Model.Sections.Concrete
 		}
 
 		#endregion
-
-
-		/// <summary>
-		/// Internal method to set the mechanical properties to the section
-		/// </summary>
-		public virtual void SetMechanicalProperties()
-		{
-			_area = CalculateArea();
-			
-			CalculateStaticMoments(_mesh, out double Sx, out double Sy);
-			_centroid = CalculateCentroid(Sx, Sy, Area);
-			
-			CalculateInertiaMoments(_mesh, _centroid, out double Jxx, out double Jyy, out double Jxy, out double _);
-			_jxx = Jxx;
-			_jyy = Jyy;
-			_jxy = Jxy;			
-			_angleX1 = CalculateAngle(Jxx, Jyy, Jxy);
-			_j11 = CalculateJ11(Jxx, Jyy, Jxy);
-			_j22 = CalculateJ22(Jxx, Jyy, Jxy);
-
-			//TODO: implementare metodi di calcolo della sezione
-			_jw = CalculateJw();
-			_jt = CalculateJt();
-			_shearCenter = CalculateShearCenter();
-			_wel1 = CalculateWel1();
-			_wel2 = CalculateWel2();
-			_wpl1 = CalculateWpl1();
-			_wpl2 = CalculateWpl2();
-		}
 
 
 		#region Public Methods
@@ -289,7 +260,36 @@ namespace GPC.Model.Sections.Concrete
 
 		#endregion
 
+
 		#region Protected Methods
+
+		/// <summary>
+		/// Internal method to set the mechanical properties to the section
+		/// </summary>
+		protected virtual void SetMechanicalProperties()
+		{
+			_area = CalculateArea();
+
+			CalculateStaticMoments(_mesh, out double Sx, out double Sy);
+			_centroid = CalculateCentroid(Sx, Sy, Area);
+
+			CalculateInertiaMoments(_mesh, _centroid, out double Jxx, out double Jyy, out double Jxy, out double _);
+			_jxx = Jxx;
+			_jyy = Jyy;
+			_jxy = Jxy;
+			_angleX1 = CalculateAngle(Jxx, Jyy, Jxy);
+			_j11 = CalculateJ11(Jxx, Jyy, Jxy);
+			_j22 = CalculateJ22(Jxx, Jyy, Jxy);
+
+			//TODO: implementare metodi di calcolo della sezione
+			_jw = CalculateJw();
+			_jt = CalculateJt();
+			_shearCenter = CalculateShearCenter();
+			_wel1 = CalculateWel1();
+			_wel2 = CalculateWel2();
+			_wpl1 = CalculateWpl1();
+			_wpl2 = CalculateWpl2();
+		}
 
 		protected double CalculateArea()
 		{
