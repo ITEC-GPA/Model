@@ -494,16 +494,16 @@ namespace GPC.Model.Materials
             if (StressStrainDiagram == StressStrainDiagrams.ParabolaRectangle)
             {
                 if (_fck <= 50)
-                    _epsilonY = 2.0 / 10.0;
+                    _epsilonY = 2.0 / 1000.0;
                 else
-                    _epsilonY = (2.0 + 0.085 * Math.Pow(_fck - 50.0, 0.53)) / 10.0;
+                    _epsilonY = (2.0 + 0.085 * Math.Pow(_fck - 50.0, 0.53)) / 1000.0;
             }
             else if (StressStrainDiagram == StressStrainDiagrams.Bilinear)
             {
                 if (_fck <= 50)
-                    _epsilonY = 1.75 / 10.0;
+                    _epsilonY = 1.75 / 1000.0;
                 else
-                    _epsilonY = (1.75 + 0.55 * ((_fck - 50.0) / 40.0)) / 10.0;
+                    _epsilonY = (1.75 + 0.55 * ((_fck - 50.0) / 40.0)) / 1000.0;
             }
             else if (StressStrainDiagram == StressStrainDiagrams.StressBlock)
             {
@@ -525,23 +525,23 @@ namespace GPC.Model.Materials
             if (StressStrainDiagram == StressStrainDiagrams.ParabolaRectangle)
             {
                 if (_fck <= 50)
-                    _epsilonU = 3.5 / 10.0;
+                    _epsilonU = 3.5 / 1000.0;
                 else
-                    _epsilonU = (2.6 + 35.0 * Math.Pow(((90.0 - _fck) / 100.0), 4)) / 10.0;
+                    _epsilonU = (2.6 + 35.0 * Math.Pow(((90.0 - _fck) / 100.0), 4)) / 1000.0;
             }
             else if (StressStrainDiagram == StressStrainDiagrams.Bilinear)
             {
                 if (_fck <= 50)
-                    _epsilonU = 3.5 / 10.0;
+                    _epsilonU = 3.5 / 1000.0;
                 else
-                    _epsilonU = (2.6 + 35.0 * Math.Pow(((90.0 - _fck) / 100.0), 4)) / 10.0;
+                    _epsilonU = (2.6 + 35.0 * Math.Pow(((90.0 - _fck) / 100.0), 4)) / 1000.0;
             }
             else if (StressStrainDiagram == StressStrainDiagrams.StressBlock)
             {
                 if (_fck <= 50)
-                    _epsilonU = 3.5 / 10.0;
+                    _epsilonU = 3.5 / 1000.0;
                 else
-                    _epsilonU = (2.6 + 35.0 * Math.Pow(((90.0 - _fck) / 100.0), 4)) / 10.0;
+                    _epsilonU = (2.6 + 35.0 * Math.Pow(((90.0 - _fck) / 100.0), 4)) / 1000.0;
             }
             else
                 throw new ArgumentException();
