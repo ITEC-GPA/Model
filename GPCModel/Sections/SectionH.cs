@@ -150,22 +150,22 @@ namespace GPC.Model.Sections
             return Math.Min(CalculateWelxBottom(), CalculateWelxTop());
         }
 
-        protected virtual double CalculateWelyBottom()
+        public virtual double CalculateWelyBottom()
         {
             return J22 / (LenghtBottomFlange - DistanceXCentroidFromRight());
         }
 
-        protected virtual double CalculateWelyTop()
+        public virtual double CalculateWelyTop()
         {
             return J22 / (LenghtTopFlange - DistanceXCentroidFromRight());
         }
 
-        protected virtual double CalculateWelxBottom()
+        public virtual double CalculateWelxBottom()
         {
             return J11 / DistanceYCentroidFromBottom();
         }
 
-        protected virtual double CalculateWelxTop()
+        public virtual double CalculateWelxTop()
         {
             return J11 / DistanceYCentroidFromTop();
         }
