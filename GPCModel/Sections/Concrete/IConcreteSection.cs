@@ -58,5 +58,6 @@ namespace GPC.Model.Sections.Concrete
 
         double GetHomogeneizedJ22(double n);
 
+        Geometry.Meshes.Mesh Mesh { get; }
     }
 }

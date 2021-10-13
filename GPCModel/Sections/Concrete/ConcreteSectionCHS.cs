@@ -1,4 +1,5 @@
 ﻿using GPC.Geometry;
+using GPC.Geometry.Meshes;
 using GPC.Model.Materials;
 using System;
 using System.Collections.Generic;
@@ -23,6 +24,8 @@ namespace GPC.Model.Sections.Concrete
 		public ConcreteMaterial ConcreteMaterial => (ConcreteMaterial)_material;
 
 		public Shape Shape => GetShape();
+
+		public Mesh Mesh => throw new NotImplementedException();
 
 		#endregion
 

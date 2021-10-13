@@ -5,6 +5,7 @@ using System.Runtime.Serialization;
 using System.Text;
 using System.Threading.Tasks;
 using GPC.Geometry;
+using GPC.Geometry.Meshes;
 using GPC.Model.Elements;
 using GPC.Model.FEM.Materials;
 using GPC.Model.Materials;
@@ -27,6 +28,8 @@ namespace GPC.Model.Sections.Concrete
 		public ConcreteMaterial ConcreteMaterial => (ConcreteMaterial)_material;
 
 		public Shape Shape => GetShape();
+
+		public Mesh Mesh => throw new NotImplementedException();
 
 		#endregion
 

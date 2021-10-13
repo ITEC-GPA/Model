@@ -1,4 +1,4 @@
-﻿using GPC.Geometry;
+using GPC.Geometry;
 using GPC.Model.Elements;
 using GPC.Model.Materials;
 using System;
@@ -320,15 +320,16 @@ namespace GPC.Model.Sections.Concrete
 			double[] JyyArray = new double[mesh.FacesCount];
 			double[] JxyArray = new double[mesh.FacesCount];
 
+
 			Parallel.For(0, mesh.FacesCount, (i) =>
 			{
-				double area = mesh.GetFaceArea(mesh.Faces[i + 1]);
-				Point3d faceCentroid = mesh.GetFaceCentroid(mesh.Faces[i + 1]);
+				CalculateIntegralInertiaMoment(mesh.Faces[i + 1], centroid, out double jxx, out double jyy, out double jxy);
 
-				JxxArray[i] = area * Math.Pow(faceCentroid.Y - centroid.Y, 2);
-				JyyArray[i] = area * Math.Pow(faceCentroid.X - centroid.X, 2);
-				JxyArray[i] = area * (faceCentroid.Y - centroid.Y) * (faceCentroid.X - centroid.X);
+				JxxArray[i] = jxx;
+				JyyArray[i] = jyy;
+				JxyArray[i] = jxy;
 			});
+
 
 			Jxx = JxxArray.Sum();
 			Jyy = JyyArray.Sum();
@@ -433,14 +434,13 @@ namespace GPC.Model.Sections.Concrete
 			if (size == -1)
 			{
 				BoundingBox3d bBox = Shape.GetBoundingBox();
-				size = Math.Min(bBox.Size.X, bBox.Size.Y) / 20.0;
+				size = Math.Min(bBox.Size.X, bBox.Size.Y) / 5;
 			}
 
 			Mesh.GenerateOptions generateOptions = new Mesh.GenerateOptions()
 			{
 				Algorithm = Mesh.GenerateOptions.MeshAlgorithm.FrontalDelaunayForQuads,
-				Recombine = true,
-				RecombinationAlgorithm = Mesh.GenerateOptions.RecombinationMeshAlgorithm.SimpleFullQuad,
+				Recombine = false,
 				UseGlobalProgressID = true,
 
 				MeshSize = size,
@@ -455,6 +455,49 @@ namespace GPC.Model.Sections.Concrete
 		{
 			return rebar.RebarMaterial.E / Material.E;
 			//return 15.0;
+		}
+
+		protected virtual void CalculateIntegralInertiaMoment(MeshFace face, Point3d centroid, out double jxx, out double jyy, out double jxy)
+		{
+			jxx = 0;
+			jyy = 0;
+			jxy = 0;
+
+			double area = Mesh.GetFaceArea(face);
+			Point3d[] points = Mesh.GetFacePoints(face);
+			Point2d p1 = points[0];
+			Point2d p2 = points[1];
+			Point2d p3 = points[2];
+
+			double[] weight = new double[] { -0.56250, 0.52083333333333, 0.52083333333333, 0.52083333333333 };
+
+			// primo punto semplice
+			Point2d point1NC = new Point2d(p1.X + (p2.X - p1.X) / 3 + (p3.X - p1.X) / 3, p1.Y + (p2.Y - p1.Y) / 3 + (p3.Y - p1.Y) / 3);
+			jxx += Math.Pow(point1NC.Y - centroid.Y, 2) * (weight[0]);
+			jyy += Math.Pow(point1NC.X - centroid.X, 2) * (weight[0]);
+			jxy += (point1NC.Y - centroid.Y) * (point1NC.X - centroid.X) * (weight[0]);
+
+			// secondo punto semplice
+			Point2d point2NC = new Point2d(p1.X + (p2.X - p1.X) / 5 + (p3.X - p1.X) / 5, p1.Y + (p2.Y - p1.Y) / 5 + (p3.Y - p1.Y) / 5);
+			jxx += Math.Pow(point2NC.Y - centroid.Y, 2) * (weight[1]);
+			jyy += Math.Pow(point2NC.X - centroid.X, 2) * (weight[1]);
+			jxy += (point2NC.Y - centroid.Y) * (point2NC.X - centroid.X) * (weight[1]);
+
+			// terzo punto semplice
+			Point2d point3NC = new Point2d(p1.X + 3 * (p2.X - p1.X) / 5 + (p3.X - p1.X) / 5, p1.Y + 3 * (p2.Y - p1.Y) / 5 + (p3.Y - p1.Y) / 5);
+			jxx += Math.Pow(point3NC.Y - centroid.Y, 2) * (weight[2]);
+			jyy += Math.Pow(point3NC.X - centroid.X, 2) * (weight[2]);
+			jxy += (point3NC.Y - centroid.Y) * (point3NC.X - centroid.X) * (weight[2]);
+
+			// quarto punto semplice
+			Point2d point4NC = new Point2d(p1.X + (p2.X - p1.X) / 5 + 3 * (p3.X - p1.X) / 5, p1.Y + (p2.Y - p1.Y) / 5 + 3 * (p3.Y - p1.Y) / 5);
+			jxx += Math.Pow(point4NC.Y - centroid.Y, 2) * (weight[3]);
+			jyy += Math.Pow(point4NC.X - centroid.X, 2) * (weight[3]);
+			jxy += (point4NC.Y - centroid.Y) * (point4NC.X - centroid.X) * (weight[3]);
+
+			jxx *= area;
+			jyy *= area;
+			jxy *= area;
 		}
 
 		protected double CalculateWpl2()
