@@ -1,17 +1,21 @@
-using System;
+﻿using System;
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using GPC.Model.FEM;
 using GPC.Utilities.Fem;
 using mnl = MathNet.Numerics.LinearAlgebra;
 using GPC.Model.FEM.FiniteElements;
+using GPC.Geometry;
+using GPC.Model.FEM.GaussIntegration;
 
 namespace FemTest.SolverTest
 {
     [TestClass]
     public class GaussIntegrationTest
     {
-        /*[TestMethod]
+		#region Old Gauss Integration
+
+		/*[TestMethod]
         public void Test1()
         {
             int nrpoints = 9;
@@ -33,8 +37,8 @@ namespace FemTest.SolverTest
             }
         }*/
 
-        //costant 1 pt gauss
-        [TestMethod]
+		//costant 1 pt gauss
+		[TestMethod]
         public void GaussIntegrationTest1()
         {
             int nrpoints = 1;
@@ -54,7 +58,7 @@ namespace FemTest.SolverTest
 
             var j = FEMUtilities.J2D(LinearShapeFunctionQuad4.DNdCsi, LinearShapeFunctionQuad4.DNdEta, nds);
 
-            var ris = GaussIntegration.IntegrationQuadrilateral(F, j, nrpoints);
+            var ris = OldGaussIntegration.IntegrationQuadrilateral(F, j, nrpoints);
             Assert.AreEqual(4.0, ris[0, 0]);
 
             nds[0] = new Node(0.0, 0.0, 0, "1");
@@ -71,7 +75,7 @@ namespace FemTest.SolverTest
 
             j = FEMUtilities.J2D(LinearShapeFunctionQuad4.DNdCsi, LinearShapeFunctionQuad4.DNdEta, nds);
 
-            ris = GaussIntegration.IntegrationQuadrilateral(F, j, nrpoints);
+            ris = OldGaussIntegration.IntegrationQuadrilateral(F, j, nrpoints);
             Assert.AreEqual(1.0, ris[0, 0]);
         }
 
@@ -96,7 +100,7 @@ namespace FemTest.SolverTest
 
             var j = FEMUtilities.J2D(LinearShapeFunctionQuad4.DNdCsi, LinearShapeFunctionQuad4.DNdEta, nds);
 
-            var ris = GaussIntegration.IntegrationQuadrilateral(F, j, nrpoints);
+            var ris = OldGaussIntegration.IntegrationQuadrilateral(F, j, nrpoints);
             Assert.AreEqual(4.0, ris[0, 0]);
 
             nds[0] = new Node(0.0, 0.0, 0, "1");
@@ -113,7 +117,7 @@ namespace FemTest.SolverTest
 
             j = FEMUtilities.J2D(LinearShapeFunctionQuad4.DNdCsi, LinearShapeFunctionQuad4.DNdEta, nds);
 
-            ris = GaussIntegration.IntegrationQuadrilateral(F, j, nrpoints);
+            ris = OldGaussIntegration.IntegrationQuadrilateral(F, j, nrpoints);
             Assert.AreEqual(1.0, ris[0, 0]);
         }
 
@@ -137,7 +141,7 @@ namespace FemTest.SolverTest
 
             var j = FEMUtilities.J2D(LinearShapeFunctionQuad4.DNdCsi, LinearShapeFunctionQuad4.DNdEta, nds);
 
-            var ris = GaussIntegration.IntegrationQuadrilateral(F, j, nrpoints);
+            var ris = OldGaussIntegration.IntegrationQuadrilateral(F, j, nrpoints);
             Assert.AreEqual(4.0, ris[0, 0]);
 
             nds[0] = new Node(0.0, 0.0, 0, "1");
@@ -154,7 +158,7 @@ namespace FemTest.SolverTest
 
             j = FEMUtilities.J2D(LinearShapeFunctionQuad4.DNdCsi, LinearShapeFunctionQuad4.DNdEta, nds);
 
-            ris = GaussIntegration.IntegrationQuadrilateral(F, j, nrpoints);
+            ris = OldGaussIntegration.IntegrationQuadrilateral(F, j, nrpoints);
             Assert.AreEqual(1.0, ris[0, 0]);
         }
 
@@ -178,7 +182,7 @@ namespace FemTest.SolverTest
 
             var j = FEMUtilities.J2D(LinearShapeFunctionQuad4.DNdCsi, LinearShapeFunctionQuad4.DNdEta, nds);
 
-            var ris = GaussIntegration.IntegrationQuadrilateral(F, j, nrpoints);
+            var ris = OldGaussIntegration.IntegrationQuadrilateral(F, j, nrpoints);
             Assert.AreEqual(0.0, ris[0, 0]);
 
             nds[0] = new Node(0.0, 0.0, 0, "1");
@@ -195,7 +199,7 @@ namespace FemTest.SolverTest
 
             j = FEMUtilities.J2D(LinearShapeFunctionQuad4.DNdCsi, LinearShapeFunctionQuad4.DNdEta, nds);
 
-            ris = GaussIntegration.IntegrationQuadrilateral(F, j, nrpoints);
+            ris = OldGaussIntegration.IntegrationQuadrilateral(F, j, nrpoints);
             Assert.AreEqual(1.0 * 1.0 * 1.0 / 2.0, ris[0, 0]);
         }
 
@@ -219,7 +223,7 @@ namespace FemTest.SolverTest
 
             var j = FEMUtilities.J2D(LinearShapeFunctionQuad4.DNdCsi, LinearShapeFunctionQuad4.DNdEta, nds);
 
-            var ris = GaussIntegration.IntegrationQuadrilateral(F, j, nrpoints);
+            var ris = OldGaussIntegration.IntegrationQuadrilateral(F, j, nrpoints);
             Assert.AreEqual(0.0, ris[0, 0], 0.00000000001);
 
             nds[0] = new Node(0.0, 0.0, 0, "1");
@@ -236,7 +240,7 @@ namespace FemTest.SolverTest
 
             j = FEMUtilities.J2D(LinearShapeFunctionQuad4.DNdCsi, LinearShapeFunctionQuad4.DNdEta, nds);
 
-            ris = GaussIntegration.IntegrationQuadrilateral(F, j, nrpoints);
+            ris = OldGaussIntegration.IntegrationQuadrilateral(F, j, nrpoints);
             Assert.AreEqual(1.0 * 1.0 * 1.0 / 2.0, ris[0, 0], 0.000000000001);
         }
 
@@ -261,7 +265,7 @@ namespace FemTest.SolverTest
 
             var j = FEMUtilities.J2D(LinearShapeFunctionQuad4.DNdCsi, LinearShapeFunctionQuad4.DNdEta, nds);
 
-            var ris = GaussIntegration.IntegrationQuadrilateral(F, j, nrpoints);
+            var ris = OldGaussIntegration.IntegrationQuadrilateral(F, j, nrpoints);
             Assert.AreEqual(constant * 0.0, ris[0, 0], 0.00000000001);
 
             nds[0] = new Node(0.0, 0.0, 0, "1");
@@ -278,7 +282,7 @@ namespace FemTest.SolverTest
 
             j = FEMUtilities.J2D(LinearShapeFunctionQuad4.DNdCsi, LinearShapeFunctionQuad4.DNdEta, nds);
 
-            ris = GaussIntegration.IntegrationQuadrilateral(F, j, nrpoints);
+            ris = OldGaussIntegration.IntegrationQuadrilateral(F, j, nrpoints);
             Assert.AreEqual(constant * 1.0 * 1.0 * 1.0 / 2.0, ris[0, 0]);
         }
 
@@ -304,7 +308,7 @@ namespace FemTest.SolverTest
 
             var j = FEMUtilities.J2D(LinearShapeFunctionQuad4.DNdCsi, LinearShapeFunctionQuad4.DNdEta, nds);
 
-            var ris = GaussIntegration.IntegrationQuadrilateral(F, j, nrpoints);
+            var ris = OldGaussIntegration.IntegrationQuadrilateral(F, j, nrpoints);
             Assert.AreEqual(constant * ((1.0 * 1.0 * 1.0) - (-1.0 * -1.0 *-1.0)) / 3.0 * 2.0, ris[0, 0], 0.00000000001);
 
             nds[0] = new Node(0.0, 0.0, 0, "1");
@@ -322,7 +326,7 @@ namespace FemTest.SolverTest
 
             j = FEMUtilities.J2D(LinearShapeFunctionQuad4.DNdCsi, LinearShapeFunctionQuad4.DNdEta, nds);
 
-            ris = GaussIntegration.IntegrationQuadrilateral(F, j, nrpoints);
+            ris = OldGaussIntegration.IntegrationQuadrilateral(F, j, nrpoints);
             Assert.AreEqual(constant * (1.0*1.0*1.0)/3.0 * 1.0, ris[0, 0], 0.0000000000001);
         }
 
@@ -348,7 +352,7 @@ namespace FemTest.SolverTest
 
             var j = FEMUtilities.J2D(LinearShapeFunctionQuad4.DNdCsi, LinearShapeFunctionQuad4.DNdEta, nds);
 
-            var ris = GaussIntegration.IntegrationQuadrilateral(F, j, nrpoints);
+            var ris = OldGaussIntegration.IntegrationQuadrilateral(F, j, nrpoints);
             Assert.AreEqual(constant * ((1.0 * 1.0 * 1.0) - (-1.0 * -1.0 * -1.0)) / 3.0 * 2.0, ris[0, 0], 0.00000000001);
 
             nds[0] = new Node(0.0, 0.0, 0, "1");
@@ -366,7 +370,7 @@ namespace FemTest.SolverTest
 
             j = FEMUtilities.J2D(LinearShapeFunctionQuad4.DNdCsi, LinearShapeFunctionQuad4.DNdEta, nds);
 
-            ris = GaussIntegration.IntegrationQuadrilateral(F, j, nrpoints);
+            ris = OldGaussIntegration.IntegrationQuadrilateral(F, j, nrpoints);
             Assert.AreEqual(constant * (1.0 * 1.0 * 1.0) / 3.0 * 1.0, ris[0, 0],0.000000001);
         }
 
@@ -394,7 +398,7 @@ namespace FemTest.SolverTest
             };
 
             var j = FEMUtilities.J3D(TriLinearShapeFunctionHexaedron8.DNdCsi, TriLinearShapeFunctionHexaedron8.DNdEta, TriLinearShapeFunctionHexaedron8.DNdZeta, nds);
-            var ris = GaussIntegration.IntegrationHexaedron(F, j, nrpoints);
+            var ris = OldGaussIntegration.IntegrationHexaedron(F, j, nrpoints);
             double volume = 2.0 * 2.0 * 2.0;
             Assert.AreEqual(constant * volume, ris[0, 0], 0.00000000001);
 
@@ -410,7 +414,7 @@ namespace FemTest.SolverTest
 
             volume = 2.0 * 1.0 * 3.0;
             j = FEMUtilities.J3D(TriLinearShapeFunctionHexaedron8.DNdCsi, TriLinearShapeFunctionHexaedron8.DNdEta, TriLinearShapeFunctionHexaedron8.DNdZeta, nds);
-            ris = GaussIntegration.IntegrationHexaedron(F, j, nrpoints);
+            ris = OldGaussIntegration.IntegrationHexaedron(F, j, nrpoints);
             Assert.AreEqual(constant * volume, ris[0, 0], 0.00000000001);
         }
 
@@ -438,7 +442,7 @@ namespace FemTest.SolverTest
             };
 
             var j = FEMUtilities.J3D(TriLinearShapeFunctionHexaedron8.DNdCsi, TriLinearShapeFunctionHexaedron8.DNdEta, TriLinearShapeFunctionHexaedron8.DNdZeta, nds);
-            var ris = GaussIntegration.IntegrationHexaedron(F, j, nrpoints);
+            var ris = OldGaussIntegration.IntegrationHexaedron(F, j, nrpoints);
             double volume = 2.0 * 2.0 * 2.0;
             Assert.AreEqual(constant * volume, ris[0, 0], 0.00000000001);
 
@@ -454,7 +458,7 @@ namespace FemTest.SolverTest
 
             volume = 2.0 * 1.0 * 3.0;
             j = FEMUtilities.J3D(TriLinearShapeFunctionHexaedron8.DNdCsi, TriLinearShapeFunctionHexaedron8.DNdEta, TriLinearShapeFunctionHexaedron8.DNdZeta, nds);
-            ris = GaussIntegration.IntegrationHexaedron(F, j, nrpoints);
+            ris = OldGaussIntegration.IntegrationHexaedron(F, j, nrpoints);
             Assert.AreEqual(constant * volume, ris[0, 0], 0.00000000001);
         }
 
@@ -485,7 +489,7 @@ namespace FemTest.SolverTest
             };
 
             var j = FEMUtilities.J3D(TriLinearShapeFunctionHexaedron8.DNdCsi, TriLinearShapeFunctionHexaedron8.DNdEta, TriLinearShapeFunctionHexaedron8.DNdZeta, nds);
-            var ris = GaussIntegration.IntegrationHexaedron(F, j, nrpoints);
+            var ris = OldGaussIntegration.IntegrationHexaedron(F, j, nrpoints);
             
             Func<double, double, double> integral = (double start, double end) => { return 1.0 / 2.0 * (end * end - start * start); };
 
@@ -512,7 +516,7 @@ namespace FemTest.SolverTest
             };
 
             j = FEMUtilities.J3D(TriLinearShapeFunctionHexaedron8.DNdCsi, TriLinearShapeFunctionHexaedron8.DNdEta, TriLinearShapeFunctionHexaedron8.DNdZeta, nds);
-            ris = GaussIntegration.IntegrationHexaedron(F, j, nrpoints);
+            ris = OldGaussIntegration.IntegrationHexaedron(F, j, nrpoints);
             Assert.AreEqual(constant * integral(0, 2) * integral(0, 1) * integral(0, 3), ris[0, 0], 0.00000000001);
         }
 
@@ -543,7 +547,7 @@ namespace FemTest.SolverTest
             };
 
             var j = FEMUtilities.J3D(TriLinearShapeFunctionHexaedron8.DNdCsi, TriLinearShapeFunctionHexaedron8.DNdEta, TriLinearShapeFunctionHexaedron8.DNdZeta, nds);
-            var ris = GaussIntegration.IntegrationHexaedron(F, j, nrpoints);
+            var ris = OldGaussIntegration.IntegrationHexaedron(F, j, nrpoints);
 
             Func<double, double, double> integral = (double start, double end) => { return 1.0 / 2.0 * (end * end - start * start); };
 
@@ -570,7 +574,7 @@ namespace FemTest.SolverTest
             };
 
             j = FEMUtilities.J3D(TriLinearShapeFunctionHexaedron8.DNdCsi, TriLinearShapeFunctionHexaedron8.DNdEta, TriLinearShapeFunctionHexaedron8.DNdZeta, nds);
-            ris = GaussIntegration.IntegrationHexaedron(F, j, nrpoints);
+            ris = OldGaussIntegration.IntegrationHexaedron(F, j, nrpoints);
             Assert.AreEqual(constant * integral(0, 2) * integral(0, 1) * integral(0, 3), ris[0, 0], 0.00000000001);
         }
 
@@ -601,7 +605,7 @@ namespace FemTest.SolverTest
             };
 
             var j = FEMUtilities.J3D(TriLinearShapeFunctionHexaedron8.DNdCsi, TriLinearShapeFunctionHexaedron8.DNdEta, TriLinearShapeFunctionHexaedron8.DNdZeta, nds);
-            var ris = GaussIntegration.IntegrationHexaedron(F, j, nrpoints);
+            var ris = OldGaussIntegration.IntegrationHexaedron(F, j, nrpoints);
 
             Func<double, double, double> integral = (double start, double end) => { return 1.0 / 3.0 * (end * end * end - start * start * start); };
 
@@ -628,9 +632,12 @@ namespace FemTest.SolverTest
             };
 
             j = FEMUtilities.J3D(TriLinearShapeFunctionHexaedron8.DNdCsi, TriLinearShapeFunctionHexaedron8.DNdEta, TriLinearShapeFunctionHexaedron8.DNdZeta, nds);
-            ris = GaussIntegration.IntegrationHexaedron(F, j, nrpoints);
+            ris = OldGaussIntegration.IntegrationHexaedron(F, j, nrpoints);
             Assert.AreEqual(constant * integral(0, 2) * integral(0, 1) * integral(0, 3), ris[0, 0], 0.00000000001);
         }
+
+        #endregion
+
         #region New Gauss Integration
         
 		#region Linear Shape Function
