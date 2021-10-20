@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace GPC.Model.FEM.GaussIntegration
+namespace GPC.Model.Maths.GaussIntegrations
 {
 	public class TriangleGaussPoints 
 	{

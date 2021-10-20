@@ -6,7 +6,7 @@ using GPC.Utilities.Fem;
 using mnl = MathNet.Numerics.LinearAlgebra;
 using GPC.Model.FEM.FiniteElements;
 using GPC.Geometry;
-using GPC.Model.FEM.GaussIntegration;
+using GPC.Model.Maths.GaussIntegrations;
 
 namespace FemTest.SolverTest
 {
@@ -777,7 +777,7 @@ namespace FemTest.SolverTest
             Func<double, double, double> func = (double x, double y) => x;
             double expValue = 85.5;
 
-            int nrGaussPoints = 32;
+            int nrGaussPoints = 33;
             double result = GaussIntegration.IntegrationTriangularLinearShapeFunction(func, vertices, nrGaussPoints);
             Assert.IsTrue(Math.Abs((result - expValue) / result) < 0.01, $"1) calculated value: {result}, expValue: {expValue}");
 
@@ -801,7 +801,7 @@ namespace FemTest.SolverTest
             Func<double, double, double> func = (double x, double y) => x;
             double expValue = 126;
 
-            int nrGaussPoints = 32;
+            int nrGaussPoints = 33;
             double result = GaussIntegration.IntegrationTriangularLinearShapeFunction(func, vertices, nrGaussPoints);
             Assert.IsTrue(Math.Abs((result - expValue) / result) < 0.01, $"1) calculated value: {result}, expValue: {expValue}");
 
@@ -826,7 +826,7 @@ namespace FemTest.SolverTest
             Func<double, double, double> func = (double x, double y) => x;
             double expValue = 354.66666;
 
-            int nrGaussPoints = 32;
+            int nrGaussPoints = 33;
             double result = GaussIntegration.IntegrationTriangularLinearShapeFunction(func, vertices, nrGaussPoints);
             Assert.IsTrue(Math.Abs((result - expValue) / result) < 0.01, $"1) calculated value: {result}, expValue: {expValue}");
 
@@ -851,7 +851,7 @@ namespace FemTest.SolverTest
             Func<double, double, double> func = (double x, double y) =>  y ;
             double expValue = 466.6666;
 
-            int nrGaussPoints = 32;
+            int nrGaussPoints = 33;
             double result = GaussIntegration.IntegrationTriangularLinearShapeFunction(func, vertices, nrGaussPoints);
             Assert.IsTrue(Math.Abs((result - expValue) / result) < 0.01, $"1) calculated value: {result}, expValue: {expValue}");
 
@@ -1007,19 +1007,19 @@ namespace FemTest.SolverTest
             Func<double, double, double> func = (double x, double y) => x;
             double expValue = 85.5;
 
-            int nrGaussPoints = 32;
+            int nrGaussPoints = 4;
             double result = GaussIntegration.IntegrationTriangularQuadraticShapeFunction(func, vertices, nrGaussPoints);
             Assert.IsTrue(Math.Abs((result - expValue) / result) < 0.01, $"1) calculated value: {result}, expValue: {expValue}");
 
-            nrGaussPoints = 12;
+            nrGaussPoints = 6;
             result = GaussIntegration.IntegrationTriangularQuadraticShapeFunction(func, vertices, nrGaussPoints);
             Assert.IsTrue(Math.Abs((result - expValue) / result) < 0.01, $"2) calculated value: {result}, expValue: {expValue}");
 
-            nrGaussPoints = 6;
+            nrGaussPoints = 12;
             result = GaussIntegration.IntegrationTriangularQuadraticShapeFunction(func, vertices, nrGaussPoints);
             Assert.IsTrue(Math.Abs((result - expValue) / result) < 0.01, $"3) calculated value: {result}, expValue: {expValue}");
 
-            nrGaussPoints = 4;
+            nrGaussPoints = 33;
             result = GaussIntegration.IntegrationTriangularQuadraticShapeFunction(func, vertices, nrGaussPoints);
             Assert.IsTrue(Math.Abs((result - expValue) / result) < 0.01, $"4) calculated value: {result}, expValue: {expValue}");
         }
@@ -1031,7 +1031,7 @@ namespace FemTest.SolverTest
             Func<double, double, double> func = (double x, double y) => x;
             double expValue = 126;
 
-            int nrGaussPoints = 32;
+            int nrGaussPoints = 33;
             double result = GaussIntegration.IntegrationTriangularQuadraticShapeFunction(func, vertices, nrGaussPoints);
             Assert.IsTrue(Math.Abs((result - expValue) / result) < 0.01, $"1) calculated value: {result}, expValue: {expValue}");
 
@@ -1056,7 +1056,7 @@ namespace FemTest.SolverTest
             Func<double, double, double> func = (double x, double y) => x;
             double expValue = 354.66666;
 
-            int nrGaussPoints = 32;
+            int nrGaussPoints = 33;
             double result = GaussIntegration.IntegrationTriangularQuadraticShapeFunction(func, vertices, nrGaussPoints);
             Assert.IsTrue(Math.Abs((result - expValue) / result) < 0.01, $"1) calculated value: {result}, expValue: {expValue}");
 
@@ -1081,7 +1081,7 @@ namespace FemTest.SolverTest
             Func<double, double, double> func = (double x, double y) => y;
             double expValue = 466.6666;
 
-            int nrGaussPoints = 32;
+            int nrGaussPoints = 33;
             double result = GaussIntegration.IntegrationTriangularQuadraticShapeFunction(func, vertices, nrGaussPoints);
             Assert.IsTrue(Math.Abs((result - expValue) / result) < 0.01, $"1) calculated value: {result}, expValue: {expValue}");
 

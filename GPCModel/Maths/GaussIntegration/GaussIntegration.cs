@@ -7,14 +7,14 @@ using GPC.Geometry;
 using MathNet.Numerics.LinearAlgebra;
 using GPC.Utilities.Fem;
 
-namespace GPC.Model.FEM.GaussIntegration
+namespace GPC.Model.Maths.GaussIntegrations
 {
 	public static class GaussIntegration
 	{
 		#region Triangular element
 
 		public static double IntegrationTriangular(Func<double, double, double> function, Point3d[] vertices, int numberOfGaussPoints, Func<int, double, double, double> shapeFunction, 
-            Func<int, double, double, double> derivRespectCsi, Func<int, double, double, double> derivRespectEta)
+            Func<int, double, double, double> dNdCsi, Func<int, double, double, double> dNdEta, int numberOFShapeFunction)
 		{
             if (vertices.Length != 3)
                 throw new ArgumentException("Point must be 3. Polygon must be a triangle");
@@ -38,7 +38,7 @@ namespace GPC.Model.FEM.GaussIntegration
                 case 12:
                     gaussPoints = TriangleGaussPoints.Tri12;
                     break;
-                case 32:
+                case 33:
                     gaussPoints = TriangleGaussPoints.Tri33;
                     break;
 
@@ -46,29 +46,51 @@ namespace GPC.Model.FEM.GaussIntegration
                     throw new ArgumentException("Wrong number of Gauss Points");
             }
 
-            var jacobian = JacobianMatrix2D(derivRespectCsi, derivRespectEta, vertices);
+            Point3d[] shapeFunctionNode = new Point3d[numberOFShapeFunction];
+
+            if (numberOFShapeFunction == vertices.Length)
+            {
+                shapeFunctionNode = vertices;
+            }
+            else
+            {
+                Parallel.For(0, vertices.Length, (i) =>
+                {
+                    shapeFunctionNode[i] = vertices[i];
+                });
+
+                Parallel.For(0, vertices.Length, (i) =>
+                {
+                    if (i != vertices.Length - 1)
+                        shapeFunctionNode[vertices.Length + i] = (vertices[i] + vertices[i + 1]) / 2.0;
+                    else
+                        shapeFunctionNode[vertices.Length + i] = (vertices[i] + vertices[0]) / 2.0;
+                });
+            }
+
+            var jacobian = JacobianMatrix2D(dNdCsi, dNdEta, shapeFunctionNode);
 
             double[] ris = new double[gaussPoints.Length];
 
             Parallel.For(0, gaussPoints.Length, (i) =>
             {
-                Point3d point = GaussIntegration.GetLocalCoordinate2D(gaussPoints[i].Csi, gaussPoints[i].Eta, shapeFunction, vertices);
+                Point3d point = GaussIntegration.GetLocalCoordinate2D(gaussPoints[i].Csi, gaussPoints[i].Eta, shapeFunction, shapeFunctionNode);
                 ris[i] = gaussPoints[i].Weight * jacobian(gaussPoints[i].Csi, gaussPoints[i].Eta).Determinant() * function(point.X, point.Y);
             });
-                
+            
             return ris.Sum() / 2.0;
         }
 
         public static double IntegrationTriangularLinearShapeFunction(Func<double, double, double> function, Point3d[] vertices, int numberOfGaussPoints)
 		{
             return IntegrationTriangular(function, vertices, numberOfGaussPoints, LinearShapeFunctionsTri3.NaturalShapeFunction, 
-                LinearShapeFunctionsTri3.DNdCsi, LinearShapeFunctionsTri3.DNdEta);
+                LinearShapeFunctionsTri3.DNdCsi, LinearShapeFunctionsTri3.DNdEta, 3);
 		}
 
         public static double IntegrationTriangularQuadraticShapeFunction(Func<double, double, double> function, Point3d[] vertices, int numberOfGaussPoints)
         {
             return IntegrationTriangular(function, vertices, numberOfGaussPoints, QuadraticShapeFunctionsTri6.NaturalShapeFunction, 
-                QuadraticShapeFunctionsTri6.DNdCsi, QuadraticShapeFunctionsTri6.DNdEta);
+                QuadraticShapeFunctionsTri6.DNdCsi, QuadraticShapeFunctionsTri6.DNdEta, 6);
         }
 
 		#endregion
@@ -76,7 +98,7 @@ namespace GPC.Model.FEM.GaussIntegration
 		#region Quadrangular element
 
 		public static double IntegrationQuadrilateral(Func<double, double, double> function, Point3d[] vertices, int numberOfGaussPoints, Func<int, double, double, double> shapeFunction,
-            Func<int, double, double, double> derivRespectCsi, Func<int, double, double, double> derivRespectEta)
+            Func<int, double, double, double> derivRespectCsi, Func<int, double, double, double> derivRespectEta, int numberOFShapeFunction)
         {
             if (vertices.Length != 4)
                 throw new ArgumentException("Polygon must be a quadrilateral");
@@ -102,13 +124,35 @@ namespace GPC.Model.FEM.GaussIntegration
                     throw new ArgumentException("Wrong number of Gauss Points");
             }
 
-            var jacobian = JacobianMatrix2D(derivRespectCsi, derivRespectEta, vertices);
+            Point3d[] shapeFunctionNode = new Point3d[numberOFShapeFunction];
+
+            if (numberOFShapeFunction == vertices.Length)
+            {
+                shapeFunctionNode = vertices;
+            }
+            else
+            {
+                Parallel.For(0, vertices.Length, (i) =>
+                {
+                    shapeFunctionNode[i] = vertices[i];
+                });
+
+                Parallel.For(0, vertices.Length, (i) =>
+                {
+                    if (i != vertices.Length - 1)
+                        shapeFunctionNode[vertices.Length + i] = (vertices[i] + vertices[i + 1]) / 2.0;
+                    else
+                        shapeFunctionNode[vertices.Length + i] = (vertices[i] + vertices[0]) / 2.0;
+                });
+            }
+
+            var jacobian = JacobianMatrix2D(derivRespectCsi, derivRespectEta, shapeFunctionNode);
 
             double[] ris = new double[gaussPoints.Length];
 
             Parallel.For(0, gaussPoints.Length, (i) =>
             {
-                Point3d point = GaussIntegration.GetLocalCoordinate2D(gaussPoints[i].Csi, gaussPoints[i].Eta, shapeFunction, vertices);
+                Point3d point = GaussIntegration.GetLocalCoordinate2D(gaussPoints[i].Csi, gaussPoints[i].Eta, shapeFunction, shapeFunctionNode);
                 ris[i] = gaussPoints[i].Weight * jacobian(gaussPoints[i].Csi, gaussPoints[i].Eta).Determinant() * function(point.X, point.Y);
             });
 
@@ -118,13 +162,13 @@ namespace GPC.Model.FEM.GaussIntegration
         public static double IntegrationQuadrilateralLinearShapeFunction(Func<double, double, double> function, Point3d[] vertices, int numberOfGaussPoints)
         {
             return IntegrationQuadrilateral(function, vertices, numberOfGaussPoints, LinearShapeFunctionQuad4.NaturalShapeFunction,
-                LinearShapeFunctionQuad4.DNdCsi, LinearShapeFunctionQuad4.DNdEta);
+                LinearShapeFunctionQuad4.DNdCsi, LinearShapeFunctionQuad4.DNdEta, 4);
         }
 
         public static double IntegrationQuadrilateralQuadraticShapeFunction(Func<double, double, double> function, Point3d[] vertices, int numberOfGaussPoints)
         {
             return IntegrationQuadrilateral(function, vertices, numberOfGaussPoints, QuadraticShapeFunctionQuad8.NaturalShapeFunction,
-                QuadraticShapeFunctionQuad8.DNdCsi, QuadraticShapeFunctionQuad8.DNdEta);
+                QuadraticShapeFunctionQuad8.DNdCsi, QuadraticShapeFunctionQuad8.DNdEta, 8);
         }
 
 		#endregion
@@ -175,9 +219,10 @@ namespace GPC.Model.FEM.GaussIntegration
         /// Return J(csi,eta) = J(csi,eta,dNdCsi, dNdEta,nodes) with "nodes" and derivative of shape function assigned
         /// arg1 = dFdInput1; arg1 = dFdInput2, arg3 = nodes
         /// </summary>
-        public static Func<double, double, Matrix<double>> JacobianMatrix2D(Func<int, double, double, double> dFdInput1, Func<int, double, double, double> dFdInput2, Point3d[] points)
+        public static Func<double, double, Matrix<double>> JacobianMatrix2D(Func<int, double, double, double> dNdCsi, 
+            Func<int, double, double, double> dNdEta, Point3d[] points)
         {
-            return (double csi, double eta) => Jacob2D(csi, eta, dFdInput1, dFdInput2, points);
+            return (double csi, double eta) => Jacob2D(csi, eta, dNdCsi, dNdEta, points);
         }
 
         /// <summary>
@@ -197,26 +242,21 @@ namespace GPC.Model.FEM.GaussIntegration
         /// dx/dCsi, dy/dCsi
         /// dy/dEta, dy/dEta
         /// </returns>
-        public static Matrix<double> Jacob2D(double csi, double eta, Func<int, double, double, double> dNdCsi, Func<int, double, double, double> dNdEta, Point3d[] points)
+        public static Matrix<double> Jacob2D(double csi, double eta, Func<int, double, double, double> dNdCsi,
+            Func<int, double, double, double> dNdEta, Point3d[] points)
         {
             double[] j11 = new double[points.Length];
             double[] j12 = new double[points.Length];
             double[] j21 = new double[points.Length];
             double[] j22 = new double[points.Length];
 
-
-            Parallel.For(0, points.Length, (node) =>
+            Parallel.For(0, points.Length, (i) =>
             {
-                int i = node + 1;
-                double xi = points[node].X;
-                double yi = points[node].Y;
-
-                j11[node] = dNdCsi(i, csi, eta) * xi;
-                j12[node] = dNdCsi(i, csi, eta) * yi;
-                j21[node] = dNdEta(i, csi, eta) * xi;
-                j22[node] = dNdEta(i, csi, eta) * yi;
+                j11[i] = dNdCsi(i + 1, csi, eta) * points[i].X;
+                j12[i] = dNdCsi(i + 1, csi, eta) * points[i].Y;
+                j21[i] = dNdEta(i + 1, csi, eta) * points[i].X;
+                j22[i] = dNdEta(i + 1, csi, eta) * points[i].Y;
             });
-
 
             Matrix<double> J = Matrix<double>.Build.Dense(2, 2);
 
@@ -348,7 +388,7 @@ namespace GPC.Model.FEM.GaussIntegration
             double valueY = 0;
 
             for (int i = 1; i <= points.Length; i++)
-            {                
+            {
                 valueX += shapeFunction(i, csi, eta) * points[i - 1].X;
                 valueY += shapeFunction(i, csi, eta) * points[i - 1].Y;
             }
