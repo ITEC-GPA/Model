@@ -286,6 +286,9 @@ namespace GPC.Model.Maths.GaussIntegrations
                 case 121:
                     gaussPoints = QuadrangleGaussPoints.Quad121;
                     break;
+                case 400:
+                    gaussPoints = QuadrangleGaussPoints.Quad400;
+                    break;
 
                 default:
                     throw new ArgumentException("Wrong number of Gauss Points");
