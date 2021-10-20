@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -173,7 +173,78 @@ namespace GPC.Model.Maths.GaussIntegrations
 
 		#endregion
 
-		#region 1D
+        #region Hexaedron element
+
+        /// <summary>
+        /// Calculate the integral of function <paramref name="function"/> on the domain <paramref name="vertices"/>
+        /// </summary>
+        /// <param name="function">The function (with variables x and y) to integrate</param>
+        /// <param name="vertices">The vertices of the domain. Vertices must be 8</param>
+        /// <param name="numberOfGaussPoints">The number of Gauss points</param>
+        /// <param name="shapeFunction">The shape function for coordinate transformation</param>
+        /// <param name="dNdCsi">The partial derivative of shape function respect the variable csi</param>
+        /// <param name="dNdEta">The partial derivative of shape function respect the variable eta</param>/param>
+        /// <param name="dNdZeta">The partial derivative of shape function respect the variable zeta</param>/param>
+        /// <param name="numberOFShapeFunction">The number of shape function</param>
+        /// <returns>The value of the integral</returns>
+        /// <remarks>The vertices must be added with this order:
+        /// Bottom, clockwise order. Top, clockwise order. The 1st must be associated with 5th, 2nd with 6th, 3rd with 7th and 4th with 8th
+        /// </remarks>
+        public static double IntegrationHexaedron(Func<double, double, double, double> function, Point3d[] vertices, int numberOfGaussPoints,
+            Func<int, double, double, double, double> shapeFunction, Func<int, double, double, double, double> dNdCsi,
+            Func<int, double, double, double, double> dNdEta, Func<int, double, double, double, double> dNdZeta, int numberOFShapeFunction)
+        {
+            if (vertices.Length != 8)
+                throw new ArgumentException("Points must be 8. Polygon must be a Hexaedron");
+
+            GaussPoint[] gaussPoints;
+
+            switch (numberOfGaussPoints)
+            {
+                case 1:
+                    gaussPoints = HexahedroGaussPoints.Hexa1;
+                    break;
+                case 8:
+                    gaussPoints = HexahedroGaussPoints.Hexa8;
+                    break;
+
+                default:
+                    throw new ArgumentException("Wrong number of Gauss Points");
+            }
+
+            Point3d[] shapeFunctionNode = new Point3d[numberOFShapeFunction];
+
+            if (numberOFShapeFunction == vertices.Length)
+            {
+                shapeFunctionNode = vertices;
+            }
+            else
+            {
+                throw new NotImplementedException("Quadratic shape function not implemented");
+            }
+
+            var jacobian = JacobianMatrix3D(dNdCsi, dNdEta, dNdZeta, shapeFunctionNode);
+
+            double[] ris = new double[gaussPoints.Length];
+
+            Parallel.For(0, gaussPoints.Length, (i) =>
+            {
+                Point3d point = GaussIntegration.TransformNaturalCoordToGlobalCoord(gaussPoints[i].Csi, gaussPoints[i].Eta, gaussPoints[i].Zeta, shapeFunction, shapeFunctionNode);
+                ris[i] = gaussPoints[i].Weight * jacobian(gaussPoints[i].Csi, gaussPoints[i].Eta, gaussPoints[i].Zeta).Determinant() * function(point.X, point.Y, point.Z);
+            });
+
+            return ris.Sum();
+        }
+
+        public static double IntegrationHexaedronLinearShapeFunction(Func<double, double, double, double> function, Point3d[] vertices, int numberOfGaussPoints)
+        {
+            return IntegrationHexaedron(function, vertices, numberOfGaussPoints, TriLinearShapeFunctionHexaedron8.NaturalShapeFunction,
+                TriLinearShapeFunctionHexaedron8.DNdCsi, TriLinearShapeFunctionHexaedron8.DNdEta, TriLinearShapeFunctionHexaedron8.DNdZeta, 8);
+        }
+
+        #endregion
+
+        #region 1D
 
 		/// <summary>
 		/// Matrice jacobiana per cambiamento di variabile
@@ -293,7 +364,7 @@ namespace GPC.Model.Maths.GaussIntegrations
         /// dy/dEta, dy/dEta, dz/dEta
         /// dz/dEta, dz/dEta, dz/dZeta
         /// </returns>
-        public static Matrix<double> Jacob3D(double csi, double eta, double zeta, Func<int, double, double, double, double> dNdCsi, 
+        private static Matrix<double> Jacob3D(double csi, double eta, double zeta, Func<int, double, double, double, double> dNdCsi,
             Func<int, double, double, double, double> dNdEta, Func<int, double, double, double, double> dNdZeta, Point3d[] points)
         {
             double j11 = 0.0;
@@ -308,21 +379,19 @@ namespace GPC.Model.Maths.GaussIntegrations
             double j32 = 0.0;
             double j33 = 0.0;
 
-            Parallel.For(0, points.Length, (node) =>
+            Parallel.For(0, points.Length, (i) =>
             {
-                int i = node + 1;
+                j11 += dNdCsi(i + 1, csi, eta, zeta) * points[i].X;
+                j12 += dNdCsi(i + 1, csi, eta, zeta) * points[i].Y;
+                j13 += dNdCsi(i + 1, csi, eta, zeta) * points[i].Z;
 
-                j11 += dNdCsi(i, csi, eta, zeta) * points[node].X;
-                j12 += dNdCsi(i, csi, eta, zeta) * points[node].Y;
-                j13 += dNdCsi(i, csi, eta, zeta) * points[node].Z;
+                j21 += dNdEta(i + 1, csi, eta, zeta) * points[i].X;
+                j22 += dNdEta(i + 1, csi, eta, zeta) * points[i].Y;
+                j23 += dNdEta(i + 1, csi, eta, zeta) * points[i].Z;
 
-                j21 += dNdEta(i, csi, eta, zeta) * points[node].X;
-                j22 += dNdEta(i, csi, eta, zeta) * points[node].Y;
-                j23 += dNdEta(i, csi, eta, zeta) * points[node].Z;
-
-                j31 += dNdZeta(i, csi, eta, zeta) * points[node].X;
-                j32 += dNdZeta(i, csi, eta, zeta) * points[node].Y;
-                j33 += dNdZeta(i, csi, eta, zeta) * points[node].Z;
+                j31 += dNdZeta(i + 1, csi, eta, zeta) * points[i].X;
+                j32 += dNdZeta(i + 1, csi, eta, zeta) * points[i].Y;
+                j33 += dNdZeta(i + 1, csi, eta, zeta) * points[i].Z;
             });
 
             Matrix<double> J = Matrix<double>.Build.Dense(3, 3);
@@ -346,40 +415,30 @@ namespace GPC.Model.Maths.GaussIntegrations
         /// Return J(x,y,z) = J(x,y,z, dNdCsi, dNdEta,dNdZeta, nodes) with "nodes" and derivative of shape function assigned
         /// arg1 = dFdInput1; arg2 = dFdInput2, arg3 = dFdInput3, arg4 = nodes
         /// </summary>
-        public static Func<double, double, double, Matrix<double>> JacobianMatrix3D(Func<int, double, double, double, double> dFdInput1, 
-            Func<int, double, double, double, double> dFdInput2, Func<int, double, double, double, double> dFdInput3, Point3d[] points)
+        private static Func<double, double, double, Matrix<double>> JacobianMatrix3D(Func<int, double, double, double, double> dNdCsi,
+            Func<int, double, double, double, double> dNdEta, Func<int, double, double, double, double> dNdZeta, Point3d[] points)
         {
-            return (double input1, double input2, double input3) => Jacob3D(input1, input2, input3, dFdInput1, dFdInput2, dFdInput3, points);
+            return (double input1, double input2, double input3) => Jacob3D(input1, input2, input3, dNdCsi, dNdEta, dNdZeta, points);
         }
 
         #endregion
 
         #region GetXYZ
 
-        public static double GetLocalCoordinate3D(string direction, double csi, double eta, double zeta, Func<int, double, double, double, double> shapeFunction, Polygon3d poly)
+        private static Point3d TransformNaturalCoordToGlobalCoord(double csi, double eta, double zeta, Func<int, double, double, double, double> shapeFunction, Point3d[] vertices)
         {
-            double val = 0;
+            double[] valueX = new double[vertices.Length];
+            double[] valueY = new double[vertices.Length];
+            double[] valueZ = new double[vertices.Length];
 
-            for (int i = 1; i <= poly.Count; i++)
+            for (int i = 0; i < vertices.Length; i++)
             {
-                double factor;
-                switch (direction.ToUpper())
-                {
-                    case "X":
-                        factor = poly[i - 1].X;
-                        break;
-                    case "Y":
-                        factor = poly[i - 1].Y;
-                        break;
-                    case "Z":
-                        factor = poly[i - 1].Z;
-                        break;
-                    default:
-                        throw new IndexOutOfRangeException("direction can be X, Y or Z");
-                }
-                val += shapeFunction(i, csi, eta, zeta) * factor;
+                valueX[i] = shapeFunction(i + 1, csi, eta, zeta) * vertices[i].X;
+                valueY[i] = shapeFunction(i + 1, csi, eta, zeta) * vertices[i].Y;
+                valueZ[i] = shapeFunction(i + 1, csi, eta, zeta) * vertices[i].Y;
             }
-            return val;
+
+            return new Point3d(valueX.Sum(), valueY.Sum(), valueZ.Sum());
         }
 
         public static Point3d GetLocalCoordinate2D(double csi, double eta, Func<int, double, double, double> shapeFunction, Point3d[] points)
