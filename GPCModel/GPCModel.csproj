@@ -81,6 +81,12 @@
     <Compile Include="FEM\Attributes\AttributeEqualityComparer.cs" />
     <Compile Include="FEM\Attributes\LoadCase\ModelGravityAttribute.cs" />
     <Compile Include="FEM\Collections\AttributesCollection.cs" />
+    <Compile Include="FEM\GaussIntegration\GaussIntegration.cs" />
+    <Compile Include="FEM\GaussIntegration\GaussPoints.cs" />
+    <Compile Include="FEM\GaussIntegration\HexahedroGaussPoints.cs" />
+    <Compile Include="FEM\GaussIntegration\LineGaussPoints.cs" />
+    <Compile Include="FEM\GaussIntegration\QuadrangleGaussPoints.cs" />
+    <Compile Include="FEM\GaussIntegration\TriangleGaussPoints.cs" />
     <Compile Include="Loads\IConvertibleLoad.cs" />
     <Compile Include="Materials\ConcreteMaterialACI318.cs" />
     <Compile Include="Materials\ConcreteMaterialEN1992.cs" />
