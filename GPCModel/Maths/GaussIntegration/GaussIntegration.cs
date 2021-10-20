@@ -290,7 +290,7 @@ namespace GPC.Model.Maths.GaussIntegrations
         /// Return J(csi,eta) = J(csi,eta,dNdCsi, dNdEta,nodes) with "nodes" and derivative of shape function assigned
         /// arg1 = dFdInput1; arg1 = dFdInput2, arg3 = nodes
         /// </summary>
-        public static Func<double, double, Matrix<double>> JacobianMatrix2D(Func<int, double, double, double> dNdCsi, 
+        private static Func<double, double, Matrix<double>> JacobianMatrix2D(Func<int, double, double, double> dNdCsi,
             Func<int, double, double, double> dNdEta, Point3d[] points)
         {
             return (double csi, double eta) => Jacob2D(csi, eta, dNdCsi, dNdEta, points);
@@ -313,7 +313,7 @@ namespace GPC.Model.Maths.GaussIntegrations
         /// dx/dCsi, dy/dCsi
         /// dy/dEta, dy/dEta
         /// </returns>
-        public static Matrix<double> Jacob2D(double csi, double eta, Func<int, double, double, double> dNdCsi,
+        private static Matrix<double> Jacob2D(double csi, double eta, Func<int, double, double, double> dNdCsi,
             Func<int, double, double, double> dNdEta, Point3d[] points)
         {
             double[] j11 = new double[points.Length];
@@ -441,18 +441,18 @@ namespace GPC.Model.Maths.GaussIntegrations
             return new Point3d(valueX.Sum(), valueY.Sum(), valueZ.Sum());
         }
 
-        public static Point3d GetLocalCoordinate2D(double csi, double eta, Func<int, double, double, double> shapeFunction, Point3d[] points)
+        private static Point3d TransformNaturalCoordToGlobalCoord(double csi, double eta, Func<int, double, double, double> shapeFunction, Point3d[] points)
         {
-            double valueX = 0;
-            double valueY = 0;
+            double[] valueX = new double[points.Length];
+            double[] valueY = new double[points.Length];
 
-            for (int i = 1; i <= points.Length; i++)
+            for (int i = 0; i < points.Length; i++)
             {
-                valueX += shapeFunction(i, csi, eta) * points[i - 1].X;
-                valueY += shapeFunction(i, csi, eta) * points[i - 1].Y;
+                valueX[i] = shapeFunction(i + 1, csi, eta) * points[i].X;
+                valueY[i] = shapeFunction(i + 1, csi, eta) * points[i].Y;
             }
 
-            return new Point3d(valueX, valueY, 0);
+            return new Point3d(valueX.Sum(), valueY.Sum(), 0);
         }
 
         public static Point3d GetLocalCoordinate1D(double csi, Func<int, double, double> shapeFunction, Line3d line)
