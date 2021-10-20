@@ -738,6 +738,18 @@ namespace MathTest
             nrGaussPoints = 12;
             result = GaussIntegration.IntegrationQuadrilateralLinearShapeFunction(func, poly, nrGaussPoints);
             Assert.IsTrue(Math.Abs((result - expValue) / result) < 0.01, $"3) calculated value: {result}, expValue: {expValue}");
+
+            nrGaussPoints = 25;
+            result = GaussIntegration.IntegrationQuadrilateralLinearShapeFunction(func, poly, nrGaussPoints);
+            Assert.IsTrue(Math.Abs((result - expValue) / result) < 0.01, $"4) calculated value: {result}, expValue: {expValue}");
+
+            nrGaussPoints = 49;
+            result = GaussIntegration.IntegrationQuadrilateralLinearShapeFunction(func, poly, nrGaussPoints);
+            Assert.IsTrue(Math.Abs((result - expValue) / result) < 0.01, $"5) calculated value: {result}, expValue: {expValue}");
+
+            nrGaussPoints = 121;
+            result = GaussIntegration.IntegrationQuadrilateralLinearShapeFunction(func, poly, nrGaussPoints);
+            Assert.IsTrue(Math.Abs((result - expValue) / result) < 0.01, $"6) calculated value: {result}, expValue: {expValue}");
         }
 
         [TestMethod]
@@ -760,6 +772,18 @@ namespace MathTest
             nrGaussPoints = 12;
             result = GaussIntegration.IntegrationQuadrilateralLinearShapeFunction(func, poly, nrGaussPoints);
             Assert.IsTrue(Math.Abs((result - expValue) / result) < 0.01, $"3) calculated value: {result}, expValue: {expValue}");
+
+            nrGaussPoints = 25;
+            result = GaussIntegration.IntegrationQuadrilateralLinearShapeFunction(func, poly, nrGaussPoints);
+            Assert.IsTrue(Math.Abs((result - expValue) / result) < 0.01, $"4) calculated value: {result}, expValue: {expValue}");
+
+            nrGaussPoints = 49;
+            result = GaussIntegration.IntegrationQuadrilateralLinearShapeFunction(func, poly, nrGaussPoints);
+            Assert.IsTrue(Math.Abs((result - expValue) / result) < 0.01, $"5) calculated value: {result}, expValue: {expValue}");
+
+            nrGaussPoints = 121;
+            result = GaussIntegration.IntegrationQuadrilateralLinearShapeFunction(func, poly, nrGaussPoints);
+            Assert.IsTrue(Math.Abs((result - expValue) / result) < 0.01, $"6) calculated value: {result}, expValue: {expValue}");
         }
 
         [TestMethod]
@@ -782,6 +806,18 @@ namespace MathTest
             nrGaussPoints = 12;
             result = GaussIntegration.IntegrationQuadrilateralLinearShapeFunction(func, poly, nrGaussPoints);
             Assert.IsTrue(Math.Abs((result - expValue) / result) < 0.01, $"3) calculated value: {result}, expValue: {expValue}");
+
+            nrGaussPoints = 25;
+            result = GaussIntegration.IntegrationQuadrilateralLinearShapeFunction(func, poly, nrGaussPoints);
+            Assert.IsTrue(Math.Abs((result - expValue) / result) < 0.01, $"4) calculated value: {result}, expValue: {expValue}");
+
+            nrGaussPoints = 49;
+            result = GaussIntegration.IntegrationQuadrilateralLinearShapeFunction(func, poly, nrGaussPoints);
+            Assert.IsTrue(Math.Abs((result - expValue) / result) < 0.01, $"5) calculated value: {result}, expValue: {expValue}");
+
+            nrGaussPoints = 121;
+            result = GaussIntegration.IntegrationQuadrilateralLinearShapeFunction(func, poly, nrGaussPoints);
+            Assert.IsTrue(Math.Abs((result - expValue) / result) < 0.01, $"6) calculated value: {result}, expValue: {expValue}");
         }
 
         [TestMethod]
@@ -802,6 +838,18 @@ namespace MathTest
             nrGaussPoints = 12;
             result = GaussIntegration.IntegrationQuadrilateralLinearShapeFunction(func, poly, nrGaussPoints);
             Assert.IsTrue(Math.Abs((result - expValue) / result) < 0.01, $"3) calculated value: {result}, expValue: {expValue}");
+
+            nrGaussPoints = 25;
+            result = GaussIntegration.IntegrationQuadrilateralLinearShapeFunction(func, poly, nrGaussPoints);
+            Assert.IsTrue(Math.Abs((result - expValue) / result) < 0.01, $"4) calculated value: {result}, expValue: {expValue}");
+
+            nrGaussPoints = 49;
+            result = GaussIntegration.IntegrationQuadrilateralLinearShapeFunction(func, poly, nrGaussPoints);
+            Assert.IsTrue(Math.Abs((result - expValue) / result) < 0.01, $"5) calculated value: {result}, expValue: {expValue}");
+
+            nrGaussPoints = 121;
+            result = GaussIntegration.IntegrationQuadrilateralLinearShapeFunction(func, poly, nrGaussPoints);
+            Assert.IsTrue(Math.Abs((result - expValue) / result) < 0.01, $"6) calculated value: {result}, expValue: {expValue}");
         }
 
         [TestMethod]
@@ -822,6 +870,18 @@ namespace MathTest
             nrGaussPoints = 12;
             result = GaussIntegration.IntegrationQuadrilateralLinearShapeFunction(func, poly, nrGaussPoints);
             Assert.IsTrue(Math.Abs((result - expValue) / result) < 0.01, $"3) calculated value: {result}, expValue: {expValue}");
+
+            nrGaussPoints = 25;
+            result = GaussIntegration.IntegrationQuadrilateralLinearShapeFunction(func, poly, nrGaussPoints);
+            Assert.IsTrue(Math.Abs((result - expValue) / result) < 0.01, $"4) calculated value: {result}, expValue: {expValue}");
+
+            nrGaussPoints = 49;
+            result = GaussIntegration.IntegrationQuadrilateralLinearShapeFunction(func, poly, nrGaussPoints);
+            Assert.IsTrue(Math.Abs((result - expValue) / result) < 0.01, $"5) calculated value: {result}, expValue: {expValue}");
+
+            nrGaussPoints = 121;
+            result = GaussIntegration.IntegrationQuadrilateralLinearShapeFunction(func, poly, nrGaussPoints);
+            Assert.IsTrue(Math.Abs((result - expValue) / result) < 0.01, $"6) calculated value: {result}, expValue: {expValue}");
         }
 
         [TestMethod]
@@ -844,6 +904,18 @@ namespace MathTest
             nrGaussPoints = 12;
             result = GaussIntegration.IntegrationQuadrilateralLinearShapeFunction(func, poly, nrGaussPoints);
             Assert.IsTrue(Math.Abs((result - expValue) / result) < 0.01, $"3) calculated value: {result}, expValue: {expValue}");
+
+            nrGaussPoints = 25;
+            result = GaussIntegration.IntegrationQuadrilateralLinearShapeFunction(func, poly, nrGaussPoints);
+            Assert.IsTrue(Math.Abs((result - expValue) / result) < 0.01, $"4) calculated value: {result}, expValue: {expValue}");
+
+            nrGaussPoints = 49;
+            result = GaussIntegration.IntegrationQuadrilateralLinearShapeFunction(func, poly, nrGaussPoints);
+            Assert.IsTrue(Math.Abs((result - expValue) / result) < 0.01, $"5) calculated value: {result}, expValue: {expValue}");
+
+            nrGaussPoints = 121;
+            result = GaussIntegration.IntegrationQuadrilateralLinearShapeFunction(func, poly, nrGaussPoints);
+            Assert.IsTrue(Math.Abs((result - expValue) / result) < 0.01, $"6) calculated value: {result}, expValue: {expValue}");
         }
 
         [TestMethod]
@@ -968,6 +1040,18 @@ namespace MathTest
             nrGaussPoints = 12;
             result = GaussIntegration.IntegrationQuadrilateralQuadraticShapeFunction(func, poly, nrGaussPoints);
             Assert.IsTrue(Math.Abs((result - expValue) / result) < 0.01, $"3) calculated value: {result}, expValue: {expValue}");
+
+            nrGaussPoints = 25;
+            result = GaussIntegration.IntegrationQuadrilateralLinearShapeFunction(func, poly, nrGaussPoints);
+            Assert.IsTrue(Math.Abs((result - expValue) / result) < 0.01, $"4) calculated value: {result}, expValue: {expValue}");
+
+            nrGaussPoints = 49;
+            result = GaussIntegration.IntegrationQuadrilateralLinearShapeFunction(func, poly, nrGaussPoints);
+            Assert.IsTrue(Math.Abs((result - expValue) / result) < 0.01, $"5) calculated value: {result}, expValue: {expValue}");
+
+            nrGaussPoints = 121;
+            result = GaussIntegration.IntegrationQuadrilateralLinearShapeFunction(func, poly, nrGaussPoints);
+            Assert.IsTrue(Math.Abs((result - expValue) / result) < 0.01, $"6) calculated value: {result}, expValue: {expValue}");
         }
 
         [TestMethod]
@@ -990,6 +1074,18 @@ namespace MathTest
             nrGaussPoints = 12;
             result = GaussIntegration.IntegrationQuadrilateralQuadraticShapeFunction(func, poly, nrGaussPoints);
             Assert.IsTrue(Math.Abs((result - expValue) / result) < 0.01, $"3) calculated value: {result}, expValue: {expValue}");
+
+            nrGaussPoints = 25;
+            result = GaussIntegration.IntegrationQuadrilateralLinearShapeFunction(func, poly, nrGaussPoints);
+            Assert.IsTrue(Math.Abs((result - expValue) / result) < 0.01, $"4) calculated value: {result}, expValue: {expValue}");
+
+            nrGaussPoints = 49;
+            result = GaussIntegration.IntegrationQuadrilateralLinearShapeFunction(func, poly, nrGaussPoints);
+            Assert.IsTrue(Math.Abs((result - expValue) / result) < 0.01, $"5) calculated value: {result}, expValue: {expValue}");
+
+            nrGaussPoints = 121;
+            result = GaussIntegration.IntegrationQuadrilateralLinearShapeFunction(func, poly, nrGaussPoints);
+            Assert.IsTrue(Math.Abs((result - expValue) / result) < 0.01, $"6) calculated value: {result}, expValue: {expValue}");
         }
 
         [TestMethod]
@@ -1012,6 +1108,18 @@ namespace MathTest
             nrGaussPoints = 12;
             result = GaussIntegration.IntegrationQuadrilateralQuadraticShapeFunction(func, poly, nrGaussPoints);
             Assert.IsTrue(Math.Abs((result - expValue) / result) < 0.01, $"3) calculated value: {result}, expValue: {expValue}");
+
+            nrGaussPoints = 25;
+            result = GaussIntegration.IntegrationQuadrilateralLinearShapeFunction(func, poly, nrGaussPoints);
+            Assert.IsTrue(Math.Abs((result - expValue) / result) < 0.01, $"4) calculated value: {result}, expValue: {expValue}");
+
+            nrGaussPoints = 49;
+            result = GaussIntegration.IntegrationQuadrilateralLinearShapeFunction(func, poly, nrGaussPoints);
+            Assert.IsTrue(Math.Abs((result - expValue) / result) < 0.01, $"5) calculated value: {result}, expValue: {expValue}");
+
+            nrGaussPoints = 121;
+            result = GaussIntegration.IntegrationQuadrilateralLinearShapeFunction(func, poly, nrGaussPoints);
+            Assert.IsTrue(Math.Abs((result - expValue) / result) < 0.01, $"6) calculated value: {result}, expValue: {expValue}");
         }
 
         [TestMethod]
@@ -1032,6 +1140,18 @@ namespace MathTest
             nrGaussPoints = 12;
             result = GaussIntegration.IntegrationQuadrilateralQuadraticShapeFunction(func, poly, nrGaussPoints);
             Assert.IsTrue(Math.Abs((result - expValue) / result) < 0.01, $"3) calculated value: {result}, expValue: {expValue}");
+
+            nrGaussPoints = 25;
+            result = GaussIntegration.IntegrationQuadrilateralLinearShapeFunction(func, poly, nrGaussPoints);
+            Assert.IsTrue(Math.Abs((result - expValue) / result) < 0.01, $"4) calculated value: {result}, expValue: {expValue}");
+
+            nrGaussPoints = 49;
+            result = GaussIntegration.IntegrationQuadrilateralLinearShapeFunction(func, poly, nrGaussPoints);
+            Assert.IsTrue(Math.Abs((result - expValue) / result) < 0.01, $"5) calculated value: {result}, expValue: {expValue}");
+
+            nrGaussPoints = 121;
+            result = GaussIntegration.IntegrationQuadrilateralLinearShapeFunction(func, poly, nrGaussPoints);
+            Assert.IsTrue(Math.Abs((result - expValue) / result) < 0.01, $"6) calculated value: {result}, expValue: {expValue}");
         }
 
         [TestMethod]
@@ -1052,6 +1172,18 @@ namespace MathTest
             nrGaussPoints = 12;
             result = GaussIntegration.IntegrationQuadrilateralQuadraticShapeFunction(func, poly, nrGaussPoints);
             Assert.IsTrue(Math.Abs((result - expValue) / result) < 0.01, $"3) calculated value: {result}, expValue: {expValue}");
+
+            nrGaussPoints = 25;
+            result = GaussIntegration.IntegrationQuadrilateralLinearShapeFunction(func, poly, nrGaussPoints);
+            Assert.IsTrue(Math.Abs((result - expValue) / result) < 0.01, $"4) calculated value: {result}, expValue: {expValue}");
+
+            nrGaussPoints = 49;
+            result = GaussIntegration.IntegrationQuadrilateralLinearShapeFunction(func, poly, nrGaussPoints);
+            Assert.IsTrue(Math.Abs((result - expValue) / result) < 0.01, $"5) calculated value: {result}, expValue: {expValue}");
+
+            nrGaussPoints = 121;
+            result = GaussIntegration.IntegrationQuadrilateralLinearShapeFunction(func, poly, nrGaussPoints);
+            Assert.IsTrue(Math.Abs((result - expValue) / result) < 0.01, $"6) calculated value: {result}, expValue: {expValue}");
         }
 
         [TestMethod]
@@ -1074,6 +1206,18 @@ namespace MathTest
             nrGaussPoints = 12;
             result = GaussIntegration.IntegrationQuadrilateralQuadraticShapeFunction(func, poly, nrGaussPoints);
             Assert.IsTrue(Math.Abs((result - expValue) / result) < 0.01, $"3) calculated value: {result}, expValue: {expValue}");
+
+            nrGaussPoints = 25;
+            result = GaussIntegration.IntegrationQuadrilateralLinearShapeFunction(func, poly, nrGaussPoints);
+            Assert.IsTrue(Math.Abs((result - expValue) / result) < 0.01, $"4) calculated value: {result}, expValue: {expValue}");
+
+            nrGaussPoints = 49;
+            result = GaussIntegration.IntegrationQuadrilateralLinearShapeFunction(func, poly, nrGaussPoints);
+            Assert.IsTrue(Math.Abs((result - expValue) / result) < 0.01, $"5) calculated value: {result}, expValue: {expValue}");
+
+            nrGaussPoints = 121;
+            result = GaussIntegration.IntegrationQuadrilateralLinearShapeFunction(func, poly, nrGaussPoints);
+            Assert.IsTrue(Math.Abs((result - expValue) / result) < 0.01, $"6) calculated value: {result}, expValue: {expValue}");
         }
 
         [TestMethod]

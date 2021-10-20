@@ -16,6 +16,16 @@ namespace GPC.Model.Maths.GaussIntegrations
     {
         #region Line element
 
+        /// <summary>
+        /// Calculate the integral of function <paramref name="function"/> on the domain <paramref name="vertices"/>
+        /// </summary>
+        /// <param name="function">The function (with variables x and y) to integrate</param>
+        /// <param name="vertices">The vertices of the domain. Vertices must be 3</param>
+        /// <param name="numberOfGaussPoints">The number of Gauss points</param>
+        /// <param name="shapeFunction">The shape function for coordinate transformation</param>
+        /// <param name="dNdCsi">The partial derivative of shape function respect the variable csi</param>
+        /// <param name="numberOFShapeFunction">The number of shape function</param>
+        /// <returns>The value of the integral</returns>
         public static double IntegrationLine(Func<double, double, double> function, Point3d[] vertices, int numberOfGaussPoints, 
             Func<int, double, double> shapeFunction, Func<int, double, double> dNdCsi, int numberOFShapeFunction)
         {
@@ -91,13 +101,29 @@ namespace GPC.Model.Maths.GaussIntegrations
             return ris.Sum();
         }
 
+        /// <summary>
+        /// Calculate the integral of function <paramref name="function"/> on the domain <paramref name="vertices"/>
+        /// </summary>
+        /// <param name="function">The function (with variables x and y) to integrate</param>
+        /// <param name="vertices">The vertices of the domain. Vertices must be 2</param>
+        /// <param name="numberOfGaussPoints">The number of Gauss points</param>
+        /// <returns>The value of the integral</returns>
+        /// <remarks>Linear shape function and its derivative are used</remarks>
         public static double IntegrationLineLinearShapeFunction(Func<double, double, double> function, Point3d[] vertices, int numberOfGaussPoints)
         {
             return IntegrationLine(function, vertices, numberOfGaussPoints, LinearShapeFunctionsLine2.NaturalShapeFunction,
                 LinearShapeFunctionsLine2.DNdCsi, 2);
         }
 
-		public static double IntegrationLineQuadraticShapeFunction(Func<double, double, double> function, Point3d[] vertices, int numberOfGaussPoints)
+        /// <summary>
+        /// Calculate the integral of function <paramref name="function"/> on the domain <paramref name="vertices"/>
+        /// </summary>
+        /// <param name="function">The function (with variables x and y) to integrate</param>
+        /// <param name="vertices">The vertices of the domain. Vertices must be 2</param>
+        /// <param name="numberOfGaussPoints">The number of Gauss points</param>
+        /// <returns>The value of the integral</returns>
+        /// <remarks>Quadratic shape function and its derivative are used</remarks>
+        public static double IntegrationLineQuadraticShapeFunction(Func<double, double, double> function, Point3d[] vertices, int numberOfGaussPoints)
 		{
 			return IntegrationLine(function, vertices, numberOfGaussPoints, QuadraticShapeFunctionLine3.NaturalShapeFunction,
 				QuadraticShapeFunctionLine3.DNdCsi, 3);
@@ -251,6 +277,15 @@ namespace GPC.Model.Maths.GaussIntegrations
                 case 12:
                     gaussPoints = QuadrangleGaussPoints.Quad12;
                     break;
+                case 25:
+                    gaussPoints = QuadrangleGaussPoints.Quad25;
+                    break;
+                case 49:
+                    gaussPoints = QuadrangleGaussPoints.Quad25;
+                    break;
+                case 121:
+                    gaussPoints = QuadrangleGaussPoints.Quad121;
+                    break;
 
                 default:
                     throw new ArgumentException("Wrong number of Gauss Points");
@@ -402,10 +437,10 @@ namespace GPC.Model.Maths.GaussIntegrations
         /// => dN/dLocal = J^-1 * dN/dNatural;
         /// => dF/dNatural = J^-1 dF/dLocal;
         /// </summary>
-        /// <param name="csi">coordinata naturale</param>
-        /// <param name="dNdCsi">derivata funzioni di forma rispetto a Csi che descrive la GEOMETRIA (passaggio da coordinate locali a naturali) in funzione dell'indice di nodo e coordinate naturali</param>
-        /// <param name="points"></param>
-        /// <returns>
+        /// <param name="csi">Nataral coordinate</param>
+        /// <param name="dNdCsi">The partial derivative of shape function respect the variable csi</param>
+        /// <param name="points">The domain of integration</param>
+        /// <returns>Matric
         /// dx/dCsi, dy/dCsi
         /// dy/dEta, dy/dEta
         /// </returns>
