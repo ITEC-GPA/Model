@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
@@ -159,7 +159,7 @@
     <Compile Include="FEM\FiniteElements\PlateRectangular\Quad4Membranal.cs" />
     <Compile Include="FEM\FiniteElements\PlateRectangular\Quad4Element.cs" />
     <Compile Include="FEM\FiniteElements\Brick\Tethraedron4.cs" />
-    <Compile Include="FEM\GaussIntegration.cs" />
+    <Compile Include="FEM\OldGaussIntegration.cs" />
     <Compile Include="FEM\FemMaterials\FemMaterial.cs" />
     <Compile Include="FEM\FemMaterials\IsotropicFemMaterial.cs" />
     <Compile Include="FEM\FemMaterials\OrthotropicFemMaterial.cs" />

@@ -165,7 +165,7 @@ namespace GPC.Model.FEM.FiniteElements
                 return FEMUtilities.Jacob2D(csi, eta, LinearShapeFunctionQuad4.DNdCsi, LinearShapeFunctionQuad4.DNdEta, _localNodes);
             };
 
-            mnl.Matrix<double> kSymmetric = GaussIntegration.IntegrationQuadrilateral(BtraspDB, jacobiano, 9); //9 points by reference article 1990
+            mnl.Matrix<double> kSymmetric = OldGaussIntegration.IntegrationQuadrilateral(BtraspDB, jacobiano, 9); //9 points by reference article 1990
 
             kSymmetric = thk * kSymmetric;
             Console.WriteLine("k symm tensor =");
@@ -183,7 +183,7 @@ namespace GPC.Model.FEM.FiniteElements
                 return bSigned.Transpose() * bSigned;
             };
 
-            mnl.Matrix<double> P = GaussIntegration.IntegrationQuadrilateral(bTraspb, jacobiano, 1); //1 gauss point reference article 1990
+            mnl.Matrix<double> P = OldGaussIntegration.IntegrationQuadrilateral(bTraspb, jacobiano, 1); //1 gauss point reference article 1990
 
             P = thk * rho * P;
             Console.WriteLine("rho = G = " + rho);

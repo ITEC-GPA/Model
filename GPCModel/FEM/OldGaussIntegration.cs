@@ -8,7 +8,7 @@ using mnl = MathNet.Numerics.LinearAlgebra;
 
 namespace GPC.Model.FEM
 {
-    public static class GaussIntegration
+    public static class OldGaussIntegration
     {
         public static mnl.Matrix<double> IntegrationTriangular(Func<double, double, mnl.Matrix<double>> GetM, Func<double, double, mnl.Matrix<double>> Jacob, int nrPoints)
         {

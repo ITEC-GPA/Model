@@ -185,8 +185,8 @@ namespace GPC.Model.FEM.FiniteElements
 
             Func<double, double, mnl.Matrix<double>> jacob = FEMUtilities.J2D(Quad4Element.GetdNdCsi, Quad4Element.GetdNdEta, _nodesLocal);
 
-            _kLayer = GaussIntegration.IntegrationQuadrilateral(fKLayer, jacob, 16);
-            _kGlass = GaussIntegration.IntegrationQuadrilateral(fKGlass, jacob, 16);
+            _kLayer = OldGaussIntegration.IntegrationQuadrilateral(fKLayer, jacob, 16);
+            _kGlass = OldGaussIntegration.IntegrationQuadrilateral(fKGlass, jacob, 16);
 
             _kElementLocalCoord = _kLayer + _kGlass;
 
@@ -243,7 +243,7 @@ namespace GPC.Model.FEM.FiniteElements
                     }
 
                     var jacob = FEMUtilities.J2D(Quad4Element.GetdNdCsi, Quad4Element.GetdNdEta, _nodesLocal);
-                    mnl.Matrix<double> f = GaussIntegration.IntegrationQuadrilateral(NtTraspQ, jacob, 9);
+                    mnl.Matrix<double> f = OldGaussIntegration.IntegrationQuadrilateral(NtTraspQ, jacob, 9);
                     for (int i = 0; i < f.RowCount; i++)
                     {
                         fLocalCoord[i] = f[i, 0];

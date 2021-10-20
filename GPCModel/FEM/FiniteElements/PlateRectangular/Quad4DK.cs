@@ -250,7 +250,7 @@ namespace GPC.Model.FEM.FiniteElements
 
             var jacob = FEMUtilities.J2D(Quad4Element.GetdNdCsi, Quad4Element.GetdNdEta, _nodesLocal);
 
-            _kElementLocalCoord = GaussIntegration.IntegrationQuadrilateral(bTdb, jacob, 4);
+            _kElementLocalCoord = OldGaussIntegration.IntegrationQuadrilateral(bTdb, jacob, 4);
             #endregion
         }
 
@@ -303,7 +303,7 @@ namespace GPC.Model.FEM.FiniteElements
                     }
 
                     var jacob = FEMUtilities.J2D(Quad4Element.GetdNdCsi, Quad4Element.GetdNdEta, _nodesLocal);
-                    var f = GaussIntegration.IntegrationQuadrilateral(wDotp, jacob, 4);
+                    var f = OldGaussIntegration.IntegrationQuadrilateral(wDotp, jacob, 4);
 
                     _fLocalCoord[0] = f[0,0]; //node1
                     _fLocalCoord[3] = f[1,0]; //node2

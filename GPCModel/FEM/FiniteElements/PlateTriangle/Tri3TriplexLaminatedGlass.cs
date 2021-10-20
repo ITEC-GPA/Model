@@ -207,8 +207,8 @@ namespace GPC.Model.FEM.FiniteElements
 
             Func<double, double, mnl.Matrix<double>> jacob = FEMUtilities.J2D(Tri3Element.GetdNdCsi, Tri3Element.GetdNdEta, _nodesLocal);
             
-            _kLayer = GaussIntegration.IntegrationTriangular(fKLayer, jacob, 3);
-            _kGlass = GaussIntegration.IntegrationTriangular(fKGlass, jacob, 3);
+            _kLayer = OldGaussIntegration.IntegrationTriangular(fKLayer, jacob, 3);
+            _kGlass = OldGaussIntegration.IntegrationTriangular(fKGlass, jacob, 3);
 
             /*Console.WriteLine(_nodesLocal[0].Position);
             Console.WriteLine(_nodesLocal[1].Position);
@@ -322,7 +322,7 @@ namespace GPC.Model.FEM.FiniteElements
                         
                         return Ni * pz;
                     }
-                    mnl.Matrix<double> fDKT = GaussIntegration.IntegrationTriangular(Np, jacob, 3);
+                    mnl.Matrix<double> fDKT = OldGaussIntegration.IntegrationTriangular(Np, jacob, 3);
                     #endregion
 
                     /*for (int i = 0; i < f.RowCount; i++)

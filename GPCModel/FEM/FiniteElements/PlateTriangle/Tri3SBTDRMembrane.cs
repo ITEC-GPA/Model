@@ -197,7 +197,7 @@ namespace GPC.Model.FEM.FiniteElements
 
             //calculation of kelement using gauss quadrature
             _kElementLocalCoord = mnl.Matrix<double>.Build.Dense(9, 9);
-            GaussIntegration.GaussPoint[] gaussPoints = GaussIntegration.GetPointsTriangular(3);
+            OldGaussIntegration.GaussPoint[] gaussPoints = OldGaussIntegration.GetPointsTriangular(3);
             for (int i = 0; i < gaussPoints.Length; i++) //trhough the 3 gauss points
             {
                 double csi = gaussPoints[i].Point.X;

@@ -214,8 +214,8 @@ namespace GPC.Model.FEM.FiniteElements
 
             Func<double, double, mnl.Matrix<double>> jacob = FEMUtilities.J2D(Quad4Element.GetdNdCsi, Quad4Element.GetdNdEta, _nodesLocal);
 
-            _kLayer = GaussIntegration.IntegrationQuadrilateral(fKLayer, jacob, 4);
-            _kGlass = GaussIntegration.IntegrationQuadrilateral(fKGlass, jacob, 4);
+            _kLayer = OldGaussIntegration.IntegrationQuadrilateral(fKLayer, jacob, 4);
+            _kGlass = OldGaussIntegration.IntegrationQuadrilateral(fKGlass, jacob, 4);
 
             _kLocalUnordered = _kLayer + _kGlass; //equation 28
 
@@ -316,7 +316,7 @@ namespace GPC.Model.FEM.FiniteElements
 
                         return Ni * pz;
                     }
-                    mnl.Matrix<double> fDKT = GaussIntegration.IntegrationQuadrilateral(Np, jacob, 9);
+                    mnl.Matrix<double> fDKT = OldGaussIntegration.IntegrationQuadrilateral(Np, jacob, 9);
                     #endregion
 
                     /*for (int i = 0; i < f.RowCount; i++)

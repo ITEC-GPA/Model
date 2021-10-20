@@ -179,7 +179,7 @@ namespace GPC.Model.FEM.FiniteElements
 
             var jacob = FEMUtilities.J2D(Tri3Element.GetdNdCsi, Tri3Element.GetdNdEta, _nodesLocal);
 
-            _kElementLocalCoord = GaussIntegration.IntegrationTriangular(bTdb, jacob, 3);
+            _kElementLocalCoord = OldGaussIntegration.IntegrationTriangular(bTdb, jacob, 3);
             #endregion
         }
 

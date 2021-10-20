@@ -115,7 +115,7 @@ namespace FemTest.SolverTest
             nds[2] = new Node(+1.0, +1.0, 0, "3");
             nds[3] = new Node(-1.0, +1.0, 0, "4");
 
-            GaussIntegration.GaussPoint[] pts =  GaussIntegration.GetPointsRectangular(9);
+            OldGaussIntegration.GaussPoint[] pts =  OldGaussIntegration.GetPointsRectangular(9);
 
             mnl.Matrix<double> M = mnl.Matrix<double>.Build.Dense(11,11);
             for (int i = 0; i < pts.Length; i++)

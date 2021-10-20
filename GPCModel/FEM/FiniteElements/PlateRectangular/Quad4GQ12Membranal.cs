@@ -196,7 +196,7 @@ namespace GPC.Model.FEM.FiniteElements
                 mnl.Matrix<double> B = BMatrix(csi, eta, _nodesLocal);
                 return B.Transpose() * _d * B;
             };
-            mnl.Matrix<double> k = thk * GaussIntegration.IntegrationQuadrilateral(BTraspDB, funJacobiano, 9);
+            mnl.Matrix<double> k = thk * OldGaussIntegration.IntegrationQuadrilateral(BTraspDB, funJacobiano, 9);
 
             _kElementLocalCoord = k;
             /*Console.WriteLine("KElementLocalCoord = ");
