@@ -10,7 +10,98 @@ using GPC.Utilities.Fem;
 namespace GPC.Model.Maths.GaussIntegrations
 {
 	public static class GaussIntegration
-	{
+    {
+        #region Line element
+
+        public static double IntegrationLine(Func<double, double, double> function, Point3d[] vertices, int numberOfGaussPoints, 
+            Func<int, double, double> shapeFunction, Func<int, double, double> dNdCsi, int numberOFShapeFunction)
+        {
+            if (vertices.Length != 2)
+                throw new ArgumentException("Points must be 2. Domain must be a triangle");
+
+            GaussPoint[] gaussPoints;
+
+            switch (numberOfGaussPoints)
+            {
+                case 1:
+                    gaussPoints = LineGaussPoints.Line1;
+                    break;
+                case 2:
+                    gaussPoints = LineGaussPoints.Line2;
+                    break;
+                case 3:
+                    gaussPoints = LineGaussPoints.Line3;
+                    break;
+                case 4:
+                    gaussPoints = LineGaussPoints.Line4;
+                    break;
+                case 6:
+                    gaussPoints = LineGaussPoints.Line6;
+                    break;
+                case 9:
+                    gaussPoints = LineGaussPoints.Line9;
+                    break;
+                case 16:
+                    gaussPoints = LineGaussPoints.Line16;
+                    break;
+                case 20:
+                    gaussPoints = LineGaussPoints.Line20;
+                    break;
+                case 32:
+                    gaussPoints = LineGaussPoints.Line32;
+                    break;
+
+                default:
+                    throw new ArgumentException("Wrong number of Gauss Points");
+            }
+
+            Point3d[] shapeFunctionNode = new Point3d[numberOFShapeFunction];
+
+            if (numberOFShapeFunction == vertices.Length)
+            {
+                shapeFunctionNode = vertices;
+            }
+            else
+            {
+                int degree = numberOFShapeFunction / vertices.Length;
+                Parallel.For(0, vertices.Length, (i) =>
+                {
+                    shapeFunctionNode[i] = vertices[i];
+                });
+
+                Parallel.For(0, numberOFShapeFunction - vertices.Length, (i) =>
+                {
+                    shapeFunctionNode[vertices.Length + i] = i * (vertices[i] + vertices[i + 1]) / degree;
+                });
+            }
+
+            var jacobian = JacobianMatrix1D(dNdCsi, vertices);
+
+            double[] ris = new double[gaussPoints.Length];
+
+            Parallel.For(0, gaussPoints.Length, (i) =>
+            {
+                Point3d point = GaussIntegration.TransformNaturalCoordToGlobalCoord(gaussPoints[i].Csi, shapeFunction, shapeFunctionNode);
+                ris[i] = gaussPoints[i].Weight * jacobian(gaussPoints[i].Csi).Determinant() * function(point.X, point.Y);
+            });
+            
+            return ris.Sum();
+        }
+
+        public static double IntegrationLineLinearShapeFunction(Func<double, double, double> function, Point3d[] vertices, int numberOfGaussPoints)
+        {
+            return IntegrationLine(function, vertices, numberOfGaussPoints, LinearShapeFunctionsLine2.NaturalShapeFunction,
+                LinearShapeFunctionsLine2.DNdCsi, 2);
+        }
+
+		public static double IntegrationLineQuadraticShapeFunction(Func<double, double, double> function, Point3d[] vertices, int numberOfGaussPoints)
+		{
+			return IntegrationLine(function, vertices, numberOfGaussPoints, QuadraticShapeFunctionLine3.NaturalShapeFunction,
+				QuadraticShapeFunctionLine3.DNdCsi, 3);
+		}
+
+		#endregion
+
 		#region Triangular element
 
 		public static double IntegrationTriangular(Func<double, double, double> function, Point3d[] vertices, int numberOfGaussPoints, Func<int, double, double, double> shapeFunction, 
@@ -249,26 +340,33 @@ namespace GPC.Model.Maths.GaussIntegrations
 		/// <summary>
 		/// Matrice jacobiana per cambiamento di variabile
 		/// dN/dCsi = dx/dCsi * dN/dx + dy/dCsi * dN/dy
-		/// dN/dEta = dx/dEta * dN/dx + dy/dEta * dN/dy
-		/// => dN/dNatural = J * dN/dLocal;
-		/// => dN/dLocal = J^-1 * dN/dNatural;
-		/// => dF/dNatural = J^-1 dF/dLocal;
-		/// </summary>
-		/// <param name="csi">coordinata naturale</param>
-		/// <param name="dNdCsi">derivata funzioni di forma rispetto a Csi che descrive la GEOMETRIA (passaggio da coordinate locali a naturali) in funzione dell'indice di nodo e coordinate naturali</param>
-		/// <param name="points"></param>
-		/// <returns>
-		/// dx/dCsi, dy/dCsi
-		/// dy/dEta, dy/dEta
-		/// </returns>
-		public static Matrix<double> Jacob1D(double csi, Func<int, double, double> dNdCsi, Point3d[] points)
+        /// dN/dEta = dx/dEta * dN/dx + dy/dEta * dN/dy
+        /// => dN/dNatural = J * dN/dLocal;
+        /// => dN/dLocal = J^-1 * dN/dNatural;
+        /// => dF/dNatural = J^-1 dF/dLocal;
+        /// </summary>
+        /// <param name="csi">coordinata naturale</param>
+        /// <param name="dNdCsi">derivata funzioni di forma rispetto a Csi che descrive la GEOMETRIA (passaggio da coordinate locali a naturali) in funzione dell'indice di nodo e coordinate naturali</param>
+        /// <param name="points"></param>
+        /// <returns>
+        /// dx/dCsi, dy/dCsi
+        /// dy/dEta, dy/dEta
+        /// </returns>
+        private static Matrix<double> Jacob1D(double csi, Func<int, double, double> dNdCsi, Point3d[] points)
         {
+            double[] j11 = new double[points.Length];
+
+            Parallel.For(0, points.Length, (i) =>
+            {
+                j11[i] = dNdCsi(i + 1, csi) * points[i].X;
+            });
+
             Matrix<double> J = Matrix<double>.Build.Dense(2, 2);
 
-            J[0, 0] = points[0].X * dNdCsi(1, csi) + points[0].X * dNdCsi(2, csi);
-            J[0, 1] = 0;
-            J[1, 0] = 0;
-            J[1, 1] = 1;
+            J[0, 0] = j11.Sum();
+            J[0, 1] = 0.0;
+            J[1, 0] = 0.0;
+            J[1, 1] = 1.0;
 
             return J;
         }
@@ -277,9 +375,9 @@ namespace GPC.Model.Maths.GaussIntegrations
         /// Return J(csi,eta) = J(csi,eta,dNdCsi, dNdEta,nodes) with "nodes" and derivative of shape function assigned
         /// arg1 = dFdInput1; arg1 = dFdInput2, arg3 = nodes
         /// </summary>
-        public static Func<double, Matrix<double>> JacobianMatrix1D(Func<int, double, double> dFdInput1, Point3d[] points)
+        private static Func<double, Matrix<double>> JacobianMatrix1D(Func<int, double, double> dNdCsi, Point3d[] points)
         {
-            return (double csi) => Jacob1D(csi, dFdInput1, points);
+            return (double csi) => Jacob1D(csi, dNdCsi, points);
         }
 
         #endregion
@@ -455,10 +553,10 @@ namespace GPC.Model.Maths.GaussIntegrations
             return new Point3d(valueX.Sum(), valueY.Sum(), 0);
         }
 
-        public static Point3d GetLocalCoordinate1D(double csi, Func<int, double, double> shapeFunction, Line3d line)
-		{
-            double valueX = shapeFunction(0, csi) * line.Start.X + shapeFunction(1, csi) * line.End.X;
-            double valueY = shapeFunction(0, csi) * line.Start.Y + shapeFunction(1, csi) * line.End.Y;
+        private static Point3d TransformNaturalCoordToGlobalCoord(double csi, Func<int, double, double> shapeFunction, Point3d[] points)
+        {
+            double valueX = shapeFunction(1, csi) * points[0].X + shapeFunction(2, csi) * points[1].X;
+            double valueY = shapeFunction(1, csi) * points[0].Y + shapeFunction(2, csi) * points[1].Y;
 
             return new Point3d(valueX, valueY, 0);
         }
