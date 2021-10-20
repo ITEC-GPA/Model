@@ -7,10 +7,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace UnitTest
+namespace MathTest
 {
 	[TestClass]
-	public class IntegrationTest : UnitTestBase
+	public class MathNetIntegrationTest : UnitTestBase
 	{
 		[TestMethod]
 		public void MathNumerics_GaussIntegration_Test1()

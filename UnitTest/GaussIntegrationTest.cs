@@ -8,7 +8,7 @@ using GPC.Model.FEM.FiniteElements;
 using GPC.Geometry;
 using GPC.Model.Maths.GaussIntegrations;
 
-namespace FemTest.SolverTest
+namespace MathTest
 {
     [TestClass]
     public class GaussIntegrationTest
