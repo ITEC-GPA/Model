@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -9,7 +9,10 @@ using GPC.Utilities.Fem;
 
 namespace GPC.Model.Maths.GaussIntegrations
 {
-	public static class GaussIntegration
+    /// <summary>
+    /// Class for integrate function with Gauss quadrature method
+    /// </summary>
+    public static class GaussIntegration
     {
         #region Line element
 
@@ -104,11 +107,22 @@ namespace GPC.Model.Maths.GaussIntegrations
 
 		#region Triangular element
 
-		public static double IntegrationTriangular(Func<double, double, double> function, Point3d[] vertices, int numberOfGaussPoints, Func<int, double, double, double> shapeFunction, 
+		/// <summary>
+		/// Calculate the integral of function <paramref name="function"/> on the domain <paramref name="vertices"/>
+		/// </summary>
+		/// <param name="function">The function (with variables x and y) to integrate</param>
+		/// <param name="vertices">The vertices of the domain. Vertices must be 3</param>
+		/// <param name="numberOfGaussPoints">The number of Gauss points</param>
+		/// <param name="shapeFunction">The shape function for coordinate transformation</param>
+		/// <param name="dNdCsi">The partial derivative of shape function respect the variable csi</param>
+		/// <param name="dNdEta">The partial derivative of shape function respect the variable eta</param>/param>
+		/// <param name="numberOFShapeFunction">The number of shape function</param>
+		/// <returns>The value of the integral</returns>
+		public static double IntegrationTriangular(Func<double, double, double> function, Point3d[] vertices, int numberOfGaussPoints, Func<int, double, double, double> shapeFunction,
             Func<int, double, double, double> dNdCsi, Func<int, double, double, double> dNdEta, int numberOFShapeFunction)
-		{
+        {
             if (vertices.Length != 3)
-                throw new ArgumentException("Point must be 3. Polygon must be a triangle");
+                throw new ArgumentException("Points must be 3. Domain must be a triangle");
 
             GaussPoint[] gaussPoints;
 
@@ -165,34 +179,61 @@ namespace GPC.Model.Maths.GaussIntegrations
 
             Parallel.For(0, gaussPoints.Length, (i) =>
             {
-                Point3d point = GaussIntegration.GetLocalCoordinate2D(gaussPoints[i].Csi, gaussPoints[i].Eta, shapeFunction, shapeFunctionNode);
+                Point3d point = GaussIntegration.TransformNaturalCoordToGlobalCoord(gaussPoints[i].Csi, gaussPoints[i].Eta, shapeFunction, shapeFunctionNode);
                 ris[i] = gaussPoints[i].Weight * jacobian(gaussPoints[i].Csi, gaussPoints[i].Eta).Determinant() * function(point.X, point.Y);
             });
-            
+
             return ris.Sum() / 2.0;
         }
 
+        /// <summary>
+        /// Calculate the integral of function <paramref name="function"/> on the domain <paramref name="vertices"/>
+        /// </summary>
+        /// <param name="function">The function (with variables x and y) to integrate</param>
+        /// <param name="vertices">The vertices of the domain. Vertices must be 3</param>
+        /// <param name="numberOfGaussPoints">The number of Gauss points</param>
+        /// <returns>The value of the integral</returns>
+        /// <remarks>Linear shape function and its derivative are used</remarks>
         public static double IntegrationTriangularLinearShapeFunction(Func<double, double, double> function, Point3d[] vertices, int numberOfGaussPoints)
-		{
-            return IntegrationTriangular(function, vertices, numberOfGaussPoints, LinearShapeFunctionsTri3.NaturalShapeFunction, 
+        {
+            return IntegrationTriangular(function, vertices, numberOfGaussPoints, LinearShapeFunctionsTri3.NaturalShapeFunction,
                 LinearShapeFunctionsTri3.DNdCsi, LinearShapeFunctionsTri3.DNdEta, 3);
-		}
+        }
 
+        /// <summary>
+        /// Calculate the integral of function <paramref name="function"/> on the domain <paramref name="vertices"/>
+        /// </summary>
+        /// <param name="function">The function (with variables x and y) to integrate</param>
+        /// <param name="vertices">The vertices of the domain. Vertices must be 3</param>
+        /// <param name="numberOfGaussPoints">The number of Gauss points</param>
+        /// <returns>The value of the integral</returns>
+        /// <remarks>Quadratic shape function and its derivative are used</remarks>
         public static double IntegrationTriangularQuadraticShapeFunction(Func<double, double, double> function, Point3d[] vertices, int numberOfGaussPoints)
         {
-            return IntegrationTriangular(function, vertices, numberOfGaussPoints, QuadraticShapeFunctionsTri6.NaturalShapeFunction, 
+            return IntegrationTriangular(function, vertices, numberOfGaussPoints, QuadraticShapeFunctionsTri6.NaturalShapeFunction,
                 QuadraticShapeFunctionsTri6.DNdCsi, QuadraticShapeFunctionsTri6.DNdEta, 6);
         }
 
-		#endregion
+        #endregion
 
-		#region Quadrangular element
+        #region Quadrangular element
 
-		public static double IntegrationQuadrilateral(Func<double, double, double> function, Point3d[] vertices, int numberOfGaussPoints, Func<int, double, double, double> shapeFunction,
-            Func<int, double, double, double> derivRespectCsi, Func<int, double, double, double> derivRespectEta, int numberOFShapeFunction)
+        /// <summary>
+        /// Calculate the integral of function <paramref name="function"/> on the domain <paramref name="vertices"/>
+        /// </summary>
+        /// <param name="function">The function (with variables x and y) to integrate</param>
+        /// <param name="vertices">The vertices of the domain. Vertices must be 4</param>
+        /// <param name="numberOfGaussPoints">The number of Gauss points</param>
+        /// <param name="shapeFunction">The shape function for coordinate transformation</param>
+        /// <param name="dNdCsi">The partial derivative of shape function respect the variable csi</param>
+        /// <param name="dNdEta">The partial derivative of shape function respect the variable eta</param>/param>
+        /// <param name="numberOFShapeFunction">The number of shape function</param>
+        /// <returns>The value of the integral</returns>
+        public static double IntegrationQuadrilateral(Func<double, double, double> function, Point3d[] vertices, int numberOfGaussPoints, Func<int, double, double, double> shapeFunction,
+            Func<int, double, double, double> dNdCsi, Func<int, double, double, double> dNdEta, int numberOFShapeFunction)
         {
             if (vertices.Length != 4)
-                throw new ArgumentException("Polygon must be a quadrilateral");
+                throw new ArgumentException("Points must be 4. Domain must be a quadrilateral");
 
             GaussPoint[] gaussPoints;
 
@@ -237,32 +278,48 @@ namespace GPC.Model.Maths.GaussIntegrations
                 });
             }
 
-            var jacobian = JacobianMatrix2D(derivRespectCsi, derivRespectEta, shapeFunctionNode);
+            var jacobian = JacobianMatrix2D(dNdCsi, dNdEta, shapeFunctionNode);
 
             double[] ris = new double[gaussPoints.Length];
 
             Parallel.For(0, gaussPoints.Length, (i) =>
             {
-                Point3d point = GaussIntegration.GetLocalCoordinate2D(gaussPoints[i].Csi, gaussPoints[i].Eta, shapeFunction, shapeFunctionNode);
+                Point3d point = GaussIntegration.TransformNaturalCoordToGlobalCoord(gaussPoints[i].Csi, gaussPoints[i].Eta, shapeFunction, shapeFunctionNode);
                 ris[i] = gaussPoints[i].Weight * jacobian(gaussPoints[i].Csi, gaussPoints[i].Eta).Determinant() * function(point.X, point.Y);
             });
 
             return ris.Sum();
         }
 
+        /// <summary>
+        /// Calculate the integral of function <paramref name="function"/> on the domain <paramref name="vertices"/>
+        /// </summary>
+        /// <param name="function">The function (with variables x and y) to integrate</param>
+        /// <param name="vertices">The vertices of the domain. Vertices must be 4</param>
+        /// <param name="numberOfGaussPoints">The number of Gauss points</param>
+        /// <returns>The value of the integral</returns>
+        /// <remarks>Linear shape function and its derivative are used</remarks>
         public static double IntegrationQuadrilateralLinearShapeFunction(Func<double, double, double> function, Point3d[] vertices, int numberOfGaussPoints)
         {
             return IntegrationQuadrilateral(function, vertices, numberOfGaussPoints, LinearShapeFunctionQuad4.NaturalShapeFunction,
                 LinearShapeFunctionQuad4.DNdCsi, LinearShapeFunctionQuad4.DNdEta, 4);
         }
 
+        /// <summary>
+        /// Calculate the integral of function <paramref name="function"/> on the domain <paramref name="vertices"/>
+        /// </summary>
+        /// <param name="function">The function (with variables x and y) to integrate</param>
+        /// <param name="vertices">The vertices of the domain. Vertices must be 4</param>
+        /// <param name="numberOfGaussPoints">The number of Gauss points</param>
+        /// <returns>The value of the integral</returns>
+        /// <remarks>Quadratic shape function and its derivative are used</remarks>
         public static double IntegrationQuadrilateralQuadraticShapeFunction(Func<double, double, double> function, Point3d[] vertices, int numberOfGaussPoints)
         {
             return IntegrationQuadrilateral(function, vertices, numberOfGaussPoints, QuadraticShapeFunctionQuad8.NaturalShapeFunction,
                 QuadraticShapeFunctionQuad8.DNdCsi, QuadraticShapeFunctionQuad8.DNdEta, 8);
         }
 
-		#endregion
+        #endregion
 
         #region Hexaedron element
 
@@ -337,9 +394,9 @@ namespace GPC.Model.Maths.GaussIntegrations
 
         #region 1D
 
-		/// <summary>
-		/// Matrice jacobiana per cambiamento di variabile
-		/// dN/dCsi = dx/dCsi * dN/dx + dy/dCsi * dN/dy
+        /// <summary>
+        /// Matrice jacobiana per cambiamento di variabile
+        /// dN/dCsi = dx/dCsi * dN/dx + dy/dCsi * dN/dy
         /// dN/dEta = dx/dEta * dN/dx + dy/dEta * dN/dy
         /// => dN/dNatural = J * dN/dLocal;
         /// => dN/dLocal = J^-1 * dN/dNatural;

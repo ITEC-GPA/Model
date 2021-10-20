@@ -639,10 +639,86 @@ namespace MathTest
         #endregion
 
         #region New Gauss Integration
-        
-		#region Linear Shape Function
 
-		[TestMethod]
+        #region Linear Shape Function
+
+        [TestMethod]
+        public void Line2Test1LSF()
+        {
+            double constant = 3.0;
+
+            Point3d[] poly = new Point3d[] { new Point3d(1.0, 1.0, 0), new Point3d(10.0, 1.0, 0) };
+            double expValue = 999;
+            Func<double, double, double> func = (x, y) => constant * x * x;
+
+            int nrGaussPoints = 3;
+            double result = GaussIntegration.IntegrationLineLinearShapeFunction(func, poly, nrGaussPoints);
+            Assert.IsTrue(Math.Abs((result - expValue) / result) < 0.01, $"1) calculated value: {result}, expValue: {expValue}");
+
+            nrGaussPoints = 4;
+            result = GaussIntegration.IntegrationLineLinearShapeFunction(func, poly, nrGaussPoints);
+            Assert.IsTrue(Math.Abs((result - expValue) / result) < 0.01, $"2) calculated value: {result}, expValue: {expValue}");
+
+            nrGaussPoints = 6;
+            result = GaussIntegration.IntegrationLineLinearShapeFunction(func, poly, nrGaussPoints);
+            Assert.IsTrue(Math.Abs((result - expValue) / result) < 0.01, $"2) calculated value: {result}, expValue: {expValue}");
+
+            nrGaussPoints = 9;
+            result = GaussIntegration.IntegrationLineLinearShapeFunction(func, poly, nrGaussPoints);
+            Assert.IsTrue(Math.Abs((result - expValue) / result) < 0.01, $"2) calculated value: {result}, expValue: {expValue}");
+
+            nrGaussPoints = 16;
+            result = GaussIntegration.IntegrationLineLinearShapeFunction(func, poly, nrGaussPoints);
+            Assert.IsTrue(Math.Abs((result - expValue) / result) < 0.01, $"3) calculated value: {result}, expValue: {expValue}");
+
+            nrGaussPoints = 32;
+            result = GaussIntegration.IntegrationLineLinearShapeFunction(func, poly, nrGaussPoints);
+            Assert.IsTrue(Math.Abs((result - expValue) / result) < 0.01, $"3) calculated value: {result}, expValue: {expValue}");
+
+            nrGaussPoints = 20;
+            result = GaussIntegration.IntegrationLineLinearShapeFunction(func, poly, nrGaussPoints);
+            Assert.IsTrue(Math.Abs((result - expValue) / result) < 0.01, $"3) calculated value: {result}, expValue: {expValue}");
+        }
+
+        [TestMethod]
+        public void Line2Test2LSF()
+        {
+            double constant = 3.0;
+
+            Point3d[] poly = new Point3d[] { new Point3d(1.0, 1.0, 0), new Point3d(10.0, 1.0, 0) };
+            double expValue = 7499.25;
+            Func<double, double, double> func = (x, y) => constant * x * x * x;
+
+            int nrGaussPoints = 3;
+            double result = GaussIntegration.IntegrationLineLinearShapeFunction(func, poly, nrGaussPoints);
+            Assert.IsTrue(Math.Abs((result - expValue) / result) < 0.01, $"1) calculated value: {result}, expValue: {expValue}");
+
+            nrGaussPoints = 4;
+            result = GaussIntegration.IntegrationLineLinearShapeFunction(func, poly, nrGaussPoints);
+            Assert.IsTrue(Math.Abs((result - expValue) / result) < 0.01, $"2) calculated value: {result}, expValue: {expValue}");
+
+            nrGaussPoints = 6;
+            result = GaussIntegration.IntegrationLineLinearShapeFunction(func, poly, nrGaussPoints);
+            Assert.IsTrue(Math.Abs((result - expValue) / result) < 0.01, $"2) calculated value: {result}, expValue: {expValue}");
+
+            nrGaussPoints = 9;
+            result = GaussIntegration.IntegrationLineLinearShapeFunction(func, poly, nrGaussPoints);
+            Assert.IsTrue(Math.Abs((result - expValue) / result) < 0.01, $"2) calculated value: {result}, expValue: {expValue}");
+
+            nrGaussPoints = 16;
+            result = GaussIntegration.IntegrationLineLinearShapeFunction(func, poly, nrGaussPoints);
+            Assert.IsTrue(Math.Abs((result - expValue) / result) < 0.01, $"3) calculated value: {result}, expValue: {expValue}");
+
+            nrGaussPoints = 32;
+            result = GaussIntegration.IntegrationLineLinearShapeFunction(func, poly, nrGaussPoints);
+            Assert.IsTrue(Math.Abs((result - expValue) / result) < 0.01, $"3) calculated value: {result}, expValue: {expValue}");
+
+            nrGaussPoints = 20;
+            result = GaussIntegration.IntegrationLineLinearShapeFunction(func, poly, nrGaussPoints);
+            Assert.IsTrue(Math.Abs((result - expValue) / result) < 0.01, $"3) calculated value: {result}, expValue: {expValue}");
+        }
+
+        [TestMethod]
         public void Quad4Test1LSF()
         {
             double constant = 3.0;
