@@ -8,9 +8,9 @@ namespace GPC.Model.Maths.GaussIntegrations
 {
 	public static class HexahedroGaussPoints
 	{
-		static readonly GaussPoint[] Hexa1 = new GaussPoint[] { new GaussPoint(0.0, 0.0, 0.0, 8.0, 1) };
+		public static readonly GaussPoint[] Hexa1 = new GaussPoint[] { new GaussPoint(0.0, 0.0, 0.0, 8.0, 1) };
 
-		static readonly GaussPoint[] Hexa8 = new GaussPoint[] { new GaussPoint(-1.0 / Math.Sqrt(3.0), -1.0 / Math.Sqrt(3.0), -1.0 / Math.Sqrt(3.0), 1.0, 1),
+		public static readonly GaussPoint[] Hexa8 = new GaussPoint[] { new GaussPoint(-1.0 / Math.Sqrt(3.0), -1.0 / Math.Sqrt(3.0), -1.0 / Math.Sqrt(3.0), 1.0, 1),
 																	  new GaussPoint(+1.0 / Math.Sqrt(3.0), -1.0 / Math.Sqrt(3.0), -1.0 / Math.Sqrt(3.0), 1.0, 2),
 																	  new GaussPoint(-1.0 / Math.Sqrt(3.0), +1.0 / Math.Sqrt(3.0), -1.0 / Math.Sqrt(3.0), 1.0, 3),
 																	  new GaussPoint(+1.0 / Math.Sqrt(3.0), +1.0 / Math.Sqrt(3.0), -1.0 / Math.Sqrt(3.0), 1.0, 4),
