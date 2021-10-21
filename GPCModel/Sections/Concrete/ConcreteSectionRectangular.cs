@@ -18,6 +18,7 @@ namespace GPC.Model.Sections.Concrete
 		#region Variables
 
 		protected ReinforcedConcreteRebar[] _rebars;
+		protected Mesh _mesh;
 
 		#endregion
 
@@ -29,7 +30,15 @@ namespace GPC.Model.Sections.Concrete
 
 		public Shape Shape => GetShape();
 
-		public Mesh Mesh => throw new NotImplementedException();
+		public Mesh Mesh
+		{
+			get
+			{
+				if (_mesh == null)
+					_mesh = GetReinforcedConcreteSection().Mesh;
+				return _mesh;
+			}
+		}
 
 		#endregion
 
@@ -39,16 +48,18 @@ namespace GPC.Model.Sections.Concrete
 			: base(height, width, material, name)
 		{
 			_rebars = rebars;
+
+
 		}
 
 		public ConcreteSectionRectangular(SectionRectangular section, ReinforcedConcreteRebar[] rebars)
-			: base(section)
+			: this(section.Height, section.Width, (ConcreteMaterial)section.Material, rebars, section.Name)
 		{
-			_rebars = rebars;
-
 			if (section.Material.GetType() != ConcreteMaterial.GetType())
 				throw new ArgumentException("Material must be a ConcreteMaterial");
 		}
+
+		#endregion
 
 		public double GetHomogenizedArea(double n)
 		{
@@ -85,7 +96,12 @@ namespace GPC.Model.Sections.Concrete
 			throw new NotImplementedException();
 		}
 
-		#endregion
+		protected ReinforcedConcreteSection GetReinforcedConcreteSection()
+		{
+			return new ReinforcedConcreteSection(new ShapeEx(GetShape(), ConcreteMaterial), Rebars, Name);
+		}
+
+
 
 
 	}

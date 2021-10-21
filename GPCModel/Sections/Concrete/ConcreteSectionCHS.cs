@@ -14,6 +14,7 @@ namespace GPC.Model.Sections.Concrete
 		#region Variables
 
 		protected ReinforcedConcreteRebar[] _rebars;
+		protected Mesh _mesh;
 
 		#endregion
 
@@ -25,7 +26,15 @@ namespace GPC.Model.Sections.Concrete
 
 		public Shape Shape => GetShape();
 
-		public Mesh Mesh => throw new NotImplementedException();
+		public Mesh Mesh
+		{
+			get
+			{
+				if (_mesh == null)
+					_mesh = GetReinforcedConcreteSection().Mesh;
+				return _mesh;
+			}
+		}
 
 		#endregion
 
@@ -44,26 +53,6 @@ namespace GPC.Model.Sections.Concrete
 
 			if (sectionCHS.Material.GetType() != ConcreteMaterial.GetType())
 				throw new ArgumentException("Material must be a ConcreteMaterial");
-		}
-
-		public double GetHomogenizedArea(double n)
-		{
-			throw new NotImplementedException();
-		}
-
-		public double GetHomogenizedArea()
-		{
-			throw new NotImplementedException();
-		}
-
-		public double GetHomogeneizedJ11(double n)
-		{
-			throw new NotImplementedException();
-		}
-
-		public double GetHomogeneizedJ22()
-		{
-			throw new NotImplementedException();
 		}
 
 		protected Shape GetShape(int edge = 32)
@@ -90,12 +79,37 @@ namespace GPC.Model.Sections.Concrete
 			return new Polygon3d(vertices.ToArray());
 		}
 
+		protected ReinforcedConcreteSection GetReinforcedConcreteSection()
+		{
+			return new ReinforcedConcreteSection(new ShapeEx(GetShape(), ConcreteMaterial), Rebars, Name);
+		}
+
 		public double GetHomogeneizedJ11()
 		{
 			throw new NotImplementedException();
 		}
 
 		public double GetHomogeneizedJ22(double n)
+		{
+			throw new NotImplementedException();
+		}
+
+		public double GetHomogenizedArea(double n)
+		{
+			throw new NotImplementedException();
+		}
+
+		public double GetHomogenizedArea()
+		{
+			throw new NotImplementedException();
+		}
+
+		public double GetHomogeneizedJ11(double n)
+		{
+			throw new NotImplementedException();
+		}
+
+		public double GetHomogeneizedJ22()
 		{
 			throw new NotImplementedException();
 		}

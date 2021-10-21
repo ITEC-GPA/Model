@@ -14,6 +14,7 @@ namespace GPC.Model.Sections.Concrete
 		#region Variables
 
 		protected ReinforcedConcreteRebar[] _rebars;
+		protected Mesh _mesh;
 
 		#endregion
 
@@ -23,9 +24,17 @@ namespace GPC.Model.Sections.Concrete
 
 		public ConcreteMaterial ConcreteMaterial => (ConcreteMaterial)_material;
 
-		public Shape Shape => throw new NotImplementedException();
+		public Shape Shape => GetShape();
 
-		public Mesh Mesh => throw new NotImplementedException();
+		public Mesh Mesh
+		{
+			get
+			{
+				if (_mesh == null)
+					_mesh = GetReinforcedConcreteSection().Mesh;
+				return _mesh;
+			}
+		}
 
 		#endregion
 
@@ -77,5 +86,18 @@ namespace GPC.Model.Sections.Concrete
 		}
 
 		#endregion
+
+		protected ReinforcedConcreteSection GetReinforcedConcreteSection()
+		{
+			return new ReinforcedConcreteSection(new ShapeEx(GetShape(), ConcreteMaterial), Rebars, Name);
+		}
+
+		public Shape GetShape()
+		{
+			return new Shape(new Polygon3d(new Point3d[] { new Point3d(0.0, Height, 0.0), new Point3d(LenghtFlange, Height, 0.0), 
+				new Point3d(LenghtFlange, HeightWeb, 0.0), new Point3d(LenghtFlange / 2.0 + ThicknessWeb / 2.0 , HeightWeb, 0.0),
+				new Point3d(LenghtFlange / 2.0 + ThicknessWeb / 2.0 , 0.0, 0.0), new Point3d(LenghtFlange / 2.0 - ThicknessWeb / 2.0 , 0.0, 0.0),
+				new Point3d(LenghtFlange / 2.0 - ThicknessWeb / 2.0 , HeightWeb, 0), new Point3d(0.0 , HeightWeb, 0) }));
+		}
 	}
 }
