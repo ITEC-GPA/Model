@@ -172,6 +172,15 @@ namespace GPC.Model.Maths.GaussIntegrations
                 case 33:
                     gaussPoints = TriangleGaussPoints.Tri33;
                     break;
+                case 48:
+                    gaussPoints = TriangleGaussPoints.Tri48;
+                    break;
+                case 61:
+                    gaussPoints = TriangleGaussPoints.Tri61;
+                    break;
+                case 79:
+                    gaussPoints = TriangleGaussPoints.Tri79;
+                    break;
 
                 default:
                     throw new ArgumentException("Wrong number of Gauss Points");
