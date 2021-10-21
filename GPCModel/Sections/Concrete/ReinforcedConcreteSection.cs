@@ -5,9 +5,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
-using System.Text;
 using System.Threading.Tasks;
 using GPC.Geometry.Meshes;
+using GPC.Model.Maths.GaussIntegrations;
 
 namespace GPC.Model.Sections.Concrete
 {
@@ -17,7 +17,7 @@ namespace GPC.Model.Sections.Concrete
 
 		protected readonly ShapeEx _shapeEx;
 		protected readonly ReinforcedConcreteRebar[] _rebars;
-		protected readonly Mesh _mesh;
+		protected Mesh _mesh;
 
 		#endregion
 
@@ -30,7 +30,15 @@ namespace GPC.Model.Sections.Concrete
 
 		public ConcreteMaterial ConcreteMaterial => (ConcreteMaterial)_material;
 
-		public Mesh Mesh => _mesh;
+		public Mesh Mesh
+		{
+			get
+			{
+				if (_mesh == null)
+					_mesh = GenerateMesh();
+				return _mesh; 
+			}
+		}
 
 		Shape IConcreteSection.Shape => _shapeEx;	
 
@@ -60,7 +68,6 @@ namespace GPC.Model.Sections.Concrete
 
 			#endregion
 
-			_mesh = GenerateMesh();
 			SetMechanicalProperties();
 		}
 		
@@ -153,7 +160,7 @@ namespace GPC.Model.Sections.Concrete
 		/// <returns>The centroid</returns>
 		public Point3d GetHomogenizedCentroid(out double SxHomog, out double SyHomog)
 		{
-			CalculateStaticMoments(_mesh, out double Sx, out double Sy);
+			CalculateStaticMoments(Mesh, out double Sx, out double Sy);
 
 			double[] AreaHomogArray = new double[Rebars.Count()];
 			double[] SxHomogenizedArray = new double[Rebars.Count()];
@@ -180,7 +187,7 @@ namespace GPC.Model.Sections.Concrete
 		/// <returns></returns>
 		public Point3d GetHomogenizedCentroid(double n, out double SxHomog, out double SyHomog)
 		{
-			CalculateStaticMoments(_mesh, out double Sx, out double Sy);
+			CalculateStaticMoments(Mesh, out double Sx, out double Sy);
 
 			double[] SxHomogenizedArray = new double[Rebars.Count()];
 			double[] SyHomogenizedArray = new double[Rebars.Count()];
@@ -270,10 +277,10 @@ namespace GPC.Model.Sections.Concrete
 		{
 			_area = CalculateArea();
 
-			CalculateStaticMoments(_mesh, out double Sx, out double Sy);
+			CalculateStaticMoments(Mesh, out double Sx, out double Sy);
 			_centroid = CalculateCentroid(Sx, Sy, Area);
 
-			CalculateInertiaMoments(_mesh, _centroid, out double Jxx, out double Jyy, out double Jxy, out double _);
+			CalculateInertiaMoments(Mesh, _centroid, out double Jxx, out double Jyy, out double Jxy, out double _);
 			_jxx = Jxx;
 			_jyy = Jyy;
 			_jxy = Jxy;
@@ -425,7 +432,7 @@ namespace GPC.Model.Sections.Concrete
 		}
 
 		/// <summary>
-		/// Generate the mesh of the section. If <paramref name="size"/> not set, size is set as the default value of the minimum of the bounding box size divided by 10.
+		/// Generate the mesh of the section. If <paramref name="size"/> not set, size is set as the default value of the minimum of the bounding box size divided by 2.
 		/// </summary>
 		/// <param name="size">The mesh size</param>
 		/// <returns></returns>
@@ -434,13 +441,14 @@ namespace GPC.Model.Sections.Concrete
 			if (size == -1)
 			{
 				BoundingBox3d bBox = Shape.GetBoundingBox();
-				size = Math.Min(bBox.Size.X, bBox.Size.Y) / 5;
+				size = Math.Min(bBox.Size.X, bBox.Size.Y) / 2.0;
 			}
 
 			Mesh.GenerateOptions generateOptions = new Mesh.GenerateOptions()
 			{
 				Algorithm = Mesh.GenerateOptions.MeshAlgorithm.FrontalDelaunayForQuads,
-				Recombine = false,
+				Recombine = true,
+				RecombinationAlgorithm = Mesh.GenerateOptions.RecombinationMeshAlgorithm.SimpleFullQuad,
 				UseGlobalProgressID = true,
 
 				MeshSize = size,
@@ -459,45 +467,23 @@ namespace GPC.Model.Sections.Concrete
 
 		protected virtual void CalculateIntegralInertiaMoment(MeshFace face, Point3d centroid, out double jxx, out double jyy, out double jxy)
 		{
-			jxx = 0;
-			jyy = 0;
-			jxy = 0;
-
 			double area = Mesh.GetFaceArea(face);
 			Point3d[] points = Mesh.GetFacePoints(face);
-			Point2d p1 = points[0];
-			Point2d p2 = points[1];
-			Point2d p3 = points[2];
 
-			double[] weight = new double[] { -0.56250, 0.52083333333333, 0.52083333333333, 0.52083333333333 };
-
-			// primo punto semplice
-			Point2d point1NC = new Point2d(p1.X + (p2.X - p1.X) / 3 + (p3.X - p1.X) / 3, p1.Y + (p2.Y - p1.Y) / 3 + (p3.Y - p1.Y) / 3);
-			jxx += Math.Pow(point1NC.Y - centroid.Y, 2) * (weight[0]);
-			jyy += Math.Pow(point1NC.X - centroid.X, 2) * (weight[0]);
-			jxy += (point1NC.Y - centroid.Y) * (point1NC.X - centroid.X) * (weight[0]);
-
-			// secondo punto semplice
-			Point2d point2NC = new Point2d(p1.X + (p2.X - p1.X) / 5 + (p3.X - p1.X) / 5, p1.Y + (p2.Y - p1.Y) / 5 + (p3.Y - p1.Y) / 5);
-			jxx += Math.Pow(point2NC.Y - centroid.Y, 2) * (weight[1]);
-			jyy += Math.Pow(point2NC.X - centroid.X, 2) * (weight[1]);
-			jxy += (point2NC.Y - centroid.Y) * (point2NC.X - centroid.X) * (weight[1]);
-
-			// terzo punto semplice
-			Point2d point3NC = new Point2d(p1.X + 3 * (p2.X - p1.X) / 5 + (p3.X - p1.X) / 5, p1.Y + 3 * (p2.Y - p1.Y) / 5 + (p3.Y - p1.Y) / 5);
-			jxx += Math.Pow(point3NC.Y - centroid.Y, 2) * (weight[2]);
-			jyy += Math.Pow(point3NC.X - centroid.X, 2) * (weight[2]);
-			jxy += (point3NC.Y - centroid.Y) * (point3NC.X - centroid.X) * (weight[2]);
-
-			// quarto punto semplice
-			Point2d point4NC = new Point2d(p1.X + (p2.X - p1.X) / 5 + 3 * (p3.X - p1.X) / 5, p1.Y + (p2.Y - p1.Y) / 5 + 3 * (p3.Y - p1.Y) / 5);
-			jxx += Math.Pow(point4NC.Y - centroid.Y, 2) * (weight[3]);
-			jyy += Math.Pow(point4NC.X - centroid.X, 2) * (weight[3]);
-			jxy += (point4NC.Y - centroid.Y) * (point4NC.X - centroid.X) * (weight[3]);
-
-			jxx *= area;
-			jyy *= area;
-			jxy *= area;
+			if (face.IsTriangle)
+			{
+				jxx = GaussIntegration.IntegrationTriangularLinearShapeFunction((x, y) => ((y - centroid.Y) * (y - centroid.Y)), points, 4);
+				jyy = GaussIntegration.IntegrationTriangularLinearShapeFunction((x, y) => ((x - centroid.X) * (x - centroid.X)), points, 4);
+				jxy = GaussIntegration.IntegrationTriangularLinearShapeFunction((x, y) => ((x - centroid.X) * (y - centroid.Y)), points, 4);
+			}
+			else if (face.IsQuad)
+			{
+				jxx = GaussIntegration.IntegrationQuadrilateralLinearShapeFunction((x, y) => ((y - centroid.Y) * (y - centroid.Y)), points, 8);
+				jyy = GaussIntegration.IntegrationQuadrilateralLinearShapeFunction((x, y) => ((x - centroid.X) * (x - centroid.X)), points, 8);
+				jxy = GaussIntegration.IntegrationQuadrilateralLinearShapeFunction((x, y) => ((x - centroid.X) * (y - centroid.Y)), points, 8);
+			}
+			else
+				throw new ArgumentException();
 		}
 
 		protected double CalculateWpl2()

@@ -1316,16 +1316,18 @@ namespace ModelObjectTest
         #region Concrete Section
 
         [TestMethod]
-        public void RCSection1()
+        public void RCRectangularSection1()
         {
+            double heigth = 500;
+            double width = 300;
             double rebarDiameter = 18;
             double n = 15;
 
             // sezione rettangolare 300x500
             Shape shape = new Shape(new Polygon3d(new Point3d[] {   new Point3d(0, 0, 0), 
-                                                                    new Point3d(300, 0, 0), 
-                                                                    new Point3d(300, 500, 0), 
-                                                                    new Point3d(0, 500, 0), }));
+                                                                    new Point3d(width, 0, 0), 
+                                                                    new Point3d(width, heigth, 0), 
+                                                                    new Point3d(0, heigth, 0), }));
 
             ShapeEx shapeEx = new ShapeEx(shape, ConcreteMaterialEN1992.C25_30);
             GPC.Model.Sections.Rebar.RebarSectionCircular rebar = new GPC.Model.Sections.Rebar.RebarSectionCircular(rebarDiameter, RebarMaterial.B450C);
@@ -1347,10 +1349,12 @@ namespace ModelObjectTest
             Assert.IsTrue(Math.Abs(J11H - 3693960000) / J11H * 100 < 1);
             Assert.IsTrue(Math.Abs(J22H - 1267240000) / J22H * 100 < 1);
             Assert.IsTrue(Math.Abs(angleX) < 0.001);
+
+            ConcreteSectionRectangular sectionRectangular = new ConcreteSectionRectangular(heigth, width, ConcreteMaterialEN1992.C25_30, rebars);
         }
 
         [TestMethod]
-        public void RCSection2()
+        public void RCRectangularSection2()
         {
             // sezion a T tovescia 
             Shape shape = new Shape(new Polygon3d(new Point3d[] {   new Point3d(0, 0, 0),
@@ -1374,7 +1378,7 @@ namespace ModelObjectTest
         }
 
         [TestMethod]
-        public void RCSection3()
+        public void RCRectangularSection3()
         {
             // sezion generica a 4 punti
             Shape shape = new Shape(new Polygon3d(new Point3d[] {   new Point3d(0, 0, 0),
@@ -1396,7 +1400,7 @@ namespace ModelObjectTest
         }
 
         [TestMethod]
-        public void RCSection4()
+        public void RCRectangularSection4()
         {
             double rebarDiameter = 18;
             double n = 15;
@@ -1426,7 +1430,7 @@ namespace ModelObjectTest
         }
 
         [TestMethod]
-        public void RCSection5()
+        public void RCRectangularSection5()
         {
             double rebarDiameter = 26;
             double n = 15;
