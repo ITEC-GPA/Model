@@ -459,10 +459,14 @@ namespace GPC.Model.Sections.Concrete
 			return meshes[0];
 		}
 
-		protected virtual double CalculateN(ReinforcedConcreteRebar rebar)
+		public virtual double CalculateN(ReinforcedConcreteRebar rebar)
 		{
 			return rebar.RebarMaterial.E / Material.E;
-			//return 15.0;
+		}
+
+		public virtual double CalculateN(int rebar)
+		{
+			return Rebars[rebar].RebarMaterial.E / Material.E;
 		}
 
 		protected virtual void CalculateIntegralInertiaMoment(MeshFace face, Point3d centroid, out double jxx, out double jyy, out double jxy)

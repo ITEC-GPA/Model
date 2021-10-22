@@ -99,5 +99,15 @@ namespace GPC.Model.Sections.Concrete
 				new Point3d(LenghtFlange / 2.0 + ThicknessWeb / 2.0 , 0.0, 0.0), new Point3d(LenghtFlange / 2.0 - ThicknessWeb / 2.0 , 0.0, 0.0),
 				new Point3d(LenghtFlange / 2.0 - ThicknessWeb / 2.0 , HeightWeb, 0), new Point3d(0.0 , HeightWeb, 0) }));
 		}
+
+		public virtual double CalculateN(ReinforcedConcreteRebar rebar)
+		{
+			return rebar.RebarMaterial.E / Material.E;
+		}
+
+		public virtual double CalculateN(int rebar)
+		{
+			return Rebars[rebar].RebarMaterial.E / Material.E;
+		}
 	}
 }

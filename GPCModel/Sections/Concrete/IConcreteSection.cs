@@ -59,5 +59,9 @@ namespace GPC.Model.Sections.Concrete
         double GetHomogeneizedJ22(double n);
 
         Geometry.Meshes.Mesh Mesh { get; }
+
+        double CalculateN(ReinforcedConcreteRebar rebar);
+
+        double CalculateN(int rebar);
     }
 }

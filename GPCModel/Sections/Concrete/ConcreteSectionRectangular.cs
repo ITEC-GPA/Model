@@ -102,7 +102,15 @@ namespace GPC.Model.Sections.Concrete
 		}
 
 
+		public virtual double CalculateN(ReinforcedConcreteRebar rebar)
+		{
+			return rebar.RebarMaterial.E / Material.E;
+		}
 
+		public virtual double CalculateN(int rebar)
+		{
+			return Rebars[rebar].RebarMaterial.E / Material.E;
+		}
 
 	}
 }
