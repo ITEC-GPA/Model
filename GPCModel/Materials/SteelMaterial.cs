@@ -126,7 +126,7 @@ namespace GPC.Model.Materials
         /// <param name="density">Density of material</param>
         /// <param name="alfaThermalExpansion">Linear thermal expasion coefficient</param>
         /// <param name="guid">Guid of the material</param>
-        protected SteelMaterial(string name, double elasticModulus, double poisson, double fyk, 
+        protected SteelMaterial(string name, double elasticModulus, double poisson, double fyk,
             double fu, double epsilonU, double density, double alfaThermalExpansion, Guid guid)
             : base(name, elasticModulus, poisson, density, alfaThermalExpansion, guid)
         {
@@ -135,8 +135,7 @@ namespace GPC.Model.Materials
 
             _fu = fu <= 0 ? throw new ArgumentException($"{nameof(fu)} cannot be zero or lower") : fu;
             _fyk = fyk <= 0 ? throw new ArgumentException($"{nameof(fyk)} cannot be zero or lower") : fyk;
-
-            _epsilonU = epsilonU;
+            _epsilonU = epsilonU <= 0 ? throw new ArgumentException($"{nameof(fyk)} cannot be zero or lower") : epsilonU;
         }
 
         public SteelMaterial(SerializationInfo info, StreamingContext context) :
@@ -169,16 +168,31 @@ namespace GPC.Model.Materials
             info.AddValue("Fu", _fu);
         }
 
-        public virtual double CalculateSigma(double epsilon)
+        public virtual double CalculateSigma(double strain)
 		{
-            if (epsilon <= EpsilonY)
-                return epsilon * Fyk / EpsilonY;
-            else
+            if (strain >= 0)
             {
-                if (Et == 0)
-                    return Fyk;
+                if (Math.Abs(strain) <= EpsilonY)
+                    return strain * Fyk / EpsilonY;
                 else
-                    return Fyk + (epsilon - EpsilonY) * Et;
+                {
+                    if (Et == 0)
+                        return Fyk;
+                    else
+                        return Fyk + (strain - EpsilonY) * Et;
+                }
+            }
+            else
+			{
+                if (Math.Abs(strain) <= EpsilonY)
+                    return strain * Fyk / EpsilonY;
+                else
+                {
+                    if (Et == 0)
+                        return - Fyk;
+                    else
+                        return - Fyk - Math.Abs(Math.Abs(strain) - Math.Abs(EpsilonY)) * Et;
+                }
             }
         }
 

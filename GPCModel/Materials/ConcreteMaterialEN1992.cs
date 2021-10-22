@@ -11,7 +11,9 @@ namespace GPC.Model.Materials
     [UI(Description = "Concrete EN1992-1-1", Group = "Materials", Kind = "Material")]
     public class ConcreteMaterialEN1992 : ConcreteMaterial
     {
-        public static ConcreteMaterialEN1992 C25_30 => new ConcreteMaterialEN1992("C25/30", 25, StressStrainDiagrams.StressBlock);
+		#region Static Constructor
+
+		public static ConcreteMaterialEN1992 C25_30 => new ConcreteMaterialEN1992("C25/30", 25, StressStrainDiagrams.StressBlock);
         public static ConcreteMaterialEN1992 C30_37 => new ConcreteMaterialEN1992("C30/37", 30, StressStrainDiagrams.StressBlock);
         public static ConcreteMaterialEN1992 C35_45 => new ConcreteMaterialEN1992("C35/45", 35, StressStrainDiagrams.StressBlock);
         public static ConcreteMaterialEN1992 C40_50 => new ConcreteMaterialEN1992("C40/50", 40, StressStrainDiagrams.StressBlock);
@@ -23,9 +25,11 @@ namespace GPC.Model.Materials
         public static ConcreteMaterialEN1992 C80_95 => new ConcreteMaterialEN1992("C80/90", 80, StressStrainDiagrams.StressBlock);
         public static ConcreteMaterialEN1992 C90_105 => new ConcreteMaterialEN1992("C90/105", 90, StressStrainDiagrams.StressBlock);
 
-        #region Enumerator
+		#endregion
 
-        public enum StressStrainDiagrams
+		#region Enumerator
+
+		public enum StressStrainDiagrams
         {
             ParabolaRectangle,
             Bilinear,
@@ -76,36 +80,6 @@ namespace GPC.Model.Materials
         /// Mean compressive strength at 28 days
         /// </summary>
         public double Fcm => Fck + 8;
-
-        ///// <summary>
-        ///// Design compressive strength for persistent design
-        ///// </summary>
-        //public double Fcd => CalculateFcd();
-
-        ///// <summary>
-        ///// Design compressive strength for accidental design
-        ///// </summary>
-        //public double FcdAccidental => Standard.AlphaCC * Fck / Standard.GammaCAccidental;
-
-        ///// <summary>
-        ///// Design tensile strength for persistent design
-        ///// </summary>
-        //public double Fctd => Standard.AlphaCT * Fctk05 / Standard.GammaC;
-
-        ///// <summary>
-        ///// Design tensile strength for accidental design
-        ///// </summary>
-        //public double FctdAccidental => Standard.AlphaCT * Fctk05 / Standard.GammaCAccidental;
-
-        ///// <summary>
-        ///// Secant modulus of elasticity value between sigmac = 0 and 0,4fcm (Ecm)
-        ///// </summary>
-        //public override double E => _elasticModulus;
-
-        ///// <summary>
-        ///// Modulus of elasticity value for ultimate limit state calculations
-        ///// </summary>
-        //public double ECd => E / Standard.GammaCE;
 
         /// <summary>
         /// Tangent modulus of elasticity
@@ -166,6 +140,7 @@ namespace GPC.Model.Materials
             _typeOfCement = typeOfCement;
 
             _elasticModulus = CalculateEcm();
+            _elasticModulusTraction = CalculateEcm();
             if (_elasticModulus <= 0)
                 throw new ArgumentException($"{nameof(_elasticModulus)} must be > 0");
 
@@ -208,11 +183,13 @@ namespace GPC.Model.Materials
             _typeOfCement = typeOfCement;
 
             _elasticModulus = elasticModulus;
+            _elasticModulusTraction = elasticModulus;
             if (_elasticModulus < 0)
                 throw new ArgumentException($"{nameof(_elasticModulus)} must be > 0");
 
             CalculateEpsilonU();
             CalculateEpsilonY();
+            CalculateEpsilonTensionT();
         }
 
         /// <summary>
@@ -220,16 +197,19 @@ namespace GPC.Model.Materials
         /// </summary>
         /// <param name="name">The name of the material</param>
         /// <param name="fck">Characteristic compressive cylinder strength of concrete at 28 days</param>
-        /// <param name="elasticModulus"></param>
-        /// <param name="epsilony">Yielding strain</param>
-        /// <param name="epsilonU">Ultimate strain</param>
+        /// <param name="elasticModulusCompression">Elastic modulus of concrete in compression</param>
+        /// <param name="epsilonYCompression">Yielding compression strain</param>
+        /// <param name="epsilonUCompression">Ultimate compression strain</param>
+        /// <param name="elasticModulusTension">Elastic modulus of concrete in traction</param>
+        /// <param name="epsilonYTension">Strain in the concrete at the peak tensile stress ftc</param>
         /// <param name="ni">Poisson's ratio</param>
         /// <param name="niCracked">Poisson's ratio in cracked concrete</param>
         /// <param name="alphaT">Linear thermal expasion coefficient</param>
         /// <param name="density">The density of concrete</param>
         /// <param name="stressStrainDiagram">The stress-strain diagram type</param>
         /// <param name="typeOfCement">The type of cement. See §3.4.1</param>
-        public ConcreteMaterialEN1992(string name, double fck, double elasticModulus, double epsilony, double epsilonU, double ni, double niCracked, double alphaT, double density,
+        public ConcreteMaterialEN1992(string name, double fck, double elasticModulusCompression, double epsilonYCompression, double epsilonUCompression, 
+            double elasticModulusTension, double epsilonYTension, double ni, double niCracked, double alphaT, double density,
             StressStrainDiagrams stressStrainDiagram, TypeOfCements typeOfCement)
             : base(name, fck)
         {
@@ -251,12 +231,14 @@ namespace GPC.Model.Materials
             _stressStrainDiagram = stressStrainDiagram;
             _typeOfCement = typeOfCement;
 
-            _elasticModulus = elasticModulus;
+            _elasticModulus = elasticModulusCompression;
             if (_elasticModulus < 0)
                 throw new ArgumentException($"{nameof(_elasticModulus)} must be > 0");
 
-            _epsilonY = epsilony;
-            _epsilonU = epsilonU;            
+            _epsilonCompressionY = epsilonYCompression;
+            _epsilonCompressionU = epsilonUCompression;
+            _epsilonTensionY = epsilonYTension;
+            _elasticModulusTraction = elasticModulusTension;
         }
 
         /// <summary>
@@ -308,8 +290,8 @@ namespace GPC.Model.Materials
             _fck = info.GetDouble("Fck");
                         
             _niCracked = info.GetDouble("NiCracked");
-            _epsilonY = info.GetDouble("EpsilonY");
-            _epsilonU = info.GetDouble("EpsilonU");
+            _epsilonCompressionY = info.GetDouble("EpsilonY");
+            _epsilonCompressionU = info.GetDouble("EpsilonU");
         }
 
         #endregion 
@@ -355,17 +337,17 @@ namespace GPC.Model.Materials
 
             if (StressStrainDiagram == StressStrainDiagrams.ParabolaRectangle)
             {
-                epsilonCC = EpsilonY * Math.Pow(fckc / Fck, 2.0);
+                epsilonCC = EpsilonCompressionY * Math.Pow(fckc / Fck, 2.0);
                 epsilonCuC = epsilonCC + 0.2 * sigma2 / Fck;
             }
             else if (StressStrainDiagram == StressStrainDiagrams.Bilinear)
             {
-                epsilonCC = EpsilonY * Math.Pow(fckc / Fck, 2.0);
+                epsilonCC = EpsilonCompressionY * Math.Pow(fckc / Fck, 2.0);
                 epsilonCuC = epsilonCC + 0.2 * sigma2 / Fck;
             }
             else
             {
-                epsilonCC = EpsilonY * Math.Pow(fckc / Fck, 2.0);
+                epsilonCC = EpsilonCompressionY * Math.Pow(fckc / Fck, 2.0);
                 epsilonCuC = epsilonCC + 0.2 * sigma2 / Fck;
 
                 //TODO: implementare questo caso
@@ -494,16 +476,16 @@ namespace GPC.Model.Materials
             if (StressStrainDiagram == StressStrainDiagrams.ParabolaRectangle)
             {
                 if (_fck <= 50)
-                    _epsilonY = 2.0 / 1000.0;
+                    _epsilonCompressionY = - 2.0 / 1000.0;
                 else
-                    _epsilonY = (2.0 + 0.085 * Math.Pow(_fck - 50.0, 0.53)) / 1000.0;
+                    _epsilonCompressionY = - (2.0 + 0.085 * Math.Pow(_fck - 50.0, 0.53)) / 1000.0;
             }
             else if (StressStrainDiagram == StressStrainDiagrams.Bilinear)
             {
                 if (_fck <= 50)
-                    _epsilonY = 1.75 / 1000.0;
+                    _epsilonCompressionY = - 1.75 / 1000.0;
                 else
-                    _epsilonY = (1.75 + 0.55 * ((_fck - 50.0) / 40.0)) / 1000.0;
+                    _epsilonCompressionY = - (1.75 + 0.55 * ((_fck - 50.0) / 40.0)) / 1000.0;
             }
             else if (StressStrainDiagram == StressStrainDiagrams.StressBlock)
             {
@@ -514,7 +496,7 @@ namespace GPC.Model.Materials
                 else
                     lambda = 0.8 - (_fck - 50.0) / 400;
 
-                _epsilonY = _epsilonU * (1 - lambda);
+                _epsilonCompressionY = - _epsilonCompressionU * (1 - lambda);
             }
             else
                 throw new ArgumentException();
@@ -525,23 +507,23 @@ namespace GPC.Model.Materials
             if (StressStrainDiagram == StressStrainDiagrams.ParabolaRectangle)
             {
                 if (_fck <= 50)
-                    _epsilonU = 3.5 / 1000.0;
+                    _epsilonCompressionU = - 3.5 / 1000.0;
                 else
-                    _epsilonU = (2.6 + 35.0 * Math.Pow(((90.0 - _fck) / 100.0), 4)) / 1000.0;
+                    _epsilonCompressionU = - (2.6 + 35.0 * Math.Pow(((90.0 - _fck) / 100.0), 4)) / 1000.0;
             }
             else if (StressStrainDiagram == StressStrainDiagrams.Bilinear)
             {
                 if (_fck <= 50)
-                    _epsilonU = 3.5 / 1000.0;
+                    _epsilonCompressionU = - 3.5 / 1000.0;
                 else
-                    _epsilonU = (2.6 + 35.0 * Math.Pow(((90.0 - _fck) / 100.0), 4)) / 1000.0;
+                    _epsilonCompressionU = - (2.6 + 35.0 * Math.Pow(((90.0 - _fck) / 100.0), 4)) / 1000.0;
             }
             else if (StressStrainDiagram == StressStrainDiagrams.StressBlock)
             {
                 if (_fck <= 50)
-                    _epsilonU = 3.5 / 1000.0;
+                    _epsilonCompressionU = - 3.5 / 1000.0;
                 else
-                    _epsilonU = (2.6 + 35.0 * Math.Pow(((90.0 - _fck) / 100.0), 4)) / 1000.0;
+                    _epsilonCompressionU = - (2.6 + 35.0 * Math.Pow(((90.0 - _fck) / 100.0), 4)) / 1000.0;
             }
             else
                 throw new ArgumentException();
@@ -621,6 +603,11 @@ namespace GPC.Model.Materials
 
             return Math.Pow(Math.E, (s * (1 - Math.Pow(28 / days, 0.5))));
         }
+
+        protected virtual void CalculateEpsilonTensionT()
+		{
+            _epsilonTensionY = Fctm / E;
+		}
 
         #endregion
     }    

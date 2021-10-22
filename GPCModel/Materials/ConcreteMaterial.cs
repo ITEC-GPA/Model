@@ -12,8 +12,10 @@ namespace GPC.Model.Materials
         #region Variables
 
         protected double _fck;
-        protected double _epsilonY;
-        protected double _epsilonU;
+        protected double _epsilonCompressionY;
+        protected double _epsilonCompressionU;
+        protected double _epsilonTensionY;
+        protected double _elasticModulusTraction;
 
         #endregion
 
@@ -25,14 +27,25 @@ namespace GPC.Model.Materials
         public double Fck => _fck;
 
         /// <summary>
-        /// Compressive strain in the concrete at the peak stress fc
+        /// Strain in the concrete at the peak compressive stress fc
         /// </summary>
-        public double EpsilonY => _epsilonY;
+        public double EpsilonCompressionY => _epsilonCompressionY;
 
         /// <summary>
-        /// Ultimate compressive strain in the concrete
+        /// Ultimate strain in compression
         /// </summary>
-        public double EpsilonU => _epsilonU;
+        public double EpsilonCompressionU => _epsilonCompressionU;
+
+        /// <summary>
+        /// Strain in the concrete at the peak tensile stress ftc
+        /// </summary>
+        public double EpsilonTensionY => _epsilonTensionY;
+
+        /// <summary>
+        /// Elastic modulus of concrete in traction
+        /// </summary>
+        public double ElasticModulusTraction => _elasticModulusTraction;
+
         #endregion
 
         #region Constructor
