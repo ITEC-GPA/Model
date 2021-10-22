@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
@@ -110,11 +110,13 @@
     <Compile Include="Standards\Standard.cs" />
     <Compile Include="Standards\StandardACI318.cs" />
     <Compile Include="Standards\StandardASCE16.cs" />
+    <Compile Include="Standards\StandardCNR204.cs" />
     <Compile Include="Standards\StandardCopSuos2011.cs" />
     <Compile Include="Standards\StandardEN16612.cs" />
     <Compile Include="Standards\StandardEN1990.cs" />
     <Compile Include="Combinations\Combination.cs" />
     <Compile Include="Standards\StandardEN1992p11.cs" />
+    <Compile Include="Standards\StandardFib2010.cs" />
     <Compile Include="Standards\StandardUNIEn1993p11.cs" />
     <Compile Include="Standards\StandardEn1993p11.cs" />
     <Compile Include="Standards\StandardUNIEN1990.cs" />
