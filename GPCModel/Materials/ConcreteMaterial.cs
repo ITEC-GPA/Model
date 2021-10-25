@@ -14,8 +14,6 @@ namespace GPC.Model.Materials
         protected double _fck;
         protected double _epsilonCompressionY;
         protected double _epsilonCompressionU;
-        protected double _epsilonTensionY;
-        protected double _elasticModulusTraction;
 
         #endregion
 
@@ -35,16 +33,6 @@ namespace GPC.Model.Materials
         /// Ultimate strain in compression
         /// </summary>
         public double EpsilonCompressionU => _epsilonCompressionU;
-
-        /// <summary>
-        /// Strain in the concrete at the peak tensile stress ftc
-        /// </summary>
-        public double EpsilonTensionY => _epsilonTensionY;
-
-        /// <summary>
-        /// Elastic modulus of concrete in traction
-        /// </summary>
-        public double ElasticModulusTraction => _elasticModulusTraction;
 
         #endregion
 
@@ -119,10 +107,5 @@ namespace GPC.Model.Materials
 
         #endregion
 
-        #region Abstract Methods
-
-        //public abstract double CalculateSigmaC(double epsilonC);
-
-        #endregion
     }
 }

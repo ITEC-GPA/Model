@@ -7,49 +7,156 @@ using GPC.Utilities.Maths;
 
 namespace GPC.Model.Materials
 {
-    /// <summary>
-    /// Concrete material in according to <see cref="StandardEn1992p11"/>
-    /// </summary>
-    /// <remarks>BS EN 1992-1-1:2004\AC:2014</remarks>
-    [Serializable]
-    [UI(Description = "Concrete EN1992-1-1", Group = "Materials", Kind = "Material")]
-    public class ConcreteMaterialEN1992 : ConcreteMaterialModelCode2010
-    {
-		#region Static Constructor
+	public abstract class ConcreteMaterialModelCode2010 : ConcreteMaterial
+	{
+        #region Enumerator
 
-		public static ConcreteMaterialEN1992 C25_30 => new ConcreteMaterialEN1992(25, CompressionStressStrainDiagrams.StressBlock, "C25/30");
-        public static ConcreteMaterialEN1992 C30_37 => new ConcreteMaterialEN1992(30, CompressionStressStrainDiagrams.StressBlock, "C30/37");
-        public static ConcreteMaterialEN1992 C35_45 => new ConcreteMaterialEN1992(35, CompressionStressStrainDiagrams.StressBlock, "C35/45");
-        public static ConcreteMaterialEN1992 C40_50 => new ConcreteMaterialEN1992(40, CompressionStressStrainDiagrams.StressBlock, "C40/50");
-        public static ConcreteMaterialEN1992 C45_55 => new ConcreteMaterialEN1992(45, CompressionStressStrainDiagrams.StressBlock, "C45/55");
-        public static ConcreteMaterialEN1992 C50_60 => new ConcreteMaterialEN1992(50, CompressionStressStrainDiagrams.StressBlock, "C50/60");
-        public static ConcreteMaterialEN1992 C55_67 => new ConcreteMaterialEN1992(55, CompressionStressStrainDiagrams.StressBlock, "C55/67");
-        public static ConcreteMaterialEN1992 C60_75 => new ConcreteMaterialEN1992(60, CompressionStressStrainDiagrams.StressBlock, "C60/75");
-        public static ConcreteMaterialEN1992 C70_85 => new ConcreteMaterialEN1992(70, CompressionStressStrainDiagrams.StressBlock, "C70/85");
-        public static ConcreteMaterialEN1992 C80_95 => new ConcreteMaterialEN1992(80, CompressionStressStrainDiagrams.StressBlock, "C80/90");
-        public static ConcreteMaterialEN1992 C90_105 => new ConcreteMaterialEN1992(90, CompressionStressStrainDiagrams.StressBlock, "C90/105");
-
-		#endregion
-
-		#region Constructors
-
-		/// <summary>
-		/// Default constructor
-		/// </summary>
-		/// <param name="name">The name of the material</param>
-		/// <param name="fck">Characteristic compressive cylinder strength of concrete at 28 days</param>
-		/// <param name="ni">Poisson's ratio</param>
-		/// <param name="niCracked">Poisson's ratio in cracked concrete</param>
-		/// <param name="alphaT">Linear thermal expasion coefficient</param>
-		/// <param name="density">The density of concrete</param>        
-		/// <param name="stressStrainDiagram">The stress-strain diagram type</param>
-		/// <param name="typeOfCement">The type of cement. See §3.4.1</param>
-		/// <remarks>Elastic modulus is automatically calculated according to EN1992 §3 (Ecm)</remarks>
-		public ConcreteMaterialEN1992(string name, double fck, double ni, double niCracked, double alphaT, double density,
-            ConcreteMaterialModelCode2010.CompressionStressStrainDiagrams stressStrainDiagram, ConcreteMaterialModelCode2010.TypeOfCements typeOfCement)
-            : base(name, fck, ni, niCracked, alphaT, density, stressStrainDiagram, typeOfCement)
+        public enum CompressionStressStrainDiagrams
         {
+            ParabolaRectangle,
+            Bilinear,
+            StressBlock,
+        }
 
+        public enum TensionStressStrainDiagrams
+        {
+            Bilinear,
+            RigidPlastic,
+        }
+
+        public enum TypeOfCements
+        {
+            ClassR,
+            ClassN,
+            ClassS,
+        }
+
+        #endregion
+
+        #region Variables
+
+        protected double _strainTensionY;
+        protected double _fctk;
+        protected double _strainFu;
+        protected double _fFtu;
+
+        protected double _niCracked;
+
+        protected TensionStressStrainDiagrams _tensionStressStrainDiagram;
+        protected CompressionStressStrainDiagrams _stressStrainDiagram;
+
+        protected TypeOfCements _typeOfCement;
+
+        #endregion
+
+        #region Properties
+
+        /// <summary>
+        /// characteristic cubic strength
+        /// </summary>
+        public double FckCube => CalculateFckCube();
+
+        /// <summary>
+        /// Characteristic tensile strength 0.05%
+        /// </summary>
+        public double Fctk05 => 0.7 * Fctk;
+
+        /// <summary>
+        /// Characteristic tensile strength 0.95%
+        /// </summary>
+        public double Fctk95 => 1.30 * Fctk;
+
+        /// <summary>
+        /// Mean compressive strength at 28 days
+        /// </summary>
+        public double Fcm => Fck + 8;
+
+        /// <summary>
+        /// Tangent modulus of elasticity
+        /// </summary>
+        public double Ec => 1.05 * E;
+
+        /// <summary>
+        /// Poisson’s ratio for cracked concrete
+        /// </summary>
+        public double NiCracked => _niCracked;
+
+        /// <summary>
+        /// The compression stress-strain relationship 
+        /// </summary>
+        public CompressionStressStrainDiagrams StressStrainDiagram => _stressStrainDiagram;
+
+        /// <summary>
+        /// The strength class of cement
+        /// </summary>
+        public TypeOfCements TypeOfCement => _typeOfCement;
+
+        /// <summary>
+        /// Secant modulus of elasticity of concrete
+        /// </summary>
+        /// <remarks>Ecm</remarks>
+		public override double E => base.E;
+
+        /// <summary>
+        /// Strain in the concrete at the peak tensile stress ftc
+        /// </summary>
+        public double EpsilonTensionY => _strainTensionY;
+
+        /// <summary>
+        /// Elastic modulus of concrete in traction
+        /// </summary>
+        public double ElasticModulusTraction => _fctk / _strainTensionY;
+
+        /// <summary>
+        /// Characteristic tensile strength of concrete
+        /// </summary>
+        /// <remarks>Mean tensile strength at 28 days</remarks>
+        public virtual double Fctk => _fctk = CalculateFctm();
+
+        #endregion
+
+        #region Constructors
+
+        /// <summary>
+        /// Default constructor
+        /// </summary>
+        /// <param name="name">The name of the material</param>
+        /// <param name="fck">Characteristic compressive cylinder strength of concrete at 28 days</param>
+        /// <param name="ni">Poisson's ratio</param>
+        /// <param name="niCracked">Poisson's ratio in cracked concrete</param>
+        /// <param name="alphaT">Linear thermal expasion coefficient</param>
+        /// <param name="density">The density of concrete</param>        
+        /// <param name="stressStrainDiagram">The stress-strain diagram type</param>
+        /// <param name="typeOfCement">The type of cement. See §3.4.1</param>
+        /// <remarks>Elastic modulus is automatically calculated according to EN1992 §3 (Ecm)</remarks>
+        public ConcreteMaterialModelCode2010(string name, double fck, double ni, double niCracked, double alphaT, double density,
+            CompressionStressStrainDiagrams stressStrainDiagram, TypeOfCements typeOfCement)
+            : base(name, fck)
+        {
+            if (fck < 0.0)
+                throw new ArgumentException($"{nameof(fck)} must be > 0");
+
+            _ni = ni < 0 ? throw new ArgumentException($"{nameof(ni)} cannot be zero or lower") : ni;
+            if (ni > 0.5)
+                throw new ArgumentException($"{nameof(ni)} must be < 0.5");
+
+            _niCracked = niCracked < 0 ? throw new ArgumentException($"{nameof(niCracked)} cannot be zero or lower") : niCracked;
+            if (niCracked > 0.5)
+                throw new ArgumentException($"{nameof(niCracked)} must be < 0.5");
+
+            _density = density <= 0 ? throw new ArgumentException($"{nameof(density)} cannot be zero or lower") : density;
+
+            _alfaThermalExpansion = alphaT;
+
+            _stressStrainDiagram = stressStrainDiagram;
+            _typeOfCement = typeOfCement;
+
+            _elasticModulus = CalculateEcm();
+            if (_elasticModulus <= 0)
+                throw new ArgumentException($"{nameof(_elasticModulus)} must be > 0");
+
+            CalculateEpsilonU();
+            CalculateEpsilonY();
         }
 
         /// <summary>
@@ -66,32 +173,75 @@ namespace GPC.Model.Materials
         /// <param name="density">The density of concrete</param>
         /// <param name="stressStrainDiagram">The stress-strain diagram type</param>
         /// <param name="typeOfCement">The type of cement. See §3.4.1</param>
-        public ConcreteMaterialEN1992(string name, double fck, double strainYCompression, double strainUCompression, 
+        public ConcreteMaterialModelCode2010(string name, double fck, double strainYCompression, double strainUCompression,
             double strainYTension, double ni, double niCracked, double alphaT, double density,
-            ConcreteMaterialModelCode2010.CompressionStressStrainDiagrams stressStrainDiagram, ConcreteMaterialModelCode2010.TypeOfCements typeOfCement)
-            : base(name, fck, strainYCompression, strainUCompression, strainYTension, ni, niCracked, alphaT, density, stressStrainDiagram, typeOfCement)
+            CompressionStressStrainDiagrams stressStrainDiagram, TypeOfCements typeOfCement)
+            : base(name, fck)
+        {
+            if (fck < 0.0)
+                throw new ArgumentException($"{nameof(fck)} must be > 0");
+
+            _ni = ni < 0 ? throw new ArgumentException($"{nameof(ni)} cannot be zero or lower") : ni;
+            if (ni > 0.5)
+                throw new ArgumentException($"{nameof(ni)} must be < 0.5");
+
+            _niCracked = niCracked < 0 ? throw new ArgumentException($"{nameof(niCracked)} cannot be zero or lower") : niCracked;
+            if (niCracked > 0.5)
+                throw new ArgumentException($"{nameof(niCracked)} must be < 0.5");
+
+            _density = density <= 0 ? throw new ArgumentException($"{nameof(density)} cannot be zero or lower") : density;
+
+            _alfaThermalExpansion = alphaT;
+
+            _stressStrainDiagram = stressStrainDiagram;
+            _typeOfCement = typeOfCement;
+
+            _elasticModulus = fck / strainYCompression;
+            if (_elasticModulus < 0)
+                throw new ArgumentException($"{nameof(_elasticModulus)} must be > 0");
+
+            _epsilonCompressionY = strainYCompression;
+            _epsilonCompressionU = strainUCompression;
+            _strainTensionY = strainYTension;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="name">The name of the material</param>
+        /// <param name="fck">Characteristic compressive cylinder strength of concrete at 28 days</param>
+        /// <param name="ni">Poisson's ratio</param>
+        /// <param name="niCracked">Poisson's ratio in cracked concrete</param>
+        /// <param name="alphaT">Linear thermal expasion coefficient</param>
+        /// <param name="density">The density of concrete</param>        
+        /// <param name="stressStrainDiagram">The stress-strain diagram type</param>
+        /// <remarks>Type of cements is ClassN</remarks>
+        public ConcreteMaterialModelCode2010(string name, double fck, double ni, double niCracked, double alphaT, double density,
+            CompressionStressStrainDiagrams stressStrainDiagram)
+            : this(name, fck, ni, niCracked, alphaT, density, stressStrainDiagram, TypeOfCements.ClassN)
         {
 
         }
 
-		/// <summary>
-		/// 
-		/// </summary>
-		/// <param name="fck">Characteristic compressive cylinder strength of concrete at 28 days</param>
-		/// <param name="stressStrainDiagram">The stress-strain diagram type</param>
-		/// <param name="name">Material name</param>
-		/// <remarks>Value: ni = 0.2, niCracked = 0.0; alfaThermalExpansion = 1e-6; density = 0.0025 T/mm^3; standard = StandardEn1992p11; type of cements = classN</remarks>
-		public ConcreteMaterialEN1992(double fck, CompressionStressStrainDiagrams stressStrainDiagram = CompressionStressStrainDiagrams.StressBlock, string name = null)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="fck">Characteristic compressive cylinder strength of concrete at 28 days</param>
+        /// <param name="stressStrainDiagram">The stress-strain diagram type</param>
+        /// <param name="name">Material name</param>
+        /// <remarks>Value: ni = 0.2, niCracked = 0.0; alfaThermalExpansion = 1e-6; density = 0.0025 T/mm^3; standard = StandardEn1992p11; type of cements = classN</remarks>
+        public ConcreteMaterialModelCode2010(double fck, CompressionStressStrainDiagrams stressStrainDiagram = CompressionStressStrainDiagrams.Bilinear, string name = null)
             : this(name, fck, 0.2, 0.0, 1e-6, 0.0025, stressStrainDiagram, TypeOfCements.ClassN)
         {
 
         }
 
-        public ConcreteMaterialEN1992(SerializationInfo info, StreamingContext context) 
+        public ConcreteMaterialModelCode2010(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
             _fck = info.GetDouble("Fck");
-                        
+            _fctk = info.GetDouble("Fctk");
+
             _niCracked = info.GetDouble("NiCracked");
             _epsilonCompressionY = info.GetDouble("EpsilonY");
             _epsilonCompressionU = info.GetDouble("EpsilonU");
@@ -101,17 +251,17 @@ namespace GPC.Model.Materials
 
         #region Public Methods
 
-        public override double CalculateEcm(int days)
+        public virtual double CalculateEcm(int days)
         {
             return Math.Pow(CalculateFcm(days) / Fcm, 0.3) * E;
         }
 
-        public override double CalculateFcm(int days)
+        public virtual double CalculateFcm(int days)
         {
             return Fcm * CalculateBetaCC(days);
         }
 
-        public override double CalculateFctm(int days)
+        public virtual double CalculateFctm(int days)
         {
             double betaCC = CalculateBetaCC(days);
             double alpha;
@@ -130,7 +280,7 @@ namespace GPC.Model.Materials
         /// <param name="epsilonCC">New compressive strain in the concrete at the peak stress fc</param>
         /// <param name="epsilonCuC">New ultimate compressive strain in the concrete</param>
         /// <returns>Thw new characteristic compressive cylinder strength of concrete at 28 days</returns>
-        public override double CalculateConfinedConcreteResistance(double sigma2, out double epsilonCC, out double epsilonCuC)
+        public virtual double CalculateConfinedConcreteResistance(double sigma2, out double epsilonCC, out double epsilonCuC)
         {
             double fckc;
             if (sigma2 <= 0.05 * Fck)
@@ -170,7 +320,7 @@ namespace GPC.Model.Materials
         /// <param name="deltaTemperature">The delta temperature in °C during the time period. Default value = 0</param>
         /// <param name="deltaDaysTemperature">is the number of days where a temperature <paramref name="deltaTemperature"/> prevails. Default value = 0</param>
         /// <returns></returns>
-        public override double CalculateEpsilonCCInfiniteTime(double sigmaC, double RH, double AreaC, double u, double T0 = 7, double deltaTemperature = 0, double deltaDaysTemperature = 0)
+        public virtual double CalculateEpsilonCCInfiniteTime(double sigmaC, double RH, double AreaC, double u, double T0 = 7, double deltaTemperature = 0, double deltaDaysTemperature = 0)
         {
             if (deltaTemperature != 0)
             {
@@ -219,8 +369,8 @@ namespace GPC.Model.Materials
         /// <param name="AreaC">The area of concrete</param>
         /// <param name="u">The perimeter of that part of the cross section which is exposed to drying</param>
         /// <returns></returns>
-        public override double CalculateEpsilonCSInfiniteTime(double RH, double AreaC, double u)
-		{
+        public virtual double CalculateEpsilonCSInfiniteTime(double RH, double AreaC, double u)
+        {
             double alphads1;
             double alphads2;
 
@@ -246,7 +396,7 @@ namespace GPC.Model.Materials
             double betaRH = 1.55 * (1 - Math.Pow(RH / RH0, 3.0));
             double Fcm0 = 10;
 
-            double epsilonCD0 = 0.85 * ((220 + 110 * alphads1) * Math.Pow(Math.E,(-alphads2 * Fcm / Fcm0))) * Math.Pow(10, -6) * betaRH;
+            double epsilonCD0 = 0.85 * ((220 + 110 * alphads1) * Math.Pow(Math.E, (-alphads2 * Fcm / Fcm0))) * Math.Pow(10, -6) * betaRH;
 
             double h0 = 2 * AreaC / u;
             double kh = 0;
@@ -270,33 +420,25 @@ namespace GPC.Model.Materials
             return epsilonCDInf + epsilonCAInf;
         }
 
-        public override double CalculateN()
-        {
-            if (_fck <= 50)
-                return 2.0;
-            else
-                return 1.4 + 13.4 * Math.Pow(((90.0 - _fck) / 100.0), 4);
-        }
-
         #endregion
 
         #region Protected Methods
 
-        protected override void CalculateEpsilonY()
-		{
+        protected virtual void CalculateEpsilonY()
+        {
             if (StressStrainDiagram == CompressionStressStrainDiagrams.ParabolaRectangle)
             {
                 if (_fck <= 50)
-                    _epsilonCompressionY = - 2.0 / 1000.0;
+                    _epsilonCompressionY = -2.0 / 1000.0;
                 else
-                    _epsilonCompressionY = - (2.0 + 0.085 * Math.Pow(_fck - 50.0, 0.53)) / 1000.0;
+                    _epsilonCompressionY = -(2.0 + 0.085 * Math.Pow(_fck - 50.0, 0.53)) / 1000.0;
             }
             else if (StressStrainDiagram == CompressionStressStrainDiagrams.Bilinear)
             {
                 if (_fck <= 50)
-                    _epsilonCompressionY = - 1.75 / 1000.0;
+                    _epsilonCompressionY = -1.75 / 1000.0;
                 else
-                    _epsilonCompressionY = - (1.75 + 0.55 * ((_fck - 50.0) / 40.0)) / 1000.0;
+                    _epsilonCompressionY = -(1.75 + 0.55 * ((_fck - 50.0) / 40.0)) / 1000.0;
             }
             else if (StressStrainDiagram == CompressionStressStrainDiagrams.StressBlock)
             {
@@ -307,40 +449,40 @@ namespace GPC.Model.Materials
                 else
                     lambda = 0.8 - (_fck - 50.0) / 400;
 
-                _epsilonCompressionY = - _epsilonCompressionU * (1 - lambda);
-            }
-            else
-                throw new ArgumentException();
-		}
-
-        protected override void CalculateEpsilonU()
-        {
-            if (StressStrainDiagram == CompressionStressStrainDiagrams.ParabolaRectangle)
-            {
-                if (_fck <= 50)
-                    _epsilonCompressionU = - 3.5 / 1000.0;
-                else
-                    _epsilonCompressionU = - (2.6 + 35.0 * Math.Pow(((90.0 - _fck) / 100.0), 4)) / 1000.0;
-            }
-            else if (StressStrainDiagram == CompressionStressStrainDiagrams.Bilinear)
-            {
-                if (_fck <= 50)
-                    _epsilonCompressionU = - 3.5 / 1000.0;
-                else
-                    _epsilonCompressionU = - (2.6 + 35.0 * Math.Pow(((90.0 - _fck) / 100.0), 4)) / 1000.0;
-            }
-            else if (StressStrainDiagram == CompressionStressStrainDiagrams.StressBlock)
-            {
-                if (_fck <= 50)
-                    _epsilonCompressionU = - 3.5 / 1000.0;
-                else
-                    _epsilonCompressionU = - (2.6 + 35.0 * Math.Pow(((90.0 - _fck) / 100.0), 4)) / 1000.0;
+                _epsilonCompressionY = -_epsilonCompressionU * (1 - lambda);
             }
             else
                 throw new ArgumentException();
         }
 
-        protected override double CalculateFckCube()
+        protected virtual void CalculateEpsilonU()
+        {
+            if (StressStrainDiagram == CompressionStressStrainDiagrams.ParabolaRectangle)
+            {
+                if (_fck <= 50)
+                    _epsilonCompressionU = -3.5 / 1000.0;
+                else
+                    _epsilonCompressionU = -(2.6 + 35.0 * Math.Pow(((90.0 - _fck) / 100.0), 4)) / 1000.0;
+            }
+            else if (StressStrainDiagram == CompressionStressStrainDiagrams.Bilinear)
+            {
+                if (_fck <= 50)
+                    _epsilonCompressionU = -3.5 / 1000.0;
+                else
+                    _epsilonCompressionU = -(2.6 + 35.0 * Math.Pow(((90.0 - _fck) / 100.0), 4)) / 1000.0;
+            }
+            else if (StressStrainDiagram == CompressionStressStrainDiagrams.StressBlock)
+            {
+                if (_fck <= 50)
+                    _epsilonCompressionU = -3.5 / 1000.0;
+                else
+                    _epsilonCompressionU = -(2.6 + 35.0 * Math.Pow(((90.0 - _fck) / 100.0), 4)) / 1000.0;
+            }
+            else
+                throw new ArgumentException();
+        }
+
+        protected virtual double CalculateFckCube()
         {
             switch (Fck)
             {
@@ -381,7 +523,7 @@ namespace GPC.Model.Materials
             }
         }
 
-        protected override double CalculateFctm()
+        protected virtual double CalculateFctm()
         {
             if (_fck <= 50.0)
                 return 0.30 * Math.Pow(Fck, 2.0 / 3.0);
@@ -389,12 +531,20 @@ namespace GPC.Model.Materials
                 return 2.12 * Math.Log(1 + (Fcm / 10.0));
         }
 
-        protected override double CalculateEcm()
+        public virtual double CalculateN()
+        {
+            if (_fck <= 50)
+                return 2.0;
+            else
+                return 1.4 + 13.4 * Math.Pow(((90.0 - _fck) / 100.0), 4);
+        }
+
+        protected virtual double CalculateEcm()
         {
             return 22.0 * Math.Pow(Fcm / 10.0, 0.30) * 1000;
         }
 
-        protected override double CalculateBetaCC(int days)
+        protected virtual double CalculateBetaCC(int days)
         {
             double s;
             if (TypeOfCement == TypeOfCements.ClassR)
@@ -407,11 +557,12 @@ namespace GPC.Model.Materials
             return Math.Pow(Math.E, (s * (1 - Math.Pow(28 / days, 0.5))));
         }
 
-        protected override void CalculateEpsilonTensionT()
-		{
+        protected virtual void CalculateEpsilonTensionT()
+        {
             _strainTensionY = Fctk / E;
-		}
+        }
 
         #endregion
-    }    
+
+    }
 }
