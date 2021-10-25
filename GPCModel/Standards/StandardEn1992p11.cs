@@ -10,13 +10,13 @@ namespace GPC.Model.Standards
     /// This class collects all the coefficient of the Eurocode2 Standard
     /// </summary>
     /// <remarks>Reference: EN 1992-1-1:2004/AC:2010</remarks>
-	public class StandardEn1992p11 : StandardModelCode2010
+	public class StandardEN1992p11 : StandardModelCode2010
 	{
 
         /// <summary>
         /// Default Constructor
         /// </summary>
-        public StandardEn1992p11()
+        public StandardEN1992p11()
         {
 
         }

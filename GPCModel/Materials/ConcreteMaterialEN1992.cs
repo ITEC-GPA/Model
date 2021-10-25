@@ -8,7 +8,7 @@ using GPC.Utilities.Maths;
 namespace GPC.Model.Materials
 {
     /// <summary>
-    /// Concrete material in according to <see cref="StandardEn1992p11"/>
+    /// Concrete material in according to <see cref="StandardEN1992p11"/>
     /// </summary>
     /// <remarks>BS EN 1992-1-1:2004\AC:2014</remarks>
     [Serializable]

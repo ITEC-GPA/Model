@@ -119,7 +119,7 @@
     <Compile Include="Standards\StandardEN1990.cs" />
     <Compile Include="Combinations\Combination.cs" />
     <Compile Include="Standards\StandardModelCode2010.cs" />
-    <Compile Include="Standards\StandardEn1992p11.cs" />
+    <Compile Include="Standards\StandardEN1992p11.cs" />
     <Compile Include="Standards\StandardUNIEn1993p11.cs" />
     <Compile Include="Standards\StandardEn1993p11.cs" />
     <Compile Include="Standards\StandardUNIEN1990.cs" />
