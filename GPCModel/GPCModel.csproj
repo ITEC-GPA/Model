@@ -81,7 +81,9 @@
     <Compile Include="FEM\Attributes\AttributeEqualityComparer.cs" />
     <Compile Include="FEM\Attributes\LoadCase\ModelGravityAttribute.cs" />
     <Compile Include="FEM\Collections\AttributesCollection.cs" />
-    <Compile Include="Materials\ConcreteMaterialFRC.cs" />
+    <Compile Include="Materials\ConcreteMaterialCNR204.cs" />
+    <Compile Include="Materials\ConcreteMaterialFRCModuleCode2010.cs" />
+    <Compile Include="Materials\ConcreteMaterialModelCode2010.cs" />
     <Compile Include="Maths\GaussIntegration\GaussIntegration.cs" />
     <Compile Include="Maths\GaussIntegration\GaussPoints.cs" />
     <Compile Include="Maths\GaussIntegration\HexahedroGaussPoints.cs" />
@@ -116,8 +118,8 @@
     <Compile Include="Standards\StandardEN16612.cs" />
     <Compile Include="Standards\StandardEN1990.cs" />
     <Compile Include="Combinations\Combination.cs" />
-    <Compile Include="Standards\StandardEN1992p11.cs" />
-    <Compile Include="Standards\StandardFib2010.cs" />
+    <Compile Include="Standards\StandardModelCode2010.cs" />
+    <Compile Include="Standards\StandardEn1992p11.cs" />
     <Compile Include="Standards\StandardUNIEn1993p11.cs" />
     <Compile Include="Standards\StandardEn1993p11.cs" />
     <Compile Include="Standards\StandardUNIEN1990.cs" />
