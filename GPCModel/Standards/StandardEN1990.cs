@@ -9,7 +9,7 @@ using GPC.Model.Combinations;
 namespace GPC.Model.Standards
 {
     /// <summary>
-    /// This class collects all the coefficient of the Eurocode Standard
+    /// This class collects all the coefficient of the Eurocode0 Standard 
     /// </summary>
     /// <remarks>Reference: EN 1990:2002/A1:2005</remarks>
     public class StandardEN1990 : Standard, Standard.ICombinationsGenerator
