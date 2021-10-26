@@ -40,7 +40,7 @@ namespace GPC.Model.Sections.Concrete
 			if (Mesh.Generate(new Shape[] { shape }, generateOptions, out List<Mesh> meshes, out Mesh.GenerateMeshStatus meshStatus))
 				return meshes[0];
 			else
-				throw new ArgumentException("Fail to create mesh");
+				throw new ArgumentException($"Fail to create mesh. {meshStatus.GetLastCustomErrorMessage()}");
 		}
 
 		internal static void CalculateIntegralInertiaMoment(Mesh mesh, MeshFace face, Point3d centroid, out double jxx, out double jyy, out double jxy)

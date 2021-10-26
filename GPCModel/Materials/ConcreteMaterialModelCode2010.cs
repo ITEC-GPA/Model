@@ -7,8 +7,8 @@ using GPC.Utilities.Maths;
 
 namespace GPC.Model.Materials
 {
-	public abstract class ConcreteMaterialModelCode2010 : ConcreteMaterial
-	{
+    public abstract class ConcreteMaterialModelCode2010 : ConcreteMaterial
+    {
         #region Enumerator
 
         public enum CompressionStressStrainDiagrams
@@ -111,7 +111,15 @@ namespace GPC.Model.Materials
         /// Characteristic tensile strength of concrete
         /// </summary>
         /// <remarks>Mean tensile strength at 28 days</remarks>
-        public virtual double Fctk => _fctk = CalculateFctm();
+        public virtual double Fctk
+        {
+            get
+            {
+                if (_fctk == 0.0)
+                    _fctk = CalculateFctm();
+                return _fctk;
+            }
+        }
 
         #endregion
 
@@ -130,8 +138,8 @@ namespace GPC.Model.Materials
         /// <param name="typeOfCement">The type of cement. See §3.4.1</param>
         /// <remarks>Elastic modulus is automatically calculated according to EN1992 §3 (Ecm)</remarks>
         public ConcreteMaterialModelCode2010(string name, double fck, double ni, double niCracked, double alphaT, double density,
-            CompressionStressStrainDiagrams stressStrainDiagram, TypeOfCements typeOfCement)
-            : base(name, fck)
+                    CompressionStressStrainDiagrams stressStrainDiagram, TypeOfCements typeOfCement)
+                    : base(name, fck)
         {
             if (fck < 0.0)
                 throw new ArgumentException($"{nameof(fck)} must be > 0");

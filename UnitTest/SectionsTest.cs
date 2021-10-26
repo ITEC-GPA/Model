@@ -1435,7 +1435,7 @@ namespace ModelObjectTest
 
             ConcreteSectionRectangular sectionRectangular = new ConcreteSectionRectangular(heigth, width, ConcreteMaterialEN1992.C25_30, rebars);
 
-            sectionRectangular.GetHomogeneizedMechanicalProperties(n, out double areaH, out double _, out double _, out Point3d _,
+            sectionRectangular.GetHomogeneizedMechanicalProperties(n, out double _, out double _, out double _, out Point3d _,
                 out double _, out double _, out double _, out double _, out J11H, out J22H, out angleX);
 
             //valori calcolati con VCASLU
@@ -1473,7 +1473,7 @@ namespace ModelObjectTest
                                                                                 new ReinforcedConcreteRebar(rebar, new Point3d(250, 50,0))};
 
             ReinforcedConcreteSection section = new ReinforcedConcreteSection(shapeEx, rebars);
-            section.GetHomogeneizedMechanicalProperties(n, out double areaH, out double _, out double _, out Point3d _,
+            section.GetHomogeneizedMechanicalProperties(n, out double _, out double _, out double _, out Point3d _,
             out double _, out double _, out double _, out double _, out double J11H, out double J22H, out double angleX);
 
             //valori calcolati con VCASLU
@@ -1483,7 +1483,7 @@ namespace ModelObjectTest
 
             ConcreteSectionRectangular sectionRectangular = new ConcreteSectionRectangular(heigth, width, ConcreteMaterialEN1992.C25_30, rebars);
 
-            sectionRectangular.GetHomogeneizedMechanicalProperties(n, out areaH, out double _, out double _, out Point3d _,
+            sectionRectangular.GetHomogeneizedMechanicalProperties(n, out _, out double _, out double _, out Point3d _,
                 out double _, out double _, out double _, out double _, out J11H, out J22H, out angleX);
 
             //valori calcolati con VCASLU
@@ -1566,7 +1566,7 @@ namespace ModelObjectTest
 
             ConcreteSectionCircular section = new ConcreteSectionCircular(diameter, ConcreteMaterialEN1992.C25_30, rebars);
             section.GetHomogeneizedMechanicalProperties(n, out double _, out double _, out double _, out Point3d _,
-            out double _, out double _, out double _, out double _, out double J11H, out double J22H, out double angleX);
+            out double _, out double _, out double _, out double _, out double J11H, out double J22H, out double _);
 
             //valori calcolati con VCASLU
             Assert.IsTrue(Math.Abs(J11H - 4018160897) / J11H * 100 < 1);
