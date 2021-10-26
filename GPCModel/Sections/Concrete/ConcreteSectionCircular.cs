@@ -165,9 +165,6 @@ namespace GPC.Model.Sections.Concrete
 			J11H = CalculateJ11(JxxH, JyyH, JxyH);
 			J22H = CalculateJ22(JxxH, JyyH, JxyH);
 			angleX = CalculateAngle(JxxH, JyyH, JxyH);
-
-			ConcreteSectionHelper.GetHomogeneizedMechanicalProperties(Mesh, Centroid, Rebars, ConcreteMaterial, Area, Jxx, Jyy, Jxy,
-				out areaH, out SxH, out SyH, out centroidH, out JxxH, out JyyH, out JxyH, out JpH, out J11H, out J22H, out angleX);
 		}
 
 		/// <summary>
@@ -190,8 +187,12 @@ namespace GPC.Model.Sections.Concrete
 		public void GetHomogeneizedMechanicalProperties(double n, out double areaH, out double SxH, out double SyH, out Point3d centroidH,
 			out double JxxH, out double JyyH, out double JxyH, out double JpH, out double J11H, out double J22H, out double angleX)
 		{
-			ConcreteSectionHelper.GetHomogeneizedMechanicalProperties(n, Mesh, Rebars, Centroid, Area, Jxx, Jyy, Jxy,
-				out areaH, out SxH, out SyH, out centroidH, out JxxH, out JyyH, out JxyH, out JpH, out J11H, out J22H, out angleX);
+			areaH = GetHomogenizedArea(n);
+			centroidH = GetHomogenizedCentroid(n, out SxH, out SyH);
+			CalculateHomogeneizedInertiaMoments(n, centroidH, Jxx, Jyy, Jxy, out JxxH, out JyyH, out JxyH, out JpH);
+			J11H = CalculateJ11(JxxH, JyyH, JxyH);
+			J22H = CalculateJ22(JxxH, JyyH, JxyH);
+			angleX = CalculateAngle(JxxH, JyyH, JxyH);
 		}
 
 		/// <summary>

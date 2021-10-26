@@ -14,6 +14,10 @@ namespace ModelObjectTest
     [TestClass]
     public class SectionsTest : UnitTestBase
     {
+        /// <summary>
+        /// Metodo per visualizzare la geometria della sezione
+        /// </summary>
+        /// <param name="section"></param>
         private void ExportToGmsh(IConcreteSection section)
         {
             GmshNet.Gmsh.Initialize();
@@ -1620,8 +1624,6 @@ namespace ModelObjectTest
             //valori calcolati con VCASLU
             Assert.IsTrue(Math.Abs(J11H - 54653616364) / J11H * 100 < 1);
             Assert.IsTrue(Math.Abs(J22H - 54653616364) / J22H * 100 < 1);
-
-            ExportToGmsh(section);
         }
 
         #endregion
