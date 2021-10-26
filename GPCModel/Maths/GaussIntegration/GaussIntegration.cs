@@ -194,18 +194,18 @@ namespace GPC.Model.Maths.GaussIntegrations
             }
             else
             {
-                Parallel.For(0, vertices.Length, (i) =>
+                for (int i = 0; i < vertices.Length; i++)
                 {
                     shapeFunctionNode[i] = vertices[i];
-                });
+                }
 
-                Parallel.For(0, vertices.Length, (i) =>
+                for (int i = 0; i < vertices.Length; i++)
                 {
                     if (i != vertices.Length - 1)
                         shapeFunctionNode[vertices.Length + i] = (vertices[i] + vertices[i + 1]) / 2.0;
                     else
                         shapeFunctionNode[vertices.Length + i] = (vertices[i] + vertices[0]) / 2.0;
-                });
+                }
             }
 
             var jacobian = JacobianMatrix2D(dNdCsi, dNdEta, shapeFunctionNode);
@@ -290,7 +290,7 @@ namespace GPC.Model.Maths.GaussIntegrations
                     gaussPoints = QuadrangleGaussPoints.Quad25;
                     break;
                 case 49:
-                    gaussPoints = QuadrangleGaussPoints.Quad25;
+                    gaussPoints = QuadrangleGaussPoints.Quad49;
                     break;
                 case 121:
                     gaussPoints = QuadrangleGaussPoints.Quad121;
@@ -311,18 +311,18 @@ namespace GPC.Model.Maths.GaussIntegrations
             }
             else
             {
-                Parallel.For(0, vertices.Length, (i) =>
+                for (int i = 0; i < vertices.Length; i++)
                 {
                     shapeFunctionNode[i] = vertices[i];
-                });
+                }
 
-                Parallel.For(0, vertices.Length, (i) =>
+                for(int i = 0; i < vertices.Length; i++)                
                 {
                     if (i != vertices.Length - 1)
                         shapeFunctionNode[vertices.Length + i] = (vertices[i] + vertices[i + 1]) / 2.0;
                     else
                         shapeFunctionNode[vertices.Length + i] = (vertices[i] + vertices[0]) / 2.0;
-                });
+                }
             }
 
             var jacobian = JacobianMatrix2D(dNdCsi, dNdEta, shapeFunctionNode);
