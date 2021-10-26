@@ -168,7 +168,7 @@ namespace GPC.Model.Materials
             info.AddValue("Fu", _fu);
         }
 
-        public virtual double CalculateSigma(double strain)
+        public virtual double CalculateStress(double strain)
 		{
             if (strain >= 0)
             {

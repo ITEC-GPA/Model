@@ -93,8 +93,8 @@ namespace GPC.Model.Materials
             _fck = info.GetDouble("Fck");
                         
             _niCracked = info.GetDouble("NiCracked");
-            _epsilonCompressionY = info.GetDouble("EpsilonY");
-            _epsilonCompressionU = info.GetDouble("EpsilonU");
+            _strainCompressionY = info.GetDouble("EpsilonY");
+            _strainCompressionU = info.GetDouble("EpsilonU");
         }
 
         #endregion 
@@ -138,19 +138,19 @@ namespace GPC.Model.Materials
             else
                 fckc = Fck * (1.125 + 2.5 * sigma2 / Fck);
 
-            if (StressStrainDiagram == CompressionStressStrainDiagrams.ParabolaRectangle)
+            if (CompressionStressStrainDiagram == CompressionStressStrainDiagrams.ParabolaRectangle)
             {
-                epsilonCC = EpsilonCompressionY * Math.Pow(fckc / Fck, 2.0);
+                epsilonCC = StrainCompressionY * Math.Pow(fckc / Fck, 2.0);
                 epsilonCuC = epsilonCC + 0.2 * sigma2 / Fck;
             }
-            else if (StressStrainDiagram == CompressionStressStrainDiagrams.Bilinear)
+            else if (CompressionStressStrainDiagram == CompressionStressStrainDiagrams.Bilinear)
             {
-                epsilonCC = EpsilonCompressionY * Math.Pow(fckc / Fck, 2.0);
+                epsilonCC = StrainCompressionY * Math.Pow(fckc / Fck, 2.0);
                 epsilonCuC = epsilonCC + 0.2 * sigma2 / Fck;
             }
             else
             {
-                epsilonCC = EpsilonCompressionY * Math.Pow(fckc / Fck, 2.0);
+                epsilonCC = StrainCompressionY * Math.Pow(fckc / Fck, 2.0);
                 epsilonCuC = epsilonCC + 0.2 * sigma2 / Fck;
 
                 //TODO: implementare questo caso
@@ -284,21 +284,21 @@ namespace GPC.Model.Materials
 
         protected override void CalculateEpsilonY()
 		{
-            if (StressStrainDiagram == CompressionStressStrainDiagrams.ParabolaRectangle)
+            if (CompressionStressStrainDiagram == CompressionStressStrainDiagrams.ParabolaRectangle)
             {
                 if (_fck <= 50)
-                    _epsilonCompressionY = - 2.0 / 1000.0;
+                    _strainCompressionY = - 2.0 / 1000.0;
                 else
-                    _epsilonCompressionY = - (2.0 + 0.085 * Math.Pow(_fck - 50.0, 0.53)) / 1000.0;
+                    _strainCompressionY = - (2.0 + 0.085 * Math.Pow(_fck - 50.0, 0.53)) / 1000.0;
             }
-            else if (StressStrainDiagram == CompressionStressStrainDiagrams.Bilinear)
+            else if (CompressionStressStrainDiagram == CompressionStressStrainDiagrams.Bilinear)
             {
                 if (_fck <= 50)
-                    _epsilonCompressionY = - 1.75 / 1000.0;
+                    _strainCompressionY = - 1.75 / 1000.0;
                 else
-                    _epsilonCompressionY = - (1.75 + 0.55 * ((_fck - 50.0) / 40.0)) / 1000.0;
+                    _strainCompressionY = - (1.75 + 0.55 * ((_fck - 50.0) / 40.0)) / 1000.0;
             }
-            else if (StressStrainDiagram == CompressionStressStrainDiagrams.StressBlock)
+            else if (CompressionStressStrainDiagram == CompressionStressStrainDiagrams.StressBlock)
             {
                 double lambda;
 
@@ -307,7 +307,7 @@ namespace GPC.Model.Materials
                 else
                     lambda = 0.8 - (_fck - 50.0) / 400;
 
-                _epsilonCompressionY = - _epsilonCompressionU * (1 - lambda);
+                _strainCompressionY = - _strainCompressionU * (1 - lambda);
             }
             else
                 throw new ArgumentException();
@@ -315,26 +315,26 @@ namespace GPC.Model.Materials
 
         protected override void CalculateEpsilonU()
         {
-            if (StressStrainDiagram == CompressionStressStrainDiagrams.ParabolaRectangle)
+            if (CompressionStressStrainDiagram == CompressionStressStrainDiagrams.ParabolaRectangle)
             {
                 if (_fck <= 50)
-                    _epsilonCompressionU = - 3.5 / 1000.0;
+                    _strainCompressionU = - 3.5 / 1000.0;
                 else
-                    _epsilonCompressionU = - (2.6 + 35.0 * Math.Pow(((90.0 - _fck) / 100.0), 4)) / 1000.0;
+                    _strainCompressionU = - (2.6 + 35.0 * Math.Pow(((90.0 - _fck) / 100.0), 4)) / 1000.0;
             }
-            else if (StressStrainDiagram == CompressionStressStrainDiagrams.Bilinear)
+            else if (CompressionStressStrainDiagram == CompressionStressStrainDiagrams.Bilinear)
             {
                 if (_fck <= 50)
-                    _epsilonCompressionU = - 3.5 / 1000.0;
+                    _strainCompressionU = - 3.5 / 1000.0;
                 else
-                    _epsilonCompressionU = - (2.6 + 35.0 * Math.Pow(((90.0 - _fck) / 100.0), 4)) / 1000.0;
+                    _strainCompressionU = - (2.6 + 35.0 * Math.Pow(((90.0 - _fck) / 100.0), 4)) / 1000.0;
             }
-            else if (StressStrainDiagram == CompressionStressStrainDiagrams.StressBlock)
+            else if (CompressionStressStrainDiagram == CompressionStressStrainDiagrams.StressBlock)
             {
                 if (_fck <= 50)
-                    _epsilonCompressionU = - 3.5 / 1000.0;
+                    _strainCompressionU = - 3.5 / 1000.0;
                 else
-                    _epsilonCompressionU = - (2.6 + 35.0 * Math.Pow(((90.0 - _fck) / 100.0), 4)) / 1000.0;
+                    _strainCompressionU = - (2.6 + 35.0 * Math.Pow(((90.0 - _fck) / 100.0), 4)) / 1000.0;
             }
             else
                 throw new ArgumentException();

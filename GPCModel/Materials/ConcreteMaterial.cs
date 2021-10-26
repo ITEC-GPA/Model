@@ -12,8 +12,8 @@ namespace GPC.Model.Materials
         #region Variables
 
         protected double _fck;
-        protected double _epsilonCompressionY;
-        protected double _epsilonCompressionU;
+        protected double _strainCompressionY;
+        protected double _strainCompressionU;
 
         #endregion
 
@@ -27,12 +27,12 @@ namespace GPC.Model.Materials
         /// <summary>
         /// Strain in the concrete at the peak compressive stress fc
         /// </summary>
-        public double EpsilonCompressionY => _epsilonCompressionY;
+        public double StrainCompressionY => _strainCompressionY;
 
         /// <summary>
         /// Ultimate strain in compression
         /// </summary>
-        public double EpsilonCompressionU => _epsilonCompressionU;
+        public double StrainCompressionU => _strainCompressionU;
 
         #endregion
 
