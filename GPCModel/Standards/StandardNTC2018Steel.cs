@@ -11,6 +11,10 @@ namespace GPC.Model.Standards
 	/// </summary>
 	public class StandardNTC2018Steel : StandardEN1993p11
 	{
+
+		/// <summary>
+		/// Default Constructor
+		/// </summary>
 		public StandardNTC2018Steel()
 		{
 		}

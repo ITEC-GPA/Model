@@ -11,6 +11,10 @@ namespace GPC.Model.Standards
 	/// </summary>
 	public class StandardNTC2018Concrete : StandardEN1992p11
 	{
+
+		/// <summary>
+		/// Default Constructor
+		/// </summary>
 		public StandardNTC2018Concrete()
 		{
 			_alphaCC = 0.85;
