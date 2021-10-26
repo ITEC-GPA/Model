@@ -9,8 +9,8 @@ namespace GPC.Model.Sections
     {
         #region Variables
 
-        protected readonly double _d; // Diameter external
-        protected readonly double _t; // Thickness
+        protected readonly double _externalDiameter; // Diameter external
+        protected readonly double _thickness; // Thickness
 
         #endregion
 
@@ -20,33 +20,33 @@ namespace GPC.Model.Sections
         /// <summary>
         /// The external diameter of CHS
         /// </summary>
-        public double Diameter => _d;
+        public double Diameter => _externalDiameter;
 
         /// <summary>
         /// The Thickness of the section
         /// </summary>
-        public double Thickness => _t;
+        public double Thickness => _thickness;
 
         /// <summary>
         /// The internal diameter of CHS
         /// </summary>
-        public double DiameterInternal => _d - (2 * _t);
+        public double DiameterInternal => _externalDiameter - (2 * _thickness);
 
         #endregion
 
 
         #region Public Constructors
 
-        public SectionCHS(double dext, double t, Material material, string name) 
+        public SectionCHS(double externalDiameter, double thickness, Material material, string name) 
             : base(material, name)
         {
             #region Check inputs
 
-            if (t > dext / 2.0)
+            if (thickness > externalDiameter / 2.0)
                 throw new ArgumentException($"Diameter cannot be lower than 2 * thickness ");       
 
-            _d = dext < 0 ? throw new ArgumentException($"Diameter cannot be lower than zero") : dext;
-            _t = t < 0 ? throw new ArgumentException($"Thickness cannot be lower than zero") : t;
+            _externalDiameter = externalDiameter < 0 ? throw new ArgumentException($"Diameter cannot be lower than zero") : externalDiameter;
+            _thickness = thickness < 0 ? throw new ArgumentException($"Thickness cannot be lower than zero") : thickness;
 
             #endregion
 
@@ -65,8 +65,8 @@ namespace GPC.Model.Sections
         public SectionCHS(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
-            _d = info.GetDouble("D");
-            _t = info.GetDouble("T");
+            _externalDiameter = info.GetDouble("D");
+            _thickness = info.GetDouble("T");
             _material = (Material)info.GetValue("Material", typeof(Material));
         }
 
@@ -119,7 +119,7 @@ namespace GPC.Model.Sections
 
         protected virtual double CalculateWel()
         {
-            return Math.PI * (Math.Pow(Diameter, 4.0) - Math.Pow(DiameterInternal, 4.0)) / (32.0 * _d);
+            return Math.PI * (Math.Pow(Diameter, 4.0) - Math.Pow(DiameterInternal, 4.0)) / (32.0 * _externalDiameter);
         }
 
         protected virtual double CalculateWpl()
@@ -135,8 +135,8 @@ namespace GPC.Model.Sections
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             base.GetObjectData(info, context);
-            info.AddValue("D", _d);
-            info.AddValue("T", _t);
+            info.AddValue("D", _externalDiameter);
+            info.AddValue("T", _thickness);
             info.AddValue("Material", _material);
         }
 
@@ -153,7 +153,7 @@ namespace GPC.Model.Sections
             for (int i = 0; i < divisions; i++)
             {
                 double teta = i * 2 * Math.PI / divisions;
-                fill.Add(new Point2d(0.5 * Diameter * Math.Cos(teta), 0.5 * _d * Math.Sin(teta)));
+                fill.Add(new Point2d(0.5 * Diameter * Math.Cos(teta), 0.5 * _externalDiameter * Math.Sin(teta)));
 
                 if (hole != null)
                 {
@@ -169,8 +169,8 @@ namespace GPC.Model.Sections
         public override string ToString()
         {
             string s = "CHS section: \n";
-            s = s + "D = " + _d + " mm \n";
-            s = s + "t = " + _t + " mm \n";
+            s = s + "D = " + _externalDiameter + " mm \n";
+            s = s + "t = " + _thickness + " mm \n";
             return s;
         }
 

@@ -32,7 +32,7 @@ namespace GPC.Model.Sections.Concrete
 			get
 			{
 				if (_mesh == null)
-					_mesh = GetReinforcedConcreteSection().Mesh;
+					_mesh = GenerateMesh();
 				return _mesh;
 			}
 		}
@@ -250,10 +250,11 @@ namespace GPC.Model.Sections.Concrete
 		{
 			return ConcreteSectionHelper.CalculateAngle(Jxx, Jyy, Jxy);
 		}
+
 		protected Shape GetShape(int edge = 32)
 		{
-			Polygon3d externalPolygon = ConvertCircleToPolygon(Diameter, edge);
-			Polygon3d internalPolygon = ConvertCircleToPolygon(DiameterInternal, edge);
+			Polygon3d externalPolygon = ConvertCircleToPolygon(Diameter / 2.0, edge);
+			Polygon3d internalPolygon = ConvertCircleToPolygon(DiameterInternal / 2.0, edge);
 
 			return new Shape(externalPolygon, new Polygon3d[] { internalPolygon });
 		}
@@ -266,6 +267,11 @@ namespace GPC.Model.Sections.Concrete
 		protected ReinforcedConcreteSection GetReinforcedConcreteSection()
 		{
 			return new ReinforcedConcreteSection(new ShapeEx(GetShape(), ConcreteMaterial), Rebars, Name);
+		}
+
+		protected Mesh GenerateMesh(double size = -1)
+		{
+			return ConcreteSectionHelper.GenerateMesh(Shape, size);
 		}
 
 		#endregion

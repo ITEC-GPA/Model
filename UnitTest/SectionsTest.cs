@@ -14,9 +14,39 @@ namespace ModelObjectTest
     [TestClass]
     public class SectionsTest : UnitTestBase
     {
-		#region Section CHS
+        private void ExportToGmsh(IConcreteSection section)
+        {
+            GmshNet.Gmsh.Initialize();
 
-		[TestMethod]
+            for (int i = 0; i < section.Shape.Fill.Count; i++)
+            {
+                GmshNet.Gmsh.Model.Occ.AddPoint(section.Shape.Fill[i].X, section.Shape.Fill[i].Y, section.Shape.Fill[i].Z);
+            }
+
+            if (section.Shape.HasHoles)
+            {
+                for (int i = 0; i < section.Shape.Holes.Length; i++)
+                {
+                    for (int j = 0; j < section.Shape.Holes[i].Count; j++)
+                    {
+                        GmshNet.Gmsh.Model.Occ.AddPoint(section.Shape.Holes[i][j].X, section.Shape.Holes[i][j].Y, section.Shape.Holes[i][j].Z);
+                    }
+                }
+            }
+
+            for (int i = 0; i < section.Rebars.Length; i++)
+            {
+                GmshNet.Gmsh.Model.Occ.AddPoint(section.Rebars[i].Position.X, section.Rebars[i].Position.Y, section.Rebars[i].Position.Z);
+            }
+
+            GmshNet.Gmsh.Model.Occ.Synchronize();
+            GmshNet.Gmsh.Fltk.Run();
+            GmshNet.Gmsh.Finalize();
+        }
+
+        #region Section CHS
+
+        [TestMethod]
         public void SectionCHS_Test1()
         {
             double d = 400;
@@ -1590,6 +1620,8 @@ namespace ModelObjectTest
             //valori calcolati con VCASLU
             Assert.IsTrue(Math.Abs(J11H - 54653616364) / J11H * 100 < 1);
             Assert.IsTrue(Math.Abs(J22H - 54653616364) / J22H * 100 < 1);
+
+            ExportToGmsh(section);
         }
 
         #endregion
