@@ -1461,6 +1461,73 @@ namespace ModelObjectTest
             Assert.IsTrue(Math.Abs(angleX) < 0.001);
         }
 
+        [TestMethod]
+        public void RCCircularSection1()
+        {
+            double rebarDiameter = 16;
+            double diameter = 500;
+            double n = 16;
+
+            GPC.Model.Sections.Rebar.RebarSectionCircular rebar = new GPC.Model.Sections.Rebar.RebarSectionCircular(rebarDiameter, RebarMaterial.B450C);
+
+            ReinforcedConcreteRebar[] rebars = new ReinforcedConcreteRebar[] {  new ReinforcedConcreteRebar(rebar, new Point3d(450, 250, 0)),
+                                                                                new ReinforcedConcreteRebar(rebar, new Point3d(434.77591, 326.536678, 0)),
+                                                                                new ReinforcedConcreteRebar(rebar, new Point3d(391.421355, 391.421357, 0)),
+                                                                                new ReinforcedConcreteRebar(rebar, new Point3d(326.536686, 434.775907, 0)),
+                                                                                new ReinforcedConcreteRebar(rebar, new Point3d(250, 450, 0)),
+                                                                                new ReinforcedConcreteRebar(rebar, new Point3d(173.463322, 434.77591, 0)),
+                                                                                new ReinforcedConcreteRebar(rebar, new Point3d(108.578643, 391.421355, 0)),
+                                                                                new ReinforcedConcreteRebar(rebar, new Point3d(65.224093, 326.536686, 0)),
+                                                                                new ReinforcedConcreteRebar(rebar, new Point3d(50, 250, 0)),
+                                                                                new ReinforcedConcreteRebar(rebar, new Point3d(65.22409, 173.463322, 0)),
+                                                                                new ReinforcedConcreteRebar(rebar, new Point3d(108.578645, 108.578643, 0)),
+                                                                                new ReinforcedConcreteRebar(rebar, new Point3d(173.463314, 65.224093, 0)),
+                                                                                new ReinforcedConcreteRebar(rebar, new Point3d(250.0, 50, 0)),
+                                                                                new ReinforcedConcreteRebar(rebar, new Point3d(326.536678, 65.22409, 0)),
+                                                                                new ReinforcedConcreteRebar(rebar, new Point3d(391.421357, 108.578645, 0)),
+                                                                                new ReinforcedConcreteRebar(rebar, new Point3d(434.775907, 173.463314, 0)) };
+
+            ConcreteSectionCircular section = new ConcreteSectionCircular(diameter, ConcreteMaterialEN1992.C25_30, rebars);
+            section.GetHomogeneizedMechanicalProperties(n, out double _, out double _, out double _, out Point3d _,
+            out double _, out double _, out double _, out double _, out double J11H, out double J22H, out double angleX);
+
+            //valori calcolati con VCASLU
+            Assert.IsTrue(Math.Abs(J11H - 4018160897) / J11H * 100 < 1);
+            Assert.IsTrue(Math.Abs(J22H - 4018160897) / J22H * 100 < 1);
+        }
+
         #endregion
     }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

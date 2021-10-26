@@ -98,7 +98,7 @@ namespace GPC.Model.Sections
 
             for (int i = 0; i < edge; i++)
             {
-                vertices[i] = new Point3d(radius * Math.Cos(teta * i), radius * Math.Sin(teta * i), 0.0);
+                vertices[i] = new Point3d(radius * Math.Cos(teta * i) + Centroid.X, radius * Math.Sin(teta * i) + Centroid.Y, 0.0);
             }
 
             return new Polygon3d(vertices.ToArray());
@@ -121,7 +121,7 @@ namespace GPC.Model.Sections
             _j22 = CalculateJ();
             _jxx = CalculateJ();
             _jyy = CalculateJ();
-            _jxy = CalculateJ();
+            _jxy = 0.0;
             _jt = CalculateJt();
             _jw = CalculateJw();
             _centroid = CalculateCentroid();

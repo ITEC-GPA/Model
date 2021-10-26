@@ -97,6 +97,7 @@
     <Compile Include="Results\ResultLocation\IResultLocation.cs" />
     <Compile Include="Sections\Concrete\ConcreteSectionCHS.cs" />
     <Compile Include="Sections\Concrete\ConcreteSectionCircular.cs" />
+    <Compile Include="Sections\Concrete\ConcreteSectionHelper.cs" />
     <Compile Include="Sections\Concrete\ConcreteSectionRectangular.cs" />
     <Compile Include="Sections\Concrete\ConcreteSectionT.cs" />
     <Compile Include="Sections\Concrete\IConcreteSection.cs" />
