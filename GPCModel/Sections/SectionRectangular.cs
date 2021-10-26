@@ -99,7 +99,7 @@ namespace GPC.Model.Sections
             _centroid = CalculateCentroid();
             _jxx = CalculateJxx();
             _jyy = CalculateJyy();
-            _jxy = _jxx + _jyy;
+            _jxy = CalculateJxy();
             _j11 = CalculateJ11();
             _j22 = CalculateJ22();
             _jw = CalculateJw();
