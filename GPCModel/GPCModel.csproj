@@ -83,6 +83,7 @@
     <Compile Include="FEM\Collections\AttributesCollection.cs" />
     <Compile Include="Materials\ConcreteMaterialCNR204.cs" />
     <Compile Include="Materials\ConcreteMaterialFRCModuleCode2010.cs" />
+    <Compile Include="Materials\ConcreteMaterialGeneric.cs" />
     <Compile Include="Materials\ConcreteMaterialModelCode2010.cs" />
     <Compile Include="Maths\GaussIntegration\GaussIntegration.cs" />
     <Compile Include="Maths\GaussIntegration\GaussPoints.cs" />
