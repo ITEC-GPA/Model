@@ -15,19 +15,19 @@ namespace GPC.Model.Standards
     {
         #region Variables
 
-        private readonly double _gammaC;
-        private readonly double _gammaCAccidental;
-        private readonly double _gammaCE;
+        protected double _gammaC;
+        protected double _gammaCAccidental;
+        protected double _gammaCE;
 
-        private readonly double _gammaS;
-        private readonly double _gammaSAccidental;
-        private readonly double _gammaSPrestress;
-        private readonly double _gammaSPrestressAccidental;
+        protected double _gammaS;
+        protected double _gammaSAccidental;
+        protected double _gammaSPrestress;
+        protected double _gammaSPrestressAccidental;
 
-        private readonly double _alphaCC;
-        private readonly double _alphaCT;
+        protected double _alphaCC;
+        protected double _alphaCT;
 
-        private readonly double _gammaF;
+        protected double _gammaF;
 
         #endregion
 
