@@ -1548,6 +1548,50 @@ namespace ModelObjectTest
             Assert.IsTrue(Math.Abs(J22H - 4018160897) / J22H * 100 < 1);
         }
 
+        [TestMethod]
+        public void RCCHSSection1()
+        {
+            double rebarDiameter = 16;
+            double diameterExternal = 500;
+            double thickness = 100;
+            double concreteCover = 50;
+            int numberOfRebars = 16;
+            double n = 16;
+
+            GPC.Model.Sections.Rebar.RebarSectionCircular rebar = new GPC.Model.Sections.Rebar.RebarSectionCircular(rebarDiameter, RebarMaterial.B450C);
+
+            ConcreteSectionCHS section = new ConcreteSectionCHS(diameterExternal, thickness, ConcreteMaterialEN1992.C25_30, concreteCover, numberOfRebars, rebar);
+
+            section.GetHomogeneizedMechanicalProperties(n, out double _, out double _, out double _, out Point3d _,
+                out double _, out double _, out double _, out double _, out double J11H, out double J22H, out _);
+
+            //valori calcolati con VCASLU
+            Assert.IsTrue(Math.Abs(J11H - 3622483885) / J11H * 100 < 1);
+            Assert.IsTrue(Math.Abs(J22H - 3622483885) / J22H * 100 < 1);
+        }
+
+        [TestMethod]
+        public void RCCHSSection2()
+        {
+            double rebarDiameter = 26;
+            double diameterExternal = 1000;
+            double thickness = 100;
+            double concreteCover = 50;
+            int numberOfRebars = 32;
+            double n = 16;
+
+            GPC.Model.Sections.Rebar.RebarSectionCircular rebar = new GPC.Model.Sections.Rebar.RebarSectionCircular(rebarDiameter, RebarMaterial.B450C);
+
+            ConcreteSectionCHS section = new ConcreteSectionCHS(diameterExternal, thickness, ConcreteMaterialEN1992.C25_30, concreteCover, numberOfRebars, rebar);
+
+            section.GetHomogeneizedMechanicalProperties(n, out double _, out double _, out double _, out Point3d _,
+                out double _, out double _, out double _, out double _, out double J11H, out double J22H, out _);
+
+            //valori calcolati con VCASLU
+            Assert.IsTrue(Math.Abs(J11H - 54653616364) / J11H * 100 < 1);
+            Assert.IsTrue(Math.Abs(J22H - 54653616364) / J22H * 100 < 1);
+        }
+
         #endregion
     }
 }
