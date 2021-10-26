@@ -3,6 +3,7 @@ using System;
 using System.Runtime.Serialization;
 using GPC.Model.Materials;
 using System.Linq;
+using GPC.Model.Sections.Concrete;
 
 namespace GPC.Model.Sections
 {
@@ -90,18 +91,7 @@ namespace GPC.Model.Sections
 
         public Polygon3d ConvertCircleToPolygon(double radius, int edge)
         {
-            if (edge < 2)
-                throw new ArgumentException($"{edge} must be at least 3");
-
-            Point3d[] vertices = new Point3d[edge];
-            double teta = 2.0 * Math.PI / edge;
-
-            for (int i = 0; i < edge; i++)
-            {
-                vertices[i] = new Point3d(radius * Math.Cos(teta * i) + Centroid.X, radius * Math.Sin(teta * i) + Centroid.Y, 0.0);
-            }
-
-            return new Polygon3d(vertices.ToArray());
+            return ConcreteSectionHelper.ConvertCircleToPolygon(Centroid, radius, edge);
         }
 
         public Polygon3d ConvertCircleToPolygon(int edge = 32)

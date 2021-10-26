@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using GPC.Model.Sections.Rebar;
 
 namespace GPC.Model.Sections.Concrete
 {
@@ -36,9 +37,10 @@ namespace GPC.Model.Sections.Concrete
 				MeshSize = size,
 			};
 
-			Mesh.Generate(new Shape[] { shape }, generateOptions, out List<Mesh> meshes, out Mesh.GenerateMeshStatus _);
-
-			return meshes[0];
+			if (Mesh.Generate(new Shape[] { shape }, generateOptions, out List<Mesh> meshes, out Mesh.GenerateMeshStatus meshStatus))
+				return meshes[0];
+			else
+				throw new ArgumentException("Fail to create mesh");
 		}
 
 		internal static void CalculateIntegralInertiaMoment(Mesh mesh, MeshFace face, Point3d centroid, out double jxx, out double jyy, out double jxy)
@@ -462,5 +464,34 @@ namespace GPC.Model.Sections.Concrete
 		}
 
 
+		internal static ReinforcedConcreteRebar[] SetRadialRebars(Point3d centroid, double diameter, double concreteCover, int numberOfRebars, IRebarSection rebarSection, double epsilonP = 0.0)
+		{
+			Polygon3d polygon = ConvertCircleToPolygon(centroid, diameter / 2.0 - concreteCover, numberOfRebars);
+
+			ReinforcedConcreteRebar[] rebars = new ReinforcedConcreteRebar[polygon.Count];
+
+			for (int i = 0; i < polygon.Count; i++)
+			{
+				rebars[i] = new ReinforcedConcreteRebar(rebarSection, polygon[i], i, epsilonP);
+			}
+
+			return rebars;
+		}
+
+		internal static Polygon3d ConvertCircleToPolygon(Point3d centroid, double radius, int edge)
+		{
+			if (edge < 2)
+				throw new ArgumentException($"{edge} must be at least 3");
+
+			Point3d[] vertices = new Point3d[edge];
+			double teta = 2.0 * Math.PI / edge;
+
+			for (int i = 0; i < edge; i++)
+			{
+				vertices[i] = new Point3d(radius * Math.Cos(teta * i) + centroid.X, radius * Math.Sin(teta * i) + centroid.Y, 0.0);
+			}
+
+			return new Polygon3d(vertices.ToArray());
+		}
 	}
 }

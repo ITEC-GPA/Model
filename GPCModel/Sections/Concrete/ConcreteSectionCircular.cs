@@ -2,6 +2,7 @@
 using GPC.Geometry.Meshes;
 using GPC.Model.Elements;
 using GPC.Model.Materials;
+using GPC.Model.Sections.Rebar;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -45,6 +46,12 @@ namespace GPC.Model.Sections.Concrete
 			: base(diameter, material, name)
 		{
 			_rebars = rebars;
+		}
+
+		public ConcreteSectionCircular(double diameter, ConcreteMaterial material, double concreteCover, int numberOfRebars, IRebarSection rebarSection, double epsilonP = 0.0, string name = "")
+			: base(diameter, material, name)
+		{
+			_rebars = SetRadialRebars(concreteCover, numberOfRebars, rebarSection, epsilonP);
 		}
 
 		#endregion
@@ -129,6 +136,7 @@ namespace GPC.Model.Sections.Concrete
 			throw new NotImplementedException();
 		}
 
+		#endregion
 
 		#region Public Methods
 
@@ -272,7 +280,11 @@ namespace GPC.Model.Sections.Concrete
 			return new Shape(ConvertCircleToPolygon());
 		}
 
-		#endregion
+		protected ReinforcedConcreteRebar[] SetRadialRebars(double concreteCover, int numberOfRebars, IRebarSection rebarSection, double epsilonP = 0.0)
+		{
+			return ConcreteSectionHelper.SetRadialRebars(Centroid, Diameter, concreteCover, numberOfRebars, rebarSection, epsilonP);
+		}
+
 	}
 }
 
