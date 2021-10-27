@@ -188,10 +188,6 @@ namespace GPC.Model.Sections.Concrete
 
 		#region Protected Methods
 
-		/// <summary>
-		/// Internal method to set the mechanical properties to the section
-		/// </summary>
-
 		protected void CalculateStaticMoments(Mesh mesh, out double Sx, out double Sy)
 		{
 			ConcreteSectionHelper.CalculateStaticMoments(mesh, out Sx, out Sy);

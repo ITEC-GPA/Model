@@ -63,5 +63,11 @@ namespace GPC.Model.Sections.Concrete
         double CalculateN(ReinforcedConcreteRebar rebar);
 
         double CalculateN(int rebar);
+
+        void GetHomogeneizedMechanicalProperties(out double areaH, out double SxH, out double SyH, out Point3d centroidH,
+            out double JxxH, out double JyyH, out double JxyH, out double JpH, out double J11H, out double J22H, out double angleX);
+
+        void GetHomogeneizedMechanicalProperties(double n, out double areaH, out double SxH, out double SyH, out Point3d centroidH,
+            out double JxxH, out double JyyH, out double JxyH, out double JpH, out double J11H, out double J22H, out double angleX);
     }
 }
