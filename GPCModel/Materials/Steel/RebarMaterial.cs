@@ -29,27 +29,6 @@ namespace GPC.Model.Materials
             double fy, double fu, double epsilonU, double density, double alfaThermalExpansion, Guid guid)
             : base(name, elasticModulus, poisson, fy, fu, epsilonU, density, alfaThermalExpansion, guid)
         {
-            if (fu == 0)            
-                throw new ArgumentException($"{nameof(fu)} cannot be zero");
-            
-            if (fy == 0)            
-                throw new ArgumentException($"{nameof(fy)} cannot be zero");
-            
-            if (elasticModulus == 0)            
-                throw new ArgumentException($"{nameof(elasticModulus)} cannot be zero");
-                        
-            if (poisson == 0)            
-                throw new ArgumentException($"{nameof(poisson)} cannot be zero");
-            
-            if (poisson > 0.5)            
-                throw new ArgumentException($"{nameof(poisson)} cannot be major than 0.5");
-
-			if (epsilonU == 0)
-				throw new ArgumentException($"{nameof(epsilonU)} cannot be zero");
-
-            if (density <= 0)
-                throw new ArgumentException($"{nameof(density)} cannot be minor than zero");
-
         }
 
         /// <summary>
@@ -78,8 +57,8 @@ namespace GPC.Model.Materials
 		{
 		}
 
-        public RebarMaterial(SerializationInfo info, StreamingContext context) :
-            base(info, context)
+        public RebarMaterial(SerializationInfo info, StreamingContext context) 
+            : base(info, context)
         {
         }
 

@@ -131,7 +131,16 @@ namespace GPC.Model.Materials
             : base(name, elasticModulus, poisson, density, alfaThermalExpansion, guid)
         {
             if (elasticModulus == 0)
-                throw new ArgumentException($"{nameof(elasticModulus)} cannot be equal to zero");
+                throw new ArgumentException($"{nameof(elasticModulus)} cannot be zero");
+
+            if (poisson == 0)
+                throw new ArgumentException($"{nameof(poisson)} cannot be zero");
+
+            if (poisson > 0.5)
+                throw new ArgumentException($"{nameof(poisson)} cannot be major than 0.5");
+
+            if (density <= 0)
+                throw new ArgumentException($"{nameof(density)} cannot be minor than zero");
 
             _fu = fu <= 0 ? throw new ArgumentException($"{nameof(fu)} cannot be zero or lower") : fu;
             _fyk = fyk <= 0 ? throw new ArgumentException($"{nameof(fyk)} cannot be zero or lower") : fyk;
