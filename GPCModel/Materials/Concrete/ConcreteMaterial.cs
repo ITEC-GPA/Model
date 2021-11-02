@@ -12,8 +12,8 @@ namespace GPC.Model.Materials
         #region Variables
 
         protected double _fck;
-        protected double _strainCompressionY;
-        protected double _strainCompressionU;
+        protected double _epsilonCy;
+        protected double _epsilonCu;
 
         #endregion
 
@@ -27,12 +27,12 @@ namespace GPC.Model.Materials
         /// <summary>
         /// Strain in the concrete at the peak compressive stress fc
         /// </summary>
-        public double StrainCompressionY => _strainCompressionY;
+        public double EpsilonCy => _epsilonCy;
 
         /// <summary>
         /// Ultimate strain in compression
         /// </summary>
-        public double StrainCompressionU => _strainCompressionU;
+        public double EpsilonCu => _epsilonCu;
 
         #endregion
 
@@ -62,7 +62,7 @@ namespace GPC.Model.Materials
         /// <param name="fck">Concrete compression resistance reference value (28 days)</param>
         /// <param name="density">Density of concrete. Default value = 0.0025 T/mm^2</param>
         /// <remarks>alfaThermalExpansion = 1e-6</remarks>
-        public ConcreteMaterial(double elasticModulus, double poisson, double fck, double density = 0.0025)
+        public ConcreteMaterial(double elasticModulus, double fck, double poisson = 0.2, double density = 0.0025)
             : this("", elasticModulus, poisson, fck, density, 1e-6, Guid.NewGuid())
         {
 

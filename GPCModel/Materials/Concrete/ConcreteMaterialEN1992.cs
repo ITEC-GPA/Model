@@ -59,6 +59,7 @@ namespace GPC.Model.Materials
         /// <param name="fck">Characteristic compressive cylinder strength of concrete at 28 days</param>
         /// <param name="strainYCompression">Yielding compression strain</param>
         /// <param name="strainUCompression">Ultimate compression strain</param>
+        /// <param name="fctk">Characteristic tensile strength of concrete at 28 days</param>
         /// <param name="strainYTension">Strain in the concrete at the peak tensile stress ftc</param>
         /// <param name="ni">Poisson's ratio</param>
         /// <param name="niCracked">Poisson's ratio in cracked concrete</param>
@@ -66,10 +67,10 @@ namespace GPC.Model.Materials
         /// <param name="density">The density of concrete</param>
         /// <param name="stressStrainDiagram">The stress-strain diagram type</param>
         /// <param name="typeOfCement">The type of cement. See §3.4.1</param>
-        public ConcreteMaterialEN1992(string name, double fck, double strainYCompression, double strainUCompression, 
-            double strainYTension, double ni, double niCracked, double alphaT, double density,
+        public ConcreteMaterialEN1992(string name, double fck, double strainYCompression, double strainUCompression,
+            double fctk, double strainYTension, double ni, double niCracked, double alphaT, double density,
             ConcreteMaterialModelCode2010.CompressionStressStrainDiagrams stressStrainDiagram, ConcreteMaterialModelCode2010.TypeOfCements typeOfCement)
-            : base(name, fck, strainYCompression, strainUCompression, strainYTension, ni, niCracked, alphaT, density, stressStrainDiagram, typeOfCement)
+            : base(name, fck, strainYCompression, strainUCompression, fctk, strainYTension, ni, niCracked, alphaT, density, stressStrainDiagram, typeOfCement)
         {
 
         }
@@ -93,8 +94,8 @@ namespace GPC.Model.Materials
             _fck = info.GetDouble("Fck");
                         
             _niCracked = info.GetDouble("NiCracked");
-            _strainCompressionY = info.GetDouble("EpsilonY");
-            _strainCompressionU = info.GetDouble("EpsilonU");
+            _epsilonCy = info.GetDouble("EpsilonY");
+            _epsilonCu = info.GetDouble("EpsilonU");
         }
 
         #endregion 
@@ -140,17 +141,17 @@ namespace GPC.Model.Materials
 
             if (CompressionStressStrainDiagram == CompressionStressStrainDiagrams.ParabolaRectangle)
             {
-                epsilonCC = StrainCompressionY * Math.Pow(fckc / Fck, 2.0);
+                epsilonCC = EpsilonCy * Math.Pow(fckc / Fck, 2.0);
                 epsilonCuC = epsilonCC + 0.2 * sigma2 / Fck;
             }
             else if (CompressionStressStrainDiagram == CompressionStressStrainDiagrams.Bilinear)
             {
-                epsilonCC = StrainCompressionY * Math.Pow(fckc / Fck, 2.0);
+                epsilonCC = EpsilonCy * Math.Pow(fckc / Fck, 2.0);
                 epsilonCuC = epsilonCC + 0.2 * sigma2 / Fck;
             }
             else
             {
-                epsilonCC = StrainCompressionY * Math.Pow(fckc / Fck, 2.0);
+                epsilonCC = EpsilonCy * Math.Pow(fckc / Fck, 2.0);
                 epsilonCuC = epsilonCC + 0.2 * sigma2 / Fck;
 
                 //TODO: implementare questo caso
@@ -287,16 +288,16 @@ namespace GPC.Model.Materials
             if (CompressionStressStrainDiagram == CompressionStressStrainDiagrams.ParabolaRectangle)
             {
                 if (_fck <= 50)
-                    _strainCompressionY = - 2.0 / 1000.0;
+                    _epsilonCy = - 2.0 / 1000.0;
                 else
-                    _strainCompressionY = - (2.0 + 0.085 * Math.Pow(_fck - 50.0, 0.53)) / 1000.0;
+                    _epsilonCy = - (2.0 + 0.085 * Math.Pow(_fck - 50.0, 0.53)) / 1000.0;
             }
             else if (CompressionStressStrainDiagram == CompressionStressStrainDiagrams.Bilinear)
             {
                 if (_fck <= 50)
-                    _strainCompressionY = - 1.75 / 1000.0;
+                    _epsilonCy = - 1.75 / 1000.0;
                 else
-                    _strainCompressionY = - (1.75 + 0.55 * ((_fck - 50.0) / 40.0)) / 1000.0;
+                    _epsilonCy = - (1.75 + 0.55 * ((_fck - 50.0) / 40.0)) / 1000.0;
             }
             else if (CompressionStressStrainDiagram == CompressionStressStrainDiagrams.StressBlock)
             {
@@ -307,7 +308,7 @@ namespace GPC.Model.Materials
                 else
                     lambda = 0.8 - (_fck - 50.0) / 400;
 
-                _strainCompressionY = - _strainCompressionU * (1 - lambda);
+                _epsilonCy = - _epsilonCu * (1 - lambda);
             }
             else
                 throw new ArgumentException();
@@ -318,23 +319,23 @@ namespace GPC.Model.Materials
             if (CompressionStressStrainDiagram == CompressionStressStrainDiagrams.ParabolaRectangle)
             {
                 if (_fck <= 50)
-                    _strainCompressionU = - 3.5 / 1000.0;
+                    _epsilonCu = - 3.5 / 1000.0;
                 else
-                    _strainCompressionU = - (2.6 + 35.0 * Math.Pow(((90.0 - _fck) / 100.0), 4)) / 1000.0;
+                    _epsilonCu = - (2.6 + 35.0 * Math.Pow(((90.0 - _fck) / 100.0), 4)) / 1000.0;
             }
             else if (CompressionStressStrainDiagram == CompressionStressStrainDiagrams.Bilinear)
             {
                 if (_fck <= 50)
-                    _strainCompressionU = - 3.5 / 1000.0;
+                    _epsilonCu = - 3.5 / 1000.0;
                 else
-                    _strainCompressionU = - (2.6 + 35.0 * Math.Pow(((90.0 - _fck) / 100.0), 4)) / 1000.0;
+                    _epsilonCu = - (2.6 + 35.0 * Math.Pow(((90.0 - _fck) / 100.0), 4)) / 1000.0;
             }
             else if (CompressionStressStrainDiagram == CompressionStressStrainDiagrams.StressBlock)
             {
                 if (_fck <= 50)
-                    _strainCompressionU = - 3.5 / 1000.0;
+                    _epsilonCu = - 3.5 / 1000.0;
                 else
-                    _strainCompressionU = - (2.6 + 35.0 * Math.Pow(((90.0 - _fck) / 100.0), 4)) / 1000.0;
+                    _epsilonCu = - (2.6 + 35.0 * Math.Pow(((90.0 - _fck) / 100.0), 4)) / 1000.0;
             }
             else
                 throw new ArgumentException();
@@ -409,7 +410,7 @@ namespace GPC.Model.Materials
 
         protected override void CalculateEpsilonTensionT()
 		{
-            _strainTensionY = Fctk / E;
+            _epsilonTy = Fctk / E;
 		}
 
         #endregion
