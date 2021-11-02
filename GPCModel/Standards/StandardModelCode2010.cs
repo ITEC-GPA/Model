@@ -11,6 +11,7 @@ namespace GPC.Model.Standards
     /// <summary>
     /// This class collects all the coefficient of the Fib Model Code 2010
     /// </summary>
+    /// <remarks>Reference: Fib Model Code 2010. March 2010</remarks>
     public abstract class StandardModelCode2010 : Standard
     {
         #region Variables

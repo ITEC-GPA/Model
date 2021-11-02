@@ -7,7 +7,8 @@ using System.Threading.Tasks;
 namespace GPC.Model.Standards
 {
 	/// <summary>
-	/// This class collects all the coefficient of the CNR-DT 204/2006 
+	/// This class collects all the coefficient of the CNR-DT 204/2006  
+	/// "Istruzioni per la Progettazione, l’Esecuzione ed il Controllo di Strutture di Calcestruzzo Fibrorinforzato"
 	/// </summary>
 	/// <remarks>Reference: CNR-DT 204/2006. AC:2008</remarks>
 	public class StandardCNR204 : StandardModelCode2010

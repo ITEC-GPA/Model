@@ -8,7 +8,9 @@ namespace GPC.Model.Standards
 {
 	/// <summary>
 	/// This class collects all the coefficient of the NTC2018 for concrete design
+	/// "Norme tecniche per	le costruzioni"
 	/// </summary>
+	/// <remarks>Reference: NTC2018. 17 January 2018</remarks>
 	public class StandardNTC2018Concrete : StandardEN1992p11
 	{
 
