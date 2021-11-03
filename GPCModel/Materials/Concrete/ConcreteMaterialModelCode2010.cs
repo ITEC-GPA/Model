@@ -432,7 +432,7 @@ namespace GPC.Model.Materials
             if (_fck <= 50)
                 return 2.0;
             else
-                return 1.4 + 13.4 * Math.Pow(((90.0 - _fck) / 100.0), 4);
+                return 1.4 + 23.4 * Math.Pow(((90.0 - _fck) / 100.0), 4);
         }
 
         #endregion
@@ -464,7 +464,7 @@ namespace GPC.Model.Materials
                 else
                     lambda = 0.8 - (_fck - 50.0) / 400;
 
-                _epsilonCy = -_epsilonCu * (1 - lambda);
+                _epsilonCy = _epsilonCu * (1 - lambda);
             }
             else
                 throw new ArgumentException();

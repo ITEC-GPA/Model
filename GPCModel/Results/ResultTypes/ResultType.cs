@@ -9,6 +9,8 @@ namespace GPC.Model.Results
     {
         protected readonly CoordinateSystem _coordinateSystem;
 
+        public CoordinateSystem CoordinateSystem => _coordinateSystem;
+
         protected ResultType(CoordinateSystem coordinateSystem, string name = "") : base(name)
         {
             _coordinateSystem = coordinateSystem ?? throw new ArgumentNullException(nameof(coordinateSystem));
