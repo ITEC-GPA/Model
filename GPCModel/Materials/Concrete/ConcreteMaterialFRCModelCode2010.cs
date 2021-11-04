@@ -9,7 +9,7 @@ namespace GPC.Model.Materials
 	/// <summary>
 	/// Fiber Reinforced Concrete material in according to <see cref="Standards.StandardModelCode2010"/>
 	/// </summary>
-	public class ConcreteMaterialFRCModuleCode2010 : ConcreteMaterialModelCode2010
+	public class ConcreteMaterialFRCModelCode2010 : ConcreteMaterialModelCode2010
 	{
 
 		#region Constructors
@@ -32,7 +32,7 @@ namespace GPC.Model.Materials
 		/// <param name="compressionStressStrainDiagram">The compression stress-strain diagram type</param>
 		/// <param name="tensionStressStrainDiagrams">The tension stress-strain diagram type</param>
 		/// <param name="typeOfCement">The type of cement</param>
-		public ConcreteMaterialFRCModuleCode2010(string name, double fck, double strainYCompression, double strainUCompression,
+		public ConcreteMaterialFRCModelCode2010(string name, double fck, double strainYCompression, double strainUCompression,
 			double epsilonTy, double fcty, double epsilonTu, double fFtu, double ni, double niCracked, double alphaT, double density,
             CompressionStressStrainDiagrams compressionStressStrainDiagram, TensionStressStrainDiagrams tensionStressStrainDiagrams, 
 			TypeOfCements typeOfCement)
@@ -60,7 +60,7 @@ namespace GPC.Model.Materials
 		/// <param name="fFtu">Ultimate tension stress</param>
 		/// <param name="name">The name of the material</param>
 		/// <remarks>Tension stress-strain diagram is set as bilinear. Missing paramenters are compute according to <see cref="Standards.StandardModelCode2010"/></remarks>
-		public ConcreteMaterialFRCModuleCode2010(double fck, CompressionStressStrainDiagrams compressionStressStrainDiagram, double fFty, double epsilonTy, 
+		public ConcreteMaterialFRCModelCode2010(double fck, CompressionStressStrainDiagrams compressionStressStrainDiagram, double fFty, double epsilonTy, 
 			double epsilonTu, double fFtu, string name = "")
 			: base(fck, compressionStressStrainDiagram, name)
 		{
@@ -87,7 +87,7 @@ namespace GPC.Model.Materials
 		/// <param name="fFtu">Ultimate tension stress</param>
 		/// <param name="name">The name of the material</param>
 		/// <remarks>Tension stress-strain diagram is set as rigid-plastic. Missing paramenters are compute according to <see cref="Standards.StandardModelCode2010"/></remarks>
-		public ConcreteMaterialFRCModuleCode2010(double fck, CompressionStressStrainDiagrams compressionStressStrainDiagram, 
+		public ConcreteMaterialFRCModelCode2010(double fck, CompressionStressStrainDiagrams compressionStressStrainDiagram, 
 			double epsilonTu, double fFtu, string name = "")
 			: base(fck, compressionStressStrainDiagram, name)
 		{
