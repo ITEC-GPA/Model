@@ -212,11 +212,22 @@ namespace GPC.Model.Maths.GaussIntegrations
 
             double[] ris = new double[gaussPoints.Length];
 
-            Parallel.For(0, gaussPoints.Length, (i) =>
+            if (gaussPoints.Length >= 33)
             {
-                Point3d point = GaussIntegration.TransformNaturalCoordToGlobalCoord(gaussPoints[i].Csi, gaussPoints[i].Eta, shapeFunction, shapeFunctionNode);
-                ris[i] = gaussPoints[i].Weight * jacobian(gaussPoints[i].Csi, gaussPoints[i].Eta).Determinant() * function(point.X, point.Y);
-            });
+                Parallel.For(0, gaussPoints.Length, (i) =>
+                {
+                    Point3d point = GaussIntegration.TransformNaturalCoordToGlobalCoord(gaussPoints[i].Csi, gaussPoints[i].Eta, shapeFunction, shapeFunctionNode);
+                    ris[i] = gaussPoints[i].Weight * jacobian(gaussPoints[i].Csi, gaussPoints[i].Eta).Determinant() * function(point.X, point.Y);
+                });
+            }
+            else
+            {
+                for (int i = 0; i < gaussPoints.Length; i++)
+                {
+                    Point3d point = GaussIntegration.TransformNaturalCoordToGlobalCoord(gaussPoints[i].Csi, gaussPoints[i].Eta, shapeFunction, shapeFunctionNode);
+                    ris[i] = gaussPoints[i].Weight * jacobian(gaussPoints[i].Csi, gaussPoints[i].Eta).Determinant() * function(point.X, point.Y);
+                }
+            }
 
             return ris.Sum() / 2.0;
         }
@@ -329,11 +340,22 @@ namespace GPC.Model.Maths.GaussIntegrations
 
             double[] ris = new double[gaussPoints.Length];
 
-            Parallel.For(0, gaussPoints.Length, (i) =>
-            {
-                Point3d point = GaussIntegration.TransformNaturalCoordToGlobalCoord(gaussPoints[i].Csi, gaussPoints[i].Eta, shapeFunction, shapeFunctionNode);
-                ris[i] = gaussPoints[i].Weight * jacobian(gaussPoints[i].Csi, gaussPoints[i].Eta).Determinant() * function(point.X, point.Y);
-            });
+            if(gaussPoints.Length >= 49)
+			{
+                Parallel.For(0, gaussPoints.Length, (i) =>
+                {
+                    Point3d point = GaussIntegration.TransformNaturalCoordToGlobalCoord(gaussPoints[i].Csi, gaussPoints[i].Eta, shapeFunction, shapeFunctionNode);
+                    ris[i] = gaussPoints[i].Weight * jacobian(gaussPoints[i].Csi, gaussPoints[i].Eta).Determinant() * function(point.X, point.Y);
+                });
+            }
+            else
+			{
+                for(int i = 0; i < gaussPoints.Length; i++)                
+                {
+                    Point3d point = GaussIntegration.TransformNaturalCoordToGlobalCoord(gaussPoints[i].Csi, gaussPoints[i].Eta, shapeFunction, shapeFunctionNode);
+                    ris[i] = gaussPoints[i].Weight * jacobian(gaussPoints[i].Csi, gaussPoints[i].Eta).Determinant() * function(point.X, point.Y);
+                }
+            }
 
             return ris.Sum();
         }
@@ -669,12 +691,12 @@ namespace GPC.Model.Maths.GaussIntegrations
             double[] valueY = new double[vertices.Length];
             double[] valueZ = new double[vertices.Length];
 
-            for (int i = 0; i < vertices.Length; i++)
+            Parallel.For(0, vertices.Length, (i) =>
             {
                 valueX[i] = shapeFunction(i + 1, csi, eta, zeta) * vertices[i].X;
                 valueY[i] = shapeFunction(i + 1, csi, eta, zeta) * vertices[i].Y;
                 valueZ[i] = shapeFunction(i + 1, csi, eta, zeta) * vertices[i].Y;
-            }
+            });
 
             return new Point3d(valueX.Sum(), valueY.Sum(), valueZ.Sum());
         }
@@ -692,11 +714,11 @@ namespace GPC.Model.Maths.GaussIntegrations
             double[] valueX = new double[vertices.Length];
             double[] valueY = new double[vertices.Length];
 
-            for (int i = 0; i < vertices.Length; i++)
+            Parallel.For(0, vertices.Length, (i) =>
             {
                 valueX[i] = shapeFunction(i + 1, csi, eta) * vertices[i].X;
                 valueY[i] = shapeFunction(i + 1, csi, eta) * vertices[i].Y;
-            }
+            });
 
             return new Point3d(valueX.Sum(), valueY.Sum(), 0);
         }
