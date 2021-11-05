@@ -27,6 +27,7 @@ namespace GPC.Model.Materials
 
         #region PUBLIC CONSTRUCTOR
 
+
         /// <summary>
         /// </summary>
         /// <param name="name"></param>

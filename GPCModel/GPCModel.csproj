@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
@@ -81,9 +81,11 @@
     <Compile Include="FEM\Attributes\AttributeEqualityComparer.cs" />
     <Compile Include="FEM\Attributes\LoadCase\ModelGravityAttribute.cs" />
     <Compile Include="FEM\Collections\AttributesCollection.cs" />
-    <Compile Include="Materials\Concrete\ConcreteMaterialCNR204.cs" />
-    <Compile Include="Materials\Concrete\ConcreteMaterialFRCModelCode2010.cs" />
+    <Compile Include="Materials\Concrete\ConcreteMaterialEN1992.cs" />
+    <Compile Include="Materials\Concrete\ConcreteMaterialModelCode2010FRC.cs" />
+    <Compile Include="Materials\Concrete\ConcreteMaterial.cs" />
     <Compile Include="Materials\Concrete\ConcreteMaterialModelCode2010.cs" />
+    <Compile Include="Materials\StressStrainTable.cs" />
     <Compile Include="Maths\GaussIntegration\GaussIntegration.cs" />
     <Compile Include="Maths\GaussIntegration\GaussPoints.cs" />
     <Compile Include="Maths\GaussIntegration\HexahedroGaussPoints.cs" />
@@ -92,7 +94,6 @@
     <Compile Include="Maths\GaussIntegration\TriangleGaussPoints.cs" />
     <Compile Include="Loads\IConvertibleLoad.cs" />
     <Compile Include="Materials\Concrete\ConcreteMaterialACI318.cs" />
-    <Compile Include="Materials\Concrete\ConcreteMaterialEN1992.cs" />
     <Compile Include="Results\ElementResult\IElementResult.cs" />
     <Compile Include="Results\ResultLocation\IResultLocation.cs" />
     <Compile Include="Sections\Concrete\ConcreteSectionCHS.cs" />
@@ -239,7 +240,6 @@
     <Compile Include="Loads\IPointLoad.cs" />
     <Compile Include="Loads\Load.cs" />
     <Compile Include="Loads\NormalAreaLoad.cs" />
-    <Compile Include="Materials\Concrete\ConcreteMaterial.cs" />
     <Compile Include="Materials\Glass\GlassMaterial.cs" />
     <Compile Include="Materials\Glass\GlassMaterialAstm.cs" />
     <Compile Include="Materials\Glass\GlassMaterialEn16612.cs" />

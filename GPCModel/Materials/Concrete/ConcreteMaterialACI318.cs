@@ -2,45 +2,41 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.Serialization;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace GPC.Model.Materials
 {
-	public class ConcreteMaterialACI318 : ConcreteMaterial
-	{
 
-		public ConcreteMaterialACI318(string name, double fck)
-			: base(name, fck)
-		{
-            if (fck < 17.0)
-                throw new ArgumentException("fc' less than the minimum fc' permitted. See §19.2.1.1");
+#if DEBUG
 
-			SetProperties();
-		}
+    public class ConcreteMaterialACI318 : ConcreteMaterial
+    {
 
-        public ConcreteMaterialACI318(double fck)
-            : this("", fck)
-		{
-
-		}
-
-        #region Public Methods
-
-        #endregion
-
-        #region Protected Methods
-
-        protected virtual void SetProperties()
+        public ConcreteMaterialACI318(string name, double poisson, double density, double alfaThermalExpansion)
+            : base(name, poisson, density, alfaThermalExpansion)
         {
-            _elasticModulus = CalculateEc();
+
         }
 
-        protected virtual double CalculateEc()
-		{
-            return 4700 * Math.Sqrt(_fck);
-		}
+        public ConcreteMaterialACI318(string name, StressStrainTable stressStrainTableCompression,
+            StressStrainTable stressStrainTableTension, double elasticModulusCompression, double elasticModulusTension,
+            double poisson, double density, double alfaThermalExpansion)
+            : base(name, stressStrainTableCompression, stressStrainTableTension, elasticModulusCompression, elasticModulusTension, poisson, density, alfaThermalExpansion)
+        {
 
-		#endregion
-	}
+        }
+
+
+        public ConcreteMaterialACI318(SerializationInfo info, StreamingContext context) : base(info, context)
+        {
+
+        }
+
+
+
+    } 
+
+#endif
 }
