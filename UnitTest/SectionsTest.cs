@@ -18,22 +18,45 @@ namespace ModelObjectTest
         /// Metodo per visualizzare la geometria della sezione
         /// </summary>
         /// <param name="section"></param>
-        private void ExportToGmsh(IConcreteSection section)
+		private void ExportToGmsh(IConcreteSection section)
         {
             GmshNet.Gmsh.Initialize();
 
+            int[] fillTag = new int[section.Shape.Fill.Count];
             for (int i = 0; i < section.Shape.Fill.Count; i++)
             {
-                GmshNet.Gmsh.Model.Occ.AddPoint(section.Shape.Fill[i].X, section.Shape.Fill[i].Y, section.Shape.Fill[i].Z);
+                fillTag[i] = GmshNet.Gmsh.Model.Occ.AddPoint(section.Shape.Fill[i].X, section.Shape.Fill[i].Y, section.Shape.Fill[i].Z);
+            }
+
+            for (int i = 0; i < fillTag.Length; i++)
+            {
+                if (i != (fillTag.Length - 1))
+                    GmshNet.Gmsh.Model.Occ.AddLine(fillTag[i], fillTag[i + 1]);
+                else
+                    GmshNet.Gmsh.Model.Occ.AddLine(fillTag[i], fillTag[0]);
             }
 
             if (section.Shape.HasHoles)
             {
+                int[][] holesTag = new int[section.Shape.Holes.Length][];
+
                 for (int i = 0; i < section.Shape.Holes.Length; i++)
                 {
+                    holesTag[i] = new int[section.Shape.Holes[i].Count];
                     for (int j = 0; j < section.Shape.Holes[i].Count; j++)
                     {
-                        GmshNet.Gmsh.Model.Occ.AddPoint(section.Shape.Holes[i][j].X, section.Shape.Holes[i][j].Y, section.Shape.Holes[i][j].Z);
+                        holesTag[i][j] = GmshNet.Gmsh.Model.Occ.AddPoint(section.Shape.Holes[i][j].X, section.Shape.Holes[i][j].Y, section.Shape.Holes[i][j].Z);
+                    }
+                }
+
+                for (int i = 0; i < section.Shape.Holes.Length; i++)
+                {
+                    for (int j = 0; j < holesTag[i].Length; j++)
+                    {
+                        if (j != (holesTag[i].Length - 1))
+                            GmshNet.Gmsh.Model.Occ.AddLine(holesTag[i][j], holesTag[i][j + 1]);
+                        else
+                            GmshNet.Gmsh.Model.Occ.AddLine(holesTag[i][j], holesTag[i][0]);
                     }
                 }
             }
