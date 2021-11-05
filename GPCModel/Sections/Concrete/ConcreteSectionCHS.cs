@@ -45,12 +45,14 @@ namespace GPC.Model.Sections.Concrete
 			: base(diameter, thickness, material, name)
 		{
 			_rebars = rebars;
+			_mesh = GenerateMesh();
 		}
 
 		public ConcreteSectionCHS(SectionCHS sectionCHS, ReinforcedConcreteRebar[] rebars)
 			: base(sectionCHS)
 		{
 			_rebars = rebars;
+			_mesh = GenerateMesh();
 
 			if (sectionCHS.Material.GetType() != ConcreteMaterial.GetType())
 				throw new ArgumentException("Material must be a ConcreteMaterial");
@@ -67,6 +69,7 @@ namespace GPC.Model.Sections.Concrete
 			externalRebars.AddRange(internalRebars);
 
 			_rebars = externalRebars.ToArray();
+			_mesh = GenerateMesh();
 		}
 
 		public ConcreteSectionCHS(double diameter, double thickness, ConcreteMaterial material, double concreteCover,
@@ -74,6 +77,7 @@ namespace GPC.Model.Sections.Concrete
 			: base(diameter, thickness, material, name)
 		{
 			_rebars = SetRadialRebars(concreteCover, numberOfRebars, rebarSection, epsilonP);
+			_mesh = GenerateMesh();
 		}
 
 		#endregion
