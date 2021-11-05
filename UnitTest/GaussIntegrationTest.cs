@@ -1482,7 +1482,7 @@ namespace MathTest
         #region Performance Test
 
         [TestMethod]
-        public void PerformanceTri3Test1LSFPerformance()
+        public void PerformanceTri3Test1LSF()
         {
             Point3d[] vertices = new Point3d[] { new Point3d(5.0, 5.0, 0), new Point3d(10, 7.0, 0), new Point3d(4.0, 10, 0) };
             Func<double, double, double> func = (double x, double y) => x * x + y / 2 + x;
@@ -1532,7 +1532,7 @@ namespace MathTest
         }
 
         [TestMethod]
-        public void PerformanceQuad3Test1LSFPerformance()
+        public void PerformanceQuad4Test1LSF()
         {
             Point3d[] vertices = new Point3d[] { new Point3d(5.0, 5.0, 0), new Point3d(10, 7.0, 0), new Point3d(4.0, 10, 0), new Point3d(5.0, 10.0, 0.0) };
             Func<double, double, double> func = (double x, double y) => x * x + y / 2 + x;
