@@ -51,27 +51,37 @@ namespace GPC.Model.Materials
         protected TensionStressStrainDiagrams _tensionStressStrainDiagrams;
 
 
+        #region Properties
+
         public double Fck => _fck;
 
         public double Fctk => _fctk;
 
-        public double Fcm => GetFcm(_fck);
+        public double Fcm => GetFcm();
 
-        public double Fctm => GetFctm(_fck);
+        public double Fctm => GetFctm();
 
-        public double Fctk95 => GetFctk95(_fck);
+        public double Fctk95 => GetFctk95();
 
-        public double Fctk05 => GetFctk05(_fck);
-        
+        public double Fctk05 => GetFctk05();
+
         public double StrainYCompression => _strainYCompression;
 
         public double StrainUCompression => _strainUCompression;
+
+        public double StrainYTension => _strainYTension;
+                             
+        public double StrainUTension => _strainUTension;
+
+        #endregion
 
         /// <summary>
         /// Tangent modulus of elasticity
         /// </summary>
         public double Ec => 1.05 * E;
 
+
+        #region Constructor
 
         // Costruttore per cls normale
         public ConcreteMaterialModelCode2010(string name, double fck, CompressionStressStrainDiagrams compressionStressStrainDiagrams,
@@ -92,9 +102,9 @@ namespace GPC.Model.Materials
 
         // Costruttore per cls frc
         public ConcreteMaterialModelCode2010(string name, double fck, CompressionStressStrainDiagrams compressionStressStrainDiagrams,
-                                             double ffts, double fFtu, double strainYTension, double strainUTension, 
+                                             double ffts, double fFtu, double strainYTension, double strainUTension,
                                              TensionStressStrainDiagrams tensionStressStrainDiagrams,
-                                             double poisson, double density, double alfaThermalExpansion, CementType cementType = CementType.ClassN) 
+                                             double poisson, double density, double alfaThermalExpansion, CementType cementType = CementType.ClassN)
             : base(name, poisson, density, alfaThermalExpansion)
         {
 
@@ -111,21 +121,21 @@ namespace GPC.Model.Materials
 
 
         // Costruttore per cls con tabella generica
-        public ConcreteMaterialModelCode2010(string name, double strainYTension, 
-                                                          StressStrainTable stressStrainTableCompression, 
-                                                          StressStrainTable stressStrainTableTension, 
-                                                          double poisson, double density, double alfaThermalExpansion, CementType cementType = CementType.ClassN) 
+        public ConcreteMaterialModelCode2010(string name, double strainYTension,
+                                                          StressStrainTable stressStrainTableCompression,
+                                                          StressStrainTable stressStrainTableTension,
+                                                          double poisson, double density, double alfaThermalExpansion, CementType cementType = CementType.ClassN)
             : base(name, stressStrainTableCompression, stressStrainTableTension,
-                         stressStrainTableCompression.GetElasticModulus(), stressStrainTableTension.GetElasticModulus(), 
+                         stressStrainTableCompression.GetElasticModulus(), stressStrainTableTension.GetElasticModulus(),
                          poisson, density, alfaThermalExpansion)
         {
 
             _compressionStressStrainDiagrams = CompressionStressStrainDiagrams.Generic;
             _tensionStressStrainDiagrams = TensionStressStrainDiagrams.Linear;
 
-            SetMechanicalProperties(stressStrainTableCompression.GetMinimumStress(), 
+            SetMechanicalProperties(stressStrainTableCompression.GetMinimumStress(),
                                     stressStrainTableTension.GetStress(strainYTension),
-                                    stressStrainTableTension.GetLastStress(), 
+                                    stressStrainTableTension.GetLastStress(),
                                     strainYTension, stressStrainTableTension.GetLastStrain(),
                                     _compressionStressStrainDiagrams, _tensionStressStrainDiagrams);
 
@@ -140,7 +150,7 @@ namespace GPC.Model.Materials
             _fctk = info.GetDouble("Fctk");
             _fctu = info.GetDouble("Fctu");
 
-            _strainYCompression = info.GetDouble("StrainYCompression"); 
+            _strainYCompression = info.GetDouble("StrainYCompression");
             _strainUCompression = info.GetDouble("StrainUCompression");
             _strainYTension = info.GetDouble("StrainYTension");
             _strainUTension = info.GetDouble("StrainUTension");
@@ -153,6 +163,7 @@ namespace GPC.Model.Materials
         }
 
 
+        #endregion
 
         #region private methods
 
@@ -181,7 +192,7 @@ namespace GPC.Model.Materials
 
                         for (int i = 0; i < strains.Length; i++)
                         {
-                            stresses[i] = GetParabolaStress(strains[i], strainYCompression, fck);
+                            stresses[i] = GetParabolaStress(strains[i], strainYCompression);
                         }
 
                         _stressStrainTableCompression = new StressStrainTable(stresses, strains);
@@ -194,7 +205,7 @@ namespace GPC.Model.Materials
 
                     case CompressionStressStrainDiagrams.NonLinear:
 
-                        double fcm = GetFcm(fck);
+                        double fcm = GetFcm();
 
                         double K = 1.05 * GetEcm(fcm) * strainYCompression / fcm;
 
@@ -271,16 +282,16 @@ namespace GPC.Model.Materials
                 case CompressionStressStrainDiagrams.StressBlock:
                 case CompressionStressStrainDiagrams.NonLinear:
 
-                    _elasticModulus = GetEcm(GetFcm(fck));
                     _fck = fck;
-                    _strainUCompression = GetStrainUCompression(fck, compressionStressStrainDiagrams);
-                    _strainYCompression = GetStrainYCompression(fck, _strainUCompression, compressionStressStrainDiagrams);
+                    _elasticModulus = GetEcm(GetFcm());
+                    _strainUCompression = GetStrainUCompression(compressionStressStrainDiagrams);
+                    _strainYCompression = GetStrainYCompression(_strainUCompression, compressionStressStrainDiagrams);
                     break;
 
                 case CompressionStressStrainDiagrams.Generic:
 
-                    _elasticModulus = GetEcm(GetFcm(fck));
                     _fck = _stressStrainTableCompression.GetMaximumStress(out double fckStrain);
+                    _elasticModulus = GetEcm(GetFcm());
                     _strainUCompression = _stressStrainTableCompression.GetLastStrain();
                     _strainYCompression = fckStrain;
                     break;
@@ -291,54 +302,58 @@ namespace GPC.Model.Materials
 
             if (fctk == 0)
             {
-                _fctk = GetFctk05(fck);
+                _fctk = GetFctk05();
                 _fctu = _fctk;
-                _elasticModulusTension = GetEcm(GetFcm(fck));
+                _elasticModulusTension = GetEcm(GetFcm());
                 _strainYTension = _fctk / _elasticModulusTension;
                 _strainUTension = _strainYTension;                    
             }
-
-            switch (tensionStressStrainDiagrams)
+            else
             {
-                case TensionStressStrainDiagrams.Linear:
-                    _fctk = fctk;
-                    _fctu = fctk;
-                    _elasticModulusTension = strainYTension == 0 ? GetEcm(GetFcm(fck)) : fctk / strainYTension;
+                switch (tensionStressStrainDiagrams)
+                {
+                    case TensionStressStrainDiagrams.Linear:
+                        _fctk = fctk;
+                        _fctu = fctk;
+                        _elasticModulusTension = strainYTension == 0 ? GetEcm(GetFcm()) : fctk / strainYTension;
 
-                    _strainYTension = _fctk / _elasticModulusTension;
-                    _strainUTension = _strainYTension;
-                    break;
+                        _strainYTension = _fctk / _elasticModulusTension;
+                        _strainUTension = _strainYTension;
+                        break;
 
-                case TensionStressStrainDiagrams.Bilinear:
-                    _fctk = fctk;
-                    _fctu = fFtu;
-                    _elasticModulusTension = strainYTension == 0 ? GetEcm(GetFcm(fck)) : fctk / strainYTension;
+                    case TensionStressStrainDiagrams.Bilinear:
+                        _fctk = fctk;
+                        _fctu = fFtu;
+                        _elasticModulusTension = strainYTension == 0 ? GetEcm(GetFcm()) : fctk / strainYTension;
 
-                    _strainYTension = _fctk / _elasticModulusTension;
-                    _strainUTension = strainUTension;
-                    break;
+                        _strainYTension = _fctk / _elasticModulusTension;
+                        _strainUTension = strainUTension;
+                        break;
 
-                case TensionStressStrainDiagrams.Generic:
-                    _fctk = fctk;
-                    _fctu = _stressStrainTableTension.GetLastStress();
-                    _elasticModulusTension = strainYTension == 0 ? GetEcm(GetFcm(fck)) : fctk / strainYTension;
+                    case TensionStressStrainDiagrams.Generic:
+                        _fctk = fctk;
+                        _fctu = _stressStrainTableTension.GetLastStress();
+                        _elasticModulusTension = strainYTension == 0 ? GetEcm(GetFcm()) : fctk / strainYTension;
 
-                    _strainYTension = _fctk / _elasticModulusTension;
-                    _strainUTension = _stressStrainTableTension.GetLastStrain();
-                    break;
+                        _strainYTension = _fctk / _elasticModulusTension;
+                        _strainUTension = _stressStrainTableTension.GetLastStrain();
+                        break;
 
-                case TensionStressStrainDiagrams.RigidPlastic:
-                    _fctk = fctk;
-                    _fctk = fctk;
-                    _elasticModulusTension = double.MaxValue;
+                    case TensionStressStrainDiagrams.RigidPlastic:
+                        _fctk = fctk;
+                        _fctk = fctk;
+                        _elasticModulusTension = double.MaxValue;
 
-                    _strainYTension = 0.0;
-                    _strainUTension = _stressStrainTableTension.GetLastStrain();
-                    break;
+                        _strainYTension = 0.0;
+                        _strainUTension = _stressStrainTableTension.GetLastStrain();
+                        break;
 
-                default:
-                    throw new NotSupportedException();
+                    default:
+                        throw new NotSupportedException();
+                }
             }
+
+            
 
         }
 
@@ -347,75 +362,197 @@ namespace GPC.Model.Materials
 
         #region public methods
 
-        /// <param name="fck">Charateristich compressive strenght in MPa</param>
-        /// <remarks>Fib 2010 § 7.2.3.1 </remarks>
-        public virtual double GetFcm(double fck)
+        public virtual double GetFctk05(double days)
         {
-            return Math.Sign(fck) * (Math.Abs(fck) + 8.0);
+            return 0.7 * GetFctm(days);
         }
 
-        /// <param name="fck">Charateristich compressive strenght in MPa</param>
-        /// <param name="days"></param>
-        /// <remarks>Fib 2010 § 7.2.3.1 </remarks>
-        public virtual double GetFcm(double fck, double days)
+        public virtual double GetFctk95(double days)
         {
-            return Math.Sign(fck) * (Math.Abs(fck) + 8.0) * GetBetaCC(days);
-        }
-
-        public virtual double GetFck(double fcm)
-        {
-            return Math.Sign(fcm) * (Math.Abs(fcm) - 8.0);
-        }
-
-        /// <returns>Elastic secant modulus Fib 2010 § 7.2.3.1.2 </returns>
-        public virtual double GetEcm(double fcm)
-        {
-            return Math.Abs(22.0 * Math.Pow(fcm / 10.0, 0.30) * 1000);
+            return 1.3 * GetFctm(days);
         }
 
         /// <returns>Elastic secant modulus Fib 2010 § 7.2.3.1.2 </returns>
         public virtual double GetEcm(double fcm, double days)
         {
-            double fck = GetFck(fcm);
-
-            return Math.Pow(GetFcm(fck, days) / fcm, 0.3) * GetEcm(fcm);
+            return Math.Pow(GetFcm(days) / fcm, 0.3) * GetEcm(fcm);
         }
 
-        public virtual double GetFctm(double fck)
+        public virtual double GetFctm(double days)
         {
-            if (fck <= 50)
-                return 0.3 * Math.Pow(fck, 2.0 / 3.0);
+            return GetFctm() * Math.Pow(GetBetaCC(days), days < 28 ? 1 : 2.0 / 3.0);
+        }
+
+        /// <param name="days"></param>
+        /// <remarks>Fib 2010 § 7.2.3.1 </remarks>
+        protected virtual double GetFcm(double days)
+        {
+            return GetFcm() * GetBetaCC(days);
+        }
+
+
+        public virtual double GetBetaCC(double days)
+        {
+            return Math.Exp(GetCementSCoefficient() * (1.0 - Math.Pow(28.0 / days, 0.5) ));
+        }
+
+
+        /// <summary>
+        /// Calculate the creep deformation at infinite time
+        /// </summary>
+        /// <param name="sigmaC">The costant compressive stress</param>
+        /// <param name="RH">The relative humidity %</param>
+        /// <param name="areaC">The area of concrete</param>
+        /// <param name="u">The perimeter of that part of the cross section which is exposed to drying</param>
+        /// <param name="T0">The age of concrete at loading in days</param>
+        /// <param name="deltaTemperature">The delta temperature in °C during the time period. Default value = 0</param>
+        /// <param name="deltaDaysTemperature">is the number of days where a temperature <paramref name="deltaTemperature"/> prevails. Default value = 0</param>
+        /// <returns></returns>
+        public virtual double GetEpsilonCCInfiniteTime(double sigmaC, double RH, double areaC, 
+                                        double u, double T0 = 7, double deltaTemperature = 0, double deltaDaysTemperature = 0)
+        {
+            if (deltaTemperature != 0)
+            {
+                double alpha;
+                if (_cementType == CementType.ClassS)
+                    alpha = -1.0;
+                else if (_cementType == CementType.ClassN)
+                    alpha = 0.0;
+                else 
+                    alpha = 1.0;
+
+                double t0T = Math.Pow(10, -(4000.0 / (273.0 + deltaTemperature) - 13.65)) * deltaDaysTemperature;
+                double T0Mod = t0T * Math.Pow(9.0 / (2.0 + Math.Pow(t0T, 1.20)) + 1, alpha);
+                T0 = Math.Max(0.5, T0Mod);
+            }
+
+            double fcm = GetFcm();
+            double h0 = 2 * areaC / u;
+            double betat0 = 1.0 / (0.1 + Math.Pow(T0, 0.2));
+            double betaFcm = 16.8 / Math.Sqrt(fcm);
+            double gammaRH;
+
+            if (fcm <= 35.0)
+                gammaRH = 1 + (1 - RH / 100.0) / (0.1 * Math.Pow(h0, 1.0 / 3.0));
             else
-                return Math.Sign(fck) * 2.12 * Math.Log(1.0 + Math.Abs(GetFcm(fck)) / 10.0);
+            {
+                double alpha1 = Math.Pow(35.0 / fcm, 0.7);
+                double alpha2 = Math.Pow(35.0 / fcm, 0.2);
+
+                gammaRH = (1 + (1 - RH / 100.0) / (0.1 * Math.Pow(h0, 1.0 / 3.0)) * alpha1) * alpha2;
+            }
+
+            double gamma0 = gammaRH * betaFcm * betat0;
+            double phi = gamma0;  
+
+            if (sigmaC <= 0.45 * Fck)
+                return phi * sigmaC / Ec;
+            else
+                return phi * Math.Pow(Math.E, 1.5 * (sigmaC / Fck - 0.45));
         }
 
-        public virtual double GetFctm(double fck, double days)
+
+
+        /// <summary>
+        /// Calculate the total shrinkage strain
+        /// </summary>
+        /// <param name="RH">The relative humidity %</param>
+        /// <param name="areaC">The area of concrete</param>
+        /// <param name="u">The perimeter of that part of the cross section which is exposed to drying</param>
+        /// <returns></returns>
+        public virtual double GetEpsilonCSInfiniteTime(double RH, double areaC, double u)
         {
-            return GetFctm(fck) * Math.Pow(GetBetaCC(days), days < 28 ? 1 : 2.0 / 3.0);
+            double alphads1;
+            double alphads2;
+
+            if (_cementType == CementType.ClassS)
+            {
+                alphads1 = 3.0;
+                alphads2 = 0.13;
+            }
+            else if (_cementType == CementType.ClassN)
+            {
+                alphads1 = 4;
+                alphads2 = 0.12;
+            }
+            else if (_cementType == CementType.ClassR)
+            {
+                alphads1 = 6.0;
+                alphads2 = 0.11;
+            }
+            else
+                throw new ArgumentException();
+
+            double RH0 = 100;
+            double betaRH = 1.55 * (1 - Math.Pow(RH / RH0, 3.0));
+            double Fcm0 = 10;
+
+            double epsilonCD0 = 0.85 * ((220 + 110 * alphads1) * Math.Pow(Math.E, (-alphads2 * GetFcm() / Fcm0))) * Math.Pow(10, -6) * betaRH;
+
+            double h0 = 2 * areaC / u;
+            double kh = 0;
+
+            if (h0 <= 100)
+                kh = 100;
+            else if (h0 <= 200 && h0 > 100)
+                Interpolation.GetLinearInterpolation(100, 200, 1.0, 0.85, kh);
+            else if (h0 <= 300 && h0 > 200)
+                Interpolation.GetLinearInterpolation(200, 300, 0.85, 0.75, kh);
+            else if (h0 <= 500 && h0 > 300)
+                Interpolation.GetLinearInterpolation(300, 500, 0.75, 0.70, kh);
+            else
+                kh = 0.70;
+
+            double epsilonCDInf = kh * epsilonCD0;
+
+            double epsilonCAInf = 2.5 * (Fck - 10) * Math.Pow(10, -6);
+
+            return epsilonCDInf + epsilonCAInf;
         }
 
-        public virtual double GetFctk05(double fck)
+
+        /// <summary>
+        /// Calculate increased characteristic strength and strains of confined concrete 
+        /// </summary>
+        /// <param name="sigma2">The effective lateral compressive stress at the ULS due to confinement</param>
+        /// <param name="epsilonCC">New compressive strain in the concrete at the peak stress fc</param>
+        /// <param name="epsilonCuC">New ultimate compressive strain in the concrete</param>
+        /// <returns>Thw new characteristic compressive cylinder strength of concrete at 28 days</returns>
+        public virtual double GetConfinedConcreteResistance(double sigma2, out double epsilonCC, out double epsilonCuC)
         {
-            return 0.7 * GetFctm(fck);
+            double fckc;
+            if (sigma2 <= 0.05 * Fck)
+                fckc = Fck * (1.0 + 5.0 * sigma2 / Fck);
+            else
+                fckc = Fck * (1.125 + 2.5 * sigma2 / Fck);
+
+            if (_compressionStressStrainDiagrams == CompressionStressStrainDiagrams.ParabolaRectangle)
+            {
+                epsilonCC = _strainYCompression * Math.Pow(fckc / Fck, 2.0);
+                epsilonCuC = epsilonCC + 0.2 * sigma2 / Fck;
+            }
+            else if (_compressionStressStrainDiagrams == CompressionStressStrainDiagrams.Bilinear)
+            {
+                epsilonCC = _strainYCompression * Math.Pow(fckc / Fck, 2.0);
+                epsilonCuC = epsilonCC + 0.2 * sigma2 / Fck;
+            }
+            else
+            {
+                epsilonCC = _strainYCompression * Math.Pow(fckc / Fck, 2.0);
+                epsilonCuC = epsilonCC + 0.2 * sigma2 / Fck;
+
+                //TODO: implementare questo caso
+            }
+
+            return fckc;
         }
 
-        public virtual double GetFctk05(double fck, double days)
-        {
-            return 0.7 * GetFctm(fck, days);
-        }
+        #endregion
 
-        public virtual double GetFctk95(double fck)
-        {
-            return 1.3 * GetFctm(fck);
-        }
 
-        public virtual double GetFctk95(double fck, double days)
-        {
-            return 1.3 * GetFctm(fck, days);
-        }
-        
-        
-        public virtual double GetFckCube(double fck)
+        #region Protected methods
+
+        protected virtual double GetFckCube(double fck)
         {
             switch (fck)
             {
@@ -456,166 +593,44 @@ namespace GPC.Model.Materials
             }
         }
 
-        public virtual double GetBetaCC(double days)
+        protected virtual double GetFck(double fcm)
         {
-            return Math.Exp(GetCementSCoefficient() * (1.0 - Math.Pow(28.0 / days, 0.5) ));
+            return Math.Sign(fcm) * (Math.Abs(fcm) - 8.0);
+        }
+
+        /// <returns>Elastic secant modulus Fib 2010 § 7.2.3.1.2 </returns>
+        protected virtual double GetEcm(double fcm)
+        {
+            return Math.Abs(22.0 * Math.Pow(fcm / 10.0, 0.30) * 1000);
+        }
+
+        protected virtual double GetFctk05()
+        {
+            return 0.7 * GetFctm();
+        }
+
+        protected virtual double GetFctk95()
+        {
+            return 1.3 * GetFctm();
         }
 
 
-        /// <summary>
-        /// Calculate the creep deformation at infinite time
-        /// </summary>
-        /// <param name="sigmaC">The costant compressive stress</param>
-        /// <param name="RH">The relative humidity %</param>
-        /// <param name="areaC">The area of concrete</param>
-        /// <param name="u">The perimeter of that part of the cross section which is exposed to drying</param>
-        /// <param name="T0">The age of concrete at loading in days</param>
-        /// <param name="deltaTemperature">The delta temperature in °C during the time period. Default value = 0</param>
-        /// <param name="deltaDaysTemperature">is the number of days where a temperature <paramref name="deltaTemperature"/> prevails. Default value = 0</param>
-        /// <returns></returns>
-        public virtual double CalculateEpsilonCCInfiniteTime(double sigmaC, double RH, double areaC, 
-                                        double u, double T0 = 7, double deltaTemperature = 0, double deltaDaysTemperature = 0)
+        /// <remarks>Fib 2010 § 7.2.3.1 </remarks>
+        protected virtual double GetFcm()
         {
-            if (deltaTemperature != 0)
-            {
-                double alpha;
-                if (_cementType == CementType.ClassS)
-                    alpha = -1.0;
-                else if (_cementType == CementType.ClassN)
-                    alpha = 0.0;
-                else 
-                    alpha = 1.0;
-
-                double t0T = Math.Pow(10, -(4000.0 / (273 + deltaTemperature) - 13.65)) * deltaDaysTemperature;
-                double T0Mod = t0T * Math.Pow(9 / (2 + Math.Pow(t0T, 1.20)) + 1, alpha);
-                T0 = Math.Max(0.5, T0Mod);
-            }
-
-            double fcm = GetFcm(_fck);
-            double h0 = 2 * areaC / u;
-            double betat0 = 1.0 / (0.1 + Math.Pow(T0, 0.2));
-            double betaFcm = 16.8 / Math.Sqrt(fcm);
-            double gammaRH;
-
-            if (fcm <= 35.0)
-                gammaRH = 1 + (1 - RH / 100.0) / (0.1 * Math.Pow(h0, 1.0 / 3.0));
-            else
-            {
-                double alpha1 = Math.Pow(35.0 / fcm, 0.7);
-                double alpha2 = Math.Pow(35.0 / fcm, 0.2);
-
-                gammaRH = (1 + (1 - RH / 100.0) / (0.1 * Math.Pow(h0, 1.0 / 3.0)) * alpha1) * alpha2;
-            }
-
-            double gamma0 = gammaRH * betaFcm * betat0;
-            double phi = gamma0;  
-
-            if (sigmaC <= 0.45 * Fck)
-                return phi * sigmaC / Ec;
-            else
-                return phi * Math.Pow(Math.E, 1.5 * (sigmaC / Fck - 0.45));
+            return Math.Sign(_fck) * (Math.Abs(_fck) + 8.0);
         }
 
 
-
-        /// <summary>
-        /// Calculate the total shrinkage strain
-        /// </summary>
-        /// <param name="RH">The relative humidity %</param>
-        /// <param name="areaC">The area of concrete</param>
-        /// <param name="u">The perimeter of that part of the cross section which is exposed to drying</param>
-        /// <returns></returns>
-        public virtual double CalculateEpsilonCSInfiniteTime(double RH, double areaC, double u)
+        protected virtual double GetFctm()
         {
-            double alphads1;
-            double alphads2;
-
-            if (_cementType == CementType.ClassS)
-            {
-                alphads1 = 3.0;
-                alphads2 = 0.13;
-            }
-            else if (_cementType == CementType.ClassN)
-            {
-                alphads1 = 4;
-                alphads2 = 0.12;
-            }
-            else if (_cementType == CementType.ClassR)
-            {
-                alphads1 = 6.0;
-                alphads2 = 0.11;
-            }
+            if (_fck <= 50)
+                return 0.3 * Math.Pow(_fck, 2.0 / 3.0);
             else
-                throw new ArgumentException();
-
-            double RH0 = 100;
-            double betaRH = 1.55 * (1 - Math.Pow(RH / RH0, 3.0));
-            double Fcm0 = 10;
-
-            double epsilonCD0 = 0.85 * ((220 + 110 * alphads1) * Math.Pow(Math.E, (-alphads2 * GetFcm(_fck) / Fcm0))) * Math.Pow(10, -6) * betaRH;
-
-            double h0 = 2 * areaC / u;
-            double kh = 0;
-
-            if (h0 <= 100)
-                kh = 100;
-            else if (h0 <= 200 && h0 > 100)
-                Interpolation.GetLinearInterpolation(100, 200, 1.0, 0.85, kh);
-            else if (h0 <= 300 && h0 > 200)
-                Interpolation.GetLinearInterpolation(200, 300, 0.85, 0.75, kh);
-            else if (h0 <= 500 && h0 > 300)
-                Interpolation.GetLinearInterpolation(300, 500, 0.75, 0.70, kh);
-            else
-                kh = 0.70;
-
-            double epsilonCDInf = kh * epsilonCD0;
-
-            double epsilonCAInf = 2.5 * (Fck - 10) * Math.Pow(10, -6);
-
-            return epsilonCDInf + epsilonCAInf;
+                return Math.Sign(_fck) * 2.12 * Math.Log(1.0 + Math.Abs(GetFcm()) / 10.0);
         }
 
 
-        /// <summary>
-        /// Calculate increased characteristic strength and strains of confined concrete 
-        /// </summary>
-        /// <param name="sigma2">The effective lateral compressive stress at the ULS due to confinement</param>
-        /// <param name="epsilonCC">New compressive strain in the concrete at the peak stress fc</param>
-        /// <param name="epsilonCuC">New ultimate compressive strain in the concrete</param>
-        /// <returns>Thw new characteristic compressive cylinder strength of concrete at 28 days</returns>
-        public virtual double CalculateConfinedConcreteResistance(double sigma2, out double epsilonCC, out double epsilonCuC)
-        {
-            double fckc;
-            if (sigma2 <= 0.05 * Fck)
-                fckc = Fck * (1.0 + 5.0 * sigma2 / Fck);
-            else
-                fckc = Fck * (1.125 + 2.5 * sigma2 / Fck);
-
-            if (_compressionStressStrainDiagrams == CompressionStressStrainDiagrams.ParabolaRectangle)
-            {
-                epsilonCC = _strainYCompression * Math.Pow(fckc / Fck, 2.0);
-                epsilonCuC = epsilonCC + 0.2 * sigma2 / Fck;
-            }
-            else if (_compressionStressStrainDiagrams == CompressionStressStrainDiagrams.Bilinear)
-            {
-                epsilonCC = _strainYCompression * Math.Pow(fckc / Fck, 2.0);
-                epsilonCuC = epsilonCC + 0.2 * sigma2 / Fck;
-            }
-            else
-            {
-                epsilonCC = _strainYCompression * Math.Pow(fckc / Fck, 2.0);
-                epsilonCuC = epsilonCC + 0.2 * sigma2 / Fck;
-
-                //TODO: implementare questo caso
-            }
-
-            return fckc;
-        }
-
-        #endregion
-
-
-        #region Protected methods
 
         protected virtual double GetCementSCoefficient()
         {
@@ -635,57 +650,57 @@ namespace GPC.Model.Materials
             }
         }
 
-        protected virtual double GetParabolaNCoefficient(double fck)
+        protected virtual double GetParabolaNCoefficient()
         {
-            if (Math.Abs(fck) <= 50)
+            if (Math.Abs(_fck) <= 50)
                 return 2.0;
             else
-                return 1.4 + 23.4 * Math.Pow((90.0 - Math.Abs(fck)) / 100.0, 4.0);
+                return 1.4 + 23.4 * Math.Pow((90.0 - Math.Abs(_fck)) / 100.0, 4.0);
         }
 
 
-        protected virtual double GetParabolaStress(double strain, double strainY, double fck)
+        protected virtual double GetParabolaStress(double strain, double strainY)
         {
             
             if (strainY == 0)
                 throw new ArgumentException();
 
             if (Math.Abs(strain) > Math.Abs(strainY))
-                return fck;
+                return _fck;
             else if (strain == 0)
                 return 0;
             else
-                return fck * (1.0 - Math.Pow(1.0 - Math.Abs(strain / strainY), GetParabolaNCoefficient(fck)));
+                return _fck * (1.0 - Math.Pow(1.0 - Math.Abs(strain / strainY), GetParabolaNCoefficient()));
         }
 
 
         /// <remarks>Sign convention: Stress and strain negative if compression</remarks>
-        protected virtual double GetStrainYCompression(double fck, double strainU, 
+        protected virtual double GetStrainYCompression(double strainU, 
                                                             CompressionStressStrainDiagrams compressionStressStrainDiagrams)
         {
 
             switch (compressionStressStrainDiagrams)
             {
                 case CompressionStressStrainDiagrams.ParabolaRectangle:
-                    if (Math.Abs(fck) <= 50.0)
+                    if (Math.Abs(_fck) <= 50.0)
                         return - 2.0 / 1000.0;
                     else
-                        return - (2.0 + 0.085 * Math.Pow(Math.Abs(fck) - 50.0, 0.53)) / 1000.0;
+                        return - (2.0 + 0.085 * Math.Pow(Math.Abs(_fck) - 50.0, 0.53)) / 1000.0;
 
                 case CompressionStressStrainDiagrams.Bilinear:
-                    if (Math.Abs(fck) <= 50.0)
+                    if (Math.Abs(_fck) <= 50.0)
                         return - 1.75 / 1000.0;
                     else
-                        return - (1.75 + 0.55 * ((Math.Abs(fck) - 50.0) / 40.0)) / 1000.0;
+                        return - (1.75 + 0.55 * ((Math.Abs(_fck) - 50.0) / 40.0)) / 1000.0;
 
                 case CompressionStressStrainDiagrams.StressBlock:
                     {
                         double lambda;
 
-                        if (Math.Abs(fck) <= 50.0)
+                        if (Math.Abs(_fck) <= 50.0)
                             lambda = 0.8;
                         else
-                            lambda = 0.8 - (Math.Abs(fck) - 50.0) / 400;
+                            lambda = 0.8 - (Math.Abs(_fck) - 50.0) / 400;
 
                         return - strainU * (1.0 - lambda);
                     }
@@ -696,7 +711,7 @@ namespace GPC.Model.Materials
                     return strain;
 
                 case CompressionStressStrainDiagrams.NonLinear:
-                    return Math.Max(0.7 * GetFcm(fck) * 0.31, - 2.8) ;
+                    return Math.Max(0.7 * GetFcm(_fck) * 0.31, - 2.8) ;
 
                 default:
                     throw new ArgumentException();
@@ -746,34 +761,34 @@ namespace GPC.Model.Materials
         }
 
 
-        protected virtual double GetStrainUCompression(double fck, CompressionStressStrainDiagrams compressionStressStrainDiagrams)
+        protected virtual double GetStrainUCompression(CompressionStressStrainDiagrams compressionStressStrainDiagrams)
         {
 
             switch (compressionStressStrainDiagrams)
             {
                 case CompressionStressStrainDiagrams.ParabolaRectangle:
-                    if (Math.Abs(fck) <= 50)
+                    if (Math.Abs(_fck) <= 50)
                         return - 3.5 / 1000.0;
                     else
-                        return - (2.6 + 35.0 * Math.Pow((90.0 - Math.Abs(fck)) / 100.0, 4)) / 1000.0;
+                        return - (2.6 + 35.0 * Math.Pow((90.0 - Math.Abs(_fck)) / 100.0, 4)) / 1000.0;
 
                 case CompressionStressStrainDiagrams.Bilinear:
-                    if (Math.Abs(fck) <= 50)
+                    if (Math.Abs(_fck) <= 50)
                         return - 3.5 / 1000.0;
                     else
-                        return - (2.6 + 35.0 * Math.Pow((90.0 - Math.Abs(fck)) / 100.0, 4)) / 1000.0;
+                        return - (2.6 + 35.0 * Math.Pow((90.0 - Math.Abs(_fck)) / 100.0, 4)) / 1000.0;
 
                 case CompressionStressStrainDiagrams.StressBlock:
-                    if (Math.Abs(fck) <= 50)
+                    if (Math.Abs(_fck) <= 50)
                         return - 3.5 / 1000.0;
                     else
-                        return - (2.6 + 35.0 * Math.Pow((90.0 - Math.Abs(fck)) / 100.0, 4)) / 1000.0;
+                        return - (2.6 + 35.0 * Math.Pow((90.0 - Math.Abs(_fck)) / 100.0, 4)) / 1000.0;
 
                 case CompressionStressStrainDiagrams.Generic:                                        
                     return _stressStrainTableCompression.Strains.Last();
 
                 case CompressionStressStrainDiagrams.NonLinear:
-                    return  - (2.8 + 27.0 * Math.Pow((98.0 - Math.Abs(GetFcm(fck))) / 100.0, 4.0));
+                    return  - (2.8 + 27.0 * Math.Pow((98.0 - Math.Abs(GetFcm(_fck))) / 100.0, 4.0));
 
                 default:
                     throw new ArgumentException();
@@ -782,6 +797,8 @@ namespace GPC.Model.Materials
         }
 
         #endregion
+
+
 
         #region Equals, hashcode, operators
 

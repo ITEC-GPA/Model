@@ -87,7 +87,7 @@ namespace ModelObjectTest
 		{
             ConcreteMaterialEN1992 concrete = new ConcreteMaterialEN1992(25, ConcreteMaterialEN1992.CompressionStressStrainDiagrams.StressBlock);
 
-            Assert.IsTrue(Math.Abs((concrete.E - 31.0 * 1000) / concrete.E) < 0.5);
+            Assert.IsTrue(Math.Abs((concrete.E - 31.0 * 1000) / concrete.E) < 0.5, concrete.E.ToString());
             Assert.IsTrue(Math.Abs(concrete.Fcm - 33.0) < 0.5);
             Assert.IsTrue(Math.Abs(concrete.Fctk05 - 1.8) < 0.5);
             Assert.IsTrue(Math.Abs(concrete.Fctm - 2.6) < 0.5);
@@ -184,14 +184,14 @@ namespace ModelObjectTest
             ConcreteMaterialEN1992 concrete = new ConcreteMaterialEN1992(60, ConcreteMaterialEN1992.CompressionStressStrainDiagrams.ParabolaRectangle);
 
             double sigmaC1 = 20;
-            double epsilonCC1 = concrete.CalculateEpsilonCCInfiniteTime(sigmaC1, 70, 1000000, 2000, 7);
-            double epsilonCS1 = concrete.CalculateEpsilonCSInfiniteTime(70, 1000000, 2000);
+            double epsilonCC1 = concrete.GetEpsilonCCInfiniteTime(sigmaC1, 70, 1000000, 2000, 7);
+            double epsilonCS1 = concrete.GetEpsilonCSInfiniteTime(70, 1000000, 2000);
             Assert.IsTrue(Math.Abs(epsilonCC1 / sigmaC1 * concrete.Ec - 1.346) < 0.01);
             Assert.IsTrue(Math.Abs(epsilonCS1 - 30.18 * 1e-5) < 0.01);
 
             double sigmaC2 = 15;
-            double epsilonCC2 = concrete.CalculateEpsilonCCInfiniteTime(sigmaC2, 80, 1000000, 2000, 28);
-            double epsilonCS2 = concrete.CalculateEpsilonCSInfiniteTime(80, 1000000, 2000);
+            double epsilonCC2 = concrete.GetEpsilonCCInfiniteTime(sigmaC2, 80, 1000000, 2000, 28);
+            double epsilonCS2 = concrete.GetEpsilonCSInfiniteTime(80, 1000000, 2000);
             Assert.IsTrue(Math.Abs(epsilonCC2 / sigmaC2 * concrete.Ec - 0.981) < 0.01);
             Assert.IsTrue(Math.Abs(epsilonCS2 - 25.63 * 1e-5) < 0.01);
         }
@@ -203,20 +203,59 @@ namespace ModelObjectTest
             ConcreteMaterialEN1992 concrete = new ConcreteMaterialEN1992(25, ConcreteMaterialEN1992.CompressionStressStrainDiagrams.ParabolaRectangle);
 
             double sigmaC1 = 20;
-            double epsilonCC1 = concrete.CalculateEpsilonCCInfiniteTime(sigmaC1, 70, 1000000, 2000, 7, 0);
-            double epsilonCS1 = concrete.CalculateEpsilonCSInfiniteTime(70, 1000000, 2000);
+            double epsilonCC1 = concrete.GetEpsilonCCInfiniteTime(sigmaC1, 70, 1000000, 2000, 7, 0);
+            double epsilonCS1 = concrete.GetEpsilonCSInfiniteTime(70, 1000000, 2000);
             Assert.IsTrue(Math.Abs(epsilonCC1 - 4.078) < 0.01);
             Assert.IsTrue(Math.Abs(epsilonCS1 - 30.66 * 1e-5) < 0.01);
 
             double sigmaC2 = 15;
-            double epsilonCC2 = concrete.CalculateEpsilonCCInfiniteTime(sigmaC2, 80, 1000000, 2000, 28);
-            double epsilonCS2 = concrete.CalculateEpsilonCSInfiniteTime(80, 1000000, 2000);
+            double epsilonCC2 = concrete.GetEpsilonCCInfiniteTime(sigmaC2, 80, 1000000, 2000, 28);
+            double epsilonCS2 = concrete.GetEpsilonCSInfiniteTime(80, 1000000, 2000);
             Assert.IsTrue(Math.Abs(epsilonCC2 - 2.146) < 0.01);
             Assert.IsTrue(Math.Abs(epsilonCS2 - 23.74 * 1e-5) < 0.01);
 
             double sigmaC3 = 10;
-            double epsilonCC3 = concrete.CalculateEpsilonCCInfiniteTime(sigmaC3, 70, 1000000, 2000, 7, 20, 7);
+            double epsilonCC3 = concrete.GetEpsilonCCInfiniteTime(sigmaC3, 70, 1000000, 2000, 7, 20, 7);
             Assert.IsTrue(Math.Abs(epsilonCC3 - 0.000730) < 0.01);
+        }
+
+
+
+        [TestMethod]
+        public void ConcreteENTest9()
+        {
+            ConcreteMaterialEN1992 concrete1 = new ConcreteMaterialEN1992(60, ConcreteMaterialEN1992.CompressionStressStrainDiagrams.ParabolaRectangle);
+            ConcreteMaterialEN1992 concrete2 = new ConcreteMaterialEN1992(60, ConcreteMaterialEN1992.CompressionStressStrainDiagrams.Bilinear);
+            ConcreteMaterialEN1992 concrete3 = new ConcreteMaterialEN1992(60, ConcreteMaterialEN1992.CompressionStressStrainDiagrams.StressBlock);
+
+            foreach (var concrete in new[] { concrete1, concrete2, concrete3 })
+            {
+                var stresses = concrete.StressStrainTableCompression.Stresses;
+                var strains = concrete.StressStrainTableCompression.Strains;
+
+                Assert.IsTrue(stresses[0] == 0);
+                Assert.IsTrue(stresses[stresses.Length - 2] == 60.0, stresses[1].ToString());
+                Assert.IsTrue(stresses[stresses.Length - 1] == 60.0, stresses[2].ToString());
+
+                Assert.IsTrue(strains[0] == 0);
+                Assert.IsTrue(strains[strains.Length - 2] == concrete.StrainYCompression);
+                Assert.IsTrue(strains[strains.Length - 1] == concrete.StrainUCompression);
+            }
+
+
+            foreach (var concrete in new[] { concrete1, concrete2, concrete3 })
+            {
+                var stresses = concrete.StressStrainTableTension.Stresses;
+                var strains = concrete.StressStrainTableTension.Strains;
+
+                Assert.IsTrue(stresses[0] == 0);
+                Assert.IsTrue(stresses[stresses.Length - 1] == concrete.Fctk05, stresses[stresses.Length - 1].ToString());
+
+                Assert.IsTrue(strains[0] == 0);
+                Assert.IsTrue(strains[strains.Length - 1] == concrete.StrainYTension);
+                Assert.IsTrue(strains[strains.Length - 1] == concrete.StrainUTension);
+            }
+
         }
     }
 }
