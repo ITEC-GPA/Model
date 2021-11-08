@@ -46,12 +46,14 @@ namespace GPC.Model.Sections.Concrete
 			: base(diameter, material, name)
 		{
 			_rebars = rebars;
+			_mesh = GenerateMesh();
 		}
 
 		public ConcreteSectionCircular(double diameter, ConcreteMaterial material, double concreteCover, int numberOfRebars, IRebarSection rebarSection, double epsilonP = 0.0, string name = "")
 			: base(diameter, material, name)
 		{
 			_rebars = SetRadialRebars(concreteCover, numberOfRebars, rebarSection, epsilonP);
+			_mesh = GenerateMesh();
 		}
 
 		#endregion

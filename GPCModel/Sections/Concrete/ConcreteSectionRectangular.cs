@@ -48,8 +48,7 @@ namespace GPC.Model.Sections.Concrete
 			: base(height, width, material, name)
 		{
 			_rebars = rebars;
-
-
+			_mesh = GenerateMesh();
 		}
 
 		public ConcreteSectionRectangular(SectionRectangular section, ReinforcedConcreteRebar[] rebars)
