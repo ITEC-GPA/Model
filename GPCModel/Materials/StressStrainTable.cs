@@ -155,5 +155,35 @@ namespace GPC.Model.Materials
         }
 
 
+
+        public override bool Equals(object obj)
+        {
+            if (ReferenceEquals(this, obj))
+                return true;
+
+            return (obj is StressStrainTable objCasted) && objCasted.Strains.SequenceEqual(_strains) && 
+                                                           objCasted.Stresses.SequenceEqual(_stresses);
+        }
+
+        public override int GetHashCode()
+        {
+            unchecked
+            {
+                int hashCode = 17;
+                hashCode = hashCode * -19 + EqualityComparer<double[]>.Default.GetHashCode(_stresses);
+                hashCode = hashCode * -19 + EqualityComparer<double[]>.Default.GetHashCode(_strains);
+                return hashCode; 
+            }
+        }
+
+        public static bool operator ==(StressStrainTable left, StressStrainTable right)
+        {
+            return left.Equals(right);
+        }
+
+        public static bool operator !=(StressStrainTable left, StressStrainTable right)
+        {
+            return !(left == right);
+        }
     }
 }

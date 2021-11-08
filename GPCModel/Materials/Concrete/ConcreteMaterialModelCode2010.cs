@@ -783,6 +783,61 @@ namespace GPC.Model.Materials
 
         #endregion
 
+        #region Equals, hashcode, operators
 
+        public override bool Equals(object obj)
+        {
+            if (ReferenceEquals(this, obj))
+                return true;
+
+            return (obj is ConcreteMaterialModelCode2010 objCasted) && objCasted._fck.Equals(_fck) && 
+                                                                       objCasted._fctk.Equals(_fctk) &&
+                                                                       objCasted._fctu.Equals(_fctu) &&
+                                                                       objCasted._strainUCompression.Equals(_strainUCompression) &&
+                                                                       objCasted._strainYCompression.Equals(_strainYCompression) &&
+                                                                       objCasted._strainYTension.Equals(_strainYTension) &&
+                                                                       objCasted._strainUTension.Equals(_strainUTension) &&
+                                                                       objCasted._cementType.Equals(_cementType) &&
+                                                                       objCasted._compressionStressStrainDiagrams.Equals(_compressionStressStrainDiagrams) &&
+                                                                       objCasted._tensionStressStrainDiagrams.Equals(_tensionStressStrainDiagrams) &&
+                                                                       base.Equals(objCasted);
+        }
+
+        public override int GetHashCode()
+        {
+            unchecked
+            {
+                int hashCode = 23;
+                hashCode = hashCode * -17 + base.GetHashCode();
+                hashCode = hashCode * -17 + _fck.GetHashCode();
+                hashCode = hashCode * -17 + _fctk.GetHashCode();
+                hashCode = hashCode * -17 + _fctu.GetHashCode();
+                hashCode = hashCode * -17 + _strainUCompression.GetHashCode();
+                hashCode = hashCode * -17 + _strainYCompression.GetHashCode();
+                hashCode = hashCode * -17 + _strainYTension.GetHashCode();
+                hashCode = hashCode * -17 + _strainYCompression.GetHashCode();
+                hashCode = hashCode * -17 + _cementType.GetHashCode();
+                hashCode = hashCode * -17 + _compressionStressStrainDiagrams.GetHashCode();
+                hashCode = hashCode * -17 + _tensionStressStrainDiagrams.GetHashCode();
+                return hashCode;
+            }
+        }
+
+
+        public static bool operator ==(ConcreteMaterialModelCode2010 obj1, ConcreteMaterialModelCode2010 obj2)
+        {
+            if (ReferenceEquals(obj1, obj2))
+                return true;
+
+            return obj1.Equals(obj2);
+        }
+
+        public static bool operator !=(ConcreteMaterialModelCode2010 obj1, ConcreteMaterialModelCode2010 obj2)
+        {
+            return !(obj1 == obj2);
+        }
+
+
+        #endregion
     }
 }

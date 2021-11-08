@@ -62,7 +62,41 @@ namespace GPC.Model.Materials
 
         }
 
+        #region Equals, hashcode, operators
+
+        public override bool Equals(object obj)
+        {
+            if (ReferenceEquals(this, obj))
+                return true;
+
+            return (obj is ConcreteMaterialEN1992 objCasted) && base.Equals(objCasted);
+        }
+
+        public override int GetHashCode()
+        {
+            unchecked
+            {
+                int hashCode = 23;
+                hashCode = hashCode * -17 + base.GetHashCode();;
+                return hashCode;
+            }
+        }
 
 
+        public static bool operator ==(ConcreteMaterialEN1992 obj1, ConcreteMaterialEN1992 obj2)
+        {
+            if (ReferenceEquals(obj1, obj2))
+                return true;
+
+            return obj1.Equals(obj2);
+        }
+
+        public static bool operator !=(ConcreteMaterialEN1992 obj1, ConcreteMaterialEN1992 obj2)
+        {
+            return !(obj1 == obj2);
+        }
+
+
+        #endregion
     }
 }

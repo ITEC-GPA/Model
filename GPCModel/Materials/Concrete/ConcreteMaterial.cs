@@ -75,8 +75,45 @@ namespace GPC.Model.Materials
         }
 
 
+        public override bool Equals(object obj)
+        {
+            if (ReferenceEquals(this, obj))
+                return true;
+
+            return (obj is ConcreteMaterial objCasted) && objCasted._elasticModulusTension.Equals(_elasticModulusTension) &&
+                                                          objCasted._stressStrainTableCompression.Equals(_stressStrainTableCompression) &&
+                                                          objCasted._stressStrainTableTension.Equals(_stressStrainTableTension) &&
+                                                          base.Equals(objCasted);
+        }
+
+        public override int GetHashCode()
+        {
+            unchecked
+            {
+                int hashCode = 23;
+                hashCode = hashCode * -17 + base.GetHashCode();
+                hashCode = hashCode * -17 + _elasticModulusTension.GetHashCode();
+                hashCode = hashCode * -17 + _stressStrainTableCompression.GetHashCode();
+                hashCode = hashCode * -17 + _stressStrainTableTension.GetHashCode();
+                return hashCode; 
+            }
+        }
+
+
+        public static bool operator ==(ConcreteMaterial obj1, ConcreteMaterial obj2)
+        {
+            if (ReferenceEquals(obj1, obj2))
+                return true;
+
+            return obj1.Equals(obj2);
+        }
+
+        public static bool operator !=(ConcreteMaterial obj1, ConcreteMaterial obj2)
+        {
+            return !(obj1 == obj2);
+        }
+
 
     }
-
 
 }

@@ -14,11 +14,14 @@ namespace GPC.Model.Materials
     public class ConcreteMaterialACI318 : ConcreteMaterial
     {
 
-        public ConcreteMaterialACI318(string name, double poisson, double density, double alfaThermalExpansion)
-            : base(name, poisson, density, alfaThermalExpansion)
-        {
+        private double _fc;
 
+        public ConcreteMaterialACI318(double fc, string name = "")
+            : base(name, 0.2, 0.0025, 1e-6)
+        {
+            _fc = fc;
         }
+
 
         public ConcreteMaterialACI318(string name, StressStrainTable stressStrainTableCompression,
             StressStrainTable stressStrainTableTension, double elasticModulusCompression, double elasticModulusTension,
