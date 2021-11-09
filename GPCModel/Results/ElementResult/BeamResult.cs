@@ -1,28 +1,28 @@
-﻿using GPC.Model.LoadCases;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Runtime.Serialization;
 using System.Linq;
+using System.Runtime.Serialization;
+using GPC.Geometry;
+using GPC.Model.LoadCases;
 
 namespace GPC.Model.Results
 {
     [Serializable]
     public sealed class BeamResult : FiniteElementResult, ISerializable, IEquatable<BeamResult>, IElementResult
     {
-        public double Length => ((ResultStation)ResultLocations.First()).ElementLenght;     // TODO: va sistemato
 
 
-        public BeamResult(ILoadCase Case, IEnumerable<IBeamResult> result, IEnumerable<ResultStation> points, GPC.Geometry.CoordinateSystem coordinateSystem)
-            : this(Case, result, points, ModelObjectId.IDUNASSIGNED, coordinateSystem)
+        public double Length => ((ResultLocationStation)ResultLocations.First()).ElementLenght;     // TODO: va sistemato
+
+
+        public BeamResult(ILoadCase Case, IEnumerable<ResultLocationStation> resultStation,
+                            CoordinateSystem coordinateSystem, int stageId = ModelObjectId.IDUNASSIGNED)
+            : base(Case, coordinateSystem, resultStation, stageId)
         {
-
-        }
-
-        public BeamResult(ILoadCase Case, IEnumerable<IBeamResult> result, IEnumerable<ResultStation> points, int stageId, GPC.Geometry.CoordinateSystem coordinateSystem)
-            : base(Case, coordinateSystem, (IEnumerable<ResultType>)result, points, stageId)
-        {
-            if (points.Select(i => i.ElementLenght).Distinct().Count() > 1)
+            if (resultStation.Select(i => i.ElementLenght).Distinct().Count() > 1)
                 throw new ArgumentException("All Result Station must have the same length");
+
+
         }
 
 
@@ -38,8 +38,6 @@ namespace GPC.Model.Results
 
         public bool Equals(BeamResult other)
         {
-            if (other is null)
-                return false;
 
             if (ReferenceEquals(this, other))
                 return true;

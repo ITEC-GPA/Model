@@ -7,7 +7,7 @@ namespace GPC.Model.Results
 {
 
     [Serializable]
-    public class ResultStation : ResultLocation, ISerializable
+    public class ResultLocationStation : ResultLocation, ISerializable
     {
         private readonly double _distanceFromStartPoint;
         private readonly double _elementLenght;
@@ -21,7 +21,7 @@ namespace GPC.Model.Results
 
 
 
-        public ResultStation(IEnumerable<ResultType> results, double distanceFromStartPoint, double elementLenght, int id = ModelObjectId.IDUNASSIGNED)
+        public ResultLocationStation(IEnumerable<ResultType> results, double distanceFromStartPoint, double elementLenght, int id = ModelObjectId.IDUNASSIGNED)
             : base(results.ToArray(), id)
         {
             _distanceFromStartPoint = distanceFromStartPoint > elementLenght ? throw new ArgumentException($"distanceFromStartPoint can not higher than elementLenght") : distanceFromStartPoint;
@@ -29,7 +29,7 @@ namespace GPC.Model.Results
         }
 
 
-        public ResultStation(SerializationInfo info, StreamingContext context)
+        public ResultLocationStation(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
             throw new NotImplementedException();
@@ -44,7 +44,7 @@ namespace GPC.Model.Results
 
         public override bool Equals(object obj)
         {
-            return obj is ResultStation station &&
+            return obj is ResultLocationStation station &&
                    base.Equals(obj) &&
                    _distanceFromStartPoint == station._distanceFromStartPoint &&
                    _elementLenght == station._elementLenght;
@@ -62,7 +62,7 @@ namespace GPC.Model.Results
             }
         }
 
-        public static bool operator ==(ResultStation obj1, ResultStation obj2)
+        public static bool operator ==(ResultLocationStation obj1, ResultLocationStation obj2)
         {
             if (obj1 is null)
             {
@@ -75,7 +75,7 @@ namespace GPC.Model.Results
             return obj1.Equals(obj2);
         }
 
-        public static bool operator !=(ResultStation obj1, ResultStation obj2)
+        public static bool operator !=(ResultLocationStation obj1, ResultLocationStation obj2)
         {
             return !(obj1 == obj2);
         }
