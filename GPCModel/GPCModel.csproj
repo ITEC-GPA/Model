@@ -264,7 +264,7 @@
     <Compile Include="Results\ResultLocation\ResultStation.cs" />
     <Compile Include="Results\ResultTypes\ResultDisplacement.cs" />
     <Compile Include="Results\ElementResult\ElementResult.cs" />
-    <Compile Include="Results\ResultLocation\ResultLocationId.cs" />
+    <Compile Include="Results\ResultLocation\ResultLocation.cs" />
     <Compile Include="Results\ResultTypes\ResultPlateForces.cs" />
     <Compile Include="Results\ResultTypes\ResultStress.cs" />
     <Compile Include="Results\ResultLocation\ResultLocationPoint.cs" />

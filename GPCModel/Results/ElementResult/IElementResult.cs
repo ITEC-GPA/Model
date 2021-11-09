@@ -11,7 +11,7 @@ namespace GPC.Model.Results
 	public interface IElementResult
 	{
 		ResultType[] Results { get; }
-		ResultLocationId[] Points { get; }
+		ResultLocation[] Points { get; }
 		ILoadCase Case { get; }
 		CoordinateSystem CoordinateSystem { get; }
 	}

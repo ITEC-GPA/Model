@@ -11,6 +11,7 @@ namespace GPC.Model.Results
     {
         public double Length => ((ResultStation)Points.First()).ElementLenght;     // TODO: va sistemato
 
+
         public BeamResult(ILoadCase Case, IEnumerable<IBeamResult> result, IEnumerable<ResultStation> points, GPC.Geometry.CoordinateSystem coordinateSystem)
             : this(Case, result, points, ModelObjectId.IDUNASSIGNED, coordinateSystem)
         {
@@ -64,4 +65,7 @@ namespace GPC.Model.Results
             return !(obj1 == obj2);
         }
     }
+
+
+
 }

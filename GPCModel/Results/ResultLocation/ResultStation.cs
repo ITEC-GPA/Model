@@ -1,11 +1,13 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Runtime.Serialization;
 
 namespace GPC.Model.Results
 {
 
     [Serializable]
-    public class ResultStation : ResultLocationId, ISerializable, IResultLocation
+    public class ResultStation : ResultLocation, ISerializable, IResultLocation
     {
         private readonly double _distanceFromStartPoint;
         private readonly double _elementLenght;
@@ -19,8 +21,8 @@ namespace GPC.Model.Results
 
 
 
-        public ResultStation(int id, double distanceFromStartPoint, double elementLenght)
-            : base(id, string.Empty)
+        public ResultStation(IEnumerable<ResultType> results, double distanceFromStartPoint, double elementLenght, int id = ModelObjectId.IDUNASSIGNED)
+            : base(results.ToArray(), id)
         {
             _distanceFromStartPoint = distanceFromStartPoint > elementLenght ? throw new ArgumentException($"distanceFromStartPoint can not higher than elementLenght") : distanceFromStartPoint;
             _elementLenght = elementLenght == 0 ? throw new ArgumentException($"elementLenght can not be zero") : elementLenght;
@@ -44,7 +46,7 @@ namespace GPC.Model.Results
         {
             return obj is ResultStation station &&
                    base.Equals(obj) &&
-                   _distanceFromStartPoint == station._distanceFromStartPoint && 
+                   _distanceFromStartPoint == station._distanceFromStartPoint &&
                    _elementLenght == station._elementLenght;
         }
 
@@ -56,7 +58,7 @@ namespace GPC.Model.Results
                 hashCode = hashCode * -1521134295 + base.GetHashCode();
                 hashCode = hashCode * -1521134295 + _distanceFromStartPoint.GetHashCode();
                 hashCode = hashCode * -1521134295 + _elementLenght.GetHashCode();
-                return hashCode; 
+                return hashCode;
             }
         }
 

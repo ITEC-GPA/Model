@@ -11,11 +11,11 @@ namespace GPC.Model.Results
 
         public CoordinateSystem CoordinateSystem => _coordinateSystem;
 
-        protected ResultType(CoordinateSystem coordinateSystem, string name = "") : base(name)
+        protected ResultType(CoordinateSystem coordinateSystem, string name = "") 
+            : base(name)
         {
             _coordinateSystem = coordinateSystem ?? throw new ArgumentNullException(nameof(coordinateSystem));
         }
-
 
 
         public ResultType(SerializationInfo info, StreamingContext context)

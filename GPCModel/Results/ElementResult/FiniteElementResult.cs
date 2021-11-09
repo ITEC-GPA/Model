@@ -12,19 +12,19 @@ namespace GPC.Model.Results
     {
 
         private readonly ResultType[] _results;
-        private readonly ResultLocationId[] _points;
+        private readonly ResultLocation[] _points;
 
         public ResultType[] Results => _results;
-        public ResultLocationId[] Points => _points;
+        public ResultLocation[] Points => _points;
 
 
-        public FiniteElementResult(ILoadCase Case, CoordinateSystem coordinateSystem, IEnumerable<ResultType> result, IEnumerable<ResultLocationId> points)
+        public FiniteElementResult(ILoadCase Case, CoordinateSystem coordinateSystem, IEnumerable<ResultType> result, IEnumerable<ResultLocation> points)
             : this(Case, coordinateSystem, result, points, ModelObjectId.IDUNASSIGNED)
         {
 
         }
 
-        public FiniteElementResult(ILoadCase Case, CoordinateSystem coordinateSystem, IEnumerable<ResultType> result, IEnumerable<ResultLocationId> points, int stageId, string name = "")
+        public FiniteElementResult(ILoadCase Case, CoordinateSystem coordinateSystem, IEnumerable<ResultType> result, IEnumerable<ResultLocation> points, int stageId, string name = "")
             : base(Case, coordinateSystem, stageId, name)
         {
 
@@ -46,7 +46,7 @@ namespace GPC.Model.Results
             : base(info, context)
         {
             _results = (ResultType[])info.GetValue("ResultType", typeof(ResultType[]));
-            _points = (ResultLocationId[])info.GetValue("ResultLocationId", typeof(ResultLocationId[]));
+            _points = (ResultLocation[])info.GetValue("ResultLocationId", typeof(ResultLocation[]));
         }
 
 

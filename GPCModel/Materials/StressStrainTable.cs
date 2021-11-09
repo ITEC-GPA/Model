@@ -1,9 +1,9 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using System.Collections;
 
 
 namespace GPC.Model.Materials
@@ -161,7 +161,7 @@ namespace GPC.Model.Materials
             if (ReferenceEquals(this, obj))
                 return true;
 
-            return (obj is StressStrainTable objCasted) && objCasted.Strains.SequenceEqual(_strains) && 
+            return (obj is StressStrainTable objCasted) && objCasted.Strains.SequenceEqual(_strains) &&
                                                            objCasted.Stresses.SequenceEqual(_stresses);
         }
 
@@ -170,9 +170,14 @@ namespace GPC.Model.Materials
             unchecked
             {
                 int hashCode = 17;
-                hashCode = hashCode * -19 + EqualityComparer<double[]>.Default.GetHashCode(_stresses);
-                hashCode = hashCode * -19 + EqualityComparer<double[]>.Default.GetHashCode(_strains);
-                return hashCode; 
+
+                for (int i = 0; i < _stresses.Length; i++)
+                {
+                    hashCode = hashCode * -19 * _stresses[i].GetHashCode();
+                    hashCode = hashCode * -19 * _strains[i].GetHashCode();
+                }
+
+                return hashCode;
             }
         }
 

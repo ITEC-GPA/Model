@@ -10,13 +10,13 @@ namespace GPC.Model.Results
     public class BrickResult : FiniteElementResult, ISerializable, IEquatable<BrickResult>
     {
 
-        public BrickResult(ILoadCase Case, CoordinateSystem coordinateSystem, IEnumerable<IBrickResult> result, IEnumerable<ResultLocationId> points)
+        public BrickResult(ILoadCase Case, CoordinateSystem coordinateSystem, IEnumerable<IBrickResult> result, IEnumerable<ResultLocation> points)
             : this(Case, coordinateSystem, result, points, ModelObjectId.IDUNASSIGNED)
         {
 
         }
 
-        public BrickResult(ILoadCase Case, CoordinateSystem coordinateSystem, IEnumerable<IBrickResult> result, IEnumerable<ResultLocationId> points, int stageId)
+        public BrickResult(ILoadCase Case, CoordinateSystem coordinateSystem, IEnumerable<IBrickResult> result, IEnumerable<ResultLocation> points, int stageId)
             : base(Case, coordinateSystem, (IEnumerable<ResultType>)result, points, stageId)
         {
 

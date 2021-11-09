@@ -17,7 +17,7 @@ namespace GPC.Model.Results
         /// <param name="result">Lenght of this list should be 3n. Where n is the number of result on each face</param>
         /// <param name="resultLocations">Lenght of this list should be 3n. Where n is the number of result on each face</param>
         /// <remarks>Result order: Lower face (z-), Mid face, Upper face (z+)</remarks>
-        public PlateResult(ILoadCase Case, CoordinateSystem coordinateSystem, IPlateResult[] result, ResultLocationId[] resultLocations)
+        public PlateResult(ILoadCase Case, CoordinateSystem coordinateSystem, IPlateResult[] result, ResultLocation[] resultLocations)
             : this(Case, coordinateSystem, result, resultLocations, ModelObjectId.IDUNASSIGNED)
         {
 
@@ -31,7 +31,7 @@ namespace GPC.Model.Results
         /// <param name="stageId"></param>
         /// <param name="name"></param>
         /// <remarks>Result order: Lower face (z-), Mid face, Upper face (z+)</remarks>
-        public PlateResult(ILoadCase Case, CoordinateSystem coordinateSystem, IPlateResult[] result, ResultLocationId[] resultLocations, int stageId, string name = "")
+        public PlateResult(ILoadCase Case, CoordinateSystem coordinateSystem, IPlateResult[] result, ResultLocation[] resultLocations, int stageId, string name = "")
             : base(Case, coordinateSystem, (IEnumerable<ResultType>)result, resultLocations, stageId, name)
         {
             if (result.Count() % 3 != 0)
@@ -60,7 +60,7 @@ namespace GPC.Model.Results
         public (ResultType lowerFace, ResultType midFace, ResultType upperFace) GetMeanFaceResults()
         {
             List<ResultType[]> resultSplitted = Results.Split(Results.Length / 3);
-            List<ResultLocationId[]> pointSplitted = Points.Split(Results.Length / 3);
+            List<ResultLocation[]> pointSplitted = Points.Split(Results.Length / 3);
 
             ResultType[] returnValues = new ResultType[3];
 
@@ -70,7 +70,7 @@ namespace GPC.Model.Results
                 {
                     throw new NotImplementedException("Mean value considering point coordinate to be implemented");
                 }
-                else if (pointSplitted[i].First() is ResultLocationId)
+                else if (pointSplitted[i].First() is ResultLocation)
                 {
                     if (resultSplitted[i].First() is ResultStress)
                     {
