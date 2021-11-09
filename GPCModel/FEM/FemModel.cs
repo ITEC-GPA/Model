@@ -1845,19 +1845,29 @@ namespace GPC.Model.FEM
         }
 
 
-        /// <returns>The results related to <paramref name="combination"/></returns>
-        public IEnumerable<FiniteElementResult> GetCombinationElementStressResults(Combination combination, string groupName = "")
-        {
-            if (!string.IsNullOrEmpty(groupName))
-            {
-                var group = _groups.GetElementByName(groupName);
-                return _elements.SelectMany(i => i.Results.Where(k => i.ContainsGroup(group) && k.Case.Equals(combination) && k.Results.Where(m => m != null).First() is ResultStress));
-            }
-            else
-            {
-                return _elements.SelectMany(i => i.Results.Where(k => k.Case.Equals(combination) && k.Results.Where(m => m != null).First() is ResultStress));
-            }
-        }
+        ///// <returns>The results related to <paramref name="combination"/></returns>
+        //public IEnumerable<FiniteElementResult> GetCombinationElementStressResults(Combination combination, string groupName = "")
+        //{
+
+        //    var group = _groups.GetElementByName(groupName);
+        //    var a = _elements.SelectMany(i => i.Results
+        //                                       .Where(k => i.ContainsGroup(group) 
+        //                                                && k.Case.Equals(combination) 
+        //                                                && k.GetResults().Where(m => m != null).First().));
+
+
+
+        //    if (!string.IsNullOrEmpty(groupName))
+        //    {
+        //        var group = _groups.GetElementByName(groupName);
+        //        return _elements.SelectMany(i => i.Results.Where(k => i.ContainsGroup(group) && 
+        //                                    k.Case.Equals(combination) && k.ResultLocations.Select(i => i.GetResults()).First().Where(m => m != null) is ResultStress));
+        //    }
+        //    else
+        //    {
+        //        return _elements.SelectMany(i => i.Results.Where(k => k.Case.Equals(combination) && k.Results.Where(m => m != null).First() is ResultStress));
+        //    }
+        //}
 
 
         #endregion
