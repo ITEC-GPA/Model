@@ -9,7 +9,7 @@ namespace GPC.Model.Results
     [Serializable]
     public sealed class BeamResult : FiniteElementResult, ISerializable, IEquatable<BeamResult>, IElementResult
     {
-        public double Length => ((ResultStation)Points.First()).ElementLenght;     // TODO: va sistemato
+        public double Length => ((ResultStation)ResultLocations.First()).ElementLenght;     // TODO: va sistemato
 
 
         public BeamResult(ILoadCase Case, IEnumerable<IBeamResult> result, IEnumerable<ResultStation> points, GPC.Geometry.CoordinateSystem coordinateSystem)

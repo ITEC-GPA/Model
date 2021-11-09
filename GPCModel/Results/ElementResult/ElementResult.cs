@@ -1,8 +1,8 @@
-﻿using GPC.Geometry;
-using GPC.Model.LoadCases;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
+using GPC.Geometry;
+using GPC.Model.LoadCases;
 
 namespace GPC.Model.Results
 {
@@ -17,34 +17,21 @@ namespace GPC.Model.Results
 
         protected readonly ILoadCase _case;
 
-        protected int _stageId;
 
 
         public CoordinateSystem CoordinateSystem => _coordinateSystem;
 
         public ILoadCase Case => _case;
 
-        public int StageId => _stageId;
-
 
         /// <param name="Case">The case where these results are reffered </param>
         /// <param name="coordinateSystem">Coordinate system where these result are provided</param>
-        public ElementResult(ILoadCase Case, CoordinateSystem coordinateSystem)
-            : this(Case, coordinateSystem, ModelObjectId.IDUNASSIGNED)
-        {
-
-        }
-
-        /// <param name="Case">The case where these results are reffered </param>
-        /// <param name="coordinateSystem">Coordinate system where these result are provided</param>
-        /// <param name="stageId"></param>
         /// <param name="name"></param>
-        public ElementResult(ILoadCase Case, CoordinateSystem coordinateSystem, int stageId, string name = "")
+        public ElementResult(ILoadCase Case, CoordinateSystem coordinateSystem, string name = "")
             : base(name)
         {
             _case = Case ?? throw new ArgumentNullException(nameof(Case));
             _coordinateSystem = coordinateSystem ?? throw new ArgumentNullException(nameof(coordinateSystem));
-            _stageId = stageId;
         }
 
 
@@ -52,7 +39,6 @@ namespace GPC.Model.Results
             : base(info, context)
         {
             _case = (ILoadCase)info.GetValue("Case", typeof(ILoadCase));
-            _stageId = (int)info.GetValue("StageId", typeof(int));
             _coordinateSystem = (CoordinateSystem)info.GetValue("CoordinateSystem", typeof(CoordinateSystem));
         }
 
@@ -61,7 +47,6 @@ namespace GPC.Model.Results
         {
             base.GetObjectData(info, context);
             info.AddValue("Case", _case);
-            info.AddValue("StageId", _stageId);
             info.AddValue("CoordinateSystem", _coordinateSystem);
         }
 

@@ -60,7 +60,7 @@ namespace GPC.Model.Results
         public (ResultType lowerFace, ResultType midFace, ResultType upperFace) GetMeanFaceResults()
         {
             List<ResultType[]> resultSplitted = Results.Split(Results.Length / 3);
-            List<ResultLocation[]> pointSplitted = Points.Split(Results.Length / 3);
+            List<ResultLocation[]> pointSplitted = ResultLocations.Split(Results.Length / 3);
 
             ResultType[] returnValues = new ResultType[3];
 
