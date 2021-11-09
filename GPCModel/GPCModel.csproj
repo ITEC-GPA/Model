@@ -97,6 +97,7 @@
     <Compile Include="Results\ElementResult\IElementResult.cs" />
     <Compile Include="Results\ElementResult\IFemResult.cs" />
     <Compile Include="Results\ResultLocation\ResultLocationId.cs" />
+    <Compile Include="Results\ResultTypes\ResultPlateStress.cs" />
     <Compile Include="Sections\Concrete\ConcreteSectionCHS.cs" />
     <Compile Include="Sections\Concrete\ConcreteSectionCircular.cs" />
     <Compile Include="Sections\Concrete\ConcreteSectionHelper.cs" />
