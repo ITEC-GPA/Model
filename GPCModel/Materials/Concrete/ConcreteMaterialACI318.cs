@@ -14,7 +14,10 @@ namespace GPC.Model.Materials
     public class ConcreteMaterialACI318 : ConcreteMaterial
     {
 
-        private double _fc;
+        private readonly double _fc;
+
+        public double Fc  => _fc; 
+
 
         public ConcreteMaterialACI318(double fc, string name = "")
             : base(name, 0.2, 0.0025, 1e-6)

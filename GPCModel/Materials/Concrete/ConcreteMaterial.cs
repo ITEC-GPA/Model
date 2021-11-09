@@ -7,9 +7,7 @@ using System.Threading.Tasks;
 
 namespace GPC.Model.Materials
 {
-    /// <summary>
-    /// 
-    /// </summary>
+
     public abstract class ConcreteMaterial : Material
     {
 
@@ -22,6 +20,7 @@ namespace GPC.Model.Materials
         public StressStrainTable StressStrainTableCompression => _stressStrainTableCompression;
         public StressStrainTable StressStrainTableTension => _stressStrainTableTension;
 
+        public double ElasticModulusTension => _elasticModulusTension;
 
 
         protected ConcreteMaterial(string name, double poisson, double density, double alfaThermalExpansion)

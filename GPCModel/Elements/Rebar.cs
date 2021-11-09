@@ -12,6 +12,9 @@ using GPC.Model.Sections.Rebar;
 
 namespace GPC.Model.Elements
 {
+    /// <summary>
+    /// This class rapresent a rebar object in the 3d space, not a rebar in a concrete section 
+    /// </summary>
     [Serializable]
     public class Rebar : Element
     {
