@@ -1,32 +1,33 @@
-﻿using GPC.Geometry;
-using GPC.Model.LoadCases;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
+using GPC.Geometry;
+using GPC.Model.LoadCases;
 
 namespace GPC.Model.Results
 {
     [Serializable]
-    public abstract class FiniteElementResult : ElementResult, ISerializable
+    public abstract class FiniteElementResult : ElementResult, ISerializable, IFemResult
     {
 
         private readonly ResultType[] _results;
         private readonly ResultLocation[] _points;
 
-        public ResultType[] Results => _results;
+        protected int _stageId;
         public ResultLocation[] Points => _points;
 
 
         public FiniteElementResult(ILoadCase Case, CoordinateSystem coordinateSystem, IEnumerable<ResultType> result, IEnumerable<ResultLocation> points)
-            : this(Case, coordinateSystem, result, points, ModelObjectId.IDUNASSIGNED)
+        public int StageId => _stageId;
         {
 
         }
 
-        public FiniteElementResult(ILoadCase Case, CoordinateSystem coordinateSystem, IEnumerable<ResultType> result, IEnumerable<ResultLocation> points, int stageId, string name = "")
-            : base(Case, coordinateSystem, stageId, name)
-        {
+        public FiniteElementResult(ILoadCase Case, CoordinateSystem coordinateSystem, IEnumerable<ResultLocation> points,
+                                    int stageId = ModelObjectId.IDUNASSIGNED, string name = "")
+            : base(Case, coordinateSystem, name)
 
             if (result.Count() != points.Count())
                 throw new ArgumentException("Lists lenght are different");
@@ -38,7 +39,7 @@ namespace GPC.Model.Results
                 throw new ArgumentException("Multiple location point type");
 
 
-            _results = result.ToArray();
+            _stageId = stageId;
             _points = points.ToArray();
         }
 
@@ -46,7 +47,7 @@ namespace GPC.Model.Results
             : base(info, context)
         {
             _results = (ResultType[])info.GetValue("ResultType", typeof(ResultType[]));
-            _points = (ResultLocation[])info.GetValue("ResultLocationId", typeof(ResultLocation[]));
+            _stageId = (int)info.GetValue("StageId", typeof(int));
         }
 
 
@@ -54,7 +55,7 @@ namespace GPC.Model.Results
         {
             base.GetObjectData(info, context);
             info.AddValue("ResultType", _results);
-            info.AddValue("ResultLocationId", _points);
+            info.AddValue("StageId", _stageId);
         }
 
     }

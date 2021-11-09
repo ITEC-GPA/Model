@@ -95,7 +95,7 @@
     <Compile Include="Loads\IConvertibleLoad.cs" />
     <Compile Include="Materials\Concrete\ConcreteMaterialACI318.cs" />
     <Compile Include="Results\ElementResult\IElementResult.cs" />
-    <Compile Include="Results\ResultLocation\IResultLocation.cs" />
+    <Compile Include="Results\ElementResult\IFemResult.cs" />
     <Compile Include="Results\ResultLocation\ResultLocationId.cs" />
     <Compile Include="Sections\Concrete\ConcreteSectionCHS.cs" />
     <Compile Include="Sections\Concrete\ConcreteSectionCircular.cs" />
