@@ -7,7 +7,7 @@ namespace GPC.Model.Results
 {
 
     [Serializable]
-    public class ResultStation : ResultLocation, ISerializable, IResultLocation
+    public class ResultStation : ResultLocation, ISerializable
     {
         private readonly double _distanceFromStartPoint;
         private readonly double _elementLenght;

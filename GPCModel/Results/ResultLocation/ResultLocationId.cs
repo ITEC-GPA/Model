@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace GPC.Model.Results
 {
-
+    [Serializable]
     public class ResultLocationId : ResultLocation, ISerializable
     {
 
