@@ -12,31 +12,34 @@ namespace GPC.Model.Results
     public abstract class FiniteElementResult : ElementResult, ISerializable, IFemResult
     {
 
-        private readonly ResultLocation[] _resultLocations;
+        protected readonly ResultLocation[] _resultLocations;
 
         protected int _stageId;
 
+        /// <summary>
+        /// Return a clone of the results
+        /// </summary>
+        public ResultLocation[] ResultLocations => (ResultLocation[])_resultLocations.Clone();
 
-        public ResultLocation[] ResultLocations => _resultLocations;
         public int StageId => _stageId;
 
 
-        public FiniteElementResult(ILoadCase Case, CoordinateSystem coordinateSystem, IEnumerable<ResultLocation> points,
+        public FiniteElementResult(ILoadCase Case, CoordinateSystem coordinateSystem, IEnumerable<ResultLocation> resultLocation,
                                     int stageId = ModelObjectId.IDUNASSIGNED, string name = "")
             : base(Case, coordinateSystem, name)
         {
 
-            if (points.Where(i => i != null).Select(i => i.GetType()).Distinct().Count() > 1)
+            if (resultLocation.Where(i => i != null).Select(i => i.GetType()).Distinct().Count() > 1)
                 throw new ArgumentException("Multiple location type");
 
-            if (points.Select(i => i.GetResultsEnumerator()).Cast<ResultType>().Where(i => i != null).Select(i => i.GetType()).Distinct().Count() > 1)
+            if (resultLocation.Select(i => i.GetResultsEnumerator()).Cast<ResultType>().Where(i => i != null).Select(i => i.GetType()).Distinct().Count() > 1)
                 throw new ArgumentException("Multiple result type");
 
 
-            if (points.Where(i => i != null).Select(i => i.GetType()).Distinct().Count() > 1)
+            if (resultLocation.Where(i => i != null).Select(i => i.GetType()).Distinct().Count() > 1)
                 throw new ArgumentException("Multiple location point type");
 
-            _resultLocations = points.ToArray();
+            _resultLocations = resultLocation.ToArray();
 
             _stageId = stageId;
         }
@@ -52,10 +55,15 @@ namespace GPC.Model.Results
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             base.GetObjectData(info, context);
-            info.AddValue("ResultLocationId", _resultLocations);
-            info.AddValue("StageId", _stageId);
+            info.AddValue("ResultLocationId", _resultLocations, typeof(ResultLocation[]));
+            info.AddValue("StageId", _stageId, typeof(ResultLocation[]));
         }
 
+
+        internal ResultLocation[] GetResults()
+        {
+            return _resultLocations;
+        }
 
 
         public IEnumerator GetResultsEnumerator()

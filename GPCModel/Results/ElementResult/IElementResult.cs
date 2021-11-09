@@ -10,9 +10,11 @@ namespace GPC.Model.Results
 {
     public interface IElementResult
     {
-        ResultType[] Results { get; }
+
         ResultLocation[] ResultLocations { get; }
+
         ILoadCase Case { get; }
+
         CoordinateSystem CoordinateSystem { get; }
     }
 }

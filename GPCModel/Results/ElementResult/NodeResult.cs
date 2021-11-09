@@ -21,29 +21,26 @@ namespace GPC.Model.Results
 
 
 
-        public NodeResult(ILoadCase Case, CoordinateSystem coordinateSystem, INodeResult result)
-            : this(Case, coordinateSystem, result, ModelObjectId.IDUNASSIGNED)
-        {
-
-        }
-
-        public NodeResult(ILoadCase Case, CoordinateSystem coordinateSystem, INodeResult result, int stageId)
+        public NodeResult(ILoadCase Case, CoordinateSystem coordinateSystem, INodeResult result, int stageId = ModelObjectId.IDUNASSIGNED)
             : base(Case, coordinateSystem)
         {
             _result = result;
             _stageId = stageId;
         }
 
+
         public NodeResult(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
             _result = (INodeResult)info.GetValue("Result", typeof(INodeResult));
+            _stageId = (int)info.GetValue("StageId", typeof(int));
         }
 
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             base.GetObjectData(info, context);
             info.AddValue("Result", _result, typeof(INodeResult));
+            info.AddValue("StageId", _stageId, typeof(int));
         }
 
 

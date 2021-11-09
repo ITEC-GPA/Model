@@ -11,20 +11,20 @@ namespace GPC.Model.Results
 
         protected readonly ResultType[] _results;
 
-        
+
         /// <summary>
         /// Return a clone of the results
         /// </summary>
         public ResultType[] Results => (ResultType[])_results.Clone();
-        
 
-        public ResultLocation(ResultType[] results, int id) 
+
+        public ResultLocation(ResultType[] results, int id)
             : this(results, id, "")
         {
 
         }
 
-        public ResultLocation(ResultType[] results, int id, string name) 
+        public ResultLocation(ResultType[] results, int id, string name)
             : base(id, name)
         {
             _results = results ?? throw new ArgumentNullException(nameof(results));
@@ -40,6 +40,13 @@ namespace GPC.Model.Results
         {
             base.GetObjectData(info, context);
             info.AddValue("ResultType", _results, typeof(ResultType[]));
+        }
+
+
+        // non modificare la visibilità interna, la lista non deve essere modificabile
+        internal ResultType[] GetResults()
+        {
+            return _results;
         }
 
 
@@ -89,7 +96,7 @@ namespace GPC.Model.Results
         public static bool operator !=(ResultLocation obj1, ResultLocation obj2)
         {
             return !(obj1 == obj2);
-        } 
+        }
         #endregion
     }
 }

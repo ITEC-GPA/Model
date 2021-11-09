@@ -263,7 +263,7 @@
     <Compile Include="Results\ResultTypes\ResultBeamForces.cs" />
     <Compile Include="Results\ResultTypes\IPlateResult.cs" />
     <Compile Include="Results\ResultTypes\ResultType.cs" />
-    <Compile Include="Results\ResultLocation\ResultStation.cs" />
+    <Compile Include="Results\ResultLocation\ResultLocationStation.cs" />
     <Compile Include="Results\ResultTypes\ResultDisplacement.cs" />
     <Compile Include="Results\ElementResult\ElementResult.cs" />
     <Compile Include="Results\ResultLocation\ResultLocation.cs" />

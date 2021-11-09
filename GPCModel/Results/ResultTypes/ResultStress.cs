@@ -12,7 +12,7 @@ namespace GPC.Model.Results
 {
 
     [Serializable]
-    public sealed class ResultStress : ResultType, IEquatable<ResultStress>, ISerializable, IPlateResult, IBrickResult
+    public sealed class ResultStress : ResultType, IEquatable<ResultStress>, ISerializable, IBrickResult
     {
         #region Variables
 
@@ -353,6 +353,10 @@ namespace GPC.Model.Results
             return obj1.Equals(obj2);
         }
 
+        // statico perchè è come se fosse un operatore
+        /// <summary>
+        /// Returns a <see cref="ResultStress"/> that represent the arithmetic mean between the <paramref name="values"/>
+        /// </summary>
         public static ResultStress GetArithmeticMean(ResultStress[] values)
         {
             
