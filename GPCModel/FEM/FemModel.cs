@@ -1845,31 +1845,16 @@ namespace GPC.Model.FEM
         }
 
 
-        ///// <returns>The results related to <paramref name="combination"/></returns>
-        //public IEnumerable<FiniteElementResult> GetCombinationElementStressResults(Combination combination, string groupName = "")
-        //{
+        public FiniteElementResult[] GetCombinationResultsPlateStress(Combination combination, string groupName = "")
+        {
 
-        //    var group = _groups.GetElementByName(groupName);
-        //    var a = _elements.SelectMany(i => i.Results
-        //                                       .Where(k => i.ContainsGroup(group) 
-        //                                                && k.Case.Equals(combination) 
-        //                                                && k.GetResults().Where(m => m != null).First().));
+            var group = _groups.GetElementByName(groupName);
+            return _elements.SelectMany(i => i.Results
+                                               .Where(k => i.ContainsGroup(group)
+                                                        && k.Case.Equals(combination) && k.ResultLocations.First().Results.First() is ResultPlateStress ) ).ToArray();
 
-
-
-        //    if (!string.IsNullOrEmpty(groupName))
-        //    {
-        //        var group = _groups.GetElementByName(groupName);
-        //        return _elements.SelectMany(i => i.Results.Where(k => i.ContainsGroup(group) && 
-        //                                    k.Case.Equals(combination) && k.ResultLocations.Select(i => i.GetResults()).First().Where(m => m != null) is ResultStress));
-        //    }
-        //    else
-        //    {
-        //        return _elements.SelectMany(i => i.Results.Where(k => k.Case.Equals(combination) && k.Results.Where(m => m != null).First() is ResultStress));
-        //    }
-        //}
-
-
+        }
+ 
         #endregion
 
         #endregion

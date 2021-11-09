@@ -7,7 +7,9 @@ using GPC.Model.LoadCases;
 namespace GPC.Model.Results
 {
 
-
+    /// <summary>
+    /// This class collects the results related to one loadcase o combination,  
+    /// </summary>
     [Serializable]
     public abstract class ElementResult : ModelObject, ISerializable
     {

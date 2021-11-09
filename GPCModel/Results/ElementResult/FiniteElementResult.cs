@@ -8,6 +8,10 @@ using GPC.Model.LoadCases;
 
 namespace GPC.Model.Results
 {
+    /// <summary>
+    /// This class collects the result of a finite element for a particular loadcase o combination. 
+    /// In particular it collects multiple location and multiple result for each location
+    /// </summary>
     [Serializable]
     public abstract class FiniteElementResult : ElementResult, ISerializable, IFemResult
     {
