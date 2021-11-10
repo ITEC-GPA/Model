@@ -38,6 +38,8 @@ namespace GPC.Model.Results
 
         public bool Equals(BeamResult other)
         {
+            if (other == null)
+                return false;
 
             if (ReferenceEquals(this, other))
                 return true;

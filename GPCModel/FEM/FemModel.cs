@@ -1847,11 +1847,21 @@ namespace GPC.Model.FEM
 
         public FiniteElementResult[] GetCombinationResultsPlateStress(Combination combination, string groupName = "")
         {
+            if (string.IsNullOrEmpty(groupName))
+            {
+                return _elements.SelectMany(i => i.Results
+                                                   .Where(k => k.Case.Equals(combination) && k.ResultLocations.First().Results.First() is ResultPlateStress)).ToArray();
 
-            var group = _groups.GetElementByName(groupName);
-            return _elements.SelectMany(i => i.Results
-                                               .Where(k => i.ContainsGroup(group)
-                                                        && k.Case.Equals(combination) && k.ResultLocations.First().Results.First() is ResultPlateStress ) ).ToArray();
+            }
+            else
+            {
+                var group = _groups.GetElementByName(groupName);
+                return _elements.SelectMany(i => i.Results
+                                                   .Where(k => i.ContainsGroup(group)
+                                                            && k.Case.Equals(combination) && k.ResultLocations.First().Results.First() is ResultPlateStress)).ToArray();
+
+            }
+
 
         }
  

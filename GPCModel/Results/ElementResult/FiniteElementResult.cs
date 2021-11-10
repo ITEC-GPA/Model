@@ -36,7 +36,8 @@ namespace GPC.Model.Results
             if (resultLocation.Where(i => i != null).Select(i => i.GetType()).Distinct().Count() > 1)
                 throw new ArgumentException("Multiple location type");
 
-            if (resultLocation.Select(i => i.GetResultsEnumerator()).Cast<ResultType>().Where(i => i != null).Select(i => i.GetType()).Distinct().Count() > 1)
+            
+            if (resultLocation.SelectMany(i => i.GetResults().Select(j => j.GetType())).Distinct().Count()   > 1)
                 throw new ArgumentException("Multiple result type");
 
 

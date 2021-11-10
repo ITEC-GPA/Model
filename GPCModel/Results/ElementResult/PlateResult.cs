@@ -30,7 +30,7 @@ namespace GPC.Model.Results
 
 
             // controllo che siano iplate result
-            if (resultLocations.First().GetResults().First().GetType() != typeof(IPlateResult))
+            if (!(resultLocations.First().GetResults().First() is IPlateResult))
                 throw new ArgumentException("Result type is not a IplateResult");
 
 
@@ -68,6 +68,9 @@ namespace GPC.Model.Results
 
         public bool Equals(PlateResult other)
         {
+            if (other == null)
+                return false;
+
             if (ReferenceEquals(this, other))
                 return true;
 
