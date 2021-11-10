@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 namespace GPC.Model.Results
 {
     [Serializable]
-    public class ResultLocationId : ResultLocation, ISerializable
+    public sealed class ResultLocationId : ResultLocation, ISerializable, IEquatable<ResultLocationId>
     {
 
         public ResultLocationId(IEnumerable<IPlateResult> results, int id)
@@ -43,7 +43,18 @@ namespace GPC.Model.Results
 
         public override bool Equals(object obj)
         {
-            return obj is ResultLocationId id && base.Equals(id);
+            return Equals((ResultLocationId)obj);
+        }
+
+        public bool Equals(ResultLocationId other)
+        {
+            if (other == null)
+                return false;
+
+            if (ReferenceEquals(this, other))
+                return true;
+
+            return base.Equals(other);
         }
 
         public override int GetHashCode()

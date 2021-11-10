@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Linq;
 using System.Collections;
+using GPC.Utilities.Extensions;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
 
@@ -9,13 +11,13 @@ namespace GPC.Model.Results
     public abstract class ResultLocation : ModelObjectId, ISerializable
     {
 
-        protected readonly ResultType[] _results;
+        protected readonly ResultType[] _resultTypes;
 
 
         /// <summary>
         /// Return a clone of the results
         /// </summary>
-        public ResultType[] Results => (ResultType[])_results.Clone();
+        public ResultType[] ResultTypes => (ResultType[])_resultTypes.Clone();
 
 
         public ResultLocation(ResultType[] results, int id)
@@ -27,32 +29,32 @@ namespace GPC.Model.Results
         public ResultLocation(ResultType[] results, int id, string name)
             : base(id, name)
         {
-            _results = results ?? throw new ArgumentNullException(nameof(results));
+            _resultTypes = results ?? throw new ArgumentNullException(nameof(results));
         }
 
         public ResultLocation(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
-            _results = (ResultType[])info.GetValue("ResultType", typeof(ResultType[]));
+            _resultTypes = (ResultType[])info.GetValue("ResultType", typeof(ResultType[]));
         }
 
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             base.GetObjectData(info, context);
-            info.AddValue("ResultType", _results, typeof(ResultType[]));
+            info.AddValue("ResultType", _resultTypes, typeof(ResultType[]));
         }
 
 
         // non modificare la visibilità interna, la lista non deve essere modificabile
         internal ResultType[] GetResults()
         {
-            return _results;
+            return _resultTypes;
         }
 
 
         public IEnumerator GetResultsEnumerator()
         {
-            return _results.GetEnumerator();
+            return _resultTypes.GetEnumerator();
         }
 
 
@@ -61,7 +63,9 @@ namespace GPC.Model.Results
 
         public override bool Equals(object obj)
         {
-            return obj is ResultLocation resultLocation && resultLocation._results.Equals(_results) && base.Equals(resultLocation);
+
+            return (obj is ResultLocation resultLocation) && _resultTypes.ScrambledEquals(resultLocation._resultTypes) 
+                                                          && base.Equals(resultLocation);
         }
 
         public override int GetHashCode()
@@ -71,9 +75,9 @@ namespace GPC.Model.Results
                 int hashCode = 17;
                 hashCode = hashCode * -19 + base.GetHashCode();
 
-                for (int i = 0; i < _results.Length; i++)
+                for (int i = 0; i < _resultTypes.Length; i++)
                 {
-                    hashCode = hashCode * -17 * _results[i].GetHashCode();
+                    hashCode = hashCode * -17 * _resultTypes[i].GetHashCode();
                 }
 
                 return hashCode;

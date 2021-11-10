@@ -51,19 +51,23 @@ namespace FemTest
             cmb.AddLoadCaseCoefficient(loadCase, 1);
 
             plate.AddResult(new PlateResult(cmb, CoordinateSystem.Global, locationsResult.ToArray()));
+                     
 
-            femModel.GetNode(1).AddResult(new NodeResult(cmb, CoordinateSystem.Global, new ResultDisplacement(1, 2, 3, 4, 5, 6)));
+
+            femModel.GetNode(1).AddResult(new NodeResult(cmb, CoordinateSystem.Global, new[] { new ResultLocationId(new INodeResult[] { new ResultDisplacement(1, 2, 3, 4, 5, 6) }, 1) } ));
 
             IEnumerable<FiniteElementResult> stresses = femModel.GetCombinationResultsPlateStress(cmb);
             IEnumerable<NodeResult> displacements = femModel.GetCombinationNodeDisplacementResults(cmb);
 
             // Plate
             Assert.IsTrue(femModel.GetFiniteElement(1).Results.ToList()[0].Case.Name == "cmb1");
-            Assert.IsTrue((stresses.First().GetResults()[2].Results.First() as ResultPlateStress).UpperFace.Sxx == 1);
+            Assert.IsTrue((stresses.First().GetResultLocations()[2].ResultTypes.First() as ResultPlateStress).UpperFace.Sxx == 1);
 
             // Nodo
             Assert.IsTrue(femModel.GetNode(1).Results.ToList()[0].Case.Name == "cmb1");
-            Assert.IsTrue((displacements.First().Result as ResultDisplacement).D1 == 1);
+
+             
+            Assert.IsTrue((displacements.First().GetResultLocations().First().ResultTypes[0] as ResultDisplacement).D1 == 1);
 
         }
 
@@ -106,7 +110,7 @@ namespace FemTest
 
             plate.AddResult(new PlateResult(cmb, CoordinateSystem.Global, locationsResult.ToArray()));
 
-            femModel.GetNode(1).AddResult(new NodeResult(cmb, CoordinateSystem.Global, new ResultDisplacement(1, 2, 3, 4, 5, 6)));
+            femModel.GetNode(1).AddResult(new NodeResult(cmb, CoordinateSystem.Global, new[] { new ResultLocationId(new INodeResult[] { new ResultDisplacement(1, 2, 3, 4, 5, 6) }, 1) }));
 
             IEnumerable<FiniteElementResult> stresses2 = femModel.GetCombinationResultsPlateStress(cmb, "Group1");
 
@@ -116,11 +120,11 @@ namespace FemTest
 
             // Plate
             Assert.IsTrue(femModel.GetFiniteElement(1).Results.ToList()[0].Case.Name == "cmb1");
-            Assert.IsTrue((stresses.First().GetResults()[2].Results.First() as ResultPlateStress).UpperFace.Sxx == 1);
+            Assert.IsTrue((stresses.First().GetResultLocations()[2].ResultTypes.First() as ResultPlateStress).UpperFace.Sxx == 1);
 
             // Nodo
             Assert.IsTrue(femModel.GetNode(1).Results.ToList()[0].Case.Name == "cmb1");
-            Assert.IsTrue((displacements.First().Result as ResultDisplacement).D1 == 1);
+            Assert.IsTrue((displacements.First().GetResultLocations().First().ResultTypes[0] as ResultDisplacement).D1 == 1);
 
             Assert.IsTrue(stresses.Count() == stresses2.Count());
         }

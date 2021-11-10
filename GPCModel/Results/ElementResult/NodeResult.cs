@@ -62,7 +62,7 @@ namespace GPC.Model.Results
 
         public bool Equals(NodeResult other)
         {
-            if (other == null)
+            if (other is null)
                 return false;
 
             if (ReferenceEquals(this, other))

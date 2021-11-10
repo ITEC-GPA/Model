@@ -46,10 +46,20 @@ namespace GPC.Model.Results
 
         public override bool Equals(object obj)
         {
-            return obj is ResultLocationStation station &&
-                   base.Equals(obj) &&
-                   _distanceFromStartPoint == station._distanceFromStartPoint &&
-                   _elementLenght == station._elementLenght;
+            return Equals((ResultLocationStation)obj);
+        }
+
+        public bool Equals(ResultLocationStation other)
+        {
+            if (other == null)
+                return false;
+
+            if (ReferenceEquals(this, other))
+                return true;
+
+            return base.Equals(other) &&
+                   _distanceFromStartPoint == other._distanceFromStartPoint &&
+                   _elementLenght == other._elementLenght;
         }
 
         public override int GetHashCode()

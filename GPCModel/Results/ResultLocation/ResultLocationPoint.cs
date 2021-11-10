@@ -10,7 +10,7 @@ namespace GPC.Model.Results
 {
 
     [Serializable]
-    public class ResultLocationPoint : ResultLocation, ISerializable
+    public sealed class ResultLocationPoint : ResultLocation, ISerializable, IEquatable<ResultLocationPoint>
     {
         private readonly Point2d _location;
 
@@ -44,9 +44,18 @@ namespace GPC.Model.Results
 
         public override bool Equals(object obj)
         {
-            return obj is ResultLocationPoint point &&
-                   base.Equals(obj) &&
-                   EqualityComparer<Point2d>.Default.Equals(_location, point._location);
+            return Equals((ResultLocationPoint)obj);
+        }
+
+        public bool Equals(ResultLocationPoint other)
+        {
+            if (other == null)
+                return false;
+
+            if (ReferenceEquals(this, other))
+                return true;
+
+            return base.Equals(other) && _location.Equals(other._location);
         }
 
         public override int GetHashCode()

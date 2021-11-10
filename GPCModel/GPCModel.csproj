@@ -96,6 +96,7 @@
     <Compile Include="Materials\Concrete\ConcreteMaterialACI318.cs" />
     <Compile Include="Results\ElementResult\IElementResult.cs" />
     <Compile Include="Results\ElementResult\IFemResult.cs" />
+    <Compile Include="Results\ElementResult\SectionResult.cs" />
     <Compile Include="Results\ResultLocation\ResultLocationId.cs" />
     <Compile Include="Results\ResultTypes\ResultPlateStress.cs" />
     <Compile Include="Sections\Concrete\ConcreteSectionCHS.cs" />

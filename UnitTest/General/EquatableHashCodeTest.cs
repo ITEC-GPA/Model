@@ -395,11 +395,15 @@ namespace GeneralTest
             ResultDisplacement rd1 = new ResultDisplacement(0, 1, 2, 3, 0, 0);
             ResultDisplacement rd2 = new ResultDisplacement(0, 1, 2, 3, 0, 0);
 
-            NodeResult nr1 = new NodeResult(lc1, CoordinateSystem.Global, rd1);
-            NodeResult nr2 = new NodeResult(lc2, CoordinateSystem.Global, rd2);
+            ResultLocationId resultLocationId1 = new ResultLocationId(new INodeResult[] { rd1 }, 1);
+            ResultLocationId resultLocationId2 = new ResultLocationId(new INodeResult[] { rd2 }, 2);
 
-            Assert.IsTrue(lc1.Equals(lc2));
+            NodeResult nr1 = new NodeResult(lc1, CoordinateSystem.Global, new [] { resultLocationId1 });
+            NodeResult nr2 = new NodeResult(lc2, CoordinateSystem.Global, new [] { resultLocationId2 });
+
             Assert.IsTrue(rd1.Equals(rd2));
+            Assert.IsTrue(lc1.Equals(lc2));
+            Assert.IsTrue(resultLocationId1.Equals(resultLocationId2));
             Assert.IsTrue(nr1.Equals(nr2));
         }
 
@@ -418,8 +422,11 @@ namespace GeneralTest
             ResultDisplacement rd1 = new ResultDisplacement(0, 1, 2, 3, 0, 0);
             ResultDisplacement rd2 = new ResultDisplacement(0, 1, 2, 3, 0, 0);
 
-            NodeResult nr1 = new NodeResult(cmb1, CoordinateSystem.Global, rd1);
-            NodeResult nr2 = new NodeResult(cmb2, CoordinateSystem.Global, rd2);
+            ResultLocationId resultLocationId1 = new ResultLocationId(new INodeResult[] { rd1 }, 1);
+            ResultLocationId resultLocationId2 = new ResultLocationId(new INodeResult[] { rd2 }, 2);
+
+            NodeResult nr1 = new NodeResult(cmb1, CoordinateSystem.Global, new [] { resultLocationId1 });
+            NodeResult nr2 = new NodeResult(cmb2, CoordinateSystem.Global, new [] { resultLocationId2 });
 
             Assert.IsTrue(lc1.Equals(lc2));
             Assert.IsTrue(cmb1.Equals(cmb2));

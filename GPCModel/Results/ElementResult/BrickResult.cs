@@ -8,7 +8,7 @@ using GPC.Model.LoadCases;
 namespace GPC.Model.Results
 {
     [Serializable]
-    public class BrickResult : FiniteElementResult, ISerializable, IEquatable<BrickResult>
+    public sealed class BrickResult : FiniteElementResult, ISerializable, IEquatable<BrickResult>
     {
 
 

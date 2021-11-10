@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Runtime.Serialization;
 using GPC.Geometry;
 
@@ -39,7 +40,7 @@ namespace GPC.Model.Results
             if (ReferenceEquals(this, obj))
                 return true;
 
-            return base.Equals(obj);
+            return base.Equals(obj); // Coordinate system non messo per scelta
         }
 
         public override int GetHashCode()

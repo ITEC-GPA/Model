@@ -35,6 +35,28 @@ namespace GPC.Model.Results
 
         }
 
+        /// <param name="Case"></param>
+        /// <param name="coordinateSystem"></param>
+        /// <param name="resultLocations"></param>
+        /// <param name="stageId"></param>
+        /// <param name="name"></param>
+        public PlateResult(ILoadCase Case, CoordinateSystem coordinateSystem,
+                                           IEnumerable<ResultLocationPoint> resultLocations,
+                                           int stageId = ModelObjectId.IDUNASSIGNED, string name = "")
+            : base(Case, coordinateSystem, resultLocations, stageId, name)
+        {
+            if (resultLocations is null)
+            {
+                throw new ArgumentNullException(nameof(resultLocations));
+            }
+
+            // controllo che siano iplate result
+            if (!(resultLocations.First().GetResults().First() is IPlateResult))
+                throw new ArgumentException("Result type is not a IplateResult");
+
+
+        }
+
         public PlateResult(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
