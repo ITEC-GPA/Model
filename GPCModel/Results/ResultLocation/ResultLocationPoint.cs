@@ -10,15 +10,21 @@ namespace GPC.Model.Results
 {
 
     [Serializable]
-    public class ResultLocationPoint : ResultLocation, ISerializable
+    public sealed class ResultLocationPoint : ResultLocation, ISerializable, IEquatable<ResultLocationPoint>
     {
         private readonly Point2d _location;
 
         public Point2d Location => _location;
 
 
-        public ResultLocationPoint(IEnumerable<ResultType> results, Point2d location, int id = ModelObjectId.IDUNASSIGNED)
-            : base(results.ToArray(), id)
+        public ResultLocationPoint(IEnumerable<IPlateResult> results, Point2d location, int id = ModelObjectId.IDUNASSIGNED)
+            : base(results.Cast<ResultType>().ToArray(), id)
+        {
+            _location = location;
+        }
+
+        public ResultLocationPoint(IEnumerable<IBrickResult> results, Point2d location, int id = ModelObjectId.IDUNASSIGNED)
+            : base(results.Cast<ResultType>().ToArray(), id)
         {
             _location = location;
         }
@@ -38,9 +44,18 @@ namespace GPC.Model.Results
 
         public override bool Equals(object obj)
         {
-            return obj is ResultLocationPoint point &&
-                   base.Equals(obj) &&
-                   EqualityComparer<Point2d>.Default.Equals(_location, point._location);
+            return Equals((ResultLocationPoint)obj);
+        }
+
+        public bool Equals(ResultLocationPoint other)
+        {
+            if (other == null)
+                return false;
+
+            if (ReferenceEquals(this, other))
+                return true;
+
+            return base.Equals(other) && _location.Equals(other._location);
         }
 
         public override int GetHashCode()

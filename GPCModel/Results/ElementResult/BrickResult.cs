@@ -1,21 +1,31 @@
-﻿using GPC.Geometry;
-using GPC.Model.LoadCases;
-using System;
+﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Runtime.Serialization;
+using GPC.Geometry;
+using GPC.Model.LoadCases;
 
 namespace GPC.Model.Results
 {
     [Serializable]
-    public class BrickResult : FiniteElementResult, ISerializable, IEquatable<BrickResult>
+    public sealed class BrickResult : FiniteElementResult, ISerializable, IEquatable<BrickResult>
     {
 
 
-        public BrickResult(ILoadCase Case, CoordinateSystem coordinateSystem, IEnumerable<ResultLocation> resultsLocation, 
-                                int stageId = ModelObjectId.IDUNASSIGNED)
-            : base(Case, coordinateSystem, resultsLocation, stageId)
+        public BrickResult(ILoadCase Case, CoordinateSystem coordinateSystem,
+                                            IEnumerable<ResultLocation> resultLocations,
+                                            int stageId = ModelObjectId.IDUNASSIGNED)
+            : base(Case, coordinateSystem, resultLocations, stageId)
         {
 
+            if (resultLocations is null)
+            {
+                throw new ArgumentNullException(nameof(resultLocations));
+            }
+
+            // controllo che siano iplate result
+            if (!(resultLocations.First().GetResults().First() is IBrickResult))
+                throw new ArgumentException("Result type is not a IplateResult");
         }
 
         public override int GetHashCode()

@@ -1836,11 +1836,11 @@ namespace GPC.Model.FEM
             if (!string.IsNullOrEmpty(groupName))
             {
                 var group = _groups.GetElementByName(groupName);
-                return _nodes.SelectMany(i => i.Results.Where(j => i.ContainsGroup(group) && j.Case.Equals(combination) && j.Result is ResultDisplacement));
+                return _nodes.SelectMany(i => i.Results.Where(j => i.ContainsGroup(group) && j.ResultLocations.First().ResultTypes.First() is ResultDisplacement));
             }
             else
             {
-                return _nodes.SelectMany(i => i.Results.Where(j => j.Case.Equals(combination) && j.Result is ResultDisplacement));
+                return _nodes.SelectMany(i => i.Results.Where(j => j.Case.Equals(combination) && j.ResultLocations.First().ResultTypes.First() is ResultDisplacement));
             }
         }
 
@@ -1850,7 +1850,7 @@ namespace GPC.Model.FEM
             if (string.IsNullOrEmpty(groupName))
             {
                 return _elements.SelectMany(i => i.Results
-                                                   .Where(k => k.Case.Equals(combination) && k.ResultLocations.First().Results.First() is ResultPlateStress)).ToArray();
+                                                   .Where(k => k.Case.Equals(combination) && k.ResultLocations.First().ResultTypes.First() is ResultPlateStress)).ToArray();
 
             }
             else
@@ -1858,7 +1858,7 @@ namespace GPC.Model.FEM
                 var group = _groups.GetElementByName(groupName);
                 return _elements.SelectMany(i => i.Results
                                                    .Where(k => i.ContainsGroup(group)
-                                                            && k.Case.Equals(combination) && k.ResultLocations.First().Results.First() is ResultPlateStress)).ToArray();
+                                                            && k.Case.Equals(combination) && k.ResultLocations.First().ResultTypes.First() is ResultPlateStress)).ToArray();
 
             }
 

@@ -19,7 +19,7 @@ namespace GPC.Model.Results
         /// <param name="stageId"></param>
         /// <param name="name"></param>
         public PlateResult(ILoadCase Case, CoordinateSystem coordinateSystem,
-                                           ResultLocation[] resultLocations,
+                                           IEnumerable<ResultLocationId> resultLocations,
                                            int stageId = ModelObjectId.IDUNASSIGNED, string name = "")
             : base(Case, coordinateSystem, resultLocations, stageId, name)
         {
@@ -28,18 +28,31 @@ namespace GPC.Model.Results
                 throw new ArgumentNullException(nameof(resultLocations));
             }
 
-            if (resultLocations.Where(i => i != null).Select(i => i.GetType()).Distinct().Count() > 1)
-                throw new ArgumentException("Multiple location type");
-
-
             // controllo che siano iplate result
             if (!(resultLocations.First().GetResults().First() is IPlateResult))
                 throw new ArgumentException("Result type is not a IplateResult");
 
 
-            // controllo che siano tutti lo stesso tipo di result
-            if (resultLocations.First().GetResults().Select(i => i.GetType()).Distinct().Count() > 1)
-                throw new ArgumentException("Different result types");
+        }
+
+        /// <param name="Case"></param>
+        /// <param name="coordinateSystem"></param>
+        /// <param name="resultLocations"></param>
+        /// <param name="stageId"></param>
+        /// <param name="name"></param>
+        public PlateResult(ILoadCase Case, CoordinateSystem coordinateSystem,
+                                           IEnumerable<ResultLocationPoint> resultLocations,
+                                           int stageId = ModelObjectId.IDUNASSIGNED, string name = "")
+            : base(Case, coordinateSystem, resultLocations, stageId, name)
+        {
+            if (resultLocations is null)
+            {
+                throw new ArgumentNullException(nameof(resultLocations));
+            }
+
+            // controllo che siano iplate result
+            if (!(resultLocations.First().GetResults().First() is IPlateResult))
+                throw new ArgumentException("Result type is not a IplateResult");
 
 
         }
