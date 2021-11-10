@@ -27,6 +27,7 @@ namespace GPC.Model.Materials
 
         #region PUBLIC CONSTRUCTOR
 
+
         /// <summary>
         /// </summary>
         /// <param name="name"></param>
@@ -68,7 +69,7 @@ namespace GPC.Model.Materials
         }
 
         protected Material(string name)
-			: base(new Guid(), name)
+			: base(Guid.NewGuid(), name)
 		{
             
 		}
@@ -120,23 +121,25 @@ namespace GPC.Model.Materials
             if (ReferenceEquals(this, obj))
                 return true;
 
-            Material objCasted = obj as Material;
-            return !(objCasted is null) && objCasted._elasticModulus.Equals(_elasticModulus) &&
-                                           objCasted._ni.Equals(_ni) &&
-                                           objCasted._alfaThermalExpansion.Equals(_alfaThermalExpansion) &&
-                                           objCasted._density.Equals(_density) &&
-                                           base.Equals(objCasted);
+            return (obj is Material objCasted) && objCasted._elasticModulus.Equals(_elasticModulus) &&
+                                                  objCasted._ni.Equals(_ni) &&
+                                                  objCasted._alfaThermalExpansion.Equals(_alfaThermalExpansion) &&
+                                                  objCasted._density.Equals(_density) &&
+                                                  base.Equals(objCasted);
         }
 
         public override int GetHashCode()
         {
-            int hashCode = 23;
-            hashCode = hashCode * -17 + base.GetHashCode();
-            hashCode = hashCode * -17 + _elasticModulus.GetHashCode();
-            hashCode = hashCode * -17 + _ni.GetHashCode();
-            hashCode = hashCode * -17 + _alfaThermalExpansion.GetHashCode();
-            hashCode = hashCode * -17 + _density.GetHashCode();
-            return hashCode;
+            unchecked
+            {
+                int hashCode = 23;
+                hashCode = hashCode * -17 + base.GetHashCode();
+                hashCode = hashCode * -17 + _elasticModulus.GetHashCode();
+                hashCode = hashCode * -17 + _ni.GetHashCode();
+                hashCode = hashCode * -17 + _alfaThermalExpansion.GetHashCode();
+                hashCode = hashCode * -17 + _density.GetHashCode();
+                return hashCode; 
+            }
         }
 
         public static bool operator ==(Material obj1, Material obj2)

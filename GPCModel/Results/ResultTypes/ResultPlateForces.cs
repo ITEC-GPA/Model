@@ -1,7 +1,7 @@
-using GPC.Geometry;
-using GPC.Model.LoadCases;
 using System;
 using System.Runtime.Serialization;
+using GPC.Geometry;
+using GPC.Model.LoadCases;
 
 namespace GPC.Model.Results
 {
@@ -105,7 +105,7 @@ namespace GPC.Model.Results
             return !(other is null) && _fxx == other._fxx && _fyy == other._fyy
                                     && _fzz == other._fzz && _fxy == other._fxy
                                     && _fxz == other._fxz && _fyz == other._fyz
-                                    
+
                                     && _mxx == other._mxx && _myy == other._myy
                                     && _mzz == other._mzz && _mxy == other._mxy
                                     && _mxz == other._mxz && _myz == other._myz

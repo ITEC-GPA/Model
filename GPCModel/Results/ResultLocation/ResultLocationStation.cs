@@ -1,11 +1,13 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Runtime.Serialization;
 
 namespace GPC.Model.Results
 {
 
     [Serializable]
-    public class ResultStation : ResultLocationId, ISerializable, IResultLocation
+    public class ResultLocationStation : ResultLocation, ISerializable
     {
         private readonly double _distanceFromStartPoint;
         private readonly double _elementLenght;
@@ -19,15 +21,15 @@ namespace GPC.Model.Results
 
 
 
-        public ResultStation(int id, double distanceFromStartPoint, double elementLenght)
-            : base(id, string.Empty)
+        public ResultLocationStation(IEnumerable<ResultType> results, double distanceFromStartPoint, double elementLenght, int id = ModelObjectId.IDUNASSIGNED)
+            : base(results.ToArray(), id)
         {
             _distanceFromStartPoint = distanceFromStartPoint > elementLenght ? throw new ArgumentException($"distanceFromStartPoint can not higher than elementLenght") : distanceFromStartPoint;
             _elementLenght = elementLenght == 0 ? throw new ArgumentException($"elementLenght can not be zero") : elementLenght;
         }
 
 
-        public ResultStation(SerializationInfo info, StreamingContext context)
+        public ResultLocationStation(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
             throw new NotImplementedException();
@@ -42,9 +44,9 @@ namespace GPC.Model.Results
 
         public override bool Equals(object obj)
         {
-            return obj is ResultStation station &&
+            return obj is ResultLocationStation station &&
                    base.Equals(obj) &&
-                   _distanceFromStartPoint == station._distanceFromStartPoint && 
+                   _distanceFromStartPoint == station._distanceFromStartPoint &&
                    _elementLenght == station._elementLenght;
         }
 
@@ -56,11 +58,11 @@ namespace GPC.Model.Results
                 hashCode = hashCode * -1521134295 + base.GetHashCode();
                 hashCode = hashCode * -1521134295 + _distanceFromStartPoint.GetHashCode();
                 hashCode = hashCode * -1521134295 + _elementLenght.GetHashCode();
-                return hashCode; 
+                return hashCode;
             }
         }
 
-        public static bool operator ==(ResultStation obj1, ResultStation obj2)
+        public static bool operator ==(ResultLocationStation obj1, ResultLocationStation obj2)
         {
             if (obj1 is null)
             {
@@ -73,7 +75,7 @@ namespace GPC.Model.Results
             return obj1.Equals(obj2);
         }
 
-        public static bool operator !=(ResultStation obj1, ResultStation obj2)
+        public static bool operator !=(ResultLocationStation obj1, ResultLocationStation obj2)
         {
             return !(obj1 == obj2);
         }

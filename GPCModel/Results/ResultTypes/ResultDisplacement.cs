@@ -1,8 +1,8 @@
-using GPC.Geometry;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
+using GPC.Geometry;
 
 namespace GPC.Model.Results
 {
@@ -242,7 +242,7 @@ namespace GPC.Model.Results
 
             if (values.Select(i => i._coordinateSystem).Distinct().Count() > 0)
             {
-                return new ResultDisplacement(values[0]._coordinateSystem, 
+                return new ResultDisplacement(values[0]._coordinateSystem,
                                         Utilities.Maths.Averages.ArithmeticMean(values.Select(i => i.D1).ToArray()),
                                         Utilities.Maths.Averages.ArithmeticMean(values.Select(i => i.D2).ToArray()),
                                         Utilities.Maths.Averages.ArithmeticMean(values.Select(i => i.D3).ToArray()),

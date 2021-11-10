@@ -1,17 +1,18 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Runtime.Serialization;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace GPC.Model.Results
 {
     [Serializable]
-    public class ResultLocationId : ModelObjectId, ISerializable
+    public class ResultLocationId : ResultLocation, ISerializable
     {
-        public ResultLocationId(int id) : this(id, "")
-        {
 
-        }
-
-        public ResultLocationId(int id, string name) : base(id, name)
+        public ResultLocationId(ResultType[] results, int id)
+            : base(results, id)
         {
 
         }
@@ -19,39 +20,37 @@ namespace GPC.Model.Results
         public ResultLocationId(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
+
         }
 
-        public override void GetObjectData(SerializationInfo info, StreamingContext context)
+        public ResultLocationId(ResultType[] results, int id, string name)
+            : base(results, id, name)
         {
-            base.GetObjectData(info, context);
+
         }
 
         public override bool Equals(object obj)
         {
-            return obj is ResultLocationId point && base.Equals(point);
+            return obj is ResultLocationId id &&
+                   base.Equals(obj);
         }
 
         public override int GetHashCode()
         {
-            return base.GetHashCode();
-        }
-
-        public static bool operator ==(ResultLocationId obj1, ResultLocationId obj2)
-        {
-            if (obj1 is null)
+            unchecked
             {
-                return obj2 is null;
+                return base.GetHashCode();
             }
-
-            if (ReferenceEquals(obj1, obj2))
-                return true;
-
-            return obj1.Equals(obj2);
         }
 
-        public static bool operator !=(ResultLocationId obj1, ResultLocationId obj2)
+        public static bool operator ==(ResultLocationId left, ResultLocationId right)
         {
-            return !(obj1 == obj2);
+            return EqualityComparer<ResultLocationId>.Default.Equals(left, right);
+        }
+
+        public static bool operator !=(ResultLocationId left, ResultLocationId right)
+        {
+            return !(left == right);
         }
     }
 }

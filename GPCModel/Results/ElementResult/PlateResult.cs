@@ -1,10 +1,10 @@
-﻿using GPC.Geometry;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Runtime.Serialization;
+using GPC.Geometry;
 using GPC.Model.LoadCases;
 using GPC.Utilities.Extensions;
-using System;
-using System.Linq;
-using System.Collections.Generic;
-using System.Runtime.Serialization;
 
 namespace GPC.Model.Results
 {
@@ -12,33 +12,35 @@ namespace GPC.Model.Results
     public sealed class PlateResult : FiniteElementResult, ISerializable, IEquatable<PlateResult>, IElementResult
     {
 
-        /// <param name="Case"></param>
-        /// <param name="coordinateSystem"></param>
-        /// <param name="result">Lenght of this list should be 3n. Where n is the number of result on each face</param>
-        /// <param name="resultLocations">Lenght of this list should be 3n. Where n is the number of result on each face</param>
-        /// <remarks>Result order: Lower face (z-), Mid face, Upper face (z+)</remarks>
-        public PlateResult(ILoadCase Case, CoordinateSystem coordinateSystem, IPlateResult[] result, ResultLocationId[] resultLocations)
-            : this(Case, coordinateSystem, result, resultLocations, ModelObjectId.IDUNASSIGNED)
-        {
-
-        }
-
 
         /// <param name="Case"></param>
         /// <param name="coordinateSystem"></param>
-        /// <param name="result">Lenght of this list should be 3n. Where n is the number of result on each face</param>
-        /// <param name="resultLocations">Lenght of this list should be 3n. Where n is the number of result on each face</param>
+        /// <param name="resultLocations"></param>
         /// <param name="stageId"></param>
         /// <param name="name"></param>
-        /// <remarks>Result order: Lower face (z-), Mid face, Upper face (z+)</remarks>
-        public PlateResult(ILoadCase Case, CoordinateSystem coordinateSystem, IPlateResult[] result, ResultLocationId[] resultLocations, int stageId, string name = "")
-            : base(Case, coordinateSystem, (IEnumerable<ResultType>)result, resultLocations, stageId, name)
+        public PlateResult(ILoadCase Case, CoordinateSystem coordinateSystem,
+                                           ResultLocation[] resultLocations,
+                                           int stageId = ModelObjectId.IDUNASSIGNED, string name = "")
+            : base(Case, coordinateSystem, resultLocations, stageId, name)
         {
-            if (result.Count() % 3 != 0)
-                throw new ArgumentException("Result lenght should be 3n");
+            if (resultLocations is null)
+            {
+                throw new ArgumentNullException(nameof(resultLocations));
+            }
 
-            if (resultLocations.Count() % 3 != 0)
-                throw new ArgumentException("Result lenght should be 3n");
+            if (resultLocations.Where(i => i != null).Select(i => i.GetType()).Distinct().Count() > 1)
+                throw new ArgumentException("Multiple location type");
+
+
+            // controllo che siano iplate result
+            if (!(resultLocations.First().GetResults().First() is IPlateResult))
+                throw new ArgumentException("Result type is not a IplateResult");
+
+
+            // controllo che siano tutti lo stesso tipo di result
+            if (resultLocations.First().GetResults().Select(i => i.GetType()).Distinct().Count() > 1)
+                throw new ArgumentException("Different result types");
+
 
         }
 
@@ -49,46 +51,9 @@ namespace GPC.Model.Results
         }
 
 
-        public (ResultType[] lowerFace, ResultType[] midFace, ResultType[] upperFace) GetFaceResults()
+        public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
-            List<ResultType[]> splitted = Results.Split(Results.Length / 3);
-
-            return (splitted[0], splitted[1], splitted[2]);
-        }
-
-
-        public (ResultType lowerFace, ResultType midFace, ResultType upperFace) GetMeanFaceResults()
-        {
-            List<ResultType[]> resultSplitted = Results.Split(Results.Length / 3);
-            List<ResultLocationId[]> pointSplitted = Points.Split(Results.Length / 3);
-
-            ResultType[] returnValues = new ResultType[3];
-
-            for (int i = 0; i < 3; i++)
-            {
-                if (pointSplitted[i].First() is ResultLocationPoint)
-                {
-                    throw new NotImplementedException("Mean value considering point coordinate to be implemented");
-                }
-                else if (pointSplitted[i].First() is ResultLocationId)
-                {
-                    if (resultSplitted[i].First() is ResultStress)
-                    {
-                        returnValues[i] = ResultStress.GetArithmeticMean(resultSplitted[i].Select(j => (ResultStress)j).ToArray());
-                    }
-                    else
-                    {
-                        throw new NotImplementedException();
-                    }
-                }
-                else
-                {
-                    throw new NotImplementedException();
-                } 
-            }
-
-
-            return (returnValues[0], returnValues[1], returnValues[2]);
+            base.GetObjectData(info, context);
         }
 
 
@@ -106,7 +71,7 @@ namespace GPC.Model.Results
 
         public bool Equals(PlateResult other)
         {
-            if (other is null)
+            if (other == null)
                 return false;
 
             if (ReferenceEquals(this, other))
@@ -114,6 +79,7 @@ namespace GPC.Model.Results
 
             return base.Equals(other);
         }
+
 
         public static bool operator ==(PlateResult obj1, PlateResult obj2)
         {
@@ -127,6 +93,7 @@ namespace GPC.Model.Results
 
             return obj1.Equals(obj2);
         }
+
 
         public static bool operator !=(PlateResult obj1, PlateResult obj2)
         {

@@ -10,29 +10,30 @@ namespace GPC.Model.Results
 {
 
     [Serializable]
-    public class ResultLocationPoint : ResultLocationId, ISerializable, IResultLocation
+    public class ResultLocationPoint : ResultLocation, ISerializable
     {
         private readonly Point2d _location;
 
         public Point2d Location => _location;
 
-        public ResultLocationPoint(int id, Point2d location) 
-            : base(id, string.Empty)
+
+        public ResultLocationPoint(IEnumerable<ResultType> results, Point2d location, int id = ModelObjectId.IDUNASSIGNED)
+            : base(results.ToArray(), id)
         {
             _location = location;
         }
 
-        public ResultLocationPoint(SerializationInfo info, StreamingContext context) 
+        public ResultLocationPoint(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
-            throw new NotImplementedException();
+            _location = (Point2d)info.GetValue("Location", typeof(Point2d));
         }
 
 
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             base.GetObjectData(info, context);
-            throw new NotImplementedException();
+            info.AddValue("Location", _location, typeof(Point2d));
         }
 
         public override bool Equals(object obj)
@@ -46,10 +47,10 @@ namespace GPC.Model.Results
         {
             unchecked
             {
-                int hashCode = 548696834;
-                hashCode = hashCode * -1521134295 + base.GetHashCode();
-                hashCode = hashCode * -1521134295 + EqualityComparer<Point2d>.Default.GetHashCode(_location);
-                return hashCode; 
+                int hashCode = 17;
+                hashCode = hashCode * -19 + base.GetHashCode();
+                hashCode = hashCode * -19 + _location.GetHashCode();
+                return hashCode;
             }
         }
 

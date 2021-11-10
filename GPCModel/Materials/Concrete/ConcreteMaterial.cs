@@ -1,111 +1,118 @@
-﻿using GPC.Model.FEM.Materials;
-using GPC.Utilities.Attributes;
-using System;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Runtime.Serialization;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace GPC.Model.Materials
 {
-    [Serializable]
-    [UI(Description = "Concrete", Group = "Materials", Kind = "Material")]
+
     public abstract class ConcreteMaterial : Material
     {
-        #region Variables
 
-        protected double _fck;
-        protected double _epsilonCy;
-        protected double _epsilonCu;
+        protected StressStrainTable _stressStrainTableCompression;
+        protected StressStrainTable _stressStrainTableTension;
 
-        #endregion
+        protected double _elasticModulusTension;
 
-        #region Properties
 
-        /// <summary>
-        /// Characteristic compressive cylinder strength of concrete at 28 days
-        /// </summary>
-        public double Fck => _fck;
+        public StressStrainTable StressStrainTableCompression => _stressStrainTableCompression;
+        public StressStrainTable StressStrainTableTension => _stressStrainTableTension;
 
-        /// <summary>
-        /// Strain in the concrete at the peak compressive stress fc
-        /// </summary>
-        public double EpsilonCy => _epsilonCy;
+        public double ElasticModulusTension => _elasticModulusTension;
 
-        /// <summary>
-        /// Ultimate strain in compression
-        /// </summary>
-        public double EpsilonCu => _epsilonCu;
 
-        #endregion
-
-        #region Constructor
-
-        /// <summary>
-        /// Default constructor
-        /// </summary>
-        /// <param name="name"></param>
-        /// <param name="elasticModulus">Elastic secant modulus</param>
-        /// <param name="poisson">Poissoins's Ratio</param>
-        /// <param name="fck">Concrete compression resistance reference value (28 days)</param>
-        /// <param name="density">Density of concrete</param>
-        /// <param name="guid">Guid of the material</param>
-        /// <param name="alfaThermalExpansion">Linear thermal expasion coefficient</param>
-        public ConcreteMaterial(string name, double elasticModulus, double poisson, double fck, double density, double alfaThermalExpansion, Guid guid)
-            : base(name, elasticModulus, poisson, density, alfaThermalExpansion, guid)
+        protected ConcreteMaterial(string name, double poisson, double density, double alfaThermalExpansion)
+            : base(name)
         {
-            _fck = fck;
-        }
 
-        /// <summary>
-        ///
-        /// </summary>
-        /// <param name="elasticModulus">Elastic secant modulus</param>
-        /// <param name="poisson">Poissoins's Ratio</param>
-        /// <param name="fck">Concrete compression resistance reference value (28 days)</param>
-        /// <param name="density">Density of concrete. Default value = 0.0025 T/mm^2</param>
-        /// <remarks>alfaThermalExpansion = 1e-6</remarks>
-        public ConcreteMaterial(double elasticModulus, double fck, double poisson = 0.2, double density = 0.0025)
-            : this("", elasticModulus, poisson, fck, density, 1e-6, Guid.NewGuid())
-        {
+            if (poisson > 0.5)
+                throw new ArgumentException($"{nameof(poisson)} cannot be greater than 0.5");
+
+            _ni = poisson < 0 ? throw new ArgumentException($"Poisson cannot be lower than zero") : poisson;
+
+            _alfaThermalExpansion = alfaThermalExpansion < 0 ? throw new ArgumentException($"{nameof(alfaThermalExpansion)} cannot be lower than zero") : alfaThermalExpansion;
+
+            _density = density < 0 ? throw new ArgumentException($"{nameof(density)} cannot be lower than zero") : density;
 
         }
 
-        /// <summary>
-        ///
-        /// </summary>
-        /// <param name="name"></param>
-        /// <param name="fck">Concrete compression resistance reference value (28 days)</param>        
-        protected ConcreteMaterial(string name, double fck)
-            :base(name)
+
+        public ConcreteMaterial(string name, StressStrainTable stressStrainTableCompression, 
+                                             StressStrainTable stressStrainTableTension,
+                                             double elasticModulusCompression, double elasticModulusTension, 
+                                             double poisson, double density, double alfaThermalExpansion)
+            : base(name)
         {
-            _fck = fck;
+
+            if (poisson > 0.5)
+                throw new ArgumentException($"{nameof(poisson)} cannot be greater than 0.5");
+
+            _ni = poisson < 0 ? throw new ArgumentException($"Poisson cannot be lower than zero") : poisson;
+
+            _alfaThermalExpansion = alfaThermalExpansion < 0 ? throw new ArgumentException($"{nameof(alfaThermalExpansion)} cannot be lower than zero") : alfaThermalExpansion;
+
+            _density = density < 0 ? throw new ArgumentException($"{nameof(density)} cannot be lower than zero") : density;
+
+
+            _stressStrainTableCompression = stressStrainTableCompression;
+            _stressStrainTableTension = stressStrainTableTension;
+
+            _elasticModulusTension = elasticModulusTension;
+            _elasticModulus = elasticModulusCompression;
+
         }
 
-        public ConcreteMaterial(SerializationInfo info, StreamingContext context) :
-            base(info, context)
+
+        public ConcreteMaterial(SerializationInfo info, StreamingContext context)
+            : base(info, context)
         {
-            _fck = info.GetDouble("Fck");
+            _stressStrainTableCompression = (StressStrainTable)info.GetValue("TableCompression", typeof(StressStrainTable));
+            _stressStrainTableTension = (StressStrainTable)info.GetValue("TableTension", typeof(StressStrainTable));
+            _elasticModulusTension = info.GetDouble("ElasticModulusTension");
         }
 
-        #endregion
 
-        #region Public Methods
-
-        public override void GetObjectData(SerializationInfo info, StreamingContext context)
+        public override bool Equals(object obj)
         {
-            base.GetObjectData(info, context);
-            info.AddValue("Fck", _fck);
+            if (ReferenceEquals(this, obj))
+                return true;
+
+            return (obj is ConcreteMaterial objCasted) && objCasted._elasticModulusTension.Equals(_elasticModulusTension) &&
+                                                          objCasted._stressStrainTableCompression.Equals(_stressStrainTableCompression) &&
+                                                          objCasted._stressStrainTableTension.Equals(_stressStrainTableTension) &&
+                                                          base.Equals(objCasted);
         }
 
-        public override IsotropicFemMaterial GetIsotropicFemMaterial()
+        public override int GetHashCode()
         {
-            return new IsotropicFemMaterial(E, Ni, AlfaThermalExpansion, Density);
+            unchecked
+            {
+                int hashCode = 23;
+                hashCode = hashCode * -17 + base.GetHashCode();
+                hashCode = hashCode * -17 + _elasticModulusTension.GetHashCode();
+                hashCode = hashCode * -17 + _stressStrainTableCompression.GetHashCode();
+                hashCode = hashCode * -17 + _stressStrainTableTension.GetHashCode();
+                return hashCode; 
+            }
         }
 
-        public override OrthotropicFemMaterial GetOrthotropicFemMaterial()
+
+        public static bool operator ==(ConcreteMaterial obj1, ConcreteMaterial obj2)
         {
-            return new OrthotropicFemMaterial(E, E, E, Ni, Ni, Ni, GetShearModule(), GetShearModule(), GetShearModule(), AlfaThermalExpansion, AlfaThermalExpansion, AlfaThermalExpansion, Density);
+            if (ReferenceEquals(obj1, obj2))
+                return true;
+
+            return obj1.Equals(obj2);
         }
 
-        #endregion
+        public static bool operator !=(ConcreteMaterial obj1, ConcreteMaterial obj2)
+        {
+            return !(obj1 == obj2);
+        }
+
 
     }
+
 }

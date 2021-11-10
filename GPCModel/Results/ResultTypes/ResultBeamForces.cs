@@ -1,9 +1,9 @@
+using System;
+using System.Runtime.Serialization;
 using GPC.Geometry;
 using GPC.Model.Elements;
 using GPC.Model.FEM.FiniteElements;
 using GPC.Model.LoadCases;
-using System;
-using System.Runtime.Serialization;
 
 namespace GPC.Model.Results
 {
