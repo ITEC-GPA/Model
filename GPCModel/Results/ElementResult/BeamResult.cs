@@ -12,7 +12,7 @@ namespace GPC.Model.Results
     {
 
 
-        public double Length => ((ResultLocationStation)ResultLocations.First()).ElementLenght;     // TODO: va sistemato
+        public double Length => ((ResultLocationStation)ResultLocations.First()).ElementLenght;    
 
 
         public BeamResult(ILoadCase Case, IEnumerable<ResultLocationStation> resultStation,

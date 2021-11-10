@@ -24,7 +24,7 @@ namespace GPC.Model.Results
         public NodeResult(ILoadCase Case, CoordinateSystem coordinateSystem, INodeResult result, int stageId = ModelObjectId.IDUNASSIGNED)
             : base(Case, coordinateSystem)
         {
-            _result = result;
+            _result = result ?? throw new ArgumentNullException(nameof(result));
             _stageId = stageId;
         }
 

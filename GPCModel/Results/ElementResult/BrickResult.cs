@@ -11,7 +11,8 @@ namespace GPC.Model.Results
     {
 
 
-        public BrickResult(ILoadCase Case, CoordinateSystem coordinateSystem, IEnumerable<ResultLocation> resultsLocation, int stageId = ModelObjectId.IDUNASSIGNED)
+        public BrickResult(ILoadCase Case, CoordinateSystem coordinateSystem, IEnumerable<ResultLocation> resultsLocation, 
+                                int stageId = ModelObjectId.IDUNASSIGNED)
             : base(Case, coordinateSystem, resultsLocation, stageId)
         {
 

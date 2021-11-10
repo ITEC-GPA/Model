@@ -23,7 +23,10 @@ namespace GPC.Model.Results
                                            int stageId = ModelObjectId.IDUNASSIGNED, string name = "")
             : base(Case, coordinateSystem, resultLocations, stageId, name)
         {
-
+            if (resultLocations is null)
+            {
+                throw new ArgumentNullException(nameof(resultLocations));
+            }
 
             if (resultLocations.Where(i => i != null).Select(i => i.GetType()).Distinct().Count() > 1)
                 throw new ArgumentException("Multiple location type");
