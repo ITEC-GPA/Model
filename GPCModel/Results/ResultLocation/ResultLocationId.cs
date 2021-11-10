@@ -11,8 +11,20 @@ namespace GPC.Model.Results
     public class ResultLocationId : ResultLocation, ISerializable
     {
 
-        public ResultLocationId(ResultType[] results, int id)
-            : base(results, id)
+        public ResultLocationId(IEnumerable<IPlateResult> results, int id)
+            : base(results.Cast<ResultType>().ToArray(), id)
+        {
+
+        }
+
+        public ResultLocationId(IEnumerable<INodeResult> results, int id)
+            : base(results.Cast<ResultType>().ToArray(), id)
+        {
+
+        }
+
+        public ResultLocationId(IEnumerable<IBrickResult> results, int id)
+            : base(results.Cast<ResultType>().ToArray(), id)
         {
 
         }
@@ -31,8 +43,7 @@ namespace GPC.Model.Results
 
         public override bool Equals(object obj)
         {
-            return obj is ResultLocationId id &&
-                   base.Equals(obj);
+            return obj is ResultLocationId id && base.Equals(id);
         }
 
         public override int GetHashCode()

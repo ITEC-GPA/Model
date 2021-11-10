@@ -12,13 +12,19 @@ namespace GPC.Model.Results
     {
 
 
-        public double Length => ((ResultLocationStation)ResultLocations.First()).ElementLenght;    
+        public double Length => ((ResultLocationStation)ResultLocations.First()).ElementLenght;
 
 
-        public BeamResult(ILoadCase Case, IEnumerable<ResultLocationStation> resultStation,
-                            CoordinateSystem coordinateSystem, int stageId = ModelObjectId.IDUNASSIGNED)
+        public BeamResult(ILoadCase Case, CoordinateSystem coordinateSystem,
+                                            IEnumerable<ResultLocationStation> resultStation,
+                                            int stageId = ModelObjectId.IDUNASSIGNED)
             : base(Case, coordinateSystem, resultStation, stageId)
         {
+            if (resultStation is null)
+            {
+                throw new ArgumentNullException(nameof(resultStation));
+            }
+
             if (resultStation.Select(i => i.ElementLenght).Distinct().Count() > 1)
                 throw new ArgumentException("All Result Station must have the same length");
 

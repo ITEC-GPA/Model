@@ -17,8 +17,14 @@ namespace GPC.Model.Results
         public Point2d Location => _location;
 
 
-        public ResultLocationPoint(IEnumerable<ResultType> results, Point2d location, int id = ModelObjectId.IDUNASSIGNED)
-            : base(results.ToArray(), id)
+        public ResultLocationPoint(IEnumerable<IPlateResult> results, Point2d location, int id = ModelObjectId.IDUNASSIGNED)
+            : base(results.Cast<ResultType>().ToArray(), id)
+        {
+            _location = location;
+        }
+
+        public ResultLocationPoint(IEnumerable<IBrickResult> results, Point2d location, int id = ModelObjectId.IDUNASSIGNED)
+            : base(results.Cast<ResultType>().ToArray(), id)
         {
             _location = location;
         }
