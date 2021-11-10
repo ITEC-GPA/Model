@@ -1,6 +1,6 @@
-﻿using GPC.Geometry;
-using System;
+﻿using System;
 using System.Runtime.Serialization;
+using GPC.Geometry;
 using GPC.Model.Materials;
 
 namespace GPC.Model.Sections
@@ -37,13 +37,13 @@ namespace GPC.Model.Sections
 
         #region Public Constructors
 
-        public SectionCHS(double externalDiameter, double thickness, Material material, string name) 
+        public SectionCHS(double externalDiameter, double thickness, Material material, string name)
             : base(material, name)
         {
             #region Check inputs
 
             if (thickness > externalDiameter / 2.0)
-                throw new ArgumentException($"Diameter cannot be lower than 2 * thickness ");       
+                throw new ArgumentException($"Diameter cannot be lower than 2 * thickness ");
 
             _externalDiameter = externalDiameter < 0 ? throw new ArgumentException($"Diameter cannot be lower than zero") : externalDiameter;
             _thickness = thickness < 0 ? throw new ArgumentException($"Thickness cannot be lower than zero") : thickness;
@@ -57,10 +57,10 @@ namespace GPC.Model.Sections
         }
 
         public SectionCHS(SectionCHS section)
-            :this(section.Diameter, (section.Diameter - section.DiameterInternal) / 2.0, section.Material, section.Name)
-		{
+            : this(section.Diameter, (section.Diameter - section.DiameterInternal) / 2.0, section.Material, section.Name)
+        {
 
-		}
+        }
 
         public SectionCHS(SerializationInfo info, StreamingContext context)
             : base(info, context)
@@ -126,7 +126,7 @@ namespace GPC.Model.Sections
         {
             return (Math.Pow(Diameter, 3.0) - Math.Pow(DiameterInternal, 3.0)) / (6.0);
         }
-        
+
         #endregion
 
 
@@ -143,13 +143,13 @@ namespace GPC.Model.Sections
         public override ShapeMaterial[] GetShapes()
         {
             int divisions = 36;
-            Polygon2d hole =null;
+            Polygon2d hole = null;
             Polygon2d fill = new Polygon2d();
 
             if (Math.Abs(DiameterInternal) > 1)
             {
                 hole = new Polygon2d();
-            }       
+            }
             for (int i = 0; i < divisions; i++)
             {
                 double teta = i * 2 * Math.PI / divisions;

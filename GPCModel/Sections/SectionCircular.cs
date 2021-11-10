@@ -1,15 +1,15 @@
-using GPC.Geometry;
 using System;
-using System.Runtime.Serialization;
-using GPC.Model.Materials;
 using System.Linq;
+using System.Runtime.Serialization;
+using GPC.Geometry;
+using GPC.Model.Materials;
 using GPC.Model.Sections.Concrete;
 
 namespace GPC.Model.Sections
 {
-    
+
     public class SectionCircular : Section
-    {        
+    {
         #region Variables
 
         protected readonly double _diameter;
@@ -75,9 +75,9 @@ namespace GPC.Model.Sections
         public override ShapeMaterial[] GetShapes()
         {
             int divisions = 36;
-            Polygon2d hole =null;
+            Polygon2d hole = null;
             Polygon2d fill = new Polygon2d();
-    
+
             for (int i = 0; i < divisions; i++)
             {
                 double teta = i * 2 * Math.PI / divisions;
@@ -154,7 +154,7 @@ namespace GPC.Model.Sections
 
         protected double CalculateWel()
         {
-            return Math.PI * Math.Pow(Diameter, 4.0)  / (32.0 * Diameter);
+            return Math.PI * Math.Pow(Diameter, 4.0) / (32.0 * Diameter);
         }
 
         protected double CalculateWpl()

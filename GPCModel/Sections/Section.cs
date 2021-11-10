@@ -1,11 +1,11 @@
 ﻿using System;
+using System.Linq;
 using System.Runtime.Serialization;
 using GPC.Geometry;
-using GPC.Model.Materials;
-using GPC.Model.FEM.Properties;
-using GPC.Model.FEM.Materials;
 using GPC.Model.Elements;
-using System.Linq;
+using GPC.Model.FEM.Materials;
+using GPC.Model.FEM.Properties;
+using GPC.Model.Materials;
 
 namespace GPC.Model.Sections
 {
@@ -70,7 +70,7 @@ namespace GPC.Model.Sections
         /// <summary>
         /// The <see cref="Materials"/> of the section 
         /// </summary>
-        public Material Material => _material;        
+        public Material Material => _material;
 
         /// <summary>
         /// The area of the section
@@ -181,7 +181,7 @@ namespace GPC.Model.Sections
             : base(name)
         { }
 
-        protected Section(Material material, string name) 
+        protected Section(Material material, string name)
             : base(name)
         {
             _material = material;
@@ -203,14 +203,14 @@ namespace GPC.Model.Sections
         /// <exception cref="ArgumentException">If the input data are not correct</exception>
         /// <remarks>Axis convention: X-axes is the Y-axes for Eurocode and Y-axes is the Z-axes for Eurocode
         /// If the X-axes is principal, the first moment of inertia is J11, If the Y-axes is principal, the first moment of inertia is J22</remarks>
-        public Section(Material material, double area, double j11, double j22, double jt, double jw, Point2d centroid, Point3d shearCenter, double angle, string name) 
+        public Section(Material material, double area, double j11, double j22, double jt, double jw, Point2d centroid, Point3d shearCenter, double angle, string name)
             : base(name)
         {
             _material = material;
             _area = area < 0 ? throw new ArgumentException($"Area cannot be lower than zero") : area;
-            _jxx = j11 < 0 ? throw new ArgumentException($"Moment of Inertia J11 cannot be lower than zero") : j11; 
-            _jyy = j22 < 0 ? throw new ArgumentException($"Moment of Inertia J22 cannot be lower than zero") : j22; 
-            _jt = jt < 0 ? throw new ArgumentException($"Moment of Inertia Jt cannot be lower than zero") : jt; 
+            _jxx = j11 < 0 ? throw new ArgumentException($"Moment of Inertia J11 cannot be lower than zero") : j11;
+            _jyy = j22 < 0 ? throw new ArgumentException($"Moment of Inertia J22 cannot be lower than zero") : j22;
+            _jt = jt < 0 ? throw new ArgumentException($"Moment of Inertia Jt cannot be lower than zero") : jt;
             _jw = jw < 0 ? throw new ArgumentException($"Moment of Inertia Jw cannot be lower than zero") : jw;
             _centroid = centroid;
             _shearCenter = shearCenter;
@@ -265,7 +265,7 @@ namespace GPC.Model.Sections
         }
 
         public virtual double GetAlphaThermalExpansion()
-        { 
+        {
             return _material.AlfaThermalExpansion;
         }
 

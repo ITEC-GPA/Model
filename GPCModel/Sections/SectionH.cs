@@ -1,15 +1,15 @@
-﻿using GPC.Geometry;
-using GPC.Model.Materials;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using GPC.Geometry;
+using GPC.Model.Materials;
 
 namespace GPC.Model.Sections
 {
     public class SectionH : ThinWallSection
-    {     
+    {
         #region Variables
 
         protected readonly double _h;
@@ -37,13 +37,13 @@ namespace GPC.Model.Sections
         public double ThicknessWeb => _tw;
 
         public double HeightWeb => Height - ThicknessBottomFlange - ThicknessTopFlange;
-        
+
         #endregion
 
 
         #region Public Constructors
 
-        public SectionH(double height, double thicknessWeb, double topFlangeLength, double topFlangeThickness, double bottomFlangeLength, 
+        public SectionH(double height, double thicknessWeb, double topFlangeLength, double topFlangeThickness, double bottomFlangeLength,
                         double bottomFlangeThickness, Material material, string name)
             : base(material, name)
         {
@@ -70,7 +70,7 @@ namespace GPC.Model.Sections
                                     new Point2d(Math.Max(LenghtTopFlange, LenghtBottomFlange) / 2.0, bottomFlangeThickness + HeightWeb + topFlangeThickness / 2.0),
                                     new Point2d(Math.Max(LenghtTopFlange, LenghtBottomFlange) / 2.0, bottomFlangeThickness / 2.0)};
 
-            ThinWalls = new ThinWall[3] { web , flangeTop, flangeBottom };
+            ThinWalls = new ThinWall[3] { web, flangeTop, flangeBottom };
         }
 
         #endregion
@@ -93,13 +93,13 @@ namespace GPC.Model.Sections
 
         protected override double CalculateWpl2()
         {
-            SectionT halfSectionTop = new SectionT(LenghtTopFlange / 2.0, Height / 2.0, ThicknessTopFlange, 
+            SectionT halfSectionTop = new SectionT(LenghtTopFlange / 2.0, Height / 2.0, ThicknessTopFlange,
                 ThicknessWeb / 2.0, Material, string.Empty);
-            SectionT halfSectionBottom = new SectionT(LenghtBottomFlange / 2.0, Height / 2.0, ThicknessBottomFlange, 
+            SectionT halfSectionBottom = new SectionT(LenghtBottomFlange / 2.0, Height / 2.0, ThicknessBottomFlange,
                 ThicknessWeb / 2.0, Material, string.Empty);
 
-            double d = (halfSectionTop.Area * (LenghtTopFlange / 2.0 - halfSectionTop.DistanceYCentroidFromBottom()) + 
-                halfSectionBottom.Area * (LenghtBottomFlange / 2.0 - halfSectionBottom.DistanceYCentroidFromBottom())) / 
+            double d = (halfSectionTop.Area * (LenghtTopFlange / 2.0 - halfSectionTop.DistanceYCentroidFromBottom()) +
+                halfSectionBottom.Area * (LenghtBottomFlange / 2.0 - halfSectionBottom.DistanceYCentroidFromBottom())) /
                 (halfSectionBottom.Area + halfSectionTop.Area);
 
             return 2.0 * d * _area / 2.0;
@@ -111,9 +111,9 @@ namespace GPC.Model.Sections
             {
                 double hw = (_area / 2.0 - LenghtTopFlange * ThicknessTopFlange) / ThicknessWeb;
 
-                SectionT halfSectionTop = new SectionT(hw + ThicknessTopFlange, LenghtTopFlange, ThicknessWeb, 
+                SectionT halfSectionTop = new SectionT(hw + ThicknessTopFlange, LenghtTopFlange, ThicknessWeb,
                     ThicknessTopFlange, Material, string.Empty);
-                SectionT halfSectionBottom = new SectionT(Height - ThicknessTopFlange - hw, LenghtBottomFlange, 
+                SectionT halfSectionBottom = new SectionT(Height - ThicknessTopFlange - hw, LenghtBottomFlange,
                     ThicknessWeb, ThicknessBottomFlange, Material, string.Empty);
 
                 return _area / 2.0 * (halfSectionTop.DistanceYCentroidFromBottom() + halfSectionBottom.DistanceYCentroidFromBottom());
@@ -122,7 +122,7 @@ namespace GPC.Model.Sections
             {
                 double hHalf = _area / 2.0 / LenghtTopFlange;
 
-                SectionH halfSectionBottom = new SectionH(Height - hHalf, ThicknessWeb, LenghtTopFlange, 
+                SectionH halfSectionBottom = new SectionH(Height - hHalf, ThicknessWeb, LenghtTopFlange,
                     ThicknessTopFlange - hHalf, LenghtBottomFlange, ThicknessBottomFlange, Material, string.Empty);
 
                 return _area / 2.0 * (hHalf / 2.0 + (Height - hHalf - halfSectionBottom.DistanceYCentroidFromBottom()));
@@ -131,13 +131,13 @@ namespace GPC.Model.Sections
             {
                 double hHalf = _area / 2.0 / LenghtBottomFlange;
 
-                SectionH halfSectionBottom = new SectionH(Height - hHalf, ThicknessWeb, LenghtTopFlange, ThicknessTopFlange, 
+                SectionH halfSectionBottom = new SectionH(Height - hHalf, ThicknessWeb, LenghtTopFlange, ThicknessTopFlange,
                     LenghtBottomFlange, ThicknessBottomFlange - hHalf, Material, string.Empty);
 
                 return _area / 2.0 * (hHalf / 2.0 + halfSectionBottom.DistanceYCentroidFromBottom());
             }
-            else            
-                throw new NotImplementedException("Cannot calculate Wpl : Plastic neutral axis in flanges...to be implemented");            
+            else
+                throw new NotImplementedException("Cannot calculate Wpl : Plastic neutral axis in flanges...to be implemented");
         }
 
         protected override double CalculateWel2()
@@ -199,7 +199,7 @@ namespace GPC.Model.Sections
         public double CalculateJtSSRC1889()
         {
             double dmed = Height - ThicknessBottomFlange / 2.0 - _ttop / 2.0;
-            return (LenghtTopFlange * Math.Pow(ThicknessTopFlange, 3.0) + 
+            return (LenghtTopFlange * Math.Pow(ThicknessTopFlange, 3.0) +
                 LenghtBottomFlange * Math.Pow(ThicknessBottomFlange, 3.0) + dmed * Math.Pow(ThicknessWeb, 3.0)) / 3.0;
             //SSRC 1998 dice che Jt corretto si calcola come 1/3 * l * t^3 ma l'anima va considerata maggiorata di metà delle due flange (non va corretto con il fattore alpha)
         }

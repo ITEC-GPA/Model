@@ -39,14 +39,14 @@ namespace GPC.Model.Sections
 
         #region Public Constructors
 
-        public SectionC(double height, double thicknessWeb, double lengthTop, double thicknessTop, double lengthBottom, double thicknessBottom, Material material, string name) 
+        public SectionC(double height, double thicknessWeb, double lengthTop, double thicknessTop, double lengthBottom, double thicknessBottom, Material material, string name)
             : base(material, name)
         {
-            _h = height < 0 ? throw new ArgumentException($"height cannot be lower than zero") : height; 
-            _lengthTop = lengthTop < 0 ? throw new ArgumentException($"Top lenght cannot be lower than zero") : lengthTop; 
-            _lengthBottom = lengthBottom < 0 ? throw new ArgumentException($"Bottom lenght cannot be lower than zero") : lengthBottom; 
-            _tBottom = thicknessBottom < 0 ? throw new ArgumentException($"Bottom thickness cannot be lower than zero") : thicknessBottom; 
-            _tTop = thicknessTop < 0 ? throw new ArgumentException($"Top thickness cannot be lower than zero") : thicknessTop; 
+            _h = height < 0 ? throw new ArgumentException($"height cannot be lower than zero") : height;
+            _lengthTop = lengthTop < 0 ? throw new ArgumentException($"Top lenght cannot be lower than zero") : lengthTop;
+            _lengthBottom = lengthBottom < 0 ? throw new ArgumentException($"Bottom lenght cannot be lower than zero") : lengthBottom;
+            _tBottom = thicknessBottom < 0 ? throw new ArgumentException($"Bottom thickness cannot be lower than zero") : thicknessBottom;
+            _tTop = thicknessTop < 0 ? throw new ArgumentException($"Top thickness cannot be lower than zero") : thicknessTop;
             _tw = thicknessWeb < 0 ? throw new ArgumentException($"Web thickness cannot be lower than zero") : thicknessWeb;
 
             if (_lengthBottom == _lengthTop && _tTop == _tBottom)
@@ -89,7 +89,7 @@ namespace GPC.Model.Sections
 
         protected override double CalculateJt()
         {
-            return 1.0 / 3.0 * (_lengthTop - _tw / 2.0) * Math.Pow(_tTop, 3.0) + 1.0 / 3.0 * (_h - _tTop / 2.0 - _tBottom / 2.0) * 
+            return 1.0 / 3.0 * (_lengthTop - _tw / 2.0) * Math.Pow(_tTop, 3.0) + 1.0 / 3.0 * (_h - _tTop / 2.0 - _tBottom / 2.0) *
                 Math.Pow(_tw, 3.0) + 1.0 / 3.0 * (_lengthBottom - _tw / 2.0) * Math.Pow(_tBottom, 3.0);
         }
 
