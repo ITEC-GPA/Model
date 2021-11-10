@@ -6,8 +6,7 @@ using GPC.Utilities.Extensions;
 using System.Collections.Generic;
 using GPC.TestUtilities;
 using System.Linq;
-using static GPC.Model.Combinations.StandardASCE16;
-using static GPC.Model.Combinations.StandardEN1990;
+using GPC.Model.Standards;
 
 namespace ModelObjectTest
 {
@@ -209,7 +208,7 @@ namespace ModelObjectTest
             loadCases.Add(new LoadCase("SDL", LoadCase.LoadCaseTypes.SuperImposedDeadLoad));
             coefficients.Add(4);
 
-            ASCE16CombinationsOptions options = new ASCE16CombinationsOptions(StandardASCE16.LimitStates.LFRD);
+            StandardASCE16.ASCE16CombinationsOptions options = new StandardASCE16.ASCE16CombinationsOptions(StandardASCE16.LimitStates.LFRD);
             Combination combination = new Combination("cmb", options);
 
             combination.AddLoadCaseCoefficients(loadCases, coefficients);
@@ -231,7 +230,7 @@ namespace ModelObjectTest
         {
             // Arrange
 
-            ASCE16CombinationsOptions options = new ASCE16CombinationsOptions(StandardASCE16.LimitStates.LFRD);
+            StandardASCE16.ASCE16CombinationsOptions options = new StandardASCE16.ASCE16CombinationsOptions(StandardASCE16.LimitStates.LFRD);
             Combination combination = new Combination("cmb", options);
 
             var lc1 = new LoadCase("LC1", LoadCase.LoadCaseTypes.SelfWeight);
@@ -261,7 +260,7 @@ namespace ModelObjectTest
         {
             // Arrange
 
-            ASCE16CombinationsOptions options = new ASCE16CombinationsOptions(StandardASCE16.LimitStates.LFRD);
+            StandardASCE16.ASCE16CombinationsOptions options = new StandardASCE16.ASCE16CombinationsOptions(StandardASCE16.LimitStates.LFRD);
             Combination combination = new Combination("cmb", options);
 
             var lc1 = new LoadCase("LC1", LoadCase.LoadCaseTypes.SelfWeight);
@@ -307,7 +306,7 @@ namespace ModelObjectTest
         {
             // Arrange
 
-            ASCE16CombinationsOptions options = new ASCE16CombinationsOptions(StandardASCE16.LimitStates.LFRD);
+            StandardASCE16.ASCE16CombinationsOptions options = new StandardASCE16.ASCE16CombinationsOptions(StandardASCE16.LimitStates.LFRD);
             Combination combination = new Combination("cmb", options);
 
             var lc1 = new LoadCase("LC1", LoadCase.LoadCaseTypes.SelfWeight);
@@ -367,7 +366,8 @@ namespace ModelObjectTest
                 prestressLoadCase
             };
 
-            EN1990CombinationsOptions options = new EN1990CombinationsOptions(StandardEN1990.LimitStates.UltimateStructural, ULSStructuralGeotechicalCombinationSets.SetC, ImposedLoadCategories.CategoryC, false);
+            StandardEN1990.EN1990CombinationsOptions options = new StandardEN1990.EN1990CombinationsOptions(StandardEN1990.LimitStates.UltimateStructural,
+                StandardEN1990.ULSStructuralGeotechicalCombinationSets.SetC, StandardEN1990.ImposedLoadCategories.CategoryC, false);
             StandardEN1990 standardEN1990 = new StandardEN1990();
 
             // Act
@@ -420,7 +420,8 @@ namespace ModelObjectTest
                 prestressLoadCase
             };
 
-            EN1990CombinationsOptions options = new EN1990CombinationsOptions(StandardEN1990.LimitStates.UltimateStructural, ULSStructuralGeotechicalCombinationSets.SetB, ImposedLoadCategories.CategoryA, true);
+            StandardEN1990.EN1990CombinationsOptions options = new StandardEN1990.EN1990CombinationsOptions(StandardEN1990.LimitStates.UltimateStructural, 
+                StandardEN1990.ULSStructuralGeotechicalCombinationSets.SetB, StandardEN1990.ImposedLoadCategories.CategoryA, true);
             StandardEN1990 standardEN1990 = new StandardEN1990();
 
             // Act
@@ -487,7 +488,8 @@ namespace ModelObjectTest
                 liveLoadLoadCase
             };
 
-            EN1990CombinationsOptions options = new EN1990CombinationsOptions(StandardEN1990.LimitStates.UltimateStructural, ULSStructuralGeotechicalCombinationSets.SetC, ImposedLoadCategories.CategoryE, false);
+            StandardEN1990.EN1990CombinationsOptions options = new StandardEN1990.EN1990CombinationsOptions(StandardEN1990.LimitStates.UltimateStructural,
+                StandardEN1990.ULSStructuralGeotechicalCombinationSets.SetC, StandardEN1990.ImposedLoadCategories.CategoryE, false);
             StandardEN1990 standardEN1990 = new StandardEN1990();
 
             // Act
@@ -548,7 +550,8 @@ namespace ModelObjectTest
                 WindPressureLoadCase,
             };
 
-            EN1990CombinationsOptions options = new EN1990CombinationsOptions(StandardEN1990.LimitStates.UltimateEquilibrium, ULSStructuralGeotechicalCombinationSets.SetB, ImposedLoadCategories.CategoryD, false);
+            StandardEN1990.EN1990CombinationsOptions options = new StandardEN1990.EN1990CombinationsOptions(StandardEN1990.LimitStates.UltimateEquilibrium,
+                StandardEN1990.ULSStructuralGeotechicalCombinationSets.SetB, StandardEN1990.ImposedLoadCategories.CategoryD, false);
             StandardEN1990 standardEN1990 = new StandardEN1990();
 
             // Act
@@ -615,7 +618,8 @@ namespace ModelObjectTest
                 prestressLoadCase
             };
 
-            EN1990CombinationsOptions options = new EN1990CombinationsOptions(StandardEN1990.LimitStates.UltimateEquilibrium, ULSStructuralGeotechicalCombinationSets.SetC, ImposedLoadCategories.CategoryA, false);
+            StandardEN1990.EN1990CombinationsOptions options = new StandardEN1990.EN1990CombinationsOptions(StandardEN1990.LimitStates.UltimateEquilibrium,
+                StandardEN1990.ULSStructuralGeotechicalCombinationSets.SetC, StandardEN1990.ImposedLoadCategories.CategoryA, false);
             StandardEN1990 standardEN1990 = new StandardEN1990();
 
             // Act
@@ -682,7 +686,8 @@ namespace ModelObjectTest
                 prestressLoadCase
             };
 
-            EN1990CombinationsOptions options = new EN1990CombinationsOptions(StandardEN1990.LimitStates.UltimateEquilibrium, ULSStructuralGeotechicalCombinationSets.SetC, ImposedLoadCategories.CategoryD, true);
+            StandardEN1990.EN1990CombinationsOptions options = new StandardEN1990.EN1990CombinationsOptions(StandardEN1990.LimitStates.UltimateEquilibrium,
+                StandardEN1990.ULSStructuralGeotechicalCombinationSets.SetC, StandardEN1990.ImposedLoadCategories.CategoryD, true);
             StandardEN1990 standardEN1990 = new StandardEN1990();
 
             // Act
@@ -749,7 +754,8 @@ namespace ModelObjectTest
                 prestressLoadCase
             };
 
-            EN1990CombinationsOptions options = new EN1990CombinationsOptions(StandardEN1990.LimitStates.UltimateFatigue, ULSStructuralGeotechicalCombinationSets.SetC, ImposedLoadCategories.CategoryG, true);
+            StandardEN1990.EN1990CombinationsOptions options = new StandardEN1990.EN1990CombinationsOptions(StandardEN1990.LimitStates.UltimateFatigue,
+                StandardEN1990.ULSStructuralGeotechicalCombinationSets.SetC, StandardEN1990.ImposedLoadCategories.CategoryG, true);
             StandardEN1990 standardEN1990 = new StandardEN1990();
 
             // Act
@@ -802,7 +808,8 @@ namespace ModelObjectTest
                 prestressLoadCase
             };
 
-            EN1990CombinationsOptions options = new EN1990CombinationsOptions(StandardEN1990.LimitStates.UltimateFatigue, ImposedLoadCategories.CategoryA, true);
+            StandardEN1990.EN1990CombinationsOptions options = new StandardEN1990.EN1990CombinationsOptions(StandardEN1990.LimitStates.UltimateFatigue,
+                StandardEN1990.ImposedLoadCategories.CategoryA, true);
             StandardEN1990 standardEN1990 = new StandardEN1990();
 
             // Act
@@ -869,7 +876,8 @@ namespace ModelObjectTest
                 snowLoadCase,
             };
 
-            EN1990CombinationsOptions options = new EN1990CombinationsOptions(StandardEN1990.LimitStates.UltimateFatigue, ImposedLoadCategories.CategoryG, true);
+            StandardEN1990.EN1990CombinationsOptions options = new StandardEN1990.EN1990CombinationsOptions(StandardEN1990.LimitStates.UltimateFatigue,
+                StandardEN1990.ImposedLoadCategories.CategoryG, true);
             StandardEN1990 standardEN1990 = new StandardEN1990();
 
             // Act
@@ -936,7 +944,8 @@ namespace ModelObjectTest
                 WindPressureLoadCase2
             };
 
-            EN1990CombinationsOptions options = new EN1990CombinationsOptions(StandardEN1990.LimitStates.UltimateGeotechnical, ULSStructuralGeotechicalCombinationSets.SetB, ImposedLoadCategories.CategoryF, true);
+            StandardEN1990.EN1990CombinationsOptions options = new StandardEN1990.EN1990CombinationsOptions(StandardEN1990.LimitStates.UltimateGeotechnical,
+                StandardEN1990.ULSStructuralGeotechicalCombinationSets.SetB, StandardEN1990.ImposedLoadCategories.CategoryF, true);
             StandardEN1990 standardEN1990 = new StandardEN1990();
 
             // Act
@@ -1003,7 +1012,8 @@ namespace ModelObjectTest
                 prestressLoadCase
             };
 
-            EN1990CombinationsOptions options = new EN1990CombinationsOptions(StandardEN1990.LimitStates.UltimateGeotechnical, ULSStructuralGeotechicalCombinationSets.SetB, ImposedLoadCategories.CategoryA, true);
+            StandardEN1990.EN1990CombinationsOptions options = new StandardEN1990.EN1990CombinationsOptions(StandardEN1990.LimitStates.UltimateGeotechnical,
+                StandardEN1990.ULSStructuralGeotechicalCombinationSets.SetB, StandardEN1990.ImposedLoadCategories.CategoryA, true);
             StandardEN1990 standardEN1990 = new StandardEN1990();
 
             // Act
@@ -1070,7 +1080,8 @@ namespace ModelObjectTest
                 prestressLoadCase
             };
 
-            EN1990CombinationsOptions options = new EN1990CombinationsOptions(StandardEN1990.LimitStates.UltimateGeotechnical, ULSStructuralGeotechicalCombinationSets.SetC, ImposedLoadCategories.CategoryF, false);
+            StandardEN1990.EN1990CombinationsOptions options = new StandardEN1990.EN1990CombinationsOptions(StandardEN1990.LimitStates.UltimateGeotechnical,
+                StandardEN1990.ULSStructuralGeotechicalCombinationSets.SetC, StandardEN1990.ImposedLoadCategories.CategoryF, false);
             StandardEN1990 standardEN1990 = new StandardEN1990();
 
             // Act
@@ -1123,7 +1134,8 @@ namespace ModelObjectTest
                 snowLoadCase,
             };
 
-            EN1990CombinationsOptions options = new EN1990CombinationsOptions(StandardEN1990.LimitStates.ServiceabilityCharacteristic, ULSStructuralGeotechicalCombinationSets.SetC, ImposedLoadCategories.CategoryA, true);
+            StandardEN1990.EN1990CombinationsOptions options = new StandardEN1990.EN1990CombinationsOptions(StandardEN1990.LimitStates.ServiceabilityCharacteristic,
+                StandardEN1990.ULSStructuralGeotechicalCombinationSets.SetC, StandardEN1990.ImposedLoadCategories.CategoryA, true);
             StandardEN1990 standardEN1990 = new StandardEN1990();
 
             // Act
@@ -1175,7 +1187,8 @@ namespace ModelObjectTest
                 prestressLoadCase
             };
 
-            EN1990CombinationsOptions options = new EN1990CombinationsOptions(StandardEN1990.LimitStates.ServiceabilityQuasiPermanent, ULSStructuralGeotechicalCombinationSets.SetC, ImposedLoadCategories.CategoryA, true);
+            StandardEN1990.EN1990CombinationsOptions options = new StandardEN1990.EN1990CombinationsOptions(StandardEN1990.LimitStates.ServiceabilityQuasiPermanent,
+                StandardEN1990.ULSStructuralGeotechicalCombinationSets.SetC, StandardEN1990.ImposedLoadCategories.CategoryA, true);
             StandardEN1990 standardEN1990 = new StandardEN1990();
 
             // Act
@@ -1225,7 +1238,8 @@ namespace ModelObjectTest
                 prestressLoadCase
             };
 
-            EN1990CombinationsOptions options = new EN1990CombinationsOptions(StandardEN1990.LimitStates.ServiceabilityFrequent, ULSStructuralGeotechicalCombinationSets.SetC, ImposedLoadCategories.CategoryA, true);
+            StandardEN1990.EN1990CombinationsOptions options = new StandardEN1990.EN1990CombinationsOptions(StandardEN1990.LimitStates.ServiceabilityFrequent,
+                StandardEN1990.ULSStructuralGeotechicalCombinationSets.SetC, StandardEN1990.ImposedLoadCategories.CategoryA, true);
             StandardEN1990 standardEN1990 = new StandardEN1990();
 
             // Act
@@ -1290,7 +1304,8 @@ namespace ModelObjectTest
                 snowLoadCase2
             };
 
-            EN1990CombinationsOptions options = new EN1990CombinationsOptions(StandardEN1990.LimitStates.UltimateStructural, ULSStructuralGeotechicalCombinationSets.SetB, ImposedLoadCategories.CategoryA, true);
+            StandardEN1990.EN1990CombinationsOptions options = new StandardEN1990.EN1990CombinationsOptions(StandardEN1990.LimitStates.UltimateStructural,
+                StandardEN1990.ULSStructuralGeotechicalCombinationSets.SetB, StandardEN1990.ImposedLoadCategories.CategoryA, true);
             StandardEN1990 standardEN1990 = new StandardEN1990();
 
             // Act
@@ -1387,7 +1402,8 @@ namespace ModelObjectTest
                 snowLoadCase2
             };
 
-            EN1990CombinationsOptions options = new EN1990CombinationsOptions(StandardEN1990.LimitStates.UltimateStructural, ULSStructuralGeotechicalCombinationSets.SetB, ImposedLoadCategories.CategoryA, true);
+            StandardEN1990.EN1990CombinationsOptions options = new StandardEN1990.EN1990CombinationsOptions(StandardEN1990.LimitStates.UltimateStructural,
+                StandardEN1990.ULSStructuralGeotechicalCombinationSets.SetB, StandardEN1990.ImposedLoadCategories.CategoryA, true);
             StandardEN1990 standardEN1990 = new StandardEN1990();
 
             // Act
@@ -1492,7 +1508,8 @@ namespace ModelObjectTest
                 windSuctionLoadCase1
             };
 
-            EN1990CombinationsOptions options = new EN1990CombinationsOptions(StandardEN1990.LimitStates.UltimateStructural, ULSStructuralGeotechicalCombinationSets.SetB, ImposedLoadCategories.CategoryA, true);
+            StandardEN1990.EN1990CombinationsOptions options = new StandardEN1990.EN1990CombinationsOptions(StandardEN1990.LimitStates.UltimateStructural,
+                StandardEN1990.ULSStructuralGeotechicalCombinationSets.SetB, StandardEN1990.ImposedLoadCategories.CategoryA, true);
             StandardEN1990 standardEN1990 = new StandardEN1990();
 
             // Act
@@ -1566,7 +1583,8 @@ namespace ModelObjectTest
                 snowLoadCase2
             };
 
-            EN1990CombinationsOptions options = new EN1990CombinationsOptions(StandardEN1990.LimitStates.UltimateStructural, ULSStructuralGeotechicalCombinationSets.SetB, ImposedLoadCategories.CategoryA, true);
+            StandardEN1990.EN1990CombinationsOptions options = new StandardEN1990.EN1990CombinationsOptions(StandardEN1990.LimitStates.UltimateStructural,
+                StandardEN1990.ULSStructuralGeotechicalCombinationSets.SetB, StandardEN1990.ImposedLoadCategories.CategoryA, true);
             StandardEN1990 standardEN1990 = new StandardEN1990();
 
             // Act
@@ -1719,7 +1737,8 @@ namespace ModelObjectTest
                 liveLoadLoadCase
             };
 
-            EN1990CombinationsOptions options = new EN1990CombinationsOptions(StandardEN1990.LimitStates.UltimateSeismic, ULSStructuralGeotechicalCombinationSets.SetC, ImposedLoadCategories.CategoryC, false);
+            StandardEN1990.EN1990CombinationsOptions options = new StandardEN1990.EN1990CombinationsOptions(StandardEN1990.LimitStates.UltimateSeismic, 
+                StandardEN1990.ULSStructuralGeotechicalCombinationSets.SetC, StandardEN1990.ImposedLoadCategories.CategoryC, false);
             StandardEN1990 standardEN1990 = new StandardEN1990();
 
             // Act
@@ -1783,7 +1802,8 @@ namespace ModelObjectTest
                 liveLoadLoadCase3,
             };
 
-            EN1990CombinationsOptions options = new EN1990CombinationsOptions(StandardEN1990.LimitStates.UltimateSeismic, ULSStructuralGeotechicalCombinationSets.SetC, ImposedLoadCategories.CategoryC, false);
+            StandardEN1990.EN1990CombinationsOptions options = new StandardEN1990.EN1990CombinationsOptions(StandardEN1990.LimitStates.UltimateSeismic, 
+                StandardEN1990.ULSStructuralGeotechicalCombinationSets.SetC, StandardEN1990.ImposedLoadCategories.CategoryC, false);
             StandardEN1990 standardEN1990 = new StandardEN1990();
 
             // Act
@@ -1846,7 +1866,8 @@ namespace ModelObjectTest
                 liveLoadLoadCase2,
             };
 
-            EN1990CombinationsOptions options = new EN1990CombinationsOptions(StandardEN1990.LimitStates.UltimateSeismic, ULSStructuralGeotechicalCombinationSets.SetC, ImposedLoadCategories.CategoryC, true);
+            StandardEN1990.EN1990CombinationsOptions options = new StandardEN1990.EN1990CombinationsOptions(StandardEN1990.LimitStates.UltimateSeismic, 
+                StandardEN1990.ULSStructuralGeotechicalCombinationSets.SetC, StandardEN1990.ImposedLoadCategories.CategoryC, true);
             StandardEN1990 standardEN1990 = new StandardEN1990();
 
             // Act
@@ -1903,8 +1924,8 @@ namespace ModelObjectTest
                 climateSummerDeltaPLoadCase2
             };
 
-            StandardEN16612.EN16612CombinationsOptions options = new StandardEN16612.EN16612CombinationsOptions(StandardEN1990.LimitStates.UltimateStructural, ULSStructuralGeotechicalCombinationSets.SetB,
-                ImposedLoadCategories.CategoryA, true);
+            StandardEN16612.EN16612CombinationsOptions options = new StandardEN16612.EN16612CombinationsOptions(StandardEN1990.LimitStates.UltimateStructural, 
+                StandardEN1990.ULSStructuralGeotechicalCombinationSets.SetB, StandardEN1990.ImposedLoadCategories.CategoryA, true);
             StandardEN16612 standardEN16612 = new StandardEN16612();
 
             // Act
@@ -1975,8 +1996,8 @@ namespace ModelObjectTest
                 climateSummerDeltaPLoadCase3
             };
 
-            StandardEN16612.EN16612CombinationsOptions options = new StandardEN16612.EN16612CombinationsOptions(StandardEN1990.LimitStates.UltimateStructural, ULSStructuralGeotechicalCombinationSets.SetB,
-                ImposedLoadCategories.CategoryA, true);
+            StandardEN16612.EN16612CombinationsOptions options = new StandardEN16612.EN16612CombinationsOptions(StandardEN1990.LimitStates.UltimateStructural, 
+                StandardEN1990.ULSStructuralGeotechicalCombinationSets.SetB, StandardEN1990.ImposedLoadCategories.CategoryA, true);
             StandardEN16612 standardEN16612 = new StandardEN16612();
 
             // Act
@@ -2061,7 +2082,8 @@ namespace ModelObjectTest
                 climateWinterDeltaPLoadCase2
             };
 
-            StandardEN16612.EN16612CombinationsOptions options = new StandardEN16612.EN16612CombinationsOptions(StandardEN1990.LimitStates.UltimateStructural, ULSStructuralGeotechicalCombinationSets.SetB, ImposedLoadCategories.CategoryA, true);
+            StandardEN16612.EN16612CombinationsOptions options = new StandardEN16612.EN16612CombinationsOptions(StandardEN1990.LimitStates.UltimateStructural,
+                StandardEN1990.ULSStructuralGeotechicalCombinationSets.SetB, StandardEN1990.ImposedLoadCategories.CategoryA, true);
             StandardEN16612 standardEN16612 = new StandardEN16612();
 
             // Act
@@ -2164,8 +2186,8 @@ namespace ModelObjectTest
                 windLoadCase2
             };
 
-            StandardEN16612.EN16612CombinationsOptions options = new StandardEN16612.EN16612CombinationsOptions(StandardEN1990.LimitStates.UltimateStructural, ULSStructuralGeotechicalCombinationSets.SetB,
-                ImposedLoadCategories.CategoryA, true);
+            StandardEN16612.EN16612CombinationsOptions options = new StandardEN16612.EN16612CombinationsOptions(StandardEN1990.LimitStates.UltimateStructural,
+                StandardEN1990.ULSStructuralGeotechicalCombinationSets.SetB, StandardEN1990.ImposedLoadCategories.CategoryA, true);
             StandardEN16612 standardEN16612 = new StandardEN16612();
 
             // Act
@@ -2331,7 +2353,8 @@ namespace ModelObjectTest
                 climateWinterDeltaTLoadCase1,
             };
 
-            StandardEN16612.EN16612CombinationsOptions options = new StandardEN16612.EN16612CombinationsOptions(StandardEN1990.LimitStates.UltimateStructural, ULSStructuralGeotechicalCombinationSets.SetB, ImposedLoadCategories.CategoryC, false);
+            StandardEN16612.EN16612CombinationsOptions options = new StandardEN16612.EN16612CombinationsOptions(StandardEN1990.LimitStates.UltimateStructural,
+                StandardEN1990.ULSStructuralGeotechicalCombinationSets.SetB, StandardEN1990.ImposedLoadCategories.CategoryC, false);
             StandardEN16612 standardEN16612 = new StandardEN16612();
 
             // Act
@@ -2385,7 +2408,8 @@ namespace ModelObjectTest
 
             };
 
-            StandardEN16612.EN16612CombinationsOptions options = new StandardEN16612.EN16612CombinationsOptions(StandardEN1990.LimitStates.UltimateStructural, ULSStructuralGeotechicalCombinationSets.SetB, ImposedLoadCategories.CategoryC, false);
+            StandardEN16612.EN16612CombinationsOptions options = new StandardEN16612.EN16612CombinationsOptions(StandardEN1990.LimitStates.UltimateStructural,
+                StandardEN1990.ULSStructuralGeotechicalCombinationSets.SetB, StandardEN1990.ImposedLoadCategories.CategoryC, false);
             StandardEN16612 standardEN16612 = new StandardEN16612();
 
             // Act
@@ -2438,7 +2462,8 @@ namespace ModelObjectTest
 
             };
 
-            StandardEN16612.EN16612CombinationsOptions options = new StandardEN16612.EN16612CombinationsOptions(StandardEN1990.LimitStates.ServiceabilityCharacteristic, ULSStructuralGeotechicalCombinationSets.SetB, ImposedLoadCategories.CategoryC, false);
+            StandardEN16612.EN16612CombinationsOptions options = new StandardEN16612.EN16612CombinationsOptions(StandardEN1990.LimitStates.ServiceabilityCharacteristic,
+                StandardEN1990.ULSStructuralGeotechicalCombinationSets.SetB, StandardEN1990.ImposedLoadCategories.CategoryC, false);
             StandardEN16612 standardEN16612 = new StandardEN16612();
 
             // Act
@@ -2492,7 +2517,8 @@ namespace ModelObjectTest
 
             };
 
-            StandardEN16612.EN16612CombinationsOptions options = new StandardEN16612.EN16612CombinationsOptions(StandardEN1990.LimitStates.ServiceabilityCharacteristic, ULSStructuralGeotechicalCombinationSets.SetB, ImposedLoadCategories.CategoryC, false);
+            StandardEN16612.EN16612CombinationsOptions options = new StandardEN16612.EN16612CombinationsOptions(StandardEN1990.LimitStates.ServiceabilityCharacteristic,
+                StandardEN1990.ULSStructuralGeotechicalCombinationSets.SetB, StandardEN1990.ImposedLoadCategories.CategoryC, false);
             StandardEN16612 standardEN16612 = new StandardEN16612();
 
             // Act
@@ -2539,7 +2565,7 @@ namespace ModelObjectTest
             };
 
             StandardASCE16 standardASCE16 = new StandardASCE16();
-            ASCE16CombinationsOptions options = new ASCE16CombinationsOptions(StandardASCE16.LimitStates.LFRD);
+            StandardASCE16.ASCE16CombinationsOptions options = new StandardASCE16.ASCE16CombinationsOptions(StandardASCE16.LimitStates.LFRD);
 
             // Act
             CombinationsCollection outList = standardASCE16.CreateCombinations(loadCaseList.ToArray(), options);
@@ -2587,7 +2613,7 @@ namespace ModelObjectTest
             };
 
             StandardASCE16 standardASCE16 = new StandardASCE16();
-            ASCE16CombinationsOptions options = new ASCE16CombinationsOptions(StandardASCE16.LimitStates.LFRD);
+            StandardASCE16.ASCE16CombinationsOptions options = new StandardASCE16.ASCE16CombinationsOptions(StandardASCE16.LimitStates.LFRD);
 
             // Act
             CombinationsCollection outList = standardASCE16.CreateCombinations(loadCaseList.ToArray(), options);
@@ -2629,7 +2655,7 @@ namespace ModelObjectTest
             };
 
             StandardASCE16 standardASCE16 = new StandardASCE16();
-            ASCE16CombinationsOptions options = new ASCE16CombinationsOptions(StandardASCE16.LimitStates.LFRD);
+            StandardASCE16.ASCE16CombinationsOptions options = new StandardASCE16.ASCE16CombinationsOptions(StandardASCE16.LimitStates.LFRD);
 
             // Act
             CombinationsCollection outList = standardASCE16.CreateCombinations(loadCaseList.ToArray(), options);
@@ -2683,7 +2709,7 @@ namespace ModelObjectTest
             };
 
             StandardASCE16 standardASCE16 = new StandardASCE16();
-            ASCE16CombinationsOptions options = new ASCE16CombinationsOptions(StandardASCE16.LimitStates.ASD);
+            StandardASCE16.ASCE16CombinationsOptions options = new StandardASCE16.ASCE16CombinationsOptions(StandardASCE16.LimitStates.ASD);
 
             // Act
             CombinationsCollection outList = standardASCE16.CreateCombinations(loadCaseList.ToArray(), options);
@@ -2725,7 +2751,7 @@ namespace ModelObjectTest
             };
 
             StandardASCE16 standardASCE16 = new StandardASCE16();
-            ASCE16CombinationsOptions options = new ASCE16CombinationsOptions(StandardASCE16.LimitStates.ASD);
+            StandardASCE16.ASCE16CombinationsOptions options = new StandardASCE16.ASCE16CombinationsOptions(StandardASCE16.LimitStates.ASD);
 
             // Act
             CombinationsCollection outList = standardASCE16.CreateCombinations(loadCaseList.ToArray(), options);
@@ -2767,7 +2793,7 @@ namespace ModelObjectTest
             };
 
             StandardASCE16 standardASCE16 = new StandardASCE16();
-            ASCE16CombinationsOptions options = new ASCE16CombinationsOptions(StandardASCE16.LimitStates.ASD);
+            StandardASCE16.ASCE16CombinationsOptions options = new StandardASCE16.ASCE16CombinationsOptions(StandardASCE16.LimitStates.ASD);
 
             // Act
             CombinationsCollection outList = standardASCE16.CreateCombinations(loadCaseList.ToArray(), options);
@@ -2809,7 +2835,7 @@ namespace ModelObjectTest
             };
 
             StandardASCE16 standardASCE16 = new StandardASCE16();
-            ASCE16CombinationsOptions options = new ASCE16CombinationsOptions(StandardASCE16.LimitStates.ASD);
+            StandardASCE16.ASCE16CombinationsOptions options = new StandardASCE16.ASCE16CombinationsOptions(StandardASCE16.LimitStates.ASD);
 
             // Act
             CombinationsCollection outList = standardASCE16.CreateCombinations(loadCaseList.ToArray(), options);
@@ -2863,7 +2889,7 @@ namespace ModelObjectTest
             };
 
             StandardASCE16 standardASCE16 = new StandardASCE16();
-            ASCE16CombinationsOptions options = new ASCE16CombinationsOptions(StandardASCE16.LimitStates.LFRD);
+            StandardASCE16.ASCE16CombinationsOptions options = new StandardASCE16.ASCE16CombinationsOptions(StandardASCE16.LimitStates.LFRD);
 
             // Act
             CombinationsCollection outList = standardASCE16.CreateCombinations(loadCaseList.ToArray(), options);
@@ -2889,8 +2915,8 @@ namespace ModelObjectTest
         {
             // Arrange
 
-            ASCE16CombinationsOptions options1 = new ASCE16CombinationsOptions(StandardASCE16.LimitStates.LFRD);
-            ASCE16CombinationsOptions options2 = new ASCE16CombinationsOptions(StandardASCE16.LimitStates.ASD);
+            StandardASCE16.ASCE16CombinationsOptions options1 = new StandardASCE16.ASCE16CombinationsOptions(StandardASCE16.LimitStates.LFRD);
+            StandardASCE16.ASCE16CombinationsOptions options2 = new StandardASCE16.ASCE16CombinationsOptions(StandardASCE16.LimitStates.ASD);
 
             Combination combination1 = new Combination("cmb1", options1);
             Combination combination2 = new Combination("cmb1", options1);
@@ -2950,7 +2976,7 @@ namespace ModelObjectTest
         {
             // Arrange
 
-            ASCE16CombinationsOptions options1 = new ASCE16CombinationsOptions(StandardASCE16.LimitStates.LFRD);
+            StandardASCE16.ASCE16CombinationsOptions options1 = new StandardASCE16.ASCE16CombinationsOptions(StandardASCE16.LimitStates.LFRD);
 
             Combination combination1 = new Combination("cmb1", options1);
             Combination combination2 = new Combination("cmb1");
@@ -2985,8 +3011,8 @@ namespace ModelObjectTest
         {
             // Arrange
 
-            EN1990CombinationsOptions options1 = new EN1990CombinationsOptions(StandardEN1990.LimitStates.UltimateGeotechnical, StandardEN1990.ULSStructuralGeotechicalCombinationSets.SetB, ImposedLoadCategories.CategoryA, false);
-            EN1990CombinationsOptions options2 = new EN1990CombinationsOptions(StandardEN1990.LimitStates.UltimateStructural, StandardEN1990.ULSStructuralGeotechicalCombinationSets.SetB, ImposedLoadCategories.CategoryA, false);
+            StandardEN1990.EN1990CombinationsOptions options1 = new StandardEN1990.EN1990CombinationsOptions(StandardEN1990.LimitStates.UltimateGeotechnical, StandardEN1990.ULSStructuralGeotechicalCombinationSets.SetB, StandardEN1990.ImposedLoadCategories.CategoryA, false);
+            StandardEN1990.EN1990CombinationsOptions options2 = new StandardEN1990.EN1990CombinationsOptions(StandardEN1990.LimitStates.UltimateStructural, StandardEN1990.ULSStructuralGeotechicalCombinationSets.SetB, StandardEN1990.ImposedLoadCategories.CategoryA, false);
 
             Combination combination1 = new Combination("cmb1", options1);
             Combination combination2 = new Combination("cmb1", options1);
@@ -3046,7 +3072,7 @@ namespace ModelObjectTest
         {
             // Arrange
 
-            EN1990CombinationsOptions options1 = new EN1990CombinationsOptions(StandardEN1990.LimitStates.UltimateGeotechnical, StandardEN1990.ULSStructuralGeotechicalCombinationSets.SetB, ImposedLoadCategories.CategoryA, false);
+            StandardEN1990.EN1990CombinationsOptions options1 = new StandardEN1990.EN1990CombinationsOptions(StandardEN1990.LimitStates.UltimateGeotechnical, StandardEN1990.ULSStructuralGeotechicalCombinationSets.SetB, StandardEN1990.ImposedLoadCategories.CategoryA, false);
             
             Combination combination1 = new Combination("cmb1", options1);
             Combination combination2 = new Combination("cmb1", options1);
@@ -3148,7 +3174,7 @@ namespace ModelObjectTest
         {
             // Arrange
 
-            EN1990CombinationsOptions options1 = new EN1990CombinationsOptions(StandardEN1990.LimitStates.UltimateGeotechnical, StandardEN1990.ULSStructuralGeotechicalCombinationSets.SetB, ImposedLoadCategories.CategoryA, false);
+            StandardEN1990.EN1990CombinationsOptions options1 = new StandardEN1990.EN1990CombinationsOptions(StandardEN1990.LimitStates.UltimateGeotechnical, StandardEN1990.ULSStructuralGeotechicalCombinationSets.SetB, StandardEN1990.ImposedLoadCategories.CategoryA, false);
 
             Combination combination1 = new Combination("cmb1", options1);
             Combination combination2 = new Combination("cmb1", options1);

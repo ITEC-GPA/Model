@@ -4,28 +4,46 @@ using GPC.Geometry;
 using GPC.Model.FEM.Attributes;
 using GPC.Utilities.Extensions;
 using GPC.Model.Results;
+using System.ComponentModel;
+using GPC.Model.FEM.Collections;
+using System.Runtime.Serialization;
 
 namespace GPC.Model.FEM
 {
     /// <summary>
     /// Rapresent a Node of a <see cref="FiniteElements.FiniteElement"/>
     /// </summary>
-    public class Node : FEMObject
+    [Serializable]
+    public class Node : FEMObject, INotifyPropertyChanged
     {
         #region Variables
 
         private Point3d _position;
-
-        private List<INodeLoadCaseAttribute> _attributesLoadCase;
-        private List<INodeFreedomCaseAttribute> _attributesFreedomCase;
-
+        private readonly AttributesCollection<LoadCaseAttribute> _attributesLoadCase;
+        private readonly AttributesCollection<FreedomCaseAttribute> _attributesFreedomCase;
         private readonly ModelObjectSet<NodeResult> _results;
+
+        public event PropertyChangedEventHandler PropertyChanged;
 
         #endregion
 
         #region Properties
 
-        public Point3d Position => _position;
+        /// <summary>
+        /// A copy of the node position. The changes on the returned point will not affect the node because this is a copy
+        /// </summary>
+        public Point3d Position
+        {
+            get => _position.Clone() as Point3d;
+            set
+            {
+                if (!_position.Equals(value))
+                {
+                    _position = value;
+                    OnPropertyChanged(nameof(Position));
+                }
+            }
+        }
 
         /// <summary>
         /// Contains the degree of freedom active for the node
@@ -48,36 +66,36 @@ namespace GPC.Model.FEM
             }
         }
 
-        public List<INodeFreedomCaseAttribute> AttributesFreedomCase => _attributesFreedomCase;
-        public List<INodeLoadCaseAttribute> AttributesLoadCase => _attributesLoadCase;
+        public AttributesCollection<FreedomCaseAttribute> AttributesFreedomCase => _attributesFreedomCase;
+        public AttributesCollection<LoadCaseAttribute> AttributesLoadCase => _attributesLoadCase;
         public IEnumerable<NodeResult> Results => _results;
 
         #endregion
 
-        public Node(Point3d point, string name = "") : base(name)
+        public Node(Point3d point, string name = "") 
+            : base(name)
         {
             _position = point;
             
             DOF = new SortedSet<Solver.DOF>();
             
-            _attributesLoadCase = new List<INodeLoadCaseAttribute>();
-            _attributesFreedomCase = new List<INodeFreedomCaseAttribute>();
+            _attributesLoadCase = new AttributesCollection<LoadCaseAttribute>();
+            _attributesFreedomCase = new AttributesCollection<FreedomCaseAttribute>();
 
             _results = new ModelObjectSet<NodeResult>(EqualityComparer<ElementResult>.Default); // comparer di ElementResult, usa solo il case come comparatore
         }
 
-
-
-        public Node(double X, double Y, double Z, string name = "") : this(new Point3d(X, Y, Z), name)
+        public Node(double X, double Y, double Z, string name = "") 
+            : this(new Point3d(X, Y, Z), name)
         {
-
         }
 
         /// <summary>
         /// Internal constructor, that allows to add a group directly during construction to speedup femmodel build
         /// </summary>
         // Do not set this constructor to public
-        internal Node(Point3d point, Group group) : this(point, "")
+        internal Node(Point3d point, Group group) 
+            : this(point, "")
         {
             _groups.Add(group);
         }
@@ -85,7 +103,8 @@ namespace GPC.Model.FEM
         /// <summary>
         /// only for test purpose
         /// </summary>
-        internal Node(Point3d point, int id) : this(point)
+        internal Node(Point3d point, int id) 
+            : this(point)
         {
             SetId(id);
         }
@@ -93,24 +112,47 @@ namespace GPC.Model.FEM
         /// <summary>
         /// only for test purpose
         /// </summary>
-        internal Node(double X, double Y, double Z, string name, int id) : this(new Point3d(X, Y, Z), name)
+        internal Node(double X, double Y, double Z, string name, int id) 
+            : this(new Point3d(X, Y, Z), name)
         {
             SetId(id);
         }
 
+        public Node(SerializationInfo info, StreamingContext context)
+        {
+            _position = (Point3d)info.GetValue("Position", typeof(Point3d));
+            _results = (ModelObjectSet<NodeResult>)info.GetValue("Result", typeof(ModelObjectSet<NodeResult>));
+        }
+
+        protected void OnPropertyChanged(string propertyName)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+
         public override string ToString()
         {
-            return "ID = " + Id + " Name = " + Name + "  X=" + Position.X + " Y=" + Position.Y + " Z=" + Position.Z;
+            return $"ID={Id}; Name={Name}; X={Position.X}; Y={Position.Y}; Z={Position.Z}";
         }
 
-        public void AddAttribute(INodeFreedomCaseAttribute attribute)
+
+        public virtual bool AddAttribute(INodeFreedomCaseAttribute attribute, out bool replace)
         {
-            _attributesFreedomCase.Add(attribute);
+            return _attributesFreedomCase.Add((FreedomCaseAttribute)attribute, out replace);
         }
 
-        public void AddAttribute(INodeLoadCaseAttribute attribute)
+        public virtual bool AddAttribute(INodeFreedomCaseAttribute attribute)
         {
-            _attributesLoadCase.Add(attribute);
+            return _attributesFreedomCase.Add((FreedomCaseAttribute)attribute);
+        }
+
+        public virtual bool AddAttribute(INodeLoadCaseAttribute attribute, out bool replace)
+        {
+            return _attributesLoadCase.Add((LoadCaseAttribute)attribute, out replace);
+        }
+
+        public virtual bool AddAttribute(INodeLoadCaseAttribute attribute)
+        {
+            return _attributesLoadCase.Add((LoadCaseAttribute)attribute);
         }
 
         public void AddResult(NodeResult result)
@@ -139,6 +181,14 @@ namespace GPC.Model.FEM
             return duplicate;
         }
 
+        public override void GetObjectData(SerializationInfo info, StreamingContext context)
+        {
+            base.GetObjectData(info, context);
+
+            info.AddValue("Position", _position, typeof(Point3d));
+            info.AddValue("Result", _results, typeof(ModelObjectSet<NodeResult>));
+        }
+
         public override bool Equals(object obj)
         {
             if (obj is null)
@@ -163,16 +213,15 @@ namespace GPC.Model.FEM
 
                 foreach (var element in _attributesLoadCase)
                 {
-                    hashCode += -17 * EqualityComparer<INodeLoadCaseAttribute>.Default.GetHashCode(element);
+                    hashCode += -17 * EqualityComparer<LoadCaseAttribute>.Default.GetHashCode(element);
                 }
                 foreach (var element in _attributesFreedomCase)
                 {
-                    hashCode += -17 * EqualityComparer<INodeFreedomCaseAttribute>.Default.GetHashCode(element);
+                    hashCode += -17 * EqualityComparer<FreedomCaseAttribute>.Default.GetHashCode(element);
                 }
 
                 return hashCode;
-            }
-
+            }            
         }
 
     }

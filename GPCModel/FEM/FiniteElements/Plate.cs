@@ -7,6 +7,7 @@ using GPC.Model.FEM.Properties;
 using GPC.Model.Results;
 using mnl = MathNet.Numerics.LinearAlgebra;
 using GPC.Geometry;
+using System.Runtime.Serialization;
 
 namespace GPC.Model.FEM.FiniteElements
 {
@@ -16,7 +17,8 @@ namespace GPC.Model.FEM.FiniteElements
     /// </summary>
     [DebuggerDisplay("{" + nameof(GetDebuggerDisplay) + "(),nq}")]
     [System.ComponentModel.Description("Verrà messa abstract una volta che il fem è stabile")]
-    public class Plate : FiniteElement
+    [Serializable]
+    public class Plate : FiniteElement, ISerializable
     {
         // TODO: rendere abstract
 
@@ -43,6 +45,11 @@ namespace GPC.Model.FEM.FiniteElements
         public Plate(Node[] nodes) : base(nodes)
         {
 
+        }
+
+        public Plate(SerializationInfo info, StreamingContext context)
+            : base(info, context)
+        {
         }
 
         public override FiniteElement Duplicate(ElementProperty property, List<LoadCaseAttribute> lcAttributes, List<FreedomCaseAttribute> fdAttributes)
@@ -81,16 +88,24 @@ namespace GPC.Model.FEM.FiniteElements
             throw new NotImplementedException();
         }
 
-
-        public virtual void AddLoadCaseAttribute(IPlateLoadCaseAttribute attribute)
+        public virtual bool AddLoadCaseAttribute(IPlateLoadCaseAttribute attribute, out bool replace)
         {
-            _attributesLoadCase.Add((LoadCaseAttribute)attribute);
+            return _attributesLoadCase.Add((LoadCaseAttribute)attribute, out replace);
         }
 
-
-        public virtual void AddFreedomCaseAttribute(IPlateFreedomCaseAttribute attribute)
+        public virtual bool AddLoadCaseAttribute(IPlateLoadCaseAttribute attribute)
         {
-            _attributesFreedomCase.Add((FreedomCaseAttribute)attribute);
+            return _attributesLoadCase.Add((LoadCaseAttribute)attribute);
+        }
+
+        public virtual bool AddFreedomCaseAttribute(IPlateFreedomCaseAttribute attribute, out bool replaced)
+        {
+            return _attributesFreedomCase.Add((FreedomCaseAttribute)attribute, out replaced);
+        }
+
+        public virtual bool AddFreedomCaseAttribute(IPlateFreedomCaseAttribute attribute)
+        {
+            return _attributesFreedomCase.Add((FreedomCaseAttribute)attribute);
         }
 
         public void AddResult(PlateResult result)
@@ -120,29 +135,13 @@ namespace GPC.Model.FEM.FiniteElements
             throw new NotImplementedException();
         }
 
-        /// <summary>
-        /// usually = B : derivative of ShapeFunctions, need for epsilon = [B] * q with q = node displacements vector
-        /// </summary>
-        /// <param name="csi">natural coordinate -1 to 1</param>
-        /// <param name="eta">natural coordinate -1 to 1</param>
-        /// <returns></returns>
-        public virtual mnl.Matrix<double> GetB(double csi = 0, double eta = 0)
-        {
-            throw new NotImplementedException();
-        }
-
-        //TODO: Da ottimizzare/scrivere
-        public new void GetNodesResults(double[] globalDisplacementsNodes, out mnl.Matrix<double>[] gloabalPseudoDeformation, out mnl.Matrix<double>[] localPseudoDeformation, out mnl.Matrix<double>[] globalForces, out mnl.Matrix<double>[] localForces, out mnl.Matrix<double>[] globalStress, out mnl.Matrix<double>[] localStress, out mnl.Matrix<double>[] globalEpsilon, out mnl.Matrix<double>[] localEpsilon)
-        {
-            throw new NotImplementedException();
-        }
-
         private string GetDebuggerDisplay()
         {
             var prop = Property != null ? Property.Name : String.Empty;
             return $"Plate, Id: {Id}, PropertyName: {prop}";
         }
 
+        //TODO: ottimizzare
         public double GetArea()
         {
             if (IsQuad == true)
@@ -163,7 +162,11 @@ namespace GPC.Model.FEM.FiniteElements
                 throw new NotImplementedException("This plate have nr of nodes different than 3 or 4");
             }
         }
-        
+
+        public override void GetObjectData(SerializationInfo info, StreamingContext context)
+        {
+            base.GetObjectData(info, context);
+        }
 
         // GetNodalDisplacement()
 

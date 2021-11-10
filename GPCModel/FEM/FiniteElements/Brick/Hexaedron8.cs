@@ -58,7 +58,7 @@ namespace GPC.Model.FEM.FiniteElements
 
             var jacob = FEMUtilities.J3D(TriLinearShapeFunctionHexaedron8.DNdCsi, TriLinearShapeFunctionHexaedron8.DNdEta, TriLinearShapeFunctionHexaedron8.DNdZeta, _nodesGlobal);
 
-            _kElementLocalCoord = GaussIntegration.IntegrationHexaedron(kFunc, jacob, 8);
+            _kElementLocalCoord = OldGaussIntegration.IntegrationHexaedron(kFunc, jacob, 8);
         }
 
         /// <summary>

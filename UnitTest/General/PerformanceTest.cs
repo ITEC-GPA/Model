@@ -6,13 +6,16 @@ using GPC.Model.FEM;
 using GPC.Utilities.Time;
 using System.Collections.Generic;
 using GPC.TestUtilities;
+using System.Diagnostics;
+using System.Linq;
+using GPC.Model.FEM.FiniteElements;
+using GPC.Geometry;
 
 namespace GeneralTest
 {
     [TestClass]
     public class PerformanceTest : UnitTestBase
     {
-        
         private int[] indexArray;
 
         private void FunctionToTest0()
@@ -21,7 +24,7 @@ namespace GeneralTest
             List<Node> nodesCollection = new List<Node>();
             for (int i = 0; i < amountOfNodes; i++)
             {
-                nodesCollection.Add(new Node(10.0, 20, 30, string.Empty, indexArray[i])) ;
+                nodesCollection.Add(new Node(10.0, 20, 30, string.Empty, indexArray[i]));
             }
         }
 
@@ -32,7 +35,7 @@ namespace GeneralTest
 
             for (int i = 0; i < amountOfNodes; i++)
             {
-                nodesCollection.Add(new Node(10.0, 20, 30, string.Empty, indexArray[i]));
+                nodesCollection.AddUnique(new Node(10.0 + 10 * i, 20 + 15 * i, 30 + 5 * i, string.Empty, indexArray[i]));
             }
         }
 
@@ -51,7 +54,7 @@ namespace GeneralTest
         public void TestMethod1()
         {
             int amountOfNodes = 5000;
-            int[] _indexArray = new int[amountOfNodes*2];
+            int[] _indexArray = new int[amountOfNodes * 2];
 
             Random r = new Random();
 
@@ -90,7 +93,7 @@ namespace GeneralTest
             set.Add(4);
             set.Add(5);
 
-            Action action1 = new Action(() => 
+            Action action1 = new Action(() =>
             {
                 (collection as HashSet<int>).TryGetValue(2, out int found);
             });
@@ -112,6 +115,369 @@ namespace GeneralTest
 
             Assert.IsTrue(cast1Time > setTime);
             Assert.IsTrue(cast2Time < cast1Time);
+        }
+
+        private void Shuffle<T>(ref T[] list)
+        {
+            Random rnd = new Random();
+            int n = list.Length;
+            while (n > 1)
+            {
+                n--;
+                int k = rnd.Next(n + 1);
+                T value = list[k];
+                list[k] = list[n];
+                list[n] = value;
+            }
+        }
+
+        [TestMethod]
+        public void AddUnique()
+        {
+            int amountOfNodes = 10000;
+            FemObjectCollection<Node> nodesCollection = new FemObjectCollection<Node>();
+
+            Stopwatch stopWatch = new Stopwatch();
+            stopWatch.Start();
+            for (int i = 0; i < amountOfNodes; i++)
+            {
+                nodesCollection.Add(new Node(10.0 + 10 * i, 20 + 15 * i, 30 + 5 * i, string.Empty));
+            }
+            stopWatch.Stop();
+            Debug.WriteLine(stopWatch.ElapsedMilliseconds, "R1");
+            // Aggiunta elementi alla collection vuota senza test "contains": aumento drastico da 6.5s a 30-40ms
+
+            // Lista casuale
+            int[] randomIdx = Enumerable.Range(0, amountOfNodes).ToArray();
+            Shuffle(ref randomIdx);
+
+            // Prova a reinserire tutti gli stessi elementi ma in ordine casuale
+            int id = 0;
+            stopWatch.Restart();
+            for (int i = 0; i < amountOfNodes; i++)
+            {
+                int n = randomIdx[i];
+                id = nodesCollection.AddUnique(new Node(10.0 + 10 * n, 20 + 15 * n, 30 + 5 * n, string.Empty));
+            }
+            stopWatch.Stop();
+            Debug.WriteLine(stopWatch.ElapsedMilliseconds, "Elapsed");
+            // Con test "contains" che usa Parallel: prestazioni migliorate 2.5s-3.0s (prima erano 20s)
+
+            // Il numero di elementi non dovrebbe variare
+            Assert.IsTrue(nodesCollection.Count == amountOfNodes);
+        }
+
+        [TestMethod]
+        public void NodeCollection1()
+        {
+            int amountOfNodes = 10000;
+            // Nuova lista auto ordinata
+            NodeCollection nodesCollection = new NodeCollection();
+
+            Stopwatch stopWatch = new Stopwatch();
+            stopWatch.Start();
+            for (int i = 0; i < amountOfNodes; i++)
+            {
+                nodesCollection.Add(new Node(10.0 + 10 * i, 20 + 15 * i, 30 + 5 * i, string.Empty));
+            }
+            stopWatch.Stop();
+            Debug.WriteLine(stopWatch.ElapsedMilliseconds, "R1");
+            // Aggiunta elementi alla collection vuota con nuovo algoritmo di test "contains": 30-40ms
+
+            // Lista casuale
+            int[] randomIdx = Enumerable.Range(0, amountOfNodes).ToArray();
+            Shuffle(ref randomIdx);
+
+            // Prova a reinserire tutti gli stessi elementi ma in ordine casuale
+            int id = 0;
+            stopWatch.Restart();
+            for (int i = 0; i < amountOfNodes; i++)
+            {
+                int n = randomIdx[i];
+                id = nodesCollection.Add(new Node(10.0 + 10 * n, 20 + 15 * n, 30 + 5 * n, string.Empty));
+            }
+            stopWatch.Stop();
+            Debug.WriteLine(stopWatch.ElapsedMilliseconds, "Elapsed");
+            // Risultato: ~ 20ms
+
+            // Il numero di elementi non dovrebbe variare
+            Assert.IsTrue(nodesCollection.Count == amountOfNodes);
+        }
+
+        [TestMethod]
+        public void NodeCollection2()
+        {
+            // Test più intensivo con coordinate casuali e non più progressive
+            int amountOfNodes = 10000;
+            NodeCollection nodesCollection = new NodeCollection();
+            int[] randomIdx = new int[amountOfNodes];
+
+            // Genera dei punti in coordinate casuali
+            List<(double x, double y, double z)> points = new List<(double x, double y, double z)>();
+            Random rnd = new Random();
+            for (int i = 0; i < amountOfNodes; i++)
+            {
+                randomIdx[i] = i;
+                int k = rnd.Next(1000, 5000);
+                double x = rnd.NextDouble() * k;
+                double y = rnd.NextDouble() * k;
+                double z = rnd.NextDouble() * k;
+                points.Add((x, y, z));
+            }
+            // Randomizza la lista degli indici
+            Shuffle(ref randomIdx);
+
+            // Genera la prima lista di nodi
+            Stopwatch stopWatch = new Stopwatch();
+            stopWatch.Start();
+            for (int i = 0; i < amountOfNodes; i++)
+            {
+                nodesCollection.Add(new Node(points[i].x, points[i].y, points[i].z, string.Empty));
+            }
+            stopWatch.Stop();
+            Debug.WriteLine(stopWatch.ElapsedMilliseconds, "Prima copia");
+            // Aggiunta elementi alla collection vuota con nuovo algoritmo di test "contains": ~50ms
+
+            // Prova a reinserire gli stessi nodi ma in ordine casuale
+            int id = 0;
+            stopWatch.Restart();
+            for (int i = amountOfNodes - 1; i >= 0; i--)
+            {
+                int n = randomIdx[i];
+                id = nodesCollection.Add(new Node(points[n].x, points[n].y, points[n].z, string.Empty));
+            }
+            stopWatch.Stop();
+            Debug.WriteLine(stopWatch.ElapsedMilliseconds, "Reinserimento dei nodi");
+            // Il risultato resta ~ 20ms
+
+            // Il numero di elementi non dovrebbe variare
+            Assert.IsTrue(nodesCollection.Count == amountOfNodes);
+
+            // Genera un'altra lista di punti casuali
+            points.Clear();
+            for (int i = 0; i < amountOfNodes; i++)
+            {
+                int k = rnd.Next(1000, 5000);
+                double x = rnd.NextDouble() * k;
+                double y = rnd.NextDouble() * k;
+                double z = rnd.NextDouble() * k;
+                points.Add((x, y, z));
+            }
+
+            // Prova ad aggiungrli alla lista
+            stopWatch.Restart();
+            for (int i = amountOfNodes - 1; i >= 0; i--)
+            {
+                id = nodesCollection.Add(new Node(points[i].x, points[i].y, points[i].z, string.Empty));
+            }
+            stopWatch.Stop();
+            Debug.WriteLine(stopWatch.ElapsedMilliseconds, "Aggiunta nuovi nomi");
+            // Risultato ~60ms
+
+            // Il numero di elementi iniziale dovrebbe radoppiare
+            Assert.IsTrue(nodesCollection.Count == amountOfNodes * 2);
+        }
+
+        [TestMethod]
+        public void NodeCollectionEditing()
+        {
+            NodeCollection nodesCollection = new NodeCollection();
+            nodesCollection.Add(new Node(10, 20, 30, string.Empty));
+            nodesCollection.Add(new Node(15, 25, 35, string.Empty));
+            /*
+            Node changedNode = nodesCollection[1].Duplicate();
+            changedNode.Position.Move(1, 1, 1);
+            int index = nodesCollection.Update(changedNode);
+
+            Debug.WriteLine(index, "First move index");
+
+            changedNode = nodesCollection[1].Duplicate();
+            changedNode.Position.Move(9, 9, 9);
+            index = nodesCollection.Update(changedNode);
+
+            Debug.WriteLine(index, "Second move index");
+            */
+            // Con questa modifica non deve variare la posizione nella collection
+            nodesCollection[1].Position += new GPC.Geometry.Vector3d(1, 1, 1);
+            int pos = nodesCollection.IndexOf(nodesCollection[1]);
+            Assert.IsTrue(pos == 0);
+
+            // Con questa modifica il nodo deve essere spostato alla fine della collection
+            nodesCollection[1].Position += new GPC.Geometry.Vector3d(9, 9, 9);
+            pos = nodesCollection.IndexOf(nodesCollection[1]);
+            Assert.IsTrue(pos == 1);
+        }
+
+        [TestMethod]
+        public void NodeCollectionEditing1()
+        {
+            int amountOfNodes = 10000;
+            NodeCollection nodesCollection = new NodeCollection();
+            int[] ids = new int[amountOfNodes];
+
+            // Riempie con punti random
+            Random rnd = new Random();
+            for (int i = 0; i < amountOfNodes; i++)
+            {
+                int k = rnd.Next(1000, 5000);
+                double x = rnd.NextDouble() * k;
+                double y = rnd.NextDouble() * k;
+                double z = rnd.NextDouble() * k;
+                ids[i] = nodesCollection.Add(new Node(x, y, z, string.Empty));
+            }
+
+            Stopwatch stopWatch = new Stopwatch();
+            stopWatch.Start();
+            for (int i = 0; i < amountOfNodes; i++)
+            {
+                //Node node = nodesCollection[ids[i]].Duplicate();
+                int k = rnd.Next(50, 100);
+                double dx = rnd.NextDouble() * k;
+                double dy = rnd.NextDouble() * k;
+                double dz = rnd.NextDouble() * k;
+                //node.Position.Move(dx, dy, dz);
+                //nodesCollection.Update(node);
+
+                nodesCollection[ids[i]].Position += new GPC.Geometry.Vector3d(dx, dy, dz);
+            }
+            stopWatch.Stop();
+            Debug.WriteLine(stopWatch.ElapsedMilliseconds, "Elapsed time");
+            // Con versione senza notifica: Tempo per modificare e riordinare 10000 nodi 2.0-2.5s
+            // Con versione con notifica: Tempo 11-12s (lento)
+
+            nodesCollection.AutoSort = false;
+            stopWatch.Restart();
+            for (int i = 0; i < amountOfNodes; i++)
+            {
+                int k = rnd.Next(50, 100);
+                double dx = rnd.NextDouble() * k;
+                double dy = rnd.NextDouble() * k;
+                double dz = rnd.NextDouble() * k;
+                nodesCollection[ids[i]].Position += new GPC.Geometry.Vector3d(dx, dy, dz);
+            }
+            nodesCollection.AutoSort = true;
+            stopWatch.Stop();
+            Debug.WriteLine(stopWatch.ElapsedMilliseconds, "Elapsed time");
+            // Con Autosort disabilitato e riordinamento finale riordinamento 10000 punti ~1s
+        }
+
+        [TestMethod]
+        public void FemObjectCollectionTest1()
+        {
+            FemObjectCollection<FiniteElement> cfe = new FemObjectCollection<FiniteElement>();
+
+            Random rnd = new Random();
+            Stopwatch stopWatch = new Stopwatch();
+            stopWatch.Start();
+
+            int amountOfPlates = 200;
+            for (int i = 0; i < amountOfPlates; i++)
+            {
+                Node[] nodes = new Node[4];
+
+                // Riempie con punti random
+                for (int j = 0; j < 4; j++)
+                {
+                    int k = rnd.Next(1000, 5000);
+                    double x = rnd.NextDouble() * k;
+                    double y = rnd.NextDouble() * k;
+                    double z = rnd.NextDouble() * k;
+                    nodes[j] = new Node(x, y, z);
+                    nodes[j].SetId(j + 1 + 4 * i);
+                }
+
+                Plate plate = new Plate(nodes);
+                plate.SetId(i + 1);
+                cfe.AddUnique(plate);
+            }
+
+            stopWatch.Stop();
+            Debug.WriteLine(stopWatch.ElapsedMilliseconds, "Elapsed time");
+            // Con compare della collection 350-360ms
+            // Con comparer con for parallelo 90-100ms
+            
+            Assert.IsTrue(cfe.Count == amountOfPlates, cfe.Count.ToString());
+        }
+
+        [TestMethod]
+        public void FemObjectCollectionTest2()
+        {
+            FiniteElementCollection cfe = new FiniteElementCollection();
+
+            Random rnd = new Random();
+            Stopwatch stopWatch = new Stopwatch();
+            stopWatch.Start();
+
+            int amountOfPlates = 200;
+            for (int i = 0; i < amountOfPlates; i++)
+            {
+                Node[] nodes = new Node[4];
+
+                // Riempie con punti random
+                for (int j = 0; j < 4; j++)
+                {
+                    int k = rnd.Next(1000, 5000);
+                    double x = rnd.NextDouble() * k;
+                    double y = rnd.NextDouble() * k;
+                    double z = rnd.NextDouble() * k;
+                    nodes[j] = new Node(x, y, z);
+                    nodes[j].SetId(j + 1 + 4 * i);
+                }
+
+                Plate plate = new Plate(nodes);
+                plate.SetId(i + 1);
+                cfe.Add(plate);
+            }
+
+            stopWatch.Stop();
+            Debug.WriteLine(stopWatch.ElapsedMilliseconds, "Elapsed time");
+
+            Assert.IsTrue(cfe.Count == amountOfPlates, cfe.Count.ToString());
+        }
+
+
+        [TestMethod]
+        public void FemObjectCollectionTest3()
+        {
+            FiniteElementCollection cfe = new FiniteElementCollection();
+
+            Random rnd = new Random();
+            Stopwatch stopWatch = new Stopwatch();
+            stopWatch.Start();
+
+            int amountOfPlates = 200;
+            for (int i = 0; i < amountOfPlates; i++)
+            {
+                Node[] nodes = new Node[4];
+
+                // Riempie con punti random
+                for (int j = 0; j < 4; j++)
+                {
+                    int k = rnd.Next(1000, 5000);
+                    double x = rnd.NextDouble() * k;
+                    double y = rnd.NextDouble() * k;
+                    double z = rnd.NextDouble() * k;
+                    nodes[j] = new Node(x, y, z);
+                    nodes[j].SetId(j + 1 + 4 * i);
+                }
+
+                Plate plate = new Plate(nodes);
+                plate.SetId(i + 1);
+                cfe.Add(plate);
+            }
+
+            stopWatch.Stop();
+            Debug.WriteLine(stopWatch.Elapsed, "Elapsed time");
+
+            Assert.IsTrue(cfe.Count == amountOfPlates, cfe.Count.ToString());
+
+            stopWatch.Restart();
+
+            var plate1 = (Plate)cfe.GetByIndex(0);
+            plate1.SetProperty(new GPC.Model.FEM.Properties.PlateProperty(new GPC.Model.FEM.Materials.IsotropicFemMaterial(1, 0.1, 0, 1), 1, 1, ""));
+
+            stopWatch.Stop();
+            Debug.WriteLine(stopWatch.Elapsed, "Elapsed time");
         }
     }
 }

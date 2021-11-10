@@ -67,10 +67,13 @@ namespace GPC.Model.LoadCases
 
         public override int GetHashCode()
         {
-            int hashCode = 23;
-            hashCode = hashCode * -17 + base.GetHashCode();
-            hashCode = hashCode * -17 + _loadCaseEn16612Type.GetHashCode();
-            return hashCode;
+            unchecked
+            {
+                int hashCode = 23;
+                hashCode = hashCode * -17 + base.GetHashCode();
+                hashCode = hashCode * -17 + _loadCaseEn16612Type.GetHashCode();
+                return hashCode; 
+            }
         }
 
 

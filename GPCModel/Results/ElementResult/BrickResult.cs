@@ -10,14 +10,10 @@ namespace GPC.Model.Results
     public class BrickResult : FiniteElementResult, ISerializable, IEquatable<BrickResult>
     {
 
-        public BrickResult(ILoadCase Case, CoordinateSystem coordinateSystem, IEnumerable<IBrickResult> result, IEnumerable<ResultLocationId> points)
-            : this(Case, coordinateSystem, result, points, ModelObjectId.IDUNASSIGNED)
-        {
 
-        }
-
-        public BrickResult(ILoadCase Case, CoordinateSystem coordinateSystem, IEnumerable<IBrickResult> result, IEnumerable<ResultLocationId> points, int stageId)
-            : base(Case, coordinateSystem, (IEnumerable<ResultType>)result, points, stageId)
+        public BrickResult(ILoadCase Case, CoordinateSystem coordinateSystem, IEnumerable<ResultLocation> resultsLocation, 
+                                int stageId = ModelObjectId.IDUNASSIGNED)
+            : base(Case, coordinateSystem, resultsLocation, stageId)
         {
 
         }
@@ -34,7 +30,7 @@ namespace GPC.Model.Results
 
         public bool Equals(BrickResult other)
         {
-            if (other is null)
+            if (other == null)
                 return false;
 
             if (ReferenceEquals(this, other))

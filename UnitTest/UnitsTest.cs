@@ -34,6 +34,19 @@ namespace UnitSystemTest
 
 
         [TestMethod]
+        public void ConvertMoment()
+        {
+            double moment = 10; // kNm
+
+            double N = moment.ConverMomentToDefault(Units.Knm);
+            Assert.IsTrue(N == 10 * 1000 * 1000);
+
+            double kN = N.ConverMomentFromDefault(Units.Knm);
+            Assert.IsTrue(kN == moment);
+        }
+
+
+        [TestMethod]
         public void ConvertDensity()
         {
             double density = 200.0; // kg/m3

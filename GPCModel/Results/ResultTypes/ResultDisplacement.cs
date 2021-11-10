@@ -1,8 +1,8 @@
-﻿using GPC.Geometry;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
+using GPC.Geometry;
 
 namespace GPC.Model.Results
 {
@@ -77,7 +77,12 @@ namespace GPC.Model.Results
         public ResultDisplacement(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
-            throw new NotImplementedException();
+            _d1 = info.GetDouble("D1");
+            _d2 = info.GetDouble("D2");
+            _d3 = info.GetDouble("D3");
+            _r1 = info.GetDouble("R1");
+            _r2 = info.GetDouble("R2");
+            _r3 = info.GetDouble("R3");
         }
 
 
@@ -185,7 +190,13 @@ namespace GPC.Model.Results
 
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
-            throw new NotImplementedException();
+            base.GetObjectData(info, context);
+            info.AddValue("D1", _d1, typeof(double));
+            info.AddValue("D2", _d2, typeof(double));
+            info.AddValue("D3", _d3, typeof(double));
+            info.AddValue("R1", _r1, typeof(double));
+            info.AddValue("R2", _r2, typeof(double));
+            info.AddValue("R3", _r3, typeof(double));
         }
 
 
@@ -197,7 +208,7 @@ namespace GPC.Model.Results
             if (ReferenceEquals(this, obj))
                 return true;
 
-            return Equals(obj as ResultDisplacement);
+            return Equals((ResultDisplacement)obj);
         }
 
 
@@ -231,7 +242,7 @@ namespace GPC.Model.Results
 
             if (values.Select(i => i._coordinateSystem).Distinct().Count() > 0)
             {
-                return new ResultDisplacement(values[0]._coordinateSystem, 
+                return new ResultDisplacement(values[0]._coordinateSystem,
                                         Utilities.Maths.Averages.ArithmeticMean(values.Select(i => i.D1).ToArray()),
                                         Utilities.Maths.Averages.ArithmeticMean(values.Select(i => i.D2).ToArray()),
                                         Utilities.Maths.Averages.ArithmeticMean(values.Select(i => i.D3).ToArray()),

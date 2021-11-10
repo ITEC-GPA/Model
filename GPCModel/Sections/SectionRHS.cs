@@ -8,226 +8,206 @@ using System.Threading.Tasks;
 
 namespace GPC.Model.Sections
 {
-    public class SectionRHS : Section
+    public class SectionRHS : ThinWallSection
     {
         #region Varibles
-        double _h;
-        double _b;
-        double _tf_top;
-        double _tf_bottom;
-        double _tw1;
-        double _tw2;
 
-        double _hw;
+        private readonly double _h;
+        private readonly double _b;
+        private readonly double _tfTop;
+        private readonly double _tfBottom;
+        private readonly double _twL;
+        private readonly double _twR;
 
-        bool _isHotFinished;
-
-        protected Plate[] _plates;
         #endregion
+
 
         #region Properties
-        public double B => _b;
-        public double Bint => _b - _tw1 - _tw2;
-        public double H => _h;
-        public double Hw => _hw;
-        public double ThicknessFlange {
-            get {
-                if(_tf_bottom == _tf_top) {
-                    return _tf_top;
-                } else
-                {
-                    throw new Exception("not yet supported");
-                }
-            }
-        }
-        public double TTop => _tf_top;
-        public double TBottom => _tf_bottom;
-        public double ThicknessWeb
-        {
-            get
-            {
-                if (_tw1 == _tw2)
-                {
-                    return _tw1;
-                }
-                else
-                {
-                    throw new Exception("not yet supported");
-                }
-            }
-        }
-        public double TWebLeft => _tw1;
-        public double TWebRight => _tw2;
 
-        public bool IsColdFormed {
-            get => !_isHotFinished;
-            set { _isHotFinished = !value; 
-            }
-        }
-        public bool IsHotFinished {
-            get => _isHotFinished;
-            set { _isHotFinished = value;
-            }
-        }
+        public double Base => _b;
 
-        public Plate[] Plates { get => _plates; }
+        public double BaseInternal => _b - _twL - _twR;
+
+        public double Height => _h;
+
+        public double Heightinternal => _h - _tfBottom - _tfTop;
+
+        public double ThicknessTop => _tfTop;
+
+        public double ThicknessBottom => _tfBottom;
+
+        public double ThicknessWebLeft => _twL;
+
+        public double ThicknessWebRight => _twR;
+
         #endregion
 
-        public SectionRHS(double h, double b, double tf_top, double tf_bottom, double tw1, double tw2, bool isHotFinished, Materials.Material material, string name) : base(material.GetIsotropicFemMaterial(), name)
+
+        #region Public Constructors
+
+        public SectionRHS(double height, double width, double thicknessTopFlange, double thicknessBottomFlange, 
+                            double thicknessWebLeft, double thickenssWebRight, Material material, string name) 
+            : base(material, name)
         {
             _angleX1 = 0;
+            _h = height;
+            _b = width;
+            _tfTop = thicknessTopFlange;
+            _tfBottom = thicknessBottomFlange;
+            _twL = thicknessWebLeft;
+            _twR = thickenssWebRight;
 
-            _h = h;
-            _b = b;
-            _tf_top = tf_top;
-            _tf_bottom = tf_bottom;
-            _tw1 = tw1;
-            _tw2 = tw2;
+            if (_tfBottom == _tfTop)
+                _isSymmetricAlongXLocalAxis = true;
+            if (_twL == _twR)
+                _isSymmetricAlongYLocalAxis = true;
 
-            _hw = h - tf_bottom - tf_top;
+            ThinWall webSx = new ThinWall(Heightinternal, _twL, Math.PI / 2);
+            ThinWall webDx = new ThinWall(Heightinternal, _twR, Math.PI / 2);
+            ThinWall flangeTop = new ThinWall(Base, _tfTop, 0);
+            ThinWall flangeBottom = new ThinWall(Base, _tfBottom, 0);
 
-            _isHotFinished = isHotFinished;
+            Points = new Point2d[] { new Point2d(_twL / 2, Heightinternal / 2 + _tfBottom), 
+                new Point2d(Base - _twR / 2, Heightinternal / 2 + _tfBottom), 
+                new Point2d(Base / 2, _tfBottom + Heightinternal + _tfTop / 2), 
+                new Point2d(Base / 2, _tfBottom / 2) };
 
-            if (_tw1 == _tw2)
-            {
-                IsSymmetricAlongYLocalAxis = true;
-            } else
-            {
-                IsSymmetricAlongYLocalAxis = false;
-            }
-            if (_tf_bottom == _tf_top)
-            {
-                IsSymmetricAlongZLocalAxis = true;
-            } else
-            {
-                IsSymmetricAlongZLocalAxis = false;
-            }
-
-            _plates = new Plate[4];
-
-            double fy = ((SteelMaterial)material).Fyk;
-            
-            _plates[0] = new Plate(_tf_top, 0, _h - _tf_top / 2.0, _b, _h - _tf_top / 2.0, fy, Plate.TypePlate.inner);
-            _plates[1] = new Plate(_tf_bottom, 0, _tf_bottom / 2.0, _b, _tf_bottom / 2.0, fy, Plate.TypePlate.inner);      
-
-            _plates[2] = new Plate(_tw1, _tw1 / 2.0, _tf_bottom, _tw1 / 2.0, _h - _tf_top, fy, Plate.TypePlate.inner);
-            _plates[3] = new Plate(_tw2, _b - _tw2 / 2.0, _tf_bottom, _b - _tw2 / 2.0, _h - _tf_top, fy, Plate.TypePlate.inner);
-
-            _area = 0;
-            double Sy = 0;
-            double Sx = 0;
-            for (int i = 0; i < _plates.Count(); i++)
-            {
-                Plate plate = _plates[i];
-                Point2d centerPlate = _plates[i].Centroid;
-                _area = _area + plate.Area;
-                Sy = Sy + plate.Area * centerPlate.Y;
-                Sx = Sx + plate.Area * centerPlate.X;
-            }
-            _centroid = new Point2d(Sx / _area, Sy / _area);
-
-            if (_tf_bottom == _tf_top && _tw1 == _tw2)
-            {
-                _shearCenter = _centroid;
-            } else
-            {
-                throw new Exception("Section RHS with different thickness not yet implemented");
-            }
-
-            _j22 = 0;
-            _j11 = 0;
-            for (int i = 0; i < _plates.Count(); i++)
-            {
-                Plate plate = _plates[i];
-                Point2d centerPlate = _plates[i].Centroid;
-
-                _j11 = _j11 + plate.JzCentroid + plate.Area * Math.Pow(centerPlate.X - _centroid.X, 2.0);
-                _j22 = _j22 + plate.JyCentroid + plate.Area * Math.Pow(centerPlate.Y - _centroid.Y, 2.0);
-
-            }
-
-            _wel22Top = _j22 / (_h  - _centroid.Y);
-            _wel22Bottom = _j22 / Math.Abs(_centroid.Y);
-            _wel11Left = _j11 / ( _centroid.X);
-            _wel11Right = _j11 / Math.Abs(_centroid.X - _b);
-
-            _wpl22 = 0;
-            if (_area/2.0 > _plates[0].Area) //plateTop
-            {
-                if (_tw1 == _tw2) {
-                    double hTSection = (_area / 2.0 - _plates[0].Area) / (_tw1 + _tw2);
-                    SectionT halfSectionTop = new SectionT(hTSection + _tf_top, _b, _tw1 + _tw2, _tf_top, material, string.Empty);
-                    SectionT halfSectionBottom = new SectionT(_h - hTSection - _tf_top, _b, _tw1 + _tw2, _tf_bottom, material, string.Empty);
-                    _wpl22 = (_area / 2.0) * (halfSectionTop.Centroid.Y + halfSectionBottom.Centroid.Y);
-                } else
-                {
-                    throw new Exception("different thickness not yet supported");
-                }
-            }
-            else
-            {
-                throw new Exception("not yet supported");
-            }
-
-            _wpl11 = 0;
-            double ALeftface = _plates[2].Area + _tf_top * _tw1 + _tf_bottom * _tw1;
-            if (_area / 2.0 > ALeftface)
-            {
-                if (_tf_bottom == _tf_top)
-                {
-                    double hTSection = (_area / 2.0 - ALeftface) / (_tf_top + _tf_bottom);
-                    SectionT halfSectionLeft = new SectionT(hTSection + _tw1, _h, _tf_top + _tf_bottom, _tw1, material, string.Empty);
-                    SectionT halfSectionRigth = new SectionT(_b - hTSection - _tw1, _h, _tf_top + _tf_bottom, _tw2, material, string.Empty);
-                    _wpl11 = (_area / 2.0) * (halfSectionLeft.Centroid.Y + halfSectionRigth.Centroid.Y);
-                }
-                else
-                {
-                    throw new Exception("different thickness not yet supported");
-                }
-            }
-            else
-            {
-                throw new Exception("not yet supported");
-            }
-
-            //Jt
-            {
-                double Amed = (_h - (_tf_top / 2.0) - (_tf_bottom / 2.0)) * (_b - (_tw1 / 2.0) - (tw2 / 2.0));
-                double LmedTop = _b - _tw1 / 2.0 - _tw2 / 2.0; 
-                double LmedBottom = LmedTop;
-                double LmedWeb1 = _h - _tf_top / 2.0 - _tf_bottom / 2.0;
-                double LmedWeb2 = LmedWeb1;
-                _jt = 4.0 * Amed * Amed / (LmedBottom / _tf_bottom + LmedTop / _tf_top + LmedWeb1 / _tw1 + LmedWeb2 / _tw2);
-            }
-
-            //Jw
-            _jw = 0;
+            ThinWalls = new ThinWall[] { webSx, webDx, flangeBottom, flangeTop };
         }
 
-        public override double MinSigma(double N, double M2, double M1)
-        {
-            double sigma1 = N / _area - M2 / J22 * (_h - _centroid.Y) + M1 / J11 * (_centroid.X);
-            double sigma2 = N / _area - M2 / J22 * (_h - _centroid.Y) - M1 / J11 * (_b - _centroid.X);
-            double sigma3 = N / _area + M2 / J22 * (_centroid.Y) + M1 / J11 * (_centroid.X);
-            double sigma4 = N / _area + M2 / J22 * (_centroid.Y) - M1 / J11 * (_b - _centroid.X);
+        #endregion
 
-            double sigmaMin = Math.Min(sigma1, sigma2);
-            sigmaMin = Math.Min(sigmaMin, sigma3);
-            sigmaMin = Math.Min(sigmaMin, sigma4);
-            return sigmaMin;
+
+        #region Public method
+
+        public double DistanceYCentroidFromBottom()
+        {
+            return CalculateCentroid().Y;
+        }
+
+        public double DistanceYCentroidFromTop()
+        {
+            return Height + CalculateCentroid().Y;
+        }
+
+        public double DistanceXCentroidFromRight()
+        {
+            return CalculateCentroid().X;
+        }
+
+        public double DistanceXCentroidFromLeft()
+        {
+            return Base - CalculateCentroid().X;
+        }
+
+        #endregion
+
+
+        #region Public override method
+
+        protected override Point2d CalculateShearCenter()
+        {
+            if (_tfBottom == _tfTop && _twL == _twR)
+                return _centroid;
+            else
+                throw new Exception("Section RHS with different thickness not yet implemented");            
+        }
+
+        protected override double CalculateJw()
+        {
+            return 0;
+        }
+
+        protected override double CalculateJt()
+        {
+            double Amed = (_h - (_tfTop / 2.0) - (_tfBottom / 2.0)) * (_b - (_twL / 2.0) - (_twR / 2.0));
+            double LmedTop = _b - _twL / 2.0 - _twR / 2.0;
+            double LmedBottom = LmedTop;
+            double LmedWeb1 = _h - _tfTop / 2.0 - _tfBottom / 2.0;
+            double LmedWeb2 = LmedWeb1;
+            return  4.0 * Amed * Amed / (LmedBottom / _tfBottom + LmedTop / _tfTop + LmedWeb1 / _twL + LmedWeb2 / _twR);
+        }
+
+        protected override double CalculateWpl2()
+        {
+            if (_area / 2.0 >= _twL * Heightinternal + _tfTop * _twL + _tfBottom * _twL)
+            {
+                if (IsSymmetricAlongYLocalAxis)
+                {
+                    SectionC halfSectionLeft = new SectionC(Height, ThicknessWebLeft, Base / 2, ThicknessTop, Base / 2, ThicknessBottom, _material, string.Empty);
+                    SectionC halfSectionRigth = new SectionC(Height, ThicknessWebRight, Base / 2, ThicknessTop, Base / 2, ThicknessBottom, _material, string.Empty);
+                    return (_area / 2.0) * (halfSectionLeft.DistanceXCentroidFromRight() + halfSectionRigth.DistanceXCentroidFromRight());
+                }
+                else
+                    throw new Exception("different thickness not yet supported");
+            }
+            else
+                throw new Exception("not yet supported");
+
+        }
+
+        protected override double CalculateWpl1()
+        {
+            if (_area / 2.0 >= (_twR * Heightinternal)) //plateTop
+            {
+                if (IsSymmetricAlongXLocalAxis)
+                {
+                    SectionC halfSectionTop = new SectionC(Base, ThicknessTop, Height / 2, _twR, Height / 2, _twL, _material, string.Empty);
+                    SectionC halfSectionBottom = new SectionC(Base, ThicknessBottom, Height / 2, _twL, Height / 2, _twR, Material, string.Empty);
+                    return (_area / 2.0) * (halfSectionTop.DistanceXCentroidFromRight() + halfSectionBottom.DistanceXCentroidFromRight());
+                }
+                else
+                    throw new Exception("different thickness not yet supported");
+            }
+            else
+                throw new Exception("not yet supported");
+        }
+
+        protected override double CalculateWel2()
+        {
+            return Math.Min(CalculateWelyLeft(), CalculateWelyRight());
+        }
+
+        protected override double CalculateWel1()
+        {
+            return Math.Min(CalculateWelxBottom(), CalculateWelxTop());
         }
 
         public override string ToString()
         {
             string s = "RHS section: \n";
             s = s + "Height = " + _h + " mm \n";
-            s = s + "Thickness Web Left = " + _tw1 + " mm \n";
-            s = s + "Thickness Web Rigth = " + _tw2 + " mm \n";
+            s = s + "Thickness Web Left = " + _twL + " mm \n";
+            s = s + "Thickness Web Rigth = " + _twR + " mm \n";
             s = s + "Length Bottom = " + _b + " mm \n";
-            s = s + "Thickness Bottom = " + _tf_bottom + " mm \n";
+            s = s + "Thickness Bottom = " + _tfBottom + " mm \n";
             s = s + "Length Top = " + _b + " mm \n";
-            s = s + "Thickness Top = " + _tf_top + " mm \n";
+            s = s + "Thickness Top = " + _tfTop + " mm \n";
             return s;
         }
+
+        protected virtual double CalculateWelyLeft()
+        {
+            return J22 / DistanceXCentroidFromRight();
+        }
+
+        protected virtual double CalculateWelyRight()
+        {
+            return J22 / (_b - DistanceXCentroidFromRight());
+        }
+
+        protected virtual double CalculateWelxBottom()
+        {
+            return J11 / DistanceYCentroidFromBottom();
+        }
+
+        protected virtual double CalculateWelxTop()
+        {
+            return J11 / (Height - DistanceYCentroidFromBottom());
+        }
+
+        #endregion
+
+
     }
 }

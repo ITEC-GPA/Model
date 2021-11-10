@@ -13,10 +13,6 @@ namespace GPC.Model.FEM.FiniteElements
     /// </summary>
     public class Quad4GQ12Membranal : Plate
     {
-        #region variables
-        Node[] _localNodes;
-        #endregion
-
         public Quad4GQ12Membranal(Node[] nodes) : base(nodes)
         {
             _DOF.Add(LinearSolver.DOF.DX);
@@ -33,27 +29,18 @@ namespace GPC.Model.FEM.FiniteElements
 
             //DofGlobalToLocal^T * kLocal * DofGlobalToLocal
             //   [24x12]           [12x12]     [12x24]
-        }
 
-        internal Quad4GQ12Membranal(Node[] nodes, PlateProperty property) : this(nodes)
-        {
-            SetProperty(property);
-        }
-
-        public override void BuildMatrix()
-        {
-            
             //Node 1 = Origin = Node i
             //Axis x assigned as Node 1 to Node 2, Node j = Node 2
             //Axis y ortogonal to axis x, Node k = node 3
 
             //calculation of matrix for transformation from Local to Global coordinates
-            _localNodes = Quad4Element.GetLocalNodesFromCentroid(_nodesGlobal, out _localCoordinateSystem);
+            _nodesLocal = Quad4Element.GetLocalNodesFromCentroid(_nodesGlobal, out _localCoordinateSystem);
 
-            _localNodes.ToList().ForEach(x => Console.WriteLine(x));
+            //_nodesLocal.ToList().ForEach(x => Console.WriteLine(x));
 
             #region TransformationMatrixLocalCoordinatesToGlobalCoordinates
-            mnl.Matrix<double> dofGlobalToLocalTranspose = mnl.Matrix<double>.Build.Dense(24, 12);
+            mnl.Matrix<double> dofGlobalToLocalTranspose = mnl.Matrix<double>.Build.Dense(6 * 4, 3 * 4);
 
             Vector3d globalX = new Vector3d(1.0, 0.0, 0.0);
             Vector3d globalY = new Vector3d(0.0, 1.0, 0.0);
@@ -62,6 +49,41 @@ namespace GPC.Model.FEM.FiniteElements
             Vector3d localX = LocalCoordinateSystem.V1;
             Vector3d localY = LocalCoordinateSystem.V2;
             Vector3d localZ = LocalCoordinateSystem.V3;
+
+            double xX = localX.DotProduct(globalX);
+            double xY = localX.DotProduct(globalY);
+            double xZ = localX.DotProduct(globalZ);
+
+            double yX = localY.DotProduct(globalX);
+            double yY = localY.DotProduct(globalY);
+            double yZ = localY.DotProduct(globalZ);
+
+            double zX = localZ.DotProduct(globalX);
+            double zY = localZ.DotProduct(globalY);
+            double zZ = localZ.DotProduct(globalZ);
+
+            int dimRow = 6; //DX,DY,DZ,RX,RY,RZ
+            int dimCol = 3; //dx, dy, rz
+            mnl.Matrix<double> t = mnl.Matrix<double>.Build.Dense(24, 12);
+            for (int i = 0; i < _nodesLocal.Length; i++)
+            {
+                #region localToGlobalNode
+                //local node1 x-displacement in global coordinate
+                t[i * dimRow + 0, i * dimCol + 0] = xX;
+                t[i * dimRow + 1, i * dimCol + 0] = xY;
+                t[i * dimRow + 2, i * dimCol + 0] = xZ;
+
+                //local node1 y-displacement in global coordinate
+                t[i * dimRow + 0, i * dimCol + 1] = yX;
+                t[i * dimRow + 1, i * dimCol + 1] = yY;
+                t[i * dimRow + 2, i * dimCol + 1] = yZ;
+
+                //local node1 z-rotation in global coordinate
+                t[i * dimRow + 3, i * dimCol + 2] = zX;
+                t[i * dimRow + 4, i * dimCol + 2] = zY;
+                t[i * dimRow + 5, i * dimCol + 2] = zZ;
+                #endregion
+            }
 
             #region localToGlobalNode1
             //local node1 x-displacement in global coordinate
@@ -132,17 +154,29 @@ namespace GPC.Model.FEM.FiniteElements
             #endregion
             _dofGlobalToLocal = dofGlobalToLocalTranspose.Transpose();
 
-            /*Console.WriteLine("dofGlobalToLocalTranspose.");
             for (int r = 0; r < dofGlobalToLocalTranspose.RowCount; r++)
             {
                 for (int c = 0; c < dofGlobalToLocalTranspose.ColumnCount; c++)
                 {
-                    Console.Write(dofGlobalToLocalTranspose[r,c] + " ");
+                    if (dofGlobalToLocalTranspose[r, c] != t[r, c])
+                    {
+                        throw new Exception(dofGlobalToLocalTranspose[r, c] + " vs " + t[r, c] + "refactoring matrice di rotazione non corretta");
+                    } else
+                    {
+                        Console.WriteLine("Assicurarsi con vari test che matrice sia corretta");
+                    }
                 }
-                Console.WriteLine();
-            }*/
-            #endregion            
+            }
+            #endregion    
+        }
 
+        internal Quad4GQ12Membranal(Node[] nodes, PlateProperty property) : this(nodes)
+        {
+            SetProperty(property);
+        }
+
+        public override void BuildMatrix()
+        {
             #region matrixD
             /*double E = ((PlateProperty)_property).GetE();
             double ni = ((PlateProperty)_property).GetNi();
@@ -155,14 +189,14 @@ namespace GPC.Model.FEM.FiniteElements
             #region stiffnessMatrixInLocalCoordinates
             double thk = ((PlateProperty)_property).MembraneThickness;
 
-            Func<double, double, mnl.Matrix<double>> funJacobiano = FEMUtilities.J2D(LinearShapeFunctionQuad4.DNdCsi, LinearShapeFunctionQuad4.DNdEta, _localNodes);
+            Func<double, double, mnl.Matrix<double>> funJacobiano = FEMUtilities.J2D(LinearShapeFunctionQuad4.DNdCsi, LinearShapeFunctionQuad4.DNdEta, _nodesLocal);
 
             Func<double, double, mnl.Matrix<double>> BTraspDB = (double csi, double eta) =>
             {
-                mnl.Matrix<double> B = BMatrix(csi, eta, _localNodes);
+                mnl.Matrix<double> B = BMatrix(csi, eta, _nodesLocal);
                 return B.Transpose() * _d * B;
             };
-            mnl.Matrix<double> k = thk * GaussIntegration.IntegrationQuadrilateral(BTraspDB, funJacobiano, 9);
+            mnl.Matrix<double> k = thk * OldGaussIntegration.IntegrationQuadrilateral(BTraspDB, funJacobiano, 9);
 
             _kElementLocalCoord = k;
             /*Console.WriteLine("KElementLocalCoord = ");
@@ -170,9 +204,9 @@ namespace GPC.Model.FEM.FiniteElements
             #endregion
         }
 
-        public override mnl.Matrix<double> GetB(double csi, double eta)
+        public mnl.Matrix<double> GetB(double csi, double eta)
         {
-            return BMatrix(csi, eta, _localNodes);
+            return BMatrix(csi, eta, _nodesLocal);
         }
 
         internal static mnl.Matrix<double> BMatrix(double csi, double eta, Node[] nodes)

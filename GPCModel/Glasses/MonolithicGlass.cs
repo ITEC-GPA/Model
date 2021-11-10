@@ -33,9 +33,7 @@ namespace GPC.Model.Glasses
 
         #region Constructors
 
-        /// <summary>
-        ///
-        /// </summary>
+
         /// <param name="name"></param>
         /// <param name="thickness">The minimum thickness of the panel (the one used for calculation)</param>
         /// <param name="glassMaterial"></param>
@@ -45,9 +43,7 @@ namespace GPC.Model.Glasses
 
         }
 
-        /// <summary>
-        ///
-        /// </summary>
+
         /// <param name="name"></param>
         /// <param name="guid">The guid of the glass</param>
         /// <param name="thickness">The minimum thickness of the panel (the one used for calculation)</param>
@@ -80,6 +76,31 @@ namespace GPC.Model.Glasses
         }
 
 
+        /// <inheritdoc cref="IGlassPanel.GetElasticModulus()"/>
+        public double GetElasticModulus()
+        {
+            return _material.E;
+        }
+
+        /// <inheritdoc cref="IGlassPanel.GetPoissonRatios()"/>
+        public double GetPoissonRatios()
+        {
+            return _material.Ni;
+        }
+
+        /// <inheritdoc cref="IGlassPanel.GetSelfWeightPerUnitArea()"/>
+        public double GetSelfWeightPerUnitArea()
+        {
+            // mm * T/mm3 => T / mm2
+            return _thickness * _material.Density;
+        }
+
+        /// <inheritdoc cref="IGlassPanel.GetDensity()"/>
+        public double GetDensity()
+        {
+            return _material.Density;
+        }
+
         #region Equals - HashCode - Operators
 
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
@@ -109,11 +130,14 @@ namespace GPC.Model.Glasses
 
         public override int GetHashCode()
         {
-            int hashCode = -23;
-            hashCode = hashCode * -17 + base.GetHashCode();
-            hashCode = hashCode * -17 + EqualityComparer<GlassMaterial>.Default.GetHashCode(_material);
-            hashCode = hashCode * -17 + _thickness.GetHashCode();
-            return hashCode;
+            unchecked
+            {
+                int hashCode = -23;
+                hashCode = hashCode * -17 + base.GetHashCode();
+                hashCode = hashCode * -17 + EqualityComparer<GlassMaterial>.Default.GetHashCode(_material);
+                hashCode = hashCode * -17 + _thickness.GetHashCode();
+                return hashCode; 
+            }
         }
 
         public static bool operator ==(MonolithicGlass obj1, MonolithicGlass obj2)
