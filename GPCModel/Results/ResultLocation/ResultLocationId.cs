@@ -11,19 +11,19 @@ namespace GPC.Model.Results
     public class ResultLocationId : ResultLocation, ISerializable
     {
 
-        public ResultLocationId(ResultType[] results, int id) 
+        public ResultLocationId(ResultType[] results, int id)
             : base(results, id)
         {
 
         }
 
-        public ResultLocationId(SerializationInfo info, StreamingContext context) 
+        public ResultLocationId(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
 
         }
 
-        public ResultLocationId(ResultType[] results, int id, string name) 
+        public ResultLocationId(ResultType[] results, int id, string name)
             : base(results, id, name)
         {
 
@@ -39,7 +39,7 @@ namespace GPC.Model.Results
         {
             unchecked
             {
-                return base.GetHashCode(); 
+                return base.GetHashCode();
             }
         }
 

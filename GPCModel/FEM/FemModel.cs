@@ -1,3 +1,8 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Runtime.Serialization;
+using System.Threading.Tasks;
 using GPC.Geometry;
 using GPC.Geometry.Meshes;
 using GPC.Model.Combinations;
@@ -12,11 +17,6 @@ using GPC.Model.Loads;
 using GPC.Model.Restrains;
 using GPC.Model.Results;
 using GPC.Model.Sections;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.Serialization;
-using System.Threading.Tasks;
 
 namespace GPC.Model.FEM
 {
@@ -551,7 +551,7 @@ namespace GPC.Model.FEM
                 {
                     if (modelAttribute is ModelGravityAttribute)
                         return (ModelGravityAttribute)modelAttribute;
-                    else 
+                    else
                     {
                         throw new ArgumentException();
                     }
@@ -634,7 +634,7 @@ namespace GPC.Model.FEM
                 throw new ArgumentException();
             }
         }
-        
+
 
         /// <param name="loadCaseName"></param>
         /// <returns></returns>
@@ -670,7 +670,7 @@ namespace GPC.Model.FEM
 
         public IModelAttribute[] GetModelAttributes()
         {
-            return _modelAttributes.ToArray(); 
+            return _modelAttributes.ToArray();
         }
 
 
@@ -967,13 +967,13 @@ namespace GPC.Model.FEM
         /// <param name="loadNodeIdMap">Map between load and node ids</param>
         /// <param name="loadPlateIdMap">Map between load and plate ids</param>
         /// <param name="restrainNodeIdMap">Map between load and restrain ids</param>
-        public virtual void AddShape(Shape shape, 
-                                     string platePropertyName, 
-                                     Mesh.GenerateOptions options, 
-                                     List<Load> loads, 
-                                     List<GeometryRestrain> restrains, 
-                                     out Dictionary<Load, int[]> loadNodeIdMap, 
-                                     out Dictionary<Load, int[]> loadPlateIdMap, 
+        public virtual void AddShape(Shape shape,
+                                     string platePropertyName,
+                                     Mesh.GenerateOptions options,
+                                     List<Load> loads,
+                                     List<GeometryRestrain> restrains,
+                                     out Dictionary<Load, int[]> loadNodeIdMap,
+                                     out Dictionary<Load, int[]> loadPlateIdMap,
                                      out Dictionary<GeometryRestrain, int[]> restrainNodeIdMap)
         {
 
@@ -1089,10 +1089,10 @@ namespace GPC.Model.FEM
             }
 
 
-            bool ret = AddMesh(meshes.First(), platePropertyName, null, vertexLoadMeshEntityMap, 
-                                                                        vertexLineLoadMeshEntityMap, 
-                                                                        plateLoadMeshEntityMap, 
-                                                                        restrainMeshEntityMap, 
+            bool ret = AddMesh(meshes.First(), platePropertyName, null, vertexLoadMeshEntityMap,
+                                                                        vertexLineLoadMeshEntityMap,
+                                                                        plateLoadMeshEntityMap,
+                                                                        restrainMeshEntityMap,
                                                                         out Dictionary<int, int> nodesNewIndexMap,
                                                                         out Dictionary<int, int> platesNewIndexMap,
                                                                         out Dictionary<int, int> brickNewIndexMap);
@@ -1165,10 +1165,10 @@ namespace GPC.Model.FEM
         /// <param name="platePropertyNames"></param>
         /// <param name="loads"></param>
         /// <param name="restrains"></param>
-        public virtual void AddShapes(List<Shape> shapes, 
-                                      List<string> platePropertyNames, 
-                                      Mesh.GenerateOptions options, 
-                                      List<List<Load>> loads, 
+        public virtual void AddShapes(List<Shape> shapes,
+                                      List<string> platePropertyNames,
+                                      Mesh.GenerateOptions options,
+                                      List<List<Load>> loads,
                                       List<List<GeometryRestrain>> restrains)
         {
             if (shapes is null)
@@ -1216,12 +1216,12 @@ namespace GPC.Model.FEM
         /// <param name="platesNewIndexMap">A map between the <see cref="MeshFace"/>.Id of <paramref name="meshes"/> and the id of the same plate in the femModel</param>
         /// <param name="brickNewIndexMap">A map between the <see cref="MeshVolume"/>.Id of <paramref name="meshes"/> and the id of the same brick in the femModel</param>
         /// <exception cref="ArgumentException">If list of argument does not match</exception>
-        public virtual bool AddMeshes(List<Mesh> meshes, 
-                                      List<string> platePropertyNames, 
-                                      List<string> brickPropertyName, 
+        public virtual bool AddMeshes(List<Mesh> meshes,
+                                      List<string> platePropertyNames,
+                                      List<string> brickPropertyName,
                                       List<Dictionary<IPointLoad, int[]>> vertexLoadMeshEntityMap,
                                       List<Dictionary<ILineLoad, int[]>> vertexLineLoadMeshEntityMap,
-                                      List<Dictionary<IAreaLoad, int[]>> plateLoadMeshEntityMap, 
+                                      List<Dictionary<IAreaLoad, int[]>> plateLoadMeshEntityMap,
                                       List<Dictionary<GeometryRestrain, int[]>> restrainMeshEntityMap,
                                       out List<Dictionary<int, int>> nodesNewIndexMap,
                                       out List<Dictionary<int, int>> platesNewIndexMap,
@@ -1306,12 +1306,12 @@ namespace GPC.Model.FEM
         /// <param name="groupName"></param>
         /// <exception cref="KeyNotFoundException">If a <see cref="MeshVertex"/>.Id of <paramref name="restrainMeshEntityMap"/> is not found in the <paramref name="mesh"/> vertices ids</exception>
         /// <remarks>The instances of <see cref="LoadCaseBase"/> and <see cref="FreedomCase"/> will be replaced with the one in the <see cref="FemModel._loadCases"/> and <see cref="FemModel._freedomCases"/>  </remarks>
-        public virtual bool AddMesh(Mesh mesh, 
-                                    string platePropertyName, string brickPropertyName, 
+        public virtual bool AddMesh(Mesh mesh,
+                                    string platePropertyName, string brickPropertyName,
                                     Dictionary<IPointLoad, int[]> vertexLoadMeshEntityMap,
-                                    Dictionary<ILineLoad, int[]> vertexLineLoadMeshEntityMap, 
+                                    Dictionary<ILineLoad, int[]> vertexLineLoadMeshEntityMap,
                                     Dictionary<IAreaLoad, int[]> plateLoadMeshEntityMap,
-                                    Dictionary<GeometryRestrain, int[]> restrainMeshEntityMap, 
+                                    Dictionary<GeometryRestrain, int[]> restrainMeshEntityMap,
                                     string groupName = "")
         {
             return AddMesh(mesh, platePropertyName, brickPropertyName, vertexLoadMeshEntityMap, vertexLineLoadMeshEntityMap, plateLoadMeshEntityMap,
@@ -1334,15 +1334,15 @@ namespace GPC.Model.FEM
         /// <param name="groupName"></param>
         /// <exception cref="KeyNotFoundException">If a <see cref="MeshVertex"/>.Id of <paramref name="restrainMeshEntityMap"/> is not found in the <paramref name="mesh"/> vertices ids</exception>
         /// <remarks>The instances of <see cref="LoadCaseBase"/> and <see cref="FreedomCase"/> will be replaced with the one in the <see cref="FemModel._loadCases"/> and <see cref="FemModel._freedomCases"/>  </remarks>
-        public virtual bool AddMesh(Mesh mesh, 
-                                    string platePropertyName, string brickPropertyName, 
+        public virtual bool AddMesh(Mesh mesh,
+                                    string platePropertyName, string brickPropertyName,
                                     Dictionary<IPointLoad, int[]> vertexLoadMeshEntityMap,
-                                    Dictionary<ILineLoad, int[]> vertexLineLoadMeshEntityMap, 
+                                    Dictionary<ILineLoad, int[]> vertexLineLoadMeshEntityMap,
                                     Dictionary<IAreaLoad, int[]> plateLoadMeshEntityMap,
-                                    Dictionary<GeometryRestrain, int[]> restrainMeshEntityMap, 
-                                    out Dictionary<int, int> nodesNewIndexMap, 
+                                    Dictionary<GeometryRestrain, int[]> restrainMeshEntityMap,
+                                    out Dictionary<int, int> nodesNewIndexMap,
                                     out Dictionary<int, int> platesNewIndexMap,
-                                    out Dictionary<int, int> brickNewIndexMap, 
+                                    out Dictionary<int, int> brickNewIndexMap,
                                     string groupName = "")
         {
             if (mesh is null)
@@ -1656,7 +1656,7 @@ namespace GPC.Model.FEM
                                     factor /= 2.0;
                                 }
 
-                                NodeForceAttribute nfa = new NodeForceAttribute(ll.LoadCase.Name, ll.CoordinateSystem, 
+                                NodeForceAttribute nfa = new NodeForceAttribute(ll.LoadCase.Name, ll.CoordinateSystem,
                                                                             ll.F1 * factor, ll.F2 * factor, ll.F3 * factor, ll.M1 * factor, ll.M2 * factor, ll.M3 * factor);
 
                                 node.AddAttribute(nfa);
@@ -1864,7 +1864,7 @@ namespace GPC.Model.FEM
 
 
         }
- 
+
         #endregion
 
         #endregion

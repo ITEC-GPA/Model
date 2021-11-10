@@ -1,6 +1,6 @@
-﻿using GPC.Geometry;
-using System;
+﻿using System;
 using System.Runtime.Serialization;
+using GPC.Geometry;
 
 namespace GPC.Model.Results
 {
@@ -11,7 +11,7 @@ namespace GPC.Model.Results
 
         public CoordinateSystem CoordinateSystem => _coordinateSystem;
 
-        protected ResultType(CoordinateSystem coordinateSystem, string name = "") 
+        protected ResultType(CoordinateSystem coordinateSystem, string name = "")
             : base(name)
         {
             _coordinateSystem = coordinateSystem ?? throw new ArgumentNullException(nameof(coordinateSystem));
