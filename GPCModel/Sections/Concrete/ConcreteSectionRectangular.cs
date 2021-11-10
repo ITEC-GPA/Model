@@ -120,6 +120,7 @@ namespace GPC.Model.Sections.Concrete
                 out areaH, out SxH, out SyH, out centroidH, out JxxH, out JyyH, out JxyH, out JpH, out J11H, out J22H, out angleX);
         }
 
+        
         /// <summary>
         /// The centroid of the homogenized section with default value of homogenized factor n
         /// </summary>

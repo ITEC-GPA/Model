@@ -72,23 +72,6 @@ namespace GPC.Model.Sections
             info.AddValue("Material", _material);
         }
 
-        public override ShapeMaterial[] GetShapes()
-        {
-            int divisions = 36;
-            Polygon2d hole = null;
-            Polygon2d fill = new Polygon2d();
-
-            for (int i = 0; i < divisions; i++)
-            {
-                double teta = i * 2 * Math.PI / divisions;
-                fill.Add(new Point2d(0.5 * _diameter * Math.Cos(teta), 0.5 * _diameter * Math.Sin(teta)));
-            }
-
-            Shape shape = new Shape(fill, hole != null ? new[] { hole } : null);
-
-            return new[] { new ShapeMaterial { Material = _material, Shape = shape } };
-        }
-
         public Polygon3d ConvertCircleToPolygon(double radius, int edge)
         {
             return ConcreteSectionHelper.ConvertCircleToPolygon(Centroid, radius, edge);

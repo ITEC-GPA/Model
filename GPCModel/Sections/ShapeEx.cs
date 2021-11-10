@@ -23,7 +23,7 @@ namespace GPC.Model.Sections
 		}
 
 		public ShapeEx(Polygon3d fill, Material material, Polygon3d[] holes = null, ShapeEx[] childs = null)
-			: this(fill, material, holes, childs, Geometry.GeometryBase.GetDefaultAngularTolerance())
+			: this(fill, material, holes, childs, GeometryBase.GetDefaultAngularTolerance())
 		{
 		}
 
@@ -34,7 +34,7 @@ namespace GPC.Model.Sections
 		}
 
 		public ShapeEx(Shape shape, Material material)
-			: this(shape, material, Geometry.GeometryBase.GetDefaultAngularTolerance())
+			: this(shape, material, GeometryBase.GetDefaultAngularTolerance())
 		{
 		}
 

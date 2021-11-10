@@ -11,17 +11,6 @@ namespace GPC.Model.Sections
 {
     public class Section : ElementProperty
     {
-        #region Struct
-
-        public struct ShapeMaterial
-        {
-            public Shape Shape { get; set; }
-            public Material Material { get; set; }
-        }
-
-        #endregion
-
-
         #region Enumerator
 
         public enum FormedTypes
@@ -227,16 +216,6 @@ namespace GPC.Model.Sections
             _centroid = (Point2d)info.GetValue("Centroid", typeof(Point2d));
             _shearCenter = (Point2d)info.GetValue("ShearCenter", typeof(Point2d));
             _angleX1 = info.GetDouble("AngleX1");
-        }
-
-        #endregion
-
-
-        #region Public Methods Specific
-
-        public virtual ShapeMaterial[] GetShapes()
-        {
-            return null;
         }
 
         #endregion
