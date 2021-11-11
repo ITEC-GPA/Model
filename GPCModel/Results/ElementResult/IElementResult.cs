@@ -15,6 +15,5 @@ namespace GPC.Model.Results
 
         ILoadCase Case { get; }
 
-        CoordinateSystem CoordinateSystem { get; }
     }
 }
