@@ -170,7 +170,7 @@ namespace GPC.Model.Sections
             get
             {
                 if (_mesh is null)
-                    _mesh = SectionHelper.GenerateMesh(GetShape());
+                    _mesh = GenerateMesh();
                 return _mesh;
             }
         }
@@ -330,6 +330,11 @@ namespace GPC.Model.Sections
         protected virtual Shape2d GetShape()
         {
             return null;
+        }
+
+        protected virtual Mesh GenerateMesh()
+        {
+            return SectionHelper.GenerateMesh(GetShape());
         }
 
         #region Public override method

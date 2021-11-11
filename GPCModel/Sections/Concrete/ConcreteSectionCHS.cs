@@ -24,6 +24,7 @@ namespace GPC.Model.Sections.Concrete
 
         public ConcreteMaterial ConcreteMaterial => (ConcreteMaterial)_material;
 
+        public double AreaRebars => _rebars.Select(i => i.Area).Sum();
 
         #endregion
 
@@ -38,6 +39,7 @@ namespace GPC.Model.Sections.Concrete
             }
 
             _rebars = rebars.ToArray();
+            _mesh = GenerateMesh();
         }
 
         public ConcreteSectionCHS(SectionCHS sectionCHS, IEnumerable<ReinforcedConcreteRebar> rebars)
@@ -49,6 +51,7 @@ namespace GPC.Model.Sections.Concrete
             }
 
             _rebars = rebars.ToArray();
+            _mesh = GenerateMesh();
 
             if (sectionCHS.Material.GetType() != typeof(ConcreteMaterial))
                 throw new ArgumentException("Material must be a ConcreteMaterial");
