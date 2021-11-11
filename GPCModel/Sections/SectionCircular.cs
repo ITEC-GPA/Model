@@ -65,7 +65,7 @@ namespace GPC.Model.Sections
 
         #region Public Methods Specific
 
-        public override Shape2d GetShape()
+        protected override Shape2d GetShape()
         {
             return new Shape2d(new Polygon2d(_diameter));
         }

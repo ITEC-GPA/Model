@@ -10,6 +10,8 @@ namespace GPC.Model.Sections
 
     public interface ISection
     {
-        Shape2d GetShape();
+
+        Shape2d Shape { get; }
+
     }
 }

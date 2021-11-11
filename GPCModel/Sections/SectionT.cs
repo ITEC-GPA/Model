@@ -146,7 +146,7 @@ namespace GPC.Model.Sections
         #region Public override method
 
 
-        public override Shape2d GetShape()
+        protected override Shape2d GetShape()
         {
             return new Shape2d(new Polygon2d(new Point2d[] { 
                                                             new Point2d(0.0, Height), 

@@ -91,7 +91,7 @@ namespace GPC.Model.Sections
         #endregion
 
 
-        public override Shape2d GetShape()
+        protected override Shape2d GetShape()
         {
             return new Shape2d(new Polygon2d(new Point2d[] { new Point2d(0, 0), new Point2d(Width, 0), new Point2d(Width, Height), new Point2d(0, Height) }));
         }

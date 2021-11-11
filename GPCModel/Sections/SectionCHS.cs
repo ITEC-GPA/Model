@@ -132,12 +132,12 @@ namespace GPC.Model.Sections
 
         #region Public override methods 
 
-        public Shape2d GetShape(int numberOfEdges)
+        protected Shape2d GetShape(int numberOfEdges)
         {
             return new Shape2d(new Polygon2d(_externalDiameter, numberOfEdges), new[] { new Polygon2d(_externalDiameter - _thickness, numberOfEdges) });
         }
 
-        public override Shape2d GetShape()
+        protected override Shape2d GetShape()
         {
             return new Shape2d(new Polygon2d(_externalDiameter), new[] { new Polygon2d(_externalDiameter - _thickness) });
         }

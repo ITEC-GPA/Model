@@ -70,7 +70,7 @@ namespace GPC.Model.Sections
         #region Public override method
 
 
-        public override Shape2d GetShape()
+        protected override Shape2d GetShape()
         {
             throw new NotImplementedException();
         }

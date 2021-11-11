@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Runtime.Serialization;
 using GPC.Geometry;
+using GPC.Geometry.Meshes;
 using GPC.Model.Elements;
 using GPC.Model.FEM.Materials;
 using GPC.Model.FEM.Properties;
@@ -50,6 +51,9 @@ namespace GPC.Model.Sections
 
         protected bool _isSymmetricAlongXLocalAxis;
         protected bool _isSymmetricAlongYLocalAxis;
+
+        protected Mesh _mesh;
+        protected Shape2d _shape;
 
         #endregion
 
@@ -161,6 +165,26 @@ namespace GPC.Model.Sections
         /// </summary>
         public bool IsDoubleSymmetric => (IsSymmetricAlongXLocalAxis && IsSymmetricAlongYLocalAxis);
 
+        public virtual Mesh Mesh
+        {
+            get
+            {
+                if (_mesh is null)
+                    _mesh = SectionHelper.GenerateMesh(GetShape());
+                return _mesh;
+            }
+        }
+
+        public virtual Shape2d Shape
+        {
+            get
+            {
+                if (_shape is null)
+                    _shape = GetShape();
+                return _shape;
+            }
+        }
+
         #endregion
 
 
@@ -223,10 +247,6 @@ namespace GPC.Model.Sections
 
         #region Public virtual material method
 
-        public virtual Shape2d GetShape()
-        {
-            return null;
-        }
 
         public virtual double GetE()
         {
@@ -306,6 +326,11 @@ namespace GPC.Model.Sections
 
         #endregion
 
+
+        protected virtual Shape2d GetShape()
+        {
+            return null;
+        }
 
         #region Public override method
 
