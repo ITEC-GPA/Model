@@ -24,7 +24,7 @@ namespace GPC.Model.Sections.Concrete
 
         public ConcreteMaterial ConcreteMaterial => (ConcreteMaterial)_material;
 
-        public Shape Shape => GetShape();
+        public Shape2d Shape => GetShape();
 
         public Mesh Mesh
         {
@@ -172,14 +172,6 @@ namespace GPC.Model.Sections.Concrete
         public double GetHomogeneizedJ22()
         {
             return ConcreteSectionHelper.GetHomogeneizedJ22(Mesh, Centroid, Rebars, ConcreteMaterial, Area, Jxx, Jyy, Jxy);
-        }
-
-        public Shape GetShape()
-        {
-            return new Shape(new Polygon3d(new Point3d[] { new Point3d(0.0, Height, 0.0), new Point3d(LenghtFlange, Height, 0.0),
-                new Point3d(LenghtFlange, HeightWeb, 0.0), new Point3d(LenghtFlange / 2.0 + ThicknessWeb / 2.0 , HeightWeb, 0.0),
-                new Point3d(LenghtFlange / 2.0 + ThicknessWeb / 2.0 , 0.0, 0.0), new Point3d(LenghtFlange / 2.0 - ThicknessWeb / 2.0 , 0.0, 0.0),
-                new Point3d(LenghtFlange / 2.0 - ThicknessWeb / 2.0 , HeightWeb, 0), new Point3d(0.0 , HeightWeb, 0) }));
         }
 
         #endregion

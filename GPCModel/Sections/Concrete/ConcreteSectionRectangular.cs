@@ -28,7 +28,7 @@ namespace GPC.Model.Sections.Concrete
 
         public ConcreteMaterial ConcreteMaterial => (ConcreteMaterial)_material;
 
-        public Shape Shape => GetShape();
+        public Shape2d Shape => GetShape();
 
         public Mesh Mesh
         {
@@ -60,11 +60,6 @@ namespace GPC.Model.Sections.Concrete
 
         #endregion
 
-
-        public Shape GetShape()
-        {
-            return new Shape(new Polygon3d(new Point3d[] { new Point3d(0, 0, 0), new Point3d(Width, 0, 0), new Point3d(Width, Height, 0), new Point3d(0, Height, 0) }));
-        }
 
         protected ReinforcedConcreteSection GetReinforcedConcreteSection()
         {

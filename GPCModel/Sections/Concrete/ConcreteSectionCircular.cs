@@ -26,7 +26,7 @@ namespace GPC.Model.Sections.Concrete
 
         public ConcreteMaterial ConcreteMaterial => (ConcreteMaterial)_material;
 
-        public Shape Shape => GetShape();
+        public Shape2d Shape => GetShape();
 
         public Mesh Mesh
         {
@@ -277,11 +277,6 @@ namespace GPC.Model.Sections.Concrete
         }
 
         #endregion
-
-        public Shape GetShape()
-        {
-            return new Shape(ConvertCircleToPolygon());
-        }
 
         protected ReinforcedConcreteRebar[] SetRadialRebars(double concreteCover, int numberOfRebars, IRebarSection rebarSection, double epsilonP = 0.0)
         {

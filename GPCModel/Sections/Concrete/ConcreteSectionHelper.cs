@@ -478,20 +478,5 @@ namespace GPC.Model.Sections.Concrete
             return rebars;
         }
 
-        internal static Polygon3d ConvertCircleToPolygon(Point3d centroid, double radius, int edge)
-        {
-            if (edge < 2)
-                throw new ArgumentException($"{edge} must be at least 3");
-
-            Point3d[] vertices = new Point3d[edge];
-            double teta = 2.0 * Math.PI / edge;
-
-            for (int i = 0; i < edge; i++)
-            {
-                vertices[i] = new Point3d(radius * Math.Cos(teta * i) + centroid.X, radius * Math.Sin(teta * i) + centroid.Y, 0.0);
-            }
-
-            return new Polygon3d(vertices.ToArray());
-        }
     }
 }

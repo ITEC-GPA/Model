@@ -8,7 +8,7 @@ namespace GPC.Model.Sections.Concrete
     {
         string Name { get; }
 
-        Shape Shape { get; }
+        Shape2d Shape { get; }
 
         ConcreteMaterial ConcreteMaterial { get; }
 
@@ -18,9 +18,9 @@ namespace GPC.Model.Sections.Concrete
 
         double R22 { get; }
 
-        Geometry.Point2d Centroid { get; }
+        Point2d Centroid { get; }
 
-        Geometry.Point2d ShearCenter { get; }
+        Point2d ShearCenter { get; }
 
         double J11 { get; }
 
