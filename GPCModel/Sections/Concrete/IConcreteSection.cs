@@ -8,19 +8,21 @@ namespace GPC.Model.Sections.Concrete
     {
         string Name { get; }
 
-        Shape Shape { get; }
+        Shape2d Shape { get; }
 
         ConcreteMaterial ConcreteMaterial { get; }
 
         double Area { get; }
 
+        double AreaRebars { get; }
+
         double R11 { get; }
 
         double R22 { get; }
 
-        Geometry.Point2d Centroid { get; }
+        Point2d Centroid { get; }
 
-        Geometry.Point2d ShearCenter { get; }
+        Point2d ShearCenter { get; }
 
         double J11 { get; }
 
@@ -58,16 +60,22 @@ namespace GPC.Model.Sections.Concrete
 
         double GetHomogeneizedJ22(double n);
 
+        Point2d GetHomogenizedCentroid(out double SxHomog, out double SyHomog);
+
+        Point2d GetHomogenizedCentroid(double n, out double SxHomog, out double SyHomog);
+
         Geometry.Meshes.Mesh Mesh { get; }
 
         double CalculateN(ReinforcedConcreteRebar rebar);
 
         double CalculateN(int rebar);
 
-        void GetHomogeneizedMechanicalProperties(out double areaH, out double SxH, out double SyH, out Point3d centroidH,
-            out double JxxH, out double JyyH, out double JxyH, out double JpH, out double J11H, out double J22H, out double angleX);
+        (double areaH, double SxH, double SyH, Point2d centroidH, double JxxH, double JyyH, double JxyH, double JpH, double J11H, double J22H, double angleX)
+            GetHomogeneizedMechanicalProperties();
 
-        void GetHomogeneizedMechanicalProperties(double n, out double areaH, out double SxH, out double SyH, out Point3d centroidH,
-            out double JxxH, out double JyyH, out double JxyH, out double JpH, out double J11H, out double J22H, out double angleX);
+        (double areaH, double SxH, double SyH, Point2d centroidH, double JxxH, double JyyH, double JxyH, double JpH, double J11H, double J22H, double angleX)
+            GetHomogeneizedMechanicalProperties(double n);
+
+        ReinforcedConcreteSection ToReinforcedConcreteSection();
     }
 }

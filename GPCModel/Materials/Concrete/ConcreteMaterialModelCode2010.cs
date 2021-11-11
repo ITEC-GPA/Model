@@ -73,6 +73,10 @@ namespace GPC.Model.Materials
                              
         public double StrainUTension => _strainUTension;
 
+        public CompressionStressStrainDiagrams CompressionStressStrainDiagram => _compressionStressStrainDiagrams;
+
+        public TensionStressStrainDiagrams TensionStressStrainDiagram => _tensionStressStrainDiagrams;
+
         #endregion
 
         /// <summary>

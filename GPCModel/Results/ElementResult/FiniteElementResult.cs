@@ -20,9 +20,9 @@ namespace GPC.Model.Results
         public int StageId => _stageId;
 
 
-        public FiniteElementResult(ILoadCase Case, CoordinateSystem coordinateSystem, IEnumerable<ResultLocation> resultLocation,
+        public FiniteElementResult(ILoadCase Case, IEnumerable<ResultLocation> resultLocation,
                                     int stageId = ModelObjectId.IDUNASSIGNED, string name = "")
-            : base(Case, coordinateSystem, resultLocation.ToArray(), name)
+            : base(Case, resultLocation.ToArray(), name)
         {
             _stageId = stageId;
         }

@@ -14,14 +14,12 @@ namespace GPC.Model.Results
 
 
         /// <param name="Case"></param>
-        /// <param name="coordinateSystem"></param>
         /// <param name="resultLocations"></param>
         /// <param name="stageId"></param>
         /// <param name="name"></param>
-        public PlateResult(ILoadCase Case, CoordinateSystem coordinateSystem,
-                                           IEnumerable<ResultLocationId> resultLocations,
+        public PlateResult(ILoadCase Case, IEnumerable<ResultLocationId> resultLocations,
                                            int stageId = ModelObjectId.IDUNASSIGNED, string name = "")
-            : base(Case, coordinateSystem, resultLocations, stageId, name)
+            : base(Case, resultLocations, stageId, name)
         {
             if (resultLocations is null)
             {
@@ -36,14 +34,12 @@ namespace GPC.Model.Results
         }
 
         /// <param name="Case"></param>
-        /// <param name="coordinateSystem"></param>
         /// <param name="resultLocations"></param>
         /// <param name="stageId"></param>
         /// <param name="name"></param>
-        public PlateResult(ILoadCase Case, CoordinateSystem coordinateSystem,
-                                           IEnumerable<ResultLocationPoint> resultLocations,
+        public PlateResult(ILoadCase Case, IEnumerable<ResultLocationPoint> resultLocations,
                                            int stageId = ModelObjectId.IDUNASSIGNED, string name = "")
-            : base(Case, coordinateSystem, resultLocations, stageId, name)
+            : base(Case, resultLocations, stageId, name)
         {
             if (resultLocations is null)
             {

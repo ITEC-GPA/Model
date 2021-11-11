@@ -17,16 +17,10 @@ namespace GPC.Model.Results
     public abstract class ElementResult : ModelObject, ISerializable
     {
 
-
-        protected readonly CoordinateSystem _coordinateSystem;
-
         protected readonly ILoadCase _case;
 
         protected readonly ResultLocation[] _resultLocations;
 
-
-
-        public CoordinateSystem CoordinateSystem => _coordinateSystem;
 
         public ILoadCase Case => _case;
 
@@ -37,14 +31,12 @@ namespace GPC.Model.Results
 
 
         /// <param name="Case">The case where these results are reffered </param>
-        /// <param name="coordinateSystem">Coordinate system where these result are provided</param>
         /// <param name="resultLocations"></param>
         /// <param name="name"></param>
-        public ElementResult(ILoadCase Case, CoordinateSystem coordinateSystem, ResultLocation[] resultLocations, string name = "")
+        public ElementResult(ILoadCase Case, ResultLocation[] resultLocations, string name = "")
             : base(name)
         {
             _case = Case ?? throw new ArgumentNullException(nameof(Case));
-            _coordinateSystem = coordinateSystem ?? throw new ArgumentNullException(nameof(coordinateSystem));
             _resultLocations = resultLocations ?? throw new ArgumentNullException(nameof(resultLocations));
 
 
@@ -67,7 +59,6 @@ namespace GPC.Model.Results
             : base(info, context)
         {
             _case = (ILoadCase)info.GetValue("Case", typeof(ILoadCase));
-            _coordinateSystem = (CoordinateSystem)info.GetValue("CoordinateSystem", typeof(CoordinateSystem));
             _resultLocations = (ResultLocation[])info.GetValue("ResultLocations", typeof(ResultLocation[]));
         }
 
@@ -76,7 +67,6 @@ namespace GPC.Model.Results
         {
             base.GetObjectData(info, context);
             info.AddValue("Case", _case);
-            info.AddValue("CoordinateSystem", _coordinateSystem);
             info.AddValue("ResultLocations", _resultLocations);
         }
 
@@ -101,8 +91,6 @@ namespace GPC.Model.Results
             if (ReferenceEquals(this, obj))
                 return true;
 
-            // Coordinate system non messo nell'equals per scelta. Comparazione viene fatta solo su loadcase
-
             return (obj is ElementResult other) && _case.Equals(other._case)
                                                 && _resultLocations.ScrambledEquals(other.ResultLocations)
                                                 && base.Equals(other);
@@ -113,7 +101,6 @@ namespace GPC.Model.Results
         {
             unchecked
             {
-                // Coordinate system non messo nell'hashcode per scelta. Comparazione viene fatta solo su loadcase
                 int hashCode = -391 + base.GetHashCode();
                 hashCode = hashCode * -17 + EqualityComparer<ILoadCase>.Default.GetHashCode(_case);
 

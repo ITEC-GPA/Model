@@ -42,8 +42,8 @@
     <Reference Include="GMsh.Net, Version=1.0.484.1, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\GMsh.Net.1.0.484.1\lib\net472\GMsh.Net.dll</HintPath>
     </Reference>
-    <Reference Include="GPCGeometry, Version=1.1.0.2, Culture=neutral, processorArchitecture=AMD64">
-      <HintPath>..\packages\GPCGeometry.1.1.0.2\lib\net472\GPCGeometry.dll</HintPath>
+    <Reference Include="GPCGeometry, Version=1.1.1.5, Culture=neutral, processorArchitecture=AMD64">
+      <HintPath>..\packages\GPCGeometry.1.1.1.5\lib\net472\GPCGeometry.dll</HintPath>
     </Reference>
     <Reference Include="GPCUtilities, Version=1.0.31.2, Culture=neutral, processorArchitecture=AMD64">
       <HintPath>..\packages\GPCUtilities.1.0.31.2\lib\net472\GPCUtilities.dll</HintPath>
@@ -107,9 +107,11 @@
     <Compile Include="Sections\Concrete\IConcreteSection.cs" />
     <Compile Include="Sections\Concrete\ReinforcedConcreteRebar.cs" />
     <Compile Include="Sections\Concrete\ReinforcedConcreteSection.cs" />
+    <Compile Include="Sections\ISection.cs" />
     <Compile Include="Sections\Rebar\IRebarSection.cs" />
     <Compile Include="Sections\Rebar\RebarSectionRectangular.cs" />
     <Compile Include="Sections\Rebar\RebarSectionCircular.cs" />
+    <Compile Include="Sections\SectionHelper.cs" />
     <Compile Include="Sections\SectionRectangular.cs" />
     <Compile Include="Sections\ShapeEx.cs" />
     <Compile Include="Sections\Steel\ISteelSection.cs" />

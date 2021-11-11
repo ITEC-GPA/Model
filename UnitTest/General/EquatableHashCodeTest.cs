@@ -160,7 +160,6 @@ namespace GeneralTest
         public void LoadCase()
         {
             LoadCase sdl1 = new LoadCase("SDL", GPC.Model.LoadCases.LoadCase.LoadCaseTypes.SuperImposedDeadLoad, Guid.NewGuid());
-            LoadCase sdl2 = new LoadCase("SDL", GPC.Model.LoadCases.LoadCase.LoadCaseTypes.SuperImposedDeadLoad, Guid.NewGuid());
             LoadCaseEn16612 ldpr = new LoadCaseEn16612("SDL", GPC.Model.LoadCases.LoadCase.LoadCaseTypes.SuperImposedDeadLoad, LoadCaseEn16612.LoadCaseEn16612Types.SnowCanopies, Guid.NewGuid());
 
             LoadCase lc3 = new LoadCaseEn16612("SDL", GPC.Model.LoadCases.LoadCase.LoadCaseTypes.SuperImposedDeadLoad, LoadCaseEn16612.LoadCaseEn16612Types.SnowCanopies, Guid.NewGuid());
@@ -398,8 +397,8 @@ namespace GeneralTest
             ResultLocationId resultLocationId1 = new ResultLocationId(new INodeResult[] { rd1 }, 1);
             ResultLocationId resultLocationId2 = new ResultLocationId(new INodeResult[] { rd2 }, 2);
 
-            NodeResult nr1 = new NodeResult(lc1, CoordinateSystem.Global, new [] { resultLocationId1 });
-            NodeResult nr2 = new NodeResult(lc2, CoordinateSystem.Global, new [] { resultLocationId2 });
+            NodeResult nr1 = new NodeResult(lc1, new [] { resultLocationId1 });
+            NodeResult nr2 = new NodeResult(lc2, new [] { resultLocationId2 });
 
             Assert.IsTrue(rd1.Equals(rd2));
             Assert.IsTrue(lc1.Equals(lc2));
@@ -425,8 +424,8 @@ namespace GeneralTest
             ResultLocationId resultLocationId1 = new ResultLocationId(new INodeResult[] { rd1 }, 1);
             ResultLocationId resultLocationId2 = new ResultLocationId(new INodeResult[] { rd2 }, 2);
 
-            NodeResult nr1 = new NodeResult(cmb1, CoordinateSystem.Global, new [] { resultLocationId1 });
-            NodeResult nr2 = new NodeResult(cmb2, CoordinateSystem.Global, new [] { resultLocationId2 });
+            NodeResult nr1 = new NodeResult(cmb1, new [] { resultLocationId1 });
+            NodeResult nr2 = new NodeResult(cmb2, new [] { resultLocationId2 });
 
             Assert.IsTrue(lc1.Equals(lc2));
             Assert.IsTrue(cmb1.Equals(cmb2));

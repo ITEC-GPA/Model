@@ -17,10 +17,9 @@ namespace GPC.Model.Results
 
 
 
-        public NodeResult(ILoadCase Case, CoordinateSystem coordinateSystem,
-                                          IEnumerable<ResultLocationId> resultLocations,
+        public NodeResult(ILoadCase Case, IEnumerable<ResultLocationId> resultLocations,
                                           int stageId = ModelObjectId.IDUNASSIGNED)
-            : base(Case, coordinateSystem, resultLocations.ToArray())
+            : base(Case, resultLocations.ToArray())
         {
             _stageId = stageId;
         }

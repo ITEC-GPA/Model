@@ -5,7 +5,7 @@ using GPC.Model.Materials;
 
 namespace GPC.Model.Sections
 {
-    public class SectionCHS : Section
+    public class SectionCHS : Section, ISection
     {
         #region Variables
 
@@ -62,7 +62,7 @@ namespace GPC.Model.Sections
 
         }
 
-        public SectionCHS(SerializationInfo info, StreamingContext context)
+        protected SectionCHS(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
             _externalDiameter = info.GetDouble("D");
@@ -132,6 +132,16 @@ namespace GPC.Model.Sections
 
         #region Public override methods 
 
+        protected Shape2d GetShape(int numberOfEdges)
+        {
+            return new Shape2d(new Polygon2d(_externalDiameter, numberOfEdges), new[] { new Polygon2d(_externalDiameter - _thickness, numberOfEdges) });
+        }
+
+        protected override Shape2d GetShape()
+        {
+            return new Shape2d(new Polygon2d(_externalDiameter), new[] { new Polygon2d(_externalDiameter - _thickness) });
+        }
+
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             base.GetObjectData(info, context);
@@ -140,31 +150,6 @@ namespace GPC.Model.Sections
             info.AddValue("Material", _material);
         }
 
-        public override ShapeMaterial[] GetShapes()
-        {
-            int divisions = 36;
-            Polygon2d hole = null;
-            Polygon2d fill = new Polygon2d();
-
-            if (Math.Abs(DiameterInternal) > 1)
-            {
-                hole = new Polygon2d();
-            }
-            for (int i = 0; i < divisions; i++)
-            {
-                double teta = i * 2 * Math.PI / divisions;
-                fill.Add(new Point2d(0.5 * Diameter * Math.Cos(teta), 0.5 * _externalDiameter * Math.Sin(teta)));
-
-                if (hole != null)
-                {
-                    hole.Add(new Point2d(0.5 * DiameterInternal * Math.Cos(teta), 0.5 * DiameterInternal * Math.Sin(teta)));
-                }
-            }
-
-            Shape shape = new Shape(fill, hole != null ? new[] { hole } : null);
-
-            return new[] { new ShapeMaterial { Material = _material, Shape = shape } };
-        }
 
         public override string ToString()
         {
