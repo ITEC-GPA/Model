@@ -50,11 +50,11 @@ namespace FemTest
             var cmb = new Combination("cmb1");
             cmb.AddLoadCaseCoefficient(loadCase, 1);
 
-            plate.AddResult(new PlateResult(cmb, CoordinateSystem.Global, locationsResult.ToArray()));
+            plate.AddResult(new PlateResult(cmb, locationsResult.ToArray()));
                      
 
 
-            femModel.GetNode(1).AddResult(new NodeResult(cmb, CoordinateSystem.Global, new[] { new ResultLocationId(new INodeResult[] { new ResultDisplacement(1, 2, 3, 4, 5, 6) }, 1) } ));
+            femModel.GetNode(1).AddResult(new NodeResult(cmb, new[] { new ResultLocationId(new INodeResult[] { new ResultDisplacement(1, 2, 3, 4, 5, 6) }, 1) } ));
 
             IEnumerable<FiniteElementResult> stresses = femModel.GetCombinationResultsPlateStress(cmb);
             IEnumerable<NodeResult> displacements = femModel.GetCombinationNodeDisplacementResults(cmb);
@@ -108,9 +108,9 @@ namespace FemTest
             var cmb = new Combination("cmb1");
             cmb.AddLoadCaseCoefficient(loadCase, 1);
 
-            plate.AddResult(new PlateResult(cmb, CoordinateSystem.Global, locationsResult.ToArray()));
+            plate.AddResult(new PlateResult(cmb,locationsResult.ToArray()));
 
-            femModel.GetNode(1).AddResult(new NodeResult(cmb, CoordinateSystem.Global, new[] { new ResultLocationId(new INodeResult[] { new ResultDisplacement(1, 2, 3, 4, 5, 6) }, 1) }));
+            femModel.GetNode(1).AddResult(new NodeResult(cmb,  new[] { new ResultLocationId(new INodeResult[] { new ResultDisplacement(1, 2, 3, 4, 5, 6) }, 1) }));
 
             IEnumerable<FiniteElementResult> stresses2 = femModel.GetCombinationResultsPlateStress(cmb, "Group1");
 

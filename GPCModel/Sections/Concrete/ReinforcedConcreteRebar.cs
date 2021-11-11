@@ -55,8 +55,8 @@ namespace GPC.Model.Sections.Concrete
         }
 
 
-        public ReinforcedConcreteRebar(IRebarSection section, Point2d position, int id = ModelObjectId.IDUNASSIGNED, double epsilonP = 0.0)
-            : this(section, position, epsilonP, id, "")
+        public ReinforcedConcreteRebar(IRebarSection section, Point2d position)
+            : this(section, position,0.0, ModelObjectId.IDUNASSIGNED)
         {
 
         }

@@ -67,7 +67,7 @@ namespace GPC.Model.Sections
 
         protected override Shape2d GetShape()
         {
-            return new Shape2d(new Polygon2d(_diameter));
+            return new Shape2d(new Polygon2d(_diameter, 32, _centroid));
         }
 
 

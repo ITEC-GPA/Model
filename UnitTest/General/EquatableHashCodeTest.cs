@@ -398,8 +398,8 @@ namespace GeneralTest
             ResultLocationId resultLocationId1 = new ResultLocationId(new INodeResult[] { rd1 }, 1);
             ResultLocationId resultLocationId2 = new ResultLocationId(new INodeResult[] { rd2 }, 2);
 
-            NodeResult nr1 = new NodeResult(lc1, CoordinateSystem.Global, new [] { resultLocationId1 });
-            NodeResult nr2 = new NodeResult(lc2, CoordinateSystem.Global, new [] { resultLocationId2 });
+            NodeResult nr1 = new NodeResult(lc1, new [] { resultLocationId1 });
+            NodeResult nr2 = new NodeResult(lc2, new [] { resultLocationId2 });
 
             Assert.IsTrue(rd1.Equals(rd2));
             Assert.IsTrue(lc1.Equals(lc2));
@@ -425,8 +425,8 @@ namespace GeneralTest
             ResultLocationId resultLocationId1 = new ResultLocationId(new INodeResult[] { rd1 }, 1);
             ResultLocationId resultLocationId2 = new ResultLocationId(new INodeResult[] { rd2 }, 2);
 
-            NodeResult nr1 = new NodeResult(cmb1, CoordinateSystem.Global, new [] { resultLocationId1 });
-            NodeResult nr2 = new NodeResult(cmb2, CoordinateSystem.Global, new [] { resultLocationId2 });
+            NodeResult nr1 = new NodeResult(cmb1, new [] { resultLocationId1 });
+            NodeResult nr2 = new NodeResult(cmb2, new [] { resultLocationId2 });
 
             Assert.IsTrue(lc1.Equals(lc2));
             Assert.IsTrue(cmb1.Equals(cmb2));
