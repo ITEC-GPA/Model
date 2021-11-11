@@ -19,7 +19,7 @@ namespace GPC.Model.Sections.Concrete
         /// <param name="shape">The shape</param>
         /// <param name="size">The mesh size</param>
         /// <returns></returns>
-        internal static Mesh GenerateMesh(Shape shape, double size = -1)
+        internal static Mesh GenerateMesh(Shape2d shape, double size = -1)
         {
             if (size == -1)
             {
@@ -37,13 +37,13 @@ namespace GPC.Model.Sections.Concrete
                 MeshSize = size,
             };
 
-            if (Mesh.Generate(new Shape[] { shape }, generateOptions, out List<Mesh> meshes, out Mesh.GenerateMeshStatus meshStatus))
+            if (Mesh.Generate(new Shape2d[] { shape }, generateOptions, out List<Mesh> meshes, out Mesh.GenerateMeshStatus meshStatus))
                 return meshes[0];
             else
                 throw new ArgumentException($"Fail to create mesh. {meshStatus.GetLastCustomErrorMessage()}");
         }
 
-        internal static void CalculateIntegralInertiaMoment(Mesh mesh, MeshFace face, Point3d centroid, out double jxx, out double jyy, out double jxy)
+        internal static void CalculateIntegralInertiaMoment(Mesh mesh, MeshFace face, Point2d centroid, out double jxx, out double jyy, out double jxy)
         {
             double area = mesh.GetFaceArea(face);
             Point3d[] points = mesh.GetFacePoints(face);
@@ -82,7 +82,7 @@ namespace GPC.Model.Sections.Concrete
             Parallel.For(0, mesh.FacesCount, (i) =>
             {
                 double area = mesh.GetFaceArea(mesh.Faces[i + 1]);
-                Point3d centroid = mesh.GetFaceCentroid(mesh.Faces[i + 1]);
+                Point2d centroid = mesh.GetFaceCentroid(mesh.Faces[i + 1]);
 
                 SxArray[i] = area * centroid.Y;
                 SyArray[i] += area * centroid.X;
@@ -92,7 +92,7 @@ namespace GPC.Model.Sections.Concrete
             Sy = SyArray.Sum();
         }
 
-        internal static void CalculateInertiaMoments(Mesh mesh, Point3d centroid, out double Jxx, out double Jyy, out double Jxy, out double Jp)
+        internal static void CalculateInertiaMoments(Mesh mesh, Point2d centroid, out double Jxx, out double Jyy, out double Jxy, out double Jp)
         {
             double[] JxxArray = new double[mesh.FacesCount];
             double[] JyyArray = new double[mesh.FacesCount];
@@ -146,7 +146,7 @@ namespace GPC.Model.Sections.Concrete
 
 
 
-        internal static void CalculateHomogeneizedInertiaMoments(ReinforcedConcreteRebar[] rebars, Point3d sectionCentroid, Point3d centroid,
+        internal static void CalculateHomogeneizedInertiaMoments(ReinforcedConcreteRebar[] rebars, Point2d sectionCentroid, Point2d centroid,
             ConcreteMaterial concreteMaterial, double Jxx, double Jyy, double Jxy, double area,
             out double JxxHomogenized, out double JyyHomogenized, out double JxyHomogenized, out double JpHomogenized)
         {
@@ -174,7 +174,7 @@ namespace GPC.Model.Sections.Concrete
             JxyHomogenized += (sectionCentroid.X - centroid.X) * (sectionCentroid.Y - centroid.Y) * area;
         }
 
-        internal static void CalculateHomogeneizedInertiaMoments(double n, ReinforcedConcreteRebar[] rebars, Point3d sectionCentroid, Point3d centroid,
+        internal static void CalculateHomogeneizedInertiaMoments(double n, ReinforcedConcreteRebar[] rebars, Point2d sectionCentroid, Point2d centroid,
             double Jxx, double Jyy, double Jxy, double area,
             out double JxxHomogenized, out double JyyHomogenized, out double JxyHomogenized, out double JpHomogenized)
         {
@@ -184,12 +184,9 @@ namespace GPC.Model.Sections.Concrete
 
             Parallel.For(0, rebars.Count(), (i) =>
             {
-                JxxRebarArray[i] = (n - 1) * (rebars[i].RebarSection.Jxx + rebars[i].Area *
-                    (Math.Pow((rebars[i].Position.Y - centroid.Y), 2)));
-                JyyRebarArray[i] = (n - 1) * (rebars[i].RebarSection.Jyy + rebars[i].Area *
-                    (Math.Pow((rebars[i].Position.X - centroid.X), 2)));
-                JxyRebarArray[i] = (n - 1) * (rebars[i].RebarSection.Jxy + rebars[i].Area *
-                    (rebars[i].Position.X - centroid.X) * (rebars[i].Position.Y - centroid.Y));
+                JxxRebarArray[i] = (n - 1) * (rebars[i].RebarSection.Jxx + rebars[i].Area * (Math.Pow((rebars[i].Position.Y - centroid.Y), 2)));
+                JyyRebarArray[i] = (n - 1) * (rebars[i].RebarSection.Jyy + rebars[i].Area * (Math.Pow((rebars[i].Position.X - centroid.X), 2)));
+                JxyRebarArray[i] = (n - 1) * (rebars[i].RebarSection.Jxy + rebars[i].Area * (rebars[i].Position.X - centroid.X) * (rebars[i].Position.Y - centroid.Y));
             });
 
             JxxHomogenized = Jxx + JxxRebarArray.Sum();
@@ -228,9 +225,9 @@ namespace GPC.Model.Sections.Concrete
         /// <param name="J22H">The first moment of area calculated respect the second principal axis 
         /// passing throw the centroid of only concrete section of the homogeneized section</param>
         /// <param name="angleX">The angle of rotation of the principal axis respect the X-Axis</param>
-        internal static void GetHomogeneizedMechanicalProperties(Mesh mesh, Point3d centroid, ReinforcedConcreteRebar[] rebars, ConcreteMaterial concreteMaterial, double area,
+        internal static void GetHomogeneizedMechanicalProperties(Mesh mesh, Point2d centroid, ReinforcedConcreteRebar[] rebars, ConcreteMaterial concreteMaterial, double area,
             double Jxx, double Jyy, double Jxy, out double areaH, out double SxH, out double SyH,
-            out Point3d centroidH, out double JxxH, out double JyyH, out double JxyH, out double JpH, out double J11H, out double J22H, out double angleX)
+            out Point2d centroidH, out double JxxH, out double JyyH, out double JxyH, out double JpH, out double J11H, out double J22H, out double angleX)
         {
             areaH = GetHomogenizedArea(rebars, concreteMaterial, area);
             centroidH = GetHomogenizedCentroid(mesh, rebars, concreteMaterial, area, out SxH, out SyH);
@@ -265,8 +262,8 @@ namespace GPC.Model.Sections.Concrete
         /// <param name="J22H">The first moment of area calculated respect the second principal axis 
         /// passing throw the centroid of only concrete section of the homogeneized section</param>
         /// <param name="angleX">The angle of rotation of the principal axis respect the X-Axis</param>
-        internal static void GetHomogeneizedMechanicalProperties(double n, Mesh mesh, ReinforcedConcreteRebar[] rebars, Point3d sectionCentroid,
-            double area, double Jxx, double Jyy, double Jxy, out double areaH, out double SxH, out double SyH, out Point3d centroidH,
+        internal static void GetHomogeneizedMechanicalProperties(double n, Mesh mesh, ReinforcedConcreteRebar[] rebars, Point2d sectionCentroid,
+            double area, double Jxx, double Jyy, double Jxy, out double areaH, out double SxH, out double SyH, out Point2d centroidH,
             out double JxxH, out double JyyH, out double JxyH, out double JpH, out double J11H, out double J22H, out double angleX)
         {
             areaH = GetHomogenizedArea(n, rebars, area);
@@ -289,7 +286,7 @@ namespace GPC.Model.Sections.Concrete
         /// <param name="SxHomog">The first moment of area respect X-Axis</param>
         /// <param name="SyHomog">The first moment of area respect Y-Axis</param>
         /// <returns>The centroid</returns>
-        internal static Point3d GetHomogenizedCentroid(Mesh mesh, ReinforcedConcreteRebar[] rebars, ConcreteMaterial concreteMaterial, double area, out double SxHomog, out double SyHomog)
+        internal static Point2d GetHomogenizedCentroid(Mesh mesh, ReinforcedConcreteRebar[] rebars, ConcreteMaterial concreteMaterial, double area, out double SxHomog, out double SyHomog)
         {
             CalculateStaticMoments(mesh, out double Sx, out double Sy);
 
@@ -319,7 +316,7 @@ namespace GPC.Model.Sections.Concrete
         /// <param name="SxHomog">The first moment of area respect X-Axis</param>
         /// <param name="SyHomog">The first moment of area respect Y-Axis</param>
         /// <returns></returns>
-        internal static Point3d GetHomogenizedCentroid(double n, Mesh mesh, ReinforcedConcreteRebar[] rebars, double area, out double SxHomog, out double SyHomog)
+        internal static Point2d GetHomogenizedCentroid(double n, Mesh mesh, ReinforcedConcreteRebar[] rebars, double area, out double SxHomog, out double SyHomog)
         {
             CalculateStaticMoments(mesh, out double Sx, out double Sy);
 
@@ -349,7 +346,7 @@ namespace GPC.Model.Sections.Concrete
         /// <param name="SxHomog">The first moment of area respect X-Axis</param>
         /// <param name="SyHomog">The first moment of area respect Y-Axis</param>
         /// <returns>The centroid</returns>
-        internal static Point3d GetHomogenizedCentroid(double Sx, double Sy, ReinforcedConcreteRebar[] rebars, ConcreteMaterial concreteMaterial, double area, out double SxHomog, out double SyHomog)
+        internal static Point2d GetHomogenizedCentroid(double Sx, double Sy, ReinforcedConcreteRebar[] rebars, ConcreteMaterial concreteMaterial, double area, out double SxHomog, out double SyHomog)
         {
             double[] AreaHomogArray = new double[rebars.Count()];
             double[] SxHomogenizedArray = new double[rebars.Count()];
@@ -431,14 +428,14 @@ namespace GPC.Model.Sections.Concrete
             return area + AreaHomogArray.Sum();
         }
 
-        internal static double GetHomogeneizedJ11(double n, Point3d sectionCentroid, Mesh mesh, ReinforcedConcreteRebar[] rebars, double area, double Jxx, double Jyy, double Jxy)
+        internal static double GetHomogeneizedJ11(double n, Point2d sectionCentroid, Mesh mesh, ReinforcedConcreteRebar[] rebars, double area, double Jxx, double Jyy, double Jxy)
         {
             Point2d centroidH = GetHomogenizedCentroid(n, mesh, rebars, area, out double _, out double _);
             CalculateHomogeneizedInertiaMoments(n, rebars, sectionCentroid, centroidH, Jxx, Jyy, Jxy, area, out double JxxH, out double JyyH, out double JxyH, out double _);
             return CalculateJ11(JxxH, JyyH, JxyH);
         }
 
-        internal static double GetHomogeneizedJ11(Mesh mesh, Point3d sectionCentroid, ReinforcedConcreteRebar[] rebars, ConcreteMaterial concreteMaterial,
+        internal static double GetHomogeneizedJ11(Mesh mesh, Point2d sectionCentroid, ReinforcedConcreteRebar[] rebars, ConcreteMaterial concreteMaterial,
             double area, double Jxx, double Jyy, double Jxy)
         {
             Point2d centroidH = GetHomogenizedCentroid(mesh, rebars, concreteMaterial, area, out _, out _);
@@ -447,14 +444,14 @@ namespace GPC.Model.Sections.Concrete
             return CalculateJ11(JxxH, JyyH, JxyH);
         }
 
-        internal static double GetHomogeneizedJ22(double n, Point3d sectionCentroid, Mesh mesh, ReinforcedConcreteRebar[] rebars, double area, double Jxx, double Jyy, double Jxy)
+        internal static double GetHomogeneizedJ22(double n, Point2d sectionCentroid, Mesh mesh, ReinforcedConcreteRebar[] rebars, double area, double Jxx, double Jyy, double Jxy)
         {
             Point2d centroidH = GetHomogenizedCentroid(n, mesh, rebars, area, out double _, out double _);
             CalculateHomogeneizedInertiaMoments(n, rebars, sectionCentroid, centroidH, Jxx, Jyy, Jxy, area, out double JxxH, out double JyyH, out double JxyH, out double _);
             return CalculateJ22(JxxH, JyyH, JxyH);
         }
 
-        internal static double GetHomogeneizedJ22(Mesh mesh, Point3d sectionCentroid, ReinforcedConcreteRebar[] rebars, ConcreteMaterial concreteMaterial,
+        internal static double GetHomogeneizedJ22(Mesh mesh, Point2d sectionCentroid, ReinforcedConcreteRebar[] rebars, ConcreteMaterial concreteMaterial,
             double area, double Jxx, double Jyy, double Jxy)
         {
             Point2d centroidH = GetHomogenizedCentroid(mesh, rebars, concreteMaterial, area, out _, out _);
@@ -464,9 +461,9 @@ namespace GPC.Model.Sections.Concrete
         }
 
 
-        internal static ReinforcedConcreteRebar[] SetRadialRebars(Point3d centroid, double diameter, double concreteCover, int numberOfRebars, IRebarSection rebarSection, double epsilonP = 0.0)
+        internal static ReinforcedConcreteRebar[] SetRadialRebars(double diameter, double concreteCover, int numberOfRebars, IRebarSection rebarSection, Point2d centroid = default, double epsilonP = 0.0)
         {
-            Polygon3d polygon = ConvertCircleToPolygon(centroid, diameter / 2.0 - concreteCover, numberOfRebars);
+            Polygon2d polygon = new Polygon2d(diameter - concreteCover * 2.0, numberOfRebars, centroid);
 
             ReinforcedConcreteRebar[] rebars = new ReinforcedConcreteRebar[polygon.Count];
 

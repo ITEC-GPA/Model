@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -25,7 +25,7 @@ namespace GPC.Model.Sections.Concrete
 
         public ConcreteMaterial ConcreteMaterial => (ConcreteMaterial)_material;
 
-        public Shape Shape => GetShape();
+        public Shape2d Shape => GetShape();
 
         public Mesh Mesh
         {
