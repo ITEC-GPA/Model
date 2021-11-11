@@ -17,7 +17,6 @@ namespace GPC.Model.Sections.Concrete
 
         protected readonly ShapeEx _shapeEx;
         protected readonly ReinforcedConcreteRebar[] _rebars;
-        protected Mesh _mesh;
 
         #endregion
 
@@ -30,17 +29,7 @@ namespace GPC.Model.Sections.Concrete
 
         public ConcreteMaterial ConcreteMaterial => (ConcreteMaterial)_material;
 
-        public Mesh Mesh
-        {
-            get
-            {
-                if (_mesh == null)
-                    _mesh = GenerateMesh();
-                return _mesh;
-            }
-        }
-
-        public Shape2d Shape => _shapeEx;
+        public override Shape2d Shape => _shapeEx;
 
         #endregion
 

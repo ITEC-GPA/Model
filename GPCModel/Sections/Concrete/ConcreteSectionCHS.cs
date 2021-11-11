@@ -15,7 +15,6 @@ namespace GPC.Model.Sections.Concrete
         #region Variables
 
         protected ReinforcedConcreteRebar[] _rebars;
-        protected Mesh _mesh;
 
         #endregion
 
@@ -25,17 +24,6 @@ namespace GPC.Model.Sections.Concrete
 
         public ConcreteMaterial ConcreteMaterial => (ConcreteMaterial)_material;
 
-        public Shape2d Shape => GetShape();
-
-        public Mesh Mesh
-        {
-            get
-            {
-                if (_mesh == null)
-                    _mesh = GenerateMesh();
-                return _mesh;
-            }
-        }
 
         #endregion
 
@@ -50,7 +38,6 @@ namespace GPC.Model.Sections.Concrete
             }
 
             _rebars = rebars.ToArray();
-            _mesh = GenerateMesh();
         }
 
         public ConcreteSectionCHS(SectionCHS sectionCHS, IEnumerable<ReinforcedConcreteRebar> rebars)
@@ -62,7 +49,6 @@ namespace GPC.Model.Sections.Concrete
             }
 
             _rebars = rebars.ToArray();
-            _mesh = GenerateMesh();
 
             if (sectionCHS.Material.GetType() != typeof(ConcreteMaterial))
                 throw new ArgumentException("Material must be a ConcreteMaterial");
@@ -89,7 +75,6 @@ namespace GPC.Model.Sections.Concrete
             }
 
             _rebars = rebars.ToArray();
-            _mesh = GenerateMesh();
         }
 
         public ConcreteSectionCHS(double diameter, double thickness, ConcreteMaterial material, double concreteCover,
@@ -97,7 +82,6 @@ namespace GPC.Model.Sections.Concrete
             : base(diameter, thickness, material, name)
         {
             _rebars = ConcreteSectionHelper.SetRadialRebars(Diameter, concreteCover, numberOfRebars, rebarSection, Centroid, epsilonP);
-            _mesh = GenerateMesh();
         }
 
         #endregion
@@ -247,7 +231,7 @@ namespace GPC.Model.Sections.Concrete
 
         #region Protected Methods
 
-        protected void CalculateHomogeneizedInertiaMoments(Point3d centroid, double Jxx, double Jyy, double Jxy,
+        protected void CalculateHomogeneizedInertiaMoments(Point2d centroid, double Jxx, double Jyy, double Jxy,
             out double JxxHomogenized, out double JyyHomogenized, out double JxyHomogenized, out double JpHomogenized)
         {
             ConcreteSectionHelper.CalculateHomogeneizedInertiaMoments(Rebars, Centroid, centroid, ConcreteMaterial, Jxx, Jyy, Jxy, Area,
@@ -256,7 +240,7 @@ namespace GPC.Model.Sections.Concrete
             // NOTA: ci siamo ricondotti a momenti d'inerzia rispetto al baricentro della sezione di solo calcestruzzo
         }
 
-        protected void CalculateHomogeneizedInertiaMoments(double n, Point3d centroid, double Jxx, double Jyy, double Jxy,
+        protected void CalculateHomogeneizedInertiaMoments(double n, Point2d centroid, double Jxx, double Jyy, double Jxy,
             out double JxxHomogenized, out double JyyHomogenized, out double JxyHomogenized, out double JpHomogenized)
         {
             ConcreteSectionHelper.CalculateHomogeneizedInertiaMoments(n, Rebars, Centroid, centroid, Jxx, Jyy, Jxy, Area,

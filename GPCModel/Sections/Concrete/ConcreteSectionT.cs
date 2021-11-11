@@ -14,7 +14,6 @@ namespace GPC.Model.Sections.Concrete
         #region Variables
 
         protected ReinforcedConcreteRebar[] _rebars;
-        protected Mesh _mesh;
 
         #endregion
 
@@ -24,17 +23,6 @@ namespace GPC.Model.Sections.Concrete
 
         public ConcreteMaterial ConcreteMaterial => (ConcreteMaterial)_material;
 
-        public Shape2d Shape => GetShape();
-
-        public Mesh Mesh
-        {
-            get
-            {
-                if (_mesh == null)
-                    _mesh = GetReinforcedConcreteSection().Mesh;
-                return _mesh;
-            }
-        }
 
         #endregion
 

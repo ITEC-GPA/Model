@@ -73,13 +73,12 @@ namespace GPC.Model.Materials
                              
         public double StrainUTension => _strainUTension;
 
-        #endregion
-
         /// <summary>
         /// Tangent modulus of elasticity
         /// </summary>
         public double Ec => 1.05 * E;
 
+        #endregion
 
         #region Constructor
 

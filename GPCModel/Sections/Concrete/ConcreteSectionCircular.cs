@@ -16,7 +16,6 @@ namespace GPC.Model.Sections.Concrete
         #region Variables
 
         protected ReinforcedConcreteRebar[] _rebars;
-        protected Mesh _mesh;
 
         #endregion
 
@@ -26,17 +25,6 @@ namespace GPC.Model.Sections.Concrete
 
         public ConcreteMaterial ConcreteMaterial => (ConcreteMaterial)_material;
 
-        public Shape2d Shape => GetShape();
-
-        public Mesh Mesh
-        {
-            get
-            {
-                if (_mesh == null)
-                    _mesh = GenerateMesh();
-                return _mesh;
-            }
-        }
 
         #endregion
 
@@ -46,14 +34,12 @@ namespace GPC.Model.Sections.Concrete
             : base(diameter, material, name)
         {
             _rebars = rebars;
-            _mesh = GenerateMesh();
         }
 
         public ConcreteSectionCircular(double diameter, ConcreteMaterial material, double concreteCover, int numberOfRebars, IRebarSection rebarSection, double epsilonP = 0.0, string name = "")
             : base(diameter, material, name)
         {
             _rebars = SetRadialRebars(concreteCover, numberOfRebars, rebarSection, epsilonP);
-            _mesh = GenerateMesh();
         }
 
         #endregion
