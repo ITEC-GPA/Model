@@ -75,7 +75,6 @@ namespace GPC.Model.Sections.Concrete
             return new ReinforcedConcreteSection(this);
         }
 
-
         /// <summary>
         /// Return all homogenized mechanical properties with default value of homogenized factor n
         /// </summary>
@@ -223,7 +222,7 @@ namespace GPC.Model.Sections.Concrete
 
             _centroid = SectionHelper.CalculateCentroid(Sx, Sy, _area);
 
-            ConcreteSectionHelper.CalculateInertiaMoments(Mesh, _centroid, out double Jxx, out double Jyy, out double Jxy, out double Jp);
+            ConcreteSectionHelper.CalculateInertiaMoments(Mesh, _centroid, out double Jxx, out double Jyy, out double Jxy, out double _);
 
             _jxx = Jxx;
             _jyy = Jyy;
@@ -231,7 +230,6 @@ namespace GPC.Model.Sections.Concrete
             _angleX1 = SectionHelper.CalculateAngle(Jxx, Jyy, Jxy); ;
             _j11 = SectionHelper.CalculateJ11(Jxx, Jyy, Jxy);
             _j22 = SectionHelper.CalculateJ22(Jxx, Jyy, Jxy);
-
 
             _jw = 0; //TODO: implementare metodi di calcolo della sezione calcolo JW/JT
             _jt = 0; //TODO: implementare metodi di calcolo della sezione calcolo JW/JT
@@ -248,7 +246,6 @@ namespace GPC.Model.Sections.Concrete
         {
             return ShapeEx.GetArea();
         }
-
 
         public virtual double CalculateN(ReinforcedConcreteRebar rebar)
         {

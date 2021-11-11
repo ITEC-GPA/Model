@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -84,9 +84,6 @@ namespace GPC.Model.Sections.Concrete
             Jp = Jxx + Jyy;
         }
 
-
-
-
         internal static void CalculateHomogeneizedInertiaMoments(ReinforcedConcreteRebar[] rebars, Point2d sectionCentroid, Point2d centroid,
             ConcreteMaterial concreteMaterial, double Jxx, double Jyy, double Jxy, double area,
             out double JxxHomogenized, out double JyyHomogenized, out double JxyHomogenized, out double JpHomogenized)
@@ -141,7 +138,6 @@ namespace GPC.Model.Sections.Concrete
 
             // NOTA: ci siamo ricondotti a momenti d'inerzia rispetto al baricentro della sezione di solo calcestruzzo
         }
-
 
         /// <summary>
         /// The centroid of the homogenized section with default value of homogenized factor n
@@ -259,7 +255,6 @@ namespace GPC.Model.Sections.Concrete
             return SectionHelper.CalculateCentroid(SxHomog, SyHomog, GetHomogenizedArea(n, rebars, area));
         }
 
-
         /// <summary>
         /// The homogenized area with default value of homogenized factor n
         /// </summary>
@@ -326,8 +321,7 @@ namespace GPC.Model.Sections.Concrete
             out double JxxH, out double JyyH, out double JxyH, out double _);
             return SectionHelper.CalculateJ22(JxxH, JyyH, JxyH);
         }
-
-
+                
         internal static ReinforcedConcreteRebar[] SetRadialRebars(double diameter, double concreteCover, int numberOfRebars, IRebarSection rebarSection, Point2d centroid = default, double epsilonP = 0.0)
         {
             Polygon2d polygon = new Polygon2d(diameter - concreteCover * 2.0, numberOfRebars, centroid);
