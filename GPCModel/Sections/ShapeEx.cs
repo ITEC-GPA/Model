@@ -9,32 +9,28 @@ using GPC.Model.Materials;
 
 namespace GPC.Model.Sections
 {
-	public class ShapeEx : Shape
+	public class ShapeEx : Shape2d, ISection
 	{
+
 		protected Material _material;
 
 		public Material Material => _material;
 
 
-		public ShapeEx(Polygon3d fill, Material material, Polygon3d[] holes = null, ShapeEx[] childs = null, double tolerance = 0.0001) 
+		public ShapeEx(Polygon2d fill, Material material, Polygon2d[] holes = null, ShapeEx[] childs = null, double tolerance = GeometryBase.Tolerance) 
 			: base(fill, holes, childs, tolerance)
 		{
 			_material = material;
 		}
 
-		public ShapeEx(Polygon3d fill, Material material, Polygon3d[] holes = null, ShapeEx[] childs = null)
-			: this(fill, material, holes, childs, GeometryBase.GetDefaultAngularTolerance())
-		{
-		}
-
-		public ShapeEx(Shape shape, Material material, double tolerance = 0.0001) 
+		public ShapeEx(Shape2d shape, Material material, double tolerance = GeometryBase.Tolerance) 
 			: base(shape, tolerance)
 		{
 			_material = material;
 		}
 
-		public ShapeEx(Shape shape, Material material)
-			: this(shape, material, GeometryBase.GetDefaultAngularTolerance())
+		public ShapeEx(Shape2d shape, Material material)
+			: this(shape, material, GeometryBase.Tolerance)
 		{
 		}
 
@@ -45,15 +41,16 @@ namespace GPC.Model.Sections
 		}
 
 
-
-		#region Field Serialization
-
 		public override void GetObjectData(SerializationInfo info, StreamingContext context)
 		{
 			base.GetObjectData(info, context);
 			info.AddValue("Material", _material);
 		}
 
-		#endregion
+		public Shape2d GetShape()
+		{
+			return this;
+		}
+
 	}
 }

@@ -5,7 +5,7 @@ using GPC.Model.Materials;
 
 namespace GPC.Model.Sections
 {
-    public class SectionL : ThinWallSection
+    public class SectionL : ThinWallSection, ISection
     {
         #region Variables
 
@@ -172,6 +172,11 @@ namespace GPC.Model.Sections
 
 
         #region Public override method
+
+        public override Shape2d GetShape()
+        {
+            throw new NotImplementedException();
+        }
 
         protected override double CalculateJw()
         {

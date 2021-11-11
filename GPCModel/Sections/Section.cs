@@ -223,6 +223,11 @@ namespace GPC.Model.Sections
 
         #region Public virtual material method
 
+        public virtual Shape2d GetShape()
+        {
+            return null;
+        }
+
         public virtual double GetE()
         {
             return _material.E;

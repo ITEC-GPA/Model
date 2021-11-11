@@ -29,7 +29,12 @@ namespace GPC.Model.Sections.Steel
 			ThinWalls = tws;
 		}
 
-		protected override double CalculateJw()
+        public override Shape2d GetShape()
+        {
+            throw new NotImplementedException();
+        }
+
+        protected override double CalculateJw()
 		{
 			return 0;
 			// TODO: implementare

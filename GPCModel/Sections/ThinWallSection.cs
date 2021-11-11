@@ -88,6 +88,8 @@ namespace GPC.Model.Sections
             _angleX1 = CalculateAngle();
         }
 
+        public override abstract Shape2d GetShape();
+
         /// <summary>
         /// Calculate the centroid point of the section in X-Y plane 
         /// </summary>

@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace GPC.Model.Sections
 {
-	public class SectionRectangular : Section
+	public class SectionRectangular : Section, ISection
 	{
         #region Variables
 
@@ -89,6 +89,14 @@ namespace GPC.Model.Sections
 		}
 
         #endregion
+
+
+        public override Shape2d GetShape()
+        {
+            return new Shape2d(new Polygon2d(new Point2d[] { new Point2d(0, 0), new Point2d(Width, 0), new Point2d(Width, Height), new Point2d(0, Height) }));
+        }
+
+
 
         /// <summary>
         /// Internal method to set the mechanical properties to the section

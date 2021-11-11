@@ -8,7 +8,7 @@ using GPC.Model.Materials;
 
 namespace GPC.Model.Sections
 {
-    public class SectionH : ThinWallSection
+    public class SectionH : ThinWallSection, ISection
     {
         #region Variables
 
@@ -75,6 +75,11 @@ namespace GPC.Model.Sections
 
         #endregion
 
+
+        public override Shape2d GetShape()
+        {
+            throw new NotImplementedException();
+        }
 
         public virtual double DistanceYCentroidFromBottom()
         {

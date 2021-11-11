@@ -8,7 +8,7 @@ using GPC.Model.Sections.Concrete;
 namespace GPC.Model.Sections
 {
 
-    public class SectionCircular : Section
+    public class SectionCircular : Section, ISection
     {
         #region Variables
 
@@ -65,21 +65,17 @@ namespace GPC.Model.Sections
 
         #region Public Methods Specific
 
+        public override Shape2d GetShape()
+        {
+            return new Shape2d(new Polygon2d(_diameter));
+        }
+
+
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             base.GetObjectData(info, context);
             info.AddValue("Diameter", _diameter);
             info.AddValue("Material", _material);
-        }
-
-        public Polygon3d ConvertCircleToPolygon(double radius, int edge)
-        {
-            return ConcreteSectionHelper.ConvertCircleToPolygon(Centroid, radius, edge);
-        }
-
-        public Polygon3d ConvertCircleToPolygon(int edge = 32)
-        {
-            return ConvertCircleToPolygon(_diameter / 2.0, edge);
         }
 
         #endregion

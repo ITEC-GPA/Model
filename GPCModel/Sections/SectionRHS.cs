@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace GPC.Model.Sections
 {
-    public class SectionRHS : ThinWallSection
+    public class SectionRHS : ThinWallSection, ISection
     {
         #region Varibles
 
@@ -104,6 +104,11 @@ namespace GPC.Model.Sections
 
 
         #region Public override method
+
+        public override Shape2d GetShape()
+        {
+            throw new NotImplementedException();
+        }
 
         protected override Point2d CalculateShearCenter()
         {

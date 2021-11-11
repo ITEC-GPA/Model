@@ -4,7 +4,7 @@ using GPC.Model.Materials;
 
 namespace GPC.Model.Sections
 {
-    public class SectionT : ThinWallSection
+    public class SectionT : ThinWallSection, ISection
     {
         #region Variables
 
@@ -144,6 +144,22 @@ namespace GPC.Model.Sections
 
 
         #region Public override method
+
+
+        public override Shape2d GetShape()
+        {
+            return new Shape2d(new Polygon2d(new Point2d[] { 
+                                                            new Point2d(0.0, Height), 
+                                                            new Point2d(LenghtFlange, Height),
+                                                            new Point2d(LenghtFlange, HeightWeb), 
+                                                            new Point2d(LenghtFlange / 2.0 + ThicknessWeb / 2.0 , HeightWeb),
+                                                            new Point2d(LenghtFlange / 2.0 + ThicknessWeb / 2.0 , 0.0), 
+                                                            new Point2d(LenghtFlange / 2.0 - ThicknessWeb / 2.0 , 0.0),
+                                                            new Point2d(LenghtFlange / 2.0 - ThicknessWeb / 2.0 , HeightWeb), 
+                                                            new Point2d(0.0 , HeightWeb) 
+                                                        }));
+        }
+
 
         protected override Point2d CalculateShearCenter()
         {
