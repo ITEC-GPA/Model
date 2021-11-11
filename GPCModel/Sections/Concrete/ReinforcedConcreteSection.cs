@@ -40,7 +40,7 @@ namespace GPC.Model.Sections.Concrete
             }
         }
 
-        Shape IConcreteSection.Shape => _shapeEx;
+        public Shape2d Shape => _shapeEx;
 
         #endregion
 
