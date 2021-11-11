@@ -58,6 +58,10 @@ namespace GPC.Model.Sections.Concrete
 
         double GetHomogeneizedJ22(double n);
 
+        Point2d GetHomogenizedCentroid(out double SxHomog, out double SyHomog);
+
+        Point2d GetHomogenizedCentroid(double n, out double SxHomog, out double SyHomog);
+
         Geometry.Meshes.Mesh Mesh { get; }
 
         double CalculateN(ReinforcedConcreteRebar rebar);
@@ -70,5 +74,6 @@ namespace GPC.Model.Sections.Concrete
         (double areaH, double SxH, double SyH, Point2d centroidH, double JxxH, double JyyH, double JxyH, double JpH, double J11H, double J22H, double angleX)
             GetHomogeneizedMechanicalProperties(double n);
 
+        ReinforcedConcreteSection ToReinforcedConcreteSection();
     }
 }

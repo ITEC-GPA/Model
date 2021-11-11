@@ -111,11 +111,12 @@ namespace GPC.Model.Sections.Concrete
 
             var centroidH = GetHomogenizedCentroid(out var SxH, out var SyH);
 
-            CalculateHomogeneizedInertiaMoments(centroidH, Jxx, Jyy, Jxy, out var JxxH, out var JyyH, out var JxyH, out var JpH);
+            // NOTA: ci siamo ricondotti a momenti d'inerzia rispetto al baricentro della sezione di solo calcestruzzo
+            ConcreteSectionHelper.CalculateHomogeneizedInertiaMoments(Rebars, Centroid, centroidH, ConcreteMaterial, Jxx, Jyy, Jxy, Area, out var JxxH, out var JyyH, out var JxyH, out var JpH);
 
-            var J11H = CalculateJ11(JxxH, JyyH, JxyH);
-            var J22H = CalculateJ22(JxxH, JyyH, JxyH);
-            var angleX = CalculateAngle(JxxH, JyyH, JxyH);
+            var J11H = SectionHelper.CalculateJ11(JxxH, JyyH, JxyH);
+            var J22H = SectionHelper.CalculateJ11(JxxH, JyyH, JxyH);
+            var angleX = SectionHelper.CalculateAngle(JxxH, JyyH, JxyH);
 
             return (GetHomogenizedArea(), SxH, SyH, centroidH, JxxH, JyyH, JxyH, JpH, J11H, J22H, angleX);
         }
@@ -142,16 +143,15 @@ namespace GPC.Model.Sections.Concrete
 
             var centroidH = GetHomogenizedCentroid(n, out var SxH, out var SyH);
 
-            CalculateHomogeneizedInertiaMoments(n, centroidH, Jxx, Jyy, Jxy, out var JxxH, out var JyyH, out var JxyH, out var JpH);
+            // NOTA: ci siamo ricondotti a momenti d'inerzia rispetto al baricentro della sezione di solo calcestruzzo
+            ConcreteSectionHelper.CalculateHomogeneizedInertiaMoments(Rebars, Centroid, centroidH, ConcreteMaterial, Jxx, Jyy, Jxy, Area, out var JxxH, out var JyyH, out var JxyH, out var JpH);
 
-            var J11H = CalculateJ11(JxxH, JyyH, JxyH);
-            var J22H = CalculateJ22(JxxH, JyyH, JxyH);
-            var angleX = CalculateAngle(JxxH, JyyH, JxyH);
+            var J11H = SectionHelper.CalculateJ11(JxxH, JyyH, JxyH);
+            var J22H = SectionHelper.CalculateJ22(JxxH, JyyH, JxyH);
+            var angleX = SectionHelper.CalculateAngle(JxxH, JyyH, JxyH);
 
             return (GetHomogenizedArea(n), SxH, SyH, centroidH, JxxH, JyyH, JxyH, JpH, J11H, J22H, angleX);
         }
-
-
 
 
         /// <summary>
@@ -227,53 +227,12 @@ namespace GPC.Model.Sections.Concrete
             return ConcreteSectionHelper.CalculateN(rebar, Rebars, ConcreteMaterial);
         }
 
-        #endregion
-
-        #region Protected Methods
-
-        protected void CalculateHomogeneizedInertiaMoments(Point2d centroid, double Jxx, double Jyy, double Jxy,
-            out double JxxHomogenized, out double JyyHomogenized, out double JxyHomogenized, out double JpHomogenized)
-        {
-            ConcreteSectionHelper.CalculateHomogeneizedInertiaMoments(Rebars, Centroid, centroid, ConcreteMaterial, Jxx, Jyy, Jxy, Area,
-                out JxxHomogenized, out JyyHomogenized, out JxyHomogenized, out JpHomogenized);
-
-            // NOTA: ci siamo ricondotti a momenti d'inerzia rispetto al baricentro della sezione di solo calcestruzzo
-        }
-
-        protected void CalculateHomogeneizedInertiaMoments(double n, Point2d centroid, double Jxx, double Jyy, double Jxy,
-            out double JxxHomogenized, out double JyyHomogenized, out double JxyHomogenized, out double JpHomogenized)
-        {
-            ConcreteSectionHelper.CalculateHomogeneizedInertiaMoments(n, Rebars, Centroid, centroid, Jxx, Jyy, Jxy, Area,
-                out JxxHomogenized, out JyyHomogenized, out JxyHomogenized, out JpHomogenized);
-
-            // NOTA: ci siamo ricondotti a momenti d'inerzia rispetto al baricentro della sezione di solo calcestruzzo
-        }
-
-        protected double CalculateJ11(double Jxx, double Jyy, double Jxy)
-        {
-            return ConcreteSectionHelper.CalculateJ11(Jxx, Jyy, Jxy);
-        }
-
-        protected double CalculateJ22(double Jxx, double Jyy, double Jxy)
-        {
-            return ConcreteSectionHelper.CalculateJ22(Jxx, Jyy, Jxy);
-        }
-
-        protected double CalculateAngle(double Jxx, double Jyy, double Jxy)
-        {
-            return ConcreteSectionHelper.CalculateAngle(Jxx, Jyy, Jxy);
-        }
-
-        protected ReinforcedConcreteSection GetReinforcedConcreteSection()
+        public ReinforcedConcreteSection ToReinforcedConcreteSection()
         {
             return new ReinforcedConcreteSection(new ShapeEx(GetShape(), ConcreteMaterial), Rebars, Name);
         }
 
-        protected Mesh GenerateMesh(double size = -1)
-        {
-            return ConcreteSectionHelper.GenerateMesh(Shape, size);
-        }
-
         #endregion
+
     }
 }
