@@ -44,6 +44,8 @@
     </Reference>
     <Reference Include="GPCGeometry, Version=1.1.1.5, Culture=neutral, processorArchitecture=AMD64">
       <HintPath>..\packages\GPCGeometry.1.1.1.5\lib\net472\GPCGeometry.dll</HintPath>
+    <Reference Include="GPCGeometry, Version=1.1.0.2, Culture=neutral, processorArchitecture=AMD64">
+      <HintPath>..\packages\GPCGeometry.1.1.0.2\lib\net472\GPCGeometry.dll</HintPath>
     </Reference>
     <Reference Include="GPCUtilities, Version=1.0.31.2, Culture=neutral, processorArchitecture=AMD64">
       <HintPath>..\packages\GPCUtilities.1.0.31.2\lib\net472\GPCUtilities.dll</HintPath>

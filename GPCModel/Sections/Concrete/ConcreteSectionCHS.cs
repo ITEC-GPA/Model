@@ -25,7 +25,7 @@ namespace GPC.Model.Sections.Concrete
 
         public ConcreteMaterial ConcreteMaterial => (ConcreteMaterial)_material;
 
-        public Shape2d Shape => GetShape();
+        public Shape Shape => GetShape();
 
         public Mesh Mesh
         {
@@ -255,6 +255,23 @@ namespace GPC.Model.Sections.Concrete
             return ConcreteSectionHelper.CalculateAngle(Jxx, Jyy, Jxy);
         }
 
+        protected Shape GetShape(int edge = 32)
+        {
+            Polygon3d externalPolygon = ConvertCircleToPolygon(Diameter / 2.0, edge);
+            Polygon3d internalPolygon = ConvertCircleToPolygon(DiameterInternal / 2.0, edge);
+
+            return new Shape(externalPolygon, new Polygon3d[] { internalPolygon });
+        }
+
+        protected Polygon3d ConvertCircleToPolygon(double radius, int edge)
+        {
+            return ConcreteSectionHelper.ConvertCircleToPolygon(Centroid, radius, edge);
+        }
+
+        protected ReinforcedConcreteSection GetReinforcedConcreteSection()
+        {
+            return new ReinforcedConcreteSection(new ShapeEx(GetShape(), ConcreteMaterial), Rebars, Name);
+        }
 
         protected Mesh GenerateMesh(double size = -1)
         {
