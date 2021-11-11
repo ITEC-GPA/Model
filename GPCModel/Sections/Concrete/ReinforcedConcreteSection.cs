@@ -208,6 +208,13 @@ namespace GPC.Model.Sections.Concrete
 
         #region Protected Methods
 
+
+        protected override Shape2d GetShape()
+        {
+            return _shapeEx;
+        }
+
+
         /// <summary>
         /// Internal method to set the mechanical properties to the section
         /// </summary>
