@@ -61,6 +61,15 @@ namespace GPC.Model.Sections.Steel
 
         #endregion
 
+        protected override double CalculateJxx()
+        {
+            return base.CalculateJxx() + CalculateAdditionaJxx();
+        }
+
+        protected override double CalculateJyy()
+        {
+            return base.CalculateJyy() + CalculateAdditionaJyy();
+        }
 
         protected override double CalculateJ11()
         {
@@ -77,14 +86,14 @@ namespace GPC.Model.Sections.Steel
             if (IsWelded)
             {
                 return 4 * (Math.Pow((1.41 * _r), 4) / 24.0) +
-                    CalculateAdditionalArea() / 2 * Math.Pow(Height - Centroid.Y - ThicknessTopFlange - R / 3.5, 2) +
-                    CalculateAdditionalArea() / 2 * Math.Pow(Centroid.Y - ThicknessBottomFlange - R / 3.5, 2);
+                    CalculateAdditionalArea() / 2 * Math.Pow(Height - Centroid.Y - ThicknessTopFlange - R / 6.0, 2) +
+                    CalculateAdditionalArea() / 2 * Math.Pow(Centroid.Y - ThicknessBottomFlange - R / 6.0, 2);
             }
             else if (IsRolled)
             {
                 return 4.0 * ((1.0 / 3.0) * Math.Pow(_r, 4.0) - (Math.PI / 16.0) * Math.Pow(_r, 4.0)) +
-                    CalculateAdditionalArea() / 2 * Math.Pow(Height - Centroid.Y - ThicknessTopFlange - R / 3.5, 2) +
-                    CalculateAdditionalArea() / 2 * Math.Pow(Centroid.Y - ThicknessBottomFlange - R / 3.5, 2);
+                    CalculateAdditionalArea() / 2 * Math.Pow(Height - Centroid.Y - ThicknessTopFlange - R / 6.0, 2) +
+                    CalculateAdditionalArea() / 2 * Math.Pow(Centroid.Y - ThicknessBottomFlange - R / 6.0, 2);
             }
             else
                 throw new NotImplementedException("Not Implemented type");
