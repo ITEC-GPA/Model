@@ -21,7 +21,7 @@ namespace GPC.Model.Materials
         public StressStrainTable StressStrainTableTension => _stressStrainTableTension;
 
         /// <summary>
-        /// Elastic modulus of concrete in traction
+        /// Elastic modulus of concrete in tension
         /// </summary>
         public double ElasticModulusTension => _elasticModulusTension;
 
