@@ -147,7 +147,7 @@ namespace GPC.Model.Materials
             _strainU = strainU <= 0 ? throw new ArgumentException($"{nameof(fyk)} cannot be zero or lower") : strainU;
         }
 
-        SteelMaterial(SerializationInfo info, StreamingContext context) :
+        protected SteelMaterial(SerializationInfo info, StreamingContext context) :
             base(info, context)
         {
             _fu = info.GetDouble("Fu");

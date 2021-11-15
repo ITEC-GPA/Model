@@ -53,7 +53,7 @@ namespace GPC.Model.Materials
 		{
 		}
 
-        RebarMaterial(SerializationInfo info, StreamingContext context) 
+        protected RebarMaterial(SerializationInfo info, StreamingContext context) 
             : base(info, context)
         {
 
