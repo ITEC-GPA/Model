@@ -12,7 +12,7 @@ namespace GPC.Model.Results
 {
 
     [Serializable]
-    public sealed class ResultStress : ResultType, IEquatable<ResultStress>, ISerializable, IBrickResult
+    public sealed class ResultStress : ResultType, IEquatable<ResultStress>, ISerializable, IBrickResult, IResult<ResultStress>
     {
         #region Variables
 
