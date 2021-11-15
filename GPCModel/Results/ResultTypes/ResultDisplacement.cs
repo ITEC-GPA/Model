@@ -187,8 +187,20 @@ namespace GPC.Model.Results
 
         public ResultDisplacement ToCoordinateSystem(CoordinateSystem coordinateSystem)
         {
-            throw new NotImplementedException();
+            Vector3d vector3dDisplacement = new Vector3d(_d1, _d2, _d3);
+            Vector3d vector3dRotation = new Vector3d(_r1, _r2, _r3);
+
+            Vector3d vector3dvector3dDisplacementGlobal = CoordinateSystem.ToGlobal(vector3dDisplacement);
+            Vector3d vector3dvector3dRotationGlobal = CoordinateSystem.ToGlobal(vector3dRotation);
+
+            var displacementNewCoordinate = coordinateSystem.ToLocal(vector3dvector3dDisplacementGlobal);
+            var rotationNewCoordinate = coordinateSystem.ToLocal(vector3dvector3dRotationGlobal);
+
+            return new ResultDisplacement(coordinateSystem,
+                                          displacementNewCoordinate.Z, displacementNewCoordinate.X, displacementNewCoordinate.Y, 
+                                          rotationNewCoordinate.Z, rotationNewCoordinate.X, rotationNewCoordinate.Y);
         }
+
 
         #endregion
 

@@ -5,6 +5,7 @@ using GPC.Geometry;
 using GPC.Model.Elements;
 using GPC.Model.FEM.FiniteElements;
 using GPC.Model.LoadCases;
+using MathNet.Numerics.LinearAlgebra;
 
 namespace GPC.Model.Results
 {
@@ -83,9 +84,19 @@ namespace GPC.Model.Results
 
         #region Public Methods
 
+
         public ResultBeamForces ToCoordinateSystem(CoordinateSystem coordinateSystem)
         {
-            throw new NotImplementedException();
+            Vector3d vector3dForce = new Vector3d(V1, V2, N);
+            Vector3d vector3dMoment = new Vector3d(M1, M2, T);
+
+            Vector3d vector3dvector3dForceGlobal = CoordinateSystem.ToGlobal(vector3dForce);
+            Vector3d vector3dvector3dMomentGlobal = CoordinateSystem.ToGlobal(vector3dMoment);
+
+            var forceNewCoordinate = coordinateSystem.ToLocal(vector3dvector3dForceGlobal);
+            var momentNewCoordinate = coordinateSystem.ToLocal(vector3dvector3dMomentGlobal);
+
+            return new ResultBeamForces(forceNewCoordinate.Z, forceNewCoordinate.X, forceNewCoordinate.Y, momentNewCoordinate.Z, momentNewCoordinate.X, momentNewCoordinate.Y, coordinateSystem);
         }
 
         /// <summary>
