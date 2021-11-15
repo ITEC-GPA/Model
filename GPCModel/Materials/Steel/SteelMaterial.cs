@@ -29,7 +29,7 @@ namespace GPC.Model.Materials
 
         protected double _fyk;
         protected double _fu;
-        protected double _epsilonU;
+        protected double _strainU;
 
         #endregion 
 
@@ -48,12 +48,12 @@ namespace GPC.Model.Materials
         /// <summary>
         /// Yielding strain
         /// </summary>
-        public double EpsilonY => _fyk / _elasticModulus;
+        public double StrainY => _fyk / _elasticModulus;
 
         /// <summary>
         /// Ultimate strain
         /// </summary>
-        public double EpsilonU => _epsilonU;
+        public double StrainU => _strainU;
 
         /// <summary>
         /// Strain hardening modulus
@@ -122,12 +122,12 @@ namespace GPC.Model.Materials
         /// <param name="poisson">Poissoins's Ratio</param>
         /// <param name="fyk">Yielding stress</param>
         /// <param name="fu">Ultimate stress</param>
-        /// <param name="epsilonU">The ultimate strain</param>
+        /// <param name="strainU">The ultimate strain</param>
         /// <param name="density">Density of material</param>
         /// <param name="alfaThermalExpansion">Linear thermal expasion coefficient</param>
         /// <param name="guid">Guid of the material</param>
         protected SteelMaterial(string name, double elasticModulus, double poisson, double fyk,
-            double fu, double epsilonU, double density, double alfaThermalExpansion, Guid guid)
+            double fu, double strainU, double density, double alfaThermalExpansion, Guid guid)
             : base(name, elasticModulus, poisson, density, alfaThermalExpansion, guid)
         {
             if (elasticModulus == 0)
@@ -144,15 +144,15 @@ namespace GPC.Model.Materials
 
             _fu = fu <= 0 ? throw new ArgumentException($"{nameof(fu)} cannot be zero or lower") : fu;
             _fyk = fyk <= 0 ? throw new ArgumentException($"{nameof(fyk)} cannot be zero or lower") : fyk;
-            _epsilonU = epsilonU <= 0 ? throw new ArgumentException($"{nameof(fyk)} cannot be zero or lower") : epsilonU;
+            _strainU = strainU <= 0 ? throw new ArgumentException($"{nameof(fyk)} cannot be zero or lower") : strainU;
         }
 
-        public SteelMaterial(SerializationInfo info, StreamingContext context) :
+        SteelMaterial(SerializationInfo info, StreamingContext context) :
             base(info, context)
         {
             _fu = info.GetDouble("Fu");
             _fyk = info.GetDouble("Fyk");
-            _epsilonU = info.GetDouble("EpsilonU");
+            _strainU = info.GetDouble("EpsilonU");
         }
 
         #endregion
@@ -172,7 +172,7 @@ namespace GPC.Model.Materials
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             base.GetObjectData(info, context);
-            info.AddValue("EpsilonU", _epsilonU);
+            info.AddValue("EpsilonU", _strainU);
             info.AddValue("Fyk", _fyk);
             info.AddValue("Fu", _fu);
         }
@@ -181,26 +181,26 @@ namespace GPC.Model.Materials
 		{
             if (strain >= 0)
             {
-                if (Math.Abs(strain) <= EpsilonY)
-                    return strain * Fyk / EpsilonY;
+                if (Math.Abs(strain) <= StrainY)
+                    return strain * Fyk / StrainY;
                 else
                 {
                     if (Et == 0)
                         return Fyk;
                     else
-                        return Fyk + (strain - EpsilonY) * Et;
+                        return Fyk + (strain - StrainY) * Et;
                 }
             }
             else
 			{
-                if (Math.Abs(strain) <= EpsilonY)
-                    return strain * Fyk / EpsilonY;
+                if (Math.Abs(strain) <= StrainY)
+                    return strain * Fyk / StrainY;
                 else
                 {
                     if (Et == 0)
                         return - Fyk;
                     else
-                        return - Fyk - Math.Abs(Math.Abs(strain) - Math.Abs(EpsilonY)) * Et;
+                        return - Fyk - Math.Abs(Math.Abs(strain) - Math.Abs(StrainY)) * Et;
                 }
             }
         }
@@ -214,7 +214,7 @@ namespace GPC.Model.Materials
             if (Math.Abs(Fu - Fyk) < Geometry.GeometryBase.GetDefaultTolerance())
                 return 0.0;
             else
-                return (Fu - Fyk) / (EpsilonU - EpsilonY);
+                return (Fu - Fyk) / (StrainU - StrainY);
 		}
 
 		#endregion

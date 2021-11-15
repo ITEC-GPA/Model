@@ -21,19 +21,17 @@ namespace GPC.Model.Materials
         /// <param name="poisson">Poissoins's Ratio</param>
         /// <param name="fy">Yielding stress</param>
         /// <param name="fu">Ultimate stress</param>
-        /// <param name="epsilonU">Ultimate strain</param>
+        /// <param name="strainU">Ultimate strain</param>
         /// <param name="density"></param>
         /// <param name="alfaThermalExpansion">Linear thermal expasion coefficient</param>
         /// <param name="guid">Guid of the material</param>
         public RebarMaterial(string name, double elasticModulus, double poisson, 
-            double fy, double fu, double epsilonU, double density, double alfaThermalExpansion, Guid guid)
-            : base(name, elasticModulus, poisson, fy, fu, epsilonU, density, alfaThermalExpansion, guid)
+            double fy, double fu, double strainU, double density, double alfaThermalExpansion, Guid guid)
+            : base(name, elasticModulus, poisson, fy, fu, strainU, density, alfaThermalExpansion, guid)
         {
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
+
         /// <param name="elasticModulus">Steel elastic modulus</param>
         /// <param name="fy">Yielding stress</param>
         /// <param name="fu">Ultimate stress</param>
@@ -46,20 +44,19 @@ namespace GPC.Model.Materials
         {
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
+
         /// <param name="fyk">Yielding stress</param>        
         /// <remarks>Guid setted to new guid. StressStrainDiagram is set to ElastoPlastic. alfaThermalExpansion setted to 0. Epsilon0 equal to fy / E
-        /// E = 200GPa, ni = 0.28. Epsilon U is set as 0.075 and fu is set as fyk</remarks>
+        /// E = 205GPa, ni = 0.28. Epsilon U is set as 0.075 and fu is set as fyk</remarks>
         public RebarMaterial(double fyk)
-            : this(200000, fyk, fyk)
+            : this(205000, fyk, fyk)
 		{
 		}
 
-        public RebarMaterial(SerializationInfo info, StreamingContext context) 
+        RebarMaterial(SerializationInfo info, StreamingContext context) 
             : base(info, context)
         {
+
         }
 
         #endregion 

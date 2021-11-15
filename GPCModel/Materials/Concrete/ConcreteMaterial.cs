@@ -16,8 +16,14 @@ namespace GPC.Model.Materials
 
         protected double _elasticModulusTension;
 
-
+        /// <summary>
+        /// Characteristic Stress strain table in comrpession
+        /// </summary>
         public StressStrainTable StressStrainTableCompression => _stressStrainTableCompression;
+        
+        /// <summary>
+        /// Characteristic Stress strain table in tension
+        /// </summary>
         public StressStrainTable StressStrainTableTension => _stressStrainTableTension;
 
         /// <summary>
@@ -77,6 +83,7 @@ namespace GPC.Model.Materials
         }
 
 
+        /// <returns>The characteristic stress related to <paramref name="strain"/></returns>
         public double GetStress(double strain)
         {
             if (strain > 0)
