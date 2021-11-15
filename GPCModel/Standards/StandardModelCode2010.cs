@@ -29,7 +29,7 @@ namespace GPC.Model.Standards
         protected double _alphaCT;
 
         protected double _concreteLimitStrainPureCompression;
-        protected double _steelCoefficientStrainTraction;
+        protected double _steelCoefficientStrainTension;
 
         protected double _gammaF;
 
@@ -93,9 +93,9 @@ namespace GPC.Model.Standards
         public double ConcreteLimitStrainPureCompression => _concreteLimitStrainPureCompression;
 
         /// <summary>
-        /// Reduction coefficient for ultimate steel strain
+        /// Reduction coefficient for ultimate steel strain. 7.2.3.2
         /// </summary>
-        public double SteelCoefficientStrainTraction => _steelCoefficientStrainTraction;
+        public double SteelCoefficientStrainTension => _steelCoefficientStrainTension;
 
 
         /// <summary>
@@ -114,7 +114,7 @@ namespace GPC.Model.Standards
             _alphaCT = 1.0;
             _gammaF = 1.5;
             _concreteLimitStrainPureCompression = -0.002;
-            _steelCoefficientStrainTraction = 0.9;
+            _steelCoefficientStrainTension = 0.9;
         }
 
 	}
