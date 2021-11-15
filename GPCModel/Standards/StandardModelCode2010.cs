@@ -88,11 +88,6 @@ namespace GPC.Model.Standards
         public double GammF => _gammaF;
 
         /// <summary>
-        /// Strain limit for concrete under pure compression
-        /// </summary>
-        public double ConcreteLimitStrainPureCompression => _concreteLimitStrainPureCompression;
-
-        /// <summary>
         /// Reduction coefficient for ultimate steel strain. 7.2.3.2
         /// </summary>
         public double SteelCoefficientStrainTension => _steelCoefficientStrainTension;
@@ -113,7 +108,6 @@ namespace GPC.Model.Standards
             _alphaCC = 1.0;
             _alphaCT = 1.0;
             _gammaF = 1.5;
-            _concreteLimitStrainPureCompression = -0.002;
             _steelCoefficientStrainTension = 0.9;
         }
 

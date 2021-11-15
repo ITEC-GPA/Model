@@ -84,6 +84,12 @@ namespace GPC.Model.Materials
         /// </summary>
         public double Fctk05 => GetFctk05();
 
+
+        /// <summary>
+        /// Strain in the concrete for the pure compression case
+        /// </summary>
+        public double StrainYPureCompression => GetStrainYPureCompression(CompressionStressStrainDiagram);
+
         /// <summary>
         /// Strain in the concrete at the peak compressive stress fc
         /// </summary>
@@ -325,7 +331,7 @@ namespace GPC.Model.Materials
                     _fck = fck;
                     _elasticModulus = GetEcm(GetFcm());
                     _strainUCompression = GetStrainUCompression(compressionStressStrainDiagrams);
-                    _strainYCompression = GetStrainYCompression(_strainUCompression, compressionStressStrainDiagrams);
+                    _strainYCompression = GetStrainYCompression(compressionStressStrainDiagrams, _strainUCompression);
                     break;
 
                 case CompressionStressStrainDiagrams.Generic:
@@ -715,8 +721,7 @@ namespace GPC.Model.Materials
 
 
         /// <remarks>Sign convention: Stress and strain negative if compression</remarks>
-        protected virtual double GetStrainYCompression(double strainU, 
-                                                            CompressionStressStrainDiagrams compressionStressStrainDiagrams)
+        protected virtual double GetStrainYCompression(CompressionStressStrainDiagrams compressionStressStrainDiagrams, double strainU = 0)
         {
 
             switch (compressionStressStrainDiagrams)
@@ -834,6 +839,26 @@ namespace GPC.Model.Materials
                     throw new ArgumentException();
             }
 
+        }
+
+        protected virtual double GetStrainYPureCompression(CompressionStressStrainDiagrams compressionStressStrainDiagrams)
+        {
+            // Per tutti i diagrammi torna la stessa strain y che viene usata per il grafico.
+            // Per lo stress block ritorna quella del parabola rettangolo
+            switch (compressionStressStrainDiagrams)
+            {
+                case CompressionStressStrainDiagrams.ParabolaRectangle:
+                case CompressionStressStrainDiagrams.Bilinear:
+                case CompressionStressStrainDiagrams.Generic:
+                case CompressionStressStrainDiagrams.NonLinear:
+                    return GetStrainYCompression(compressionStressStrainDiagrams);
+
+                case CompressionStressStrainDiagrams.StressBlock:
+                    return GetStrainYCompression(CompressionStressStrainDiagrams.ParabolaRectangle);
+
+                default:
+                    throw new ArgumentException();
+            }
         }
 
         #endregion
