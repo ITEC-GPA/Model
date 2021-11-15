@@ -42,9 +42,9 @@ namespace GPC.Model.Materials
         }
 
 
-        public ConcreteMaterial(string name, StressStrainTable stressStrainTableCompression, 
+        public ConcreteMaterial(string name, StressStrainTable stressStrainTableCompression,
                                              StressStrainTable stressStrainTableTension,
-                                             double elasticModulusCompression, double elasticModulusTension, 
+                                             double elasticModulusCompression, double elasticModulusTension,
                                              double poisson, double density, double alfaThermalExpansion)
             : base(name)
         {
@@ -77,6 +77,20 @@ namespace GPC.Model.Materials
         }
 
 
+        public double GetStress(double strain)
+        {
+            if (strain > 0)
+            {
+                return StressStrainTableTension.GetStress(strain);
+            }
+            else
+            {
+                return StressStrainTableCompression.GetStress(strain);
+            }
+        }
+
+
+
         public override bool Equals(object obj)
         {
             if (ReferenceEquals(this, obj))
@@ -97,7 +111,7 @@ namespace GPC.Model.Materials
                 hashCode = hashCode * -17 + _elasticModulusTension.GetHashCode();
                 hashCode = hashCode * -17 + _stressStrainTableCompression.GetHashCode();
                 hashCode = hashCode * -17 + _stressStrainTableTension.GetHashCode();
-                return hashCode; 
+                return hashCode;
             }
         }
 
