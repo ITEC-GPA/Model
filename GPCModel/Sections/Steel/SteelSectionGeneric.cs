@@ -8,63 +8,73 @@ using System.Threading.Tasks;
 
 namespace GPC.Model.Sections.Steel
 {
-	public class SteelSectionGeneric : ThinWallSection
-	{
-		public SteelSectionGeneric(Line2d[] thinWalls, double[] thickness, SteelMaterial material, string name)
-			: base(material, name)
-		{
-			if (thinWalls.Length != thickness.Length)
-				throw new ArgumentException("thinWalls and thickness must have the same length");
+#if False
+    public class SteelSectionGeneric : ThinWallSection
+    {
+        public SteelSectionGeneric(Line2d[] thinWalls, double[] thickness, SteelMaterial material, string name)
+            : base(material, name)
+        {
+            if (thinWalls.Length != thickness.Length)
+                throw new ArgumentException("thinWalls and thickness must have the same length");
 
-			ThinWall[] tws = new ThinWall[thinWalls.Length];
-			Point2d[] pts = new Point2d[thinWalls.Length];
+            ThinWall[] tws = new ThinWall[thinWalls.Length];
+            Point2d[] pts = new Point2d[thinWalls.Length];
 
-			for (int i = 0; i < thinWalls.Length; i++)
-			{
-				tws[i] = new ThinWall(thinWalls[i].GetLength(), thickness[i], thinWalls[i].ToVector().AngleTo(new Vector2d(1, 0)));
-				pts[i] = new Point2d((thinWalls[i].Start + thinWalls[i].End) / 2.0);
-			}
+            for (int i = 0; i < thinWalls.Length; i++)
+            {
+                tws[i] = new ThinWall(thinWalls[i].GetLength(), thickness[i], thinWalls[i].ToVector().AngleTo(new Vector2d(1, 0)));
+                pts[i] = new Point2d((thinWalls[i].Start + thinWalls[i].End) / 2.0);
+            }
 
-			Points = pts;
-			ThinWalls = tws;
-		}
+            Points = pts;
+            ThinWalls = tws;
+        }
 
-		protected override double CalculateJw()
-		{
-			return 0;
-			// TODO: implementare
-		}
+        public override Shape2d GetShape()
+        {
+            throw new NotImplementedException();
+        }
 
-		protected override Point2d CalculateShearCenter()
-		{
-			return new Point2d(0,0);
-			// TODO: implementare
-		}
+        protected override double CalculateJw()
+        {
+            return 0;
+            // TODO: implementare
+        }
 
-		protected override double CalculateWel1()
-		{
-			return 0;
-			// TODO: implementare
-		}
+        protected override Point2d CalculateShearCenter()
+        {
+            return new Point2d(0, 0);
+            // TODO: implementare
+        }
 
-		protected override double CalculateWel2()
-		{
-			return 0;
-			// TODO: implementare
-		}
+        protected override double CalculateWel1()
+        {
+            return 0;
+            // TODO: implementare
+        }
 
-		protected override double CalculateWpl1()
-		{
-			return 0;
-			// TODO: implementare
-		}
+        protected override double CalculateWel2()
+        {
+            return 0;
+            // TODO: implementare
+        }
 
-		protected override double CalculateWpl2()
-		{
-			return 0;
-			// TODO: implementare
-		}
+        protected override double CalculateWpl1()
+        {
+            return 0;
+            // TODO: implementare
+        }
+
+        protected override double CalculateWpl2()
+        {
+            return 0;
+            // TODO: implementare
+        }
 
 
-	}
+    } 
+
+
+
+#endif
 }

@@ -15,8 +15,8 @@ namespace GPC.Model.Results
     {
 
 
-        public SectionResult(ILoadCase Case, CoordinateSystem coordinateSystem, IEnumerable<ResultLocationId> resultLocations, string name = "")
-            : base(Case, coordinateSystem, resultLocations.ToArray(), name)
+        public SectionResult(ILoadCase Case, IEnumerable<ResultLocationId> resultLocations, string name = "")
+            : base(Case, resultLocations.ToArray(), name)
         {
 
         }

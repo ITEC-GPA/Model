@@ -13,34 +13,16 @@ namespace GPC.Model.Sections.Concrete
 {
     public class ConcreteSectionCircular : SectionCircular, IConcreteSection
     {
-        #region Variables
 
         protected ReinforcedConcreteRebar[] _rebars;
-        protected Mesh _mesh;
 
-        #endregion
-
-        #region Properties
 
         public ReinforcedConcreteRebar[] Rebars => _rebars;
 
         public ConcreteMaterial ConcreteMaterial => (ConcreteMaterial)_material;
 
-        public Shape Shape => GetShape();
+        public double AreaRebars => _rebars.Select(i => i.Area).Sum();
 
-        public Mesh Mesh
-        {
-            get
-            {
-                if (_mesh == null)
-                    _mesh = GenerateMesh();
-                return _mesh;
-            }
-        }
-
-        #endregion
-
-        #region Public Constructors
 
         public ConcreteSectionCircular(double diameter, ConcreteMaterial material, ReinforcedConcreteRebar[] rebars, string name = "")
             : base(diameter, material, name)
@@ -52,51 +34,13 @@ namespace GPC.Model.Sections.Concrete
         public ConcreteSectionCircular(double diameter, ConcreteMaterial material, double concreteCover, int numberOfRebars, IRebarSection rebarSection, double epsilonP = 0.0, string name = "")
             : base(diameter, material, name)
         {
-            _rebars = SetRadialRebars(concreteCover, numberOfRebars, rebarSection, epsilonP);
+            _rebars = ConcreteSectionHelper.SetRadialRebars(Diameter, concreteCover, numberOfRebars, rebarSection, Centroid, epsilonP);
             _mesh = GenerateMesh();
         }
 
-        #endregion
 
         #region Protected Methods
 
-        protected void CalculateStaticMoments(Mesh mesh, out double Sx, out double Sy)
-        {
-            ConcreteSectionHelper.CalculateStaticMoments(mesh, out Sx, out Sy);
-        }
-
-        protected void CalculateInertiaMoments(Mesh mesh, Point3d centroid, out double Jxx, out double Jyy, out double Jxy, out double Jp)
-        {
-            ConcreteSectionHelper.CalculateInertiaMoments(mesh, centroid, out Jxx, out Jyy, out Jxy, out Jp);
-        }
-
-        protected void CalculateHomogeneizedInertiaMoments(Point3d centroid, double Jxx, double Jyy, double Jxy,
-            out double JxxHomogenized, out double JyyHomogenized, out double JxyHomogenized, out double JpHomogenized)
-        {
-            ConcreteSectionHelper.CalculateHomogeneizedInertiaMoments(Rebars, Centroid, centroid, ConcreteMaterial, Jxx, Jyy, Jxy, Area,
-                out JxxHomogenized, out JyyHomogenized, out JxyHomogenized, out JpHomogenized);
-
-            // NOTA: ci siamo ricondotti a momenti d'inerzia rispetto al baricentro della sezione di solo calcestruzzo
-        }
-
-        protected void CalculateHomogeneizedInertiaMoments(double n, Point3d centroid, double Jxx, double Jyy, double Jxy,
-            out double JxxHomogenized, out double JyyHomogenized, out double JxyHomogenized, out double JpHomogenized)
-        {
-            ConcreteSectionHelper.CalculateHomogeneizedInertiaMoments(n, Rebars, Centroid, centroid, Jxx, Jyy, Jxy, Area,
-                out JxxHomogenized, out JyyHomogenized, out JxyHomogenized, out JpHomogenized);
-
-            // NOTA: ci siamo ricondotti a momenti d'inerzia rispetto al baricentro della sezione di solo calcestruzzo
-        }
-
-        /// <summary>
-        /// Generate the mesh of the section. If <paramref name="size"/> not set, size is set as the default value of the minimum of the bounding box size divided by 2.
-        /// </summary>
-        /// <param name="size">The mesh size</param>
-        /// <returns></returns>
-        protected Mesh GenerateMesh(double size = -1)
-        {
-            return ConcreteSectionHelper.GenerateMesh(Shape, size);
-        }
 
         public virtual double CalculateN(ReinforcedConcreteRebar rebar)
         {
@@ -108,94 +52,73 @@ namespace GPC.Model.Sections.Concrete
             return ConcreteSectionHelper.CalculateN(rebar, Rebars, ConcreteMaterial);
         }
 
-        protected double CalculateWpl2()
-        {
-            return 0;
-            throw new NotImplementedException();
-        }
-
-        protected double CalculateWpl1()
-        {
-            return 0;
-            throw new NotImplementedException();
-        }
-
-        protected double CalculateWel2()
-        {
-            return 0;
-            throw new NotImplementedException();
-        }
-
-        protected double CalculateWel1()
-        {
-            return 0;
-            throw new NotImplementedException();
-        }
-
-        protected Point2d CalculateShearCenter()
-        {
-            return new Point2d(Diameter / 2.0, Diameter / 2.0);
-            throw new NotImplementedException();
-        }
-
         #endregion
 
         #region Public Methods
 
+
         /// <summary>
         /// Return all homogenized mechanical properties with default value of homogenized factor n
         /// </summary>
-        /// <param name="areaH">The homogeneized area</param>
-        /// <param name="SxH">The first moment of area calculated respect input X-axis of the homogeneized section</param>
-        /// <param name="SyH">The first moment of area calculated respect input Y-axis of the homogeneized section</param>
-        /// <param name="centroidH">The centroid of homogeneized section</param>
-        /// <param name="JxxH">The first moment of area calculated respect X-axis passing throw the centroid of the homogeneized section</param>
-        /// <param name="JyyH">The first moment of area calculated respect Y-axis passing throw the centroid of the homogeneized section</param>
-        /// <param name="JxyH"></param>
-        /// <param name="JpH"></param>
-        /// <param name="J11H">The first moment of area calculated respect the first principal axis 
-        /// passing throw the centroid of only concrete section of the homogeneized section</param>
-        /// <param name="J22H">The first moment of area calculated respect the second principal axis 
-        /// passing throw the centroid of only concrete section of the homogeneized section</param>
-        /// <param name="angleX">The angle of rotation of the principal axis respect the X-Axis</param>
-        public void GetHomogeneizedMechanicalProperties(out double areaH, out double SxH, out double SyH, out Point3d centroidH,
-            out double JxxH, out double JyyH, out double JxyH, out double JpH, out double J11H, out double J22H, out double angleX)
+        /// <returns>
+        /// <para>areaH: The homogeneized area.</para>
+        /// <para>SxHThe: first moment of area calculated respect input X-axis of the homogeneized section.</para>
+        /// <para>SyHThe: first moment of area calculated respect input Y-axis of the homogeneized section.</para>
+        /// <para>centroidH: The centroid of homogeneized section.</para>
+        /// <para>JxxH: The first moment of area calculated respect X-axis passing throw the centroid of the homogeneized section.</para>
+        /// <para>JyyH: The first moment of area calculated respect Y-axis passing throw the centroid of the homogeneized section.</para>
+        /// <para>J11H: The first moment of area calculated respect the first principal axis 
+        /// passing throw the centroid of only concrete section of the homogeneized section</para>
+        /// <para>J22H: The first moment of area calculated respect the second principal axis 
+        /// passing throw the centroid of only concrete section of the homogeneized section</para>
+        /// <para>AngleX: The angle of rotation of the principal axis respect the X-Axis</para>
+        /// </returns>
+        public (double areaH, double SxH, double SyH, Point2d centroidH, double JxxH, double JyyH, double JxyH, double JpH, double J11H, double J22H, double angleX)
+            GetHomogeneizedMechanicalProperties()
         {
-            areaH = GetHomogenizedArea();
-            centroidH = GetHomogenizedCentroid(out SxH, out SyH);
-            CalculateHomogeneizedInertiaMoments(centroidH, Jxx, Jyy, Jxy, out JxxH, out JyyH, out JxyH, out JpH);
-            J11H = CalculateJ11(JxxH, JyyH, JxyH);
-            J22H = CalculateJ22(JxxH, JyyH, JxyH);
-            angleX = CalculateAngle(JxxH, JyyH, JxyH);
+			Point2d centroidH = GetHomogenizedCentroid(out var SxH, out var SyH);
+
+            // NOTA: ci siamo ricondotti a momenti d'inerzia rispetto al baricentro della sezione di solo calcestruzzo
+            ConcreteSectionHelper.CalculateHomogeneizedInertiaMoments(Rebars, Centroid, centroidH, ConcreteMaterial, Jxx, Jyy, Jxy, Area, out var JxxH, out var JyyH, out var JxyH, out var JpH);
+
+			double J11H = SectionHelper.CalculateJ11(JxxH, JyyH, JxyH);
+            double J22H = SectionHelper.CalculateJ22(JxxH, JyyH, JxyH);
+            double angleX = SectionHelper.CalculateAngle(JxxH, JyyH, JxyH);
+
+            return (GetHomogenizedArea(), SxH, SyH, centroidH, JxxH, JyyH, JxyH, JpH, J11H, J22H, angleX);
         }
 
         /// <summary>
         /// Return all homogenized mechanical properties with homogeneized factor <paramref name="n"/>
         /// </summary>
-        /// <param name="n">The homogeneized factor</param>
-        /// <param name="areaH">The homogeneized area</param>
-        /// <param name="SxH">The first moment of area calculated respect input X-axis of the homogeneized section</param>
-        /// <param name="SyH">The first moment of area calculated respect input Y-axis of the homogeneized section</param>
-        /// <param name="centroidH">The centroid of homogeneized section</param>
-        /// <param name="JxxH">The first moment of area calculated respect X-axis passing throw the centroid of the homogeneized section</param>
-        /// <param name="JyyH">The first moment of area calculated respect Y-axis passing throw the centroid of the homogeneized section</param>
-        /// <param name="JxyH"></param>
-        /// <param name="JpH"></param>
-        /// <param name="J11H">The first moment of area calculated respect the first principal axis 
-        /// passing throw the centroid of only concrete section of the homogeneized section</param>
-        /// <param name="J22H">The first moment of area calculated respect the second principal axis 
-        /// passing throw the centroid of only concrete section of the homogeneized section</param>
-        /// <param name="angleX">The angle of rotation of the principal axis respect the X-Axis</param>
-        public void GetHomogeneizedMechanicalProperties(double n, out double areaH, out double SxH, out double SyH, out Point3d centroidH,
-            out double JxxH, out double JyyH, out double JxyH, out double JpH, out double J11H, out double J22H, out double angleX)
+        /// <returns>
+        /// <para>areaH: The homogeneized area.</para>
+        /// <para>SxHThe: first moment of area calculated respect input X-axis of the homogeneized section.</para>
+        /// <para>SyHThe: first moment of area calculated respect input Y-axis of the homogeneized section.</para>
+        /// <para>centroidH: The centroid of homogeneized section.</para>
+        /// <para>JxxH: The first moment of area calculated respect X-axis passing throw the centroid of the homogeneized section.</para>
+        /// <para>JyyH: The first moment of area calculated respect Y-axis passing throw the centroid of the homogeneized section.</para>
+        /// <para>J11H: The first moment of area calculated respect the first principal axis 
+        /// passing throw the centroid of only concrete section of the homogeneized section</para>
+        /// <para>J22H: The first moment of area calculated respect the second principal axis 
+        /// passing throw the centroid of only concrete section of the homogeneized section</para>
+        /// <para>AngleX: The angle of rotation of the principal axis respect the X-Axis</para>
+        /// </returns>
+        public (double areaH, double SxH, double SyH, Point2d centroidH, double JxxH, double JyyH, double JxyH, double JpH, double J11H, double J22H, double angleX)
+            GetHomogeneizedMechanicalProperties(double n)
         {
-            areaH = GetHomogenizedArea(n);
-            centroidH = GetHomogenizedCentroid(n, out SxH, out SyH);
-            CalculateHomogeneizedInertiaMoments(n, centroidH, Jxx, Jyy, Jxy, out JxxH, out JyyH, out JxyH, out JpH);
-            J11H = CalculateJ11(JxxH, JyyH, JxyH);
-            J22H = CalculateJ22(JxxH, JyyH, JxyH);
-            angleX = CalculateAngle(JxxH, JyyH, JxyH);
+            Point2d centroidH = GetHomogenizedCentroid(n, out var SxH, out var SyH);
+
+            // NOTA: ci siamo ricondotti a momenti d'inerzia rispetto al baricentro della sezione di solo calcestruzzo
+            ConcreteSectionHelper.CalculateHomogeneizedInertiaMoments(n, Rebars, Centroid, centroidH, Jxx, Jyy, Jxy, Area, out var JxxH, out var JyyH, out var JxyH, out var JpH);
+
+            double J11H = SectionHelper.CalculateJ11(JxxH, JyyH, JxyH);
+            double J22H = SectionHelper.CalculateJ11(JxxH, JyyH, JxyH);
+            double angleX = SectionHelper.CalculateAngle(JxxH, JyyH, JxyH);
+
+            return (GetHomogenizedArea(n), SxH, SyH, centroidH, JxxH, JyyH, JxyH, JpH, J11H, J22H, angleX);
         }
+
 
         /// <summary>
         /// The centroid of the homogenized section with default value of homogenized factor n
@@ -203,10 +126,9 @@ namespace GPC.Model.Sections.Concrete
         /// <param name="SxHomog">The first moment of area respect X-Axis</param>
         /// <param name="SyHomog">The first moment of area respect Y-Axis</param>
         /// <returns>The centroid</returns>
-        public Point3d GetHomogenizedCentroid(out double SxHomog, out double SyHomog)
+        public Point2d GetHomogenizedCentroid(out double SxHomog, out double SyHomog)
         {
-            return ConcreteSectionHelper.GetHomogenizedCentroid(Area * Diameter / 2.0, Area * Diameter / 2.0,
-                Rebars, ConcreteMaterial, Area, out SxHomog, out SyHomog);
+            return ConcreteSectionHelper.GetHomogenizedCentroid(Area * Diameter / 2.0, Area * Diameter / 2.0, Rebars, ConcreteMaterial, Area, out SxHomog, out SyHomog);
         }
 
         /// <summary>
@@ -216,10 +138,9 @@ namespace GPC.Model.Sections.Concrete
         /// <param name="SxHomog">The first moment of area respect X-Axis</param>
         /// <param name="SyHomog">The first moment of area respect Y-Axis</param>
         /// <returns></returns>
-        public Point3d GetHomogenizedCentroid(double n, out double SxHomog, out double SyHomog)
+        public Point2d GetHomogenizedCentroid(double n, out double SxHomog, out double SyHomog)
         {
-            return ConcreteSectionHelper.GetHomogenizedCentroid(n, Rebars, Area * Diameter / 2.0, Area * Diameter / 2.0,
-                Area, out SxHomog, out SyHomog);
+            return ConcreteSectionHelper.GetHomogenizedCentroid(n, Rebars, Area * Diameter / 2.0, Area * Diameter / 2.0, Area, out SxHomog, out SyHomog);
         }
 
         /// <summary>
@@ -261,32 +182,14 @@ namespace GPC.Model.Sections.Concrete
             return ConcreteSectionHelper.GetHomogeneizedJ22(Mesh, Centroid, Rebars, ConcreteMaterial, Area, Jxx, Jyy, Jxy);
         }
 
-        protected double CalculateJ11(double Jxx, double Jyy, double Jxy)
+        public ReinforcedConcreteSection ToReinforcedConcreteSection()
         {
-            return ConcreteSectionHelper.CalculateJ11(Jxx, Jyy, Jxy);
+            return new ReinforcedConcreteSection(new ShapeEx(GetShape(), ConcreteMaterial), Rebars, Name);
         }
 
-        protected double CalculateJ22(double Jxx, double Jyy, double Jxy)
-        {
-            return ConcreteSectionHelper.CalculateJ22(Jxx, Jyy, Jxy);
-        }
-
-        protected double CalculateAngle(double Jxx, double Jyy, double Jxy)
-        {
-            return ConcreteSectionHelper.CalculateAngle(Jxx, Jyy, Jxy);
-        }
 
         #endregion
 
-        public Shape GetShape()
-        {
-            return new Shape(ConvertCircleToPolygon());
-        }
-
-        protected ReinforcedConcreteRebar[] SetRadialRebars(double concreteCover, int numberOfRebars, IRebarSection rebarSection, double epsilonP = 0.0)
-        {
-            return ConcreteSectionHelper.SetRadialRebars(Centroid, Diameter, concreteCover, numberOfRebars, rebarSection, epsilonP);
-        }
 
     }
 }

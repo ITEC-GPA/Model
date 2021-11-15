@@ -15,10 +15,9 @@ namespace GPC.Model.Results
         public double Length => ((ResultLocationStation)ResultLocations.First()).ElementLenght;
 
 
-        public BeamResult(ILoadCase Case, CoordinateSystem coordinateSystem,
-                                            IEnumerable<ResultLocationStation> resultStation,
+        public BeamResult(ILoadCase Case, IEnumerable<ResultLocationStation> resultStation,
                                             int stageId = ModelObjectId.IDUNASSIGNED)
-            : base(Case, coordinateSystem, resultStation, stageId)
+            : base(Case, resultStation, stageId)
         {
             if (resultStation is null)
             {

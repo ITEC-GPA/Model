@@ -8,7 +8,7 @@ using GPC.Model.Sections.Concrete;
 namespace GPC.Model.Sections
 {
 
-    public class SectionCircular : Section
+    public class SectionCircular : Section, ISection
     {
         #region Variables
 
@@ -65,38 +65,17 @@ namespace GPC.Model.Sections
 
         #region Public Methods Specific
 
+        protected override Shape2d GetShape()
+        {
+            return new Shape2d(new Polygon2d(_diameter, 32, _centroid));
+        }
+
+
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             base.GetObjectData(info, context);
             info.AddValue("Diameter", _diameter);
             info.AddValue("Material", _material);
-        }
-
-        public override ShapeMaterial[] GetShapes()
-        {
-            int divisions = 36;
-            Polygon2d hole = null;
-            Polygon2d fill = new Polygon2d();
-
-            for (int i = 0; i < divisions; i++)
-            {
-                double teta = i * 2 * Math.PI / divisions;
-                fill.Add(new Point2d(0.5 * _diameter * Math.Cos(teta), 0.5 * _diameter * Math.Sin(teta)));
-            }
-
-            Shape shape = new Shape(fill, hole != null ? new[] { hole } : null);
-
-            return new[] { new ShapeMaterial { Material = _material, Shape = shape } };
-        }
-
-        public Polygon3d ConvertCircleToPolygon(double radius, int edge)
-        {
-            return ConcreteSectionHelper.ConvertCircleToPolygon(Centroid, radius, edge);
-        }
-
-        public Polygon3d ConvertCircleToPolygon(int edge = 32)
-        {
-            return ConvertCircleToPolygon(_diameter / 2.0, edge);
         }
 
         #endregion
@@ -122,42 +101,42 @@ namespace GPC.Model.Sections
             _wpl2 = CalculateWpl();
         }
 
-        protected double CalculateArea()
+        protected virtual double CalculateArea()
         {
             return Math.Pow(Diameter, 2.0) * Math.PI / 4.0;
         }
 
-        protected double CalculateJ()
+        protected virtual double CalculateJ()
         {
             return Math.PI * Math.Pow(Diameter, 4.0) / 64.0;
         }
 
-        protected double CalculateJp()
+        protected virtual double CalculateJp()
         {
             return Math.PI * Math.Pow(Diameter, 4.0) / 32.0;
         }
 
-        protected double CalculateJt()
+        protected virtual double CalculateJt()
         {
             return Math.PI * Math.Pow(Diameter, 4.0) / 32.0;
         }
 
-        protected double CalculateJw()
+        protected virtual double CalculateJw()
         {
             return 0;
         }
 
-        protected Point2d CalculateCentroid()
+        protected virtual Point2d CalculateCentroid()
         {
             return new Point2d(Diameter / 2.0, Diameter / 2.0);
         }
 
-        protected double CalculateWel()
+        protected virtual double CalculateWel()
         {
             return Math.PI * Math.Pow(Diameter, 4.0) / (32.0 * Diameter);
         }
 
-        protected double CalculateWpl()
+        protected virtual double CalculateWpl()
         {
             return Math.Pow(Diameter, 3.0) / 6.0;
         }

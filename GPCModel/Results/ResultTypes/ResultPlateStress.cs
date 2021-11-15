@@ -9,7 +9,7 @@ using MathNet.Numerics.LinearAlgebra;
 
 namespace GPC.Model.Results
 {
-    public sealed class ResultPlateStress : ResultType, IEquatable<ResultPlateStress>, ISerializable, IPlateResult
+    public sealed class ResultPlateStress : ResultType, IEquatable<ResultPlateStress>, ISerializable, IPlateResult, IResult<ResultPlateStress>
     {
 
         private readonly ResultStress _lowerFace;

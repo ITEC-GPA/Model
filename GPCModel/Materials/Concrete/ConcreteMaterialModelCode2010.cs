@@ -53,33 +53,73 @@ namespace GPC.Model.Materials
 
         #region Properties
 
+        /// <summary>
+        /// Characteristic compressive cylinder strength of concrete at 28 days
+        /// </summary>
         public double Fck => _fck;
 
+        /// <summary>
+        /// Characteristic tensile strength of concrete
+        /// </summary>
+        /// <remarks>Mean tensile strength at 28 days</remarks>
         public double Fctk => _fctk;
 
+        /// <summary>
+        /// Mean compressive strength at 28 days
+        /// </summary>
         public double Fcm => GetFcm();
 
+        /// <summary>
+        /// Mean characteristic tensile strength 
+        /// </summary>
         public double Fctm => GetFctm();
 
+        /// <summary>
+        /// Characteristic tensile strength 0.95%
+        /// </summary>
         public double Fctk95 => GetFctk95();
 
+        /// <summary>
+        /// Characteristic tensile strength 0.05%
+        /// </summary>
         public double Fctk05 => GetFctk05();
 
+        /// <summary>
+        /// Strain in the concrete at the peak compressive stress fc
+        /// </summary>
         public double StrainYCompression => _strainYCompression;
 
+        /// <summary>
+        /// Ultimate strain in compression
+        /// </summary>
         public double StrainUCompression => _strainUCompression;
 
+        /// <summary>
+        /// Strain in the concrete at the peak tensile stress ftc
+        /// </summary>
         public double StrainYTension => _strainYTension;
-                             
+
+        /// <summary>
+        /// Ultimate strain in tension
+        /// </summary>
         public double StrainUTension => _strainUTension;
 
-        #endregion
+        /// <summary>
+        /// The compression stress-strain relationship 
+        /// </summary>
+        public CompressionStressStrainDiagrams CompressionStressStrainDiagram => _compressionStressStrainDiagrams;
+
+        /// <summary>
+        /// The tension stress-strain relationship 
+        /// </summary>
+        public TensionStressStrainDiagrams TensionStressStrainDiagram => _tensionStressStrainDiagrams;
 
         /// <summary>
         /// Tangent modulus of elasticity
         /// </summary>
         public double Ec => 1.05 * E;
 
+        #endregion
 
         #region Constructor
 

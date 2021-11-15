@@ -8,7 +8,7 @@ namespace GPC.Model.Results
 {
     [Serializable]
     public sealed class ResultDisplacement : ResultType, IEquatable<ResultDisplacement>,
-                                             ISerializable, INodeResult, IPlateResult, IBrickResult, IBeamResult
+                                             ISerializable, INodeResult, IPlateResult, IBrickResult, IBeamResult, IResult<ResultDisplacement>
     {
 
         #region Variables
@@ -183,6 +183,11 @@ namespace GPC.Model.Results
         public (Vector3d displacements, Vector3d rotations) GetLocalDisplacementsTuple()
         {
             return (new Vector3d(_d1, _d2, _d3), new Vector3d(_r1, _r2, _r3));
+        }
+
+        public ResultDisplacement ToCoordinateSystem(CoordinateSystem coordinateSystem)
+        {
+            throw new NotImplementedException();
         }
 
         #endregion

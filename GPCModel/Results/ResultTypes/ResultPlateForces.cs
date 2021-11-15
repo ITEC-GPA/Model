@@ -6,7 +6,7 @@ using GPC.Model.LoadCases;
 namespace GPC.Model.Results
 {
     [Serializable]
-    public sealed class ResultPlateForces : ResultType, IEquatable<ResultPlateForces>, ISerializable, IPlateResult
+    public sealed class ResultPlateForces : ResultType, IEquatable<ResultPlateForces>, ISerializable, IPlateResult, IResult<ResultPlateForces>
     {
 
         /// Local Forces
@@ -80,6 +80,12 @@ namespace GPC.Model.Results
             base.GetObjectData(info, context);
             throw new NotSupportedException();
         }
+
+        public ResultPlateForces ToCoordinateSystem(CoordinateSystem coordinateSystem)
+        {
+            throw new NotImplementedException();
+        }
+
 
         #region Equals, hashcode, operators
 

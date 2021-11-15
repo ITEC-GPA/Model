@@ -3,11 +3,15 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using GPC.Geometry;
 
-namespace GPC.Model.Results
+namespace GPC.Model.Sections
 {
-    public interface IBrickResult
+
+    public interface ISection
     {
+
+        Shape2d Shape { get; }
 
     }
 }

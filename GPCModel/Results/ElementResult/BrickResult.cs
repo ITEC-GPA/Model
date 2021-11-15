@@ -12,10 +12,9 @@ namespace GPC.Model.Results
     {
 
 
-        public BrickResult(ILoadCase Case, CoordinateSystem coordinateSystem,
-                                            IEnumerable<ResultLocation> resultLocations,
+        public BrickResult(ILoadCase Case, IEnumerable<ResultLocation> resultLocations,
                                             int stageId = ModelObjectId.IDUNASSIGNED)
-            : base(Case, coordinateSystem, resultLocations, stageId)
+            : base(Case, resultLocations, stageId)
         {
 
             if (resultLocations is null)

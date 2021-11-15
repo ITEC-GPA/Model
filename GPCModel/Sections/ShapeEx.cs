@@ -9,51 +9,50 @@ using GPC.Model.Materials;
 
 namespace GPC.Model.Sections
 {
-	public class ShapeEx : Shape
-	{
-		protected Material _material;
+    public class ShapeEx : Shape2d, ISection
+    {
 
-		public Material Material => _material;
+        protected Material _material;
 
+        public Material Material => _material;
 
-		public ShapeEx(Polygon3d fill, Material material, Polygon3d[] holes = null, ShapeEx[] childs = null, double tolerance = 0.0001) 
-			: base(fill, holes, childs, tolerance)
-		{
-			_material = material;
-		}
-
-		public ShapeEx(Polygon3d fill, Material material, Polygon3d[] holes = null, ShapeEx[] childs = null)
-			: this(fill, material, holes, childs, Geometry.GeometryBase.GetDefaultAngularTolerance())
-		{
-		}
-
-		public ShapeEx(Shape shape, Material material, double tolerance = 0.0001) 
-			: base(shape, tolerance)
-		{
-			_material = material;
-		}
-
-		public ShapeEx(Shape shape, Material material)
-			: this(shape, material, Geometry.GeometryBase.GetDefaultAngularTolerance())
-		{
-		}
-
-		public ShapeEx(SerializationInfo info, StreamingContext context) :
-			base(info, context)
-		{
-			_material = (Material)info.GetValue("Material", typeof(Material));
-		}
+        public virtual Shape2d Shape => this;
 
 
+        public ShapeEx(Polygon2d fill, Material material, Polygon2d[] holes = null, ShapeEx[] childs = null, double tolerance = GeometryBase.Tolerance)
+            : base(fill, holes, childs, tolerance)
+        {
+            _material = material;
+        }
 
-		#region Field Serialization
+        public ShapeEx(Shape2d shape, Material material, double tolerance = GeometryBase.Tolerance)
+            : base(shape, tolerance)
+        {
+            _material = material;
+        }
 
-		public override void GetObjectData(SerializationInfo info, StreamingContext context)
-		{
-			base.GetObjectData(info, context);
-			info.AddValue("Material", _material);
-		}
+        public ShapeEx(Shape2d shape, Material material)
+            : this(shape, material, GeometryBase.Tolerance)
+        {
+        }
 
-		#endregion
-	}
+        public ShapeEx(SerializationInfo info, StreamingContext context) :
+            base(info, context)
+        {
+            _material = (Material)info.GetValue("Material", typeof(Material));
+        }
+
+
+        public override void GetObjectData(SerializationInfo info, StreamingContext context)
+        {
+            base.GetObjectData(info, context);
+            info.AddValue("Material", _material);
+        }
+
+        public Shape2d GetShape()
+        {
+            return this;
+        }
+
+    }
 }
