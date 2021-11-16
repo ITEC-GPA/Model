@@ -219,8 +219,6 @@ namespace ModelObjectTest
             Assert.IsTrue(Math.Abs(epsilonCC3 - 0.000730) < 0.01);
         }
 
-
-
         [TestMethod]
         public void ConcreteENTest9()
         {
@@ -256,6 +254,19 @@ namespace ModelObjectTest
                 Assert.IsTrue(strains[strains.Length - 1] == concrete.StrainUTension);
             }
 
+        }
+
+        [TestMethod]
+        public void ConcreteENTest10()
+        {
+            ConcreteMaterialEN1992 concrete = ConcreteMaterialEN1992.C25_30;
+            List<double> stresses = new List<double>();
+
+            for (int i = 10; i >= -35; i--)
+                stresses.Add(concrete.GetStress(i / 10000.0));
+
+            for (int i = 0; i < stresses.Count; i++)
+                Assert.IsTrue(stresses[i] <= 0.0);
         }
     }
 }

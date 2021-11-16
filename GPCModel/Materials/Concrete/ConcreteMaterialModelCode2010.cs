@@ -137,7 +137,7 @@ namespace GPC.Model.Materials
             _compressionStressStrainDiagrams = compressionStressStrainDiagrams;
             _tensionStressStrainDiagrams = TensionStressStrainDiagrams.Linear;
 
-            SetMechanicalProperties(fck, 0, 0, 0, 0, _compressionStressStrainDiagrams, _tensionStressStrainDiagrams);
+            SetMechanicalProperties(- Math.Abs(fck), 0, 0, 0, 0, _compressionStressStrainDiagrams, _tensionStressStrainDiagrams);
 
             SetStressStrainTableCompression(_fck, _strainYCompression, _strainUCompression, _compressionStressStrainDiagrams);
             SetStressStrainTableTension(_fctk, _fctu, _strainYTension, _strainUTension, _tensionStressStrainDiagrams);
@@ -157,7 +157,7 @@ namespace GPC.Model.Materials
             _compressionStressStrainDiagrams = compressionStressStrainDiagrams;
             _tensionStressStrainDiagrams = tensionStressStrainDiagrams;
 
-            SetMechanicalProperties(fck, ffts, fFtu, strainYTension, strainUTension, _compressionStressStrainDiagrams, _tensionStressStrainDiagrams);
+            SetMechanicalProperties(-Math.Abs(fck), Math.Abs(ffts), Math.Abs(fFtu), Math.Abs(strainYTension), Math.Abs(strainUTension), _compressionStressStrainDiagrams, _tensionStressStrainDiagrams);
 
             SetStressStrainTableCompression(_fck, _strainYCompression, _strainUCompression, _compressionStressStrainDiagrams);
             SetStressStrainTableTension(_fctk, _fctu, _strainYTension, _strainUTension, _tensionStressStrainDiagrams);

@@ -65,27 +65,13 @@ namespace GPC.Model.Materials
             if (strain == _strains[0])
                 return _stresses[0];
 
-
             for (int i = 1; i < _strains.Length; i++)
             {
                 if (_strains[i] == strain)
-                    return _strains[i];
+                    return _stresses[i];
 
-                if (Math.Abs(_strains[i]) > Math.Abs(strain) && i > 0)
-                {
-                    double deltaSigma = _stresses[i] - _stresses[i - 1];
-                    double deltaStrain = _strains[i] - _strains[i - 1];
-
-                    if (deltaStrain == 0)
-                    {
-                        return _stresses[i - 1];
-                    }
-
-                    if (deltaStrain < 0)
-                        throw new ArgumentException();
-
-                    return _stresses[i - 1] + deltaSigma / deltaStrain * Math.Abs((strain - _strains[i - 1]));
-                }
+                if (Math.Abs(_strains[i]) > Math.Abs(strain) && i > 0)                
+                    return Utilities.Maths.Interpolation.GetLinearInterpolation(_strains[i], _strains[i - 1], _stresses[i], _stresses[i - 1], strain);                
             }
 
             return 0;
