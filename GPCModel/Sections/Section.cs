@@ -55,6 +55,8 @@ namespace GPC.Model.Sections
         protected Mesh _mesh;
         protected Shape2d _shape;
 
+        private double _meshSize;
+
         #endregion
 
 
@@ -297,6 +299,12 @@ namespace GPC.Model.Sections
 
             return GetMax(new double[] { sigmap1, sigmap2, sigmap3, sigmap4 });
         }
+        
+        public void SetMeshSize(double size)
+        {
+            _meshSize = size > 0 ? size : 0;
+        }
+
 
         private double GetMax(double[] array)
         {
@@ -324,6 +332,7 @@ namespace GPC.Model.Sections
             return startValue;
         }
 
+
         #endregion
 
 
@@ -334,7 +343,7 @@ namespace GPC.Model.Sections
 
         protected virtual Mesh GenerateMesh()
         {
-            return SectionHelper.GenerateMesh(GetShape());
+            return SectionHelper.GenerateMesh(GetShape(), 0);
         }
 
         #region Public override method

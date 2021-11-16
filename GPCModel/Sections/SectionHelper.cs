@@ -27,7 +27,7 @@ namespace GPC.Model.Sections
             if (size <= 0)
             {
                 BoundingBox3d bBox = shape.GetBoundingBox();
-                size = Math.Min(bBox.Size.X, bBox.Size.Y) / 2.0;
+                size = Math.Max(bBox.Size.X, bBox.Size.Y);
             }
 
             Mesh.GenerateOptions generateOptions = new Mesh.GenerateOptions()
