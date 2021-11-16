@@ -671,7 +671,7 @@ namespace GPC.Model.Materials
         protected virtual double GetFctm()
         {
             if (_fck <= 50)
-                return 0.3 * Math.Pow(_fck, 2.0 / 3.0);
+                return 0.3 * Math.Pow(Math.Abs(_fck), 2.0 / 3.0);
             else
                 return Math.Sign(_fck) * 2.12 * Math.Log(1.0 + Math.Abs(GetFcm()) / 10.0);
         }
