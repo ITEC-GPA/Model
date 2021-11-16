@@ -265,6 +265,21 @@ namespace ModelObjectTest
             for (int i = 10; i >= -35; i--)
                 stresses.Add(concrete.GetStress(i / 10000.0));
 
+            concrete = ConcreteMaterialEN1992.C30_37;
+
+            for (int i = 10; i >= -35; i--)
+                stresses.Add(concrete.GetStress(i / 10000.0));
+
+            concrete = ConcreteMaterialEN1992.C45_55;
+
+            for (int i = 10; i >= -35; i--)
+                stresses.Add(concrete.GetStress(i / 10000.0));
+
+            concrete = ConcreteMaterialEN1992.C60_75;
+
+            for (int i = 10; i >= -35; i--)
+                stresses.Add(concrete.GetStress(i / 10000.0));
+
             for (int i = 0; i < stresses.Count; i++)
                 Assert.IsTrue(stresses[i] <= 0.0);
         }
