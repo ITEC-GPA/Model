@@ -31,7 +31,7 @@ namespace GPC.Model.Materials
         {
         }
 
-
+        /// <param name="name">Name of material</param>
         /// <param name="elasticModulus">Steel elastic modulus</param>
         /// <param name="fy">Yielding stress</param>
         /// <param name="fu">Ultimate stress</param>
@@ -39,17 +39,17 @@ namespace GPC.Model.Materials
         /// <param name="density"></param>
         /// <param name="alfaThermalExpansion">Linear thermal expasion coefficient</param>
         /// <remarks>Name is empty</remarks>
-        public RebarMaterial(double elasticModulus, double fy, double fu, double poisson = 0.28, double density = 0.007850, double alfaThermalExpansion = 12 * 1e-6)
-            : this("", elasticModulus, poisson, fy, fu, 0.075, density, alfaThermalExpansion, new Guid())
+        public RebarMaterial(string name, double elasticModulus, double fy, double fu, double poisson = 0.28, double density = 0.007850, double alfaThermalExpansion = 12 * 1e-6)
+            : this(name, elasticModulus, poisson, fy, fu, 0.075, density, alfaThermalExpansion, new Guid())
         {
         }
 
-
+        /// <param name="name">Name of material</param>
         /// <param name="fyk">Yielding stress</param>        
         /// <remarks>Guid setted to new guid. StressStrainDiagram is set to ElastoPlastic. alfaThermalExpansion setted to 0. Epsilon0 equal to fy / E
         /// E = 205GPa, ni = 0.28. Epsilon U is set as 0.075 and fu is set as fyk</remarks>
-        public RebarMaterial(double fyk)
-            : this(205000, fyk, fyk)
+        public RebarMaterial(string name, double fyk)
+            : this(name, 205000, fyk, fyk)
 		{
 		}
 
