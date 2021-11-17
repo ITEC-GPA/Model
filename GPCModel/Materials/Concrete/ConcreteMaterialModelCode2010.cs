@@ -211,7 +211,7 @@ namespace GPC.Model.Materials
 
         #endregion
 
-        #region private methods
+        #region Private methods
 
         /// <remarks> Sign convention: Stress and Strain negative if compression </remarks>
         private void SetStressStrainTableCompression(double fck, double strainYCompression, double strainUCompression,
@@ -405,8 +405,7 @@ namespace GPC.Model.Materials
 
         #endregion
 
-
-        #region public methods
+        #region Public methods
 
         public virtual double GetFctk05(double days)
         {
@@ -436,12 +435,10 @@ namespace GPC.Model.Materials
             return GetFcm() * GetBetaCC(days);
         }
 
-
         public virtual double GetBetaCC(double days)
         {
             return Math.Exp(GetCementSCoefficient() * (1.0 - Math.Pow(28.0 / days, 0.5) ));
         }
-
 
         /// <summary>
         /// Calculate the creep deformation at infinite time
@@ -455,7 +452,7 @@ namespace GPC.Model.Materials
         /// <param name="deltaDaysTemperature">is the number of days where a temperature <paramref name="deltaTemperature"/> prevails. Default value = 0</param>
         /// <returns></returns>
         public virtual double GetEpsilonCCInfiniteTime(double sigmaC, double RH, double areaC, 
-                                        double u, double T0 = 7, double deltaTemperature = 0, double deltaDaysTemperature = 0)
+            double u, double T0 = 7, double deltaTemperature = 0, double deltaDaysTemperature = 0)
         {
             if (deltaTemperature != 0)
             {
@@ -496,8 +493,6 @@ namespace GPC.Model.Materials
             else
                 return Math.Sign(sigmaC) * phi * Math.Pow(Math.E, 1.5 * (Math.Abs(sigmaC) / Math.Abs(Fck) - 0.45));
         }
-
-
 
         /// <summary>
         /// Calculate the total shrinkage strain
@@ -556,7 +551,6 @@ namespace GPC.Model.Materials
             return epsilonCDInf + epsilonCAInf;
         }
 
-
         /// <summary>
         /// Calculate increased characteristic strength and strains of confined concrete 
         /// </summary>
@@ -594,7 +588,6 @@ namespace GPC.Model.Materials
         }
 
         #endregion
-
 
         #region Protected methods
 
@@ -660,13 +653,11 @@ namespace GPC.Model.Materials
             return 1.3 * GetFctm();
         }
 
-
         /// <remarks>Fib 2010 § 7.2.3.1 </remarks>
         protected virtual double GetFcm()
         {
             return Math.Sign(_fck) * (Math.Abs(_fck) + 8.0);
         }
-
 
         protected virtual double GetFctm()
         {
@@ -675,8 +666,6 @@ namespace GPC.Model.Materials
             else
                 return 2.12 * Math.Log(1.0 + Math.Abs(GetFcm()) / 10.0);
         }
-
-
 
         protected virtual double GetCementSCoefficient()
         {
@@ -696,6 +685,8 @@ namespace GPC.Model.Materials
             }
         }
 
+
+
         protected virtual double GetParabolaNCoefficient()
         {
             if (Math.Abs(_fck) <= 50)
@@ -703,7 +694,6 @@ namespace GPC.Model.Materials
             else
                 return 1.4 + 23.4 * Math.Pow((90.0 - Math.Abs(_fck)) / 100.0, 4.0);
         }
-
 
         protected virtual double GetParabolaStress(double strain, double strainY)
         {
@@ -718,8 +708,7 @@ namespace GPC.Model.Materials
             else
                 return _fck * (1.0 - Math.Pow(1.0 - Math.Abs(strain / strainY), GetParabolaNCoefficient()));
         }
-
-
+                
         /// <remarks>Sign convention: Stress and strain negative if compression</remarks>
         protected virtual double GetStrainYCompression(CompressionStressStrainDiagrams compressionStressStrainDiagrams, double strainU = 0)
         {
@@ -763,7 +752,6 @@ namespace GPC.Model.Materials
             }
         }
 
-
         /// <remarks>Sign convention: Stress and strain positive if tension</remarks>
         protected virtual double GetStrainYTension(double fctk, double elasticModulusTension, TensionStressStrainDiagrams tensionStressStrainDiagrams)
         {
@@ -784,7 +772,6 @@ namespace GPC.Model.Materials
             }
         }
 
-
         /// <remarks>Sign convention: Stress and strain positive if tension</remarks>
         protected virtual double GetStrainUTension(double fctk, double elasticModulusTension, TensionStressStrainDiagrams tensionStressStrainDiagrams)
         {
@@ -804,7 +791,6 @@ namespace GPC.Model.Materials
                     throw new ArgumentException();
             }
         }
-
 
         protected virtual double GetStrainUCompression(CompressionStressStrainDiagrams compressionStressStrainDiagrams)
         {
@@ -862,8 +848,6 @@ namespace GPC.Model.Materials
         }
 
         #endregion
-
-
 
         #region Equals, hashcode, operators
 

@@ -296,5 +296,18 @@ namespace ModelObjectTest
             for (int i = 0; i < stresses.Count; i++)
                 Console.WriteLine(stresses[i]);
         }
+
+        [TestMethod]
+        public void RebarTest1()
+        {
+            RebarMaterial steel = RebarMaterial.B450C;
+            List<double> stresses = new List<double>();
+
+            for (int i = 75; i >= -75; i--)
+                stresses.Add(steel.CalculateStress(i / 1000.0));
+
+            for (int i = 0; i < stresses.Count; i++)
+                Console.WriteLine(stresses[i]);
+        }
     }
 }
