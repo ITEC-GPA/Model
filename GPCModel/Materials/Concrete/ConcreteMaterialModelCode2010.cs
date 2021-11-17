@@ -475,15 +475,15 @@ namespace GPC.Model.Materials
             double fcm = GetFcm();
             double h0 = 2 * areaC / u;
             double betat0 = 1.0 / (0.1 + Math.Pow(T0, 0.2));
-            double betaFcm = 16.8 / Math.Sqrt(fcm);
+            double betaFcm = 16.8 / Math.Sqrt(Math.Abs(fcm));
             double gammaRH;
 
-            if (fcm <= 35.0)
+            if (Math.Abs(fcm) <= 35.0)
                 gammaRH = 1 + (1 - RH / 100.0) / (0.1 * Math.Pow(h0, 1.0 / 3.0));
             else
             {
-                double alpha1 = Math.Pow(35.0 / fcm, 0.7);
-                double alpha2 = Math.Pow(35.0 / fcm, 0.2);
+                double alpha1 = Math.Pow(35.0 / Math.Abs(fcm), 0.7);
+                double alpha2 = Math.Pow(35.0 / Math.Abs(fcm), 0.2);
 
                 gammaRH = (1 + (1 - RH / 100.0) / (0.1 * Math.Pow(h0, 1.0 / 3.0)) * alpha1) * alpha2;
             }
@@ -491,10 +491,10 @@ namespace GPC.Model.Materials
             double gamma0 = gammaRH * betaFcm * betat0;
             double phi = gamma0;  
 
-            if (sigmaC <= 0.45 * Fck)
-                return phi * sigmaC / Ec;
+            if (Math.Abs(sigmaC) <= 0.45 * Math.Abs(Fck))
+                return Math.Sign(sigmaC) * phi * sigmaC / Ec;
             else
-                return phi * Math.Pow(Math.E, 1.5 * (sigmaC / Fck - 0.45));
+                return Math.Sign(sigmaC) * phi * Math.Pow(Math.E, 1.5 * (Math.Abs(sigmaC) / Math.Abs(Fck) - 0.45));
         }
 
 
@@ -647,7 +647,7 @@ namespace GPC.Model.Materials
         /// <returns>Elastic secant modulus Fib 2010 § 7.2.3.1.2 </returns>
         protected virtual double GetEcm(double fcm)
         {
-            return Math.Abs(22.0 * Math.Pow(fcm / 10.0, 0.30) * 1000);
+            return Math.Abs(22.0 * Math.Pow(Math.Abs(fcm) / 10.0, 0.30) * 1000);
         }
 
         protected virtual double GetFctk05()
