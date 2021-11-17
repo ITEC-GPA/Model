@@ -88,12 +88,12 @@ namespace ModelObjectTest
             ConcreteMaterialEN1992 concrete = new ConcreteMaterialEN1992(25, ConcreteMaterialEN1992.CompressionStressStrainDiagrams.StressBlock);
 
             Assert.IsTrue(Math.Abs((concrete.E - 31.0 * 1000) / concrete.E) < 0.5, concrete.E.ToString());
-            Assert.IsTrue(Math.Abs(concrete.Fcm - 33.0) < 0.5);
+            Assert.IsTrue(Math.Abs(concrete.Fcm + 33.0) < 0.5);
             Assert.IsTrue(Math.Abs(concrete.Fctk05 - 1.8) < 0.5);
             Assert.IsTrue(Math.Abs(concrete.Fctm - 2.6) < 0.5);
             Assert.IsTrue(Math.Abs(concrete.Fctk95 - 3.3) < 0.5);
-            Assert.IsTrue(Math.Abs(concrete.StrainUCompression - 0.0035) < 0.01);
-            Assert.IsTrue(Math.Abs(concrete.StrainYCompression - 0.0007) < 0.01);       
+            Assert.IsTrue(Math.Abs(concrete.StrainUCompression + 0.0035) < 0.01);
+            Assert.IsTrue(Math.Abs(concrete.StrainYCompression + 0.0007) < 0.01);       
             //Assert.IsTrue(Math.Abs(concrete.Fcd - 16.66) < 0.01);
         }
 
@@ -104,12 +104,12 @@ namespace ModelObjectTest
             ConcreteMaterialEN1992 concrete = new ConcreteMaterialEN1992(60, ConcreteMaterialEN1992.CompressionStressStrainDiagrams.StressBlock);
 
             Assert.IsTrue(Math.Abs((concrete.E - 39.0 * 1000) / concrete.E) < 0.5);
-            Assert.IsTrue(Math.Abs(concrete.Fcm - 68.0) < 0.5);
+            Assert.IsTrue(Math.Abs(concrete.Fcm + 68.0) < 0.5);
             Assert.IsTrue(Math.Abs(concrete.Fctk05 - 3.1) < 0.1);
             Assert.IsTrue(Math.Abs(concrete.Fctm - 4.4) < 0.1);
             Assert.IsTrue(Math.Abs(concrete.Fctk95 - 5.7) < 0.1);
-            Assert.IsTrue(Math.Abs(concrete.StrainUCompression - 0.0028835) < 0.01);
-            Assert.IsTrue(Math.Abs(concrete.StrainYCompression - 0.006488) < 0.01);
+            Assert.IsTrue(Math.Abs(concrete.StrainUCompression + 0.0028835) < 0.01);
+            Assert.IsTrue(Math.Abs(concrete.StrainYCompression + 0.006488) < 0.01);
             //Assert.IsTrue(Math.Abs(concrete.Fcd - 38.0) < 0.01);
         }
 
@@ -120,12 +120,12 @@ namespace ModelObjectTest
             ConcreteMaterialEN1992 concrete = new ConcreteMaterialEN1992(25, ConcreteMaterialEN1992.CompressionStressStrainDiagrams.Bilinear);
 
             Assert.IsTrue(Math.Abs((concrete.E - 31.0 * 1000) / concrete.E) < 0.5);
-            Assert.IsTrue(Math.Abs(concrete.Fcm - 33.0) < 0.5);
+            Assert.IsTrue(Math.Abs(concrete.Fcm + 33.0) < 0.5);
             Assert.IsTrue(Math.Abs(concrete.Fctk05 - 1.8) < 0.5);
             Assert.IsTrue(Math.Abs(concrete.Fctm - 2.6) < 0.5);
             Assert.IsTrue(Math.Abs(concrete.Fctk95 - 3.3) < 0.5);
-            Assert.IsTrue(Math.Abs(concrete.StrainUCompression - 0.0035) < 0.01);
-            Assert.IsTrue(Math.Abs(concrete.StrainYCompression - 0.00175) < 0.01);
+            Assert.IsTrue(Math.Abs(concrete.StrainUCompression + 0.0035) < 0.01);
+            Assert.IsTrue(Math.Abs(concrete.StrainYCompression + 0.00175) < 0.01);
             //Assert.IsTrue(Math.Abs(concrete.Fcd - 16.66) < 0.01);
         }
 
@@ -136,12 +136,12 @@ namespace ModelObjectTest
             ConcreteMaterialEN1992 concrete = new ConcreteMaterialEN1992(60, ConcreteMaterialEN1992.CompressionStressStrainDiagrams.Bilinear);
 
             Assert.IsTrue(Math.Abs((concrete.E - 39.0 * 1000) / concrete.E) < 0.5);
-            Assert.IsTrue(Math.Abs(concrete.Fcm - 68.0) < 0.5);
+            Assert.IsTrue(Math.Abs(concrete.Fcm + 68.0) < 0.5);
             Assert.IsTrue(Math.Abs(concrete.Fctk05 - 3.1) < 0.1);
             Assert.IsTrue(Math.Abs(concrete.Fctm - 4.4) < 0.1);
             Assert.IsTrue(Math.Abs(concrete.Fctk95 - 5.7) < 0.1);
-            Assert.IsTrue(Math.Abs(concrete.StrainUCompression - 0.0028835) < 0.01);
-            Assert.IsTrue(Math.Abs(concrete.StrainYCompression - 0.0019) < 0.01);
+            Assert.IsTrue(Math.Abs(concrete.StrainUCompression + 0.0028835) < 0.01);
+            Assert.IsTrue(Math.Abs(concrete.StrainYCompression + 0.0019) < 0.01);
             //Assert.IsTrue(Math.Abs(concrete.Fcd - 40.0) < 0.01);
         }
 
@@ -152,12 +152,12 @@ namespace ModelObjectTest
             ConcreteMaterialEN1992 concrete = new ConcreteMaterialEN1992(25, ConcreteMaterialEN1992.CompressionStressStrainDiagrams.ParabolaRectangle);
 
             Assert.IsTrue(Math.Abs((concrete.E - 31.0 * 1000) / concrete.E) < 0.5);
-            Assert.IsTrue(Math.Abs(concrete.Fcm - 33.0) < 0.5);
+            Assert.IsTrue(Math.Abs(concrete.Fcm + 33.0) < 0.5);
             Assert.IsTrue(Math.Abs(concrete.Fctk05 - 1.8) < 0.5);
             Assert.IsTrue(Math.Abs(concrete.Fctm - 2.6) < 0.5);
             Assert.IsTrue(Math.Abs(concrete.Fctk95 - 3.3) < 0.5);
-            Assert.IsTrue(Math.Abs(concrete.StrainUCompression - 0.0035) < 0.01);
-            Assert.IsTrue(Math.Abs(concrete.StrainYCompression - 0.0020) < 0.01);
+            Assert.IsTrue(Math.Abs(concrete.StrainUCompression + 0.0035) < 0.01);
+            Assert.IsTrue(Math.Abs(concrete.StrainYCompression + 0.0020) < 0.01);
             //Assert.IsTrue(Math.Abs(concrete.Fcd - 16.66) < 0.01);
         }
 
@@ -168,12 +168,12 @@ namespace ModelObjectTest
             ConcreteMaterialEN1992 concrete = new ConcreteMaterialEN1992(60, ConcreteMaterialEN1992.CompressionStressStrainDiagrams.ParabolaRectangle);
 
             Assert.IsTrue(Math.Abs((concrete.E - 39.0 * 1000) / concrete.E) < 0.5);
-            Assert.IsTrue(Math.Abs(concrete.Fcm - 68.0) < 0.5);
+            Assert.IsTrue(Math.Abs(concrete.Fcm + 68.0) < 0.5);
             Assert.IsTrue(Math.Abs(concrete.Fctk05 - 3.1) < 0.1);
             Assert.IsTrue(Math.Abs(concrete.Fctm - 4.4) < 0.1);
             Assert.IsTrue(Math.Abs(concrete.Fctk95 - 5.7) < 0.1);
-            Assert.IsTrue(Math.Abs(concrete.StrainUCompression - 0.0028835) < 0.01);
-            Assert.IsTrue(Math.Abs(concrete.StrainYCompression - 0.0023) < 0.01);
+            Assert.IsTrue(Math.Abs(concrete.StrainUCompression + 0.0028835) < 0.01);
+            Assert.IsTrue(Math.Abs(concrete.StrainYCompression + 0.0023) < 0.01);
             //Assert.IsTrue(Math.Abs(concrete.Fcd - 40.0) < 0.01);
         }
 
@@ -232,8 +232,8 @@ namespace ModelObjectTest
                 var strains = concrete.StressStrainTableCompression.Strains;
 
                 Assert.IsTrue(stresses[0] == 0);
-                Assert.IsTrue(stresses[stresses.Length - 2] == 60.0, stresses[1].ToString());
-                Assert.IsTrue(stresses[stresses.Length - 1] == 60.0, stresses[2].ToString());
+                Assert.IsTrue(stresses[stresses.Length - 2] == - 60.0, stresses[1].ToString());
+                Assert.IsTrue(stresses[stresses.Length - 1] == - 60.0, stresses[2].ToString());
 
                 Assert.IsTrue(strains[0] == 0);
                 Assert.IsTrue(strains[strains.Length - 2] == concrete.StrainYCompression);
@@ -282,6 +282,19 @@ namespace ModelObjectTest
 
             for (int i = 0; i < stresses.Count; i++)
                 Assert.IsTrue(stresses[i] <= 0.0);
+        }
+
+        [TestMethod]
+        public void SteelTest1()
+        {
+            SteelMaterial steel = SteelMaterial.S275;
+            List<double> stresses = new List<double>();
+
+            for (int i = 75; i >= -75; i--)
+                stresses.Add(steel.CalculateStress(i / 1000.0));
+
+            for (int i = 0; i < stresses.Count; i++)
+                Console.WriteLine(stresses[i]);
         }
     }
 }
