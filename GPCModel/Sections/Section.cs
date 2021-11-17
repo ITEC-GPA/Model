@@ -300,9 +300,14 @@ namespace GPC.Model.Sections
             return GetMax(new double[] { sigmap1, sigmap2, sigmap3, sigmap4 });
         }
         
+        /// <summary>
+        /// Update the mesh size and regenerate the mesh with the new size
+        /// </summary>
+        /// <param name="size"></param>
         public void SetMeshSize(double size)
         {
             _meshSize = size > 0 ? size : 0;
+            _mesh = GenerateMesh();
         }
 
 
@@ -343,7 +348,7 @@ namespace GPC.Model.Sections
 
         protected virtual Mesh GenerateMesh()
         {
-            return SectionHelper.GenerateMesh(GetShape(), 0);
+            return SectionHelper.GenerateMesh(GetShape(), _meshSize);
         }
 
         #region Public override method
