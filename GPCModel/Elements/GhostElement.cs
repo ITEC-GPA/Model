@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel;
 using System.Runtime.Serialization;
 
 namespace GPC.Model.Elements
@@ -7,8 +8,10 @@ namespace GPC.Model.Elements
     /// The purpose of this element is to give an instance to the abstract class Element.
     /// This can be usefull for example for debug purposes 
     /// </summary>
-    internal class GhostElement : Element
+    internal class GhostElement : Element, INotifyPropertyChanged
     {
+        public event PropertyChangedEventHandler PropertyChanged;
+
         public GhostElement()
         {
         }
@@ -48,6 +51,12 @@ namespace GPC.Model.Elements
         {
             return obj is GhostElement element && base.Equals(element);
         }
+
+        protected void OnPropertyChanged(string propertyName)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+
 
         public override int GetHashCode()
         {
