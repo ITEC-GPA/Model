@@ -1,28 +1,28 @@
-﻿using GPC.Utilities.Converters;
-using GPC.Utilities.Units;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using GPC.Utilities.Converters;
+using GPC.Utilities.Units;
 
 namespace GPC.Model
 {
     [Serializable]
-    public static class Units    
+    public static class Units
     {
         [Description("kNm")]
-        public static UnitsSystem Knm = new UnitsSystem(UnitsConvert.LengthUnits.m, UnitsConvert.ForceUnits.kN, 
+        public static UnitsSystem Knm = new UnitsSystem(UnitsConvert.LengthUnits.m, UnitsConvert.ForceUnits.kN,
             UnitsConvert.MassUnits.ton, UnitsConvert.PressureUnits.kPa, UnitsConvert.TemperatureUnits.C);
 
-        public static UnitsSystem SI = new UnitsSystem(UnitsConvert.LengthUnits.m, UnitsConvert.ForceUnits.N, 
+        public static UnitsSystem SI = new UnitsSystem(UnitsConvert.LengthUnits.m, UnitsConvert.ForceUnits.N,
             UnitsConvert.MassUnits.kg, UnitsConvert.PressureUnits.Pa, UnitsConvert.TemperatureUnits.C);
 
-        public static UnitsSystem Nmm = new UnitsSystem(UnitsConvert.LengthUnits.mm, UnitsConvert.ForceUnits.N, 
+        public static UnitsSystem Nmm = new UnitsSystem(UnitsConvert.LengthUnits.mm, UnitsConvert.ForceUnits.N,
             UnitsConvert.MassUnits.ton, UnitsConvert.PressureUnits.MPa, UnitsConvert.TemperatureUnits.C);
 
-        public static UnitsSystem IPS = new UnitsSystem(UnitsConvert.LengthUnits.inch, UnitsConvert.ForceUnits.lbf, 
+        public static UnitsSystem IPS = new UnitsSystem(UnitsConvert.LengthUnits.inch, UnitsConvert.ForceUnits.lbf,
             UnitsConvert.MassUnits.lb, UnitsConvert.PressureUnits.psi, UnitsConvert.TemperatureUnits.F);
 
         public static readonly UnitsSystem DefaultUnits = Nmm;

@@ -149,7 +149,7 @@ namespace GPC.Model
             lock (_locker)
             {
                 _hashMap.Clear();
-                for(int i = 0; i < _collection.Count(); i++)
+                for (int i = 0; i < _collection.Count(); i++)
                 {
                     var hash = GetItemHashCode(_collection[i]);
 
@@ -262,7 +262,7 @@ namespace GPC.Model
                 _collection.RemoveAt(i);
                 _hashMap[GetItemHashCode(item)].Remove(i);
 
-                return GetIndexById(Add(item)); 
+                return GetIndexById(Add(item));
             }
         }
 

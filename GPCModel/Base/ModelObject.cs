@@ -88,7 +88,7 @@ namespace GPC.Model
         }
 
         public override int GetHashCode()
-        { 
+        {
             unchecked
             {
                 return -391 * EqualityComparer<string>.Default.GetHashCode(_name);
