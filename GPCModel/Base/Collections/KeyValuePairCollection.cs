@@ -7,7 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using GPC.Utilities.Extensions;
 
-namespace GPC.Model.Base
+namespace GPC.Model
 {
 
     [Serializable]

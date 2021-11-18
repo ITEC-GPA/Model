@@ -6,7 +6,7 @@ using System.Runtime.Serialization;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace GPC.Model.Base
+namespace GPC.Model
 {
 
     public class KeyValuePairHashedCollection<T, D> where T : ModelObjectId, INotifyPropertyChanged where D : class, ISerializable
