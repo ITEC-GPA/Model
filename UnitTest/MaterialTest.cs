@@ -85,7 +85,7 @@ namespace ModelObjectTest
         [Description("C25/30 StressBlock")]
         public void ConcreteENTest1()
 		{
-            ConcreteMaterialEN1992 concrete = new ConcreteMaterialEN1992(25, ConcreteMaterialEN1992.CompressionStressStrainDiagrams.StressBlock);
+            ConcreteMaterialEN1992 concrete = new ConcreteMaterialEN1992("", 25, ConcreteMaterialEN1992.CompressionStressStrainDiagrams.StressBlock);
 
             Assert.IsTrue(Math.Abs((concrete.E - 31.0 * 1000) / concrete.E) < 0.5, concrete.E.ToString());
             Assert.IsTrue(Math.Abs(concrete.Fcm + 33.0) < 0.5);
@@ -101,7 +101,7 @@ namespace ModelObjectTest
         [Description("C60/75 StressBlock")]
         public void ConcreteENTest2()
         {
-            ConcreteMaterialEN1992 concrete = new ConcreteMaterialEN1992(60, ConcreteMaterialEN1992.CompressionStressStrainDiagrams.StressBlock);
+            ConcreteMaterialEN1992 concrete = new ConcreteMaterialEN1992("", 60, ConcreteMaterialEN1992.CompressionStressStrainDiagrams.StressBlock);
 
             Assert.IsTrue(Math.Abs((concrete.E - 39.0 * 1000) / concrete.E) < 0.5);
             Assert.IsTrue(Math.Abs(concrete.Fcm + 68.0) < 0.5);
@@ -117,7 +117,7 @@ namespace ModelObjectTest
         [Description("C25/30 BiLinear")]
         public void ConcreteENTest3()
         {
-            ConcreteMaterialEN1992 concrete = new ConcreteMaterialEN1992(25, ConcreteMaterialEN1992.CompressionStressStrainDiagrams.Bilinear);
+            ConcreteMaterialEN1992 concrete = new ConcreteMaterialEN1992("", 25, ConcreteMaterialEN1992.CompressionStressStrainDiagrams.Bilinear);
 
             Assert.IsTrue(Math.Abs((concrete.E - 31.0 * 1000) / concrete.E) < 0.5);
             Assert.IsTrue(Math.Abs(concrete.Fcm + 33.0) < 0.5);
@@ -133,7 +133,7 @@ namespace ModelObjectTest
         [Description("C60/75 BiLinear")]
         public void ConcreteENTest4()
         {
-            ConcreteMaterialEN1992 concrete = new ConcreteMaterialEN1992(60, ConcreteMaterialEN1992.CompressionStressStrainDiagrams.Bilinear);
+            ConcreteMaterialEN1992 concrete = new ConcreteMaterialEN1992("", 60, ConcreteMaterialEN1992.CompressionStressStrainDiagrams.Bilinear);
 
             Assert.IsTrue(Math.Abs((concrete.E - 39.0 * 1000) / concrete.E) < 0.5);
             Assert.IsTrue(Math.Abs(concrete.Fcm + 68.0) < 0.5);
@@ -149,7 +149,7 @@ namespace ModelObjectTest
         [Description("C25/30 Parabola-Rectangle")]
         public void ConcreteENTest5()
         {
-            ConcreteMaterialEN1992 concrete = new ConcreteMaterialEN1992(25, ConcreteMaterialEN1992.CompressionStressStrainDiagrams.ParabolaRectangle);
+            ConcreteMaterialEN1992 concrete = new ConcreteMaterialEN1992("", 25, ConcreteMaterialEN1992.CompressionStressStrainDiagrams.ParabolaRectangle);
 
             Assert.IsTrue(Math.Abs((concrete.E - 31.0 * 1000) / concrete.E) < 0.5);
             Assert.IsTrue(Math.Abs(concrete.Fcm + 33.0) < 0.5);
@@ -165,7 +165,7 @@ namespace ModelObjectTest
         [Description("C60/75 Parabola-Rectangle")]
         public void ConcreteENTest6()
         {
-            ConcreteMaterialEN1992 concrete = new ConcreteMaterialEN1992(60, ConcreteMaterialEN1992.CompressionStressStrainDiagrams.ParabolaRectangle);
+            ConcreteMaterialEN1992 concrete = new ConcreteMaterialEN1992("", 60, ConcreteMaterialEN1992.CompressionStressStrainDiagrams.ParabolaRectangle);
 
             Assert.IsTrue(Math.Abs((concrete.E - 39.0 * 1000) / concrete.E) < 0.5);
             Assert.IsTrue(Math.Abs(concrete.Fcm + 68.0) < 0.5);
@@ -181,7 +181,7 @@ namespace ModelObjectTest
         [Description("C60/75 CreepFactor")]
         public void ConcreteENTest7()
         {
-            ConcreteMaterialEN1992 concrete = new ConcreteMaterialEN1992(60, ConcreteMaterialEN1992.CompressionStressStrainDiagrams.ParabolaRectangle);
+            ConcreteMaterialEN1992 concrete = new ConcreteMaterialEN1992("", 60, ConcreteMaterialEN1992.CompressionStressStrainDiagrams.ParabolaRectangle);
 
             double sigmaC1 = 20;
             double epsilonCC1 = concrete.GetEpsilonCCInfiniteTime(sigmaC1, 70, 1000000, 2000, 7);
@@ -200,7 +200,7 @@ namespace ModelObjectTest
         [Description("C25/30 CreepFactor / shrinkage")]
         public void ConcreteENTest8()
         {
-            ConcreteMaterialEN1992 concrete = new ConcreteMaterialEN1992(25, ConcreteMaterialEN1992.CompressionStressStrainDiagrams.ParabolaRectangle);
+            ConcreteMaterialEN1992 concrete = new ConcreteMaterialEN1992("", 25, ConcreteMaterialEN1992.CompressionStressStrainDiagrams.ParabolaRectangle);
 
             double sigmaC1 = 20;
             double epsilonCC1 = concrete.GetEpsilonCCInfiniteTime(sigmaC1, 70, 1000000, 2000, 7, 0);
@@ -222,9 +222,9 @@ namespace ModelObjectTest
         [TestMethod]
         public void ConcreteENTest9()
         {
-            ConcreteMaterialEN1992 concrete1 = new ConcreteMaterialEN1992(60, ConcreteMaterialEN1992.CompressionStressStrainDiagrams.ParabolaRectangle);
-            ConcreteMaterialEN1992 concrete2 = new ConcreteMaterialEN1992(60, ConcreteMaterialEN1992.CompressionStressStrainDiagrams.Bilinear);
-            ConcreteMaterialEN1992 concrete3 = new ConcreteMaterialEN1992(60, ConcreteMaterialEN1992.CompressionStressStrainDiagrams.StressBlock);
+            ConcreteMaterialEN1992 concrete1 = new ConcreteMaterialEN1992("", 60, ConcreteMaterialEN1992.CompressionStressStrainDiagrams.ParabolaRectangle);
+            ConcreteMaterialEN1992 concrete2 = new ConcreteMaterialEN1992("", 60, ConcreteMaterialEN1992.CompressionStressStrainDiagrams.Bilinear);
+            ConcreteMaterialEN1992 concrete3 = new ConcreteMaterialEN1992("", 60, ConcreteMaterialEN1992.CompressionStressStrainDiagrams.StressBlock);
 
             foreach (var concrete in new[] { concrete1, concrete2, concrete3 })
             {
