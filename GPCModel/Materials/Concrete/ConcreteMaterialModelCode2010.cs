@@ -189,7 +189,7 @@ namespace GPC.Model.Materials
         }
 
 
-        public ConcreteMaterialModelCode2010(SerializationInfo info, StreamingContext context)
+        protected ConcreteMaterialModelCode2010(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
             _fck = info.GetDouble("Fck");

@@ -55,7 +55,7 @@ namespace GPC.Model
             _name = name;
         }
 
-        public ModelObject(SerializationInfo info, StreamingContext context)
+        protected ModelObject(SerializationInfo info, StreamingContext context)
         {
             _guid = (Guid)info.GetValue("Guid", typeof(Guid));
             _name = info.GetString("Name");

@@ -35,7 +35,7 @@ namespace GPC.Model.Materials
         }
 
 
-        public ConcreteMaterialACI318(SerializationInfo info, StreamingContext context) : base(info, context)
+        protected ConcreteMaterialACI318(SerializationInfo info, StreamingContext context) : base(info, context)
         {
 
         }

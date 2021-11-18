@@ -74,7 +74,7 @@ namespace GPC.Model.Materials
         }
 
 
-        public ConcreteMaterial(SerializationInfo info, StreamingContext context)
+        protected ConcreteMaterial(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
             _stressStrainTableCompression = (StressStrainTable)info.GetValue("TableCompression", typeof(StressStrainTable));

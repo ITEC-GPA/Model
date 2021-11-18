@@ -8,6 +8,8 @@ namespace GPC.Model.Elements
     /// The purpose of this element is to give an instance to the abstract class Element.
     /// This can be usefull for example for debug purposes 
     /// </summary>
+    
+    [Serializable]
     internal class GhostElement : Element, INotifyPropertyChanged
     {
         public event PropertyChangedEventHandler PropertyChanged;
@@ -31,7 +33,7 @@ namespace GPC.Model.Elements
         {
         }
 
-        public GhostElement(SerializationInfo info, StreamingContext context) 
+        protected GhostElement(SerializationInfo info, StreamingContext context) 
             : base(info, context)
         {
 

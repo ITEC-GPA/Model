@@ -34,7 +34,7 @@ namespace GPC.Model
             _lastId = 1;
         }
 
-        public HashCollection(SerializationInfo info, StreamingContext context)
+        protected HashCollection(SerializationInfo info, StreamingContext context)
         {
             if (info == null)
                 throw new ArgumentNullException("info can't be null");

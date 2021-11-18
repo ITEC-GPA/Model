@@ -23,7 +23,7 @@ namespace GPC.Model.Materials
 
         }
 
-        public ConcreteMaterialModelCode2010FRC(SerializationInfo info, StreamingContext context)
+        protected ConcreteMaterialModelCode2010FRC(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
 

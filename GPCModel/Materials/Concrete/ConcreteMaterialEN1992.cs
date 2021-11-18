@@ -59,7 +59,7 @@ namespace GPC.Model.Materials
         }
 
 
-        public ConcreteMaterialEN1992(SerializationInfo info, StreamingContext context)
+        protected ConcreteMaterialEN1992(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
         }
