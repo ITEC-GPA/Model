@@ -6,14 +6,15 @@ using GPC.Geometry;
 namespace GPC.Model.Results
 {
     [Serializable]
-    public abstract class ResultType : ModelObject, ISerializable
+    public abstract class ResultType : ModelObjectId, ISerializable
     {
         protected readonly CoordinateSystem _coordinateSystem;
 
         public CoordinateSystem CoordinateSystem => _coordinateSystem;
 
-        protected ResultType(CoordinateSystem coordinateSystem, string name = "")
-            : base(name)
+
+        protected ResultType(CoordinateSystem coordinateSystem, string name = "", int id = ModelObjectId.IDUNASSIGNED)
+            : base(id, name)
         {
             _coordinateSystem = coordinateSystem ?? throw new ArgumentNullException(nameof(coordinateSystem));
         }

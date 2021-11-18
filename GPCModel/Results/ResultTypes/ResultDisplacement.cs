@@ -43,8 +43,9 @@ namespace GPC.Model.Results
         /// <param name="r1">Rotation around <see cref="CoordinateSystem.V1"/> direction </param>
         /// <param name="r2">Rotation around <see cref="CoordinateSystem.V2"/> direction </param>
         /// <param name="r3">Rotation around <see cref="CoordinateSystem.V3"/> direction </param>
-        public ResultDisplacement(CoordinateSystem coordinateSystem, double d1, double d2, double d3, double r1, double r2, double r3)
-            : base(coordinateSystem)
+        /// <param name="id"></param>
+        public ResultDisplacement(CoordinateSystem coordinateSystem, double d1, double d2, double d3, double r1, double r2, double r3, int id = ModelObjectId.IDUNASSIGNED)
+            : base(coordinateSystem, string.Empty, id)
         {
             _d1 = d1;
             _d2 = d2;
@@ -197,7 +198,7 @@ namespace GPC.Model.Results
             var rotationNewCoordinate = coordinateSystem.ToLocal(vector3dvector3dRotationGlobal);
 
             return new ResultDisplacement(coordinateSystem,
-                                          displacementNewCoordinate.Z, displacementNewCoordinate.X, displacementNewCoordinate.Y, 
+                                          displacementNewCoordinate.Z, displacementNewCoordinate.X, displacementNewCoordinate.Y,
                                           rotationNewCoordinate.Z, rotationNewCoordinate.X, rotationNewCoordinate.Y);
         }
 

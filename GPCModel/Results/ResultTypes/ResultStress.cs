@@ -112,9 +112,10 @@ namespace GPC.Model.Results
         /// <param name="sxz">Stress on <see cref="CoordinateSystem.V1"/> side of the plate along <see cref="CoordinateSystem.V3"/> direction</param>
         /// <param name="syz">Stress on <see cref="CoordinateSystem.V2"/> side of the plate along <see cref="CoordinateSystem.V3"/> direction</param>
         /// <param name="name"></param>
+        /// <param name="id"></param>
         /// <remarks> _szz is set to zero by default </remarks>
-        public ResultStress(CoordinateSystem coordinateSystem, double sxx, double syy, double szz, double sxy, double sxz, double syz, string name = "")
-            : base(coordinateSystem, name)
+        public ResultStress(CoordinateSystem coordinateSystem, double sxx, double syy, double szz, double sxy, double sxz, double syz, string name = "", int id = ModelObjectId.IDUNASSIGNED)
+            : base(coordinateSystem, name, id)
         {
             _sxx = sxx;
             _syy = syy;

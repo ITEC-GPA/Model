@@ -57,8 +57,10 @@ namespace GPC.Model.Results
         /// <param name="mxx"></param>
         /// <param name="myy"></param>
         /// <param name="mxy"></param>
-        public ResultPlateForces(CoordinateSystem coordinateSystem,
-                                double fxx, double fyy, double fxy, double fxz, double fyz, double mxx, double myy, double mxy) : base(coordinateSystem)
+        /// <param name="id"></param>
+        public ResultPlateForces(CoordinateSystem coordinateSystem, 
+            double fxx, double fyy, double fxy, double fxz, double fyz, double mxx, double myy, double mxy, int id = ModelObjectId.IDUNASSIGNED) 
+            : base(coordinateSystem, string.Empty, id)
         {
             _fxx = fxx;
             _fyy = fyy;

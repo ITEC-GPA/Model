@@ -24,8 +24,8 @@ namespace GPC.Model.Results
 
 
 
-        public ResultPlateStress(CoordinateSystem coordinateSystem, ResultStress lowerFace, ResultStress midFace, ResultStress upperFace, string name = "")
-            : base(coordinateSystem, name)
+        public ResultPlateStress(CoordinateSystem coordinateSystem, ResultStress lowerFace, ResultStress midFace, ResultStress upperFace, string name = "", int id = ModelObjectId.IDUNASSIGNED)
+            : base(coordinateSystem, name, id)
         {
             if (lowerFace.CoordinateSystem != midFace.CoordinateSystem || lowerFace.CoordinateSystem != upperFace.CoordinateSystem)
                 throw new ArgumentException();

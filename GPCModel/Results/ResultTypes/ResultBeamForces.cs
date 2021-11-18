@@ -34,7 +34,7 @@ namespace GPC.Model.Results
         public double M1 => _M1;
         public double M2 => _M2;
 
-        #endregion 
+        #endregion
 
 
         #region Public Constructors
@@ -46,8 +46,9 @@ namespace GPC.Model.Results
         /// <param name="M1"> Bending moment around axis 1 (in plane 2, right hand rule) </param>
         /// <param name="M2"> Bending moment around axis 2 (in plane 1, right hand rule) </param>
         /// <param name="coordinateSystem">The beam coordinateSystem</param>
-        public ResultBeamForces(double N, double V1, double V2, double T, double M1, double M2, CoordinateSystem coordinateSystem)
-            : base(coordinateSystem)
+        /// <param name="id"></param>
+        public ResultBeamForces(double N, double V1, double V2, double T, double M1, double M2, CoordinateSystem coordinateSystem, int id = ModelObjectId.IDUNASSIGNED)
+            : base(coordinateSystem, string.Empty, id)
         {
             _N  = N;
             _V1 = V1;
