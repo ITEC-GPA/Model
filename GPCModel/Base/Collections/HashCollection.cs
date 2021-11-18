@@ -218,7 +218,7 @@ namespace GPC.Model
                     {
                         if (_collection[indexes[i]].Equals(item))
                         {
-                            return _collection[i].Id;
+                            return _collection[indexes[i]].Id;
                         }
                     }
 
