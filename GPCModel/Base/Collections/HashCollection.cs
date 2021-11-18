@@ -279,13 +279,15 @@ namespace GPC.Model
                 if (!_hashMap.ContainsKey(hash))
                     return false;
 
-                int i = _collection.IndexOf(item);
+                int i = IndexOf(item);
 
                 if (_hashMap[hash].Count > 1)
                     _hashMap[hash].Remove(i);
                 else
                     _hashMap.Remove(hash);
-                return _collection.Remove(item);
+
+                _collection.RemoveAt(i);
+                return true;
             }
         }
 
