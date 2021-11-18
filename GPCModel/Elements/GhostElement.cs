@@ -9,30 +9,39 @@ namespace GPC.Model.Elements
     /// </summary>
     internal class GhostElement : Element
     {
-        public GhostElement(int id) : base(id)
+        public GhostElement()
+        {
+        }
+
+        public GhostElement(string name) 
+            : base(name)
+        {
+        }
+
+        public GhostElement(int id) 
+            : base(id)
+        {
+        }
+
+        public GhostElement(Guid guid) 
+            : base(guid)
+        {
+        }
+
+        public GhostElement(SerializationInfo info, StreamingContext context) 
+            : base(info, context)
         {
 
         }
 
-        public GhostElement(int id, string name) : base(id, name, Guid.NewGuid())
+        public GhostElement(int id, string name) 
+            : base(id, name)
         {
-
         }
 
-
-        public GhostElement(Guid guid) : base(guid)
+        public GhostElement(int id, string name, Guid guid) 
+            : base(id, name, guid)
         {
-
-        }
-
-        public GhostElement(Guid guid, string name, int id) : base(id, name, guid)
-        {
-
-        }
-
-        public GhostElement(SerializationInfo info, StreamingContext context) : base(info, context)
-        {
-
         }
 
         public override bool Equals(object obj)

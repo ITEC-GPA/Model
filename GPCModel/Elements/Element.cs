@@ -12,28 +12,36 @@ namespace GPC.Model.Elements
     public abstract class Element : ModelObjectId, ISerializable
     {
 
-        protected Element() 
-            : base(Guid.NewGuid())
+        protected Element()
+        {
+        }
+
+
+        protected Element(string name)
+            : base(name)
+        {
+
+        }
+
+        protected Element(int id, string name)
+            : base(id, name)
         {
 
         }
 
         protected Element(int id)
-            : this(id, "", Guid.NewGuid())
+            : base(id)
         {
+        }
 
+        protected Element(int id, Guid guid)
+            : base(id, guid)
+        {
         }
 
         protected Element(Guid guid)
             : base(guid)
         {
-
-        }
-
-        protected Element(int id, Guid guid)
-            : this(id, "", guid)
-        {
-
         }
 
         protected Element(int id, string name, Guid guid)
@@ -42,13 +50,12 @@ namespace GPC.Model.Elements
 
         }
 
+
         protected Element(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
 
         }
-
-
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             base.GetObjectData(info, context);

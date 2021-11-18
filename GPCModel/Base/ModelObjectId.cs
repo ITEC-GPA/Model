@@ -31,6 +31,12 @@ namespace GPC.Model
 
         }
 
+        public ModelObjectId(int id, Guid guid)
+            : this(id, "", guid)
+        {
+
+        }
+
         public ModelObjectId(Guid guid)
             : base(guid)
         {

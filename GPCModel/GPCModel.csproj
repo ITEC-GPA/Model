@@ -68,6 +68,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Base\Collections\HashCollection.cs" />
+    <Compile Include="Base\Collections\KeyValuePairCollection.cs" />
     <Compile Include="Base\Collections\UniqueIdCollection.cs" />
     <Compile Include="Base\ModelObjectId.cs" />
     <Compile Include="Base\Collections\ModelObjectSet.cs" />
