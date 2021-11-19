@@ -285,6 +285,22 @@ namespace ModelObjectTest
         }
 
         [TestMethod]
+        public void ConcreteENTest11()
+        {
+            ConcreteMaterialEN1992 concrete = ConcreteMaterialEN1992.C25_30;
+            List<double> stresses = new List<double>();
+
+            for (int i = 10; i >= -35; i--)
+                stresses.Add(concrete.GetStress(i / 10000.0));
+                       
+            for (int i = 0; i < stresses.Count; i++)
+                Assert.IsTrue(stresses[i] <= 0.0);
+
+            for (int i = 0; i < stresses.Count; i++)
+                Console.WriteLine(stresses[i]);
+        }
+
+        [TestMethod]
         public void SteelTest1()
         {
             SteelMaterial steel = SteelMaterial.S275;
