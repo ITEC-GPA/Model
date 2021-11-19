@@ -325,5 +325,18 @@ namespace ModelObjectTest
             for (int i = 0; i < stresses.Count; i++)
                 Console.WriteLine(stresses[i]);
         }
+
+        [TestMethod]
+        public void TendonTest1()
+        {
+            RebarMaterial tendon = new RebarMaterial("", 195000, 1620, 1800);
+            List<double> stresses = new List<double>();
+
+            for (int i = 75; i >= -75; i--)
+                stresses.Add(tendon.CalculateStress(i / 1000.0));
+
+            for (int i = 0; i < stresses.Count; i++)
+                Console.WriteLine(stresses[i]);
+        }
     }
 }

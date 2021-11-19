@@ -14,11 +14,9 @@ namespace GPC.Model.Sections.Concrete
     [Serializable]
     public class ReinforcedConcreteRebar : ModelObjectId, ISerializable
     {
-
         protected readonly IRebarSection _rebarSection;
         protected readonly Point2d _position;
         protected readonly double _epsilonP;
-
 
 
         public double Area => _rebarSection.Area;
@@ -34,24 +32,23 @@ namespace GPC.Model.Sections.Concrete
 
         #region Public Constructors
 
-        public ReinforcedConcreteRebar(IRebarSection section, Point2d position, double epsilonP, int id, string name, Guid guid)
+        public ReinforcedConcreteRebar(IRebarSection section, Point2d position, double sigmaP, int id, string name, Guid guid)
             : base(id, name, guid)
         {
             _rebarSection = section ?? throw new ArgumentNullException(nameof(section));
             _position = position ?? throw new ArgumentNullException(nameof(position));
-            if (epsilonP < 0.0)
-                throw new ArgumentException("EpsilonP cannot be lower than 0");
-            _epsilonP = epsilonP;
+            if (sigmaP < 0.0)
+                throw new ArgumentException("SigmaP cannot be lower than 0");
+            if (sigmaP > RebarMaterial.Fu)
+                throw new ArgumentException("SigmaP cannot be greater than Fu");
+
+            _epsilonP = GetEpsilonP(sigmaP);
         }
 
-        public ReinforcedConcreteRebar(IRebarSection section, Point2d position, double epsilonP = 0.0, int id = ModelObjectId.IDUNASSIGNED, string name = "")
-            : base(id, name)
+        public ReinforcedConcreteRebar(IRebarSection section, Point2d position, double sigmaP = 0.0, int id = ModelObjectId.IDUNASSIGNED, string name = "")
+            : this(section, position, sigmaP, id, name, new Guid())
         {
-            _rebarSection = section ?? throw new ArgumentNullException(nameof(section));
-            _position = position ?? throw new ArgumentNullException(nameof(position));
-            if (epsilonP < 0.0)
-                throw new ArgumentException("EpsilonP cannot be lower than 0");
-            _epsilonP = epsilonP;
+
         }
 
 
@@ -61,6 +58,7 @@ namespace GPC.Model.Sections.Concrete
 
         }
 
+        #endregion
 
 
         public override bool Equals(object obj)
@@ -101,7 +99,21 @@ namespace GPC.Model.Sections.Concrete
             return !(left == right);
         }
 
+        protected double GetEpsilonP(double sigmaP)
+        {
+            if (sigmaP < 0.0)
+                throw new ArgumentException("SigmaP must be greater than 0");
 
-        #endregion
+            if (sigmaP == 0.0)
+                return 0.0;
+
+            if (sigmaP <= RebarMaterial.Fyk)
+                return Utilities.Maths.Interpolation.GetLinearInterpolation(0.0, RebarMaterial.Fyk, 0.0,
+                    RebarMaterial.StrainY, sigmaP);
+            else
+                return RebarMaterial.StrainY + Utilities.Maths.Interpolation.GetLinearInterpolation(RebarMaterial.Fyk, RebarMaterial.Fu, 
+                    RebarMaterial.StrainY, RebarMaterial.StrainU, sigmaP - RebarMaterial.Fyk);
+        }
+
     }
 }
