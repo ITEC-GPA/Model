@@ -1,6 +1,5 @@
 ﻿using System.ComponentModel;
 using GPC.Model;
-using GPC.Model;
 using GPC.Model.Elements;
 using GPC.TestUtilities;
 using Microsoft.VisualStudio.TestTools.UnitTesting;

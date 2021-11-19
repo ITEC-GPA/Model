@@ -10,6 +10,9 @@ using System.Diagnostics;
 using System.Linq;
 using GPC.Model.FEM.FiniteElements;
 using GPC.Geometry;
+using mnl = MathNet.Numerics.LinearAlgebra;
+using GPC.Utilities.Fem;
+using GPC.Model.Maths.GaussIntegrations;
 
 namespace GeneralTest
 {
@@ -478,6 +481,31 @@ namespace GeneralTest
 
             stopWatch.Stop();
             Debug.WriteLine(stopWatch.Elapsed, "Elapsed time");
+        }
+
+
+        [TestMethod]
+        public void IntegrationTest1()
+        {
+
+            double constant = 3.0;
+
+            Point3d[] polygon = new Point3d[] { new Point2d(-1.0, -1.0), new Point2d(+1.0, -1.0), new Point2d(+1.0, +1.0), new Point2d(-1.0, +1.0) };
+            
+            Func<double, double, double> func = (x, y) => constant * x * x;
+
+            int nrGaussPoints = 400;
+
+            double result = 0;
+            Action ac2 = new Action(() =>
+            {
+                result = GaussIntegration.IntegrationQuadrilateralLinearShapeFunction(func, polygon, nrGaussPoints);
+            });
+
+            var bb0 = MeasureTime.FunctionExecutionTime(20, ac2, true); ;
+
+            Console.WriteLine(bb0);
+
         }
     }
 }
