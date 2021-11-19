@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
@@ -9,9 +10,9 @@ using System.Threading.Tasks;
 namespace GPC.Model
 {
 
-    public class KeyValuePairHashedCollection<T, D> where T : ModelObjectId, INotifyPropertyChanged where D : class, ISerializable
+    public class KeyValuePairHashedCollection<T, D> : IEnumerable<KeyValuePair<T, D>> where T : ModelObjectId, INotifyPropertyChanged where D : class, ISerializable
     {
-        
+
         protected readonly object _locker = new object();
 
         protected readonly List<KeyValuePair<T, D>> _collection;
@@ -77,8 +78,8 @@ namespace GPC.Model
                 bool hashAlreadyExisting = false;
                 if (_hashMap.TryGetValue(hash, out List<int> indexes))
                 {
-                    hashAlreadyExisting = true; 
-                    
+                    hashAlreadyExisting = true;
+
                     int elementIdToReturn = int.MinValue;
                     bool returnControl = false;
 
@@ -87,7 +88,7 @@ namespace GPC.Model
                         if (CollectionsIndexKeyEquals(indexes[i], key))
                         {
                             _collection[indexes[i]] = new KeyValuePair<T, D>(key, value);
-                            
+
                             if (!returnControl)
                             {
                                 elementIdToReturn = key.Id; // se l'elemento esiste già ritorna l'id del primo elemento con quel hash
@@ -301,6 +302,19 @@ namespace GPC.Model
             return -1;
         }
 
+
+        public IEnumerator<KeyValuePair<T, D>> GetEnumerator()
+        {
+            return _collection.GetEnumerator();
+        }
+
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return _collection.GetEnumerator();
+        }
+
+
         #endregion
 
         #region Hash management
@@ -347,7 +361,7 @@ namespace GPC.Model
                     }
                 }
             }
-        } 
+        }
         #endregion
     }
 }

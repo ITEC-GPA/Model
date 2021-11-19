@@ -161,7 +161,7 @@ namespace GPC.Model
         }
 
 
-        IEnumerator<KeyValuePair<T, D>> IEnumerable<KeyValuePair<T, D>>.GetEnumerator()
+        public IEnumerator<KeyValuePair<T, D>> GetEnumerator()
         {
             return _collection.GetEnumerator();
         }
@@ -170,6 +170,7 @@ namespace GPC.Model
         {
             return _collection.GetEnumerator();
         }
+
 
         #endregion
 
