@@ -42,6 +42,7 @@ namespace GPC.Model.Materials
             CementType cementType = CementType.ClassN)
             : base(name, fck, compressionStressStrainDiagrams, 0.2, 0.0025, 1e-6, cementType)
         {
+
         }
 
 
@@ -49,6 +50,7 @@ namespace GPC.Model.Materials
             double poisson, double density, double alfaThermalExpansion, CementType cementType = CementType.ClassN) 
             : base(name, fck, compressionStressStrainDiagrams, poisson, density, alfaThermalExpansion, cementType)
         {
+
         }
 
 
@@ -56,12 +58,21 @@ namespace GPC.Model.Materials
             StressStrainTable stressStrainTableTension, double poisson, double density, double alfaThermalExpansion, CementType cementType = CementType.ClassN) 
             : base(name, strainYTension, stressStrainTableCompression, stressStrainTableTension, poisson, density, alfaThermalExpansion, cementType)
         {
+
         }
 
+        // Costruttore per cls con tabella generica
+        public ConcreteMaterialEN1992(string name, double strainYTension,
+            StressStrainTable stressStrainTableCompression, StressStrainTable stressStrainTableTension, CementType cementType = CementType.ClassN)
+            : this(name, strainYTension, stressStrainTableCompression, stressStrainTableTension, 0.2, 0.0025, 1e-6, cementType)
+        {
+
+        }
 
         protected ConcreteMaterialEN1992(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
+
         }
 
         #region Equals, hashcode, operators

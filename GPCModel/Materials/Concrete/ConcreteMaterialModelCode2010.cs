@@ -167,13 +167,31 @@ namespace GPC.Model.Materials
 
 
         // Costruttore per cls con tabella generica
-        public ConcreteMaterialModelCode2010(string name, double strainYTension,
-                                                          StressStrainTable stressStrainTableCompression,
-                                                          StressStrainTable stressStrainTableTension,
-                                                          double poisson, double density, double alfaThermalExpansion, CementType cementType = CementType.ClassN)
+        public ConcreteMaterialModelCode2010(string name, double strainYTension, 
+            StressStrainTable stressStrainTableCompression, StressStrainTable stressStrainTableTension, 
+            double poisson, double density, double alfaThermalExpansion, CementType cementType = CementType.ClassN)
             : base(name, stressStrainTableCompression, stressStrainTableTension,
                          stressStrainTableCompression.GetElasticModulus(), stressStrainTableTension.GetElasticModulus(),
                          poisson, density, alfaThermalExpansion)
+        {
+
+            _compressionStressStrainDiagrams = CompressionStressStrainDiagrams.Generic;
+            _tensionStressStrainDiagrams = TensionStressStrainDiagrams.Linear;
+
+            SetMechanicalProperties(stressStrainTableCompression.GetMinimumStress(),
+                                    stressStrainTableTension.GetStress(strainYTension),
+                                    stressStrainTableTension.GetLastStress(),
+                                    strainYTension, stressStrainTableTension.GetLastStrain(),
+                                    _compressionStressStrainDiagrams, _tensionStressStrainDiagrams);
+
+            _cementType = cementType;
+        }
+
+
+        // Costruttore per cls con tabella generica
+        public ConcreteMaterialModelCode2010(string name, double strainYTension, 
+            StressStrainTable stressStrainTableCompression, StressStrainTable stressStrainTableTension, CementType cementType = CementType.ClassN)
+            : this(name, strainYTension, stressStrainTableCompression, stressStrainTableTension, 0.2, 0.0025, 1e-6, cementType)
         {
 
             _compressionStressStrainDiagrams = CompressionStressStrainDiagrams.Generic;
