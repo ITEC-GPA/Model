@@ -301,6 +301,39 @@ namespace ModelObjectTest
         }
 
         [TestMethod]
+        public void ConcreteENTest12()
+        {
+            ConcreteMaterialEN1992 concrete = new ConcreteMaterialEN1992("", 25, ConcreteMaterialModelCode2010.CompressionStressStrainDiagrams.StressBlock);
+            List<(double, double)> stresses = new List<(double, double)>();
+
+            for (int i = 10; i >= -35; i--)
+                stresses.Add((concrete.GetStress(i / 10000.0), i / 10000.0));
+
+            for (int i = 0; i < stresses.Count; i++)
+                Assert.IsTrue(stresses[i].Item1 <= 0.0);
+
+            for (int i = 0; i < stresses.Count; i++)
+                Console.WriteLine(stresses[i].Item1);
+        }
+
+        [TestMethod]
+        public void ConcreteENTest13()
+        {
+            ConcreteMaterialEN1992 concrete = new ConcreteMaterialEN1992("", 0.0, new StressStrainTable(new double[] { 0, -314.76 }, new double[] { 0, -0.01 }),
+                new StressStrainTable(new double[] { 0, 0.000 }, new double[] { 0, 0.001 }));
+            List<(double, double)> stresses = new List<(double, double)>();
+
+            for (int i = 10; i >= -35; i--)
+                stresses.Add((concrete.GetStress(i / 10000.0), i / 10000.0));
+
+            for (int i = 0; i < stresses.Count; i++)
+                Assert.IsTrue(stresses[i].Item1 <= 0.0);
+
+            for (int i = 0; i < stresses.Count; i++)
+                Console.WriteLine(stresses[i].Item1);
+        }
+
+        [TestMethod]
         public void SteelTest1()
         {
             SteelMaterial steel = SteelMaterial.S275;
@@ -324,6 +357,23 @@ namespace ModelObjectTest
 
             for (int i = 0; i < stresses.Count; i++)
                 Console.WriteLine(stresses[i]);
+        }
+
+        [TestMethod]
+        public void RebarTest2()
+        {
+            RebarMaterial steel = RebarMaterial.B450C;
+
+            double stressYTension = steel.CalculateStress(0.001955);
+            double stressYCompression = steel.CalculateStress(-0.001955);
+
+            double stressYTest1 = steel.CalculateStress(0.0008243);
+            double stressYTest2 = steel.CalculateStress(0.0001708);
+
+            Assert.IsTrue(Math.Abs(stressYTension - 391) < 1);
+            Assert.IsTrue(Math.Abs(stressYCompression + 391) < 1);
+            Assert.IsTrue(Math.Abs(stressYTest1 - 164.9) < 1);
+            Assert.IsTrue(Math.Abs(stressYTest2 - 34.15) < 1);
         }
 
         [TestMethod]

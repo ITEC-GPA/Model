@@ -105,8 +105,8 @@ namespace GPC.Model.Materials
         {
             double max = _stresses.Max();
 
-            strain = Array.IndexOf(_stresses, max);
-
+            int index = Array.IndexOf(_stresses, max);
+            strain = _strains[index];
             return max;
         }
 
@@ -115,8 +115,9 @@ namespace GPC.Model.Materials
         public double GetMinimumStress(out double strain)
         {
             double min = _stresses.Min();
-
-            strain = Array.IndexOf(_stresses, min);
+            
+            int index = Array.IndexOf(_stresses, min);
+            strain = _strains[index];
 
             return min;
         }

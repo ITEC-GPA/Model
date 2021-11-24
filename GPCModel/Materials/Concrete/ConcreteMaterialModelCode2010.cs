@@ -354,7 +354,7 @@ namespace GPC.Model.Materials
 
                 case CompressionStressStrainDiagrams.Generic:
 
-                    _fck = _stressStrainTableCompression.GetMaximumStress(out double fckStrain);
+                    _fck = _stressStrainTableCompression.GetMinimumStress(out double fckStrain);
                     _elasticModulus = GetEcm(GetFcm());
                     _strainUCompression = _stressStrainTableCompression.GetLastStrain();
                     _strainYCompression = fckStrain;
