@@ -10,9 +10,8 @@ using MathNet.Numerics.LinearAlgebra;
 namespace GPC.Model.Results
 {
     [Serializable]
-    public sealed class ResultBeamForces : ResultType, IEquatable<ResultBeamForces>, ISerializable, IBeamResult, IResult<ResultBeamForces>
+    public class ResultBeamForces : ResultType, ISerializable, IBeamResult, IResult<ResultBeamForces>
     {
-
         #region Variables
 
         private readonly double _N;
@@ -24,7 +23,6 @@ namespace GPC.Model.Results
 
         #endregion 
 
-
         #region Properties
 
         public double N => _N;
@@ -35,7 +33,6 @@ namespace GPC.Model.Results
         public double M2 => _M2;
 
         #endregion
-
 
         #region Public Constructors
 
@@ -82,7 +79,6 @@ namespace GPC.Model.Results
         }
         #endregion
 
-
         #region Public Methods
 
 
@@ -97,7 +93,8 @@ namespace GPC.Model.Results
             var forceNewCoordinate = coordinateSystem.ToLocal(vector3dvector3dForceGlobal);
             var momentNewCoordinate = coordinateSystem.ToLocal(vector3dvector3dMomentGlobal);
 
-            return new ResultBeamForces(forceNewCoordinate.Z, forceNewCoordinate.X, forceNewCoordinate.Y, momentNewCoordinate.Z, momentNewCoordinate.X, momentNewCoordinate.Y, coordinateSystem);
+            return new ResultBeamForces(forceNewCoordinate.Z, forceNewCoordinate.X, forceNewCoordinate.Y, 
+                momentNewCoordinate.Z, momentNewCoordinate.X, momentNewCoordinate.Y, coordinateSystem);
         }
 
         /// <summary>
@@ -118,24 +115,10 @@ namespace GPC.Model.Results
             return Math.Sqrt(Math.Pow(V1, 2) + Math.Pow(V2, 2));
         }
 
-        public bool Equals(ResultBeamForces other)
-        {
-            if (other is null)
-                return false;
-
-            return base.Equals(other) &&
-                   _N == other._N &&
-                   _V1 == other._V1 &&
-                   _V2 == other._V2 &&
-                   _T == other._T &&
-                   _M1 == other._M1 &&
-                   _M2 == other._M2;
-        }
-
-
         public override bool Equals(object obj)
         {
-            return obj is ResultPlateForces other && Equals(other);
+            return obj is ResultBeamForces other && _N == other._N && _V1 == other._V1 && 
+                _V2 == other._V2 && _T == other._T && _M1 == other._M1 && _M2 == other._M2;
         }
 
         public override int GetHashCode()
@@ -154,10 +137,9 @@ namespace GPC.Model.Results
             }
         }
 
-
         public static bool operator ==(ResultBeamForces left, ResultBeamForces right)
         {
-            return EqualityComparer<ResultBeamForces>.Default.Equals(left, right);
+            return left.Equals(right);
         }
 
         public static bool operator !=(ResultBeamForces left, ResultBeamForces right)
@@ -165,8 +147,6 @@ namespace GPC.Model.Results
             return !(left == right);
         }
 
-
         #endregion
-
     }
 }
