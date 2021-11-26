@@ -55,10 +55,9 @@ namespace GPC.Model.Results
             _M2 = M2;
         }
 
-        private ResultBeamForces(SerializationInfo info, StreamingContext context) 
+        protected ResultBeamForces(SerializationInfo info, StreamingContext context) 
             : base(info, context)
         {
-
             _N  = (double)info.GetValue("N" , typeof(double));
             _V1 = (double)info.GetValue("V1", typeof(double));
             _V2 = (double)info.GetValue("V2", typeof(double));
