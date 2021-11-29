@@ -67,22 +67,34 @@ namespace GPC.Model.Sections
 
         protected override double CalculateWel1()
         {
-            CalculateWel(out double Wel11Top, out double Wel11Bottom, out double _, out double _);
+            CalculateWel(AngleX1, out double Wel11Top, out double Wel11Bottom, out double _, out double _);
             return Math.Min(Wel11Bottom, Wel11Top);
         }
 
         protected override double CalculateWel2()
         {
-            CalculateWel(out double _, out double _, out double Wel22Left, out double Wel22Right);
+            CalculateWel(AngleX1, out double _, out double _, out double Wel22Left, out double Wel22Right);
             return Math.Min(Wel22Left, Wel22Right);
+        }
+
+        protected override double CalculateWelX()
+        {
+            CalculateWel(0.0, out double WelXTop, out double WelXBottom, out double _, out double _);
+            return Math.Min(WelXBottom, WelXTop);
+        }
+
+        protected override double CalculateWelY()
+        {
+            CalculateWel(0.0, out double _, out double _, out double WelXLeft, out double WelXRight);
+            return Math.Min(WelXLeft, WelXRight);
         }
 
         protected override double CalculateAngle()
         {
             double angle = -1.0 / 2.0 * Math.Atan(2.0 * CalculateJxy() / (Jyy - Jxx));
 
-            if (Jyy < Jxx)
-                angle += Math.PI / 2.0;
+            //if (Jyy < Jxx)
+            //    angle += Math.PI / 2.0;
 
             return angle;
         }
@@ -97,16 +109,16 @@ namespace GPC.Model.Sections
             return (Jxx + Jyy) / 2.0 - 0.5 * Math.Sqrt(Math.Pow(Jxx - Jyy, 2.0) + 4.0 * Math.Pow(CalculateJxy(), 2));
         }
 
-        private void CalculateWel(out double Wel11Top, out double Wel11Bottom, out double Wel22Left, out double Wel22Right)
+        private void CalculateWel(double teta, out double WelTop, out double WelBottom, out double WelLeft, out double WelRight)
         {
-            FivePointsCheck(out double minX, out double maxX, out double minY, out double maxY);
-            Wel11Top = Jxx / Math.Abs(maxY);
-            Wel11Bottom = Jxx / Math.Abs(minY);
-            Wel22Left = Jyy / Math.Abs(minX);
-            Wel22Right = Jyy / Math.Abs(maxX);
+            FivePointsCheck(teta, out double minX, out double maxX, out double minY, out double maxY);
+            WelTop = Jxx / Math.Abs(maxY);
+            WelBottom = Jxx / Math.Abs(minY);
+            WelLeft = Jyy / Math.Abs(minX);
+            WelRight = Jyy / Math.Abs(maxX);
         }
 
-        private void FivePointsCheck(out double minX, out double maxX, out double minY, out double maxY)
+        private void FivePointsCheck(double angle, out double minX, out double maxX, out double minY, out double maxY)
         {
             //check 5 points
             //traslation
@@ -126,8 +138,8 @@ namespace GPC.Model.Sections
             {
                 double x = pts[i].X;
                 double y = pts[i].Y;
-                double newX = x * Math.Cos(AngleX1) + y * Math.Sin(AngleX1);
-                double newY = -x * Math.Sin(AngleX1) + y * Math.Cos(AngleX1);
+                double newX = x * Math.Cos(angle) + y * Math.Sin(angle);
+                double newY = -x * Math.Sin(angle) + y * Math.Cos(angle);
                 pts[i] = new Point2d(newX, newY);
 
                 minX = Math.Min(minX, pts[i].X);

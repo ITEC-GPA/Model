@@ -51,10 +51,15 @@ namespace GPC.Model.Sections
         protected double _jw;
         protected double _j11;
         protected double _j22;
+
         protected double _wpl1;
         protected double _wpl2;
         protected double _wel1;
         protected double _wel2;
+        protected double _wplX;
+        protected double _wplY;
+        protected double _welX;
+        protected double _welY;
 
         protected Point2d _shearCenter;
         protected Point2d _centroid;
@@ -138,6 +143,26 @@ namespace GPC.Model.Sections
         /// The elastic modulus calculated respect the 2-principal axes
         /// </summary>
         public double Wel2 => _wel2;
+
+        /// <summary>
+        /// The elastic modulus calculated respect the X axes
+        /// </summary>
+        public double WelX => _welX;
+
+        /// <summary>
+        /// The elastic modulus calculated respect the Y axes
+        /// </summary>
+        public double WelY => _welY;
+
+        /// <summary>
+        /// The plastic modulus calculated respect the X axes
+        /// </summary>
+        public double WplX => _wplX;
+
+        /// <summary>
+        /// The plastic modulus calculated respect the Y axes
+        /// </summary>
+        public double WplY => _wplY;
 
         /// <summary>
         /// The centroid of the section
@@ -382,9 +407,9 @@ namespace GPC.Model.Sections
             _jyy = CalculateJyy();
             _jxy = CalculateJxy();
 
+            _angleX1 = CalculateAngle();
             _j11 = CalculateJ11();
             _j22 = CalculateJ22();
-            _angleX1 = CalculateAngle();
 
             _jp = _jxx + _jyy;
             _jt = CalculateJt();
@@ -397,6 +422,10 @@ namespace GPC.Model.Sections
             _wpl1 = CalculateWpl1();
             _wpl2 = CalculateWpl2();
 
+            _welX = CalculateWelX();
+            _welY = CalculateWelY();
+            _wplX = CalculateWplX();
+            _wplY = CalculateWplY();
         }
 
 
@@ -480,6 +509,26 @@ namespace GPC.Model.Sections
         protected virtual double CalculateWel2()
         {
             return 0;
+        }
+
+        protected virtual double CalculateWplX()
+        {
+            return CalculateWpl1();
+        }
+
+        protected virtual double CalculateWplY()
+        {
+            return CalculateWpl2();
+        }
+
+        protected virtual double CalculateWelX()
+        {
+            return CalculateWel1();
+        }
+
+        protected virtual double CalculateWelY()
+        {
+            return CalculateWel2();
         }
 
         protected virtual bool CalculateIsSymmetricAlongXLocalAxis()

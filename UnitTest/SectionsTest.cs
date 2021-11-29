@@ -1072,14 +1072,14 @@ namespace ModelObjectTest
             double A = 9625;
             double jxx = 62872568;
             double jyy = 48806903;
-            double Wpl1 = 378291.7;
-            double Wpl2 = 252012.17;
+            double Wel1 = 378291.7;
+            double Wel2 = 252012.17;
 
             Assert.AreEqual(A, sec.Area);
             Assert.AreEqual(Math.Abs(jxx / sec.Jxx) - 1, 0, 0.001);
             Assert.AreEqual(Math.Abs(jyy / sec.Jyy) - 1, 0, 0.001);
-            Assert.AreEqual(Math.Abs(Wpl1 / sec.Wpl1) - 1, 0, 0.015);
-            Assert.AreEqual(Math.Abs(Wpl2 / sec.Wpl2) - 1, 0, 0.015);
+            Assert.AreEqual(Math.Abs(Wel1 / sec.WelX) - 1, 0, 0.015);
+            Assert.AreEqual(Math.Abs(Wel2 / sec.WelY) - 1, 0, 0.015);
         }
 
         [TestMethod]
@@ -1156,8 +1156,8 @@ namespace ModelObjectTest
             Assert.AreEqual(Math.Abs(j22 / sec.J22) - 1, 0, 0.001);
             Assert.AreEqual(Math.Abs(r1 / sec.R11) - 1, 0, 0.001);
             Assert.AreEqual(Math.Abs(r2 / sec.R22) - 1, 0, 0.001);
-            Assert.AreEqual(Math.Abs(Wpl1 / sec.Wpl1) - 1, 0, 0.015);
-            Assert.AreEqual(Math.Abs(Wpl2 / sec.Wpl2) - 1, 0, 0.015);
+            Assert.AreEqual(Math.Abs(Wpl1 / sec.WelX) - 1, 0, 0.015);
+            Assert.AreEqual(Math.Abs(Wpl2 / sec.WelY) - 1, 0, 0.015);
         }
 
         [TestMethod]
