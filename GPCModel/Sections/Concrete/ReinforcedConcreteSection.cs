@@ -55,7 +55,7 @@ namespace GPC.Model.Sections.Concrete
             SetMechanicalProperties();
         }
 
-        public ReinforcedConcreteSection(SerializationInfo info, StreamingContext context) :
+        protected ReinforcedConcreteSection(SerializationInfo info, StreamingContext context) :
             base(info, context)
         {
             _shapeEx = (ShapeEx)info.GetValue("ShapeEx", typeof(ShapeEx));

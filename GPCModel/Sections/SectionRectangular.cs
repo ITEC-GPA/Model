@@ -77,7 +77,7 @@ namespace GPC.Model.Sections
 
         }
 
-        public SectionRectangular(SerializationInfo info, StreamingContext context)
+        protected SectionRectangular(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
             _height = info.GetDouble("Height");

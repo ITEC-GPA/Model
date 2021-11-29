@@ -42,7 +42,7 @@ namespace GPC.Model.Sections.Rebar
         {
         }
 
-        public RebarSectionCircular(SerializationInfo info, StreamingContext context)
+        protected RebarSectionCircular(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
         }

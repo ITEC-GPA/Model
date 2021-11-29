@@ -36,7 +36,7 @@ namespace GPC.Model.Sections
         {
         }
 
-        public ShapeEx(SerializationInfo info, StreamingContext context) :
+        protected ShapeEx(SerializationInfo info, StreamingContext context) :
             base(info, context)
         {
             _material = (Material)info.GetValue("Material", typeof(Material));

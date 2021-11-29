@@ -31,7 +31,7 @@ namespace GPC.Model.Sections
 
         }
 
-        internal ThinWallSection(SerializationInfo info, StreamingContext context)
+        protected ThinWallSection(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
             _thinWalls = (ThinWall[])info.GetValue("ThinWall", typeof(ThinWall));
