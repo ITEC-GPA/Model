@@ -111,7 +111,7 @@ namespace GPC.Model.Sections.Concrete
                 return Utilities.Maths.Interpolation.GetLinearInterpolation(0.0, RebarMaterial.Fyk, 0.0,
                     RebarMaterial.StrainY, sigmaP);
             else
-                return RebarMaterial.StrainY + Utilities.Maths.Interpolation.GetLinearInterpolation(RebarMaterial.Fyk, RebarMaterial.Fu, 
+                return RebarMaterial.StrainY + Utilities.Maths.Interpolation.GetLinearInterpolation(RebarMaterial.Fyk, RebarMaterial.Fu,
                     RebarMaterial.StrainY, RebarMaterial.StrainU, sigmaP - RebarMaterial.Fyk);
         }
 

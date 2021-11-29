@@ -1,10 +1,10 @@
-﻿using GPC.Geometry;
-using GPC.Model.Materials;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using GPC.Geometry;
+using GPC.Model.Materials;
 
 namespace GPC.Model.Sections.Steel
 {
@@ -44,7 +44,7 @@ namespace GPC.Model.Sections.Steel
         }
 
         public SteelSectionCHS(SectionCHS section, FormedTypes type = FormedTypes.ColdFormed)
-            :this(section.Diameter, section.Thickness, (SteelMaterial)section.Material, section.Name, type)
+            : this(section.Diameter, section.Thickness, (SteelMaterial)section.Material, section.Name, type)
         {
 
         }

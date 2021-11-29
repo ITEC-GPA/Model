@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using GPC.Geometry;
 using GPC.Model.Materials;
 
@@ -49,19 +50,16 @@ namespace GPC.Model.Sections
             _tTop = thicknessTop < 0 ? throw new ArgumentException($"Top thickness cannot be lower than zero") : thicknessTop;
             _tw = thicknessWeb < 0 ? throw new ArgumentException($"Web thickness cannot be lower than zero") : thicknessWeb;
 
-            if (_lengthBottom == _lengthTop && _tTop == _tBottom)
-                _isSymmetricAlongXLocalAxis = true;
-            _isSymmetricAlongYLocalAxis = false;
-
             ThinWall web = new ThinWall(height, thicknessWeb, Math.PI / 2.0);
             ThinWall flangeTop = new ThinWall(LengthTop - ThicknessWeb, ThicknessTop, 0);
             ThinWall flangeBottom = new ThinWall(LengthBottom - ThicknessWeb, ThicknessBottom, 0);
 
-            Points = new Point2d[] { new Point2d(thicknessWeb / 2.0, height / 2.0),
+            SetThinWalls(new ThinWall[] { web, flangeBottom, flangeTop },
+                new Point2d[] { new Point2d(thicknessWeb / 2.0, height / 2.0),
                 new Point2d(ThicknessWeb + (LengthTop - ThicknessWeb) / 2.0, ThicknessBottom + HeightWeb + ThicknessTop / 2.0),
-                new Point2d(ThicknessWeb + (LengthBottom - ThicknessWeb) / 2.0, ThicknessBottom / 2.0)};
+                new Point2d(ThicknessWeb + (LengthBottom - ThicknessWeb) / 2.0, ThicknessBottom / 2.0)});
 
-            ThinWalls = new ThinWall[] { web, flangeBottom, flangeTop };
+            SetMechanicalProperties();
         }
 
         #endregion
@@ -147,6 +145,7 @@ namespace GPC.Model.Sections
                 throw new NotImplementedException("Different lenght or thickness not yet supported");
         }
 
+
         protected virtual double CalculateWelyyLeft()
         {
             return J22 / DistanceXCentroidFromLeft();
@@ -165,6 +164,18 @@ namespace GPC.Model.Sections
         protected virtual double CalculateWelxxBottom()
         {
             return J11 / DistanceYCentroidFromBottom();
+        }
+
+        protected override bool CalculateIsSymmetricAlongXLocalAxis()
+        {
+            if (_lengthTop == _lengthBottom && _tTop == _tBottom)
+                return true;
+            return false;
+        }
+
+        protected override bool CalculateIsSymmetricAlongYLocalAxis()
+        {
+            return false;
         }
 
         public virtual double DistanceYCentroidFromBottom()
@@ -187,18 +198,57 @@ namespace GPC.Model.Sections
             return CalculateCentroid().X;
         }
 
+        
+
         public override string ToString()
         {
-            string s = "C section: \n";
-            s = s + "h = " + _h + " mm \n";
-            s = s + "tw = " + _tw + " mm \n";
-            s = s + "Length Bottom = " + _lengthBottom + " mm \n";
-            s = s + "Thickness Bottom = " + _tBottom + " mm \n";
-            s = s + "Length Top = " + _lengthTop + " mm \n";
-            s = s + "Thickness Top = " + _tTop + " mm \n";
-            return s;
+            return $"C {_h}x{_tw}x{_lengthBottom}x{_tBottom}x{_lengthTop}x{_tTop} ";
         }
 
+
+        #region Equals, hashcode, operators
+
+        public override bool Equals(object obj)
+        {
+            return obj is SectionC c &&
+                   base.Equals(obj) &&
+                   _h == c._h &&
+                   _tw == c._tw &&
+                   _lengthBottom == c._lengthBottom &&
+                   _tBottom == c._tBottom &&
+                   _lengthTop == c._lengthTop &&
+                   _tTop == c._tTop;
+        }
+
+        public override int GetHashCode()
+        {
+            unchecked
+            {
+                int hashCode = -17;
+                hashCode = hashCode * -23 + base.GetHashCode();
+                hashCode = hashCode * -23 + _h.GetHashCode();
+                hashCode = hashCode * -23 + _tw.GetHashCode();
+                hashCode = hashCode * -23 + _lengthBottom.GetHashCode();
+                hashCode = hashCode * -23 + _tBottom.GetHashCode();
+                hashCode = hashCode * -23 + _lengthTop.GetHashCode();
+                hashCode = hashCode * -23 + _tTop.GetHashCode();
+                return hashCode;
+            }
+        }
+
+        public static bool operator ==(SectionC left, SectionC right)
+        {
+            return left.Equals(right);
+        }
+
+        public static bool operator !=(SectionC left, SectionC right)
+        {
+            return !(left == right);
+        }
         #endregion
+
+        #endregion
+
+
     }
 }

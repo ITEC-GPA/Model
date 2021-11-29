@@ -33,7 +33,7 @@ namespace GPC.Model.Sections
 
         #region Public Constructors
 
-        public SectionT(double height, double flangeLength, double thicknessWeb, double thicknessFlange, Material material, string name) 
+        public SectionT(double height, double flangeLength, double thicknessWeb, double thicknessFlange, Material material, string name)
             : base(material, name)
         {
             #region Check inputs
@@ -45,21 +45,23 @@ namespace GPC.Model.Sections
 
             #endregion
 
-            _isSymmetricAlongYLocalAxis = true;
-            _isSymmetricAlongXLocalAxis = false;
-
             ThinWall web = new ThinWall(HeightWeb, thicknessWeb, Math.PI / 2);
             ThinWall flange = new ThinWall(flangeLength, thicknessFlange, 0);
 
-            Points = new Point2d[] { new Point2d(LenghtFlange / 2, HeightWeb / 2) ,
-                new Point2d(LenghtFlange / 2, HeightWeb + thicknessFlange / 2)};
 
-            ThinWalls = new ThinWall[] { web, flange };         
+            SetThinWalls(new ThinWall[] { web, flange },
+                    new Point2d[] { new Point2d(LenghtFlange / 2, HeightWeb / 2) ,
+                    new Point2d(LenghtFlange / 2, HeightWeb + thicknessFlange / 2)});
+
+            SetMechanicalProperties();
+
         }
 
         public SectionT(SectionT sectionT)
-            :this(sectionT.Height, sectionT.LenghtFlange, sectionT.ThicknessWeb, sectionT.ThicknessFlange, sectionT.Material, sectionT.Name)
-        { }
+            : this(sectionT.Height, sectionT.LenghtFlange, sectionT.ThicknessWeb, sectionT.ThicknessFlange, sectionT.Material, sectionT.Name)
+        {
+
+        }
 
         #endregion
 
@@ -148,15 +150,15 @@ namespace GPC.Model.Sections
 
         protected override Shape2d GetShape()
         {
-            return new Shape2d(new Polygon2d(new Point2d[] { 
-                                                            new Point2d(0.0, Height), 
+            return new Shape2d(new Polygon2d(new Point2d[] {
+                                                            new Point2d(0.0, Height),
                                                             new Point2d(LenghtFlange, Height),
-                                                            new Point2d(LenghtFlange, HeightWeb), 
+                                                            new Point2d(LenghtFlange, HeightWeb),
                                                             new Point2d(LenghtFlange / 2.0 + ThicknessWeb / 2.0 , HeightWeb),
-                                                            new Point2d(LenghtFlange / 2.0 + ThicknessWeb / 2.0 , 0.0), 
+                                                            new Point2d(LenghtFlange / 2.0 + ThicknessWeb / 2.0 , 0.0),
                                                             new Point2d(LenghtFlange / 2.0 - ThicknessWeb / 2.0 , 0.0),
-                                                            new Point2d(LenghtFlange / 2.0 - ThicknessWeb / 2.0 , HeightWeb), 
-                                                            new Point2d(0.0 , HeightWeb) 
+                                                            new Point2d(LenghtFlange / 2.0 - ThicknessWeb / 2.0 , HeightWeb),
+                                                            new Point2d(0.0 , HeightWeb)
                                                         }));
         }
 
@@ -172,19 +174,25 @@ namespace GPC.Model.Sections
         }
 
         protected override double CalculateJt()
-        {            
+        {
             return (_b * Math.Pow(_tf, 3.0) + (Height - _tf / 2.0) * Math.Pow(_tw, 3.0)) / 3.0;
+        }
+
+        protected override bool CalculateIsSymmetricAlongXLocalAxis()
+        {
+            return false;
+        }
+
+        protected override bool CalculateIsSymmetricAlongYLocalAxis()
+        {
+            return true;
         }
 
         public override string ToString()
         {
-            string s = "T section: \n";
-            s = s + "Height = " + Height + " mm \n";
-            s = s + "Thickness Web = " + _tw + " mm \n";
-            s = s + "Length Top = " + _b + " mm \n";
-            s = s + "Thickness Top = " + _tf + " mm \n";
-            return s;
+            return $"T {_h}x{_tw}x{_b}x{_tf}";
         }
+
 
         #endregion
 

@@ -1,6 +1,6 @@
-﻿using GPC.Geometry;
+﻿using System;
+using GPC.Geometry;
 using GPC.Model.Materials;
-using System;
 
 namespace GPC.Model.Sections.Steel
 {
@@ -38,10 +38,10 @@ namespace GPC.Model.Sections.Steel
 
         #region Public Constructors
 
-        public SteelSectionC(double height, double thicknessWeb, double lengthTop, double thicknessTop, double lengthBottom, 
-                            double thicknessBottom, SteelMaterial material, string name, 
+        public SteelSectionC(double height, double thicknessWeb, double lengthTop, double thicknessTop, double lengthBottom,
+                            double thicknessBottom, SteelMaterial material, string name,
                             SectionTypes type = SectionTypes.Rolled,
-                            FormedTypes formedType = FormedTypes.ColdFormed, 
+                            FormedTypes formedType = FormedTypes.ColdFormed,
                             double radiusInternal = 0, double radiusExternal = 0)
             : base(height, thicknessWeb, lengthTop, thicknessTop, lengthBottom, thicknessBottom, material, name)
         {
@@ -116,8 +116,8 @@ namespace GPC.Model.Sections.Steel
         {
             if (IsWelded)
             {
-                return 2.0 * (Math.Pow((1.41 * R1), 4) / 24.0 + 
-                    Math.Pow((1.41 * R1), 2) / 2.0 * Math.Pow(Centroid.X - ThicknessWeb - R1 / 3.5, 2)); 
+                return 2.0 * (Math.Pow((1.41 * R1), 4) / 24.0 +
+                    Math.Pow((1.41 * R1), 2) / 2.0 * Math.Pow(Centroid.X - ThicknessWeb - R1 / 3.5, 2));
             }
             else if (IsRolled)
             {
@@ -134,14 +134,14 @@ namespace GPC.Model.Sections.Steel
             double ySum = 0;
             double area = 0;
 
-            for (int i = 0; i < ThinWalls.Length; i++)
+            for (int i = 0; i < _thinWalls.Length; i++)
             {
-                xSum += ThinWalls[i].Area * Points[i].X;
-                ySum += ThinWalls[i].Area * Points[i].Y;
-                area += ThinWalls[i].Area;
+                xSum += _thinWalls[i].Area * _points[i].X;
+                ySum += _thinWalls[i].Area * _points[i].Y;
+                area += _thinWalls[i].Area;
             }
 
-            if(R1 != 0)
+            if (R1 != 0)
             {
                 if (IsWelded)
                 {

@@ -7,10 +7,11 @@ using GPC.Geometry;
 using GPC.Geometry.Meshes;
 using GPC.Model.Elements;
 using GPC.Model.Materials;
-using GPC.Model.Maths.GaussIntegrations;
+using GPC.Utilities.Extensions;
 
 namespace GPC.Model.Sections.Concrete
 {
+    [Serializable]
     public class ReinforcedConcreteSection : Section, IConcreteSection
     {
 
@@ -32,21 +33,24 @@ namespace GPC.Model.Sections.Concrete
         #region Public Constructors
 
         protected ReinforcedConcreteSection(ReinforcedConcreteSection reinforcedConcreteSection)
-            : base(reinforcedConcreteSection.Name)
+            : base(reinforcedConcreteSection.Material, reinforcedConcreteSection.Name)
         {
+            if (reinforcedConcreteSection is null)
+            {
+                throw new ArgumentNullException(nameof(reinforcedConcreteSection));
+            }
+
             _shapeEx = reinforcedConcreteSection.ShapeEx;
             _rebars = reinforcedConcreteSection.Rebars;
-            _material = reinforcedConcreteSection.Material;
-
             SetMechanicalProperties();
+
         }
 
         public ReinforcedConcreteSection(ShapeEx shapeEx, ReinforcedConcreteRebar[] rebars, string name = "")
-            : base(name)
+            : base(shapeEx.Material, name)
         {
             _shapeEx = shapeEx ?? throw new ArgumentNullException(nameof(shapeEx));
             _rebars = rebars ?? throw new ArgumentNullException(nameof(rebars));
-            _material = shapeEx.Material;
 
             SetMechanicalProperties();
         }
@@ -63,8 +67,8 @@ namespace GPC.Model.Sections.Concrete
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             base.GetObjectData(info, context);
-            info.AddValue("ShapeEx", _shapeEx);
-            info.AddValue("ReinforcedConcreteRebar", _rebars);
+            info.AddValue("ShapeEx", _shapeEx, typeof(ShapeEx));
+            info.AddValue("ReinforcedConcreteRebar", _rebars, typeof(ReinforcedConcreteRebar[]));
         }
 
 
@@ -75,6 +79,8 @@ namespace GPC.Model.Sections.Concrete
             return new ReinforcedConcreteSection(this);
         }
 
+
+        #region Concrete Mechanical properties
         /// <summary>
         /// Return all homogenized mechanical properties with default value of homogenized factor n
         /// </summary>
@@ -125,14 +131,14 @@ namespace GPC.Model.Sections.Concrete
         public (double areaH, double SxH, double SyH, Point2d centroidH, double JxxH, double JyyH, double JxyH, double JpH, double J11H, double J22H, double angleX)
             GetHomogeneizedMechanicalProperties(double n)
         {
-			Point2d centroidH = GetHomogenizedCentroid(n, out var SxH, out var SyH);
+            Point2d centroidH = GetHomogenizedCentroid(n, out var SxH, out var SyH);
 
             // NOTA: ci siamo ricondotti a momenti d'inerzia rispetto al baricentro della sezione di solo calcestruzzo
             ConcreteSectionHelper.CalculateHomogeneizedInertiaMoments(n, Rebars, Centroid, centroidH, Jxx, Jyy, Jxy, Area, out var JxxH, out var JyyH, out var JxyH, out var JpH);
 
-			double J11H = SectionHelper.CalculateJ11(JxxH, JyyH, JxyH);
-			double J22H = SectionHelper.CalculateJ22(JxxH, JyyH, JxyH);
-			double angleX = SectionHelper.CalculateAngle(JxxH, JyyH, JxyH);
+            double J11H = SectionHelper.CalculateJ11(JxxH, JyyH, JxyH);
+            double J22H = SectionHelper.CalculateJ22(JxxH, JyyH, JxyH);
+            double angleX = SectionHelper.CalculateAngle(JxxH, JyyH, JxyH);
 
             return (GetHomogenizedArea(n), SxH, SyH, centroidH, JxxH, JyyH, JxyH, JpH, J11H, J22H, angleX);
         }
@@ -201,6 +207,8 @@ namespace GPC.Model.Sections.Concrete
 
         #endregion
 
+        #endregion
+
 
         #region Protected Methods
 
@@ -214,35 +222,39 @@ namespace GPC.Model.Sections.Concrete
         /// <summary>
         /// Internal method to set the mechanical properties to the section
         /// </summary>
-        protected virtual void SetMechanicalProperties()
+        protected override void SetMechanicalProperties()
         {
             _area = CalculateArea();
 
             ConcreteSectionHelper.CalculateStaticMoments(Mesh, out double Sx, out double Sy);
-
+            
             _centroid = SectionHelper.CalculateCentroid(Sx, Sy, _area);
-
+            
             ConcreteSectionHelper.CalculateInertiaMoments(Mesh, _centroid, out double Jxx, out double Jyy, out double Jxy, out double _);
 
+
+            _j11 = SectionHelper.CalculateJ11(Jxx, Jyy, Jxy);
+            _j22 = SectionHelper.CalculateJ22(Jxx, Jyy, Jxy);
             _jxx = Jxx;
             _jyy = Jyy;
             _jxy = Jxy;
+            _jp = _jxx + _jyy;
             _angleX1 = SectionHelper.CalculateAngle(Jxx, Jyy, Jxy); ;
-            _j11 = SectionHelper.CalculateJ11(Jxx, Jyy, Jxy);
-            _j22 = SectionHelper.CalculateJ22(Jxx, Jyy, Jxy);
 
             _jw = 0; //TODO: implementare metodi di calcolo della sezione calcolo JW/JT
             _jt = 0; //TODO: implementare metodi di calcolo della sezione calcolo JW/JT
-
             _shearCenter = _centroid; //TODO: Implementare calcolo shear center
 
             _wel1 = CalculateWel1();
             _wel2 = CalculateWel2();
             _wpl1 = CalculateWpl1();
             _wpl2 = CalculateWpl2();
+
+            _isSymmetricAlongXLocalAxis = false; //TODO calcolare se è simmetrica
+            _isSymmetricAlongYLocalAxis = false;
         }
 
-        protected double CalculateArea()
+        protected override double CalculateArea()
         {
             return ShapeEx.GetArea();
         }
@@ -257,17 +269,17 @@ namespace GPC.Model.Sections.Concrete
             return ConcreteSectionHelper.CalculateN(rebar, Rebars, ConcreteMaterial);
         }
 
-        protected double CalculateWpl2()
+        protected override double CalculateWpl2()
         {
             return 0;
         }
 
-        protected double CalculateWpl1()
+        protected override double CalculateWpl1()
         {
             return 0;
         }
 
-        protected double CalculateWel2()
+        protected override double CalculateWel2()
         {
             double cosTeta = Math.Cos(_angleX1 + Math.PI / 2.0);
             double sinTeta = Math.Sin(_angleX1 + Math.PI / 2.0);
@@ -287,7 +299,7 @@ namespace GPC.Model.Sections.Concrete
             return _j22 / dmaxConcrete;
         }
 
-        protected double CalculateWel1()
+        protected override double CalculateWel1()
         {
             double cosTeta = Math.Cos(_angleX1);
             double sinTeta = Math.Sin(_angleX1);
@@ -309,7 +321,42 @@ namespace GPC.Model.Sections.Concrete
         }
 
 
+
         #endregion
 
+
+        #region Equals, hascode, operators
+
+        public override bool Equals(object obj)
+        {
+            return obj is ReinforcedConcreteSection section &&
+                   base.Equals(obj) &&
+                   _shapeEx.Equals(section._shapeEx) &&
+                   _rebars.ScrambledEquals(section._rebars);
+        }
+
+        public override int GetHashCode()
+        {
+            unchecked
+            {
+                int hashCode = 23;
+                hashCode = hashCode * -17 + base.GetHashCode();
+                hashCode = hashCode * -17 + _shapeEx.GetHashCode();
+                hashCode = hashCode * -17 + _rebars.ScrambledHashCode();
+                return hashCode;
+            }
+        }
+
+        public static bool operator ==(ReinforcedConcreteSection left, ReinforcedConcreteSection right)
+        {
+            return left.Equals(right);
+        }
+
+        public static bool operator !=(ReinforcedConcreteSection left, ReinforcedConcreteSection right)
+        {
+            return !(left == right);
+        }
+
+        #endregion
     }
 }

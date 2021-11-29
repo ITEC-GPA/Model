@@ -29,6 +29,12 @@ namespace GPC.Model.Sections.Steel
 
         double Jyy { get; }
 
+        /// <inheritdoc cref="Section.Jxy"/>
+        double Jxy { get; }
+
+        /// <inheritdoc cref="Section.Jp"/>
+        double Jp { get; }
+
         double Jt { get; }
 
         double Jw { get; }

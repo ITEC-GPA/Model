@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
 using GPC.Geometry;
@@ -10,21 +11,13 @@ namespace GPC.Model.Sections
 
     public class SectionCircular : Section, ISection
     {
-        #region Variables
 
         protected readonly double _diameter;
-
-        #endregion
-
-
-        #region Properties
 
         /// <summary>
         /// The diameter
         /// </summary>
         public double Diameter => _diameter;
-
-        #endregion
 
 
         #region Public Constructors
@@ -35,20 +28,16 @@ namespace GPC.Model.Sections
         /// <param name="diameter">The diameter</param>
         /// <param name="material">The material</param>
         /// <param name="name">The section name</param>
-        /// <param name="id">The unique id</param>
-        public SectionCircular(double diameter, Material material, string name, int id = IDUNASSIGNED)
+        public SectionCircular(double diameter, Material material, string name)
             : base(material, name)
         {
             _diameter = diameter;
-            _id = id;
-            _isSymmetricAlongXLocalAxis = true;
-            _isSymmetricAlongYLocalAxis = true;
 
             SetMechanicalProperties();
         }
 
         public SectionCircular(SectionCircular sectionCircular)
-            : this(sectionCircular.Diameter, sectionCircular.Material, sectionCircular.Name, sectionCircular.Id)
+            : this(sectionCircular.Diameter, sectionCircular.Material, sectionCircular.Name)
         {
 
         }
@@ -57,7 +46,6 @@ namespace GPC.Model.Sections
             : base(info, context)
         {
             _diameter = info.GetDouble("Diameter");
-            _material = (Material)info.GetValue("Material", typeof(Material));
         }
 
         #endregion
@@ -75,7 +63,6 @@ namespace GPC.Model.Sections
         {
             base.GetObjectData(info, context);
             info.AddValue("Diameter", _diameter);
-            info.AddValue("Material", _material);
         }
 
         #endregion
@@ -83,25 +70,33 @@ namespace GPC.Model.Sections
 
         #region Protected method
 
-        protected void SetMechanicalProperties()
+        protected override void SetMechanicalProperties()
         {
             _area = CalculateArea();
             _j11 = CalculateJ();
             _j22 = CalculateJ();
             _jxx = CalculateJ();
             _jyy = CalculateJ();
-            _jxy = 0.0;
+
+            _jxy = CalculateJxy();
+            _jp = _jxx + _jyy;
+
             _jt = CalculateJt();
             _jw = CalculateJw();
             _centroid = CalculateCentroid();
-            _shearCenter = CalculateCentroid();
+            _shearCenter = CalculateShearCenter();
+            _angleX1 = CalculateAngle();
             _wel1 = CalculateWel();
             _wel2 = CalculateWel();
             _wpl1 = CalculateWpl();
             _wpl2 = CalculateWpl();
+
+            _isSymmetricAlongXLocalAxis = CalculateIsSymmetricAlongXLocalAxis();
+            _isSymmetricAlongYLocalAxis = CalculateIsSymmetricAlongYLocalAxis();
+
         }
 
-        protected virtual double CalculateArea()
+        protected override double CalculateArea()
         {
             return Math.Pow(Diameter, 2.0) * Math.PI / 4.0;
         }
@@ -111,22 +106,17 @@ namespace GPC.Model.Sections
             return Math.PI * Math.Pow(Diameter, 4.0) / 64.0;
         }
 
-        protected virtual double CalculateJp()
+        protected override double CalculateJt()
         {
             return Math.PI * Math.Pow(Diameter, 4.0) / 32.0;
         }
 
-        protected virtual double CalculateJt()
-        {
-            return Math.PI * Math.Pow(Diameter, 4.0) / 32.0;
-        }
-
-        protected virtual double CalculateJw()
+        protected override double CalculateJw()
         {
             return 0;
         }
 
-        protected virtual Point2d CalculateCentroid()
+        protected override Point2d CalculateCentroid()
         {
             return new Point2d(Diameter / 2.0, Diameter / 2.0);
         }
@@ -140,7 +130,49 @@ namespace GPC.Model.Sections
         {
             return Math.Pow(Diameter, 3.0) / 6.0;
         }
+        protected override bool CalculateIsSymmetricAlongXLocalAxis()
+        {
+            return true;
+        }
+
+        protected override bool CalculateIsSymmetricAlongYLocalAxis()
+        {
+            return true;
+        }
 
         #endregion
+        public override string ToString()
+        {
+            return $"Circular {_diameter}";
+        }
+
+
+        public override bool Equals(object obj)
+        {
+            return obj is SectionCircular circular &&
+                   base.Equals(obj) &&
+                   _diameter == circular._diameter;
+        }
+
+        public override int GetHashCode()
+        {
+            unchecked
+            {
+                int hashCode = 17;
+                hashCode = hashCode * -23 + base.GetHashCode();
+                hashCode = hashCode * -23 + _diameter.GetHashCode();
+                return hashCode;
+            }
+        }
+
+        public static bool operator ==(SectionCircular left, SectionCircular right)
+        {
+            return left.Equals(right);
+        }
+
+        public static bool operator !=(SectionCircular left, SectionCircular right)
+        {
+            return !(left == right);
+        }
     }
 }

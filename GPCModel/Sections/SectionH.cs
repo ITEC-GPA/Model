@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -58,19 +58,18 @@ namespace GPC.Model.Sections
 
             #endregion
 
-            if (_btop == _bbottom && _tbottom == _ttop)
-                _isSymmetricAlongXLocalAxis = true;
-            _isSymmetricAlongYLocalAxis = true;
 
             ThinWall web = new ThinWall(HeightWeb, thicknessWeb, Math.PI / 2);
             ThinWall flangeTop = new ThinWall(topFlangeLength, topFlangeThickness, 0);
             ThinWall flangeBottom = new ThinWall(bottomFlangeLength, bottomFlangeThickness, 0);
 
-            Points = new Point2d[3] { new Point2d(Math.Max(LenghtTopFlange, LenghtBottomFlange) / 2.0, ThicknessBottomFlange + HeightWeb / 2.0),
-                                    new Point2d(Math.Max(LenghtTopFlange, LenghtBottomFlange) / 2.0, bottomFlangeThickness + HeightWeb + topFlangeThickness / 2.0),
-                                    new Point2d(Math.Max(LenghtTopFlange, LenghtBottomFlange) / 2.0, bottomFlangeThickness / 2.0)};
+            SetThinWalls(new ThinWall[3] { web, flangeTop, flangeBottom },
+                new Point2d[3] { new Point2d(Math.Max(LenghtTopFlange, LenghtBottomFlange) / 2.0, ThicknessBottomFlange + HeightWeb / 2.0),
+                new Point2d(Math.Max(LenghtTopFlange, LenghtBottomFlange) / 2.0, bottomFlangeThickness + HeightWeb + topFlangeThickness / 2.0),
+                new Point2d(Math.Max(LenghtTopFlange, LenghtBottomFlange) / 2.0, bottomFlangeThickness / 2.0)});
 
-            ThinWalls = new ThinWall[3] { web, flangeTop, flangeBottom };
+            
+            SetMechanicalProperties();
         }
 
         #endregion
@@ -175,6 +174,18 @@ namespace GPC.Model.Sections
             return J11 / DistanceYCentroidFromTop();
         }
 
+        protected override bool CalculateIsSymmetricAlongXLocalAxis()
+        {
+            if (_btop == _bbottom && _tbottom == _ttop)
+                return true;
+
+            return false;
+        }
+
+        protected override bool CalculateIsSymmetricAlongYLocalAxis()
+        {
+            return true;
+        }
 
         #region Public override method
 
@@ -201,24 +212,10 @@ namespace GPC.Model.Sections
             return dmed * dmed * JFlBottom * JFlTop / jz;
         }
 
-        public double CalculateJtSSRC1889()
-        {
-            double dmed = Height - ThicknessBottomFlange / 2.0 - _ttop / 2.0;
-            return (LenghtTopFlange * Math.Pow(ThicknessTopFlange, 3.0) +
-                LenghtBottomFlange * Math.Pow(ThicknessBottomFlange, 3.0) + dmed * Math.Pow(ThicknessWeb, 3.0)) / 3.0;
-            //SSRC 1998 dice che Jt corretto si calcola come 1/3 * l * t^3 ma l'anima va considerata maggiorata di metà delle due flange (non va corretto con il fattore alpha)
-        }
 
         public override string ToString()
         {
-            string s = "H section: \n";
-            s = s + "Height = " + Height.ToString() + " mm \n";
-            s = s + "Thickness Web = " + _tw + " mm \n";
-            s = s + "Length Bottom = " + _bbottom + " mm \n";
-            s = s + "Thickness Bottom = " + _tbottom + " mm \n";
-            s = s + "Length Top = " + _btop + " mm \n";
-            s = s + "Thickness Top = " + _ttop + " mm \n";
-            return s;
+            return $"H {_h}x{_tw}x{_bbottom}x{_tbottom}x{_btop}x{_ttop}";
         }
 
         #endregion

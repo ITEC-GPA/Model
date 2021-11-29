@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
 using GPC.Geometry;
@@ -10,6 +11,7 @@ using GPC.Model.Materials;
 
 namespace GPC.Model.Sections
 {
+    [Serializable]
     public class Section : ElementProperty
     {
         #region Enumerator
@@ -35,7 +37,16 @@ namespace GPC.Model.Sections
         protected double _area;
         protected double _jxx;
         protected double _jyy;
+
+        /// <summary>
+        /// Product of Inertia: Integral of xy dA
+        /// </summary>
         protected double _jxy;
+
+        /// <summary>
+        /// Polar Moment of Inertia: Integral of x^2 + y^2 dA = Jxx + Jyy
+        /// </summary>
+        protected double _jp;
         protected double _jt;
         protected double _jw;
         protected double _j11;
@@ -92,10 +103,11 @@ namespace GPC.Model.Sections
         /// </summary>
         public double Jyy => _jyy;
 
-        /// <summary>
-        /// 
-        /// </summary>
+        /// <inheritdoc cref="_jxy"/>
         public double Jxy => _jxy;
+
+        /// <inheritdoc cref="_jp"/>
+        public double Jp => _jp;
 
         /// <summary>
         /// The first moment of inertia around the 1st principal axes
@@ -194,7 +206,8 @@ namespace GPC.Model.Sections
 
         protected Section(string name)
             : base(name)
-        { }
+        {
+        }
 
         protected Section(Material material, string name)
             : base(name)
@@ -232,16 +245,27 @@ namespace GPC.Model.Sections
             _angleX1 = angle;
         }
 
-        public Section(SerializationInfo info, StreamingContext context) : base(info, context)
+        protected Section(SerializationInfo info, StreamingContext context)
+            : base(info, context)
         {
-            _area = info.GetDouble("Area");
+            _jxx = info.GetDouble("Jxx");
+            _jyy = info.GetDouble("Jyy");
+            _jxy = info.GetDouble("Jxy");
+            _jp = info.GetDouble("Jp");
             _jt = info.GetDouble("Jt");
             _jw = info.GetDouble("Jw");
             _j11 = info.GetDouble("J11");
             _j22 = info.GetDouble("J22");
+            _wpl1 = info.GetDouble("WPL1");
+            _wpl2 = info.GetDouble("WPL2");
+            _wel1 = info.GetDouble("WEL1");
+            _wel2 = info.GetDouble("WEL2");
             _centroid = (Point2d)info.GetValue("Centroid", typeof(Point2d));
             _shearCenter = (Point2d)info.GetValue("ShearCenter", typeof(Point2d));
+            _isSymmetricAlongXLocalAxis = (bool)info.GetValue("IsSymmetricAlongXLocalAxis", typeof(bool));
+            _isSymmetricAlongYLocalAxis = (bool)info.GetValue("IsSymmetricAlongYLocalAxis", typeof(bool));
             _angleX1 = info.GetDouble("AngleX1");
+
         }
 
         #endregion
@@ -299,7 +323,7 @@ namespace GPC.Model.Sections
 
             return GetMax(new double[] { sigmap1, sigmap2, sigmap3, sigmap4 });
         }
-        
+
         /// <summary>
         /// Update the mesh size and regenerate the mesh with the new size
         /// </summary>
@@ -341,6 +365,133 @@ namespace GPC.Model.Sections
         #endregion
 
 
+        #region Protected virtual methods
+
+        /// <summary>
+        /// Internal method to set the mechanical properties to the section
+        /// </summary>
+        protected virtual void SetMechanicalProperties()
+        {
+            _area = CalculateArea();
+
+            _centroid = CalculateCentroid();
+            _isSymmetricAlongXLocalAxis = CalculateIsSymmetricAlongXLocalAxis();
+            _isSymmetricAlongYLocalAxis = CalculateIsSymmetricAlongYLocalAxis();
+
+            _jxx = CalculateJxx();
+            _jyy = CalculateJyy();
+            _jxy = CalculateJxy();
+
+            _j11 = CalculateJ11();
+            _j22 = CalculateJ22();
+            _angleX1 = CalculateAngle();
+
+            _jp = _jxx + _jyy;
+            _jt = CalculateJt();
+            _jw = CalculateJw();
+            
+            _shearCenter = CalculateShearCenter();
+            
+            _wel1 = CalculateWel1();
+            _wel2 = CalculateWel2();
+            _wpl1 = CalculateWpl1();
+            _wpl2 = CalculateWpl2();
+
+        }
+
+
+        /// <summary>
+        /// Calculate the area of the section
+        /// </summary>
+        /// <returns>The value of the area</returns>
+        protected virtual double CalculateArea()
+        {
+            return 0;
+        }
+
+        protected virtual double CalculateJ11()
+        {
+            return 0;
+        }
+
+        protected virtual double CalculateJ22()
+        {
+            return 0;
+        }
+
+        protected virtual double CalculateJxx()
+        {
+            return 0;
+        }
+
+        protected virtual double CalculateJyy()
+        {
+            return 0;
+        }
+
+        protected virtual double CalculateJxy()
+        {
+            return 0;
+        }
+
+        protected virtual double CalculateJt()
+        {
+            return 0;
+        }
+
+        protected virtual double CalculateJw()
+        {
+            return 0;
+        }
+
+        protected virtual double CalculateAngle()
+        {
+            return 0.0;
+        }
+
+        /// <summary>
+        /// Calculate the centroid point of the section in X-Y plane 
+        /// </summary>
+        protected virtual Point2d CalculateCentroid()
+        {
+            return new Point2d();
+        }
+
+        protected virtual Point2d CalculateShearCenter()
+        {
+            return new Point2d();
+        }
+
+        protected virtual double CalculateWpl1()
+        {
+            return 0;
+        }
+
+        protected virtual double CalculateWpl2()
+        {
+            return 0;
+        }
+
+        protected virtual double CalculateWel1()
+        {
+            return 0;
+        }
+
+        protected virtual double CalculateWel2()
+        {
+            return 0;
+        }
+
+        protected virtual bool CalculateIsSymmetricAlongXLocalAxis()
+        {
+            return false;
+        }
+
+        protected virtual bool CalculateIsSymmetricAlongYLocalAxis()
+        {
+            return false;
+        }
+
         protected virtual Shape2d GetShape()
         {
             return null;
@@ -351,18 +502,98 @@ namespace GPC.Model.Sections
             return SectionHelper.GenerateMesh(GetShape(), _meshSize);
         }
 
+        #endregion
+
+
         #region Public override method
 
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             info.AddValue("Area", _area);
+            info.AddValue("Jxx", _jxx);
+            info.AddValue("Jyy", _jyy);
+            info.AddValue("Jxy", _jxy);
+            info.AddValue("Jp", _jp);
             info.AddValue("Jt", _jt);
             info.AddValue("Jw", _jw);
             info.AddValue("J11", _j11);
             info.AddValue("J22", _j22);
+            info.AddValue("WPL1", _wpl1);
+            info.AddValue("WPL2", _wpl2);
+            info.AddValue("WEL1", _wel1);
+            info.AddValue("WEL2", _wel2);
             info.AddValue("Centroid", _centroid, typeof(Point2d));
             info.AddValue("ShearCenter", _shearCenter, typeof(Point2d));
+            info.AddValue("IsSymmetricAlongXLocalAxis", _isSymmetricAlongXLocalAxis, typeof(bool));
+            info.AddValue("IsSymmetricAlongYLocalAxis", _isSymmetricAlongYLocalAxis, typeof(bool));
             info.AddValue("AngleX1", _angleX1);
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (ReferenceEquals(this, obj))
+                return true;
+
+            return obj is Section section &&
+                   _material.Equals(section._material) &&
+                   _area == section._area &&
+                   _jxx == section._jxx &&
+                   _jyy == section._jyy &&
+                   _jxy == section._jxy &&
+                   _jp == section._jp &&
+                   _jt == section._jt &&
+                   _jw == section._jw &&
+                   _j11 == section._j11 &&
+                   _j22 == section._j22 &&
+                   _wpl1 == section._wpl1 &&
+                   _wpl2 == section._wpl2 &&
+                   _wel1 == section._wel1 &&
+                   _wel2 == section._wel2 &&
+                   _angleX1 == section._angleX1 &&
+                   _centroid == section._centroid &&
+                   _shearCenter == section._shearCenter &&
+                   _isSymmetricAlongXLocalAxis == section._isSymmetricAlongXLocalAxis &&
+                   _isSymmetricAlongYLocalAxis == section._isSymmetricAlongYLocalAxis &&
+                   base.Equals(obj);
+        }
+
+        public override int GetHashCode()
+        {
+            unchecked
+            {
+                int hashCode = -17;
+                hashCode = hashCode * -23 + base.GetHashCode();
+                hashCode = hashCode * -23 + _material.GetHashCode();
+                hashCode = hashCode * -23 + _area.GetHashCode();
+                hashCode = hashCode * -23 + _jxx.GetHashCode();
+                hashCode = hashCode * -23 + _jyy.GetHashCode();
+                hashCode = hashCode * -23 + _jxy.GetHashCode();
+                hashCode = hashCode * -23 + _jp.GetHashCode();
+                hashCode = hashCode * -23 + _jt.GetHashCode();
+                hashCode = hashCode * -23 + _jw.GetHashCode();
+                hashCode = hashCode * -23 + _j11.GetHashCode();
+                hashCode = hashCode * -23 + _j22.GetHashCode();
+                hashCode = hashCode * -23 + _wpl1.GetHashCode();
+                hashCode = hashCode * -23 + _wpl2.GetHashCode();
+                hashCode = hashCode * -23 + _wel1.GetHashCode();
+                hashCode = hashCode * -23 + _wel2.GetHashCode();
+                hashCode = hashCode * -23 + _angleX1.GetHashCode();
+                hashCode = hashCode * -23 + _centroid.GetHashCode();
+                hashCode = hashCode * -23 + _shearCenter.GetHashCode();
+                hashCode = hashCode * -23 + _isSymmetricAlongXLocalAxis.GetHashCode();
+                hashCode = hashCode * -23 + _isSymmetricAlongYLocalAxis.GetHashCode();
+                return hashCode;
+            }
+        }
+
+        public static bool operator ==(Section left, Section right)
+        {
+            return left.Equals(right);
+        }
+
+        public static bool operator !=(Section left, Section right)
+        {
+            return !(left == right);
         }
 
         #endregion

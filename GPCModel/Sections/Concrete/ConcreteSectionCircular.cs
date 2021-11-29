@@ -76,12 +76,12 @@ namespace GPC.Model.Sections.Concrete
         public (double areaH, double SxH, double SyH, Point2d centroidH, double JxxH, double JyyH, double JxyH, double JpH, double J11H, double J22H, double angleX)
             GetHomogeneizedMechanicalProperties()
         {
-			Point2d centroidH = GetHomogenizedCentroid(out var SxH, out var SyH);
+            Point2d centroidH = GetHomogenizedCentroid(out var SxH, out var SyH);
 
             // NOTA: ci siamo ricondotti a momenti d'inerzia rispetto al baricentro della sezione di solo calcestruzzo
             ConcreteSectionHelper.CalculateHomogeneizedInertiaMoments(Rebars, Centroid, centroidH, ConcreteMaterial, Jxx, Jyy, Jxy, Area, out var JxxH, out var JyyH, out var JxyH, out var JpH);
 
-			double J11H = SectionHelper.CalculateJ11(JxxH, JyyH, JxyH);
+            double J11H = SectionHelper.CalculateJ11(JxxH, JyyH, JxyH);
             double J22H = SectionHelper.CalculateJ22(JxxH, JyyH, JxyH);
             double angleX = SectionHelper.CalculateAngle(JxxH, JyyH, JxyH);
 

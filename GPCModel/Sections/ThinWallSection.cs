@@ -4,6 +4,7 @@ using System.Linq;
 using System.Runtime.Serialization;
 using GPC.Geometry;
 using GPC.Model.Materials;
+using GPC.Utilities.Extensions;
 
 namespace GPC.Model.Sections
 {
@@ -11,25 +12,8 @@ namespace GPC.Model.Sections
     {
         #region Variables
 
-        private ThinWall[] _thinWalls;
-        private Point2d[] _points;
-
-        #endregion
-
-
-        #region Properties
-
-        internal Point2d[] Points
-        {
-            get => _points;
-            set { _points = value; }
-        }
-
-        internal ThinWall[] ThinWalls
-        {
-            get => _thinWalls;
-            set { _thinWalls = value; SetMechanicalProperties(); }
-        }
+        protected ThinWall[] _thinWalls;
+        protected Point2d[] _points;
 
         #endregion
 
@@ -47,60 +31,54 @@ namespace GPC.Model.Sections
 
         }
 
-        internal ThinWallSection(SerializationInfo info, StreamingContext context) : base(info, context)
+        internal ThinWallSection(SerializationInfo info, StreamingContext context)
+            : base(info, context)
         {
             _thinWalls = (ThinWall[])info.GetValue("ThinWall", typeof(ThinWall));
-            _points = (Point2d[])info.GetValue("ThinWall", typeof(Point2d));
+            _points = (Point2d[])info.GetValue("Points", typeof(Point2d));
         }
 
         #endregion
 
+        #region Protected methods
+
+        protected void SetThinWalls(ThinWall[] thinWalls, Point2d[] points)
+        {
+
+            _thinWalls = thinWalls ?? throw new ArgumentNullException(nameof(thinWalls));
+            _points = points ?? throw new ArgumentNullException(nameof(points));
+
+            if (thinWalls.Length != points.Length)
+                throw new ArgumentException();
+
+        }
+
+
+        #endregion
 
         #region Public abstract method
 
-        protected abstract double CalculateJw();
+        protected abstract override double CalculateJw();
 
-        protected abstract Point2d CalculateShearCenter();
+        protected abstract override Point2d CalculateShearCenter();
 
         #endregion
 
 
         #region Public method
 
-        /// <summary>
-        /// Internal method to set the mechanical properties to the section
-        /// </summary>
-        protected virtual void SetMechanicalProperties()
-        {
-            _area = CalculateArea();
-            _centroid = CalculateCentroid();
-            _jxx = CalculateJxx();
-            _jyy = CalculateJyy();
-            _j11 = CalculateJ11();
-            _j22 = CalculateJ22();
-            _jw = CalculateJw();
-            _jt = CalculateJt();
-            _shearCenter = CalculateShearCenter();
-            _wel1 = CalculateWel1();
-            _wel2 = CalculateWel2();
-            _wpl1 = CalculateWpl1();
-            _wpl2 = CalculateWpl2();
-            _angleX1 = CalculateAngle();
-        }
 
         protected override abstract Shape2d GetShape();
 
-        /// <summary>
-        /// Calculate the centroid point of the section in X-Y plane 
-        /// </summary>
-        /// <returns></returns>
-        protected virtual Point2d CalculateCentroid()
+
+        /// <inheritdoc cref="Section.CalculateCentroid()"/>
+        protected override Point2d CalculateCentroid()
         {
             double xSum = 0;
             double ySum = 0;
             double area = 0;
 
-            for(int i = 0; i < _thinWalls.Length; i++)
+            for (int i = 0; i < _thinWalls.Length; i++)
             {
                 xSum += _thinWalls[i].Area * _points[i].X;
                 ySum += _thinWalls[i].Area * _points[i].Y;
@@ -110,16 +88,11 @@ namespace GPC.Model.Sections
             return new Point2d((xSum / area), (ySum / area));
         }
 
-        protected virtual double CalculateAngle()
-        {
-            return 0.0;
-        }
-
-        protected virtual double CalculateJt()
+        protected override double CalculateJt()
         {
             double jt = 0;
 
-            for(int i = 0; i < _thinWalls.Length; i++)
+            for (int i = 0; i < _thinWalls.Length; i++)
             {
                 jt += _thinWalls[i].CalculateJt();
             }
@@ -131,13 +104,13 @@ namespace GPC.Model.Sections
         /// Calculate the first moment of inertia respect the X-axis (the Y-axis for Eurocode)
         /// </summary>
         /// <returns></returns>
-        protected virtual double CalculateJ11()
+        protected override double CalculateJ11()
         {
             double j = 0;
 
-            for (int i = 0; i < _thinWalls.Length; i++)            
+            for (int i = 0; i < _thinWalls.Length; i++)
                 j += _thinWalls[i].CalculateJx(Centroid.Y - _points[i].Y);
-                       
+
             return j;
         }
 
@@ -145,31 +118,27 @@ namespace GPC.Model.Sections
         /// Calculate the first moment of inertia respect the Y-axis (the Z-axis for Eurocode)
         /// </summary>
         /// <returns></returns>
-        protected virtual double CalculateJ22()
+        protected override double CalculateJ22()
         {
             double j = 0;
 
-            for (int i = 0; i < _thinWalls.Length; i++)            
+            for (int i = 0; i < _thinWalls.Length; i++)
                 j += _thinWalls[i].CalculateJy(Centroid.X - _points[i].X);
-            
+
             return j;
         }
 
-        /// <summary>
-        /// Calculate the area of the section
-        /// </summary>
-        /// <returns>The value of the area</returns>
-        protected virtual double CalculateArea()
+        protected override double CalculateArea()
         {
             double area = 0;
 
-            for(int i = 0; i < _thinWalls.Length; i++)
+            for (int i = 0; i < _thinWalls.Length; i++)
                 area += _thinWalls[i].Area;
-            
+
             return area;
         }
 
-        protected virtual double CalculateJxx()
+        protected override double CalculateJxx()
         {
             double j = 0;
 
@@ -179,7 +148,7 @@ namespace GPC.Model.Sections
             return j;
         }
 
-        protected virtual double CalculateJyy()
+        protected override double CalculateJyy()
         {
             double j = 0;
 
@@ -189,8 +158,8 @@ namespace GPC.Model.Sections
             return j;
         }
 
-        protected virtual double CalculateJxy()
-		{
+        protected override double CalculateJxy()
+        {
             double j = 0;
 
             for (int i = 0; i < _thinWalls.Length; i++)
@@ -199,42 +168,69 @@ namespace GPC.Model.Sections
             return j;
         }
 
-        protected abstract double CalculateWpl1();
+        protected abstract override double CalculateWpl1();
 
-        protected abstract double CalculateWpl2();
+        protected abstract override double CalculateWpl2();
 
-        protected abstract double CalculateWel1();
+        protected abstract override double CalculateWel1();
 
-        protected abstract double CalculateWel2();
+        protected abstract override double CalculateWel2();
 
-        public Point2d[] GetSectionPoints()
+        internal Point2d[] GetSectionPoints()
         {
-            Point2d[] points = new Point2d[ThinWalls.Length * 4];
+            List<Point2d> points = new List<Point2d>();
 
-            for (int i = 0; i < ThinWalls.Length; i++)
+            for (int i = 0; i < _thinWalls.Length; i++)
             {
-                points[i * 4] = new Point2d(Points[i].X + ThinWalls[i].L / 2.0 * Math.Cos(ThinWalls[i].Angle) + ThinWalls[i].T / 2.0 * Math.Sin(ThinWalls[i].Angle),
-                    Points[i].Y + ThinWalls[i].L / 2.0 * Math.Sin(ThinWalls[i].Angle) + ThinWalls[i].T / 2.0 * Math.Cos(ThinWalls[i].Angle));
-
-                points[i * 4 + 1] = new Point2d(Points[i].X + ThinWalls[i].L / 2.0 * Math.Cos(ThinWalls[i].Angle) - ThinWalls[i].T / 2.0 * Math.Sin(ThinWalls[i].Angle),
-                    Points[i].Y + ThinWalls[i].L / 2.0 * Math.Sin(ThinWalls[i].Angle) - ThinWalls[i].T / 2.0 * Math.Cos(ThinWalls[i].Angle));
-
-                points[i * 4 + 2] = new Point2d(Points[i].X - ThinWalls[i].L / 2.0 * Math.Cos(ThinWalls[i].Angle) + ThinWalls[i].T / 2.0 * Math.Sin(ThinWalls[i].Angle),
-                        Points[i].Y - ThinWalls[i].L / 2.0 * Math.Sin(ThinWalls[i].Angle) + ThinWalls[i].T / 2.0 * Math.Cos(ThinWalls[i].Angle));
-
-                points[i * 4 + 3] = new Point2d(Points[i].X - ThinWalls[i].L / 2.0 * Math.Cos(ThinWalls[i].Angle) - ThinWalls[i].T / 2.0 * Math.Sin(ThinWalls[i].Angle),
-                        Points[i].Y - ThinWalls[i].L / 2.0 * Math.Sin(ThinWalls[i].Angle) - ThinWalls[i].T / 2.0 * Math.Cos(ThinWalls[i].Angle));
+                List<Point2d> _pointBuffer = _thinWalls[i].GetPerimeter().Select(j => j).ToList();
+                
+                points.AddRange(_pointBuffer.Select(k => k.CloneAndMove(new Vector2d(_points[i].X, _points[i].Y))));
             }
 
-            return points;
+            return points.ToArray();
+        }
+
+
+        #endregion
+
+        #region Equals, hashcode, operators
+
+        public override bool Equals(object obj)
+        {
+
+            return obj is ThinWallSection section &&
+                   base.Equals(obj) &&
+                   _thinWalls.SequenceEqual(section._thinWalls) &&
+                   _points.SequenceEqual(section._points);
+        }
+
+        public override int GetHashCode()
+        {
+            unchecked
+            {
+                int hashCode = 17;
+                hashCode = hashCode * -23 + base.GetHashCode();
+                hashCode = hashCode * -23 + _thinWalls.SequenceHashCode();
+                hashCode = hashCode * -23 + _points.SequenceHashCode();
+                return hashCode;
+            }
+        }
+
+        public static bool operator ==(ThinWallSection left, ThinWallSection right)
+        {
+            return left.Equals(left);
+        }
+
+        public static bool operator !=(ThinWallSection left, ThinWallSection right)
+        {
+            return !(left == right);
         }
 
         #endregion
 
-
         #region Nested classes ThinWall
 
-        internal class ThinWall
+        protected class ThinWall
         {
             #region Variables
 
@@ -243,7 +239,6 @@ namespace GPC.Model.Sections
             private readonly double _angle;
 
             #endregion
-
 
             #region Protected constructor
 
@@ -262,7 +257,6 @@ namespace GPC.Model.Sections
             }
 
             #endregion
-
 
             #region Properties
 
@@ -288,8 +282,16 @@ namespace GPC.Model.Sections
 
             #endregion
 
-
             #region Internal method
+
+            internal Polygon2d GetPerimeter()
+            {
+                return new Polygon2d(new Point2d[] {new Point2d(_l / 2.0 * Math.Cos(_angle) + _t / 2.0 * Math.Sin(_angle), _l / 2.0 * Math.Sin(_angle) + _t / 2.0 * Math.Cos(_angle)),
+                    new Point2d(_l / 2.0 * Math.Cos(_angle) - _t / 2.0 * Math.Sin(_angle), _l / 2.0 * Math.Sin(_angle) - _t / 2.0 * Math.Cos(_angle)),
+                    new Point2d(- _l / 2.0 * Math.Cos(_angle) + _t / 2.0 * Math.Sin(_angle), - _l / 2.0 * Math.Sin(_angle) + _t / 2.0 * Math.Cos(_angle)),
+                    new Point2d(- _l / 2.0 * Math.Cos(_angle) - _t / 2.0 * Math.Sin(_angle), - _l / 2.0 * Math.Sin(_angle) - _t / 2.0 * Math.Cos(_angle))
+                    });
+            }
 
             /// <summary>
             /// Calculate the area of the wall 
@@ -329,7 +331,7 @@ namespace GPC.Model.Sections
             }
 
             internal double CalculateJxy()
-			{
+            {
                 double Jx = _t * Math.Pow(_l, 3) / 12.0;
                 double Jy = _l * Math.Pow(_t, 3) / 12.0;
 
@@ -357,11 +359,11 @@ namespace GPC.Model.Sections
                 if (Math.Abs(_angle) < GeometryBase.GetDefaultAngularTolerance() || Math.Abs(_angle - Math.PI) < GeometryBase.GetDefaultAngularTolerance())
                     return _t * Math.Pow(_l, 3) / 12.0;
 
-                else if (Math.Abs( _angle - Math.PI / 2) < GeometryBase.GetDefaultAngularTolerance())
+                else if (Math.Abs(_angle - Math.PI / 2) < GeometryBase.GetDefaultAngularTolerance())
                     return _l * Math.Pow(_t, 3) / 12.0;
 
                 else
-				{
+                {
                     double Jx = _t * Math.Pow(_l, 3) / 12.0;
                     double Jy = _l * Math.Pow(_t, 3) / 12.0;
 
@@ -388,7 +390,7 @@ namespace GPC.Model.Sections
 
             internal virtual double CalculateJt()
             {
-                return L* Math.Pow(T, 3) / GetAlpha();
+                return L * Math.Pow(T, 3) / GetAlpha();
             }
 
             internal virtual double CalculateJw()

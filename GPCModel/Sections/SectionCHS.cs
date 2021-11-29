@@ -40,18 +40,12 @@ namespace GPC.Model.Sections
         public SectionCHS(double externalDiameter, double thickness, Material material, string name)
             : base(material, name)
         {
-            #region Check inputs
 
             if (thickness > externalDiameter / 2.0)
                 throw new ArgumentException($"Diameter cannot be lower than 2 * thickness ");
 
             _externalDiameter = externalDiameter < 0 ? throw new ArgumentException($"Diameter cannot be lower than zero") : externalDiameter;
             _thickness = thickness < 0 ? throw new ArgumentException($"Thickness cannot be lower than zero") : thickness;
-
-            #endregion
-
-            _isSymmetricAlongYLocalAxis = true;
-            _isSymmetricAlongXLocalAxis = true;
 
             SetMechanicalProperties();
         }
@@ -67,7 +61,6 @@ namespace GPC.Model.Sections
         {
             _externalDiameter = info.GetDouble("D");
             _thickness = info.GetDouble("T");
-            _material = (Material)info.GetValue("Material", typeof(Material));
         }
 
         #endregion
@@ -75,24 +68,33 @@ namespace GPC.Model.Sections
 
         #region Public method
 
-        protected virtual void SetMechanicalProperties()
+        protected override void SetMechanicalProperties()
         {
             _area = CalculateArea();
             _j11 = CalculateJ();
             _j22 = CalculateJ();
             _jxx = CalculateJ();
             _jyy = CalculateJ();
+
+            _jxy = CalculateJxy();
+            _jp = _jxx + _jyy;
+
             _jt = CalculateJt();
             _jw = CalculateJw();
             _centroid = CalculateCentroid();
-            _shearCenter = CalculateCentroid();
+            _shearCenter = _centroid;
+            _angleX1 = CalculateAngle();
             _wel1 = CalculateWel();
             _wel2 = CalculateWel();
             _wpl1 = CalculateWpl();
             _wpl2 = CalculateWpl();
+
+            _isSymmetricAlongXLocalAxis = CalculateIsSymmetricAlongXLocalAxis();
+            _isSymmetricAlongYLocalAxis = CalculateIsSymmetricAlongYLocalAxis();
+
         }
 
-        protected virtual double CalculateArea()
+        protected override double CalculateArea()
         {
             return (Math.Pow(Diameter, 2.0) * Math.PI) / 4.0 - (Math.Pow(DiameterInternal, 2.0) * Math.PI) / 4.0;
         }
@@ -102,17 +104,22 @@ namespace GPC.Model.Sections
             return Math.PI * (Math.Pow(Diameter, 4.0) - Math.Pow(DiameterInternal, 4.0)) / (64.0);
         }
 
-        protected virtual double CalculateJt()
-        {
-            return Math.PI * (Math.Pow(Diameter, 4.0) - Math.Pow(DiameterInternal, 4.0)) / (32.0);
-        }
-
-        protected virtual double CalculateJw()
+        protected override double CalculateJxy()
         {
             return 0;
         }
 
-        protected virtual Point2d CalculateCentroid()
+        protected override double CalculateJt()
+        {
+            return Math.PI * (Math.Pow(Diameter, 4.0) - Math.Pow(DiameterInternal, 4.0)) / (32.0);
+        }
+
+        protected override double CalculateJw()
+        {
+            return 0;
+        }
+
+        protected override Point2d CalculateCentroid()
         {
             return new Point2d(Diameter / 2.0, Diameter / 2.0);
         }
@@ -125,6 +132,16 @@ namespace GPC.Model.Sections
         protected virtual double CalculateWpl()
         {
             return (Math.Pow(Diameter, 3.0) - Math.Pow(DiameterInternal, 3.0)) / (6.0);
+        }
+
+        protected override bool CalculateIsSymmetricAlongXLocalAxis()
+        {
+            return true;
+        }
+
+        protected override bool CalculateIsSymmetricAlongYLocalAxis()
+        {
+            return true;
         }
 
         #endregion
@@ -147,16 +164,12 @@ namespace GPC.Model.Sections
             base.GetObjectData(info, context);
             info.AddValue("D", _externalDiameter);
             info.AddValue("T", _thickness);
-            info.AddValue("Material", _material);
         }
 
 
         public override string ToString()
         {
-            string s = "CHS section: \n";
-            s = s + "D = " + _externalDiameter + " mm \n";
-            s = s + "t = " + _thickness + " mm \n";
-            return s;
+            return $"CHS {_externalDiameter}x{_thickness}";
         }
 
         #endregion

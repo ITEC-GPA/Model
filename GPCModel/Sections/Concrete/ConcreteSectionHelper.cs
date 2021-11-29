@@ -321,7 +321,7 @@ namespace GPC.Model.Sections.Concrete
             out double JxxH, out double JyyH, out double JxyH, out double _);
             return SectionHelper.CalculateJ22(JxxH, JyyH, JxyH);
         }
-                
+
         internal static ReinforcedConcreteRebar[] SetRadialRebars(double diameter, double concreteCover, int numberOfRebars, IRebarSection rebarSection, Point2d centroid = default, double epsilonP = 0.0)
         {
             Polygon2d polygon = new Polygon2d(diameter - concreteCover * 2.0, numberOfRebars, centroid);

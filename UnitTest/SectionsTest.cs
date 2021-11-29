@@ -446,7 +446,6 @@ namespace ModelObjectTest
             Assert.AreEqual(Math.Abs(Wplx / sec.Wpl1) - 1, 0, 0.015);
             Assert.AreEqual(JtSAP / sec.Jt - 1.0, 0, 0.005);
             Assert.AreEqual(JtStraus / sec.Jt - 1.0, 0, 0.05);
-            Assert.AreEqual(JtCalc / sec.CalculateJtSSRC1889() - 1.0, 0, 0.001);
             Assert.AreEqual(JwLTBEAM / sec.Jw - 1, 0, 0.001);
         }
 
@@ -481,7 +480,6 @@ namespace ModelObjectTest
             Assert.AreEqual(Math.Abs(Welx / sec.Wel1) - 1, 0, 0.012);
             Assert.AreEqual(Math.Abs(Wply / sec.Wpl2) - 1, 0, 0.008);
             Assert.AreEqual(Math.Abs(Wplx / sec.Wpl1) - 1, 0, 0.015);
-            Assert.AreEqual(Jt / sec.CalculateJtSSRC1889() - 1.0, 0, 0.001);
             Assert.AreEqual(Jw / sec.Jw - 1, 0, 0.001);
         }
 
@@ -520,7 +518,6 @@ namespace ModelObjectTest
             Assert.AreEqual(Math.Abs(Wply / sec.Wpl2) - 1, 0, 0.008);
             Assert.AreEqual(Math.Abs(Wplx / sec.Wpl1) - 1, 0, 0.018);
             Assert.AreEqual(Math.Abs(Wplxsap / sec.Wpl1) - 1, 0, 0.007);
-            Assert.AreEqual(Jt / sec.CalculateJtSSRC1889() - 1.0, 0, 0.001);
             Assert.AreEqual(jtStraus / sec.Jt - 1.0, 0, 0.001);
             Assert.AreEqual(jtSap / sec.Jt - 1.0, 0, 0.005);
             Assert.AreEqual(Jw / sec.Jw - 1, 0, 0.001);
@@ -561,7 +558,6 @@ namespace ModelObjectTest
             Assert.AreEqual(Math.Abs(Wply / sec.Wpl2) - 1, 0, 0.008);
             Assert.AreEqual(Math.Abs(Wplx / sec.Wpl1) - 1, 0, 0.018);
             Assert.AreEqual(Math.Abs(WplxSap / sec.Wpl1) - 1, 0, 0.007);
-            Assert.AreEqual(Jt / sec.CalculateJtSSRC1889() - 1.0, 0, 0.001);
             Assert.AreEqual(jtStraus / sec.Jt - 1.0, 0, 0.001);
             Assert.AreEqual(jtSap / sec.Jt - 1.0, 0, 0.005);
             Assert.AreEqual(Jw / sec.Jw - 1, 0, 0.001);
@@ -601,7 +597,6 @@ namespace ModelObjectTest
             Assert.AreEqual(Math.Abs(Wply / sec.Wpl2) - 1, 0, 0.008);
             Assert.AreEqual(Math.Abs(Wplx / sec.Wpl1) - 1, 0, 0.0185);
             Assert.AreEqual(Math.Abs(WplxSap / sec.Wpl1) - 1, 0, 0.0065);
-            Assert.AreEqual(JtSSRC / sec.CalculateJtSSRC1889() - 1.0, 0, 0.001);
             Assert.AreEqual(JtSap / sec.Jt - 1.0, 0, 0.005);
             Assert.AreEqual(Jw / sec.Jw - 1, 0, 0.001);
         }
@@ -636,7 +631,6 @@ namespace ModelObjectTest
             Assert.AreEqual(Math.Abs(WelyMin / sec.Wel2) - 1, 0, 0.001);
             Assert.AreEqual(Math.Abs(Wply / sec.Wpl2) - 1, 0, 0.001);
             Assert.AreEqual(Math.Abs(Wplx / sec.Wpl1) - 1, 0, 0.001);
-            Assert.AreEqual(Jt / sec.CalculateJtSSRC1889() - 1.0, 0, 0.001);
             Assert.AreEqual(Jw / sec.Jw - 1, 0, 0.001);
         }
 
@@ -670,7 +664,6 @@ namespace ModelObjectTest
             Assert.AreEqual(Math.Abs(WelyMin / sec.Wel2) - 1, 0, 0.001);
             Assert.AreEqual(Math.Abs(Wply / sec.Wpl2) - 1, 0, 0.001);
             Assert.AreEqual(Math.Abs(Wplx / sec.Wpl1) - 1, 0, 0.001);
-            Assert.AreEqual(Jt / sec.CalculateJtSSRC1889() - 1.0, 0, 0.001);
             Assert.AreEqual(Jw / sec.Jw - 1, 0, 0.001);
         }
 
@@ -896,6 +889,7 @@ namespace ModelObjectTest
 			Point2d[] points =  sec.GetSectionPoints();
             List<Point2d> list = new List<Point2d>();
             double item = 1;
+
             foreach (Point2d p in points)
             {
                 list.Add(p);

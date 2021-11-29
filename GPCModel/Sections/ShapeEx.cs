@@ -54,5 +54,32 @@ namespace GPC.Model.Sections
             return this;
         }
 
+        public override bool Equals(object obj)
+        {
+            return obj is ShapeEx ex &&
+                   base.Equals(obj) &&
+                   _material.Equals(ex._material);
+        }
+
+        public override int GetHashCode()
+        {
+            unchecked
+            {
+                int hashCode = -23;
+                hashCode = hashCode * -17 + base.GetHashCode();
+                hashCode = hashCode * -17 + _material.GetHashCode();
+                return hashCode;
+            }
+        }
+
+        public static bool operator ==(ShapeEx left, ShapeEx right)
+        {
+            return left.Equals(right);
+        }
+
+        public static bool operator !=(ShapeEx left, ShapeEx right)
+        {
+            return !(left == right);
+        }
     }
 }
