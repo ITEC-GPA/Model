@@ -25,18 +25,22 @@ namespace PerformanceTest
 
             ShapeEx shape = new ShapeEx(new Polygon2d(500), ConcreteMaterialEN1992.C25_30, new[] { new Polygon2d(400) });
 
-
-
             Action action = new Action(() =>
             {
                 ReinforcedConcreteSection section = new ReinforcedConcreteSection(shape,
                     new ReinforcedConcreteRebar[] { new ReinforcedConcreteRebar(new RebarSectionCircular(10, RebarMaterial.B450C), new Point2d()) });
+
+                var c = section.Centroid;
             });
 
-            var bb0 = MeasureTime.FunctionExecutionTime(20, action, true); ;
+            ReinforcedConcreteSection section2 = new ReinforcedConcreteSection(shape,
+                new ReinforcedConcreteRebar[] { new ReinforcedConcreteRebar(new RebarSectionCircular(10, RebarMaterial.B450C), new Point2d()) });
+
+            
+
+            var bb0 = MeasureTime.FunctionExecutionTime(20, action, true);
 
             Console.WriteLine(bb0);
-
 
         }
 

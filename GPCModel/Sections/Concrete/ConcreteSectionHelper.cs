@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using GPC.Geometry;
 using GPC.Geometry.Meshes;
@@ -47,6 +48,19 @@ namespace GPC.Model.Sections.Concrete
 
         internal static void CalculateStaticMoments(Mesh mesh, out double Sx, out double Sy)
         {
+
+            //Sx = 0;
+            //Sy = 0;
+
+            //for (int i = 0; i < mesh.FacesCount; i++)
+            //{
+            //    double area = mesh.GetFaceArea(mesh.Faces[i + 1]);
+            //    Point2d centroid = mesh.GetFaceCentroid(mesh.Faces[i + 1]);
+            //    Sx += area * centroid.Y;
+            //    Sy = area * centroid.X;
+            //}
+
+
             double[] SxArray = new double[mesh.FacesCount];
             double[] SyArray = new double[mesh.FacesCount];
 
