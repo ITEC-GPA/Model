@@ -210,8 +210,8 @@ namespace GPC.Model.Sections
             {
                 int hashCode = 17;
                 hashCode = hashCode * -23 + base.GetHashCode();
-                hashCode = hashCode * -23 + _thinWalls.SequenceHashCode();
-                hashCode = hashCode * -23 + _points.SequenceHashCode();
+                hashCode = hashCode * -23 + _thinWalls.GetHashCodeSequence();
+                hashCode = hashCode * -23 + _points.GetHashCodeSequence();
                 return hashCode;
             }
         }

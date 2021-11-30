@@ -342,7 +342,7 @@ namespace GPC.Model.Sections.Concrete
                 int hashCode = 23;
                 hashCode = hashCode * -17 + base.GetHashCode();
                 hashCode = hashCode * -17 + _shapeEx.GetHashCode();
-                hashCode = hashCode * -17 + _rebars.ScrambledHashCode();
+                hashCode = hashCode * -17 + _rebars.GetHashCodeScrambled();
                 return hashCode;
             }
         }
