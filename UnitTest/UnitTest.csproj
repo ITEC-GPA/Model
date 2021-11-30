@@ -96,8 +96,10 @@
     <Compile Include="FEM\Plates\DKTTest.cs" />
     <Compile Include="FEM\FEMUtilitiesTest.cs" />
     <Compile Include="General\OperatorsTest.cs" />
+    <Compile Include="Performance\PerformanceIntegrationTest.cs" />
     <Compile Include="IntegrationTest.cs" />
     <Compile Include="InterlayerMaterialTest.cs" />
+    <Compile Include="Performance\PerformanceSectionTest.cs" />
     <Compile Include="ResultTest.cs" />
     <Compile Include="MaterialTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -107,7 +109,7 @@
     <Compile Include="LoadCaseTest.cs" />
     <Compile Include="General\EquatableHashCodeTest.cs" />
     <Compile Include="LoadTest.cs" />
-    <Compile Include="General\PerformanceTest.cs" />
+    <Compile Include="Performance\PerformanceCollectionsTest.cs" />
     <Compile Include="FemModelTest.cs" />
     <Compile Include="UnitsTest.cs" />
     <Compile Include="FemCollectionsTest.cs" />
