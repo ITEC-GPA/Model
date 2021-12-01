@@ -30,26 +30,16 @@ namespace GPC.Model.Sections.Concrete
 
         #region Public Constructors
 
-        public ConcreteSectionCHS(double diameter, double thickness, ConcreteMaterial material, IEnumerable<ReinforcedConcreteRebar> rebars, string name = "")
+        public ConcreteSectionCHS(double diameter, double thickness, ConcreteMaterial material, string name = "")
             : base(diameter, thickness, material, name)
         {
-            if (rebars is null)
-            {
-                throw new ArgumentNullException(nameof(rebars));
-            }
-
             _rebars = new UniqueIdCollection<ReinforcedConcreteRebar>();
             _mesh = GenerateMesh();
         }
 
-        public ConcreteSectionCHS(SectionCHS sectionCHS, IEnumerable<ReinforcedConcreteRebar> rebars)
+        public ConcreteSectionCHS(SectionCHS sectionCHS)
             : base(sectionCHS)
         {
-            if (rebars is null)
-            {
-                throw new ArgumentNullException(nameof(rebars));
-            }
-
             _rebars = new UniqueIdCollection<ReinforcedConcreteRebar>();
             _mesh = GenerateMesh();
 
@@ -57,40 +47,70 @@ namespace GPC.Model.Sections.Concrete
                 throw new ArgumentException("Material must be a ConcreteMaterial");
         }
 
-        public ConcreteSectionCHS(double diameter, double thickness, ConcreteMaterial material,
-                                  double externalConcreteCover, int externalNumberOfRebars, IRebarSection externalRebarSection,
-                                  double internalConcreteCover, int internalNumberOfRebars, IRebarSection internalRebarSection,
-                                  double externalEpsilonP = 0.0, double internalEpsilonP = 0.0, string name = "")
-            : base(diameter, thickness, material, name)
-        {
-
-            List<ReinforcedConcreteRebar> rebars = new List<ReinforcedConcreteRebar>();
-
-            if (externalRebarSection != null)
-            {
-                rebars.AddRange(ConcreteSectionHelper.SetRadialRebars(Diameter, externalConcreteCover, externalNumberOfRebars, externalRebarSection, Centroid, externalEpsilonP).ToList());
-            }
-
-
-            if (internalRebarSection != null)
-            {
-                rebars.AddRange(ConcreteSectionHelper.SetRadialRebars(Diameter, internalConcreteCover, internalNumberOfRebars, internalRebarSection, Centroid, internalEpsilonP).ToList());
-            }
-
-            _rebars = rebars.ToArray();
-        }
-
-        public ConcreteSectionCHS(double diameter, double thickness, ConcreteMaterial material, double concreteCover,
-                                  int numberOfRebars, IRebarSection rebarSection, double epsilonP = 0.0, string name = "")
-            : base(diameter, thickness, material, name)
-        {
-            _rebars = ConcreteSectionHelper.SetRadialRebars(Diameter, concreteCover, numberOfRebars, rebarSection, Centroid, epsilonP);
-        }
-
         #endregion
 
         #region Public Methods
 
+        #region Rebars
+        public bool AddRadialRebars(double externalConcreteCover, int externalNumberOfRebars, IRebarSection externalRebarSection,
+                                  double internalConcreteCover, int internalNumberOfRebars, IRebarSection internalRebarSection, 
+                                  double externalEpsilonP = 0.0, double internalEpsilonP = 0.0)
+        {
+
+            bool retVal = false;
+            if (externalRebarSection != null)
+            {
+                retVal = _rebars.AddRange(ConcreteSectionHelper.SetRadialRebars(Diameter, externalConcreteCover, externalNumberOfRebars, externalRebarSection, Centroid, externalEpsilonP));
+            }
+
+            if (!retVal)
+                return retVal;
+
+            if (internalRebarSection != null)
+            {
+                retVal = _rebars.AddRange(ConcreteSectionHelper.SetRadialRebars(Diameter, internalConcreteCover, internalNumberOfRebars, internalRebarSection, Centroid, internalEpsilonP));
+            }
+            
+            return retVal;
+        }
+
+        public bool AddRadialRebars(double concreteCover, int numberOfRebars, IRebarSection rebarSection, double epsilonP = 0.0)
+        {
+            return _rebars.AddRange(ConcreteSectionHelper.SetRadialRebars(Diameter, concreteCover, numberOfRebars, rebarSection, Centroid, epsilonP));
+        }
+
+
+        public bool AddRebar(ReinforcedConcreteRebar rebar)
+        {
+            return _rebars.Add(rebar);
+        }
+
+        public bool AddRebars(IEnumerable<ReinforcedConcreteRebar> rebars)
+        {
+            return _rebars.AddRange(rebars);
+        }
+
+        public bool RemoveRebar(ReinforcedConcreteRebar rebar)
+        {
+            return _rebars.Remove(rebar);
+        }
+
+        public bool RemoveRebar(int rebarId)
+        {
+            return _rebars.Remove(rebarId);
+        }
+
+        public bool RemoveRebars(IEnumerable<ReinforcedConcreteRebar> rebars)
+        {
+            return _rebars.RemoveRange(rebars);
+        }
+
+        public ReinforcedConcreteRebar GetRebarById(int rebarId)
+        {
+            return _rebars.GetElementById(rebarId);
+        }
+        #endregion
+        #region MechanicalProperties
 
         /// <summary>
         /// Return all homogenized mechanical properties with default value of homogenized factor n
@@ -228,6 +248,8 @@ namespace GPC.Model.Sections.Concrete
         {
             return ConcreteSectionHelper.CalculateN(_rebars.GetElementById(rebar), ConcreteMaterial);
         }
+        #endregion
+
 
         public ReinforcedConcreteSection ToReinforcedConcreteSection()
         {

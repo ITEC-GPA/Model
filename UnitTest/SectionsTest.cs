@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using GPC.Model.Sections;
 using GPC.Model.Materials;
@@ -61,9 +62,9 @@ namespace ModelObjectTest
                 }
             }
 
-            for (int i = 0; i < section.Rebars.Length; i++)
+            foreach (var item in section.Rebars)
             {
-                GmshNet.Gmsh.Model.Occ.AddPoint(section.Rebars[i].Position.X, section.Rebars[i].Position.Y, 0.0);
+                GmshNet.Gmsh.Model.Occ.AddPoint(item.Position.X, item.Position.Y, 0.0);
             }
 
             GmshNet.Gmsh.Model.Occ.Synchronize();
@@ -1231,7 +1232,7 @@ namespace ModelObjectTest
         {
             double h = 500;
             double b = 300;
-            ConcreteSectionRectangular section = new ConcreteSectionRectangular(h, b, ConcreteMaterialEN1992.C40_50, new ReinforcedConcreteRebar[] { }, "Section");
+            ConcreteSectionRectangular section = new ConcreteSectionRectangular(h, b, ConcreteMaterialEN1992.C40_50, "Section");
 
             double A = 150000;
             double jxx = 3.125 * 1e9;
@@ -1257,7 +1258,7 @@ namespace ModelObjectTest
         {
             double h = 600;
             double b = 350;
-            ConcreteSectionRectangular section = new ConcreteSectionRectangular(h, b, ConcreteMaterialEN1992.C40_50, new ReinforcedConcreteRebar[] { }, "Section");
+            ConcreteSectionRectangular section = new ConcreteSectionRectangular(h, b, ConcreteMaterialEN1992.C40_50, "Section");
 
             double A = 210000;
             double jxx = 6.300 * 1e9;
@@ -1288,8 +1289,8 @@ namespace ModelObjectTest
         public void SectionCircularSubdivision2()
         {
             double d = 500;
-            ConcreteSectionCircular section = new ConcreteSectionCircular(d, ConcreteMaterialEN1992.C40_50, new ReinforcedConcreteRebar[] { }, "Section");
-
+            ConcreteSectionCircular section = new ConcreteSectionCircular(d, ConcreteMaterialEN1992.C40_50, "Section");
+            
             double A = 196349.54;
             double jxx = 3.068 * 1e9;
             double jyy = 3.068 * 1e9;
@@ -1315,7 +1316,7 @@ namespace ModelObjectTest
         public void SectionCircularTest2()
         {
             double d = 400;
-            ConcreteSectionCircular section = new ConcreteSectionCircular(d, ConcreteMaterialEN1992.C40_50, new ReinforcedConcreteRebar[] { }, "Section");
+            ConcreteSectionCircular section = new ConcreteSectionCircular(d, ConcreteMaterialEN1992.C40_50, "Section");
 
             double A = 125663.71;
             double jxx = 1.257 * 1e9;
@@ -1411,7 +1412,8 @@ namespace ModelObjectTest
                                                                                 new ReinforcedConcreteRebar(rebar, new Point2d(250, 50)),
                                                                                 new ReinforcedConcreteRebar(rebar, new Point2d(250,450)),
                                                                                 new ReinforcedConcreteRebar(rebar, new Point2d(50,450))};
-            ReinforcedConcreteSection section = new ReinforcedConcreteSection(shapeEx, rebars);
+            ReinforcedConcreteSection section = new ReinforcedConcreteSection(shapeEx);
+            section.AddRebars(rebars);
 
             var mechanicalProperties = section.GetHomogeneizedMechanicalProperties(n);
 
@@ -1427,7 +1429,8 @@ namespace ModelObjectTest
             Assert.IsTrue(Math.Abs(mechanicalProperties.J22H - 1267240000) / mechanicalProperties.J22H * 100 < 1);
             Assert.IsTrue(Math.Abs(mechanicalProperties.angleX) < 0.001);
 
-            ConcreteSectionRectangular sectionRectangular = new ConcreteSectionRectangular(heigth, width, ConcreteMaterialEN1992.C25_30, rebars);
+            ConcreteSectionRectangular sectionRectangular = new ConcreteSectionRectangular(heigth, width, ConcreteMaterialEN1992.C25_30);
+            sectionRectangular.AddRebars(rebars);
 
             mechanicalProperties = section.GetHomogeneizedMechanicalProperties(n);
 
@@ -1466,7 +1469,8 @@ namespace ModelObjectTest
                                                                                 new ReinforcedConcreteRebar(rebar, new Point3d(200, 50,0)),
                                                                                 new ReinforcedConcreteRebar(rebar, new Point3d(250, 50,0))};
 
-            ReinforcedConcreteSection section = new ReinforcedConcreteSection(shapeEx, rebars);
+            ReinforcedConcreteSection section = new ReinforcedConcreteSection(shapeEx);
+            section.AddRebars(rebars);
             var mechanicalProperties = section.GetHomogeneizedMechanicalProperties(n);
 
             //valori calcolati con VCASLU
@@ -1478,7 +1482,8 @@ namespace ModelObjectTest
             Assert.IsTrue(Math.Abs(mechanicalProperties.J22H - 1213900000) / mechanicalProperties.J22H * 100 < 1);
             Assert.IsTrue(Math.Abs(mechanicalProperties.angleX) < 0.001);
 
-            ConcreteSectionRectangular sectionRectangular = new ConcreteSectionRectangular(heigth, width, ConcreteMaterialEN1992.C25_30, rebars);
+            ConcreteSectionRectangular sectionRectangular = new ConcreteSectionRectangular(heigth, width, ConcreteMaterialEN1992.C25_30);
+            sectionRectangular.AddRebars(rebars);
 
             mechanicalProperties = sectionRectangular.GetHomogeneizedMechanicalProperties(n);
 
@@ -1518,7 +1523,8 @@ namespace ModelObjectTest
                                                                                 new ReinforcedConcreteRebar(rebar, new Point3d(200, 50,0)),
                                                                                 new ReinforcedConcreteRebar(rebar, new Point3d(250, 50,0))};
 
-            ReinforcedConcreteSection section = new ReinforcedConcreteSection(shapeEx, rebars);
+            ReinforcedConcreteSection section = new ReinforcedConcreteSection(shapeEx);
+            section.AddRebars(rebars);
             var mechanicalProperties = section.GetHomogeneizedMechanicalProperties(n);
 
             //valori calcolati con VCASLU
@@ -1526,7 +1532,8 @@ namespace ModelObjectTest
             Assert.IsTrue(Math.Abs(mechanicalProperties.J22H - 1496700000) / mechanicalProperties.J22H * 100 < 1);
             Assert.IsTrue(Math.Abs(mechanicalProperties.angleX) < 0.001);
 
-            ConcreteSectionRectangular sectionRectangular = new ConcreteSectionRectangular(heigth, width, ConcreteMaterialEN1992.C25_30, rebars);
+            ConcreteSectionRectangular sectionRectangular = new ConcreteSectionRectangular(heigth, width, ConcreteMaterialEN1992.C25_30);
+            sectionRectangular.AddRebars(rebars);
 
             mechanicalProperties = sectionRectangular.GetHomogeneizedMechanicalProperties(n);
 
@@ -1548,7 +1555,8 @@ namespace ModelObjectTest
             ShapeEx shapeEx = new ShapeEx(shape, ConcreteMaterialEN1992.C25_30);
             ReinforcedConcreteRebar[] rebars = new ReinforcedConcreteRebar[] { };
 
-            ReinforcedConcreteSection section = new ReinforcedConcreteSection(shapeEx, rebars);
+            ReinforcedConcreteSection section = new ReinforcedConcreteSection(shapeEx);
+            section.AddRebars(rebars);
 
             //valori calcolati con VCASLU
             Assert.IsTrue(Math.Abs(section.Jxx - 330208333) / section.Jxx * 100 < 1);
@@ -1574,7 +1582,8 @@ namespace ModelObjectTest
             ShapeEx shapeEx = new ShapeEx(shape, ConcreteMaterialEN1992.C25_30);
             ReinforcedConcreteRebar[] rebars = new ReinforcedConcreteRebar[] { };
 
-            ReinforcedConcreteSection section = new ReinforcedConcreteSection(shapeEx, rebars);
+            ReinforcedConcreteSection section = new ReinforcedConcreteSection(shapeEx);
+            section.AddRebars(rebars);
 
             //valori calcolati con VCASLU
             Assert.IsTrue(Math.Abs(section.Jxx - 31770833333) / section.J11 * 100 < 1);
@@ -1610,14 +1619,17 @@ namespace ModelObjectTest
                                                                                 new ReinforcedConcreteRebar(rebar, new Point2d(391.421357, 108.578645)),
                                                                                 new ReinforcedConcreteRebar(rebar, new Point2d(434.775907, 173.463314)) };
 
-            ConcreteSectionCircular section = new ConcreteSectionCircular(diameter, ConcreteMaterialEN1992.C25_30, rebars);
+            ConcreteSectionCircular section = new ConcreteSectionCircular(diameter, ConcreteMaterialEN1992.C25_30);
+            section.AddRebars(rebars);
             var mechanicalProperties = section.GetHomogeneizedMechanicalProperties(n);
 
             //valori calcolati con VCASLU
             Assert.IsTrue(Math.Abs(mechanicalProperties.J11H - 4018160897) / mechanicalProperties.J11H * 100 < 1);
             Assert.IsTrue(Math.Abs(mechanicalProperties.J22H - 4018160897) / mechanicalProperties.J22H * 100 < 1);
 
-            section = new ConcreteSectionCircular(diameter, ConcreteMaterialEN1992.C25_30, 50, 16, rebar);
+            section = new ConcreteSectionCircular(diameter, ConcreteMaterialEN1992.C25_30);
+            section.AddRadialRebars(50, rebars.Length, rebar);
+            
 
             mechanicalProperties = section.GetHomogeneizedMechanicalProperties(n);
 
@@ -1638,7 +1650,8 @@ namespace ModelObjectTest
 
             GPC.Model.Sections.Rebar.RebarSectionCircular rebar = new GPC.Model.Sections.Rebar.RebarSectionCircular(rebarDiameter, RebarMaterial.B450C);
 
-            ConcreteSectionCHS section = new ConcreteSectionCHS(diameterExternal, thickness, ConcreteMaterialEN1992.C25_30, concreteCover, numberOfRebars, rebar);
+            ConcreteSectionCHS section = new ConcreteSectionCHS(diameterExternal, thickness, ConcreteMaterialEN1992.C25_30);
+            section.AddRadialRebars(concreteCover, numberOfRebars, rebar);
 
             var mechanicalProperties = section.GetHomogeneizedMechanicalProperties(n);
 
@@ -1659,7 +1672,7 @@ namespace ModelObjectTest
 
             GPC.Model.Sections.Rebar.RebarSectionCircular rebar = new GPC.Model.Sections.Rebar.RebarSectionCircular(rebarDiameter, RebarMaterial.B450C);
 
-            ConcreteSectionCHS section = new ConcreteSectionCHS(diameterExternal, thickness, ConcreteMaterialEN1992.C25_30, concreteCover, numberOfRebars, rebar);
+            ConcreteSectionCHS section = new ConcreteSectionCHS(diameterExternal, thickness, ConcreteMaterialEN1992.C25_30);
 
             var mechanicalProperties = section.GetHomogeneizedMechanicalProperties(n);
 

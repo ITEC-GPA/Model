@@ -14,9 +14,9 @@ namespace GPC.Model.Sections.Concrete
     [Serializable]
     public class ReinforcedConcreteRebar : ModelObjectId, ISerializable
     {
-        protected readonly IRebarSection _rebarSection;
-        protected readonly Point2d _position;
-        protected readonly double _epsilonP;
+        protected IRebarSection _rebarSection;
+        protected Point2d _position;
+        protected double _epsilonP;
 
 
         public double Area => _rebarSection.Area;

@@ -75,6 +75,8 @@ namespace GPC.Model.Sections.Concrete
 
         #region Public Methods
 
+        #region Rebars
+
         public bool AddRebar(ReinforcedConcreteRebar rebar)
         {
             return _rebars.Add(rebar);
@@ -103,7 +105,8 @@ namespace GPC.Model.Sections.Concrete
         public ReinforcedConcreteRebar GetRebarById(int rebarId)
         {
             return _rebars.GetElementById(rebarId);
-        }
+        } 
+        #endregion
 
         public ReinforcedConcreteRebar[] GetRebarById(IEnumerable<int> rebarIds)
         {
