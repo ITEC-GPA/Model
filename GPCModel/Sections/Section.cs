@@ -30,7 +30,6 @@ namespace GPC.Model.Sections
 
         #endregion
 
-
         #region Variables
 
         protected Material _material;
@@ -75,13 +74,16 @@ namespace GPC.Model.Sections
 
         #endregion
 
-
         #region Properties
 
         /// <summary>
         /// The <see cref="Materials"/> of the section 
         /// </summary>
-        public Material Material => _material;
+        public Material Material
+        {
+            get => _material;
+            set => _material = value;
+        }
 
         /// <summary>
         /// The area of the section
@@ -226,7 +228,6 @@ namespace GPC.Model.Sections
 
         #endregion
 
-
         #region Public Constructors
 
         protected Section(string name)
@@ -290,11 +291,9 @@ namespace GPC.Model.Sections
             _isSymmetricAlongXLocalAxis = (bool)info.GetValue("IsSymmetricAlongXLocalAxis", typeof(bool));
             _isSymmetricAlongYLocalAxis = (bool)info.GetValue("IsSymmetricAlongYLocalAxis", typeof(bool));
             _angleX1 = info.GetDouble("AngleX1");
-
         }
 
         #endregion
-
 
         #region Public virtual material method
 
@@ -388,7 +387,6 @@ namespace GPC.Model.Sections
 
 
         #endregion
-
 
         #region Protected virtual methods
 
@@ -553,7 +551,6 @@ namespace GPC.Model.Sections
 
         #endregion
 
-
         #region Public override method
 
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
@@ -646,6 +643,5 @@ namespace GPC.Model.Sections
         }
 
         #endregion
-
     }
 }
