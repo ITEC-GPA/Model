@@ -44,18 +44,15 @@ namespace GPC.Model.Sections.Concrete
             _shapeEx = reinforcedConcreteSection.ShapeEx;
             _rebars = new List<ReinforcedConcreteRebar>(reinforcedConcreteSection.Rebars);
             SetMechanicalProperties();
-
         }
 
-        public ReinforcedConcreteSection(ShapeEx shapeEx, ReinforcedConcreteRebar[] rebars, string name = "")
+        public ReinforcedConcreteSection(ShapeEx shapeEx, ReinforcedConcreteRebar[] rebars = null, string name = "")
             : base(shapeEx.Material, name)
         {
             if (shapeEx is null)
                 throw new ArgumentNullException(nameof(shapeEx));
-            if (rebars is null)
-                throw new ArgumentNullException(nameof(rebars));
             _shapeEx = shapeEx;
-            _rebars = new List<ReinforcedConcreteRebar>(rebars);
+            _rebars = rebars == null ? new List<ReinforcedConcreteRebar>() : new List<ReinforcedConcreteRebar>(rebars);
 
             SetMechanicalProperties();
         }
