@@ -69,6 +69,8 @@ namespace GPC.Model.Sections.Concrete
 
         #endregion
 
+        #region Public Methods
+
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             base.GetObjectData(info, context);
@@ -76,14 +78,45 @@ namespace GPC.Model.Sections.Concrete
             info.AddValue("ReinforcedConcreteRebar", _rebars, typeof(List<ReinforcedConcreteRebar>));
         }
 
+        public bool AddRebar(ReinforcedConcreteRebar rebar)
+        {
+            _rebars.Add(rebar);
+            return true;
+        }
 
-        #region Public Methods
+        public bool AddRebars(IEnumerable<ReinforcedConcreteRebar> rebars)
+        {            
+            _rebars.AddRange(rebars);
+            return true;
+        }
+
+        public bool RemoveRebar(ReinforcedConcreteRebar rebar)
+        {
+            return _rebars.Remove(rebar);
+        }
+
+        public bool RemoveRebar(int rebarId)
+        {
+            int index = _rebars.FindIndex(r => r.Id == rebarId);
+            if (index == -1)
+                return false;
+            _rebars.RemoveAt(index);
+            return true;
+        }
+
+        public bool RemoveRebars(IEnumerable<ReinforcedConcreteRebar> rebars)
+        {
+            foreach (var rebar in rebars)
+            { 
+                _rebars.Remove(rebar);
+            }
+            return true;
+        }
 
         public ReinforcedConcreteSection ToReinforcedConcreteSection()
         {
             return new ReinforcedConcreteSection(this);
         }
-
 
         #region Concrete Mechanical properties
         /// <summary>
