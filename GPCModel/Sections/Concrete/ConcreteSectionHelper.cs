@@ -41,11 +41,6 @@ namespace GPC.Model.Sections.Concrete
             return rebar.RebarMaterial.E / concreteMaterial.E;
         }
 
-        internal static double CalculateN(int rebar, ReinforcedConcreteRebar[] rebars, ConcreteMaterial concreteMaterial)
-        {
-            return rebars[rebar].RebarMaterial.E / concreteMaterial.E;
-        }
-
         internal static void CalculateStaticMoments(Mesh mesh, out double Sx, out double Sy)
         {
 
@@ -57,7 +52,7 @@ namespace GPC.Model.Sections.Concrete
             //    double area = mesh.GetFaceArea(mesh.Faces[i + 1]);
             //    Point2d centroid = mesh.GetFaceCentroid(mesh.Faces[i + 1]);
             //    Sx += area * centroid.Y;
-            //    Sy = area * centroid.X;
+            //    Sy += area * centroid.X;
             //}
 
 
@@ -75,6 +70,7 @@ namespace GPC.Model.Sections.Concrete
 
             Sx = SxArray.Sum();
             Sy = SyArray.Sum();
+
         }
 
         internal static void CalculateInertiaMoments(Mesh mesh, Point2d centroid, out double Jxx, out double Jyy, out double Jxy, out double Jp)

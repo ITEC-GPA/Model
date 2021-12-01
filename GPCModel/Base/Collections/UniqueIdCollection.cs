@@ -30,13 +30,17 @@ namespace GPC.Model
             _ids = new HashSet<int>();
         }
 
-
+        
         public UniqueIdCollection(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
             _ids = (HashSet<int>)info.GetValue("Ids", typeof(HashSet<int>));
         }
 
+
+        #region Add
+
+        /// <inheritdoc cref="ModelObjectSet{T}.Add(T)" />
         public override bool Add(T item)
         {
             if (item is null)
@@ -52,61 +56,9 @@ namespace GPC.Model
                 return true;
             }
         }
+        #endregion
 
-        public override void Clear()
-        {
-            lock (_locker)
-            {
-                _collection.Clear();
-                _ids.Clear();
-            };
-        }
-
-        public override bool Contains(T item)
-        {
-            lock (_locker)
-            {
-                return _collection.Contains(item);
-            }
-        }
-
-
-        /// <returns><see langword="True" /> if all the <paramref name="items"/> are contained into the collection </returns>
-        public bool ContainsRange(IEnumerable<T> items)
-        {
-            lock (_locker)
-            {
-                foreach(var item in items)
-                {
-                    if (_collection.Contains(item))
-                        return false;
-                }
-                return true;
-            }
-        }
-
-        /// <returns><see langword="True" /> if this collection contains an element with <see cref="ModelObjectId.Id"/> equals to <paramref name="id"/> </returns>
-        public bool Contains(int id)
-        {
-            lock (_locker)
-            {
-                return _ids.Contains(id);
-            }
-        }
-
-        /// <returns><see langword="True" /> if all the <paramref name="ids"/> are contained into the collection </returns>
-        public bool ContainsRange(IEnumerable<int> ids)
-        {
-            lock (_locker)
-            {
-                foreach (var item in ids)
-                {
-                    if (!_ids.Contains(item))
-                        return false;
-                }
-                return true;
-            }
-        }
+        #region Get
 
         public override void CopyTo(T[] array, int arrayIndex)
         {
@@ -126,7 +78,7 @@ namespace GPC.Model
         /// <remarks>This is a O(n) operation</remarks>
         public virtual T GetElementById(int id)
         {
-            // l'add non fa aggiungere oggetti con id duplicato.
+            // l'Add non fa aggiungere oggetti con id duplicato.
             // se le istanze variano dopo che sono stati aggiunti e trova un duplicato va in eccezione
 
             lock (_locker)
@@ -135,6 +87,79 @@ namespace GPC.Model
                     return _collection.SingleOrDefault(i => i.Id == id);
                 else
                     throw new KeyNotFoundException($"Collection does not contain a element with id: {id}");
+            }
+        }
+        #endregion
+
+        #region Check
+
+        /// <returns><see langword="True" /> if <paramref name="item"/> id already contained in the collection </returns>
+        public override bool Contains(T item)
+        {
+            lock (_locker)
+            {
+                return _collection.Contains(item);
+            }
+        }
+
+
+        /// <returns><see langword="True" /> if all the <paramref name="items"/> id already contained in the collection </returns>
+        public bool ContainsRange(IEnumerable<T> items)
+        {
+            lock (_locker)
+            {
+                foreach (var item in items)
+                {
+                    if (!_collection.Contains(item))
+                        return false;
+                }
+                return true;
+            }
+        }
+
+        /// <returns><see langword="True" /> if this collection contains an element with <see cref="ModelObjectId.Id"/> equals to <paramref name="id"/> </returns>
+        /// <remarks>This is an O(1) operation</remarks>
+        public bool Contains(int id)
+        {
+            lock (_locker)
+            {
+                return _ids.Contains(id);
+            }
+        }
+
+        /// <returns><see langword="True" /> if all the <paramref name="ids"/> are contained into the collection </returns>
+        /// <remarks>This is an O(1*n) operation</remarks>
+        public bool ContainsRange(IEnumerable<int> ids)
+        {
+            lock (_locker)
+            {
+                foreach (var item in ids)
+                {
+                    if (!_ids.Contains(item))
+                        return false;
+                }
+                return true;
+            }
+        }
+        #endregion
+
+
+        #region Edit
+
+        public override void Clear()
+        {
+            lock (_locker)
+            {
+                _collection.Clear();
+                _ids.Clear();
+            };
+        }
+
+        public bool Remove(int id)
+        {
+            lock (_locker)
+            {
+                return _collection.Remove(GetElementById(id)) && _ids.Remove(id);
             }
         }
 
@@ -146,12 +171,44 @@ namespace GPC.Model
             }
         }
 
+        public override bool RemoveRange(IEnumerable<T> items)
+        {
+            lock (_locker)
+            {
+                foreach (var item in items)
+                {
+                    if (!(_collection.Remove(item) && _ids.Remove(item.Id)))
+                    {
+                        return false;
+                    }
+                }
 
+                return true;
+            }
+        }
+
+        public bool RemoveRange(IEnumerable<int> ids)
+        {
+            lock (_locker)
+            {
+                foreach (var item in ids)
+                {
+                    if (!(_collection.Remove(GetElementById(item)) && _ids.Remove(item)))
+                    {
+                        return false;
+                    }
+                }
+
+                return true;
+            }
+        }
+
+        #endregion
 
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             base.GetObjectData(info, context);
-            info.AddValue("Ids", _ids);
+            info.AddValue("Ids", _ids, typeof(HashSet<int>));
         }
 
         #region Equals - hashcode - Operators
@@ -171,14 +228,7 @@ namespace GPC.Model
             {
                 unchecked
                 {
-                    int hashCode = -391 + base.GetHashCode();
-
-                    foreach (var element in _collection)
-                    {
-                        hashCode += element.GetHashCode();
-                    }
-
-                    return hashCode;
+                    return -391 + base.GetHashCode() + _collection.GetHashCodeScrambled();
                 }
             }
         }

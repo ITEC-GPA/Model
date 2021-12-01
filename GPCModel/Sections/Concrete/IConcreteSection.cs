@@ -1,4 +1,5 @@
-﻿using GPC.Geometry;
+﻿using System.Collections.Generic;
+using GPC.Geometry;
 using GPC.Model.Materials;
 
 
@@ -46,7 +47,7 @@ namespace GPC.Model.Sections.Concrete
 
         bool IsDoubleSymmetric { get; }
 
-        ReinforcedConcreteRebar[] Rebars { get; }
+        IEnumerable<ReinforcedConcreteRebar> Rebars { get; }
 
         double GetHomogenizedArea(double n);
 

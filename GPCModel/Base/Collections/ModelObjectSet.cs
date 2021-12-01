@@ -150,6 +150,21 @@ namespace GPC.Model
             }
         }
 
+        public virtual bool RemoveRange(IEnumerable<T> items)
+        {
+            lock (_locker)
+            {
+                foreach (var item in items)
+                {
+                    if (!(_collection.Remove(item)))
+                    {
+                        return false;
+                    }
+                }
+
+                return true;
+            }
+        }
 
         #region Equals - hashcode - Operators
 
