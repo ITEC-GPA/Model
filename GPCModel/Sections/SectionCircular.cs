@@ -11,14 +11,23 @@ namespace GPC.Model.Sections
 
     public class SectionCircular : Section, ISection
     {
-
-        protected readonly double _diameter;
+        protected double _diameter;
 
         /// <summary>
         /// The diameter
         /// </summary>
-        public double Diameter => _diameter;
-
+        public double Diameter
+        {
+            get => _diameter;
+            set
+            {
+                if (_diameter != value)
+                {
+                    _diameter = value;
+                    SetMechanicalProperties();
+                }
+            }
+        }
 
         #region Public Constructors
 
@@ -57,7 +66,6 @@ namespace GPC.Model.Sections
         {
             return new Shape2d(new Polygon2d(_diameter, 32, _centroid));
         }
-
 
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
@@ -141,17 +149,15 @@ namespace GPC.Model.Sections
         }
 
         #endregion
+
         public override string ToString()
         {
             return $"Circular {_diameter}";
         }
 
-
         public override bool Equals(object obj)
         {
-            return obj is SectionCircular circular &&
-                   base.Equals(obj) &&
-                   _diameter == circular._diameter;
+            return obj is SectionCircular circular && base.Equals(obj) && _diameter == circular._diameter;
         }
 
         public override int GetHashCode()
