@@ -14,14 +14,14 @@ namespace GPC.Model.Sections.Concrete
     [Serializable]
     public class ReinforcedConcreteSection : Section, IConcreteSection
     {
-
         protected readonly ShapeEx _shapeEx;
-        protected readonly ReinforcedConcreteRebar[] _rebars;
+        protected readonly List<ReinforcedConcreteRebar> _rebars;
 
+        #region Properties
 
         public ShapeEx ShapeEx => _shapeEx;
 
-        public ReinforcedConcreteRebar[] Rebars => _rebars;
+        public ReinforcedConcreteRebar[] Rebars => _rebars.ToArray();
 
         public ConcreteMaterial ConcreteMaterial => (ConcreteMaterial)_material;
 
@@ -29,6 +29,7 @@ namespace GPC.Model.Sections.Concrete
 
         public double AreaRebars => _rebars.Select(i => i.Area).Sum();
 
+        #endregion
 
         #region Public Constructors
 
@@ -41,7 +42,7 @@ namespace GPC.Model.Sections.Concrete
             }
 
             _shapeEx = reinforcedConcreteSection.ShapeEx;
-            _rebars = reinforcedConcreteSection.Rebars;
+            _rebars = new List<ReinforcedConcreteRebar>(reinforcedConcreteSection.Rebars);
             SetMechanicalProperties();
 
         }
@@ -49,8 +50,12 @@ namespace GPC.Model.Sections.Concrete
         public ReinforcedConcreteSection(ShapeEx shapeEx, ReinforcedConcreteRebar[] rebars, string name = "")
             : base(shapeEx.Material, name)
         {
-            _shapeEx = shapeEx ?? throw new ArgumentNullException(nameof(shapeEx));
-            _rebars = rebars ?? throw new ArgumentNullException(nameof(rebars));
+            if (shapeEx is null)
+                throw new ArgumentNullException(nameof(shapeEx));
+            if (rebars is null)
+                throw new ArgumentNullException(nameof(rebars));
+            _shapeEx = shapeEx;
+            _rebars = new List<ReinforcedConcreteRebar>(rebars);
 
             SetMechanicalProperties();
         }
@@ -59,7 +64,7 @@ namespace GPC.Model.Sections.Concrete
             base(info, context)
         {
             _shapeEx = (ShapeEx)info.GetValue("ShapeEx", typeof(ShapeEx));
-            _rebars = (ReinforcedConcreteRebar[])info.GetValue("ReinforcedConcreteRebar", typeof(ReinforcedConcreteRebar[]));
+            _rebars = (List<ReinforcedConcreteRebar>)info.GetValue("ReinforcedConcreteRebar", typeof(List<ReinforcedConcreteRebar>));
         }
 
         #endregion
@@ -68,7 +73,7 @@ namespace GPC.Model.Sections.Concrete
         {
             base.GetObjectData(info, context);
             info.AddValue("ShapeEx", _shapeEx, typeof(ShapeEx));
-            info.AddValue("ReinforcedConcreteRebar", _rebars, typeof(ReinforcedConcreteRebar[]));
+            info.AddValue("ReinforcedConcreteRebar", _rebars, typeof(List<ReinforcedConcreteRebar>));
         }
 
 
