@@ -1,24 +1,19 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.Serialization;
 using GPC.Geometry;
 using GPC.Model.Materials;
-using GPC.Model.Sections.Concrete;
+using System;
+using System.Runtime.Serialization;
 
 namespace GPC.Model.Sections
 {
 
     public class SectionCircular : Section, ISection
     {
-
-        protected readonly double _diameter;
+        protected double _diameter;
 
         /// <summary>
         /// The diameter
         /// </summary>
         public double Diameter => _diameter;
-
 
         #region Public Constructors
 
@@ -50,7 +45,6 @@ namespace GPC.Model.Sections
 
         #endregion
 
-
         #region Public Methods Specific
 
         protected override Shape2d GetShape()
@@ -66,7 +60,6 @@ namespace GPC.Model.Sections
         }
 
         #endregion
-
 
         #region Protected method
 
@@ -141,17 +134,15 @@ namespace GPC.Model.Sections
         }
 
         #endregion
+        
         public override string ToString()
         {
             return $"Circular {_diameter}";
         }
 
-
         public override bool Equals(object obj)
         {
-            return obj is SectionCircular circular &&
-                   base.Equals(obj) &&
-                   _diameter == circular._diameter;
+            return obj is SectionCircular circular && base.Equals(obj) && _diameter == circular._diameter;
         }
 
         public override int GetHashCode()
