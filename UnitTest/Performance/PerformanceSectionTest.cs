@@ -4,20 +4,20 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using GPC.Geometry;
+using GPC.Geometry.Meshes;
+using GPC.Model.Materials;
 using GPC.Model.Maths.GaussIntegrations;
-using GPC.TestUtilities;
+using GPC.Model.Sections;
 using GPC.Model.Sections.Concrete;
 using GPC.Model.Sections.Rebar;
-using GPC.Model.Materials;
+using GPC.TestUtilities;
 using GPC.Utilities.Time;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using GPC.Model.Sections;
-using GPC.Geometry.Meshes;
 
 namespace PerformanceTest
 {
     [TestClass]
-    public class PerformanceSectionTest
+    public class PerformanceSectionTest : UnitTestBase
     {
 
         [TestMethod]
