@@ -54,7 +54,7 @@ namespace GPC.Model.Sections.Concrete
 
         #region Rebars
         public bool AddRadialRebars(double externalConcreteCover, int externalNumberOfRebars, IRebarSection externalRebarSection,
-                                  double internalConcreteCover, int internalNumberOfRebars, IRebarSection internalRebarSection, 
+                                  double internalConcreteCover, int internalNumberOfRebars, IRebarSection internalRebarSection,
                                   double externalEpsilonP = 0.0, double internalEpsilonP = 0.0)
         {
 
@@ -71,7 +71,7 @@ namespace GPC.Model.Sections.Concrete
             {
                 retVal = _rebars.AddRange(ConcreteSectionHelper.SetRadialRebars(Diameter, internalConcreteCover, internalNumberOfRebars, internalRebarSection, Centroid, internalEpsilonP));
             }
-            
+
             return retVal;
         }
 

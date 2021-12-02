@@ -1,14 +1,14 @@
 ﻿using System;
-using System.Linq;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using GPC.Model.Sections;
-using GPC.Model.Materials;
-using GPC.Geometry;
-using GPC.TestUtilities;
-using GPC.Model.Sections.Steel;
-using GPC.Model.Sections.Concrete;
-using GPC.Model.Elements;
 using System.Collections.Generic;
+using System.Linq;
+using GPC.Geometry;
+using GPC.Model.Elements;
+using GPC.Model.Materials;
+using GPC.Model.Sections;
+using GPC.Model.Sections.Concrete;
+using GPC.Model.Sections.Steel;
+using GPC.TestUtilities;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace ModelObjectTest
 {
@@ -80,7 +80,7 @@ namespace ModelObjectTest
             double d = 400;
             double t = 10;
             double di = d - 2.0 * t;
-            SteelSectionCHS sec = new SteelSectionCHS(d, t, new SteelMaterial("S355", 200000, 0.3, 355, 510, 7850),"", Section.FormedTypes.ColdFormed);
+            SteelSectionCHS sec = new SteelSectionCHS(d, t, new SteelMaterial("S355", 200000, 0.3, 355, 510, 7850), "", Section.FormedTypes.ColdFormed);
 
             Point2d centroid = new Point2d(d / 2, d / 2);
             Point2d shearCenter = centroid;
@@ -119,14 +119,14 @@ namespace ModelObjectTest
             Point2d centroid = new Point2d(d / 2, d / 2);
             Point2d shearCenter = centroid;
             double A = 3848.45;
-            double J = 2.89*1e7;
-            double Wel2 = 2.31*1e5;
-            double Wpl2 = 3*1e5;
+            double J = 2.89 * 1e7;
+            double Wel2 = 2.31 * 1e5;
+            double Wpl2 = 3 * 1e5;
             double Jt = 57774871;
             double Jw = 0;
             double i = Math.Sqrt(J / A);
 
-            Assert.AreEqual(0, sec.AngleX1);   
+            Assert.AreEqual(0, sec.AngleX1);
             Assert.AreEqual(centroid, sec.Centroid);
             Assert.AreEqual(Math.Abs(A / sec.Area) - 1, 0, 0.001);
             Assert.AreEqual(Math.Abs(i / sec.R22) - 1, 0, 0.001);
@@ -262,18 +262,18 @@ namespace ModelObjectTest
             Assert.AreEqual(Math.Abs(Wpl1 - sec.Wpl1), 0, 0.0015);
         }
 
-		#endregion
+        #endregion
 
-		#region Section RHS
+        #region Section RHS
 
-		[TestMethod]
+        [TestMethod]
         public void SectionRHS_Test1()
         {
             double h = 200;
             double b = 100;
             double tf = 20;
             double tw = 10;
-            SteelSectionRHS sec = new SteelSectionRHS(h, b, tf, tf, tw, tw,  SteelMaterial.S355, string.Empty);
+            SteelSectionRHS sec = new SteelSectionRHS(h, b, tf, tf, tw, tw, SteelMaterial.S355, string.Empty);
 
             double A = 7200;
             double Jx = 39360000;
@@ -506,7 +506,7 @@ namespace ModelObjectTest
             double Wply = 2741200;
             double Jt = 11040267;
             double jtSap = 10481812;
-            double jtStraus= 10534103.36714;
+            double jtStraus = 10534103.36714;
             double Jw = 4816472960152;
 
             Assert.AreEqual(A, sec.Area, 0.001);
@@ -692,7 +692,7 @@ namespace ModelObjectTest
             double Jt = 944000000;  // da catalogo
             double Jw = 133120000000000;
 
-            Assert.AreEqual(Math.Abs(A/sec.Area) -1, 0, 0.0015);
+            Assert.AreEqual(Math.Abs(A / sec.Area) - 1, 0, 0.0015);
             Assert.AreEqual(Math.Abs(Jyy / sec.Jyy) - 1, 0, 0.0015);
             Assert.AreEqual(Math.Abs(Jxx / sec.Jxx) - 1, 0, 0.0015);
             Assert.AreEqual(Math.Abs(Jyy / sec.J22) - 1, 0, 0.0015);
@@ -750,7 +750,7 @@ namespace ModelObjectTest
             double tt = 12.7;
             double tb = 12.7;
             double radius = 18;
-            SteelSectionH sec = new SteelSectionH(h, tw, bt, tt, bb, tb, SteelMaterial.S355, 
+            SteelSectionH sec = new SteelSectionH(h, tw, bt, tt, bb, tb, SteelMaterial.S355,
                 string.Empty, Section.SectionTypes.Rolled, Section.FormedTypes.HotFinished, radius);
 
             double A = 7270;          // da catalogo (tiene in conto anche i raggi)
@@ -828,10 +828,10 @@ namespace ModelObjectTest
             double tb = 14.0;
             double r = 27.0;
 
-            SteelSectionH sec = new SteelSectionH(h, tw, bt, tt, bb, tb, new SteelMaterial("steel", 210000, 0.3, 355, 510, 7850), 
+            SteelSectionH sec = new SteelSectionH(h, tw, bt, tt, bb, tb, new SteelMaterial("steel", 210000, 0.3, 355, 510, 7850),
                 string.Empty, Section.SectionTypes.Rolled, Section.FormedTypes.HotFinished, r);
 
-            double A = 11253;          
+            double A = 11253;
             double Jxx = 182630000;
             double Jyy = 63100000;
             double raggioInerziaX = 74.9;
@@ -887,7 +887,7 @@ namespace ModelObjectTest
             SteelSectionH sec = new SteelSectionH(h, webThickness, width, flangeThickness, width, flangeThickness, new SteelMaterial("steel", 210000, 0.3, 355, 510, 7850),
                 string.Empty, Section.SectionTypes.Rolled, Section.FormedTypes.HotFinished, r);
 
-			Point2d[] points =  sec.GetSectionPoints();
+            Point2d[] points = sec.GetSectionPoints();
             List<Point2d> list = new List<Point2d>();
             double item = 1;
 
@@ -921,7 +921,7 @@ namespace ModelObjectTest
         [TestMethod]
         public void SectionHSymmetric_Sigma1()
         {
-            double h = 304.8;         
+            double h = 304.8;
             double tw = 6.35;
             double bt = 127;
             double bb = 127;
@@ -938,11 +938,11 @@ namespace ModelObjectTest
             Assert.IsTrue(Math.Abs(sigmaMin - expSigmaMin) / sigmaMin < 0.001);
         }
 
-		#endregion
+        #endregion
 
-		#region Section T
+        #region Section T
 
-		[TestMethod]
+        [TestMethod]
         public void SectionT_Test()
         {
             double h = 400;
@@ -952,7 +952,7 @@ namespace ModelObjectTest
             SectionT sec = new SectionT(h, b, tw, tf, SteelMaterial.S355, string.Empty);
 
             double A = 21500;
-            double Jxx = 3.197*1e8;
+            double Jxx = 3.197 * 1e8;
             double Jyy = 10729167;
             double Welx = 1496864.9;
             double Wely = 107291.67;
@@ -987,11 +987,11 @@ namespace ModelObjectTest
             Assert.AreEqual(JwStraus / sec.Jw - 1.0, 0, 0.05);
         }
 
-		#endregion
+        #endregion
 
-		#region Section C
+        #region Section C
 
-		[TestMethod]
+        [TestMethod]
         public void SectionC_Test1()
         {
             double h = 400;
@@ -1035,7 +1035,7 @@ namespace ModelObjectTest
             double webThickness = 10.0;
             double radius1 = 16.0;
             double radius2 = 8.0;
-            SteelSectionC sec = new SteelSectionC(h, webThickness, width, flangeThickness, width, flangeThickness, SteelMaterial.S355, 
+            SteelSectionC sec = new SteelSectionC(h, webThickness, width, flangeThickness, width, flangeThickness, SteelMaterial.S355,
                 string.Empty, Section.SectionTypes.Rolled, Section.FormedTypes.HotFinished, radius1, radius2);
 
             double A = 5880;
@@ -1057,11 +1057,11 @@ namespace ModelObjectTest
             Assert.AreEqual(Jw / sec.Jw - 1, 0, 0.14);
         }
 
-		#endregion
+        #endregion
 
-		#region Section L
+        #region Section L
 
-		[TestMethod]
+        [TestMethod]
         public void SectionL_Test1()
         {
             double h = 250;
@@ -1198,7 +1198,7 @@ namespace ModelObjectTest
             double jxx = 133334.34;
             double jyy = 13333433.23;
 
-            Assert.AreEqual(Math.Abs(A/ sec.Area) -1, 0, 0.001);
+            Assert.AreEqual(Math.Abs(A / sec.Area) - 1, 0, 0.001);
             Assert.AreEqual(Math.Abs(jxx / sec.Jxx) - 1, 0, 0.001);
             Assert.AreEqual(Math.Abs(jyy / sec.Jyy) - 1, 0, 0.001);
         }
@@ -1290,7 +1290,7 @@ namespace ModelObjectTest
         {
             double d = 500;
             ConcreteSectionCircular section = new ConcreteSectionCircular(d, ConcreteMaterialEN1992.C40_50, "Section");
-            
+
             double A = 196349.54;
             double jxx = 3.068 * 1e9;
             double jyy = 3.068 * 1e9;
@@ -1400,9 +1400,9 @@ namespace ModelObjectTest
             double n = 15;
 
             // sezione rettangolare 300x500
-            Shape2d shape = new Shape2d(new Polygon2d(new Point2d[] {   new Point2d(0, 0), 
-                                                                    new Point2d(width, 0), 
-                                                                    new Point2d(width, heigth), 
+            Shape2d shape = new Shape2d(new Polygon2d(new Point2d[] {   new Point2d(0, 0),
+                                                                    new Point2d(width, 0),
+                                                                    new Point2d(width, heigth),
                                                                     new Point2d(0, heigth) }));
 
             ShapeEx shapeEx = new ShapeEx(shape, ConcreteMaterialEN1992.C25_30);
@@ -1437,7 +1437,7 @@ namespace ModelObjectTest
 
             //valori calcolati con VCASLU
             Assert.IsTrue(Math.Abs(sectionRectangular.Area - 150000) / section.Area * 100 < 1);
-                        Assert.IsTrue(Math.Abs(section.Jxx - 3125000000) / section.J11 * 100 < 1);
+            Assert.IsTrue(Math.Abs(section.Jxx - 3125000000) / section.J11 * 100 < 1);
             Assert.IsTrue(Math.Abs(section.Jyy - 1125000000) / section.J22 * 100 < 1);
             Assert.IsTrue(Math.Abs(sectionRectangular.J11 - 3125000000) / section.J11 * 100 < 1);
             Assert.IsTrue(Math.Abs(sectionRectangular.J22 - 1125000000) / section.J22 * 100 < 1);
@@ -1634,7 +1634,7 @@ namespace ModelObjectTest
 
             section = new ConcreteSectionCircular(diameter, ConcreteMaterialEN1992.C25_30);
             section.AddRadialRebars(50, rebars.Length, rebar);
-            
+
 
             mechanicalProperties = section.GetHomogeneizedMechanicalProperties(n);
 
@@ -1681,7 +1681,7 @@ namespace ModelObjectTest
             section.AddRadialRebars(concreteCover, numberOfRebars, rebar);
 
             var mechanicalProperties = section.GetHomogeneizedMechanicalProperties(n);
-            
+
             //valori calcolati con VCASLU
             Assert.IsTrue(Math.Abs(mechanicalProperties.J11H - 54653616364) / mechanicalProperties.J11H * 100 < 1);
             Assert.IsTrue(Math.Abs(mechanicalProperties.J22H - 54653616364) / mechanicalProperties.J22H * 100 < 1);
