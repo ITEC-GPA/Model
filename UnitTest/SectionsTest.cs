@@ -1408,10 +1408,11 @@ namespace ModelObjectTest
             ShapeEx shapeEx = new ShapeEx(shape, ConcreteMaterialEN1992.C25_30);
             GPC.Model.Sections.Rebar.RebarSectionCircular rebar = new GPC.Model.Sections.Rebar.RebarSectionCircular(rebarDiameter, RebarMaterial.B450C);
 
-            ReinforcedConcreteRebar[] rebars = new ReinforcedConcreteRebar[] {  new ReinforcedConcreteRebar(rebar, new Point2d(50,50)),
-                                                                                new ReinforcedConcreteRebar(rebar, new Point2d(250, 50)),
-                                                                                new ReinforcedConcreteRebar(rebar, new Point2d(250,450)),
-                                                                                new ReinforcedConcreteRebar(rebar, new Point2d(50,450))};
+            int i = 0;
+            ReinforcedConcreteRebar[] rebars = new ReinforcedConcreteRebar[] {  new ReinforcedConcreteRebar(i++, rebar, new Point2d(50,50)),
+                                                                                new ReinforcedConcreteRebar(i++, rebar, new Point2d(250, 50)),
+                                                                                new ReinforcedConcreteRebar(i++, rebar, new Point2d(250,450)),
+                                                                                new ReinforcedConcreteRebar(i++, rebar, new Point2d(50,450))};
             ReinforcedConcreteSection section = new ReinforcedConcreteSection(shapeEx);
             section.AddRebars(rebars);
 
@@ -1464,10 +1465,11 @@ namespace ModelObjectTest
             ShapeEx shapeEx = new ShapeEx(shape, ConcreteMaterialEN1992.C25_30);
             GPC.Model.Sections.Rebar.RebarSectionCircular rebar = new GPC.Model.Sections.Rebar.RebarSectionCircular(rebarDiameter, RebarMaterial.B450C);
 
-            ReinforcedConcreteRebar[] rebars = new ReinforcedConcreteRebar[] {  new ReinforcedConcreteRebar(rebar, new Point3d(50,50,0)),
-                                                                                new ReinforcedConcreteRebar(rebar, new Point3d(100, 50, 0)),
-                                                                                new ReinforcedConcreteRebar(rebar, new Point3d(200, 50,0)),
-                                                                                new ReinforcedConcreteRebar(rebar, new Point3d(250, 50,0))};
+            int i = 0;
+            ReinforcedConcreteRebar[] rebars = new ReinforcedConcreteRebar[] {  new ReinforcedConcreteRebar(i++, rebar, new Point3d(50,50,0)),
+                                                                                new ReinforcedConcreteRebar(i++, rebar, new Point3d(100, 50, 0)),
+                                                                                new ReinforcedConcreteRebar(i++, rebar, new Point3d(200, 50,0)),
+                                                                                new ReinforcedConcreteRebar(i++, rebar, new Point3d(250, 50,0))};
 
             ReinforcedConcreteSection section = new ReinforcedConcreteSection(shapeEx);
             section.AddRebars(rebars);
@@ -1514,14 +1516,15 @@ namespace ModelObjectTest
             ShapeEx shapeEx = new ShapeEx(shape, ConcreteMaterialEN1992.C25_30);
             GPC.Model.Sections.Rebar.RebarSectionCircular rebar = new GPC.Model.Sections.Rebar.RebarSectionCircular(rebarDiameter, RebarMaterial.B450C);
 
-            ReinforcedConcreteRebar[] rebars = new ReinforcedConcreteRebar[] {  new ReinforcedConcreteRebar(rebar, new Point3d(50,50,0)),
-                                                                                new ReinforcedConcreteRebar(rebar, new Point3d(100, 50, 0)),
-                                                                                new ReinforcedConcreteRebar(rebar, new Point3d(200, 50,0)),
-                                                                                new ReinforcedConcreteRebar(rebar, new Point3d(250, 50,0)),
-                                                                                new ReinforcedConcreteRebar(rebar, new Point3d(50,50,0)),
-                                                                                new ReinforcedConcreteRebar(rebar, new Point3d(100, 50, 0)),
-                                                                                new ReinforcedConcreteRebar(rebar, new Point3d(200, 50,0)),
-                                                                                new ReinforcedConcreteRebar(rebar, new Point3d(250, 50,0))};
+            int i = 0;
+            ReinforcedConcreteRebar[] rebars = new ReinforcedConcreteRebar[] {  new ReinforcedConcreteRebar(i++, rebar, new Point3d(50,50,0)),
+                                                                                new ReinforcedConcreteRebar(i++, rebar, new Point3d(100, 50, 0)),
+                                                                                new ReinforcedConcreteRebar(i++, rebar, new Point3d(200, 50,0)),
+                                                                                new ReinforcedConcreteRebar(i++, rebar, new Point3d(250, 50,0)),
+                                                                                new ReinforcedConcreteRebar(i++, rebar, new Point3d(50,50,0)),
+                                                                                new ReinforcedConcreteRebar(i++, rebar, new Point3d(100, 50, 0)),
+                                                                                new ReinforcedConcreteRebar(i++, rebar, new Point3d(200, 50,0)),
+                                                                                new ReinforcedConcreteRebar(i++, rebar, new Point3d(250, 50,0))};
 
             ReinforcedConcreteSection section = new ReinforcedConcreteSection(shapeEx);
             section.AddRebars(rebars);
@@ -1602,22 +1605,23 @@ namespace ModelObjectTest
 
             GPC.Model.Sections.Rebar.RebarSectionCircular rebar = new GPC.Model.Sections.Rebar.RebarSectionCircular(rebarDiameter, RebarMaterial.B450C);
 
-            ReinforcedConcreteRebar[] rebars = new ReinforcedConcreteRebar[] {  new ReinforcedConcreteRebar(rebar, new Point2d(450, 250)),
-                                                                                new ReinforcedConcreteRebar(rebar, new Point2d(434.77591, 326.536678)),
-                                                                                new ReinforcedConcreteRebar(rebar, new Point2d(391.421355, 391.421357)),
-                                                                                new ReinforcedConcreteRebar(rebar, new Point2d(326.536686, 434.775907)),
-                                                                                new ReinforcedConcreteRebar(rebar, new Point2d(250, 450)),
-                                                                                new ReinforcedConcreteRebar(rebar, new Point2d(173.463322, 434.77591)),
-                                                                                new ReinforcedConcreteRebar(rebar, new Point2d(108.578643, 391.421355)),
-                                                                                new ReinforcedConcreteRebar(rebar, new Point2d(65.224093, 326.536686)),
-                                                                                new ReinforcedConcreteRebar(rebar, new Point2d(50, 250)),
-                                                                                new ReinforcedConcreteRebar(rebar, new Point2d(65.22409, 173.463322)),
-                                                                                new ReinforcedConcreteRebar(rebar, new Point2d(108.578645, 108.578643)),
-                                                                                new ReinforcedConcreteRebar(rebar, new Point2d(173.463314, 65.224093)),
-                                                                                new ReinforcedConcreteRebar(rebar, new Point2d(250.0, 50)),
-                                                                                new ReinforcedConcreteRebar(rebar, new Point2d(326.536678, 65.22409)),
-                                                                                new ReinforcedConcreteRebar(rebar, new Point2d(391.421357, 108.578645)),
-                                                                                new ReinforcedConcreteRebar(rebar, new Point2d(434.775907, 173.463314)) };
+            int i = 0;
+            ReinforcedConcreteRebar[] rebars = new ReinforcedConcreteRebar[] {  new ReinforcedConcreteRebar(i++, rebar, new Point2d(450, 250), 0),
+                                                                                new ReinforcedConcreteRebar(i++, rebar, new Point2d(434.77591, 326.536678)),
+                                                                                new ReinforcedConcreteRebar(i++, rebar, new Point2d(391.421355, 391.421357)),
+                                                                                new ReinforcedConcreteRebar(i++, rebar, new Point2d(326.536686, 434.775907)),
+                                                                                new ReinforcedConcreteRebar(i++, rebar, new Point2d(250, 450)),
+                                                                                new ReinforcedConcreteRebar(i++, rebar, new Point2d(173.463322, 434.77591)),
+                                                                                new ReinforcedConcreteRebar(i++, rebar, new Point2d(108.578643, 391.421355)),
+                                                                                new ReinforcedConcreteRebar(i++, rebar, new Point2d(65.224093, 326.536686)),
+                                                                                new ReinforcedConcreteRebar(i++, rebar, new Point2d(50, 250)),
+                                                                                new ReinforcedConcreteRebar(i++, rebar, new Point2d(65.22409, 173.463322)),
+                                                                                new ReinforcedConcreteRebar(i++, rebar, new Point2d(108.578645, 108.578643)),
+                                                                                new ReinforcedConcreteRebar(i++, rebar, new Point2d(173.463314, 65.224093)),
+                                                                                new ReinforcedConcreteRebar(i++, rebar, new Point2d(250.0, 50)),
+                                                                                new ReinforcedConcreteRebar(i++, rebar, new Point2d(326.536678, 65.22409)),
+                                                                                new ReinforcedConcreteRebar(i++, rebar, new Point2d(391.421357, 108.578645)),
+                                                                                new ReinforcedConcreteRebar(i++, rebar, new Point2d(434.775907, 173.463314)) };
 
             ConcreteSectionCircular section = new ConcreteSectionCircular(diameter, ConcreteMaterialEN1992.C25_30);
             section.AddRebars(rebars);

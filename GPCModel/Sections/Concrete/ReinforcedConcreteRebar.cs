@@ -32,7 +32,7 @@ namespace GPC.Model.Sections.Concrete
 
         #region Public Constructors
 
-        public ReinforcedConcreteRebar(IRebarSection section, Point2d position, double sigmaP, int id, string name, Guid guid)
+        public ReinforcedConcreteRebar(int id, IRebarSection section, Point2d position, double sigmaP, string name, Guid guid)
             : base(id, name, guid)
         {
             _rebarSection = section ?? throw new ArgumentNullException(nameof(section));
@@ -45,18 +45,12 @@ namespace GPC.Model.Sections.Concrete
             _epsilonP = GetEpsilonP(sigmaP);
         }
 
-        public ReinforcedConcreteRebar(IRebarSection section, Point2d position, double sigmaP = 0.0, int id = ModelObjectId.IDUNASSIGNED, string name = "")
-            : this(section, position, sigmaP, id, name, new Guid())
+        public ReinforcedConcreteRebar(int id, IRebarSection section, Point2d position, double sigmaP = 0.0, string name = "")
+            : this(id, section, position, sigmaP, name, new Guid())
         {
 
         }
 
-
-        public ReinforcedConcreteRebar(IRebarSection section, Point2d position)
-            : this(section, position, 0.0, ModelObjectId.IDUNASSIGNED)
-        {
-
-        }
 
         #endregion
 

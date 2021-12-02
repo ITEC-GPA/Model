@@ -327,7 +327,7 @@ namespace GPC.Model.Sections.Concrete
 
             for (int i = 0; i < polygon.Count; i++)
             {
-                rebars[i] = new ReinforcedConcreteRebar(rebarSection, polygon[i], epsilonP, i);
+                rebars[i] = new ReinforcedConcreteRebar(i, rebarSection, polygon[i], epsilonP);
             }
 
             return rebars;
