@@ -274,6 +274,10 @@ namespace GPC.Model.Sections.Concrete
 
         #region Protected Methods
 
+        protected override Shape2d GetShape()
+        {
+            return _shapeEx;
+        }
 
         /// <summary>
         /// Internal method to set the mechanical properties to the section
@@ -287,7 +291,6 @@ namespace GPC.Model.Sections.Concrete
             _centroid = SectionHelper.CalculateCentroid(Sx, Sy, _area);
 
             ConcreteSectionHelper.CalculateInertiaMoments(Mesh, _centroid, out double Jxx, out double Jyy, out double Jxy, out double _);
-
 
             _j11 = SectionHelper.CalculateJ11(Jxx, Jyy, Jxy);
             _j22 = SectionHelper.CalculateJ22(Jxx, Jyy, Jxy);

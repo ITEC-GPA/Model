@@ -112,7 +112,7 @@ namespace GPC.Model.Sections.Concrete
                 JxyHomogenized += (n - 1) * (rebars[i].RebarSection.Jxy + rebars[i].Area * (rebars[i].Position.X - centroid.X) * (rebars[i].Position.Y - centroid.Y));
             }
 
-            JpHomogenized  = JxxHomogenized + JyyHomogenized;
+            JpHomogenized = JxxHomogenized + JyyHomogenized;
 
             JxxHomogenized += Math.Pow(sectionCentroid.Y - centroid.Y, 2) * area;
             JyyHomogenized += Math.Pow(sectionCentroid.X - centroid.X, 2) * area;
@@ -169,7 +169,7 @@ namespace GPC.Model.Sections.Concrete
                 SxHomog += (n - 1) * rebars[i].Area * rebars[i].Position.Y;
                 SyHomog += (n - 1) * rebars[i].Area * rebars[i].Position.X;
             }
-        
+
             return SectionHelper.CalculateCentroid(SxHomog, SyHomog, GetHomogenizedArea(rebars, concreteMaterial, area));
         }
 
