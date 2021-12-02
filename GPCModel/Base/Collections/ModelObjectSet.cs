@@ -40,7 +40,7 @@ namespace GPC.Model
         }
 
 
-        public ModelObjectSet(SerializationInfo info, StreamingContext context)
+        protected ModelObjectSet(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
 

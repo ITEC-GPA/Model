@@ -28,7 +28,7 @@ namespace PerformanceTest
 
             ReinforcedConcreteSection section = new ReinforcedConcreteSection(shape);
 
-            section.AddRebar(new ReinforcedConcreteRebar(1, new RebarSectionCircular(10, RebarMaterial.B450C), new Point2d()));
+            section.AddRebar(new ReinforcedConcreteRebar(new RebarSectionCircular(10, RebarMaterial.B450C), new Point2d()));
 
 
             Mesh mesh = section.Mesh;
