@@ -102,10 +102,25 @@ namespace GPC.Model.Sections.Concrete
             return _rebars.RemoveRange(rebars);
         }
 
+        public bool ClearRebars()
+        {
+            try
+            {
+                _rebars.Clear();
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
         public ReinforcedConcreteRebar GetRebarById(int rebarId)
         {
             return _rebars.GetElementById(rebarId);
         } 
+
+
         #endregion
 
         public ReinforcedConcreteRebar[] GetRebarById(IEnumerable<int> rebarIds)
