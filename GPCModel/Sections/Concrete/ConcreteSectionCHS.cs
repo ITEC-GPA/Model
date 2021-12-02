@@ -80,31 +80,61 @@ namespace GPC.Model.Sections.Concrete
             return _rebars.AddRange(ConcreteSectionHelper.SetRadialRebars(Diameter, concreteCover, numberOfRebars, rebarSection, Centroid, epsilonP));
         }
 
-
-        public bool AddRebar(ReinforcedConcreteRebar rebar)
+        /// <summary>
+        /// Add a <paramref name="rebar"/> into the section.
+        /// </summary>
+        /// <remarks>
+        /// <para>If a rebar with the same id already exist in the collection, <paramref name="rebar"/> will replace that rebar</para>
+        /// <para>If <paramref name="rebar"/> ID is lower than 1, this will be replaced with the maximum id + 1</para>
+        /// </remarks>
+        /// <returns>The <see cref="ModelObjectId.Id"/> of the rebar</returns>
+        public int AddRebar(ReinforcedConcreteRebar rebar)
         {
-            return _rebars.Add(rebar);
+            if (rebar.Id < 1)
+                rebar.Id = _rebars.MaxId + 1;
+
+            _rebars.Add(rebar);
+
+            return rebar.Id;
         }
 
-        public bool AddRebars(IEnumerable<ReinforcedConcreteRebar> rebars)
+        /// <inheritdoc cref="AddRebar(ReinforcedConcreteRebar)"/>
+        public int[] AddRebars(IEnumerable<ReinforcedConcreteRebar> rebars)
         {
-            return _rebars.AddRange(rebars);
+            List<int> ids = new List<int>();
+
+            foreach (var item in rebars)
+            {
+                if (item.Id < 1)
+                    item.Id = _rebars.MaxId + 1;
+
+                _rebars.Add(item);
+                ids.Add(item.Id);
+            }
+
+            return ids.ToArray();
         }
 
+
+        /// <inheritdoc cref="UniqueIdCollection{T}.Remove(T)"/>
         public bool RemoveRebar(ReinforcedConcreteRebar rebar)
         {
             return _rebars.Remove(rebar);
         }
 
+        /// <inheritdoc cref="UniqueIdCollection{T}.Remove(int)"/>
         public bool RemoveRebar(int rebarId)
         {
             return _rebars.Remove(rebarId);
         }
 
+        /// <inheritdoc cref="UniqueIdCollection{T}.RemoveRange(IEnumerable{T})"/>
         public bool RemoveRebars(IEnumerable<ReinforcedConcreteRebar> rebars)
         {
             return _rebars.RemoveRange(rebars);
         }
+
+
         public bool ClearRebars()
         {
             try
@@ -118,30 +148,50 @@ namespace GPC.Model.Sections.Concrete
             }
         }
 
+
+        /// <returns><see langword="null"/> if item not found</returns>
+        /// <inheritdoc cref="UniqueIdCollection{T}.GetById(int)"/>
         public ReinforcedConcreteRebar GetRebarById(int rebarId)
         {
-            return _rebars.GetElementById(rebarId);
-        }
-
-        public ReinforcedConcreteRebar[] GetRebarById(IEnumerable<int> rebarIds)
-        {
-            List<ReinforcedConcreteRebar> rebars = new List<ReinforcedConcreteRebar>();
-
-            foreach (var item in rebarIds)
+            try
             {
-                rebars.Add(GetRebarById(item));
+                return _rebars.GetById(rebarId);
             }
-
-            return rebars.ToArray();
+            catch
+            {
+                return null;
+            }
         }
-
 
         public ReinforcedConcreteRebar[] GetRebars()
         {
             return _rebars.ToArray();
         }
 
+
+        /// <inheritdoc cref="GetRebarById(int)"/>
+        public ReinforcedConcreteRebar[] GetRebarById(IEnumerable<int> rebarIds)
+        {
+            try
+            {
+                List<ReinforcedConcreteRebar> rebars = new List<ReinforcedConcreteRebar>();
+
+                foreach (var item in rebarIds)
+                {
+                    rebars.Add(GetRebarById(item));
+                }
+
+                return rebars.ToArray();
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
+
         #endregion
+       
         #region MechanicalProperties
 
         /// <summary>
@@ -278,7 +328,7 @@ namespace GPC.Model.Sections.Concrete
 
         public virtual double CalculateN(int rebar)
         {
-            return ConcreteSectionHelper.CalculateN(_rebars.GetElementById(rebar), ConcreteMaterial);
+            return ConcreteSectionHelper.CalculateN(_rebars.GetById(rebar), ConcreteMaterial);
         }
         #endregion
 

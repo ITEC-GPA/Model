@@ -66,43 +66,66 @@ namespace GPC.Model.Sections.Concrete
 
         #endregion
 
-        public override void GetObjectData(SerializationInfo info, StreamingContext context)
-        {
-            base.GetObjectData(info, context);
-            info.AddValue("ShapeEx", _shapeEx, typeof(ShapeEx));
-            info.AddValue("ReinforcedConcreteRebar", _rebars, typeof(ReinforcedConcreteRebar[]));
-        }
-
 
         #region Public Methods
 
         #region Rebars
 
-        public bool AddRebar(ReinforcedConcreteRebar rebar)
+        /// <summary>
+        /// Add a <paramref name="rebar"/> into the section.
+        /// </summary>
+        /// <remarks>
+        /// <para>If a rebar with the same id already exist in the collection, <paramref name="rebar"/> will replace that rebar</para>
+        /// <para>If <paramref name="rebar"/> ID is lower than 1, this will be replaced with the maximum id + 1</para>
+        /// </remarks>
+        /// <returns>The <see cref="ModelObjectId.Id"/> of the rebar</returns>
+        public int AddRebar(ReinforcedConcreteRebar rebar)
         {
-            return _rebars.Add(rebar);
+            if (rebar.Id < 1)
+                rebar.Id = _rebars.MaxId + 1;
+
+            _rebars.Add(rebar);
+
+            return rebar.Id;
         }
 
-        public bool AddRebars(IEnumerable<ReinforcedConcreteRebar> rebars)
+        /// <inheritdoc cref="AddRebar(ReinforcedConcreteRebar)"/>
+        public int[] AddRebars(IEnumerable<ReinforcedConcreteRebar> rebars)
         {
-            return _rebars.AddRange(rebars);
+            List<int> ids = new List<int>();
+
+            foreach (var item in rebars)
+            {
+                if (item.Id < 1)
+                    item.Id = _rebars.MaxId + 1;
+
+                _rebars.Add(item);
+                ids.Add(item.Id);
+            }
+
+            return ids.ToArray();
         }
 
+
+        /// <inheritdoc cref="UniqueIdCollection{T}.Remove(T)"/>
         public bool RemoveRebar(ReinforcedConcreteRebar rebar)
         {
             return _rebars.Remove(rebar);
         }
 
+        /// <inheritdoc cref="UniqueIdCollection{T}.Remove(int)"/>
         public bool RemoveRebar(int rebarId)
         {
             return _rebars.Remove(rebarId);
         }
 
+        /// <inheritdoc cref="UniqueIdCollection{T}.RemoveRange(IEnumerable{T})"/>
         public bool RemoveRebars(IEnumerable<ReinforcedConcreteRebar> rebars)
         {
             return _rebars.RemoveRange(rebars);
         }
 
+        
         public bool ClearRebars()
         {
             try
@@ -116,9 +139,19 @@ namespace GPC.Model.Sections.Concrete
             }
         }
 
+
+        /// <returns><see langword="null"/> if item not found</returns>
+        /// <inheritdoc cref="UniqueIdCollection{T}.GetById(int)"/>
         public ReinforcedConcreteRebar GetRebarById(int rebarId)
         {
-            return _rebars.GetElementById(rebarId);
+            try
+            {
+                return _rebars.GetById(rebarId);
+            }
+            catch
+            {
+                return null;
+            }
         }
 
         public ReinforcedConcreteRebar[] GetRebars()
@@ -126,17 +159,25 @@ namespace GPC.Model.Sections.Concrete
             return _rebars.ToArray();
         }
 
-
+        
+        /// <inheritdoc cref="GetRebarById(int)"/>
         public ReinforcedConcreteRebar[] GetRebarById(IEnumerable<int> rebarIds)
         {
-            List<ReinforcedConcreteRebar> rebars = new List<ReinforcedConcreteRebar>();
-
-            foreach (var item in rebarIds)
+            try
             {
-                rebars.Add(GetRebarById(item));
-            }
+                List<ReinforcedConcreteRebar> rebars = new List<ReinforcedConcreteRebar>();
 
-            return rebars.ToArray();
+                foreach (var item in rebarIds)
+                {
+                    rebars.Add(GetRebarById(item));
+                }
+
+                return rebars.ToArray();
+            }
+            catch
+            {
+                return null;
+            }
         }
 
 
@@ -334,7 +375,7 @@ namespace GPC.Model.Sections.Concrete
 
             try
             {
-                ReinforcedConcreteRebar rebar = _rebars.GetElementById(rebarId);
+                ReinforcedConcreteRebar rebar = _rebars.GetById(rebarId);
                 return ConcreteSectionHelper.CalculateN(rebar, ConcreteMaterial);
             }
             catch (KeyNotFoundException)
@@ -400,6 +441,13 @@ namespace GPC.Model.Sections.Concrete
 
 
         #region Equals, hascode, operators
+
+        public override void GetObjectData(SerializationInfo info, StreamingContext context)
+        {
+            base.GetObjectData(info, context);
+            info.AddValue("ShapeEx", _shapeEx, typeof(ShapeEx));
+            info.AddValue("ReinforcedConcreteRebar", _rebars, typeof(ReinforcedConcreteRebar[]));
+        }
 
         public override bool Equals(object obj)
         {

@@ -473,7 +473,7 @@ namespace GPC.Model.FEM
         /// <exception cref="ArgumentException">If stage with id equals to <paramref name="stageId"/> does not exist</exception>
         public virtual Stage AddStage(int stageId)
         {
-            Stage stage = _stages.GetElementById(stageId);
+            Stage stage = _stages.GetById(stageId);
 
             var stageCloned = new Stage(stage);
             _stages.Add(new Stage(stage));
@@ -504,7 +504,7 @@ namespace GPC.Model.FEM
 
         public Stage GetStageById(int stageId)
         {
-            return _stages.GetElementById(stageId);
+            return _stages.GetById(stageId);
         }
 
         public bool ContainsStageId(int stageId)
@@ -514,12 +514,12 @@ namespace GPC.Model.FEM
 
         public virtual IEnumerable<Combination> GetStageCombinations(int stageId)
         {
-            return _stages.GetElementById(stageId).GetCombinations();
+            return _stages.GetById(stageId).GetCombinations();
         }
 
         public virtual IEnumerator<KeyValuePair<FiniteElement, Stage.StageFiniteElementProperty>> GetStagePropertyEnumerator(int stageId)
         {
-            return _stages.GetElementById(stageId).GetStageFiniteElementPropertiesEnumerator();
+            return _stages.GetById(stageId).GetStageFiniteElementPropertiesEnumerator();
         }
 
 

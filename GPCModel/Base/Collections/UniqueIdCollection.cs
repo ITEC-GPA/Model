@@ -1,10 +1,10 @@
-﻿using GPC.Utilities.Extensions;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.Text;
 using System.Threading.Tasks;
+using GPC.Utilities.Extensions;
 
 namespace GPC.Model
 {
@@ -18,29 +18,40 @@ namespace GPC.Model
     [Serializable]
     public class UniqueIdCollection<T> : ModelObjectIdSet<T>, ICollection<T> where T : ModelObjectId, ISerializable
     {
+        protected int _maxId;
 
         /// <summary>
         /// Set di ID unici, l'indice d'ingresso non è garantito essere quello di uscita
         /// </summary>
         protected HashSet<int> _ids = new HashSet<int>();
 
-        public UniqueIdCollection() 
+        public int MaxId => _maxId;
+
+        public UniqueIdCollection()
             : base(new ModelObjectId.ModelObjectIdEqualityComparer())
         {
             _ids = new HashSet<int>();
+            _maxId = 0;
         }
 
-        
-        public UniqueIdCollection(SerializationInfo info, StreamingContext context)
+
+        protected UniqueIdCollection(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
             _ids = (HashSet<int>)info.GetValue("Ids", typeof(HashSet<int>));
+            _maxId = info.GetInt32("maxId");
         }
 
 
         #region Add
 
-        /// <inheritdoc cref="ModelObjectSet{T}.Add(T)" />
+        /// <inheritdoc cref="ModelObjectEnumerable{T}.Add(T)" />
+        /// <returns><see langword="True"/> if the element has been added
+        /// <para><see langword="False"/> if the element has not been added</para>
+        /// </returns>
+        /// <remarks>This is a O(1) operation
+        /// <para> To get the element in the collection use <see cref="GetItem(T, out T)"/> </para>
+        /// <para> If an element with same id already exist, <paramref name="item"/> will replace this item</para></remarks>
         public override bool Add(T item)
         {
             if (item is null)
@@ -48,14 +59,47 @@ namespace GPC.Model
 
             lock (_locker)
             {
-                if (Contains(item)) // stesso ID
-                    return false;
+                if (item.Id <= ModelObjectId.IDUNASSIGNED || item.Id == 0)
+                {
+                    item.Id = ++_maxId;
 
-                _collection.Add(item);
-                _ids.Add(item.Id);
-                return true;
+                    _collection.Add(item);
+                    _ids.Add(item.Id);
+
+                    return true;
+                }
+                else
+                {
+                    if (Contains(item)) // stesso ID
+                    {
+                        return Replace(GetById(item.Id), item);
+                    }
+
+                    if (item.Id > _maxId)
+                        _maxId = item.Id;
+
+                    _collection.Add(item);
+                    _ids.Add(item.Id);
+
+                    return true;
+
+                }
             }
         }
+
+        public override bool AddRange(IEnumerable<T> items)
+        {
+            foreach (var item in items)
+            {
+                if (!Add(item))
+                {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+
         #endregion
 
         #region Get
@@ -76,19 +120,20 @@ namespace GPC.Model
         /// <exception cref="InvalidOperationException" ></exception>
         /// <exception cref="KeyNotFoundException"></exception>
         /// <remarks>This is a O(n) operation</remarks>
-        public virtual T GetElementById(int id)
+        public virtual T GetById(int id)
         {
             // l'Add non fa aggiungere oggetti con id duplicato.
             // se le istanze variano dopo che sono stati aggiunti e trova un duplicato va in eccezione
 
             lock (_locker)
             {
-                if (this.Contains(id))
+                if (Contains(id))
                     return _collection.SingleOrDefault(i => i.Id == id);
                 else
                     throw new KeyNotFoundException($"Collection does not contain a element with id: {id}");
             }
         }
+
         #endregion
 
         #region Check
@@ -143,7 +188,6 @@ namespace GPC.Model
         }
         #endregion
 
-
         #region Edit
 
         public override void Clear()
@@ -152,6 +196,7 @@ namespace GPC.Model
             {
                 _collection.Clear();
                 _ids.Clear();
+                _maxId = 0;
             };
         }
 
@@ -159,7 +204,16 @@ namespace GPC.Model
         {
             lock (_locker)
             {
-                return _collection.Remove(GetElementById(id)) && _ids.Remove(id);
+                if (_ids.Contains(id))
+                {
+                    _ids.Remove(id);
+
+                    if (id == _maxId)
+                        _maxId = _ids.Max();
+
+                    return _collection.Remove(GetById(id));
+                }
+                return false;
             }
         }
 
@@ -167,7 +221,17 @@ namespace GPC.Model
         {
             lock (_locker)
             {
-                return _collection.Remove(item) && _ids.Remove(item.Id);
+                if (_ids.Contains(item.Id))
+                {
+                    _ids.Remove(item.Id);
+
+                    if (item.Id == _maxId)
+                        _maxId = _ids.Max();
+
+                    return _collection.Remove(GetById(item.Id));
+                }
+
+                return false;
             }
         }
 
@@ -177,7 +241,7 @@ namespace GPC.Model
             {
                 foreach (var item in items)
                 {
-                    if (!(_collection.Remove(item) && _ids.Remove(item.Id)))
+                    if (!Remove(item))
                     {
                         return false;
                     }
@@ -193,7 +257,7 @@ namespace GPC.Model
             {
                 foreach (var item in ids)
                 {
-                    if (!(_collection.Remove(GetElementById(item)) && _ids.Remove(item)))
+                    if (!Remove(item))
                     {
                         return false;
                     }
@@ -203,12 +267,29 @@ namespace GPC.Model
             }
         }
 
+        public bool Replace(T itemToReplace, T newItem)
+        {
+            if (itemToReplace is null || newItem is null)
+                return false;
+
+
+            bool status = Remove(itemToReplace);
+
+            if (status)
+            {
+                return Add(newItem);
+            }
+
+            return false;
+        }
+
         #endregion
 
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             base.GetObjectData(info, context);
             info.AddValue("Ids", _ids, typeof(HashSet<int>));
+            info.AddValue("maxId", _maxId, typeof(int));
         }
 
         #region Equals - hashcode - Operators

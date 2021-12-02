@@ -32,7 +32,7 @@ namespace GPC.Model.Sections.Concrete
 
         #region Public Constructors
 
-        public ReinforcedConcreteRebar(int id, IRebarSection section, Point2d position, double sigmaP, string name, Guid guid)
+        public ReinforcedConcreteRebar(IRebarSection section, Point2d position, double sigmaP, int id, string name, Guid guid)
             : base(id, name, guid)
         {
             _rebarSection = section ?? throw new ArgumentNullException(nameof(section));
@@ -45,14 +45,38 @@ namespace GPC.Model.Sections.Concrete
             _epsilonP = GetEpsilonP(sigmaP);
         }
 
-        public ReinforcedConcreteRebar(int id, IRebarSection section, Point2d position, double sigmaP = 0.0, string name = "")
-            : this(id, section, position, sigmaP, name, new Guid())
+        public ReinforcedConcreteRebar(IRebarSection section, Point2d position, double sigmaP = 0.0, int id = IDUNASSIGNED, string name = "")
+            : this(section, position, sigmaP, id, name, new Guid())
         {
 
         }
 
+        protected ReinforcedConcreteRebar(SerializationInfo info, StreamingContext context)
+            : base(info, context)
+        {
+            _rebarSection = (IRebarSection)info.GetValue("RebarSection", typeof(IRebarSection));
+            _position = (Point2d)info.GetValue("Position", typeof(Point2d));
+            _epsilonP = info.GetDouble("EpsilonP");
+        }
+
 
         #endregion
+
+        protected double GetEpsilonP(double sigmaP)
+        {
+            if (sigmaP < 0.0)
+                throw new ArgumentException("SigmaP must be greater than 0");
+
+            if (sigmaP == 0.0)
+                return 0.0;
+
+            if (sigmaP <= RebarMaterial.Fyk)
+                return Utilities.Maths.Interpolation.GetLinearInterpolation(0.0, RebarMaterial.Fyk, 0.0,
+                    RebarMaterial.StrainY, sigmaP);
+            else
+                return RebarMaterial.StrainY + Utilities.Maths.Interpolation.GetLinearInterpolation(RebarMaterial.Fyk, RebarMaterial.Fu,
+                    RebarMaterial.StrainY, RebarMaterial.StrainU, sigmaP - RebarMaterial.Fyk);
+        }
 
 
         public override bool Equals(object obj)
@@ -80,7 +104,15 @@ namespace GPC.Model.Sections.Concrete
                 hashCode = hashCode * -17 + _epsilonP.GetHashCode();
                 return hashCode;
             }
+        }
 
+        public override void GetObjectData(SerializationInfo info, StreamingContext context)
+        {
+            base.GetObjectData(info, context);
+
+            info.AddValue("RebarSection", _guid, typeof(IRebarSection));
+            info.AddValue("Position", _name, typeof(Point2d));
+            info.AddValue("EpsilonP", _name);
         }
 
         public static bool operator ==(ReinforcedConcreteRebar left, ReinforcedConcreteRebar right)
@@ -93,21 +125,6 @@ namespace GPC.Model.Sections.Concrete
             return !(left == right);
         }
 
-        protected double GetEpsilonP(double sigmaP)
-        {
-            if (sigmaP < 0.0)
-                throw new ArgumentException("SigmaP must be greater than 0");
-
-            if (sigmaP == 0.0)
-                return 0.0;
-
-            if (sigmaP <= RebarMaterial.Fyk)
-                return Utilities.Maths.Interpolation.GetLinearInterpolation(0.0, RebarMaterial.Fyk, 0.0,
-                    RebarMaterial.StrainY, sigmaP);
-            else
-                return RebarMaterial.StrainY + Utilities.Maths.Interpolation.GetLinearInterpolation(RebarMaterial.Fyk, RebarMaterial.Fu,
-                    RebarMaterial.StrainY, RebarMaterial.StrainU, sigmaP - RebarMaterial.Fyk);
-        }
 
     }
 }
