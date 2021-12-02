@@ -25,6 +25,7 @@ namespace GPC.Model.Sections.Concrete
 
         public double AreaRebars => _rebars.Select(i => i.Area).Sum();
 
+        public int RebarsCount => _rebars.Count;
 
         #region Public Constructors
 
@@ -84,10 +85,41 @@ namespace GPC.Model.Sections.Concrete
             return _rebars.RemoveRange(rebars);
         }
 
+        public bool ClearRebars()
+        {
+            try
+            {
+                _rebars.Clear();
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
         public ReinforcedConcreteRebar GetRebarById(int rebarId)
         {
             return _rebars.GetElementById(rebarId);
         }
+        public ReinforcedConcreteRebar[] GetRebarById(IEnumerable<int> rebarIds)
+        {
+            List<ReinforcedConcreteRebar> rebars = new List<ReinforcedConcreteRebar>();
+
+            foreach (var item in rebarIds)
+            {
+                rebars.Add(GetRebarById(item));
+            }
+
+            return rebars.ToArray();
+        }
+
+
+        public ReinforcedConcreteRebar[] GetRebars()
+        {
+            return _rebars.ToArray();
+        }
+
         #endregion
 
 

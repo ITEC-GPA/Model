@@ -28,7 +28,7 @@ namespace GPC.Model.Sections.Concrete
         public override Shape2d Shape => _shapeEx;
 
         public double AreaRebars => _rebars.Select(i => i.Area).Sum();
-        public double RebarsCount => _rebars.Count;
+        public int RebarsCount => _rebars.Count;
 
 
         #region Public Constructors
@@ -126,7 +126,6 @@ namespace GPC.Model.Sections.Concrete
             return _rebars.ToArray();
         }
 
-        #endregion
 
         public ReinforcedConcreteRebar[] GetRebarById(IEnumerable<int> rebarIds)
         {
@@ -141,6 +140,7 @@ namespace GPC.Model.Sections.Concrete
         }
 
 
+        #endregion
         public ReinforcedConcreteSection ToReinforcedConcreteSection()
         {
             return new ReinforcedConcreteSection(this);

@@ -16,6 +16,7 @@ namespace GPC.Model.Sections.Concrete
         double Area { get; }
 
         double AreaRebars { get; }
+        int RebarsCount { get; }
 
         double R11 { get; }
 
@@ -60,8 +61,12 @@ namespace GPC.Model.Sections.Concrete
 
         bool RemoveRebars(IEnumerable<ReinforcedConcreteRebar> rebars);
 
-        ReinforcedConcreteRebar GetRebarById(int rebarId);
+        bool ClearRebars();
 
+        ReinforcedConcreteRebar GetRebarById(int rebarId);
+        ReinforcedConcreteRebar[] GetRebarById(IEnumerable<int> rebarIds);
+
+        ReinforcedConcreteRebar[] GetRebars();
 
         double GetHomogenizedArea(double n);
 
