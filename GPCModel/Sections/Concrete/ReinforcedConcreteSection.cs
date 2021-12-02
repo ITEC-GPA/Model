@@ -423,6 +423,8 @@ namespace GPC.Model.Sections.Concrete
 
         public static bool operator ==(ReinforcedConcreteSection left, ReinforcedConcreteSection right)
         {
+            if (left is null || right is null)
+                return false;
             return left.Equals(right);
         }
 
