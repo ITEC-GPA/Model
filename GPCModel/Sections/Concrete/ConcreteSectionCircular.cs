@@ -138,6 +138,7 @@ namespace GPC.Model.Sections.Concrete
         public (double areaH, double SxH, double SyH, Point2d centroidH, double JxxH, double JyyH, double JxyH, double JpH, double J11H, double J22H, double angleX)
             GetHomogeneizedMechanicalProperties(double n)
         {
+
             Point2d centroidH = GetHomogenizedCentroid(n, out var SxH, out var SyH);
 
             // NOTA: ci siamo ricondotti a momenti d'inerzia rispetto al baricentro della sezione di solo calcestruzzo

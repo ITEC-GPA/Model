@@ -1621,6 +1621,7 @@ namespace ModelObjectTest
 
             ConcreteSectionCircular section = new ConcreteSectionCircular(diameter, ConcreteMaterialEN1992.C25_30);
             section.AddRebars(rebars);
+
             var mechanicalProperties = section.GetHomogeneizedMechanicalProperties(n);
 
             //valori calcolati con VCASLU
@@ -1673,9 +1674,10 @@ namespace ModelObjectTest
             GPC.Model.Sections.Rebar.RebarSectionCircular rebar = new GPC.Model.Sections.Rebar.RebarSectionCircular(rebarDiameter, RebarMaterial.B450C);
 
             ConcreteSectionCHS section = new ConcreteSectionCHS(diameterExternal, thickness, ConcreteMaterialEN1992.C25_30);
+            section.AddRadialRebars(concreteCover, numberOfRebars, rebar);
 
             var mechanicalProperties = section.GetHomogeneizedMechanicalProperties(n);
-
+            
             //valori calcolati con VCASLU
             Assert.IsTrue(Math.Abs(mechanicalProperties.J11H - 54653616364) / mechanicalProperties.J11H * 100 < 1);
             Assert.IsTrue(Math.Abs(mechanicalProperties.J22H - 54653616364) / mechanicalProperties.J22H * 100 < 1);
