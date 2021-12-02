@@ -121,6 +121,10 @@ namespace GPC.Model.Sections.Concrete
             return _rebars.GetElementById(rebarId);
         }
 
+        public ReinforcedConcreteRebar[] GetRebars()
+        {
+            return _rebars.ToArray();
+        }
 
         #endregion
 
