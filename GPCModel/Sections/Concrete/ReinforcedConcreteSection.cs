@@ -118,7 +118,7 @@ namespace GPC.Model.Sections.Concrete
         public ReinforcedConcreteRebar GetRebarById(int rebarId)
         {
             return _rebars.GetElementById(rebarId);
-        } 
+        }
 
 
         #endregion

@@ -12,6 +12,7 @@ using GPC.Model.Materials;
 using GPC.Utilities.Time;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using GPC.Model.Sections;
+using GPC.Geometry.Meshes;
 
 namespace PerformanceTest
 {
@@ -30,18 +31,48 @@ namespace PerformanceTest
             section.AddRebar(new ReinforcedConcreteRebar(1, new RebarSectionCircular(10, RebarMaterial.B450C), new Point2d()));
 
 
-            var mesh = section.Mesh;
+            Mesh mesh = section.Mesh;
+            double Sx = 0;
+            double Sy = 0;
+            double Jxx = 0;
+            double Jyy = 0;
+            double Jxy = 0;
 
+            double area = section.Area;
 
-            Action action = new Action(() =>
+            Action actionStaticMoments = new Action(() =>
             {
-                ConcreteSectionHelper.CalculateStaticMoments(mesh, out _, out _);
+                ConcreteSectionHelper.CalculateStaticMoments(mesh, out Sx, out Sy);
             });
-       
 
-            var bb0 = MeasureTime.FunctionExecutionTime(20, action, true);
+            var centroid = SectionHelper.CalculateCentroid(Sx, Sy, area);
 
-            Console.WriteLine(bb0);
+            Action actionInertia = new Action(() =>
+            {
+                ConcreteSectionHelper.CalculateInertiaMoments(mesh, centroid, out Jxx, out Jyy, out Jxy, out double _);
+            });
+
+            Action actionInertiaPrincipal = new Action(() =>
+            {
+                double j11 = SectionHelper.CalculateJ11(Jxx, Jyy, Jxy);
+                double j22 = SectionHelper.CalculateJ22(Jxx, Jyy, Jxy);
+                double angleX1 = SectionHelper.CalculateAngle(Jxx, Jyy, Jxy); ;
+            });
+
+            Action actionSection = new Action(() =>
+            {
+                var _ = new ReinforcedConcreteSection(shape);
+            });
+
+            var bb1 = MeasureTime.FunctionExecutionTime(100, actionStaticMoments, true, "StaticMoments");
+            var bb2 = MeasureTime.FunctionExecutionTime(100, actionInertia, true, "ActionInertia");
+            var bb3 = MeasureTime.FunctionExecutionTime(100, actionInertiaPrincipal, true, "actionInertiaPrincipal");
+            var bb4 = MeasureTime.FunctionExecutionTime(100, actionSection, true, "actionSection");
+
+            Console.WriteLine(bb1);
+            Console.WriteLine(bb2);
+            Console.WriteLine(bb3);
+            Console.WriteLine(bb4);
 
         }
 
