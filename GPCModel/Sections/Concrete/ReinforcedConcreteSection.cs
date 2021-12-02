@@ -28,6 +28,7 @@ namespace GPC.Model.Sections.Concrete
         public override Shape2d Shape => _shapeEx;
 
         public double AreaRebars => _rebars.Select(i => i.Area).Sum();
+        public double RebarsCount => _rebars.Count;
 
 
         #region Public Constructors
