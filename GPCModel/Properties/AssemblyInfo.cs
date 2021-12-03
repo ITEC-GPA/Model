@@ -33,7 +33,7 @@ using System.Runtime.InteropServices;
 // usando l'asterisco '*' come illustrato di seguito:
 // [assembly: AssemblyVersion("1.0.*")]
 
-[assembly: AssemblyVersion("0.1.3.23")]
-[assembly: AssemblyFileVersion("0.1.3.23")]
+[assembly: AssemblyVersion("0.1.3.24")]
+[assembly: AssemblyFileVersion("0.1.3.24")]
 
 [assembly: InternalsVisibleTo("UnitTest")]
