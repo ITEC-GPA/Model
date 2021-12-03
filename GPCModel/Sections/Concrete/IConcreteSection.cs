@@ -51,9 +51,11 @@ namespace GPC.Model.Sections.Concrete
         IEnumerable<ReinforcedConcreteRebar> Rebars { get; }
 
 
-        int AddRebar (ReinforcedConcreteRebar rebar);
+        bool AddRebar(ReinforcedConcreteRebar rebar);
+        bool AddRebar (ReinforcedConcreteRebar rebar, out int id);
 
-        int[] AddRebars(IEnumerable<ReinforcedConcreteRebar> rebars);
+        bool[] AddRebars(IEnumerable<ReinforcedConcreteRebar> rebars, out int[] ids);
+        bool[] AddRebars(IEnumerable<ReinforcedConcreteRebar> rebars);
 
         bool RemoveRebar(ReinforcedConcreteRebar rebar);
 

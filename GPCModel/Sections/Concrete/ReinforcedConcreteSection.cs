@@ -71,6 +71,15 @@ namespace GPC.Model.Sections.Concrete
 
         #region Rebars
 
+
+
+        /// <inheritdoc cref="AddRebar(ReinforcedConcreteRebar, out int)"/>
+        public bool AddRebar(ReinforcedConcreteRebar rebar)
+        {
+            return AddRebar(rebar, out _);
+        }
+
+
         /// <summary>
         /// Add a <paramref name="rebar"/> into the section.
         /// </summary>
@@ -79,33 +88,52 @@ namespace GPC.Model.Sections.Concrete
         /// <para>If <paramref name="rebar"/> ID is lower than 1, this will be replaced with the maximum id + 1</para>
         /// </remarks>
         /// <returns>The <see cref="ModelObjectId.Id"/> of the rebar</returns>
-        public int AddRebar(ReinforcedConcreteRebar rebar)
+        public bool AddRebar(ReinforcedConcreteRebar rebar, out int id)
         {
-            if (rebar.Id < 1)
-                rebar.Id = _rebars.MaxId + 1;
 
-            _rebars.Add(rebar);
+            if (_rebars.Contains(rebar))
+            {
+                // stessa posizione, torniamo falso
 
-            return rebar.Id;
+                id = IDUNASSIGNED;
+
+                return false;
+            }
+            else
+            {
+                if (rebar.Id < 1)
+                    rebar.Id = _rebars.MaxId + 1;
+
+                _rebars.Add(rebar);
+                id = rebar.Id;
+
+                return true;
+            }
+
         }
 
-        /// <inheritdoc cref="AddRebar(ReinforcedConcreteRebar)"/>
-        public int[] AddRebars(IEnumerable<ReinforcedConcreteRebar> rebars)
+
+        /// <inheritdoc cref="AddRebar(ReinforcedConcreteRebar, out int)"/>
+        public bool[] AddRebars(IEnumerable<ReinforcedConcreteRebar> rebars, out int[] ids)
         {
-            List<int> ids = new List<int>();
+            List<int> id = new List<int>();
+            List<bool> bools = new List<bool>();
 
             foreach (var item in rebars)
             {
-                if (item.Id < 1)
-                    item.Id = _rebars.MaxId + 1;
-
-                _rebars.Add(item);
-                ids.Add(item.Id);
+                bools.Add(AddRebar(item, out int _id));
+                id.Add(_id);
             }
 
-            return ids.ToArray();
+            ids = id.ToArray();
+            return bools.ToArray();
         }
 
+        /// <inheritdoc cref="AddRebar(ReinforcedConcreteRebar, out int)"/>
+        public bool[] AddRebars(IEnumerable<ReinforcedConcreteRebar> rebars)
+        {
+            return AddRebars(rebars, out _);
+        }
 
         /// <inheritdoc cref="UniqueIdCollection{T}.Remove(T)"/>
         public bool RemoveRebar(ReinforcedConcreteRebar rebar)
