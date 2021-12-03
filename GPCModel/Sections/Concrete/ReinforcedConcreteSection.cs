@@ -16,7 +16,7 @@ namespace GPC.Model.Sections.Concrete
     {
 
         protected readonly ShapeEx _shapeEx;
-        protected readonly UniqueIdCollection<ReinforcedConcreteRebar> _rebars;
+        protected readonly RebarCollection _rebars;
 
 
         public ShapeEx ShapeEx => _shapeEx;
@@ -42,7 +42,7 @@ namespace GPC.Model.Sections.Concrete
             }
 
             _shapeEx = reinforcedConcreteSection.ShapeEx;
-            _rebars = new UniqueIdCollection<ReinforcedConcreteRebar>();
+            _rebars = new RebarCollection();
 
             SetMechanicalProperties();
 
@@ -52,7 +52,7 @@ namespace GPC.Model.Sections.Concrete
             : base(shapeEx.Material, name)
         {
             _shapeEx = shapeEx ?? throw new ArgumentNullException(nameof(shapeEx));
-            _rebars = new UniqueIdCollection<ReinforcedConcreteRebar>();
+            _rebars = new RebarCollection();
 
             SetMechanicalProperties();
         }
@@ -61,7 +61,7 @@ namespace GPC.Model.Sections.Concrete
             base(info, context)
         {
             _shapeEx = (ShapeEx)info.GetValue("ShapeEx", typeof(ShapeEx));
-            _rebars = (UniqueIdCollection<ReinforcedConcreteRebar>)info.GetValue("ReinforcedConcreteRebar", typeof(UniqueIdCollection<ReinforcedConcreteRebar>));
+            _rebars = (RebarCollection)info.GetValue("RebarCollection", typeof(RebarCollection));
         }
 
         #endregion

@@ -126,5 +126,39 @@ namespace GPC.Model.Sections.Concrete
         }
 
 
+        public class ReinforcedConcreteRebarComparer : IEqualityComparer<ReinforcedConcreteRebar>
+        {
+
+            /// <returns>
+            /// <para> true if both <paramref name="x"/> and <paramref name="y"/> are null </para>
+            /// </returns>
+            /// <remarks> Only <see cref="ModelObjectId.Id"/> is used as equality parameter </remarks>
+            bool IEqualityComparer<ReinforcedConcreteRebar>.Equals(ReinforcedConcreteRebar x, ReinforcedConcreteRebar y)
+            {
+                if (ReferenceEquals(x, y))
+                    return true;
+
+                if (x == null || y == null)
+                    return false;
+
+                if (x.Position.Equals(y.Position))
+                    return true;
+
+                return false;
+            }
+
+
+            /// <remarks> Only <see cref="ModelObjectId.Id"/> is used as equality parameter </remarks>
+            int IEqualityComparer<ReinforcedConcreteRebar>.GetHashCode(ReinforcedConcreteRebar obj)
+            {
+                unchecked
+                {
+                    return - 391 * obj.Position.GetHashCode(); 
+                }
+            }
+
+        }
+
+
     }
 }

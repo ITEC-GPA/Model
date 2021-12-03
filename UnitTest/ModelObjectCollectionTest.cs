@@ -1,6 +1,11 @@
 ﻿using System.ComponentModel;
+using System;
+using System.Linq;
 using GPC.Model;
 using GPC.Model.Elements;
+using GPC.Model.Sections.Concrete;
+using GPC.Model.Sections.Rebar;
+using GPC.Model.Materials;
 using GPC.TestUtilities;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -98,6 +103,39 @@ namespace ModelObjectTest
             Assert.AreEqual(new TestElement(3), collection.GetValue(b));            
 
         }
+
+
+        [TestMethod]
+        public void RebarCollectionTest1()
+        {
+
+            RebarSectionCircular rebarSection1 = new RebarSectionCircular(10, RebarMaterial.B450C);
+            RebarSectionCircular rebarSection2 = new RebarSectionCircular(20, RebarMaterial.B450C);
+            RebarSectionCircular rebarSection3 = new RebarSectionCircular(30, RebarMaterial.B450C);
+            RebarSectionCircular rebarSection4 = new RebarSectionCircular(40, RebarMaterial.B450C);
+
+
+            RebarCollection collection = new RebarCollection
+            {
+                new ReinforcedConcreteRebar(rebarSection1, new GPC.Geometry.Point2d(0, 0), 0, 1),
+                new ReinforcedConcreteRebar(rebarSection2, new GPC.Geometry.Point2d(0, 0), 0, 2),
+                new ReinforcedConcreteRebar(rebarSection1, new GPC.Geometry.Point2d(1, 1), 0, 2),
+                new ReinforcedConcreteRebar(rebarSection3, new GPC.Geometry.Point2d(2, 2), 0, 2),
+                new ReinforcedConcreteRebar(rebarSection4, new GPC.Geometry.Point2d(3, 2))
+            };
+
+
+            foreach (var item in collection)
+            {
+                Console.WriteLine($"{item.Id} {item.RebarSection.Area}");
+            }
+
+
+            Assert.IsTrue(collection.Count == 4);
+        }
+
+
+
 
         private class TestElement : Element, INotifyPropertyChanged
         {
