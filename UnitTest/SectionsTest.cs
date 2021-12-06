@@ -448,6 +448,7 @@ namespace ModelObjectTest
             Assert.AreEqual(JtSAP / sec.Jt - 1.0, 0, 0.005);
             Assert.AreEqual(JtStraus / sec.Jt - 1.0, 0, 0.05);
             Assert.AreEqual(JwLTBEAM / sec.Jw - 1, 0, 0.001);
+            Assert.AreEqual(Math.Abs(JtCalc / sec.Jt) - 1, 0, 0.055);
         }
 
         [TestMethod]
@@ -482,6 +483,7 @@ namespace ModelObjectTest
             Assert.AreEqual(Math.Abs(Wply / sec.Wpl2) - 1, 0, 0.008);
             Assert.AreEqual(Math.Abs(Wplx / sec.Wpl1) - 1, 0, 0.015);
             Assert.AreEqual(Jw / sec.Jw - 1, 0, 0.001);
+            Assert.AreEqual(Math.Abs(Jt / sec.Jt) - 1, 0, 0.05);
         }
 
         [TestMethod]
@@ -522,6 +524,7 @@ namespace ModelObjectTest
             Assert.AreEqual(jtStraus / sec.Jt - 1.0, 0, 0.001);
             Assert.AreEqual(jtSap / sec.Jt - 1.0, 0, 0.005);
             Assert.AreEqual(Jw / sec.Jw - 1, 0, 0.001);
+            Assert.AreEqual(Math.Abs(Jt / sec.Jt) - 1, 0, 0.05);
         }
 
         [TestMethod]
@@ -562,6 +565,7 @@ namespace ModelObjectTest
             Assert.AreEqual(jtStraus / sec.Jt - 1.0, 0, 0.001);
             Assert.AreEqual(jtSap / sec.Jt - 1.0, 0, 0.005);
             Assert.AreEqual(Jw / sec.Jw - 1, 0, 0.001);
+            Assert.AreEqual(Math.Abs(Jt / sec.Jt) - 1, 0, 0.05);
         }
 
         [TestMethod]
@@ -600,6 +604,7 @@ namespace ModelObjectTest
             Assert.AreEqual(Math.Abs(WplxSap / sec.Wpl1) - 1, 0, 0.0065);
             Assert.AreEqual(JtSap / sec.Jt - 1.0, 0, 0.005);
             Assert.AreEqual(Jw / sec.Jw - 1, 0, 0.001);
+            Assert.AreEqual(Math.Abs(JtSSRC / sec.Jt) - 1, 0, 0.05);
         }
 
         [TestMethod]
@@ -633,6 +638,7 @@ namespace ModelObjectTest
             Assert.AreEqual(Math.Abs(Wply / sec.Wpl2) - 1, 0, 0.001);
             Assert.AreEqual(Math.Abs(Wplx / sec.Wpl1) - 1, 0, 0.001);
             Assert.AreEqual(Jw / sec.Jw - 1, 0, 0.001);
+            Assert.AreEqual(Math.Abs(Jt / sec.Jt) - 1, 0, 0.05);
         }
 
         [TestMethod]
@@ -665,6 +671,7 @@ namespace ModelObjectTest
             Assert.AreEqual(Math.Abs(WelyMin / sec.Wel2) - 1, 0, 0.001);
             Assert.AreEqual(Math.Abs(Wply / sec.Wpl2) - 1, 0, 0.001);
             Assert.AreEqual(Math.Abs(Wplx / sec.Wpl1) - 1, 0, 0.001);
+            Assert.AreEqual(Math.Abs(Jt / sec.Jt) - 1, 0, 0.05);
             Assert.AreEqual(Jw / sec.Jw - 1, 0, 0.001);
         }
 
@@ -1690,35 +1697,3 @@ namespace ModelObjectTest
         #endregion
     }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

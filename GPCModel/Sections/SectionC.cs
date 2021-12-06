@@ -73,16 +73,6 @@ namespace GPC.Model.Sections
             throw new NotImplementedException();
         }
 
-        protected override double CalculateWel2()
-        {
-            return Math.Min(CalculateWelyyLeft(), CalculateWelyyRight());
-        }
-
-        protected override double CalculateWel1()
-        {
-            return Math.Min(CalculateWelxxBottom(), CalculateWelxxTop());
-        }
-
         protected override double CalculateJw()
         {
             //CNR DT 208/2001
@@ -146,22 +136,22 @@ namespace GPC.Model.Sections
         }
 
 
-        protected virtual double CalculateWelyyLeft()
+        protected override double CalculateWel2Min()
         {
             return J22 / DistanceXCentroidFromLeft();
         }
 
-        protected virtual double CalculateWelyyRight()
+        protected override double CalculateWel2Max()
         {
             return J22 / DistanceXCentroidFromRight();
         }
 
-        protected virtual double CalculateWelxxTop()
+        protected override double CalculateWel1Max()
         {
             return J11 / DistanceYCentroidFromTop();
         }
 
-        protected virtual double CalculateWelxxBottom()
+        protected override double CalculateWel1Min()
         {
             return J11 / DistanceYCentroidFromBottom();
         }
@@ -248,7 +238,6 @@ namespace GPC.Model.Sections
         #endregion
 
         #endregion
-
 
     }
 }

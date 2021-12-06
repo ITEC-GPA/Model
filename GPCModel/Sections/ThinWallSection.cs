@@ -172,9 +172,11 @@ namespace GPC.Model.Sections
 
         protected abstract override double CalculateWpl2();
 
-        protected abstract override double CalculateWel1();
+        protected abstract override double CalculateWel1Max();
+        protected abstract override double CalculateWel1Min();
 
-        protected abstract override double CalculateWel2();
+        protected abstract override double CalculateWel2Max();
+        protected abstract override double CalculateWel2Min();
 
         internal Point2d[] GetSectionPoints()
         {

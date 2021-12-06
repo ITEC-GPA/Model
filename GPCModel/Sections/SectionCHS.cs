@@ -84,8 +84,10 @@ namespace GPC.Model.Sections
             _centroid = CalculateCentroid();
             _shearCenter = _centroid;
             _angleX1 = CalculateAngle();
-            _wel1 = CalculateWel();
-            _wel2 = CalculateWel();
+            _wel1Max = CalculateWel();
+            _wel1Min = CalculateWel();
+            _wel2Max = CalculateWel();
+            _wel2Min = CalculateWel();
             _wpl1 = CalculateWpl();
             _wpl2 = CalculateWpl();
 

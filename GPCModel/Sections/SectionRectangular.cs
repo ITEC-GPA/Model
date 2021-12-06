@@ -110,8 +110,10 @@ namespace GPC.Model.Sections
             _centroid = CalculateCentroid();
             _shearCenter = CalculateShearCenter();
             _angleX1 = CalculateAngle();
-            _wel1 = CalculateWel1();
-            _wel2 = CalculateWel2();
+            _wel1Max = CalculateWel1Min();
+            _wel1Min = CalculateWel1Max();
+            _wel2Max = CalculateWel2Max();
+            _wel2Min = CalculateWel2Min();
             _wpl1 = CalculateWpl1();
             _wpl2 = CalculateWpl2();
 
@@ -205,12 +207,22 @@ namespace GPC.Model.Sections
             return _height * Math.Pow(_width, 2.0) / 4.0;
         }
 
-        protected override double CalculateWel1()
+        protected override double CalculateWel1Max()
         {
             return _width * Math.Pow(_height, 2.0) / 6.0;
         }
 
-        protected override double CalculateWel2()
+        protected override double CalculateWel1Min()
+        {
+            return _width * Math.Pow(_height, 2.0) / 6.0;
+        }
+
+        protected override double CalculateWel2Max()
+        {
+            return _height * Math.Pow(_width, 2.0) / 6.0;
+        }
+
+        protected override double CalculateWel2Min()
         {
             return _height * Math.Pow(_width, 2.0) / 6.0;
         }

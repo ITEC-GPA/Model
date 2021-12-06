@@ -54,12 +54,17 @@ namespace GPC.Model.Sections
 
         protected double _wpl1;
         protected double _wpl2;
-        protected double _wel1;
-        protected double _wel2;
+        protected double _wel1Max;
+        protected double _wel1Min;
+        protected double _wel2Max;
+        protected double _wel2Min;
+
         protected double _wplX;
         protected double _wplY;
-        protected double _welX;
-        protected double _welY;
+        protected double _welXMax;
+        protected double _welXMin;
+        protected double _welYMax;
+        protected double _welYMin;
 
         protected Point2d _shearCenter;
         protected Point2d _centroid;
@@ -125,42 +130,82 @@ namespace GPC.Model.Sections
         public double J22 => _j22;
 
         /// <summary>
-        /// The plastic modulus calculated respect the 1-principal axes
+        /// The minimum plastic modulus calculated respect the 1-principal axes
         /// </summary>
         public double Wpl1 => _wpl1;
 
         /// <summary>
-        /// The plastic modulus calculated respect the 2-principal axes
+        /// The plastic modulus calculated respect the 2-principal axes 
         /// </summary>
         public double Wpl2 => _wpl2;
 
         /// <summary>
-        /// The elastic modulus calculated respect the 1-principal axes
+        /// The elastic modulus calculated respect the 1-principal axes and the minimum (with sign) distance respect the centroid
         /// </summary>
-        public double Wel1 => _wel1;
+        public double Wel1Min => _wel1Min;
 
         /// <summary>
-        /// The elastic modulus calculated respect the 2-principal axes
+        /// The elastic modulus calculated respect the 1-principal axes and the maximum (with sign) distance respect the centroid
         /// </summary>
-        public double Wel2 => _wel2;
+        public double Wel1Max => _wel1Max;
 
         /// <summary>
-        /// The elastic modulus calculated respect the X axes
+        /// The elastic modulus calculated respect the 2-principal axes and the minimum (with sign) distance respect the centroid
         /// </summary>
-        public double WelX => _welX;
+        public double Wel2Min => _wel2Min;
 
         /// <summary>
-        /// The elastic modulus calculated respect the Y axes
+        /// The elastic modulus calculated respect the 2-principal axes and the maximum (with sign) distance respect the centroid
         /// </summary>
-        public double WelY => _welY;
+        public double Wel2Max => _wel2Min;
 
         /// <summary>
-        /// The plastic modulus calculated respect the X axes
+        /// The minimum elastic modulus calculated respect the 1-principal axes 
+        /// </summary>
+        public double Wel1 => Math.Min(_wel1Max, _wel1Min);
+
+        /// <summary>
+        /// The minimum elastic modulus calculated respect the 2-principal axes 
+        /// </summary>
+        public double Wel2 => Math.Min(_wel2Max, _wel2Min);
+
+        /// <summary>
+        /// The elastic modulus calculated respect the X axes and the minimum (with sign) distance respect the centroid
+        /// </summary>
+        public double WelXMin => _welXMin;
+
+        /// <summary>
+        /// The elastic modulus calculated respect the X axes and the maximum distance (with sign) respect the centroid
+        /// </summary>
+        public double WelXMax => _welXMax;
+
+        /// <summary>
+        /// The elastic modulus calculated respect the Y axes and the minimum (with sign) distance respect the centroid
+        /// </summary>
+        public double WelYMin => _welYMin;
+
+        /// <summary>
+        /// The elastic modulus calculated respect the Y axes and the maximum (with sign) distance respect the centroid
+        /// </summary>
+        public double WelYMax => _welYMax;
+
+        /// <summary>
+        /// The minimum elastic modulus calculated respect the X-principal axes 
+        /// </summary>
+        public double WelX => Math.Min(_welXMax, _welXMin);
+
+        /// <summary>
+        /// The minimum elastic modulus calculated respect the X-principal axes 
+        /// </summary>
+        public double WelY => Math.Min(_welYMax, _welYMin);
+
+        /// <summary>
+        /// The minimum plastic modulus calculated respect the X axes 
         /// </summary>
         public double WplX => _wplX;
 
         /// <summary>
-        /// The plastic modulus calculated respect the Y axes
+        /// The minimum plastic modulus calculated respect the Y axes 
         /// </summary>
         public double WplY => _wplY;
 
@@ -170,9 +215,14 @@ namespace GPC.Model.Sections
         public Point2d Centroid => _centroid;
 
         /// <summary>
-        /// The shear center of the section
+        /// The shear center of the section in global coordinate system
         /// </summary>
         public Point2d ShearCenter => _shearCenter;
+
+        /// <summary>
+        /// The shear center of the section in local coordinate system
+        /// </summary>
+        public Point2d ShearCenterLocalCoord => _shearCenter - _centroid;
 
         /// <summary>
         /// The angle of rotation of the principal axis
@@ -188,6 +238,26 @@ namespace GPC.Model.Sections
         /// The radius of gyration respect the axis 1
         /// </summary>
         public double R22 => Math.Sqrt(J11 / Area);
+
+        /// <summary>
+        /// The radius of gyration respect the X-axis
+        /// </summary>
+        public double Rxx => Math.Sqrt(Jyy / Area);
+
+        /// <summary>
+        /// The radius of gyration respect the Y-axis
+        /// </summary>
+        public double Ryy => Math.Sqrt(Jxx / Area);
+
+        /// <summary>
+        /// The radius of gyration respect the <see cref="Jxy"/> 
+        /// </summary>
+        public double Rxy => Math.Sqrt(Jxy / Area);
+
+        /// <summary>
+        /// The radius of gyration respect <see cref="Jp"/> 
+        /// </summary>
+        public double Rp => Math.Sqrt(Jp / Area);
 
         /// <summary>
         /// Is true if the section is symmetric along Y-axis
@@ -283,8 +353,16 @@ namespace GPC.Model.Sections
             _j22 = info.GetDouble("J22");
             _wpl1 = info.GetDouble("WPL1");
             _wpl2 = info.GetDouble("WPL2");
-            _wel1 = info.GetDouble("WEL1");
-            _wel2 = info.GetDouble("WEL2");
+            _wel1Max = info.GetDouble("WEL1Max");
+            _wel1Min = info.GetDouble("WEL1Min");
+            _wel2Max = info.GetDouble("WEL2Max");
+            _wel2Min = info.GetDouble("WEL2Min");
+            _wplX = info.GetDouble("WPLX");
+            _wplY = info.GetDouble("WPLY");
+            _welXMax = info.GetDouble("WELXMax");
+            _welXMin = info.GetDouble("WELXMin");
+            _welYMax = info.GetDouble("WELYMax");
+            _welYMin = info.GetDouble("WELYMin");
             _centroid = (Point2d)info.GetValue("Centroid", typeof(Point2d));
             _shearCenter = (Point2d)info.GetValue("ShearCenter", typeof(Point2d));
             _isSymmetricAlongXLocalAxis = (bool)info.GetValue("IsSymmetricAlongXLocalAxis", typeof(bool));
@@ -331,20 +409,26 @@ namespace GPC.Model.Sections
 
         public virtual double GetMinSigma(double N, double M1, double M2)
         {
-            double sigmap1 = N / Area - M1 / Wel1 + M2 / Wel2;
-            double sigmap2 = N / Area - M1 / Wel1 - M2 / Wel2;
-            double sigmap3 = N / Area + M1 / Wel1 + M2 / Wel2;
-            double sigmap4 = N / Area + M1 / Wel1 - M2 / Wel2;
+            double wel1 = Math.Min(Wel1Max, Wel1Min);
+            double wel2 = Math.Min(Wel2Max, Wel2Min);
+
+            double sigmap1 = N / Area - M1 / wel1 + M2 / wel2;
+            double sigmap2 = N / Area - M1 / wel1 - M2 / wel2;
+            double sigmap3 = N / Area + M1 / wel1 + M2 / wel2;
+            double sigmap4 = N / Area + M1 / wel1 - M2 / wel2;
 
             return GetMin(new double[] { sigmap1, sigmap2, sigmap3, sigmap4 });
         }
 
         public virtual double GetMaxSigma(double N, double M1, double M2)
         {
-            double sigmap1 = N / Area - M1 / Wel1 + M2 / Wel2;
-            double sigmap2 = N / Area - M1 / Wel1 - M2 / Wel2;
-            double sigmap3 = N / Area + M1 / Wel1 + M2 / Wel2;
-            double sigmap4 = N / Area + M1 / Wel1 - M2 / Wel2;
+            double wel1 = Math.Min(Wel1Max, Wel1Min);
+            double wel2 = Math.Min(Wel2Max, Wel2Min);
+
+            double sigmap1 = N / Area - M1 / wel1 + M2 / wel2;
+            double sigmap2 = N / Area - M1 / wel1 - M2 / wel2;
+            double sigmap3 = N / Area + M1 / wel1 + M2 / wel2;
+            double sigmap4 = N / Area + M1 / wel1 - M2 / wel2;
 
             return GetMax(new double[] { sigmap1, sigmap2, sigmap3, sigmap4 });
         }
@@ -358,34 +442,6 @@ namespace GPC.Model.Sections
             _meshSize = size > 0 ? size : 0;
             _mesh = GenerateMesh();
         }
-
-
-        private double GetMax(double[] array)
-        {
-            double startValue = array.First();
-
-            for (int i = 0; i < array.Count(); i++)
-            {
-                if (array[i] > startValue)
-                    startValue = array[i];
-            }
-
-            return startValue;
-        }
-
-        private double GetMin(double[] array)
-        {
-            double startValue = array.First();
-
-            for (int i = 0; i < array.Count(); i++)
-            {
-                if (array[i] < startValue)
-                    startValue = array[i];
-            }
-
-            return startValue;
-        }
-
 
         #endregion
 
@@ -417,13 +473,17 @@ namespace GPC.Model.Sections
             
             _shearCenter = CalculateShearCenter();
             
-            _wel1 = CalculateWel1();
-            _wel2 = CalculateWel2();
+            _wel1Max = CalculateWel1Max();
+            _wel1Min = CalculateWel1Min();
+            _wel2Max = CalculateWel2Max();
+            _wel2Min = CalculateWel2Min();
             _wpl1 = CalculateWpl1();
             _wpl2 = CalculateWpl2();
 
-            _welX = CalculateWelX();
-            _welY = CalculateWelY();
+            _welXMax = CalculateWelXMax();
+            _welXMin = CalculateWelXMin();
+            _welYMax = CalculateWelYMax();
+            _welYMin = CalculateWelYMin();
             _wplX = CalculateWplX();
             _wplY = CalculateWplY();
         }
@@ -493,43 +553,64 @@ namespace GPC.Model.Sections
 
         protected virtual double CalculateWpl1()
         {
-            return 0;
+            return Math.Min(CalculateWel1Max(), CalculateWel1Min());
         }
 
         protected virtual double CalculateWpl2()
         {
-            return 0;
+            return Math.Min(CalculateWel2Max(), CalculateWel2Min());
         }
 
-        protected virtual double CalculateWel1()
+        protected virtual double CalculateWel1Min()
         {
             return 0;
         }
 
-        protected virtual double CalculateWel2()
+        protected virtual double CalculateWel1Max()
         {
             return 0;
         }
 
-        protected virtual double CalculateWplX()
+        protected virtual double CalculateWel2Min()
         {
-            return CalculateWpl1();
+            return 0;
+        }
+
+        protected virtual double CalculateWel2Max()
+        {
+            return 0;
         }
 
         protected virtual double CalculateWplY()
         {
-            return CalculateWpl2();
+            return CalculateWel2Max();
         }
 
-        protected virtual double CalculateWelX()
+        protected virtual double CalculateWplX()
         {
-            return CalculateWel1();
+            return Math.Min(CalculateWel1Min(), CalculateWel1Max());
         }
 
-        protected virtual double CalculateWelY()
+        protected virtual double CalculateWelXMax()
         {
-            return CalculateWel2();
+            return 0;
         }
+
+        protected virtual double CalculateWelXMin()
+        {
+            return 0;
+        }
+
+        protected virtual double CalculateWelYMax()
+        {
+            return 0;
+        }
+
+        protected virtual double CalculateWelYMin()
+        {
+            return 0;
+        }
+
 
         protected virtual bool CalculateIsSymmetricAlongXLocalAxis()
         {
@@ -551,6 +632,32 @@ namespace GPC.Model.Sections
             return SectionHelper.GenerateMesh(GetShape(), _meshSize);
         }
 
+        private double GetMax(double[] array)
+        {
+            double startValue = array.First();
+
+            for (int i = 0; i < array.Count(); i++)
+            {
+                if (array[i] > startValue)
+                    startValue = array[i];
+            }
+
+            return startValue;
+        }
+
+        private double GetMin(double[] array)
+        {
+            double startValue = array.First();
+
+            for (int i = 0; i < array.Count(); i++)
+            {
+                if (array[i] < startValue)
+                    startValue = array[i];
+            }
+
+            return startValue;
+        }
+
         #endregion
 
 
@@ -569,8 +676,16 @@ namespace GPC.Model.Sections
             info.AddValue("J22", _j22);
             info.AddValue("WPL1", _wpl1);
             info.AddValue("WPL2", _wpl2);
-            info.AddValue("WEL1", _wel1);
-            info.AddValue("WEL2", _wel2);
+            info.AddValue("WEL1Max", _wel1Max);
+            info.AddValue("WEL1Min", _wel1Min);
+            info.AddValue("WEL2Max", _wel2Max);
+            info.AddValue("WEL2Min", _wel2Min);
+            info.AddValue("WPLX", _wplX);
+            info.AddValue("WPLY", _wplY);
+            info.AddValue("WELXMax", _welXMax);
+            info.AddValue("WELXMin", _welXMin);
+            info.AddValue("WELYMax", _welYMax);
+            info.AddValue("WELYMin", _welYMin);
             info.AddValue("Centroid", _centroid, typeof(Point2d));
             info.AddValue("ShearCenter", _shearCenter, typeof(Point2d));
             info.AddValue("IsSymmetricAlongXLocalAxis", _isSymmetricAlongXLocalAxis, typeof(bool));
@@ -596,8 +711,16 @@ namespace GPC.Model.Sections
                    _j22 == section._j22 &&
                    _wpl1 == section._wpl1 &&
                    _wpl2 == section._wpl2 &&
-                   _wel1 == section._wel1 &&
-                   _wel2 == section._wel2 &&
+                   _wel1Max == section._wel1Max &&
+                   _wel1Min == section._wel1Min &&
+                   _wel2Max == section._wel2Max &&
+                   _wel2Min == section._wel2Min &&
+                   _wplX == section._wplX &&
+                   _wplY == section._wplY &&
+                   _welXMax == section._welXMax &&
+                   _welXMin == section._welXMin &&
+                   _welYMax == section._welYMax &&
+                   _welYMin == section._welYMin &&
                    _angleX1 == section._angleX1 &&
                    _centroid == section._centroid &&
                    _shearCenter == section._shearCenter &&
@@ -624,8 +747,10 @@ namespace GPC.Model.Sections
                 hashCode = hashCode * -23 + _j22.GetHashCode();
                 hashCode = hashCode * -23 + _wpl1.GetHashCode();
                 hashCode = hashCode * -23 + _wpl2.GetHashCode();
-                hashCode = hashCode * -23 + _wel1.GetHashCode();
-                hashCode = hashCode * -23 + _wel2.GetHashCode();
+                hashCode = hashCode * -23 + _wel1Max.GetHashCode();
+                hashCode = hashCode * -23 + _wel1Min.GetHashCode();
+                hashCode = hashCode * -23 + _wel2Max.GetHashCode();
+                hashCode = hashCode * -23 + _wel2Min.GetHashCode();
                 hashCode = hashCode * -23 + _angleX1.GetHashCode();
                 hashCode = hashCode * -23 + _centroid.GetHashCode();
                 hashCode = hashCode * -23 + _shearCenter.GetHashCode();

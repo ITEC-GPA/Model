@@ -378,8 +378,10 @@ namespace GPC.Model.Sections.Concrete
             _jt = 0; //TODO: implementare metodi di calcolo della sezione calcolo JW/JT
             _shearCenter = _centroid; //TODO: Implementare calcolo shear center
 
-            _wel1 = CalculateWel1();
-            _wel2 = CalculateWel2();
+            _wel1Max = CalculateWel1Max();
+            _wel1Min = CalculateWel1Min();
+            _wel2Max = CalculateWel2Max();
+            _wel2Min = CalculateWel2Min();
             _wpl1 = CalculateWpl1();
             _wpl2 = CalculateWpl2();
 
@@ -422,7 +424,7 @@ namespace GPC.Model.Sections.Concrete
             return 0;
         }
 
-        protected override double CalculateWel2()
+        protected override double CalculateWel2Max()
         {
             double cosTeta = Math.Cos(_angleX1 + Math.PI / 2.0);
             double sinTeta = Math.Sin(_angleX1 + Math.PI / 2.0);
@@ -442,7 +444,27 @@ namespace GPC.Model.Sections.Concrete
             return _j22 / dmaxConcrete;
         }
 
-        protected override double CalculateWel1()
+        protected override double CalculateWel2Min()
+        {
+            double cosTeta = Math.Cos(_angleX1 + Math.PI / 2.0);
+            double sinTeta = Math.Sin(_angleX1 + Math.PI / 2.0);
+
+            double dmaxConcrete = double.MinValue;
+
+            for (int c = 0; c < ShapeEx.Fill.Count; c++)
+            {
+                double w1 = (ShapeEx.Fill[c].Y - Centroid.Y) * cosTeta - (ShapeEx.Fill[c].X - Centroid.X) * sinTeta;
+
+                if (w1 <= dmaxConcrete)
+                {
+                    dmaxConcrete = w1;
+                }
+            }
+
+            return _j22 / dmaxConcrete;
+        }
+
+        protected override double CalculateWel1Max()
         {
             double cosTeta = Math.Cos(_angleX1);
             double sinTeta = Math.Sin(_angleX1);
@@ -463,6 +485,26 @@ namespace GPC.Model.Sections.Concrete
             return _j11 / dmaxConcrete;
         }
 
+        protected override double CalculateWel1Min()
+        {
+            double cosTeta = Math.Cos(_angleX1);
+            double sinTeta = Math.Sin(_angleX1);
+
+            double dminConcrete = double.MaxValue;
+
+            for (int c = 0; c < ShapeEx.Fill.Count; c++)
+            {
+                double w1 = (ShapeEx.Fill[c].Y - Centroid.Y) * cosTeta - (ShapeEx.Fill[c].X - Centroid.X) * sinTeta;
+
+                if (w1 <= dminConcrete)
+                {
+                    dminConcrete = w1;
+                }
+            }
+
+
+            return _j11 / dminConcrete;
+        }
 
 
         #endregion

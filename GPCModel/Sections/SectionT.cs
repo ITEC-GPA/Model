@@ -68,14 +68,24 @@ namespace GPC.Model.Sections
 
         #region Public method
 
-        protected override double CalculateWel2()
+        protected override double CalculateWel2Max()
         {
-            return Math.Min(CalculateWelyLeft(), CalculateWelyRight());
+            return CalculateWelYMax(); 
         }
 
-        protected override double CalculateWel1()
+        protected override double CalculateWel2Min()
         {
-            return Math.Min(CalculateWelxBottom(), CalculateWelxTop());
+            return CalculateWelYMin();
+        }
+
+        protected override double CalculateWel1Max()
+        {
+            return  CalculateWelXMax();
+        }
+
+        protected override double CalculateWel1Min()
+        {
+            return CalculateWelXMin();
         }
 
         protected override double CalculateWpl1()
@@ -102,22 +112,22 @@ namespace GPC.Model.Sections
             return 1.0 / 4.0 * _tf * Math.Pow(_b, 2.0) + 1.0 / 4.0 * (Height - _tf) * Math.Pow(_tw, 2.0);
         }
 
-        protected virtual double CalculateWelyLeft()
+        protected override double CalculateWelYMin()
         {
             return J22 / DistanceXCentroidFromRight();
         }
 
-        protected virtual double CalculateWelyRight()
+        protected override double CalculateWelYMax()
         {
             return J22 / (_b - DistanceXCentroidFromRight());
         }
 
-        protected virtual double CalculateWelxBottom()
+        protected override double CalculateWelXMin()
         {
             return J11 / DistanceYCentroidFromBottom();
         }
 
-        protected virtual double CalculateWelxTop()
+        protected override double CalculateWelXMax()
         {
             return J11 / (Height - DistanceYCentroidFromBottom());
         }

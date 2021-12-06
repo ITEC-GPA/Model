@@ -75,6 +75,8 @@ namespace GPC.Model.Sections
         #endregion
 
 
+        #region Protected override method
+
         protected override Shape2d GetShape()
         {
             throw new NotImplementedException();
@@ -144,32 +146,22 @@ namespace GPC.Model.Sections
                 throw new NotImplementedException("Cannot calculate Wpl : Plastic neutral axis in flanges...to be implemented");
         }
 
-        protected override double CalculateWel2()
-        {
-            return Math.Min(CalculateWelyBottom(), CalculateWelyTop());
-        }
-
-        protected override double CalculateWel1()
-        {
-            return Math.Min(CalculateWelxBottom(), CalculateWelxTop());
-        }
-
-        public virtual double CalculateWelyBottom()
+        protected override double CalculateWel2Min()
         {
             return J22 / (LenghtBottomFlange - DistanceXCentroidFromRight());
         }
 
-        public virtual double CalculateWelyTop()
+        protected override double CalculateWel2Max()
         {
             return J22 / (LenghtTopFlange - DistanceXCentroidFromRight());
         }
 
-        public virtual double CalculateWelxBottom()
+        protected override double CalculateWel1Min()
         {
             return J11 / DistanceYCentroidFromBottom();
         }
 
-        public virtual double CalculateWelxTop()
+        protected override double CalculateWel1Max()
         {
             return J11 / DistanceYCentroidFromTop();
         }
@@ -187,7 +179,7 @@ namespace GPC.Model.Sections
             return true;
         }
 
-        #region Public override method
+
 
         protected override Point2d CalculateShearCenter()
         {

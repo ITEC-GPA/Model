@@ -165,32 +165,42 @@ namespace GPC.Model.Sections
                 throw new Exception("not yet supported");
         }
 
-        protected override double CalculateWel2()
+        protected override double CalculateWelYMin()
         {
-            return Math.Min(CalculateWelyLeft(), CalculateWelyRight());
+            return Jyy / DistanceXCentroidFromRight();
         }
 
-        protected override double CalculateWel1()
+        protected override double CalculateWelYMax()
         {
-            return Math.Min(CalculateWelxBottom(), CalculateWelxTop());
+            return Jyy / (_b - DistanceXCentroidFromRight());
         }
 
-        protected virtual double CalculateWelyLeft()
+        protected override double CalculateWelXMin()
+        {
+            return Jxx / DistanceYCentroidFromBottom();
+        }
+
+        protected override double CalculateWelXMax()
+        {
+            return Jxx / (Height - DistanceYCentroidFromBottom());
+        }
+
+        protected override double CalculateWel2Min()
         {
             return J22 / DistanceXCentroidFromRight();
         }
 
-        protected virtual double CalculateWelyRight()
+        protected override double CalculateWel2Max()
         {
             return J22 / (_b - DistanceXCentroidFromRight());
         }
 
-        protected virtual double CalculateWelxBottom()
+        protected override double CalculateWel1Min()
         {
             return J11 / DistanceYCentroidFromBottom();
         }
 
-        protected virtual double CalculateWelxTop()
+        protected override double CalculateWel1Max()
         {
             return J11 / (Height - DistanceYCentroidFromBottom());
         }
