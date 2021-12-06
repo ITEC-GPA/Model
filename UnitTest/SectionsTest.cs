@@ -1503,7 +1503,7 @@ namespace ModelObjectTest
         {
             double heigth = 500;
             double width = 300;
-            double rebarDiameter = 26;
+            double rebarDiameter = 16;
             double n = 15;
 
             Shape2d shape = new Shape2d(new Polygon2d(new Point2d[] {   new Point2d(0, 0),
@@ -1518,19 +1518,22 @@ namespace ModelObjectTest
                                                                                 new ReinforcedConcreteRebar(rebar, new Point3d(100, 50, 0)),
                                                                                 new ReinforcedConcreteRebar(rebar, new Point3d(200, 50,0)),
                                                                                 new ReinforcedConcreteRebar(rebar, new Point3d(250, 50,0)),
-                                                                                new ReinforcedConcreteRebar(rebar, new Point3d(50,50,0)),
-                                                                                new ReinforcedConcreteRebar(rebar, new Point3d(100, 50, 0)),
-                                                                                new ReinforcedConcreteRebar(rebar, new Point3d(200, 50,0)),
-                                                                                new ReinforcedConcreteRebar(rebar, new Point3d(250, 50,0))};
+                                                                                new ReinforcedConcreteRebar(rebar, new Point3d(50,450,0)),
+                                                                                new ReinforcedConcreteRebar(rebar, new Point3d(100, 450, 0)),
+                                                                                new ReinforcedConcreteRebar(rebar, new Point3d(200, 450,0)),
+                                                                                new ReinforcedConcreteRebar(rebar, new Point3d(250, 450,0))};
 
             ReinforcedConcreteSection section = new ReinforcedConcreteSection(shapeEx);
             section.AddRebars(rebars);
             var mechanicalProperties = section.GetHomogeneizedMechanicalProperties(n);
 
             //valori calcolati con VCASLU
-            Assert.IsTrue(Math.Abs(mechanicalProperties.J11H - 4828483043) / mechanicalProperties.J11H * 100 < 1);
-            Assert.IsTrue(Math.Abs(mechanicalProperties.J22H - 1496700000) / mechanicalProperties.J22H * 100 < 1);
+            Assert.IsTrue(Math.Abs(mechanicalProperties.J11H - 4025480000) / mechanicalProperties.J11H * 100 < 1);
+            Assert.IsTrue(Math.Abs(mechanicalProperties.J22H - 1265700000) / mechanicalProperties.J22H * 100 < 1);
             Assert.IsTrue(Math.Abs(mechanicalProperties.angleX) < 0.001);
+
+
+
 
             ConcreteSectionRectangular sectionRectangular = new ConcreteSectionRectangular(heigth, width, ConcreteMaterialEN1992.C25_30);
             sectionRectangular.AddRebars(rebars);
@@ -1538,8 +1541,8 @@ namespace ModelObjectTest
             mechanicalProperties = sectionRectangular.GetHomogeneizedMechanicalProperties(n);
 
             //valori calcolati con VCASLU
-            Assert.IsTrue(Math.Abs(mechanicalProperties.J11H - 4828483043) / mechanicalProperties.J11H * 100 < 1);
-            Assert.IsTrue(Math.Abs(mechanicalProperties.J22H - 1496700000) / mechanicalProperties.J22H * 100 < 1);
+            Assert.IsTrue(Math.Abs(mechanicalProperties.J11H - 4025480000) / mechanicalProperties.J11H * 100 < 1);
+            Assert.IsTrue(Math.Abs(mechanicalProperties.J22H - 1265700000) / mechanicalProperties.J22H * 100 < 1);
             Assert.IsTrue(Math.Abs(mechanicalProperties.angleX) < 0.001);
         }
 
