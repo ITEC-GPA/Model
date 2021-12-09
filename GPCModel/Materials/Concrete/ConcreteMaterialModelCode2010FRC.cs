@@ -1,4 +1,5 @@
-﻿using System.Runtime.Serialization;
+﻿using System;
+using System.Runtime.Serialization;
 
 namespace GPC.Model.Materials
 {
@@ -30,7 +31,25 @@ namespace GPC.Model.Materials
         }
 
 
+        #region Override Method
 
+        protected override double GetFctk05()
+        {
+            return _fctk;
+        }
+
+        protected override double GetFctk95()
+        {
+            return 1.3 * GetFctm();
+        }
+
+        protected override double GetFctm()
+        {
+            return _fctk / 0.7;
+        }
+
+
+        #endregion
 
         #region Equals, hashcode, operators
 
