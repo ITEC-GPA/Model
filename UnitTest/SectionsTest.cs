@@ -1422,7 +1422,8 @@ namespace ModelObjectTest
             ReinforcedConcreteSection section = new ReinforcedConcreteSection(shapeEx);
             section.AddRebars(rebars);
 
-            var mechanicalProperties = section.GetHomogeneizedMechanicalProperties(n);
+            double phi = n * section.Material.E / section.GetRebars().FirstOrDefault().RebarMaterial.E - 1;
+            var mechanicalProperties = section.GetHomogeneizedMechanicalProperties(phi);
 
             //valori calcolati con VCASLU
             Assert.IsTrue(Math.Abs(section.Area - 150000) / section.Area * 100 < 1);
@@ -1439,7 +1440,7 @@ namespace ModelObjectTest
             ConcreteSectionRectangular sectionRectangular = new ConcreteSectionRectangular(heigth, width, ConcreteMaterialEN1992.C25_30);
             sectionRectangular.AddRebars(rebars);
 
-            mechanicalProperties = section.GetHomogeneizedMechanicalProperties(n);
+            mechanicalProperties = section.GetHomogeneizedMechanicalProperties(phi);
 
             //valori calcolati con VCASLU
             Assert.IsTrue(Math.Abs(sectionRectangular.Area - 150000) / section.Area * 100 < 1);
@@ -1478,7 +1479,9 @@ namespace ModelObjectTest
 
             ReinforcedConcreteSection section = new ReinforcedConcreteSection(shapeEx);
             section.AddRebars(rebars);
-            var mechanicalProperties = section.GetHomogeneizedMechanicalProperties(n);
+
+            double phi = n * section.Material.E / section.GetRebars().FirstOrDefault().RebarMaterial.E - 1;
+            var mechanicalProperties = section.GetHomogeneizedMechanicalProperties(phi);
 
             //valori calcolati con VCASLU
             Assert.IsTrue(Math.Abs(section.J11 - 3125000000) / section.J11 * 100 < 1);
@@ -1492,7 +1495,7 @@ namespace ModelObjectTest
             ConcreteSectionRectangular sectionRectangular = new ConcreteSectionRectangular(heigth, width, ConcreteMaterialEN1992.C25_30);
             sectionRectangular.AddRebars(rebars);
 
-            mechanicalProperties = sectionRectangular.GetHomogeneizedMechanicalProperties(n);
+            mechanicalProperties = sectionRectangular.GetHomogeneizedMechanicalProperties(phi);
 
             //valori calcolati con VCASLU
             Assert.IsTrue(Math.Abs(section.J11 - 3125000000) / section.J11 * 100 < 1);
@@ -1532,7 +1535,9 @@ namespace ModelObjectTest
 
             ReinforcedConcreteSection section = new ReinforcedConcreteSection(shapeEx);
             section.AddRebars(rebars);
-            var mechanicalProperties = section.GetHomogeneizedMechanicalProperties(n);
+
+            double phi = n * section.Material.E / section.GetRebars().FirstOrDefault().RebarMaterial.E - 1;
+            var mechanicalProperties = section.GetHomogeneizedMechanicalProperties(phi);
 
             //valori calcolati con VCASLU
             Assert.IsTrue(Math.Abs(mechanicalProperties.J11H - 4025480000) / mechanicalProperties.J11H * 100 < 1);
@@ -1545,7 +1550,7 @@ namespace ModelObjectTest
             ConcreteSectionRectangular sectionRectangular = new ConcreteSectionRectangular(heigth, width, ConcreteMaterialEN1992.C25_30);
             sectionRectangular.AddRebars(rebars);
 
-            mechanicalProperties = sectionRectangular.GetHomogeneizedMechanicalProperties(n);
+            mechanicalProperties = sectionRectangular.GetHomogeneizedMechanicalProperties(phi);
 
             //valori calcolati con VCASLU
             Assert.IsTrue(Math.Abs(mechanicalProperties.J11H - 4025480000) / mechanicalProperties.J11H * 100 < 1);
@@ -1632,7 +1637,8 @@ namespace ModelObjectTest
             ConcreteSectionCircular section = new ConcreteSectionCircular(diameter, ConcreteMaterialEN1992.C25_30);
             section.AddRebars(rebars);
 
-            var mechanicalProperties = section.GetHomogeneizedMechanicalProperties(n);
+            double phi = n * section.Material.E / section.GetRebars().FirstOrDefault().RebarMaterial.E - 1;
+            var mechanicalProperties = section.GetHomogeneizedMechanicalProperties(phi);
 
             //valori calcolati con VCASLU
             Assert.IsTrue(Math.Abs(mechanicalProperties.J11H - 4018160897) / mechanicalProperties.J11H * 100 < 1);
@@ -1643,7 +1649,7 @@ namespace ModelObjectTest
             section.AddRadialRebars(50, rebars.Length, rebar);
 
 
-            mechanicalProperties = section.GetHomogeneizedMechanicalProperties(n);
+            mechanicalProperties = section.GetHomogeneizedMechanicalProperties(phi);
 
             //valori calcolati con VCASLU
             Assert.IsTrue(Math.Abs(mechanicalProperties.J11H - 4018160897) / mechanicalProperties.J11H * 100 < 1);
@@ -1665,7 +1671,8 @@ namespace ModelObjectTest
             ConcreteSectionCHS section = new ConcreteSectionCHS(diameterExternal, thickness, ConcreteMaterialEN1992.C25_30);
             section.AddRadialRebars(concreteCover, numberOfRebars, rebar);
 
-            var mechanicalProperties = section.GetHomogeneizedMechanicalProperties(n);
+            double phi = n * section.Material.E / section.GetRebars().FirstOrDefault().RebarMaterial.E - 1;
+            var mechanicalProperties = section.GetHomogeneizedMechanicalProperties(phi);
 
             //valori calcolati con VCASLU
             Assert.IsTrue(Math.Abs(mechanicalProperties.J11H - 3622483885) / mechanicalProperties.J11H * 100 < 1);
@@ -1681,13 +1688,15 @@ namespace ModelObjectTest
             double concreteCover = 50;
             int numberOfRebars = 32;
             double n = 16;
-
+            
             GPC.Model.Sections.Rebar.RebarSectionCircular rebar = new GPC.Model.Sections.Rebar.RebarSectionCircular(rebarDiameter, RebarMaterial.B450C);
 
             ConcreteSectionCHS section = new ConcreteSectionCHS(diameterExternal, thickness, ConcreteMaterialEN1992.C25_30);
             section.AddRadialRebars(concreteCover, numberOfRebars, rebar);
 
-            var mechanicalProperties = section.GetHomogeneizedMechanicalProperties(n);
+            double phi = n * section.Material.E / section.GetRebars().FirstOrDefault().RebarMaterial.E - 1;
+
+            var mechanicalProperties = section.GetHomogeneizedMechanicalProperties(phi);
 
             //valori calcolati con VCASLU
             Assert.IsTrue(Math.Abs(mechanicalProperties.J11H - 54653616364) / mechanicalProperties.J11H * 100 < 1);

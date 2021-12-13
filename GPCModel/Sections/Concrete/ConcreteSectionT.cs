@@ -230,7 +230,7 @@ namespace GPC.Model.Sections.Concrete
         }
 
         /// <summary>
-        /// Return all homogenized mechanical properties with homogeneized factor <paramref name="n"/>
+        /// Return all homogenized mechanical properties with homogeneized factor <paramref name="phi"/>
         /// </summary>
         /// <returns>
         /// <para>areaH: The homogeneized area.</para>
@@ -246,9 +246,9 @@ namespace GPC.Model.Sections.Concrete
         /// <para>AngleX: The angle of rotation of the principal axis respect the X-Axis</para>
         /// </returns>
         public (double areaH, double SxH, double SyH, Point2d centroidH, double JxxH, double JyyH, double JxyH, double JpH, double J11H, double J22H, double angleX)
-            GetHomogeneizedMechanicalProperties(double n)
+            GetHomogeneizedMechanicalProperties(double phi)
         {
-
+            double n = ConcreteSectionHelper.CalculateHomogenizedFactorN(phi, GetRebars(), ConcreteMaterial);
             var centroidH = GetHomogenizedCentroid(out var SxH, out var SyH);
 
             // NOTA: ci siamo ricondotti a momenti d'inerzia rispetto al baricentro della sezione di solo calcestruzzo
@@ -273,15 +273,17 @@ namespace GPC.Model.Sections.Concrete
         }
 
         /// <summary>
-        /// The centroid of the homogenized section with homogenized factor <paramref name="n"/>
+        /// The centroid of the homogenized section with homogenized factor <paramref name="phi"/>
         /// </summary>
-        /// <param name="n">The homogenized factor</param>
+        /// <param name="phi">The homogenized factor</param>
         /// <param name="SxHomog">The first moment of area respect X-Axis</param>
         /// <param name="SyHomog">The first moment of area respect Y-Axis</param>
         /// <returns></returns>
-        public Point2d GetHomogenizedCentroid(double n, out double SxHomog, out double SyHomog)
+        public Point2d GetHomogenizedCentroid(double phi, out double SxHomog, out double SyHomog)
         {
-            return ConcreteSectionHelper.GetHomogenizedCentroid(n, Mesh, _rebars.ToArray(), Area, out SxHomog, out SyHomog);
+            double n = ConcreteSectionHelper.CalculateHomogenizedFactorN(phi, GetRebars(), ConcreteMaterial);
+            return ConcreteSectionHelper.GetHomogenizedCentroid(n, Mesh, _rebars.ToArray(), ConcreteMaterial,
+                Area, out SxHomog, out SyHomog);
         }
 
         /// <summary>
@@ -294,18 +296,20 @@ namespace GPC.Model.Sections.Concrete
         }
 
         /// <summary>
-        /// The homogenized area with homogenized factor <paramref name="n"/>
+        /// The homogenized area with homogenized factor <paramref name="phi"/>
         /// </summary>
-        /// <param name="n"></param>
+        /// <param name="phi"></param>
         /// <returns>The homogenized area</returns>
-        public double GetHomogenizedArea(double n)
+        public double GetHomogenizedArea(double phi)
         {
-            return ConcreteSectionHelper.GetHomogenizedArea(n, _rebars.ToArray(), Area);
+            double n = ConcreteSectionHelper.CalculateHomogenizedFactorN(phi, GetRebars(), ConcreteMaterial);
+            return ConcreteSectionHelper.GetHomogenizedArea(n, _rebars.ToArray(), ConcreteMaterial, Area);
         }
 
-        public double GetHomogeneizedJ11(double n)
+        public double GetHomogeneizedJ11(double phi)
         {
-            return ConcreteSectionHelper.GetHomogeneizedJ11(n, Centroid, Mesh, _rebars.ToArray(), Area, Jxx, Jyy, Jxy);
+            double n = ConcreteSectionHelper.CalculateHomogenizedFactorN(phi, GetRebars(), ConcreteMaterial);
+            return ConcreteSectionHelper.GetHomogeneizedJ11(n, Centroid, Mesh, _rebars.ToArray(), ConcreteMaterial, Area, Jxx, Jyy, Jxy);
         }
 
         public double GetHomogeneizedJ11()
@@ -313,10 +317,11 @@ namespace GPC.Model.Sections.Concrete
             return ConcreteSectionHelper.GetHomogeneizedJ11(Mesh, Centroid, _rebars.ToArray(), ConcreteMaterial, Area, Jxx, Jyy, Jxy);
         }
 
-        public double GetHomogeneizedJ22(double n)
-        {
-            return ConcreteSectionHelper.GetHomogeneizedJ22(n, Centroid, Mesh, _rebars.ToArray(), Area, Jxx, Jyy, Jxy);
-        }
+        public double GetHomogeneizedJ22(double phi)
+		{
+			double n = ConcreteSectionHelper.CalculateHomogenizedFactorN(phi, GetRebars(), ConcreteMaterial);
+			return ConcreteSectionHelper.GetHomogeneizedJ22(n, Centroid, Mesh, _rebars.ToArray(), ConcreteMaterial, Area, Jxx, Jyy, Jxy);
+		}
 
         public double GetHomogeneizedJ22()
         {
