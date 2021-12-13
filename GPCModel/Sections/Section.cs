@@ -548,7 +548,7 @@ namespace GPC.Model.Sections
 
         protected virtual Point2d CalculateShearCenter()
         {
-            return new Point2d();
+            return CalculateCentroid();
         }
 
         protected virtual double CalculateWpl1()
