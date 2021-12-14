@@ -97,6 +97,18 @@ namespace GPC.Model.Results
         }
 
         /// <summary>
+        /// Return new ResultBeamForces in global coordinate system
+        /// </summary>
+        /// <returns>New ResultBeamForces</returns>
+        public ResultBeamForces ToGlobalCoordinateSystem()
+		{
+            if (CoordinateSystem == CoordinateSystem.Global)
+                return this;
+            else
+                return ToCoordinateSystem(CoordinateSystem.Global);
+		}
+
+        /// <summary>
         /// Return the combined bending moment between M1 and M2
         /// </summary>
         /// <returns>The combined bending moment</returns>
