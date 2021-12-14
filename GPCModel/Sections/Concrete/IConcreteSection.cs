@@ -7,7 +7,9 @@ namespace GPC.Model.Sections.Concrete
 {
     public interface IConcreteSection
     {
-        string Name { get; }
+		#region Section Properties
+
+		string Name { get; }
 
         Shape2d Shape { get; }
 
@@ -48,13 +50,18 @@ namespace GPC.Model.Sections.Concrete
 
         bool IsDoubleSymmetric { get; }
 
-        IEnumerable<ReinforcedConcreteRebar> Rebars { get; }
+		#endregion
 
+		#region Rebars
+
+		IEnumerable<ReinforcedConcreteRebar> Rebars { get; }
 
         bool AddRebar(ReinforcedConcreteRebar rebar);
+
         bool AddRebar (ReinforcedConcreteRebar rebar, out int id);
 
         bool[] AddRebars(IEnumerable<ReinforcedConcreteRebar> rebars, out int[] ids);
+
         bool[] AddRebars(IEnumerable<ReinforcedConcreteRebar> rebars);
 
         bool RemoveRebar(ReinforcedConcreteRebar rebar);
@@ -66,21 +73,26 @@ namespace GPC.Model.Sections.Concrete
         bool ClearRebars();
 
         ReinforcedConcreteRebar GetRebarById(int rebarId);
+
         ReinforcedConcreteRebar[] GetRebarById(IEnumerable<int> rebarIds);
 
         ReinforcedConcreteRebar[] GetRebars();
 
-        double GetHomogenizedArea(double n);
+		#endregion
+
+		#region Homogenized Properties
+
+		double GetHomogenizedArea(double phi);
 
         double GetHomogenizedArea();
 
         double GetHomogeneizedJ11();
 
-        double GetHomogeneizedJ11(double n);
+        double GetHomogeneizedJ11(double phi);
 
         double GetHomogeneizedJ22();
 
-        double GetHomogeneizedJ22(double n);
+        double GetHomogeneizedJ22(double phi);
 
         Point2d GetHomogenizedCentroid(out double SxHomog, out double SyHomog);
 
@@ -96,8 +108,10 @@ namespace GPC.Model.Sections.Concrete
             GetHomogeneizedMechanicalProperties();
 
         (double areaH, double SxH, double SyH, Point2d centroidH, double JxxH, double JyyH, double JxyH, double JpH, double J11H, double J22H, double angleX)
-            GetHomogeneizedMechanicalProperties(double n);
+            GetHomogeneizedMechanicalProperties(double phi);
 
-        ReinforcedConcreteSection ToReinforcedConcreteSection();
+		#endregion
+
+		ReinforcedConcreteSection ToReinforcedConcreteSection();
     }
 }

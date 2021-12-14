@@ -209,32 +209,28 @@ namespace GPC.Model.Sections.Concrete
         }
 
 
-        #endregion
-        public ReinforcedConcreteSection ToReinforcedConcreteSection()
-        {
-            return new ReinforcedConcreteSection(this);
-        }
+		#endregion
 
 
-        #region Concrete Mechanical properties
+		#region Concrete Mechanical properties
 
-        /// <summary>
-        /// Return all homogenized mechanical properties with default value of homogenized factor n
-        /// </summary>
-        /// <returns>
-        /// <para>areaH: The homogeneized area.</para>
-        /// <para>SxHThe: first moment of area calculated respect input X-axis of the homogeneized section.</para>
-        /// <para>SyHThe: first moment of area calculated respect input Y-axis of the homogeneized section.</para>
-        /// <para>centroidH: The centroid of homogeneized section.</para>
-        /// <para>JxxH: The first moment of area calculated respect X-axis passing throw the centroid of the homogeneized section.</para>
-        /// <para>JyyH: The first moment of area calculated respect Y-axis passing throw the centroid of the homogeneized section.</para>
-        /// <para>J11H: The first moment of area calculated respect the first principal axis 
-        /// passing throw the centroid of only concrete section of the homogeneized section</para>
-        /// <para>J22H: The first moment of area calculated respect the second principal axis 
-        /// passing throw the centroid of only concrete section of the homogeneized section</para>
-        /// <para>AngleX: The angle of rotation of the principal axis respect the X-Axis</para>
-        /// </returns>
-        public (double areaH, double SxH, double SyH, Point2d centroidH, double JxxH, double JyyH, double JxyH, double JpH, double J11H, double J22H, double angleX)
+		/// <summary>
+		/// Return all homogenized mechanical properties with default value of homogenized factor n
+		/// </summary>
+		/// <returns>
+		/// <para>areaH: The homogeneized area.</para>
+		/// <para>SxHThe: first moment of area calculated respect input X-axis of the homogeneized section.</para>
+		/// <para>SyHThe: first moment of area calculated respect input Y-axis of the homogeneized section.</para>
+		/// <para>centroidH: The centroid of homogeneized section.</para>
+		/// <para>JxxH: The first moment of area calculated respect X-axis passing throw the centroid of the homogeneized section.</para>
+		/// <para>JyyH: The first moment of area calculated respect Y-axis passing throw the centroid of the homogeneized section.</para>
+		/// <para>J11H: The first moment of area calculated respect the first principal axis 
+		/// passing throw the centroid of only concrete section of the homogeneized section</para>
+		/// <para>J22H: The first moment of area calculated respect the second principal axis 
+		/// passing throw the centroid of only concrete section of the homogeneized section</para>
+		/// <para>AngleX: The angle of rotation of the principal axis respect the X-Axis</para>
+		/// </returns>
+		public (double areaH, double SxH, double SyH, Point2d centroidH, double JxxH, double JyyH, double JxyH, double JpH, double J11H, double J22H, double angleX)
             GetHomogeneizedMechanicalProperties()
         {
             var centroidH = GetHomogenizedCentroid(out var SxH, out var SyH);
@@ -250,22 +246,57 @@ namespace GPC.Model.Sections.Concrete
         }
 
         /// <summary>
-        /// Return all homogenized mechanical properties with homogeneized factor <paramref name="phi"/>
+        /// The centroid of the homogenized section with default value of homogenized factor n
         /// </summary>
-        /// <returns>
-        /// <para>areaH: The homogeneized area.</para>
-        /// <para>SxHThe: first moment of area calculated respect input X-axis of the homogeneized section.</para>
-        /// <para>SyHThe: first moment of area calculated respect input Y-axis of the homogeneized section.</para>
-        /// <para>centroidH: The centroid of homogeneized section.</para>
-        /// <para>JxxH: The first moment of area calculated respect X-axis passing throw the centroid of the homogeneized section.</para>
-        /// <para>JyyH: The first moment of area calculated respect Y-axis passing throw the centroid of the homogeneized section.</para>
-        /// <para>J11H: The first moment of area calculated respect the first principal axis 
-        /// passing throw the centroid of only concrete section of the homogeneized section</para>
-        /// <para>J22H: The first moment of area calculated respect the second principal axis 
-        /// passing throw the centroid of only concrete section of the homogeneized section</para>
-        /// <para>AngleX: The angle of rotation of the principal axis respect the X-Axis</para>
-        /// </returns>
-        public (double areaH, double SxH, double SyH, Point2d centroidH, double JxxH, double JyyH, double JxyH, double JpH, double J11H, double J22H, double angleX)
+        /// <param name="SxHomog">The first moment of area respect X-Axis</param>
+        /// <param name="SyHomog">The first moment of area respect Y-Axis</param>
+        /// <returns>The centroid</returns>
+        public Point2d GetHomogenizedCentroid(out double SxHomog, out double SyHomog)
+        {
+            return ConcreteSectionHelper.GetHomogenizedCentroid(Mesh, _rebars.ToArray(), ConcreteMaterial, 
+                Area, out SxHomog, out SyHomog);
+        }
+
+        /// <summary>
+        /// The homogenized area with default value of homogenized factor n
+        /// </summary>
+        /// <returns>The homogenized area</returns>
+        public double GetHomogenizedArea()
+        {
+            return ConcreteSectionHelper.GetHomogenizedArea(_rebars.ToArray(), ConcreteMaterial, Area);
+        }
+
+        public double GetHomogeneizedJ11()
+        {
+            return ConcreteSectionHelper.GetHomogeneizedJ11(Mesh, Centroid, _rebars.ToArray(), ConcreteMaterial, 
+                Area, Jxx, Jyy, Jxy);
+        }
+
+        public double GetHomogeneizedJ22()
+        {
+            return ConcreteSectionHelper.GetHomogeneizedJ22(Mesh, Centroid, _rebars.ToArray(), ConcreteMaterial, 
+                Area, Jxx, Jyy, Jxy);
+        }
+
+		#region Phi factor
+
+		/// <summary>
+		/// Return all homogenized mechanical properties with homogeneized factor <paramref name="phi"/>
+		/// </summary>
+		/// <returns>
+		/// <para>areaH: The homogeneized area.</para>
+		/// <para>SxHThe: first moment of area calculated respect input X-axis of the homogeneized section.</para>
+		/// <para>SyHThe: first moment of area calculated respect input Y-axis of the homogeneized section.</para>
+		/// <para>centroidH: The centroid of homogeneized section.</para>
+		/// <para>JxxH: The first moment of area calculated respect X-axis passing throw the centroid of the homogeneized section.</para>
+		/// <para>JyyH: The first moment of area calculated respect Y-axis passing throw the centroid of the homogeneized section.</para>
+		/// <para>J11H: The first moment of area calculated respect the first principal axis 
+		/// passing throw the centroid of only concrete section of the homogeneized section</para>
+		/// <para>J22H: The first moment of area calculated respect the second principal axis 
+		/// passing throw the centroid of only concrete section of the homogeneized section</para>
+		/// <para>AngleX: The angle of rotation of the principal axis respect the X-Axis</para>
+		/// </returns>
+		public (double areaH, double SxH, double SyH, Point2d centroidH, double JxxH, double JyyH, double JxyH, double JpH, double J11H, double J22H, double angleX)
             GetHomogeneizedMechanicalProperties(double phi)
         {
             Point2d centroidH = GetHomogenizedCentroid(phi, out var SxH, out var SyH);
@@ -282,18 +313,6 @@ namespace GPC.Model.Sections.Concrete
         }
 
         /// <summary>
-        /// The centroid of the homogenized section with default value of homogenized factor n
-        /// </summary>
-        /// <param name="SxHomog">The first moment of area respect X-Axis</param>
-        /// <param name="SyHomog">The first moment of area respect Y-Axis</param>
-        /// <returns>The centroid</returns>
-        public Point2d GetHomogenizedCentroid(out double SxHomog, out double SyHomog)
-        {
-            return ConcreteSectionHelper.GetHomogenizedCentroid(Mesh, _rebars.ToArray(), ConcreteMaterial, 
-                Area, out SxHomog, out SyHomog);
-        }
-
-        /// <summary>
         /// The centroid of the homogenized section with homogenized factor <paramref name="phi"/>
         /// </summary>
         /// <param name="phi">The homogenized factor</param>
@@ -304,15 +323,6 @@ namespace GPC.Model.Sections.Concrete
         {
             return ConcreteSectionHelper.GetHomogenizedCentroid(phi, Mesh, _rebars.ToArray(), ConcreteMaterial,
                 Area, out SxHomog, out SyHomog);
-        }
-
-        /// <summary>
-        /// The homogenized area with default value of homogenized factor n
-        /// </summary>
-        /// <returns>The homogenized area</returns>
-        public double GetHomogenizedArea()
-        {
-            return ConcreteSectionHelper.GetHomogenizedArea(_rebars.ToArray(), ConcreteMaterial, Area);
         }
 
         /// <summary>
@@ -331,25 +341,20 @@ namespace GPC.Model.Sections.Concrete
                 Area, Jxx, Jyy, Jxy);
         }
 
-        public double GetHomogeneizedJ11()
-        {
-            return ConcreteSectionHelper.GetHomogeneizedJ11(Mesh, Centroid, _rebars.ToArray(), ConcreteMaterial, 
-                Area, Jxx, Jyy, Jxy);
-        }
-
         public double GetHomogeneizedJ22(double phi)
         {
             return ConcreteSectionHelper.GetHomogeneizedJ22(phi, Centroid, Mesh, _rebars.ToArray(), ConcreteMaterial, 
                 Area, Jxx, Jyy, Jxy);
         }
 
-        public double GetHomogeneizedJ22()
-        {
-            return ConcreteSectionHelper.GetHomogeneizedJ22(Mesh, Centroid, _rebars.ToArray(), ConcreteMaterial, 
-                Area, Jxx, Jyy, Jxy);
-        }
+        #endregion
 
         #endregion
+
+        public ReinforcedConcreteSection ToReinforcedConcreteSection()
+        {
+            return new ReinforcedConcreteSection(this);
+        }
 
         #endregion
 
