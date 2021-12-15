@@ -33,7 +33,6 @@ namespace ModelObjectTest
             Assert.AreEqual(rps1.S22, 49.524, 0.5);
         }
 
-
         [TestMethod]
         public void PrincipalStressTest3()
         {
@@ -63,7 +62,6 @@ namespace ModelObjectTest
             Assert.AreEqual(vm, 51.151, 1);
         }
 
-
         [TestMethod]
         public void VonMisesStressTest2()
         {
@@ -75,8 +73,6 @@ namespace ModelObjectTest
 
             Assert.AreEqual(vm, 1498, 1);
         }
-
-
 
         [TestMethod]
         public void StressOperatorsSumSubtactTest1()
@@ -90,8 +86,6 @@ namespace ModelObjectTest
             Assert.IsTrue(result - rs2 == rs1);
             Assert.IsTrue(result - rs1 == rs2);
         }
-
-
 
         [TestMethod]
         public void StressOperatorsSumTest2()
@@ -136,7 +130,6 @@ namespace ModelObjectTest
 
         }
 
-
         [TestMethod]
         public void StressOperatorsSumTest3()
         {
@@ -169,7 +162,6 @@ namespace ModelObjectTest
             Assert.AreEqual(stress[1, 1] * 2.0, sum.Syy, 1e-5, sum.Syy.ToString());
 
         }
-
 
         [TestMethod]
         public void StressOperatorsSumTest4()
@@ -214,7 +206,6 @@ namespace ModelObjectTest
 
             Assert.AreEqual(sum.Sxx , sum2.Sxx, 1e-5, sum.Sxx.ToString());
         }
-
 
         [TestMethod]
         public void StressOperatorsMultiplicationTest1()
@@ -266,7 +257,6 @@ namespace ModelObjectTest
             Assert.AreEqual(50, rs1Rotated[1, 0],  1E-10, rs1Rotated[1, 0].ToString());
         }
 
-
         [TestMethod]
         public void StressTensorTest2()
         {
@@ -291,7 +281,6 @@ namespace ModelObjectTest
             Assert.AreEqual(50, rs1Rotated[1, 0], 1E-10, rs1Rotated[1, 0].ToString());
         }
 
-
         [TestMethod]
         public void DisplacementOperatorsMultiplicationTest1()
         {
@@ -306,7 +295,6 @@ namespace ModelObjectTest
             Assert.AreEqual(rd1.D2, rd.D2 * 2, 1E-10);
             Assert.AreEqual(rd2.D2, rd.D2 * 3, 1E-10);
         }
-
 
         [TestMethod]
         public void DisplacementOperatorsSumTest1()
@@ -328,7 +316,6 @@ namespace ModelObjectTest
 
         }
 
-
         [TestMethod]
         public void StressArithmeticMeanTest1()
         {
@@ -347,7 +334,6 @@ namespace ModelObjectTest
 
         }
 
-
         [TestMethod]
         public void StressArithmeticMeanTest2()
         {
@@ -365,8 +351,6 @@ namespace ModelObjectTest
 
             Assert.IsTrue(rs.Name == "rs1 rs2");
         }
-
-
 
         [TestMethod]
         public void DisplacementArithmeticMeanTest3()
@@ -388,5 +372,91 @@ namespace ModelObjectTest
 
 
         }
+
+        [TestMethod]
+        public void ResultBeamForcesTest1()
+        {
+            Point3d origin = new Point3d(0, 0, 0);
+            Vector3d v1 = new Vector3d(-1, 0, 0);
+            Vector3d v2 = new Vector3d(0, 1, 0);
+            Vector3d v3 = new Vector3d(0, 0, 1);
+            CoordinateSystem coordinateSystem = new CoordinateSystem(origin, v1, v2, v3);
+
+            ResultBeamForces forces = new ResultBeamForces(100, 0, 0, 0, 100, 0, coordinateSystem);
+			ResultBeamForces convertedForces = forces.ToGlobalCoordinateSystem();
+
+            ResultBeamForces expForces = new ResultBeamForces(100, 0, 0, 0, -100, 0, CoordinateSystem.Global);
+
+            Assert.IsTrue(expForces.Equals(convertedForces));
+        }
+
+        [TestMethod]
+        public void ResultBeamForcesTest2()
+        {
+            Point3d origin = new Point3d(0, 0, 0);
+            Vector3d v1 = new Vector3d(-1, 0, 0);
+            Vector3d v2 = new Vector3d(0, 1, 0);
+            Vector3d v3 = new Vector3d(0, 0, 1);
+            CoordinateSystem coordinateSystem = new CoordinateSystem(origin, v1, v2, v3);
+
+            ResultBeamForces forces = new ResultBeamForces(-100, 0, 0, 0, -100, -100, coordinateSystem);
+            ResultBeamForces convertedForces = forces.ToGlobalCoordinateSystem();
+
+            ResultBeamForces expForces = new ResultBeamForces(-100, 0, 0, 0, 100, -100, CoordinateSystem.Global);
+
+            Assert.IsTrue(expForces.Equals(convertedForces));
+        }
+
+        [TestMethod]
+        public void ResultBeamForcesTest3()
+        {
+            Point3d origin = new Point3d(10, 10, 10);
+            Vector3d v1 = new Vector3d(-1, 0, 0);
+            Vector3d v2 = new Vector3d(0, 1, 0);
+            Vector3d v3 = new Vector3d(0, 0, 1);
+            CoordinateSystem coordinateSystem = new CoordinateSystem(origin, v1, v2, v3, "");
+
+            ResultBeamForces forces = new ResultBeamForces(100, 0, 0, 0, 100, 0, coordinateSystem);
+            ResultBeamForces convertedForces = forces.ToGlobalCoordinateSystem();
+
+            ResultBeamForces expForces = new ResultBeamForces(100, 0, 0, 0, -100, 0, CoordinateSystem.Global);
+
+            Assert.IsTrue(expForces.Equals(convertedForces));
+        }
+
+        [TestMethod]
+        public void ResultBeamForcesTest4()
+        {
+            Point3d origin = new Point3d(-10, -10, -10);
+            Vector3d v1 = new Vector3d(-1, 0, 0);
+            Vector3d v2 = new Vector3d(0, 1, 0);
+            Vector3d v3 = new Vector3d(0, 0, 1);
+            CoordinateSystem coordinateSystem = new CoordinateSystem(origin, v1, v2, v3);
+
+            ResultBeamForces forces = new ResultBeamForces(-100, 0, 0, 0, -100, -100, coordinateSystem);
+            ResultBeamForces convertedForces = forces.ToGlobalCoordinateSystem();
+
+            ResultBeamForces expForces = new ResultBeamForces(-100, 0, 0, 0, 100, -100, CoordinateSystem.Global);
+
+            Assert.IsTrue(expForces.Equals(convertedForces));
+        }
+
+        [TestMethod]
+        public void ResultBeamForcesTest5()
+        {
+            Point3d origin = new Point3d(10, 10, 10);
+            Vector3d v1 = new Vector3d(-1, 0, 0);
+            Vector3d v2 = new Vector3d(0, 1, 0);
+            Vector3d v3 = new Vector3d(0, 0, 1);
+            CoordinateSystem coordinateSystem = new CoordinateSystem(origin, v1, v2, v3);
+
+            ResultBeamForces forces = new ResultBeamForces(100, 0, 0, 0, -100, 100, coordinateSystem);
+            ResultBeamForces convertedForces = forces.ToGlobalCoordinateSystem();
+
+            ResultBeamForces expForces = new ResultBeamForces(100, 0, 0, 0, 100, 100, CoordinateSystem.Global);
+
+            Assert.IsTrue(expForces.Equals(convertedForces));
+        }
+
     }
 }
