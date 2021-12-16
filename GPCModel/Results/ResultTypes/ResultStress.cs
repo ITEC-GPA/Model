@@ -1,18 +1,18 @@
-using GPC.Geometry;
-using GPC.Model.LoadCases;
-using MathNet.Numerics.LinearAlgebra;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.Text;
 using System.Threading.Tasks;
+using GPC.Geometry;
+using GPC.Model.LoadCases;
+using MathNet.Numerics.LinearAlgebra;
 
 namespace GPC.Model.Results
 {
 
     [Serializable]
-    public sealed class ResultStress : ResultType, IEquatable<ResultStress>, ISerializable, IPlateResult, IBrickResult
+    public sealed class ResultStress : ResultType, IEquatable<ResultStress>, ISerializable, IBrickResult, IResult<ResultStress>
     {
         #region Variables
 
@@ -112,9 +112,10 @@ namespace GPC.Model.Results
         /// <param name="sxz">Stress on <see cref="CoordinateSystem.V1"/> side of the plate along <see cref="CoordinateSystem.V3"/> direction</param>
         /// <param name="syz">Stress on <see cref="CoordinateSystem.V2"/> side of the plate along <see cref="CoordinateSystem.V3"/> direction</param>
         /// <param name="name"></param>
+        /// <param name="id"></param>
         /// <remarks> _szz is set to zero by default </remarks>
-        public ResultStress(CoordinateSystem coordinateSystem, double sxx, double syy, double szz, double sxy, double sxz, double syz, string name = "")
-            : base(coordinateSystem, name)
+        public ResultStress(CoordinateSystem coordinateSystem, double sxx, double syy, double szz, double sxy, double sxz, double syz, string name = "", int id = ModelObjectId.IDUNASSIGNED)
+            : base(coordinateSystem, name, id)
         {
             _sxx = sxx;
             _syy = syy;
@@ -320,7 +321,7 @@ namespace GPC.Model.Results
 
             return !(other is null) && _sxx == other._sxx && _syy == other._syy
                                     && _szz == other._szz && _sxy == other._sxy
-                                    && _sxz == other._sxz && _syz == other._syz 
+                                    && _sxz == other._sxz && _syz == other._syz
                                     && base.Equals(other);
         }
 
@@ -353,9 +354,13 @@ namespace GPC.Model.Results
             return obj1.Equals(obj2);
         }
 
+        // statico perchè è come se fosse un operatore
+        /// <summary>
+        /// Returns a <see cref="ResultStress"/> that represent the arithmetic mean between the <paramref name="values"/>
+        /// </summary>
         public static ResultStress GetArithmeticMean(ResultStress[] values)
         {
-            
+
             if (values.Select(i => i._coordinateSystem).Distinct().Count() > 0)
             {
                 return new ResultStress(values[0]._coordinateSystem,
@@ -366,7 +371,7 @@ namespace GPC.Model.Results
                                         Utilities.Maths.Averages.ArithmeticMean(values.Select(i => i.Sxz).ToArray()),
                                         Utilities.Maths.Averages.ArithmeticMean(values.Select(i => i.Syz).ToArray()),
                                         string.Join(" ", values.Select(i => i.Name).ToHashSet().ToArray())
-                                        ) ;                    
+                                        );
             }
             else
             {
@@ -376,7 +381,7 @@ namespace GPC.Model.Results
                     [0] = values[0]
                 };
 
-                rotated.AddRange(values.Skip(1).Select(i => i.ToCoordinateSystem(values[0]._coordinateSystem)));                
+                rotated.AddRange(values.Skip(1).Select(i => i.ToCoordinateSystem(values[0]._coordinateSystem)));
 
                 return new ResultStress(values[0]._coordinateSystem,
                                                 Utilities.Maths.Averages.ArithmeticMean(rotated.Select(i => i.Sxx).ToArray()), // TODO: rimuovere toarray e metter ienumer
@@ -424,12 +429,12 @@ namespace GPC.Model.Results
 
                 var sumRotated = obj1._coordinateSystem.TrfMatrix.Resize(3, 3).Transpose() * (obj1.GetTensor(true) + obj2.GetTensor(true)) * obj1._coordinateSystem.TrfMatrix.Resize(3, 3);
 
-                return new ResultStress(obj1._coordinateSystem, 
-                                        sumRotated[0, 0], 
-                                        sumRotated[1, 1], 
-                                        sumRotated[2, 2], 
-                                        sumRotated[0, 1], 
-                                        sumRotated[0, 2], 
+                return new ResultStress(obj1._coordinateSystem,
+                                        sumRotated[0, 0],
+                                        sumRotated[1, 1],
+                                        sumRotated[2, 2],
+                                        sumRotated[0, 1],
+                                        sumRotated[0, 2],
                                         sumRotated[1, 2],
                                         string.Join(" ", new string[] { obj1.Name, obj2.Name }.ToHashSet())
                                         );
@@ -444,10 +449,10 @@ namespace GPC.Model.Results
 
             if (obj1._coordinateSystem.Equals(obj2._coordinateSystem))
             {
-                return new ResultStress(obj1._coordinateSystem, obj1._sxx - obj2._sxx, 
-                                                                obj1._syy - obj2._syy, 
-                                                                obj1._szz - obj2._szz, 
-                                                                obj1._sxy - obj2._sxy, 
+                return new ResultStress(obj1._coordinateSystem, obj1._sxx - obj2._sxx,
+                                                                obj1._syy - obj2._syy,
+                                                                obj1._szz - obj2._szz,
+                                                                obj1._sxy - obj2._sxy,
                                                                 obj1._sxz - obj2._sxz,
                                                                 obj1._syz - obj2._syz,
                                                                 string.Join(" ", new string[] { obj1.Name, obj2.Name }.ToHashSet())
@@ -461,12 +466,12 @@ namespace GPC.Model.Results
 
                 var sumRotated = obj1._coordinateSystem.TrfMatrix.Resize(3, 3).Transpose() * (obj1.GetTensor(true) - obj2.GetTensor(true)) * obj1._coordinateSystem.TrfMatrix.Resize(3, 3);
 
-                return new ResultStress(obj1._coordinateSystem, 
-                                        sumRotated[0, 0], 
-                                        sumRotated[1, 1], 
-                                        sumRotated[2, 2], 
-                                        sumRotated[0, 1], 
-                                        sumRotated[0, 2], 
+                return new ResultStress(obj1._coordinateSystem,
+                                        sumRotated[0, 0],
+                                        sumRotated[1, 1],
+                                        sumRotated[2, 2],
+                                        sumRotated[0, 1],
+                                        sumRotated[0, 2],
                                         sumRotated[1, 2],
                                         string.Join(" ", new string[] { obj1.Name, obj2.Name }.ToHashSet())
                                         );

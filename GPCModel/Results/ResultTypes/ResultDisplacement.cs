@@ -1,14 +1,14 @@
-﻿using GPC.Geometry;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
+using GPC.Geometry;
 
 namespace GPC.Model.Results
 {
     [Serializable]
     public sealed class ResultDisplacement : ResultType, IEquatable<ResultDisplacement>,
-                                             ISerializable, INodeResult, IPlateResult, IBrickResult, IBeamResult
+                                             ISerializable, INodeResult, IPlateResult, IBrickResult, IBeamResult, IResult<ResultDisplacement>
     {
 
         #region Variables
@@ -43,8 +43,9 @@ namespace GPC.Model.Results
         /// <param name="r1">Rotation around <see cref="CoordinateSystem.V1"/> direction </param>
         /// <param name="r2">Rotation around <see cref="CoordinateSystem.V2"/> direction </param>
         /// <param name="r3">Rotation around <see cref="CoordinateSystem.V3"/> direction </param>
-        public ResultDisplacement(CoordinateSystem coordinateSystem, double d1, double d2, double d3, double r1, double r2, double r3)
-            : base(coordinateSystem)
+        /// <param name="id"></param>
+        public ResultDisplacement(CoordinateSystem coordinateSystem, double d1, double d2, double d3, double r1, double r2, double r3, int id = ModelObjectId.IDUNASSIGNED)
+            : base(coordinateSystem, string.Empty, id)
         {
             _d1 = d1;
             _d2 = d2;
@@ -77,7 +78,12 @@ namespace GPC.Model.Results
         public ResultDisplacement(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
-            throw new NotImplementedException();
+            _d1 = info.GetDouble("D1");
+            _d2 = info.GetDouble("D2");
+            _d3 = info.GetDouble("D3");
+            _r1 = info.GetDouble("R1");
+            _r2 = info.GetDouble("R2");
+            _r3 = info.GetDouble("R3");
         }
 
 
@@ -180,12 +186,35 @@ namespace GPC.Model.Results
             return (new Vector3d(_d1, _d2, _d3), new Vector3d(_r1, _r2, _r3));
         }
 
+        public ResultDisplacement ToCoordinateSystem(CoordinateSystem coordinateSystem)
+        {
+            Vector3d vector3dDisplacement = new Vector3d(_d1, _d2, _d3);
+            Vector3d vector3dRotation = new Vector3d(_r1, _r2, _r3);
+
+            Vector3d vector3dvector3dDisplacementGlobal = CoordinateSystem.ToGlobal(vector3dDisplacement);
+            Vector3d vector3dvector3dRotationGlobal = CoordinateSystem.ToGlobal(vector3dRotation);
+
+            var displacementNewCoordinate = coordinateSystem.ToLocal(vector3dvector3dDisplacementGlobal);
+            var rotationNewCoordinate = coordinateSystem.ToLocal(vector3dvector3dRotationGlobal);
+
+            return new ResultDisplacement(coordinateSystem,
+                                          displacementNewCoordinate.Z, displacementNewCoordinate.X, displacementNewCoordinate.Y,
+                                          rotationNewCoordinate.Z, rotationNewCoordinate.X, rotationNewCoordinate.Y);
+        }
+
+
         #endregion
 
 
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
-            throw new NotImplementedException();
+            base.GetObjectData(info, context);
+            info.AddValue("D1", _d1, typeof(double));
+            info.AddValue("D2", _d2, typeof(double));
+            info.AddValue("D3", _d3, typeof(double));
+            info.AddValue("R1", _r1, typeof(double));
+            info.AddValue("R2", _r2, typeof(double));
+            info.AddValue("R3", _r3, typeof(double));
         }
 
 
@@ -194,10 +223,13 @@ namespace GPC.Model.Results
 
         public override bool Equals(object obj)
         {
+            if (obj is null)
+                return false;
+
             if (ReferenceEquals(this, obj))
                 return true;
 
-            return Equals(obj as ResultDisplacement);
+            return Equals((ResultDisplacement)obj);
         }
 
 
@@ -231,7 +263,7 @@ namespace GPC.Model.Results
 
             if (values.Select(i => i._coordinateSystem).Distinct().Count() > 0)
             {
-                return new ResultDisplacement(values[0]._coordinateSystem, 
+                return new ResultDisplacement(values[0]._coordinateSystem,
                                         Utilities.Maths.Averages.ArithmeticMean(values.Select(i => i.D1).ToArray()),
                                         Utilities.Maths.Averages.ArithmeticMean(values.Select(i => i.D2).ToArray()),
                                         Utilities.Maths.Averages.ArithmeticMean(values.Select(i => i.D3).ToArray()),

@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Linq;
 using System;
 using GPC.Geometry;
@@ -6,13 +6,17 @@ using GPC.Model.FEM.Properties;
 using GPC.Model.FEM.Attributes;
 using GPC.Model.Results;
 using mnl = MathNet.Numerics.LinearAlgebra;
+using System.ComponentModel;
+using GPC.Model.FEM.Collections;
+using System.Runtime.Serialization;
 
 namespace GPC.Model.FEM.FiniteElements
 {
     /// <summary>
     /// Each finite element should derive from this
     /// </summary>
-    public abstract class FiniteElement : FEMObject
+    [Serializable]
+    public abstract class FiniteElement : FEMObject, INotifyPropertyChanged
     {
         #region Variables
 
@@ -26,19 +30,20 @@ namespace GPC.Model.FEM.FiniteElements
         //local stiffness matrix of the element in local coordinates
         protected mnl.Matrix<double> _kElementLocalCoord;
         
-        protected List<LoadCaseAttribute> _attributesLoadCase;
-        protected List<FreedomCaseAttribute> _attributesFreedomCase;
+        protected AttributesCollection<LoadCaseAttribute> _attributesLoadCase;
+        protected AttributesCollection<FreedomCaseAttribute> _attributesFreedomCase;
 
         //contains informations about section, thickness, material etc of the element
         protected ElementProperty _property;
 
         //contains the nodes in global coordinates
         protected Node[] _nodesGlobal;
-        //contains the nodes in global coordinates
+        //contains the nodes in local coordinates
         protected Node[] _nodesLocal;
 
-
         protected readonly ModelObjectSet<FiniteElementResult> _results;
+
+        public event PropertyChangedEventHandler PropertyChanged;
 
         #endregion
 
@@ -101,8 +106,8 @@ namespace GPC.Model.FEM.FiniteElements
         /// </summary>
         public mnl.Matrix<double> KElementLocalCoord => _kElementLocalCoord;
         
-        public List<LoadCaseAttribute> AttributesLoadCase => _attributesLoadCase;
-        public List<FreedomCaseAttribute> AttributesFreedomCase => _attributesFreedomCase;
+        public AttributesCollection<LoadCaseAttribute> AttributesLoadCase => _attributesLoadCase;
+        public AttributesCollection<FreedomCaseAttribute> AttributesFreedomCase => _attributesFreedomCase;
         public IEnumerable<FiniteElementResult> Results => _results;
 
         #endregion
@@ -114,15 +119,32 @@ namespace GPC.Model.FEM.FiniteElements
         {
             _nodesGlobal = nodes;
             _DOF = new SortedSet<Solver.DOF>();
-            _attributesLoadCase = new List<LoadCaseAttribute>();
-            _attributesFreedomCase = new List<FreedomCaseAttribute>();
+            _attributesLoadCase = new AttributesCollection<LoadCaseAttribute>();
+            _attributesFreedomCase = new AttributesCollection<FreedomCaseAttribute>();
 
             _results = new ModelObjectSet<FiniteElementResult>(EqualityComparer<ElementResult>.Default); // comparer di ElementResult, usa solo il case come comparatore
         }
 
+        public FiniteElement(SerializationInfo info, StreamingContext context)
+            : base(info, context)
+        {
+            _results = (ModelObjectSet<FiniteElementResult>)info.GetValue("Result", typeof(ModelObjectSet<FiniteElementResult>));
+            _nodesGlobal = (Node[])info.GetValue("NodesGlobal", typeof(Node[]));
+            _nodesLocal = (Node[])info.GetValue("NodesLocal", typeof(Node[]));
+            _property = (ElementProperty)info.GetValue("Property", typeof(ElementProperty));
+            _attributesLoadCase = (AttributesCollection<LoadCaseAttribute>)info.GetValue("AttributesLoadCase", typeof(AttributesCollection<LoadCaseAttribute>));
+            _attributesFreedomCase = (AttributesCollection<FreedomCaseAttribute>)info.GetValue("AttributesFreedomCase", typeof(AttributesCollection<FreedomCaseAttribute>));
+        }
+
+
         #endregion
 
         #region PublicFunction
+
+        protected void OnPropertyChanged(string propertyName)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
 
         internal virtual void SetProperty(ElementProperty property)
         {
@@ -131,6 +153,19 @@ namespace GPC.Model.FEM.FiniteElements
 
             _property = property;
         }
+
+
+        public LoadCaseAttribute GetLoadCaseAttribute(string loadCaseName)
+        {
+            return (LoadCaseAttribute)_attributesLoadCase.GetElementByCaseName(loadCaseName);
+        }
+
+
+        public FreedomCaseAttribute GetFreedomCaseAttribute(string freedomCaseName)
+        {
+            return (FreedomCaseAttribute)_attributesFreedomCase.GetElementByCaseName(freedomCaseName);
+        }
+
 
         public abstract FiniteElement Duplicate(ElementProperty property, List<LoadCaseAttribute> lcAttributes, List<FreedomCaseAttribute> fcAttributes);
 
@@ -152,16 +187,6 @@ namespace GPC.Model.FEM.FiniteElements
             mnl.Vector<double> F = DofGlobalToLocal.Transpose() * _fLocalCoord;
             
             return F;
-        }
-
-        /*/// <summary>
-        /// Retrieve sigma, epsilon, N, M, etc in the element from displacement
-        /// Top then bottom , then nr node. Example: stress[5] in element with 3 nodes with top and bottom: in equal to: 3 top, 2 bottom -> node 2 bottom
-        /// </summary>*/
-        //TODO: Da ottimizzare/scrivere
-        public void GetNodesResults(double[] globalDisplacementsNodes, out mnl.Matrix<double>[] gloabalPseudoDeformation, out mnl.Matrix<double>[] localPseudoDeformation, out mnl.Matrix<double>[] globalForces, out mnl.Matrix<double>[] localForces, out mnl.Matrix<double>[] globalStress, out mnl.Matrix<double>[] localStress, out mnl.Matrix<double>[] globalEpsilon, out mnl.Matrix<double>[] localEpsilon)
-        {
-            throw new Exception("ottimizzare questa funzione");
         }
 
         public virtual void AddResult(FiniteElementResult result)
@@ -223,6 +248,7 @@ namespace GPC.Model.FEM.FiniteElements
         }
 
         #region EqualsAndHashCode
+
         public override bool Equals(object obj)
         {
             return obj is FiniteElement element &&
@@ -246,6 +272,21 @@ namespace GPC.Model.FEM.FiniteElements
                 return hashCode; 
             }
         }
+
+        public override void GetObjectData(SerializationInfo info, StreamingContext context)
+        {
+            base.GetObjectData(info, context);
+            info.AddValue("Result", _results, typeof(ModelObjectSet<FiniteElementResult>));
+            info.AddValue("NodesGlobal", _nodesGlobal, typeof(Node[]));
+            info.AddValue("NodesLocal", _nodesLocal, typeof(Node[]));
+            info.AddValue("Property", _property, typeof(ElementProperty));
+
+            info.AddValue("AttributesLoadCase", _attributesLoadCase, typeof(AttributesCollection<LoadCaseAttribute>));
+            info.AddValue("AttributesFreedomCase", _attributesFreedomCase, typeof(AttributesCollection<FreedomCaseAttribute>));
+
+        }
+
+
         #endregion
         #endregion
     }

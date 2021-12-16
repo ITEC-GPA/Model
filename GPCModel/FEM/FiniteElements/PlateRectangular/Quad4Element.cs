@@ -278,12 +278,12 @@ namespace GPC.Model.FEM.FiniteElements
             return f;
         }
 
-        public override void AddLoadCaseAttribute(IPlateLoadCaseAttribute attribute)
+        public override bool AddLoadCaseAttribute(IPlateLoadCaseAttribute attribute)
         {
             //the attribute will add to the 2 finite element, Membrane and Discrete Kirchoff (DK). The attribute will have its impact in each finite element.
             //The nodal forces will be added
-            _membranal.AddLoadCaseAttribute(attribute);
-            _flexural.AddLoadCaseAttribute(attribute);
+            return _membranal.AddLoadCaseAttribute(attribute) && _flexural.AddLoadCaseAttribute(attribute);
+            
         }
 
         //TODO: Da ottimizzare/scrivere
@@ -328,37 +328,37 @@ namespace GPC.Model.FEM.FiniteElements
 
             //get results
             _membranal.GetNodesResults(membranalGlobalDisplacements.ToArray(), out double[] membranalLocalDisplacements, out mnl.Matrix<double>[] membranalGlobalPseudoDisplacements, out mnl.Matrix<double>[] membranalLocalPseudoDisplacements, out mnl.Matrix<double>[] membranalGlobalForces, out mnl.Matrix<double>[] membranalLocalForces, out mnl.Matrix<double>[] membranalGlobalStress, out mnl.Matrix<double>[] membranalLocalStress, out mnl.Matrix<double>[] membranalGlobalEpsilon, out mnl.Matrix<double>[] membranalLocalEpsilon);
-            _flexural.GetNodesResults(flexuralGlobalDisplacements.ToArray(), out double[] flexuralLocalDisplacements, out mnl.Matrix<double>[] flexuralGlobalPseudoDisplacements, out mnl.Matrix<double>[] flexuralLocalPseudoDisplacements, out mnl.Matrix<double>[] flexuralGlobalForces, out mnl.Matrix<double>[] flexuralLocalForces, out mnl.Matrix<double>[] flexuralGlobalStress, out mnl.Matrix<double>[] flexuralLocalStress, out mnl.Matrix<double>[] flexuralGlobalEpsilon, out mnl.Matrix<double>[] flexuralLocalEpsilon);
+            //_flexural.GetNodesResults(flexuralGlobalDisplacements.ToArray(), out double[] flexuralLocalDisplacements, out mnl.Matrix<double>[] flexuralGlobalPseudoDisplacements, out mnl.Matrix<double>[] flexuralLocalPseudoDisplacements, out mnl.Matrix<double>[] flexuralGlobalForces, out mnl.Matrix<double>[] flexuralLocalForces, out mnl.Matrix<double>[] flexuralGlobalStress, out mnl.Matrix<double>[] flexuralLocalStress, out mnl.Matrix<double>[] flexuralGlobalEpsilon, out mnl.Matrix<double>[] flexuralLocalEpsilon);
 
             //sum of results
             localDisplacements = new double[5 * 4]; //dx, dy, dz, rx, ry * 4 nodes
             //node 1
             localDisplacements[0] = membranalLocalDisplacements[0]; //dx
             localDisplacements[1] = membranalLocalDisplacements[1]; //dy
-            localDisplacements[2] = flexuralLocalDisplacements[0]; //dz
-            localDisplacements[3] = flexuralLocalDisplacements[1]; //rx
-            localDisplacements[4] = flexuralLocalDisplacements[2]; //ry
+            //localDisplacements[2] = flexuralLocalDisplacements[0]; //dz
+            //localDisplacements[3] = flexuralLocalDisplacements[1]; //rx
+            //localDisplacements[4] = flexuralLocalDisplacements[2]; //ry
 
             //node 2
             localDisplacements[5] = membranalLocalDisplacements[2]; //dx
             localDisplacements[6] = membranalLocalDisplacements[3]; //dy
-            localDisplacements[7] = flexuralLocalDisplacements[3]; //dz
-            localDisplacements[8] = flexuralLocalDisplacements[4]; //rx
-            localDisplacements[9] = flexuralLocalDisplacements[5]; //ry
+            //localDisplacements[7] = flexuralLocalDisplacements[3]; //dz
+            //localDisplacements[8] = flexuralLocalDisplacements[4]; //rx
+            //localDisplacements[9] = flexuralLocalDisplacements[5]; //ry
 
             //node 3
             localDisplacements[10] = membranalLocalDisplacements[4]; //dx
             localDisplacements[11] = membranalLocalDisplacements[5]; //dy
-            localDisplacements[12] = flexuralLocalDisplacements[6]; //dz
-            localDisplacements[13] = flexuralLocalDisplacements[7]; //rx
-            localDisplacements[14] = flexuralLocalDisplacements[8]; //ry
+            //localDisplacements[12] = flexuralLocalDisplacements[6]; //dz
+            //localDisplacements[13] = flexuralLocalDisplacements[7]; //rx
+            //localDisplacements[14] = flexuralLocalDisplacements[8]; //ry
 
             //node 4
             localDisplacements[15] = membranalLocalDisplacements[6]; //dx
             localDisplacements[16] = membranalLocalDisplacements[7]; //dy
-            localDisplacements[17] = flexuralLocalDisplacements[9]; //dz
-            localDisplacements[18] = flexuralLocalDisplacements[10]; //rx
-            localDisplacements[19] = flexuralLocalDisplacements[11]; //ry
+            //localDisplacements[17] = flexuralLocalDisplacements[9]; //dz
+            //localDisplacements[18] = flexuralLocalDisplacements[10]; //rx
+            //localDisplacements[19] = flexuralLocalDisplacements[11]; //ry
 
             localPseudoDeformation = new mnl.Matrix<double>[4] { //four nodes
                 mnl.Matrix<double>.Build.Dense(3 + 3, 3 + 3), //couchy epsilon + couchy curvatures
@@ -411,20 +411,20 @@ namespace GPC.Model.FEM.FiniteElements
                 {
                     for (int c = 0; c < 3; c++)
                     {
-                        localPseudoDeformation[node][r + 3, c + 3] = flexuralLocalPseudoDisplacements[node][r, c]; //add curvature
-                        globalPseudoDeformation[node][r + 3, c + 3] = flexuralGlobalPseudoDisplacements[node][r, c]; //add curvature
+                        //localPseudoDeformation[node][r + 3, c + 3] = flexuralLocalPseudoDisplacements[node][r, c]; //add curvature
+                        //globalPseudoDeformation[node][r + 3, c + 3] = flexuralGlobalPseudoDisplacements[node][r, c]; //add curvature
 
-                        localForces[node][r + 3, c + 3] = flexuralLocalForces[0][r, c]; //add M
-                        globalForces[node][r + 3, c + 3] = flexuralGlobalForces[0][r, c]; //add M
+                        //localForces[node][r + 3, c + 3] = flexuralLocalForces[0][r, c]; //add M
+                        //globalForces[node][r + 3, c + 3] = flexuralGlobalForces[0][r, c]; //add M
                     }
                 }
 
                 //top
-                localStress[node] = membranalLocalStress[0] + flexuralLocalStress[node];
-                globalStress[node] = membranalGlobalStress[0] + flexuralGlobalStress[node];
+                //localStress[node] = membranalLocalStress[0] + flexuralLocalStress[node];
+                //globalStress[node] = membranalGlobalStress[0] + flexuralGlobalStress[node];
 
-                localEpsilon[node] = membranalLocalEpsilon[0] + flexuralLocalEpsilon[node];
-                globalEpsilon[node] = membranalGlobalEpsilon[0] + flexuralGlobalEpsilon[node];
+                //localEpsilon[node] = membranalLocalEpsilon[0] + flexuralLocalEpsilon[node];
+                //globalEpsilon[node] = membranalGlobalEpsilon[0] + flexuralGlobalEpsilon[node];
 
                 //center
                 localStress[node + 4] = membranalLocalStress[0];
@@ -434,11 +434,11 @@ namespace GPC.Model.FEM.FiniteElements
                 globalEpsilon[node + 4] = membranalGlobalEpsilon[0];
 
                 //bottom
-                localStress[node + 8] = membranalLocalStress[0] + flexuralLocalStress[node + 3];
-                globalStress[node + 8] = membranalGlobalStress[0] + flexuralGlobalStress[node + 3];
+                //localStress[node + 8] = membranalLocalStress[0] + flexuralLocalStress[node + 3];
+                //globalStress[node + 8] = membranalGlobalStress[0] + flexuralGlobalStress[node + 3];
 
-                localEpsilon[node + 8] = membranalLocalEpsilon[0] + flexuralLocalEpsilon[node + 3];
-                globalEpsilon[node + 8] = membranalGlobalEpsilon[0] + flexuralGlobalEpsilon[node +3];
+                //localEpsilon[node + 8] = membranalLocalEpsilon[0] + flexuralLocalEpsilon[node + 3];
+                //globalEpsilon[node + 8] = membranalGlobalEpsilon[0] + flexuralGlobalEpsilon[node +3];
             }           
         }
 

@@ -4,24 +4,21 @@ using System.Runtime.Serialization;
 
 namespace GPC.Model.FEM.Materials
 {
-
+    [Serializable]
     public class IsotropicFemMaterial : FemMaterial
     {
-
-        protected double _e;
-
-        protected double _ni;
-
-        protected double _g;
-
-        protected double _alpha;
-
+        protected readonly double _e;
+        protected readonly double _ni;
+        protected readonly double _g;
+        protected readonly double _alpha;
 
         public double E => _e;
-        public double G => _g;
-        public double Ni => _ni;
-        public double Alpha => _alpha;
 
+        public double G => _g;
+
+        public double Ni => _ni;
+
+        public double Alpha => _alpha;
 
         /// <param name="E"></param>
         /// <param name="ni"></param>
@@ -30,30 +27,38 @@ namespace GPC.Model.FEM.Materials
         /// <remarks>If <paramref name="E"/> is zero, it will be setted to <see cref="FemOptions.ZeroElasticModulus"/>
         /// <para><see cref="G"/> is calculated from <paramref name="E"/> and <paramref name="ni"/></para></remarks>
         /// <exception cref="ArgumentException"></exception>
-        internal IsotropicFemMaterial(double E, double ni, double alpha, double density) : base(string.Empty, density)
+        public IsotropicFemMaterial(double E, double ni, double alpha, double density) 
+            : base(string.Empty, density)
         {
             _e = E < FemOptions.Instance.ZeroElasticModulus ? FemOptions.Instance.ZeroElasticModulus : E;
 
             _ni = ni < 0 || ni >= 0.5 ? throw new ArgumentException($"Poisson cannot be greater equal than 0.5 or lower than 0") : ni;
 
             _alpha = alpha < 0 ? throw new ArgumentException($"Linear thermal expansion coefficient cannot be lower than zero") : alpha;
-
-            _density = density < 0 ? throw new ArgumentException($"{nameof(density)} cannot be lower than zero") : density;
-            
+                        
             _g = E / (2.0 * (1.0 + ni));
 
             if (_g < 0)
                 throw new ArgumentException($"Shear modulus cannot be lower than zero");
-
         }
 
-
-        internal IsotropicFemMaterial(SerializationInfo info, StreamingContext context) 
+        public IsotropicFemMaterial(SerializationInfo info, StreamingContext context) 
             : base(info, context)
         {
-            throw new NotImplementedException();
+            _e = info.GetDouble("E");
+            _ni = info.GetDouble("Ni");
+            _g = info.GetDouble("G");
+            _alpha = info.GetDouble("Alfa");
         }
 
+        public override void GetObjectData(SerializationInfo info, StreamingContext context)
+        {
+            base.GetObjectData(info, context);
+            info.AddValue("E", _e, typeof(double));
+            info.AddValue("Ni", _ni, typeof(double));
+            info.AddValue("G", _g, typeof(double));
+            info.AddValue("Alfa", _alpha, typeof(double));
+        }
 
         public override Matrix<double> GetPlaneStress()
         {
@@ -118,7 +123,7 @@ namespace GPC.Model.FEM.Materials
             return factor * d;
         }
 
+
         #endregion
     }
-
 }

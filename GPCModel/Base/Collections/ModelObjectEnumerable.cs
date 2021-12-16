@@ -20,7 +20,7 @@ namespace GPC.Model
             _collection = new List<T>();
         }
 
-        public ModelObjectEnumerable(SerializationInfo info, StreamingContext context)
+        protected ModelObjectEnumerable(SerializationInfo info, StreamingContext context)
         {
             _collection = (ICollection<T>)info.GetValue("Collection", typeof(ICollection<T>));
         }

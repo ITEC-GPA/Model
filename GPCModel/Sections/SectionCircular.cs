@@ -1,76 +1,171 @@
-﻿using GPC.Geometry;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Linq.Expressions;
-using System.Runtime.InteropServices;
-using System.Runtime.Serialization;
-using System.Text;
-using System.Threading.Tasks;
-
+using GPC.Geometry;
 using GPC.Model.Materials;
-using GPC.Model.FEM.Materials;
+using System;
+using System.Runtime.Serialization;
 
 namespace GPC.Model.Sections
 {
-    public class SectionCircular : Section
-    {
-        #region Variables
-        protected double _dext; /// Diameter external
-        #endregion
 
-        #region Properties
-        public double Dext => _dext;
-        #endregion
+    public class SectionCircular : Section, ISection
+    {
+        protected double _diameter;
+
+        /// <summary>
+        /// The diameter
+        /// </summary>
+        public double Diameter => _diameter;
 
         #region Public Constructors
-        public SectionCircular(double dext, double t, Material material, string name) : base(material.GetIsotropicFemMaterial(), name)
-        {
-            _dext = dext;
 
-            _area = (Math.Pow(_dext, 2.0) * Math.PI) / 4.0;
-            _wpl11 = wpl();
-            _wpl22 = _wpl11;
+        /// <summary>
+        /// The default constructor
+        /// </summary>
+        /// <param name="diameter">The diameter</param>
+        /// <param name="material">The material</param>
+        /// <param name="name">The section name</param>
+        public SectionCircular(double diameter, Material material, string name)
+            : base(material, name)
+        {
+            _diameter = diameter;
+
+            SetMechanicalProperties();
+        }
+
+        public SectionCircular(SectionCircular sectionCircular)
+            : this(sectionCircular.Diameter, sectionCircular.Material, sectionCircular.Name)
+        {
+
         }
 
         public SectionCircular(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
-            _dext = info.GetDouble("Dext");
-            _material = (IsotropicFemMaterial)info.GetValue("Material", typeof(IsotropicFemMaterial));
+            _diameter = info.GetDouble("Diameter");
         }
 
         #endregion
 
         #region Public Methods Specific
-        public double wpl()
+
+        protected override Shape2d GetShape()
         {
-            return Math.Pow(_dext, 3.0) / 6.0;
+            return new Shape2d(new Polygon2d(_diameter, 32, _centroid));
         }
+
 
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             base.GetObjectData(info, context);
-            info.AddValue("Dext", _dext);
-            info.AddValue("Material", _material);
+            info.AddValue("Diameter", _diameter);
         }
 
-        public override ShapeMaterial[] GetShapes()
-        {
-            int divisions = 36;
-            Polygon2d hole =null;
-            Polygon2d fill = new Polygon2d();
-    
-            for (int i = 0; i < divisions; i++)
-            {
-                double teta = i * 2 * Math.PI / divisions;
-                fill.Add(new Point2d(0.5 * _dext * Math.Cos(teta), 0.5 * _dext * Math.Sin(teta)));
-            }
-
-            Shape shape = new Shape(fill, hole != null ? new[] { hole } : null);
-
-            return new[] { new ShapeMaterial { Material = _material, Shape = shape } };
-        }
         #endregion
+
+        #region Protected method
+
+        protected override void SetMechanicalProperties()
+        {
+            _area = CalculateArea();
+            _j11 = CalculateJ();
+            _j22 = CalculateJ();
+            _jxx = CalculateJ();
+            _jyy = CalculateJ();
+
+            _jxy = CalculateJxy();
+            _jp = _jxx + _jyy;
+
+            _jt = CalculateJt();
+            _jw = CalculateJw();
+            _centroid = CalculateCentroid();
+            _shearCenter = CalculateShearCenter();
+            _angleX1 = CalculateAngle();
+            _wel1Max = CalculateWel();
+            _wel1Min = CalculateWel();
+            _wel2Max = CalculateWel();
+            _wel2Min = CalculateWel();
+            _wpl1 = CalculateWpl();
+            _wpl2 = CalculateWpl();
+
+            _isSymmetricAlongXLocalAxis = CalculateIsSymmetricAlongXLocalAxis();
+            _isSymmetricAlongYLocalAxis = CalculateIsSymmetricAlongYLocalAxis();
+
+        }
+
+        protected override double CalculateArea()
+        {
+            return Math.Pow(Diameter, 2.0) * Math.PI / 4.0;
+        }
+
+        protected virtual double CalculateJ()
+        {
+            return Math.PI * Math.Pow(Diameter, 4.0) / 64.0;
+        }
+
+        protected override double CalculateJt()
+        {
+            return Math.PI * Math.Pow(Diameter, 4.0) / 32.0;
+        }
+
+        protected override double CalculateJw()
+        {
+            return 0;
+        }
+
+        protected override Point2d CalculateCentroid()
+        {
+            return new Point2d(Diameter / 2.0, Diameter / 2.0);
+        }
+
+        protected virtual double CalculateWel()
+        {
+            return Math.PI * Math.Pow(Diameter, 4.0) / (32.0 * Diameter);
+        }
+
+        protected virtual double CalculateWpl()
+        {
+            return Math.Pow(Diameter, 3.0) / 6.0;
+        }
+        protected override bool CalculateIsSymmetricAlongXLocalAxis()
+        {
+            return true;
+        }
+
+        protected override bool CalculateIsSymmetricAlongYLocalAxis()
+        {
+            return true;
+        }
+
+        #endregion
+        
+        public override string ToString()
+        {
+            return $"Circular {_diameter}";
+        }
+
+        public override bool Equals(object obj)
+        {
+            return obj is SectionCircular circular && base.Equals(obj) && _diameter == circular._diameter;
+        }
+
+        public override int GetHashCode()
+        {
+            unchecked
+            {
+                int hashCode = 17;
+                hashCode = hashCode * -23 + base.GetHashCode();
+                hashCode = hashCode * -23 + _diameter.GetHashCode();
+                return hashCode;
+            }
+        }
+
+        public static bool operator ==(SectionCircular left, SectionCircular right)
+        {
+            return left.Equals(right);
+        }
+
+        public static bool operator !=(SectionCircular left, SectionCircular right)
+        {
+            return !(left == right);
+        }
     }
 }

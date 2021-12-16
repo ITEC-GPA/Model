@@ -5,13 +5,14 @@ namespace GPC.Model.Glasses
 {
     public sealed class AirChamber : ModelObject, IGlassPackage, IEquatable<AirChamber>
     {
-        private double _thickness;
+        private readonly double _thickness;
 
         public double Thickness => _thickness;
 
         public AirChamber(string name, double thickness)
             : this(name, thickness, Guid.NewGuid())
         {
+
         }
 
         public AirChamber(string name, double thickness, Guid guid) : base(guid, name)
@@ -35,10 +36,13 @@ namespace GPC.Model.Glasses
 
         public override int GetHashCode()
         {
-            int hashCode = 23;
-            hashCode = hashCode * -17 + base.GetHashCode();
-            hashCode = hashCode * -17 + _thickness.GetHashCode();
-            return hashCode;
+            unchecked
+            {
+                int hashCode = 23;
+                hashCode = hashCode * -17 + base.GetHashCode();
+                hashCode = hashCode * -17 + _thickness.GetHashCode();
+                return hashCode; 
+            }
         }
 
         public override void GetObjectData(SerializationInfo info, StreamingContext context)

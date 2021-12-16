@@ -1,32 +1,45 @@
-﻿using GPC.Geometry;
-using GPC.Model.LoadCases;
-using System;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Runtime.Serialization;
+using GPC.Geometry;
+using GPC.Model.LoadCases;
 
 namespace GPC.Model.Results
 {
     [Serializable]
-    public class NodeResult : ElementResult, ISerializable, IEquatable<NodeResult>
+    public sealed class NodeResult : ElementResult, ISerializable, IEquatable<NodeResult>, IFemResult
     {
-        private readonly INodeResult _result;
 
-        public ResultType Result => (ResultType)_result;
+        private readonly int _stageId;
+
+        public int StageId => _stageId;
 
 
-        public NodeResult(ILoadCase Case, CoordinateSystem coordinateSystem, INodeResult result)
-            : this(Case, coordinateSystem, result, ModelObjectId.IDUNASSIGNED)
+
+        public NodeResult(ILoadCase Case, IEnumerable<ResultLocationId> resultLocations,
+                                          int stageId = ModelObjectId.IDUNASSIGNED)
+            : base(Case, resultLocations.ToArray())
         {
-
-        }
-
-        public NodeResult(ILoadCase Case, CoordinateSystem coordinateSystem, INodeResult result, int stageId)
-            : base(Case, coordinateSystem)
-        {
-            _result = result;
             _stageId = stageId;
         }
 
 
+        public NodeResult(SerializationInfo info, StreamingContext context)
+            : base(info, context)
+        {
+            _stageId = (int)info.GetValue("StageId", typeof(int));
+        }
+
+        public override void GetObjectData(SerializationInfo info, StreamingContext context)
+        {
+            base.GetObjectData(info, context);
+            info.AddValue("StageId", _stageId, typeof(int));
+        }
+
+
+
+        #region Equals - hascode - operators
 
         public override int GetHashCode()
         {
@@ -34,11 +47,12 @@ namespace GPC.Model.Results
             {
                 int hashCode = 23;
                 hashCode = hashCode * -17 + base.GetHashCode();
-                hashCode = hashCode * -17 + _result.GetHashCode();
+                hashCode = hashCode * -17 + _stageId.GetHashCode();
 
                 return hashCode;
             }
         }
+
 
         public override bool Equals(object obj)
         {
@@ -53,8 +67,9 @@ namespace GPC.Model.Results
             if (ReferenceEquals(this, other))
                 return true;
 
-            return _result.Equals(other.Result) && base.Equals(other);
+            return _stageId.Equals(other.StageId) && base.Equals(other);
         }
+
 
         public static bool operator ==(NodeResult obj1, NodeResult obj2)
         {
@@ -73,5 +88,7 @@ namespace GPC.Model.Results
         {
             return !(obj1 == obj2);
         }
+
+        #endregion
     }
 }

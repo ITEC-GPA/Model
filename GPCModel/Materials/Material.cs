@@ -5,7 +5,7 @@ using System.Runtime.Serialization;
 namespace GPC.Model.Materials
 {
     [Serializable]
-    public abstract class Material : ModelObject
+    public class Material : ModelObject
     {
         #region VARIABLES
 
@@ -18,7 +18,7 @@ namespace GPC.Model.Materials
 
         #region PROPERTIES
 
-        public double E => _elasticModulus;
+        public virtual double E => _elasticModulus;
         public double Ni => _ni;
         public double AlfaThermalExpansion => _alfaThermalExpansion;
         public double Density => _density;
@@ -26,6 +26,7 @@ namespace GPC.Model.Materials
         #endregion
 
         #region PUBLIC CONSTRUCTOR
+
 
         /// <summary>
         /// </summary>
@@ -67,6 +68,12 @@ namespace GPC.Model.Materials
         { 
         }
 
+        protected Material(string name)
+			: base(Guid.NewGuid(), name)
+		{
+            
+		}
+
 
         protected Material(SerializationInfo info, StreamingContext context) 
             : base(info, context)
@@ -85,9 +92,15 @@ namespace GPC.Model.Materials
         }
 
 
-        public abstract GPC.Model.FEM.Materials.IsotropicFemMaterial GetIsotropicFemMaterial();
+        public virtual FEM.Materials.IsotropicFemMaterial GetIsotropicFemMaterial()
+        {
+            throw new NotImplementedException("");
+        }
 
-        public abstract GPC.Model.FEM.Materials.OrthotropicFemMaterial GetOrthotropicFemMaterial();
+        public virtual FEM.Materials.OrthotropicFemMaterial GetOrthotropicFemMaterial()
+        {
+            throw new NotImplementedException("");
+        }
 
 
 
@@ -108,23 +121,25 @@ namespace GPC.Model.Materials
             if (ReferenceEquals(this, obj))
                 return true;
 
-            Material objCasted = obj as Material;
-            return !(objCasted is null) && objCasted._elasticModulus.Equals(_elasticModulus) &&
-                                           objCasted._ni.Equals(_ni) &&
-                                           objCasted._alfaThermalExpansion.Equals(_alfaThermalExpansion) &&
-                                           objCasted._density.Equals(_density) &&
-                                           base.Equals(objCasted);
+            return (obj is Material objCasted) && objCasted._elasticModulus.Equals(_elasticModulus) &&
+                                                  objCasted._ni.Equals(_ni) &&
+                                                  objCasted._alfaThermalExpansion.Equals(_alfaThermalExpansion) &&
+                                                  objCasted._density.Equals(_density) &&
+                                                  base.Equals(objCasted);
         }
 
         public override int GetHashCode()
         {
-            int hashCode = 23;
-            hashCode = hashCode * -17 + base.GetHashCode();
-            hashCode = hashCode * -17 + _elasticModulus.GetHashCode();
-            hashCode = hashCode * -17 + _ni.GetHashCode();
-            hashCode = hashCode * -17 + _alfaThermalExpansion.GetHashCode();
-            hashCode = hashCode * -17 + _density.GetHashCode();
-            return hashCode;
+            unchecked
+            {
+                int hashCode = 23;
+                hashCode = hashCode * -17 + base.GetHashCode();
+                hashCode = hashCode * -17 + _elasticModulus.GetHashCode();
+                hashCode = hashCode * -17 + _ni.GetHashCode();
+                hashCode = hashCode * -17 + _alfaThermalExpansion.GetHashCode();
+                hashCode = hashCode * -17 + _density.GetHashCode();
+                return hashCode; 
+            }
         }
 
         public static bool operator ==(Material obj1, Material obj2)

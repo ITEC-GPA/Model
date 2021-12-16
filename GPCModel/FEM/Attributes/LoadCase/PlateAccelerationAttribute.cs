@@ -20,7 +20,8 @@ namespace GPC.Model.FEM.Attributes
 
 
         internal PlateAccelerationAttribute(PlateAccelerationAttribute beamAccelerationAttribute)
-            : this(beamAccelerationAttribute.LoadCaseName, beamAccelerationAttribute.CoordinateSystem, beamAccelerationAttribute.A1, beamAccelerationAttribute.A2, beamAccelerationAttribute.A3)
+            : this(beamAccelerationAttribute.LoadCaseName, beamAccelerationAttribute.CoordinateSystem, 
+                  beamAccelerationAttribute.A1, beamAccelerationAttribute.A2, beamAccelerationAttribute.A3)
         {
 
         }

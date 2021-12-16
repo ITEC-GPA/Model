@@ -15,10 +15,6 @@ namespace GPC.Model.FEM.Attributes
     [Serializable]
     public class ModelAccelerationAttribute : LoadCaseAttribute, IModelAttribute, ISerializable
     {
-        /// <summary>
-        /// Value of the gravity accelaration [mm/s^2]
-        /// </summary>
-        public const double GRAVITYACCELERATION = 9806.65;
 
         /// <summary>
         /// Acceleration along the axis: <see cref="CoordinateSystem.V1"/> [L/T^2]

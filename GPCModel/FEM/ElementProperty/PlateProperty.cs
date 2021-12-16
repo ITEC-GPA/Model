@@ -52,7 +52,7 @@ namespace GPC.Model.FEM.Properties
         {
             _bendingThickness = info.GetDouble("BendingThickness");
             _membraneThickness = info.GetDouble("MembranalThickness");
-            _material = (FemMaterial)info.GetValue("FemMaterial", typeof(FemMaterial));
+            _material = (FemMaterial)info.GetValue("Material", typeof(FemMaterial));
         }
 
 
@@ -64,7 +64,7 @@ namespace GPC.Model.FEM.Properties
             base.GetObjectData(info, context);
             info.AddValue("BendingThickness", _bendingThickness);
             info.AddValue("MembranalThickness", _membraneThickness);
-            info.AddValue("Material", _material);
+            info.AddValue("Material", _material, typeof(FemMaterial));
         }
 
         public override bool Equals(object obj)

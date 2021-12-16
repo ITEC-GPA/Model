@@ -1,8 +1,8 @@
-﻿using GPC.Utilities.Extensions;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
+using GPC.Utilities.Extensions;
 
 namespace GPC.Model
 {
@@ -99,7 +99,7 @@ namespace GPC.Model
         {
             lock (_locker)
             {
-                this.Add(item);
+                Add(item);
             }
         }
 

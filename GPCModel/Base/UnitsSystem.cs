@@ -16,7 +16,7 @@ namespace GPC.Model
         public UnitsConvert.PressureUnits PressureUnits { get; private set; }
         public UnitsConvert.TemperatureUnits TemperatureUnits { get; private set; }
 
-        public UnitsSystem(UnitsConvert.LengthUnits lengthUnits, UnitsConvert.ForceUnits forceUnits, UnitsConvert.MassUnits massUnits, 
+        public UnitsSystem(UnitsConvert.LengthUnits lengthUnits, UnitsConvert.ForceUnits forceUnits, UnitsConvert.MassUnits massUnits,
             UnitsConvert.PressureUnits pressureUnits, UnitsConvert.TemperatureUnits temperatureUnits)
         {
             LengthUnits = lengthUnits;
@@ -47,7 +47,7 @@ namespace GPC.Model
             return hashCode;
         }
 
-        public static bool operator==(UnitsSystem us1, UnitsSystem us2)
+        public static bool operator ==(UnitsSystem us1, UnitsSystem us2)
         {
             if (ReferenceEquals(us1, us2))
                 return true;

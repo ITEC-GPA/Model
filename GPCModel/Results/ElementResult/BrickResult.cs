@@ -1,25 +1,30 @@
-﻿using GPC.Geometry;
-using GPC.Model.LoadCases;
-using System;
+﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Runtime.Serialization;
+using GPC.Geometry;
+using GPC.Model.LoadCases;
 
 namespace GPC.Model.Results
 {
     [Serializable]
-    public class BrickResult : FiniteElementResult, ISerializable, IEquatable<BrickResult>
+    public sealed class BrickResult : FiniteElementResult, ISerializable, IEquatable<BrickResult>
     {
 
-        public BrickResult(ILoadCase Case, CoordinateSystem coordinateSystem, IEnumerable<IBrickResult> result, IEnumerable<ResultLocationId> points)
-            : this(Case, coordinateSystem, result, points, ModelObjectId.IDUNASSIGNED)
+
+        public BrickResult(ILoadCase Case, IEnumerable<ResultLocation> resultLocations,
+                                            int stageId = ModelObjectId.IDUNASSIGNED)
+            : base(Case, resultLocations, stageId)
         {
 
-        }
+            if (resultLocations is null)
+            {
+                throw new ArgumentNullException(nameof(resultLocations));
+            }
 
-        public BrickResult(ILoadCase Case, CoordinateSystem coordinateSystem, IEnumerable<IBrickResult> result, IEnumerable<ResultLocationId> points, int stageId)
-            : base(Case, coordinateSystem, (IEnumerable<ResultType>)result, points, stageId)
-        {
-
+            // controllo che siano iplate result
+            if (!(resultLocations.First().GetResults().First() is IBrickResult))
+                throw new ArgumentException("Result type is not a IplateResult");
         }
 
         public override int GetHashCode()
@@ -34,7 +39,7 @@ namespace GPC.Model.Results
 
         public bool Equals(BrickResult other)
         {
-            if (other is null)
+            if (other == null)
                 return false;
 
             if (ReferenceEquals(this, other))

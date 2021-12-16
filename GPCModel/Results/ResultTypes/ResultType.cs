@@ -1,19 +1,23 @@
-﻿using GPC.Geometry;
-using System;
+﻿using System;
+using System.Linq;
 using System.Runtime.Serialization;
+using GPC.Geometry;
 
 namespace GPC.Model.Results
 {
     [Serializable]
-    public abstract class ResultType : ModelObject, ISerializable
+    public abstract class ResultType : ModelObjectId, ISerializable
     {
         protected readonly CoordinateSystem _coordinateSystem;
 
-        protected ResultType(CoordinateSystem coordinateSystem, string name = "") : base(name)
+        public CoordinateSystem CoordinateSystem => _coordinateSystem;
+
+
+        protected ResultType(CoordinateSystem coordinateSystem, string name = "", int id = ModelObjectId.IDUNASSIGNED)
+            : base(id, name)
         {
             _coordinateSystem = coordinateSystem ?? throw new ArgumentNullException(nameof(coordinateSystem));
         }
-
 
 
         public ResultType(SerializationInfo info, StreamingContext context)
@@ -37,7 +41,7 @@ namespace GPC.Model.Results
             if (ReferenceEquals(this, obj))
                 return true;
 
-            return base.Equals(obj);
+            return base.Equals(obj); // Coordinate system non messo per scelta
         }
 
         public override int GetHashCode()

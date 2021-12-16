@@ -31,6 +31,12 @@ namespace GPC.Model
 
         }
 
+        public ModelObjectId(int id, Guid guid)
+            : this(id, "", guid)
+        {
+
+        }
+
         public ModelObjectId(Guid guid)
             : base(guid)
         {
@@ -55,7 +61,7 @@ namespace GPC.Model
             _id = id;
         }
 
-        public ModelObjectId(SerializationInfo info, StreamingContext context)
+        protected ModelObjectId(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
             _id = info.GetInt32("Id");

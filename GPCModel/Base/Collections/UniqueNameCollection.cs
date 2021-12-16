@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
+using System.Threading.Tasks;
 
 namespace GPC.Model
 {
@@ -58,6 +59,7 @@ namespace GPC.Model
             }
         }
 
+
         /// <inheritdoc cref="Add(T)"/>
         public virtual bool AddRange(IEnumerable<T> items)
         {
@@ -86,7 +88,7 @@ namespace GPC.Model
 
             lock (_locker)
             {
-                if (this.Contains(name))
+                if (ContainsName(name))
                     return _collection.SingleOrDefault(i => i.Name == name); 
                 else
                     throw new KeyNotFoundException($"Collection does not contain a element with name: {name}");
@@ -111,7 +113,7 @@ namespace GPC.Model
             }
         }
 
-        /// <inheritdoc cref="Contains(string)"/>
+        /// <inheritdoc cref="ContainsName(string)"/>
         public bool Contains(T item)
         {
             lock (_locker)
@@ -127,7 +129,7 @@ namespace GPC.Model
             {
                 foreach (var item in items)
                 {
-                    if (_collection.Contains(item))
+                    if (Contains(item))
                         return false;
                 }
                 return true;
@@ -135,7 +137,7 @@ namespace GPC.Model
         }
 
         /// <returns><see langword="True" /> if this collection contains an element with <see cref="ModelObject.Name"/> equals to <paramref name="name"/> </returns>
-        public bool Contains(string name)
+        public bool ContainsName(string name)
         {
             lock (_locker)
             {
@@ -144,7 +146,7 @@ namespace GPC.Model
         }
 
         /// <returns><see langword="True" /> if all the <paramref name="names"/> are contained into the collection </returns>
-        public bool ContainsRange(IEnumerable<string> names)
+        public bool ContainsNameRange(IEnumerable<string> names)
         {
             lock (_locker)
             {
@@ -242,7 +244,7 @@ namespace GPC.Model
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             base.GetObjectData(info, context);
-            info.AddValue("Names", _names);
+            info.AddValue("Names", _names, typeof(HashSet<string>));
         }
 
 

@@ -23,7 +23,7 @@ namespace GPC.Model
         }
 
 
-        public ModelObjectIdSet(SerializationInfo info, StreamingContext context) 
+        protected ModelObjectIdSet(SerializationInfo info, StreamingContext context) 
             : base(info, context)
         {
 

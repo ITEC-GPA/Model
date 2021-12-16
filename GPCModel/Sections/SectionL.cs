@@ -1,91 +1,198 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using GPC.Geometry;
 using GPC.Model.Materials;
 
 namespace GPC.Model.Sections
 {
-    public class SectionL : Section
+    public class SectionL : ThinWallSection, ISection
     {
         #region Variables
-        double _lHor;
-        double _tHor;
-        double _lVert;
-        double _tVert;
-        Plate[] _plates;
 
-        double _jyy = 0;
-        double _jxx = 0;
-        double _jxy = 0;
+        private readonly double _lHor;
+        private readonly double _tHor;
+        private readonly double _lVert;
+        private readonly double _tVert;
+
         #endregion
+
 
         #region Properties
-        public double LHor => _lHor;
-        public double THor => _tHor;
-        public double LVert => _lVert;
-        public double TVert => _tVert;
 
-        public double Jxx => _jxx;
-        public double Jxy => _jxy;
-        public double Jyy => _jyy;
-        public Plate[] Plates => _plates;
+        public double HorizontalLegLength => _lHor;
+
+        public double HorizontalLegThickness => _tHor;
+
+        public double VerticalLegLength => _lVert;
+
+        public double VerticalLegThickness => _tVert;
+
         #endregion
 
-        public SectionL(double lHor, double tHor, double lVert, double tVert, Material material, string name) : base(material.GetIsotropicFemMaterial(), name)
+
+        #region Constructor
+
+        /// <summary>
+        /// Default constructor
+        /// </summary>
+        /// <param name="horizontalLegLength">The horizontal leg length</param>
+        /// <param name="horizontalLegThickness">The horizontal leg thickness</param>
+        /// <param name="verticalLegLength">The vertical leg length</param>
+        /// <param name="verticalLegThickness">The vertical leg thickness</param>
+        /// <param name="material">Material of the section</param>
+        /// <param name="name">Name of the section</param>
+        public SectionL(double horizontalLegLength, double horizontalLegThickness, double verticalLegLength, double verticalLegThickness, Material material, string name)
+            : base(material, name)
         {
-            _lHor = lHor;
-            _tHor = tHor;
-            _lVert = lVert;
-            _tVert = tVert;
-            double fy = ((SteelMaterial)material).Fyk;
+            _lHor = horizontalLegLength < 0 ? throw new ArgumentException($"Horizzontal plate lenght cannot be lower than zero") : horizontalLegLength;
+            _tHor = horizontalLegThickness < 0 ? throw new ArgumentException($"Horizzontal plate thickness cannot be lower than zero") : horizontalLegThickness;
+            _lVert = verticalLegLength < 0 ? throw new ArgumentException($"Vertical plate lenght cannot be lower than zero") : verticalLegLength;
+            _tVert = verticalLegThickness < 0 ? throw new ArgumentException($"Vertical plate thickness cannot be lower than zero") : verticalLegThickness;
 
-            _plates = new Plate[2];
-            _plates[0] = new Plate(tHor, _tVert, _tHor/2.0, _lHor, _tHor/2.0, fy, Plate.TypePlate.outer);
-            _plates[1] = new Plate(tVert, _tVert / 2.0, 0, _tVert / 2.0, _lVert, fy, Plate.TypePlate.outer);
+            ThinWall thinWall1 = new ThinWall(HorizontalLegLength, HorizontalLegThickness, 0);
+            ThinWall thinWall2 = new ThinWall(VerticalLegLength - HorizontalLegThickness, VerticalLegThickness, Math.PI / 2);
 
-            _area = _plates[0].Area + _plates[1].Area;
+            SetThinWalls(new ThinWall[] { thinWall1, thinWall2 },
+                    new Point2d[] { new Point2d(HorizontalLegLength / 2, HorizontalLegThickness / 2),
+                    new Point2d(VerticalLegThickness / 2, HorizontalLegThickness + (VerticalLegLength - HorizontalLegThickness) / 2)});
 
-            double Sy = 0;
-            double Sx = 0;
-            for (int i = 0; i < _plates.Count(); i++)
-            {
-                Sx = Sx + _plates[i].Area * _plates[i].Centroid.X;
-                Sy = Sy + _plates[i].Area * _plates[i].Centroid.Y;
-            }
+            SetMechanicalProperties();
+        }
 
-            _centroid = new Point2d(Sx / _area, Sy / _area);
-                        
-            for (int i = 0; i < _plates.Count(); i++)
-            {
-                _jyy = _jyy + _plates[i].JyCentroid + _plates[i].Area * Math.Pow(_plates[i].Centroid.Y - _centroid.Y, 2.0);
-                _jxx = _jxx + _plates[i].JzCentroid + _plates[i].Area * Math.Pow(_plates[i].Centroid.X - _centroid.X, 2.0);
-                _jxy = _jxy + 0.0 + _plates[i].Area * (_plates[i].Centroid.X - _centroid.X) * (_plates[i].Centroid.Y - _centroid.Y);
-            }
-            _j11 = (_jxx + _jyy) / 2.0 - 0.5 * Math.Sqrt(Math.Pow(_jxx - _jyy,2.0) + 4.0 * _jxy * _jxy);
-            _j22 = (_jxx + _jyy) / 2.0 + 0.5 * Math.Sqrt(Math.Pow(_jxx - _jyy,2.0) + 4.0 * _jxy * _jxy);
-            _angleX1 = - 1.0 / 2.0 * Math.Atan(2.0 * _jxy / (_jyy - _jxx));
-            
-            if (_jyy < _jxx) { 
- 
-                _angleX1 = _angleX1 + Math.PI / 2.0;
-            }            
+        #endregion
 
-            _jt = 1.0 / 3.0 * (_lHor - _tVert / 2.0) * Math.Pow(_tHor, 3.0) + 1.0 / 3.0 * (_lVert - _tHor / 2.0) * Math.Pow(_tVert, 3.0);
-            _jw = (Math.Pow(_lHor - _tVert / 2.0, 3.0) * Math.Pow(_tHor, 3.0) + Math.Pow(_lVert - _tHor / 2.0, 3.0) * Math.Pow(_tVert, 3.0)) / 36.0; //CNR DT 208/2011
 
-            _shearCenter = new Point2d(_tHor / 2.0, _tVert / 2.0);
+        #region Public method
 
+
+        protected override void SetMechanicalProperties()
+        {
+            _area = CalculateArea();
+
+            _centroid = CalculateCentroid();
+            _isSymmetricAlongXLocalAxis = CalculateIsSymmetricAlongXLocalAxis();
+            _isSymmetricAlongYLocalAxis = CalculateIsSymmetricAlongYLocalAxis();
+
+            _jxx = CalculateJxx();
+            _jyy = CalculateJyy();
+            _jxy = CalculateJxy();
+
+            _angleX1 = CalculateAngle();
+            _j11 = CalculateJ11();
+            _j22 = CalculateJ22();
+
+            _jp = _jxx + _jyy;
+            _jt = CalculateJt();
+            _jw = CalculateJw();
+
+            _shearCenter = CalculateShearCenter();
+
+            var welP = CalculateWel(AngleX1);
+            _wel1Max = welP.WelTop;
+            _wel1Min = welP.WelBottom;
+            _wel2Max = welP.WelRight;
+            _wel2Min = welP.WelLeft;
+            _wpl1 = Math.Min(welP.WelTop, welP.WelBottom);
+            _wpl2 = Math.Min(welP.WelRight, welP.WelLeft);
+
+            var welL = CalculateWel(0.0);
+            _welXMax = welL.WelTop;
+            _welXMin = welL.WelBottom;
+            _welYMax = welL.WelRight;
+            _welYMin = welL.WelLeft;
+            _wplX = Math.Min(welL.WelTop, welL.WelBottom);
+            _wplY = Math.Min(welL.WelRight, welL.WelLeft);
+        }
+
+        protected override double CalculateWelXMax()
+        {
+            var wel = CalculateWel(0.0);
+            return wel.WelTop;
+        }
+
+        protected override double CalculateWelXMin()
+        {
+            var wel = CalculateWel(0.0);
+            return wel.WelBottom;
+        }
+
+        protected override double CalculateWelYMax()
+        {
+            var wel = CalculateWel(0.0);
+            return wel.WelRight;
+        }
+
+        protected override double CalculateWelYMin()
+        {
+            var wel = CalculateWel(0.0);
+            return wel.WelLeft;
+        }
+
+        protected override double CalculateWel1Max()
+        {
+            var wel = CalculateWel(AngleX1);
+            return wel.WelTop;
+        }
+
+        protected override double CalculateWel1Min()
+        {
+            var wel = CalculateWel(AngleX1);
+            return wel.WelBottom;
+        }
+
+        protected override double CalculateWel2Max()
+        {
+            var wel = CalculateWel(AngleX1);
+            return wel.WelRight;
+        }
+
+        protected override double CalculateWel2Min()
+        {
+            var wel = CalculateWel(AngleX1);
+            return wel.WelLeft;
+        }
+
+        protected override double CalculateAngle()
+        {
+            double angle = -1.0 / 2.0 * Math.Atan(2.0 * CalculateJxy() / (Jyy - Jxx));
+
+            //if (Jyy < Jxx)
+            //    angle += Math.PI / 2.0;
+
+            return angle;
+        }
+
+        protected override double CalculateJ11()
+        {
+            return (Jxx + Jyy) / 2.0 + 0.5 * Math.Sqrt(Math.Pow(Jxx - Jyy, 2.0) + 4.0 * Math.Pow(CalculateJxy(), 2));
+        }
+
+        protected override double CalculateJ22()
+        {
+            return (Jxx + Jyy) / 2.0 - 0.5 * Math.Sqrt(Math.Pow(Jxx - Jyy, 2.0) + 4.0 * Math.Pow(CalculateJxy(), 2));
+        }
+
+        private (double WelTop, double WelBottom, double WelLeft, double WelRight) CalculateWel(double teta)
+        {
+            var point = FivePointsCheck(teta);
+            double WelTop = Jxx / Math.Abs(point.maxY);
+            double WelBottom = Jxx / Math.Abs(point.minY);
+            double WelLeft = Jyy / Math.Abs(point.minX);
+            double WelRight = Jyy / Math.Abs(point.maxX);
+
+            return(WelTop, WelBottom, WelLeft, WelRight);
+        }
+
+        private (double minX, double maxX, double minY, double maxY) FivePointsCheck(double angle)
+        {
             //check 5 points
             //traslation
             Point2d[] pts = new Point2d[5];
-            pts[0] = new Point2d(- _centroid.X, - _centroid.Y);
-            pts[1] = new Point2d(LHor - _centroid.X, - _centroid.Y);
-            pts[2] = new Point2d(LHor - _centroid.X, _tHor -_centroid.Y);
-            pts[3] = new Point2d(_tVert - _centroid.X, _lVert - _centroid.Y);
-            pts[4] = new Point2d(- _centroid.X, _lVert - _centroid.Y);
+            pts[0] = new Point2d(-Centroid.X, -Centroid.Y);
+            pts[1] = new Point2d(HorizontalLegLength - Centroid.X, -Centroid.Y);
+            pts[2] = new Point2d(HorizontalLegLength - Centroid.X, HorizontalLegThickness - Centroid.Y);
+            pts[3] = new Point2d(VerticalLegThickness - Centroid.X, VerticalLegLength - Centroid.Y);
+            pts[4] = new Point2d(-Centroid.X, VerticalLegLength - Centroid.Y);
 
             //rotation
             double minX = 0;
@@ -96,8 +203,8 @@ namespace GPC.Model.Sections
             {
                 double x = pts[i].X;
                 double y = pts[i].Y;
-                double newX = x * Math.Cos(_angleX1) + y * Math.Sin(_angleX1);
-                double newY = - x * Math.Sin(_angleX1) + y * Math.Cos(_angleX1);
+                double newX = x * Math.Cos(angle) + y * Math.Sin(angle);
+                double newY = -x * Math.Sin(angle) + y * Math.Cos(angle);
                 pts[i] = new Point2d(newX, newY);
 
                 minX = Math.Min(minX, pts[i].X);
@@ -106,25 +213,67 @@ namespace GPC.Model.Sections
                 maxY = Math.Max(maxY, pts[i].Y);
             }
 
-            _wel11Left = _j11 / Math.Abs(minX);
-            _wel11Right = _j11 / Math.Abs(maxX);
-            _wel22Top = _j22 / Math.Abs(maxY);
-            _wel22Bottom = _j22 / Math.Abs(minY);
-
-            //Assumed as elastic
-            _wpl11 = Math.Min(_wel11Left, _wel11Right);
-            _wpl22 = Math.Min(_wel22Bottom, _wel22Top);
+            return(minX, maxX, minY, maxY);
         }
+
+        protected override double CalculateJxx()
+        {
+            return (1.0 / 3.0) * (HorizontalLegLength * Math.Pow(VerticalLegLength, 3) - (HorizontalLegLength - VerticalLegThickness) * Math.Pow(VerticalLegLength - HorizontalLegThickness, 3)) -
+                Area * Math.Pow(VerticalLegLength - Centroid.Y, 2);
+        }
+
+        protected override double CalculateJyy()
+        {
+            return (1.0 / 3.0) * (VerticalLegLength * Math.Pow(HorizontalLegLength, 3) - (VerticalLegLength - HorizontalLegThickness) * Math.Pow(HorizontalLegLength - VerticalLegThickness, 3)) -
+                Area * Math.Pow(HorizontalLegLength - Centroid.X, 2);
+        }
+
+
+        protected override Shape2d GetShape()
+        {
+            throw new NotImplementedException();
+        }
+
+        protected override double CalculateJw()
+        {
+            return (Math.Pow(_lHor - _tVert / 2.0, 3.0) * Math.Pow(_tHor, 3.0) + Math.Pow(_lVert - _tHor / 2.0, 3.0) * Math.Pow(_tVert, 3.0)) / 36.0; //CNR DT 208/2011
+        }
+
+        protected override double CalculateJt()
+        {
+            return 1.0 / 3.0 * (_lHor - _tVert / 2.0) * Math.Pow(_tHor, 3.0) + 1.0 / 3.0 * (_lVert - _tHor / 2.0) * Math.Pow(_tVert, 3.0);
+        }
+
+        protected override Point2d CalculateShearCenter()
+        {
+            return new Point2d(_tHor / 2.0, _tVert / 2.0);
+        }
+
+        protected override double CalculateWpl1()
+        {
+            return Math.Min(_wel1Max, _wel1Min);
+        }
+
+        protected override double CalculateWpl2()
+        {
+            return Math.Min(_wel2Max, _wel2Min); 
+        }
+
+        protected override Point2d CalculateCentroid()
+        {
+            double xc = ((_points[0].X * _thinWalls[0].Area) + (_points[1].X * _thinWalls[1].Area)) / Area;
+            double yc = ((_points[0].Y * _thinWalls[0].Area) + (_points[1].Y * _thinWalls[1].Area)) / Area;
+            return new Point2d(xc, yc);
+        }
+
+        #endregion
 
         public override string ToString()
         {
-            string s = "L section: \n";
-            s = s + "height vertical = " + _lVert + " mm \n";
-            s = s + "thickeness vertical = " + _tVert + " mm \n";
-            s = s + "Length Bottom = " + _lHor + " mm \n";
-            s = s + "Thickness Bottom = " + _tHor + " mm \n";
-            
-            return s;
+            return $"L {_lVert}x{_tVert}x{_lHor}x{_thinWalls}";
         }
+
     }
+
+
 }

@@ -10,46 +10,62 @@ namespace GPC.Model.Results
 {
 
     [Serializable]
-    public class ResultLocationPoint : ResultLocationId, ISerializable
+    public sealed class ResultLocationPoint : ResultLocation, ISerializable, IEquatable<ResultLocationPoint>
     {
         private readonly Point2d _location;
 
         public Point2d Location => _location;
 
-        public ResultLocationPoint(int id, Point2d location) 
-            : base(id, string.Empty)
+
+        public ResultLocationPoint(IEnumerable<IPlateResult> results, Point2d location, int id = ModelObjectId.IDUNASSIGNED)
+            : base(results.Cast<ResultType>().ToArray(), id)
         {
             _location = location;
         }
 
-        public ResultLocationPoint(SerializationInfo info, StreamingContext context) 
+        public ResultLocationPoint(IEnumerable<IBrickResult> results, Point2d location, int id = ModelObjectId.IDUNASSIGNED)
+            : base(results.Cast<ResultType>().ToArray(), id)
+        {
+            _location = location;
+        }
+
+        public ResultLocationPoint(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
-            throw new NotImplementedException();
+            _location = (Point2d)info.GetValue("Location", typeof(Point2d));
         }
 
 
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             base.GetObjectData(info, context);
-            throw new NotImplementedException();
+            info.AddValue("Location", _location, typeof(Point2d));
         }
 
         public override bool Equals(object obj)
         {
-            return obj is ResultLocationPoint point &&
-                   base.Equals(obj) &&
-                   EqualityComparer<Point2d>.Default.Equals(_location, point._location);
+            return Equals((ResultLocationPoint)obj);
+        }
+
+        public bool Equals(ResultLocationPoint other)
+        {
+            if (other == null)
+                return false;
+
+            if (ReferenceEquals(this, other))
+                return true;
+
+            return base.Equals(other) && _location.Equals(other._location);
         }
 
         public override int GetHashCode()
         {
             unchecked
             {
-                int hashCode = 548696834;
-                hashCode = hashCode * -1521134295 + base.GetHashCode();
-                hashCode = hashCode * -1521134295 + EqualityComparer<Point2d>.Default.GetHashCode(_location);
-                return hashCode; 
+                int hashCode = 17;
+                hashCode = hashCode * -19 + base.GetHashCode();
+                hashCode = hashCode * -19 + _location.GetHashCode();
+                return hashCode;
             }
         }
 

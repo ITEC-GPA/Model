@@ -15,6 +15,9 @@ namespace GPC.Model.Elements.Glasses
 
         #region PROPERTIES
 
+        /// <summary>
+        /// The shape of the glass
+        /// </summary>
         public Shape Shape => _shape;
 
 
@@ -22,22 +25,28 @@ namespace GPC.Model.Elements.Glasses
 
         #region PUBLIC CONSTRUCTORS
 
+        /// <param name="shape">The shape of the glass</param>
         public GlassSurface(Shape shape)
-            : base(Guid.NewGuid())
+            : this(shape, ModelObjectId.IDUNASSIGNED, Guid.NewGuid())
         {
-            _shape = shape;
+
         }
 
+        /// <param name="shape">The shape of the glass</param>
+        /// <param name="id"></param>
         public GlassSurface(Shape shape, int id)
             : this(shape, id, Guid.NewGuid())
         {
 
         }
 
+        /// <param name="shape">The shape of the glass</param>
+        /// <param name="id"></param>
+        /// <param name="guid"></param>
         public GlassSurface(Shape shape, int id, Guid guid)
             : base(id, guid)
         {
-            _shape = shape;
+            _shape = shape ?? throw new ArgumentNullException(nameof(shape));
         }
 
 
@@ -67,9 +76,12 @@ namespace GPC.Model.Elements.Glasses
 
         public override int GetHashCode()
         {
-            int hashCode = -391 + base.GetHashCode();
-            hashCode = hashCode * -17 + EqualityComparer<Shape>.Default.GetHashCode(_shape);
-            return hashCode;
+            unchecked
+            {
+                int hashCode = -391 + base.GetHashCode();
+                hashCode = hashCode * -17 + EqualityComparer<Shape>.Default.GetHashCode(_shape);
+                return hashCode; 
+            }
         }
 
         public static bool operator ==(GlassSurface obj1, GlassSurface obj2)

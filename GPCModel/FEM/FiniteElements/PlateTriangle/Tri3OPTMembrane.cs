@@ -311,7 +311,7 @@ namespace GPC.Model.FEM.FiniteElements
             #endregion
         }
 
-        public override mnl.Matrix<double> GetB(double x, double y)
+        public mnl.Matrix<double> GetB(double x, double y)
         {
             /*
              * csi1, csi2 and csi3 are defined in 

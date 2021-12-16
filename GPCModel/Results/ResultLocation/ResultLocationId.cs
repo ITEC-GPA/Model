@@ -1,17 +1,30 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Runtime.Serialization;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace GPC.Model.Results
 {
     [Serializable]
-    public class ResultLocationId : ModelObjectId, ISerializable
+    public sealed class ResultLocationId : ResultLocation, ISerializable, IEquatable<ResultLocationId>
     {
-        public ResultLocationId(int id) : this(id, "")
+
+        public ResultLocationId(IEnumerable<IPlateResult> results, int id)
+            : base(results.Cast<ResultType>().ToArray(), id)
         {
 
         }
 
-        public ResultLocationId(int id, string name) : base(id, name)
+        public ResultLocationId(IEnumerable<INodeResult> results, int id)
+            : base(results.Cast<ResultType>().ToArray(), id)
+        {
+
+        }
+
+        public ResultLocationId(IEnumerable<IBrickResult> results, int id)
+            : base(results.Cast<ResultType>().ToArray(), id)
         {
 
         }
@@ -19,39 +32,47 @@ namespace GPC.Model.Results
         public ResultLocationId(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
+
         }
 
-        public override void GetObjectData(SerializationInfo info, StreamingContext context)
+        public ResultLocationId(ResultType[] results, int id, string name)
+            : base(results, id, name)
         {
-            base.GetObjectData(info, context);
+
         }
 
         public override bool Equals(object obj)
         {
-            return obj is ResultLocationId point && base.Equals(point);
+            return Equals((ResultLocationId)obj);
+        }
+
+        public bool Equals(ResultLocationId other)
+        {
+            if (other == null)
+                return false;
+
+            if (ReferenceEquals(this, other))
+                return true;
+
+            return base.Equals(other);
         }
 
         public override int GetHashCode()
         {
-            return base.GetHashCode();
-        }
-
-        public static bool operator ==(ResultLocationId obj1, ResultLocationId obj2)
-        {
-            if (obj1 is null)
+            unchecked
             {
-                return obj2 is null;
+                return base.GetHashCode();
             }
-
-            if (ReferenceEquals(obj1, obj2))
-                return true;
-
-            return obj1.Equals(obj2);
         }
 
-        public static bool operator !=(ResultLocationId obj1, ResultLocationId obj2)
+        public static bool operator ==(ResultLocationId left, ResultLocationId right)
         {
-            return !(obj1 == obj2);
+            return EqualityComparer<ResultLocationId>.Default.Equals(left, right);
+        }
+
+        public static bool operator !=(ResultLocationId left, ResultLocationId right)
+        {
+            return !(left == right);
         }
     }
 }

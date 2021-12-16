@@ -1,25 +1,32 @@
-﻿using GPC.Model.LoadCases;
-using System;
+﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Runtime.Serialization;
+using GPC.Geometry;
+using GPC.Model.LoadCases;
 
 namespace GPC.Model.Results
 {
     [Serializable]
-    public sealed class BeamResult : FiniteElementResult, ISerializable, IEquatable<BeamResult>
+    public sealed class BeamResult : FiniteElementResult, ISerializable, IEquatable<BeamResult>, IElementResult
     {
 
 
-        public BeamResult(ILoadCase Case, IEnumerable<IBeamResult> result, IEnumerable<ResultStation> points)
-            : this(Case, result, points, ModelObjectId.IDUNASSIGNED)
+        public double Length => ((ResultLocationStation)ResultLocations.First()).ElementLenght;
+
+
+        public BeamResult(ILoadCase Case, IEnumerable<ResultLocationStation> resultStation,
+                                            int stageId = ModelObjectId.IDUNASSIGNED)
+            : base(Case, resultStation, stageId)
         {
+            if (resultStation is null)
+            {
+                throw new ArgumentNullException(nameof(resultStation));
+            }
 
-        }
+            if (resultStation.Select(i => i.ElementLenght).Distinct().Count() > 1)
+                throw new ArgumentException("All Result Station must have the same length");
 
-
-        public BeamResult(ILoadCase Case, IEnumerable<IBeamResult> result, IEnumerable<ResultStation> points, int stageId)
-            : base(Case, null, (IEnumerable<ResultType>)result, points, stageId)
-        {
 
         }
 
@@ -36,7 +43,7 @@ namespace GPC.Model.Results
 
         public bool Equals(BeamResult other)
         {
-            if (other is null)
+            if (other == null)
                 return false;
 
             if (ReferenceEquals(this, other))
@@ -63,4 +70,7 @@ namespace GPC.Model.Results
             return !(obj1 == obj2);
         }
     }
+
+
+
 }

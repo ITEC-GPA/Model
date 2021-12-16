@@ -34,28 +34,40 @@ namespace FemTest
 
             femModel.AddFiniteElement(plate, "P1");
 
-            IEnumerable<ResultStress> res = new List<ResultStress>() { null, null, new ResultStress(CoordinateSystem.Global, 1, 2, 0, 3, 4, 5) };
-            IEnumerable<ResultLocationPoint> points = new List<ResultLocationPoint>() { null, null, new ResultLocationPoint(1, new Point2d(0, 1)) };
+            var resultStress = new ResultStress(CoordinateSystem.Global, 1, 2, 0, 3, 4, 5);
+
+            var resultPlateStress = new ResultPlateStress(CoordinateSystem.Global, resultStress, resultStress, resultStress);
+
+            IEnumerable<ResultPlateStress> res = new List<ResultPlateStress>() { resultPlateStress, resultPlateStress, resultPlateStress };
+
+            var resultLocationPoint = new ResultLocationPoint(res, new Point2d(0, 1));
+
+
+            IEnumerable<ResultLocationPoint> locationsResult = new List<ResultLocationPoint>() { resultLocationPoint, resultLocationPoint, resultLocationPoint };
 
 
             var loadCase = new LoadCase("lc", LoadCase.LoadCaseTypes.SelfWeight);
             var cmb = new Combination("cmb1");
             cmb.AddLoadCaseCoefficient(loadCase, 1);
 
-            plate.AddResult(new PlateResult(cmb, CoordinateSystem.Global, res.ToArray(), points.ToArray()));
+            plate.AddResult(new PlateResult(cmb, locationsResult.ToArray()));
+                     
 
-            femModel.GetNode(1).AddResult(new NodeResult(cmb, CoordinateSystem.Global, new ResultDisplacement(1, 2, 3, 4, 5, 6)));
 
-            IEnumerable<FiniteElementResult> stresses = femModel.GetCombinationElementStressResults(cmb);
+            femModel.GetNode(1).AddResult(new NodeResult(cmb, new[] { new ResultLocationId(new INodeResult[] { new ResultDisplacement(1, 2, 3, 4, 5, 6) }, 1) } ));
+
+            IEnumerable<FiniteElementResult> stresses = femModel.GetCombinationResultsPlateStress(cmb);
             IEnumerable<NodeResult> displacements = femModel.GetCombinationNodeDisplacementResults(cmb);
 
             // Plate
             Assert.IsTrue(femModel.GetFiniteElement(1).Results.ToList()[0].Case.Name == "cmb1");
-            Assert.IsTrue((stresses.First().Results[2] as ResultStress).Sxx == 1);
+            Assert.IsTrue((stresses.First().GetResultLocations()[2].ResultTypes.First() as ResultPlateStress).UpperFace.Sxx == 1);
 
             // Nodo
             Assert.IsTrue(femModel.GetNode(1).Results.ToList()[0].Case.Name == "cmb1");
-            Assert.IsTrue((displacements.First().Result as ResultDisplacement).D1 == 1);
+
+             
+            Assert.IsTrue((displacements.First().GetResultLocations().First().ResultTypes[0] as ResultDisplacement).D1 == 1);
 
         }
 
@@ -80,30 +92,39 @@ namespace FemTest
 
             femModel.AddFiniteElement(plate, "P1");
 
-            IEnumerable<ResultStress> res = new List<ResultStress>() { null, null, new ResultStress(CoordinateSystem.Global, 1, 2, 0, 3, 4, 5) };
-            IEnumerable<ResultLocationPoint> points = new List<ResultLocationPoint>() { null, null, new ResultLocationPoint(1, new Point2d(0, 1)) };
+            var resultStress = new ResultStress(CoordinateSystem.Global, 1, 2, 0, 3, 4, 5);
+
+            var resultPlateStress = new ResultPlateStress(CoordinateSystem.Global, resultStress, resultStress, resultStress);
+
+            IEnumerable<ResultPlateStress> res = new List<ResultPlateStress>() { resultPlateStress, resultPlateStress, resultPlateStress };
+
+
+            var resultLocationPoint = new ResultLocationPoint(res, new Point2d(0, 1));
+
+            IEnumerable<ResultLocationPoint> locationsResult = new List<ResultLocationPoint>() { resultLocationPoint, resultLocationPoint, resultLocationPoint };
+
 
             var loadCase = new LoadCase("lc", LoadCase.LoadCaseTypes.SelfWeight);
             var cmb = new Combination("cmb1");
             cmb.AddLoadCaseCoefficient(loadCase, 1);
 
-            plate.AddResult(new PlateResult(cmb, CoordinateSystem.Global, res.ToArray(), points.ToArray()));
+            plate.AddResult(new PlateResult(cmb,locationsResult.ToArray()));
 
-            femModel.GetNode(1).AddResult(new NodeResult(cmb, CoordinateSystem.Global, new ResultDisplacement(1, 2, 3, 4, 5, 6)));
+            femModel.GetNode(1).AddResult(new NodeResult(cmb,  new[] { new ResultLocationId(new INodeResult[] { new ResultDisplacement(1, 2, 3, 4, 5, 6) }, 1) }));
 
-            IEnumerable<FiniteElementResult> stresses2 = femModel.GetCombinationElementStressResults(cmb, "Group1");
+            IEnumerable<FiniteElementResult> stresses2 = femModel.GetCombinationResultsPlateStress(cmb, "Group1");
 
-            IEnumerable<FiniteElementResult> stresses = femModel.GetCombinationElementStressResults(cmb);
+            IEnumerable<FiniteElementResult> stresses = femModel.GetCombinationResultsPlateStress(cmb);
             IEnumerable<NodeResult> displacements = femModel.GetCombinationNodeDisplacementResults(cmb);
 
 
             // Plate
             Assert.IsTrue(femModel.GetFiniteElement(1).Results.ToList()[0].Case.Name == "cmb1");
-            Assert.IsTrue((stresses.First().Results[2] as ResultStress).Sxx == 1);
+            Assert.IsTrue((stresses.First().GetResultLocations()[2].ResultTypes.First() as ResultPlateStress).UpperFace.Sxx == 1);
 
             // Nodo
             Assert.IsTrue(femModel.GetNode(1).Results.ToList()[0].Case.Name == "cmb1");
-            Assert.IsTrue((displacements.First().Result as ResultDisplacement).D1 == 1);
+            Assert.IsTrue((displacements.First().GetResultLocations().First().ResultTypes[0] as ResultDisplacement).D1 == 1);
 
             Assert.IsTrue(stresses.Count() == stresses2.Count());
         }

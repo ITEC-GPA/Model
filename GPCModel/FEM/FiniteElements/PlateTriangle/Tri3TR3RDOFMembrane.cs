@@ -151,7 +151,7 @@ namespace GPC.Model.FEM.FiniteElements
 
             //calculation of kelement using gauss quadrature
             _kElementLocalCoord = mnl.Matrix<double>.Build.Dense(9, 9);
-            GaussIntegration.GaussPoint[] gaussPoints = GaussIntegration.GetPointsTriangular(3);
+            OldGaussIntegration.GaussPoint[] gaussPoints = OldGaussIntegration.GetPointsTriangular(3);
             for (int i = 0; i < gaussPoints.Length; i++) //trhough the gauss points
             {
                 double csi = gaussPoints[i].Point.X;
@@ -185,7 +185,7 @@ namespace GPC.Model.FEM.FiniteElements
             #endregion
         }
 
-        public override mnl.Matrix<double> GetB(double csi, double eta)
+        public mnl.Matrix<double> GetB(double csi, double eta)
         {
             double x = N(1, csi, eta) * _localNodes[1 - 1].Position.X + N(2, csi, eta) * _localNodes[2 - 1].Position.X + N(3, csi, eta) * _localNodes[3 - 1].Position.X;
             double y = N(1, csi, eta) * _localNodes[1 - 1].Position.Y + N(2, csi, eta) * _localNodes[2 - 1].Position.Y + N(3, csi, eta) * _localNodes[3 - 1].Position.Y;

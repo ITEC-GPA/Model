@@ -55,7 +55,7 @@ namespace GPC.Model
             _name = name;
         }
 
-        public ModelObject(SerializationInfo info, StreamingContext context)
+        protected ModelObject(SerializationInfo info, StreamingContext context)
         {
             _guid = (Guid)info.GetValue("Guid", typeof(Guid));
             _name = info.GetString("Name");
@@ -73,22 +73,22 @@ namespace GPC.Model
 
         public virtual void GetObjectData(SerializationInfo info, StreamingContext context)
         {
-            info.AddValue("Guid", _guid);
-            info.AddValue("Name", _name);
+            info.AddValue("Guid", _guid, typeof(Guid));
+            info.AddValue("Name", _name, typeof(string));
         }
 
 
         /// <returns><see langword="True"/> if <paramref name="obj"/> have the same <see cref="Name"/> of this object </returns>
         public override bool Equals(object obj)
         {
-            if (obj is null || !(obj is ModelObject))
+            if (obj is null)
                 return false;
 
-            return _name == (obj as ModelObject)._name;
+            return (obj is ModelObject objCasted) && objCasted._name == _name;
         }
 
         public override int GetHashCode()
-        { 
+        {
             unchecked
             {
                 return -391 * EqualityComparer<string>.Default.GetHashCode(_name);

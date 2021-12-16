@@ -1,0 +1,289 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Runtime.Serialization;
+using System.Text;
+using System.Threading.Tasks;
+using GPC.Geometry;
+using GPC.Model.Materials;
+
+namespace GPC.Model.Sections
+{
+    public class SectionRectangular : Section, ISection
+    {
+        #region Variables
+
+        private readonly double _angle;
+
+        protected readonly double _height;
+        protected readonly double _width;
+
+        #endregion
+
+
+        #region Properties
+
+        /// <summary>
+        /// The height of the section
+        /// </summary>
+        public double Height => _height;
+
+        /// <summary>
+        /// The width of the section
+        /// </summary>
+        public double Width => _width;
+
+        #endregion
+
+
+        #region Public Constructors
+
+        /// <summary>
+        /// Default rectangular section constructor
+        /// </summary>
+        /// <param name="height">The height of the section</param>
+        /// <param name="width">The width of the section</param>
+        /// <param name="angle">Angle of rotation of the section</param>
+        /// <param name="material">The material of the section</param>
+        /// <param name="name">The name of the section</param>
+
+        public SectionRectangular(double height, double width, double angle, Material material, string name = "")
+            : base(material, name)
+        {
+            _height = height;
+            _width = width;
+            _angle = angle;
+
+            SetMechanicalProperties();
+        }
+
+        /// <summary>
+        /// Default rectangular section constructor
+        /// </summary>
+        /// <param name="height">The height of the section</param>
+        /// <param name="width">The width of the section</param>
+        /// <param name="material">The material of the section</param>
+        /// <param name="name">The name of the section</param>
+        /// <remarks>Angle of rotation is set to 0</remarks>
+        public SectionRectangular(double height, double width, Material material, string name = "")
+            : this(height, width, 0.0, material, name)
+        {
+
+        }
+
+        public SectionRectangular(SectionRectangular section)
+            : this(section.Height, section.Width, section.Material, section.Name)
+        {
+
+        }
+
+        protected SectionRectangular(SerializationInfo info, StreamingContext context)
+            : base(info, context)
+        {
+            _height = info.GetDouble("Height");
+            _width = info.GetDouble("Width");
+        }
+
+        #endregion
+
+
+
+        protected override Shape2d GetShape()
+        {
+            return new Shape2d(new Polygon2d(new Point2d[] { new Point2d(0, 0), new Point2d(Width, 0), new Point2d(Width, Height), new Point2d(0, Height) }));
+        }
+
+        protected override void SetMechanicalProperties()
+        {
+            _area = CalculateArea();
+            _j11 = CalculateJxx();
+            _j22 = CalculateJyy();
+            _jxx = _j11;
+            _jyy = _j22;
+            _jxy = CalculateJxy();
+
+            _jp = _jxx + _jyy;
+
+            _jt = CalculateJt();
+            _jw = CalculateJw();
+
+            _centroid = CalculateCentroid();
+            _shearCenter = CalculateShearCenter();
+            _angleX1 = CalculateAngle();
+            _wel1Max = CalculateWel1Min();
+            _wel1Min = CalculateWel1Max();
+            _wel2Max = CalculateWel2Max();
+            _wel2Min = CalculateWel2Min();
+            _wpl1 = CalculateWpl1();
+            _wpl2 = CalculateWpl2();
+
+            _isSymmetricAlongXLocalAxis = CalculateIsSymmetricAlongXLocalAxis();
+            _isSymmetricAlongYLocalAxis = CalculateIsSymmetricAlongYLocalAxis();
+        }
+
+        protected override double CalculateArea()
+        {
+            return Width * Height;
+        }
+
+        protected override Point2d CalculateCentroid()
+        {
+            return new Point2d((_width / 2.0), (_height / 2.0));
+        }
+
+        protected override Point2d CalculateShearCenter()
+        {
+            return CalculateCentroid();
+        }
+
+        /// <summary>
+        /// Calculate the first moment of inertia of the wall respect the X-axis passing throw the centroid
+        /// </summary>
+        protected override double CalculateJxx()
+        {
+            if (_angleX1 == 0)
+                return _width * Math.Pow(_height, 3) / 12.0;
+
+            else
+            {
+                double J1 = _width * Math.Pow(_height, 3) / 12.0;
+                double J2 = _height * Math.Pow(_width, 3) / 12.0;
+
+                return (J1 + J2) / 2.0 + (J1 - J2) / 2.0 * Math.Cos(2.0 * _angleX1);
+            }
+        }
+
+        /// <summary>
+        /// Calculate the first moment of inertia of the wall respect the Y-axis passing throw the centroid
+        /// </summary>
+        protected override double CalculateJyy()
+        {
+            if (_angleX1 == 0)
+                return _height * Math.Pow(_width, 3) / 12.0;
+
+            else
+            {
+                double J1 = _width * Math.Pow(_height, 3) / 12.0;
+                double J2 = _height * Math.Pow(_width, 3) / 12.0;
+
+                return (J1 + J2) / 2.0 - (J1 - J2) / 2.0 * Math.Cos(2.0 * _angleX1);
+            }
+        }
+
+        protected override double CalculateJxy()
+        {
+            double J1 = _width * Math.Pow(_height, 3) / 12.0;
+            double J2 = _height * Math.Pow(_width, 3) / 12.0;
+
+            return (J1 - J2) / 2.0 * Math.Sin(2.0 * _angleX1);
+        }
+
+        protected override double CalculateJt()
+        {
+            return Math.Max(_height, _width) * Math.Pow(Math.Min(_height, _width), 3) * GetAlpha();
+        }
+
+        protected override double CalculateJw()
+        {
+            return 0;
+            //TODO: implementare
+        }
+
+        protected virtual double GetAlpha()
+        {
+            double latoMaggiore = Math.Max(_height, _width);
+            double latoMinore = Math.Min(_height, _width);
+
+            return 1.0 / 3.0 - 0.21 * latoMinore / latoMaggiore * (1.0 - 1.0 / 12.0 * Math.Pow(latoMinore / latoMaggiore, 4.0));
+        }
+
+        protected override double CalculateWpl1()
+        {
+            return _width * Math.Pow(_height, 2.0) / 4.0;
+        }
+
+        protected override double CalculateWpl2()
+        {
+            return _height * Math.Pow(_width, 2.0) / 4.0;
+        }
+
+        protected override double CalculateWel1Max()
+        {
+            return _width * Math.Pow(_height, 2.0) / 6.0;
+        }
+
+        protected override double CalculateWel1Min()
+        {
+            return _width * Math.Pow(_height, 2.0) / 6.0;
+        }
+
+        protected override double CalculateWel2Max()
+        {
+            return _height * Math.Pow(_width, 2.0) / 6.0;
+        }
+
+        protected override double CalculateWel2Min()
+        {
+            return _height * Math.Pow(_width, 2.0) / 6.0;
+        }
+
+        protected override double CalculateAngle()
+        {
+            return _angle;
+        }
+
+        protected override bool CalculateIsSymmetricAlongXLocalAxis()
+        {
+
+            if (_angleX1 == 0 || _angleX1 == Math.PI / 2.0)
+            {
+                return true;
+            }
+            return false;
+        }
+
+        protected override bool CalculateIsSymmetricAlongYLocalAxis()
+        {
+            if (_angleX1 == 0 || _angleX1 == Math.PI / 2.0)
+            {
+                return true;
+            }
+            return false;
+        }
+
+        public override string ToString()
+        {
+            return $"Rectangular {_height}x{_width}";
+        }
+
+        public override bool Equals(object obj)
+        {
+            return obj is SectionRectangular rectangular &&
+                   base.Equals(obj) &&
+                   _height == rectangular._height &&
+                   _width == rectangular._width;
+        }
+
+        public override int GetHashCode()
+        {
+            unchecked
+            {
+                int hashCode = -17;
+                hashCode = hashCode * -23 + base.GetHashCode();
+                hashCode = hashCode * -23 + _height.GetHashCode();
+                hashCode = hashCode * -23 + _width.GetHashCode();
+                return hashCode;
+            }
+        }
+
+        public static bool operator ==(SectionRectangular left, SectionRectangular right)
+        {
+            return left.Equals(left);
+        }
+
+        public static bool operator !=(SectionRectangular left, SectionRectangular right)
+        {
+            return !(left == right);
+        }
+    }
+}

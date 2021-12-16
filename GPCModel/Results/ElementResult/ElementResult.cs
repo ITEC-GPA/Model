@@ -1,50 +1,57 @@
-﻿using GPC.Geometry;
-using GPC.Model.LoadCases;
-using System;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using System.Runtime.Serialization;
+using GPC.Geometry;
+using GPC.Model.LoadCases;
+using GPC.Utilities.Extensions;
 
 namespace GPC.Model.Results
 {
 
-
+    /// <summary>
+    /// This class collects the results related to one loadcase o combination,  
+    /// </summary>
     [Serializable]
     public abstract class ElementResult : ModelObject, ISerializable
     {
 
-
-        protected readonly CoordinateSystem _coordinateSystem;
-
         protected readonly ILoadCase _case;
 
-        protected int _stageId;
+        protected readonly ResultLocation[] _resultLocations;
 
-
-        public CoordinateSystem CoordinateSystem => _coordinateSystem;
 
         public ILoadCase Case => _case;
 
-        public int StageId => _stageId;
+        /// <summary>
+        /// Return a clone of the results
+        /// </summary>
+        public ResultLocation[] ResultLocations => (ResultLocation[])_resultLocations.Clone();
 
 
         /// <param name="Case">The case where these results are reffered </param>
-        /// <param name="coordinateSystem">Coordinate system where these result are provided</param>
-        public ElementResult(ILoadCase Case, CoordinateSystem coordinateSystem)
-            : this(Case, coordinateSystem, ModelObjectId.IDUNASSIGNED)
-        {
-
-        }
-
-        /// <param name="Case">The case where these results are reffered </param>
-        /// <param name="coordinateSystem">Coordinate system where these result are provided</param>
-        /// <param name="stageId"></param>
+        /// <param name="resultLocations"></param>
         /// <param name="name"></param>
-        public ElementResult(ILoadCase Case, CoordinateSystem coordinateSystem, int stageId, string name = "")
+        public ElementResult(ILoadCase Case, ResultLocation[] resultLocations, string name = "")
             : base(name)
         {
             _case = Case ?? throw new ArgumentNullException(nameof(Case));
-            _coordinateSystem = coordinateSystem ?? throw new ArgumentNullException(nameof(coordinateSystem));
-            _stageId = stageId;
+            _resultLocations = resultLocations ?? throw new ArgumentNullException(nameof(resultLocations));
+
+
+            if (resultLocations.Where(i => i != null).Select(i => i.GetType()).Distinct().Count() > 1)
+                throw new ArgumentException("Multiple location type");
+
+
+            if (resultLocations.SelectMany(i => i.GetResults().Select(j => j.GetType())).Distinct().Count() > 1)
+                throw new ArgumentException("Multiple result type");
+
+
+            if (resultLocations.Where(i => i != null).Select(i => i.GetType()).Distinct().Count() > 1)
+                throw new ArgumentException("Multiple location point type");
+
+
         }
 
 
@@ -52,8 +59,7 @@ namespace GPC.Model.Results
             : base(info, context)
         {
             _case = (ILoadCase)info.GetValue("Case", typeof(ILoadCase));
-            _stageId = (int)info.GetValue("StageId", typeof(int));
-            _coordinateSystem = (CoordinateSystem)info.GetValue("CoordinateSystem", typeof(CoordinateSystem));
+            _resultLocations = (ResultLocation[])info.GetValue("ResultLocations", typeof(ResultLocation[]));
         }
 
 
@@ -61,8 +67,19 @@ namespace GPC.Model.Results
         {
             base.GetObjectData(info, context);
             info.AddValue("Case", _case);
-            info.AddValue("StageId", _stageId);
-            info.AddValue("CoordinateSystem", _coordinateSystem);
+            info.AddValue("ResultLocations", _resultLocations);
+        }
+
+
+        internal ResultLocation[] GetResultLocations()
+        {
+            return _resultLocations;
+        }
+
+
+        public IEnumerator GetResultLocationsEnumerator()
+        {
+            return _resultLocations.GetEnumerator();
         }
 
 
@@ -74,8 +91,9 @@ namespace GPC.Model.Results
             if (ReferenceEquals(this, obj))
                 return true;
 
-            // Coordinate system non messo nell'equals per scelta. Comparazione viene fatta solo su loadcase
-            return (obj is ElementResult other) && _case == other._case && base.Equals(other);
+            return (obj is ElementResult other) && _case.Equals(other._case)
+                                                && _resultLocations.ScrambledEquals(other.ResultLocations)
+                                                && base.Equals(other);
         }
 
 
@@ -83,9 +101,14 @@ namespace GPC.Model.Results
         {
             unchecked
             {
-                // Coordinate system non messo nell'hashcode per scelta. Comparazione viene fatta solo su loadcase
                 int hashCode = -391 + base.GetHashCode();
                 hashCode = hashCode * -17 + EqualityComparer<ILoadCase>.Default.GetHashCode(_case);
+
+                for (int i = 0; i < _resultLocations.Length; i++)
+                {
+                    hashCode = hashCode * -17 + _resultLocations[i].GetHashCode();
+                }
+
                 return hashCode;
             }
         }

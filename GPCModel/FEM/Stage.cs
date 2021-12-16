@@ -101,7 +101,7 @@ namespace GPC.Model.FEM
         /// Add a <see cref="FiniteElement"/> to the stage element collection. All its attributes will be copied
         /// </summary>
         /// <returns>The <see cref="StageFiniteElementProperty"/> assigned to <paramref name="element"/> </returns>
-        /// <inheritdoc cref="FemObjectStageCollection{T, D}.Add(T, D)"/>
+        /// <inheritdoc cref="FemObjectStageCollection{T, D}.AddUnique(T, D)"/>
         /// <exception cref="ArgumentException">If <paramref name="element"/> is not contained in the reference FemModel <see cref="_femModel"/></exception>
         /// <exception cref="ArgumentException">If <see cref="FiniteElement.Property"/> Name is not contained in the reference femModel properties list</exception>
         public StageFiniteElementProperty AddFiniteElement(FiniteElement element)
@@ -110,10 +110,10 @@ namespace GPC.Model.FEM
             {
                 StageFiniteElementProperty sp = new StageFiniteElementProperty(element.Property.Name);
 
-                sp.AddLoadCaseAttributes(element.AttributesLoadCase);
-                sp.AddFreedomCaseAttributes(element.AttributesFreedomCase);
+                sp.AddLoadCaseAttributes(element.AttributesLoadCase.ToList());
+                sp.AddFreedomCaseAttributes(element.AttributesFreedomCase.ToList());
 
-                _elements.Add(element, sp);
+                _elements.AddUnique(element, sp);
 
                 return sp;
             }
@@ -129,7 +129,7 @@ namespace GPC.Model.FEM
         /// <param name="element"></param>
         /// <param name="propertyName">Name of the overriding property</param>
         /// <returns>The <see cref="StageFiniteElementProperty"/> assigned to <paramref name="element"/> </returns>
-        /// <inheritdoc cref="FemObjectStageCollection{T, D}.Add(T, D)"/>
+        /// <inheritdoc cref="FemObjectStageCollection{T, D}.AddUnique(T, D)"/>
         /// <exception cref="ArgumentException">If the <paramref name="element"/> does not exist the in the reference fem model</exception>
         /// <exception cref="ArgumentException">If the <paramref name="propertyName"/> does not exist in the reference fem model</exception>
         public StageFiniteElementProperty AddFiniteElement(FiniteElement element, string propertyName)
@@ -138,10 +138,10 @@ namespace GPC.Model.FEM
             {
                 StageFiniteElementProperty sp = new StageFiniteElementProperty(propertyName);
 
-                sp.AddLoadCaseAttributes(element.AttributesLoadCase);
-                sp.AddFreedomCaseAttributes(element.AttributesFreedomCase);
+                sp.AddLoadCaseAttributes(element.AttributesLoadCase.ToList());
+                sp.AddFreedomCaseAttributes(element.AttributesFreedomCase.ToList());
 
-                _elements.Add(element, sp);
+                _elements.AddUnique(element, sp);
 
                 return sp;
             }
@@ -180,10 +180,10 @@ namespace GPC.Model.FEM
 
                 StageFiniteElementProperty sp = new StageFiniteElementProperty(propertyName);
 
-                sp.AddLoadCaseAttributes(element.AttributesLoadCase);
-                sp.AddFreedomCaseAttributes(element.AttributesFreedomCase);
+                sp.AddLoadCaseAttributes(element.AttributesLoadCase.ToList());
+                sp.AddFreedomCaseAttributes(element.AttributesFreedomCase.ToList());
 
-                _elements.Add(element, sp);
+                _elements.AddUnique(element, sp);
             }
         }
 
@@ -200,7 +200,7 @@ namespace GPC.Model.FEM
             {
                 if (CanBeAdded(element, out Exception exception))
                 {
-                    _elements.Add(element, new StageFiniteElementProperty(element));
+                    _elements.AddUnique(element, new StageFiniteElementProperty(element));
                 }
                 else
                 {
@@ -209,15 +209,15 @@ namespace GPC.Model.FEM
             }
         }
 
-        /// <inheritdoc cref="FemObjectCollection{T}.Add(T)"/>
+        /// <inheritdoc cref="FemObjectCollection{T}.AddUnique(T)"/>
         /// <exception cref="ArgumentException">If <see cref="FiniteElement"/> in <paramref name="elements"/> is not contained in the reference femModel</exception>
-        public void SetFiniteElements(FemObjectCollection<FiniteElement> elements)
+        public void SetFiniteElements(FiniteElement[] elements)
         {
-            foreach (var element in elements)
+            for (int i = 0; i < elements.Length; i++)
             {
-                if (CanBeAdded(element, out Exception exception))
+                if (CanBeAdded(elements[i], out Exception exception))
                 {
-                    _elements.Add(element);
+                    _elements.Add(elements[i]);
                 }
                 else
                     throw exception;
@@ -266,7 +266,7 @@ namespace GPC.Model.FEM
         {
             var node = _femModel.GetNode(nodeId);
 
-            _nodes.Add(node, stageProperty);
+            _nodes.AddUnique(node, stageProperty);
 
         }
 
@@ -637,8 +637,8 @@ namespace GPC.Model.FEM
             {
                 this._propertyName = element.Property.Name;
 
-                this.AddLoadCaseAttributes(element.AttributesLoadCase);
-                this.AddFreedomCaseAttributes(element.AttributesFreedomCase);
+                this.AddLoadCaseAttributes(element.AttributesLoadCase.ToList());
+                this.AddFreedomCaseAttributes(element.AttributesFreedomCase.ToList());
             }
 
 

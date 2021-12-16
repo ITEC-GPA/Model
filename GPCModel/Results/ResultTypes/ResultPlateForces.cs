@@ -1,12 +1,12 @@
-﻿using GPC.Geometry;
-using GPC.Model.LoadCases;
 using System;
 using System.Runtime.Serialization;
+using GPC.Geometry;
+using GPC.Model.LoadCases;
 
 namespace GPC.Model.Results
 {
     [Serializable]
-    public sealed class ResultPlateForces : ResultType, IEquatable<ResultPlateForces>, ISerializable, IPlateResult
+    public sealed class ResultPlateForces : ResultType, IEquatable<ResultPlateForces>, ISerializable, IPlateResult, IResult<ResultPlateForces>
     {
 
         /// Local Forces
@@ -57,8 +57,10 @@ namespace GPC.Model.Results
         /// <param name="mxx"></param>
         /// <param name="myy"></param>
         /// <param name="mxy"></param>
-        public ResultPlateForces(CoordinateSystem coordinateSystem,
-                                double fxx, double fyy, double fxy, double fxz, double fyz, double mxx, double myy, double mxy) : base(coordinateSystem)
+        /// <param name="id"></param>
+        public ResultPlateForces(CoordinateSystem coordinateSystem, 
+            double fxx, double fyy, double fxy, double fxz, double fyz, double mxx, double myy, double mxy, int id = ModelObjectId.IDUNASSIGNED) 
+            : base(coordinateSystem, string.Empty, id)
         {
             _fxx = fxx;
             _fyy = fyy;
@@ -80,6 +82,12 @@ namespace GPC.Model.Results
             base.GetObjectData(info, context);
             throw new NotSupportedException();
         }
+
+        public ResultPlateForces ToCoordinateSystem(CoordinateSystem coordinateSystem)
+        {
+            throw new NotImplementedException();
+        }
+
 
         #region Equals, hashcode, operators
 
@@ -105,7 +113,7 @@ namespace GPC.Model.Results
             return !(other is null) && _fxx == other._fxx && _fyy == other._fyy
                                     && _fzz == other._fzz && _fxy == other._fxy
                                     && _fxz == other._fxz && _fyz == other._fyz
-                                    
+
                                     && _mxx == other._mxx && _myy == other._myy
                                     && _mzz == other._mzz && _mxy == other._mxy
                                     && _mxz == other._mxz && _myz == other._myz

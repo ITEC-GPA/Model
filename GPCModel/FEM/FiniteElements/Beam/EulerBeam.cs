@@ -14,7 +14,7 @@ namespace GPC.Model.FEM.FiniteElements
     /// </summary>
     public class EulerBeam : Beam
     {
-        public EulerBeam(Node[] nodes, Section section, double axisAngleRadians = 0.0) : base(nodes)
+        public EulerBeam(Node[] nodes, double axisAngleRadians = 0.0) : base(nodes)     // Section section
         {
             _DOF.Add(Solver.DOF.DX);
             _DOF.Add(Solver.DOF.DY);
@@ -24,7 +24,19 @@ namespace GPC.Model.FEM.FiniteElements
             _DOF.Add(Solver.DOF.RZ);
 
             _axisAngleRadians = axisAngleRadians; //rotazione rispetto asse 1-X
-            SetProperty(section);
+        }
+
+        public EulerBeam(Node[] nodes, string name, double axisAngleRadians = 0.0) : base(nodes)     // Section section
+        {
+            _DOF.Add(Solver.DOF.DX);
+            _DOF.Add(Solver.DOF.DY);
+            _DOF.Add(Solver.DOF.DZ);
+            _DOF.Add(Solver.DOF.RX);
+            _DOF.Add(Solver.DOF.RY);
+            _DOF.Add(Solver.DOF.RZ);
+
+            _name = name;
+            _axisAngleRadians = axisAngleRadians; //rotazione rispetto asse 1-X
         }
 
         public override void BuildMatrix()
@@ -559,14 +571,14 @@ namespace GPC.Model.FEM.FiniteElements
             double q1 = 0;
             double q2 = 0;
             double q3 = 0;
-            for (int i = 0; i < _attributesLoadCase.Count; i++)
+
+            foreach(var attribute in _attributesLoadCase)
             {
-                if (_attributesLoadCase[i].GetType() == typeof(BeamDistribuitedLoadAttribute))
+                if (attribute is BeamDistribuitedLoadAttribute bdla)
                 {
-                    BeamDistribuitedLoadAttribute q = (BeamDistribuitedLoadAttribute)_attributesLoadCase[i];
-                    q1 += q.Q1;
-                    q2 += q.Q2;
-                    q3 += q.Q3;
+                    q1 += bdla.Q1;
+                    q2 += bdla.Q2;
+                    q3 += bdla.Q3;
                 }
                 else
                 {
@@ -781,7 +793,8 @@ namespace GPC.Model.FEM.FiniteElements
             Node[] duplicatedNodes = _nodesGlobal.Select(node => node.Duplicate()).ToArray();
 
             //duplicate beam
-            EulerBeam duplicatedBeam = new EulerBeam(duplicatedNodes, (Section) property, _axisAngleRadians);
+            EulerBeam duplicatedBeam = new EulerBeam(duplicatedNodes, _axisAngleRadians);
+            duplicatedBeam.SetProperty(property);
             duplicatedBeam.SetId(this.Id);
 
             foreach (FreedomCaseAttribute attribute in fcAttributes)
@@ -797,7 +810,7 @@ namespace GPC.Model.FEM.FiniteElements
 
         public override FiniteElement Duplicate()
         {
-            return Duplicate(_property, _attributesLoadCase, _attributesFreedomCase);
+            return Duplicate(_property, _attributesLoadCase.ToList(), _attributesFreedomCase.ToList());
         }
         #endregion
 
@@ -848,14 +861,21 @@ namespace GPC.Model.FEM.FiniteElements
             double qx = 0;
             double qy = 0;
             double qz = 0;
-            for (int i = 0; i < _attributesLoadCase.Count; i++)
+
+            foreach (var attribute in _attributesLoadCase)
             {
-                if (_attributesLoadCase[i].GetType() == typeof(BeamDistribuitedLoadAttribute))
+                if (attribute is BeamDistribuitedLoadAttribute bdla)
                 {
-                    BeamDistribuitedLoadAttribute q = (BeamDistribuitedLoadAttribute)_attributesLoadCase[i];
-                    qx += q.Q1;
-                    qy += q.Q2;
-                    qz += q.Q3;
+                    qx += bdla.Q1;
+                    qy += bdla.Q2;
+                    qz += bdla.Q3;
+                }
+                else
+                {
+                    //TODO: gestione coordinate system
+                    qx = 0;
+                    qy = 0;
+                    qz = 0;
                 }
             }
 
@@ -927,22 +947,22 @@ namespace GPC.Model.FEM.FiniteElements
             Dictionary<LocalDOF, double> displLocalNode2 = GetLocalDisplacementsAtNode(Beam.EndSide.End2, globalDisplacementsNodes);
 
             double E = ((Section)_property).Material.E;
-            double J11 = ((Section)_property).J11;
-            double J22 = ((Section)_property).J22;
+            double J11 = ((Section)_property).Jxx;
+            double J22 = ((Section)_property).Jyy;
             double A = ((Section)_property).Area;
 
             #region uniformLoad
             double q1 = 0;
             double q2 = 0;
             double q3 = 0;
-            for (int i = 0; i < _attributesLoadCase.Count; i++)
+
+            foreach (var attribute in _attributesLoadCase)
             {
-                if (_attributesLoadCase[i].GetType() == typeof(BeamDistribuitedLoadAttribute))
+                if (attribute is BeamDistribuitedLoadAttribute bdla)
                 {
-                    BeamDistribuitedLoadAttribute q = (BeamDistribuitedLoadAttribute)_attributesLoadCase[i];
-                    q1 += q.Q1;
-                    q2 += q.Q2;
-                    q3 += q.Q3;
+                    q1 += bdla.Q1;
+                    q2 += bdla.Q2;
+                    q3 += bdla.Q3;
                 }
             }
             #endregion

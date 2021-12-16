@@ -1,7 +1,9 @@
-﻿using GPC.TestUtilities;
+﻿using GPC.Model.Elements;
+using GPC.TestUtilities;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Linq;
 using System.Reflection;
+using GPC.Utilities.Serialization;
 
 namespace GeneralTest
 {
@@ -25,6 +27,22 @@ namespace GeneralTest
                 if (!cl.IsSerializable)
                     Assert.Fail($"Class {cl.Name} is not serializable");
             }
+        }
+
+
+        /// <summary>
+        /// Testa che tutte le classi nell'assembly siano abbiano l'attributo [Serializable]
+        /// </summary>
+        [TestMethod]
+        public void SerializableTest1()
+        {
+            GhostElement ghostElement = new GhostElement();
+
+            var bytes = Serialization.SerializeToBytes(ghostElement);
+
+            var a = Serialization.DeserializeFromBytes(bytes);
+
+            Assert.IsTrue(ghostElement.Equals(a));
         }
     }
 }

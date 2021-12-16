@@ -40,18 +40,22 @@ namespace GPC.Model
         }
 
 
-        public ModelObjectSet(SerializationInfo info, StreamingContext context)
+        protected ModelObjectSet(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
 
         }
 
+        public override void GetObjectData(SerializationInfo info, StreamingContext context)
+        {
+            base.GetObjectData(info, context);
+        }
 
         /// <inheritdoc cref="ModelObjectEnumerable{T}.Add(T)" />
-        /// <returns>True if the element has been added
-        /// <para>False if the element has not been added there is already an equal element in the collection.</para>
+        /// <returns><see langword="True"/> if the element has been added
+        /// <para><see langword="False"/> if the element has not been added since there is already an equal element in the collection.</para>
         /// </returns>
-        /// <remarks>This is a O(n) operation
+        /// <remarks>This is a O(1) operation
         /// <para> To get the element in the collection use <see cref="GetItem(T, out T)"/> </para></remarks>
         public override bool Add(T item)
         {
@@ -63,7 +67,7 @@ namespace GPC.Model
                     return true;
                 }
 
-                return true; 
+                return false; 
             }
         }
 
@@ -146,6 +150,21 @@ namespace GPC.Model
             }
         }
 
+        public virtual bool RemoveRange(IEnumerable<T> items)
+        {
+            lock (_locker)
+            {
+                foreach (var item in items)
+                {
+                    if (!(_collection.Remove(item)))
+                    {
+                        return false;
+                    }
+                }
+
+                return true;
+            }
+        }
 
         #region Equals - hashcode - Operators
 

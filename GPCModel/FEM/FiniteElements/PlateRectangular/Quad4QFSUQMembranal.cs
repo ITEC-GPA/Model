@@ -176,7 +176,7 @@ namespace GPC.Model.FEM.FiniteElements
             {
                 return BMatrix(csi, eta, _localNodes).Transpose() * LMatrix(csi, eta, _localNodes) * M.Inverse() * H;
             };
-            mnl.Matrix<double> k = thk * GaussIntegration.IntegrationQuadrilateral(funBTraspLMInvH, funJacobiano, 9);
+            mnl.Matrix<double> k = thk * OldGaussIntegration.IntegrationQuadrilateral(funBTraspLMInvH, funJacobiano, 9);
 
             _kElementLocalCoord = k;
             Console.WriteLine("KElementLocalCoord = ");
@@ -184,7 +184,7 @@ namespace GPC.Model.FEM.FiniteElements
             #endregion
         }
 
-        public override mnl.Matrix<double> GetB(double csi, double eta)
+        public mnl.Matrix<double> GetB(double csi, double eta)
         {
             return BMatrix(csi, eta, _localNodes);
         }
@@ -285,7 +285,7 @@ namespace GPC.Model.FEM.FiniteElements
                 return LMatrix(csi, eta, nodes).Transpose() * D.Inverse() * LMatrix(csi, eta, nodes);
             };
 
-            mnl.Matrix<double> M = thickness * GaussIntegration.IntegrationQuadrilateral(funcM, funJacobiano, 9);
+            mnl.Matrix<double> M = thickness * OldGaussIntegration.IntegrationQuadrilateral(funcM, funJacobiano, 9);
             
             return M;
         }
@@ -299,7 +299,7 @@ namespace GPC.Model.FEM.FiniteElements
                 return LMatrix(csi, eta, nodes).Transpose() * BMatrix(csi, eta, nodes);
             };
 
-            mnl.Matrix<double> H = thickness * GaussIntegration.IntegrationQuadrilateral(funcH, funJacobiano, 9);
+            mnl.Matrix<double> H = thickness * OldGaussIntegration.IntegrationQuadrilateral(funcH, funJacobiano, 9);
 
             return H;
         }

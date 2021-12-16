@@ -78,10 +78,13 @@ namespace GPC.Model.LoadCases
 
         public override int GetHashCode()
         {
-            int hashCode = 23;
-            hashCode = hashCode * -17 + base.GetHashCode();
-            hashCode = hashCode * -17 + _loadCaseType.GetHashCode();
-            return hashCode;
+            unchecked
+            {
+                int hashCode = 23;
+                hashCode = hashCode * -17 + base.GetHashCode();
+                hashCode = hashCode * -17 + _loadCaseType.GetHashCode();
+                return hashCode; 
+            }
         }
 
         public static bool operator ==(LoadCase obj1, LoadCase obj2)

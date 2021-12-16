@@ -15,6 +15,7 @@ namespace GPC.Model.FEM
     {
 
         #region Singleton setup
+        // NON TOCCARE PER NESSUN MOTIVO
 
         private static readonly FemOptions instance = new FemOptions();
 
@@ -24,7 +25,14 @@ namespace GPC.Model.FEM
             {
                 return instance;
             }
-        } 
+        }
+
+        // Explicit static constructor to tell C# compiler not to mark type as beforefieldinit.
+        // NON TOCCARE PER NESSUN MOTIVO
+        static FemOptions()
+        {
+
+        }
 
         #endregion
 
@@ -71,12 +79,7 @@ namespace GPC.Model.FEM
         #endregion
 
 
-        // Explicit static constructor to tell C# compiler not to mark type as beforefieldinit. non toccare
-        static FemOptions()
-        {
-
-        }
-
+        // DEVE RIMANERE PRIVATO
         private FemOptions()
         {
             ZeroElasticModulus = 0.001;

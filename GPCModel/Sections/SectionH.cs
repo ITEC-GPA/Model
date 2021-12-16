@@ -1,242 +1,215 @@
-﻿using GPC.Geometry;
-using GPC.Model.Materials;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using GPC.Geometry;
+using GPC.Model.Materials;
 
 namespace GPC.Model.Sections
 {
-    public class SectionH : Section
+    public class SectionH : ThinWallSection, ISection
     {
         #region Variables
-        double _hTot;
-        double _hw;
-        double _tw;
-        double _ttop;
-        double _tbottom;
-        double _btop;
-        double _bbottom;
 
-        bool _isWelded;
+        protected readonly double _h;
+        protected readonly double _tw;
+        protected readonly double _ttop;
+        protected readonly double _tbottom;
+        protected readonly double _btop;
+        protected readonly double _bbottom;
 
-        Plate[] _plates = new Plate[5];
         #endregion
 
-        public SectionH(double hTot, double tw, double btop, double ttop, double bbottom, double tbottom, bool isWelded, Materials.Material material, string name) : base(material.GetIsotropicFemMaterial(), name)
-        {
-            _hTot = hTot;
-            _tw = tw;
-            _btop = btop;
-            _bbottom = bbottom;
-            _ttop = ttop;
-            _tbottom = tbottom;
-
-            _isWelded = isWelded;
-
-            _hw = _hTot - _tbottom - _ttop;
-
-            double maxB = Math.Max(bbottom, btop);
-            double xStartBottom;
-            double xStartTop;
-            double xWeb = maxB / 2.0;
-            if (maxB == btop) {
-                xStartTop = 0;
-                xStartBottom = btop/2.0 - bbottom / 2.0;
-            } else
-            {
-                xStartTop = bbottom / 2.0 - btop / 2.0;
-                xStartBottom = 0;
-            }
-            
-            _plates[0] = new Plate(_tbottom, xWeb, _tbottom / 2.0, xStartBottom, _tbottom / 2.0, ((SteelMaterial)material).Fyk, Plate.TypePlate.outer);
-            _plates[1] = new Plate(_tbottom, xWeb, _tbottom / 2.0, xWeb + bbottom/2.0, _tbottom / 2.0, ((SteelMaterial)material).Fyk, Plate.TypePlate.outer);
-            _plates[2] = new Plate(_tw, xWeb, _tbottom, xWeb, _hw + _tbottom, ((SteelMaterial)material).Fyk, Plate.TypePlate.inner);
-            _plates[3] = new Plate(_ttop, xWeb, _hTot - _ttop/2.0, xWeb -_btop / 2.0, _hTot - _ttop / 2.0, ((SteelMaterial)material).Fyk, Plate.TypePlate.outer);
-            _plates[4] = new Plate(_ttop, xWeb, _hTot - _ttop / 2.0, xWeb + _btop / 2.0, _hTot - _ttop / 2.0, ((SteelMaterial)material).Fyk, Plate.TypePlate.outer);
-
-            _area =0;
-            double Sy = 0;
-            double Sx = 0;
-            for (int i = 0; i < _plates.Count(); i++)
-            {
-                double areaPlate = _plates[i].Area;
-                double yGPlate = _plates[i].Centroid.Y;
-                double xGPlate = _plates[i].Centroid.X;
-
-                _area = _area + areaPlate;
-                Sy = Sy + areaPlate * yGPlate;
-                Sx = Sx + areaPlate * xGPlate;
-            }
-
-            _angleX1 = 0;
-            _centroid = new Point2d(Sx / _area, Sy / _area);
-
-            _j11 = 0;
-            _j22 = 0;
-            for (int i = 0; i < _plates.Count(); i++)
-            {
-                double areaPlate = _plates[i].Area;
-                double yGPlate = _plates[i].Centroid.Y;
-                double xGPlate = _plates[i].Centroid.X;
-                double j11Plate = _plates[i].JzCentroid;
-                double j22Plate = _plates[i].JyCentroid;
-
-                _j11 = _j11 + j11Plate + areaPlate * Math.Pow(xGPlate - _centroid.X, 2.0);
-                _j22 = _j22 + j22Plate + areaPlate * Math.Pow(yGPlate - _centroid.Y, 2.0);
-            }
-
-            double dmed = _hTot - _tbottom / 2.0 - _ttop / 2.0;
-            _jt = (_btop * Math.Pow(_ttop,3.0) + _bbottom * Math.Pow(_tbottom, 3.0) + dmed * Math.Pow(_tw, 3.0)) / 3.0; //SSRC 1998 -> Straus use this formula with _hw instead of dmed
-
-            double JFlTop = 1.0 / 12.0 * _ttop * Math.Pow(_btop, 3.0);
-            double JFlBottom = 1.0 / 12.0 * _tbottom * Math.Pow(_bbottom, 3.0);
-            double jz = JFlTop + JFlBottom + 1.0 / 12.0 * _hw * Math.Pow(_tw, 3.0);
-
-            // CNR DT208_2011
-            _jw = dmed * dmed * JFlBottom * JFlTop / jz;
-            /*double b1 = Math.Min(_btop, _bbottom);
-            double b2;
-            double t1;
-            double t2;
-            if (b1 == _btop)
-            {
-                t1 = _ttop;
-                t2 = _tbottom;
-                b2 = _bbottom;
-            } else
-            {
-                b2 = _btop;
-                t2 = _ttop;
-                t1 = _tbottom;
-            }
-            double alpha = 1.0 / (1.0 + Math.Pow(b1 / b2, 3.0) * t1 / t2);
-            _jw = dmed * dmed * Math.Pow(b1, 3.0) * t1 * alpha / 12.0; //(SSRC 1998, Picard and Beaulieu 1991)*/
-
-            //CNR DT208_2011 --> to be checked
-            double zBottom = _centroid.Y - _tbottom / 2.0;
-            double zTop = _hTot - _ttop / 2.0 - _centroid.Y;
-            _shearCenter = new Point2d(_centroid.X, _centroid.Y - (zBottom * JFlBottom - zTop * JFlTop)/jz);
-
-            _wel11Left = _j11 / Math.Max(_bbottom / 2.0, _btop / 2.0);
-            _wel11Right = _wel11Left;
-            _wel22Bottom = _j22 / _centroid.Y;
-            _wel22Top = _j22 / (_hTot - _centroid.Y);
-
-            _wpl11 = 0;
-            {
-                SectionT halfSectionTop = new SectionT(_btop / 2.0, _hTot / 2.0, _ttop, _tw / 2.0, material, string.Empty);
-                SectionT halfSectionBottom = new SectionT(_bbottom / 2.0, _hTot / 2.0, _tbottom, _tw / 2.0, material, string.Empty);
-                double dTop = _btop / 2.0 - halfSectionTop.Centroid.Y;
-                double dBottom = _bbottom / 2.0 - halfSectionBottom.Centroid.Y;
-                double d = (halfSectionTop.Area * dTop + halfSectionBottom.Area * dBottom) / (halfSectionBottom.Area + halfSectionTop.Area);
-                _wpl11 = 2.0 * d * _area / 2.0; 
-            }
-
-            _wpl22 = 0;
-            {
-                if (_area/2.0 > _btop * _ttop && _area/2.0 > _bbottom * _tbottom)
-                {
-                    double hw = (_area / 2.0 - _btop * _ttop) / _tw;
-                    SectionT halfSectionTop = new SectionT(hw + _ttop, _btop, _tw, _ttop, material, string.Empty);
-                    SectionT halfSectionBottom = new SectionT(_hTot - _ttop - hw, _bbottom, _tw, _tbottom, material, string.Empty);
-                    _wpl22 = _area/2.0 * (halfSectionTop.Centroid.Y + halfSectionBottom.Centroid.Y);
-                } else if (_area / 2.0 <= _btop * _ttop)
-                {
-                    double hHalf = _area / 2.0 / _btop;
-                    SectionH halfSectionBottom = new SectionH(_hTot - hHalf, _tw, _btop, _ttop - hHalf, _bbottom, _tbottom, _isWelded, material, string.Empty);
-                    _wpl22 = _area / 2.0 * (hHalf/2.0 + (_hTot - hHalf - halfSectionBottom.Centroid.Y));
-                } else if (_area /2.0 <= _bbottom * _tbottom)
-                {
-                    double hHalf = _area / 2.0 / _bbottom;
-                    SectionH halfSectionBottom = new SectionH(_hTot - hHalf, _tw, _btop, _ttop, _bbottom, _tbottom - hHalf, _isWelded, material, string.Empty);
-                    _wpl22 = _area / 2.0 * (hHalf / 2.0 + halfSectionBottom.Centroid.Y);
-                } else
-                {
-                    throw new Exception("Cannot calculate Wpl : Plastic neutral axis in flanges...to be implemented");
-                }
-            }
- 
-            IsSymmetricAlongZLocalAxis = true;
-            if (_btop == _bbottom && _tbottom == _ttop)
-            {
-                IsSymmetricAlongYLocalAxis = true;
-            }
-            else
-            {
-                IsSymmetricAlongYLocalAxis = false;
-            }
-        }
 
         #region Properties
-        public double LenghtBottomFlange => _bbottom;
-        public double LenghtTopFlange => _btop;
-        public double ThicknessTopFlange => _ttop;
-        public double ThicknessBottomFlange => _tbottom;
-        public double ThicknessWeb => _tw;
-        public double HeightWeb => _hw;
-        public double H => _hTot;
-        public double B
-        {
-            get
-            {
-                if (_bbottom == _btop)
-                {
-                    return _btop;
-                } else
-                {
-                    throw new Exception("different B");
-                }
-            }
-        }
-        public Plate[] Plates => _plates;
 
-        public bool IsRolled {
-            get {
-                return !_isWelded;
-            }
-            set
-            {
-                _isWelded = !value;
-            }
-        }
-        public bool IsWelded {
-            get
-            {
-                return _isWelded;
-            }
-            set
-            {
-                _isWelded = value;
-            }
-        }
+        public double Height => _h;
+
+        public double LenghtBottomFlange => _bbottom;
+
+        public double LenghtTopFlange => _btop;
+
+        public double ThicknessTopFlange => _ttop;
+
+        public double ThicknessBottomFlange => _tbottom;
+
+        public double ThicknessWeb => _tw;
+
+        public double HeightWeb => Height - ThicknessBottomFlange - ThicknessTopFlange;
+
         #endregion
 
-        public override double MinSigma(double N, double M2, double M1)
+
+        #region Public Constructors
+
+        public SectionH(double height, double thicknessWeb, double topFlangeLength, double topFlangeThickness, double bottomFlangeLength,
+                        double bottomFlangeThickness, Material material, string name)
+            : base(material, name)
         {
-            double sigmap1 = N /_area - M2 / _wel22Top + M1 / _j11 * _btop / 2.0;
-            double sigmap2 = N / _area - M2 / _wel22Top - M1 / _j11 * _btop / 2.0;
-            double sigmap3 = N / _area + M2 / _wel22Bottom + M1 / _j11 * _bbottom / 2.0;
-            double sigmap4 = N / _area + M2 / _wel22Bottom - M1 / _j11 * _bbottom / 2.0;
+            #region Check inputs
 
-            double sigmaMin = Math.Min(sigmap1, sigmap2);
-            sigmaMin = Math.Min(sigmaMin, sigmap3);
-            sigmaMin = Math.Min(sigmaMin, sigmap4);
+            _h = height < 0 ? throw new ArgumentException($"Web lenght cannot be lower than zero") : height;                               // altezza anima
+            _tw = thicknessWeb < 0 ? throw new ArgumentException($"Web thickness cannot be lower than zero") : thicknessWeb;                            // spessore anima
+            _btop = topFlangeLength < 0 ? throw new ArgumentException($"Top flange lenght cannot be lower than zero") : topFlangeLength;                  // larghezza piattabanda superiore
+            _bbottom = bottomFlangeLength < 0 ? throw new ArgumentException($"Bottom flange lenght cannot be lower than zero") : bottomFlangeLength;      // larghezza piattabanda inferiore
+            _ttop = topFlangeThickness < 0 ? throw new ArgumentException($"Top flange thickness cannot be lower than zero") : topFlangeThickness;               // spessore piattabanda superiore
+            _tbottom = bottomFlangeThickness < 0 ? throw new ArgumentException($"Bottom flange thickness cannot be lower than zero") : bottomFlangeThickness;   // spessore piattabanda inferiore
 
-            return sigmaMin;
+            #endregion
+
+
+            ThinWall web = new ThinWall(HeightWeb, thicknessWeb, Math.PI / 2);
+            ThinWall flangeTop = new ThinWall(topFlangeLength, topFlangeThickness, 0);
+            ThinWall flangeBottom = new ThinWall(bottomFlangeLength, bottomFlangeThickness, 0);
+
+            SetThinWalls(new ThinWall[3] { web, flangeTop, flangeBottom },
+                new Point2d[3] { new Point2d(Math.Max(LenghtTopFlange, LenghtBottomFlange) / 2.0, ThicknessBottomFlange + HeightWeb / 2.0),
+                new Point2d(Math.Max(LenghtTopFlange, LenghtBottomFlange) / 2.0, bottomFlangeThickness + HeightWeb + topFlangeThickness / 2.0),
+                new Point2d(Math.Max(LenghtTopFlange, LenghtBottomFlange) / 2.0, bottomFlangeThickness / 2.0)});
+
+            
+            SetMechanicalProperties();
         }
+
+        #endregion
+
+
+        #region Protected override method
+
+        protected override Shape2d GetShape()
+        {
+            throw new NotImplementedException();
+        }
+
+        public virtual double DistanceYCentroidFromBottom()
+        {
+            return CalculateCentroid().Y;
+        }
+
+        public virtual double DistanceYCentroidFromTop()
+        {
+            return Height - DistanceYCentroidFromBottom();
+        }
+
+        public virtual double DistanceXCentroidFromRight()
+        {
+            return CalculateCentroid().X;
+        }
+
+        protected override double CalculateWpl2()
+        {
+            SectionT halfSectionTop = new SectionT(LenghtTopFlange / 2.0, Height / 2.0, ThicknessTopFlange,
+                ThicknessWeb / 2.0, Material, string.Empty);
+            SectionT halfSectionBottom = new SectionT(LenghtBottomFlange / 2.0, Height / 2.0, ThicknessBottomFlange,
+                ThicknessWeb / 2.0, Material, string.Empty);
+
+            double d = (halfSectionTop.Area * (LenghtTopFlange / 2.0 - halfSectionTop.DistanceYCentroidFromBottom()) +
+                halfSectionBottom.Area * (LenghtBottomFlange / 2.0 - halfSectionBottom.DistanceYCentroidFromBottom())) /
+                (halfSectionBottom.Area + halfSectionTop.Area);
+
+            return 2.0 * d * _area / 2.0;
+        }
+
+        protected override double CalculateWpl1()
+        {
+            if (_area / 2.0 >= LenghtTopFlange * ThicknessTopFlange && _area / 2.0 >= LenghtBottomFlange * ThicknessBottomFlange)
+            {
+                double hw = (_area / 2.0 - LenghtTopFlange * ThicknessTopFlange) / ThicknessWeb;
+
+                SectionT halfSectionTop = new SectionT(hw + ThicknessTopFlange, LenghtTopFlange, ThicknessWeb,
+                    ThicknessTopFlange, Material, string.Empty);
+                SectionT halfSectionBottom = new SectionT(Height - ThicknessTopFlange - hw, LenghtBottomFlange,
+                    ThicknessWeb, ThicknessBottomFlange, Material, string.Empty);
+
+                return _area / 2.0 * (halfSectionTop.DistanceYCentroidFromBottom() + halfSectionBottom.DistanceYCentroidFromBottom());
+            }
+            else if (_area / 2.0 <= LenghtTopFlange * ThicknessTopFlange)
+            {
+                double hHalf = _area / 2.0 / LenghtTopFlange;
+
+                SectionH halfSectionBottom = new SectionH(Height - hHalf, ThicknessWeb, LenghtTopFlange,
+                    ThicknessTopFlange - hHalf, LenghtBottomFlange, ThicknessBottomFlange, Material, string.Empty);
+
+                return _area / 2.0 * (hHalf / 2.0 + (Height - hHalf - halfSectionBottom.DistanceYCentroidFromBottom()));
+            }
+            else if (_area / 2.0 <= LenghtBottomFlange * ThicknessBottomFlange)
+            {
+                double hHalf = _area / 2.0 / LenghtBottomFlange;
+
+                SectionH halfSectionBottom = new SectionH(Height - hHalf, ThicknessWeb, LenghtTopFlange, ThicknessTopFlange,
+                    LenghtBottomFlange, ThicknessBottomFlange - hHalf, Material, string.Empty);
+
+                return _area / 2.0 * (hHalf / 2.0 + halfSectionBottom.DistanceYCentroidFromBottom());
+            }
+            else
+                throw new NotImplementedException("Cannot calculate Wpl : Plastic neutral axis in flanges...to be implemented");
+        }
+
+        protected override double CalculateWel2Min()
+        {
+            return J22 / (LenghtBottomFlange - DistanceXCentroidFromRight());
+        }
+
+        protected override double CalculateWel2Max()
+        {
+            return J22 / (LenghtTopFlange - DistanceXCentroidFromRight());
+        }
+
+        protected override double CalculateWel1Min()
+        {
+            return J11 / DistanceYCentroidFromBottom();
+        }
+
+        protected override double CalculateWel1Max()
+        {
+            return J11 / DistanceYCentroidFromTop();
+        }
+
+        protected override bool CalculateIsSymmetricAlongXLocalAxis()
+        {
+            if (_btop == _bbottom && _tbottom == _ttop)
+                return true;
+
+            return false;
+        }
+
+        protected override bool CalculateIsSymmetricAlongYLocalAxis()
+        {
+            return true;
+        }
+
+
+
+        protected override Point2d CalculateShearCenter()
+        {
+            //CNR DT208_2011 --> to be checked
+            double JFlTop = 1.0 / 12.0 * ThicknessTopFlange * Math.Pow(LenghtTopFlange, 3.0);
+            double JFlBottom = 1.0 / 12.0 * ThicknessBottomFlange * Math.Pow(LenghtBottomFlange, 3.0);
+            double jz = JFlTop + JFlBottom + 1.0 / 12.0 * HeightWeb * Math.Pow(ThicknessWeb, 3.0);
+            double zBottom = CalculateCentroid().Y - ThicknessBottomFlange / 2.0;
+            double zTop = Height - ThicknessTopFlange / 2.0 - CalculateCentroid().Y;
+
+            return new Point2d(CalculateCentroid().X, CalculateCentroid().Y - (zBottom * JFlBottom - zTop * JFlTop) / jz);
+        }
+
+        protected override double CalculateJw()
+        {
+            double dmed = _h - ThicknessBottomFlange / 2.0 - ThicknessTopFlange / 2.0;
+            double JFlTop = 1.0 / 12.0 * ThicknessTopFlange * Math.Pow(LenghtTopFlange, 3.0);
+            double JFlBottom = 1.0 / 12.0 * ThicknessBottomFlange * Math.Pow(LenghtBottomFlange, 3.0);
+            double jz = JFlTop + JFlBottom + 1.0 / 12.0 * HeightWeb * Math.Pow(ThicknessWeb, 3.0);
+
+            // CNR DT208_2011
+            return dmed * dmed * JFlBottom * JFlTop / jz;
+        }
+
 
         public override string ToString()
         {
-            string s = "H section: \n";
-            s = s + "Height = " + _hTot + " mm \n";
-            s = s + "Thickness Web = " + _tw + " mm \n";
-            s = s + "Length Bottom = " + _bbottom + " mm \n";
-            s = s + "Thickness Bottom = " + _tbottom + " mm \n";
-            s = s + "Length Top = " + _btop + " mm \n";
-            s = s + "Thickness Top = " + _ttop + " mm \n";
-            return s;
+            return $"H {_h}x{_tw}x{_bbottom}x{_tbottom}x{_btop}x{_ttop}";
         }
+
+        #endregion
     }
 }
