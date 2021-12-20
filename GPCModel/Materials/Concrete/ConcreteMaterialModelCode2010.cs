@@ -131,7 +131,7 @@ namespace GPC.Model.Materials
 
         // Costruttore per cls normale
         public ConcreteMaterialModelCode2010(string name, double fck, CompressionStressStrainDiagrams compressionStressStrainDiagrams,
-                                            double poisson, double density, double alfaThermalExpansion, CementType cementType = CementType.ClassN)
+            double poisson = 0.2, double density = 0.0025, double alfaThermalExpansion = 1e-6, CementType cementType = CementType.ClassN)
             : base(name, poisson, density, alfaThermalExpansion)
         {
             _compressionStressStrainDiagrams = compressionStressStrainDiagrams;
@@ -148,9 +148,8 @@ namespace GPC.Model.Materials
 
         // Costruttore per cls frc
         public ConcreteMaterialModelCode2010(string name, double fck, CompressionStressStrainDiagrams compressionStressStrainDiagrams,
-                                             double ffts, double fFtu, double strainYTension, double strainUTension,
-                                             TensionStressStrainDiagrams tensionStressStrainDiagrams,
-                                             double poisson, double density, double alfaThermalExpansion, CementType cementType = CementType.ClassN)
+            double ffts, double fFtu, double strainYTension, double strainUTension, TensionStressStrainDiagrams tensionStressStrainDiagrams,
+            double poisson = 0.2, double density = 0.0025, double alfaThermalExpansion = 1e-6, CementType cementType = CementType.ClassN)
             : base(name, poisson, density, alfaThermalExpansion)
         {
 
@@ -168,8 +167,9 @@ namespace GPC.Model.Materials
 
         // Costruttore per cls con tabella generica
         public ConcreteMaterialModelCode2010(string name, double strainYTension, 
-            StressStrainTable stressStrainTableCompression, StressStrainTable stressStrainTableTension, 
-            double poisson, double density, double alfaThermalExpansion, CementType cementType = CementType.ClassN)
+            StressStrainTable stressStrainTableCompression, StressStrainTable stressStrainTableTension,
+            double poisson = 0.2, double density = 0.0025, double alfaThermalExpansion = 1e-6,
+            CementType cementType = CementType.ClassN)
             : base(name, stressStrainTableCompression, stressStrainTableTension,
                          stressStrainTableCompression.GetElasticModulus(), stressStrainTableTension.GetElasticModulus(),
                          poisson, density, alfaThermalExpansion)
@@ -178,33 +178,13 @@ namespace GPC.Model.Materials
             _compressionStressStrainDiagrams = CompressionStressStrainDiagrams.Generic;
             _tensionStressStrainDiagrams = TensionStressStrainDiagrams.Linear;
 
-            SetMechanicalProperties(stressStrainTableCompression.GetMinimumStress(),
-                                    stressStrainTableTension.GetStress(strainYTension),
-                                    stressStrainTableTension.GetLastStress(),
-                                    strainYTension, stressStrainTableTension.GetLastStrain(),
-                                    _compressionStressStrainDiagrams, _tensionStressStrainDiagrams);
+            SetMechanicalProperties(stressStrainTableCompression.GetMinimumStress(), stressStrainTableTension.GetStress(strainYTension),
+                stressStrainTableTension.GetLastStress(),strainYTension, stressStrainTableTension.GetLastStrain(),
+                _compressionStressStrainDiagrams, _tensionStressStrainDiagrams);
 
             _cementType = cementType;
         }
 
-
-        // Costruttore per cls con tabella generica
-        public ConcreteMaterialModelCode2010(string name, double strainYTension, 
-            StressStrainTable stressStrainTableCompression, StressStrainTable stressStrainTableTension, CementType cementType = CementType.ClassN)
-            : this(name, strainYTension, stressStrainTableCompression, stressStrainTableTension, 0.2, 0.0025, 1e-6, cementType)
-        {
-
-            _compressionStressStrainDiagrams = CompressionStressStrainDiagrams.Generic;
-            _tensionStressStrainDiagrams = TensionStressStrainDiagrams.Linear;
-
-            SetMechanicalProperties(stressStrainTableCompression.GetMinimumStress(),
-                                    stressStrainTableTension.GetStress(strainYTension),
-                                    stressStrainTableTension.GetLastStress(),
-                                    strainYTension, stressStrainTableTension.GetLastStrain(),
-                                    _compressionStressStrainDiagrams, _tensionStressStrainDiagrams);
-
-            _cementType = cementType;
-        }
 
 
         protected ConcreteMaterialModelCode2010(SerializationInfo info, StreamingContext context)
@@ -409,7 +389,7 @@ namespace GPC.Model.Materials
                         _elasticModulusTension = double.MaxValue;
 
                         _strainYTension = 0.0;
-                        _strainUTension = _stressStrainTableTension.GetLastStrain();
+                        _strainUTension = strainUTension;
                         break;
 
                     default:

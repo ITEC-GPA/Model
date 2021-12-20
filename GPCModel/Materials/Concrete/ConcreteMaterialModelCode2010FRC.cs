@@ -8,7 +8,8 @@ namespace GPC.Model.Materials
 
         public ConcreteMaterialModelCode2010FRC(string name, double strainYTension,
             StressStrainTable stressStrainTableCompression, StressStrainTable stressStrainTableTension,
-            double poisson, double density, double alfaThermalExpansion, CementType cementType = CementType.ClassN)
+            double poisson = 0.2, double density = 0.0025, double alfaThermalExpansion = 1e-6,
+            CementType cementType = CementType.ClassN)
             : base(name, strainYTension, stressStrainTableCompression, stressStrainTableTension, poisson, density, alfaThermalExpansion, cementType)
         {
 
@@ -16,10 +17,10 @@ namespace GPC.Model.Materials
 
 
         public ConcreteMaterialModelCode2010FRC(string name, double fck, CompressionStressStrainDiagrams compressionStressStrainDiagrams,
-            double ffts, double fFtu, double strainYTension, double strainUTension,
-            TensionStressStrainDiagrams tensionStressStrainDiagrams, double poisson, double density,
-            double alfaThermalExpansion, CementType cementType = CementType.ClassN)
-            : base(name, fck, compressionStressStrainDiagrams, ffts, fFtu, strainYTension, strainUTension, tensionStressStrainDiagrams, poisson, density, alfaThermalExpansion, cementType)
+            double ffts, double fFtu, double strainYTension, double strainUTension, TensionStressStrainDiagrams tensionStressStrainDiagrams, 
+            double poisson = 0.2, double density = 0.0025, double alfaThermalExpansion = 1e-6, CementType cementType = CementType.ClassN)
+            : base(name, fck, compressionStressStrainDiagrams, ffts, fFtu, strainYTension, strainUTension, 
+                  tensionStressStrainDiagrams, poisson, density, alfaThermalExpansion, cementType)
         {
 
         }
