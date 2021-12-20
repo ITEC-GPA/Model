@@ -9,41 +9,41 @@ namespace GPC.Model.Materials
     [UI(Description = "Rebar", Group = "Materials", Kind = "Material")]
     public class RebarMaterial : SteelMaterial
     {
-        public static RebarMaterial B450A => new RebarMaterial("B450A", 205000, 0.28, 450, 450, 0.03, 0.007850, 12 * 1e-6);
-        public static RebarMaterial B450AHardening => new RebarMaterial("B450A Hardening", 205000, 0.28, 450, 540, 0.03, 0.007850, 12 * 1e-6);
+        public static RebarMaterial B450A => new RebarMaterial("B450A", 200000, 450, 450, 0.03);
+        public static RebarMaterial B450AHardening => new RebarMaterial("B450A Hardening", 200000, 450, 540, 0.03);
 
-        public static RebarMaterial B450C => new RebarMaterial("B450C", 205000, 0.28, 450, 450, 0.075, 0.007850, 12 * 1e-6);
-        public static RebarMaterial B450CHardening => new RebarMaterial("B450C Hardening", 205000, 0.28, 450, 540, 0.075, 0.007850, 12 * 1e-6);
+        public static RebarMaterial B450C => new RebarMaterial("B450C", 200000, 450, 450, 0.075);
+        public static RebarMaterial B450CHardening => new RebarMaterial("B450C Hardening", 200000, 450, 540, 0.075);
 
-        public static RebarMaterial B500A => new RebarMaterial("B500A", 205000, 0.28, 500, 500, 0.03, 0.007850, 12 * 1e-6);
-        public static RebarMaterial B500AHardening => new RebarMaterial("B500A Hardening", 205000, 0.28, 500, 525, 0.03, 0.007850, 12 * 1e-6);
+        public static RebarMaterial B500A => new RebarMaterial("B500A", 200000, 500, 500, 0.03);
+        public static RebarMaterial B500AHardening => new RebarMaterial("B500A Hardening", 200000, 500, 525, 0.03);
 
-        public static RebarMaterial B500B => new RebarMaterial("B500B", 205000, 0.28, 500, 500, 0.05, 0.007850, 12 * 1e-6);
-        public static RebarMaterial B500BHardening => new RebarMaterial("B500B Hardening", 205000, 0.28, 500, 550, 0.05, 0.007850, 12 * 1e-6);
+        public static RebarMaterial B500B => new RebarMaterial("B500B", 200000, 500, 500, 0.05);
+        public static RebarMaterial B500BHardening => new RebarMaterial("B500B Hardening", 200000, 500, 550, 0.05);
 
-        public static RebarMaterial B500C => new RebarMaterial("B500C", 205000, 0.28, 500, 500, 0.075, 0.007850, 12 * 1e-6);
-        public static RebarMaterial B500CHardening => new RebarMaterial("B500C Hardening", 205000, 0.28, 500, 575, 0.075, 0.007850, 12 * 1e-6);
+        public static RebarMaterial B500C => new RebarMaterial("B500C", 200000, 500, 500, 0.075);
+        public static RebarMaterial B500CHardening => new RebarMaterial("B500C Hardening", 200000, 500, 575, 0.075);
 
-        public static RebarMaterial Y1570C => new RebarMaterial("Y1570", 195000, 0.28, 1420, 1420, 0.075, 0.007850, 12 * 1e-6);
-        public static RebarMaterial Y1570CHardening => new RebarMaterial("Y1570 Hardening", 195000, 0.28, 1420, 1570, 0.075, 0.007850, 12 * 1e-6);
+        public static RebarMaterial Y1570C => new RebarMaterial("Y1570", 195000, 1420, 1420, 0.075);
+        public static RebarMaterial Y1570CHardening => new RebarMaterial("Y1570 Hardening", 195000, 1420, 1570, 0.075);
 
-        public static RebarMaterial Y1620C => new RebarMaterial("Y1620", 195000, 0.28, 1420, 1420, 0.075, 0.007850, 12 * 1e-6);
-        public static RebarMaterial Y1620CHardening => new RebarMaterial("Y1620 Hardening", 195000, 0.28, 1420, 1620, 0.075, 0.007850, 12 * 1e-6);
+        public static RebarMaterial Y1620C => new RebarMaterial("Y1620", 195000, 1420, 1420, 0.075);
+        public static RebarMaterial Y1620CHardening => new RebarMaterial("Y1620 Hardening", 195000, 1420, 1620, 0.075);
 
-        public static RebarMaterial Y1670C => new RebarMaterial("Y1670", 195000, 0.28, 1480, 1480, 0.075, 0.007850, 12 * 1e-6);
-        public static RebarMaterial Y1670CHardening => new RebarMaterial("Y1670 Hardening", 195000, 0.28, 1480, 1670, 0.075, 0.007850, 12 * 1e-6);
+        public static RebarMaterial Y1670C => new RebarMaterial("Y1670", 195000, 1480, 1480, 0.075);
+        public static RebarMaterial Y1670CHardening => new RebarMaterial("Y1670 Hardening", 195000, 1480, 1670, 0.075);
 
-        public static RebarMaterial Y1770C => new RebarMaterial("Y1770", 195000, 0.28, 1560, 1560, 0.075, 0.007850, 12 * 1e-6);
-        public static RebarMaterial Y1770CHardening => new RebarMaterial("Y1770 Hardening", 195000, 0.28, 1560, 1770, 0.075, 0.007850, 12 * 1e-6);
+        public static RebarMaterial Y1770C => new RebarMaterial("Y1770", 195000, 1560, 1560, 0.075);
+        public static RebarMaterial Y1770CHardening => new RebarMaterial("Y1770 Hardening", 195000, 1560, 1770, 0.075);
 
-        public static RebarMaterial Y1860C => new RebarMaterial("Y1860", 195000, 0.28, 1640, 1640, 0.075, 0.007850, 12 * 1e-6);
-        public static RebarMaterial Y1860CHardening => new RebarMaterial("Y1860 Hardening", 195000, 0.28, 1640, 1860, 0.075, 0.007850, 12 * 1e-6);
+        public static RebarMaterial Y1860C => new RebarMaterial("Y1860", 195000, 1640, 1640, 0.075);
+        public static RebarMaterial Y1860CHardening => new RebarMaterial("Y1860 Hardening", 195000, 1640, 1860, 0.075);
 
-        public static RebarMaterial Y1960C => new RebarMaterial("Y1960", 195000, 0.28, 1740, 1740, 0.075, 0.007850, 12 * 1e-6);
-        public static RebarMaterial Y1960CHardening => new RebarMaterial("Y1960 Hardening", 195000, 0.28, 1740, 1960, 0.075, 0.007850, 12 * 1e-6);
+        public static RebarMaterial Y1960C => new RebarMaterial("Y1960", 195000, 1740, 1740, 0.075);
+        public static RebarMaterial Y1960CHardening => new RebarMaterial("Y1960 Hardening", 195000, 1740, 1960, 0.075);
 
-        public static RebarMaterial Y2060C => new RebarMaterial("Y2060C", 195000, 0.28, 1850, 1820, 0.075, 0.007850, 12 * 1e-6);
-        public static RebarMaterial Y2060CHardening => new RebarMaterial("Y2060C Hardening", 195000, 0.28, 1820, 2060, 0.075, 0.007850, 12 * 1e-6);
+        public static RebarMaterial Y2060C => new RebarMaterial("Y2060C", 195000, 1850, 1820, 0.075);
+        public static RebarMaterial Y2060CHardening => new RebarMaterial("Y2060C Hardening", 195000, 1820, 2060, 0.075);
 
         #region Constructor
 
@@ -68,9 +68,9 @@ namespace GPC.Model.Materials
         /// <param name="name">Name of material</param>
         /// <param name="fyk">Yielding stress</param>        
         /// <remarks>StressStrainDiagram is set to ElastoPlastic. alfaThermalExpansion setted to 0. EpsilonY equal to fy / E
-        /// E = 205GPa, ni = 0.28. Epsilon U is set as 0.075 and fu is set as fyk</remarks>
+        /// E = 200GPa, ni = 0.28. Epsilon U is set as 0.075 and fu is set as fyk</remarks>
         public RebarMaterial(string name, double fyk)
-            : this(name, 205000, fyk, fyk)
+            : this(name, 200000, fyk, fyk)
 		{
 		}
 
