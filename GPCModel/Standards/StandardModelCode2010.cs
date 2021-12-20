@@ -85,7 +85,7 @@ namespace GPC.Model.Standards
         /// <summary>
         /// Partial safety factor for FRC in tension (residual strength)
         /// </summary>
-        public double GammF => _gammaF;
+        public double GammaF => _gammaF;
 
         /// <summary>
         /// Reduction coefficient for ultimate steel strain. 7.2.3.2
