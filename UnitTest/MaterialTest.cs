@@ -390,7 +390,7 @@ namespace ModelObjectTest
         public void ConcreteFRCTest4()
         {
             ConcreteMaterialModelCode2010FRC concrete = new ConcreteMaterialModelCode2010FRC("", 25, ConcreteMaterialModelCode2010.CompressionStressStrainDiagrams.ParabolaRectangle,
-                1.55, 1.80, 0.00195, 0.01, ConcreteMaterialModelCode2010.TensionStressStrainDiagrams.Linear);
+                1.55, 1.80, 0.00195, 0.01, ConcreteMaterialModelCode2010.TensionStressStrainDiagrams.Bilinear);
 
             List<(double, double)> stresses = new List<(double, double)>();
 

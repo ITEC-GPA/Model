@@ -498,7 +498,6 @@ namespace GPC.Model.Sections.Concrete
                 }
             }
 
-
             return _j11 / Math.Abs(dmaxConcrete);
         }
 
@@ -518,7 +517,6 @@ namespace GPC.Model.Sections.Concrete
                     dminConcrete = w1;
                 }
             }
-
 
             return _j11 / Math.Abs(dminConcrete);
         }
@@ -580,7 +578,6 @@ namespace GPC.Model.Sections.Concrete
                 }
             }
 
-
             return _j11 / Math.Abs(dmaxConcrete);
         }
 
@@ -600,7 +597,6 @@ namespace GPC.Model.Sections.Concrete
                     dminConcrete = w1;
                 }
             }
-
 
             return _j11 / Math.Abs(dminConcrete);
         }
