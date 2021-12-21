@@ -728,7 +728,7 @@ namespace GPC.Model.Materials
                         else
                             lambda = 0.8 - (Math.Abs(_fck) - 50.0) / 400;
 
-                        return - strainU * (1.0 - lambda);
+                        return strainU * (1.0 - lambda);
                     }
 
                 case CompressionStressStrainDiagrams.Generic:
