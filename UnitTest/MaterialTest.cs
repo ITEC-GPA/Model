@@ -22,8 +22,9 @@ namespace ModelObjectTest
             double density = 7850;
             double fy = 355;
             double fu = 510;
+            double strainU = 0.05;
 
-            SteelMaterial steel = new SteelMaterial("nome", E, ni, fy, fu, density);
+            SteelMaterial steel = new SteelMaterial("nome", E, fy, fu, strainU, ni, density);
 
             byte[] bytes = Serialization.SerializeToBytes<SteelMaterial>(steel);
             SteelMaterial steelDeserialized = (SteelMaterial)Serialization.DeserializeFromBytes(bytes);
