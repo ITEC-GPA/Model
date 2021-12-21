@@ -12,27 +12,27 @@ namespace GPC.Model.Materials
 
         #region Static Properties
 
-        public static ConcreteMaterialEN1992 C25_30 =>  new ConcreteMaterialEN1992("C25/30 Parabola-Rectangle", 25, CompressionStressStrainDiagrams.ParabolaRectangle);
+        public static ConcreteMaterialEN1992 C25_30 =>  new ConcreteMaterialEN1992("C25/30", 25, CompressionStressStrainDiagrams.ParabolaRectangle);
 
-        public static ConcreteMaterialEN1992 C30_37 =>  new ConcreteMaterialEN1992("C30/37 Parabola-Rectangle", 30, CompressionStressStrainDiagrams.ParabolaRectangle);
+        public static ConcreteMaterialEN1992 C30_37 =>  new ConcreteMaterialEN1992("C30/37", 30, CompressionStressStrainDiagrams.ParabolaRectangle);
 
-        public static ConcreteMaterialEN1992 C35_45 =>  new ConcreteMaterialEN1992("C35/45 Parabola-Rectangle", 35, CompressionStressStrainDiagrams.ParabolaRectangle);
+        public static ConcreteMaterialEN1992 C35_45 =>  new ConcreteMaterialEN1992("C35/45", 35, CompressionStressStrainDiagrams.ParabolaRectangle);
 
-        public static ConcreteMaterialEN1992 C40_50 =>  new ConcreteMaterialEN1992("C40/50 Parabola-Rectangle", 40, CompressionStressStrainDiagrams.ParabolaRectangle);
+        public static ConcreteMaterialEN1992 C40_50 =>  new ConcreteMaterialEN1992("C40/50", 40, CompressionStressStrainDiagrams.ParabolaRectangle);
 
-        public static ConcreteMaterialEN1992 C45_55 =>  new ConcreteMaterialEN1992("C45/55 Parabola-Rectangle", 45, CompressionStressStrainDiagrams.ParabolaRectangle);
+        public static ConcreteMaterialEN1992 C45_55 =>  new ConcreteMaterialEN1992("C45/55", 45, CompressionStressStrainDiagrams.ParabolaRectangle);
 
-        public static ConcreteMaterialEN1992 C50_60 =>  new ConcreteMaterialEN1992("C50/60 Parabola-Rectangle", 50, CompressionStressStrainDiagrams.ParabolaRectangle);
+        public static ConcreteMaterialEN1992 C50_60 =>  new ConcreteMaterialEN1992("C50/60", 50, CompressionStressStrainDiagrams.ParabolaRectangle);
 
-        public static ConcreteMaterialEN1992 C55_67 =>  new ConcreteMaterialEN1992("C55/67 Parabola-Rectangle", 55, CompressionStressStrainDiagrams.ParabolaRectangle);
+        public static ConcreteMaterialEN1992 C55_67 =>  new ConcreteMaterialEN1992("C55/67", 55, CompressionStressStrainDiagrams.ParabolaRectangle);
 
-        public static ConcreteMaterialEN1992 C60_75 =>  new ConcreteMaterialEN1992("C60/75 Parabola-Rectangle", 60, CompressionStressStrainDiagrams.ParabolaRectangle);
+        public static ConcreteMaterialEN1992 C60_75 =>  new ConcreteMaterialEN1992("C60/75", 60, CompressionStressStrainDiagrams.ParabolaRectangle);
 
-        public static ConcreteMaterialEN1992 C70_85 =>  new ConcreteMaterialEN1992("C70/85 Parabola-Rectangle", 70, CompressionStressStrainDiagrams.ParabolaRectangle);
+        public static ConcreteMaterialEN1992 C70_85 =>  new ConcreteMaterialEN1992("C70/85", 70, CompressionStressStrainDiagrams.ParabolaRectangle);
 
-        public static ConcreteMaterialEN1992 C80_95 =>  new ConcreteMaterialEN1992("C80/90 Parabola-Rectangle", 80, CompressionStressStrainDiagrams.ParabolaRectangle);
+        public static ConcreteMaterialEN1992 C80_95 =>  new ConcreteMaterialEN1992("C80/90", 80, CompressionStressStrainDiagrams.ParabolaRectangle);
 
-        public static ConcreteMaterialEN1992 C90_105 => new ConcreteMaterialEN1992("C90/105 Parabola-Rectangle", 90, CompressionStressStrainDiagrams.ParabolaRectangle);
+        public static ConcreteMaterialEN1992 C90_105 => new ConcreteMaterialEN1992("C90/105", 90, CompressionStressStrainDiagrams.ParabolaRectangle);
 
         #endregion
 

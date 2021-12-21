@@ -42,7 +42,6 @@ namespace ModelObjectTest
             Console.WriteLine(steelDeserialized.E + " " + steel.E);
         }
 
-
         [TestMethod]
         public void GlassResistance1()
         {
@@ -61,8 +60,7 @@ namespace ModelObjectTest
             Assert.AreEqual(gma.GetGlassResistance(false, 86400), baseStress * 0.906 * 0.526 * psiSurf, 0.01);
             Assert.AreEqual(gma.GetGlassResistance(true, 86400), baseEdgeStress * 0.906 * 0.526 * psiSurf, 0.01);
         }
-
-
+                
         [TestMethod]
         public void GlassResistance2()
         {
@@ -393,6 +391,23 @@ namespace ModelObjectTest
         {
             ConcreteMaterialModelCode2010FRC concrete = new ConcreteMaterialModelCode2010FRC("", 25, ConcreteMaterialModelCode2010.CompressionStressStrainDiagrams.ParabolaRectangle,
                 1.55, 1.80, 0.00195, 0.01, ConcreteMaterialModelCode2010.TensionStressStrainDiagrams.Linear);
+
+            List<(double, double)> stresses = new List<(double, double)>();
+
+            for (int i = 100; i >= -35; i--)
+                stresses.Add((concrete.GetStress(i / 10000.0), i / 10000.0));
+
+            for (int i = 0; i < stresses.Count; i++)
+                Assert.IsTrue(stresses[i].Item1 <= 1.80);
+
+            for (int i = 0; i < stresses.Count; i++)
+                Console.WriteLine(stresses[i].Item1);
+        }
+
+        [TestMethod]
+        public void ConcreteFRCTest5()
+        {
+            ConcreteMaterialModelCode2010FRC concrete = ConcreteMaterialModelCode2010FRC.C25_30_5;
 
             List<(double, double)> stresses = new List<(double, double)>();
 
