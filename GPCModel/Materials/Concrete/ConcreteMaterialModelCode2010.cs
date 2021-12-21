@@ -416,8 +416,7 @@ namespace GPC.Model.Materials
                 case CompressionStressStrainDiagrams.NonLinear:
 
                     double fcm = GetFcm();
-
-                    double K = 1.05 * GetEcm(fcm) * strainYCompression / fcm;
+                    double K = 1.05 * GetEcm(Math.Abs(fcm)) * Math.Abs(strainYCompression) / Math.Abs(fcm);
 
                     double[] stressesNl = new double[14];
                     double[] strainsNl = new double[14] { 0,
@@ -435,8 +434,8 @@ namespace GPC.Model.Materials
 
                     for (int i = 0; i < strainsNl.Length; i++)
                     {
-                        double eta = strainsNl[i] / strainYCompression;
-                        stressesNl[i] = fck * K * (eta - eta * eta) / (1.0 + (K - 2.0) * eta);
+                        double eta = Math.Abs(strainsNl[i] / strainYCompression);
+                        stressesNl[i] = fck * (K * eta - eta * eta) / (1.0 + (K - 2.0) * eta);
                     }
 
                     _stressStrainTableCompression = new StressStrainTable(stressesNl, strainsNl);
@@ -738,7 +737,7 @@ namespace GPC.Model.Materials
                     return strain;
 
                 case CompressionStressStrainDiagrams.NonLinear:
-                    return Math.Max(- 0.7 * Math.Pow(Math.Abs(GetFcm(Math.Abs(_fck))), 0.31), - 2.8);
+                    return Math.Max(- 0.7 * Math.Pow(Math.Abs(GetFcm(Math.Abs(_fck))), 0.31), - 2.8) / 1000.0;
 
                 default:
                     throw new ArgumentException();
