@@ -1,6 +1,7 @@
 ﻿using GPC.Utilities.Maths;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.Text;
@@ -10,23 +11,6 @@ namespace GPC.Model.Materials
 {
     public abstract class ConcreteMaterialModelCode2010 : ConcreteMaterial
     {
-
-        public enum CompressionStressStrainDiagrams
-        {
-            ParabolaRectangle,
-            Bilinear,
-            StressBlock,
-            Generic,
-            NonLinear
-        }
-
-        public enum TensionStressStrainDiagrams
-        {
-            Linear,
-            Bilinear,
-            RigidPlastic,
-            Generic,
-        }
 
         public enum CementType
         {
@@ -134,15 +118,7 @@ namespace GPC.Model.Materials
             double poisson = 0.2, double density = 0.0025, double alfaThermalExpansion = 1e-6, CementType cementType = CementType.ClassN)
             : base(name, poisson, density, alfaThermalExpansion)
         {
-            _compressionStressStrainDiagrams = compressionStressStrainDiagrams;
-            _tensionStressStrainDiagrams = TensionStressStrainDiagrams.Linear;
-
-            SetMechanicalProperties(- Math.Abs(fck), 0, 0, 0, 0, _compressionStressStrainDiagrams, _tensionStressStrainDiagrams);
-
-            SetStressStrainTableCompression(_fck, _strainYCompression, _strainUCompression, _compressionStressStrainDiagrams);
-            SetStressStrainTableTension(_fctk, _fctu, _strainYTension, _strainUTension, _tensionStressStrainDiagrams);
-
-            _cementType = cementType;
+            SetProperties(fck, compressionStressStrainDiagrams, 0, 0, 0, 0, TensionStressStrainDiagrams.Linear, cementType);
         }
 
 
@@ -152,16 +128,7 @@ namespace GPC.Model.Materials
             double poisson = 0.2, double density = 0.0025, double alfaThermalExpansion = 1e-6, CementType cementType = CementType.ClassN)
             : base(name, poisson, density, alfaThermalExpansion)
         {
-
-            _compressionStressStrainDiagrams = compressionStressStrainDiagrams;
-            _tensionStressStrainDiagrams = tensionStressStrainDiagrams;
-
-            SetMechanicalProperties(-Math.Abs(fck), Math.Abs(ffts), Math.Abs(fFtu), Math.Abs(strainYTension), Math.Abs(strainUTension), _compressionStressStrainDiagrams, _tensionStressStrainDiagrams);
-
-            SetStressStrainTableCompression(_fck, _strainYCompression, _strainUCompression, _compressionStressStrainDiagrams);
-            SetStressStrainTableTension(_fctk, _fctu, _strainYTension, _strainUTension, _tensionStressStrainDiagrams);
-
-            _cementType = cementType;
+            SetProperties(fck, compressionStressStrainDiagrams, ffts, fFtu, strainYTension, strainUTension, tensionStressStrainDiagrams, cementType);
         }
 
 
@@ -174,15 +141,9 @@ namespace GPC.Model.Materials
                          stressStrainTableCompression.GetElasticModulus(), stressStrainTableTension.GetElasticModulus(),
                          poisson, density, alfaThermalExpansion)
         {
-
-            _compressionStressStrainDiagrams = CompressionStressStrainDiagrams.Generic;
-            _tensionStressStrainDiagrams = TensionStressStrainDiagrams.Linear;
-
-            SetMechanicalProperties(stressStrainTableCompression.GetMinimumStress(), stressStrainTableTension.GetStress(strainYTension),
-                stressStrainTableTension.GetLastStress(),strainYTension, stressStrainTableTension.GetLastStrain(),
-                _compressionStressStrainDiagrams, _tensionStressStrainDiagrams);
-
-            _cementType = cementType;
+            SetProperties(stressStrainTableCompression.GetMinimumStress(), CompressionStressStrainDiagrams.Generic,
+                stressStrainTableTension.GetStress(strainYTension), stressStrainTableTension.GetLastStress(), strainYTension,
+                stressStrainTableTension.GetLastStrain(), TensionStressStrainDiagrams.Linear, cementType);
         }
 
 
@@ -213,7 +174,7 @@ namespace GPC.Model.Materials
 
         /// <remarks> Sign convention: Stress and Strain negative if compression </remarks>
         private void SetStressStrainTableCompression(double fck, double strainYCompression, double strainUCompression,
-                                                     CompressionStressStrainDiagrams compressionStressStrainDiagrams)
+            CompressionStressStrainDiagrams compressionStressStrainDiagrams)
             {
 
                 switch (compressionStressStrainDiagrams)
@@ -226,11 +187,12 @@ namespace GPC.Model.Materials
                     case CompressionStressStrainDiagrams.ParabolaRectangle:
 
                         double[] stresses = new double[10];
-                        double[] strains = new double[10] { 0, strainYCompression / 8.0 * 1, strainYCompression / 8.0 * 2,
-                                                               strainYCompression / 8.0 * 3, strainYCompression / 8.0 * 4,
-                                                               strainYCompression / 8.0 * 5, strainYCompression / 8.0 * 6,
-                                                               strainYCompression / 8.0 * 7, strainYCompression,
-                                                               strainUCompression }; // discretiziamo il diagramma in 10 punti totali
+                        double[] strains = new double[10] { 0, 
+                            strainYCompression / 8.0 * 1, strainYCompression / 8.0 * 2,
+                            strainYCompression / 8.0 * 3, strainYCompression / 8.0 * 4,
+                            strainYCompression / 8.0 * 5, strainYCompression / 8.0 * 6,
+                            strainYCompression / 8.0 * 7, strainYCompression,
+                            strainUCompression }; // discretiziamo il diagramma in 10 punti totali
 
                         stresses[0] = 0;
 
@@ -254,15 +216,16 @@ namespace GPC.Model.Materials
                         double K = 1.05 * GetEcm(fcm) * strainYCompression / fcm;
 
                         double[] stressesNl = new double[14];
-                        double[] strainsNl = new double[14] { 0, strainYCompression / 8.0 * 1, strainYCompression / 8.0 * 2,
-                                                                 strainYCompression / 8.0 * 3, strainYCompression / 8.0 * 4,
-                                                                 strainYCompression / 8.0 * 5, strainYCompression / 8.0 * 6,
-                                                                 strainYCompression / 8.0 * 7, strainYCompression,
-                                                                 (strainUCompression - strainYCompression) / 4.0 * 1 + strainYCompression,
-                                                                 (strainUCompression - strainYCompression) / 4.0 * 2 + strainYCompression,
-                                                                 (strainUCompression - strainYCompression) / 4.0 * 3 + strainYCompression,
-                                                                 (strainUCompression - strainYCompression) / 4.0 * 4 + strainYCompression,
-                                                                 strainUCompression }; // discretiziamo il diagramma in 10 punti totali
+                        double[] strainsNl = new double[14] { 0, 
+                            strainYCompression / 8.0 * 1, strainYCompression / 8.0 * 2,
+                            strainYCompression / 8.0 * 3, strainYCompression / 8.0 * 4,
+                            strainYCompression / 8.0 * 5, strainYCompression / 8.0 * 6,
+                            strainYCompression / 8.0 * 7, strainYCompression,
+                            (strainUCompression - strainYCompression) / 4.0 * 1 + strainYCompression,
+                            (strainUCompression - strainYCompression) / 4.0 * 2 + strainYCompression,
+                            (strainUCompression - strainYCompression) / 4.0 * 3 + strainYCompression,
+                            (strainUCompression - strainYCompression) / 4.0 * 4 + strainYCompression,
+                            strainUCompression }; // discretiziamo il diagramma in 10 punti totali
 
                         stressesNl[0] = 0;
 
@@ -275,7 +238,12 @@ namespace GPC.Model.Materials
                         _stressStrainTableCompression = new StressStrainTable(stressesNl, strainsNl);
                         break;
 
-                    default:
+                case CompressionStressStrainDiagrams.Generic:
+
+                    _stressStrainTableCompression = new StressStrainTable();
+                    break;
+
+                default:
                         throw new NotSupportedException();
                 }
 
@@ -589,6 +557,21 @@ namespace GPC.Model.Materials
 
         #region Protected methods
 
+        protected virtual void SetProperties(double fck, CompressionStressStrainDiagrams compressionStressStrainDiagrams,
+            double ffts, double fFtu, double strainYTension, double strainUTension, TensionStressStrainDiagrams tensionStressStrainDiagrams, CementType cementType)
+		{
+            _compressionStressStrainDiagrams = compressionStressStrainDiagrams;
+            _tensionStressStrainDiagrams = tensionStressStrainDiagrams;
+
+            SetMechanicalProperties(-Math.Abs(fck), Math.Abs(ffts), Math.Abs(fFtu), Math.Abs(strainYTension), Math.Abs(strainUTension),
+                compressionStressStrainDiagrams, tensionStressStrainDiagrams);
+
+            SetStressStrainTableCompression(_fck, _strainYCompression, _strainUCompression, compressionStressStrainDiagrams);
+            SetStressStrainTableTension(_fctk, _fctu, _strainYTension, _strainUTension, tensionStressStrainDiagrams);
+
+            _cementType = cementType;
+        }
+
         protected virtual double GetFckCube(double fck)
         {
             switch (fck)
@@ -682,8 +665,6 @@ namespace GPC.Model.Materials
                     throw new ArgumentException();
             }
         }
-
-
 
         protected virtual double GetParabolaNCoefficient()
         {
