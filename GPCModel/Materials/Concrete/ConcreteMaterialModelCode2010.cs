@@ -68,6 +68,10 @@ namespace GPC.Model.Materials
         /// </summary>
         public double Fctk05 => GetFctk05();
 
+        /// <summary>
+        /// Ultimate strain in tension
+        /// </summary>
+        public double Fctu => _fctu;
 
         /// <summary>
         /// Strain in the concrete for the pure compression case
