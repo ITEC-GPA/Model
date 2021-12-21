@@ -610,7 +610,6 @@ namespace GPC.Model.Sections
             return 0;
         }
 
-
         protected virtual bool CalculateIsSymmetricAlongXLocalAxis()
         {
             return false;
