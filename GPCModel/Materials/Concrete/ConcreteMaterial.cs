@@ -1,4 +1,5 @@
-﻿using System;
+﻿using GPC.Utilities.Converters;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
@@ -11,6 +12,7 @@ namespace GPC.Model.Materials
 
     public abstract class ConcreteMaterial : Material
     {
+        [TypeConverter(typeof(EnumDescriptionTypeConverter))]
         public enum CompressionStressStrainDiagrams
         {
             [Description("Parabola-Rectangle")]
@@ -29,6 +31,7 @@ namespace GPC.Model.Materials
             NonLinear
         }
 
+        [TypeConverter(typeof(EnumDescriptionTypeConverter))]
         public enum TensionStressStrainDiagrams
         {
             [Description("Linear")]
