@@ -60,9 +60,17 @@ namespace GPC.Model.Materials
 
         }
 
-        #region Equals, hashcode, operators
+		protected override void RecalculateMechanicalProperties()
+		{
+            SetMechanicalProperties(_fck, 0, 0, 0, 0, _compressionStressStrainDiagrams, _tensionStressStrainDiagrams);
 
-        public override bool Equals(object obj)
+            SetStressStrainTableCompression(_fck, _strainYCompression, _strainUCompression, _compressionStressStrainDiagrams);
+            SetStressStrainTableTension(_fctk, _fctu, _strainYTension, _strainUTension, _tensionStressStrainDiagrams);
+        }
+
+		#region Equals, hashcode, operators
+
+		public override bool Equals(object obj)
         {
             if (ReferenceEquals(this, obj))
                 return true;

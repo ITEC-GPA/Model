@@ -118,9 +118,16 @@ namespace GPC.Model.Materials
             double poisson = 0.2, double density = 0.0025, double alfaThermalExpansion = 1e-6, CementType cementType = CementType.ClassN)
             : base(name, poisson, density, alfaThermalExpansion)
         {
-            SetProperties(fck, compressionStressStrainDiagrams, 0, 0, 0, 0, TensionStressStrainDiagrams.Linear, cementType);
-        }
+            _compressionStressStrainDiagrams = compressionStressStrainDiagrams;
+            _tensionStressStrainDiagrams = TensionStressStrainDiagrams.Linear;
 
+            SetMechanicalProperties(-Math.Abs(fck), 0, 0, 0, 0, _compressionStressStrainDiagrams, _tensionStressStrainDiagrams);
+
+            SetStressStrainTableCompression(_fck, _strainYCompression, _strainUCompression, _compressionStressStrainDiagrams);
+            SetStressStrainTableTension(_fctk, _fctu, _strainYTension, _strainUTension, _tensionStressStrainDiagrams);
+
+            _cementType = cementType;
+        }
 
         // Costruttore per cls frc
         public ConcreteMaterialModelCode2010(string name, double fck, CompressionStressStrainDiagrams compressionStressStrainDiagrams,
@@ -128,12 +135,19 @@ namespace GPC.Model.Materials
             double poisson = 0.2, double density = 0.0025, double alfaThermalExpansion = 1e-6, CementType cementType = CementType.ClassN)
             : base(name, poisson, density, alfaThermalExpansion)
         {
-            SetProperties(fck, compressionStressStrainDiagrams, ffts, fFtu, strainYTension, strainUTension, tensionStressStrainDiagrams, cementType);
+            _compressionStressStrainDiagrams = compressionStressStrainDiagrams;
+            _tensionStressStrainDiagrams = tensionStressStrainDiagrams;
+
+            SetMechanicalProperties(-Math.Abs(fck), Math.Abs(ffts), Math.Abs(fFtu), Math.Abs(strainYTension), Math.Abs(strainUTension), _compressionStressStrainDiagrams, _tensionStressStrainDiagrams);
+
+            SetStressStrainTableCompression(_fck, _strainYCompression, _strainUCompression, _compressionStressStrainDiagrams);
+            SetStressStrainTableTension(_fctk, _fctu, _strainYTension, _strainUTension, _tensionStressStrainDiagrams);
+
+            _cementType = cementType;
         }
 
-
         // Costruttore per cls con tabella generica
-        public ConcreteMaterialModelCode2010(string name, double strainYTension, 
+        public ConcreteMaterialModelCode2010(string name, double strainYTension,
             StressStrainTable stressStrainTableCompression, StressStrainTable stressStrainTableTension,
             double poisson = 0.2, double density = 0.0025, double alfaThermalExpansion = 1e-6,
             CementType cementType = CementType.ClassN)
@@ -141,12 +155,15 @@ namespace GPC.Model.Materials
                          stressStrainTableCompression.GetElasticModulus(), stressStrainTableTension.GetElasticModulus(),
                          poisson, density, alfaThermalExpansion)
         {
-            SetProperties(stressStrainTableCompression.GetMinimumStress(), CompressionStressStrainDiagrams.Generic,
-                stressStrainTableTension.GetStress(strainYTension), stressStrainTableTension.GetLastStress(), strainYTension,
-                stressStrainTableTension.GetLastStrain(), TensionStressStrainDiagrams.Linear, cementType);
+            _compressionStressStrainDiagrams = CompressionStressStrainDiagrams.Generic;
+            _tensionStressStrainDiagrams = TensionStressStrainDiagrams.Linear;
+
+            SetMechanicalProperties(stressStrainTableCompression.GetMinimumStress(), stressStrainTableTension.GetStress(strainYTension),
+                stressStrainTableTension.GetLastStress(), strainYTension, stressStrainTableTension.GetLastStrain(),
+                _compressionStressStrainDiagrams, _tensionStressStrainDiagrams);
+
+            _cementType = cementType;
         }
-
-
 
         protected ConcreteMaterialModelCode2010(SerializationInfo info, StreamingContext context)
             : base(info, context)
@@ -164,209 +181,6 @@ namespace GPC.Model.Materials
 
             _compressionStressStrainDiagrams = (CompressionStressStrainDiagrams)info.GetInt32("CompressionStressStrainDiagrams");
             _tensionStressStrainDiagrams = (TensionStressStrainDiagrams)info.GetInt32("TensionStressStrainDiagrams");
-
-        }
-
-
-        #endregion
-
-        #region Private methods
-
-        /// <remarks> Sign convention: Stress and Strain negative if compression </remarks>
-        private void SetStressStrainTableCompression(double fck, double strainYCompression, double strainUCompression,
-            CompressionStressStrainDiagrams compressionStressStrainDiagrams)
-            {
-
-                switch (compressionStressStrainDiagrams)
-                {
-                    case CompressionStressStrainDiagrams.Bilinear:
-
-                        _stressStrainTableCompression = new StressStrainTable(new double[] { 0, fck, fck }, new double[] { 0, strainYCompression, strainUCompression });
-                        break;
-
-                    case CompressionStressStrainDiagrams.ParabolaRectangle:
-
-                        double[] stresses = new double[10];
-                        double[] strains = new double[10] { 0, 
-                            strainYCompression / 8.0 * 1, strainYCompression / 8.0 * 2,
-                            strainYCompression / 8.0 * 3, strainYCompression / 8.0 * 4,
-                            strainYCompression / 8.0 * 5, strainYCompression / 8.0 * 6,
-                            strainYCompression / 8.0 * 7, strainYCompression,
-                            strainUCompression }; // discretiziamo il diagramma in 10 punti totali
-
-                        stresses[0] = 0;
-
-                        for (int i = 0; i < strains.Length; i++)
-                        {
-                            stresses[i] = GetParabolaStress(strains[i], strainYCompression);
-                        }
-
-                        _stressStrainTableCompression = new StressStrainTable(stresses, strains);
-                        break;
-
-                    case CompressionStressStrainDiagrams.StressBlock:
-
-                        _stressStrainTableCompression = new StressStrainTable(new double[] { 0, 0, fck, fck }, new double[] { 0, strainYCompression, strainYCompression, strainUCompression });
-                        break;
-
-                    case CompressionStressStrainDiagrams.NonLinear:
-
-                        double fcm = GetFcm();
-
-                        double K = 1.05 * GetEcm(fcm) * strainYCompression / fcm;
-
-                        double[] stressesNl = new double[14];
-                        double[] strainsNl = new double[14] { 0, 
-                            strainYCompression / 8.0 * 1, strainYCompression / 8.0 * 2,
-                            strainYCompression / 8.0 * 3, strainYCompression / 8.0 * 4,
-                            strainYCompression / 8.0 * 5, strainYCompression / 8.0 * 6,
-                            strainYCompression / 8.0 * 7, strainYCompression,
-                            (strainUCompression - strainYCompression) / 4.0 * 1 + strainYCompression,
-                            (strainUCompression - strainYCompression) / 4.0 * 2 + strainYCompression,
-                            (strainUCompression - strainYCompression) / 4.0 * 3 + strainYCompression,
-                            (strainUCompression - strainYCompression) / 4.0 * 4 + strainYCompression,
-                            strainUCompression }; // discretiziamo il diagramma in 10 punti totali
-
-                        stressesNl[0] = 0;
-
-                        for (int i = 0; i < strainsNl.Length; i++)
-                        {
-                            double eta = strainsNl[i] / strainYCompression;
-                            stressesNl[i] = fck * K * (eta - eta * eta) / (1.0 + (K - 2.0) * eta);
-                        }
-                    
-                        _stressStrainTableCompression = new StressStrainTable(stressesNl, strainsNl);
-                        break;
-
-                case CompressionStressStrainDiagrams.Generic:
-
-                    _stressStrainTableCompression = new StressStrainTable();
-                    break;
-
-                default:
-                        throw new NotSupportedException();
-                }
-
-            }
-
-
-        private void SetStressStrainTableTension(double fctk, double fctu, double strainYTension, double strainUTension, 
-                                                     TensionStressStrainDiagrams tensionStressStrainDiagrams)
-        {
-
-            switch (tensionStressStrainDiagrams)
-            {
-                case TensionStressStrainDiagrams.Linear:
-
-                    _stressStrainTableTension = new StressStrainTable(new double[] { 0, fctk }, new double[] { 0, strainYTension });
-                    break;
-
-                case TensionStressStrainDiagrams.Bilinear:
-
-                    _stressStrainTableTension = new StressStrainTable(new double[] { 0, fctk, fctu }, new double[] { 0, strainYTension, strainUTension });
-                    break;
-
-                case TensionStressStrainDiagrams.RigidPlastic:
-
-                    _stressStrainTableTension = new StressStrainTable(new double[] { fctk, fctk }, new double[] { 0, strainUTension });
-                    break;
-
-                default:
-                    throw new NotSupportedException();
-            }
-        }
-
-
-        /// <summary>
-        /// Set <see cref="ConcreteMaterial._elasticModulusTension"/>, <see cref="Material._elasticModulus"/>
-        /// <see cref="ConcreteMaterialModelCode2010._fctk"/>, 
-        /// <see cref="ConcreteMaterialModelCode2010._fck"/>
-        /// </summary>
-        private void SetMechanicalProperties(double fck, double fctk, double fFtu, double strainYTension, double strainUTension,
-                                             CompressionStressStrainDiagrams compressionStressStrainDiagrams, 
-                                             TensionStressStrainDiagrams tensionStressStrainDiagrams)
-        {
-            
-            switch (compressionStressStrainDiagrams)
-            {
-                case CompressionStressStrainDiagrams.Bilinear:
-                case CompressionStressStrainDiagrams.ParabolaRectangle:
-                case CompressionStressStrainDiagrams.StressBlock:
-                case CompressionStressStrainDiagrams.NonLinear:
-
-                    _fck = fck;
-                    _elasticModulus = GetEcm(GetFcm());
-                    _strainUCompression = GetStrainUCompression(compressionStressStrainDiagrams);
-                    _strainYCompression = GetStrainYCompression(compressionStressStrainDiagrams, _strainUCompression);
-                    break;
-
-                case CompressionStressStrainDiagrams.Generic:
-
-                    _fck = _stressStrainTableCompression.GetMinimumStress(out double fckStrain);
-                    _elasticModulus = GetEcm(GetFcm());
-                    _strainUCompression = _stressStrainTableCompression.GetLastStrain();
-                    _strainYCompression = fckStrain;
-                    break;
-
-                default:
-                    throw new NotSupportedException();
-            }
-
-            if (fctk == 0)
-            {
-                _fctk = GetFctk05();
-                _fctu = _fctk;
-                _elasticModulusTension = GetEcm(GetFcm());
-                _strainYTension = _fctk / _elasticModulusTension;
-                _strainUTension = _strainYTension;                    
-            }
-            else
-            {
-                switch (tensionStressStrainDiagrams)
-                {
-                    case TensionStressStrainDiagrams.Linear:
-                        _fctk = fctk;
-                        _fctu = fctk;
-                        _elasticModulusTension = strainYTension == 0 ? GetEcm(GetFcm()) : fctk / strainYTension;
-
-                        _strainYTension = _fctk / _elasticModulusTension;
-                        _strainUTension = _strainYTension;
-                        break;
-
-                    case TensionStressStrainDiagrams.Bilinear:
-                        _fctk = fctk;
-                        _fctu = fFtu;
-                        _elasticModulusTension = strainYTension == 0 ? GetEcm(GetFcm()) : fctk / strainYTension;
-
-                        _strainYTension = _fctk / _elasticModulusTension;
-                        _strainUTension = strainUTension;
-                        break;
-
-                    case TensionStressStrainDiagrams.Generic:
-                        _fctk = fctk;
-                        _fctu = _stressStrainTableTension.GetLastStress();
-                        _elasticModulusTension = strainYTension == 0 ? GetEcm(GetFcm()) : fctk / strainYTension;
-
-                        _strainYTension = _fctk / _elasticModulusTension;
-                        _strainUTension = _stressStrainTableTension.GetLastStrain();
-                        break;
-
-                    case TensionStressStrainDiagrams.RigidPlastic:
-                        _fctk = fctk;
-                        _fctk = fctk;
-                        _elasticModulusTension = double.MaxValue;
-
-                        _strainYTension = 0.0;
-                        _strainUTension = strainUTension;
-                        break;
-
-                    default:
-                        throw new NotSupportedException();
-                }
-            }
-
-            
-
         }
 
         #endregion
@@ -556,6 +370,201 @@ namespace GPC.Model.Materials
         #endregion
 
         #region Protected methods
+
+        /// <remarks> Sign convention: Stress and Strain negative if compression </remarks>
+        protected void SetStressStrainTableCompression(double fck, double strainYCompression, double strainUCompression,
+            CompressionStressStrainDiagrams compressionStressStrainDiagrams)
+        {
+
+            switch (compressionStressStrainDiagrams)
+            {
+                case CompressionStressStrainDiagrams.Bilinear:
+
+                    _stressStrainTableCompression = new StressStrainTable(new double[] { 0, fck, fck }, new double[] { 0, strainYCompression, strainUCompression });
+                    break;
+
+                case CompressionStressStrainDiagrams.ParabolaRectangle:
+
+                    double[] stresses = new double[10];
+                    double[] strains = new double[10] { 0,
+                            strainYCompression / 8.0 * 1, strainYCompression / 8.0 * 2,
+                            strainYCompression / 8.0 * 3, strainYCompression / 8.0 * 4,
+                            strainYCompression / 8.0 * 5, strainYCompression / 8.0 * 6,
+                            strainYCompression / 8.0 * 7, strainYCompression,
+                            strainUCompression }; // discretiziamo il diagramma in 10 punti totali
+
+                    stresses[0] = 0;
+
+                    for (int i = 0; i < strains.Length; i++)
+                    {
+                        stresses[i] = GetParabolaStress(strains[i], strainYCompression);
+                    }
+
+                    _stressStrainTableCompression = new StressStrainTable(stresses, strains);
+                    break;
+
+                case CompressionStressStrainDiagrams.StressBlock:
+
+                    _stressStrainTableCompression = new StressStrainTable(new double[] { 0, 0, fck, fck }, new double[] { 0, strainYCompression, strainYCompression, strainUCompression });
+                    break;
+
+                case CompressionStressStrainDiagrams.NonLinear:
+
+                    double fcm = GetFcm();
+
+                    double K = 1.05 * GetEcm(fcm) * strainYCompression / fcm;
+
+                    double[] stressesNl = new double[14];
+                    double[] strainsNl = new double[14] { 0,
+                            strainYCompression / 8.0 * 1, strainYCompression / 8.0 * 2,
+                            strainYCompression / 8.0 * 3, strainYCompression / 8.0 * 4,
+                            strainYCompression / 8.0 * 5, strainYCompression / 8.0 * 6,
+                            strainYCompression / 8.0 * 7, strainYCompression,
+                            (strainUCompression - strainYCompression) / 4.0 * 1 + strainYCompression,
+                            (strainUCompression - strainYCompression) / 4.0 * 2 + strainYCompression,
+                            (strainUCompression - strainYCompression) / 4.0 * 3 + strainYCompression,
+                            (strainUCompression - strainYCompression) / 4.0 * 4 + strainYCompression,
+                            strainUCompression }; // discretiziamo il diagramma in 10 punti totali
+
+                    stressesNl[0] = 0;
+
+                    for (int i = 0; i < strainsNl.Length; i++)
+                    {
+                        double eta = strainsNl[i] / strainYCompression;
+                        stressesNl[i] = fck * K * (eta - eta * eta) / (1.0 + (K - 2.0) * eta);
+                    }
+
+                    _stressStrainTableCompression = new StressStrainTable(stressesNl, strainsNl);
+                    break;
+
+                case CompressionStressStrainDiagrams.Generic:
+
+                    _stressStrainTableCompression = new StressStrainTable();
+                    break;
+
+                default:
+                    throw new NotSupportedException();
+            }
+
+        }
+
+        protected void SetStressStrainTableTension(double fctk, double fctu, double strainYTension, double strainUTension,
+                                                     TensionStressStrainDiagrams tensionStressStrainDiagrams)
+        {
+
+            switch (tensionStressStrainDiagrams)
+            {
+                case TensionStressStrainDiagrams.Linear:
+
+                    _stressStrainTableTension = new StressStrainTable(new double[] { 0, fctk }, new double[] { 0, strainYTension });
+                    break;
+
+                case TensionStressStrainDiagrams.Bilinear:
+
+                    _stressStrainTableTension = new StressStrainTable(new double[] { 0, fctk, fctu }, new double[] { 0, strainYTension, strainUTension });
+                    break;
+
+                case TensionStressStrainDiagrams.RigidPlastic:
+
+                    _stressStrainTableTension = new StressStrainTable(new double[] { fctk, fctk }, new double[] { 0, strainUTension });
+                    break;
+
+                default:
+                    throw new NotSupportedException();
+            }
+        }
+
+        /// <summary>
+        /// Set <see cref="ConcreteMaterial._elasticModulusTension"/>, <see cref="Material._elasticModulus"/>
+        /// <see cref="ConcreteMaterialModelCode2010._fctk"/>, 
+        /// <see cref="ConcreteMaterialModelCode2010._fck"/>
+        /// </summary>
+        protected void SetMechanicalProperties(double fck, double fctk, double fFtu, double strainYTension, double strainUTension,
+                                             CompressionStressStrainDiagrams compressionStressStrainDiagrams,
+                                             TensionStressStrainDiagrams tensionStressStrainDiagrams)
+        {
+
+            switch (compressionStressStrainDiagrams)
+            {
+                case CompressionStressStrainDiagrams.Bilinear:
+                case CompressionStressStrainDiagrams.ParabolaRectangle:
+                case CompressionStressStrainDiagrams.StressBlock:
+                case CompressionStressStrainDiagrams.NonLinear:
+
+                    _fck = fck;
+                    _elasticModulus = GetEcm(GetFcm());
+                    _strainUCompression = GetStrainUCompression(compressionStressStrainDiagrams);
+                    _strainYCompression = GetStrainYCompression(compressionStressStrainDiagrams, _strainUCompression);
+                    break;
+
+                case CompressionStressStrainDiagrams.Generic:
+
+                    _fck = _stressStrainTableCompression.GetMinimumStress(out double fckStrain);
+                    _elasticModulus = GetEcm(GetFcm());
+                    _strainUCompression = _stressStrainTableCompression.GetLastStrain();
+                    _strainYCompression = fckStrain;
+                    break;
+
+                default:
+                    throw new NotSupportedException();
+            }
+
+            if (fctk == 0)
+            {
+                _fctk = GetFctk05();
+                _fctu = _fctk;
+                _elasticModulusTension = GetEcm(GetFcm());
+                _strainYTension = _fctk / _elasticModulusTension;
+                _strainUTension = _strainYTension;
+            }
+            else
+            {
+                switch (tensionStressStrainDiagrams)
+                {
+                    case TensionStressStrainDiagrams.Linear:
+                        _fctk = fctk;
+                        _fctu = fctk;
+                        _elasticModulusTension = strainYTension == 0 ? GetEcm(GetFcm()) : fctk / strainYTension;
+
+                        _strainYTension = _fctk / _elasticModulusTension;
+                        _strainUTension = _strainYTension;
+                        break;
+
+                    case TensionStressStrainDiagrams.Bilinear:
+                        _fctk = fctk;
+                        _fctu = fFtu;
+                        _elasticModulusTension = strainYTension == 0 ? GetEcm(GetFcm()) : fctk / strainYTension;
+
+                        _strainYTension = _fctk / _elasticModulusTension;
+                        _strainUTension = strainUTension;
+                        break;
+
+                    case TensionStressStrainDiagrams.Generic:
+                        _fctk = fctk;
+                        _fctu = _stressStrainTableTension.GetLastStress();
+                        _elasticModulusTension = strainYTension == 0 ? GetEcm(GetFcm()) : fctk / strainYTension;
+
+                        _strainYTension = _fctk / _elasticModulusTension;
+                        _strainUTension = _stressStrainTableTension.GetLastStrain();
+                        break;
+
+                    case TensionStressStrainDiagrams.RigidPlastic:
+                        _fctk = fctk;
+                        _fctk = fctk;
+                        _elasticModulusTension = double.MaxValue;
+
+                        _strainYTension = 0.0;
+                        _strainUTension = strainUTension;
+                        break;
+
+                    default:
+                        throw new NotSupportedException();
+                }
+            }
+
+
+
+        }
 
         protected virtual void SetProperties(double fck, CompressionStressStrainDiagrams compressionStressStrainDiagrams,
             double ffts, double fFtu, double strainYTension, double strainUTension, TensionStressStrainDiagrams tensionStressStrainDiagrams, CementType cementType)

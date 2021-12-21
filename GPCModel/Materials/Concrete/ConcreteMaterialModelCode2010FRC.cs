@@ -112,8 +112,16 @@ namespace GPC.Model.Materials
             }
         }
 
+		protected override void RecalculateMechanicalProperties()
+		{
+            SetMechanicalProperties(_fck, _fctk, _fctu, _strainYTension, _strainUTension,
+                _compressionStressStrainDiagrams, _tensionStressStrainDiagrams);
 
-        public static bool operator ==(ConcreteMaterialModelCode2010FRC obj1, ConcreteMaterialModelCode2010FRC obj2)
+            SetStressStrainTableCompression(_fck, _strainYCompression, _strainUCompression, _compressionStressStrainDiagrams);
+            SetStressStrainTableTension(_fctk, _fctu, _strainYTension, _strainUTension, _tensionStressStrainDiagrams);
+        }
+
+		public static bool operator ==(ConcreteMaterialModelCode2010FRC obj1, ConcreteMaterialModelCode2010FRC obj2)
         {
             if (ReferenceEquals(obj1, obj2))
                 return true;

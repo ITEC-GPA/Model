@@ -120,7 +120,10 @@ namespace GPC.Model.Materials
             }
         }
 
+        protected virtual void RecalculateMechanicalProperties()
+		{
 
+		}
 
         public override bool Equals(object obj)
         {
