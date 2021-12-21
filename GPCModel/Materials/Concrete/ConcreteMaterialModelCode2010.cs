@@ -1,4 +1,4 @@
-﻿using GPC.Utilities.Maths;
+using GPC.Utilities.Maths;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -142,7 +142,8 @@ namespace GPC.Model.Materials
             _compressionStressStrainDiagrams = compressionStressStrainDiagrams;
             _tensionStressStrainDiagrams = tensionStressStrainDiagrams;
 
-            SetMechanicalProperties(-Math.Abs(fck), Math.Abs(ffts), Math.Abs(fFtu), Math.Abs(strainYTension), Math.Abs(strainUTension), _compressionStressStrainDiagrams, _tensionStressStrainDiagrams);
+            SetMechanicalProperties(-Math.Abs(fck), Math.Abs(ffts), Math.Abs(fFtu), Math.Abs(strainYTension), Math.Abs(strainUTension),
+                _compressionStressStrainDiagrams, _tensionStressStrainDiagrams);
 
             SetStressStrainTableCompression(_fck, _strainYCompression, _strainUCompression, _compressionStressStrainDiagrams);
             SetStressStrainTableTension(_fctk, _fctu, _strainYTension, _strainUTension, _tensionStressStrainDiagrams);
@@ -737,7 +738,7 @@ namespace GPC.Model.Materials
                     return strain;
 
                 case CompressionStressStrainDiagrams.NonLinear:
-                    return Math.Max(0.7 * GetFcm(_fck) * 0.31, - 2.8) ;
+                    return Math.Max(- 0.7 * Math.Pow(Math.Abs(GetFcm(Math.Abs(_fck))), 0.31), - 2.8);
 
                 default:
                     throw new ArgumentException();
@@ -811,7 +812,10 @@ namespace GPC.Model.Materials
                     return _stressStrainTableCompression.Strains.Last();
 
                 case CompressionStressStrainDiagrams.NonLinear:
-                    return  - (2.8 + 27.0 * Math.Pow((98.0 - Math.Abs(GetFcm(_fck))) / 100.0, 4.0));
+                    if (Math.Abs(_fck) <= 50)
+                        return -3.5 / 1000.0;
+                    else
+                        return - (2.8 + 27.0 * Math.Pow((98.0 - Math.Abs(GetFcm(Math.Abs(_fck)))) / 100.0, 4.0)) / 1000.0;
 
                 default:
                     throw new ArgumentException();

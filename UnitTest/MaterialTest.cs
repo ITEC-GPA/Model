@@ -349,6 +349,22 @@ namespace ModelObjectTest
         }
 
         [TestMethod]
+        public void ConcreteENTest15()
+        {
+            ConcreteMaterialEN1992 concrete = new ConcreteMaterialEN1992("", 30, ConcreteMaterial.CompressionStressStrainDiagrams.NonLinear);
+            List<(double, double)> stresses = new List<(double, double)>();
+
+            for (int i = 10; i >= -35; i--)
+                stresses.Add((concrete.GetStress(i / 10000.0), i / 10000.0));
+
+            for (int i = 0; i < stresses.Count; i++)
+                Assert.IsTrue(stresses[i].Item1 <= 0.0);
+
+            for (int i = 0; i < stresses.Count; i++)
+                Console.WriteLine(stresses[i].Item1);
+        }
+
+        [TestMethod]
         public void ConcreteFRCTest1()
         {
             ConcreteMaterialModelCode2010FRC concrete = new ConcreteMaterialModelCode2010FRC("", 30, ConcreteMaterialModelCode2010.CompressionStressStrainDiagrams.ParabolaRectangle,
