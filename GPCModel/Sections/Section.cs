@@ -488,7 +488,6 @@ namespace GPC.Model.Sections
             _wplY = CalculateWplY();
         }
 
-
         /// <summary>
         /// Calculate the area of the section
         /// </summary>

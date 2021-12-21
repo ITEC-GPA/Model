@@ -78,9 +78,8 @@ namespace GPC.Model.Materials
 
 
         public ConcreteMaterial(string name, StressStrainTable stressStrainTableCompression,
-                                             StressStrainTable stressStrainTableTension,
-                                             double elasticModulusCompression, double elasticModulusTension,
-                                             double poisson, double density, double alfaThermalExpansion)
+            StressStrainTable stressStrainTableTension, double elasticModulusCompression, double elasticModulusTension,
+            double poisson, double density, double alfaThermalExpansion)
             : base(name)
         {
             if (poisson > 0.5)
