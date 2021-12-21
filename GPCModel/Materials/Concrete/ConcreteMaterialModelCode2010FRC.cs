@@ -8,40 +8,40 @@ namespace GPC.Model.Materials
 
         #region Static Properties
 
-        public static ConcreteMaterialModelCode2010FRC C25_30_5 => new ConcreteMaterialModelCode2010FRC("C25/30 5 kg/m^3", 25, 
+        public static ConcreteMaterialModelCode2010FRC C25_30_5 => new ConcreteMaterialModelCode2010FRC("C25/30 5 kg/m³", 25, 
             CompressionStressStrainDiagrams.ParabolaRectangle, 1.09, 1.04, 1.09 / ConcreteMaterialEN1992.C25_30.E, 0.02, TensionStressStrainDiagrams.Bilinear);
 
-        public static ConcreteMaterialModelCode2010FRC C25_30_10 => new ConcreteMaterialModelCode2010FRC("C25/30 10 kg/m^3", 25, 
+        public static ConcreteMaterialModelCode2010FRC C25_30_10 => new ConcreteMaterialModelCode2010FRC("C25/30 10 kg/m³", 25, 
             CompressionStressStrainDiagrams.ParabolaRectangle, 1.55, 1.63, 1.55 / ConcreteMaterialEN1992.C25_30.E, 0.02, TensionStressStrainDiagrams.Bilinear);
 
-        public static ConcreteMaterialModelCode2010FRC C25_30_17 => new ConcreteMaterialModelCode2010FRC("C25/30 17 kg/m^3", 25, 
+        public static ConcreteMaterialModelCode2010FRC C25_30_17 => new ConcreteMaterialModelCode2010FRC("C25/30 17 kg/m³", 25, 
             CompressionStressStrainDiagrams.ParabolaRectangle, 2.41, 2.65, 2.41 / ConcreteMaterialEN1992.C25_30.E, 0.02, TensionStressStrainDiagrams.Bilinear);
 
-        public static ConcreteMaterialModelCode2010FRC C30_37_5 => new ConcreteMaterialModelCode2010FRC("C30/37 5 kg/m^3", 30,
+        public static ConcreteMaterialModelCode2010FRC C30_37_5 => new ConcreteMaterialModelCode2010FRC("C30/37 5 kg/m³", 30,
             CompressionStressStrainDiagrams.ParabolaRectangle, 0.92, 0.88, 0.92 / ConcreteMaterialEN1992.C30_37.E, 0.02, TensionStressStrainDiagrams.Bilinear);
 
-        public static ConcreteMaterialModelCode2010FRC C30_37_10 => new ConcreteMaterialModelCode2010FRC("C30/37 10 kg/m^3", 30,
+        public static ConcreteMaterialModelCode2010FRC C30_37_10 => new ConcreteMaterialModelCode2010FRC("C30/37 10 kg/m³", 30,
             CompressionStressStrainDiagrams.ParabolaRectangle, 1.55, 1.80, 1.55 / ConcreteMaterialEN1992.C30_37.E, 0.02, TensionStressStrainDiagrams.Bilinear);
 
-        public static ConcreteMaterialModelCode2010FRC C30_37_15 => new ConcreteMaterialModelCode2010FRC("C30/37 15 kg/m^3", 30,
+        public static ConcreteMaterialModelCode2010FRC C30_37_15 => new ConcreteMaterialModelCode2010FRC("C30/37 15 kg/m³", 30,
             CompressionStressStrainDiagrams.ParabolaRectangle, 2.14, 2.56, 2.14 / ConcreteMaterialEN1992.C30_37.E, 0.02, TensionStressStrainDiagrams.Bilinear);
 
-        public static ConcreteMaterialModelCode2010FRC C30_37_25 => new ConcreteMaterialModelCode2010FRC("C30/37 25 kg/m^3", 30,
+        public static ConcreteMaterialModelCode2010FRC C30_37_25 => new ConcreteMaterialModelCode2010FRC("C30/37 25 kg/m³", 30,
             CompressionStressStrainDiagrams.ParabolaRectangle, 3.20, 3.74, 3.20 / ConcreteMaterialEN1992.C30_37.E, 0.02, TensionStressStrainDiagrams.Bilinear);
 
-        public static ConcreteMaterialModelCode2010FRC C45_55_5 => new ConcreteMaterialModelCode2010FRC("C45/55 5 kg/m^3", 45,
+        public static ConcreteMaterialModelCode2010FRC C45_55_5 => new ConcreteMaterialModelCode2010FRC("C45/55 5 kg/m³", 45,
             CompressionStressStrainDiagrams.ParabolaRectangle, 1.11, 0.97, 1.11 / ConcreteMaterialEN1992.C45_55.E, 0.02, TensionStressStrainDiagrams.Bilinear);
 
-        public static ConcreteMaterialModelCode2010FRC C45_55_10 => new ConcreteMaterialModelCode2010FRC("C45/55 10 kg/m^3", 45,
+        public static ConcreteMaterialModelCode2010FRC C45_55_10 => new ConcreteMaterialModelCode2010FRC("C45/55 10 kg/m³", 45,
             CompressionStressStrainDiagrams.ParabolaRectangle, 1.84, 1.98, 1.84 / ConcreteMaterialEN1992.C45_55.E, 0.02, TensionStressStrainDiagrams.Bilinear);
 
-        public static ConcreteMaterialModelCode2010FRC C45_55_15 => new ConcreteMaterialModelCode2010FRC("C45/55 15 kg/m^3", 45,
+        public static ConcreteMaterialModelCode2010FRC C45_55_15 => new ConcreteMaterialModelCode2010FRC("C45/55 15 kg/m³", 45,
             CompressionStressStrainDiagrams.ParabolaRectangle, 2.16, 2.66, 2.16 / ConcreteMaterialEN1992.C45_55.E, 0.02, TensionStressStrainDiagrams.Bilinear);
 
-        public static ConcreteMaterialModelCode2010FRC C70_85_5 => new ConcreteMaterialModelCode2010FRC("C70/85 5 kg/m^3", 70,
+        public static ConcreteMaterialModelCode2010FRC C70_85_5 => new ConcreteMaterialModelCode2010FRC("C70/85 5 kg/m³", 70,
             CompressionStressStrainDiagrams.ParabolaRectangle, 0.95, 0.79, 0.95 / ConcreteMaterialEN1992.C70_85.E, 0.02, TensionStressStrainDiagrams.Bilinear);
 
-        public static ConcreteMaterialModelCode2010FRC C70_85_15 => new ConcreteMaterialModelCode2010FRC("C70/85 15 kg/m^3", 70,
+        public static ConcreteMaterialModelCode2010FRC C70_85_15 => new ConcreteMaterialModelCode2010FRC("C70/85 15 kg/m³", 70,
             CompressionStressStrainDiagrams.ParabolaRectangle, 2.64, 2.86, 2.64 / ConcreteMaterialEN1992.C70_85.E, 0.02, TensionStressStrainDiagrams.Bilinear);
 
         #endregion
