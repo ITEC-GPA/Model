@@ -34,7 +34,6 @@ namespace GPC.Model.Materials
         protected CompressionStressStrainDiagrams _compressionStressStrainDiagrams;
         protected TensionStressStrainDiagrams _tensionStressStrainDiagrams;
 
-
         #region Properties
 
         /// <summary>
@@ -380,7 +379,6 @@ namespace GPC.Model.Materials
         protected void SetStressStrainTableCompression(double fck, double strainYCompression, double strainUCompression,
             CompressionStressStrainDiagrams compressionStressStrainDiagrams)
         {
-
             switch (compressionStressStrainDiagrams)
             {
                 case CompressionStressStrainDiagrams.Bilinear:
@@ -455,7 +453,6 @@ namespace GPC.Model.Materials
         protected void SetStressStrainTableTension(double fctk, double fctu, double strainYTension, double strainUTension,
                                                      TensionStressStrainDiagrams tensionStressStrainDiagrams)
         {
-
             switch (tensionStressStrainDiagrams)
             {
                 case TensionStressStrainDiagrams.Linear:
@@ -487,7 +484,6 @@ namespace GPC.Model.Materials
                                              CompressionStressStrainDiagrams compressionStressStrainDiagrams,
                                              TensionStressStrainDiagrams tensionStressStrainDiagrams)
         {
-
             switch (compressionStressStrainDiagrams)
             {
                 case CompressionStressStrainDiagrams.Bilinear:
@@ -517,7 +513,7 @@ namespace GPC.Model.Materials
             {
                 _fctk = GetFctk05();
                 _fctu = _fctk;
-                _elasticModulusTension = GetEcm(GetFcm());
+                _elasticModulusTension = GetEcm(Math.Abs(GetFcm()));
                 _strainYTension = _fctk / _elasticModulusTension;
                 _strainUTension = _strainYTension;
             }
@@ -555,7 +551,7 @@ namespace GPC.Model.Materials
                     case TensionStressStrainDiagrams.RigidPlastic:
                         _fctk = fctk;
                         _fctk = fctk;
-                        _elasticModulusTension = double.MaxValue;
+                        _elasticModulusTension = GetEcm(Math.Abs(GetFcm()));
 
                         _strainYTension = 0.0;
                         _strainUTension = strainUTension;
@@ -565,9 +561,6 @@ namespace GPC.Model.Materials
                         throw new NotSupportedException();
                 }
             }
-
-
-
         }
 
         protected virtual void SetProperties(double fck, CompressionStressStrainDiagrams compressionStressStrainDiagrams,
@@ -704,7 +697,6 @@ namespace GPC.Model.Materials
         /// <remarks>Sign convention: Stress and strain negative if compression</remarks>
         protected virtual double GetStrainYCompression(CompressionStressStrainDiagrams compressionStressStrainDiagrams, double strainU = 0)
         {
-
             switch (compressionStressStrainDiagrams)
             {
                 case CompressionStressStrainDiagrams.ParabolaRectangle:
@@ -786,7 +778,6 @@ namespace GPC.Model.Materials
 
         protected virtual double GetStrainUCompression(CompressionStressStrainDiagrams compressionStressStrainDiagrams)
         {
-
             switch (compressionStressStrainDiagrams)
             {
                 case CompressionStressStrainDiagrams.ParabolaRectangle:
@@ -819,7 +810,6 @@ namespace GPC.Model.Materials
                 default:
                     throw new ArgumentException();
             }
-
         }
 
         protected virtual double GetStrainYPureCompression(CompressionStressStrainDiagrams compressionStressStrainDiagrams)
