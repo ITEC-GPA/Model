@@ -471,6 +471,22 @@ namespace ModelObjectTest
         }
 
         [TestMethod]
+        public void ConcreteFRCTest7()
+        {
+            ConcreteMaterialModelCode2010FRC concrete = new ConcreteMaterialModelCode2010FRC("", 0.0005, 
+                new StressStrainTable(new double[] { 0, -10, -5, -20 }, new double[] { 0, -2, -4, -6 }),
+                new StressStrainTable(new double[] { 0, 5, 1, 2 }, new double[] { 0, 1, 2, 3 }));
+
+            List<(double, double)> stresses = new List<(double, double)>();
+
+            for (int i = 300; i >= -600; i--)
+                stresses.Add((concrete.GetStress(i / 100.0), i / 100.0));
+
+            for (int i = 0; i < stresses.Count; i++)
+                Console.WriteLine(stresses[i].Item1);
+        }
+
+        [TestMethod]
         public void SteelTest1()
         {
             SteelMaterial steel = SteelMaterial.S275;

@@ -155,12 +155,14 @@ namespace GPC.Model.Materials
             StressStrainTable stressStrainTableCompression, StressStrainTable stressStrainTableTension,
             double poisson = 0.2, double density = 0.0025, double alfaThermalExpansion = 1e-6,
             CementType cementType = CementType.ClassN)
-            : base(name, stressStrainTableCompression, stressStrainTableTension,
-                         stressStrainTableCompression.GetElasticModulus(), stressStrainTableTension.GetElasticModulus(),
-                         poisson, density, alfaThermalExpansion)
+            : base(name, stressStrainTableCompression, stressStrainTableTension, stressStrainTableCompression.GetElasticModulus(), 
+                  stressStrainTableTension.GetElasticModulus(), poisson, density, alfaThermalExpansion)
         {
             _compressionStressStrainDiagrams = CompressionStressStrainDiagrams.Generic;
-            _tensionStressStrainDiagrams = TensionStressStrainDiagrams.Linear;
+            _tensionStressStrainDiagrams = TensionStressStrainDiagrams.Generic;
+
+            _stressStrainTableCompression = stressStrainTableCompression;
+            _stressStrainTableTension = stressStrainTableTension;
 
             SetMechanicalProperties(stressStrainTableCompression.GetMinimumStress(), stressStrainTableTension.GetStress(strainYTension),
                 stressStrainTableTension.GetLastStress(), strainYTension, stressStrainTableTension.GetLastStrain(),
