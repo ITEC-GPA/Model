@@ -373,6 +373,11 @@ namespace GPC.Model.Materials
             return fckc;
         }
 
+        protected override bool IsFiberReinforced()
+        {
+            return false;
+        }
+
         #endregion
 
         #region Protected methods

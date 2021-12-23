@@ -88,8 +88,12 @@ namespace GPC.Model.Materials
             }
         }
 
+		protected override bool IsFiberReinforced()
+		{
+            return false;
+		}
 
-        public static bool operator ==(ConcreteMaterialEN1992 obj1, ConcreteMaterialEN1992 obj2)
+		public static bool operator ==(ConcreteMaterialEN1992 obj1, ConcreteMaterialEN1992 obj2)
         {
             if (ReferenceEquals(obj1, obj2))
                 return true;

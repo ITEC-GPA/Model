@@ -67,8 +67,9 @@ namespace GPC.Model.Materials
         /// </summary>
         public double ElasticModulusTension => _elasticModulusTension;
 
+		#region Public Constructor
 
-        protected ConcreteMaterial(string name, double poisson, double density, double alfaThermalExpansion)
+		protected ConcreteMaterial(string name, double poisson, double density, double alfaThermalExpansion)
             : base(name)
         {
             if (poisson > 0.5)
@@ -78,7 +79,6 @@ namespace GPC.Model.Materials
             _alfaThermalExpansion = alfaThermalExpansion < 0 ? throw new ArgumentException($"{nameof(alfaThermalExpansion)} cannot be lower than zero") : alfaThermalExpansion;
             _density = density < 0 ? throw new ArgumentException($"{nameof(density)} cannot be lower than zero") : density;            
         }
-
 
         public ConcreteMaterial(string name, StressStrainTable stressStrainTableCompression,
             StressStrainTable stressStrainTableTension, double elasticModulusCompression, double elasticModulusTension,
@@ -99,7 +99,6 @@ namespace GPC.Model.Materials
             _elasticModulus = elasticModulusCompression;
         }
 
-
         protected ConcreteMaterial(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
@@ -108,9 +107,10 @@ namespace GPC.Model.Materials
             _elasticModulusTension = info.GetDouble("ElasticModulusTension");
         }
 
+		#endregion
 
-        /// <returns>The characteristic stress related to <paramref name="strain"/></returns>
-        public double GetStress(double strain)
+		/// <returns>The characteristic stress related to <paramref name="strain"/></returns>
+		public double GetStress(double strain)
         {
             if (strain > 0)
             {
@@ -151,8 +151,14 @@ namespace GPC.Model.Materials
             }
         }
 
+        protected virtual bool IsFiberReinforced() 
+        { 
+            return false; 
+        }
 
-        public static bool operator ==(ConcreteMaterial obj1, ConcreteMaterial obj2)
+		#region Public Operator
+
+		public static bool operator ==(ConcreteMaterial obj1, ConcreteMaterial obj2)
         {
             if (ReferenceEquals(obj1, obj2))
                 return true;
@@ -165,5 +171,6 @@ namespace GPC.Model.Materials
             return !(obj1 == obj2);
         }
 
-    }
+		#endregion
+	}
 }

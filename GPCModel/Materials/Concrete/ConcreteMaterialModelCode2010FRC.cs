@@ -121,6 +121,11 @@ namespace GPC.Model.Materials
             SetStressStrainTableTension(_fctk, _fctu, _strainYTension, _strainUTension, _tensionStressStrainDiagrams);
         }
 
+		protected override bool IsFiberReinforced()
+		{
+            return true;
+		}
+
 		public static bool operator ==(ConcreteMaterialModelCode2010FRC obj1, ConcreteMaterialModelCode2010FRC obj2)
         {
             if (ReferenceEquals(obj1, obj2))
