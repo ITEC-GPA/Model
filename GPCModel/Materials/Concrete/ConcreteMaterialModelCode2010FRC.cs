@@ -57,9 +57,10 @@ namespace GPC.Model.Materials
         }
 
         public ConcreteMaterialModelCode2010FRC(string name, double fck, CompressionStressStrainDiagrams compressionStressStrainDiagrams,
-            double ffts, double fFtu, double strainYTension, double strainUTension, TensionStressStrainDiagrams tensionStressStrainDiagrams, 
+            double fr1, double f3, double strainYTension, double strainUTension, TensionStressStrainDiagrams tensionStressStrainDiagrams, 
             double poisson = 0.2, double density = 0.0025, double alfaThermalExpansion = 1e-6, CementType cementType = CementType.ClassN)
-            : base(name, fck, compressionStressStrainDiagrams, ffts, fFtu, strainYTension, strainUTension, 
+            : base(name, fck, compressionStressStrainDiagrams, ConcreteMaterialModelCode2010FRC.GetFFTs(tensionStressStrainDiagrams, fr1, f3), 
+                  ConcreteMaterialModelCode2010FRC.GetFFTu(tensionStressStrainDiagrams, fr1, f3, strainUTension), strainYTension, strainUTension, 
                   tensionStressStrainDiagrams, poisson, density, alfaThermalExpansion, cementType)
         {
 
@@ -89,6 +90,46 @@ namespace GPC.Model.Materials
             return _fctk / 0.7;
         }
 
+        protected static double GetFFTu(TensionStressStrainDiagrams tensionStressStrainDiagrams, double fr1, double fr3, double strainU)
+		{
+            if(tensionStressStrainDiagrams == TensionStressStrainDiagrams.RigidPlastic)
+			{
+                return fr3 / 3.0;
+			}
+            else if (tensionStressStrainDiagrams == TensionStressStrainDiagrams.Bilinear)
+			{
+                double ffts = GetFFTs(tensionStressStrainDiagrams, fr1, fr3);
+                return Math.Max(ffts - (1.0) * (ffts - 0.5 * fr3 + 0.2 * fr1), 0.0);
+            }
+            else if (tensionStressStrainDiagrams == TensionStressStrainDiagrams.Linear)
+            {
+                double ffts = GetFFTs(tensionStressStrainDiagrams, fr1, fr3);
+                return Math.Max(ffts - (1.0) * (ffts - 0.5 * fr3 + 0.2 * fr1), 0.0);
+            }
+            else
+            {
+                double ffts = GetFFTs(tensionStressStrainDiagrams, fr1, fr3);
+                return Math.Max(ffts - (1.0) * (ffts - 0.5 * fr3 + 0.2 * fr1), 0.0);
+            }
+        }
+
+        protected static double GetFFTs(TensionStressStrainDiagrams tensionStressStrainDiagrams, double fr1, double fr3)
+        {
+            if (tensionStressStrainDiagrams == TensionStressStrainDiagrams.RigidPlastic)
+            {
+                return fr3 / 3.0;
+            }
+            else if (tensionStressStrainDiagrams == TensionStressStrainDiagrams.Bilinear)
+            {
+                return 0.45 * fr1;
+            }
+            else if (tensionStressStrainDiagrams == TensionStressStrainDiagrams.Linear)
+			{
+                return 0.45 * fr1;
+            }
+            else
+                return 0.45 * fr1;
+        }
 
         #endregion
 
@@ -138,7 +179,6 @@ namespace GPC.Model.Materials
         {
             return !(obj1 == obj2);
         }
-
 
         #endregion
     }
