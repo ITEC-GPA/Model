@@ -373,7 +373,7 @@ namespace GPC.Model.Materials
             return fckc;
         }
 
-        protected override bool IsFiberReinforced()
+        public override bool IsFiberReinforced()
         {
             return false;
         }

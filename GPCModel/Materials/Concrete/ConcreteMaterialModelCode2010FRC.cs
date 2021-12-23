@@ -121,7 +121,7 @@ namespace GPC.Model.Materials
             SetStressStrainTableTension(_fctk, _fctu, _strainYTension, _strainUTension, _tensionStressStrainDiagrams);
         }
 
-		protected override bool IsFiberReinforced()
+        public override bool IsFiberReinforced()
 		{
             return true;
 		}

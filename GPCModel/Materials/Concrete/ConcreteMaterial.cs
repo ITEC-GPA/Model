@@ -151,7 +151,7 @@ namespace GPC.Model.Materials
             }
         }
 
-        protected virtual bool IsFiberReinforced() 
+        public virtual bool IsFiberReinforced() 
         { 
             return false; 
         }

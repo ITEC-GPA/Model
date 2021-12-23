@@ -88,7 +88,7 @@ namespace GPC.Model.Materials
             }
         }
 
-		protected override bool IsFiberReinforced()
+        public override bool IsFiberReinforced()
 		{
             return false;
 		}
