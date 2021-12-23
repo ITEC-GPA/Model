@@ -5,47 +5,47 @@ namespace GPC.Model.Materials
 {
     public class ConcreteMaterialModelCode2010FRC : ConcreteMaterialModelCode2010
     {
-
         #region Static Properties
 
         public static ConcreteMaterialModelCode2010FRC C25_30_5 => new ConcreteMaterialModelCode2010FRC("C25/30 5 kg/m³", 25, 
-            CompressionStressStrainDiagrams.ParabolaRectangle, 1.09, 1.04, 1.09 / ConcreteMaterialEN1992.C25_30.E, 0.02, TensionStressStrainDiagrams.Bilinear);
+            CompressionStressStrainDiagrams.ParabolaRectangle, 0.4905, 0.302, 0.4905 / ConcreteMaterialEN1992.C25_30.E, 0.02, TensionStressStrainDiagrams.Bilinear);
 
         public static ConcreteMaterialModelCode2010FRC C25_30_10 => new ConcreteMaterialModelCode2010FRC("C25/30 10 kg/m³", 25, 
-            CompressionStressStrainDiagrams.ParabolaRectangle, 1.55, 1.63, 1.55 / ConcreteMaterialEN1992.C25_30.E, 0.02, TensionStressStrainDiagrams.Bilinear);
+            CompressionStressStrainDiagrams.ParabolaRectangle, 0.6975, 0.505, 0.6975 / ConcreteMaterialEN1992.C25_30.E, 0.02, TensionStressStrainDiagrams.Bilinear);
 
         public static ConcreteMaterialModelCode2010FRC C25_30_17 => new ConcreteMaterialModelCode2010FRC("C25/30 17 kg/m³", 25, 
-            CompressionStressStrainDiagrams.ParabolaRectangle, 2.41, 2.65, 2.41 / ConcreteMaterialEN1992.C25_30.E, 0.02, TensionStressStrainDiagrams.Bilinear);
+            CompressionStressStrainDiagrams.ParabolaRectangle, 1.0845, 0.843, 1.0845 / ConcreteMaterialEN1992.C25_30.E, 0.02, TensionStressStrainDiagrams.Bilinear);
 
         public static ConcreteMaterialModelCode2010FRC C30_37_5 => new ConcreteMaterialModelCode2010FRC("C30/37 5 kg/m³", 30,
-            CompressionStressStrainDiagrams.ParabolaRectangle, 0.92, 0.88, 0.92 / ConcreteMaterialEN1992.C30_37.E, 0.02, TensionStressStrainDiagrams.Bilinear);
+            CompressionStressStrainDiagrams.ParabolaRectangle, 0.414, 0.256, 0.414 / ConcreteMaterialEN1992.C30_37.E, 0.02, TensionStressStrainDiagrams.Bilinear);
 
         public static ConcreteMaterialModelCode2010FRC C30_37_10 => new ConcreteMaterialModelCode2010FRC("C30/37 10 kg/m³", 30,
-            CompressionStressStrainDiagrams.ParabolaRectangle, 1.55, 1.80, 1.55 / ConcreteMaterialEN1992.C30_37.E, 0.02, TensionStressStrainDiagrams.Bilinear);
+            CompressionStressStrainDiagrams.ParabolaRectangle, 0.6975, 0.59, 0.6975 / ConcreteMaterialEN1992.C30_37.E, 0.02, TensionStressStrainDiagrams.Bilinear);
 
         public static ConcreteMaterialModelCode2010FRC C30_37_15 => new ConcreteMaterialModelCode2010FRC("C30/37 15 kg/m³", 30,
-            CompressionStressStrainDiagrams.ParabolaRectangle, 2.14, 2.56, 2.14 / ConcreteMaterialEN1992.C30_37.E, 0.02, TensionStressStrainDiagrams.Bilinear);
+            CompressionStressStrainDiagrams.ParabolaRectangle, 0.963, 0.852, 0.963 / ConcreteMaterialEN1992.C30_37.E, 0.02, TensionStressStrainDiagrams.Bilinear);
 
         public static ConcreteMaterialModelCode2010FRC C30_37_25 => new ConcreteMaterialModelCode2010FRC("C30/37 25 kg/m³", 30,
-            CompressionStressStrainDiagrams.ParabolaRectangle, 3.20, 3.74, 3.20 / ConcreteMaterialEN1992.C30_37.E, 0.02, TensionStressStrainDiagrams.Bilinear);
+            CompressionStressStrainDiagrams.ParabolaRectangle, 1.44, 1.23, 1.44 / ConcreteMaterialEN1992.C30_37.E, 0.02, TensionStressStrainDiagrams.Bilinear);
 
         public static ConcreteMaterialModelCode2010FRC C45_55_5 => new ConcreteMaterialModelCode2010FRC("C45/55 5 kg/m³", 45,
-            CompressionStressStrainDiagrams.ParabolaRectangle, 1.11, 0.97, 1.11 / ConcreteMaterialEN1992.C45_55.E, 0.02, TensionStressStrainDiagrams.Bilinear);
+            CompressionStressStrainDiagrams.ParabolaRectangle, 0.4995, 0.263, 0.4995 / ConcreteMaterialEN1992.C45_55.E, 0.02, TensionStressStrainDiagrams.Bilinear);
 
         public static ConcreteMaterialModelCode2010FRC C45_55_10 => new ConcreteMaterialModelCode2010FRC("C45/55 10 kg/m³", 45,
-            CompressionStressStrainDiagrams.ParabolaRectangle, 1.84, 1.98, 1.84 / ConcreteMaterialEN1992.C45_55.E, 0.02, TensionStressStrainDiagrams.Bilinear);
+            CompressionStressStrainDiagrams.ParabolaRectangle, 0.828, 0.622, 0.828 / ConcreteMaterialEN1992.C45_55.E, 0.02, TensionStressStrainDiagrams.Bilinear);
 
         public static ConcreteMaterialModelCode2010FRC C45_55_15 => new ConcreteMaterialModelCode2010FRC("C45/55 15 kg/m³", 45,
-            CompressionStressStrainDiagrams.ParabolaRectangle, 2.16, 2.66, 2.16 / ConcreteMaterialEN1992.C45_55.E, 0.02, TensionStressStrainDiagrams.Bilinear);
+            CompressionStressStrainDiagrams.ParabolaRectangle, 0.972, 0.898, 0.972 / ConcreteMaterialEN1992.C45_55.E, 0.02, TensionStressStrainDiagrams.Bilinear);
 
         public static ConcreteMaterialModelCode2010FRC C70_85_5 => new ConcreteMaterialModelCode2010FRC("C70/85 5 kg/m³", 70,
-            CompressionStressStrainDiagrams.ParabolaRectangle, 0.95, 0.79, 0.95 / ConcreteMaterialEN1992.C70_85.E, 0.02, TensionStressStrainDiagrams.Bilinear);
+            CompressionStressStrainDiagrams.ParabolaRectangle, 0.4275, 0.205, 0.4275 / ConcreteMaterialEN1992.C70_85.E, 0.02, TensionStressStrainDiagrams.Bilinear);
 
         public static ConcreteMaterialModelCode2010FRC C70_85_15 => new ConcreteMaterialModelCode2010FRC("C70/85 15 kg/m³", 70,
-            CompressionStressStrainDiagrams.ParabolaRectangle, 2.64, 2.86, 2.64 / ConcreteMaterialEN1992.C70_85.E, 0.02, TensionStressStrainDiagrams.Bilinear);
+            CompressionStressStrainDiagrams.ParabolaRectangle, 1.188, 0.902, 1.188 / ConcreteMaterialEN1992.C70_85.E, 0.02, TensionStressStrainDiagrams.Bilinear);
 
         #endregion
 
+        #region Constructors
 
         public ConcreteMaterialModelCode2010FRC(string name, double strainYTension,
             StressStrainTable stressStrainTableCompression, StressStrainTable stressStrainTableTension,
@@ -53,25 +53,22 @@ namespace GPC.Model.Materials
             CementType cementType = CementType.ClassN)
             : base(name, strainYTension, stressStrainTableCompression, stressStrainTableTension, poisson, density, alfaThermalExpansion, cementType)
         {
-
         }
 
         public ConcreteMaterialModelCode2010FRC(string name, double fck, CompressionStressStrainDiagrams compressionStressStrainDiagrams,
-            double fr1, double f3, double strainYTension, double strainUTension, TensionStressStrainDiagrams tensionStressStrainDiagrams, 
+            double ffts, double fFtu, double strainYTension, double strainUTension, TensionStressStrainDiagrams tensionStressStrainDiagrams,
             double poisson = 0.2, double density = 0.0025, double alfaThermalExpansion = 1e-6, CementType cementType = CementType.ClassN)
-            : base(name, fck, compressionStressStrainDiagrams, ConcreteMaterialModelCode2010FRC.GetFFTs(tensionStressStrainDiagrams, fr1, f3), 
-                  ConcreteMaterialModelCode2010FRC.GetFFTu(tensionStressStrainDiagrams, fr1, f3, strainUTension), strainYTension, strainUTension, 
-                  tensionStressStrainDiagrams, poisson, density, alfaThermalExpansion, cementType)
+            : base(name, fck, compressionStressStrainDiagrams, ffts, fFtu, strainYTension, strainUTension,
+          tensionStressStrainDiagrams, poisson, density, alfaThermalExpansion, cementType)
         {
-
         }
 
         protected ConcreteMaterialModelCode2010FRC(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
-
         }
 
+        #endregion
 
         #region Override Method
 
@@ -90,40 +87,44 @@ namespace GPC.Model.Materials
             return _fctk / 0.7;
         }
 
-        protected static double GetFFTu(TensionStressStrainDiagrams tensionStressStrainDiagrams, double fr1, double fr3, double strainU)
+        #endregion
+
+        #region Public Method
+
+        public double CalculateFFTu(double fr1, double fr3)
 		{
-            if(tensionStressStrainDiagrams == TensionStressStrainDiagrams.RigidPlastic)
+            if(_tensionStressStrainDiagrams == TensionStressStrainDiagrams.RigidPlastic)
 			{
                 return fr3 / 3.0;
 			}
-            else if (tensionStressStrainDiagrams == TensionStressStrainDiagrams.Bilinear)
+            else if (_tensionStressStrainDiagrams == TensionStressStrainDiagrams.Bilinear)
 			{
-                double ffts = GetFFTs(tensionStressStrainDiagrams, fr1, fr3);
+                double ffts = CalculateFFTs(fr1, fr3);
                 return Math.Max(ffts - (1.0) * (ffts - 0.5 * fr3 + 0.2 * fr1), 0.0);
             }
-            else if (tensionStressStrainDiagrams == TensionStressStrainDiagrams.Linear)
+            else if (_tensionStressStrainDiagrams == TensionStressStrainDiagrams.Linear)
             {
-                double ffts = GetFFTs(tensionStressStrainDiagrams, fr1, fr3);
+                double ffts = CalculateFFTs(fr1, fr3);
                 return Math.Max(ffts - (1.0) * (ffts - 0.5 * fr3 + 0.2 * fr1), 0.0);
             }
             else
             {
-                double ffts = GetFFTs(tensionStressStrainDiagrams, fr1, fr3);
+                double ffts = CalculateFFTs(fr1, fr3);
                 return Math.Max(ffts - (1.0) * (ffts - 0.5 * fr3 + 0.2 * fr1), 0.0);
             }
         }
 
-        protected static double GetFFTs(TensionStressStrainDiagrams tensionStressStrainDiagrams, double fr1, double fr3)
+        public double CalculateFFTs(double fr1, double fr3)
         {
-            if (tensionStressStrainDiagrams == TensionStressStrainDiagrams.RigidPlastic)
+            if (_tensionStressStrainDiagrams == TensionStressStrainDiagrams.RigidPlastic)
             {
                 return fr3 / 3.0;
             }
-            else if (tensionStressStrainDiagrams == TensionStressStrainDiagrams.Bilinear)
+            else if (_tensionStressStrainDiagrams == TensionStressStrainDiagrams.Bilinear)
             {
                 return 0.45 * fr1;
             }
-            else if (tensionStressStrainDiagrams == TensionStressStrainDiagrams.Linear)
+            else if (_tensionStressStrainDiagrams == TensionStressStrainDiagrams.Linear)
 			{
                 return 0.45 * fr1;
             }
