@@ -395,6 +395,10 @@ namespace GPC.Model.Sections.Concrete
             _wel1Min = CalculateWel1Min();
             _wel2Max = CalculateWel2Max();
             _wel2Min = CalculateWel2Min();
+            _welXMax = CalculateWelXMax();
+            _welXMin = CalculateWelXMin();
+            _welYMax = CalculateWelYMax();
+            _welYMin = CalculateWelYMin();
             _wpl1 = CalculateWpl1();
             _wpl2 = CalculateWpl2();
 
@@ -454,7 +458,7 @@ namespace GPC.Model.Sections.Concrete
                 }
             }
 
-            return _j22 / dmaxConcrete;
+            return _j22 / Math.Abs(dmaxConcrete);
         }
 
         protected override double CalculateWel2Min()
@@ -462,7 +466,7 @@ namespace GPC.Model.Sections.Concrete
             double cosTeta = Math.Cos(_angleX1 + Math.PI / 2.0);
             double sinTeta = Math.Sin(_angleX1 + Math.PI / 2.0);
 
-            double dmaxConcrete = double.MinValue;
+            double dmaxConcrete = double.MaxValue;
 
             for (int c = 0; c < ShapeEx.Fill.Count; c++)
             {
@@ -474,7 +478,7 @@ namespace GPC.Model.Sections.Concrete
                 }
             }
 
-            return _j22 / dmaxConcrete;
+            return _j22 / Math.Abs(dmaxConcrete);
         }
 
         protected override double CalculateWel1Max()
@@ -494,8 +498,7 @@ namespace GPC.Model.Sections.Concrete
                 }
             }
 
-
-            return _j11 / dmaxConcrete;
+            return _j11 / Math.Abs(dmaxConcrete);
         }
 
         protected override double CalculateWel1Min()
@@ -515,10 +518,88 @@ namespace GPC.Model.Sections.Concrete
                 }
             }
 
-
-            return _j11 / dminConcrete;
+            return _j11 / Math.Abs(dminConcrete);
         }
 
+        protected override double CalculateWelYMax()
+        {
+            double cosTeta = Math.Cos(Math.PI / 2.0);
+            double sinTeta = Math.Sin(Math.PI / 2.0);
+
+            double dmaxConcrete = double.MinValue;
+
+            for (int c = 0; c < ShapeEx.Fill.Count; c++)
+            {
+                double w1 = (ShapeEx.Fill[c].Y - Centroid.Y) * cosTeta - (ShapeEx.Fill[c].X - Centroid.X) * sinTeta;
+
+                if (w1 >= dmaxConcrete)
+                {
+                    dmaxConcrete = w1;
+                }
+            }
+
+            return _j22 / Math.Abs(dmaxConcrete);
+        }
+
+        protected override double CalculateWelYMin()
+        {
+            double cosTeta = Math.Cos(Math.PI / 2.0);
+            double sinTeta = Math.Sin(Math.PI / 2.0);
+
+            double dmaxConcrete = double.MaxValue;
+
+            for (int c = 0; c < ShapeEx.Fill.Count; c++)
+            {
+                double w1 = (ShapeEx.Fill[c].Y - Centroid.Y) * cosTeta - (ShapeEx.Fill[c].X - Centroid.X) * sinTeta;
+
+                if (w1 <= dmaxConcrete)
+                {
+                    dmaxConcrete = w1;
+                }
+            }
+
+            return _j22 / Math.Abs(dmaxConcrete);
+        }
+
+        protected override double CalculateWelXMax()
+        {
+            double cosTeta = Math.Cos(0.0);
+            double sinTeta = Math.Sin(0.0);
+
+            double dmaxConcrete = double.MinValue;
+
+            for (int c = 0; c < ShapeEx.Fill.Count; c++)
+            {
+                double w1 = (ShapeEx.Fill[c].Y - Centroid.Y) * cosTeta - (ShapeEx.Fill[c].X - Centroid.X) * sinTeta;
+
+                if (w1 >= dmaxConcrete)
+                {
+                    dmaxConcrete = w1;
+                }
+            }
+
+            return _j11 / Math.Abs(dmaxConcrete);
+        }
+
+        protected override double CalculateWelXMin()
+        {
+            double cosTeta = Math.Cos(0.0);
+            double sinTeta = Math.Sin(0.0);
+
+            double dminConcrete = double.MaxValue;
+
+            for (int c = 0; c < ShapeEx.Fill.Count; c++)
+            {
+                double w1 = (ShapeEx.Fill[c].Y - Centroid.Y) * cosTeta - (ShapeEx.Fill[c].X - Centroid.X) * sinTeta;
+
+                if (w1 <= dminConcrete)
+                {
+                    dminConcrete = w1;
+                }
+            }
+
+            return _j11 / Math.Abs(dminConcrete);
+        }
 
         #endregion
 

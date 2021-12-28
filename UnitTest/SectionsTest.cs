@@ -80,7 +80,7 @@ namespace ModelObjectTest
             double d = 400;
             double t = 10;
             double di = d - 2.0 * t;
-            SteelSectionCHS sec = new SteelSectionCHS(d, t, new SteelMaterial("S355", 200000, 0.3, 355, 510, 7850), "", Section.FormedTypes.ColdFormed);
+            SteelSectionCHS sec = new SteelSectionCHS(d, t, SteelMaterial.S355, "", Section.FormedTypes.ColdFormed);
 
             Point2d centroid = new Point2d(d / 2, d / 2);
             Point2d shearCenter = centroid;
@@ -114,7 +114,7 @@ namespace ModelObjectTest
         {
             double d = 250;
             double t = 5;
-            SteelSectionCHS sec = new SteelSectionCHS(d, t, new SteelMaterial("S355", 200000, 0.3, 355, 510, 7850), "", Section.FormedTypes.ColdFormed);
+            SteelSectionCHS sec = new SteelSectionCHS(d, t, SteelMaterial.S355, "", Section.FormedTypes.ColdFormed);
 
             Point2d centroid = new Point2d(d / 2, d / 2);
             Point2d shearCenter = centroid;
@@ -150,7 +150,7 @@ namespace ModelObjectTest
         {
             double d = 350;
             double t = 6;
-            SteelSectionCHS sec = new SteelSectionCHS(d, t, new SteelMaterial("S355", 200000, 0.3, 355, 510, 7850), "", Section.FormedTypes.ColdFormed);
+            SteelSectionCHS sec = new SteelSectionCHS(d, t, SteelMaterial.S355, "", Section.FormedTypes.ColdFormed);
 
             Point2d centroid = new Point2d(d / 2, d / 2);
             Point2d shearCenter = centroid;
@@ -186,7 +186,7 @@ namespace ModelObjectTest
         {
             double d = 500;
             double t = 8;
-            SteelSectionCHS sec = new SteelSectionCHS(d, t, new SteelMaterial("S355", 200000, 0.3, 355, 510, 7850), "", Section.FormedTypes.ColdFormed);
+            SteelSectionCHS sec = new SteelSectionCHS(d, t, SteelMaterial.S355, "", Section.FormedTypes.ColdFormed);
 
             Point2d centroid = new Point2d(d / 2, d / 2);
             Point2d shearCenter = centroid;
@@ -223,7 +223,7 @@ namespace ModelObjectTest
             double d = 300;
             double t = 8;
 
-            SteelSectionCHS sec = new SteelSectionCHS(d, t, new SteelMaterial("steel", 210000, 0.3, 355, 510, 7850), string.Empty);
+            SteelSectionCHS sec = new SteelSectionCHS(d, t, SteelMaterial.S355, string.Empty);
 
             double sigmaMax = sec.GetMaxSigma(0, 11129770.82, 0);
             double sigmaMin = sec.GetMinSigma(0, 11129770.82, 0);
@@ -243,7 +243,7 @@ namespace ModelObjectTest
         {
             double h = 100;
             double b = 10;
-            SectionRectangular sec = new SectionRectangular(b, h, new SteelMaterial("steel", 200000, 0.3, 355, 510, 7850));
+            SectionRectangular sec = new SectionRectangular(b, h, SteelMaterial.S355);
 
             double A = h * b;
             double J2 = 1.0 / 12.0 * b * Math.Pow(h, 3.0);
@@ -389,7 +389,7 @@ namespace ModelObjectTest
             double b = 200;
             double t = 8;
 
-            SteelSectionRHS sec = new SteelSectionRHS(h, b, t, t, t, t, new SteelMaterial("steel", 210000, 0.3, 355, 510, 7850), string.Empty);
+            SteelSectionRHS sec = new SteelSectionRHS(h, b, t, t, t, t, SteelMaterial.S355, string.Empty);
 
             double sigmaMax1 = sec.GetMaxSigma(15000, 894116.79, 0);
             double sigmaMin1 = sec.GetMinSigma(15000, 894116.79, 0);
@@ -807,7 +807,7 @@ namespace ModelObjectTest
             double bb = 214;
             double tt = 23.6;
             double tb = 23.6;
-            SteelSectionH sec = new SteelSectionH(h, tw, bt, tt, bb, tb, new SteelMaterial("steel", 210000, 0.3, 355, 510, 7850), string.Empty);
+            SteelSectionH sec = new SteelSectionH(h, tw, bt, tt, bb, tb, SteelMaterial.S355, string.Empty);
 
             double A = 17477;          // calcolato con foglio excel marco
             double Jxx = 8.52 * 1e8;
@@ -835,7 +835,7 @@ namespace ModelObjectTest
             double tb = 14.0;
             double r = 27.0;
 
-            SteelSectionH sec = new SteelSectionH(h, tw, bt, tt, bb, tb, new SteelMaterial("steel", 210000, 0.3, 355, 510, 7850),
+            SteelSectionH sec = new SteelSectionH(h, tw, bt, tt, bb, tb, SteelMaterial.S355,
                 string.Empty, Section.SectionTypes.Rolled, Section.FormedTypes.HotFinished, r);
 
             double A = 11253;
@@ -862,7 +862,7 @@ namespace ModelObjectTest
             double webThickness = 7.1;
             double r = 15.0;
 
-            SteelSectionH sec = new SteelSectionH(h, webThickness, width, flangeThickness, width, flangeThickness, new SteelMaterial("steel", 210000, 0.3, 355, 510, 7850),
+            SteelSectionH sec = new SteelSectionH(h, webThickness, width, flangeThickness, width, flangeThickness, SteelMaterial.S355,
                 string.Empty, Section.SectionTypes.Rolled, Section.FormedTypes.HotFinished, r);
 
             double Jxx = 83560000;
@@ -891,7 +891,7 @@ namespace ModelObjectTest
             double webThickness = 10;
             double r = 15.0;
 
-            SteelSectionH sec = new SteelSectionH(h, webThickness, width, flangeThickness, width, flangeThickness, new SteelMaterial("steel", 210000, 0.3, 355, 510, 7850),
+            SteelSectionH sec = new SteelSectionH(h, webThickness, width, flangeThickness, width, flangeThickness, SteelMaterial.S355,
                 string.Empty, Section.SectionTypes.Rolled, Section.FormedTypes.HotFinished, r);
 
             Point2d[] points = sec.GetSectionPoints();
@@ -934,7 +934,7 @@ namespace ModelObjectTest
             double bb = 127;
             double tt = 9.652;
             double tb = 9.652;
-            SteelSectionH sec = new SteelSectionH(h, tw, bt, tt, bb, tb, new SteelMaterial("steel", 210000, 0.3, 355, 510, 7850), string.Empty);
+            SteelSectionH sec = new SteelSectionH(h, tw, bt, tt, bb, tb, SteelMaterial.S355, string.Empty);
 
             double sigmaMax = sec.GetMaxSigma(0, 10656502.7, 0);
             double sigmaMin = sec.GetMinSigma(0, 10656502.7, 0);

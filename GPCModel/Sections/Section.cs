@@ -488,7 +488,6 @@ namespace GPC.Model.Sections
             _wplY = CalculateWplY();
         }
 
-
         /// <summary>
         /// Calculate the area of the section
         /// </summary>
@@ -610,7 +609,6 @@ namespace GPC.Model.Sections
         {
             return 0;
         }
-
 
         protected virtual bool CalculateIsSymmetricAlongXLocalAxis()
         {

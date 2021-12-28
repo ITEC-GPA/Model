@@ -29,7 +29,7 @@ namespace FemTest.SolverTest
             double E = 100000.0;
             double H = 1;
             double t = (H / 2.0)*0.999;
-            Section sec = new SectionRHS(H, H, t, t, t, t, new SteelMaterial("m", E, 0.0, 355, 510, 7850), "sec");
+            Section sec = new SectionRHS(H, H, t, t, t, t, new SteelMaterial("m", E, 0.0, 355, 510), "sec");
             double A = sec.Area;
 
             double L = 1000;
@@ -77,7 +77,7 @@ namespace FemTest.SolverTest
         public void CantileverAxialUniformLoadTest1()
         {
             double E = 1000.0;
-            Section sec = new SectionCHS(10.0, 5.0, new SteelMaterial("m", E, 0.0, 355, 510, 7850), "sec");
+            Section sec = new SectionCHS(10.0, 5.0, new SteelMaterial("m", E, 0.0, 355, 510), "sec");
             double A = sec.Area;
 
             double L = 1000;
@@ -126,7 +126,7 @@ namespace FemTest.SolverTest
             double E = 100000.0;
             double H = 1;
             double t = (H / 2.0) * 0.999;
-            Section sec = new SectionRHS(H, H, t, t, t, t, new SteelMaterial("m", E, 0.0, 355, 510, 7850), "sec");
+            Section sec = new SectionRHS(H, H, t, t, t, t, new SteelMaterial("m", E, 0.0, 355, 510), "sec");
 
             double L = 1000;
             List<Node> nds = new List<Node>();
@@ -184,7 +184,7 @@ namespace FemTest.SolverTest
             double E = 100000.0;
             double H = 1;
             double t = (H / 2.0) * 0.999;
-            Section sec = new SectionRHS(H, H, t, t, t, t, new SteelMaterial("m", E, 0.0, 355, 510, 7850), "sec");
+            Section sec = new SectionRHS(H, H, t, t, t, t, new SteelMaterial("m", E, 0.0, 355, 510), "sec");
 
             double L = 1000;
             List<Node> nds = new List<Node>();
@@ -233,7 +233,7 @@ namespace FemTest.SolverTest
             double E = 100000.0;
             double H = 1;
             double t = (H / 2.0) * 0.999;
-            Section sec = new SectionRHS(H, H, t, t, t, t, new SteelMaterial("m", E, 0.0, 355, 510, 7850), "sec");
+            Section sec = new SectionRHS(H, H, t, t, t, t, new SteelMaterial("m", E, 0.0, 355, 510), "sec");
 
             double L = 1000;
             List<Node> nds = new List<Node>();
@@ -280,7 +280,7 @@ namespace FemTest.SolverTest
         public void CantileverShearForceTest2()
         {
             double E = 10.0;
-            Section sec = new SectionCHS(100.0, 50.0, new SteelMaterial("m", E, 0.0, 355, 510, 7850), "sec");
+            Section sec = new SectionCHS(100.0, 50.0, new SteelMaterial("m", E, 0.0, 355, 510), "sec");
 
             List<Node> nds = new List<Node>();
             nds.Add(new Node(0, 0, 0));
@@ -339,7 +339,7 @@ namespace FemTest.SolverTest
         public void CantileverShearForceTest3()
         {
             double E = 10.0;
-            Section sec = new SectionCHS(100.0, 50.0, new SteelMaterial("m", E, 0.0, 355, 510, 7850), "sec");
+            Section sec = new SectionCHS(100.0, 50.0, new SteelMaterial("m", E, 0.0, 355, 510), "sec");
 
             List<Node> nds = new List<Node>();
             nds.Add(new Node(0, 0, 0));
@@ -392,7 +392,7 @@ namespace FemTest.SolverTest
         [TestMethod]
         public void CantileverTorsionTest1()
         {
-            Section sec = new SectionCHS(100.0, 50.0, new SteelMaterial("m", 10.0, 0.0, 355, 510, 7850), "sec");
+            Section sec = new SectionCHS(100.0, 50.0, new SteelMaterial("m", 10.0, 0.0, 355, 510), "sec");
 
             List<Node> nds = new List<Node>();
             nds.Add(new Node(0, 0, 0));
@@ -439,7 +439,7 @@ namespace FemTest.SolverTest
         public void SimplySupportedTest1()
         {
             double E = 1;
-            Section sec = new SectionCHS(100.0, 50.0, new SteelMaterial("m", E, 0.0, 355, 510, 7850), "sec");
+            Section sec = new SectionCHS(100.0, 50.0, new SteelMaterial("m", E, 0.0, 355, 510), "sec");
 
             double L = 2000.0;
 
@@ -504,7 +504,7 @@ namespace FemTest.SolverTest
         public void AllEndReleaseTest1()
         {
             double E = 1;
-            Section sec = new SectionCHS(100.0, 50.0, new SteelMaterial("m", E, 0.0, 355, 510, 7850), "sec");
+            Section sec = new SectionCHS(100.0, 50.0, new SteelMaterial("m", E, 0.0, 355, 510), "sec");
 
             List<Node> nds = new List<Node>();
             nds.Add(new Node(0, 0, 0));
@@ -609,7 +609,7 @@ namespace FemTest.SolverTest
         [TestMethod]
         public void AllEndReleaseTest2()
         {
-            Section sec = new SectionCHS(100.0, 50.0, new SteelMaterial("m", 1.0, 0.0, 355, 510, 7850), "sec");
+            Section sec = new SectionCHS(100.0, 50.0, new SteelMaterial("m", 1.0, 0.0, 355, 510), "sec");
 
             List<Node> nds = new List<Node>();
             nds.Add(new Node(0, 0, 0));
@@ -720,7 +720,7 @@ namespace FemTest.SolverTest
         [TestMethod]
         public void AllEndReleaseTest3()
         {
-            Section sec = new SectionCHS(100.0, 50.0, new SteelMaterial("m", 1.0, 0.0, 355, 510, 7850), "sec");
+            Section sec = new SectionCHS(100.0, 50.0, new SteelMaterial("m", 1.0, 0.0, 355, 510), "sec");
 
             List<Node> nds = new List<Node>();
             nds.Add(new Node(0, 0, 0));
@@ -807,7 +807,7 @@ namespace FemTest.SolverTest
         [TestMethod]
         public void AllEndReleaseTest4()
         {
-            Section sec = new SectionCHS(100.0, 50.0, new SteelMaterial("m", 1.0, 0.0, 355, 510, 7850), "sec");
+            Section sec = new SectionCHS(100.0, 50.0, new SteelMaterial("m", 1.0, 0.0, 355, 510), "sec");
 
             List<Node> nds = new List<Node>();
             nds.Add(new Node(0, 0, 0));
@@ -902,7 +902,7 @@ namespace FemTest.SolverTest
         [TestMethod]
         public void ArcTest1()
         {
-            Section sec = new SectionCHS(100.0, 5.0, new SteelMaterial("m", 1000.0, 0.0, 355, 510, 7850), "sec");
+            Section sec = new SectionCHS(100.0, 5.0, new SteelMaterial("m", 1000.0, 0.0, 355, 510), "sec");
 
             List<Node> nds = new List<Node>();
             nds.Add(new Node(0, 0, 0));
@@ -984,7 +984,7 @@ namespace FemTest.SolverTest
         [TestMethod]
         public void ArcTest2()
         {
-            Section sec = new SectionCHS(100.0, 5.0, new SteelMaterial("m", 1000.0, 0.0, 355, 510, 7850), "sec");
+            Section sec = new SectionCHS(100.0, 5.0, new SteelMaterial("m", 1000.0, 0.0, 355, 510), "sec");
 
             List<Node> nds = new List<Node>();
             nds.Add(new Node(0, 0, 0));
@@ -1067,7 +1067,7 @@ namespace FemTest.SolverTest
         public void DoubleEndReleaseTest1()
         {
             double E = 1000;
-            Section sec = new SectionCHS(100.0, 5.0, new SteelMaterial("m", E, 0.0, 355, 510, 7850), "sec");
+            Section sec = new SectionCHS(100.0, 5.0, new SteelMaterial("m", E, 0.0, 355, 510), "sec");
 
             double L = 2000.0;
 
@@ -1161,7 +1161,7 @@ namespace FemTest.SolverTest
         public void DoubleEndReleaseTest1a()
         {
             double E = 1000;
-            Section sec = new SectionCHS(100.0, 5.0, new SteelMaterial("m", E, 0.0, 355, 510, 7850), "sec");
+            Section sec = new SectionCHS(100.0, 5.0, new SteelMaterial("m", E, 0.0, 355, 510), "sec");
 
             double L = 2000.0;
 
@@ -1245,7 +1245,7 @@ namespace FemTest.SolverTest
         public void DoubleEndReleaseTest2()
         {
             //TODO: da qui
-            Section sec = new SectionCHS(100.0, 5.0, new SteelMaterial("m", 1.0, 0.0, 355, 510, 7850), "sec");
+            Section sec = new SectionCHS(100.0, 5.0, new SteelMaterial("m", 1.0, 0.0, 355, 510), "sec");
 
             List<Node> nds = new List<Node>();
             nds.Add(new Node(0, 0, 0));
@@ -1317,7 +1317,7 @@ namespace FemTest.SolverTest
         public void AppliedDistributedLoadTest1()
         {
             double E = 100000.0;
-            Section sec = new SectionRHS(100.0, 100.0, 49.99, 49.99, 49.99, 49.99, new SteelMaterial("m", E, 0.0, 355, 510, 7850), "sec");
+            Section sec = new SectionRHS(100.0, 100.0, 49.99, 49.99, 49.99, 49.99, new SteelMaterial("m", E, 0.0, 355, 510), "sec");
 
             double L = 1000.0;
 
@@ -1391,7 +1391,7 @@ namespace FemTest.SolverTest
         public void SimplySupportedTest2()
         {
             double E = 100.0;
-            Section sec = new SectionRHS(100.0, 100.0, 49.99, 49.99, 49.99, 49.99, new SteelMaterial("m", E, 0.0, 355, 510, 7850), "sec");
+            Section sec = new SectionRHS(100.0, 100.0, 49.99, 49.99, 49.99, 49.99, new SteelMaterial("m", E, 0.0, 355, 510), "sec");
             Console.WriteLine("A = " + sec.Area);
 
             double L = 1000.0;
@@ -1463,7 +1463,7 @@ namespace FemTest.SolverTest
         public void FixFixTest2()
         {
             double E = 100.0;
-            Section sec = new SectionRHS(100.0, 100.0, 10, 10, 10, 10, new SteelMaterial("m", E, 0.0, 355, 510, 7850), "sec");
+            Section sec = new SectionRHS(100.0, 100.0, 10, 10, 10, 10, new SteelMaterial("m", E, 0.0, 355, 510), "sec");
 
             double L = 1000.0;
 
@@ -1516,7 +1516,7 @@ namespace FemTest.SolverTest
         public void FixFixTest2a()
         {
             double E = 100.0;
-            Section sec = new SectionRHS(100.0, 100.0, 10, 10, 10, 10, new SteelMaterial("m", E, 0.0, 355, 510, 7850), "sec");
+            Section sec = new SectionRHS(100.0, 100.0, 10, 10, 10, 10, new SteelMaterial("m", E, 0.0, 355, 510), "sec");
 
             double L = 2000.0;
 
@@ -1569,7 +1569,7 @@ namespace FemTest.SolverTest
         public void FixFixTest3()
         {
             double E = 100.0;
-            Section sec = new SectionRHS(100.0, 100.0, 10, 10, 10, 10, new SteelMaterial("m", E, 0.0, 355, 510, 7850), "sec");
+            Section sec = new SectionRHS(100.0, 100.0, 10, 10, 10, 10, new SteelMaterial("m", E, 0.0, 355, 510), "sec");
 
             double L = 1000.0;
 
@@ -1615,7 +1615,7 @@ namespace FemTest.SolverTest
         public void FixFixTest4()
         {
             double E = 100.0;
-            Section sec = new SectionRHS(100.0, 100.0, 10, 10, 10, 10, new SteelMaterial("m", E, 0.0, 355, 510, 7850), "sec");
+            Section sec = new SectionRHS(100.0, 100.0, 10, 10, 10, 10, new SteelMaterial("m", E, 0.0, 355, 510), "sec");
 
             double L = 1000.0;
 
@@ -1670,7 +1670,7 @@ namespace FemTest.SolverTest
         public void FixHingeTest4()
         {
             double E = 100.0;
-            Section sec = new SectionRHS(100.0, 100.0, 10, 10, 10, 10, new SteelMaterial("m", E, 0.0, 355, 510, 7850), "sec");
+            Section sec = new SectionRHS(100.0, 100.0, 10, 10, 10, 10, new SteelMaterial("m", E, 0.0, 355, 510), "sec");
 
             double L = 1000.0;
 
@@ -1730,7 +1730,7 @@ namespace FemTest.SolverTest
         public void FixFixTest1()
         {
             double E = 100.0;
-            Section sec = new SectionRHS(100.0, 100.0, 49.99, 49.99, 49.99, 49.99, new SteelMaterial("m", E, 0.0, 355, 510, 7850), "sec");
+            Section sec = new SectionRHS(100.0, 100.0, 49.99, 49.99, 49.99, 49.99, new SteelMaterial("m", E, 0.0, 355, 510), "sec");
 
             double L = 1000.0;
 
@@ -1779,7 +1779,7 @@ namespace FemTest.SolverTest
         public void SimplySupportedTest3()
         {
             double E = 100.0;
-            Section sec = new SectionRHS(100.0, 100.0, 49.99, 49.99, 49.99, 49.99, new SteelMaterial("m", E, 0.0, 355, 510, 7850), "sec");
+            Section sec = new SectionRHS(100.0, 100.0, 49.99, 49.99, 49.99, 49.99, new SteelMaterial("m", E, 0.0, 355, 510), "sec");
 
             double L = 1000.0;
 
@@ -1834,7 +1834,7 @@ namespace FemTest.SolverTest
             double B = 50;
             double tw = 5.0;
             double tf = 5.0;
-            Section sec = new SectionRHS(H, B, tf, tf, tw, tw, new SteelMaterial("m", E, 0.0, 355, 510, 7850), "sec");
+            Section sec = new SectionRHS(H, B, tf, tf, tw, tw, new SteelMaterial("m", E, 0.0, 355, 510), "sec");
 
             double L = 1000;
             List<Node> nds = new List<Node>();
@@ -1888,7 +1888,7 @@ namespace FemTest.SolverTest
             double B = 50;
             double tw = 5.0;
             double tf = 5.0;
-            Section sec = new SectionRHS(H, B, tf, tf, tw, tw, new SteelMaterial("m", E, 0.0, 355, 510, 7850), "sec");
+            Section sec = new SectionRHS(H, B, tf, tf, tw, tw, new SteelMaterial("m", E, 0.0, 355, 510), "sec");
 
             double L = 1000;
             List<Node> nds = new List<Node>();
@@ -1943,7 +1943,7 @@ namespace FemTest.SolverTest
             double B = 50;
             double tw = 5.0;
             double tf = 5.0;
-            Section sec = new SectionRHS(H, B, tf, tf, tw, tw, new SteelMaterial("m", E, 0.0, 355, 510, 7850), "sec");
+            Section sec = new SectionRHS(H, B, tf, tf, tw, tw, new SteelMaterial("m", E, 0.0, 355, 510), "sec");
 
             double L = 1000;
             List<Node> nds = new List<Node>();
@@ -1996,7 +1996,7 @@ namespace FemTest.SolverTest
             double E = 1000.0;
             double ni = 0;
 
-            Material mat = new SteelMaterial("m", E, ni, 355, 510, 7850);
+            Material mat = new SteelMaterial("m", E, ni, 355, 510);
             double h = 2.0;
             double b = 1.0;
             double t = 0.2;
@@ -2059,7 +2059,7 @@ namespace FemTest.SolverTest
             double E = 1000.0;
             double ni = 0;           
 
-            Material mat = new SteelMaterial("m", E, ni, 355, 510, 7850);
+            Material mat = new SteelMaterial("m", E, ni, 355, 510);
 
             double h = 2.0;
             double b = 1.0;
@@ -2120,7 +2120,7 @@ namespace FemTest.SolverTest
             double E = 1000.0;
             double ni = 0;
 
-            Material mat = new SteelMaterial("m", E, ni, 355, 510, 7850);
+            Material mat = new SteelMaterial("m", E, ni, 355, 510);
 
             double h = 2.0;
             double b = 1.0;
@@ -2198,7 +2198,7 @@ namespace FemTest.SolverTest
             double E = 10000.0;
             double ni = 0;
 
-            Material mat = new SteelMaterial("m", E, ni, 355, 510, 7850);
+            Material mat = new SteelMaterial("m", E, ni, 355, 510);
 
             double D = 1;
             double t = D / 2;
@@ -2270,7 +2270,7 @@ namespace FemTest.SolverTest
             double E = 10000.0;
             double ni = 0;
 
-            Material mat = new SteelMaterial("m", E, ni, 355, 510, 7850);
+            Material mat = new SteelMaterial("m", E, ni, 355, 510);
 
             double D = 1;
             double t = D / 2;
@@ -2342,7 +2342,7 @@ namespace FemTest.SolverTest
             double E = 10000.0;
             double ni = 0;
 
-            Material mat = new SteelMaterial("m", E, ni, 355, 510, 7850);
+            Material mat = new SteelMaterial("m", E, ni, 355, 510);
 
             double D = 1;
             double t = D / 2;
@@ -2414,7 +2414,7 @@ namespace FemTest.SolverTest
             double E = 10000.0;
             double ni = 0;
 
-            Material mat = new SteelMaterial("m", E, ni, 355, 510, 7850);
+            Material mat = new SteelMaterial("m", E, ni, 355, 510);
 
             double D = 1;
             double t = D / 2;
@@ -2487,7 +2487,7 @@ namespace FemTest.SolverTest
             double E = 10000.0;
             double ni = 0;
 
-            Material mat = new SteelMaterial("m", E, ni, 355, 510, 7850);
+            Material mat = new SteelMaterial("m", E, ni, 355, 510);
 
             double D = 1;
             double t = D / 2;
@@ -2560,7 +2560,7 @@ namespace FemTest.SolverTest
             double E = 1000.0;
             double ni = 0;
 
-            Material mat = new SteelMaterial("m", E, ni, 355, 510, 7850);
+            Material mat = new SteelMaterial("m", E, ni, 355, 510);
 
             double D = 1;
             double t = D / 2;
@@ -2631,7 +2631,7 @@ namespace FemTest.SolverTest
             double E = 10000.0;
             double ni = 0;
 
-            Material mat = new SteelMaterial("m", E, ni, 355, 510, 7850);
+            Material mat = new SteelMaterial("m", E, ni, 355, 510);
 
             double D = 1;
             double t = D / 2;
@@ -2692,7 +2692,7 @@ namespace FemTest.SolverTest
             double E = 10000.0;
             double ni = 0;
 
-            Material mat = new SteelMaterial("m", E, ni, 355, 510, 7850);
+            Material mat = new SteelMaterial("m", E, ni, 355, 510);
 
             double D = 1;
             double t = D / 2;
@@ -2753,7 +2753,7 @@ namespace FemTest.SolverTest
             double E = 10000.0;
             double ni = 0;
 
-            Material mat = new SteelMaterial("m", E, ni, 355, 510, 7850);
+            Material mat = new SteelMaterial("m", E, ni, 355, 510);
 
             double D = 1;
             double t = D / 2;
@@ -2818,7 +2818,7 @@ namespace FemTest.SolverTest
             double E = 1000.0;
             double ni = 0;
 
-            Material mat = new SteelMaterial("m", E, ni, 355, 510, 7850);
+            Material mat = new SteelMaterial("m", E, ni, 355, 510);
 
             double D = 1;
             double t = D / 2;
@@ -2889,7 +2889,7 @@ namespace FemTest.SolverTest
             double E = 10000.0;
             double ni = 0;
 
-            Material mat = new SteelMaterial("m", E, ni, 355, 510, 7850);
+            Material mat = new SteelMaterial("m", E, ni, 355, 510);
 
             double D = 1;
             double t = D / 2;
@@ -2954,7 +2954,7 @@ namespace FemTest.SolverTest
             double E = 1000.0;
             double ni = 0;
 
-            Material mat = new SteelMaterial("m", E, ni, 355, 510, 7850);
+            Material mat = new SteelMaterial("m", E, ni, 355, 510);
 
             double D = 1;
             double t = D / 2;
@@ -3033,7 +3033,7 @@ namespace FemTest.SolverTest
             double E = 10.0;
             double ni = 0;
 
-            Material mat = new SteelMaterial("m", E, ni, 355, 510, 7850);
+            Material mat = new SteelMaterial("m", E, ni, 355, 510);
 
             double D = 1;
             double t = D / 2;
@@ -3117,7 +3117,7 @@ namespace FemTest.SolverTest
             double E = 1000.0;
             double ni = 0;
 
-            Material mat = new SteelMaterial("m", E, ni, 355, 510, 7850);
+            Material mat = new SteelMaterial("m", E, ni, 355, 510);
 
             double D = 1;
             double t = D / 2;
@@ -3196,7 +3196,7 @@ namespace FemTest.SolverTest
             double E = 10.0;
             double ni = 0;
 
-            Material mat = new SteelMaterial("m", E, ni, 355, 510, 7850);
+            Material mat = new SteelMaterial("m", E, ni, 355, 510);
 
             double D = 1;
             double t = D / 2;
@@ -3280,7 +3280,7 @@ namespace FemTest.SolverTest
             double E = 10000.0;
             double ni = 0;
 
-            Material mat = new SteelMaterial("m", E, ni, 355, 510, 7850);
+            Material mat = new SteelMaterial("m", E, ni, 355, 510);
 
             double D = 1;
             double t = D / 2;
@@ -3359,7 +3359,7 @@ namespace FemTest.SolverTest
             double E = 10000.0;
             double ni = 0;
 
-            Material mat = new SteelMaterial("m", E, ni, 355, 510, 7850);
+            Material mat = new SteelMaterial("m", E, ni, 355, 510);
 
             double D = 1;
             double t = D / 2;
@@ -3438,7 +3438,7 @@ namespace FemTest.SolverTest
             double E = 10000.0;
             double ni = 0;
 
-            Material mat = new SteelMaterial("m", E, ni, 355, 510, 7850);
+            Material mat = new SteelMaterial("m", E, ni, 355, 510);
 
             double D = 1;
             double t = D / 2;
@@ -3515,7 +3515,7 @@ namespace FemTest.SolverTest
             double E = 10000.0;
             double ni = 0;
 
-            Material mat = new SteelMaterial("m", E, ni, 355, 510, 7850);
+            Material mat = new SteelMaterial("m", E, ni, 355, 510);
 
             double D = 1;
             double t = D / 2;
@@ -3595,7 +3595,7 @@ namespace FemTest.SolverTest
             double E = 10.0;
             double ni = 0;
 
-            Material mat = new SteelMaterial("m", E, ni, 355, 510, 7850);
+            Material mat = new SteelMaterial("m", E, ni, 355, 510);
 
             double D = 1;
             double t = D / 2;
@@ -3662,7 +3662,7 @@ namespace FemTest.SolverTest
             double E = 10.0;
             double ni = 0;
 
-            Material mat = new SteelMaterial("m", E, ni, 355, 510, 7850);
+            Material mat = new SteelMaterial("m", E, ni, 355, 510);
 
             double D = 1;
             double t = D / 2;
@@ -3730,7 +3730,7 @@ namespace FemTest.SolverTest
             double E = 10.0;
             double ni = 0;
 
-            Material mat = new SteelMaterial("m", E, ni, 355, 510, 7850);
+            Material mat = new SteelMaterial("m", E, ni, 355, 510);
 
             double D = 1;
             double t = D / 2;
@@ -3798,7 +3798,7 @@ namespace FemTest.SolverTest
             double E = 10000.0;
             double ni = 0;
 
-            Material mat = new SteelMaterial("m", E, ni, 355, 510, 7850);
+            Material mat = new SteelMaterial("m", E, ni, 355, 510);
 
             double D = 1;
             double t = D / 2;
@@ -3890,7 +3890,7 @@ namespace FemTest.SolverTest
             double E = 100.0;
             double ni = 0;
 
-            Material mat = new SteelMaterial("m", E, ni, 355, 510, 7850);
+            Material mat = new SteelMaterial("m", E, ni, 355, 510);
 
             double D = 100;
             double t = 10.0;
@@ -3952,7 +3952,7 @@ namespace FemTest.SolverTest
             double E = 100.0;
             double ni = 0;
 
-            Material mat = new SteelMaterial("m", E, ni, 355, 510, 7850);
+            Material mat = new SteelMaterial("m", E, ni, 355, 510);
 
             double D = 100;
             double t = 10.0;
@@ -4020,7 +4020,7 @@ namespace FemTest.SolverTest
             double E = 100.0;
             double ni = 0;
 
-            Material mat = new SteelMaterial("m", E, ni, 355, 510, 7850);
+            Material mat = new SteelMaterial("m", E, ni, 355, 510);
 
             double D = 100;
             double t = 10.0;

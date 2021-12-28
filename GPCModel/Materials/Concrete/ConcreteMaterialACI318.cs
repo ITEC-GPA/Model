@@ -35,14 +35,17 @@ namespace GPC.Model.Materials
         }
 
 
-        protected ConcreteMaterialACI318(SerializationInfo info, StreamingContext context) : base(info, context)
+        protected ConcreteMaterialACI318(SerializationInfo info, StreamingContext context) 
+            : base(info, context)
         {
 
         }
 
-
-
-    } 
+		protected override void RecalculateMechanicalProperties()
+		{
+			throw new NotImplementedException();
+		}
+	} 
 
 #endif
 }

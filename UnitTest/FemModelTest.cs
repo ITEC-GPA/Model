@@ -19,7 +19,9 @@ using GPC.Model.Results;
 using System.Diagnostics;
 using System.Linq;
 using GPC.TestUtilities;
+using GPC.Model.Sections;
 using GPC.Model.FEM.Collections;
+using GPC.Model.Sections.Concrete;
 
 namespace FemTest
 {
@@ -671,6 +673,51 @@ namespace FemTest
             
         }
 
+        [TestMethod]
+        [TestCategory("Material")]
+        public void Material1()
+        {
+            //Arrange
+            FemModel femModel = new FemModel();
+
+            ConcreteMaterialEN1992 concreteMaterial1 = new ConcreteMaterialEN1992("", 25, ConcreteMaterialModelCode2010.CompressionStressStrainDiagrams.Bilinear);
+            ConcreteMaterialEN1992 concreteMaterial2 = new ConcreteMaterialEN1992("", 25, ConcreteMaterialModelCode2010.CompressionStressStrainDiagrams.Bilinear);
+            ConcreteMaterialEN1992 concreteMaterial3 = new ConcreteMaterialEN1992("", 25, ConcreteMaterialModelCode2010.CompressionStressStrainDiagrams.Bilinear);
+            ConcreteMaterialEN1992 concreteMaterial4 = new ConcreteMaterialEN1992("", 25, ConcreteMaterialModelCode2010.CompressionStressStrainDiagrams.Bilinear);
+
+            ConcreteSectionCHS sectionCHS1 = new ConcreteSectionCHS(500, 10, concreteMaterial1, "1");
+            ConcreteSectionCHS sectionCHS2 = new ConcreteSectionCHS(500, 10, concreteMaterial2, "2");
+            ConcreteSectionCHS sectionCHS3 = new ConcreteSectionCHS(500, 10, concreteMaterial3, "3");
+            ConcreteSectionCHS sectionCHS4 = new ConcreteSectionCHS(500, 10, concreteMaterial4, "4");
+
+            femModel.AddProperty(sectionCHS1);
+            femModel.AddProperty(sectionCHS2);
+            femModel.AddProperty(sectionCHS3);
+            femModel.AddProperty(sectionCHS4);
+                        
+            Assert.IsTrue(femModel.GetBeamPropertyNames().Count == 4);           
+        }
+
+        [TestMethod]
+        [TestCategory("Material")]
+        public void Material2()
+        {
+            //Arrange
+            FemModel femModel = new FemModel();
+
+            ConcreteSectionCHS sectionCHS1 = new ConcreteSectionCHS(500, 10, null, "1");
+            ConcreteSectionCHS sectionCHS2 = new ConcreteSectionCHS(500, 10, null, "2");
+
+			try
+			{
+                femModel.AddProperty(sectionCHS1);
+                femModel.AddProperty(sectionCHS2);
+            }
+			catch
+			{
+
+			}
+        }
 
         #endregion
 

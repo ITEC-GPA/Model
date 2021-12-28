@@ -12,7 +12,7 @@ namespace GPC.Model.Standards
     /// This class collects all the coefficient of the Fib Model Code 2010
     /// </summary>
     /// <remarks>Reference: Fib Model Code 2010. March 2010</remarks>
-    public abstract class StandardModelCode2010 : Standard
+    public class StandardModelCode2010 : Standard
     {
         #region Variables
 
@@ -85,7 +85,7 @@ namespace GPC.Model.Standards
         /// <summary>
         /// Partial safety factor for FRC in tension (residual strength)
         /// </summary>
-        public double GammF => _gammaF;
+        public double GammaF => _gammaF;
 
         /// <summary>
         /// Reduction coefficient for ultimate steel strain. 7.2.3.2

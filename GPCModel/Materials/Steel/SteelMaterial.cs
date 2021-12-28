@@ -13,17 +13,17 @@ namespace GPC.Model.Materials
         /// <summary>
         /// Default Steel S235 according to EN1993
         /// </summary>
-        public static SteelMaterial S235 => new SteelMaterial("S235", 210000, 0.3, 235, 235, 0.1, 0.007850, 12 * 1e-6, new Guid());
+        public static SteelMaterial S235 => new SteelMaterial("S235", 210000, 235, 235, 0.1);
 
         /// <summary>
         /// Default Steel S275 according to EN1993
         /// </summary>
-        public static SteelMaterial S275 => new SteelMaterial("S275", 210000, 0.3, 275, 275, 0.1, 0.007850, 12 * 1e-6, new Guid());
+        public static SteelMaterial S275 => new SteelMaterial("S275", 210000, 275, 275, 0.1);
 
         /// <summary>
         /// Default Steel S355 according to EN1993
         /// </summary>
-        public static SteelMaterial S355 => new SteelMaterial("S355", 210000, 0.3, 355, 355, 0.1, 0.007850, 12 * 1e-6, new Guid());
+        public static SteelMaterial S355 => new SteelMaterial("S355", 210000, 355, 355, 0.1);
 
         #region Variables
 
@@ -64,38 +64,20 @@ namespace GPC.Model.Materials
 
         #region Constructor
 
-        /// <summary>
-        /// Default SteelMaterial constructor
-        /// </summary>
-        /// <param name="name"></param>
-        /// <param name="elasticModulus">Steel elastic modulus</param>
-        /// <param name="poisson">Poissoins's Ratio</param>
-        /// <param name="fyk">Yielding stress</param>
-        /// <param name="fu">Ultimate stress</param>
-        /// <param name="density">Density of material</param>
-        /// <param name="alfaThermalExpansion">Linear thermal expasion coefficient</param>        
-        public SteelMaterial(string name, double elasticModulus, double poisson, double fyk, double fu, double density, double alfaThermalExpansion)
-            : this(name, elasticModulus, poisson, fyk, fu, 0.05, density, alfaThermalExpansion, new Guid())
-        {
-            if (elasticModulus == 0)
-                throw new ArgumentException($"{nameof(elasticModulus)} cannot be equal to zero");
-
-            _fu = fu <= 0 ? throw new ArgumentException($"{nameof(fu)} cannot be zero or lower") : fu ;
-            _fyk = fyk <= 0 ? throw new ArgumentException($"{nameof(fyk)} cannot be zero or lower") : fyk;
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="name"></param>
-        /// <param name="elasticModulus">Steel elastic modulus</param>
-        /// <param name="poisson">Poissoins's Ratio</param>
-        /// <param name="fyk">Yielding stress</param>
-        /// <param name="fu">Ultimate stress</param>
-        /// <param name="density">Density of material</param>
-        /// <remarks>Guid setted to new guid, alfaThermalExpansion setted to 12 * 1e-6</remarks>
-        public SteelMaterial(string name, double elasticModulus, double poisson, double fyk, double fu, double density)
-            : this(name, elasticModulus, poisson, fyk, fu, 0.05, density, 12 * 1e-6, Guid.NewGuid())
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="name"></param>
+		/// <param name="elasticModulus">Steel elastic modulus</param>
+		/// <param name="fyk">Yielding stress</param>
+		/// <param name="fu">Ultimate stress</param>
+		/// <param name="strainU">Ultimate strain</param>
+		/// <param name="poisson"></param>
+		/// <param name="density"></param>
+		/// <param name="alfaThermalExpansion"></param>
+		public SteelMaterial(string name, double elasticModulus, double fyk, double fu, double strainU = 0.1,
+             double poisson = 0.30, double density = 0.007850, double alfaThermalExpansion = 12 * 1e-6)
+            : this(name, elasticModulus, poisson, fyk, fu, strainU, density, alfaThermalExpansion, Guid.NewGuid())
         {
 
         }
@@ -106,10 +88,9 @@ namespace GPC.Model.Materials
         /// <param name="name"></param>
         /// <param name="fyk">Yielding stress</param>
         /// <param name="fu">Ultimate stress</param>
-        /// <param name="density">Density of material</param>
         /// <remarks>Guid setted to empty, alfaThermalExpansion setted to 12 * 1e-6. Epsilon0 equal to fy / E</remarks>
-        public SteelMaterial(string name, double fyk, double fu, double density = 0.007850)
-            : this(name, 210000.0, 0.30, fyk, fu, 0.05, density, 0, Guid.NewGuid())
+        public SteelMaterial(string name, double fyk, double fu)
+            : this(name, 210000.0, 0.30, fyk, fu, 0.05, 0.007850, 0, Guid.NewGuid())
         {
 
         }

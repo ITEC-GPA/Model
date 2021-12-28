@@ -22,8 +22,9 @@ namespace ModelObjectTest
             double density = 7850;
             double fy = 355;
             double fu = 510;
+            double strainU = 0.05;
 
-            SteelMaterial steel = new SteelMaterial("nome", E, ni, fy, fu, density);
+            SteelMaterial steel = new SteelMaterial("nome", E, fy, fu, strainU, ni, density);
 
             byte[] bytes = Serialization.SerializeToBytes<SteelMaterial>(steel);
             SteelMaterial steelDeserialized = (SteelMaterial)Serialization.DeserializeFromBytes(bytes);
@@ -40,7 +41,6 @@ namespace ModelObjectTest
 
             Console.WriteLine(steelDeserialized.E + " " + steel.E);
         }
-
 
         [TestMethod]
         public void GlassResistance1()
@@ -60,8 +60,7 @@ namespace ModelObjectTest
             Assert.AreEqual(gma.GetGlassResistance(false, 86400), baseStress * 0.906 * 0.526 * psiSurf, 0.01);
             Assert.AreEqual(gma.GetGlassResistance(true, 86400), baseEdgeStress * 0.906 * 0.526 * psiSurf, 0.01);
         }
-
-
+                
         [TestMethod]
         public void GlassResistance2()
         {
@@ -336,6 +335,38 @@ namespace ModelObjectTest
         [TestMethod]
         public void ConcreteENTest14()
         {
+            ConcreteMaterialEN1992 concrete = new ConcreteMaterialEN1992("", 30, ConcreteMaterial.CompressionStressStrainDiagrams.StressBlock);
+            List<(double, double)> stresses = new List<(double, double)>();
+
+            for (int i = 10; i >= -35; i--)
+                stresses.Add((concrete.GetStress(i / 10000.0), i / 10000.0));
+
+            for (int i = 0; i < stresses.Count; i++)
+                Assert.IsTrue(stresses[i].Item1 <= 0.0);
+
+            for (int i = 0; i < stresses.Count; i++)
+                Console.WriteLine(stresses[i].Item1);
+        }
+
+        [TestMethod]
+        public void ConcreteENTest15()
+        {
+            ConcreteMaterialEN1992 concrete = new ConcreteMaterialEN1992("", 30, ConcreteMaterial.CompressionStressStrainDiagrams.NonLinear);
+            List<(double, double)> stresses = new List<(double, double)>();
+
+            for (int i = 10; i >= -35; i--)
+                stresses.Add((concrete.GetStress(i / 10000.0), i / 10000.0));
+
+            for (int i = 0; i < stresses.Count; i++)
+                Assert.IsTrue(stresses[i].Item1 <= 0.0);
+
+            for (int i = 0; i < stresses.Count; i++)
+                Console.WriteLine(stresses[i].Item1);
+        }
+
+        [TestMethod]
+        public void ConcreteFRCTest1()
+        {
             ConcreteMaterialModelCode2010FRC concrete = new ConcreteMaterialModelCode2010FRC("", 30, ConcreteMaterialModelCode2010.CompressionStressStrainDiagrams.ParabolaRectangle,
                 1.55, 1.80, 0.00195, 0.01, ConcreteMaterialModelCode2010.TensionStressStrainDiagrams.Bilinear, 0, 0, 0, ConcreteMaterialModelCode2010.CementType.ClassN);
 
@@ -346,6 +377,130 @@ namespace ModelObjectTest
 
             for (int i = 0; i < stresses.Count; i++)
                 Assert.IsTrue(stresses[i].Item1 <= 1.80);
+
+            for (int i = 0; i < stresses.Count; i++)
+                Console.WriteLine(stresses[i].Item1);
+        }
+
+        [TestMethod]
+        public void ConcreteFRCTest2()
+        {
+            ConcreteMaterialModelCode2010FRC concrete = new ConcreteMaterialModelCode2010FRC("", 30, ConcreteMaterialModelCode2010.CompressionStressStrainDiagrams.ParabolaRectangle,
+                1.50, 1.00, 0.00195, 0.01, ConcreteMaterialModelCode2010.TensionStressStrainDiagrams.Bilinear, 0, 0, 0, ConcreteMaterialModelCode2010.CementType.ClassN);
+
+            List<(double, double)> stresses = new List<(double, double)>();
+
+            for (int i = 100; i >= -35; i--)
+                stresses.Add((concrete.GetStress(i / 10000.0), i / 10000.0));
+
+            for (int i = 0; i < stresses.Count; i++)
+                Assert.IsTrue(stresses[i].Item1 <= 1.80);
+
+            for (int i = 0; i < stresses.Count; i++)
+                Console.WriteLine(stresses[i].Item1);
+        }
+
+        [TestMethod]
+        public void ConcreteFRCTest3()
+        {
+            ConcreteMaterialModelCode2010FRC concrete = new ConcreteMaterialModelCode2010FRC("", 25, ConcreteMaterialModelCode2010.CompressionStressStrainDiagrams.ParabolaRectangle,
+                1.55, 1.80, 0.00195, 0.01, ConcreteMaterialModelCode2010.TensionStressStrainDiagrams.RigidPlastic);
+
+            List<(double, double)> stresses = new List<(double, double)>();
+
+            for (int i = 100; i >= -35; i--)
+                stresses.Add((concrete.GetStress(i / 10000.0), i / 10000.0));
+
+            for (int i = 0; i < stresses.Count; i++)
+                Assert.IsTrue(stresses[i].Item1 <= 1.80);
+
+            for (int i = 0; i < stresses.Count; i++)
+                Console.WriteLine(stresses[i].Item1);
+        }
+
+        [TestMethod]
+        public void ConcreteFRCTest4()
+        {
+            ConcreteMaterialModelCode2010FRC concrete = new ConcreteMaterialModelCode2010FRC("", 25, ConcreteMaterialModelCode2010.CompressionStressStrainDiagrams.ParabolaRectangle,
+                1.55, 1.80, 0.00195, 0.01, ConcreteMaterialModelCode2010.TensionStressStrainDiagrams.Bilinear);
+
+            List<(double, double)> stresses = new List<(double, double)>();
+
+            for (int i = 100; i >= -35; i--)
+                stresses.Add((concrete.GetStress(i / 10000.0), i / 10000.0));
+
+            for (int i = 0; i < stresses.Count; i++)
+                Assert.IsTrue(stresses[i].Item1 <= 1.80);
+
+            for (int i = 0; i < stresses.Count; i++)
+                Console.WriteLine(stresses[i].Item1);
+        }
+
+        [TestMethod]
+        public void ConcreteFRCTest5()
+        {
+            ConcreteMaterialModelCode2010FRC concrete = ConcreteMaterialModelCode2010FRC.C25_30_5;
+
+            List<(double, double)> stresses = new List<(double, double)>();
+
+            for (int i = 100; i >= -35; i--)
+                stresses.Add((concrete.GetStress(i / 10000.0), i / 10000.0));
+
+            for (int i = 0; i < stresses.Count; i++)
+                Assert.IsTrue(stresses[i].Item1 <= 1.80);
+
+            for (int i = 0; i < stresses.Count; i++)
+                Console.WriteLine(stresses[i].Item1);
+
+            double fr1 = 2.09;
+            double fr3 = 3.04;
+            double ffts = concrete.CalculateFFTs(fr1, fr3);
+            double fftu = concrete.CalculateFFTu(fr1, fr3);
+            double fr1R = concrete.CalculateFR1(ffts, fftu);
+            double fr3R = concrete.CalculateFR3(ffts, fftu);
+
+            Assert.IsTrue(Math.Abs(fr1 / fr1R) - 1.0 < 0.01);
+            Assert.IsTrue(Math.Abs(fr3 / fr3R) - 1.0 < 0.01);
+        }
+
+        [TestMethod]
+        public void ConcreteFRCTest6()
+        {
+            ConcreteMaterialModelCode2010FRC concrete = ConcreteMaterialModelCode2010FRC.C30_37_15;
+
+            List<(double, double)> stresses = new List<(double, double)>();
+
+            for (int i = 100; i >= -35; i--)
+                stresses.Add((concrete.GetStress(i / 10000.0), i / 10000.0));
+
+            for (int i = 0; i < stresses.Count; i++)
+                Assert.IsTrue(stresses[i].Item1 <= 2.56);
+
+            for (int i = 0; i < stresses.Count; i++)
+                Console.WriteLine(stresses[i].Item1);
+
+            double fr1 = 1.09;
+            double fr3 = 1.04;
+            double ffts = concrete.CalculateFFTs(fr1, fr3);
+            double fftu = concrete.CalculateFFTu(fr1, fr3);
+            double fr1R = concrete.CalculateFR1(ffts, fftu);
+            double fr3R = concrete.CalculateFR3(ffts, fftu);
+
+            Assert.IsTrue(Math.Abs(fr1 / fr1R) - 1.0 < 0.01);
+            Assert.IsTrue(Math.Abs(fr3 / fr3R) - 1.0 < 0.01);
+        }
+
+        [TestMethod]
+        public void ConcreteFRCTest7()
+        {
+            ConcreteMaterialModelCode2010FRC concrete = new ConcreteMaterialModelCode2010FRC("", 0.0005, 
+                new StressStrainTable(new double[] { 0, -10, -5, -20 }, new double[] { 0, -2, -4, -6 }),
+                new StressStrainTable(new double[] { 0, 5, 1, 2 }, new double[] { 0, 1, 2, 3 }));
+
+            List<(double, double)> stresses = new List<(double, double)>();
+
+            for (int i = 300; i >= -600; i--)
+                stresses.Add((concrete.GetStress(i / 100.0), i / 100.0));
 
             for (int i = 0; i < stresses.Count; i++)
                 Console.WriteLine(stresses[i].Item1);
