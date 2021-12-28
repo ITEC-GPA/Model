@@ -451,6 +451,16 @@ namespace ModelObjectTest
 
             for (int i = 0; i < stresses.Count; i++)
                 Console.WriteLine(stresses[i].Item1);
+
+            double fr1 = 2.09;
+            double fr3 = 3.04;
+            double ffts = concrete.CalculateFFTs(fr1, fr3);
+            double fftu = concrete.CalculateFFTu(fr1, fr3);
+            double fr1R = concrete.CalculateFR1(ffts, fftu);
+            double fr3R = concrete.CalculateFR3(ffts, fftu);
+
+            Assert.IsTrue(Math.Abs(fr1 / fr1R) - 1.0 < 0.01);
+            Assert.IsTrue(Math.Abs(fr3 / fr3R) - 1.0 < 0.01);
         }
 
         [TestMethod]
@@ -468,6 +478,16 @@ namespace ModelObjectTest
 
             for (int i = 0; i < stresses.Count; i++)
                 Console.WriteLine(stresses[i].Item1);
+
+            double fr1 = 1.09;
+            double fr3 = 1.04;
+            double ffts = concrete.CalculateFFTs(fr1, fr3);
+            double fftu = concrete.CalculateFFTu(fr1, fr3);
+            double fr1R = concrete.CalculateFR1(ffts, fftu);
+            double fr3R = concrete.CalculateFR3(ffts, fftu);
+
+            Assert.IsTrue(Math.Abs(fr1 / fr1R) - 1.0 < 0.01);
+            Assert.IsTrue(Math.Abs(fr3 / fr3R) - 1.0 < 0.01);
         }
 
         [TestMethod]
