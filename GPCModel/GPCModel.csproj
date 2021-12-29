@@ -133,6 +133,7 @@
     <Compile Include="Standards\StandardEN1992p11.cs" />
     <Compile Include="Standards\StandardNTC2018Concrete.cs" />
     <Compile Include="Standards\StandardNTC2018Steel.cs" />
+    <Compile Include="Standards\StandardUNIEn1992p11.cs" />
     <Compile Include="Standards\StandardUNIEn1993p11.cs" />
     <Compile Include="Standards\StandardEn1993p11.cs" />
     <Compile Include="Standards\StandardUNIEN1990.cs" />
