@@ -42,7 +42,9 @@ namespace ModelObjectTest
             Console.WriteLine(steelDeserialized.E + " " + steel.E);
         }
 
-        [TestMethod]
+		#region Glass Test
+
+		[TestMethod]
         public void GlassResistance1()
         {
             double baseStress = 23.3;
@@ -80,17 +82,21 @@ namespace ModelObjectTest
             Assert.AreEqual(gma.GetGlassResistance(true, 86400), baseEdgeStress * 0.906 * 0.806 * psiSurf, 0.01);
         }
 
-        [TestMethod]
+		#endregion
+
+		#region EN1922 Concrete Material Test
+
+		[TestMethod]
         [Description("C25/30 StressBlock")]
         public void ConcreteENTest1()
 		{
             ConcreteMaterialEN1992 concrete = new ConcreteMaterialEN1992("", 25, ConcreteMaterialEN1992.CompressionStressStrainDiagrams.StressBlock);
 
             Assert.IsTrue(Math.Abs((concrete.E - 31.0 * 1000) / concrete.E) < 0.5, concrete.E.ToString());
-            Assert.IsTrue(Math.Abs(concrete.Fcm + 33.0) < 0.5);
-            Assert.IsTrue(Math.Abs(concrete.Fctk05 - 1.8) < 0.5);
-            Assert.IsTrue(Math.Abs(concrete.Fctm - 2.6) < 0.5);
-            Assert.IsTrue(Math.Abs(concrete.Fctk95 - 3.3) < 0.5);
+            Assert.IsTrue(Math.Abs(concrete.Fcm + 33.0) < 0.1);
+            Assert.IsTrue(Math.Abs(concrete.Fctk05 - 1.8) < 0.1);
+            Assert.IsTrue(Math.Abs(concrete.Fctm - 2.6) < 0.1);
+            Assert.IsTrue(Math.Abs(concrete.Fctk95 - 3.3) < 0.1);
             Assert.IsTrue(Math.Abs(concrete.StrainUCompression + 0.0035) < 0.01);
             Assert.IsTrue(Math.Abs(concrete.StrainYCompression + 0.0007) < 0.01);       
             //Assert.IsTrue(Math.Abs(concrete.Fcd - 16.66) < 0.01);
@@ -364,7 +370,11 @@ namespace ModelObjectTest
                 Console.WriteLine(stresses[i].Item1);
         }
 
-        [TestMethod]
+		#endregion
+
+		#region FRC Concrete Material Test
+
+		[TestMethod]
         public void ConcreteFRCTest1()
         {
             ConcreteMaterialModelCode2010FRC concrete = new ConcreteMaterialModelCode2010FRC("", 30, ConcreteMaterialModelCode2010.CompressionStressStrainDiagrams.ParabolaRectangle,
@@ -506,7 +516,11 @@ namespace ModelObjectTest
                 Console.WriteLine(stresses[i].Item1);
         }
 
-        [TestMethod]
+		#endregion
+
+		#region Steel Test
+
+		[TestMethod]
         public void SteelTest1()
         {
             SteelMaterial steel = SteelMaterial.S275;
@@ -587,5 +601,7 @@ namespace ModelObjectTest
             for (int i = 0; i < stresses.Count; i++)
                 Console.WriteLine(stresses[i]);
         }
-    }
+
+		#endregion
+	}
 }
