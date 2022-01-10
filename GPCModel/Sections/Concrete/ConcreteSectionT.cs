@@ -215,7 +215,7 @@ namespace GPC.Model.Sections.Concrete
 
             var J11H = SectionHelper.CalculateJ11(JxxH, JyyH, JxyH);
             var J22H = SectionHelper.CalculateJ11(JxxH, JyyH, JxyH);
-            var angleX = SectionHelper.CalculateAngle(JxxH, JyyH, JxyH);
+            double angleX = SectionHelper.CalculateAngle(J11H, J22H, JxxH, JyyH, JxyH);
 
             return (GetHomogenizedArea(), SxH, SyH, centroidH, JxxH, JyyH, JxyH, JpH, J11H, J22H, angleX);
         }
@@ -279,7 +279,7 @@ namespace GPC.Model.Sections.Concrete
 
             var J11H = SectionHelper.CalculateJ11(JxxH, JyyH, JxyH);
             var J22H = SectionHelper.CalculateJ11(JxxH, JyyH, JxyH);
-            var angleX = SectionHelper.CalculateAngle(JxxH, JyyH, JxyH);
+            double angleX = SectionHelper.CalculateAngle(J11H, J22H, JxxH, JyyH, JxyH);
 
             return (GetHomogenizedArea(n), SxH, SyH, centroidH, JxxH, JyyH, JxyH, JpH, J11H, J22H, angleX);
         }

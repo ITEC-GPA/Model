@@ -1167,6 +1167,7 @@ namespace ModelObjectTest
             Assert.AreEqual(Math.Abs(r2 / sec.R22) - 1, 0, 0.001);
             Assert.AreEqual(Math.Abs(Wpl1 / sec.WelX) - 1, 0, 0.015);
             Assert.AreEqual(Math.Abs(Wpl2 / sec.WelY) - 1, 0, 0.015);
+            Assert.IsTrue(Math.Abs(sec.AngleX1 - angle) < 0.001);
         }
 
         [TestMethod]
@@ -1191,6 +1192,7 @@ namespace ModelObjectTest
             Assert.AreEqual(Math.Abs(j11 / sec.J11) - 1, 0, 0.001);
             Assert.AreEqual(Math.Abs(j22 / sec.J22) - 1, 0, 0.001);
             Assert.AreEqual(Math.Abs(angle / sec.AngleX1) - 1, 0, 0.001);
+            Assert.IsTrue(Math.Abs(sec.AngleX1 - angle) < 0.001);
         }
 
         [TestMethod]
@@ -1229,6 +1231,7 @@ namespace ModelObjectTest
             Assert.AreEqual(Math.Abs(J2 / sec.J22) - 1, 0, 0.001);
             Assert.AreEqual(Math.Abs(J1 / sec.J11) - 1, 0, 0.001);
             Assert.AreEqual(Math.Abs(teta / sec.AngleX1) - 1, 0, 0.001);
+            Assert.IsTrue(Math.Abs(sec.AngleX1 - teta) < 0.001);
         }
 
         #endregion

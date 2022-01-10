@@ -230,7 +230,7 @@ namespace GPC.Model.Sections.Concrete
 
             var J11H = SectionHelper.CalculateJ11(JxxH, JyyH, JxyH);
             var J22H = SectionHelper.CalculateJ22(JxxH, JyyH, JxyH);
-            var angleX = SectionHelper.CalculateAngle(JxxH, JyyH, JxyH);
+            double angleX = SectionHelper.CalculateAngle(J11H, J22H, JxxH, JyyH, JxyH);
 
             return (GetHomogenizedArea(), SxH, SyH, centroidH, JxxH, JyyH, JxyH, JpH, J11H, J22H, angleX);
         }
@@ -299,7 +299,7 @@ namespace GPC.Model.Sections.Concrete
 
                 double J11H = SectionHelper.CalculateJ11(JxxH, JyyH, JxyH);
                 double J22H = SectionHelper.CalculateJ22(JxxH, JyyH, JxyH);
-                double angleX = SectionHelper.CalculateAngle(JxxH, JyyH, JxyH);
+                double angleX = SectionHelper.CalculateAngle(J11H, J22H, JxxH, JyyH, JxyH);
 
                 return (GetHomogenizedArea(phi), SxH, SyH, centroidH, JxxH, JyyH, JxyH, JpH, J11H, J22H, angleX);
             }
@@ -382,7 +382,7 @@ namespace GPC.Model.Sections.Concrete
             _jyy = Jyy;
             _jxy = Jxy;
             _jp = _jxx + _jyy;
-            _angleX1 = SectionHelper.CalculateAngle(Jxx, Jyy, Jxy);
+            _angleX1 = SectionHelper.CalculateAngle(_j11, _j22, Jxx, Jyy, Jxy);
 
             _jw = 0; //TODO: implementare metodi di calcolo della sezione calcolo JW/JT
             _jt = 0; //TODO: implementare metodi di calcolo della sezione calcolo JW/JT

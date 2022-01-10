@@ -56,7 +56,7 @@ namespace PerformanceTest
             {
                 double j11 = SectionHelper.CalculateJ11(Jxx, Jyy, Jxy);
                 double j22 = SectionHelper.CalculateJ22(Jxx, Jyy, Jxy);
-                double angleX1 = SectionHelper.CalculateAngle(Jxx, Jyy, Jxy); ;
+                double angleX1 = SectionHelper.CalculateAngle(j11, j22, Jxx, Jyy, Jxy); 
             });
 
             Action actionSection = new Action(() =>

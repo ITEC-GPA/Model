@@ -154,12 +154,7 @@ namespace GPC.Model.Sections
 
         protected override double CalculateAngle()
         {
-            double angle = -1.0 / 2.0 * Math.Atan(2.0 * CalculateJxy() / (Jyy - Jxx));
-
-            //if (Jyy < Jxx)
-            //    angle += Math.PI / 2.0;
-
-            return angle;
+            return -1.0 / 2.0 * Math.Atan(2.0 * CalculateJxy() / (Jyy - Jxx));
         }
 
         protected override double CalculateJ11()
