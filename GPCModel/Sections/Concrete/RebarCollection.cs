@@ -223,12 +223,19 @@ namespace GPC.Model.Sections.Concrete
             {
                 if (_ids.Contains(id))
                 {
+                    _collection.Remove(GetById(id));
                     _ids.Remove(id);
 
                     if (id == _maxId)
-                        _maxId = _ids.Max();
+					{
+                        if (_ids.Count == 0)
+                            _maxId = 0;
+                        else
+                            _maxId = _ids.Max();
+                    }
 
-                    return _collection.Remove(GetById(id));
+                    return true;
+
                 }
                 return false;
             }
@@ -240,12 +247,18 @@ namespace GPC.Model.Sections.Concrete
             {
                 if (_ids.Contains(item.Id))
                 {
+                    _collection.Remove(GetById(item.Id));
                     _ids.Remove(item.Id);
 
                     if (item.Id == _maxId)
-                        _maxId = _ids.Max();
+                    {
+                        if (_ids.Count == 0)
+                            _maxId = 0;
+                        else
+                            _maxId = _ids.Max();
+                    }
 
-                    return _collection.Remove(GetById(item.Id));
+                    return true;
                 }
 
                 return false;
@@ -288,7 +301,6 @@ namespace GPC.Model.Sections.Concrete
         {
             if (itemToReplace is null || newItem is null)
                 return false;
-
 
             bool status = Remove(itemToReplace);
 
