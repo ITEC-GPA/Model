@@ -88,7 +88,6 @@ namespace GPC.Model.Sections
 
             _isSymmetricAlongXLocalAxis = CalculateIsSymmetricAlongXLocalAxis();
             _isSymmetricAlongYLocalAxis = CalculateIsSymmetricAlongYLocalAxis();
-
         }
 
         protected override double CalculateArea()

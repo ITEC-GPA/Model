@@ -159,6 +159,5 @@ namespace GPC.Model.Sections.Concrete
 
         }
 
-
     }
 }

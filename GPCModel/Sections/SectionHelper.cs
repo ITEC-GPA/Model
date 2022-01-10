@@ -57,6 +57,9 @@ namespace GPC.Model.Sections
 
         internal static double CalculateAngle(double Jxx, double Jyy, double Jxy)
         {
+            if (Math.Abs(Jxx - Jyy) < GeometryBase.GetDefaultTolerance() || Jxy < GeometryBase.GetDefaultTolerance())
+                return 0.0;
+
             double angle = -1.0 / 2.0 * Math.Atan2(2.0 * Jxy, (Jyy - Jxx));
 
             if (Jyy < Jxx)

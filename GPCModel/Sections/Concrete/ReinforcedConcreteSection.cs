@@ -382,7 +382,7 @@ namespace GPC.Model.Sections.Concrete
             _jyy = Jyy;
             _jxy = Jxy;
             _jp = _jxx + _jyy;
-            _angleX1 = SectionHelper.CalculateAngle(Jxx, Jyy, Jxy); ;
+            _angleX1 = SectionHelper.CalculateAngle(Jxx, Jyy, Jxy);
 
             _jw = 0; //TODO: implementare metodi di calcolo della sezione calcolo JW/JT
             _jt = 0; //TODO: implementare metodi di calcolo della sezione calcolo JW/JT
