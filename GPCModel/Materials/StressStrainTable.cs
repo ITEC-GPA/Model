@@ -2,33 +2,44 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.Serialization;
 using System.Text;
 using System.Threading.Tasks;
-
 
 namespace GPC.Model.Materials
 {
     //struct perchè è pensata per essere un value type
 
     /// <remarks>Sign convention: Stress and strain negative if compression</remarks>
+    [Serializable]
     public struct StressStrainTable
     {
+        #region Variables
+
         private readonly double[] _stresses;
         private readonly double[] _strains;
 
-        public double[] Stresses => (double[])_stresses.Clone(); // ritoriamo il clone in quanto serve che i valori siano blindati 
+		#endregion
+
+		#region Properties
+
+		public double[] Stresses => (double[])_stresses.Clone(); // ritoriamo il clone in quanto serve che i valori siano blindati 
         public double[] Strains => (double[])_strains.Clone();
 
-        /// <summary>
-        /// If stresses[0] or strains[0] are not zero this will be added automatically.
-        /// </summary>
-        /// <param name="stresses"></param>
-        /// <param name="strains"></param>
-        /// <remarks>
-        /// Strain value assumed to be ordered from smaller to greatest
-        /// <para>Sign convention: Stress and strain negative if compression</para>
-        /// </remarks>
-        public StressStrainTable(double[] stresses, double[] strains)
+		#endregion
+
+		#region Constructor
+
+		/// <summary>
+		/// If stresses[0] or strains[0] are not zero this will be added automatically.
+		/// </summary>
+		/// <param name="stresses"></param>
+		/// <param name="strains"></param>
+		/// <remarks>
+		/// Strain value assumed to be ordered from smaller to greatest
+		/// <para>Sign convention: Stress and strain negative if compression</para>
+		/// </remarks>
+		public StressStrainTable(double[] stresses, double[] strains)
         {
             if (stresses.Length != strains.Length)
                 throw new ArgumentException();
@@ -54,6 +65,10 @@ namespace GPC.Model.Materials
             _stresses = stresses;
             _strains = strains;
         }
+
+        #endregion
+
+        #region Public Methods
 
         /// <summary>
         /// Get stress associated to <paramref name="strain"/>
@@ -141,9 +156,11 @@ namespace GPC.Model.Materials
             return 0.0;
         }
 
+		#endregion
 
+		#region Equals - hashcode - operators
 
-        public override bool Equals(object obj)
+		public override bool Equals(object obj)
         {
             if (ReferenceEquals(this, obj))
                 return true;
@@ -177,5 +194,7 @@ namespace GPC.Model.Materials
         {
             return !(left == right);
         }
-    }
+
+		#endregion
+	}
 }

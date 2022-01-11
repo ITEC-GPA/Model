@@ -5,7 +5,7 @@ using System.Runtime.Serialization;
 namespace GPC.Model.Materials
 {
     [Serializable]
-    public class Material : ModelObject
+    public class Material : ModelObject, ISerializable
     {
         #region VARIABLES
 

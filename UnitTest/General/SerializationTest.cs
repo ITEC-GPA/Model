@@ -8,6 +8,9 @@ using System.IO;
 using System;
 using System.Runtime.Serialization.Formatters.Binary;
 using GPC.Model.Standards;
+using static System.Collections.Specialized.BitVector32;
+using GPC.Model.Materials;
+using GPC.Geometry;
 
 namespace GeneralTest
 {
@@ -28,11 +31,11 @@ namespace GeneralTest
 
                 if (objToTest == oggettoDeserializzato)
                 {
-                    Console.WriteLine($"Class {objToTest.ToString().Replace("GPC.Geometry", "")} is serializable");
+                    Console.WriteLine($"Class {objToTest.ToString()} is serializable");
                 }
                 else
                 {
-                    Console.WriteLine($"Warning: Class {objToTest.ToString().Replace("GPC.Geometry", "")} is not serializable");
+                    Console.WriteLine($"Warning: Class {objToTest.ToString()} is not serializable");
                     check = false;
                 }
             }
@@ -58,10 +61,12 @@ namespace GeneralTest
             }
         }
 
-        /// <summary>
-        /// Testa che tutte le classi nell'assembly siano abbiano l'attributo [Serializable]
-        /// </summary>
-        [TestMethod]
+		#region Standards
+
+		/// <summary>
+		/// Testa che tutte le classi nell'assembly siano abbiano l'attributo [Serializable]
+		/// </summary>
+		[TestMethod]
         public void SerializableTest1()
         {
             GhostElement ghostElement = new GhostElement();
@@ -74,7 +79,7 @@ namespace GeneralTest
         }
 
         [TestMethod]
-        public void SerializableClassStandardCopSuos2011Test()
+        public void StandardCopSuos2011Test()
         {
             bool check = true;
 
@@ -101,15 +106,15 @@ namespace GeneralTest
             }
 
             if (check)
-                Console.WriteLine($"Class {s.ToString().Replace("GPC.Geometry.", "")} is serializable");
+                Console.WriteLine($"Class {s.ToString()} is serializable");
             else
-                Console.WriteLine($"Warning: Class {s.ToString().Replace("GPC.Geometry", "")} is not serializable");
+                Console.WriteLine($"Warning: Class {s.ToString()} is not serializable");
 
             Assert.IsTrue(check);
         }
 
         [TestMethod]
-        public void SerializableClassStandardEN16612Test()
+        public void StandardEN16612Test()
         {
             bool check = true;
 
@@ -146,15 +151,15 @@ namespace GeneralTest
             }
 
             if (check)
-                Console.WriteLine($"Class {s.ToString().Replace("GPC.Geometry.", "")} is serializable");
+                Console.WriteLine($"Class {s.ToString()} is serializable");
             else
-                Console.WriteLine($"Warning: Class {s.ToString().Replace("GPC.Geometry", "")} is not serializable");
+                Console.WriteLine($"Warning: Class {s.ToString()} is not serializable");
 
             Assert.IsTrue(check);
         }
 
         [TestMethod]
-        public void SerializableClassStandardEN1990Test()
+        public void StandardEN1990Test()
         {
             bool check = true;
 
@@ -241,15 +246,15 @@ namespace GeneralTest
             }
 
             if (check)
-                Console.WriteLine($"Class {s.ToString().Replace("GPC.Geometry.", "")} is serializable");
+                Console.WriteLine($"Class {s.ToString()} is serializable");
             else
-                Console.WriteLine($"Warning: Class {s.ToString().Replace("GPC.Geometry", "")} is not serializable");
+                Console.WriteLine($"Warning: Class {s.ToString()} is not serializable");
 
             Assert.IsTrue(check);
         }
 
         [TestMethod]
-        public void SerializableClassStandardEN1993p11Test()
+        public void StandardEN1993p11Test()
         {
             bool check = true;
 
@@ -292,15 +297,15 @@ namespace GeneralTest
             }
 
             if (check)
-                Console.WriteLine($"Class {s.ToString().Replace("GPC.Geometry.", "")} is serializable");
+                Console.WriteLine($"Class {s.ToString()} is serializable");
             else
-                Console.WriteLine($"Warning: Class {s.ToString().Replace("GPC.Geometry", "")} is not serializable");
+                Console.WriteLine($"Warning: Class {s.ToString()} is not serializable");
 
             Assert.IsTrue(check);
         }
 
         [TestMethod]
-        public void SerializableClassStandardUNIEN1993p11Test()
+        public void StandardUNIEN1993p11Test()
         {
             bool check = true;
 
@@ -343,15 +348,15 @@ namespace GeneralTest
             }
 
             if (check)
-                Console.WriteLine($"Class {s.ToString().Replace("GPC.Geometry.", "")} is serializable");
+                Console.WriteLine($"Class {s.ToString()} is serializable");
             else
-                Console.WriteLine($"Warning: Class {s.ToString().Replace("GPC.Geometry", "")} is not serializable");
+                Console.WriteLine($"Warning: Class {s.ToString()} is not serializable");
 
             Assert.IsTrue(check);
         }
 
         [TestMethod]
-        public void SerializableClassStandardModelCode2010Test()
+        public void StandardModelCode2010Test()
         {
             bool check = true;
 
@@ -387,15 +392,15 @@ namespace GeneralTest
             }
 
             if (check)
-                Console.WriteLine($"Class {s.ToString().Replace("GPC.Geometry.", "")} is serializable");
+                Console.WriteLine($"Class {s.ToString()} is serializable");
             else
-                Console.WriteLine($"Warning: Class {s.ToString().Replace("GPC.Geometry", "")} is not serializable");
+                Console.WriteLine($"Warning: Class {s.ToString()} is not serializable");
 
             Assert.IsTrue(check);
         }
 
         [TestMethod]
-        public void SerializableClassStandardCNR204Test()
+        public void StandardCNR204Test()
         {
             bool check = true;
 
@@ -431,15 +436,15 @@ namespace GeneralTest
             }
 
             if (check)
-                Console.WriteLine($"Class {s.ToString().Replace("GPC.Geometry.", "")} is serializable");
+                Console.WriteLine($"Class {s.ToString()} is serializable");
             else
-                Console.WriteLine($"Warning: Class {s.ToString().Replace("GPC.Geometry", "")} is not serializable");
+                Console.WriteLine($"Warning: Class {s.ToString()} is not serializable");
 
             Assert.IsTrue(check);
         }
 
         [TestMethod]
-        public void SerializableClassStandardNTC2018ConcreteTest()
+        public void StandardNTC2018ConcreteTest()
         {
             bool check = true;
 
@@ -475,15 +480,15 @@ namespace GeneralTest
             }
 
             if (check)
-                Console.WriteLine($"Class {s.ToString().Replace("GPC.Geometry.", "")} is serializable");
+                Console.WriteLine($"Class {s.ToString()} is serializable");
             else
-                Console.WriteLine($"Warning: Class {s.ToString().Replace("GPC.Geometry", "")} is not serializable");
+                Console.WriteLine($"Warning: Class {s.ToString()} is not serializable");
 
             Assert.IsTrue(check);
         }
 
         [TestMethod]
-        public void SerializableClassStandardEN1992p11Test()
+        public void StandardEN1992p11Test()
         {
             bool check = true;
 
@@ -519,15 +524,15 @@ namespace GeneralTest
             }
 
             if (check)
-                Console.WriteLine($"Class {s.ToString().Replace("GPC.Geometry.", "")} is serializable");
+                Console.WriteLine($"Class {s.ToString()} is serializable");
             else
-                Console.WriteLine($"Warning: Class {s.ToString().Replace("GPC.Geometry", "")} is not serializable");
+                Console.WriteLine($"Warning: Class {s.ToString()} is not serializable");
 
             Assert.IsTrue(check);
         }
 
         [TestMethod]
-        public void SerializableClassStandardUNIEn1992p11Test()
+        public void StandardUNIEn1992p11Test()
         {
             bool check = true;
 
@@ -563,11 +568,224 @@ namespace GeneralTest
             }
 
             if (check)
-                Console.WriteLine($"Class {s.ToString().Replace("GPC.Geometry.", "")} is serializable");
+                Console.WriteLine($"Class {s.ToString()} is serializable");
             else
-                Console.WriteLine($"Warning: Class {s.ToString().Replace("GPC.Geometry", "")} is not serializable");
+                Console.WriteLine($"Warning: Class {s.ToString()} is not serializable");
 
             Assert.IsTrue(check);
         }
+
+		#endregion
+
+		#region Sections
+
+		[TestMethod]
+        public void SectionTest()
+        {
+            bool check = true;
+
+            GPC.Model.Sections.Section s = new GPC.Model.Sections.Section(
+                new Material("test", 10, 0.2, 20, 5), 50, 200, 300, 500, 40, Point3d.Origin, Point3d.Origin, 0.2, "section");
+            using (var ms = new MemoryStream())
+            {
+                var formatter = new BinaryFormatter();
+                formatter.Serialize(ms, s);
+                ms.Position = 0;
+
+                var casted = formatter.Deserialize(ms);
+                GPC.Model.Sections.Section oggettoDeserializzato = (GPC.Model.Sections.Section)casted;
+
+                if (s.Equals(oggettoDeserializzato))
+                {
+                    if (s.Material != oggettoDeserializzato.Material ||
+                        s.Area != oggettoDeserializzato.Area ||
+                        s.Jt != oggettoDeserializzato.Jt ||
+                        s.Jw != oggettoDeserializzato.Jw ||
+                        s.Jxx != oggettoDeserializzato.Jxx ||
+                        s.Jyy != oggettoDeserializzato.Jyy ||
+                        s.Jxy != oggettoDeserializzato.Jxy ||
+                        s.Jp != oggettoDeserializzato.Jp ||
+                        s.J11 != oggettoDeserializzato.J11 ||
+                        s.J22 != oggettoDeserializzato.J22 ||
+                        s.Wpl1 != oggettoDeserializzato.Wpl1 ||
+                        s.Wpl2 != oggettoDeserializzato.Wpl2 ||
+                        s.Wel1Min != oggettoDeserializzato.Wel1Min ||
+                        s.Wel1Max != oggettoDeserializzato.Wel1Max ||
+                        s.Wel2Max != oggettoDeserializzato.Wel2Max ||
+                        s.Wel2Min != oggettoDeserializzato.Wel2Min ||
+                        s.WelXMin != oggettoDeserializzato.WelXMin ||
+                        s.WelXMax != oggettoDeserializzato.WelXMax ||
+                        s.WelYMin != oggettoDeserializzato.WelYMin ||
+                        s.WelYMax != oggettoDeserializzato.WelYMax ||
+                        s.WplX != oggettoDeserializzato.WplX ||
+                        s.WplY != oggettoDeserializzato.WplY ||
+                        s.Centroid != oggettoDeserializzato.Centroid ||
+                        s.ShearCenter != oggettoDeserializzato.ShearCenter ||
+                        s.AngleX1 != oggettoDeserializzato.AngleX1 ||
+                        s.IsSymmetricAlongXLocalAxis != oggettoDeserializzato.IsSymmetricAlongXLocalAxis ||
+                        s.IsSymmetricAlongYLocalAxis != oggettoDeserializzato.IsSymmetricAlongYLocalAxis ||
+                        s.Shape != oggettoDeserializzato.Shape ||
+                        s.Mesh != oggettoDeserializzato.Mesh)
+                        check = false;
+                }
+                else
+                {
+                    check = false;
+                }
+            }
+
+            if (check)
+                Console.WriteLine($"Class {s.ToString()} is serializable");
+            else
+                Console.WriteLine($"Warning: Class {s.ToString()} is not serializable");
+
+            Assert.IsTrue(check);
+        }
+
+        #endregion
+
+        #region Materials
+
+        [TestMethod]
+        public void MaterialTest()
+        {
+            bool check = true;
+
+            Material m = new Material("test", 10, 0.2, 20, 5);
+            using (var ms = new MemoryStream())
+            {
+                var formatter = new BinaryFormatter();
+                formatter.Serialize(ms, m);
+                ms.Position = 0;
+
+                var casted = formatter.Deserialize(ms);
+                Material oggettoDeserializzato = (Material)casted;
+
+                if (m.Equals(oggettoDeserializzato))
+                {
+                    if (m.AlfaThermalExpansion != oggettoDeserializzato.AlfaThermalExpansion ||
+                        m.Density != oggettoDeserializzato.Density ||
+                        m.E != oggettoDeserializzato.E ||
+                        m.Name != oggettoDeserializzato.Name ||
+                        m.Guid != oggettoDeserializzato.Guid ||
+                        m.Ni != oggettoDeserializzato.Ni)
+                        check = false;
+                }
+                else
+                {
+                    check = false;
+                }
+            }
+
+            if (check)
+                Console.WriteLine($"Class {m.ToString()} is serializable");
+            else
+                Console.WriteLine($"Warning: Class {m.ToString()} is not serializable");
+
+            Assert.IsTrue(check);
+        }
+
+        [TestMethod]
+        public void ConcreteMaterialModelCode2010FRCTest()
+        {
+            bool check = true;
+
+            ConcreteMaterialModelCode2010FRC m = new ConcreteMaterialModelCode2010FRC("test", -25, 
+                ConcreteMaterial.CompressionStressStrainDiagrams.ParabolaRectangle, 1, 2, 0.1, 0.2, 
+                ConcreteMaterialModelCode2010.TensionStressStrainDiagrams.Bilinear, 0.2, 20, 5, 
+                ConcreteMaterialModelCode2010.CementType.ClassN);
+
+            using (var ms = new MemoryStream())
+            {
+                var formatter = new BinaryFormatter();
+                formatter.Serialize(ms, m);
+                ms.Position = 0;
+
+                var casted = formatter.Deserialize(ms);
+                ConcreteMaterialModelCode2010FRC oggettoDeserializzato = (ConcreteMaterialModelCode2010FRC)casted;
+
+                if (m.Equals(oggettoDeserializzato))
+                {
+                    if (m.AlfaThermalExpansion != oggettoDeserializzato.AlfaThermalExpansion ||
+                        m.Density != oggettoDeserializzato.Density ||
+                        m.E != oggettoDeserializzato.E ||
+                        m.Name != oggettoDeserializzato.Name ||
+                        m.Guid != oggettoDeserializzato.Guid ||
+                        m.Fck != oggettoDeserializzato.Fck ||
+                        m.Fctk != oggettoDeserializzato.Fctk ||
+                        m.Fctu != oggettoDeserializzato.Fctu ||
+                        m.StrainYCompression != oggettoDeserializzato.StrainYCompression ||
+                        m.StrainUCompression != oggettoDeserializzato.StrainUCompression ||
+                        m.StrainYTension != oggettoDeserializzato.StrainYTension ||
+                        m.StrainUTension != oggettoDeserializzato.StrainUTension ||
+                        m.CompressionStressStrainDiagram != oggettoDeserializzato.CompressionStressStrainDiagram ||
+                        m.TensionStressStrainDiagram != oggettoDeserializzato.TensionStressStrainDiagram)
+                        check = false;
+                }
+                else
+                {
+                    check = false;
+                }
+            }
+
+            if (check)
+                Console.WriteLine($"Class {m.ToString()} is serializable");
+            else
+                Console.WriteLine($"Warning: Class {m.ToString()} is not serializable");
+
+            Assert.IsTrue(check);
+        }
+
+        [TestMethod]
+        public void ConcreteConcreteMaterialEN1992Test()
+        {
+            bool check = true;
+
+            ConcreteMaterialEN1992 m = new ConcreteMaterialEN1992("test", -25,
+                ConcreteMaterial.CompressionStressStrainDiagrams.ParabolaRectangle, 0.2, 20, 5,
+                ConcreteMaterialModelCode2010.CementType.ClassN);
+
+            using (var ms = new MemoryStream())
+            {
+                var formatter = new BinaryFormatter();
+                formatter.Serialize(ms, m);
+                ms.Position = 0;
+
+                var casted = formatter.Deserialize(ms);
+                ConcreteMaterialEN1992 oggettoDeserializzato = (ConcreteMaterialEN1992)casted;
+
+                if (m.Equals(oggettoDeserializzato))
+                {
+                    if (m.AlfaThermalExpansion != oggettoDeserializzato.AlfaThermalExpansion ||
+                        m.Density != oggettoDeserializzato.Density ||
+                        m.E != oggettoDeserializzato.E ||
+                        m.Name != oggettoDeserializzato.Name ||
+                        m.Guid != oggettoDeserializzato.Guid ||
+                        m.Fck != oggettoDeserializzato.Fck ||
+                        m.Fctk != oggettoDeserializzato.Fctk ||
+                        m.Fctu != oggettoDeserializzato.Fctu ||
+                        m.StrainYCompression != oggettoDeserializzato.StrainYCompression ||
+                        m.StrainUCompression != oggettoDeserializzato.StrainUCompression ||
+                        m.StrainYTension != oggettoDeserializzato.StrainYTension ||
+                        m.StrainUTension != oggettoDeserializzato.StrainUTension ||
+                        m.CompressionStressStrainDiagram != oggettoDeserializzato.CompressionStressStrainDiagram ||
+                        m.TensionStressStrainDiagram != oggettoDeserializzato.TensionStressStrainDiagram)
+                        check = false;
+                }
+                else
+                {
+                    check = false;
+                }
+            }
+
+            if (check)
+                Console.WriteLine($"Class {m.ToString()} is serializable");
+            else
+                Console.WriteLine($"Warning: Class {m.ToString()} is not serializable");
+
+            Assert.IsTrue(check);
+        }
+
+        #endregion
     }
 }

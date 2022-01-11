@@ -9,9 +9,9 @@ using System.Threading.Tasks;
 
 namespace GPC.Model.Materials
 {
-    public abstract class ConcreteMaterialModelCode2010 : ConcreteMaterial
+    [Serializable]
+    public abstract class ConcreteMaterialModelCode2010 : ConcreteMaterial, ISerializable
     {
-
         public enum CementType
         {
             ClassR,
@@ -183,7 +183,7 @@ namespace GPC.Model.Materials
             _strainYTension = info.GetDouble("StrainYTension");
             _strainUTension = info.GetDouble("StrainUTension");
 
-            _cementType = (CementType)info.GetInt32("Cement");
+            _cementType = (CementType)info.GetInt32("CementType");
 
             _compressionStressStrainDiagrams = (CompressionStressStrainDiagrams)info.GetInt32("CompressionStressStrainDiagrams");
             _tensionStressStrainDiagrams = (TensionStressStrainDiagrams)info.GetInt32("TensionStressStrainDiagrams");
@@ -843,6 +843,21 @@ namespace GPC.Model.Materials
 
         #region Equals, hashcode, operators
 
+        public override void GetObjectData(SerializationInfo info, StreamingContext context)
+        {
+            base.GetObjectData(info, context);
+            info.AddValue("Fck", _fck);
+            info.AddValue("Fctk", _fctk);
+            info.AddValue("Fctu", _fctu);
+            info.AddValue("StrainYCompression", _strainYCompression);
+            info.AddValue("StrainUCompression", _strainUCompression);
+            info.AddValue("StrainYTension", _strainYTension);
+            info.AddValue("StrainUTension", _strainUTension);
+            info.AddValue("CementType", _cementType);
+            info.AddValue("CompressionStressStrainDiagrams", _compressionStressStrainDiagrams);
+            info.AddValue("TensionStressStrainDiagrams", _tensionStressStrainDiagrams);
+        }
+
         public override bool Equals(object obj)
         {
             if (ReferenceEquals(this, obj))
@@ -881,7 +896,6 @@ namespace GPC.Model.Materials
             }
         }
 
-
         public static bool operator ==(ConcreteMaterialModelCode2010 obj1, ConcreteMaterialModelCode2010 obj2)
         {
             if (ReferenceEquals(obj1, obj2))
@@ -894,7 +908,6 @@ namespace GPC.Model.Materials
         {
             return !(obj1 == obj2);
         }
-
 
         #endregion
     }
