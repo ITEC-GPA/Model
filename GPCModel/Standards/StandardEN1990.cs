@@ -410,6 +410,9 @@ namespace GPC.Model.Standards
 
         public override bool Equals(object obj)
         {
+            if (ReferenceEquals(this, obj))
+                return true;
+
             return obj is StandardEN1990 eN &&
                    _gammaGFavourableSetA == eN._gammaGFavourableSetA &&
                    _gammaGUnfavourableSetA == eN._gammaGUnfavourableSetA &&

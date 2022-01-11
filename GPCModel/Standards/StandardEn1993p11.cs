@@ -162,6 +162,9 @@ namespace GPC.Model.Standards
 
         public override bool Equals(object obj)
         {
+            if (ReferenceEquals(this, obj))
+                return true;
+
             return obj is StandardEN1993p11 p &&
                    _gammaM0 == p._gammaM0 &&
                    _gammaM1 == p._gammaM1 &&

@@ -69,7 +69,10 @@ namespace GPC.Model.Standards
 
 		public override bool Equals(object obj)
 		{
-			return obj is StandardCopSuos2011 suos &&
+            if (ReferenceEquals(this, obj))
+                return true;
+
+            return obj is StandardCopSuos2011 suos &&
 				   _gammaM1 == suos._gammaM1 &&
 				   _gammaM2 == suos._gammaM2;
 		}

@@ -2058,6 +2058,9 @@ namespace GPC.Model.Standards
 
         public override bool Equals(object obj)
         {
+            if (ReferenceEquals(this, obj))
+                return true;
+
             return obj is StandardEN16612 eN &&
                    base.Equals(obj) &&
                    _psi0ClimateSummerDeltaP == eN._psi0ClimateSummerDeltaP &&

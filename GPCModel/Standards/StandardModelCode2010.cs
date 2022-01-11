@@ -149,6 +149,9 @@ namespace GPC.Model.Standards
 
         public override bool Equals(object obj)
 		{
+            if (ReferenceEquals(this, obj))
+                return true;
+
             return obj is StandardModelCode2010 code &&
                    _gammaC == code._gammaC &&
                    _gammaCAccidental == code._gammaCAccidental &&

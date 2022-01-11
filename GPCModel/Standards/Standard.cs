@@ -27,7 +27,10 @@ namespace GPC.Model.Standards
 
 		public override bool Equals(object obj)
 		{
-			return base.Equals(obj);
+            if (ReferenceEquals(this, obj))
+                return true;
+
+            return base.Equals(obj);
 		}
 
 		public override int GetHashCode()
