@@ -11,15 +11,14 @@ namespace GPC.Model.Sections.Concrete
 {
     public class ConcreteSectionT : SectionT, IConcreteSection
     {
-
         protected readonly UniqueIdCollection<ReinforcedConcreteRebar> _rebars;
-
 
         public IEnumerable<ReinforcedConcreteRebar> Rebars => _rebars;
 
         public ConcreteMaterial ConcreteMaterial => (ConcreteMaterial)_material;
 
         public double AreaRebars => _rebars.Select(i => i.Area).Sum();
+
         public int RebarsCount => _rebars.Count;
 
         #region Public Constructors

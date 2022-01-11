@@ -3,6 +3,7 @@ using GPC.Model.LoadCases;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.Serialization;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -12,7 +13,8 @@ namespace GPC.Model.Standards
     /// This class collects all the coefficient of the Fib Model Code 2010
     /// </summary>
     /// <remarks>Reference: Fib Model Code 2010. March 2010</remarks>
-    public class StandardModelCode2010 : Standard
+    [Serializable]
+    public class StandardModelCode2010 : Standard, ISerializable
     {
         #region Variables
 
@@ -28,7 +30,6 @@ namespace GPC.Model.Standards
         protected double _alphaCC;
         protected double _alphaCT;
 
-        protected double _concreteLimitStrainPureCompression;
         protected double _steelCoefficientStrainTension;
 
         protected double _gammaF;
@@ -92,6 +93,7 @@ namespace GPC.Model.Standards
         /// </summary>
         public double SteelCoefficientStrainTension => _steelCoefficientStrainTension;
 
+        #region Public Constructor
 
         /// <summary>
         /// Default Constructor
@@ -111,5 +113,74 @@ namespace GPC.Model.Standards
             _steelCoefficientStrainTension = 0.9;
         }
 
+        public StandardModelCode2010(SerializationInfo info, StreamingContext context)
+		{
+            _gammaC = info.GetDouble("GammaC");
+            _gammaCAccidental = info.GetDouble("GammaCAccidental");
+            _gammaCE = info.GetDouble("GammaCE");
+            _gammaS = info.GetDouble("GammaS");
+            _gammaSAccidental = info.GetDouble("GammaSAccidental");
+            _gammaSPrestress = info.GetDouble("GammaSPrestress");
+            _gammaSPrestressAccidental = info.GetDouble("GammaSPrestressAccidental");
+            _alphaCC = info.GetDouble("AlphaCC");
+            _alphaCT = info.GetDouble("AlphaCT");
+            _gammaF = info.GetDouble("GammaF");
+            _steelCoefficientStrainTension = info.GetDouble("SteelCoefficientStrainTension");
+        }
+
+        #endregion
+
+        #region Equals - hashcode - operators
+
+        public override void GetObjectData(SerializationInfo info, StreamingContext context)
+        {
+            info.AddValue("GammaC", _gammaC);
+            info.AddValue("GammaCAccidental", _gammaCAccidental);
+            info.AddValue("GammaCE", _gammaCE);
+            info.AddValue("GammaS", _gammaS);
+            info.AddValue("GammaSAccidental", _gammaSAccidental);
+            info.AddValue("GammaSPrestress", _gammaSPrestress);
+            info.AddValue("GammaSPrestressAccidental", _gammaSPrestressAccidental);
+            info.AddValue("AlphaCC", _alphaCC);
+            info.AddValue("AlphaCT", _alphaCT);
+            info.AddValue("GammaF", _gammaF);
+            info.AddValue("SteelCoefficientStrainTension", _steelCoefficientStrainTension);
+        }
+
+        public override bool Equals(object obj)
+		{
+            return obj is StandardModelCode2010 code &&
+                   _gammaC == code._gammaC &&
+                   _gammaCAccidental == code._gammaCAccidental &&
+                   _gammaCE == code._gammaCE &&
+                   _gammaS == code._gammaS &&
+                   _gammaSAccidental == code._gammaSAccidental &&
+                   _gammaSPrestress == code._gammaSPrestress &&
+                   _gammaSPrestressAccidental == code._gammaSPrestressAccidental &&
+                   _alphaCC == code._alphaCC &&
+                   _alphaCT == code._alphaCT &&
+                   _steelCoefficientStrainTension == code._steelCoefficientStrainTension &&
+                   _gammaF == code._gammaF;
+		}
+
+		public override int GetHashCode()
+		{
+			int hashCode = 23;
+			hashCode = hashCode * -17 + base.GetHashCode();
+			hashCode = hashCode * -17 + _gammaC.GetHashCode();
+			hashCode = hashCode * -17 + _gammaCAccidental.GetHashCode();
+			hashCode = hashCode * -17 + _gammaCE.GetHashCode();
+			hashCode = hashCode * -17 + _gammaS.GetHashCode();
+			hashCode = hashCode * -17 + _gammaSAccidental.GetHashCode();
+			hashCode = hashCode * -17 + _gammaSPrestress.GetHashCode();
+			hashCode = hashCode * -17 + _gammaSPrestressAccidental.GetHashCode();
+			hashCode = hashCode * -17 + _alphaCC.GetHashCode();
+			hashCode = hashCode * -17 + _alphaCT.GetHashCode();
+			hashCode = hashCode * -17 + _steelCoefficientStrainTension.GetHashCode();
+			hashCode = hashCode * -17 + _gammaF.GetHashCode();
+			return hashCode;
+		}
+
+		#endregion
 	}
 }

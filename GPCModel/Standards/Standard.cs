@@ -20,8 +20,22 @@ namespace GPC.Model.Standards
 
         }
 
+        public virtual void GetObjectData(SerializationInfo info, StreamingContext context)
+		{
 
-        public interface ICombinationsGenerator
+		}
+
+		public override bool Equals(object obj)
+		{
+			return base.Equals(obj);
+		}
+
+		public override int GetHashCode()
+		{
+			return base.GetHashCode();
+		}
+
+		public interface ICombinationsGenerator
         {
             /// <summary>
             /// Get all the combinations of the loadCaseBase <paramref name="loadCases"/> with the options of generation <paramref name="options"/>

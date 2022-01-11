@@ -19,17 +19,13 @@ namespace PerformanceTest
     [TestClass]
     public class PerformanceSectionTest : UnitTestBase
     {
-
         [TestMethod]
         public void ReinforcedConcreteSection1()
         {
-
             ShapeEx shape = new ShapeEx(new Polygon2d(500), ConcreteMaterialEN1992.C25_30, new[] { new Polygon2d(400) });
 
             ReinforcedConcreteSection section = new ReinforcedConcreteSection(shape);
-
             section.AddRebar(new ReinforcedConcreteRebar(new RebarSectionCircular(10, RebarMaterial.B450C), new Point2d()));
-
 
             Mesh mesh = section.Mesh;
             double Sx = 0;
@@ -73,8 +69,6 @@ namespace PerformanceTest
             Console.WriteLine(bb2);
             Console.WriteLine(bb3);
             Console.WriteLine(bb4);
-
         }
-
     }
 }

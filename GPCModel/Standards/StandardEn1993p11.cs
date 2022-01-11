@@ -3,12 +3,14 @@ using GPC.Model.LoadCases;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.Serialization;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace GPC.Model.Standards
 {
-    public class StandardEN1993p11 : Standard
+    [Serializable]
+    public class StandardEN1993p11 : Standard, ISerializable
     {
         /// <summary>
         /// The limit states. Reference: EN 1990:2002/A1:2005 
@@ -19,7 +21,7 @@ namespace GPC.Model.Standards
             ServiceabilityLimitState,
         }
 
-        #region VARIABLES
+        #region Variables
 
         protected double _gammaM0;
         protected double _gammaM1;
@@ -44,8 +46,11 @@ namespace GPC.Model.Standards
         protected double _betaForLateralTorsionalBucklingMod;
         protected double _lambdaLT0ForLateralTorsionalBucklingMod;
 
+		#endregion
 
-        public double GammaM0 => _gammaM0;
+		#region Properties
+
+		public double GammaM0 => _gammaM0;
 
         public double GammaM1 => _gammaM1;
 
@@ -56,7 +61,7 @@ namespace GPC.Model.Standards
         public double NShearBucklingHighGradeOfSteel => _nShearBucklingHighGradeOfSteel;
 
         public double AlphaImperfectionFactorForCurveA0 => _alphaImperfectionFactorForCurveA0;
-            
+
         public double AlphaImperfectionFactorForCurveA => _alphaImperfectionFactorForCurveA;
 
         public double AlphaImperfectionFactorForCurveB => _alphaImperfectionFactorForCurveB;
@@ -109,5 +114,101 @@ namespace GPC.Model.Standards
             _lambdaLT0ForLateralTorsionalBucklingMod = 0.40;
         }
 
+        protected StandardEN1993p11(SerializationInfo info, StreamingContext context)
+        {
+            _gammaM0 = info.GetDouble("GammaM0");
+            _gammaM1 = info.GetDouble("GammaM1");            
+            _gammaM2 = info.GetDouble("GammaM2");
+            _nShearBucklingLowGradeOfSteel = info.GetDouble("NShearBucklingLowGradeOfSteel");
+            _nShearBucklingHighGradeOfSteel = info.GetDouble("NShearBucklingHighGradeOfSteel");
+            _alphaImperfectionFactorForCurveA0 = info.GetDouble("AlphaImperfectionFactorForCurveA0");
+            _alphaImperfectionFactorForCurveA = info.GetDouble("AlphaImperfectionFactorForCurveA");
+            _alphaImperfectionFactorForCurveB = info.GetDouble("AlphaImperfectionFactorForCurveB");
+            _alphaImperfectionFactorForCurveC = info.GetDouble("AlphaImperfectionFactorForCurveC");
+            _alphaImperfectionFactorForCurveD = info.GetDouble("AlphaImperfectionFactorForCurveD");
+            _alphaLTImperfectionFactorForCurveA = info.GetDouble("AlphaLTImperfectionFactorForCurveA");
+            _alphaLTImperfectionFactorForCurveB = info.GetDouble("AlphaLTImperfectionFactorForCurveB");
+            _alphaLTImperfectionFactorForCurveC = info.GetDouble("AlphaLTImperfectionFactorForCurveC");
+            _alphaLTImperfectionFactorForCurveD = info.GetDouble("AlphaLTImperfectionFactorForCurveD");
+
+            _betaForLateralTorsionalBuckling = info.GetDouble("BetaForLateralTorsionalBuckling");
+            _lambdaLT0ForLateralTorsionalBuckling = info.GetDouble("LambdaLT0ForLateralTorsionalBuckling");
+            _betaForLateralTorsionalBucklingMod = info.GetDouble("BetaForLateralTorsionalBucklingMod");
+            _lambdaLT0ForLateralTorsionalBucklingMod = info.GetDouble("LambdaLT0ForLateralTorsionalBucklingMod");
+        }
+
+        public override void GetObjectData(SerializationInfo info, StreamingContext context)
+        {
+            base.GetObjectData(info, context);
+            info.AddValue("GammaM0", _gammaM0);
+            info.AddValue("GammaM1", _gammaM1);
+            info.AddValue("GammaM2", _gammaM2);
+            info.AddValue("NShearBucklingLowGradeOfSteel", _nShearBucklingLowGradeOfSteel);
+            info.AddValue("NShearBucklingHighGradeOfSteel", _nShearBucklingHighGradeOfSteel);
+            info.AddValue("AlphaImperfectionFactorForCurveA0", _alphaImperfectionFactorForCurveA0);
+            info.AddValue("AlphaImperfectionFactorForCurveA", _alphaImperfectionFactorForCurveA);
+            info.AddValue("AlphaImperfectionFactorForCurveB", _alphaImperfectionFactorForCurveB);
+            info.AddValue("AlphaImperfectionFactorForCurveC", _alphaImperfectionFactorForCurveC);
+            info.AddValue("AlphaImperfectionFactorForCurveD", _alphaImperfectionFactorForCurveD);
+            info.AddValue("AlphaLTImperfectionFactorForCurveA", _alphaLTImperfectionFactorForCurveA);
+            info.AddValue("AlphaLTImperfectionFactorForCurveB", _alphaLTImperfectionFactorForCurveB);
+            info.AddValue("AlphaLTImperfectionFactorForCurveC", _alphaLTImperfectionFactorForCurveC);
+            info.AddValue("AlphaLTImperfectionFactorForCurveD", _alphaLTImperfectionFactorForCurveD);
+            info.AddValue("BetaForLateralTorsionalBuckling", _betaForLateralTorsionalBuckling);
+            info.AddValue("LambdaLT0ForLateralTorsionalBuckling", _lambdaLT0ForLateralTorsionalBuckling);
+            info.AddValue("BetaForLateralTorsionalBucklingMod", _betaForLateralTorsionalBucklingMod);
+            info.AddValue("LambdaLT0ForLateralTorsionalBucklingMod", _lambdaLT0ForLateralTorsionalBucklingMod);
+        }
+
+        public override bool Equals(object obj)
+        {
+            return obj is StandardEN1993p11 p &&
+                   _gammaM0 == p._gammaM0 &&
+                   _gammaM1 == p._gammaM1 &&
+                   _gammaM2 == p._gammaM2 &&
+                   _nShearBucklingLowGradeOfSteel == p._nShearBucklingLowGradeOfSteel &&
+                   _nShearBucklingHighGradeOfSteel == p._nShearBucklingHighGradeOfSteel &&
+                   _alphaImperfectionFactorForCurveA0 == p._alphaImperfectionFactorForCurveA0 &&
+                   _alphaImperfectionFactorForCurveA == p._alphaImperfectionFactorForCurveA &&
+                   _alphaImperfectionFactorForCurveB == p._alphaImperfectionFactorForCurveB &&
+                   _alphaImperfectionFactorForCurveC == p._alphaImperfectionFactorForCurveC &&
+                   _alphaImperfectionFactorForCurveD == p._alphaImperfectionFactorForCurveD &&
+                   _alphaLTImperfectionFactorForCurveA == p._alphaLTImperfectionFactorForCurveA &&
+                   _alphaLTImperfectionFactorForCurveB == p._alphaLTImperfectionFactorForCurveB &&
+                   _alphaLTImperfectionFactorForCurveC == p._alphaLTImperfectionFactorForCurveC &&
+                   _alphaLTImperfectionFactorForCurveD == p._alphaLTImperfectionFactorForCurveD &&
+                   _betaForLateralTorsionalBuckling == p._betaForLateralTorsionalBuckling &&
+                   _lambdaLT0ForLateralTorsionalBuckling == p._lambdaLT0ForLateralTorsionalBuckling &&
+                   _betaForLateralTorsionalBucklingMod == p._betaForLateralTorsionalBucklingMod &&
+                   _lambdaLT0ForLateralTorsionalBucklingMod == p._lambdaLT0ForLateralTorsionalBucklingMod;
+        }
+
+        public override int GetHashCode()
+        {
+            unchecked
+            {
+                int hashCode = 23;
+                hashCode = hashCode * -17 + base.GetHashCode();
+                hashCode = hashCode * -17 + _gammaM0.GetHashCode();
+                hashCode = hashCode * -17 + _gammaM1.GetHashCode();
+                hashCode = hashCode * -17 + _gammaM2.GetHashCode();
+                hashCode = hashCode * -17 + _nShearBucklingLowGradeOfSteel.GetHashCode();
+                hashCode = hashCode * -17 + _nShearBucklingHighGradeOfSteel.GetHashCode();
+                hashCode = hashCode * -17 + _alphaImperfectionFactorForCurveA0.GetHashCode();
+                hashCode = hashCode * -17 + _alphaImperfectionFactorForCurveA.GetHashCode();
+                hashCode = hashCode * -17 + _alphaImperfectionFactorForCurveB.GetHashCode();
+                hashCode = hashCode * -17 + _alphaImperfectionFactorForCurveC.GetHashCode();
+                hashCode = hashCode * -17 + _alphaImperfectionFactorForCurveD.GetHashCode();
+                hashCode = hashCode * -17 + _alphaLTImperfectionFactorForCurveA.GetHashCode();
+                hashCode = hashCode * -17 + _alphaLTImperfectionFactorForCurveB.GetHashCode();
+                hashCode = hashCode * -17 + _alphaLTImperfectionFactorForCurveC.GetHashCode();
+                hashCode = hashCode * -17 + _alphaLTImperfectionFactorForCurveD.GetHashCode();
+                hashCode = hashCode * -17 + _betaForLateralTorsionalBuckling.GetHashCode();
+                hashCode = hashCode * -17 + _lambdaLT0ForLateralTorsionalBuckling.GetHashCode();
+                hashCode = hashCode * -17 + _betaForLateralTorsionalBucklingMod.GetHashCode();
+                hashCode = hashCode * -17 + _lambdaLT0ForLateralTorsionalBucklingMod.GetHashCode();
+                return hashCode;
+            }
+        }
     }
 }
