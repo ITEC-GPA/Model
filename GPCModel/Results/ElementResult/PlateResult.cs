@@ -11,26 +11,22 @@ namespace GPC.Model.Results
     [Serializable]
     public sealed class PlateResult : FiniteElementResult, ISerializable, IEquatable<PlateResult>, IElementResult
     {
-
+        #region Constructors
 
         /// <param name="Case"></param>
         /// <param name="resultLocations"></param>
         /// <param name="stageId"></param>
         /// <param name="name"></param>
         public PlateResult(ILoadCase Case, IEnumerable<ResultLocationId> resultLocations,
-                                           int stageId = ModelObjectId.IDUNASSIGNED, string name = "")
+            int stageId = ModelObjectId.IDUNASSIGNED, string name = "")
             : base(Case, resultLocations, stageId, name)
         {
-            if (resultLocations is null)
-            {
-                throw new ArgumentNullException(nameof(resultLocations));
-            }
+            if (resultLocations is null)            
+                throw new ArgumentNullException(nameof(resultLocations));            
 
             // controllo che siano iplate result
             if (!(resultLocations.First().GetResults().First() is IPlateResult))
                 throw new ArgumentException("Result type is not a IplateResult");
-
-
         }
 
         /// <param name="Case"></param>
@@ -41,42 +37,38 @@ namespace GPC.Model.Results
                                            int stageId = ModelObjectId.IDUNASSIGNED, string name = "")
             : base(Case, resultLocations, stageId, name)
         {
-            if (resultLocations is null)
-            {
-                throw new ArgumentNullException(nameof(resultLocations));
-            }
+            if (resultLocations is null)            
+                throw new ArgumentNullException(nameof(resultLocations));            
 
             // controllo che siano iplate result
             if (!(resultLocations.First().GetResults().First() is IPlateResult))
                 throw new ArgumentException("Result type is not a IplateResult");
-
-
         }
 
-        public PlateResult(SerializationInfo info, StreamingContext context)
+        internal PlateResult(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
 
         }
 
+		#endregion
 
-        public override void GetObjectData(SerializationInfo info, StreamingContext context)
+		#region Public Methods
+
+		public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             base.GetObjectData(info, context);
         }
-
 
         public override int GetHashCode()
         {
             return base.GetHashCode();
         }
 
-
         public override bool Equals(object obj)
         {
             return Equals((PlateResult)obj);
         }
-
 
         public bool Equals(PlateResult other)
         {
@@ -88,7 +80,6 @@ namespace GPC.Model.Results
 
             return base.Equals(other);
         }
-
 
         public static bool operator ==(PlateResult obj1, PlateResult obj2)
         {
@@ -103,10 +94,11 @@ namespace GPC.Model.Results
             return obj1.Equals(obj2);
         }
 
-
         public static bool operator !=(PlateResult obj1, PlateResult obj2)
         {
             return !(obj1 == obj2);
         }
-    }
+
+		#endregion
+	}
 }
