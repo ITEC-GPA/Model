@@ -14,12 +14,16 @@ namespace GPC.Model.Sections.Concrete
     [Serializable]
     public class ReinforcedConcreteSection : Section, IConcreteSection
     {
+		#region Variables
 
-        protected readonly ShapeEx _shapeEx;
+		protected readonly ShapeEx _shapeEx;
         protected readonly RebarCollection _rebars;
 
+		#endregion
 
-        public ShapeEx ShapeEx => _shapeEx;
+		#region Properties
+
+		public ShapeEx ShapeEx => _shapeEx;
 
         public IEnumerable<ReinforcedConcreteRebar> Rebars => _rebars;
 
@@ -28,12 +32,14 @@ namespace GPC.Model.Sections.Concrete
         public override Shape2d Shape => _shapeEx;
 
         public double AreaRebars => _rebars.Select(i => i.Area).Sum();
+
         public int RebarsCount => _rebars.Count;
 
+		#endregion
 
-        #region Public Constructors
+		#region Public Constructors
 
-        protected ReinforcedConcreteSection(ReinforcedConcreteSection reinforcedConcreteSection)
+		protected ReinforcedConcreteSection(ReinforcedConcreteSection reinforcedConcreteSection)
             : base(reinforcedConcreteSection.Material, reinforcedConcreteSection.Name)
         {
             if (reinforcedConcreteSection is null)
@@ -65,7 +71,6 @@ namespace GPC.Model.Sections.Concrete
         }
 
         #endregion
-
 
         #region Public Methods
 
@@ -200,7 +205,6 @@ namespace GPC.Model.Sections.Concrete
         }
 
 		#endregion
-
 
 		#region Concrete Mechanical properties
 
@@ -354,7 +358,6 @@ namespace GPC.Model.Sections.Concrete
         }
 
         #endregion
-
 
         #region Protected Methods
 
@@ -600,14 +603,13 @@ namespace GPC.Model.Sections.Concrete
 
         #endregion
 
-
         #region Equals, hascode, operators
 
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             base.GetObjectData(info, context);
             info.AddValue("ShapeEx", _shapeEx, typeof(ShapeEx));
-            info.AddValue("ReinforcedConcreteRebar", _rebars, typeof(ReinforcedConcreteRebar[]));
+            info.AddValue("RebarCollection", _rebars, typeof(RebarCollection));
         }
 
         public override bool Equals(object obj)
