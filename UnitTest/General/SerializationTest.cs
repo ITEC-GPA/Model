@@ -1123,6 +1123,67 @@ namespace GeneralTest
         }
 
         [TestMethod]
+        public void Section_Concrete_ReinforcedConcreteSectionTest()
+        {
+            bool check = true;
+            double width = 300;
+            double height = 500;
+            double concreteCover = 50;
+
+            Shape2d shape = new Shape2d(new Polygon2d(new Point2d[]
+            {
+                new Point2d(0, 0),
+                new Point2d(width, 0),
+                new Point2d(width, height),
+                new Point2d(0, height)
+            }));
+
+            ShapeEx shapeEx = new ShapeEx(shape, ConcreteMaterialEN1992.C25_30);
+            RebarSectionCircular rebar = new RebarSectionCircular(18, RebarMaterial.B450A);
+
+            ReinforcedConcreteRebar[] rebars = new ReinforcedConcreteRebar[]
+            {
+                new ReinforcedConcreteRebar(rebar, new Point2d(concreteCover, concreteCover)),
+                new ReinforcedConcreteRebar(rebar, new Point2d(width - concreteCover, concreteCover)),
+                new ReinforcedConcreteRebar(rebar, new Point2d(width - concreteCover, height - concreteCover)),
+                new ReinforcedConcreteRebar(rebar, new Point2d(concreteCover, height - concreteCover))
+            };
+
+            ReinforcedConcreteSection s = new ReinforcedConcreteSection(shapeEx);
+            s.AddRebars(rebars);
+
+            using (var ms = new MemoryStream())
+            {
+                var formatter = new BinaryFormatter();
+                formatter.Serialize(ms, s);
+                ms.Position = 0;
+
+                var casted = formatter.Deserialize(ms);
+                ReinforcedConcreteSection oggettoDeserializzato = (ReinforcedConcreteSection)casted;
+
+                if (s.Equals(oggettoDeserializzato))
+                {
+                    if (s.Rebars.Count() != oggettoDeserializzato.Rebars.Count())
+                        check = false;
+                    for (int i = 0; i < s.Rebars.Count(); i++)
+                        if (s.Rebars.ToArray()[i] != oggettoDeserializzato.Rebars.ToArray()[i])
+                            check = false;
+                }
+                else
+                {
+                    check = false;
+                }
+            }
+
+            if (check)
+                Console.WriteLine($"Class {s} is serializable");
+            else
+                Console.WriteLine($"Warning: Class {s} is not serializable");
+
+            Assert.IsTrue(check);
+        }
+
+        [TestMethod]
         public void Section_Concrete_RectangularTest()
         {
             bool check = true;
