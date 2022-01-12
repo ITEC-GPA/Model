@@ -1018,7 +1018,11 @@ namespace GeneralTest
 
                 if (s.Equals(oggettoDeserializzato))
                 {
-
+                    if (s.Rebars.Count() != oggettoDeserializzato.Rebars.Count())
+                        check = false;
+                    for (int i = 0; i < s.Rebars.Count(); i++)
+                        if (s.Rebars.ToArray()[i] != oggettoDeserializzato.Rebars.ToArray()[i])
+                            check = false;
                 }
                 else
                 {
@@ -1056,7 +1060,11 @@ namespace GeneralTest
 
                 if (s.Equals(oggettoDeserializzato))
                 {
-
+                    if (s.Rebars.Count() != oggettoDeserializzato.Rebars.Count())
+                        check = false;
+                    for (int i = 0; i < s.Rebars.Count(); i++)
+                        if (s.Rebars.ToArray()[i] != oggettoDeserializzato.Rebars.ToArray()[i])
+                            check = false;
                 }
                 else
                 {
@@ -1094,7 +1102,11 @@ namespace GeneralTest
 
                 if (s.Equals(oggettoDeserializzato))
                 {
-
+                    if (s.Rebars.Count() != oggettoDeserializzato.Rebars.Count())
+                        check = false;
+                    for (int i = 0; i < s.Rebars.Count(); i++)
+                        if (s.Rebars.ToArray()[i] != oggettoDeserializzato.Rebars.ToArray()[i])
+                            check = false;
                 }
                 else
                 {
@@ -1132,7 +1144,11 @@ namespace GeneralTest
 
                 if (s.Equals(oggettoDeserializzato))
                 {
-
+                    if (s.Rebars.Count() != oggettoDeserializzato.Rebars.Count())
+                        check = false;
+                    for (int i = 0; i < s.Rebars.Count(); i++)
+                        if (s.Rebars.ToArray()[i] != oggettoDeserializzato.Rebars.ToArray()[i])
+                            check = false;
                 }
                 else
                 {
@@ -1155,11 +1171,11 @@ namespace GeneralTest
 
             RebarCollection s = new RebarCollection();
             s.AddRange(new ReinforcedConcreteRebar[] {
-                new ReinforcedConcreteRebar(new RebarSectionCircular("", 10, RebarMaterial.B450C), Point2d.Origin),
-                new ReinforcedConcreteRebar(new RebarSectionCircular("", 10, RebarMaterial.B450C), new Point2d(10, 10)),
-                new ReinforcedConcreteRebar(new RebarSectionCircular("", 10, RebarMaterial.B450C), new Point2d(-10, 10)),
-                new ReinforcedConcreteRebar(new RebarSectionCircular("", 10, RebarMaterial.B450C), new Point2d(10, -10)),
-                new ReinforcedConcreteRebar(new RebarSectionCircular("", 10, RebarMaterial.B450C), new Point2d(-10, -10))});
+                new ReinforcedConcreteRebar(new RebarSectionCircular("", 10, RebarMaterial.B450C), Point2d.Origin, 50, 1, "a"),
+                new ReinforcedConcreteRebar(new RebarSectionCircular("", 10, RebarMaterial.B450C), new Point2d(10, 10), 60, 2, "b"),
+                new ReinforcedConcreteRebar(new RebarSectionCircular("", 10, RebarMaterial.B450C), new Point2d(-10, 10), 70, 3, "c"),
+                new ReinforcedConcreteRebar(new RebarSectionCircular("", 10, RebarMaterial.B450C), new Point2d(10, -10), 80, 4, "d"),
+                new ReinforcedConcreteRebar(new RebarSectionCircular("", 10, RebarMaterial.B450C), new Point2d(-10, -10), 90, 5, "e")});
 
             using (var ms = new MemoryStream())
             {
@@ -1172,7 +1188,11 @@ namespace GeneralTest
 
                 if (s.Equals(oggettoDeserializzato))
                 {
-
+                    if (s.Count != oggettoDeserializzato.Count)
+                        check = false;
+                    for(int i = 1; i <= s.Count; i++)
+                        if(s.GetById(i) != oggettoDeserializzato.GetById(i))
+                            check = false;
                 }
                 else
                 {
@@ -1207,7 +1227,11 @@ namespace GeneralTest
 
                 if (s.Equals(oggettoDeserializzato))
                 {
-
+                    if (s.Count != oggettoDeserializzato.Count)
+                        check = false;
+                    for (int i = 1; i <= s.Count; i++)
+                        if (s.GetById(i) != oggettoDeserializzato.GetById(i))
+                            check = false;
                 }
                 else
                 {
@@ -1222,23 +1246,24 @@ namespace GeneralTest
 
             Assert.IsTrue(check);
         }
+
         [TestMethod]
-        public void Section_Concrete_RebarCollectionTest()
+        public void Section_Concrete_RebarCollectionTest4()
         {
             bool check = true;
 
             RebarCollection s = new RebarCollection();
             s.AddRange(new ReinforcedConcreteRebar[] {
-                new ReinforcedConcreteRebar(new RebarSectionCircular("", 10, RebarMaterial.B450C), Point2d.Origin),
-                new ReinforcedConcreteRebar(new RebarSectionCircular("", 10, RebarMaterial.B450C), Point2d.Origin),
-                new ReinforcedConcreteRebar(new RebarSectionCircular("", 10, RebarMaterial.B450C), new Point2d(10, 10)),
-                new ReinforcedConcreteRebar(new RebarSectionCircular("", 10, RebarMaterial.B450C), new Point2d(10, 10)),
-                new ReinforcedConcreteRebar(new RebarSectionCircular("", 10, RebarMaterial.B450C), new Point2d(-10, 10)),
-                new ReinforcedConcreteRebar(new RebarSectionCircular("", 10, RebarMaterial.B450C), new Point2d(-10, 10)),
-                new ReinforcedConcreteRebar(new RebarSectionCircular("", 10, RebarMaterial.B450C), new Point2d(10, -10)),
-                new ReinforcedConcreteRebar(new RebarSectionCircular("", 10, RebarMaterial.B450C), new Point2d(10, -10)),
-                new ReinforcedConcreteRebar(new RebarSectionCircular("", 10, RebarMaterial.B450C), new Point2d(-10, -10)),
-                new ReinforcedConcreteRebar(new RebarSectionCircular("", 10, RebarMaterial.B450C), new Point2d(-10, -10))});
+                new ReinforcedConcreteRebar(new RebarSectionCircular("", 10, RebarMaterial.B450C), Point2d.Origin, 50, 1, "a"),
+                new ReinforcedConcreteRebar(new RebarSectionCircular("", 10, RebarMaterial.B450C), Point2d.Origin, 50, 2, "b"),
+                new ReinforcedConcreteRebar(new RebarSectionCircular("", 10, RebarMaterial.B450C), new Point2d(10, 10), 50, 3, "c"),
+                new ReinforcedConcreteRebar(new RebarSectionCircular("", 10, RebarMaterial.B450C), new Point2d(10, 10), 50, 4, "d"),
+                new ReinforcedConcreteRebar(new RebarSectionCircular("", 10, RebarMaterial.B450C), new Point2d(-10, 10), 50, 5, "e"),
+                new ReinforcedConcreteRebar(new RebarSectionCircular("", 10, RebarMaterial.B450C), new Point2d(-10, 10), 50, 6, "aa"),
+                new ReinforcedConcreteRebar(new RebarSectionCircular("", 10, RebarMaterial.B450C), new Point2d(10, -10), 50, 7, "as"),
+                new ReinforcedConcreteRebar(new RebarSectionCircular("", 10, RebarMaterial.B450C), new Point2d(10, -10), 50, 8, "ad"),
+                new ReinforcedConcreteRebar(new RebarSectionCircular("", 10, RebarMaterial.B450C), new Point2d(-10, -10), 50, 9, "af"),
+                new ReinforcedConcreteRebar(new RebarSectionCircular("", 10, RebarMaterial.B450C), new Point2d(-10, -10), 50, 10, "ae")});
 
             using (var ms = new MemoryStream())
             {
@@ -1251,7 +1276,11 @@ namespace GeneralTest
 
                 if (s.Equals(oggettoDeserializzato))
                 {
-
+                    if (s.Count != oggettoDeserializzato.Count)
+                        check = false;
+                    for (int i = 1; i <= s.Count; i++)
+                        if (s.GetById(i) != oggettoDeserializzato.GetById(i))
+                            check = false;
                 }
                 else
                 {
@@ -1266,7 +1295,6 @@ namespace GeneralTest
 
             Assert.IsTrue(check);
         }
-
 
         #endregion
 
