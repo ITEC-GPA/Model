@@ -16,6 +16,7 @@ using GPC.Model.LoadCases;
 using GPC.Model.Sections;
 using GPC.Model.Sections.Concrete;
 using GPC.Model.Sections.Rebar;
+using GPC.Model.Sections.Steel;
 
 namespace GeneralTest
 {
@@ -1001,6 +1002,11 @@ namespace GeneralTest
             bool check = true;
 
             ConcreteSectionCircular s = new ConcreteSectionCircular(10, ConcreteMaterialEN1992.C25_30, "section");
+            s.AddRebars(new ReinforcedConcreteRebar[] {
+                new ReinforcedConcreteRebar(new RebarSectionCircular("", 10, RebarMaterial.B450C), Point2d.Origin),
+                new ReinforcedConcreteRebar(new RebarSectionCircular("", 10, RebarMaterial.B450C), new Point2d(10, 10)),
+                new ReinforcedConcreteRebar(new RebarSectionCircular("", 10, RebarMaterial.B450C), new Point2d(-10, -10))});
+
             using (var ms = new MemoryStream())
             {
                 var formatter = new BinaryFormatter();
@@ -1012,8 +1018,7 @@ namespace GeneralTest
 
                 if (s.Equals(oggettoDeserializzato))
                 {
-                    if (!s.Rebars.Equals(oggettoDeserializzato.Rebars))
-                        check = false;
+
                 }
                 else
                 {
@@ -1035,7 +1040,10 @@ namespace GeneralTest
             bool check = true;
 
             ConcreteSectionCHS s = new ConcreteSectionCHS(10, 2, ConcreteMaterialEN1992.C25_30, "section");
-            s.AddRebar(new ReinforcedConcreteRebar(new RebarSectionCircular("", 10, RebarMaterial.B450C), Point2d.Origin));
+            s.AddRebars(new ReinforcedConcreteRebar[] {
+                new ReinforcedConcreteRebar(new RebarSectionCircular("", 10, RebarMaterial.B450C), Point2d.Origin),
+                new ReinforcedConcreteRebar(new RebarSectionCircular("", 10, RebarMaterial.B450C), new Point2d(10, 10)),
+                new ReinforcedConcreteRebar(new RebarSectionCircular("", 10, RebarMaterial.B450C), new Point2d(-10, -10))});
 
             using (var ms = new MemoryStream())
             {
@@ -1048,8 +1056,7 @@ namespace GeneralTest
 
                 if (s.Equals(oggettoDeserializzato))
                 {
-                    if (!s.Rebars.Equals(oggettoDeserializzato.Rebars))
-                        check = false;
+
                 }
                 else
                 {
@@ -1070,7 +1077,12 @@ namespace GeneralTest
         {
             bool check = true;
 
-            ConcreteSectionT s = new ConcreteSectionT(500, 600, 50, 40, ConcreteMaterialEN1992.C25_30, "section");
+            ConcreteSectionT s = new ConcreteSectionT(500, 600, 50, 40, ConcreteMaterialEN1992.C25_30, "section"); 
+            s.AddRebars(new ReinforcedConcreteRebar[] {
+                new ReinforcedConcreteRebar(new RebarSectionCircular("", 10, RebarMaterial.B450C), Point2d.Origin),
+                new ReinforcedConcreteRebar(new RebarSectionCircular("", 10, RebarMaterial.B450C), new Point2d(10, 10)),
+                new ReinforcedConcreteRebar(new RebarSectionCircular("", 10, RebarMaterial.B450C), new Point2d(-10, -10))});
+
             using (var ms = new MemoryStream())
             {
                 var formatter = new BinaryFormatter();
@@ -1082,8 +1094,7 @@ namespace GeneralTest
 
                 if (s.Equals(oggettoDeserializzato))
                 {
-                    if (s.Rebars != oggettoDeserializzato.Rebars)
-                        check = false;
+
                 }
                 else
                 {
@@ -1105,6 +1116,11 @@ namespace GeneralTest
             bool check = true;
 
             ConcreteSectionRectangular s = new ConcreteSectionRectangular(500, 600, ConcreteMaterialEN1992.C25_30, "section");
+            s.AddRebars(new ReinforcedConcreteRebar[] {
+                new ReinforcedConcreteRebar(new RebarSectionCircular("", 10, RebarMaterial.B450C), Point2d.Origin),
+                new ReinforcedConcreteRebar(new RebarSectionCircular("", 10, RebarMaterial.B450C), new Point2d(10, 10)),
+                new ReinforcedConcreteRebar(new RebarSectionCircular("", 10, RebarMaterial.B450C), new Point2d(-10, -10))});
+
             using (var ms = new MemoryStream())
             {
                 var formatter = new BinaryFormatter();
@@ -1116,7 +1132,318 @@ namespace GeneralTest
 
                 if (s.Equals(oggettoDeserializzato))
                 {
-                    if (s.Rebars != oggettoDeserializzato.Rebars)
+
+                }
+                else
+                {
+                    check = false;
+                }
+            }
+
+            if (check)
+                Console.WriteLine($"Class {s} is serializable");
+            else
+                Console.WriteLine($"Warning: Class {s} is not serializable");
+
+            Assert.IsTrue(check);
+        }
+
+        #endregion
+
+        #region Generic Sections
+
+        [TestMethod]
+        public void Section_Steel_CircularTest()
+        {
+            bool check = true;
+
+            SteelSectionCircular s = new SteelSectionCircular(10, SteelMaterial.S235, "section");
+            using (var ms = new MemoryStream())
+            {
+                var formatter = new BinaryFormatter();
+                formatter.Serialize(ms, s);
+                ms.Position = 0;
+
+                var casted = formatter.Deserialize(ms);
+                SteelSectionCircular oggettoDeserializzato = (SteelSectionCircular)casted;
+
+                if (s.Equals(oggettoDeserializzato))
+                {
+                    if (s.Material != oggettoDeserializzato.Material ||
+                        s.Diameter != oggettoDeserializzato.Diameter ||
+                        s.Name != oggettoDeserializzato.Name)
+                        check = false;
+                }
+                else
+                {
+                    check = false;
+                }
+            }
+
+            if (check)
+                Console.WriteLine($"Class {s} is serializable");
+            else
+                Console.WriteLine($"Warning: Class {s} is not serializable");
+
+            Assert.IsTrue(check);
+        }
+
+        [TestMethod]
+        public void Section_Steel_CHSTest()
+        {
+            bool check = true;
+
+            SteelSectionCHS s = new SteelSectionCHS(10, 2, SteelMaterial.S235, "section");
+            using (var ms = new MemoryStream())
+            {
+                var formatter = new BinaryFormatter();
+                formatter.Serialize(ms, s);
+                ms.Position = 0;
+
+                var casted = formatter.Deserialize(ms);
+                SteelSectionCHS oggettoDeserializzato = (SteelSectionCHS)casted;
+
+                if (s.Equals(oggettoDeserializzato))
+                {
+                    if (s.Material != oggettoDeserializzato.Material ||
+                        s.Diameter != oggettoDeserializzato.Diameter ||
+                        s.Thickness != oggettoDeserializzato.Thickness ||
+                        s.Name != oggettoDeserializzato.Name)
+                        check = false;
+                }
+                else
+                {
+                    check = false;
+                }
+            }
+
+            if (check)
+                Console.WriteLine($"Class {s} is serializable");
+            else
+                Console.WriteLine($"Warning: Class {s} is not serializable");
+
+            Assert.IsTrue(check);
+        }
+
+        [TestMethod]
+        public void Section_Steel_CTest()
+        {
+            bool check = true;
+
+            SteelSectionC s = new SteelSectionC(200, 4, 100, 5, 100, 5, SteelMaterial.S235, "section");
+            using (var ms = new MemoryStream())
+            {
+                var formatter = new BinaryFormatter();
+                formatter.Serialize(ms, s);
+                ms.Position = 0;
+
+                var casted = formatter.Deserialize(ms);
+                SteelSectionC oggettoDeserializzato = (SteelSectionC)casted;
+
+                if (s.Equals(oggettoDeserializzato))
+                {
+                    if (s.Height != oggettoDeserializzato.Height ||
+                        s.ThicknessWeb != oggettoDeserializzato.ThicknessWeb ||
+                        s.LengthBottom != oggettoDeserializzato.LengthBottom ||
+                        s.ThicknessBottom != oggettoDeserializzato.ThicknessBottom ||
+                        s.LengthTop != oggettoDeserializzato.LengthTop ||
+                        s.LengthTop != oggettoDeserializzato.LengthTop ||
+                        s.ThicknessTop != oggettoDeserializzato.ThicknessTop ||
+                        s.Name != oggettoDeserializzato.Name)
+                        check = false;
+                }
+                else
+                {
+                    check = false;
+                }
+            }
+
+            if (check)
+                Console.WriteLine($"Class {s} is serializable");
+            else
+                Console.WriteLine($"Warning: Class {s} is not serializable");
+
+            Assert.IsTrue(check);
+        }
+
+        [TestMethod]
+        public void Section_Steel_HTest()
+        {
+            bool check = true;
+
+            SteelSectionH s = new SteelSectionH(200, 4, 100, 5, 100, 5, SteelMaterial.S235, "section");
+            using (var ms = new MemoryStream())
+            {
+                var formatter = new BinaryFormatter();
+                formatter.Serialize(ms, s);
+                ms.Position = 0;
+
+                var casted = formatter.Deserialize(ms);
+                SteelSectionH oggettoDeserializzato = (SteelSectionH)casted;
+
+                if (s.Equals(oggettoDeserializzato))
+                {
+                    if (s.Height != oggettoDeserializzato.Height ||
+                        s.ThicknessWeb != oggettoDeserializzato.ThicknessWeb ||
+                        s.LenghtBottomFlange != oggettoDeserializzato.LenghtBottomFlange ||
+                        s.LenghtTopFlange != oggettoDeserializzato.LenghtTopFlange ||
+                        s.ThicknessTopFlange != oggettoDeserializzato.ThicknessTopFlange ||
+                        s.ThicknessBottomFlange != oggettoDeserializzato.ThicknessBottomFlange ||
+                        s.ThicknessWeb != oggettoDeserializzato.ThicknessWeb ||
+                        s.Name != oggettoDeserializzato.Name)
+                        check = false;
+                }
+                else
+                {
+                    check = false;
+                }
+            }
+
+            if (check)
+                Console.WriteLine($"Class {s} is serializable");
+            else
+                Console.WriteLine($"Warning: Class {s} is not serializable");
+
+            Assert.IsTrue(check);
+        }
+
+        [TestMethod]
+        public void Section_Steel_LTest()
+        {
+            bool check = true;
+
+            SteelSectionL s = new SteelSectionL(200, 4, 100, 5, SteelMaterial.S235, "section");
+            using (var ms = new MemoryStream())
+            {
+                var formatter = new BinaryFormatter();
+                formatter.Serialize(ms, s);
+                ms.Position = 0;
+
+                var casted = formatter.Deserialize(ms);
+                SteelSectionL oggettoDeserializzato = (SteelSectionL)casted;
+
+                if (s.Equals(oggettoDeserializzato))
+                {
+                    if (s.HorizontalLegLength != oggettoDeserializzato.HorizontalLegLength ||
+                        s.HorizontalLegThickness != oggettoDeserializzato.HorizontalLegThickness ||
+                        s.VerticalLegLength != oggettoDeserializzato.VerticalLegLength ||
+                        s.VerticalLegThickness != oggettoDeserializzato.VerticalLegThickness ||
+                        s.Name != oggettoDeserializzato.Name)
+                        check = false;
+                }
+                else
+                {
+                    check = false;
+                }
+            }
+
+            if (check)
+                Console.WriteLine($"Class {s} is serializable");
+            else
+                Console.WriteLine($"Warning: Class {s} is not serializable");
+
+            Assert.IsTrue(check);
+        }
+
+        [TestMethod]
+        public void Section_Steel_RectangularTest()
+        {
+            bool check = true;
+
+            SteelSectionRectangular s = new SteelSectionRectangular(200, 4, SteelMaterial.S235, "section");
+            using (var ms = new MemoryStream())
+            {
+                var formatter = new BinaryFormatter();
+                formatter.Serialize(ms, s);
+                ms.Position = 0;
+
+                var casted = formatter.Deserialize(ms);
+                SteelSectionRectangular oggettoDeserializzato = (SteelSectionRectangular)casted;
+
+                if (s.Equals(oggettoDeserializzato))
+                {
+                    if (s.Height != oggettoDeserializzato.Height ||
+                        s.Width != oggettoDeserializzato.Width ||
+                        s.Angle != oggettoDeserializzato.Angle ||
+                        s.Name != oggettoDeserializzato.Name)
+                        check = false;
+                }
+                else
+                {
+                    check = false;
+                }
+            }
+
+            if (check)
+                Console.WriteLine($"Class {s} is serializable");
+            else
+                Console.WriteLine($"Warning: Class {s} is not serializable");
+
+            Assert.IsTrue(check);
+        }
+
+        [TestMethod]
+        public void Section_Steel_RHSTest()
+        {
+            bool check = true;
+
+            SteelSectionRHS s = new SteelSectionRHS(300, 200, 5, 5, 5, 5, SteelMaterial.S235, "section");
+            using (var ms = new MemoryStream())
+            {
+                var formatter = new BinaryFormatter();
+                formatter.Serialize(ms, s);
+                ms.Position = 0;
+
+                var casted = formatter.Deserialize(ms);
+                SteelSectionRHS oggettoDeserializzato = (SteelSectionRHS)casted;
+
+                if (s.Equals(oggettoDeserializzato))
+                {
+                    if (s.Height != oggettoDeserializzato.Height ||
+                        s.Base != oggettoDeserializzato.Base ||
+                        s.ThicknessTop != oggettoDeserializzato.ThicknessTop ||
+                        s.ThicknessBottom != oggettoDeserializzato.ThicknessBottom ||
+                        s.ThicknessWebLeft != oggettoDeserializzato.ThicknessWebLeft ||
+                        s.ThicknessWebRight != oggettoDeserializzato.ThicknessWebRight ||
+                        s.Name != oggettoDeserializzato.Name)
+                        check = false;
+                }
+                else
+                {
+                    check = false;
+                }
+            }
+
+            if (check)
+                Console.WriteLine($"Class {s} is serializable");
+            else
+                Console.WriteLine($"Warning: Class {s} is not serializable");
+
+            Assert.IsTrue(check);
+        }
+
+        [TestMethod]
+        public void Section_Steel_TTest()
+        {
+            bool check = true;
+
+            SteelSectionT s = new SteelSectionT(300, 200, 5, 5, SteelMaterial.S235, "section");
+            using (var ms = new MemoryStream())
+            {
+                var formatter = new BinaryFormatter();
+                formatter.Serialize(ms, s);
+                ms.Position = 0;
+
+                var casted = formatter.Deserialize(ms);
+                SteelSectionT oggettoDeserializzato = (SteelSectionT)casted;
+
+                if (s.Equals(oggettoDeserializzato))
+                {
+                    if (s.Height != oggettoDeserializzato.Height ||
+                        s.ThicknessWeb != oggettoDeserializzato.ThicknessWeb ||
+                        s.ThicknessFlange != oggettoDeserializzato.ThicknessFlange ||
+                        s.LenghtFlange != oggettoDeserializzato.LenghtFlange ||
+                        s.Name != oggettoDeserializzato.Name)
                         check = false;
                 }
                 else

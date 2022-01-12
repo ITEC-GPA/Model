@@ -12,7 +12,8 @@ using GPC.Model.FEM.Materials;
 
 namespace GPC.Model.Sections.Steel
 {
-    public class SteelSectionH : SectionH, ISteelSection
+    [Serializable]
+    public class SteelSectionH : SectionH, ISteelSection, ISerializable
     {
         #region Variables
 
@@ -46,10 +47,10 @@ namespace GPC.Model.Sections.Steel
         #region Public Constructors
 
         public SteelSectionH(double height, double thicknessWeb, double topFlangeLength, double topFlangeThickness, 
-                              double bottomFlangeLength, double bottomFlangeThickness, SteelMaterial material, 
-                              string name, SectionTypes type = SectionTypes.Rolled, 
-                              FormedTypes formedType = FormedTypes.HotFinished, 
-                              double radius = 0)
+            double bottomFlangeLength, double bottomFlangeThickness, SteelMaterial material, 
+            string name = "", SectionTypes type = SectionTypes.Rolled, 
+            FormedTypes formedType = FormedTypes.HotFinished, 
+            double radius = 0)
             : base(height, thicknessWeb, topFlangeLength, topFlangeThickness, bottomFlangeLength, bottomFlangeThickness, material, name)
         {
             _r = radius < 0.0 ? 0 : radius;        // altezza di gola o raggio di curvatura
@@ -57,6 +58,14 @@ namespace GPC.Model.Sections.Steel
             _formedType = formedType;
 
             SetMechanicalProperties();
+        }
+
+        protected SteelSectionH(SerializationInfo info, StreamingContext context)
+            : base(info, context)
+        {
+            _r = info.GetDouble("R");
+            _sectionType = (SectionTypes)info.GetValue("SectionType", typeof(SectionTypes));
+            _formedType = (FormedTypes)info.GetValue("FormedType", typeof(FormedTypes));
         }
 
         #endregion
@@ -148,5 +157,12 @@ namespace GPC.Model.Sections.Steel
                 return base.CalculateJt();
         }
 
+        public override void GetObjectData(SerializationInfo info, StreamingContext context)
+        {
+            base.GetObjectData(info, context);
+            info.AddValue("R", _r);
+            info.AddValue("SectionType", _sectionType);
+            info.AddValue("FormedType", _formedType);
+        }
     }
 }

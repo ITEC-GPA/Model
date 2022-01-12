@@ -1,10 +1,12 @@
 ﻿using GPC.Geometry;
 using GPC.Model.Materials;
+using System;
+using System.Runtime.Serialization;
 
 namespace GPC.Model.Sections.Steel
 {
-
-    public class SteelSectionL : SectionL, ISteelSection
+    [Serializable]
+    public class SteelSectionL : SectionL, ISteelSection, ISerializable
     {
         #region Variables
 
@@ -13,7 +15,6 @@ namespace GPC.Model.Sections.Steel
         protected readonly SectionTypes _sectionType;
         protected readonly FormedTypes _formedType;
         #endregion
-
 
         #region Properties
 
@@ -32,12 +33,11 @@ namespace GPC.Model.Sections.Steel
 
         #endregion
 
-
         #region Constructor
 
         public SteelSectionL(double lHor, double tHor, double lVert, double tVert, SteelMaterial material,
-                            string name, SectionTypes sectionTypes = SectionTypes.Rolled,
-                            FormedTypes formedType = FormedTypes.ColdFormed, double radius = 0)
+            string name, SectionTypes sectionTypes = SectionTypes.Rolled,
+            FormedTypes formedType = FormedTypes.ColdFormed, double radius = 0)
             : base(lHor, tHor, lVert, tVert, material, name)
         {
             _sectionType = sectionTypes;
@@ -46,7 +46,22 @@ namespace GPC.Model.Sections.Steel
 
         }
 
+        protected SteelSectionL(SerializationInfo info, StreamingContext context)
+            : base(info, context)
+        {
+            _r = info.GetDouble("R");
+            _sectionType = (SectionTypes)info.GetValue("SectionType", typeof(SectionTypes));
+            _formedType = (FormedTypes)info.GetValue("FormedType", typeof(FormedTypes));
+        }
+
         #endregion
 
+        public override void GetObjectData(SerializationInfo info, StreamingContext context)
+        {
+            base.GetObjectData(info, context);
+            info.AddValue("R", _r);
+            info.AddValue("SectionType", _sectionType);
+            info.AddValue("FormedType", _formedType);
+        }
     }
 }

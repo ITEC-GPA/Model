@@ -1,9 +1,12 @@
 ﻿using GPC.Geometry;
 using GPC.Model.Materials;
+using System;
+using System.Runtime.Serialization;
 
 namespace GPC.Model.Sections.Steel
 {
-    public class SteelSectionRHS : SectionRHS, ISteelSection
+    [Serializable]
+    public class SteelSectionRHS : SectionRHS, ISteelSection, ISerializable
     {
         #region Varibles
 
@@ -12,7 +15,6 @@ namespace GPC.Model.Sections.Steel
         protected readonly SectionTypes _sectionType;
         protected readonly FormedTypes _formedType;
         #endregion
-
 
         #region Properties
 
@@ -33,7 +35,6 @@ namespace GPC.Model.Sections.Steel
 
         #endregion
 
-
         #region Public Constructors
 
         public SteelSectionRHS(double height, double width, double thicknessTopFlange, double thicknessBottomFlange,
@@ -46,7 +47,22 @@ namespace GPC.Model.Sections.Steel
             _r = radius < 0 ? 0 : radius;
         }
 
+        protected SteelSectionRHS(SerializationInfo info, StreamingContext context)
+            : base(info, context)
+        {
+            _r = info.GetDouble("R");
+            _sectionType = (SectionTypes)info.GetValue("SectionType", typeof(SectionTypes));
+            _formedType = (FormedTypes)info.GetValue("FormedType", typeof(FormedTypes));
+        }
+
         #endregion
 
+        public override void GetObjectData(SerializationInfo info, StreamingContext context)
+        {
+            base.GetObjectData(info, context);
+            info.AddValue("R", _r);
+            info.AddValue("SectionType", _sectionType);
+            info.AddValue("FormedType", _formedType);
+        }
     }
 }
