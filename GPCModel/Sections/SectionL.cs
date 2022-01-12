@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Linq;
+using System.Runtime.Serialization;
 using GPC.Geometry;
 using GPC.Model.Materials;
 
 namespace GPC.Model.Sections
 {
-    public class SectionL : ThinWallSection, ISection
+    [Serializable]
+    public class SectionL : ThinWallSection, ISection, ISerializable
     {
         #region Variables
 
@@ -15,7 +17,6 @@ namespace GPC.Model.Sections
         private readonly double _tVert;
 
         #endregion
-
 
         #region Properties
 
@@ -29,7 +30,6 @@ namespace GPC.Model.Sections
 
         #endregion
 
-
         #region Constructor
 
         /// <summary>
@@ -41,7 +41,8 @@ namespace GPC.Model.Sections
         /// <param name="verticalLegThickness">The vertical leg thickness</param>
         /// <param name="material">Material of the section</param>
         /// <param name="name">Name of the section</param>
-        public SectionL(double horizontalLegLength, double horizontalLegThickness, double verticalLegLength, double verticalLegThickness, Material material, string name)
+        public SectionL(double horizontalLegLength, double horizontalLegThickness, double verticalLegLength, double verticalLegThickness, 
+            Material material, string name)
             : base(material, name)
         {
             _lHor = horizontalLegLength < 0 ? throw new ArgumentException($"Horizzontal plate lenght cannot be lower than zero") : horizontalLegLength;
@@ -59,11 +60,27 @@ namespace GPC.Model.Sections
             SetMechanicalProperties();
         }
 
-        #endregion
+        protected SectionL(SerializationInfo info, StreamingContext context)
+            : base(info, context)
+        {
+            _lHor = info.GetDouble("HorizontalLegLength");
+            _tHor = info.GetDouble("HorizontalLegThickness");
+            _lVert = info.GetDouble("VerticalLegLength");
+            _tVert = info.GetDouble("VerticalLegThickness");
+        }
 
+        #endregion
 
         #region Public method
 
+        public override void GetObjectData(SerializationInfo info, StreamingContext context)
+        {
+            base.GetObjectData(info, context);
+            info.AddValue("HorizontalLegLength", _lHor);
+            info.AddValue("HorizontalLegThickness", _tHor);
+            info.AddValue("VerticalLegLength", _lVert);
+            info.AddValue("VerticalLegThickness", _tVert);
+        }
 
         protected override void SetMechanicalProperties()
         {
@@ -259,8 +276,5 @@ namespace GPC.Model.Sections
         {
             return $"L {_lVert}x{_tVert}x{_lHor}x{_thinWalls}";
         }
-
     }
-
-
 }

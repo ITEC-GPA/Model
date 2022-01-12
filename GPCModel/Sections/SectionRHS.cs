@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.Serialization;
 using System.Text;
 using System.Threading.Tasks;
 using GPC.Geometry;
@@ -8,7 +9,8 @@ using GPC.Model.Materials;
 
 namespace GPC.Model.Sections
 {
-    public class SectionRHS : ThinWallSection, ISection
+    [Serializable]
+    public class SectionRHS : ThinWallSection, ISection, ISerializable
     {
         #region Varibles
 
@@ -20,7 +22,6 @@ namespace GPC.Model.Sections
         private readonly double _twR;
 
         #endregion
-
 
         #region Properties
 
@@ -41,7 +42,6 @@ namespace GPC.Model.Sections
         public double ThicknessWebRight => _twR;
 
         #endregion
-
 
         #region Public Constructors
 
@@ -72,8 +72,18 @@ namespace GPC.Model.Sections
             SetMechanicalProperties();
         }
 
-        #endregion
+        protected SectionRHS(SerializationInfo info, StreamingContext context)
+            : base(info, context)
+        {
+            _h = info.GetDouble("Height");
+            _b = info.GetDouble("Base");
+            _tfTop = info.GetDouble("ThicknessTop");
+            _tfBottom = info.GetDouble("ThicknessBottom");
+            _twL = info.GetDouble("ThicknessWebLeft");
+            _twR = info.GetDouble("ThicknessWebRight");
+        }
 
+        #endregion
 
         #region Public method
 
@@ -98,7 +108,6 @@ namespace GPC.Model.Sections
         }
 
         #endregion
-
 
         #region Public override method
 
@@ -221,7 +230,6 @@ namespace GPC.Model.Sections
             return false;
         }
 
-
         #endregion
 
         public override string ToString()
@@ -229,6 +237,15 @@ namespace GPC.Model.Sections
             return $"RHS {_h}x{_twL}x{_twR}x{_b}x{_tfBottom}x{_b}x{_tfTop}";
         }
 
-
+        public override void GetObjectData(SerializationInfo info, StreamingContext context)
+        {
+            base.GetObjectData(info, context);
+            info.AddValue("Height", _h);
+            info.AddValue("Base", _b);
+            info.AddValue("ThicknessTop", _tfTop);
+            info.AddValue("ThicknessBottom", _tfBottom);
+            info.AddValue("ThicknessWebLeft", _twL);
+            info.AddValue("ThicknessWebRight", _twR);
+        }
     }
 }

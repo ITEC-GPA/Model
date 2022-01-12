@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.Serialization;
 using System.Text;
 using System.Threading.Tasks;
 using GPC.Geometry;
@@ -8,7 +9,8 @@ using GPC.Model.Materials;
 
 namespace GPC.Model.Sections
 {
-    public class SectionH : ThinWallSection, ISection
+    [Serializable]
+    public class SectionH : ThinWallSection, ISection, ISerializable
     {
         #region Variables
 
@@ -20,7 +22,6 @@ namespace GPC.Model.Sections
         protected readonly double _bbottom;
 
         #endregion
-
 
         #region Properties
 
@@ -40,11 +41,10 @@ namespace GPC.Model.Sections
 
         #endregion
 
-
         #region Public Constructors
 
         public SectionH(double height, double thicknessWeb, double topFlangeLength, double topFlangeThickness, double bottomFlangeLength,
-                        double bottomFlangeThickness, Material material, string name)
+            double bottomFlangeThickness, Material material, string name)
             : base(material, name)
         {
             #region Check inputs
@@ -72,10 +72,31 @@ namespace GPC.Model.Sections
             SetMechanicalProperties();
         }
 
+        protected SectionH(SerializationInfo info, StreamingContext context)
+            : base(info, context)
+        {
+            _h = info.GetDouble("Height");
+            _bbottom = info.GetDouble("LenghtBottomFlange");
+            _btop = info.GetDouble("LenghtTopFlange");
+            _ttop = info.GetDouble("ThicknessTopFlange");
+            _tbottom = info.GetDouble("ThicknessBottomFlange");
+            _tw = info.GetDouble("ThicknessWeb");
+        }
+
         #endregion
 
-
         #region Protected override method
+
+        public override void GetObjectData(SerializationInfo info, StreamingContext context)
+        {
+            base.GetObjectData(info, context);
+            info.AddValue("Height", _h);
+            info.AddValue("LenghtBottomFlange", _bbottom);
+            info.AddValue("LenghtTopFlange", _btop);
+            info.AddValue("ThicknessTopFlange", _ttop);
+            info.AddValue("ThicknessBottomFlange", _tbottom);
+            info.AddValue("ThicknessWeb", _tw);
+        }
 
         protected override Shape2d GetShape()
         {
@@ -179,8 +200,6 @@ namespace GPC.Model.Sections
             return true;
         }
 
-
-
         protected override Point2d CalculateShearCenter()
         {
             //CNR DT208_2011 --> to be checked
@@ -203,7 +222,6 @@ namespace GPC.Model.Sections
             // CNR DT208_2011
             return dmed * dmed * JFlBottom * JFlTop / jz;
         }
-
 
         public override string ToString()
         {

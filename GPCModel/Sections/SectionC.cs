@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Runtime.Serialization;
 using GPC.Geometry;
 using GPC.Model.Materials;
 
 namespace GPC.Model.Sections
 {
-    public class SectionC : ThinWallSection, ISection
+    [Serializable]
+    public class SectionC : ThinWallSection, ISection, ISerializable
     {
         #region Variables
 
@@ -17,7 +19,6 @@ namespace GPC.Model.Sections
         protected readonly double _tTop;
 
         #endregion
-
 
         #region Properties
 
@@ -37,10 +38,10 @@ namespace GPC.Model.Sections
 
         #endregion
 
-
         #region Public Constructors
 
-        public SectionC(double height, double thicknessWeb, double lengthTop, double thicknessTop, double lengthBottom, double thicknessBottom, Material material, string name)
+        public SectionC(double height, double thicknessWeb, double lengthTop, double thicknessTop, 
+            double lengthBottom, double thicknessBottom, Material material, string name = "")
             : base(material, name)
         {
             _h = height < 0 ? throw new ArgumentException($"height cannot be lower than zero") : height;
@@ -62,11 +63,20 @@ namespace GPC.Model.Sections
             SetMechanicalProperties();
         }
 
+        protected SectionC(SerializationInfo info, StreamingContext context)
+            :base(info, context)
+		{
+            _h = info.GetDouble("Height");
+            _tw = info.GetDouble("ThicknessWeb");
+            _lengthBottom = info.GetDouble("LengthBottom");
+            _tBottom = info.GetDouble("ThicknessBottom");
+            _lengthTop = info.GetDouble("LengthTop");
+            _tTop = info.GetDouble("ThicknessTop");
+        }
+
         #endregion
 
-
         #region Public override method
-
 
         protected override Shape2d GetShape()
         {
@@ -135,7 +145,6 @@ namespace GPC.Model.Sections
                 throw new NotImplementedException("Different lenght or thickness not yet supported");
         }
 
-
         protected override double CalculateWel2Min()
         {
             return J22 / DistanceXCentroidFromLeft();
@@ -188,15 +197,25 @@ namespace GPC.Model.Sections
             return CalculateCentroid().X;
         }
 
-        
+        #endregion
+
+        #region Equals, hashcode, operators
+
+        public override void GetObjectData(SerializationInfo info, StreamingContext context)
+        {
+            base.GetObjectData(info, context);
+            info.AddValue("Height", _h);
+            info.AddValue("ThicknessWeb", _tw);
+            info.AddValue("LengthBottom", _lengthBottom);
+            info.AddValue("ThicknessBottom", _tBottom);
+            info.AddValue("LengthTop", _lengthTop);
+            info.AddValue("ThicknessTop", _tTop);
+        }
 
         public override string ToString()
         {
             return $"C {_h}x{_tw}x{_lengthBottom}x{_tBottom}x{_lengthTop}x{_tTop} ";
         }
-
-
-        #region Equals, hashcode, operators
 
         public override bool Equals(object obj)
         {
@@ -235,7 +254,6 @@ namespace GPC.Model.Sections
         {
             return !(left == right);
         }
-        #endregion
 
         #endregion
 

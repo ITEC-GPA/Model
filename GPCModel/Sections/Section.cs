@@ -341,6 +341,8 @@ namespace GPC.Model.Sections
         protected Section(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
+            _material = (Material)info.GetValue("Material", typeof(Material));
+            _area = info.GetDouble("Area");
             _jxx = info.GetDouble("Jxx");
             _jyy = info.GetDouble("Jyy");
             _jxy = info.GetDouble("Jxy");
@@ -657,6 +659,8 @@ namespace GPC.Model.Sections
 
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
+            base.GetObjectData(info, context);
+            info.AddValue("Material", _material);
             info.AddValue("Area", _area);
             info.AddValue("Jxx", _jxx);
             info.AddValue("Jyy", _jyy);

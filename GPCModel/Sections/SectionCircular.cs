@@ -5,25 +5,33 @@ using System.Runtime.Serialization;
 
 namespace GPC.Model.Sections
 {
-
-    public class SectionCircular : Section, ISection
+    [Serializable]
+    public class SectionCircular : Section, ISection, ISerializable
     {
-        protected double _diameter;
+		#region Variables
 
-        /// <summary>
-        /// The diameter
-        /// </summary>
-        public double Diameter => _diameter;
+		protected double _diameter;
 
-        #region Public Constructors
+		#endregion
 
-        /// <summary>
-        /// The default constructor
-        /// </summary>
-        /// <param name="diameter">The diameter</param>
-        /// <param name="material">The material</param>
-        /// <param name="name">The section name</param>
-        public SectionCircular(double diameter, Material material, string name)
+		#region Properties
+
+		/// <summary>
+		/// The diameter
+		/// </summary>
+		public double Diameter => _diameter;
+
+		#endregion
+
+		#region Public Constructors
+
+		/// <summary>
+		/// The default constructor
+		/// </summary>
+		/// <param name="diameter">The diameter</param>
+		/// <param name="material">The material</param>
+		/// <param name="name">The section name</param>
+		public SectionCircular(double diameter, Material material, string name)
             : base(material, name)
         {
             _diameter = diameter;
@@ -37,7 +45,7 @@ namespace GPC.Model.Sections
 
         }
 
-        public SectionCircular(SerializationInfo info, StreamingContext context)
+        protected SectionCircular(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
             _diameter = info.GetDouble("Diameter");
@@ -46,12 +54,6 @@ namespace GPC.Model.Sections
         #endregion
 
         #region Public Methods Specific
-
-        protected override Shape2d GetShape()
-        {
-            return new Shape2d(new Polygon2d(_diameter, 32, _centroid));
-        }
-
 
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
@@ -62,6 +64,11 @@ namespace GPC.Model.Sections
         #endregion
 
         #region Protected method
+
+        protected override Shape2d GetShape()
+        {
+            return new Shape2d(new Polygon2d(_diameter, 32, _centroid));
+        }
 
         protected override void SetMechanicalProperties()
         {
@@ -134,9 +141,11 @@ namespace GPC.Model.Sections
             return true;
         }
 
-        #endregion
-        
-        public override string ToString()
+		#endregion
+
+		#region Public Method
+
+		public override string ToString()
         {
             return $"Circular {_diameter}";
         }
@@ -166,5 +175,7 @@ namespace GPC.Model.Sections
         {
             return !(left == right);
         }
-    }
+
+		#endregion
+	}
 }

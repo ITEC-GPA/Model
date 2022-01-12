@@ -1,10 +1,12 @@
 ﻿using System;
+using System.Runtime.Serialization;
 using GPC.Geometry;
 using GPC.Model.Materials;
 
 namespace GPC.Model.Sections
 {
-    public class SectionT : ThinWallSection, ISection
+    [Serializable]
+    public class SectionT : ThinWallSection, ISection, ISerializable
     {
         #region Variables
 
@@ -14,8 +16,7 @@ namespace GPC.Model.Sections
         protected readonly double _b;
 
         #endregion
-
-
+                
         #region Properties
 
         public double Height => _h;
@@ -29,7 +30,6 @@ namespace GPC.Model.Sections
         public double LenghtFlange => _b;
 
         #endregion
-
 
         #region Public Constructors
 
@@ -63,10 +63,27 @@ namespace GPC.Model.Sections
 
         }
 
+        protected SectionT(SerializationInfo info, StreamingContext context)
+            : base(info, context)
+        {
+            _h = info.GetDouble("Height");
+            _tw = info.GetDouble("ThicknessWeb");
+            _tf = info.GetDouble("ThicknessFlange");
+            _b = info.GetDouble("LenghtFlange");
+        }
+
         #endregion
 
-
         #region Public method
+
+        public override void GetObjectData(SerializationInfo info, StreamingContext context)
+        {
+            base.GetObjectData(info, context);
+            info.AddValue("Height", _h);
+            info.AddValue("ThicknessWeb", _tw);
+            info.AddValue("ThicknessFlange", _tf);
+            info.AddValue("LenghtFlange", _b);
+        }
 
         protected override double CalculateWel2Max()
         {
@@ -154,7 +171,6 @@ namespace GPC.Model.Sections
 
         #endregion
 
-
         #region Public override method
 
 
@@ -205,6 +221,5 @@ namespace GPC.Model.Sections
 
 
         #endregion
-
     }
 }
