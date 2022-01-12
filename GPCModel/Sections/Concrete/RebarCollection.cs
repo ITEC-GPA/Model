@@ -335,8 +335,7 @@ namespace GPC.Model.Sections.Concrete
         {
             lock (_locker)
             {
-                return obj is RebarCollection collection && _collection.ScrambledEquals(collection._collection)
-                                                         && base.Equals(collection);
+                return obj is RebarCollection collection && _collection.ScrambledEquals(collection._collection);
             }
         }
 

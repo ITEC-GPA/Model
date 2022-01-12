@@ -136,6 +136,7 @@ namespace GPC.Model.Sections.Concrete
 
 		#endregion
 
+        [Serializable]
 		public class ReinforcedConcreteRebarComparer : IEqualityComparer<ReinforcedConcreteRebar>
         {
             /// <returns>

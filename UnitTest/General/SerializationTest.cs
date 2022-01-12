@@ -1148,6 +1148,126 @@ namespace GeneralTest
             Assert.IsTrue(check);
         }
 
+        [TestMethod]
+        public void Section_Concrete_RebarCollectionTest1()
+        {
+            bool check = true;
+
+            RebarCollection s = new RebarCollection();
+            s.AddRange(new ReinforcedConcreteRebar[] {
+                new ReinforcedConcreteRebar(new RebarSectionCircular("", 10, RebarMaterial.B450C), Point2d.Origin),
+                new ReinforcedConcreteRebar(new RebarSectionCircular("", 10, RebarMaterial.B450C), new Point2d(10, 10)),
+                new ReinforcedConcreteRebar(new RebarSectionCircular("", 10, RebarMaterial.B450C), new Point2d(-10, 10)),
+                new ReinforcedConcreteRebar(new RebarSectionCircular("", 10, RebarMaterial.B450C), new Point2d(10, -10)),
+                new ReinforcedConcreteRebar(new RebarSectionCircular("", 10, RebarMaterial.B450C), new Point2d(-10, -10))});
+
+            using (var ms = new MemoryStream())
+            {
+                var formatter = new BinaryFormatter();
+                formatter.Serialize(ms, s);
+                ms.Position = 0;
+
+                var casted = formatter.Deserialize(ms);
+                RebarCollection oggettoDeserializzato = (RebarCollection)casted;
+
+                if (s.Equals(oggettoDeserializzato))
+                {
+
+                }
+                else
+                {
+                    check = false;
+                }
+            }
+
+            if (check)
+                Console.WriteLine($"Class {s} is serializable");
+            else
+                Console.WriteLine($"Warning: Class {s} is not serializable");
+
+            Assert.IsTrue(check);
+        }
+
+        [TestMethod]
+        public void Section_Concrete_RebarCollectionTest2()
+        {
+            bool check = true;
+
+            RebarCollection s = new RebarCollection();
+            s.AddRange(new ReinforcedConcreteRebar[] {});
+
+            using (var ms = new MemoryStream())
+            {
+                var formatter = new BinaryFormatter();
+                formatter.Serialize(ms, s);
+                ms.Position = 0;
+
+                var casted = formatter.Deserialize(ms);
+                RebarCollection oggettoDeserializzato = (RebarCollection)casted;
+
+                if (s.Equals(oggettoDeserializzato))
+                {
+
+                }
+                else
+                {
+                    check = false;
+                }
+            }
+
+            if (check)
+                Console.WriteLine($"Class {s} is serializable");
+            else
+                Console.WriteLine($"Warning: Class {s} is not serializable");
+
+            Assert.IsTrue(check);
+        }
+        [TestMethod]
+        public void Section_Concrete_RebarCollectionTest()
+        {
+            bool check = true;
+
+            RebarCollection s = new RebarCollection();
+            s.AddRange(new ReinforcedConcreteRebar[] {
+                new ReinforcedConcreteRebar(new RebarSectionCircular("", 10, RebarMaterial.B450C), Point2d.Origin),
+                new ReinforcedConcreteRebar(new RebarSectionCircular("", 10, RebarMaterial.B450C), Point2d.Origin),
+                new ReinforcedConcreteRebar(new RebarSectionCircular("", 10, RebarMaterial.B450C), new Point2d(10, 10)),
+                new ReinforcedConcreteRebar(new RebarSectionCircular("", 10, RebarMaterial.B450C), new Point2d(10, 10)),
+                new ReinforcedConcreteRebar(new RebarSectionCircular("", 10, RebarMaterial.B450C), new Point2d(-10, 10)),
+                new ReinforcedConcreteRebar(new RebarSectionCircular("", 10, RebarMaterial.B450C), new Point2d(-10, 10)),
+                new ReinforcedConcreteRebar(new RebarSectionCircular("", 10, RebarMaterial.B450C), new Point2d(10, -10)),
+                new ReinforcedConcreteRebar(new RebarSectionCircular("", 10, RebarMaterial.B450C), new Point2d(10, -10)),
+                new ReinforcedConcreteRebar(new RebarSectionCircular("", 10, RebarMaterial.B450C), new Point2d(-10, -10)),
+                new ReinforcedConcreteRebar(new RebarSectionCircular("", 10, RebarMaterial.B450C), new Point2d(-10, -10))});
+
+            using (var ms = new MemoryStream())
+            {
+                var formatter = new BinaryFormatter();
+                formatter.Serialize(ms, s);
+                ms.Position = 0;
+
+                var casted = formatter.Deserialize(ms);
+                RebarCollection oggettoDeserializzato = (RebarCollection)casted;
+
+                if (s.Equals(oggettoDeserializzato))
+                {
+
+                }
+                else
+                {
+                    check = false;
+                }
+            }
+
+            if (check)
+                Console.WriteLine($"Class {s} is serializable");
+            else
+                Console.WriteLine($"Warning: Class {s} is not serializable");
+
+            Assert.IsTrue(check);
+        }
+
+
         #endregion
 
         #region Generic Sections
