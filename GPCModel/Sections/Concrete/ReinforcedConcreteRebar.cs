@@ -10,14 +10,18 @@ using GPC.Model.Sections.Rebar;
 
 namespace GPC.Model.Sections.Concrete
 {
-
     [Serializable]
     public class ReinforcedConcreteRebar : ModelObjectId, ISerializable
     {
+        #region Variables
+
         protected IRebarSection _rebarSection;
         protected Point2d _position;
         protected double _epsilonP;
 
+        #endregion
+
+        #region Properties
 
         public double Area => _rebarSection.Area;
 
@@ -29,10 +33,11 @@ namespace GPC.Model.Sections.Concrete
 
         public double EpsilonP => _epsilonP;
 
+		#endregion
 
-        #region Public Constructors
+		#region Public Constructors
 
-        public ReinforcedConcreteRebar(IRebarSection section, Point2d position, double sigmaP, int id, string name, Guid guid)
+		public ReinforcedConcreteRebar(IRebarSection section, Point2d position, double sigmaP, int id, string name, Guid guid)
             : base(id, name, guid)
         {
             _rebarSection = section ?? throw new ArgumentNullException(nameof(section));
@@ -46,7 +51,7 @@ namespace GPC.Model.Sections.Concrete
         }
 
         public ReinforcedConcreteRebar(IRebarSection section, Point2d position, double sigmaP = 0.0, int id = IDUNASSIGNED, string name = "")
-            : this(section, position, sigmaP, id, name, new Guid())
+            : this(section, position, sigmaP, id, name, Guid.NewGuid())
         {
 
         }
@@ -59,10 +64,11 @@ namespace GPC.Model.Sections.Concrete
             _epsilonP = info.GetDouble("EpsilonP");
         }
 
+		#endregion
 
-        #endregion
+		#region Public Methods
 
-        protected double GetEpsilonP(double sigmaP)
+		protected double GetEpsilonP(double sigmaP)
         {
             if (sigmaP < 0.0)
                 throw new ArgumentException("SigmaP must be greater than 0");
@@ -78,6 +84,9 @@ namespace GPC.Model.Sections.Concrete
                     RebarMaterial.StrainY, RebarMaterial.StrainU, sigmaP - RebarMaterial.Fyk);
         }
 
+        #endregion
+
+        #region Equals - hashcode - Operators
 
         public override bool Equals(object obj)
         {
@@ -110,9 +119,9 @@ namespace GPC.Model.Sections.Concrete
         {
             base.GetObjectData(info, context);
 
-            info.AddValue("RebarSection", _guid, typeof(IRebarSection));
-            info.AddValue("Position", _name, typeof(Point2d));
-            info.AddValue("EpsilonP", _name);
+            info.AddValue("RebarSection", _rebarSection, typeof(IRebarSection));
+            info.AddValue("Position", _position, typeof(Point2d));
+            info.AddValue("EpsilonP", _epsilonP);
         }
 
         public static bool operator ==(ReinforcedConcreteRebar left, ReinforcedConcreteRebar right)
@@ -125,10 +134,10 @@ namespace GPC.Model.Sections.Concrete
             return !(left == right);
         }
 
+		#endregion
 
-        public class ReinforcedConcreteRebarComparer : IEqualityComparer<ReinforcedConcreteRebar>
+		public class ReinforcedConcreteRebarComparer : IEqualityComparer<ReinforcedConcreteRebar>
         {
-
             /// <returns>
             /// <para> true if both <paramref name="x"/> and <paramref name="y"/> are null </para>
             /// </returns>
@@ -147,7 +156,6 @@ namespace GPC.Model.Sections.Concrete
                 return false;
             }
 
-
             /// <remarks> Only <see cref="ModelObjectId.Id"/> is used as equality parameter </remarks>
             int IEqualityComparer<ReinforcedConcreteRebar>.GetHashCode(ReinforcedConcreteRebar obj)
             {
@@ -157,7 +165,6 @@ namespace GPC.Model.Sections.Concrete
                 }
             }
 
-        }
-
+        }        
     }
 }

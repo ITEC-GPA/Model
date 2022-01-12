@@ -49,7 +49,7 @@ namespace GPC.Model.Sections.Rebar
 
         #endregion
 
-        #region Field Serialization
+        #region Equals - hashcode - Operators
 
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {

@@ -14,6 +14,8 @@ using GPC.Geometry;
 using GPC.Model.Results;
 using GPC.Model.LoadCases;
 using GPC.Model.Sections;
+using GPC.Model.Sections.Concrete;
+using GPC.Model.Sections.Rebar;
 
 namespace GeneralTest
 {
@@ -582,6 +584,8 @@ namespace GeneralTest
 
 		#region Sections
 
+		#region Generic Sections
+
 		[TestMethod]
         public void SectionTest()
         {
@@ -627,7 +631,6 @@ namespace GeneralTest
                         s.AngleX1 != oggettoDeserializzato.AngleX1 ||
                         s.IsSymmetricAlongXLocalAxis != oggettoDeserializzato.IsSymmetricAlongXLocalAxis ||
                         s.IsSymmetricAlongYLocalAxis != oggettoDeserializzato.IsSymmetricAlongYLocalAxis ||
-                        s.Shape != oggettoDeserializzato.Shape ||
                         s.Mesh != oggettoDeserializzato.Mesh)
                         check = false;
                 }
@@ -953,7 +956,11 @@ namespace GeneralTest
             Assert.IsTrue(check);
         }
 
-        [TestMethod]
+		#endregion
+
+		#region Concrete Sections
+
+		[TestMethod]
         public void Section_ShapeExTest()
         {
             bool check = true;
@@ -987,6 +994,146 @@ namespace GeneralTest
 
             Assert.IsTrue(check);
         }
+
+        [TestMethod]
+        public void Section_Concrete_CircularTest()
+        {
+            bool check = true;
+
+            ConcreteSectionCircular s = new ConcreteSectionCircular(10, ConcreteMaterialEN1992.C25_30, "section");
+            using (var ms = new MemoryStream())
+            {
+                var formatter = new BinaryFormatter();
+                formatter.Serialize(ms, s);
+                ms.Position = 0;
+
+                var casted = formatter.Deserialize(ms);
+                ConcreteSectionCircular oggettoDeserializzato = (ConcreteSectionCircular)casted;
+
+                if (s.Equals(oggettoDeserializzato))
+                {
+                    if (!s.Rebars.Equals(oggettoDeserializzato.Rebars))
+                        check = false;
+                }
+                else
+                {
+                    check = false;
+                }
+            }
+
+            if (check)
+                Console.WriteLine($"Class {s} is serializable");
+            else
+                Console.WriteLine($"Warning: Class {s} is not serializable");
+
+            Assert.IsTrue(check);
+        }
+
+        [TestMethod]
+        public void Section_Concrete_CHSTest()
+        {
+            bool check = true;
+
+            ConcreteSectionCHS s = new ConcreteSectionCHS(10, 2, ConcreteMaterialEN1992.C25_30, "section");
+            s.AddRebar(new ReinforcedConcreteRebar(new RebarSectionCircular("", 10, RebarMaterial.B450C), Point2d.Origin));
+
+            using (var ms = new MemoryStream())
+            {
+                var formatter = new BinaryFormatter();
+                formatter.Serialize(ms, s);
+                ms.Position = 0;
+
+                var casted = formatter.Deserialize(ms);
+                ConcreteSectionCHS oggettoDeserializzato = (ConcreteSectionCHS)casted;
+
+                if (s.Equals(oggettoDeserializzato))
+                {
+                    if (!s.Rebars.Equals(oggettoDeserializzato.Rebars))
+                        check = false;
+                }
+                else
+                {
+                    check = false;
+                }
+            }
+
+            if (check)
+                Console.WriteLine($"Class {s} is serializable");
+            else
+                Console.WriteLine($"Warning: Class {s} is not serializable");
+
+            Assert.IsTrue(check);
+        }
+
+        [TestMethod]
+        public void Section_Concrete_TTest()
+        {
+            bool check = true;
+
+            ConcreteSectionT s = new ConcreteSectionT(500, 600, 50, 40, ConcreteMaterialEN1992.C25_30, "section");
+            using (var ms = new MemoryStream())
+            {
+                var formatter = new BinaryFormatter();
+                formatter.Serialize(ms, s);
+                ms.Position = 0;
+
+                var casted = formatter.Deserialize(ms);
+                ConcreteSectionT oggettoDeserializzato = (ConcreteSectionT)casted;
+
+                if (s.Equals(oggettoDeserializzato))
+                {
+                    if (s.Rebars != oggettoDeserializzato.Rebars)
+                        check = false;
+                }
+                else
+                {
+                    check = false;
+                }
+            }
+
+            if (check)
+                Console.WriteLine($"Class {s} is serializable");
+            else
+                Console.WriteLine($"Warning: Class {s} is not serializable");
+
+            Assert.IsTrue(check);
+        }
+
+        [TestMethod]
+        public void Section_Concrete_RectangularTest()
+        {
+            bool check = true;
+
+            ConcreteSectionRectangular s = new ConcreteSectionRectangular(500, 600, ConcreteMaterialEN1992.C25_30, "section");
+            using (var ms = new MemoryStream())
+            {
+                var formatter = new BinaryFormatter();
+                formatter.Serialize(ms, s);
+                ms.Position = 0;
+
+                var casted = formatter.Deserialize(ms);
+                ConcreteSectionRectangular oggettoDeserializzato = (ConcreteSectionRectangular)casted;
+
+                if (s.Equals(oggettoDeserializzato))
+                {
+                    if (s.Rebars != oggettoDeserializzato.Rebars)
+                        check = false;
+                }
+                else
+                {
+                    check = false;
+                }
+            }
+
+            if (check)
+                Console.WriteLine($"Class {s} is serializable");
+            else
+                Console.WriteLine($"Warning: Class {s} is not serializable");
+
+            Assert.IsTrue(check);
+        }
+
+        #endregion
 
         #endregion
 
