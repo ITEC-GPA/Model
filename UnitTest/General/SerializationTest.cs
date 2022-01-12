@@ -32,11 +32,11 @@ namespace GeneralTest
 
                 if (objToTest == oggettoDeserializzato)
                 {
-                    Console.WriteLine($"Class {objToTest.ToString()} is serializable");
+                    Console.WriteLine($"Class {objToTest} is serializable");
                 }
                 else
                 {
-                    Console.WriteLine($"Warning: Class {objToTest.ToString()} is not serializable");
+                    Console.WriteLine($"Warning: Class {objToTest} is not serializable");
                     check = false;
                 }
             }
@@ -80,7 +80,7 @@ namespace GeneralTest
         }
 
         [TestMethod]
-        public void StandardCopSuos2011Test()
+        public void Standard_CopSuos2011Test()
         {
             bool check = true;
 
@@ -107,15 +107,15 @@ namespace GeneralTest
             }
 
             if (check)
-                Console.WriteLine($"Class {s.ToString()} is serializable");
+                Console.WriteLine($"Class {s} is serializable");
             else
-                Console.WriteLine($"Warning: Class {s.ToString()} is not serializable");
+                Console.WriteLine($"Warning: Class {s} is not serializable");
 
             Assert.IsTrue(check);
         }
 
         [TestMethod]
-        public void StandardEN16612Test()
+        public void Standard_EN16612Test()
         {
             bool check = true;
 
@@ -152,15 +152,15 @@ namespace GeneralTest
             }
 
             if (check)
-                Console.WriteLine($"Class {s.ToString()} is serializable");
+                Console.WriteLine($"Class {s} is serializable");
             else
-                Console.WriteLine($"Warning: Class {s.ToString()} is not serializable");
+                Console.WriteLine($"Warning: Class {s} is not serializable");
 
             Assert.IsTrue(check);
         }
 
         [TestMethod]
-        public void StandardEN1990Test()
+        public void Standard_EN1990Test()
         {
             bool check = true;
 
@@ -247,15 +247,15 @@ namespace GeneralTest
             }
 
             if (check)
-                Console.WriteLine($"Class {s.ToString()} is serializable");
+                Console.WriteLine($"Class {s} is serializable");
             else
-                Console.WriteLine($"Warning: Class {s.ToString()} is not serializable");
+                Console.WriteLine($"Warning: Class {s} is not serializable");
 
             Assert.IsTrue(check);
         }
 
         [TestMethod]
-        public void StandardEN1993p11Test()
+        public void Standard_EN1993p11Test()
         {
             bool check = true;
 
@@ -298,15 +298,15 @@ namespace GeneralTest
             }
 
             if (check)
-                Console.WriteLine($"Class {s.ToString()} is serializable");
+                Console.WriteLine($"Class {s} is serializable");
             else
-                Console.WriteLine($"Warning: Class {s.ToString()} is not serializable");
+                Console.WriteLine($"Warning: Class {s} is not serializable");
 
             Assert.IsTrue(check);
         }
 
         [TestMethod]
-        public void StandardUNIEN1993p11Test()
+        public void Standard_UNIEN1993p11Test()
         {
             bool check = true;
 
@@ -349,15 +349,15 @@ namespace GeneralTest
             }
 
             if (check)
-                Console.WriteLine($"Class {s.ToString()} is serializable");
+                Console.WriteLine($"Class {s} is serializable");
             else
-                Console.WriteLine($"Warning: Class {s.ToString()} is not serializable");
+                Console.WriteLine($"Warning: Class {s} is not serializable");
 
             Assert.IsTrue(check);
         }
 
         [TestMethod]
-        public void StandardModelCode2010Test()
+        public void Standard_ModelCode2010Test()
         {
             bool check = true;
 
@@ -393,15 +393,15 @@ namespace GeneralTest
             }
 
             if (check)
-                Console.WriteLine($"Class {s.ToString()} is serializable");
+                Console.WriteLine($"Class {s} is serializable");
             else
-                Console.WriteLine($"Warning: Class {s.ToString()} is not serializable");
+                Console.WriteLine($"Warning: Class {s} is not serializable");
 
             Assert.IsTrue(check);
         }
 
         [TestMethod]
-        public void StandardCNR204Test()
+        public void Standard_CNR204Test()
         {
             bool check = true;
 
@@ -437,15 +437,15 @@ namespace GeneralTest
             }
 
             if (check)
-                Console.WriteLine($"Class {s.ToString()} is serializable");
+                Console.WriteLine($"Class {s} is serializable");
             else
-                Console.WriteLine($"Warning: Class {s.ToString()} is not serializable");
+                Console.WriteLine($"Warning: Class {s} is not serializable");
 
             Assert.IsTrue(check);
         }
 
         [TestMethod]
-        public void StandardNTC2018ConcreteTest()
+        public void Standard_NTC2018ConcreteTest()
         {
             bool check = true;
 
@@ -481,15 +481,15 @@ namespace GeneralTest
             }
 
             if (check)
-                Console.WriteLine($"Class {s.ToString()} is serializable");
+                Console.WriteLine($"Class {s} is serializable");
             else
-                Console.WriteLine($"Warning: Class {s.ToString()} is not serializable");
+                Console.WriteLine($"Warning: Class {s} is not serializable");
 
             Assert.IsTrue(check);
         }
 
         [TestMethod]
-        public void StandardEN1992p11Test()
+        public void Standard_EN1992p11Test()
         {
             bool check = true;
 
@@ -525,15 +525,15 @@ namespace GeneralTest
             }
 
             if (check)
-                Console.WriteLine($"Class {s.ToString()} is serializable");
+                Console.WriteLine($"Class {s} is serializable");
             else
-                Console.WriteLine($"Warning: Class {s.ToString()} is not serializable");
+                Console.WriteLine($"Warning: Class {s} is not serializable");
 
             Assert.IsTrue(check);
         }
 
         [TestMethod]
-        public void StandardUNIEn1992p11Test()
+        public void Standard_UNIEn1992p11Test()
         {
             bool check = true;
 
@@ -569,9 +569,9 @@ namespace GeneralTest
             }
 
             if (check)
-                Console.WriteLine($"Class {s.ToString()} is serializable");
+                Console.WriteLine($"Class {s} is serializable");
             else
-                Console.WriteLine($"Warning: Class {s.ToString()} is not serializable");
+                Console.WriteLine($"Warning: Class {s} is not serializable");
 
             Assert.IsTrue(check);
         }
@@ -636,9 +636,9 @@ namespace GeneralTest
             }
 
             if (check)
-                Console.WriteLine($"Class {s.ToString()} is serializable");
+                Console.WriteLine($"Class {s} is serializable");
             else
-                Console.WriteLine($"Warning: Class {s.ToString()} is not serializable");
+                Console.WriteLine($"Warning: Class {s} is not serializable");
 
             Assert.IsTrue(check);
         }
@@ -648,7 +648,7 @@ namespace GeneralTest
         #region Materials
 
         [TestMethod]
-        public void MaterialTest()
+        public void Material_Test()
         {
             bool check = true;
 
@@ -679,15 +679,15 @@ namespace GeneralTest
             }
 
             if (check)
-                Console.WriteLine($"Class {m.ToString()} is serializable");
+				Console.WriteLine($"Class {m} is serializable");
             else
-                Console.WriteLine($"Warning: Class {m.ToString()} is not serializable");
+                Console.WriteLine($"Warning: Class {m} is not serializable");
 
             Assert.IsTrue(check);
         }
 
         [TestMethod]
-        public void ConcreteMaterialModelCode2010FRCTest()
+        public void Material_ConcreteMaterialModelCode2010FRCTest()
         {
             bool check = true;
 
@@ -730,15 +730,15 @@ namespace GeneralTest
             }
 
             if (check)
-                Console.WriteLine($"Class {m.ToString()} is serializable");
+                Console.WriteLine($"Class {m} is serializable");
             else
-                Console.WriteLine($"Warning: Class {m.ToString()} is not serializable");
+                Console.WriteLine($"Warning: Class {m} is not serializable");
 
             Assert.IsTrue(check);
         }
 
         [TestMethod]
-        public void ConcreteMaterialEN1992Test()
+        public void Material_ConcreteMaterialEN1992Test()
         {
             bool check = true;
 
@@ -780,15 +780,15 @@ namespace GeneralTest
             }
 
             if (check)
-                Console.WriteLine($"Class {m.ToString()} is serializable");
+                Console.WriteLine($"Class {m} is serializable");
             else
-                Console.WriteLine($"Warning: Class {m.ToString()} is not serializable");
+                Console.WriteLine($"Warning: Class {m} is not serializable");
 
             Assert.IsTrue(check);
         }
 
         [TestMethod]
-        public void SteelMaterialTest()
+        public void Material_SteelMaterialTest()
         {
             bool check = true;
 
@@ -822,15 +822,15 @@ namespace GeneralTest
             }
 
             if (check)
-                Console.WriteLine($"Class {m.ToString()} is serializable");
+                Console.WriteLine($"Class {m} is serializable");
             else
-                Console.WriteLine($"Warning: Class {m.ToString()} is not serializable");
+                Console.WriteLine($"Warning: Class {m} is not serializable");
 
             Assert.IsTrue(check);
         }
 
         [TestMethod]
-        public void RebarMaterialTest()
+        public void Material_RebarMaterialTest()
         {
             bool check = true;
 
@@ -864,9 +864,9 @@ namespace GeneralTest
             }
 
             if (check)
-                Console.WriteLine($"Class {m.ToString()} is serializable");
+                Console.WriteLine($"Class {m} is serializable");
             else
-                Console.WriteLine($"Warning: Class {m.ToString()} is not serializable");
+                Console.WriteLine($"Warning: Class {m} is not serializable");
 
             Assert.IsTrue(check);
         }
@@ -876,7 +876,7 @@ namespace GeneralTest
         #region Result
 
         [TestMethod]
-        public void ResultBeamForcesTest()
+        public void Result_ResultBeamForcesTest()
         {
             bool check = true;
 
@@ -909,9 +909,296 @@ namespace GeneralTest
             }
 
             if (check)
-                Console.WriteLine($"Class {m.ToString()} is serializable");
+                Console.WriteLine($"Class {m} is serializable");
             else
-                Console.WriteLine($"Warning: Class {m.ToString()} is not serializable");
+                Console.WriteLine($"Warning: Class {m} is not serializable");
+
+            Assert.IsTrue(check);
+        }
+
+        [TestMethod]
+        public void Result_ResultDisplacementTest()
+        {
+            bool check = true;
+
+            ResultDisplacement m = new ResultDisplacement(CoordinateSystem.Global, 1, 2, 3, 4, 5, 6, 1);
+            using (var ms = new MemoryStream())
+            {
+                var formatter = new BinaryFormatter();
+                formatter.Serialize(ms, m);
+                ms.Position = 0;
+
+                var casted = formatter.Deserialize(ms);
+                ResultDisplacement oggettoDeserializzato = (ResultDisplacement)casted;
+
+                if (m.Equals(oggettoDeserializzato))
+                {
+                    if (m.D1 != oggettoDeserializzato.D1 ||
+                        m.D2 != oggettoDeserializzato.D2 ||
+                        m.D3 != oggettoDeserializzato.D3 ||
+                        m.R1 != oggettoDeserializzato.R1 ||
+                        m.R2 != oggettoDeserializzato.R2 ||
+                        m.CoordinateSystem != oggettoDeserializzato.CoordinateSystem ||
+                        m.Id != oggettoDeserializzato.Id ||
+                        m.R3 != oggettoDeserializzato.R3)
+                        check = false;
+                }
+                else
+                {
+                    check = false;
+                }
+            }
+
+            if (check)
+                Console.WriteLine($"Class {m} is serializable");
+            else
+                Console.WriteLine($"Warning: Class {m} is not serializable");
+
+            Assert.IsTrue(check);
+        }
+
+        [TestMethod]
+        public void Result_ResultPlateForcesTest()
+        {
+            bool check = true;
+
+            ResultPlateForces m = new ResultPlateForces(CoordinateSystem.Global, 1, 2, 3, 4, 5, 6, 7, 8, 1);
+            using (var ms = new MemoryStream())
+            {
+                var formatter = new BinaryFormatter();
+                formatter.Serialize(ms, m);
+                ms.Position = 0;
+
+                var casted = formatter.Deserialize(ms);
+                ResultPlateForces oggettoDeserializzato = (ResultPlateForces)casted;
+
+                if (m.Equals(oggettoDeserializzato))
+                {
+                    if (m.Fxx != oggettoDeserializzato.Fxx ||
+                        m.Fyy != oggettoDeserializzato.Fyy ||
+                        m.Fzz != oggettoDeserializzato.Fzz ||
+                        m.Fxy != oggettoDeserializzato.Fxy ||
+                        m.Fxz != oggettoDeserializzato.Fxz ||
+                        m.Fyz != oggettoDeserializzato.Fyz ||
+                        m.Mxx != oggettoDeserializzato.Mxx ||
+                        m.Myy != oggettoDeserializzato.Myy ||
+                        m.Mzz != oggettoDeserializzato.Mzz ||
+                        m.Mxy != oggettoDeserializzato.Mxy ||
+                        m.Mxz != oggettoDeserializzato.Mxz ||
+                        m.Myz != oggettoDeserializzato.Myz ||
+                        m.CoordinateSystem != oggettoDeserializzato.CoordinateSystem ||
+                        m.Id != oggettoDeserializzato.Id)
+                        check = false;
+                }
+                else
+                {
+                    check = false;
+                }
+            }
+
+            if (check)
+                Console.WriteLine($"Class {m} is serializable");
+            else
+                Console.WriteLine($"Warning: Class {m} is not serializable");
+
+            Assert.IsTrue(check);
+        }
+
+        [TestMethod]
+        public void Result_ResultPlateStressTest()
+        {
+            bool check = true;
+
+            ResultPlateStress m = new ResultPlateStress(CoordinateSystem.Global, 
+                new ResultStress(CoordinateSystem.Global, 1, 2, 3, 4, 5, 6, "a", 1),
+                new ResultStress(CoordinateSystem.Global, 1, 2, 3, 4, 5, 6, "b", 1),
+                new ResultStress(CoordinateSystem.Global, 1, 2, 3, 4, 5, 6, "c", 1),
+                "Test", 1);
+
+            using (var ms = new MemoryStream())
+            {
+                var formatter = new BinaryFormatter();
+                formatter.Serialize(ms, m);
+                ms.Position = 0;
+
+                var casted = formatter.Deserialize(ms);
+                ResultPlateStress oggettoDeserializzato = (ResultPlateStress)casted;
+
+                if (m.Equals(oggettoDeserializzato))
+                {
+                    if (m.LowerFace != oggettoDeserializzato.LowerFace ||
+                        m.MidFace != oggettoDeserializzato.MidFace ||
+                        m.UpperFace != oggettoDeserializzato.UpperFace ||
+                        m.CoordinateSystem != oggettoDeserializzato.CoordinateSystem ||
+                        m.Id != oggettoDeserializzato.Id)
+                        check = false;
+                }
+                else
+                {
+                    check = false;
+                }
+            }
+
+            if (check)
+                Console.WriteLine($"Class {m} is serializable");
+            else
+                Console.WriteLine($"Warning: Class {m} is not serializable");
+
+            Assert.IsTrue(check);
+        }
+
+        [TestMethod]
+        public void Result_ResultStressTest()
+        {
+            bool check = true;
+
+            ResultStress m = new ResultStress(CoordinateSystem.Global, 1, 2, 3, 4, 5, 6, "a", 1);
+
+            using (var ms = new MemoryStream())
+            {
+                var formatter = new BinaryFormatter();
+                formatter.Serialize(ms, m);
+                ms.Position = 0;
+
+                var casted = formatter.Deserialize(ms);
+                ResultStress oggettoDeserializzato = (ResultStress)casted;
+
+                if (m.Equals(oggettoDeserializzato))
+                {
+                    if (m.Sxx != oggettoDeserializzato.Sxx ||
+                        m.Syy != oggettoDeserializzato.Syy ||
+                        m.Szz != oggettoDeserializzato.Szz ||
+                        m.Sxy != oggettoDeserializzato.Sxy ||
+                        m.Sxz != oggettoDeserializzato.Sxz ||
+                        m.Syz != oggettoDeserializzato.Syz ||
+                        m.CoordinateSystem != oggettoDeserializzato.CoordinateSystem ||
+                        m.Id != oggettoDeserializzato.Id)
+                        check = false;
+                }
+                else
+                {
+                    check = false;
+                }
+            }
+
+            if (check)
+                Console.WriteLine($"Class {m} is serializable");
+            else
+                Console.WriteLine($"Warning: Class {m} is not serializable");
+
+            Assert.IsTrue(check);
+        }
+
+        [TestMethod]
+        public void Result_ResultLocationIdTest()
+        {
+            bool check = true;
+
+            ResultLocationId m = new ResultLocationId(new ResultPlateForces[] {
+                new ResultPlateForces(CoordinateSystem.Global, 1, 2, 3, 4, 5, 6, 7, 8, 1)}, 1, "a");
+
+            using (var ms = new MemoryStream())
+            {
+                var formatter = new BinaryFormatter();
+                formatter.Serialize(ms, m);
+                ms.Position = 0;
+
+                var casted = formatter.Deserialize(ms);
+                ResultLocationId oggettoDeserializzato = (ResultLocationId)casted;
+
+                if (m.Equals(oggettoDeserializzato))
+                {
+                    if (m.ResultTypes != oggettoDeserializzato.ResultTypes ||
+                        m.Id != oggettoDeserializzato.Id)
+                        check = false;
+                }
+                else
+                {
+                    check = false;
+                }
+            }
+
+            if (check)
+                Console.WriteLine($"Class {m} is serializable");
+            else
+                Console.WriteLine($"Warning: Class {m} is not serializable");
+
+            Assert.IsTrue(check);
+        }
+
+        [TestMethod]
+        public void Result_ResultLocationStationTest()
+        {
+            bool check = true;
+
+            ResultLocationStation m = new ResultLocationStation(new ResultBeamForces[] {
+                new ResultBeamForces(1, 2, 3, 4, 5, 6, CoordinateSystem.Global, 1)}, 1, 2);
+
+            using (var ms = new MemoryStream())
+            {
+                var formatter = new BinaryFormatter();
+                formatter.Serialize(ms, m);
+                ms.Position = 0;
+
+                var casted = formatter.Deserialize(ms);
+                ResultLocationStation oggettoDeserializzato = (ResultLocationStation)casted;
+
+                if (m.Equals(oggettoDeserializzato))
+                {
+                    if (m.ResultTypes != oggettoDeserializzato.ResultTypes ||
+                        m.DistanceFromStartPoint != oggettoDeserializzato.DistanceFromStartPoint ||
+                        m.ElementLenght != oggettoDeserializzato.ElementLenght ||
+                        m.Id != oggettoDeserializzato.Id)
+                        check = false;
+                }
+                else
+                {
+                    check = false;
+                }
+            }
+
+            if (check)
+                Console.WriteLine($"Class {m} is serializable");
+            else
+                Console.WriteLine($"Warning: Class {m} is not serializable");
+
+            Assert.IsTrue(check);
+        }
+
+        [TestMethod]
+        public void Result_ResultLocationPointTest()
+        {
+            bool check = true;
+
+            ResultLocationPoint m = new ResultLocationPoint(new ResultPlateForces[] {
+                new ResultPlateForces(CoordinateSystem.Global, 1, 2, 3, 4, 5, 6, 7, 1)}, Point2d.Origin, 1);
+
+            using (var ms = new MemoryStream())
+            {
+                var formatter = new BinaryFormatter();
+                formatter.Serialize(ms, m);
+                ms.Position = 0;
+
+                var casted = formatter.Deserialize(ms);
+                ResultLocationPoint oggettoDeserializzato = (ResultLocationPoint)casted;
+
+                if (m.Equals(oggettoDeserializzato))
+                {
+                    if (m.Location != oggettoDeserializzato.Location ||
+                        m.ResultTypes != oggettoDeserializzato.ResultTypes ||
+                        m.Id != oggettoDeserializzato.Id)
+                        check = false;
+                }
+                else
+                {
+                    check = false;
+                }
+            }
+
+            if (check)
+                Console.WriteLine($"Class {m} is serializable");
+            else
+                Console.WriteLine($"Warning: Class {m} is not serializable");
 
             Assert.IsTrue(check);
         }

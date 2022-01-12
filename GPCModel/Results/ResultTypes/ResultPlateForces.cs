@@ -8,9 +8,10 @@ namespace GPC.Model.Results
     [Serializable]
     public sealed class ResultPlateForces : ResultType, IEquatable<ResultPlateForces>, ISerializable, IPlateResult, IResult<ResultPlateForces>
     {
+		#region Variables
 
-        /// Local Forces
-        private readonly double _fxx;
+		/// Local Forces
+		private readonly double _fxx;
         private readonly double _fyy;
         private readonly double _fzz;
         private readonly double _fxy;
@@ -25,11 +26,12 @@ namespace GPC.Model.Results
         private readonly double _mxz;
         private readonly double _myz;
 
+		#endregion
 
-        #region Properties
+		#region Properties
 
-        /// Local Forces
-        public double Fxx => _fxx;
+		/// Local Forces
+		public double Fxx => _fxx;
         public double Fyy => _fyy;
         public double Fzz => _fzz;
         public double Fxy => _fxy;
@@ -44,21 +46,21 @@ namespace GPC.Model.Results
         public double Mxz => _mxz;
         public double Myz => _myz;
 
-        #endregion
+		#endregion
 
+		#region Constructor
 
-
-        /// <param name="coordinateSystem">Coordinate system where these result are provided</param>
-        /// <param name="fxx"></param>
-        /// <param name="fyy"></param>
-        /// <param name="fxy"></param>
-        /// <param name="fxz"></param>
-        /// <param name="fyz"></param>
-        /// <param name="mxx"></param>
-        /// <param name="myy"></param>
-        /// <param name="mxy"></param>
-        /// <param name="id"></param>
-        public ResultPlateForces(CoordinateSystem coordinateSystem, 
+		/// <param name="coordinateSystem">Coordinate system where these result are provided</param>
+		/// <param name="fxx"></param>
+		/// <param name="fyy"></param>
+		/// <param name="fxy"></param>
+		/// <param name="fxz"></param>
+		/// <param name="fyz"></param>
+		/// <param name="mxx"></param>
+		/// <param name="myy"></param>
+		/// <param name="mxy"></param>
+		/// <param name="id"></param>
+		public ResultPlateForces(CoordinateSystem coordinateSystem, 
             double fxx, double fyy, double fxy, double fxz, double fyz, double mxx, double myy, double mxy, int id = ModelObjectId.IDUNASSIGNED) 
             : base(coordinateSystem, string.Empty, id)
         {
@@ -76,20 +78,54 @@ namespace GPC.Model.Results
             _myz = 0;
         }
 
+        internal ResultPlateForces(SerializationInfo info, StreamingContext context)
+            : base(info, context)
+		{
+            _fxx = info.GetDouble("Fxx");
+            _fyy = info.GetDouble("Fyy");
+            _fzz = info.GetDouble("Fzz");
+            _fxy = info.GetDouble("Fxy");
+            _fxz = info.GetDouble("Fxz");
+            _fyz = info.GetDouble("Fyz");
 
-        public override void GetObjectData(SerializationInfo info, StreamingContext context)
-        {
-            base.GetObjectData(info, context);
-            throw new NotSupportedException();
+            _mxx = info.GetDouble("Mxx");
+            _myy = info.GetDouble("Myy");
+            _mzz = info.GetDouble("Mzz");
+            _mxy = info.GetDouble("Mxy");
+            _mxz = info.GetDouble("Mxz");
+            _myz = info.GetDouble("Myz");
         }
+
+        #endregion
+
+        #region Public Methods
 
         public ResultPlateForces ToCoordinateSystem(CoordinateSystem coordinateSystem)
         {
             throw new NotImplementedException();
         }
 
+		#endregion
 
-        #region Equals, hashcode, operators
+		#region Equals, hashcode, operators
+
+		public override void GetObjectData(SerializationInfo info, StreamingContext context)
+        {
+            base.GetObjectData(info, context);
+            info.AddValue("Fxx", _fxx);
+            info.AddValue("Fyy", _fyy);
+            info.AddValue("Fzz", _fzz);
+            info.AddValue("Fxy", _fxy);
+            info.AddValue("Fxz", _fxz);
+            info.AddValue("Fyz", _fyz);
+
+            info.AddValue("Mxx", _mxx);
+            info.AddValue("Myy", _myy);
+            info.AddValue("Mzz", _mzz);
+            info.AddValue("Mxy", _mxy);
+            info.AddValue("Mxz", _mxz);
+            info.AddValue("Myz", _myz);
+        }
 
         public override bool Equals(object obj)
         {
@@ -142,7 +178,6 @@ namespace GPC.Model.Results
             }
         }
 
-
         public static bool operator ==(ResultPlateForces obj1, ResultPlateForces obj2)
         {
             if (obj1 is null)
@@ -161,8 +196,6 @@ namespace GPC.Model.Results
             return !(obj1 == obj2);
         }
 
-
         #endregion
     }
-
 }

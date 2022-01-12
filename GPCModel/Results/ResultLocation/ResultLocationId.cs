@@ -10,6 +10,7 @@ namespace GPC.Model.Results
     [Serializable]
     public sealed class ResultLocationId : ResultLocation, ISerializable, IEquatable<ResultLocationId>
     {
+        #region Public Constructors
 
         public ResultLocationId(IEnumerable<IPlateResult> results, int id)
             : base(results.Cast<ResultType>().ToArray(), id)
@@ -29,17 +30,21 @@ namespace GPC.Model.Results
 
         }
 
-        public ResultLocationId(SerializationInfo info, StreamingContext context)
-            : base(info, context)
-        {
-
-        }
-
         public ResultLocationId(ResultType[] results, int id, string name)
             : base(results, id, name)
         {
 
         }
+
+        internal ResultLocationId(SerializationInfo info, StreamingContext context)
+            : base(info, context)
+        {
+
+        }
+
+        #endregion
+
+        #region Public Methods
 
         public override bool Equals(object obj)
         {
@@ -74,5 +79,7 @@ namespace GPC.Model.Results
         {
             return !(left == right);
         }
-    }
+
+		#endregion
+	}
 }

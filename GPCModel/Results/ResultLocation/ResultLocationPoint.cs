@@ -8,14 +8,22 @@ using GPC.Geometry;
 
 namespace GPC.Model.Results
 {
-
     [Serializable]
     public sealed class ResultLocationPoint : ResultLocation, ISerializable, IEquatable<ResultLocationPoint>
     {
+        #region Variables
+
         private readonly Point2d _location;
+
+        #endregion
+
+        #region Properties
 
         public Point2d Location => _location;
 
+        #endregion
+
+        #region Public Constructors
 
         public ResultLocationPoint(IEnumerable<IPlateResult> results, Point2d location, int id = ModelObjectId.IDUNASSIGNED)
             : base(results.Cast<ResultType>().ToArray(), id)
@@ -29,12 +37,15 @@ namespace GPC.Model.Results
             _location = location;
         }
 
-        public ResultLocationPoint(SerializationInfo info, StreamingContext context)
+        internal ResultLocationPoint(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
             _location = (Point2d)info.GetValue("Location", typeof(Point2d));
         }
 
+        #endregion
+
+        #region Public Methods
 
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
@@ -86,5 +97,7 @@ namespace GPC.Model.Results
         {
             return !(obj1 == obj2);
         }
-    }
+
+		#endregion
+	}
 }

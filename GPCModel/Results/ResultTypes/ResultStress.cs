@@ -10,7 +10,6 @@ using MathNet.Numerics.LinearAlgebra;
 
 namespace GPC.Model.Results
 {
-
     [Serializable]
     public sealed class ResultStress : ResultType, IEquatable<ResultStress>, ISerializable, IBrickResult, IResult<ResultStress>
     {
@@ -38,13 +37,11 @@ namespace GPC.Model.Results
         private double _s22;
         private double _s33;
 
-
         private bool _vonMisesStressCalculated;
         private double _vM;
 
         #endregion
-
-
+        
         #region Properties
 
         public double Sxx => _sxx;
@@ -98,9 +95,7 @@ namespace GPC.Model.Results
             }
         }
 
-
         #endregion
-
 
         #region Public Constructors
 
@@ -125,8 +120,7 @@ namespace GPC.Model.Results
             _syz = syz;
         }
 
-
-        public ResultStress(SerializationInfo info, StreamingContext context)
+        internal ResultStress(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
             _sxx = (double)info.GetValue("Sxx", typeof(double));
@@ -137,8 +131,11 @@ namespace GPC.Model.Results
             _syz = (double)info.GetValue("Syz", typeof(double));
         }
 
+		#endregion
 
-        public override void GetObjectData(SerializationInfo info, StreamingContext context)
+		#region Public Methods  
+
+		public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             base.GetObjectData(info, context);
             info.AddValue("Sxx", _sxx);
@@ -149,20 +146,18 @@ namespace GPC.Model.Results
             info.AddValue("Syz", _syz);
         }
 
+		#endregion
 
-        #endregion
+		#region Public method - Stresses
 
-
-        #region Public method - Stresses
-
-        /// <summary>
-        /// Calculate the Principal stresses
-        /// <para>This method use an approximate solution.</para>
-        /// <para>If <see cref="Sxx"/>, <see cref="Sxx"/>, <see cref="Sxz"/> and <see cref="Syz"/> are relavant then the 
-        /// <seealso cref="CalculatePrincipalStressFullMethod"/> must be used</para>
-        /// <para>If <see cref="Sxz"/> and <see cref="Syz"/> are 0. This method gives the exact solution</para>
-        /// </summary>
-        internal void CalculatePrincipalStressSimplifiedMethod()
+		/// <summary>
+		/// Calculate the Principal stresses
+		/// <para>This method use an approximate solution.</para>
+		/// <para>If <see cref="Sxx"/>, <see cref="Sxx"/>, <see cref="Sxz"/> and <see cref="Syz"/> are relavant then the 
+		/// <seealso cref="CalculatePrincipalStressFullMethod"/> must be used</para>
+		/// <para>If <see cref="Sxz"/> and <see cref="Syz"/> are 0. This method gives the exact solution</para>
+		/// </summary>
+		internal void CalculatePrincipalStressSimplifiedMethod()
         {
             _s11 = ((_sxx + _syy) / 2.0) + Math.Sqrt((Math.Pow((_sxx - _syy), 2.0) / 4.0) + Math.Pow(_sxy, 2.0));
             _s22 = ((_sxx + _syy) / 2.0) - Math.Sqrt((Math.Pow((_sxx - _syy), 2.0) / 4.0) + Math.Pow(_sxy, 2.0));
@@ -208,7 +203,6 @@ namespace GPC.Model.Results
             _principalStressCalculated = true;
         }
 
-
         /// <summary>
         /// Return the VonMises Stress
         /// </summary>
@@ -249,7 +243,6 @@ namespace GPC.Model.Results
             return globalstress;
         }
 
-
         /// <returns>Return the stress tensor</returns>
         public Matrix<double> GetTensor(bool toGlobal = false)
         {
@@ -267,7 +260,6 @@ namespace GPC.Model.Results
                 stress[2, 2] = _szz;
 
                 return _coordinateSystem.TrfMatrix.Resize(3, 3) * stress * _coordinateSystem.TrfMatrix.Resize(3, 3).Transpose();
-
             }
             else
             {
@@ -296,8 +288,7 @@ namespace GPC.Model.Results
         }
 
         #endregion
-
-
+                
         #region Equals, hashcode, operators
 
         public override bool Equals(object obj)
@@ -375,7 +366,6 @@ namespace GPC.Model.Results
             }
             else
             {
-
                 var rotated = new List<ResultStress>
                 {
                     [0] = values[0]
@@ -392,10 +382,7 @@ namespace GPC.Model.Results
                                                 Utilities.Maths.Averages.ArithmeticMean(rotated.Select(i => i.Syz).ToArray()),
                                                 string.Join(" ", values.Select(i => i.Name).ToHashSet().ToArray())
                                         );
-
-
             }
-
         }
 
 
@@ -440,7 +427,6 @@ namespace GPC.Model.Results
                                         );
             }
         }
-
 
         public static ResultStress operator -(ResultStress obj1, ResultStress obj2)
         {

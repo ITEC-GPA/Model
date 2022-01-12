@@ -10,15 +10,22 @@ namespace GPC.Model.Results
     [Serializable]
     public abstract class ResultLocation : ModelObjectId, ISerializable
     {
+        #region Variables
 
         protected readonly ResultType[] _resultTypes;
 
+        #endregion
+
+        #region Properties
 
         /// <summary>
         /// Return a clone of the results
         /// </summary>
         public ResultType[] ResultTypes => (ResultType[])_resultTypes.Clone();
 
+        #endregion
+
+        #region Public Constructors
 
         public ResultLocation(ResultType[] results, int id)
             : this(results, id, "")
@@ -32,11 +39,15 @@ namespace GPC.Model.Results
             _resultTypes = results ?? throw new ArgumentNullException(nameof(results));
         }
 
-        public ResultLocation(SerializationInfo info, StreamingContext context)
+        protected ResultLocation(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
             _resultTypes = (ResultType[])info.GetValue("ResultType", typeof(ResultType[]));
         }
+
+        #endregion
+
+        #region Public Methods
 
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
@@ -44,24 +55,22 @@ namespace GPC.Model.Results
             info.AddValue("ResultType", _resultTypes, typeof(ResultType[]));
         }
 
-
         // non modificare la visibilità interna, la lista non deve essere modificabile
         internal ResultType[] GetResults()
         {
             return _resultTypes;
         }
 
-
         public IEnumerator GetResultsEnumerator()
         {
             return _resultTypes.GetEnumerator();
         }
 
+		#endregion
 
+		#region  Equals - hashcode - Operators
 
-        #region  Equals - hashcode - Operators
-
-        public override bool Equals(object obj)
+		public override bool Equals(object obj)
         {
 
             return (obj is ResultLocation resultLocation) && _resultTypes.ScrambledEquals(resultLocation._resultTypes) 

@@ -22,12 +22,17 @@ namespace GPC.Model.Results
         #endregion
 
         #region Properties
-
+        
         public double D1 => _d1;
+
         public double D2 => _d2;
+
         public double D3 => _d3;
+
         public double R1 => _r1;
+
         public double R2 => _r2;
+
         public double R3 => _r3;
 
         #endregion
@@ -53,7 +58,6 @@ namespace GPC.Model.Results
             _r3 = r3;
         }
 
-
         /// <param name="d1">Displacement along <see cref="CoordinateSystem.V1"/> direction </param>
         /// <param name="d2">Displacement along <see cref="CoordinateSystem.V2"/> direction </param>
         /// <param name="d3">Displacement along <see cref="CoordinateSystem.V3"/> direction </param>
@@ -72,7 +76,6 @@ namespace GPC.Model.Results
             _r3 = r3;
         }
 
-
         public ResultDisplacement(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
@@ -83,7 +86,6 @@ namespace GPC.Model.Results
             _r2 = info.GetDouble("R2");
             _r3 = info.GetDouble("R3");
         }
-
 
         #endregion
 
@@ -215,7 +217,6 @@ namespace GPC.Model.Results
 
         #region Equals, hashcode, operators
 
-
         public override bool Equals(object obj)
         {
             if (obj is null)
@@ -227,15 +228,13 @@ namespace GPC.Model.Results
             return Equals((ResultDisplacement)obj);
         }
 
-
         public bool Equals(ResultDisplacement other)
         {
             return !(other is null) &&
-                    _d1 == other._d1 && _d2 == other._d2 && _d3 == other._d3 &&
-                    _r1 == other._r1 && _r2 == other._r2 && _r3 == other._r3 &&
-                    base.Equals(other);
+                _d1 == other._d1 && _d2 == other._d2 && _d3 == other._d3 &&
+                _r1 == other._r1 && _r2 == other._r2 && _r3 == other._r3 &&
+                base.Equals(other);
         }
-
 
         public override int GetHashCode()
         {
@@ -258,14 +257,14 @@ namespace GPC.Model.Results
 
             if (values.Select(i => i._coordinateSystem).Distinct().Count() > 0)
             {
-                return new ResultDisplacement(values[0]._coordinateSystem,
-                                        Utilities.Maths.Averages.ArithmeticMean(values.Select(i => i.D1).ToArray()),
-                                        Utilities.Maths.Averages.ArithmeticMean(values.Select(i => i.D2).ToArray()),
-                                        Utilities.Maths.Averages.ArithmeticMean(values.Select(i => i.D3).ToArray()),
-                                        Utilities.Maths.Averages.ArithmeticMean(values.Select(i => i.R1).ToArray()),
-                                        Utilities.Maths.Averages.ArithmeticMean(values.Select(i => i.R2).ToArray()),
-                                        Utilities.Maths.Averages.ArithmeticMean(values.Select(i => i.R3).ToArray())
-                                        );
+                return new ResultDisplacement(
+                    values[0]._coordinateSystem,
+                    Utilities.Maths.Averages.ArithmeticMean(values.Select(i => i.D1).ToArray()),
+                    Utilities.Maths.Averages.ArithmeticMean(values.Select(i => i.D2).ToArray()),
+                    Utilities.Maths.Averages.ArithmeticMean(values.Select(i => i.D3).ToArray()),
+                    Utilities.Maths.Averages.ArithmeticMean(values.Select(i => i.R1).ToArray()),
+                    Utilities.Maths.Averages.ArithmeticMean(values.Select(i => i.R2).ToArray()),
+                    Utilities.Maths.Averages.ArithmeticMean(values.Select(i => i.R3).ToArray()));
             }
             else
             {
@@ -274,7 +273,6 @@ namespace GPC.Model.Results
             }
 
         }
-
 
         public static bool operator ==(ResultDisplacement obj1, ResultDisplacement obj2)
         {
@@ -295,7 +293,6 @@ namespace GPC.Model.Results
             return !(obj1 == obj2);
         }
 
-
         /// <returns>The sum of the displacements written in the <paramref name="obj1"/> <see cref="CoordinateSystem"/></returns>
         public static ResultDisplacement operator +(ResultDisplacement obj1, ResultDisplacement obj2)
         {
@@ -304,13 +301,14 @@ namespace GPC.Model.Results
 
             if (obj1._coordinateSystem.Equals(obj2._coordinateSystem))
             {
-                return new ResultDisplacement(obj1._coordinateSystem, obj1._d1 + obj2._d1,
-                                                                      obj1._d2 + obj2._d2,
-                                                                      obj1._d3 + obj2._d3,
-                                                                      obj1._r1 + obj2._r1,
-                                                                      obj1._r2 + obj2._r2,
-                                                                      obj1._r3 + obj2._r3
-                                                                      );
+                return new ResultDisplacement(
+                    obj1._coordinateSystem, 
+                    obj1._d1 + obj2._d1,
+                    obj1._d2 + obj2._d2,
+                    obj1._d3 + obj2._d3,
+                    obj1._r1 + obj2._r1,
+                    obj1._r2 + obj2._r2,
+                    obj1._r3 + obj2._r3);
             }
             else
             {
@@ -323,16 +321,16 @@ namespace GPC.Model.Results
                 var obj2GlobalDispToObj1 = obj1._coordinateSystem.ToLocal(obj2GlobalDisp.displacements); // spostamenti nel locale di obj1
                 var obj2GlobalRotToObj2 = obj1._coordinateSystem.ToLocal(obj2GlobalDisp.rotations);   // rotazioni nel locale di obj1
 
-
-                return new ResultDisplacement(obj1._coordinateSystem, obj1._d1 + obj2GlobalDispToObj1.X,
-                                                                      obj1._d2 + obj2GlobalDispToObj1.Y,
-                                                                      obj1._d3 + obj2GlobalDispToObj1.Z,
-                                                                      obj1._r1 + obj2GlobalRotToObj2.X,
-                                                                      obj1._r2 + obj2GlobalRotToObj2.Y,
-                                                                      obj1._r3 + obj2GlobalRotToObj2.Z);
+                return new ResultDisplacement(
+                    obj1._coordinateSystem, 
+                    obj1._d1 + obj2GlobalDispToObj1.X,
+                    obj1._d2 + obj2GlobalDispToObj1.Y,
+                    obj1._d3 + obj2GlobalDispToObj1.Z,
+                    obj1._r1 + obj2GlobalRotToObj2.X,
+                    obj1._r2 + obj2GlobalRotToObj2.Y,
+                    obj1._r3 + obj2GlobalRotToObj2.Z);
             }
         }
-
 
         /// <returns>The sum of the displacements written in the <paramref name="obj1"/> <see cref="CoordinateSystem"/></returns>
         public static ResultDisplacement operator -(ResultDisplacement obj1, ResultDisplacement obj2)
@@ -342,13 +340,14 @@ namespace GPC.Model.Results
 
             if (obj1._coordinateSystem.Equals(obj2._coordinateSystem))
             {
-                return new ResultDisplacement(obj1._coordinateSystem, obj1._d1 - obj2._d1,
-                                                                      obj1._d2 - obj2._d2,
-                                                                      obj1._d3 - obj2._d3,
-                                                                      obj1._r1 - obj2._r1,
-                                                                      obj1._r2 - obj2._r2,
-                                                                      obj1._r3 - obj2._r3
-                                                                      );
+                return new ResultDisplacement(
+                    obj1._coordinateSystem, 
+                    obj1._d1 - obj2._d1,
+                    obj1._d2 - obj2._d2,
+                    obj1._d3 - obj2._d3,
+                    obj1._r1 - obj2._r1,
+                    obj1._r2 - obj2._r2,
+                    obj1._r3 - obj2._r3);
             }
             else
             {
@@ -361,16 +360,16 @@ namespace GPC.Model.Results
                 var obj2GlobalDispToObj1 = obj1._coordinateSystem.ToLocal(obj2GlobalDisp.displacements); // spostamenti nel locale di obj1
                 var obj2GlobalRotToObj2 = obj1._coordinateSystem.ToLocal(obj2GlobalDisp.rotations);   // rotazioni nel locale di obj1
 
-
-                return new ResultDisplacement(obj1._coordinateSystem, obj1._d1 - obj2GlobalDispToObj1.X,
-                                                                      obj1._d2 - obj2GlobalDispToObj1.Y,
-                                                                      obj1._d3 - obj2GlobalDispToObj1.Z,
-                                                                      obj1._r1 - obj2GlobalRotToObj2.X,
-                                                                      obj1._r2 - obj2GlobalRotToObj2.Y,
-                                                                      obj1._r3 - obj2GlobalRotToObj2.Z);
+                return new ResultDisplacement(
+                    obj1._coordinateSystem, 
+                    obj1._d1 - obj2GlobalDispToObj1.X,
+                    obj1._d2 - obj2GlobalDispToObj1.Y,
+                    obj1._d3 - obj2GlobalDispToObj1.Z,
+                    obj1._r1 - obj2GlobalRotToObj2.X,
+                    obj1._r2 - obj2GlobalRotToObj2.Y,
+                    obj1._r3 - obj2GlobalRotToObj2.Z);
             }
         }
-
 
         /// <returns>Multiply the displacements for a given factor</returns>
         public static ResultDisplacement operator *(ResultDisplacement obj1, double factor)
@@ -378,14 +377,15 @@ namespace GPC.Model.Results
             if (obj1 is null)
                 throw new ArgumentNullException();
 
-            return new ResultDisplacement(obj1._coordinateSystem, obj1._d1 * factor,
-                                                                  obj1._d2 * factor,
-                                                                  obj1._d3 * factor,
-                                                                  obj1._r1 * factor,
-                                                                  obj1._r2 * factor,
-                                                                  obj1._r3 * factor);
+            return new ResultDisplacement(
+                obj1._coordinateSystem, 
+                obj1._d1 * factor,
+                obj1._d2 * factor,
+                obj1._d3 * factor,
+                obj1._r1 * factor,
+                obj1._r2 * factor,
+                obj1._r3 * factor);
         }
-
 
         /// <returns>Multiply the displacements for a given factor</returns>
         public static ResultDisplacement operator *(ResultDisplacement obj1, int factor)
