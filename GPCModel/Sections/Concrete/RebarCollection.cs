@@ -8,7 +8,8 @@ using GPC.Utilities.Extensions;
 
 namespace GPC.Model.Sections.Concrete
 {
-    public class RebarCollection : ModelObjectIdSet<ReinforcedConcreteRebar>
+    [Serializable]
+    public class RebarCollection : ModelObjectIdSet<ReinforcedConcreteRebar>, ISerializable
     {
         #region Variables
 
