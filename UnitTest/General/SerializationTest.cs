@@ -11,6 +11,7 @@ using GPC.Model.Standards;
 using static System.Collections.Specialized.BitVector32;
 using GPC.Model.Materials;
 using GPC.Geometry;
+using GPC.Model.Results;
 
 namespace GeneralTest
 {
@@ -737,7 +738,7 @@ namespace GeneralTest
         }
 
         [TestMethod]
-        public void ConcreteConcreteMaterialEN1992Test()
+        public void ConcreteMaterialEN1992Test()
         {
             bool check = true;
 
@@ -770,6 +771,135 @@ namespace GeneralTest
                         m.StrainUTension != oggettoDeserializzato.StrainUTension ||
                         m.CompressionStressStrainDiagram != oggettoDeserializzato.CompressionStressStrainDiagram ||
                         m.TensionStressStrainDiagram != oggettoDeserializzato.TensionStressStrainDiagram)
+                        check = false;
+                }
+                else
+                {
+                    check = false;
+                }
+            }
+
+            if (check)
+                Console.WriteLine($"Class {m.ToString()} is serializable");
+            else
+                Console.WriteLine($"Warning: Class {m.ToString()} is not serializable");
+
+            Assert.IsTrue(check);
+        }
+
+        [TestMethod]
+        public void SteelMaterialTest()
+        {
+            bool check = true;
+
+            SteelMaterial m = new SteelMaterial("test", 10, 15, 20, 30, 0.2, 20, 5);
+            using (var ms = new MemoryStream())
+            {
+                var formatter = new BinaryFormatter();
+                formatter.Serialize(ms, m);
+                ms.Position = 0;
+
+                var casted = formatter.Deserialize(ms);
+                SteelMaterial oggettoDeserializzato = (SteelMaterial)casted;
+
+                if (m.Equals(oggettoDeserializzato))
+                {
+                    if (m.AlfaThermalExpansion != oggettoDeserializzato.AlfaThermalExpansion ||
+                        m.Density != oggettoDeserializzato.Density ||
+                        m.E != oggettoDeserializzato.E ||
+                        m.Name != oggettoDeserializzato.Name ||
+                        m.Guid != oggettoDeserializzato.Guid ||
+                        m.Fyk != oggettoDeserializzato.Fyk ||
+                        m.Fu != oggettoDeserializzato.Fu ||
+                        m.StrainU != oggettoDeserializzato.StrainU ||
+                        m.Ni != oggettoDeserializzato.Ni)
+                        check = false;
+                }
+                else
+                {
+                    check = false;
+                }
+            }
+
+            if (check)
+                Console.WriteLine($"Class {m.ToString()} is serializable");
+            else
+                Console.WriteLine($"Warning: Class {m.ToString()} is not serializable");
+
+            Assert.IsTrue(check);
+        }
+
+        [TestMethod]
+        public void RebarMaterialTest()
+        {
+            bool check = true;
+
+            RebarMaterial m = new RebarMaterial("test", 10, 15, 20, 30, 0.2, 20, 5);
+            using (var ms = new MemoryStream())
+            {
+                var formatter = new BinaryFormatter();
+                formatter.Serialize(ms, m);
+                ms.Position = 0;
+
+                var casted = formatter.Deserialize(ms);
+                RebarMaterial oggettoDeserializzato = (RebarMaterial)casted;
+
+                if (m.Equals(oggettoDeserializzato))
+                {
+                    if (m.AlfaThermalExpansion != oggettoDeserializzato.AlfaThermalExpansion ||
+                        m.Density != oggettoDeserializzato.Density ||
+                        m.E != oggettoDeserializzato.E ||
+                        m.Name != oggettoDeserializzato.Name ||
+                        m.Guid != oggettoDeserializzato.Guid ||
+                        m.Fyk != oggettoDeserializzato.Fyk ||
+                        m.Fu != oggettoDeserializzato.Fu ||
+                        m.StrainU != oggettoDeserializzato.StrainU ||
+                        m.Ni != oggettoDeserializzato.Ni)
+                        check = false;
+                }
+                else
+                {
+                    check = false;
+                }
+            }
+
+            if (check)
+                Console.WriteLine($"Class {m.ToString()} is serializable");
+            else
+                Console.WriteLine($"Warning: Class {m.ToString()} is not serializable");
+
+            Assert.IsTrue(check);
+        }
+
+        #endregion
+
+        #region Result
+
+        [TestMethod]
+        public void ResultBeamForcesTest()
+        {
+            bool check = true;
+
+            ResultBeamForces m = new ResultBeamForces(1, 2, 3, 4, 5, 6, CoordinateSystem.Global, 1);
+            using (var ms = new MemoryStream())
+            {
+                var formatter = new BinaryFormatter();
+                formatter.Serialize(ms, m);
+                ms.Position = 0;
+
+                var casted = formatter.Deserialize(ms);
+                ResultBeamForces oggettoDeserializzato = (ResultBeamForces)casted;
+
+                if (m.Equals(oggettoDeserializzato))
+                {
+                    if (m.N != oggettoDeserializzato.N ||
+                        m.V1 != oggettoDeserializzato.V1 ||
+                        m.V2 != oggettoDeserializzato.V2 ||
+                        m.T != oggettoDeserializzato.T ||
+                        m.M1 != oggettoDeserializzato.M1 ||
+                        m.CoordinateSystem != oggettoDeserializzato.CoordinateSystem ||
+                        m.Id != oggettoDeserializzato.Id ||
+                        m.M2 != oggettoDeserializzato.M2)
                         check = false;
                 }
                 else

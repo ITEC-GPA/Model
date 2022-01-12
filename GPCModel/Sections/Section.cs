@@ -12,7 +12,7 @@ using GPC.Model.Materials;
 namespace GPC.Model.Sections
 {
     [Serializable]
-    public class Section : ElementProperty
+    public class Section : ElementProperty, ISerializable
     {
         #region Enumerator
 
@@ -29,7 +29,6 @@ namespace GPC.Model.Sections
         }
 
         #endregion
-
 
         #region Variables
 
@@ -79,7 +78,6 @@ namespace GPC.Model.Sections
         private double _meshSize;
 
         #endregion
-
 
         #region Properties
 
@@ -296,7 +294,6 @@ namespace GPC.Model.Sections
 
         #endregion
 
-
         #region Public Constructors
 
         protected Section(string name)
@@ -326,7 +323,8 @@ namespace GPC.Model.Sections
         /// <exception cref="ArgumentException">If the input data are not correct</exception>
         /// <remarks>Axis convention: X-axes is the Y-axes for Eurocode and Y-axes is the Z-axes for Eurocode
         /// If the X-axes is principal, the first moment of inertia is J11, If the Y-axes is principal, the first moment of inertia is J22</remarks>
-        public Section(Material material, double area, double j11, double j22, double jt, double jw, Point2d centroid, Point3d shearCenter, double angle, string name)
+        public Section(Material material, double area, double j11, double j22, double jt, double jw, 
+            Point2d centroid, Point3d shearCenter, double angle, string name)
             : base(name)
         {
             _material = material;
@@ -368,11 +366,9 @@ namespace GPC.Model.Sections
             _isSymmetricAlongXLocalAxis = (bool)info.GetValue("IsSymmetricAlongXLocalAxis", typeof(bool));
             _isSymmetricAlongYLocalAxis = (bool)info.GetValue("IsSymmetricAlongYLocalAxis", typeof(bool));
             _angleX1 = info.GetDouble("AngleX1");
-
         }
 
         #endregion
-
 
         #region Public virtual material method
 
@@ -444,7 +440,6 @@ namespace GPC.Model.Sections
         }
 
         #endregion
-
 
         #region Protected virtual methods
 
@@ -657,7 +652,6 @@ namespace GPC.Model.Sections
         }
 
         #endregion
-
 
         #region Public override method
 

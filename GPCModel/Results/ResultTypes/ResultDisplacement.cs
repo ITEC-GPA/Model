@@ -8,9 +8,8 @@ namespace GPC.Model.Results
 {
     [Serializable]
     public sealed class ResultDisplacement : ResultType, IEquatable<ResultDisplacement>,
-                                             ISerializable, INodeResult, IPlateResult, IBrickResult, IBeamResult, IResult<ResultDisplacement>
+        ISerializable, INodeResult, IPlateResult, IBrickResult, IBeamResult, IResult<ResultDisplacement>
     {
-
         #region Variables
 
         private readonly double _d1;
@@ -32,7 +31,6 @@ namespace GPC.Model.Results
         public double R3 => _r3;
 
         #endregion
-
 
         #region Public Constructors
 
@@ -88,7 +86,6 @@ namespace GPC.Model.Results
 
 
         #endregion
-
 
         #region Public Methods - Get displacement
 
@@ -204,8 +201,7 @@ namespace GPC.Model.Results
 
 
         #endregion
-
-
+                
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             base.GetObjectData(info, context);
@@ -216,7 +212,6 @@ namespace GPC.Model.Results
             info.AddValue("R2", _r2, typeof(double));
             info.AddValue("R3", _r3, typeof(double));
         }
-
 
         #region Equals, hashcode, operators
 

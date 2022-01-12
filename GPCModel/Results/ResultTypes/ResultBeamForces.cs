@@ -76,10 +76,10 @@ namespace GPC.Model.Results
             info.AddValue("M1", _M1);
             info.AddValue("M2", _M2);
         }
+
         #endregion
 
         #region Public Methods
-
 
         public ResultBeamForces ToCoordinateSystem(CoordinateSystem coordinateSystem)
         {

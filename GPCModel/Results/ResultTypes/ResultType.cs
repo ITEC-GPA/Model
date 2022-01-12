@@ -20,7 +20,7 @@ namespace GPC.Model.Results
         }
 
 
-        public ResultType(SerializationInfo info, StreamingContext context)
+        protected ResultType(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
             _coordinateSystem = (CoordinateSystem)info.GetValue("CoordinateSystem", typeof(CoordinateSystem));
