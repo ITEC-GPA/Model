@@ -12,6 +12,8 @@ using static System.Collections.Specialized.BitVector32;
 using GPC.Model.Materials;
 using GPC.Geometry;
 using GPC.Model.Results;
+using GPC.Model.LoadCases;
+using GPC.Model.Sections;
 
 namespace GeneralTest
 {
@@ -643,6 +645,349 @@ namespace GeneralTest
             Assert.IsTrue(check);
         }
 
+        [TestMethod]
+        public void Section_CircularTest()
+        {
+            bool check = true;
+
+            SectionCircular s = new SectionCircular(10, new Material("test", 10, 0.2, 20, 5), "section");
+            using (var ms = new MemoryStream())
+            {
+                var formatter = new BinaryFormatter();
+                formatter.Serialize(ms, s);
+                ms.Position = 0;
+
+                var casted = formatter.Deserialize(ms);
+                SectionCircular oggettoDeserializzato = (SectionCircular)casted;
+
+                if (s.Equals(oggettoDeserializzato))
+                {
+                    if (s.Material != oggettoDeserializzato.Material ||
+                        s.Diameter != oggettoDeserializzato.Diameter ||
+                        s.Name != oggettoDeserializzato.Name)
+                        check = false;
+                }
+                else
+                {
+                    check = false;
+                }
+            }
+
+            if (check)
+                Console.WriteLine($"Class {s} is serializable");
+            else
+                Console.WriteLine($"Warning: Class {s} is not serializable");
+
+            Assert.IsTrue(check);
+        }
+
+        [TestMethod]
+        public void Section_CHSTest()
+        {
+            bool check = true;
+
+            SectionCHS s = new SectionCHS(10, 2, new Material("test", 10, 0.2, 20, 5), "section");
+            using (var ms = new MemoryStream())
+            {
+                var formatter = new BinaryFormatter();
+                formatter.Serialize(ms, s);
+                ms.Position = 0;
+
+                var casted = formatter.Deserialize(ms);
+                SectionCHS oggettoDeserializzato = (SectionCHS)casted;
+
+                if (s.Equals(oggettoDeserializzato))
+                {
+                    if (s.Material != oggettoDeserializzato.Material ||
+                        s.Diameter != oggettoDeserializzato.Diameter ||
+                        s.Thickness != oggettoDeserializzato.Thickness ||
+                        s.Name != oggettoDeserializzato.Name)
+                        check = false;
+                }
+                else
+                {
+                    check = false;
+                }
+            }
+
+            if (check)
+                Console.WriteLine($"Class {s} is serializable");
+            else
+                Console.WriteLine($"Warning: Class {s} is not serializable");
+
+            Assert.IsTrue(check);
+        }
+
+        [TestMethod]
+        public void Section_CTest()
+        {
+            bool check = true;
+
+            SectionC s = new SectionC(200, 4, 100, 5, 100, 5, new Material("test", 10, 0.2, 20, 5), "section");
+            using (var ms = new MemoryStream())
+            {
+                var formatter = new BinaryFormatter();
+                formatter.Serialize(ms, s);
+                ms.Position = 0;
+
+                var casted = formatter.Deserialize(ms);
+                SectionC oggettoDeserializzato = (SectionC)casted;
+
+                if (s.Equals(oggettoDeserializzato))
+                {
+                    if (s.Height != oggettoDeserializzato.Height ||
+                        s.ThicknessWeb != oggettoDeserializzato.ThicknessWeb ||
+                        s.LengthBottom != oggettoDeserializzato.LengthBottom ||
+                        s.ThicknessBottom != oggettoDeserializzato.ThicknessBottom ||
+                        s.LengthTop != oggettoDeserializzato.LengthTop ||
+                        s.LengthTop != oggettoDeserializzato.LengthTop ||
+                        s.ThicknessTop != oggettoDeserializzato.ThicknessTop ||
+                        s.Name != oggettoDeserializzato.Name)
+                        check = false;
+                }
+                else
+                {
+                    check = false;
+                }
+            }
+
+            if (check)
+                Console.WriteLine($"Class {s} is serializable");
+            else
+                Console.WriteLine($"Warning: Class {s} is not serializable");
+
+            Assert.IsTrue(check);
+        }
+
+        [TestMethod]
+        public void Section_HTest()
+        {
+            bool check = true;
+
+            SectionH s = new SectionH(200, 4, 100, 5, 100, 5, new Material("test", 10, 0.2, 20, 5), "section");
+            using (var ms = new MemoryStream())
+            {
+                var formatter = new BinaryFormatter();
+                formatter.Serialize(ms, s);
+                ms.Position = 0;
+
+                var casted = formatter.Deserialize(ms);
+                SectionH oggettoDeserializzato = (SectionH)casted;
+
+                if (s.Equals(oggettoDeserializzato))
+                {
+                    if (s.Height != oggettoDeserializzato.Height ||
+                        s.ThicknessWeb != oggettoDeserializzato.ThicknessWeb ||
+                        s.LenghtBottomFlange != oggettoDeserializzato.LenghtBottomFlange ||
+                        s.LenghtTopFlange != oggettoDeserializzato.LenghtTopFlange ||
+                        s.ThicknessTopFlange != oggettoDeserializzato.ThicknessTopFlange ||
+                        s.ThicknessBottomFlange != oggettoDeserializzato.ThicknessBottomFlange ||
+                        s.ThicknessWeb != oggettoDeserializzato.ThicknessWeb ||
+                        s.Name != oggettoDeserializzato.Name)
+                        check = false;
+                }
+                else
+                {
+                    check = false;
+                }
+            }
+
+            if (check)
+                Console.WriteLine($"Class {s} is serializable");
+            else
+                Console.WriteLine($"Warning: Class {s} is not serializable");
+
+            Assert.IsTrue(check);
+        }
+
+        [TestMethod]
+        public void Section_LTest()
+        {
+            bool check = true;
+
+            SectionL s = new SectionL(200, 4, 100, 5, new Material("test", 10, 0.2, 20, 5), "section");
+            using (var ms = new MemoryStream())
+            {
+                var formatter = new BinaryFormatter();
+                formatter.Serialize(ms, s);
+                ms.Position = 0;
+
+                var casted = formatter.Deserialize(ms);
+                SectionL oggettoDeserializzato = (SectionL)casted;
+
+                if (s.Equals(oggettoDeserializzato))
+                {
+                    if (s.HorizontalLegLength != oggettoDeserializzato.HorizontalLegLength ||
+                        s.HorizontalLegThickness != oggettoDeserializzato.HorizontalLegThickness ||
+                        s.VerticalLegLength != oggettoDeserializzato.VerticalLegLength ||
+                        s.VerticalLegThickness != oggettoDeserializzato.VerticalLegThickness ||
+                        s.Name != oggettoDeserializzato.Name)
+                        check = false;
+                }
+                else
+                {
+                    check = false;
+                }
+            }
+
+            if (check)
+                Console.WriteLine($"Class {s} is serializable");
+            else
+                Console.WriteLine($"Warning: Class {s} is not serializable");
+
+            Assert.IsTrue(check);
+        }
+
+        [TestMethod]
+        public void Section_RectangularTest()
+        {
+            bool check = true;
+
+            SectionRectangular s = new SectionRectangular(200, 4, new Material("test", 10, 0.2, 20, 5), "section");
+            using (var ms = new MemoryStream())
+            {
+                var formatter = new BinaryFormatter();
+                formatter.Serialize(ms, s);
+                ms.Position = 0;
+
+                var casted = formatter.Deserialize(ms);
+                SectionRectangular oggettoDeserializzato = (SectionRectangular)casted;
+
+                if (s.Equals(oggettoDeserializzato))
+                {
+                    if (s.Height != oggettoDeserializzato.Height ||
+                        s.Width != oggettoDeserializzato.Width ||
+                        s.Angle != oggettoDeserializzato.Angle ||
+                        s.Name != oggettoDeserializzato.Name)
+                        check = false;
+                }
+                else
+                {
+                    check = false;
+                }
+            }
+
+            if (check)
+                Console.WriteLine($"Class {s} is serializable");
+            else
+                Console.WriteLine($"Warning: Class {s} is not serializable");
+
+            Assert.IsTrue(check);
+        }
+
+        [TestMethod]
+        public void Section_RHSTest()
+        {
+            bool check = true;
+
+            SectionRHS s = new SectionRHS(300, 200, 5, 5, 5, 5, new Material("test", 10, 0.2, 20, 5), "section");
+            using (var ms = new MemoryStream())
+            {
+                var formatter = new BinaryFormatter();
+                formatter.Serialize(ms, s);
+                ms.Position = 0;
+
+                var casted = formatter.Deserialize(ms);
+                SectionRHS oggettoDeserializzato = (SectionRHS)casted;
+
+                if (s.Equals(oggettoDeserializzato))
+                {
+                    if (s.Height != oggettoDeserializzato.Height ||
+                        s.Base != oggettoDeserializzato.Base ||
+                        s.ThicknessTop != oggettoDeserializzato.ThicknessTop ||
+                        s.ThicknessBottom != oggettoDeserializzato.ThicknessBottom ||
+                        s.ThicknessWebLeft != oggettoDeserializzato.ThicknessWebLeft ||
+                        s.ThicknessWebRight != oggettoDeserializzato.ThicknessWebRight ||
+                        s.Name != oggettoDeserializzato.Name)
+                        check = false;
+                }
+                else
+                {
+                    check = false;
+                }
+            }
+
+            if (check)
+                Console.WriteLine($"Class {s} is serializable");
+            else
+                Console.WriteLine($"Warning: Class {s} is not serializable");
+
+            Assert.IsTrue(check);
+        }
+
+        [TestMethod]
+        public void Section_TTest()
+        {
+            bool check = true;
+
+            SectionT s = new SectionT(300, 200, 5, 5, new Material("test", 10, 0.2, 20, 5), "section");
+            using (var ms = new MemoryStream())
+            {
+                var formatter = new BinaryFormatter();
+                formatter.Serialize(ms, s);
+                ms.Position = 0;
+
+                var casted = formatter.Deserialize(ms);
+                SectionT oggettoDeserializzato = (SectionT)casted;
+
+                if (s.Equals(oggettoDeserializzato))
+                {
+                    if (s.Height != oggettoDeserializzato.Height ||
+                        s.ThicknessWeb != oggettoDeserializzato.ThicknessWeb ||
+                        s.ThicknessFlange != oggettoDeserializzato.ThicknessFlange ||
+                        s.LenghtFlange != oggettoDeserializzato.LenghtFlange ||
+                        s.Name != oggettoDeserializzato.Name)
+                        check = false;
+                }
+                else
+                {
+                    check = false;
+                }
+            }
+
+            if (check)
+                Console.WriteLine($"Class {s} is serializable");
+            else
+                Console.WriteLine($"Warning: Class {s} is not serializable");
+
+            Assert.IsTrue(check);
+        }
+
+        [TestMethod]
+        public void Section_ShapeExTest()
+        {
+            bool check = true;
+
+            ShapeEx s = new ShapeEx(new Polygon2d(500), new Material("test", 10, 0.2, 20, 5), new Polygon2d[] {new Polygon2d(250)}, null);
+            using (var ms = new MemoryStream())
+            {
+                var formatter = new BinaryFormatter();
+                formatter.Serialize(ms, s);
+                ms.Position = 0;
+
+                var casted = formatter.Deserialize(ms);
+                ShapeEx oggettoDeserializzato = (ShapeEx)casted;
+
+                if (s.Equals(oggettoDeserializzato))
+                {
+                    if (s.Shape != oggettoDeserializzato.Shape ||
+                        s.Material != oggettoDeserializzato.Material)
+                        check = false;
+                }
+                else
+                {
+                    check = false;
+                }
+            }
+
+            if (check)
+                Console.WriteLine($"Class {s} is serializable");
+            else
+                Console.WriteLine($"Warning: Class {s} is not serializable");
+
+            Assert.IsTrue(check);
+        }
+
         #endregion
 
         #region Materials
@@ -1187,6 +1532,197 @@ namespace GeneralTest
                     if (m.Location != oggettoDeserializzato.Location ||
                         m.ResultTypes != oggettoDeserializzato.ResultTypes ||
                         m.Id != oggettoDeserializzato.Id)
+                        check = false;
+                }
+                else
+                {
+                    check = false;
+                }
+            }
+
+            if (check)
+                Console.WriteLine($"Class {m} is serializable");
+            else
+                Console.WriteLine($"Warning: Class {m} is not serializable");
+
+            Assert.IsTrue(check);
+        }
+
+        [TestMethod]
+        public void Result_BeamResultTest()
+        {
+            bool check = true;
+
+            BeamResult m = new BeamResult(new LoadCase("test", LoadCase.LoadCaseTypes.SuperImposedDeadLoad), new ResultLocationStation[] { }, 2);
+
+            using (var ms = new MemoryStream())
+            {
+                var formatter = new BinaryFormatter();
+                formatter.Serialize(ms, m);
+                ms.Position = 0;
+
+                var casted = formatter.Deserialize(ms);
+                BeamResult oggettoDeserializzato = (BeamResult)casted;
+
+                if (m.Equals(oggettoDeserializzato))
+                {
+                    if (m.Case != oggettoDeserializzato.Case ||
+                        m.Length != oggettoDeserializzato.Length ||
+                        m.Name != oggettoDeserializzato.Name ||
+                        m.ResultLocations != oggettoDeserializzato.ResultLocations ||
+                        m.StageId != oggettoDeserializzato.StageId)
+                        check = false;
+                }
+                else
+                {
+                    check = false;
+                }
+            }
+
+            if (check)
+                Console.WriteLine($"Class {m} is serializable");
+            else
+                Console.WriteLine($"Warning: Class {m} is not serializable");
+
+            Assert.IsTrue(check);
+        }
+
+        [TestMethod]
+        public void Result_BrickResultTest()
+        {
+            bool check = true;
+
+            BrickResult m = new BrickResult(new LoadCase("test", LoadCase.LoadCaseTypes.SuperImposedDeadLoad),
+                new ResultLocationPoint[] { new ResultLocationPoint(new ResultPlateForces[]{
+                    new ResultPlateForces(CoordinateSystem.Global, 1, 2, 3, 4, 5, 6, 7, 8, 22)}, Point2d.Origin, 5) }, 5);
+
+            using (var ms = new MemoryStream())
+            {
+                var formatter = new BinaryFormatter();
+                formatter.Serialize(ms, m);
+                ms.Position = 0;
+
+                var casted = formatter.Deserialize(ms);
+                BrickResult oggettoDeserializzato = (BrickResult)casted;
+
+                if (m.Equals(oggettoDeserializzato))
+                {
+                    if (m.Case != oggettoDeserializzato.Case ||
+                        m.Name != oggettoDeserializzato.Name ||
+                        m.ResultLocations != oggettoDeserializzato.ResultLocations ||
+                        m.StageId != oggettoDeserializzato.StageId)
+                        check = false;
+                }
+                else
+                {
+                    check = false;
+                }
+            }
+
+            if (check)
+                Console.WriteLine($"Class {m} is serializable");
+            else
+                Console.WriteLine($"Warning: Class {m} is not serializable");
+
+            Assert.IsTrue(check);
+        }
+
+        [TestMethod]
+        public void Result_SectionResultTest()
+        {
+            bool check = true;
+
+            SectionResult m = new SectionResult(new LoadCase("test", LoadCase.LoadCaseTypes.SuperImposedDeadLoad), new ResultLocationId[] { }, "");
+
+            using (var ms = new MemoryStream())
+            {
+                var formatter = new BinaryFormatter();
+                formatter.Serialize(ms, m);
+                ms.Position = 0;
+
+                var casted = formatter.Deserialize(ms);
+                SectionResult oggettoDeserializzato = (SectionResult)casted;
+
+                if (m.Equals(oggettoDeserializzato))
+                {
+                    if (m.Case != oggettoDeserializzato.Case ||
+                        m.Name != oggettoDeserializzato.Name ||
+                        m.ResultLocations != oggettoDeserializzato.ResultLocations)
+                        check = false;
+                }
+                else
+                {
+                    check = false;
+                }
+            }
+
+            if (check)
+                Console.WriteLine($"Class {m} is serializable");
+            else
+                Console.WriteLine($"Warning: Class {m} is not serializable");
+
+            Assert.IsTrue(check);
+        }
+
+        [TestMethod]
+        public void Result_NodeResultTest()
+        {
+            bool check = true;
+
+            NodeResult m = new NodeResult(new LoadCase("test", LoadCase.LoadCaseTypes.SuperImposedDeadLoad), new ResultLocationId[] { }, 3);
+
+            using (var ms = new MemoryStream())
+            {
+                var formatter = new BinaryFormatter();
+                formatter.Serialize(ms, m);
+                ms.Position = 0;
+
+                var casted = formatter.Deserialize(ms);
+                NodeResult oggettoDeserializzato = (NodeResult)casted;
+
+                if (m.Equals(oggettoDeserializzato))
+                {
+                    if (m.Case != oggettoDeserializzato.Case ||
+                        m.Name != oggettoDeserializzato.Name ||
+                        m.ResultLocations != oggettoDeserializzato.ResultLocations)
+                        check = false;
+                }
+                else
+                {
+                    check = false;
+                }
+            }
+
+            if (check)
+                Console.WriteLine($"Class {m} is serializable");
+            else
+                Console.WriteLine($"Warning: Class {m} is not serializable");
+
+            Assert.IsTrue(check);
+        }
+
+        [TestMethod]
+        public void Result_PlateResultTest()
+        {
+            bool check = true;
+
+            PlateResult m = new PlateResult(new LoadCase("test", LoadCase.LoadCaseTypes.SuperImposedDeadLoad), new ResultLocationId[] { }, 3, "a");
+
+            using (var ms = new MemoryStream())
+            {
+                var formatter = new BinaryFormatter();
+                formatter.Serialize(ms, m);
+                ms.Position = 0;
+
+                var casted = formatter.Deserialize(ms);
+                PlateResult oggettoDeserializzato = (PlateResult)casted;
+
+                if (m.Equals(oggettoDeserializzato))
+                {
+                    if (m.Case != oggettoDeserializzato.Case ||
+                        m.Name != oggettoDeserializzato.Name ||
+                        m.StageId != oggettoDeserializzato.StageId ||
+                        m.ResultLocations != oggettoDeserializzato.ResultLocations)
                         check = false;
                 }
                 else

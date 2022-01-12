@@ -73,10 +73,9 @@ namespace GPC.Model
 
         public virtual void GetObjectData(SerializationInfo info, StreamingContext context)
         {
-            info.AddValue("Guid", _guid, typeof(Guid));
-            info.AddValue("Name", _name, typeof(string));
+            info.AddValue("Guid", _guid);
+            info.AddValue("Name", _name);
         }
-
 
         /// <returns><see langword="True"/> if <paramref name="obj"/> have the same <see cref="Name"/> of this object </returns>
         public override bool Equals(object obj)

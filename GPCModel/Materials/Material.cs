@@ -7,7 +7,7 @@ namespace GPC.Model.Materials
     [Serializable]
     public class Material : ModelObject, ISerializable
     {
-        #region VARIABLES
+        #region Variables
 
         protected double _elasticModulus;
         protected double _ni;
@@ -16,17 +16,19 @@ namespace GPC.Model.Materials
 
         #endregion 
 
-        #region PROPERTIES
+        #region Properties
 
         public virtual double E => _elasticModulus;
+
         public double Ni => _ni;
+
         public double AlfaThermalExpansion => _alfaThermalExpansion;
+
         public double Density => _density;
 
         #endregion
 
-        #region PUBLIC CONSTRUCTOR
-
+        #region Public Constructor
 
         /// <summary>
         /// </summary>
@@ -74,7 +76,6 @@ namespace GPC.Model.Materials
             
 		}
 
-
         protected Material(SerializationInfo info, StreamingContext context) 
             : base(info, context)
         {
@@ -84,13 +85,14 @@ namespace GPC.Model.Materials
             _ni = info.GetDouble("Ni");
         }
 
-        #endregion 
+		#endregion
 
-        public virtual double GetShearModule()
+		#region Public Methods
+
+		public virtual double GetShearModule()
         {
             return E / (2.0 * (1.0 + Ni));
         }
-
 
         public virtual FEM.Materials.IsotropicFemMaterial GetIsotropicFemMaterial()
         {
@@ -102,12 +104,11 @@ namespace GPC.Model.Materials
             throw new NotImplementedException("");
         }
 
+		#endregion
 
+		#region Equals - HashCode - Operators
 
-
-        #region Equals - HashCode - Operators
-
-        public override void GetObjectData(SerializationInfo info, StreamingContext context)
+		public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             base.GetObjectData(info, context);
             info.AddValue("AlfaThermalExpansion", _alfaThermalExpansion);
@@ -152,12 +153,11 @@ namespace GPC.Model.Materials
 
             return obj1.Equals(obj2);
         }
+
         public static bool operator !=(Material obj1, Material obj2)
         {
             return !(obj1 == obj2);
         }
-
-
 
         #endregion
     }

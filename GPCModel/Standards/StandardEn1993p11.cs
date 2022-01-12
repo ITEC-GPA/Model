@@ -12,18 +12,22 @@ namespace GPC.Model.Standards
     [Serializable]
     public class StandardEN1993p11 : Standard, ISerializable
     {
-        /// <summary>
-        /// The limit states. Reference: EN 1990:2002/A1:2005 
-        /// </summary>
-        public enum LimitStates
+		#region Enum
+
+		/// <summary>
+		/// The limit states. Reference: EN 1990:2002/A1:2005 
+		/// </summary>
+		public enum LimitStates
         {
             UltimateLimitState,
             ServiceabilityLimitState,
         }
 
-        #region Variables
+		#endregion
 
-        protected double _gammaM0;
+		#region Variables
+
+		protected double _gammaM0;
         protected double _gammaM1;
         protected double _gammaM2;
 
@@ -86,9 +90,11 @@ namespace GPC.Model.Standards
 
         public double LambdaLT0ForLateralTorsionalBucklingMod => _lambdaLT0ForLateralTorsionalBucklingMod;
 
-        #endregion
+		#endregion
 
-        public StandardEN1993p11()
+		#region Constructor
+
+		public StandardEN1993p11()
         {
             _gammaM0 = 1.00;
             _gammaM1 = 1.00;
@@ -137,7 +143,11 @@ namespace GPC.Model.Standards
             _lambdaLT0ForLateralTorsionalBucklingMod = info.GetDouble("LambdaLT0ForLateralTorsionalBucklingMod");
         }
 
-        public override void GetObjectData(SerializationInfo info, StreamingContext context)
+		#endregion
+
+		#region Public Methods
+
+		public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             base.GetObjectData(info, context);
             info.AddValue("GammaM0", _gammaM0);
@@ -213,5 +223,7 @@ namespace GPC.Model.Standards
                 return hashCode;
             }
         }
-    }
+
+		#endregion
+	}
 }
