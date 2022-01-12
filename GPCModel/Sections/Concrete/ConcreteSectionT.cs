@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.Serialization;
 using System.Text;
 using System.Threading.Tasks;
 using GPC.Geometry;
@@ -9,11 +10,18 @@ using GPC.Model.Materials;
 
 namespace GPC.Model.Sections.Concrete
 {
-    public class ConcreteSectionT : SectionT, IConcreteSection
+    [Serializable]
+    public class ConcreteSectionT : SectionT, IConcreteSection, ISerializable
     {
-        protected readonly UniqueIdCollection<ReinforcedConcreteRebar> _rebars;
+		#region Variables
 
-        public IEnumerable<ReinforcedConcreteRebar> Rebars => _rebars;
+		protected readonly UniqueIdCollection<ReinforcedConcreteRebar> _rebars;
+
+		#endregion
+
+		#region Properties 
+
+		public IEnumerable<ReinforcedConcreteRebar> Rebars => _rebars;
 
         public ConcreteMaterial ConcreteMaterial => (ConcreteMaterial)_material;
 
@@ -21,9 +29,11 @@ namespace GPC.Model.Sections.Concrete
 
         public int RebarsCount => _rebars.Count;
 
-        #region Public Constructors
+		#endregion
 
-        public ConcreteSectionT(double height, double flangeLength, double thicknessWeb, double thicknessFlange, ConcreteMaterial material, string name = "")
+		#region Public Constructors
+
+		public ConcreteSectionT(double height, double flangeLength, double thicknessWeb, double thicknessFlange, ConcreteMaterial material, string name = "")
             : base(height, flangeLength, thicknessWeb, thicknessFlange, material, name)
         {
             _rebars = new UniqueIdCollection<ReinforcedConcreteRebar>();
@@ -39,6 +49,11 @@ namespace GPC.Model.Sections.Concrete
                 throw new ArgumentException("Material must be a ConcreteMaterial");
         }
 
+        protected ConcreteSectionT(SerializationInfo info, StreamingContext context) 
+            : base(info, context)
+        {
+            _rebars = (UniqueIdCollection<ReinforcedConcreteRebar>)info.GetValue("Rebars", typeof(UniqueIdCollection<ReinforcedConcreteRebar>));
+        }
 
         #endregion
 
@@ -340,6 +355,12 @@ namespace GPC.Model.Sections.Concrete
             section.AddRebars(_rebars);
 
             return section;
+        }
+
+        public override void GetObjectData(SerializationInfo info, StreamingContext context)
+        {
+            base.GetObjectData(info, context);
+            info.AddValue("Rebars", _rebars);
         }
 
         #endregion

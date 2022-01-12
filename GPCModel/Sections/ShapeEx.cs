@@ -9,9 +9,9 @@ using GPC.Model.Materials;
 
 namespace GPC.Model.Sections
 {
-    [Serializable]
-    public class ShapeEx : Shape2d, ISection, ISerializable
-    {
+	[Serializable]
+	public class ShapeEx : Shape2d, ISection, ISerializable
+	{
 		#region Variables
 
 		protected Material _material;
@@ -22,78 +22,83 @@ namespace GPC.Model.Sections
 
 		public Material Material => _material;
 
-        public virtual Shape2d Shape => this;
+		public virtual Shape2d Shape => this;
 
 		#endregion
 
 		#region Constructor
 
 		public ShapeEx(Polygon2d fill, Material material, Polygon2d[] holes = null, ShapeEx[] childs = null, double tolerance = GeometryBase.Tolerance)
-            : base(fill, holes, childs, tolerance)
-        {
-            _material = material;
-        }
+			: base(fill, holes, childs, tolerance)
+		{
+			_material = material;
+		}
 
-        public ShapeEx(Shape2d shape, Material material, double tolerance = GeometryBase.Tolerance)
-            : base(shape, tolerance)
-        {
-            _material = material;
-        }
+		public ShapeEx(Shape2d shape, Material material, double tolerance = GeometryBase.Tolerance)
+			: base(shape, tolerance)
+		{
+			_material = material;
+		}
 
-        public ShapeEx(Shape2d shape, Material material)
-            : this(shape, material, GeometryBase.Tolerance)
-        {
-        }
+		public ShapeEx(Shape2d shape, Material material)
+			: this(shape, material, GeometryBase.Tolerance)
+		{
+		}
 
-        protected ShapeEx(SerializationInfo info, StreamingContext context) :
-            base(info, context)
-        {
-            _material = (Material)info.GetValue("Material", typeof(Material));
-        }
+		protected ShapeEx(SerializationInfo info, StreamingContext context) :
+			base(info, context)
+		{
+			_material = (Material)info.GetValue("Material", typeof(Material));
+		}
 
 		#endregion
 
 		#region Public Methods
 
+		public Shape2d GetShape()
+		{
+			return this;
+		}
+
+		#endregion
+
+		#region Equals - hashcode - Operators
+
 		public override void GetObjectData(SerializationInfo info, StreamingContext context)
-        {
-            base.GetObjectData(info, context);
-            info.AddValue("Material", _material);
-        }
+		{
+			base.GetObjectData(info, context);
+			info.AddValue("Material", _material);
+		}
 
-        public Shape2d GetShape()
-        {
-            return this;
-        }
+		public override bool Equals(object obj)
+		{
+			return obj is ShapeEx ex &&
+				   base.Equals(obj) &&
+				   _material.Equals(ex._material);
+		}
 
-        public override bool Equals(object obj)
-        {
-            return obj is ShapeEx ex &&
-                   base.Equals(obj) &&
-                   _material.Equals(ex._material);
-        }
+		public override int GetHashCode()
+		{
+			unchecked
+			{
+				int hashCode = -23;
+				hashCode = hashCode * -17 + base.GetHashCode();
+				hashCode = hashCode * -17 + _material.GetHashCode();
+				return hashCode;
+			}
+		}
 
-        public override int GetHashCode()
-        {
-            unchecked
-            {
-                int hashCode = -23;
-                hashCode = hashCode * -17 + base.GetHashCode();
-                hashCode = hashCode * -17 + _material.GetHashCode();
-                return hashCode;
-            }
-        }
+		public static bool operator ==(ShapeEx left, ShapeEx right)
+		{
+			return left.Equals(right);
+		}
 
-        public static bool operator ==(ShapeEx left, ShapeEx right)
-        {
-            return left.Equals(right);
-        }
-
-        public static bool operator !=(ShapeEx left, ShapeEx right)
-        {
-            return !(left == right);
-        }
+		public static bool operator !=(ShapeEx left, ShapeEx right)
+		{
+			return !(left == right);
+		}
 
 		#endregion
 	}
 }
+

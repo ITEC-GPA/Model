@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.Serialization;
 using System.Text;
 using System.Threading.Tasks;
 using GPC.Geometry;
@@ -10,7 +11,8 @@ using GPC.Model.Sections.Rebar;
 
 namespace GPC.Model.Sections.Concrete
 {
-    public class ConcreteSectionCHS : SectionCHS, IConcreteSection
+    [Serializable]
+    public class ConcreteSectionCHS : SectionCHS, IConcreteSection, ISerializable
     {
         #region Variables
 
@@ -46,6 +48,12 @@ namespace GPC.Model.Sections.Concrete
 
             if (sectionCHS.Material.GetType() != typeof(ConcreteMaterial))
                 throw new ArgumentException("Material must be a ConcreteMaterial");
+        }
+
+        protected ConcreteSectionCHS(SerializationInfo info, StreamingContext context) 
+            : base(info, context)
+        {
+            _rebars = (UniqueIdCollection<ReinforcedConcreteRebar>)info.GetValue("Rebars", typeof(UniqueIdCollection<ReinforcedConcreteRebar>));
         }
 
         #endregion
@@ -374,7 +382,12 @@ namespace GPC.Model.Sections.Concrete
             return section;
         }
 
-        #endregion
+        public override void GetObjectData(SerializationInfo info, StreamingContext context)
+        {
+            base.GetObjectData(info, context);
+            info.AddValue("Rebars", _rebars);
+        }
 
+        #endregion
     }
 }

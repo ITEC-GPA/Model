@@ -31,7 +31,7 @@ namespace GPC.Model.Sections
 		/// <param name="diameter">The diameter</param>
 		/// <param name="material">The material</param>
 		/// <param name="name">The section name</param>
-		public SectionCircular(double diameter, Material material, string name)
+		public SectionCircular(double diameter, Material material, string name = "")
             : base(material, name)
         {
             _diameter = diameter;
