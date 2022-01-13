@@ -83,6 +83,7 @@
     <Compile Include="FEM\Attributes\AttributeEqualityComparer.cs" />
     <Compile Include="FEM\Attributes\LoadCase\ModelGravityAttribute.cs" />
     <Compile Include="FEM\Collections\AttributesCollection.cs" />
+    <Compile Include="Materials\Concrete\ConcreteMaterialACI318-19.cs" />
     <Compile Include="Materials\Concrete\ConcreteMaterialEN1992.cs" />
     <Compile Include="Materials\Concrete\ConcreteMaterialModelCode2010FRC.cs" />
     <Compile Include="Materials\Concrete\ConcreteMaterial.cs" />
