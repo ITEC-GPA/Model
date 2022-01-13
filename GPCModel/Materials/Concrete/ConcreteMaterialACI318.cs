@@ -8,7 +8,8 @@ using System.Threading.Tasks;
 
 namespace GPC.Model.Materials
 {
-    public class ConcreteMaterialACI318 : ConcreteMaterial
+    [Serializable]
+    public class ConcreteMaterialACI318 : ConcreteMaterial, ISerializable
     {
         #region Static Properties
 

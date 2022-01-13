@@ -1816,6 +1816,55 @@ namespace GeneralTest
         }
 
         [TestMethod]
+        public void Material_ConcreteMaterialACI318Test()
+        {
+            bool check = true;
+
+            ConcreteMaterialACI318 m = new ConcreteMaterialACI318("test", -25,
+                ConcreteMaterial.CompressionStressStrainDiagrams.Bilinear, 0.2, 20, 5);
+
+            using (var ms = new MemoryStream())
+            {
+                var formatter = new BinaryFormatter();
+                formatter.Serialize(ms, m);
+                ms.Position = 0;
+
+                var casted = formatter.Deserialize(ms);
+                ConcreteMaterialACI318 oggettoDeserializzato = (ConcreteMaterialACI318)casted;
+
+                if (m.Equals(oggettoDeserializzato))
+                {
+                    if (m.AlfaThermalExpansion != oggettoDeserializzato.AlfaThermalExpansion ||
+                        m.Density != oggettoDeserializzato.Density ||
+                        m.E != oggettoDeserializzato.E ||
+                        m.Name != oggettoDeserializzato.Name ||
+                        m.Guid != oggettoDeserializzato.Guid ||
+                        m.Fc != oggettoDeserializzato.Fc ||
+                        m.Fct != oggettoDeserializzato.Fct ||
+                        m.Fctu != oggettoDeserializzato.Fctu ||
+                        m.StrainYCompression != oggettoDeserializzato.StrainYCompression ||
+                        m.StrainUCompression != oggettoDeserializzato.StrainUCompression ||
+                        m.StrainYTension != oggettoDeserializzato.StrainYTension ||
+                        m.StrainUTension != oggettoDeserializzato.StrainUTension ||
+                        m.CompressionStressStrainDiagram != oggettoDeserializzato.CompressionStressStrainDiagram ||
+                        m.TensionStressStrainDiagram != oggettoDeserializzato.TensionStressStrainDiagram)
+                        check = false;
+                }
+                else
+                {
+                    check = false;
+                }
+            }
+
+            if (check)
+                Console.WriteLine($"Class {m} is serializable");
+            else
+                Console.WriteLine($"Warning: Class {m} is not serializable");
+
+            Assert.IsTrue(check);
+        }
+
+        [TestMethod]
         public void Material_SteelMaterialTest()
         {
             bool check = true;
