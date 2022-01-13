@@ -12,14 +12,20 @@ namespace GPC.Model.Materials
     [Serializable]
     public abstract class ConcreteMaterialModelCode2010 : ConcreteMaterial, ISerializable
     {
-        public enum CementType
+		#region Enum
+
+		public enum CementType
         {
             ClassR,
             ClassN,
             ClassS,
         }
 
-        protected double _fck;
+		#endregion
+
+		#region Variables 
+
+		protected double _fck;
         protected double _fctk;
         protected double _fctu;
         
@@ -34,18 +40,25 @@ namespace GPC.Model.Materials
         protected CompressionStressStrainDiagrams _compressionStressStrainDiagrams;
         protected TensionStressStrainDiagrams _tensionStressStrainDiagrams;
 
-        #region Properties
+		#endregion
 
-        /// <summary>
-        /// Characteristic compressive cylinder strength of concrete at 28 days
-        /// </summary>
-        public double Fck => _fck;
+		#region Properties
+
+		/// <summary>
+		/// Characteristic compressive cylinder strength of concrete at 28 days
+		/// </summary>
+		public double Fck => _fck;
 
         /// <summary>
         /// Characteristic tensile strength of concrete
         /// </summary>
         /// <remarks>Mean tensile strength at 28 days</remarks>
         public double Fctk => _fctk;
+
+        /// <summary>
+        /// Ultimate strain in tension
+        /// </summary>
+        public double Fctu => _fctu;
 
         /// <summary>
         /// Mean compressive strength at 28 days
@@ -66,11 +79,6 @@ namespace GPC.Model.Materials
         /// Characteristic tensile strength 0.05%
         /// </summary>
         public double Fctk05 => GetFctk05();
-
-        /// <summary>
-        /// Ultimate strain in tension
-        /// </summary>
-        public double Fctu => _fctu;
 
         /// <summary>
         /// Strain in the concrete for the pure compression case
@@ -235,7 +243,8 @@ namespace GPC.Model.Materials
         /// <param name="u">The perimeter of that part of the cross section which is exposed to drying</param>
         /// <param name="T0">The age of concrete at loading in days</param>
         /// <param name="deltaTemperature">The delta temperature in °C during the time period. Default value = 0</param>
-        /// <param name="deltaDaysTemperature">is the number of days where a temperature <paramref name="deltaTemperature"/> prevails. Default value = 0</param>
+        /// <param name="deltaDaysTemperature">is the number of days where a temperature <paramref name="deltaTemperature"/> prevails. 
+        /// Default value = 0</param>
         /// <returns></returns>
         public virtual double GetEpsilonCCInfiniteTime(double sigmaC, double RH, double areaC, 
             double u, double T0 = 7, double deltaTemperature = 0, double deltaDaysTemperature = 0)
@@ -314,7 +323,8 @@ namespace GPC.Model.Materials
             double betaRH = 1.55 * (1 - Math.Pow(RH / RH0, 3.0));
             double Fcm0 = 10;
 
-            double epsilonCD0 = 0.85 * ((220 + 110 * alphads1) * Math.Pow(Math.E, (-alphads2 * GetFcm() / Fcm0))) * Math.Pow(10, -6) * betaRH;
+            double epsilonCD0 = 0.85 * ((220 + 110 * alphads1) * Math.Pow(Math.E, (-alphads2 * GetFcm() / Fcm0))) * 
+                Math.Pow(10, -6) * betaRH;
 
             double h0 = 2 * areaC / u;
             double kh = 0;
@@ -390,7 +400,8 @@ namespace GPC.Model.Materials
             {
                 case CompressionStressStrainDiagrams.Bilinear:
 
-                    _stressStrainTableCompression = new StressStrainTable(new double[] { 0, fck, fck }, new double[] { 0, strainYCompression, strainUCompression });
+                    _stressStrainTableCompression = new StressStrainTable(new double[] { 0, fck, fck }, 
+                        new double[] { 0, strainYCompression, strainUCompression });
                     break;
 
                 case CompressionStressStrainDiagrams.ParabolaRectangle:
@@ -415,7 +426,8 @@ namespace GPC.Model.Materials
 
                 case CompressionStressStrainDiagrams.StressBlock:
 
-                    _stressStrainTableCompression = new StressStrainTable(new double[] { 0, 0, fck, fck }, new double[] { 0, strainYCompression, strainYCompression, strainUCompression });
+                    _stressStrainTableCompression = new StressStrainTable(new double[] { 0, 0, fck, fck }, 
+                        new double[] { 0, strainYCompression, strainYCompression, strainUCompression });
                     break;
 
                 case CompressionStressStrainDiagrams.NonLinear:
@@ -454,11 +466,10 @@ namespace GPC.Model.Materials
                 default:
                     throw new NotSupportedException();
             }
-
         }
 
         protected void SetStressStrainTableTension(double fctk, double fctu, double strainYTension, double strainUTension,
-                                                     TensionStressStrainDiagrams tensionStressStrainDiagrams)
+            TensionStressStrainDiagrams tensionStressStrainDiagrams)
         {
             switch (tensionStressStrainDiagrams)
             {
@@ -469,7 +480,8 @@ namespace GPC.Model.Materials
 
                 case TensionStressStrainDiagrams.Bilinear:
 
-                    _stressStrainTableTension = new StressStrainTable(new double[] { 0, fctk, fctu }, new double[] { 0, strainYTension, strainUTension });
+                    _stressStrainTableTension = new StressStrainTable(new double[] { 0, fctk, fctu }, 
+                        new double[] { 0, strainYTension, strainUTension });
                     break;
 
                 case TensionStressStrainDiagrams.RigidPlastic:
@@ -488,8 +500,7 @@ namespace GPC.Model.Materials
         /// <see cref="ConcreteMaterialModelCode2010._fck"/>
         /// </summary>
         protected void SetMechanicalProperties(double fck, double fctk, double fFtu, double strainYTension, double strainUTension,
-                                             CompressionStressStrainDiagrams compressionStressStrainDiagrams,
-                                             TensionStressStrainDiagrams tensionStressStrainDiagrams)
+            CompressionStressStrainDiagrams compressionStressStrainDiagrams, TensionStressStrainDiagrams tensionStressStrainDiagrams)
         {
             switch (compressionStressStrainDiagrams)
             {
@@ -571,13 +582,14 @@ namespace GPC.Model.Materials
         }
 
         protected virtual void SetProperties(double fck, CompressionStressStrainDiagrams compressionStressStrainDiagrams,
-            double ffts, double fFtu, double strainYTension, double strainUTension, TensionStressStrainDiagrams tensionStressStrainDiagrams, CementType cementType)
+            double ffts, double fFtu, double strainYTension, double strainUTension, 
+            TensionStressStrainDiagrams tensionStressStrainDiagrams, CementType cementType)
 		{
             _compressionStressStrainDiagrams = compressionStressStrainDiagrams;
             _tensionStressStrainDiagrams = tensionStressStrainDiagrams;
 
-            SetMechanicalProperties(-Math.Abs(fck), Math.Abs(ffts), Math.Abs(fFtu), Math.Abs(strainYTension), Math.Abs(strainUTension),
-                compressionStressStrainDiagrams, tensionStressStrainDiagrams);
+            SetMechanicalProperties(-Math.Abs(fck), Math.Abs(ffts), Math.Abs(fFtu), Math.Abs(strainYTension), 
+                Math.Abs(strainUTension), compressionStressStrainDiagrams, tensionStressStrainDiagrams);
 
             SetStressStrainTableCompression(_fck, _strainYCompression, _strainUCompression, compressionStressStrainDiagrams);
             SetStressStrainTableTension(_fctk, _fctu, _strainYTension, _strainUTension, tensionStressStrainDiagrams);
@@ -702,7 +714,8 @@ namespace GPC.Model.Materials
         }
                 
         /// <remarks>Sign convention: Stress and strain negative if compression</remarks>
-        protected virtual double GetStrainYCompression(CompressionStressStrainDiagrams compressionStressStrainDiagrams, double strainU = 0)
+        protected virtual double GetStrainYCompression(CompressionStressStrainDiagrams compressionStressStrainDiagrams, 
+            double strainU = 0)
         {
             switch (compressionStressStrainDiagrams)
             {
@@ -743,76 +756,78 @@ namespace GPC.Model.Materials
             }
         }
 
-        /// <remarks>Sign convention: Stress and strain positive if tension</remarks>
-        protected virtual double GetStrainYTension(double fctk, double elasticModulusTension, TensionStressStrainDiagrams tensionStressStrainDiagrams)
-        {
-
-            switch (tensionStressStrainDiagrams)
-            {
-                case TensionStressStrainDiagrams.Linear:
-                    return fctk / elasticModulusTension;
-
-                case TensionStressStrainDiagrams.Bilinear:
-                    return fctk / elasticModulusTension;
-
-                case TensionStressStrainDiagrams.RigidPlastic:
-                    return 0;
-
-                default:
-                    throw new ArgumentException();
-            }
-        }
-
-        /// <remarks>Sign convention: Stress and strain positive if tension</remarks>
-        protected virtual double GetStrainUTension(double fctk, double elasticModulusTension, TensionStressStrainDiagrams tensionStressStrainDiagrams)
-        {
-
-            switch (tensionStressStrainDiagrams)
-            {
-                case TensionStressStrainDiagrams.Linear:
-                    return fctk / elasticModulusTension;
-
-                case TensionStressStrainDiagrams.Bilinear:
-                    return fctk / elasticModulusTension;
-
-                case TensionStressStrainDiagrams.RigidPlastic:
-                    return 0;
-
-                default:
-                    throw new ArgumentException();
-            }
-        }
-
         protected virtual double GetStrainUCompression(CompressionStressStrainDiagrams compressionStressStrainDiagrams)
         {
             switch (compressionStressStrainDiagrams)
             {
                 case CompressionStressStrainDiagrams.ParabolaRectangle:
                     if (Math.Abs(_fck) <= 50)
-                        return - 3.5 / 1000.0;
+                        return -3.5 / 1000.0;
                     else
-                        return - (2.6 + 35.0 * Math.Pow((90.0 - Math.Abs(_fck)) / 100.0, 4)) / 1000.0;
+                        return -(2.6 + 35.0 * Math.Pow((90.0 - Math.Abs(_fck)) / 100.0, 4)) / 1000.0;
 
                 case CompressionStressStrainDiagrams.Bilinear:
                     if (Math.Abs(_fck) <= 50)
-                        return - 3.5 / 1000.0;
+                        return -3.5 / 1000.0;
                     else
-                        return - (2.6 + 35.0 * Math.Pow((90.0 - Math.Abs(_fck)) / 100.0, 4)) / 1000.0;
+                        return -(2.6 + 35.0 * Math.Pow((90.0 - Math.Abs(_fck)) / 100.0, 4)) / 1000.0;
 
                 case CompressionStressStrainDiagrams.StressBlock:
                     if (Math.Abs(_fck) <= 50)
-                        return - 3.5 / 1000.0;
+                        return -3.5 / 1000.0;
                     else
-                        return - (2.6 + 35.0 * Math.Pow((90.0 - Math.Abs(_fck)) / 100.0, 4)) / 1000.0;
+                        return -(2.6 + 35.0 * Math.Pow((90.0 - Math.Abs(_fck)) / 100.0, 4)) / 1000.0;
 
-                case CompressionStressStrainDiagrams.Generic:                                        
+                case CompressionStressStrainDiagrams.Generic:
                     return _stressStrainTableCompression.Strains.Last();
 
                 case CompressionStressStrainDiagrams.NonLinear:
                     if (Math.Abs(_fck) <= 50)
                         return -3.5 / 1000.0;
                     else
-                        return - (2.8 + 27.0 * Math.Pow((98.0 - Math.Abs(GetFcm(Math.Abs(_fck)))) / 100.0, 4.0)) / 1000.0;
+                        return -(2.8 + 27.0 * Math.Pow((98.0 - Math.Abs(GetFcm(Math.Abs(_fck)))) / 100.0, 4.0)) / 1000.0;
+
+                default:
+                    throw new ArgumentException();
+            }
+        }
+
+        /// <remarks>Sign convention: Stress and strain positive if tension</remarks>
+        protected virtual double GetStrainYTension(double fctk, double elasticModulusTension, 
+            TensionStressStrainDiagrams tensionStressStrainDiagrams)
+        {
+
+            switch (tensionStressStrainDiagrams)
+            {
+                case TensionStressStrainDiagrams.Linear:
+                    return fctk / elasticModulusTension;
+
+                case TensionStressStrainDiagrams.Bilinear:
+                    return fctk / elasticModulusTension;
+
+                case TensionStressStrainDiagrams.RigidPlastic:
+                    return 0;
+
+                default:
+                    throw new ArgumentException();
+            }
+        }
+
+        /// <remarks>Sign convention: Stress and strain positive if tension</remarks>
+        protected virtual double GetStrainUTension(double fctk, double elasticModulusTension, 
+            TensionStressStrainDiagrams tensionStressStrainDiagrams)
+        {
+
+            switch (tensionStressStrainDiagrams)
+            {
+                case TensionStressStrainDiagrams.Linear:
+                    return fctk / elasticModulusTension;
+
+                case TensionStressStrainDiagrams.Bilinear:
+                    return fctk / elasticModulusTension;
+
+                case TensionStressStrainDiagrams.RigidPlastic:
+                    return 0;
 
                 default:
                     throw new ArgumentException();
@@ -863,17 +878,18 @@ namespace GPC.Model.Materials
             if (ReferenceEquals(this, obj))
                 return true;
 
-            return (obj is ConcreteMaterialModelCode2010 objCasted) && objCasted._fck.Equals(_fck) && 
-                                                                       objCasted._fctk.Equals(_fctk) &&
-                                                                       objCasted._fctu.Equals(_fctu) &&
-                                                                       objCasted._strainUCompression.Equals(_strainUCompression) &&
-                                                                       objCasted._strainYCompression.Equals(_strainYCompression) &&
-                                                                       objCasted._strainYTension.Equals(_strainYTension) &&
-                                                                       objCasted._strainUTension.Equals(_strainUTension) &&
-                                                                       objCasted._cementType.Equals(_cementType) &&
-                                                                       objCasted._compressionStressStrainDiagrams.Equals(_compressionStressStrainDiagrams) &&
-                                                                       objCasted._tensionStressStrainDiagrams.Equals(_tensionStressStrainDiagrams) &&
-                                                                       base.Equals(objCasted);
+            return (obj is ConcreteMaterialModelCode2010 objCasted) && 
+                objCasted._fck.Equals(_fck) && 
+               objCasted._fctk.Equals(_fctk) &&
+               objCasted._fctu.Equals(_fctu) &&
+               objCasted._strainUCompression.Equals(_strainUCompression) &&
+               objCasted._strainYCompression.Equals(_strainYCompression) &&
+               objCasted._strainYTension.Equals(_strainYTension) &&
+               objCasted._strainUTension.Equals(_strainUTension) &&
+               objCasted._cementType.Equals(_cementType) &&
+               objCasted._compressionStressStrainDiagrams.Equals(_compressionStressStrainDiagrams) &&
+               objCasted._tensionStressStrainDiagrams.Equals(_tensionStressStrainDiagrams) &&
+               base.Equals(objCasted);
         }
 
         public override int GetHashCode()
