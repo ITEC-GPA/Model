@@ -372,7 +372,7 @@ namespace ModelObjectTest
 
 		#endregion
 
-		#region FRC Concrete Material Test
+		#region ModelCode 2010 FRC Concrete Material Test
 
 		[TestMethod]
         public void ConcreteFRCTest1()
@@ -516,11 +516,91 @@ namespace ModelObjectTest
                 Console.WriteLine(stresses[i].Item1);
         }
 
-		#endregion
+        #endregion
 
-		#region Steel Test
+        #region ACI318 Concrete Material Test
 
-		[TestMethod]
+        [TestMethod]
+        [Description("Fc 4000 Bilinear")]
+        public void ConcreteACITest1()
+        {
+            ConcreteMaterialACI318 concrete = new ConcreteMaterialACI318("fc' 4000 psi", 27.579, 
+                ConcreteMaterial.CompressionStressStrainDiagrams.Bilinear);
+
+            Assert.IsTrue(Math.Abs((concrete.E - 24855) / concrete.E) < 0.5, concrete.E.ToString());
+            Assert.IsTrue(Math.Abs(concrete.Fc + 27.579) < 0.001);
+            Assert.IsTrue(Math.Abs(concrete.Fct - 3.270) < 0.001);
+            Assert.IsTrue(Math.Abs(concrete.StrainUCompression + 0.003) < 0.001);
+            Assert.IsTrue(Math.Abs(concrete.StrainYCompression + 0.0011) < 0.001);
+        }
+
+        [TestMethod]
+        [Description("Fc 4000 StressBlock")]
+        public void ConcreteACITest2()
+        {
+            ConcreteMaterialACI318 concrete = new ConcreteMaterialACI318("fc' 4000 psi", 27.579, 
+                ConcreteMaterial.CompressionStressStrainDiagrams.StressBlock);
+
+            Assert.IsTrue(Math.Abs((concrete.E - 24855) / concrete.E) < 0.5, concrete.E.ToString());
+            Assert.IsTrue(Math.Abs(concrete.Fc + 23.442) < 0.001);
+            Assert.IsTrue(Math.Abs(concrete.Fct - 3.270) < 0.001);
+            Assert.IsTrue(Math.Abs(concrete.StrainUCompression + 0.003) < 0.001);
+            Assert.IsTrue(Math.Abs(concrete.StrainYCompression + 0.0011) < 0.001);
+        }
+
+        [TestMethod]
+        [Description("Fc 3000")]
+        public void ConcreteACITest3()
+        {
+            ConcreteMaterialACI318 concrete = ConcreteMaterialACI318.Fc3000;
+
+            Assert.IsTrue(Math.Abs((concrete.E - 21525.562) / concrete.E) < 0.5, concrete.E.ToString());
+            Assert.IsTrue(Math.Abs(concrete.Fc + 20.6843) < 0.001);
+            Assert.IsTrue(Math.Abs(concrete.StrainUCompression + 0.003) < 0.001);
+            Assert.IsTrue(Math.Abs(concrete.StrainYCompression + 0.0011) < 0.001);
+        }
+
+        [TestMethod]
+        [Description("Fc 4000")]
+        public void ConcreteACITest4()
+        {
+            ConcreteMaterialACI318 concrete = ConcreteMaterialACI318.Fc4000;
+
+            Assert.IsTrue(Math.Abs((concrete.E - 24855) / concrete.E) < 0.5, concrete.E.ToString());
+            Assert.IsTrue(Math.Abs(concrete.Fc + 27.579) < 0.001);
+            Assert.IsTrue(Math.Abs(concrete.StrainUCompression + 0.003) < 0.001);
+            Assert.IsTrue(Math.Abs(concrete.StrainYCompression + 0.0011) < 0.001);
+        }
+
+        [TestMethod]
+        [Description("Fc 5000")]
+        public void ConcreteACITest5()
+        {
+            ConcreteMaterialACI318 concrete = ConcreteMaterialACI318.Fc5000;
+
+            Assert.IsTrue(Math.Abs((concrete.E - 27789.382) / concrete.E) < 0.5, concrete.E.ToString());
+            Assert.IsTrue(Math.Abs(concrete.Fc + 34.4738) < 0.001);
+            Assert.IsTrue(Math.Abs(concrete.StrainUCompression + 0.003) < 0.001);
+            Assert.IsTrue(Math.Abs(concrete.StrainYCompression + 0.0011) < 0.001);
+        }
+
+        [TestMethod]
+        [Description("Fc 6000")]
+        public void ConcreteACITest6()
+        {
+            ConcreteMaterialACI318 concrete = ConcreteMaterialACI318.Fc6000;
+
+            Assert.IsTrue(Math.Abs((concrete.E - 30441.742) / concrete.E) < 0.5, concrete.E.ToString());
+            Assert.IsTrue(Math.Abs(concrete.Fc + 41.3685) < 0.001);
+            Assert.IsTrue(Math.Abs(concrete.StrainUCompression + 0.003) < 0.001);
+            Assert.IsTrue(Math.Abs(concrete.StrainYCompression + 0.0011) < 0.001);
+        }
+
+        #endregion
+
+        #region Steel Test
+
+        [TestMethod]
         public void SteelTest1()
         {
             SteelMaterial steel = SteelMaterial.S275;
