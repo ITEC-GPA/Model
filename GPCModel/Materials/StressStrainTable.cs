@@ -47,7 +47,6 @@ namespace GPC.Model.Materials
             if (stresses.Length < 2 || strains.Length < 2) // servono almeno due valori
                 throw new ArgumentException();
 
-
             if (stresses[0] != 0)
             {
                 var buffer = new List<double>() { 0 };

@@ -32,9 +32,6 @@ namespace GPC.Model.Materials
         protected double _strainYTension;
         protected double _strainUTension;
 
-        protected CompressionStressStrainDiagrams _compressionStressStrainDiagrams;
-        protected TensionStressStrainDiagrams _tensionStressStrainDiagrams;
-
         #endregion
 
         #region Properties
@@ -78,7 +75,18 @@ namespace GPC.Model.Materials
         /// <summary>
         /// The compression stress-strain relationship 
         /// </summary>
-        public CompressionStressStrainDiagrams CompressionStressStrainDiagram => _compressionStressStrainDiagrams;
+        public override CompressionStressStrainDiagrams CompressionStressStrainDiagram
+        {
+            get => _compressionStressStrainDiagrams;
+            set
+            {
+                if (value == CompressionStressStrainDiagrams.NonLinear ||
+                    value == CompressionStressStrainDiagrams.ParabolaRectangle)
+                    _compressionStressStrainDiagrams = CompressionStressStrainDiagrams.Invalid;
+                else
+                    _compressionStressStrainDiagrams = value;
+            }
+        }            
 
         /// <summary>
         /// The tension stress-strain relationship 
@@ -93,13 +101,16 @@ namespace GPC.Model.Materials
             double poisson = 0.2, double density = 0.0025, double alfaThermalExpansion = 1e-6)
             : base(name, poisson, density, alfaThermalExpansion)
         {
-            _compressionStressStrainDiagrams = compressionStressStrainDiagrams;
+            CheckCompressionStressStrainDiagrams(compressionStressStrainDiagrams);
             _tensionStressStrainDiagrams = TensionStressStrainDiagrams.Linear;
 
-            SetMechanicalProperties(-Math.Abs(fc), 0, 0, 0, 0, _compressionStressStrainDiagrams, _tensionStressStrainDiagrams);
+            if (IsValid(CompressionStressStrainDiagram))
+            {
+                SetMechanicalProperties(-Math.Abs(fc), 0, 0, 0, 0, _compressionStressStrainDiagrams, _tensionStressStrainDiagrams);
 
-            SetStressStrainTableCompression(_fc, _strainYCompression, _strainUCompression, _compressionStressStrainDiagrams);
-            SetStressStrainTableTension(_fct, _fctu, _strainYTension, _strainUTension, _tensionStressStrainDiagrams);
+                SetStressStrainTableCompression(_fc, _strainYCompression, _strainUCompression, _compressionStressStrainDiagrams);
+                SetStressStrainTableTension(_fct, _fctu, _strainYTension, _strainUTension, _tensionStressStrainDiagrams);
+            }
         }
 
         // Costruttore per cls frc
@@ -108,14 +119,17 @@ namespace GPC.Model.Materials
             double poisson = 0.2, double density = 0.0025, double alfaThermalExpansion = 1e-6)
             : base(name, poisson, density, alfaThermalExpansion)
         {
-            _compressionStressStrainDiagrams = compressionStressStrainDiagrams;
             _tensionStressStrainDiagrams = tensionStressStrainDiagrams;
+            CheckCompressionStressStrainDiagrams(compressionStressStrainDiagrams);
 
-            SetMechanicalProperties(-Math.Abs(fck), Math.Abs(ffts), Math.Abs(fFtu), Math.Abs(strainYTension), Math.Abs(strainUTension),
-                _compressionStressStrainDiagrams, _tensionStressStrainDiagrams);
+            if (IsValid(CompressionStressStrainDiagram))
+			{
+                SetMechanicalProperties(-Math.Abs(fck), Math.Abs(ffts), Math.Abs(fFtu), Math.Abs(strainYTension), Math.Abs(strainUTension),
+                    _compressionStressStrainDiagrams, _tensionStressStrainDiagrams);
 
-            SetStressStrainTableCompression(_fc, _strainYCompression, _strainUCompression, _compressionStressStrainDiagrams);
-            SetStressStrainTableTension(_fct, _fctu, _strainYTension, _strainUTension, _tensionStressStrainDiagrams);
+                SetStressStrainTableCompression(_fc, _strainYCompression, _strainUCompression, _compressionStressStrainDiagrams);
+                SetStressStrainTableTension(_fct, _fctu, _strainYTension, _strainUTension, _tensionStressStrainDiagrams);
+            }
         }
 
         public ConcreteMaterialACI318(string name, StressStrainTable stressStrainTableCompression,
@@ -201,10 +215,9 @@ namespace GPC.Model.Materials
                     break;
 
                 case CompressionStressStrainDiagrams.ParabolaRectangle:
-                    throw new NotSupportedException();
-                    
                 case CompressionStressStrainDiagrams.NonLinear:
-                    throw new NotSupportedException();
+                    _stressStrainTableCompression = new StressStrainTable();
+                    break;
 
                 default:
                     throw new NotSupportedException();
@@ -356,7 +369,8 @@ namespace GPC.Model.Materials
 
                 case CompressionStressStrainDiagrams.ParabolaRectangle:
                 case CompressionStressStrainDiagrams.NonLinear:
-                    throw new NotSupportedException();
+                case CompressionStressStrainDiagrams.Invalid:
+                    return 0;
 
                 default:
                     throw new ArgumentException();
@@ -376,7 +390,8 @@ namespace GPC.Model.Materials
 
                 case CompressionStressStrainDiagrams.ParabolaRectangle:
                 case CompressionStressStrainDiagrams.NonLinear:
-                    throw new NotSupportedException();
+                case CompressionStressStrainDiagrams.Invalid:
+                    return 0;
 
                 default:
                     throw new ArgumentException();
@@ -429,6 +444,24 @@ namespace GPC.Model.Materials
 		{
             return 7.5*1.0*Math.Sqrt(Math.Abs(fc / 0.00689476)) * 0.00689476;
 		}
+
+        protected virtual bool IsValid(CompressionStressStrainDiagrams compressionStressStrainDiagrams)
+		{
+            if (compressionStressStrainDiagrams == CompressionStressStrainDiagrams.Invalid ||
+                compressionStressStrainDiagrams == CompressionStressStrainDiagrams.ParabolaRectangle ||
+                compressionStressStrainDiagrams == CompressionStressStrainDiagrams.NonLinear)
+                return false;
+            return true;
+		}
+
+        protected virtual void CheckCompressionStressStrainDiagrams(CompressionStressStrainDiagrams compressionStressStrainDiagrams)
+		{
+            if (compressionStressStrainDiagrams == CompressionStressStrainDiagrams.ParabolaRectangle ||
+                compressionStressStrainDiagrams == CompressionStressStrainDiagrams.NonLinear)
+                _compressionStressStrainDiagrams = CompressionStressStrainDiagrams.Invalid;
+            else
+                _compressionStressStrainDiagrams = compressionStressStrainDiagrams;
+        }
 
         #endregion
 

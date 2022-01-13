@@ -596,6 +596,33 @@ namespace ModelObjectTest
             Assert.IsTrue(Math.Abs(concrete.StrainYCompression + 0.0011) < 0.001);
         }
 
+        [TestMethod]
+        [Description("Fc 4000 Invalid")]
+        public void ConcreteACITest7()
+        {
+            ConcreteMaterialACI318 concrete = new ConcreteMaterialACI318("fc' 4000 psi", 27.579,
+                ConcreteMaterial.CompressionStressStrainDiagrams.ParabolaRectangle);
+
+            Assert.IsTrue(concrete.E == 0, concrete.E.ToString());
+            Assert.IsTrue(concrete.Fc == 0);
+            Assert.IsTrue(concrete.Fct == 0);
+            Assert.IsTrue(concrete.StrainUCompression == 0);
+            Assert.IsTrue(concrete.StrainYCompression == 0);
+        }
+
+        [TestMethod]
+        public void ConcreteACITest8()
+        {
+            ConcreteMaterialACI318 concrete = ConcreteMaterialACI318.Fc5000;
+            List<(double, double)> stresses = new List<(double, double)>();
+
+            for (int i = 100; i >= -350; i--)
+                stresses.Add((concrete.GetStress(i / 100000.0), i / 100000.0));
+
+            for (int i = 0; i < stresses.Count; i++)
+                Console.WriteLine(stresses[i].Item1);
+        }
+
         #endregion
 
         #region Steel Test

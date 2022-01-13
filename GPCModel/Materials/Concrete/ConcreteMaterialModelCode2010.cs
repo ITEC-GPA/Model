@@ -37,9 +37,6 @@ namespace GPC.Model.Materials
         
         protected CementType _cementType;
 
-        protected CompressionStressStrainDiagrams _compressionStressStrainDiagrams;
-        protected TensionStressStrainDiagrams _tensionStressStrainDiagrams;
-
 		#endregion
 
 		#region Properties
@@ -108,7 +105,7 @@ namespace GPC.Model.Materials
         /// <summary>
         /// The compression stress-strain relationship 
         /// </summary>
-        public CompressionStressStrainDiagrams CompressionStressStrainDiagram => _compressionStressStrainDiagrams;
+        public override CompressionStressStrainDiagrams CompressionStressStrainDiagram => _compressionStressStrainDiagrams;
 
         /// <summary>
         /// The tension stress-strain relationship 

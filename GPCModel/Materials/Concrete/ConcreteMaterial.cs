@@ -30,7 +30,9 @@ namespace GPC.Model.Materials
             Generic,
 
             [Description("Non Linear")]
-            NonLinear
+            NonLinear,
+
+            Invalid = -1,
         }
 
         [TypeConverter(typeof(EnumDescriptionTypeConverter))]
@@ -58,14 +60,17 @@ namespace GPC.Model.Materials
 
         protected double _elasticModulusTension;
 
-		#endregion
+        protected CompressionStressStrainDiagrams _compressionStressStrainDiagrams;
+        protected TensionStressStrainDiagrams _tensionStressStrainDiagrams;
 
-		#region Properties
+        #endregion
 
-		/// <summary>
-		/// Characteristic Stress strain table in comrpession
-		/// </summary>
-		public StressStrainTable StressStrainTableCompression => _stressStrainTableCompression;
+        #region Properties
+
+        /// <summary>
+        /// Characteristic Stress strain table in comrpession
+        /// </summary>
+        public StressStrainTable StressStrainTableCompression => _stressStrainTableCompression;
         
         /// <summary>
         /// Characteristic Stress strain table in tension
@@ -77,11 +82,20 @@ namespace GPC.Model.Materials
         /// </summary>
         public double ElasticModulusTension => _elasticModulusTension;
 
-		#endregion
+        /// <summary>
+        /// The compression stress-strain relationship 
+        /// </summary>
+        public virtual CompressionStressStrainDiagrams CompressionStressStrainDiagram
+        {
+            get;
+            set;
+        }
 
-		#region Public Constructor
+        #endregion
 
-		protected ConcreteMaterial(string name, double poisson, double density, double alfaThermalExpansion)
+        #region Public Constructor
+
+        protected ConcreteMaterial(string name, double poisson, double density, double alfaThermalExpansion)
             : base(name)
         {
             if (poisson > 0.5)
