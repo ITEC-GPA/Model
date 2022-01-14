@@ -58,13 +58,17 @@ namespace GPC.Model.Results
         protected ResultBeamForces(SerializationInfo info, StreamingContext context) 
             : base(info, context)
         {
-            _N  = (double)info.GetValue("N" , typeof(double));
-            _V1 = (double)info.GetValue("V1", typeof(double));
-            _V2 = (double)info.GetValue("V2", typeof(double));
-            _T  = (double)info.GetValue("T" , typeof(double));
-            _M1 = (double)info.GetValue("M1", typeof(double));
-            _M2 = (double)info.GetValue("M2", typeof(double));
+            _N  = info.GetDouble("N" );
+            _V1 = info.GetDouble("V1");
+            _V2 = info.GetDouble("V2");
+            _T  = info.GetDouble("T" );
+            _M1 = info.GetDouble("M1");
+            _M2 = info.GetDouble("M2");
         }
+
+        #endregion
+
+        #region Public Methods
 
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
@@ -76,10 +80,6 @@ namespace GPC.Model.Results
             info.AddValue("M1", _M1);
             info.AddValue("M2", _M2);
         }
-        #endregion
-
-        #region Public Methods
-
 
         public ResultBeamForces ToCoordinateSystem(CoordinateSystem coordinateSystem)
         {

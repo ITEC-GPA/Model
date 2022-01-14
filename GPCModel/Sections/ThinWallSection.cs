@@ -8,7 +8,8 @@ using GPC.Utilities.Extensions;
 
 namespace GPC.Model.Sections
 {
-    public abstract class ThinWallSection : Section
+    [Serializable]
+    public abstract class ThinWallSection : Section, ISerializable
     {
         #region Variables
 
@@ -16,7 +17,6 @@ namespace GPC.Model.Sections
         protected Point2d[] _points;
 
         #endregion
-
 
         #region Public Constructors
 
@@ -34,8 +34,8 @@ namespace GPC.Model.Sections
         protected ThinWallSection(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
-            _thinWalls = (ThinWall[])info.GetValue("ThinWall", typeof(ThinWall));
-            _points = (Point2d[])info.GetValue("Points", typeof(Point2d));
+            _thinWalls = (ThinWall[])info.GetValue("ThinWalls", typeof(ThinWall[]));
+            _points = (Point2d[])info.GetValue("Points", typeof(Point2d[]));
         }
 
         #endregion
@@ -53,7 +53,6 @@ namespace GPC.Model.Sections
 
         }
 
-
         #endregion
 
         #region Public abstract method
@@ -64,12 +63,9 @@ namespace GPC.Model.Sections
 
         #endregion
 
-
         #region Public method
 
-
         protected override abstract Shape2d GetShape();
-
 
         /// <inheritdoc cref="Section.CalculateCentroid()"/>
         protected override Point2d CalculateCentroid()
@@ -173,9 +169,11 @@ namespace GPC.Model.Sections
         protected abstract override double CalculateWpl2();
 
         protected abstract override double CalculateWel1Max();
+
         protected abstract override double CalculateWel1Min();
 
         protected abstract override double CalculateWel2Max();
+
         protected abstract override double CalculateWel2Min();
 
         internal Point2d[] GetSectionPoints()
@@ -191,7 +189,6 @@ namespace GPC.Model.Sections
 
             return points.ToArray();
         }
-
 
         #endregion
 
@@ -220,7 +217,7 @@ namespace GPC.Model.Sections
 
         public static bool operator ==(ThinWallSection left, ThinWallSection right)
         {
-            return left.Equals(left);
+            return left.Equals(right);
         }
 
         public static bool operator !=(ThinWallSection left, ThinWallSection right)
@@ -228,10 +225,18 @@ namespace GPC.Model.Sections
             return !(left == right);
         }
 
+        public override void GetObjectData(SerializationInfo info, StreamingContext context)
+        {
+            base.GetObjectData(info, context);
+            info.AddValue("ThinWalls", _thinWalls);
+            info.AddValue("Points", _points);
+        }
+
         #endregion
 
         #region Nested classes ThinWall
 
+        [Serializable]
         protected class ThinWall
         {
             #region Variables
@@ -239,24 +244,6 @@ namespace GPC.Model.Sections
             private readonly double _t;
             private readonly double _l;
             private readonly double _angle;
-
-            #endregion
-
-            #region Protected constructor
-
-            /// <summary>
-            /// The default constructor of generic ThinWall
-            /// </summary>
-            /// <param name="length">The length of the ThinWall</param>
-            /// <param name="thickness">The thickness of the ThinWall</param>
-            /// <param name="angle">The angle of the ThinWall. 0 is orizontal, Math.PI / 2.0 is vertical</param>
-            internal ThinWall(double length, double thickness, double angle)
-                : base()
-            {
-                _t = thickness < 0 ? throw new ArgumentException($"Thickness cannot be lower than zero") : thickness;
-                _l = length < 0 ? throw new ArgumentException($"Lenght cannot be lower than zero") : length;
-                _angle = angle;
-            }
 
             #endregion
 
@@ -281,6 +268,31 @@ namespace GPC.Model.Sections
             /// The area og the thin wal
             /// </summary>
             public double Area => CalculateArea();
+
+            #endregion
+
+            #region Protected constructor
+
+            /// <summary>
+            /// The default constructor of generic ThinWall
+            /// </summary>
+            /// <param name="length">The length of the ThinWall</param>
+            /// <param name="thickness">The thickness of the ThinWall</param>
+            /// <param name="angle">The angle of the ThinWall. 0 is orizontal, Math.PI / 2.0 is vertical</param>
+            internal ThinWall(double length, double thickness, double angle)
+                : base()
+            {
+                _t = thickness < 0 ? throw new ArgumentException($"Thickness cannot be lower than zero") : thickness;
+                _l = length < 0 ? throw new ArgumentException($"Lenght cannot be lower than zero") : length;
+                _angle = angle;
+            }
+
+            protected ThinWall(SerializationInfo info, StreamingContext context)
+			{
+                _t = info.GetDouble("T");
+                _l = info.GetDouble("L");
+                _angle = info.GetDouble("Angle");
+            }
 
             #endregion
 
@@ -414,8 +426,34 @@ namespace GPC.Model.Sections
                 return 3 + 1.8 * T / L;
             }
 
-            #endregion
+			public override bool Equals(object obj)
+			{
+				return obj is ThinWall wall &&
+					   _t == wall._t &&
+					   _l == wall._l &&
+					   _angle == wall._angle;
+			}
 
+            public override int GetHashCode()
+            {
+                unchecked
+                {
+                    int hashCode = -23;
+                    hashCode = hashCode * -17 + _t.GetHashCode();
+                    hashCode = hashCode * -17 + _l.GetHashCode();
+                    hashCode = hashCode * -17 + _angle.GetHashCode();
+                    return hashCode;
+                }
+            }
+
+            public void GetObjectData(SerializationInfo info, StreamingContext context)
+            {
+                info.AddValue("T", _t);
+                info.AddValue("L", _l);
+                info.AddValue("Angle", _angle);
+            }
+
+            #endregion
         }
 
         #endregion

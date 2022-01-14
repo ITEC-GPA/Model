@@ -11,6 +11,7 @@ namespace GPC.Model
     [Serializable]
     public class ModelObjectIdSet<T> : ModelObjectSet<T> where T : ModelObjectId, ISerializable
     {
+        #region Variables
 
         public ModelObjectIdSet()
         {
@@ -22,20 +23,20 @@ namespace GPC.Model
 
         }
 
-
         protected ModelObjectIdSet(SerializationInfo info, StreamingContext context) 
             : base(info, context)
         {
 
         }
 
+		#endregion
 
-        public override void GetObjectData(SerializationInfo info, StreamingContext context)
+        #region Equals - hashcode - Operators
+
+		public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             base.GetObjectData(info, context);
         }
-
-        #region Equals - hashcode - Operators
 
         public override bool Equals(object obj)
         {
@@ -63,7 +64,6 @@ namespace GPC.Model
                 }
             }
         }
-
 
         public static bool operator ==(ModelObjectIdSet<T> obj1, ModelObjectIdSet<T> obj2)
         {

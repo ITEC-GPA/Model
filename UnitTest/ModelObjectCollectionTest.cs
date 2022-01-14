@@ -108,12 +108,10 @@ namespace ModelObjectTest
         [TestMethod]
         public void RebarCollectionTest1()
         {
-
             RebarSectionCircular rebarSection1 = new RebarSectionCircular(10, RebarMaterial.B450C);
             RebarSectionCircular rebarSection2 = new RebarSectionCircular(20, RebarMaterial.B450C);
             RebarSectionCircular rebarSection3 = new RebarSectionCircular(30, RebarMaterial.B450C);
             RebarSectionCircular rebarSection4 = new RebarSectionCircular(40, RebarMaterial.B450C);
-
 
             RebarCollection collection = new RebarCollection
             {
@@ -124,18 +122,157 @@ namespace ModelObjectTest
                 new ReinforcedConcreteRebar(rebarSection4, new GPC.Geometry.Point2d(3, 2))
             };
 
-
             foreach (var item in collection)
             {
                 Console.WriteLine($"{item.Id} {item.RebarSection.Area}");
             }
 
-
             Assert.IsTrue(collection.Count == 4);
         }
 
+        [TestMethod]
+        public void RebarCollectionTest2()
+        {
+            RebarSectionCircular rebarSection1 = new RebarSectionCircular(10, RebarMaterial.B450C);
+            RebarSectionCircular rebarSection2 = new RebarSectionCircular(20, RebarMaterial.B450C);
 
+            ReinforcedConcreteRebar rebar1 = new ReinforcedConcreteRebar(rebarSection1, new GPC.Geometry.Point2d(0, 0));
+            ReinforcedConcreteRebar rebar2 = new ReinforcedConcreteRebar(rebarSection2, new GPC.Geometry.Point2d(0, 0));
 
+            RebarCollection collection = new RebarCollection
+            {
+                rebar1,
+            };
+
+            collection.Replace(rebar1, rebar2);
+
+            Assert.IsTrue(collection.Count == 1);
+            Assert.IsTrue(collection.GetById(1) == rebar2);
+        }
+
+        [TestMethod]
+        public void RebarCollectionTest3()
+        {
+            RebarSectionCircular rebarSection1 = new RebarSectionCircular(10, RebarMaterial.B450C);
+            RebarSectionCircular rebarSection2 = new RebarSectionCircular(20, RebarMaterial.B450C);
+
+            ReinforcedConcreteRebar rebar11 = new ReinforcedConcreteRebar(rebarSection1, new GPC.Geometry.Point2d(0, 0));
+            ReinforcedConcreteRebar rebar12 = new ReinforcedConcreteRebar(rebarSection1, new GPC.Geometry.Point2d(10, 0));
+            ReinforcedConcreteRebar rebar13 = new ReinforcedConcreteRebar(rebarSection1, new GPC.Geometry.Point2d(20, 0));
+            ReinforcedConcreteRebar rebar14 = new ReinforcedConcreteRebar(rebarSection1, new GPC.Geometry.Point2d(30, 0));
+            ReinforcedConcreteRebar rebar15 = new ReinforcedConcreteRebar(rebarSection1, new GPC.Geometry.Point2d(40, 0));
+            ReinforcedConcreteRebar rebar16 = new ReinforcedConcreteRebar(rebarSection1, new GPC.Geometry.Point2d(50, 0));
+            ReinforcedConcreteRebar rebar2 = new ReinforcedConcreteRebar(rebarSection2, new GPC.Geometry.Point2d(0, 0));
+
+            RebarCollection collection = new RebarCollection
+            {
+                rebar11,
+                rebar12,
+                rebar13,
+                rebar14,
+                rebar15,
+                rebar16,
+            };
+
+            collection.Replace(rebar11, rebar2);
+
+            Assert.IsTrue(collection.Count == 6);
+            Assert.IsTrue(collection.GetById(7) == rebar2);
+            Assert.IsTrue(collection.GetById(2) == rebar12);
+            Assert.IsTrue(collection.GetById(3) == rebar13);
+            Assert.IsTrue(collection.GetById(4) == rebar14);
+            Assert.IsTrue(collection.GetById(5) == rebar15);
+            Assert.IsTrue(collection.GetById(6) == rebar16);
+        }
+
+        [TestMethod]
+        public void RebarCollectionTest4()
+        {
+            RebarSectionCircular rebarSection1 = new RebarSectionCircular(10, RebarMaterial.B450C);
+            RebarSectionCircular rebarSection2 = new RebarSectionCircular(20, RebarMaterial.B450C);
+
+            ReinforcedConcreteRebar rebar11 = new ReinforcedConcreteRebar(rebarSection1, new GPC.Geometry.Point2d(0, 0));
+            ReinforcedConcreteRebar rebar12 = new ReinforcedConcreteRebar(rebarSection1, new GPC.Geometry.Point2d(10, 0));
+            ReinforcedConcreteRebar rebar13 = new ReinforcedConcreteRebar(rebarSection1, new GPC.Geometry.Point2d(20, 0));
+            ReinforcedConcreteRebar rebar14 = new ReinforcedConcreteRebar(rebarSection1, new GPC.Geometry.Point2d(30, 0));
+            ReinforcedConcreteRebar rebar15 = new ReinforcedConcreteRebar(rebarSection1, new GPC.Geometry.Point2d(40, 0));
+            ReinforcedConcreteRebar rebar16 = new ReinforcedConcreteRebar(rebarSection1, new GPC.Geometry.Point2d(50, 0));
+
+            RebarCollection collection = new RebarCollection
+            {
+                rebar11,
+                rebar12,
+                rebar13,
+                rebar14,
+                rebar15,
+                rebar16,
+            };
+
+            collection.Remove(rebar11);
+            collection.Remove(rebar12);
+            collection.Remove(rebar13);
+            collection.Remove(rebar14);
+            collection.Remove(rebar15);
+            collection.Remove(rebar16);
+
+            Assert.IsTrue(collection.Count == 0);
+        }
+
+        [TestMethod]
+        public void RebarCollectionTest5()
+        {
+            RebarSectionCircular rebarSection1 = new RebarSectionCircular(10, RebarMaterial.B450C);
+            RebarSectionCircular rebarSection2 = new RebarSectionCircular(20, RebarMaterial.B450C);
+
+            ReinforcedConcreteRebar rebar11 = new ReinforcedConcreteRebar(rebarSection1, new GPC.Geometry.Point2d(0, 0));
+            ReinforcedConcreteRebar rebar12 = new ReinforcedConcreteRebar(rebarSection1, new GPC.Geometry.Point2d(10, 0));
+            ReinforcedConcreteRebar rebar13 = new ReinforcedConcreteRebar(rebarSection1, new GPC.Geometry.Point2d(20, 0));
+            ReinforcedConcreteRebar rebar14 = new ReinforcedConcreteRebar(rebarSection1, new GPC.Geometry.Point2d(30, 0));
+            ReinforcedConcreteRebar rebar15 = new ReinforcedConcreteRebar(rebarSection1, new GPC.Geometry.Point2d(40, 0));
+            ReinforcedConcreteRebar rebar16 = new ReinforcedConcreteRebar(rebarSection1, new GPC.Geometry.Point2d(50, 0));
+            ReinforcedConcreteRebar rebar2 = new ReinforcedConcreteRebar(rebarSection2, new GPC.Geometry.Point2d(0, 0));
+
+            RebarCollection collection = new RebarCollection
+            {
+                rebar11,
+                rebar12,
+                rebar13,
+                rebar14,
+                rebar15,
+                rebar16,
+            };
+
+            collection.Replace(rebar11, rebar2);
+            collection.Replace(rebar12, rebar2);
+            collection.Replace(rebar13, rebar2);
+            collection.Replace(rebar14, rebar2);
+            collection.Replace(rebar15, rebar2);
+            collection.Replace(rebar16, rebar2);
+
+            Assert.IsTrue(collection.Count == 1);
+            Assert.IsTrue(collection.GetById(7) == rebar2);
+        }
+
+        [TestMethod]
+        public void RebarCollectionTest6()
+        {
+            RebarSectionCircular rebarSection1 = new RebarSectionCircular(10, RebarMaterial.B450C);
+
+            ReinforcedConcreteRebar rebar11 = new ReinforcedConcreteRebar(rebarSection1, new GPC.Geometry.Point2d(0, 0));
+            ReinforcedConcreteRebar rebar12 = new ReinforcedConcreteRebar(rebarSection1, new GPC.Geometry.Point2d(10, 0));
+            ReinforcedConcreteRebar rebar13 = new ReinforcedConcreteRebar(rebarSection1, new GPC.Geometry.Point2d(20, 0));
+
+            RebarCollection collection = new RebarCollection
+            {
+                rebar11,
+                rebar12,
+                rebar13,
+            };
+
+            collection.Clear();
+
+            Assert.IsTrue(collection.Count == 0);
+        }
 
         private class TestElement : Element, INotifyPropertyChanged
         {

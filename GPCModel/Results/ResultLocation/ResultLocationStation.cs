@@ -5,13 +5,17 @@ using System.Runtime.Serialization;
 
 namespace GPC.Model.Results
 {
-
     [Serializable]
     public class ResultLocationStation : ResultLocation, ISerializable
     {
+        #region Variables
+
         private readonly double _distanceFromStartPoint;
         private readonly double _elementLenght;
 
+        #endregion
+
+        #region Properties
 
         public double ElementLenght => _elementLenght;
 
@@ -19,7 +23,9 @@ namespace GPC.Model.Results
 
         public double ParametricDistance => _distanceFromStartPoint / _elementLenght;
 
+        #endregion
 
+        #region Public Constructors
 
         public ResultLocationStation(IEnumerable<IBeamResult> results, double distanceFromStartPoint, double elementLenght, int id = ModelObjectId.IDUNASSIGNED)
             : base(results.Cast<ResultType>().ToArray(), id)
@@ -28,14 +34,16 @@ namespace GPC.Model.Results
             _elementLenght = elementLenght == 0 ? throw new ArgumentException($"elementLenght can not be zero") : elementLenght;
         }
 
-
-        public ResultLocationStation(SerializationInfo info, StreamingContext context)
+        protected ResultLocationStation(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
             _distanceFromStartPoint = (double)info.GetValue("DistanceFromStartPoint", typeof(double));
             _elementLenght = (double)info.GetValue("ElementLenght", typeof(double));
         }
 
+        #endregion
+
+        #region Public Methods
 
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
@@ -91,5 +99,7 @@ namespace GPC.Model.Results
         {
             return !(obj1 == obj2);
         }
-    }
+
+		#endregion
+	}
 }

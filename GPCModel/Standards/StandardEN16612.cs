@@ -8,13 +8,9 @@ using GPC.Model.Combinations;
 
 namespace GPC.Model.Standards
 {
-    public class StandardEN16612 : StandardEN1990, Standard.ICombinationsGenerator
+    [Serializable]
+    public class StandardEN16612 : StandardEN1990, Standard.ICombinationsGenerator, ISerializable
     {
-        #region PUBLIC ENUMS
-
-
-        #endregion
-
         #region VARIABLES
 
         // Climate psi
@@ -29,7 +25,7 @@ namespace GPC.Model.Standards
         private readonly double _psi2ClimateSummerDeltaP;
         private readonly double _psi2ClimateSummerDeltaT;
         private readonly double _psi2ClimateWinterDeltaP;
-        private readonly double _psi2ClimateWinterDeltaT;                
+        private readonly double _psi2ClimateWinterDeltaT;
 
         // Climate Psi
         public double Psi0ClimateSummerDeltaP => _psi0ClimateSummerDeltaP;
@@ -50,7 +46,7 @@ namespace GPC.Model.Standards
         #region PUBLIC CONSTRUCTOR
 
         public StandardEN16612()
-        {          
+        {
             // da controllare. non sono corretti
             _psi0ClimateSummerDeltaP = 0.30;
             _psi0ClimateSummerDeltaT = 0.30;
@@ -64,6 +60,23 @@ namespace GPC.Model.Standards
             _psi2ClimateSummerDeltaT = 0.00;
             _psi2ClimateWinterDeltaP = 0.00;
             _psi2ClimateWinterDeltaT = 0.00;
+        }
+
+        protected StandardEN16612(SerializationInfo info, StreamingContext context)
+            : base(info, context)
+        {
+            _psi0ClimateSummerDeltaP = info.GetDouble("Psi0ClimateSummerDeltaP");
+            _psi0ClimateSummerDeltaT = info.GetDouble("Psi0ClimateSummerDeltaT");
+            _psi0ClimateWinterDeltaP = info.GetDouble("Psi0ClimateWinterDeltaP");
+            _psi0ClimateWinterDeltaT = info.GetDouble("Psi0ClimateWinterDeltaT");
+            _psi1ClimateSummerDeltaP = info.GetDouble("Psi1ClimateSummerDeltaP");
+            _psi1ClimateSummerDeltaT = info.GetDouble("Psi1ClimateSummerDeltaT");
+            _psi1ClimateWinterDeltaP = info.GetDouble("Psi1ClimateWinterDeltaP");
+            _psi1ClimateWinterDeltaT = info.GetDouble("Psi1ClimateWinterDeltaT");
+            _psi2ClimateSummerDeltaP = info.GetDouble("Psi2ClimateSummerDeltaP");
+            _psi2ClimateSummerDeltaT = info.GetDouble("Psi2ClimateSummerDeltaT");
+            _psi2ClimateWinterDeltaP = info.GetDouble("Psi2ClimateWinterDeltaP");
+            _psi2ClimateWinterDeltaT = info.GetDouble("Psi2ClimateWinterDeltaT");
         }
 
         #endregion
@@ -1203,7 +1216,7 @@ namespace GPC.Model.Standards
         {
             if (optionsInput is EN16612CombinationsOptions options)
             {
-                List<List<Combination.LoadCaseCoefficient>> loadCaseCoefficients = new List<List<Combination.LoadCaseCoefficient >>();
+                List<List<Combination.LoadCaseCoefficient>> loadCaseCoefficients = new List<List<Combination.LoadCaseCoefficient>>();
 
                 #region VARIABLE LOAD CHECK
 
@@ -1883,7 +1896,7 @@ namespace GPC.Model.Standards
                 {
                     Combination.LoadCaseCoefficient loadCaseCoefficientLead = new Combination.LoadCaseCoefficient(GetCoefficientLeadingVariableAction(loadCase, options), loadCase);
                     loadCaseCoefficientsBuffer.Add(loadCaseCoefficientLead);
-                }                
+                }
                 return loadCaseCoefficientsBuffer;
             }
             else
@@ -2037,6 +2050,70 @@ namespace GPC.Model.Standards
             }
             else
                 throw new Exception("Failed to set the coefficient for accompanying variable actions");
+        }
+
+        #endregion
+
+        #region Equals - hashcode - operators
+
+        public override bool Equals(object obj)
+        {
+            if (ReferenceEquals(this, obj))
+                return true;
+
+            return obj is StandardEN16612 eN &&
+                   base.Equals(obj) &&
+                   _psi0ClimateSummerDeltaP == eN._psi0ClimateSummerDeltaP &&
+                   _psi0ClimateSummerDeltaT == eN._psi0ClimateSummerDeltaT &&
+                   _psi0ClimateWinterDeltaP == eN._psi0ClimateWinterDeltaP &&
+                   _psi0ClimateWinterDeltaT == eN._psi0ClimateWinterDeltaT &&
+                   _psi1ClimateSummerDeltaP == eN._psi1ClimateSummerDeltaP &&
+                   _psi1ClimateSummerDeltaT == eN._psi1ClimateSummerDeltaT &&
+                   _psi1ClimateWinterDeltaP == eN._psi1ClimateWinterDeltaP &&
+                   _psi1ClimateWinterDeltaT == eN._psi1ClimateWinterDeltaT &&
+                   _psi2ClimateSummerDeltaP == eN._psi2ClimateSummerDeltaP &&
+                   _psi2ClimateSummerDeltaT == eN._psi2ClimateSummerDeltaT &&
+                   _psi2ClimateWinterDeltaP == eN._psi2ClimateWinterDeltaP &&
+                   _psi2ClimateWinterDeltaT == eN._psi2ClimateWinterDeltaT;
+        }
+
+        public override int GetHashCode()
+        {
+            unchecked
+            {
+                int hashCode = 23;
+                hashCode = hashCode * -17 + base.GetHashCode();
+                hashCode = hashCode * -17 + _psi0ClimateSummerDeltaP.GetHashCode();
+                hashCode = hashCode * -17 + _psi0ClimateSummerDeltaT.GetHashCode();
+                hashCode = hashCode * -17 + _psi0ClimateWinterDeltaP.GetHashCode();
+                hashCode = hashCode * -17 + _psi0ClimateWinterDeltaT.GetHashCode();
+                hashCode = hashCode * -17 + _psi1ClimateSummerDeltaP.GetHashCode();
+                hashCode = hashCode * -17 + _psi1ClimateSummerDeltaT.GetHashCode();
+                hashCode = hashCode * -17 + _psi1ClimateWinterDeltaP.GetHashCode();
+                hashCode = hashCode * -17 + _psi1ClimateWinterDeltaT.GetHashCode();
+                hashCode = hashCode * -17 + _psi2ClimateSummerDeltaP.GetHashCode();
+                hashCode = hashCode * -17 + _psi2ClimateSummerDeltaT.GetHashCode();
+                hashCode = hashCode * -17 + _psi2ClimateWinterDeltaP.GetHashCode();
+                hashCode = hashCode * -17 + _psi2ClimateWinterDeltaT.GetHashCode();
+                return hashCode;
+            }
+        }
+
+        public override void GetObjectData(SerializationInfo info, StreamingContext context)
+        {
+            base.GetObjectData(info, context);
+            info.AddValue("Psi0ClimateSummerDeltaP", _psi0ClimateSummerDeltaP);
+            info.AddValue("Psi0ClimateSummerDeltaT", _psi0ClimateSummerDeltaT);
+            info.AddValue("Psi0ClimateWinterDeltaP", _psi0ClimateWinterDeltaP);
+            info.AddValue("Psi0ClimateWinterDeltaT", _psi0ClimateWinterDeltaT);
+            info.AddValue("Psi1ClimateSummerDeltaP", _psi1ClimateSummerDeltaP);
+            info.AddValue("Psi1ClimateSummerDeltaT", _psi1ClimateSummerDeltaT);
+            info.AddValue("Psi1ClimateWinterDeltaP", _psi1ClimateWinterDeltaP);
+            info.AddValue("Psi1ClimateWinterDeltaT", _psi1ClimateWinterDeltaT);
+            info.AddValue("Psi2ClimateSummerDeltaP", _psi2ClimateSummerDeltaP);
+            info.AddValue("Psi2ClimateSummerDeltaT", _psi2ClimateSummerDeltaT);
+            info.AddValue("Psi2ClimateWinterDeltaP", _psi2ClimateWinterDeltaP);
+            info.AddValue("Psi2ClimateWinterDeltaT", _psi2ClimateWinterDeltaT);
         }
 
         #endregion

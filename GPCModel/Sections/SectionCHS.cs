@@ -5,7 +5,8 @@ using GPC.Model.Materials;
 
 namespace GPC.Model.Sections
 {
-    public class SectionCHS : Section, ISection
+    [Serializable]
+    public class SectionCHS : Section, ISection, ISerializable
     {
         #region Variables
 
@@ -13,7 +14,6 @@ namespace GPC.Model.Sections
         protected readonly double _thickness; // Thickness
 
         #endregion
-
 
         #region Properties
 
@@ -33,7 +33,6 @@ namespace GPC.Model.Sections
         public double DiameterInternal => _externalDiameter - (2 * _thickness);
 
         #endregion
-
 
         #region Public Constructors
 
@@ -64,7 +63,6 @@ namespace GPC.Model.Sections
         }
 
         #endregion
-
 
         #region Public method
 
@@ -147,7 +145,6 @@ namespace GPC.Model.Sections
         }
 
         #endregion
-
 
         #region Public override methods 
 

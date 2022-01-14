@@ -8,10 +8,19 @@ namespace GPC.Model.Results
     [Serializable]
     public abstract class ResultType : ModelObjectId, ISerializable
     {
+        #region Variables
+
         protected readonly CoordinateSystem _coordinateSystem;
+
+        #endregion
+
+        #region Properties
 
         public CoordinateSystem CoordinateSystem => _coordinateSystem;
 
+        #endregion
+
+        #region Public Constructors
 
         protected ResultType(CoordinateSystem coordinateSystem, string name = "", int id = ModelObjectId.IDUNASSIGNED)
             : base(id, name)
@@ -19,13 +28,15 @@ namespace GPC.Model.Results
             _coordinateSystem = coordinateSystem ?? throw new ArgumentNullException(nameof(coordinateSystem));
         }
 
-
-        public ResultType(SerializationInfo info, StreamingContext context)
+        protected ResultType(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
             _coordinateSystem = (CoordinateSystem)info.GetValue("CoordinateSystem", typeof(CoordinateSystem));
         }
 
+        #endregion
+
+        #region Public Methods
 
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
@@ -70,5 +81,6 @@ namespace GPC.Model.Results
             return !(obj1 == obj2);
         }
 
-    }
+		#endregion
+	}
 }

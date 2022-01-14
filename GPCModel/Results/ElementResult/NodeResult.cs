@@ -10,26 +10,36 @@ namespace GPC.Model.Results
     [Serializable]
     public sealed class NodeResult : ElementResult, ISerializable, IEquatable<NodeResult>, IFemResult
     {
+        #region Variables
 
         private readonly int _stageId;
 
+        #endregion
+
+        #region Properties
+
         public int StageId => _stageId;
 
+        #endregion
 
+        #region Public Constructors
 
         public NodeResult(ILoadCase Case, IEnumerable<ResultLocationId> resultLocations,
-                                          int stageId = ModelObjectId.IDUNASSIGNED)
+            int stageId = ModelObjectId.IDUNASSIGNED)
             : base(Case, resultLocations.ToArray())
         {
             _stageId = stageId;
         }
 
-
-        public NodeResult(SerializationInfo info, StreamingContext context)
+        internal NodeResult(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
             _stageId = (int)info.GetValue("StageId", typeof(int));
         }
+
+        #endregion
+
+        #region Public Methods
 
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
@@ -37,11 +47,11 @@ namespace GPC.Model.Results
             info.AddValue("StageId", _stageId, typeof(int));
         }
 
+		#endregion
 
+		#region Equals - hascode - operators
 
-        #region Equals - hascode - operators
-
-        public override int GetHashCode()
+		public override int GetHashCode()
         {
             unchecked
             {
@@ -52,7 +62,6 @@ namespace GPC.Model.Results
                 return hashCode;
             }
         }
-
 
         public override bool Equals(object obj)
         {
@@ -69,7 +78,6 @@ namespace GPC.Model.Results
 
             return _stageId.Equals(other.StageId) && base.Equals(other);
         }
-
 
         public static bool operator ==(NodeResult obj1, NodeResult obj2)
         {

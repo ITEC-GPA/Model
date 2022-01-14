@@ -1,9 +1,12 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Runtime.Serialization;
 using GPC.Geometry;
 using GPC.Model.Materials;
 
 namespace GPC.Model.Sections.Steel
 {
+    [Serializable]
     public class SteelSectionC : SectionC, ISteelSection
     {
         #region Variables
@@ -15,7 +18,6 @@ namespace GPC.Model.Sections.Steel
         protected readonly FormedTypes _formedType;
 
         #endregion
-
 
         #region Properties
 
@@ -35,14 +37,12 @@ namespace GPC.Model.Sections.Steel
 
         #endregion
 
-
         #region Public Constructors
 
         public SteelSectionC(double height, double thicknessWeb, double lengthTop, double thicknessTop, double lengthBottom,
-                            double thicknessBottom, SteelMaterial material, string name,
-                            SectionTypes type = SectionTypes.Rolled,
-                            FormedTypes formedType = FormedTypes.ColdFormed,
-                            double radiusInternal = 0, double radiusExternal = 0)
+            double thicknessBottom, SteelMaterial material, string name = "",
+            SectionTypes type = SectionTypes.Rolled, FormedTypes formedType = FormedTypes.ColdFormed,
+            double radiusInternal = 0, double radiusExternal = 0)
             : base(height, thicknessWeb, lengthTop, thicknessTop, lengthBottom, thicknessBottom, material, name)
         {
             _r1 = radiusInternal < 0 ? 0 : radiusInternal;         // raggio di curvatura o altezza di gola
@@ -53,7 +53,27 @@ namespace GPC.Model.Sections.Steel
             SetMechanicalProperties();
         }
 
+        protected SteelSectionC(SerializationInfo info, StreamingContext context)
+            : base(info, context)
+        {
+            _r1 = info.GetDouble("R1");
+            _r2 = info.GetDouble("R2");
+            _sectionType = (SectionTypes)info.GetValue("SectionType", typeof(SectionTypes));
+            _formedType = (FormedTypes)info.GetValue("FormedType", typeof(FormedTypes));
+        }
+
         #endregion
+
+        #region Public Methods
+
+        public override void GetObjectData(SerializationInfo info, StreamingContext context)
+        {
+            base.GetObjectData(info, context);
+            info.AddValue("R1", _r1);
+            info.AddValue("R2", _r2);
+            info.AddValue("SectionType", _sectionType);
+            info.AddValue("FormedType", _formedType);
+        }
 
         protected override double CalculateArea()
         {
@@ -188,5 +208,37 @@ namespace GPC.Model.Sections.Steel
 
             return new Point2d((xSum / area), (ySum / area));
         }
-    }
+
+		public override bool Equals(object obj)
+		{
+			return obj is SteelSectionC c &&
+				   base.Equals(obj) &&
+				   _r1 == c._r1 &&
+				   _r2 == c._r2;
+		}
+
+        public override int GetHashCode()
+        {
+            unchecked
+            {
+                int hashCode = -23;
+                hashCode = hashCode * -17 + base.GetHashCode();
+                hashCode = hashCode * -17 + _r1.GetHashCode();
+                hashCode = hashCode * -17 + _r2.GetHashCode();
+                return hashCode;
+            }
+        }
+
+		public static bool operator ==(SteelSectionC left, SteelSectionC right)
+		{
+			return EqualityComparer<SteelSectionC>.Default.Equals(left, right);
+		}
+
+		public static bool operator !=(SteelSectionC left, SteelSectionC right)
+		{
+			return !(left == right);
+		}
+
+		#endregion
+	}
 }

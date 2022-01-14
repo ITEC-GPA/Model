@@ -42,7 +42,9 @@ namespace ModelObjectTest
             Console.WriteLine(steelDeserialized.E + " " + steel.E);
         }
 
-        [TestMethod]
+		#region Glass Test
+
+		[TestMethod]
         public void GlassResistance1()
         {
             double baseStress = 23.3;
@@ -80,17 +82,21 @@ namespace ModelObjectTest
             Assert.AreEqual(gma.GetGlassResistance(true, 86400), baseEdgeStress * 0.906 * 0.806 * psiSurf, 0.01);
         }
 
-        [TestMethod]
+		#endregion
+
+		#region EN1922 Concrete Material Test
+
+		[TestMethod]
         [Description("C25/30 StressBlock")]
         public void ConcreteENTest1()
 		{
             ConcreteMaterialEN1992 concrete = new ConcreteMaterialEN1992("", 25, ConcreteMaterialEN1992.CompressionStressStrainDiagrams.StressBlock);
 
             Assert.IsTrue(Math.Abs((concrete.E - 31.0 * 1000) / concrete.E) < 0.5, concrete.E.ToString());
-            Assert.IsTrue(Math.Abs(concrete.Fcm + 33.0) < 0.5);
-            Assert.IsTrue(Math.Abs(concrete.Fctk05 - 1.8) < 0.5);
-            Assert.IsTrue(Math.Abs(concrete.Fctm - 2.6) < 0.5);
-            Assert.IsTrue(Math.Abs(concrete.Fctk95 - 3.3) < 0.5);
+            Assert.IsTrue(Math.Abs(concrete.Fcm + 33.0) < 0.1);
+            Assert.IsTrue(Math.Abs(concrete.Fctk05 - 1.8) < 0.1);
+            Assert.IsTrue(Math.Abs(concrete.Fctm - 2.6) < 0.1);
+            Assert.IsTrue(Math.Abs(concrete.Fctk95 - 3.3) < 0.1);
             Assert.IsTrue(Math.Abs(concrete.StrainUCompression + 0.0035) < 0.01);
             Assert.IsTrue(Math.Abs(concrete.StrainYCompression + 0.0007) < 0.01);       
             //Assert.IsTrue(Math.Abs(concrete.Fcd - 16.66) < 0.01);
@@ -364,7 +370,11 @@ namespace ModelObjectTest
                 Console.WriteLine(stresses[i].Item1);
         }
 
-        [TestMethod]
+		#endregion
+
+		#region ModelCode 2010 FRC Concrete Material Test
+
+		[TestMethod]
         public void ConcreteFRCTest1()
         {
             ConcreteMaterialModelCode2010FRC concrete = new ConcreteMaterialModelCode2010FRC("", 30, ConcreteMaterialModelCode2010.CompressionStressStrainDiagrams.ParabolaRectangle,
@@ -506,6 +516,117 @@ namespace ModelObjectTest
                 Console.WriteLine(stresses[i].Item1);
         }
 
+        #endregion
+
+        #region ACI318 Concrete Material Test
+
+        [TestMethod]
+        [Description("Fc 4000 Bilinear")]
+        public void ConcreteACITest1()
+        {
+            ConcreteMaterialACI318 concrete = new ConcreteMaterialACI318("fc' 4000 psi", 27.579, 
+                ConcreteMaterial.CompressionStressStrainDiagrams.Bilinear);
+
+            Assert.IsTrue(Math.Abs((concrete.E - 24855) / concrete.E) < 0.5, concrete.E.ToString());
+            Assert.IsTrue(Math.Abs(concrete.Fc + 27.579) < 0.001);
+            Assert.IsTrue(Math.Abs(concrete.Fct - 3.270) < 0.001);
+            Assert.IsTrue(Math.Abs(concrete.StrainUCompression + 0.003) < 0.001);
+            Assert.IsTrue(Math.Abs(concrete.StrainYCompression + 0.0011) < 0.001);
+        }
+
+        [TestMethod]
+        [Description("Fc 4000 StressBlock")]
+        public void ConcreteACITest2()
+        {
+            ConcreteMaterialACI318 concrete = new ConcreteMaterialACI318("fc' 4000 psi", 27.579, 
+                ConcreteMaterial.CompressionStressStrainDiagrams.StressBlock);
+
+            Assert.IsTrue(Math.Abs((concrete.E - 24855) / concrete.E) < 0.5, concrete.E.ToString());
+            Assert.IsTrue(Math.Abs(concrete.Fc + 23.442) < 0.001);
+            Assert.IsTrue(Math.Abs(concrete.Fct - 3.270) < 0.001);
+            Assert.IsTrue(Math.Abs(concrete.StrainUCompression + 0.003) < 0.001);
+            Assert.IsTrue(Math.Abs(concrete.StrainYCompression + 0.0011) < 0.001);
+        }
+
+        [TestMethod]
+        [Description("Fc 3000")]
+        public void ConcreteACITest3()
+        {
+            ConcreteMaterialACI318 concrete = ConcreteMaterialACI318.Fc3000;
+
+            Assert.IsTrue(Math.Abs((concrete.E - 21525.562) / concrete.E) < 0.5, concrete.E.ToString());
+            Assert.IsTrue(Math.Abs(concrete.Fc + 20.6843) < 0.001);
+            Assert.IsTrue(Math.Abs(concrete.StrainUCompression + 0.003) < 0.001);
+            Assert.IsTrue(Math.Abs(concrete.StrainYCompression + 0.0011) < 0.001);
+        }
+
+        [TestMethod]
+        [Description("Fc 4000")]
+        public void ConcreteACITest4()
+        {
+            ConcreteMaterialACI318 concrete = ConcreteMaterialACI318.Fc4000;
+
+            Assert.IsTrue(Math.Abs((concrete.E - 24855) / concrete.E) < 0.5, concrete.E.ToString());
+            Assert.IsTrue(Math.Abs(concrete.Fc + 27.579) < 0.001);
+            Assert.IsTrue(Math.Abs(concrete.StrainUCompression + 0.003) < 0.001);
+            Assert.IsTrue(Math.Abs(concrete.StrainYCompression + 0.0011) < 0.001);
+        }
+
+        [TestMethod]
+        [Description("Fc 5000")]
+        public void ConcreteACITest5()
+        {
+            ConcreteMaterialACI318 concrete = ConcreteMaterialACI318.Fc5000;
+
+            Assert.IsTrue(Math.Abs((concrete.E - 27789.382) / concrete.E) < 0.5, concrete.E.ToString());
+            Assert.IsTrue(Math.Abs(concrete.Fc + 34.4738) < 0.001);
+            Assert.IsTrue(Math.Abs(concrete.StrainUCompression + 0.003) < 0.001);
+            Assert.IsTrue(Math.Abs(concrete.StrainYCompression + 0.0011) < 0.001);
+        }
+
+        [TestMethod]
+        [Description("Fc 6000")]
+        public void ConcreteACITest6()
+        {
+            ConcreteMaterialACI318 concrete = ConcreteMaterialACI318.Fc6000;
+
+            Assert.IsTrue(Math.Abs((concrete.E - 30441.742) / concrete.E) < 0.5, concrete.E.ToString());
+            Assert.IsTrue(Math.Abs(concrete.Fc + 41.3685) < 0.001);
+            Assert.IsTrue(Math.Abs(concrete.StrainUCompression + 0.003) < 0.001);
+            Assert.IsTrue(Math.Abs(concrete.StrainYCompression + 0.0011) < 0.001);
+        }
+
+        [TestMethod]
+        [Description("Fc 4000 Invalid")]
+        public void ConcreteACITest7()
+        {
+            ConcreteMaterialACI318 concrete = new ConcreteMaterialACI318("fc' 4000 psi", 27.579,
+                ConcreteMaterial.CompressionStressStrainDiagrams.ParabolaRectangle);
+
+            Assert.IsTrue(concrete.E == 0, concrete.E.ToString());
+            Assert.IsTrue(concrete.Fc == 0);
+            Assert.IsTrue(concrete.Fct == 0);
+            Assert.IsTrue(concrete.StrainUCompression == 0);
+            Assert.IsTrue(concrete.StrainYCompression == 0);
+        }
+
+        [TestMethod]
+        public void ConcreteACITest8()
+        {
+            ConcreteMaterialACI318 concrete = ConcreteMaterialACI318.Fc5000;
+            List<(double, double)> stresses = new List<(double, double)>();
+
+            for (int i = 100; i >= -350; i--)
+                stresses.Add((concrete.GetStress(i / 100000.0), i / 100000.0));
+
+            for (int i = 0; i < stresses.Count; i++)
+                Console.WriteLine(stresses[i].Item1);
+        }
+
+        #endregion
+
+        #region Steel Test
+
         [TestMethod]
         public void SteelTest1()
         {
@@ -587,5 +708,7 @@ namespace ModelObjectTest
             for (int i = 0; i < stresses.Count; i++)
                 Console.WriteLine(stresses[i]);
         }
-    }
+
+		#endregion
+	}
 }

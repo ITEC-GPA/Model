@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.Serialization;
 using System.Text;
 using System.Threading.Tasks;
 using GPC.Geometry;
@@ -11,38 +12,49 @@ using GPC.Model.Sections.Rebar;
 
 namespace GPC.Model.Sections.Concrete
 {
-    public class ConcreteSectionCircular : SectionCircular, IConcreteSection
+    [Serializable]
+    public class ConcreteSectionCircular : SectionCircular, IConcreteSection, ISerializable
     {
+		#region Variables
 
-        protected readonly UniqueIdCollection<ReinforcedConcreteRebar> _rebars;
+		protected readonly UniqueIdCollection<ReinforcedConcreteRebar> _rebars;
 
+		#endregion
 
-        public IEnumerable<ReinforcedConcreteRebar> Rebars => _rebars;
+		#region Properties
+
+		public IEnumerable<ReinforcedConcreteRebar> Rebars => _rebars;
 
         public ConcreteMaterial ConcreteMaterial => (ConcreteMaterial)_material;
 
         public double AreaRebars => _rebars.Select(i => i.Area).Sum();
+
         public int RebarsCount => _rebars.Count;
 
+		#endregion
 
-        public ConcreteSectionCircular(double diameter, ConcreteMaterial material, string name = "")
+		#region Constructor
+
+		public ConcreteSectionCircular(double diameter, ConcreteMaterial material, string name = "")
             : base(diameter, material, name)
         {
             _rebars = new UniqueIdCollection<ReinforcedConcreteRebar>();
             _mesh = GenerateMesh();
         }
 
+        protected ConcreteSectionCircular(SerializationInfo info, StreamingContext context) :
+            base(info, context)
+        {
+            _rebars = (UniqueIdCollection<ReinforcedConcreteRebar>)info.GetValue("Rebars", typeof(UniqueIdCollection<ReinforcedConcreteRebar>));
+		}
 
-        #region Protected Methods
+		#endregion
 
-        #endregion
+		#region Public Methods
 
+		#region Rebars
 
-        #region Public Methods
-
-        #region Rebars
-
-        public bool AddRadialRebars(double concreteCover, int numberOfRebars, IRebarSection rebarSection, double epsilonP = 0.0)
+		public bool AddRadialRebars(double concreteCover, int numberOfRebars, IRebarSection rebarSection, double epsilonP = 0.0)
         {
             return _rebars.AddRange(ConcreteSectionHelper.SetRadialRebars(Diameter, concreteCover, numberOfRebars, rebarSection, Centroid, epsilonP));
         }
@@ -225,7 +237,7 @@ namespace GPC.Model.Sections.Concrete
 
             double J11H = SectionHelper.CalculateJ11(JxxH, JyyH, JxyH);
             double J22H = SectionHelper.CalculateJ22(JxxH, JyyH, JxyH);
-            double angleX = SectionHelper.CalculateAngle(JxxH, JyyH, JxyH);
+            double angleX = SectionHelper.CalculateAngle(J11H, J22H, JxxH, JyyH, JxyH);
 
             return (GetHomogenizedArea(), SxH, SyH, centroidH, JxxH, JyyH, JxyH, JpH, J11H, J22H, angleX);
         }
@@ -291,7 +303,7 @@ namespace GPC.Model.Sections.Concrete
 
             double J11H = SectionHelper.CalculateJ11(JxxH, JyyH, JxyH);
             double J22H = SectionHelper.CalculateJ11(JxxH, JyyH, JxyH);
-            double angleX = SectionHelper.CalculateAngle(JxxH, JyyH, JxyH);
+            double angleX = SectionHelper.CalculateAngle(J11H, J22H, JxxH, JyyH, JxyH);
 
             return (GetHomogenizedArea(phi), SxH, SyH, centroidH, JxxH, JyyH, JxyH, JpH, J11H, J22H, angleX);
         }
@@ -341,6 +353,11 @@ namespace GPC.Model.Sections.Concrete
             return section;
         }
 
+        public override void GetObjectData(SerializationInfo info, StreamingContext context)
+        {
+            base.GetObjectData(info, context);
+            info.AddValue("Rebars", _rebars);
+        }
 
         #endregion
 

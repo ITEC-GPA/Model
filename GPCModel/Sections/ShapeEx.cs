@@ -9,77 +9,96 @@ using GPC.Model.Materials;
 
 namespace GPC.Model.Sections
 {
-    public class ShapeEx : Shape2d, ISection
-    {
+	[Serializable]
+	public class ShapeEx : Shape2d, ISection, ISerializable
+	{
+		#region Variables
 
-        protected Material _material;
+		protected Material _material;
 
-        public Material Material => _material;
+		#endregion
 
-        public virtual Shape2d Shape => this;
+		#region Properties
 
+		public Material Material => _material;
 
-        public ShapeEx(Polygon2d fill, Material material, Polygon2d[] holes = null, ShapeEx[] childs = null, double tolerance = GeometryBase.Tolerance)
-            : base(fill, holes, childs, tolerance)
-        {
-            _material = material;
-        }
+		public virtual Shape2d Shape => this;
 
-        public ShapeEx(Shape2d shape, Material material, double tolerance = GeometryBase.Tolerance)
-            : base(shape, tolerance)
-        {
-            _material = material;
-        }
+		#endregion
 
-        public ShapeEx(Shape2d shape, Material material)
-            : this(shape, material, GeometryBase.Tolerance)
-        {
-        }
+		#region Constructor
 
-        protected ShapeEx(SerializationInfo info, StreamingContext context) :
-            base(info, context)
-        {
-            _material = (Material)info.GetValue("Material", typeof(Material));
-        }
+		public ShapeEx(Polygon2d fill, Material material, Polygon2d[] holes = null, ShapeEx[] childs = null, double tolerance = GeometryBase.Tolerance)
+			: base(fill, holes, childs, tolerance)
+		{
+			_material = material;
+		}
 
+		public ShapeEx(Shape2d shape, Material material, double tolerance = GeometryBase.Tolerance)
+			: base(shape, tolerance)
+		{
+			_material = material;
+		}
 
-        public override void GetObjectData(SerializationInfo info, StreamingContext context)
-        {
-            base.GetObjectData(info, context);
-            info.AddValue("Material", _material);
-        }
+		public ShapeEx(Shape2d shape, Material material)
+			: this(shape, material, GeometryBase.Tolerance)
+		{
+		}
 
-        public Shape2d GetShape()
-        {
-            return this;
-        }
+		protected ShapeEx(SerializationInfo info, StreamingContext context) :
+			base(info, context)
+		{
+			_material = (Material)info.GetValue("Material", typeof(Material));
+		}
 
-        public override bool Equals(object obj)
-        {
-            return obj is ShapeEx ex &&
-                   base.Equals(obj) &&
-                   _material.Equals(ex._material);
-        }
+		#endregion
 
-        public override int GetHashCode()
-        {
-            unchecked
-            {
-                int hashCode = -23;
-                hashCode = hashCode * -17 + base.GetHashCode();
-                hashCode = hashCode * -17 + _material.GetHashCode();
-                return hashCode;
-            }
-        }
+		#region Public Methods
 
-        public static bool operator ==(ShapeEx left, ShapeEx right)
-        {
-            return left.Equals(right);
-        }
+		public Shape2d GetShape()
+		{
+			return this;
+		}
 
-        public static bool operator !=(ShapeEx left, ShapeEx right)
-        {
-            return !(left == right);
-        }
-    }
+		#endregion
+
+		#region Equals - hashcode - Operators
+
+		public override void GetObjectData(SerializationInfo info, StreamingContext context)
+		{
+			base.GetObjectData(info, context);
+			info.AddValue("Material", _material);
+		}
+
+		public override bool Equals(object obj)
+		{
+			return obj is ShapeEx ex &&
+				   base.Equals(obj) &&
+				   _material.Equals(ex._material);
+		}
+
+		public override int GetHashCode()
+		{
+			unchecked
+			{
+				int hashCode = -23;
+				hashCode = hashCode * -17 + base.GetHashCode();
+				hashCode = hashCode * -17 + _material.GetHashCode();
+				return hashCode;
+			}
+		}
+
+		public static bool operator ==(ShapeEx left, ShapeEx right)
+		{
+			return left.Equals(right);
+		}
+
+		public static bool operator !=(ShapeEx left, ShapeEx right)
+		{
+			return !(left == right);
+		}
+
+		#endregion
+	}
 }
+

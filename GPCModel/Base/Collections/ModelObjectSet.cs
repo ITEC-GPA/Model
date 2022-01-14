@@ -5,7 +5,6 @@ using System.Runtime.Serialization;
 
 namespace GPC.Model
 {
-
     /// <summary>
     /// Collection of unique <see cref="ModelObject"/>
     /// This class is a wrapper of <see cref="HashSet{T}"/>. Then <typeparamref name="T"/> must be an unmutable object
@@ -15,11 +14,15 @@ namespace GPC.Model
     [Serializable]
     public class ModelObjectSet<T> : ModelObjectEnumerable<T>, ICollection<T> where T : ModelObject, ISerializable
     {
+        #region Properties
 
         public int Count => _collection.Count;
 
         public bool IsReadOnly => _collection.IsReadOnly;
 
+        #endregion
+
+        #region Public Constructors
 
         /// <summary>
         /// Build the collection with <see cref="HashSet{T}"/> with default comparer of <typeparamref name="T"/>
@@ -39,25 +42,23 @@ namespace GPC.Model
             _collection = new HashSet<T>(comparer);
         }
 
-
         protected ModelObjectSet(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
 
         }
 
-        public override void GetObjectData(SerializationInfo info, StreamingContext context)
-        {
-            base.GetObjectData(info, context);
-        }
+		#endregion
 
-        /// <inheritdoc cref="ModelObjectEnumerable{T}.Add(T)" />
-        /// <returns><see langword="True"/> if the element has been added
-        /// <para><see langword="False"/> if the element has not been added since there is already an equal element in the collection.</para>
-        /// </returns>
-        /// <remarks>This is a O(1) operation
-        /// <para> To get the element in the collection use <see cref="GetItem(T, out T)"/> </para></remarks>
-        public override bool Add(T item)
+		#region Public Methods
+
+		/// <inheritdoc cref="ModelObjectEnumerable{T}.Add(T)" />
+		/// <returns><see langword="True"/> if the element has been added
+		/// <para><see langword="False"/> if the element has not been added since there is already an equal element in the collection.</para>
+		/// </returns>
+		/// <remarks>This is a O(1) operation
+		/// <para> To get the element in the collection use <see cref="GetItem(T, out T)"/> </para></remarks>
+		public override bool Add(T item)
         {
             lock (_locker)
             {
@@ -70,7 +71,6 @@ namespace GPC.Model
                 return false; 
             }
         }
-
 
         /// <inheritdoc cref="Add(T)"/>
         public virtual bool AddRange(IEnumerable<T> items)
@@ -166,9 +166,11 @@ namespace GPC.Model
             }
         }
 
-        #region Equals - hashcode - Operators
+		#endregion
 
-        public override bool Equals(object obj)
+		#region Equals - hashcode - Operators
+
+		public override bool Equals(object obj)
         {
             lock (_locker)
             {
@@ -195,6 +197,10 @@ namespace GPC.Model
             }
         }
 
+        public override void GetObjectData(SerializationInfo info, StreamingContext context)
+        {
+            base.GetObjectData(info, context);
+        }
 
         public static bool operator ==(ModelObjectSet<T> obj1, ModelObjectSet<T> obj2)
         {

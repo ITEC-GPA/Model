@@ -9,20 +9,26 @@ using MathNet.Numerics.LinearAlgebra;
 
 namespace GPC.Model.Results
 {
+    [Serializable]
     public sealed class ResultPlateStress : ResultType, IEquatable<ResultPlateStress>, ISerializable, IPlateResult, IResult<ResultPlateStress>
     {
+        #region Variables
 
         private readonly ResultStress _lowerFace;
         private readonly ResultStress _midFace;
         private readonly ResultStress _upperFace;
 
+        #endregion
+
+        #region Properties
 
         public ResultStress LowerFace => _lowerFace;
         public ResultStress MidFace => _midFace;
         public ResultStress UpperFace => _upperFace;
 
+        #endregion
 
-
+        #region Public Constructors
 
         public ResultPlateStress(CoordinateSystem coordinateSystem, ResultStress lowerFace, ResultStress midFace, ResultStress upperFace, string name = "", int id = ModelObjectId.IDUNASSIGNED)
             : base(coordinateSystem, name, id)
@@ -30,14 +36,12 @@ namespace GPC.Model.Results
             if (lowerFace.CoordinateSystem != midFace.CoordinateSystem || lowerFace.CoordinateSystem != upperFace.CoordinateSystem)
                 throw new ArgumentException();
 
-
             _lowerFace = lowerFace ?? throw new ArgumentNullException(nameof(lowerFace));
             _midFace = midFace ?? throw new ArgumentNullException(nameof(midFace));
             _upperFace = upperFace ?? throw new ArgumentNullException(nameof(upperFace));
         }
 
-
-        public ResultPlateStress(SerializationInfo info, StreamingContext context)
+        internal ResultPlateStress(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
             _lowerFace = (ResultStress)info.GetValue("ResultStressLower", typeof(ResultStress));
@@ -45,23 +49,17 @@ namespace GPC.Model.Results
             _upperFace = (ResultStress)info.GetValue("ResultStressUpper", typeof(ResultStress));
         }
 
+        #endregion
+
+        #region Public Methods
+
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             base.GetObjectData(info, context);
-            info.AddValue("ResultStressLower", _coordinateSystem, typeof(ResultStress));
-            info.AddValue("ResultStressMid", _coordinateSystem, typeof(ResultStress));
-            info.AddValue("ResultStressUpper", _coordinateSystem, typeof(ResultStress));
+            info.AddValue("ResultStressLower", _lowerFace);
+            info.AddValue("ResultStressMid", _midFace);
+            info.AddValue("ResultStressUpper", _upperFace);
         }
-
-
-        /// <summary>
-        /// Return the VonMises Stress
-        /// </summary>
-        private (double lowerFace, double midFace, double upperFace) GetVMStress()
-        {
-            return (_lowerFace.SVM, _midFace.SVM, _upperFace.SVM);
-        }
-
 
         /// <inheritdoc cref="ResultStress.CalculatePrincipalStressSimplifiedMethod"/>
         public void CalculatePrincipalStressSimplifiedMethod()
@@ -71,7 +69,6 @@ namespace GPC.Model.Results
             _upperFace.CalculatePrincipalStressSimplifiedMethod();
         }
 
-
         /// <inheritdoc cref="ResultStress.CalculatePrincipalStressFullMethod"/>
         public void CalculatePrincipalStressFullMethod()
         {
@@ -79,7 +76,6 @@ namespace GPC.Model.Results
             _midFace.CalculatePrincipalStressFullMethod();
             _upperFace.CalculatePrincipalStressFullMethod();
         }
-
 
         /// <summary>
         /// Return the stress of the point in global coordinate
@@ -90,27 +86,31 @@ namespace GPC.Model.Results
             return (_lowerFace.GetGlobalStress(), _midFace.GetGlobalStress(), _upperFace.GetGlobalStress());
         }
 
-
         /// <returns>Return the stress tensor</returns>
         public (Matrix<double> lowerFace, Matrix<double> midFace, Matrix<double> upperFace) GetTensor(bool toGlobal = false)
         {
             return (_lowerFace.GetTensor(toGlobal), _midFace.GetTensor(toGlobal), _upperFace.GetTensor(toGlobal));
         }
 
-
         public ResultPlateStress ToCoordinateSystem(CoordinateSystem coordinateSystem)
         {
             return new ResultPlateStress(coordinateSystem, _lowerFace.ToCoordinateSystem(coordinateSystem),
-                                                           _midFace.ToCoordinateSystem(coordinateSystem),
-                                                           _upperFace.ToCoordinateSystem(coordinateSystem),
-                                                           _name
-                );
+                _midFace.ToCoordinateSystem(coordinateSystem), _upperFace.ToCoordinateSystem(coordinateSystem), _name);
         }
 
+        /// <summary>
+        /// Return the VonMises Stress
+        /// </summary>
+        private (double lowerFace, double midFace, double upperFace) GetVMStress()
+        {
+            return (_lowerFace.SVM, _midFace.SVM, _upperFace.SVM);
+        }
 
-        #region Equals, hascode, operators
+		#endregion
 
-        public override bool Equals(object obj)
+		#region Equals, hascode, operators
+
+		public override bool Equals(object obj)
         {
             if (ReferenceEquals(this, obj))
                 return true;
@@ -128,7 +128,6 @@ namespace GPC.Model.Results
                                     && other._upperFace.Equals(_upperFace)
                                     && base.Equals(other);
         }
-
 
         public override int GetHashCode()
         {
@@ -153,7 +152,6 @@ namespace GPC.Model.Results
             return !(left == right);
         }
 
-
         /// <returns>The sum of the two stress tensor written in the <paramref name="obj1"/> <see cref="CoordinateSystem"/></returns>
         public static ResultPlateStress operator +(ResultPlateStress obj1, ResultPlateStress obj2)
         {
@@ -166,7 +164,6 @@ namespace GPC.Model.Results
                                                                 string.Join(" ", new string[] { obj1.Name, obj2.Name }.ToHashSet())
                                                                 );
         }
-
 
         public static ResultPlateStress operator -(ResultPlateStress obj1, ResultPlateStress obj2)
         {
@@ -181,8 +178,6 @@ namespace GPC.Model.Results
                                                                 );
         }
 
-
-
         /// <returns>This will produce the multipltication of <paramref name="obj1"/> Tensor in global coordinate by <paramref name="matrix"/>. M * T * M^t</returns>
         public static ResultPlateStress operator *(ResultPlateStress obj1, Matrix<double> matrix)
         {
@@ -196,7 +191,6 @@ namespace GPC.Model.Results
                                                                 obj1.Name
                                                                 );
         }
-
 
         /// <summary>
         /// Returns a <see cref="ResultPlateStress"/> that represent the arithmetic mean between the <paramref name="values"/>
@@ -224,8 +218,6 @@ namespace GPC.Model.Results
             return new ResultPlateStress(values.First().CoordinateSystem, task1.Result, task1.Result, task1.Result, values.First().Name);
         }
 
-
-
         /// <summary>
         /// Returns a <see cref="ResultPlateStress"/> that represent the arithmetic mean between the <paramref name="values"/>
         /// </summary>
@@ -244,7 +236,5 @@ namespace GPC.Model.Results
         }
 
         #endregion
-
-
     }
 }

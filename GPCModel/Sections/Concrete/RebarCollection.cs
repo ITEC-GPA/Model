@@ -8,19 +8,29 @@ using GPC.Utilities.Extensions;
 
 namespace GPC.Model.Sections.Concrete
 {
-    public class RebarCollection : ModelObjectIdSet<ReinforcedConcreteRebar>
+    [Serializable]
+    public class RebarCollection : ModelObjectIdSet<ReinforcedConcreteRebar>, ISerializable
     {
+        #region Variables
 
         protected int _maxId;
 
-        /// <summary>
-        /// Set di ID unici, l'indice d'ingresso non è garantito essere quello di uscita
-        /// </summary>
-        protected HashSet<int> _ids = new HashSet<int>();
+		/// <summary>
+		/// Set di ID unici, l'indice d'ingresso non è garantito essere quello di uscita
+		/// </summary>
+		protected HashSet<int> _ids = new HashSet<int>();
 
-        public int MaxId => _maxId;
+		#endregion
 
-        public RebarCollection()
+		#region Properties
+
+		public int MaxId => _maxId;
+
+		#endregion
+
+		#region Constructor
+
+		public RebarCollection()
             : base(new ReinforcedConcreteRebar.ReinforcedConcreteRebarComparer())
         {
             _maxId = 0;
@@ -30,13 +40,15 @@ namespace GPC.Model.Sections.Concrete
         protected RebarCollection(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
-
+            _maxId = info.GetInt32("MaxId");
+            _ids = (HashSet<int>)info.GetValue("Ids", typeof(HashSet<int>));
         }
 
+		#endregion
 
-        #region ADD
+		#region Add
 
-        public override bool Add(ReinforcedConcreteRebar item)
+		public override bool Add(ReinforcedConcreteRebar item)
         {
             lock (_locker)
             {
@@ -100,7 +112,6 @@ namespace GPC.Model.Sections.Concrete
             }
         }
 
-
         public override bool AddRange(IEnumerable<ReinforcedConcreteRebar> items)
         {
             foreach (var item in items)
@@ -112,8 +123,8 @@ namespace GPC.Model.Sections.Concrete
             }
             return true;
         }
-        #endregion
 
+        #endregion
 
         #region Get
 
@@ -126,7 +137,6 @@ namespace GPC.Model.Sections.Concrete
         {
             return base.GetItem(item, out itemFound);
         }
-
 
         /// <summary><inheritdoc cref="Enumerable.SingleOrDefault{TSource}(IEnumerable{TSource})"/></summary>
         /// <returns><inheritdoc cref="Enumerable.SingleOrDefault{TSource}(IEnumerable{TSource})"/></returns>
@@ -151,7 +161,6 @@ namespace GPC.Model.Sections.Concrete
 
         #endregion
 
-
         #region Check
 
         /// <returns><see langword="True" /> if <paramref name="item"/> id already contained in the collection </returns>
@@ -162,7 +171,6 @@ namespace GPC.Model.Sections.Concrete
                 return _collection.Contains(item);
             }
         }
-
 
         /// <returns><see langword="True" /> if all the <paramref name="items"/> id already contained in the collection </returns>
         public bool ContainsRange(IEnumerable<ReinforcedConcreteRebar> items)
@@ -202,8 +210,8 @@ namespace GPC.Model.Sections.Concrete
                 return true;
             }
         }
-        #endregion
 
+        #endregion
 
         #region Edit
 
@@ -223,12 +231,19 @@ namespace GPC.Model.Sections.Concrete
             {
                 if (_ids.Contains(id))
                 {
+                    _collection.Remove(GetById(id));
                     _ids.Remove(id);
 
                     if (id == _maxId)
-                        _maxId = _ids.Max();
+					{
+                        if (_ids.Count == 0)
+                            _maxId = 0;
+                        else
+                            _maxId = _ids.Max();
+                    }
 
-                    return _collection.Remove(GetById(id));
+                    return true;
+
                 }
                 return false;
             }
@@ -240,12 +255,18 @@ namespace GPC.Model.Sections.Concrete
             {
                 if (_ids.Contains(item.Id))
                 {
+                    _collection.Remove(GetById(item.Id));
                     _ids.Remove(item.Id);
 
                     if (item.Id == _maxId)
-                        _maxId = _ids.Max();
+                    {
+                        if (_ids.Count == 0)
+                            _maxId = 0;
+                        else
+                            _maxId = _ids.Max();
+                    }
 
-                    return _collection.Remove(GetById(item.Id));
+                    return true;
                 }
 
                 return false;
@@ -289,7 +310,6 @@ namespace GPC.Model.Sections.Concrete
             if (itemToReplace is null || newItem is null)
                 return false;
 
-
             bool status = Remove(itemToReplace);
 
             if (status)
@@ -302,16 +322,20 @@ namespace GPC.Model.Sections.Concrete
 
         #endregion
 
-
-
         #region Equals - hashcode - Operators
+
+        public override void GetObjectData(SerializationInfo info, StreamingContext context)
+        {
+            base.GetObjectData(info, context);
+            info.AddValue("MaxId", _maxId);
+            info.AddValue("Ids", _ids);
+        }
 
         public override bool Equals(object obj)
         {
             lock (_locker)
             {
-                return obj is RebarCollection collection && _collection.ScrambledEquals(collection._collection)
-                                                         && base.Equals(collection);
+                return obj is RebarCollection collection && _collection.ScrambledEquals(collection._collection);
             }
         }
 
@@ -325,7 +349,6 @@ namespace GPC.Model.Sections.Concrete
                 }
             }
         }
-
 
         public static bool operator ==(RebarCollection obj1, RebarCollection obj2)
         {

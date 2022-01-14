@@ -3,7 +3,8 @@ using System.Runtime.Serialization;
 
 namespace GPC.Model.Materials
 {
-    public class ConcreteMaterialModelCode2010FRC : ConcreteMaterialModelCode2010
+    [Serializable]
+    public class ConcreteMaterialModelCode2010FRC : ConcreteMaterialModelCode2010, ISerializable
     {
         #region Static Properties
 
@@ -178,9 +179,28 @@ namespace GPC.Model.Materials
             return 1.0;
 		}
 
+		protected override void RecalculateMechanicalProperties()
+		{
+            SetMechanicalProperties(_fck, _fctk, _fctu, _strainYTension, _strainUTension,
+                _compressionStressStrainDiagrams, _tensionStressStrainDiagrams);
+
+            SetStressStrainTableCompression(_fck, _strainYCompression, _strainUCompression, _compressionStressStrainDiagrams);
+            SetStressStrainTableTension(_fctk, _fctu, _strainYTension, _strainUTension, _tensionStressStrainDiagrams);
+        }
+
+        public override bool IsFiberReinforced()
+		{
+            return true;
+		}
+
         #endregion
 
         #region Equals, hashcode, operators
+
+        public override void GetObjectData(SerializationInfo info, StreamingContext context)
+        {
+            base.GetObjectData(info, context);
+        }
 
         public override bool Equals(object obj)
         {
@@ -199,20 +219,6 @@ namespace GPC.Model.Materials
                 return hashCode;
             }
         }
-
-		protected override void RecalculateMechanicalProperties()
-		{
-            SetMechanicalProperties(_fck, _fctk, _fctu, _strainYTension, _strainUTension,
-                _compressionStressStrainDiagrams, _tensionStressStrainDiagrams);
-
-            SetStressStrainTableCompression(_fck, _strainYCompression, _strainUCompression, _compressionStressStrainDiagrams);
-            SetStressStrainTableTension(_fctk, _fctu, _strainYTension, _strainUTension, _tensionStressStrainDiagrams);
-        }
-
-        public override bool IsFiberReinforced()
-		{
-            return true;
-		}
 
 		public static bool operator ==(ConcreteMaterialModelCode2010FRC obj1, ConcreteMaterialModelCode2010FRC obj2)
         {

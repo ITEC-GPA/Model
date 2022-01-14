@@ -12,7 +12,8 @@ namespace GPC.Model.Standards
     /// This class collects all the coefficient of the Eurocode0 Standard 
     /// </summary>
     /// <remarks>Reference: EN 1990:2002/A1:2005</remarks>
-    public class StandardEN1990 : Standard, Standard.ICombinationsGenerator
+    [Serializable]
+    public class StandardEN1990 : Standard, Standard.ICombinationsGenerator, ISerializable
     {
         #region PUBLIC ENUMS
 
@@ -271,11 +272,272 @@ namespace GPC.Model.Standards
             _psi2Temperature = 0.0;
         }
 
+        protected StandardEN1990(SerializationInfo info, StreamingContext context)
+        {
+            _gammaGFavourableSetA = info.GetDouble("GammaGFavourableSetA");
+            _gammaGUnfavourableSetA = info.GetDouble("GammaGUnfavourableSetA");
+            _gammaGFavourableSetB = info.GetDouble("GammaGFavourableSetB");
+            _gammaGUnfavourableSetB = info.GetDouble("GammaGUnfavourableSetB");
+            _gammaGFavourableSetC = info.GetDouble("GammaGFavourableSetC");
+            _gammaGUnfavourableSetC = info.GetDouble("GammaGUnfavourableSetC");
+
+            _gammaQFavourableSetA = info.GetDouble("GammaQFavourableSetA");
+            _gammaQUnfavourableSetA = info.GetDouble("GammaQUnfavourableSetA");
+            _gammaQFavourableSetB = info.GetDouble("GammaQFavourableSetB");
+            _gammaQUnfavourableSetB = info.GetDouble("GammaQUnfavourableSetB");
+            _gammaQFavourableSetC = info.GetDouble("GammaQFavourableSetC");
+            _gammaQUnfavourableSetC = info.GetDouble("GammaQUnfavourableSetC");
+
+            _gammaPFavourableSetA = info.GetDouble("GammaPFavourableSetA");
+            _gammaPUnfavourableSetA = info.GetDouble("GammaPUnfavourableSetA");
+            _gammaPFavourableSetB = info.GetDouble("GammaPFavourableSetB");
+            _gammaPUnfavourableSetB = info.GetDouble("GammaPUnfavourableSetB");
+            _gammaPFavourableSetC = info.GetDouble("GammaPFavourableSetC");
+            _gammaPUnfavourableSetC = info.GetDouble("GammaPUnfavourableSetC");
+
+            _psi0ImposedLoadCategoryA = info.GetDouble("ImposedLoadPsi0CategoryA");
+            _psi0ImposedLoadCategoryB = info.GetDouble("ImposedLoadPsi0CategoryB");
+            _psi0ImposedLoadCategoryC = info.GetDouble("ImposedLoadPsi0CategoryC");
+            _psi0ImposedLoadCategoryD = info.GetDouble("ImposedLoadPsi0CategoryD");
+            _psi0ImposedLoadCategoryE = info.GetDouble("ImposedLoadPsi0CategoryE");
+            _psi0ImposedLoadCategoryF = info.GetDouble("ImposedLoadPsi0CategoryF");
+            _psi0ImposedLoadCategoryG = info.GetDouble("ImposedLoadPsi0CategoryG");
+            _psi0ImposedLoadCategoryH = info.GetDouble("ImposedLoadPsi0CategoryH");
+
+            _psi1ImposedLoadCategoryA = info.GetDouble("ImposedLoadPsi1CategoryA");
+            _psi1ImposedLoadCategoryB = info.GetDouble("ImposedLoadPsi1CategoryB");
+            _psi1ImposedLoadCategoryC = info.GetDouble("ImposedLoadPsi1CategoryC");
+            _psi1ImposedLoadCategoryD = info.GetDouble("ImposedLoadPsi1CategoryD");
+            _psi1ImposedLoadCategoryE = info.GetDouble("ImposedLoadPsi1CategoryE");
+            _psi1ImposedLoadCategoryF = info.GetDouble("ImposedLoadPsi1CategoryF");
+            _psi1ImposedLoadCategoryG = info.GetDouble("ImposedLoadPsi1CategoryG");
+            _psi1ImposedLoadCategoryH = info.GetDouble("ImposedLoadPsi1CategoryH");
+
+            _psi2ImposedLoadCategoryA = info.GetDouble("ImposedLoadPsi2CategoryA");
+            _psi2ImposedLoadCategoryB = info.GetDouble("ImposedLoadPsi2CategoryB");
+            _psi2ImposedLoadCategoryC = info.GetDouble("ImposedLoadPsi2CategoryC");
+            _psi2ImposedLoadCategoryD = info.GetDouble("ImposedLoadPsi2CategoryD");
+            _psi2ImposedLoadCategoryE = info.GetDouble("ImposedLoadPsi2CategoryE");
+            _psi2ImposedLoadCategoryF = info.GetDouble("ImposedLoadPsi2CategoryF");
+            _psi2ImposedLoadCategoryG = info.GetDouble("ImposedLoadPsi2CategoryG");
+            _psi2ImposedLoadCategoryH = info.GetDouble("ImposedLoadPsi2CategoryH");
+
+            _psi0SnowHighAltitude = info.GetDouble("Psi0SnowHighAltitude");
+            _psi0SnowLowAltitude = info.GetDouble("Psi0SnowLowAltitude");
+            _psi1SnowHighAltitude = info.GetDouble("Psi1SnowHighAltitude");
+            _psi1SnowLowAltitude = info.GetDouble("Psi1SnowLowAltitude");
+            _psi2SnowHighAltitude = info.GetDouble("Psi2SnowHighAltitude");
+            _psi2SnowLowAltitude = info.GetDouble("Psi2SnowLowAltitude");
+
+            _psi0Wind = info.GetDouble("Psi0Wind");
+            _psi1Wind = info.GetDouble("Psi1Wind");
+            _psi2Wind = info.GetDouble("Psi2Wind");
+
+            _psi0Temperature = info.GetDouble("Psi0Temperature");
+            _psi1Temperature = info.GetDouble("Psi1Temperature");
+            _psi2Temperature = info.GetDouble("Psi2Temperature");
+        }
+
         #endregion
 
-        #region COMBINATIONS OPTIONS
+        #region Equals - hashcode - operators
 
-        public class EN1990CombinationsOptions : CombinationsOptions
+        public override void GetObjectData(SerializationInfo info, StreamingContext context)
+        {            
+            info.AddValue("GammaGFavourableSetA", _gammaGFavourableSetA);
+            info.AddValue("GammaGUnfavourableSetA", _gammaGUnfavourableSetA);
+            info.AddValue("GammaGFavourableSetB", _gammaGFavourableSetB);
+            info.AddValue("GammaGUnfavourableSetB", _gammaGUnfavourableSetB);
+            info.AddValue("GammaGFavourableSetC", _gammaGFavourableSetC);
+            info.AddValue("GammaGUnfavourableSetC", _gammaGUnfavourableSetC);
+
+            info.AddValue("GammaQFavourableSetA", _gammaQFavourableSetA);
+            info.AddValue("GammaQUnfavourableSetA", _gammaQUnfavourableSetA);
+            info.AddValue("GammaQFavourableSetB", _gammaQFavourableSetB);
+            info.AddValue("GammaQUnfavourableSetB", _gammaQUnfavourableSetB);
+            info.AddValue("GammaQFavourableSetC", _gammaQFavourableSetC);
+            info.AddValue("GammaQUnfavourableSetC", _gammaQUnfavourableSetC);
+
+            info.AddValue("GammaPFavourableSetA", _gammaPFavourableSetA);
+            info.AddValue("GammaPUnfavourableSetA", _gammaPUnfavourableSetA);
+            info.AddValue("GammaPFavourableSetB", _gammaPFavourableSetB);
+            info.AddValue("GammaPUnfavourableSetB", _gammaPUnfavourableSetB);
+            info.AddValue("GammaPFavourableSetC", _gammaPFavourableSetC);
+            info.AddValue("GammaPUnfavourableSetC", _gammaPUnfavourableSetC);
+
+            info.AddValue("ImposedLoadPsi0CategoryA", _psi0ImposedLoadCategoryA);
+            info.AddValue("ImposedLoadPsi0CategoryB", _psi0ImposedLoadCategoryB);
+            info.AddValue("ImposedLoadPsi0CategoryC", _psi0ImposedLoadCategoryC);
+            info.AddValue("ImposedLoadPsi0CategoryD", _psi0ImposedLoadCategoryD);
+            info.AddValue("ImposedLoadPsi0CategoryE", _psi0ImposedLoadCategoryE);
+            info.AddValue("ImposedLoadPsi0CategoryF", _psi0ImposedLoadCategoryF);
+            info.AddValue("ImposedLoadPsi0CategoryG", _psi0ImposedLoadCategoryG);
+            info.AddValue("ImposedLoadPsi0CategoryH", _psi0ImposedLoadCategoryH);
+
+            info.AddValue("ImposedLoadPsi1CategoryA", _psi1ImposedLoadCategoryA);
+            info.AddValue("ImposedLoadPsi1CategoryB", _psi1ImposedLoadCategoryB);
+            info.AddValue("ImposedLoadPsi1CategoryC", _psi1ImposedLoadCategoryC);
+            info.AddValue("ImposedLoadPsi1CategoryD", _psi1ImposedLoadCategoryD);
+            info.AddValue("ImposedLoadPsi1CategoryE", _psi1ImposedLoadCategoryE);
+            info.AddValue("ImposedLoadPsi1CategoryF", _psi1ImposedLoadCategoryF);
+            info.AddValue("ImposedLoadPsi1CategoryG", _psi1ImposedLoadCategoryG);
+            info.AddValue("ImposedLoadPsi1CategoryH", _psi1ImposedLoadCategoryH);
+
+            info.AddValue("ImposedLoadPsi2CategoryA", _psi2ImposedLoadCategoryA);
+            info.AddValue("ImposedLoadPsi2CategoryB", _psi2ImposedLoadCategoryB);
+            info.AddValue("ImposedLoadPsi2CategoryC", _psi2ImposedLoadCategoryC);
+            info.AddValue("ImposedLoadPsi2CategoryD", _psi2ImposedLoadCategoryD);
+            info.AddValue("ImposedLoadPsi2CategoryE", _psi2ImposedLoadCategoryE);
+            info.AddValue("ImposedLoadPsi2CategoryF", _psi2ImposedLoadCategoryF);
+            info.AddValue("ImposedLoadPsi2CategoryG", _psi2ImposedLoadCategoryG);
+            info.AddValue("ImposedLoadPsi2CategoryH", _psi2ImposedLoadCategoryH);
+
+            info.AddValue("Psi0SnowHighAltitude", _psi0SnowHighAltitude);
+            info.AddValue("Psi0SnowLowAltitude", _psi0SnowLowAltitude);
+            info.AddValue("Psi1SnowHighAltitude", _psi1SnowHighAltitude);
+            info.AddValue("Psi1SnowLowAltitude", _psi1SnowLowAltitude);
+            info.AddValue("Psi2SnowHighAltitude", _psi2SnowHighAltitude);
+            info.AddValue("Psi2SnowLowAltitude", _psi2SnowLowAltitude);
+
+            info.AddValue("Psi0Wind", _psi0Wind);
+            info.AddValue("Psi1Wind", _psi1Wind);
+            info.AddValue("Psi2Wind", _psi2Wind);
+
+            info.AddValue("Psi0Temperature", _psi0Temperature);
+            info.AddValue("Psi1Temperature", _psi1Temperature);
+            info.AddValue("Psi2Temperature", _psi2Temperature);
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (ReferenceEquals(this, obj))
+                return true;
+
+            return obj is StandardEN1990 eN &&
+                   _gammaGFavourableSetA == eN._gammaGFavourableSetA &&
+                   _gammaGUnfavourableSetA == eN._gammaGUnfavourableSetA &&
+                   _gammaGFavourableSetB == eN._gammaGFavourableSetB &&
+                   _gammaGUnfavourableSetB == eN._gammaGUnfavourableSetB &&
+                   _gammaGFavourableSetC == eN._gammaGFavourableSetC &&
+                   _gammaGUnfavourableSetC == eN._gammaGUnfavourableSetC &&
+                   _gammaQFavourableSetA == eN._gammaQFavourableSetA &&
+                   _gammaQUnfavourableSetA == eN._gammaQUnfavourableSetA &&
+                   _gammaQFavourableSetB == eN._gammaQFavourableSetB &&
+                   _gammaQUnfavourableSetB == eN._gammaQUnfavourableSetB &&
+                   _gammaQFavourableSetC == eN._gammaQFavourableSetC &&
+                   _gammaQUnfavourableSetC == eN._gammaQUnfavourableSetC &&
+                   _gammaPFavourableSetA == eN._gammaPFavourableSetA &&
+                   _gammaPUnfavourableSetA == eN._gammaPUnfavourableSetA &&
+                   _gammaPFavourableSetB == eN._gammaPFavourableSetB &&
+                   _gammaPUnfavourableSetB == eN._gammaPUnfavourableSetB &&
+                   _gammaPFavourableSetC == eN._gammaPFavourableSetC &&
+                   _gammaPUnfavourableSetC == eN._gammaPUnfavourableSetC &&
+                   _psi0ImposedLoadCategoryA == eN._psi0ImposedLoadCategoryA &&
+                   _psi0ImposedLoadCategoryB == eN._psi0ImposedLoadCategoryB &&
+                   _psi0ImposedLoadCategoryC == eN._psi0ImposedLoadCategoryC &&
+                   _psi0ImposedLoadCategoryD == eN._psi0ImposedLoadCategoryD &&
+                   _psi0ImposedLoadCategoryE == eN._psi0ImposedLoadCategoryE &&
+                   _psi0ImposedLoadCategoryF == eN._psi0ImposedLoadCategoryF &&
+                   _psi0ImposedLoadCategoryG == eN._psi0ImposedLoadCategoryG &&
+                   _psi0ImposedLoadCategoryH == eN._psi0ImposedLoadCategoryH &&
+                   _psi1ImposedLoadCategoryA == eN._psi1ImposedLoadCategoryA &&
+                   _psi1ImposedLoadCategoryB == eN._psi1ImposedLoadCategoryB &&
+                   _psi1ImposedLoadCategoryC == eN._psi1ImposedLoadCategoryC &&
+                   _psi1ImposedLoadCategoryD == eN._psi1ImposedLoadCategoryD &&
+                   _psi1ImposedLoadCategoryE == eN._psi1ImposedLoadCategoryE &&
+                   _psi1ImposedLoadCategoryF == eN._psi1ImposedLoadCategoryF &&
+                   _psi1ImposedLoadCategoryG == eN._psi1ImposedLoadCategoryG &&
+                   _psi1ImposedLoadCategoryH == eN._psi1ImposedLoadCategoryH &&
+                   _psi2ImposedLoadCategoryA == eN._psi2ImposedLoadCategoryA &&
+                   _psi2ImposedLoadCategoryB == eN._psi2ImposedLoadCategoryB &&
+                   _psi2ImposedLoadCategoryC == eN._psi2ImposedLoadCategoryC &&
+                   _psi2ImposedLoadCategoryD == eN._psi2ImposedLoadCategoryD &&
+                   _psi2ImposedLoadCategoryE == eN._psi2ImposedLoadCategoryE &&
+                   _psi2ImposedLoadCategoryF == eN._psi2ImposedLoadCategoryF &&
+                   _psi2ImposedLoadCategoryG == eN._psi2ImposedLoadCategoryG &&
+                   _psi2ImposedLoadCategoryH == eN._psi2ImposedLoadCategoryH &&
+                   _psi0SnowHighAltitude == eN._psi0SnowHighAltitude &&
+                   _psi0SnowLowAltitude == eN._psi0SnowLowAltitude &&
+                   _psi1SnowHighAltitude == eN._psi1SnowHighAltitude &&
+                   _psi1SnowLowAltitude == eN._psi1SnowLowAltitude &&
+                   _psi2SnowHighAltitude == eN._psi2SnowHighAltitude &&
+                   _psi2SnowLowAltitude == eN._psi2SnowLowAltitude &&
+                   _psi0Wind == eN._psi0Wind &&
+                   _psi1Wind == eN._psi1Wind &&
+                   _psi2Wind == eN._psi2Wind &&
+                   _psi0Temperature == eN._psi0Temperature &&
+                   _psi1Temperature == eN._psi1Temperature &&
+                   _psi2Temperature == eN._psi2Temperature;
+        }
+
+        public override int GetHashCode()
+        {
+            unchecked
+            {
+                int hashCode = 23;
+                hashCode = hashCode * -17 + _gammaGFavourableSetA.GetHashCode();
+                hashCode = hashCode * -17 + _gammaGUnfavourableSetA.GetHashCode();
+                hashCode = hashCode * -17 + _gammaGFavourableSetB.GetHashCode();
+                hashCode = hashCode * -17 + _gammaGUnfavourableSetB.GetHashCode();
+                hashCode = hashCode * -17 + _gammaGFavourableSetC.GetHashCode();
+                hashCode = hashCode * -17 + _gammaGUnfavourableSetC.GetHashCode();
+                hashCode = hashCode * -17 + _gammaQFavourableSetA.GetHashCode();
+                hashCode = hashCode * -17 + _gammaQUnfavourableSetA.GetHashCode();
+                hashCode = hashCode * -17 + _gammaQFavourableSetB.GetHashCode();
+                hashCode = hashCode * -17 + _gammaQUnfavourableSetB.GetHashCode();
+                hashCode = hashCode * -17 + _gammaQFavourableSetC.GetHashCode();
+                hashCode = hashCode * -17 + _gammaQUnfavourableSetC.GetHashCode();
+                hashCode = hashCode * -17 + _gammaPFavourableSetA.GetHashCode();
+                hashCode = hashCode * -17 + _gammaPUnfavourableSetA.GetHashCode();
+                hashCode = hashCode * -17 + _gammaPFavourableSetB.GetHashCode();
+                hashCode = hashCode * -17 + _gammaPUnfavourableSetB.GetHashCode();
+                hashCode = hashCode * -17 + _gammaPFavourableSetC.GetHashCode();
+                hashCode = hashCode * -17 + _gammaPUnfavourableSetC.GetHashCode();
+                hashCode = hashCode * -17 + _psi0ImposedLoadCategoryA.GetHashCode();
+                hashCode = hashCode * -17 + _psi0ImposedLoadCategoryB.GetHashCode();
+                hashCode = hashCode * -17 + _psi0ImposedLoadCategoryC.GetHashCode();
+                hashCode = hashCode * -17 + _psi0ImposedLoadCategoryD.GetHashCode();
+                hashCode = hashCode * -17 + _psi0ImposedLoadCategoryE.GetHashCode();
+                hashCode = hashCode * -17 + _psi0ImposedLoadCategoryF.GetHashCode();
+                hashCode = hashCode * -17 + _psi0ImposedLoadCategoryG.GetHashCode();
+                hashCode = hashCode * -17 + _psi0ImposedLoadCategoryH.GetHashCode();
+                hashCode = hashCode * -17 + _psi1ImposedLoadCategoryA.GetHashCode();
+                hashCode = hashCode * -17 + _psi1ImposedLoadCategoryB.GetHashCode();
+                hashCode = hashCode * -17 + _psi1ImposedLoadCategoryC.GetHashCode();
+                hashCode = hashCode * -17 + _psi1ImposedLoadCategoryD.GetHashCode();
+                hashCode = hashCode * -17 + _psi1ImposedLoadCategoryE.GetHashCode();
+                hashCode = hashCode * -17 + _psi1ImposedLoadCategoryF.GetHashCode();
+                hashCode = hashCode * -17 + _psi1ImposedLoadCategoryG.GetHashCode();
+                hashCode = hashCode * -17 + _psi1ImposedLoadCategoryH.GetHashCode();
+                hashCode = hashCode * -17 + _psi2ImposedLoadCategoryA.GetHashCode();
+                hashCode = hashCode * -17 + _psi2ImposedLoadCategoryB.GetHashCode();
+                hashCode = hashCode * -17 + _psi2ImposedLoadCategoryC.GetHashCode();
+                hashCode = hashCode * -17 + _psi2ImposedLoadCategoryD.GetHashCode();
+                hashCode = hashCode * -17 + _psi2ImposedLoadCategoryE.GetHashCode();
+                hashCode = hashCode * -17 + _psi2ImposedLoadCategoryF.GetHashCode();
+                hashCode = hashCode * -17 + _psi2ImposedLoadCategoryG.GetHashCode();
+                hashCode = hashCode * -17 + _psi2ImposedLoadCategoryH.GetHashCode();
+                hashCode = hashCode * -17 + _psi0SnowHighAltitude.GetHashCode();
+                hashCode = hashCode * -17 + _psi0SnowLowAltitude.GetHashCode();
+                hashCode = hashCode * -17 + _psi1SnowHighAltitude.GetHashCode();
+                hashCode = hashCode * -17 + _psi1SnowLowAltitude.GetHashCode();
+                hashCode = hashCode * -17 + _psi2SnowHighAltitude.GetHashCode();
+                hashCode = hashCode * -17 + _psi2SnowLowAltitude.GetHashCode();
+                hashCode = hashCode * -17 + _psi0Wind.GetHashCode();
+                hashCode = hashCode * -17 + _psi1Wind.GetHashCode();
+                hashCode = hashCode * -17 + _psi2Wind.GetHashCode();
+                hashCode = hashCode * -17 + _psi0Temperature.GetHashCode();
+                hashCode = hashCode * -17 + _psi1Temperature.GetHashCode();
+                hashCode = hashCode * -17 + _psi2Temperature.GetHashCode();
+                return hashCode;
+            }
+        }
+
+		#endregion
+
+		#region COMBINATIONS OPTIONS
+
+		public class EN1990CombinationsOptions : CombinationsOptions
         {
             public LimitStates LimitState { get; set; }
 
@@ -332,6 +594,8 @@ namespace GPC.Model.Standards
                 }
             }
         }
+
+        
 
         #endregion
 
@@ -1459,7 +1723,7 @@ namespace GPC.Model.Standards
             throw new ArgumentException("Failed to set the coefficient for leading variable actions");
         }
 
-        #endregion
-                
-    }
+		#endregion
+
+	}
 }

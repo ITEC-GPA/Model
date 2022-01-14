@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Linq;
+using System.Runtime.Serialization;
 using GPC.Geometry;
 using GPC.Model.Materials;
 
 namespace GPC.Model.Sections
 {
-    public class SectionL : ThinWallSection, ISection
+    [Serializable]
+    public class SectionL : ThinWallSection, ISection, ISerializable
     {
         #region Variables
 
@@ -15,7 +17,6 @@ namespace GPC.Model.Sections
         private readonly double _tVert;
 
         #endregion
-
 
         #region Properties
 
@@ -29,7 +30,6 @@ namespace GPC.Model.Sections
 
         #endregion
 
-
         #region Constructor
 
         /// <summary>
@@ -41,7 +41,8 @@ namespace GPC.Model.Sections
         /// <param name="verticalLegThickness">The vertical leg thickness</param>
         /// <param name="material">Material of the section</param>
         /// <param name="name">Name of the section</param>
-        public SectionL(double horizontalLegLength, double horizontalLegThickness, double verticalLegLength, double verticalLegThickness, Material material, string name)
+        public SectionL(double horizontalLegLength, double horizontalLegThickness, double verticalLegLength, double verticalLegThickness, 
+            Material material, string name)
             : base(material, name)
         {
             _lHor = horizontalLegLength < 0 ? throw new ArgumentException($"Horizzontal plate lenght cannot be lower than zero") : horizontalLegLength;
@@ -59,11 +60,27 @@ namespace GPC.Model.Sections
             SetMechanicalProperties();
         }
 
-        #endregion
+        protected SectionL(SerializationInfo info, StreamingContext context)
+            : base(info, context)
+        {
+            _lHor = info.GetDouble("HorizontalLegLength");
+            _tHor = info.GetDouble("HorizontalLegThickness");
+            _lVert = info.GetDouble("VerticalLegLength");
+            _tVert = info.GetDouble("VerticalLegThickness");
+        }
 
+        #endregion
 
         #region Public method
 
+        public override void GetObjectData(SerializationInfo info, StreamingContext context)
+        {
+            base.GetObjectData(info, context);
+            info.AddValue("HorizontalLegLength", _lHor);
+            info.AddValue("HorizontalLegThickness", _tHor);
+            info.AddValue("VerticalLegLength", _lVert);
+            info.AddValue("VerticalLegThickness", _tVert);
+        }
 
         protected override void SetMechanicalProperties()
         {
@@ -87,13 +104,13 @@ namespace GPC.Model.Sections
 
             _shearCenter = CalculateShearCenter();
 
-            var welP = CalculateWel(AngleX1);
-            _wel1Max = welP.WelTop;
-            _wel1Min = welP.WelBottom;
-            _wel2Max = welP.WelRight;
-            _wel2Min = welP.WelLeft;
-            _wpl1 = Math.Min(welP.WelTop, welP.WelBottom);
-            _wpl2 = Math.Min(welP.WelRight, welP.WelLeft);
+            var (WelTop, WelBottom, WelLeft, WelRight) = CalculateWel(AngleX1);
+            _wel1Max = WelTop;
+            _wel1Min = WelBottom;
+            _wel2Max = WelRight;
+            _wel2Min = WelLeft;
+            _wpl1 = Math.Min(WelTop, WelBottom);
+            _wpl2 = Math.Min(WelRight, WelLeft);
 
             var welL = CalculateWel(0.0);
             _welXMax = welL.WelTop;
@@ -106,60 +123,47 @@ namespace GPC.Model.Sections
 
         protected override double CalculateWelXMax()
         {
-            var wel = CalculateWel(0.0);
-            return wel.WelTop;
+            return CalculateWel(0.0).WelTop;
         }
 
         protected override double CalculateWelXMin()
         {
-            var wel = CalculateWel(0.0);
-            return wel.WelBottom;
+            return CalculateWel(0.0).WelBottom;
         }
 
         protected override double CalculateWelYMax()
         {
-            var wel = CalculateWel(0.0);
-            return wel.WelRight;
+            return CalculateWel(0.0).WelRight;
         }
 
         protected override double CalculateWelYMin()
         {
-            var wel = CalculateWel(0.0);
-            return wel.WelLeft;
+            return CalculateWel(0.0).WelLeft;
         }
 
         protected override double CalculateWel1Max()
         {
-            var wel = CalculateWel(AngleX1);
-            return wel.WelTop;
+            return CalculateWel(AngleX1).WelTop;
         }
 
         protected override double CalculateWel1Min()
         {
-            var wel = CalculateWel(AngleX1);
-            return wel.WelBottom;
+            return CalculateWel(AngleX1).WelBottom;
         }
 
         protected override double CalculateWel2Max()
         {
-            var wel = CalculateWel(AngleX1);
-            return wel.WelRight;
+            return CalculateWel(AngleX1).WelRight;
         }
 
         protected override double CalculateWel2Min()
         {
-            var wel = CalculateWel(AngleX1);
-            return wel.WelLeft;
+            return CalculateWel(AngleX1).WelLeft;
         }
 
         protected override double CalculateAngle()
         {
-            double angle = -1.0 / 2.0 * Math.Atan(2.0 * CalculateJxy() / (Jyy - Jxx));
-
-            //if (Jyy < Jxx)
-            //    angle += Math.PI / 2.0;
-
-            return angle;
+            return -1.0 / 2.0 * Math.Atan(2.0 * CalculateJxy() / (Jyy - Jxx));
         }
 
         protected override double CalculateJ11()
@@ -174,11 +178,11 @@ namespace GPC.Model.Sections
 
         private (double WelTop, double WelBottom, double WelLeft, double WelRight) CalculateWel(double teta)
         {
-            var point = FivePointsCheck(teta);
-            double WelTop = Jxx / Math.Abs(point.maxY);
-            double WelBottom = Jxx / Math.Abs(point.minY);
-            double WelLeft = Jyy / Math.Abs(point.minX);
-            double WelRight = Jyy / Math.Abs(point.maxX);
+            var (minX, maxX, minY, maxY) = FivePointsCheck(teta);
+            double WelTop = Jxx / Math.Abs(maxY);
+            double WelBottom = Jxx / Math.Abs(minY);
+            double WelLeft = Jyy / Math.Abs(minX);
+            double WelRight = Jyy / Math.Abs(maxX);
 
             return(WelTop, WelBottom, WelLeft, WelRight);
         }
@@ -272,8 +276,5 @@ namespace GPC.Model.Sections
         {
             return $"L {_lVert}x{_tVert}x{_lHor}x{_thinWalls}";
         }
-
     }
-
-
 }

@@ -10,26 +10,28 @@ namespace GPC.Model.Results
     [Serializable]
     public sealed class BeamResult : FiniteElementResult, ISerializable, IEquatable<BeamResult>, IElementResult
     {
-
+        #region Properties
 
         public double Length => ((ResultLocationStation)ResultLocations.First()).ElementLenght;
 
+        #endregion
+
+        #region Public Constructors
 
         public BeamResult(ILoadCase Case, IEnumerable<ResultLocationStation> resultStation,
-                                            int stageId = ModelObjectId.IDUNASSIGNED)
+            int stageId = ModelObjectId.IDUNASSIGNED)
             : base(Case, resultStation, stageId)
         {
-            if (resultStation is null)
-            {
+            if (resultStation is null)            
                 throw new ArgumentNullException(nameof(resultStation));
-            }
-
+            
             if (resultStation.Select(i => i.ElementLenght).Distinct().Count() > 1)
                 throw new ArgumentException("All Result Station must have the same length");
-
-
         }
 
+        #endregion
+
+        #region Public Methods
 
         public override int GetHashCode()
         {
@@ -54,10 +56,8 @@ namespace GPC.Model.Results
 
         public static bool operator ==(BeamResult obj1, BeamResult obj2)
         {
-            if (obj1 is null)
-            {
-                return obj2 is null;
-            }
+            if (obj1 is null)            
+                return obj2 is null;            
 
             if (ReferenceEquals(obj1, obj2))
                 return true;
@@ -69,8 +69,7 @@ namespace GPC.Model.Results
         {
             return !(obj1 == obj2);
         }
-    }
 
-
-
+		#endregion
+	}
 }

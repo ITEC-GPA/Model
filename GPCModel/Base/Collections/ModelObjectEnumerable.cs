@@ -10,10 +10,15 @@ namespace GPC.Model
     [Serializable]
     public abstract class ModelObjectEnumerable<T> : IEnumerable<T> where T : ModelObject, ISerializable
     {
+        #region Variables
 
         protected readonly object _locker = new object();
 
         protected ICollection<T> _collection;
+
+        #endregion
+
+        #region Public Constructors
 
         public ModelObjectEnumerable()
         {
@@ -25,8 +30,12 @@ namespace GPC.Model
             _collection = (ICollection<T>)info.GetValue("Collection", typeof(ICollection<T>));
         }
 
-        /// <inheritdoc cref="ICollection{T}.Add(T)"/>
-        public virtual bool Add(T item)
+		#endregion
+
+		#region Public Methods
+
+		/// <inheritdoc cref="ICollection{T}.Add(T)"/>
+		public virtual bool Add(T item)
         {
             lock (_locker)
             {
@@ -50,5 +59,6 @@ namespace GPC.Model
             info.AddValue("Collection", _collection);
         }
 
-    }
+		#endregion
+	}
 }

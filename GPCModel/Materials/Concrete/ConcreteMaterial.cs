@@ -9,10 +9,12 @@ using System.Threading.Tasks;
 
 namespace GPC.Model.Materials
 {
-
-    public abstract class ConcreteMaterial : Material
+    [Serializable]
+    public abstract class ConcreteMaterial : Material, ISerializable
     {
-        [TypeConverter(typeof(EnumDescriptionTypeConverter))]
+		#region Public Enum
+
+		[TypeConverter(typeof(EnumDescriptionTypeConverter))]
         public enum CompressionStressStrainDiagrams
         {
             [Description("Parabola-Rectangle")]
@@ -28,7 +30,9 @@ namespace GPC.Model.Materials
             Generic,
 
             [Description("Non Linear")]
-            NonLinear
+            NonLinear,
+
+            Invalid = -1,
         }
 
         [TypeConverter(typeof(EnumDescriptionTypeConverter))]
@@ -47,10 +51,21 @@ namespace GPC.Model.Materials
             Generic,
         }
 
-        protected StressStrainTable _stressStrainTableCompression;
+		#endregion
+
+		#region Variables
+
+		protected StressStrainTable _stressStrainTableCompression;
         protected StressStrainTable _stressStrainTableTension;
 
         protected double _elasticModulusTension;
+
+        protected CompressionStressStrainDiagrams _compressionStressStrainDiagrams;
+        protected TensionStressStrainDiagrams _tensionStressStrainDiagrams;
+
+        #endregion
+
+        #region Properties
 
         /// <summary>
         /// Characteristic Stress strain table in comrpession
@@ -67,9 +82,20 @@ namespace GPC.Model.Materials
         /// </summary>
         public double ElasticModulusTension => _elasticModulusTension;
 
-		#region Public Constructor
+        /// <summary>
+        /// The compression stress-strain relationship 
+        /// </summary>
+        public virtual CompressionStressStrainDiagrams CompressionStressStrainDiagram
+        {
+            get;
+            set;
+        }
 
-		protected ConcreteMaterial(string name, double poisson, double density, double alfaThermalExpansion)
+        #endregion
+
+        #region Public Constructor
+
+        protected ConcreteMaterial(string name, double poisson, double density, double alfaThermalExpansion)
             : base(name)
         {
             if (poisson > 0.5)
@@ -109,6 +135,8 @@ namespace GPC.Model.Materials
 
 		#endregion
 
+		#region Public Methods
+
 		/// <returns>The characteristic stress related to <paramref name="strain"/></returns>
 		public double GetStress(double strain)
         {
@@ -126,6 +154,23 @@ namespace GPC.Model.Materials
 		{
 
 		}
+
+		public virtual bool IsFiberReinforced() 
+        { 
+            return false; 
+        }
+
+		#endregion
+
+		#region Equals - hashcode - operators
+
+		public override void GetObjectData(SerializationInfo info, StreamingContext context)
+        {
+            base.GetObjectData(info, context);
+            info.AddValue("TableCompression", _stressStrainTableCompression);
+            info.AddValue("TableTension", _stressStrainTableTension);
+            info.AddValue("ElasticModulusTension", _elasticModulusTension);
+        }
 
         public override bool Equals(object obj)
         {
@@ -151,10 +196,7 @@ namespace GPC.Model.Materials
             }
         }
 
-        public virtual bool IsFiberReinforced() 
-        { 
-            return false; 
-        }
+		#endregion
 
 		#region Public Operator
 

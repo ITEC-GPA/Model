@@ -9,7 +9,8 @@ using GPC.Model.Materials;
 
 namespace GPC.Model.Sections
 {
-    public class SectionRectangular : Section, ISection
+    [Serializable]
+    public class SectionRectangular : Section, ISection, ISerializable
     {
         #region Variables
 
@@ -19,7 +20,6 @@ namespace GPC.Model.Sections
         protected readonly double _width;
 
         #endregion
-
 
         #region Properties
 
@@ -33,8 +33,9 @@ namespace GPC.Model.Sections
         /// </summary>
         public double Width => _width;
 
-        #endregion
+        public double Angle => _angle;
 
+        #endregion
 
         #region Public Constructors
 
@@ -82,13 +83,14 @@ namespace GPC.Model.Sections
         {
             _height = info.GetDouble("Height");
             _width = info.GetDouble("Width");
+            _angle = info.GetDouble("Angle");
         }
 
-        #endregion
+		#endregion
 
+		#region Public methods
 
-
-        protected override Shape2d GetShape()
+		protected override Shape2d GetShape()
         {
             return new Shape2d(new Polygon2d(new Point2d[] { new Point2d(0, 0), new Point2d(Width, 0), new Point2d(Width, Height), new Point2d(0, Height) }));
         }
@@ -251,6 +253,18 @@ namespace GPC.Model.Sections
             return false;
         }
 
+        #endregion
+
+        #region Operators 
+
+        public override void GetObjectData(SerializationInfo info, StreamingContext context)
+        {
+            base.GetObjectData(info, context);
+            info.AddValue("Height", _height);
+            info.AddValue("Width", _width);
+            info.AddValue("Angle", _angle);
+        }
+
         public override string ToString()
         {
             return $"Rectangular {_height}x{_width}";
@@ -278,12 +292,14 @@ namespace GPC.Model.Sections
 
         public static bool operator ==(SectionRectangular left, SectionRectangular right)
         {
-            return left.Equals(left);
+            return left.Equals(right);
         }
 
         public static bool operator !=(SectionRectangular left, SectionRectangular right)
         {
             return !(left == right);
         }
-    }
+
+		#endregion
+	}
 }

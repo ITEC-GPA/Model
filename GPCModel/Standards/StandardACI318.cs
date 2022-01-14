@@ -8,38 +8,37 @@ namespace GPC.Model.Standards
 {
 	public class StandardACI318 : Standard
 	{
-		#region ENUMERATOR
+		#region Variables
+
+		protected readonly double _phiCSpiral;
+		protected readonly double _phiCTied;
+		protected readonly double _phiT;
+		protected readonly double _phiDeformationTransitionIncrement;
 
 		#endregion
 
+		#region Properties
 
-		#region VARIABLES
+		#endregion
 
-		#endregion VARIABLES
+		public double PhiCSpiral => _phiCSpiral;
 
+		public double PhiCTied => _phiCTied;
 
-		#region PROPERTIES
+		public double PhiT => _phiT;
 
-		#endregion PROPERTIES
+		public double PhiDeformationTransitionIncrement => _phiDeformationTransitionIncrement;
 
-
-		#region CONSTRUCTORS
+		#region Constructors
 
 		public StandardACI318()
 		{
+			_phiCSpiral = 0.75;
+			_phiCTied = 0.65;
+			_phiT = 0.90; 
+			_phiDeformationTransitionIncrement = 0.003;
 		}
 
-		#endregion CONSTRUCTORS
-
-
-		#region PUBLIC METHODS
-
-		#endregion
-
-
-		#region PROTECTED METHODS
-
-		#endregion
-
+		#endregion 
 	}
 }

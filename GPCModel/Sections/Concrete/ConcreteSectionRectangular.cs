@@ -15,9 +15,13 @@ namespace GPC.Model.Sections.Concrete
     [Serializable]
     public class ConcreteSectionRectangular : SectionRectangular, IConcreteSection
     {
+        #region Variables
 
         protected readonly UniqueIdCollection<ReinforcedConcreteRebar> _rebars;
 
+        #endregion
+
+        #region Properties
 
         public IEnumerable<ReinforcedConcreteRebar> Rebars => _rebars;
 
@@ -26,6 +30,8 @@ namespace GPC.Model.Sections.Concrete
         public double AreaRebars => _rebars.Select(i => i.Area).Sum();
 
         public int RebarsCount => _rebars.Count;
+
+        #endregion
 
         #region Public Constructors
 
@@ -45,16 +51,13 @@ namespace GPC.Model.Sections.Concrete
                 throw new ArgumentException("Material must be a ConcreteMaterial");
         }
 
-        #endregion
-
-
-        public ReinforcedConcreteSection ToReinforcedConcreteSection()
+        protected ConcreteSectionRectangular(SerializationInfo info, StreamingContext context) 
+            : base(info, context)
         {
-            var section = new ReinforcedConcreteSection(new ShapeEx(GetShape(), ConcreteMaterial), Name);
-            section.AddRebars(_rebars);
-
-            return section;
+            _rebars = (UniqueIdCollection<ReinforcedConcreteRebar>)info.GetValue("Rebars", typeof(UniqueIdCollection<ReinforcedConcreteRebar>));
         }
+
+        #endregion
 
         #region Public Methods
 
@@ -200,7 +203,6 @@ namespace GPC.Model.Sections.Concrete
 
         #endregion
 
-
         #region mechanical properties
 
         /// <summary>
@@ -230,7 +232,7 @@ namespace GPC.Model.Sections.Concrete
 
             double J11H = SectionHelper.CalculateJ11(JxxH, JyyH, JxyH);
             double J22H = SectionHelper.CalculateJ22(JxxH, JyyH, JxyH);
-            double angleX = SectionHelper.CalculateAngle(JxxH, JyyH, JxyH);
+            double angleX = SectionHelper.CalculateAngle(J11H, J22H, JxxH, JyyH, JxyH);
 
             return (GetHomogenizedArea(), SxH, SyH, centroidH, JxxH, JyyH, JxyH, JpH, J11H, J22H, angleX);
         }
@@ -297,7 +299,7 @@ namespace GPC.Model.Sections.Concrete
 
             double J11H = SectionHelper.CalculateJ11(JxxH, JyyH, JxyH);
             double J22H = SectionHelper.CalculateJ22(JxxH, JyyH, JxyH);
-            double angleX = SectionHelper.CalculateAngle(JxxH, JyyH, JxyH);
+            double angleX = SectionHelper.CalculateAngle(J11H, J22H, JxxH, JyyH, JxyH);
 
             return (GetHomogenizedArea(phi), SxH, SyH, centroidH, JxxH, JyyH, JxyH, JpH, J11H, J22H, angleX);
         }
@@ -350,6 +352,20 @@ namespace GPC.Model.Sections.Concrete
         #endregion
 
         #endregion
+
+        public ReinforcedConcreteSection ToReinforcedConcreteSection()
+        {
+            var section = new ReinforcedConcreteSection(new ShapeEx(GetShape(), ConcreteMaterial), Name);
+            section.AddRebars(_rebars);
+
+            return section;
+        }
+
+        public override void GetObjectData(SerializationInfo info, StreamingContext context)
+        {
+            base.GetObjectData(info, context);
+            info.AddValue("Rebars", _rebars);
+        }
 
         #endregion
 

@@ -7,9 +7,9 @@ using System.Threading.Tasks;
 
 namespace GPC.Model.Materials
 {
-    public class ConcreteMaterialEN1992 : ConcreteMaterialModelCode2010
+    [Serializable]
+    public class ConcreteMaterialEN1992 : ConcreteMaterialModelCode2010, ISerializable
     {
-
         #region Static Properties
 
         public static ConcreteMaterialEN1992 C25_30 =>  new ConcreteMaterialEN1992("C25/30", 25, CompressionStressStrainDiagrams.ParabolaRectangle);
@@ -34,17 +34,16 @@ namespace GPC.Model.Materials
 
         public static ConcreteMaterialEN1992 C90_105 => new ConcreteMaterialEN1992("C90/105", 90, CompressionStressStrainDiagrams.ParabolaRectangle);
 
-        #endregion
+		#endregion
 
+		#region Constructor
 
-
-        public ConcreteMaterialEN1992(string name, double fck, CompressionStressStrainDiagrams compressionStressStrainDiagrams, 
+		public ConcreteMaterialEN1992(string name, double fck, CompressionStressStrainDiagrams compressionStressStrainDiagrams, 
             double poisson = 0.2, double density = 0.0025, double alfaThermalExpansion = 1e-6, CementType cementType = CementType.ClassN) 
             : base(name, fck, compressionStressStrainDiagrams, poisson, density, alfaThermalExpansion, cementType)
         {
 
         }
-
 
         public ConcreteMaterialEN1992(string name, double strainYTension, StressStrainTable stressStrainTableCompression, 
             StressStrainTable stressStrainTableTension, double poisson = 0.2, double density = 0.0025, double alfaThermalExpansion = 1e-6, 
@@ -60,6 +59,8 @@ namespace GPC.Model.Materials
 
         }
 
+		#endregion
+
 		protected override void RecalculateMechanicalProperties()
 		{
             SetMechanicalProperties(_fck, 0, 0, 0, 0, _compressionStressStrainDiagrams, _tensionStressStrainDiagrams);
@@ -68,9 +69,19 @@ namespace GPC.Model.Materials
             SetStressStrainTableTension(_fctk, _fctu, _strainYTension, _strainUTension, _tensionStressStrainDiagrams);
         }
 
-		#region Equals, hashcode, operators
+        public override bool IsFiberReinforced()
+		{
+            return false;
+		}
 
-		public override bool Equals(object obj)
+        #region Equals, hashcode, operators
+
+        public override void GetObjectData(SerializationInfo info, StreamingContext context)
+        {
+            base.GetObjectData(info, context);
+        }
+
+        public override bool Equals(object obj)
         {
             if (ReferenceEquals(this, obj))
                 return true;
@@ -87,11 +98,6 @@ namespace GPC.Model.Materials
                 return hashCode;
             }
         }
-
-        public override bool IsFiberReinforced()
-		{
-            return false;
-		}
 
 		public static bool operator ==(ConcreteMaterialEN1992 obj1, ConcreteMaterialEN1992 obj2)
         {

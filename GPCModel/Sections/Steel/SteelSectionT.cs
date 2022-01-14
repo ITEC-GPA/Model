@@ -1,11 +1,13 @@
 ﻿using GPC.Geometry;
 using GPC.Model.Materials;
+using System;
+using System.Runtime.Serialization;
 
 namespace GPC.Model.Sections.Steel
 {
-    public class SteelSectionT : SectionT, ISteelSection
+    [Serializable]
+    public class SteelSectionT : SectionT, ISteelSection, ISerializable
     {
-
         #region Variables
 
         private readonly double _r;                // raggio di curvatura o altezza di gola
@@ -32,7 +34,6 @@ namespace GPC.Model.Sections.Steel
 
         #endregion
 
-
         #region Public Constructors
 
         public SteelSectionT(double height, double flangeLength, double thicknessWeb, double thicknessFlange, SteelMaterial material, string name,
@@ -44,12 +45,19 @@ namespace GPC.Model.Sections.Steel
             _r = radius;        // raggio di curvatura o altezza di gola
         }
 
-        #endregion
+		protected SteelSectionT(SerializationInfo info, StreamingContext context) 
+            : base(info, context)
+		{
+            _r = info.GetDouble("R");
+            _sectionType = (SectionTypes)info.GetValue("SectionType", typeof(SectionTypes));
+            _formedType = (FormedTypes)info.GetValue("FormedType", typeof(FormedTypes));
+        }
 
+		#endregion
 
-        #region Public override method
+		#region Public override method
 
-        public override string ToString()
+		public override string ToString()
         {
             string s = "T section: \n";
             s = s + "Height = " + base.Height + " mm \n";
@@ -59,7 +67,13 @@ namespace GPC.Model.Sections.Steel
             return s;
         }
 
-
+        public override void GetObjectData(SerializationInfo info, StreamingContext context)
+        {
+            base.GetObjectData(info, context);
+            info.AddValue("R", _r);
+            info.AddValue("SectionType", _sectionType);
+            info.AddValue("FormedType", _formedType);
+        }
 
         #endregion
     }

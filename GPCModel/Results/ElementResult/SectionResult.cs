@@ -9,11 +9,10 @@ using GPC.Model.LoadCases;
 
 namespace GPC.Model.Results
 {
-
     [Serializable]
     public sealed class SectionResult : ElementResult, ISerializable, IEquatable<SectionResult>
     {
-
+        #region Public Constructors
 
         public SectionResult(ILoadCase Case, IEnumerable<ResultLocationId> resultLocations, string name = "")
             : base(Case, resultLocations.ToArray(), name)
@@ -21,17 +20,20 @@ namespace GPC.Model.Results
 
         }
 
-        public SectionResult(SerializationInfo info, StreamingContext context)
+        internal SectionResult(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
 
         }
 
+        #endregion
+
+        #region Public Methods
+
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             base.GetObjectData(info, context);
         }
-
 
         public bool Equals(SectionResult other)
         {
@@ -43,7 +45,6 @@ namespace GPC.Model.Results
 
             return base.Equals(other);
         }
-
 
         public override int GetHashCode()
         {
@@ -64,5 +65,7 @@ namespace GPC.Model.Results
         {
             return !(left == right);
         }
-    }
+
+		#endregion
+	}
 }
