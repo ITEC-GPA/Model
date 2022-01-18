@@ -341,7 +341,7 @@ namespace ModelObjectTest
         [TestMethod]
         public void ConcreteENTest14()
         {
-            ConcreteMaterialEN1992 concrete = new ConcreteMaterialEN1992("", 30, ConcreteMaterial.CompressionStressStrainDiagrams.StressBlock);
+            ConcreteMaterialEN1992 concrete = new ConcreteMaterialEN1992("", 30, ConcreteMaterialEN1992.CompressionStressStrainDiagrams.StressBlock);
             List<(double, double)> stresses = new List<(double, double)>();
 
             for (int i = 10; i >= -35; i--)
@@ -357,7 +357,7 @@ namespace ModelObjectTest
         [TestMethod]
         public void ConcreteENTest15()
         {
-            ConcreteMaterialEN1992 concrete = new ConcreteMaterialEN1992("", 30, ConcreteMaterial.CompressionStressStrainDiagrams.NonLinear);
+            ConcreteMaterialEN1992 concrete = new ConcreteMaterialEN1992("", 30, ConcreteMaterialEN1992.CompressionStressStrainDiagrams.NonLinear);
             List<(double, double)> stresses = new List<(double, double)>();
 
             for (int i = 10; i >= -35; i--)
@@ -524,8 +524,8 @@ namespace ModelObjectTest
         [Description("Fc 4000 Bilinear")]
         public void ConcreteACITest1()
         {
-            ConcreteMaterialACI318 concrete = new ConcreteMaterialACI318("fc' 4000 psi", 27.579, 
-                ConcreteMaterial.CompressionStressStrainDiagrams.Bilinear);
+            ConcreteMaterialACI318 concrete = new ConcreteMaterialACI318("fc' 4000 psi", 27.579,
+                ConcreteMaterialACI318.CompressionStressStrainDiagrams.Bilinear);
 
             Assert.IsTrue(Math.Abs((concrete.E - 24855) / concrete.E) < 0.5, concrete.E.ToString());
             Assert.IsTrue(Math.Abs(concrete.Fc + 27.579) < 0.001);
@@ -538,8 +538,8 @@ namespace ModelObjectTest
         [Description("Fc 4000 StressBlock")]
         public void ConcreteACITest2()
         {
-            ConcreteMaterialACI318 concrete = new ConcreteMaterialACI318("fc' 4000 psi", 27.579, 
-                ConcreteMaterial.CompressionStressStrainDiagrams.StressBlock);
+            ConcreteMaterialACI318 concrete = new ConcreteMaterialACI318("fc' 4000 psi", 27.579,
+                ConcreteMaterialACI318.CompressionStressStrainDiagrams.StressBlock);
 
             Assert.IsTrue(Math.Abs((concrete.E - 24855) / concrete.E) < 0.5, concrete.E.ToString());
             Assert.IsTrue(Math.Abs(concrete.Fc + 23.442) < 0.001);
@@ -601,7 +601,7 @@ namespace ModelObjectTest
         public void ConcreteACITest7()
         {
             ConcreteMaterialACI318 concrete = new ConcreteMaterialACI318("fc' 4000 psi", 27.579,
-                ConcreteMaterial.CompressionStressStrainDiagrams.ParabolaRectangle);
+                ConcreteMaterialACI318.CompressionStressStrainDiagrams.ParabolaRectangle);
 
             Assert.IsTrue(concrete.E == 0, concrete.E.ToString());
             Assert.IsTrue(concrete.Fc == 0);
@@ -614,6 +614,20 @@ namespace ModelObjectTest
         public void ConcreteACITest8()
         {
             ConcreteMaterialACI318 concrete = ConcreteMaterialACI318.Fc5000;
+            List<(double, double)> stresses = new List<(double, double)>();
+
+            for (int i = 100; i >= -350; i--)
+                stresses.Add((concrete.GetStress(i / 100000.0), i / 100000.0));
+
+            for (int i = 0; i < stresses.Count; i++)
+                Console.WriteLine(stresses[i].Item1);
+        }
+
+        [TestMethod]
+        public void ConcreteACITest9()
+        {
+            ConcreteMaterialACI318 concrete = new ConcreteMaterialACI318("fc' 4000 psi", 27.579,
+                ConcreteMaterialACI318.CompressionStressStrainDiagrams.ParabolaRectangle);
             List<(double, double)> stresses = new List<(double, double)>();
 
             for (int i = 100; i >= -350; i--)
@@ -643,7 +657,7 @@ namespace ModelObjectTest
         [TestMethod]
         public void SteelTest2()
         {
-            SteelMaterial steel = new SteelMaterial("", 275, 275*1.15);
+            SteelMaterial steel = new SteelMaterial("", 200000, 275, 275*1.15);
             List<double> stresses = new List<double>();
 
             for (int i = 75; i >= -75; i--)

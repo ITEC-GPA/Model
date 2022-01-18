@@ -9,7 +9,6 @@ namespace GPC.Model.Materials
     [UI(Description = "Steel", Group = "Materials", Kind = "Material")]
     public class SteelMaterial : Material
     {
-
         /// <summary>
         /// Default Steel S235 according to EN1993
         /// </summary>
@@ -78,19 +77,6 @@ namespace GPC.Model.Materials
 		public SteelMaterial(string name, double elasticModulus, double fyk, double fu, double strainU = 0.1,
              double poisson = 0.30, double density = 0.007850, double alfaThermalExpansion = 12 * 1e-6)
             : this(name, elasticModulus, poisson, fyk, fu, strainU, density, alfaThermalExpansion, Guid.NewGuid())
-        {
-
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="name"></param>
-        /// <param name="fyk">Yielding stress</param>
-        /// <param name="fu">Ultimate stress</param>
-        /// <remarks>Guid setted to empty, alfaThermalExpansion setted to 12 * 1e-6. Epsilon0 equal to fy / E</remarks>
-        public SteelMaterial(string name, double fyk, double fu)
-            : this(name, 210000.0, 0.30, fyk, fu, 0.05, 0.007850, 0, Guid.NewGuid())
         {
 
         }
@@ -184,6 +170,20 @@ namespace GPC.Model.Materials
                         return - Fyk - Math.Abs(Math.Abs(strain) - Math.Abs(StrainY)) * Et;
                 }
             }
+        }
+
+        public virtual StressStrainTable GetCompressionStressStrainTable()
+		{
+            return new StressStrainTable(
+                new double[] { 0, -Fyk, -Fu },
+                new double[] { 0, -Fyk / E, -StrainU });
+		}
+
+        public virtual StressStrainTable GetTensionStressStrainTable()
+        {
+            return new StressStrainTable(
+                new double[] { 0, Fyk, Fu },
+                new double[] { 0, Fyk / E, StrainU });
         }
 
         #endregion 

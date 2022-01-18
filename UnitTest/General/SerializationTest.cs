@@ -1719,8 +1719,8 @@ namespace GeneralTest
         {
             bool check = true;
 
-            ConcreteMaterialModelCode2010FRC m = new ConcreteMaterialModelCode2010FRC("test", -25, 
-                ConcreteMaterial.CompressionStressStrainDiagrams.ParabolaRectangle, 1, 2, 0.1, 0.2, 
+            ConcreteMaterialModelCode2010FRC m = new ConcreteMaterialModelCode2010FRC("test", -25,
+                ConcreteMaterialModelCode2010.CompressionStressStrainDiagrams.ParabolaRectangle, 1, 2, 0.1, 0.2, 
                 ConcreteMaterialModelCode2010.TensionStressStrainDiagrams.Bilinear, 0.2, 20, 5, 
                 ConcreteMaterialModelCode2010.CementType.ClassN);
 
@@ -1771,7 +1771,7 @@ namespace GeneralTest
             bool check = true;
 
             ConcreteMaterialEN1992 m = new ConcreteMaterialEN1992("test", -25,
-                ConcreteMaterial.CompressionStressStrainDiagrams.ParabolaRectangle, 0.2, 20, 5,
+                ConcreteMaterialModelCode2010.CompressionStressStrainDiagrams.ParabolaRectangle, 0.2, 20, 5,
                 ConcreteMaterialModelCode2010.CementType.ClassN);
 
             using (var ms = new MemoryStream())
@@ -1821,7 +1821,7 @@ namespace GeneralTest
             bool check = true;
 
             ConcreteMaterialACI318 m = new ConcreteMaterialACI318("test", -25,
-                ConcreteMaterial.CompressionStressStrainDiagrams.Bilinear, 0.2, 20, 5);
+                ConcreteMaterialACI318.CompressionStressStrainDiagrams.Bilinear, 0.2, 20, 5);
 
             using (var ms = new MemoryStream())
             {
