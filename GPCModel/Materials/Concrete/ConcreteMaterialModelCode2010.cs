@@ -1,3 +1,4 @@
+using GPC.Utilities.Converters;
 using GPC.Utilities.Maths;
 using System;
 using System.Collections.Generic;
@@ -12,9 +13,44 @@ namespace GPC.Model.Materials
     [Serializable]
     public abstract class ConcreteMaterialModelCode2010 : ConcreteMaterial, ISerializable
     {
-		#region Enum
+        #region Enum
 
-		public enum CementType
+        [TypeConverter(typeof(EnumDescriptionTypeConverter))]
+        public enum CompressionStressStrainDiagrams
+        {
+            [Description("Parabola-Rectangle")]
+            ParabolaRectangle,
+
+            [Description("Bilinear")]
+            Bilinear,
+
+            [Description("Stress Block")]
+            StressBlock,
+
+            [Description("Generic")]
+            Generic,
+
+            [Description("Non Linear")]
+            NonLinear,
+        }
+
+        [TypeConverter(typeof(EnumDescriptionTypeConverter))]
+        public enum TensionStressStrainDiagrams
+        {
+            [Description("Linear")]
+            Linear,
+
+            [Description("Bilinear")]
+            Bilinear,
+
+            [Description("Rigid-Plastic")]
+            RigidPlastic,
+
+            [Description("Generic")]
+            Generic,
+        }
+
+        public enum CementType
         {
             ClassR,
             ClassN,
@@ -37,14 +73,17 @@ namespace GPC.Model.Materials
         
         protected CementType _cementType;
 
-		#endregion
+        protected CompressionStressStrainDiagrams _compressionStressStrainDiagrams;
+        protected TensionStressStrainDiagrams _tensionStressStrainDiagrams;
 
-		#region Properties
+        #endregion
 
-		/// <summary>
-		/// Characteristic compressive cylinder strength of concrete at 28 days
-		/// </summary>
-		public double Fck => _fck;
+        #region Properties
+
+        /// <summary>
+        /// Characteristic compressive cylinder strength of concrete at 28 days
+        /// </summary>
+        public double Fck => _fck;
 
         /// <summary>
         /// Characteristic tensile strength of concrete
@@ -105,7 +144,7 @@ namespace GPC.Model.Materials
         /// <summary>
         /// The compression stress-strain relationship 
         /// </summary>
-        public override CompressionStressStrainDiagrams CompressionStressStrainDiagram => _compressionStressStrainDiagrams;
+        public CompressionStressStrainDiagrams CompressionStressStrainDiagram => _compressionStressStrainDiagrams;
 
         /// <summary>
         /// The tension stress-strain relationship 
@@ -697,8 +736,7 @@ namespace GPC.Model.Materials
         }
 
         protected virtual double GetParabolaStress(double strain, double strainY)
-        {
-            
+        {            
             if (strainY == 0)
                 throw new ArgumentException();
 
@@ -793,7 +831,6 @@ namespace GPC.Model.Materials
         protected virtual double GetStrainYTension(double fctk, double elasticModulusTension, 
             TensionStressStrainDiagrams tensionStressStrainDiagrams)
         {
-
             switch (tensionStressStrainDiagrams)
             {
                 case TensionStressStrainDiagrams.Linear:
@@ -814,7 +851,6 @@ namespace GPC.Model.Materials
         protected virtual double GetStrainUTension(double fctk, double elasticModulusTension, 
             TensionStressStrainDiagrams tensionStressStrainDiagrams)
         {
-
             switch (tensionStressStrainDiagrams)
             {
                 case TensionStressStrainDiagrams.Linear:

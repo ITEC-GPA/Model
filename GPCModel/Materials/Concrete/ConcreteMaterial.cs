@@ -12,44 +12,7 @@ namespace GPC.Model.Materials
     [Serializable]
     public abstract class ConcreteMaterial : Material, ISerializable
     {
-		#region Public Enum
-
-		[TypeConverter(typeof(EnumDescriptionTypeConverter))]
-        public enum CompressionStressStrainDiagrams
-        {
-            [Description("Parabola-Rectangle")]
-            ParabolaRectangle,
-
-            [Description("Bilinear")]
-            Bilinear,
-
-            [Description("Stress Block")]
-            StressBlock,
-
-            [Description("Generic")]
-            Generic,
-
-            [Description("Non Linear")]
-            NonLinear,
-
-            Invalid = -1,
-        }
-
-        [TypeConverter(typeof(EnumDescriptionTypeConverter))]
-        public enum TensionStressStrainDiagrams
-        {
-            [Description("Linear")]
-            Linear,
-
-            [Description("Bilinear")]
-            Bilinear,
-
-            [Description("Rigid-Plastic")]
-            RigidPlastic,
-
-            [Description("Generic")]
-            Generic,
-        }
+		#region Public Enum        
 
 		#endregion
 
@@ -59,9 +22,6 @@ namespace GPC.Model.Materials
         protected StressStrainTable _stressStrainTableTension;
 
         protected double _elasticModulusTension;
-
-        protected CompressionStressStrainDiagrams _compressionStressStrainDiagrams;
-        protected TensionStressStrainDiagrams _tensionStressStrainDiagrams;
 
         #endregion
 
@@ -81,15 +41,6 @@ namespace GPC.Model.Materials
         /// Elastic modulus of concrete in tension
         /// </summary>
         public double ElasticModulusTension => _elasticModulusTension;
-
-        /// <summary>
-        /// The compression stress-strain relationship 
-        /// </summary>
-        public virtual CompressionStressStrainDiagrams CompressionStressStrainDiagram
-        {
-            get;
-            set;
-        }
 
         #endregion
 
