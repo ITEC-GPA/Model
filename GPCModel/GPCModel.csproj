@@ -103,10 +103,12 @@
     <Compile Include="Results\ResultLocation\ResultLocationId.cs" />
     <Compile Include="Results\ResultTypes\IResult.cs" />
     <Compile Include="Results\ResultTypes\ResultPlateStress.cs" />
+    <Compile Include="Sections\Concrete\ConcreteSectionC.cs" />
     <Compile Include="Sections\Concrete\ConcreteSectionCHS.cs" />
     <Compile Include="Sections\Concrete\ConcreteSectionCircular.cs" />
     <Compile Include="Sections\Concrete\ConcreteSectionHelper.cs" />
     <Compile Include="Sections\Concrete\ConcreteSectionRectangular.cs" />
+    <Compile Include="Sections\Concrete\ConcreteSectionRHS.cs" />
     <Compile Include="Sections\Concrete\ConcreteSectionT.cs" />
     <Compile Include="Sections\Concrete\IConcreteSection.cs" />
     <Compile Include="Sections\Concrete\RebarCollection.cs" />
