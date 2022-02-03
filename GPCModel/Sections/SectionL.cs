@@ -11,22 +11,22 @@ namespace GPC.Model.Sections
     {
         #region Variables
 
-        private readonly double _lHor;
-        private readonly double _tHor;
-        private readonly double _lVert;
-        private readonly double _tVert;
+        private readonly double _horizontalLegLength;
+        private readonly double _horizontalLegThickness;
+        private readonly double _verticalLegLength;
+        private readonly double _verticalLegThickness;
 
         #endregion
 
         #region Properties
 
-        public double HorizontalLegLength => _lHor;
+        public double HorizontalLegLength => _horizontalLegLength;
 
-        public double HorizontalLegThickness => _tHor;
+        public double HorizontalLegThickness => _horizontalLegThickness;
 
-        public double VerticalLegLength => _lVert;
+        public double VerticalLegLength => _verticalLegLength;
 
-        public double VerticalLegThickness => _tVert;
+        public double VerticalLegThickness => _verticalLegThickness;
 
         #endregion
 
@@ -45,10 +45,10 @@ namespace GPC.Model.Sections
             Material material, string name)
             : base(material, name)
         {
-            _lHor = horizontalLegLength < 0 ? throw new ArgumentException($"Horizzontal plate lenght cannot be lower than zero") : horizontalLegLength;
-            _tHor = horizontalLegThickness < 0 ? throw new ArgumentException($"Horizzontal plate thickness cannot be lower than zero") : horizontalLegThickness;
-            _lVert = verticalLegLength < 0 ? throw new ArgumentException($"Vertical plate lenght cannot be lower than zero") : verticalLegLength;
-            _tVert = verticalLegThickness < 0 ? throw new ArgumentException($"Vertical plate thickness cannot be lower than zero") : verticalLegThickness;
+            _horizontalLegLength = horizontalLegLength < 0 ? throw new ArgumentException($"Horizzontal plate lenght cannot be lower than zero") : horizontalLegLength;
+            _horizontalLegThickness = horizontalLegThickness < 0 ? throw new ArgumentException($"Horizzontal plate thickness cannot be lower than zero") : horizontalLegThickness;
+            _verticalLegLength = verticalLegLength < 0 ? throw new ArgumentException($"Vertical plate lenght cannot be lower than zero") : verticalLegLength;
+            _verticalLegThickness = verticalLegThickness < 0 ? throw new ArgumentException($"Vertical plate thickness cannot be lower than zero") : verticalLegThickness;
 
             ThinWall thinWall1 = new ThinWall(HorizontalLegLength, HorizontalLegThickness, 0);
             ThinWall thinWall2 = new ThinWall(VerticalLegLength - HorizontalLegThickness, VerticalLegThickness, Math.PI / 2);
@@ -64,24 +64,15 @@ namespace GPC.Model.Sections
         protected SectionL(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
-            _lHor = info.GetDouble("HorizontalLegLength");
-            _tHor = info.GetDouble("HorizontalLegThickness");
-            _lVert = info.GetDouble("VerticalLegLength");
-            _tVert = info.GetDouble("VerticalLegThickness");
+            _horizontalLegLength = info.GetDouble("HorizontalLegLength");
+            _horizontalLegThickness = info.GetDouble("HorizontalLegThickness");
+            _verticalLegLength = info.GetDouble("VerticalLegLength");
+            _verticalLegThickness = info.GetDouble("VerticalLegThickness");
         }
 
         #endregion
 
-        #region Public method
-
-        public override void GetObjectData(SerializationInfo info, StreamingContext context)
-        {
-            base.GetObjectData(info, context);
-            info.AddValue("HorizontalLegLength", _lHor);
-            info.AddValue("HorizontalLegThickness", _tHor);
-            info.AddValue("VerticalLegLength", _lVert);
-            info.AddValue("VerticalLegThickness", _tVert);
-        }
+        #region Protected method
 
         protected override void SetMechanicalProperties()
         {
@@ -233,7 +224,6 @@ namespace GPC.Model.Sections
                 Area * Math.Pow(HorizontalLegLength - Centroid.X, 2);
         }
 
-
         protected override Shape2d GetShape()
         {
             throw new NotImplementedException();
@@ -241,17 +231,17 @@ namespace GPC.Model.Sections
 
         protected override double CalculateJw()
         {
-            return (Math.Pow(_lHor - _tVert / 2.0, 3.0) * Math.Pow(_tHor, 3.0) + Math.Pow(_lVert - _tHor / 2.0, 3.0) * Math.Pow(_tVert, 3.0)) / 36.0; //CNR DT 208/2011
+            return (Math.Pow(_horizontalLegLength - _verticalLegThickness / 2.0, 3.0) * Math.Pow(_horizontalLegThickness, 3.0) + Math.Pow(_verticalLegLength - _horizontalLegThickness / 2.0, 3.0) * Math.Pow(_verticalLegThickness, 3.0)) / 36.0; //CNR DT 208/2011
         }
 
         protected override double CalculateJt()
         {
-            return 1.0 / 3.0 * (_lHor - _tVert / 2.0) * Math.Pow(_tHor, 3.0) + 1.0 / 3.0 * (_lVert - _tHor / 2.0) * Math.Pow(_tVert, 3.0);
+            return 1.0 / 3.0 * (_horizontalLegLength - _verticalLegThickness / 2.0) * Math.Pow(_horizontalLegThickness, 3.0) + 1.0 / 3.0 * (_verticalLegLength - _horizontalLegThickness / 2.0) * Math.Pow(_verticalLegThickness, 3.0);
         }
 
         protected override Point2d CalculateShearCenter()
         {
-            return new Point2d(_tHor / 2.0, _tVert / 2.0);
+            return new Point2d(_horizontalLegThickness / 2.0, _verticalLegThickness / 2.0);
         }
 
         protected override double CalculateWpl1()
@@ -271,11 +261,24 @@ namespace GPC.Model.Sections
             return new Point2d(xc, yc);
         }
 
-        #endregion
+		#endregion
 
-        public override string ToString()
+		#region Public Methods
+
+		public override string ToString()
         {
-            return $"L {_lVert}x{_tVert}x{_lHor}x{_thinWalls}";
+            return $"L {_verticalLegLength}x{_verticalLegThickness}x{_horizontalLegLength}x{_thinWalls}";
         }
-    }
+
+        public override void GetObjectData(SerializationInfo info, StreamingContext context)
+        {
+            base.GetObjectData(info, context);
+            info.AddValue("HorizontalLegLength", _horizontalLegLength);
+            info.AddValue("HorizontalLegThickness", _horizontalLegThickness);
+            info.AddValue("VerticalLegLength", _verticalLegLength);
+            info.AddValue("VerticalLegThickness", _verticalLegThickness);
+        }
+
+		#endregion
+	}
 }

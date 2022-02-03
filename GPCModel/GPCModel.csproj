@@ -106,7 +106,9 @@
     <Compile Include="Sections\Concrete\ConcreteSectionC.cs" />
     <Compile Include="Sections\Concrete\ConcreteSectionCHS.cs" />
     <Compile Include="Sections\Concrete\ConcreteSectionCircular.cs" />
+    <Compile Include="Sections\Concrete\ConcreteSectionH.cs" />
     <Compile Include="Sections\Concrete\ConcreteSectionHelper.cs" />
+    <Compile Include="Sections\Concrete\ConcreteSectionL.cs" />
     <Compile Include="Sections\Concrete\ConcreteSectionRectangular.cs" />
     <Compile Include="Sections\Concrete\ConcreteSectionRHS.cs" />
     <Compile Include="Sections\Concrete\ConcreteSectionT.cs" />
