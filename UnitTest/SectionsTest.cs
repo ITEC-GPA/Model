@@ -10,6 +10,7 @@ using GPC.Model.Sections.Steel;
 using GPC.TestUtilities;
 using GPC.Model.Sections.Rebar;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using GPC.Geometry.Meshes;
 
 namespace ModelObjectTest
 {
@@ -71,6 +72,67 @@ namespace ModelObjectTest
             GmshNet.Gmsh.Model.Occ.Synchronize();
             GmshNet.Gmsh.Fltk.Run();
             GmshNet.Gmsh.Finalize();
+        }
+
+        /// <summary>
+        /// Metodo per visualizzare la mesh 
+        /// </summary>
+        /// <param name="mesh"></param>
+        /// <returns></returns>
+        protected Point3d[] ExportToGmsh(Mesh mesh)
+        {
+            GmshNet.Gmsh.Initialize();
+            List<Point3d> points = new List<Point3d>();
+
+            for (int i = 1; i <= mesh.FacesCount; i++)
+            {
+                MeshVertex[] vertices = mesh.GetFaceVertices(mesh.Faces[i]);
+                List<int> indicesV = new List<int>();
+                List<int> indicesL = new List<int>();
+
+                for (int k = 0; k < vertices.Length; k++)
+                {
+                    try
+                    {
+                        indicesV.Add(GmshNet.Gmsh.Model.Occ.AddPoint(vertices[k].Point.X / 1000000,
+                            vertices[k].Point.Y / 1000000,
+                            vertices[k].Point.Z / 10000));
+                    }
+                    catch { }
+                }
+
+                for (int k = 0; k < indicesV.Count; k++)
+                {
+                    try
+                    {
+                        if (k != indicesV.Count - 1)
+                            indicesL.Add(GmshNet.Gmsh.Model.Occ.AddLine(indicesV[k], indicesV[k + 1]));
+                        else
+                            indicesL.Add(GmshNet.Gmsh.Model.Occ.AddLine(indicesV[k], indicesV[0]));
+                    }
+                    catch { }
+                }
+
+                try
+                {
+                    int wire = GmshNet.Gmsh.Model.Occ.AddWire(indicesL.ToArray());
+                    GmshNet.Gmsh.Model.Occ.AddPlaneSurface(new int[] { wire });
+                }
+                catch { }
+            }
+
+            GmshNet.Gmsh.Model.Occ.Synchronize();
+
+            GmshNet.Gmsh.Model.Mesh.Generate(0);
+            GmshNet.Gmsh.Model.Mesh.Generate(1);
+            //GmshNet.Gmsh.Model.Mesh.Generate(2);
+
+            GmshNet.Gmsh.Model.Occ.Synchronize();
+
+            GmshNet.Gmsh.Fltk.Run();
+            GmshNet.Gmsh.Finalize();
+
+            return points.ToArray();
         }
 
         #region Section CHS

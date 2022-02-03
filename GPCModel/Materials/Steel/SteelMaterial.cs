@@ -10,19 +10,29 @@ namespace GPC.Model.Materials
     public class SteelMaterial : Material
     {
         /// <summary>
-        /// Default Steel S235 according to EN1993
+        /// Default Steel S235 according to EN1993 for hot rolled structural steel
         /// </summary>
-        public static SteelMaterial S235 => new SteelMaterial("S235", 210000, 235, 235, 0.1);
+        public static SteelMaterial S235 => new SteelMaterial("S235", 210000, 235, 360, 0.15);
 
         /// <summary>
-        /// Default Steel S275 according to EN1993
+        /// Default Steel S275 according to EN1993 for hot rolled structural steel
         /// </summary>
-        public static SteelMaterial S275 => new SteelMaterial("S275", 210000, 275, 275, 0.1);
+        public static SteelMaterial S275 => new SteelMaterial("S275", 210000, 275, 430, 0.15);
 
         /// <summary>
-        /// Default Steel S355 according to EN1993
+        /// Default Steel S355 according to EN1993 for hot rolled structural steel
         /// </summary>
-        public static SteelMaterial S355 => new SteelMaterial("S355", 210000, 355, 355, 0.1);
+        public static SteelMaterial S355 => new SteelMaterial("S355", 210000, 355, 490, 0.15);
+
+        /// <summary>
+        /// Default Steel S420 according to EN1993 for hot rolled structural steel
+        /// </summary>
+        public static SteelMaterial S420 => new SteelMaterial("S420", 210000, 420, 520, 0.15);
+
+        /// <summary>
+        /// Default Steel S450 according to EN1993 for hot rolled structural steel
+        /// </summary>
+        public static SteelMaterial S450 => new SteelMaterial("S450", 210000, 440, 550, 0.15);
 
         #region Variables
 

@@ -597,20 +597,6 @@ namespace ModelObjectTest
         }
 
         [TestMethod]
-        [Description("Fc 4000 Invalid")]
-        public void ConcreteACITest7()
-        {
-            ConcreteMaterialACI318 concrete = new ConcreteMaterialACI318("fc' 4000 psi", 27.579,
-                ConcreteMaterialACI318.CompressionStressStrainDiagrams.ParabolaRectangle);
-
-            Assert.IsTrue(concrete.E == 0, concrete.E.ToString());
-            Assert.IsTrue(concrete.Fc == 0);
-            Assert.IsTrue(concrete.Fct == 0);
-            Assert.IsTrue(concrete.StrainUCompression == 0);
-            Assert.IsTrue(concrete.StrainYCompression == 0);
-        }
-
-        [TestMethod]
         public void ConcreteACITest8()
         {
             ConcreteMaterialACI318 concrete = ConcreteMaterialACI318.Fc5000;
