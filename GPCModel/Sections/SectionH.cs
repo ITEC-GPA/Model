@@ -58,7 +58,6 @@ namespace GPC.Model.Sections
 
             #endregion
 
-
             ThinWall web = new ThinWall(HeightWeb, thicknessWeb, Math.PI / 2);
             ThinWall flangeTop = new ThinWall(topFlangeLength, topFlangeThickness, 0);
             ThinWall flangeBottom = new ThinWall(bottomFlangeLength, bottomFlangeThickness, 0);
@@ -67,9 +66,9 @@ namespace GPC.Model.Sections
                 new Point2d[3] { new Point2d(Math.Max(LenghtTopFlange, LenghtBottomFlange) / 2.0, ThicknessBottomFlange + HeightWeb / 2.0),
                 new Point2d(Math.Max(LenghtTopFlange, LenghtBottomFlange) / 2.0, bottomFlangeThickness + HeightWeb + topFlangeThickness / 2.0),
                 new Point2d(Math.Max(LenghtTopFlange, LenghtBottomFlange) / 2.0, bottomFlangeThickness / 2.0)});
-
-            
+                        
             SetMechanicalProperties();
+            _mesh = GetMesh();
         }
 
         protected SectionH(SerializationInfo info, StreamingContext context)

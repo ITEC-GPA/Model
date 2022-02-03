@@ -54,7 +54,7 @@ namespace GPC.Model.Sections
                     new Point2d(LenghtFlange / 2, HeightWeb + thicknessFlange / 2)});
 
             SetMechanicalProperties();
-
+            _mesh = GetMesh();
         }
 
         public SectionT(SectionT sectionT)

@@ -37,7 +37,6 @@ namespace GPC.Model.Sections.Concrete
             : base(diameter, thickness, material, name)
         {
             _rebars = new UniqueIdCollection<ReinforcedConcreteRebar>();
-            _mesh = GenerateMesh();
         }
 
         public ConcreteSectionCHS(SectionCHS sectionCHS)
