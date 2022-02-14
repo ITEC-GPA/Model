@@ -16,35 +16,35 @@ namespace GPC.Model.Materials
     {
         #region Variables
 
-        private readonly double[] _stresses;
-        private readonly double[] _strains;
+        private double[] _stresses;
+        private double[] _strains;
 
-		#endregion
+        #endregion
 
-		#region Properties
+        #region Properties
 
-		public double[] Stresses => (double[])_stresses.Clone(); // ritoriamo il clone in quanto serve che i valori siano blindati 
+        public double[] Stresses => (double[])_stresses.Clone(); // ritoriamo il clone in quanto serve che i valori siano blindati 
         public double[] Strains => (double[])_strains.Clone();
 
-		#endregion
+        #endregion
 
-		#region Constructor
+        #region Constructor
 
-		/// <summary>
-		/// If stresses[0] or strains[0] are not zero this will be added automatically.
-		/// </summary>
-		/// <param name="stresses"></param>
-		/// <param name="strains"></param>
-		/// <remarks>
-		/// Strain value assumed to be ordered from smaller to greatest
-		/// <para>Sign convention: Stress and strain negative if compression</para>
-		/// </remarks>
-		public StressStrainTable(double[] stresses, double[] strains)
+        /// <summary>
+        /// If stresses[0] or strains[0] are not zero this will be added automatically.
+        /// </summary>
+        /// <param name="stresses"></param>
+        /// <param name="strains"></param>
+        /// <remarks>
+        /// Strain value assumed to be ordered from smaller to greatest
+        /// <para>Sign convention: Stress and strain negative if compression</para>
+        /// </remarks>
+        public StressStrainTable(double[] stresses, double[] strains)
         {
             if (stresses.Length != strains.Length)
                 throw new ArgumentException();
 
-            if (stresses.Length < 2 || strains.Length < 2) // servono almeno due valori
+            /*if (stresses.Length < 2 || strains.Length < 2) // servono almeno due valori
                 throw new ArgumentException();
 
             if (stresses[0] != 0)
@@ -60,14 +60,80 @@ namespace GPC.Model.Materials
                 buffer.AddRange(strains);
                 _strains = buffer.ToArray();
             }
+            */
+            if (stresses == null)
+                stresses = new double[0];
+            if (strains == null)
+                strains = new double[0];
 
             _stresses = stresses;
             _strains = strains;
+
+            if (stresses.Length == 0 || strains.Length == 0)
+                Add(0, 0);
+
+            if (stresses[0] != 0 || strains[0] != 0)
+                Insert(0, 0, 0);
         }
 
         #endregion
 
         #region Public Methods
+
+        /// <summary>
+        /// Append new values to the array
+        /// </summary>
+        /// <param name="stress">The stress value to add</param>
+        /// <param name="strain">The strain value to add</param>
+        public void Add(double stress, double strain)
+        {
+            double[] newStesses = new double[_stresses.Length + 1];
+            for (int i = 0; i < _stresses.Length; i++)
+                newStesses[i] = _stresses[i];
+            newStesses[_stresses.Length] = stress;
+            _stresses = newStesses;
+
+            double[] newStrains = new double[_strains.Length + 1];
+            for (int i = 0; i < _strains.Length; i++)
+                newStrains[i] = _strains[i];
+            newStrains[_strains.Length] = strain;
+            _strains = newStrains;
+        }
+
+        /// <summary>
+        /// Insert new values at the given position
+        /// </summary>
+        /// <param name="pos">The position where to add the vew values</param>
+        /// <param name="stress">The stress value</param>
+        /// <param name="strain">The strain value</param>
+        public void Insert(int pos, double stress, double strain)
+        {
+            double[] newStesses = new double[_stresses.Length + 1];
+            for (int i = 0; i < _stresses.Length; i++)
+            {
+                if (i < pos)
+                    newStesses[i] = _stresses[i];
+                else if (i == pos)
+                    newStesses[i] = stress;
+                else
+                    newStesses[i + 1] = _stresses[i];
+
+            }
+            _stresses = newStesses;
+
+            double[] newStrains = new double[_strains.Length + 1];
+            for (int i = 0; i < _strains.Length; i++)
+            {
+                if (i < pos)
+                    newStrains[i] = _strains[i];
+                else if (i == pos)
+                    newStrains[i] = strain;
+                else
+                    newStrains[i + 1] = _strains[i];
+
+            }
+            _strains = newStrains;
+        }
 
         /// <summary>
         /// Get stress associated to <paramref name="strain"/>
