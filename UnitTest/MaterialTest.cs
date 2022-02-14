@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using GPC.Model.Materials;
 using System.Runtime.Serialization;
@@ -723,6 +723,54 @@ namespace ModelObjectTest
                 Console.WriteLine(stresses[i]);
         }
 
-		#endregion
-	}
+        #endregion
+
+        #region StressStrainTable Test
+
+        [TestMethod]
+        public void StressStrainTableTest1()
+        {
+            StressStrainTable stressStrainTable = new StressStrainTable(new double[] {}, new double[] {});
+
+            Assert.IsTrue(stressStrainTable.Stresses[0] == 0);
+            Assert.IsTrue(stressStrainTable.Strains[0] == 0);
+        }
+
+        [TestMethod]
+        public void StressStrainTableTest2()
+        {
+            StressStrainTable stressStrainTable = new StressStrainTable(new double[] { 1, 2 }, new double[] { 1, 2 });
+
+            Assert.IsTrue(stressStrainTable.Stresses[0] == 0);
+            Assert.IsTrue(stressStrainTable.Strains[0] == 0);
+            Assert.IsTrue(stressStrainTable.Strains.Length == 3);
+            Assert.IsTrue(stressStrainTable.Strains.Length == 3);
+        }
+
+        [TestMethod]
+        public void StressStrainTableTest3()
+        {
+            StressStrainTable stressStrainTable = new StressStrainTable(new double[] { 0, 2 }, new double[] { 0, 2 });
+            stressStrainTable.Insert(1, 1, 1);
+
+            Assert.IsTrue(stressStrainTable.Stresses[1] == 1);
+            Assert.IsTrue(stressStrainTable.Strains[1] == 1);
+            Assert.IsTrue(stressStrainTable.Strains.Length == 3);
+            Assert.IsTrue(stressStrainTable.Strains.Length == 3);
+        }
+
+        [TestMethod]
+        public void StressStrainTableTest4()
+        {
+            StressStrainTable stressStrainTable = new StressStrainTable(new double[] { 1, 2 }, new double[] { 1, 2 });
+            stressStrainTable.Add(3, 3);
+
+            Assert.IsTrue(stressStrainTable.Stresses[0] == 0);
+            Assert.IsTrue(stressStrainTable.Strains[0] == 0);
+            Assert.IsTrue(stressStrainTable.Stresses[3] == 3);
+            Assert.IsTrue(stressStrainTable.Strains[3] == 3);
+        }
+
+        #endregion
+    }
 }

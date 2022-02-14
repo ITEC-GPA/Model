@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -69,10 +69,10 @@ namespace GPC.Model.Materials
             _stresses = stresses;
             _strains = strains;
 
-            if (stresses.Length == 0 || strains.Length == 0)
+            if (_stresses.Length == 0 || _strains.Length == 0)
                 Add(0, 0);
 
-            if (stresses[0] != 0 || strains[0] != 0)
+            if (_stresses[0] != 0 || _strains[0] != 0)
                 Insert(0, 0, 0);
         }
 
@@ -109,28 +109,26 @@ namespace GPC.Model.Materials
         public void Insert(int pos, double stress, double strain)
         {
             double[] newStesses = new double[_stresses.Length + 1];
-            for (int i = 0; i < _stresses.Length; i++)
+            for (int i = 0; i < newStesses.Length; i++)
             {
                 if (i < pos)
                     newStesses[i] = _stresses[i];
                 else if (i == pos)
                     newStesses[i] = stress;
                 else
-                    newStesses[i + 1] = _stresses[i];
-
+                    newStesses[i] = _stresses[i - 1];
             }
             _stresses = newStesses;
 
             double[] newStrains = new double[_strains.Length + 1];
-            for (int i = 0; i < _strains.Length; i++)
+            for (int i = 0; i < newStrains.Length; i++)
             {
                 if (i < pos)
                     newStrains[i] = _strains[i];
                 else if (i == pos)
                     newStrains[i] = strain;
                 else
-                    newStrains[i + 1] = _strains[i];
-
+                    newStrains[i] = _strains[i - 1];
             }
             _strains = newStrains;
         }
@@ -207,7 +205,6 @@ namespace GPC.Model.Materials
         {
             if (_strains[1] != 0)
                 return Math.Abs(_stresses[1] / _strains[1]);
-
 
             if (_stresses.Length > 2)
             {
