@@ -45,10 +45,10 @@ namespace GPC.Model.Materials
 
         }
 
-        public ConcreteMaterialEN1992(string name, double strainYTension, StressStrainTable stressStrainTableCompression, 
+        public ConcreteMaterialEN1992(string name, double strainYCompression, double strainYTension, StressStrainTable stressStrainTableCompression, 
             StressStrainTable stressStrainTableTension, double poisson = 0.2, double density = 0.0025, double alfaThermalExpansion = 1e-6, 
             CementType cementType = CementType.ClassN) 
-            : base(name, strainYTension, stressStrainTableCompression, stressStrainTableTension, poisson, density, alfaThermalExpansion, cementType)
+            : base(name, strainYTension, strainYCompression, stressStrainTableCompression, stressStrainTableTension, poisson, density, alfaThermalExpansion, cementType)
         {
 
         }

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using GPC.Model.Materials;
 using System.Runtime.Serialization;
@@ -324,7 +324,7 @@ namespace ModelObjectTest
         [TestMethod]
         public void ConcreteENTest13()
         {
-            ConcreteMaterialEN1992 concrete = new ConcreteMaterialEN1992("", 0.0, new StressStrainTable(new double[] { 0, -314.76 }, new double[] { 0, -0.01 }),
+            ConcreteMaterialEN1992 concrete = new ConcreteMaterialEN1992("", -0.01, 0.0, new StressStrainTable(new double[] { 0, -314.76 }, new double[] { 0, -0.01 }),
                 new StressStrainTable(new double[] { 0, 0.000 }, new double[] { 0, 0.001 }));
             List<(double, double)> stresses = new List<(double, double)>();
 
@@ -370,11 +370,25 @@ namespace ModelObjectTest
                 Console.WriteLine(stresses[i].Item1);
         }
 
-		#endregion
+        [TestMethod]
+        public void ConcreteENTest16()
+        {
+            ConcreteMaterialEN1992 concrete = new ConcreteMaterialEN1992("", -1.0, 1.0, new StressStrainTable(new double[] { 0, -1 }, new double[] { 0, -1 }),
+                new StressStrainTable(new double[] { 0, 1 }, new double[] { 0, 1 }));
+            List<(double, double)> stresses = new List<(double, double)>();
 
-		#region ModelCode 2010 FRC Concrete Material Test
+            for (int i = 10; i >= -100; i--)
+                stresses.Add((concrete.GetStress(i / 10000.0), i / 10000.0));
 
-		[TestMethod]
+            for (int i = 0; i < stresses.Count; i++)
+                Console.WriteLine(stresses[i].Item1);
+        }
+
+        #endregion
+
+        #region ModelCode 2010 FRC Concrete Material Test
+
+        [TestMethod]
         public void ConcreteFRCTest1()
         {
             ConcreteMaterialModelCode2010FRC concrete = new ConcreteMaterialModelCode2010FRC("", 30, ConcreteMaterialModelCode2010.CompressionStressStrainDiagrams.ParabolaRectangle,
@@ -503,7 +517,7 @@ namespace ModelObjectTest
         [TestMethod]
         public void ConcreteFRCTest7()
         {
-            ConcreteMaterialModelCode2010FRC concrete = new ConcreteMaterialModelCode2010FRC("", 0.0005, 
+            ConcreteMaterialModelCode2010FRC concrete = new ConcreteMaterialModelCode2010FRC("", -5, -0.5, 
                 new StressStrainTable(new double[] { 0, -10, -5, -20 }, new double[] { 0, -2, -4, -6 }),
                 new StressStrainTable(new double[] { 0, 5, 1, 2 }, new double[] { 0, 1, 2, 3 }));
 

@@ -27,11 +27,11 @@ namespace GPC.Model.Materials
             [Description("Stress Block")]
             StressBlock,
 
-            [Description("Generic")]
-            Generic,
-
             [Description("Non Linear")]
             NonLinear,
+
+            [Description("Generic")]
+            Generic,
         }
 
         [TypeConverter(typeof(EnumDescriptionTypeConverter))]
@@ -195,7 +195,7 @@ namespace GPC.Model.Materials
         }
 
         // Costruttore per cls con tabella generica
-        public ConcreteMaterialModelCode2010(string name, double strainYTension,
+        public ConcreteMaterialModelCode2010(string name, double strainYTension, double strainYCompression,
             StressStrainTable stressStrainTableCompression, StressStrainTable stressStrainTableTension,
             double poisson = 0.2, double density = 0.0025, double alfaThermalExpansion = 1e-6,
             CementType cementType = CementType.ClassN)
@@ -210,7 +210,7 @@ namespace GPC.Model.Materials
 
             SetMechanicalProperties(stressStrainTableCompression.GetMinimumStress(), stressStrainTableTension.GetStress(strainYTension),
                 stressStrainTableTension.GetLastStress(), strainYTension, stressStrainTableTension.GetLastStrain(),
-                _compressionStressStrainDiagrams, _tensionStressStrainDiagrams);
+                _compressionStressStrainDiagrams, _tensionStressStrainDiagrams, strainYCompression);
 
             _cementType = cementType;
         }
@@ -536,7 +536,7 @@ namespace GPC.Model.Materials
         /// <see cref="ConcreteMaterialModelCode2010._fck"/>
         /// </summary>
         protected void SetMechanicalProperties(double fck, double fctk, double fFtu, double strainYTension, double strainUTension,
-            CompressionStressStrainDiagrams compressionStressStrainDiagrams, TensionStressStrainDiagrams tensionStressStrainDiagrams)
+            CompressionStressStrainDiagrams compressionStressStrainDiagrams, TensionStressStrainDiagrams tensionStressStrainDiagrams, double strainYCompression = 0)
         {
             switch (compressionStressStrainDiagrams)
             {
@@ -556,7 +556,10 @@ namespace GPC.Model.Materials
                     _fck = _stressStrainTableCompression.GetMinimumStress(out double fckStrain);
                     _elasticModulus = GetEcm(GetFcm());
                     _strainUCompression = _stressStrainTableCompression.GetLastStrain();
-                    _strainYCompression = fckStrain;
+                    if(strainYCompression == 0)
+                        _strainYCompression = fckStrain;
+                    else
+                        _strainYCompression = strainYCompression;
                     break;
 
                 default:
