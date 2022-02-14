@@ -133,6 +133,29 @@ namespace GPC.Model.Materials
             _strains = newStrains;
         }
 
+        public void Remove(int pos)
+		{
+            double[] newStesses = new double[_stresses.Length - 1];
+            for (int i = 0; i < _stresses.Length; i++)
+            {
+                if (i < pos)
+                    newStesses[i] = _stresses[i];
+                else if (i > pos)
+                    newStesses[i - 1] = _stresses[i];
+            }
+            _stresses = newStesses;
+
+            double[] newStrains = new double[_strains.Length - 1];
+            for (int i = 0; i < _strains.Length; i++)
+            {
+                if (i < pos)
+                    newStrains[i] = _strains[i];
+                else if (i > pos)
+                    newStrains[i - 1] = _strains[i];
+            }
+            _strains = newStrains;
+        }
+
         /// <summary>
         /// Get stress associated to <paramref name="strain"/>
         /// </summary>

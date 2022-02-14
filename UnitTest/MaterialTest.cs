@@ -771,6 +771,35 @@ namespace ModelObjectTest
             Assert.IsTrue(stressStrainTable.Strains[3] == 3);
         }
 
+        [TestMethod]
+        public void StressStrainTableTest5()
+        {
+            StressStrainTable stressStrainTable = new StressStrainTable(new double[] { 0, 1, 2, 3, 4 }, new double[] { 0, 1, 2, 3, 4 });
+            stressStrainTable.Remove(3);
+
+            Assert.IsTrue(stressStrainTable.Stresses[0] == 0);
+            Assert.IsTrue(stressStrainTable.Strains[0] == 0);
+            Assert.IsTrue(stressStrainTable.Stresses[3] == 4);
+            Assert.IsTrue(stressStrainTable.Strains[3] == 4);
+            Assert.IsTrue(stressStrainTable.Stresses.Length == 4);
+            Assert.IsTrue(stressStrainTable.Strains.Length == 4);
+        }
+
+        [TestMethod]
+        public void StressStrainTableTest6()
+        {
+            StressStrainTable stressStrainTable = new StressStrainTable(new double[] { 0, 1, 2, 3, 4 }, new double[] { 0, 1, 2, 3, 4 });
+            stressStrainTable.Remove(3);
+            stressStrainTable.Remove(3);
+
+            Assert.IsTrue(stressStrainTable.Stresses[0] == 0);
+            Assert.IsTrue(stressStrainTable.Strains[0] == 0);
+            Assert.IsTrue(stressStrainTable.Stresses[2] == 2);
+            Assert.IsTrue(stressStrainTable.Strains[2] == 2);
+            Assert.IsTrue(stressStrainTable.Stresses.Length == 3);
+            Assert.IsTrue(stressStrainTable.Strains.Length == 3);
+        }
+
         #endregion
     }
 }
