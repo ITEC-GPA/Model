@@ -28,7 +28,7 @@ namespace GPC.Model.Standards
         {
 
         }
-
+        
         public override bool Equals(object obj)
         {
             if (ReferenceEquals(this, obj))
