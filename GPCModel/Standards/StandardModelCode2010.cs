@@ -113,7 +113,7 @@ namespace GPC.Model.Standards
             _steelCoefficientStrainTension = 0.9;
         }
 
-        public StandardModelCode2010(SerializationInfo info, StreamingContext context)
+        protected StandardModelCode2010(SerializationInfo info, StreamingContext context)
 		{
             _gammaC = info.GetDouble("GammaC");
             _gammaCAccidental = info.GetDouble("GammaCAccidental");

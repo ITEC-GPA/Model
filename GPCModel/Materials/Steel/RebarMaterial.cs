@@ -46,16 +46,16 @@ namespace GPC.Model.Materials
         public static RebarMaterial Y2060CHardening => new RebarMaterial("Y2060C Hardening", 195000, 1820, 2060, 0.075);
 
         public static RebarMaterial Grade40 => new RebarMaterial("Grade 40", 199947.9615, 413.6854, 413.6854, 0.010);
-        public static RebarMaterial Grade40Hardening => new RebarMaterial("Grade 40 Hardening", 199947.9615, 413.6854, 455.05398, 0.010);
+        public static RebarMaterial Grade40Hardening => new RebarMaterial("Grade 40 Hardening", 199947.9615, 413.6854, 455.05398, 0.10);
 
         public static RebarMaterial Grade60 => new RebarMaterial("Grade 60", 199947.9615, 551.58058, 551.58058, 0.010);
-        public static RebarMaterial Grade60Hardening => new RebarMaterial("Grade 60 Hardening", 199947.9615, 551.58058, 606.73864, 0.010);
+        public static RebarMaterial Grade60Hardening => new RebarMaterial("Grade 60 Hardening", 199947.9615, 551.58058, 606.73864, 0.10);
 
         public static RebarMaterial Grade80 => new RebarMaterial("Grade 80", 199947.9615, 689.47573, 689.47573, 0.010);
-        public static RebarMaterial Grade80Hardening => new RebarMaterial("Grade 80 Hardening", 199947.9615, 689.47573, 758.423302, 0.010);
+        public static RebarMaterial Grade80Hardening => new RebarMaterial("Grade 80 Hardening", 199947.9615, 689.47573, 758.423302, 0.10);
 
         public static RebarMaterial Grade100 => new RebarMaterial("Grade 100", 199947.9615, 792.897089, 792.897089, 0.010);
-        public static RebarMaterial Grade100Hardening => new RebarMaterial("Grade 100 Hardening", 199947.9615, 792.897089, 872.186798, 0.010);
+        public static RebarMaterial Grade100Hardening => new RebarMaterial("Grade 100 Hardening", 199947.9615, 792.897089, 872.186798, 0.10);
 
         #region Constructor
 
