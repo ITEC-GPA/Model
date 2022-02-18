@@ -517,7 +517,7 @@ namespace ModelObjectTest
         [TestMethod]
         public void ConcreteFRCTest7()
         {
-            ConcreteMaterialModelCode2010FRC concrete = new ConcreteMaterialModelCode2010FRC("", -5, -0.5, 
+            ConcreteMaterialModelCode2010FRC concrete = new ConcreteMaterialModelCode2010FRC("", -0.5, -5,
                 new StressStrainTable(new double[] { 0, -10, -5, -20 }, new double[] { 0, -2, -4, -6 }),
                 new StressStrainTable(new double[] { 0, 5, 1, 2 }, new double[] { 0, 1, 2, 3 }));
 

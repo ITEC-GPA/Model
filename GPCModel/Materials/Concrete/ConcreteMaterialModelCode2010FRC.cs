@@ -48,7 +48,7 @@ namespace GPC.Model.Materials
 
         #region Constructors
 
-        public ConcreteMaterialModelCode2010FRC(string name, double strainYTension, double strainYCompression,
+        public ConcreteMaterialModelCode2010FRC(string name, double strainYCompression, double strainYTension, 
             StressStrainTable stressStrainTableCompression, StressStrainTable stressStrainTableTension,
             double poisson = 0.2, double density = 0.0025, double alfaThermalExpansion = 1e-6,
             CementType cementType = CementType.ClassN)
