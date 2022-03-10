@@ -108,10 +108,10 @@ namespace ModelObjectTest
         [TestMethod]
         public void RebarCollectionTest1()
         {
-            RebarSectionCircular rebarSection1 = new RebarSectionCircular(10, RebarMaterial.B450C);
-            RebarSectionCircular rebarSection2 = new RebarSectionCircular(20, RebarMaterial.B450C);
-            RebarSectionCircular rebarSection3 = new RebarSectionCircular(30, RebarMaterial.B450C);
-            RebarSectionCircular rebarSection4 = new RebarSectionCircular(40, RebarMaterial.B450C);
+            RebarSectionCircular rebarSection1 = new RebarSectionCircular(10, SteelMaterial.B450C);
+            RebarSectionCircular rebarSection2 = new RebarSectionCircular(20, SteelMaterial.B450C);
+            RebarSectionCircular rebarSection3 = new RebarSectionCircular(30, SteelMaterial.B450C);
+            RebarSectionCircular rebarSection4 = new RebarSectionCircular(40, SteelMaterial.B450C);
 
             RebarCollection collection = new RebarCollection
             {
@@ -133,8 +133,8 @@ namespace ModelObjectTest
         [TestMethod]
         public void RebarCollectionTest2()
         {
-            RebarSectionCircular rebarSection1 = new RebarSectionCircular(10, RebarMaterial.B450C);
-            RebarSectionCircular rebarSection2 = new RebarSectionCircular(20, RebarMaterial.B450C);
+            RebarSectionCircular rebarSection1 = new RebarSectionCircular(10, SteelMaterial.B450C);
+            RebarSectionCircular rebarSection2 = new RebarSectionCircular(20, SteelMaterial.B450C);
 
             ReinforcedConcreteRebar rebar1 = new ReinforcedConcreteRebar(rebarSection1, new GPC.Geometry.Point2d(0, 0));
             ReinforcedConcreteRebar rebar2 = new ReinforcedConcreteRebar(rebarSection2, new GPC.Geometry.Point2d(0, 0));
@@ -153,8 +153,8 @@ namespace ModelObjectTest
         [TestMethod]
         public void RebarCollectionTest3()
         {
-            RebarSectionCircular rebarSection1 = new RebarSectionCircular(10, RebarMaterial.B450C);
-            RebarSectionCircular rebarSection2 = new RebarSectionCircular(20, RebarMaterial.B450C);
+            RebarSectionCircular rebarSection1 = new RebarSectionCircular(10, SteelMaterial.B450C);
+            RebarSectionCircular rebarSection2 = new RebarSectionCircular(20, SteelMaterial.B450C);
 
             ReinforcedConcreteRebar rebar11 = new ReinforcedConcreteRebar(rebarSection1, new GPC.Geometry.Point2d(0, 0));
             ReinforcedConcreteRebar rebar12 = new ReinforcedConcreteRebar(rebarSection1, new GPC.Geometry.Point2d(10, 0));
@@ -188,8 +188,8 @@ namespace ModelObjectTest
         [TestMethod]
         public void RebarCollectionTest4()
         {
-            RebarSectionCircular rebarSection1 = new RebarSectionCircular(10, RebarMaterial.B450C);
-            RebarSectionCircular rebarSection2 = new RebarSectionCircular(20, RebarMaterial.B450C);
+            RebarSectionCircular rebarSection1 = new RebarSectionCircular(10, SteelMaterial.B450C);
+            RebarSectionCircular rebarSection2 = new RebarSectionCircular(20, SteelMaterial.B450C);
 
             ReinforcedConcreteRebar rebar11 = new ReinforcedConcreteRebar(rebarSection1, new GPC.Geometry.Point2d(0, 0));
             ReinforcedConcreteRebar rebar12 = new ReinforcedConcreteRebar(rebarSection1, new GPC.Geometry.Point2d(10, 0));
@@ -221,8 +221,8 @@ namespace ModelObjectTest
         [TestMethod]
         public void RebarCollectionTest5()
         {
-            RebarSectionCircular rebarSection1 = new RebarSectionCircular(10, RebarMaterial.B450C);
-            RebarSectionCircular rebarSection2 = new RebarSectionCircular(20, RebarMaterial.B450C);
+            RebarSectionCircular rebarSection1 = new RebarSectionCircular(10, SteelMaterial.B450C);
+            RebarSectionCircular rebarSection2 = new RebarSectionCircular(20, SteelMaterial.B450C);
 
             ReinforcedConcreteRebar rebar11 = new ReinforcedConcreteRebar(rebarSection1, new GPC.Geometry.Point2d(0, 0));
             ReinforcedConcreteRebar rebar12 = new ReinforcedConcreteRebar(rebarSection1, new GPC.Geometry.Point2d(10, 0));
@@ -256,7 +256,7 @@ namespace ModelObjectTest
         [TestMethod]
         public void RebarCollectionTest6()
         {
-            RebarSectionCircular rebarSection1 = new RebarSectionCircular(10, RebarMaterial.B450C);
+            RebarSectionCircular rebarSection1 = new RebarSectionCircular(10, SteelMaterial.B450C);
 
             ReinforcedConcreteRebar rebar11 = new ReinforcedConcreteRebar(rebarSection1, new GPC.Geometry.Point2d(0, 0));
             ReinforcedConcreteRebar rebar12 = new ReinforcedConcreteRebar(rebarSection1, new GPC.Geometry.Point2d(10, 0));

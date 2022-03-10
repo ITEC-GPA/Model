@@ -1139,7 +1139,7 @@ namespace GeneralTest
             }));
 
             ShapeEx shapeEx = new ShapeEx(shape, ConcreteMaterialEN1992.C25_30);
-            RebarSectionCircular rebar = new RebarSectionCircular(18, RebarMaterial.B450A);
+            RebarSectionCircular rebar = new RebarSectionCircular(18, SteelMaterial.B450A);
 
             ReinforcedConcreteRebar[] rebars = new ReinforcedConcreteRebar[]
             {
@@ -1719,10 +1719,10 @@ namespace GeneralTest
         {
             bool check = true;
 
-            ConcreteMaterialModelCode2010FRC m = new ConcreteMaterialModelCode2010FRC("test", -25,
-                ConcreteMaterialModelCode2010.CompressionStressStrainDiagrams.ParabolaRectangle, 1, 2, 0.1, 0.2, 
-                ConcreteMaterialModelCode2010.TensionStressStrainDiagrams.Bilinear, 0.2, 20, 5, 
-                ConcreteMaterialModelCode2010.CementType.ClassN);
+            ConcreteMaterialModelCode2010 m = new ConcreteMaterialModelCode2010("test", -25,
+                ConcreteMaterialCommon.CompressionStressStrainDiagrams.ParabolaRectangle, 1, 2, 0.1, 0.2, 
+                ConcreteMaterialCommon.TensionStressStrainDiagrams.Bilinear, ConcreteMaterialCommon.ConcreteTypes.FRC, 0.2, 20, 5, 
+                ConcreteMaterialCommon.CementType.ClassN);
 
             using (var ms = new MemoryStream())
             {
@@ -1731,7 +1731,7 @@ namespace GeneralTest
                 ms.Position = 0;
 
                 var casted = formatter.Deserialize(ms);
-                ConcreteMaterialModelCode2010FRC oggettoDeserializzato = (ConcreteMaterialModelCode2010FRC)casted;
+                ConcreteMaterialModelCode2010 oggettoDeserializzato = (ConcreteMaterialModelCode2010)casted;
 
                 if (m.Equals(oggettoDeserializzato))
                 {
@@ -1771,8 +1771,8 @@ namespace GeneralTest
             bool check = true;
 
             ConcreteMaterialEN1992 m = new ConcreteMaterialEN1992("test", -25,
-                ConcreteMaterialModelCode2010.CompressionStressStrainDiagrams.ParabolaRectangle, 0.2, 20, 5,
-                ConcreteMaterialModelCode2010.CementType.ClassN);
+                ConcreteMaterialCommon.CompressionStressStrainDiagrams.ParabolaRectangle, 0.2, 20, 5,
+                ConcreteMaterialCommon.CementType.ClassN);
 
             using (var ms = new MemoryStream())
             {
@@ -1869,7 +1869,7 @@ namespace GeneralTest
         {
             bool check = true;
 
-            SteelMaterial m = new SteelMaterial("test", 10, 15, 20, 30, 0.2, 20, 5);
+            SteelMaterial m = new SteelMaterial("test", 10, 15, 20, 30, SteelMaterial.SteelTypes.Structural, 0.2, 20, 5);
             using (var ms = new MemoryStream())
             {
                 var formatter = new BinaryFormatter();
