@@ -61,7 +61,7 @@ namespace GPC.Model.Materials
             get => _concreteType;
             set
             {
-                _concreteType = value;
+                SetConcreteType(value);
                 RecalculateMechanicalProperties();                
             }
         }
@@ -111,6 +111,15 @@ namespace GPC.Model.Materials
 		#endregion
 
 		#region Public Methods
+
+        /// <summary>
+        /// Override if you want to validate the value before assign it
+        /// </summary>
+        /// <param name="concreteType">The value to assign</param>
+        public virtual void SetConcreteType(ConcreteTypes concreteType)
+        {
+            _concreteType = concreteType;
+        }
 
 		/// <returns>The characteristic stress related to <paramref name="strain"/></returns>
 		public double GetStress(double strain)
