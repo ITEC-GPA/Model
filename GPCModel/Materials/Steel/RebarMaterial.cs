@@ -7,6 +7,7 @@ namespace GPC.Model.Materials
 {
     [Serializable]
     [UI(Description = "Rebar", Group = "Materials", Kind = "Material")]
+    [Obsolete("Deprecated, use SteelMaterial (with SteelType = Rebar) instead.")]
     public class RebarMaterial : SteelMaterial
     {
         #region Constructor
