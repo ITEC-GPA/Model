@@ -105,6 +105,8 @@ namespace GPC.Model.Materials
         [TypeConverter(typeof(EnumDescriptionTypeConverter))]
         public enum SteelTypes
         {
+            Undefined,
+
             [Description("Rebar steel material")]
             Rebar,
 
@@ -174,7 +176,7 @@ namespace GPC.Model.Materials
 		/// <param name="poisson"></param>
 		/// <param name="density"></param>
 		/// <param name="alfaThermalExpansion"></param>
-		public SteelMaterial(string name, double elasticModulus, double fyk, double fu, double strainU = 0.1, SteelTypes steelType = SteelTypes.Structural,
+		public SteelMaterial(string name, double elasticModulus, double fyk, double fu, double strainU = 0.1, SteelTypes steelType = SteelTypes.Undefined,
              double poisson = 0.30, double density = 0.007850, double alfaThermalExpansion = 12 * 1e-6)
             : this(name, elasticModulus, poisson, fyk, fu, strainU, steelType, density, alfaThermalExpansion, Guid.NewGuid())
         {
