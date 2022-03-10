@@ -59,16 +59,16 @@ namespace GPC.Model.Materials
         public static SteelMaterial B500C => new SteelMaterial("B500C", 200000, 500, 500, 0.075, SteelTypes.Rebar);
         public static SteelMaterial B500CHardening => new SteelMaterial("B500C Hardening", 200000, 500, 575, 0.075, SteelTypes.Rebar);
 
-        public static SteelMaterial Grade40 => new SteelMaterial("Grade 40", 199947.9615, 413.6854, 413.6854, 0.010, SteelTypes.Rebar);
+        public static SteelMaterial Grade40 => new SteelMaterial("Grade 40", 199947.9615, 413.6854, 413.6854, 0.10, SteelTypes.Rebar);
         public static SteelMaterial Grade40Hardening => new SteelMaterial("Grade 40 Hardening", 199947.9615, 413.6854, 455.05398, 0.10, SteelTypes.Rebar);
 
-        public static SteelMaterial Grade60 => new SteelMaterial("Grade 60", 199947.9615, 551.58058, 551.58058, 0.010, SteelTypes.Rebar);
+        public static SteelMaterial Grade60 => new SteelMaterial("Grade 60", 199947.9615, 551.58058, 551.58058, 0.10, SteelTypes.Rebar);
         public static SteelMaterial Grade60Hardening => new SteelMaterial("Grade 60 Hardening", 199947.9615, 551.58058, 606.73864, 0.10, SteelTypes.Rebar);
 
-        public static SteelMaterial Grade80 => new SteelMaterial("Grade 80", 199947.9615, 689.47573, 689.47573, 0.010, SteelTypes.Rebar);
+        public static SteelMaterial Grade80 => new SteelMaterial("Grade 80", 199947.9615, 689.47573, 689.47573, 0.10, SteelTypes.Rebar);
         public static SteelMaterial Grade80Hardening => new SteelMaterial("Grade 80 Hardening", 199947.9615, 689.47573, 758.423302, 0.10, SteelTypes.Rebar);
 
-        public static SteelMaterial Grade100 => new SteelMaterial("Grade 100", 199947.9615, 792.897089, 792.897089, 0.010, SteelTypes.Rebar);
+        public static SteelMaterial Grade100 => new SteelMaterial("Grade 100", 199947.9615, 792.897089, 792.897089, 0.10, SteelTypes.Rebar);
         public static SteelMaterial Grade100Hardening => new SteelMaterial("Grade 100 Hardening", 199947.9615, 792.897089, 872.186798, 0.10, SteelTypes.Rebar);
 
 		#endregion
