@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 namespace GPC.Model.Materials
 {
     [Serializable]
-    public class ConcreteMaterialEN1992 : ConcreteMaterialModelCode2010, ISerializable
+    public class ConcreteMaterialEN1992 : ConcreteMaterialCommon, ISerializable
     {
         #region Static Properties
 
@@ -38,17 +38,18 @@ namespace GPC.Model.Materials
 
 		#region Constructor
 
-		public ConcreteMaterialEN1992(string name, double fck, CompressionStressStrainDiagrams compressionStressStrainDiagrams, 
+		public ConcreteMaterialEN1992(string name, double fck, CompressionStressStrainDiagrams compressionStressStrainDiagrams,
             double poisson = 0.2, double density = 0.0025, double alfaThermalExpansion = 1e-6, CementType cementType = CementType.ClassN) 
-            : base(name, fck, compressionStressStrainDiagrams, poisson, density, alfaThermalExpansion, cementType)
+            : base(name, fck, compressionStressStrainDiagrams, ConcreteTypes.Normal, poisson, density, alfaThermalExpansion, cementType)
         {
 
         }
 
         public ConcreteMaterialEN1992(string name, double strainYCompression, double strainYTension, StressStrainTable stressStrainTableCompression, 
-            StressStrainTable stressStrainTableTension, double poisson = 0.2, double density = 0.0025, double alfaThermalExpansion = 1e-6, 
+            StressStrainTable stressStrainTableTension,
+            double poisson = 0.2, double density = 0.0025, double alfaThermalExpansion = 1e-6, 
             CementType cementType = CementType.ClassN) 
-            : base(name, strainYTension, strainYCompression, stressStrainTableCompression, stressStrainTableTension, poisson, density, alfaThermalExpansion, cementType)
+            : base(name, strainYTension, strainYCompression, stressStrainTableCompression, stressStrainTableTension, ConcreteTypes.Normal, poisson, density, alfaThermalExpansion, cementType)
         {
 
         }
@@ -68,11 +69,6 @@ namespace GPC.Model.Materials
             SetStressStrainTableCompression(_fck, _strainYCompression, _strainUCompression, _compressionStressStrainDiagrams);
             SetStressStrainTableTension(_fctk, _fctu, _strainYTension, _strainUTension, _tensionStressStrainDiagrams);
         }
-
-        public override bool IsFiberReinforced()
-		{
-            return false;
-		}
 
         #region Equals, hashcode, operators
 

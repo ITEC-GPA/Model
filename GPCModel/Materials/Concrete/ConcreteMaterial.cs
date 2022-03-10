@@ -12,16 +12,27 @@ namespace GPC.Model.Materials
     [Serializable]
     public abstract class ConcreteMaterial : Material, ISerializable
     {
-		#region Public Enum        
+        #region Public Enum        
 
-		#endregion
+        [TypeConverter(typeof(EnumDescriptionTypeConverter))]
+        public enum ConcreteTypes
+        {
+            [Description("Normal")]
+            Normal,
 
-		#region Variables
+            [Description("Fiber-Reinforced")]
+            FRC,
+        }
 
-		protected StressStrainTable _stressStrainTableCompression;
+        #endregion
+
+        #region Variables
+
+        protected StressStrainTable _stressStrainTableCompression;
         protected StressStrainTable _stressStrainTableTension;
 
         protected double _elasticModulusTension;
+        protected ConcreteTypes _concreteType;
 
         #endregion
 
@@ -41,6 +52,19 @@ namespace GPC.Model.Materials
         /// Elastic modulus of concrete in tension
         /// </summary>
         public double ElasticModulusTension => _elasticModulusTension;
+
+        /// <summary>
+        /// Type of concrete
+        /// </summary>
+        public ConcreteTypes ConcreteType
+        {
+            get => _concreteType;
+            set
+            {
+                _concreteType = value;
+                RecalculateMechanicalProperties();                
+            }
+        }
 
         #endregion
 
@@ -104,11 +128,6 @@ namespace GPC.Model.Materials
         protected virtual void RecalculateMechanicalProperties()
 		{
 
-		}
-
-		public virtual bool IsFiberReinforced() 
-        { 
-            return false; 
         }
 
 		#endregion
