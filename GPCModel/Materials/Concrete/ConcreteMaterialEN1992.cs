@@ -60,9 +60,18 @@ namespace GPC.Model.Materials
 
         }
 
-		#endregion
+        #endregion
 
-		protected override void RecalculateMechanicalProperties()
+        /// <summary>
+        /// Allows only Normal concrete
+        /// </summary>
+        /// <param name="concreteType"></param>
+        public override void SetConcreteType(ConcreteTypes concreteType)
+        {
+            _concreteType = ConcreteTypes.Normal;
+        }
+
+        protected override void RecalculateMechanicalProperties()
 		{
             SetMechanicalProperties(_fck, 0, 0, 0, 0, _compressionStressStrainDiagrams, _tensionStressStrainDiagrams);
 
