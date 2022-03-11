@@ -93,7 +93,7 @@ namespace GPC.Model.Materials
         public static SteelMaterial Y1960C => new SteelMaterial("Y1960", 195000, 1740, 1740, 0.02 / 0.9, SteelTypes.Tendon);
         public static SteelMaterial Y1960CHardening => new SteelMaterial("Y1960 Hardening", 195000, 1740, 1960, 0.02 / 0.9, SteelTypes.Tendon);
 
-        public static SteelMaterial Y2060C => new SteelMaterial("Y2060C", 195000, 1850, 1820, 0.02 / 0.9, SteelTypes.Tendon);
+        public static SteelMaterial Y2060C => new SteelMaterial("Y2060C", 195000, 1820, 1820, 0.02 / 0.9, SteelTypes.Tendon);
         public static SteelMaterial Y2060CHardening => new SteelMaterial("Y2060C Hardening", 195000, 1820, 2060, 0.02 / 0.9, SteelTypes.Tendon);
 
         #endregion
