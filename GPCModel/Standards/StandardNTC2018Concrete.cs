@@ -19,7 +19,8 @@ namespace GPC.Model.Standards
 		/// <summary>
 		/// Default Constructor
 		/// </summary>
-		public StandardNTC2018Concrete()
+		public StandardNTC2018Concrete(string name = "NTC2018", string remarks = "Norme tecniche per le costruzioni. 17 January 2018")
+			: base(name, remarks)
 		{
 			_alphaCC = 0.85;
 		}

@@ -31,7 +31,8 @@ namespace GPC.Model.Standards
 
 		#region Constructors
 
-		public StandardACI318()
+		public StandardACI318(string name = "ACI 318", string remarks = "Building Code Requirements for Structural Concrete: ACI Standard ACI 318")
+			: base(name, remarks)
 		{
 			_phiCSpiral = 0.75;
 			_phiCTied = 0.65;

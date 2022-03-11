@@ -18,7 +18,8 @@ namespace GPC.Model.Standards
 		/// <summary>
 		/// Default Constructor
 		/// </summary>
-		public StandardCNR204()
+		public StandardCNR204(string name = "CNR-DT 204/2006", string remarks = "CNR-DT 204/2006. AC:2008")
+			: base(name, remarks)
 		{
 
 		}

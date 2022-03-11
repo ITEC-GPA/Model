@@ -9,18 +9,21 @@ using GPC.Model.Combinations;
 
 namespace GPC.Model.Standards
 {
-    public abstract class Standard
+    public abstract class Standard : ModelObject
     {
-        public abstract class CombinationsOptions
-        {
+        protected string _remarks;
 
-            public override abstract bool Equals(object obj);
+		protected Standard(string name = "", string remarks = "")
+            :base(name)
+		{
+            _remarks = remarks;
+		}
 
-            public override abstract int GetHashCode();
+		public string Remarks => _remarks;
 
-        }
+        
 
-        public virtual void GetObjectData(SerializationInfo info, StreamingContext context)
+        public override void GetObjectData(SerializationInfo info, StreamingContext context)
 		{
 
 		}
@@ -49,5 +52,18 @@ namespace GPC.Model.Standards
             /// <returns>The Combination collections</returns>
             CombinationsCollection CreateCombinations(LoadCaseBase[] loadCases, CombinationsOptions options, string prefix = "cmb");
         }
-    }
+
+		#region Nested Class
+
+		public abstract class CombinationsOptions
+        {
+
+            public override abstract bool Equals(object obj);
+
+            public override abstract int GetHashCode();
+
+        }
+
+		#endregion
+	}
 }

@@ -18,7 +18,8 @@ namespace GPC.Model.Standards
         /// <summary>
         /// Default Constructor
         /// </summary>
-        public StandardEN1992p11()
+        public StandardEN1992p11(string name = "EN 1992-1-1", string remarks = "Eurocode 2: Design of concrete structures - Part 1-1: General rules and rules for buildings. EN 1992-1-1:2004/AC:2010")
+            : base(name, remarks)
         {
 
         }

@@ -98,8 +98,9 @@ namespace GPC.Model.Standards
         /// <summary>
         /// Default Constructor
         /// </summary>
-        public StandardModelCode2010()
-		{
+        public StandardModelCode2010(string name = "Fib Model Code 2010", string remarks = "Fib Model Code 2010. March 2010")
+            : base(name, remarks)
+        {
 			_gammaC = 1.5;
             _gammaCAccidental = 1.2;
             _gammaCE = 1.2;
