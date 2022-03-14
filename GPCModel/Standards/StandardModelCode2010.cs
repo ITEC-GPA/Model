@@ -262,64 +262,6 @@ namespace GPC.Model.Standards
 
 		#endregion
 
-		#region Public Concrete Methods - Design stress
-
-        public double CalculateFcd(ConcreteMaterialCommon material)
-		{
-            if (material.CompressionStressStrainDiagram == ConcreteMaterialCommon.CompressionStressStrainDiagrams.StressBlock)
-            {
-                if (material.Fck > 90)
-                    throw new ArgumentException("Fck > 90 not supported by Stress block");
-
-                double eta;
-                if (material.Fck <= 50.0)
-                    eta = 1.0;
-                else
-                    eta = 1.0 - (material.Fck - 50.0) / 200;
-
-                return eta * AlphaCC * material.Fck / GammaC;
-            }
-            else
-            {
-                return AlphaCC * material.Fck / GammaC;
-            }
-        }
-
-        public double CalculateFctd(ConcreteMaterialCommon material)
-        {
-            return AlphaCT * material.Fctk05 / GammaC;
-        }
-
-        public double CalculateFcdAccidental(ConcreteMaterialCommon material)
-        {
-            return AlphaCC * material.Fck / GammaCAccidental;
-        }
-
-        public double CalculateFctdAccidental(ConcreteMaterialCommon material)
-        {
-            return AlphaCT * material.Fctk05 / GammaCAccidental;
-        }
-
-        public double CalculateECd(ConcreteMaterialCommon material)
-        {
-            return material.E / GammaCE;
-        }
-
-        public double CalculateDesignStressConcrete(ConcreteMaterialCommon concrete, double strain)
-        {
-            if (strain < 0)
-            {
-                // compressione
-                return concrete.GetStress(strain) * Math.Abs(CalculateFcd(concrete) / concrete.Fck);
-            }
-            else
-            {
-                return concrete.GetStress(strain) * Math.Abs(CalculateFctd(concrete) / concrete.Fctk05);
-            }
-        }
-
-        #endregion
-
         #region Public Steel Methods - Design stress
 
         /// <returns>The design rebar yielding stress</returns>

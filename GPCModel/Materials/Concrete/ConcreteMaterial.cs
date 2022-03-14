@@ -108,9 +108,26 @@ namespace GPC.Model.Materials
             _elasticModulusTension = info.GetDouble("ElasticModulusTension");
         }
 
-		#endregion
+        #endregion
 
-		#region Public Methods
+        #region Public abstract Methods
+
+        public abstract double CalculateDesignStressConcrete(Standards.Standard standard, double strain);
+
+        public abstract double CalculateFcd(Standards.Standard standard);
+
+        public abstract double CalculateFctd(Standards.Standard standard);
+
+        public abstract double CalculateFcdAccidental(Standards.Standard standard);
+
+        public abstract double CalculateFctdAccidental(Standards.Standard standard);
+
+        public abstract double CalculateECd(Standards.Standard standard);
+
+
+        #endregion
+
+        #region Public Methods
 
         /// <summary>
         /// Override if you want to validate the value before assign it

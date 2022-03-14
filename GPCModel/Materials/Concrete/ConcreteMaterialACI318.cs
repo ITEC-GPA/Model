@@ -1,4 +1,4 @@
-﻿using GPC.Model.Standards;
+using GPC.Model.Standards;
 using GPC.Utilities.Converters;
 using System;
 using System.Collections.Generic;
@@ -541,7 +541,37 @@ namespace GPC.Model.Materials
             }
         }
 
-        public static bool operator ==(ConcreteMaterialACI318 obj1, ConcreteMaterialACI318 obj2)
+		public override double CalculateDesignStressConcrete(Standards.Standard standard, double strain)
+		{
+			throw new NotImplementedException();
+		}
+
+		public override double CalculateFcd(Standards.Standard standard)
+		{
+			throw new NotImplementedException();
+		}
+
+		public override double CalculateFctd(Standards.Standard standard)
+		{
+			throw new NotImplementedException();
+		}
+
+		public override double CalculateFcdAccidental(Standards.Standard standard)
+		{
+			throw new NotImplementedException();
+		}
+
+		public override double CalculateFctdAccidental(Standards.Standard standard)
+		{
+			throw new NotImplementedException();
+		}
+
+		public override double CalculateECd(Standards.Standard standard)
+		{
+			throw new NotImplementedException();
+		}
+
+		public static bool operator ==(ConcreteMaterialACI318 obj1, ConcreteMaterialACI318 obj2)
         {
             if (ReferenceEquals(obj1, obj2))
                 return true;
