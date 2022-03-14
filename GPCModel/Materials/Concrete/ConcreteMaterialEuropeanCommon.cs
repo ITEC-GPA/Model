@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 namespace GPC.Model.Materials
 {
     [Serializable]
-    public abstract class ConcreteMaterialCommon : ConcreteMaterial, ISerializable
+    public abstract class ConcreteMaterialEuropeanCommon : ConcreteMaterial, ISerializable
     {
         #region Enum
 
@@ -161,7 +161,7 @@ namespace GPC.Model.Materials
         #region Constructor
 
         // Costruttore per cls normale
-        public ConcreteMaterialCommon(string name, double fck, CompressionStressStrainDiagrams compressionStressStrainDiagrams, ConcreteTypes concreteType,
+        public ConcreteMaterialEuropeanCommon(string name, double fck, CompressionStressStrainDiagrams compressionStressStrainDiagrams, ConcreteTypes concreteType,
             double poisson = 0.2, double density = 0.0025, double alfaThermalExpansion = 1e-6, CementType cementType = CementType.ClassN)
             : base(name, poisson, density, alfaThermalExpansion)
         {
@@ -178,7 +178,7 @@ namespace GPC.Model.Materials
         }
 
         // Costruttore per cls frc
-        public ConcreteMaterialCommon(string name, double fck, CompressionStressStrainDiagrams compressionStressStrainDiagrams,
+        public ConcreteMaterialEuropeanCommon(string name, double fck, CompressionStressStrainDiagrams compressionStressStrainDiagrams,
             double ffts, double fFtu, double strainYTension, double strainUTension, TensionStressStrainDiagrams tensionStressStrainDiagrams, ConcreteTypes concreteType,
             double poisson = 0.2, double density = 0.0025, double alfaThermalExpansion = 1e-6, CementType cementType = CementType.ClassN)
             : base(name, poisson, density, alfaThermalExpansion)
@@ -197,7 +197,7 @@ namespace GPC.Model.Materials
         }
 
         // Costruttore per cls con tabella generica
-        public ConcreteMaterialCommon(string name, double strainYTension, double strainYCompression,
+        public ConcreteMaterialEuropeanCommon(string name, double strainYTension, double strainYCompression,
             StressStrainTable stressStrainTableCompression, StressStrainTable stressStrainTableTension, ConcreteTypes concreteType,
             double poisson = 0.2, double density = 0.0025, double alfaThermalExpansion = 1e-6,
             CementType cementType = CementType.ClassN)
@@ -218,7 +218,7 @@ namespace GPC.Model.Materials
             _cementType = cementType;
         }
 
-        protected ConcreteMaterialCommon(SerializationInfo info, StreamingContext context)
+        protected ConcreteMaterialEuropeanCommon(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
             _fck = info.GetDouble("Fck");
@@ -424,6 +424,94 @@ namespace GPC.Model.Materials
 
         #endregion
 
+        #region Public Methods Override
+
+        public override double CalculateFcd(Standards.Standard standard)
+        {
+            if (standard is Standards.StandardModelCode2010 standardModelCode2010)
+            {
+                if (CompressionStressStrainDiagram == ConcreteMaterialEuropeanCommon.CompressionStressStrainDiagrams.StressBlock)
+                {
+                    if (Fck > 90)
+                        throw new ArgumentException("Fck > 90 not supported by Stress block");
+
+                    double eta;
+                    if (Fck <= 50.0)
+                        eta = 1.0;
+                    else
+                        eta = 1.0 - (Fck - 50.0) / 200;
+
+                    return eta * standardModelCode2010.AlphaCC * Fck / standardModelCode2010.GammaC;
+                }
+                else
+                {
+                    return standardModelCode2010.AlphaCC * Fck / standardModelCode2010.GammaC;
+                }
+            }
+            else
+                throw new ArgumentException();
+        }
+
+        public override double CalculateFctd(Standards.Standard standard)
+        {
+            if (standard is Standards.StandardModelCode2010 standardModelCode2010)
+            {
+                return standardModelCode2010.AlphaCT * Fctk05 / standardModelCode2010.GammaC;
+            }
+            else
+                throw new ArgumentException();
+        }
+
+        public override double CalculateFcdAccidental(Standards.Standard standard)
+        {
+            if (standard is Standards.StandardModelCode2010 standardModelCode2010)
+            {
+                return standardModelCode2010.AlphaCC * Fck / standardModelCode2010.GammaCAccidental;
+            }
+            else
+                throw new ArgumentException();
+        }
+
+        public override double CalculateFctdAccidental(Standards.Standard standard)
+        {
+            if (standard is Standards.StandardModelCode2010 standardModelCode2010)
+            {
+                return standardModelCode2010.AlphaCT * Fctk05 / standardModelCode2010.GammaCAccidental;
+            }
+            else
+                throw new ArgumentException();
+        }
+
+        public override double CalculateECd(Standards.Standard standard)
+        {
+            if (standard is Standards.StandardModelCode2010 standardModelCode2010)
+            {
+                return E / standardModelCode2010.GammaCE;
+            }
+            else
+                throw new ArgumentException();
+        }
+
+        public override double CalculateDesignStressConcrete(Standards.Standard standard, double strain)
+        {
+            if (standard is Standards.StandardModelCode2010 standardModelCode2010)
+            {
+                if (strain < 0)
+                {
+                    // compressione
+                    return GetStress(strain) * Math.Abs(CalculateFcd(standard) / Fck);
+                }
+                else
+                {
+                    return GetStress(strain) * Math.Abs(CalculateFctd(standard) / Fctk05);
+                }
+            }
+            else
+                throw new ArgumentException();
+        }
+
+        #endregion
+
         #region Protected methods
 
         /// <remarks> Sign convention: Stress and Strain negative if compression </remarks>
@@ -530,8 +618,8 @@ namespace GPC.Model.Materials
 
         /// <summary>
         /// Set <see cref="ConcreteMaterial._elasticModulusTension"/>, <see cref="Material._elasticModulus"/>
-        /// <see cref="ConcreteMaterialCommon._fctk"/>, 
-        /// <see cref="ConcreteMaterialCommon._fck"/>
+        /// <see cref="ConcreteMaterialEuropeanCommon._fctk"/>, 
+        /// <see cref="ConcreteMaterialEuropeanCommon._fck"/>
         /// </summary>
         protected void SetMechanicalProperties(double fck, double fctk, double fFtu, double strainYTension, double strainUTension,
             CompressionStressStrainDiagrams compressionStressStrainDiagrams, TensionStressStrainDiagrams tensionStressStrainDiagrams, double strainYCompression = 0)
@@ -912,7 +1000,7 @@ namespace GPC.Model.Materials
             if (ReferenceEquals(this, obj))
                 return true;
 
-            return (obj is ConcreteMaterialCommon objCasted) && 
+            return (obj is ConcreteMaterialEuropeanCommon objCasted) && 
                 objCasted._fck.Equals(_fck) && 
                objCasted._fctk.Equals(_fctk) &&
                objCasted._fctu.Equals(_fctu) &&
@@ -946,7 +1034,7 @@ namespace GPC.Model.Materials
             }
         }
 
-        public static bool operator ==(ConcreteMaterialCommon obj1, ConcreteMaterialCommon obj2)
+        public static bool operator ==(ConcreteMaterialEuropeanCommon obj1, ConcreteMaterialEuropeanCommon obj2)
         {
             if (ReferenceEquals(obj1, obj2))
                 return true;
@@ -954,7 +1042,7 @@ namespace GPC.Model.Materials
             return obj1.Equals(obj2);
         }
 
-        public static bool operator !=(ConcreteMaterialCommon obj1, ConcreteMaterialCommon obj2)
+        public static bool operator !=(ConcreteMaterialEuropeanCommon obj1, ConcreteMaterialEuropeanCommon obj2)
         {
             return !(obj1 == obj2);
         }

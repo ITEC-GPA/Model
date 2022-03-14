@@ -308,7 +308,7 @@ namespace ModelObjectTest
         [TestMethod]
         public void ConcreteENTest12()
         {
-            ConcreteMaterialEN1992 concrete = new ConcreteMaterialEN1992("", 25, ConcreteMaterialCommon.CompressionStressStrainDiagrams.StressBlock);
+            ConcreteMaterialEN1992 concrete = new ConcreteMaterialEN1992("", 25, ConcreteMaterialEuropeanCommon.CompressionStressStrainDiagrams.StressBlock);
             List<(double, double)> stresses = new List<(double, double)>();
 
             for (int i = 10; i >= -35; i--)
@@ -391,8 +391,8 @@ namespace ModelObjectTest
         [TestMethod]
         public void ConcreteFRCTest1()
         {
-            ConcreteMaterialModelCode2010 concrete = new ConcreteMaterialModelCode2010("", 30, ConcreteMaterialCommon.CompressionStressStrainDiagrams.ParabolaRectangle,
-                1.55, 1.80, 0.00195, 0.01, ConcreteMaterialCommon.TensionStressStrainDiagrams.Bilinear, ConcreteMaterialCommon.ConcreteTypes.FRC, 0, 0, 0, ConcreteMaterialCommon.CementType.ClassN);
+            ConcreteMaterialModelCode2010 concrete = new ConcreteMaterialModelCode2010("", 30, ConcreteMaterialEuropeanCommon.CompressionStressStrainDiagrams.ParabolaRectangle,
+                1.55, 1.80, 0.00195, 0.01, ConcreteMaterialEuropeanCommon.TensionStressStrainDiagrams.Bilinear, ConcreteMaterialEuropeanCommon.ConcreteTypes.FRC, 0, 0, 0, ConcreteMaterialEuropeanCommon.CementType.ClassN);
 
             List<(double, double)> stresses = new List<(double, double)>();
 
@@ -409,8 +409,8 @@ namespace ModelObjectTest
         [TestMethod]
         public void ConcreteFRCTest2()
         {
-            ConcreteMaterialModelCode2010 concrete = new ConcreteMaterialModelCode2010("", 30, ConcreteMaterialCommon.CompressionStressStrainDiagrams.ParabolaRectangle,
-                1.50, 1.00, 0.00195, 0.01, ConcreteMaterialCommon.TensionStressStrainDiagrams.Bilinear, ConcreteMaterialCommon.ConcreteTypes.FRC, 0, 0, 0, ConcreteMaterialCommon.CementType.ClassN);
+            ConcreteMaterialModelCode2010 concrete = new ConcreteMaterialModelCode2010("", 30, ConcreteMaterialEuropeanCommon.CompressionStressStrainDiagrams.ParabolaRectangle,
+                1.50, 1.00, 0.00195, 0.01, ConcreteMaterialEuropeanCommon.TensionStressStrainDiagrams.Bilinear, ConcreteMaterialEuropeanCommon.ConcreteTypes.FRC, 0, 0, 0, ConcreteMaterialEuropeanCommon.CementType.ClassN);
 
             List<(double, double)> stresses = new List<(double, double)>();
 
@@ -427,8 +427,8 @@ namespace ModelObjectTest
         [TestMethod]
         public void ConcreteFRCTest3()
         {
-            ConcreteMaterialModelCode2010 concrete = new ConcreteMaterialModelCode2010("", 25, ConcreteMaterialCommon.CompressionStressStrainDiagrams.ParabolaRectangle,
-                1.55, 1.80, 0.00195, 0.01, ConcreteMaterialCommon.TensionStressStrainDiagrams.RigidPlastic, ConcreteMaterialCommon.ConcreteTypes.FRC);
+            ConcreteMaterialModelCode2010 concrete = new ConcreteMaterialModelCode2010("", 25, ConcreteMaterialEuropeanCommon.CompressionStressStrainDiagrams.ParabolaRectangle,
+                1.55, 1.80, 0.00195, 0.01, ConcreteMaterialEuropeanCommon.TensionStressStrainDiagrams.RigidPlastic, ConcreteMaterialEuropeanCommon.ConcreteTypes.FRC);
 
             List<(double, double)> stresses = new List<(double, double)>();
 
@@ -445,8 +445,8 @@ namespace ModelObjectTest
         [TestMethod]
         public void ConcreteFRCTest4()
         {
-            ConcreteMaterialModelCode2010 concrete = new ConcreteMaterialModelCode2010("", 25, ConcreteMaterialCommon.CompressionStressStrainDiagrams.ParabolaRectangle,
-                1.55, 1.80, 0.00195, 0.01, ConcreteMaterialCommon.TensionStressStrainDiagrams.Bilinear, ConcreteMaterialCommon.ConcreteTypes.FRC);
+            ConcreteMaterialModelCode2010 concrete = new ConcreteMaterialModelCode2010("", 25, ConcreteMaterialEuropeanCommon.CompressionStressStrainDiagrams.ParabolaRectangle,
+                1.55, 1.80, 0.00195, 0.01, ConcreteMaterialEuropeanCommon.TensionStressStrainDiagrams.Bilinear, ConcreteMaterialEuropeanCommon.ConcreteTypes.FRC);
 
             List<(double, double)> stresses = new List<(double, double)>();
 
@@ -519,7 +519,7 @@ namespace ModelObjectTest
         {
             ConcreteMaterialModelCode2010 concrete = new ConcreteMaterialModelCode2010("", -0.5, -5,
                 new StressStrainTable(new double[] { 0, -10, -5, -20 }, new double[] { 0, -2, -4, -6 }),
-                new StressStrainTable(new double[] { 0, 5, 1, 2 }, new double[] { 0, 1, 2, 3 }), ConcreteMaterialCommon.ConcreteTypes.FRC);
+                new StressStrainTable(new double[] { 0, 5, 1, 2 }, new double[] { 0, 1, 2, 3 }), ConcreteMaterialEuropeanCommon.ConcreteTypes.FRC);
 
             List<(double, double)> stresses = new List<(double, double)>();
 
@@ -534,7 +534,7 @@ namespace ModelObjectTest
         public void ConcreteFRCTest8()
         {
             ConcreteMaterialModelCode2010 concreteMC = ConcreteMaterialModelCode2010.C45_55_10;
-            concreteMC.ConcreteType = ConcreteMaterialCommon.ConcreteTypes.Normal;
+            concreteMC.ConcreteType = ConcreteMaterialEuropeanCommon.ConcreteTypes.Normal;
 
             ConcreteMaterialEN1992 concreteEN = ConcreteMaterialEN1992.C45_55;
 
@@ -545,7 +545,7 @@ namespace ModelObjectTest
             Assert.IsTrue(Math.Abs(concreteMC.Fctk95 - concreteEN.Fctk95) < 0.01);
             Assert.IsTrue(Math.Abs(concreteMC.Fctm - concreteEN.Fctm) < 0.01);
 
-            concreteMC.ConcreteType = ConcreteMaterialCommon.ConcreteTypes.FRC;
+            concreteMC.ConcreteType = ConcreteMaterialEuropeanCommon.ConcreteTypes.FRC;
 
             Assert.IsTrue(Math.Abs(concreteMC.Fck - concreteEN.Fck) < 0.01);
             Assert.IsTrue(Math.Abs(concreteMC.Fctk - concreteEN.Fctk) < 0.01);
@@ -559,7 +559,7 @@ namespace ModelObjectTest
         public void ConcreteFRCTest9()
         {
             ConcreteMaterialModelCode2010 concreteMC = ConcreteMaterialModelCode2010.C30_37_10;
-            concreteMC.ConcreteType = ConcreteMaterialCommon.ConcreteTypes.Normal;
+            concreteMC.ConcreteType = ConcreteMaterialEuropeanCommon.ConcreteTypes.Normal;
 
             ConcreteMaterialEN1992 concreteEN = ConcreteMaterialEN1992.C30_37;
 
@@ -570,7 +570,7 @@ namespace ModelObjectTest
             Assert.IsTrue(Math.Abs(concreteMC.Fctk95 - concreteEN.Fctk95) < 0.01);
             Assert.IsTrue(Math.Abs(concreteMC.Fctm - concreteEN.Fctm) < 0.01);
 
-            concreteMC.ConcreteType = ConcreteMaterialCommon.ConcreteTypes.FRC;
+            concreteMC.ConcreteType = ConcreteMaterialEuropeanCommon.ConcreteTypes.FRC;
 
             Assert.IsTrue(Math.Abs(concreteMC.Fck - concreteEN.Fck) < 0.01);
             Assert.IsTrue(Math.Abs(concreteMC.Fctk - concreteEN.Fctk) < 0.01);
@@ -584,7 +584,7 @@ namespace ModelObjectTest
         public void ConcreteFRCTest10()
         {
             ConcreteMaterialModelCode2010 concreteMC = ConcreteMaterialModelCode2010.C30_37_25;
-            concreteMC.ConcreteType = ConcreteMaterialCommon.ConcreteTypes.Normal;
+            concreteMC.ConcreteType = ConcreteMaterialEuropeanCommon.ConcreteTypes.Normal;
 
             ConcreteMaterialEN1992 concreteEN = ConcreteMaterialEN1992.C30_37;
 
@@ -595,7 +595,7 @@ namespace ModelObjectTest
             Assert.IsTrue(Math.Abs(concreteMC.Fctk95 - concreteEN.Fctk95) < 0.01);
             Assert.IsTrue(Math.Abs(concreteMC.Fctm - concreteEN.Fctm) < 0.01);
 
-            concreteMC.ConcreteType = ConcreteMaterialCommon.ConcreteTypes.FRC;
+            concreteMC.ConcreteType = ConcreteMaterialEuropeanCommon.ConcreteTypes.FRC;
 
             Assert.IsTrue(Math.Abs(concreteMC.Fck - concreteEN.Fck) < 0.01);
             Assert.IsTrue(Math.Abs(concreteMC.Fctk - concreteEN.Fctk) < 0.01);
@@ -612,8 +612,8 @@ namespace ModelObjectTest
             concreteMC.StressStrainTableCompression.GetMinimumStress();
             concreteMC.StressStrainTableCompression.GetLastStrain();
 
-            ConcreteMaterialModelCode2010 c = new ConcreteMaterialModelCode2010("", -25, ConcreteMaterialCommon.CompressionStressStrainDiagrams.ParabolaRectangle,
-                -1, -12, -1, -2, ConcreteMaterialCommon.TensionStressStrainDiagrams.Bilinear, ConcreteMaterial.ConcreteTypes.FRC);
+            ConcreteMaterialModelCode2010 c = new ConcreteMaterialModelCode2010("", -25, ConcreteMaterialEuropeanCommon.CompressionStressStrainDiagrams.ParabolaRectangle,
+                -1, -12, -1, -2, ConcreteMaterialEuropeanCommon.TensionStressStrainDiagrams.Bilinear, ConcreteMaterial.ConcreteTypes.FRC);
             c.StressStrainTableCompression.GetMinimumStress();
             c.StressStrainTableCompression.GetLastStrain();
         }

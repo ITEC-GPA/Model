@@ -1,4 +1,4 @@
-using GPC.Model.Standards;
+﻿using GPC.Model.Standards;
 using GPC.Utilities.Converters;
 using System;
 using System.Collections.Generic;
@@ -284,8 +284,8 @@ namespace GPC.Model.Materials
 
         /// <summary>
         /// Set <see cref="ConcreteMaterial._elasticModulusTension"/>, <see cref="Material._elasticModulus"/>
-        /// <see cref="ConcreteMaterialCommon._fctk"/>, 
-        /// <see cref="ConcreteMaterialCommon._fck"/>
+        /// <see cref="ConcreteMaterialEuropeanCommon._fctk"/>, 
+        /// <see cref="ConcreteMaterialEuropeanCommon._fck"/>
         /// </summary>
         protected void SetMechanicalProperties(double fc, double fctk, double fFtu, double strainYTension, double strainUTension,
             CompressionStressStrainDiagrams compressionStressStrainDiagrams, TensionStressStrainDiagrams tensionStressStrainDiagrams)

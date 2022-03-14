@@ -87,7 +87,7 @@
     <Compile Include="Materials\Concrete\ConcreteMaterialEN1992.cs" />
     <Compile Include="Materials\Concrete\ConcreteMaterialModelCode2010.cs" />
     <Compile Include="Materials\Concrete\ConcreteMaterial.cs" />
-    <Compile Include="Materials\Concrete\ConcreteMaterialCommon.cs" />
+    <Compile Include="Materials\Concrete\ConcreteMaterialEuropeanCommon.cs" />
     <Compile Include="Materials\StressStrainTable.cs" />
     <Compile Include="Maths\GaussIntegration\GaussIntegration.cs" />
     <Compile Include="Maths\GaussIntegration\GaussPoints.cs" />

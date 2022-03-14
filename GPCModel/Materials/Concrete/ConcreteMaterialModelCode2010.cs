@@ -4,7 +4,7 @@ using System.Runtime.Serialization;
 namespace GPC.Model.Materials
 {
     [Serializable]
-    public class ConcreteMaterialModelCode2010 : ConcreteMaterialCommon, ISerializable
+    public class ConcreteMaterialModelCode2010 : ConcreteMaterialEuropeanCommon, ISerializable
     {
         #region Static Properties
 
