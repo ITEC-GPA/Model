@@ -25,6 +25,16 @@ namespace GPC.Model.Standards
 			_alphaCC = 0.85;
 		}
 
+		public StandardNTC2018Concrete(string name = "NTC2018")
+			: this(name, "Norme tecniche per le costruzioni. 17 January 2018")
+		{
+		}
+
+		public StandardNTC2018Concrete()
+			: this("NTC2018", "Norme tecniche per le costruzioni. 17 January 2018")
+		{
+		}
+
 		protected StandardNTC2018Concrete(SerializationInfo info, StreamingContext context)
 			: base(info, context)
 		{

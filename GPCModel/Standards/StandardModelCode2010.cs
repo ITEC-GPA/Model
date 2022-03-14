@@ -120,6 +120,16 @@ namespace GPC.Model.Standards
             _steelCoefficientStrainTension = 0.9;
         }
 
+        public StandardModelCode2010(string name = "Fib Model Code 2010")
+            : this(name, "Fib Model Code 2010. March 2010")
+        {
+        }
+
+        public StandardModelCode2010()
+            : this("Fib Model Code 2010", "Fib Model Code 2010. March 2010")
+        {
+        }
+
         protected StandardModelCode2010(SerializationInfo info, StreamingContext context)
 		{
             _gammaC = info.GetDouble("GammaC");

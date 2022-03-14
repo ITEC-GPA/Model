@@ -24,6 +24,18 @@ namespace GPC.Model.Standards
 
 		}
 
+		public StandardCNR204(string name = "CNR-DT 204/2006")
+			: base(name, "CNR-DT 204/2006. AC:2008")
+		{
+
+		}
+
+		public StandardCNR204()
+			: base("CNR-DT 204/2006", "CNR-DT 204/2006. AC:2008")
+		{
+
+		}
+
 		protected StandardCNR204(SerializationInfo info, StreamingContext context)
 			: base(info, context)
 		{

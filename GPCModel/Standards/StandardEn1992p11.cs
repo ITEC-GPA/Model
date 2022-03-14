@@ -24,6 +24,18 @@ namespace GPC.Model.Standards
 
         }
 
+        public StandardEN1992p11(string name = "EN 1992-1-1")
+            : base(name, "Eurocode 2: Design of concrete structures - Part 1-1: General rules and rules for buildings. EN 1992-1-1:2004/AC:2010")
+        {
+
+        }
+
+        public StandardEN1992p11()
+            : base("EN 1992-1-1", "Eurocode 2: Design of concrete structures - Part 1-1: General rules and rules for buildings. EN 1992-1-1:2004/AC:2010")
+        {
+
+        }
+
         protected StandardEN1992p11(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
