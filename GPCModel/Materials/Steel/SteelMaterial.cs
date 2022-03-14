@@ -304,6 +304,66 @@ namespace GPC.Model.Materials
                 return (Fu - Fyk) / (StrainU - StrainY);
 		}
 
-		#endregion
-	}
+        #endregion
+
+        #region Public Methods
+
+        /// <returns>The design rebar yielding stress</returns>
+        public double CalculateFyd(Standards.StandardModelCode2010 standard)
+        {
+            return Fyk / standard.GammaS;
+        }
+
+        public double CalculateUltimateDesignStrainRebar(Standards.StandardModelCode2010 standard)
+        {
+            if (SteelType == SteelTypes.Rebar)
+                return StrainU * standard.SteelCoefficientStrainTension;
+            else
+                throw new Exception();
+        }
+
+        public double CalculateDesignYieldingStressRebar(Standards.StandardModelCode2010 standard)
+        {
+            if (SteelType == SteelTypes.Rebar)
+                return Fyk / standard.GammaS;
+            else
+                throw new Exception();
+        }
+
+        public double CalculateDesignYieldingStrainRebar(Standards.StandardModelCode2010 standard)
+        {
+            if (SteelType == SteelTypes.Rebar)
+                return CalculateDesignYieldingStressRebar(standard) / E;            
+            else
+                throw new Exception();
+        }
+
+        public double CalculateDesignUltimateStrainRebar(Standards.StandardModelCode2010 standard)
+        {
+            if (SteelType == SteelTypes.Rebar)
+                return StrainU * standard.SteelCoefficientStrainTension;
+            else
+                throw new Exception();
+        }
+
+        /// <returns>The design rebar stress related to <paramref name="strain"/></returns>
+        public double CalculateDesignStressRebar(Standards.StandardModelCode2010 standard, double strain, double epsilonP = 0)
+        {
+            double fyd = CalculateDesignYieldingStressRebar(standard);
+            double strainYd = CalculateDesignYieldingStrainRebar(standard);
+
+            if (Math.Abs(strain) <= strainYd)
+                return CalculateStress(strain + epsilonP);
+
+            else
+            {
+                double deltaStress = Fyk - fyd;
+                double deltaStrain = deltaStress / E;
+
+                return CalculateStress(strain + Math.Sign(strain) * deltaStrain + epsilonP) - Math.Sign(strain) * deltaStress;
+            }
+        }
+
+        #endregion
+    }
 }
