@@ -1,5 +1,7 @@
 ﻿using GPC.Model.Combinations;
 using GPC.Model.LoadCases;
+using GPC.Model.Materials;
+using GPC.Model.Sections.Concrete;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -34,12 +36,14 @@ namespace GPC.Model.Standards
 
         protected double _gammaF;
 
-        #endregion
+		#endregion
 
-        /// <summary>
-        /// Partial safety factor for concrete for persistent design situations. See EN1992-1-1 §3.1.6
-        /// </summary>
-        public double GammaC => _gammaC;
+		#region Properties
+
+		/// <summary>
+		/// Partial safety factor for concrete for persistent design situations. See EN1992-1-1 §3.1.6
+		/// </summary>
+		public double GammaC => _gammaC;
 
         /// <summary>
         /// Partial safety factor for concrete for accidental design situations. See EN1992-1-1 §3.1.6
@@ -93,12 +97,14 @@ namespace GPC.Model.Standards
         /// </summary>
         public double SteelCoefficientStrainTension => _steelCoefficientStrainTension;
 
-        #region Public Constructor
+		#endregion
 
-        /// <summary>
-        /// Default Constructor
-        /// </summary>
-        public StandardModelCode2010(string name = "Fib Model Code 2010", string remarks = "Fib Model Code 2010. March 2010")
+		#region Public Constructor
+
+		/// <summary>
+		/// Default Constructor
+		/// </summary>
+		public StandardModelCode2010(string name = "Fib Model Code 2010", string remarks = "Fib Model Code 2010. March 2010")
             : base(name, remarks)
         {
 			_gammaC = 1.5;
@@ -243,6 +249,129 @@ namespace GPC.Model.Standards
 		{
             _steelCoefficientStrainTension = coef;
 		}
+
+		#endregion
+
+		#region Public Concrete Methods - Design stress
+
+        public double CalculateFcd(ConcreteMaterialCommon material)
+		{
+            if (material.CompressionStressStrainDiagram == ConcreteMaterialCommon.CompressionStressStrainDiagrams.StressBlock)
+            {
+                if (material.Fck > 90)
+                    throw new ArgumentException("Fck > 90 not supported by Stress block");
+
+                double eta;
+                if (material.Fck <= 50.0)
+                    eta = 1.0;
+                else
+                    eta = 1.0 - (material.Fck - 50.0) / 200;
+
+                return eta * AlphaCC * material.Fck / GammaC;
+            }
+            else
+            {
+                return AlphaCC * material.Fck / GammaC;
+            }
+        }
+
+        public double CalculateFctd(ConcreteMaterialCommon material)
+        {
+            return AlphaCT * material.Fctk05 / GammaC;
+        }
+
+        public double CalculateFcdAccidental(ConcreteMaterialCommon material)
+        {
+            return AlphaCC * material.Fck / GammaCAccidental;
+        }
+
+        public double CalculateFctdAccidental(ConcreteMaterialCommon material)
+        {
+            return AlphaCT * material.Fctk05 / GammaCAccidental;
+        }
+
+        public double CalculateECd(ConcreteMaterialCommon material)
+        {
+            return material.E / GammaCE;
+        }
+
+        public double CalculateSigmaC(ConcreteMaterialCommon concrete, double strain)
+        {
+            if (strain < 0)
+            {
+                // compressione
+                return concrete.GetStress(strain) * Math.Abs(CalculateFcd(concrete) / concrete.Fck);
+            }
+            else
+            {
+                return concrete.GetStress(strain) * Math.Abs(CalculateFctd(concrete) / concrete.Fctk05);
+            }
+        }
+
+        #endregion
+
+        #region Public Steel Methods - Design stress
+
+        /// <returns>The design rebar yielding stress</returns>
+        public double CalculateFyd(SteelMaterial material)
+        {
+            return material.Fyk / GammaS;
+        }
+
+        /// <returns>The design rebar stress related to <paramref name="strain"/></returns>
+        public double CalculateDesignStressRebar(double strain, SteelMaterial material)
+        {
+            if (strain < CalculateDesignYieldingStrainRebar(material))
+            {
+                return material.CalculateStress(strain);
+            }
+            else
+            {
+                return CalculateFyd(material) + (strain - CalculateDesignYieldingStrainRebar(material)) * material.Et;
+            }
+        }
+
+        public double CalculateUltimateDesignStrainRebar(ReinforcedConcreteRebar rebar)
+        {
+            return rebar.RebarMaterial.StrainU * SteelCoefficientStrainTension;
+        }
+
+        public double CalculateUltimateDesignStrainRebar(IConcreteSection concreteSection, int rebarId)
+        {
+            return concreteSection.GetRebarById(rebarId).RebarMaterial.StrainU * SteelCoefficientStrainTension;
+        }
+
+        public double CalculateDesignYieldingStressRebar(SteelMaterial material)
+        {
+            return material.Fyk / GammaS;
+        }
+
+        public double CalculateDesignYieldingStrainRebar(SteelMaterial material)
+        {
+            return CalculateDesignYieldingStressRebar(material) / material.E;
+        }
+
+        public double CalculateDesignUltimateStrainRebar(SteelMaterial material)
+        {
+            return material.StrainU * SteelCoefficientStrainTension;
+        }
+
+        public double CalculateDesignStressRebar(ReinforcedConcreteRebar rebar, double strain)
+        {
+            double fyd = CalculateDesignYieldingStressRebar(rebar.RebarMaterial);
+            double strainYd = CalculateDesignYieldingStrainRebar(rebar.RebarMaterial);
+
+            if (Math.Abs(strain) <= strainYd)
+                return rebar.RebarMaterial.CalculateStress(strain + rebar.EpsilonP);
+
+            else
+            {
+                double deltaStress = rebar.RebarMaterial.Fyk - fyd;
+                double deltaStrain = deltaStress / rebar.RebarMaterial.E;
+
+                return rebar.RebarMaterial.CalculateStress(strain + Math.Sign(strain) * deltaStrain + rebar.EpsilonP) - Math.Sign(strain) * deltaStress;
+            }
+        }
 
         #endregion
     }
