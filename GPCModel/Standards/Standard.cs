@@ -19,11 +19,15 @@ namespace GPC.Model.Standards
             _remarks = remarks;
 		}
 
-		public string Remarks => _remarks;
+		public string Remarks
+		{
+			get => _remarks;
+			set => _remarks = value;
+		}
 
-        
 
-        public override void GetObjectData(SerializationInfo info, StreamingContext context)
+
+		public override void GetObjectData(SerializationInfo info, StreamingContext context)
 		{
 
 		}
