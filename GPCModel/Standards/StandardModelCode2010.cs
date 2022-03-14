@@ -295,7 +295,7 @@ namespace GPC.Model.Standards
             return material.E / GammaCE;
         }
 
-        public double CalculateSigmaC(ConcreteMaterialCommon concrete, double strain)
+        public double CalculateDesignStressConcrete(ConcreteMaterialCommon concrete, double strain)
         {
             if (strain < 0)
             {
