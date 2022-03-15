@@ -364,6 +364,50 @@ namespace GPC.Model.Materials
             }
         }
 
+        /// <returns>The design rebar yielding stress</returns>
+        public double CalculateFyd(Standards.StandardACI318 standard)
+        {
+            return Fyk;
+        }
+
+        public double CalculateUltimateDesignStrainRebar(Standards.StandardACI318 standard)
+        {
+            if (SteelType == SteelTypes.Rebar)
+                return StrainU;
+            else
+                throw new Exception();
+        }
+
+        public double CalculateDesignYieldingStressRebar(Standards.StandardACI318 standard)
+        {
+            if (SteelType == SteelTypes.Rebar)
+                return Fyk;
+            else
+                throw new Exception();
+        }
+
+        public double CalculateDesignYieldingStrainRebar(Standards.StandardACI318 standard)
+        {
+            if (SteelType == SteelTypes.Rebar)
+                return CalculateDesignYieldingStressRebar(standard) / E;
+            else
+                throw new Exception();
+        }
+
+        public double CalculateDesignUltimateStrainRebar(Standards.StandardACI318 standard)
+        {
+            if (SteelType == SteelTypes.Rebar)
+                return StrainU;
+            else
+                throw new Exception();
+        }
+
+        /// <returns>The design rebar stress related to <paramref name="strain"/></returns>
+        public double CalculateDesignStressRebar(Standards.StandardACI318 standard, double strain, double epsilonP = 0)
+        {
+            return CalculateStress(strain + epsilonP);
+        }
+
         #endregion
     }
 }
