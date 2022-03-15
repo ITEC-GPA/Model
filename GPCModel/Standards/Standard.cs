@@ -25,6 +25,11 @@ namespace GPC.Model.Standards
 			set => _remarks = value;
 		}
 
+		public void SetName(string name)
+		{
+			if(name != null)
+				_name = name;
+		}
 
 		public override void GetObjectData(SerializationInfo info, StreamingContext context)
 		{
