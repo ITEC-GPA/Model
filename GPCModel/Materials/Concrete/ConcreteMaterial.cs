@@ -156,11 +156,11 @@ namespace GPC.Model.Materials
 
         }
 
-		#endregion
+        #endregion
 
-		#region Equals - hashcode - operators
+        #region Equals - hashcode - operators
 
-		public override void GetObjectData(SerializationInfo info, StreamingContext context)
+        public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             base.GetObjectData(info, context);
             info.AddValue("TableCompression", _stressStrainTableCompression);
@@ -191,10 +191,6 @@ namespace GPC.Model.Materials
                 return hashCode;
             }
         }
-
-		#endregion
-
-		#region Public Operator
 
 		public static bool operator ==(ConcreteMaterial obj1, ConcreteMaterial obj2)
         {

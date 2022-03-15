@@ -73,7 +73,6 @@ namespace GPC.Model.Materials
 
 		#endregion
 
-
 		#region Bars
 
 		public static SteelMaterial Y1030C => new SteelMaterial("Y1030", 205000, 1030, 1030, 0.04, SteelTypes.Bars);
@@ -326,7 +325,7 @@ namespace GPC.Model.Materials
 
 		#endregion
 
-		#region Public Methods
+		#region Public Standard Methods
 
 		#region ModelCode2010
 
