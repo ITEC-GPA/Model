@@ -40,9 +40,8 @@ namespace GPC.Model.Standards
 
         public override bool Equals(object obj)
 		{
-			return obj is StandardUNIEn1992p11 p &&
-				   base.Equals(obj);
-		}
+			return obj is StandardUNIEn1992p11 standard && base.Equals(standard);
+        }
 
 		public override int GetHashCode()
 		{

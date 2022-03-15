@@ -131,6 +131,7 @@ namespace GPC.Model.Standards
         }
 
         protected StandardModelCode2010(SerializationInfo info, StreamingContext context)
+            :base(info, context)
 		{
             _gammaC = info.GetDouble("GammaC");
             _gammaCAccidental = info.GetDouble("GammaCAccidental");
@@ -151,6 +152,7 @@ namespace GPC.Model.Standards
 
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
+            base.GetObjectData(info, context);
             info.AddValue("GammaC", _gammaC);
             info.AddValue("GammaCAccidental", _gammaCAccidental);
             info.AddValue("GammaCE", _gammaCE);
@@ -180,7 +182,8 @@ namespace GPC.Model.Standards
                    _alphaCC == code._alphaCC &&
                    _alphaCT == code._alphaCT &&
                    _steelCoefficientStrainTension == code._steelCoefficientStrainTension &&
-                   _gammaF == code._gammaF;
+                   _gammaF == code._gammaF &&
+                   base.Equals(code);
 		}
 
 		public override int GetHashCode()

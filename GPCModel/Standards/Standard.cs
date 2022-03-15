@@ -13,17 +13,24 @@ namespace GPC.Model.Standards
     {
         protected string _remarks;
 
-		protected Standard(string name = "", string remarks = "")
-            :base(name)
-		{
-            _remarks = remarks;
-		}
-
 		public string Remarks
 		{
 			get => _remarks;
 			set => _remarks = value;
 		}
+
+		public Standard(string name = "", string remarks = "")
+            :base(name)
+		{
+            _remarks = remarks;
+		}
+
+		protected Standard(SerializationInfo info, StreamingContext context)
+			: base(info, context)
+		{
+			_remarks = info.GetString("Remarks");
+		}
+
 
 		public void SetName(string name)
 		{
@@ -33,7 +40,8 @@ namespace GPC.Model.Standards
 
 		public override void GetObjectData(SerializationInfo info, StreamingContext context)
 		{
-
+			base.GetObjectData(info, context);
+			info.AddValue("Remarks", _remarks);
 		}
 
 		public override bool Equals(object obj)
@@ -41,7 +49,9 @@ namespace GPC.Model.Standards
             if (ReferenceEquals(this, obj))
                 return true;
 
-            return base.Equals(obj);
+            return obj is Standard standard && 
+				_remarks.Equals(standard.Remarks) && 
+				base.Equals(obj);
 		}
 
 		public override int GetHashCode()

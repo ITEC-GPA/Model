@@ -41,5 +41,20 @@ namespace GPC.Model.Standards
 		{
 
 		}
+
+		public override string ToString()
+		{
+			return base.ToString();
+		}
+
+		public override bool Equals(object obj)
+		{
+			return obj is StandardCNR204 standard && base.Equals(standard);
+		}
+
+		public override int GetHashCode()
+		{
+			return base.GetHashCode();
+		}
 	}
 }

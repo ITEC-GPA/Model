@@ -47,18 +47,7 @@ namespace GPC.Model.Standards
             if (ReferenceEquals(this, obj))
                 return true;
 
-            return obj is StandardEN1992p11 code &&
-                   _gammaC == code._gammaC &&
-                   _gammaCAccidental == code._gammaCAccidental &&
-                   _gammaCE == code._gammaCE &&
-                   _gammaS == code._gammaS &&
-                   _gammaSAccidental == code._gammaSAccidental &&
-                   _gammaSPrestress == code._gammaSPrestress &&
-                   _gammaSPrestressAccidental == code._gammaSPrestressAccidental &&
-                   _alphaCC == code._alphaCC &&
-                   _alphaCT == code._alphaCT &&
-                   _steelCoefficientStrainTension == code._steelCoefficientStrainTension &&
-                   _gammaF == code._gammaF;
+            return obj is StandardEN1992p11 standard && base.Equals(standard);
         }
 
         public override int GetHashCode()
