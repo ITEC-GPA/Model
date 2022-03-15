@@ -304,12 +304,14 @@ namespace GPC.Model.Materials
                 return (Fu - Fyk) / (StrainU - StrainY);
 		}
 
-        #endregion
+		#endregion
 
-        #region Public Methods
+		#region Public Methods
 
-        /// <returns>The design rebar yielding stress</returns>
-        public double CalculateFyd(Standards.StandardModelCode2010 standard)
+		#region ModelCode2010
+
+		/// <returns>The design rebar yielding stress</returns>
+		public double CalculateFyd(Standards.StandardModelCode2010 standard)
         {
             return Fyk / standard.GammaS;
         }
@@ -364,8 +366,12 @@ namespace GPC.Model.Materials
             }
         }
 
-        /// <returns>The design rebar yielding stress</returns>
-        public double CalculateFyd(Standards.StandardACI318 standard)
+		#endregion
+
+		#region ACI318
+
+		/// <returns>The design rebar yielding stress</returns>
+		public double CalculateFyd(Standards.StandardACI318 standard)
         {
             return Fyk;
         }
@@ -407,6 +413,8 @@ namespace GPC.Model.Materials
         {
             return CalculateStress(strain + epsilonP);
         }
+
+        #endregion
 
         #endregion
     }
