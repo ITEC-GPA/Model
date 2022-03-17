@@ -133,6 +133,10 @@ namespace GPC.Model.Materials
             _strains = newStrains;
         }
 
+        /// <summary>
+        /// Remove the values at given position
+        /// </summary>
+        /// <param name="pos"></param>
         public void Remove(int pos)
 		{
             double[] newStesses = new double[_stresses.Length - 1];
@@ -155,6 +159,26 @@ namespace GPC.Model.Materials
             }
             _strains = newStrains;
         }
+
+        /// <summary>
+        /// Set the value <paramref name="stress"/> at the position <paramref name="pos"/>
+        /// </summary>
+        /// <param name="stress"></param>
+        /// <param name="pos"></param>
+        public void SetStress(double stress, int pos)
+		{
+            _stresses[pos] = stress;
+		}
+
+        /// <summary>
+        /// Set the value <paramref name="strain"/> at the position <paramref name="pos"/>
+        /// </summary>
+        /// <param name="strain"></param>
+        /// <param name="pos"></param>
+        public void SetStrain(double strain, int pos)
+		{
+            _strains[pos] = strain;
+		}
 
         /// <summary>
         /// Get stress associated to <paramref name="strain"/>

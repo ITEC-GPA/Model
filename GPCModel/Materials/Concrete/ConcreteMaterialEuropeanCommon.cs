@@ -499,11 +499,11 @@ namespace GPC.Model.Materials
                 if (strain < 0)
                 {
                     // compressione
-                    return GetStress(strain) * Math.Abs(CalculateFcd(standard) / Fck);
+                    return GetStress(strain) * Math.Abs(CalculateFcd(standardModelCode2010) / Fck);
                 }
                 else
                 {
-                    return GetStress(strain) * Math.Abs(CalculateFctd(standard) / Fctk05);
+                    return GetStress(strain) * Math.Abs(CalculateFctd(standardModelCode2010) / Fctk05);
                 }
             }
             else
