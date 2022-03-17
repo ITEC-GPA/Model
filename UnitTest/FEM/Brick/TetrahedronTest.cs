@@ -128,7 +128,7 @@ namespace FemTest.SolverTest
 
             Assert.AreEqual(4.0, Tethraedron4.GetVolume(nds.ToArray()));
 
-            SteelMaterial mat = new SteelMaterial("mat", 96.0, 1.0 / 3.0, 355, 510, 7850.0);
+            SteelMaterial mat = new SteelMaterial("mat", 96.0, 1.0 / 3.0, 355, 510.0);
 
             BrickProperty brickProperty = new BrickProperty(mat.GetIsotropicFemMaterial(), "propr");
 
@@ -195,7 +195,7 @@ namespace FemTest.SolverTest
 
             Assert.AreEqual(0.16666666666666, Tethraedron4.GetVolume(nds.ToArray()), 0.00001);
 
-            SteelMaterial mat = new SteelMaterial("mat", 1.0, 0.0, 355, 510, 7850.0);
+            SteelMaterial mat = new SteelMaterial("mat", 1.0, 0.0, 355, 510.0);
 
             BrickProperty brickProperty = new BrickProperty(mat, "propr");
 

@@ -12,16 +12,27 @@ namespace GPC.Model.Materials
     [Serializable]
     public abstract class ConcreteMaterial : Material, ISerializable
     {
-		#region Public Enum        
+        #region Public Enum        
 
-		#endregion
+        [TypeConverter(typeof(EnumDescriptionTypeConverter))]
+        public enum ConcreteTypes
+        {
+            [Description("Normal")]
+            Normal,
 
-		#region Variables
+            [Description("Fiber-Reinforced")]
+            FRC,
+        }
 
-		protected StressStrainTable _stressStrainTableCompression;
+        #endregion
+
+        #region Variables
+
+        protected StressStrainTable _stressStrainTableCompression;
         protected StressStrainTable _stressStrainTableTension;
 
         protected double _elasticModulusTension;
+        protected ConcreteTypes _concreteType;
 
         #endregion
 
@@ -41,6 +52,19 @@ namespace GPC.Model.Materials
         /// Elastic modulus of concrete in tension
         /// </summary>
         public double ElasticModulusTension => _elasticModulusTension;
+
+        /// <summary>
+        /// Type of concrete
+        /// </summary>
+        public ConcreteTypes ConcreteType
+        {
+            get => _concreteType;
+            set
+            {
+                SetConcreteType(value);
+                RecalculateMechanicalProperties();                
+            }
+        }
 
         #endregion
 
@@ -84,9 +108,35 @@ namespace GPC.Model.Materials
             _elasticModulusTension = info.GetDouble("ElasticModulusTension");
         }
 
-		#endregion
+        #endregion
 
-		#region Public Methods
+        #region Public abstract Methods
+
+        public abstract double CalculateDesignStressConcrete(Standards.Standard standard, double strain);
+
+        public abstract double CalculateFcd(Standards.Standard standard);
+
+        public abstract double CalculateFctd(Standards.Standard standard);
+
+        public abstract double CalculateFcdAccidental(Standards.Standard standard);
+
+        public abstract double CalculateFctdAccidental(Standards.Standard standard);
+
+        public abstract double CalculateECd(Standards.Standard standard);
+
+
+        #endregion
+
+        #region Public Methods
+
+        /// <summary>
+        /// Override if you want to validate the value before assign it
+        /// </summary>
+        /// <param name="concreteType">The value to assign</param>
+        public virtual void SetConcreteType(ConcreteTypes concreteType)
+        {
+            _concreteType = concreteType;
+        }
 
 		/// <returns>The characteristic stress related to <paramref name="strain"/></returns>
 		public double GetStress(double strain)
@@ -104,18 +154,13 @@ namespace GPC.Model.Materials
         protected virtual void RecalculateMechanicalProperties()
 		{
 
-		}
-
-		public virtual bool IsFiberReinforced() 
-        { 
-            return false; 
         }
 
-		#endregion
+        #endregion
 
-		#region Equals - hashcode - operators
+        #region Equals - hashcode - operators
 
-		public override void GetObjectData(SerializationInfo info, StreamingContext context)
+        public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             base.GetObjectData(info, context);
             info.AddValue("TableCompression", _stressStrainTableCompression);
@@ -146,10 +191,6 @@ namespace GPC.Model.Materials
                 return hashCode;
             }
         }
-
-		#endregion
-
-		#region Public Operator
 
 		public static bool operator ==(ConcreteMaterial obj1, ConcreteMaterial obj2)
         {

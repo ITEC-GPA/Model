@@ -47,7 +47,7 @@ namespace FemTest.SolverTest
         [TestMethod]
         public void AssemblyGlobalMatrixTest1()
         {
-            Material mat = new SteelMaterial("steel", 200000, 0.2, 355, 510, 7850);
+            Material mat = new SteelMaterial("steel", 200000, 0.2, 355, 510);
             PlateProperty prop = new PlateProperty(mat.GetIsotropicFemMaterial(), 0, 1, "p");
 
             List<Node> nodesPlate1 = new List<Node>();
@@ -110,7 +110,7 @@ namespace FemTest.SolverTest
         {
             FreedomCase fc = new FreedomCase("freedomCase1");
 
-            Material mat = new SteelMaterial("steel", 200000, 0.2, 355, 510, 7850);
+            Material mat = new SteelMaterial("steel", 200000, 0.2, 355, 510);
             PlateProperty prop = new PlateProperty(mat.GetIsotropicFemMaterial(), 0, 1, "p");
 
             CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
@@ -197,7 +197,7 @@ namespace FemTest.SolverTest
             LoadCaseBase loadCase = new LoadCaseBase("myLoadCase", new Guid());
             FreedomCase freedomCase = new FreedomCase("freedomCase1");
 
-            Material mat = new SteelMaterial("steel", 200000, 0.2, 355, 510, 7850);
+            Material mat = new SteelMaterial("steel", 200000, 0.2, 355, 510);
             PlateProperty prop = new PlateProperty(mat.GetIsotropicFemMaterial(), 0, 1, "p");
 
             CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
@@ -278,7 +278,7 @@ namespace FemTest.SolverTest
             LoadCaseBase loadCase = new LoadCaseBase("myLoadCase", new Guid());
             FreedomCase freedomCase = new FreedomCase("freedomCase1");
 
-            Material mat = new SteelMaterial("steel", 200000, 0.2, 355, 510, 7850);
+            Material mat = new SteelMaterial("steel", 200000, 0.2, 355, 510);
             PlateProperty prop = new PlateProperty(mat.GetIsotropicFemMaterial(), 0, 1, "p");
 
             CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
@@ -362,7 +362,7 @@ namespace FemTest.SolverTest
             LoadCaseBase loadCase = new LoadCaseBase("myLoadCase", new Guid());
             FreedomCase freedomCase = new FreedomCase("freedomCase1");
 
-            Material mat = new SteelMaterial("steel", 1, 0.0, 355, 510, 7850);
+            Material mat = new SteelMaterial("steel", 1, 0.0, 355, 510);
             BrickProperty prop = new BrickProperty(mat.GetIsotropicFemMaterial(), "p");
             double d = 0.5;
             double t = d / 2.0;

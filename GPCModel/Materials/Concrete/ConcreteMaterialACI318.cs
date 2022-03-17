@@ -52,8 +52,11 @@ namespace GPC.Model.Materials
 		#region Static Properties
 
 		public static ConcreteMaterialACI318 Fc3000 => new ConcreteMaterialACI318("fc' 3000 psi", 20.6843, CompressionStressStrainDiagrams.Bilinear);
+
         public static ConcreteMaterialACI318 Fc4000 => new ConcreteMaterialACI318("fc' 4000 psi", 27.579, CompressionStressStrainDiagrams.Bilinear);
+
         public static ConcreteMaterialACI318 Fc5000 => new ConcreteMaterialACI318("fc' 4000 psi", 34.4738, CompressionStressStrainDiagrams.Bilinear);
+
         public static ConcreteMaterialACI318 Fc6000 => new ConcreteMaterialACI318("fc' 4000 psi", 41.3685, CompressionStressStrainDiagrams.Bilinear);
 
         #endregion
@@ -184,11 +187,6 @@ namespace GPC.Model.Materials
 
         #region Public methods
 
-        public override bool IsFiberReinforced()
-        {
-            return false;
-        }
-
         #endregion
 
         #region Protected methods
@@ -286,8 +284,8 @@ namespace GPC.Model.Materials
 
         /// <summary>
         /// Set <see cref="ConcreteMaterial._elasticModulusTension"/>, <see cref="Material._elasticModulus"/>
-        /// <see cref="ConcreteMaterialModelCode2010._fctk"/>, 
-        /// <see cref="ConcreteMaterialModelCode2010._fck"/>
+        /// <see cref="ConcreteMaterialEuropeanCommon._fctk"/>, 
+        /// <see cref="ConcreteMaterialEuropeanCommon._fck"/>
         /// </summary>
         protected void SetMechanicalProperties(double fc, double fctk, double fFtu, double strainYTension, double strainUTension,
             CompressionStressStrainDiagrams compressionStressStrainDiagrams, TensionStressStrainDiagrams tensionStressStrainDiagrams)
@@ -543,7 +541,37 @@ namespace GPC.Model.Materials
             }
         }
 
-        public static bool operator ==(ConcreteMaterialACI318 obj1, ConcreteMaterialACI318 obj2)
+		public override double CalculateDesignStressConcrete(Standards.Standard standard, double strain)
+		{
+			throw new NotImplementedException();
+		}
+
+		public override double CalculateFcd(Standards.Standard standard)
+		{
+			throw new NotImplementedException();
+		}
+
+		public override double CalculateFctd(Standards.Standard standard)
+		{
+			throw new NotImplementedException();
+		}
+
+		public override double CalculateFcdAccidental(Standards.Standard standard)
+		{
+			throw new NotImplementedException();
+		}
+
+		public override double CalculateFctdAccidental(Standards.Standard standard)
+		{
+			throw new NotImplementedException();
+		}
+
+		public override double CalculateECd(Standards.Standard standard)
+		{
+			throw new NotImplementedException();
+		}
+
+		public static bool operator ==(ConcreteMaterialACI318 obj1, ConcreteMaterialACI318 obj2)
         {
             if (ReferenceEquals(obj1, obj2))
                 return true;

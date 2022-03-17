@@ -18,7 +18,20 @@ namespace GPC.Model.Standards
 		/// <summary>
 		/// Default Constructor
 		/// </summary>
+		public StandardCNR204(string name = "CNR-DT 204/2006", string remarks = "CNR-DT 204/2006. AC:2008")
+			: base(name, remarks)
+		{
+
+		}
+
+		public StandardCNR204(string name = "CNR-DT 204/2006")
+			: base(name, "CNR-DT 204/2006. AC:2008")
+		{
+
+		}
+
 		public StandardCNR204()
+			: base("CNR-DT 204/2006", "CNR-DT 204/2006. AC:2008")
 		{
 
 		}
@@ -27,6 +40,21 @@ namespace GPC.Model.Standards
 			: base(info, context)
 		{
 
+		}
+
+		public override string ToString()
+		{
+			return base.ToString();
+		}
+
+		public override bool Equals(object obj)
+		{
+			return obj is StandardCNR204 standard && base.Equals(standard);
+		}
+
+		public override int GetHashCode()
+		{
+			return base.GetHashCode();
 		}
 	}
 }

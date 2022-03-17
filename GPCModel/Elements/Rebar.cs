@@ -37,7 +37,7 @@ namespace GPC.Model.Elements
 
         public Point3d EndPosition => _endPosition;
 
-        public RebarMaterial RebarMaterial => _rebarSection.RebarMaterial;
+        public SteelMaterial RebarMaterial => _rebarSection.RebarMaterial;
 
         // public double EpsilonP => _epsilonP;
 

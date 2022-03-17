@@ -680,10 +680,10 @@ namespace FemTest
             //Arrange
             FemModel femModel = new FemModel();
 
-            ConcreteMaterialEN1992 concreteMaterial1 = new ConcreteMaterialEN1992("", 25, ConcreteMaterialModelCode2010.CompressionStressStrainDiagrams.Bilinear);
-            ConcreteMaterialEN1992 concreteMaterial2 = new ConcreteMaterialEN1992("", 25, ConcreteMaterialModelCode2010.CompressionStressStrainDiagrams.Bilinear);
-            ConcreteMaterialEN1992 concreteMaterial3 = new ConcreteMaterialEN1992("", 25, ConcreteMaterialModelCode2010.CompressionStressStrainDiagrams.Bilinear);
-            ConcreteMaterialEN1992 concreteMaterial4 = new ConcreteMaterialEN1992("", 25, ConcreteMaterialModelCode2010.CompressionStressStrainDiagrams.Bilinear);
+            ConcreteMaterialEN1992 concreteMaterial1 = new ConcreteMaterialEN1992("", 25, ConcreteMaterialEuropeanCommon.CompressionStressStrainDiagrams.Bilinear);
+            ConcreteMaterialEN1992 concreteMaterial2 = new ConcreteMaterialEN1992("", 25, ConcreteMaterialEuropeanCommon.CompressionStressStrainDiagrams.Bilinear);
+            ConcreteMaterialEN1992 concreteMaterial3 = new ConcreteMaterialEN1992("", 25, ConcreteMaterialEuropeanCommon.CompressionStressStrainDiagrams.Bilinear);
+            ConcreteMaterialEN1992 concreteMaterial4 = new ConcreteMaterialEN1992("", 25, ConcreteMaterialEuropeanCommon.CompressionStressStrainDiagrams.Bilinear);
 
             ConcreteSectionCHS sectionCHS1 = new ConcreteSectionCHS(500, 10, concreteMaterial1, "1");
             ConcreteSectionCHS sectionCHS2 = new ConcreteSectionCHS(500, 10, concreteMaterial2, "2");

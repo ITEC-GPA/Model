@@ -176,7 +176,8 @@ namespace GPC.Model.Standards
 
         #region PUBLIC CONSTRUCTOR
 
-        public StandardASCE16()
+        public StandardASCE16(string name = "ASCE7-16", string remarks = "Minimum Design Loads for Buildings and Other Structures: ASCE Standard ASCE/SEI 7-16")
+            : base(name, remarks)
         {
             // LFRD
             _lfrd1PermCoef1 = 1.4;

@@ -42,10 +42,21 @@ namespace GPC.Model.Standards
                 
         #region Public Constructor
 
-        public StandardCopSuos2011()
+        public StandardCopSuos2011(string name = "Cop2011", string remarks = "")
+            : base (name, remarks)
         {
             _gammaM1 = 1.0;
             _gammaM2 = 1.2;
+        }
+
+        public StandardCopSuos2011(string name = "Cop2011")
+            :this(name, "")
+        {
+        }
+
+        public StandardCopSuos2011()
+            : this("Cop2011", "")
+        {
         }
 
         protected StandardCopSuos2011(SerializationInfo info, StreamingContext context)

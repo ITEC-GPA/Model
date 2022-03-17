@@ -104,11 +104,17 @@ namespace GPC.Model.Materials
             throw new NotImplementedException("");
         }
 
-		#endregion
+        public void SetName(string name)
+        {
+            if (name != null)
+                _name = name;
+        }
 
-		#region Equals - HashCode - Operators
+        #endregion
 
-		public override void GetObjectData(SerializationInfo info, StreamingContext context)
+        #region Equals - HashCode - Operators
+
+        public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             base.GetObjectData(info, context);
             info.AddValue("AlfaThermalExpansion", _alfaThermalExpansion);

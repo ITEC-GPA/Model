@@ -2267,7 +2267,7 @@ namespace FemTest.SolverTest
             double G0 = 0.5173;
             double niGlass = 0.23;
 
-            Material mat = new SteelMaterial("mat", EGlass, niGlass, 355, 510, 7850);
+            Material mat = new SteelMaterial("mat", EGlass, niGlass, 355, 510);
             PlateProperty prop = new PlateProperty(mat.GetIsotropicFemMaterial(), hGlass + hInterlayer + hGlass, hGlass + hInterlayer + hGlass, "p");
 
             List<Node> nodes = new List<Node>();
