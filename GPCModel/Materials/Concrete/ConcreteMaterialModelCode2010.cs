@@ -8,11 +8,20 @@ namespace GPC.Model.Materials
     {
         #region Static Properties
 
+        public static ConcreteMaterialModelCode2010 C20_25 => new ConcreteMaterialModelCode2010("C20/25", 20,
+            CompressionStressStrainDiagrams.ParabolaRectangle, ConcreteTypes.Normal);
+
         public static ConcreteMaterialModelCode2010 C25_30 => new ConcreteMaterialModelCode2010("C25/30", 25, 
             CompressionStressStrainDiagrams.ParabolaRectangle, ConcreteTypes.Normal);
 
-        public static ConcreteMaterialModelCode2010 C30_37 => new ConcreteMaterialModelCode2010("C30/37", 30, 
+        public static ConcreteMaterialModelCode2010 C28_35 => new ConcreteMaterialModelCode2010("C28/35", 28, 
             CompressionStressStrainDiagrams.ParabolaRectangle, ConcreteTypes.Normal);
+
+        public static ConcreteMaterialModelCode2010 C30_37 => new ConcreteMaterialModelCode2010("C30/37", 30,
+    CompressionStressStrainDiagrams.ParabolaRectangle, ConcreteTypes.Normal);
+
+        public static ConcreteMaterialModelCode2010 C32_40 => new ConcreteMaterialModelCode2010("C32/40", 32,
+    CompressionStressStrainDiagrams.ParabolaRectangle, ConcreteTypes.Normal);
 
         public static ConcreteMaterialModelCode2010 C35_45 => new ConcreteMaterialModelCode2010("C35/45", 35, 
             CompressionStressStrainDiagrams.ParabolaRectangle, ConcreteTypes.Normal);
