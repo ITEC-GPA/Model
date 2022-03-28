@@ -19,9 +19,20 @@ namespace GPC.Model.Standards
 		/// <summary>
 		/// Default Constructor
 		/// </summary>
-		public StandardNTC2018Concrete()
+		public StandardNTC2018Concrete(string name = "NTC2018", string remarks = "Norme tecniche per le costruzioni. 17 January 2018")
+			: base(name, remarks)
 		{
 			_alphaCC = 0.85;
+		}
+
+		public StandardNTC2018Concrete(string name = "NTC2018")
+			: this(name, "Norme tecniche per le costruzioni. 17 January 2018")
+		{
+		}
+
+		public StandardNTC2018Concrete()
+			: this("NTC2018", "Norme tecniche per le costruzioni. 17 January 2018")
+		{
 		}
 
 		protected StandardNTC2018Concrete(SerializationInfo info, StreamingContext context)
@@ -32,18 +43,7 @@ namespace GPC.Model.Standards
 
 		public override bool Equals(object obj)
 		{
-			return obj is StandardNTC2018Concrete code &&
-				   _gammaC == code._gammaC &&
-				   _gammaCAccidental == code._gammaCAccidental &&
-				   _gammaCE == code._gammaCE &&
-				   _gammaS == code._gammaS &&
-				   _gammaSAccidental == code._gammaSAccidental &&
-				   _gammaSPrestress == code._gammaSPrestress &&
-				   _gammaSPrestressAccidental == code._gammaSPrestressAccidental &&
-				   _alphaCC == code._alphaCC &&
-				   _alphaCT == code._alphaCT &&
-				   _steelCoefficientStrainTension == code._steelCoefficientStrainTension &&
-				   _gammaF == code._gammaF;
+			return obj is StandardNTC2018Concrete standard && base.Equals(standard);
 		}
 
 		public override int GetHashCode()

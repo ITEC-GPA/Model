@@ -39,9 +39,6 @@ namespace GPC.Model.Sections.Concrete
             : base(height, width, material, name)
         {
             _rebars = new UniqueIdCollection<ReinforcedConcreteRebar>();
-
-            _mesh = new Mesh();
-            _mesh.AddFaceMesh(GetShape().Fill.ToArray());
         }
 
         public ConcreteSectionRectangular(SectionRectangular section)
@@ -63,14 +60,11 @@ namespace GPC.Model.Sections.Concrete
 
         #region Rebars
 
-
-
         /// <inheritdoc cref="AddRebar(ReinforcedConcreteRebar, out int)"/>
         public bool AddRebar(ReinforcedConcreteRebar rebar)
         {
             return AddRebar(rebar, out _);
         }
-
 
         /// <summary>
         /// Add a <paramref name="rebar"/> into the section.
@@ -103,7 +97,6 @@ namespace GPC.Model.Sections.Concrete
             }
 
         }
-
 
         /// <inheritdoc cref="AddRebar(ReinforcedConcreteRebar, out int)"/>
         public bool[] AddRebars(IEnumerable<ReinforcedConcreteRebar> rebars, out int[] ids)
@@ -145,7 +138,6 @@ namespace GPC.Model.Sections.Concrete
             return _rebars.RemoveRange(rebars);
         }
 
-
         public bool ClearRebars()
         {
             try
@@ -158,7 +150,6 @@ namespace GPC.Model.Sections.Concrete
                 return false;
             }
         }
-
 
         /// <returns><see langword="null"/> if item not found</returns>
         /// <inheritdoc cref="UniqueIdCollection{T}.GetById(int)"/>
@@ -179,7 +170,6 @@ namespace GPC.Model.Sections.Concrete
             return _rebars.ToArray();
         }
 
-
         /// <inheritdoc cref="GetRebarById(int)"/>
         public ReinforcedConcreteRebar[] GetRebarById(IEnumerable<int> rebarIds)
         {
@@ -199,7 +189,6 @@ namespace GPC.Model.Sections.Concrete
                 return null;
             }
         }
-
 
         #endregion
 
@@ -368,6 +357,5 @@ namespace GPC.Model.Sections.Concrete
         }
 
         #endregion
-
     }
 }

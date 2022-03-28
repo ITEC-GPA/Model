@@ -70,6 +70,7 @@ namespace GPC.Model.Sections
                 new Point2d(Base / 2, _tfBottom / 2) });
 
             SetMechanicalProperties();
+            _mesh = GetMesh();
         }
 
         protected SectionRHS(SerializationInfo info, StreamingContext context)

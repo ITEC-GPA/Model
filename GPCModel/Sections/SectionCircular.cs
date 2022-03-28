@@ -1,4 +1,5 @@
 using GPC.Geometry;
+using GPC.Geometry.Meshes;
 using GPC.Model.Materials;
 using System;
 using System.Runtime.Serialization;
@@ -35,8 +36,8 @@ namespace GPC.Model.Sections
             : base(material, name)
         {
             _diameter = diameter;
-
             SetMechanicalProperties();
+            _mesh = GetMesh();
         }
 
         public SectionCircular(SectionCircular sectionCircular)
@@ -65,9 +66,41 @@ namespace GPC.Model.Sections
 
         #region Protected method
 
+        protected Shape2d GetShape(int numberOfEdges = 16)
+        {
+            return new Shape2d(new Polygon2d(_diameter, numberOfEdges, _centroid));
+        }
+
         protected override Shape2d GetShape()
         {
             return new Shape2d(new Polygon2d(_diameter, 32, _centroid));
+        }
+
+        protected Mesh GetMesh(int numberOfEdges = 16)
+        {
+			Shape2d shape = new Shape2d(new Polygon2d(_diameter, numberOfEdges, _centroid), new[] { new Polygon2d(_diameter / 3.0, numberOfEdges, _centroid) });
+
+            Mesh mesh = new Mesh();
+
+            for (int i = 0; i < shape.Fill.Count; i++)
+            {
+                mesh.AddFaceMesh(new Point3d[]
+                {
+                    new Point3d(shape.Fill[i]),
+                    new Point3d(shape.Fill[shape.Fill.GetNextIndex(i)]),
+                    new Point3d(shape.Holes[0][shape.Holes[0].GetNextIndex(i)]),
+                    new Point3d(shape.Holes[0][i]),
+                });
+
+                mesh.AddFaceMesh(new Point3d[]
+                {
+                    new Point3d(shape.Holes[0][i]),
+                    new Point3d(shape.Holes[0][shape.Holes[0].GetNextIndex(i)]),
+                    _centroid,
+                });
+            }
+
+            return mesh;
         }
 
         protected override void SetMechanicalProperties()

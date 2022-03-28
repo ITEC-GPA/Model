@@ -26,7 +26,7 @@ namespace FemTest.SolverTest
         [TestMethod]
         public void ArcTestNnLin1()
         {
-            Section sec = new SectionCHS(10.0, 5.0, new SteelMaterial("m", 1000.0, 0.0, 355, 510, 7850), "sec");
+            Section sec = new SectionCHS(10.0, 5.0, new SteelMaterial("m", 1000.0, 0.0, 355, 510), "sec");
 
             List<Node> nds = new List<Node>();
             nds.Add(new Node(0, 0, 0));

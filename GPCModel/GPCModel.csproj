@@ -42,8 +42,8 @@
     <Reference Include="GMsh.Net, Version=1.0.484.1, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\GMsh.Net.1.0.484.1\lib\net472\GMsh.Net.dll</HintPath>
     </Reference>
-    <Reference Include="GPCGeometry, Version=1.1.3.4, Culture=neutral, processorArchitecture=AMD64">
-      <HintPath>..\packages\GPCGeometry.1.1.3.4\lib\net472\GPCGeometry.dll</HintPath>
+    <Reference Include="GPCGeometry, Version=1.1.3.7, Culture=neutral, processorArchitecture=AMD64">
+      <HintPath>..\packages\GPCGeometry.1.1.3.7\lib\net472\GPCGeometry.dll</HintPath>
     </Reference>
     <Reference Include="GPCUtilities, Version=1.0.32.2, Culture=neutral, processorArchitecture=AMD64">
       <HintPath>..\packages\GPCUtilities.1.0.32.2\lib\net472\GPCUtilities.dll</HintPath>
@@ -85,9 +85,9 @@
     <Compile Include="FEM\Collections\AttributesCollection.cs" />
     <Compile Include="Materials\Concrete\ConcreteMaterialACI318-19.cs" />
     <Compile Include="Materials\Concrete\ConcreteMaterialEN1992.cs" />
-    <Compile Include="Materials\Concrete\ConcreteMaterialModelCode2010FRC.cs" />
-    <Compile Include="Materials\Concrete\ConcreteMaterial.cs" />
     <Compile Include="Materials\Concrete\ConcreteMaterialModelCode2010.cs" />
+    <Compile Include="Materials\Concrete\ConcreteMaterial.cs" />
+    <Compile Include="Materials\Concrete\ConcreteMaterialEuropeanCommon.cs" />
     <Compile Include="Materials\StressStrainTable.cs" />
     <Compile Include="Maths\GaussIntegration\GaussIntegration.cs" />
     <Compile Include="Maths\GaussIntegration\GaussPoints.cs" />
@@ -103,10 +103,14 @@
     <Compile Include="Results\ResultLocation\ResultLocationId.cs" />
     <Compile Include="Results\ResultTypes\IResult.cs" />
     <Compile Include="Results\ResultTypes\ResultPlateStress.cs" />
+    <Compile Include="Sections\Concrete\ConcreteSectionC.cs" />
     <Compile Include="Sections\Concrete\ConcreteSectionCHS.cs" />
     <Compile Include="Sections\Concrete\ConcreteSectionCircular.cs" />
+    <Compile Include="Sections\Concrete\ConcreteSectionH.cs" />
     <Compile Include="Sections\Concrete\ConcreteSectionHelper.cs" />
+    <Compile Include="Sections\Concrete\ConcreteSectionL.cs" />
     <Compile Include="Sections\Concrete\ConcreteSectionRectangular.cs" />
+    <Compile Include="Sections\Concrete\ConcreteSectionRHS.cs" />
     <Compile Include="Sections\Concrete\ConcreteSectionT.cs" />
     <Compile Include="Sections\Concrete\IConcreteSection.cs" />
     <Compile Include="Sections\Concrete\RebarCollection.cs" />

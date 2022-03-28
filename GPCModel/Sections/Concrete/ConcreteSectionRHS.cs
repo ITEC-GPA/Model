@@ -6,14 +6,14 @@ using System.Text;
 using System.Threading.Tasks;
 using GPC.Geometry;
 using GPC.Geometry.Meshes;
+using GPC.Model.Elements;
+using GPC.Model.FEM.Materials;
 using GPC.Model.Materials;
-using GPC.Model.Sections.Rebar;
 
 namespace GPC.Model.Sections.Concrete
 {
-    [Serializable]
-    public class ConcreteSectionCHS : SectionCHS, IConcreteSection, ISerializable
-    {
+	public class ConcreteSectionRHS : SectionRHS, IConcreteSection
+	{
         #region Variables
 
         protected readonly UniqueIdCollection<ReinforcedConcreteRebar> _rebars;
@@ -27,29 +27,29 @@ namespace GPC.Model.Sections.Concrete
         public ConcreteMaterial ConcreteMaterial => (ConcreteMaterial)_material;
 
         public double AreaRebars => _rebars.Select(i => i.Area).Sum();
+
         public int RebarsCount => _rebars.Count;
 
         #endregion
 
         #region Public Constructors
 
-        public ConcreteSectionCHS(double diameter, double thickness, ConcreteMaterial material, string name = "")
-            : base(diameter, thickness, material, name)
+        public ConcreteSectionRHS(double height, double width, double thicknessTopFlange, double thicknessBottomFlange,
+            double thicknessWebLeft, double thicknessWebRight, ConcreteMaterial material, string name = "")
+            : base(height, width, thicknessTopFlange, thicknessBottomFlange, thicknessWebLeft, thicknessWebRight, material, name)
         {
             _rebars = new UniqueIdCollection<ReinforcedConcreteRebar>();
         }
 
-        public ConcreteSectionCHS(SectionCHS sectionCHS)
-            : base(sectionCHS)
+        public ConcreteSectionRHS(SectionRHS section)
+            : this(section.Height, section.Base, section.ThicknessTop, section.ThicknessBottom,
+                  section.ThicknessWebLeft, section.ThicknessWebRight, (ConcreteMaterial)section.Material, section.Name)
         {
-            _rebars = new UniqueIdCollection<ReinforcedConcreteRebar>();
-            _mesh = GenerateMesh();
-
-            if (sectionCHS.Material.GetType() != typeof(ConcreteMaterial))
+            if (section.Material.GetType() != ConcreteMaterial.GetType())
                 throw new ArgumentException("Material must be a ConcreteMaterial");
         }
 
-        protected ConcreteSectionCHS(SerializationInfo info, StreamingContext context) 
+        protected ConcreteSectionRHS(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
             _rebars = (UniqueIdCollection<ReinforcedConcreteRebar>)info.GetValue("Rebars", typeof(UniqueIdCollection<ReinforcedConcreteRebar>));
@@ -61,41 +61,11 @@ namespace GPC.Model.Sections.Concrete
 
         #region Rebars
 
-        public bool AddRadialRebars(double externalConcreteCover, int externalNumberOfRebars, IRebarSection externalRebarSection,
-                                  double internalConcreteCover, int internalNumberOfRebars, IRebarSection internalRebarSection,
-                                  double externalEpsilonP = 0.0, double internalEpsilonP = 0.0)
-        {
-
-            bool retVal = false;
-            if (externalRebarSection != null)
-            {
-                retVal = _rebars.AddRange(ConcreteSectionHelper.SetRadialRebars(Diameter, externalConcreteCover, externalNumberOfRebars, externalRebarSection, Centroid, externalEpsilonP));
-            }
-
-            if (!retVal)
-                return retVal;
-
-            if (internalRebarSection != null)
-            {
-                retVal = _rebars.AddRange(ConcreteSectionHelper.SetRadialRebars(Diameter, internalConcreteCover, internalNumberOfRebars, internalRebarSection, Centroid, internalEpsilonP));
-            }
-
-            return retVal;
-        }
-
-        public bool AddRadialRebars(double concreteCover, int numberOfRebars, IRebarSection rebarSection, double epsilonP = 0.0)
-        {
-            return _rebars.AddRange(ConcreteSectionHelper.SetRadialRebars(Diameter, concreteCover, numberOfRebars, rebarSection, Centroid, epsilonP));
-        }
-
-
-
         /// <inheritdoc cref="AddRebar(ReinforcedConcreteRebar, out int)"/>
         public bool AddRebar(ReinforcedConcreteRebar rebar)
         {
             return AddRebar(rebar, out _);
         }
-
 
         /// <summary>
         /// Add a <paramref name="rebar"/> into the section.
@@ -129,7 +99,6 @@ namespace GPC.Model.Sections.Concrete
 
         }
 
-
         /// <inheritdoc cref="AddRebar(ReinforcedConcreteRebar, out int)"/>
         public bool[] AddRebars(IEnumerable<ReinforcedConcreteRebar> rebars, out int[] ids)
         {
@@ -152,7 +121,6 @@ namespace GPC.Model.Sections.Concrete
             return AddRebars(rebars, out _);
         }
 
-
         /// <inheritdoc cref="UniqueIdCollection{T}.Remove(T)"/>
         public bool RemoveRebar(ReinforcedConcreteRebar rebar)
         {
@@ -171,7 +139,6 @@ namespace GPC.Model.Sections.Concrete
             return _rebars.RemoveRange(rebars);
         }
 
-
         public bool ClearRebars()
         {
             try
@@ -184,7 +151,6 @@ namespace GPC.Model.Sections.Concrete
                 return false;
             }
         }
-
 
         /// <returns><see langword="null"/> if item not found</returns>
         /// <inheritdoc cref="UniqueIdCollection{T}.GetById(int)"/>
@@ -204,7 +170,6 @@ namespace GPC.Model.Sections.Concrete
         {
             return _rebars.ToArray();
         }
-
 
         /// <inheritdoc cref="GetRebarById(int)"/>
         public ReinforcedConcreteRebar[] GetRebarById(IEnumerable<int> rebarIds)
@@ -226,10 +191,9 @@ namespace GPC.Model.Sections.Concrete
             }
         }
 
-
         #endregion
-       
-        #region MechanicalProperties
+
+        #region Mechanical properties
 
         /// <summary>
         /// Return all homogenized mechanical properties with default value of homogenized factor n
@@ -253,10 +217,11 @@ namespace GPC.Model.Sections.Concrete
             Point2d centroidH = GetHomogenizedCentroid(out var SxH, out var SyH);
 
             // NOTA: ci siamo ricondotti a momenti d'inerzia rispetto al baricentro della sezione di solo calcestruzzo
-            ConcreteSectionHelper.CalculateHomogeneizedInertiaMoments(_rebars.ToArray(), Centroid, centroidH, ConcreteMaterial, Jxx, Jyy, Jxy, Area, out var JxxH, out var JyyH, out var JxyH, out var JpH);
+            ConcreteSectionHelper.CalculateHomogeneizedInertiaMoments(_rebars.ToArray(), Centroid, centroidH, ConcreteMaterial,
+                Jxx, Jyy, Jxy, Area, out var JxxH, out var JyyH, out var JxyH, out var JpH);
 
             double J11H = SectionHelper.CalculateJ11(JxxH, JyyH, JxyH);
-            double J22H = SectionHelper.CalculateJ11(JxxH, JyyH, JxyH);
+            double J22H = SectionHelper.CalculateJ22(JxxH, JyyH, JxyH);
             double angleX = SectionHelper.CalculateAngle(J11H, J22H, JxxH, JyyH, JxyH);
 
             return (GetHomogenizedArea(), SxH, SyH, centroidH, JxxH, JyyH, JxyH, JpH, J11H, J22H, angleX);
@@ -270,8 +235,8 @@ namespace GPC.Model.Sections.Concrete
         /// <returns>The centroid</returns>
         public Point2d GetHomogenizedCentroid(out double SxHomog, out double SyHomog)
         {
-            return ConcreteSectionHelper.GetHomogenizedCentroid(Area * Diameter / 2.0, Area * Diameter / 2.0, _rebars.ToArray(), 
-                ConcreteMaterial, Area, out SxHomog, out SyHomog);
+            return ConcreteSectionHelper.GetHomogenizedCentroid(Mesh, _rebars.ToArray(), ConcreteMaterial,
+                Area, out SxHomog, out SyHomog);
         }
 
         /// <summary>
@@ -285,12 +250,14 @@ namespace GPC.Model.Sections.Concrete
 
         public double GetHomogeneizedJ11()
         {
-            return ConcreteSectionHelper.GetHomogeneizedJ11(Mesh, Centroid, _rebars.ToArray(), ConcreteMaterial, Area, Jxx, Jyy, Jxy);
+            return ConcreteSectionHelper.GetHomogeneizedJ11(Mesh, Centroid, _rebars.ToArray(), ConcreteMaterial,
+                Area, Jxx, Jyy, Jxy);
         }
 
         public double GetHomogeneizedJ22()
         {
-            return ConcreteSectionHelper.GetHomogeneizedJ22(Mesh, Centroid, _rebars.ToArray(), ConcreteMaterial, Area, Jxx, Jyy, Jxy);
+            return ConcreteSectionHelper.GetHomogeneizedJ22(Mesh, Centroid, _rebars.ToArray(), ConcreteMaterial,
+                Area, Jxx, Jyy, Jxy);
         }
 
         #region Phi factor
@@ -317,7 +284,8 @@ namespace GPC.Model.Sections.Concrete
             Point2d centroidH = GetHomogenizedCentroid(phi, out var SxH, out var SyH);
 
             // NOTA: ci siamo ricondotti a momenti d'inerzia rispetto al baricentro della sezione di solo calcestruzzo
-            ConcreteSectionHelper.CalculateHomogeneizedInertiaMoments(phi, ConcreteMaterial, _rebars.ToArray(), Centroid, centroidH, Jxx, Jyy, Jxy, Area, out var JxxH, out var JyyH, out var JxyH, out var JpH);
+            ConcreteSectionHelper.CalculateHomogeneizedInertiaMoments(phi, ConcreteMaterial, _rebars.ToArray(), Centroid, centroidH, Jxx, Jyy, Jxy, Area,
+                out var JxxH, out var JyyH, out var JxyH, out var JpH);
 
             double J11H = SectionHelper.CalculateJ11(JxxH, JyyH, JxyH);
             double J22H = SectionHelper.CalculateJ22(JxxH, JyyH, JxyH);
@@ -345,18 +313,20 @@ namespace GPC.Model.Sections.Concrete
         /// <returns></returns>
         public Point2d GetHomogenizedCentroid(double phi, out double SxHomog, out double SyHomog)
         {
-            return ConcreteSectionHelper.GetHomogenizedCentroid(phi, _rebars.ToArray(), ConcreteMaterial, Area * Diameter / 2.0,
-                Area * Diameter / 2.0, Area, out SxHomog, out SyHomog);
+            return ConcreteSectionHelper.GetHomogenizedCentroid(phi, Mesh, _rebars.ToArray(), ConcreteMaterial,
+                Area, out SxHomog, out SyHomog);
         }
 
         public double GetHomogeneizedJ11(double phi)
         {
-            return ConcreteSectionHelper.GetHomogeneizedJ11(phi, Centroid, Mesh, _rebars.ToArray(), ConcreteMaterial, Area, Jxx, Jyy, Jxy);
+            return ConcreteSectionHelper.GetHomogeneizedJ11(phi, Centroid, Mesh, _rebars.ToArray(), ConcreteMaterial,
+                Area, Jxx, Jyy, Jxy);
         }
 
         public double GetHomogeneizedJ22(double phi)
         {
-            return ConcreteSectionHelper.GetHomogeneizedJ22(phi, Centroid, Mesh, _rebars.ToArray(), ConcreteMaterial, Area, Jxx, Jyy, Jxy);
+            return ConcreteSectionHelper.GetHomogeneizedJ22(phi, Centroid, Mesh, _rebars.ToArray(), ConcreteMaterial,
+                Area, Jxx, Jyy, Jxy);
         }
 
         public virtual double CalculateN(ReinforcedConcreteRebar rebar)
@@ -369,11 +339,11 @@ namespace GPC.Model.Sections.Concrete
             return ConcreteSectionHelper.CalculateN(_rebars.GetById(rebar), ConcreteMaterial);
         }
 
-        #endregion
+		#endregion
 
-        #endregion
+		#endregion
 
-        public ReinforcedConcreteSection ToReinforcedConcreteSection()
+		public ReinforcedConcreteSection ToReinforcedConcreteSection()
         {
             var section = new ReinforcedConcreteSection(new ShapeEx(GetShape(), ConcreteMaterial), Name);
             section.AddRebars(_rebars);

@@ -39,7 +39,6 @@ namespace GPC.Model.Sections.Concrete
             : base(diameter, material, name)
         {
             _rebars = new UniqueIdCollection<ReinforcedConcreteRebar>();
-            _mesh = GenerateMesh();
         }
 
         protected ConcreteSectionCircular(SerializationInfo info, StreamingContext context) :

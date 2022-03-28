@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
 using GPC.Geometry;
+using GPC.Geometry.Meshes;
 using GPC.Model.Materials;
 using GPC.Utilities.Extensions;
 
@@ -51,6 +52,27 @@ namespace GPC.Model.Sections
             if (thinWalls.Length != points.Length)
                 throw new ArgumentException();
 
+        }
+
+        #endregion
+
+        #region Mesh
+
+        protected Mesh GetMesh()
+        {
+            Mesh mesh = new Mesh();
+
+            for (int i = 0; i < _thinWalls.Count(); i++)
+            {
+                Polygon2d a = ((Polygon2d)_thinWalls[0].GetPerimeter().Clone());
+                a.Move(_points[0].X, _points[0].Y);
+                Point3d[] ps = new Point3d[a.Count];
+                for (int j = 0; j < ps.Length; j++)
+                    ps[j] = new Point2d(a[j].X, a[j].Y);
+                mesh.AddFaceMesh(ps);
+            }
+
+            return mesh;
         }
 
         #endregion

@@ -30,7 +30,7 @@ namespace FemTest.SolverTest
             nds.Add(new Node(2.0, 2.0, 2.0));
             nds.Add(new Node(0.0, 2.0, 2.0));
 
-            SteelMaterial mat = new SteelMaterial("mat", 1.0, 0.0, 355, 510, 7850.0);
+            SteelMaterial mat = new SteelMaterial("mat", 1.0, 0.0, 355, 510);
 
             BrickProperty brickProperty = new BrickProperty(mat.GetIsotropicFemMaterial(), "propBrick");
 
@@ -63,7 +63,7 @@ namespace FemTest.SolverTest
             nds.Add(new Node(1.0, 1.0, 1.0));
             nds.Add(new Node(0.0, 1.0, 1.0));
 
-            SteelMaterial mat = new SteelMaterial("mat", 1.0, 0.0, 355, 510, 7850.0);
+            SteelMaterial mat = new SteelMaterial("mat", 1.0, 0.0, 355, 510);
 
             BrickProperty brickProperty = new BrickProperty(mat.GetIsotropicFemMaterial(), "proprBrick");
 
@@ -111,7 +111,7 @@ namespace FemTest.SolverTest
             nds.Add(new Node(3.0, 1.0, 1.0));
             nds.Add(new Node(0.0, 1.0, 1.0));
 
-            SteelMaterial mat = new SteelMaterial("mat", 1.0, 0.0, 355, 510, 7850.0);
+            SteelMaterial mat = new SteelMaterial("mat", 1.0, 0.0, 355, 510);
 
             BrickProperty brickProperty = new BrickProperty(mat.GetIsotropicFemMaterial(), "proprBrick");
 
@@ -156,7 +156,7 @@ namespace FemTest.SolverTest
                 nds.Add(new Node((1.0 * nr / nrEl) * L, 0.0, 1.0));                                
             }
 
-            SteelMaterial mat = new SteelMaterial("mat", 1000.0, 0.0, 355, 510, 7850.0);
+            SteelMaterial mat = new SteelMaterial("mat", 1000.0, 0.0, 355, 510);
 
             BrickProperty brickProperty = new BrickProperty(mat.GetIsotropicFemMaterial(), "proprBrick");
 
