@@ -85,7 +85,7 @@
     <Compile Include="Fem\Brick\HexaedronTest.cs" />
     <Compile Include="Fem\Brick\TetrahedronTest.cs" />
     <Compile Include="Fem\NnLinearSolverTest.cs" />
-    <Compile Include="GaussIntegrationTest.cs" />
+    <Compile Include="Maths\GaussIntegrationTest.cs" />
     <Compile Include="Fem\Plates\Quad4GQ12MembranalTest.cs" />
     <Compile Include="Fem\Plates\Quad4QFSUQMembranalTest.cs" />
     <Compile Include="Fem\Plates\Quad4MQ2IbraMembranalTest.cs" />
@@ -100,7 +100,7 @@
     <Compile Include="Fem\FEMUtilitiesTest.cs" />
     <Compile Include="General\OperatorsTest.cs" />
     <Compile Include="Performance\PerformanceIntegrationTest.cs" />
-    <Compile Include="IntegrationTest.cs" />
+    <Compile Include="Maths\IntegrationTest.cs" />
     <Compile Include="InterlayerMaterialTest.cs" />
     <Compile Include="Performance\PerformanceSectionTest.cs" />
     <Compile Include="ResultTest.cs" />
