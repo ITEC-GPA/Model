@@ -97,7 +97,7 @@
     <Compile Include="Fem\Plates\MembraneTest.cs" />
     <Compile Include="Fem\Plates\ElementTest.cs" />
     <Compile Include="Fem\Plates\DKTTest.cs" />
-    <Compile Include="Fem\FEMUtilitiesTest.cs" />
+    <Compile Include="Fem\FemUtilitiesTest.cs" />
     <Compile Include="General\OperatorsTest.cs" />
     <Compile Include="Performance\PerformanceIntegrationTest.cs" />
     <Compile Include="Maths\IntegrationTest.cs" />

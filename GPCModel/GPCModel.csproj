@@ -200,7 +200,7 @@
     <Compile Include="Fem\Group.cs" />
     <Compile Include="Fem\NonLinearStaticSolver.cs" />
     <Compile Include="Fem\Stage.cs" />
-    <Compile Include="Fem\FEMUtilities.cs" />
+    <Compile Include="Fem\FemUtilities.cs" />
     <Compile Include="Glasses\AirChamber.cs" />
     <Compile Include="Glasses\Glass.cs" />
     <Compile Include="Fem\ElementProperty\IGlassProperty.cs" />
@@ -237,7 +237,7 @@
     <Compile Include="Fem\Attributes\LoadCase\BeamDistribuitedLoadAttribute.cs" />
     <Compile Include="Fem\Costrain\Costrain.cs" />
     <Compile Include="Fem\FemModel.cs" />
-    <Compile Include="Fem\FEMObject.cs" />
+    <Compile Include="Fem\FemObject.cs" />
     <Compile Include="Fem\FiniteElements\FiniteElement.cs" />
     <Compile Include="Fem\FiniteElements\PlateTriangle\Tri3Element.cs" />
     <Compile Include="Fem\FiniteElements\PlateTriangle\Tri3DK.cs" />

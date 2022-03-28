@@ -4,7 +4,7 @@ using System.Linq;
 
 namespace GPC.Model.FEM.Costrains
 {
-    public abstract class Costrain : FEMObject
+    public abstract class Costrain : FemObject
     {
 
         protected Node _startNode;

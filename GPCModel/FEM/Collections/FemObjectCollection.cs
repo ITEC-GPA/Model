@@ -12,10 +12,10 @@ namespace GPC.Model.FEM.Collections
     /// A collection of FemObject.
     /// <para>This collection does not contains elements with a duplicated ID</para>
     /// </summary>
-    /// <typeparam name="T">A <see cref="FEMObject"/></typeparam>
+    /// <typeparam name="T">A <see cref="FemObject"/></typeparam>
     /// <remarks>The collection is thread-safe</remarks>
     [Serializable]
-    public class FemObjectCollection<T> : IEnumerable<T> where T : FEMObject, ISerializable
+    public class FemObjectCollection<T> : IEnumerable<T> where T : FemObject, ISerializable
     {
         protected readonly object _locker = new object();
 
@@ -415,7 +415,7 @@ namespace GPC.Model.FEM.Collections
 
                     foreach (var element in _collection)
                     {
-                        hashCode += EqualityComparer<FEMObject>.Default.GetHashCode(element);
+                        hashCode += EqualityComparer<FemObject>.Default.GetHashCode(element);
                     }
 
                     return hashCode;

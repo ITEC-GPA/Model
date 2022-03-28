@@ -30,7 +30,7 @@ namespace GPC.Model.FEM.FiniteElements
         }
 
         /// <summary>
-        /// This constructor to be used ONLY for debugging purpose. Use <see cref="FiniteElement.SetProperty(ElementProperty)"/> or <see cref="FEMObject.SetId(int)"/> instead
+        /// This constructor to be used ONLY for debugging purpose. Use <see cref="FiniteElement.SetProperty(ElementProperty)"/> or <see cref="FemObject.SetId(int)"/> instead
         /// </summary>
         internal Quad4Membranal(Node[] nodes, PlateProperty property) : this(nodes)
         {
@@ -137,7 +137,7 @@ namespace GPC.Model.FEM.FiniteElements
 
                 mnl.Matrix<double> b = GetB(csi, eta);
                 mnl.Matrix<double> m = b.Transpose() * _d * b;
-                mnl.Matrix<double> jacob = FEMUtilities.Jacob2D(csi, eta, LinearShapeFunctionQuad4.DNdCsi, LinearShapeFunctionQuad4.DNdEta, _localNodes);
+                mnl.Matrix<double> jacob = FemUtilities.Jacob2D(csi, eta, LinearShapeFunctionQuad4.DNdCsi, LinearShapeFunctionQuad4.DNdEta, _localNodes);
 
                 /*Console.WriteLine();
                 Console.WriteLine("B(csi=" + csi.ToString("F2") + ",eta=" + eta.ToString("F2") + ")^T * D * B(csi=" + csi.ToString("F2") + ",eta=" + eta.ToString("F2")+"):");
@@ -178,7 +178,7 @@ namespace GPC.Model.FEM.FiniteElements
              * a = Jacob^(-1) oppurtunamente disposto in matrice 3x4
             */
             mnl.Matrix<double> a = mnl.Matrix<double>.Build.Dense(3, 4);
-            mnl.Matrix<double> j = FEMUtilities.Jacob2D(csi, eta, LinearShapeFunctionQuad4.DNdCsi, LinearShapeFunctionQuad4.DNdEta, _localNodes);
+            mnl.Matrix<double> j = FemUtilities.Jacob2D(csi, eta, LinearShapeFunctionQuad4.DNdCsi, LinearShapeFunctionQuad4.DNdEta, _localNodes);
             a[0, 0] = j[1, 1];
             a[0, 1] = -j[0, 1];
 

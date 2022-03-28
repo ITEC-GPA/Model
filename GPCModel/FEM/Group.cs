@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 namespace GPC.Model.FEM
 {
     /// <summary>
-    /// This class to be used to group some <see cref="FEMObject"/> togethers.
+    /// This class to be used to group some <see cref="FemObject"/> togethers.
     /// </summary>
     [DebuggerDisplay("{" + nameof(GetDebuggerDisplay) + "(),nq}")]
     public sealed class Group : ModelObjectId, IEquatable<Group>

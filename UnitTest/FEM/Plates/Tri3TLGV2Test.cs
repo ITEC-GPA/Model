@@ -48,10 +48,10 @@ namespace FemTest.SolverTest
             var mDKT = els[1].KElementLocalCoord;
             var mTLG = els[0].KElementLocalCoord;
 
-            FEMUtilities.WriteMatrix("Tri3TLG local matrix = ", els[0].KElementLocalCoord);
+            FemUtilities.WriteMatrix("Tri3TLG local matrix = ", els[0].KElementLocalCoord);
             //FEMUtilities.WriteMatrix("Tri3TLG global matrix = ", els[0].KElementGlobalCoord);
 
-            FEMUtilities.WriteMatrix("DKT local matrix = ", els[1].KElementLocalCoord);
+            FemUtilities.WriteMatrix("DKT local matrix = ", els[1].KElementLocalCoord);
             //FEMUtilities.WriteMatrix("DKT global matrix = ", els[1].KElementGlobalCoord);
 
             var indexes = new int[9] { 0, 1, 2, 5, 6, 7, 10, 11, 12 };
@@ -342,11 +342,11 @@ namespace FemTest.SolverTest
             el.BuildMatrix();
             el2.BuildMatrix();
 
-            FEMUtilities.WriteMatrix("Kg = ", el.KGlass);
-            FEMUtilities.WriteMatrix("Ks = ", el.KLayer);
-            FEMUtilities.WriteMatrix("KLocalUnordered = ", el.KLocalUnordered);
+            FemUtilities.WriteMatrix("Kg = ", el.KGlass);
+            FemUtilities.WriteMatrix("Ks = ", el.KLayer);
+            FemUtilities.WriteMatrix("KLocalUnordered = ", el.KLocalUnordered);
 
-            FEMUtilities.WriteMatrix("KDKT = ", el2.KElementLocalCoord);
+            FemUtilities.WriteMatrix("KDKT = ", el2.KElementLocalCoord);
 
             CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
             NodeForceAttribute f = new NodeForceAttribute("lc", sys, 0, 0, 1, 0, 0, 0);
@@ -383,8 +383,8 @@ namespace FemTest.SolverTest
 
             var fem0 = new LinearSolver(new FiniteElement[] { el });
 
-            FEMUtilities.WriteMatrix("KGlob = ", fem0.KGlobal, "F3");
-            FEMUtilities.WriteMatrix("KGlobRestr = ", fem0.KGlobalRestrains, "F3");
+            FemUtilities.WriteMatrix("KGlob = ", fem0.KGlobal, "F3");
+            FemUtilities.WriteMatrix("KGlobRestr = ", fem0.KGlobalRestrains, "F3");
         }
 
         /// <summary>
@@ -1529,7 +1529,7 @@ namespace FemTest.SolverTest
             bendingInterlayer = fem0.GetTri3TLG2InterlayerBending(element, 1);
             var stressInterlayerNode1 = fem0.GetTri3TLG2InterlayerStress(element, 1);
             var tau = 1.5 * V / (b * h);
-            FEMUtilities.WriteMatrix(stressInterlayerNode1);
+            FemUtilities.WriteMatrix(stressInterlayerNode1);
             Console.WriteLine("theoric = " + tau);
             //Assert.AreEqual(1.0, tau / stressInterlayerNode1, 0.05);
 

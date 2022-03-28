@@ -65,7 +65,7 @@ namespace FemTest.SolverTest
             mnl.Matrix<double> k1 = el.KElementLocalCoord;
 
             Console.WriteLine("k1 ");
-            FEMUtilities.WriteMatrix(k1, "F3");
+            FemUtilities.WriteMatrix(k1, "F3");
 
             nds[0] = new Node(0.0, 0.0, 0, "1");
             nds[1] = new Node(2.0, 0.0, 0, "2");
@@ -78,7 +78,7 @@ namespace FemTest.SolverTest
             k1 = el.KElementLocalCoord;
 
             Console.WriteLine("k1 ");
-            FEMUtilities.WriteMatrix(k1, "F3");
+            FemUtilities.WriteMatrix(k1, "F3");
 
             //Console.WriteLine("k2 Correct = ");
             //Util.WriteMatrix(k2, "F3");

@@ -388,7 +388,7 @@ namespace GPC.Model.FEM
                 return _groups.GetElementByName(name);
         }
 
-        public bool SetGroup(IEnumerable<FEMObject> elements, string groupName)
+        public bool SetGroup(IEnumerable<FemObject> elements, string groupName)
         {
             if (elements is null)
                 throw new ArgumentNullException(nameof(elements));
@@ -402,7 +402,7 @@ namespace GPC.Model.FEM
 
             //Func<FEMObject, Group, bool> add = (obj, group) => obj.AddGroup(group);
 
-            foreach (FEMObject element in elements)
+            foreach (FemObject element in elements)
             {
                 if (element is null)
                     return false;
@@ -414,7 +414,7 @@ namespace GPC.Model.FEM
             return true;
         }
 
-        public bool SetGroupRange(IEnumerable<FEMObject> elements, IEnumerable<string> groupNames)
+        public bool SetGroupRange(IEnumerable<FemObject> elements, IEnumerable<string> groupNames)
         {
             if (elements is null)
                 throw new ArgumentNullException(nameof(elements));
@@ -431,7 +431,7 @@ namespace GPC.Model.FEM
 
                 Group group = _groups.GetElementByName(names);
 
-                foreach (FEMObject element in elements)
+                foreach (FemObject element in elements)
                 {
                     if (element is null)
                         return false;

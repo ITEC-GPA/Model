@@ -205,7 +205,7 @@ namespace GPC.Model.FEM.FiniteElements
                 return Bg.Transpose() * _Dg * Bg; //equation 49
             }
 
-            Func<double, double, mnl.Matrix<double>> jacob = FEMUtilities.J2D(Tri3Element.GetdNdCsi, Tri3Element.GetdNdEta, _nodesLocal);
+            Func<double, double, mnl.Matrix<double>> jacob = FemUtilities.J2D(Tri3Element.GetdNdCsi, Tri3Element.GetdNdEta, _nodesLocal);
 
             _kLayer = OldGaussIntegration.IntegrationTriangular(fKLayer, jacob, 3);
             _kGlass = OldGaussIntegration.IntegrationTriangular(fKGlass, jacob, 3);
@@ -310,7 +310,7 @@ namespace GPC.Model.FEM.FiniteElements
                     double py = attribute.P1 * dirX.DotProduct(vecY) + attribute.P2 * dirY.DotProduct(vecY) + attribute.P3 * dirZ.DotProduct(vecY);
                     double pz = attribute.P1 * dirX.DotProduct(vecZ) + attribute.P2 * dirY.DotProduct(vecZ) + attribute.P3 * dirZ.DotProduct(vecZ);
 
-                    var jacob = FEMUtilities.J2D(Tri3Element.GetdNdCsi, Tri3Element.GetdNdEta, _nodesLocal);
+                    var jacob = FemUtilities.J2D(Tri3Element.GetdNdCsi, Tri3Element.GetdNdEta, _nodesLocal);
 
                     #region DKT
                     mnl.Matrix<double> Np(double csi, double eta)
@@ -557,7 +557,7 @@ namespace GPC.Model.FEM.FiniteElements
             localTensor[1, 0] = mLocal[2];
             localTensor[1, 1] = mLocal[1];
 
-            return FEMUtilities.RotateTensor(localTensor, _localCoordinateSystem, newSys);
+            return FemUtilities.RotateTensor(localTensor, _localCoordinateSystem, newSys);
         }
 
         public mnl.Matrix<double> GetGlassCurvatures(double csi, double eta, double[] globalDisplacementNodes, CoordinateSystem newSys = null)
@@ -571,7 +571,7 @@ namespace GPC.Model.FEM.FiniteElements
             localTensor[1, 0] = local[2]; //kxy
             localTensor[1, 1] = local[1]; //kyy
 
-            return FEMUtilities.RotateTensor(localTensor, _localCoordinateSystem, newSys);
+            return FemUtilities.RotateTensor(localTensor, _localCoordinateSystem, newSys);
         }
 
         public mnl.Matrix<double> GetGlassForces(double csi, double eta, double[] globalDisplacementNodes, CoordinateSystem newSys = null)
@@ -585,7 +585,7 @@ namespace GPC.Model.FEM.FiniteElements
             localTensor[1, 0] = local[2];
             localTensor[1, 1] = local[1]; //fyy
 
-            return FEMUtilities.RotateTensor(localTensor, _localCoordinateSystem, newSys);
+            return FemUtilities.RotateTensor(localTensor, _localCoordinateSystem, newSys);
         }
 
         public mnl.Matrix<double> GetGlassStrains(Glass g, Face face, double csi, double eta, double[] globalDisplacementNodes, CoordinateSystem newSys = null)
@@ -599,7 +599,7 @@ namespace GPC.Model.FEM.FiniteElements
             localTensor[1, 0] = local[2];
             localTensor[1, 1] = local[1]; //eyy
 
-            return FEMUtilities.RotateTensor(localTensor, _localCoordinateSystem, newSys);
+            return FemUtilities.RotateTensor(localTensor, _localCoordinateSystem, newSys);
         }
 
         public mnl.Matrix<double> GetGlassStress(Glass g, Face face, double csi, double eta, double[] globalDisplacementNodes, CoordinateSystem newSys = null)
@@ -613,7 +613,7 @@ namespace GPC.Model.FEM.FiniteElements
             localTensor[1, 0] = local[2];
             localTensor[1, 1] = local[1]; //syy
 
-            return FEMUtilities.RotateTensor(localTensor, _localCoordinateSystem, newSys);
+            return FemUtilities.RotateTensor(localTensor, _localCoordinateSystem, newSys);
         }
         #endregion
 
@@ -719,7 +719,7 @@ namespace GPC.Model.FEM.FiniteElements
             localTensor[2, 0] = local[0]; //tau_zx
             localTensor[2, 1] = local[1]; //tau_zy
 
-            return FEMUtilities.RotateTensor(localTensor, _localCoordinateSystem, newSys);
+            return FemUtilities.RotateTensor(localTensor, _localCoordinateSystem, newSys);
         }
 
         public mnl.Matrix<double> GetInterlayerStrains(double csi, double eta, double[] globalDisplacementNodes, CoordinateSystem newSys = null)
@@ -733,7 +733,7 @@ namespace GPC.Model.FEM.FiniteElements
             localTensor[2, 0] = local[0]; //gamma_zx
             localTensor[2, 1] = local[1]; //gamma_zy
 
-            return FEMUtilities.RotateTensor(localTensor, _localCoordinateSystem, newSys);
+            return FemUtilities.RotateTensor(localTensor, _localCoordinateSystem, newSys);
         }
         #endregion
         #endregion
@@ -861,11 +861,11 @@ namespace GPC.Model.FEM.FiniteElements
         {
             mnl.Matrix<double> bg = mnl.Matrix<double>.Build.Dense(6, 5);
 
-            var jacob = FEMUtilities.J2D(Tri3Element.GetdNdCsi, Tri3Element.GetdNdEta, _nodesLocal);
-            var dNdCsi = FEMUtilities.FFirstFix<int, double, double, double>(indexNode, Tri3Element.GetdNdCsi);
-            var dNdEta = FEMUtilities.FFirstFix<int, double, double, double>(indexNode, Tri3Element.GetdNdEta);
+            var jacob = FemUtilities.J2D(Tri3Element.GetdNdCsi, Tri3Element.GetdNdEta, _nodesLocal);
+            var dNdCsi = FemUtilities.FFirstFix<int, double, double, double>(indexNode, Tri3Element.GetdNdCsi);
+            var dNdEta = FemUtilities.FFirstFix<int, double, double, double>(indexNode, Tri3Element.GetdNdEta);
 
-            var dNdLocal = FEMUtilities.GetdNdLocalFromdNdNatural2D(csi, eta, dNdCsi, dNdEta, jacob);
+            var dNdLocal = FemUtilities.GetdNdLocalFromdNdNatural2D(csi, eta, dNdCsi, dNdEta, jacob);
 
             bg[0, 0] = dNdLocal[0];
 
