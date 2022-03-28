@@ -1,12 +1,12 @@
-﻿using GPC.Model.Glasses;
-using GPC.Model.Materials;
-using GPC.Model.FEM.Materials;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.Text;
 using System.Threading.Tasks;
+using GPC.Model.FEM.Materials;
+using GPC.Model.Glasses;
+using GPC.Model.Materials;
 
 namespace GPC.Model.FEM.Properties
 {
@@ -22,14 +22,14 @@ namespace GPC.Model.FEM.Properties
         public double LoadDuration => _loadDuration;
 
 
-        public InterlayerBrickProperty(FemMaterial material, double temperature, double loadDuration, string name) 
+        public InterlayerBrickProperty(FemMaterial material, double temperature, double loadDuration, string name)
             : base(material, name)
         {
             _temperature = temperature > 0 ? temperature : throw new ArgumentException("Temperature can not be lower or equal to zero");
             _loadDuration = loadDuration > 0 ? loadDuration : throw new ArgumentException("Temperature can not be lower or equal to zero");
         }
 
-        public InterlayerBrickProperty(SerializationInfo info, StreamingContext context) : base (info, context)
+        public InterlayerBrickProperty(SerializationInfo info, StreamingContext context) : base(info, context)
         {
             _temperature = (double)info.GetValue("Temperature", typeof(double));
             _loadDuration = (double)info.GetValue("LoadDuration", typeof(double));
@@ -53,7 +53,7 @@ namespace GPC.Model.FEM.Properties
             if (ReferenceEquals(this, other))
                 return true;
 
-            return  _temperature.Equals(other._temperature) && _loadDuration.Equals(other._loadDuration) 
+            return _temperature.Equals(other._temperature) && _loadDuration.Equals(other._loadDuration)
                                     && base.Equals(other);
         }
 

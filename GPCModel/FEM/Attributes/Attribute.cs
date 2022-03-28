@@ -88,7 +88,7 @@ namespace GPC.Model.FEM.Attributes
         public static bool operator !=(Attribute obj1, Attribute obj2)
         {
             return !(obj1 == obj2);
-        } 
+        }
 
         #endregion
     }

@@ -25,9 +25,9 @@ namespace GPC.Model.FEM.Attributes
         public FreedomCaseAttribute(string freedomCaseName, string name, Guid guid)
             : base(freedomCaseName, name, guid)
         {
-            
+
         }
-        
+
 
         public FreedomCaseAttribute(FreedomCaseAttribute freedomCaseAttribute)
             : base(freedomCaseAttribute.FreedomCaseName, freedomCaseAttribute.Name, freedomCaseAttribute.Guid)
@@ -64,7 +64,7 @@ namespace GPC.Model.FEM.Attributes
             {
                 int hashCode = 23;
                 hashCode = hashCode * -17 + base.GetHashCode();
-                return hashCode; 
+                return hashCode;
             }
         }
 

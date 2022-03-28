@@ -14,13 +14,13 @@ namespace GPC.Model.FEM.Collections
     public class FiniteElementStageCollection<T, D> : FemObjectStageCollection<FiniteElement, Stage.StageFiniteElementProperty>, ISerializable
     {
 
-        public FiniteElementStageCollection() 
+        public FiniteElementStageCollection()
             : base()
         {
 
         }
 
-        public FiniteElementStageCollection(SerializationInfo info, StreamingContext context) 
+        public FiniteElementStageCollection(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
 

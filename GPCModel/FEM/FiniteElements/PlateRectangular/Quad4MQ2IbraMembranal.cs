@@ -53,7 +53,7 @@ namespace GPC.Model.FEM.FiniteElements
             //calculation of matrix for transformation from Local to Global coordinates
             _localNodes = Quad4Element.GetLocalNodes(_nodesGlobal, out _localCoordinateSystem);//Quad4Element.LocalNodes(_nodesGlobal, out _localCoordinateSystem);
             _localNodes.ToList().ForEach(x => Console.WriteLine(x));
-            
+
             #region TransformationMatrixLocalCoordinatesToGlobalCoordinates
             mnl.Matrix<double> dofGlobalToLocalTranspose = mnl.Matrix<double>.Build.Dense(24, 12);
 
@@ -173,13 +173,14 @@ namespace GPC.Model.FEM.FiniteElements
 
             //Matrix P ---> reference: eq. 38 of the Article 1990
             double rho = 1.0 * ((IsotropicFemMaterial)((PlateProperty)_property).Material).G;
-            
-            Func<double, double, mnl.Matrix<double>> bTraspb = (double csi, double eta) => {
+
+            Func<double, double, mnl.Matrix<double>> bTraspb = (double csi, double eta) =>
+            {
                 mnl.Matrix<double> bSigned = biVectorSigned(1, csi, eta);
                 bSigned = bSigned.Append(biVectorSigned(2, csi, eta));
                 bSigned = bSigned.Append(biVectorSigned(3, csi, eta));
                 bSigned = bSigned.Append(biVectorSigned(4, csi, eta));
-                
+
                 return bSigned.Transpose() * bSigned;
             };
 
@@ -201,7 +202,7 @@ namespace GPC.Model.FEM.FiniteElements
 
             //symmetric part
             mnl.Matrix<double> B = GetBSymmetric(csi, eta);
-            
+
             //skew part ??
 
             return B;
@@ -263,7 +264,7 @@ namespace GPC.Model.FEM.FiniteElements
             {
                 throw new Exception("k");
             }
-           
+
         }
 
         /// <summary>
@@ -363,7 +364,7 @@ namespace GPC.Model.FEM.FiniteElements
 
             #region bVectorSigned
             #region bi
-    
+
             /*
             mnl.Vector<double> dNidNatural = mnl.Vector<double>.Build.Dense(2);
             dNidNatural[0] = LinearShapeFunctionQuad4.DNdCsi4nodes(i, csi, eta); //dNidCsi
@@ -388,7 +389,7 @@ namespace GPC.Model.FEM.FiniteElements
             var J4nodes = FEMUtilities.J2D(LinearShapeFunctionQuad4.DNdCsi, LinearShapeFunctionQuad4.DNdEta, _localNodes); //f(csi, eta)
             //create fake 8 nodes
             Node[] local8Nodes = Quad4Element.Get8Nodes(_localNodes);
-            
+
             var J8nodes = FEMUtilities.J2D(QuadraticShapeFunctionQuad8.DNdCsi, QuadraticShapeFunctionQuad8.DNdEta, local8Nodes); //f(csi, eta)
 
             if (J4nodes(csi, eta).Determinant() / J8nodes(csi, eta).Determinant() > 1.0001 || J4nodes(csi, eta).Determinant() / J8nodes(csi, eta).Determinant() < 0.99999)
@@ -411,8 +412,8 @@ namespace GPC.Model.FEM.FiniteElements
             double dNmdY = dNmdLocal[1];
 
             mnl.Matrix<double> bVectorSigned = mnl.Matrix<double>.Build.Dense(1, 3);
-            bVectorSigned[0,0] = -1.0 / 2.0 * dNidY;
-            bVectorSigned[0,1] = +1.0 / 2.0 * dNidX;
+            bVectorSigned[0, 0] = -1.0 / 2.0 * dNidY;
+            bVectorSigned[0, 1] = +1.0 / 2.0 * dNidX;
             #endregion
 
             #region gi
@@ -440,7 +441,7 @@ namespace GPC.Model.FEM.FiniteElements
              * THESIS REPORT - Analysis and Evaluation of a Shell Finite Element with Drilling Degree of Freedom
              * pg. 25-26 
              */
-            Console.WriteLine("Calculation of BiMatrixSigned, i = " + i + "(csi=" + csi + ",eta="+eta+")");
+            Console.WriteLine("Calculation of BiMatrixSigned, i = " + i + "(csi=" + csi + ",eta=" + eta + ")");
 
             GetDataCalculation(i, _localNodes, out double lij, out double sij, out double cij, out double lik, out double sik, out double cik, out int j, out int k, out int m, out int l);
 
@@ -479,17 +480,17 @@ namespace GPC.Model.FEM.FiniteElements
             double dNmdY = dNmdLocal[1];
 
             #region Gi
-            mnl.Matrix<double> Gi = mnl.Matrix<double>.Build.Dense(3,1);
+            mnl.Matrix<double> Gi = mnl.Matrix<double>.Build.Dense(3, 1);
             Gi[1 - 1, 0] = 1.0 / 8.0 * (lij * cij * dNldX - lik * cik * dNmdX);
             Gi[2 - 1, 0] = 1.0 / 8.0 * (lij * sij * dNldY - lik * sik * dNmdY);
             Gi[3 - 1, 0] = 1.0 / 8.0 * ((lij * cij * dNldY - lik * cik * dNmdY) + (lij * sij * dNldX - lik * sik * dNmdX));
 
-            Console.WriteLine("G"+i+ "[3-1](csi=" + csi + ",eta=" + eta + ")=" + 1.0 / 8.0 +"*("+lij +"*" +cij+ "*" +dNldY +"-"+ lik +"*" +cik +"*" +dNmdY+ "+" +lij +"*" +sij+ "*" +dNldX+ "-" +lik+ "*" +sik+ "*" +dNmdX+") = "+ Gi[3 - 1, 0]);
-            Console.WriteLine("G"+i +"(csi="+csi+",eta="+eta+")="+Gi);
+            Console.WriteLine("G" + i + "[3-1](csi=" + csi + ",eta=" + eta + ")=" + 1.0 / 8.0 + "*(" + lij + "*" + cij + "*" + dNldY + "-" + lik + "*" + cik + "*" + dNmdY + "+" + lij + "*" + sij + "*" + dNldX + "-" + lik + "*" + sik + "*" + dNmdX + ") = " + Gi[3 - 1, 0]);
+            Console.WriteLine("G" + i + "(csi=" + csi + ",eta=" + eta + ")=" + Gi);
             #endregion
 
             #region Bi
-            mnl.Matrix<double> Bi = mnl.Matrix<double>.Build.Dense(3,2);
+            mnl.Matrix<double> Bi = mnl.Matrix<double>.Build.Dense(3, 2);
             /*double dNidCsi = LinearShapeFunctionQuad4.DNdCsi(i, csi, eta);
             double dNidEta = LinearShapeFunctionQuad4.DNdEta(i, csi, eta);
             mnl.Vector<double> dNidNatural = mnl.Vector<double>.Build.Dense(2);
@@ -637,20 +638,20 @@ namespace GPC.Model.FEM.FiniteElements
                         Console.WriteLine("N4(" + csi + "," + eta + ") = " + Quad4Element.N4nodes(4, csi, eta));
                         Console.WriteLine("F: detJ(" + csi + "," + eta + ") = " + detJ);*/
 
-                        /*_fLocalCoord[0] = _fLocalCoord[0] + Quad4Element.N4nodes(1, csi, eta) * detJ * gaussWeight * px; //node1
-                        _fLocalCoord[1] = _fLocalCoord[1] + Quad4Element.N4nodes(1, csi, eta) * detJ * gaussWeight * py; //node1
+            /*_fLocalCoord[0] = _fLocalCoord[0] + Quad4Element.N4nodes(1, csi, eta) * detJ * gaussWeight * px; //node1
+            _fLocalCoord[1] = _fLocalCoord[1] + Quad4Element.N4nodes(1, csi, eta) * detJ * gaussWeight * py; //node1
 
-                        _fLocalCoord[2] = _fLocalCoord[2] + Quad4Element.N4nodes(2, csi, eta) * detJ * gaussWeight * px; //node2
-                        _fLocalCoord[3] = _fLocalCoord[3] + Quad4Element.N4nodes(2, csi, eta) * detJ * gaussWeight * py; //node2
+            _fLocalCoord[2] = _fLocalCoord[2] + Quad4Element.N4nodes(2, csi, eta) * detJ * gaussWeight * px; //node2
+            _fLocalCoord[3] = _fLocalCoord[3] + Quad4Element.N4nodes(2, csi, eta) * detJ * gaussWeight * py; //node2
 
-                        _fLocalCoord[4] = _fLocalCoord[4] + Quad4Element.N4nodes(3, csi, eta) * detJ * gaussWeight * px; //node3
-                        _fLocalCoord[5] = _fLocalCoord[5] + Quad4Element.N4nodes(3, csi, eta) * detJ * gaussWeight * py; //node3
-                    
-                        _fLocalCoord[6] = _fLocalCoord[6] + Quad4Element.N4nodes(4, csi, eta) * detJ * gaussWeight * px; //node4
-                        _fLocalCoord[7] = _fLocalCoord[7] + Quad4Element.N4nodes(4, csi, eta) * detJ * gaussWeight * py; //node4
-                    }
-                }
-            }*/
+            _fLocalCoord[4] = _fLocalCoord[4] + Quad4Element.N4nodes(3, csi, eta) * detJ * gaussWeight * px; //node3
+            _fLocalCoord[5] = _fLocalCoord[5] + Quad4Element.N4nodes(3, csi, eta) * detJ * gaussWeight * py; //node3
+
+            _fLocalCoord[6] = _fLocalCoord[6] + Quad4Element.N4nodes(4, csi, eta) * detJ * gaussWeight * px; //node4
+            _fLocalCoord[7] = _fLocalCoord[7] + Quad4Element.N4nodes(4, csi, eta) * detJ * gaussWeight * py; //node4
+        }
+    }
+}*/
             return _fLocalCoord;
         }
 
@@ -661,7 +662,7 @@ namespace GPC.Model.FEM.FiniteElements
             mnl.Vector<double> vecLocalDispl = mnl.Vector<double>.Build.Dense(localDisplacements);
 
             //TODO: aggiornare
-            
+
             Point2d[] naturalCoordNodes = new Point2d[4];
             naturalCoordNodes[0] = new Point2d(-1.0, -1.0);
             naturalCoordNodes[1] = new Point2d(+1.0, -1.0);
@@ -702,7 +703,8 @@ namespace GPC.Model.FEM.FiniteElements
 
             double thickness = ((PlateProperty)_property).MembraneThickness;
 
-            for (int i = 0; i < naturalCoordNodes.Length; i++) {
+            for (int i = 0; i < naturalCoordNodes.Length; i++)
+            {
                 #region CalculationOfStressAndDeformationsInLocalCoordinates
                 epsilonLocal[i] = GetB(naturalCoordNodes[i].X, naturalCoordNodes[i].Y) * vecLocalDispl; //epsilon_xx; epsilon_yy; epsilon_xy
                 stressLocal[i] = D * epsilonLocal[i]; //sigma_xx; sigma_yy; tau_xy
@@ -717,8 +719,8 @@ namespace GPC.Model.FEM.FiniteElements
 
                 epsilonLocalCouchy[i][0, 1] = epsilonLocal[i][2]; //epsilon_xy
                 epsilonLocalCouchy[i][1, 0] = epsilonLocal[i][2]; //epsilon_yx
-                                                            //epsilonCouchy[2, 2] = -ni / E * (sigma_xx + sigma_yy) + alpha * Temperature ; //epsilon_zz
-                                                            //Console.WriteLine("Epsilon local coordinate:" + epsilonCouchy.ToString());
+                                                                  //epsilonCouchy[2, 2] = -ni / E * (sigma_xx + sigma_yy) + alpha * Temperature ; //epsilon_zz
+                                                                  //Console.WriteLine("Epsilon local coordinate:" + epsilonCouchy.ToString());
 
                 stressLocalCouchy[i] = mnl.Matrix<double>.Build.Dense(3, 3);
                 stressLocalCouchy[i][0, 0] = stressLocal[i][0]; //sigma_xx
@@ -726,7 +728,7 @@ namespace GPC.Model.FEM.FiniteElements
 
                 stressLocalCouchy[i][0, 1] = stressLocal[i][2]; //sigma_xy
                 stressLocalCouchy[i][1, 0] = stressLocal[i][2]; //sigma_yx
-                                                          //Console.WriteLine("Stress local coordinate:" + stressCouchy.ToString());
+                                                                //Console.WriteLine("Stress local coordinate:" + stressCouchy.ToString());
 
                 //Second order tensor -> Trotated = Q * T * Q^T
                 epsilonGlobalCouchy[i] = rotation * epsilonLocalCouchy[i] * rotation.Transpose();

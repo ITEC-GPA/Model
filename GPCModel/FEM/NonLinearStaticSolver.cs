@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using GPC.Model.FEM.FiniteElements;
 using GPC.Geometry;
-using mnl = MathNet.Numerics.LinearAlgebra;
 using GPC.Model.FEM.Attributes;
 using GPC.Model.FEM.Costrains;
+using GPC.Model.FEM.FiniteElements;
+using mnl = MathNet.Numerics.LinearAlgebra;
 
 namespace GPC.Model.FEM
 {
@@ -16,7 +16,7 @@ namespace GPC.Model.FEM
         #endregion
 
         #region Properties
-        
+
         #endregion
 
         public NonLinearStaticSolver(FiniteElement[] inputElements) : this(inputElements, new MultiPointsCostrain[0])
@@ -50,7 +50,7 @@ namespace GPC.Model.FEM
                     double DX = femkm1.GetNodeDisplacementGlobalCoordinates(node, DOF.DX);
                     double DY = femkm1.GetNodeDisplacementGlobalCoordinates(node, DOF.DY);
                     double DZ = femkm1.GetNodeDisplacementGlobalCoordinates(node, DOF.DZ);
-                    
+
                     inputElementsk[i].Nodes[j].Position.Move(originalPosNode.X + DX, originalPosNode.Y + DY, originalPosNode.Z + DZ);
                 }
             }
@@ -66,7 +66,8 @@ namespace GPC.Model.FEM
 
             #region passo k + 1
             int iter = 0;
-            while (normDispl > 1e-3 && iter < 100) {
+            while (normDispl > 1e-3 && iter < 100)
+            {
                 Console.WriteLine("Passo " + iter++ + " ########################################################");
                 //mnl.Vector<double> ukp1 = GetNewU(uk, ukm1, Kk, Kkm1, fk, fkm1);
 
@@ -79,14 +80,14 @@ namespace GPC.Model.FEM
                     {
                         Node node = inputElementskp1[i].Nodes[j];
                         var originalPosNode = inputElementskp1[i].Nodes[j].Position;
-                        
+
                         /*int posDX = femk.GetPositionInKGlobal(node, DOF.DX);
                         int posDY = femk.GetPositionInKGlobal(node, DOF.DX);
                         int posDZ = femk.GetPositionInKGlobal(node, DOF.DX);
                         double DX = ukp1[posDX];
                         double DY = ukp1[posDY];
                         double DZ = ukp1[posDZ];*/
-                        
+
                         double DX = femk.GetNodeDisplacementGlobalCoordinates(node, DOF.DX);
                         double DY = femk.GetNodeDisplacementGlobalCoordinates(node, DOF.DY);
                         double DZ = femk.GetNodeDisplacementGlobalCoordinates(node, DOF.DZ);
@@ -103,7 +104,7 @@ namespace GPC.Model.FEM
                 //Kkm1 = Kk;
                 ukm1 = uk;
                 //fkm1 = fk;
-                
+
                 //Kk = femkp1.KGlobalRestrains;
                 uk = femkp1.NodeGlobalDisplacements;
                 //fk = femkp1.FRestrains;

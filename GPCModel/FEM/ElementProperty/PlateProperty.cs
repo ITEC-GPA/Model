@@ -2,8 +2,8 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Runtime.Serialization;
-using GPC.Model.Materials;
 using GPC.Model.FEM.Materials;
+using GPC.Model.Materials;
 
 namespace GPC.Model.FEM.Properties
 {
@@ -90,7 +90,7 @@ namespace GPC.Model.FEM.Properties
                 hashCode = hashCode * -17 + _bendingThickness.GetHashCode();
                 hashCode = hashCode * -17 + _membraneThickness.GetHashCode();
                 hashCode = hashCode * -17 + EqualityComparer<FemMaterial>.Default.GetHashCode(_material);
-                return hashCode; 
+                return hashCode;
             }
         }
 

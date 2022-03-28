@@ -49,7 +49,7 @@ namespace GPC.Model.FEM.FiniteElements
             _thickness = ((PlateProperty)_property).MembraneThickness;
 
             #region matrixD
-            double ni = ((IsotropicFemMaterial) ((PlateProperty)_property).Material).Ni;
+            double ni = ((IsotropicFemMaterial)((PlateProperty)_property).Material).Ni;
             _d = ((PlateProperty)_property).Material.GetPlaneStress();
             //Console.WriteLine("D = " + _d.ToString());
             #endregion
@@ -64,7 +64,7 @@ namespace GPC.Model.FEM.FiniteElements
             _localNodes = Tri3Element.GetLocalNodes(_nodesGlobal, out _localCoordinateSystem); //take global node and transform in local nodes
             Console.WriteLine("Element Local Nodes");
             _localNodes.ToList().ForEach(x => Console.WriteLine(x));
-            
+
             _dofGlobalToLocal = mnl.Matrix<double>.Build.Dense(9, 18);
             mnl.Matrix<double> dofGlobalToLocalTranspose = mnl.Matrix<double>.Build.Dense(18, 9);
 
@@ -92,7 +92,7 @@ namespace GPC.Model.FEM.FiniteElements
             dofGlobalToLocalTranspose[4, 2] = localZ.DotProduct(globalY);
             dofGlobalToLocalTranspose[5, 2] = localZ.DotProduct(globalZ);
             #endregion
-            
+
             #region localToGlobalNode2
             //local node2 x-displacement in global coordinate
             dofGlobalToLocalTranspose[6, 3] = localX.DotProduct(globalX);
@@ -142,7 +142,8 @@ namespace GPC.Model.FEM.FiniteElements
             #endregion
 
             #region stiffnessMatrixInLocalCoordinates
-            Func<Point3d, mnl.Matrix<double>> N = delegate (Point3d p) {
+            Func<Point3d, mnl.Matrix<double>> N = delegate (Point3d p)
+            {
                 mnl.Matrix<double> matrix = mnl.Matrix<double>.Build.Dense(3, 9);
                 double x = p.X;
                 double y = p.Y;
@@ -191,7 +192,7 @@ namespace GPC.Model.FEM.FiniteElements
             Console.WriteLine("A = " + _A);
 
             double areaElement = 0.5 * ((-_localNodes[1 - 1].Position.X + _localNodes[2 - 1].Position.X) * (-_localNodes[1 - 1].Position.Y + _localNodes[3 - 1].Position.Y)
-                                       -(-_localNodes[1 - 1].Position.X + _localNodes[3 - 1].Position.X) * (-_localNodes[1 - 1].Position.Y + _localNodes[2 - 1].Position.Y));
+                                       - (-_localNodes[1 - 1].Position.X + _localNodes[3 - 1].Position.X) * (-_localNodes[1 - 1].Position.Y + _localNodes[2 - 1].Position.Y));
 
             Console.WriteLine("area element = " + areaElement);
 
@@ -366,20 +367,20 @@ namespace GPC.Model.FEM.FiniteElements
             globalStress = stressGlobalCouchy;
 
             double thickness = ((PlateProperty)_property).MembraneThickness;
-            globalForces = stressGlobalCouchy.Select(stressGlobalCouchyElement => thickness * stressGlobalCouchyElement).ToArray() ;
+            globalForces = stressGlobalCouchy.Select(stressGlobalCouchyElement => thickness * stressGlobalCouchyElement).ToArray();
             localForces = stressLocalCouchy.Select(stressLocalCouchyElement => thickness * stressLocalCouchyElement).ToArray();
-                        
+
             globalEpsilon = epsilonGlobalCouchy;
             localEpsilon = stressGlobalCouchy;
         }
-        
+
         /// <summary>
         /// 3 x 9 matrix
         /// </summary>
         /// <param name="x"></param>
         /// <param name="y"></param>
         /// <returns></returns>
-        private mnl.Matrix<double> GetQ (double x, double y)
+        private mnl.Matrix<double> GetQ(double x, double y)
         {
             double ni = ((IsotropicFemMaterial)((PlateProperty)_property).Material).Ni;
 
@@ -392,10 +393,10 @@ namespace GPC.Model.FEM.FiniteElements
             Q[2 - 1, 5 - 1] = -ni * y;
             Q[2 - 1, 6 - 1] = 1.0;
             Q[2 - 1, 7 - 1] = x;
-            Q[2 - 1, 9 - 1] = -(1.0-ni)/(1.0+ni) * y *x;
+            Q[2 - 1, 9 - 1] = -(1.0 - ni) / (1.0 + ni) * y * x;
 
             Q[3 - 1, 8 - 1] = 1.0;
-            Q[3 - 1, 9 - 1] = (x*x + y*y);
+            Q[3 - 1, 9 - 1] = (x * x + y * y);
             return Q;
         }
 

@@ -1,8 +1,8 @@
-﻿using GPC.Model.Materials;
-using System;
+﻿using System;
 using System.Runtime.Serialization;
-using GPC.Model.Glasses;
 using GPC.Model.FEM.Materials;
+using GPC.Model.Glasses;
+using GPC.Model.Materials;
 
 
 namespace GPC.Model.FEM.Properties
@@ -27,8 +27,8 @@ namespace GPC.Model.FEM.Properties
         public InterlayerPlateProperty(double tb, double tm, FemMaterial material, double temperature, double loadDuration, string name)
             : base(material, tb, tm, name)
         {
-            this._temperature = temperature > 0 ? temperature : throw new ArgumentException("Temperature can not be lower or equal to zero");
-            this._loadDuration = loadDuration > 0 ? loadDuration : throw new ArgumentException("Temperature can not be lower or equal to zero");
+            _temperature = temperature > 0 ? temperature : throw new ArgumentException("Temperature can not be lower or equal to zero");
+            _loadDuration = loadDuration > 0 ? loadDuration : throw new ArgumentException("Temperature can not be lower or equal to zero");
         }
 
 
@@ -91,7 +91,7 @@ namespace GPC.Model.FEM.Properties
         public static bool operator !=(InterlayerPlateProperty obj1, InterlayerPlateProperty obj2)
         {
             return !(obj1 == obj2);
-        } 
+        }
         #endregion
     }
 }

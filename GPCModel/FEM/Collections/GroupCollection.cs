@@ -1,7 +1,7 @@
-﻿using GPC.Utilities.Extensions;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
+using GPC.Utilities.Extensions;
 
 namespace GPC.Model.FEM.Collections
 {

@@ -1,6 +1,6 @@
 ﻿using System;
-using GPC.Utilities.Fem;
 using GPC.Model.FEM.Properties;
+using GPC.Utilities.Fem;
 using mnl = MathNet.Numerics.LinearAlgebra;
 
 namespace GPC.Model.FEM.FiniteElements
@@ -10,7 +10,7 @@ namespace GPC.Model.FEM.FiniteElements
     /// </summary>
     public class Hexaedron : Brick
     {
-        internal Hexaedron(Node[] globalNodes, BrickProperty brickProperty) :base(globalNodes)
+        internal Hexaedron(Node[] globalNodes, BrickProperty brickProperty) : base(globalNodes)
         {
             _DOF.Add(LinearSolver.DOF.DX);
             _DOF.Add(LinearSolver.DOF.DY);
@@ -18,7 +18,7 @@ namespace GPC.Model.FEM.FiniteElements
             //a displacement in Local coordinate plane (Dx, Dy) can be a DX, DY, DZ in Global space!
 
             SetProperty(brickProperty);
-            
+
             #region
             //Controllo che per ogni nodo I vengano visti gli altri 3 in senso antiorario.
             //TODO : assicurarsi che ordine nodi sia corretto
@@ -45,13 +45,14 @@ namespace GPC.Model.FEM.FiniteElements
         {
             //For this element there is not advantage in setting up a local coordinate system
             // -> local axis coincide with global axis -> ref. Finite Element Method - by Rao
-            _dofGlobalToLocal = mnl.Matrix<double>.Build.DenseDiagonal(4*2*3, 1.0);
+            _dofGlobalToLocal = mnl.Matrix<double>.Build.DenseDiagonal(4 * 2 * 3, 1.0);
 
             /*double E = ((BrickProperty)_property).GetE();
             double ni = ((BrickProperty)_property).GetNi();*/
             _d = ((BrickProperty)_property).Material.Get3DSolidStress();
 
-            Func<double, double, double, mnl.Matrix<double>> kFunc = (double csi, double eta, double zeta) => {
+            Func<double, double, double, mnl.Matrix<double>> kFunc = (double csi, double eta, double zeta) =>
+            {
                 mnl.Matrix<double> b = GetB(csi, eta, zeta);
                 return b.Transpose() * _d * b;
             };
@@ -70,8 +71,8 @@ namespace GPC.Model.FEM.FiniteElements
         /// <returns></returns>
         public override mnl.Matrix<double> GetB(double csi, double eta, double zeta)
         {
-            mnl.Matrix<double> b = mnl.Matrix<double>.Build.Dense(6,0);
-            
+            mnl.Matrix<double> b = mnl.Matrix<double>.Build.Dense(6, 0);
+
             for (int i = 1; i <= 8; i++)
             {
                 b = b.Append(GetBi(i, csi, eta, zeta, _nodesGlobal));
@@ -108,15 +109,18 @@ namespace GPC.Model.FEM.FiniteElements
         {
             Func<double, double, double, mnl.Matrix<double>> jacob = FEMUtilities.J3D(TriLinearShapeFunctionHexaedron8.DNdCsi, TriLinearShapeFunctionHexaedron8.DNdEta, TriLinearShapeFunctionHexaedron8.DNdZeta, nodes);
 
-            Func<double, double, double, double> FdNdCsi = (double r, double s, double t) => {
+            Func<double, double, double, double> FdNdCsi = (double r, double s, double t) =>
+            {
                 return TriLinearShapeFunctionHexaedron8.DNdCsi(i, r, s, t);
             };
 
-            Func<double, double, double, double> FdNdEta = (double r, double s, double t) => {
+            Func<double, double, double, double> FdNdEta = (double r, double s, double t) =>
+            {
                 return TriLinearShapeFunctionHexaedron8.DNdEta(i, r, s, t);
             };
 
-            Func<double, double, double, double> FdNdZeta = (double r, double s, double t) => {
+            Func<double, double, double, double> FdNdZeta = (double r, double s, double t) =>
+            {
                 return TriLinearShapeFunctionHexaedron8.DNdZeta(i, r, s, t);
             };
 

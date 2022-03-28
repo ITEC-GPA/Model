@@ -5,8 +5,8 @@ using System.Linq;
 using System.Runtime.Serialization;
 using System.Text;
 using System.Threading.Tasks;
-using GPC.Model.LoadCases;
 using GPC.Geometry;
+using GPC.Model.LoadCases;
 
 namespace GPC.Model.FEM.Attributes
 {
@@ -118,7 +118,7 @@ namespace GPC.Model.FEM.Attributes
                 hashCode = hashCode * -17 + _p2.GetHashCode();
                 hashCode = hashCode * -17 + _p3.GetHashCode();
                 hashCode = hashCode * -17 + _coordinateSystem.GetHashCode();
-                return hashCode; 
+                return hashCode;
             }
         }
 

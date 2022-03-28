@@ -1,7 +1,7 @@
-﻿using GPC.Geometry;
-using GPC.Model.LoadCases;
-using System;
+﻿using System;
 using System.Collections.Generic;
+using GPC.Geometry;
+using GPC.Model.LoadCases;
 
 namespace GPC.Model.FEM.Attributes
 {
@@ -20,7 +20,7 @@ namespace GPC.Model.FEM.Attributes
 
 
         internal PlateAccelerationAttribute(PlateAccelerationAttribute beamAccelerationAttribute)
-            : this(beamAccelerationAttribute.LoadCaseName, beamAccelerationAttribute.CoordinateSystem, 
+            : this(beamAccelerationAttribute.LoadCaseName, beamAccelerationAttribute.CoordinateSystem,
                   beamAccelerationAttribute.A1, beamAccelerationAttribute.A2, beamAccelerationAttribute.A3)
         {
 

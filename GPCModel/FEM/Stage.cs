@@ -1,13 +1,13 @@
-﻿using GPC.Model.Combinations;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Runtime.Serialization;
+using GPC.Model.Combinations;
 using GPC.Model.FEM.Attributes;
 using GPC.Model.FEM.Collections;
 using GPC.Model.FEM.FiniteElements;
 using GPC.Model.FEM.Properties;
 using GPC.Utilities.Extensions;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.Serialization;
 
 namespace GPC.Model.FEM
 {
@@ -40,7 +40,7 @@ namespace GPC.Model.FEM
         private readonly NodeStageCollection<Node, StageProperty> _nodes;
 
         private readonly FemModel _femModel;
-        
+
         private bool _morph;
 
 
@@ -58,7 +58,7 @@ namespace GPC.Model.FEM
             : base(++_maxId, name)
         {
             // Il costruttore è internal in modo che sia solamente la classe fem model a poter creare l'istanza di stage.
-            
+
             _analysisType = analysisType;
             _combinations = combinations ?? new UniqueNameCollection<Combination>();
             _morph = morph;
@@ -289,7 +289,7 @@ namespace GPC.Model.FEM
 
         public bool AddCombinations(IEnumerable<Combination> combinations)
         {
-            foreach(var item in combinations)
+            foreach (var item in combinations)
             {
                 if (!AddCombination(item))
                     return false;
@@ -301,7 +301,7 @@ namespace GPC.Model.FEM
         {
             return _combinations.ToList();
         }
-        
+
         public bool RemoveCombination(string combinationName)
         {
             _combinations.Remove(combinationName);
@@ -475,7 +475,7 @@ namespace GPC.Model.FEM
                 hashCode = hashCode * -17 + _morph.GetHashCode();
                 hashCode = hashCode * -17 + _analysisType.GetHashCode();
 
-                return hashCode; 
+                return hashCode;
             }
         }
 
@@ -623,7 +623,7 @@ namespace GPC.Model.FEM
             }
 
             public StageFiniteElementProperty(SerializationInfo info, StreamingContext context) : base(info, context)
-            {                
+            {
                 _propertyName = (string)info.GetValue("PropertyName", typeof(string));
             }
 
@@ -635,10 +635,10 @@ namespace GPC.Model.FEM
 
             public StageFiniteElementProperty(FiniteElement element)
             {
-                this._propertyName = element.Property.Name;
+                _propertyName = element.Property.Name;
 
-                this.AddLoadCaseAttributes(element.AttributesLoadCase.ToList());
-                this.AddFreedomCaseAttributes(element.AttributesFreedomCase.ToList());
+                AddLoadCaseAttributes(element.AttributesLoadCase.ToList());
+                AddFreedomCaseAttributes(element.AttributesFreedomCase.ToList());
             }
 
 

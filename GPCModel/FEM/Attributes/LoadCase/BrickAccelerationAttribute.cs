@@ -1,7 +1,7 @@
-﻿using GPC.Geometry;
-using GPC.Model.LoadCases;
-using System;
+﻿using System;
 using System.Collections.Generic;
+using GPC.Geometry;
+using GPC.Model.LoadCases;
 
 
 namespace GPC.Model.FEM.Attributes

@@ -568,7 +568,7 @@ namespace GPC.Model.Maths.GaussIntegrations
 
             }
 
-            return Matrix<double>.Build.Dense(2, 2, new[] { j11, j12, j21, j22 });            
+            return Matrix<double>.Build.Dense(2, 2, new[] { j11, j12, j21, j22 });
         }
 
         #endregion

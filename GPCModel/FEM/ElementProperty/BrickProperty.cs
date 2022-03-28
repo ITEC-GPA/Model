@@ -1,7 +1,7 @@
-﻿using GPC.Model.FEM.Materials;
-using System;
+﻿using System;
 using System.Diagnostics;
 using System.Runtime.Serialization;
+using GPC.Model.FEM.Materials;
 
 namespace GPC.Model.FEM.Properties
 {

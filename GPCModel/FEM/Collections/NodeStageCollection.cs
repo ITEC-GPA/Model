@@ -1,7 +1,7 @@
-﻿using GPC.Model.FEM.Attributes;
-using System;
+﻿using System;
 using System.Linq;
 using System.Runtime.Serialization;
+using GPC.Model.FEM.Attributes;
 
 namespace GPC.Model.FEM.Collections
 {
@@ -18,7 +18,7 @@ namespace GPC.Model.FEM.Collections
 
         }
 
-        public NodeStageCollection(SerializationInfo info, StreamingContext context) 
+        public NodeStageCollection(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
 
