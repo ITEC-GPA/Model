@@ -153,8 +153,8 @@ namespace GPC.Model.FEM.FiniteElements
 
             mnl.Matrix<double> fKLayer(double csi, double eta)
             {
-                double x = FEMUtilities.GetLocalCoordinate2D("x", csi, eta, Quad4Element.GetShapeFunction, _nodesLocal);
-                double y = FEMUtilities.GetLocalCoordinate2D("y", csi, eta, Quad4Element.GetShapeFunction, _nodesLocal);
+                double x = FemUtilities.GetLocalCoordinate2D("x", csi, eta, Quad4Element.GetShapeFunction, _nodesLocal);
+                double y = FemUtilities.GetLocalCoordinate2D("y", csi, eta, Quad4Element.GetShapeFunction, _nodesLocal);
 
                 mnl.Matrix<double> Bs = GetBs(x, y);
 
@@ -169,8 +169,8 @@ namespace GPC.Model.FEM.FiniteElements
                     return 1.0 + 0.0 * Math.Pow(input1, 1.0) + 0.0 * Math.Pow(input2, 1.0);
                 }*/
 
-                double x = FEMUtilities.GetLocalCoordinate2D("x", csi, eta, Quad4Element.GetShapeFunction, _nodesLocal);
-                double y = FEMUtilities.GetLocalCoordinate2D("y", csi, eta, Quad4Element.GetShapeFunction, _nodesLocal);
+                double x = FemUtilities.GetLocalCoordinate2D("x", csi, eta, Quad4Element.GetShapeFunction, _nodesLocal);
+                double y = FemUtilities.GetLocalCoordinate2D("y", csi, eta, Quad4Element.GetShapeFunction, _nodesLocal);
 
                 mnl.Matrix<double> Bg = GetBg(x, y);
 
@@ -183,7 +183,7 @@ namespace GPC.Model.FEM.FiniteElements
                 //return Bg;
             }
 
-            Func<double, double, mnl.Matrix<double>> jacob = FEMUtilities.J2D(Quad4Element.GetdNdCsi, Quad4Element.GetdNdEta, _nodesLocal);
+            Func<double, double, mnl.Matrix<double>> jacob = FemUtilities.J2D(Quad4Element.GetdNdCsi, Quad4Element.GetdNdEta, _nodesLocal);
 
             _kLayer = OldGaussIntegration.IntegrationQuadrilateral(fKLayer, jacob, 16);
             _kGlass = OldGaussIntegration.IntegrationQuadrilateral(fKGlass, jacob, 16);
@@ -236,13 +236,13 @@ namespace GPC.Model.FEM.FiniteElements
 
                     mnl.Matrix<double> NtTraspQ(double csi, double eta)
                     {
-                        double x = FEMUtilities.GetLocalCoordinate2D("x", csi, eta, Quad4Element.GetShapeFunction, _nodesLocal);
-                        double y = FEMUtilities.GetLocalCoordinate2D("y", csi, eta, Quad4Element.GetShapeFunction, _nodesLocal);
+                        double x = FemUtilities.GetLocalCoordinate2D("x", csi, eta, Quad4Element.GetShapeFunction, _nodesLocal);
+                        double y = FemUtilities.GetLocalCoordinate2D("y", csi, eta, Quad4Element.GetShapeFunction, _nodesLocal);
 
                         return GetNMatrix(x, y).Transpose() * q;
                     }
 
-                    var jacob = FEMUtilities.J2D(Quad4Element.GetdNdCsi, Quad4Element.GetdNdEta, _nodesLocal);
+                    var jacob = FemUtilities.J2D(Quad4Element.GetdNdCsi, Quad4Element.GetdNdEta, _nodesLocal);
                     mnl.Matrix<double> f = OldGaussIntegration.IntegrationQuadrilateral(NtTraspQ, jacob, 9);
                     for (int i = 0; i < f.RowCount; i++)
                     {

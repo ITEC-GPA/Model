@@ -8,7 +8,7 @@ using mnl = MathNet.Numerics.LinearAlgebra;
 
 namespace GPC.Model.FEM
 {
-    public static class FEMUtilities
+    public static class FemUtilities
     {
         #region Misc
         /// <summary>

@@ -408,10 +408,10 @@ namespace FemTest.SolverTest
 
             els[0].BuildMatrix();
             Console.WriteLine("Matrix Beam");
-            FEMUtilities.WriteMatrix(els[0].KElementGlobalCoord, "F3");
+            FemUtilities.WriteMatrix(els[0].KElementGlobalCoord, "F3");
             els[1].BuildMatrix();
             Console.WriteLine("Tetraedron");
-            FEMUtilities.WriteMatrix(els[1].KElementGlobalCoord, "F3");
+            FemUtilities.WriteMatrix(els[1].KElementGlobalCoord, "F3");
 
             LinearSolver fem = new LinearSolver(els);
         }

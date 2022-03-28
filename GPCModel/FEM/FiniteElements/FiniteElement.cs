@@ -16,7 +16,7 @@ namespace GPC.Model.FEM.FiniteElements
     /// Each finite element should derive from this
     /// </summary>
     [Serializable]
-    public abstract class FiniteElement : FEMObject, INotifyPropertyChanged
+    public abstract class FiniteElement : FemObject, INotifyPropertyChanged
     {
         #region Variables
 

@@ -14,7 +14,7 @@ namespace GPC.Model.FEM
     /// Rapresent a Node of a <see cref="FiniteElements.FiniteElement"/>
     /// </summary>
     [Serializable]
-    public class Node : FEMObject, INotifyPropertyChanged
+    public class Node : FemObject, INotifyPropertyChanged
     {
         #region Variables
 

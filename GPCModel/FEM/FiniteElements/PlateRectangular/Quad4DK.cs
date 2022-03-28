@@ -248,7 +248,7 @@ namespace GPC.Model.FEM.FiniteElements
                 return b.Transpose() * _d * b;
             }
 
-            var jacob = FEMUtilities.J2D(Quad4Element.GetdNdCsi, Quad4Element.GetdNdEta, _nodesLocal);
+            var jacob = FemUtilities.J2D(Quad4Element.GetdNdCsi, Quad4Element.GetdNdEta, _nodesLocal);
 
             _kElementLocalCoord = OldGaussIntegration.IntegrationQuadrilateral(bTdb, jacob, 4);
             #endregion
@@ -302,7 +302,7 @@ namespace GPC.Model.FEM.FiniteElements
                         return wp;
                     }
 
-                    var jacob = FEMUtilities.J2D(Quad4Element.GetdNdCsi, Quad4Element.GetdNdEta, _nodesLocal);
+                    var jacob = FemUtilities.J2D(Quad4Element.GetdNdCsi, Quad4Element.GetdNdEta, _nodesLocal);
                     var f = OldGaussIntegration.IntegrationQuadrilateral(wDotp, jacob, 4);
 
                     _fLocalCoord[0] = f[0, 0]; //node1

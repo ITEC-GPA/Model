@@ -52,7 +52,7 @@ namespace GPC.Model.FEM.FiniteElements
         {
             var localCurvatures = GetCurvaturesLocalCoordinates(csi, eta, globalDisplacements);
 
-            return FEMUtilities.RotateTensor(localCurvatures, _localCoordinateSystem, newSys);
+            return FemUtilities.RotateTensor(localCurvatures, _localCoordinateSystem, newSys);
         }
 
         public mnl.Matrix<double> GetBending(double csi, double eta, double[] globalDisplacements, CoordinateSystem newSys = null)
@@ -71,7 +71,7 @@ namespace GPC.Model.FEM.FiniteElements
 
             tensorLocalBending[1, 1] = localBending[1]; //myy
 
-            return FEMUtilities.RotateTensor(tensorLocalBending, _localCoordinateSystem, newSys);
+            return FemUtilities.RotateTensor(tensorLocalBending, _localCoordinateSystem, newSys);
         }
 
         public mnl.Matrix<double> GetStrains(Face face, double csi, double eta, double[] globalDisplacements, CoordinateSystem newSys = null)
@@ -80,7 +80,7 @@ namespace GPC.Model.FEM.FiniteElements
 
             var localCurvatures = GetCurvaturesLocalCoordinates(csi, eta, globalDisplacements);
 
-            var newCurvatures = FEMUtilities.RotateTensor(localCurvatures, _localCoordinateSystem, newSys);
+            var newCurvatures = FemUtilities.RotateTensor(localCurvatures, _localCoordinateSystem, newSys);
 
             var strain = mnl.Matrix<double>.Build.Dense(3, 3);
             if (face == Face.Top)

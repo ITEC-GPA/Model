@@ -38,7 +38,7 @@ namespace FemTest.SolverTest
             e.BuildMatrix();
 
             Console.WriteLine("klocalMatrix");
-            FEMUtilities.WriteMatrix(e.KElementLocalCoord);
+            FemUtilities.WriteMatrix(e.KElementLocalCoord);
 
             //Local axis == global axis
             for (int r = 0; r < 12; r++)

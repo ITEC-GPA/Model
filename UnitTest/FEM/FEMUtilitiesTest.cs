@@ -25,8 +25,8 @@ namespace FemTest.SolverTest
             Assert.AreEqual(3, F3.FirstFix(1)(1, 1));
             Assert.AreEqual(6, F3.FirstFix(1)(2, 3));
 
-            Assert.AreEqual(3, FEMUtilities.FFirstFix(1, F3)(1, 1));
-            Assert.AreEqual(6, FEMUtilities.FFirstFix(1, F3)(2, 3));
+            Assert.AreEqual(3, FemUtilities.FFirstFix(1, F3)(1, 1));
+            Assert.AreEqual(6, FemUtilities.FFirstFix(1, F3)(2, 3));
         }
 
         [TestMethod]
@@ -48,7 +48,7 @@ namespace FemTest.SolverTest
                 return x;
             };
 
-            Assert.AreEqual(X(-1,-1,nds), FEMUtilities.GetLocalCoordinate2D("X",-1, -1, LinearShapeFunctionQuad4.NaturalShapeFunction, nds));
+            Assert.AreEqual(X(-1,-1,nds), FemUtilities.GetLocalCoordinate2D("X",-1, -1, LinearShapeFunctionQuad4.NaturalShapeFunction, nds));
         }
     }
 }

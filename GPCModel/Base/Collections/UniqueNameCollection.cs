@@ -1,9 +1,9 @@
-﻿using GPC.Utilities.Extensions;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.Threading.Tasks;
+using GPC.Utilities.Extensions;
 
 namespace GPC.Model
 {
@@ -55,7 +55,7 @@ namespace GPC.Model
 
                 _collection.Add(item);
                 _names.Add(item.Name);
-                return true; 
+                return true;
             }
         }
 
@@ -67,7 +67,7 @@ namespace GPC.Model
             {
                 foreach (var item in items)
                 {
-                    if (!this.Add(item))
+                    if (!Add(item))
                         return false;
                 }
                 return true;
@@ -89,7 +89,7 @@ namespace GPC.Model
             lock (_locker)
             {
                 if (ContainsName(name))
-                    return _collection.SingleOrDefault(i => i.Name == name); 
+                    return _collection.SingleOrDefault(i => i.Name == name);
                 else
                     throw new KeyNotFoundException($"Collection does not contain a element with name: {name}");
             }
@@ -109,7 +109,7 @@ namespace GPC.Model
             lock (_locker)
             {
                 _collection.Clear();
-                _names.Clear(); 
+                _names.Clear();
             }
         }
 
@@ -180,7 +180,7 @@ namespace GPC.Model
         void ICollection<T>.Add(T item)
         {
             // metodo privato
-            this.Add(item);
+            Add(item);
         }
 
 

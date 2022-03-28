@@ -217,7 +217,7 @@ namespace FemTest.SolverTest
             mnl.Matrix<double> k1 = el.KElementGlobalCoord;
 
             Console.WriteLine("k1 ");
-            FEMUtilities.WriteMatrix(k1, "F3");
+            FemUtilities.WriteMatrix(k1, "F3");
 
             //Console.WriteLine("k2 Correct = ");
             //Util.WriteMatrix(k2, "F3");

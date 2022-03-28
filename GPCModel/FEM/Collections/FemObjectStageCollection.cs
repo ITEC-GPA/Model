@@ -9,14 +9,14 @@ using GPC.Utilities.Extensions;
 namespace GPC.Model.FEM.Collections
 {
     /// <summary>
-    /// This class rapresent an association between a <see cref="FEMObject"/> and a property override <see cref="Stage.StageProperty"/>
+    /// This class rapresent an association between a <see cref="FemObject"/> and a property override <see cref="Stage.StageProperty"/>
     /// </summary>
     /// <remarks>This should be accessed only from the class <see cref="Stage"/> since it does not implement any check on the element duplicates</remarks>
     /// <typeparam name="T"></typeparam>
     /// <typeparam name="D"></typeparam>
     /// <remarks>The collection is thread-safe</remarks>
     [Serializable]
-    public abstract class FemObjectStageCollection<T, D> where T : FEMObject where D : Stage.StageProperty, ISerializable
+    public abstract class FemObjectStageCollection<T, D> where T : FemObject where D : Stage.StageProperty, ISerializable
     {
         protected readonly object _locker = new object();
 
@@ -251,7 +251,7 @@ namespace GPC.Model.FEM.Collections
 
                     foreach (var element in _stageFiniteElementProperty)
                     {
-                        hashCode += EqualityComparer<FEMObject>.Default.GetHashCode(element.Key);
+                        hashCode += EqualityComparer<FemObject>.Default.GetHashCode(element.Key);
                         hashCode += EqualityComparer<Stage.StageProperty>.Default.GetHashCode(element.Value);
                     }
 

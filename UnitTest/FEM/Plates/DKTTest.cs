@@ -83,7 +83,7 @@ namespace FemTest.SolverTest
 
             e0.BuildMatrix();
 
-            FEMUtilities.WriteMatrix(e0.KElementLocalCoord);
+            FemUtilities.WriteMatrix(e0.KElementLocalCoord);
 
             mnl.Matrix<double> SAPkMatrix = mnl.Matrix<double>.Build.Dense(0, 9);
 
@@ -498,7 +498,7 @@ namespace FemTest.SolverTest
             e0.SetProperty(prop);
 
             e0.BuildMatrix();
-            FEMUtilities.WriteMatrix(e0.KElementGlobalCoord);
+            FemUtilities.WriteMatrix(e0.KElementGlobalCoord);
         }
 
         [TestMethod]
@@ -520,7 +520,7 @@ namespace FemTest.SolverTest
             e0.SetProperty(prop);
 
             e0.BuildMatrix();
-            FEMUtilities.WriteMatrix(e0.KElementGlobalCoord);
+            FemUtilities.WriteMatrix(e0.KElementGlobalCoord);
         }
 
         /// <summary>

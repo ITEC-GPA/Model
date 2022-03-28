@@ -1,10 +1,10 @@
-﻿using GPC.Utilities.Extensions;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.Text;
 using System.Threading.Tasks;
+using GPC.Utilities.Extensions;
 
 namespace GPC.Model
 {
@@ -23,17 +23,17 @@ namespace GPC.Model
 
         }
 
-        protected ModelObjectIdSet(SerializationInfo info, StreamingContext context) 
+        protected ModelObjectIdSet(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
 
         }
 
-		#endregion
+        #endregion
 
         #region Equals - hashcode - Operators
 
-		public override void GetObjectData(SerializationInfo info, StreamingContext context)
+        public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             base.GetObjectData(info, context);
         }

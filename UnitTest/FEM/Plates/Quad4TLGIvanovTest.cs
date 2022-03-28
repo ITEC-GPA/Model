@@ -222,26 +222,26 @@ namespace FemTest.SolverTest
             e0.BuildMatrix();
 
             var m = e0.GetNMatrix(0, 0);
-            FEMUtilities.WriteMatrix(m);
+            FemUtilities.WriteMatrix(m);
 
             Assert.AreEqual(1.0, m[0,0], 0.001);
             Assert.AreEqual(1.0,  m[1,1], 0.001);
             Assert.AreEqual(1.0, m[2,2], 0.001);
 
             m = e0.GetNMatrix(2, 0);
-            FEMUtilities.WriteMatrix(m);
+            FemUtilities.WriteMatrix(m);
             Assert.AreEqual(1.0, m[0, 6], 0.001);
             Assert.AreEqual(1.0, m[1, 7], 0.001);
             Assert.AreEqual(1.0, m[2, 8], 0.001);
 
             m = e0.GetNMatrix(2, 2);
-            FEMUtilities.WriteMatrix(m);
+            FemUtilities.WriteMatrix(m);
             Assert.AreEqual(1.0, m[0, 12], 0.001);
             Assert.AreEqual(1.0, m[1, 13], 0.001);
             Assert.AreEqual(1.0, m[2, 14], 0.001);
 
             m = e0.GetNMatrix(0, 2);
-            FEMUtilities.WriteMatrix(m);
+            FemUtilities.WriteMatrix(m);
             Assert.AreEqual(1.0, m[0, 18], 0.001);
             Assert.AreEqual(1.0, m[1, 19], 0.001);
             Assert.AreEqual(1.0, m[2, 20], 0.001);
