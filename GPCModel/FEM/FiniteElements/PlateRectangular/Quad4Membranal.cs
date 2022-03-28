@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Linq;
 using GPC.Geometry;
-using GPC.Model.FEM.Properties;
 using GPC.Model.FEM.Attributes;
+using GPC.Model.FEM.Properties;
 using GPC.Utilities.Fem;
 using mnl = MathNet.Numerics.LinearAlgebra;
 
@@ -45,7 +45,7 @@ namespace GPC.Model.FEM.FiniteElements
 
             //calculation of matrix for transformation from Local to Global coordinates
             _localNodes = Quad4Element.GetLocalNodes(_nodesGlobal, out _localCoordinateSystem);
-            
+
             #region TransformationMatrixLocalCoordinatesToGlobalCoordinates
             mnl.Matrix<double> dofGlobalToLocalTranspose = mnl.Matrix<double>.Build.Dense(12, 8);
 
@@ -138,7 +138,7 @@ namespace GPC.Model.FEM.FiniteElements
                 mnl.Matrix<double> b = GetB(csi, eta);
                 mnl.Matrix<double> m = b.Transpose() * _d * b;
                 mnl.Matrix<double> jacob = FEMUtilities.Jacob2D(csi, eta, LinearShapeFunctionQuad4.DNdCsi, LinearShapeFunctionQuad4.DNdEta, _localNodes);
-                    
+
                 /*Console.WriteLine();
                 Console.WriteLine("B(csi=" + csi.ToString("F2") + ",eta=" + eta.ToString("F2") + ")^T * D * B(csi=" + csi.ToString("F2") + ",eta=" + eta.ToString("F2")+"):");
                 for (int row = 0; row < m.RowCount; row++)
@@ -304,7 +304,7 @@ namespace GPC.Model.FEM.FiniteElements
 
                         _fLocalCoord[4] = _fLocalCoord[4] + LinearShapeFunctionQuad4.NaturalShapeFunction(3, csi, eta) * detJ * gaussWeight * px; //node3
                         _fLocalCoord[5] = _fLocalCoord[5] + LinearShapeFunctionQuad4.NaturalShapeFunction(3, csi, eta) * detJ * gaussWeight * py; //node3
-                    
+
                         _fLocalCoord[6] = _fLocalCoord[6] + LinearShapeFunctionQuad4.NaturalShapeFunction(4, csi, eta) * detJ * gaussWeight * px; //node4
                         _fLocalCoord[7] = _fLocalCoord[7] + LinearShapeFunctionQuad4.NaturalShapeFunction(4, csi, eta) * detJ * gaussWeight * py; //node4
                     }
@@ -320,7 +320,7 @@ namespace GPC.Model.FEM.FiniteElements
             mnl.Vector<double> vecLocalDispl = mnl.Vector<double>.Build.Dense(localDisplacements);
 
             //TODO: aggiornare
-            
+
             Point2d[] naturalCoordNodes = new Point2d[4];
             naturalCoordNodes[0] = new Point2d(-1.0, -1.0);
             naturalCoordNodes[1] = new Point2d(+1.0, -1.0);
@@ -361,7 +361,8 @@ namespace GPC.Model.FEM.FiniteElements
 
             double thickness = ((PlateProperty)_property).MembraneThickness;
 
-            for (int i = 0; i < naturalCoordNodes.Length; i++) {
+            for (int i = 0; i < naturalCoordNodes.Length; i++)
+            {
                 #region CalculationOfStressAndDeformationsInLocalCoordinates
                 epsilonLocal[i] = GetB(naturalCoordNodes[i].X, naturalCoordNodes[i].Y) * vecLocalDispl; //epsilon_xx; epsilon_yy; epsilon_xy
                 stressLocal[i] = D * epsilonLocal[i]; //sigma_xx; sigma_yy; tau_xy
@@ -376,8 +377,8 @@ namespace GPC.Model.FEM.FiniteElements
 
                 epsilonLocalCouchy[i][0, 1] = epsilonLocal[i][2]; //epsilon_xy
                 epsilonLocalCouchy[i][1, 0] = epsilonLocal[i][2]; //epsilon_yx
-                                                            //epsilonCouchy[2, 2] = -ni / E * (sigma_xx + sigma_yy) + alpha * Temperature ; //epsilon_zz
-                                                            //Console.WriteLine("Epsilon local coordinate:" + epsilonCouchy.ToString());
+                                                                  //epsilonCouchy[2, 2] = -ni / E * (sigma_xx + sigma_yy) + alpha * Temperature ; //epsilon_zz
+                                                                  //Console.WriteLine("Epsilon local coordinate:" + epsilonCouchy.ToString());
 
                 stressLocalCouchy[i] = mnl.Matrix<double>.Build.Dense(3, 3);
                 stressLocalCouchy[i][0, 0] = stressLocal[i][0]; //sigma_xx
@@ -385,7 +386,7 @@ namespace GPC.Model.FEM.FiniteElements
 
                 stressLocalCouchy[i][0, 1] = stressLocal[i][2]; //sigma_xy
                 stressLocalCouchy[i][1, 0] = stressLocal[i][2]; //sigma_yx
-                                                          //Console.WriteLine("Stress local coordinate:" + stressCouchy.ToString());
+                                                                //Console.WriteLine("Stress local coordinate:" + stressCouchy.ToString());
 
                 //Second order tensor -> Trotated = Q * T * Q^T
                 epsilonGlobalCouchy[i] = rotation * epsilonLocalCouchy[i] * rotation.Transpose();

@@ -1,7 +1,7 @@
-﻿using GPC.Model.LoadCases;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
+using GPC.Model.LoadCases;
 
 namespace GPC.Model.FEM.Attributes
 {
@@ -16,13 +16,13 @@ namespace GPC.Model.FEM.Attributes
 
         }
 
-        public LoadCaseAttribute(string loadCaseName, string attributeName) 
+        public LoadCaseAttribute(string loadCaseName, string attributeName)
             : this(loadCaseName, attributeName, Guid.NewGuid())
         {
 
         }
 
-        public LoadCaseAttribute(string loadCaseName, string name, Guid guid) 
+        public LoadCaseAttribute(string loadCaseName, string name, Guid guid)
             : base(loadCaseName, name, guid)
         {
 
@@ -36,10 +36,10 @@ namespace GPC.Model.FEM.Attributes
 
 
 
-        protected LoadCaseAttribute(SerializationInfo info, StreamingContext context) 
+        protected LoadCaseAttribute(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
-            
+
         }
 
         public override bool Equals(object obj)
@@ -63,7 +63,7 @@ namespace GPC.Model.FEM.Attributes
             {
                 int hashCode = -23;
                 hashCode = hashCode * -17 + base.GetHashCode();
-                return hashCode; 
+                return hashCode;
             }
         }
 

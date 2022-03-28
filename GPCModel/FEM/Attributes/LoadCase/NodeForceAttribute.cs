@@ -30,12 +30,12 @@ namespace GPC.Model.FEM.Attributes
         #endregion
 
         public NodeForceAttribute(string loadCaseName, CoordinateSystem cSys, double f1, double f2, double f3, double m1, double m2, double m3)
-            : this (loadCaseName, cSys, f1, f2, f3, m1, m2, m3, string.Empty)
+            : this(loadCaseName, cSys, f1, f2, f3, m1, m2, m3, string.Empty)
         {
 
         }
 
-        public NodeForceAttribute(string loadCaseName, CoordinateSystem cSys, double f1, double f2, double f3, double m1, double m2, double m3, string name) 
+        public NodeForceAttribute(string loadCaseName, CoordinateSystem cSys, double f1, double f2, double f3, double m1, double m2, double m3, string name)
             : base(loadCaseName, name)
         {
             _f1 = f1;

@@ -1,9 +1,9 @@
-﻿using GPC.Model.Materials;
-using System;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
 using GPC.Model.Glasses;
-using System.Collections.Generic;
+using GPC.Model.Materials;
 
 namespace GPC.Model.FEM.Properties
 {
@@ -48,7 +48,7 @@ namespace GPC.Model.FEM.Properties
         }
 
 
-        public LaminatedGlassProperty(SerializationInfo info, StreamingContext context) 
+        public LaminatedGlassProperty(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
             throw new NotImplementedException();

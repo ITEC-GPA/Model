@@ -1,9 +1,9 @@
-﻿using GPC.Geometry;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using GPC.Geometry;
 using mnl = MathNet.Numerics.LinearAlgebra;
 
 namespace GPC.Model.FEM
@@ -104,7 +104,7 @@ namespace GPC.Model.FEM
         public static GaussPoint[] GetPointsLinear(int nPoints)
         {
             GaussPoint[] pts = new GaussPoint[nPoints];
-          
+
             switch (nPoints)
             {
                 case 1:
@@ -156,7 +156,7 @@ namespace GPC.Model.FEM
             }
 
             return pts;
-        }        
+        }
 
         /// <summary>
         /// Get positions and weigths of gauss points for a Hexaedron domain
@@ -207,7 +207,7 @@ namespace GPC.Model.FEM
         public static GaussPoint[] GetPointsTriangular(int nPoints)
         {
             GaussPoint[] pts = new GaussPoint[nPoints];
-            
+
             switch (nPoints)
             {
                 case 1:
@@ -232,7 +232,7 @@ namespace GPC.Model.FEM
                 default:
                     throw new Exception("Actually nr of possible gauss points = 1, 3 or 4");
             }
-                
+
             return pts;
         }
 

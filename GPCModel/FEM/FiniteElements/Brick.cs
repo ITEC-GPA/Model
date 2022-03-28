@@ -23,7 +23,7 @@ namespace GPC.Model.FEM.FiniteElements
 
         public bool IsQuadrangular => Nodes.Length == 8 ? true : false;
 
-        public Brick(Node[] nodes) 
+        public Brick(Node[] nodes)
             : base(nodes)
         {
 

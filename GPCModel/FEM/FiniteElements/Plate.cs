@@ -1,13 +1,13 @@
 ﻿using System;
-using System.Linq;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
+using System.Runtime.Serialization;
+using GPC.Geometry;
 using GPC.Model.FEM.Attributes;
 using GPC.Model.FEM.Properties;
 using GPC.Model.Results;
 using mnl = MathNet.Numerics.LinearAlgebra;
-using GPC.Geometry;
-using System.Runtime.Serialization;
 
 namespace GPC.Model.FEM.FiniteElements
 {
@@ -58,15 +58,15 @@ namespace GPC.Model.FEM.FiniteElements
             plate.SetProperty(property);
             plate.SetId(Id);
 
-            if(lcAttributes != null)
-            { 
-                foreach(LoadCaseAttribute attribute in lcAttributes)
-                { 
+            if (lcAttributes != null)
+            {
+                foreach (LoadCaseAttribute attribute in lcAttributes)
+                {
                     if (attribute is IPlateLoadCaseAttribute plca)
                     {
                         plate.AddLoadCaseAttribute(plca);
                     }
-                } 
+                }
             }
 
             if (fdAttributes != null)
@@ -152,12 +152,14 @@ namespace GPC.Model.FEM.FiniteElements
                 double a2 = Tri3Element.GetArea(new Point3d[] { pts[0], pts[2], pts[3] });
                 return a1 + a2;
 
-            } else if (IsTriangle == true)
+            }
+            else if (IsTriangle == true)
             {
                 var pts = Tri3Element.GetLocalNodes(_nodesGlobal, out CoordinateSystem sys).Select(x => x.Position).ToList();
 
                 return Tri3Element.GetArea(new Point3d[] { pts[0], pts[1], pts[2] });
-            } else
+            }
+            else
             {
                 throw new NotImplementedException("This plate have nr of nodes different than 3 or 4");
             }

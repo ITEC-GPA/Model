@@ -24,13 +24,13 @@ namespace GPC.Model.FEM.Collections
         }
 
         public NodeCollection()
-            :base()
+            : base()
         {
         }
 
         public NodeCollection(SerializationInfo info, StreamingContext context)
-            :base (info, context)
-        { 
+            : base(info, context)
+        {
         }
 
         protected static PositionComparer _positionComparer = new PositionComparer();

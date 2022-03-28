@@ -1,9 +1,9 @@
 ﻿using System;
-using System.Runtime.Serialization;
-using GPC.Model.Materials;
-using GPC.Model.Glasses;
-using GPC.Model.FEM.Materials;
 using System.Collections.Generic;
+using System.Runtime.Serialization;
+using GPC.Model.FEM.Materials;
+using GPC.Model.Glasses;
+using GPC.Model.Materials;
 
 namespace GPC.Model.FEM.Properties
 {
@@ -20,10 +20,10 @@ namespace GPC.Model.FEM.Properties
         public MonolithicGlassProperty(double thickness, FemMaterial material, string name)
             : this(thickness, thickness, material, name)
         {
-            
+
         }
 
-        public MonolithicGlassProperty(double tb, double tm, FemMaterial material, string name) 
+        public MonolithicGlassProperty(double tb, double tm, FemMaterial material, string name)
             : base(material, tb, tm, name)
         {
 

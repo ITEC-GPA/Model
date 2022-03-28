@@ -1,10 +1,10 @@
-﻿using GPC.Utilities.Extensions;
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.Threading.Tasks;
+using GPC.Utilities.Extensions;
 
 namespace GPC.Model.FEM.Collections
 {
@@ -80,7 +80,7 @@ namespace GPC.Model.FEM.Collections
                         _maxId = item.Id;
 
                     return item.Id;
-                } 
+                }
             }
         }
 
@@ -120,7 +120,7 @@ namespace GPC.Model.FEM.Collections
             if (_collection.Count == 0)
                 return AddItem(item);
 
-            int id = Search(item); 
+            int id = Search(item);
             if (id == 0)
                 return AddItem(item);
             return id;
@@ -216,7 +216,7 @@ namespace GPC.Model.FEM.Collections
                     hashMap[list[i].GetHashCode()] = i;
                 }
 
-                return hashMap; 
+                return hashMap;
             }
         }
 
@@ -235,7 +235,7 @@ namespace GPC.Model.FEM.Collections
                     hashMap[list[i].Id] = i;
                 }
 
-                return hashMap; 
+                return hashMap;
             }
         }
 
@@ -315,7 +315,7 @@ namespace GPC.Model.FEM.Collections
         protected virtual int Search(T item)
         {
             T found = null;
-            
+
             Parallel.ForEach(_collection, (i, state) =>
             {
                 if (i.Equals(item))
@@ -324,7 +324,7 @@ namespace GPC.Model.FEM.Collections
                     state.Stop();
                 }
             });
-            
+
             return found != null ? found.Id : 0;
         }
 
@@ -337,7 +337,7 @@ namespace GPC.Model.FEM.Collections
             lock (_locker)
             {
                 _ids.Clear();
-                _collection.Clear(); 
+                _collection.Clear();
             }
         }
 
@@ -363,7 +363,7 @@ namespace GPC.Model.FEM.Collections
                 else
                 {
                     return false;
-                } 
+                }
             }
         }
 
@@ -382,7 +382,7 @@ namespace GPC.Model.FEM.Collections
                 else
                 {
                     return false;
-                } 
+                }
             }
         }
 
@@ -401,7 +401,7 @@ namespace GPC.Model.FEM.Collections
         {
             lock (_locker)
             {
-                return obj is FemObjectCollection<T> collection && _collection.ScrambledEquals(collection._collection); 
+                return obj is FemObjectCollection<T> collection && _collection.ScrambledEquals(collection._collection);
             }
         }
 
@@ -418,7 +418,7 @@ namespace GPC.Model.FEM.Collections
                         hashCode += EqualityComparer<FEMObject>.Default.GetHashCode(element);
                     }
 
-                    return hashCode;  
+                    return hashCode;
                 }
             }
         }

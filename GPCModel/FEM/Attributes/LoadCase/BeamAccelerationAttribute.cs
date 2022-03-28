@@ -1,7 +1,7 @@
-﻿using GPC.Geometry;
-using GPC.Model.LoadCases;
-using System;
+﻿using System;
 using System.Collections.Generic;
+using GPC.Geometry;
+using GPC.Model.LoadCases;
 
 namespace GPC.Model.FEM.Attributes
 {
@@ -13,7 +13,7 @@ namespace GPC.Model.FEM.Attributes
     internal sealed class BeamAccelerationAttribute : ModelAccelerationAttribute, IEquatable<BeamAccelerationAttribute>, IBeamLoadCaseAttribute
     {
 
-        internal BeamAccelerationAttribute(string loadCaseName, CoordinateSystem coordinateSystem, double a1, double a2, double a3) 
+        internal BeamAccelerationAttribute(string loadCaseName, CoordinateSystem coordinateSystem, double a1, double a2, double a3)
             : base(loadCaseName, coordinateSystem, a1, a2, a3)
         {
 

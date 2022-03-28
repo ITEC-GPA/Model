@@ -25,7 +25,7 @@ namespace GPC.Model.FEM.Attributes
         {
             unchecked
             {
-                return -17 * obj.CaseName.GetHashCode(); 
+                return -17 * obj.CaseName.GetHashCode();
             }
         }
     }

@@ -1,6 +1,6 @@
 ﻿using System;
-using System.Linq;
 using System.Collections.Generic;
+using System.Linq;
 using System.Runtime.Serialization;
 using GPC.Model.Elements;
 using GPC.Model.FEM.Collections;
@@ -14,20 +14,20 @@ namespace GPC.Model.FEM
 
         protected readonly UniqueNameCollection<Group> _groups; // non usiamo groupCollection in quanto l'id è già stato assegnato dal femModel.
                                                                 // Usiamo questa collection per avere contains con nome e perchè è thread-safe
-        
+
 
         public FEMObject() : this("")
         {
 
         }
 
-        public FEMObject(string name) 
+        public FEMObject(string name)
             : base(name)
         {
             _groups = new UniqueNameCollection<Group>();
         }
 
-        public FEMObject(SerializationInfo info, StreamingContext context) 
+        public FEMObject(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
 
@@ -43,7 +43,7 @@ namespace GPC.Model.FEM
         {
             return _groups.ContainsName(groupName);
         }
-        
+
         public bool ContainsGroup(Group group)
         {
             return _groups.Contains(group);
@@ -155,7 +155,7 @@ namespace GPC.Model.FEM
             {
                 unchecked
                 {
-                    return ((-391 + obj.Id.GetHashCode())* -17 + obj.GetHashCode()) * -17 + base.GetHashCode();
+                    return ((-391 + obj.Id.GetHashCode()) * -17 + obj.GetHashCode()) * -17 + base.GetHashCode();
                 }
             }
         }
