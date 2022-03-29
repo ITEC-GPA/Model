@@ -5,6 +5,7 @@ using System.Linq;
 using System.Runtime.Serialization;
 using System.Text;
 using System.Threading.Tasks;
+using GPC.Model.Fem.FemObjects;
 
 namespace GPC.Model.Fem
 {
@@ -35,12 +36,6 @@ namespace GPC.Model.Fem
 
         public bool Equals(Group other)
         {
-            if (other is null)
-                return false;
-
-            if (ReferenceEquals(this, other))
-                return true;
-
             return base.Equals(other);
         }
 
@@ -71,7 +66,10 @@ namespace GPC.Model.Fem
 
         public override string ToString()
         {
-            return $"{Id}-{Name}";
+            if (Name != string.Empty)
+                return $"{Id}-{Name}";
+            else
+                return $"{Id}";
         }
     }
 }

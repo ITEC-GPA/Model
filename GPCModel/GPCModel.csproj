@@ -198,7 +198,7 @@
     <Compile Include="FemOld\FemMaterials\FemMaterial.cs" />
     <Compile Include="FemOld\FemMaterials\IsotropicFemMaterial.cs" />
     <Compile Include="FemOld\FemMaterials\OrthotropicFemMaterial.cs" />
-    <Compile Include="FemOld\Group.cs" />
+    <Compile Include="FemNew\Group.cs" />
     <Compile Include="FemOld\NonLinearStaticSolver.cs" />
     <Compile Include="FemOld\Stage.cs" />
     <Compile Include="FemOld\FemUtilities.cs" />
