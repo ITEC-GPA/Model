@@ -931,6 +931,8 @@ namespace GPC.Model.Fem
         #region Mesh and shapes
 
 
+#if FALSE
+
         /// <summary>
         /// Generate planar mesh from a shapes. Mesh options need to be setted by <see cref="Mesh.GenerateOptions"/>
         /// </summary>
@@ -1148,6 +1150,7 @@ namespace GPC.Model.Fem
             }
 
         }
+
 
 
         /// <summary>
@@ -1734,6 +1737,7 @@ namespace GPC.Model.Fem
         }
 
 
+#endif
 
         public virtual Mesh GetMesh()
         {
