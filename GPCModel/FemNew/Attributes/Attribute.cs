@@ -12,14 +12,15 @@ namespace GPC.Model.Fem.Attributes
 
         internal string CaseName => _caseName;
 
-        public Attribute(string loadCaseName)
-            : this(loadCaseName, string.Empty, Guid.NewGuid())
+        public Attribute(string caseName)
+            : this(caseName, string.Empty, Guid.NewGuid())
         {
+
         }
 
 
-        public Attribute(string loadCaseName, string attributeName)
-            : this(loadCaseName, attributeName, Guid.NewGuid())
+        public Attribute(string caseName, string attributeName)
+            : this(caseName, attributeName, Guid.NewGuid())
         {
 
         }
