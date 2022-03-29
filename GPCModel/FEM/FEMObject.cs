@@ -8,6 +8,10 @@ using GPC.Utilities.Extensions;
 
 namespace GPC.Model.FEM
 {
+
+    /// <summary>
+    /// This is the base class for all the Fem objects
+    /// </summary>
     [Serializable]
     public abstract class FemObject : ModelObjectId, ISerializable
     {
@@ -83,9 +87,9 @@ namespace GPC.Model.FEM
         /// <summary>
         /// This is an internal method, since only the femModel class can set the id of the femObject
         /// </summary>
+        [Obsolete("This method is deprecated. Only the femModel Class can set the id of the femobject")]
         internal void SetId(int id)
         {
-            // teoricamente questo metodo non serve più. Al momento esiste solo per retrocompatibilità
             base.Id = id;
         }
 
@@ -100,7 +104,7 @@ namespace GPC.Model.FEM
         {
             unchecked
             {
-                return -17 * base.GetHashCode(); 
+                return -17 * base.GetHashCode();
             }
         }
 

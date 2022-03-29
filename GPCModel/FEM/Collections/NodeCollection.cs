@@ -28,7 +28,7 @@ namespace GPC.Model.FEM.Collections
         {
         }
 
-        public NodeCollection(SerializationInfo info, StreamingContext context)
+        protected NodeCollection(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
         }

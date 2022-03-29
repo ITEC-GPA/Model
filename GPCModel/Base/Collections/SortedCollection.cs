@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 namespace GPC.Model
 {
     [Serializable]
-    public abstract class SortedCollection<T> : IEnumerable<T>, ISerializable where T : ModelObjectId, INotifyPropertyChanged 
+    public abstract class SortedCollection<T> : IEnumerable<T>, ISerializable where T : ModelObjectId, INotifyPropertyChanged
     {
         protected readonly object _locker = new object();
         protected readonly List<T> _collection;
@@ -49,7 +49,7 @@ namespace GPC.Model
             _autoSort = true;
         }
 
-        public SortedCollection(SerializationInfo info, StreamingContext context)
+        protected SortedCollection(SerializationInfo info, StreamingContext context)
         {
             if (info == null)
                 throw new ArgumentNullException("info can't be null");
