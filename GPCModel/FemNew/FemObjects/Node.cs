@@ -37,7 +37,7 @@ namespace GPC.Model.Fem
             get => _position.Clone() as Point3d;
             set
             {
-                // Il set aggiorna la posizione del nodo nella nodecollection tramite il propertyChanged
+                // Il set aggiorna la posizione del nodo nella nodeCollection tramite il propertyChanged
                 if (!_position.Equals(value))
                 {
                     _position = value;
@@ -46,26 +46,26 @@ namespace GPC.Model.Fem
             }
         }
 
-        /// <summary>
-        /// Contains the degree of freedom active for the node
-        /// </summary>
-        public SortedSet<LinearSolver.DOF> DOF { get; set; }
+        ///// <summary>
+        ///// Contains the degree of freedom active for the node
+        ///// </summary>
+        //public SortedSet<LinearSolver.DOF> DOF { get; set; }
 
-        public int NrActiveDof
-        {
-            get
-            {
-                int ris = 0;
-                for (int i = 0; i < LinearSolver.MAXDOFPERNODE; i++)
-                {
-                    if (DOF.Contains((LinearSolver.DOF)i) == true)
-                    {
-                        ris++;
-                    }
-                }
-                return ris;
-            }
-        }
+        //public int NrActiveDof
+        //{
+        //    get
+        //    {
+        //        int ris = 0;
+        //        for (int i = 0; i < LinearSolver.MAXDOFPERNODE; i++)
+        //        {
+        //            if (DOF.Contains((LinearSolver.DOF)i) == true)
+        //            {
+        //                ris++;
+        //            }
+        //        }
+        //        return ris;
+        //    }
+        //}
 
         public AttributesCollection<FreedomCaseAttribute> AttributesFreedomCase => _attributesFreedomCase;
         public AttributesCollection<LoadCaseAttribute> AttributesLoadCase => _attributesLoadCase;
@@ -78,7 +78,7 @@ namespace GPC.Model.Fem
         {
             _position = point;
 
-            DOF = new SortedSet<Solver.DOF>();
+            //DOF = new SortedSet<Solver.DOF>();
 
             _attributesLoadCase = new AttributesCollection<LoadCaseAttribute>();
             _attributesFreedomCase = new AttributesCollection<FreedomCaseAttribute>();
@@ -89,6 +89,7 @@ namespace GPC.Model.Fem
         public Node(double X, double Y, double Z, string name = "")
             : this(new Point3d(X, Y, Z), name)
         {
+
         }
 
         /// <summary>
@@ -98,28 +99,33 @@ namespace GPC.Model.Fem
         internal Node(Point3d point, Group group)
             : this(point, "")
         {
-            _groups.Add(group);
+            if (group != null)
+                _groups.Add(group);
         }
+
 
         /// <summary>
         /// only for test purpose
         /// </summary>
+        // Do not set this constructor to public
         internal Node(Point3d point, int id)
             : this(point)
         {
             Id = id;
         }
 
-        /// <summary>
-        /// only for test purpose
-        /// </summary>
-        internal Node(double X, double Y, double Z, string name, int id)
-            : this(new Point3d(X, Y, Z), name)
-        {
-            Id = id;
-        }
 
-        protected Node(SerializationInfo info, StreamingContext context)
+        ///// <summary>
+        ///// only for test purpose
+        ///// </summary>
+        //internal Node(double X, double Y, double Z, string name, int id)
+        //    : this(new Point3d(X, Y, Z), name)
+        //{
+        //    Id = id;
+        //}
+
+        protected Node(SerializationInfo info, StreamingContext context) 
+            : base(info, context)
         {
             _position = (Point3d)info.GetValue("Position", typeof(Point3d));
             _results = (ModelObjectSet<NodeResult>)info.GetValue("Result", typeof(ModelObjectSet<NodeResult>));
@@ -162,25 +168,25 @@ namespace GPC.Model.Fem
                 _results.Add(result);
         }
 
-        public Node Duplicate()
-        {
-            Node duplicate = new Node(new Point3d(Position.X, Position.Y, Position.Z), Name)
-            {
-                DOF = DOF
-            };
+        //public Node Duplicate()
+        //{
+        //    Node duplicate = new Node(new Point3d(Position.X, Position.Y, Position.Z), Name)
+        //    {
+        //        DOF = DOF
+        //    };
 
-            duplicate.Id = Id;
+        //    duplicate.Id = Id;
 
-            foreach (INodeFreedomCaseAttribute attribute in _attributesFreedomCase)
-            {
-                duplicate.AddAttribute(attribute);
-            }
-            foreach (INodeLoadCaseAttribute attribute in _attributesLoadCase)
-            {
-                duplicate.AddAttribute(attribute);
-            }
-            return duplicate;
-        }
+        //    foreach (INodeFreedomCaseAttribute attribute in _attributesFreedomCase)
+        //    {
+        //        duplicate.AddAttribute(attribute);
+        //    }
+        //    foreach (INodeLoadCaseAttribute attribute in _attributesLoadCase)
+        //    {
+        //        duplicate.AddAttribute(attribute);
+        //    }
+        //    return duplicate;
+        //}
 
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
@@ -192,9 +198,7 @@ namespace GPC.Model.Fem
 
         public override bool Equals(object obj)
         {
-            if (obj is null)
-                return false;
-
+            
             if (ReferenceEquals(this, obj))
                 return true;
 

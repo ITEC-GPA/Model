@@ -18,15 +18,26 @@ namespace GPC.Model.Fem
                                                                 // Usiamo questa collection per avere contains con nome e perchè è thread-safe
 
 
-        public FemObject()
+        // id non deve essere settabile esternamente
+        protected internal FemObject(int id, string name, Guid guid) 
+            : base(id, name, guid)
+        {
+            _groups = new UniqueNameCollection<Group>();
+        }
+
+        public FemObject(string name) 
+            : this (ModelObjectId.IDUNASSIGNED, name, new Guid())
+            
         {
 
         }
 
-        public FemObject(string name)
-            : base(name)
+        // id non deve essere settabile esternamente
+        protected internal FemObject(int id, string name)
+            : this(id, name, new Guid())
+
         {
-            _groups = new UniqueNameCollection<Group>();
+
         }
 
         protected FemObject(SerializationInfo info, StreamingContext context)
