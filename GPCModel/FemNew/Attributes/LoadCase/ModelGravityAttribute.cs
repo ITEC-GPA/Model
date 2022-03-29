@@ -9,7 +9,7 @@ using GPC.Geometry;
 
 namespace GPC.Model.Fem.Attributes
 {
-
+    [Obsolete("This class needs to be revised and in case modified")]
     public class ModelGravityAttribute : LoadCaseAttribute, IModelAttribute, ISerializable
     {
 
@@ -36,7 +36,7 @@ namespace GPC.Model.Fem.Attributes
             Acceleration = modelGravityAttribute.Acceleration;
         }
 
-        public ModelGravityAttribute(SerializationInfo info, StreamingContext context)
+        protected ModelGravityAttribute(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
             Vector = (Vector3d)info.GetValue("Vector", typeof(Vector3d));

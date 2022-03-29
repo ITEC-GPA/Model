@@ -2,7 +2,7 @@
 using System.Linq;
 using System.Runtime.Serialization;
 using GPC.Model.Fem.FemObjects.FiniteElements;
-using GPC.Model.Fem.FiniteElements;
+using GPC.Model.Fem.FemObjects.FiniteElements;
 
 namespace GPC.Model.Fem.Collections
 {

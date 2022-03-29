@@ -2,6 +2,8 @@
 
 namespace GPC.Model.Fem
 {
+
+    [Obsolete("Only a dummy class at the moment")]
     public class Solver : ModelObject
     {
         public enum DOF

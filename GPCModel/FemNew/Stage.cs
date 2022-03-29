@@ -5,13 +5,15 @@ using System.Runtime.Serialization;
 using GPC.Model.Combinations;
 using GPC.Model.Fem.Attributes;
 using GPC.Model.Fem.Collections;
-using GPC.Model.Fem.FiniteElements;
+using GPC.Model.Fem.FemObjects;
+using GPC.Model.Fem.FemObjects.FiniteElements;
 using GPC.Model.Fem.Properties;
 using GPC.Utilities.Extensions;
 
 namespace GPC.Model.Fem
 {
     [Serializable]
+    [Obsolete("to be checked and in case revised")]
     public sealed class Stage : ModelObjectId, ISerializable, IEquatable<Stage>, ICloneable
     {
         private static int _maxId = 0;
