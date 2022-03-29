@@ -29,7 +29,7 @@ namespace GPC.Model
         }
 
 
-        public UniqueNameCollection(SerializationInfo info, StreamingContext context)
+        protected UniqueNameCollection(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
             _names = (HashSet<string>)info.GetValue("Names", typeof(HashSet<string>));

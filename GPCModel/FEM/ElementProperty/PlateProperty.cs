@@ -47,7 +47,7 @@ namespace GPC.Model.FEM.Properties
         }
 
 
-        public PlateProperty(SerializationInfo info, StreamingContext context)
+        protected PlateProperty(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
             _bendingThickness = info.GetDouble("BendingThickness");
