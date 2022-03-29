@@ -24,7 +24,7 @@ namespace GPC.Model.FEM.Collections
             _ids = new HashSet<int>();
         }
 
-        public GroupCollection(SerializationInfo info, StreamingContext context)
+        protected GroupCollection(SerializationInfo info, StreamingContext context)
         {
             _ids = (HashSet<int>)info.GetValue("Ids", typeof(HashSet<int>));
         }

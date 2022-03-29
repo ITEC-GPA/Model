@@ -23,7 +23,7 @@ namespace GPC.Model.LoadCases
         }
 
 
-        public LoadCaseBase(SerializationInfo info, StreamingContext context)
+        protected LoadCaseBase(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
         }

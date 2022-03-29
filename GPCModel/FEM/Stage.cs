@@ -87,7 +87,7 @@ namespace GPC.Model.FEM
             _id = _maxId++;
         }
 
-        internal Stage(SerializationInfo info, StreamingContext context)
+        private Stage(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
             throw new NotImplementedException();

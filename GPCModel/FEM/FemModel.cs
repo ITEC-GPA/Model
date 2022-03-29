@@ -42,14 +42,12 @@ namespace GPC.Model.FEM
         /// Collection of <see cref="Node"/>
         /// The nodes on this collection does not have duplicate ID and can not be duplicate. (different point with different id)
         /// </summary>
-        //protected FemObjectCollection<Node> _nodes;
         protected NodeCollection _nodes;
 
         /// <summary>
         /// Collection of <see cref="FiniteElement"/>
         /// The elements on this collection does not have duplicate ID and can not be duplicate. (different element with different id)
         /// </summary>
-        //protected FemObjectCollection<FiniteElement> _elements;
         protected FiniteElementCollection _elements;
 
         /// <summary>

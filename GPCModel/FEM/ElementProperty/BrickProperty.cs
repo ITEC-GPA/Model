@@ -20,7 +20,7 @@ namespace GPC.Model.FEM.Properties
             _material = material ?? throw new ArgumentNullException("Material cannot be null");
         }
 
-        public BrickProperty(SerializationInfo info, StreamingContext context)
+        protected BrickProperty(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
             _material = (FemMaterial)info.GetValue("Material", typeof(FemMaterial));

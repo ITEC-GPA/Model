@@ -55,7 +55,7 @@ namespace GPC.Model.Combinations
             _coefficients = combination._coefficients.ToList(); //Shallow copy, i puntatori dei loadcase non cambiano
         }
 
-        public Combination(SerializationInfo info, StreamingContext context)
+        protected Combination(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
             _coefficients = (List<LoadCaseCoefficient>)info.GetValue("Coefficients", typeof(List<LoadCaseCoefficient>));
