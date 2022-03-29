@@ -88,7 +88,7 @@ namespace GPC.Model.Fem.FiniteElements
         public override void BuildMatrix()
         {
             //set local coordinate system
-            _nodesLocal = Quad4Element.GetLocalNodes(_nodesGlobal, out _localCoordinateSystem);
+            _nodesLocal = Quad4Element.GetLocalNodes(_nodes, out _localCoordinateSystem);
 
             Vector3d globalX = new Vector3d(1, 0, 0);
             Vector3d globalY = new Vector3d(0, 1, 0);
@@ -98,10 +98,10 @@ namespace GPC.Model.Fem.FiniteElements
             if (_localCoordinateSystem.V1 != globalX || _localCoordinateSystem.V2 != globalY || _localCoordinateSystem.V3 != globalZ)
             {
                 Console.WriteLine("Nodi coordinate globali:");
-                Console.WriteLine(_nodesGlobal[0].Position);
-                Console.WriteLine(_nodesGlobal[1].Position);
-                Console.WriteLine(_nodesGlobal[2].Position);
-                Console.WriteLine(_nodesGlobal[3].Position);
+                Console.WriteLine(_nodes[0].Position);
+                Console.WriteLine(_nodes[1].Position);
+                Console.WriteLine(_nodes[2].Position);
+                Console.WriteLine(_nodes[3].Position);
                 throw new NotImplementedException("Elemento finito al momento funzionante solo con assi locali coincidenti con assi globali");
             }
 

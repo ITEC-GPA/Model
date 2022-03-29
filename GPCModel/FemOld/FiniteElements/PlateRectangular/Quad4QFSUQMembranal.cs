@@ -47,7 +47,7 @@ namespace GPC.Model.Fem.FiniteElements
             //Axis y ortogonal to axis x, Node k = node 3
 
             //calculation of matrix for transformation from Local to Global coordinates
-            _localNodes = Quad4Element.GetLocalNodes(_nodesGlobal, out _localCoordinateSystem);
+            _localNodes = Quad4Element.GetLocalNodes(_nodes, out _localCoordinateSystem);
 
             //move origin to centroid
             double xG = _localNodes.ToList().Sum(x => x.Position.X) / 4.0;

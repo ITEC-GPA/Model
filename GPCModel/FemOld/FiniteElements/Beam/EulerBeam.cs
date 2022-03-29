@@ -49,7 +49,7 @@ namespace GPC.Model.Fem.FiniteElements
             double Jzz = section.J22;
             double Jyy = section.J11;
             double Jt = section.Jt;
-            _length = _nodesGlobal[0].Position.DistanceTo(_nodesGlobal[1].Position);
+            _length = _nodes[0].Position.DistanceTo(_nodes[1].Position);
             double L = _length;
             double L2 = _length * _length;
             double L3 = _length * _length * _length;
@@ -474,14 +474,14 @@ namespace GPC.Model.Fem.FiniteElements
             #endregion
 
             #region transformationToGlobal
-            double xj = _nodesGlobal[1].Position.X;
-            double xi = _nodesGlobal[0].Position.X;
+            double xj = _nodes[1].Position.X;
+            double xi = _nodes[0].Position.X;
 
-            double yj = _nodesGlobal[1].Position.Y;
-            double yi = _nodesGlobal[0].Position.Y;
+            double yj = _nodes[1].Position.Y;
+            double yi = _nodes[0].Position.Y;
 
-            double zj = _nodesGlobal[1].Position.Z;
-            double zi = _nodesGlobal[0].Position.Z;
+            double zj = _nodes[1].Position.Z;
+            double zi = _nodes[0].Position.Z;
 
             double lox = (xj - xi) / L;
             double mox = (yj - yi) / L;
@@ -791,7 +791,7 @@ namespace GPC.Model.Fem.FiniteElements
         public override FiniteElement Duplicate(ElementProperty property, List<LoadCaseAttribute> lcAttributes, List<FreedomCaseAttribute> fcAttributes)
         {
             //duplicate nodes
-            Node[] duplicatedNodes = _nodesGlobal.Select(node => node.Duplicate()).ToArray();
+            Node[] duplicatedNodes = _nodes.Select(node => node.Duplicate()).ToArray();
 
             //duplicate beam
             EulerBeam duplicatedBeam = new EulerBeam(duplicatedNodes, _axisAngleRadians);

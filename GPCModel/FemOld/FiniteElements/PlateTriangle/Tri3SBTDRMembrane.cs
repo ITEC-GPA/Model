@@ -61,7 +61,7 @@ namespace GPC.Model.Fem.FiniteElements
             //calculation of matrix for transformation from Local to Global coordinates
             #region TransformationMatrixLocalCoordinatesToGlobalCoordinates
 
-            _localNodes = Tri3Element.GetLocalNodes(_nodesGlobal, out _localCoordinateSystem); //take global node and transform in local nodes
+            _localNodes = Tri3Element.GetLocalNodes(_nodes, out _localCoordinateSystem); //take global node and transform in local nodes
             Console.WriteLine("Element Local Nodes");
             _localNodes.ToList().ForEach(x => Console.WriteLine(x));
 

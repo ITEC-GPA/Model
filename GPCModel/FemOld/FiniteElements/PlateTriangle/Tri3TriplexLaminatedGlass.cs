@@ -97,13 +97,13 @@ namespace GPC.Model.Fem.FiniteElements
 
             _PlaneStressGlassMatrix = IsotropicFemMaterial.GetMatrixPlaneStress(_EGlass, _niGlass);
 
-            _el = new Tri3DK(_nodesGlobal);
+            _el = new Tri3DK(_nodes);
         }
 
         public override void BuildMatrix()
         {
             //set local coordinate system
-            _nodesLocal = Tri3Element.GetLocalNodes(_nodesGlobal, out _localCoordinateSystem);
+            _nodesLocal = Tri3Element.GetLocalNodes(_nodes, out _localCoordinateSystem);
 
             _x31 = _nodesLocal[3 - 1].Position.X - _nodesLocal[1 - 1].Position.X;
             _y31 = _nodesLocal[3 - 1].Position.Y - _nodesLocal[1 - 1].Position.Y;

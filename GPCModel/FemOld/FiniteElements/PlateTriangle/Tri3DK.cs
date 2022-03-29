@@ -55,7 +55,7 @@ namespace GPC.Model.Fem.FiniteElements
 
             #region calculationLocalAxisAndLocalCoordinates
             //Local axes calculater anticlockwise
-            _nodesLocal = Tri3Element.GetLocalNodes(_nodesGlobal, out _localCoordinateSystem);
+            _nodesLocal = Tri3Element.GetLocalNodes(_nodes, out _localCoordinateSystem);
             Node node1 = _nodesLocal[0];
             Node node2 = _nodesLocal[1];
             Node node3 = _nodesLocal[2];

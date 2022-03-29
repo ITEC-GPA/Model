@@ -92,13 +92,13 @@ namespace GPC.Model.Fem.FiniteElements
 
             _PlaneStressGlassMatrix = IsotropicFemMaterial.GetMatrixPlaneStress(_EGlass, _niGlass);
 
-            _el = new Quad4DK(_nodesGlobal);
+            _el = new Quad4DK(_nodes);
         }
 
         public override void BuildMatrix()
         {
             //set local coordinate system
-            _nodesLocal = Quad4Element.GetLocalNodes(_nodesGlobal, out _localCoordinateSystem);
+            _nodesLocal = Quad4Element.GetLocalNodes(_nodes, out _localCoordinateSystem);
 
             /*Console.WriteLine(_localCoordinateSystem.V1);
             Console.WriteLine(_localCoordinateSystem.V2);

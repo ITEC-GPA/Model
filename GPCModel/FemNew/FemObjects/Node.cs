@@ -8,13 +8,13 @@ using GPC.Model.Fem.Collections;
 using GPC.Model.Results;
 using GPC.Utilities.Extensions;
 
-namespace GPC.Model.Fem
+namespace GPC.Model.Fem.FemObjects
 {
     /// <summary>
     /// Rapresent a Node of a <see cref="FiniteElements.FiniteElement"/>
     /// </summary>
     [Serializable]
-    public class Node : FemObject, INotifyPropertyChanged
+    public class Node : FemObject, INotifyPropertyChanged, IFemObjectDuplicable<Node>
     {
         #region Variables
 
@@ -168,25 +168,26 @@ namespace GPC.Model.Fem
                 _results.Add(result);
         }
 
-        //public Node Duplicate()
-        //{
-        //    Node duplicate = new Node(new Point3d(Position.X, Position.Y, Position.Z), Name)
-        //    {
-        //        DOF = DOF
-        //    };
+        public Node Duplicate()
+        {
+            Node duplicate = new Node(new Point3d(Position.X, Position.Y, Position.Z), Name)
+            {
+                //DOF = DOF
+            };
 
-        //    duplicate.Id = Id;
+            duplicate.Id = Id;
 
-        //    foreach (INodeFreedomCaseAttribute attribute in _attributesFreedomCase)
-        //    {
-        //        duplicate.AddAttribute(attribute);
-        //    }
-        //    foreach (INodeLoadCaseAttribute attribute in _attributesLoadCase)
-        //    {
-        //        duplicate.AddAttribute(attribute);
-        //    }
-        //    return duplicate;
-        //}
+            foreach (INodeFreedomCaseAttribute attribute in _attributesFreedomCase)
+            {
+                duplicate.AddAttribute(attribute);
+            }
+            foreach (INodeLoadCaseAttribute attribute in _attributesLoadCase)
+            {
+                duplicate.AddAttribute(attribute);
+            }
+
+            return duplicate;
+        }
 
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {

@@ -54,7 +54,7 @@ namespace GPC.Model.Fem.FiniteElements
 
         public override FiniteElement Duplicate(ElementProperty property, List<LoadCaseAttribute> lcAttributes, List<FreedomCaseAttribute> fdAttributes)
         {
-            var plate = new Plate(_nodesGlobal);
+            var plate = new Plate(_nodes);
             plate.SetProperty(property);
             plate.Id = Id;
 
@@ -146,7 +146,7 @@ namespace GPC.Model.Fem.FiniteElements
         {
             if (IsQuad == true)
             {
-                var pts = Quad4Element.GetLocalNodes(_nodesGlobal, out CoordinateSystem sys).Select(x => x.Position).ToList();
+                var pts = Quad4Element.GetLocalNodes(_nodes, out CoordinateSystem sys).Select(x => x.Position).ToList();
 
                 double a1 = Tri3Element.GetArea(new Point3d[] { pts[0], pts[1], pts[2] });
                 double a2 = Tri3Element.GetArea(new Point3d[] { pts[0], pts[2], pts[3] });
@@ -155,7 +155,7 @@ namespace GPC.Model.Fem.FiniteElements
             }
             else if (IsTriangle == true)
             {
-                var pts = Tri3Element.GetLocalNodes(_nodesGlobal, out CoordinateSystem sys).Select(x => x.Position).ToList();
+                var pts = Tri3Element.GetLocalNodes(_nodes, out CoordinateSystem sys).Select(x => x.Position).ToList();
 
                 return Tri3Element.GetArea(new Point3d[] { pts[0], pts[1], pts[2] });
             }

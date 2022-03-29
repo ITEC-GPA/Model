@@ -53,7 +53,7 @@ namespace GPC.Model.Fem.FiniteElements
             _d = ((BrickProperty)_property).Material.Get3DSolidStress();
 
             mnl.Matrix<double> b = GetB();
-            double volume = GetVolume(_nodesGlobal);
+            double volume = GetVolume(_nodes);
             _kElementLocalCoord = volume * b.Transpose() * _d * b;
         }
 
@@ -66,49 +66,49 @@ namespace GPC.Model.Fem.FiniteElements
         /// <returns></returns>
         public override mnl.Matrix<double> GetB(double csi = 0, double eta = 0, double zeta = 0)
         {
-            double volume = GetVolume(_nodesGlobal);
+            double volume = GetVolume(_nodes);
             mnl.Matrix<double> b = mnl.Matrix<double>.Build.Dense(6, 12);
-            b[0, 0] = GetCoefficientShapeFunction(1, "b", _nodesGlobal);
-            b[0, 3] = GetCoefficientShapeFunction(2, "b", _nodesGlobal);
-            b[0, 6] = GetCoefficientShapeFunction(3, "b", _nodesGlobal);
-            b[0, 9] = GetCoefficientShapeFunction(4, "b", _nodesGlobal);
+            b[0, 0] = GetCoefficientShapeFunction(1, "b", _nodes);
+            b[0, 3] = GetCoefficientShapeFunction(2, "b", _nodes);
+            b[0, 6] = GetCoefficientShapeFunction(3, "b", _nodes);
+            b[0, 9] = GetCoefficientShapeFunction(4, "b", _nodes);
 
-            b[1, 1] = GetCoefficientShapeFunction(1, "c", _nodesGlobal);
-            b[1, 4] = GetCoefficientShapeFunction(2, "c", _nodesGlobal);
-            b[1, 7] = GetCoefficientShapeFunction(3, "c", _nodesGlobal);
-            b[1, 10] = GetCoefficientShapeFunction(4, "c", _nodesGlobal);
+            b[1, 1] = GetCoefficientShapeFunction(1, "c", _nodes);
+            b[1, 4] = GetCoefficientShapeFunction(2, "c", _nodes);
+            b[1, 7] = GetCoefficientShapeFunction(3, "c", _nodes);
+            b[1, 10] = GetCoefficientShapeFunction(4, "c", _nodes);
 
-            b[2, 2] = GetCoefficientShapeFunction(1, "d", _nodesGlobal);
-            b[2, 5] = GetCoefficientShapeFunction(2, "d", _nodesGlobal);
-            b[2, 8] = GetCoefficientShapeFunction(3, "d", _nodesGlobal);
-            b[2, 11] = GetCoefficientShapeFunction(4, "d", _nodesGlobal);
+            b[2, 2] = GetCoefficientShapeFunction(1, "d", _nodes);
+            b[2, 5] = GetCoefficientShapeFunction(2, "d", _nodes);
+            b[2, 8] = GetCoefficientShapeFunction(3, "d", _nodes);
+            b[2, 11] = GetCoefficientShapeFunction(4, "d", _nodes);
 
-            b[3, 0] = GetCoefficientShapeFunction(1, "c", _nodesGlobal);
-            b[3, 1] = GetCoefficientShapeFunction(1, "b", _nodesGlobal);
-            b[3, 3] = GetCoefficientShapeFunction(2, "c", _nodesGlobal);
-            b[3, 4] = GetCoefficientShapeFunction(2, "b", _nodesGlobal);
-            b[3, 6] = GetCoefficientShapeFunction(3, "c", _nodesGlobal);
-            b[3, 7] = GetCoefficientShapeFunction(3, "b", _nodesGlobal);
-            b[3, 9] = GetCoefficientShapeFunction(4, "c", _nodesGlobal);
-            b[3, 10] = GetCoefficientShapeFunction(4, "b", _nodesGlobal);
+            b[3, 0] = GetCoefficientShapeFunction(1, "c", _nodes);
+            b[3, 1] = GetCoefficientShapeFunction(1, "b", _nodes);
+            b[3, 3] = GetCoefficientShapeFunction(2, "c", _nodes);
+            b[3, 4] = GetCoefficientShapeFunction(2, "b", _nodes);
+            b[3, 6] = GetCoefficientShapeFunction(3, "c", _nodes);
+            b[3, 7] = GetCoefficientShapeFunction(3, "b", _nodes);
+            b[3, 9] = GetCoefficientShapeFunction(4, "c", _nodes);
+            b[3, 10] = GetCoefficientShapeFunction(4, "b", _nodes);
 
-            b[4, 1] = GetCoefficientShapeFunction(1, "d", _nodesGlobal);
-            b[4, 2] = GetCoefficientShapeFunction(1, "c", _nodesGlobal);
-            b[4, 4] = GetCoefficientShapeFunction(2, "d", _nodesGlobal);
-            b[4, 5] = GetCoefficientShapeFunction(2, "c", _nodesGlobal);
-            b[4, 7] = GetCoefficientShapeFunction(3, "d", _nodesGlobal);
-            b[4, 8] = GetCoefficientShapeFunction(3, "c", _nodesGlobal);
-            b[4, 10] = GetCoefficientShapeFunction(4, "d", _nodesGlobal);
-            b[4, 11] = GetCoefficientShapeFunction(4, "c", _nodesGlobal);
+            b[4, 1] = GetCoefficientShapeFunction(1, "d", _nodes);
+            b[4, 2] = GetCoefficientShapeFunction(1, "c", _nodes);
+            b[4, 4] = GetCoefficientShapeFunction(2, "d", _nodes);
+            b[4, 5] = GetCoefficientShapeFunction(2, "c", _nodes);
+            b[4, 7] = GetCoefficientShapeFunction(3, "d", _nodes);
+            b[4, 8] = GetCoefficientShapeFunction(3, "c", _nodes);
+            b[4, 10] = GetCoefficientShapeFunction(4, "d", _nodes);
+            b[4, 11] = GetCoefficientShapeFunction(4, "c", _nodes);
 
-            b[5, 0] = GetCoefficientShapeFunction(1, "d", _nodesGlobal);
-            b[5, 2] = GetCoefficientShapeFunction(1, "b", _nodesGlobal);
-            b[5, 3] = GetCoefficientShapeFunction(2, "d", _nodesGlobal);
-            b[5, 5] = GetCoefficientShapeFunction(2, "b", _nodesGlobal);
-            b[5, 6] = GetCoefficientShapeFunction(3, "d", _nodesGlobal);
-            b[5, 8] = GetCoefficientShapeFunction(3, "b", _nodesGlobal);
-            b[5, 9] = GetCoefficientShapeFunction(4, "d", _nodesGlobal);
-            b[5, 11] = GetCoefficientShapeFunction(4, "b", _nodesGlobal);
+            b[5, 0] = GetCoefficientShapeFunction(1, "d", _nodes);
+            b[5, 2] = GetCoefficientShapeFunction(1, "b", _nodes);
+            b[5, 3] = GetCoefficientShapeFunction(2, "d", _nodes);
+            b[5, 5] = GetCoefficientShapeFunction(2, "b", _nodes);
+            b[5, 6] = GetCoefficientShapeFunction(3, "d", _nodes);
+            b[5, 8] = GetCoefficientShapeFunction(3, "b", _nodes);
+            b[5, 9] = GetCoefficientShapeFunction(4, "d", _nodes);
+            b[5, 11] = GetCoefficientShapeFunction(4, "b", _nodes);
 
             return b / (6.0 * volume);
         }

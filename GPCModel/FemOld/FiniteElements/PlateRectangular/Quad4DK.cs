@@ -117,7 +117,7 @@ namespace GPC.Model.Fem.FiniteElements
             #endregion
 
             //set local coordinate system
-            _nodesLocal = Quad4Element.GetLocalNodes(_nodesGlobal, out _localCoordinateSystem);
+            _nodesLocal = Quad4Element.GetLocalNodes(_nodes, out _localCoordinateSystem);
             Node node1 = _nodesLocal[0];
             Node node2 = _nodesLocal[1];
             Node node3 = _nodesLocal[2];

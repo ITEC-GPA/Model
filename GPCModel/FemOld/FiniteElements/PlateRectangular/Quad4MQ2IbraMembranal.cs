@@ -51,7 +51,7 @@ namespace GPC.Model.Fem.FiniteElements
             //Axis y ortogonal to axis x, Node k = node 3
 
             //calculation of matrix for transformation from Local to Global coordinates
-            _localNodes = Quad4Element.GetLocalNodes(_nodesGlobal, out _localCoordinateSystem);//Quad4Element.LocalNodes(_nodesGlobal, out _localCoordinateSystem);
+            _localNodes = Quad4Element.GetLocalNodes(_nodes, out _localCoordinateSystem);//Quad4Element.LocalNodes(_nodesGlobal, out _localCoordinateSystem);
             _localNodes.ToList().ForEach(x => Console.WriteLine(x));
 
             #region TransformationMatrixLocalCoordinatesToGlobalCoordinates

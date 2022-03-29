@@ -57,7 +57,7 @@ namespace GPC.Model.Fem.FiniteElements
                 return b.Transpose() * _d * b;
             };
 
-            var jacob = FemUtilities.J3D(TriLinearShapeFunctionHexaedron8.DNdCsi, TriLinearShapeFunctionHexaedron8.DNdEta, TriLinearShapeFunctionHexaedron8.DNdZeta, _nodesGlobal);
+            var jacob = FemUtilities.J3D(TriLinearShapeFunctionHexaedron8.DNdCsi, TriLinearShapeFunctionHexaedron8.DNdEta, TriLinearShapeFunctionHexaedron8.DNdZeta, _nodes);
 
             _kElementLocalCoord = OldGaussIntegration.IntegrationHexaedron(kFunc, jacob, 8);
         }
@@ -75,7 +75,7 @@ namespace GPC.Model.Fem.FiniteElements
 
             for (int i = 1; i <= 8; i++)
             {
-                b = b.Append(GetBi(i, csi, eta, zeta, _nodesGlobal));
+                b = b.Append(GetBi(i, csi, eta, zeta, _nodes));
             }
             /*Console.WriteLine("B");
             Util.WriteMatrix(b);*/

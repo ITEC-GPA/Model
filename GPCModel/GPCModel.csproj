@@ -83,6 +83,7 @@
     <Compile Include="Base\UnitsSystem.cs" />
     <Compile Include="Base\Units.cs" />
     <Compile Include="Combinations\CombinationsCollection.cs" />
+    <Compile Include="FemNew\FemObjects\IFemObjectDuplicable.cs" />
     <Compile Include="FemOld\Attributes\AttributeEqualityComparer.cs" />
     <Compile Include="FemOld\Attributes\LoadCase\ModelGravityAttribute.cs" />
     <Compile Include="FemNew\Collections\AttributesCollection.cs" />
@@ -238,7 +239,7 @@
     <Compile Include="FemOld\Costrain\Costrain.cs" />
     <Compile Include="FemOld\FemModel.cs" />
     <Compile Include="FemNew\FemObjects\FemObject.cs" />
-    <Compile Include="FemOld\FiniteElements\FiniteElement.cs" />
+    <Compile Include="FemNew\FemObjects\FiniteElements\FiniteElement.cs" />
     <Compile Include="FemOld\FiniteElements\PlateTriangle\Tri3Element.cs" />
     <Compile Include="FemOld\FiniteElements\PlateTriangle\Tri3DK.cs" />
     <Compile Include="FemOld\FiniteElements\PlateRectangular\Quad4DK.cs" />

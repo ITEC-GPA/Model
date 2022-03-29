@@ -4,7 +4,7 @@ using System.Linq;
 using System.Runtime.Serialization;
 
 
-namespace GPC.Model.Fem
+namespace GPC.Model.Fem.FemObjects
 {
 
     /// <summary>
@@ -25,7 +25,7 @@ namespace GPC.Model.Fem
             _groups = new UniqueNameCollection<Group>();
         }
 
-        public FemObject(string name) 
+        public FemObject(string name = "") 
             : this (ModelObjectId.IDUNASSIGNED, name, new Guid())
             
         {
