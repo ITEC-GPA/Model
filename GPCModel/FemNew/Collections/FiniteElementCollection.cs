@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using GPC.Model.Fem.FiniteElements;
+using GPC.Model.Fem.FemObjects.FiniteElements;
 
 namespace GPC.Model.Fem.Collections
 {

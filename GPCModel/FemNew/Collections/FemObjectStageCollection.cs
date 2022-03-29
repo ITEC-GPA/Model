@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Runtime.Serialization;
+using GPC.Model.Fem.FemObjects;
 using GPC.Utilities.Extensions;
 
 namespace GPC.Model.Fem.Collections

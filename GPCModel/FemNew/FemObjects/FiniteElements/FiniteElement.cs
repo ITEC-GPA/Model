@@ -151,7 +151,13 @@ namespace GPC.Model.Fem.FemObjects.FiniteElements
         /// <remarks>Only the <see cref="FemModel"/> class can set the property of the elements. For this reason the visibility is internal</remarks>
         /// <param name="property"></param>
         /// <exception cref="ArgumentNullException"></exception>
-        internal abstract void SetProperty(ElementProperty property);
+        internal virtual void SetProperty<T>(T property) where T : ElementProperty
+        {
+            if (property is null)
+                throw new ArgumentNullException(nameof(property));
+
+            _property = property;
+        }
 
         #endregion
 

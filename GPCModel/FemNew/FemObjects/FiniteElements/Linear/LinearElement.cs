@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using GPC.Model.Fem.Attributes;
 using GPC.Model.Fem.Properties;
+using GPC.Model.Sections;
 
 namespace GPC.Model.Fem.FemObjects.FiniteElements
 {
@@ -48,13 +49,11 @@ namespace GPC.Model.Fem.FemObjects.FiniteElements
 
         }
 
-        /// <inheritdoc cref="FiniteElement.SetProperty(ElementProperty)"/>
-        internal void SetProperty(Sections.Section property)
-        {
-            if (property is null)
-                throw new ArgumentNullException(nameof(property));
 
-            _property = property;
+        /// <inheritdoc cref="FiniteElement.SetProperty{T}(T)"/>
+        internal override void SetProperty<Section>(Section property)
+        {
+            base.SetProperty(property);
         }
 
 

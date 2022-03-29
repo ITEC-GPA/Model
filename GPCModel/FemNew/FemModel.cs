@@ -8,8 +8,8 @@ using GPC.Geometry.Meshes;
 using GPC.Model.Combinations;
 using GPC.Model.Fem.Attributes;
 using GPC.Model.Fem.Collections;
-using GPC.Model.Fem.Costrains;
-using GPC.Model.Fem.FiniteElements;
+using GPC.Model.Fem.FemObjects;
+using GPC.Model.Fem.FemObjects.FiniteElements;
 using GPC.Model.Fem.Properties;
 using GPC.Model.FreedomCases;
 using GPC.Model.LoadCases;
@@ -50,11 +50,11 @@ namespace GPC.Model.Fem
         /// </summary>
         protected FiniteElementCollection _elements;
 
-        /// <summary>
-        /// Collection of <see cref="Costrain"/>
-        /// The elements on this collection does not have duplicate ID and can not be duplicate. (different element with different id)
-        /// </summary>
-        protected FemObjectCollection<Costrain> _costrains;
+        ///// <summary>
+        ///// Collection of <see cref="Costrain"/>
+        ///// The elements on this collection does not have duplicate ID and can not be duplicate. (different element with different id)
+        ///// </summary>
+        //protected FemObjectCollection<Costrain> _costrains;
 
         // PROPRIETà
 
@@ -140,9 +140,9 @@ namespace GPC.Model.Fem
         public FemModel(string name)
             : base(name)
         {
-            _nodes = new NodeCollection(); 
-            _elements = new FiniteElementCollection(); 
-            _costrains = new FemObjectCollection<Costrain>();
+            _nodes = new NodeCollection();
+            _elements = new FiniteElementCollection();
+            //_costrains = new FemObjectCollection<Costrain>();
 
             _stages = new UniqueIdCollection<Stage>(); // solo id come equality comparer
 
@@ -170,7 +170,7 @@ namespace GPC.Model.Fem
 
             _nodes = (NodeCollection)info.GetValue("Nodes", typeof(NodeCollection));
             _elements = (FiniteElementCollection)info.GetValue("Elements", typeof(FiniteElementCollection));
-            _costrains = (FemObjectCollection<Costrain>)info.GetValue("Costrains", typeof(FemObjectCollection<Costrain>));
+            //_costrains = (FemObjectCollection<Costrain>)info.GetValue("Costrains", typeof(FemObjectCollection<Costrain>));
 
             _plateProperties = (UniqueNameCollection<PlateProperty>)info.GetValue("PlateProperties", typeof(UniqueNameCollection<PlateProperty>));
             _brickProperties = (UniqueNameCollection<BrickProperty>)info.GetValue("BrickProperties", typeof(UniqueNameCollection<BrickProperty>));
@@ -445,79 +445,79 @@ namespace GPC.Model.Fem
 
         #endregion
 
-        #region Stages
+        //#region Stages
 
-        /// <summary>
-        /// Add a stage to the stage list. The stage will empty (without elements and nodes)
-        /// </summary>
-        public virtual Stage AddStage(string name, AnalysisTypes analysisType, bool morph = false)
-        {
-            Stage stage = new Stage(name, this, analysisType, morph, null);
-            if (_stages.Add(stage))
-            {
-                return stage;
-            }
-            return null;
-        }
+        ///// <summary>
+        ///// Add a stage to the stage list. The stage will empty (without elements and nodes)
+        ///// </summary>
+        //public virtual Stage AddStage(string name, AnalysisTypes analysisType, bool morph = false)
+        //{
+        //    Stage stage = new Stage(name, this, analysisType, morph, null);
+        //    if (_stages.Add(stage))
+        //    {
+        //        return stage;
+        //    }
+        //    return null;
+        //}
 
-        /// <summary>
-        /// Add a stage the to the stage list. This stage will the clone of stage with <see cref="ModelObjectId.Id"/> equal to <paramref name="stageId"/>"/>
-        /// </summary>
-        /// <exception cref="ArgumentException">If stage with id equals to <paramref name="stageId"/> does not exist</exception>
-        public virtual Stage AddStage(int stageId)
-        {
-            Stage stage = _stages.GetById(stageId);
+        ///// <summary>
+        ///// Add a stage the to the stage list. This stage will the clone of stage with <see cref="ModelObjectId.Id"/> equal to <paramref name="stageId"/>"/>
+        ///// </summary>
+        ///// <exception cref="ArgumentException">If stage with id equals to <paramref name="stageId"/> does not exist</exception>
+        //public virtual Stage AddStage(int stageId)
+        //{
+        //    Stage stage = _stages.GetById(stageId);
 
-            var stageCloned = new Stage(stage);
-            _stages.Add(new Stage(stage));
-            return stageCloned;
-        }
+        //    var stageCloned = new Stage(stage);
+        //    _stages.Add(new Stage(stage));
+        //    return stageCloned;
+        //}
 
-        /// <summary>
-        /// Add a stage to the femModel, all the elements will be copied into this stage. <see cref="FemModel._combinations"/> will be copied into the stage
-        /// </summary>
-        public virtual Stage AddStageAsCopyOfModel(string name, AnalysisTypes analysisType)
-        {
-            Stage stage = new Stage(name, this, analysisType, false, _combinations);
+        ///// <summary>
+        ///// Add a stage to the femModel, all the elements will be copied into this stage. <see cref="FemModel._combinations"/> will be copied into the stage
+        ///// </summary>
+        //public virtual Stage AddStageAsCopyOfModel(string name, AnalysisTypes analysisType)
+        //{
+        //    Stage stage = new Stage(name, this, analysisType, false, _combinations);
 
-            FiniteElement[] elements = new FiniteElement[_elements.Count];
-            _elements.CopyTo(elements, 0);
-            stage.SetFiniteElements(elements);
+        //    FiniteElement[] elements = new FiniteElement[_elements.Count];
+        //    _elements.CopyTo(elements, 0);
+        //    stage.SetFiniteElements(elements);
 
-            _stages.Add(stage);
+        //    _stages.Add(stage);
 
-            return stage;
-        }
+        //    return stage;
+        //}
 
-        public Stage[] GetStages()
-        {
-            return _stages.ToArray();
-        }
-
-
-        public Stage GetStageById(int stageId)
-        {
-            return _stages.GetById(stageId);
-        }
-
-        public bool ContainsStageId(int stageId)
-        {
-            return _stages.Contains(stageId);
-        }
-
-        public virtual IEnumerable<Combination> GetStageCombinations(int stageId)
-        {
-            return _stages.GetById(stageId).GetCombinations();
-        }
-
-        public virtual IEnumerator<KeyValuePair<FiniteElement, Stage.StageFiniteElementProperty>> GetStagePropertyEnumerator(int stageId)
-        {
-            return _stages.GetById(stageId).GetStageFiniteElementPropertiesEnumerator();
-        }
+        //public Stage[] GetStages()
+        //{
+        //    return _stages.ToArray();
+        //}
 
 
+        //public Stage GetStageById(int stageId)
+        //{
+        //    return _stages.GetById(stageId);
+        //}
 
-        #endregion
+        //public bool ContainsStageId(int stageId)
+        //{
+        //    return _stages.Contains(stageId);
+        //}
+
+        //public virtual IEnumerable<Combination> GetStageCombinations(int stageId)
+        //{
+        //    return _stages.GetById(stageId).GetCombinations();
+        //}
+
+        //public virtual IEnumerator<KeyValuePair<FiniteElement, Stage.StageFiniteElementProperty>> GetStagePropertyEnumerator(int stageId)
+        //{
+        //    return _stages.GetById(stageId).GetStageFiniteElementPropertiesEnumerator();
+        //}
+
+
+
+        //#endregion
 
         #region ModelAttribute
 
@@ -693,21 +693,21 @@ namespace GPC.Model.Fem
 
             ElementProperty property;
 
-            if (finiteElement is Beam)
+            if (finiteElement is LinearElement)
             {
                 property = GetBeamProperty(propertyName);
 
                 if (property is null)
                     throw new ArgumentOutOfRangeException($"The property list does not contain {propertyName}");
             }
-            else if (finiteElement is Plate)
+            else if (finiteElement is PlanarElement)
             {
                 property = GetPlateProperty(propertyName);
 
                 if (property is null)
                     throw new ArgumentOutOfRangeException($"The property list does not contain {propertyName}");
             }
-            else if (finiteElement is Brick)
+            else if (finiteElement is SolidElement)
             {
                 property = GetBrickProperty(propertyName);
 
@@ -865,68 +865,68 @@ namespace GPC.Model.Fem
 
         #endregion
 
-        #region Costrain
+        //#region Costrain
 
-        /// <summary> Add a <paramref name="costrain"/> and its <see cref="Node"/> to the FemModel</summary>
-        /// <param name="costrain"></param>
-        /// <remarks>This is a O(2n) Operation</remarks>
-        /// <inheritdoc cref="AddNode(Node)"/>
-        /// <inheritdoc cref="FemObjectCollection{T}.AddUnique(T)"/>
-        public virtual int AddCostrain(Costrain costrain)
-        {
-            if (costrain is null)
-                throw new ArgumentNullException(nameof(costrain));
-
-
-            AddNode(costrain.StartNode);
-            AddNodes(costrain.EndNodes);
+        ///// <summary> Add a <paramref name="costrain"/> and its <see cref="Node"/> to the FemModel</summary>
+        ///// <param name="costrain"></param>
+        ///// <remarks>This is a O(2n) Operation</remarks>
+        ///// <inheritdoc cref="AddNode(Node)"/>
+        ///// <inheritdoc cref="FemObjectCollection{T}.AddUnique(T)"/>
+        //public virtual int AddCostrain(Costrain costrain)
+        //{
+        //    if (costrain is null)
+        //        throw new ArgumentNullException(nameof(costrain));
 
 
-            return _costrains.AddUnique(costrain);
-        }
-
-        /// <summary> Add a <paramref name="costrains"/> and its <see cref="Node"/> to the FemModel</summary>
-        /// <param name="costrains"></param>
-        /// <remarks>This is a O(2n) Operation</remarks>
-        /// <inheritdoc cref="AddNode(Node)"/>
-        /// <inheritdoc cref="FemObjectCollection{T}.AddUnique(T)"/>
-        public virtual void AddCostrains(IEnumerable<Costrain> costrains)
-        {
-            foreach (var costrain in costrains)
-            {
-                AddCostrain(costrain);
-            }
-        }
-
-        /// <returns>True if <paramref name="costrain"/> is contained in the <see cref="FemModel._costrains"/> collections </returns>
-        /// <inheritdoc cref="FemObjectCollection{T}.Contains(T)"/>
-        public virtual bool ContainsCostrains(Costrain costrain)
-        {
-            return _costrains.Contains(costrain) != 0;
-        }
+        //    AddNode(costrain.StartNode);
+        //    AddNodes(costrain.EndNodes);
 
 
-        /// <param name="index"></param>
-        /// <inheritdoc cref="FemObjectCollection{T}.GetElementById(int)"/>
-        public virtual Costrain GetCostrain(int index)
-        {
-            return _costrains[index];
-        }
+        //    return _costrains.AddUnique(costrain);
+        //}
 
-        public virtual Costrain[] GetCostrains()
-        {
-            return _costrains.ToArray();
-        }
+        ///// <summary> Add a <paramref name="costrains"/> and its <see cref="Node"/> to the FemModel</summary>
+        ///// <param name="costrains"></param>
+        ///// <remarks>This is a O(2n) Operation</remarks>
+        ///// <inheritdoc cref="AddNode(Node)"/>
+        ///// <inheritdoc cref="FemObjectCollection{T}.AddUnique(T)"/>
+        //public virtual void AddCostrains(IEnumerable<Costrain> costrains)
+        //{
+        //    foreach (var costrain in costrains)
+        //    {
+        //        AddCostrain(costrain);
+        //    }
+        //}
+
+        ///// <returns>True if <paramref name="costrain"/> is contained in the <see cref="FemModel._costrains"/> collections </returns>
+        ///// <inheritdoc cref="FemObjectCollection{T}.Contains(T)"/>
+        //public virtual bool ContainsCostrains(Costrain costrain)
+        //{
+        //    return _costrains.Contains(costrain) != 0;
+        //}
 
 
-        /// <inheritdoc cref="FemObjectCollection{T}.GetEnumerator()"/>
-        public virtual IEnumerator<Costrain> GetCostrainEnumerator()
-        {
-            return _costrains.GetEnumerator();
-        }
+        ///// <param name="index"></param>
+        ///// <inheritdoc cref="FemObjectCollection{T}.GetElementById(int)"/>
+        //public virtual Costrain GetCostrain(int index)
+        //{
+        //    return _costrains[index];
+        //}
+
+        //public virtual Costrain[] GetCostrains()
+        //{
+        //    return _costrains.ToArray();
+        //}
 
 
-        #endregion
+        ///// <inheritdoc cref="FemObjectCollection{T}.GetEnumerator()"/>
+        //public virtual IEnumerator<Costrain> GetCostrainEnumerator()
+        //{
+        //    return _costrains.GetEnumerator();
+        //}
+
+
+        //#endregion
 
         #region Mesh and shapes
 
@@ -1819,45 +1819,45 @@ namespace GPC.Model.Fem
 
         #endregion
 
-        #region Results
+        //#region Results
 
-        /// <returns>The results related to <paramref name="combination"/></returns>
-        public IEnumerable<NodeResult> GetCombinationNodeDisplacementResults(Combination combination, string groupName = "")
-        {
+        ///// <returns>The results related to <paramref name="combination"/></returns>
+        //public IEnumerable<NodeResult> GetCombinationNodeDisplacementResults(Combination combination, string groupName = "")
+        //{
 
-            if (!string.IsNullOrEmpty(groupName))
-            {
-                var group = _groups.GetElementByName(groupName);
-                return _nodes.SelectMany(i => i.Results.Where(j => i.ContainsGroup(group) && j.ResultLocations.First().ResultTypes.First() is ResultDisplacement));
-            }
-            else
-            {
-                return _nodes.SelectMany(i => i.Results.Where(j => j.Case.Equals(combination) && j.ResultLocations.First().ResultTypes.First() is ResultDisplacement));
-            }
-        }
-
-
-        public FiniteElementResult[] GetCombinationResultsPlateStress(Combination combination, string groupName = "")
-        {
-            if (string.IsNullOrEmpty(groupName))
-            {
-                return _elements.SelectMany(i => i.Results
-                                                   .Where(k => k.Case.Equals(combination) && k.ResultLocations.First().ResultTypes.First() is ResultPlateStress)).ToArray();
-
-            }
-            else
-            {
-                var group = _groups.GetElementByName(groupName);
-                return _elements.SelectMany(i => i.Results
-                                                   .Where(k => i.ContainsGroup(group)
-                                                            && k.Case.Equals(combination) && k.ResultLocations.First().ResultTypes.First() is ResultPlateStress)).ToArray();
-
-            }
+        //    if (!string.IsNullOrEmpty(groupName))
+        //    {
+        //        var group = _groups.GetElementByName(groupName);
+        //        return _nodes.SelectMany(i => i.Results.Where(j => i.ContainsGroup(group) && j.ResultLocations.First().ResultTypes.First() is ResultDisplacement));
+        //    }
+        //    else
+        //    {
+        //        return _nodes.SelectMany(i => i.Results.Where(j => j.Case.Equals(combination) && j.ResultLocations.First().ResultTypes.First() is ResultDisplacement));
+        //    }
+        //}
 
 
-        }
+        //public FiniteElementResult[] GetCombinationResultsPlateStress(Combination combination, string groupName = "")
+        //{
+        //    if (string.IsNullOrEmpty(groupName))
+        //    {
+        //        return _elements.SelectMany(i => i.Results
+        //                                           .Where(k => k.Case.Equals(combination) && k.ResultLocations.First().ResultTypes.First() is ResultPlateStress)).ToArray();
 
-        #endregion
+        //    }
+        //    else
+        //    {
+        //        var group = _groups.GetElementByName(groupName);
+        //        return _elements.SelectMany(i => i.Results
+        //                                           .Where(k => i.ContainsGroup(group)
+        //                                                    && k.Case.Equals(combination) && k.ResultLocations.First().ResultTypes.First() is ResultPlateStress)).ToArray();
+
+        //    }
+
+
+        //}
+
+        //#endregion
 
         #endregion
 
@@ -1870,7 +1870,7 @@ namespace GPC.Model.Fem
 
             info.AddValue("Nodes", _nodes, typeof(NodeCollection));
             info.AddValue("Elements", _elements, typeof(FiniteElementCollection));
-            info.AddValue("Costrains", _costrains, typeof(FemObjectCollection<Costrain>));
+            //info.AddValue("Costrains", _costrains, typeof(FemObjectCollection<Costrain>));
             info.AddValue("PlateProperties", _plateProperties, typeof(UniqueNameCollection<PlateProperty>));
             info.AddValue("BrickProperties", _brickProperties, typeof(UniqueNameCollection<BrickProperty>));
             info.AddValue("LoadCaseBases", _loadCases, typeof(UniqueNameCollection<LoadCaseBase>));
@@ -1893,7 +1893,7 @@ namespace GPC.Model.Fem
 
                 hashCode = hashCode * -17 + _nodes.GetHashCode();
                 hashCode = hashCode * -17 + _elements.GetHashCode();
-                hashCode = hashCode * -17 + _costrains.GetHashCode();
+                //hashCode = hashCode * -17 + _costrains.GetHashCode();
                 hashCode = hashCode * -17 + _plateProperties.GetHashCode();
                 hashCode = hashCode * -17 + _brickProperties.GetHashCode();
                 hashCode = hashCode * -17 + _loadCases.GetHashCode();
@@ -1914,7 +1914,7 @@ namespace GPC.Model.Fem
         {
             return obj is FemModel model && _nodes.Equals(model._nodes)
                                          && _elements.Equals(model._elements)
-                                         && _costrains.Equals(model._costrains)
+                                         //&& _costrains.Equals(model._costrains)
                                          && _plateProperties.Equals(model._plateProperties)
                                          && _brickProperties.Equals(model._brickProperties)
                                          && _loadCases.Equals(model._loadCases)

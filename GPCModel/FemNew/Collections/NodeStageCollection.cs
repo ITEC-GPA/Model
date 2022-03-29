@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Runtime.Serialization;
 using GPC.Model.Fem.Attributes;
+using GPC.Model.Fem.FemObjects;
 
 namespace GPC.Model.Fem.Collections
 {

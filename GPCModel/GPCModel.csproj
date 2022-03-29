@@ -86,6 +86,10 @@
     <Compile Include="FemNew\FemObjects\FiniteElements\Linear\EulerBeam.cs" />
     <Compile Include="FemNew\FemObjects\FiniteElements\Linear\LinearElement.cs" />
     <Compile Include="FemNew\FemObjects\FiniteElements\Linear\Truss.cs" />
+    <Compile Include="FemNew\FemObjects\FiniteElements\Planar\PlanarElement.cs" />
+    <Compile Include="FemNew\FemObjects\FiniteElements\Planar\Plate.cs" />
+    <Compile Include="FemNew\FemObjects\FiniteElements\Solid\Brick.cs" />
+    <Compile Include="FemNew\FemObjects\FiniteElements\Solid\SolidElement.cs" />
     <Compile Include="FemNew\FemObjects\IFemObjectDuplicable.cs" />
     <Compile Include="FemOld\Attributes\AttributeEqualityComparer.cs" />
     <Compile Include="FemOld\Attributes\LoadCase\ModelGravityAttribute.cs" />
@@ -240,7 +244,7 @@
     <Compile Include="FemOld\Attributes\LoadCase\PlateNormalPressureAttribute.cs" />
     <Compile Include="FemOld\Attributes\LoadCase\BeamDistribuitedLoadAttribute.cs" />
     <Compile Include="FemOld\Costrain\Costrain.cs" />
-    <Compile Include="FemOld\FemModel.cs" />
+    <Compile Include="FemNew\FemModel.cs" />
     <Compile Include="FemNew\FemObjects\FemObject.cs" />
     <Compile Include="FemNew\FemObjects\FiniteElements\FiniteElement.cs" />
     <Compile Include="FemOld\FiniteElements\PlateTriangle\Tri3Element.cs" />
@@ -311,8 +315,7 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="FemNew\FemObjects\FiniteElements\Planar\" />
-    <Folder Include="FemNew\FemObjects\FiniteElements\Solid\" />
+    <Folder Include="FemNew\Attributes\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">

@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
 using System.Threading.Tasks;
+using GPC.Model.Fem.FemObjects;
 
 namespace GPC.Model.Fem.Collections
 {
