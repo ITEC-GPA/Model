@@ -80,7 +80,7 @@ namespace GPC.Model.Fem.Materials
             _alpha3 = alpha3 < 0 ? throw new ArgumentException($"Linear thermal expansion coefficient cannot be lower than zero") : alpha3;
         }
 
-        public OrthotropicFemMaterial(SerializationInfo info, StreamingContext context)
+        protected OrthotropicFemMaterial(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
             throw new NotImplementedException();

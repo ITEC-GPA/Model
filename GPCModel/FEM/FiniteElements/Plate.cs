@@ -47,7 +47,7 @@ namespace GPC.Model.Fem.FiniteElements
 
         }
 
-        public Plate(SerializationInfo info, StreamingContext context)
+        protected Plate(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
         }

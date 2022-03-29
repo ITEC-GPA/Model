@@ -29,7 +29,7 @@ namespace GPC.Model.Fem.Properties
             _loadDuration = loadDuration > 0 ? loadDuration : throw new ArgumentException("Temperature can not be lower or equal to zero");
         }
 
-        public InterlayerBrickProperty(SerializationInfo info, StreamingContext context) : base(info, context)
+        protected InterlayerBrickProperty(SerializationInfo info, StreamingContext context) : base(info, context)
         {
             _temperature = (double)info.GetValue("Temperature", typeof(double));
             _loadDuration = (double)info.GetValue("LoadDuration", typeof(double));
@@ -64,23 +64,18 @@ namespace GPC.Model.Fem.Properties
 
         public override int GetHashCode()
         {
-            int hashCode = -23;
-            hashCode = hashCode * -17 + base.GetHashCode();
-            hashCode = hashCode * -17 + _temperature.GetHashCode();
-            hashCode = hashCode * -17 + _loadDuration.GetHashCode();
-            return hashCode;
+            unchecked
+            {
+                int hashCode = -23;
+                hashCode = hashCode * -17 + base.GetHashCode();
+                hashCode = hashCode * -17 + _temperature.GetHashCode();
+                hashCode = hashCode * -17 + _loadDuration.GetHashCode();
+                return hashCode; 
+            }
         }
 
         public static bool operator ==(InterlayerBrickProperty obj1, InterlayerBrickProperty obj2)
         {
-            if (obj1 is null)
-            {
-                return obj2 is null;
-            }
-
-            if (ReferenceEquals(obj1, obj2))
-                return true;
-
             return obj1.Equals(obj2);
         }
 

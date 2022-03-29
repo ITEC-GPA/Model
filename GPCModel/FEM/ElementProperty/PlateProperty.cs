@@ -69,12 +69,6 @@ namespace GPC.Model.Fem.Properties
 
         public override bool Equals(object obj)
         {
-            if (obj is null)
-                return false;
-
-            if (ReferenceEquals(this, obj))
-                return true;
-
             return (obj is PlateProperty objCasted) && _bendingThickness == objCasted._bendingThickness &&
                                            _membraneThickness == objCasted._membraneThickness &&
                                            _material == objCasted._material &&
@@ -101,14 +95,6 @@ namespace GPC.Model.Fem.Properties
 
         public static bool operator ==(PlateProperty obj1, PlateProperty obj2)
         {
-            if (obj1 is null)
-            {
-                return obj2 is null;
-            }
-
-            if (ReferenceEquals(obj1, obj2))
-                return true;
-
             return obj1.Equals(obj2);
         }
 

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Runtime.Serialization;
@@ -37,6 +37,7 @@ namespace GPC.Model.Fem
             get => _position.Clone() as Point3d;
             set
             {
+                // Il set aggiorna la posizione del nodo nella nodecollection tramite il propertyChanged
                 if (!_position.Equals(value))
                 {
                     _position = value;

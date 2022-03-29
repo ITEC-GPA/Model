@@ -42,7 +42,7 @@ namespace GPC.Model.Fem.Materials
                 throw new ArgumentException($"Shear modulus cannot be lower than zero");
         }
 
-        public IsotropicFemMaterial(SerializationInfo info, StreamingContext context)
+        protected IsotropicFemMaterial(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
             _e = info.GetDouble("E");

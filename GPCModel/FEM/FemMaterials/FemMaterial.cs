@@ -18,7 +18,7 @@ namespace GPC.Model.Fem.Materials
             _density = density < 0 ? throw new ArgumentException($"{nameof(density)} cannot be lower than zero") : density;
         }
 
-        public FemMaterial(SerializationInfo info, StreamingContext context)
+        protected FemMaterial(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
             _density = info.GetDouble("Density");
