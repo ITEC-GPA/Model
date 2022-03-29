@@ -30,7 +30,7 @@ namespace GPC.Model.Fem.Attributes
             _caseName = string.IsNullOrEmpty(loadCaseName) || string.IsNullOrWhiteSpace(loadCaseName) ? throw new ArgumentNullException() : loadCaseName;
         }
 
-        public Attribute(SerializationInfo info, StreamingContext context)
+        protected Attribute(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
             _caseName = (string)info.GetValue("caseName", typeof(string));
@@ -41,9 +41,6 @@ namespace GPC.Model.Fem.Attributes
 
         public override bool Equals(object obj)
         {
-            if (ReferenceEquals(this, obj))
-                return true;
-
             return (obj is Attribute objCasted) && _caseName.Equals(objCasted._caseName) && base.Equals(objCasted);
         }
 
@@ -73,14 +70,6 @@ namespace GPC.Model.Fem.Attributes
 
         public static bool operator ==(Attribute obj1, Attribute obj2)
         {
-            if (obj1 is null)
-            {
-                return obj2 is null;
-            }
-
-            if (ReferenceEquals(obj1, obj2))
-                return true;
-
             return obj1.Equals(obj2);
         }
 

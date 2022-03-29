@@ -32,7 +32,7 @@ namespace GPC.Model.Fem.Properties
         }
 
 
-        public InterlayerPlateProperty(SerializationInfo info, StreamingContext context) : base(info, context)
+        private InterlayerPlateProperty(SerializationInfo info, StreamingContext context) : base(info, context)
         {
             _temperature = (double)info.GetValue("Temperature", typeof(double));
             _loadDuration = (double)info.GetValue("LoadDuration", typeof(double));
@@ -70,21 +70,18 @@ namespace GPC.Model.Fem.Properties
 
         public override int GetHashCode()
         {
-            int hashCode = -23;
-            hashCode = hashCode * -17 + base.GetHashCode();
-            hashCode = hashCode * -17 + _temperature.GetHashCode();
-            hashCode = hashCode * -17 + _loadDuration.GetHashCode();
-            return hashCode;
+            unchecked
+            {
+                int hashCode = -23;
+                hashCode = hashCode * -17 + base.GetHashCode();
+                hashCode = hashCode * -17 + _temperature.GetHashCode();
+                hashCode = hashCode * -17 + _loadDuration.GetHashCode();
+                return hashCode; 
+            }
         }
 
         public static bool operator ==(InterlayerPlateProperty obj1, InterlayerPlateProperty obj2)
         {
-            if (ReferenceEquals(obj1, obj2))
-                return true;
-
-            if (obj1 is null || obj2 is null)
-                return false;
-
             return obj1.Equals(obj2);
         }
 
@@ -92,6 +89,7 @@ namespace GPC.Model.Fem.Properties
         {
             return !(obj1 == obj2);
         }
+
         #endregion
     }
 }

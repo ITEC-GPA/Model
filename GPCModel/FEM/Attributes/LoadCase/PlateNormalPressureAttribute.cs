@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Runtime.Serialization;
-
 using GPC.Model.LoadCases;
 
 namespace GPC.Model.Fem.Attributes
@@ -19,21 +18,21 @@ namespace GPC.Model.Fem.Attributes
 
         }
 
-        public PlateNormalPressureAttribute(string loadCaseName, double pressure, string name) 
+        public PlateNormalPressureAttribute(string loadCaseName, double pressure, string name)
             : base(loadCaseName, name)
         {
-            this._pressure = pressure;
+            _pressure = pressure;
         }
 
 
         public PlateNormalPressureAttribute(PlateNormalPressureAttribute plateNormalPressureAttribute)
             : base(plateNormalPressureAttribute)
         {
-            this._pressure = plateNormalPressureAttribute.Pressure;
+            _pressure = plateNormalPressureAttribute.Pressure;
         }
 
 
-        public PlateNormalPressureAttribute(SerializationInfo info, StreamingContext context) 
+        public PlateNormalPressureAttribute(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
             _pressure = info.GetDouble("Pressure");
@@ -72,7 +71,7 @@ namespace GPC.Model.Fem.Attributes
                 int hashCode = 23;
                 hashCode = hashCode * -17 + base.GetHashCode();
                 hashCode = hashCode * -17 + _pressure.GetHashCode();
-                return hashCode; 
+                return hashCode;
             }
         }
 

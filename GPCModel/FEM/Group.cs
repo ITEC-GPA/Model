@@ -22,7 +22,7 @@ namespace GPC.Model.Fem
 
         }
 
-        public Group(SerializationInfo info, StreamingContext context)
+        protected Group(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
 
@@ -56,14 +56,6 @@ namespace GPC.Model.Fem
 
         public static bool operator ==(Group obj1, Group obj2)
         {
-            if (obj1 is null)
-            {
-                return obj2 is null;
-            }
-
-            if (ReferenceEquals(obj1, obj2))
-                return true;
-
             return obj1.Equals(obj2);
         }
 
