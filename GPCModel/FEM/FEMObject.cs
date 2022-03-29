@@ -2,9 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
-using GPC.Model.Elements;
-using GPC.Model.Fem.Collections;
-using GPC.Utilities.Extensions;
+
 
 namespace GPC.Model.Fem
 {
@@ -42,6 +40,7 @@ namespace GPC.Model.Fem
             base.GetObjectData(info, context);
         }
 
+        #region Groups methods
 
         public bool ContainsGroup(string groupName)
         {
@@ -83,15 +82,8 @@ namespace GPC.Model.Fem
             return _groups.ToArray();
         }
 
+        #endregion
 
-        /// <summary>
-        /// This is an internal method, since only the femModel class can set the id of the femObject
-        /// </summary>
-        [Obsolete("This method is deprecated. Only the femModel Class can set the id of the femobject")]
-        internal void SetId(int id)
-        {
-            base.Id = id;
-        }
 
         #region Equals, hascode, operators, 
 

@@ -69,7 +69,7 @@ namespace GPC.Model
         }
 
         /// <summary>
-        /// Get the node index by his id
+        /// Get the node index by its id
         /// </summary>
         /// <param name="id">The node index</param>
         public int GetIndexById(int id)
@@ -87,7 +87,7 @@ namespace GPC.Model
         }
 
         /// <summary>
-        /// Search an item by its  value (the id is not considered). It uses the binary search algorithm of the <see cref="List{T}"/> class
+        /// Search an item by its value (the id is not considered). It uses the binary search algorithm of the <see cref="List{T}"/> class
         /// </summary>
         /// <param name="item">The item to search</param>
         /// <returns>The index of the item if found, or a negative value if the item does not exist</returns>
@@ -97,7 +97,7 @@ namespace GPC.Model
         }
 
         /// <summary>
-        /// Get an item by his Id.
+        /// Get an item by its Id.
         /// </summary>
         /// <param name="id">The id of the item to get</param>
         /// <returns>The item or null if not exists</returns>
@@ -110,7 +110,7 @@ namespace GPC.Model
         }
 
         /// <summary>
-        /// Get an item by his index. 
+        /// Get an item by its index. 
         /// </summary>
         /// <param name="index">The node index</param>
         /// <returns>The note or null if out of range</returns>

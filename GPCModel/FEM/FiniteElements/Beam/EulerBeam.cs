@@ -796,7 +796,7 @@ namespace GPC.Model.Fem.FiniteElements
             //duplicate beam
             EulerBeam duplicatedBeam = new EulerBeam(duplicatedNodes, _axisAngleRadians);
             duplicatedBeam.SetProperty(property);
-            duplicatedBeam.SetId(Id);
+            duplicatedBeam.Id = Id;
 
             foreach (FreedomCaseAttribute attribute in fcAttributes)
             {

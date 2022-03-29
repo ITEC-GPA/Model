@@ -35,7 +35,7 @@ namespace GPC.Model.Fem.Collections
             _collection = new List<T>();
         }
 
-        public FemObjectCollection(SerializationInfo info, StreamingContext context)
+        protected FemObjectCollection(SerializationInfo info, StreamingContext context)
         {
             _collection = (List<T>)info.GetValue("Collection", typeof(List<T>));
         }
@@ -48,6 +48,7 @@ namespace GPC.Model.Fem.Collections
         /// </summary>
         /// <returns>The Id of the item</returns>
         /// <remarks>The item will be added without checking if already exist in <see cref="FemObjectCollection{T}._collection"/></remarks>
+        /// <remarks>This is an O(1) operation</remarks>
         private int AddItem(T item)
         {
             lock (_locker)
@@ -58,7 +59,7 @@ namespace GPC.Model.Fem.Collections
                     // id già presente
                     // cambio id e aggiungo obj
 
-                    item.SetId(++_maxId); // Forzo id ad essere maggiore di zero
+                    item.Id = ++_maxId; // Forzo id ad essere maggiore di zero
 
                     _collection.Add(item);
                     _ids.Add(item.Id);
@@ -71,7 +72,7 @@ namespace GPC.Model.Fem.Collections
                     // aggiungo obj
 
                     if (item.Id == 0) // Forzo id ad essere maggiore di zero
-                        item.SetId(++_maxId);
+                        item.Id = ++_maxId;
 
                     _collection.Add(item);
                     _ids.Add(item.Id);
@@ -84,7 +85,7 @@ namespace GPC.Model.Fem.Collections
             }
         }
 
-        #endregion Private method
+        #endregion 
 
         #region Public method - Setter
 
@@ -124,34 +125,6 @@ namespace GPC.Model.Fem.Collections
             if (id == 0)
                 return AddItem(item);
             return id;
-
-            /*
-            if (Contains(item) == 0 || _collection.Count == 0)
-            {
-                return AddItem(item);
-            }
-            else
-            {
-                lock (_locker)
-                {
-                    //// obj già presente
-                    //if (_ids.Contains(item.Id))
-                    //{
-                    //    // id già presente
-                    //    // non aggiungo, ritorno id dell'elemento già presente
-
-                    //    return (_collection as List<T>).SingleOrDefault(i => i.Equals(item)).Id;
-                    //}
-                    //else
-                    //{
-                    //    // id non presente
-                    //    // ritorno id dell'elemento già presente
-                    //    return (_collection as List<T>).SingleOrDefault(i => i.Equals(item)).Id;
-                    //} 
-                    return (_collection as List<T>).SingleOrDefault(i => i.Equals(item)).Id;
-                }
-            }
-            */
         }
 
         public virtual Task<int> AddUniqueAsync(T item)
@@ -181,10 +154,6 @@ namespace GPC.Model.Fem.Collections
             if (!_ids.Contains(id))
                 throw new KeyNotFoundException($"Collection does not contain a element with Id:{id}");
 
-            /*lock (_locker)
-            {
-                return _collection.SingleOrDefault(i => i.Id.Equals(id)); 
-            }*/
             T found = null;
 
             Parallel.ForEach(_collection, (i, state) =>
@@ -198,9 +167,9 @@ namespace GPC.Model.Fem.Collections
             return found;
         }
 
-        public virtual HashSet<int> GetIds()
+        public virtual int[] GetIds()
         {
-            return _ids;
+            return _ids.ToArray();
         }
 
         /// <returns>A map between <typeparamref name="T"/> HashCode and the index of <typeparamref name="T"/> in the <see cref="_collection"/> </returns>
@@ -240,7 +209,7 @@ namespace GPC.Model.Fem.Collections
         }
 
         /// <summary>
-        /// Async versione of <see cref="GetElementIdMap"/>
+        /// Async version  of <see cref="GetElementIdMap"/>
         /// </summary>
         public virtual Task<Dictionary<int, int>> GetElementIdMapAsync()
         {
@@ -280,7 +249,7 @@ namespace GPC.Model.Fem.Collections
             return _collection.GetEnumerator();
         }
 
-        #endregion Public method - Getter
+        #endregion 
 
         #region Public method - Check
 
@@ -288,7 +257,7 @@ namespace GPC.Model.Fem.Collections
         /// Check if <paramref name="item"/> is contained in the collection
         /// </summary>
         /// <remarks>This is an O(n) operation</remarks>
-        /// <returns>0 if not contained or the item Id</returns>
+        /// <returns>0 if <paramref name="item"/> is not contained. <see cref="ModelObjectId.Id"/> otherwise</returns>
         public virtual int Contains(T item)
         {
             lock (_locker)
@@ -308,7 +277,7 @@ namespace GPC.Model.Fem.Collections
         }
 
         /// <summary>
-        /// Find a elementi in the collection and return his Id
+        /// Find an element in the collection and return its Id
         /// </summary>
         /// <param name="item"></param>
         /// <returns>The Id of the element. 0 if not exists</returns>
@@ -328,7 +297,7 @@ namespace GPC.Model.Fem.Collections
             return found != null ? found.Id : 0;
         }
 
-        #endregion Public method - Check
+        #endregion 
 
         #region Public method - Edit
 
@@ -386,7 +355,7 @@ namespace GPC.Model.Fem.Collections
             }
         }
 
-        #endregion Public method - Edit
+        #endregion 
 
         #region Equals - HashCode - Operators
 
@@ -425,11 +394,6 @@ namespace GPC.Model.Fem.Collections
 
         public static bool operator ==(FemObjectCollection<T> obj1, FemObjectCollection<T> obj2)
         {
-            if (obj1 is null)
-            {
-                return obj2 is null;
-            }
-
             if (ReferenceEquals(obj1, obj2))
                 return true;
 
@@ -441,6 +405,6 @@ namespace GPC.Model.Fem.Collections
             return !(obj1 == obj2);
         }
 
-        #endregion Equals - HashCode - Operators
+        #endregion
     }
 }

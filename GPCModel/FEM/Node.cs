@@ -106,7 +106,7 @@ namespace GPC.Model.Fem
         internal Node(Point3d point, int id)
             : this(point)
         {
-            SetId(id);
+            Id = id;
         }
 
         /// <summary>
@@ -115,10 +115,10 @@ namespace GPC.Model.Fem
         internal Node(double X, double Y, double Z, string name, int id)
             : this(new Point3d(X, Y, Z), name)
         {
-            SetId(id);
+            Id = id;
         }
 
-        public Node(SerializationInfo info, StreamingContext context)
+        protected Node(SerializationInfo info, StreamingContext context)
         {
             _position = (Point3d)info.GetValue("Position", typeof(Point3d));
             _results = (ModelObjectSet<NodeResult>)info.GetValue("Result", typeof(ModelObjectSet<NodeResult>));
@@ -168,7 +168,7 @@ namespace GPC.Model.Fem
                 DOF = DOF
             };
 
-            duplicate.SetId(Id);
+            duplicate.Id = Id;
 
             foreach (INodeFreedomCaseAttribute attribute in _attributesFreedomCase)
             {

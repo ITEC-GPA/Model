@@ -37,7 +37,7 @@ namespace GPC.Model.Fem.FiniteElements
         }
 
         /// <summary>
-        /// This constructor to be used ONLY for debugging purpose. Use <see cref="FiniteElement.SetProperty(ElementProperty)"/> or <see cref="FemObject.SetId(int)"/> instead
+        /// This constructor to be used ONLY for debugging purpose. Use <see cref="FiniteElement.SetProperty(ElementProperty)"/>  instead
         /// </summary>
         internal Quad4MQ2IbraMembranal(Node[] nodes, PlateProperty property) : this(nodes)
         {

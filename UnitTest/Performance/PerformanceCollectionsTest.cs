@@ -388,11 +388,11 @@ namespace PerformanceTest
                     double y = rnd.NextDouble() * k;
                     double z = rnd.NextDouble() * k;
                     nodes[j] = new Node(x, y, z);
-                    nodes[j].SetId(j + 1 + 4 * i);
+                    nodes[j].Id = j + 1 + 4 * i;
                 }
 
                 Plate plate = new Plate(nodes);
-                plate.SetId(i + 1);
+                plate.Id = i + 1;
                 cfe.AddUnique(plate);
             }
 
@@ -426,11 +426,11 @@ namespace PerformanceTest
                     double y = rnd.NextDouble() * k;
                     double z = rnd.NextDouble() * k;
                     nodes[j] = new Node(x, y, z);
-                    nodes[j].SetId(j + 1 + 4 * i);
+                    nodes[j].Id = j + 1 + 4 * i;
                 }
 
                 Plate plate = new Plate(nodes);
-                plate.SetId(i + 1);
+                plate.Id = i + 1;
                 cfe.Add(plate);
             }
 
@@ -462,12 +462,16 @@ namespace PerformanceTest
                     double x = rnd.NextDouble() * k;
                     double y = rnd.NextDouble() * k;
                     double z = rnd.NextDouble() * k;
-                    nodes[j] = new Node(x, y, z);
-                    nodes[j].SetId(j + 1 + 4 * i);
+                    nodes[j] = new Node(x, y, z)
+                    {
+                        Id = j + 1 + 4 * i
+                    };
                 }
 
-                Plate plate = new Plate(nodes);
-                plate.SetId(i + 1);
+                Plate plate = new Plate(nodes)
+                {
+                    Id = i + 1
+                };
                 cfe.Add(plate);
             }
 

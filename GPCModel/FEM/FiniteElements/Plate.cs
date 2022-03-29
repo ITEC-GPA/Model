@@ -56,7 +56,7 @@ namespace GPC.Model.Fem.FiniteElements
         {
             var plate = new Plate(_nodesGlobal);
             plate.SetProperty(property);
-            plate.SetId(Id);
+            plate.Id = Id;
 
             if (lcAttributes != null)
             {
