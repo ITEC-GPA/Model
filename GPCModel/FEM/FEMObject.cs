@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
 using GPC.Model.Elements;
-using GPC.Model.FEM.Collections;
+using GPC.Model.Fem.Collections;
 using GPC.Utilities.Extensions;
 
-namespace GPC.Model.FEM
+namespace GPC.Model.Fem
 {
 
     /// <summary>

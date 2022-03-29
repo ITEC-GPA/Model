@@ -4,12 +4,12 @@ using System.Diagnostics;
 using System.Linq;
 using System.Runtime.Serialization;
 using GPC.Geometry;
-using GPC.Model.FEM.Attributes;
-using GPC.Model.FEM.Properties;
+using GPC.Model.Fem.Attributes;
+using GPC.Model.Fem.Properties;
 using GPC.Model.Results;
 using mnl = MathNet.Numerics.LinearAlgebra;
 
-namespace GPC.Model.FEM.FiniteElements
+namespace GPC.Model.Fem.FiniteElements
 {
     // TODO: Classe Plate: farla diventare abstract
     /// <summary>

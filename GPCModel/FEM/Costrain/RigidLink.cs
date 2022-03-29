@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using static GPC.Model.FEM.Solver;
+using static GPC.Model.Fem.Solver;
 
-namespace GPC.Model.FEM.Costrains
+namespace GPC.Model.Fem.Costrains
 {
     public class RigidLink : Costrain
     {

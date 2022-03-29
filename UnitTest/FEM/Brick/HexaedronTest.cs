@@ -2,12 +2,12 @@
 using System.Linq;
 using System.Collections.Generic;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using GPC.Model.FEM;
+using GPC.Model.Fem;
 using mnl = MathNet.Numerics.LinearAlgebra;
-using GPC.Model.FEM.FiniteElements;
-using GPC.Model.FEM.Properties;
+using GPC.Model.Fem.FiniteElements;
+using GPC.Model.Fem.Properties;
 using GPC.Model.Materials;
-using GPC.Model.FEM.Attributes;
+using GPC.Model.Fem.Attributes;
 using GPC.Model.LoadCases;
 using GPC.Geometry;
 using GPC.Model.FreedomCases;

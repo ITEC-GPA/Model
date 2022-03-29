@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using GPC.Model.FEM;
+using GPC.Model.Fem;
 using GPC.Utilities.Fem;
 using mnl = MathNet.Numerics.LinearAlgebra;
-using GPC.Model.FEM.FiniteElements;
+using GPC.Model.Fem.FiniteElements;
 using GPC.Geometry;
 using GPC.Model.Maths.GaussIntegrations;
 using GPC.Utilities.Time;

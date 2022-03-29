@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Linq;
 using GPC.Geometry;
-using GPC.Model.FEM.Properties;
+using GPC.Model.Fem.Properties;
 using GPC.Utilities.Fem;
 using mnl = MathNet.Numerics.LinearAlgebra;
 
-namespace GPC.Model.FEM.FiniteElements
+namespace GPC.Model.Fem.FiniteElements
 {
     /// <summary>
     /// A high‑performance four‑node flat shell element with drilling degrees of freedom - Hosein Sangtarash1 · Hamed G. Arab1 · Mohammad R. Sohrabi1 · Mohammad R. Ghasemi1 - 2020

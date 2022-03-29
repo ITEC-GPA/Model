@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Runtime.Serialization;
 using GPC.Model.LoadCases;
 
-namespace GPC.Model.FEM.Attributes
+namespace GPC.Model.Fem.Attributes
 {
     [Serializable]
     public abstract class LoadCaseAttribute : Attribute, ISerializable

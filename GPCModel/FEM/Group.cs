@@ -6,7 +6,7 @@ using System.Runtime.Serialization;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace GPC.Model.FEM
+namespace GPC.Model.Fem
 {
     /// <summary>
     /// This class to be used to group some <see cref="FemObject"/> togethers.

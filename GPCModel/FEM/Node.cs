@@ -3,12 +3,12 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Runtime.Serialization;
 using GPC.Geometry;
-using GPC.Model.FEM.Attributes;
-using GPC.Model.FEM.Collections;
+using GPC.Model.Fem.Attributes;
+using GPC.Model.Fem.Collections;
 using GPC.Model.Results;
 using GPC.Utilities.Extensions;
 
-namespace GPC.Model.FEM
+namespace GPC.Model.Fem
 {
     /// <summary>
     /// Rapresent a Node of a <see cref="FiniteElements.FiniteElement"/>

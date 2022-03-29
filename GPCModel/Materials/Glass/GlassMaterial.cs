@@ -1,4 +1,4 @@
-﻿using GPC.Model.FEM.Materials;
+﻿using GPC.Model.Fem.Materials;
 using System;
 using System.Collections.Generic;
 using System.Runtime.Serialization;

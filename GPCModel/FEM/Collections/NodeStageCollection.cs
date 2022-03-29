@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Linq;
 using System.Runtime.Serialization;
-using GPC.Model.FEM.Attributes;
+using GPC.Model.Fem.Attributes;
 
-namespace GPC.Model.FEM.Collections
+namespace GPC.Model.Fem.Collections
 {
     /// <summary>
     /// Collection of <see cref="Node"/> associated to a <see cref="Stage.StageProperty"/>

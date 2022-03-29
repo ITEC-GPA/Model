@@ -94,12 +94,12 @@ namespace GPC.Model.Materials
             return E / (2.0 * (1.0 + Ni));
         }
 
-        public virtual FEM.Materials.IsotropicFemMaterial GetIsotropicFemMaterial()
+        public virtual Fem.Materials.IsotropicFemMaterial GetIsotropicFemMaterial()
         {
             throw new NotImplementedException("");
         }
 
-        public virtual FEM.Materials.OrthotropicFemMaterial GetOrthotropicFemMaterial()
+        public virtual Fem.Materials.OrthotropicFemMaterial GetOrthotropicFemMaterial()
         {
             throw new NotImplementedException("");
         }

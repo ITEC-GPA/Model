@@ -1,8 +1,8 @@
 ﻿using GPC.Geometry;
-using GPC.Model.FEM;
-using GPC.Model.FEM.Attributes;
-using GPC.Model.FEM.Costrains;
-using GPC.Model.FEM.FiniteElements;
+using GPC.Model.Fem;
+using GPC.Model.Fem.Attributes;
+using GPC.Model.Fem.Costrains;
+using GPC.Model.Fem.FiniteElements;
 using GPC.Model.FreedomCases;
 using GPC.Model.LoadCases;
 using GPC.Model.Materials;
@@ -11,7 +11,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using static GPC.Model.FEM.Solver;
+using static GPC.Model.Fem.Solver;
 
 namespace FemTest.SolverTest { 
     [TestClass]

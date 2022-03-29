@@ -5,11 +5,11 @@ using System.Runtime.Serialization;
 using System.Text;
 using System.Threading.Tasks;
 using GPC.Geometry;
-using GPC.Model.FEM.FiniteElements;
+using GPC.Model.Fem.FiniteElements;
 using GPC.Model.FreedomCases;
 using GPC.Model.Restrains;
 
-namespace GPC.Model.FEM.Attributes
+namespace GPC.Model.Fem.Attributes
 {
     public class BeamReleasesAttribute : FreedomCaseAttribute, IBeamFreedomCaseAttribute
     {

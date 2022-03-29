@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 using GPC.Geometry;
 
 
-namespace GPC.Model.FEM.Attributes
+namespace GPC.Model.Fem.Attributes
 {
 
     public class ModelGravityAttribute : LoadCaseAttribute, IModelAttribute, ISerializable

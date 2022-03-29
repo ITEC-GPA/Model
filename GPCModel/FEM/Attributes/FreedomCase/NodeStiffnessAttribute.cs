@@ -8,7 +8,7 @@ using GPC.Geometry;
 using GPC.Model.FreedomCases;
 using GPC.Model.Restrains;
 
-namespace GPC.Model.FEM.Attributes
+namespace GPC.Model.Fem.Attributes
 {
     public class NodeStiffnessAttribute : FreedomCaseAttribute, ISerializable, IEquatable<NodeStiffnessAttribute>, INodeFreedomCaseAttribute
     {

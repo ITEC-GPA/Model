@@ -2,7 +2,7 @@
 using System.Runtime.Serialization;
 using MathNet.Numerics.LinearAlgebra;
 
-namespace GPC.Model.FEM.Materials
+namespace GPC.Model.Fem.Materials
 {
 
     [Serializable]

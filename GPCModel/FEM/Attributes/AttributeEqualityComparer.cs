@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace GPC.Model.FEM.Attributes
+namespace GPC.Model.Fem.Attributes
 {
 
 

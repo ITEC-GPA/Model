@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Linq;
 using System.Runtime.Serialization;
-using GPC.Model.FEM.FiniteElements;
+using GPC.Model.Fem.FiniteElements;
 
-namespace GPC.Model.FEM.Collections
+namespace GPC.Model.Fem.Collections
 {
     /// <summary>
     /// Collection of <see cref="FiniteElement"/> associated to <see cref="Stage.StageFiniteElementProperty"/>

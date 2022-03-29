@@ -6,7 +6,7 @@ using System.Runtime.Serialization;
 using System.Threading.Tasks;
 using GPC.Utilities.Extensions;
 
-namespace GPC.Model.FEM.Collections
+namespace GPC.Model.Fem.Collections
 {
     /// <summary>
     /// A collection of FemObject.

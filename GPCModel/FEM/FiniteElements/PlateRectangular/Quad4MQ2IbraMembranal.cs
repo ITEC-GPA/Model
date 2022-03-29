@@ -1,12 +1,12 @@
 ﻿using System;
 using System.Linq;
 using GPC.Geometry;
-using GPC.Model.FEM.Materials;
-using GPC.Model.FEM.Properties;
+using GPC.Model.Fem.Materials;
+using GPC.Model.Fem.Properties;
 using GPC.Utilities.Fem;
 using mnl = MathNet.Numerics.LinearAlgebra;
 
-namespace GPC.Model.FEM.FiniteElements
+namespace GPC.Model.Fem.FiniteElements
 {
     /// <summary>
     /// A ROBUST QUADRILATERAL MEMBRANE FINITE ELEMENT WITH DRILLING DEGREES OF FREEDOM - ADNAN IBRAHIMBEGOVIC,* ROBERT L. TAYLOR’ AND EDWARD L. WILSON’ - 1990

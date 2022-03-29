@@ -8,7 +8,7 @@ using System.Runtime.Serialization;
 using System.Text;
 using System.Threading.Tasks;
 using GPC.Model.Materials;
-using GPC.Model.FEM.Materials;
+using GPC.Model.Fem.Materials;
 
 namespace GPC.Model.Sections.Steel
 {

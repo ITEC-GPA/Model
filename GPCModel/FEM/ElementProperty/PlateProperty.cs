@@ -2,10 +2,10 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Runtime.Serialization;
-using GPC.Model.FEM.Materials;
+using GPC.Model.Fem.Materials;
 using GPC.Model.Materials;
 
-namespace GPC.Model.FEM.Properties
+namespace GPC.Model.Fem.Properties
 {
     [DebuggerDisplay("{" + nameof(GetDebuggerDisplay) + "(),nq}")]
     [Serializable]

@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using GPC.Geometry;
 using mnl = MathNet.Numerics.LinearAlgebra;
 
-namespace GPC.Model.FEM
+namespace GPC.Model.Fem
 {
     public static class OldGaussIntegration
     {

@@ -4,9 +4,9 @@ using System.Linq;
 using System.Runtime.Serialization;
 using System.Text;
 using System.Threading.Tasks;
-using GPC.Model.FEM.Attributes;
+using GPC.Model.Fem.Attributes;
 
-namespace GPC.Model.FEM.Collections
+namespace GPC.Model.Fem.Collections
 {
     [Serializable]
     public class AttributesCollection<T> : ModelObjectSet<T> where T : Attributes.Attribute

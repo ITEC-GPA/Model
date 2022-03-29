@@ -4,9 +4,9 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using GPC.Geometry;
-using GPC.Model.FEM;
-using GPC.Model.FEM.Collections;
-using GPC.Model.FEM.FiniteElements;
+using GPC.Model.Fem;
+using GPC.Model.Fem.Collections;
+using GPC.Model.Fem.FiniteElements;
 using GPC.Model.Maths.GaussIntegrations;
 using GPC.TestUtilities;
 using GPC.Utilities.Fem;
@@ -479,7 +479,7 @@ namespace PerformanceTest
             stopWatch.Restart();
 
             var plate1 = (Plate)cfe.GetByIndex(0);
-            plate1.SetProperty(new GPC.Model.FEM.Properties.PlateProperty(new GPC.Model.FEM.Materials.IsotropicFemMaterial(1, 0.1, 0, 1), 1, 1, ""));
+            plate1.SetProperty(new GPC.Model.Fem.Properties.PlateProperty(new GPC.Model.Fem.Materials.IsotropicFemMaterial(1, 0.1, 0, 1), 1, 1, ""));
 
             stopWatch.Stop();
             Debug.WriteLine(stopWatch.Elapsed, "Elapsed time");

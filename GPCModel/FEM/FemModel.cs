@@ -6,11 +6,11 @@ using System.Threading.Tasks;
 using GPC.Geometry;
 using GPC.Geometry.Meshes;
 using GPC.Model.Combinations;
-using GPC.Model.FEM.Attributes;
-using GPC.Model.FEM.Collections;
-using GPC.Model.FEM.Costrains;
-using GPC.Model.FEM.FiniteElements;
-using GPC.Model.FEM.Properties;
+using GPC.Model.Fem.Attributes;
+using GPC.Model.Fem.Collections;
+using GPC.Model.Fem.Costrains;
+using GPC.Model.Fem.FiniteElements;
+using GPC.Model.Fem.Properties;
 using GPC.Model.FreedomCases;
 using GPC.Model.LoadCases;
 using GPC.Model.Loads;
@@ -18,7 +18,7 @@ using GPC.Model.Restrains;
 using GPC.Model.Results;
 using GPC.Model.Sections;
 
-namespace GPC.Model.FEM
+namespace GPC.Model.Fem
 {
     [Serializable]
     public class FemModel : ModelObject, ISerializable

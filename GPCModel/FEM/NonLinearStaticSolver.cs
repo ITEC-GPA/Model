@@ -2,12 +2,12 @@
 using System.Collections.Generic;
 using System.Linq;
 using GPC.Geometry;
-using GPC.Model.FEM.Attributes;
-using GPC.Model.FEM.Costrains;
-using GPC.Model.FEM.FiniteElements;
+using GPC.Model.Fem.Attributes;
+using GPC.Model.Fem.Costrains;
+using GPC.Model.Fem.FiniteElements;
 using mnl = MathNet.Numerics.LinearAlgebra;
 
-namespace GPC.Model.FEM
+namespace GPC.Model.Fem
 {
     public class NonLinearStaticSolver : Solver
     {

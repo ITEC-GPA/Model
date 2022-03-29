@@ -1,12 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using GPC.Model.FEM.Attributes;
-using GPC.Model.FEM.Properties;
+using GPC.Model.Fem.Attributes;
+using GPC.Model.Fem.Properties;
 using GPC.Model.Results;
 using mnl = MathNet.Numerics.LinearAlgebra;
 
-namespace GPC.Model.FEM.FiniteElements
+namespace GPC.Model.Fem.FiniteElements
 {
     [DebuggerDisplay("{" + nameof(GetDebuggerDisplay) + "(),nq}")]
     public class Brick : FiniteElement

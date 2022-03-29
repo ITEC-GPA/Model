@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Runtime.Serialization;
-using GPC.Model.FEM.Materials;
+using GPC.Model.Fem.Materials;
 
-namespace GPC.Model.FEM.Properties
+namespace GPC.Model.Fem.Properties
 {
     [DebuggerDisplay("{" + nameof(GetDebuggerDisplay) + "(),nq}")]
     [Serializable]

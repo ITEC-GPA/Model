@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 using GPC.Geometry;
 using GPC.Model.LoadCases;
 
-namespace GPC.Model.FEM.Attributes
+namespace GPC.Model.Fem.Attributes
 {
     /// <summary>
     /// Represent an acceleration attribute of the <see cref="FemModel"/>

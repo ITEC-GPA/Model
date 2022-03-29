@@ -1,7 +1,7 @@
 ﻿using GPC.Geometry;
-using GPC.Model.FEM;
-using GPC.Model.FEM.Attributes;
-using GPC.Model.FEM.FiniteElements;
+using GPC.Model.Fem;
+using GPC.Model.Fem.Attributes;
+using GPC.Model.Fem.FiniteElements;
 using GPC.Model.FreedomCases;
 using GPC.Model.LoadCases;
 using GPC.Model.Materials;
@@ -10,7 +10,7 @@ using GPC.Model.Sections.Steel;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Generic;
-using static GPC.Model.FEM.Solver;
+using static GPC.Model.Fem.Solver;
 using mnl = MathNet.Numerics.LinearAlgebra;
 
 namespace FemTest.SolverTest

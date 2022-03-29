@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Runtime.Serialization;
 using GPC.Utilities.Extensions;
 
-namespace GPC.Model.FEM.Collections
+namespace GPC.Model.Fem.Collections
 {
     /// <summary>
     /// Collection of <see cref="Group"/> with unique name.

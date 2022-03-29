@@ -6,7 +6,7 @@ using System.Linq;
 using System.Runtime.Serialization;
 using GPC.Utilities.Extensions;
 
-namespace GPC.Model.FEM.Collections
+namespace GPC.Model.Fem.Collections
 {
     /// <summary>
     /// This class rapresent an association between a <see cref="FemObject"/> and a property override <see cref="Stage.StageProperty"/>

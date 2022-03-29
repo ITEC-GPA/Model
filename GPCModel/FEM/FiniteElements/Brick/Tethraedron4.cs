@@ -2,10 +2,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using GPC.Geometry;
-using GPC.Model.FEM.Properties;
+using GPC.Model.Fem.Properties;
 using mnl = MathNet.Numerics.LinearAlgebra;
 
-namespace GPC.Model.FEM.FiniteElements
+namespace GPC.Model.Fem.FiniteElements
 {
     /// <summary>
     /// Refecente to Finite Element Method by Rao

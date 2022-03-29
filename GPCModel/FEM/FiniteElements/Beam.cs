@@ -1,9 +1,9 @@
 ﻿
 using System;
-using GPC.Model.FEM.Attributes;
+using GPC.Model.Fem.Attributes;
 using GPC.Model.Results;
 
-namespace GPC.Model.FEM.FiniteElements
+namespace GPC.Model.Fem.FiniteElements
 {
     public abstract class Beam : FiniteElement
     {

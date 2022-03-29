@@ -2,12 +2,12 @@
 using System.Collections.Generic;
 using System.Linq;
 using GPC.Geometry;
-using GPC.Model.FEM.Attributes;
-using GPC.Model.FEM.Properties;
+using GPC.Model.Fem.Attributes;
+using GPC.Model.Fem.Properties;
 using GPC.Utilities.Fem;
 using mnl = MathNet.Numerics.LinearAlgebra;
 
-namespace GPC.Model.FEM.FiniteElements
+namespace GPC.Model.Fem.FiniteElements
 {
     public class Quad4Element : Plate
     {
