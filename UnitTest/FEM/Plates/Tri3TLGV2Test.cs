@@ -1,14 +1,14 @@
 ﻿using System;
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using GPC.Model.FEM.FiniteElements;
+using GPC.Model.Fem.FiniteElements;
 using GPC.Model.Materials;
 using GPC.Geometry;
-using GPC.Model.FEM.Properties;
-using GPC.Model.FEM.Attributes;
+using GPC.Model.Fem.Properties;
+using GPC.Model.Fem.Attributes;
 using System.Collections.Generic;
-using GPC.Model.FEM;
-using GPC.Model.FEM.Materials;
+using GPC.Model.Fem;
+using GPC.Model.Fem.Materials;
 
 namespace FemTest.SolverTest
 {

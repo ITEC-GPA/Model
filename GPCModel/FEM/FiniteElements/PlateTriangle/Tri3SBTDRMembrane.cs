@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Linq;
 using GPC.Geometry;
-using GPC.Model.FEM.Materials;
-using GPC.Model.FEM.Properties;
+using GPC.Model.Fem.Materials;
+using GPC.Model.Fem.Properties;
 using mnl = MathNet.Numerics.LinearAlgebra;
 
-namespace GPC.Model.FEM.FiniteElements
+namespace GPC.Model.Fem.FiniteElements
 {
     /// <summary>
     /// Formulation of a new finite element based on assumed strains for membrane structures - Fortas, Belounar, Merzouki - 2019

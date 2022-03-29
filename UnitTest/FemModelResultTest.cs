@@ -1,9 +1,9 @@
 ﻿using GPC.Geometry;
 using GPC.Model.Combinations;
-using GPC.Model.FEM;
-using GPC.Model.FEM.FiniteElements;
-using GPC.Model.FEM.Materials;
-using GPC.Model.FEM.Properties;
+using GPC.Model.Fem;
+using GPC.Model.Fem.FiniteElements;
+using GPC.Model.Fem.Materials;
+using GPC.Model.Fem.Properties;
 using GPC.Model.LoadCases;
 using GPC.Model.Results;
 using GPC.TestUtilities;

@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Linq;
 using GPC.Geometry;
-using GPC.Model.FEM.Materials;
-using GPC.Model.FEM.Properties;
+using GPC.Model.Fem.Materials;
+using GPC.Model.Fem.Properties;
 using mnl = MathNet.Numerics.LinearAlgebra;
 
-namespace GPC.Model.FEM.FiniteElements
+namespace GPC.Model.Fem.FiniteElements
 {
     /// <summary>
     /// Based of "A study of optimal membrane triangles with drilling freedoms" - Felippa - 2003
@@ -45,7 +45,7 @@ namespace GPC.Model.FEM.FiniteElements
         }
 
         /// <summary>
-        /// This constructor to be used ONLY for debugging purpose. Use <see cref="FiniteElement.SetProperty(ElementProperty)"/> or <see cref="FemObject.SetId(int)"/> instead
+        /// This constructor to be used ONLY for debugging purpose. Use <see cref="FiniteElement.SetProperty(ElementProperty)"/>  instead
         /// </summary>
         internal Tri3OPTMembrane(Node[] nodes, PlateProperty property) : this(nodes)
         {

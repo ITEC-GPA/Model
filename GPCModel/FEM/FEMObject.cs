@@ -2,12 +2,14 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
-using GPC.Model.Elements;
-using GPC.Model.FEM.Collections;
-using GPC.Utilities.Extensions;
 
-namespace GPC.Model.FEM
+
+namespace GPC.Model.Fem
 {
+
+    /// <summary>
+    /// This is the base class for all the Fem objects
+    /// </summary>
     [Serializable]
     public abstract class FemObject : ModelObjectId, ISerializable
     {
@@ -38,6 +40,7 @@ namespace GPC.Model.FEM
             base.GetObjectData(info, context);
         }
 
+        #region Groups methods
 
         public bool ContainsGroup(string groupName)
         {
@@ -79,15 +82,8 @@ namespace GPC.Model.FEM
             return _groups.ToArray();
         }
 
+        #endregion
 
-        /// <summary>
-        /// This is an internal method, since only the femModel class can set the id of the femObject
-        /// </summary>
-        internal void SetId(int id)
-        {
-            // teoricamente questo metodo non serve più. Al momento esiste solo per retrocompatibilità
-            base.Id = id;
-        }
 
         #region Equals, hascode, operators, 
 
@@ -100,7 +96,7 @@ namespace GPC.Model.FEM
         {
             unchecked
             {
-                return -17 * base.GetHashCode(); 
+                return -17 * base.GetHashCode();
             }
         }
 

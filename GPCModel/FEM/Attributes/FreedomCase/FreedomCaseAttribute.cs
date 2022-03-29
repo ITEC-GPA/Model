@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Runtime.Serialization;
 using GPC.Model.FreedomCases;
 
-namespace GPC.Model.FEM.Attributes
+namespace GPC.Model.Fem.Attributes
 {
     public abstract class FreedomCaseAttribute : Attribute, ISerializable
     {

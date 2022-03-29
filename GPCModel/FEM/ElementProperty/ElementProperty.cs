@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Runtime.Serialization;
 
-namespace GPC.Model.FEM.Properties
+namespace GPC.Model.Fem.Properties
 {
     [Serializable]
     public abstract class ElementProperty : ModelObjectId, ISerializable

@@ -5,7 +5,7 @@ using System.Runtime.Serialization;
 using System.Text;
 using System.Threading.Tasks;
 using GPC.Geometry;
-using GPC.Model.FEM;
+using GPC.Model.Fem;
 using GPC.Model.FreedomCases;
 
 namespace GPC.Model.Restrains

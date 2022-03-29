@@ -6,7 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using MathNet.Numerics.LinearAlgebra;
 
-namespace GPC.Model.FEM.Materials
+namespace GPC.Model.Fem.Materials
 {
     public class OrthotropicFemMaterial : FemMaterial
     {

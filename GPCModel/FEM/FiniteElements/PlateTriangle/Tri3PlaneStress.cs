@@ -1,10 +1,10 @@
 ﻿using System;
 using GPC.Geometry;
-using GPC.Model.FEM.Attributes;
-using GPC.Model.FEM.Properties;
+using GPC.Model.Fem.Attributes;
+using GPC.Model.Fem.Properties;
 using mnl = MathNet.Numerics.LinearAlgebra;
 
-namespace GPC.Model.FEM.FiniteElements
+namespace GPC.Model.Fem.FiniteElements
 {
     public class Tri3PlaneStress : Plate, IEquatable<Tri3PlaneStress>
     {
@@ -30,7 +30,7 @@ namespace GPC.Model.FEM.FiniteElements
         }
 
         /// <summary>
-        /// This constructor to be used ONLY for debugging purpose. Use <see cref="FiniteElement.SetProperty(ElementProperty)"/> or <see cref="FemObject.SetId(int)"/> instead
+        /// This constructor to be used ONLY for debugging purpose. Use <see cref="FiniteElement.SetProperty(ElementProperty)"/>  instead
         /// </summary>
         internal Tri3PlaneStress(Node[] nodes, PlateProperty property) : this(nodes)
         {

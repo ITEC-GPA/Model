@@ -3,13 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
 using GPC.Model.Combinations;
-using GPC.Model.FEM.Attributes;
-using GPC.Model.FEM.Collections;
-using GPC.Model.FEM.FiniteElements;
-using GPC.Model.FEM.Properties;
+using GPC.Model.Fem.Attributes;
+using GPC.Model.Fem.Collections;
+using GPC.Model.Fem.FiniteElements;
+using GPC.Model.Fem.Properties;
 using GPC.Utilities.Extensions;
 
-namespace GPC.Model.FEM
+namespace GPC.Model.Fem
 {
     [Serializable]
     public sealed class Stage : ModelObjectId, ISerializable, IEquatable<Stage>, ICloneable

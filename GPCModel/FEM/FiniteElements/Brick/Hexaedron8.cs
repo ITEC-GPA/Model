@@ -1,9 +1,9 @@
 ﻿using System;
-using GPC.Model.FEM.Properties;
+using GPC.Model.Fem.Properties;
 using GPC.Utilities.Fem;
 using mnl = MathNet.Numerics.LinearAlgebra;
 
-namespace GPC.Model.FEM.FiniteElements
+namespace GPC.Model.Fem.FiniteElements
 {
     /// <summary>
     /// Refecente to Finite Element Method by Rao §11.3

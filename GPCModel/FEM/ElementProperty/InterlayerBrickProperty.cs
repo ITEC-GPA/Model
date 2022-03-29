@@ -4,11 +4,11 @@ using System.Linq;
 using System.Runtime.Serialization;
 using System.Text;
 using System.Threading.Tasks;
-using GPC.Model.FEM.Materials;
+using GPC.Model.Fem.Materials;
 using GPC.Model.Glasses;
 using GPC.Model.Materials;
 
-namespace GPC.Model.FEM.Properties
+namespace GPC.Model.Fem.Properties
 {
     [Serializable]
     public sealed class InterlayerBrickProperty : BrickProperty, IGlassProperty, IEquatable<InterlayerBrickProperty>, ISerializable

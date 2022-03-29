@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using GPC.Model.FEM.FiniteElements;
+using GPC.Model.Fem.FiniteElements;
 
-namespace GPC.Model.FEM.Collections
+namespace GPC.Model.Fem.Collections
 {
     public class FiniteElementCollection : HashCollection<FiniteElement>
     {

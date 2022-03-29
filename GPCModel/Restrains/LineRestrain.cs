@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Runtime.Serialization;
 using GPC.Geometry;
-using GPC.Model.FEM;
+using GPC.Model.Fem;
 using GPC.Model.FreedomCases;
 
 namespace GPC.Model.Restrains

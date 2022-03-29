@@ -1,13 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using GPC.Model.FEM;
+using GPC.Model.Fem;
 using mnl = MathNet.Numerics.LinearAlgebra;
-using GPC.Model.FEM.FiniteElements;
-using GPC.Model.FEM.Properties;
+using GPC.Model.Fem.FiniteElements;
+using GPC.Model.Fem.Properties;
 using GPC.Model.Materials;
 using System.Linq;
-using GPC.Model.FEM.Materials;
+using GPC.Model.Fem.Materials;
 
 namespace FemTest.SolverTest
 {

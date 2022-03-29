@@ -2,12 +2,12 @@
 using System.Collections.Generic;
 using System.Linq;
 using GPC.Geometry;
-using GPC.Model.FEM.Attributes;
-using GPC.Model.FEM.Properties;
+using GPC.Model.Fem.Attributes;
+using GPC.Model.Fem.Properties;
 using GPC.Model.Sections;
 using mnl = MathNet.Numerics.LinearAlgebra;
 
-namespace GPC.Model.FEM.FiniteElements
+namespace GPC.Model.Fem.FiniteElements
 {
     /// <summary>
     /// Based on Finite Element by Rao - Chapter 9
@@ -796,7 +796,7 @@ namespace GPC.Model.FEM.FiniteElements
             //duplicate beam
             EulerBeam duplicatedBeam = new EulerBeam(duplicatedNodes, _axisAngleRadians);
             duplicatedBeam.SetProperty(property);
-            duplicatedBeam.SetId(Id);
+            duplicatedBeam.Id = Id;
 
             foreach (FreedomCaseAttribute attribute in fcAttributes)
             {

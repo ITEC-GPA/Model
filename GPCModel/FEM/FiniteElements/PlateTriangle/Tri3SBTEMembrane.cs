@@ -2,12 +2,12 @@
 using System.Collections.Generic;
 using System.Linq;
 using GPC.Geometry;
-using GPC.Model.FEM.Attributes;
-using GPC.Model.FEM.Materials;
-using GPC.Model.FEM.Properties;
+using GPC.Model.Fem.Attributes;
+using GPC.Model.Fem.Materials;
+using GPC.Model.Fem.Properties;
 using mnl = MathNet.Numerics.LinearAlgebra;
 
-namespace GPC.Model.FEM.FiniteElements
+namespace GPC.Model.Fem.FiniteElements
 {
     /// <summary>
     /// FINITE ELEMENT ANALYSIS OF 2-D STRUCTURES BY NEW STRAIN BASED TRIANGULAR ELEMENT - C. Rebiai - 2019

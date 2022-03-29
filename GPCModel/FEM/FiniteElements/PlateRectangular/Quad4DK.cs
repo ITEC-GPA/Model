@@ -1,13 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using GPC.Geometry;
-using GPC.Model.FEM.Attributes;
-using GPC.Model.FEM.Materials;
-using GPC.Model.FEM.Properties;
+using GPC.Model.Fem.Attributes;
+using GPC.Model.Fem.Materials;
+using GPC.Model.Fem.Properties;
 using GPC.Utilities.Fem;
 using mnl = MathNet.Numerics.LinearAlgebra;
 
-namespace GPC.Model.FEM.FiniteElements
+namespace GPC.Model.Fem.FiniteElements
 {
     /// <summary>
     /// Discrete Kirchoff Rectangular - Evaluation of new quadrilateral thin plate bending element - Jean-Louis Batoz

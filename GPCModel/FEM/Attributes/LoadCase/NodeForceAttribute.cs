@@ -4,7 +4,7 @@ using System.Runtime.Serialization;
 using GPC.Geometry;
 using GPC.Model.LoadCases;
 
-namespace GPC.Model.FEM.Attributes
+namespace GPC.Model.Fem.Attributes
 {
     [Serializable]
     public sealed class NodeForceAttribute : LoadCaseAttribute, INodeLoadCaseAttribute, IEquatable<NodeForceAttribute>, ISerializable

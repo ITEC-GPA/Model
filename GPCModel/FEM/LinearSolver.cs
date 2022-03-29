@@ -2,13 +2,13 @@
 using System.Collections.Generic;
 using System.Linq;
 using GPC.Geometry;
-using GPC.Model.FEM.Attributes;
-using GPC.Model.FEM.Costrains;
-using GPC.Model.FEM.FiniteElements;
+using GPC.Model.Fem.Attributes;
+using GPC.Model.Fem.Costrains;
+using GPC.Model.Fem.FiniteElements;
 using MathNet.Numerics;
 using mnl = MathNet.Numerics.LinearAlgebra;
 
-namespace GPC.Model.FEM
+namespace GPC.Model.Fem
 {
     public class LinearSolver : Solver
     {
@@ -112,7 +112,7 @@ namespace GPC.Model.FEM
 
                         //update the HashSet
                         nodesModel.Remove(oldNode);
-                        node.SetId(ID);
+                        node.Id = ID;
                         nodesModel.Add(node);
                     }
                     else
@@ -125,7 +125,7 @@ namespace GPC.Model.FEM
                                 node.DOF.Add((DOF)k);
                             }
                         }
-                        node.SetId(iter);
+                        node.Id = iter;
                         nodesModel.Add(node);
                         iter++;
                     }

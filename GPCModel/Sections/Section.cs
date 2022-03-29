@@ -5,8 +5,8 @@ using System.Runtime.Serialization;
 using GPC.Geometry;
 using GPC.Geometry.Meshes;
 using GPC.Model.Elements;
-using GPC.Model.FEM.Materials;
-using GPC.Model.FEM.Properties;
+using GPC.Model.Fem.Materials;
+using GPC.Model.Fem.Properties;
 using GPC.Model.Materials;
 
 namespace GPC.Model.Sections

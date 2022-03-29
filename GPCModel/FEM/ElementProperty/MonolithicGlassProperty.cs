@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
-using GPC.Model.FEM.Materials;
+using GPC.Model.Fem.Materials;
 using GPC.Model.Glasses;
 using GPC.Model.Materials;
 
-namespace GPC.Model.FEM.Properties
+namespace GPC.Model.Fem.Properties
 {
     [Serializable]
     public sealed class MonolithicGlassProperty : PlateProperty, IGlassProperty, IPlateProperty, IEquatable<MonolithicGlassProperty>, ISerializable

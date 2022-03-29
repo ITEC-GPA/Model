@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 using GPC.Geometry;
 using GPC.Geometry.Meshes;
 using GPC.Model.Elements;
-using GPC.Model.FEM.Materials;
+using GPC.Model.Fem.Materials;
 using GPC.Model.Materials;
 
 namespace GPC.Model.Sections.Concrete

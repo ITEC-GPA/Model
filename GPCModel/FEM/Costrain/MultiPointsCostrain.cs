@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using static GPC.Model.FEM.Solver;
+using static GPC.Model.Fem.Solver;
 
-namespace GPC.Model.FEM.Costrains
+namespace GPC.Model.Fem.Costrains
 {
     /// <summary>
     /// Multipoints costrains is when as example: gdl_i = f(gdl_1, ... , gld_K, ... gdl_N) + const with K and N != i and const can be = 0

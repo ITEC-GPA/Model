@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 using GPC.Geometry;
 using GPC.Model.LoadCases;
 
-namespace GPC.Model.FEM.Attributes
+namespace GPC.Model.Fem.Attributes
 {
     public class BeamDistribuitedLoadAttribute : LoadCaseAttribute, IBeamLoadCaseAttribute, IEquatable<BeamDistribuitedLoadAttribute>, ISerializable
     {

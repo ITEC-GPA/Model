@@ -6,11 +6,11 @@ using System.Threading.Tasks;
 using GPC.Geometry;
 using GPC.Geometry.Meshes;
 using GPC.Model.Combinations;
-using GPC.Model.FEM.Attributes;
-using GPC.Model.FEM.Collections;
-using GPC.Model.FEM.Costrains;
-using GPC.Model.FEM.FiniteElements;
-using GPC.Model.FEM.Properties;
+using GPC.Model.Fem.Attributes;
+using GPC.Model.Fem.Collections;
+using GPC.Model.Fem.Costrains;
+using GPC.Model.Fem.FiniteElements;
+using GPC.Model.Fem.Properties;
 using GPC.Model.FreedomCases;
 using GPC.Model.LoadCases;
 using GPC.Model.Loads;
@@ -18,7 +18,7 @@ using GPC.Model.Restrains;
 using GPC.Model.Results;
 using GPC.Model.Sections;
 
-namespace GPC.Model.FEM
+namespace GPC.Model.Fem
 {
     [Serializable]
     public class FemModel : ModelObject, ISerializable
@@ -117,9 +117,6 @@ namespace GPC.Model.FEM
         protected List<IModelAttribute> _modelAttributes;
 
 
-        // CoordinatesSystem ? 
-
-
         // RISULTATI
 
         protected AnalysisTypes _analysisType;
@@ -143,8 +140,8 @@ namespace GPC.Model.FEM
         public FemModel(string name)
             : base(name)
         {
-            _nodes = new NodeCollection(); //new FemObjectCollection<Node>();
-            _elements = new FiniteElementCollection(); // new FemObjectCollection<FiniteElement>();
+            _nodes = new NodeCollection(); 
+            _elements = new FiniteElementCollection(); 
             _costrains = new FemObjectCollection<Costrain>();
 
             _stages = new UniqueIdCollection<Stage>(); // solo id come equality comparer
@@ -171,9 +168,7 @@ namespace GPC.Model.FEM
             : base(info, context)
         {
 
-            //_nodes = (FemObjectCollection<Node>)info.GetValue("Nodes", typeof(FemObjectCollection<Node>));
             _nodes = (NodeCollection)info.GetValue("Nodes", typeof(NodeCollection));
-            //_elements = (FemObjectCollection<FiniteElement>)info.GetValue("Elements", typeof(FemObjectCollection<FiniteElement>));
             _elements = (FiniteElementCollection)info.GetValue("Elements", typeof(FiniteElementCollection));
             _costrains = (FemObjectCollection<Costrain>)info.GetValue("Costrains", typeof(FemObjectCollection<Costrain>));
 
@@ -1784,7 +1779,6 @@ namespace GPC.Model.FEM
         /// <inheritdoc cref="FemObjectCollection{T}.Remove(int)"/>
         public void RemoveElement(int id)
         {
-            //_elements.Remove(id);
             _elements.RemoveById(id);
         }
 
@@ -1874,9 +1868,7 @@ namespace GPC.Model.FEM
         {
             base.GetObjectData(info, context);
 
-            //info.AddValue("Nodes", _nodes, typeof(FemObjectCollection<Node>));
             info.AddValue("Nodes", _nodes, typeof(NodeCollection));
-            //info.AddValue("Elements", _elements, typeof(FemObjectCollection<FiniteElement>));
             info.AddValue("Elements", _elements, typeof(FiniteElementCollection));
             info.AddValue("Costrains", _costrains, typeof(FemObjectCollection<Costrain>));
             info.AddValue("PlateProperties", _plateProperties, typeof(UniqueNameCollection<PlateProperty>));

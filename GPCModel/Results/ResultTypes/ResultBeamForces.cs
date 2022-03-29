@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Runtime.Serialization;
 using GPC.Geometry;
 using GPC.Model.Elements;
-using GPC.Model.FEM.FiniteElements;
+using GPC.Model.Fem.FiniteElements;
 using GPC.Model.LoadCases;
 using MathNet.Numerics.LinearAlgebra;
 
