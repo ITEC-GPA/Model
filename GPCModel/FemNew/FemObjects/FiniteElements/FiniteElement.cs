@@ -116,7 +116,7 @@ namespace GPC.Model.Fem.FemObjects.FiniteElements
         #region Constructor
 
         /// <param name="nodes">Nodes of the element</param>
-        internal FiniteElement(Node[] nodes) : base()
+        internal FiniteElement(Node[] nodes) 
         {
             _nodes = nodes ?? throw new ArgumentNullException(nameof(nodes));
             

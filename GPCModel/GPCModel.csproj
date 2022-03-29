@@ -83,6 +83,9 @@
     <Compile Include="Base\UnitsSystem.cs" />
     <Compile Include="Base\Units.cs" />
     <Compile Include="Combinations\CombinationsCollection.cs" />
+    <Compile Include="FemNew\FemObjects\FiniteElements\Linear\EulerBeam.cs" />
+    <Compile Include="FemNew\FemObjects\FiniteElements\Linear\LinearElement.cs" />
+    <Compile Include="FemNew\FemObjects\FiniteElements\Linear\Truss.cs" />
     <Compile Include="FemNew\FemObjects\IFemObjectDuplicable.cs" />
     <Compile Include="FemOld\Attributes\AttributeEqualityComparer.cs" />
     <Compile Include="FemOld\Attributes\LoadCase\ModelGravityAttribute.cs" />
@@ -177,7 +180,7 @@
     <Compile Include="FemOld\ElementProperty\LaminatedGlassProperty.cs" />
     <Compile Include="FemOld\ElementProperty\MonolithicGlassProperty.cs" />
     <Compile Include="FemOld\FemOptions.cs" />
-    <Compile Include="FemOld\FiniteElements\Beam.cs" />
+    <Compile Include="FemNew\FemObjects\FiniteElements\Beam.cs" />
     <Compile Include="FemOld\FiniteElements\Brick\Hexaedron8.cs" />
     <Compile Include="FemOld\FiniteElements\Beam\EulerBeam.cs" />
     <Compile Include="FemOld\FiniteElements\DK.cs" />
@@ -306,6 +309,10 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="FemNew\FemObjects\FiniteElements\Planar\" />
+    <Folder Include="FemNew\FemObjects\FiniteElements\Solid\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
