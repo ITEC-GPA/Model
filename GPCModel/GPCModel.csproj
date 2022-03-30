@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
@@ -91,6 +91,9 @@
     <Compile Include="FemNew\FemObjects\IFemObjectDuplicable.cs" />
     <Compile Include="FemNew\Collections\AttributesCollection.cs" />
     <Compile Include="FemNew\NodalDegreeOfFreedom.cs" />
+    <Compile Include="Maths\Matrices\DenseKeyMatrix.cs" />
+    <Compile Include="Maths\Matrices\SparseKeyMatrix.cs" />
+    <Compile Include="Maths\Matrices\KeyMatrix.cs" />
     <Compile Include="Materials\Concrete\ConcreteMaterialACI318-19.cs" />
     <Compile Include="Materials\Concrete\ConcreteMaterialEN1992.cs" />
     <Compile Include="Materials\Concrete\ConcreteMaterialModelCode2010.cs" />
@@ -216,7 +219,6 @@
     <Compile Include="Elements\Rebar.cs" />
     <Compile Include="Glasses\TripleInsulatingGlass.cs" />
     <Compile Include="Restrains\DofRestrain.cs" />
-	
     <!-- <Compile Include="FemOld\Attributes\FreedomCase\NodeRestrainAttribute.cs" /> -->
     <!-- <Compile Include="FemOld\Attributes\FreedomCase\NodeStiffnessAttribute.cs" /> -->
     <!-- <Compile Include="FemOld\Attributes\LoadCase\NodeForceAttribute.cs" /> -->
@@ -256,7 +258,6 @@
     <!-- <Compile Include="FemOld\Attributes\LoadCase\BrickAccelerationAttribute.cs" /> -->
     <!-- <Compile Include="FemOld\Attributes\LoadCase\PlateAccelerationAttribute.cs" /> -->
     <!-- <Compile Include="FemOld\Attributes\LoadCase\PlatePressureAttribute.cs" /> -->
-	
     <Compile Include="FreedomCases\FreedomCase.cs" />
     <Compile Include="LoadCases\LoadCaseBase.cs" />
     <Compile Include="LoadCases\LoadCaseEn16612.cs" />
