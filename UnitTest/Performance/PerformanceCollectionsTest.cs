@@ -6,7 +6,8 @@ using System.Linq;
 using GPC.Geometry;
 using GPC.Model.Fem;
 using GPC.Model.Fem.Collections;
-using GPC.Model.Fem.FiniteElements;
+using GPC.Model.Fem.FemObjects;
+using GPC.Model.Fem.FemObjects.FiniteElements;
 using GPC.Model.Maths.GaussIntegrations;
 using GPC.TestUtilities;
 using GPC.Utilities.Fem;
@@ -27,7 +28,7 @@ namespace PerformanceTest
             List<Node> nodesCollection = new List<Node>();
             for (int i = 0; i < amountOfNodes; i++)
             {
-                nodesCollection.Add(new Node(10.0, 20, 30, string.Empty, indexArray[i]));
+                nodesCollection.Add(new Node(new Point3d(10.0, 20, 30), indexArray[i]));
             }
         }
 
@@ -38,7 +39,7 @@ namespace PerformanceTest
 
             for (int i = 0; i < amountOfNodes; i++)
             {
-                nodesCollection.AddUnique(new Node(10.0 + 10 * i, 20 + 15 * i, 30 + 5 * i, string.Empty, indexArray[i]));
+                nodesCollection.AddUnique(new Node(new Point3d(10.0 + 10 * i, 20 + 15 * i, 30 + 5 * i), indexArray[i]));
             }
         }
 
@@ -49,7 +50,7 @@ namespace PerformanceTest
 
             for (int i = 0; i < amountOfNodes; i++)
             {
-                nodesCollection.Add(i, new Node(10.0, 20, 30, string.Empty, indexArray[i]));
+                nodesCollection.Add(i, new Node(new Point3d(10.0, 20, 30), indexArray[i]));
             }
         }
 
