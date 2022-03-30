@@ -1,7 +1,7 @@
-﻿using GPC.Model.FEM;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
+using GPC.Model.Fem;
 
 namespace GPC.Model.Restrains
 {

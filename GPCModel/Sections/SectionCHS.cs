@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Runtime.Serialization;
 using GPC.Geometry;
+using GPC.Geometry.Meshes;
 using GPC.Model.Materials;
 
 namespace GPC.Model.Sections
@@ -47,6 +48,7 @@ namespace GPC.Model.Sections
             _thickness = thickness < 0 ? throw new ArgumentException($"Thickness cannot be lower than zero") : thickness;
 
             SetMechanicalProperties();
+            _mesh = GetMesh();
         }
 
         public SectionCHS(SectionCHS section)
@@ -156,6 +158,26 @@ namespace GPC.Model.Sections
         protected override Shape2d GetShape()
         {
             return new Shape2d(new Polygon2d(_externalDiameter), new[] { new Polygon2d(_externalDiameter - _thickness) });
+        }
+
+        protected Mesh GetMesh(int numberOfEdges = 16)
+		{
+            Shape2d shape = GetShape(numberOfEdges);
+
+            Mesh mesh = new Mesh();
+
+            for(int i = 0; i < shape.Fill.Count; i++)
+			{
+                mesh.AddFaceMesh(new Point3d[]
+                {
+                    new Point3d(shape.Fill[i]),
+                    new Point3d(shape.Fill[shape.Fill.GetNextIndex(i)]),
+                    new Point3d(shape.Holes[0][shape.Holes[0].GetNextIndex(i)]),
+                    new Point3d(shape.Holes[0][i]),
+                });
+			}
+
+            return mesh;
         }
 
         public override void GetObjectData(SerializationInfo info, StreamingContext context)

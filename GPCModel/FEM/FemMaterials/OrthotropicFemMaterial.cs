@@ -1,12 +1,12 @@
-﻿using MathNet.Numerics.LinearAlgebra;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.Text;
 using System.Threading.Tasks;
+using MathNet.Numerics.LinearAlgebra;
 
-namespace GPC.Model.FEM.Materials
+namespace GPC.Model.Fem.Materials
 {
     public class OrthotropicFemMaterial : FemMaterial
     {
@@ -79,8 +79,8 @@ namespace GPC.Model.FEM.Materials
             _alpha2 = alpha2 < 0 ? throw new ArgumentException($"Linear thermal expansion coefficient cannot be lower than zero") : alpha2;
             _alpha3 = alpha3 < 0 ? throw new ArgumentException($"Linear thermal expansion coefficient cannot be lower than zero") : alpha3;
         }
-            
-        public OrthotropicFemMaterial(SerializationInfo info, StreamingContext context) 
+
+        protected OrthotropicFemMaterial(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
             throw new NotImplementedException();

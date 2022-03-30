@@ -1,10 +1,10 @@
 ﻿using GPC.Geometry;
-using GPC.Model.FEM.Attributes;
-using GPC.Model.FEM.Properties;
+using GPC.Model.Fem.Attributes;
+using GPC.Model.Fem.Properties;
 using GPC.Utilities.Fem;
 using mnl = MathNet.Numerics.LinearAlgebra;
 
-namespace GPC.Model.FEM.FiniteElements
+namespace GPC.Model.Fem.FiniteElements
 {
     public class Tri3Element : Plate
     {
@@ -229,7 +229,7 @@ namespace GPC.Model.FEM.FiniteElements
         public void GetNodesResults(double[] globalDisplacementsNodes, out double[] localDisplacements, out mnl.Matrix<double>[] globalPseudoDeformation, out mnl.Matrix<double>[] localPseudoDeformation, out mnl.Matrix<double>[] globalForces, out mnl.Matrix<double>[] localForces, out mnl.Matrix<double>[] globalStress, out mnl.Matrix<double>[] localStress, out mnl.Matrix<double>[] globalEpsilon, out mnl.Matrix<double>[] localEpsilon)
         {
             mnl.Vector<double> membranalGlobalDisplacements = mnl.Vector<double>.Build.Dense(3 * 3); //in plane displacement can be in DX, DY, DZ in global coordinates
-            
+
             //node 1
             int startGlobal = 0;
             int startLocal = 0;
@@ -313,12 +313,13 @@ namespace GPC.Model.FEM.FiniteElements
             globalEpsilon = new mnl.Matrix<double>[3 * 2];
             localEpsilon = new mnl.Matrix<double>[3 * 2];
 
-            for (int node = 0; node < 3; node++) {
+            for (int node = 0; node < 3; node++)
+            {
                 for (int r = 0; r < 3; r++)
                 {
                     for (int c = 0; c < 3; c++)
                     {
-                        localPseudoDeformation[node][r,c] = membranalLocalPseudoDisplacements[0][r,c]; //inplane epsilon
+                        localPseudoDeformation[node][r, c] = membranalLocalPseudoDisplacements[0][r, c]; //inplane epsilon
                         globalPseudoDeformation[node][r, c] = membranalGlobalPseudoDisplacements[0][r, c]; //inplane epsilon
 
                         localForces[node][r, c] = membranalLocalForces[0][r, c]; //inplane force
@@ -351,7 +352,7 @@ namespace GPC.Model.FEM.FiniteElements
 
                 //localEpsilon[node + 3] = membranalLocalEpsilon[0] + flexuralLocalEpsilon[node + 3];
                 //globalEpsilon[node + 3] = membranalGlobalEpsilon[0] + flexuralGlobalEpsilon[node +3];
-            }           
+            }
         }
 
         /// <summary>

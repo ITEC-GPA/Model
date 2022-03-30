@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Linq;
 using GPC.Geometry;
-using GPC.Model.FEM.Materials;
-using GPC.Model.FEM.Properties;
+using GPC.Model.Fem.Materials;
+using GPC.Model.Fem.Properties;
 using mnl = MathNet.Numerics.LinearAlgebra;
 
-namespace GPC.Model.FEM.FiniteElements
+namespace GPC.Model.Fem.FiniteElements
 {
     /// <summary>
     /// Based of "A study of optimal membrane triangles with drilling freedoms" - Felippa - 2003
@@ -45,7 +45,7 @@ namespace GPC.Model.FEM.FiniteElements
         }
 
         /// <summary>
-        /// This constructor to be used ONLY for debugging purpose. Use <see cref="FiniteElement.SetProperty(ElementProperty)"/> or <see cref="FEMObject.SetId(int)"/> instead
+        /// This constructor to be used ONLY for debugging purpose. Use <see cref="FiniteElement.SetProperty(ElementProperty)"/>  instead
         /// </summary>
         internal Tri3OPTMembrane(Node[] nodes, PlateProperty property) : this(nodes)
         {
@@ -73,7 +73,7 @@ namespace GPC.Model.FEM.FiniteElements
             _localNodes = Tri3Element.GetLocalNodes(_nodesGlobal, out _localCoordinateSystem); //take global node and transform in local nodes
             Console.WriteLine("Element Local Nodes");
             _localNodes.ToList().ForEach(x => Console.WriteLine(x));
-            
+
             _dofGlobalToLocal = mnl.Matrix<double>.Build.Dense(9, 18);
             mnl.Matrix<double> dofGlobalToLocalTranspose = mnl.Matrix<double>.Build.Dense(18, 9);
 
@@ -101,7 +101,7 @@ namespace GPC.Model.FEM.FiniteElements
             dofGlobalToLocalTranspose[4, 2] = localZ.DotProduct(globalY);
             dofGlobalToLocalTranspose[5, 2] = localZ.DotProduct(globalZ);
             #endregion
-            
+
             #region localToGlobalNode2
             //local node2 x-displacement in global coordinate
             dofGlobalToLocalTranspose[6, 3] = localX.DotProduct(globalX);
@@ -346,7 +346,7 @@ namespace GPC.Model.FEM.FiniteElements
             };
 
             double beta0e = 3.0 / 2.0; //recoomend for isotropic material
-            return _L.Transpose() / (_areaElement * _thickness) + _Te * beta0e * (_Q1 * csi(1,x,y) + _Q2 * csi(2,x,y) + _Q3 * csi(3,x,y)) * _Tthetau;
+            return _L.Transpose() / (_areaElement * _thickness) + _Te * beta0e * (_Q1 * csi(1, x, y) + _Q2 * csi(2, x, y) + _Q3 * csi(3, x, y)) * _Tthetau;
         }
 
         protected override mnl.Vector<double> BuildFLocalCoord()
@@ -470,9 +470,9 @@ namespace GPC.Model.FEM.FiniteElements
             globalStress = stressGlobalCouchy;
 
             double thickness = ((PlateProperty)_property).MembraneThickness;
-            globalForces = stressGlobalCouchy.Select(stressGlobalCouchyElement => thickness * stressGlobalCouchyElement).ToArray() ;
+            globalForces = stressGlobalCouchy.Select(stressGlobalCouchyElement => thickness * stressGlobalCouchyElement).ToArray();
             localForces = stressLocalCouchy.Select(stressLocalCouchyElement => thickness * stressLocalCouchyElement).ToArray();
-                        
+
             globalEpsilon = epsilonGlobalCouchy;
             localEpsilon = stressGlobalCouchy;
         }

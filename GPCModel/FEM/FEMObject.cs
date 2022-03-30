@@ -1,33 +1,35 @@
 ﻿using System;
-using System.Linq;
 using System.Collections.Generic;
+using System.Linq;
 using System.Runtime.Serialization;
-using GPC.Model.Elements;
-using GPC.Model.FEM.Collections;
-using GPC.Utilities.Extensions;
 
-namespace GPC.Model.FEM
+
+namespace GPC.Model.Fem
 {
+
+    /// <summary>
+    /// This is the base class for all the Fem objects
+    /// </summary>
     [Serializable]
-    public abstract class FEMObject : ModelObjectId, ISerializable
+    public abstract class FemObject : ModelObjectId, ISerializable
     {
 
         protected readonly UniqueNameCollection<Group> _groups; // non usiamo groupCollection in quanto l'id è già stato assegnato dal femModel.
                                                                 // Usiamo questa collection per avere contains con nome e perchè è thread-safe
-        
 
-        public FEMObject() : this("")
+
+        public FemObject()
         {
 
         }
 
-        public FEMObject(string name) 
+        public FemObject(string name)
             : base(name)
         {
             _groups = new UniqueNameCollection<Group>();
         }
 
-        public FEMObject(SerializationInfo info, StreamingContext context) 
+        protected FemObject(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
 
@@ -38,12 +40,13 @@ namespace GPC.Model.FEM
             base.GetObjectData(info, context);
         }
 
+        #region Groups methods
 
         public bool ContainsGroup(string groupName)
         {
             return _groups.ContainsName(groupName);
         }
-        
+
         public bool ContainsGroup(Group group)
         {
             return _groups.Contains(group);
@@ -79,49 +82,31 @@ namespace GPC.Model.FEM
             return _groups.ToArray();
         }
 
+        #endregion
 
-        /// <summary>
-        /// This is an internal method, since only the femModel class can set the id of the femObject
-        /// </summary>
-        internal void SetId(int id)
-        {
-            // teoricamente questo metodo non serve più. Al momento esiste solo per retrocompatibilità
-            base.Id = id;
-        }
 
         #region Equals, hascode, operators, 
 
         public override bool Equals(object obj)
         {
-            if (obj is null)
-                return false;
-
-            if (ReferenceEquals(this, obj))
-                return true;
-
-            return (obj is FEMObject objCasted) && base.Equals(objCasted);
+            return (obj is FemObject objCasted) && base.Equals(objCasted);
         }
 
         public override int GetHashCode()
         {
-            return -17 * base.GetHashCode();
+            unchecked
+            {
+                return -17 * base.GetHashCode();
+            }
         }
 
 
-        public static bool operator ==(FEMObject obj1, FEMObject obj2)
+        public static bool operator ==(FemObject obj1, FemObject obj2)
         {
-            if (obj1 is null)
-            {
-                return obj2 is null;
-            }
-
-            if (ReferenceEquals(obj1, obj2))
-                return true;
-
             return obj1.Equals(obj2);
         }
 
-        public static bool operator !=(FEMObject obj1, FEMObject obj2)
+        public static bool operator !=(FemObject obj1, FemObject obj2)
         {
             return !(obj1 == obj2);
         }
@@ -129,11 +114,11 @@ namespace GPC.Model.FEM
         #endregion
 
         /// <summary>
-        /// Custom Equality comparer that compare two <see cref="FEMObject"/> adding also the <see cref="ModelObjectId.Id"/> as an equality parameter
+        /// Custom Equality comparer that compare two <see cref="FemObject"/> adding also the <see cref="ModelObjectId.Id"/> as an equality parameter
         /// </summary>
-        public class FemObjectWithIdComparer : IEqualityComparer<FEMObject>
+        public class FemObjectWithIdComparer : IEqualityComparer<FemObject>
         {
-            public bool Equals(FEMObject x, FEMObject y)
+            public bool Equals(FemObject x, FemObject y)
             {
                 if (ReferenceEquals(x, y))
                     return true;
@@ -151,22 +136,22 @@ namespace GPC.Model.FEM
             }
 
 
-            public int GetHashCode(FEMObject obj)
+            public int GetHashCode(FemObject obj)
             {
                 unchecked
                 {
-                    return ((-391 + obj.Id.GetHashCode())* -17 + obj.GetHashCode()) * -17 + base.GetHashCode();
+                    return ((-391 + obj.Id.GetHashCode()) * -17 + obj.GetHashCode()) * -17 + base.GetHashCode();
                 }
             }
         }
 
 
         /// <summary>
-        /// Custom equality comparer that compare two <see cref="FEMObject"/> using only the <see cref="ModelObjectId.Id"/> as an equality parameter
+        /// Custom equality comparer that compare two <see cref="FemObject"/> using only the <see cref="ModelObjectId.Id"/> as an equality parameter
         /// </summary>
-        public class FemObjectOnlyIdComparer : IEqualityComparer<FEMObject>
+        public class FemObjectOnlyIdComparer : IEqualityComparer<FemObject>
         {
-            public bool Equals(FEMObject x, FEMObject y)
+            public bool Equals(FemObject x, FemObject y)
             {
                 if (x == null && y == null)
                     return true;
@@ -180,7 +165,7 @@ namespace GPC.Model.FEM
                 return false;
             }
 
-            public int GetHashCode(FEMObject obj)
+            public int GetHashCode(FemObject obj)
             {
                 unchecked
                 {

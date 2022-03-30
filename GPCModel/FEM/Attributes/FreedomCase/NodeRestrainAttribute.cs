@@ -1,12 +1,12 @@
 ﻿using System;
-using System.Linq;
 using System.Collections.Generic;
+using System.Linq;
 using System.Runtime.Serialization;
 using GPC.Geometry;
 using GPC.Model.FreedomCases;
 using GPC.Model.Restrains;
 
-namespace GPC.Model.FEM.Attributes
+namespace GPC.Model.Fem.Attributes
 {
     public class NodeRestrainAttribute : FreedomCaseAttribute, ISerializable, IEquatable<NodeRestrainAttribute>, INodeFreedomCaseAttribute
     {
@@ -43,7 +43,7 @@ namespace GPC.Model.FEM.Attributes
         }
 
         public NodeRestrainAttribute(string freedomCaseName, CoordinateSystem coordinateSystem)
-            : this(freedomCaseName, coordinateSystem, new List <DofRestrain>(), string.Empty, Guid.NewGuid())
+            : this(freedomCaseName, coordinateSystem, new List<DofRestrain>(), string.Empty, Guid.NewGuid())
         {
 
         }

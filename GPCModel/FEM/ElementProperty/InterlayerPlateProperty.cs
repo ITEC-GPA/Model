@@ -1,11 +1,11 @@
-﻿using GPC.Model.Materials;
-using System;
+﻿using System;
 using System.Runtime.Serialization;
+using GPC.Model.Fem.Materials;
 using GPC.Model.Glasses;
-using GPC.Model.FEM.Materials;
+using GPC.Model.Materials;
 
 
-namespace GPC.Model.FEM.Properties
+namespace GPC.Model.Fem.Properties
 {
     [Serializable]
     public sealed class InterlayerPlateProperty : PlateProperty, IGlassProperty, IPlateProperty, IEquatable<InterlayerPlateProperty>, ISerializable
@@ -27,12 +27,12 @@ namespace GPC.Model.FEM.Properties
         public InterlayerPlateProperty(double tb, double tm, FemMaterial material, double temperature, double loadDuration, string name)
             : base(material, tb, tm, name)
         {
-            this._temperature = temperature > 0 ? temperature : throw new ArgumentException("Temperature can not be lower or equal to zero");
-            this._loadDuration = loadDuration > 0 ? loadDuration : throw new ArgumentException("Temperature can not be lower or equal to zero");
+            _temperature = temperature > 0 ? temperature : throw new ArgumentException("Temperature can not be lower or equal to zero");
+            _loadDuration = loadDuration > 0 ? loadDuration : throw new ArgumentException("Temperature can not be lower or equal to zero");
         }
 
 
-        public InterlayerPlateProperty(SerializationInfo info, StreamingContext context) : base(info, context)
+        private InterlayerPlateProperty(SerializationInfo info, StreamingContext context) : base(info, context)
         {
             _temperature = (double)info.GetValue("Temperature", typeof(double));
             _loadDuration = (double)info.GetValue("LoadDuration", typeof(double));
@@ -70,28 +70,26 @@ namespace GPC.Model.FEM.Properties
 
         public override int GetHashCode()
         {
-            int hashCode = -23;
-            hashCode = hashCode * -17 + base.GetHashCode();
-            hashCode = hashCode * -17 + _temperature.GetHashCode();
-            hashCode = hashCode * -17 + _loadDuration.GetHashCode();
-            return hashCode;
+            unchecked
+            {
+                int hashCode = -23;
+                hashCode = hashCode * -17 + base.GetHashCode();
+                hashCode = hashCode * -17 + _temperature.GetHashCode();
+                hashCode = hashCode * -17 + _loadDuration.GetHashCode();
+                return hashCode; 
+            }
         }
 
         public static bool operator ==(InterlayerPlateProperty obj1, InterlayerPlateProperty obj2)
         {
-            if (ReferenceEquals(obj1, obj2))
-                return true;
-
-            if (obj1 is null || obj2 is null)
-                return false;
-
             return obj1.Equals(obj2);
         }
 
         public static bool operator !=(InterlayerPlateProperty obj1, InterlayerPlateProperty obj2)
         {
             return !(obj1 == obj2);
-        } 
+        }
+
         #endregion
     }
 }

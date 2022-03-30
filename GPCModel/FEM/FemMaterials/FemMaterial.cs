@@ -2,7 +2,7 @@
 using System.Runtime.Serialization;
 using MathNet.Numerics.LinearAlgebra;
 
-namespace GPC.Model.FEM.Materials
+namespace GPC.Model.Fem.Materials
 {
 
     [Serializable]
@@ -12,13 +12,13 @@ namespace GPC.Model.FEM.Materials
 
         public double Density => _density;
 
-        protected FemMaterial(string name, double density) 
+        protected FemMaterial(string name, double density)
             : base(name)
         {
             _density = density < 0 ? throw new ArgumentException($"{nameof(density)} cannot be lower than zero") : density;
         }
 
-        public FemMaterial(SerializationInfo info, StreamingContext context) 
+        protected FemMaterial(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
             _density = info.GetDouble("Density");

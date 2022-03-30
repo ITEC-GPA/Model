@@ -9,20 +9,39 @@ using GPC.Model.Combinations;
 
 namespace GPC.Model.Standards
 {
-    public abstract class Standard
+    public abstract class Standard : ModelObject
     {
-        public abstract class CombinationsOptions
-        {
+        protected string _remarks;
 
-            public override abstract bool Equals(object obj);
-
-            public override abstract int GetHashCode();
-
-        }
-
-        public virtual void GetObjectData(SerializationInfo info, StreamingContext context)
+		public string Remarks
 		{
+			get => _remarks;
+			set => _remarks = value;
+		}
 
+		public Standard(string name = "", string remarks = "")
+            :base(name)
+		{
+            _remarks = remarks;
+		}
+
+		protected Standard(SerializationInfo info, StreamingContext context)
+			: base(info, context)
+		{
+			_remarks = info.GetString("Remarks");
+		}
+
+
+		public void SetName(string name)
+		{
+			if(name != null)
+				_name = name;
+		}
+
+		public override void GetObjectData(SerializationInfo info, StreamingContext context)
+		{
+			base.GetObjectData(info, context);
+			info.AddValue("Remarks", _remarks);
 		}
 
 		public override bool Equals(object obj)
@@ -30,7 +49,9 @@ namespace GPC.Model.Standards
             if (ReferenceEquals(this, obj))
                 return true;
 
-            return base.Equals(obj);
+            return obj is Standard standard && 
+				_remarks.Equals(standard.Remarks) && 
+				base.Equals(obj);
 		}
 
 		public override int GetHashCode()
@@ -49,5 +70,18 @@ namespace GPC.Model.Standards
             /// <returns>The Combination collections</returns>
             CombinationsCollection CreateCombinations(LoadCaseBase[] loadCases, CombinationsOptions options, string prefix = "cmb");
         }
-    }
+
+		#region Nested Class
+
+		public abstract class CombinationsOptions
+        {
+
+            public override abstract bool Equals(object obj);
+
+            public override abstract int GetHashCode();
+
+        }
+
+		#endregion
+	}
 }

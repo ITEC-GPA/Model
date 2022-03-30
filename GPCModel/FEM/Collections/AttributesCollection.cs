@@ -4,9 +4,9 @@ using System.Linq;
 using System.Runtime.Serialization;
 using System.Text;
 using System.Threading.Tasks;
-using GPC.Model.FEM.Attributes;
+using GPC.Model.Fem.Attributes;
 
-namespace GPC.Model.FEM.Collections
+namespace GPC.Model.Fem.Collections
 {
     [Serializable]
     public class AttributesCollection<T> : ModelObjectSet<T> where T : Attributes.Attribute
@@ -55,7 +55,7 @@ namespace GPC.Model.FEM.Collections
 
                     // rimuoviamo quello già presente                    
                     _collection = _collection.Except(_collection.Where(i => i.CaseName == item.CaseName).ToList()).ToHashSet();
-                    
+
                     replaced = true;
 
                     return base.Add(item); // dovrebbe sempre tornare vero, se torna falso è successo qualcosa di anomalo
@@ -105,13 +105,13 @@ namespace GPC.Model.FEM.Collections
                 int index = 0;
                 foreach (var item in items)
                 {
-                    var ret = this.Add(item, out bool rep);
+                    var ret = Add(item, out bool rep);
 
                     replaced[index] = rep;
 
                     if (!ret)
                         return false;
-                    
+
                     index++;
                 }
                 return true;
@@ -126,7 +126,7 @@ namespace GPC.Model.FEM.Collections
             {
                 foreach (var item in items)
                 {
-                    if (!this.Add(item))
+                    if (!Add(item))
                         return false;
                 }
                 return true;

@@ -2,12 +2,12 @@
 using System.Collections.Generic;
 using System.Linq;
 using GPC.Geometry;
-using GPC.Model.FEM.Attributes;
-using GPC.Model.FEM.Properties;
+using GPC.Model.Fem.Attributes;
+using GPC.Model.Fem.Properties;
 using GPC.Model.Sections;
 using mnl = MathNet.Numerics.LinearAlgebra;
 
-namespace GPC.Model.FEM.FiniteElements
+namespace GPC.Model.Fem.FiniteElements
 {
     /// <summary>
     /// Based on Finite Element by Rao - Chapter 9
@@ -449,8 +449,8 @@ namespace GPC.Model.FEM.FiniteElements
             {
                 for (int col = 0; col < _kElementLocalCoord.ColumnCount; col++)
                 {
-                    _kElementLocalCoord[3-1, col] = 0.0;
-                    _kElementLocalCoord[9-1, col] = 0.0;
+                    _kElementLocalCoord[3 - 1, col] = 0.0;
+                    _kElementLocalCoord[9 - 1, col] = 0.0;
                 }
             }
             #endregion
@@ -460,15 +460,15 @@ namespace GPC.Model.FEM.FiniteElements
             {
                 for (int col = 0; col < _kElementLocalCoord.ColumnCount; col++)
                 {
-                    _kElementLocalCoord[2-1, col] = 0.0;
-                    _kElementLocalCoord[8-1, col] = 0.0;
+                    _kElementLocalCoord[2 - 1, col] = 0.0;
+                    _kElementLocalCoord[8 - 1, col] = 0.0;
                 }
             }
             #endregion
             #endregion
 
             #endregion
-            
+
             /*Console.WriteLine("kLocal");
             FEMUtilities.WriteMatrix(_kElementLocalCoord, "F2");*/
             #endregion
@@ -496,7 +496,7 @@ namespace GPC.Model.FEM.FiniteElements
 
             lambda1[1, 0] = -(lox * mox) / d; //loy
             lambda1[1, 1] = (lox * lox + nox * nox) / d; //moy
-            lambda1[1, 2] = -(mox * nox)/d; //noz
+            lambda1[1, 2] = -(mox * nox) / d; //noz
 
             lambda1[2, 0] = -nox / d; //loz
             lambda1[2, 1] = 0.0; //moz
@@ -532,7 +532,7 @@ namespace GPC.Model.FEM.FiniteElements
             else
             {
                 lambda = lambda2 * lambda1; //eq. 9.48
-            }   
+            }
             /*Console.WriteLine("lambda");
             FEMUtilities.WriteMatrix(lambda);*/
 
@@ -543,10 +543,10 @@ namespace GPC.Model.FEM.FiniteElements
                 {
                     for (int col = 0; col < lambda.ColumnCount; col++)
                     {
-                        _dofGlobalToLocal[ 3 * i + row, 3 * i + col] = lambda[row, col];
+                        _dofGlobalToLocal[3 * i + row, 3 * i + col] = lambda[row, col];
                     }
                 }
-                
+
             }
             /*Console.WriteLine("localToGlobal");
             FEMUtilities.WriteMatrix(_dofGlobalToLocal);*/
@@ -572,7 +572,7 @@ namespace GPC.Model.FEM.FiniteElements
             double q2 = 0;
             double q3 = 0;
 
-            foreach(var attribute in _attributesLoadCase)
+            foreach (var attribute in _attributesLoadCase)
             {
                 if (attribute is BeamDistribuitedLoadAttribute bdla)
                 {
@@ -680,14 +680,14 @@ namespace GPC.Model.FEM.FiniteElements
                                 fLocal[2 - 1] = ShearFixAndBipendolumUniformLoad(0.0, q2, _length);
                                 fLocal[6 - 1] = -BendingFixAndBipendolumUniformLoad(0.0, q2, _length);
 
-                                fLocal[8 - 1] = 0.0; 
+                                fLocal[8 - 1] = 0.0;
                                 fLocal[12 - 1] = BendingFixAndBipendolumUniformLoad(_length, q2, _length);
                                 break;
                             case LocalDOF.U3:
                                 fLocal[3 - 1] = ShearFixAndBipendolumUniformLoad(0.0, q3, _length);
                                 fLocal[5 - 1] = BendingFixAndBipendolumUniformLoad(0.0, q3, _length);
 
-                                fLocal[9 - 1] = 0.0; 
+                                fLocal[9 - 1] = 0.0;
                                 fLocal[11 - 1] = -BendingFixAndBipendolumUniformLoad(_length, q3, _length);
                                 break;
                             case LocalDOF.R2:
@@ -736,7 +736,8 @@ namespace GPC.Model.FEM.FiniteElements
 
             #region End1
             #region releaseU2R3End1
-            if (IsReleasedU2AndR3(EndSide.End1)) {
+            if (IsReleasedU2AndR3(EndSide.End1))
+            {
                 fLocal[2 - 1] = 0.0;
                 fLocal[6 - 1] = 0.0;
 
@@ -795,7 +796,7 @@ namespace GPC.Model.FEM.FiniteElements
             //duplicate beam
             EulerBeam duplicatedBeam = new EulerBeam(duplicatedNodes, _axisAngleRadians);
             duplicatedBeam.SetProperty(property);
-            duplicatedBeam.SetId(this.Id);
+            duplicatedBeam.Id = Id;
 
             foreach (FreedomCaseAttribute attribute in fcAttributes)
             {
@@ -818,39 +819,40 @@ namespace GPC.Model.FEM.FiniteElements
         public Dictionary<Beam.InternalAction, double> GetInternalNodalLocalForces(Beam.EndSide endSide, double[] globalDisplacements)
         {
             Dictionary<Beam.InternalAction, double> result = new Dictionary<InternalAction, double>();
-                
-                mnl.Vector<double> localDisplacementsNodes = GetLocalDisplacementVector(globalDisplacements);
-                mnl.Vector<double> localForcesNodes = GetInternalNodalLocalForces(localDisplacementsNodes);
 
-                if (endSide == Beam.EndSide.End1)
+            mnl.Vector<double> localDisplacementsNodes = GetLocalDisplacementVector(globalDisplacements);
+            mnl.Vector<double> localForcesNodes = GetInternalNodalLocalForces(localDisplacementsNodes);
+
+            if (endSide == Beam.EndSide.End1)
+            {
+                for (int i = 0; i < 6; i++)
                 {
-                    for (int i = 0; i < 6; i++)
+                    if (i == 4 || i == 1 || i == 2)
                     {
-                        if (i == 4 || i == 1 || i == 2)
-                        {
-                            result.Add((InternalAction) i , localForcesNodes[i]);
-                        }
-                        else
-                        {
-                            result.Add((InternalAction)i, -localForcesNodes[i]);
-                        }
+                        result.Add((InternalAction)i, localForcesNodes[i]);
                     }
-                } else //End2
-                {
-                    for (int i = 6; i < 12; i++)
+                    else
                     {
-                        int j = i - 6;
-                        if (j == 4 || j == 1 || j == 2)
-                        {
-                            result.Add((InternalAction)j, -localForcesNodes[i]);
-                        }
-                        else
-                        {
-                            result.Add((InternalAction)j, localForcesNodes[i]);
-                        }
+                        result.Add((InternalAction)i, -localForcesNodes[i]);
                     }
                 }
-                return result;
+            }
+            else //End2
+            {
+                for (int i = 6; i < 12; i++)
+                {
+                    int j = i - 6;
+                    if (j == 4 || j == 1 || j == 2)
+                    {
+                        result.Add((InternalAction)j, -localForcesNodes[i]);
+                    }
+                    else
+                    {
+                        result.Add((InternalAction)j, localForcesNodes[i]);
+                    }
+                }
+            }
+            return result;
         }
 
         internal Dictionary<Beam.InternalAction, double> GetInternalAction(double station, double[] globalDisplacement)
@@ -886,26 +888,26 @@ namespace GPC.Model.FEM.FiniteElements
 
             /*if (releases.Count() == 0)
             {*/
-                double Nx = internalForcesNode1[InternalAction.N] * N0(station, _length) + internalForcesNode2[InternalAction.N] * N1(station, _length);
-                double V2x = internalForcesNode1[InternalAction.V2] * N0(station, _length) + internalForcesNode2[InternalAction.V2] * N1(station, _length);
-                double V3x = internalForcesNode1[InternalAction.V3] * N0(station, _length) + internalForcesNode2[InternalAction.V3] * N1(station, _length);
-                double Tx = internalForcesNode1[InternalAction.T] * N0(station, _length) + internalForcesNode2[InternalAction.T] * N1(station, _length);
-                double M2x = internalForcesNode1[InternalAction.M2] * N0(station, _length) + internalForcesNode2[InternalAction.M2] * N1(station, _length);
-                double M3x = internalForcesNode1[InternalAction.M3] * N0(station, _length) + internalForcesNode2[InternalAction.M3] * N1(station, _length);
+            double Nx = internalForcesNode1[InternalAction.N] * N0(station, _length) + internalForcesNode2[InternalAction.N] * N1(station, _length);
+            double V2x = internalForcesNode1[InternalAction.V2] * N0(station, _length) + internalForcesNode2[InternalAction.V2] * N1(station, _length);
+            double V3x = internalForcesNode1[InternalAction.V3] * N0(station, _length) + internalForcesNode2[InternalAction.V3] * N1(station, _length);
+            double Tx = internalForcesNode1[InternalAction.T] * N0(station, _length) + internalForcesNode2[InternalAction.T] * N1(station, _length);
+            double M2x = internalForcesNode1[InternalAction.M2] * N0(station, _length) + internalForcesNode2[InternalAction.M2] * N1(station, _length);
+            double M3x = internalForcesNode1[InternalAction.M3] * N0(station, _length) + internalForcesNode2[InternalAction.M3] * N1(station, _length);
 
-                forces.Add(Beam.InternalAction.N, Nx - AxialBeamFixFixUniformLoad(qx, station, _length));
-                forces.Add(Beam.InternalAction.V2, V2x - ShearBeamFixFixUniformLoad(qy, station, _length));
-                forces.Add(Beam.InternalAction.V3, V3x - ShearBeamFixFixUniformLoad(qz, station, _length));
+            forces.Add(Beam.InternalAction.N, Nx - AxialBeamFixFixUniformLoad(qx, station, _length));
+            forces.Add(Beam.InternalAction.V2, V2x - ShearBeamFixFixUniformLoad(qy, station, _length));
+            forces.Add(Beam.InternalAction.V3, V3x - ShearBeamFixFixUniformLoad(qz, station, _length));
 
-                forces.Add(Beam.InternalAction.T, Tx);
-                forces.Add(Beam.InternalAction.M2, M2x - BendingBeamFixFixUniformLoad(qz, station, _length));
-                forces.Add(Beam.InternalAction.M3, M3x - BendingBeamFixFixUniformLoad(qy, station, _length));
+            forces.Add(Beam.InternalAction.T, Tx);
+            forces.Add(Beam.InternalAction.M2, M2x - BendingBeamFixFixUniformLoad(qz, station, _length));
+            forces.Add(Beam.InternalAction.M3, M3x - BendingBeamFixFixUniformLoad(qy, station, _length));
             /*} else
             {
                 //TODO releases
             }*/
 
-            return forces;            
+            return forces;
         }
         #endregion
 
@@ -928,7 +930,8 @@ namespace GPC.Model.FEM.FiniteElements
                 result.Add(LocalDOF.TorsionR1, localDisplacementsNodes[3]);
                 result.Add(LocalDOF.R2, localDisplacementsNodes[4]);
                 result.Add(LocalDOF.R3, localDisplacementsNodes[5]);
-            } else
+            }
+            else
             {
                 result.Add(LocalDOF.AxialU1, localDisplacementsNodes[6]);
                 result.Add(LocalDOF.U2, localDisplacementsNodes[7]);
@@ -937,7 +940,7 @@ namespace GPC.Model.FEM.FiniteElements
                 result.Add(LocalDOF.R2, localDisplacementsNodes[10]);
                 result.Add(LocalDOF.R3, localDisplacementsNodes[11]);
             }
-                    
+
             return result;
         }
 
@@ -973,10 +976,10 @@ namespace GPC.Model.FEM.FiniteElements
             {
                 LocalDOF index = (LocalDOF)i;
                 displStation.Add(index, displLocalNode1[index] * N0(station, _length) + displLocalNode2[index] * N1(station, _length)); //linear interpolation
-                    
+
                 if (index == LocalDOF.AxialU1)
                 {
-                    double dq = (-1.0 / 4.0 * q1 * station * station + 1.0/4.0 * (2.0 * L * station - station * station) * q1) / (E * A); //from: integration of qL/2 * N0(x) + (-qL/2) * N1(x)
+                    double dq = (-1.0 / 4.0 * q1 * station * station + 1.0 / 4.0 * (2.0 * L * station - station * station) * q1) / (E * A); //from: integration of qL/2 * N0(x) + (-qL/2) * N1(x)
                     displStation[index] = displStation[index] + dq;
                 }
 
@@ -1001,7 +1004,7 @@ namespace GPC.Model.FEM.FiniteElements
                     #region displacement
                     var rotazioneNodo1 = displLocalNode1[LocalDOF.R3];
                     var dr1 = RotationFixAndSimplySupportedWithImposedRotationAtEnd(station, rotazioneNodo1, _length);
-                    
+
                     var rotazioneNodo2 = displLocalNode2[LocalDOF.R3];
                     var dr2 = RotationFixAndSimplySupportedWithImposedRotationAtEnd(_length - station, rotazioneNodo2, _length);
 
@@ -1043,14 +1046,14 @@ namespace GPC.Model.FEM.FiniteElements
 
                 var end = release.EndBeam;
                 var dofReleased = release.LocalDOFReleased;
-               
+
                 if (end == EndSide.End1)
                 {
                     #region releaseAxial
                     if (dofReleased.Contains(LocalDOF.AxialU1))
                     {
                         double x = _length - station;
-                        double dq = q1 / (E * A) * (_length * x - x*x / 2.0);
+                        double dq = q1 / (E * A) * (_length * x - x * x / 2.0);
                         displStation[LocalDOF.AxialU1] = displLocalNode2[LocalDOF.AxialU1] + dq;
                     }
                     #endregion
@@ -1191,7 +1194,8 @@ namespace GPC.Model.FEM.FiniteElements
                     #endregion
 
                     #region releaseTorsion
-                    if (dofReleased.Contains(LocalDOF.TorsionR1)) {
+                    if (dofReleased.Contains(LocalDOF.TorsionR1))
+                    {
                         displStation[LocalDOF.TorsionR1] = displLocalNode1[LocalDOF.TorsionR1];
                     }
                     #endregion
@@ -1332,7 +1336,8 @@ namespace GPC.Model.FEM.FiniteElements
             if (releases.Contains(searchRelese1) && releases.Contains(searchRelese2))
             {
                 return true;
-            } else
+            }
+            else
             {
                 return false;
             }
@@ -1348,7 +1353,8 @@ namespace GPC.Model.FEM.FiniteElements
             if (releases.Contains(searchRelese1) && releases.Contains(searchRelese2))
             {
                 return true;
-            } else
+            }
+            else
             {
                 return false;
             }
@@ -1362,18 +1368,20 @@ namespace GPC.Model.FEM.FiniteElements
             {
                 searchRelese1 = new Tuple<EndSide, LocalDOF>(EndSide.End1, LocalDOF.U2);
                 searchRelese2 = new Tuple<EndSide, LocalDOF>(EndSide.End1, LocalDOF.R3);
-            } else
+            }
+            else
             {
                 searchRelese1 = new Tuple<EndSide, LocalDOF>(EndSide.End2, LocalDOF.U2);
                 searchRelese2 = new Tuple<EndSide, LocalDOF>(EndSide.End2, LocalDOF.R3);
             }
-            
+
             var releases = GetEndReleases();
 
             if ((releases.Contains(searchRelese1) == true && releases.Contains(searchRelese2)) == true)
             {
                 return true;
-            } else
+            }
+            else
             {
                 return false;
             }
@@ -1399,7 +1407,8 @@ namespace GPC.Model.FEM.FiniteElements
             if ((releases.Contains(searchRelese1) == true && releases.Contains(searchRelese2)))
             {
                 return true;
-            } else
+            }
+            else
             {
                 return false;
             }
@@ -1493,7 +1502,7 @@ namespace GPC.Model.FEM.FiniteElements
         /// <param name="x">coordinate 0 to L</param>
         /// <param name="L">Lenght of the beam</param>
         /// <returns>Bending moment</returns>
-        private static double BendingBeamFixFixUniformLoad(double q,double x, double L)
+        private static double BendingBeamFixFixUniformLoad(double q, double x, double L)
         {
             return -q / 12.0 * (L * L - 6.0 * L * x + 6.0 * x * x);
         }
@@ -1537,7 +1546,7 @@ namespace GPC.Model.FEM.FiniteElements
         /// <returns>displacement</returns>
         private static double RotationFixFixUniformLoad(double q, double x, double L, double E, double J)
         {
-            return q * x * (L*L - 3.0 * L * x + 2.0 * x * x) / (12.0 * E *J);
+            return q * x * (L * L - 3.0 * L * x + 2.0 * x * x) / (12.0 * E * J);
         }
 
         /// <summary>
@@ -1563,7 +1572,7 @@ namespace GPC.Model.FEM.FiniteElements
         /// <returns></returns>
         private static double DisplacementFixFixImposedRotation(double x, double alpha, double L)
         {
-            return alpha / (L*L) * (x*x*x + x * L * (L-2.0 *x));
+            return alpha / (L * L) * (x * x * x + x * L * (L - 2.0 * x));
         }
 
         /// <summary>
@@ -1588,7 +1597,7 @@ namespace GPC.Model.FEM.FiniteElements
         /// <returns></returns>
         private static double DisplacementFixAndSimplySupportedWithImposedDisplacementAtEndSimplySupported(double x, double displacement, double L)
         {
-            return displacement / 2.0 * x*x / Math.Pow(L,3.0) * (3.0 * L - x);
+            return displacement / 2.0 * x * x / Math.Pow(L, 3.0) * (3.0 * L - x);
         }
 
 
@@ -1599,7 +1608,7 @@ namespace GPC.Model.FEM.FiniteElements
 
         private static double RotationFixAndSimplySupportedWithImposedRotationAtEnd(double x, double angle, double L)
         {
-            return angle * (L*L - 4.0 * L * x + 3.0 * x * x) / (L * L);
+            return angle * (L * L - 4.0 * L * x + 3.0 * x * x) / (L * L);
         }
 
 
@@ -1610,7 +1619,7 @@ namespace GPC.Model.FEM.FiniteElements
 
         private static double RotationSimplySupportedUniformLoad(double q, double x, double L, double E, double J)
         {
-            return q * (L*L*L - 6.0 * L * x *x + 4.0 * x*x*x) / (24.0 * E * J);
+            return q * (L * L * L - 6.0 * L * x * x + 4.0 * x * x * x) / (24.0 * E * J);
         }
 
         private static double DisplacementFixAndSimplySupportedUniformLoad(double q, double x, double L, double E, double J)
@@ -1625,17 +1634,17 @@ namespace GPC.Model.FEM.FiniteElements
 
         private static double DisplacementFixAndBipendolumUniformLoad(double x, double q, double L, double E, double J)
         {
-            return q / (24.0 * E * J) * x*x * Math.Pow(x - 2.0 * L, 2.0);
+            return q / (24.0 * E * J) * x * x * Math.Pow(x - 2.0 * L, 2.0);
         }
 
         private static double BendingFixAndBipendolumUniformLoad(double x, double q, double L)
         {
-            return -q / 6.0 * (2.0 * L*L - 6.0 * L * x + 3.0 *x*x);
+            return -q / 6.0 * (2.0 * L * L - 6.0 * L * x + 3.0 * x * x);
         }
 
         private static double ShearFixAndBipendolumUniformLoad(double x, double q, double L)
         {
-            return q * (L-x);
+            return q * (L - x);
         }
 
         private static double DisplacementFixFreeUniformLoad(double x, double L, double q, double E, double J)
@@ -1645,17 +1654,17 @@ namespace GPC.Model.FEM.FiniteElements
 
         private static double RotationFixFixImposedDisplacement(double x, double L, double delta)
         {
-            return 6.0 * delta / (L * L * L) * (L * x - x*x);
+            return 6.0 * delta / (L * L * L) * (L * x - x * x);
         }
 
         private static double RotationSimplySupportedAndBipendolumImposedDisplacementAtBipendolum(double x, double L, double delta)
         {
-            return 3.0 / 2.0 * delta / (L * L * L) * (x * x - L*L);
+            return 3.0 / 2.0 * delta / (L * L * L) * (x * x - L * L);
         }
 
         private static double RotationFixSimplySupportedWithImposedRotationAtFixEnd(double x, double L, double angle)
         {
-            return angle * (3.0 * x*x / (2.0 * L*L) - 3.0 * x / L + 1);
+            return angle * (3.0 * x * x / (2.0 * L * L) - 3.0 * x / L + 1);
         }
         #endregion
     }

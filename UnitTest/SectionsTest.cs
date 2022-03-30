@@ -10,6 +10,7 @@ using GPC.Model.Sections.Steel;
 using GPC.TestUtilities;
 using GPC.Model.Sections.Rebar;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using GPC.Geometry.Meshes;
 
 namespace ModelObjectTest
 {
@@ -71,6 +72,67 @@ namespace ModelObjectTest
             GmshNet.Gmsh.Model.Occ.Synchronize();
             GmshNet.Gmsh.Fltk.Run();
             GmshNet.Gmsh.Finalize();
+        }
+
+        /// <summary>
+        /// Metodo per visualizzare la mesh 
+        /// </summary>
+        /// <param name="mesh"></param>
+        /// <returns></returns>
+        protected Point3d[] ExportToGmsh(Mesh mesh)
+        {
+            GmshNet.Gmsh.Initialize();
+            List<Point3d> points = new List<Point3d>();
+
+            for (int i = 1; i <= mesh.FacesCount; i++)
+            {
+                MeshVertex[] vertices = mesh.GetFaceVertices(mesh.Faces[i]);
+                List<int> indicesV = new List<int>();
+                List<int> indicesL = new List<int>();
+
+                for (int k = 0; k < vertices.Length; k++)
+                {
+                    try
+                    {
+                        indicesV.Add(GmshNet.Gmsh.Model.Occ.AddPoint(vertices[k].Point.X / 1000000,
+                            vertices[k].Point.Y / 1000000,
+                            vertices[k].Point.Z / 10000));
+                    }
+                    catch { }
+                }
+
+                for (int k = 0; k < indicesV.Count; k++)
+                {
+                    try
+                    {
+                        if (k != indicesV.Count - 1)
+                            indicesL.Add(GmshNet.Gmsh.Model.Occ.AddLine(indicesV[k], indicesV[k + 1]));
+                        else
+                            indicesL.Add(GmshNet.Gmsh.Model.Occ.AddLine(indicesV[k], indicesV[0]));
+                    }
+                    catch { }
+                }
+
+                try
+                {
+                    int wire = GmshNet.Gmsh.Model.Occ.AddWire(indicesL.ToArray());
+                    GmshNet.Gmsh.Model.Occ.AddPlaneSurface(new int[] { wire });
+                }
+                catch { }
+            }
+
+            GmshNet.Gmsh.Model.Occ.Synchronize();
+
+            GmshNet.Gmsh.Model.Mesh.Generate(0);
+            GmshNet.Gmsh.Model.Mesh.Generate(1);
+            //GmshNet.Gmsh.Model.Mesh.Generate(2);
+
+            GmshNet.Gmsh.Model.Occ.Synchronize();
+
+            GmshNet.Gmsh.Fltk.Run();
+            GmshNet.Gmsh.Finalize();
+
+            return points.ToArray();
         }
 
         #region Section CHS
@@ -1417,7 +1479,7 @@ namespace ModelObjectTest
                                                                     new Point2d(0, heigth) }));
 
             ShapeEx shapeEx = new ShapeEx(shape, ConcreteMaterialEN1992.C25_30);
-            RebarSectionCircular rebar = new RebarSectionCircular(rebarDiameter, RebarMaterial.B450C);
+            RebarSectionCircular rebar = new RebarSectionCircular(rebarDiameter, SteelMaterial.B450C);
 
             ReinforcedConcreteRebar[] rebars = new ReinforcedConcreteRebar[] {  
                 new ReinforcedConcreteRebar(rebar, new Point2d(50,50)),
@@ -1475,7 +1537,7 @@ namespace ModelObjectTest
                                                                     new Point2d(0, heigth), }));
 
             ShapeEx shapeEx = new ShapeEx(shape, ConcreteMaterialEN1992.C25_30);
-            RebarSectionCircular rebar = new RebarSectionCircular(rebarDiameter, RebarMaterial.B450C);
+            RebarSectionCircular rebar = new RebarSectionCircular(rebarDiameter, SteelMaterial.B450C);
 
             ReinforcedConcreteRebar[] rebars = new ReinforcedConcreteRebar[] {  
                 new ReinforcedConcreteRebar(rebar, new Point3d(50,50,0)),
@@ -1528,7 +1590,7 @@ namespace ModelObjectTest
                                                                         new Point2d(0, heigth), }));
 
             ShapeEx shapeEx = new ShapeEx(shape, ConcreteMaterialEN1992.C25_30);
-            RebarSectionCircular rebar = new RebarSectionCircular(rebarDiameter, RebarMaterial.B450C);
+            RebarSectionCircular rebar = new RebarSectionCircular(rebarDiameter, SteelMaterial.B450C);
 
             ReinforcedConcreteRebar[] rebars = new ReinforcedConcreteRebar[] {  
                 new ReinforcedConcreteRebar(rebar, new Point3d(50,50,0)),
@@ -1675,7 +1737,7 @@ namespace ModelObjectTest
             double diameter = 500;
             double n = 16;
 
-            RebarSectionCircular rebar = new RebarSectionCircular(rebarDiameter, RebarMaterial.B450C);
+            RebarSectionCircular rebar = new RebarSectionCircular(rebarDiameter, SteelMaterial.B450C);
 
             ReinforcedConcreteRebar[] rebars = new ReinforcedConcreteRebar[] {  
                 new ReinforcedConcreteRebar(rebar, new Point2d(450, 250), 0),
@@ -1738,7 +1800,7 @@ namespace ModelObjectTest
             int numberOfRebars = 16;
             double n = 16;
 
-            RebarSectionCircular rebar = new RebarSectionCircular(rebarDiameter, RebarMaterial.B450C);
+            RebarSectionCircular rebar = new RebarSectionCircular(rebarDiameter, SteelMaterial.B450C);
 
             ConcreteSectionCHS section = new ConcreteSectionCHS(diameterExternal, thickness, ConcreteMaterialEN1992.C25_30);
             section.AddRadialRebars(concreteCover, numberOfRebars, rebar);
@@ -1761,7 +1823,7 @@ namespace ModelObjectTest
             int numberOfRebars = 32;
             double n = 16;
             
-            RebarSectionCircular rebar = new RebarSectionCircular(rebarDiameter, RebarMaterial.B450C);
+            RebarSectionCircular rebar = new RebarSectionCircular(rebarDiameter, SteelMaterial.B450C);
 
             ConcreteSectionCHS section = new ConcreteSectionCHS(diameterExternal, thickness, ConcreteMaterialEN1992.C25_30);
             section.AddRadialRebars(concreteCover, numberOfRebars, rebar);

@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using GPC.Model.FEM;
+using GPC.Model.Fem;
 using mnl = MathNet.Numerics.LinearAlgebra;
-using GPC.Model.FEM.FiniteElements;
-using GPC.Model.FEM.Properties;
+using GPC.Model.Fem.FiniteElements;
+using GPC.Model.Fem.Properties;
 using GPC.Model.Materials;
 
 namespace FemTest.SolverTest
@@ -128,14 +128,14 @@ namespace FemTest.SolverTest
 
             Assert.AreEqual(4.0, Tethraedron4.GetVolume(nds.ToArray()));
 
-            SteelMaterial mat = new SteelMaterial("mat", 96.0, 1.0 / 3.0, 355, 510, 7850.0);
+            SteelMaterial mat = new SteelMaterial("mat", 96.0, 1.0 / 3.0, 355, 510.0);
 
             BrickProperty brickProperty = new BrickProperty(mat.GetIsotropicFemMaterial(), "propr");
 
             Tethraedron4 e = new Tethraedron4(nds.ToArray(), brickProperty);
             e.BuildMatrix();
 
-            FEMUtilities.WriteMatrix(e.KElementLocalCoord);
+            FemUtilities.WriteMatrix(e.KElementLocalCoord);
 
             //Local axis == global axis
             for (int r = 0; r < 12; r++)
@@ -195,7 +195,7 @@ namespace FemTest.SolverTest
 
             Assert.AreEqual(0.16666666666666, Tethraedron4.GetVolume(nds.ToArray()), 0.00001);
 
-            SteelMaterial mat = new SteelMaterial("mat", 1.0, 0.0, 355, 510, 7850.0);
+            SteelMaterial mat = new SteelMaterial("mat", 1.0, 0.0, 355, 510.0);
 
             BrickProperty brickProperty = new BrickProperty(mat, "propr");
 

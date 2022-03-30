@@ -1,17 +1,17 @@
 ﻿using System;
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using GPC.Model.FEM.FiniteElements;
+using GPC.Model.Fem.FiniteElements;
 using mnl = MathNet.Numerics.LinearAlgebra;
 using GPC.Model.Materials;
 using GPC.Model.FreedomCases;
 using GPC.Geometry;
-using GPC.Model.FEM.Properties;
-using GPC.Model.FEM.Attributes;
+using GPC.Model.Fem.Properties;
+using GPC.Model.Fem.Attributes;
 using GPC.Model.LoadCases;
 using System.Collections.Generic;
-using GPC.Model.FEM;
-using GPC.Model.FEM.Materials;
+using GPC.Model.Fem;
+using GPC.Model.Fem.Materials;
 
 namespace FemTest.SolverTest
 {
@@ -1132,7 +1132,7 @@ namespace FemTest.SolverTest
             bendingInterlayer = fem0.GetQuad4TLG2InterlayerBending(element, 1);
             var stressInterlayerNode1 = fem0.GetQuad4TLG2InterlayerStress(element, 1);
             var tau = 1.5 * V / (b * h);
-            FEMUtilities.WriteMatrix(stressInterlayerNode1);
+            FemUtilities.WriteMatrix(stressInterlayerNode1);
             Console.WriteLine("theoric = " + tau);
             //Assert.AreEqual(1.0, tau / stressInterlayerNode1, 0.05);
 
@@ -1890,7 +1890,7 @@ namespace FemTest.SolverTest
             double G0 = 0.5173;
             double niGlass = 0.23;
 
-            Material mat = new SteelMaterial("mat", EGlass, niGlass, 355, 510, 7850);
+            Material mat = new SteelMaterial("mat", EGlass, niGlass, 355, 510);
             PlateProperty prop = new PlateProperty(mat.GetIsotropicFemMaterial(), hGlass + hInterlayer + hGlass, hGlass + hInterlayer + hGlass, "p");
 
             List<Node> nodes = new List<Node>();
@@ -1996,7 +1996,7 @@ namespace FemTest.SolverTest
             double G0 = 0.5173;
             double niGlass = 0.23;
 
-            Material mat = new SteelMaterial("mat", EGlass, niGlass, 355, 510, 7850);
+            Material mat = new SteelMaterial("mat", EGlass, niGlass, 355, 510);
             PlateProperty prop = new PlateProperty(mat.GetIsotropicFemMaterial(), hGlass + hInterlayer + hGlass, hGlass + hInterlayer + hGlass, "p");
 
             List<Node> nodes = new List<Node>();
@@ -2156,7 +2156,7 @@ namespace FemTest.SolverTest
             double G0 = 0.5173;
             double niGlass = 0.23;
 
-            Material mat = new SteelMaterial("mat", EGlass, niGlass, 355, 510, 7850);
+            Material mat = new SteelMaterial("mat", EGlass, niGlass, 355, 510);
             PlateProperty prop = new PlateProperty(mat.GetIsotropicFemMaterial(), hGlass + hInterlayer + hGlass, hGlass + hInterlayer + hGlass, "p");
 
             List<Node> nodes = new List<Node>();
@@ -29875,10 +29875,10 @@ namespace FemTest.SolverTest
             Quad4TriplexLaminatedGlass quadrilateral = new Quad4TriplexLaminatedGlass(new Node[] { nodes[4], nodes[5], nodes[6], nodes[7] }, G0, hInterlayer, hGlass, hGlass, EGlass, niGlass);
 
             correct.BuildMatrix();
-            FEMUtilities.WriteMatrix("correct element", correct.KElementLocalCoord, "F3");
+            FemUtilities.WriteMatrix("correct element", correct.KElementLocalCoord, "F3");
 
             quadrilateral.BuildMatrix();
-            FEMUtilities.WriteMatrix(quadrilateral.KElementLocalCoord, "F3");
+            FemUtilities.WriteMatrix(quadrilateral.KElementLocalCoord, "F3");
 
             for (int row = 0; row < correct.KElementLocalCoord.RowCount; row++)
             {
@@ -30081,7 +30081,7 @@ namespace FemTest.SolverTest
 
             //FEMUtilities.WriteMatrix(els[0].KElementGlobalCoord);
 
-            FEMUtilities.WriteMatrix(els[0].KLocalUnordered);
+            FemUtilities.WriteMatrix(els[0].KLocalUnordered);
         }
 
         /// <summary>
@@ -31810,7 +31810,7 @@ namespace FemTest.SolverTest
                 Console.WriteLine(n.Position);
             }
             els[0].BuildMatrix();
-            FEMUtilities.WriteMatrix(els[0].KLocalUnordered);
+            FemUtilities.WriteMatrix(els[0].KLocalUnordered);
 
             CoordinateSystem global = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
 
@@ -32050,9 +32050,9 @@ namespace FemTest.SolverTest
 
             els[0].BuildMatrix();
 
-            FEMUtilities.WriteMatrix("KGlass = ", els[0].KGlass);
-            FEMUtilities.WriteMatrix("Klayer = ", els[0].KLayer, "F5");
-            FEMUtilities.WriteMatrix("Ds = ", els[0].Ds);
+            FemUtilities.WriteMatrix("KGlass = ", els[0].KGlass);
+            FemUtilities.WriteMatrix("Klayer = ", els[0].KLayer, "F5");
+            FemUtilities.WriteMatrix("Ds = ", els[0].Ds);
         }
 
         /// <summary>

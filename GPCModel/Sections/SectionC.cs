@@ -61,6 +61,7 @@ namespace GPC.Model.Sections
                 new Point2d(ThicknessWeb + (LengthBottom - ThicknessWeb) / 2.0, ThicknessBottom / 2.0)});
 
             SetMechanicalProperties();
+            _mesh = GetMesh();
         }
 
         protected SectionC(SerializationInfo info, StreamingContext context)

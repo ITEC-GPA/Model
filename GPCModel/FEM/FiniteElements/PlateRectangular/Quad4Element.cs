@@ -2,12 +2,12 @@
 using System.Collections.Generic;
 using System.Linq;
 using GPC.Geometry;
-using GPC.Model.FEM.Attributes;
-using GPC.Model.FEM.Properties;
+using GPC.Model.Fem.Attributes;
+using GPC.Model.Fem.Properties;
 using GPC.Utilities.Fem;
 using mnl = MathNet.Numerics.LinearAlgebra;
 
-namespace GPC.Model.FEM.FiniteElements
+namespace GPC.Model.Fem.FiniteElements
 {
     public class Quad4Element : Plate
     {
@@ -32,7 +32,7 @@ namespace GPC.Model.FEM.FiniteElements
 
             //kElementGlobal = 4 * 6 = 24
             _membranal = new Quad4GQ12Membranal(nodes);
-            _flexural = new Quad4DK(nodes);            
+            _flexural = new Quad4DK(nodes);
         }
 
         internal Quad4Element(Node[] nodes, PlateProperty property) : this(nodes)
@@ -56,22 +56,22 @@ namespace GPC.Model.FEM.FiniteElements
             //Sum of the stiffness directly in global coordinates
             mnl.Matrix<double> m = _membranal.KElementGlobalCoord;
 
-            #if DEBUG
+#if DEBUG
             //write stiffness matrix of membranal element
             /*Console.WriteLine("membranal component global coordinates:");
             FEMUtilities.WriteMatrix(m);*/
-            #endif
+#endif
 
             mnl.Matrix<double> b = _flexural.KElementGlobalCoord;
 
-            #if DEBUG
+#if DEBUG
             //write stiffness matrix of flexural element
             /*Console.WriteLine("bending component global coordinates:");
             FEMUtilities.WriteMatrix(b);*/
-            #endif
+#endif
 
             _kElementGlobalCoord = mnl.Matrix<double>.Build.Dense(24, 24); //4 nodes x 6 dof = 24
-            _kElementGlobalCoord = m+b; //TODO: check
+            _kElementGlobalCoord = m + b; //TODO: check
 
             /*
             //Add stiffness due to membrane element in the right position
@@ -283,7 +283,7 @@ namespace GPC.Model.FEM.FiniteElements
             //the attribute will add to the 2 finite element, Membrane and Discrete Kirchoff (DK). The attribute will have its impact in each finite element.
             //The nodal forces will be added
             return _membranal.AddLoadCaseAttribute(attribute) && _flexural.AddLoadCaseAttribute(attribute);
-            
+
         }
 
         //TODO: Da ottimizzare/scrivere
@@ -291,7 +291,7 @@ namespace GPC.Model.FEM.FiniteElements
         {
 
             mnl.Vector<double> membranalGlobalDisplacements = mnl.Vector<double>.Build.Dense(3 * 4); //in plane displacement can be in DX, DY, DZ in global coordinates
-            
+
             //node 1
             int startGlobal = 0;
             int startLocal = 0;
@@ -394,12 +394,13 @@ namespace GPC.Model.FEM.FiniteElements
             globalEpsilon = new mnl.Matrix<double>[4 * 3];
             localEpsilon = new mnl.Matrix<double>[4 * 3];
 
-            for (int node = 0; node < 4; node++) {
+            for (int node = 0; node < 4; node++)
+            {
                 for (int r = 0; r < 3; r++)
                 {
                     for (int c = 0; c < 3; c++)
                     {
-                        localPseudoDeformation[node][r,c] = membranalLocalPseudoDisplacements[0][r,c]; //inplane epsilon
+                        localPseudoDeformation[node][r, c] = membranalLocalPseudoDisplacements[0][r, c]; //inplane epsilon
                         globalPseudoDeformation[node][r, c] = membranalGlobalPseudoDisplacements[0][r, c]; //inplane epsilon
 
                         localForces[node][r, c] = membranalLocalForces[0][r, c]; //inplane force
@@ -439,7 +440,7 @@ namespace GPC.Model.FEM.FiniteElements
 
                 //localEpsilon[node + 8] = membranalLocalEpsilon[0] + flexuralLocalEpsilon[node + 3];
                 //globalEpsilon[node + 8] = membranalGlobalEpsilon[0] + flexuralGlobalEpsilon[node +3];
-            }           
+            }
         }
 
         #region PublicStaticFunction
@@ -515,7 +516,7 @@ namespace GPC.Model.FEM.FiniteElements
                     throw new Exception("Points unordered! :");
                 }
             }
-            
+
             return localNodes;
             #endregion
         }
@@ -589,7 +590,8 @@ namespace GPC.Model.FEM.FiniteElements
         /// <returns></returns>
         public static Node[] Get8Nodes(Node[] nodes4)
         {
-            Func<Node, Node, Node> middleNode = (Node n1, Node n2) => {
+            Func<Node, Node, Node> middleNode = (Node n1, Node n2) =>
+            {
 
                 Node n = new Node((n1.Position.X + n2.Position.X) / 2.0, (n1.Position.Y + n2.Position.Y) / 2.0, (n1.Position.Z + n2.Position.Z) / 2.0);
                 return n;

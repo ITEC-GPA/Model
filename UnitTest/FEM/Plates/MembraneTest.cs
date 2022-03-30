@@ -2,15 +2,15 @@
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Collections.Generic;
-using GPC.Model.FEM.FiniteElements;
-using GPC.Model.FEM;
+using GPC.Model.Fem.FiniteElements;
+using GPC.Model.Fem;
 using mnl = MathNet.Numerics.LinearAlgebra;
 using GPC.Model.Elements;
 using GPC.Model.Materials;
 using GPC.Model.FreedomCases;
 using GPC.Geometry;
-using GPC.Model.FEM.Properties;
-using GPC.Model.FEM.Attributes;
+using GPC.Model.Fem.Properties;
+using GPC.Model.Fem.Attributes;
 using GPC.Model.LoadCases;
 
 namespace FemTest.SolverTest
@@ -21,7 +21,7 @@ namespace FemTest.SolverTest
         [TestMethod]
         public void Tri3PlaneStressKTest1()
         {
-            Material mat = new SteelMaterial("steel", 200000.0, 0.2, 355, 510, 7850);
+            Material mat = new SteelMaterial("steel", 200000.0, 0.2, 355, 510);
             PlateProperty prop = new PlateProperty(mat.GetIsotropicFemMaterial(), 0, 1, "p");
 
             Node[] nds = new Node[3];
@@ -65,7 +65,7 @@ namespace FemTest.SolverTest
         [TestMethod]
         public void Tri3PlaneStressKTest2()
         {
-            Material mat = new SteelMaterial("steel", 200000, 0.2, 355, 510, 7850);
+            Material mat = new SteelMaterial("steel", 200000, 0.2, 355, 510);
             PlateProperty prop = new PlateProperty(mat.GetIsotropicFemMaterial(), 0, 1, "p");
 
             Node[] nds = new Node[3];
@@ -102,7 +102,7 @@ namespace FemTest.SolverTest
             LoadCaseBase loadCase = new LoadCaseBase("myLoadCase", new Guid());
             FreedomCase freedomCase = new FreedomCase("freedomCase1");
 
-            Material mat = new SteelMaterial("steel", 200000, 0.2, 355, 510, 7850);
+            Material mat = new SteelMaterial("steel", 200000, 0.2, 355, 510);
             PlateProperty prop = new PlateProperty(mat.GetIsotropicFemMaterial(), 0, 1, "p");
 
             CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
@@ -187,7 +187,7 @@ namespace FemTest.SolverTest
         [TestMethod]
         public void Quad4MembranalTest1()
         {
-            Material mat = new SteelMaterial("steel", 1.0, 0.0, 355, 510, 7850);
+            Material mat = new SteelMaterial("steel", 1.0, 0.0, 355, 510);
             PlateProperty prop = new PlateProperty(mat.GetIsotropicFemMaterial(), 0, 1, "p");
 
             Node[] nds = new Node[4];
@@ -241,7 +241,7 @@ namespace FemTest.SolverTest
         [TestMethod]
         public void Quad4MembranalTest2()
         {
-            Material mat = new SteelMaterial("steel", 1.0, 0.0, 355, 510, 7850);
+            Material mat = new SteelMaterial("steel", 1.0, 0.0, 355, 510);
             PlateProperty prop = new PlateProperty(mat.GetIsotropicFemMaterial(), 0, 1, "p");
 
             Node[] nds = new Node[4];
@@ -295,7 +295,7 @@ namespace FemTest.SolverTest
         [TestMethod]
         public void Quad4MembranalTest3()
         {
-            Material mat = new SteelMaterial("steel", 1.0, 0.0, 355, 510, 7850);
+            Material mat = new SteelMaterial("steel", 1.0, 0.0, 355, 510);
             PlateProperty prop = new PlateProperty(mat.GetIsotropicFemMaterial(), 0, 1, "p");
 
             Node[] nds = new Node[4];
@@ -349,7 +349,7 @@ namespace FemTest.SolverTest
         [TestMethod]
         public void Quad4MembranalTest4()
         {
-            Material mat = new SteelMaterial("steel", 1.0, 0.0, 355, 510, 7850);
+            Material mat = new SteelMaterial("steel", 1.0, 0.0, 355, 510);
             PlateProperty prop = new PlateProperty(mat.GetIsotropicFemMaterial(), 0, 1, "p");
 
             Node[] nds = new Node[4];
@@ -412,7 +412,7 @@ namespace FemTest.SolverTest
         {
             double E = 1.0;
             double ni = 0.0;
-            Material mat = new SteelMaterial("steel", E, ni, 355, 510, 7850);
+            Material mat = new SteelMaterial("steel", E, ni, 355, 510);
 
             double thickness = 1.0;
             PlateProperty prop = new PlateProperty(mat.GetIsotropicFemMaterial(), thickness, thickness, "p");

@@ -2,16 +2,16 @@
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Collections.Generic;
-using GPC.Model.FEM.FiniteElements;
-using GPC.Model.FEM;
+using GPC.Model.Fem.FiniteElements;
+using GPC.Model.Fem;
 using mnl = MathNet.Numerics.LinearAlgebra;
 using GPC.Model.Materials;
 using GPC.Model.FreedomCases;
 using GPC.Geometry;
-using GPC.Model.FEM.Properties;
-using GPC.Model.FEM.Attributes;
+using GPC.Model.Fem.Properties;
+using GPC.Model.Fem.Attributes;
 using GPC.Model.LoadCases;
-using GPC.Model.FEM.Materials;
+using GPC.Model.Fem.Materials;
 
 namespace FemTest.SolverTest
 {
@@ -46,7 +46,7 @@ namespace FemTest.SolverTest
         {
             double E = 1.0;
             double ni = 0.0;
-            Material mat = new SteelMaterial("mat", E, ni, 355, 510, 7850);
+            Material mat = new SteelMaterial("mat", E, ni, 355, 510);
             PlateProperty prop = new PlateProperty(mat.GetIsotropicFemMaterial(), 0, 1, "p");
 
             Node[] nds = new Node[4];
@@ -59,7 +59,7 @@ namespace FemTest.SolverTest
             nds.ToList().ForEach(x => {
                 i++;
                 Console.WriteLine("B signed in Node " + i);
-                FEMUtilities.WriteMatrix(Quad4QFSUQMembranal.BMatrix(x.Position.X, x.Position.Y, nds));
+                FemUtilities.WriteMatrix(Quad4QFSUQMembranal.BMatrix(x.Position.X, x.Position.Y, nds));
                 }
             );
         }
@@ -70,7 +70,7 @@ namespace FemTest.SolverTest
         {
             double E = 1.0;
             double ni = 0.0;
-            Material mat = new SteelMaterial("mat", E, ni, 355, 510, 7850);
+            Material mat = new SteelMaterial("mat", E, ni, 355, 510);
             PlateProperty prop = new PlateProperty(mat.GetIsotropicFemMaterial(), 0, 1, "p");
 
             Node[] nds = new Node[4];
@@ -94,7 +94,7 @@ namespace FemTest.SolverTest
 
             for (int i = 0; i < Lm.Count; i++)
             {
-                FEMUtilities.WriteMatrix(Lm[i] - Lm2[i]);
+                FemUtilities.WriteMatrix(Lm[i] - Lm2[i]);
             }
         }
             
@@ -103,7 +103,7 @@ namespace FemTest.SolverTest
         {
             double E = 1.0;
             double ni = 0.0;
-            Material mat = new SteelMaterial("mat", E, ni, 355, 510, 7850);
+            Material mat = new SteelMaterial("mat", E, ni, 355, 510);
             PlateProperty prop = new PlateProperty(mat.GetIsotropicFemMaterial(), 0, 1, "p");
 
             mnl.Matrix<double> D = IsotropicFemMaterial.GetMatrixPlaneStress(E, ni);
@@ -122,7 +122,7 @@ namespace FemTest.SolverTest
             {
                 //M = M + Quad4QFSUQMembranal.MMatrix(pts[i].Point.X, pts[i].Point.Y, D, nds).Inverse();
             }
-            FEMUtilities.WriteMatrix(M,"F3");
+            FemUtilities.WriteMatrix(M,"F3");
         }
 
         /// <summary>
@@ -134,7 +134,7 @@ namespace FemTest.SolverTest
         {
             double E = 1.0;
             double ni = 0.0;
-            Material mat = new SteelMaterial("mat", E, ni, 355, 510, 7850);
+            Material mat = new SteelMaterial("mat", E, ni, 355, 510);
             PlateProperty prop = new PlateProperty(mat.GetIsotropicFemMaterial(), 0, 1, "p");
 
             Node[] nds = new Node[4];
@@ -157,7 +157,7 @@ namespace FemTest.SolverTest
             k1 = el.KElementGlobalCoord;
 
             Console.WriteLine("k1 ");
-            FEMUtilities.WriteMatrix(k1, "F3");
+            FemUtilities.WriteMatrix(k1, "F3");
 
             //Console.WriteLine("k2 Correct = ");
             //Util.WriteMatrix(k2, "F3");
@@ -201,7 +201,7 @@ namespace FemTest.SolverTest
         {
             double E = 1.0;
             double ni = 0.0;
-            Material mat = new SteelMaterial("mat", E, ni, 355, 510, 7850);
+            Material mat = new SteelMaterial("mat", E, ni, 355, 510);
             PlateProperty prop = new PlateProperty(mat.GetIsotropicFemMaterial(), 0, 1, "p");
 
             List<Node> nds = new List<Node>();
@@ -256,7 +256,7 @@ namespace FemTest.SolverTest
         {
             double E = 1.0;
             double ni = 0.0;
-            Material mat = new SteelMaterial("mat", E, ni, 355, 510, 7850);
+            Material mat = new SteelMaterial("mat", E, ni, 355, 510);
             PlateProperty prop = new PlateProperty(mat, 0, 1);
 
             List<Node> nds = new List<Node>();
@@ -306,7 +306,7 @@ namespace FemTest.SolverTest
         {
             double E = 30000.0;
             double ni = 0.25;
-            Material mat = new SteelMaterial("steel", E, ni, 355, 510, 7850);
+            Material mat = new SteelMaterial("steel", E, ni, 355, 510);
 
             double thickness = 1.0;
             PlateProperty prop = new PlateProperty(mat, thickness, thickness);
@@ -365,7 +365,7 @@ namespace FemTest.SolverTest
         {
             double E = 30000.0;
             double ni = 0.25;
-            Material mat = new SteelMaterial("steel", E, ni, 355, 510, 7850);
+            Material mat = new SteelMaterial("steel", E, ni, 355, 510);
 
             double thickness = 1.0;
             PlateProperty prop = new PlateProperty(mat.GetIsotropicFemMaterial(), thickness, thickness, "p");
@@ -442,7 +442,7 @@ namespace FemTest.SolverTest
         {
             double E = 30000.0;
             double ni = 0.25;
-            Material mat = new SteelMaterial("steel", E, ni, 355, 510, 7850);
+            Material mat = new SteelMaterial("steel", E, ni, 355, 510);
 
             double thickness = 1.0;
             PlateProperty prop = new PlateProperty(mat.GetIsotropicFemMaterial(), thickness, thickness, "p");
@@ -531,7 +531,7 @@ namespace FemTest.SolverTest
         {
             double E = 30000.0;
             double ni = 0.25;
-            Material mat = new SteelMaterial("steel", E, ni, 355, 510, 7850);
+            Material mat = new SteelMaterial("steel", E, ni, 355, 510);
 
             double thickness = 1.0;
             PlateProperty prop = new PlateProperty(mat.GetIsotropicFemMaterial(), thickness, thickness, "p");
@@ -642,7 +642,7 @@ namespace FemTest.SolverTest
         {
             double E = 100.0;
             double ni = 0.0;
-            Material mat = new SteelMaterial("mat", E, ni, 355, 510, 7850);
+            Material mat = new SteelMaterial("mat", E, ni, 355, 510);
 
             double thickness = 1.0;
             PlateProperty prop = new PlateProperty(mat.GetIsotropicFemMaterial(), thickness, thickness, "p");
@@ -729,7 +729,7 @@ namespace FemTest.SolverTest
         {
             double E = 100.0;
             double ni = 0.0;
-            Material mat = new SteelMaterial("mat", E, ni, 355, 510, 7850);
+            Material mat = new SteelMaterial("mat", E, ni, 355, 510);
 
             double thickness = 1.0;
             PlateProperty prop = new PlateProperty(mat.GetIsotropicFemMaterial(), thickness, thickness, "p");
@@ -815,7 +815,7 @@ namespace FemTest.SolverTest
         {
             double E = 100.0;
             double ni = 0.0;
-            Material mat = new SteelMaterial("mat", E, ni, 355, 510, 7850);
+            Material mat = new SteelMaterial("mat", E, ni, 355, 510);
 
             double thickness = 1.0;
             PlateProperty prop = new PlateProperty(mat.GetIsotropicFemMaterial(), thickness, thickness, "p");
@@ -917,7 +917,7 @@ namespace FemTest.SolverTest
         {
             double E = 100.0;
             double ni = 0.0;
-            Material mat = new SteelMaterial("mat", E, ni, 355, 510, 7850);
+            Material mat = new SteelMaterial("mat", E, ni, 355, 510);
 
             double thickness = 1.0;
             PlateProperty prop = new PlateProperty(mat.GetIsotropicFemMaterial(), thickness, thickness, "p");

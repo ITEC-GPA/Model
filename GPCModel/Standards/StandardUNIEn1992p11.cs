@@ -14,7 +14,20 @@ namespace GPC.Model.Standards
         /// <summary>
         /// Default Constructor
         /// </summary>
+        public StandardUNIEn1992p11(string name = "UNI EN 1992-1-1", string remarks = "Eurocode 2: Design of concrete structures - Part 1-1: General rules and rules for buildings. UNI EN 1992-1-1:2005")
+            : base(name, remarks)
+        {
+
+        }
+
+        public StandardUNIEn1992p11(string name = "UNI EN 1992-1-1")
+            : this(name, "Eurocode 2: Design of concrete structures - Part 1-1: General rules and rules for buildings. UNI EN 1992-1-1:2005")
+        {
+
+        }
+
         public StandardUNIEn1992p11()
+            : this("UNI EN 1992-1-1", "Eurocode 2: Design of concrete structures - Part 1-1: General rules and rules for buildings. UNI EN 1992-1-1:2005")
         {
 
         }
@@ -27,9 +40,8 @@ namespace GPC.Model.Standards
 
         public override bool Equals(object obj)
 		{
-			return obj is StandardUNIEn1992p11 p &&
-				   base.Equals(obj);
-		}
+			return obj is StandardUNIEn1992p11 standard && base.Equals(standard);
+        }
 
 		public override int GetHashCode()
 		{

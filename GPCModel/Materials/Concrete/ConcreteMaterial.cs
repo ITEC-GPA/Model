@@ -12,56 +12,27 @@ namespace GPC.Model.Materials
     [Serializable]
     public abstract class ConcreteMaterial : Material, ISerializable
     {
-		#region Public Enum
-
-		[TypeConverter(typeof(EnumDescriptionTypeConverter))]
-        public enum CompressionStressStrainDiagrams
-        {
-            [Description("Parabola-Rectangle")]
-            ParabolaRectangle,
-
-            [Description("Bilinear")]
-            Bilinear,
-
-            [Description("Stress Block")]
-            StressBlock,
-
-            [Description("Generic")]
-            Generic,
-
-            [Description("Non Linear")]
-            NonLinear,
-
-            Invalid = -1,
-        }
+        #region Public Enum        
 
         [TypeConverter(typeof(EnumDescriptionTypeConverter))]
-        public enum TensionStressStrainDiagrams
+        public enum ConcreteTypes
         {
-            [Description("Linear")]
-            Linear,
+            [Description("Normal")]
+            Normal,
 
-            [Description("Bilinear")]
-            Bilinear,
-
-            [Description("Rigid-Plastic")]
-            RigidPlastic,
-
-            [Description("Generic")]
-            Generic,
+            [Description("Fiber-Reinforced")]
+            FRC,
         }
 
-		#endregion
+        #endregion
 
-		#region Variables
+        #region Variables
 
-		protected StressStrainTable _stressStrainTableCompression;
+        protected StressStrainTable _stressStrainTableCompression;
         protected StressStrainTable _stressStrainTableTension;
 
         protected double _elasticModulusTension;
-
-        protected CompressionStressStrainDiagrams _compressionStressStrainDiagrams;
-        protected TensionStressStrainDiagrams _tensionStressStrainDiagrams;
+        protected ConcreteTypes _concreteType;
 
         #endregion
 
@@ -83,12 +54,16 @@ namespace GPC.Model.Materials
         public double ElasticModulusTension => _elasticModulusTension;
 
         /// <summary>
-        /// The compression stress-strain relationship 
+        /// Type of concrete
         /// </summary>
-        public virtual CompressionStressStrainDiagrams CompressionStressStrainDiagram
+        public ConcreteTypes ConcreteType
         {
-            get;
-            set;
+            get => _concreteType;
+            set
+            {
+                SetConcreteType(value);
+                RecalculateMechanicalProperties();                
+            }
         }
 
         #endregion
@@ -133,9 +108,35 @@ namespace GPC.Model.Materials
             _elasticModulusTension = info.GetDouble("ElasticModulusTension");
         }
 
-		#endregion
+        #endregion
 
-		#region Public Methods
+        #region Public abstract Methods
+
+        public abstract double CalculateDesignStressConcrete(Standards.Standard standard, double strain);
+
+        public abstract double CalculateFcd(Standards.Standard standard);
+
+        public abstract double CalculateFctd(Standards.Standard standard);
+
+        public abstract double CalculateFcdAccidental(Standards.Standard standard);
+
+        public abstract double CalculateFctdAccidental(Standards.Standard standard);
+
+        public abstract double CalculateECd(Standards.Standard standard);
+
+
+        #endregion
+
+        #region Public Methods
+
+        /// <summary>
+        /// Override if you want to validate the value before assign it
+        /// </summary>
+        /// <param name="concreteType">The value to assign</param>
+        public virtual void SetConcreteType(ConcreteTypes concreteType)
+        {
+            _concreteType = concreteType;
+        }
 
 		/// <returns>The characteristic stress related to <paramref name="strain"/></returns>
 		public double GetStress(double strain)
@@ -153,18 +154,13 @@ namespace GPC.Model.Materials
         protected virtual void RecalculateMechanicalProperties()
 		{
 
-		}
-
-		public virtual bool IsFiberReinforced() 
-        { 
-            return false; 
         }
 
-		#endregion
+        #endregion
 
-		#region Equals - hashcode - operators
+        #region Equals - hashcode - operators
 
-		public override void GetObjectData(SerializationInfo info, StreamingContext context)
+        public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             base.GetObjectData(info, context);
             info.AddValue("TableCompression", _stressStrainTableCompression);
@@ -195,10 +191,6 @@ namespace GPC.Model.Materials
                 return hashCode;
             }
         }
-
-		#endregion
-
-		#region Public Operator
 
 		public static bool operator ==(ConcreteMaterial obj1, ConcreteMaterial obj2)
         {

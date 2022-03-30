@@ -1,10 +1,10 @@
 ﻿using System;
 using GPC.Geometry;
-using GPC.Model.FEM.Properties;
-using GPC.Model.FEM.Attributes;
+using GPC.Model.Fem.Attributes;
+using GPC.Model.Fem.Properties;
 using mnl = MathNet.Numerics.LinearAlgebra;
 
-namespace GPC.Model.FEM.FiniteElements
+namespace GPC.Model.Fem.FiniteElements
 {
     public class Tri3PlaneStress : Plate, IEquatable<Tri3PlaneStress>
     {
@@ -30,7 +30,7 @@ namespace GPC.Model.FEM.FiniteElements
         }
 
         /// <summary>
-        /// This constructor to be used ONLY for debugging purpose. Use <see cref="FiniteElement.SetProperty(ElementProperty)"/> or <see cref="FEMObject.SetId(int)"/> instead
+        /// This constructor to be used ONLY for debugging purpose. Use <see cref="FiniteElement.SetProperty(ElementProperty)"/>  instead
         /// </summary>
         internal Tri3PlaneStress(Node[] nodes, PlateProperty property) : this(nodes)
         {
@@ -54,7 +54,7 @@ namespace GPC.Model.FEM.FiniteElements
             Node node1 = localNodes[0];
             Node node2 = localNodes[1];
             Node node3 = localNodes[2];
-            
+
             _dofGlobalToLocal = mnl.Matrix<double>.Build.Dense(6, 9);
             mnl.Matrix<double> dofGlobalToLocalTranspose = mnl.Matrix<double>.Build.Dense(9, 6);
 
@@ -192,10 +192,10 @@ namespace GPC.Model.FEM.FiniteElements
                     //Pressure --> node force
                     Vector3d f = new Vector3d(px * _areaElement / 3.0, py * _areaElement / 3.0, pz * _areaElement / 3.0); //force applied in each node
 
-                    for (int i = 0; i < _fLocalCoord.Count; i=i+2)
+                    for (int i = 0; i < _fLocalCoord.Count; i = i + 2)
                     {
                         _fLocalCoord[i] = f.X;
-                        _fLocalCoord[i+1] = f.Y;
+                        _fLocalCoord[i + 1] = f.Y;
                     }
                 }
             }
@@ -207,7 +207,7 @@ namespace GPC.Model.FEM.FiniteElements
         {
             localDisplacements = GetLocalDisplacement(globalDisplacementsNodes);
             mnl.Vector<double> vecLocalDispl = mnl.Vector<double>.Build.Dense(localDisplacements);
-        
+
             #region CalculationOfStressAndDeformationsInLocalCoordinates
             mnl.Vector<double> epsilonLocal = GetB() * vecLocalDispl; //epsilon_xx; epsilon_yy; epsilon_xy
             mnl.Vector<double> stressLocal = D * epsilonLocal; //sigma_xx; sigma_yy; tau_xy
@@ -271,7 +271,7 @@ namespace GPC.Model.FEM.FiniteElements
             double thickness = ((PlateProperty)_property).MembraneThickness;
             globalForces = new mnl.Matrix<double>[1] { thickness * stressGlobalCouchy };
             localForces = new mnl.Matrix<double>[1] { thickness * stressLocalCouchy };
-                        
+
             globalEpsilon = new mnl.Matrix<double>[1] { epsilonGlobalCouchy };
             localEpsilon = new mnl.Matrix<double>[1] { stressGlobalCouchy };
         }

@@ -13,7 +13,7 @@ namespace GPC.Model.Sections.Rebar
     {
         #region Properties
 
-        public RebarMaterial RebarMaterial => (RebarMaterial)_material;
+        public SteelMaterial RebarMaterial => (SteelMaterial)_material;
 
         #endregion
 
@@ -27,7 +27,7 @@ namespace GPC.Model.Sections.Rebar
         /// <param name="width"></param>
         /// <param name="rebarMaterial">The material</param>
         /// <param name="id">The unique id</param>
-        public RebarSectionRectangular(string name, double height, double width, RebarMaterial rebarMaterial, int id = IDUNASSIGNED)
+        public RebarSectionRectangular(string name, double height, double width, SteelMaterial rebarMaterial, int id = IDUNASSIGNED)
             : base(height, width, rebarMaterial, name)
         {
             _id = id;

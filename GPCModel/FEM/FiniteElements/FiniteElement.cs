@@ -1,22 +1,22 @@
-using System.Collections.Generic;
-using System.Linq;
 using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Linq;
+using System.Runtime.Serialization;
 using GPC.Geometry;
-using GPC.Model.FEM.Properties;
-using GPC.Model.FEM.Attributes;
+using GPC.Model.Fem.Attributes;
+using GPC.Model.Fem.Collections;
+using GPC.Model.Fem.Properties;
 using GPC.Model.Results;
 using mnl = MathNet.Numerics.LinearAlgebra;
-using System.ComponentModel;
-using GPC.Model.FEM.Collections;
-using System.Runtime.Serialization;
 
-namespace GPC.Model.FEM.FiniteElements
+namespace GPC.Model.Fem.FiniteElements
 {
     /// <summary>
     /// Each finite element should derive from this
     /// </summary>
     [Serializable]
-    public abstract class FiniteElement : FEMObject, INotifyPropertyChanged
+    public abstract class FiniteElement : FemObject, INotifyPropertyChanged
     {
         #region Variables
 
@@ -24,12 +24,12 @@ namespace GPC.Model.FEM.FiniteElements
         protected CoordinateSystem _localCoordinateSystem;
         //contains the degree of fredom active foreach node in global coordinates
         protected SortedSet<Solver.DOF> _DOF;
-        
+
         //transformation matrix from local coordinates to global coordinates
         protected mnl.Matrix<double> _dofGlobalToLocal;
         //local stiffness matrix of the element in local coordinates
         protected mnl.Matrix<double> _kElementLocalCoord;
-        
+
         protected AttributesCollection<LoadCaseAttribute> _attributesLoadCase;
         protected AttributesCollection<FreedomCaseAttribute> _attributesFreedomCase;
 
@@ -73,7 +73,8 @@ namespace GPC.Model.FEM.FiniteElements
                 int counter = 0;
                 for (int i = 0; i < DOF.Count(); i++)
                 {
-                    if (DOF.Contains((Solver.DOF)i) == true) {
+                    if (DOF.Contains((Solver.DOF)i) == true)
+                    {
                         counter++;
                     }
                 }
@@ -105,7 +106,7 @@ namespace GPC.Model.FEM.FiniteElements
         /// ke = int [B]^T [D] [B] dV (stiffness matrix in local coordinates)
         /// </summary>
         public mnl.Matrix<double> KElementLocalCoord => _kElementLocalCoord;
-        
+
         public AttributesCollection<LoadCaseAttribute> AttributesLoadCase => _attributesLoadCase;
         public AttributesCollection<FreedomCaseAttribute> AttributesFreedomCase => _attributesFreedomCase;
         public IEnumerable<FiniteElementResult> Results => _results;
@@ -185,7 +186,7 @@ namespace GPC.Model.FEM.FiniteElements
         {
             mnl.Vector<double> _fLocalCoord = BuildFLocalCoord();
             mnl.Vector<double> F = DofGlobalToLocal.Transpose() * _fLocalCoord;
-            
+
             return F;
         }
 
@@ -219,7 +220,7 @@ namespace GPC.Model.FEM.FiniteElements
         public mnl.Vector<double> GetInternalLocalForces(double[] localDisplacementsNodes)
         {
             return GetInternalNodalLocalForces(mnl.Vector<double>.Build.Dense(localDisplacementsNodes));
-        }       
+        }
         #endregion
 
         #region GetLocalDisplacement
@@ -269,7 +270,7 @@ namespace GPC.Model.FEM.FiniteElements
                 {
                     hashCode = hashCode * 17 + EqualityComparer<Node>.Default.GetHashCode(node);
                 }
-                return hashCode; 
+                return hashCode;
             }
         }
 

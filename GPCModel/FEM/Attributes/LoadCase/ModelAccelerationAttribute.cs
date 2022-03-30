@@ -1,13 +1,13 @@
-﻿using GPC.Model.LoadCases;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.Text;
 using System.Threading.Tasks;
 using GPC.Geometry;
+using GPC.Model.LoadCases;
 
-namespace GPC.Model.FEM.Attributes
+namespace GPC.Model.Fem.Attributes
 {
     /// <summary>
     /// Represent an acceleration attribute of the <see cref="FemModel"/>
@@ -28,7 +28,7 @@ namespace GPC.Model.FEM.Attributes
         /// Acceleration along the axis: <see cref="CoordinateSystem.V3"/> [L/T^2]
         /// </summary>
         public double A3 { get; set; }
-        public CoordinateSystem CoordinateSystem { get; set;  }
+        public CoordinateSystem CoordinateSystem { get; set; }
 
 
         /// <remarks>This constructor set the <see cref="ModelAccelerationAttribute.CoordinateSystem"/> to <see cref="CoordinateSystem.Global"/> </remarks>
@@ -64,7 +64,7 @@ namespace GPC.Model.FEM.Attributes
         /// <param name="a1">Acceleration along the axis: <see cref="CoordinateSystem.V1"/> [L/T^2]</param>
         /// <param name="a2">Acceleration along the axis: <see cref="CoordinateSystem.V2"/> [L/T^2]</param>
         /// <param name="a3">Acceleration along the axis: <see cref="CoordinateSystem.V3"/> [L/T^2]</param>
-        public ModelAccelerationAttribute(string loadCaseName, CoordinateSystem coordinateSystem, double a1, double a2, double a3) 
+        public ModelAccelerationAttribute(string loadCaseName, CoordinateSystem coordinateSystem, double a1, double a2, double a3)
             : base(loadCaseName)
         {
             CoordinateSystem = coordinateSystem ?? throw new ArgumentNullException();
@@ -83,10 +83,10 @@ namespace GPC.Model.FEM.Attributes
         public ModelAccelerationAttribute(string loadCaseName, double a1, double a2, double a3) : this(loadCaseName, CoordinateSystem.Global, a1, a2, a3) { }
 
 
-        public ModelAccelerationAttribute(ModelAccelerationAttribute loadCaseAttribute) 
+        public ModelAccelerationAttribute(ModelAccelerationAttribute loadCaseAttribute)
             : this(loadCaseAttribute.LoadCaseName, loadCaseAttribute.CoordinateSystem, loadCaseAttribute.A3, loadCaseAttribute.A1, loadCaseAttribute.A2)
         {
-            
+
         }
 
         public override object Clone()

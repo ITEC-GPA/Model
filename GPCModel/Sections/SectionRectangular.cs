@@ -5,6 +5,7 @@ using System.Runtime.Serialization;
 using System.Text;
 using System.Threading.Tasks;
 using GPC.Geometry;
+using GPC.Geometry.Meshes;
 using GPC.Model.Materials;
 
 namespace GPC.Model.Sections
@@ -56,6 +57,9 @@ namespace GPC.Model.Sections
             _angle = angle;
 
             SetMechanicalProperties();
+
+            _mesh = new Mesh();
+            _mesh.AddFaceMesh(GetShape().Fill.ToArray());
         }
 
         /// <summary>

@@ -6,10 +6,10 @@ using System.Runtime.Serialization;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace GPC.Model.FEM
+namespace GPC.Model.Fem
 {
     /// <summary>
-    /// This class to be used to group some <see cref="FEMObject"/> togethers.
+    /// This class to be used to group some <see cref="FemObject"/> togethers.
     /// </summary>
     [DebuggerDisplay("{" + nameof(GetDebuggerDisplay) + "(),nq}")]
     public sealed class Group : ModelObjectId, IEquatable<Group>
@@ -22,7 +22,7 @@ namespace GPC.Model.FEM
 
         }
 
-        public Group(SerializationInfo info, StreamingContext context)
+        protected Group(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
 
@@ -56,14 +56,6 @@ namespace GPC.Model.FEM
 
         public static bool operator ==(Group obj1, Group obj2)
         {
-            if (obj1 is null)
-            {
-                return obj2 is null;
-            }
-
-            if (ReferenceEquals(obj1, obj2))
-                return true;
-
             return obj1.Equals(obj2);
         }
 

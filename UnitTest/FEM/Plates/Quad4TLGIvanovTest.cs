@@ -1,17 +1,17 @@
 ﻿using System;
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using GPC.Model.FEM.FiniteElements;
+using GPC.Model.Fem.FiniteElements;
 using mnl = MathNet.Numerics.LinearAlgebra;
 using GPC.Model.Materials;
 using GPC.Model.FreedomCases;
 using GPC.Geometry;
-using GPC.Model.FEM.Properties;
-using GPC.Model.FEM.Attributes;
+using GPC.Model.Fem.Properties;
+using GPC.Model.Fem.Attributes;
 using GPC.Model.LoadCases;
 using System.Collections.Generic;
-using GPC.Model.FEM;
-using GPC.Model.FEM.Materials;
+using GPC.Model.Fem;
+using GPC.Model.Fem.Materials;
 
 namespace FemTest.SolverTest
 {
@@ -222,26 +222,26 @@ namespace FemTest.SolverTest
             e0.BuildMatrix();
 
             var m = e0.GetNMatrix(0, 0);
-            FEMUtilities.WriteMatrix(m);
+            FemUtilities.WriteMatrix(m);
 
             Assert.AreEqual(1.0, m[0,0], 0.001);
             Assert.AreEqual(1.0,  m[1,1], 0.001);
             Assert.AreEqual(1.0, m[2,2], 0.001);
 
             m = e0.GetNMatrix(2, 0);
-            FEMUtilities.WriteMatrix(m);
+            FemUtilities.WriteMatrix(m);
             Assert.AreEqual(1.0, m[0, 6], 0.001);
             Assert.AreEqual(1.0, m[1, 7], 0.001);
             Assert.AreEqual(1.0, m[2, 8], 0.001);
 
             m = e0.GetNMatrix(2, 2);
-            FEMUtilities.WriteMatrix(m);
+            FemUtilities.WriteMatrix(m);
             Assert.AreEqual(1.0, m[0, 12], 0.001);
             Assert.AreEqual(1.0, m[1, 13], 0.001);
             Assert.AreEqual(1.0, m[2, 14], 0.001);
 
             m = e0.GetNMatrix(0, 2);
-            FEMUtilities.WriteMatrix(m);
+            FemUtilities.WriteMatrix(m);
             Assert.AreEqual(1.0, m[0, 18], 0.001);
             Assert.AreEqual(1.0, m[1, 19], 0.001);
             Assert.AreEqual(1.0, m[2, 20], 0.001);
@@ -2042,7 +2042,7 @@ namespace FemTest.SolverTest
             double G0 = 0.5173;
             double niGlass = 0.23;
 
-            Material mat = new SteelMaterial("mat", EGlass, niGlass, 355, 510, 7850);
+            Material mat = new SteelMaterial("mat", EGlass, niGlass, 355, 510);
             PlateProperty prop = new PlateProperty(mat.GetIsotropicFemMaterial(), hGlass + hInterlayer + hGlass, hGlass + hInterlayer + hGlass, "p");
 
             #region nodes
@@ -2144,7 +2144,7 @@ namespace FemTest.SolverTest
             double G0 = 0.5173;
             double niGlass = 0.23;
 
-            Material mat = new SteelMaterial("mat", EGlass, niGlass, 355, 510, 7850);
+            Material mat = new SteelMaterial("mat", EGlass, niGlass, 355, 510);
             PlateProperty prop = new PlateProperty(mat.GetIsotropicFemMaterial(), hGlass + hInterlayer + hGlass, hGlass + hInterlayer + hGlass, "p");
 
             #region nodes
@@ -2297,7 +2297,7 @@ namespace FemTest.SolverTest
             double G0 = 0.5173;
             double niGlass = 0.23;
 
-            Material mat = new SteelMaterial("mat", EGlass, niGlass, 355, 510, 7850);
+            Material mat = new SteelMaterial("mat", EGlass, niGlass, 355, 510);
             PlateProperty prop = new PlateProperty(mat.GetIsotropicFemMaterial(), hGlass + hInterlayer + hGlass, hGlass + hInterlayer + hGlass, "p");
 
             #region nodes

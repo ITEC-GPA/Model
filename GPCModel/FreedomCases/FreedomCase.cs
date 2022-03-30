@@ -16,7 +16,7 @@ namespace GPC.Model.FreedomCases
         {
         }
 
-        public FreedomCase(SerializationInfo info, StreamingContext context)
+        protected FreedomCase(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
         }

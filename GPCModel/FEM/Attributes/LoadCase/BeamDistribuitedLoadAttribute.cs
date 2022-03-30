@@ -1,14 +1,13 @@
-﻿
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.Text;
 using System.Threading.Tasks;
-using GPC.Model.LoadCases;
 using GPC.Geometry;
+using GPC.Model.LoadCases;
 
-namespace GPC.Model.FEM.Attributes
+namespace GPC.Model.Fem.Attributes
 {
     public class BeamDistribuitedLoadAttribute : LoadCaseAttribute, IBeamLoadCaseAttribute, IEquatable<BeamDistribuitedLoadAttribute>, ISerializable
     {
@@ -22,16 +21,16 @@ namespace GPC.Model.FEM.Attributes
 
         #region properties
         public double Q1 => _q1;
-                          
+
         public double Q2 => _q2;
-                         
+
         public double Q3 => _q3;
         public CoordinateSystem CoordinateSystem => _coordinateSystem;
 
         #endregion
 
 
-        public BeamDistribuitedLoadAttribute(string loadCaseName, double q1, double q2, double q3, CoordinateSystem coordinateSystem = null) 
+        public BeamDistribuitedLoadAttribute(string loadCaseName, double q1, double q2, double q3, CoordinateSystem coordinateSystem = null)
             : this(loadCaseName, q1, q2, q3, string.Empty, Guid.NewGuid(), coordinateSystem)
         {
 
@@ -75,13 +74,13 @@ namespace GPC.Model.FEM.Attributes
         }
 
 
-        public BeamDistribuitedLoadAttribute(SerializationInfo info, StreamingContext context) 
+        public BeamDistribuitedLoadAttribute(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
             _q1 = info.GetDouble("q1");
             _q2 = info.GetDouble("q2");
             _q3 = info.GetDouble("q3");
-            _coordinateSystem = (CoordinateSystem) info.GetValue("sys", typeof(CoordinateSystem));
+            _coordinateSystem = (CoordinateSystem)info.GetValue("sys", typeof(CoordinateSystem));
         }
 
 

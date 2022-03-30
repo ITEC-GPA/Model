@@ -8,7 +8,7 @@ using GPC.Geometry;
 using GPC.Model.FreedomCases;
 using GPC.Model.Restrains;
 
-namespace GPC.Model.FEM.Attributes
+namespace GPC.Model.Fem.Attributes
 {
     public class NodeStiffnessAttribute : FreedomCaseAttribute, ISerializable, IEquatable<NodeStiffnessAttribute>, INodeFreedomCaseAttribute
     {
@@ -26,13 +26,13 @@ namespace GPC.Model.FEM.Attributes
 
         }
 
-        public NodeStiffnessAttribute(string freedomCaseName, CoordinateSystem coordinateSystem, string name) 
+        public NodeStiffnessAttribute(string freedomCaseName, CoordinateSystem coordinateSystem, string name)
             : this(freedomCaseName, coordinateSystem, name, Guid.NewGuid())
         {
 
         }
 
-        public NodeStiffnessAttribute(string freedomCaseName, CoordinateSystem coordinateSystem, string name, Guid guid) 
+        public NodeStiffnessAttribute(string freedomCaseName, CoordinateSystem coordinateSystem, string name, Guid guid)
             : base(freedomCaseName, name, guid)
         {
             _stiffness = new List<DofRestrain>();
@@ -47,7 +47,7 @@ namespace GPC.Model.FEM.Attributes
         }
 
 
-        protected NodeStiffnessAttribute(SerializationInfo info, StreamingContext context) 
+        protected NodeStiffnessAttribute(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
             _stiffness = (List<DofRestrain>)info.GetValue("stiffnesses", typeof(List<DofRestrain>));

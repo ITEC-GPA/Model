@@ -1,12 +1,12 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using GPC.Geometry;
-using GPC.Model.FEM.Properties;
-using GPC.Model.FEM.Attributes;
+using GPC.Model.Fem.Attributes;
+using GPC.Model.Fem.Properties;
 using mnl = MathNet.Numerics.LinearAlgebra;
-using System.Collections.Generic;
 
-namespace GPC.Model.FEM.FiniteElements
+namespace GPC.Model.Fem.FiniteElements
 {
     /// <summary>
     /// A conforming triangular plate element with rotationa degrees of freedom - 2014 - Xiang-Rong Fu - Ming-Wu Yuan - Chen Pu
@@ -39,7 +39,7 @@ namespace GPC.Model.FEM.FiniteElements
             //[18x18]          [18x9]         [9x9]     [9x18]
         }
 
-        internal Tri3TR3RDOFMembrane(Node[] nodes, PlateProperty property) :this(nodes)
+        internal Tri3TR3RDOFMembrane(Node[] nodes, PlateProperty property) : this(nodes)
         {
             SetProperty(property);
         }
@@ -66,7 +66,7 @@ namespace GPC.Model.FEM.FiniteElements
             _localNodes = Tri3Element.GetLocalNodes(_nodesGlobal, out _localCoordinateSystem); //take global node and transform in local nodes
             Console.WriteLine("Element Local Nodes");
             _localNodes.ToList().ForEach(x => Console.WriteLine(x));
-            
+
             _dofGlobalToLocal = mnl.Matrix<double>.Build.Dense(9, 18);
             mnl.Matrix<double> dofGlobalToLocalTranspose = mnl.Matrix<double>.Build.Dense(18, 9);
 
@@ -94,7 +94,7 @@ namespace GPC.Model.FEM.FiniteElements
             dofGlobalToLocalTranspose[4, 2] = localZ.DotProduct(globalY);
             dofGlobalToLocalTranspose[5, 2] = localZ.DotProduct(globalZ);
             #endregion
-            
+
             #region localToGlobalNode2
             //local node2 x-displacement in global coordinate
             dofGlobalToLocalTranspose[6, 3] = localX.DotProduct(globalX);
@@ -146,8 +146,8 @@ namespace GPC.Model.FEM.FiniteElements
             #region stiffnessMatrixInLocalCoordinates
             /*_areaElement = 0.5 * ((-_localNodes[1 - 1].Position.X + _localNodes[2 - 1].Position.X) * (-_localNodes[1 - 1].Position.Y + _localNodes[3 - 1].Position.Y)
                                        -(-_localNodes[1 - 1].Position.X + _localNodes[3 - 1].Position.X) * (-_localNodes[1 - 1].Position.Y + _localNodes[2 - 1].Position.Y));*/
-            
-            
+
+
 
             //calculation of kelement using gauss quadrature
             _kElementLocalCoord = mnl.Matrix<double>.Build.Dense(9, 9);
@@ -404,9 +404,9 @@ namespace GPC.Model.FEM.FiniteElements
             globalStress = stressGlobalCouchy;
 
             double thickness = ((PlateProperty)_property).MembraneThickness;
-            globalForces = stressGlobalCouchy.Select(stressGlobalCouchyElement => thickness * stressGlobalCouchyElement).ToArray() ;
+            globalForces = stressGlobalCouchy.Select(stressGlobalCouchyElement => thickness * stressGlobalCouchyElement).ToArray();
             localForces = stressLocalCouchy.Select(stressLocalCouchyElement => thickness * stressLocalCouchyElement).ToArray();
-                        
+
             globalEpsilon = epsilonGlobalCouchy;
             localEpsilon = stressGlobalCouchy;
         }

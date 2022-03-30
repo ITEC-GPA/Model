@@ -1,5 +1,5 @@
 ﻿
-namespace GPC.Model.FEM.Attributes
+namespace GPC.Model.Fem.Attributes
 {
     public interface INodeLoadCaseAttribute
     {

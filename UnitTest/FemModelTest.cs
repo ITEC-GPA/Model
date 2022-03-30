@@ -9,18 +9,18 @@ using GPC.Model.Loads;
 using GPC.Model.LoadCases;
 using GPC.Model.Combinations;
 using GPC.Model.FreedomCases;
-using GPC.Model.FEM;
-using GPC.Model.FEM.Properties;
-using GPC.Model.FEM.Attributes;
-using GPC.Model.FEM.Materials;
-using GPC.Model.FEM.FiniteElements;
+using GPC.Model.Fem;
+using GPC.Model.Fem.Properties;
+using GPC.Model.Fem.Attributes;
+using GPC.Model.Fem.Materials;
+using GPC.Model.Fem.FiniteElements;
 using GPC.Model.Restrains;
 using GPC.Model.Results;
 using System.Diagnostics;
 using System.Linq;
 using GPC.TestUtilities;
 using GPC.Model.Sections;
-using GPC.Model.FEM.Collections;
+using GPC.Model.Fem.Collections;
 using GPC.Model.Sections.Concrete;
 
 namespace FemTest
@@ -592,12 +592,12 @@ namespace FemTest
 
             Stopwatch stopWatch = new Stopwatch();
             stopWatch.Start();
-            int r1 = femModel.AddCostrain(new GPC.Model.FEM.Costrains.RigidLink(new Node(0, 0, 0), new Node(0, 0, 1)));
+            int r1 = femModel.AddCostrain(new GPC.Model.Fem.Costrains.RigidLink(new Node(0, 0, 0), new Node(0, 0, 1)));
             stopWatch.Stop();
             Debug.WriteLine(stopWatch.ElapsedMilliseconds, "R1");
 
             stopWatch.Restart();
-            int r2 = femModel.AddCostrain(new GPC.Model.FEM.Costrains.RigidLink(new Node(0, 0, 1), new Node(0, 0, 2)));
+            int r2 = femModel.AddCostrain(new GPC.Model.Fem.Costrains.RigidLink(new Node(0, 0, 1), new Node(0, 0, 2)));
             stopWatch.Stop();
             Debug.WriteLine(stopWatch.ElapsedMilliseconds, "R2");
         }
@@ -680,10 +680,10 @@ namespace FemTest
             //Arrange
             FemModel femModel = new FemModel();
 
-            ConcreteMaterialEN1992 concreteMaterial1 = new ConcreteMaterialEN1992("", 25, ConcreteMaterialModelCode2010.CompressionStressStrainDiagrams.Bilinear);
-            ConcreteMaterialEN1992 concreteMaterial2 = new ConcreteMaterialEN1992("", 25, ConcreteMaterialModelCode2010.CompressionStressStrainDiagrams.Bilinear);
-            ConcreteMaterialEN1992 concreteMaterial3 = new ConcreteMaterialEN1992("", 25, ConcreteMaterialModelCode2010.CompressionStressStrainDiagrams.Bilinear);
-            ConcreteMaterialEN1992 concreteMaterial4 = new ConcreteMaterialEN1992("", 25, ConcreteMaterialModelCode2010.CompressionStressStrainDiagrams.Bilinear);
+            ConcreteMaterialEN1992 concreteMaterial1 = new ConcreteMaterialEN1992("", 25, ConcreteMaterialEuropeanCommon.CompressionStressStrainDiagrams.Bilinear);
+            ConcreteMaterialEN1992 concreteMaterial2 = new ConcreteMaterialEN1992("", 25, ConcreteMaterialEuropeanCommon.CompressionStressStrainDiagrams.Bilinear);
+            ConcreteMaterialEN1992 concreteMaterial3 = new ConcreteMaterialEN1992("", 25, ConcreteMaterialEuropeanCommon.CompressionStressStrainDiagrams.Bilinear);
+            ConcreteMaterialEN1992 concreteMaterial4 = new ConcreteMaterialEN1992("", 25, ConcreteMaterialEuropeanCommon.CompressionStressStrainDiagrams.Bilinear);
 
             ConcreteSectionCHS sectionCHS1 = new ConcreteSectionCHS(500, 10, concreteMaterial1, "1");
             ConcreteSectionCHS sectionCHS2 = new ConcreteSectionCHS(500, 10, concreteMaterial2, "2");

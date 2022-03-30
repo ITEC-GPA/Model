@@ -30,17 +30,17 @@ namespace GPC.Model
             _collection = (ICollection<T>)info.GetValue("Collection", typeof(ICollection<T>));
         }
 
-		#endregion
+        #endregion
 
-		#region Public Methods
+        #region Public Methods
 
-		/// <inheritdoc cref="ICollection{T}.Add(T)"/>
-		public virtual bool Add(T item)
+        /// <inheritdoc cref="ICollection{T}.Add(T)"/>
+        public virtual bool Add(T item)
         {
             lock (_locker)
             {
                 _collection.Add(item);
-                return true; 
+                return true;
             }
         }
 
@@ -59,6 +59,6 @@ namespace GPC.Model
             info.AddValue("Collection", _collection);
         }
 
-		#endregion
-	}
+        #endregion
+    }
 }

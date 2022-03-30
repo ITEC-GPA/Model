@@ -1,20 +1,20 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
-using GPC.Geometry;
-using GPC.Model.FEM.Attributes;
-using GPC.Utilities.Extensions;
-using GPC.Model.Results;
 using System.ComponentModel;
-using GPC.Model.FEM.Collections;
 using System.Runtime.Serialization;
+using GPC.Geometry;
+using GPC.Model.Fem.Attributes;
+using GPC.Model.Fem.Collections;
+using GPC.Model.Results;
+using GPC.Utilities.Extensions;
 
-namespace GPC.Model.FEM
+namespace GPC.Model.Fem
 {
     /// <summary>
     /// Rapresent a Node of a <see cref="FiniteElements.FiniteElement"/>
     /// </summary>
     [Serializable]
-    public class Node : FEMObject, INotifyPropertyChanged
+    public class Node : FemObject, INotifyPropertyChanged
     {
         #region Variables
 
@@ -37,6 +37,7 @@ namespace GPC.Model.FEM
             get => _position.Clone() as Point3d;
             set
             {
+                // Il set aggiorna la posizione del nodo nella nodecollection tramite il propertyChanged
                 if (!_position.Equals(value))
                 {
                     _position = value;
@@ -60,7 +61,7 @@ namespace GPC.Model.FEM
                     if (DOF.Contains((LinearSolver.DOF)i) == true)
                     {
                         ris++;
-                    }  
+                    }
                 }
                 return ris;
             }
@@ -72,20 +73,20 @@ namespace GPC.Model.FEM
 
         #endregion
 
-        public Node(Point3d point, string name = "") 
+        public Node(Point3d point, string name = "")
             : base(name)
         {
             _position = point;
-            
+
             DOF = new SortedSet<Solver.DOF>();
-            
+
             _attributesLoadCase = new AttributesCollection<LoadCaseAttribute>();
             _attributesFreedomCase = new AttributesCollection<FreedomCaseAttribute>();
 
             _results = new ModelObjectSet<NodeResult>(EqualityComparer<ElementResult>.Default); // comparer di ElementResult, usa solo il case come comparatore
         }
 
-        public Node(double X, double Y, double Z, string name = "") 
+        public Node(double X, double Y, double Z, string name = "")
             : this(new Point3d(X, Y, Z), name)
         {
         }
@@ -94,7 +95,7 @@ namespace GPC.Model.FEM
         /// Internal constructor, that allows to add a group directly during construction to speedup femmodel build
         /// </summary>
         // Do not set this constructor to public
-        internal Node(Point3d point, Group group) 
+        internal Node(Point3d point, Group group)
             : this(point, "")
         {
             _groups.Add(group);
@@ -103,22 +104,22 @@ namespace GPC.Model.FEM
         /// <summary>
         /// only for test purpose
         /// </summary>
-        internal Node(Point3d point, int id) 
+        internal Node(Point3d point, int id)
             : this(point)
         {
-            SetId(id);
+            Id = id;
         }
 
         /// <summary>
         /// only for test purpose
         /// </summary>
-        internal Node(double X, double Y, double Z, string name, int id) 
+        internal Node(double X, double Y, double Z, string name, int id)
             : this(new Point3d(X, Y, Z), name)
         {
-            SetId(id);
+            Id = id;
         }
 
-        public Node(SerializationInfo info, StreamingContext context)
+        protected Node(SerializationInfo info, StreamingContext context)
         {
             _position = (Point3d)info.GetValue("Position", typeof(Point3d));
             _results = (ModelObjectSet<NodeResult>)info.GetValue("Result", typeof(ModelObjectSet<NodeResult>));
@@ -163,13 +164,13 @@ namespace GPC.Model.FEM
 
         public Node Duplicate()
         {
-            Node duplicate = new Node(new Point3d(Position.X, Position.Y, Position.Z), this.Name)
+            Node duplicate = new Node(new Point3d(Position.X, Position.Y, Position.Z), Name)
             {
                 DOF = DOF
             };
 
-            duplicate.SetId(Id);
-            
+            duplicate.Id = Id;
+
             foreach (INodeFreedomCaseAttribute attribute in _attributesFreedomCase)
             {
                 duplicate.AddAttribute(attribute);
@@ -221,7 +222,7 @@ namespace GPC.Model.FEM
                 }
 
                 return hashCode;
-            }            
+            }
         }
 
     }

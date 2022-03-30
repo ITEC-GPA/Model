@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace GPC.Model.FEM 
+namespace GPC.Model.Fem
 {
     public class Solver : ModelObject
     {

@@ -50,7 +50,7 @@ namespace GPC.Model.Materials
         /// <param name="alfaThermalExpansion"> Thermal expansion constant</param>
         /// <param name="guid"></param>
         /// <param name="density"> Density [T/mm^3]</param>
-        public Material(string name, double elasticModulus, double poisson, double density, double alfaThermalExpansion, Guid guid) 
+        public Material(string name, double elasticModulus, double poisson, double density, double alfaThermalExpansion, Guid guid)
             : base(guid, name)
         {
             _elasticModulus = elasticModulus < 0 ? throw new ArgumentException($"{nameof(elasticModulus)} cannot be lower than zero") : elasticModulus;
@@ -61,22 +61,22 @@ namespace GPC.Model.Materials
             _ni = poisson < 0 ? throw new ArgumentException($"Poisson cannot be lower than zero") : poisson;
 
             _alfaThermalExpansion = alfaThermalExpansion < 0 ? throw new ArgumentException($"{nameof(alfaThermalExpansion)} cannot be lower than zero") : alfaThermalExpansion;
-            
+
             _density = density < 0 ? throw new ArgumentException($"{nameof(density)} cannot be lower than zero") : density;
         }
 
-        public Material(string name, double elasticModulus, double ni, Guid guid) 
+        public Material(string name, double elasticModulus, double ni, Guid guid)
             : this(name, elasticModulus, ni, 0, 0, guid)
-        { 
+        {
         }
 
         protected Material(string name)
-			: base(Guid.NewGuid(), name)
-		{
-            
-		}
+            : base(Guid.NewGuid(), name)
+        {
 
-        protected Material(SerializationInfo info, StreamingContext context) 
+        }
+
+        protected Material(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
             _alfaThermalExpansion = info.GetDouble("AlfaThermalExpansion");
@@ -85,30 +85,36 @@ namespace GPC.Model.Materials
             _ni = info.GetDouble("Ni");
         }
 
-		#endregion
+        #endregion
 
-		#region Public Methods
+        #region Public Methods
 
-		public virtual double GetShearModule()
+        public virtual double GetShearModule()
         {
             return E / (2.0 * (1.0 + Ni));
         }
 
-        public virtual FEM.Materials.IsotropicFemMaterial GetIsotropicFemMaterial()
+        public virtual Fem.Materials.IsotropicFemMaterial GetIsotropicFemMaterial()
         {
             throw new NotImplementedException("");
         }
 
-        public virtual FEM.Materials.OrthotropicFemMaterial GetOrthotropicFemMaterial()
+        public virtual Fem.Materials.OrthotropicFemMaterial GetOrthotropicFemMaterial()
         {
             throw new NotImplementedException("");
         }
 
-		#endregion
+        public void SetName(string name)
+        {
+            if (name != null)
+                _name = name;
+        }
 
-		#region Equals - HashCode - Operators
+        #endregion
 
-		public override void GetObjectData(SerializationInfo info, StreamingContext context)
+        #region Equals - HashCode - Operators
+
+        public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             base.GetObjectData(info, context);
             info.AddValue("AlfaThermalExpansion", _alfaThermalExpansion);
@@ -139,7 +145,7 @@ namespace GPC.Model.Materials
                 hashCode = hashCode * -17 + _ni.GetHashCode();
                 hashCode = hashCode * -17 + _alfaThermalExpansion.GetHashCode();
                 hashCode = hashCode * -17 + _density.GetHashCode();
-                return hashCode; 
+                return hashCode;
             }
         }
 

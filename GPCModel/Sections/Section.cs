@@ -5,8 +5,8 @@ using System.Runtime.Serialization;
 using GPC.Geometry;
 using GPC.Geometry.Meshes;
 using GPC.Model.Elements;
-using GPC.Model.FEM.Materials;
-using GPC.Model.FEM.Properties;
+using GPC.Model.Fem.Materials;
+using GPC.Model.Fem.Properties;
 using GPC.Model.Materials;
 
 namespace GPC.Model.Sections
@@ -323,7 +323,7 @@ namespace GPC.Model.Sections
         /// <exception cref="ArgumentException">If the input data are not correct</exception>
         /// <remarks>Axis convention: X-axes is the Y-axes for Eurocode and Y-axes is the Z-axes for Eurocode
         /// If the X-axes is principal, the first moment of inertia is J11, If the Y-axes is principal, the first moment of inertia is J22</remarks>
-        public Section(Material material, double area, double j11, double j22, double jt, double jw, 
+        public Section(Material material, double area, double j11, double j22, double jt, double jw,
             Point2d centroid, Point3d shearCenter, double angle, string name)
             : base(name)
         {
@@ -467,9 +467,9 @@ namespace GPC.Model.Sections
             _jp = _jxx + _jyy;
             _jt = CalculateJt();
             _jw = CalculateJw();
-            
+
             _shearCenter = CalculateShearCenter();
-            
+
             _wel1Max = CalculateWel1Max();
             _wel1Min = CalculateWel1Min();
             _wel2Max = CalculateWel2Max();

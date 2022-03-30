@@ -1,8 +1,8 @@
-﻿using MathNet.Numerics.LinearAlgebra;
-using System;
+﻿using System;
 using System.Runtime.Serialization;
+using MathNet.Numerics.LinearAlgebra;
 
-namespace GPC.Model.FEM.Materials
+namespace GPC.Model.Fem.Materials
 {
     [Serializable]
     public class IsotropicFemMaterial : FemMaterial
@@ -27,7 +27,7 @@ namespace GPC.Model.FEM.Materials
         /// <remarks>If <paramref name="E"/> is zero, it will be setted to <see cref="FemOptions.ZeroElasticModulus"/>
         /// <para><see cref="G"/> is calculated from <paramref name="E"/> and <paramref name="ni"/></para></remarks>
         /// <exception cref="ArgumentException"></exception>
-        public IsotropicFemMaterial(double E, double ni, double alpha, double density) 
+        public IsotropicFemMaterial(double E, double ni, double alpha, double density)
             : base(string.Empty, density)
         {
             _e = E < FemOptions.Instance.ZeroElasticModulus ? FemOptions.Instance.ZeroElasticModulus : E;
@@ -35,14 +35,14 @@ namespace GPC.Model.FEM.Materials
             _ni = ni < 0 || ni >= 0.5 ? throw new ArgumentException($"Poisson cannot be greater equal than 0.5 or lower than 0") : ni;
 
             _alpha = alpha < 0 ? throw new ArgumentException($"Linear thermal expansion coefficient cannot be lower than zero") : alpha;
-                        
+
             _g = E / (2.0 * (1.0 + ni));
 
             if (_g < 0)
                 throw new ArgumentException($"Shear modulus cannot be lower than zero");
         }
 
-        public IsotropicFemMaterial(SerializationInfo info, StreamingContext context) 
+        protected IsotropicFemMaterial(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
             _e = info.GetDouble("E");
@@ -62,12 +62,12 @@ namespace GPC.Model.FEM.Materials
 
         public override Matrix<double> GetPlaneStress()
         {
-            return GetMatrixPlaneStress(_e,_ni);
+            return GetMatrixPlaneStress(_e, _ni);
         }
 
         public override Matrix<double> Get3DSolidStress()
         {
-            return GetBrickD(_e,_ni);
+            return GetBrickD(_e, _ni);
         }
 
         #region Matematica

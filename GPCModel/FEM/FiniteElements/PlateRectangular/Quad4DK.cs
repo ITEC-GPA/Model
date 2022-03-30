@@ -1,13 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using GPC.Geometry;
-using GPC.Model.FEM.Attributes;
-using GPC.Model.FEM.Materials;
-using GPC.Model.FEM.Properties;
+using GPC.Model.Fem.Attributes;
+using GPC.Model.Fem.Materials;
+using GPC.Model.Fem.Properties;
 using GPC.Utilities.Fem;
 using mnl = MathNet.Numerics.LinearAlgebra;
 
-namespace GPC.Model.FEM.FiniteElements
+namespace GPC.Model.Fem.FiniteElements
 {
     /// <summary>
     /// Discrete Kirchoff Rectangular - Evaluation of new quadrilateral thin plate bending element - Jean-Louis Batoz
@@ -235,7 +235,7 @@ namespace GPC.Model.FEM.FiniteElements
         {
             #region matrixD
             double tb = ((PlateProperty)_property).BendingThickness;
-            
+
             _d = (_property as PlateProperty).Material.GetPlaneStress();
 
             _d = Math.Pow(tb, 3.0) / (12.0) * _d; //flexural rigidity
@@ -248,7 +248,7 @@ namespace GPC.Model.FEM.FiniteElements
                 return b.Transpose() * _d * b;
             }
 
-            var jacob = FEMUtilities.J2D(Quad4Element.GetdNdCsi, Quad4Element.GetdNdEta, _nodesLocal);
+            var jacob = FemUtilities.J2D(Quad4Element.GetdNdCsi, Quad4Element.GetdNdEta, _nodesLocal);
 
             _kElementLocalCoord = OldGaussIntegration.IntegrationQuadrilateral(bTdb, jacob, 4);
             #endregion
@@ -291,7 +291,7 @@ namespace GPC.Model.FEM.FiniteElements
                     double pz = attribute.P1 * dirX.DotProduct(z) + attribute.P2 * dirY.DotProduct(z) + attribute.P3 * dirZ.DotProduct(z);
 
                     //equation 18
-                    mnl.Matrix<double> wDotp (double csi, double eta)
+                    mnl.Matrix<double> wDotp(double csi, double eta)
                     {
                         mnl.Matrix<double> wp = mnl.Matrix<double>.Build.Dense(4, 1);
                         wp[0, 0] = Quad4Element.GetShapeFunction(1, csi, eta) * pz;
@@ -302,13 +302,13 @@ namespace GPC.Model.FEM.FiniteElements
                         return wp;
                     }
 
-                    var jacob = FEMUtilities.J2D(Quad4Element.GetdNdCsi, Quad4Element.GetdNdEta, _nodesLocal);
+                    var jacob = FemUtilities.J2D(Quad4Element.GetdNdCsi, Quad4Element.GetdNdEta, _nodesLocal);
                     var f = OldGaussIntegration.IntegrationQuadrilateral(wDotp, jacob, 4);
 
-                    _fLocalCoord[0] = f[0,0]; //node1
-                    _fLocalCoord[3] = f[1,0]; //node2
-                    _fLocalCoord[6] = f[2,0]; //node3
-                    _fLocalCoord[9] = f[3,0]; //node4
+                    _fLocalCoord[0] = f[0, 0]; //node1
+                    _fLocalCoord[3] = f[1, 0]; //node2
+                    _fLocalCoord[6] = f[2, 0]; //node3
+                    _fLocalCoord[9] = f[3, 0]; //node4
                 }
             }
             return _fLocalCoord;
@@ -358,7 +358,7 @@ namespace GPC.Model.FEM.FiniteElements
             mnl.Vector<double> r0 = j11 * hxCsi + j12 * hxEta;
             mnl.Vector<double> r1 = j21 * hyCsi + j22 * hyEta;
             mnl.Vector<double> r2 = j11 * hyCsi + j12 * hyEta + j21 * hxCsi + j22 * hxEta;
-                       
+
             mnl.Matrix<double> b = mnl.Matrix<double>.Build.DenseOfRowVectors(r0, r1, r2);
             return b;
         }
@@ -411,13 +411,16 @@ namespace GPC.Model.FEM.FiniteElements
                 if (deriv == "")
                 {
                     return (double csi, double eta) => QuadraticShapeFunctionQuad8.NaturalShapeFunction(i, csi, eta);
-                } else if (deriv == "csi")
+                }
+                else if (deriv == "csi")
                 {
                     return (double csi, double eta) => QuadraticShapeFunctionQuad8.DNdCsi(i, csi, eta);
-                } else if (deriv == "eta")
+                }
+                else if (deriv == "eta")
                 {
                     return (double csi, double eta) => QuadraticShapeFunctionQuad8.DNdEta(i, csi, eta);
-                } else
+                }
+                else
                 {
                     throw new ArgumentOutOfRangeException();
                 }
@@ -487,7 +490,7 @@ namespace GPC.Model.FEM.FiniteElements
                             index1 = indexes1[1];
                             index2 = indexes2[1];
                             index3 = indexes3[1];
-                            return H3x(index1, index2, index3);  
+                            return H3x(index1, index2, index3);
 
                         case 7:
                             index2 = indexes2[2];
@@ -532,7 +535,7 @@ namespace GPC.Model.FEM.FiniteElements
                             index3 = indexes3[0];
                             return H2y(index1, index2, index3);
                         case 3:
-                            
+
                             index2 = indexes2[0];
                             index3 = indexes3[0];
                             return H3y(index2, index3);
@@ -574,7 +577,7 @@ namespace GPC.Model.FEM.FiniteElements
                             index2 = indexes2[3];
                             index3 = indexes3[3];
                             return H2y(index1, index2, index3);
-                        case 12:                            
+                        case 12:
                             index2 = indexes2[3];
                             index3 = indexes3[3];
                             return H3y(index2, index3);
