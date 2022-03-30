@@ -29,7 +29,7 @@ namespace GPC.Model.Fem.Properties
             _loadDuration = loadDuration > 0 ? loadDuration : throw new ArgumentException("Temperature can not be lower or equal to zero");
         }
 
-        protected InterlayerBrickProperty(SerializationInfo info, StreamingContext context) : base(info, context)
+        private InterlayerBrickProperty(SerializationInfo info, StreamingContext context) : base(info, context)
         {
             _temperature = (double)info.GetValue("Temperature", typeof(double));
             _loadDuration = (double)info.GetValue("LoadDuration", typeof(double));
