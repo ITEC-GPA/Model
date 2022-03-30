@@ -195,6 +195,7 @@
     <Compile Include="FemNew\FemOptions.cs" />
     <Compile Include="FemNew\Stage.cs" />
     <Compile Include="FemNew\Attributes\AttributeEqualityComparer.cs" />
+    <Compile Include="FemNew\Attributes\LoadCase\PlateNormalPressureAttribute.cs" />
     <Compile Include="Glasses\AirChamber.cs" />
     <Compile Include="Glasses\Glass.cs" />
     <Compile Include="Glasses\IGlassPackage.cs" />
@@ -219,7 +220,6 @@
     <!-- <Compile Include="FemOld\Attributes\FreedomCase\NodeRestrainAttribute.cs" /> -->
     <!-- <Compile Include="FemOld\Attributes\FreedomCase\NodeStiffnessAttribute.cs" /> -->
     <!-- <Compile Include="FemOld\Attributes\LoadCase\NodeForceAttribute.cs" /> -->
-    <!-- <Compile Include="FemOld\Attributes\LoadCase\PlateNormalPressureAttribute.cs" /> -->
     <!-- <Compile Include="FemOld\Attributes\LoadCase\BeamDistribuitedLoadAttribute.cs" /> -->
     <!-- <Compile Include="FemOld\Costrain\Costrain.cs" /> -->
     <!-- <Compile Include="FemOld\FiniteElements\PlateTriangle\Tri3Element.cs" /> -->
