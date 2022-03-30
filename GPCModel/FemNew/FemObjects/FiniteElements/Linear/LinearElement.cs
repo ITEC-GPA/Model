@@ -22,18 +22,24 @@ namespace GPC.Model.Fem.FemObjects.FiniteElements
         protected double LocalAngle { get => _localAngle; set => _localAngle = value; }
 
 
-        public LinearElement(Node node1, Node node2)
-            : this(new Node[] { node1, node2 })
+        public Node NodeStart => _nodes[0];
+        public Node NodeEnd => _nodes.Last();
+
+
+
+        public LinearElement(Node nodeStart, Node nodeEnd)
+            : base(new Node[] { nodeStart, nodeEnd })
         {
-            if (node1 is null)
+            if (nodeStart is null)
             {
-                throw new ArgumentNullException(nameof(node1));
+                throw new ArgumentNullException(nameof(nodeStart));
             }
 
-            if (node2 is null)
+            if (nodeEnd is null)
             {
-                throw new ArgumentNullException(nameof(node2));
+                throw new ArgumentNullException(nameof(nodeEnd));
             }
+
         }
 
 

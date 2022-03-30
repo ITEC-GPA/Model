@@ -40,6 +40,8 @@ namespace GPC.Model.Fem.FemObjects.FiniteElements
         //contains the nodes in global coordinates
         protected Node[] _nodes;
 
+        protected NodalDegreeOfFreedom[] _nodalDegreeOfFreedoms;
+
         ////contains the nodes in local coordinates
         //protected Node[] _nodesLocal;
 
@@ -118,20 +120,27 @@ namespace GPC.Model.Fem.FemObjects.FiniteElements
         /// <param name="nodes">Nodes of the element</param>
         internal FiniteElement(Node[] nodes) 
         {
-            _nodes = nodes ?? throw new ArgumentNullException(nameof(nodes));
-            
+            _nodes = nodes ?? throw new ArgumentNullException(nameof(nodes));            
             if (nodes.Select(i => i == null).Count() > 0)
                 throw new ArgumentNullException(nameof(nodes));
 
 
-            //_DOF = new SortedSet<Solver.DOF>();
+            _nodalDegreeOfFreedoms = GetNodalDegreeOfFreedom();
+
+            if (_nodalDegreeOfFreedoms == null)
+                throw new ArgumentNullException(nameof(_nodalDegreeOfFreedoms));
+
+            if (_nodalDegreeOfFreedoms.Select(i => i == null).Count() > 0)
+                throw new ArgumentNullException(nameof(_nodalDegreeOfFreedoms));
+            
+
             _attributesLoadCase = new AttributesCollection<LoadCaseAttribute>();
             _attributesFreedomCase = new AttributesCollection<FreedomCaseAttribute>();
 
             //_results = new ModelObjectSet<FiniteElementResult>(EqualityComparer<ElementResult>.Default); // comparer di ElementResult, usa solo il case come comparatore
         }
 
-        public FiniteElement(SerializationInfo info, StreamingContext context)
+        protected FiniteElement(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
             //_results = (ModelObjectSet<FiniteElementResult>)info.GetValue("Result", typeof(ModelObjectSet<FiniteElementResult>));
@@ -198,6 +207,8 @@ namespace GPC.Model.Fem.FemObjects.FiniteElements
         /// Build Stiffness Matrix etc
         /// </summary>
         public abstract void BuildMatrix();
+
+        protected abstract NodalDegreeOfFreedom[] GetNodalDegreeOfFreedom();
 
         #endregion
 

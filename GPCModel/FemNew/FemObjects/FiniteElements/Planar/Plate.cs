@@ -25,6 +25,11 @@ namespace GPC.Model.Fem.FemObjects.FiniteElements
 
         }
 
+        protected override NodalDegreeOfFreedom[] GetNodalDegreeOfFreedom()
+        {
+            throw new NotImplementedException();
+        }
+
         public override void BuildMatrix()
         {
             throw new NotImplementedException();
@@ -39,5 +44,6 @@ namespace GPC.Model.Fem.FemObjects.FiniteElements
         {
             throw new NotImplementedException();
         }
+
     }
 }

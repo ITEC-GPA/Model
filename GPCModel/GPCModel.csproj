@@ -80,6 +80,7 @@
     <Compile Include="Base\UnitsSystem.cs" />
     <Compile Include="Base\Units.cs" />
     <Compile Include="Combinations\CombinationsCollection.cs" />
+    <Compile Include="FemNew\DegreeOfFreedom.cs" />
     <Compile Include="FemNew\FemObjects\FiniteElements\Linear\EulerBeam.cs" />
     <Compile Include="FemNew\FemObjects\FiniteElements\Linear\LinearElement.cs" />
     <Compile Include="FemNew\FemObjects\FiniteElements\Linear\Truss.cs" />
@@ -89,6 +90,7 @@
     <Compile Include="FemNew\FemObjects\FiniteElements\Solid\SolidElement.cs" />
     <Compile Include="FemNew\FemObjects\IFemObjectDuplicable.cs" />
     <Compile Include="FemNew\Collections\AttributesCollection.cs" />
+    <Compile Include="FemNew\NodalDegreeOfFreedom.cs" />
     <Compile Include="Materials\Concrete\ConcreteMaterialACI318-19.cs" />
     <Compile Include="Materials\Concrete\ConcreteMaterialEN1992.cs" />
     <Compile Include="Materials\Concrete\ConcreteMaterialModelCode2010.cs" />

@@ -24,6 +24,29 @@ namespace GPC.Model.Fem.FemObjects.FiniteElements
 
         }
 
+
+        protected override NodalDegreeOfFreedom[] GetNodalDegreeOfFreedom()
+        {
+            NodalDegreeOfFreedom[] nodalDegreeOfFreedoms = new NodalDegreeOfFreedom[12];
+            nodalDegreeOfFreedoms[0] = new NodalDegreeOfFreedom(NodeStart, DegreeOfFreedom.DX);
+            nodalDegreeOfFreedoms[1] = new NodalDegreeOfFreedom(NodeStart, DegreeOfFreedom.DY);
+            nodalDegreeOfFreedoms[2] = new NodalDegreeOfFreedom(NodeStart, DegreeOfFreedom.DZ);
+            nodalDegreeOfFreedoms[3] = new NodalDegreeOfFreedom(NodeStart, DegreeOfFreedom.RX);
+            nodalDegreeOfFreedoms[4] = new NodalDegreeOfFreedom(NodeStart, DegreeOfFreedom.RY);
+            nodalDegreeOfFreedoms[5] = new NodalDegreeOfFreedom(NodeStart, DegreeOfFreedom.RZ);
+
+            nodalDegreeOfFreedoms[6] = new NodalDegreeOfFreedom(NodeEnd, DegreeOfFreedom.DX);
+            nodalDegreeOfFreedoms[7] = new NodalDegreeOfFreedom(NodeEnd, DegreeOfFreedom.DY);
+            nodalDegreeOfFreedoms[8] = new NodalDegreeOfFreedom(NodeEnd, DegreeOfFreedom.DZ);
+            nodalDegreeOfFreedoms[9] = new NodalDegreeOfFreedom(NodeEnd, DegreeOfFreedom.RX);
+            nodalDegreeOfFreedoms[10] = new NodalDegreeOfFreedom(NodeEnd, DegreeOfFreedom.RY);
+            nodalDegreeOfFreedoms[11] = new NodalDegreeOfFreedom(NodeEnd, DegreeOfFreedom.RZ);
+
+
+            return nodalDegreeOfFreedoms;
+        }
+
+
         public override void BuildMatrix()
         {
             throw new NotImplementedException();
