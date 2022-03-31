@@ -95,6 +95,11 @@ namespace GPC.Model.Fem.Properties
 
         public static bool operator ==(PlateProperty obj1, PlateProperty obj2)
         {
+            if (obj1 is null)
+            {
+                return obj2 is null;
+            }
+
             return obj1.Equals(obj2);
         }
 

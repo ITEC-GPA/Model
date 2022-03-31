@@ -64,6 +64,11 @@ namespace GPC.Model.Fem.Properties
 
         public static bool operator ==(MonolithicGlassProperty obj1, MonolithicGlassProperty obj2)
         {
+            if (obj1 is null)
+            {
+                return obj2 is null;
+            }
+
             return obj1.Equals(obj2);
         }
 

@@ -71,6 +71,11 @@ namespace GPC.Model.Fem.Attributes
 
         public static bool operator ==(Attribute obj1, Attribute obj2)
         {
+            if (obj1 is null)
+            {
+                return obj2 is null;
+            }
+
             return obj1.Equals(obj2);
         }
 

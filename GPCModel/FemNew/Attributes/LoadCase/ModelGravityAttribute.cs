@@ -100,11 +100,10 @@ namespace GPC.Model.Fem.Attributes
 
         public static bool operator ==(ModelGravityAttribute obj1, ModelGravityAttribute obj2)
         {
-            if (ReferenceEquals(obj1, obj2))
-                return true;
-
-            if (obj1 is null || obj2 is null)
-                return false;
+            if (obj1 is null)
+            {
+                return obj2 is null;
+            }
 
             return obj1.Equals(obj2);
         }

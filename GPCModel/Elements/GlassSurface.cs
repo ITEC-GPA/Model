@@ -91,9 +91,6 @@ namespace GPC.Model.Elements.Glasses
                 return obj2 is null;
             }
 
-            if (ReferenceEquals(obj1, obj2))
-                return true;
-
             return obj1.Equals(obj2);
         }
 
