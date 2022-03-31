@@ -28,11 +28,6 @@ namespace GPC.Model.Fem.FemObjects.FiniteElements
             throw new NotImplementedException();
         }
 
-        public override void BuildMatrix()
-        {
-            throw new NotImplementedException();
-        }
-
         public override FiniteElement Duplicate(ElementProperty property, List<LoadCaseAttribute> lcAttributes, List<FreedomCaseAttribute> fcAttributes)
         {
             throw new NotImplementedException();

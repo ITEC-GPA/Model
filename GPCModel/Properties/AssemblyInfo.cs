@@ -37,3 +37,5 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyFileVersion("0.1.6.7")]
 
 [assembly: InternalsVisibleTo("UnitTest")]
+[assembly: InternalsVisibleTo("UnitTestFem")]
+[assembly: InternalsVisibleTo("UnitTestFemOld")]

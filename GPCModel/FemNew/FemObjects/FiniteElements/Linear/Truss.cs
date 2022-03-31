@@ -39,11 +39,6 @@ namespace GPC.Model.Fem.FemObjects.FiniteElements
             return nodalDegreeOfFreedoms;
         }
 
-        public override void BuildMatrix()
-        {
-            throw new NotImplementedException();
-        }
-
         public override FiniteElement Duplicate(ElementProperty property, List<LoadCaseAttribute> lcAttributes, List<FreedomCaseAttribute> fcAttributes)
         {
             throw new NotImplementedException();
@@ -54,5 +49,15 @@ namespace GPC.Model.Fem.FemObjects.FiniteElements
             throw new NotImplementedException();
         }
 
+        public override void GetTransformationMatrix()
+        {
+            TransformationMatrix matrix = new TransformationMatrix(GetNodalDegreeOfFreedom());
+
+            var submatrix = _localCoordinateSystem.TrfMatrix.RemoveColumn(3);
+
+            matrix.SetSubMatrix(0, 0, submatrix);
+            matrix.SetSubMatrix(3, 3, submatrix);
+
+        }
     }
 }

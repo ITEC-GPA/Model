@@ -27,6 +27,7 @@ namespace GPC.Model.Fem.FemObjects.FiniteElements
 
         public Section Section => (Section)_property;
 
+
         public LinearElement(Node nodeStart, Node nodeEnd)
             : base(new Node[] { nodeStart, nodeEnd })
         {
@@ -82,6 +83,8 @@ namespace GPC.Model.Fem.FemObjects.FiniteElements
         {
             return _attributesFreedomCase.Add((FreedomCaseAttribute)attribute);
         }
+
+        public abstract void GetTransformationMatrix();
 
     }
 }

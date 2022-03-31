@@ -8,7 +8,6 @@ using GPC.Model.Fem.Attributes;
 using GPC.Model.Fem.Collections;
 using GPC.Model.Fem.Properties;
 using GPC.Model.Results;
-using mnl = MathNet.Numerics.LinearAlgebra;
 
 namespace GPC.Model.Fem.FemObjects.FiniteElements
 {
@@ -23,14 +22,6 @@ namespace GPC.Model.Fem.FemObjects.FiniteElements
         // Local axis of the element
         protected CoordinateSystem _localCoordinateSystem;
 
-        //contains the degree of fredom active foreach node in global coordinates
-        //protected SortedSet<Solver.DOF> _DOF;
-
-        ////transformation matrix from local coordinates to global coordinates
-        //protected mnl.Matrix<double> _dofGlobalToLocal;
-        
-        ////local stiffness matrix of the element in local coordinates
-        //protected mnl.Matrix<double> _kElementLocalCoord;
 
         protected AttributesCollection<LoadCaseAttribute> _attributesLoadCase;
         protected AttributesCollection<FreedomCaseAttribute> _attributesFreedomCase;
@@ -42,8 +33,6 @@ namespace GPC.Model.Fem.FemObjects.FiniteElements
 
         protected NodalDegreeOfFreedom[] _nodalDegreeOfFreedoms;
 
-        ////contains the nodes in local coordinates
-        //protected Node[] _nodesLocal;
 
         //protected readonly ModelObjectSet<FiniteElementResult> _results;
 
@@ -58,59 +47,20 @@ namespace GPC.Model.Fem.FemObjects.FiniteElements
         /// </summary>
         public CoordinateSystem LocalCoordinateSystem => _localCoordinateSystem;
 
-        ///// <summary>
-        ///// Contains the DOF active in the element
-        ///// </summary>
-        //public SortedSet<Solver.DOF> DOF => _DOF;
 
         public ElementProperty Property => _property;
 
-        ///// <summary>
-        ///// Nr of degree of freedom active for each node
-        ///// </summary>
-        //public int NrDOFActive
-        //{
-        //    get
-        //    {
-        //        int counter = 0;
-        //        for (int i = 0; i < DOF.Count(); i++)
-        //        {
-        //            if (DOF.Contains((Solver.DOF)i) == true)
-        //            {
-        //                counter++;
-        //            }
-        //        }
-        //        return counter;
-        //    }
-        //}
 
         /// <summary>
         /// Nodes of the element in global axis
         /// </summary>
         public Node[] Nodes => _nodes;
 
-        ///// <summary>
-        ///// Nodes of the element in local axis
-        ///// </summary>
-        //public Node[] LocalNodes => _nodesLocal;
-
-        ///// <summary>
-        ///// used for KeGlobal = DofGlobalToLocal^T [KeLocal] [DofGlobaltoLocal] or for UlocalCoord = DofGlobalToLocal UglobalCoord; NOTE: DofLocalToGlobal = DofGlobalToLocal^TRASPOSTE
-        ///// </summary>
-        //public mnl.Matrix<double> DofGlobalToLocal => _dofGlobalToLocal;
-
-        ///// <summary>
-        ///// used for KeGlobal = DofGlobalToLocal^T [KeLocal] [DofGlobaltoLocal]
-        ///// </summary>
-        //public virtual mnl.Matrix<double> KElementGlobalCoord => DofGlobalToLocal.Transpose() * KElementLocalCoord * DofGlobalToLocal;
-
-        ///// <summary>
-        ///// ke = int [B]^T [D] [B] dV (stiffness matrix in local coordinates)
-        ///// </summary>
-        //public mnl.Matrix<double> KElementLocalCoord => _kElementLocalCoord;
+        
 
         public AttributesCollection<LoadCaseAttribute> AttributesLoadCase => _attributesLoadCase;
         public AttributesCollection<FreedomCaseAttribute> AttributesFreedomCase => _attributesFreedomCase;
+
         //public IEnumerable<FiniteElementResult> Results => _results;
 
         #endregion
@@ -121,7 +71,7 @@ namespace GPC.Model.Fem.FemObjects.FiniteElements
         internal FiniteElement(Node[] nodes) 
         {
             _nodes = nodes ?? throw new ArgumentNullException(nameof(nodes));            
-            if (nodes.Select(i => i == null).Count() > 0)
+            if (nodes.Where(i => i == null).Count() > 0)
                 throw new ArgumentNullException(nameof(nodes));
 
 
@@ -130,7 +80,7 @@ namespace GPC.Model.Fem.FemObjects.FiniteElements
             if (_nodalDegreeOfFreedoms == null)
                 throw new ArgumentNullException(nameof(_nodalDegreeOfFreedoms));
 
-            if (_nodalDegreeOfFreedoms.Select(i => i == null).Count() > 0)
+            if (_nodalDegreeOfFreedoms.Where(i => i == null).Count() > 0)
                 throw new ArgumentNullException(nameof(_nodalDegreeOfFreedoms));
             
 
@@ -202,11 +152,6 @@ namespace GPC.Model.Fem.FemObjects.FiniteElements
         public abstract FiniteElement Duplicate(ElementProperty property, List<LoadCaseAttribute> lcAttributes, List<FreedomCaseAttribute> fcAttributes);
 
         public abstract FiniteElement Duplicate();
-
-        /// <summary>
-        /// Build Stiffness Matrix etc
-        /// </summary>
-        public abstract void BuildMatrix();
 
         internal abstract NodalDegreeOfFreedom[] GetNodalDegreeOfFreedom();
 
