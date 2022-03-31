@@ -42,8 +42,8 @@
     <Reference Include="GMsh.Net, Version=1.0.495.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\GMsh.Net.1.0.495\lib\netstandard2.0\GMsh.Net.dll</HintPath>
     </Reference>
-    <Reference Include="GPCGeometry, Version=1.1.4.0, Culture=neutral, processorArchitecture=AMD64">
-      <HintPath>..\packages\GPCGeometry.1.1.4\lib\net472\GPCGeometry.dll</HintPath>
+    <Reference Include="GPCGeometry, Version=1.1.4.1, Culture=neutral, processorArchitecture=AMD64">
+      <HintPath>..\packages\GPCGeometry.1.1.4.1\lib\net472\GPCGeometry.dll</HintPath>
     </Reference>
     <Reference Include="GPCUtilities, Version=1.0.32.2, Culture=neutral, processorArchitecture=AMD64">
       <HintPath>..\packages\GPCUtilities.1.0.32.2\lib\net472\GPCUtilities.dll</HintPath>
