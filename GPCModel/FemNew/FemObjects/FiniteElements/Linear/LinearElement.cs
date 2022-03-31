@@ -25,7 +25,7 @@ namespace GPC.Model.Fem.FemObjects.FiniteElements
         public Node NodeStart => _nodes[0];
         public Node NodeEnd => _nodes.Last();
 
-
+        public Section Section => (Section)_property;
 
         public LinearElement(Node nodeStart, Node nodeEnd)
             : base(new Node[] { nodeStart, nodeEnd })
