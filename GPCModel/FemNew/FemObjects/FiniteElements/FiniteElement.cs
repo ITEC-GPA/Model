@@ -208,7 +208,7 @@ namespace GPC.Model.Fem.FemObjects.FiniteElements
         /// </summary>
         public abstract void BuildMatrix();
 
-        protected abstract NodalDegreeOfFreedom[] GetNodalDegreeOfFreedom();
+        internal abstract NodalDegreeOfFreedom[] GetNodalDegreeOfFreedom();
 
         #endregion
 

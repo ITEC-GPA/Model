@@ -25,7 +25,7 @@ namespace GPC.Model.Fem.FemObjects.FiniteElements
 
         }
 
-        protected override NodalDegreeOfFreedom[] GetNodalDegreeOfFreedom()
+        internal override NodalDegreeOfFreedom[] GetNodalDegreeOfFreedom()
         {
             throw new NotImplementedException();
         }

@@ -23,7 +23,7 @@ namespace GPC.Model.Fem.FemObjects.FiniteElements
 
         }
 
-        protected override NodalDegreeOfFreedom[] GetNodalDegreeOfFreedom()
+        internal override NodalDegreeOfFreedom[] GetNodalDegreeOfFreedom()
         {
             int i = 0;
             NodalDegreeOfFreedom[] nodalDegreeOfFreedoms = new NodalDegreeOfFreedom[6];

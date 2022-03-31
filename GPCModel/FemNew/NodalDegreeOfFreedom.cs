@@ -7,7 +7,7 @@ using GPC.Model.Fem.FemObjects;
 
 namespace GPC.Model.Fem
 {
-    public  struct NodalDegreeOfFreedom : IEquatable<NodalDegreeOfFreedom>
+    public struct NodalDegreeOfFreedom : IEquatable<NodalDegreeOfFreedom>
     {
         public DegreeOfFreedom DegreeOfFreedom { get; }
 
