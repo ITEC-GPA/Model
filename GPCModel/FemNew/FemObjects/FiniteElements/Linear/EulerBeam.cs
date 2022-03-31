@@ -58,7 +58,7 @@ namespace GPC.Model.Fem.FemObjects.FiniteElements
             throw new NotImplementedException();
         }
 
-        public override void GetTransformationMatrix()
+        public override TransformationMatrix GetTransformationMatrix()
         {
             TransformationMatrix matrix = new TransformationMatrix(GetNodalDegreeOfFreedom());
 
@@ -69,7 +69,7 @@ namespace GPC.Model.Fem.FemObjects.FiniteElements
             matrix.SetSubMatrix(6, 6, submatrix);
             matrix.SetSubMatrix(9, 9, submatrix);
 
-
+            return matrix;
         }
     }
 }

@@ -4,6 +4,7 @@ using System.Linq;
 using System.Runtime.Serialization;
 using System.Text;
 using System.Threading.Tasks;
+using GPC.Geometry;
 using GPC.Model.Fem.Attributes;
 using GPC.Model.Fem.Properties;
 using GPC.Model.Sections;
@@ -57,11 +58,37 @@ namespace GPC.Model.Fem.FemObjects.FiniteElements
         }
 
 
+        #region Ovverride methods
+
         /// <inheritdoc cref="FiniteElement.SetProperty{T}(T)"/>
         internal override void SetProperty<Section>(Section property)
         {
             base.SetProperty(property);
         }
+
+        protected override CoordinateSystem GetCoordinateSystem()
+        {
+            // usiamo l'orientamento di Straus
+            
+            Vector3d v3 = new Vector3d(NodeStart.Position, NodeEnd.Position);
+
+            Vector3d v2;
+            if (v3.DotProduct(Vector3d.ZAxis) < FemOptions.Instance.ToleranceLocalAxis)
+            {
+                v2 = Vector3d.YAxis;
+            }
+            else
+            {
+                v2 = Vector3d.ZAxis ^ v3;
+            }
+
+            var coordinateSystem = new CoordinateSystem(NodeStart.Position, v3, v2);
+            coordinateSystem.RotateV3(_localAngle);
+
+            return coordinateSystem;
+        } 
+
+        #endregion
 
 
         public virtual bool AddLoadCaseAttribute(IBeamLoadCaseAttribute attribute, out bool replace)
@@ -84,7 +111,7 @@ namespace GPC.Model.Fem.FemObjects.FiniteElements
             return _attributesFreedomCase.Add((FreedomCaseAttribute)attribute);
         }
 
-        public abstract void GetTransformationMatrix();
+        public abstract TransformationMatrix GetTransformationMatrix();
 
     }
 }

@@ -76,6 +76,7 @@ namespace GPC.Model.Fem.FemObjects.FiniteElements
 
 
             _nodalDegreeOfFreedoms = GetNodalDegreeOfFreedom();
+            _localCoordinateSystem = GetCoordinateSystem();
 
             if (_nodalDegreeOfFreedoms == null)
                 throw new ArgumentNullException(nameof(_nodalDegreeOfFreedoms));
@@ -154,6 +155,8 @@ namespace GPC.Model.Fem.FemObjects.FiniteElements
         public abstract FiniteElement Duplicate();
 
         internal abstract NodalDegreeOfFreedom[] GetNodalDegreeOfFreedom();
+
+        protected abstract CoordinateSystem GetCoordinateSystem();
 
         #endregion
 

@@ -21,8 +21,8 @@ namespace UnitTestFem
 
             SectionRectangular sec = new SectionRectangular(100, 10, SteelMaterial.S355);
 
-            Node node1 = new Node(new Point3d(0, 0, 0));
-            Node node2 = new Node(new Point3d(20, 0, 0));
+            Node node1 = new Node(new Point3d(1, 2, 3));
+            Node node2 = new Node(new Point3d(4, 5, 6));
 
 
             EulerBeam beam = new EulerBeam(node1, node2);
@@ -31,8 +31,9 @@ namespace UnitTestFem
             EulerBernulliStifnessMatrix stifnessMatrix = new EulerBernulliStifnessMatrix(beam);
 
             Console.Write(stifnessMatrix.LocalStiffnessMatrix);
+            Console.Write(beam.GetTransformationMatrix());
 
-
+            
 
 
         }

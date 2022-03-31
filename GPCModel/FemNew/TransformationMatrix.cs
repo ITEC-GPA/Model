@@ -7,7 +7,7 @@ using GPC.Model.Maths.Matrices;
 
 namespace GPC.Model.Fem
 {
-    internal class TransformationMatrix : KeySquareSymmetricSparseMatrix<NodalDegreeOfFreedom>
+    public class TransformationMatrix : KeySquareSymmetricSparseMatrix<NodalDegreeOfFreedom>
     {
 
 

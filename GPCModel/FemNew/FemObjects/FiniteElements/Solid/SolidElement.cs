@@ -4,6 +4,7 @@ using System.Linq;
 using System.Runtime.Serialization;
 using System.Text;
 using System.Threading.Tasks;
+using GPC.Geometry;
 using GPC.Model.Fem.Attributes;
 using GPC.Model.Fem.Properties;
 
@@ -28,6 +29,10 @@ namespace GPC.Model.Fem.FemObjects.FiniteElements
         internal override void SetProperty<BrickProperty>(BrickProperty property)
         {
             base.SetProperty(property);
+        }
+        protected override CoordinateSystem GetCoordinateSystem()
+        {
+            throw new NotImplementedException();
         }
 
 

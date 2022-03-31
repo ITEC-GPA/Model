@@ -7,7 +7,7 @@ using MathNet.Numerics.LinearAlgebra.Double;
 
 namespace GPC.Model.Maths.Matrices
 {
-    internal class KeySquareSymmetricSparseMatrix<TKey> : SparseMatrix, IKeyMatrix<TKey, TKey>
+    public class KeySquareSymmetricSparseMatrix<TKey> : SparseMatrix, IKeyMatrix<TKey, TKey>
     {
 
         protected Dictionary<TKey, int> _keyIndex;
@@ -16,7 +16,7 @@ namespace GPC.Model.Maths.Matrices
         public KeySquareSymmetricSparseMatrix(IEnumerable<TKey> keys)
             : base(keys.Count())
         {
-
+            _keyIndex = new Dictionary<TKey, int>();
             InitKeyIndices(keys);
 
         }

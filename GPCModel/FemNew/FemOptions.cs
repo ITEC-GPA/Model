@@ -44,6 +44,11 @@ namespace GPC.Model.Fem
         #region Properties
 
         /// <summary>
+        /// Rapresent the maximum dot product value such that two vector are considered parallel
+        /// </summary>
+        public double ToleranceLocalAxis { get; set; }
+
+        /// <summary>
         /// Rapresent the value of the elastic modulus to be used to replace zero in case numerical singularity must be avoided 
         /// </summary>
         public double ZeroElasticModulus { get; set; }
@@ -52,7 +57,6 @@ namespace GPC.Model.Fem
         /// Rapresent the value of the shear modulus to be used to replace zero in case numerical singularity must be avoided 
         /// </summary>
         public double ZeroShearModulus { get; set; }
-
 
         /// <summary>
         /// Rapresent the value of the poisson value used to define the <see cref="Properties.InterlayerBrickProperty"/> 
@@ -85,6 +89,7 @@ namespace GPC.Model.Fem
             ZeroElasticModulus = 0.001;
             ZeroShearModulus = 0.01;
             InterlayerPoissonValue = 0.49;
+            ToleranceLocalAxis = 0.0001;
         }
 
     }
