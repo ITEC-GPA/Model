@@ -91,9 +91,10 @@
     <Compile Include="FemNew\FemObjects\IFemObjectDuplicable.cs" />
     <Compile Include="FemNew\Collections\AttributesCollection.cs" />
     <Compile Include="FemNew\NodalDegreeOfFreedom.cs" />
-    <Compile Include="Maths\Matrices\DenseKeyMatrix.cs" />
-    <Compile Include="Maths\Matrices\SparseKeyMatrix.cs" />
-    <Compile Include="Maths\Matrices\KeyMatrix.cs" />
+    <Compile Include="Maths\Matrices\IKeyMatrixExtensions.cs" />
+    <Compile Include="Maths\Matrices\KeyDenseMatrix.cs" />
+    <Compile Include="Maths\Matrices\IKeyMatrix.cs" />
+    <Compile Include="Maths\Matrices\KeySparseMatrix.cs" />
     <Compile Include="Materials\Concrete\ConcreteMaterialACI318-19.cs" />
     <Compile Include="Materials\Concrete\ConcreteMaterialEN1992.cs" />
     <Compile Include="Materials\Concrete\ConcreteMaterialModelCode2010.cs" />
@@ -155,6 +156,8 @@
     <Compile Include="Standards\StandardEn1993p11.cs" />
     <Compile Include="Standards\StandardUNIEN1990.cs" />
     <Compile Include="Elements\GhostElement.cs" />
+    <Compile Include="Elements\Element.cs" />
+    <Compile Include="Base\Collections\SortedCollection.cs" />
     <Compile Include="FemNew\Collections\FemObjectCollection.cs" />
     <Compile Include="FemNew\Collections\FemObjectStageCollection.cs" />
     <Compile Include="FemNew\Collections\FiniteElementStageCollection.cs" />
@@ -162,10 +165,8 @@
     <Compile Include="FemNew\Collections\NodeCollection.cs" />
     <Compile Include="FemNew\Collections\NodeStageCollection.cs" />
     <Compile Include="FemNew\Collections\FiniteElementCollection.cs" />
-    <Compile Include="Base\Collections\SortedCollection.cs" />
     <Compile Include="FemNew\ElementProperty\BrickProperty.cs" />
     <Compile Include="FemNew\ElementProperty\ElementProperty.cs" />
-    <Compile Include="Elements\Element.cs" />
     <Compile Include="FemNew\ElementProperty\InterlayerBrickProperty.cs" />
     <Compile Include="FemNew\ElementProperty\InterlayerPlateProperty.cs" />
     <Compile Include="FemNew\ElementProperty\IPlateProperty.cs" />

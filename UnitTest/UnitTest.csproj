@@ -74,6 +74,7 @@
     <Compile Include="General\DescriptionAttributesTest.cs" />
     <Compile Include="Maths\GaussIntegrationTest.cs" />
     <Compile Include="General\OperatorsTest.cs" />
+    <Compile Include="Maths\KeyMatrixTest.cs" />
     <Compile Include="Performance\PerformanceIntegrationTest.cs" />
     <Compile Include="Maths\IntegrationTest.cs" />
     <Compile Include="InterlayerMaterialTest.cs" />
