@@ -94,6 +94,11 @@ namespace GPC.Model
 
         public static bool operator ==(ModelObjectId obj1, ModelObjectId obj2)
         {
+            if (obj1 is null)
+            {
+                return obj2 is null;
+            }
+
             return obj1.Equals(obj2);
         }
 
