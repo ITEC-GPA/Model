@@ -15,7 +15,6 @@ namespace GPC.Model.Maths.Matrices
 
 
 
-
         /// <inheritdoc cref="KeySparseMatrix{TRow, TColumn}.KeySparseMatrix(IEnumerable{TRow}, IEnumerable{TColumn})"/>
         public KeyDenseMatrix(IEnumerable<TRow> rows, IEnumerable<TColumn> columns)
             : base(rows.Count(), columns.Count())

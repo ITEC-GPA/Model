@@ -105,7 +105,7 @@ namespace GPC.Model.Fem.FemObjects
 
 
         /// <summary>
-        /// only for test purpose
+        /// Internal method
         /// </summary>
         // Do not set this constructor to public
         internal Node(Point3d point, int id)
