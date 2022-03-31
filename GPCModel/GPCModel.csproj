@@ -94,6 +94,7 @@
     <Compile Include="FemNew\StiffnessMatrix\ElementStiffnessMatrix.cs" />
     <Compile Include="FemNew\StiffnessMatrix\EulerBernulliStifnessMatrix.cs" />
     <Compile Include="FemNew\StiffnessMatrix\FiniteElementLocalStiffnessMatrix.cs" />
+    <Compile Include="FemNew\StiffnessMatrix\TrussStiffnessMatrix.cs" />
     <Compile Include="Maths\Matrices\IKeyMatrixExtensions.cs" />
     <Compile Include="Maths\Matrices\KeyDenseMatrix.cs" />
     <Compile Include="Maths\Matrices\IKeyMatrix.cs" />

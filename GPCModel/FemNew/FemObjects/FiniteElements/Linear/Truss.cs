@@ -25,15 +25,15 @@ namespace GPC.Model.Fem.FemObjects.FiniteElements
 
         internal override NodalDegreeOfFreedom[] GetNodalDegreeOfFreedom()
         {
-            int i = 0;
-            NodalDegreeOfFreedom[] nodalDegreeOfFreedoms = new NodalDegreeOfFreedom[6];
-            nodalDegreeOfFreedoms[i++] = new NodalDegreeOfFreedom(NodeStart, DegreeOfFreedom.DX);
-            nodalDegreeOfFreedoms[i++] = new NodalDegreeOfFreedom(NodeStart, DegreeOfFreedom.DY);
-            nodalDegreeOfFreedoms[i++] = new NodalDegreeOfFreedom(NodeStart, DegreeOfFreedom.DZ);
 
-            nodalDegreeOfFreedoms[i++] = new NodalDegreeOfFreedom(NodeEnd, DegreeOfFreedom.DX);
-            nodalDegreeOfFreedoms[i++] = new NodalDegreeOfFreedom(NodeEnd, DegreeOfFreedom.DY);
-            nodalDegreeOfFreedoms[i++] = new NodalDegreeOfFreedom(NodeEnd, DegreeOfFreedom.DZ);
+            NodalDegreeOfFreedom[] nodalDegreeOfFreedoms = new NodalDegreeOfFreedom[6];
+            nodalDegreeOfFreedoms[0] = new NodalDegreeOfFreedom(NodeStart, DegreeOfFreedom.DX);
+            nodalDegreeOfFreedoms[1] = new NodalDegreeOfFreedom(NodeStart, DegreeOfFreedom.DY);
+            nodalDegreeOfFreedoms[2] = new NodalDegreeOfFreedom(NodeStart, DegreeOfFreedom.DZ);
+
+            nodalDegreeOfFreedoms[3] = new NodalDegreeOfFreedom(NodeEnd, DegreeOfFreedom.DX);
+            nodalDegreeOfFreedoms[4] = new NodalDegreeOfFreedom(NodeEnd, DegreeOfFreedom.DY);
+            nodalDegreeOfFreedoms[5] = new NodalDegreeOfFreedom(NodeEnd, DegreeOfFreedom.DZ);
 
 
             return nodalDegreeOfFreedoms;

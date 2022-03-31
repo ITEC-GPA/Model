@@ -70,6 +70,7 @@ namespace GPC.Model.Fem.StiffnessMatrix
             matrix.SetElementAt(nodalDegree[11], 4.0 * E * Ixx / lenght);
 
 
+            // Fuori Diagonale
             matrix.SetElementAtSymmetric(nodalDegree[4], nodalDegree[2], -6.0 * E * Iyy / Math.Pow(lenght, 2));
             matrix.SetElementAtSymmetric(nodalDegree[5], nodalDegree[1], +6.0 * E * Ixx / Math.Pow(lenght, 2));
             matrix.SetElementAtSymmetric(nodalDegree[6], nodalDegree[0], -E * A / lenght);
