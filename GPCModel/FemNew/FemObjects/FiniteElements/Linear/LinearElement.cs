@@ -95,6 +95,6 @@ namespace GPC.Model.Fem.FemObjects.FiniteElements
             return _attributesFreedomCase.Add((FreedomCaseAttribute)attribute);
         }
 
-        public abstract TransformationMatrix GetTransformationMatrix(NodalDegreeOfFreedom[] nodalDegreeOfFreedoms);
+        public abstract TransformationMatrix GetTransformationMatrix(NodalLocalDegreeOfFreedom[] nodalDegreeOfFreedoms);
     }
 }

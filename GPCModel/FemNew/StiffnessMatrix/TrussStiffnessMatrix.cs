@@ -40,7 +40,7 @@ namespace GPC.Model.Fem.StiffnessMatrix
             double A = section.Area;
 
 
-            NodalDegreeOfFreedom[] nodalDegree = GetNodalDegreeOfFreedom();
+            NodalLocalDegreeOfFreedom[] nodalDegree = GetNodalDegreeOfFreedom();
 
             ElementStiffnessMatrix matrix = new ElementStiffnessMatrix(nodalDegree);
 
@@ -60,17 +60,17 @@ namespace GPC.Model.Fem.StiffnessMatrix
             return matrix;
         }
 
-        protected override NodalDegreeOfFreedom[] GetNodalDegreeOfFreedom()
+        protected override NodalLocalDegreeOfFreedom[] GetNodalDegreeOfFreedom()
         {
 
-            NodalDegreeOfFreedom[] nodalDegreeOfFreedoms = new NodalDegreeOfFreedom[6];
-            nodalDegreeOfFreedoms[0] = new NodalDegreeOfFreedom(NodeStart, LocalDegreeOfFreedom.D1);
-            nodalDegreeOfFreedoms[1] = new NodalDegreeOfFreedom(NodeStart, LocalDegreeOfFreedom.D2);
-            nodalDegreeOfFreedoms[2] = new NodalDegreeOfFreedom(NodeStart, LocalDegreeOfFreedom.D3);
+            NodalLocalDegreeOfFreedom[] nodalDegreeOfFreedoms = new NodalLocalDegreeOfFreedom[6];
+            nodalDegreeOfFreedoms[0] = new NodalLocalDegreeOfFreedom(NodeStart, DegreeOfFreedoms.LocalDegreeOfFreedoms.D1);
+            nodalDegreeOfFreedoms[1] = new NodalLocalDegreeOfFreedom(NodeStart, DegreeOfFreedoms.LocalDegreeOfFreedoms.D2);
+            nodalDegreeOfFreedoms[2] = new NodalLocalDegreeOfFreedom(NodeStart, DegreeOfFreedoms.LocalDegreeOfFreedoms.D3);
 
-            nodalDegreeOfFreedoms[3] = new NodalDegreeOfFreedom(NodeEnd, LocalDegreeOfFreedom.D1);
-            nodalDegreeOfFreedoms[4] = new NodalDegreeOfFreedom(NodeEnd, LocalDegreeOfFreedom.D2);
-            nodalDegreeOfFreedoms[5] = new NodalDegreeOfFreedom(NodeEnd, LocalDegreeOfFreedom.D3);
+            nodalDegreeOfFreedoms[3] = new NodalLocalDegreeOfFreedom(NodeEnd, DegreeOfFreedoms.LocalDegreeOfFreedoms.D1);
+            nodalDegreeOfFreedoms[4] = new NodalLocalDegreeOfFreedom(NodeEnd, DegreeOfFreedoms.LocalDegreeOfFreedoms.D2);
+            nodalDegreeOfFreedoms[5] = new NodalLocalDegreeOfFreedom(NodeEnd, DegreeOfFreedoms.LocalDegreeOfFreedoms.D3);
 
 
             return nodalDegreeOfFreedoms;

@@ -10,11 +10,11 @@ using GPC.Model.Fem.FemObjects;
 namespace GPC.Model.Fem.StiffnessMatrix
 {
 
-    internal class ElementStiffnessMatrix : KeySquareSymmetricDenseMatrix<NodalDegreeOfFreedom>
+    internal class ElementStiffnessMatrix : KeySquareSymmetricDenseMatrix<NodalLocalDegreeOfFreedom>
     {
 
 
-        public ElementStiffnessMatrix(IEnumerable<NodalDegreeOfFreedom> keys) 
+        public ElementStiffnessMatrix(IEnumerable<NodalLocalDegreeOfFreedom> keys) 
             : base(keys)
         {
             

@@ -80,7 +80,8 @@
     <Compile Include="Base\UnitsSystem.cs" />
     <Compile Include="Base\Units.cs" />
     <Compile Include="Combinations\CombinationsCollection.cs" />
-    <Compile Include="FemNew\LocalDegreeOfFreedom.cs" />
+    <Compile Include="FemNew\NodalLocalDegreeOfFreedom.cs" />
+    <Compile Include="FemNew\DegreeOfFreedoms.cs" />
     <Compile Include="FemNew\FemHelpers.cs" />
     <Compile Include="FemNew\FemObjects\FiniteElements\Linear\EulerBeam.cs" />
     <Compile Include="FemNew\FemObjects\FiniteElements\Linear\LinearElement.cs" />
@@ -91,7 +92,7 @@
     <Compile Include="FemNew\FemObjects\FiniteElements\Solid\SolidElement.cs" />
     <Compile Include="FemNew\FemObjects\IFemObjectDuplicable.cs" />
     <Compile Include="FemNew\Collections\AttributesCollection.cs" />
-    <Compile Include="FemNew\NodalDegreeOfFreedom.cs" />
+    <Compile Include="FemNew\NodalGlobalDegreeOfFreedom.cs" />
     <Compile Include="FemNew\StiffnessMatrix\ElementStiffnessMatrix.cs" />
     <Compile Include="FemNew\StiffnessMatrix\EulerBernulliStifnessMatrix.cs" />
     <Compile Include="FemNew\StiffnessMatrix\FiniteElementLocalStiffnessMatrix.cs" />

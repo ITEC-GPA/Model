@@ -7,12 +7,12 @@ using GPC.Model.Maths.Matrices;
 
 namespace GPC.Model.Fem
 {
-    public class TransformationMatrix : KeySquareSymmetricSparseMatrix<NodalDegreeOfFreedom>
+    public class TransformationMatrix : KeySquareSymmetricSparseMatrix<NodalGlobalDegreeOfFreedom>
     {
 
 
 
-        public TransformationMatrix(IEnumerable<NodalDegreeOfFreedom> keys) 
+        public TransformationMatrix(IEnumerable<NodalGlobalDegreeOfFreedom> keys) 
             : base(keys)
         {
 

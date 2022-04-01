@@ -35,8 +35,17 @@ namespace GPC.Model.Fem.FemObjects.FiniteElements
             throw new NotImplementedException();
         }
 
-        public override TransformationMatrix GetTransformationMatrix(NodalDegreeOfFreedom[] nodalDegreeOfFreedoms)
+        public override TransformationMatrix GetTransformationMatrix(NodalLocalDegreeOfFreedom[] nodalDegreeOfFreedoms)
         {
+
+            for (int i = 0; i < nodalDegreeOfFreedoms.Length; i++)
+            {
+
+            }
+
+
+
+
             TransformationMatrix matrix = new TransformationMatrix(nodalDegreeOfFreedoms);
 
             var submatrix = _coordinateSystem.TrfMatrix.RemoveColumn(3);
@@ -56,7 +65,7 @@ namespace GPC.Model.Fem.FemObjects.FiniteElements
 
 
             ElementStiffnessMatrix localStiffnessMatrix = eulerBernulliLocalStifnessMatrix.LocalStiffnessMatrix;
-            NodalDegreeOfFreedom[] nodalDegreeOfFreedom = eulerBernulliLocalStifnessMatrix.NodalDegreeOfFreedom;
+            NodalLocalDegreeOfFreedom[] nodalDegreeOfFreedom = eulerBernulliLocalStifnessMatrix.NodalDegreeOfFreedom;
             TransformationMatrix transformationMatrix = GetTransformationMatrix(nodalDegreeOfFreedom);
 
 

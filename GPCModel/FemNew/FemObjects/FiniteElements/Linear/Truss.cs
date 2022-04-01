@@ -35,7 +35,7 @@ namespace GPC.Model.Fem.FemObjects.FiniteElements
             throw new NotImplementedException();
         }
 
-        public override TransformationMatrix GetTransformationMatrix(NodalDegreeOfFreedom[] nodalDegreeOfFreedoms)
+        public override TransformationMatrix GetTransformationMatrix(NodalGlobalDegreeOfFreedom[] nodalDegreeOfFreedoms)
         {
             TransformationMatrix matrix = new TransformationMatrix(nodalDegreeOfFreedoms);
 

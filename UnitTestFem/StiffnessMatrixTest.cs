@@ -31,7 +31,7 @@ namespace UnitTestFem
             EulerBernulliStifnessMatrix stifnessMatrix = new EulerBernulliStifnessMatrix(beam);
 
             Console.Write(stifnessMatrix.LocalStiffnessMatrix);
-            Console.Write(beam.GetTransformationMatrix());
+            //Console.Write(beam.GetTransformationMatrix());
 
             
 
