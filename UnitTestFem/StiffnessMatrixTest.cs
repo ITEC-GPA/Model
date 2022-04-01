@@ -2,7 +2,7 @@
 using GPC.Geometry;
 using GPC.Model.Fem.FemObjects;
 using GPC.Model.Fem.FemObjects.FiniteElements;
-using GPC.Model.Fem.StiffnessMatrix;
+using GPC.Model.Fem.ElementStiffnessMatrices;
 using GPC.Model.Materials;
 using GPC.Model.Sections;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
