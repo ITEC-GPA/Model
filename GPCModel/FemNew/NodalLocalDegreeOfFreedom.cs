@@ -8,7 +8,8 @@ using GPC.Model.Fem.FemObjects;
 
 namespace GPC.Model.Fem
 {
-    public struct NodalLocalDegreeOfFreedom : IEquatable<NodalLocalDegreeOfFreedom>
+
+    public struct NodalLocalDegreeOfFreedom : IEquatable<NodalLocalDegreeOfFreedom>, INodalDegreeOfFreedom
     {
         public DegreeOfFreedoms.LocalDegreeOfFreedoms DegreeOfFreedom { get; }
 

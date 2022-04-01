@@ -17,11 +17,13 @@ namespace GPC.Model.Fem.ElementStiffnessMatrices
         public Node NodeStart => _localNodes[0];
         public Node NodeEnd => _localNodes.Last();
 
-        public TrussStiffnessMatrix(Node[] localNodes, EulerBeam beam) 
-            : base(localNodes, beam)
+
+        public TrussStiffnessMatrix(Truss truss)
+            : base(new Node[] { new Node(new Geometry.Point3d(0, 0, 0), 1), new Node(new Geometry.Point3d(0, 0, truss.Length), 0) }, truss)
         {
 
         }
+
 
         protected override ElementStiffnessMatrix GetStiffnessMatrix(FiniteElement element)
         {

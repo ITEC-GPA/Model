@@ -80,6 +80,7 @@
     <Compile Include="Base\UnitsSystem.cs" />
     <Compile Include="Base\Units.cs" />
     <Compile Include="Combinations\CombinationsCollection.cs" />
+    <Compile Include="FemNew\INodalDegreeOfFreedom.cs" />
     <Compile Include="FemNew\NodalLocalDegreeOfFreedom.cs" />
     <Compile Include="FemNew\DegreeOfFreedoms.cs" />
     <Compile Include="FemNew\FemHelpers.cs" />

@@ -7,22 +7,47 @@ using GPC.Model.Maths.Matrices;
 using GPC.Model.Fem.FemObjects;
 using GPC.Model.Fem;
 using MathNet.Numerics.LinearAlgebra;
+using MathNet.Numerics.LinearAlgebra.Double;
 
 namespace GPC.Model.Fem
 {
 
-    internal class ElementStiffnessMatrix : KeySquareSymmetricDenseMatrix<NodalLocalDegreeOfFreedom>
+    internal class ElementStiffnessMatrix : KeySquareSymmetricDenseMatrix<INodalDegreeOfFreedom>
     {
 
 
-        public ElementStiffnessMatrix(IEnumerable<NodalLocalDegreeOfFreedom> keys) 
+        public ElementStiffnessMatrix(IEnumerable<INodalDegreeOfFreedom> keys)
             : base(keys)
         {
-            
+
+        }
+
+        public ElementStiffnessMatrix(IEnumerable<INodalDegreeOfFreedom> keys, Matrix<double> matrix)
+            : base(keys, matrix)
+        {
+
+        }
+
+        public ElementStiffnessMatrix(IEnumerable<NodalLocalDegreeOfFreedom> keys)
+            : base(keys.Cast<INodalDegreeOfFreedom>())
+        {
+
         }
 
         public ElementStiffnessMatrix(IEnumerable<NodalLocalDegreeOfFreedom> keys, Matrix<double> matrix)
-            : base(keys, matrix)
+            : base(keys.Cast<INodalDegreeOfFreedom>(), matrix)
+        {
+
+        }
+
+        public ElementStiffnessMatrix(IEnumerable<NodalGlobalDegreeOfFreedom> keys)
+            : base(keys.Cast<INodalDegreeOfFreedom>())
+        {
+
+        }
+
+        public ElementStiffnessMatrix(IEnumerable<NodalGlobalDegreeOfFreedom> keys, Matrix<double> matrix)
+            : base(keys.Cast<INodalDegreeOfFreedom>(), matrix)
         {
 
         }

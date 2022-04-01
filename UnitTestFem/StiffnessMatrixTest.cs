@@ -28,6 +28,8 @@ namespace UnitTestFem
             EulerBeam beam = new EulerBeam(node1, node2);
             beam.SetProperty(sec);
 
+
+
             EulerBernulliStifnessMatrix stifnessMatrix = new EulerBernulliStifnessMatrix(beam);
 
             Console.Write(stifnessMatrix.LocalStiffnessMatrix);

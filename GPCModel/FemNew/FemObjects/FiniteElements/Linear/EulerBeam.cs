@@ -7,7 +7,6 @@ using System.Threading.Tasks;
 using GPC.Model.Fem.Attributes;
 using GPC.Model.Fem.ElementStiffnessMatrices;
 using GPC.Model.Fem.Properties;
-using GPC.Model.Fem.ElementStiffnessMatrices;
 
 namespace GPC.Model.Fem.FemObjects.FiniteElements
 {
@@ -86,20 +85,12 @@ namespace GPC.Model.Fem.FemObjects.FiniteElements
 
             NodalGlobalDegreeOfFreedom[] nodalGlobalDegreeOfFreedom = eulerBernulliLocalStifnessMatrix.NodalDegreeOfFreedom.ToGlobal();
 
-            TransformationMatrix transformationMatrix = GetTransformationMatrix(nodalGlobalDegreeOfFreedom);
+            ElementStiffnessMatrix globalStiffnessMatrix = new ElementStiffnessMatrix(nodalGlobalDegreeOfFreedom, eulerBernulliLocalStifnessMatrix.LocalStiffnessMatrix);
+
+            globalStiffnessMatrix = globalStiffnessMatrix.PrePostMultiply(GetTransformationMatrix(nodalGlobalDegreeOfFreedom));
 
 
-            var a = transformationMatrix.TransposeThisAndMultiply(eulerBernulliLocalStifnessMatrix.LocalStiffnessMatrix).Multiply(transformationMatrix);
-
-
-            // matrice globale come: trans^T * local * Trans
-
-            ElementStiffnessMatrix localStiffnessMatrix = eulerBernulliLocalStifnessMatrix.LocalStiffnessMatrix;
-
-
-
-
-            throw new NotImplementedException();
+            return globalStiffnessMatrix;
         }
 
     }

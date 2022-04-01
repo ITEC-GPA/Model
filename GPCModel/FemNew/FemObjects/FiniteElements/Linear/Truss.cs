@@ -62,7 +62,16 @@ namespace GPC.Model.Fem.FemObjects.FiniteElements
 
         private protected override ElementStiffnessMatrix GetGlobalStiffnessMatrix()
         {
-            throw new NotImplementedException();
+            TrussStiffnessMatrix trussStiffnessMatrix = new TrussStiffnessMatrix(this);
+
+            NodalGlobalDegreeOfFreedom[] nodalGlobalDegreeOfFreedom = trussStiffnessMatrix.NodalDegreeOfFreedom.ToGlobal();
+
+            ElementStiffnessMatrix globalStiffnessMatrix = new ElementStiffnessMatrix(nodalGlobalDegreeOfFreedom, trussStiffnessMatrix.LocalStiffnessMatrix);
+
+            globalStiffnessMatrix = globalStiffnessMatrix.PrePostMultiply(GetTransformationMatrix(nodalGlobalDegreeOfFreedom));
+
+
+            return globalStiffnessMatrix;
         }
 
     }
