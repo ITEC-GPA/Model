@@ -81,6 +81,7 @@
     <Compile Include="Base\Units.cs" />
     <Compile Include="Combinations\CombinationsCollection.cs" />
     <Compile Include="FemNew\DegreeOfFreedom.cs" />
+    <Compile Include="FemNew\FemHelpers.cs" />
     <Compile Include="FemNew\FemObjects\FiniteElements\Linear\EulerBeam.cs" />
     <Compile Include="FemNew\FemObjects\FiniteElements\Linear\LinearElement.cs" />
     <Compile Include="FemNew\FemObjects\FiniteElements\Linear\Truss.cs" />
