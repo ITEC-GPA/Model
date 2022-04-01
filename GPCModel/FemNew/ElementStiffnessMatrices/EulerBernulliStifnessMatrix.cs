@@ -7,10 +7,9 @@ using GPC.Model.Fem;
 using GPC.Model.Fem.FemObjects;
 using GPC.Model.Fem.FemObjects.FiniteElements;
 using GPC.Model.Fem.Materials;
-using GPC.Model.Fem.StiffnessMatrix;
 using GPC.Model.Sections;
 
-namespace GPC.Model.Fem.StiffnessMatrix
+namespace GPC.Model.Fem.ElementStiffnessMatrices
 {
 
 

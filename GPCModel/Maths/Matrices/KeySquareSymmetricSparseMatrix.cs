@@ -13,6 +13,12 @@ namespace GPC.Model.Maths.Matrices
         protected Dictionary<TKey, int> _keyIndex;
 
 
+        public KeySquareSymmetricSparseMatrix(IEnumerable<TKey> keys, SparseMatrix matrix)
+            : this(keys)
+        {
+            SetSubMatrix(0, 0, matrix);
+        }
+
         public KeySquareSymmetricSparseMatrix(IEnumerable<TKey> keys)
             : base(keys.Count())
         {
@@ -33,19 +39,15 @@ namespace GPC.Model.Maths.Matrices
 
         }
 
-
         public bool ContainsKey(TKey key)
         {
             return _keyIndex.ContainsKey(key);
         }
 
-
         public int GetIndex(TKey key)
         {
             return _keyIndex[key];
         }
-
-
 
         /// <inheritdoc cref="MathNet.Numerics.LinearAlgebra.Matrix{T}.At(int, int, T)"/>
         public void SetElementAt(TKey key, double value)
@@ -66,5 +68,14 @@ namespace GPC.Model.Maths.Matrices
             return At(GetIndex(row), GetIndex(row));
         }
 
+        public TKey[] GetColumnKeys()
+        {
+            return _keyIndex.Keys.ToArray();
+        }
+
+        public TKey[] GetRowKeys()
+        {
+            return _keyIndex.Keys.ToArray();
+        }
     }
 }

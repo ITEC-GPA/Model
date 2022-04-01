@@ -6,7 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using GPC.Model.Fem.Attributes;
 using GPC.Model.Fem.Properties;
-using GPC.Model.Fem.StiffnessMatrix;
+using GPC.Model.Fem.ElementStiffnessMatrices;
 
 namespace GPC.Model.Fem.FemObjects.FiniteElements
 {
@@ -39,10 +39,22 @@ namespace GPC.Model.Fem.FemObjects.FiniteElements
         {
             TransformationMatrix matrix = new TransformationMatrix(nodalDegreeOfFreedoms);
 
-            var submatrix = _coordinateSystem.TrfMatrix.RemoveColumn(3);
-
-            matrix.SetSubMatrix(0, 0, submatrix);
-            matrix.SetSubMatrix(3, 3, submatrix);
+            if (nodalDegreeOfFreedoms[0].DegreeOfFreedom == DegreeOfFreedoms.GlobalDegreeOfFreedoms.DX &&
+                nodalDegreeOfFreedoms[1].DegreeOfFreedom == DegreeOfFreedoms.GlobalDegreeOfFreedoms.DY &&
+                nodalDegreeOfFreedoms[2].DegreeOfFreedom == DegreeOfFreedoms.GlobalDegreeOfFreedoms.DZ && 
+                nodalDegreeOfFreedoms[3].DegreeOfFreedom == DegreeOfFreedoms.GlobalDegreeOfFreedoms.DX &&
+                nodalDegreeOfFreedoms[4].DegreeOfFreedom == DegreeOfFreedoms.GlobalDegreeOfFreedoms.DY &&
+                nodalDegreeOfFreedoms[5].DegreeOfFreedom == DegreeOfFreedoms.GlobalDegreeOfFreedoms.DZ)
+            {
+                var submatrix = _coordinateSystem.TrfMatrix.RemoveColumn(3);
+                matrix.SetSubMatrix(0, 0, submatrix);
+                matrix.SetSubMatrix(3, 3, submatrix);
+            }
+            else
+            {
+                // Bisogna editare la trfMatrix se l'ordine dei dof è scambiato
+                throw new NotImplementedException();
+            }
 
             return matrix;
         }

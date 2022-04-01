@@ -9,7 +9,7 @@ using GPC.Model.Sections;
 using GPC.Model.Fem.FemObjects.FiniteElements;
 using GPC.Model.Fem.Materials;
 
-namespace GPC.Model.Fem.StiffnessMatrix
+namespace GPC.Model.Fem.ElementStiffnessMatrices
 {
 
     internal abstract class FiniteElementLocalStiffnessMatrix : ModelObjectId

@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 using GPC.Geometry;
 using GPC.Model.Fem.Attributes;
 using GPC.Model.Fem.Properties;
-using GPC.Model.Fem.StiffnessMatrix;
+using GPC.Model.Fem.ElementStiffnessMatrices;
 using GPC.Model.Sections;
 
 namespace GPC.Model.Fem.FemObjects.FiniteElements
@@ -70,7 +70,7 @@ namespace GPC.Model.Fem.FemObjects.FiniteElements
         protected override CoordinateSystem GetCoordinateSystem()
         {
             return FemHelpers.GetBeamCoordinateSystem(NodeStart.Position, NodeEnd.Position, _localAngle); ;
-        } 
+        }
 
         #endregion
 
@@ -95,6 +95,6 @@ namespace GPC.Model.Fem.FemObjects.FiniteElements
             return _attributesFreedomCase.Add((FreedomCaseAttribute)attribute);
         }
 
-        public abstract TransformationMatrix GetTransformationMatrix(NodalLocalDegreeOfFreedom[] nodalDegreeOfFreedoms);
+        public abstract TransformationMatrix GetTransformationMatrix(NodalGlobalDegreeOfFreedom[] nodalDegreeOfFreedoms);
     }
 }

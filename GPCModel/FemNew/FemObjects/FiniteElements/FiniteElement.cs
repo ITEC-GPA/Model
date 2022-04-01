@@ -7,7 +7,7 @@ using GPC.Geometry;
 using GPC.Model.Fem.Attributes;
 using GPC.Model.Fem.Collections;
 using GPC.Model.Fem.Properties;
-using GPC.Model.Fem.StiffnessMatrix;
+using GPC.Model.Fem.ElementStiffnessMatrices;
 using GPC.Model.Results;
 
 namespace GPC.Model.Fem.FemObjects.FiniteElements

@@ -6,7 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using GPC.Model.Fem.Attributes;
 using GPC.Model.Fem.Properties;
-using GPC.Model.Fem.StiffnessMatrix;
+using GPC.Model.Fem.ElementStiffnessMatrices;
 
 namespace GPC.Model.Fem.FemObjects.FiniteElements
 {

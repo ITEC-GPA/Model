@@ -13,6 +13,18 @@ namespace GPC.Model.Maths.Matrices
         protected Dictionary<TKey, int> _keyIndex;
 
 
+        public KeySquareSymmetricDenseMatrix(IEnumerable<TKey> keys, DenseMatrix matrix)
+            : this(keys)
+        {
+            SetSubMatrix(0, 0, matrix);
+        }
+
+        public KeySquareSymmetricDenseMatrix(IEnumerable<TKey> keys, MathNet.Numerics.LinearAlgebra.Matrix<double> matrix)
+            : this(keys)
+        {
+            SetSubMatrix(0, 0, matrix);
+        }
+
         public KeySquareSymmetricDenseMatrix(IEnumerable<TKey> keys)
             : base(keys.Count())
         {
@@ -66,5 +78,14 @@ namespace GPC.Model.Maths.Matrices
             return At(GetIndex(row), GetIndex(row));
         }
 
+        public TKey[] GetColumnKeys()
+        {
+            return _keyIndex.Keys.ToArray();
+        }
+
+        public TKey[] GetRowKeys()
+        {
+            return _keyIndex.Keys.ToArray();
+        }
     }
 }

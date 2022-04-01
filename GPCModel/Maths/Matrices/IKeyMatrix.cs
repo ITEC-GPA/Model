@@ -15,5 +15,8 @@ namespace GPC.Model.Maths.Matrices
 
         bool ContainsKey(TRow row);
         bool ContainsKey(TColumn column);
+
+        TColumn[] GetColumnKeys();
+        TRow[] GetRowKeys();
     }
 }

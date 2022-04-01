@@ -5,8 +5,9 @@ using System.Runtime.Serialization;
 using System.Text;
 using System.Threading.Tasks;
 using GPC.Model.Fem.Attributes;
+using GPC.Model.Fem.ElementStiffnessMatrices;
 using GPC.Model.Fem.Properties;
-using GPC.Model.Fem.StiffnessMatrix;
+using GPC.Model.Fem.ElementStiffnessMatrices;
 
 namespace GPC.Model.Fem.FemObjects.FiniteElements
 {
@@ -35,25 +36,45 @@ namespace GPC.Model.Fem.FemObjects.FiniteElements
             throw new NotImplementedException();
         }
 
-        public override TransformationMatrix GetTransformationMatrix(NodalLocalDegreeOfFreedom[] nodalDegreeOfFreedoms)
+        public override TransformationMatrix GetTransformationMatrix(NodalGlobalDegreeOfFreedom[] nodalDegreeOfFreedoms)
         {
-
-            for (int i = 0; i < nodalDegreeOfFreedoms.Length; i++)
-            {
-
-            }
-
-
-
 
             TransformationMatrix matrix = new TransformationMatrix(nodalDegreeOfFreedoms);
 
-            var submatrix = _coordinateSystem.TrfMatrix.RemoveColumn(3);
+            if (nodalDegreeOfFreedoms[0].DegreeOfFreedom == DegreeOfFreedoms.GlobalDegreeOfFreedoms.DX &&
+                nodalDegreeOfFreedoms[1].DegreeOfFreedom == DegreeOfFreedoms.GlobalDegreeOfFreedoms.DY &&
+                nodalDegreeOfFreedoms[2].DegreeOfFreedom == DegreeOfFreedoms.GlobalDegreeOfFreedoms.DZ &&
+                nodalDegreeOfFreedoms[6].DegreeOfFreedom == DegreeOfFreedoms.GlobalDegreeOfFreedoms.DX &&
+                nodalDegreeOfFreedoms[7].DegreeOfFreedom == DegreeOfFreedoms.GlobalDegreeOfFreedoms.DY &&
+                nodalDegreeOfFreedoms[8].DegreeOfFreedom == DegreeOfFreedoms.GlobalDegreeOfFreedoms.DZ)
+            {
+                var submatrix = _coordinateSystem.TrfMatrix.RemoveColumn(3);
+                matrix.SetSubMatrix(0, 0, submatrix);
+                matrix.SetSubMatrix(6, 6, submatrix);
+            }
+            else
+            {
+                // Bisogna editare la trfMatrix se l'ordine dei dof è scambiato
+                throw new NotImplementedException();
+            }
 
-            matrix.SetSubMatrix(0, 0, submatrix);
-            matrix.SetSubMatrix(3, 3, submatrix);
-            matrix.SetSubMatrix(6, 6, submatrix);
-            matrix.SetSubMatrix(9, 9, submatrix);
+
+            if (nodalDegreeOfFreedoms[3].DegreeOfFreedom == DegreeOfFreedoms.GlobalDegreeOfFreedoms.RX &&
+                nodalDegreeOfFreedoms[4].DegreeOfFreedom == DegreeOfFreedoms.GlobalDegreeOfFreedoms.RY &&
+                nodalDegreeOfFreedoms[5].DegreeOfFreedom == DegreeOfFreedoms.GlobalDegreeOfFreedoms.RZ &&
+                nodalDegreeOfFreedoms[9].DegreeOfFreedom == DegreeOfFreedoms.GlobalDegreeOfFreedoms.RX &&
+                nodalDegreeOfFreedoms[10].DegreeOfFreedom == DegreeOfFreedoms.GlobalDegreeOfFreedoms.RY &&
+                nodalDegreeOfFreedoms[11].DegreeOfFreedom == DegreeOfFreedoms.GlobalDegreeOfFreedoms.RZ)
+            {
+                var submatrix = _coordinateSystem.TrfMatrix.RemoveColumn(3);
+                matrix.SetSubMatrix(3, 3, submatrix);
+                matrix.SetSubMatrix(9, 9, submatrix);
+            }
+            else
+            {
+                // Bisogna editare la trfMatrix se l'ordine dei dof è scambiato
+                throw new NotImplementedException();
+            }
 
             return matrix;
         }
@@ -63,10 +84,17 @@ namespace GPC.Model.Fem.FemObjects.FiniteElements
         {
             EulerBernulliStifnessMatrix eulerBernulliLocalStifnessMatrix = new EulerBernulliStifnessMatrix(this);
 
+            NodalGlobalDegreeOfFreedom[] nodalGlobalDegreeOfFreedom = eulerBernulliLocalStifnessMatrix.NodalDegreeOfFreedom.ToGlobal();
+
+            TransformationMatrix transformationMatrix = GetTransformationMatrix(nodalGlobalDegreeOfFreedom);
+
+
+            var a = transformationMatrix.TransposeThisAndMultiply(eulerBernulliLocalStifnessMatrix.LocalStiffnessMatrix).Multiply(transformationMatrix);
+
+
+            // matrice globale come: trans^T * local * Trans
 
             ElementStiffnessMatrix localStiffnessMatrix = eulerBernulliLocalStifnessMatrix.LocalStiffnessMatrix;
-            NodalLocalDegreeOfFreedom[] nodalDegreeOfFreedom = eulerBernulliLocalStifnessMatrix.NodalDegreeOfFreedom;
-            TransformationMatrix transformationMatrix = GetTransformationMatrix(nodalDegreeOfFreedom);
 
 
 

@@ -14,6 +14,12 @@ namespace GPC.Model.Maths.Matrices
         protected Dictionary<TColumn, int> _columnKeyIndex;
 
 
+        public KeySparseMatrix(IEnumerable<TRow> rows, IEnumerable<TColumn> columns, SparseMatrix matrix)
+            : this(rows, columns)
+        {
+            SetSubMatrix(0, 0, matrix);
+        }
+
         /// <summary>
         /// If <paramref name="rows"/> or <paramref name="columns"/> contains duplicates, a <see cref="SystemException"/> will be raised
         /// </summary>
@@ -70,6 +76,15 @@ namespace GPC.Model.Maths.Matrices
         public bool ContainsKey(TColumn column)
         {
             return _columnKeyIndex.ContainsKey(column);
+        }
+        public TColumn[] GetColumnKeys()
+        {
+            return _columnKeyIndex.Keys.ToArray();
+        }
+
+        public TRow[] GetRowKeys()
+        {
+            return _rowKeyIndex.Keys.ToArray();
         }
     }
 }

@@ -93,11 +93,11 @@
     <Compile Include="FemNew\FemObjects\IFemObjectDuplicable.cs" />
     <Compile Include="FemNew\Collections\AttributesCollection.cs" />
     <Compile Include="FemNew\NodalGlobalDegreeOfFreedom.cs" />
-    <Compile Include="FemNew\StiffnessMatrix\ElementStiffnessMatrix.cs" />
-    <Compile Include="FemNew\StiffnessMatrix\EulerBernulliStifnessMatrix.cs" />
-    <Compile Include="FemNew\StiffnessMatrix\FiniteElementLocalStiffnessMatrix.cs" />
-    <Compile Include="FemNew\StiffnessMatrix\TrussStiffnessMatrix.cs" />
-    <Compile Include="FemNew\TransformationMatrix.cs" />
+    <Compile Include="FemNew\Matrices\ElementStiffnessMatrix.cs" />
+    <Compile Include="FemNew\ElementStiffnessMatrices\EulerBernulliStifnessMatrix.cs" />
+    <Compile Include="FemNew\ElementStiffnessMatrices\FiniteElementLocalStiffnessMatrix.cs" />
+    <Compile Include="FemNew\ElementStiffnessMatrices\TrussStiffnessMatrix.cs" />
+    <Compile Include="FemNew\Matrices\TransformationMatrix.cs" />
     <Compile Include="Maths\Matrices\IKeyMatrixExtensions.cs" />
     <Compile Include="Maths\Matrices\KeyDenseMatrix.cs" />
     <Compile Include="Maths\Matrices\IKeyMatrix.cs" />

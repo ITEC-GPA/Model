@@ -15,6 +15,13 @@ namespace GPC.Model.Maths.Matrices
 
 
 
+        public KeyDenseMatrix(IEnumerable<TRow> rows, IEnumerable<TColumn> columns, DenseMatrix matrix)
+            : this(rows, columns)
+        {
+            SetSubMatrix(0, 0, matrix);
+        }
+
+
         /// <inheritdoc cref="KeySparseMatrix{TRow, TColumn}.KeySparseMatrix(IEnumerable{TRow}, IEnumerable{TColumn})"/>
         public KeyDenseMatrix(IEnumerable<TRow> rows, IEnumerable<TColumn> columns)
             : base(rows.Count(), columns.Count())
@@ -71,6 +78,16 @@ namespace GPC.Model.Maths.Matrices
         public bool ContainsKey(TColumn column)
         {
             return _columnKeyIndex.ContainsKey(column);
+        }
+
+        public TColumn[] GetColumnKeys()
+        {
+            return _columnKeyIndex.Keys.ToArray();
+        }
+
+        public TRow[] GetRowKeys()
+        {
+            return _rowKeyIndex.Keys.ToArray();
         }
     }
 
