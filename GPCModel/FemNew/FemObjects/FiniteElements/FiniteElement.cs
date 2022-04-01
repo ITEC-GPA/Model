@@ -155,7 +155,7 @@ namespace GPC.Model.Fem.FemObjects.FiniteElements
 
         protected abstract CoordinateSystem GetCoordinateSystem();
 
-        private protected abstract ElementStiffnessMatrix GetGlobalStiffnessMatrix();
+        protected internal abstract ElementStiffnessMatrix GetGlobalStiffnessMatrix();
 
         #endregion
 

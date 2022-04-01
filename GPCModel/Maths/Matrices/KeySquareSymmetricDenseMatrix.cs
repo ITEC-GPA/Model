@@ -78,6 +78,12 @@ namespace GPC.Model.Maths.Matrices
             return At(GetIndex(row), GetIndex(row));
         }
 
+        /// <inheritdoc cref="MathNet.Numerics.LinearAlgebra.Matrix{T}.At(int, int)"/>
+        public double GetElementAt(TKey row, TKey column)
+        {
+            return At(GetIndex(row), GetIndex(column));
+        }
+
         public TKey[] GetColumnKeys()
         {
             return _keyIndex.Keys.ToArray();

@@ -37,6 +37,7 @@ namespace GPC.Model.Fem.ElementStiffnessMatrices
         }
 
         protected abstract NodalLocalDegreeOfFreedom[] GetNodalDegreeOfFreedom();
+        public abstract NodalGlobalDegreeOfFreedom[] GetGlobalDegreeOfFreedom(Node[] nodes);
 
         protected abstract ElementStiffnessMatrix GetStiffnessMatrix(FiniteElement element);
 

@@ -12,7 +12,7 @@ using MathNet.Numerics.LinearAlgebra.Double;
 namespace GPC.Model.Fem
 {
 
-    internal class ElementStiffnessMatrix : KeySquareSymmetricDenseMatrix<INodalDegreeOfFreedom>
+    public class ElementStiffnessMatrix : KeySquareSymmetricDenseMatrix<INodalDegreeOfFreedom>
     {
 
 

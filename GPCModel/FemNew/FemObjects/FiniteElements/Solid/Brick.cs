@@ -36,7 +36,7 @@ namespace GPC.Model.Fem.FemObjects.FiniteElements
             throw new NotImplementedException();
         }
 
-        private protected override ElementStiffnessMatrix GetGlobalStiffnessMatrix()
+        protected internal override ElementStiffnessMatrix GetGlobalStiffnessMatrix()
         {
             throw new NotImplementedException();
         }

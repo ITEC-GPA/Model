@@ -60,17 +60,17 @@ namespace GPC.Model.Fem
         #endregion
     }
 
-    public static class NodalLocalDegreeOfFreedomExtensions
-    {
-        public static NodalGlobalDegreeOfFreedom[] ToGlobal(this NodalLocalDegreeOfFreedom[] local)
-        {
-            return local.Select(i => i.ToGlobal()).ToArray();
-        }
+    //public static class NodalLocalDegreeOfFreedomExtensions
+    //{
+    //    public static NodalGlobalDegreeOfFreedom[] ToGlobal(this NodalLocalDegreeOfFreedom[] local)
+    //    {
+    //        return local.Select(i => i.ToGlobal()).ToArray();
+    //    }
 
-        public static NodalGlobalDegreeOfFreedom ToGlobal(this NodalLocalDegreeOfFreedom local)
-        {
-            return new NodalGlobalDegreeOfFreedom(local.Node, local.DegreeOfFreedom.ToGlobal());
-        }
+    //    public static NodalGlobalDegreeOfFreedom ToGlobal(this NodalLocalDegreeOfFreedom local)
+    //    {
+    //        return new NodalGlobalDegreeOfFreedom(local.Node, local.DegreeOfFreedom.ToGlobal());
+    //    }
 
-    }
+    //}
 }

@@ -79,7 +79,7 @@ namespace GPC.Model.Fem.FemObjects.FiniteElements
         }
 
 
-        private protected override ElementStiffnessMatrix GetGlobalStiffnessMatrix()
+        protected internal override ElementStiffnessMatrix GetGlobalStiffnessMatrix()
         {
             EulerBernulliStifnessMatrix eulerBernulliLocalStifnessMatrix = new EulerBernulliStifnessMatrix(this);
 
