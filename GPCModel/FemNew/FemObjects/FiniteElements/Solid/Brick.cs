@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using GPC.Model.Fem.Attributes;
 using GPC.Model.Fem.Properties;
+using GPC.Model.Fem.StiffnessMatrix;
 
 namespace GPC.Model.Fem.FemObjects.FiniteElements
 {
@@ -16,6 +17,7 @@ namespace GPC.Model.Fem.FemObjects.FiniteElements
         public Brick(Node[] nodes)
             : base(nodes)
         {
+
         }
 
         protected Brick(SerializationInfo info, StreamingContext context)
@@ -23,10 +25,6 @@ namespace GPC.Model.Fem.FemObjects.FiniteElements
         {
         }
 
-        internal override NodalDegreeOfFreedom[] GetNodalDegreeOfFreedom()
-        {
-            throw new NotImplementedException();
-        }
 
         public override FiniteElement Duplicate(ElementProperty property, List<LoadCaseAttribute> lcAttributes, List<FreedomCaseAttribute> fcAttributes)
         {
@@ -38,5 +36,9 @@ namespace GPC.Model.Fem.FemObjects.FiniteElements
             throw new NotImplementedException();
         }
 
+        private protected override ElementStiffnessMatrix GetGlobalStiffnessMatrix()
+        {
+            throw new NotImplementedException();
+        }
     }
 }

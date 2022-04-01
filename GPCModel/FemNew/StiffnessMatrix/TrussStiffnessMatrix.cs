@@ -60,17 +60,17 @@ namespace GPC.Model.Fem.StiffnessMatrix
             return matrix;
         }
 
-        internal override NodalDegreeOfFreedom[] GetNodalDegreeOfFreedom()
+        protected override NodalDegreeOfFreedom[] GetNodalDegreeOfFreedom()
         {
 
             NodalDegreeOfFreedom[] nodalDegreeOfFreedoms = new NodalDegreeOfFreedom[6];
-            nodalDegreeOfFreedoms[0] = new NodalDegreeOfFreedom(NodeStart, DegreeOfFreedom.DX);
-            nodalDegreeOfFreedoms[1] = new NodalDegreeOfFreedom(NodeStart, DegreeOfFreedom.DY);
-            nodalDegreeOfFreedoms[2] = new NodalDegreeOfFreedom(NodeStart, DegreeOfFreedom.DZ);
+            nodalDegreeOfFreedoms[0] = new NodalDegreeOfFreedom(NodeStart, LocalDegreeOfFreedom.D1);
+            nodalDegreeOfFreedoms[1] = new NodalDegreeOfFreedom(NodeStart, LocalDegreeOfFreedom.D2);
+            nodalDegreeOfFreedoms[2] = new NodalDegreeOfFreedom(NodeStart, LocalDegreeOfFreedom.D3);
 
-            nodalDegreeOfFreedoms[3] = new NodalDegreeOfFreedom(NodeEnd, DegreeOfFreedom.DX);
-            nodalDegreeOfFreedoms[4] = new NodalDegreeOfFreedom(NodeEnd, DegreeOfFreedom.DY);
-            nodalDegreeOfFreedoms[5] = new NodalDegreeOfFreedom(NodeEnd, DegreeOfFreedom.DZ);
+            nodalDegreeOfFreedoms[3] = new NodalDegreeOfFreedom(NodeEnd, LocalDegreeOfFreedom.D1);
+            nodalDegreeOfFreedoms[4] = new NodalDegreeOfFreedom(NodeEnd, LocalDegreeOfFreedom.D2);
+            nodalDegreeOfFreedoms[5] = new NodalDegreeOfFreedom(NodeEnd, LocalDegreeOfFreedom.D3);
 
 
             return nodalDegreeOfFreedoms;

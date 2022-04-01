@@ -19,21 +19,27 @@ namespace GPC.Model.Fem.StiffnessMatrix
 
         private readonly ElementStiffnessMatrix _localStiffnessMatrix;
 
+        protected NodalDegreeOfFreedom[] _nodalDegreeOfFreedoms;
+
 
         public ElementStiffnessMatrix LocalStiffnessMatrix => _localStiffnessMatrix;
+
+        public NodalDegreeOfFreedom[] NodalDegreeOfFreedom => _nodalDegreeOfFreedoms;
+
 
         public FiniteElementLocalStiffnessMatrix(Node[] localNodes, EulerBeam beam)
         {
             _localNodes = localNodes;
 
             _localStiffnessMatrix = GetStiffnessMatrix(beam);
+
+            _nodalDegreeOfFreedoms = GetNodalDegreeOfFreedom();
         }
 
-        internal abstract NodalDegreeOfFreedom[] GetNodalDegreeOfFreedom();
+        protected abstract NodalDegreeOfFreedom[] GetNodalDegreeOfFreedom();
 
         protected abstract ElementStiffnessMatrix GetStiffnessMatrix(FiniteElement element);
 
 
     }
-
 }

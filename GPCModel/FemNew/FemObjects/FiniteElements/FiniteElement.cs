@@ -7,6 +7,7 @@ using GPC.Geometry;
 using GPC.Model.Fem.Attributes;
 using GPC.Model.Fem.Collections;
 using GPC.Model.Fem.Properties;
+using GPC.Model.Fem.StiffnessMatrix;
 using GPC.Model.Results;
 
 namespace GPC.Model.Fem.FemObjects.FiniteElements
@@ -20,7 +21,7 @@ namespace GPC.Model.Fem.FemObjects.FiniteElements
         #region Variables
 
         // Local axis of the element
-        protected CoordinateSystem _localCoordinateSystem;
+        protected CoordinateSystem _coordinateSystem;
 
 
         protected AttributesCollection<LoadCaseAttribute> _attributesLoadCase;
@@ -31,7 +32,6 @@ namespace GPC.Model.Fem.FemObjects.FiniteElements
         //contains the nodes in global coordinates
         protected Node[] _nodes;
 
-        protected NodalDegreeOfFreedom[] _nodalDegreeOfFreedoms;
 
 
         //protected readonly ModelObjectSet<FiniteElementResult> _results;
@@ -45,7 +45,7 @@ namespace GPC.Model.Fem.FemObjects.FiniteElements
         /// <summary>
         /// Element local axis
         /// </summary>
-        public CoordinateSystem LocalCoordinateSystem => _localCoordinateSystem;
+        public CoordinateSystem CoordinateSystem => _coordinateSystem;
 
 
         public ElementProperty Property => _property;
@@ -75,14 +75,13 @@ namespace GPC.Model.Fem.FemObjects.FiniteElements
                 throw new ArgumentNullException(nameof(nodes));
 
 
-            _nodalDegreeOfFreedoms = GetNodalDegreeOfFreedom();
-            _localCoordinateSystem = GetCoordinateSystem();
+            _coordinateSystem = GetCoordinateSystem();
 
-            if (_nodalDegreeOfFreedoms == null)
-                throw new ArgumentNullException(nameof(_nodalDegreeOfFreedoms));
+            //if (_nodalDegreeOfFreedoms == null)
+            //    throw new ArgumentNullException(nameof(_nodalDegreeOfFreedoms));
 
-            if (_nodalDegreeOfFreedoms.Where(i => i == null).Count() > 0)
-                throw new ArgumentNullException(nameof(_nodalDegreeOfFreedoms));
+            //if (_nodalDegreeOfFreedoms.Where(i => i == null).Count() > 0)
+            //    throw new ArgumentNullException(nameof(_nodalDegreeOfFreedoms));
             
 
             _attributesLoadCase = new AttributesCollection<LoadCaseAttribute>();
@@ -154,9 +153,9 @@ namespace GPC.Model.Fem.FemObjects.FiniteElements
 
         public abstract FiniteElement Duplicate();
 
-        internal abstract NodalDegreeOfFreedom[] GetNodalDegreeOfFreedom();
-
         protected abstract CoordinateSystem GetCoordinateSystem();
+
+        private protected abstract ElementStiffnessMatrix GetGlobalStiffnessMatrix();
 
         #endregion
 

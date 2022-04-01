@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using GPC.Model.Fem.Attributes;
 using GPC.Model.Fem.Properties;
+using GPC.Model.Fem.StiffnessMatrix;
 
 namespace GPC.Model.Fem.FemObjects.FiniteElements
 {
@@ -24,30 +25,6 @@ namespace GPC.Model.Fem.FemObjects.FiniteElements
 
         }
 
-
-        internal override NodalDegreeOfFreedom[] GetNodalDegreeOfFreedom()
-        {
-            NodalDegreeOfFreedom[] nodalDegreeOfFreedoms = new NodalDegreeOfFreedom[12];
-            nodalDegreeOfFreedoms[0] = new NodalDegreeOfFreedom(NodeStart, DegreeOfFreedom.DX);
-            nodalDegreeOfFreedoms[1] = new NodalDegreeOfFreedom(NodeStart, DegreeOfFreedom.DY);
-            nodalDegreeOfFreedoms[2] = new NodalDegreeOfFreedom(NodeStart, DegreeOfFreedom.DZ);
-            nodalDegreeOfFreedoms[3] = new NodalDegreeOfFreedom(NodeStart, DegreeOfFreedom.RX);
-            nodalDegreeOfFreedoms[4] = new NodalDegreeOfFreedom(NodeStart, DegreeOfFreedom.RY);
-            nodalDegreeOfFreedoms[5] = new NodalDegreeOfFreedom(NodeStart, DegreeOfFreedom.RZ);
-
-            nodalDegreeOfFreedoms[6] = new NodalDegreeOfFreedom(NodeEnd, DegreeOfFreedom.DX);
-            nodalDegreeOfFreedoms[7] = new NodalDegreeOfFreedom(NodeEnd, DegreeOfFreedom.DY);
-            nodalDegreeOfFreedoms[8] = new NodalDegreeOfFreedom(NodeEnd, DegreeOfFreedom.DZ);
-            nodalDegreeOfFreedoms[9] = new NodalDegreeOfFreedom(NodeEnd, DegreeOfFreedom.RX);
-            nodalDegreeOfFreedoms[10] = new NodalDegreeOfFreedom(NodeEnd, DegreeOfFreedom.RY);
-            nodalDegreeOfFreedoms[11] = new NodalDegreeOfFreedom(NodeEnd, DegreeOfFreedom.RZ);
-
-
-            return nodalDegreeOfFreedoms;
-        }
-
-
-
         public override FiniteElement Duplicate(ElementProperty property, List<LoadCaseAttribute> lcAttributes, List<FreedomCaseAttribute> fcAttributes)
         {
             throw new NotImplementedException();
@@ -58,11 +35,11 @@ namespace GPC.Model.Fem.FemObjects.FiniteElements
             throw new NotImplementedException();
         }
 
-        public override TransformationMatrix GetTransformationMatrix()
+        public override TransformationMatrix GetTransformationMatrix(NodalDegreeOfFreedom[] nodalDegreeOfFreedoms)
         {
-            TransformationMatrix matrix = new TransformationMatrix(GetNodalDegreeOfFreedom());
+            TransformationMatrix matrix = new TransformationMatrix(nodalDegreeOfFreedoms);
 
-            var submatrix = _localCoordinateSystem.TrfMatrix.RemoveColumn(3);
+            var submatrix = _coordinateSystem.TrfMatrix.RemoveColumn(3);
 
             matrix.SetSubMatrix(0, 0, submatrix);
             matrix.SetSubMatrix(3, 3, submatrix);
@@ -71,5 +48,22 @@ namespace GPC.Model.Fem.FemObjects.FiniteElements
 
             return matrix;
         }
+
+
+        private protected override ElementStiffnessMatrix GetGlobalStiffnessMatrix()
+        {
+            EulerBernulliStifnessMatrix eulerBernulliLocalStifnessMatrix = new EulerBernulliStifnessMatrix(this);
+
+
+            ElementStiffnessMatrix localStiffnessMatrix = eulerBernulliLocalStifnessMatrix.LocalStiffnessMatrix;
+            NodalDegreeOfFreedom[] nodalDegreeOfFreedom = eulerBernulliLocalStifnessMatrix.NodalDegreeOfFreedom;
+            TransformationMatrix transformationMatrix = GetTransformationMatrix(nodalDegreeOfFreedom);
+
+
+
+
+            throw new NotImplementedException();
+        }
+
     }
 }

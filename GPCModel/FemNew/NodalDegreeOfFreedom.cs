@@ -7,14 +7,15 @@ using GPC.Model.Fem.FemObjects;
 
 namespace GPC.Model.Fem
 {
+
     public struct NodalDegreeOfFreedom : IEquatable<NodalDegreeOfFreedom>
     {
-        public DegreeOfFreedom DegreeOfFreedom { get; }
+        public LocalDegreeOfFreedom DegreeOfFreedom { get; }
 
         public Node Node { get; }
 
 
-        public NodalDegreeOfFreedom(Node node, DegreeOfFreedom degreeOfFreedom)
+        public NodalDegreeOfFreedom(Node node, LocalDegreeOfFreedom degreeOfFreedom)
         {
             DegreeOfFreedom = degreeOfFreedom;
             Node = node ?? throw new ArgumentNullException(nameof(node));
