@@ -118,25 +118,32 @@ namespace GPC.Model.Fem.ElementStiffnessMatrices
 
         public override NodalGlobalDegreeOfFreedom[] GetGlobalDegreeOfFreedom(Node[] nodes)
         {
+            return GetGlobalDegreeOfFreedom(nodes[0], nodes.Last());
+        }
+
+        public NodalGlobalDegreeOfFreedom[] GetGlobalDegreeOfFreedom(Node nodeStart, Node NodeEnd)
+        {
             NodalGlobalDegreeOfFreedom[] nodalDegreeOfFreedoms = new NodalGlobalDegreeOfFreedom[12];
 
-            nodalDegreeOfFreedoms[0] = new NodalGlobalDegreeOfFreedom(nodes[0], DegreeOfFreedoms.GlobalDegreeOfFreedoms.DX);
-            nodalDegreeOfFreedoms[1] = new NodalGlobalDegreeOfFreedom(nodes[0], DegreeOfFreedoms.GlobalDegreeOfFreedoms.DY);
-            nodalDegreeOfFreedoms[2] = new NodalGlobalDegreeOfFreedom(nodes[0], DegreeOfFreedoms.GlobalDegreeOfFreedoms.DZ);
-            nodalDegreeOfFreedoms[3] = new NodalGlobalDegreeOfFreedom(nodes[0], DegreeOfFreedoms.GlobalDegreeOfFreedoms.RX);
-            nodalDegreeOfFreedoms[4] = new NodalGlobalDegreeOfFreedom(nodes[0], DegreeOfFreedoms.GlobalDegreeOfFreedoms.RY);
-            nodalDegreeOfFreedoms[5] = new NodalGlobalDegreeOfFreedom(nodes[0], DegreeOfFreedoms.GlobalDegreeOfFreedoms.RZ);
+            nodalDegreeOfFreedoms[0] = new NodalGlobalDegreeOfFreedom(nodeStart, DegreeOfFreedoms.GlobalDegreeOfFreedoms.DX);
+            nodalDegreeOfFreedoms[1] = new NodalGlobalDegreeOfFreedom(nodeStart, DegreeOfFreedoms.GlobalDegreeOfFreedoms.DY);
+            nodalDegreeOfFreedoms[2] = new NodalGlobalDegreeOfFreedom(nodeStart, DegreeOfFreedoms.GlobalDegreeOfFreedoms.DZ);
+            nodalDegreeOfFreedoms[3] = new NodalGlobalDegreeOfFreedom(nodeStart, DegreeOfFreedoms.GlobalDegreeOfFreedoms.RX);
+            nodalDegreeOfFreedoms[4] = new NodalGlobalDegreeOfFreedom(nodeStart, DegreeOfFreedoms.GlobalDegreeOfFreedoms.RY);
+            nodalDegreeOfFreedoms[5] = new NodalGlobalDegreeOfFreedom(nodeStart, DegreeOfFreedoms.GlobalDegreeOfFreedoms.RZ);
 
-            nodalDegreeOfFreedoms[6] = new NodalGlobalDegreeOfFreedom(nodes.Last(), DegreeOfFreedoms.GlobalDegreeOfFreedoms.DX);
-            nodalDegreeOfFreedoms[7] = new NodalGlobalDegreeOfFreedom(nodes.Last(), DegreeOfFreedoms.GlobalDegreeOfFreedoms.DY);
-            nodalDegreeOfFreedoms[8] = new NodalGlobalDegreeOfFreedom(nodes.Last(), DegreeOfFreedoms.GlobalDegreeOfFreedoms.DZ);
-            nodalDegreeOfFreedoms[9] = new NodalGlobalDegreeOfFreedom(nodes.Last(), DegreeOfFreedoms.GlobalDegreeOfFreedoms.RX);
-            nodalDegreeOfFreedoms[10] = new NodalGlobalDegreeOfFreedom(nodes.Last(), DegreeOfFreedoms.GlobalDegreeOfFreedoms.RY);
-            nodalDegreeOfFreedoms[11] = new NodalGlobalDegreeOfFreedom(nodes.Last(), DegreeOfFreedoms.GlobalDegreeOfFreedoms.RZ);
+            nodalDegreeOfFreedoms[6] = new NodalGlobalDegreeOfFreedom(NodeEnd, DegreeOfFreedoms.GlobalDegreeOfFreedoms.DX);
+            nodalDegreeOfFreedoms[7] = new NodalGlobalDegreeOfFreedom(NodeEnd, DegreeOfFreedoms.GlobalDegreeOfFreedoms.DY);
+            nodalDegreeOfFreedoms[8] = new NodalGlobalDegreeOfFreedom(NodeEnd, DegreeOfFreedoms.GlobalDegreeOfFreedoms.DZ);
+            nodalDegreeOfFreedoms[9] = new NodalGlobalDegreeOfFreedom(NodeEnd, DegreeOfFreedoms.GlobalDegreeOfFreedoms.RX);
+            nodalDegreeOfFreedoms[10] = new NodalGlobalDegreeOfFreedom(NodeEnd, DegreeOfFreedoms.GlobalDegreeOfFreedoms.RY);
+            nodalDegreeOfFreedoms[11] = new NodalGlobalDegreeOfFreedom(NodeEnd, DegreeOfFreedoms.GlobalDegreeOfFreedoms.RZ);
 
 
             return nodalDegreeOfFreedoms;
         }
+
+
     }
 
 }

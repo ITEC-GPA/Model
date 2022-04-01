@@ -83,7 +83,7 @@ namespace GPC.Model.Fem.FemObjects.FiniteElements
         {
             EulerBernulliStifnessMatrix eulerBernulliLocalStifnessMatrix = new EulerBernulliStifnessMatrix(this);
 
-            NodalGlobalDegreeOfFreedom[] nodalGlobalDegreeOfFreedom = eulerBernulliLocalStifnessMatrix.NodalDegreeOfFreedom.ToGlobal();
+            NodalGlobalDegreeOfFreedom[] nodalGlobalDegreeOfFreedom = eulerBernulliLocalStifnessMatrix.GetGlobalDegreeOfFreedom(NodeStart, NodeEnd);
 
             ElementStiffnessMatrix globalStiffnessMatrix = new ElementStiffnessMatrix(nodalGlobalDegreeOfFreedom, eulerBernulliLocalStifnessMatrix.LocalStiffnessMatrix);
 

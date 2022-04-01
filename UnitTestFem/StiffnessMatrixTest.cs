@@ -33,14 +33,51 @@ namespace UnitTestFem
 
             Assert.IsTrue(matrix.IsSymmetric());
 
+            // FX
             Assert.AreEqual(7000000, matrix[0, 0]);
             Assert.AreEqual(7000000, matrix.GetElementAt(new NodalGlobalDegreeOfFreedom(node1, DegreeOfFreedoms.GlobalDegreeOfFreedoms.DX)));
             Assert.AreEqual(-7000000, matrix[0, 6]);
             Assert.AreEqual(-7000000, matrix.GetElementAt(new NodalGlobalDegreeOfFreedom(node1, DegreeOfFreedoms.GlobalDegreeOfFreedoms.DX), 
                 new NodalGlobalDegreeOfFreedom(node2, DegreeOfFreedoms.GlobalDegreeOfFreedoms.DX)));
 
+            // FY
+            double tol = 0.01;
+            Assert.AreEqual(777777.7778, matrix[1, 1], tol);
+            Assert.AreEqual(777777.7778, matrix.GetElementAt(new NodalGlobalDegreeOfFreedom(node1, DegreeOfFreedoms.GlobalDegreeOfFreedoms.DY)), tol);
+
+            Assert.AreEqual(583333333.334, matrix.GetElementAt(new NodalGlobalDegreeOfFreedom(node1, DegreeOfFreedoms.GlobalDegreeOfFreedoms.DY),
+                new NodalGlobalDegreeOfFreedom(node2, DegreeOfFreedoms.GlobalDegreeOfFreedoms.RZ)), tol);
+
+            Assert.AreEqual(-777777.7778, matrix.GetElementAt(new NodalGlobalDegreeOfFreedom(node1, DegreeOfFreedoms.GlobalDegreeOfFreedoms.DY),
+                new NodalGlobalDegreeOfFreedom(node2, DegreeOfFreedoms.GlobalDegreeOfFreedoms.DY)), tol);
+
+            Assert.AreEqual(583333333.334, matrix.GetElementAt(new NodalGlobalDegreeOfFreedom(node1, DegreeOfFreedoms.GlobalDegreeOfFreedoms.DY),
+                new NodalGlobalDegreeOfFreedom(node2, DegreeOfFreedoms.GlobalDegreeOfFreedoms.RZ)), tol);
 
 
+            // FZ
+            Assert.AreEqual(31111.1111, matrix[2, 2], tol);
+            Assert.AreEqual(31111.1111, matrix.GetElementAt(new NodalGlobalDegreeOfFreedom(node1, DegreeOfFreedoms.GlobalDegreeOfFreedoms.DZ)), tol);
+
+            Assert.AreEqual(-23333333.33, matrix.GetElementAt(new NodalGlobalDegreeOfFreedom(node1, DegreeOfFreedoms.GlobalDegreeOfFreedoms.DZ),
+                new NodalGlobalDegreeOfFreedom(node2, DegreeOfFreedoms.GlobalDegreeOfFreedoms.RY)), tol);
+
+            Assert.AreEqual(-31111.1111, matrix.GetElementAt(new NodalGlobalDegreeOfFreedom(node1, DegreeOfFreedoms.GlobalDegreeOfFreedoms.DZ),
+                new NodalGlobalDegreeOfFreedom(node2, DegreeOfFreedoms.GlobalDegreeOfFreedoms.DZ)), tol);
+
+            Assert.AreEqual(-23333333.33, matrix.GetElementAt(new NodalGlobalDegreeOfFreedom(node1, DegreeOfFreedoms.GlobalDegreeOfFreedoms.DZ),
+                new NodalGlobalDegreeOfFreedom(node2, DegreeOfFreedoms.GlobalDegreeOfFreedoms.RY)), tol);
+
+
+            // MX
+            Assert.AreEqual(137222208.7198, matrix[3, 3]);
+            Assert.AreEqual(137222208.7198, matrix.GetElementAt(new NodalGlobalDegreeOfFreedom(node1, DegreeOfFreedoms.GlobalDegreeOfFreedoms.RX)));
+            Assert.AreEqual(-137222208.7198, matrix[0, 6]);
+            Assert.AreEqual(-137222208.7198, matrix.GetElementAt(new NodalGlobalDegreeOfFreedom(node1, DegreeOfFreedoms.GlobalDegreeOfFreedoms.RX),
+                new NodalGlobalDegreeOfFreedom(node2, DegreeOfFreedoms.GlobalDegreeOfFreedoms.RX)));
+
+
+            // Non c'è coerenza fra assi locali beam e chiavi dentro la matrice, ma riordinata la matrice i l'arrai di dof
         }
     }
 }

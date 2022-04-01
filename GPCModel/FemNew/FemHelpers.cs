@@ -30,7 +30,9 @@ namespace GPC.Model.Fem
                 v2 = Vector3d.ZAxis ^ v3;
             }
 
-            var coordinateSystem = new CoordinateSystem(pointStart, v3, v2);
+            Vector3d v1 = v2 ^ v3;
+
+            var coordinateSystem = new CoordinateSystem(pointStart, v1, v2, v3);
             coordinateSystem.RotateV3(angle);
 
             return coordinateSystem;

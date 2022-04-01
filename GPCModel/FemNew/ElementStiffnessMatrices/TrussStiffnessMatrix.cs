@@ -77,5 +77,27 @@ namespace GPC.Model.Fem.ElementStiffnessMatrices
 
             return nodalDegreeOfFreedoms;
         }
+
+
+        public override NodalGlobalDegreeOfFreedom[] GetGlobalDegreeOfFreedom(Node[] nodes)
+        {
+            return GetGlobalDegreeOfFreedom(nodes[0], nodes.Last());
+        }
+
+
+        public NodalGlobalDegreeOfFreedom[] GetGlobalDegreeOfFreedom(Node nodeStart, Node nodeEnd)
+        {
+            NodalGlobalDegreeOfFreedom[] nodalDegreeOfFreedoms = new NodalGlobalDegreeOfFreedom[6];
+
+            nodalDegreeOfFreedoms[0] = new NodalGlobalDegreeOfFreedom(nodeStart, DegreeOfFreedoms.GlobalDegreeOfFreedoms.DX);
+            nodalDegreeOfFreedoms[1] = new NodalGlobalDegreeOfFreedom(nodeStart, DegreeOfFreedoms.GlobalDegreeOfFreedoms.DY);
+            nodalDegreeOfFreedoms[2] = new NodalGlobalDegreeOfFreedom(nodeStart, DegreeOfFreedoms.GlobalDegreeOfFreedoms.DZ);
+            nodalDegreeOfFreedoms[6] = new NodalGlobalDegreeOfFreedom(nodeEnd, DegreeOfFreedoms.GlobalDegreeOfFreedoms.DX);
+            nodalDegreeOfFreedoms[7] = new NodalGlobalDegreeOfFreedom(nodeEnd, DegreeOfFreedoms.GlobalDegreeOfFreedoms.DY);
+            nodalDegreeOfFreedoms[8] = new NodalGlobalDegreeOfFreedom(nodeEnd, DegreeOfFreedoms.GlobalDegreeOfFreedoms.DZ);
+
+
+            return nodalDegreeOfFreedoms;
+        }
     }
 }
