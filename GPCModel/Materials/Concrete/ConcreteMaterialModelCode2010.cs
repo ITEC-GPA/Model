@@ -254,7 +254,6 @@ namespace GPC.Model.Materials
 		{
             if (_concreteType == ConcreteTypes.FRC)
             {
-
                 SetMechanicalProperties(_fck, _fctk, _fctu, _strainYTension, _strainUTension,
                     _compressionStressStrainDiagrams, _tensionStressStrainDiagrams);
 

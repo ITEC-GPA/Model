@@ -337,7 +337,7 @@ namespace GPC.Model.Materials
 
         public double CalculateUltimateDesignStrainRebar(Standards.StandardModelCode2010 standard)
         {
-            if (SteelType == SteelTypes.Rebar)
+            if (SteelType == SteelTypes.Rebar || SteelType == SteelTypes.Tendon || SteelType == SteelTypes.Bars)
                 return StrainU * standard.SteelCoefficientStrainTension;
             else
                 throw new Exception();
@@ -345,23 +345,22 @@ namespace GPC.Model.Materials
 
         public double CalculateDesignYieldingStressRebar(Standards.StandardModelCode2010 standard)
         {
-            if (SteelType == SteelTypes.Rebar)
+            if (SteelType == SteelTypes.Rebar || SteelType == SteelTypes.Bars)
                 return Fyk / standard.GammaS;
+            else if (SteelType == SteelTypes.Tendon)
+                return Fyk / standard.GammaSPrestress;
             else
                 throw new Exception();
         }
 
         public double CalculateDesignYieldingStrainRebar(Standards.StandardModelCode2010 standard)
         {
-            if (SteelType == SteelTypes.Rebar)
-                return CalculateDesignYieldingStressRebar(standard) / E;            
-            else
-                throw new Exception();
+            return CalculateDesignYieldingStressRebar(standard) / E;   
         }
 
         public double CalculateDesignUltimateStrainRebar(Standards.StandardModelCode2010 standard)
         {
-            if (SteelType == SteelTypes.Rebar)
+            if (SteelType == SteelTypes.Rebar || SteelType == SteelTypes.Bars || SteelType == SteelTypes.Tendon)
                 return StrainU * standard.SteelCoefficientStrainTension;
             else
                 throw new Exception();
@@ -397,34 +396,22 @@ namespace GPC.Model.Materials
 
         public double CalculateUltimateDesignStrainRebar(Standards.StandardACI318 standard)
         {
-            if (SteelType == SteelTypes.Rebar)
-                return StrainU;
-            else
-                throw new Exception();
+            return StrainU;
         }
 
-        public double CalculateDesignYieldingStressRebar(Standards.StandardACI318 standard)
+        public double CalculateDesignYieldingStress(Standards.StandardACI318 standard)
         {
-            if (SteelType == SteelTypes.Rebar)
-                return Fyk;
-            else
-                throw new Exception();
+            return Fyk;
         }
 
         public double CalculateDesignYieldingStrainRebar(Standards.StandardACI318 standard)
         {
-            if (SteelType == SteelTypes.Rebar)
-                return CalculateDesignYieldingStressRebar(standard) / E;
-            else
-                throw new Exception();
+            return CalculateDesignYieldingStress(standard) / E;
         }
 
         public double CalculateDesignUltimateStrainRebar(Standards.StandardACI318 standard)
         {
-            if (SteelType == SteelTypes.Rebar)
-                return StrainU;
-            else
-                throw new Exception();
+            return StrainU;
         }
 
         /// <returns>The design rebar stress related to <paramref name="strain"/></returns>
