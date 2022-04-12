@@ -159,6 +159,21 @@ namespace GPC.Model.Materials
                 return -1;
         }
 
+        public override double CalculateFctd(Standards.Standard standard)
+        {
+            if (standard is Standards.StandardModelCode2010 standardModelCode2010)
+            {
+                if (_concreteType == ConcreteTypes.Normal)
+                    return standardModelCode2010.AlphaCT * Fctk05 / standardModelCode2010.GammaC;
+                else if (_concreteType == ConcreteTypes.FRC)
+                    return standardModelCode2010.AlphaCT * Fctk05 / standardModelCode2010.GammaF;
+                else
+                    return 0;
+            }
+            else
+                throw new ArgumentException();
+        }
+
         #endregion
 
         #region Public Method
